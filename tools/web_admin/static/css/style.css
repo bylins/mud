@@ -269,8 +269,7 @@ tr:last-child td {
 input[type="text"],
 input[type="number"],
 input[type="password"],
-textarea,
-select {
+textarea {
     font-family: 'Inter', sans-serif;
     font-size: 14px;
     padding: 10px 12px;
@@ -284,15 +283,35 @@ select {
     line-height: 1.5;
 }
 
-/* Select: match exact height of text inputs */
+/* Select: dedicated rule with matching visual appearance to text inputs.
+   Text inputs have `padding: 10px 12px`, so left padding is 12px.
+   Right padding leaves room for the dropdown arrow icon. */
 select {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
     height: 42px;
-    padding: 0 16px 0 14px !important; /* More space for text and dropdown arrow */
+    padding: 0 36px 0 12px !important;
+    border: 2px solid rgba(120, 53, 15, 0.15);
+    border-radius: 6px;
+    background-color: #fdf6e3;
+    color: #2d241e;
+    transition: all 0.15s ease;
+    width: 100%;
+    box-sizing: border-box;
+    line-height: 1.5;
+    cursor: pointer;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235a4d3f' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    background-size: 12px;
 }
 
 /* Textarea: generous padding for multi-line content */
 textarea {
-    padding: 14px 16px !important; /* Prevent text from sticking to edges */
+    padding: 14px 12px !important; /* Left 12px = match text input */
     line-height: 1.6;
 }
 
@@ -670,15 +689,8 @@ button:not(.btn-primary):not(.btn-secondary):not(.section-toggle):active {
    17. ZONE FILTER (select dropdowns in list pages)
    ============================================================ */
 .zone-filter select {
-    font-family: 'Inter', sans-serif;
-    font-size: 14px;
-    padding: 8px 12px;
-    border: 2px solid rgba(120, 53, 15, 0.15);
-    border-radius: 6px;
-    background-color: #fdf6e3;
-    color: #2d241e;
-    transition: all 0.15s ease;
-    cursor: pointer;
+    height: 38px;
+    padding: 0 32px 0 12px;
     min-width: 100px;
     width: auto;
 }

@@ -14,7 +14,11 @@
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #d4c49a;">
                 <polyline points="9 18 15 12 9 6"/>
             </svg>
-            <span class="text-ink-light">Редактирование #{{ obj.vnum }}</span>
+            <a href="{{ url_for('object_detail', vnum=obj.vnum) }}">Объект #{{ obj.vnum }}</a>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #d4c49a;">
+                <polyline points="9 18 15 12 9 6"/>
+            </svg>
+            <span class="text-ink-light">Редактирование</span>
         </div>
     </div>
 </div>
@@ -52,345 +56,553 @@
         </div>
     </div>
 
-    <form id="object-form" method="POST">
+    <form id="object-form" novalidate>
 
-        <!-- Names Section -->
-        <div class="parchment-section">
-            <div class="parchment-section-title">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                </svg>
-                Имена (Names)
-            </div>
+    <!-- ===== SECTION 1: Names (Имена и падежи) ===== -->
+    <div class="parchment-section">
+        <div class="parchment-section-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+            </svg>
+            Имена и падежи
+        </div>
 
-            <div class="form-grid form-grid-1">
-                <div class="form-field">
-                    <label for="aliases" class="form-label">Aliases (ключевые слова)</label>
-                    <input type="text" id="aliases" name="aliases" class="form-input" value="{{ obj.aliases if obj.aliases else '' }}">
-                    <div class="form-help">Список имен для идентификации объекта в командах</div>
-                </div>
-            </div>
-
-            <div class="form-grid form-grid-2">
-                <div class="form-field">
-                    <label for="nominative" class="form-label">Именительный (кто? что?)</label>
-                    <input type="text" id="nominative" name="names.nominative" class="form-input" value="{{ obj.names.nominative if obj.names else '' }}">
-                </div>
-
-                <div class="form-field">
-                    <label for="genitive" class="form-label">Родительный (кого? чего?)</label>
-                    <input type="text" id="genitive" name="names.genitive" class="form-input" value="{{ obj.names.genitive if obj.names else '' }}">
-                </div>
-
-                <div class="form-field">
-                    <label for="dative" class="form-label">Дательный (кому? чему?)</label>
-                    <input type="text" id="dative" name="names.dative" class="form-input" value="{{ obj.names.dative if obj.names else '' }}">
-                </div>
-
-                <div class="form-field">
-                    <label for="accusative" class="form-label">Винительный (кого? что?)</label>
-                    <input type="text" id="accusative" name="names.accusative" class="form-input" value="{{ obj.names.accusative if obj.names else '' }}">
-                </div>
-
-                <div class="form-field">
-                    <label for="instrumental" class="form-label">Творительный (кем? чем?)</label>
-                    <input type="text" id="instrumental" name="names.instrumental" class="form-input" value="{{ obj.names.instrumental if obj.names else '' }}">
-                </div>
-
-                <div class="form-field">
-                    <label for="prepositional" class="form-label">Предложный (о ком? о чём?)</label>
-                    <input type="text" id="prepositional" name="names.prepositional" class="form-input" value="{{ obj.names.prepositional if obj.names else '' }}">
-                </div>
+        <div class="form-row" style="margin-bottom: 16px;">
+            <div class="field-group" style="grid-column: 1 / -1;">
+                <label for="aliases">Ключевые слова (aliases)</label>
+                <input type="text" id="aliases" name="aliases" value="{{ obj.aliases if obj.aliases else '' }}"
+                       placeholder="меч клинок sword">
             </div>
         </div>
 
-        <!-- Descriptions Section -->
-        <div class="parchment-section">
-            <div class="parchment-section-title">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                    <polyline points="14 2 14 8 20 8"/>
-                </svg>
-                Описания (Descriptions)
+        <div class="form-row form-row-3">
+            <div class="field-group">
+                <label for="nominative">Именительный (кто? что?)</label>
+                <input type="text" id="nominative" name="names.nominative"
+                       value="{{ obj.names.nominative if obj.names else '' }}">
             </div>
+            <div class="field-group">
+                <label for="genitive">Родительный (кого? чего?)</label>
+                <input type="text" id="genitive" name="names.genitive"
+                       value="{{ obj.names.genitive if obj.names else '' }}">
+            </div>
+            <div class="field-group">
+                <label for="dative">Дательный (кому? чему?)</label>
+                <input type="text" id="dative" name="names.dative"
+                       value="{{ obj.names.dative if obj.names else '' }}">
+            </div>
+            <div class="field-group">
+                <label for="accusative">Винительный (кого? что?)</label>
+                <input type="text" id="accusative" name="names.accusative"
+                       value="{{ obj.names.accusative if obj.names else '' }}">
+            </div>
+            <div class="field-group">
+                <label for="instrumental">Творительный (кем? чем?)</label>
+                <input type="text" id="instrumental" name="names.instrumental"
+                       value="{{ obj.names.instrumental if obj.names else '' }}">
+            </div>
+            <div class="field-group">
+                <label for="prepositional">Предложный (о ком? о чём?)</label>
+                <input type="text" id="prepositional" name="names.prepositional"
+                       value="{{ obj.names.prepositional if obj.names else '' }}">
+            </div>
+        </div>
+    </div>
 
-            <div class="form-grid form-grid-1">
-                <div class="form-field">
-                    <label for="short_desc" class="form-label">Short Description</label>
-                    <textarea id="short_desc" name="short_desc" class="form-input" rows="2">{{ obj.short_desc if obj.short_desc else '' }}</textarea>
-                    <div class="form-help">Короткое описание (в инвентаре, в комнате)</div>
-                </div>
+    <!-- ===== SECTION 2: Descriptions ===== -->
+    <div class="parchment-section">
+        <div class="parchment-section-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+            </svg>
+            Описания
+        </div>
 
-                <div class="form-field">
-                    <label for="description" class="form-label">Description</label>
-                    <textarea id="description" name="description" class="form-input" rows="4">{{ obj.description if obj.description else '' }}</textarea>
-                    <div class="form-help">Полное описание при осмотре</div>
-                </div>
-
-                <div class="form-field">
-                    <label for="action_desc" class="form-label">Action Description</label>
-                    <textarea id="action_desc" name="action_desc" class="form-input" rows="2">{{ obj.action_desc if obj.action_desc else '' }}</textarea>
-                    <div class="form-help">Описание действия (при экипировке)</div>
-                </div>
+        <div class="form-row" style="margin-bottom: 16px;">
+            <div class="field-group">
+                <label for="short_desc">Короткое описание (short description)</label>
+                <textarea id="short_desc" name="short_desc" rows="2"
+                          placeholder="Как предмет выглядит в инвентаре и комнате"
+                          style="resize: vertical; min-height: 60px;">{{ obj.short_desc if obj.short_desc else '' }}</textarea>
             </div>
         </div>
 
-        <!-- Stats Section -->
-        <div class="parchment-section">
-            <div class="parchment-section-title">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="12" y1="1" x2="12" y2="23"/>
-                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-                </svg>
-                Характеристики (Stats)
-            </div>
-
-            <div class="form-grid form-grid-3">
-                <div class="form-field">
-                    <label for="type" class="form-label">Type (тип предмета)</label>
-                    <input type="number" id="type" name="type" class="form-input" value="{{ obj.type if obj.type is defined else 1 }}">
-                </div>
-
-                <div class="form-field">
-                    <label for="weight" class="form-label">Weight (вес)</label>
-                    <input type="number" id="weight" name="weight" class="form-input" value="{{ obj.weight if obj.weight is defined else 1 }}">
-                </div>
-
-                <div class="form-field">
-                    <label for="cost" class="form-label">Cost (цена)</label>
-                    <input type="number" id="cost" name="cost" class="form-input" value="{{ obj.cost if obj.cost is defined else 0 }}">
-                </div>
-
-                <div class="form-field">
-                    <label for="rent_on" class="form-label">Rent On</label>
-                    <input type="number" id="rent_on" name="rent_on" class="form-input" value="{{ obj.rent_on if obj.rent_on is defined else 0 }}">
-                </div>
-
-                <div class="form-field">
-                    <label for="rent_off" class="form-label">Rent Off</label>
-                    <input type="number" id="rent_off" name="rent_off" class="form-input" value="{{ obj.rent_off if obj.rent_off is defined else 0 }}">
-                </div>
-
-                <div class="form-field">
-                    <label for="level" class="form-label">Level (мин. уровень)</label>
-                    <input type="number" id="level" name="level" class="form-input" value="{{ obj.level if obj.level is defined else 0 }}">
-                </div>
-
-                <div class="form-field">
-                    <label for="sex" class="form-label">Sex (пол)</label>
-                    <select id="sex" name="sex" class="form-input">
-                        <option value="0" {% if obj.sex == 0 %}selected{% endif %}>Neutral</option>
-                        <option value="1" {% if obj.sex == 1 %}selected{% endif %}>Male</option>
-                        <option value="2" {% if obj.sex == 2 %}selected{% endif %}>Female</option>
-                        <option value="3" {% if obj.sex == 3 %}selected{% endif %}>Plural</option>
-                    </select>
-                </div>
-
-                <div class="form-field">
-                    <label for="material" class="form-label">Material (материал)</label>
-                    <input type="number" id="material" name="material" class="form-input" value="{{ obj.material if obj.material is defined else 0 }}">
-                </div>
-
-                <div class="form-field">
-                    <label for="timer" class="form-label">Timer (таймер)</label>
-                    <input type="number" id="timer" name="timer" class="form-input" value="{{ obj.timer if obj.timer is defined else 0 }}">
-                </div>
-            </div>
-
-            <div class="form-grid form-grid-2">
-                <div class="form-field">
-                    <label for="durability_current" class="form-label">Durability Current</label>
-                    <input type="number" id="durability_current" name="durability.current" class="form-input" value="{{ obj.durability.current if obj.durability else 0 }}">
-                </div>
-
-                <div class="form-field">
-                    <label for="durability_maximum" class="form-label">Durability Maximum</label>
-                    <input type="number" id="durability_maximum" name="durability.maximum" class="form-input" value="{{ obj.durability.maximum if obj.durability else 0 }}">
-                </div>
+        <div class="form-row" style="margin-bottom: 16px;">
+            <div class="field-group">
+                <label for="description">Полное описание (description)</label>
+                <textarea id="description" name="description" rows="4"
+                          placeholder="Подробное описание при осмотре"
+                          style="resize: vertical; min-height: 100px;">{{ obj.description if obj.description else '' }}</textarea>
             </div>
         </div>
 
-        <!-- Type-Specific Values -->
-        <div class="parchment-section">
-            <div class="parchment-section-title">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
-                    <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
-                </svg>
-                Type-Specific Values
+        <div class="form-row">
+            <div class="field-group">
+                <label for="action_desc">Описание действия (action description)</label>
+                <textarea id="action_desc" name="action_desc" rows="2"
+                          placeholder="Описание при экипировке"
+                          style="resize: vertical; min-height: 60px;">{{ obj.action_desc if obj.action_desc else '' }}</textarea>
             </div>
+        </div>
+    </div>
 
-            <div class="form-grid form-grid-4">
-                <div class="form-field">
-                    <label for="value0" class="form-label">Value 0</label>
-                    <input type="number" id="value0" name="type_specific.value0" class="form-input" value="{{ obj.type_specific.value0 if obj.type_specific else 0 }}">
-                </div>
+    <!-- ===== SECTION 3: Characteristics ===== -->
+    <div class="parchment-section">
+        <div class="parchment-section-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="1" x2="12" y2="23"/>
+                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+            </svg>
+            Характеристики
+        </div>
 
-                <div class="form-field">
-                    <label for="value1" class="form-label">Value 1</label>
-                    <input type="number" id="value1" name="type_specific.value1" class="form-input" value="{{ obj.type_specific.value1 if obj.type_specific else 0 }}">
-                </div>
-
-                <div class="form-field">
-                    <label for="value2" class="form-label">Value 2</label>
-                    <input type="number" id="value2" name="type_specific.value2" class="form-input" value="{{ obj.type_specific.value2 if obj.type_specific else 0 }}">
-                </div>
-
-                <div class="form-field">
-                    <label for="value3" class="form-label">Value 3</label>
-                    <input type="number" id="value3" name="type_specific.value3" class="form-input" value="{{ obj.type_specific.value3 if obj.type_specific else 0 }}">
-                </div>
+        <div class="form-row form-row-3" style="margin-bottom: 16px;">
+            <div class="field-group">
+                <label for="type">Тип предмета</label>
+                <input type="number" id="type" name="type" value="{{ obj.type if obj.type is defined else 1 }}">
             </div>
-
-            <div class="form-help" style="margin-top: 8px;">
-                Значения зависят от типа предмета (оружие, броня, контейнер и т.д.)
+            <div class="field-group">
+                <label for="sex">Пол</label>
+                <select id="sex" name="sex">
+                    <option value="0" {% if obj.sex == 0 %}selected{% endif %}>Neutral</option>
+                    <option value="1" {% if obj.sex == 1 %}selected{% endif %}>Male</option>
+                    <option value="2" {% if obj.sex == 2 %}selected{% endif %}>Female</option>
+                    <option value="3" {% if obj.sex == 3 %}selected{% endif %}>Plural</option>
+                </select>
+            </div>
+            <div class="field-group">
+                <label for="level">Мин. уровень</label>
+                <input type="number" id="level" name="level" value="{{ obj.level if obj.level is defined else 0 }}">
             </div>
         </div>
 
-        <!-- Triggers -->
-        <div class="parchment-section">
-            <div class="parchment-section-title">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
-                </svg>
-                Триггеры (Triggers)
+        <div class="form-row form-row-3" style="margin-bottom: 16px;">
+            <div class="field-group">
+                <label for="weight">Вес</label>
+                <input type="number" id="weight" name="weight" value="{{ obj.weight if obj.weight is defined else 1 }}">
             </div>
+            <div class="field-group">
+                <label for="cost">Цена</label>
+                <input type="number" id="cost" name="cost" value="{{ obj.cost if obj.cost is defined else 0 }}">
+            </div>
+            <div class="field-group">
+                <label for="material">Материал</label>
+                <input type="number" id="material" name="material" value="{{ obj.material if obj.material is defined else 0 }}">
+            </div>
+        </div>
 
-            <div class="form-grid form-grid-1">
-                <div class="form-field">
-                    <label for="triggers" class="form-label">Trigger vnums</label>
-                    <input type="text" id="triggers" name="triggers" class="form-input"
-                           value="{% if obj.triggers %}{{ obj.triggers|join(', ') }}{% endif %}"
-                           placeholder="100, 101, 102">
-                    <div class="form-help">Введите vnums триггеров через запятую</div>
+        <div class="form-row form-row-4">
+            <div class="field-group">
+                <label for="rent_on">Rent On</label>
+                <input type="number" id="rent_on" name="rent_on" value="{{ obj.rent_on if obj.rent_on is defined else 0 }}">
+            </div>
+            <div class="field-group">
+                <label for="rent_off">Rent Off</label>
+                <input type="number" id="rent_off" name="rent_off" value="{{ obj.rent_off if obj.rent_off is defined else 0 }}">
+            </div>
+            <div class="field-group">
+                <label for="timer">Таймер</label>
+                <input type="number" id="timer" name="timer" value="{{ obj.timer if obj.timer is defined else 0 }}">
+            </div>
+            <div class="field-group">
+                <label for="durability">Прочность <span style="font-weight: 400; text-transform: none; letter-spacing: normal; color: #8a7b6b;">(тек / макс)</span></label>
+                <div style="display: flex; gap: 8px; align-items: center;">
+                    <input type="number" id="durability_current" name="durability.current"
+                           value="{{ obj.durability.current if obj.durability else 0 }}"
+                           style="flex: 1;">
+                    <span style="font-family: 'Inter', sans-serif; font-size: 14px; color: #8a7b6b;">/</span>
+                    <input type="number" id="durability_maximum" name="durability.maximum"
+                           value="{{ obj.durability.maximum if obj.durability else 0 }}"
+                           style="flex: 1;">
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- Form Actions -->
-        <div style="display: flex; gap: 12px; padding-top: 8px;">
-            <button type="submit" class="btn-primary">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="20 6 9 17 4 12"/>
-                </svg>
-                Сохранить
-            </button>
-
-            <a href="{{ url_for('object_detail', vnum=obj.vnum) }}" class="btn-secondary">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="18" y1="6" x2="6" y2="18"/>
-                    <line x1="6" y1="6" x2="18" y2="18"/>
-                </svg>
-                Отмена
-            </a>
+    <!-- ===== SECTION 4: Type-Specific Values ===== -->
+    <div class="parchment-section">
+        <div class="parchment-section-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
+                <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+            </svg>
+            Параметры типа (Type-Specific Values)
         </div>
+
+        <p style="font-family: 'Inter', sans-serif; font-size: 13px; color: #8a7b6b; margin-bottom: 16px;">
+            Значения зависят от типа предмета (оружие, броня, контейнер и т.д.)
+        </p>
+
+        <div class="form-row form-row-4">
+            <div class="field-group">
+                <label for="value0">Value 0</label>
+                <input type="number" id="value0" name="type_specific.value0"
+                       value="{{ obj.type_specific.value0 if obj.type_specific else 0 }}">
+            </div>
+            <div class="field-group">
+                <label for="value1">Value 1</label>
+                <input type="number" id="value1" name="type_specific.value1"
+                       value="{{ obj.type_specific.value1 if obj.type_specific else 0 }}">
+            </div>
+            <div class="field-group">
+                <label for="value2">Value 2</label>
+                <input type="number" id="value2" name="type_specific.value2"
+                       value="{{ obj.type_specific.value2 if obj.type_specific else 0 }}">
+            </div>
+            <div class="field-group">
+                <label for="value3">Value 3</label>
+                <input type="number" id="value3" name="type_specific.value3"
+                       value="{{ obj.type_specific.value3 if obj.type_specific else 0 }}">
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== SECTION 5: Affects ===== -->
+    <div class="parchment-section">
+        <div class="parchment-section-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+            </svg>
+            Affects (модификаторы)
+        </div>
+
+        <div id="affects-list">
+            {% if obj.affects and obj.affects|length > 0 %}
+            {% for affect in obj.affects %}
+            <div class="affect-item" style="background-color: rgba(253, 246, 227, 0.5); border: 1px solid rgba(120, 53, 15, 0.1); border-radius: 8px; padding: 12px 16px; margin-bottom: 8px; display: flex; align-items: center; gap: 12px;">
+                <div class="form-row form-row-2" style="flex: 1; margin-bottom: 0;">
+                    <div class="field-group">
+                        <label>Location</label>
+                        <input type="number" name="affect_location_{{ loop.index0 }}"
+                               value="{{ affect.location }}" placeholder="0">
+                    </div>
+                    <div class="field-group">
+                        <label>Modifier</label>
+                        <input type="number" name="affect_modifier_{{ loop.index0 }}"
+                               value="{{ affect.modifier }}" placeholder="0">
+                    </div>
+                </div>
+                <button type="button" class="btn-secondary" onclick="removeAffect(this)" style="padding: 6px 10px; margin-top: 18px; flex-shrink: 0;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </button>
+            </div>
+            {% endfor %}
+            {% endif %}
+        </div>
+
+        <button type="button" class="btn-secondary" onclick="addAffect()" style="margin-top: 8px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            Добавить affect
+        </button>
+    </div>
+
+    <!-- ===== SECTION 6: Extra Descriptions ===== -->
+    <div class="parchment-section">
+        <div class="parchment-section-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+            </svg>
+            Extra Descriptions
+        </div>
+
+        <div id="extra-descs-list">
+            {% if obj.extra_descriptions and obj.extra_descriptions|length > 0 %}
+            {% for ed in obj.extra_descriptions %}
+            <div class="extra-desc-item" style="background-color: rgba(253, 246, 227, 0.5); border: 1px solid rgba(120, 53, 15, 0.1); border-radius: 8px; padding: 16px 20px; margin-bottom: 12px;">
+                <div style="display: flex; align-items: flex-start; gap: 12px;">
+                    <div style="flex: 1;">
+                        <div class="form-row form-row-2" style="margin-bottom: 0;">
+                            <div class="field-group">
+                                <label>Ключевые слова</label>
+                                <input type="text" name="extra_desc_keywords_{{ loop.index0 }}"
+                                       value="{{ ed.keywords|default('') }}"
+                                       placeholder="стена рисунок">
+                            </div>
+                            <div class="field-group">
+                                <label>Описание</label>
+                                <textarea name="extra_desc_description_{{ loop.index0 }}" rows="2"
+                                          placeholder="Что видит персонаж при осмотре"
+                                          style="resize: vertical; min-height: 60px;">{{ ed.description|default('') }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-secondary" onclick="removeExtraDesc(this)" style="padding: 6px 10px; margin-top: 18px; flex-shrink: 0;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+            {% endif %}
+        </div>
+
+        <button type="button" class="btn-secondary" onclick="addExtraDesc()" style="margin-top: 8px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            Добавить описание
+        </button>
+    </div>
+
+    <!-- ===== SECTION 7: Triggers ===== -->
+    <div class="parchment-section">
+        <div class="parchment-section-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+            </svg>
+            Триггеры (DG Scripts)
+        </div>
+
+        <div class="field-group">
+            <label for="triggers">Vnums триггеров <span style="font-weight: 400; text-transform: none; letter-spacing: normal; color: #8a7b6b;">(через запятую)</span></label>
+            <input type="text" id="triggers" name="triggers"
+                   value="{% if obj.triggers %}{{ obj.triggers|join(', ') }}{% endif %}"
+                   placeholder="100, 101, 102">
+        </div>
+    </div>
 
     </form>
 
-    <!-- Message Display -->
-    <div id="message" style="display: none; margin-top: 20px;"></div>
+    <!-- Sticky action bar -->
+    <div style="position: sticky; bottom: 0; background-color: #f4ead5; border: 3px double rgba(120, 53, 15, 0.2); border-radius: 8px; padding: 16px 28px; display: flex; align-items: center; gap: 12px; box-shadow: 0 -4px 16px rgba(139, 69, 19, 0.08); z-index: 100;">
+        <button type="button" class="btn-primary" id="save-btn" onclick="saveObject()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                <polyline points="17 21 17 13 7 13 7 21"/>
+                <polyline points="7 3 7 8 15 8"/>
+            </svg>
+            Сохранить
+        </button>
+        <a href="{{ url_for('object_detail', vnum=obj.vnum) }}" class="btn-secondary">
+            Отмена
+        </a>
+        <div style="margin-left: auto; font-family: 'Inter', sans-serif; font-size: 13px; color: #8a7b6b;" id="save-status"></div>
+    </div>
+
+    <!-- Toast container -->
+    <div id="toast" style="position: fixed; top: 24px; right: 24px; padding: 16px 24px; border-radius: 8px; font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 500; z-index: 9999; opacity: 0; transform: translateY(-12px); transition: all 0.25s ease; max-width: 420px; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);"></div>
 
 {% endblock %}
 
 {% block scripts %}
 <script>
-document.getElementById('object-form').addEventListener('submit', async function(e) {
-    e.preventDefault();
+(function() {
+    'use strict';
 
-    const formData = new FormData(this);
-    const data = {};
-
-    // Parse nested fields (e.g., "names.nominative" -> data.names.nominative)
-    for (let [key, value] of formData.entries()) {
-        const parts = key.split('.');
-        let current = data;
-
-        for (let i = 0; i < parts.length - 1; i++) {
-            if (!current[parts[i]]) current[parts[i]] = {};
-            current = current[parts[i]];
-        }
-
-        const lastKey = parts[parts.length - 1];
-
-        // Special handling for triggers (comma-separated list -> array of numbers)
-        if (lastKey === 'triggers') {
-            const triggers = value.split(',').map(v => parseInt(v.trim())).filter(v => !isNaN(v));
-            data.triggers = triggers;
-        }
-        // Convert numbers
-        else if (value && !isNaN(value) && value.trim() !== '') {
-            current[lastKey] = parseFloat(value);
-        }
-        // Keep as string
-        else {
-            current[lastKey] = value;
-        }
-    }
-
-    try {
-        const response = await fetch('/object/{{ obj.vnum }}/update', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(data)
-        });
-
-        const result = await response.json();
-        const messageDiv = document.getElementById('message');
-
-        if (result.status === 'ok') {
-            messageDiv.className = 'msg-success';
-            messageDiv.innerHTML = `
-                <div style="flex-shrink: 0; margin-top: 2px;">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#15803d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="20 6 9 17 4 12"/>
-                    </svg>
-                </div>
-                <div>
-                    <div class="msg-title">Объект сохранён</div>
-                    <div class="msg-text">Все изменения применены успешно.</div>
-                </div>
-            `;
+    // --- Toast notifications ---
+    window.showToast = function(message, type) {
+        var toast = document.getElementById('toast');
+        toast.textContent = message;
+        if (type === 'success') {
+            toast.style.backgroundColor = '#f4ead5';
+            toast.style.border = '2px solid rgba(120, 100, 15, 0.3)';
+            toast.style.color = '#5a4d3f';
         } else {
-            messageDiv.className = 'msg-error';
-            messageDiv.innerHTML = `
-                <div style="flex-shrink: 0; margin-top: 2px;">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="10"/>
-                        <line x1="12" y1="8" x2="12" y2="12"/>
-                        <line x1="12" y1="16" x2="12.01" y2="16"/>
-                    </svg>
-                </div>
-                <div>
-                    <div class="msg-title">Ошибка сохранения</div>
-                    <div class="msg-text">${result.error || 'Неизвестная ошибка'}</div>
-                </div>
-            `;
+            toast.style.backgroundColor = '#fef2f2';
+            toast.style.border = '2px solid rgba(185, 28, 28, 0.2)';
+            toast.style.color = '#991b1b';
+        }
+        toast.style.opacity = '1';
+        toast.style.transform = 'translateY(0)';
+        setTimeout(function() {
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateY(-12px)';
+        }, 4000);
+    };
+
+    // --- Parse comma-separated ints ---
+    function parseIntCSV(str) {
+        if (!str || !str.trim()) return [];
+        return str.split(',').map(function(s) { return parseInt(s.trim()); }).filter(function(n) { return !isNaN(n); });
+    }
+
+    // --- Dynamic affects ---
+    var affectCounter = {{ (obj.affects|length) if obj.affects else 0 }};
+
+    window.addAffect = function() {
+        var list = document.getElementById('affects-list');
+        var idx = affectCounter++;
+        var html = '<div class="affect-item" style="background-color: rgba(253, 246, 227, 0.5); border: 1px solid rgba(120, 53, 15, 0.1); border-radius: 8px; padding: 12px 16px; margin-bottom: 8px; display: flex; align-items: center; gap: 12px;">'
+            + '<div class="form-row form-row-2" style="flex: 1; margin-bottom: 0;">'
+            + '<div class="field-group"><label>Location</label><input type="number" name="affect_location_' + idx + '" value="" placeholder="0"></div>'
+            + '<div class="field-group"><label>Modifier</label><input type="number" name="affect_modifier_' + idx + '" value="" placeholder="0"></div>'
+            + '</div>'
+            + '<button type="button" class="btn-secondary" onclick="removeAffect(this)" style="padding: 6px 10px; margin-top: 18px; flex-shrink: 0;">'
+            + '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>'
+            + '</button></div>';
+        list.insertAdjacentHTML('beforeend', html);
+    };
+
+    window.removeAffect = function(btn) {
+        btn.closest('.affect-item').remove();
+    };
+
+    // --- Dynamic extra descriptions ---
+    var edCounter = {{ (obj.extra_descriptions|length) if obj.extra_descriptions else 0 }};
+
+    window.addExtraDesc = function() {
+        var list = document.getElementById('extra-descs-list');
+        var idx = edCounter++;
+        var html = '<div class="extra-desc-item" style="background-color: rgba(253, 246, 227, 0.5); border: 1px solid rgba(120, 53, 15, 0.1); border-radius: 8px; padding: 16px 20px; margin-bottom: 12px;">'
+            + '<div style="display: flex; align-items: flex-start; gap: 12px;">'
+            + '<div style="flex: 1;"><div class="form-row form-row-2" style="margin-bottom: 0;">'
+            + '<div class="field-group"><label>Ключевые слова</label><input type="text" name="extra_desc_keywords_' + idx + '" value="" placeholder="стена рисунок"></div>'
+            + '<div class="field-group"><label>Описание</label><textarea name="extra_desc_description_' + idx + '" rows="2" placeholder="Что видит персонаж при осмотре" style="resize: vertical; min-height: 60px;"></textarea></div>'
+            + '</div></div>'
+            + '<button type="button" class="btn-secondary" onclick="removeExtraDesc(this)" style="padding: 6px 10px; margin-top: 18px; flex-shrink: 0;">'
+            + '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>'
+            + '</button></div></div>';
+        list.insertAdjacentHTML('beforeend', html);
+    };
+
+    window.removeExtraDesc = function(btn) {
+        btn.closest('.extra-desc-item').remove();
+    };
+
+    // Save icon SVG for button restore
+    var SAVE_ICON = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Сохранить';
+
+    // --- Main save function ---
+    window.saveObject = function() {
+        var btn = document.getElementById('save-btn');
+        var statusEl = document.getElementById('save-status');
+
+        // Show loading state
+        btn.disabled = true;
+        btn.innerHTML = '<span style="display:inline-block;width:16px;height:16px;border:2px solid rgba(253,246,227,0.4);border-top-color:#fdf6e3;border-radius:50%;animation:spin 0.6s linear infinite;margin-right:8px;vertical-align:middle;"></span>Сохранение...';
+        statusEl.textContent = '';
+
+        var form = document.getElementById('object-form');
+        var data = {};
+
+        // --- Aliases ---
+        var aliasesEl = form.querySelector('[name="aliases"]');
+        if (aliasesEl) data.aliases = aliasesEl.value;
+
+        // --- Names ---
+        var names = {};
+        var caseFields = ['nominative', 'genitive', 'dative', 'accusative', 'instrumental', 'prepositional'];
+        for (var i = 0; i < caseFields.length; i++) {
+            var el = form.querySelector('[name="names.' + caseFields[i] + '"]');
+            if (el) names[caseFields[i]] = el.value;
+        }
+        data.names = names;
+
+        // --- Descriptions ---
+        var shortDescEl = form.querySelector('[name="short_desc"]');
+        if (shortDescEl) data.short_desc = shortDescEl.value;
+
+        var descEl = form.querySelector('[name="description"]');
+        if (descEl) data.description = descEl.value;
+
+        var actionDescEl = form.querySelector('[name="action_desc"]');
+        if (actionDescEl) data.action_desc = actionDescEl.value;
+
+        // --- Numeric stats ---
+        var numericFields = ['type', 'sex', 'level', 'weight', 'cost', 'material', 'rent_on', 'rent_off', 'timer'];
+        for (var j = 0; j < numericFields.length; j++) {
+            var field = numericFields[j];
+            var numEl = form.querySelector('[name="' + field + '"]');
+            if (numEl && numEl.value.trim() !== '') {
+                data[field] = parseInt(numEl.value) || 0;
+            }
         }
 
-        messageDiv.style.display = 'flex';
+        // --- Durability ---
+        var durCurEl = form.querySelector('[name="durability.current"]');
+        var durMaxEl = form.querySelector('[name="durability.maximum"]');
+        if (durCurEl || durMaxEl) {
+            data.durability = {
+                current: parseInt(durCurEl ? durCurEl.value : '0') || 0,
+                maximum: parseInt(durMaxEl ? durMaxEl.value : '0') || 0
+            };
+        }
 
-        setTimeout(() => {
-            messageDiv.style.display = 'none';
-        }, 5000);
+        // --- Type-specific values ---
+        var typeSpecific = {};
+        for (var v = 0; v < 4; v++) {
+            var valEl = form.querySelector('[name="type_specific.value' + v + '"]');
+            if (valEl) typeSpecific['value' + v] = parseInt(valEl.value) || 0;
+        }
+        data.type_specific = typeSpecific;
 
-    } catch (error) {
-        const messageDiv = document.getElementById('message');
-        messageDiv.className = 'msg-error';
-        messageDiv.innerHTML = `
-            <div style="flex-shrink: 0; margin-top: 2px;">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="10"/>
-                    <line x1="12" y1="8" x2="12" y2="12"/>
-                    <line x1="12" y1="16" x2="12.01" y2="16"/>
-                </svg>
-            </div>
-            <div>
-                <div class="msg-title">Ошибка сохранения</div>
-                <div class="msg-text">${error}</div>
-            </div>
-        `;
-        messageDiv.style.display = 'flex';
-    }
-});
+        // --- Affects (collect from DOM) ---
+        var affects = [];
+        var affectItems = document.querySelectorAll('#affects-list .affect-item');
+        affectItems.forEach(function(item) {
+            var locInput = item.querySelector('input[name^="affect_location_"]');
+            var modInput = item.querySelector('input[name^="affect_modifier_"]');
+            if (locInput && modInput) {
+                var loc = parseInt(locInput.value);
+                var mod = parseInt(modInput.value);
+                if (!isNaN(loc) && !isNaN(mod)) {
+                    affects.push({ location: loc, modifier: mod });
+                }
+            }
+        });
+        data.affects = affects;
+
+        // --- Extra Descriptions (collect from DOM) ---
+        var extraDescs = [];
+        var edItems = document.querySelectorAll('#extra-descs-list .extra-desc-item');
+        edItems.forEach(function(item) {
+            var kwInput = item.querySelector('input[name^="extra_desc_keywords_"]');
+            var descInput = item.querySelector('textarea[name^="extra_desc_description_"]');
+            if (kwInput && descInput) {
+                var kw = kwInput.value.trim();
+                var desc = descInput.value.trim();
+                if (kw || desc) {
+                    extraDescs.push({ keywords: kw, description: desc });
+                }
+            }
+        });
+        data.extra_descriptions = extraDescs;
+
+        // --- Triggers ---
+        var triggersEl = form.querySelector('[name="triggers"]');
+        if (triggersEl) {
+            data.triggers = parseIntCSV(triggersEl.value);
+        }
+
+        // --- POST as JSON ---
+        fetch('{{ url_for("object_update", vnum=obj.vnum) }}', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        })
+        .then(function(response) { return response.json(); })
+        .then(function(result) {
+            btn.disabled = false;
+            btn.innerHTML = SAVE_ICON;
+
+            if (result.status === 'ok') {
+                showToast('Объект успешно сохранён', 'success');
+                statusEl.textContent = 'Сохранено';
+                setTimeout(function() { statusEl.textContent = ''; }, 3000);
+            } else {
+                showToast('Ошибка: ' + (result.error || 'Неизвестная ошибка'), 'error');
+                statusEl.textContent = '';
+            }
+        })
+        .catch(function(err) {
+            btn.disabled = false;
+            btn.innerHTML = SAVE_ICON;
+            showToast('Ошибка сети: ' + err.message, 'error');
+            statusEl.textContent = '';
+        });
+    };
+})();
 </script>
+<style>
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+</style>
 {% endblock %}

@@ -209,7 +209,7 @@
         {% endfor %}
     </div>
 
-    <!-- ===== SECTION 3: Extra Descriptions (read-only display + info) ===== -->
+    <!-- ===== SECTION 3: Extra Descriptions ===== -->
     <div class="parchment-section">
         <div class="parchment-section-title">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -221,32 +221,48 @@
             Дополнительные описания
         </div>
 
-        {% if room.extra_descriptions and room.extra_descriptions|length > 0 %}
         <div id="extra-descs-list">
+            {% if room.extra_descriptions and room.extra_descriptions|length > 0 %}
             {% for ed in room.extra_descriptions %}
             <div class="extra-desc-item" style="background-color: rgba(253, 246, 227, 0.5); border: 1px solid rgba(120, 53, 15, 0.1); border-radius: 8px; padding: 16px 20px; margin-bottom: 12px;">
-                <div class="form-row form-row-2">
-                    <div class="field-group">
-                        <label>Ключевые слова</label>
-                        <input type="text" name="extra_desc_keyword_{{ loop.index0 }}"
-                               value="{{ ed.keyword|default('') }}"
-                               placeholder="стена рисунок">
+                <div style="display: flex; align-items: flex-start; gap: 12px;">
+                    <div style="flex: 1;">
+                        <div class="form-row form-row-2" style="margin-bottom: 0;">
+                            <div class="field-group">
+                                <label>Ключевые слова</label>
+                                <input type="text" name="extra_desc_keyword_{{ loop.index0 }}"
+                                       value="{{ ed.keyword|default('') }}"
+                                       placeholder="стена рисунок">
+                            </div>
+                            <div class="field-group">
+                                <label>Описание</label>
+                                <textarea name="extra_desc_description_{{ loop.index0 }}" rows="2"
+                                          placeholder="Что видит персонаж при осмотре"
+                                          style="resize: vertical; min-height: 60px;">{{ ed.description|default('') }}</textarea>
+                            </div>
+                        </div>
                     </div>
-                    <div class="field-group">
-                        <label>Описание</label>
-                        <textarea name="extra_desc_description_{{ loop.index0 }}" rows="2"
-                                  placeholder="Что видит персонаж при осмотре"
-                                  style="resize: vertical; min-height: 60px;">{{ ed.description|default('') }}</textarea>
-                    </div>
+                    <button type="button" class="btn-secondary" onclick="removeExtraDesc(this)" style="padding: 6px 10px; margin-top: 18px; flex-shrink: 0;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                        </svg>
+                    </button>
                 </div>
             </div>
             {% endfor %}
+            {% endif %}
         </div>
-        {% else %}
-        <div style="font-family: 'Inter', sans-serif; font-size: 14px; color: #8a7b6b; padding: 20px; text-align: center; background-color: rgba(253, 246, 227, 0.4); border: 1px dashed rgba(120, 53, 15, 0.12); border-radius: 8px;">
+
+        <div id="extra-descs-empty" style="font-family: 'Inter', sans-serif; font-size: 14px; color: #8a7b6b; padding: 20px; text-align: center; background-color: rgba(253, 246, 227, 0.4); border: 1px dashed rgba(120, 53, 15, 0.12); border-radius: 8px; margin-bottom: 12px; {% if room.extra_descriptions and room.extra_descriptions|length > 0 %}display: none;{% endif %}">
             Дополнительных описаний нет
         </div>
-        {% endif %}
+
+        <button type="button" class="btn-secondary" onclick="addExtraDesc()" style="margin-top: 4px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            Добавить описание
+        </button>
     </div>
 
     <!-- ===== SECTION 4: Triggers ===== -->
@@ -320,6 +336,40 @@
         if (!str || !str.trim()) return [];
         return str.split(',').map(function(s) { return parseInt(s.trim()); }).filter(function(n) { return !isNaN(n); });
     }
+
+    // --- Dynamic extra descriptions ---
+    var edCounter = {{ (room.extra_descriptions|length) if room.extra_descriptions else 0 }};
+
+    function updateEmptyState() {
+        var list = document.getElementById('extra-descs-list');
+        var empty = document.getElementById('extra-descs-empty');
+        if (list.querySelectorAll('.extra-desc-item').length === 0) {
+            empty.style.display = '';
+        } else {
+            empty.style.display = 'none';
+        }
+    }
+
+    window.addExtraDesc = function() {
+        var list = document.getElementById('extra-descs-list');
+        var idx = edCounter++;
+        var html = '<div class="extra-desc-item" style="background-color: rgba(253, 246, 227, 0.5); border: 1px solid rgba(120, 53, 15, 0.1); border-radius: 8px; padding: 16px 20px; margin-bottom: 12px;">'
+            + '<div style="display: flex; align-items: flex-start; gap: 12px;">'
+            + '<div style="flex: 1;"><div class="form-row form-row-2" style="margin-bottom: 0;">'
+            + '<div class="field-group"><label>Ключевые слова</label><input type="text" name="extra_desc_keyword_' + idx + '" value="" placeholder="стена рисунок"></div>'
+            + '<div class="field-group"><label>Описание</label><textarea name="extra_desc_description_' + idx + '" rows="2" placeholder="Что видит персонаж при осмотре" style="resize: vertical; min-height: 60px;"></textarea></div>'
+            + '</div></div>'
+            + '<button type="button" class="btn-secondary" onclick="removeExtraDesc(this)" style="padding: 6px 10px; margin-top: 18px; flex-shrink: 0;">'
+            + '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>'
+            + '</button></div></div>';
+        list.insertAdjacentHTML('beforeend', html);
+        updateEmptyState();
+    };
+
+    window.removeExtraDesc = function(btn) {
+        btn.closest('.extra-desc-item').remove();
+        updateEmptyState();
+    };
 
     // Save icon SVG for button restore
     var SAVE_ICON = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Сохранить';
@@ -405,6 +455,22 @@
         if (exits.length > 0) {
             data.exits = exits;
         }
+
+        // --- Extra Descriptions (collect from DOM) ---
+        var extraDescs = [];
+        var edItems = document.querySelectorAll('#extra-descs-list .extra-desc-item');
+        edItems.forEach(function(item) {
+            var kwInput = item.querySelector('input[name^="extra_desc_keyword_"]');
+            var descInput = item.querySelector('textarea[name^="extra_desc_description_"]');
+            if (kwInput && descInput) {
+                var kw = kwInput.value.trim();
+                var edDesc = descInput.value.trim();
+                if (kw || edDesc) {
+                    extraDescs.push({ keyword: kw, description: edDesc });
+                }
+            }
+        });
+        data.extra_descriptions = extraDescs;
 
         // --- Triggers ---
         var triggersEl = form.querySelector('[name="triggers"]');
