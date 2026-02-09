@@ -1966,8 +1966,8 @@ void admin_api_update_zone(DescriptorData *d, int zone_vnum, const char *json_da
 			zone->is_town = data["is_town"].get<bool>();
 		}
 
-		// Mark zone as modified (zedit uses vnum=0 as "modified" flag)
-		zone->vnum = 0;
+		// Mark zone as modified (zedit checks if vnum is non-zero)
+		zone->vnum = 1;
 
 		// Save via OLC (handles zone_table update, disk save)
 		extern void zedit_save_internally(DescriptorData *d);
