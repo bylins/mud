@@ -136,3 +136,7 @@ class MudAdminClient:
     def get_stats(self):
         """Get server statistics (zones, mobs, objects, rooms, triggers counts)"""
         return self._send_command("get_stats")
+
+    def get_players(self):
+        """Get list of online players"""
+        return self._send_command("get_players")

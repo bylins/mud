@@ -335,6 +335,9 @@ void admin_api_parse(DescriptorData *d, char *argument) {
 		else if (command == "get_stats") {
 			admin_api_get_stats(d);
 		}
+		else if (command == "get_players") {
+			admin_api_get_players(d);
+		}
 		else {
 			admin_api_send_error(d, "Unknown command");
 		}
@@ -1605,6 +1608,42 @@ void admin_api_get_stats(DescriptorData *d) {
 
 	// Count trigger prototypes
 	response["triggers"] = top_of_trigt + 1;
+
+	admin_api_send_json(d, response.dump().c_str());
+}
+
+void admin_api_get_players(DescriptorData *d) {
+	extern DescriptorData *descriptor_list;
+
+	json response;
+	response["status"] = "ok";
+	response["players"] = json::array();
+
+	// Iterate through all descriptors
+	for (DescriptorData *desc = descriptor_list; desc; desc = desc->next) {
+		// Skip non-playing connections (login screen, etc.)
+		if (desc->state != EConState::kPlaying) {
+			continue;
+		}
+
+		CharData *ch = desc->character.get();
+		if (!ch) {
+			continue;
+		}
+
+		json player;
+		player["name"] = koi8r_to_utf8(ch->get_name().c_str());
+		player["level"] = ch->GetLevel();
+		player["class"] = static_cast<int>(ch->GetClass());
+		player["room"] = ch->in_room;
+
+		// Add immortal flag
+		player["is_immortal"] = (ch->GetLevel() >= kLvlImmortal);
+
+		response["players"].push_back(player);
+	}
+
+	response["count"] = response["players"].size();
 
 	admin_api_send_json(d, response.dump().c_str());
 }

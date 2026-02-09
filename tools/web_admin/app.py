@@ -87,7 +87,8 @@ def index():
     """Main page"""
     mud = get_mud_client()
     stats = mud.get_stats()
-    return render_template('index.html', username=session.get('username'), stats=stats)
+    players = mud.get_players()
+    return render_template('index.html', username=session.get('username'), stats=stats, players=players)
 
 
 @app.route('/zones')

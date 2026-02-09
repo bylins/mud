@@ -93,6 +93,54 @@
 
 </div>
 
+<!-- Online Players -->
+{% if players and players.status == 'ok' %}
+<div style="margin-bottom: 2.5rem;">
+    <h3 class="font-serif-display" style="font-size: 20px; margin-bottom: 1rem; color: #78350f;">
+        Игроки онлайн
+        <span style="font-size: 14px; font-weight: normal; color: #92400e; margin-left: 8px;">({{ players.count }})</span>
+    </h3>
+
+    {% if players.players|length > 0 %}
+    <div class="parchment-card" style="padding: 0;">
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="border-bottom: 2px solid #e7dac3;">
+                    <th style="padding: 12px; text-align: left; font-weight: 600; color: #78350f;">Имя</th>
+                    <th style="padding: 12px; text-align: left; font-weight: 600; color: #78350f;">Уровень</th>
+                    <th style="padding: 12px; text-align: left; font-weight: 600; color: #78350f;">Класс</th>
+                    <th style="padding: 12px; text-align: left; font-weight: 600; color: #78350f;">Комната</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for player in players.players %}
+                <tr style="border-bottom: 1px solid #f3eed9;">
+                    <td style="padding: 12px;">
+                        <span class="font-inter" style="color: {% if player.is_immortal %}#dc2626{% else %}#1f2937{% endif %};">
+                            {{ player.name }}
+                            {% if player.is_immortal %}<span style="color: #dc2626; font-size: 12px; margin-left: 4px;">[Имм]</span>{% endif %}
+                        </span>
+                    </td>
+                    <td style="padding: 12px; color: #4b5563;">{{ player.level }}</td>
+                    <td style="padding: 12px; color: #4b5563;">{{ player.class }}</td>
+                    <td style="padding: 12px;">
+                        <a href="{{ url_for('room_detail', vnum=player.room) }}" style="color: #b45309; text-decoration: none;">
+                            #{{ player.room }}
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="parchment-card" style="padding: 20px; text-align: center; color: #92400e;">
+        Нет игроков онлайн
+    </div>
+    {% endif %}
+</div>
+{% endif %}
+
 <!-- Warning Banner -->
 <div class="msg-warning">
     <div style="flex-shrink: 0; margin-top: 2px;">
