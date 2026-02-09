@@ -85,27 +85,27 @@
             </div>
 
             <div class="detail-field">
-                <div class="detail-field-label">Attach Type (тип привязки)</div>
+                <div class="detail-field-label">Тип привязки (attach type)</div>
                 <div class="detail-field-value">
-                    {% if trig.attach_type == 0 %}MOB
-                    {% elif trig.attach_type == 1 %}OBJ
-                    {% elif trig.attach_type == 2 %}WLD (Room)
+                    {% if trig.attach_type == 0 %}К мобу (MOB)
+                    {% elif trig.attach_type == 1 %}К предмету (OBJ)
+                    {% elif trig.attach_type == 2 %}К комнате (WLD)
                     {% else %}{{ trig.attach_type }}{% endif %}
                 </div>
             </div>
 
             <div class="detail-field">
-                <div class="detail-field-label">Trigger Type (тип события)</div>
+                <div class="detail-field-label">Тип триггера (trigger type)</div>
                 <div class="detail-field-value">{{ trig.trigger_type if trig.trigger_type is defined else '--' }}</div>
             </div>
 
             <div class="detail-field">
-                <div class="detail-field-label">NArg (числовой аргумент)</div>
+                <div class="detail-field-label">Числовой аргумент (narg)</div>
                 <div class="detail-field-value">{{ trig.narg if trig.narg is defined else '--' }}</div>
             </div>
 
             <div class="detail-field">
-                <div class="detail-field-label">Arglist (текстовый аргумент)</div>
+                <div class="detail-field-label">Текстовый аргумент (arglist)</div>
                 <div class="detail-field-value{% if not trig.arglist %} empty{% endif %}">
                     {{ trig.arglist|default('Не задано') }}
                 </div>
@@ -120,7 +120,7 @@
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
                 <polyline points="14 2 14 8 20 8"/>
             </svg>
-            Скрипт (DG Commands)
+            Тело скрипта (DG commands)
         </div>
 
         {% if trig.commands and trig.commands|length > 0 %}

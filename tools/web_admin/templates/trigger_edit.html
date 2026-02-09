@@ -65,7 +65,7 @@
 
             <div class="form-grid form-grid-1">
                 <div class="form-field">
-                    <label for="name" class="form-label">Название</label>
+                    <label for="name" class="form-label">Название (name)</label>
                     <input type="text" id="name" name="name" class="form-input" value="{{ trig.name if trig.name else '' }}">
                     <div class="form-help">Краткое имя триггера для идентификации</div>
                 </div>
@@ -73,23 +73,23 @@
 
             <div class="form-grid form-grid-3">
                 <div class="form-field">
-                    <label for="attach_type" class="form-label">Attach Type</label>
+                    <label for="attach_type" class="form-label">Тип привязки (attach type)</label>
                     <select id="attach_type" name="attach_type" class="form-input">
-                        <option value="0" {% if trig.attach_type == 0 %}selected{% endif %}>MOB</option>
-                        <option value="1" {% if trig.attach_type == 1 %}selected{% endif %}>OBJ</option>
-                        <option value="2" {% if trig.attach_type == 2 %}selected{% endif %}>WLD (Room)</option>
+                        <option value="0" {% if trig.attach_type == 0 %}selected{% endif %}>К мобу (MOB)</option>
+                        <option value="1" {% if trig.attach_type == 1 %}selected{% endif %}>К предмету (OBJ)</option>
+                        <option value="2" {% if trig.attach_type == 2 %}selected{% endif %}>К комнате (WLD)</option>
                     </select>
                     <div class="form-help">Тип сущности, к которой привязан триггер</div>
                 </div>
 
                 <div class="form-field">
-                    <label for="trigger_type" class="form-label">Trigger Type</label>
+                    <label for="trigger_type" class="form-label">Тип триггера (trigger type)</label>
                     <input type="number" id="trigger_type" name="trigger_type" class="form-input" value="{{ trig.trigger_type if trig.trigger_type is defined else 0 }}">
-                    <div class="form-help">Тип события (битовая маска)</div>
+                    <div class="form-help">Битовая маска. MOB: 1=Random Global, 2=Random, 4=Command, 8=Speech, 16=Act, 32=Death, 64=Greet, 128=Greet All, 256=Entry, 512=Receive, 1024=Fight, 2048=HitPrcnt, 4096=Bribe, 8192=Load, 16384=Kill, 32768=Damage. OBJ: 1=Random Global, 2=Random, 4=Command, 64=Get, 128=Drop, 256=Give, 512=Wear, 2048=Remove, 8192=Load. WLD: 1=Random Global, 2=Random, 4=Command, 8=Speech, 16=Enter PC, 32=Reset, 64=Enter.</div>
                 </div>
 
                 <div class="form-field">
-                    <label for="narg" class="form-label">NArg</label>
+                    <label for="narg" class="form-label">Числовой аргумент (narg)</label>
                     <input type="number" id="narg" name="narg" class="form-input" value="{{ trig.narg if trig.narg is defined else 0 }}">
                     <div class="form-help">Числовой аргумент триггера</div>
                 </div>
@@ -97,7 +97,7 @@
 
             <div class="form-grid form-grid-1">
                 <div class="form-field">
-                    <label for="arglist" class="form-label">Arglist</label>
+                    <label for="arglist" class="form-label">Текстовый аргумент (arglist)</label>
                     <input type="text" id="arglist" name="arglist" class="form-input" value="{{ trig.arglist if trig.arglist else '' }}">
                     <div class="form-help">Текстовый аргумент (например, ключевое слово для COMMAND триггера)</div>
                 </div>
@@ -111,12 +111,12 @@
                     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
                     <polyline points="14 2 14 8 20 8"/>
                 </svg>
-                Скрипт (DG Commands)
+                Тело скрипта (DG commands)
             </div>
 
             <div class="form-grid form-grid-1">
                 <div class="form-field">
-                    <label for="script" class="form-label">Script</label>
+                    <label for="script" class="form-label">Скрипт (script)</label>
                     <textarea id="script" name="script" class="form-input" rows="20" style="font-family: 'Courier New', monospace; font-size: 13px;">{% if trig.commands %}{% for cmd in trig.commands %}{{ cmd }}
 {% endfor %}{% endif %}</textarea>
                     <div class="form-help">Тело скрипта триггера (DG Script commands, каждая команда с новой строки)</div>

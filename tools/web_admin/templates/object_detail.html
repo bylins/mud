@@ -62,6 +62,24 @@
         </div>
     </div>
 
+    {% set obj_types = {
+        0: 'Не определён', 1: 'Источник света', 2: 'Свиток', 3: 'Жезл', 4: 'Посох',
+        5: 'Оружие', 6: 'Стихийное оружие', 7: 'Снаряд', 8: 'Сокровище', 9: 'Броня',
+        10: 'Зелье', 11: 'Червь', 12: 'Прочее', 13: 'Мусор', 14: 'Ловушка',
+        15: 'Контейнер', 16: 'Записка', 17: 'Ёмкость для жидкости', 18: 'Ключ',
+        19: 'Еда', 20: 'Деньги', 21: 'Перо', 22: 'Лодка', 23: 'Фонтан',
+        24: 'Книга', 25: 'Ингредиент', 26: 'Маг. ингредиент', 27: 'Материал для крафта',
+        28: 'Бинты', 29: 'Лёгкая броня', 30: 'Средняя броня', 31: 'Тяжёлая броня',
+        32: 'Зачарование', 33: 'Маг. материал', 34: 'Маг. стрела', 35: 'Маг. контейнер',
+        36: 'Материал для крафта 2'
+    } %}
+    {% set obj_materials = {
+        0: 'Не определён', 1: 'Булат', 2: 'Бронза', 3: 'Железо', 4: 'Сталь',
+        5: 'Кованая сталь', 6: 'Драг. металл', 7: 'Хрусталь', 8: 'Дерево',
+        9: 'Прочное дерево', 10: 'Керамика', 11: 'Стекло', 12: 'Камень', 13: 'Кость',
+        14: 'Ткань', 15: 'Кожа', 16: 'Органика', 17: 'Бумага', 18: 'Алмаз'
+    } %}
+
     <!-- SECTION 1: Names -->
     <div class="parchment-section">
         <div class="parchment-section-title">
@@ -134,21 +152,21 @@
 
         <div class="detail-grid detail-grid-1">
             <div class="detail-field">
-                <div class="detail-field-label">Короткое описание (Short Description)</div>
+                <div class="detail-field-label">Короткое описание (short desc)</div>
                 <div class="detail-field-value{% if not obj.short_desc %} empty{% endif %}">
                     {{ obj.short_desc if obj.short_desc else 'Не задано' }}
                 </div>
             </div>
 
             <div class="detail-field">
-                <div class="detail-field-label">Полное описание (Description)</div>
+                <div class="detail-field-label">Полное описание</div>
                 <div class="detail-field-value{% if not obj.description %} empty{% endif %}" style="white-space: pre-wrap;">
                     {{ obj.description if obj.description else 'Не задано' }}
                 </div>
             </div>
 
             <div class="detail-field">
-                <div class="detail-field-label">Описание действия (Action Description)</div>
+                <div class="detail-field-label">Описание действия (action desc)</div>
                 <div class="detail-field-value{% if not obj.action_desc %} empty{% endif %}">
                     {{ obj.action_desc if obj.action_desc else 'Не задано' }}
                 </div>
@@ -168,58 +186,62 @@
 
         <div class="detail-grid detail-grid-3">
             <div class="detail-field">
-                <div class="detail-field-label">Тип (Type)</div>
-                <div class="detail-field-value">{{ obj.type if obj.type is defined else '--' }}</div>
+                <div class="detail-field-label">Тип предмета</div>
+                <div class="detail-field-value">
+                    {% if obj.type is defined %}{{ obj_types.get(obj.type, obj.type) }}{% else %}--{% endif %}
+                </div>
             </div>
 
             <div class="detail-field">
-                <div class="detail-field-label">Вес (Weight)</div>
+                <div class="detail-field-label">Вес</div>
                 <div class="detail-field-value">{{ obj.weight if obj.weight is defined else '--' }}</div>
             </div>
 
             <div class="detail-field">
-                <div class="detail-field-label">Цена (Cost)</div>
+                <div class="detail-field-label">Цена</div>
                 <div class="detail-field-value">{{ obj.cost if obj.cost is defined else '--' }}</div>
             </div>
 
             <div class="detail-field">
-                <div class="detail-field-label">Rent On</div>
+                <div class="detail-field-label">Рента включён (rent on)</div>
                 <div class="detail-field-value">{{ obj.rent_on if obj.rent_on is defined else '--' }}</div>
             </div>
 
             <div class="detail-field">
-                <div class="detail-field-label">Rent Off</div>
+                <div class="detail-field-label">Рента выключен (rent off)</div>
                 <div class="detail-field-value">{{ obj.rent_off if obj.rent_off is defined else '--' }}</div>
             </div>
 
             <div class="detail-field">
-                <div class="detail-field-label">Уровень (Level)</div>
+                <div class="detail-field-label">Мин. уровень</div>
                 <div class="detail-field-value">{{ obj.level if obj.level is defined else '--' }}</div>
             </div>
 
             <div class="detail-field">
-                <div class="detail-field-label">Пол (Sex)</div>
+                <div class="detail-field-label">Род</div>
                 <div class="detail-field-value">
-                    {% if obj.sex == 0 %}Neutral
-                    {% elif obj.sex == 1 %}Male
-                    {% elif obj.sex == 2 %}Female
-                    {% elif obj.sex == 3 %}Plural
+                    {% if obj.sex == 0 %}Средний
+                    {% elif obj.sex == 1 %}Мужской
+                    {% elif obj.sex == 2 %}Женский
+                    {% elif obj.sex == 3 %}Множественное число
                     {% else %}--{% endif %}
                 </div>
             </div>
 
             <div class="detail-field">
-                <div class="detail-field-label">Материал (Material)</div>
-                <div class="detail-field-value">{{ obj.material if obj.material is defined else '--' }}</div>
+                <div class="detail-field-label">Материал</div>
+                <div class="detail-field-value">
+                    {% if obj.material is defined %}{{ obj_materials.get(obj.material, obj.material) }}{% else %}--{% endif %}
+                </div>
             </div>
 
             <div class="detail-field">
-                <div class="detail-field-label">Таймер (Timer)</div>
+                <div class="detail-field-label">Таймер</div>
                 <div class="detail-field-value">{{ obj.timer if obj.timer is defined else '--' }}</div>
             </div>
 
             <div class="detail-field">
-                <div class="detail-field-label">Прочность (Durability)</div>
+                <div class="detail-field-label">Прочность</div>
                 <div class="detail-field-value">
                     {% if obj.durability %}
                         {{ obj.durability.current }}/{{ obj.durability.maximum }}
@@ -236,27 +258,27 @@
                 <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
                 <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
             </svg>
-            Type-Specific Values
+            Параметры по типу (type-specific values)
         </div>
 
         <div class="detail-grid detail-grid-4">
             <div class="detail-field">
-                <div class="detail-field-label">Value 0</div>
+                <div class="detail-field-label">Значение 0 (value 0)</div>
                 <div class="detail-field-value">{{ obj.type_specific.value0 if obj.type_specific else '--' }}</div>
             </div>
 
             <div class="detail-field">
-                <div class="detail-field-label">Value 1</div>
+                <div class="detail-field-label">Значение 1 (value 1)</div>
                 <div class="detail-field-value">{{ obj.type_specific.value1 if obj.type_specific else '--' }}</div>
             </div>
 
             <div class="detail-field">
-                <div class="detail-field-label">Value 2</div>
+                <div class="detail-field-label">Значение 2 (value 2)</div>
                 <div class="detail-field-value">{{ obj.type_specific.value2 if obj.type_specific else '--' }}</div>
             </div>
 
             <div class="detail-field">
-                <div class="detail-field-label">Value 3</div>
+                <div class="detail-field-label">Значение 3 (value 3)</div>
                 <div class="detail-field-value">{{ obj.type_specific.value3 if obj.type_specific else '--' }}</div>
             </div>
         </div>
@@ -269,14 +291,14 @@
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
             </svg>
-            Affects (модификаторы характеристик)
+            Модификаторы (affects)
         </div>
 
         <table style="width: 100%; border-collapse: collapse;">
             <thead>
                 <tr style="border-bottom: 2px solid #e7dac3;">
-                    <th style="padding: 12px; text-align: left; font-weight: 600; color: #78350f;">Location</th>
-                    <th style="padding: 12px; text-align: left; font-weight: 600; color: #78350f;">Modifier</th>
+                    <th style="padding: 12px; text-align: left; font-weight: 600; color: #78350f;">Параметр (location)</th>
+                    <th style="padding: 12px; text-align: left; font-weight: 600; color: #78350f;">Модификатор (modifier)</th>
                 </tr>
             </thead>
             <tbody>
@@ -299,12 +321,12 @@
                 <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
                 <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
             </svg>
-            Extra Descriptions
+            Дополнительные описания (extra descriptions)
         </div>
 
         {% for ed in obj.extra_descriptions %}
         <div style="margin-bottom: 16px; padding: 12px; background: #faf8f3; border-left: 3px solid #d4c49a;">
-            <div style="font-weight: 600; color: #78350f; margin-bottom: 6px;">Keywords: {{ ed.keywords }}</div>
+            <div style="font-weight: 600; color: #78350f; margin-bottom: 6px;">Ключевые слова: {{ ed.keywords }}</div>
             <div style="color: #4b5563; white-space: pre-wrap;">{{ ed.description }}</div>
         </div>
         {% endfor %}
