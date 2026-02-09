@@ -1388,7 +1388,8 @@ void CalculateFirstAndLastRooms() {
 	RoomRnum rn;
 	ZoneRnum zrn = 0;
 
-	zone_table[0].RnumRoomsLocation.first = 1;
+	// zone_table[0] is reserved as kNowhere (unused), zones start from [1]
+	// First room for the initial zone will be set in the loop below
 	for (rn = 1; rn <= static_cast<RoomRnum>(world.size() - 1); rn++) {
 		zrn = world[rn]->zone_rn;
 		if (current != zrn) {
@@ -1493,8 +1494,11 @@ void SetZoneRnumForTriggers() {
 		ZoneRnum zone_rnum = GetZoneRnum(zone_vnum);
 
 		if (zone_rnum == kNowhere) {
-			log("WARNING: Trigger %d belongs to non-existent zone %d", trig_vnum, zone_vnum);
-			continue;
+			log("FATAL: Trigger %d belongs to non-existent zone %d (zone_table has %zu zones)",
+				trig_vnum, zone_vnum, zone_table.size());
+			log("FATAL: This indicates broken world data or initialization order bug.");
+			log("FATAL: Boot aborted. Triggers cannot function without valid zone assignment.");
+			exit(1);
 		}
 
 		// Set first trigger for this zone (if not set yet)
@@ -2991,10 +2995,12 @@ ObjRnum GetObjRnum(ObjVnum vnum) {
 ZoneRnum GetZoneRnum(ZoneVnum vnum) {
 	ZoneRnum bot, top, mid;
 
-	bot = 0;
+	bot = 1;  // 0 - zone is kNowhere (reserved, unused)
 	top = static_cast<ZoneRnum>(zone_table.size() - 1);
+
 	for (;;) {
 		mid = (bot + top) / 2;
+
 		if (zone_table[mid].vnum == vnum)
 			return (mid);
 		if (bot >= top)

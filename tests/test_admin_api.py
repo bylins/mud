@@ -454,8 +454,15 @@ def test_comprehensive_mob(sock, vnum):
         mob = test_get_mob(sock, vnum)
         if mob:
             print(f"  ✓ Verified: level={mob.get('level')}, sex={mob.get('sex')}")
+            print(f"  ✅ MOB UPDATE TEST PASSED")
+            return True
+        else:
+            print(f"  ❌ MOB UPDATE TEST FAILED - verification failed")
+            return False
     else:
         print(f"✗ Error: {response.get('error', 'Unknown error')}")
+        print(f"  ❌ MOB UPDATE TEST FAILED")
+        return False
 
 def test_comprehensive_object(sock, vnum):
     """Test ALL object fields comprehensively."""
@@ -476,15 +483,22 @@ def test_comprehensive_object(sock, vnum):
     }
     
     response = send_command(sock, "update_object", vnum=vnum, data=comprehensive_data)
-    
+
     if response.get("status") == "ok":
         print(f"✓ Comprehensive object update successful")
-        
+
         obj = test_get_object(sock, vnum)
         if obj:
             print(f"  ✓ Verified: weight={obj.get('weight')}, cost={obj.get('cost')}, material={obj.get('material')}")
+            print(f"  ✅ OBJECT UPDATE TEST PASSED")
+            return True
+        else:
+            print(f"  ❌ OBJECT UPDATE TEST FAILED - verification failed")
+            return False
     else:
         print(f"✗ Error: {response.get('error', 'Unknown error')}")
+        print(f"  ❌ OBJECT UPDATE TEST FAILED")
+        return False
 
 def test_comprehensive_room(sock, vnum):
     """Test ALL room fields comprehensively."""
@@ -498,16 +512,23 @@ def test_comprehensive_room(sock, vnum):
     }
     
     response = send_command(sock, "update_room", vnum=vnum, data=comprehensive_data)
-    
+
     if response.get("status") == "ok":
         print(f"✓ Comprehensive room update successful")
-        
+
         room = test_get_room(sock, vnum)
         if room:
             triggers = room.get('triggers', [])
             print(f"  ✓ Verified: sector={room.get('sector_type')}, triggers={triggers}")
+            print(f"  ✅ ROOM UPDATE TEST PASSED")
+            return True
+        else:
+            print(f"  ❌ ROOM UPDATE TEST FAILED - verification failed")
+            return False
     else:
         print(f"✗ Error: {response.get('error', 'Unknown error')}")
+        print(f"  ❌ ROOM UPDATE TEST FAILED")
+        return False
 
 
 
@@ -615,7 +636,7 @@ def test_comprehensive_trigger(sock, vnum):
         print(f"  ✅ TRIGGER UPDATE TEST PASSED")
     else:
         print(f"  ❌ TRIGGER UPDATE TEST FAILED")
-    
+
     # Restore original
     print(f"  → Restoring original trigger...")
     restore_data = {
@@ -628,6 +649,8 @@ def test_comprehensive_trigger(sock, vnum):
     }
     send_command(sock, "update_trigger", vnum=vnum, data=restore_data)
     print(f"  ✓ Restored original")
+
+    return all_ok
 
 def main():
     if len(sys.argv) < 2:
@@ -823,33 +846,45 @@ def main():
             test_list_objects(sock, "1")
             test_list_rooms(sock, "1")
 
+            # Track test results
+            all_tests_passed = True
+
             # Test comprehensive mob CRUD (all fields)
             print("\n" + "="*60)
             print("TESTING MOB COMPREHENSIVE UPDATE (ALL FIELDS)")
             print("="*60)
-            test_comprehensive_mob(sock, 100)
+            if not test_comprehensive_mob(sock, 100):
+                all_tests_passed = False
 
             # Test comprehensive object CRUD (all fields)
             print("\n" + "="*60)
             print("TESTING OBJECT COMPREHENSIVE UPDATE (ALL FIELDS)")
             print("="*60)
-            test_comprehensive_object(sock, 100)
+            if not test_comprehensive_object(sock, 100):
+                all_tests_passed = False
 
             # Test comprehensive room CRUD (all fields)
             print("\n" + "="*60)
             print("TESTING ROOM COMPREHENSIVE UPDATE (ALL FIELDS)")
             print("="*60)
-            test_comprehensive_room(sock, 101)
+            if not test_comprehensive_room(sock, 101):
+                all_tests_passed = False
 
             # Test comprehensive trigger CRUD (all fields)
             print("\n" + "="*60)
             print("TESTING TRIGGER COMPREHENSIVE UPDATE (ALL FIELDS)")
             print("="*60)
-            test_comprehensive_trigger(sock, 107)
+            if not test_comprehensive_trigger(sock, 107):
+                all_tests_passed = False
 
             print("\n" + "="*60)
-            print("FULL CRUD TEST COMPLETE")
-            print("="*60)
+            if all_tests_passed:
+                print("✅ FULL CRUD TEST COMPLETE - ALL TESTS PASSED")
+                print("="*60)
+            else:
+                print("❌ FULL CRUD TEST COMPLETE - SOME TESTS FAILED")
+                print("="*60)
+                sys.exit(1)
 
         else:
             print(f"Error: Unknown command '{command}'")

@@ -621,18 +621,19 @@ void YamlWorldDataSource::LoadZonesParallel()
 	}
 
 	int zone_count = zone_vnums.size();
-	zone_table.reserve(zone_count + dungeons::kNumberOfZoneDungeons);
-	zone_table.resize(zone_count);
+	// Reserve zone_table[0] as kNowhere (unused), like world[0] for rooms
+	zone_table.reserve(zone_count + 1 + dungeons::kNumberOfZoneDungeons);
+	zone_table.resize(zone_count + 1);
 	log("   %d zones, %zd bytes.", zone_count, sizeof(ZoneData) * zone_count);
 
 	// Sort zone vnums to match Legacy loader order (CRITICAL for checksums)
 	std::sort(zone_vnums.begin(), zone_vnums.end());
 
-	// Build vnum to index mapping
+	// Build vnum to index mapping (zones start from index 1, index 0 is kNowhere)
 	std::map<int, size_t> vnum_to_idx;
 	for (size_t i = 0; i < zone_vnums.size(); ++i)
 	{
-		vnum_to_idx[zone_vnums[i]] = i;
+		vnum_to_idx[zone_vnums[i]] = i + 1;  // +1: reserve zone_table[0] as kNowhere
 	}
 
 	// Distribute zones into batches
@@ -653,6 +654,13 @@ void YamlWorldDataSource::LoadZonesParallel()
 				{
 					size_t zone_idx = vnum_to_idx.at(zone_vnum);
 					zone_table[zone_idx] = ParseZoneFile(zone_path);
+
+					// DEBUG: Check if vnums match
+					if (zone_table[zone_idx].vnum != zone_vnum) {
+						log("ERROR: Zone vnum mismatch! Index says %d, but zone.yaml has vnum=%d (file: %s)",
+							zone_vnum, zone_table[zone_idx].vnum, zone_path.c_str());
+						error_count++;
+					}
 				}
 				catch (const YAML::Exception &e)
 				{
