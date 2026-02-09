@@ -1376,6 +1376,10 @@ void SqliteWorldDataSource::LoadMobs()
 		GET_HEIGHT(&mob) = sqlite3_column_int(stmt, 29);
 		GET_WEIGHT(&mob) = sqlite3_column_int(stmt, 30);
 
+		// Class and race
+		mob.set_class(static_cast<ECharClass>(sqlite3_column_int(stmt, 31)));
+		mob.player_data.Race = static_cast<ENpcRace>(sqlite3_column_int(stmt, 32));
+
 		// Attributes (E-spec)
 		mob.set_str(sqlite3_column_int(stmt, 33));
 		mob.set_dex(sqlite3_column_int(stmt, 34));
