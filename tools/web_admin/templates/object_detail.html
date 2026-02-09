@@ -62,32 +62,272 @@
         </div>
     </div>
 
-    <!-- Object Info -->
+    <!-- SECTION 1: Names -->
     <div class="parchment-section">
         <div class="parchment-section-title">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
-                <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
-                <line x1="12" y1="22.08" x2="12" y2="12"/>
+                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
             </svg>
-            Информация
+            Имена и падежи
         </div>
 
-        <div class="detail-grid detail-grid-2">
-            <div class="detail-field">
-                <div class="detail-field-label">Vnum</div>
-                <div class="detail-field-value">{{ obj.vnum }}</div>
-            </div>
-            <div class="detail-field">
-                <div class="detail-field-label">Алиасы</div>
-                <div class="detail-field-value{% if not obj.aliases %} empty{% endif %}">{{ obj.aliases|default('--') }}</div>
-            </div>
+        <div class="detail-grid detail-grid-2" style="margin-bottom: 20px;">
             <div class="detail-field" style="grid-column: 1 / -1;">
-                <div class="detail-field-label">Короткое описание</div>
-                <div class="detail-field-value{% if not obj.short_desc %} empty{% endif %}">{{ obj.short_desc|default('Не задано') }}</div>
+                <div class="detail-field-label">Ключевые слова (aliases)</div>
+                <div class="detail-field-value{% if not obj.aliases %} empty{% endif %}">
+                    {{ obj.aliases if obj.aliases else 'Не задано' }}
+                </div>
+            </div>
+        </div>
+
+        <div class="subsection-label">Падежи</div>
+
+        <div class="detail-grid detail-grid-3" style="margin-bottom: 16px;">
+            <div class="detail-field">
+                <div class="detail-field-label">Именительный (кто? что?)</div>
+                <div class="detail-field-value{% if not obj.names or not obj.names.nominative %} empty{% endif %}">
+                    {{ obj.names.nominative if obj.names and obj.names.nominative else '--' }}
+                </div>
+            </div>
+            <div class="detail-field">
+                <div class="detail-field-label">Родительный (кого? чего?)</div>
+                <div class="detail-field-value{% if not obj.names or not obj.names.genitive %} empty{% endif %}">
+                    {{ obj.names.genitive if obj.names and obj.names.genitive else '--' }}
+                </div>
+            </div>
+            <div class="detail-field">
+                <div class="detail-field-label">Дательный (кому? чему?)</div>
+                <div class="detail-field-value{% if not obj.names or not obj.names.dative %} empty{% endif %}">
+                    {{ obj.names.dative if obj.names and obj.names.dative else '--' }}
+                </div>
+            </div>
+            <div class="detail-field">
+                <div class="detail-field-label">Винительный (кого? что?)</div>
+                <div class="detail-field-value{% if not obj.names or not obj.names.accusative %} empty{% endif %}">
+                    {{ obj.names.accusative if obj.names and obj.names.accusative else '--' }}
+                </div>
+            </div>
+            <div class="detail-field">
+                <div class="detail-field-label">Творительный (кем? чем?)</div>
+                <div class="detail-field-value{% if not obj.names or not obj.names.instrumental %} empty{% endif %}">
+                    {{ obj.names.instrumental if obj.names and obj.names.instrumental else '--' }}
+                </div>
+            </div>
+            <div class="detail-field">
+                <div class="detail-field-label">Предложный (о ком? о чём?)</div>
+                <div class="detail-field-value{% if not obj.names or not obj.names.prepositional %} empty{% endif %}">
+                    {{ obj.names.prepositional if obj.names and obj.names.prepositional else '--' }}
+                </div>
             </div>
         </div>
     </div>
+
+    <!-- SECTION 2: Descriptions -->
+    <div class="parchment-section">
+        <div class="parchment-section-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+            </svg>
+            Описания
+        </div>
+
+        <div class="detail-grid detail-grid-1">
+            <div class="detail-field">
+                <div class="detail-field-label">Короткое описание (Short Description)</div>
+                <div class="detail-field-value{% if not obj.short_desc %} empty{% endif %}">
+                    {{ obj.short_desc if obj.short_desc else 'Не задано' }}
+                </div>
+            </div>
+
+            <div class="detail-field">
+                <div class="detail-field-label">Полное описание (Description)</div>
+                <div class="detail-field-value{% if not obj.description %} empty{% endif %}" style="white-space: pre-wrap;">
+                    {{ obj.description if obj.description else 'Не задано' }}
+                </div>
+            </div>
+
+            <div class="detail-field">
+                <div class="detail-field-label">Описание действия (Action Description)</div>
+                <div class="detail-field-value{% if not obj.action_desc %} empty{% endif %}">
+                    {{ obj.action_desc if obj.action_desc else 'Не задано' }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECTION 3: Stats -->
+    <div class="parchment-section">
+        <div class="parchment-section-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="1" x2="12" y2="23"/>
+                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+            </svg>
+            Характеристики
+        </div>
+
+        <div class="detail-grid detail-grid-3">
+            <div class="detail-field">
+                <div class="detail-field-label">Тип (Type)</div>
+                <div class="detail-field-value">{{ obj.type if obj.type is defined else '--' }}</div>
+            </div>
+
+            <div class="detail-field">
+                <div class="detail-field-label">Вес (Weight)</div>
+                <div class="detail-field-value">{{ obj.weight if obj.weight is defined else '--' }}</div>
+            </div>
+
+            <div class="detail-field">
+                <div class="detail-field-label">Цена (Cost)</div>
+                <div class="detail-field-value">{{ obj.cost if obj.cost is defined else '--' }}</div>
+            </div>
+
+            <div class="detail-field">
+                <div class="detail-field-label">Rent On</div>
+                <div class="detail-field-value">{{ obj.rent_on if obj.rent_on is defined else '--' }}</div>
+            </div>
+
+            <div class="detail-field">
+                <div class="detail-field-label">Rent Off</div>
+                <div class="detail-field-value">{{ obj.rent_off if obj.rent_off is defined else '--' }}</div>
+            </div>
+
+            <div class="detail-field">
+                <div class="detail-field-label">Уровень (Level)</div>
+                <div class="detail-field-value">{{ obj.level if obj.level is defined else '--' }}</div>
+            </div>
+
+            <div class="detail-field">
+                <div class="detail-field-label">Пол (Sex)</div>
+                <div class="detail-field-value">
+                    {% if obj.sex == 0 %}Neutral
+                    {% elif obj.sex == 1 %}Male
+                    {% elif obj.sex == 2 %}Female
+                    {% elif obj.sex == 3 %}Plural
+                    {% else %}--{% endif %}
+                </div>
+            </div>
+
+            <div class="detail-field">
+                <div class="detail-field-label">Материал (Material)</div>
+                <div class="detail-field-value">{{ obj.material if obj.material is defined else '--' }}</div>
+            </div>
+
+            <div class="detail-field">
+                <div class="detail-field-label">Таймер (Timer)</div>
+                <div class="detail-field-value">{{ obj.timer if obj.timer is defined else '--' }}</div>
+            </div>
+
+            <div class="detail-field">
+                <div class="detail-field-label">Прочность (Durability)</div>
+                <div class="detail-field-value">
+                    {% if obj.durability %}
+                        {{ obj.durability.current }}/{{ obj.durability.maximum }}
+                    {% else %}--{% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECTION 4: Type-Specific Values -->
+    <div class="parchment-section">
+        <div class="parchment-section-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
+                <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+            </svg>
+            Type-Specific Values
+        </div>
+
+        <div class="detail-grid detail-grid-4">
+            <div class="detail-field">
+                <div class="detail-field-label">Value 0</div>
+                <div class="detail-field-value">{{ obj.type_specific.value0 if obj.type_specific else '--' }}</div>
+            </div>
+
+            <div class="detail-field">
+                <div class="detail-field-label">Value 1</div>
+                <div class="detail-field-value">{{ obj.type_specific.value1 if obj.type_specific else '--' }}</div>
+            </div>
+
+            <div class="detail-field">
+                <div class="detail-field-label">Value 2</div>
+                <div class="detail-field-value">{{ obj.type_specific.value2 if obj.type_specific else '--' }}</div>
+            </div>
+
+            <div class="detail-field">
+                <div class="detail-field-label">Value 3</div>
+                <div class="detail-field-value">{{ obj.type_specific.value3 if obj.type_specific else '--' }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECTION 5: Affects -->
+    {% if obj.affects and obj.affects|length > 0 %}
+    <div class="parchment-section">
+        <div class="parchment-section-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+            </svg>
+            Affects (модификаторы характеристик)
+        </div>
+
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="border-bottom: 2px solid #e7dac3;">
+                    <th style="padding: 12px; text-align: left; font-weight: 600; color: #78350f;">Location</th>
+                    <th style="padding: 12px; text-align: left; font-weight: 600; color: #78350f;">Modifier</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for affect in obj.affects %}
+                <tr style="border-bottom: 1px solid #f3eed9;">
+                    <td style="padding: 12px; color: #4b5563;">{{ affect.location }}</td>
+                    <td style="padding: 12px; color: #4b5563;">{{ affect.modifier }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+
+    <!-- SECTION 6: Extra Descriptions -->
+    {% if obj.extra_descriptions and obj.extra_descriptions|length > 0 %}
+    <div class="parchment-section">
+        <div class="parchment-section-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+            </svg>
+            Extra Descriptions
+        </div>
+
+        {% for ed in obj.extra_descriptions %}
+        <div style="margin-bottom: 16px; padding: 12px; background: #faf8f3; border-left: 3px solid #d4c49a;">
+            <div style="font-weight: 600; color: #78350f; margin-bottom: 6px;">Keywords: {{ ed.keywords }}</div>
+            <div style="color: #4b5563; white-space: pre-wrap;">{{ ed.description }}</div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- SECTION 7: Triggers -->
+    {% if obj.triggers and obj.triggers|length > 0 %}
+    <div class="parchment-section">
+        <div class="parchment-section-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+            </svg>
+            Триггеры (DG Scripts)
+        </div>
+
+        <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+            {% for trig in obj.triggers %}
+            <span class="vnum-badge">{{ trig }}</span>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
 
     <!-- Bottom Actions -->
     <div style="display: flex; gap: 12px; padding-top: 8px;">
