@@ -1434,6 +1434,9 @@ CharData YamlWorldDataSource::ParseMobFile(const std::string &file_path)
 	// Sex
 	mob.set_sex(static_cast<EGender>(ParseGender(root["sex"])));
 
+	// Race
+	mob.player_data.Race = static_cast<ENpcRace>(GetInt(root, "race", ENpcRace::kBasic));
+
 	// Physical attributes
 	GET_SIZE(&mob) = GetInt(root, "size", 0);
 	GET_HEIGHT(&mob) = GetInt(root, "height", 0);
