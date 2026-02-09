@@ -2093,9 +2093,14 @@ void admin_api_update_trigger(DescriptorData *d, int trig_vnum, const char *json
 		// Create dummy character to prevent OLC crashes when sending menus
 		temp_d->character = std::make_shared<CharData>();
 		temp_d->character->desc = temp_d;  // Set descriptor so SendMsgToChar works
+		temp_d->character->set_name("AdminAPI");  // Set name for olc_log
 
 		// Create trigger copy for editing
 		Trigger *trig = new Trigger(*trig_index[rnum]->proto);
+		// Ensure cmdlist is initialized (may be nullptr after copy if proto was empty)
+		if (!trig->cmdlist) {
+			trig->cmdlist.reset(new cmdlist_element::shared_ptr());
+		}
 		temp_d->olc->trig = trig;
 
 		// Apply JSON fields
