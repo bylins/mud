@@ -27,7 +27,7 @@
 {% block content %}
 
     <!-- Page Header -->
-    <div class="page-header" style="margin-bottom: 2rem;">
+    <div class="page-header" style="margin-bottom: 8px;">
         <div>
             <h2 class="font-serif-display" style="font-size: 28px;">
                 Редактирование зоны <span class="text-amber-700">#{{ zone.vnum }}</span>
@@ -36,63 +36,406 @@
                 {{ zone.name }}
             </p>
         </div>
+
+        <a href="{{ url_for('zone_detail', vnum=zone.vnum) }}" class="btn-secondary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            Отмена
+        </a>
     </div>
 
-    <form method="POST">
-        <!-- Zone Info -->
-        <div class="parchment-section">
-            <div class="parchment-section-title">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="10"/>
-                    <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
-                </svg>
-                Основные данные
-            </div>
+    <!-- Ornamental divider -->
+    <div class="ornament-divider">
+        <div class="ornament-divider-inner">
+            <div class="ornament-line ornament-line-left"></div>
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" style="opacity: 0.5;">
+                <path d="M10 2L12 8L18 8L13 12L15 18L10 14L5 18L7 12L2 8L8 8Z"/>
+            </svg>
+            <div class="ornament-line ornament-line-right"></div>
+        </div>
+    </div>
 
-            <div class="form-row form-row-2" style="margin-bottom: 16px;">
-                <div class="field-group" style="grid-column: 1 / -1;">
-                    <label for="name">Название</label>
-                    <input type="text" id="name" name="name" value="{{ zone.name }}">
-                </div>
-            </div>
+    <form id="zone-edit-form" novalidate>
 
-            <div class="form-row form-row-2" style="margin-bottom: 16px;">
-                <div class="field-group">
-                    <label for="author">Автор</label>
-                    <input type="text" id="author" name="author" value="{{ zone.author }}">
-                </div>
-                <div class="field-group">
-                    <label for="comment">Комментарий</label>
-                    <input type="text" id="comment" name="comment" value="{{ zone.comment }}">
-                </div>
-            </div>
+    <!-- ===== SECTION 1: Basic Information (Основные данные) ===== -->
+    <div class="parchment-section">
+        <div class="parchment-section-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+            </svg>
+            Основные данные
+        </div>
 
-            <div class="form-row form-row-2">
-                <div class="field-group">
-                    <label for="level">Уровень</label>
-                    <input type="number" id="level" name="level" value="{{ zone.level }}">
-                </div>
-                <div class="field-group">
-                    <label for="lifespan">Lifespan (мин)</label>
-                    <input type="number" id="lifespan" name="lifespan" value="{{ zone.lifespan }}">
-                </div>
+        <div class="form-row" style="margin-bottom: 16px;">
+            <div class="field-group" style="grid-column: 1 / -1;">
+                <label for="name">Название</label>
+                <input type="text" id="name" name="name" value="{{ zone.name }}"
+                       placeholder="Название зоны">
             </div>
         </div>
 
-        <!-- Action buttons -->
-        <div style="display: flex; gap: 12px; padding-top: 8px;">
-            <button type="submit" class="btn-primary">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
-                    <polyline points="17 21 17 13 7 13 7 21"/>
-                    <polyline points="7 3 7 8 15 8"/>
-                </svg>
-                Сохранить
-            </button>
-            <a href="{{ url_for('zone_detail', vnum=zone.vnum) }}" class="btn-secondary">
-                Отмена
-            </a>
+        <div class="form-row form-row-2" style="margin-bottom: 16px;">
+            <div class="field-group">
+                <label for="author">Автор</label>
+                <input type="text" id="author" name="author" value="{{ zone.author|default('') }}"
+                       placeholder="Имя автора зоны">
+            </div>
+            <div class="field-group">
+                <label for="comment">Комментарий</label>
+                <input type="text" id="comment" name="comment" value="{{ zone.comment|default('') }}"
+                       placeholder="Краткий комментарий">
+            </div>
         </div>
+
+        <div class="form-row form-row-3">
+            <div class="field-group">
+                <label for="level">Уровень</label>
+                <input type="number" id="level" name="level" min="0"
+                       value="{{ zone.level|default(0) }}">
+            </div>
+            <div class="field-group">
+                <label for="type">Тип зоны</label>
+                <select id="type" name="type">
+                    <option value="0" {{ 'selected' if zone.type is defined and zone.type == 0 }}>0 - Город</option>
+                    <option value="1" {{ 'selected' if zone.type is defined and zone.type == 1 }}>1 - Лес</option>
+                    <option value="2" {{ 'selected' if zone.type is defined and zone.type == 2 }}>2 - Поле</option>
+                    <option value="3" {{ 'selected' if zone.type is defined and zone.type == 3 }}>3 - Горы</option>
+                    <option value="4" {{ 'selected' if zone.type is defined and zone.type == 4 }}>4 - Пустыня</option>
+                    <option value="5" {{ 'selected' if zone.type is defined and zone.type == 5 }}>5 - Болото</option>
+                    <option value="6" {{ 'selected' if zone.type is defined and zone.type == 6 }}>6 - Подземелье</option>
+                    <option value="7" {{ 'selected' if zone.type is defined and zone.type == 7 }}>7 - Вода</option>
+                    <option value="8" {{ 'selected' if zone.type is defined and zone.type == 8 }}>8 - Другое</option>
+                </select>
+            </div>
+            <div class="field-group">
+                <label for="group">Группа зон <span style="font-weight: 400; text-transform: none; letter-spacing: normal; color: #8a7b6b;">(1-20)</span></label>
+                <input type="number" id="group" name="group" min="1" max="20"
+                       value="{{ zone.group|default(1) }}">
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== SECTION 2: Location & Description (Расположение и описание) ===== -->
+    <div class="parchment-section">
+        <div class="parchment-section-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                <circle cx="12" cy="10" r="3"/>
+            </svg>
+            Расположение и описание
+        </div>
+
+        <div class="form-row" style="margin-bottom: 16px;">
+            <div class="field-group">
+                <label for="location">Локация на карте</label>
+                <input type="text" id="location" name="location" value="{{ zone.location|default('') }}"
+                       placeholder="Описание расположения зоны на игровой карте">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="field-group">
+                <label for="description">Описание зоны</label>
+                <textarea id="description" name="description" rows="4"
+                          placeholder="Подробное описание зоны, её атмосферы и особенностей"
+                          style="resize: vertical; min-height: 80px;">{{ zone.description|default('') }}</textarea>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== SECTION 3: Reset Settings (Настройки сброса) ===== -->
+    <div class="parchment-section">
+        <div class="parchment-section-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="23 4 23 10 17 10"/>
+                <polyline points="1 20 1 14 7 14"/>
+                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+            </svg>
+            Настройки сброса
+        </div>
+
+        <div class="form-row form-row-2" style="margin-bottom: 16px;">
+            <div class="field-group">
+                <label for="reset_mode">Режим сброса</label>
+                <select id="reset_mode" name="reset_mode">
+                    <option value="0" {{ 'selected' if zone.reset_mode is defined and zone.reset_mode == 0 }}>0 - Никогда не сбрасывается</option>
+                    <option value="1" {{ 'selected' if zone.reset_mode is defined and zone.reset_mode == 1 }}>1 - Когда нет игроков</option>
+                    <option value="2" {{ 'selected' if zone.reset_mode is defined and zone.reset_mode == 2 }}>2 - Всегда сбрасывается</option>
+                    <option value="3" {{ 'selected' if zone.reset_mode is defined and zone.reset_mode == 3 }}>3 - Сложный режим (typeA/typeB)</option>
+                </select>
+            </div>
+            <div class="field-group">
+                <label for="lifespan">Интервал сброса <span style="font-weight: 400; text-transform: none; letter-spacing: normal; color: #8a7b6b;">(мин)</span></label>
+                <input type="number" id="lifespan" name="lifespan" min="0"
+                       value="{{ zone.lifespan|default(0) }}">
+            </div>
+        </div>
+
+        <div class="form-row form-row-2">
+            <div class="field-group">
+                <label for="reset_idle" style="margin-bottom: 10px;">Сброс при отсутствии игроков</label>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; text-transform: none; letter-spacing: normal; font-weight: 400; font-size: 14px; color: #2d241e;">
+                        <input type="radio" name="reset_idle" value="1"
+                               {{ 'checked' if zone.reset_idle }}
+                               style="width: auto; accent-color: #b45309;">
+                        Да
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; text-transform: none; letter-spacing: normal; font-weight: 400; font-size: 14px; color: #2d241e;">
+                        <input type="radio" name="reset_idle" value="0"
+                               {{ 'checked' if not zone.reset_idle }}
+                               style="width: auto; accent-color: #b45309;">
+                        Нет
+                    </label>
+                </div>
+            </div>
+            <div class="field-group">
+                <label style="margin-bottom: 10px;">Статус</label>
+                <div style="font-family: 'Inter', sans-serif; font-size: 14px; color: #5a4d3f; padding: 10px 12px; background-color: rgba(253, 246, 227, 0.6); border: 1px solid rgba(120, 53, 15, 0.08); border-radius: 6px;">
+                    Верхний Vnum: <strong style="color: #2d241e;">{{ zone.top|default('--') }}</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== SECTION 4: Technical Settings (Технические настройки) ===== -->
+    <div class="parchment-section">
+        <div class="parchment-section-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="3"/>
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+            </svg>
+            Технические настройки
+        </div>
+
+        <div class="form-row form-row-3">
+            <div class="field-group">
+                <label for="under_construction" style="margin-bottom: 10px;">В разработке</label>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; text-transform: none; letter-spacing: normal; font-weight: 400; font-size: 14px; color: #2d241e;">
+                        <input type="radio" name="under_construction" value="1"
+                               {{ 'checked' if zone.under_construction }}
+                               style="width: auto; accent-color: #b45309;">
+                        Да
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; text-transform: none; letter-spacing: normal; font-weight: 400; font-size: 14px; color: #2d241e;">
+                        <input type="radio" name="under_construction" value="0"
+                               {{ 'checked' if not zone.under_construction }}
+                               style="width: auto; accent-color: #b45309;">
+                        Нет
+                    </label>
+                </div>
+            </div>
+            <div class="field-group">
+                <label for="is_town" style="margin-bottom: 10px;">Городская зона</label>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; text-transform: none; letter-spacing: normal; font-weight: 400; font-size: 14px; color: #2d241e;">
+                        <input type="radio" name="is_town" value="1"
+                               {{ 'checked' if zone.is_town }}
+                               style="width: auto; accent-color: #b45309;">
+                        Да
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; text-transform: none; letter-spacing: normal; font-weight: 400; font-size: 14px; color: #2d241e;">
+                        <input type="radio" name="is_town" value="0"
+                               {{ 'checked' if not zone.is_town }}
+                               style="width: auto; accent-color: #b45309;">
+                        Нет
+                    </label>
+                </div>
+            </div>
+            <div class="field-group">
+                <label for="locked" style="margin-bottom: 10px;">Заблокирована</label>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; text-transform: none; letter-spacing: normal; font-weight: 400; font-size: 14px; color: #2d241e;">
+                        <input type="radio" name="locked" value="1"
+                               {{ 'checked' if zone.locked }}
+                               style="width: auto; accent-color: #b45309;">
+                        Да
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; text-transform: none; letter-spacing: normal; font-weight: 400; font-size: 14px; color: #2d241e;">
+                        <input type="radio" name="locked" value="0"
+                               {{ 'checked' if not zone.locked }}
+                               style="width: auto; accent-color: #b45309;">
+                        Нет
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
     </form>
 
+    <!-- Sticky action bar -->
+    <div style="position: sticky; bottom: 0; background-color: #f4ead5; border: 3px double rgba(120, 53, 15, 0.2); border-radius: 8px; padding: 16px 28px; display: flex; align-items: center; gap: 12px; box-shadow: 0 -4px 16px rgba(139, 69, 19, 0.08); z-index: 100;">
+        <button type="button" class="btn-primary" id="save-btn" onclick="saveZone()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                <polyline points="17 21 17 13 7 13 7 21"/>
+                <polyline points="7 3 7 8 15 8"/>
+            </svg>
+            Сохранить
+        </button>
+        <a href="{{ url_for('zone_detail', vnum=zone.vnum) }}" class="btn-secondary">
+            Отмена
+        </a>
+        <div style="margin-left: auto; font-family: 'Inter', sans-serif; font-size: 13px; color: #8a7b6b;" id="save-status"></div>
+    </div>
+
+    <!-- Toast container -->
+    <div id="toast" style="position: fixed; top: 24px; right: 24px; padding: 16px 24px; border-radius: 8px; font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 500; z-index: 9999; opacity: 0; transform: translateY(-12px); transition: all 0.25s ease; max-width: 420px; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);"></div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function() {
+    'use strict';
+
+    // --- Toast notifications ---
+    window.showToast = function(message, type) {
+        var toast = document.getElementById('toast');
+        toast.textContent = message;
+        if (type === 'success') {
+            toast.style.backgroundColor = '#f4ead5';
+            toast.style.border = '2px solid rgba(120, 100, 15, 0.3)';
+            toast.style.color = '#5a4d3f';
+        } else {
+            toast.style.backgroundColor = '#fef2f2';
+            toast.style.border = '2px solid rgba(185, 28, 28, 0.2)';
+            toast.style.color = '#991b1b';
+        }
+        toast.style.opacity = '1';
+        toast.style.transform = 'translateY(0)';
+        setTimeout(function() {
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateY(-12px)';
+        }, 4000);
+    };
+
+    // --- Main save function ---
+    window.saveZone = function() {
+        var btn = document.getElementById('save-btn');
+        var statusEl = document.getElementById('save-status');
+
+        // Show loading state
+        btn.disabled = true;
+        btn.innerHTML = '<span style="display:inline-block;width:16px;height:16px;border:2px solid rgba(253,246,227,0.4);border-top-color:#fdf6e3;border-radius:50%;animation:spin 0.6s linear infinite;margin-right:8px;vertical-align:middle;"></span>Сохранение...';
+        statusEl.textContent = '';
+
+        var form = document.getElementById('zone-edit-form');
+        var data = {};
+
+        // Text fields
+        var nameEl = form.querySelector('[name="name"]');
+        if (nameEl && nameEl.value.trim()) {
+            data.name = nameEl.value;
+        }
+
+        var authorEl = form.querySelector('[name="author"]');
+        if (authorEl) {
+            data.author = authorEl.value;
+        }
+
+        var commentEl = form.querySelector('[name="comment"]');
+        if (commentEl) {
+            data.comment = commentEl.value;
+        }
+
+        var locationEl = form.querySelector('[name="location"]');
+        if (locationEl) {
+            data.location = locationEl.value;
+        }
+
+        var descEl = form.querySelector('[name="description"]');
+        if (descEl) {
+            data.description = descEl.value;
+        }
+
+        // Number fields
+        var levelEl = form.querySelector('[name="level"]');
+        if (levelEl) {
+            data.level = parseInt(levelEl.value) || 0;
+        }
+
+        var typeEl = form.querySelector('[name="type"]');
+        if (typeEl) {
+            data.type = parseInt(typeEl.value) || 0;
+        }
+
+        var groupEl = form.querySelector('[name="group"]');
+        if (groupEl) {
+            data.group = parseInt(groupEl.value) || 1;
+        }
+
+        var lifespanEl = form.querySelector('[name="lifespan"]');
+        if (lifespanEl) {
+            data.lifespan = parseInt(lifespanEl.value) || 0;
+        }
+
+        var resetModeEl = form.querySelector('[name="reset_mode"]');
+        if (resetModeEl) {
+            data.reset_mode = parseInt(resetModeEl.value) || 0;
+        }
+
+        // Boolean fields (radio buttons)
+        var resetIdleEl = form.querySelector('[name="reset_idle"]:checked');
+        if (resetIdleEl) {
+            data.reset_idle = resetIdleEl.value === '1';
+        }
+
+        var underConstructionEl = form.querySelector('[name="under_construction"]:checked');
+        if (underConstructionEl) {
+            data.under_construction = parseInt(underConstructionEl.value);
+        }
+
+        var isTownEl = form.querySelector('[name="is_town"]:checked');
+        if (isTownEl) {
+            data.is_town = isTownEl.value === '1';
+        }
+
+        var lockedEl = form.querySelector('[name="locked"]:checked');
+        if (lockedEl) {
+            data.locked = lockedEl.value === '1';
+        }
+
+        // POST as JSON
+        fetch('{{ url_for("zone_update", vnum=zone.vnum) }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+        .then(function(response) {
+            return response.json();
+        })
+        .then(function(result) {
+            btn.disabled = false;
+            btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Сохранить';
+
+            if (result.status === 'ok') {
+                showToast('Зона успешно сохранена', 'success');
+                statusEl.textContent = 'Сохранено';
+                setTimeout(function() { statusEl.textContent = ''; }, 3000);
+            } else {
+                showToast('Ошибка: ' + (result.error || 'Неизвестная ошибка'), 'error');
+                statusEl.textContent = '';
+            }
+        })
+        .catch(function(err) {
+            btn.disabled = false;
+            btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Сохранить';
+            showToast('Ошибка сети: ' + err.message, 'error');
+            statusEl.textContent = '';
+        });
+    };
+})();
+</script>
+<style>
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+</style>
 {% endblock %}

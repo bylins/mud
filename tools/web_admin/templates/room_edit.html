@@ -1,0 +1,454 @@
+{% extends "base.html" %}
+
+{% block title %}Редактирование комнаты {{ room.vnum }} - Былины MUD{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs-bar">
+    <div class="max-w-[1280px] mx-auto px-6 py-2.5">
+        <div class="flex items-center gap-2 font-inter text-sm text-ink-muted">
+            <a href="{{ url_for('index') }}">Главная</a>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #d4c49a;">
+                <polyline points="9 18 15 12 9 6"/>
+            </svg>
+            <a href="{{ url_for('rooms_list', zone=room.vnum // 100) }}">Комнаты</a>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #d4c49a;">
+                <polyline points="9 18 15 12 9 6"/>
+            </svg>
+            <a href="{{ url_for('room_detail', vnum=room.vnum) }}">Комната #{{ room.vnum }}</a>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #d4c49a;">
+                <polyline points="9 18 15 12 9 6"/>
+            </svg>
+            <span class="text-ink-light">Редактирование</span>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+
+    <!-- Page Header -->
+    <div class="page-header" style="margin-bottom: 8px;">
+        <div>
+            <h2 class="font-serif-display" style="font-size: 28px;">
+                Редактирование комнаты <span class="text-amber-700">#{{ room.vnum }}</span>
+            </h2>
+            <p class="page-subtitle" style="margin-top: 4px;">
+                {{ room.name|default('Без названия') }}
+            </p>
+        </div>
+
+        <a href="{{ url_for('room_detail', vnum=room.vnum) }}" class="btn-secondary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            Отмена
+        </a>
+    </div>
+
+    <!-- Ornamental divider -->
+    <div class="ornament-divider">
+        <div class="ornament-divider-inner">
+            <div class="ornament-line ornament-line-left"></div>
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" style="opacity: 0.5;">
+                <path d="M10 2L12 8L18 8L13 12L15 18L10 14L5 18L7 12L2 8L8 8Z"/>
+            </svg>
+            <div class="ornament-line ornament-line-right"></div>
+        </div>
+    </div>
+
+    <form id="room-edit-form" novalidate>
+
+    <!-- ===== SECTION 1: Basic Information ===== -->
+    <div class="parchment-section">
+        <div class="parchment-section-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                <polyline points="9 22 9 12 15 12 15 22"/>
+            </svg>
+            Основная информация
+        </div>
+
+        <div class="form-row" style="margin-bottom: 16px;">
+            <div class="field-group" style="grid-column: 1 / -1;">
+                <label for="name">Название</label>
+                <input type="text" id="name" name="name" value="{{ room.name|default('') }}"
+                       placeholder="Название комнаты">
+            </div>
+        </div>
+
+        <div class="form-row form-row-2" style="margin-bottom: 16px;">
+            <div class="field-group">
+                <label for="sector_type">Тип местности</label>
+                <select id="sector_type" name="sector_type">
+                    <option value="0" {{ 'selected' if room.sector_type is defined and room.sector_type == 0 }}>0 - Внутри помещения</option>
+                    <option value="1" {{ 'selected' if room.sector_type is defined and room.sector_type == 1 }}>1 - Город</option>
+                    <option value="2" {{ 'selected' if room.sector_type is defined and room.sector_type == 2 }}>2 - Поле</option>
+                    <option value="3" {{ 'selected' if room.sector_type is defined and room.sector_type == 3 }}>3 - Лес</option>
+                    <option value="4" {{ 'selected' if room.sector_type is defined and room.sector_type == 4 }}>4 - Холмы</option>
+                    <option value="5" {{ 'selected' if room.sector_type is defined and room.sector_type == 5 }}>5 - Горы</option>
+                    <option value="6" {{ 'selected' if room.sector_type is defined and room.sector_type == 6 }}>6 - Плавание (вода)</option>
+                    <option value="7" {{ 'selected' if room.sector_type is defined and room.sector_type == 7 }}>7 - Под водой</option>
+                    <option value="8" {{ 'selected' if room.sector_type is defined and room.sector_type == 8 }}>8 - Полет</option>
+                    <option value="9" {{ 'selected' if room.sector_type is defined and room.sector_type == 9 }}>9 - Секрет</option>
+                    <option value="10" {{ 'selected' if room.sector_type is defined and room.sector_type == 10 }}>10 - Густой лес</option>
+                    <option value="11" {{ 'selected' if room.sector_type is defined and room.sector_type == 11 }}>11 - Тонкий лед</option>
+                    <option value="12" {{ 'selected' if room.sector_type is defined and room.sector_type == 12 }}>12 - Нормальный лед</option>
+                    <option value="13" {{ 'selected' if room.sector_type is defined and room.sector_type == 13 }}>13 - Крепкий лед</option>
+                    <option value="14" {{ 'selected' if room.sector_type is defined and room.sector_type == 14 }}>14 - Глубокая вода</option>
+                </select>
+            </div>
+            <div class="field-group">
+                <label>Vnum</label>
+                <div style="font-family: 'Inter', sans-serif; font-size: 14px; color: #5a4d3f; padding: 10px 12px; background-color: rgba(253, 246, 227, 0.6); border: 1px solid rgba(120, 53, 15, 0.08); border-radius: 6px;">
+                    <strong style="color: #2d241e;">{{ room.vnum }}</strong>
+                    <span style="color: #8a7b6b; margin-left: 8px;">(зона {{ room.vnum // 100 }})</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="field-group">
+                <label for="description">Описание комнаты</label>
+                <textarea id="description" name="description" rows="5"
+                          placeholder="Описание того, что видит персонаж, когда смотрит на комнату"
+                          style="resize: vertical; min-height: 100px;">{{ room.description|default('') }}</textarea>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== SECTION 2: Exits ===== -->
+    <div class="parchment-section">
+        <div class="parchment-section-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                <polyline points="15 3 21 3 21 9"/>
+                <line x1="10" y1="14" x2="21" y2="3"/>
+            </svg>
+            Выходы
+        </div>
+
+        <p style="font-family: 'Inter', sans-serif; font-size: 13px; color: #8a7b6b; margin-bottom: 20px;">
+            Укажите Vnum комнаты назначения для каждого направления. Оставьте пустым для отсутствия выхода. Для удаления существующего выхода установите значение -1.
+        </p>
+
+        {% set dir_names = ['Север', 'Восток', 'Юг', 'Запад', 'Вверх', 'Вниз'] %}
+        {% set dir_icons = [
+            'M12 19V5M5 12l7-7 7 7',
+            'M5 12h14M12 5l7 7-7 7',
+            'M12 5v14M19 12l-7 7-7-7',
+            'M19 12H5M12 19l-7-7 7 7',
+            'M12 19V5M5 12l7-7 7 7',
+            'M12 5v14M19 12l-7 7-7-7'
+        ] %}
+
+        {% for dir_idx in range(6) %}
+        {% set exit = namespace(data=none) %}
+        {% for e in room.exits|default([]) %}
+            {% if e.direction == dir_idx %}
+                {% set exit.data = e %}
+            {% endif %}
+        {% endfor %}
+
+        <div class="exit-card" style="background-color: rgba(253, 246, 227, 0.5); border: 1px solid rgba(120, 53, 15, 0.1); border-radius: 8px; padding: 16px 20px; margin-bottom: 12px;">
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+                <div style="width: 32px; height: 32px; border-radius: 6px; background-color: {{ 'rgba(180, 83, 9, 0.1)' if exit.data else 'rgba(138, 123, 107, 0.08)' }}; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="{{ '#b45309' if exit.data else '#8a7b6b' }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="{{ dir_icons[dir_idx] }}"/>
+                    </svg>
+                </div>
+                <span style="font-family: 'Playfair Display', Georgia, serif; font-size: 16px; font-weight: 600; color: #2d241e;">{{ dir_names[dir_idx] }}</span>
+                {% if exit.data and exit.data.to_room is defined and exit.data.to_room >= 0 %}
+                <span style="font-family: 'Inter', sans-serif; font-size: 12px; color: #8a7b6b; margin-left: auto;">
+                    Текущий: #{{ exit.data.to_room }}
+                </span>
+                {% endif %}
+            </div>
+
+            <div class="form-row form-row-3">
+                <div class="field-group">
+                    <label for="exit-{{ dir_idx }}-to-room">Комната назначения <span style="font-weight: 400; text-transform: none; letter-spacing: normal; color: #8a7b6b;">(vnum)</span></label>
+                    <input type="number" id="exit-{{ dir_idx }}-to-room"
+                           name="exit_{{ dir_idx }}_to_room"
+                           value="{{ exit.data.to_room if exit.data and exit.data.to_room is defined and exit.data.to_room >= 0 else '' }}"
+                           placeholder="Vnum или пусто">
+                </div>
+                <div class="field-group">
+                    <label for="exit-{{ dir_idx }}-keyword">Ключевые слова</label>
+                    <input type="text" id="exit-{{ dir_idx }}-keyword"
+                           name="exit_{{ dir_idx }}_keyword"
+                           value="{{ exit.data.keyword|default('') if exit.data else '' }}"
+                           placeholder="дверь ворота">
+                </div>
+                <div class="field-group">
+                    <label for="exit-{{ dir_idx }}-key">Ключ <span style="font-weight: 400; text-transform: none; letter-spacing: normal; color: #8a7b6b;">(vnum предмета)</span></label>
+                    <input type="number" id="exit-{{ dir_idx }}-key"
+                           name="exit_{{ dir_idx }}_key"
+                           value="{{ exit.data.key_vnum|default('') if exit.data and exit.data.key_vnum is defined and exit.data.key_vnum > 0 else '' }}"
+                           placeholder="Vnum ключа">
+                </div>
+            </div>
+
+            <div class="form-row form-row-2" style="margin-top: 8px;">
+                <div class="field-group">
+                    <label for="exit-{{ dir_idx }}-desc">Описание выхода</label>
+                    <input type="text" id="exit-{{ dir_idx }}-desc"
+                           name="exit_{{ dir_idx }}_description"
+                           value="{{ exit.data.description|default('') if exit.data else '' }}"
+                           placeholder="Что видит персонаж, смотря в этом направлении">
+                </div>
+                <div class="field-group">
+                    <label for="exit-{{ dir_idx }}-exit-info">Тип выхода</label>
+                    <select id="exit-{{ dir_idx }}-exit-info" name="exit_{{ dir_idx }}_exit_info">
+                        <option value="0" {{ 'selected' if exit.data and exit.data.exit_info is defined and exit.data.exit_info == 0 }}>Открытый проход</option>
+                        <option value="1" {{ 'selected' if exit.data and exit.data.exit_info is defined and exit.data.exit_info == 1 }}>Дверь</option>
+                        <option value="2" {{ 'selected' if exit.data and exit.data.exit_info is defined and exit.data.exit_info == 2 }}>Запертая дверь</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- ===== SECTION 3: Extra Descriptions (read-only display + info) ===== -->
+    <div class="parchment-section">
+        <div class="parchment-section-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+                <line x1="16" y1="13" x2="8" y2="13"/>
+                <line x1="16" y1="17" x2="8" y2="17"/>
+            </svg>
+            Дополнительные описания
+        </div>
+
+        {% if room.extra_descriptions and room.extra_descriptions|length > 0 %}
+        <div id="extra-descs-list">
+            {% for ed in room.extra_descriptions %}
+            <div class="extra-desc-item" style="background-color: rgba(253, 246, 227, 0.5); border: 1px solid rgba(120, 53, 15, 0.1); border-radius: 8px; padding: 16px 20px; margin-bottom: 12px;">
+                <div class="form-row form-row-2">
+                    <div class="field-group">
+                        <label>Ключевые слова</label>
+                        <input type="text" name="extra_desc_keyword_{{ loop.index0 }}"
+                               value="{{ ed.keyword|default('') }}"
+                               placeholder="стена рисунок">
+                    </div>
+                    <div class="field-group">
+                        <label>Описание</label>
+                        <textarea name="extra_desc_description_{{ loop.index0 }}" rows="2"
+                                  placeholder="Что видит персонаж при осмотре"
+                                  style="resize: vertical; min-height: 60px;">{{ ed.description|default('') }}</textarea>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div style="font-family: 'Inter', sans-serif; font-size: 14px; color: #8a7b6b; padding: 20px; text-align: center; background-color: rgba(253, 246, 227, 0.4); border: 1px dashed rgba(120, 53, 15, 0.12); border-radius: 8px;">
+            Дополнительных описаний нет
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- ===== SECTION 4: Triggers ===== -->
+    <div class="parchment-section">
+        <div class="parchment-section-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+            </svg>
+            Триггеры
+        </div>
+
+        <div class="field-group">
+            <label for="triggers">Vnums триггеров <span style="font-weight: 400; text-transform: none; letter-spacing: normal; color: #8a7b6b;">(через запятую)</span></label>
+            <input type="text" id="triggers" name="triggers"
+                   value="{{ room.triggers|join(', ') if room.triggers else '' }}"
+                   placeholder="100, 101, 102">
+        </div>
+    </div>
+
+    </form>
+
+    <!-- Sticky action bar -->
+    <div style="position: sticky; bottom: 0; background-color: #f4ead5; border: 3px double rgba(120, 53, 15, 0.2); border-radius: 8px; padding: 16px 28px; display: flex; align-items: center; gap: 12px; box-shadow: 0 -4px 16px rgba(139, 69, 19, 0.08); z-index: 100;">
+        <button type="button" class="btn-primary" id="save-btn" onclick="saveRoom()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                <polyline points="17 21 17 13 7 13 7 21"/>
+                <polyline points="7 3 7 8 15 8"/>
+            </svg>
+            Сохранить
+        </button>
+        <a href="{{ url_for('room_detail', vnum=room.vnum) }}" class="btn-secondary">
+            Отмена
+        </a>
+        <div style="margin-left: auto; font-family: 'Inter', sans-serif; font-size: 13px; color: #8a7b6b;" id="save-status"></div>
+    </div>
+
+    <!-- Toast container -->
+    <div id="toast" style="position: fixed; top: 24px; right: 24px; padding: 16px 24px; border-radius: 8px; font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 500; z-index: 9999; opacity: 0; transform: translateY(-12px); transition: all 0.25s ease; max-width: 420px; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);"></div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function() {
+    'use strict';
+
+    // --- Toast notifications ---
+    window.showToast = function(message, type) {
+        var toast = document.getElementById('toast');
+        toast.textContent = message;
+        if (type === 'success') {
+            toast.style.backgroundColor = '#f4ead5';
+            toast.style.border = '2px solid rgba(120, 100, 15, 0.3)';
+            toast.style.color = '#5a4d3f';
+        } else {
+            toast.style.backgroundColor = '#fef2f2';
+            toast.style.border = '2px solid rgba(185, 28, 28, 0.2)';
+            toast.style.color = '#991b1b';
+        }
+        toast.style.opacity = '1';
+        toast.style.transform = 'translateY(0)';
+        setTimeout(function() {
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateY(-12px)';
+        }, 4000);
+    };
+
+    // --- Parse comma-separated ints ---
+    function parseIntCSV(str) {
+        if (!str || !str.trim()) return [];
+        return str.split(',').map(function(s) { return parseInt(s.trim()); }).filter(function(n) { return !isNaN(n); });
+    }
+
+    // Save icon SVG for button restore
+    var SAVE_ICON = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Сохранить';
+
+    // --- Main save function ---
+    window.saveRoom = function() {
+        var btn = document.getElementById('save-btn');
+        var statusEl = document.getElementById('save-status');
+
+        // Show loading state
+        btn.disabled = true;
+        btn.innerHTML = '<span style="display:inline-block;width:16px;height:16px;border:2px solid rgba(253,246,227,0.4);border-top-color:#fdf6e3;border-radius:50%;animation:spin 0.6s linear infinite;margin-right:8px;vertical-align:middle;"></span>Сохранение...';
+        statusEl.textContent = '';
+
+        var form = document.getElementById('room-edit-form');
+        var data = {};
+
+        // --- Basic fields ---
+        var nameEl = form.querySelector('[name="name"]');
+        if (nameEl) {
+            data.name = nameEl.value;
+        }
+
+        var descEl = form.querySelector('[name="description"]');
+        if (descEl) {
+            data.description = descEl.value;
+        }
+
+        var sectorEl = form.querySelector('[name="sector_type"]');
+        if (sectorEl) {
+            data.sector_type = parseInt(sectorEl.value) || 0;
+        }
+
+        // --- Exits ---
+        var exits = [];
+        var dirNames = ['north', 'east', 'south', 'west', 'up', 'down'];
+
+        for (var dir = 0; dir < 6; dir++) {
+            var toRoomEl = form.querySelector('[name="exit_' + dir + '_to_room"]');
+            var toRoomVal = toRoomEl ? toRoomEl.value.trim() : '';
+
+            // Skip empty exits (no room specified)
+            if (toRoomVal === '') continue;
+
+            var toRoom = parseInt(toRoomVal);
+            if (isNaN(toRoom)) continue;
+
+            var exitObj = {
+                direction: dir,
+                to_room: toRoom
+            };
+
+            // Keyword
+            var kwEl = form.querySelector('[name="exit_' + dir + '_keyword"]');
+            if (kwEl && kwEl.value.trim()) {
+                exitObj.keyword = kwEl.value.trim();
+            }
+
+            // Description
+            var descExitEl = form.querySelector('[name="exit_' + dir + '_description"]');
+            if (descExitEl && descExitEl.value.trim()) {
+                exitObj.general_description = descExitEl.value.trim();
+            }
+
+            // Exit info (door type)
+            var exitInfoEl = form.querySelector('[name="exit_' + dir + '_exit_info"]');
+            if (exitInfoEl) {
+                exitObj.exit_info = parseInt(exitInfoEl.value) || 0;
+            }
+
+            // Key vnum
+            var keyEl = form.querySelector('[name="exit_' + dir + '_key"]');
+            if (keyEl && keyEl.value.trim()) {
+                var keyVnum = parseInt(keyEl.value.trim());
+                if (!isNaN(keyVnum) && keyVnum > 0) {
+                    exitObj.key = keyVnum;
+                }
+            }
+
+            exits.push(exitObj);
+        }
+
+        if (exits.length > 0) {
+            data.exits = exits;
+        }
+
+        // --- Triggers ---
+        var triggersEl = form.querySelector('[name="triggers"]');
+        if (triggersEl) {
+            var trigList = parseIntCSV(triggersEl.value);
+            data.triggers = trigList;
+        }
+
+        // --- POST as JSON ---
+        fetch('{{ url_for("room_update", vnum=room.vnum) }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+        .then(function(response) {
+            return response.json();
+        })
+        .then(function(result) {
+            btn.disabled = false;
+            btn.innerHTML = SAVE_ICON;
+
+            if (result.status === 'ok') {
+                showToast('Комната успешно сохранена', 'success');
+                statusEl.textContent = 'Сохранено';
+                setTimeout(function() { statusEl.textContent = ''; }, 3000);
+            } else {
+                showToast('Ошибка: ' + (result.error || 'Неизвестная ошибка'), 'error');
+                statusEl.textContent = '';
+            }
+        })
+        .catch(function(err) {
+            btn.disabled = false;
+            btn.innerHTML = SAVE_ICON;
+            showToast('Ошибка сети: ' + err.message, 'error');
+            statusEl.textContent = '';
+        });
+    };
+})();
+</script>
+<style>
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+</style>
+{% endblock %}

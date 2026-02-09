@@ -68,7 +68,7 @@
                 <circle cx="12" cy="12" r="10"/>
                 <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
             </svg>
-            Информация о зоне
+            Основные данные
         </div>
 
         <div class="detail-grid detail-grid-2" style="margin-bottom: 20px;">
@@ -92,15 +92,18 @@
                 <div class="detail-field-value">{{ zone.level|default('--') }}</div>
             </div>
             <div class="detail-field">
-                <div class="detail-field-label">Lifespan</div>
-                <div class="detail-field-value">{{ zone.lifespan|default('--') }} мин</div>
+                <div class="detail-field-label">Тип зоны</div>
+                <div class="detail-field-value">
+                    {% set zone_types = {0: 'Город', 1: 'Лес', 2: 'Поле', 3: 'Горы', 4: 'Пустыня', 5: 'Болото', 6: 'Подземелье', 7: 'Вода', 8: 'Другое'} %}
+                    {{ zone_types.get(zone.type, zone.type)|default('--') }}
+                </div>
             </div>
         </div>
 
         <div class="detail-grid detail-grid-2">
             <div class="detail-field">
-                <div class="detail-field-label">Режим сброса</div>
-                <div class="detail-field-value">{{ zone.reset_mode|default('--') }}</div>
+                <div class="detail-field-label">Группа зон</div>
+                <div class="detail-field-value">{{ zone.group|default('--') }}</div>
             </div>
             {% if zone.comment %}
             <div class="detail-field">
@@ -108,6 +111,108 @@
                 <div class="detail-field-value">{{ zone.comment }}</div>
             </div>
             {% endif %}
+        </div>
+    </div>
+
+    <!-- Location & Description -->
+    {% if zone.location or zone.description %}
+    <div class="parchment-section">
+        <div class="parchment-section-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                <circle cx="12" cy="10" r="3"/>
+            </svg>
+            Расположение и описание
+        </div>
+
+        {% if zone.location %}
+        <div class="detail-grid" style="margin-bottom: {% if zone.description %}20{% else %}0{% endif %}px;">
+            <div class="detail-field">
+                <div class="detail-field-label">Локация на карте</div>
+                <div class="detail-field-value">{{ zone.location }}</div>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if zone.description %}
+        <div class="detail-grid">
+            <div class="detail-field">
+                <div class="detail-field-label">Описание</div>
+                <div class="detail-field-value multiline">{{ zone.description }}</div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- Reset Settings -->
+    <div class="parchment-section">
+        <div class="parchment-section-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="23 4 23 10 17 10"/>
+                <polyline points="1 20 1 14 7 14"/>
+                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+            </svg>
+            Настройки сброса
+        </div>
+
+        <div class="detail-grid detail-grid-3" style="margin-bottom: 20px;">
+            <div class="detail-field">
+                <div class="detail-field-label">Режим сброса</div>
+                <div class="detail-field-value">
+                    {% if zone.reset_mode is defined %}
+                        {% set reset_modes = {0: 'Никогда', 1: 'Когда нет игроков', 2: 'Всегда', 3: 'Сложный режим'} %}
+                        {{ zone.reset_mode }} - {{ reset_modes.get(zone.reset_mode, 'Неизвестно') }}
+                    {% else %}
+                        --
+                    {% endif %}
+                </div>
+            </div>
+            <div class="detail-field">
+                <div class="detail-field-label">Интервал сброса</div>
+                <div class="detail-field-value">{{ zone.lifespan|default('--') }} мин</div>
+            </div>
+            <div class="detail-field">
+                <div class="detail-field-label">Сброс при отсутствии игроков</div>
+                <div class="detail-field-value">{{ 'Да' if zone.reset_idle else 'Нет' }}</div>
+            </div>
+        </div>
+
+        <div class="detail-grid detail-grid-2">
+            <div class="detail-field">
+                <div class="detail-field-label">Верхний Vnum</div>
+                <div class="detail-field-value">{{ zone.top|default('--') }}</div>
+            </div>
+            <div class="detail-field">
+                <div class="detail-field-label">Текущий возраст</div>
+                <div class="detail-field-value">{{ zone.age|default('--') }} мин</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Technical Settings -->
+    <div class="parchment-section">
+        <div class="parchment-section-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="3"/>
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+            </svg>
+            Технические настройки
+        </div>
+
+        <div class="detail-grid detail-grid-3">
+            <div class="detail-field">
+                <div class="detail-field-label">В разработке</div>
+                <div class="detail-field-value">{{ 'Да' if zone.under_construction else 'Нет' }}</div>
+            </div>
+            <div class="detail-field">
+                <div class="detail-field-label">Городская зона</div>
+                <div class="detail-field-value">{{ 'Да' if zone.is_town else 'Нет' }}</div>
+            </div>
+            <div class="detail-field">
+                <div class="detail-field-label">Заблокирована</div>
+                <div class="detail-field-value">{{ 'Да' if zone.locked else 'Нет' }}</div>
+            </div>
         </div>
     </div>
 

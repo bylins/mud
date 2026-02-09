@@ -117,34 +117,32 @@ def zone_detail(vnum):
         return render_template('error.html', error=resp.get('error', 'Zone not found'))
 
 
-@app.route('/zones/<int:vnum>/edit', methods=['GET', 'POST'])
+@app.route('/zones/<int:vnum>/edit', methods=['GET'])
 @login_required
 def zone_edit(vnum):
-    """Edit zone"""
+    """Edit zone - show form"""
     mud = get_mud_client()
-
-    if request.method == 'POST':
-        # Update zone
-        data = {
-            'name': request.form.get('name'),
-            'comment': request.form.get('comment'),
-            'author': request.form.get('author'),
-            'level': int(request.form.get('level', 0)),
-            'lifespan': int(request.form.get('lifespan', 0)),
-        }
-        resp = mud.update_zone(vnum, data)
-        if resp.get('status') == 'ok':
-            return redirect(url_for('zone_detail', vnum=vnum))
-        else:
-            return render_template('error.html', error=resp.get('error'))
-    
-    # GET - show edit form
     resp = mud.get_zone(vnum)
     if resp.get('status') == 'ok':
         zone = resp.get('zone', {})
         return render_template('zone_edit.html', zone=zone)
     else:
         return render_template('error.html', error=resp.get('error'))
+
+
+@app.route('/zones/<int:vnum>/update', methods=['POST'])
+@login_required
+def zone_update(vnum):
+    """Update zone via JSON API - accepts full zone data structure"""
+    mud = get_mud_client()
+
+    # Accept JSON body from AJAX form
+    data = request.get_json()
+    if not data:
+        return jsonify({'status': 'error', 'error': 'No JSON data received'}), 400
+
+    resp = mud.update_zone(vnum, data)
+    return jsonify(resp)
 
 
 @app.route('/mobs')
@@ -269,6 +267,47 @@ def rooms_list():
         return render_template('rooms_list.html', rooms=rooms, zone=zone)
     else:
         return render_template('error.html', error=resp.get('error'))
+
+
+@app.route('/room/<int:vnum>')
+@login_required
+def room_detail(vnum):
+    """Room detail page"""
+    mud = get_mud_client()
+    resp = mud.get_room(vnum)
+    if resp.get('status') == 'ok':
+        room = resp.get('room', {})
+        return render_template('room_detail.html', room=room)
+    else:
+        return render_template('error.html', error=resp.get('error', 'Room not found'))
+
+
+@app.route('/room/<int:vnum>/edit', methods=['GET'])
+@login_required
+def room_edit(vnum):
+    """Edit room - show form"""
+    mud = get_mud_client()
+    resp = mud.get_room(vnum)
+    if resp.get('status') == 'ok':
+        room = resp.get('room', {})
+        return render_template('room_edit.html', room=room)
+    else:
+        return render_template('error.html', error=resp.get('error'))
+
+
+@app.route('/room/<int:vnum>/update', methods=['POST'])
+@login_required
+def room_update(vnum):
+    """Update room via JSON API - accepts full nested room data structure"""
+    mud = get_mud_client()
+
+    # Accept JSON body from AJAX form
+    data = request.get_json()
+    if not data:
+        return jsonify({'status': 'error', 'error': 'No JSON data received'}), 400
+
+    resp = mud.update_room(vnum, data)
+    return jsonify(resp)
 
 
 @app.route('/triggers')
