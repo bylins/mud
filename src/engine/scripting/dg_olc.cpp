@@ -23,6 +23,7 @@
 #include <sys/stat.h>
 #include "engine/db/world_characters.h"
 #include "engine/db/global_objects.h"
+#include "engine/db/world_data_source_manager.h"
 #include "dg_db_scripts.h"
 #include "gameplay/mechanics/dungeons.h"
 
@@ -362,13 +363,8 @@ void trigedit_save(DescriptorData *d) {
 	Trigger *proto;
 	Trigger *trig = OLC_TRIG(d);
 	IndexData **new_index;
+	int zone;
 	DescriptorData *dsc;
-	FILE *trig_file;
-	int zone, top;
-	char buf[kMaxStringLength];
-	char bitBuf[kMaxInputLength];
-	char fname[kMaxInputLength];
-	char logbuf[kMaxInputLength];
 
 	// Recompile the command list from the new script
 	s = OLC_STORAGE(d);
@@ -484,96 +480,24 @@ void trigedit_save(DescriptorData *d) {
 			}
 		}
 	}
-	// now write the trigger out to disk, along with the rest of the  //
-	// triggers for this zone, of course                              //
-	// note: we write this to disk NOW instead of letting the builder //
-	// have control because if we lose this after having assigned a   //
-	// new trigger to an item, we will get SYSERR's upton reboot that //
-	// could make things hard to debug.                               //
+	
+	// Save trigger to disk using data source abstraction (YAML/SQLite/Legacy)
 	TriggerDistribution(d);
 	zone = zone_table[OLC_ZNUM(d)].vnum;
-	top = zone_table[OLC_ZNUM(d)].top;
-	if (zone >= dungeons::kZoneStartDungeons) {
-			sprintf(buf, "Отказ сохранения зоны %d на диск.", zone);
-			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-			return;
-	}
-	sprintf(fname, "%s/%i.new", TRG_PREFIX, zone);
-	if (!(trig_file = fopen(fname, "w"))) {
-		snprintf(logbuf, kMaxInputLength, "SYSERR: OLC: Can't open trig file \"%s\"", fname);
-		mudlog(logbuf, BRF, MAX(kLvlBuilder, GET_INVIS_LEV(d->character)), SYSLOG, true);
-		return;
-	}
-
-	for (i = zone * 100; i <= top; i++) {
-		if ((trig_rnum = GetTriggerRnum(i)) != -1) {
-			trig = trig_index[trig_rnum]->proto;
-
-			if (fprintf(trig_file, "#%d\n", i) < 0) {
-				sprintf(logbuf, "SYSERR: OLC: Can't write trig file!");
-				mudlog(logbuf, BRF, MAX(kLvlBuilder, GET_INVIS_LEV(d->character)), SYSLOG, true);
-				fclose(trig_file);
-				return;
-			}
-			sprintbyts(GET_TRIG_TYPE(trig), bitBuf);
-			fprintf(trig_file, "%s~\n"
-							   "%d %s %d %d\n"
-							   "%s~\n",
-					(GET_TRIG_NAME(trig)) ? (GET_TRIG_NAME(trig)) :
-					"unknown trigger", trig->get_attach_type(), bitBuf,
-					GET_TRIG_NARG(trig), trig->add_flag, trig->arglist.c_str());
-
-			// Build the text for the script
-			int lev = 0;
-			strcpy(buf, "");
-			for (cmd = *trig->cmdlist; cmd; cmd = cmd->next) {
-				// Indenting
-				indent_trigger(cmd->cmd, &lev);
-				strcat(buf, cmd->cmd.c_str());
-				strcat(buf, "\n");
-			}
-
-			if (lev > 0) {
-				SendMsgToChar(d->character.get(), "WARNING: Positive indent-level on trigger #%d end.\r\n", i);
-			}
-
-			if (!buf[0]) {
-				strcpy(buf, "* Empty script~\n");
-				fprintf(trig_file, "%s", buf);
-			} else {
-				char *p;
-				// замена одиночного '~' на '~~'
-				p = strtok(buf, "~");
-				fprintf(trig_file, "%s", p);
-				while ((p = strtok(nullptr, "~")) != nullptr) {
-					fprintf(trig_file, "~~%s", p);
-				}
-				fprintf(trig_file, "~\n");
-			}
-
-			*buf = '\0';
-		}
-	}
-
-	fprintf(trig_file, "$\n$\n");
-	fclose(trig_file);
-	sprintf(buf, "%s/%d.trg", TRG_PREFIX, zone);
-	remove(buf);
-	rename(fname, buf);
-	if (chmod(buf, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP) < 0) {
-		std::stringstream ss;
-		ss << "Error chmod file: " << buf << " (" << __FILE__ << " "<< __func__ << "  "<< __LINE__ << ")";
-		mudlog(ss.str(), BRF, kLvlGod, SYSLOG, true);
-	}
+	log("trigedit_save: About to call SaveTriggers for zone_rnum=%d vnum=%d", OLC_ZNUM(d), OLC_NUM(d));
+	auto* data_source = world_loader::WorldDataSourceManager::Instance().GetDataSource();
+	data_source->SaveTriggers(OLC_ZNUM(d), OLC_NUM(d));
+	log("trigedit_save: SaveTriggers completed");
+	
 	SendMsgToChar("Триггер сохранен.\r\n", d->character.get());
 	trigedit_create_index(zone, "trg");
 }
 
 // Save all triggers for a zone to disk (without requiring DescriptorData)
 void trigedit_save_to_disk(int zone_rnum) {
+	FILE *trig_file;
 	int trig_rnum, i;
 	Trigger *trig;
-	FILE *trig_file;
 	int zone, top;
 	char buf[kMaxStringLength];
 	char bitBuf[kMaxInputLength];

@@ -2092,8 +2092,12 @@ void admin_api_update_trigger(DescriptorData *d, int trig_vnum, const char *json
 
 		// Create dummy character to prevent OLC crashes when sending menus
 		temp_d->character = std::make_shared<CharData>();
+		if (!temp_d->character) {
+			throw std::runtime_error("Failed to create CharData for Admin API");
+		}
 		temp_d->character->desc = temp_d;  // Set descriptor so SendMsgToChar works
 		temp_d->character->set_name("AdminAPI");  // Set name for olc_log
+		log("Admin API: Created character for trigedit, character=%p", temp_d->character.get());
 
 		// Create trigger copy for editing
 		Trigger *trig = new Trigger(*trig_index[rnum]->proto);
@@ -2137,8 +2141,13 @@ void admin_api_update_trigger(DescriptorData *d, int trig_vnum, const char *json
 		}
 
 		// Save via OLC (compiles script, updates proto, updates live triggers, saves to disk)
+		log("Admin API: About to call trigedit_save, character=%p", temp_d->character.get());
+		if (!temp_d->character) {
+			throw std::runtime_error("Character is nullptr before trigedit_save");
+		}
 		extern void trigedit_save(DescriptorData *d);
 		trigedit_save(temp_d);
+		log("Admin API: trigedit_save completed successfully");
 
 		// Clean up
 		if (temp_d->olc->storage) {

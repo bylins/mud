@@ -510,6 +510,125 @@ def test_comprehensive_room(sock, vnum):
         print(f"✗ Error: {response.get('error', 'Unknown error')}")
 
 
+
+def test_comprehensive_trigger(sock, vnum):
+    """Test comprehensive trigger update with all fields."""
+    print(f"\n[TRIGGER #{vnum}] Testing comprehensive update...")
+    
+    # First get current trigger
+    response = send_command(sock, "get_trigger", vnum=vnum)
+    if response.get('status') != 'ok':
+        print(f"  ✗ Failed to get trigger: {response.get('error')}")
+        return
+    
+    original = response.get('trigger', {})
+    print(f"  ✓ Got trigger: {original.get('name', 'unnamed')}")
+    
+    # Update with all fields
+    update_data = {
+        'name': 'UPDATED TRIGGER via Admin API',
+        'attach_type': 0,
+        'trigger_type': 4194304,
+        'narg': 100,
+        'arglist': 'test argument',
+        'script': '%echo% This trigger was updated via Admin API\nreturn 0\n'
+    }
+    
+    print(f"  → Updating trigger with all fields...")
+    response = send_command(sock, "update_trigger", vnum=vnum, data=update_data)
+    
+    if response.get('status') != 'ok':
+        print(f"  ✗ Update failed: {response.get('error')}")
+        return
+    
+    print(f"  ✓ Update successful")
+    
+    # Verify by getting again
+    response = send_command(sock, "get_trigger", vnum=vnum)
+    if response.get('status') != 'ok':
+        print(f"  ✗ Failed to verify: {response.get('error')}")
+        return
+    
+    updated = response.get('trigger', {})
+    
+    # Check all fields
+    checks = [
+        ('name', update_data['name']),
+        ('attach_type', update_data['attach_type']),
+        ('trigger_type', update_data['trigger_type']),
+        ('narg', update_data['narg']),
+        ('arglist', update_data['arglist']),
+    ]
+    
+    all_ok = True
+    for field, expected in checks:
+        actual = updated.get(field)
+        if actual == expected:
+            print(f"  ✓ Verified: {field}={actual}")
+        else:
+            print(f"  ✗ Mismatch: {field}={actual} (expected {expected})")
+            all_ok = False
+    
+    # Check script (commands)
+    if updated.get('commands'):
+        script_text = '\n'.join(updated['commands'])
+        if 'Admin API' in script_text:
+            print(f"  ✓ Verified: script contains update text")
+        else:
+            print(f"  ✗ Script doesn't contain update text")
+            all_ok = False
+    else:
+        print(f"  ✗ No commands in updated trigger")
+        all_ok = False
+    
+    # Verify YAML file
+    print(f"  → Verifying YAML file was saved...")
+    world_dir = os.environ.get('WORLD_DIR', os.path.expanduser('~/repos/world.yaml'))
+    yaml_path = f"{world_dir}/world/triggers/{vnum}.yaml"
+    
+    if os.path.exists(yaml_path):
+        try:
+            import yaml
+            with open(yaml_path, 'r', encoding='koi8-r') as f:
+                yaml_data = yaml.safe_load(f)
+            
+            if yaml_data.get('name') == update_data['name']:
+                print(f"  ✓ YAML file saved with correct name")
+            else:
+                print(f"  ✗ YAML file has wrong name: {yaml_data.get('name')}")
+                all_ok = False
+                
+            if yaml_data.get('arglist') == update_data['arglist']:
+                print(f"  ✓ YAML file saved with correct arglist")
+            else:
+                print(f"  ✗ YAML file has wrong arglist: {yaml_data.get('arglist')}")
+                all_ok = False
+                
+        except Exception as e:
+            print(f"  ✗ Failed to read YAML: {e}")
+            all_ok = False
+    else:
+        print(f"  ✗ YAML file not found: {yaml_path}")
+        all_ok = False
+    
+    if all_ok:
+        print(f"  ✅ TRIGGER UPDATE TEST PASSED")
+    else:
+        print(f"  ❌ TRIGGER UPDATE TEST FAILED")
+    
+    # Restore original
+    print(f"  → Restoring original trigger...")
+    restore_data = {
+        'name': original.get('name', ''),
+        'attach_type': original.get('attach_type', 0),
+        'trigger_type': original.get('trigger_type', 0),
+        'narg': original.get('narg', 0),
+        'arglist': original.get('arglist', ''),
+        'script': '\n'.join(original.get('commands', []))
+    }
+    send_command(sock, "update_trigger", vnum=vnum, data=restore_data)
+    print(f"  ✓ Restored original")
+
 def main():
     if len(sys.argv) < 2:
         print("Usage: test_admin_api.py <command> [args...]")
@@ -721,6 +840,12 @@ def main():
             print("TESTING ROOM COMPREHENSIVE UPDATE (ALL FIELDS)")
             print("="*60)
             test_comprehensive_room(sock, 101)
+
+            # Test comprehensive trigger CRUD (all fields)
+            print("\n" + "="*60)
+            print("TESTING TRIGGER COMPREHENSIVE UPDATE (ALL FIELDS)")
+            print("="*60)
+            test_comprehensive_trigger(sock, 107)
 
             print("\n" + "="*60)
             print("FULL CRUD TEST COMPLETE")

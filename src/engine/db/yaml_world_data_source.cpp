@@ -117,6 +117,7 @@ public:
 					value.find('>') != std::string::npos ||
 					value.find('\"') != std::string::npos ||
 					value.find('\'') != std::string::npos ||
+					value.find('%') != std::string::npos ||  // % is YAML directive indicator
 					value[0] == ' ' || value[0] == '-' || value[0] == '?' ||
 					value[0] == '@' || value[0] == '`') {
 					needs_quoting = true;
@@ -2395,6 +2396,7 @@ void YamlWorldDataSource::SaveZone(int zone_rnum)
 
 void YamlWorldDataSource::SaveTriggers(int zone_rnum, int specific_vnum)
 {
+	log("SaveTriggers called: zone_rnum=%d, specific_vnum=%d", zone_rnum, specific_vnum);
 	if (zone_rnum < 0 || zone_rnum >= static_cast<int>(zone_table.size()))
 	{
 		log("SYSERR: Invalid zone_rnum %d for SaveTriggers", zone_rnum);
@@ -2405,6 +2407,7 @@ void YamlWorldDataSource::SaveTriggers(int zone_rnum, int specific_vnum)
 	TrgRnum first_trig = zone.RnumTrigsLocation.first;
 	TrgRnum last_trig = zone.RnumTrigsLocation.second;
 
+	log("SaveTriggers: Zone %d, first_trig=%d, last_trig=%d", zone.vnum, first_trig, last_trig);
 	if (first_trig == -1 || last_trig == -1)
 	{
 		log("Zone %d has no triggers to save", zone.vnum);
@@ -2419,6 +2422,7 @@ void YamlWorldDataSource::SaveTriggers(int zone_rnum, int specific_vnum)
 	}
 
 	int saved_count = 0;
+	log("SaveTriggers: Iterating triggers from %d to %d, specific_vnum=%d", first_trig, last_trig, specific_vnum);
 	for (TrgRnum trig_rnum = first_trig; trig_rnum <= last_trig && trig_rnum <= top_of_trigt; ++trig_rnum)
 	{
 		if (!trig_index[trig_rnum])
@@ -2437,12 +2441,15 @@ void YamlWorldDataSource::SaveTriggers(int zone_rnum, int specific_vnum)
 		// If specific_vnum is set, save only that trigger
 		if (specific_vnum != -1 && trig_vnum != specific_vnum)
 		{
+			log("SaveTriggers: Skipping trigger %d (looking for %d)", trig_vnum, specific_vnum);
 			continue;
 		}
 
+		log("SaveTriggers: Saving trigger #%d", trig_vnum);
 		// Open temp file for writing
 		std::string trig_file = trig_dir + "/" + std::to_string(trig_vnum) + ".yaml";
 		std::string temp_file = trig_file + ".tmp";
+		log("SaveTriggers: Writing to %s", temp_file.c_str());
 		std::ofstream out(temp_file);
 		if (!out.is_open())
 		{

@@ -160,6 +160,7 @@ void ResetGameWorldTime();
 int CountMobsInRoom(int m_num, int r_num);
 void SetZoneRnumForObjects();
 void SetZoneRnumForMobiles();
+void SetZoneRnumForTriggers();
 void InitBasicValues();
 void LoadMessages();
 int CompareSocials(const void *a, const void *b);
@@ -459,6 +460,10 @@ void GameLoader::BootWorld(std::unique_ptr<world_loader::IWorldDataSource> data_
 	boot_profiler.next_step("Renumbering Mob_zone");
 	log("Renumbering Mob_zone.");
 	SetZoneRnumForMobiles();
+
+	boot_profiler.next_step("Calculating trigger locations for zones");
+	log("Calculating trigger locations for zones.");
+	SetZoneRnumForTriggers();
 
 	boot_profiler.next_step("Initialization of object rnums");
 	log("Init system_obj rnums.");
@@ -1469,6 +1474,36 @@ void SetZoneRnumForMobiles() {
 	int i;
 	for (i = 0; i <= top_of_mobt; ++i) {
 		mob_index[i].zone = get_zone_rnum_by_mob_vnum(mob_index[i].vnum);
+	}
+}
+
+void SetZoneRnumForTriggers() {
+	// Calculate RnumTrigsLocation (first and last trigger rnum) for each zone
+	// This works for all data source formats (Legacy, YAML, SQLite)
+
+	// First pass: find first and last trigger for each zone
+	// NOTE: top_of_trigt is the COUNT, not the last index (unlike top_of_mobt)
+	for (int i = 0; i < top_of_trigt; ++i) {
+		if (!trig_index[i]) {
+			continue;
+		}
+
+		int trig_vnum = trig_index[i]->vnum;
+		ZoneVnum zone_vnum = trig_vnum / 100;
+		ZoneRnum zone_rnum = GetZoneRnum(zone_vnum);
+
+		if (zone_rnum == kNowhere) {
+			log("WARNING: Trigger %d belongs to non-existent zone %d", trig_vnum, zone_vnum);
+			continue;
+		}
+
+		// Set first trigger for this zone (if not set yet)
+		if (zone_table[zone_rnum].RnumTrigsLocation.first == -1) {
+			zone_table[zone_rnum].RnumTrigsLocation.first = i;
+		}
+
+		// Always update last trigger for this zone
+		zone_table[zone_rnum].RnumTrigsLocation.second = i;
 	}
 }
 
