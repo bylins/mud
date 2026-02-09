@@ -14,6 +14,18 @@ class MudAdminClient:
         self.password = password
         self.authenticated = False
     
+    def _recv_line(self, sock, max_size=1048576):
+        """Read data until newline or max_size"""
+        data = b''
+        while len(data) < max_size:
+            chunk = sock.recv(1)
+            if not chunk:
+                break
+            data += chunk
+            if chunk == b'\n':
+                break
+        return data
+
     def _send_command(self, command, **params):
         """Send command to Admin API and return response"""
         try:
@@ -21,35 +33,27 @@ class MudAdminClient:
             sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
             sock.settimeout(30.0)  # 30 seconds for complex operations
             sock.connect(self.socket_path)
-            
-            # Read greeting
-            greeting = sock.recv(4096)
+
+            # Read greeting (until newline)
+            greeting = self._recv_line(sock)
 
             # Authenticate if credentials provided
             if self.username and self.password:
                 auth_cmd = {"command": "auth", "username": self.username, "password": self.password}
                 sock.send((json.dumps(auth_cmd) + '\n').encode())
-                auth_resp = json.loads(sock.recv(4096).decode())
+                auth_resp_data = self._recv_line(sock)
+                auth_resp = json.loads(auth_resp_data.decode())
 
                 if auth_resp.get('status') != 'ok':
                     raise ValueError(f"Authentication failed: {auth_resp.get('error', 'Unknown error')}")
-            
+
             # Send actual command
             request = {"command": command}
             request.update(params)
             sock.send((json.dumps(request) + '\n').encode())
 
-            # Receive response (read until connection closes or we get complete JSON)
-            response_data = b''
-            while True:
-                try:
-                    chunk = sock.recv(8192)
-                    if not chunk:
-                        break
-                    response_data += chunk
-                except socket.timeout:
-                    break
-
+            # Receive response (read until newline)
+            response_data = self._recv_line(sock)
             sock.close()
 
             if not response_data:
