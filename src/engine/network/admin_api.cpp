@@ -1776,8 +1776,8 @@ void admin_api_get_stats(DescriptorData *d) {
 	json response;
 	response["status"] = "ok";
 
-	// Count zones
-	response["zones"] = static_cast<int>(zone_table.size());
+	// Count zones (excluding zone_table[0] which is kNowhere)
+	response["zones"] = static_cast<int>(zone_table.size()) - 1;
 
 	// Count mob prototypes
 	response["mobs"] = top_of_mobt + 1;
@@ -1838,7 +1838,8 @@ void admin_api_list_zones(DescriptorData *d) {
 	response["status"] = "ok";
 	response["zones"] = json::array();
 
-	for (ZoneRnum zrn = 0; zrn < static_cast<ZoneRnum>(zone_table.size()); ++zrn) {
+	// Skip zone_table[0] which is reserved as kNowhere
+	for (ZoneRnum zrn = 1; zrn < static_cast<ZoneRnum>(zone_table.size()); ++zrn) {
 		const ZoneData &zone = zone_table[zrn];
 
 		json zone_obj;
