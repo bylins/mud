@@ -1,0 +1,238 @@
+{% extends "base.html" %}
+
+{% block title %}Редактирование триггера #{{ trig.vnum }} - Былины MUD{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs-bar">
+    <div class="max-w-[1280px] mx-auto px-6 py-2.5">
+        <div class="flex items-center gap-2 font-inter text-sm text-ink-muted">
+            <a href="{{ url_for('index') }}">Главная</a>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #d4c49a;">
+                <polyline points="9 18 15 12 9 6"/>
+            </svg>
+            <a href="{{ url_for('triggers_list', zone=trig.vnum // 100) }}">Триггеры</a>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #d4c49a;">
+                <polyline points="9 18 15 12 9 6"/>
+            </svg>
+            <span class="text-ink-light">Редактирование #{{ trig.vnum }}</span>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+
+    <!-- Page Header -->
+    <div class="page-header" style="margin-bottom: 8px;">
+        <div>
+            <h2 class="font-serif-display" style="font-size: 28px;">
+                Редактирование триггера <span class="text-amber-700">#{{ trig.vnum }}</span>
+            </h2>
+            <p class="page-subtitle" style="margin-top: 4px;">
+                {{ trig.name|default('Без названия') }}
+            </p>
+        </div>
+
+        <a href="{{ url_for('trigger_detail', vnum=trig.vnum) }}" class="btn-secondary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            Отмена
+        </a>
+    </div>
+
+    <!-- Ornamental divider -->
+    <div class="ornament-divider">
+        <div class="ornament-divider-inner">
+            <div class="ornament-line ornament-line-left"></div>
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" style="opacity: 0.5;">
+                <path d="M10 2L12 8L18 8L13 12L15 18L10 14L5 18L7 12L2 8L8 8Z"/>
+            </svg>
+            <div class="ornament-line ornament-line-right"></div>
+        </div>
+    </div>
+
+    <form id="trigger-form" method="POST">
+
+        <!-- Basic Info Section -->
+        <div class="parchment-section">
+            <div class="parchment-section-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+                </svg>
+                Основная информация
+            </div>
+
+            <div class="form-grid form-grid-1">
+                <div class="form-field">
+                    <label for="name" class="form-label">Название</label>
+                    <input type="text" id="name" name="name" class="form-input" value="{{ trig.name if trig.name else '' }}">
+                    <div class="form-help">Краткое имя триггера для идентификации</div>
+                </div>
+            </div>
+
+            <div class="form-grid form-grid-3">
+                <div class="form-field">
+                    <label for="attach_type" class="form-label">Attach Type</label>
+                    <select id="attach_type" name="attach_type" class="form-input">
+                        <option value="0" {% if trig.attach_type == 0 %}selected{% endif %}>MOB</option>
+                        <option value="1" {% if trig.attach_type == 1 %}selected{% endif %}>OBJ</option>
+                        <option value="2" {% if trig.attach_type == 2 %}selected{% endif %}>WLD (Room)</option>
+                    </select>
+                    <div class="form-help">Тип сущности, к которой привязан триггер</div>
+                </div>
+
+                <div class="form-field">
+                    <label for="trigger_type" class="form-label">Trigger Type</label>
+                    <input type="number" id="trigger_type" name="trigger_type" class="form-input" value="{{ trig.trigger_type if trig.trigger_type is defined else 0 }}">
+                    <div class="form-help">Тип события (битовая маска)</div>
+                </div>
+
+                <div class="form-field">
+                    <label for="narg" class="form-label">NArg</label>
+                    <input type="number" id="narg" name="narg" class="form-input" value="{{ trig.narg if trig.narg is defined else 0 }}">
+                    <div class="form-help">Числовой аргумент триггера</div>
+                </div>
+            </div>
+
+            <div class="form-grid form-grid-1">
+                <div class="form-field">
+                    <label for="arglist" class="form-label">Arglist</label>
+                    <input type="text" id="arglist" name="arglist" class="form-input" value="{{ trig.arglist if trig.arglist else '' }}">
+                    <div class="form-help">Текстовый аргумент (например, ключевое слово для COMMAND триггера)</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Script Section -->
+        <div class="parchment-section">
+            <div class="parchment-section-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                </svg>
+                Скрипт (DG Commands)
+            </div>
+
+            <div class="form-grid form-grid-1">
+                <div class="form-field">
+                    <label for="script" class="form-label">Script</label>
+                    <textarea id="script" name="script" class="form-input" rows="20" style="font-family: 'Courier New', monospace; font-size: 13px;">{% if trig.commands %}{% for cmd in trig.commands %}{{ cmd }}
+{% endfor %}{% endif %}</textarea>
+                    <div class="form-help">Тело скрипта триггера (DG Script commands, каждая команда с новой строки)</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div style="display: flex; gap: 12px; padding-top: 8px;">
+            <button type="submit" class="btn-primary">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"/>
+                </svg>
+                Сохранить
+            </button>
+
+            <a href="{{ url_for('trigger_detail', vnum=trig.vnum) }}" class="btn-secondary">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"/>
+                    <line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+                Отмена
+            </a>
+        </div>
+
+    </form>
+
+    <!-- Message Display -->
+    <div id="message" style="display: none; margin-top: 20px;"></div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.getElementById('trigger-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const formData = new FormData(this);
+    const data = {};
+
+    // Simple field mapping (no nested objects for triggers)
+    for (let [key, value] of formData.entries()) {
+        // Convert numbers
+        if (key === 'trigger_type' || key === 'narg' || key === 'attach_type') {
+            data[key] = parseInt(value) || 0;
+        }
+        // Keep as string
+        else {
+            data[key] = value;
+        }
+    }
+
+    try {
+        const response = await fetch('/trigger/{{ trig.vnum }}/update', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+        const messageDiv = document.getElementById('message');
+
+        if (result.status === 'ok') {
+            messageDiv.className = 'msg-success';
+            messageDiv.innerHTML = `
+                <div style="flex-shrink: 0; margin-top: 2px;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#15803d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                </div>
+                <div>
+                    <div class="msg-title">Триггер сохранён</div>
+                    <div class="msg-text">Все изменения применены успешно.</div>
+                </div>
+            `;
+        } else {
+            messageDiv.className = 'msg-error';
+            messageDiv.innerHTML = `
+                <div style="flex-shrink: 0; margin-top: 2px;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="12" y1="8" x2="12" y2="12"/>
+                        <line x1="12" y1="16" x2="12.01" y2="16"/>
+                    </svg>
+                </div>
+                <div>
+                    <div class="msg-title">Ошибка сохранения</div>
+                    <div class="msg-text">${result.error || 'Неизвестная ошибка'}</div>
+                </div>
+            `;
+        }
+
+        messageDiv.style.display = 'flex';
+
+        setTimeout(() => {
+            messageDiv.style.display = 'none';
+        }, 5000);
+
+    } catch (error) {
+        const messageDiv = document.getElementById('message');
+        messageDiv.className = 'msg-error';
+        messageDiv.innerHTML = `
+            <div style="flex-shrink: 0; margin-top: 2px;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="12" y1="8" x2="12" y2="12"/>
+                    <line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+            </div>
+            <div>
+                <div class="msg-title">Ошибка сохранения</div>
+                <div class="msg-text">${error}</div>
+            </div>
+        `;
+        messageDiv.style.display = 'flex';
+    }
+});
+</script>
+{% endblock %}

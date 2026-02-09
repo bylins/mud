@@ -285,6 +285,47 @@ def triggers_list():
         return render_template('error.html', error=resp.get('error'))
 
 
+@app.route('/trigger/<int:vnum>')
+@login_required
+def trigger_detail(vnum):
+    """Trigger detail page"""
+    mud = get_mud_client()
+    resp = mud.get_trigger(vnum)
+    if resp.get('status') == 'ok':
+        trig = resp.get('trigger', {})
+        return render_template('trigger_detail.html', trig=trig)
+    else:
+        return render_template('error.html', error=resp.get('error', 'Trigger not found'))
+
+
+@app.route('/trigger/<int:vnum>/edit', methods=['GET'])
+@login_required
+def trigger_edit(vnum):
+    """Edit trigger - show form"""
+    mud = get_mud_client()
+    resp = mud.get_trigger(vnum)
+    if resp.get('status') == 'ok':
+        trig = resp.get('trigger', {})
+        return render_template('trigger_edit.html', trig=trig)
+    else:
+        return render_template('error.html', error=resp.get('error'))
+
+
+@app.route('/trigger/<int:vnum>/update', methods=['POST'])
+@login_required
+def trigger_update(vnum):
+    """Update trigger via JSON API"""
+    mud = get_mud_client()
+
+    # Accept JSON body from AJAX form
+    data = request.get_json()
+    if not data:
+        return jsonify({'status': 'error', 'error': 'No JSON data received'}), 400
+
+    resp = mud.update_trigger(vnum, data)
+    return jsonify(resp)
+
+
 # API endpoints for AJAX
 @app.route('/api/zones')
 @login_required

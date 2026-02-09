@@ -33,12 +33,22 @@
             </p>
         </div>
 
-        <a href="{{ url_for('triggers_list', zone=trig.vnum // 100) }}" class="btn-secondary">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M19 12H5M12 19l-7-7 7-7"/>
-            </svg>
-            К списку
-        </a>
+        <div style="display: flex; gap: 12px;">
+            <a href="{{ url_for('trigger_edit', vnum=trig.vnum) }}" class="btn-primary">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                </svg>
+                Редактировать
+            </a>
+
+            <a href="{{ url_for('triggers_list', zone=trig.vnum // 100) }}" class="btn-secondary">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+                К списку
+            </a>
+        </div>
     </div>
 
     <!-- Ornamental divider -->
@@ -52,13 +62,13 @@
         </div>
     </div>
 
-    <!-- Trigger Info -->
+    <!-- SECTION 1: Basic Info -->
     <div class="parchment-section">
         <div class="parchment-section-title">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
             </svg>
-            Информация
+            Основная информация
         </div>
 
         <div class="detail-grid detail-grid-2">
@@ -66,15 +76,71 @@
                 <div class="detail-field-label">Vnum</div>
                 <div class="detail-field-value">{{ trig.vnum }}</div>
             </div>
+
             <div class="detail-field">
                 <div class="detail-field-label">Название</div>
-                <div class="detail-field-value{% if not trig.name %} empty{% endif %}">{{ trig.name|default('--') }}</div>
+                <div class="detail-field-value{% if not trig.name %} empty{% endif %}">
+                    {{ trig.name|default('Не задано') }}
+                </div>
+            </div>
+
+            <div class="detail-field">
+                <div class="detail-field-label">Attach Type (тип привязки)</div>
+                <div class="detail-field-value">
+                    {% if trig.attach_type == 0 %}MOB
+                    {% elif trig.attach_type == 1 %}OBJ
+                    {% elif trig.attach_type == 2 %}WLD (Room)
+                    {% else %}{{ trig.attach_type }}{% endif %}
+                </div>
+            </div>
+
+            <div class="detail-field">
+                <div class="detail-field-label">Trigger Type (тип события)</div>
+                <div class="detail-field-value">{{ trig.trigger_type if trig.trigger_type is defined else '--' }}</div>
+            </div>
+
+            <div class="detail-field">
+                <div class="detail-field-label">NArg (числовой аргумент)</div>
+                <div class="detail-field-value">{{ trig.narg if trig.narg is defined else '--' }}</div>
+            </div>
+
+            <div class="detail-field">
+                <div class="detail-field-label">Arglist (текстовый аргумент)</div>
+                <div class="detail-field-value{% if not trig.arglist %} empty{% endif %}">
+                    {{ trig.arglist|default('Не задано') }}
+                </div>
             </div>
         </div>
     </div>
 
+    <!-- SECTION 2: Script Commands -->
+    <div class="parchment-section">
+        <div class="parchment-section-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+            </svg>
+            Скрипт (DG Commands)
+        </div>
+
+        {% if trig.commands and trig.commands|length > 0 %}
+        <div style="background: #faf8f3; border: 1px solid #e7dac3; border-radius: 6px; padding: 16px; font-family: 'Courier New', monospace; font-size: 13px; line-height: 1.6; white-space: pre-wrap; overflow-x: auto;">{% for cmd in trig.commands %}{{ cmd }}
+{% endfor %}</div>
+        {% else %}
+        <div class="detail-field-value empty">Скрипт пуст</div>
+        {% endif %}
+    </div>
+
     <!-- Bottom Actions -->
     <div style="display: flex; gap: 12px; padding-top: 8px;">
+        <a href="{{ url_for('trigger_edit', vnum=trig.vnum) }}" class="btn-primary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+            </svg>
+            Редактировать
+        </a>
+
         <a href="{{ url_for('triggers_list', zone=trig.vnum // 100) }}" class="btn-secondary">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M19 12H5M12 19l-7-7 7-7"/>
