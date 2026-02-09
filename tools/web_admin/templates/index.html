@@ -123,11 +123,7 @@
                     </td>
                     <td style="padding: 12px; color: #4b5563;">{{ player.level }}</td>
                     <td style="padding: 12px; color: #4b5563;">{{ player.class }}</td>
-                    <td style="padding: 12px;">
-                        <a href="{{ url_for('room_detail', vnum=player.room) }}" style="color: #b45309; text-decoration: none;">
-                            #{{ player.room }}
-                        </a>
-                    </td>
+                    <td style="padding: 12px; color: #4b5563;">#{{ player.room }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
