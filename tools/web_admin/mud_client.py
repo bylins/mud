@@ -19,7 +19,7 @@ class MudAdminClient:
         try:
             # Connect to Unix socket
             sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-            sock.settimeout(5.0)
+            sock.settimeout(30.0)  # 30 seconds for complex operations
             sock.connect(self.socket_path)
             
             # Read greeting
@@ -38,12 +38,24 @@ class MudAdminClient:
             request = {"command": command}
             request.update(params)
             sock.send((json.dumps(request) + '\n').encode())
-            
-            # Receive response
-            response_data = sock.recv(65536).decode()
+
+            # Receive response (read until connection closes or we get complete JSON)
+            response_data = b''
+            while True:
+                try:
+                    chunk = sock.recv(8192)
+                    if not chunk:
+                        break
+                    response_data += chunk
+                except socket.timeout:
+                    break
+
             sock.close()
-            
-            return json.loads(response_data)
+
+            if not response_data:
+                return {"status": "error", "error": "No response from server"}
+
+            return json.loads(response_data.decode())
             
         except socket.timeout:
             return {"status": "error", "error": "Connection timeout"}
