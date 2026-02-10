@@ -633,48 +633,39 @@
             <div class="flag-toggle-grid" id="roles-grid">
                 <button type="button" class="flag-toggle" data-role-bit="0"
                     {% if mob.roles and 0 in mob.roles %}data-active="1"{% endif %}>
-                    <span class="flag-toggle-bit">0</span>
-                    <span class="flag-toggle-name">Босс</span>
+                    <span class="flag-toggle-name">Босс (Boss)</span>
                 </button>
                 <button type="button" class="flag-toggle" data-role-bit="1"
                     {% if mob.roles and 1 in mob.roles %}data-active="1"{% endif %}>
-                    <span class="flag-toggle-bit">1</span>
-                    <span class="flag-toggle-name">Треш</span>
+                    <span class="flag-toggle-name">Треш (Trash)</span>
                 </button>
                 <button type="button" class="flag-toggle" data-role-bit="2"
                     {% if mob.roles and 2 in mob.roles %}data-active="1"{% endif %}>
-                    <span class="flag-toggle-bit">2</span>
-                    <span class="flag-toggle-name">Танк</span>
+                    <span class="flag-toggle-name">Танк (Tank)</span>
                 </button>
                 <button type="button" class="flag-toggle" data-role-bit="3"
                     {% if mob.roles and 3 in mob.roles %}data-active="1"{% endif %}>
-                    <span class="flag-toggle-bit">3</span>
-                    <span class="flag-toggle-name">Мели-дамагер</span>
+                    <span class="flag-toggle-name">Мили-ДД (MeleeDmg)</span>
                 </button>
                 <button type="button" class="flag-toggle" data-role-bit="4"
                     {% if mob.roles and 4 in mob.roles %}data-active="1"{% endif %}>
-                    <span class="flag-toggle-bit">4</span>
-                    <span class="flag-toggle-name">Лучник</span>
+                    <span class="flag-toggle-name">Лучник (Archer)</span>
                 </button>
                 <button type="button" class="flag-toggle" data-role-bit="5"
                     {% if mob.roles and 5 in mob.roles %}data-active="1"{% endif %}>
-                    <span class="flag-toggle-bit">5</span>
-                    <span class="flag-toggle-name">Тать</span>
+                    <span class="flag-toggle-name">Разбойник (Rogue)</span>
                 </button>
                 <button type="button" class="flag-toggle" data-role-bit="6"
                     {% if mob.roles and 6 in mob.roles %}data-active="1"{% endif %}>
-                    <span class="flag-toggle-bit">6</span>
-                    <span class="flag-toggle-name">Маг-дамагер</span>
+                    <span class="flag-toggle-name">Маг-ДД (MageDmg)</span>
                 </button>
                 <button type="button" class="flag-toggle" data-role-bit="7"
                     {% if mob.roles and 7 in mob.roles %}data-active="1"{% endif %}>
-                    <span class="flag-toggle-bit">7</span>
-                    <span class="flag-toggle-name">Маг-суппорт</span>
+                    <span class="flag-toggle-name">Маг-Бафф (MageBuff)</span>
                 </button>
                 <button type="button" class="flag-toggle" data-role-bit="8"
                     {% if mob.roles and 8 in mob.roles %}data-active="1"{% endif %}>
-                    <span class="flag-toggle-bit">8</span>
-                    <span class="flag-toggle-name">Хилер</span>
+                    <span class="flag-toggle-name">Хилер (Healer)</span>
                 </button>
             </div>
         </div>
@@ -1116,29 +1107,31 @@ function validateForm() {
     var errors = [];
     clearValidationErrors();
 
-    var aliasesEl = document.querySelector('[name="aliases"]');
-    if (!aliasesEl.value.trim()) {
+    var aliasesEl = document.querySelector('[name="names.aliases"]');
+    if (!aliasesEl || !aliasesEl.value.trim()) {
         errors.push({
             field: aliasesEl,
             message: 'Алиасы (aliases) обязательны'
         });
     }
 
-    var shortDescEl = document.querySelector('[name="short_desc"]');
-    if (!shortDescEl.value.trim()) {
+    var shortDescEl = document.querySelector('[name="descriptions.short_desc"]');
+    if (!shortDescEl || !shortDescEl.value.trim()) {
         errors.push({
             field: shortDescEl,
             message: 'Короткое описание (short_desc) обязательно'
         });
     }
 
-    var levelEl = document.querySelector('[name="level"]');
-    var levelVal = parseInt(levelEl.value);
-    if (isNaN(levelVal) || levelVal < 0) {
-        errors.push({
-            field: levelEl,
-            message: 'Уровень (level) должен быть >= 0'
-        });
+    var levelEl = document.querySelector('[name="stats.level"]');
+    if (levelEl) {
+        var levelVal = parseInt(levelEl.value);
+        if (isNaN(levelVal) || levelVal < 0) {
+            errors.push({
+                field: levelEl,
+                message: 'Уровень (level) должен быть >= 0'
+            });
+        }
     }
 
     errors = errors.concat(validateDice('hit', 'Hit'));

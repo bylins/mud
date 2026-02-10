@@ -578,11 +578,15 @@
             Роли NPC
         </div>
 
-        {% set role_names = {0: 'Босс', 1: 'Треш', 2: 'Танк', 3: 'Мели-дамагер', 4: 'Лучник', 5: 'Тать', 6: 'Маг-дамагер', 7: 'Маг-суппорт', 8: 'Хилер'} %}
+        {% set role_names = {
+            0: 'Босс (Boss)', 1: 'Треш (Trash)', 2: 'Танк (Tank)',
+            3: 'Мили-ДД (MeleeDmg)', 4: 'Лучник (Archer)', 5: 'Разбойник (Rogue)',
+            6: 'Маг-ДД (MageDmg)', 7: 'Маг-Бафф (MageBuff)', 8: 'Хилер (Healer)'
+        } %}
 
         <div class="tag-list">
             {% for role_id in mob.roles %}
-            <span class="tag">{{ role_id }} - {{ role_names.get(role_id, 'Неизвестная') }}</span>
+            <span class="tag">{{ role_names.get(role_id, 'Неизвестная роль') }}</span>
             {% endfor %}
         </div>
     </div>
