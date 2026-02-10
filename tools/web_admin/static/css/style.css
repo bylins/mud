@@ -1610,3 +1610,90 @@ table th.sortable.sorted-desc::after {
     color: #5C6370;
     font-style: italic;
 } /* gray - * comments */
+
+/* ============================================================
+   TAG INPUT COMPONENT
+   ============================================================ */
+
+.tag-input-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+    padding: 10px;
+    border: 2px solid rgba(139, 69, 19, 0.15);
+    border-radius: 6px;
+    background: #ffffff;
+    min-height: 44px;
+    cursor: text;
+    transition: all 0.2s ease;
+}
+
+.tag-input-container:focus-within {
+    border-color: #b45309;
+    box-shadow: 0 0 0 3px rgba(180, 83, 9, 0.1);
+}
+
+.tag-input-container .tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    background: linear-gradient(135deg, #f5ebe1 0%, #ede0d4 100%);
+    border: 1px solid #d4c49a;
+    border-radius: 4px;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    color: #2d241e;
+    transition: all 0.15s ease;
+}
+
+.tag-input-container .tag:hover {
+    background: linear-gradient(135deg, #ede0d4 0%, #e5d7c9 100%);
+    border-color: #b0a48e;
+}
+
+.tag-input-container .tag .tag-remove {
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: rgba(180, 83, 9, 0.1);
+    color: #b45309;
+    font-weight: bold;
+    font-size: 10px;
+    line-height: 1;
+    transition: all 0.15s ease;
+}
+
+.tag-input-container .tag .tag-remove:hover {
+    background: #b45309;
+    color: #ffffff;
+}
+
+.tag-input-container input {
+    flex: 1;
+    min-width: 120px;
+    border: none;
+    outline: none;
+    background: transparent;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    color: #2d241e;
+    padding: 4px;
+}
+
+.tag-input-container input::placeholder {
+    color: #b0a48e;
+}
+
+/* Tag input hint */
+.tag-input-hint {
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    color: #8a7b6b;
+    margin-top: 4px;
+}

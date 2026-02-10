@@ -1659,6 +1659,20 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Multi-line textarea
     addColorOverlay('desc-long');
+
+    // Initialize tag inputs
+    createTagInput('beh-helpers', {
+        placeholder: 'Введите vnum и нажмите Enter...'
+    });
+
+    createTagInput('skills', {
+        valueSeparator: ':',
+        placeholder: 'Введите умение:значение (например, bash:50) и нажмите Enter...'
+    });
+
+    createTagInput('spells', {
+        placeholder: 'Введите название заклинания и нажмите Enter...'
+    });
 });
 </script>
 

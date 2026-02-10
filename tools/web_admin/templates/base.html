@@ -287,6 +287,124 @@
                 }
             });
         }
+
+        /**
+         * Create a tag input component
+         * @param {string} inputId - ID of the original input element
+         * @param {Object} options - Configuration options
+         * @param {string} options.separator - Delimiter for tags (default: ',')
+         * @param {string} options.valueSeparator - Delimiter for key:value pairs (default: ':')
+         * @param {string} options.placeholder - Placeholder text
+         * @param {Function} options.onUpdate - Callback when tags change
+         */
+        function createTagInput(inputId, options = {}) {
+            const originalInput = document.getElementById(inputId);
+            if (!originalInput) return;
+
+            const separator = options.separator || ',';
+            const valueSeparator = options.valueSeparator || null;
+            const placeholder = options.placeholder || 'Введите значение и нажмите Enter...';
+            const onUpdate = options.onUpdate || null;
+
+            // Hide original input
+            originalInput.style.display = 'none';
+
+            // Create container
+            const container = document.createElement('div');
+            container.className = 'tag-input-container';
+            container.onclick = () => newInput.focus();
+
+            // Create new input
+            const newInput = document.createElement('input');
+            newInput.type = 'text';
+            newInput.placeholder = placeholder;
+
+            // Parse initial value into tags
+            const tags = [];
+            if (originalInput.value) {
+                originalInput.value.split(separator).forEach(item => {
+                    item = item.trim();
+                    if (item) tags.push(item);
+                });
+            }
+
+            // Render tags
+            function renderTags() {
+                container.innerHTML = '';
+                tags.forEach((tag, index) => {
+                    const tagEl = document.createElement('span');
+                    tagEl.className = 'tag';
+
+                    const tagText = document.createElement('span');
+                    tagText.textContent = tag;
+                    tagEl.appendChild(tagText);
+
+                    const removeBtn = document.createElement('span');
+                    removeBtn.className = 'tag-remove';
+                    removeBtn.innerHTML = '×';
+                    removeBtn.onclick = (e) => {
+                        e.stopPropagation();
+                        tags.splice(index, 1);
+                        updateOriginalInput();
+                        renderTags();
+                    };
+                    tagEl.appendChild(removeBtn);
+
+                    container.appendChild(tagEl);
+                });
+                container.appendChild(newInput);
+            }
+
+            // Update original input
+            function updateOriginalInput() {
+                originalInput.value = tags.join(', ');
+                if (onUpdate) onUpdate(tags);
+            }
+
+            // Add tag
+            function addTag(value) {
+                value = value.trim();
+                if (!value) return;
+
+                // Validate format for key:value pairs
+                if (valueSeparator && value.includes(valueSeparator)) {
+                    const parts = value.split(valueSeparator);
+                    if (parts.length !== 2 || !parts[0].trim() || !parts[1].trim()) {
+                        return; // Invalid format
+                    }
+                }
+
+                tags.push(value);
+                updateOriginalInput();
+                renderTags();
+                newInput.value = '';
+            }
+
+            // Handle Enter key
+            newInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    addTag(newInput.value);
+                } else if (e.key === 'Backspace' && !newInput.value && tags.length > 0) {
+                    tags.pop();
+                    updateOriginalInput();
+                    renderTags();
+                }
+            });
+
+            // Handle blur (optional: add tag on blur)
+            newInput.addEventListener('blur', () => {
+                if (newInput.value.trim()) {
+                    addTag(newInput.value);
+                }
+            });
+
+            // Insert after original input
+            originalInput.parentNode.insertBefore(container, originalInput.nextSibling);
+
+            // Initial render
+            renderTags();
+        }
     </script>
 
     {% block scripts %}{% endblock %}
