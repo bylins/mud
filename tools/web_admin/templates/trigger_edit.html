@@ -135,6 +135,14 @@
                     <button type="button" class="trigger-toggle" data-bit="8192" onclick="toggleFlag(this)"><span class="trigger-toggle-hex">0x2000</span><span class="trigger-toggle-name">Загрузка (Load)</span></button>
                     <button type="button" class="trigger-toggle" data-bit="16384" onclick="toggleFlag(this)"><span class="trigger-toggle-hex">0x4000</span><span class="trigger-toggle-name">Убийство (Kill)</span></button>
                     <button type="button" class="trigger-toggle" data-bit="32768" onclick="toggleFlag(this)"><span class="trigger-toggle-hex">0x8000</span><span class="trigger-toggle-name">Урон (Damage)</span></button>
+                    <button type="button" class="trigger-toggle" data-bit="65536" onclick="toggleFlag(this)"><span class="trigger-toggle-hex">0x10000</span><span class="trigger-toggle-name">Приветствие игрока (Greet PC)</span></button>
+                    <button type="button" class="trigger-toggle" data-bit="131072" onclick="toggleFlag(this)"><span class="trigger-toggle-hex">0x20000</span><span class="trigger-toggle-name">Приветствие всех игроков (Greet PC All)</span></button>
+                    <button type="button" class="trigger-toggle" data-bit="262144" onclick="toggleFlag(this)"><span class="trigger-toggle-hex">0x40000</span><span class="trigger-toggle-name">Вход моба (Income)</span></button>
+                    <button type="button" class="trigger-toggle" data-bit="524288" onclick="toggleFlag(this)"><span class="trigger-toggle-hex">0x80000</span><span class="trigger-toggle-name">Вход моба (если игрок) (Income PC)</span></button>
+                    <button type="button" class="trigger-toggle" data-bit="1048576" onclick="toggleFlag(this)"><span class="trigger-toggle-hex">0x100000</span><span class="trigger-toggle-name">Начало боя (Start Fight)</span></button>
+                    <button type="button" class="trigger-toggle" data-bit="2097152" onclick="toggleFlag(this)"><span class="trigger-toggle-hex">0x200000</span><span class="trigger-toggle-name">Раунд боя (Round Num)</span></button>
+                    <button type="button" class="trigger-toggle" data-bit="4194304" onclick="toggleFlag(this)"><span class="trigger-toggle-hex">0x400000</span><span class="trigger-toggle-name">Заклинание (Cast)</span></button>
+                    <button type="button" class="trigger-toggle" data-bit="8388608" onclick="toggleFlag(this)"><span class="trigger-toggle-hex">0x800000</span><span class="trigger-toggle-name">Смена времени (Timechange)</span></button>
                 </div>
             </div>
 
@@ -145,12 +153,23 @@
                     <button type="button" class="trigger-toggle" data-bit="1" onclick="toggleFlag(this)"><span class="trigger-toggle-hex">0x1</span><span class="trigger-toggle-name">Случайный глобальный (Random Global)</span></button>
                     <button type="button" class="trigger-toggle" data-bit="2" onclick="toggleFlag(this)"><span class="trigger-toggle-hex">0x2</span><span class="trigger-toggle-name">Случайный (Random)</span></button>
                     <button type="button" class="trigger-toggle" data-bit="4" onclick="toggleFlag(this)"><span class="trigger-toggle-hex">0x4</span><span class="trigger-toggle-name">Команда (Command)</span></button>
+                    <button type="button" class="trigger-toggle" data-bit="8" onclick="toggleFlag(this)"><span class="trigger-toggle-hex">0x8</span><span class="trigger-toggle-name">Очистка (Purge)</span></button>
+                    <button type="button" class="trigger-toggle" data-bit="16" onclick="toggleFlag(this)"><span class="trigger-toggle-hex">0x10</span><span class="trigger-toggle-name">Бой (Fight)</span></button>
+                    <button type="button" class="trigger-toggle" data-bit="32" onclick="toggleFlag(this)"><span class="trigger-toggle-hex">0x20</span><span class="trigger-toggle-name">Таймер (Timer)</span></button>
                     <button type="button" class="trigger-toggle" data-bit="64" onclick="toggleFlag(this)"><span class="trigger-toggle-hex">0x40</span><span class="trigger-toggle-name">Взять (Get)</span></button>
                     <button type="button" class="trigger-toggle" data-bit="128" onclick="toggleFlag(this)"><span class="trigger-toggle-hex">0x80</span><span class="trigger-toggle-name">Уронить (Drop)</span></button>
                     <button type="button" class="trigger-toggle" data-bit="256" onclick="toggleFlag(this)"><span class="trigger-toggle-hex">0x100</span><span class="trigger-toggle-name">Дать (Give)</span></button>
                     <button type="button" class="trigger-toggle" data-bit="512" onclick="toggleFlag(this)"><span class="trigger-toggle-hex">0x200</span><span class="trigger-toggle-name">Надеть (Wear)</span></button>
                     <button type="button" class="trigger-toggle" data-bit="2048" onclick="toggleFlag(this)"><span class="trigger-toggle-hex">0x800</span><span class="trigger-toggle-name">Снять (Remove)</span></button>
                     <button type="button" class="trigger-toggle" data-bit="8192" onclick="toggleFlag(this)"><span class="trigger-toggle-hex">0x2000</span><span class="trigger-toggle-name">Загрузка (Load)</span></button>
+                    <button type="button" class="trigger-toggle" data-bit="16384" onclick="toggleFlag(this)"><span class="trigger-toggle-hex">0x4000</span><span class="trigger-toggle-name">Отпирание замка (Unlock)</span></button>
+                    <button type="button" class="trigger-toggle" data-bit="32768" onclick="toggleFlag(this)"><span class="trigger-toggle-hex">0x8000</span><span class="trigger-toggle-name">Открытие (Open)</span></button>
+                    <button type="button" class="trigger-toggle" data-bit="65536" onclick="toggleFlag(this)"><span class="trigger-toggle-hex">0x10000</span><span class="trigger-toggle-name">Закрытие замка (Lock)</span></button>
+                    <button type="button" class="trigger-toggle" data-bit="131072" onclick="toggleFlag(this)"><span class="trigger-toggle-hex">0x20000</span><span class="trigger-toggle-name">Закрытие (Close)</span></button>
+                    <button type="button" class="trigger-toggle" data-bit="262144" onclick="toggleFlag(this)"><span class="trigger-toggle-hex">0x40000</span><span class="trigger-toggle-name">Взлом (Pick)</span></button>
+                    <button type="button" class="trigger-toggle" data-bit="524288" onclick="toggleFlag(this)"><span class="trigger-toggle-hex">0x80000</span><span class="trigger-toggle-name">Приветствие всех игроков (Greet All PC)</span></button>
+                    <button type="button" class="trigger-toggle" data-bit="1048576" onclick="toggleFlag(this)"><span class="trigger-toggle-hex">0x100000</span><span class="trigger-toggle-name">Смена времени (Timechange)</span></button>
+                    <button type="button" class="trigger-toggle" data-bit="2097152" onclick="toggleFlag(this)"><span class="trigger-toggle-hex">0x200000</span><span class="trigger-toggle-name">Помещение (Put)</span></button>
                 </div>
             </div>
 
@@ -165,6 +184,14 @@
                     <button type="button" class="trigger-toggle" data-bit="16" onclick="toggleFlag(this)"><span class="trigger-toggle-hex">0x10</span><span class="trigger-toggle-name">Вход игрока (Enter PC)</span></button>
                     <button type="button" class="trigger-toggle" data-bit="32" onclick="toggleFlag(this)"><span class="trigger-toggle-hex">0x20</span><span class="trigger-toggle-name">Сброс (Reset)</span></button>
                     <button type="button" class="trigger-toggle" data-bit="64" onclick="toggleFlag(this)"><span class="trigger-toggle-hex">0x40</span><span class="trigger-toggle-name">Вход (Enter)</span></button>
+                    <button type="button" class="trigger-toggle" data-bit="128" onclick="toggleFlag(this)"><span class="trigger-toggle-hex">0x80</span><span class="trigger-toggle-name">Уронить (Drop)</span></button>
+                    <button type="button" class="trigger-toggle" data-bit="256" onclick="toggleFlag(this)"><span class="trigger-toggle-hex">0x100</span><span class="trigger-toggle-name">Отпирание замка (Unlock)</span></button>
+                    <button type="button" class="trigger-toggle" data-bit="512" onclick="toggleFlag(this)"><span class="trigger-toggle-hex">0x200</span><span class="trigger-toggle-name">Открытие (Open)</span></button>
+                    <button type="button" class="trigger-toggle" data-bit="1024" onclick="toggleFlag(this)"><span class="trigger-toggle-hex">0x400</span><span class="trigger-toggle-name">Закрытие замка (Lock)</span></button>
+                    <button type="button" class="trigger-toggle" data-bit="2048" onclick="toggleFlag(this)"><span class="trigger-toggle-hex">0x800</span><span class="trigger-toggle-name">Закрытие (Close)</span></button>
+                    <button type="button" class="trigger-toggle" data-bit="4096" onclick="toggleFlag(this)"><span class="trigger-toggle-hex">0x1000</span><span class="trigger-toggle-name">Взлом (Pick)</span></button>
+                    <button type="button" class="trigger-toggle" data-bit="8192" onclick="toggleFlag(this)"><span class="trigger-toggle-hex">0x2000</span><span class="trigger-toggle-name">Смена времени (Timechange)</span></button>
+                    <button type="button" class="trigger-toggle" data-bit="16384" onclick="toggleFlag(this)"><span class="trigger-toggle-hex">0x4000</span><span class="trigger-toggle-name">Убийство игрока (Kill PC)</span></button>
                 </div>
             </div>
 
@@ -173,8 +200,18 @@
                 <div style="margin-bottom: 10px;">
                     Итоговое значение: <span id="trigger-type-hex" style="font-weight: 600; color: #5a4d3f;">0x0</span> <span style="color: #b0a48e;">(dec: <span id="trigger-type-dec" style="font-weight: 600; color: #5a4d3f;">0</span>)</span>
                 </div>
-                <!-- Visual bit display -->
+                <!-- Visual bit display (bits 0-23) -->
                 <div style="display: flex; gap: 3px; flex-wrap: wrap;">
+                    <div id="bit-23" class="bit-box" data-bit="23">23</div>
+                    <div id="bit-22" class="bit-box" data-bit="22">22</div>
+                    <div id="bit-21" class="bit-box" data-bit="21">21</div>
+                    <div id="bit-20" class="bit-box" data-bit="20">20</div>
+                    <div style="width: 8px;"></div>
+                    <div id="bit-19" class="bit-box" data-bit="19">19</div>
+                    <div id="bit-18" class="bit-box" data-bit="18">18</div>
+                    <div id="bit-17" class="bit-box" data-bit="17">17</div>
+                    <div id="bit-16" class="bit-box" data-bit="16">16</div>
+                    <div style="width: 8px;"></div>
                     <div id="bit-15" class="bit-box" data-bit="15">15</div>
                     <div id="bit-14" class="bit-box" data-bit="14">14</div>
                     <div id="bit-13" class="bit-box" data-bit="13">13</div>
@@ -255,8 +292,8 @@
     }
 
     .trigger-toggle-grid {
-        display: flex;
-        flex-wrap: wrap;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
         gap: 8px;
     }
 
@@ -402,8 +439,8 @@
         document.getElementById('trigger-type-hex').textContent = hexStr;
         document.getElementById('trigger-type-dec').textContent = total;
 
-        // Update bit boxes visual display
-        for (var bitPos = 0; bitPos <= 15; bitPos++) {
+        // Update bit boxes visual display (bits 0-23)
+        for (var bitPos = 0; bitPos <= 23; bitPos++) {
             var bitBox = document.getElementById('bit-' + bitPos);
             if (bitBox) {
                 if (total & (1 << bitPos)) {
