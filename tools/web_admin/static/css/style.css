@@ -985,7 +985,33 @@ button:not(.btn-primary):not(.btn-secondary):not(.section-toggle):not(.trigger-t
 }
 
 /* ============================================================
-   26. RESPONSIVE
+   26. BIT DISPLAY (TRIGGER TYPE FLAGS)
+   ============================================================ */
+.bit-box {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    font-weight: 600;
+    border: 2px solid rgba(120, 53, 15, 0.2);
+    border-radius: 4px;
+    background-color: rgba(253, 246, 227, 0.6);
+    color: #8a7b6b;
+    transition: all 0.2s ease;
+}
+
+.bit-box.active {
+    background-color: #b45309;
+    border-color: #92400e;
+    color: #fdf6e3;
+    box-shadow: 0 1px 3px rgba(180, 83, 9, 0.3);
+}
+
+/* ============================================================
+   27. RESPONSIVE
    ============================================================ */
 @media (max-width: 768px) {
     .container {

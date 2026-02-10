@@ -173,15 +173,27 @@
                 <div style="margin-bottom: 10px;">
                     Итоговое значение: <span id="trigger-type-hex" style="font-weight: 600; color: #5a4d3f;">0x0</span> <span style="color: #b0a48e;">(dec: <span id="trigger-type-dec" style="font-weight: 600; color: #5a4d3f;">0</span>)</span>
                 </div>
-                <div style="font-family: 'Courier New', monospace; font-size: 13px; line-height: 1.6;">
-                    <!-- Bit numbers -->
-                    <div style="color: #b0a48e; margin-bottom: 3px;">
-                        <span style="display: inline-block; width: 2.5em;">Бит:</span><span style="display: inline-block; width: 6.5em; text-align: center;">15 14 13 12</span><span style="display: inline-block; width: 6.5em; text-align: center;">11 10  9  8</span><span style="display: inline-block; width: 6.5em; text-align: center;"> 7  6  5  4</span><span style="display: inline-block; width: 6.5em; text-align: center;"> 3  2  1  0</span>
-                    </div>
-                    <!-- Binary value -->
-                    <div style="color: #5a4d3f; font-weight: 600;">
-                        <span style="display: inline-block; width: 2.5em;">0b</span><span id="trigger-type-bin-group0" style="display: inline-block; width: 6.5em; text-align: center;">0000</span><span id="trigger-type-bin-group1" style="display: inline-block; width: 6.5em; text-align: center;">0000</span><span id="trigger-type-bin-group2" style="display: inline-block; width: 6.5em; text-align: center;">0000</span><span id="trigger-type-bin-group3" style="display: inline-block; width: 6.5em; text-align: center;">0000</span>
-                    </div>
+                <!-- Visual bit display -->
+                <div style="display: flex; gap: 3px; flex-wrap: wrap;">
+                    <div id="bit-15" class="bit-box" data-bit="15">15</div>
+                    <div id="bit-14" class="bit-box" data-bit="14">14</div>
+                    <div id="bit-13" class="bit-box" data-bit="13">13</div>
+                    <div id="bit-12" class="bit-box" data-bit="12">12</div>
+                    <div style="width: 8px;"></div>
+                    <div id="bit-11" class="bit-box" data-bit="11">11</div>
+                    <div id="bit-10" class="bit-box" data-bit="10">10</div>
+                    <div id="bit-9" class="bit-box" data-bit="9">9</div>
+                    <div id="bit-8" class="bit-box" data-bit="8">8</div>
+                    <div style="width: 8px;"></div>
+                    <div id="bit-7" class="bit-box" data-bit="7">7</div>
+                    <div id="bit-6" class="bit-box" data-bit="6">6</div>
+                    <div id="bit-5" class="bit-box" data-bit="5">5</div>
+                    <div id="bit-4" class="bit-box" data-bit="4">4</div>
+                    <div style="width: 8px;"></div>
+                    <div id="bit-3" class="bit-box" data-bit="3">3</div>
+                    <div id="bit-2" class="bit-box" data-bit="2">2</div>
+                    <div id="bit-1" class="bit-box" data-bit="1">1</div>
+                    <div id="bit-0" class="bit-box" data-bit="0">0</div>
                 </div>
             </div>
         </div>
@@ -387,15 +399,20 @@
 
         // Update the hint text
         var hexStr = '0x' + total.toString(16).toUpperCase();
-        var binStr = ('0000000000000000' + total.toString(2)).slice(-16);
-        // Split binary into 4 groups of 4 bits
-        var binGroups = binStr.match(/.{1,4}/g);
         document.getElementById('trigger-type-hex').textContent = hexStr;
         document.getElementById('trigger-type-dec').textContent = total;
-        document.getElementById('trigger-type-bin-group0').textContent = binGroups[0];
-        document.getElementById('trigger-type-bin-group1').textContent = binGroups[1];
-        document.getElementById('trigger-type-bin-group2').textContent = binGroups[2];
-        document.getElementById('trigger-type-bin-group3').textContent = binGroups[3];
+
+        // Update bit boxes visual display
+        for (var bitPos = 0; bitPos <= 15; bitPos++) {
+            var bitBox = document.getElementById('bit-' + bitPos);
+            if (bitBox) {
+                if (total & (1 << bitPos)) {
+                    bitBox.classList.add('active');
+                } else {
+                    bitBox.classList.remove('active');
+                }
+            }
+        }
     };
 
     // Initialize: set toggle buttons from the existing trigger_type value
