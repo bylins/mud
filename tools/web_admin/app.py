@@ -277,7 +277,11 @@ def room_detail(vnum):
     resp = mud.get_room(vnum)
     if resp.get('status') == 'ok':
         room = resp.get('room', {})
-        return render_template('room_detail.html', room=room)
+        # Get zone info
+        zone_vnum = vnum // 100
+        zone_resp = mud.get_zone(zone_vnum)
+        zone = zone_resp.get('zone', {}) if zone_resp.get('status') == 'ok' else {}
+        return render_template('room_detail.html', room=room, zone=zone)
     else:
         return render_template('error.html', error=resp.get('error', 'Room not found'))
 

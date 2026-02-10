@@ -30,6 +30,7 @@
             </h2>
             <p class="page-subtitle" style="margin-top: 4px;">
                 {{ room.name|default('Без названия') }}
+                <span style="color: #b0a48e; margin-left: 12px;">зона {{ room.vnum // 100 }}{% if zone.name %} - {{ zone.name }}{% endif %}</span>
             </p>
         </div>
 
