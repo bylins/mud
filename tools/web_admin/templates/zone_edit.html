@@ -192,10 +192,10 @@
                 </div>
             </div>
             <div class="field-group">
-                <label style="margin-bottom: 10px;">Статус</label>
-                <div style="font-family: 'Inter', sans-serif; font-size: 14px; color: #5a4d3f; padding: 10px 12px; background-color: rgba(253, 246, 227, 0.6); border: 1px solid rgba(120, 53, 15, 0.08); border-radius: 6px;">
-                    Верхний Vnum: <strong style="color: #2d241e;">{{ zone.top|default('--') }}</strong>
-                </div>
+                <label for="top">Максимальный VNUM комнаты (top)</label>
+                <input type="number" id="top" name="top" min="0"
+                       value="{{ zone.top|default(0) }}"
+                       placeholder="Верхняя граница диапазона VNUMов комнат зоны">
             </div>
         </div>
     </div>

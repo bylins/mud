@@ -169,8 +169,20 @@
             </div>
 
             <!-- Calculated value hint -->
-            <div id="trigger-type-hint" style="font-family: 'Inter', sans-serif; font-size: 13px; color: #8a7b6b; margin-top: 12px; padding: 8px 12px; background-color: rgba(253, 246, 227, 0.4); border-radius: 6px; border: 1px dashed rgba(120, 53, 15, 0.12);">
-                Итоговое значение: <span id="trigger-type-hex" style="font-weight: 600; color: #5a4d3f;">0x0</span> <span style="color: #b0a48e;">(</span>dec: <span id="trigger-type-dec" style="font-weight: 600; color: #5a4d3f;">0</span>, bin: <span id="trigger-type-bin" style="font-weight: 600; color: #5a4d3f; font-family: 'Courier New', monospace;">0b0000000000000000</span><span style="color: #b0a48e;">)</span>
+            <div id="trigger-type-hint" style="font-family: 'Inter', sans-serif; font-size: 13px; color: #8a7b6b; margin-top: 12px; padding: 12px; background-color: rgba(253, 246, 227, 0.4); border-radius: 6px; border: 1px dashed rgba(120, 53, 15, 0.12);">
+                <div style="margin-bottom: 8px;">
+                    Итоговое значение: <span id="trigger-type-hex" style="font-weight: 600; color: #5a4d3f;">0x0</span> <span style="color: #b0a48e;">(dec: <span id="trigger-type-dec" style="font-weight: 600; color: #5a4d3f;">0</span>)</span>
+                </div>
+                <div style="font-family: 'Courier New', monospace; font-size: 12px; line-height: 1.4;">
+                    <!-- Bit numbers -->
+                    <div style="color: #b0a48e; margin-bottom: 2px; letter-spacing: 0.5ch;">
+                        <span style="margin-right: 0.5ch;">Бит:</span><span style="display: inline-block; width: 16ch; text-align: right;">15 14 13 12</span><span style="display: inline-block; width: 13ch; text-align: right;">11 10  9  8</span><span style="display: inline-block; width: 13ch; text-align: right;"> 7  6  5  4</span><span style="display: inline-block; width: 13ch; text-align: right;"> 3  2  1  0</span>
+                    </div>
+                    <!-- Binary value -->
+                    <div style="color: #5a4d3f; font-weight: 600; letter-spacing: 0.5ch;">
+                        <span style="margin-right: 0.5ch;">0b </span><span id="trigger-type-bin" style="display: inline-block; width: 55ch;">0000000000000000</span>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -375,10 +387,12 @@
 
         // Update the hint text
         var hexStr = '0x' + total.toString(16).toUpperCase();
-        var binStr = '0b' + ('0000000000000000' + total.toString(2)).slice(-16);
+        var binStr = ('0000000000000000' + total.toString(2)).slice(-16);
+        // Format binary with spaces every 4 bits
+        var binFormatted = binStr.match(/.{1,4}/g).join(' ');
         document.getElementById('trigger-type-hex').textContent = hexStr;
         document.getElementById('trigger-type-dec').textContent = total;
-        document.getElementById('trigger-type-bin').textContent = binStr;
+        document.getElementById('trigger-type-bin').textContent = binFormatted;
     };
 
     // Initialize: set toggle buttons from the existing trigger_type value
