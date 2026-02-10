@@ -385,7 +385,7 @@ ROOM_FLAGS = [
 
 # Object types (item_types[])
 OBJ_TYPES = [
-    "kUndefined",       # 0
+    "kItemUndefined",   # 0
     "kLightSource",     # 1
     "kScroll",          # 2
     "kWand",            # 3
@@ -565,19 +565,24 @@ AFFECT_FLAGS = [
 # Genders
 GENDERS = ["kNeutral", "kMale", "kFemale", "kPoly"]
 
-# Positions
+# Positions (must match EPosition enum constant names exactly)
 POSITIONS = [
-    "kDead", "kMortally", "kIncapacitated", "kStunned", "kSleeping",
-    "kResting", "kSitting", "kFighting", "kStanding"
+    "kDead", "kPerish", "kIncap", "kStun", "kSleep",
+    "kRest", "kSit", "kFight", "kStand"
 ]
 
-# Sector types
+# Sector types (WARNING: indices 14-19 are unused gap, weather sectors start at 20)
 SECTORS = [
+    # 0-13: Base sectors
     "kInside", "kCity", "kField", "kForest", "kHills", "kMountain",
     "kWaterSwim", "kWaterNoswim", "kOnlyFlying", "kUnderwater", "kSecret",
-    "kStoneroad", "kRoad", "kWildroad", "kFieldSnow", "kFieldRain",
-    "kForestSnow", "kForestRain", "kHillsSnow", "kHillsRain",
-    "kMountainSnow", "kThinIce", "kNormalIce", "kThickIce"
+    "kStoneroad", "kRoad", "kWildroad",
+    # 14-19: GAP (unused in enum, must preserve for correct indexing)
+    None, None, None, None, None, None,
+    # 20-29: Weather-related sectors
+    "kFieldSnow", "kFieldRain", "kForestSnow", "kForestRain",
+    "kHillsSnow", "kHillsRain", "kMountainSnow", "kThinIce",
+    "kNormalIce", "kThickIce"
 ]
 
 # Trigger types
