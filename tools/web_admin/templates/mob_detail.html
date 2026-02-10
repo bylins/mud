@@ -28,7 +28,7 @@
             <h2 class="font-serif-display">
                 Моб <span class="text-amber-700">#{{ mob.vnum }}</span>
             </h2>
-            <p class="page-subtitle" style="margin-top: 4px;">
+            <p class="page-subtitle mud-colorize" style="margin-top: 4px;">
                 {{ mob.names.nominative if mob.names and mob.names.nominative else 'Без имени' }}
             </p>
         </div>
@@ -74,7 +74,7 @@
         <div class="detail-grid detail-grid-2" style="margin-bottom: 20px;">
             <div class="detail-field" style="grid-column: 1 / -1;">
                 <div class="detail-field-label">Ключевые слова (aliases)</div>
-                <div class="detail-field-value{% if not mob.names or not mob.names.aliases %} empty{% endif %}">
+                <div class="detail-field-value mud-colorize{% if not mob.names or not mob.names.aliases %} empty{% endif %}">
                     {{ mob.names.aliases if mob.names and mob.names.aliases else 'Не задано' }}
                 </div>
             </div>
@@ -85,19 +85,19 @@
         <div class="detail-grid detail-grid-3" style="margin-bottom: 16px;">
             <div class="detail-field">
                 <div class="detail-field-label">Именительный (кто?)</div>
-                <div class="detail-field-value{% if not mob.names or not mob.names.nominative %} empty{% endif %}">
+                <div class="detail-field-value mud-colorize{% if not mob.names or not mob.names.nominative %} empty{% endif %}">
                     {{ mob.names.nominative if mob.names and mob.names.nominative else '--' }}
                 </div>
             </div>
             <div class="detail-field">
                 <div class="detail-field-label">Родительный (кого?)</div>
-                <div class="detail-field-value{% if not mob.names or not mob.names.genitive %} empty{% endif %}">
+                <div class="detail-field-value mud-colorize{% if not mob.names or not mob.names.genitive %} empty{% endif %}">
                     {{ mob.names.genitive if mob.names and mob.names.genitive else '--' }}
                 </div>
             </div>
             <div class="detail-field">
                 <div class="detail-field-label">Дательный (кому?)</div>
-                <div class="detail-field-value{% if not mob.names or not mob.names.dative %} empty{% endif %}">
+                <div class="detail-field-value mud-colorize{% if not mob.names or not mob.names.dative %} empty{% endif %}">
                     {{ mob.names.dative if mob.names and mob.names.dative else '--' }}
                 </div>
             </div>
@@ -106,19 +106,19 @@
         <div class="detail-grid detail-grid-3">
             <div class="detail-field">
                 <div class="detail-field-label">Винительный (кого?)</div>
-                <div class="detail-field-value{% if not mob.names or not mob.names.accusative %} empty{% endif %}">
+                <div class="detail-field-value mud-colorize{% if not mob.names or not mob.names.accusative %} empty{% endif %}">
                     {{ mob.names.accusative if mob.names and mob.names.accusative else '--' }}
                 </div>
             </div>
             <div class="detail-field">
                 <div class="detail-field-label">Творительный (кем?)</div>
-                <div class="detail-field-value{% if not mob.names or not mob.names.instrumental %} empty{% endif %}">
+                <div class="detail-field-value mud-colorize{% if not mob.names or not mob.names.instrumental %} empty{% endif %}">
                     {{ mob.names.instrumental if mob.names and mob.names.instrumental else '--' }}
                 </div>
             </div>
             <div class="detail-field">
                 <div class="detail-field-label">Предложный (о ком?)</div>
-                <div class="detail-field-value{% if not mob.names or not mob.names.prepositional %} empty{% endif %}">
+                <div class="detail-field-value mud-colorize{% if not mob.names or not mob.names.prepositional %} empty{% endif %}">
                     {{ mob.names.prepositional if mob.names and mob.names.prepositional else '--' }}
                 </div>
             </div>
@@ -140,7 +140,7 @@
         <div class="detail-grid" style="margin-bottom: 16px;">
             <div class="detail-field">
                 <div class="detail-field-label">Краткое описание</div>
-                <div class="detail-field-value{% if not mob.descriptions or not mob.descriptions.short_desc %} empty{% endif %}">
+                <div class="detail-field-value mud-colorize{% if not mob.descriptions or not mob.descriptions.short_desc %} empty{% endif %}">
                     {{ mob.descriptions.short_desc if mob.descriptions and mob.descriptions.short_desc else 'Не задано' }}
                 </div>
             </div>
@@ -149,7 +149,7 @@
         <div class="detail-grid">
             <div class="detail-field">
                 <div class="detail-field-label">Полное описание</div>
-                <div class="detail-field-value multiline{% if not mob.descriptions or not mob.descriptions.long_desc %} empty{% endif %}">{{ mob.descriptions.long_desc if mob.descriptions and mob.descriptions.long_desc else 'Не задано' }}</div>
+                <div class="detail-field-value multiline mud-colorize{% if not mob.descriptions or not mob.descriptions.long_desc %} empty{% endif %}">{{ mob.descriptions.long_desc if mob.descriptions and mob.descriptions.long_desc else 'Не задано' }}</div>
             </div>
         </div>
     </div>
@@ -534,31 +534,207 @@
             Флаги
         </div>
 
+        {# === MOB Flags === #}
+        {% set mob_flags_p0 = {
+            1: 'Спец-проц (Spec)', 2: 'Страж (Sentinel)', 4: 'Мусорщик (Scavenger)',
+            8: 'NPC флаг (Npc)', 16: 'Осторожный (Aware)', 32: 'Агрессивный (Aggressive)',
+            64: 'Не уходит из зоны (StayZone)', 128: 'Трус (Wimpy)',
+            256: 'Агр. днём (AggressiveDay)', 512: 'Агр. ночью (AggressiveNight)',
+            1024: 'Агр. в полнолуние (AggressiveFullmoon)', 2048: 'Память (Memory)',
+            4096: 'Помощник (Helper)', 8192: 'Не зачаровать (NoCharm)',
+            16384: 'Не призвать (NoSummon)', 32768: 'Не усыпить (NoSleep)',
+            65536: 'Не сломить (NoBash)', 131072: 'Не ослепить (NoBlind)',
+            262144: 'Скакун (Mounting)', 524288: 'Не удержать (NoHold)',
+            1048576: 'Не заткнуть (NoSilence)', 2097152: 'Агр. Моно (AggressiveMono)',
+            4194304: 'Агр. Поли (AggressivePoly)', 8388608: 'Не испугать (NoFear)',
+            16777216: 'Не группируется (NoGroup)', 33554432: 'Труп (Corpse)',
+            67108864: 'Грабитель (Looter)', 134217728: 'Защитник (Protect)',
+            268435456: 'Удалён (MobDeleted)', 536870912: 'Освобождён (MobFreed)'
+        } %}
+        {% set mob_flags_p1 = {
+            1073741825: 'Плавающий (Swimming)', 1073741826: 'Летающий (Flying)', 1073741828: 'Только плавает (OnlySwimming)',
+            1073741832: 'Агр. зимой (AggressiveWinter)', 1073741840: 'Агр. весной (AggressiveSpring)',
+            1073741856: 'Агр. летом (AggressiveSummer)', 1073741888: 'Агр. осенью (AggressiveAutumn)',
+            1073741952: 'Появ. днём (AppearsDay)', 1073742080: 'Появ. ночью (AppearsNight)',
+            1073742336: 'Появ. в полнолуние (AppearsFullmoon)', 1073742848: 'Появ. зимой (AppearsWinter)',
+            1073743872: 'Появ. весной (AppearsSpring)', 1073745920: 'Появ. летом (AppearsSummer)',
+            1073750016: 'Появ. осенью (AppearsAutumn)', 1073758208: 'Не дерётся (NoFight)',
+            1073774592: 'Меньше атак (DecreaseAttack)', 1073807360: 'Орда (Horde)',
+            1073872896: 'Клон (Clone)', 1074003968: 'Не убивать точным (NotKillPunctual)',
+            1074266112: 'Не подсечь (NoUndercut)', 1074790400: 'Покровитель (Tutelar)',
+            1075838976: 'Страж города (CityGuardian)', 1077936128: 'Игнор. запретные (IgnoreForbidden)',
+            1082130432: 'Нет опыта за бой (NoBattleExp)', 1090519040: 'Нет молота (NoHammer)',
+            1107296256: 'Ментальная тень (MentalShadow)', 1140850688: 'Призванный (Summoned)'
+        } %}
+        {% set mob_flags_p2 = {
+            2147483649: 'Дыхание огня (FireBreath)', 2147483650: 'Дыхание газа (GasBreath)',
+            2147483652: 'Дыхание холода (FrostBreath)', 2147483656: 'Дыхание кислоты (AcidBreath)',
+            2147483664: 'Дыхание молнии (LightingBreath)', 2147483680: 'Не тренирует (NoSkillTrain)',
+            2147483712: 'Не отдыхает (NoRest)', 2147483776: 'Атака зоны (AreaAttack)',
+            2147483904: 'Не подавить (NoOverwhelm)', 2147484160: 'Не помогает (NoHelp)',
+            2147484672: 'Открывает двери (OpensDoor)', 2147485696: 'Игнор. NoMob (IgnoresNoMob)',
+            2147487744: 'Игнор. мирную (IgnoresPeaceRoom)', 2147491840: 'Воскрешён (Resurrected)',
+            2148532224: 'Не воскресить (NoResurrection)', 2149580800: 'Всегда бодр (MobAwake)',
+            2151677952: 'Игнор. строй (IgnoresFormation)'
+        } %}
+
         {% if mob.flags.mob_flags %}
         <div class="subsection-label">MOB флаги</div>
-        <div class="tag-list" style="margin-bottom: 16px;">
-            {% for flag in mob.flags.mob_flags %}
-            <span class="tag">{{ flag }}</span>
-            {% endfor %}
+        {% set ns = namespace(found=false) %}
+        {% for flag_val in mob.flags.mob_flags %}
+            {% set flag_int = flag_val|int %}
+            {% if flag_int in mob_flags_p0 or flag_int in mob_flags_p1 or flag_int in mob_flags_p2 %}
+                {% set ns.found = true %}
+            {% endif %}
+        {% endfor %}
+        {% if ns.found %}
+        <div style="margin-bottom: 16px;">
+            <div class="flag-cards">
+                {% for flag_val in mob.flags.mob_flags %}
+                    {% set flag_int = flag_val|int %}
+                    {% if flag_int in mob_flags_p0 %}
+                        <span class="flag-card">{{ mob_flags_p0[flag_int] }}</span>
+                    {% elif flag_int in mob_flags_p1 %}
+                        <span class="flag-card">{{ mob_flags_p1[flag_int] }}</span>
+                    {% elif flag_int in mob_flags_p2 %}
+                        <span class="flag-card">{{ mob_flags_p2[flag_int] }}</span>
+                    {% endif %}
+                {% endfor %}
+            </div>
         </div>
+        {% else %}
+        <div class="detail-field-value empty" style="margin-bottom: 16px;">Не распознано</div>
         {% endif %}
+        {% endif %}
+
+        {# === AFF Flags === #}
+        {% set aff_flags_p0 = {
+            1: 'Слепота (Blind)', 2: 'Невидимость (Invisible)', 4: 'Чувств. характер (DetectAlign)',
+            8: 'Видит невид. (DetectInvisible)', 16: 'Чувств. магию (DetectMagic)',
+            32: 'Чувств. жизнь (DetectLife)', 64: 'Хождение по воде (WaterWalk)',
+            128: 'Святилище (Sanctuary)', 256: 'Группа (Group)',
+            512: 'Проклятие (Curse)', 1024: 'Инфразрение (Infravision)',
+            2048: 'Отравлен (Poisoned)', 4096: 'Защ. от тьмы (ProtectFromDark)',
+            8192: 'Защ. от разума (ProtectFromMind)', 16384: 'Сон (Sleep)',
+            32768: 'Без следов (NoTrack)', 65536: 'Привязан (Tethered)',
+            131072: 'Благословение (Bless)', 262144: 'Скрытность (Sneak)',
+            524288: 'Прятаться (Hide)', 1048576: 'Храбрость (Courage)',
+            2097152: 'Очарован (Charmed)', 4194304: 'Удержание (Hold)',
+            8388608: 'Полёт (Fly)', 16777216: 'Безмолвие (Silence)',
+            33554432: 'Осведомлённость (Awarness)', 67108864: 'Мерцание (Blink)',
+            134217728: 'Конь (Horse)', 268435456: 'Не бежать (NoFlee)',
+            536870912: 'Одиночный свет (SingleLight)'
+        } %}
+        {% set aff_flags_p1 = {
+            1073741825: 'Святой свет (HolyLight)', 1073741826: 'Святая тьма (HolyDark)',
+            1073741828: 'Чувств. яд (DetectPoison)', 1073741832: 'Пьян (Drunked)',
+            1073741840: 'Воздержание (Abstinent)', 1073741856: 'Стоп правой (StopRight)',
+            1073741888: 'Стоп левой (StopLeft)', 1073741952: 'Стоп бою (StopFight)',
+            1073742080: 'Кровотечение (Haemorrhage)', 1073742336: 'Маскировка (Disguise)',
+            1073742848: 'Дыхание под водой (WaterBreath)', 1073743872: 'Замедление (Slow)',
+            1073745920: 'Ускорение (Haste)', 1073750016: 'Щит богов (GodsShield)',
+            1073758208: 'Воздушный щит (AirShield)', 1073774592: 'Огненный щит (FireShield)',
+            1073807360: 'Ледяной щит (IceShield)', 1073872896: 'Магич. зеркало (MagicGlass)',
+            1074003968: 'Лестница (Stairs)', 1074266112: 'Каменные руки (StoneHands)',
+            1074790400: 'Призматич. аура (PrismaticAura)', 1075838976: 'Помощник (Helper)',
+            1077936128: 'Силы зла (ForcesOfEvil)', 1082130432: 'Воздушная аура (AirAura)',
+            1090519040: 'Огненная аура (FireAura)', 1107296256: 'Ледяная аура (IceAura)',
+            1140850688: 'Глухота (Deafness)', 1207959552: 'Плач (Crying)',
+            1342177280: 'Мирный (Peaceful)', 1610612736: 'Магич. стоп (MagicStopFight)'
+        } %}
+        {% set aff_flags_p2 = {
+            2147483649: 'Берсерк (Berserk)', 2147483650: 'Лёгкая поступь (LightWalk)',
+            2147483652: 'Разорванные цепи (BrokenChains)', 2147483656: 'Облако стрел (CloudOfArrows)',
+            2147483664: 'Плащ теней (ShadowCloak)', 2147483680: 'Блёстки (GlitterDust)',
+            2147483712: 'Испуг (Affright)', 2147483776: 'Яд скополы (ScopolaPoison)',
+            2147483904: 'Яд дурмана (DaturaPoison)', 2147484160: 'Снижение умений (SkillReduce)',
+            2147484672: 'Без переключения (NoBattleSwitch)', 2147485696: 'Яд белены (BelenaPoison)',
+            2147487744: 'Без телепорта (NoTeleport)', 2147491840: 'Боевая удача (CombatLuck)',
+            2147500032: 'Бинт (Bandage)', 2147516416: 'Нельзя бинтовать (CannotBeBandaged)',
+            2147549184: 'Превращение (Morphing)', 2147614720: 'Удушение (Strangled)',
+            2147745792: 'Запомин. заклин. (MemorizeSpells)', 2148007936: 'Новичок реген (NoobRegen)',
+            2148532224: 'Вампиризм (Vampirism)', 2149580800: 'Рваные раны (Lacerations)',
+            2151677952: 'Командир (Commander)', 2155872256: 'Земная аура (EarthAura)',
+            2164260864: 'Затуманенность (Cloudly)', 2181038080: 'Замешательство (Confused)',
+            2214592512: 'Без рывка (NoCharge)', 2281701376: 'Ранен (Injured)',
+            2415919104: 'Безумие (Frenzy)'
+        } %}
 
         {% if mob.flags.affect_flags %}
         <div class="subsection-label">AFF флаги</div>
-        <div class="tag-list" style="margin-bottom: 16px;">
-            {% for flag in mob.flags.affect_flags %}
-            <span class="tag">{{ flag }}</span>
-            {% endfor %}
+        {% set ns = namespace(found=false) %}
+        {% for flag_val in mob.flags.affect_flags %}
+            {% set flag_int = flag_val|int %}
+            {% if flag_int in aff_flags_p0 or flag_int in aff_flags_p1 or flag_int in aff_flags_p2 %}
+                {% set ns.found = true %}
+            {% endif %}
+        {% endfor %}
+        {% if ns.found %}
+        <div style="margin-bottom: 16px;">
+            <div class="flag-cards">
+                {% for flag_val in mob.flags.affect_flags %}
+                    {% set flag_int = flag_val|int %}
+                    {% if flag_int in aff_flags_p0 %}
+                        <span class="flag-card">{{ aff_flags_p0[flag_int] }}</span>
+                    {% elif flag_int in aff_flags_p1 %}
+                        <span class="flag-card">{{ aff_flags_p1[flag_int] }}</span>
+                    {% elif flag_int in aff_flags_p2 %}
+                        <span class="flag-card">{{ aff_flags_p2[flag_int] }}</span>
+                    {% endif %}
+                {% endfor %}
+            </div>
         </div>
+        {% else %}
+        <div class="detail-field-value empty" style="margin-bottom: 16px;">Не распознано</div>
         {% endif %}
+        {% endif %}
+
+        {# === NPC Flags === #}
+        {% set npc_flags_p0 = {
+            1: 'Блок север (BlockNorth)', 2: 'Блок восток (BlockEast)',
+            4: 'Блок юг (BlockSouth)', 8: 'Блок запад (BlockWest)',
+            16: 'Блок вверх (BlockUp)', 32: 'Блок вниз (BlockDown)',
+            64: 'Ядовитый (Toxic)', 128: 'Невидим (Invis)',
+            256: 'Скрытность (Sneaking)', 512: 'Маскировка (Disguising)',
+            2048: 'Движение полёт (MoveFly)', 4096: 'Движение ползком (MoveCreep)',
+            8192: 'Движение прыжком (MoveJump)', 16384: 'Движение плавание (MoveSwim)',
+            32768: 'Движение бег (MoveRun)',
+            1048576: 'Воздушное сущ. (AirCreature)', 2097152: 'Водное сущ. (WaterCreature)',
+            4194304: 'Земное сущ. (EarthCreature)', 8388608: 'Огненное сущ. (FireCreature)',
+            16777216: 'Помог (Helped)', 33554432: 'Свободная добыча (FreeDrop)',
+            67108864: 'Без сбора ингр. (NoIngrDrop)', 134217728: 'Не в списке наёмников (NoMercList)'
+        } %}
+        {% set npc_flags_p1 = {
+            1073741825: 'Воровство (Stealing)', 1073741826: 'Владение оружием (Wielding)',
+            1073741828: 'Бронирование (Armoring)', 1073741832: 'Использование света (UsingLight)',
+            1073741840: 'Не берёт предметы (NoTakeItems)', 1073741856: 'Игнор. редкие убийства (IgnoreRareKill)'
+        } %}
 
         {% if mob.flags.npc_flags %}
         <div class="subsection-label">NPC флаги</div>
-        <div class="tag-list">
-            {% for flag in mob.flags.npc_flags %}
-            <span class="tag">{{ flag }}</span>
-            {% endfor %}
+        {% set ns = namespace(found=false) %}
+        {% for flag_val in mob.flags.npc_flags %}
+            {% set flag_int = flag_val|int %}
+            {% if flag_int in npc_flags_p0 or flag_int in npc_flags_p1 %}
+                {% set ns.found = true %}
+            {% endif %}
+        {% endfor %}
+        {% if ns.found %}
+        <div>
+            <div class="flag-cards">
+                {% for flag_val in mob.flags.npc_flags %}
+                    {% set flag_int = flag_val|int %}
+                    {% if flag_int in npc_flags_p0 %}
+                        <span class="flag-card">{{ npc_flags_p0[flag_int] }}</span>
+                    {% elif flag_int in npc_flags_p1 %}
+                        <span class="flag-card">{{ npc_flags_p1[flag_int] }}</span>
+                    {% endif %}
+                {% endfor %}
+            </div>
         </div>
+        {% else %}
+        <div class="detail-field-value empty">Не распознано</div>
+        {% endif %}
         {% endif %}
 
         {% if not mob.flags.mob_flags and not mob.flags.affect_flags and not mob.flags.npc_flags %}
@@ -718,4 +894,11 @@
         </a>
     </div>
 
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Apply MUD color codes
+    applyMudColors();
+</script>
 {% endblock %}

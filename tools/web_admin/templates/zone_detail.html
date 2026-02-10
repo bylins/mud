@@ -28,7 +28,7 @@
             <h2 class="font-serif-display" style="font-size: 28px;">
                 Зона <span class="text-amber-700">#{{ zone.vnum }}</span>
             </h2>
-            <p class="page-subtitle" style="margin-top: 4px;">
+            <p class="page-subtitle mud-colorize" style="margin-top: 4px;">
                 {{ zone.name }}
             </p>
         </div>
@@ -78,14 +78,14 @@
             </div>
             <div class="detail-field">
                 <div class="detail-field-label">Название</div>
-                <div class="detail-field-value">{{ zone.name }}</div>
+                <div class="detail-field-value mud-colorize">{{ zone.name }}</div>
             </div>
         </div>
 
         <div class="detail-grid detail-grid-3" style="margin-bottom: 20px;">
             <div class="detail-field">
                 <div class="detail-field-label">Автор</div>
-                <div class="detail-field-value{% if not zone.author %} empty{% endif %}">{{ zone.author|default('--') }}</div>
+                <div class="detail-field-value mud-colorize{% if not zone.author %} empty{% endif %}">{{ zone.author|default('--') }}</div>
             </div>
             <div class="detail-field">
                 <div class="detail-field-label">Уровень</div>
@@ -116,7 +116,7 @@
             {% if zone.comment %}
             <div class="detail-field">
                 <div class="detail-field-label">Комментарий</div>
-                <div class="detail-field-value">{{ zone.comment }}</div>
+                <div class="detail-field-value mud-colorize">{{ zone.comment }}</div>
             </div>
             {% endif %}
         </div>
@@ -137,7 +137,7 @@
         <div class="detail-grid" style="margin-bottom: {% if zone.description %}20{% else %}0{% endif %}px;">
             <div class="detail-field">
                 <div class="detail-field-label">Локация на карте</div>
-                <div class="detail-field-value">{{ zone.location }}</div>
+                <div class="detail-field-value mud-colorize">{{ zone.location }}</div>
             </div>
         </div>
         {% endif %}
@@ -146,7 +146,7 @@
         <div class="detail-grid">
             <div class="detail-field">
                 <div class="detail-field-label">Описание</div>
-                <div class="detail-field-value multiline">{{ zone.description }}</div>
+                <div class="detail-field-value multiline mud-colorize">{{ zone.description }}</div>
             </div>
         </div>
         {% endif %}
@@ -185,6 +185,31 @@
                 <div class="detail-field-value">{{ 'Да' if zone.reset_idle else 'Нет' }}</div>
             </div>
         </div>
+
+        {% if zone.reset_mode == 3 %}
+        <div class="detail-grid detail-grid-2" style="margin-bottom: 20px;">
+            <div class="detail-field">
+                <div class="detail-field-label">TypeA список (type_a_list)</div>
+                <div class="detail-field-value{% if not zone.get('type_a_list') %} empty{% endif %}">
+                    {% if zone.get('type_a_list') and zone['type_a_list']|length > 0 %}
+                        {{ zone['type_a_list']|join(', ') }}
+                    {% else %}
+                        Не задано
+                    {% endif %}
+                </div>
+            </div>
+            <div class="detail-field">
+                <div class="detail-field-label">TypeB список (type_b_list)</div>
+                <div class="detail-field-value{% if not zone.get('type_b_list') %} empty{% endif %}">
+                    {% if zone.get('type_b_list') and zone['type_b_list']|length > 0 %}
+                        {{ zone['type_b_list']|join(', ') }}
+                    {% else %}
+                        Не задано
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
 
         <div class="detail-grid detail-grid-2">
             <div class="detail-field">
@@ -241,4 +266,10 @@
         </a>
     </div>
 
+
+{% block scripts %}
+<script>
+    applyMudColors();
+</script>
+{% endblock %}
 {% endblock %}

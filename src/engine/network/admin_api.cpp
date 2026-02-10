@@ -22,6 +22,7 @@
 #include "administration/password.h"
 #include "utils/utils.h"
 #include "gameplay/core/constants.h"
+#include "gameplay/affects/affect_contants.h"
 #include "gameplay/mechanics/dead_load.h"
 #include "third_party_libs/nlohmann/json.hpp"
 
@@ -100,8 +101,14 @@ int admin_api_process_input(DescriptorData *d) {
 	size_t space_left = kMaxRawInputLength - buf_length - 1;
 
 	if (space_left <= 0) {
-		log("Admin API: input buffer overflow");
-		return -1;
+		// Buffer full but no newline yet - use large buffer for chunking
+		if (d->admin_api_large_buffer.size() + buf_length > 1048576) { // 1MB limit
+			log("Admin API: message too large (>1MB)");
+			return -1;
+		}
+		d->admin_api_large_buffer.append(d->inbuf, buf_length);
+		d->inbuf[0] = '\0';
+		return 0; // Wait for more data
 	}
 
 	bytes_read = read(d->descriptor, read_point, space_left);
@@ -124,7 +131,15 @@ int admin_api_process_input(DescriptorData *d) {
 	int commands_processed = 0;
 	for (ptr = d->inbuf; (nl_pos = strchr(ptr, '\n')); ptr = nl_pos + 1) {
 		*nl_pos = '\0';
-		nanny(d, ptr);
+
+		// If we have accumulated data in large buffer, prepend it
+		if (!d->admin_api_large_buffer.empty()) {
+			d->admin_api_large_buffer.append(ptr);
+			nanny(d, const_cast<char*>(d->admin_api_large_buffer.c_str()));
+			d->admin_api_large_buffer.clear();
+		} else {
+			nanny(d, ptr);
+		}
 		commands_processed++;
 
 		if (d->state == EConState::kClose) {
@@ -134,7 +149,13 @@ int admin_api_process_input(DescriptorData *d) {
 
 	if (*ptr) {
 		size_t remaining = strlen(ptr);
-		memmove(d->inbuf, ptr, remaining + 1);
+		// If there's no newline, accumulate in large buffer
+		if (!strchr(ptr, '\n')) {
+			d->admin_api_large_buffer.append(ptr, remaining);
+			d->inbuf[0] = '\0';
+		} else {
+			memmove(d->inbuf, ptr, remaining + 1);
+		}
 	} else {
 		d->inbuf[0] = '\0';
 	}
@@ -888,7 +909,14 @@ void admin_api_update_mob(DescriptorData *d, int mob_vnum, const char *json_data
 					}
 				}
 			}
-			// affect_flags - ignore for now, complex
+			// affect_flags array
+			if (data["flags"].contains("affect_flags") && data["flags"]["affect_flags"].is_array()) {
+				for (const auto &flag : data["flags"]["affect_flags"]) {
+					if (flag.is_number_integer()) {
+						mob->set_affect(static_cast<EAffect>(flag.get<int>()));
+					}
+				}
+			}
 		}
 		// Legacy flat flags array (backward compatibility)
 		else if (data.contains("flags") && data["flags"].is_array()) {
@@ -2084,6 +2112,22 @@ void admin_api_get_zone(DescriptorData *d, int zone_vnum) {
 	zone_obj["is_town"] = zone.is_town;
 	zone_obj["locked"] = zone.locked;
 
+	// TypeA and TypeB lists for reset_mode=3
+	if (zone.typeA_count > 0 && zone.typeA_list) {
+		json typeA = json::array();
+		for (int i = 0; i < zone.typeA_count; ++i) {
+			typeA.push_back(zone.typeA_list[i]);
+		}
+		zone_obj["type_a_list"] = typeA;
+	}
+	if (zone.typeB_count > 0 && zone.typeB_list) {
+		json typeB = json::array();
+		for (int i = 0; i < zone.typeB_count; ++i) {
+			typeB.push_back(zone.typeB_list[i]);
+		}
+		zone_obj["type_b_list"] = typeB;
+	}
+
 	json result;
 	result["status"] = "ok";
 	result["zone"] = zone_obj;
@@ -2159,6 +2203,49 @@ void admin_api_update_zone(DescriptorData *d, int zone_vnum, const char *json_da
 		}
 		if (data.contains("locked")) {
 			zone->locked = data["locked"].get<bool>();
+		}
+
+		// TypeA and TypeB lists for reset_mode=3
+		if (data.contains("type_a_list")) {
+			// Free old list if exists
+			if (zone->typeA_list) {
+				delete[] zone->typeA_list;
+				zone->typeA_list = nullptr;
+				zone->typeA_count = 0;
+			}
+
+			json typeA = data["type_a_list"];
+			if (typeA.is_array() && !typeA.empty()) {
+				zone->typeA_count = typeA.size();
+				zone->typeA_list = new int[zone->typeA_count];
+				for (int i = 0; i < zone->typeA_count; ++i) {
+					zone->typeA_list[i] = typeA[i].get<int>();
+				}
+			}
+		}
+
+		if (data.contains("type_b_list")) {
+			// Free old lists if exist
+			if (zone->typeB_list) {
+				delete[] zone->typeB_list;
+				zone->typeB_list = nullptr;
+			}
+			if (zone->typeB_flag) {
+				delete[] zone->typeB_flag;
+				zone->typeB_flag = nullptr;
+			}
+			zone->typeB_count = 0;
+
+			json typeB = data["type_b_list"];
+			if (typeB.is_array() && !typeB.empty()) {
+				zone->typeB_count = typeB.size();
+				zone->typeB_list = new int[zone->typeB_count];
+				zone->typeB_flag = new bool[zone->typeB_count];
+				for (int i = 0; i < zone->typeB_count; ++i) {
+					zone->typeB_list[i] = typeB[i].get<int>();
+					zone->typeB_flag[i] = false;  // Initialize to false
+				}
+			}
 		}
 
 		// Mark zone as modified (zedit checks if vnum is non-zero)
@@ -2237,6 +2324,7 @@ void admin_api_get_trigger(DescriptorData *d, int trig_vnum) {
 	trig_obj["attach_type"] = static_cast<int>(trig->get_attach_type());
 	trig_obj["trigger_type"] = trig->get_trigger_type();
 	trig_obj["narg"] = trig->narg;
+	trig_obj["add_flag"] = trig->add_flag;
 
 	// Argument
 	if (!trig->arglist.empty()) {
@@ -2317,6 +2405,9 @@ void admin_api_update_trigger(DescriptorData *d, int trig_vnum, const char *json
 		}
 		if (data.contains("attach_type")) {
 			trig->set_attach_type(static_cast<byte>(data["attach_type"].get<int>()));
+		}
+		if (data.contains("add_flag")) {
+			trig->add_flag = data["add_flag"].get<bool>();
 		}
 
 		// Script (OLC format: single text block with \n separators)

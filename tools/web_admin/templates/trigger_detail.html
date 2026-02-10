@@ -2,6 +2,31 @@
 
 {% block title %}Триггер #{{ trig.vnum }} - Былины MUD{% endblock %}
 
+{% block head %}
+<!-- CodeMirror CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/dracula.min.css">
+<style>
+    .CodeMirror {
+        height: auto;
+        min-height: 200px;
+        border: 2px solid rgba(139, 69, 19, 0.15);
+        border-radius: 6px;
+        font-family: 'Courier New', Consolas, monospace;
+        font-size: 13px;
+        line-height: 1.6;
+        overflow: hidden !important;
+    }
+    .CodeMirror-scroll {
+        overflow-x: hidden !important;
+    }
+    .CodeMirror-readonly {
+        background-color: #faf8f3;
+        cursor: default;
+    }
+</style>
+{% endblock %}
+
 {% block breadcrumbs %}
 <div class="breadcrumbs-bar">
     <div class="max-w-[1280px] mx-auto px-6 py-2.5">
@@ -196,10 +221,23 @@
 
             <div class="detail-field">
                 <div class="detail-field-label">Текстовый аргумент (arglist)</div>
-                <div class="detail-field-value{% if not trig.arglist %} empty{% endif %}">
+                <div class="detail-field-value mud-colorize{% if not trig.arglist %} empty{% endif %}">
                     {{ trig.arglist|default('Не задано') }}
                 </div>
             </div>
+
+            {% if trig.attach_type == 0 %}
+            <div class="detail-field">
+                <div class="detail-field-label">Добавлять в бою (add_flag)</div>
+                <div class="detail-field-value">
+                    {% if trig.add_flag %}
+                        <span style="color: #16a34a; font-weight: 500;">✓ Да</span>
+                    {% else %}
+                        <span style="color: #8a7b6b;">✗ Нет</span>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
         </div>
     </div>
 
@@ -214,8 +252,8 @@
         </div>
 
         {% if trig.commands and trig.commands|length > 0 %}
-        <div style="background: #faf8f3; border: 1px solid #e7dac3; border-radius: 6px; padding: 16px; font-family: 'Courier New', monospace; font-size: 13px; line-height: 1.6; white-space: pre-wrap; overflow-x: auto;">{% for cmd in trig.commands %}{{ cmd }}
-{% endfor %}</div>
+        <textarea id="script-readonly" style="display: none;">{% for cmd in trig.commands %}{{ cmd }}
+{% endfor %}</textarea>
         {% else %}
         <div class="detail-field-value empty">Скрипт пуст</div>
         {% endif %}
@@ -239,4 +277,36 @@
         </a>
     </div>
 
+{% endblock %}
+
+{% block scripts %}
+<!-- CodeMirror JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+<script src="{{ url_for('static', filename='js/dgscript-mode.js') }}"></script>
+
+<script>
+(function() {
+    'use strict';
+
+    // --- CodeMirror Readonly Editor for DG Scripts ---
+    var scriptTextarea = document.getElementById('script-readonly');
+
+    if (scriptTextarea && scriptTextarea.value.trim()) {
+        var editor = CodeMirror.fromTextArea(scriptTextarea, {
+            mode: 'dgscript',
+            lineNumbers: true,
+            lineWrapping: true,
+            theme: 'dracula',
+            readOnly: true,
+            cursorBlinkRate: -1, // Hide cursor in readonly mode
+        });
+
+        // Auto-resize editor to fit content
+        editor.setSize(null, "auto");
+    
+    // Apply MUD color codes
+    applyMudColors();
+    }
+})();
+</script>
 {% endblock %}

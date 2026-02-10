@@ -178,6 +178,7 @@ struct DescriptorData {
 	bool admin_api_authenticated{false};   // Flag for authentication
 	long admin_user_id{-1};                // ID of authenticated imm/builder
 	std::string admin_user_name;           // Name of authenticated imm/builder
+	std::string admin_api_large_buffer;    // Buffer for large messages (chunking support)
 #endif
 
  private:

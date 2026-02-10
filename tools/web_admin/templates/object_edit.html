@@ -37,12 +37,12 @@
             </p>
         </div>
 
-        <a href="{{ url_for('object_detail', vnum=obj.vnum) }}" class="btn-secondary">
+        <button type="button" class="btn-secondary" onclick="history.back()">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M19 12H5M12 19l-7-7 7-7"/>
             </svg>
             Отмена
-        </a>
+        </button>
     </div>
 
     <!-- Ornamental divider -->
@@ -657,9 +657,9 @@
             </svg>
             Сохранить
         </button>
-        <a href="{{ url_for('object_detail', vnum=obj.vnum) }}" class="btn-secondary">
+        <button type="button" class="btn-secondary" onclick="history.back()">
             Отмена
-        </a>
+        </button>
         <div style="margin-left: auto; font-family: 'Inter', sans-serif; font-size: 13px; color: #8a7b6b;" id="save-status"></div>
     </div>
 
@@ -1132,6 +1132,85 @@
         });
     };
 })();
+
+// ========== Color Overlay for Text Inputs ==========
+function addColorOverlay(inputId) {
+    const input = document.getElementById(inputId);
+    if (!input) return;
+
+    const isTextarea = input.tagName.toLowerCase() === 'textarea';
+
+    const wrapper = document.createElement('div');
+    wrapper.style.cssText = 'position: relative;';
+
+    const computedStyle = window.getComputedStyle(input);
+
+    const backdrop = document.createElement('div');
+    backdrop.className = 'mud-colorize';
+    backdrop.style.cssText = `
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        padding: ${computedStyle.padding || (isTextarea ? '8px 12px' : '0 12px')};
+        border: ${computedStyle.border || '2px solid rgba(120, 53, 15, 0.15)'};
+        border-radius: ${computedStyle.borderRadius || '4px'};
+        background: ${computedStyle.backgroundColor || '#fefdfb'};
+        font-family: ${computedStyle.fontFamily || 'Inter, sans-serif'};
+        font-size: ${computedStyle.fontSize || '14px'};
+        line-height: ${computedStyle.lineHeight || (isTextarea ? '1.5' : '38px')};
+        white-space: ${isTextarea ? 'pre-wrap' : 'pre'};
+        word-wrap: break-word;
+        color: #2d241e;
+        pointer-events: none;
+        overflow: ${isTextarea ? 'auto' : 'hidden'};
+        box-shadow: ${computedStyle.boxShadow || 'none'};
+    `;
+
+    input.parentNode.insertBefore(wrapper, input);
+    wrapper.appendChild(backdrop);
+    wrapper.appendChild(input);
+
+    input.style.position = 'relative';
+    input.style.background = 'transparent';
+    input.style.border = 'none';
+    input.style.outline = 'none';
+    input.style.color = 'transparent';
+    input.style.caretColor = '#2d241e';
+    input.style.zIndex = '1';
+
+    function updateBackdrop() {
+        let text = input.value;
+        if (text && !text.endsWith(' ')) text += ' ';
+        backdrop.textContent = text || ' ';
+        delete backdrop.dataset.colorized;
+        delete backdrop.dataset.originalText;
+        applyMudColors();
+    }
+
+    if (isTextarea) {
+        input.addEventListener('scroll', function() {
+            backdrop.scrollTop = input.scrollTop;
+            backdrop.scrollLeft = input.scrollLeft;
+        });
+    }
+
+    updateBackdrop();
+    input.addEventListener('input', updateBackdrop);
+    input.addEventListener('change', updateBackdrop);
+}
+
+// Add color overlay to object fields
+document.addEventListener('DOMContentLoaded', function() {
+    addColorOverlay('aliases');
+    addColorOverlay('nominative');
+    addColorOverlay('genitive');
+    addColorOverlay('dative');
+    addColorOverlay('accusative');
+    addColorOverlay('instrumental');
+    addColorOverlay('prepositional');
+    addColorOverlay('short_desc');
+    addColorOverlay('description');
+    addColorOverlay('action_desc');
+});
 </script>
 <style>
     @keyframes spin {

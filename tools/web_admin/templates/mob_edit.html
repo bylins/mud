@@ -7,12 +7,12 @@
 <!-- Header -->
 <div class="mob-edit-header" style="margin-bottom: 8px;">
     <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 4px;">
-        <a href="{{ url_for('mobs_list', zone=mob.vnum // 100) }}" style="color: #8a7b6b; text-decoration: none; font-family: 'Inter', sans-serif; font-size: 13px; transition: color 0.15s;"
+        <a href="{{ url_for('mobs_list', zone=mob.vnum // 100) }}" style="display: inline-flex; align-items: center; gap: 4px; color: #8a7b6b; text-decoration: none; font-family: 'Inter', sans-serif; font-size: 13px; transition: color 0.15s;"
            onmouseover="this.style.color='#b45309'" onmouseout="this.style.color='#8a7b6b'">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -2px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M19 12H5M12 19l-7-7 7-7"/>
             </svg>
-            Список мобов
+            <span>Список мобов</span>
         </a>
         <span style="color: #d4c49a;">/</span>
         <span style="color: #8a7b6b; font-family: 'Inter', sans-serif; font-size: 13px;">Моб #{{ mob.vnum }}</span>
@@ -595,25 +595,238 @@
     </div>
 
     <div class="section-body">
-        <div class="field-group" style="margin-bottom: 16px;">
-            <label for="flags-mob">MOB флаги <span class="field-hint">(через запятую, напр: !SLEEP, !CHARM)</span></label>
-            <input type="text" id="flags-mob" name="flags.mob_flags"
-                   value="{{ mob.flags.mob_flags|join(', ') if mob.flags and mob.flags.mob_flags else '' }}"
-                   placeholder="!SLEEP, !CHARM, SENTINEL">
+        <!-- MOB Flags (3 planes) -->
+        <div class="subsection-label" style="margin-bottom: 8px;">MOB флаги</div>
+        <div class="flag-toggle-group" id="mob-flags-group">
+            <div class="flag-toggle-group-title">Группа 0 -- Основные</div>
+            <div class="flag-toggle-grid">
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="1"><span class="flag-toggle-name">Спец-проц (Spec)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="2"><span class="flag-toggle-name">Страж (Sentinel)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="4"><span class="flag-toggle-name">Мусорщик (Scavenger)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="8"><span class="flag-toggle-name">NPC флаг (Npc)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="16"><span class="flag-toggle-name">Осторожный (Aware)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="32"><span class="flag-toggle-name">Агрессивный (Aggressive)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="64"><span class="flag-toggle-name">Не уходит из зоны (StayZone)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="128"><span class="flag-toggle-name">Трус (Wimpy)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="256"><span class="flag-toggle-name">Агр. днём (AggressiveDay)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="512"><span class="flag-toggle-name">Агр. ночью (AggressiveNight)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="1024"><span class="flag-toggle-name">Агр. в полнолуние (AggressiveFullmoon)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="2048"><span class="flag-toggle-name">Память (Memory)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="4096"><span class="flag-toggle-name">Помощник (Helper)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="8192"><span class="flag-toggle-name">Не зачаровать (NoCharm)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="16384"><span class="flag-toggle-name">Не призвать (NoSummon)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="32768"><span class="flag-toggle-name">Не усыпить (NoSleep)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="65536"><span class="flag-toggle-name">Не сломить (NoBash)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="131072"><span class="flag-toggle-name">Не ослепить (NoBlind)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="262144"><span class="flag-toggle-name">Скакун (Mounting)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="524288"><span class="flag-toggle-name">Не удержать (NoHold)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="1048576"><span class="flag-toggle-name">Не заткнуть (NoSilence)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="2097152"><span class="flag-toggle-name">Агр. Моно (AggressiveMono)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="4194304"><span class="flag-toggle-name">Агр. Поли (AggressivePoly)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="8388608"><span class="flag-toggle-name">Не испугать (NoFear)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="16777216"><span class="flag-toggle-name">Не группируется (NoGroup)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="33554432"><span class="flag-toggle-name">Труп (Corpse)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="67108864"><span class="flag-toggle-name">Грабитель (Looter)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="134217728"><span class="flag-toggle-name">Защитник (Protect)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="268435456"><span class="flag-toggle-name">Удалён (MobDeleted)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="536870912"><span class="flag-toggle-name">Освобождён (MobFreed)</span></button>
+            </div>
+            <div class="flag-toggle-group-title" style="margin-top: 14px;">Группа 1 -- Расширенные</div>
+            <div class="flag-toggle-grid">
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="1073741825"><span class="flag-toggle-name">Плавающий (Swimming)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="1073741826"><span class="flag-toggle-name">Летающий (Flying)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="1073741828"><span class="flag-toggle-name">Только плавает (OnlySwimming)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="1073741832"><span class="flag-toggle-name">Агр. зимой (AggressiveWinter)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="1073741840"><span class="flag-toggle-name">Агр. весной (AggressiveSpring)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="1073741856"><span class="flag-toggle-name">Агр. летом (AggressiveSummer)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="1073741888"><span class="flag-toggle-name">Агр. осенью (AggressiveAutumn)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="1073741952"><span class="flag-toggle-name">Появ. днём (AppearsDay)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="1073742080"><span class="flag-toggle-name">Появ. ночью (AppearsNight)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="1073742336"><span class="flag-toggle-name">Появ. в полнолуние (AppearsFullmoon)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="1073742848"><span class="flag-toggle-name">Появ. зимой (AppearsWinter)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="1073743872"><span class="flag-toggle-name">Появ. весной (AppearsSpring)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="1073745920"><span class="flag-toggle-name">Появ. летом (AppearsSummer)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="1073750016"><span class="flag-toggle-name">Появ. осенью (AppearsAutumn)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="1073758208"><span class="flag-toggle-name">Не дерётся (NoFight)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="1073774592"><span class="flag-toggle-name">Меньше атак (DecreaseAttack)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="1073807360"><span class="flag-toggle-name">Орда (Horde)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="1073872896"><span class="flag-toggle-name">Клон (Clone)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="1074003968"><span class="flag-toggle-name">Не убивать точным (NotKillPunctual)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="1074266112"><span class="flag-toggle-name">Не подсечь (NoUndercut)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="1074790400"><span class="flag-toggle-name">Покровитель (Tutelar)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="1075838976"><span class="flag-toggle-name">Страж города (CityGuardian)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="1077936128"><span class="flag-toggle-name">Игнор. запретные (IgnoreForbidden)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="1082130432"><span class="flag-toggle-name">Нет опыта за бой (NoBattleExp)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="1090519040"><span class="flag-toggle-name">Нет молота (NoHammer)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="1107296256"><span class="flag-toggle-name">Ментальная тень (MentalShadow)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="1140850688"><span class="flag-toggle-name">Призванный (Summoned)</span></button>
+            </div>
+            <div class="flag-toggle-group-title" style="margin-top: 14px;">Группа 2 -- Дополнительные</div>
+            <div class="flag-toggle-grid">
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="2147483649"><span class="flag-toggle-name">Дыхание огня (FireBreath)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="2147483650"><span class="flag-toggle-name">Дыхание газа (GasBreath)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="2147483652"><span class="flag-toggle-name">Дыхание холода (FrostBreath)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="2147483656"><span class="flag-toggle-name">Дыхание кислоты (AcidBreath)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="2147483664"><span class="flag-toggle-name">Дыхание молнии (LightingBreath)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="2147483680"><span class="flag-toggle-name">Не тренирует (NoSkillTrain)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="2147483712"><span class="flag-toggle-name">Не отдыхает (NoRest)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="2147483776"><span class="flag-toggle-name">Атака зоны (AreaAttack)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="2147483904"><span class="flag-toggle-name">Не подавить (NoOverwhelm)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="2147484160"><span class="flag-toggle-name">Не помогает (NoHelp)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="2147484672"><span class="flag-toggle-name">Открывает двери (OpensDoor)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="2147485696"><span class="flag-toggle-name">Игнор. NoMob (IgnoresNoMob)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="2147487744"><span class="flag-toggle-name">Игнор. мирную (IgnoresPeaceRoom)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="2147491840"><span class="flag-toggle-name">Воскрешён (Resurrected)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="2148532224"><span class="flag-toggle-name">Не воскресить (NoResurrection)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="2149580800"><span class="flag-toggle-name">Всегда бодр (MobAwake)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="2151677952"><span class="flag-toggle-name">Игнор. строй (IgnoresFormation)</span></button>
+            </div>
+            <div class="flag-hint" id="mob-flags-hint">Выбрано: 0 флагов</div>
         </div>
 
-        <div class="field-group" style="margin-bottom: 16px;">
-            <label for="flags-affect">AFF флаги <span class="field-hint">(через запятую)</span></label>
-            <input type="text" id="flags-affect" name="flags.affect_flags"
-                   value="{{ mob.flags.affect_flags|join(', ') if mob.flags and mob.flags.affect_flags else '' }}"
-                   placeholder="DETECT_INVIS, SANCTUARY">
+        <!-- AFF Flags (3 planes) -->
+        <div class="subsection-label" style="margin-bottom: 8px; margin-top: 20px;">AFF флаги (аффекты)</div>
+        <div class="flag-toggle-group" id="aff-flags-group">
+            <div class="flag-toggle-group-title">Группа 0 -- Основные</div>
+            <div class="flag-toggle-grid">
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="1"><span class="flag-toggle-name">Слепота (Blind)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="2"><span class="flag-toggle-name">Невидимость (Invisible)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="4"><span class="flag-toggle-name">Чувств. характер (DetectAlign)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="8"><span class="flag-toggle-name">Видит невид. (DetectInvisible)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="16"><span class="flag-toggle-name">Чувств. магию (DetectMagic)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="32"><span class="flag-toggle-name">Чувств. жизнь (DetectLife)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="64"><span class="flag-toggle-name">Хождение по воде (WaterWalk)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="128"><span class="flag-toggle-name">Святилище (Sanctuary)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="256"><span class="flag-toggle-name">Группа (Group)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="512"><span class="flag-toggle-name">Проклятие (Curse)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="1024"><span class="flag-toggle-name">Инфразрение (Infravision)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="2048"><span class="flag-toggle-name">Отравлен (Poisoned)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="4096"><span class="flag-toggle-name">Защ. от тьмы (ProtectFromDark)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="8192"><span class="flag-toggle-name">Защ. от разума (ProtectFromMind)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="16384"><span class="flag-toggle-name">Сон (Sleep)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="32768"><span class="flag-toggle-name">Без следов (NoTrack)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="65536"><span class="flag-toggle-name">Привязан (Tethered)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="131072"><span class="flag-toggle-name">Благословение (Bless)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="262144"><span class="flag-toggle-name">Скрытность (Sneak)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="524288"><span class="flag-toggle-name">Прятаться (Hide)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="1048576"><span class="flag-toggle-name">Храбрость (Courage)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="2097152"><span class="flag-toggle-name">Очарован (Charmed)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="4194304"><span class="flag-toggle-name">Удержание (Hold)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="8388608"><span class="flag-toggle-name">Полёт (Fly)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="16777216"><span class="flag-toggle-name">Безмолвие (Silence)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="33554432"><span class="flag-toggle-name">Осведомлённость (Awarness)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="67108864"><span class="flag-toggle-name">Мерцание (Blink)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="134217728"><span class="flag-toggle-name">Конь (Horse)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="268435456"><span class="flag-toggle-name">Не бежать (NoFlee)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="536870912"><span class="flag-toggle-name">Одиночный свет (SingleLight)</span></button>
+            </div>
+            <div class="flag-toggle-group-title" style="margin-top: 14px;">Группа 1 -- Расширенные</div>
+            <div class="flag-toggle-grid">
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="1073741825"><span class="flag-toggle-name">Святой свет (HolyLight)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="1073741826"><span class="flag-toggle-name">Святая тьма (HolyDark)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="1073741828"><span class="flag-toggle-name">Чувств. яд (DetectPoison)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="1073741832"><span class="flag-toggle-name">Пьян (Drunked)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="1073741840"><span class="flag-toggle-name">Воздержание (Abstinent)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="1073741856"><span class="flag-toggle-name">Стоп правой (StopRight)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="1073741888"><span class="flag-toggle-name">Стоп левой (StopLeft)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="1073741952"><span class="flag-toggle-name">Стоп бою (StopFight)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="1073742080"><span class="flag-toggle-name">Кровотечение (Haemorrhage)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="1073742336"><span class="flag-toggle-name">Маскировка (Disguise)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="1073742848"><span class="flag-toggle-name">Дыхание под водой (WaterBreath)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="1073743872"><span class="flag-toggle-name">Замедление (Slow)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="1073745920"><span class="flag-toggle-name">Ускорение (Haste)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="1073750016"><span class="flag-toggle-name">Щит богов (GodsShield)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="1073758208"><span class="flag-toggle-name">Воздушный щит (AirShield)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="1073774592"><span class="flag-toggle-name">Огненный щит (FireShield)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="1073807360"><span class="flag-toggle-name">Ледяной щит (IceShield)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="1073872896"><span class="flag-toggle-name">Магич. зеркало (MagicGlass)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="1074003968"><span class="flag-toggle-name">Лестница (Stairs)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="1074266112"><span class="flag-toggle-name">Каменные руки (StoneHands)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="1074790400"><span class="flag-toggle-name">Призматич. аура (PrismaticAura)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="1075838976"><span class="flag-toggle-name">Помощник (Helper)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="1077936128"><span class="flag-toggle-name">Силы зла (ForcesOfEvil)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="1082130432"><span class="flag-toggle-name">Воздушная аура (AirAura)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="1090519040"><span class="flag-toggle-name">Огненная аура (FireAura)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="1107296256"><span class="flag-toggle-name">Ледяная аура (IceAura)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="1140850688"><span class="flag-toggle-name">Глухота (Deafness)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="1207959552"><span class="flag-toggle-name">Плач (Crying)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="1342177280"><span class="flag-toggle-name">Мирный (Peaceful)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="1610612736"><span class="flag-toggle-name">Магич. стоп (MagicStopFight)</span></button>
+            </div>
+            <div class="flag-toggle-group-title" style="margin-top: 14px;">Группа 2 -- Дополнительные</div>
+            <div class="flag-toggle-grid">
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="2147483649"><span class="flag-toggle-name">Берсерк (Berserk)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="2147483650"><span class="flag-toggle-name">Лёгкая поступь (LightWalk)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="2147483652"><span class="flag-toggle-name">Разорванные цепи (BrokenChains)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="2147483656"><span class="flag-toggle-name">Облако стрел (CloudOfArrows)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="2147483664"><span class="flag-toggle-name">Плащ теней (ShadowCloak)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="2147483680"><span class="flag-toggle-name">Блёстки (GlitterDust)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="2147483712"><span class="flag-toggle-name">Испуг (Affright)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="2147483776"><span class="flag-toggle-name">Яд скополы (ScopolaPoison)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="2147483904"><span class="flag-toggle-name">Яд дурмана (DaturaPoison)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="2147484160"><span class="flag-toggle-name">Снижение умений (SkillReduce)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="2147484672"><span class="flag-toggle-name">Без переключения (NoBattleSwitch)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="2147485696"><span class="flag-toggle-name">Яд белены (BelenaPoison)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="2147487744"><span class="flag-toggle-name">Без телепорта (NoTeleport)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="2147491840"><span class="flag-toggle-name">Боевая удача (CombatLuck)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="2147500032"><span class="flag-toggle-name">Бинт (Bandage)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="2147516416"><span class="flag-toggle-name">Нельзя бинтовать (CannotBeBandaged)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="2147549184"><span class="flag-toggle-name">Превращение (Morphing)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="2147614720"><span class="flag-toggle-name">Удушение (Strangled)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="2147745792"><span class="flag-toggle-name">Запомин. заклин. (MemorizeSpells)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="2148007936"><span class="flag-toggle-name">Новичок реген (NoobRegen)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="2148532224"><span class="flag-toggle-name">Вампиризм (Vampirism)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="2149580800"><span class="flag-toggle-name">Рваные раны (Lacerations)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="2151677952"><span class="flag-toggle-name">Командир (Commander)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="2155872256"><span class="flag-toggle-name">Земная аура (EarthAura)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="2164260864"><span class="flag-toggle-name">Затуманенность (Cloudly)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="2181038080"><span class="flag-toggle-name">Замешательство (Confused)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="2214592512"><span class="flag-toggle-name">Без рывка (NoCharge)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="2281701376"><span class="flag-toggle-name">Ранен (Injured)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="2415919104"><span class="flag-toggle-name">Безумие (Frenzy)</span></button>
+            </div>
+            <div class="flag-hint" id="aff-flags-hint">Выбрано: 0 флагов</div>
         </div>
 
-        <div class="field-group">
-            <label for="flags-npc">NPC флаги <span class="field-hint">(через запятую)</span></label>
-            <input type="text" id="flags-npc" name="flags.npc_flags"
-                   value="{{ mob.flags.npc_flags|join(', ') if mob.flags and mob.flags.npc_flags else '' }}"
-                   placeholder="INVIS, HIDDEN">
+        <!-- NPC Flags (2 planes) -->
+        <div class="subsection-label" style="margin-bottom: 8px; margin-top: 20px;">NPC флаги</div>
+        <div class="flag-toggle-group" id="npc-flags-group">
+            <div class="flag-toggle-group-title">Группа 0 -- Основные</div>
+            <div class="flag-toggle-grid">
+                <button type="button" class="flag-toggle" data-flag-type="npc_flags" data-flag-value="1"><span class="flag-toggle-name">Блок север (BlockNorth)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="npc_flags" data-flag-value="2"><span class="flag-toggle-name">Блок восток (BlockEast)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="npc_flags" data-flag-value="4"><span class="flag-toggle-name">Блок юг (BlockSouth)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="npc_flags" data-flag-value="8"><span class="flag-toggle-name">Блок запад (BlockWest)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="npc_flags" data-flag-value="16"><span class="flag-toggle-name">Блок вверх (BlockUp)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="npc_flags" data-flag-value="32"><span class="flag-toggle-name">Блок вниз (BlockDown)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="npc_flags" data-flag-value="64"><span class="flag-toggle-name">Ядовитый (Toxic)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="npc_flags" data-flag-value="128"><span class="flag-toggle-name">Невидим (Invis)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="npc_flags" data-flag-value="256"><span class="flag-toggle-name">Скрытность (Sneaking)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="npc_flags" data-flag-value="512"><span class="flag-toggle-name">Маскировка (Disguising)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="npc_flags" data-flag-value="2048"><span class="flag-toggle-name">Движение полёт (MoveFly)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="npc_flags" data-flag-value="4096"><span class="flag-toggle-name">Движение ползком (MoveCreep)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="npc_flags" data-flag-value="8192"><span class="flag-toggle-name">Движение прыжком (MoveJump)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="npc_flags" data-flag-value="16384"><span class="flag-toggle-name">Движение плавание (MoveSwim)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="npc_flags" data-flag-value="32768"><span class="flag-toggle-name">Движение бег (MoveRun)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="npc_flags" data-flag-value="1048576"><span class="flag-toggle-name">Воздушное сущ. (AirCreature)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="npc_flags" data-flag-value="2097152"><span class="flag-toggle-name">Водное сущ. (WaterCreature)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="npc_flags" data-flag-value="4194304"><span class="flag-toggle-name">Земное сущ. (EarthCreature)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="npc_flags" data-flag-value="8388608"><span class="flag-toggle-name">Огненное сущ. (FireCreature)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="npc_flags" data-flag-value="16777216"><span class="flag-toggle-name">Помог (Helped)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="npc_flags" data-flag-value="33554432"><span class="flag-toggle-name">Свободная добыча (FreeDrop)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="npc_flags" data-flag-value="67108864"><span class="flag-toggle-name">Без сбора ингр. (NoIngrDrop)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="npc_flags" data-flag-value="134217728"><span class="flag-toggle-name">Не в списке наёмников (NoMercList)</span></button>
+            </div>
+            <div class="flag-toggle-group-title" style="margin-top: 14px;">Группа 1 -- Расширенные</div>
+            <div class="flag-toggle-grid">
+                <button type="button" class="flag-toggle" data-flag-type="npc_flags" data-flag-value="1073741825"><span class="flag-toggle-name">Воровство (Stealing)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="npc_flags" data-flag-value="1073741826"><span class="flag-toggle-name">Владение оружием (Wielding)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="npc_flags" data-flag-value="1073741828"><span class="flag-toggle-name">Бронирование (Armoring)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="npc_flags" data-flag-value="1073741832"><span class="flag-toggle-name">Использование света (UsingLight)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="npc_flags" data-flag-value="1073741840"><span class="flag-toggle-name">Не берёт предметы (NoTakeItems)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="npc_flags" data-flag-value="1073741856"><span class="flag-toggle-name">Игнор. редкие убийства (IgnoreRareKill)</span></button>
+            </div>
+            <div class="flag-hint" id="npc-flags-hint">Выбрано: 0 флагов</div>
         </div>
     </div>
 </div>
@@ -789,9 +1002,9 @@
     <button type="button" class="btn-primary" id="save-btn" onclick="window.saveMob()">
         Сохранить
     </button>
-    <a href="{{ url_for('mobs_list', zone=mob.vnum // 100) }}" class="btn-secondary">
+    <button type="button" class="btn-secondary" onclick="history.back()">
         Отмена
-    </a>
+    </button>
     <div style="margin-left: auto; font-family: 'Inter', sans-serif; font-size: 13px; color: #8a7b6b;" id="save-status"></div>
 </div>
 
@@ -870,6 +1083,83 @@
     }
 
     updateRolesHint();
+})();
+
+// --- Flag toggle system for mob_flags, affect_flags, npc_flags ---
+(function() {
+    'use strict';
+
+    // Parse server data for flags
+    var serverMobFlags = {{ mob.flags.mob_flags|default([])|tojson }};
+    var serverAffFlags = {{ mob.flags.affect_flags|default([])|tojson }};
+    var serverNpcFlags = {{ mob.flags.npc_flags|default([])|tojson }};
+
+    // Initialize flags from server data
+    function initFlags() {
+        // MOB flags
+        document.querySelectorAll('.flag-toggle[data-flag-type="mob_flags"]').forEach(function(btn) {
+            var flagValue = parseInt(btn.getAttribute('data-flag-value'));
+            if (serverMobFlags.includes(flagValue)) {
+                btn.classList.add('active');
+            }
+        });
+
+        // AFF flags
+        document.querySelectorAll('.flag-toggle[data-flag-type="affect_flags"]').forEach(function(btn) {
+            var flagValue = parseInt(btn.getAttribute('data-flag-value'));
+            if (serverAffFlags.includes(flagValue)) {
+                btn.classList.add('active');
+            }
+        });
+
+        // NPC flags
+        document.querySelectorAll('.flag-toggle[data-flag-type="npc_flags"]').forEach(function(btn) {
+            var flagValue = parseInt(btn.getAttribute('data-flag-value'));
+            if (serverNpcFlags.includes(flagValue)) {
+                btn.classList.add('active');
+            }
+        });
+
+        updateAllFlagHints();
+    }
+
+    // Click handler for all flag toggles
+    document.querySelectorAll('.flag-toggle[data-flag-type]').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            this.classList.toggle('active');
+            updateFlagHint(this.getAttribute('data-flag-type'));
+        });
+    });
+
+    // Update hint for a specific flag type
+    function updateFlagHint(flagType) {
+        var hintId = flagType.replace('_flags', '-flags-hint');
+        var hintEl = document.getElementById(hintId);
+        if (!hintEl) return;
+
+        var activeButtons = document.querySelectorAll('.flag-toggle[data-flag-type="' + flagType + '"].active');
+        hintEl.textContent = 'Выбрано: ' + activeButtons.length + ' флагов';
+    }
+
+    // Update all flag hints
+    function updateAllFlagHints() {
+        updateFlagHint('mob_flags');
+        updateFlagHint('affect_flags');
+        updateFlagHint('npc_flags');
+    }
+
+    // Initialize on page load
+    initFlags();
+
+    // Export function to collect active flags (used by saveMob)
+    window.getActiveFlags = function(flagType) {
+        var flags = [];
+        document.querySelectorAll('.flag-toggle[data-flag-type="' + flagType + '"].active').forEach(function(btn) {
+            flags.push(parseInt(btn.getAttribute('data-flag-value')));
+        });
+        return flags;
+    };
 })();
 
 // --- Death Load dynamic list ---
@@ -1181,8 +1471,8 @@ function saveMob() {
             setNestedValue(data, name, parseIntCSV(value));
             return;
         }
+        // Skip old text inputs for flags (now handled by toggle buttons)
         if (name === 'flags.mob_flags' || name === 'flags.affect_flags' || name === 'flags.npc_flags') {
-            setNestedValue(data, name, parseCSV(value));
             return;
         }
         if (name === 'skills') {
@@ -1219,6 +1509,13 @@ function saveMob() {
         if (!isNaN(bit)) rolesArr.push(bit);
     });
     data.roles = rolesArr;
+
+    // Collect flags (from toggle buttons)
+    data.flags = {
+        mob_flags: window.getActiveFlags('mob_flags'),
+        affect_flags: window.getActiveFlags('affect_flags'),
+        npc_flags: window.getActiveFlags('npc_flags')
+    };
 
     // Collect death_load items
     var dlItems = [];
@@ -1269,6 +1566,100 @@ function saveMob() {
         statusEl.textContent = '';
     });
 }
+
+// ========== Color Overlay for Text Inputs ==========
+function addColorOverlay(inputId) {
+    const input = document.getElementById(inputId);
+    if (!input) {
+        console.warn('addColorOverlay: input not found:', inputId);
+        return;
+    }
+    console.log('addColorOverlay: processing', inputId);
+
+    const isTextarea = input.tagName.toLowerCase() === 'textarea';
+
+    // Create wrapper
+    const wrapper = document.createElement('div');
+    wrapper.style.cssText = 'position: relative;';
+
+    // Create colored background layer
+    // Get computed styles from input
+    const computedStyle = window.getComputedStyle(input);
+
+    const backdrop = document.createElement('div');
+    backdrop.className = 'mud-colorize';
+    backdrop.style.cssText = `
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        padding: ${computedStyle.padding || (isTextarea ? '8px 12px' : '0 12px')};
+        border: ${computedStyle.border || '2px solid rgba(120, 53, 15, 0.15)'};
+        border-radius: ${computedStyle.borderRadius || '4px'};
+        background: ${computedStyle.backgroundColor || '#fefdfb'};
+        font-family: ${computedStyle.fontFamily || 'Inter, sans-serif'};
+        font-size: ${computedStyle.fontSize || '14px'};
+        line-height: ${computedStyle.lineHeight || (isTextarea ? '1.5' : '38px')};
+        white-space: ${isTextarea ? 'pre-wrap' : 'pre'};
+        word-wrap: break-word;
+        color: #2d241e;
+        pointer-events: none;
+        overflow: ${isTextarea ? 'auto' : 'hidden'};
+        box-shadow: ${computedStyle.boxShadow || 'none'};
+    `;
+
+    // Wrap input and insert backdrop
+    input.parentNode.insertBefore(wrapper, input);
+    wrapper.appendChild(backdrop);
+    wrapper.appendChild(input);
+
+    // Make input transparent over backdrop
+    input.style.position = 'relative';
+    input.style.background = 'transparent';
+    input.style.border = 'none';
+    input.style.outline = 'none';
+    input.style.color = 'transparent';
+    input.style.caretColor = '#2d241e';
+    input.style.zIndex = '1';
+
+    // Sync backdrop with input
+    function updateBackdrop() {
+        let text = input.value;
+        // Add space at end to prevent caret from disappearing
+        if (text && !text.endsWith(' ')) text += ' ';
+        backdrop.textContent = text || ' ';
+        delete backdrop.dataset.colorized;
+        delete backdrop.dataset.originalText;
+        applyMudColors();
+    }
+
+    // Sync scroll for textarea
+    if (isTextarea) {
+        input.addEventListener('scroll', function() {
+            backdrop.scrollTop = input.scrollTop;
+            backdrop.scrollLeft = input.scrollLeft;
+        });
+    }
+
+    updateBackdrop();
+    input.addEventListener('input', updateBackdrop);
+    input.addEventListener('change', updateBackdrop);
+}
+
+// Add color overlay to text fields
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOMContentLoaded fired - adding color overlays');
+    // Single-line inputs
+    addColorOverlay('names-aliases');
+    addColorOverlay('names-nominative');
+    addColorOverlay('names-genitive');
+    addColorOverlay('names-dative');
+    addColorOverlay('names-accusative');
+    addColorOverlay('names-instrumental');
+    addColorOverlay('names-prepositional');
+    addColorOverlay('desc-short');
+
+    // Multi-line textarea
+    addColorOverlay('desc-long');
+});
 </script>
 
 {% endblock %}

@@ -798,6 +798,228 @@ def test_comprehensive_trigger(sock, vnum):
 
     return all_ok
 
+def test_mob_flags(sock, vnum):
+    """Test mob flags - read, update, and verify."""
+    print(f"\n[MOB #{vnum}] Testing mob flags...")
+
+    # First get current mob to see existing flags
+    response = send_command(sock, "get_mob", vnum=vnum)
+    if response.get('status') != 'ok':
+        print(f"  ✗ Failed to get mob: {response.get('error')}")
+        return False
+
+    original = response.get('mob', {})
+    original_flags = original.get('flags', {})
+    print(f"  ✓ Got mob flags:")
+    print(f"    - mob_flags: {len(original_flags.get('mob_flags', []))} flags")
+    print(f"    - npc_flags: {len(original_flags.get('npc_flags', []))} flags")
+    print(f"    - affect_flags: {len(original_flags.get('affect_flags', []))} flags")
+
+    # Test: Update flags (add some test flags)
+    test_flags = {
+        "mob_flags": [1, 2, 4],  # Test values
+        "npc_flags": [1, 8, 16],  # Test values
+        "affect_flags": [1, 2]    # Test values
+    }
+    update_data = {"flags": test_flags}
+
+    print(f"  → Updating flags...")
+    response = send_command(sock, "update_mob", vnum=vnum, data=update_data)
+
+    if response.get('status') != 'ok':
+        print(f"  ✗ Update failed: {response.get('error')}")
+        return False
+
+    print(f"  ✓ Update successful")
+
+    # Verify by getting again
+    response = send_command(sock, "get_mob", vnum=vnum)
+    if response.get('status') != 'ok':
+        print(f"  ✗ Failed to verify: {response.get('error')}")
+        return False
+
+    updated = response.get('mob', {})
+    updated_flags = updated.get('flags', {})
+
+    # Check if flags match (note: update might ADD flags, not replace them)
+    mob_flags = set(updated_flags.get('mob_flags', []))
+    npc_flags = set(updated_flags.get('npc_flags', []))
+    affect_flags = set(updated_flags.get('affect_flags', []))
+
+    test_mob_set = set(test_flags['mob_flags'])
+    test_npc_set = set(test_flags['npc_flags'])
+    test_affect_set = set(test_flags['affect_flags'])
+
+    all_ok = True
+    if not test_mob_set.issubset(mob_flags):
+        print(f"  ✗ mob_flags missing some values: expected {test_mob_set}, got {mob_flags}")
+        all_ok = False
+    else:
+        print(f"  ✓ mob_flags verified: {len(mob_flags)} flags")
+
+    if not test_npc_set.issubset(npc_flags):
+        print(f"  ✗ npc_flags missing some values: expected {test_npc_set}, got {npc_flags}")
+        all_ok = False
+    else:
+        print(f"  ✓ npc_flags verified: {len(npc_flags)} flags")
+
+    if not test_affect_set.issubset(affect_flags):
+        print(f"  ✗ affect_flags missing some values: expected {test_affect_set}, got {affect_flags}")
+        all_ok = False
+    else:
+        print(f"  ✓ affect_flags verified: {len(affect_flags)} flags")
+
+    if all_ok:
+        print(f"  ✅ MOB FLAGS TEST PASSED")
+    else:
+        print(f"  ❌ MOB FLAGS TEST FAILED")
+
+    # Restore original flags
+    print(f"  → Restoring original flags...")
+    restore_data = {"flags": original_flags}
+    send_command(sock, "update_mob", vnum=vnum, data=restore_data)
+    print(f"  ✓ Restored original")
+
+    return all_ok
+
+def test_large_payload(sock, vnum):
+    """Test saving large mob data (chunking support)."""
+    print(f"Testing large payload for mob vnum={vnum}")
+
+    # Large mob data similar to user's payload (~2KB)
+    large_mob_data = {
+        "names": {
+            "aliases": "костяная гончая",
+            "nominative": "костяная гончая",
+            "genitive": "костяной гончей",
+            "dative": "костяной гончей",
+            "accusative": "костяную гончую",
+            "instrumental": "костяной гончей",
+            "prepositional": "костяной гончей"
+        },
+        "descriptions": {
+            "short_desc": "Костяная гончая стоит здесь, ожидая приказа своего хозяина.",
+            "long_desc": "Груда костей, скрепленная темной магией в ужасное порождение тьмы.\nЭто создание служит своему хозяину безропотно и беспрекословно.\n"
+        },
+        "stats": {
+            "level": 15,
+            "sex": 2,
+            "race": 110,
+            "alignment": -600,
+            "armor": 3,
+            "hitroll_penalty": 5,
+            "hp": {"dice_count": 10, "dice_size": 4, "bonus": 220},
+            "damage": {"dice_count": 5, "dice_size": 4, "bonus": 10}
+        },
+        "physical": {
+            "height": 150,
+            "weight": 150,
+            "size": 45,
+            "extra_attack": 0,
+            "remort": 0,
+            "like_work": 0,
+            "maxfactor": 2
+        },
+        "abilities": {
+            "strength": 18,
+            "dexterity": 18,
+            "constitution": 3,
+            "intelligence": 10,
+            "wisdom": 10,
+            "charisma": 10
+        },
+        "resistances": {
+            "fire": 7,
+            "air": 0,
+            "water": 0,
+            "earth": 0,
+            "vitality": 50,
+            "mind": 5,
+            "immunity": 95
+        },
+        "savings": {
+            "will": 80,
+            "stability": 0,
+            "reflex": 0
+        },
+        "position": {
+            "default_position": 8,
+            "load_position": 8
+        },
+        "behavior": {
+            "class": -1,
+            "attack_type": 0,
+            "gold": {"dice_count": 0, "dice_size": 0, "bonus": 0},
+            "helpers": []
+        },
+        "triggers": [],
+        "roles": [],
+        "flags": {
+            "mob_flags": [1, 2, 4, 8, 16],
+            "affect_flags": [],
+            "npc_flags": []
+        },
+        "death_load": []
+    }
+
+    print(f"  → Payload size: ~{len(json.dumps(large_mob_data))} bytes")
+
+    try:
+        # Update mob with large payload
+        print(f"  → Sending large update command...")
+        response = send_command(sock, "update_mob", vnum=vnum, data=large_mob_data)
+
+        if response.get("status") != "ok":
+            print(f"  ❌ Update failed: {response.get('error', 'Unknown error')}")
+            return False
+
+        print(f"  ✓ Update successful")
+
+        # Verify data was saved correctly
+        print(f"  → Verifying saved data...")
+        response = send_command(sock, "get_mob", vnum=vnum)
+
+        if response.get("status") != "ok":
+            print(f"  ❌ Get failed: {response.get('error', 'Unknown error')}")
+            return False
+
+        saved_data = response.get("data", {})
+
+        # Verify key fields
+        all_ok = True
+        if saved_data.get("names", {}).get("aliases") != large_mob_data["names"]["aliases"]:
+            print(f"  ❌ Aliases mismatch")
+            all_ok = False
+        else:
+            print(f"  ✓ Aliases correct")
+
+        if saved_data.get("stats", {}).get("level") != large_mob_data["stats"]["level"]:
+            print(f"  ❌ Level mismatch")
+            all_ok = False
+        else:
+            print(f"  ✓ Level correct")
+
+        if saved_data.get("resistances", {}).get("immunity") != large_mob_data["resistances"]["immunity"]:
+            print(f"  ❌ Immunity mismatch")
+            all_ok = False
+        else:
+            print(f"  ✓ Resistances correct")
+
+        if all_ok:
+            print(f"  ✅ LARGE PAYLOAD TEST PASSED")
+        else:
+            print(f"  ❌ LARGE PAYLOAD TEST FAILED - Data mismatch")
+
+        return all_ok
+
+    except ConnectionError as e:
+        print(f"  ❌ Connection error: {e}")
+        print(f"  This indicates chunking is not working properly")
+        return False
+    except Exception as e:
+        print(f"  ❌ Unexpected error: {e}")
+        return False
+
 def main():
     if len(sys.argv) < 2:
         print("Usage: test_admin_api.py <command> [args...]")
@@ -1007,6 +1229,20 @@ def main():
             print("TESTING MOB COMPREHENSIVE UPDATE (ALL FIELDS)")
             print("="*60)
             if not test_comprehensive_mob(sock, 100):
+                all_tests_passed = False
+
+            # Test mob flags specifically
+            print("\n" + "="*60)
+            print("TESTING MOB FLAGS (GET/UPDATE/VERIFY)")
+            print("="*60)
+            if not test_mob_flags(sock, 100):
+                all_tests_passed = False
+
+            # Test large payload (chunking support)
+            print("\n" + "="*60)
+            print("TESTING LARGE PAYLOAD (CHUNKING)")
+            print("="*60)
+            if not test_large_payload(sock, 100):
                 all_tests_passed = False
 
             # Test comprehensive object CRUD (all fields)

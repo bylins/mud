@@ -28,7 +28,7 @@
             <h2 class="font-serif-display" style="font-size: 28px;">
                 Объект <span class="text-amber-700">#{{ obj.vnum }}</span>
             </h2>
-            <p class="page-subtitle" style="margin-top: 4px;">
+            <p class="page-subtitle mud-colorize" style="margin-top: 4px;">
                 {{ obj.short_desc|default('Без описания') }}
             </p>
         </div>
@@ -92,7 +92,7 @@
         <div class="detail-grid detail-grid-2" style="margin-bottom: 20px;">
             <div class="detail-field" style="grid-column: 1 / -1;">
                 <div class="detail-field-label">Ключевые слова (aliases)</div>
-                <div class="detail-field-value{% if not obj.aliases %} empty{% endif %}">
+                <div class="detail-field-value mud-colorize{% if not obj.aliases %} empty{% endif %}">
                     {{ obj.aliases if obj.aliases else 'Не задано' }}
                 </div>
             </div>
@@ -103,37 +103,37 @@
         <div class="detail-grid detail-grid-3" style="margin-bottom: 16px;">
             <div class="detail-field">
                 <div class="detail-field-label">Именительный (кто? что?)</div>
-                <div class="detail-field-value{% if not obj.names or not obj.names.nominative %} empty{% endif %}">
+                <div class="detail-field-value mud-colorize{% if not obj.names or not obj.names.nominative %} empty{% endif %}">
                     {{ obj.names.nominative if obj.names and obj.names.nominative else '--' }}
                 </div>
             </div>
             <div class="detail-field">
                 <div class="detail-field-label">Родительный (кого? чего?)</div>
-                <div class="detail-field-value{% if not obj.names or not obj.names.genitive %} empty{% endif %}">
+                <div class="detail-field-value mud-colorize{% if not obj.names or not obj.names.genitive %} empty{% endif %}">
                     {{ obj.names.genitive if obj.names and obj.names.genitive else '--' }}
                 </div>
             </div>
             <div class="detail-field">
                 <div class="detail-field-label">Дательный (кому? чему?)</div>
-                <div class="detail-field-value{% if not obj.names or not obj.names.dative %} empty{% endif %}">
+                <div class="detail-field-value mud-colorize{% if not obj.names or not obj.names.dative %} empty{% endif %}">
                     {{ obj.names.dative if obj.names and obj.names.dative else '--' }}
                 </div>
             </div>
             <div class="detail-field">
                 <div class="detail-field-label">Винительный (кого? что?)</div>
-                <div class="detail-field-value{% if not obj.names or not obj.names.accusative %} empty{% endif %}">
+                <div class="detail-field-value mud-colorize{% if not obj.names or not obj.names.accusative %} empty{% endif %}">
                     {{ obj.names.accusative if obj.names and obj.names.accusative else '--' }}
                 </div>
             </div>
             <div class="detail-field">
                 <div class="detail-field-label">Творительный (кем? чем?)</div>
-                <div class="detail-field-value{% if not obj.names or not obj.names.instrumental %} empty{% endif %}">
+                <div class="detail-field-value mud-colorize{% if not obj.names or not obj.names.instrumental %} empty{% endif %}">
                     {{ obj.names.instrumental if obj.names and obj.names.instrumental else '--' }}
                 </div>
             </div>
             <div class="detail-field">
                 <div class="detail-field-label">Предложный (о ком? о чём?)</div>
-                <div class="detail-field-value{% if not obj.names or not obj.names.prepositional %} empty{% endif %}">
+                <div class="detail-field-value mud-colorize{% if not obj.names or not obj.names.prepositional %} empty{% endif %}">
                     {{ obj.names.prepositional if obj.names and obj.names.prepositional else '--' }}
                 </div>
             </div>
@@ -153,21 +153,21 @@
         <div class="detail-grid detail-grid-1">
             <div class="detail-field">
                 <div class="detail-field-label">Короткое описание (short desc)</div>
-                <div class="detail-field-value{% if not obj.short_desc %} empty{% endif %}">
+                <div class="detail-field-value mud-colorize{% if not obj.short_desc %} empty{% endif %}">
                     {{ obj.short_desc if obj.short_desc else 'Не задано' }}
                 </div>
             </div>
 
             <div class="detail-field">
                 <div class="detail-field-label">Полное описание</div>
-                <div class="detail-field-value{% if not obj.description %} empty{% endif %}" style="white-space: pre-wrap;">
+                <div class="detail-field-value mud-colorize{% if not obj.description %} empty{% endif %}" style="white-space: pre-wrap;">
                     {{ obj.description if obj.description else 'Не задано' }}
                 </div>
             </div>
 
             <div class="detail-field">
                 <div class="detail-field-label">Описание действия (action desc)</div>
-                <div class="detail-field-value{% if not obj.action_desc %} empty{% endif %}">
+                <div class="detail-field-value mud-colorize{% if not obj.action_desc %} empty{% endif %}">
                     {{ obj.action_desc if obj.action_desc else 'Не задано' }}
                 </div>
             </div>
@@ -608,4 +608,10 @@
         </a>
     </div>
 
+
+{% block scripts %}
+<script>
+    applyMudColors();
+</script>
+{% endblock %}
 {% endblock %}

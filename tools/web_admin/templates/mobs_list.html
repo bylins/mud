@@ -43,13 +43,21 @@
     </div>
 
     {% if mobs %}
+    <!-- Search Box -->
+    <div class="search-box-container">
+        <div class="search-box-wrapper">
+            <input type="text" id="search-box" class="search-box" placeholder="Поиск по vnum, названию...">
+            <button class="search-clear-btn" onclick="document.getElementById('search-box').value = ''; filterTable(document.getElementById('search-box'), document.getElementById('mobs-table'));" style="display: none;">&times;</button>
+        </div>
+    </div>
+
     <!-- Mobs Table -->
-    <table>
+    <table id="mobs-table">
         <thead>
             <tr>
-                <th style="width: 100px;">Vnum</th>
-                <th>Название</th>
-                <th style="width: 80px; text-align: center;">Уровень</th>
+                <th class="sortable" onclick="sortTable(document.getElementById('mobs-table'), 0, 'numeric')" style="width: 100px;">Vnum</th>
+                <th class="sortable" onclick="sortTable(document.getElementById('mobs-table'), 1, 'text')">Название</th>
+                <th class="sortable" onclick="sortTable(document.getElementById('mobs-table'), 2, 'numeric')" style="width: 80px; text-align: center;">Уровень</th>
                 <th style="width: 200px; text-align: right;">Действия</th>
             </tr>
         </thead>
@@ -60,7 +68,7 @@
                     <span class="vnum-badge">{{ item.vnum }}</span>
                 </td>
                 <td>
-                    <span style="font-weight: 500;">{{ item.name|default('--') }}</span>
+                    <span class="mud-colorize" style="font-weight: 500;">{{ item.name|default('--') }}</span>
                 </td>
                 <td style="text-align: center;">
                     <span class="font-inter text-sm text-ink-light">{{ item.level|default('--') }}</span>
@@ -99,4 +107,23 @@
     </div>
     {% endif %}
 
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Initialize search functionality
+    const searchBox = document.getElementById('search-box');
+    const clearBtn = document.querySelector('.search-clear-btn');
+    const table = document.getElementById('mobs-table');
+
+    if (searchBox && table) {
+        searchBox.addEventListener('input', function() {
+            filterTable(searchBox, table);
+            clearBtn.style.display = searchBox.value ? 'block' : 'none';
+        });
+    }
+
+    // Apply MUD color codes
+    applyMudColors();
+</script>
 {% endblock %}

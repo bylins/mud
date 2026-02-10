@@ -126,6 +126,169 @@
         </div>
     </footer>
 
+    <script>
+        // MUD Color Code Rendering
+        function renderMudColors(text) {
+            if (!text) return text;
+
+            const colorMap = {
+                'K': 'black',
+                'k': 'black-bright',
+                'B': 'blue',
+                'b': 'blue-bright',
+                'C': 'cyan',
+                'c': 'cyan-bright',
+                'Y': 'yellow',
+                'y': 'yellow-bright',
+                'M': 'magenta',
+                'm': 'magenta-bright',
+                'W': 'white',
+                'w': 'white-bright',
+                'R': 'red',
+                'r': 'red-bright',
+                'G': 'green',
+                'g': 'green-bright',
+                'n': 'normal'
+            };
+
+            // Replace color codes with spans but KEEP the codes visible OUTSIDE spans
+            let result = '';
+            let currentColor = null;
+            let i = 0;
+
+            while (i < text.length) {
+                if (text[i] === '&' && i + 1 < text.length) {
+                    const code = text[i + 1];
+
+                    // Check if it's a color code
+                    if (colorMap[code]) {
+                        // Close previous span if any
+                        if (currentColor) {
+                            result += '</span>';
+                        }
+
+                        // Add the code OUTSIDE the span (visible but not colored)
+                        result += '&' + code;
+
+                        // Open new span (unless it's reset)
+                        if (code === 'n') {
+                            currentColor = null;
+                        } else {
+                            currentColor = colorMap[code];
+                            result += '<span class="mud-color-' + currentColor + '">';
+                        }
+
+                        i += 2; // Skip &X
+                        continue;
+                    } else if (code >= '0' && code <= '9') {
+                        // Numeric codes - keep them outside too
+                        if (currentColor) {
+                            result += '</span>';
+                            currentColor = null;
+                        }
+                        result += '&' + code;
+                        i += 2;
+                        continue;
+                    }
+                }
+
+                result += text[i];
+                i++;
+            }
+
+            // Close any open span
+            if (currentColor) {
+                result += '</span>';
+            }
+
+            return result;
+        }
+
+        // Apply MUD colors to elements with class 'mud-colorize'
+        function applyMudColors() {
+            document.querySelectorAll('.mud-colorize').forEach(function(el) {
+                // Skip if already processed
+                if (el.dataset.colorized) return;
+
+                // Get raw text content (no HTML entities, just actual text)
+                const text = el.textContent;
+
+                // Store original for potential re-processing
+                el.dataset.originalText = text;
+                el.dataset.colorized = 'true';
+
+                // Just apply colors, keep codes visible, don't touch newlines
+                const colored = renderMudColors(text);
+                el.innerHTML = colored;
+            });
+        }
+
+        // Table sorting utility
+        function sortTable(table, columnIndex, dataType = 'text') {
+            const tbody = table.querySelector('tbody');
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+            const th = table.querySelectorAll('th')[columnIndex];
+            const currentOrder = th.getAttribute('data-sort-order') || 'none';
+
+            // Clear all sort indicators
+            table.querySelectorAll('th').forEach(header => {
+                header.setAttribute('data-sort-order', 'none');
+                header.classList.remove('sorted-asc', 'sorted-desc');
+            });
+
+            // Determine new sort order
+            let newOrder = 'asc';
+            if (currentOrder === 'asc') {
+                newOrder = 'desc';
+            }
+
+            // Sort rows
+            rows.sort((a, b) => {
+                const aCell = a.querySelectorAll('td')[columnIndex];
+                const bCell = b.querySelectorAll('td')[columnIndex];
+
+                let aValue = aCell.textContent.trim();
+                let bValue = bCell.textContent.trim();
+
+                // Extract numeric values if data type is numeric
+                if (dataType === 'numeric') {
+                    aValue = parseInt(aValue.replace(/[^\d-]/g, '')) || 0;
+                    bValue = parseInt(bValue.replace(/[^\d-]/g, '')) || 0;
+                } else {
+                    aValue = aValue.toLowerCase();
+                    bValue = bValue.toLowerCase();
+                }
+
+                if (aValue < bValue) return newOrder === 'asc' ? -1 : 1;
+                if (aValue > bValue) return newOrder === 'asc' ? 1 : -1;
+                return 0;
+            });
+
+            // Update table
+            rows.forEach(row => tbody.appendChild(row));
+
+            // Update sort indicator
+            th.setAttribute('data-sort-order', newOrder);
+            th.classList.add(newOrder === 'asc' ? 'sorted-asc' : 'sorted-desc');
+        }
+
+        // Table search/filter utility
+        function filterTable(searchInput, table) {
+            const searchTerm = searchInput.value.toLowerCase();
+            const tbody = table.querySelector('tbody');
+            const rows = tbody.querySelectorAll('tr');
+
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                if (text.includes(searchTerm)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+    </script>
+
     {% block scripts %}{% endblock %}
 
 </body>

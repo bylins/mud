@@ -37,12 +37,12 @@
             </p>
         </div>
 
-        <a href="{{ url_for('zone_detail', vnum=zone["vnum"]) }}" class="btn-secondary">
+        <button type="button" class="btn-secondary" onclick="history.back()">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M19 12H5M12 19l-7-7 7-7"/>
             </svg>
             Отмена
-        </a>
+        </button>
     </div>
 
     <!-- Ornamental divider -->
@@ -175,7 +175,7 @@
         <div class="form-row form-row-2" style="margin-bottom: 16px;">
             <div class="field-group">
                 <label for="reset_mode">Режим сброса</label>
-                <select id="reset_mode" name="reset_mode">
+                <select id="reset_mode" name="reset_mode" onchange="updateTypeListsVisibility()">
                     <option value="0" {{ 'selected' if zone["reset_mode"] is defined and zone["reset_mode"] == 0 }}>0 - Никогда не сбрасывается</option>
                     <option value="1" {{ 'selected' if zone["reset_mode"] is defined and zone["reset_mode"] == 1 }}>1 - Когда нет игроков</option>
                     <option value="2" {{ 'selected' if zone["reset_mode"] is defined and zone["reset_mode"] == 2 }}>2 - Всегда сбрасывается</option>
@@ -186,6 +186,32 @@
                 <label for="lifespan">Интервал сброса <span style="font-weight: 400; text-transform: none; letter-spacing: normal; color: #8a7b6b;">(мин)</span></label>
                 <input type="number" id="lifespan" name="lifespan" min="0"
                        value="{{ zone["lifespan"]|default(0) }}">
+            </div>
+        </div>
+
+        <div id="type-lists-row" style="margin-bottom: 16px; display: none;">
+            <div class="form-row">
+                <div class="field-group" style="grid-column: 1 / -1;">
+                    <label for="type_a_list">TypeA список (type_a_list)</label>
+                    <input type="text" id="type_a_list" name="type_a_list"
+                           value="{% if zone.get('type_a_list') %}{{ zone['type_a_list']|join(', ') }}{% endif %}"
+                           placeholder="Vnums через запятую, например: 100, 101, 102">
+                    <div style="font-family: 'Inter', sans-serif; font-size: 12px; color: #8a7b6b; margin-top: 4px;">
+                        Список vnums для режима сброса 3 (сложный режим)
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="field-group" style="grid-column: 1 / -1;">
+                    <label for="type_b_list">TypeB список (type_b_list)</label>
+                    <input type="text" id="type_b_list" name="type_b_list"
+                           value="{% if zone.get('type_b_list') %}{{ zone['type_b_list']|join(', ') }}{% endif %}"
+                           placeholder="Vnums через запятую, например: 200, 201, 202">
+                    <div style="font-family: 'Inter', sans-serif; font-size: 12px; color: #8a7b6b; margin-top: 4px;">
+                        Список vnums для режима сброса 3 (сложный режим)
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -293,9 +319,9 @@
             </svg>
             Сохранить
         </button>
-        <a href="{{ url_for('zone_detail', vnum=zone["vnum"]) }}" class="btn-secondary">
+        <button type="button" class="btn-secondary" onclick="history.back()">
             Отмена
-        </a>
+        </button>
         <div style="margin-left: auto; font-family: 'Inter', sans-serif; font-size: 13px; color: #8a7b6b;" id="save-status"></div>
     </div>
 
@@ -496,6 +522,31 @@
             data.reset_mode = parseInt(resetModeEl.value) || 0;
         }
 
+        // TypeA/TypeB lists (only for reset_mode=3)
+        var typeAListEl = form.querySelector('[name="type_a_list"]');
+        if (typeAListEl && typeAListEl.value.trim()) {
+            var typeAStr = typeAListEl.value.trim();
+            data.type_a_list = typeAStr.split(',').map(function(v) {
+                return parseInt(v.trim());
+            }).filter(function(v) {
+                return !isNaN(v);
+            });
+        } else {
+            data.type_a_list = [];
+        }
+
+        var typeBListEl = form.querySelector('[name="type_b_list"]');
+        if (typeBListEl && typeBListEl.value.trim()) {
+            var typeBStr = typeBListEl.value.trim();
+            data.type_b_list = typeBStr.split(',').map(function(v) {
+                return parseInt(v.trim());
+            }).filter(function(v) {
+                return !isNaN(v);
+            });
+        } else {
+            data.type_b_list = [];
+        }
+
         // Boolean fields (radio buttons)
         var resetIdleEl = form.querySelector('[name="reset_idle"]:checked');
         if (resetIdleEl) {
@@ -550,7 +601,95 @@
             statusEl.textContent = '';
         });
     };
+
+    // --- TypeA/TypeB visibility toggle ---
+    window.updateTypeListsVisibility = function() {
+        var resetMode = document.getElementById('reset_mode').value;
+        var typeListsRow = document.getElementById('type-lists-row');
+        if (resetMode === '3') {
+            typeListsRow.style.display = '';
+        } else {
+            typeListsRow.style.display = 'none';
+        }
+    };
+
+    // Initialize visibility on page load
+    updateTypeListsVisibility();
 })();
+
+// ========== Color Overlay for Text Inputs ==========
+function addColorOverlay(inputId) {
+    const input = document.getElementById(inputId);
+    if (!input) return;
+
+    const isTextarea = input.tagName.toLowerCase() === 'textarea';
+
+    const wrapper = document.createElement('div');
+    wrapper.style.cssText = 'position: relative;';
+
+    const computedStyle = window.getComputedStyle(input);
+
+    const backdrop = document.createElement('div');
+    backdrop.className = 'mud-colorize';
+    backdrop.style.cssText = `
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        padding: ${computedStyle.padding || (isTextarea ? '8px 12px' : '0 12px')};
+        border: ${computedStyle.border || '2px solid rgba(120, 53, 15, 0.15)'};
+        border-radius: ${computedStyle.borderRadius || '4px'};
+        background: ${computedStyle.backgroundColor || '#fefdfb'};
+        font-family: ${computedStyle.fontFamily || 'Inter, sans-serif'};
+        font-size: ${computedStyle.fontSize || '14px'};
+        line-height: ${computedStyle.lineHeight || (isTextarea ? '1.5' : '38px')};
+        white-space: ${isTextarea ? 'pre-wrap' : 'pre'};
+        word-wrap: break-word;
+        color: #2d241e;
+        pointer-events: none;
+        overflow: ${isTextarea ? 'auto' : 'hidden'};
+        box-shadow: ${computedStyle.boxShadow || 'none'};
+    `;
+
+    input.parentNode.insertBefore(wrapper, input);
+    wrapper.appendChild(backdrop);
+    wrapper.appendChild(input);
+
+    input.style.position = 'relative';
+    input.style.background = 'transparent';
+    input.style.border = 'none';
+    input.style.outline = 'none';
+    input.style.color = 'transparent';
+    input.style.caretColor = '#2d241e';
+    input.style.zIndex = '1';
+
+    function updateBackdrop() {
+        let text = input.value;
+        if (text && !text.endsWith(' ')) text += ' ';
+        backdrop.textContent = text || ' ';
+        delete backdrop.dataset.colorized;
+        delete backdrop.dataset.originalText;
+        applyMudColors();
+    }
+
+    if (isTextarea) {
+        input.addEventListener('scroll', function() {
+            backdrop.scrollTop = input.scrollTop;
+            backdrop.scrollLeft = input.scrollLeft;
+        });
+    }
+
+    updateBackdrop();
+    input.addEventListener('input', updateBackdrop);
+    input.addEventListener('change', updateBackdrop);
+}
+
+// Add color overlay to zone fields
+document.addEventListener('DOMContentLoaded', function() {
+    addColorOverlay('name');
+    addColorOverlay('author');
+    addColorOverlay('comment');
+    addColorOverlay('location');
+    addColorOverlay('description');
+});
 </script>
 <style>
     @keyframes spin {

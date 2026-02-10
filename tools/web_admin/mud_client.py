@@ -40,7 +40,7 @@ class MudAdminClient:
             # Authenticate if credentials provided
             if self.username and self.password:
                 auth_cmd = {"command": "auth", "username": self.username, "password": self.password}
-                sock.send((json.dumps(auth_cmd) + '\n').encode())
+                sock.sendall((json.dumps(auth_cmd) + '\n').encode())
                 auth_resp_data = self._recv_line(sock)
                 auth_resp = json.loads(auth_resp_data.decode())
 
@@ -50,7 +50,7 @@ class MudAdminClient:
             # Send actual command
             request = {"command": command}
             request.update(params)
-            sock.send((json.dumps(request) + '\n').encode())
+            sock.sendall((json.dumps(request) + '\n').encode())
 
             # Receive response (read until newline)
             response_data = self._recv_line(sock)
