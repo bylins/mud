@@ -1660,18 +1660,24 @@ document.addEventListener('DOMContentLoaded', function() {
     // Multi-line textarea
     addColorOverlay('desc-long');
 
-    // Initialize tag inputs
+    // Initialize tag inputs with autocomplete
     createTagInput('beh-helpers', {
-        placeholder: 'Введите vnum и нажмите Enter...'
+        autocompleteUrl: '/api/search/mobs',
+        placeholder: 'Начните вводить vnum или имя моба...',
+        requireValue: false
     });
 
     createTagInput('skills', {
+        autocompleteUrl: '/api/skills',
         valueSeparator: ':',
-        placeholder: 'Введите умение:значение (например, bash:50) и нажмите Enter...'
+        placeholder: 'Начните вводить название умения (формат: умение:уровень)...',
+        requireValue: true
     });
 
     createTagInput('spells', {
-        placeholder: 'Введите название заклинания и нажмите Enter...'
+        autocompleteUrl: '/api/spells',
+        placeholder: 'Начните вводить название заклинания...',
+        requireValue: false
     });
 });
 </script>

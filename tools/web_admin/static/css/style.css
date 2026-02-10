@@ -1623,7 +1623,7 @@ table th.sortable.sorted-desc::after {
     padding: 10px;
     border: 2px solid rgba(139, 69, 19, 0.15);
     border-radius: 6px;
-    background: #ffffff;
+    background: #fdf6e3;
     min-height: 44px;
     cursor: text;
     transition: all 0.2s ease;

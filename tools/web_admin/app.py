@@ -582,6 +582,72 @@ def api_search_rooms():
     return jsonify({'results': results})
 
 
+@app.route('/api/skills')
+@login_required
+def api_skills():
+    """Get list of all skills for autocomplete"""
+    # Static list of skills - можно расширить
+    skills = [
+        'backstab', 'bash', 'hide', 'kick', 'pick', 'punch', 'rescue', 'sneak',
+        'steal', 'track', 'protect', 'sense', 'parry', 'block', 'touch',
+        'looking', 'hearing', 'disarm', 'deviate', 'chopoff', 'repair', 'courage',
+        'identify', 'heal', 'townportal', 'sacrifice', 'morph', 'relocate',
+        'warcry', 'skills', 'manadrain', 'sideattack', 'throw', 'stupor',
+        'mighthit', 'excrete', 'recall', 'makefood', 'poisoned', 'riding',
+        'horse', 'horse_training', 'leadership', 'punctual', 'awake', 'createbow',
+        'poisoning', 'camouflage', 'locomotion', 'skinning', 'turn_undead',
+        'iron_wind', 'stun', 'make_staff', 'religious', 'make_weapon', 'make_armor',
+        'make_jewel', 'transformweapon', 'drunkoff', 'make_wear', 'make_potion',
+        'style_awake', 'style_parent', 'style_touch', 'style_polar', 'create_water',
+        'fire', 'smithing', 'indefinite_incapacitation'
+    ]
+
+    query = request.args.get('q', '').lower()
+    if query:
+        results = [s for s in skills if query in s.lower()]
+    else:
+        results = skills
+
+    return jsonify({'results': results[:50]})
+
+
+@app.route('/api/spells')
+@login_required
+def api_spells():
+    """Get list of all spells for autocomplete"""
+    # Static list of spells - можно расширить
+    spells = [
+        'armor', 'bless', 'blindness', 'burden', 'cloudly', 'cure_blind', 'cure_critic',
+        'cure_light', 'detect_align', 'detect_invis', 'detect_magic', 'detect_poison',
+        'dispel_evil', 'dispel_good', 'earthquake', 'extra_hits', 'fireball', 'group_armor',
+        'group_bless', 'harm', 'heal', 'invisible', 'lightning', 'locate_object',
+        'magic_missile', 'poison', 'prot_from_evil', 'remove_curse', 'remove_poison',
+        'sanctuary', 'shocking', 'sleep', 'strength', 'summon', 'word_recall',
+        'remove_hold', 'power_hold', 'mass_hold', 'fly', 'broken_chains', 'noflee',
+        'create_water', 'create_food', 'refresh', 'teleport', 'create_weapon',
+        'fear', 'sacrifice', 'haste', 'slow', 'clone', 'protect_magic', 'cure_serious',
+        'fire_shield', 'air_shield', 'ice_shield', 'group_heal', 'mass_cure', 'ressurection',
+        'animate_dead', 'stoneskin', 'cloudly', 'power_silence', 'failure', 'mass_failure',
+        'mass_slow', 'mass_curse', 'holystrike', 'angel', 'demon', 'hypnotic_pattern',
+        'solobonus', 'expedient', 'web', 'cone_cold', 'battle', 'acid', 'repair',
+        'mindless', 'prismaticaura', 'evards_hand', 'meteorstorm', 'icestorm',
+        'portalstone', 'timer_repair', 'vacuum', 'sight_of_darkness', 'general_sincerity',
+        'magical_gaze', 'all_seeing_eye', 'eye_of_gods', 'breathing_at_depth',
+        'general_recovery', 'common_meal', 'stonehand', 'snake_eyes', 'earth_aura',
+        'group_prot_from_evil', 'arrows_fire', 'arrows_water', 'arrows_earth',
+        'arrows_air', 'arrows_death', 'group_strength', 'aconitum_poison', 'scopolia_poison',
+        'belena_poison', 'datura_poison'
+    ]
+
+    query = request.args.get('q', '').lower()
+    if query:
+        results = [s for s in spells if query in s.lower()]
+    else:
+        results = spells
+
+    return jsonify({'results': results[:50]})
+
+
 if __name__ == '__main__':
     # Get host and port from environment or use defaults
     HOST = os.environ.get('FLASK_HOST', '127.0.0.1')

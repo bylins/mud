@@ -289,44 +289,61 @@
         }
 
         /**
-         * Create a tag input component
+         * Create a tag input component with autocomplete
          * @param {string} inputId - ID of the original input element
          * @param {Object} options - Configuration options
-         * @param {string} options.separator - Delimiter for tags (default: ',')
+         * @param {string} options.autocompleteUrl - URL for autocomplete API
          * @param {string} options.valueSeparator - Delimiter for key:value pairs (default: ':')
          * @param {string} options.placeholder - Placeholder text
-         * @param {Function} options.onUpdate - Callback when tags change
+         * @param {boolean} options.requireValue - Require value part for key:value (default: false)
          */
         function createTagInput(inputId, options = {}) {
             const originalInput = document.getElementById(inputId);
             if (!originalInput) return;
 
-            const separator = options.separator || ',';
+            const autocompleteUrl = options.autocompleteUrl;
             const valueSeparator = options.valueSeparator || null;
             const placeholder = options.placeholder || 'Введите значение и нажмите Enter...';
-            const onUpdate = options.onUpdate || null;
+            const requireValue = options.requireValue !== false;
 
             // Hide original input
             originalInput.style.display = 'none';
+
+            // Create wrapper
+            const wrapper = document.createElement('div');
+            wrapper.className = 'autocomplete-container';
+            originalInput.parentNode.insertBefore(wrapper, originalInput);
 
             // Create container
             const container = document.createElement('div');
             container.className = 'tag-input-container';
             container.onclick = () => newInput.focus();
+            wrapper.appendChild(container);
+
+            // Create dropdown
+            const dropdown = document.createElement('div');
+            dropdown.className = 'autocomplete-dropdown';
+            wrapper.appendChild(dropdown);
 
             // Create new input
             const newInput = document.createElement('input');
             newInput.type = 'text';
             newInput.placeholder = placeholder;
+            newInput.autocomplete = 'off';
 
             // Parse initial value into tags
             const tags = [];
             if (originalInput.value) {
-                originalInput.value.split(separator).forEach(item => {
+                originalInput.value.split(',').forEach(item => {
                     item = item.trim();
                     if (item) tags.push(item);
                 });
             }
+
+            let selectedIndex = -1;
+            let suggestions = [];
+            let searchTimeout = null;
+            let editingIndex = -1;
 
             // Render tags
             function renderTags() {
@@ -334,6 +351,15 @@
                 tags.forEach((tag, index) => {
                     const tagEl = document.createElement('span');
                     tagEl.className = 'tag';
+
+                    // Double click to edit
+                    tagEl.ondblclick = (e) => {
+                        e.stopPropagation();
+                        editingIndex = index;
+                        newInput.value = tag;
+                        newInput.focus();
+                        newInput.select();
+                    };
 
                     const tagText = document.createElement('span');
                     tagText.textContent = tag;
@@ -358,33 +384,147 @@
             // Update original input
             function updateOriginalInput() {
                 originalInput.value = tags.join(', ');
-                if (onUpdate) onUpdate(tags);
+            }
+
+            // Fetch suggestions
+            async function fetchSuggestions(query) {
+                if (!autocompleteUrl || !query.trim()) {
+                    dropdown.classList.remove('active');
+                    return;
+                }
+
+                // Extract key part for skills (before :)
+                let searchQuery = query;
+                if (valueSeparator && query.includes(valueSeparator)) {
+                    searchQuery = query.split(valueSeparator)[0];
+                }
+
+                try {
+                    const url = `${autocompleteUrl}?q=${encodeURIComponent(searchQuery)}`;
+                    const response = await fetch(url);
+                    const data = await response.json();
+                    suggestions = data.results || [];
+
+                    if (suggestions.length === 0) {
+                        dropdown.classList.remove('active');
+                        return;
+                    }
+
+                    renderSuggestions();
+                } catch (error) {
+                    console.error('Autocomplete error:', error);
+                    dropdown.classList.remove('active');
+                }
+            }
+
+            // Render suggestions
+            function renderSuggestions() {
+                dropdown.innerHTML = '';
+                selectedIndex = -1;
+
+                suggestions.forEach((item, index) => {
+                    const div = document.createElement('div');
+                    div.className = 'autocomplete-item';
+
+                    // Different rendering for mobs vs skills/spells
+                    if (typeof item === 'object' && item.vnum !== undefined) {
+                        div.innerHTML = `<span class="autocomplete-item-vnum">#${item.vnum}</span><span class="autocomplete-item-name">${item.name}</span>`;
+                        div.onclick = () => selectSuggestion(item.vnum.toString());
+                    } else {
+                        div.textContent = item;
+                        div.onclick = () => selectSuggestion(item);
+                    }
+
+                    dropdown.appendChild(div);
+                });
+
+                dropdown.classList.add('active');
+            }
+
+            // Select suggestion
+            function selectSuggestion(value) {
+                if (valueSeparator) {
+                    // For skills: show "skill:" and let user enter level
+                    newInput.value = value + valueSeparator;
+                    dropdown.classList.remove('active');
+                    newInput.focus();
+                } else {
+                    // For spells/helpers: add directly
+                    newInput.value = value;
+                    addTag(value);
+                }
             }
 
             // Add tag
             function addTag(value) {
                 value = value.trim();
-                if (!value) return;
+                if (!value) return false;
 
                 // Validate format for key:value pairs
-                if (valueSeparator && value.includes(valueSeparator)) {
-                    const parts = value.split(valueSeparator);
-                    if (parts.length !== 2 || !parts[0].trim() || !parts[1].trim()) {
-                        return; // Invalid format
+                if (valueSeparator) {
+                    if (!value.includes(valueSeparator)) {
+                        if (requireValue) {
+                            alert(`Требуется формат: название${valueSeparator}значение (например, bash${valueSeparator}50)`);
+                            return false;
+                        }
+                    } else {
+                        const parts = value.split(valueSeparator);
+                        if (parts.length !== 2 || !parts[0].trim() || !parts[1].trim()) {
+                            alert(`Неверный формат. Требуется: название${valueSeparator}значение`);
+                            return false;
+                        }
+                        // Validate numeric value
+                        if (isNaN(parseInt(parts[1]))) {
+                            alert('Значение должно быть числом');
+                            return false;
+                        }
                     }
                 }
 
-                tags.push(value);
+                if (editingIndex >= 0) {
+                    tags[editingIndex] = value;
+                    editingIndex = -1;
+                } else {
+                    tags.push(value);
+                }
+
                 updateOriginalInput();
                 renderTags();
                 newInput.value = '';
+                dropdown.classList.remove('active');
+                return true;
             }
 
-            // Handle Enter key
+            // Handle keyboard
             newInput.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') {
+                const items = dropdown.querySelectorAll('.autocomplete-item');
+
+                if (e.key === 'ArrowDown') {
                     e.preventDefault();
-                    addTag(newInput.value);
+                    if (selectedIndex < items.length - 1) {
+                        selectedIndex++;
+                        updateSelection(items);
+                    }
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    if (selectedIndex > 0) {
+                        selectedIndex--;
+                        updateSelection(items);
+                    }
+                } else if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (selectedIndex >= 0 && suggestions[selectedIndex]) {
+                        const item = suggestions[selectedIndex];
+                        selectSuggestion(typeof item === 'object' ? item.vnum.toString() : item);
+                    } else {
+                        addTag(newInput.value);
+                    }
+                } else if (e.key === 'Escape') {
+                    dropdown.classList.remove('active');
+                    if (editingIndex >= 0) {
+                        editingIndex = -1;
+                        newInput.value = '';
+                    }
                 } else if (e.key === 'Backspace' && !newInput.value && tags.length > 0) {
                     tags.pop();
                     updateOriginalInput();
@@ -392,15 +532,32 @@
                 }
             });
 
-            // Handle blur (optional: add tag on blur)
-            newInput.addEventListener('blur', () => {
-                if (newInput.value.trim()) {
-                    addTag(newInput.value);
-                }
+            // Update selection
+            function updateSelection(items) {
+                items.forEach((item, index) => {
+                    if (index === selectedIndex) {
+                        item.classList.add('selected');
+                        item.scrollIntoView({ block: 'nearest' });
+                    } else {
+                        item.classList.remove('selected');
+                    }
+                });
+            }
+
+            // Handle input with debounce
+            newInput.addEventListener('input', () => {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    fetchSuggestions(newInput.value);
+                }, 300);
             });
 
-            // Insert after original input
-            originalInput.parentNode.insertBefore(container, originalInput.nextSibling);
+            // Close dropdown on outside click
+            document.addEventListener('click', (e) => {
+                if (!wrapper.contains(e.target)) {
+                    dropdown.classList.remove('active');
+                }
+            });
 
             // Initial render
             renderTags();
