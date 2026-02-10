@@ -2044,6 +2044,7 @@ void admin_api_get_zone(DescriptorData *d, int zone_vnum) {
 	zone_obj["under_construction"] = zone.under_construction;
 	zone_obj["group"] = zone.group;
 	zone_obj["is_town"] = zone.is_town;
+	zone_obj["locked"] = zone.locked;
 
 	json result;
 	result["status"] = "ok";
@@ -2117,6 +2118,9 @@ void admin_api_update_zone(DescriptorData *d, int zone_vnum, const char *json_da
 		}
 		if (data.contains("is_town")) {
 			zone->is_town = data["is_town"].get<bool>();
+		}
+		if (data.contains("locked")) {
+			zone->locked = data["locked"].get<bool>();
 		}
 
 		// Mark zone as modified (zedit checks if vnum is non-zero)

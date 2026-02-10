@@ -181,9 +181,23 @@
                     {% else %}--{% endif %}
                 </div>
             </div>
+            {% set race_names = {
+                100: '100 - Базовая (Basic)', 101: '101 - Человек (Human)',
+                102: '102 - Зверочеловек (Beastman)', 103: '103 - Птица (Bird)',
+                104: '104 - Животное (Animal)', 105: '105 - Рептилия (Reptile)',
+                106: '106 - Рыба (Fish)', 107: '107 - Насекомое (Insect)',
+                108: '108 - Растение (Plant)', 109: '109 - Конструкт (Construct)',
+                110: '110 - Зомби (Zombie)', 111: '111 - Призрак (Ghost)',
+                112: '112 - Домовой (Boggart)', 113: '113 - Дух (Spirit)',
+                114: '114 - Магическое существо (MagicCreature)'
+            } %}
             <div class="detail-field">
-                <div class="detail-field-label">Раса</div>
-                <div class="detail-field-value">{{ mob.stats.race if mob.stats else '--' }}</div>
+                <div class="detail-field-label">Раса (race)</div>
+                <div class="detail-field-value">
+                    {% if mob.stats %}
+                        {{ race_names.get(mob.stats.race, mob.stats.race) }}
+                    {% else %}--{% endif %}
+                </div>
             </div>
             <div class="detail-field">
                 <div class="detail-field-label">Характер</div>
@@ -437,22 +451,38 @@
             Поведение
         </div>
 
-        <div class="detail-grid detail-grid-4" style="margin-bottom: 20px;">
+        {% set npc_classes = {
+            -1: '-1 - Не определён (Undefined)',
+            0: '0 - Колдун (Sorcerer)', 1: '1 - Волхв (Conjurer)', 2: '2 - Вор (Thief)',
+            3: '3 - Воин (Warrior)', 4: '4 - Убийца (Assassine)', 5: '5 - Дружинник (Guard)',
+            6: '6 - Кудесник (Charmer)', 7: '7 - Чародей (Wizard)', 8: '8 - Некромант (Necromancer)',
+            9: '9 - Витязь (Paladine)', 10: '10 - Богатырь (Ranger)', 11: '11 - Охотник (Vigilant)',
+            12: '12 - Купец (Merchant)', 13: '13 - Волшебник (Magus)',
+            20: '20 - Моб (Mob)', 100: '100 - NPC базовый (NpcBase)'
+        } %}
+        {% set attack_types = {
+            0: '0 - Удар (hit)', 1: '1 - Кожа (skin)', 2: '2 - Кнут (whip)',
+            3: '3 - Рубящий (slash)', 4: '4 - Укус (bite)', 5: '5 - Дубина (bludgeon)',
+            6: '6 - Раздавить (crush)', 7: '7 - Колотить (pound)', 8: '8 - Коготь (claw)',
+            9: '9 - Терзать (maul)', 10: '10 - Молотить (thrash)', 11: '11 - Прокол (pierce)',
+            12: '12 - Взрыв (blast)', 13: '13 - Кулак (punch)', 14: '14 - Колоть (stab)',
+            15: '15 - Пика (pick)', 16: '16 - Жало (sting)'
+        } %}
+
+        <div class="detail-grid detail-grid-2" style="margin-bottom: 20px;">
             <div class="detail-field">
-                <div class="detail-field-label">Класс NPC</div>
-                <div class="detail-field-value">{{ mob.behavior.class|default(0) }}</div>
+                <div class="detail-field-label">Класс NPC (class)</div>
+                <div class="detail-field-value">
+                    {% set cls_val = mob.behavior.class|default(0) %}
+                    {{ npc_classes.get(cls_val, cls_val) }}
+                </div>
             </div>
             <div class="detail-field">
-                <div class="detail-field-label">Спецпроцедура</div>
-                <div class="detail-field-value">{{ mob.behavior.special|default(0) }}</div>
-            </div>
-            <div class="detail-field">
-                <div class="detail-field-label">Тип атаки</div>
-                <div class="detail-field-value">{{ mob.behavior.attack_type|default(0) }}</div>
-            </div>
-            <div class="detail-field">
-                <div class="detail-field-label">Бонус опыта (%)</div>
-                <div class="detail-field-value">{{ mob.behavior.exp_bonus|default(0) }}</div>
+                <div class="detail-field-label">Тип атаки (attack_type)</div>
+                <div class="detail-field-value">
+                    {% set atk_val = mob.behavior.attack_type|default(0) %}
+                    {{ attack_types.get(atk_val, atk_val) }}
+                </div>
             </div>
         </div>
 
@@ -465,6 +495,9 @@
                 <span class="dice-part">{{ mob.behavior.gold.dice_size|default(0) }}</span>
                 <span class="dice-sep">+</span>
                 <span class="dice-part">{{ mob.behavior.gold.bonus|default(0) }}</span>
+                <span class="dice-avg">
+                    (средн. {{ ((mob.behavior.gold.dice_count|default(0) * (mob.behavior.gold.dice_size|default(0) + 1) / 2 + mob.behavior.gold.bonus|default(0))|int) }})
+                </span>
             </div>
         </div>
         {% endif %}
@@ -472,9 +505,19 @@
         {% if mob.behavior.helpers %}
         <div class="subsection-label">Помощники</div>
         <div class="tag-list">
-            {% for h in mob.behavior.helpers %}
-            <span class="tag">{{ h }}</span>
-            {% endfor %}
+            {% if mob.behavior.helpers_enriched %}
+                {% for h in mob.behavior.helpers_enriched %}
+                <a href="{{ url_for('mob_detail', vnum=h.vnum) }}" class="tag" style="text-decoration: none;">
+                    #{{ h.vnum }}{% if h.name %}: {{ h.name }}{% endif %}
+                </a>
+                {% endfor %}
+            {% else %}
+                {% for h in mob.behavior.helpers %}
+                <a href="{{ url_for('mob_detail', vnum=h) }}" class="tag" style="text-decoration: none;">
+                    #{{ h }}
+                </a>
+                {% endfor %}
+            {% endif %}
         </div>
         {% endif %}
     </div>
@@ -561,7 +604,7 @@
             <table class="parchment-table">
                 <thead>
                     <tr>
-                        <th>Vnum</th>
+                        <th>Предмет</th>
                         <th>Вероятность</th>
                         <th>Тип загрузки</th>
                         <th>Спец.параметр</th>
@@ -570,7 +613,11 @@
                 <tbody>
                     {% for item in mob.death_load %}
                     <tr>
-                        <td>{{ item.obj_vnum }}</td>
+                        <td>
+                            <a href="{{ url_for('object_detail', vnum=item.obj_vnum) }}" class="action-link">
+                                #{{ item.obj_vnum }}{% if item.obj_name %}: {{ item.obj_name }}{% endif %}
+                            </a>
+                        </td>
                         <td>{{ item.load_prob }}%</td>
                         <td>{{ item.load_type }} - {{ dl_types.get(item.load_type, 'Неизвестный') }}</td>
                         <td>{{ item.spec_param }}</td>
@@ -593,9 +640,19 @@
         </div>
 
         <div class="tag-list">
-            {% for trig in mob.triggers %}
-            <span class="tag">{{ trig }}</span>
-            {% endfor %}
+            {% if mob.triggers_enriched %}
+                {% for t in mob.triggers_enriched %}
+                <a href="{{ url_for('trigger_detail', vnum=t.vnum) }}" class="tag" style="text-decoration: none;">
+                    #{{ t.vnum }}{% if t.name %}: {{ t.name }}{% endif %}
+                </a>
+                {% endfor %}
+            {% else %}
+                {% for trig in mob.triggers %}
+                <a href="{{ url_for('trigger_detail', vnum=trig) }}" class="tag" style="text-decoration: none;">
+                    #{{ trig }}
+                </a>
+                {% endfor %}
+            {% endif %}
         </div>
     </div>
     {% endif %}

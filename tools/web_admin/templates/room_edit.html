@@ -126,8 +126,8 @@
             Флаги комнаты (room flags)
         </div>
 
-        <!-- Plane 0: Basic room flags -->
-        <div class="subsection-label" style="margin-bottom: 8px;">Plane 0 -- Основные</div>
+        <!-- Группа 0: Basic room flags -->
+        <div class="subsection-label" style="margin-bottom: 8px;">Группа 0 -- Основные</div>
         <div class="flag-toggle-group" id="roomflags-p0-group">
             <div class="flag-toggle-grid" id="roomflags-p0-grid">
                 <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="0" data-bit="1"><span class="flag-toggle-bit">0x1</span><span class="flag-toggle-name">Темная (Dark)</span></button>
@@ -158,11 +158,11 @@
                 <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="0" data-bit="268435456"><span class="flag-toggle-bit">0x10000000</span><span class="flag-toggle-name">Для волхвов (For Maguses)</span></button>
                 <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="0" data-bit="536870912"><span class="flag-toggle-bit">0x20000000</span><span class="flag-toggle-name">Арена (Arena)</span></button>
             </div>
-            <div class="flag-hint" id="roomflags-p0-hint">Plane 0: <strong>0x0</strong></div>
+            <div class="flag-hint" id="roomflags-p0-hint">Группа 0: <strong>0x0</strong></div>
         </div>
 
-        <!-- Plane 1: Extended room flags -->
-        <div class="subsection-label" style="margin-bottom: 8px;">Plane 1 -- Дополнительные</div>
+        <!-- Группа 1: Extended room flags -->
+        <div class="subsection-label" style="margin-bottom: 8px;">Группа 1 -- Дополнительные</div>
         <div class="flag-toggle-group" id="roomflags-p1-group">
             <div class="flag-toggle-grid" id="roomflags-p1-grid">
                 <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="1" data-bit="1"><span class="flag-toggle-bit">0x1</span><span class="flag-toggle-name">Не призвать (No Summon Out)</span></button>
@@ -178,17 +178,17 @@
                 <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="1" data-bit="2048"><span class="flag-toggle-bit">0x800</span><span class="flag-toggle-name">Всегда светло (Always Lit)</span></button>
                 <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="1" data-bit="4096"><span class="flag-toggle-bit">0x1000</span><span class="flag-toggle-name">Нет внумов (MoMapper)</span></button>
             </div>
-            <div class="flag-hint" id="roomflags-p1-hint">Plane 1: <strong>0x0</strong></div>
+            <div class="flag-hint" id="roomflags-p1-hint">Группа 1: <strong>0x0</strong></div>
         </div>
 
-        <!-- Plane 2: Special room flags -->
-        <div class="subsection-label" style="margin-bottom: 8px;">Plane 2 -- Специальные</div>
+        <!-- Группа 2: Special room flags -->
+        <div class="subsection-label" style="margin-bottom: 8px;">Группа 2 -- Специальные</div>
         <div class="flag-toggle-group" id="roomflags-p2-group">
             <div class="flag-toggle-grid" id="roomflags-p2-grid">
                 <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="2" data-bit="1"><span class="flag-toggle-bit">0x1</span><span class="flag-toggle-name">Передача вещей запрещена (No Item)</span></button>
                 <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="2" data-bit="2"><span class="flag-toggle-bit">0x2</span><span class="flag-toggle-name">Арена Доминирования (Domination Arena)</span></button>
             </div>
-            <div class="flag-hint" id="roomflags-p2-hint">Plane 2: <strong>0x0</strong></div>
+            <div class="flag-hint" id="roomflags-p2-hint">Группа 2: <strong>0x0</strong></div>
         </div>
     </div>
 
@@ -469,9 +469,9 @@
         var h0 = document.getElementById('roomflags-p0-hint');
         var h1 = document.getElementById('roomflags-p1-hint');
         var h2 = document.getElementById('roomflags-p2-hint');
-        if (h0) h0.innerHTML = 'Plane 0: <strong>0x' + planes[0].toString(16).toUpperCase() + '</strong> (dec: ' + planes[0] + ')';
-        if (h1) h1.innerHTML = 'Plane 1: <strong>0x' + planes[1].toString(16).toUpperCase() + '</strong> (dec: ' + planes[1] + ')';
-        if (h2) h2.innerHTML = 'Plane 2: <strong>0x' + planes[2].toString(16).toUpperCase() + '</strong> (dec: ' + planes[2] + ')';
+        if (h0) h0.innerHTML = 'Группа 0: <strong>0x' + planes[0].toString(16).toUpperCase() + '</strong> (dec: ' + planes[0] + ')';
+        if (h1) h1.innerHTML = 'Группа 1: <strong>0x' + planes[1].toString(16).toUpperCase() + '</strong> (dec: ' + planes[1] + ')';
+        if (h2) h2.innerHTML = 'Группа 2: <strong>0x' + planes[2].toString(16).toUpperCase() + '</strong> (dec: ' + planes[2] + ')';
     }
 
     // Initialize room flags from server data

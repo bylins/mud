@@ -96,17 +96,33 @@
                        value="{{ zone["level"]|default(0) }}">
             </div>
             <div class="field-group">
-                <label for="type">Тип зоны</label>
+                <label for="type">Тип зоны (zone type)</label>
                 <select id="type" name="type">
-                    <option value="0" {{ 'selected' if zone["type"] is defined and zone["type"] == 0 }}>0 - Город</option>
-                    <option value="1" {{ 'selected' if zone["type"] is defined and zone["type"] == 1 }}>1 - Лес</option>
-                    <option value="2" {{ 'selected' if zone["type"] is defined and zone["type"] == 2 }}>2 - Поле</option>
-                    <option value="3" {{ 'selected' if zone["type"] is defined and zone["type"] == 3 }}>3 - Горы</option>
-                    <option value="4" {{ 'selected' if zone["type"] is defined and zone["type"] == 4 }}>4 - Пустыня</option>
-                    <option value="5" {{ 'selected' if zone["type"] is defined and zone["type"] == 5 }}>5 - Болото</option>
-                    <option value="6" {{ 'selected' if zone["type"] is defined and zone["type"] == 6 }}>6 - Подземелье</option>
-                    <option value="7" {{ 'selected' if zone["type"] is defined and zone["type"] == 7 }}>7 - Вода</option>
-                    <option value="8" {{ 'selected' if zone["type"] is defined and zone["type"] == 8 }}>8 - Другое</option>
+                    <option value="0" {{ 'selected' if zone["type"] is defined and zone["type"] == 0 }}>0 - Ингридиентов нет</option>
+                    <option value="1" {{ 'selected' if zone["type"] is defined and zone["type"] == 1 }}>1 - Город</option>
+                    <option value="2" {{ 'selected' if zone["type"] is defined and zone["type"] == 2 }}>2 - Светлый лес</option>
+                    <option value="3" {{ 'selected' if zone["type"] is defined and zone["type"] == 3 }}>3 - Темный лес</option>
+                    <option value="4" {{ 'selected' if zone["type"] is defined and zone["type"] == 4 }}>4 - Поля</option>
+                    <option value="5" {{ 'selected' if zone["type"] is defined and zone["type"] == 5 }}>5 - Горы</option>
+                    <option value="6" {{ 'selected' if zone["type"] is defined and zone["type"] == 6 }}>6 - Реки</option>
+                    <option value="7" {{ 'selected' if zone["type"] is defined and zone["type"] == 7 }}>7 - Дом</option>
+                    <option value="8" {{ 'selected' if zone["type"] is defined and zone["type"] == 8 }}>8 - Лужайка</option>
+                    <option value="9" {{ 'selected' if zone["type"] is defined and zone["type"] == 9 }}>9 - Холмы</option>
+                    <option value="10" {{ 'selected' if zone["type"] is defined and zone["type"] == 10 }}>10 - Пещеры</option>
+                    <option value="11" {{ 'selected' if zone["type"] is defined and zone["type"] == 11 }}>11 - Поселок</option>
+                    <option value="12" {{ 'selected' if zone["type"] is defined and zone["type"] == 12 }}>12 - Деревня</option>
+                    <option value="13" {{ 'selected' if zone["type"] is defined and zone["type"] == 13 }}>13 - Городские окрестности</option>
+                    <option value="14" {{ 'selected' if zone["type"] is defined and zone["type"] == 14 }}>14 - Дикий лес</option>
+                    <option value="15" {{ 'selected' if zone["type"] is defined and zone["type"] == 15 }}>15 - Дикая степь</option>
+                    <option value="16" {{ 'selected' if zone["type"] is defined and zone["type"] == 16 }}>16 - Океан</option>
+                    <option value="17" {{ 'selected' if zone["type"] is defined and zone["type"] == 17 }}>17 - Руины</option>
+                    <option value="18" {{ 'selected' if zone["type"] is defined and zone["type"] == 18 }}>18 - Лесная тропа</option>
+                    <option value="19" {{ 'selected' if zone["type"] is defined and zone["type"] == 19 }}>19 - Степная дорога</option>
+                    <option value="20" {{ 'selected' if zone["type"] is defined and zone["type"] == 20 }}>20 - Горная тропа</option>
+                    <option value="21" {{ 'selected' if zone["type"] is defined and zone["type"] == 21 }}>21 - Болото</option>
+                    <option value="22" {{ 'selected' if zone["type"] is defined and zone["type"] == 22 }}>22 - Пустыня</option>
+                    <option value="23" {{ 'selected' if zone["type"] is defined and zone["type"] == 23 }}>23 - Замок</option>
+                    <option value="24" {{ 'selected' if zone["type"] is defined and zone["type"] == 24 }}>24 - Окрестности замка</option>
                 </select>
             </div>
             <div class="field-group">

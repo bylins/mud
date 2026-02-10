@@ -329,7 +329,7 @@
         <div style="margin-bottom: 20px;">
             {% if ef0 != 0 %}
             <div class="flag-summary" style="margin-bottom: 6px;">
-                <span class="flag-summary-dec">Plane 0:</span>
+                <span class="flag-summary-dec">Группа 0:</span>
                 <span class="flag-summary-hex">0x{{ '%X' % ef0 }}</span>
             </div>
             <div class="flag-cards" style="margin-bottom: 10px;">
@@ -342,7 +342,7 @@
             {% endif %}
             {% if ef1 != 0 %}
             <div class="flag-summary" style="margin-bottom: 6px;">
-                <span class="flag-summary-dec">Plane 1:</span>
+                <span class="flag-summary-dec">Группа 1:</span>
                 <span class="flag-summary-hex">0x{{ '%X' % ef1 }}</span>
             </div>
             <div class="flag-cards">
@@ -572,10 +572,20 @@
             Триггеры (DG Scripts)
         </div>
 
-        <div style="display: flex; flex-wrap: wrap; gap: 8px;">
-            {% for trig in obj.triggers %}
-            <span class="vnum-badge">{{ trig }}</span>
-            {% endfor %}
+        <div class="tag-list">
+            {% if obj.triggers_enriched %}
+                {% for t in obj.triggers_enriched %}
+                <a href="{{ url_for('trigger_detail', vnum=t.vnum) }}" class="tag" style="text-decoration: none;">
+                    #{{ t.vnum }}{% if t.name %}: {{ t.name }}{% endif %}
+                </a>
+                {% endfor %}
+            {% else %}
+                {% for trig in obj.triggers %}
+                <a href="{{ url_for('trigger_detail', vnum=trig) }}" class="tag" style="text-decoration: none;">
+                    #{{ trig }}
+                </a>
+                {% endfor %}
+            {% endif %}
         </div>
     </div>
     {% endif %}

@@ -408,6 +408,7 @@ void zedit_save_internally(DescriptorData *d) {
 		}
 		zone_table[OLC_ZNUM(d)].under_construction = OLC_ZONE(d)->under_construction;
 		zone_table[OLC_ZNUM(d)].locked = OLC_ZONE(d)->locked;
+		zone_table[OLC_ZNUM(d)].is_town = OLC_ZONE(d)->is_town;
 		if (zone_table[OLC_ZNUM(d)].group != OLC_ZONE(d)->group) {
 			zone_table[OLC_ZNUM(d)].group = OLC_ZONE(d)->group;
 			HelpSystem::reload(HelpSystem::STATIC);

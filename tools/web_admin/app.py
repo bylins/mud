@@ -34,6 +34,62 @@ def get_mud_client():
         return MudAdminClient(SOCKET_PATH)
 
 
+def resolve_trigger_name(mud, vnum):
+    """Fetch trigger name by vnum. Returns name string or None."""
+    try:
+        resp = mud.get_trigger(vnum)
+        if resp.get('status') == 'ok':
+            return resp.get('trigger', {}).get('name', '')
+    except Exception:
+        pass
+    return None
+
+
+def resolve_object_name(mud, vnum):
+    """Fetch object short_desc by vnum. Returns name string or None."""
+    try:
+        resp = mud.get_object(vnum)
+        if resp.get('status') == 'ok':
+            obj = resp.get('object', {})
+            return obj.get('short_desc', '') or obj.get('aliases', '')
+    except Exception:
+        pass
+    return None
+
+
+def resolve_room_name(mud, vnum):
+    """Fetch room name by vnum. Returns name string or None."""
+    try:
+        resp = mud.get_room(vnum)
+        if resp.get('status') == 'ok':
+            return resp.get('room', {}).get('name', '')
+    except Exception:
+        pass
+    return None
+
+
+def resolve_mob_name(mud, vnum):
+    """Fetch mob short name by vnum. Returns name string or None."""
+    try:
+        resp = mud.get_mob(vnum)
+        if resp.get('status') == 'ok':
+            mob = resp.get('mob', {})
+            names = mob.get('names', {})
+            return names.get('nominative', '') or names.get('aliases', '')
+    except Exception:
+        pass
+    return None
+
+
+def enrich_trigger_list(mud, trigger_vnums):
+    """Convert list of trigger vnums to list of {vnum, name} dicts."""
+    result = []
+    for vnum in trigger_vnums:
+        name = resolve_trigger_name(mud, vnum)
+        result.append({'vnum': vnum, 'name': name or ''})
+    return result
+
+
 # Login required decorator
 def login_required(f):
     @wraps(f)
@@ -167,6 +223,22 @@ def mob_detail(vnum):
     resp = mud.get_mob(vnum)
     if resp.get('status') == 'ok':
         mob = resp.get('mob', {})
+        # Enrich triggers with names
+        if mob.get('triggers'):
+            mob['triggers_enriched'] = enrich_trigger_list(mud, mob['triggers'])
+        # Enrich death_load with object names
+        if mob.get('death_load'):
+            for item in mob['death_load']:
+                obj_vnum = item.get('obj_vnum')
+                if obj_vnum:
+                    item['obj_name'] = resolve_object_name(mud, obj_vnum) or ''
+        # Enrich helpers with mob names
+        if mob.get('behavior', {}).get('helpers'):
+            enriched_helpers = []
+            for h_vnum in mob['behavior']['helpers']:
+                h_name = resolve_mob_name(mud, h_vnum) or ''
+                enriched_helpers.append({'vnum': h_vnum, 'name': h_name})
+            mob['behavior']['helpers_enriched'] = enriched_helpers
         return render_template('mob_detail.html', mob=mob)
     else:
         return render_template('error.html', error=resp.get('error', 'Mob not found'))
@@ -222,6 +294,9 @@ def object_detail(vnum):
     resp = mud.get_object(vnum)
     if resp.get('status') == 'ok':
         obj = resp.get('object', {})
+        # Enrich triggers with names
+        if obj.get('triggers'):
+            obj['triggers_enriched'] = enrich_trigger_list(mud, obj['triggers'])
         return render_template('object_detail.html', obj=obj)
     else:
         return render_template('error.html', error=resp.get('error', 'Object not found'))
@@ -281,6 +356,15 @@ def room_detail(vnum):
         zone_vnum = vnum // 100
         zone_resp = mud.get_zone(zone_vnum)
         zone = zone_resp.get('zone', {}) if zone_resp.get('status') == 'ok' else {}
+        # Enrich triggers with names
+        if room.get('triggers'):
+            room['triggers_enriched'] = enrich_trigger_list(mud, room['triggers'])
+        # Enrich exits with room names
+        if room.get('exits'):
+            for exit_data in room['exits']:
+                to_room = exit_data.get('to_room')
+                if to_room is not None and to_room >= 0:
+                    exit_data['to_room_name'] = resolve_room_name(mud, to_room) or ''
         return render_template('room_detail.html', room=room, zone=zone)
     else:
         return render_template('error.html', error=resp.get('error', 'Room not found'))

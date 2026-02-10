@@ -318,7 +318,7 @@
         <!-- Extra Flags (2 planes used) -->
         <div class="subsection-label" style="margin-bottom: 8px;">Доп. флаги (extra flags)</div>
         <div class="flag-toggle-group" id="extra-flags-group">
-            <div class="flag-toggle-group-title">Plane 0 -- Основные</div>
+            <div class="flag-toggle-group-title">Группа 0 -- Основные</div>
             <div class="flag-toggle-grid" id="extra-flags-p0-grid">
                 <button type="button" class="flag-toggle" data-flag-group="extra" data-plane="0" data-bit="1"><span class="flag-toggle-bit">0x1</span><span class="flag-toggle-name">Светится (Glow)</span></button>
                 <button type="button" class="flag-toggle" data-flag-group="extra" data-plane="0" data-bit="2"><span class="flag-toggle-bit">0x2</span><span class="flag-toggle-name">Гудит (Hum)</span></button>
@@ -351,7 +351,7 @@
                 <button type="button" class="flag-toggle" data-flag-group="extra" data-plane="0" data-bit="268435456"><span class="flag-toggle-bit">0x10000000</span><span class="flag-toggle-name">Горит (Fire)</span></button>
                 <button type="button" class="flag-toggle" data-flag-group="extra" data-plane="0" data-bit="536870912"><span class="flag-toggle-bit">0x20000000</span><span class="flag-toggle-name">Распад при репопе (RepopDecay)</span></button>
             </div>
-            <div class="flag-toggle-group-title" style="margin-top: 14px;">Plane 1 -- Расширенные</div>
+            <div class="flag-toggle-group-title" style="margin-top: 14px;">Группа 1 -- Расширенные</div>
             <div class="flag-toggle-grid" id="extra-flags-p1-grid">
                 <button type="button" class="flag-toggle" data-flag-group="extra" data-plane="1" data-bit="1"><span class="flag-toggle-bit">0x1</span><span class="flag-toggle-name">Нельзя найти (Nolocate)</span></button>
                 <button type="button" class="flag-toggle" data-flag-group="extra" data-plane="1" data-bit="2"><span class="flag-toggle-bit">0x2</span><span class="flag-toggle-name">Ур. по таймеру (TimedLvl)</span></button>
@@ -374,13 +374,13 @@
                 <button type="button" class="flag-toggle" data-flag-group="extra" data-plane="1" data-bit="262144"><span class="flag-toggle-bit">0x40000</span><span class="flag-toggle-name">Привязка при покупке (BindOnPurchase)</span></button>
                 <button type="button" class="flag-toggle" data-flag-group="extra" data-plane="1" data-bit="524288"><span class="flag-toggle-bit">0x80000</span><span class="flag-toggle-name">Не один в хранил. (NotOneInClanChest)</span></button>
             </div>
-            <div class="flag-hint" id="extra-flags-hint">Plane 0: <strong>0x0</strong> | Plane 1: <strong>0x0</strong></div>
+            <div class="flag-hint" id="extra-flags-hint">Группа 0: <strong>0x0</strong> | Группа 1: <strong>0x0</strong></div>
         </div>
 
         <!-- No Flags (who can't use) -->
         <div class="subsection-label" style="margin-bottom: 8px;">Запрет для (no flags)</div>
         <div class="flag-toggle-group" id="no-flags-group">
-            <div class="flag-toggle-group-title">Plane 0 -- Религии и классы</div>
+            <div class="flag-toggle-group-title">Группа 0 -- Религии и классы</div>
             <div class="flag-toggle-grid" id="no-flags-p0-grid">
                 <button type="button" class="flag-toggle" data-flag-group="no" data-plane="0" data-bit="1"><span class="flag-toggle-bit">0x1</span><span class="flag-toggle-name">Моно (Mono)</span></button>
                 <button type="button" class="flag-toggle" data-flag-group="no" data-plane="0" data-bit="2"><span class="flag-toggle-bit">0x2</span><span class="flag-toggle-name">Поли (Poly)</span></button>
@@ -402,19 +402,19 @@
                 <button type="button" class="flag-toggle" data-flag-group="no" data-plane="0" data-bit="131072"><span class="flag-toggle-bit">0x20000</span><span class="flag-toggle-name">Некромант (Necromancer)</span></button>
                 <button type="button" class="flag-toggle" data-flag-group="no" data-plane="0" data-bit="262144"><span class="flag-toggle-bit">0x40000</span><span class="flag-toggle-name">Боец (Fighter)</span></button>
             </div>
-            <div class="flag-toggle-group-title" style="margin-top: 14px;">Plane 1 -- Прочие</div>
+            <div class="flag-toggle-group-title" style="margin-top: 14px;">Группа 1 -- Прочие</div>
             <div class="flag-toggle-grid" id="no-flags-p1-grid">
                 <button type="button" class="flag-toggle" data-flag-group="no" data-plane="1" data-bit="1"><span class="flag-toggle-bit">0x1</span><span class="flag-toggle-name">Убийца (Killer)</span></button>
                 <button type="button" class="flag-toggle" data-flag-group="no" data-plane="1" data-bit="2"><span class="flag-toggle-bit">0x2</span><span class="flag-toggle-name">Цветной (Colored)</span></button>
                 <button type="button" class="flag-toggle" data-flag-group="no" data-plane="1" data-bit="4"><span class="flag-toggle-bit">0x4</span><span class="flag-toggle-name">Боевой (Battle)</span></button>
             </div>
-            <div class="flag-toggle-group-title" style="margin-top: 14px;">Plane 2 -- Пол и тип</div>
+            <div class="flag-toggle-group-title" style="margin-top: 14px;">Группа 2 -- Пол и тип</div>
             <div class="flag-toggle-grid" id="no-flags-p2-grid">
                 <button type="button" class="flag-toggle" data-flag-group="no" data-plane="2" data-bit="64"><span class="flag-toggle-bit">0x40</span><span class="flag-toggle-name">Мужской (Male)</span></button>
                 <button type="button" class="flag-toggle" data-flag-group="no" data-plane="2" data-bit="128"><span class="flag-toggle-bit">0x80</span><span class="flag-toggle-name">Женский (Female)</span></button>
                 <button type="button" class="flag-toggle" data-flag-group="no" data-plane="2" data-bit="256"><span class="flag-toggle-bit">0x100</span><span class="flag-toggle-name">Чармис (Charmice)</span></button>
             </div>
-            <div class="flag-toggle-group-title" style="margin-top: 14px;">Plane 3 -- Дополнительные</div>
+            <div class="flag-toggle-group-title" style="margin-top: 14px;">Группа 3 -- Дополнительные</div>
             <div class="flag-toggle-grid" id="no-flags-p3-grid">
                 <button type="button" class="flag-toggle" data-flag-group="no" data-plane="3" data-bit="8"><span class="flag-toggle-bit">0x8</span><span class="flag-toggle-name">Не для !ПК клана (NoPkClan)</span></button>
             </div>
@@ -424,7 +424,7 @@
         <!-- Anti Flags (who can't take/use) -->
         <div class="subsection-label" style="margin-bottom: 8px;">Анти-флаги (anti flags)</div>
         <div class="flag-toggle-group" id="anti-flags-group">
-            <div class="flag-toggle-group-title">Plane 0 -- Религии и классы</div>
+            <div class="flag-toggle-group-title">Группа 0 -- Религии и классы</div>
             <div class="flag-toggle-grid" id="anti-flags-p0-grid">
                 <button type="button" class="flag-toggle" data-flag-group="anti" data-plane="0" data-bit="1"><span class="flag-toggle-bit">0x1</span><span class="flag-toggle-name">Моно (Mono)</span></button>
                 <button type="button" class="flag-toggle" data-flag-group="anti" data-plane="0" data-bit="2"><span class="flag-toggle-bit">0x2</span><span class="flag-toggle-name">Поли (Poly)</span></button>
@@ -446,19 +446,19 @@
                 <button type="button" class="flag-toggle" data-flag-group="anti" data-plane="0" data-bit="131072"><span class="flag-toggle-bit">0x20000</span><span class="flag-toggle-name">Некромант (Necromancer)</span></button>
                 <button type="button" class="flag-toggle" data-flag-group="anti" data-plane="0" data-bit="262144"><span class="flag-toggle-bit">0x40000</span><span class="flag-toggle-name">Боец (Fighter)</span></button>
             </div>
-            <div class="flag-toggle-group-title" style="margin-top: 14px;">Plane 1 -- Прочие</div>
+            <div class="flag-toggle-group-title" style="margin-top: 14px;">Группа 1 -- Прочие</div>
             <div class="flag-toggle-grid" id="anti-flags-p1-grid">
                 <button type="button" class="flag-toggle" data-flag-group="anti" data-plane="1" data-bit="1"><span class="flag-toggle-bit">0x1</span><span class="flag-toggle-name">Убийца (Killer)</span></button>
                 <button type="button" class="flag-toggle" data-flag-group="anti" data-plane="1" data-bit="2"><span class="flag-toggle-bit">0x2</span><span class="flag-toggle-name">Цветной (Colored)</span></button>
                 <button type="button" class="flag-toggle" data-flag-group="anti" data-plane="1" data-bit="4"><span class="flag-toggle-bit">0x4</span><span class="flag-toggle-name">Боевой (Battle)</span></button>
             </div>
-            <div class="flag-toggle-group-title" style="margin-top: 14px;">Plane 2 -- Пол и тип</div>
+            <div class="flag-toggle-group-title" style="margin-top: 14px;">Группа 2 -- Пол и тип</div>
             <div class="flag-toggle-grid" id="anti-flags-p2-grid">
                 <button type="button" class="flag-toggle" data-flag-group="anti" data-plane="2" data-bit="64"><span class="flag-toggle-bit">0x40</span><span class="flag-toggle-name">Мужской (Male)</span></button>
                 <button type="button" class="flag-toggle" data-flag-group="anti" data-plane="2" data-bit="128"><span class="flag-toggle-bit">0x80</span><span class="flag-toggle-name">Женский (Female)</span></button>
                 <button type="button" class="flag-toggle" data-flag-group="anti" data-plane="2" data-bit="256"><span class="flag-toggle-bit">0x100</span><span class="flag-toggle-name">Чармис (Charmice)</span></button>
             </div>
-            <div class="flag-toggle-group-title" style="margin-top: 14px;">Plane 3 -- Дополнительные</div>
+            <div class="flag-toggle-group-title" style="margin-top: 14px;">Группа 3 -- Дополнительные</div>
             <div class="flag-toggle-grid" id="anti-flags-p3-grid">
                 <button type="button" class="flag-toggle" data-flag-group="anti" data-plane="3" data-bit="8"><span class="flag-toggle-bit">0x8</span><span class="flag-toggle-name">Не для !ПК клана (NoPkClan)</span></button>
             </div>
@@ -737,7 +737,7 @@
             hintEl.innerHTML = 'Итого: <strong>0x' + v.toString(16).toUpperCase() + '</strong> (dec: ' + v + ')';
         } else if (groupName === 'extra') {
             var planes = getFlagPlanes('extra');
-            hintEl.innerHTML = 'Plane 0: <strong>0x' + planes[0].toString(16).toUpperCase() + '</strong> | Plane 1: <strong>0x' + planes[1].toString(16).toUpperCase() + '</strong>';
+            hintEl.innerHTML = 'Группа 0: <strong>0x' + planes[0].toString(16).toUpperCase() + '</strong> | Группа 1: <strong>0x' + planes[1].toString(16).toUpperCase() + '</strong>';
         } else {
             var planes = getFlagPlanes(groupName);
             hintEl.innerHTML = 'P0: <strong>0x' + planes[0].toString(16).toUpperCase()

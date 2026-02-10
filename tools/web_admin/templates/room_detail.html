@@ -142,8 +142,8 @@
                 </div>
                 <div class="detail-field-value">
                     {% if exit.to_room is defined and exit.to_room >= 0 %}
-                    <a href="{{ url_for('room_detail', vnum=exit.to_room) }}" style="font-weight: 600;">
-                        #{{ exit.to_room }}
+                    <a href="{{ url_for('room_detail', vnum=exit.to_room) }}" class="action-link" style="font-weight: 600;">
+                        #{{ exit.to_room }}{% if exit.to_room_name %}: {{ exit.to_room_name }}{% endif %}
                     </a>
                     {% else %}
                     <span style="color: #8a7b6b;">--</span>
@@ -181,7 +181,7 @@
             Флаги комнаты (room flags)
         </div>
 
-        {# === Plane 0: Basic room flags === #}
+        {# === Группа 0: Basic room flags === #}
         {% set room_flags_p0 = {
             1: 'Темная (Dark)', 2: 'ДТ (Death Trap)', 4: 'Не для мобов (No Mob)',
             8: 'Внутри (Indoors)', 16: 'Мирная (Peaceful)', 32: 'Глухая (Soundproof)',
@@ -198,7 +198,7 @@
         } %}
 
         {% if rf0 != 0 %}
-        <div class="subsection-label">Plane 0 -- Основные</div>
+        <div class="subsection-label">Группа 0 -- Основные</div>
         <div style="margin-bottom: 16px;">
             <div class="flag-summary" style="margin-bottom: 6px;">
                 <span class="flag-summary-hex">0x{{ '%X' % rf0 }}</span>
@@ -214,7 +214,7 @@
         </div>
         {% endif %}
 
-        {# === Plane 1: Extended room flags === #}
+        {# === Группа 1: Extended room flags === #}
         {% set room_flags_p1 = {
             1: 'Не призвать (No Summon Out)', 2: 'Телепорт из запрещен (No Teleport Out)',
             4: 'Нельзя верхом (No Horse)', 8: 'Внепогодная (No Weather)',
@@ -225,7 +225,7 @@
         } %}
 
         {% if rf1 != 0 %}
-        <div class="subsection-label">Plane 1 -- Дополнительные</div>
+        <div class="subsection-label">Группа 1 -- Дополнительные</div>
         <div style="margin-bottom: 16px;">
             <div class="flag-summary" style="margin-bottom: 6px;">
                 <span class="flag-summary-hex">0x{{ '%X' % rf1 }}</span>
@@ -241,13 +241,13 @@
         </div>
         {% endif %}
 
-        {# === Plane 2: Special room flags === #}
+        {# === Группа 2: Special room flags === #}
         {% set room_flags_p2 = {
             1: 'Передача вещей запрещена (No Item)', 2: 'Арена Доминирования (Domination Arena)'
         } %}
 
         {% if rf2 != 0 %}
-        <div class="subsection-label">Plane 2 -- Специальные</div>
+        <div class="subsection-label">Группа 2 -- Специальные</div>
         <div>
             <div class="flag-summary" style="margin-bottom: 6px;">
                 <span class="flag-summary-hex">0x{{ '%X' % rf2 }}</span>
@@ -300,11 +300,19 @@
         </div>
 
         <div class="tag-list">
-            {% for trig_vnum in room.triggers %}
-            <a href="{{ url_for('trigger_detail', vnum=trig_vnum) }}" class="tag" style="text-decoration: none;">
-                #{{ trig_vnum }}
-            </a>
-            {% endfor %}
+            {% if room.triggers_enriched %}
+                {% for t in room.triggers_enriched %}
+                <a href="{{ url_for('trigger_detail', vnum=t.vnum) }}" class="tag" style="text-decoration: none;">
+                    #{{ t.vnum }}{% if t.name %}: {{ t.name }}{% endif %}
+                </a>
+                {% endfor %}
+            {% else %}
+                {% for trig_vnum in room.triggers %}
+                <a href="{{ url_for('trigger_detail', vnum=trig_vnum) }}" class="tag" style="text-decoration: none;">
+                    #{{ trig_vnum }}
+                </a>
+                {% endfor %}
+            {% endif %}
         </div>
     </div>
     {% endif %}
