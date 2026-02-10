@@ -355,10 +355,17 @@ select:hover {
 .form-row-2 { grid-template-columns: 1fr 1fr; }
 .form-row-3 { grid-template-columns: 1fr 1fr 1fr; }
 .form-row-4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
+.form-row-6 { grid-template-columns: repeat(6, 1fr); }
+.form-row-7 { grid-template-columns: repeat(7, 1fr); }
 
 @media (max-width: 768px) {
-    .form-row-2, .form-row-3, .form-row-4 {
+    .form-row-2, .form-row-3, .form-row-4, .form-row-6, .form-row-7 {
         grid-template-columns: 1fr;
+    }
+}
+@media (min-width: 769px) and (max-width: 1024px) {
+    .form-row-3, .form-row-4, .form-row-6, .form-row-7 {
+        grid-template-columns: 1fr 1fr;
     }
 }
 
@@ -366,6 +373,8 @@ select:hover {
 .field-group {
     display: flex;
     flex-direction: column;
+    justify-content: flex-end;
+    gap: 6px;
 }
 
 .field-group label {
@@ -375,7 +384,16 @@ select:hover {
     color: #8a7b6b;
     text-transform: uppercase;
     letter-spacing: 0.04em;
-    margin-bottom: 6px;
+    margin-bottom: 0;
+}
+
+.field-group .field-hint {
+    font-size: 11px;
+    color: #8a7b6b;
+    font-weight: 400;
+    margin-left: 4px;
+    text-transform: none;
+    letter-spacing: normal;
 }
 
 /* ============================================================
@@ -411,6 +429,11 @@ select:hover {
     box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.15);
 }
 
+.btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
 .btn-secondary {
     font-family: 'Inter', sans-serif;
     font-size: 14px;
@@ -442,7 +465,7 @@ select:hover {
 
 /* Legacy button/submit overrides -- only when not using .btn-* classes */
 input[type="submit"],
-button:not(.btn-primary):not(.btn-secondary):not(.section-toggle):not(.trigger-toggle) {
+button:not(.btn-primary):not(.btn-secondary):not(.section-toggle):not(.flag-toggle) {
     font-family: 'Inter', sans-serif;
     font-size: 14px;
     padding: 10px 20px;
@@ -457,14 +480,14 @@ button:not(.btn-primary):not(.btn-secondary):not(.section-toggle):not(.trigger-t
 }
 
 input[type="submit"]:hover,
-button:not(.btn-primary):not(.btn-secondary):not(.section-toggle):not(.trigger-toggle):hover {
+button:not(.btn-primary):not(.btn-secondary):not(.section-toggle):not(.flag-toggle):hover {
     background-color: #92400e;
     box-shadow: 0 2px 8px rgba(139, 69, 19, 0.3);
     transform: none;
 }
 
 input[type="submit"]:active,
-button:not(.btn-primary):not(.btn-secondary):not(.section-toggle):not(.trigger-toggle):active {
+button:not(.btn-primary):not(.btn-secondary):not(.section-toggle):not(.flag-toggle):active {
     box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.15);
     transform: none;
 }
@@ -985,30 +1008,8 @@ button:not(.btn-primary):not(.btn-secondary):not(.section-toggle):not(.trigger-t
 }
 
 /* ============================================================
-   26. BIT DISPLAY (TRIGGER TYPE FLAGS)
+   26. (removed - bit-box display no longer used)
    ============================================================ */
-.bit-box {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    font-family: 'Courier New', monospace;
-    font-size: 12px;
-    font-weight: 600;
-    border: 2px solid rgba(120, 53, 15, 0.2);
-    border-radius: 4px;
-    background-color: rgba(253, 246, 227, 0.6);
-    color: #8a7b6b;
-    transition: all 0.2s ease;
-}
-
-.bit-box.active {
-    background-color: #b45309;
-    border-color: #92400e;
-    color: #fdf6e3;
-    box-shadow: 0 1px 3px rgba(180, 83, 9, 0.3);
-}
 
 /* ============================================================
    27. FORM VALIDATION
@@ -1047,7 +1048,328 @@ button:not(.btn-primary):not(.btn-secondary):not(.section-toggle):not(.trigger-t
 }
 
 /* ============================================================
-   28. RESPONSIVE
+   28. TRIGGER FLAG DISPLAY
+   ============================================================ */
+.detail-field-full {
+    grid-column: 1 / -1;
+}
+
+.detail-field-value.flag-value {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.flag-summary {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.flag-summary-label {
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    color: #8a7b6b;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.flag-summary-hex {
+    font-family: 'Courier New', Consolas, monospace;
+    font-size: 14px;
+    font-weight: 600;
+    color: #b45309;
+}
+
+.flag-summary-dec {
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+    font-size: 13px;
+    color: #8a7b6b;
+}
+
+.flag-grid {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 6px 12px;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    line-height: 1.8;
+}
+
+.flag-hex {
+    text-align: right;
+    color: #b45309;
+    font-family: 'Courier New', Consolas, monospace;
+    font-weight: 600;
+    font-size: 12px;
+}
+
+.flag-name {
+    color: #2d241e;
+}
+
+.flag-cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.flag-card {
+    display: inline-block;
+    padding: 6px 12px;
+    background-color: rgba(180, 83, 9, 0.08);
+    border: 1px solid rgba(180, 83, 9, 0.2);
+    border-radius: 6px;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    color: #78350f;
+    box-shadow: 0 1px 2px rgba(139, 69, 19, 0.04);
+}
+
+/* ============================================================
+   29. DICE GROUP (edit forms: NdS+B format)
+   ============================================================ */
+.dice-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.dice-group input {
+    width: 70px;
+    text-align: center;
+}
+
+.dice-group .dice-sep {
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    color: #8a7b6b;
+    user-select: none;
+}
+
+/* ============================================================
+   30. COLLAPSIBLE SECTIONS (edit forms)
+   ============================================================ */
+.section-toggle {
+    cursor: pointer;
+    user-select: none;
+}
+
+.section-toggle::after {
+    content: '';
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-right: 2px solid #8a7b6b;
+    border-bottom: 2px solid #8a7b6b;
+    transform: rotate(-45deg);
+    transition: transform 0.15s ease;
+    margin-left: auto;
+}
+
+.section-toggle.collapsed::after {
+    transform: rotate(45deg);
+}
+
+.section-body.collapsed {
+    display: none;
+}
+
+/* ============================================================
+   31. TOAST NOTIFICATIONS
+   ============================================================ */
+.toast {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    padding: 16px 24px;
+    border-radius: 8px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    z-index: 9999;
+    opacity: 0;
+    transform: translateY(-12px);
+    transition: all 0.25s ease;
+    max-width: 420px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+.toast.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.toast-success {
+    background-color: #f4ead5;
+    border: 2px solid rgba(120, 100, 15, 0.3);
+    color: #5a4d3f;
+}
+
+.toast-error {
+    background-color: #fef2f2;
+    border: 2px solid rgba(185, 28, 28, 0.2);
+    color: #991b1b;
+}
+
+/* ============================================================
+   32. BUTTON SPINNER (loading state)
+   ============================================================ */
+.btn-spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(253, 246, 227, 0.4);
+    border-top-color: #fdf6e3;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+    margin-right: 8px;
+    vertical-align: middle;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ============================================================
+   33. STICKY ACTION BAR (edit forms)
+   ============================================================ */
+.action-bar {
+    position: sticky;
+    bottom: 0;
+    background-color: #f4ead5;
+    border: 3px double rgba(120, 53, 15, 0.2);
+    border-radius: 8px;
+    padding: 16px 28px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 -4px 16px rgba(139, 69, 19, 0.08);
+    z-index: 100;
+}
+
+/* ============================================================
+   34. PAGE-SPECIFIC HEADER OVERRIDES
+   ============================================================ */
+.mob-edit-header h2 {
+    border-bottom: none;
+    margin: 0;
+    padding: 0;
+    color: #2d241e;
+}
+
+/* ============================================================
+   35. FLAG TOGGLE BUTTONS (trigger types, object flags)
+   ============================================================ */
+.flag-toggle-group {
+    padding: 16px 20px;
+    background-color: rgba(253, 246, 227, 0.5);
+    border: 1px solid rgba(120, 53, 15, 0.1);
+    border-radius: 8px;
+    margin-bottom: 12px;
+}
+
+.flag-toggle-group-title {
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    color: #8a7b6b;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 10px;
+}
+
+.flag-toggle-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.flag-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 14px;
+    border: 2px solid rgba(120, 53, 15, 0.12);
+    border-radius: 6px;
+    background-color: #fdf6e3;
+    color: #5a4d3f;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.12s ease;
+    user-select: none;
+    line-height: 1.4;
+    box-shadow: 0 1px 2px rgba(139, 69, 19, 0.04);
+}
+
+.flag-toggle:hover {
+    border-color: rgba(180, 83, 9, 0.3);
+    background-color: rgba(180, 83, 9, 0.04);
+    color: #2d241e;
+}
+
+.flag-toggle:active {
+    box-shadow: inset 0 1px 3px rgba(139, 69, 19, 0.1);
+}
+
+.flag-toggle.active {
+    background-color: rgba(180, 83, 9, 0.12);
+    border-color: rgba(180, 83, 9, 0.4);
+    color: #78350f;
+    box-shadow: inset 0 1px 2px rgba(139, 69, 19, 0.08), 0 0 0 1px rgba(180, 83, 9, 0.08);
+}
+
+.flag-toggle.active:hover {
+    background-color: rgba(180, 83, 9, 0.18);
+    border-color: rgba(180, 83, 9, 0.5);
+}
+
+.flag-toggle-bit {
+    font-family: 'Courier New', Consolas, monospace;
+    font-size: 12px;
+    font-weight: 700;
+    color: #b45309;
+    background-color: rgba(180, 83, 9, 0.08);
+    padding: 1px 6px;
+    border-radius: 3px;
+    letter-spacing: 0.02em;
+    flex-shrink: 0;
+    min-width: 30px;
+    text-align: right;
+}
+
+.flag-toggle.active .flag-toggle-bit {
+    background-color: rgba(180, 83, 9, 0.18);
+    color: #92400e;
+}
+
+.flag-toggle-name {
+    white-space: nowrap;
+}
+
+.flag-hint {
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    color: #8a7b6b;
+    margin-top: 8px;
+}
+
+.flag-hint strong {
+    font-family: 'Courier New', Consolas, monospace;
+    color: #b45309;
+    font-weight: 600;
+}
+
+/* ============================================================
+   36. RESPONSIVE
    ============================================================ */
 @media (max-width: 768px) {
     .container {
@@ -1074,4 +1396,51 @@ button:not(.btn-primary):not(.btn-secondary):not(.section-toggle):not(.trigger-t
     .parchment-card {
         padding: 20px;
     }
+}
+
+/* ============================================================
+   36. DEATH LOAD LIST (mob_edit.html)
+   ============================================================ */
+.dl-item {
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(139, 69, 19, 0.06);
+}
+
+.dl-item:last-child {
+    border-bottom: none;
+}
+
+/* ============================================================
+   37. PARCHMENT TABLE (mob_detail.html death_load, reusable)
+   ============================================================ */
+.parchment-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+}
+
+.parchment-table thead tr {
+    border-bottom: 2px double rgba(139, 69, 19, 0.2);
+}
+
+.parchment-table th {
+    text-align: left;
+    padding: 8px 12px;
+    color: #5a4d3f;
+    font-weight: 600;
+    font-size: 13px;
+}
+
+.parchment-table td {
+    padding: 8px 12px;
+    color: #2d241e;
+}
+
+.parchment-table tbody tr {
+    border-bottom: 1px solid rgba(139, 69, 19, 0.1);
+}
+
+.parchment-table tbody tr:last-child {
+    border-bottom: none;
 }

@@ -242,6 +242,53 @@
         </div>
     </div>
 
+    <!-- SECTION 3b: Physical -->
+    {% if mob.physical %}
+    <div class="parchment-section">
+        <div class="parchment-section-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+            </svg>
+            Физические параметры
+        </div>
+
+        <div class="detail-grid detail-grid-4" style="margin-bottom: 16px;">
+            <div class="detail-field">
+                <div class="detail-field-label">Рост (height)</div>
+                <div class="detail-field-value">{{ mob.physical.height|default(0) }}</div>
+            </div>
+            <div class="detail-field">
+                <div class="detail-field-label">Вес (weight)</div>
+                <div class="detail-field-value">{{ mob.physical.weight|default(0) }}</div>
+            </div>
+            <div class="detail-field">
+                <div class="detail-field-label">Размер (size)</div>
+                <div class="detail-field-value">{{ mob.physical.size|default(0) }}</div>
+            </div>
+            <div class="detail-field">
+                <div class="detail-field-label">Доп. атаки (extra_attack)</div>
+                <div class="detail-field-value">{{ mob.physical.extra_attack|default(0) }}</div>
+            </div>
+        </div>
+
+        <div class="detail-grid detail-grid-3">
+            <div class="detail-field">
+                <div class="detail-field-label">Мин. реморт (remort)</div>
+                <div class="detail-field-value">{{ mob.physical.remort|default(0) }}</div>
+            </div>
+            <div class="detail-field">
+                <div class="detail-field-label">Шанс умений (like_work)</div>
+                <div class="detail-field-value">{{ mob.physical.like_work|default(0) }}</div>
+            </div>
+            <div class="detail-field">
+                <div class="detail-field-label">Множитель HP (maxfactor)</div>
+                <div class="detail-field-value">{{ mob.physical.maxfactor|default(0) }}</div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
     <!-- SECTION 4: Abilities -->
     <div class="parchment-section">
         <div class="parchment-section-title">
@@ -477,7 +524,65 @@
     </div>
     {% endif %}
 
-    <!-- SECTION 10: Triggers -->
+    <!-- SECTION 10: Roles -->
+    {% if mob.roles %}
+    <div class="parchment-section">
+        <div class="parchment-section-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M16 12h-4v-4"/>
+            </svg>
+            Роли NPC
+        </div>
+
+        {% set role_names = {0: 'Босс', 1: 'Треш', 2: 'Танк', 3: 'Мели-дамагер', 4: 'Лучник', 5: 'Тать', 6: 'Маг-дамагер', 7: 'Маг-суппорт', 8: 'Хилер'} %}
+
+        <div class="tag-list">
+            {% for role_id in mob.roles %}
+            <span class="tag">{{ role_id }} - {{ role_names.get(role_id, 'Неизвестная') }}</span>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- SECTION 11: Death Load -->
+    {% if mob.death_load %}
+    <div class="parchment-section">
+        <div class="parchment-section-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+            Предметы при смерти (death_load)
+        </div>
+
+        {% set dl_types = {0: 'Обычный', 1: 'Прогрессия', 2: 'Скин'} %}
+
+        <div style="overflow-x: auto;">
+            <table class="parchment-table">
+                <thead>
+                    <tr>
+                        <th>Vnum</th>
+                        <th>Вероятность</th>
+                        <th>Тип загрузки</th>
+                        <th>Спец.параметр</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in mob.death_load %}
+                    <tr>
+                        <td>{{ item.obj_vnum }}</td>
+                        <td>{{ item.load_prob }}%</td>
+                        <td>{{ item.load_type }} - {{ dl_types.get(item.load_type, 'Неизвестный') }}</td>
+                        <td>{{ item.spec_param }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- SECTION 12: Triggers (renumbered) -->
     {% if mob.triggers %}
     <div class="parchment-section">
         <div class="parchment-section-title">
@@ -495,7 +600,7 @@
     </div>
     {% endif %}
 
-    <!-- SECTION 11: Skills / Features / Spells -->
+    <!-- SECTION 13: Skills / Features / Spells -->
     {% if mob.skills or mob.features or mob.spells %}
     <div class="parchment-section">
         <div class="parchment-section-title">

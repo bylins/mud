@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Редактирование зоны {{ zone.vnum }} - Былины MUD{% endblock %}
+{% block title %}Редактирование зоны {{ zone["vnum"] }} - Былины MUD{% endblock %}
 
 {% block breadcrumbs %}
 <div class="breadcrumbs-bar">
@@ -14,7 +14,7 @@
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #d4c49a;">
                 <polyline points="9 18 15 12 9 6"/>
             </svg>
-            <a href="{{ url_for('zone_detail', vnum=zone.vnum) }}">#{{ zone.vnum }}</a>
+            <a href="{{ url_for('zone_detail', vnum=zone["vnum"]) }}">#{{ zone["vnum"] }}</a>
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #d4c49a;">
                 <polyline points="9 18 15 12 9 6"/>
             </svg>
@@ -30,14 +30,14 @@
     <div class="page-header" style="margin-bottom: 8px;">
         <div>
             <h2 class="font-serif-display" style="font-size: 28px;">
-                Редактирование зоны <span class="text-amber-700">#{{ zone.vnum }}</span>
+                Редактирование зоны <span class="text-amber-700">#{{ zone["vnum"] }}</span>
             </h2>
             <p class="page-subtitle" style="margin-top: 4px;">
-                {{ zone.name }}
+                {{ zone['name'] }}
             </p>
         </div>
 
-        <a href="{{ url_for('zone_detail', vnum=zone.vnum) }}" class="btn-secondary">
+        <a href="{{ url_for('zone_detail', vnum=zone["vnum"]) }}" class="btn-secondary">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M19 12H5M12 19l-7-7 7-7"/>
             </svg>
@@ -71,7 +71,7 @@
         <div class="form-row" style="margin-bottom: 16px;">
             <div class="field-group" style="grid-column: 1 / -1;">
                 <label for="name">Название</label>
-                <input type="text" id="name" name="name" value="{{ zone.name }}"
+                <input type="text" id="name" name="name" value="{{ zone['name'] }}"
                        placeholder="Название зоны">
             </div>
         </div>
@@ -79,12 +79,12 @@
         <div class="form-row form-row-2" style="margin-bottom: 16px;">
             <div class="field-group">
                 <label for="author">Автор</label>
-                <input type="text" id="author" name="author" value="{{ zone.author|default('') }}"
+                <input type="text" id="author" name="author" value="{{ zone["author"]|default('') }}"
                        placeholder="Имя автора зоны">
             </div>
             <div class="field-group">
                 <label for="comment">Комментарий</label>
-                <input type="text" id="comment" name="comment" value="{{ zone.comment|default('') }}"
+                <input type="text" id="comment" name="comment" value="{{ zone["comment"]|default('') }}"
                        placeholder="Краткий комментарий">
             </div>
         </div>
@@ -93,26 +93,26 @@
             <div class="field-group">
                 <label for="level">Уровень</label>
                 <input type="number" id="level" name="level" min="0"
-                       value="{{ zone.level|default(0) }}">
+                       value="{{ zone["level"]|default(0) }}">
             </div>
             <div class="field-group">
                 <label for="type">Тип зоны</label>
                 <select id="type" name="type">
-                    <option value="0" {{ 'selected' if zone.type is defined and zone.type == 0 }}>0 - Город</option>
-                    <option value="1" {{ 'selected' if zone.type is defined and zone.type == 1 }}>1 - Лес</option>
-                    <option value="2" {{ 'selected' if zone.type is defined and zone.type == 2 }}>2 - Поле</option>
-                    <option value="3" {{ 'selected' if zone.type is defined and zone.type == 3 }}>3 - Горы</option>
-                    <option value="4" {{ 'selected' if zone.type is defined and zone.type == 4 }}>4 - Пустыня</option>
-                    <option value="5" {{ 'selected' if zone.type is defined and zone.type == 5 }}>5 - Болото</option>
-                    <option value="6" {{ 'selected' if zone.type is defined and zone.type == 6 }}>6 - Подземелье</option>
-                    <option value="7" {{ 'selected' if zone.type is defined and zone.type == 7 }}>7 - Вода</option>
-                    <option value="8" {{ 'selected' if zone.type is defined and zone.type == 8 }}>8 - Другое</option>
+                    <option value="0" {{ 'selected' if zone["type"] is defined and zone["type"] == 0 }}>0 - Город</option>
+                    <option value="1" {{ 'selected' if zone["type"] is defined and zone["type"] == 1 }}>1 - Лес</option>
+                    <option value="2" {{ 'selected' if zone["type"] is defined and zone["type"] == 2 }}>2 - Поле</option>
+                    <option value="3" {{ 'selected' if zone["type"] is defined and zone["type"] == 3 }}>3 - Горы</option>
+                    <option value="4" {{ 'selected' if zone["type"] is defined and zone["type"] == 4 }}>4 - Пустыня</option>
+                    <option value="5" {{ 'selected' if zone["type"] is defined and zone["type"] == 5 }}>5 - Болото</option>
+                    <option value="6" {{ 'selected' if zone["type"] is defined and zone["type"] == 6 }}>6 - Подземелье</option>
+                    <option value="7" {{ 'selected' if zone["type"] is defined and zone["type"] == 7 }}>7 - Вода</option>
+                    <option value="8" {{ 'selected' if zone["type"] is defined and zone["type"] == 8 }}>8 - Другое</option>
                 </select>
             </div>
             <div class="field-group">
                 <label for="group">Группа зон <span style="font-weight: 400; text-transform: none; letter-spacing: normal; color: #8a7b6b;">(1-20)</span></label>
                 <input type="number" id="group" name="group" min="1" max="20"
-                       value="{{ zone.group|default(1) }}">
+                       value="{{ zone["group"]|default(1) }}">
             </div>
         </div>
     </div>
@@ -130,7 +130,7 @@
         <div class="form-row" style="margin-bottom: 16px;">
             <div class="field-group">
                 <label for="location">Локация на карте</label>
-                <input type="text" id="location" name="location" value="{{ zone.location|default('') }}"
+                <input type="text" id="location" name="location" value="{{ zone["location"]|default('') }}"
                        placeholder="Описание расположения зоны на игровой карте">
             </div>
         </div>
@@ -140,7 +140,7 @@
                 <label for="description">Описание зоны</label>
                 <textarea id="description" name="description" rows="4"
                           placeholder="Подробное описание зоны, её атмосферы и особенностей"
-                          style="resize: vertical; min-height: 80px;">{{ zone.description|default('') }}</textarea>
+                          style="resize: vertical; min-height: 80px;">{{ zone["description"]|default('') }}</textarea>
             </div>
         </div>
     </div>
@@ -160,16 +160,16 @@
             <div class="field-group">
                 <label for="reset_mode">Режим сброса</label>
                 <select id="reset_mode" name="reset_mode">
-                    <option value="0" {{ 'selected' if zone.reset_mode is defined and zone.reset_mode == 0 }}>0 - Никогда не сбрасывается</option>
-                    <option value="1" {{ 'selected' if zone.reset_mode is defined and zone.reset_mode == 1 }}>1 - Когда нет игроков</option>
-                    <option value="2" {{ 'selected' if zone.reset_mode is defined and zone.reset_mode == 2 }}>2 - Всегда сбрасывается</option>
-                    <option value="3" {{ 'selected' if zone.reset_mode is defined and zone.reset_mode == 3 }}>3 - Сложный режим (typeA/typeB)</option>
+                    <option value="0" {{ 'selected' if zone["reset_mode"] is defined and zone["reset_mode"] == 0 }}>0 - Никогда не сбрасывается</option>
+                    <option value="1" {{ 'selected' if zone["reset_mode"] is defined and zone["reset_mode"] == 1 }}>1 - Когда нет игроков</option>
+                    <option value="2" {{ 'selected' if zone["reset_mode"] is defined and zone["reset_mode"] == 2 }}>2 - Всегда сбрасывается</option>
+                    <option value="3" {{ 'selected' if zone["reset_mode"] is defined and zone["reset_mode"] == 3 }}>3 - Сложный режим (typeA/typeB)</option>
                 </select>
             </div>
             <div class="field-group">
                 <label for="lifespan">Интервал сброса <span style="font-weight: 400; text-transform: none; letter-spacing: normal; color: #8a7b6b;">(мин)</span></label>
                 <input type="number" id="lifespan" name="lifespan" min="0"
-                       value="{{ zone.lifespan|default(0) }}">
+                       value="{{ zone["lifespan"]|default(0) }}">
             </div>
         </div>
 
@@ -179,13 +179,13 @@
                 <div style="display: flex; align-items: center; gap: 10px;">
                     <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; text-transform: none; letter-spacing: normal; font-weight: 400; font-size: 14px; color: #2d241e;">
                         <input type="radio" name="reset_idle" value="1"
-                               {{ 'checked' if zone.reset_idle }}
+                               {{ 'checked' if zone["reset_idle"] }}
                                style="width: auto; accent-color: #b45309;">
                         Да
                     </label>
                     <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; text-transform: none; letter-spacing: normal; font-weight: 400; font-size: 14px; color: #2d241e;">
                         <input type="radio" name="reset_idle" value="0"
-                               {{ 'checked' if not zone.reset_idle }}
+                               {{ 'checked' if not zone["reset_idle"] }}
                                style="width: auto; accent-color: #b45309;">
                         Нет
                     </label>
@@ -194,7 +194,7 @@
             <div class="field-group">
                 <label for="top">Максимальный VNUM комнаты (top)</label>
                 <input type="number" id="top" name="top" min="0"
-                       value="{{ zone.top|default(0) }}"
+                       value="{{ zone["top"]|default(0) }}"
                        placeholder="Верхняя граница диапазона VNUMов комнат зоны">
             </div>
         </div>
@@ -216,13 +216,13 @@
                 <div style="display: flex; align-items: center; gap: 10px;">
                     <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; text-transform: none; letter-spacing: normal; font-weight: 400; font-size: 14px; color: #2d241e;">
                         <input type="radio" name="under_construction" value="1"
-                               {{ 'checked' if zone.under_construction }}
+                               {{ 'checked' if zone["under_construction"] }}
                                style="width: auto; accent-color: #b45309;">
                         Да
                     </label>
                     <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; text-transform: none; letter-spacing: normal; font-weight: 400; font-size: 14px; color: #2d241e;">
                         <input type="radio" name="under_construction" value="0"
-                               {{ 'checked' if not zone.under_construction }}
+                               {{ 'checked' if not zone["under_construction"] }}
                                style="width: auto; accent-color: #b45309;">
                         Нет
                     </label>
@@ -233,13 +233,13 @@
                 <div style="display: flex; align-items: center; gap: 10px;">
                     <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; text-transform: none; letter-spacing: normal; font-weight: 400; font-size: 14px; color: #2d241e;">
                         <input type="radio" name="is_town" value="1"
-                               {{ 'checked' if zone.is_town }}
+                               {{ 'checked' if zone["is_town"] }}
                                style="width: auto; accent-color: #b45309;">
                         Да
                     </label>
                     <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; text-transform: none; letter-spacing: normal; font-weight: 400; font-size: 14px; color: #2d241e;">
                         <input type="radio" name="is_town" value="0"
-                               {{ 'checked' if not zone.is_town }}
+                               {{ 'checked' if not zone["is_town"] }}
                                style="width: auto; accent-color: #b45309;">
                         Нет
                     </label>
@@ -250,13 +250,13 @@
                 <div style="display: flex; align-items: center; gap: 10px;">
                     <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; text-transform: none; letter-spacing: normal; font-weight: 400; font-size: 14px; color: #2d241e;">
                         <input type="radio" name="locked" value="1"
-                               {{ 'checked' if zone.locked }}
+                               {{ 'checked' if zone["locked"] }}
                                style="width: auto; accent-color: #b45309;">
                         Да
                     </label>
                     <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; text-transform: none; letter-spacing: normal; font-weight: 400; font-size: 14px; color: #2d241e;">
                         <input type="radio" name="locked" value="0"
-                               {{ 'checked' if not zone.locked }}
+                               {{ 'checked' if not zone["locked"] }}
                                style="width: auto; accent-color: #b45309;">
                         Нет
                     </label>
@@ -269,7 +269,7 @@
 
     <!-- Sticky action bar -->
     <div style="position: sticky; bottom: 0; background-color: #f4ead5; border: 3px double rgba(120, 53, 15, 0.2); border-radius: 8px; padding: 16px 28px; display: flex; align-items: center; gap: 12px; box-shadow: 0 -4px 16px rgba(139, 69, 19, 0.08); z-index: 100;">
-        <button type="button" class="btn-primary" id="save-btn" onclick="saveZone()">
+        <button type="button" class="btn-primary" id="save-btn" onclick="window.saveZone()">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
                 <polyline points="17 21 17 13 7 13 7 21"/>
@@ -277,7 +277,7 @@
             </svg>
             Сохранить
         </button>
-        <a href="{{ url_for('zone_detail', vnum=zone.vnum) }}" class="btn-secondary">
+        <a href="{{ url_for('zone_detail', vnum=zone["vnum"]) }}" class="btn-secondary">
             Отмена
         </a>
         <div style="margin-left: auto; font-family: 'Inter', sans-serif; font-size: 13px; color: #8a7b6b;" id="save-status"></div>
@@ -502,7 +502,7 @@
         }
 
         // POST as JSON
-        fetch('{{ url_for("zone_update", vnum=zone.vnum) }}', {
+        fetch('{{ url_for("zone_update", vnum=zone["vnum"]) }}', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -518,8 +518,10 @@
 
             if (result.status === 'ok') {
                 showToast('Зона успешно сохранена', 'success');
-                statusEl.textContent = 'Сохранено';
-                setTimeout(function() { statusEl.textContent = ''; }, 3000);
+                // Redirect to detail view
+                setTimeout(function() {
+                    window.location.href = '{{ url_for("zone_detail", vnum=zone["vnum"]) }}';
+                }, 500);
             } else {
                 showToast('Ошибка: ' + (result.error || 'Неизвестная ошибка'), 'error');
                 statusEl.textContent = '';

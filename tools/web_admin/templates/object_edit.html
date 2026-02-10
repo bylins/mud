@@ -77,34 +77,34 @@
 
         <div class="form-row form-row-3">
             <div class="field-group">
-                <label for="nominative">Именительный (кто? что?)</label>
+                <label for="nominative">Именительный (кто? что?) <span style="color: #dc2626;">*</span></label>
                 <input type="text" id="nominative" name="names.nominative"
-                       value="{{ obj.names.nominative if obj.names else '' }}">
+                       value="{{ obj.names.nominative if obj.names else '' }}" required>
             </div>
             <div class="field-group">
-                <label for="genitive">Родительный (кого? чего?)</label>
+                <label for="genitive">Родительный (кого? чего?) <span style="color: #dc2626;">*</span></label>
                 <input type="text" id="genitive" name="names.genitive"
-                       value="{{ obj.names.genitive if obj.names else '' }}">
+                       value="{{ obj.names.genitive if obj.names else '' }}" required>
             </div>
             <div class="field-group">
-                <label for="dative">Дательный (кому? чему?)</label>
+                <label for="dative">Дательный (кому? чему?) <span style="color: #dc2626;">*</span></label>
                 <input type="text" id="dative" name="names.dative"
-                       value="{{ obj.names.dative if obj.names else '' }}">
+                       value="{{ obj.names.dative if obj.names else '' }}" required>
             </div>
             <div class="field-group">
-                <label for="accusative">Винительный (кого? что?)</label>
+                <label for="accusative">Винительный (кого? что?) <span style="color: #dc2626;">*</span></label>
                 <input type="text" id="accusative" name="names.accusative"
-                       value="{{ obj.names.accusative if obj.names else '' }}">
+                       value="{{ obj.names.accusative if obj.names else '' }}" required>
             </div>
             <div class="field-group">
-                <label for="instrumental">Творительный (кем? чем?)</label>
+                <label for="instrumental">Творительный (кем? чем?) <span style="color: #dc2626;">*</span></label>
                 <input type="text" id="instrumental" name="names.instrumental"
-                       value="{{ obj.names.instrumental if obj.names else '' }}">
+                       value="{{ obj.names.instrumental if obj.names else '' }}" required>
             </div>
             <div class="field-group">
-                <label for="prepositional">Предложный (о ком? о чём?)</label>
+                <label for="prepositional">Предложный (о ком? о чём?) <span style="color: #dc2626;">*</span></label>
                 <input type="text" id="prepositional" name="names.prepositional"
-                       value="{{ obj.names.prepositional if obj.names else '' }}">
+                       value="{{ obj.names.prepositional if obj.names else '' }}" required>
             </div>
         </div>
     </div>
@@ -254,11 +254,11 @@
 
         <div class="form-row form-row-4">
             <div class="field-group">
-                <label for="rent_on">Рента включён (rent on)</label>
+                <label for="rent_on">Рента если надет (rent when worn)</label>
                 <input type="number" id="rent_on" name="rent_on" value="{{ obj.rent_on if obj.rent_on is defined else 0 }}">
             </div>
             <div class="field-group">
-                <label for="rent_off">Рента выключен (rent off)</label>
+                <label for="rent_off">Рента если снят (rent when removed)</label>
                 <input type="number" id="rent_off" name="rent_off" value="{{ obj.rent_off if obj.rent_off is defined else 0 }}">
             </div>
             <div class="field-group">
@@ -280,7 +280,193 @@
         </div>
     </div>
 
-    <!-- ===== SECTION 4: Type-Specific Values ===== -->
+    <!-- ===== SECTION 4: Flags ===== -->
+    <div class="parchment-section">
+        <div class="parchment-section-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/>
+                <line x1="4" y1="22" x2="4" y2="15"/>
+            </svg>
+            Флаги предмета
+        </div>
+
+        <!-- Wear Flags (single plane bitmask) -->
+        <div class="subsection-label" style="margin-bottom: 8px;">Куда надевать (wear flags)</div>
+        <div class="flag-toggle-group" id="wear-flags-group">
+            <div class="flag-toggle-grid" id="wear-flags-grid">
+                <button type="button" class="flag-toggle" data-flag-group="wear" data-plane="0" data-bit="1"><span class="flag-toggle-bit">0x1</span><span class="flag-toggle-name">Можно взять (Take)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="wear" data-plane="0" data-bit="2"><span class="flag-toggle-bit">0x2</span><span class="flag-toggle-name">Палец (Finger)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="wear" data-plane="0" data-bit="4"><span class="flag-toggle-bit">0x4</span><span class="flag-toggle-name">Шея (Neck)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="wear" data-plane="0" data-bit="8"><span class="flag-toggle-bit">0x8</span><span class="flag-toggle-name">Тело (Body)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="wear" data-plane="0" data-bit="16"><span class="flag-toggle-bit">0x10</span><span class="flag-toggle-name">Голова (Head)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="wear" data-plane="0" data-bit="32"><span class="flag-toggle-bit">0x20</span><span class="flag-toggle-name">Ноги (Legs)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="wear" data-plane="0" data-bit="64"><span class="flag-toggle-bit">0x40</span><span class="flag-toggle-name">Ступни (Feet)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="wear" data-plane="0" data-bit="128"><span class="flag-toggle-bit">0x80</span><span class="flag-toggle-name">Кисти (Hands)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="wear" data-plane="0" data-bit="256"><span class="flag-toggle-bit">0x100</span><span class="flag-toggle-name">Руки (Arms)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="wear" data-plane="0" data-bit="512"><span class="flag-toggle-bit">0x200</span><span class="flag-toggle-name">Щит (Shield)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="wear" data-plane="0" data-bit="1024"><span class="flag-toggle-bit">0x400</span><span class="flag-toggle-name">Плечи (Shoulders)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="wear" data-plane="0" data-bit="2048"><span class="flag-toggle-bit">0x800</span><span class="flag-toggle-name">Пояс (Waist)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="wear" data-plane="0" data-bit="4096"><span class="flag-toggle-bit">0x1000</span><span class="flag-toggle-name">Запястье (Wrist)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="wear" data-plane="0" data-bit="8192"><span class="flag-toggle-bit">0x2000</span><span class="flag-toggle-name">Правая рука (Wield)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="wear" data-plane="0" data-bit="16384"><span class="flag-toggle-bit">0x4000</span><span class="flag-toggle-name">Левая рука (Hold)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="wear" data-plane="0" data-bit="32768"><span class="flag-toggle-bit">0x8000</span><span class="flag-toggle-name">Обе руки (Both)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="wear" data-plane="0" data-bit="65536"><span class="flag-toggle-bit">0x10000</span><span class="flag-toggle-name">Колчан (Quiver)</span></button>
+            </div>
+            <div class="flag-hint" id="wear-flags-hint">Итого: <strong>0x0</strong> (dec: 0)</div>
+        </div>
+
+        <!-- Extra Flags (2 planes used) -->
+        <div class="subsection-label" style="margin-bottom: 8px;">Доп. флаги (extra flags)</div>
+        <div class="flag-toggle-group" id="extra-flags-group">
+            <div class="flag-toggle-group-title">Plane 0 -- Основные</div>
+            <div class="flag-toggle-grid" id="extra-flags-p0-grid">
+                <button type="button" class="flag-toggle" data-flag-group="extra" data-plane="0" data-bit="1"><span class="flag-toggle-bit">0x1</span><span class="flag-toggle-name">Светится (Glow)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="extra" data-plane="0" data-bit="2"><span class="flag-toggle-bit">0x2</span><span class="flag-toggle-name">Гудит (Hum)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="extra" data-plane="0" data-bit="4"><span class="flag-toggle-bit">0x4</span><span class="flag-toggle-name">Нельзя хранить (Norent)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="extra" data-plane="0" data-bit="8"><span class="flag-toggle-bit">0x8</span><span class="flag-toggle-name">Нельзя пожертв. (Nodonate)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="extra" data-plane="0" data-bit="16"><span class="flag-toggle-bit">0x10</span><span class="flag-toggle-name">Видим невидящ. (Noinvis)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="extra" data-plane="0" data-bit="32"><span class="flag-toggle-bit">0x20</span><span class="flag-toggle-name">Невидимый (Invisible)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="extra" data-plane="0" data-bit="64"><span class="flag-toggle-bit">0x40</span><span class="flag-toggle-name">Магический (Magic)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="extra" data-plane="0" data-bit="128"><span class="flag-toggle-bit">0x80</span><span class="flag-toggle-name">Нельзя бросить (Nodrop)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="extra" data-plane="0" data-bit="256"><span class="flag-toggle-bit">0x100</span><span class="flag-toggle-name">Благословлён (Bless)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="extra" data-plane="0" data-bit="512"><span class="flag-toggle-bit">0x200</span><span class="flag-toggle-name">Нельзя продать (Nosell)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="extra" data-plane="0" data-bit="1024"><span class="flag-toggle-bit">0x400</span><span class="flag-toggle-name">Распадается (Decay)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="extra" data-plane="0" data-bit="2048"><span class="flag-toggle-bit">0x800</span><span class="flag-toggle-name">Зон. распад (Zonedecay)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="extra" data-plane="0" data-bit="4096"><span class="flag-toggle-bit">0x1000</span><span class="flag-toggle-name">Нельзя обезоруж. (Nodisarm)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="extra" data-plane="0" data-bit="8192"><span class="flag-toggle-bit">0x2000</span><span class="flag-toggle-name">Не распадается (Nodecay)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="extra" data-plane="0" data-bit="16384"><span class="flag-toggle-bit">0x4000</span><span class="flag-toggle-name">Отравлен (Poisoned)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="extra" data-plane="0" data-bit="32768"><span class="flag-toggle-bit">0x8000</span><span class="flag-toggle-name">Заточен (Sharpen)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="extra" data-plane="0" data-bit="65536"><span class="flag-toggle-bit">0x10000</span><span class="flag-toggle-name">Укреплён (Armored)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="extra" data-plane="0" data-bit="131072"><span class="flag-toggle-bit">0x20000</span><span class="flag-toggle-name">Появл. днём (Day)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="extra" data-plane="0" data-bit="262144"><span class="flag-toggle-bit">0x40000</span><span class="flag-toggle-name">Появл. ночью (Night)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="extra" data-plane="0" data-bit="524288"><span class="flag-toggle-bit">0x80000</span><span class="flag-toggle-name">Полнолуние (Fullmoon)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="extra" data-plane="0" data-bit="1048576"><span class="flag-toggle-bit">0x100000</span><span class="flag-toggle-name">Зимой (Winter)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="extra" data-plane="0" data-bit="2097152"><span class="flag-toggle-bit">0x200000</span><span class="flag-toggle-name">Весной (Spring)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="extra" data-plane="0" data-bit="4194304"><span class="flag-toggle-bit">0x400000</span><span class="flag-toggle-name">Летом (Summer)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="extra" data-plane="0" data-bit="8388608"><span class="flag-toggle-bit">0x800000</span><span class="flag-toggle-name">Осенью (Autumn)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="extra" data-plane="0" data-bit="16777216"><span class="flag-toggle-bit">0x1000000</span><span class="flag-toggle-name">Плавающий (Swimming)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="extra" data-plane="0" data-bit="33554432"><span class="flag-toggle-bit">0x2000000</span><span class="flag-toggle-name">Летающий (Flying)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="extra" data-plane="0" data-bit="67108864"><span class="flag-toggle-bit">0x4000000</span><span class="flag-toggle-name">Метательный (Throwing)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="extra" data-plane="0" data-bit="134217728"><span class="flag-toggle-bit">0x8000000</span><span class="flag-toggle-name">Тик-таймер (Ticktimer)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="extra" data-plane="0" data-bit="268435456"><span class="flag-toggle-bit">0x10000000</span><span class="flag-toggle-name">Горит (Fire)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="extra" data-plane="0" data-bit="536870912"><span class="flag-toggle-bit">0x20000000</span><span class="flag-toggle-name">Распад при репопе (RepopDecay)</span></button>
+            </div>
+            <div class="flag-toggle-group-title" style="margin-top: 14px;">Plane 1 -- Расширенные</div>
+            <div class="flag-toggle-grid" id="extra-flags-p1-grid">
+                <button type="button" class="flag-toggle" data-flag-group="extra" data-plane="1" data-bit="1"><span class="flag-toggle-bit">0x1</span><span class="flag-toggle-name">Нельзя найти (Nolocate)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="extra" data-plane="1" data-bit="2"><span class="flag-toggle-bit">0x2</span><span class="flag-toggle-name">Ур. по таймеру (TimedLvl)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="extra" data-plane="1" data-bit="4"><span class="flag-toggle-bit">0x4</span><span class="flag-toggle-name">Нельзя изменить (Noalter)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="extra" data-plane="1" data-bit="8"><span class="flag-toggle-bit">0x8</span><span class="flag-toggle-name">1 слот (HasOneSlot)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="extra" data-plane="1" data-bit="16"><span class="flag-toggle-bit">0x10</span><span class="flag-toggle-name">2 слота (HasTwoSlots)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="extra" data-plane="1" data-bit="32"><span class="flag-toggle-bit">0x20</span><span class="flag-toggle-name">3 слота (HasThreeSlots)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="extra" data-plane="1" data-bit="64"><span class="flag-toggle-bit">0x40</span><span class="flag-toggle-name">Часть набора (SetItem)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="extra" data-plane="1" data-bit="128"><span class="flag-toggle-bit">0x80</span><span class="flag-toggle-name">Без фейла (Nofail)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="extra" data-plane="1" data-bit="256"><span class="flag-toggle-bit">0x100</span><span class="flag-toggle-name">Именной (Named)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="extra" data-plane="1" data-bit="512"><span class="flag-toggle-bit">0x200</span><span class="flag-toggle-name">Окровавлен (Bloody)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="extra" data-plane="1" data-bit="1024"><span class="flag-toggle-bit">0x400</span><span class="flag-toggle-name">Квестовый (QuestItem)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="extra" data-plane="1" data-bit="2048"><span class="flag-toggle-bit">0x800</span><span class="flag-toggle-name">2 инкрустации (2inlaid)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="extra" data-plane="1" data-bit="4096"><span class="flag-toggle-bit">0x1000</span><span class="flag-toggle-name">3 инкрустации (3inlaid)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="extra" data-plane="1" data-bit="8192"><span class="flag-toggle-bit">0x2000</span><span class="flag-toggle-name">Нельзя перелить (Nopour)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="extra" data-plane="1" data-bit="16384"><span class="flag-toggle-bit">0x4000</span><span class="flag-toggle-name">Уникальный (Unique)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="extra" data-plane="1" data-bit="32768"><span class="flag-toggle-bit">0x8000</span><span class="flag-toggle-name">Зачарован (Transformed)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="extra" data-plane="1" data-bit="65536"><span class="flag-toggle-bit">0x10000</span><span class="flag-toggle-name">Без таймера ренты (NoRentTimer)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="extra" data-plane="1" data-bit="131072"><span class="flag-toggle-bit">0x20000</span><span class="flag-toggle-name">Огран. таймер (LimitedTimer)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="extra" data-plane="1" data-bit="262144"><span class="flag-toggle-bit">0x40000</span><span class="flag-toggle-name">Привязка при покупке (BindOnPurchase)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="extra" data-plane="1" data-bit="524288"><span class="flag-toggle-bit">0x80000</span><span class="flag-toggle-name">Не один в хранил. (NotOneInClanChest)</span></button>
+            </div>
+            <div class="flag-hint" id="extra-flags-hint">Plane 0: <strong>0x0</strong> | Plane 1: <strong>0x0</strong></div>
+        </div>
+
+        <!-- No Flags (who can't use) -->
+        <div class="subsection-label" style="margin-bottom: 8px;">Запрет для (no flags)</div>
+        <div class="flag-toggle-group" id="no-flags-group">
+            <div class="flag-toggle-group-title">Plane 0 -- Религии и классы</div>
+            <div class="flag-toggle-grid" id="no-flags-p0-grid">
+                <button type="button" class="flag-toggle" data-flag-group="no" data-plane="0" data-bit="1"><span class="flag-toggle-bit">0x1</span><span class="flag-toggle-name">Моно (Mono)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="no" data-plane="0" data-bit="2"><span class="flag-toggle-bit">0x2</span><span class="flag-toggle-name">Поли (Poly)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="no" data-plane="0" data-bit="4"><span class="flag-toggle-bit">0x4</span><span class="flag-toggle-name">Нейтрал (Neutral)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="no" data-plane="0" data-bit="8"><span class="flag-toggle-bit">0x8</span><span class="flag-toggle-name">Колдун (Mage)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="no" data-plane="0" data-bit="16"><span class="flag-toggle-bit">0x10</span><span class="flag-toggle-name">Чародей (Sorcerer)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="no" data-plane="0" data-bit="32"><span class="flag-toggle-bit">0x20</span><span class="flag-toggle-name">Вор (Thief)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="no" data-plane="0" data-bit="64"><span class="flag-toggle-bit">0x40</span><span class="flag-toggle-name">Воин (Warrior)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="no" data-plane="0" data-bit="128"><span class="flag-toggle-bit">0x80</span><span class="flag-toggle-name">Убийца (Assassin)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="no" data-plane="0" data-bit="256"><span class="flag-toggle-bit">0x100</span><span class="flag-toggle-name">Страж (Guard)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="no" data-plane="0" data-bit="512"><span class="flag-toggle-bit">0x200</span><span class="flag-toggle-name">Паладин (Paladin)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="no" data-plane="0" data-bit="1024"><span class="flag-toggle-bit">0x400</span><span class="flag-toggle-name">Следопыт (Ranger)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="no" data-plane="0" data-bit="2048"><span class="flag-toggle-bit">0x800</span><span class="flag-toggle-name">Дозорный (Vigilant)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="no" data-plane="0" data-bit="4096"><span class="flag-toggle-bit">0x1000</span><span class="flag-toggle-name">Купец (Merchant)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="no" data-plane="0" data-bit="8192"><span class="flag-toggle-bit">0x2000</span><span class="flag-toggle-name">Маг (Magus)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="no" data-plane="0" data-bit="16384"><span class="flag-toggle-bit">0x4000</span><span class="flag-toggle-name">Заклинатель (Conjurer)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="no" data-plane="0" data-bit="32768"><span class="flag-toggle-bit">0x8000</span><span class="flag-toggle-name">Чернокнижник (Charmer)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="no" data-plane="0" data-bit="65536"><span class="flag-toggle-bit">0x10000</span><span class="flag-toggle-name">Волшебник (Wizard)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="no" data-plane="0" data-bit="131072"><span class="flag-toggle-bit">0x20000</span><span class="flag-toggle-name">Некромант (Necromancer)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="no" data-plane="0" data-bit="262144"><span class="flag-toggle-bit">0x40000</span><span class="flag-toggle-name">Боец (Fighter)</span></button>
+            </div>
+            <div class="flag-toggle-group-title" style="margin-top: 14px;">Plane 1 -- Прочие</div>
+            <div class="flag-toggle-grid" id="no-flags-p1-grid">
+                <button type="button" class="flag-toggle" data-flag-group="no" data-plane="1" data-bit="1"><span class="flag-toggle-bit">0x1</span><span class="flag-toggle-name">Убийца (Killer)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="no" data-plane="1" data-bit="2"><span class="flag-toggle-bit">0x2</span><span class="flag-toggle-name">Цветной (Colored)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="no" data-plane="1" data-bit="4"><span class="flag-toggle-bit">0x4</span><span class="flag-toggle-name">Боевой (Battle)</span></button>
+            </div>
+            <div class="flag-toggle-group-title" style="margin-top: 14px;">Plane 2 -- Пол и тип</div>
+            <div class="flag-toggle-grid" id="no-flags-p2-grid">
+                <button type="button" class="flag-toggle" data-flag-group="no" data-plane="2" data-bit="64"><span class="flag-toggle-bit">0x40</span><span class="flag-toggle-name">Мужской (Male)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="no" data-plane="2" data-bit="128"><span class="flag-toggle-bit">0x80</span><span class="flag-toggle-name">Женский (Female)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="no" data-plane="2" data-bit="256"><span class="flag-toggle-bit">0x100</span><span class="flag-toggle-name">Чармис (Charmice)</span></button>
+            </div>
+            <div class="flag-toggle-group-title" style="margin-top: 14px;">Plane 3 -- Дополнительные</div>
+            <div class="flag-toggle-grid" id="no-flags-p3-grid">
+                <button type="button" class="flag-toggle" data-flag-group="no" data-plane="3" data-bit="8"><span class="flag-toggle-bit">0x8</span><span class="flag-toggle-name">Не для !ПК клана (NoPkClan)</span></button>
+            </div>
+            <div class="flag-hint" id="no-flags-hint">P0: <strong>0x0</strong> | P1: <strong>0x0</strong> | P2: <strong>0x0</strong> | P3: <strong>0x0</strong></div>
+        </div>
+
+        <!-- Anti Flags (who can't take/use) -->
+        <div class="subsection-label" style="margin-bottom: 8px;">Анти-флаги (anti flags)</div>
+        <div class="flag-toggle-group" id="anti-flags-group">
+            <div class="flag-toggle-group-title">Plane 0 -- Религии и классы</div>
+            <div class="flag-toggle-grid" id="anti-flags-p0-grid">
+                <button type="button" class="flag-toggle" data-flag-group="anti" data-plane="0" data-bit="1"><span class="flag-toggle-bit">0x1</span><span class="flag-toggle-name">Моно (Mono)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="anti" data-plane="0" data-bit="2"><span class="flag-toggle-bit">0x2</span><span class="flag-toggle-name">Поли (Poly)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="anti" data-plane="0" data-bit="4"><span class="flag-toggle-bit">0x4</span><span class="flag-toggle-name">Нейтрал (Neutral)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="anti" data-plane="0" data-bit="8"><span class="flag-toggle-bit">0x8</span><span class="flag-toggle-name">Колдун (Mage)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="anti" data-plane="0" data-bit="16"><span class="flag-toggle-bit">0x10</span><span class="flag-toggle-name">Чародей (Sorcerer)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="anti" data-plane="0" data-bit="32"><span class="flag-toggle-bit">0x20</span><span class="flag-toggle-name">Вор (Thief)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="anti" data-plane="0" data-bit="64"><span class="flag-toggle-bit">0x40</span><span class="flag-toggle-name">Воин (Warrior)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="anti" data-plane="0" data-bit="128"><span class="flag-toggle-bit">0x80</span><span class="flag-toggle-name">Убийца (Assassin)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="anti" data-plane="0" data-bit="256"><span class="flag-toggle-bit">0x100</span><span class="flag-toggle-name">Страж (Guard)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="anti" data-plane="0" data-bit="512"><span class="flag-toggle-bit">0x200</span><span class="flag-toggle-name">Паладин (Paladin)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="anti" data-plane="0" data-bit="1024"><span class="flag-toggle-bit">0x400</span><span class="flag-toggle-name">Следопыт (Ranger)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="anti" data-plane="0" data-bit="2048"><span class="flag-toggle-bit">0x800</span><span class="flag-toggle-name">Дозорный (Vigilant)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="anti" data-plane="0" data-bit="4096"><span class="flag-toggle-bit">0x1000</span><span class="flag-toggle-name">Купец (Merchant)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="anti" data-plane="0" data-bit="8192"><span class="flag-toggle-bit">0x2000</span><span class="flag-toggle-name">Маг (Magus)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="anti" data-plane="0" data-bit="16384"><span class="flag-toggle-bit">0x4000</span><span class="flag-toggle-name">Заклинатель (Conjurer)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="anti" data-plane="0" data-bit="32768"><span class="flag-toggle-bit">0x8000</span><span class="flag-toggle-name">Чернокнижник (Charmer)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="anti" data-plane="0" data-bit="65536"><span class="flag-toggle-bit">0x10000</span><span class="flag-toggle-name">Волшебник (Wizard)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="anti" data-plane="0" data-bit="131072"><span class="flag-toggle-bit">0x20000</span><span class="flag-toggle-name">Некромант (Necromancer)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="anti" data-plane="0" data-bit="262144"><span class="flag-toggle-bit">0x40000</span><span class="flag-toggle-name">Боец (Fighter)</span></button>
+            </div>
+            <div class="flag-toggle-group-title" style="margin-top: 14px;">Plane 1 -- Прочие</div>
+            <div class="flag-toggle-grid" id="anti-flags-p1-grid">
+                <button type="button" class="flag-toggle" data-flag-group="anti" data-plane="1" data-bit="1"><span class="flag-toggle-bit">0x1</span><span class="flag-toggle-name">Убийца (Killer)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="anti" data-plane="1" data-bit="2"><span class="flag-toggle-bit">0x2</span><span class="flag-toggle-name">Цветной (Colored)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="anti" data-plane="1" data-bit="4"><span class="flag-toggle-bit">0x4</span><span class="flag-toggle-name">Боевой (Battle)</span></button>
+            </div>
+            <div class="flag-toggle-group-title" style="margin-top: 14px;">Plane 2 -- Пол и тип</div>
+            <div class="flag-toggle-grid" id="anti-flags-p2-grid">
+                <button type="button" class="flag-toggle" data-flag-group="anti" data-plane="2" data-bit="64"><span class="flag-toggle-bit">0x40</span><span class="flag-toggle-name">Мужской (Male)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="anti" data-plane="2" data-bit="128"><span class="flag-toggle-bit">0x80</span><span class="flag-toggle-name">Женский (Female)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="anti" data-plane="2" data-bit="256"><span class="flag-toggle-bit">0x100</span><span class="flag-toggle-name">Чармис (Charmice)</span></button>
+            </div>
+            <div class="flag-toggle-group-title" style="margin-top: 14px;">Plane 3 -- Дополнительные</div>
+            <div class="flag-toggle-grid" id="anti-flags-p3-grid">
+                <button type="button" class="flag-toggle" data-flag-group="anti" data-plane="3" data-bit="8"><span class="flag-toggle-bit">0x8</span><span class="flag-toggle-name">Не для !ПК клана (NoPkClan)</span></button>
+            </div>
+            <div class="flag-hint" id="anti-flags-hint">P0: <strong>0x0</strong> | P1: <strong>0x0</strong> | P2: <strong>0x0</strong> | P3: <strong>0x0</strong></div>
+        </div>
+    </div>
+
+    <!-- ===== SECTION 5: Type-Specific Values ===== -->
     <div class="parchment-section">
         <div class="parchment-section-title">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -318,7 +504,7 @@
         </div>
     </div>
 
-    <!-- ===== SECTION 5: Affects ===== -->
+    <!-- ===== SECTION 6: Affects ===== -->
     <div class="parchment-section">
         <div class="parchment-section-title">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -392,7 +578,7 @@
         </button>
     </div>
 
-    <!-- ===== SECTION 6: Extra Descriptions ===== -->
+    <!-- ===== SECTION 7: Extra Descriptions ===== -->
     <div class="parchment-section">
         <div class="parchment-section-title">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -442,7 +628,7 @@
         </button>
     </div>
 
-    <!-- ===== SECTION 7: Triggers ===== -->
+    <!-- ===== SECTION 8: Triggers ===== -->
     <div class="parchment-section">
         <div class="parchment-section-title">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -463,7 +649,7 @@
 
     <!-- Sticky action bar -->
     <div style="position: sticky; bottom: 0; background-color: #f4ead5; border: 3px double rgba(120, 53, 15, 0.2); border-radius: 8px; padding: 16px 28px; display: flex; align-items: center; gap: 12px; box-shadow: 0 -4px 16px rgba(139, 69, 19, 0.08); z-index: 100;">
-        <button type="button" class="btn-primary" id="save-btn" onclick="saveObject()">
+        <button type="button" class="btn-primary" id="save-btn" onclick="window.saveObject()">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
                 <polyline points="17 21 17 13 7 13 7 21"/>
@@ -513,6 +699,94 @@
         if (!str || !str.trim()) return [];
         return str.split(',').map(function(s) { return parseInt(s.trim()); }).filter(function(n) { return !isNaN(n); });
     }
+
+    // --- Flag toggle system ---
+    // Toggle a flag button on/off
+    function toggleFlag(btn) {
+        btn.classList.toggle('active');
+        updateFlagHint(btn.getAttribute('data-flag-group'));
+    }
+
+    // Attach click handler to all flag-toggle buttons
+    document.querySelectorAll('.flag-toggle').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            toggleFlag(this);
+        });
+    });
+
+    // Calculate plane values for a flag group
+    function getFlagPlanes(groupName) {
+        var planes = [0, 0, 0, 0];
+        document.querySelectorAll('.flag-toggle[data-flag-group="' + groupName + '"].active').forEach(function(btn) {
+            var plane = parseInt(btn.getAttribute('data-plane'));
+            var bit = parseInt(btn.getAttribute('data-bit'));
+            planes[plane] |= bit;
+        });
+        return planes;
+    }
+
+    // Update the hint display for a flag group
+    function updateFlagHint(groupName) {
+        var hintEl = document.getElementById(groupName + '-flags-hint');
+        if (!hintEl) return;
+
+        if (groupName === 'wear') {
+            var planes = getFlagPlanes('wear');
+            var v = planes[0];
+            hintEl.innerHTML = 'Итого: <strong>0x' + v.toString(16).toUpperCase() + '</strong> (dec: ' + v + ')';
+        } else if (groupName === 'extra') {
+            var planes = getFlagPlanes('extra');
+            hintEl.innerHTML = 'Plane 0: <strong>0x' + planes[0].toString(16).toUpperCase() + '</strong> | Plane 1: <strong>0x' + planes[1].toString(16).toUpperCase() + '</strong>';
+        } else {
+            var planes = getFlagPlanes(groupName);
+            hintEl.innerHTML = 'P0: <strong>0x' + planes[0].toString(16).toUpperCase()
+                + '</strong> | P1: <strong>0x' + planes[1].toString(16).toUpperCase()
+                + '</strong> | P2: <strong>0x' + planes[2].toString(16).toUpperCase()
+                + '</strong> | P3: <strong>0x' + planes[3].toString(16).toUpperCase() + '</strong>';
+        }
+    }
+
+    // Initialize flags from server data
+    function initFlags() {
+        // Wear flags (single int)
+        var wearVal = {{ obj.wear_flags|default(0)|int }};
+        document.querySelectorAll('.flag-toggle[data-flag-group="wear"]').forEach(function(btn) {
+            var bit = parseInt(btn.getAttribute('data-bit'));
+            if (wearVal & bit) btn.classList.add('active');
+        });
+        updateFlagHint('wear');
+
+        // Extra flags (4 planes)
+        var extraPlanes = {{ obj.extra_flags|default([0,0,0,0])|tojson }};
+        document.querySelectorAll('.flag-toggle[data-flag-group="extra"]').forEach(function(btn) {
+            var plane = parseInt(btn.getAttribute('data-plane'));
+            var bit = parseInt(btn.getAttribute('data-bit'));
+            if (extraPlanes[plane] & bit) btn.classList.add('active');
+        });
+        updateFlagHint('extra');
+
+        // No flags (4 planes)
+        var noPlanes = {{ obj.no_flags|default([0,0,0,0])|tojson }};
+        document.querySelectorAll('.flag-toggle[data-flag-group="no"]').forEach(function(btn) {
+            var plane = parseInt(btn.getAttribute('data-plane'));
+            var bit = parseInt(btn.getAttribute('data-bit'));
+            if (noPlanes[plane] & bit) btn.classList.add('active');
+        });
+        updateFlagHint('no');
+
+        // Anti flags (4 planes)
+        var antiPlanes = {{ obj.anti_flags|default([0,0,0,0])|tojson }};
+        document.querySelectorAll('.flag-toggle[data-flag-group="anti"]').forEach(function(btn) {
+            var plane = parseInt(btn.getAttribute('data-plane'));
+            var bit = parseInt(btn.getAttribute('data-bit'));
+            if (antiPlanes[plane] & bit) btn.classList.add('active');
+        });
+        updateFlagHint('anti');
+    }
+
+    // Init flags on page load
+    initFlags();
 
     // --- Dynamic affects ---
     var affectCounter = {{ (obj.affects|length) if obj.affects else 0 }};
@@ -608,7 +882,7 @@
     }
 
     function displayValidationErrors(errors) {
-        var form = document.getElementById('object-edit-form');
+        var form = document.getElementById('object-form');
         var errorsBlock = document.createElement('div');
         errorsBlock.id = 'validation-errors-block';
         errorsBlock.className = 'validation-errors';
@@ -678,6 +952,26 @@
                 message: 'Тип объекта (type) обязателен'
             });
         }
+
+        // Validate case fields (падежи)
+        var caseFields = [
+            { name: 'names.nominative', label: 'Именительный падеж' },
+            { name: 'names.genitive', label: 'Родительный падеж' },
+            { name: 'names.dative', label: 'Дательный падеж' },
+            { name: 'names.accusative', label: 'Винительный падеж' },
+            { name: 'names.instrumental', label: 'Творительный падеж' },
+            { name: 'names.prepositional', label: 'Предложный падеж' }
+        ];
+
+        caseFields.forEach(function(field) {
+            var el = document.querySelector('[name="' + field.name + '"]');
+            if (el && !el.value.trim()) {
+                errors.push({
+                    field: el,
+                    message: field.label + ' обязателен'
+                });
+            }
+        });
 
         if (errors.length > 0) {
             displayValidationErrors(errors);
@@ -788,6 +1082,20 @@
         });
         data.extra_descriptions = extraDescs;
 
+        // --- Flags ---
+        // Wear flags: single bitmask integer
+        var wearPlanes = getFlagPlanes('wear');
+        data.wear_flags = wearPlanes[0];
+
+        // Extra flags: 4 planes
+        data.extra_flags = getFlagPlanes('extra');
+
+        // No flags: 4 planes
+        data.no_flags = getFlagPlanes('no');
+
+        // Anti flags: 4 planes
+        data.anti_flags = getFlagPlanes('anti');
+
         // --- Triggers ---
         var triggersEl = form.querySelector('[name="triggers"]');
         if (triggersEl) {
@@ -807,8 +1115,10 @@
 
             if (result.status === 'ok') {
                 showToast('Объект успешно сохранён', 'success');
-                statusEl.textContent = 'Сохранено';
-                setTimeout(function() { statusEl.textContent = ''; }, 3000);
+                // Redirect to detail view
+                setTimeout(function() {
+                    window.location.href = '{{ url_for("object_detail", vnum=obj.vnum) }}';
+                }, 500);
             } else {
                 showToast('Ошибка: ' + (result.error || 'Неизвестная ошибка'), 'error');
                 statusEl.textContent = '';

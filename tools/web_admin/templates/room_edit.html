@@ -116,7 +116,83 @@
         </div>
     </div>
 
-    <!-- ===== SECTION 2: Exits ===== -->
+    <!-- ===== SECTION 2: Room Flags ===== -->
+    <div class="parchment-section">
+        <div class="parchment-section-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/>
+                <line x1="4" y1="22" x2="4" y2="15"/>
+            </svg>
+            Флаги комнаты (room flags)
+        </div>
+
+        <!-- Plane 0: Basic room flags -->
+        <div class="subsection-label" style="margin-bottom: 8px;">Plane 0 -- Основные</div>
+        <div class="flag-toggle-group" id="roomflags-p0-group">
+            <div class="flag-toggle-grid" id="roomflags-p0-grid">
+                <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="0" data-bit="1"><span class="flag-toggle-bit">0x1</span><span class="flag-toggle-name">Темная (Dark)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="0" data-bit="2"><span class="flag-toggle-bit">0x2</span><span class="flag-toggle-name">ДТ (Death Trap)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="0" data-bit="4"><span class="flag-toggle-bit">0x4</span><span class="flag-toggle-name">Не для мобов (No Mob)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="0" data-bit="8"><span class="flag-toggle-bit">0x8</span><span class="flag-toggle-name">Внутри (Indoors)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="0" data-bit="16"><span class="flag-toggle-bit">0x10</span><span class="flag-toggle-name">Мирная (Peaceful)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="0" data-bit="32"><span class="flag-toggle-bit">0x20</span><span class="flag-toggle-name">Глухая (Soundproof)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="0" data-bit="64"><span class="flag-toggle-bit">0x40</span><span class="flag-toggle-name">Не выследить (No Track)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="0" data-bit="128"><span class="flag-toggle-bit">0x80</span><span class="flag-toggle-name">Нет магии (No Magic)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="0" data-bit="256"><span class="flag-toggle-bit">0x100</span><span class="flag-toggle-name">Однопроходная (Tunnel)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="0" data-bit="512"><span class="flag-toggle-bit">0x200</span><span class="flag-toggle-name">Телепорт в запрещен (No Teleport In)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="0" data-bit="1024"><span class="flag-toggle-bit">0x400</span><span class="flag-toggle-name">Боги (Gods Room)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="0" data-bit="2048"><span class="flag-toggle-bit">0x800</span><span class="flag-toggle-name">Замок (House)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="0" data-bit="8192"><span class="flag-toggle-bit">0x2000</span><span class="flag-toggle-name">Вход в замок (House Entry)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="0" data-bit="65536"><span class="flag-toggle-bit">0x10000</span><span class="flag-toggle-name">Для магов (For Mages)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="0" data-bit="131072"><span class="flag-toggle-bit">0x20000</span><span class="flag-toggle-name">Для лекарей (For Sorcerers)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="0" data-bit="262144"><span class="flag-toggle-bit">0x40000</span><span class="flag-toggle-name">Для воров (For Thieves)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="0" data-bit="524288"><span class="flag-toggle-bit">0x80000</span><span class="flag-toggle-name">Для богатырей (For Warriors)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="0" data-bit="1048576"><span class="flag-toggle-bit">0x100000</span><span class="flag-toggle-name">Для наемников (For Assassins)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="0" data-bit="2097152"><span class="flag-toggle-bit">0x200000</span><span class="flag-toggle-name">Для дружинников (For Guards)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="0" data-bit="4194304"><span class="flag-toggle-bit">0x400000</span><span class="flag-toggle-name">Для витязей (For Paladins)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="0" data-bit="8388608"><span class="flag-toggle-bit">0x800000</span><span class="flag-toggle-name">Для охотников (For Rangers)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="0" data-bit="16777216"><span class="flag-toggle-bit">0x1000000</span><span class="flag-toggle-name">Жертвенник (Poly)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="0" data-bit="33554432"><span class="flag-toggle-bit">0x2000000</span><span class="flag-toggle-name">Молельня (Mono)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="0" data-bit="67108864"><span class="flag-toggle-bit">0x4000000</span><span class="flag-toggle-name">Кузница (Forge)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="0" data-bit="134217728"><span class="flag-toggle-bit">0x8000000</span><span class="flag-toggle-name">Для купцов (For Merchants)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="0" data-bit="268435456"><span class="flag-toggle-bit">0x10000000</span><span class="flag-toggle-name">Для волхвов (For Maguses)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="0" data-bit="536870912"><span class="flag-toggle-bit">0x20000000</span><span class="flag-toggle-name">Арена (Arena)</span></button>
+            </div>
+            <div class="flag-hint" id="roomflags-p0-hint">Plane 0: <strong>0x0</strong></div>
+        </div>
+
+        <!-- Plane 1: Extended room flags -->
+        <div class="subsection-label" style="margin-bottom: 8px;">Plane 1 -- Дополнительные</div>
+        <div class="flag-toggle-group" id="roomflags-p1-group">
+            <div class="flag-toggle-grid" id="roomflags-p1-grid">
+                <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="1" data-bit="1"><span class="flag-toggle-bit">0x1</span><span class="flag-toggle-name">Не призвать (No Summon Out)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="1" data-bit="2"><span class="flag-toggle-bit">0x2</span><span class="flag-toggle-name">Телепорт из запрещен (No Teleport Out)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="1" data-bit="4"><span class="flag-toggle-bit">0x4</span><span class="flag-toggle-name">Нельзя верхом (No Horse)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="1" data-bit="8"><span class="flag-toggle-bit">0x8</span><span class="flag-toggle-name">Внепогодная (No Weather)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="1" data-bit="16"><span class="flag-toggle-bit">0x10</span><span class="flag-toggle-name">Медленный ДТ (Slow Death Trap)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="1" data-bit="32"><span class="flag-toggle-bit">0x20</span><span class="flag-toggle-name">Провалился под лед (Ice Trap)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="1" data-bit="64"><span class="flag-toggle-bit">0x40</span><span class="flag-toggle-name">Не переместиться (No Relocate In)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="1" data-bit="128"><span class="flag-toggle-bit">0x80</span><span class="flag-toggle-name">Слышно арену (Tribune)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="1" data-bit="256"><span class="flag-toggle-bit">0x100</span><span class="flag-toggle-name">Транслируем арену (Arena Send)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="1" data-bit="512"><span class="flag-toggle-bit">0x200</span><span class="flag-toggle-name">Нельзя атаковать (No Battle)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="1" data-bit="2048"><span class="flag-toggle-bit">0x800</span><span class="flag-toggle-name">Всегда светло (Always Lit)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="1" data-bit="4096"><span class="flag-toggle-bit">0x1000</span><span class="flag-toggle-name">Нет внумов (MoMapper)</span></button>
+            </div>
+            <div class="flag-hint" id="roomflags-p1-hint">Plane 1: <strong>0x0</strong></div>
+        </div>
+
+        <!-- Plane 2: Special room flags -->
+        <div class="subsection-label" style="margin-bottom: 8px;">Plane 2 -- Специальные</div>
+        <div class="flag-toggle-group" id="roomflags-p2-group">
+            <div class="flag-toggle-grid" id="roomflags-p2-grid">
+                <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="2" data-bit="1"><span class="flag-toggle-bit">0x1</span><span class="flag-toggle-name">Передача вещей запрещена (No Item)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="2" data-bit="2"><span class="flag-toggle-bit">0x2</span><span class="flag-toggle-name">Арена Доминирования (Domination Arena)</span></button>
+            </div>
+            <div class="flag-hint" id="roomflags-p2-hint">Plane 2: <strong>0x0</strong></div>
+        </div>
+    </div>
+
+    <!-- ===== SECTION 3: Exits ===== -->
     <div class="parchment-section">
         <div class="parchment-section-title">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -162,7 +238,7 @@
                 <span style="font-family: 'Inter', sans-serif; font-size: 12px; color: #8a7b6b; margin-left: auto;">
                     Текущий: #{{ exit.data.to_room }}
                 </span>
-                <button type="button" class="btn-secondary" onclick="removeExit(this)" style="padding: 5px 10px; margin-left: 8px; flex-shrink: 0; color: #991b1b; border-color: rgba(185, 28, 28, 0.2);" title="Удалить выход">
+                <button type="button" class="btn-secondary" onclick="window.removeExit(this)" style="padding: 5px 10px; margin-left: 8px; flex-shrink: 0; color: #991b1b; border-color: rgba(185, 28, 28, 0.2);" title="Удалить выход">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
                     </svg>
@@ -225,7 +301,7 @@
             <select id="new-exit-direction" style="width: auto; min-width: 180px;">
                 <!-- Options populated dynamically by updateExitDropdown() -->
             </select>
-            <button type="button" class="btn-secondary" onclick="addExit()" id="add-exit-btn">
+            <button type="button" class="btn-secondary" onclick="window.addExit()" id="add-exit-btn">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
                 </svg>
@@ -234,7 +310,7 @@
         </div>
     </div>
 
-    <!-- ===== SECTION 3: Extra Descriptions ===== -->
+    <!-- ===== SECTION 4: Extra Descriptions ===== -->
     <div class="parchment-section">
         <div class="parchment-section-title">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -290,7 +366,7 @@
         </button>
     </div>
 
-    <!-- ===== SECTION 4: Triggers ===== -->
+    <!-- ===== SECTION 5: Triggers ===== -->
     <div class="parchment-section">
         <div class="parchment-section-title">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -311,7 +387,7 @@
 
     <!-- Sticky action bar -->
     <div style="position: sticky; bottom: 0; background-color: #f4ead5; border: 3px double rgba(120, 53, 15, 0.2); border-radius: 8px; padding: 16px 28px; display: flex; align-items: center; gap: 12px; box-shadow: 0 -4px 16px rgba(139, 69, 19, 0.08); z-index: 100;">
-        <button type="button" class="btn-primary" id="save-btn" onclick="saveRoom()">
+        <button type="button" class="btn-primary" id="save-btn" onclick="window.saveRoom()">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
                 <polyline points="17 21 17 13 7 13 7 21"/>
@@ -361,6 +437,56 @@
         if (!str || !str.trim()) return [];
         return str.split(',').map(function(s) { return parseInt(s.trim()); }).filter(function(n) { return !isNaN(n); });
     }
+
+    // --- Room flags toggle system ---
+    function toggleFlag(btn) {
+        btn.classList.toggle('active');
+        updateRoomFlagHints();
+    }
+
+    // Attach click handler to all flag-toggle buttons
+    document.querySelectorAll('.flag-toggle').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            toggleFlag(this);
+        });
+    });
+
+    // Calculate plane values for room flags
+    function getRoomFlagPlanes() {
+        var planes = [0, 0, 0, 0];
+        document.querySelectorAll('.flag-toggle[data-flag-group="roomflags"].active').forEach(function(btn) {
+            var plane = parseInt(btn.getAttribute('data-plane'));
+            var bit = parseInt(btn.getAttribute('data-bit'));
+            planes[plane] |= bit;
+        });
+        return planes;
+    }
+
+    // Update hint displays for all planes
+    function updateRoomFlagHints() {
+        var planes = getRoomFlagPlanes();
+        var h0 = document.getElementById('roomflags-p0-hint');
+        var h1 = document.getElementById('roomflags-p1-hint');
+        var h2 = document.getElementById('roomflags-p2-hint');
+        if (h0) h0.innerHTML = 'Plane 0: <strong>0x' + planes[0].toString(16).toUpperCase() + '</strong> (dec: ' + planes[0] + ')';
+        if (h1) h1.innerHTML = 'Plane 1: <strong>0x' + planes[1].toString(16).toUpperCase() + '</strong> (dec: ' + planes[1] + ')';
+        if (h2) h2.innerHTML = 'Plane 2: <strong>0x' + planes[2].toString(16).toUpperCase() + '</strong> (dec: ' + planes[2] + ')';
+    }
+
+    // Initialize room flags from server data
+    function initRoomFlags() {
+        var serverPlanes = {{ room.room_flags|default([0,0,0,0])|tojson }};
+        document.querySelectorAll('.flag-toggle[data-flag-group="roomflags"]').forEach(function(btn) {
+            var plane = parseInt(btn.getAttribute('data-plane'));
+            var bit = parseInt(btn.getAttribute('data-bit'));
+            if (serverPlanes[plane] & bit) btn.classList.add('active');
+        });
+        updateRoomFlagHints();
+    }
+
+    // Init flags on page load
+    initRoomFlags();
 
     // --- Direction constants ---
     var DIR_NAMES = ['Север', 'Восток', 'Юг', 'Запад', 'Вверх', 'Вниз'];
@@ -419,8 +545,19 @@
 
     window.addExit = function() {
         var select = document.getElementById('new-exit-direction');
+        if (!select) {
+            alert('Ошибка: элемент select не найден');
+            return;
+        }
+        if (select.options.length === 0) {
+            alert('Все направления уже заняты');
+            return;
+        }
         var dir = parseInt(select.value);
-        if (isNaN(dir) || dir < 0 || dir > 5) return;
+        if (isNaN(dir) || dir < 0 || dir > 5) {
+            alert('Ошибка: неверное направление (' + select.value + ')');
+            return;
+        }
 
         var list = document.getElementById('exits-list');
         var html = '<div class="exit-card" data-direction="' + dir + '" style="background-color: rgba(253, 246, 227, 0.5); border: 1px solid rgba(120, 53, 15, 0.1); border-radius: 8px; padding: 16px 20px; margin-bottom: 12px;">'
@@ -430,7 +567,7 @@
             + '</div>'
             + '<span style="font-family: \'Playfair Display\', Georgia, serif; font-size: 16px; font-weight: 600; color: #2d241e;">' + DIR_NAMES[dir] + '</span>'
             + '<span style="font-family: \'Inter\', sans-serif; font-size: 12px; color: #b45309; margin-left: auto; font-weight: 500;">Новый</span>'
-            + '<button type="button" class="btn-secondary" onclick="removeExit(this)" style="padding: 5px 10px; margin-left: 8px; flex-shrink: 0; color: #991b1b; border-color: rgba(185, 28, 28, 0.2);" title="Удалить выход">'
+            + '<button type="button" class="btn-secondary" onclick="window.removeExit(this)" style="padding: 5px 10px; margin-left: 8px; flex-shrink: 0; color: #991b1b; border-color: rgba(185, 28, 28, 0.2);" title="Удалить выход">'
             + '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>'
             + ' <span style="font-size: 12px;">Удалить</span></button>'
             + '</div>'
@@ -716,6 +853,9 @@
         });
         data.extra_descriptions = extraDescs;
 
+        // --- Room Flags ---
+        data.room_flags = getRoomFlagPlanes();
+
         // --- Triggers ---
         var triggersEl = form.querySelector('[name="triggers"]');
         if (triggersEl) {
@@ -740,8 +880,10 @@
 
             if (result.status === 'ok') {
                 showToast('Комната успешно сохранена', 'success');
-                statusEl.textContent = 'Сохранено';
-                setTimeout(function() { statusEl.textContent = ''; }, 3000);
+                // Redirect to detail view
+                setTimeout(function() {
+                    window.location.href = '{{ url_for("room_detail", vnum=room.vnum) }}';
+                }, 500);
             } else {
                 showToast('Ошибка: ' + (result.error || 'Неизвестная ошибка'), 'error');
                 statusEl.textContent = '';

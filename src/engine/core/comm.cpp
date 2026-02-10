@@ -1057,6 +1057,23 @@ int new_admin_descriptor(int epoll, socket_t s) {
 		return -1;
 	}
 
+	// Check connection limit
+	int admin_connections = 0;
+	for (DescriptorData *d = descriptor_list; d; d = d->next) {
+		if (d->admin_api_mode) {
+			admin_connections++;
+		}
+	}
+
+	int max_connections = runtime_config.admin_max_connections();
+	if (admin_connections >= max_connections) {
+		log("Admin API: connection rejected (limit %d reached)", max_connections);
+		const char *error_msg = "{\"status\":\"error\",\"message\":\"connection limit reached\"}\n";
+		iosystem::write_to_descriptor(desc, error_msg, strlen(error_msg));
+		CLOSE_SOCKET(desc);
+		return -1;
+	}
+
 	nonblock(desc);
 	NEWCREATE(newd);
 

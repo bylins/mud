@@ -94,9 +94,99 @@
                 </div>
             </div>
 
-            <div class="detail-field">
+            <div class="detail-field detail-field-full">
                 <div class="detail-field-label">Тип триггера (trigger type)</div>
-                <div class="detail-field-value">{{ trig.trigger_type if trig.trigger_type is defined else '--' }}</div>
+                {% set tt = trig.trigger_type|default(0)|int %}
+                {% if tt == 0 %}
+                <div class="detail-field-value empty">Не задано (0x0)</div>
+                {% else %}
+                <div class="detail-field-value flag-value">
+                    <div class="flag-summary">
+                        <span class="flag-summary-hex">0x{{ '%X' % tt }}</span>
+                        <span class="flag-summary-dec">(dec: {{ tt }})</span>
+                    </div>
+                    {# Define flag names per attach_type #}
+                    {% set mob_flags = {
+                        1: 'Случайный глобальный (Random Global)',
+                        2: 'Случайный (Random)',
+                        4: 'Команда (Command)',
+                        8: 'Речь (Speech)',
+                        16: 'Действие (Act)',
+                        32: 'Смерть (Death)',
+                        64: 'Приветствие (Greet)',
+                        128: 'Приветствие всех (Greet All)',
+                        256: 'Вход (Entry)',
+                        512: 'Получение (Receive)',
+                        1024: 'Бой (Fight)',
+                        2048: 'Процент HP (Hit Percent)',
+                        4096: 'Взятка (Bribe)',
+                        8192: 'Загрузка (Load)',
+                        16384: 'Убийство (Kill)',
+                        32768: 'Урон (Damage)',
+                        65536: 'Приветствие игрока (Greet PC)',
+                        131072: 'Приветствие всех игроков (Greet PC All)',
+                        262144: 'Вход моба (Income)',
+                        524288: 'Вход моба (если игрок) (Income PC)',
+                        1048576: 'Начало боя (Start Fight)',
+                        2097152: 'Раунд боя (Round Num)',
+                        4194304: 'Заклинание (Cast)',
+                        8388608: 'Смена времени (Timechange)'
+                    } %}
+                    {% set obj_flags = {
+                        1: 'Случайный глобальный (Random Global)',
+                        2: 'Случайный (Random)',
+                        4: 'Команда (Command)',
+                        8: 'Очистка (Purge)',
+                        16: 'Бой (Fight)',
+                        32: 'Таймер (Timer)',
+                        64: 'Взять (Get)',
+                        128: 'Уронить (Drop)',
+                        256: 'Дать (Give)',
+                        512: 'Надеть (Wear)',
+                        2048: 'Снять (Remove)',
+                        8192: 'Загрузка (Load)',
+                        16384: 'Отпирание замка (Unlock)',
+                        32768: 'Открытие (Open)',
+                        65536: 'Закрытие замка (Lock)',
+                        131072: 'Закрытие (Close)',
+                        262144: 'Взлом (Pick)',
+                        524288: 'Приветствие всех игроков (Greet All PC)',
+                        1048576: 'Смена времени (Timechange)',
+                        2097152: 'Помещение (Put)'
+                    } %}
+                    {% set wld_flags = {
+                        1: 'Случайный глобальный (Random Global)',
+                        2: 'Случайный (Random)',
+                        4: 'Команда (Command)',
+                        8: 'Речь (Speech)',
+                        16: 'Вход игрока (Enter PC)',
+                        32: 'Сброс (Reset)',
+                        64: 'Вход (Enter)',
+                        128: 'Уронить (Drop)',
+                        256: 'Отпирание замка (Unlock)',
+                        512: 'Открытие (Open)',
+                        1024: 'Закрытие замка (Lock)',
+                        2048: 'Закрытие (Close)',
+                        4096: 'Взлом (Pick)',
+                        8192: 'Смена времени (Timechange)',
+                        16384: 'Убийство игрока (Kill PC)'
+                    } %}
+                    {% if trig.attach_type == 1 %}
+                        {% set flags = obj_flags %}
+                    {% elif trig.attach_type == 2 %}
+                        {% set flags = wld_flags %}
+                    {% else %}
+                        {% set flags = mob_flags %}
+                    {% endif %}
+                    <div class="flag-cards">
+                        {% for bit, name in flags.items()|sort %}
+                            {% if ((tt // bit) % 2) == 1 %}
+                            <span class="flag-card">{{ name }}</span>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
             </div>
 
             <div class="detail-field">

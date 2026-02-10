@@ -203,12 +203,12 @@
             </div>
 
             <div class="detail-field">
-                <div class="detail-field-label">Рента включён (rent on)</div>
+                <div class="detail-field-label">Рента если надет (rent when worn)</div>
                 <div class="detail-field-value">{{ obj.rent_on if obj.rent_on is defined else '--' }}</div>
             </div>
 
             <div class="detail-field">
-                <div class="detail-field-label">Рента выключен (rent off)</div>
+                <div class="detail-field-label">Рента если снят (rent when removed)</div>
                 <div class="detail-field-value">{{ obj.rent_off if obj.rent_off is defined else '--' }}</div>
             </div>
 
@@ -251,7 +251,225 @@
         </div>
     </div>
 
-    <!-- SECTION 4: Type-Specific Values -->
+    <!-- SECTION 4: Flags (wear, extra, no, anti) -->
+    <div class="parchment-section">
+        <div class="parchment-section-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/>
+                <line x1="4" y1="22" x2="4" y2="15"/>
+            </svg>
+            Флаги предмета
+        </div>
+
+        {# === Wear Flags === #}
+        {% set wear_flags_map = {
+            1: 'Можно взять (Take)', 2: 'Палец (Finger)', 4: 'Шея (Neck)',
+            8: 'Тело (Body)', 16: 'Голова (Head)', 32: 'Ноги (Legs)',
+            64: 'Ступни (Feet)', 128: 'Кисти (Hands)', 256: 'Руки (Arms)',
+            512: 'Щит (Shield)', 1024: 'Плечи (Shoulders)', 2048: 'Пояс (Waist)',
+            4096: 'Запястье (Wrist)', 8192: 'Правая рука (Wield)', 16384: 'Левая рука (Hold)',
+            32768: 'Обе руки (Both)', 65536: 'Колчан (Quiver)'
+        } %}
+        {% set wf = obj.wear_flags|default(0)|int %}
+        <div class="subsection-label">Куда надевать (wear flags)</div>
+        {% if wf == 0 %}
+        <div class="detail-field-value empty" style="margin-bottom: 20px;">Не задано</div>
+        {% else %}
+        <div style="margin-bottom: 20px;">
+            <div class="flag-summary" style="margin-bottom: 6px;">
+                <span class="flag-summary-hex">0x{{ '%X' % wf }}</span>
+                <span class="flag-summary-dec">(dec: {{ wf }})</span>
+            </div>
+            <div class="flag-cards">
+                {% for bit, name in wear_flags_map.items()|sort %}
+                    {% if ((wf // bit) % 2) == 1 %}
+                    <span class="flag-card">{{ name }}</span>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        {# === Extra Flags === #}
+        {% set extra_flags_p0 = {
+            1: 'Светится (Glow)', 2: 'Гудит (Hum)', 4: 'Нельзя хранить (Norent)',
+            8: 'Нельзя пожертв. (Nodonate)', 16: 'Видим невидящ. (Noinvis)',
+            32: 'Невидимый (Invisible)', 64: 'Магический (Magic)', 128: 'Нельзя бросить (Nodrop)',
+            256: 'Благословлён (Bless)', 512: 'Нельзя продать (Nosell)', 1024: 'Распадается (Decay)',
+            2048: 'Зон. распад (Zonedecay)', 4096: 'Нельзя обезоружить (Nodisarm)',
+            8192: 'Не распадается (Nodecay)', 16384: 'Отравлен (Poisoned)',
+            32768: 'Заточен (Sharpen)', 65536: 'Укреплён (Armored)',
+            131072: 'Появляется днём (Day)', 262144: 'Появляется ночью (Night)',
+            524288: 'Появляется в полнолуние (Fullmoon)',
+            1048576: 'Появляется зимой (Winter)', 2097152: 'Появляется весной (Spring)',
+            4194304: 'Появляется летом (Summer)', 8388608: 'Появляется осенью (Autumn)',
+            16777216: 'Плавающий (Swimming)', 33554432: 'Летающий (Flying)',
+            67108864: 'Метательный (Throwing)', 134217728: 'Таймер по тикам (Ticktimer)',
+            268435456: 'Горит (Fire)', 536870912: 'Распад при репопе (RepopDecay)'
+        } %}
+        {% set extra_flags_p1 = {
+            1: 'Нельзя найти (Nolocate)', 2: 'Уровень по таймеру (TimedLvl)',
+            4: 'Нельзя изменить (Noalter)', 8: '1 слот (HasOneSlot)',
+            16: '2 слота (HasTwoSlots)', 32: '3 слота (HasThreeSlots)',
+            64: 'Часть набора (SetItem)', 128: 'Без фейла (Nofail)',
+            256: 'Именной (Named)', 512: 'Окровавлен (Bloody)',
+            1024: 'Квестовый (QuestItem)', 2048: '2 инкрустации (2inlaid)',
+            4096: '3 инкрустации (3inlaid)', 8192: 'Нельзя перелить (Nopour)',
+            16384: 'Уникальный (Unique)', 32768: 'Зачарован (Transformed)',
+            65536: 'Без таймера ренты (NoRentTimer)', 131072: 'Ограниченный таймер (LimitedTimer)',
+            262144: 'Привязка при покупке (BindOnPurchase)', 524288: 'Не один в хранилище (NotOneInClanChest)'
+        } %}
+        {% set ef = obj.extra_flags|default([0,0,0,0]) %}
+        {% set ef0 = ef[0]|default(0)|int %}
+        {% set ef1 = ef[1]|default(0)|int %}
+        <div class="subsection-label">Доп. флаги (extra flags)</div>
+        {% if ef0 == 0 and ef1 == 0 %}
+        <div class="detail-field-value empty" style="margin-bottom: 20px;">Не задано</div>
+        {% else %}
+        <div style="margin-bottom: 20px;">
+            {% if ef0 != 0 %}
+            <div class="flag-summary" style="margin-bottom: 6px;">
+                <span class="flag-summary-dec">Plane 0:</span>
+                <span class="flag-summary-hex">0x{{ '%X' % ef0 }}</span>
+            </div>
+            <div class="flag-cards" style="margin-bottom: 10px;">
+                {% for bit, name in extra_flags_p0.items()|sort %}
+                    {% if ((ef0 // bit) % 2) == 1 %}
+                    <span class="flag-card">{{ name }}</span>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% if ef1 != 0 %}
+            <div class="flag-summary" style="margin-bottom: 6px;">
+                <span class="flag-summary-dec">Plane 1:</span>
+                <span class="flag-summary-hex">0x{{ '%X' % ef1 }}</span>
+            </div>
+            <div class="flag-cards">
+                {% for bit, name in extra_flags_p1.items()|sort %}
+                    {% if ((ef1 // bit) % 2) == 1 %}
+                    <span class="flag-card">{{ name }}</span>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        {# === No Flags === #}
+        {% set no_flags_p0 = {
+            1: 'Моно (Mono)', 2: 'Поли (Poly)', 4: 'Нейтрал (Neutral)',
+            8: 'Колдун (Mage)', 16: 'Чародей (Sorcerer)', 32: 'Вор (Thief)',
+            64: 'Воин (Warrior)', 128: 'Убийца (Assassin)', 256: 'Страж (Guard)',
+            512: 'Паладин (Paladin)', 1024: 'Следопыт (Ranger)', 2048: 'Дозорный (Vigilant)',
+            4096: 'Купец (Merchant)', 8192: 'Маг (Magus)', 16384: 'Заклинатель (Conjurer)',
+            32768: 'Чернокнижник (Charmer)', 65536: 'Волшебник (Wizard)',
+            131072: 'Некромант (Necromancer)', 262144: 'Боец (Fighter)'
+        } %}
+        {% set no_flags_p1 = {
+            1: 'Убийца (Killer)', 2: 'Цветной (Colored)', 4: 'Боевой (Battle)'
+        } %}
+        {% set no_flags_p2 = {
+            64: 'Мужской (Male)', 128: 'Женский (Female)', 256: 'Чармис (Charmice)'
+        } %}
+        {% set no_flags_p3 = {
+            1: 'Free13', 2: 'Free14', 4: 'Free15', 8: 'Не для !ПК клана (NoPkClan)'
+        } %}
+        {% set nf = obj.no_flags|default([0,0,0,0]) %}
+        {% set nf0 = nf[0]|default(0)|int %}
+        {% set nf1 = nf[1]|default(0)|int %}
+        {% set nf2 = nf[2]|default(0)|int %}
+        {% set nf3 = nf[3]|default(0)|int %}
+        <div class="subsection-label">Запрет для (no flags)</div>
+        {% if nf0 == 0 and nf1 == 0 and nf2 == 0 and nf3 == 0 %}
+        <div class="detail-field-value empty" style="margin-bottom: 20px;">Не задано</div>
+        {% else %}
+        <div style="margin-bottom: 20px;">
+            {% if nf0 != 0 %}
+            <div class="flag-summary" style="margin-bottom: 6px;"><span class="flag-summary-dec">Религии и классы:</span> <span class="flag-summary-hex">0x{{ '%X' % nf0 }}</span></div>
+            <div class="flag-cards" style="margin-bottom: 10px;">
+                {% for bit, name in no_flags_p0.items()|sort %}{% if ((nf0 // bit) % 2) == 1 %}<span class="flag-card">{{ name }}</span>{% endif %}{% endfor %}
+            </div>
+            {% endif %}
+            {% if nf1 != 0 %}
+            <div class="flag-summary" style="margin-bottom: 6px;"><span class="flag-summary-dec">Прочие:</span> <span class="flag-summary-hex">0x{{ '%X' % nf1 }}</span></div>
+            <div class="flag-cards" style="margin-bottom: 10px;">
+                {% for bit, name in no_flags_p1.items()|sort %}{% if ((nf1 // bit) % 2) == 1 %}<span class="flag-card">{{ name }}</span>{% endif %}{% endfor %}
+            </div>
+            {% endif %}
+            {% if nf2 != 0 %}
+            <div class="flag-summary" style="margin-bottom: 6px;"><span class="flag-summary-dec">Пол и тип:</span> <span class="flag-summary-hex">0x{{ '%X' % nf2 }}</span></div>
+            <div class="flag-cards" style="margin-bottom: 10px;">
+                {% for bit, name in no_flags_p2.items()|sort %}{% if ((nf2 // bit) % 2) == 1 %}<span class="flag-card">{{ name }}</span>{% endif %}{% endfor %}
+            </div>
+            {% endif %}
+            {% if nf3 != 0 %}
+            <div class="flag-summary" style="margin-bottom: 6px;"><span class="flag-summary-dec">Дополнительные:</span> <span class="flag-summary-hex">0x{{ '%X' % nf3 }}</span></div>
+            <div class="flag-cards">
+                {% for bit, name in no_flags_p3.items()|sort %}{% if ((nf3 // bit) % 2) == 1 %}<span class="flag-card">{{ name }}</span>{% endif %}{% endfor %}
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        {# === Anti Flags === #}
+        {% set anti_flags_p0 = {
+            1: 'Моно (Mono)', 2: 'Поли (Poly)', 4: 'Нейтрал (Neutral)',
+            8: 'Колдун (Mage)', 16: 'Чародей (Sorcerer)', 32: 'Вор (Thief)',
+            64: 'Воин (Warrior)', 128: 'Убийца (Assassin)', 256: 'Страж (Guard)',
+            512: 'Паладин (Paladin)', 1024: 'Следопыт (Ranger)', 2048: 'Дозорный (Vigilant)',
+            4096: 'Купец (Merchant)', 8192: 'Маг (Magus)', 16384: 'Заклинатель (Conjurer)',
+            32768: 'Чернокнижник (Charmer)', 65536: 'Волшебник (Wizard)',
+            131072: 'Некромант (Necromancer)', 262144: 'Боец (Fighter)'
+        } %}
+        {% set anti_flags_p1 = {
+            1: 'Убийца (Killer)', 2: 'Цветной (Colored)', 4: 'Боевой (Battle)'
+        } %}
+        {% set anti_flags_p2 = {
+            64: 'Мужской (Male)', 128: 'Женский (Female)', 256: 'Чармис (Charmice)'
+        } %}
+        {% set anti_flags_p3 = {
+            8: 'Не для !ПК клана (NoPkClan)'
+        } %}
+        {% set af = obj.anti_flags|default([0,0,0,0]) %}
+        {% set af0 = af[0]|default(0)|int %}
+        {% set af1 = af[1]|default(0)|int %}
+        {% set af2 = af[2]|default(0)|int %}
+        {% set af3 = af[3]|default(0)|int %}
+        <div class="subsection-label">Анти-флаги (anti flags)</div>
+        {% if af0 == 0 and af1 == 0 and af2 == 0 and af3 == 0 %}
+        <div class="detail-field-value empty">Не задано</div>
+        {% else %}
+        <div>
+            {% if af0 != 0 %}
+            <div class="flag-summary" style="margin-bottom: 6px;"><span class="flag-summary-dec">Религии и классы:</span> <span class="flag-summary-hex">0x{{ '%X' % af0 }}</span></div>
+            <div class="flag-cards" style="margin-bottom: 10px;">
+                {% for bit, name in anti_flags_p0.items()|sort %}{% if ((af0 // bit) % 2) == 1 %}<span class="flag-card">{{ name }}</span>{% endif %}{% endfor %}
+            </div>
+            {% endif %}
+            {% if af1 != 0 %}
+            <div class="flag-summary" style="margin-bottom: 6px;"><span class="flag-summary-dec">Прочие:</span> <span class="flag-summary-hex">0x{{ '%X' % af1 }}</span></div>
+            <div class="flag-cards" style="margin-bottom: 10px;">
+                {% for bit, name in anti_flags_p1.items()|sort %}{% if ((af1 // bit) % 2) == 1 %}<span class="flag-card">{{ name }}</span>{% endif %}{% endfor %}
+            </div>
+            {% endif %}
+            {% if af2 != 0 %}
+            <div class="flag-summary" style="margin-bottom: 6px;"><span class="flag-summary-dec">Пол и тип:</span> <span class="flag-summary-hex">0x{{ '%X' % af2 }}</span></div>
+            <div class="flag-cards" style="margin-bottom: 10px;">
+                {% for bit, name in anti_flags_p2.items()|sort %}{% if ((af2 // bit) % 2) == 1 %}<span class="flag-card">{{ name }}</span>{% endif %}{% endfor %}
+            </div>
+            {% endif %}
+            {% if af3 != 0 %}
+            <div class="flag-summary" style="margin-bottom: 6px;"><span class="flag-summary-dec">Дополнительные:</span> <span class="flag-summary-hex">0x{{ '%X' % af3 }}</span></div>
+            <div class="flag-cards">
+                {% for bit, name in anti_flags_p3.items()|sort %}{% if ((af3 // bit) % 2) == 1 %}<span class="flag-card">{{ name }}</span>{% endif %}{% endfor %}
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- SECTION 5: Type-Specific Values -->
     <div class="parchment-section">
         <div class="parchment-section-title">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -284,7 +502,7 @@
         </div>
     </div>
 
-    <!-- SECTION 5: Affects -->
+    <!-- SECTION 6: Affects -->
     {% if obj.affects and obj.affects|length > 0 %}
     {% set apply_locations = {
         0: '0 - NONE', 1: '1 - STR', 2: '2 - DEX', 3: '3 - INT', 4: '4 - WIS',
@@ -324,7 +542,7 @@
     </div>
     {% endif %}
 
-    <!-- SECTION 6: Extra Descriptions -->
+    <!-- SECTION 7: Extra Descriptions -->
     {% if obj.extra_descriptions and obj.extra_descriptions|length > 0 %}
     <div class="parchment-section">
         <div class="parchment-section-title">
@@ -344,7 +562,7 @@
     </div>
     {% endif %}
 
-    <!-- SECTION 7: Triggers -->
+    <!-- SECTION 8: Triggers -->
     {% if obj.triggers and obj.triggers|length > 0 %}
     <div class="parchment-section">
         <div class="parchment-section-title">

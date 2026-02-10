@@ -182,6 +182,7 @@ class RuntimeConfiguration {
 	const auto &admin_socket_path() const { return m_admin_socket_path; }
 	bool admin_api_enabled() const { return m_admin_api_enabled; }
 	bool admin_require_auth() const { return m_admin_require_auth; }
+	int admin_max_connections() const { return m_admin_max_connections; }
 #endif
 
  private:
@@ -226,6 +227,7 @@ class RuntimeConfiguration {
 	std::string m_admin_socket_path{"admin_api.sock"};
 	bool m_admin_api_enabled{false};
 	bool m_admin_require_auth{true};
+	int m_admin_max_connections{1};
 #endif
 };
 

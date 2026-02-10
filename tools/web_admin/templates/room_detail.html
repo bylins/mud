@@ -165,7 +165,107 @@
         {% endif %}
     </div>
 
-    <!-- ===== SECTION 3: Extra Descriptions ===== -->
+    <!-- ===== SECTION 3: Room Flags ===== -->
+    {% set rf0 = room.room_flags[0]|default(0)|int if room.room_flags else 0 %}
+    {% set rf1 = room.room_flags[1]|default(0)|int if room.room_flags else 0 %}
+    {% set rf2 = room.room_flags[2]|default(0)|int if room.room_flags else 0 %}
+    {% set has_any_flags = (rf0 != 0) or (rf1 != 0) or (rf2 != 0) %}
+
+    {% if has_any_flags %}
+    <div class="parchment-section">
+        <div class="parchment-section-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/>
+                <line x1="4" y1="22" x2="4" y2="15"/>
+            </svg>
+            Флаги комнаты (room flags)
+        </div>
+
+        {# === Plane 0: Basic room flags === #}
+        {% set room_flags_p0 = {
+            1: 'Темная (Dark)', 2: 'ДТ (Death Trap)', 4: 'Не для мобов (No Mob)',
+            8: 'Внутри (Indoors)', 16: 'Мирная (Peaceful)', 32: 'Глухая (Soundproof)',
+            64: 'Не выследить (No Track)', 128: 'Нет магии (No Magic)',
+            256: 'Однопроходная (Tunnel)', 512: 'Телепорт в запрещен (No Teleport In)',
+            1024: 'Боги (Gods Room)', 2048: 'Замок (House)', 8192: 'Вход в замок (House Entry)',
+            65536: 'Для магов (For Mages)', 131072: 'Для лекарей (For Sorcerers)',
+            262144: 'Для воров (For Thieves)', 524288: 'Для богатырей (For Warriors)',
+            1048576: 'Для наемников (For Assassins)', 2097152: 'Для дружинников (For Guards)',
+            4194304: 'Для витязей (For Paladins)', 8388608: 'Для охотников (For Rangers)',
+            16777216: 'Жертвенник (Poly)', 33554432: 'Молельня (Mono)',
+            67108864: 'Кузница (Forge)', 134217728: 'Для купцов (For Merchants)',
+            268435456: 'Для волхвов (For Maguses)', 536870912: 'Арена (Arena)'
+        } %}
+
+        {% if rf0 != 0 %}
+        <div class="subsection-label">Plane 0 -- Основные</div>
+        <div style="margin-bottom: 16px;">
+            <div class="flag-summary" style="margin-bottom: 6px;">
+                <span class="flag-summary-hex">0x{{ '%X' % rf0 }}</span>
+                <span class="flag-summary-dec">(dec: {{ rf0 }})</span>
+            </div>
+            <div class="flag-cards">
+                {% for bit, name in room_flags_p0.items()|sort %}
+                    {% if ((rf0 // bit) % 2) == 1 %}
+                    <span class="flag-card">{{ name }}</span>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        {# === Plane 1: Extended room flags === #}
+        {% set room_flags_p1 = {
+            1: 'Не призвать (No Summon Out)', 2: 'Телепорт из запрещен (No Teleport Out)',
+            4: 'Нельзя верхом (No Horse)', 8: 'Внепогодная (No Weather)',
+            16: 'Медленный ДТ (Slow Death Trap)', 32: 'Провалился под лед (Ice Trap)',
+            64: 'Не переместиться (No Relocate In)', 128: 'Слышно арену (Tribune)',
+            256: 'Транслируем арену (Arena Send)', 512: 'Нельзя атаковать (No Battle)',
+            2048: 'Всегда светло (Always Lit)', 4096: 'Нет внумов (MoMapper)'
+        } %}
+
+        {% if rf1 != 0 %}
+        <div class="subsection-label">Plane 1 -- Дополнительные</div>
+        <div style="margin-bottom: 16px;">
+            <div class="flag-summary" style="margin-bottom: 6px;">
+                <span class="flag-summary-hex">0x{{ '%X' % rf1 }}</span>
+                <span class="flag-summary-dec">(dec: {{ rf1 }})</span>
+            </div>
+            <div class="flag-cards">
+                {% for bit, name in room_flags_p1.items()|sort %}
+                    {% if ((rf1 // bit) % 2) == 1 %}
+                    <span class="flag-card">{{ name }}</span>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        {# === Plane 2: Special room flags === #}
+        {% set room_flags_p2 = {
+            1: 'Передача вещей запрещена (No Item)', 2: 'Арена Доминирования (Domination Arena)'
+        } %}
+
+        {% if rf2 != 0 %}
+        <div class="subsection-label">Plane 2 -- Специальные</div>
+        <div>
+            <div class="flag-summary" style="margin-bottom: 6px;">
+                <span class="flag-summary-hex">0x{{ '%X' % rf2 }}</span>
+                <span class="flag-summary-dec">(dec: {{ rf2 }})</span>
+            </div>
+            <div class="flag-cards">
+                {% for bit, name in room_flags_p2.items()|sort %}
+                    {% if ((rf2 // bit) % 2) == 1 %}
+                    <span class="flag-card">{{ name }}</span>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- ===== SECTION 4: Extra Descriptions ===== -->
     {% if room.extra_descriptions and room.extra_descriptions|length > 0 %}
     <div class="parchment-section">
         <div class="parchment-section-title">
@@ -175,7 +275,7 @@
                 <line x1="16" y1="13" x2="8" y2="13"/>
                 <line x1="16" y1="17" x2="8" y2="17"/>
             </svg>
-            Дополнительные описания
+            Дополнительные описания (extra descriptions)
         </div>
 
         {% for ed in room.extra_descriptions %}
@@ -189,7 +289,7 @@
     </div>
     {% endif %}
 
-    <!-- ===== SECTION 4: Triggers ===== -->
+    <!-- ===== SECTION 5: Triggers ===== -->
     {% if room.triggers and room.triggers|length > 0 %}
     <div class="parchment-section">
         <div class="parchment-section-title">

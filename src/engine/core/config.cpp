@@ -816,5 +816,13 @@ void RuntimeConfiguration::load_admin_api_configuration(const pugi::xml_node *ro
 		const std::string value = require_auth.child_value();
 		m_admin_require_auth = (value == "true" || value == "1" || value == "yes");
 	}
+
+	const auto max_connections = admin_api.child("max_connections");
+	if (max_connections) {
+		m_admin_max_connections = atoi(max_connections.child_value());
+		if (m_admin_max_connections < 1) {
+			m_admin_max_connections = 1;
+		}
+	}
 }
 #endif

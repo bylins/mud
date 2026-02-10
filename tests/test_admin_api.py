@@ -438,7 +438,21 @@ def test_comprehensive_mob(sock, vnum):
             "class": 1,
             "attack_type": 0
         },
-        "sex": 0
+        "sex": 0,
+        "physical": {
+            "height": 170,
+            "weight": 75,
+            "size": 50,
+            "extra_attack": 1,
+            "remort": 0,
+            "like_work": 0,
+            "maxfactor": 10
+        },
+        "death_load": [
+            {"obj_vnum": 100, "load_prob": 50, "load_type": 0, "spec_param": 0},
+            {"obj_vnum": 101, "load_prob": 25, "load_type": 1, "spec_param": 5}
+        ],
+        "roles": [0, 2]  # Boss (0) + Tank (2)
     }
 
     # Update with comprehensive data
@@ -449,13 +463,26 @@ def test_comprehensive_mob(sock, vnum):
         print(f"  ✓ Tested: resistances (7 fields), savings (3 fields)")
         print(f"  ✓ Tested: position (nested object), behavior (nested object)")
         print(f"  ✓ Tested: abilities (6 stats)")
+        print(f"  ✓ Tested: physical (7 fields: height, weight, size, extra_attack, remort, like_work, maxfactor)")
+        print(f"  ✓ Tested: death_load (2 items), roles (2 bits)")
 
         # Verify by getting mob back
-        mob = test_get_mob(sock, vnum)
-        if mob:
-            print(f"  ✓ Verified: level={mob.get('level')}, sex={mob.get('sex')}")
-            print(f"  ✅ MOB UPDATE TEST PASSED")
-            return True
+        response = test_get_mob(sock, vnum)
+        if response and response.get('status') == 'ok':
+            mob = response.get('mob', {})
+            physical = mob.get('physical', {})
+            death_load = mob.get('death_load', [])
+            roles = mob.get('roles', [])
+            stats = mob.get('stats', {})
+            print(f"  ✓ Verified: level={stats.get('level')}, sex={mob.get('sex')}")
+            print(f"  ✓ Verified: physical.height={physical.get('height')}, physical.weight={physical.get('weight')}")
+            print(f"  ✓ Verified: death_load count={len(death_load)}, roles count={len(roles)}")
+            if physical.get('height') == 170 and len(death_load) == 2 and len(roles) == 2:
+                print(f"  ✅ MOB UPDATE TEST PASSED (all new fields verified)")
+                return True
+            else:
+                print(f"  ❌ MOB UPDATE TEST FAILED - field values mismatch")
+                return False
         else:
             print(f"  ❌ MOB UPDATE TEST FAILED - verification failed")
             return False
@@ -503,12 +530,17 @@ def test_comprehensive_object(sock, vnum):
 def test_comprehensive_room(sock, vnum):
     """Test ALL room fields comprehensively."""
     print(f"\n=== Testing comprehensive room update {vnum} ===")
-    
+
     comprehensive_data = {
         "name": "Comprehensive Test Room",
         "description": "This room is used for comprehensive field testing.",
         "sector_type": 0,  # INSIDE
-        "triggers": [100]  # Add trigger 100
+        "triggers": [100],  # Add trigger 100
+        "room_flags": [6, 0, 0, 0],  # Plane 0: bits 1 and 2 (DARK + DEATH = 0x6)
+        "exits": [
+            {"direction": 0, "to_room": 101, "exit_info": 0},  # North to room 101
+            {"direction": 4, "to_room": 102, "exit_info": 1}   # Up to room 102 (door)
+        ]
     }
     
     response = send_command(sock, "update_room", vnum=vnum, data=comprehensive_data)
@@ -516,12 +548,23 @@ def test_comprehensive_room(sock, vnum):
     if response.get("status") == "ok":
         print(f"✓ Comprehensive room update successful")
 
-        room = test_get_room(sock, vnum)
-        if room:
+        response = test_get_room(sock, vnum)
+        if response and response.get('status') == 'ok':
+            room = response.get('room', {})
             triggers = room.get('triggers', [])
+            exits = room.get('exits', [])
+            exit_dirs = [e['direction'] for e in exits]
+            room_flags = room.get('room_flags', [0,0,0,0])
             print(f"  ✓ Verified: sector={room.get('sector_type')}, triggers={triggers}")
-            print(f"  ✅ ROOM UPDATE TEST PASSED")
-            return True
+            print(f"  ✓ Verified: exits={exit_dirs} (expected: [0, 4])")
+            print(f"  ✓ Verified: room_flags[0]={room_flags[0]} (expected: 6 = DARK+DEATH)")
+            if sorted(exit_dirs) == [0, 4] and room_flags[0] == 6:
+                print(f"  ✅ ROOM UPDATE TEST PASSED (exits + flags verified)")
+                return True
+            else:
+                print(f"  ❌ ROOM UPDATE TEST FAILED - exits or flags mismatch")
+                print(f"      Got: exits={exit_dirs}, room_flags[0]={room_flags[0]}")
+                return False
         else:
             print(f"  ❌ ROOM UPDATE TEST FAILED - verification failed")
             return False

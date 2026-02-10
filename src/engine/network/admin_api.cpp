@@ -21,6 +21,8 @@
 #include "administration/accounts.h"
 #include "administration/password.h"
 #include "utils/utils.h"
+#include "gameplay/core/constants.h"
+#include "gameplay/mechanics/dead_load.h"
 #include "third_party_libs/nlohmann/json.hpp"
 
 #include <string>
@@ -450,6 +452,38 @@ void admin_api_get_mob(DescriptorData *d, int mob_vnum) {
 
 	mob_obj["stats"] = stats;
 
+	// Physical characteristics
+	json physical;
+	physical["height"] = static_cast<int>(GET_HEIGHT(&mob));
+	physical["weight"] = static_cast<int>(GET_WEIGHT(&mob));
+	physical["size"] = static_cast<int>(GET_SIZE(&mob));
+	physical["extra_attack"] = static_cast<int>(mob.mob_specials.extra_attack);
+	physical["like_work"] = static_cast<int>(mob.mob_specials.like_work);
+	physical["maxfactor"] = mob.mob_specials.MaxFactor;
+	physical["remort"] = mob.get_remort();
+	mob_obj["physical"] = physical;
+
+	// Death load (items dropped on death)
+	json death_load_arr = json::array();
+	for (const auto &item : mob.dl_list) {
+		json dl_item;
+		dl_item["obj_vnum"] = item.obj_vnum;
+		dl_item["load_prob"] = item.load_prob;
+		dl_item["load_type"] = item.load_type;
+		dl_item["spec_param"] = item.spec_param;
+		death_load_arr.push_back(dl_item);
+	}
+	mob_obj["death_load"] = death_load_arr;
+
+	// NPC Roles (bitset<9>)
+	json roles = json::array();
+	for (unsigned i = 0; i < mob.get_role_bits().size(); ++i) {
+		if (mob.get_role(i)) {
+			roles.push_back(static_cast<int>(i));
+		}
+	}
+	mob_obj["roles"] = roles;
+
 	// Abilities
 	json abilities;
 	abilities["strength"] = mob.get_str();
@@ -669,6 +703,59 @@ void admin_api_update_mob(DescriptorData *d, int mob_vnum, const char *json_data
 			if (data["abilities"].contains("charisma")) {
 				mob->set_cha(data["abilities"]["charisma"].get<int>());
 			}
+		}
+
+		// === PHYSICAL CHARACTERISTICS ===
+		if (data.contains("physical") && data["physical"].is_object()) {
+			if (data["physical"].contains("height")) {
+				GET_HEIGHT(mob) = static_cast<ubyte>(data["physical"]["height"].get<int>());
+			}
+			if (data["physical"].contains("weight")) {
+				GET_WEIGHT(mob) = static_cast<ubyte>(data["physical"]["weight"].get<int>());
+			}
+			if (data["physical"].contains("size")) {
+				GET_SIZE(mob) = static_cast<sbyte>(data["physical"]["size"].get<int>());
+			}
+			if (data["physical"].contains("extra_attack")) {
+				mob->mob_specials.extra_attack = static_cast<byte>(data["physical"]["extra_attack"].get<int>());
+			}
+			if (data["physical"].contains("like_work")) {
+				mob->mob_specials.like_work = static_cast<byte>(data["physical"]["like_work"].get<int>());
+			}
+			if (data["physical"].contains("maxfactor")) {
+				mob->mob_specials.MaxFactor = data["physical"]["maxfactor"].get<int>();
+			}
+			if (data["physical"].contains("remort")) {
+				mob->set_remort(data["physical"]["remort"].get<int>());
+			}
+		}
+
+		// === DEATH LOAD ===
+		if (data.contains("death_load") && data["death_load"].is_array()) {
+			mob->dl_list.clear();
+			for (const auto &dl_item : data["death_load"]) {
+				dead_load::LoadingItem item;
+				item.obj_vnum = dl_item.value("obj_vnum", 0);
+				item.load_prob = dl_item.value("load_prob", 0);
+				item.load_type = dl_item.value("load_type", 0);
+				item.spec_param = dl_item.value("spec_param", 0);
+				if (item.obj_vnum > 0) {
+					mob->dl_list.push_back(item);
+				}
+			}
+		}
+
+		// === NPC ROLES ===
+		if (data.contains("roles") && data["roles"].is_array()) {
+			// Clear all roles first
+			CharData::role_t new_roles;
+			for (const auto &role_idx : data["roles"]) {
+				unsigned idx = role_idx.get<unsigned>();
+				if (idx < new_roles.size()) {
+					new_roles.set(idx);
+				}
+			}
+			mob->set_role(new_roles);
 		}
 
 		// === RESISTANCES ===
@@ -1005,6 +1092,19 @@ void admin_api_get_object(DescriptorData *d, int obj_vnum) {
 	}
 	
 	obj_data["wear_flags"] = obj->get_wear_flags();
+
+	// Anti flags (4 planes)
+	obj_data["anti_flags"] = json::array();
+	for (size_t i = 0; i < 4; ++i) {
+		obj_data["anti_flags"].push_back(obj->get_anti_flags().get_plane(i));
+	}
+
+	// No flags (4 planes)
+	obj_data["no_flags"] = json::array();
+	for (size_t i = 0; i < 4; ++i) {
+		obj_data["no_flags"].push_back(obj->get_no_flags().get_plane(i));
+	}
+
 	obj_data["weight"] = obj->get_weight();
 	obj_data["cost"] = obj->get_cost();
 	obj_data["rent_on"] = obj->get_rent_on();
@@ -1199,32 +1299,36 @@ void admin_api_update_object(DescriptorData *d, int obj_vnum, const char *json_d
 			}
 		}
 
-		// Extra flags
-		if (data.contains("extra_flags")) {
-			for (const auto &flag : data["extra_flags"]) {
-				obj->set_extra_flag(static_cast<EObjFlag>(flag.get<int>()));
+		// Extra flags (array of 4 plane values)
+		if (data.contains("extra_flags") && data["extra_flags"].is_array()) {
+			FlagData flags;
+			for (size_t i = 0; i < 4 && i < data["extra_flags"].size(); ++i) {
+				flags.set_plane(i, data["extra_flags"][i].get<Bitvector>());
 			}
+			obj->set_extra_flags(flags);
 		}
 
-		// Wear flags
+		// Wear flags (single integer bitmask)
 		if (data.contains("wear_flags")) {
-			for (const auto &flag : data["wear_flags"]) {
-				obj->set_wear_flag(static_cast<EWearFlag>(flag.get<int>()));
-			}
+			obj->set_wear_flags(data["wear_flags"].get<int>());
 		}
 
-		// Anti flags
-		if (data.contains("anti_flags")) {
-			for (const auto &flag : data["anti_flags"]) {
-				obj->set_anti_flag(static_cast<EAntiFlag>(flag.get<int>()));
+		// Anti flags (array of 4 plane values)
+		if (data.contains("anti_flags") && data["anti_flags"].is_array()) {
+			FlagData flags;
+			for (size_t i = 0; i < 4 && i < data["anti_flags"].size(); ++i) {
+				flags.set_plane(i, data["anti_flags"][i].get<Bitvector>());
 			}
+			obj->set_anti_flags(flags);
 		}
 
-		// No flags
-		if (data.contains("no_flags")) {
-			for (const auto &flag : data["no_flags"]) {
-				obj->set_no_flag(static_cast<ENoFlag>(flag.get<int>()));
+		// No flags (array of 4 plane values)
+		if (data.contains("no_flags") && data["no_flags"].is_array()) {
+			FlagData flags;
+			for (size_t i = 0; i < 4 && i < data["no_flags"].size(); ++i) {
+				flags.set_plane(i, data["no_flags"][i].get<Bitvector>());
 			}
+			obj->set_no_flags(flags);
 		}
 
 		// Affects
@@ -1489,6 +1593,15 @@ void admin_api_get_room(DescriptorData *d, int room_vnum) {
 	}
 	room_obj["sector_type"] = static_cast<int>(room->sector_type);
 
+	// Room flags (4 planes, matching FlagData::kPlanesNumber)
+	{
+		FlagData fl = room->read_flags();
+		room_obj["room_flags"] = json::array();
+		for (size_t i = 0; i < 4; ++i) {
+			room_obj["room_flags"].push_back(fl.get_plane(i));
+		}
+	}
+
 	// Exits
 	json exits = json::array();
 	for (int dir = 0; dir < EDirection::kMaxDirNum; ++dir) {
@@ -1579,8 +1692,16 @@ void admin_api_update_room(DescriptorData *d, int room_vnum, const char *json_da
 			room->sector_type = data["sector_type"].get<int>();
 		}
 
-		// Room flags
-		if (data.contains("flags")) {
+		// Room flags (4 planes, matching object flag pattern)
+		if (data.contains("room_flags") && data["room_flags"].is_array()) {
+			FlagData flags;
+			for (size_t i = 0; i < 4 && i < data["room_flags"].size(); ++i) {
+				flags.set_plane(i, data["room_flags"][i].get<Bitvector>());
+			}
+			room->write_flags(flags);
+		}
+		// Legacy: support old "flags" format (individual flag values) for backward compat
+		else if (data.contains("flags")) {
 			room->clear_flags();
 			for (const auto &flag : data["flags"]) {
 				room->set_flag(flag.get<int>());
@@ -1591,7 +1712,7 @@ void admin_api_update_room(DescriptorData *d, int room_vnum, const char *json_da
 		if (data.contains("exits")) {
 			// Clear all existing exits first
 			for (int dir = 0; dir < EDirection::kMaxDirNum; ++dir) {
-				room->dir_option[dir] = nullptr;
+				room->dir_option_proto[dir] = nullptr;
 			}
 
 			// Rebuild exits from JSON
@@ -1602,13 +1723,15 @@ void admin_api_update_room(DescriptorData *d, int room_vnum, const char *json_da
 				if (dir < 0 || dir >= EDirection::kMaxDirNum) continue;
 
 				// Create exit
-				room->dir_option[dir] = std::make_shared<ExitData>();
+				room->dir_option_proto[dir] = std::make_shared<ExitData>();
 
-				auto &exit = room->dir_option[dir];
+				auto &exit = room->dir_option_proto[dir];
 
 				// Update exit fields
 				if (exit_json.contains("to_room")) {
-					exit->to_room(exit_json["to_room"].get<int>());
+					int target_vnum = exit_json["to_room"].get<int>();
+					RoomRnum target_rnum = GetRoomRnum(target_vnum);
+					exit->to_room(target_rnum);
 				}
 				if (exit_json.contains("general_description")) {
 					exit->general_description = utf8_to_koi8r(exit_json["general_description"].get<std::string>());

@@ -2,308 +2,6 @@
 
 {% block title %}Редактирование моба {{ mob.vnum }} - Былины MUD{% endblock %}
 
-{% block head %}
-<style>
-    /* Override base h2 border for this page */
-    .mob-edit-header h2 {
-        border-bottom: none;
-        margin: 0;
-        padding: 0;
-        color: #2d241e;
-    }
-
-    /* Parchment section cards */
-    .parchment-section {
-        background-color: #f4ead5;
-        border: 3px double rgba(120, 53, 15, 0.2);
-        border-radius: 8px;
-        padding: 28px;
-        margin-bottom: 24px;
-        box-shadow: inset 0 1px 2px rgba(139, 69, 19, 0.08);
-    }
-
-    .parchment-section-title {
-        font-family: 'Playfair Display', Georgia, serif;
-        font-size: 20px;
-        font-weight: 600;
-        color: #2d241e;
-        margin-bottom: 20px;
-        padding-bottom: 12px;
-        border-bottom: 2px double rgba(120, 53, 15, 0.15);
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-
-    .parchment-section-title svg {
-        flex-shrink: 0;
-        color: #b45309;
-    }
-
-    /* Form layout */
-    .form-row {
-        display: grid;
-        gap: 16px;
-        margin-bottom: 16px;
-    }
-    .form-row-2 { grid-template-columns: 1fr 1fr; }
-    .form-row-3 { grid-template-columns: 1fr 1fr 1fr; }
-    .form-row-4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
-    .form-row-6 { grid-template-columns: repeat(6, 1fr); }
-    .form-row-7 { grid-template-columns: repeat(7, 1fr); }
-
-    @media (max-width: 768px) {
-        .form-row-2, .form-row-3, .form-row-4, .form-row-6, .form-row-7 {
-            grid-template-columns: 1fr;
-        }
-    }
-    @media (min-width: 769px) and (max-width: 1024px) {
-        .form-row-3, .form-row-4, .form-row-6, .form-row-7 {
-            grid-template-columns: 1fr 1fr;
-        }
-    }
-
-    /* Form field styling */
-    .field-group {
-        display: flex;
-        flex-direction: column;
-    }
-
-    .field-group label {
-        font-family: 'Inter', sans-serif;
-        font-size: 13px;
-        font-weight: 500;
-        color: #5a4d3f;
-        margin-bottom: 6px;
-        letter-spacing: 0.01em;
-    }
-
-    .field-group .field-hint {
-        font-size: 11px;
-        color: #8a7b6b;
-        font-weight: 400;
-        margin-left: 4px;
-    }
-
-    .field-group input[type="text"],
-    .field-group input[type="number"],
-    .field-group textarea,
-    .field-group select {
-        font-family: 'Inter', sans-serif;
-        font-size: 14px;
-        padding: 10px 12px;
-        border: 2px solid rgba(120, 53, 15, 0.15);
-        border-radius: 6px;
-        background-color: #fdf6e3;
-        color: #2d241e;
-        transition: all 0.15s ease;
-        width: 100%;
-        box-sizing: border-box;
-    }
-
-    .field-group input:focus,
-    .field-group textarea:focus,
-    .field-group select:focus {
-        outline: none;
-        border-color: rgba(180, 83, 9, 0.4);
-        box-shadow: 0 0 0 3px rgba(180, 83, 9, 0.1);
-    }
-
-    .field-group input:hover,
-    .field-group textarea:hover,
-    .field-group select:hover {
-        border-color: rgba(120, 53, 15, 0.25);
-    }
-
-    .field-group textarea {
-        resize: vertical;
-        min-height: 80px;
-    }
-
-    /* Dice row: NdS+B format */
-    .dice-group {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-    }
-    .dice-group input {
-        width: 70px;
-        text-align: center;
-    }
-    .dice-group .dice-sep {
-        font-family: 'Inter', sans-serif;
-        font-size: 16px;
-        font-weight: 600;
-        color: #8a7b6b;
-        user-select: none;
-    }
-
-    /* Ornamental divider */
-    .ornament-divider {
-        text-align: center;
-        margin: 28px 0;
-    }
-    .ornament-divider-inner {
-        display: inline-flex;
-        align-items: center;
-        gap: 12px;
-        color: rgba(120, 53, 15, 0.3);
-    }
-    .ornament-line {
-        width: 60px;
-        height: 2px;
-    }
-    .ornament-line-left {
-        background: linear-gradient(to right, transparent, rgba(120, 53, 15, 0.25));
-    }
-    .ornament-line-right {
-        background: linear-gradient(to left, transparent, rgba(120, 53, 15, 0.25));
-    }
-
-    /* Action buttons */
-    .btn-primary {
-        font-family: 'Inter', sans-serif;
-        font-size: 14px;
-        font-weight: 600;
-        padding: 12px 28px;
-        background-color: #b45309;
-        color: #fdf6e3;
-        border: none;
-        border-radius: 6px;
-        cursor: pointer;
-        transition: all 0.15s ease;
-        box-shadow: 0 1px 3px rgba(139, 69, 19, 0.2);
-    }
-    .btn-primary:hover {
-        background-color: #92400e;
-        box-shadow: 0 2px 8px rgba(139, 69, 19, 0.3);
-    }
-    .btn-primary:active {
-        box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.15);
-    }
-    .btn-primary:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-    }
-
-    .btn-secondary {
-        font-family: 'Inter', sans-serif;
-        font-size: 14px;
-        font-weight: 500;
-        padding: 12px 28px;
-        background-color: transparent;
-        color: #5a4d3f;
-        border: 2px solid rgba(120, 53, 15, 0.2);
-        border-radius: 6px;
-        cursor: pointer;
-        transition: all 0.15s ease;
-        text-decoration: none !important;
-    }
-    .btn-secondary:hover {
-        background-color: rgba(120, 53, 15, 0.05);
-        border-color: rgba(120, 53, 15, 0.3);
-        color: #2d241e;
-    }
-
-    /* Toast notifications */
-    .toast {
-        position: fixed;
-        top: 24px;
-        right: 24px;
-        padding: 16px 24px;
-        border-radius: 8px;
-        font-family: 'Inter', sans-serif;
-        font-size: 14px;
-        font-weight: 500;
-        z-index: 9999;
-        opacity: 0;
-        transform: translateY(-12px);
-        transition: all 0.25s ease;
-        max-width: 420px;
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
-    }
-    .toast.show {
-        opacity: 1;
-        transform: translateY(0);
-    }
-    .toast-success {
-        background-color: #f4ead5;
-        border: 2px solid rgba(120, 100, 15, 0.3);
-        color: #5a4d3f;
-    }
-    .toast-error {
-        background-color: #fef2f2;
-        border: 2px solid rgba(185, 28, 28, 0.2);
-        color: #991b1b;
-    }
-
-    /* Spinner inside button */
-    .btn-spinner {
-        display: inline-block;
-        width: 16px;
-        height: 16px;
-        border: 2px solid rgba(253, 246, 227, 0.4);
-        border-top-color: #fdf6e3;
-        border-radius: 50%;
-        animation: spin 0.6s linear infinite;
-        margin-right: 8px;
-        vertical-align: middle;
-    }
-    @keyframes spin {
-        to { transform: rotate(360deg); }
-    }
-
-    /* Collapsible sections */
-    .section-toggle {
-        cursor: pointer;
-        user-select: none;
-    }
-    .section-toggle::after {
-        content: '';
-        display: inline-block;
-        width: 8px;
-        height: 8px;
-        border-right: 2px solid #8a7b6b;
-        border-bottom: 2px solid #8a7b6b;
-        transform: rotate(-45deg);
-        transition: transform 0.15s ease;
-        margin-left: auto;
-    }
-    .section-toggle.collapsed::after {
-        transform: rotate(45deg);
-    }
-    .section-body.collapsed {
-        display: none;
-    }
-
-    /* Sticky button bar */
-    .action-bar {
-        position: sticky;
-        bottom: 0;
-        background-color: #f4ead5;
-        border: 3px double rgba(120, 53, 15, 0.2);
-        border-radius: 8px;
-        padding: 16px 28px;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        box-shadow: 0 -4px 16px rgba(139, 69, 19, 0.08);
-        z-index: 100;
-    }
-
-    /* Subsection label */
-    .subsection-label {
-        font-family: 'Inter', sans-serif;
-        font-size: 13px;
-        font-weight: 600;
-        color: #8a7b6b;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        margin: 20px 0 10px 0;
-    }
-</style>
-{% endblock %}
-
 {% block content %}
 
 <!-- Header -->
@@ -429,7 +127,8 @@
         <div class="field-group">
             <label for="desc-long">Полное описание <span class="field-hint">(при осмотре)</span></label>
             <textarea id="desc-long" name="descriptions.long_desc" rows="4"
-                      placeholder="Перед вами стоит суровый стражник в кожаных доспехах...">{{ mob.descriptions.long_desc if mob.descriptions else '' }}</textarea>
+                      placeholder="Перед вами стоит суровый стражник в кожаных доспехах..."
+                      style="resize: vertical; min-height: 80px;">{{ mob.descriptions.long_desc if mob.descriptions else '' }}</textarea>
         </div>
     </div>
 </div>
@@ -552,6 +251,60 @@
         </div>
         <div style="margin-top: 22px; font-family: 'Inter', sans-serif; font-size: 13px; color: #8a7b6b; margin-left: 8px;">
             = <span id="dmg-preview">--</span> средн. урон
+        </div>
+    </div>
+</div>
+
+<!-- ===== SECTION 3b: Physical (Физические характеристики) ===== -->
+<div class="parchment-section">
+    <div class="parchment-section-title section-toggle" onclick="toggleSection(this)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+        </svg>
+        Физические параметры
+    </div>
+
+    <div class="section-body">
+        <div class="form-row form-row-4">
+            <div class="field-group">
+                <label for="phys-height">Рост (height)</label>
+                <input type="number" id="phys-height" name="physical.height" min="0" max="255"
+                       value="{{ mob.physical.height if mob.physical else 0 }}">
+            </div>
+            <div class="field-group">
+                <label for="phys-weight">Вес (weight)</label>
+                <input type="number" id="phys-weight" name="physical.weight" min="0" max="255"
+                       value="{{ mob.physical.weight if mob.physical else 0 }}">
+            </div>
+            <div class="field-group">
+                <label for="phys-size">Размер (size) <span class="field-hint">(1-100)</span></label>
+                <input type="number" id="phys-size" name="physical.size" min="0" max="100"
+                       value="{{ mob.physical.size if mob.physical else 0 }}">
+            </div>
+            <div class="field-group">
+                <label for="phys-extra-attack">Доп. атаки (extra_attack)</label>
+                <input type="number" id="phys-extra-attack" name="physical.extra_attack" min="0" max="255"
+                       value="{{ mob.physical.extra_attack if mob.physical else 0 }}">
+            </div>
+        </div>
+
+        <div class="form-row form-row-3">
+            <div class="field-group">
+                <label for="phys-remort">Мин. реморт (remort)</label>
+                <input type="number" id="phys-remort" name="physical.remort" min="0"
+                       value="{{ mob.physical.remort if mob.physical else 0 }}">
+            </div>
+            <div class="field-group">
+                <label for="phys-like-work">Шанс умений (like_work)</label>
+                <input type="number" id="phys-like-work" name="physical.like_work" min="0" max="255"
+                       value="{{ mob.physical.like_work if mob.physical else 0 }}">
+            </div>
+            <div class="field-group">
+                <label for="phys-maxfactor">Множитель HP (maxfactor)</label>
+                <input type="number" id="phys-maxfactor" name="physical.maxfactor" min="0"
+                       value="{{ mob.physical.maxfactor if mob.physical else 0 }}">
+            </div>
         </div>
     </div>
 </div>
@@ -865,7 +618,129 @@
     </div>
 </div>
 
-<!-- ===== SECTION 10: Triggers (Триггеры) ===== -->
+<!-- ===== SECTION 10: Roles (Роли NPC) ===== -->
+<div class="parchment-section">
+    <div class="parchment-section-title section-toggle" onclick="toggleSection(this)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M16 12h-4v-4"/>
+        </svg>
+        Роли NPC (roles)
+    </div>
+
+    <div class="section-body">
+        <div class="flag-toggle-group">
+            <div class="flag-toggle-grid" id="roles-grid">
+                <button type="button" class="flag-toggle" data-role-bit="0"
+                    {% if mob.roles and 0 in mob.roles %}data-active="1"{% endif %}>
+                    <span class="flag-toggle-bit">0</span>
+                    <span class="flag-toggle-name">Босс</span>
+                </button>
+                <button type="button" class="flag-toggle" data-role-bit="1"
+                    {% if mob.roles and 1 in mob.roles %}data-active="1"{% endif %}>
+                    <span class="flag-toggle-bit">1</span>
+                    <span class="flag-toggle-name">Треш</span>
+                </button>
+                <button type="button" class="flag-toggle" data-role-bit="2"
+                    {% if mob.roles and 2 in mob.roles %}data-active="1"{% endif %}>
+                    <span class="flag-toggle-bit">2</span>
+                    <span class="flag-toggle-name">Танк</span>
+                </button>
+                <button type="button" class="flag-toggle" data-role-bit="3"
+                    {% if mob.roles and 3 in mob.roles %}data-active="1"{% endif %}>
+                    <span class="flag-toggle-bit">3</span>
+                    <span class="flag-toggle-name">Мели-дамагер</span>
+                </button>
+                <button type="button" class="flag-toggle" data-role-bit="4"
+                    {% if mob.roles and 4 in mob.roles %}data-active="1"{% endif %}>
+                    <span class="flag-toggle-bit">4</span>
+                    <span class="flag-toggle-name">Лучник</span>
+                </button>
+                <button type="button" class="flag-toggle" data-role-bit="5"
+                    {% if mob.roles and 5 in mob.roles %}data-active="1"{% endif %}>
+                    <span class="flag-toggle-bit">5</span>
+                    <span class="flag-toggle-name">Тать</span>
+                </button>
+                <button type="button" class="flag-toggle" data-role-bit="6"
+                    {% if mob.roles and 6 in mob.roles %}data-active="1"{% endif %}>
+                    <span class="flag-toggle-bit">6</span>
+                    <span class="flag-toggle-name">Маг-дамагер</span>
+                </button>
+                <button type="button" class="flag-toggle" data-role-bit="7"
+                    {% if mob.roles and 7 in mob.roles %}data-active="1"{% endif %}>
+                    <span class="flag-toggle-bit">7</span>
+                    <span class="flag-toggle-name">Маг-суппорт</span>
+                </button>
+                <button type="button" class="flag-toggle" data-role-bit="8"
+                    {% if mob.roles and 8 in mob.roles %}data-active="1"{% endif %}>
+                    <span class="flag-toggle-bit">8</span>
+                    <span class="flag-toggle-name">Хилер</span>
+                </button>
+            </div>
+        </div>
+        <div class="flag-hint" id="roles-hint">Выбрано: 0 ролей</div>
+    </div>
+</div>
+
+<!-- ===== SECTION 11: Death Load (Предметы при смерти) ===== -->
+<div class="parchment-section">
+    <div class="parchment-section-title section-toggle" onclick="toggleSection(this)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+        </svg>
+        Предметы при смерти (death_load)
+    </div>
+
+    <div class="section-body">
+        <div id="deathload-list">
+            {% if mob.death_load %}
+            {% for item in mob.death_load %}
+            <div class="dl-item" style="display: flex; align-items: flex-end; gap: 8px; margin-bottom: 10px; flex-wrap: wrap;">
+                <div class="field-group" style="width: 120px;">
+                    {% if loop.first %}<label>Vnum объекта</label>{% endif %}
+                    <input type="number" class="dl-vnum" value="{{ item.obj_vnum }}" min="0" placeholder="vnum">
+                </div>
+                <div class="field-group" style="width: 100px;">
+                    {% if loop.first %}<label>Вероятность</label>{% endif %}
+                    <input type="number" class="dl-prob" value="{{ item.load_prob }}" min="0" max="100" placeholder="%">
+                </div>
+                <div class="field-group" style="width: 120px;">
+                    {% if loop.first %}<label>Тип загрузки</label>{% endif %}
+                    <select class="dl-type">
+                        <option value="0" {{ 'selected' if item.load_type == 0 }}>0 - Обычный</option>
+                        <option value="1" {{ 'selected' if item.load_type == 1 }}>1 - Прогрессия</option>
+                        <option value="2" {{ 'selected' if item.load_type == 2 }}>2 - Скин</option>
+                    </select>
+                </div>
+                <div class="field-group" style="width: 100px;">
+                    {% if loop.first %}<label>Спец.параметр</label>{% endif %}
+                    <input type="number" class="dl-spec" value="{{ item.spec_param }}" min="0" placeholder="0">
+                </div>
+                <button type="button" class="btn-secondary" onclick="removeDLItem(this)" style="padding: 8px 12px; margin-bottom: 0; flex-shrink: 0;"
+                        title="Удалить">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </button>
+            </div>
+            {% endfor %}
+            {% endif %}
+        </div>
+
+        <div id="deathload-empty" style="display: {% if not mob.death_load %}block{% else %}none{% endif %}; font-family: 'Inter', sans-serif; font-size: 14px; color: #8a7b6b; font-style: italic; margin-bottom: 12px;">
+            Предметы не определены
+        </div>
+
+        <button type="button" class="btn-secondary" onclick="addDLItem()" style="margin-top: 8px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            Добавить предмет
+        </button>
+    </div>
+</div>
+
+<!-- ===== SECTION 12: Triggers (Триггеры) ===== -->
 <div class="parchment-section">
     <div class="parchment-section-title">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -882,7 +757,7 @@
     </div>
 </div>
 
-<!-- ===== SECTION 11: Skills / Features / Spells (Умения / Особенности / Заклинания) ===== -->
+<!-- ===== SECTION 13: Skills / Features / Spells (Умения / Особенности / Заклинания) ===== -->
 <div class="parchment-section">
     <div class="parchment-section-title section-toggle" onclick="toggleSection(this)">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -920,7 +795,7 @@
 
 <!-- Sticky action bar -->
 <div class="action-bar">
-    <button type="button" class="btn-primary" id="save-btn" onclick="saveMob()">
+    <button type="button" class="btn-primary" id="save-btn" onclick="window.saveMob()">
         Сохранить
     </button>
     <a href="{{ url_for('mobs_list', zone=mob.vnum // 100) }}" class="btn-secondary">
@@ -969,6 +844,85 @@
     });
     updateDicePreview('gold-dice-count', 'gold-dice-size', 'gold-bonus', 'gold-preview');
 })();
+
+// --- Roles toggle buttons ---
+(function() {
+    var grid = document.getElementById('roles-grid');
+    if (!grid) return;
+
+    // Initialize active states from server data
+    grid.querySelectorAll('.flag-toggle[data-active="1"]').forEach(function(btn) {
+        btn.classList.add('active');
+    });
+
+    // Click handler for role toggles
+    grid.addEventListener('click', function(e) {
+        var btn = e.target.closest('.flag-toggle');
+        if (!btn) return;
+        btn.classList.toggle('active');
+        updateRolesHint();
+    });
+
+    function updateRolesHint() {
+        var active = grid.querySelectorAll('.flag-toggle.active');
+        var names = [];
+        active.forEach(function(btn) {
+            var nameEl = btn.querySelector('.flag-toggle-name');
+            if (nameEl) names.push(nameEl.textContent);
+        });
+        var hint = document.getElementById('roles-hint');
+        if (hint) {
+            hint.textContent = names.length > 0
+                ? 'Выбрано: ' + names.join(', ')
+                : 'Выбрано: 0 ролей';
+        }
+    }
+
+    updateRolesHint();
+})();
+
+// --- Death Load dynamic list ---
+function addDLItem() {
+    var list = document.getElementById('deathload-list');
+    var html = '<div class="dl-item" style="display: flex; align-items: flex-end; gap: 8px; margin-bottom: 10px; flex-wrap: wrap;">'
+        + '<div class="field-group" style="width: 120px;">'
+        + '<input type="number" class="dl-vnum" value="" min="0" placeholder="vnum">'
+        + '</div>'
+        + '<div class="field-group" style="width: 100px;">'
+        + '<input type="number" class="dl-prob" value="" min="0" max="100" placeholder="%">'
+        + '</div>'
+        + '<div class="field-group" style="width: 120px;">'
+        + '<select class="dl-type">'
+        + '<option value="0">0 - Обычный</option>'
+        + '<option value="1">1 - Прогрессия</option>'
+        + '<option value="2">2 - Скин</option>'
+        + '</select>'
+        + '</div>'
+        + '<div class="field-group" style="width: 100px;">'
+        + '<input type="number" class="dl-spec" value="0" min="0" placeholder="0">'
+        + '</div>'
+        + '<button type="button" class="btn-secondary" onclick="removeDLItem(this)" style="padding: 8px 12px; margin-bottom: 0; flex-shrink: 0;" title="Удалить">'
+        + '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'
+        + '<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>'
+        + '</svg>'
+        + '</button>'
+        + '</div>';
+    list.insertAdjacentHTML('beforeend', html);
+    updateDLEmptyState();
+}
+
+function removeDLItem(btn) {
+    btn.closest('.dl-item').remove();
+    updateDLEmptyState();
+}
+
+function updateDLEmptyState() {
+    var list = document.getElementById('deathload-list');
+    var empty = document.getElementById('deathload-empty');
+    if (empty) {
+        empty.style.display = list.querySelectorAll('.dl-item').length === 0 ? 'block' : 'none';
+    }
+}
 
 // --- Collapsible sections ---
 function toggleSection(titleEl) {
@@ -1265,6 +1219,27 @@ function saveMob() {
         }
     });
 
+    // Collect roles (from toggle buttons)
+    var rolesArr = [];
+    document.querySelectorAll('#roles-grid .flag-toggle.active').forEach(function(btn) {
+        var bit = parseInt(btn.getAttribute('data-role-bit'));
+        if (!isNaN(bit)) rolesArr.push(bit);
+    });
+    data.roles = rolesArr;
+
+    // Collect death_load items
+    var dlItems = [];
+    document.querySelectorAll('#deathload-list .dl-item').forEach(function(row) {
+        var vnum = parseInt(row.querySelector('.dl-vnum').value) || 0;
+        var prob = parseInt(row.querySelector('.dl-prob').value) || 0;
+        var loadType = parseInt(row.querySelector('.dl-type').value) || 0;
+        var spec = parseInt(row.querySelector('.dl-spec').value) || 0;
+        if (vnum > 0) {
+            dlItems.push({obj_vnum: vnum, load_prob: prob, load_type: loadType, spec_param: spec});
+        }
+    });
+    data.death_load = dlItems;
+
     // Clean empty objects before sending
     data = cleanEmptyObjects(data);
 
@@ -1285,8 +1260,10 @@ function saveMob() {
 
         if (result.status === 'ok') {
             showToast('Моб успешно сохранен', 'success');
-            statusEl.textContent = 'Сохранено';
-            setTimeout(function() { statusEl.textContent = ''; }, 3000);
+            // Redirect to detail view
+            setTimeout(function() {
+                window.location.href = '{{ url_for("mob_detail", vnum=mob.vnum) }}';
+            }, 500);
         } else {
             showToast('Ошибка: ' + (result.error || 'Неизвестная ошибка'), 'error');
             statusEl.textContent = '';
