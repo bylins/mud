@@ -1071,8 +1071,141 @@ function cleanEmptyObjects(obj) {
     return cleaned;
 }
 
+// --- Validation functions ---
+function clearValidationErrors() {
+    document.querySelectorAll('.field-error').forEach(function(el) {
+        el.classList.remove('field-error');
+    });
+    document.querySelectorAll('.error-message').forEach(function(el) {
+        el.remove();
+    });
+    var errorsBlock = document.getElementById('validation-errors-block');
+    if (errorsBlock) {
+        errorsBlock.remove();
+    }
+}
+
+function displayValidationErrors(errors) {
+    var form = document.getElementById('mob-edit-form');
+    var errorsBlock = document.createElement('div');
+    errorsBlock.id = 'validation-errors-block';
+    errorsBlock.className = 'validation-errors';
+
+    var html = '<div style="display: flex; align-items: flex-start; gap: 12px;">';
+    html += '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 2px;">';
+    html += '<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>';
+    html += '</svg>';
+    html += '<div style="flex: 1;">';
+    html += '<div style="font-family: \'Inter\', sans-serif; font-weight: 600; font-size: 14px; color: #991b1b; margin-bottom: 8px;">Исправьте следующие ошибки:</div>';
+    html += '<ul style="margin: 0; padding-left: 20px; font-family: \'Inter\', sans-serif; font-size: 13px; color: #dc2626; line-height: 1.6;">';
+
+    var displayErrors = errors.slice(0, 5);
+    displayErrors.forEach(function(error) {
+        html += '<li>' + error.message + '</li>';
+    });
+
+    if (errors.length > 5) {
+        html += '<li>И ещё ' + (errors.length - 5) + ' ошибок...</li>';
+    }
+
+    html += '</ul></div></div>';
+    errorsBlock.innerHTML = html;
+
+    form.insertBefore(errorsBlock, form.firstChild);
+
+    errors.forEach(function(error) {
+        var field = error.field;
+        field.classList.add('field-error');
+
+        var errorMsg = document.createElement('div');
+        errorMsg.className = 'error-message';
+        errorMsg.textContent = error.message;
+        field.parentNode.appendChild(errorMsg);
+    });
+
+    if (errors.length > 0) {
+        errors[0].field.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        errors[0].field.focus();
+    }
+}
+
+function validateDice(prefix, label) {
+    var countEl = document.querySelector('[name="' + prefix + '.count"]');
+    var sizeEl = document.querySelector('[name="' + prefix + '.size"]');
+    var bonusEl = document.querySelector('[name="' + prefix + '.bonus"]');
+
+    var countVal = countEl ? countEl.value.trim() : '';
+    var sizeVal = sizeEl ? sizeEl.value.trim() : '';
+    var bonusVal = bonusEl ? bonusEl.value.trim() : '';
+
+    var hasAny = countVal !== '' || sizeVal !== '' || bonusVal !== '';
+    var hasAll = countVal !== '' && sizeVal !== '' && bonusVal !== '';
+
+    if (hasAny && !hasAll) {
+        var errors = [];
+        if (countVal === '' && countEl) {
+            errors.push({ field: countEl, message: label + ': укажите количество кубиков (count)' });
+        }
+        if (sizeVal === '' && sizeEl) {
+            errors.push({ field: sizeEl, message: label + ': укажите размер кубика (size)' });
+        }
+        if (bonusVal === '' && bonusEl) {
+            errors.push({ field: bonusEl, message: label + ': укажите бонус (bonus)' });
+        }
+        return errors;
+    }
+
+    return [];
+}
+
+function validateForm() {
+    var errors = [];
+    clearValidationErrors();
+
+    var aliasesEl = document.querySelector('[name="aliases"]');
+    if (!aliasesEl.value.trim()) {
+        errors.push({
+            field: aliasesEl,
+            message: 'Алиасы (aliases) обязательны'
+        });
+    }
+
+    var shortDescEl = document.querySelector('[name="short_desc"]');
+    if (!shortDescEl.value.trim()) {
+        errors.push({
+            field: shortDescEl,
+            message: 'Короткое описание (short_desc) обязательно'
+        });
+    }
+
+    var levelEl = document.querySelector('[name="level"]');
+    var levelVal = parseInt(levelEl.value);
+    if (isNaN(levelVal) || levelVal < 0) {
+        errors.push({
+            field: levelEl,
+            message: 'Уровень (level) должен быть >= 0'
+        });
+    }
+
+    errors = errors.concat(validateDice('hit', 'Hit'));
+    errors = errors.concat(validateDice('damage', 'Damage'));
+    errors = errors.concat(validateDice('gold', 'Gold'));
+
+    if (errors.length > 0) {
+        displayValidationErrors(errors);
+        return false;
+    }
+
+    return true;
+}
+
 // --- Main save function ---
 function saveMob() {
+    if (!validateForm()) {
+        showToast('Форма содержит ошибки', 'error');
+        return;
+    }
+
     var btn = document.getElementById('save-btn');
     var statusEl = document.getElementById('save-status');
 

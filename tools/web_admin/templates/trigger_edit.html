@@ -483,8 +483,116 @@
     // Save icon SVG for button restore
     var SAVE_ICON = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Сохранить';
 
+    // --- Validation functions ---
+    function clearValidationErrors() {
+        document.querySelectorAll('.field-error').forEach(function(el) {
+            el.classList.remove('field-error');
+        });
+        document.querySelectorAll('.error-message').forEach(function(el) {
+            el.remove();
+        });
+        var errorsBlock = document.getElementById('validation-errors-block');
+        if (errorsBlock) {
+            errorsBlock.remove();
+        }
+    }
+
+    function displayValidationErrors(errors) {
+        var form = document.getElementById('trigger-edit-form');
+        var errorsBlock = document.createElement('div');
+        errorsBlock.id = 'validation-errors-block';
+        errorsBlock.className = 'validation-errors';
+
+        var html = '<div style="display: flex; align-items: flex-start; gap: 12px;">';
+        html += '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 2px;">';
+        html += '<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>';
+        html += '</svg>';
+        html += '<div style="flex: 1;">';
+        html += '<div style="font-family: \'Inter\', sans-serif; font-weight: 600; font-size: 14px; color: #991b1b; margin-bottom: 8px;">Исправьте следующие ошибки:</div>';
+        html += '<ul style="margin: 0; padding-left: 20px; font-family: \'Inter\', sans-serif; font-size: 13px; color: #dc2626; line-height: 1.6;">';
+
+        var displayErrors = errors.slice(0, 5);
+        displayErrors.forEach(function(error) {
+            html += '<li>' + error.message + '</li>';
+        });
+
+        if (errors.length > 5) {
+            html += '<li>И ещё ' + (errors.length - 5) + ' ошибок...</li>';
+        }
+
+        html += '</ul></div></div>';
+        errorsBlock.innerHTML = html;
+
+        form.insertBefore(errorsBlock, form.firstChild);
+
+        errors.forEach(function(error) {
+            var field = error.field;
+            field.classList.add('field-error');
+
+            var errorMsg = document.createElement('div');
+            errorMsg.className = 'error-message';
+            errorMsg.textContent = error.message;
+            field.parentNode.appendChild(errorMsg);
+        });
+
+        if (errors.length > 0) {
+            errors[0].field.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            errors[0].field.focus();
+        }
+    }
+
+    function validateForm() {
+        var errors = [];
+        clearValidationErrors();
+
+        var nameEl = document.querySelector('[name="name"]');
+        if (!nameEl.value.trim()) {
+            errors.push({
+                field: nameEl,
+                message: 'Название триггера (name) обязательно'
+            });
+        }
+
+        var attachTypeEl = document.querySelector('[name="attach_type"]');
+        if (!attachTypeEl.value.trim()) {
+            errors.push({
+                field: attachTypeEl,
+                message: 'Тип прикрепления (attach_type) обязателен'
+            });
+        }
+
+        var triggerTypeEl = document.querySelector('[name="trigger_type"]');
+        var triggerTypeVal = parseInt(triggerTypeEl.value);
+        if (isNaN(triggerTypeVal) || triggerTypeVal <= 0) {
+            errors.push({
+                field: triggerTypeEl,
+                message: 'Выберите хотя бы один тип триггера (trigger_type)'
+            });
+        }
+
+        var scriptEl = document.querySelector('[name="script"]');
+        if (!scriptEl.value.trim()) {
+            errors.push({
+                field: scriptEl,
+                message: 'Тело скрипта (script) обязательно'
+            });
+        }
+
+        if (errors.length > 0) {
+            displayValidationErrors(errors);
+            return false;
+        }
+
+        return true;
+    }
+
     // --- Main save function ---
     window.saveTrigger = function() {
+        if (!validateForm()) {
+            showToast('Форма содержит ошибки', 'error');
+            return;
+        }
+
         var btn = document.getElementById('save-btn');
         var statusEl = document.getElementById('save-status');
 
