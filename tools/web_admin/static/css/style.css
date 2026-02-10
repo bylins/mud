@@ -960,7 +960,20 @@ button:not(.btn-primary):not(.btn-secondary):not(.section-toggle):not(.trigger-t
 }
 
 /* ============================================================
-   24. ERROR PAGE
+   24. EXIT CARD DELETE BUTTON (room edit)
+   ============================================================ */
+.exit-card .btn-secondary[title="Удалить выход"]:hover {
+    background-color: rgba(185, 28, 28, 0.06);
+    border-color: rgba(185, 28, 28, 0.35);
+    color: #991b1b;
+}
+
+.exit-card .btn-secondary[title="Удалить выход"]:active {
+    box-shadow: inset 0 1px 3px rgba(185, 28, 28, 0.15);
+}
+
+/* ============================================================
+   25. ERROR PAGE
    ============================================================ */
 .error-page-card {
     background-color: rgba(185, 28, 28, 0.04);
@@ -972,7 +985,7 @@ button:not(.btn-primary):not(.btn-secondary):not(.section-toggle):not(.trigger-t
 }
 
 /* ============================================================
-   25. RESPONSIVE
+   26. RESPONSIVE
    ============================================================ */
 @media (max-width: 768px) {
     .container {
