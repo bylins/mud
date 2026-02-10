@@ -1589,16 +1589,20 @@ void admin_api_update_room(DescriptorData *d, int room_vnum, const char *json_da
 
 		// Exits (array format: [{direction: 0, ...}, ...]) - internal format (numbers)
 		if (data.contains("exits")) {
+			// Clear all existing exits first
+			for (int dir = 0; dir < EDirection::kMaxDirNum; ++dir) {
+				room->dir_option[dir] = nullptr;
+			}
+
+			// Rebuild exits from JSON
 			for (const auto &exit_json : data["exits"]) {
 				// Parse direction as number (0-5)
 				if (!exit_json.contains("direction")) continue;
 				int dir = exit_json["direction"].get<int>();
 				if (dir < 0 || dir >= EDirection::kMaxDirNum) continue;
 
-				// Create exit if doesn't exist
-				if (!room->dir_option[dir]) {
-					room->dir_option[dir] = std::make_shared<ExitData>();
-				}
+				// Create exit
+				room->dir_option[dir] = std::make_shared<ExitData>();
 
 				auto &exit = room->dir_option[dir];
 
