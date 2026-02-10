@@ -405,6 +405,151 @@
             // Initial render
             renderTags();
         }
+
+        /**
+         * Create an autocomplete component for entity references
+         * @param {string} inputId - ID of the input element
+         * @param {Object} options - Configuration options
+         * @param {string} options.entityType - Type of entity to search (mobs, objects, rooms)
+         * @param {number} options.zone - Optional zone filter
+         * @param {Function} options.onSelect - Callback when item is selected
+         */
+        function createAutocomplete(inputId, options = {}) {
+            const input = document.getElementById(inputId);
+            if (!input) return;
+
+            const entityType = options.entityType || 'mobs';
+            const zone = options.zone || null;
+            const onSelect = options.onSelect || null;
+
+            // Wrap input in container
+            const wrapper = document.createElement('div');
+            wrapper.className = 'autocomplete-container';
+            input.parentNode.insertBefore(wrapper, input);
+            wrapper.appendChild(input);
+
+            // Create dropdown
+            const dropdown = document.createElement('div');
+            dropdown.className = 'autocomplete-dropdown';
+            wrapper.appendChild(dropdown);
+
+            let selectedIndex = -1;
+            let results = [];
+            let searchTimeout = null;
+
+            // Fetch results
+            async function fetchResults(query) {
+                if (!query.trim()) {
+                    dropdown.classList.remove('active');
+                    return;
+                }
+
+                dropdown.innerHTML = '<div class="autocomplete-loading">Поиск...</div>';
+                dropdown.classList.add('active');
+
+                try {
+                    let url = `/api/search/${entityType}?q=${encodeURIComponent(query)}`;
+                    if (zone) url += `&zone=${zone}`;
+
+                    const response = await fetch(url);
+                    const data = await response.json();
+
+                    if (data.error) {
+                        dropdown.innerHTML = `<div class="autocomplete-empty">Ошибка: ${data.error}</div>`;
+                        return;
+                    }
+
+                    results = data.results || [];
+
+                    if (results.length === 0) {
+                        dropdown.innerHTML = '<div class="autocomplete-empty">Ничего не найдено</div>';
+                        return;
+                    }
+
+                    renderResults();
+                } catch (error) {
+                    console.error('Autocomplete error:', error);
+                    dropdown.innerHTML = '<div class="autocomplete-empty">Ошибка загрузки</div>';
+                }
+            }
+
+            // Render results
+            function renderResults() {
+                dropdown.innerHTML = '';
+                selectedIndex = -1;
+
+                results.forEach((item, index) => {
+                    const div = document.createElement('div');
+                    div.className = 'autocomplete-item';
+                    div.innerHTML = `
+                        <span class="autocomplete-item-vnum">#${item.vnum}</span>
+                        <span class="autocomplete-item-name">${item.name}</span>
+                    `;
+                    div.onclick = () => selectItem(item);
+                    dropdown.appendChild(div);
+                });
+            }
+
+            // Select item
+            function selectItem(item) {
+                input.value = item.vnum;
+                dropdown.classList.remove('active');
+                if (onSelect) onSelect(item);
+            }
+
+            // Handle keyboard navigation
+            input.addEventListener('keydown', (e) => {
+                const items = dropdown.querySelectorAll('.autocomplete-item');
+
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    if (selectedIndex < items.length - 1) {
+                        selectedIndex++;
+                        updateSelection(items);
+                    }
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    if (selectedIndex > 0) {
+                        selectedIndex--;
+                        updateSelection(items);
+                    }
+                } else if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (selectedIndex >= 0 && results[selectedIndex]) {
+                        selectItem(results[selectedIndex]);
+                    }
+                } else if (e.key === 'Escape') {
+                    dropdown.classList.remove('active');
+                }
+            });
+
+            // Update visual selection
+            function updateSelection(items) {
+                items.forEach((item, index) => {
+                    if (index === selectedIndex) {
+                        item.classList.add('selected');
+                        item.scrollIntoView({ block: 'nearest' });
+                    } else {
+                        item.classList.remove('selected');
+                    }
+                });
+            }
+
+            // Handle input
+            input.addEventListener('input', () => {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    fetchResults(input.value);
+                }, 300); // Debounce 300ms
+            });
+
+            // Close dropdown on outside click
+            document.addEventListener('click', (e) => {
+                if (!wrapper.contains(e.target)) {
+                    dropdown.classList.remove('active');
+                }
+            });
+        }
     </script>
 
     {% block scripts %}{% endblock %}

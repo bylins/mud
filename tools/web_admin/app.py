@@ -470,6 +470,118 @@ def api_zone(vnum):
     return jsonify(mud.get_zone(vnum))
 
 
+# ===== API ENDPOINTS FOR AUTOCOMPLETE =====
+
+@app.route('/api/search/mobs')
+@login_required
+def api_search_mobs():
+    """Search mobs for autocomplete"""
+    query = request.args.get('q', '').lower()
+    zone = request.args.get('zone', type=int)
+    limit = request.args.get('limit', 10, type=int)
+
+    mud = get_mud_client()
+    if not mud:
+        return jsonify({'error': 'Not authenticated'}), 401
+
+    # Get all mobs for zone or all zones
+    mobs = mud.list_mobs(zone if zone else None)
+    if mobs is None:
+        return jsonify({'error': 'Failed to fetch mobs'}), 500
+
+    # Filter by query
+    results = []
+    for mob in mobs:
+        vnum = mob.get('vnum', 0)
+        name = mob.get('name', '')
+        aliases = mob.get('aliases', '')
+
+        # Match by vnum, name, or aliases
+        if (query in str(vnum) or
+            query in name.lower() or
+            query in aliases.lower()):
+            results.append({
+                'vnum': vnum,
+                'name': name,
+                'aliases': aliases
+            })
+
+        if len(results) >= limit:
+            break
+
+    return jsonify({'results': results})
+
+
+@app.route('/api/search/objects')
+@login_required
+def api_search_objects():
+    """Search objects for autocomplete"""
+    query = request.args.get('q', '').lower()
+    zone = request.args.get('zone', type=int)
+    limit = request.args.get('limit', 10, type=int)
+
+    mud = get_mud_client()
+    if not mud:
+        return jsonify({'error': 'Not authenticated'}), 401
+
+    objects = mud.list_objects(zone if zone else None)
+    if objects is None:
+        return jsonify({'error': 'Failed to fetch objects'}), 500
+
+    results = []
+    for obj in objects:
+        vnum = obj.get('vnum', 0)
+        name = obj.get('name', '')
+        aliases = obj.get('aliases', '')
+
+        if (query in str(vnum) or
+            query in name.lower() or
+            query in aliases.lower()):
+            results.append({
+                'vnum': vnum,
+                'name': name,
+                'aliases': aliases
+            })
+
+        if len(results) >= limit:
+            break
+
+    return jsonify({'results': results})
+
+
+@app.route('/api/search/rooms')
+@login_required
+def api_search_rooms():
+    """Search rooms for autocomplete"""
+    query = request.args.get('q', '').lower()
+    zone = request.args.get('zone', type=int)
+    limit = request.args.get('limit', 10, type=int)
+
+    mud = get_mud_client()
+    if not mud:
+        return jsonify({'error': 'Not authenticated'}), 401
+
+    rooms = mud.list_rooms(zone if zone else None)
+    if rooms is None:
+        return jsonify({'error': 'Failed to fetch rooms'}), 500
+
+    results = []
+    for room in rooms:
+        vnum = room.get('vnum', 0)
+        name = room.get('name', '')
+
+        if query in str(vnum) or query in name.lower():
+            results.append({
+                'vnum': vnum,
+                'name': name
+            })
+
+        if len(results) >= limit:
+            break
+
+    return jsonify({'results': results})
+
+
 if __name__ == '__main__':
     # Get host and port from environment or use defaults
     HOST = os.environ.get('FLASK_HOST', '127.0.0.1')

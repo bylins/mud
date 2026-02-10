@@ -1697,3 +1697,82 @@ table th.sortable.sorted-desc::after {
     color: #8a7b6b;
     margin-top: 4px;
 }
+
+/* ============================================================
+   AUTOCOMPLETE COMPONENT
+   ============================================================ */
+
+.autocomplete-container {
+    position: relative;
+}
+
+.autocomplete-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    margin-top: 4px;
+    background: #ffffff;
+    border: 2px solid #b45309;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(45, 36, 30, 0.15);
+    max-height: 300px;
+    overflow-y: auto;
+    z-index: 1000;
+    display: none;
+}
+
+.autocomplete-dropdown.active {
+    display: block;
+}
+
+.autocomplete-item {
+    padding: 10px 12px;
+    cursor: pointer;
+    border-bottom: 1px solid rgba(139, 69, 19, 0.1);
+    transition: background 0.15s ease;
+}
+
+.autocomplete-item:last-child {
+    border-bottom: none;
+}
+
+.autocomplete-item:hover,
+.autocomplete-item.selected {
+    background: linear-gradient(135deg, #f5ebe1 0%, #ede0d4 100%);
+}
+
+.autocomplete-item-vnum {
+    display: inline-block;
+    padding: 2px 6px;
+    background: linear-gradient(135deg, #d4c49a 0%, #b0a48e 100%);
+    border-radius: 3px;
+    font-family: 'Inter', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    color: #2d241e;
+    margin-right: 8px;
+}
+
+.autocomplete-item-name {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    color: #2d241e;
+}
+
+.autocomplete-loading {
+    padding: 10px 12px;
+    text-align: center;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    color: #8a7b6b;
+}
+
+.autocomplete-empty {
+    padding: 10px 12px;
+    text-align: center;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    color: #8a7b6b;
+    font-style: italic;
+}

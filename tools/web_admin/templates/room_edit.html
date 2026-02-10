@@ -597,7 +597,19 @@
 
         // Focus on the to_room field of the new card
         var newInput = document.getElementById('exit-' + dir + '-to-room');
-        if (newInput) newInput.focus();
+        if (newInput) {
+            newInput.focus();
+            // Add autocomplete to to_room field
+            createAutocomplete('exit-' + dir + '-to-room', {
+                entityType: 'rooms',
+                zone: {{ room.vnum // 100 if room and room.vnum else 'null' }}
+            });
+            // Add autocomplete to key field
+            createAutocomplete('exit-' + dir + '-key', {
+                entityType: 'objects',
+                zone: {{ room.vnum // 100 if room and room.vnum else 'null' }}
+            });
+        }
     };
 
     window.removeExit = function(btn) {
@@ -967,6 +979,27 @@ function addColorOverlay(inputId) {
 document.addEventListener('DOMContentLoaded', function() {
     addColorOverlay('name');
     addColorOverlay('description');
+
+    // Initialize autocomplete for existing exits
+    {% for exit in room.exits|default([]) %}
+    {% if exit.direction is defined %}
+    {% set dir_idx = exit.direction %}
+    var toRoomField{{ dir_idx }} = document.getElementById('exit-{{ dir_idx }}-to-room');
+    if (toRoomField{{ dir_idx }}) {
+        createAutocomplete('exit-{{ dir_idx }}-to-room', {
+            entityType: 'rooms',
+            zone: {{ room.vnum // 100 if room and room.vnum else 'null' }}
+        });
+    }
+    var keyField{{ dir_idx }} = document.getElementById('exit-{{ dir_idx }}-key');
+    if (keyField{{ dir_idx }}) {
+        createAutocomplete('exit-{{ dir_idx }}-key', {
+            entityType: 'objects',
+            zone: {{ room.vnum // 100 if room and room.vnum else 'null' }}
+        });
+    }
+    {% endif %}
+    {% endfor %}
 });
 </script>
 <style>
