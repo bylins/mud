@@ -535,11 +535,43 @@ void admin_api_get_mob(DescriptorData *d, int mob_vnum) {
 
 	mob_obj["behavior"] = behavior;
 
-	// Flags
+	// Flags - extract all set flags from FlagData structures
 	json flags;
+
+	// MOB_FLAGS from char_specials.saved.act
 	flags["mob_flags"] = json::array();
+	for (size_t plane = 0; plane < 4; ++plane) {
+		Bitvector plane_bits = mob.char_specials.saved.act.get_plane(plane);
+		for (size_t bit = 0; bit < 30; ++bit) {
+			if (plane_bits & (1 << bit)) {
+				// Flag index = (plane << 30) | (1 << bit)
+				flags["mob_flags"].push_back((plane << 30) | (1 << bit));
+			}
+		}
+	}
+
+	// AFFECT_FLAGS from char_specials.saved.affected_by
 	flags["affect_flags"] = json::array();
+	for (size_t plane = 0; plane < 4; ++plane) {
+		Bitvector plane_bits = mob.char_specials.saved.affected_by.get_plane(plane);
+		for (size_t bit = 0; bit < 30; ++bit) {
+			if (plane_bits & (1 << bit)) {
+				flags["affect_flags"].push_back((plane << 30) | (1 << bit));
+			}
+		}
+	}
+
+	// NPC_FLAGS from mob_specials.npc_flags
 	flags["npc_flags"] = json::array();
+	for (size_t plane = 0; plane < 4; ++plane) {
+		Bitvector plane_bits = mob.mob_specials.npc_flags.get_plane(plane);
+		for (size_t bit = 0; bit < 30; ++bit) {
+			if (plane_bits & (1 << bit)) {
+				flags["npc_flags"].push_back((plane << 30) | (1 << bit));
+			}
+		}
+	}
+
 	mob_obj["flags"] = flags;
 
 	// Triggers
@@ -1956,7 +1988,13 @@ void admin_api_get_players(DescriptorData *d) {
 	// Iterate through all descriptors
 	for (DescriptorData *desc = descriptor_list; desc; desc = desc->next) {
 		// Skip non-playing connections (login screen, etc.)
-		if (desc->state != EConState::kPlaying) {
+		// Include both playing and OLC states
+		bool is_playing = (desc->state == EConState::kPlaying);
+		bool is_olc = (desc->state == EConState::kOedit || desc->state == EConState::kRedit ||
+		               desc->state == EConState::kZedit || desc->state == EConState::kMedit ||
+		               desc->state == EConState::kTrigedit || desc->state == EConState::kMredit ||
+		               desc->state == EConState::kSedit);
+		if (!is_playing && !is_olc) {
 			continue;
 		}
 
