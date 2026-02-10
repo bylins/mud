@@ -96,7 +96,78 @@
 
             <div class="detail-field">
                 <div class="detail-field-label">Тип триггера (trigger type)</div>
-                <div class="detail-field-value">{{ trig.trigger_type if trig.trigger_type is defined else '--' }}</div>
+                <div class="detail-field-value">
+                    <div style="margin-bottom: 6px;">
+                        <strong>0x{{ '%X' % trig.trigger_type }}</strong>
+                        <span style="color: #8a7b6b;">(dec: {{ trig.trigger_type }})</span>
+                    </div>
+                    <div style="display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; font-family: 'Inter', sans-serif; font-size: 13px; line-height: 1.8; margin-top: 8px;">
+                        {# Decode flags based on attach_type #}
+                        {% if trig.attach_type == 0 %}{# MOB #}
+                            {% if trig.trigger_type & 1 %}<span style="text-align: right; color: #b45309; font-family: 'Courier New', monospace; font-weight: 600;">0x1</span><span style="color: #2d241e;">Random Global</span>{% endif %}
+                            {% if trig.trigger_type & 2 %}<span style="text-align: right; color: #b45309; font-family: 'Courier New', monospace; font-weight: 600;">0x2</span><span style="color: #2d241e;">Random</span>{% endif %}
+                            {% if trig.trigger_type & 4 %}<span style="text-align: right; color: #b45309; font-family: 'Courier New', monospace; font-weight: 600;">0x4</span><span style="color: #2d241e;">Command</span>{% endif %}
+                            {% if trig.trigger_type & 8 %}<span style="text-align: right; color: #b45309; font-family: 'Courier New', monospace; font-weight: 600;">0x8</span><span style="color: #2d241e;">Speech</span>{% endif %}
+                            {% if trig.trigger_type & 16 %}<span style="text-align: right; color: #b45309; font-family: 'Courier New', monospace; font-weight: 600;">0x10</span><span style="color: #2d241e;">Act</span>{% endif %}
+                            {% if trig.trigger_type & 32 %}<span style="text-align: right; color: #b45309; font-family: 'Courier New', monospace; font-weight: 600;">0x20</span><span style="color: #2d241e;">Death</span>{% endif %}
+                            {% if trig.trigger_type & 64 %}<span style="text-align: right; color: #b45309; font-family: 'Courier New', monospace; font-weight: 600;">0x40</span><span style="color: #2d241e;">Greet</span>{% endif %}
+                            {% if trig.trigger_type & 128 %}<span style="text-align: right; color: #b45309; font-family: 'Courier New', monospace; font-weight: 600;">0x80</span><span style="color: #2d241e;">Greet All</span>{% endif %}
+                            {% if trig.trigger_type & 256 %}<span style="text-align: right; color: #b45309; font-family: 'Courier New', monospace; font-weight: 600;">0x100</span><span style="color: #2d241e;">Entry</span>{% endif %}
+                            {% if trig.trigger_type & 512 %}<span style="text-align: right; color: #b45309; font-family: 'Courier New', monospace; font-weight: 600;">0x200</span><span style="color: #2d241e;">Receive</span>{% endif %}
+                            {% if trig.trigger_type & 1024 %}<span style="text-align: right; color: #b45309; font-family: 'Courier New', monospace; font-weight: 600;">0x400</span><span style="color: #2d241e;">Fight</span>{% endif %}
+                            {% if trig.trigger_type & 2048 %}<span style="text-align: right; color: #b45309; font-family: 'Courier New', monospace; font-weight: 600;">0x800</span><span style="color: #2d241e;">Hit Percent</span>{% endif %}
+                            {% if trig.trigger_type & 4096 %}<span style="text-align: right; color: #b45309; font-family: 'Courier New', monospace; font-weight: 600;">0x1000</span><span style="color: #2d241e;">Bribe</span>{% endif %}
+                            {% if trig.trigger_type & 8192 %}<span style="text-align: right; color: #b45309; font-family: 'Courier New', monospace; font-weight: 600;">0x2000</span><span style="color: #2d241e;">Load</span>{% endif %}
+                            {% if trig.trigger_type & 16384 %}<span style="text-align: right; color: #b45309; font-family: 'Courier New', monospace; font-weight: 600;">0x4000</span><span style="color: #2d241e;">Kill</span>{% endif %}
+                            {% if trig.trigger_type & 32768 %}<span style="text-align: right; color: #b45309; font-family: 'Courier New', monospace; font-weight: 600;">0x8000</span><span style="color: #2d241e;">Damage</span>{% endif %}
+                            {% if trig.trigger_type & 65536 %}<span style="text-align: right; color: #b45309; font-family: 'Courier New', monospace; font-weight: 600;">0x10000</span><span style="color: #2d241e;">Greet PC</span>{% endif %}
+                            {% if trig.trigger_type & 131072 %}<span style="text-align: right; color: #b45309; font-family: 'Courier New', monospace; font-weight: 600;">0x20000</span><span style="color: #2d241e;">Greet PC All</span>{% endif %}
+                            {% if trig.trigger_type & 262144 %}<span style="text-align: right; color: #b45309; font-family: 'Courier New', monospace; font-weight: 600;">0x40000</span><span style="color: #2d241e;">Income</span>{% endif %}
+                            {% if trig.trigger_type & 524288 %}<span style="text-align: right; color: #b45309; font-family: 'Courier New', monospace; font-weight: 600;">0x80000</span><span style="color: #2d241e;">Income PC</span>{% endif %}
+                            {% if trig.trigger_type & 1048576 %}<span style="text-align: right; color: #b45309; font-family: 'Courier New', monospace; font-weight: 600;">0x100000</span><span style="color: #2d241e;">Start Fight</span>{% endif %}
+                            {% if trig.trigger_type & 2097152 %}<span style="text-align: right; color: #b45309; font-family: 'Courier New', monospace; font-weight: 600;">0x200000</span><span style="color: #2d241e;">Round Num</span>{% endif %}
+                            {% if trig.trigger_type & 4194304 %}<span style="text-align: right; color: #b45309; font-family: 'Courier New', monospace; font-weight: 600;">0x400000</span><span style="color: #2d241e;">Cast</span>{% endif %}
+                            {% if trig.trigger_type & 8388608 %}<span style="text-align: right; color: #b45309; font-family: 'Courier New', monospace; font-weight: 600;">0x800000</span><span style="color: #2d241e;">Timechange</span>{% endif %}
+                        {% elif trig.attach_type == 1 %}{# OBJ #}
+                            {% if trig.trigger_type & 1 %}<span style="text-align: right; color: #b45309; font-family: 'Courier New', monospace; font-weight: 600;">0x1</span><span style="color: #2d241e;">Random Global</span>{% endif %}
+                            {% if trig.trigger_type & 2 %}<span style="text-align: right; color: #b45309; font-family: 'Courier New', monospace; font-weight: 600;">0x2</span><span style="color: #2d241e;">Random</span>{% endif %}
+                            {% if trig.trigger_type & 4 %}<span style="text-align: right; color: #b45309; font-family: 'Courier New', monospace; font-weight: 600;">0x4</span><span style="color: #2d241e;">Command</span>{% endif %}
+                            {% if trig.trigger_type & 8 %}<span style="text-align: right; color: #b45309; font-family: 'Courier New', monospace; font-weight: 600;">0x8</span><span style="color: #2d241e;">Purge</span>{% endif %}
+                            {% if trig.trigger_type & 16 %}<span style="text-align: right; color: #b45309; font-family: 'Courier New', monospace; font-weight: 600;">0x10</span><span style="color: #2d241e;">Fight</span>{% endif %}
+                            {% if trig.trigger_type & 32 %}<span style="text-align: right; color: #b45309; font-family: 'Courier New', monospace; font-weight: 600;">0x20</span><span style="color: #2d241e;">Timer</span>{% endif %}
+                            {% if trig.trigger_type & 64 %}<span style="text-align: right; color: #b45309; font-family: 'Courier New', monospace; font-weight: 600;">0x40</span><span style="color: #2d241e;">Get</span>{% endif %}
+                            {% if trig.trigger_type & 128 %}<span style="text-align: right; color: #b45309; font-family: 'Courier New', monospace; font-weight: 600;">0x80</span><span style="color: #2d241e;">Drop</span>{% endif %}
+                            {% if trig.trigger_type & 256 %}<span style="text-align: right; color: #b45309; font-family: 'Courier New', monospace; font-weight: 600;">0x100</span><span style="color: #2d241e;">Give</span>{% endif %}
+                            {% if trig.trigger_type & 512 %}<span style="text-align: right; color: #b45309; font-family: 'Courier New', monospace; font-weight: 600;">0x200</span><span style="color: #2d241e;">Wear</span>{% endif %}
+                            {% if trig.trigger_type & 2048 %}<span style="text-align: right; color: #b45309; font-family: 'Courier New', monospace; font-weight: 600;">0x800</span><span style="color: #2d241e;">Remove</span>{% endif %}
+                            {% if trig.trigger_type & 8192 %}<span style="text-align: right; color: #b45309; font-family: 'Courier New', monospace; font-weight: 600;">0x2000</span><span style="color: #2d241e;">Load</span>{% endif %}
+                            {% if trig.trigger_type & 16384 %}<span style="text-align: right; color: #b45309; font-family: 'Courier New', monospace; font-weight: 600;">0x4000</span><span style="color: #2d241e;">Unlock</span>{% endif %}
+                            {% if trig.trigger_type & 32768 %}<span style="text-align: right; color: #b45309; font-family: 'Courier New', monospace; font-weight: 600;">0x8000</span><span style="color: #2d241e;">Open</span>{% endif %}
+                            {% if trig.trigger_type & 65536 %}<span style="text-align: right; color: #b45309; font-family: 'Courier New', monospace; font-weight: 600;">0x10000</span><span style="color: #2d241e;">Lock</span>{% endif %}
+                            {% if trig.trigger_type & 131072 %}<span style="text-align: right; color: #b45309; font-family: 'Courier New', monospace; font-weight: 600;">0x20000</span><span style="color: #2d241e;">Close</span>{% endif %}
+                            {% if trig.trigger_type & 262144 %}<span style="text-align: right; color: #b45309; font-family: 'Courier New', monospace; font-weight: 600;">0x40000</span><span style="color: #2d241e;">Pick</span>{% endif %}
+                            {% if trig.trigger_type & 524288 %}<span style="text-align: right; color: #b45309; font-family: 'Courier New', monospace; font-weight: 600;">0x80000</span><span style="color: #2d241e;">Greet All PC</span>{% endif %}
+                            {% if trig.trigger_type & 1048576 %}<span style="text-align: right; color: #b45309; font-family: 'Courier New', monospace; font-weight: 600;">0x100000</span><span style="color: #2d241e;">Timechange</span>{% endif %}
+                            {% if trig.trigger_type & 2097152 %}<span style="text-align: right; color: #b45309; font-family: 'Courier New', monospace; font-weight: 600;">0x200000</span><span style="color: #2d241e;">Put</span>{% endif %}
+                        {% elif trig.attach_type == 2 %}{# WLD #}
+                            {% if trig.trigger_type & 1 %}<span style="text-align: right; color: #b45309; font-family: 'Courier New', monospace; font-weight: 600;">0x1</span><span style="color: #2d241e;">Random Global</span>{% endif %}
+                            {% if trig.trigger_type & 2 %}<span style="text-align: right; color: #b45309; font-family: 'Courier New', monospace; font-weight: 600;">0x2</span><span style="color: #2d241e;">Random</span>{% endif %}
+                            {% if trig.trigger_type & 4 %}<span style="text-align: right; color: #b45309; font-family: 'Courier New', monospace; font-weight: 600;">0x4</span><span style="color: #2d241e;">Command</span>{% endif %}
+                            {% if trig.trigger_type & 8 %}<span style="text-align: right; color: #b45309; font-family: 'Courier New', monospace; font-weight: 600;">0x8</span><span style="color: #2d241e;">Speech</span>{% endif %}
+                            {% if trig.trigger_type & 16 %}<span style="text-align: right; color: #b45309; font-family: 'Courier New', monospace; font-weight: 600;">0x10</span><span style="color: #2d241e;">Enter PC</span>{% endif %}
+                            {% if trig.trigger_type & 32 %}<span style="text-align: right; color: #b45309; font-family: 'Courier New', monospace; font-weight: 600;">0x20</span><span style="color: #2d241e;">Reset</span>{% endif %}
+                            {% if trig.trigger_type & 64 %}<span style="text-align: right; color: #b45309; font-family: 'Courier New', monospace; font-weight: 600;">0x40</span><span style="color: #2d241e;">Enter</span>{% endif %}
+                            {% if trig.trigger_type & 128 %}<span style="text-align: right; color: #b45309; font-family: 'Courier New', monospace; font-weight: 600;">0x80</span><span style="color: #2d241e;">Drop</span>{% endif %}
+                            {% if trig.trigger_type & 256 %}<span style="text-align: right; color: #b45309; font-family: 'Courier New', monospace; font-weight: 600;">0x100</span><span style="color: #2d241e;">Unlock</span>{% endif %}
+                            {% if trig.trigger_type & 512 %}<span style="text-align: right; color: #b45309; font-family: 'Courier New', monospace; font-weight: 600;">0x200</span><span style="color: #2d241e;">Open</span>{% endif %}
+                            {% if trig.trigger_type & 1024 %}<span style="text-align: right; color: #b45309; font-family: 'Courier New', monospace; font-weight: 600;">0x400</span><span style="color: #2d241e;">Lock</span>{% endif %}
+                            {% if trig.trigger_type & 2048 %}<span style="text-align: right; color: #b45309; font-family: 'Courier New', monospace; font-weight: 600;">0x800</span><span style="color: #2d241e;">Close</span>{% endif %}
+                            {% if trig.trigger_type & 4096 %}<span style="text-align: right; color: #b45309; font-family: 'Courier New', monospace; font-weight: 600;">0x1000</span><span style="color: #2d241e;">Pick</span>{% endif %}
+                            {% if trig.trigger_type & 8192 %}<span style="text-align: right; color: #b45309; font-family: 'Courier New', monospace; font-weight: 600;">0x2000</span><span style="color: #2d241e;">Timechange</span>{% endif %}
+                            {% if trig.trigger_type & 16384 %}<span style="text-align: right; color: #b45309; font-family: 'Courier New', monospace; font-weight: 600;">0x4000</span><span style="color: #2d241e;">Kill PC</span>{% endif %}
+                        {% endif %}
+                    </div>
+                </div>
             </div>
 
             <div class="detail-field">
