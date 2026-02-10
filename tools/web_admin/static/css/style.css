@@ -442,7 +442,7 @@ select:hover {
 
 /* Legacy button/submit overrides -- only when not using .btn-* classes */
 input[type="submit"],
-button:not(.btn-primary):not(.btn-secondary):not(.section-toggle) {
+button:not(.btn-primary):not(.btn-secondary):not(.section-toggle):not(.trigger-toggle) {
     font-family: 'Inter', sans-serif;
     font-size: 14px;
     padding: 10px 20px;
@@ -457,14 +457,14 @@ button:not(.btn-primary):not(.btn-secondary):not(.section-toggle) {
 }
 
 input[type="submit"]:hover,
-button:not(.btn-primary):not(.btn-secondary):not(.section-toggle):hover {
+button:not(.btn-primary):not(.btn-secondary):not(.section-toggle):not(.trigger-toggle):hover {
     background-color: #92400e;
     box-shadow: 0 2px 8px rgba(139, 69, 19, 0.3);
     transform: none;
 }
 
 input[type="submit"]:active,
-button:not(.btn-primary):not(.btn-secondary):not(.section-toggle):active {
+button:not(.btn-primary):not(.btn-secondary):not(.section-toggle):not(.trigger-toggle):active {
     box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.15);
     transform: none;
 }

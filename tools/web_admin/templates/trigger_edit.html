@@ -75,7 +75,7 @@
                 </div>
             </div>
 
-            <div class="form-row form-row-3" style="margin-bottom: 16px;">
+            <div class="form-row form-row-2" style="margin-bottom: 16px;">
                 <div class="field-group">
                     <label for="attach_type">Тип привязки (attach type)</label>
                     <select id="attach_type" name="attach_type" onchange="updateTriggerTypeFlags()">
@@ -89,19 +89,14 @@
                     <label for="narg">Числовой аргумент (narg)</label>
                     <input type="number" id="narg" name="narg" value="{{ trig.narg if trig.narg is defined else 0 }}">
                 </div>
-
-                <div class="field-group">
-                    <label for="trigger_type_value">Итоговое значение (trigger type)</label>
-                    <input type="number" id="trigger_type_value" name="trigger_type" value="{{ trig.trigger_type if trig.trigger_type is defined else 0 }}" readonly
-                           style="background-color: rgba(253, 246, 227, 0.6); cursor: default;">
-                </div>
             </div>
+            <input type="hidden" id="trigger_type_value" name="trigger_type" value="{{ trig.trigger_type if trig.trigger_type is defined else 0 }}">
 
             <div class="form-row">
                 <div class="field-group" style="grid-column: 1 / -1;">
                     <label for="arglist">Текстовый аргумент (arglist)</label>
                     <input type="text" id="arglist" name="arglist" value="{{ trig.arglist if trig.arglist else '' }}"
-                           placeholder="Ключевое слово для COMMAND триггера и т.д.">
+                           placeholder="Ключевое слово (для триггеров типа COMMAND и т.д.)">
                 </div>
             </div>
         </div>
@@ -117,60 +112,65 @@
             </div>
 
             <p style="font-family: 'Inter', sans-serif; font-size: 13px; color: #8a7b6b; margin-bottom: 16px;">
-                Выберите один или несколько флагов. Итоговое значение (битовая маска) рассчитывается автоматически.
+                Нажмите на флаг для включения или выключения. Можно выбрать несколько флагов одновременно.
             </p>
 
             <!-- MOB triggers -->
             <div id="flags-mob" class="trigger-flags-group">
                 <div class="subsection-label" style="margin-top: 0;">MOB триггеры</div>
-                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 8px 16px;">
-                    <label class="trigger-flag-label"><input type="checkbox" class="trigger-flag" data-bit="1" onchange="recalcTriggerType()"> 1 - Random Global</label>
-                    <label class="trigger-flag-label"><input type="checkbox" class="trigger-flag" data-bit="2" onchange="recalcTriggerType()"> 2 - Random</label>
-                    <label class="trigger-flag-label"><input type="checkbox" class="trigger-flag" data-bit="4" onchange="recalcTriggerType()"> 4 - Command</label>
-                    <label class="trigger-flag-label"><input type="checkbox" class="trigger-flag" data-bit="8" onchange="recalcTriggerType()"> 8 - Speech</label>
-                    <label class="trigger-flag-label"><input type="checkbox" class="trigger-flag" data-bit="16" onchange="recalcTriggerType()"> 16 - Act</label>
-                    <label class="trigger-flag-label"><input type="checkbox" class="trigger-flag" data-bit="32" onchange="recalcTriggerType()"> 32 - Death</label>
-                    <label class="trigger-flag-label"><input type="checkbox" class="trigger-flag" data-bit="64" onchange="recalcTriggerType()"> 64 - Greet</label>
-                    <label class="trigger-flag-label"><input type="checkbox" class="trigger-flag" data-bit="128" onchange="recalcTriggerType()"> 128 - Greet All</label>
-                    <label class="trigger-flag-label"><input type="checkbox" class="trigger-flag" data-bit="256" onchange="recalcTriggerType()"> 256 - Entry</label>
-                    <label class="trigger-flag-label"><input type="checkbox" class="trigger-flag" data-bit="512" onchange="recalcTriggerType()"> 512 - Receive</label>
-                    <label class="trigger-flag-label"><input type="checkbox" class="trigger-flag" data-bit="1024" onchange="recalcTriggerType()"> 1024 - Fight</label>
-                    <label class="trigger-flag-label"><input type="checkbox" class="trigger-flag" data-bit="2048" onchange="recalcTriggerType()"> 2048 - HitPrcnt</label>
-                    <label class="trigger-flag-label"><input type="checkbox" class="trigger-flag" data-bit="4096" onchange="recalcTriggerType()"> 4096 - Bribe</label>
-                    <label class="trigger-flag-label"><input type="checkbox" class="trigger-flag" data-bit="8192" onchange="recalcTriggerType()"> 8192 - Load</label>
-                    <label class="trigger-flag-label"><input type="checkbox" class="trigger-flag" data-bit="16384" onchange="recalcTriggerType()"> 16384 - Kill</label>
-                    <label class="trigger-flag-label"><input type="checkbox" class="trigger-flag" data-bit="32768" onchange="recalcTriggerType()"> 32768 - Damage</label>
+                <div class="trigger-toggle-grid">
+                    <button type="button" class="trigger-toggle" data-bit="1" onclick="toggleFlag(this)"><span class="trigger-toggle-hex">0x1</span><span class="trigger-toggle-name">Случайный глобальный (Random Global)</span></button>
+                    <button type="button" class="trigger-toggle" data-bit="2" onclick="toggleFlag(this)"><span class="trigger-toggle-hex">0x2</span><span class="trigger-toggle-name">Случайный (Random)</span></button>
+                    <button type="button" class="trigger-toggle" data-bit="4" onclick="toggleFlag(this)"><span class="trigger-toggle-hex">0x4</span><span class="trigger-toggle-name">Команда (Command)</span></button>
+                    <button type="button" class="trigger-toggle" data-bit="8" onclick="toggleFlag(this)"><span class="trigger-toggle-hex">0x8</span><span class="trigger-toggle-name">Речь (Speech)</span></button>
+                    <button type="button" class="trigger-toggle" data-bit="16" onclick="toggleFlag(this)"><span class="trigger-toggle-hex">0x10</span><span class="trigger-toggle-name">Действие (Act)</span></button>
+                    <button type="button" class="trigger-toggle" data-bit="32" onclick="toggleFlag(this)"><span class="trigger-toggle-hex">0x20</span><span class="trigger-toggle-name">Смерть (Death)</span></button>
+                    <button type="button" class="trigger-toggle" data-bit="64" onclick="toggleFlag(this)"><span class="trigger-toggle-hex">0x40</span><span class="trigger-toggle-name">Приветствие (Greet)</span></button>
+                    <button type="button" class="trigger-toggle" data-bit="128" onclick="toggleFlag(this)"><span class="trigger-toggle-hex">0x80</span><span class="trigger-toggle-name">Приветствие всех (Greet All)</span></button>
+                    <button type="button" class="trigger-toggle" data-bit="256" onclick="toggleFlag(this)"><span class="trigger-toggle-hex">0x100</span><span class="trigger-toggle-name">Вход (Entry)</span></button>
+                    <button type="button" class="trigger-toggle" data-bit="512" onclick="toggleFlag(this)"><span class="trigger-toggle-hex">0x200</span><span class="trigger-toggle-name">Получение (Receive)</span></button>
+                    <button type="button" class="trigger-toggle" data-bit="1024" onclick="toggleFlag(this)"><span class="trigger-toggle-hex">0x400</span><span class="trigger-toggle-name">Бой (Fight)</span></button>
+                    <button type="button" class="trigger-toggle" data-bit="2048" onclick="toggleFlag(this)"><span class="trigger-toggle-hex">0x800</span><span class="trigger-toggle-name">Процент HP (HitPrcnt)</span></button>
+                    <button type="button" class="trigger-toggle" data-bit="4096" onclick="toggleFlag(this)"><span class="trigger-toggle-hex">0x1000</span><span class="trigger-toggle-name">Взятка (Bribe)</span></button>
+                    <button type="button" class="trigger-toggle" data-bit="8192" onclick="toggleFlag(this)"><span class="trigger-toggle-hex">0x2000</span><span class="trigger-toggle-name">Загрузка (Load)</span></button>
+                    <button type="button" class="trigger-toggle" data-bit="16384" onclick="toggleFlag(this)"><span class="trigger-toggle-hex">0x4000</span><span class="trigger-toggle-name">Убийство (Kill)</span></button>
+                    <button type="button" class="trigger-toggle" data-bit="32768" onclick="toggleFlag(this)"><span class="trigger-toggle-hex">0x8000</span><span class="trigger-toggle-name">Урон (Damage)</span></button>
                 </div>
             </div>
 
             <!-- OBJ triggers -->
             <div id="flags-obj" class="trigger-flags-group" style="display: none;">
                 <div class="subsection-label" style="margin-top: 0;">OBJ триггеры</div>
-                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 8px 16px;">
-                    <label class="trigger-flag-label"><input type="checkbox" class="trigger-flag" data-bit="1" onchange="recalcTriggerType()"> 1 - Random Global</label>
-                    <label class="trigger-flag-label"><input type="checkbox" class="trigger-flag" data-bit="2" onchange="recalcTriggerType()"> 2 - Random</label>
-                    <label class="trigger-flag-label"><input type="checkbox" class="trigger-flag" data-bit="4" onchange="recalcTriggerType()"> 4 - Command</label>
-                    <label class="trigger-flag-label"><input type="checkbox" class="trigger-flag" data-bit="64" onchange="recalcTriggerType()"> 64 - Get</label>
-                    <label class="trigger-flag-label"><input type="checkbox" class="trigger-flag" data-bit="128" onchange="recalcTriggerType()"> 128 - Drop</label>
-                    <label class="trigger-flag-label"><input type="checkbox" class="trigger-flag" data-bit="256" onchange="recalcTriggerType()"> 256 - Give</label>
-                    <label class="trigger-flag-label"><input type="checkbox" class="trigger-flag" data-bit="512" onchange="recalcTriggerType()"> 512 - Wear</label>
-                    <label class="trigger-flag-label"><input type="checkbox" class="trigger-flag" data-bit="2048" onchange="recalcTriggerType()"> 2048 - Remove</label>
-                    <label class="trigger-flag-label"><input type="checkbox" class="trigger-flag" data-bit="8192" onchange="recalcTriggerType()"> 8192 - Load</label>
+                <div class="trigger-toggle-grid">
+                    <button type="button" class="trigger-toggle" data-bit="1" onclick="toggleFlag(this)"><span class="trigger-toggle-hex">0x1</span><span class="trigger-toggle-name">Случайный глобальный (Random Global)</span></button>
+                    <button type="button" class="trigger-toggle" data-bit="2" onclick="toggleFlag(this)"><span class="trigger-toggle-hex">0x2</span><span class="trigger-toggle-name">Случайный (Random)</span></button>
+                    <button type="button" class="trigger-toggle" data-bit="4" onclick="toggleFlag(this)"><span class="trigger-toggle-hex">0x4</span><span class="trigger-toggle-name">Команда (Command)</span></button>
+                    <button type="button" class="trigger-toggle" data-bit="64" onclick="toggleFlag(this)"><span class="trigger-toggle-hex">0x40</span><span class="trigger-toggle-name">Взять (Get)</span></button>
+                    <button type="button" class="trigger-toggle" data-bit="128" onclick="toggleFlag(this)"><span class="trigger-toggle-hex">0x80</span><span class="trigger-toggle-name">Уронить (Drop)</span></button>
+                    <button type="button" class="trigger-toggle" data-bit="256" onclick="toggleFlag(this)"><span class="trigger-toggle-hex">0x100</span><span class="trigger-toggle-name">Дать (Give)</span></button>
+                    <button type="button" class="trigger-toggle" data-bit="512" onclick="toggleFlag(this)"><span class="trigger-toggle-hex">0x200</span><span class="trigger-toggle-name">Надеть (Wear)</span></button>
+                    <button type="button" class="trigger-toggle" data-bit="2048" onclick="toggleFlag(this)"><span class="trigger-toggle-hex">0x800</span><span class="trigger-toggle-name">Снять (Remove)</span></button>
+                    <button type="button" class="trigger-toggle" data-bit="8192" onclick="toggleFlag(this)"><span class="trigger-toggle-hex">0x2000</span><span class="trigger-toggle-name">Загрузка (Load)</span></button>
                 </div>
             </div>
 
             <!-- WLD triggers -->
             <div id="flags-wld" class="trigger-flags-group" style="display: none;">
                 <div class="subsection-label" style="margin-top: 0;">WLD триггеры</div>
-                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 8px 16px;">
-                    <label class="trigger-flag-label"><input type="checkbox" class="trigger-flag" data-bit="1" onchange="recalcTriggerType()"> 1 - Random Global</label>
-                    <label class="trigger-flag-label"><input type="checkbox" class="trigger-flag" data-bit="2" onchange="recalcTriggerType()"> 2 - Random</label>
-                    <label class="trigger-flag-label"><input type="checkbox" class="trigger-flag" data-bit="4" onchange="recalcTriggerType()"> 4 - Command</label>
-                    <label class="trigger-flag-label"><input type="checkbox" class="trigger-flag" data-bit="8" onchange="recalcTriggerType()"> 8 - Speech</label>
-                    <label class="trigger-flag-label"><input type="checkbox" class="trigger-flag" data-bit="16" onchange="recalcTriggerType()"> 16 - Enter PC</label>
-                    <label class="trigger-flag-label"><input type="checkbox" class="trigger-flag" data-bit="32" onchange="recalcTriggerType()"> 32 - Reset</label>
-                    <label class="trigger-flag-label"><input type="checkbox" class="trigger-flag" data-bit="64" onchange="recalcTriggerType()"> 64 - Enter</label>
+                <div class="trigger-toggle-grid">
+                    <button type="button" class="trigger-toggle" data-bit="1" onclick="toggleFlag(this)"><span class="trigger-toggle-hex">0x1</span><span class="trigger-toggle-name">Случайный глобальный (Random Global)</span></button>
+                    <button type="button" class="trigger-toggle" data-bit="2" onclick="toggleFlag(this)"><span class="trigger-toggle-hex">0x2</span><span class="trigger-toggle-name">Случайный (Random)</span></button>
+                    <button type="button" class="trigger-toggle" data-bit="4" onclick="toggleFlag(this)"><span class="trigger-toggle-hex">0x4</span><span class="trigger-toggle-name">Команда (Command)</span></button>
+                    <button type="button" class="trigger-toggle" data-bit="8" onclick="toggleFlag(this)"><span class="trigger-toggle-hex">0x8</span><span class="trigger-toggle-name">Речь (Speech)</span></button>
+                    <button type="button" class="trigger-toggle" data-bit="16" onclick="toggleFlag(this)"><span class="trigger-toggle-hex">0x10</span><span class="trigger-toggle-name">Вход игрока (Enter PC)</span></button>
+                    <button type="button" class="trigger-toggle" data-bit="32" onclick="toggleFlag(this)"><span class="trigger-toggle-hex">0x20</span><span class="trigger-toggle-name">Сброс (Reset)</span></button>
+                    <button type="button" class="trigger-toggle" data-bit="64" onclick="toggleFlag(this)"><span class="trigger-toggle-hex">0x40</span><span class="trigger-toggle-name">Вход (Enter)</span></button>
                 </div>
+            </div>
+
+            <!-- Calculated value hint -->
+            <div id="trigger-type-hint" style="font-family: 'Inter', sans-serif; font-size: 13px; color: #8a7b6b; margin-top: 12px; padding: 8px 12px; background-color: rgba(253, 246, 227, 0.4); border-radius: 6px; border: 1px dashed rgba(120, 53, 15, 0.12);">
+                Итоговое значение: <span id="trigger-type-hex" style="font-weight: 600; color: #5a4d3f;">0x0</span> <span style="color: #b0a48e;">(</span>dec: <span id="trigger-type-dec" style="font-weight: 600; color: #5a4d3f;">0</span>, bin: <span id="trigger-type-bin" style="font-weight: 600; color: #5a4d3f; font-family: 'Courier New', monospace;">0b0000000000000000</span><span style="color: #b0a48e;">)</span>
             </div>
         </div>
 
@@ -222,38 +222,80 @@
         to { transform: rotate(360deg); }
     }
 
-    .trigger-flag-label {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        cursor: pointer;
-        font-family: 'Inter', sans-serif;
-        font-size: 14px;
-        color: #2d241e;
-        padding: 6px 10px;
-        border-radius: 6px;
-        transition: background-color 0.1s ease;
-        user-select: none;
-    }
-
-    .trigger-flag-label:hover {
-        background-color: rgba(180, 83, 9, 0.06);
-    }
-
-    .trigger-flag-label input[type="checkbox"] {
-        width: 16px;
-        height: 16px;
-        accent-color: #b45309;
-        cursor: pointer;
-        flex-shrink: 0;
-    }
-
     .trigger-flags-group {
         padding: 16px 20px;
         background-color: rgba(253, 246, 227, 0.5);
         border: 1px solid rgba(120, 53, 15, 0.1);
         border-radius: 8px;
         margin-bottom: 12px;
+    }
+
+    .trigger-toggle-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .trigger-toggle {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 7px 14px;
+        border: 2px solid rgba(120, 53, 15, 0.12);
+        border-radius: 6px;
+        background-color: #fdf6e3;
+        color: #5a4d3f;
+        font-family: 'Inter', sans-serif;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.12s ease;
+        user-select: none;
+        line-height: 1.4;
+        box-shadow: 0 1px 2px rgba(139, 69, 19, 0.04);
+    }
+
+    .trigger-toggle:hover {
+        border-color: rgba(180, 83, 9, 0.3);
+        background-color: rgba(180, 83, 9, 0.04);
+        color: #2d241e;
+    }
+
+    .trigger-toggle:active {
+        box-shadow: inset 0 1px 3px rgba(139, 69, 19, 0.1);
+    }
+
+    .trigger-toggle.active {
+        background-color: rgba(180, 83, 9, 0.12);
+        border-color: rgba(180, 83, 9, 0.4);
+        color: #78350f;
+        box-shadow: inset 0 1px 2px rgba(139, 69, 19, 0.08), 0 0 0 1px rgba(180, 83, 9, 0.08);
+    }
+
+    .trigger-toggle.active:hover {
+        background-color: rgba(180, 83, 9, 0.18);
+        border-color: rgba(180, 83, 9, 0.5);
+    }
+
+    .trigger-toggle-hex {
+        font-family: 'Courier New', Consolas, monospace;
+        font-size: 12px;
+        font-weight: 700;
+        color: #b45309;
+        background-color: rgba(180, 83, 9, 0.08);
+        padding: 1px 6px;
+        border-radius: 3px;
+        letter-spacing: 0.02em;
+        flex-shrink: 0;
+    }
+
+    .trigger-toggle.active .trigger-toggle-hex {
+        background-color: rgba(180, 83, 9, 0.18);
+        color: #92400e;
+    }
+
+    .trigger-toggle-name {
+        white-space: nowrap;
     }
 </style>
 <script>
@@ -288,17 +330,22 @@
         '2': document.getElementById('flags-wld')
     };
 
+    // Toggle a single flag button on/off
+    window.toggleFlag = function(btn) {
+        btn.classList.toggle('active');
+        recalcTriggerType();
+    };
+
     // Show/hide the correct flag group based on attach_type
     window.updateTriggerTypeFlags = function() {
         var attachType = document.getElementById('attach_type').value;
 
-        // Hide all groups
+        // Hide all groups and deactivate all toggles in hidden groups
         for (var key in flagGroups) {
             flagGroups[key].style.display = 'none';
-            // Uncheck all checkboxes in hidden groups
-            var checks = flagGroups[key].querySelectorAll('.trigger-flag');
-            for (var i = 0; i < checks.length; i++) {
-                checks[i].checked = false;
+            var toggles = flagGroups[key].querySelectorAll('.trigger-toggle');
+            for (var i = 0; i < toggles.length; i++) {
+                toggles[i].classList.remove('active');
             }
         }
 
@@ -307,27 +354,34 @@
             flagGroups[attachType].style.display = '';
         }
 
-        // Recalculate from the now-visible checkboxes (all unchecked after switch)
+        // Recalculate (all deactivated after switch)
         recalcTriggerType();
     };
 
-    // Recalculate the bitmask from checked checkboxes in the visible group
+    // Recalculate the bitmask from active toggles in the visible group
     window.recalcTriggerType = function() {
         var attachType = document.getElementById('attach_type').value;
         var group = flagGroups[attachType];
         if (!group) return;
 
         var total = 0;
-        var checks = group.querySelectorAll('.trigger-flag');
-        for (var i = 0; i < checks.length; i++) {
-            if (checks[i].checked) {
-                total += parseInt(checks[i].getAttribute('data-bit'));
+        var toggles = group.querySelectorAll('.trigger-toggle');
+        for (var i = 0; i < toggles.length; i++) {
+            if (toggles[i].classList.contains('active')) {
+                total += parseInt(toggles[i].getAttribute('data-bit'));
             }
         }
         document.getElementById('trigger_type_value').value = total;
+
+        // Update the hint text
+        var hexStr = '0x' + total.toString(16).toUpperCase();
+        var binStr = '0b' + ('0000000000000000' + total.toString(2)).slice(-16);
+        document.getElementById('trigger-type-hex').textContent = hexStr;
+        document.getElementById('trigger-type-dec').textContent = total;
+        document.getElementById('trigger-type-bin').textContent = binStr;
     };
 
-    // Initialize: set checkboxes from the existing trigger_type value
+    // Initialize: set toggle buttons from the existing trigger_type value
     function initFlags() {
         var attachType = document.getElementById('attach_type').value;
         var triggerType = parseInt(document.getElementById('trigger_type_value').value) || 0;
@@ -337,15 +391,24 @@
             flagGroups[key].style.display = (key === attachType) ? '' : 'none';
         }
 
-        // Check the appropriate boxes in the visible group
+        // Activate the appropriate toggle buttons in the visible group
         var group = flagGroups[attachType];
         if (group) {
-            var checks = group.querySelectorAll('.trigger-flag');
-            for (var i = 0; i < checks.length; i++) {
-                var bit = parseInt(checks[i].getAttribute('data-bit'));
-                checks[i].checked = (triggerType & bit) !== 0;
+            var toggles = group.querySelectorAll('.trigger-toggle');
+            for (var i = 0; i < toggles.length; i++) {
+                var bit = parseInt(toggles[i].getAttribute('data-bit'));
+                if ((triggerType & bit) !== 0) {
+                    toggles[i].classList.add('active');
+                }
             }
         }
+
+        // Update hint text on load
+        var hexStr = '0x' + triggerType.toString(16).toUpperCase();
+        var binStr = '0b' + ('0000000000000000' + triggerType.toString(2)).slice(-16);
+        document.getElementById('trigger-type-hex').textContent = hexStr;
+        document.getElementById('trigger-type-dec').textContent = triggerType;
+        document.getElementById('trigger-type-bin').textContent = binStr;
     }
 
     initFlags();
