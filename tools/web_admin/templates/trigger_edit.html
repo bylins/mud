@@ -437,12 +437,8 @@
             }
         }
 
-        // Update hint text on load
-        var hexStr = '0x' + triggerType.toString(16).toUpperCase();
-        var binStr = '0b' + ('0000000000000000' + triggerType.toString(2)).slice(-16);
-        document.getElementById('trigger-type-hex').textContent = hexStr;
-        document.getElementById('trigger-type-dec').textContent = triggerType;
-        document.getElementById('trigger-type-bin').textContent = binStr;
+        // Update hint display (hex, dec, bit boxes)
+        recalcTriggerType();
     }
 
     initFlags();
