@@ -1286,8 +1286,9 @@ void GameLoader::PrepareGlobalStructures(const EBootType mode, const int rec_cou
 			break;
 
 		case DB_BOOT_ZON: {
-			zone_table.reserve(rec_count + dungeons::kNumberOfZoneDungeons);
-			zone_table.resize(rec_count);
+			// Reserve zone_table[0] as kNowhere (unused), like world[0] for rooms
+			zone_table.reserve(rec_count + 1 + dungeons::kNumberOfZoneDungeons);
+			zone_table.resize(rec_count + 1);
 			const size_t zones_size = sizeof(ZoneData) * rec_count;
 			log("   %d zones, %zd bytes.", rec_count, zones_size);
 		}

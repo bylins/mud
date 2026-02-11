@@ -1135,10 +1135,10 @@ int shutting_down(void) {
 	if (wait == 10 || wait == 30 || wait == 60 || wait == 120 || wait % 300 == 0) {
 		if (shutdown_parameters.reboot_after_shutdown()) {
 			remove("../.crash");
-			sprintf(buf, "п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ ");
+			sprintf(buf, "Перезагрузка через ");
 		} else {
 			remove("../.crash");
-			sprintf(buf, "п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ ");
+			sprintf(buf, "Закрываем через ");
 		}
 		if (wait < 60)
 			sprintf(buf + strlen(buf), "%d %s.\r\n", wait, GetDeclensionInNumber(wait, EWhat::kSec));
@@ -1300,7 +1300,7 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 					char_from_room(d->character);
 				char_to_room(d->character, d->character->get_was_in_room());
 				d->character->set_was_in_room(kNowhere);
-				act("$n п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚$u.", true, d->character.get(), 0, 0, kToRoom | kToArenaListen);
+				act("$n вернул$u.", true, d->character.get(), 0, 0, kToRoom | kToArenaListen);
 				d->character->set_wait(1u);
 			}
 		}
@@ -1975,9 +1975,9 @@ void close_socket(DescriptorData * d, int direct)
 		}
 
 		if (d->state == EConState::kPlaying || d->state == EConState::kDisconnect) {
-			act("$n п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚$g п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚.", true, d->character.get(), 0, 0, kToRoom | kToArenaListen);
+			act("$n потерял$g связь.", true, d->character.get(), 0, 0, kToRoom | kToArenaListen);
 			if (d->character->GetEnemy() && d->character->IsFlagged(EPrf::kAntiDcMode)) {
-				snprintf(buf2, sizeof(buf2), "п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚.п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚");
+				snprintf(buf2, sizeof(buf2), "защитать свиток.возврата");
 				command_interpreter(d->character.get(), buf2);
 			}
 			if (!d->character->IsNpc()) {
