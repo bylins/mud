@@ -2515,19 +2515,20 @@ void SqliteWorldDataSource::SaveTriggerRecord(int trig_vnum, const Trigger *trig
 	}
 }
 
-void SqliteWorldDataSource::SaveTriggers(int zone_rnum, int specific_vnum)
+bool SqliteWorldDataSource::SaveTriggers(int zone_rnum, int specific_vnum, int notify_level)
 {
 	(void)specific_vnum; // SQLite format always saves entire zone
+	(void)notify_level; // SQLite saves don't use mudlog - errors go to log file
 	if (zone_rnum < 0 || zone_rnum >= static_cast<int>(zone_table.size()))
 	{
 		log("SYSERR: Invalid zone_rnum %d for SaveTriggers", zone_rnum);
-		return;
+		return false;
 	}
 
 	if (!m_db)
 	{
 		log("SYSERR: Database not open for SaveTriggers");
-		return;
+		return false;
 	}
 
 	const ZoneData &zone = zone_table[zone_rnum];
@@ -2571,10 +2572,11 @@ void SqliteWorldDataSource::SaveTriggers(int zone_rnum, int specific_vnum)
 	{
 		RollbackTransaction();
 		log("SYSERR: Failed to save triggers for zone %d", zone.vnum);
-		return;
+		return false;
 	}
 
 	log("Saved %d triggers for zone %d", saved_count, zone.vnum);
+	return true;
 }
 
 

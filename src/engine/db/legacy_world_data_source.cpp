@@ -51,10 +51,10 @@ void LegacyWorldDataSource::SaveZone(int zone_rnum)
 	zedit_save_to_disk(zone_rnum);
 }
 
-void LegacyWorldDataSource::SaveTriggers(int zone_rnum, int specific_vnum)
+bool LegacyWorldDataSource::SaveTriggers(int zone_rnum, int specific_vnum, int notify_level)
 {
 	(void)specific_vnum; // Legacy format always saves entire zone
-	trigedit_save_to_disk(zone_rnum);
+	return trigedit_save_to_disk(zone_rnum, notify_level);
 }
 
 void LegacyWorldDataSource::SaveRooms(int zone_rnum, int specific_vnum)

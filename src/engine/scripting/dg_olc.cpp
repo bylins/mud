@@ -37,7 +37,7 @@ void free_varlist(struct TriggerVar *vd);
 
 void trigedit_disp_menu(DescriptorData *d);
 void trigedit_save(DescriptorData *d);
-void trigedit_save_to_disk(int zone_rnum);
+bool trigedit_save_to_disk(int zone_rnum, int notify_level = kLvlBuilder);
 void trigedit_create_index(int znum, const char *type);
 void indent_trigger(std::string &cmd, int *level);
 
@@ -484,17 +484,20 @@ void trigedit_save(DescriptorData *d) {
 	// Save trigger to disk using data source abstraction (YAML/SQLite/Legacy)
 	TriggerDistribution(d);
 	zone = zone_table[OLC_ZNUM(d)].vnum;
-	log("trigedit_save: About to call SaveTriggers for zone_rnum=%d vnum=%d", OLC_ZNUM(d), OLC_NUM(d));
+	int notify_level = MAX(kLvlBuilder, GET_INVIS_LEV(d->character));
+
 	auto* data_source = world_loader::WorldDataSourceManager::Instance().GetDataSource();
-	data_source->SaveTriggers(OLC_ZNUM(d), OLC_NUM(d));
-	log("trigedit_save: SaveTriggers completed");
-	
+	if (!data_source->SaveTriggers(OLC_ZNUM(d), OLC_NUM(d), notify_level)) {
+		SendMsgToChar("ОШИБКА: Не удалось сохранить триггер!\r\n", d->character.get());
+		return;
+	}
+
 	SendMsgToChar("Триггер сохранен.\r\n", d->character.get());
 	trigedit_create_index(zone, "trg");
 }
 
 // Save all triggers for a zone to disk (without requiring DescriptorData)
-void trigedit_save_to_disk(int zone_rnum) {
+bool trigedit_save_to_disk(int zone_rnum, int notify_level) {
 	FILE *trig_file;
 	int trig_rnum, i;
 	Trigger *trig;
@@ -506,7 +509,7 @@ void trigedit_save_to_disk(int zone_rnum) {
 
 	if (zone_rnum < 0 || zone_rnum >= static_cast<int>(zone_table.size())) {
 		log("SYSERR: trigedit_save_to_disk: Invalid zone rnum %d", zone_rnum);
-		return;
+		return false;
 	}
 
 	zone = zone_table[zone_rnum].vnum;
@@ -515,14 +518,14 @@ void trigedit_save_to_disk(int zone_rnum) {
 	if (zone >= dungeons::kZoneStartDungeons) {
 		sprintf(buf, "Отказ сохранения зоны %d на диск.", zone);
 		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-		return;
+		return false;
 	}
 
 	sprintf(fname, "%s/%i.new", TRG_PREFIX, zone);
 	if (!(trig_file = fopen(fname, "w"))) {
 		snprintf(logbuf, kMaxInputLength, "SYSERR: OLC: Can't open trig file \"%s\"", fname);
-		mudlog(logbuf, BRF, kLvlBuilder, SYSLOG, true);
-		return;
+		mudlog(logbuf, BRF, notify_level, SYSLOG, true);
+		return false;
 	}
 
 	for (i = zone * 100; i <= top; i++) {
@@ -531,9 +534,9 @@ void trigedit_save_to_disk(int zone_rnum) {
 
 			if (fprintf(trig_file, "#%d\n", i) < 0) {
 				sprintf(logbuf, "SYSERR: OLC: Can't write trig file!");
-				mudlog(logbuf, BRF, kLvlBuilder, SYSLOG, true);
+				mudlog(logbuf, BRF, notify_level, SYSLOG, true);
 				fclose(trig_file);
-				return;
+				return false;
 			}
 			sprintbyts(GET_TRIG_TYPE(trig), bitBuf);
 			fprintf(trig_file, "%s~\n"
@@ -584,6 +587,7 @@ void trigedit_save_to_disk(int zone_rnum) {
 	}
 
 	trigedit_create_index(zone, "trg");
+	return true;
 }
 
 void trigedit_create_index(int znum, const char *type) {

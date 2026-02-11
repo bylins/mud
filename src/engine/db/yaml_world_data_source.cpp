@@ -2405,13 +2405,14 @@ void YamlWorldDataSource::SaveZone(int zone_rnum)
 	log("Saved zone %d to YAML file", zone.vnum);
 }
 
-void YamlWorldDataSource::SaveTriggers(int zone_rnum, int specific_vnum)
+bool YamlWorldDataSource::SaveTriggers(int zone_rnum, int specific_vnum, int notify_level)
 {
+	(void)notify_level; // YAML saves don't use mudlog - errors go to log file
 	log("SaveTriggers called: zone_rnum=%d, specific_vnum=%d", zone_rnum, specific_vnum);
 	if (zone_rnum < 0 || zone_rnum >= static_cast<int>(zone_table.size()))
 	{
 		log("SYSERR: Invalid zone_rnum %d for SaveTriggers", zone_rnum);
-		return;
+		return false;
 	}
 
 	const ZoneData &zone = zone_table[zone_rnum];
@@ -2422,7 +2423,7 @@ void YamlWorldDataSource::SaveTriggers(int zone_rnum, int specific_vnum)
 	if (first_trig == -1 || last_trig == -1)
 	{
 		log("Zone %d has no triggers to save", zone.vnum);
-		return;
+		return true; // Not an error - zone just has no triggers
 	}
 
 	std::string trig_dir = m_world_dir + "/triggers";
@@ -2557,6 +2558,7 @@ void YamlWorldDataSource::SaveTriggers(int zone_rnum, int specific_vnum)
 	}
 
 	log("Saved %d triggers for zone %d", saved_count, zone.vnum);
+	return true;
 }
 
 void YamlWorldDataSource::SaveRooms(int zone_rnum, int specific_vnum)

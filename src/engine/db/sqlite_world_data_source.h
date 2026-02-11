@@ -40,7 +40,7 @@ public:
 
 	// Save methods (SQLite is read-only for now)
 	void SaveZone(int zone_rnum) override;
-	void SaveTriggers(int zone_rnum, int specific_vnum = -1) override;
+	bool SaveTriggers(int zone_rnum, int specific_vnum = -1, int notify_level = kLvlBuilder) override;
 	void SaveRooms(int zone_rnum, int specific_vnum = -1) override;
 	void SaveMobs(int zone_rnum, int specific_vnum = -1) override;
 	void SaveObjects(int zone_rnum, int specific_vnum = -1) override;
