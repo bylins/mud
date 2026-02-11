@@ -1574,6 +1574,13 @@ function addColorOverlay(inputId) {
         console.warn('addColorOverlay: input not found:', inputId);
         return;
     }
+
+    // Check if already has color overlay
+    if (input.parentNode && input.parentNode.querySelector('.mud-colorize')) {
+        console.log('addColorOverlay: already wrapped:', inputId);
+        return;
+    }
+
     console.log('addColorOverlay: processing', inputId);
 
     const isTextarea = input.tagName.toLowerCase() === 'textarea';
