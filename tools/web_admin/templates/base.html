@@ -393,14 +393,20 @@
                     return;
                 }
 
-                // Extract key part for skills (before :)
-                let searchQuery = query;
+                // For key:value format - don't show suggestions when entering value part
                 if (valueSeparator && query.includes(valueSeparator)) {
-                    searchQuery = query.split(valueSeparator)[0];
+                    const parts = query.split(valueSeparator);
+                    // If already has both parts, don't show autocomplete
+                    if (parts.length === 2 && parts[1].trim()) {
+                        dropdown.classList.remove('active');
+                        return;
+                    }
+                    // Only search by key part
+                    query = parts[0];
                 }
 
                 try {
-                    const url = `${autocompleteUrl}?q=${encodeURIComponent(searchQuery)}`;
+                    const url = `${autocompleteUrl}?q=${encodeURIComponent(query)}`;
                     const response = await fetch(url);
                     const data = await response.json();
                     suggestions = data.results || [];
