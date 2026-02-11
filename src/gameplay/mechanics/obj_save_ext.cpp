@@ -127,7 +127,7 @@ bool checking = false;
 void check(long uid, int type) {
 	if (checking) return;
 
-	log("ObjSaveSync::check start");
+	log("ObjSaveSync::check start uid %ld type %d", uid, type);
 	checking = true;
 
 	fill_force_list(uid, type);
