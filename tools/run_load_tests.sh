@@ -447,9 +447,8 @@ if [ $NEED_SMALL -eq 1 ]; then
         setup_small_world "legacy" || exit 1
     fi
     if [ $NEED_SQLITE -eq 1 ]; then
-        if [ $RECREATE_BUILDS -eq 1 ] || [ ! -f "$MUD_DIR/build_sqlite/small/world.db" ]; then
+        # Always convert SQLite (fast, avoids stale/empty databases)
         setup_small_world "sqlite" || exit 1
-        fi
     fi
     if [ $NEED_YAML -eq 1 ]; then
         if [ $RECREATE_BUILDS -eq 1 ] || [ ! -d "$MUD_DIR/build_yaml/small/world/dictionaries" ]; then
@@ -466,7 +465,8 @@ if [ $NEED_FULL -eq 1 ]; then
         if [ $NEED_LEGACY -eq 1 ] && ([ $RECREATE_BUILDS -eq 1 ] || [ ! -d "$MUD_DIR/build_test/full" ]); then
             setup_full_world "legacy" || exit 1
         fi
-        if [ $NEED_SQLITE -eq 1 ] && ([ $RECREATE_BUILDS -eq 1 ] || [ ! -f "$MUD_DIR/build_sqlite/full/world.db" ]); then
+        if [ $NEED_SQLITE -eq 1 ]; then
+            # Always convert SQLite (fast, avoids stale/empty databases)
             setup_full_world "sqlite" || exit 1
         fi
         if [ $NEED_YAML -eq 1 ] && ([ $RECREATE_BUILDS -eq 1 ] || [ ! -d "$MUD_DIR/build_yaml/full/world" ]); then
