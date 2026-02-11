@@ -99,33 +99,26 @@ jobs:
     runs-on: ubuntu-latest
     continue-on-error: true  # Soft-failure mode
 
+    container:
+      image: ubuntu:25.04
+      options: --user root
+
     steps:
+      - name: Install Git and dependencies
+        run: |
+          apt-get update
+          apt-get install -y git
+
       - uses: actions/checkout@v4
         with:
           submodules: recursive
 
-      - name: Install GCC 15 from snapshot
+      - name: Install GCC 15 and build dependencies
         run: |
-          # Try ubuntu-toolchain-r/test first
-          sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
-          sudo apt-get update
-
-          # Check if gcc-15 is available, otherwise use gcc-14 as fallback
-          if apt-cache show gcc-15 >/dev/null 2>&1; then
-            echo "Installing GCC 15 from PPA"
-            sudo apt-get install -y gcc-15 g++-15
-            echo "GCC_VERSION=15" >> $GITHUB_ENV
-          else
-            echo "GCC 15 not available in PPA, using gcc-14 as latest available"
-            sudo apt-get install -y gcc-14 g++-14
-            sudo ln -sf /usr/bin/gcc-14 /usr/local/bin/gcc-15
-            sudo ln -sf /usr/bin/g++-14 /usr/local/bin/g++-15
-            echo "GCC_VERSION=14" >> $GITHUB_ENV
-          fi
-
-      - name: Install base dependencies
-        run: |
-          sudo apt-get install -y \
+          apt-get update
+          apt-get install -y \
+            gcc-15 \
+            g++-15 \
             build-essential \
             make \
             libssl-dev \
@@ -136,6 +129,11 @@ jobs:
             cmake \
             gdb \
             libgtest-dev
+
+      - name: Show GCC 15 version
+        run: |
+          gcc-15 --version
+          g++-15 --version
 
       - name: Configure CMake with GCC 15
         run: |
@@ -152,12 +150,6 @@ jobs:
         run: |
           cd build
           ./tests/tests
-
-      - name: Show GCC version
-        run: |
-          gcc-15 --version || true
-          g++-15 --version || true
-          echo "Actual GCC version used: $GCC_VERSION"
 
   build-windows-msvc:
     name: Windows (MSVC)
@@ -323,7 +315,7 @@ jobs:
           echo "### Linux GCC 15" >> $GITHUB_STEP_SUMMARY
           echo "| Compiler | Status |" >> $GITHUB_STEP_SUMMARY
           echo "|----------|--------|" >> $GITHUB_STEP_SUMMARY
-          echo "| GCC 15 (with tests, fallback to 14 if unavailable) | ${{ needs.build-linux-gcc15.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| GCC 15 (Ubuntu 25.04 container) | ${{ needs.build-linux-gcc15.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
           echo "### Other Platforms" >> $GITHUB_STEP_SUMMARY

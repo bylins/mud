@@ -35,7 +35,7 @@
 
 | Компилятор | Тесты | Описание |
 |-----------|:-----:|----------|
-| GCC 15 | ✅ | Сборка с новейшим GCC (fallback to GCC 14 if 15 unavailable) |
+| GCC 15 | ✅ | Сборка с GCC 15 в Ubuntu 25.04 container |
 
 #### Other Platforms
 
