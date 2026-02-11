@@ -31,11 +31,11 @@
 - SQLite: `libsqlite3-dev`
 - Tests: `libgtest-dev`
 
-#### Linux GCC 14
+#### Linux GCC 15
 
 | Компилятор | Тесты | Описание |
 |-----------|:-----:|----------|
-| GCC 14 | ✅ | Сборка с новым GCC (via PPA ubuntu-toolchain-r/test) |
+| GCC 15 | ✅ | Сборка с новейшим GCC (fallback to GCC 14 if 15 unavailable) |
 
 #### Other Platforms
 
