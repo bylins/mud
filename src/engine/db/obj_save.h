@@ -64,8 +64,8 @@ namespace ObjSaveSync {
 
 enum { CHAR_SAVE, CLAN_SAVE, PERS_CHEST_SAVE, PARCEL_SAVE };
 
-void add(int init_uid, int targ_uid, int targ_type);
-void check(int uid, int type);
+void add(long init_uid, long targ_uid, int targ_type);
+void check(long uid, int type);
 
 } // namespace ObjSaveSync
 
