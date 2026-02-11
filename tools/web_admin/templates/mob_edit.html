@@ -1667,25 +1667,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Multi-line textarea
     addColorOverlay('desc-long');
 
-    // Initialize tag inputs with autocomplete
-    createTagInput('beh-helpers', {
-        autocompleteUrl: '/api/search/mobs',
-        placeholder: 'Начните вводить vnum или имя моба...',
-        requireValue: false
-    });
-
-    createTagInput('skills', {
-        autocompleteUrl: '/api/skills',
-        valueSeparator: ':',
-        placeholder: 'Начните вводить название умения (формат: умение:уровень)...',
-        requireValue: true
-    });
-
-    createTagInput('spells', {
-        autocompleteUrl: '/api/spells',
-        placeholder: 'Начните вводить название заклинания...',
-        requireValue: false
-    });
+    // Tag input disabled - using plain text input for now
+    // TODO: improve tag input implementation later
 });
 </script>
 
