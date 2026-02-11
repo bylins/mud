@@ -56,7 +56,7 @@ public:
 
 	// Save methods (YAML is read-only for now)
 	void SaveZone(int zone_rnum) override;
-	bool SaveTriggers(int zone_rnum, int specific_vnum = -1, int notify_level = kLvlBuilder) override;
+	bool SaveTriggers(int zone_rnum, int specific_vnum, int notify_level) override;
 	void SaveRooms(int zone_rnum, int specific_vnum = -1) override;
 	void SaveMobs(int zone_rnum, int specific_vnum = -1) override;
 	void SaveObjects(int zone_rnum, int specific_vnum = -1) override;

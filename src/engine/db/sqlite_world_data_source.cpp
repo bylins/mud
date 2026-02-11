@@ -2540,12 +2540,12 @@ bool SqliteWorldDataSource::SaveTriggers(int zone_rnum, int specific_vnum, int n
 	if (first_trig == -1 || last_trig == -1)
 	{
 		log("Zone %d has no triggers to save", zone.vnum);
-		return;
+		return true;
 	}
 
 	if (!BeginTransaction())
 	{
-		return;
+		return false;
 	}
 
 	int saved_count = 0;

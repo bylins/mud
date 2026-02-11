@@ -37,7 +37,7 @@ void free_varlist(struct TriggerVar *vd);
 
 void trigedit_disp_menu(DescriptorData *d);
 void trigedit_save(DescriptorData *d);
-bool trigedit_save_to_disk(int zone_rnum, int notify_level = kLvlBuilder);
+bool trigedit_save_to_disk(int zone_rnum, int notify_level);
 void trigedit_create_index(int znum, const char *type);
 void indent_trigger(std::string &cmd, int *level);
 

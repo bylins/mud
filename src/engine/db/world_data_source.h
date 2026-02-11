@@ -35,7 +35,7 @@ public:
 	// notify_level is the minimum level to receive mudlog notifications
 	// Returns true on success, false on error
 	virtual void SaveZone(int zone_rnum) = 0;
-	virtual bool SaveTriggers(int zone_rnum, int specific_vnum = -1, int notify_level = kLvlBuilder) = 0;
+	virtual bool SaveTriggers(int zone_rnum, int specific_vnum, int notify_level) = 0;
 	virtual void SaveRooms(int zone_rnum, int specific_vnum = -1) = 0;
 	virtual void SaveMobs(int zone_rnum, int specific_vnum = -1) = 0;
 	virtual void SaveObjects(int zone_rnum, int specific_vnum = -1) = 0;

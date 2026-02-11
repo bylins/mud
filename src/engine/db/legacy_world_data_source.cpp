@@ -11,7 +11,7 @@ void zedit_save_to_disk(int zone_rnum);
 void redit_save_to_disk(int zone_rnum);
 void medit_save_to_disk(int zone_rnum);
 void oedit_save_to_disk(int zone_rnum);
-void trigedit_save_to_disk(int zone_rnum);
+bool trigedit_save_to_disk(int zone_rnum, int notify_level);
 
 namespace world_loader
 {
