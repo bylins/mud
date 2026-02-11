@@ -5,6 +5,11 @@ on:
     branches: [ '**' ]  # Все ветки
   pull_request:
 
+# Cancel previous runs if new push to same branch
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   quick-build:
     name: Quick Build (Linux)

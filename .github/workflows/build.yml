@@ -6,6 +6,11 @@ on:
   pull_request:
     branches: [ master ]
 
+# Cancel previous runs if new push to same branch
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build-linux-matrix:
     name: Linux (${{ matrix.config.name }})
