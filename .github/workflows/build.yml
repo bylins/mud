@@ -226,11 +226,12 @@ jobs:
         with:
           packages: >-
             gcc-g++
+            gcc-core
             make
             cmake
             libssl-devel
             libcurl-devel
-            libexpat-devel
+            libexpat1-devel
             gettext-devel
             unzip
             git
