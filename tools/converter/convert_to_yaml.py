@@ -1012,9 +1012,10 @@ class SqliteSaver(BaseSaver):
         for i, name in enumerate(OBJ_TYPES):
             cursor.execute("INSERT INTO obj_types (id, name) VALUES (?, ?)", (i, name))
 
-        # sectors
+        # sectors (skip None values for gaps in enum)
         for i, name in enumerate(SECTORS):
-            cursor.execute("INSERT INTO sectors (id, name) VALUES (?, ?)", (i, name))
+            if name is not None:
+                cursor.execute("INSERT INTO sectors (id, name) VALUES (?, ?)", (i, name))
 
         # positions
         for i, name in enumerate(POSITIONS):
