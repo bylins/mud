@@ -35,7 +35,7 @@
 
 | Компилятор | Тесты | Описание |
 |-----------|:-----:|----------|
-| GCC 15 | ✅ | Сборка с GCC 15 в Ubuntu 25.04 container |
+| GCC 15 | ✅ | Сборка с GCC 15 в Debian Sid container |
 
 #### Other Platforms
 

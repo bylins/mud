@@ -100,14 +100,14 @@ jobs:
     continue-on-error: true  # Soft-failure mode
 
     container:
-      image: ubuntu:25.04
+      image: debian:sid
       options: --user root
 
     steps:
       - name: Install Git and dependencies
         run: |
           apt-get update
-          apt-get install -y git
+          apt-get install -y git ca-certificates
 
       - uses: actions/checkout@v4
         with:
@@ -315,7 +315,7 @@ jobs:
           echo "### Linux GCC 15" >> $GITHUB_STEP_SUMMARY
           echo "| Compiler | Status |" >> $GITHUB_STEP_SUMMARY
           echo "|----------|--------|" >> $GITHUB_STEP_SUMMARY
-          echo "| GCC 15 (Ubuntu 25.04 container) | ${{ needs.build-linux-gcc15.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| GCC 15 (Debian Sid container) | ${{ needs.build-linux-gcc15.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
           echo "### Other Platforms" >> $GITHUB_STEP_SUMMARY
