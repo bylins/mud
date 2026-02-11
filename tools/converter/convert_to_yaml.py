@@ -806,7 +806,7 @@ class YamlSaver(BaseSaver):
         dict_dir.mkdir(parents=True, exist_ok=True)
 
         def write_dict_from_list(filename, items):
-            data = {name: i for i, name in enumerate(items) if not name.startswith('UNUSED')}
+            data = {name: i for i, name in enumerate(items) if name is not None and not name.startswith('UNUSED')}
             with open(dict_dir / filename, 'w', encoding='utf-8') as f:
                 f.write(f"# Dictionary: {filename.replace('.yaml', '')}\n")
                 for name, idx in sorted(data.items(), key=lambda x: x[1]):
