@@ -502,6 +502,7 @@ void trigedit_save_to_disk(int zone_rnum) {
 	char buf[kMaxStringLength];
 	char bitBuf[kMaxInputLength];
 	char fname[kMaxInputLength];
+	char logbuf[kMaxInputLength];
 
 	if (zone_rnum < 0 || zone_rnum >= static_cast<int>(zone_table.size())) {
 		log("SYSERR: trigedit_save_to_disk: Invalid zone rnum %d", zone_rnum);
@@ -512,13 +513,15 @@ void trigedit_save_to_disk(int zone_rnum) {
 	top = zone_table[zone_rnum].top;
 
 	if (zone >= dungeons::kZoneStartDungeons) {
-		log("Cannot save dungeon zone %d to disk.", zone);
+		sprintf(buf, "Отказ сохранения зоны %d на диск.", zone);
+		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 		return;
 	}
 
 	sprintf(fname, "%s/%i.new", TRG_PREFIX, zone);
 	if (!(trig_file = fopen(fname, "w"))) {
-		log("SYSERR: OLC: Can't open trig file \"%s\"", fname);
+		snprintf(logbuf, kMaxInputLength, "SYSERR: OLC: Can't open trig file \"%s\"", fname);
+		mudlog(logbuf, BRF, kLvlBuilder, SYSLOG, true);
 		return;
 	}
 
@@ -527,7 +530,8 @@ void trigedit_save_to_disk(int zone_rnum) {
 			trig = trig_index[trig_rnum]->proto;
 
 			if (fprintf(trig_file, "#%d\n", i) < 0) {
-				log("SYSERR: OLC: Can't write trig file!");
+				sprintf(logbuf, "SYSERR: OLC: Can't write trig file!");
+				mudlog(logbuf, BRF, kLvlBuilder, SYSLOG, true);
 				fclose(trig_file);
 				return;
 			}
@@ -543,6 +547,7 @@ void trigedit_save_to_disk(int zone_rnum) {
 			int lev = 0;
 			strcpy(buf, "");
 			for (auto cmd = *trig->cmdlist; cmd; cmd = cmd->next) {
+				// Indenting
 				indent_trigger(cmd->cmd, &lev);
 				strcat(buf, cmd->cmd.c_str());
 				strcat(buf, "\n");
@@ -553,6 +558,7 @@ void trigedit_save_to_disk(int zone_rnum) {
 				fprintf(trig_file, "%s", buf);
 			} else {
 				char *p;
+				// замена одиночного '~' на '~~'
 				p = strtok(buf, "~");
 				fprintf(trig_file, "%s", p);
 				while ((p = strtok(nullptr, "~")) != nullptr) {
@@ -560,6 +566,8 @@ void trigedit_save_to_disk(int zone_rnum) {
 				}
 				fprintf(trig_file, "~\n");
 			}
+
+			*buf = '\0';
 		}
 	}
 
@@ -569,6 +577,11 @@ void trigedit_save_to_disk(int zone_rnum) {
 	sprintf(buf, "%s/%d.trg", TRG_PREFIX, zone);
 	remove(buf);
 	rename(fname, buf);
+	if (chmod(buf, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP) < 0) {
+		std::stringstream ss;
+		ss << "Error chmod file: " << buf << " (" << __FILE__ << " "<< __func__ << "  "<< __LINE__ << ")";
+		mudlog(ss.str(), BRF, kLvlGod, SYSLOG, true);
+	}
 
 	trigedit_create_index(zone, "trg");
 }
