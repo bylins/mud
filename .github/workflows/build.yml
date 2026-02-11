@@ -1,0 +1,318 @@
+name: Multi-Platform Build
+
+on:
+  push:
+    branches: [ master, world-load-refactoring ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build-linux-matrix:
+    name: Linux (${{ matrix.config.name }})
+    runs-on: ubuntu-latest
+    continue-on-error: true  # Soft-failure mode
+
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - name: "Base"
+            cmake_flags: "-DBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Test"
+            packages: ""
+
+          - name: "With Tests"
+            cmake_flags: "-DCMAKE_BUILD_TYPE=Test"
+            packages: ""
+            run_tests: true
+
+          - name: "YAML"
+            cmake_flags: "-DBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Test -DHAVE_YAML=ON"
+            packages: "libyaml-cpp-dev"
+
+          - name: "SQLite"
+            cmake_flags: "-DBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Test -DHAVE_SQLITE=ON"
+            packages: "libsqlite3-dev"
+
+          - name: "YAML + Admin API"
+            cmake_flags: "-DBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Test -DHAVE_YAML=ON -DENABLE_ADMIN_API=ON"
+            packages: "libyaml-cpp-dev"
+
+          - name: "YAML + Tests"
+            cmake_flags: "-DCMAKE_BUILD_TYPE=Test -DHAVE_YAML=ON"
+            packages: "libyaml-cpp-dev"
+            run_tests: true
+
+          - name: "SQLite + Tests"
+            cmake_flags: "-DCMAKE_BUILD_TYPE=Test -DHAVE_SQLITE=ON"
+            packages: "libsqlite3-dev"
+            run_tests: true
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install base dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            make \
+            libssl-dev \
+            libcurl4-gnutls-dev \
+            libexpat1-dev \
+            gettext \
+            unzip \
+            cmake \
+            gdb \
+            libgtest-dev
+
+      - name: Install config-specific dependencies
+        if: matrix.config.packages != ''
+        run: |
+          sudo apt-get install -y ${{ matrix.config.packages }}
+
+      - name: Configure CMake
+        run: |
+          mkdir -p build
+          cd build
+          cmake ${{ matrix.config.cmake_flags }} ..
+
+      - name: Build
+        run: |
+          cd build
+          make ${{ matrix.config.run_tests && 'tests' || '' }} -j$(nproc)
+
+      - name: Run tests
+        if: matrix.config.run_tests
+        run: |
+          cd build
+          ./tests/tests
+
+  build-linux-gcc15:
+    name: Linux (GCC 15)
+    runs-on: ubuntu-latest
+    continue-on-error: true  # Soft-failure mode
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install GCC 15
+        run: |
+          sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
+          sudo apt-get update
+          sudo apt-get install -y gcc-15 g++-15
+
+      - name: Install base dependencies
+        run: |
+          sudo apt-get install -y \
+            build-essential \
+            make \
+            libssl-dev \
+            libcurl4-gnutls-dev \
+            libexpat1-dev \
+            gettext \
+            unzip \
+            cmake \
+            gdb \
+            libgtest-dev
+
+      - name: Configure CMake with GCC 15
+        run: |
+          mkdir -p build
+          cd build
+          CC=gcc-15 CXX=g++-15 cmake -DCMAKE_BUILD_TYPE=Test ..
+
+      - name: Build with GCC 15
+        run: |
+          cd build
+          make tests -j$(nproc)
+
+      - name: Run tests
+        run: |
+          cd build
+          ./tests/tests
+
+      - name: Show GCC version
+        run: |
+          gcc-15 --version
+          g++-15 --version
+
+  build-windows-msvc:
+    name: Windows (MSVC)
+    runs-on: windows-latest
+    continue-on-error: true  # Soft-failure mode
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup MSVC
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Install dependencies with vcpkg
+        run: |
+          vcpkg install openssl:x64-windows curl:x64-windows expat:x64-windows gtest:x64-windows
+
+      - name: Configure CMake
+        run: |
+          mkdir build
+          cd build
+          cmake -DBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Test -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake ..
+
+      - name: Build
+        run: |
+          cd build
+          cmake --build . --config Test -j
+
+  build-windows-mingw:
+    name: Windows (MinGW)
+    runs-on: windows-latest
+    continue-on-error: true  # Soft-failure mode
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup MinGW
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          update: true
+          install: >-
+            mingw-w64-x86_64-gcc
+            mingw-w64-x86_64-cmake
+            mingw-w64-x86_64-make
+            mingw-w64-x86_64-openssl
+            mingw-w64-x86_64-curl
+            mingw-w64-x86_64-expat
+            mingw-w64-x86_64-gtest
+
+      - name: Configure and Build
+        shell: msys2 {0}
+        run: |
+          mkdir -p build
+          cd build
+          cmake -G "MinGW Makefiles" -DBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Test ..
+          mingw32-make -j$(nproc)
+
+  build-cygwin:
+    name: Cygwin
+    runs-on: windows-latest
+    continue-on-error: true  # Soft-failure mode
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup Cygwin
+        uses: cygwin/cygwin-install-action@v4
+        with:
+          packages: >-
+            gcc-g++
+            make
+            cmake
+            libssl-devel
+            libcurl-devel
+            libexpat-devel
+            gettext-devel
+            unzip
+            git
+
+      - name: Configure CMake
+        shell: C:\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
+        run: |
+          cd "$GITHUB_WORKSPACE"
+          mkdir -p build
+          cd build
+          cmake -DBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Test ..
+
+      - name: Build
+        shell: C:\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
+        run: |
+          cd "$GITHUB_WORKSPACE/build"
+          make -j$(nproc)
+
+  build-wsl:
+    name: WSL (Ubuntu)
+    runs-on: windows-latest
+    continue-on-error: true  # Soft-failure mode
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup WSL
+        uses: Vampire/setup-wsl@v3
+        with:
+          distribution: Ubuntu-22.04
+
+      - name: Install dependencies in WSL
+        shell: wsl-bash {0}
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            make \
+            libssl-dev \
+            libcurl4-gnutls-dev \
+            libexpat1-dev \
+            gettext \
+            unzip \
+            cmake \
+            gdb \
+            libgtest-dev
+
+      - name: Configure and Build in WSL
+        shell: wsl-bash {0}
+        run: |
+          mkdir -p build
+          cd build
+          cmake -DBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Test ..
+          make -j$(nproc)
+
+  build-summary:
+    name: Build Summary
+    runs-on: ubuntu-latest
+    needs: [build-linux-matrix, build-linux-gcc15, build-windows-msvc, build-windows-mingw, build-cygwin, build-wsl]
+    if: always()
+
+    steps:
+      - name: Check build results
+        run: |
+          echo "## Build Results Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          echo "### Linux Configurations" >> $GITHUB_STEP_SUMMARY
+          echo "| Configuration | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|---------------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Base | ${{ needs.build-linux-matrix.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| With Tests | ${{ needs.build-linux-matrix.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| YAML | ${{ needs.build-linux-matrix.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| YAML + Admin API | ${{ needs.build-linux-matrix.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| YAML + Tests | ${{ needs.build-linux-matrix.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| SQLite | ${{ needs.build-linux-matrix.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| SQLite + Tests | ${{ needs.build-linux-matrix.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          echo "### Linux GCC 15" >> $GITHUB_STEP_SUMMARY
+          echo "| Compiler | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|----------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| GCC 15 (with tests) | ${{ needs.build-linux-gcc15.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          echo "### Other Platforms" >> $GITHUB_STEP_SUMMARY
+          echo "| Platform | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|----------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Windows (MSVC) | ${{ needs.build-windows-msvc.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Windows (MinGW) | ${{ needs.build-windows-mingw.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Cygwin | ${{ needs.build-cygwin.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| WSL | ${{ needs.build-wsl.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Note:** All jobs run in soft-failure mode (continue-on-error: true)" >> $GITHUB_STEP_SUMMARY
