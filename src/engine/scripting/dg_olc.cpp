@@ -389,18 +389,6 @@ void trigedit_save(DescriptorData *d) {
 		cmd->line_num = line_num++;
 	}
 	cmd->next.reset();
-
-	// Validate indent level (check for unclosed if/else blocks)
-	int lev = 0;
-	for (auto check_cmd = cmdlist; check_cmd; check_cmd = check_cmd->next) {
-		std::string cmd_copy = check_cmd->cmd;
-		indent_trigger(cmd_copy, &lev);
-	}
-	if (lev > 0) {
-		SendMsgToChar(d->character.get(),
-			"WARNING: Positive indent-level (%d) at trigger end - unclosed if/else blocks!\r\n", lev);
-	}
-
 //	log("Триггер зона1 %d внум %d ласт %d", OLC_ZNUM(d), zone_table[OLC_ZNUM(d)].vnum, trig_index[zone_table[OLC_ZNUM(d)].RnumTrigsLocation.second]->vnum);
 
 	if ((trig_rnum = GetTriggerRnum(OLC_NUM(d))) != -1) {
