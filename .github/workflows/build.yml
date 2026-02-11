@@ -94,8 +94,8 @@ jobs:
           cd build
           ./tests/tests
 
-  build-linux-gcc15:
-    name: Linux (GCC 15)
+  build-linux-gcc14:
+    name: Linux (GCC 14)
     runs-on: ubuntu-latest
     continue-on-error: true  # Soft-failure mode
 
@@ -104,11 +104,11 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Install GCC 15
+      - name: Install GCC 14
         run: |
           sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
           sudo apt-get update
-          sudo apt-get install -y gcc-15 g++-15
+          sudo apt-get install -y gcc-14 g++-14
 
       - name: Install base dependencies
         run: |
@@ -124,13 +124,13 @@ jobs:
             gdb \
             libgtest-dev
 
-      - name: Configure CMake with GCC 15
+      - name: Configure CMake with GCC 14
         run: |
           mkdir -p build
           cd build
-          CC=gcc-15 CXX=g++-15 cmake -DCMAKE_BUILD_TYPE=Test ..
+          CC=gcc-14 CXX=g++-14 cmake -DCMAKE_BUILD_TYPE=Test ..
 
-      - name: Build with GCC 15
+      - name: Build with GCC 14
         run: |
           cd build
           make tests -j$(nproc)
@@ -142,8 +142,8 @@ jobs:
 
       - name: Show GCC version
         run: |
-          gcc-15 --version
-          g++-15 --version
+          gcc-14 --version
+          g++-14 --version
 
   build-windows-msvc:
     name: Windows (MSVC)
@@ -285,7 +285,7 @@ jobs:
   build-summary:
     name: Build Summary
     runs-on: ubuntu-latest
-    needs: [build-linux-matrix, build-linux-gcc15, build-windows-msvc, build-windows-mingw, build-cygwin, build-wsl]
+    needs: [build-linux-matrix, build-linux-gcc14, build-windows-msvc, build-windows-mingw, build-cygwin, build-wsl]
     if: always()
 
     steps:
@@ -306,10 +306,10 @@ jobs:
           echo "| SQLite + Tests | ${{ needs.build-linux-matrix.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
-          echo "### Linux GCC 15" >> $GITHUB_STEP_SUMMARY
+          echo "### Linux GCC 14" >> $GITHUB_STEP_SUMMARY
           echo "| Compiler | Status |" >> $GITHUB_STEP_SUMMARY
           echo "|----------|--------|" >> $GITHUB_STEP_SUMMARY
-          echo "| GCC 15 (with tests) | ${{ needs.build-linux-gcc15.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| GCC 14 (with tests) | ${{ needs.build-linux-gcc14.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
           echo "### Other Platforms" >> $GITHUB_STEP_SUMMARY
