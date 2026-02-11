@@ -53,7 +53,9 @@ docker stop mud
 
 ### Running the Server
 
-**CRITICAL**: Circle must ALWAYS be run from the build directory, NEVER from the source directory.
+**CRITICAL**: ALL binaries (circle, tests, converters, etc.) must ALWAYS be run from their build directory, NEVER from the source directory. Running binaries from the source directory creates runtime files (data/, misc/, etc.) in the wrong location and pollutes the source tree.
+
+**CRITICAL**: Build directories must ALWAYS be out-of-source (outside the source tree). Never run cmake or binaries from within the src/ directory or repository root.
 
 **CRITICAL**: CMake automatically creates test world `small/` in the build directory. All world data and configs are in `small/` directory itself, NOT in `small/lib/`. The `lib/` subdirectory DOES NOT EXIST in cmake-generated worlds. All paths in configuration.xml are relative to the `small/` directory.
 
