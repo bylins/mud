@@ -654,9 +654,9 @@ void SqliteWorldDataSource::LoadZones()
 		return;
 	}
 
-	// Allocate zone_table like PrepareGlobalStructures does
-	zone_table.reserve(zone_count + dungeons::kNumberOfZoneDungeons);
-	zone_table.resize(zone_count);
+	// Reserve zone_table[0] as kNowhere (unused), like world[0] for rooms
+	zone_table.reserve(zone_count + 1 + dungeons::kNumberOfZoneDungeons);
+	zone_table.resize(zone_count + 1);
 	log("   %d zones, %zd bytes.", zone_count, sizeof(ZoneData) * zone_count);
 
 	// Load zones
@@ -671,8 +671,9 @@ void SqliteWorldDataSource::LoadZones()
 		return;
 	}
 
-	int zone_idx = 0;
-	while (sqlite3_step(stmt) == SQLITE_ROW && zone_idx < zone_count)
+	// Start from 1 because zone_table[0] is reserved for kNowhere
+	int zone_idx = 1;
+	while (sqlite3_step(stmt) == SQLITE_ROW && zone_idx <= zone_count)
 	{
 		ZoneData &zone = zone_table[zone_idx];
 
@@ -705,7 +706,7 @@ void SqliteWorldDataSource::LoadZones()
 	}
 	sqlite3_finalize(stmt);
 
-	log("Loaded %d zones from SQLite.", zone_idx);
+	log("Loaded %d zones from SQLite.", zone_idx - 1);
 }
 
 void SqliteWorldDataSource::LoadZoneCommands(ZoneData &zone)
