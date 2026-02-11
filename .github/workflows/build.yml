@@ -203,12 +203,17 @@ jobs:
             mingw-w64-x86_64-expat
             mingw-w64-x86_64-gtest
 
-      - name: Configure and Build
+      - name: Configure CMake
         shell: msys2 {0}
         run: |
           mkdir -p build
           cd build
           cmake -G "MinGW Makefiles" -DBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Test ..
+
+      - name: Build
+        shell: msys2 {0}
+        run: |
+          cd build
           mingw32-make -j$(nproc)
 
   build-cygwin:
@@ -281,12 +286,17 @@ jobs:
             gdb \
             libgtest-dev
 
-      - name: Configure and Build in WSL
+      - name: Configure CMake in WSL
         shell: wsl-bash {0}
         run: |
           mkdir -p build
           cd build
           cmake -DBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Test ..
+
+      - name: Build in WSL
+        shell: wsl-bash {0}
+        run: |
+          cd build
           make -j$(nproc)
 
   build-summary:
