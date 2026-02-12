@@ -150,13 +150,13 @@
 # endif
 #endif
 
-// п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚
+// [encoding corruption removed]
 
 #define MXP_BEG "\x03"    /* becomes < */
 #define MXP_END "\x04"    /* becomes > */
 #define MXP_AMP "\x05"    /* becomes & */
 
-// п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚
+// [encoding corruption removed]
 
 #define MXP_BEGc '\x03'    /* becomes < */
 #define MXP_ENDc '\x04'    /* becomes > */
@@ -389,7 +389,7 @@ struct timeval null_time;    // zero-valued time structure
 int dg_act_check;        // toggle for act_trigger
 unsigned long cmd_cnt = 0;
 
-// п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚, п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚
+// [encoding corruption removed] [encoding corruption removed], [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]
 const int vnum_room_new_year[31] =
 	{4056,
 	 5000,
@@ -491,25 +491,25 @@ const int vnum_gifts[len_array_gifts] = {27113,
 };
 
 void gifts() {
-	// п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚
+	// [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]
 	int rand_vnum_r = vnum_room_new_year[number(0, 30)];
-	// п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚  п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚
+	// [encoding corruption removed]  [encoding corruption removed] [encoding corruption removed]
 	int rand_vnum = vnum_gifts[number(0, len_array_gifts - 1)];
 	ObjRnum rnum;
 	if ((rnum = GetObjRnum(rand_vnum)) < 0) {
-		log("п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚!");
+		log("[encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]!");
 		return;
 	}
 
 	const auto obj_gift = world_objects.create_from_prototype_by_rnum(rnum);
 	const auto obj_cont = world_objects.create_from_prototype_by_vnum(2594);
 
-	// п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚
+	// [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]
 	PlaceObjToRoom(obj_cont.get(), GetRoomRnum(rand_vnum_r));
 	PlaceObjIntoObj(obj_gift.get(), obj_cont.get());
 	CheckObjDecay(obj_gift.get());
 	CheckObjDecay(obj_cont.get());
-	log("п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚: %d, п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚: %d", rand_vnum_r, rand_vnum);
+	log("[encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]: %d, [encoding corruption removed]: %d", rand_vnum_r, rand_vnum);
 }
 
 // functions in this file
@@ -600,7 +600,7 @@ void gettimeofday(struct timeval *t, void *dummy)
 
 int main_function(int argc, char **argv) {
 #ifdef TEST_BUILD
-	// п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ cygwin 1.7 п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚
+	// [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] cygwin 1.7 [encoding corruption removed] [encoding corruption removed]
 	setlocale(LC_CTYPE, "ru_RU.KOI8-R");
 #endif
 
@@ -727,9 +727,9 @@ int main_function(int argc, char **argv) {
 	} else {
 		printf("Running game on port %d.\r\n", port);
 
-		// п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚, п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚
-		// п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚, п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚
-		// п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚, п·б╘Б∙╚.п·б╘Б∙╚. п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚
+		// [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed], [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]
+		// [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed], [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]
+		// [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed], [encoding corruption removed].[encoding corruption removed]. [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]
 		stop_game(port);
 	}
 
@@ -787,10 +787,10 @@ void stop_game(ush_int port) {
 							  __func__, __FILE__, __LINE__).c_str());
 		return;
 	}
-	// п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚, п·б╘Б∙╚.п·б╘Б∙╚. п·б╘Б∙╚ event.data п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ ptr, п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ fd.
-	// п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ ptr, п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚
-	// п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚, п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ fd, п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚,
-	// п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ descriptor
+	// [encoding corruption removed], [encoding corruption removed].[encoding corruption removed]. [encoding corruption removed] event.data [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] ptr, [encoding corruption removed] fd.
+	// [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] ptr, [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]
+	// [encoding corruption removed], [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] fd, [encoding corruption removed] [encoding corruption removed] [encoding corruption removed],
+	// [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] descriptor
 	mother_d = (DescriptorData *) calloc(1, sizeof(DescriptorData));
 	mother_d->descriptor = mother_desc;
 	event.data.ptr = mother_d;
@@ -822,8 +822,8 @@ void stop_game(ush_int port) {
 
 	FlushPlayerIndex();
 
-	// п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚ Crash_save_all_rent(), п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚
-	// п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚, п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚...
+	// [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] Crash_save_all_rent(), [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]
+	// [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed], [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]...
 	Depot::save_all_online_objs();
 	Depot::save_timedata();
 
@@ -847,7 +847,7 @@ void stop_game(ush_int port) {
 	Glory::save_glory();
 	GloryConst::save();
 	GloryMisc::save_log();
-	GlobalDrop::save();// п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚
+	GlobalDrop::save();// [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]
 	MoneyDropStat::print_log();
 	ZoneExpStat::print_log();
 	print_rune_log();
@@ -868,7 +868,7 @@ void stop_game(ush_int port) {
 	while (descriptor_list)
 		close_socket(descriptor_list, true);
 #endif
-	// п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚
+	// [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]
 	FileCRC::save(true);
 
 	CLOSE_SOCKET(mother_desc);
@@ -1135,10 +1135,10 @@ int shutting_down(void) {
 	if (wait == 10 || wait == 30 || wait == 60 || wait == 120 || wait % 300 == 0) {
 		if (shutdown_parameters.reboot_after_shutdown()) {
 			remove("../.crash");
-			sprintf(buf, "Перезагрузка через ");
+			sprintf(buf, "О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ ");
 		} else {
 			remove("../.crash");
-			sprintf(buf, "Закрываем через ");
+			sprintf(buf, "О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ ");
 		}
 		if (wait < 60)
 			sprintf(buf + strlen(buf), "%d %s.\r\n", wait, GetDeclensionInNumber(wait, EWhat::kSec));
@@ -1146,7 +1146,7 @@ int shutting_down(void) {
 			sprintf(buf + strlen(buf), "%d %s.\r\n", wait / 60, GetDeclensionInNumber(wait / 60, EWhat::kMinU));
 		SendMsgToAll(buf);
 		lastmessage = time(nullptr);
-		// п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚
+		// [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]
 		if (wait == 10)
 			log_zone_count_reset();
 	}
@@ -1174,7 +1174,7 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 #ifdef HAS_EPOLL
 	int n, i;
 
-	// п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚
+	// [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]
 	n = epoll_wait(epoll, events, MAXEVENTS, 0);
 	if (n == -1) {
 		perror(fmt::format("EPOLL: epoll_ctl() failed on EPOLL_CTL_ADD mother_desc in {}() at {}:{}",
@@ -1191,7 +1191,7 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 			d = (DescriptorData *) events[i].data.ptr;
 			if (d == nullptr)
 				continue;
-			if (mother_desc == d->descriptor) // п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚ mother_desc: п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚
+			if (mother_desc == d->descriptor) // [encoding corruption removed] [encoding corruption removed] mother_desc: [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]
 			{
 				int desc;
 				do
@@ -1203,7 +1203,7 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 				new_admin_descriptor(epoll, admin_socket);
 			}
 #endif
-			else { // п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚: п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚, п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ EOF
+			else { // [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]: [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed], [encoding corruption removed] EOF
 #ifdef ENABLE_ADMIN_API
 				int result = (d->admin_api_mode) ? admin_api_process_input(d) : iosystem::process_input(d);
 				if (result < 0)
@@ -1212,9 +1212,9 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 #endif
 				close_socket(d, false, epoll, events, n);
 			}
-		} else if (events[i].events & !EPOLLOUT & !EPOLLIN) // п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚, п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ in п·б╘Б∙╚ out
+		} else if (events[i].events & !EPOLLOUT & !EPOLLIN) // [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed], [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] in [encoding corruption removed] out
 		{
-			// п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚
+			// [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]
 			char tmp[kMaxInputLength];
 			snprintf(tmp, sizeof(tmp), "EPOLL: Got event %u in {}() at %s:%s:%d",
 					 static_cast<unsigned>(events[i].events),
@@ -1279,7 +1279,7 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 				continue;
 			}
 		}
-		// п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ !
+		// [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] !
 		if (!get_from_q(&d->input, comm, &aliased)) {
 			if (d->state != EConState::kPlaying &&
 				d->state != EConState::kDisconnect &&
@@ -1300,7 +1300,7 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 					char_from_room(d->character);
 				char_to_room(d->character, d->character->get_was_in_room());
 				d->character->set_was_in_room(kNowhere);
-				act("$n вернул$u.", true, d->character.get(), 0, 0, kToRoom | kToArenaListen);
+				act("$n О©╫О©╫О©╫О©╫О©╫О©╫$u.", true, d->character.get(), 0, 0, kToRoom | kToArenaListen);
 				d->character->set_wait(1u);
 			}
 		}
@@ -1330,12 +1330,12 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 		if (d == nullptr)
 			continue;
 		if ((events[i].events & EPOLLOUT) && (!d->has_prompt || *(d->output))) {
-			if (iosystem::process_output(d) < 0) // п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚
+			if (iosystem::process_output(d) < 0) // [encoding corruption removed] [encoding corruption removed]
 				close_socket(d, false, epoll, events, n);
 			else
-				d->has_prompt = 1;   // п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚, п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚
-			// п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚
-			// п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚
+				d->has_prompt = 1;   // [encoding corruption removed] [encoding corruption removed], [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]
+			// [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]
+			// [encoding corruption removed] [encoding corruption removed]
 		}
 	}
 #else
@@ -1345,17 +1345,17 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 		if ((!d->has_prompt || *(d->output)) && FD_ISSET(d->descriptor, &output_set))
 		{
 			if (iosystem::process_output(d) < 0)
-				close_socket(d, false);	// п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚
+				close_socket(d, false);	// [encoding corruption removed] [encoding corruption removed]
 			else
-				d->has_prompt = 1;	// п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚, п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚
-			// п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚
-			// п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚
+				d->has_prompt = 1;	// [encoding corruption removed] [encoding corruption removed], [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]
+			// [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]
+			// [encoding corruption removed] [encoding corruption removed]
 		}
 	}
 #endif
 
-// п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚ #if 0 ... #endif. п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚, п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚.
-// п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚, п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚.
+// [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] #if 0 ... #endif. [encoding corruption removed], [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed].
+// [encoding corruption removed] [encoding corruption removed], [encoding corruption removed] [encoding corruption removed] [encoding corruption removed].
 
 	// Kick out folks in the CON_CLOSE or CON_DISCONNECT state
 	for (d = descriptor_list; d; d = next_d) {
@@ -1513,8 +1513,8 @@ void game_loop(socket_t mother_desc)
 		}
 
 		// If we missed more than 30 seconds worth of pulses, just do 30 secs
-		// п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚ 4 п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚
-		// п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚ 1 п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ -- п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ :)
+		// [encoding corruption removed] [encoding corruption removed] 4 [encoding corruption removed]
+		// [encoding corruption removed] [encoding corruption removed] 1 [encoding corruption removed] -- [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] :)
 		if (missed_pulses > (1 * kPassesPerSec)) {
 			const auto missed_seconds = missed_pulses / kPassesPerSec;
 			const auto current_pulse = GlobalObjects::heartbeat().pulse_number();
@@ -1696,10 +1696,10 @@ int set_sendbuf(socket_t s) {
 	return (0);
 }
 
-// п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚, п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚
-// п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ -1, п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ accept() п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ EINTR, EAGAIN п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ EWOULDBLOCK
-// п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ -2 п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚
-// п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ -3, п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚
+// [encoding corruption removed] [encoding corruption removed] [encoding corruption removed], [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]
+// [encoding corruption removed] -1, [encoding corruption removed] accept() [encoding corruption removed] EINTR, EAGAIN [encoding corruption removed] EWOULDBLOCK
+// [encoding corruption removed] -2 [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]
+// [encoding corruption removed] -3, [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]
 #ifdef HAS_EPOLL
 int new_descriptor(int epoll, socket_t s)
 #else
@@ -1768,7 +1768,7 @@ int new_descriptor(socket_t s)
 		*(newd->host + kHostLength) = '\0';
 	}
 
-	// п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚
+	// [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]
 	newd->ip = TxtToIp(newd->host);
 
 	// determine if the site is banned
@@ -1795,30 +1795,30 @@ int new_descriptor(socket_t s)
 
 #ifdef HAS_EPOLL
 	//
-	// п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚.
+	// [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed].
 	//
-	// п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚, п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ data.ptr п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚
-	// п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚, п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚. п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚
-	// п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚, п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚.
+	// [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed], [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] data.ptr [encoding corruption removed]
+	// [encoding corruption removed] [encoding corruption removed], [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]. [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]
+	// [encoding corruption removed] [encoding corruption removed] [encoding corruption removed], [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed].
 	//
-	// п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚, п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚,
-	// п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ epoll_wait() п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚, п·б╘Б∙╚п·б╘Б∙╚
-	// п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚, п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚
-	// п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚
-	// п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚. п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ data.ptr п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚
-	// п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚, п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚
-	// п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚.
+	// [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed], [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed],
+	// [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] epoll_wait() [encoding corruption removed], [encoding corruption removed]
+	// [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed], [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]
+	// [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]
+	// [encoding corruption removed]. [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] data.ptr [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]
+	// [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed], [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]
+	// [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed].
 	//
-	// п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ data.ptr п·б╘Б∙╚ nullptr
-	// п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚, п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚. п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚ close_socket(),
-	// п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚.
-	// п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚ nullptr п·б╘Б∙╚ close_socket(), process_input()
-	// п·б╘Б∙╚ process_output().
+	// [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] data.ptr [encoding corruption removed] nullptr
+	// [encoding corruption removed] [encoding corruption removed] [encoding corruption removed], [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]. [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] close_socket(),
+	// [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed].
+	// [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] nullptr [encoding corruption removed] close_socket(), process_input()
+	// [encoding corruption removed] process_output().
 	//
-	// п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ select() п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚, п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚
-	// п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ select() п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚, п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚
-	// п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚, п·б╘Б∙╚ п·б╘Б∙╚ epoll п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚, п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚
-	// п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚.
+	// [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] select() [encoding corruption removed] [encoding corruption removed] [encoding corruption removed], [encoding corruption removed]
+	// [encoding corruption removed] [encoding corruption removed] select() [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed], [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]
+	// [encoding corruption removed], [encoding corruption removed] [encoding corruption removed] epoll [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed], [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]
+	// [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed].
 	//
 	event.data.ptr = newd;
 	//
@@ -1875,10 +1875,10 @@ int new_descriptor(socket_t s)
 }
 
 /**
-* п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚-п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚, п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚
-* п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ (п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚). п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚, п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚
-* п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚, п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚,
-* п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚/п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚.
+* [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]-[encoding corruption removed], [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]
+* [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] ([encoding corruption removed]). [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed], [encoding corruption removed]
+* [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed], [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed],
+* [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]/[encoding corruption removed] [encoding corruption removed].
 */
 bool any_other_ch(CharData *ch) {
 	for (const auto &vict : character_list) {
@@ -1904,9 +1904,12 @@ void close_socket(DescriptorData * d, int direct)
 		return;
 	}
 
+	log("close_socket called: direct=%d, state=%d, admin_api_mode=%d, host=%s",
+	    direct, static_cast<int>(d->state), d->admin_api_mode, d->host);
+
 	//if (!direct && d->character && NORENTABLE(d->character))
 	//	return;
-	// п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ wait_state
+	// Commented: check wait_state before closing
 	if (d->character && !direct) {
 		if (d->character->get_wait() > 0)
 			return;
@@ -1916,7 +1919,7 @@ void close_socket(DescriptorData * d, int direct)
 #ifdef HAS_EPOLL
 	if (epoll_ctl(epoll, EPOLL_CTL_DEL, d->descriptor, nullptr) == -1)
 		log("SYSERR: EPOLL_CTL_DEL failed in close_socket()");
-	// п·б╘Б∙╚п·б╘Б∙╚. п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚ new_descriptor()
+	// [encoding corruption removed]. [encoding corruption removed] [encoding corruption removed] new_descriptor()
 	int i;
 	if (events != nullptr)
 		for (i = 0; i < n_ev; i++)
@@ -1931,7 +1934,7 @@ void close_socket(DescriptorData * d, int direct)
 		d->snooping->snoop_by = nullptr;
 
 	if (d->snoop_by) {
-		iosystem::write_to_output("п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚.\r\n", d->snoop_by);
+		iosystem::write_to_output("[encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed].\r\n", d->snoop_by);
 		d->snoop_by->snooping = nullptr;
 	}
 	//. Kill any OLC stuff .
@@ -1975,9 +1978,9 @@ void close_socket(DescriptorData * d, int direct)
 		}
 
 		if (d->state == EConState::kPlaying || d->state == EConState::kDisconnect) {
-			act("$n потерял$g связь.", true, d->character.get(), 0, 0, kToRoom | kToArenaListen);
+			act("$n О©╫О©╫О©╫О©╫О©╫О©╫О©╫$g О©╫О©╫О©╫О©╫О©╫.", true, d->character.get(), 0, 0, kToRoom | kToArenaListen);
 			if (d->character->GetEnemy() && d->character->IsFlagged(EPrf::kAntiDcMode)) {
-				snprintf(buf2, sizeof(buf2), "защитать свиток.возврата");
+				snprintf(buf2, sizeof(buf2), "О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫.О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫");
 				command_interpreter(d->character.get(), buf2);
 			}
 			if (!d->character->IsNpc()) {
@@ -2025,7 +2028,7 @@ void close_socket(DescriptorData * d, int direct)
 	}
 #endif
 
-	// TODO: п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚, п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚
+	// TODO: [encoding corruption removed] [encoding corruption removed] [encoding corruption removed], [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]
 	d->board.reset();
 	d->message.reset();
 	d->clan_olc.reset();
@@ -2036,7 +2039,7 @@ void close_socket(DescriptorData * d, int direct)
 
 	if (d->pers_log) {
 		opened_files.remove(d->pers_log);
-		fclose(d->pers_log); // п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚
+		fclose(d->pers_log); // [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]
 	}
 
 	delete d;
@@ -2142,7 +2145,7 @@ RETSIGTYPE reap(int/* sig*/) {
 
 RETSIGTYPE crash_handle(int/* sig*/) {
 	log("Crash detected !");
-	// п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚.
+	// [encoding corruption removed] [encoding corruption removed] [encoding corruption removed].
 	fflush(stdout);
 	fflush(stderr);
 
@@ -2510,7 +2513,7 @@ void perform_act(const char *orig,
 					else CHECK_NULL(obj, arena ? GET_OBJ_SUF_4(obj) : GET_OBJ_VIS_SUF_4(obj, to));
 					dg_victim = (CharData *) vict_obj;
 					break;
-//п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚(п·б╘Б∙╚п·б╘Б∙╚,п·б╘Б∙╚п·б╘Б∙╚,п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚)
+//[encoding corruption removed] [encoding corruption removed]([encoding corruption removed],[encoding corruption removed],[encoding corruption removed])
 				case 'r': i = IS_IMMORTAL(ch) || (arena) ? GET_CH_SUF_7(ch) : GET_CH_VIS_SUF_7(ch, to);
 					break;
 				case 'R':
@@ -2520,7 +2523,7 @@ void perform_act(const char *orig,
 					else CHECK_NULL(obj, arena ? GET_OBJ_SUF_7(obj) : GET_OBJ_VIS_SUF_7(obj, to));
 					dg_victim = (CharData *) vict_obj;
 					break;
-//п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚(п·б╘Б∙╚п·б╘Б∙╚,п·б╘Б∙╚п·б╘Б∙╚,п·б╘Б∙╚п·б╘Б∙╚,п·б╘Б∙╚п·б╘Б∙╚)
+//[encoding corruption removed] [encoding corruption removed]([encoding corruption removed],[encoding corruption removed],[encoding corruption removed],[encoding corruption removed])
 				case 'x': i = IS_IMMORTAL(ch) || (arena) ? GET_CH_SUF_8(ch) : GET_CH_VIS_SUF_8(ch, to);
 					break;
 				case 'X':
@@ -2530,7 +2533,7 @@ void perform_act(const char *orig,
 					else CHECK_NULL(obj, arena ? GET_OBJ_SUF_8(obj) : GET_OBJ_VIS_SUF_8(obj, to));
 					dg_victim = (CharData *) vict_obj;
 					break;
-//п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚(п·б╘Б∙╚,п·б╘Б∙╚,п·б╘Б∙╚)
+//[encoding corruption removed] [encoding corruption removed] [encoding corruption removed]([encoding corruption removed],[encoding corruption removed],[encoding corruption removed])
 				case 'z':
 					if (obj)
 						i = OYOU(obj);
@@ -2568,7 +2571,7 @@ void perform_act(const char *orig,
 			} else if (*(orig + 1) == 'n') {
 				*(buf++) = '\n';
 				orig += 2;
-			} else if (*(orig + 1) == 'u')//п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ $... п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚
+			} else if (*(orig + 1) == 'u')//[encoding corruption removed] [encoding corruption removed] $... [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]
 			{
 				cap = 1;
 				orig += 2;
@@ -2583,8 +2586,8 @@ void perform_act(const char *orig,
 	*(++buf) = '\0';
 
 	if (to->desc) {
-		// п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚, п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ &X
-		// п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚
+		// [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed], [encoding corruption removed] &X
+		// [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]
 		if (lbuf[0] == '&') {
 			char *tmp;
 			tmp = lbuf;
@@ -2688,7 +2691,7 @@ void act(const char *str,
 		return;
 	}
 
-	// п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚
+	// [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]
 	if (type == kToNotVict || type == kToRoom || type == kToRoomSensors) {
 		int stop_counter = 0;
 		for (const auto to : world[room_number]->people) {
@@ -2718,25 +2721,25 @@ void act(const char *str,
 			if (type == kToRoomSensors && to->IsFlagged(EPrf::kHolylight)) {
 				std::string buffer = str;
 				if (!IS_MALE(ch)) {
-					utils::ReplaceFirst(buffer, "п·б╘Б∙╚п·б╘Б∙╚", GET_CH_SUF_2(ch));
+					utils::ReplaceFirst(buffer, "[encoding corruption removed]", GET_CH_SUF_2(ch));
 				}
-				utils::ReplaceFirst(buffer, "п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚-п·б╘Б∙╚п·б╘Б∙╚", ch->get_name());
+				utils::ReplaceFirst(buffer, "[encoding corruption removed]-[encoding corruption removed]", ch->get_name());
 				perform_act(buffer.c_str(), ch, obj, vict_obj, to, kick_type);
 			} else {
 				perform_act(str, ch, obj, vict_obj, to, kick_type);
 			}
 		}
 	}
-	//п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚
+	//[encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]
 	if ((to_arena) && (ch) && !IS_IMMORTAL(ch) && (ch->in_room != kNowhere) && ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena)
 		&& ROOM_FLAGGED(ch->in_room, ERoomFlag::kArenaSend) && !ROOM_FLAGGED(ch->in_room, ERoomFlag::kTribune)) {
 		arena_room_rnum = ch->in_room;
-		// п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚
+		// [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]
 		while ((int) world[arena_room_rnum - 1]->vnum / 100 == (int) world[arena_room_rnum]->vnum / 100)
 			arena_room_rnum--;
-		//п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚
+		//[encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]
 		while ((int) world[arena_room_rnum + 1]->vnum / 100 == (int) world[arena_room_rnum]->vnum / 100) {
-			// п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚ п·б╘Б∙╚ п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚п·б╘Б∙╚
+			// [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]
 			if (ch->in_room != arena_room_rnum && ROOM_FLAGGED(arena_room_rnum, ERoomFlag::kTribune)) {
 				int stop_count = 0;
 				for (const auto to : world[arena_room_rnum]->people) {
