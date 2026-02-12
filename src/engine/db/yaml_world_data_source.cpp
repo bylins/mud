@@ -237,6 +237,12 @@ YamlWorldDataSource::YamlWorldDataSource(const std::string &world_dir)
 	// Load world configuration (required)
 	if (!LoadWorldConfig()) {
 		log("SYSERR: Failed to load world_config.yaml");
+		fprintf(stderr, "\n");
+		fprintf(stderr, "ERROR: World is in Legacy format, but server built with YAML support.\n");
+		fprintf(stderr, "To convert world to YAML format, run from world directory (NOT world/world):\n");
+		fprintf(stderr, "  cd %s\n", m_world_dir.c_str());
+		fprintf(stderr, "  /path/to/convert_to_yaml.py -i . -o . --format yaml --type all\n");
+		fprintf(stderr, "\n");
 		exit(1);
 	}
 }
