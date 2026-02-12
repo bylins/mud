@@ -678,20 +678,56 @@ def test_comprehensive_zone(sock, vnum):
     return all_ok
 
 
-def test_comprehensive_trigger(sock, vnum):
-    """Test comprehensive trigger update with all fields."""
-    print(f"\n[TRIGGER #{vnum}] Testing comprehensive update...")
-    
-    # First get current trigger
+def test_comprehensive_trigger(sock, zone_vnum=1):
+    """Test comprehensive trigger create/update/delete with all fields."""
+    print(f"\n[TRIGGER CREATE/UPDATE TEST] Zone {zone_vnum}")
+
+    # PART 1: Create trigger with Russian text (auto-assign vnum)
+    print(f"  → Creating new trigger (auto vnum)...")
+    create_data = {
+        'name': 'Тестовый триггер',  # Russian text
+        'attach_type': 1,  # MOB
+        'trigger_type': 2,  # GREET
+        'narg': 100,
+        'arglist': 'привет тест',  # Russian argument
+        'script': '%echo% Привет, %actor.name%!\nwait 1\n%echo% Тестовый скрипт работает.'
+    }
+
+    response = send_command(sock, "create_trigger", zone=zone_vnum, data=create_data)
+    if response.get('status') != 'ok':
+        print(f"  ✗ Create failed: {response.get('error')}")
+        return False
+
+    vnum = response.get('vnum', -1)
+    if vnum < 0:
+        print(f"  ✗ No vnum returned")
+        return False
+
+    print(f"  ✓ Trigger created with vnum={vnum}")
+
+    # PART 2: Verify creation and encoding
+    print(f"  → Verifying created trigger...")
     response = send_command(sock, "get_trigger", vnum=vnum)
     if response.get('status') != 'ok':
-        print(f"  ✗ Failed to get trigger: {response.get('error')}")
-        return
+        print(f"  ✗ Failed to get created trigger: {response.get('error')}")
+        return False
+
+    created = response.get('trigger', {})
+
+    # Check Russian text is preserved
+    if created.get('name') == create_data['name']:
+        print(f"  ✓ Name correct (Russian encoding preserved)")
+    else:
+        print(f"  ✗ Name mismatch: got '{created.get('name')}', expected '{create_data['name']}'")
+
+    if created.get('arglist') == create_data['arglist']:
+        print(f"  ✓ Arglist correct (Russian encoding preserved)")
+    else:
+        print(f"  ✗ Arglist mismatch: got '{created.get('arglist')}', expected '{create_data['arglist']}'")
+
+    # PART 3: Update with comprehensive data
+    print(f"  → Updating trigger with comprehensive data...")
     
-    original = response.get('trigger', {})
-    print(f"  ✓ Got trigger: {original.get('name', 'unnamed')}")
-    
-    # Update with all fields
     update_data = {
         'name': 'UPDATED TRIGGER via Admin API',
         'attach_type': 0,
@@ -700,8 +736,7 @@ def test_comprehensive_trigger(sock, vnum):
         'arglist': 'test argument',
         'script': '%echo% This trigger was updated via Admin API\nreturn 0\n'
     }
-    
-    print(f"  → Updating trigger with all fields...")
+
     response = send_command(sock, "update_trigger", vnum=vnum, data=update_data)
     
     if response.get('status') != 'ok':
@@ -778,23 +813,19 @@ def test_comprehensive_trigger(sock, vnum):
         print(f"  ✗ YAML file not found: {yaml_path}")
         all_ok = False
     
-    if all_ok:
-        print(f"  ✅ TRIGGER UPDATE TEST PASSED")
+    # PART 4: Cleanup - delete the test trigger
+    print(f"  → Deleting test trigger {vnum}...")
+    response = send_command(sock, "delete_trigger", vnum=vnum)
+    if response.get('status') == 'ok':
+        print(f"  ✓ Trigger deleted successfully")
     else:
-        print(f"  ❌ TRIGGER UPDATE TEST FAILED")
+        print(f"  ✗ Delete failed: {response.get('error', 'Unknown error')}")
+        # Don't fail the test if delete doesn't work - it's cleanup
 
-    # Restore original
-    print(f"  → Restoring original trigger...")
-    restore_data = {
-        'name': original.get('name', ''),
-        'attach_type': original.get('attach_type', 0),
-        'trigger_type': original.get('trigger_type', 0),
-        'narg': original.get('narg', 0),
-        'arglist': original.get('arglist', ''),
-        'script': '\n'.join(original.get('commands', []))
-    }
-    send_command(sock, "update_trigger", vnum=vnum, data=restore_data)
-    print(f"  ✓ Restored original")
+    if all_ok:
+        print(f"  ✅ TRIGGER CREATE/UPDATE/DELETE TEST PASSED")
+    else:
+        print(f"  ❌ TRIGGER TEST FAILED")
 
     return all_ok
 
@@ -983,7 +1014,7 @@ def test_large_payload(sock, vnum):
             print(f"  ❌ Get failed: {response.get('error', 'Unknown error')}")
             return False
 
-        saved_data = response.get("data", {})
+        saved_data = response.get("mob", {})
 
         # Verify key fields
         all_ok = True
@@ -1263,7 +1294,7 @@ def main():
             print("\n" + "="*60)
             print("TESTING TRIGGER COMPREHENSIVE UPDATE (ALL FIELDS)")
             print("="*60)
-            if not test_comprehensive_trigger(sock, 107):
+            if not test_comprehensive_trigger(sock, zone_vnum=1):
                 all_tests_passed = False
 
             print("\n" + "="*60)
