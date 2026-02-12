@@ -1082,7 +1082,7 @@ int new_admin_descriptor(int epoll, socket_t s) {
 	newd->admin_api_mode = true;
 	newd->keytable = kCodePageUTF8;
 	strcpy(newd->host, "unix-socket");
-	newd->login_time = time(0);
+	newd->login_time = newd->input_time = time(0);
 
 	// Initialize output buffer
 	newd->output = newd->small_outbuf;
@@ -1258,6 +1258,11 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 	// Process commands we just read from process_input
 	for (d = descriptor_list; d; d = next_d) {
 		next_d = d->next;
+
+		// Admin API connections don't use the input queue - skip command processing
+		if (d->admin_api_mode) {
+			continue;
+		}
 
 		/*
 		 * Not combined to retain --(d->wait) behavior. -gg 2/20/98
