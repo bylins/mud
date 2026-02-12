@@ -556,18 +556,28 @@ run_test() {
         return 1
     fi
 
-    # Wait for boot to complete (max 5 minutes)
+    # Determine what to wait for based on -W flag (checksums enabled)
+    local wait_pattern
+    if echo "$extra_flags" | grep -q -- "-W"; then
+        # Wait for checksums to complete (they appear after boot)
+        wait_pattern="Zones:.*zones\)"
+    else
+        # Just wait for boot completion
+        wait_pattern="Boot db -- DONE"
+    fi
+
+    # Wait for completion (max 5 minutes)
     waited=0
     local boot_success=0
     while [ $waited -lt 300 ]; do
-        
-        # Check if boot completed
-        if LANG=C grep -qa "Boot db -- DONE" "$data_dir/syslog" 2>/dev/null; then
+
+        # Check if pattern found (match with or without trailing period)
+        if LANG=C grep -qEa "$wait_pattern" "$data_dir/syslog" 2>/dev/null; then
             boot_success=1
-            sleep 1
+            sleep 1  # Give 1 extra second for file writes
             break
         fi
-        
+
         sleep 1
         waited=$((waited + 1))
     done
@@ -592,8 +602,8 @@ run_test() {
     # Extract and display results
     if [ -f "$data_dir/syslog" ]; then
         # Boot times
-        local begin=$(LANG=C grep -a "Boot db -- BEGIN" "$data_dir/syslog" | head -1 | cut -d' ' -f2)
-        local done_time=$(LANG=C grep -a "Boot db -- DONE" "$data_dir/syslog" | head -1 | cut -d' ' -f2)
+        local begin=$(LANG=C grep -Ea "Boot db -- BEGIN\.?" "$data_dir/syslog" | head -1 | cut -d' ' -f2)
+        local done_time=$(LANG=C grep -Ea "Boot db -- DONE\.?" "$data_dir/syslog" | head -1 | cut -d' ' -f2)
 
         if [ -n "$begin" ] && [ -n "$done_time" ]; then
             local begin_sec=$(echo "$begin" | awk -F: '{printf "%.3f", ($1*3600)+($2*60)+$3}')
