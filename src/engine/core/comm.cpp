@@ -150,13 +150,9 @@
 # endif
 #endif
 
-// [encoding corruption removed]
-
 #define MXP_BEG "\x03"    /* becomes < */
 #define MXP_END "\x04"    /* becomes > */
 #define MXP_AMP "\x05"    /* becomes & */
-
-// [encoding corruption removed]
 
 #define MXP_BEGc '\x03'    /* becomes < */
 #define MXP_ENDc '\x04'    /* becomes > */
@@ -389,7 +385,7 @@ struct timeval null_time;    // zero-valued time structure
 int dg_act_check;        // toggle for act_trigger
 unsigned long cmd_cnt = 0;
 
-// [encoding corruption removed] [encoding corruption removed], [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]
+//  ,   
 const int vnum_room_new_year[31] =
 	{4056,
 	 5000,
@@ -491,9 +487,9 @@ const int vnum_gifts[len_array_gifts] = {27113,
 };
 
 void gifts() {
-	// [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]
+	// Select random room with Christmas tree
 	int rand_vnum_r = vnum_room_new_year[number(0, 30)];
-	// [encoding corruption removed]  [encoding corruption removed] [encoding corruption removed]
+	// Select random gift
 	int rand_vnum = vnum_gifts[number(0, len_array_gifts - 1)];
 	ObjRnum rnum;
 	if ((rnum = GetObjRnum(rand_vnum)) < 0) {
@@ -504,7 +500,7 @@ void gifts() {
 	const auto obj_gift = world_objects.create_from_prototype_by_rnum(rnum);
 	const auto obj_cont = world_objects.create_from_prototype_by_vnum(2594);
 
-	// [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]
+	// Create gift wrapping and place gift inside
 	PlaceObjToRoom(obj_cont.get(), GetRoomRnum(rand_vnum_r));
 	PlaceObjIntoObj(obj_gift.get(), obj_cont.get());
 	CheckObjDecay(obj_gift.get());
@@ -600,7 +596,7 @@ void gettimeofday(struct timeval *t, void *dummy)
 
 int main_function(int argc, char **argv) {
 #ifdef TEST_BUILD
-	// [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] cygwin 1.7 [encoding corruption removed] [encoding corruption removed]
+	// Note: specific behavior for Cygwin 1.7
 	setlocale(LC_CTYPE, "ru_RU.KOI8-R");
 #endif
 
@@ -727,9 +723,9 @@ int main_function(int argc, char **argv) {
 	} else {
 		printf("Running game on port %d.\r\n", port);
 
-		// [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed], [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]
-		// [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed], [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]
-		// [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed], [encoding corruption removed].[encoding corruption removed]. [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]
+		// Technical note: ,       
+		// Technical note: ,   
+		// Technical note: , ..    
 		stop_game(port);
 	}
 
@@ -787,10 +783,10 @@ void stop_game(ush_int port) {
 							  __func__, __FILE__, __LINE__).c_str());
 		return;
 	}
-	// [encoding corruption removed], [encoding corruption removed].[encoding corruption removed]. [encoding corruption removed] event.data [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] ptr, [encoding corruption removed] fd.
-	// [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] ptr, [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]
-	// [encoding corruption removed], [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] fd, [encoding corruption removed] [encoding corruption removed] [encoding corruption removed],
-	// [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] descriptor
+	// , ..  event.data     ptr,  fd.
+	// Technical note: ptr,    
+	// ,     fd,   ,
+	// Technical note: descriptor
 	mother_d = (DescriptorData *) calloc(1, sizeof(DescriptorData));
 	mother_d->descriptor = mother_desc;
 	event.data.ptr = mother_d;
@@ -822,8 +818,8 @@ void stop_game(ush_int port) {
 
 	FlushPlayerIndex();
 
-	// [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] Crash_save_all_rent(), [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]
-	// [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed], [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]...
+	// Note: Crash_save_all_rent(),        
+	// Note: ,     ...
 	Depot::save_all_online_objs();
 	Depot::save_timedata();
 
@@ -847,7 +843,7 @@ void stop_game(ush_int port) {
 	Glory::save_glory();
 	GloryConst::save();
 	GloryMisc::save_log();
-	GlobalDrop::save();// [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]
+	GlobalDrop::save();//   
 	MoneyDropStat::print_log();
 	ZoneExpStat::print_log();
 	print_rune_log();
@@ -868,7 +864,7 @@ void stop_game(ush_int port) {
 	while (descriptor_list)
 		close_socket(descriptor_list, true);
 #endif
-	// [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]
+	// Note: 
 	FileCRC::save(true);
 
 	CLOSE_SOCKET(mother_desc);
@@ -1146,7 +1142,7 @@ int shutting_down(void) {
 			sprintf(buf + strlen(buf), "%d %s.\r\n", wait / 60, GetDeclensionInNumber(wait / 60, EWhat::kMinU));
 		SendMsgToAll(buf);
 		lastmessage = time(nullptr);
-		// [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]
+		// Technical note: 
 		if (wait == 10)
 			log_zone_count_reset();
 	}
@@ -1174,7 +1170,7 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 #ifdef HAS_EPOLL
 	int n, i;
 
-	// [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]
+	// Note: 
 	n = epoll_wait(epoll, events, MAXEVENTS, 0);
 	if (n == -1) {
 		perror(fmt::format("EPOLL: epoll_ctl() failed on EPOLL_CTL_ADD mother_desc in {}() at {}:{}",
@@ -1191,7 +1187,7 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 			d = (DescriptorData *) events[i].data.ptr;
 			if (d == nullptr)
 				continue;
-			if (mother_desc == d->descriptor) // [encoding corruption removed] [encoding corruption removed] mother_desc: [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]
+			if (mother_desc == d->descriptor) //   mother_desc:    
 			{
 				int desc;
 				do
@@ -1203,7 +1199,7 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 				new_admin_descriptor(epoll, admin_socket);
 			}
 #endif
-			else { // [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]: [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed], [encoding corruption removed] EOF
+			else { // Note: :     ,  EOF
 #ifdef ENABLE_ADMIN_API
 				int result = (d->admin_api_mode) ? admin_api_process_input(d) : iosystem::process_input(d);
 				if (result < 0)
@@ -1212,9 +1208,9 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 #endif
 				close_socket(d, false, epoll, events, n);
 			}
-		} else if (events[i].events & !EPOLLOUT & !EPOLLIN) // [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed], [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] in [encoding corruption removed] out
+		} else if (events[i].events & !EPOLLOUT & !EPOLLIN) // Note: ,    in  out
 		{
-			// [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]
+			// Technical note: 
 			char tmp[kMaxInputLength];
 			snprintf(tmp, sizeof(tmp), "EPOLL: Got event %u in {}() at %s:%s:%d",
 					 static_cast<unsigned>(events[i].events),
@@ -1284,7 +1280,7 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 				continue;
 			}
 		}
-		// [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] !
+		// Technical note: !
 		if (!get_from_q(&d->input, comm, &aliased)) {
 			if (d->state != EConState::kPlaying &&
 				d->state != EConState::kDisconnect &&
@@ -1335,12 +1331,12 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 		if (d == nullptr)
 			continue;
 		if ((events[i].events & EPOLLOUT) && (!d->has_prompt || *(d->output))) {
-			if (iosystem::process_output(d) < 0) // [encoding corruption removed] [encoding corruption removed]
+			if (iosystem::process_output(d) < 0) //  
 				close_socket(d, false, epoll, events, n);
 			else
-				d->has_prompt = 1;   // [encoding corruption removed] [encoding corruption removed], [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]
-			// [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]
-			// [encoding corruption removed] [encoding corruption removed]
+				d->has_prompt = 1;   //  ,    
+			// Note: 
+			//  
 		}
 	}
 #else
@@ -1350,17 +1346,17 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 		if ((!d->has_prompt || *(d->output)) && FD_ISSET(d->descriptor, &output_set))
 		{
 			if (iosystem::process_output(d) < 0)
-				close_socket(d, false);	// [encoding corruption removed] [encoding corruption removed]
+				close_socket(d, false);	//  
 			else
-				d->has_prompt = 1;	// [encoding corruption removed] [encoding corruption removed], [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]
-			// [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]
-			// [encoding corruption removed] [encoding corruption removed]
+				d->has_prompt = 1;	//  ,    
+			// Note: 
+			//  
 		}
 	}
 #endif
 
-// [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] #if 0 ... #endif. [encoding corruption removed], [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed].
-// [encoding corruption removed] [encoding corruption removed], [encoding corruption removed] [encoding corruption removed] [encoding corruption removed].
+// Technical note: #if 0 ... #endif. ,    .
+//  ,   .
 
 	// Kick out folks in the CON_CLOSE or CON_DISCONNECT state
 	for (d = descriptor_list; d; d = next_d) {
@@ -1518,8 +1514,8 @@ void game_loop(socket_t mother_desc)
 		}
 
 		// If we missed more than 30 seconds worth of pulses, just do 30 secs
-		// [encoding corruption removed] [encoding corruption removed] 4 [encoding corruption removed]
-		// [encoding corruption removed] [encoding corruption removed] 1 [encoding corruption removed] -- [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] :)
+		//   4 
+		//   1  --     :)
 		if (missed_pulses > (1 * kPassesPerSec)) {
 			const auto missed_seconds = missed_pulses / kPassesPerSec;
 			const auto current_pulse = GlobalObjects::heartbeat().pulse_number();
@@ -1701,10 +1697,10 @@ int set_sendbuf(socket_t s) {
 	return (0);
 }
 
-// [encoding corruption removed] [encoding corruption removed] [encoding corruption removed], [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]
-// [encoding corruption removed] -1, [encoding corruption removed] accept() [encoding corruption removed] EINTR, EAGAIN [encoding corruption removed] EWOULDBLOCK
-// [encoding corruption removed] -2 [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]
-// [encoding corruption removed] -3, [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]
+//   ,    
+//  -1,  accept()  EINTR, EAGAIN  EWOULDBLOCK
+//  -2    
+//  -3,      
 #ifdef HAS_EPOLL
 int new_descriptor(int epoll, socket_t s)
 #else
@@ -1773,7 +1769,7 @@ int new_descriptor(socket_t s)
 		*(newd->host + kHostLength) = '\0';
 	}
 
-	// [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]
+	// Note: 
 	newd->ip = TxtToIp(newd->host);
 
 	// determine if the site is banned
@@ -1800,30 +1796,30 @@ int new_descriptor(socket_t s)
 
 #ifdef HAS_EPOLL
 	//
-	// [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed].
+	// Technical note: .
 	//
-	// [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed], [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] data.ptr [encoding corruption removed]
-	// [encoding corruption removed] [encoding corruption removed], [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]. [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]
-	// [encoding corruption removed] [encoding corruption removed] [encoding corruption removed], [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed].
+	// Note: ,     data.ptr 
+	//  ,     .     
+	//   ,     .
 	//
-	// [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed], [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed],
-	// [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] epoll_wait() [encoding corruption removed], [encoding corruption removed]
-	// [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed], [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]
-	// [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]
-	// [encoding corruption removed]. [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] data.ptr [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]
-	// [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed], [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]
-	// [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed].
+	// Note: ,     ,
+	// Note: epoll_wait() , 
+	// Note: ,    
+	// Technical note: 
+	// .     data.ptr   
+	// Technical note: ,   
+	// Technical note: .
 	//
-	// [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] data.ptr [encoding corruption removed] nullptr
-	// [encoding corruption removed] [encoding corruption removed] [encoding corruption removed], [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]. [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] close_socket(),
-	// [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed].
-	// [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] nullptr [encoding corruption removed] close_socket(), process_input()
-	// [encoding corruption removed] process_output().
+	// Technical note: data.ptr  nullptr
+	//   ,    .    close_socket(),
+	// Technical note: .
+	// Technical note: nullptr  close_socket(), process_input()
+	//  process_output().
 	//
-	// [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] select() [encoding corruption removed] [encoding corruption removed] [encoding corruption removed], [encoding corruption removed]
-	// [encoding corruption removed] [encoding corruption removed] select() [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed], [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]
-	// [encoding corruption removed], [encoding corruption removed] [encoding corruption removed] epoll [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed], [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]
-	// [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed].
+	// Note: select()   , 
+	//   select()     ,    
+	// ,   epoll     ,   
+	// Note: .
 	//
 	event.data.ptr = newd;
 	//
@@ -1880,10 +1876,10 @@ int new_descriptor(socket_t s)
 }
 
 /**
-* [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]-[encoding corruption removed], [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]
-* [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] ([encoding corruption removed]). [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed], [encoding corruption removed]
-* [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed], [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed],
-* [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]/[encoding corruption removed] [encoding corruption removed].
+*      -,     
+*    ().       , 
+*      ,        ,
+*     / .
 */
 bool any_other_ch(CharData *ch) {
 	for (const auto &vict : character_list) {
@@ -1924,7 +1920,7 @@ void close_socket(DescriptorData * d, int direct)
 #ifdef HAS_EPOLL
 	if (epoll_ctl(epoll, EPOLL_CTL_DEL, d->descriptor, nullptr) == -1)
 		log("SYSERR: EPOLL_CTL_DEL failed in close_socket()");
-	// [encoding corruption removed]. [encoding corruption removed] [encoding corruption removed] new_descriptor()
+	// .   new_descriptor()
 	int i;
 	if (events != nullptr)
 		for (i = 0; i < n_ev; i++)
@@ -2033,7 +2029,7 @@ void close_socket(DescriptorData * d, int direct)
 	}
 #endif
 
-	// TODO: [encoding corruption removed] [encoding corruption removed] [encoding corruption removed], [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]
+	// TODO:   ,       
 	d->board.reset();
 	d->message.reset();
 	d->clan_olc.reset();
@@ -2044,7 +2040,7 @@ void close_socket(DescriptorData * d, int direct)
 
 	if (d->pers_log) {
 		opened_files.remove(d->pers_log);
-		fclose(d->pers_log); // [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]
+		fclose(d->pers_log); // Note: 
 	}
 
 	delete d;
@@ -2150,7 +2146,7 @@ RETSIGTYPE reap(int/* sig*/) {
 
 RETSIGTYPE crash_handle(int/* sig*/) {
 	log("Crash detected !");
-	// [encoding corruption removed] [encoding corruption removed] [encoding corruption removed].
+	//   .
 	fflush(stdout);
 	fflush(stderr);
 
@@ -2518,7 +2514,7 @@ void perform_act(const char *orig,
 					else CHECK_NULL(obj, arena ? GET_OBJ_SUF_4(obj) : GET_OBJ_VIS_SUF_4(obj, to));
 					dg_victim = (CharData *) vict_obj;
 					break;
-//[encoding corruption removed] [encoding corruption removed]([encoding corruption removed],[encoding corruption removed],[encoding corruption removed])
+// (,,)
 				case 'r': i = IS_IMMORTAL(ch) || (arena) ? GET_CH_SUF_7(ch) : GET_CH_VIS_SUF_7(ch, to);
 					break;
 				case 'R':
@@ -2528,7 +2524,7 @@ void perform_act(const char *orig,
 					else CHECK_NULL(obj, arena ? GET_OBJ_SUF_7(obj) : GET_OBJ_VIS_SUF_7(obj, to));
 					dg_victim = (CharData *) vict_obj;
 					break;
-//[encoding corruption removed] [encoding corruption removed]([encoding corruption removed],[encoding corruption removed],[encoding corruption removed],[encoding corruption removed])
+// (,,,)
 				case 'x': i = IS_IMMORTAL(ch) || (arena) ? GET_CH_SUF_8(ch) : GET_CH_VIS_SUF_8(ch, to);
 					break;
 				case 'X':
@@ -2538,7 +2534,7 @@ void perform_act(const char *orig,
 					else CHECK_NULL(obj, arena ? GET_OBJ_SUF_8(obj) : GET_OBJ_VIS_SUF_8(obj, to));
 					dg_victim = (CharData *) vict_obj;
 					break;
-//[encoding corruption removed] [encoding corruption removed] [encoding corruption removed]([encoding corruption removed],[encoding corruption removed],[encoding corruption removed])
+//  (,,)
 				case 'z':
 					if (obj)
 						i = OYOU(obj);
@@ -2576,7 +2572,7 @@ void perform_act(const char *orig,
 			} else if (*(orig + 1) == 'n') {
 				*(buf++) = '\n';
 				orig += 2;
-			} else if (*(orig + 1) == 'u')//[encoding corruption removed] [encoding corruption removed] $... [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]
+			} else if (*(orig + 1) == 'u')//  $...    
 			{
 				cap = 1;
 				orig += 2;
@@ -2591,8 +2587,8 @@ void perform_act(const char *orig,
 	*(++buf) = '\0';
 
 	if (to->desc) {
-		// [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed], [encoding corruption removed] &X
-		// [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]
+		// Note: ,  &X
+		// Technical note: 
 		if (lbuf[0] == '&') {
 			char *tmp;
 			tmp = lbuf;
@@ -2696,7 +2692,7 @@ void act(const char *str,
 		return;
 	}
 
-	// [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]
+	// Technical note: 
 	if (type == kToNotVict || type == kToRoom || type == kToRoomSensors) {
 		int stop_counter = 0;
 		for (const auto to : world[room_number]->people) {
@@ -2735,16 +2731,16 @@ void act(const char *str,
 			}
 		}
 	}
-	//[encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]
+	//   
 	if ((to_arena) && (ch) && !IS_IMMORTAL(ch) && (ch->in_room != kNowhere) && ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena)
 		&& ROOM_FLAGGED(ch->in_room, ERoomFlag::kArenaSend) && !ROOM_FLAGGED(ch->in_room, ERoomFlag::kTribune)) {
 		arena_room_rnum = ch->in_room;
-		// [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]
+		// Note: 
 		while ((int) world[arena_room_rnum - 1]->vnum / 100 == (int) world[arena_room_rnum]->vnum / 100)
 			arena_room_rnum--;
-		//[encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]
+		// Note: 
 		while ((int) world[arena_room_rnum + 1]->vnum / 100 == (int) world[arena_room_rnum]->vnum / 100) {
-			// [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]
+			// Technical note: 
 			if (ch->in_room != arena_room_rnum && ROOM_FLAGGED(arena_room_rnum, ERoomFlag::kTribune)) {
 				int stop_count = 0;
 				for (const auto to : world[arena_room_rnum]->people) {
