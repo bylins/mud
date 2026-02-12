@@ -497,7 +497,7 @@ void gifts() {
 	int rand_vnum = vnum_gifts[number(0, len_array_gifts - 1)];
 	ObjRnum rnum;
 	if ((rnum = GetObjRnum(rand_vnum)) < 0) {
-		log("[encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]!");
+		log("Ошибка в таблице НГ подарков!");
 		return;
 	}
 
@@ -509,7 +509,7 @@ void gifts() {
 	PlaceObjIntoObj(obj_gift.get(), obj_cont.get());
 	CheckObjDecay(obj_gift.get());
 	CheckObjDecay(obj_cont.get());
-	log("[encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed]: %d, [encoding corruption removed]: %d", rand_vnum_r, rand_vnum);
+	log("Загружен подарок в комнату: %d, объект: %d", rand_vnum_r, rand_vnum);
 }
 
 // functions in this file
@@ -1939,7 +1939,7 @@ void close_socket(DescriptorData * d, int direct)
 		d->snooping->snoop_by = nullptr;
 
 	if (d->snoop_by) {
-		iosystem::write_to_output("[encoding corruption removed] [encoding corruption removed] [encoding corruption removed] [encoding corruption removed].\r\n", d->snoop_by);
+		iosystem::write_to_output("Ваш подопечный выключил компьютер.\r\n", d->snoop_by);
 		d->snoop_by->snooping = nullptr;
 	}
 	//. Kill any OLC stuff .
@@ -2726,9 +2726,9 @@ void act(const char *str,
 			if (type == kToRoomSensors && to->IsFlagged(EPrf::kHolylight)) {
 				std::string buffer = str;
 				if (!IS_MALE(ch)) {
-					utils::ReplaceFirst(buffer, "[encoding corruption removed]", GET_CH_SUF_2(ch));
+					utils::ReplaceFirst(buffer, "ся", GET_CH_SUF_2(ch));
 				}
-				utils::ReplaceFirst(buffer, "[encoding corruption removed]-[encoding corruption removed]", ch->get_name());
+				utils::ReplaceFirst(buffer, "Кто-то", ch->get_name());
 				perform_act(buffer.c_str(), ch, obj, vict_obj, to, kick_type);
 			} else {
 				perform_act(str, ch, obj, vict_obj, to, kick_type);
