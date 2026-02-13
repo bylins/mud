@@ -29,19 +29,11 @@
 #include <sstream>
 
 using json = nlohmann::json;
+using namespace admin_api::handlers;
 
 // ============================================================================
 // Helper functions for encoding conversion
 // ============================================================================
-
-// Helper function to convert KOI8-R to UTF-8
-static std::string koi8r_to_utf8(const char *koi_str) {
-	if (!koi_str) return "";
-
-	char utf8_buf[kMaxStringLength];
-	koi_to_utf8(const_cast<char*>(koi_str), utf8_buf);
-	return std::string(utf8_buf);
-}
 
 // Convert KOI8-R string to UTF-8 for JSON
 std::string koi8r_to_utf8(const std::string &koi8r) {
@@ -376,9 +368,8 @@ void admin_api_parse(DescriptorData *d, char *argument) {
 			HandleUpdateTrigger(d, vnum, data.dump().c_str());
 		}
 		else if (command == "create_trigger") {
-			int zone = request.value("zone", -1);
 			json data = request.value("data", json::object());
-			HandleCreateTrigger(d, zone, data.dump().c_str());
+			HandleCreateTrigger(d, data.dump().c_str());
 		}
 		else if (command == "delete_trigger") {
 			int vnum = request.value("vnum", -1);
