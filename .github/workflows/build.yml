@@ -206,6 +206,147 @@ jobs:
             mingw-w64-x86_64-curl
             mingw-w64-x86_64-expat
             mingw-w64-x86_64-gtest
+            git
+
+      - name: Configure CMake
+        shell: msys2 {0}
+        run: |
+          mkdir -p build
+          cd build
+          cmake -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release ..
+
+      - name: Build
+        shell: msys2 {0}
+        run: |
+          cd build
+          mingw32-make tests -j$(nproc)
+
+      - name: Run tests
+        shell: msys2 {0}
+        run: |
+          cd build
+          ./tests/tests
+
+  build-cygwin:
+    name: Cygwin
+    runs-on: windows-latest
+    continue-on-error: true  # Soft-failure mode
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup Cygwin
+        uses: cygwin/cygwin-install-action@v6
+        with:
+          site: https://mirrors.sonic.net/cygwin/
+          packages: >-
+            gcc-g++
+            gcc-core
+            make
+            cmake
+            libssl-devel
+            libcurl-devel
+            libexpat1-devel
+            gettext-devel
+            unzip
+            git
+
+      - name: Configure CMake
+        shell: C:\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
+        run: |
+          cd "$GITHUB_WORKSPACE"
+          mkdir -p build
+          cd build
+          cmake -DCMAKE_BUILD_TYPE=Release ..
+
+      - name: Build
+        shell: C:\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
+        run: |
+          git config --global --add safe.directory '*'
+          cd "$GITHUB_WORKSPACE/build"
+          make tests -j$(nproc)
+
+      - name: Run tests
+        shell: C:\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
+        run: |
+          cd "$GITHUB_WORKSPACE/build"
+          ./tests/tests.exe
+
+  build-wsl:
+    name: WSL (Ubuntu)
+    runs-on: windows-latest
+    continue-on-error: true  # Soft-failure mode
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup WSL
+        uses: Vampire/setup-wsl@v3
+        with:
+          distribution: Ubuntu-24.04
+
+      - name: Install dependencies in WSL
+        shell: wsl-bash {0}
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            make \
+            libssl-dev \
+            libcurl4-gnutls-dev \
+            libexpat1-dev \
+            gettext \
+            unzip \
+            cmake \
+            gdb \
+            libgtest-dev \
+            zlib1g-dev
+
+      - name: Configure CMake in WSL
+        shell: wsl-bash {0}
+        run: |
+          mkdir -p build
+          cd build
+          cmake -DCMAKE_BUILD_TYPE=Release ..
+
+      - name: Build in WSL
+        shell: wsl-bash {0}
+        run: |
+          cd build
+          make tests -j$(nproc)
+
+      - name: Run tests in WSL
+        shell: wsl-bash {0}
+        run: |
+          cd build
+          ./tests/tests
+
+  build-windows-mingw-yaml:
+    name: Windows (MinGW + YAML)
+    runs-on: windows-latest
+    continue-on-error: true  # Soft-failure mode
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup MinGW
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          update: true
+          install: >-
+            mingw-w64-x86_64-gcc
+            mingw-w64-x86_64-cmake
+            mingw-w64-x86_64-make
+            mingw-w64-x86_64-openssl
+            mingw-w64-x86_64-curl
+            mingw-w64-x86_64-expat
             mingw-w64-x86_64-yaml-cpp
             git
 
@@ -222,8 +363,8 @@ jobs:
           cd build
           mingw32-make -j$(nproc)
 
-  build-cygwin:
-    name: Cygwin
+  build-cygwin-yaml:
+    name: Cygwin + YAML
     runs-on: windows-latest
     continue-on-error: true  # Soft-failure mode
 
@@ -264,8 +405,8 @@ jobs:
           cd "$GITHUB_WORKSPACE/build"
           make -j$(nproc)
 
-  build-wsl:
-    name: WSL (Ubuntu)
+  build-wsl-yaml:
+    name: WSL + YAML
     runs-on: windows-latest
     continue-on-error: true  # Soft-failure mode
 
@@ -293,7 +434,6 @@ jobs:
             unzip \
             cmake \
             gdb \
-            libgtest-dev \
             zlib1g-dev \
             libyaml-cpp-dev
 
@@ -313,7 +453,7 @@ jobs:
   build-summary:
     name: Build Summary
     runs-on: ubuntu-latest
-    needs: [build-linux-matrix, build-linux-gcc15, build-windows-msvc, build-windows-mingw, build-cygwin, build-wsl]
+    needs: [build-linux-matrix, build-linux-gcc15, build-windows-msvc, build-windows-mingw, build-cygwin, build-wsl, build-windows-mingw-yaml, build-cygwin-yaml, build-wsl-yaml]
     if: always()
 
     steps:
