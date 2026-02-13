@@ -67,7 +67,7 @@ std::string utf8_to_koi8r(const std::string &utf8) {
 // Admin API socket I/O and chunking
 // ============================================================================
 
-#define MAX_CHUNKS 4
+#define MAX_CHUNKS 64  // Max 64KB responses (64 * 1KB chunks)
 
 // Admin API input processing (separate from game process_input)
 int admin_api_process_input(DescriptorData *d) {

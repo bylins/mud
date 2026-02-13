@@ -15,16 +15,40 @@ def send_command(sock, command, **kwargs):
     message = json.dumps(request) + "\n"
     sock.sendall(message.encode('utf-8'))
 
-    # Read response
+    # Read response (may be chunked)
     buffer = b''
+    chunks = {}  # Map chunk_num -> chunk_data (bytes)
+    total_chunks = None
+
     while True:
-        chunk = sock.recv(4096)
-        if not chunk:
+        data = sock.recv(4096)
+        if not data:
             raise ConnectionError("Connection closed")
-        buffer += chunk
-        if b'\n' in buffer:
+        buffer += data
+
+        # Process complete lines
+        while b'\n' in buffer:
             line, buffer = buffer.split(b'\n', 1)
-            return json.loads(line.decode('utf-8'))
+
+            # Check if this is a chunked response
+            if line.startswith(b'CHUNK:'):
+                # Parse chunk header: CHUNK:N/Total:data
+                header_end = line.index(b':', 6)  # Find second colon
+                chunk_info = line[6:header_end].decode('ascii')
+                chunk_data = line[header_end+1:]  # Keep as bytes
+
+                chunk_num, total = map(int, chunk_info.split('/'))
+                total_chunks = total
+                chunks[chunk_num] = chunk_data
+
+                # If we have all chunks, reassemble
+                if len(chunks) == total_chunks:
+                    full_response_bytes = b''.join(chunks[i] for i in range(total_chunks))
+                    full_response_str = full_response_bytes.decode('utf-8')
+                    return json.loads(full_response_str)
+            else:
+                # Non-chunked response
+                return json.loads(line.decode('utf-8'))
 
 def verify_yaml_file(entity_type, vnum, expected_fields):
     """Verify that YAML file was actually saved with expected values."""
