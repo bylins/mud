@@ -160,7 +160,7 @@ class RuntimeConfiguration {
 	auto output_queue_size() const { return m_output_queue_size; }
 
 	void setup_logs();
-	const auto syslog_converter() const { return m_syslog_converter; }
+	auto syslog_converter() const { return m_syslog_converter; }
 
 	void enable_logging() { m_logging_enabled = true; }
 	void disable_logging() { m_logging_enabled = false; }

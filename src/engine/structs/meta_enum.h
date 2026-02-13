@@ -3,7 +3,7 @@
 \authors Created by Sventovit.
 \date 15.09.2024.
 \brief Brief description.
-\detail Здесь нужно будет разместить реализацию итерируемых и конвертируемых в строки enum, а пока так.
+\detail О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ enum, О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫.
 */
 
 #ifndef BYLINS_SRC_ENGINE_STRUCTS_META_ENUM_H_
@@ -15,12 +15,12 @@ template<typename T>
 struct Unimplemented {};
 
 template<typename E>
-const std::string &NAME_BY_ITEM(const E item) {
+const std::string &NAME_BY_ITEM(const E) {
 	return Unimplemented<E>::FAIL;
 }
 
 template<typename E>
-E ITEM_BY_NAME(const std::string &name) {
+E ITEM_BY_NAME(const std::string &) {
 	return Unimplemented<E>::FAIL;
 }
 
