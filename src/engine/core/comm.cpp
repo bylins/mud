@@ -1203,7 +1203,7 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 				new_admin_descriptor(epoll, admin_socket);
 			}
 #endif
-			} else // событие на клиентском дескрипторе: получаем данные и закрываем сокет, если EOF
+			else { // событие на клиентском дескрипторе: получаем данные и закрываем сокет, если EOF
 #ifdef ENABLE_ADMIN_API
 				int result = (d->admin_api_mode) ? admin_api_process_input(d) : iosystem::process_input(d);
 				if (result < 0)
