@@ -644,6 +644,7 @@ set(HEADERS
 		src/gameplay/skills/skills_info.h
 		src/gameplay/communication/spam.h
 		src/engine/network/admin_api.h
+		src/engine/network/admin_api/admin_api_constants.h
 		src/engine/network/descriptor_data.h
 		src/engine/structs/structs.h
 		src/gameplay/mechanics/stuff.h
