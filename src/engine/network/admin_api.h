@@ -12,17 +12,17 @@
 
 struct DescriptorData;
 
-// п©б╥п©Б∙═я▐Б■─п©Б∙÷п©Б∙═п©Б∙╛я▐Б■▄я▐Б■╓п©Б∙╕п©Б∙╗ п©Б∙╗п©Б∙╛п©Б∙╙п©Б∙÷п©Б∙╚п©Б∙╒ Admin API
+// Обработчик команд Admin API
 void admin_api_parse(DescriptorData *d, char *argument);
 
-// п©б╥п©Б∙═я▐Б■─п©Б∙÷п©Б∙═п©Б∙╛я▐Б■▄п©Б∙╗п©Б∙÷ п©Б∙║п©Б∙║п©Б∙╛п©Б∙╒п©Б∙÷ Admin API (п©Б∙╛я▐Б■▄п©Б∙╒п©Б∙ёп©Б∙╘я▐Б√└п©Б∙╚п©Б∙╛ п©Б∙╛я▐Б■▄ п©Б∙╕п©п│я▐Б■─п©Б∙╛п©Б∙║п©Б∙╛п©п│п©Б∙╛ process_input)
+// Обработка ввода Admin API (отдельно от игрового process_input)
 int admin_api_process_input(DescriptorData *d);
 
-// п©Б√▒я▐Б■░я▐Б■▄п©Б∙ёп©Б∙╚я▐Б■▄п©Б∙╕я▐Б■■п©Б∙╕п©Б∙╗п©Б∙÷я▐Б■°п©Б∙╕я▐Б√░
+// Аутентификация
 bool admin_api_authenticate(DescriptorData *d, const char *username, const char *password);
 bool admin_api_is_authenticated(DescriptorData *d);
 
-// API п©Б∙╗п©Б∙╛п©Б∙╙п©Б∙÷п©Б∙╚п©Б∙╒я▐Б√─ (я▐Б■▄я▐Б■─п©Б∙ёп©Б∙═я▐Б■░я▐Б√▄я▐Б■▄ п©Б∙÷я▐Б■░я▐Б■▄п©Б∙ёп©Б∙╚я▐Б■▄п©Б∙╕я▐Б■■п©Б∙╕п©Б∙╗п©Б∙÷я▐Б■°п©Б∙╕п©Б∙╕)
+// API команды (требуют аутентификации)
 void admin_api_list_mobs(DescriptorData *d, const char *zone_vnum);
 void admin_api_get_mob(DescriptorData *d, int mob_vnum);
 void admin_api_update_mob(DescriptorData *d, int mob_vnum, const char *json_data);
@@ -45,7 +45,7 @@ void admin_api_list_zones(DescriptorData *d);
 void admin_api_get_zone(DescriptorData *d, int zone_vnum);
 void admin_api_update_zone(DescriptorData *d, int zone_vnum, const char *json_data);
 
-// п©Б∙▒я▐Б■▄п©Б∙÷я▐Б■▄п©Б∙╕я▐Б■┌я▐Б■▄п©Б∙╕п©Б∙╗п©Б∙÷ п©Б∙╕ п©Б∙╕п©Б∙╚я▐Б■■п©Б∙╛я▐Б■─п©Б∙╙п©Б∙÷я▐Б■°п©Б∙╕я▐Б√░ п©Б∙╛ я▐Б■┌п©Б∙ёя▐Б■─п©Б∙║п©Б∙ёя▐Б■─п©Б∙ё
+// Статистика и информация о сервере
 void admin_api_get_stats(DescriptorData *d);
 void admin_api_get_players(DescriptorData *d);
 
@@ -55,7 +55,7 @@ void admin_api_update_trigger(DescriptorData *d, int trig_vnum, const char *json
 void admin_api_create_trigger(DescriptorData *d, int zone_vnum, const char *json_data);
 void admin_api_delete_trigger(DescriptorData *d, int trig_vnum);
 
-// п©я▒я▐Б■▄п©Б∙╕п©Б∙╘п©Б∙╕я▐Б■▄я▐Б√─
+// Утилиты
 void admin_api_send_json(DescriptorData *d, const char *json);
 void admin_api_send_error(DescriptorData *d, const char *error_msg);
 
