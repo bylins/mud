@@ -108,8 +108,8 @@ add_custom_target(checks COMMAND ${CMAKE_CTEST_COMMAND} -V DEPENDS tests)
 # О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ (О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫)
 add_custom_target(tests.misc.grouping
 		DEPENDS ${CMAKE_SOURCE_DIR}/lib.template/misc/grouping
-		COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_SOURCE_DIR}/misc
-		COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/lib.template/misc/grouping ${CMAKE_SOURCE_DIR}/misc/grouping
+		COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/misc
+		COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/lib.template/misc/grouping ${CMAKE_BINARY_DIR}/misc/grouping
 		COMMENT "Copy lib/misc/grouping for tests.")
 set_target_properties(tests.misc.grouping PROPERTIES FOLDER "Utility targets/Tests data")
 add_custom_target(tests.data.boards.changelog_sample
