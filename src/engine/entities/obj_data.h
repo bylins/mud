@@ -767,6 +767,7 @@ class ObjData : public CObjectPrototype {
 	}
 
 	void attach_triggers(const triggers_list_t &trigs);
+	bool is_unrentable();
 
  private:
 	void zero_init();

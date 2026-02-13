@@ -1606,4 +1606,14 @@ double CalcRemortRequirements(const CObjectPrototype *obj) {
 	}
 }
 
+bool ObjData::is_unrentable() {
+	if (has_flag(EObjFlag::kNorent)
+		|| get_rent_off() < 0
+		|| has_flag(EObjFlag::kRepopDecay)
+		|| has_flag(EObjFlag::kZonedecay)
+		|| get_type() == EObjType::kKey) {
+		return true;
+	}
+	return false;
+}
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

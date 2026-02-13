@@ -8,7 +8,7 @@
 #include <cstdio>
 #include <format>
 
-#if defined(__clang__)
+#if defined(__clang__) || defined(__CYGWIN__)
 #define HAS_TIME_ZONE 0
 #else
 #define HAS_TIME_ZONE 1

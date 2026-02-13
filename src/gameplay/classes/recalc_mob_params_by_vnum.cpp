@@ -232,8 +232,8 @@ static bool ApplyMobParams(CharData* ch, int level, int remorts, int difficulty)
 
 	ch->set_level(effective_level);
 
-	// Количество атак всегда фиксируем в 1
-	ch->mob_specials.extra_attack = 0;
+	// Количество дополнительных атак
+	ch->mob_specials.extra_attack = 1;
 
 	// Замакс делаем большой
 	ch->mob_specials.MaxFactor = 100;

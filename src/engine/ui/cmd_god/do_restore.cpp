@@ -66,6 +66,7 @@ void DoRestore(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			act("Вы были полностью восстановлены $N4!",
 				false, vict, nullptr, ch, kToChar);
 		}
+		vict->setGloryRespecTime(0);
 		affect_total(vict);
 	}
 }

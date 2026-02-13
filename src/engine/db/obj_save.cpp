@@ -1548,7 +1548,7 @@ int Crash_load(CharData *ch) {
 		}
 
 		//очищаем ZoneDecay объедки
-		if (obj->has_flag(EObjFlag::kZonedacay)) {
+		if (obj->has_flag(EObjFlag::kZonedecay)) {
 			sprintf(buf, "%s рассыпал%s в прах.\r\n", cap.c_str(), GET_OBJ_SUF_2(obj));
 			SendMsgToChar(buf, ch);
 			ExtractObjFromWorld(obj.get());
@@ -1684,18 +1684,9 @@ int Crash_is_unrentable(CharData *ch, ObjData *obj) {
 	if (!obj) {
 		return false;
 	}
-
-	if (obj->has_flag(EObjFlag::kNorent)
-		|| obj->get_rent_off() < 0
-		|| obj->has_flag(EObjFlag::kRepopDecay)
-		|| obj->has_flag(EObjFlag::kZonedacay)
-		|| (obj->get_rnum() <= kNothing
-			&& obj->get_type() != EObjType::kMoney)
-		|| obj->get_type() == EObjType::kKey
-		|| SetSystem::is_norent_set(ch, obj)) {
+	if (obj->is_unrentable() || SetSystem::is_norent_set(ch, obj)) {
 		return true;
 	}
-
 	return false;
 }
 
