@@ -1387,7 +1387,7 @@ if (NOT "${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
     endif()
 
     # Overlay lib.template (don't overwrite existing files)
-    execute_process(COMMAND cp --update=none -r "${CMAKE_SOURCE_DIR}/lib.template/." "${SMALL_WORLD_DIR}/"
+    execute_process(COMMAND cp -n -r "${CMAKE_SOURCE_DIR}/lib.template/." "${SMALL_WORLD_DIR}/"
         RESULT_VARIABLE copy_result)
     if (NOT copy_result EQUAL 0)
         message(FATAL_ERROR "Failed to overlay lib.template directory")

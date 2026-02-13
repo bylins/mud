@@ -14,7 +14,7 @@ sudo apt update && sudo apt upgrade
 sudo apt install build-essential make libssl-dev libcurl4-gnutls-dev libexpat1-dev gettext unzip cmake gdb libgtest-dev
 git clone --recurse-submodules https://github.com/bylins/mud
 cd mud
-cp --update=none -r lib.template/* lib
+cp -n -r lib.template/* lib
 ```
 
 ### Standard Build (without tests)
@@ -298,7 +298,7 @@ lib/
 └── misc/          # Miscellaneous (grouping, noob_help.xml, configuration.xml)
 ```
 
-Copy template data: `cp --update=none -r lib.template/* lib`
+Copy template data: `cp -n -r lib.template/* lib`
 
 ## Testing Strategy
 
