@@ -206,6 +206,7 @@ jobs:
             mingw-w64-x86_64-curl
             mingw-w64-x86_64-expat
             mingw-w64-x86_64-gtest
+            git
 
       - name: Configure CMake
         shell: msys2 {0}
@@ -257,6 +258,7 @@ jobs:
       - name: Build
         shell: C:\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
         run: |
+          git config --global --add safe.directory '*'
           cd "$GITHUB_WORKSPACE/build"
           make -j$(nproc)
 
