@@ -149,6 +149,7 @@ set(SOURCES
 		src/gameplay/ai/spec_procs.cpp
 		src/engine/network/admin_api.cpp
 		src/engine/network/admin_api/json_helpers.cpp
+		src/engine/network/admin_api/serializers.cpp
 		src/engine/network/descriptor_data.cpp
 		src/gameplay/mechanics/stuff.cpp
 		src/engine/structs/flags.hpp
@@ -647,6 +648,7 @@ set(HEADERS
 		src/engine/network/admin_api.h
 		src/engine/network/admin_api/admin_api_constants.h
 		src/engine/network/admin_api/json_helpers.h
+		src/engine/network/admin_api/serializers.h
 		src/engine/network/descriptor_data.h
 		src/engine/structs/structs.h
 		src/gameplay/mechanics/stuff.h
