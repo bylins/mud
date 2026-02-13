@@ -1191,8 +1191,7 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 			d = (DescriptorData *) events[i].data.ptr;
 			if (d == nullptr)
 				continue;
-			if (mother_desc == d->descriptor) // событие на mother_desc: принимаем все ждущие соединения
-			{
+			if (mother_desc == d->descriptor) { // событие на mother_desc: принимаем все ждущие соединения
 				int desc;
 				do
 					desc = new_descriptor(epoll, mother_desc);
@@ -1206,11 +1205,11 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 			else { // событие на клиентском дескрипторе: получаем данные и закрываем сокет, если EOF
 #ifdef ENABLE_ADMIN_API
 				int result = (d->admin_api_mode) ? admin_api_process_input(d) : iosystem::process_input(d);
-				if (result < 0)
 #else
-				if (iosystem::process_input(d) < 0)
+				int result = iosystem::process_input(d);
 #endif
-				close_socket(d, false, epoll, events, n);
+				if (result < 0)
+					close_socket(d, false, epoll, events, n);
 			}
 		} else if (events[i].events & !EPOLLOUT & !EPOLLIN) // тут ловим все события, имеющие флаги кроме in и out
 		{
