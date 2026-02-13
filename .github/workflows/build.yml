@@ -70,7 +70,9 @@ jobs:
             unzip \
             cmake \
             gdb \
-            libgtest-dev
+            libgtest-dev \
+            zlib1g-dev \
+            libcrypt-dev
 
       - name: Install config-specific dependencies
         if: matrix.config.packages != ''
@@ -129,7 +131,8 @@ jobs:
             unzip \
             cmake \
             gdb \
-            libgtest-dev
+            libgtest-dev \
+            libcrypt-dev
 
       - name: Show GCC 15 version
         run: |
@@ -285,7 +288,8 @@ jobs:
             unzip \
             cmake \
             gdb \
-            libgtest-dev
+            libgtest-dev \
+            zlib1g-dev
 
       - name: Configure CMake in WSL
         shell: wsl-bash {0}
