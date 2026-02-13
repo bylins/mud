@@ -189,7 +189,113 @@ json SerializeObject(const CObjectPrototype& obj, int vnum)
 {
 	json obj_data;
 	obj_data["vnum"] = vnum;
-	// TODO: Extract from admin_api_get_object
+	obj_data["aliases"] = Koi8rToUtf8(obj.get_aliases());
+	obj_data["short_desc"] = Koi8rToUtf8(obj.get_short_description());
+	obj_data["description"] = Koi8rToUtf8(obj.get_description());
+	obj_data["action_desc"] = Koi8rToUtf8(obj.get_action_description());
+	obj_data["type"] = static_cast<int>(obj.get_type());
+
+	// Extra flags (4 planes)
+	obj_data["extra_flags"] = json::array();
+	for (size_t i = 0; i < 4; ++i)
+	{
+		obj_data["extra_flags"].push_back(obj.get_extra_flags().get_plane(i));
+	}
+
+	obj_data["wear_flags"] = obj.get_wear_flags();
+
+	// Anti flags (4 planes)
+	obj_data["anti_flags"] = json::array();
+	for (size_t i = 0; i < 4; ++i)
+	{
+		obj_data["anti_flags"].push_back(obj.get_anti_flags().get_plane(i));
+	}
+
+	// No flags (4 planes)
+	obj_data["no_flags"] = json::array();
+	for (size_t i = 0; i < 4; ++i)
+	{
+		obj_data["no_flags"].push_back(obj.get_no_flags().get_plane(i));
+	}
+
+	obj_data["weight"] = obj.get_weight();
+	obj_data["cost"] = obj.get_cost();
+	obj_data["rent_on"] = obj.get_rent_on();
+	obj_data["rent_off"] = obj.get_rent_off();
+
+	// Names (7 case forms)
+	json names;
+	for (int c = ECase::kFirstCase; c <= ECase::kLastCase; ++c)
+	{
+		ECase ecase = static_cast<ECase>(c);
+		std::string case_name;
+		switch (ecase)
+		{
+			case ECase::kNom: case_name = "nominative"; break;
+			case ECase::kGen: case_name = "genitive"; break;
+			case ECase::kDat: case_name = "dative"; break;
+			case ECase::kAcc: case_name = "accusative"; break;
+			case ECase::kIns: case_name = "instrumental"; break;
+			case ECase::kPre: case_name = "prepositional"; break;
+			default: continue;
+		}
+		names[case_name] = Koi8rToUtf8(obj.get_PName(ecase));
+	}
+	obj_data["names"] = names;
+
+	// Additional stats
+	obj_data["level"] = obj.get_minimum_remorts();
+	obj_data["sex"] = static_cast<int>(obj.get_sex());
+	obj_data["material"] = static_cast<int>(obj.get_material());
+	obj_data["timer"] = obj.get_timer();
+
+	// Durability
+	json durability;
+	durability["current"] = obj.get_current_durability();
+	durability["maximum"] = obj.get_maximum_durability();
+	obj_data["durability"] = durability;
+
+	// Type-specific values (value0-3)
+	json type_specific;
+	type_specific["value0"] = obj.get_val(0);
+	type_specific["value1"] = obj.get_val(1);
+	type_specific["value2"] = obj.get_val(2);
+	type_specific["value3"] = obj.get_val(3);
+	obj_data["type_specific"] = type_specific;
+
+	// Affects (stat modifiers)
+	json affects = json::array();
+	for (int i = 0; i < kMaxObjAffect; ++i)
+	{
+		if (obj.get_affected(i).location != EApply::kNone)
+		{
+			json affect;
+			affect["location"] = static_cast<int>(obj.get_affected(i).location);
+			affect["modifier"] = obj.get_affected(i).modifier;
+			affects.push_back(affect);
+		}
+	}
+	obj_data["affects"] = affects;
+
+	// Extra descriptions (linked list)
+	json extra_descs = json::array();
+	for (auto ed = obj.get_ex_description(); ed; ed = ed->next)
+	{
+		json extra;
+		extra["keywords"] = Koi8rToUtf8(ed->keyword ? ed->keyword : "");
+		extra["description"] = Koi8rToUtf8(ed->description ? ed->description : "");
+		extra_descs.push_back(extra);
+	}
+	obj_data["extra_descriptions"] = extra_descs;
+
+	// Triggers
+	json triggers = json::array();
+	for (const auto &trig_vnum : obj.get_proto_script())
+	{
+		triggers.push_back(trig_vnum);
+	}
+	obj_data["triggers"] = triggers;
+
 	return obj_data;
 }
 
@@ -197,11 +303,82 @@ json SerializeObject(const CObjectPrototype& obj, int vnum)
 // Room Serialization (stub for now)
 // ============================================================================
 
-json SerializeRoom(const RoomData& room, int vnum)
+json SerializeRoom(RoomData& room, int vnum)
 {
 	json room_data;
 	room_data["vnum"] = vnum;
-	// TODO: Extract from admin_api_get_room
+	room_data["name"] = Koi8rToUtf8(room.name);
+
+	// Description stored in GlobalObjects::descriptions()
+	if (room.temp_description)
+	{
+		room_data["description"] = Koi8rToUtf8(room.temp_description);
+	}
+	room_data["sector_type"] = static_cast<int>(room.sector_type);
+
+	// Room flags (4 planes)
+	{
+		FlagData fl = room.read_flags();
+		room_data["room_flags"] = json::array();
+		for (size_t i = 0; i < 4; ++i)
+		{
+			room_data["room_flags"].push_back(fl.get_plane(i));
+		}
+	}
+
+	// Exits
+	json exits = json::array();
+	for (int dir = 0; dir < EDirection::kMaxDirNum; ++dir)
+	{
+		if (room.dir_option[dir])
+		{
+			json exit_obj;
+			exit_obj["direction"] = dir;
+			exit_obj["to_room"] = room.dir_option[dir]->to_room() != kNowhere ?
+				world[room.dir_option[dir]->to_room()]->vnum : -1;
+			if (!room.dir_option[dir]->general_description.empty())
+			{
+				exit_obj["description"] = Koi8rToUtf8(room.dir_option[dir]->general_description);
+			}
+			if (room.dir_option[dir]->keyword)
+			{
+				exit_obj["keyword"] = Koi8rToUtf8(room.dir_option[dir]->keyword);
+			}
+			exit_obj["exit_info"] = room.dir_option[dir]->exit_info;
+			exit_obj["key_vnum"] = room.dir_option[dir]->key;
+			exits.push_back(exit_obj);
+		}
+	}
+	room_data["exits"] = exits;
+
+	// Extra descriptions
+	json extra_descrs = json::array();
+	for (auto ed = room.ex_description; ed; ed = ed->next)
+	{
+		json ed_obj;
+		if (ed->keyword)
+		{
+			ed_obj["keyword"] = Koi8rToUtf8(ed->keyword);
+		}
+		if (ed->description)
+		{
+			ed_obj["description"] = Koi8rToUtf8(ed->description);
+		}
+		extra_descrs.push_back(ed_obj);
+	}
+	room_data["extra_descriptions"] = extra_descrs;
+
+	// Triggers
+	json triggers = json::array();
+	if (room.proto_script && !room.proto_script->empty())
+	{
+		for (const auto &trig_vnum : *room.proto_script)
+		{
+			triggers.push_back(trig_vnum);
+		}
+	}
+	room_data["triggers"] = triggers;
+
 	return room_data;
 }
 
@@ -266,7 +443,31 @@ json SerializeTrigger(const Trigger& trig, int vnum)
 {
 	json trig_data;
 	trig_data["vnum"] = vnum;
-	// TODO: Extract from admin_api_get_trigger
+	trig_data["name"] = Koi8rToUtf8(trig.get_name());
+	trig_data["attach_type"] = static_cast<int>(trig.get_attach_type());
+	trig_data["trigger_type"] = trig.get_trigger_type();
+	trig_data["narg"] = trig.narg;
+	trig_data["add_flag"] = trig.add_flag;
+
+	// Argument
+	if (!trig.arglist.empty())
+	{
+		trig_data["arglist"] = Koi8rToUtf8(trig.arglist);
+	}
+
+	// Command list
+	json commands = json::array();
+	if (trig.cmdlist)
+	{
+		auto cmd = *trig.cmdlist;
+		while (cmd)
+		{
+			commands.push_back(Koi8rToUtf8(cmd->cmd));
+			cmd = cmd->next;
+		}
+	}
+	trig_data["commands"] = commands;
+
 	return trig_data;
 }
 

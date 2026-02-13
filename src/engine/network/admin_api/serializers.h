@@ -67,7 +67,7 @@ json SerializeObject(const CObjectPrototype& obj, int vnum);
  * \param vnum Virtual number of the room
  * \return JSON object with room data
  */
-json SerializeRoom(const RoomData& room, int vnum);
+json SerializeRoom(RoomData& room, int vnum);
 
 // ============================================================================
 // ZoneData Serialization

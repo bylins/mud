@@ -397,7 +397,31 @@ void ParseObjectUpdate(CObjectPrototype* obj, const nlohmann::json& data)
 	{
 		return;
 	}
-	// TODO: Extract from admin_api_update_object
+
+	if (HasString(data, "aliases"))
+	{
+		obj->set_aliases(Utf8ToKoi8r(data["aliases"].get<std::string>()));
+	}
+	if (HasString(data, "short_desc"))
+	{
+		obj->set_short_description(Utf8ToKoi8r(data["short_desc"].get<std::string>()));
+	}
+	if (HasString(data, "description"))
+	{
+		obj->set_description(Utf8ToKoi8r(data["description"].get<std::string>()));
+	}
+	if (data.contains("weight"))
+	{
+		obj->set_weight(data["weight"].get<int>());
+	}
+	if (data.contains("cost"))
+	{
+		obj->set_cost(data["cost"].get<int>());
+	}
+	if (data.contains("timer"))
+	{
+		obj->set_timer(data["timer"].get<int>());
+	}
 }
 
 // ============================================================================
@@ -410,7 +434,24 @@ void ParseRoomUpdate(RoomData* room, const nlohmann::json& data)
 	{
 		return;
 	}
-	// TODO: Extract from admin_api_update_room
+
+	if (HasString(data, "name"))
+	{
+		room->set_name(Utf8ToKoi8r(data["name"].get<std::string>()));
+	}
+	if (data.contains("sector_type"))
+	{
+		room->sector_type = static_cast<ESector>(data["sector_type"].get<int>());
+	}
+	if (data.contains("room_flags") && data["room_flags"].is_array())
+	{
+		FlagData flags;
+		for (size_t i = 0; i < 4 && i < data["room_flags"].size(); ++i)
+		{
+			flags.set_plane(i, data["room_flags"][i].get<Bitvector>());
+		}
+		room->write_flags(flags);
+	}
 }
 
 // ============================================================================
@@ -423,7 +464,67 @@ void ParseZoneUpdate(ZoneData* zone, const nlohmann::json& data)
 	{
 		return;
 	}
-	// TODO: Extract from admin_api_update_zone
+
+	if (HasString(data, "name"))
+	{
+		zone->name = Utf8ToKoi8r(data["name"].get<std::string>());
+	}
+	if (HasString(data, "comment"))
+	{
+		zone->comment = Utf8ToKoi8r(data["comment"].get<std::string>());
+	}
+	if (HasString(data, "author"))
+	{
+		zone->author = Utf8ToKoi8r(data["author"].get<std::string>());
+	}
+	if (HasString(data, "location"))
+	{
+		zone->location = Utf8ToKoi8r(data["location"].get<std::string>());
+	}
+	if (HasString(data, "description"))
+	{
+		zone->description = Utf8ToKoi8r(data["description"].get<std::string>());
+	}
+	if (data.contains("level"))
+	{
+		zone->level = data["level"].get<int>();
+	}
+	if (data.contains("type"))
+	{
+		zone->type = data["type"].get<int>();
+	}
+	if (data.contains("lifespan"))
+	{
+		zone->lifespan = data["lifespan"].get<int>();
+	}
+	if (data.contains("reset_mode"))
+	{
+		zone->reset_mode = data["reset_mode"].get<int>();
+	}
+	if (data.contains("reset_idle"))
+	{
+		zone->reset_idle = data["reset_idle"].get<bool>();
+	}
+	if (data.contains("top"))
+	{
+		zone->top = data["top"].get<int>();
+	}
+	if (data.contains("under_construction"))
+	{
+		zone->under_construction = data["under_construction"].get<int>();
+	}
+	if (data.contains("group"))
+	{
+		zone->group = data["group"].get<int>();
+	}
+	if (data.contains("is_town"))
+	{
+		zone->is_town = data["is_town"].get<bool>();
+	}
+	if (data.contains("locked"))
+	{
+		zone->locked = data["locked"].get<bool>();
+	}
 }
 
 // ============================================================================
@@ -436,7 +537,23 @@ void ParseTriggerUpdate(Trigger* trig, const nlohmann::json& data)
 	{
 		return;
 	}
-	// TODO: Extract from admin_api_update_trigger
+
+	if (HasString(data, "name"))
+	{
+		trig->set_name(Utf8ToKoi8r(data["name"].get<std::string>()));
+	}
+	if (HasString(data, "arglist"))
+	{
+		trig->arglist = Utf8ToKoi8r(data["arglist"].get<std::string>());
+	}
+	if (data.contains("narg"))
+	{
+		trig->narg = data["narg"].get<int>();
+	}
+	if (data.contains("trigger_type"))
+	{
+		trig->set_trigger_type(data["trigger_type"].get<long>());
+	}
 }
 
 }  // namespace admin_api::parsers
