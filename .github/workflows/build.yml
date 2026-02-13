@@ -183,8 +183,40 @@ jobs:
           cd build
           cmake --build . --config Test -j
 
-  build-windows-mingw:
-    name: Windows (MinGW)
+  build-macos-clang:
+    name: macOS (Clang)
+    runs-on: macos-latest
+    continue-on-error: true  # Soft-failure mode
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install dependencies
+        run: |
+          brew install openssl curl expat googletest cmake
+
+      - name: Configure CMake
+        run: |
+          mkdir -p build
+          cd build
+          cmake -DCMAKE_BUILD_TYPE=Release \
+                -DOPENSSL_ROOT_DIR=$(brew --prefix openssl) \
+                -DCURL_ROOT=$(brew --prefix curl) ..
+
+      - name: Build
+        run: |
+          cd build
+          make tests -j$(sysctl -n hw.ncpu)
+
+      - name: Run tests
+        run: |
+          cd build
+          ./tests/tests
+
+  build-windows-clang:
+    name: Windows (Clang)
     runs-on: windows-latest
     continue-on-error: true  # Soft-failure mode
 
@@ -193,39 +225,27 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Setup MinGW
-        uses: msys2/setup-msys2@v2
-        with:
-          msystem: MINGW64
-          update: true
-          install: >-
-            mingw-w64-x86_64-gcc
-            mingw-w64-x86_64-cmake
-            mingw-w64-x86_64-make
-            mingw-w64-x86_64-openssl
-            mingw-w64-x86_64-curl
-            mingw-w64-x86_64-expat
-            mingw-w64-x86_64-gtest
-            git
-
-      - name: Configure CMake
-        shell: msys2 {0}
+      - name: Install dependencies with vcpkg
         run: |
-          mkdir -p build
+          vcpkg install openssl:x64-windows curl:x64-windows expat:x64-windows gtest:x64-windows
+
+      - name: Configure CMake with Clang
+        run: |
+          mkdir build
           cd build
-          cmake -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release ..
+          cmake -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ `
+                -DCMAKE_BUILD_TYPE=Release `
+                -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake ..
 
       - name: Build
-        shell: msys2 {0}
         run: |
           cd build
-          mingw32-make tests -j$(nproc)
+          cmake --build . --config Release -j
 
       - name: Run tests
-        shell: msys2 {0}
         run: |
-          cd build
-          ./tests/tests
+          cd build/tests
+          ./Release/tests.exe
 
   build-cygwin:
     name: Cygwin
@@ -325,44 +345,6 @@ jobs:
           cd build
           ./tests/tests
 
-  build-windows-mingw-yaml:
-    name: Windows (MinGW + YAML)
-    runs-on: windows-latest
-    continue-on-error: true  # Soft-failure mode
-
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: recursive
-
-      - name: Setup MinGW
-        uses: msys2/setup-msys2@v2
-        with:
-          msystem: MINGW64
-          update: true
-          install: >-
-            mingw-w64-x86_64-gcc
-            mingw-w64-x86_64-cmake
-            mingw-w64-x86_64-make
-            mingw-w64-x86_64-openssl
-            mingw-w64-x86_64-curl
-            mingw-w64-x86_64-expat
-            mingw-w64-x86_64-yaml-cpp
-            git
-
-      - name: Configure CMake
-        shell: msys2 {0}
-        run: |
-          mkdir -p build
-          cd build
-          cmake -G "MinGW Makefiles" -DBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Release -DHAVE_YAML=ON ..
-
-      - name: Build
-        shell: msys2 {0}
-        run: |
-          cd build
-          mingw32-make -j$(nproc)
-
   build-cygwin-yaml:
     name: Cygwin + YAML
     runs-on: windows-latest
@@ -453,7 +435,7 @@ jobs:
   build-summary:
     name: Build Summary
     runs-on: ubuntu-latest
-    needs: [build-linux-matrix, build-linux-gcc15, build-windows-msvc, build-windows-mingw, build-cygwin, build-wsl, build-windows-mingw-yaml, build-cygwin-yaml, build-wsl-yaml]
+    needs: [build-linux-matrix, build-linux-gcc15, build-windows-msvc, build-macos-clang, build-windows-clang, build-cygwin, build-wsl, build-cygwin-yaml, build-wsl-yaml]
     if: always()
 
     steps:
@@ -483,8 +465,9 @@ jobs:
           echo "### Other Platforms" >> $GITHUB_STEP_SUMMARY
           echo "| Platform | Status |" >> $GITHUB_STEP_SUMMARY
           echo "|----------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| macOS (Clang) | ${{ needs.build-macos-clang.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Windows (MSVC) | ${{ needs.build-windows-msvc.result }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Windows (MinGW) | ${{ needs.build-windows-mingw.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Windows (Clang) | ${{ needs.build-windows-clang.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Cygwin | ${{ needs.build-cygwin.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "| WSL | ${{ needs.build-wsl.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
