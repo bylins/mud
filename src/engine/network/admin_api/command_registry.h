@@ -20,7 +20,7 @@
 #include <string_view>
 
 // Forward declarations
-class DescriptorData;
+struct DescriptorData;
 
 namespace admin_api {
 

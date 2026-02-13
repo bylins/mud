@@ -15,7 +15,7 @@
 #include "json_helpers.h"
 
 // Forward declarations
-class DescriptorData;
+struct DescriptorData;
 
 namespace admin_api::handlers {
 
