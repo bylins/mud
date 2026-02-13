@@ -257,7 +257,7 @@ static std::unordered_map<std::string, EObjFlag> obj_extra_flag_map = {
 	{"kBless", EObjFlag::kBless},
 	{"kNosell", EObjFlag::kNosell},
 	{"kDecay", EObjFlag::kDecay},
-	{"kZonedecay", EObjFlag::kZonedacay},
+	{"kZonedecay", EObjFlag::kZonedecay},
 	{"kNodisarm", EObjFlag::kNodisarm},
 	{"kNodecay", EObjFlag::kNodecay},
 	{"kPoisoned", EObjFlag::kPoisoned},

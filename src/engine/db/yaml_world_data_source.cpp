@@ -847,10 +847,7 @@ Trigger* YamlWorldDataSource::ParseTriggerFile(const std::string &file_path)
 	YAML::Node root = YAML::LoadFile(file_path);
 
 	// Extract vnum from filename
-	size_t last_slash = file_path.find_last_of('/');
-	size_t last_dot = file_path.find_last_of('.');
-	std::string vnum_str = file_path.substr(last_slash + 1, last_dot - last_slash - 1);
-	(void)std::atoi(vnum_str.c_str());  // vnum extracted but not used
+	// vnum extracted from filename but not used in YAML (stored in file content)
 
 	std::string name = GetText(root, "name", "");
 	int attach_type = ParseEnum(root["attach_type"], "attach_types", 0);
