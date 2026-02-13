@@ -433,7 +433,6 @@ json SerializeZoneData(const ZoneData& zone, int vnum)
 	
 	return zone_data;
 }
-}
 
 // ============================================================================
 // Trigger Serialization (stub for now)
