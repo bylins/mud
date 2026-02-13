@@ -15,6 +15,7 @@
 
 #include <sstream>
 #include <vector>
+#include <filesystem>
 
 #include <iomanip>
 
@@ -708,9 +709,8 @@ void SaveDetailedChecksums(const char *filename)
 
 void SaveDetailedBuffers(const char *dir)
 {
-	std::string cmd = "mkdir -p ";
-	cmd += dir;
-	(void)system(cmd.c_str());
+	try {
+		std::filesystem::create_directories(dir);
 
 	auto save_buffer = [](const char *filepath, const std::string &buffer, uint32_t crc) {
 		FILE *f = fopen(filepath, "w");
@@ -729,7 +729,7 @@ void SaveDetailedBuffers(const char *dir)
 	};
 
 	std::string zones_dir = std::string(dir) + "/zones";
-	(void)system((std::string("mkdir -p ") + zones_dir).c_str());
+	std::filesystem::create_directories(zones_dir);
 	for (const auto &zone : zone_table)
 	{
 		std::string serialized = SerializeZone(zone);
@@ -739,7 +739,7 @@ void SaveDetailedBuffers(const char *dir)
 	}
 
 	std::string rooms_dir = std::string(dir) + "/rooms";
-	(void)system((std::string("mkdir -p ") + rooms_dir).c_str());
+	std::filesystem::create_directories(rooms_dir);
 	for (RoomRnum i = 0; i <= top_of_world; ++i)
 	{
 		if (world[i])
@@ -752,7 +752,7 @@ void SaveDetailedBuffers(const char *dir)
 	}
 
 	std::string mobs_dir = std::string(dir) + "/mobs";
-	(void)system((std::string("mkdir -p ") + mobs_dir).c_str());
+	std::filesystem::create_directories(mobs_dir);
 	for (MobRnum i = 0; i <= top_of_mobt; ++i)
 	{
 		std::string serialized = SerializeMob(i);
@@ -762,7 +762,7 @@ void SaveDetailedBuffers(const char *dir)
 	}
 
 	std::string objs_dir = std::string(dir) + "/objects";
-	(void)system((std::string("mkdir -p ") + objs_dir).c_str());
+	std::filesystem::create_directories(objs_dir);
 	for (size_t i = 0; i < obj_proto.size(); ++i)
 	{
 		if (obj_proto[i])
@@ -775,7 +775,7 @@ void SaveDetailedBuffers(const char *dir)
 	}
 
 	std::string trigs_dir = std::string(dir) + "/triggers";
-	(void)system((std::string("mkdir -p ") + trigs_dir).c_str());
+	std::filesystem::create_directories(trigs_dir);
 	for (int i = 0; i < top_of_trigt; ++i)
 	{
 		if (trig_index[i])
@@ -788,6 +788,10 @@ void SaveDetailedBuffers(const char *dir)
 	}
 
 	log("Detailed buffers saved to %s", dir);
+
+	} catch (const std::filesystem::filesystem_error &e) {
+		log("SYSERR: Failed to create directories in '%s': %s", dir, e.what());
+	}
 }
 
 std::map<std::string, uint32_t> LoadBaselineChecksums(const char *filename)
