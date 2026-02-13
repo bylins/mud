@@ -151,6 +151,7 @@ set(SOURCES
 		src/engine/network/admin_api/json_helpers.cpp
 		src/engine/network/admin_api/serializers.cpp
 		src/engine/network/admin_api/parsers.cpp
+		src/engine/network/admin_api/crud_handlers.cpp
 		src/engine/network/descriptor_data.cpp
 		src/gameplay/mechanics/stuff.cpp
 		src/engine/structs/flags.hpp
@@ -651,6 +652,7 @@ set(HEADERS
 		src/engine/network/admin_api/json_helpers.h
 		src/engine/network/admin_api/serializers.h
 		src/engine/network/admin_api/parsers.h
+		src/engine/network/admin_api/crud_handlers.h
 		src/engine/network/descriptor_data.h
 		src/engine/structs/structs.h
 		src/gameplay/mechanics/stuff.h
