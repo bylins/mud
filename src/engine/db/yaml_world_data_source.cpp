@@ -1960,7 +1960,7 @@ CObjectPrototype* YamlWorldDataSource::ParseObjectFile(const std::string &file_p
 			obj_ptr->unset_extraflag(EObjFlag::kTicktimer);
 
 			// Match Legacy: override max_in_world for zonedecay/repop_decay objects
-			if (obj_ptr->has_flag(EObjFlag::kZonedacay) || obj_ptr->has_flag(EObjFlag::kRepopDecay))
+			if (obj_ptr->has_flag(EObjFlag::kZonedecay) || obj_ptr->has_flag(EObjFlag::kRepopDecay))
 			{
 				obj_ptr->set_max_in_world(-1);
 			}
