@@ -49,7 +49,8 @@ void SaveDetailedChecksums(const char *filename);
 
 // Extended functions for debugging SQLite vs Legacy differences
 // Save buffers with labeled fields for comparison
-void SaveDetailedBuffers(const char *dir);
+// Returns true on success, false on error (logged to syslog)
+bool SaveDetailedBuffers(const char *dir);
 
 // Load baseline checksums from file
 // Returns map of "TYPE VNUM" -> checksum

@@ -478,7 +478,10 @@ void GameLoader::BootWorld(std::unique_ptr<world_loader::IWorldDataSource> data_
 		auto checksums = WorldChecksum::Calculate();
 		WorldChecksum::LogResult(checksums);
 		WorldChecksum::SaveDetailedChecksums("checksums_detailed.txt");
-		WorldChecksum::SaveDetailedBuffers("checksums_buffers");
+		if (!WorldChecksum::SaveDetailedBuffers("checksums_buffers"))
+		{
+			log("WARNING: Failed to save detailed buffers (see errors above)");
+		}
 
 		// If BASELINE_DIR is set, compare with baseline checksums
 		const char *baseline_dir = getenv("BASELINE_DIR");

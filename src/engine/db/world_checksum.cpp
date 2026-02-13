@@ -707,14 +707,18 @@ void SaveDetailedChecksums(const char *filename)
 	log("Detailed checksums saved to %s", filename);
 }
 
-void SaveDetailedBuffers(const char *dir)
+bool SaveDetailedBuffers(const char *dir)
 {
 	try {
 		std::filesystem::create_directories(dir);
 
 	auto save_buffer = [](const char *filepath, const std::string &buffer, uint32_t crc) {
 		FILE *f = fopen(filepath, "w");
-		if (!f) return;
+		if (!f)
+		{
+			log("SYSERR: Failed to open file for writing: %s", filepath);
+			return;
+		}
 		fprintf(f, "CRC32: %08X\n", crc);
 		fprintf(f, "Length: %zu\n", buffer.size());
 		fprintf(f, "---RAW---\n%s\n", buffer.c_str());
@@ -788,9 +792,11 @@ void SaveDetailedBuffers(const char *dir)
 	}
 
 	log("Detailed buffers saved to %s", dir);
+	return true;
 
 	} catch (const std::filesystem::filesystem_error &e) {
 		log("SYSERR: Failed to create directories in '%s': %s", dir, e.what());
+		return false;
 	}
 }
 
