@@ -175,7 +175,7 @@ int CalcSaving(CharData *killer, CharData *victim, ESaving saving, bool need_log
 
 		save -= victim->GetSkill(ESkill::kAwake) / 5; //CalculateSkillAwakeModifier(killer, victim);
 	}
-	save += GetSave(victim, saving);    // одежда бафы и слава
+	save += round(GetSave(victim, saving) * abilities::kSaveWeight);    // одежда бафы и слава
 	if (need_log) {
 		killer->send_to_TC(false, true, true,
 				"SAVING (%s): Killer==%s  Target==%s vnum==%d Level==%d base_save==%d save_equip==%d save_awake=-%d result_save=%d\r\n",
