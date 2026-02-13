@@ -72,14 +72,9 @@ static void HandleAuth(DescriptorData* d, const nlohmann::json& request)
 
 	// Authenticate using existing account system
 	Account acc(username);
-	if (!acc.logged())
-	{
-		SendErrorResponse(d, "Authentication failed");
-		return;
-	}
 
 	// Verify password
-	if (!Password::compare_password(username, password))
+	if (!acc.compare_password(password))
 	{
 		SendErrorResponse(d, "Authentication failed");
 		return;
