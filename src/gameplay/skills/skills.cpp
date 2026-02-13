@@ -1336,7 +1336,7 @@ void SendSkillRollMsg(CharData *ch, CharData *victim, ESkill skill_id,
 //		   << " Crit: " << (result.critical ? "yes" : "no")
 		   << " CritLuck:" << (result.CritLuck ? "&Gyes&C" : "&Rno&C")
 //		   << " Degree: " << result.degree
-		   << " SavType:" << saving_name.find(MUD::Skill(skill_id).save_type)->second
+		   << " SavType:" << saving_name.at(MUD::Skill(skill_id).save_type)
 		   << " Saving:" << save
 		<< kColorNrm << "\r\n";
 	ch->send_to_TC(false, true, true, buffer.str().c_str());
@@ -1352,7 +1352,7 @@ void SendSkillRollMsg(CharData *ch, CharData *victim, ESkill skill_id,
 			   << ";Percent;"<< roll
 			   << ";Success;" << (result.success ? "yes" : "no")
 			   << ";CritLuck;" << (result.CritLuck ? "yes" : "no")
-			   << ";SaviType;" << saving_name.find(MUD::Skill(skill_id).save_type)->second
+			   << ";SaviType;" << saving_name.at(MUD::Skill(skill_id).save_type)
 			   << ";Saving;" << save;
 		log("%s",  buffer.str().c_str());
 	}
