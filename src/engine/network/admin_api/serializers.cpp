@@ -213,8 +213,49 @@ json SerializeZoneData(const ZoneData& zone, int vnum)
 {
 	json zone_data;
 	zone_data["vnum"] = vnum;
-	// TODO: Extract from admin_api_get_zone
+	zone_data["name"] = Koi8rToUtf8(zone.name);
+	
+	if (!zone.comment.empty()) {
+		zone_data["comment"] = Koi8rToUtf8(zone.comment);
+	}
+	if (!zone.author.empty()) {
+		zone_data["author"] = Koi8rToUtf8(zone.author);
+	}
+	if (!zone.location.empty()) {
+		zone_data["location"] = Koi8rToUtf8(zone.location);
+	}
+	if (!zone.description.empty()) {
+		zone_data["description"] = Koi8rToUtf8(zone.description);
+	}
+	
+	zone_data["level"] = zone.level;
+	zone_data["type"] = zone.type;
+	zone_data["lifespan"] = zone.lifespan;
+	zone_data["reset_mode"] = zone.reset_mode;
+	zone_data["reset_idle"] = zone.reset_idle;
+	zone_data["top"] = zone.top;
+	zone_data["under_construction"] = zone.under_construction;
+	zone_data["group"] = zone.group;
+	zone_data["is_town"] = zone.is_town;
+	zone_data["locked"] = zone.locked;
+	
+	if (zone.typeA_count > 0 && zone.typeA_list) {
+		json typeA = json::array();
+		for (int i = 0; i < zone.typeA_count; ++i) {
+			typeA.push_back(zone.typeA_list[i]);
+		}
+		zone_data["type_a_list"] = typeA;
+	}
+	if (zone.typeB_count > 0 && zone.typeB_list) {
+		json typeB = json::array();
+		for (int i = 0; i < zone.typeB_count; ++i) {
+			typeB.push_back(zone.typeB_list[i]);
+		}
+		zone_data["type_b_list"] = typeB;
+	}
+	
 	return zone_data;
+}
 }
 
 // ============================================================================
