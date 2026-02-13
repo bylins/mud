@@ -22,33 +22,33 @@ jobs:
       matrix:
         config:
           - name: "Base"
-            cmake_flags: "-DBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Test"
+            cmake_flags: "-DBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Release"
             packages: ""
 
           - name: "With Tests"
-            cmake_flags: "-DCMAKE_BUILD_TYPE=Test"
+            cmake_flags: "-DCMAKE_BUILD_TYPE=Release"
             packages: ""
             run_tests: true
 
           - name: "YAML"
-            cmake_flags: "-DBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Test -DHAVE_YAML=ON"
+            cmake_flags: "-DBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Release -DHAVE_YAML=ON"
             packages: "libyaml-cpp-dev"
 
           - name: "SQLite"
-            cmake_flags: "-DBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Test -DHAVE_SQLITE=ON"
+            cmake_flags: "-DBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Release -DHAVE_SQLITE=ON"
             packages: "libsqlite3-dev"
 
           - name: "YAML + Admin API"
-            cmake_flags: "-DBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Test -DHAVE_YAML=ON -DENABLE_ADMIN_API=ON"
+            cmake_flags: "-DBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Release -DHAVE_YAML=ON -DENABLE_ADMIN_API=ON"
             packages: "libyaml-cpp-dev"
 
           - name: "YAML + Tests"
-            cmake_flags: "-DCMAKE_BUILD_TYPE=Test -DHAVE_YAML=ON"
+            cmake_flags: "-DCMAKE_BUILD_TYPE=Release -DHAVE_YAML=ON"
             packages: "libyaml-cpp-dev"
             run_tests: true
 
           - name: "SQLite + Tests"
-            cmake_flags: "-DCMAKE_BUILD_TYPE=Test -DHAVE_SQLITE=ON"
+            cmake_flags: "-DCMAKE_BUILD_TYPE=Release -DHAVE_SQLITE=ON"
             packages: "libsqlite3-dev"
             run_tests: true
 
@@ -143,7 +143,7 @@ jobs:
         run: |
           mkdir -p build
           cd build
-          CC=gcc-15 CXX=g++-15 cmake -DCMAKE_BUILD_TYPE=Test ..
+          CC=gcc-15 CXX=g++-15 cmake -DCMAKE_BUILD_TYPE=Release ..
 
       - name: Build with GCC 15
         run: |
@@ -176,7 +176,7 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake -DBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Test -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake ..
+          cmake -DBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake ..
 
       - name: Build
         run: |
@@ -206,6 +206,7 @@ jobs:
             mingw-w64-x86_64-curl
             mingw-w64-x86_64-expat
             mingw-w64-x86_64-gtest
+            mingw-w64-x86_64-yaml-cpp
             git
 
       - name: Configure CMake
@@ -213,7 +214,7 @@ jobs:
         run: |
           mkdir -p build
           cd build
-          cmake -G "MinGW Makefiles" -DBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Test ..
+          cmake -G "MinGW Makefiles" -DBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Release -DHAVE_YAML=ON ..
 
       - name: Build
         shell: msys2 {0}
@@ -246,6 +247,7 @@ jobs:
             gettext-devel
             unzip
             git
+            libyaml-cpp-devel
 
       - name: Configure CMake
         shell: C:\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
@@ -253,7 +255,7 @@ jobs:
           cd "$GITHUB_WORKSPACE"
           mkdir -p build
           cd build
-          cmake -DBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Test ..
+          cmake -DBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Release -DHAVE_YAML=ON ..
 
       - name: Build
         shell: C:\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
@@ -292,14 +294,15 @@ jobs:
             cmake \
             gdb \
             libgtest-dev \
-            zlib1g-dev
+            zlib1g-dev \
+            libyaml-cpp-dev
 
       - name: Configure CMake in WSL
         shell: wsl-bash {0}
         run: |
           mkdir -p build
           cd build
-          cmake -DBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Test ..
+          cmake -DBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Release -DHAVE_YAML=ON ..
 
       - name: Build in WSL
         shell: wsl-bash {0}
