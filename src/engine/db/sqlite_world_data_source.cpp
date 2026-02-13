@@ -2191,7 +2191,7 @@ void SqliteWorldDataSource::LoadObjectExtraDescriptions()
 		obj_proto[i]->unset_extraflag(EObjFlag::kTicktimer);
 
 		// Objects with zone decay flags should have unlimited max_in_world
-		if (obj_proto[i]->has_flag(EObjFlag::kZonedacay)
+		if (obj_proto[i]->has_flag(EObjFlag::kZonedecay)
 			|| obj_proto[i]->has_flag(EObjFlag::kRepopDecay))
 		{
 			obj_proto[i]->set_max_in_world(-1);

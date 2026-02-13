@@ -108,6 +108,7 @@ jobs:
         run: |
           apt-get update
           apt-get install -y git ca-certificates
+          git config --global --add safe.directory '*'
 
       - uses: actions/checkout@v4
         with:
