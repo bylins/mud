@@ -710,7 +710,7 @@ void SaveDetailedBuffers(const char *dir)
 {
 	std::string cmd = "mkdir -p ";
 	cmd += dir;
-	[[maybe_unused]] int ret = system(cmd.c_str());
+	(void)system(cmd.c_str());
 
 	auto save_buffer = [](const char *filepath, const std::string &buffer, uint32_t crc) {
 		FILE *f = fopen(filepath, "w");
@@ -729,7 +729,7 @@ void SaveDetailedBuffers(const char *dir)
 	};
 
 	std::string zones_dir = std::string(dir) + "/zones";
-	[[maybe_unused]] int ret = system((std::string("mkdir -p ") + zones_dir).c_str());
+	(void)system((std::string("mkdir -p ") + zones_dir).c_str());
 	for (const auto &zone : zone_table)
 	{
 		std::string serialized = SerializeZone(zone);
@@ -739,7 +739,7 @@ void SaveDetailedBuffers(const char *dir)
 	}
 
 	std::string rooms_dir = std::string(dir) + "/rooms";
-	[[maybe_unused]] int ret = system((std::string("mkdir -p ") + rooms_dir).c_str());
+	(void)system((std::string("mkdir -p ") + rooms_dir).c_str());
 	for (RoomRnum i = 0; i <= top_of_world; ++i)
 	{
 		if (world[i])
@@ -752,7 +752,7 @@ void SaveDetailedBuffers(const char *dir)
 	}
 
 	std::string mobs_dir = std::string(dir) + "/mobs";
-	[[maybe_unused]] int ret = system((std::string("mkdir -p ") + mobs_dir).c_str());
+	(void)system((std::string("mkdir -p ") + mobs_dir).c_str());
 	for (MobRnum i = 0; i <= top_of_mobt; ++i)
 	{
 		std::string serialized = SerializeMob(i);
@@ -762,7 +762,7 @@ void SaveDetailedBuffers(const char *dir)
 	}
 
 	std::string objs_dir = std::string(dir) + "/objects";
-	[[maybe_unused]] int ret = system((std::string("mkdir -p ") + objs_dir).c_str());
+	(void)system((std::string("mkdir -p ") + objs_dir).c_str());
 	for (size_t i = 0; i < obj_proto.size(); ++i)
 	{
 		if (obj_proto[i])
@@ -775,7 +775,7 @@ void SaveDetailedBuffers(const char *dir)
 	}
 
 	std::string trigs_dir = std::string(dir) + "/triggers";
-	[[maybe_unused]] int ret = system((std::string("mkdir -p ") + trigs_dir).c_str());
+	(void)system((std::string("mkdir -p ") + trigs_dir).c_str());
 	for (int i = 0; i < top_of_trigt; ++i)
 	{
 		if (trig_index[i])
