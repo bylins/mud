@@ -152,6 +152,7 @@ set(SOURCES
 		src/engine/network/admin_api/serializers.cpp
 		src/engine/network/admin_api/parsers.cpp
 		src/engine/network/admin_api/crud_handlers.cpp
+		src/engine/network/admin_api/command_registry.cpp
 		src/engine/network/descriptor_data.cpp
 		src/gameplay/mechanics/stuff.cpp
 		src/engine/structs/flags.hpp
@@ -653,6 +654,7 @@ set(HEADERS
 		src/engine/network/admin_api/serializers.h
 		src/engine/network/admin_api/parsers.h
 		src/engine/network/admin_api/crud_handlers.h
+		src/engine/network/admin_api/command_registry.h
 		src/engine/network/descriptor_data.h
 		src/engine/structs/structs.h
 		src/gameplay/mechanics/stuff.h
@@ -1389,14 +1391,14 @@ if (NOT "${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
     # Create small world directory by copying lib and overlaying lib.template
     # First copy lib (base configuration)
     execute_process(COMMAND ${CMAKE_COMMAND} -E remove_directory "${SMALL_WORLD_DIR}")
-    execute_process(COMMAND cp -r "${CMAKE_SOURCE_DIR}/lib" "${SMALL_WORLD_DIR}"
+    execute_process(COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/lib" "${SMALL_WORLD_DIR}"
         RESULT_VARIABLE copy_result)
     if (NOT copy_result EQUAL 0)
         message(FATAL_ERROR "Failed to copy lib directory")
     endif()
 
-    # Overlay lib.template (don't overwrite existing files)
-    execute_process(COMMAND cp -n -r "${CMAKE_SOURCE_DIR}/lib.template/." "${SMALL_WORLD_DIR}/"
+    # Overlay lib.template (no conflicts since duplicates were removed)
+    execute_process(COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/lib.template" "${SMALL_WORLD_DIR}"
         RESULT_VARIABLE copy_result)
     if (NOT copy_result EQUAL 0)
         message(FATAL_ERROR "Failed to overlay lib.template directory")
