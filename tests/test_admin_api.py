@@ -247,7 +247,7 @@ def test_list_mobs(sock, zone):
         mobs = response.get("mobs", [])
         print(f"✓ Found {len(mobs)} mobs")
         for mob in mobs[:5]:
-            print(f"  - {mob['vnum']}: {mob['name']} (level {mob['level']})")
+            print(f"  - {mob['vnum']}: {mob['aliases']} (level {mob['level']})")
         if len(mobs) > 5:
             print(f"  ... and {len(mobs) - 5} more")
     else:

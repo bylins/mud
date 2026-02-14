@@ -34,6 +34,7 @@ extern DescriptorData *descriptor_list;
 extern void medit_save_internally(DescriptorData *d);
 extern void oedit_save_internally(DescriptorData *d);
 extern void redit_save_internally(DescriptorData *d);
+extern void trigedit_save(DescriptorData *d);
 extern void CopyRoom(RoomData *to, RoomData *from);
 
 // External admin_api helpers (from admin_api.cpp)
@@ -383,7 +384,8 @@ void HandleUpdateObject(DescriptorData* d, int obj_vnum, const char* json_data)
 		oedit_save_internally(temp_d);
 
 		// Cleanup
-		delete temp_d->olc->obj;
+		// NOTE: Do NOT delete temp_d->olc->obj - it was moved into obj_proto by oedit_save_internally
+		temp_d->olc->obj = nullptr;  // Clear pointer to avoid accidental use
 		delete temp_d->olc;
 		delete temp_d;
 
@@ -595,15 +597,261 @@ void HandleGetTrigger(DescriptorData* d, int trig_vnum)
 
 void HandleUpdateTrigger(DescriptorData* d, int trig_vnum, const char* json_data)
 {
-	(void)trig_vnum;
-	(void)json_data;
-	SendErrorResponse(d, "Trigger update not implemented - use in-game OLC");
+	using admin_api::json::Utf8ToKoi8r;
+	using admin_api::json::Koi8rToUtf8;
+
+	int rnum = find_trig_rnum(trig_vnum);
+	if (rnum < 0 || !trig_index[rnum] || !trig_index[rnum]->proto)
+	{
+		SendErrorResponse(d, "Trigger not found");
+		return;
+	}
+
+	try
+	{
+		json data = json::parse(json_data);
+		int zone_vnum = trig_vnum / 100;
+		ZoneRnum zone_rnum = GetZoneRnum(zone_vnum);
+
+		// Create temporary OLC descriptor
+		auto *temp_d = new DescriptorData();
+		temp_d->olc = new olc_data();
+		// Initialize output buffer to prevent crashes
+		temp_d->output = temp_d->small_outbuf;
+		temp_d->bufspace = kSmallBufsize - 1;
+		*temp_d->output = '\0';
+		temp_d->bufptr = 0;
+		temp_d->olc->number = trig_vnum;
+		temp_d->olc->zone_num = zone_rnum;
+
+		// Create dummy character to prevent OLC crashes when sending menus
+		temp_d->character = std::make_shared<CharData>();
+		temp_d->character->desc = temp_d;
+
+		// Create trigger copy for editing
+		Trigger *trig = new Trigger(*trig_index[rnum]->proto);
+		// Ensure cmdlist is initialized (may be nullptr after copy if proto was empty)
+		if (!trig->cmdlist)
+		{
+			trig->cmdlist.reset(new cmdlist_element::shared_ptr());
+		}
+		temp_d->olc->trig = trig;
+
+		// Apply JSON fields
+		if (data.contains("name"))
+		{
+			trig->set_name(Utf8ToKoi8r(data["name"].get<std::string>()));
+		}
+		if (data.contains("arglist"))
+		{
+			trig->arglist = Utf8ToKoi8r(data["arglist"].get<std::string>());
+		}
+		if (data.contains("narg"))
+		{
+			trig->narg = data["narg"].get<int>();
+		}
+		if (data.contains("trigger_type"))
+		{
+			trig->set_trigger_type(data["trigger_type"].get<long>());
+		}
+		if (data.contains("attach_type"))
+		{
+			trig->set_attach_type(static_cast<byte>(data["attach_type"].get<int>()));
+		}
+		if (data.contains("add_flag"))
+		{
+			trig->add_flag = data["add_flag"].get<bool>();
+		}
+
+		// Script (OLC format: single text block with \n separators)
+		if (data.contains("script"))
+		{
+			std::string script = Utf8ToKoi8r(data["script"].get<std::string>());
+			temp_d->olc->storage = str_dup(script.c_str());
+		}
+		else
+		{
+			// Build script from existing cmdlist if not provided
+			std::string script;
+			if (trig->cmdlist)
+			{
+				for (auto cmd = *trig->cmdlist; cmd; cmd = cmd->next)
+				{
+					if (!script.empty()) script += "\n";
+					script += cmd->cmd;
+				}
+			}
+			temp_d->olc->storage = str_dup(script.c_str());
+		}
+
+		// Save via OLC (compiles script, updates proto, updates live triggers, saves to disk)
+		trigedit_save(temp_d);
+
+		// Clean up
+		if (temp_d->olc->storage)
+		{
+			free(temp_d->olc->storage);
+		}
+		delete temp_d->olc;
+		delete temp_d;
+
+		json response;
+		response["status"] = "ok";
+		response["message"] = "Trigger updated successfully via OLC";
+		SendJsonResponse(d, response);
+	}
+	catch (const json::parse_error& e)
+	{
+		SendErrorResponse(d, "Invalid JSON format");
+	}
+	catch (const std::exception& e)
+	{
+		SendErrorResponse(d, (std::string("Update failed: ") + e.what()).c_str());
+	}
 }
 
-void HandleCreateTrigger(DescriptorData* d, const char* json_data)
+void HandleCreateTrigger(DescriptorData* d, int zone_vnum, const char* json_data)
 {
-	(void)json_data;
-	SendErrorResponse(d, "Trigger creation not implemented - use in-game OLC");
+	using admin_api::json::Utf8ToKoi8r;
+	using admin_api::json::Koi8rToUtf8;
+
+	try
+	{
+		// Parse data directly (zone comes as parameter)
+		json data = json::parse(json_data);
+
+		if (zone_vnum < 0)
+		{
+			SendErrorResponse(d, "Zone vnum required");
+			return;
+		}
+
+		ZoneRnum zone_rnum = GetZoneRnum(zone_vnum);
+		if (zone_rnum < 0)
+		{
+			SendErrorResponse(d, "Zone not found");
+			return;
+		}
+
+		// Find available vnum
+		int vnum = data.value("vnum", -1);
+		if (vnum < 0)
+		{
+			vnum = zone_vnum * 100;
+			while (vnum < (zone_vnum + 1) * 100 && find_trig_rnum(vnum) >= 0)
+			{
+				++vnum;
+			}
+			if (vnum >= (zone_vnum + 1) * 100)
+			{
+				SendErrorResponse(d, "No available vnums in zone range");
+				return;
+			}
+		}
+		else
+		{
+			if (vnum / 100 != zone_vnum)
+			{
+				SendErrorResponse(d, "Vnum must be in zone range");
+				return;
+			}
+			if (find_trig_rnum(vnum) >= 0)
+			{
+				SendErrorResponse(d, "Vnum already in use");
+				return;
+			}
+		}
+
+		// Create temporary OLC descriptor
+		auto *temp_d = new DescriptorData();
+		temp_d->olc = new olc_data();
+		// Initialize output buffer to prevent crashes
+		temp_d->output = temp_d->small_outbuf;
+		temp_d->bufspace = kSmallBufsize - 1;
+		*temp_d->output = '\0';
+		temp_d->bufptr = 0;
+		temp_d->olc->number = vnum;
+		temp_d->olc->zone_num = zone_rnum;
+
+		// Create dummy character to prevent OLC crashes when sending menus
+		temp_d->character = std::make_shared<CharData>();
+		temp_d->character->desc = temp_d;
+
+		// Create trigger with OLC defaults (matching trigedit_setup_new)
+		Trigger *trig = new Trigger(-1, "new trigger", MTRIG_GREET);
+		trig->narg = 100;
+		temp_d->olc->trig = trig;
+
+		// Apply JSON fields
+		if (data.contains("name"))
+		{
+			trig->set_name(Utf8ToKoi8r(data["name"].get<std::string>()));
+		}
+		if (data.contains("arglist"))
+		{
+			trig->arglist = Utf8ToKoi8r(data["arglist"].get<std::string>());
+		}
+		if (data.contains("narg"))
+		{
+			trig->narg = data["narg"].get<int>();
+		}
+		if (data.contains("trigger_type"))
+		{
+			trig->set_trigger_type(data["trigger_type"].get<long>());
+		}
+		if (data.contains("attach_type"))
+		{
+			trig->set_attach_type(static_cast<byte>(data["attach_type"].get<int>()));
+		}
+
+		// Script
+		std::string script;
+		if (data.contains("script"))
+		{
+			script = Utf8ToKoi8r(data["script"].get<std::string>());
+		}
+		else
+		{
+			script = "say My trigger commandlist is not complete!";
+		}
+		temp_d->olc->storage = str_dup(script.c_str());
+
+		// Save via OLC (handles array expansion, indexing, disk save)
+		trigedit_save(temp_d);
+
+		// Capture OLC output
+		std::string olc_output;
+		if (temp_d->output && temp_d->bufptr > 0)
+		{
+			olc_output = Koi8rToUtf8(std::string(temp_d->output, temp_d->bufptr));
+		}
+
+		// Clean up
+		if (temp_d->olc->storage)
+		{
+			free(temp_d->olc->storage);
+		}
+		delete temp_d->olc;
+		delete temp_d;
+
+		json response;
+		response["status"] = "ok";
+		response["message"] = "Trigger created successfully via OLC";
+		response["vnum"] = vnum;
+		if (!olc_output.empty())
+		{
+			response["olc_output"] = olc_output;
+		}
+		SendJsonResponse(d, response);
+	}
+	catch (const json::parse_error& e)
+	{
+		SendErrorResponse(d, "Invalid JSON format");
+	}
+	catch (const std::exception& e)
+	{
+		SendErrorResponse(d, (std::string("Create failed: ") + e.what()).c_str());
+	}
 }
 
 void HandleDeleteTrigger(DescriptorData* d, int trig_vnum)

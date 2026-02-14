@@ -73,92 +73,75 @@ std::string utf8_to_koi8r(const std::string &utf8) {
 int admin_api_process_input(DescriptorData *d) {
 	char *ptr, *nl_pos;
 	ssize_t bytes_read;
-	constexpr size_t kMaxLargeBufferSize = 1048576;  // 1MB limit for accumulated messages
+	constexpr size_t kMaxLargeBufferSize = 1048576;  // 1MB limit
 
 	size_t buf_length = strlen(d->inbuf);
 	char *read_point = d->inbuf + buf_length;
 	size_t space_left = kMaxRawInputLength - buf_length - 1;
 
-	do {
-		if (space_left <= 0) {
-			// Buffer full but no newline yet - use large buffer for large messages
-			if (d->admin_api_large_buffer.size() + buf_length >= kMaxLargeBufferSize) {
-				log("SYSERR: Admin API message too large (>=1MB). Disconnecting.");
-				return -1;
-			}
-			d->admin_api_large_buffer.append(d->inbuf, buf_length);
-			d->inbuf[0] = '\0';
-			buf_length = 0;
-			read_point = d->inbuf;
-			space_left = kMaxRawInputLength - 1;
-		}
-
-		bytes_read = recv(d->descriptor, read_point, space_left, 0);
-
-		if (bytes_read < 0) {
-			if (errno == EINTR || errno == EWOULDBLOCK || errno == EAGAIN) {
-				return 0;
-			}
-
-			log("SYSERR: Admin API recv error: %s", strerror(errno));
-			return -1;
-		} else if (bytes_read == 0) {
-			log("Admin API: client disconnected (EOF)");
+	if (space_left <= 0) {
+		// Buffer full but no newline yet - use large buffer for large messages
+		if (d->admin_api_large_buffer.size() + buf_length > kMaxLargeBufferSize) {
+			log("SYSERR: Admin API message too large (>1MB). Disconnecting.");
 			return -1;
 		}
+		d->admin_api_large_buffer.append(d->inbuf, buf_length);
+		d->inbuf[0] = '\0';
+		return 0;  // Wait for more data
+	}
 
-		*(read_point + bytes_read) = '\0';
+	bytes_read = recv(d->descriptor, read_point, space_left, 0);
 
-		// Process complete lines
-		for (ptr = d->inbuf; (nl_pos = strchr(ptr, '\n')); ptr = nl_pos + 1) {
-			while (*nl_pos == '\n' || *nl_pos == '\r') {
-				*nl_pos = '\0';
-				nl_pos++;
-			}
+	if (bytes_read < 0) {
+		if (errno == EINTR || errno == EWOULDBLOCK || errno == EAGAIN) {
+			return 0;
+		}
+		log("SYSERR: Admin API recv error: %s", strerror(errno));
+		return -1;
+	} else if (bytes_read == 0) {
+		log("Admin API: client disconnected (EOF)");
+		return -1;
+	}
 
-			if (*ptr) {
-				// If we have accumulated data in large buffer, prepend it
-				if (!d->admin_api_large_buffer.empty()) {
-					size_t line_len = strlen(ptr);
-					// Check size limit before appending (+1 for the newline that was stripped)
-					if (d->admin_api_large_buffer.size() + line_len + 1 >= kMaxLargeBufferSize) {
-						log("SYSERR: Admin API message too large (>=1MB). Disconnecting.");
-						return -1;
-					}
-					d->admin_api_large_buffer.append(ptr);
-					admin_api_parse(d, const_cast<char*>(d->admin_api_large_buffer.c_str()));
-					d->admin_api_large_buffer.clear();
-				} else {
-					admin_api_parse(d, ptr);
-				}
-			}
+	*(read_point + bytes_read) = '\0';
+
+	// Process complete lines
+	for (ptr = d->inbuf; (nl_pos = strchr(ptr, '\n')); ptr = nl_pos + 1) {
+		while (*nl_pos == '\n' || *nl_pos == '\r') {
+			*nl_pos = '\0';
+			nl_pos++;
 		}
 
-		// Handle remaining data (no newline yet)
 		if (*ptr) {
-			size_t remaining = strlen(ptr);
-			// If there's no newline, accumulate in large buffer
-			if (!strchr(ptr, '\n')) {
-				// Check size limit before appending
-				if (d->admin_api_large_buffer.size() + remaining >= kMaxLargeBufferSize) {
-					log("SYSERR: Admin API message too large (>=1MB). Disconnecting.");
-					return -1;
-				}
-				d->admin_api_large_buffer.append(ptr, remaining);
-				d->inbuf[0] = '\0';
+			// If we have accumulated data in large buffer, prepend it
+			if (!d->admin_api_large_buffer.empty()) {
+				d->admin_api_large_buffer.append(ptr);
+				admin_api_parse(d, const_cast<char*>(d->admin_api_large_buffer.c_str()));
+				d->admin_api_large_buffer.clear();
 			} else {
-				// Move remaining data to start of buffer
-				memmove(d->inbuf, ptr, remaining + 1);
+				admin_api_parse(d, ptr);
 			}
-		} else {
-			d->inbuf[0] = '\0';
 		}
+	}
 
-		buf_length = strlen(d->inbuf);
-		read_point = d->inbuf + buf_length;
-		space_left = kMaxRawInputLength - buf_length - 1;
+	// Handle remaining data (no newline yet)
+	size_t ptr_offset = ptr - d->inbuf;
+	size_t valid_data_end = buf_length + bytes_read;
 
-	} while (bytes_read > 0);
+	// Only process remaining data if ptr is within valid range
+	if (ptr_offset < valid_data_end && *ptr) {
+		size_t remaining = strlen(ptr);
+		// If there's no newline, accumulate in large buffer
+		if (!strchr(ptr, '\n')) {
+			d->admin_api_large_buffer.append(ptr, remaining);
+			d->inbuf[0] = '\0';
+		} else {
+			// Move remaining data to start of buffer
+			memmove(d->inbuf, ptr, remaining + 1);
+		}
+	} else {
+		d->inbuf[0] = '\0';
+	}
 
 	return 0;
 }
@@ -222,38 +205,21 @@ bool admin_api_is_authenticated(DescriptorData *d) {
 void admin_api_send_json(DescriptorData *d, const char *json_str) {
 	if (!json_str) return;
 
-	size_t len = strlen(json_str);
-	const size_t chunk_size = 1024;
-	size_t offset = 0;
-	int chunk_num = 0;
-	int total_chunks = (len + chunk_size - 1) / chunk_size;
+	std::string message = std::string(json_str) + "\n";
 
-	if (total_chunks > MAX_CHUNKS) {
-		log("SYSERR: Admin API response too large (%zu bytes, %d chunks, max %d)", 
-			len, total_chunks, MAX_CHUNKS);
-		admin_api_send_error(d, "Response too large");
-		return;
-	}
-
-	while (offset < len) {
-		size_t this_chunk = std::min(chunk_size, len - offset);
-		std::string chunk(json_str + offset, this_chunk);
-
-		std::string header;
-		if (total_chunks > 1) {
-			header = fmt::format("CHUNK:{}/{}:", chunk_num, total_chunks);
-		}
-
-		std::string message = header + chunk + "\n";
-		
-		ssize_t written = send(d->descriptor, message.c_str(), message.length(), 0);
+	// Send all data (may require multiple send() calls)
+	size_t sent_total = 0;
+	while (sent_total < message.length()) {
+		ssize_t written = send(d->descriptor, message.c_str() + sent_total,
+		                       message.length() - sent_total, 0);
 		if (written < 0) {
+			if (errno == EINTR || errno == EWOULDBLOCK || errno == EAGAIN) {
+				continue;  // Retry
+			}
 			log("SYSERR: Admin API send error: %s", strerror(errno));
 			return;
 		}
-
-		offset += this_chunk;
-		chunk_num++;
+		sent_total += written;
 	}
 }
 
@@ -405,8 +371,9 @@ void admin_api_parse(DescriptorData *d, char *argument) {
 			HandleUpdateTrigger(d, vnum, data.dump().c_str());
 		}
 		else if (command == "create_trigger") {
+			int zone = request.value("zone", -1);
 			json data = request.value("data", json::object());
-			HandleCreateTrigger(d, data.dump().c_str());
+			HandleCreateTrigger(d, zone, data.dump().c_str());
 		}
 		else if (command == "delete_trigger") {
 			int vnum = request.value("vnum", -1);

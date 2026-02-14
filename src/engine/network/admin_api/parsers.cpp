@@ -398,6 +398,7 @@ void ParseObjectUpdate(CObjectPrototype* obj, const nlohmann::json& data)
 		return;
 	}
 
+	// Basic text fields
 	if (HasString(data, "aliases"))
 	{
 		obj->set_aliases(Utf8ToKoi8r(data["aliases"].get<std::string>()));
@@ -410,6 +411,42 @@ void ParseObjectUpdate(CObjectPrototype* obj, const nlohmann::json& data)
 	{
 		obj->set_description(Utf8ToKoi8r(data["description"].get<std::string>()));
 	}
+	if (HasString(data, "action_desc"))
+	{
+		obj->set_action_description(Utf8ToKoi8r(data["action_desc"].get<std::string>()));
+	}
+
+	// Grammatical cases (support both "pnames" and "names" keys)
+	auto names_data = data.contains("names") ? data["names"] : (data.contains("pnames") ? data["pnames"] : nlohmann::json{});
+	if (!names_data.is_null())
+	{
+		if (names_data.contains("nominative"))
+		{
+			obj->set_PName(ECase::kNom, Utf8ToKoi8r(names_data["nominative"].get<std::string>()));
+		}
+		if (names_data.contains("genitive"))
+		{
+			obj->set_PName(ECase::kGen, Utf8ToKoi8r(names_data["genitive"].get<std::string>()));
+		}
+		if (names_data.contains("dative"))
+		{
+			obj->set_PName(ECase::kDat, Utf8ToKoi8r(names_data["dative"].get<std::string>()));
+		}
+		if (names_data.contains("accusative"))
+		{
+			obj->set_PName(ECase::kAcc, Utf8ToKoi8r(names_data["accusative"].get<std::string>()));
+		}
+		if (names_data.contains("instrumental"))
+		{
+			obj->set_PName(ECase::kIns, Utf8ToKoi8r(names_data["instrumental"].get<std::string>()));
+		}
+		if (names_data.contains("prepositional"))
+		{
+			obj->set_PName(ECase::kPre, Utf8ToKoi8r(names_data["prepositional"].get<std::string>()));
+		}
+	}
+
+	// Numeric properties
 	if (data.contains("weight"))
 	{
 		obj->set_weight(data["weight"].get<int>());
@@ -418,9 +455,197 @@ void ParseObjectUpdate(CObjectPrototype* obj, const nlohmann::json& data)
 	{
 		obj->set_cost(data["cost"].get<int>());
 	}
+	if (data.contains("rent_on"))
+	{
+		obj->set_rent_on(data["rent_on"].get<int>());
+	}
+	if (data.contains("rent_off"))
+	{
+		obj->set_rent_off(data["rent_off"].get<int>());
+	}
+
+	// Type and material
+	if (data.contains("type"))
+	{
+		obj->set_type(static_cast<EObjType>(data["type"].get<int>()));
+	}
+	if (data.contains("material"))
+	{
+		obj->set_material(static_cast<EObjMaterial>(data["material"].get<int>()));
+	}
+
+	// Sex
+	if (data.contains("sex"))
+	{
+		obj->set_sex(static_cast<EGender>(data["sex"].get<int>()));
+	}
+
+	// Level (maps to minimum_remorts to match serializer)
+	if (data.contains("level"))
+	{
+		obj->set_minimum_remorts(data["level"].get<int>());
+	}
+
+	// Timer
 	if (data.contains("timer"))
 	{
 		obj->set_timer(data["timer"].get<int>());
+	}
+
+	// Values (support both "values" array and "type_specific" object)
+	if (data.contains("type_specific") && data["type_specific"].is_object())
+	{
+		auto &ts = data["type_specific"];
+		if (ts.contains("value0"))
+		{
+			obj->set_val(0, ts["value0"].get<int>());
+		}
+		if (ts.contains("value1"))
+		{
+			obj->set_val(1, ts["value1"].get<int>());
+		}
+		if (ts.contains("value2"))
+		{
+			obj->set_val(2, ts["value2"].get<int>());
+		}
+		if (ts.contains("value3"))
+		{
+			obj->set_val(3, ts["value3"].get<int>());
+		}
+	}
+	else if (data.contains("values") && data["values"].is_array())
+	{
+		for (size_t i = 0; i < 4 && i < data["values"].size(); ++i)
+		{
+			obj->set_val(i, data["values"][i].get<int>());
+		}
+	}
+
+	// Extra flags (array of 4 plane values)
+	if (data.contains("extra_flags") && data["extra_flags"].is_array())
+	{
+		FlagData flags;
+		for (size_t i = 0; i < 4 && i < data["extra_flags"].size(); ++i)
+		{
+			flags.set_plane(i, data["extra_flags"][i].get<Bitvector>());
+		}
+		obj->set_extra_flags(flags);
+	}
+
+	// Wear flags (single integer bitmask)
+	if (data.contains("wear_flags"))
+	{
+		obj->set_wear_flags(data["wear_flags"].get<int>());
+	}
+
+	// Anti flags (array of 4 plane values)
+	if (data.contains("anti_flags") && data["anti_flags"].is_array())
+	{
+		FlagData flags;
+		for (size_t i = 0; i < 4 && i < data["anti_flags"].size(); ++i)
+		{
+			flags.set_plane(i, data["anti_flags"][i].get<Bitvector>());
+		}
+		obj->set_anti_flags(flags);
+	}
+
+	// No flags (array of 4 plane values)
+	if (data.contains("no_flags") && data["no_flags"].is_array())
+	{
+		FlagData flags;
+		for (size_t i = 0; i < 4 && i < data["no_flags"].size(); ++i)
+		{
+			flags.set_plane(i, data["no_flags"][i].get<Bitvector>());
+		}
+		obj->set_no_flags(flags);
+	}
+
+	// Affects
+	if (data.contains("affects") && data["affects"].is_array())
+	{
+		size_t idx = 0;
+		for (const auto &affect : data["affects"])
+		{
+			if (idx >= kMaxObjAffect)
+			{
+				break;
+			}
+			if (affect.contains("location") && affect.contains("modifier"))
+			{
+				obj->set_affected(idx,
+					static_cast<EApply>(affect["location"].get<int>()),
+					affect["modifier"].get<int>());
+				++idx;
+			}
+		}
+	}
+
+	// Durability (support both object and separate fields)
+	if (data.contains("durability") && data["durability"].is_object())
+	{
+		auto &dur = data["durability"];
+		if (dur.contains("current"))
+		{
+			obj->set_current_durability(dur["current"].get<int>());
+		}
+		if (dur.contains("maximum"))
+		{
+			obj->set_maximum_durability(dur["maximum"].get<int>());
+		}
+	}
+	else
+	{
+		if (data.contains("current_durability"))
+		{
+			obj->set_current_durability(data["current_durability"].get<int>());
+		}
+		if (data.contains("maximum_durability"))
+		{
+			obj->set_maximum_durability(data["maximum_durability"].get<int>());
+		}
+	}
+
+	// Extra descriptions
+	if (data.contains("extra_descriptions") && data["extra_descriptions"].is_array())
+	{
+		// Clear existing extra descriptions
+		obj->set_ex_description(nullptr);
+
+		// Build linked list from array (in reverse to maintain order)
+		ExtraDescription::shared_ptr prev = nullptr;
+		for (auto it = data["extra_descriptions"].rbegin(); it != data["extra_descriptions"].rend(); ++it)
+		{
+			const auto &ed_data = *it;
+			if (!ed_data.contains("keywords") || !ed_data.contains("description"))
+			{
+				continue;
+			}
+
+			auto ed = std::make_shared<ExtraDescription>();
+			ed->set_keyword(Utf8ToKoi8r(ed_data["keywords"].get<std::string>()));
+			ed->set_description(Utf8ToKoi8r(ed_data["description"].get<std::string>()));
+			ed->next = prev;
+			prev = ed;
+		}
+
+		if (prev)
+		{
+			obj->set_ex_description(prev);
+		}
+	}
+
+	// Triggers
+	if (data.contains("triggers") && data["triggers"].is_array())
+	{
+		std::list<int> trigger_list;
+		for (const auto &trig_vnum : data["triggers"])
+		{
+			if (trig_vnum.is_number_integer())
+			{
+				trigger_list.push_back(trig_vnum.get<int>());
+			}
+		}
+		obj->set_proto_script(trigger_list);
 	}
 }
 

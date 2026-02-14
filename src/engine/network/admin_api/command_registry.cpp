@@ -228,8 +228,9 @@ static void HandleUpdateTriggerCommand(DescriptorData* d, const nlohmann::json& 
 
 static void HandleCreateTriggerCommand(DescriptorData* d, const nlohmann::json& request)
 {
-	std::string data_str = request.dump();
-	HandleCreateTrigger(d, data_str.c_str());
+	int zone = request.value("zone", -1);
+	nlohmann::json data = request.value("data", nlohmann::json::object());
+	HandleCreateTrigger(d, zone, data.dump().c_str());
 }
 
 static void HandleDeleteTriggerCommand(DescriptorData* d, const nlohmann::json& request)

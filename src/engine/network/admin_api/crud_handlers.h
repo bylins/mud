@@ -213,9 +213,10 @@ void HandleUpdateTrigger(DescriptorData* d, int trig_vnum, const char* json_data
 /**
  * \brief Create new trigger
  * \param d Descriptor to send response to
+ * \param zone_vnum Zone virtual number
  * \param json_data JSON trigger data
  */
-void HandleCreateTrigger(DescriptorData* d, const char* json_data);
+void HandleCreateTrigger(DescriptorData* d, int zone_vnum, const char* json_data);
 
 /**
  * \brief Delete trigger
