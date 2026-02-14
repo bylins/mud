@@ -321,9 +321,9 @@ jobs:
         shell: C:\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
         run: |
           cd /tmp
-          wget https://github.com/jbeder/yaml-cpp/archive/refs/tags/yaml-cpp-0.7.0.tar.gz
-          tar xzf yaml-cpp-0.7.0.tar.gz
-          cd yaml-cpp-yaml-cpp-0.7.0
+          wget https://github.com/jbeder/yaml-cpp/archive/refs/tags/yaml-cpp-0.6.3.tar.gz
+          tar xzf yaml-cpp-0.6.3.tar.gz
+          cd yaml-cpp-yaml-cpp-0.6.3
           mkdir build && cd build
           cmake -DCMAKE_BUILD_TYPE=Release -DYAML_BUILD_SHARED_LIBS=ON ..
           make -j$(nproc)
