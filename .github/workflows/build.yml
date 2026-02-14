@@ -269,6 +269,7 @@ jobs:
             libssl-devel
             libcurl-devel
             libexpat1-devel
+            libcrypt-devel
             gettext-devel
             unzip
             git
@@ -361,6 +362,7 @@ jobs:
             libssl-devel
             libcurl-devel
             libexpat1-devel
+            libcrypt-devel
             gettext-devel
             unzip
             git
