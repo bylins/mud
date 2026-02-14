@@ -73,6 +73,7 @@ std::string utf8_to_koi8r(const std::string &utf8) {
 int admin_api_process_input(DescriptorData *d) {
 	char *ptr, *nl_pos;
 	ssize_t bytes_read;
+	constexpr size_t kMaxLargeBufferSize = 1048576;  // 1MB limit for accumulated messages
 
 	size_t buf_length = strlen(d->inbuf);
 	char *read_point = d->inbuf + buf_length;
@@ -80,8 +81,16 @@ int admin_api_process_input(DescriptorData *d) {
 
 	do {
 		if (space_left <= 0) {
-			log("SYSERR: Admin API input buffer overflow! Disconnecting.");
-			return -1;
+			// Buffer full but no newline yet - use large buffer for large messages
+			if (d->admin_api_large_buffer.size() + buf_length >= kMaxLargeBufferSize) {
+				log("SYSERR: Admin API message too large (>=1MB). Disconnecting.");
+				return -1;
+			}
+			d->admin_api_large_buffer.append(d->inbuf, buf_length);
+			d->inbuf[0] = '\0';
+			buf_length = 0;
+			read_point = d->inbuf;
+			space_left = kMaxRawInputLength - 1;
 		}
 
 		bytes_read = recv(d->descriptor, read_point, space_left, 0);
@@ -108,13 +117,41 @@ int admin_api_process_input(DescriptorData *d) {
 			}
 
 			if (*ptr) {
-				admin_api_parse(d, ptr);
+				// If we have accumulated data in large buffer, prepend it
+				if (!d->admin_api_large_buffer.empty()) {
+					size_t line_len = strlen(ptr);
+					// Check size limit before appending (+1 for the newline that was stripped)
+					if (d->admin_api_large_buffer.size() + line_len + 1 >= kMaxLargeBufferSize) {
+						log("SYSERR: Admin API message too large (>=1MB). Disconnecting.");
+						return -1;
+					}
+					d->admin_api_large_buffer.append(ptr);
+					admin_api_parse(d, const_cast<char*>(d->admin_api_large_buffer.c_str()));
+					d->admin_api_large_buffer.clear();
+				} else {
+					admin_api_parse(d, ptr);
+				}
 			}
 		}
 
-		// Move remaining data to start of buffer
-		if (ptr > d->inbuf) {
-			memmove(d->inbuf, ptr, strlen(ptr) + 1);
+		// Handle remaining data (no newline yet)
+		if (*ptr) {
+			size_t remaining = strlen(ptr);
+			// If there's no newline, accumulate in large buffer
+			if (!strchr(ptr, '\n')) {
+				// Check size limit before appending
+				if (d->admin_api_large_buffer.size() + remaining >= kMaxLargeBufferSize) {
+					log("SYSERR: Admin API message too large (>=1MB). Disconnecting.");
+					return -1;
+				}
+				d->admin_api_large_buffer.append(ptr, remaining);
+				d->inbuf[0] = '\0';
+			} else {
+				// Move remaining data to start of buffer
+				memmove(d->inbuf, ptr, remaining + 1);
+			}
+		} else {
+			d->inbuf[0] = '\0';
 		}
 
 		buf_length = strlen(d->inbuf);
