@@ -1204,11 +1204,44 @@ endif ()
 
 # YAML support
 if (HAVE_YAML)
-	find_package(yaml-cpp REQUIRED)
+	# Try to find yaml-cpp via CMake config first
+	find_package(yaml-cpp QUIET)
+
+	if (yaml-cpp_FOUND)
+		# Modern CMake target found
+		message(STATUS "yaml-cpp found via find_package")
+		set(YAML_CPP_LIBRARIES yaml-cpp)
+		get_target_property(YAML_CPP_INCLUDE_DIRS yaml-cpp INTERFACE_INCLUDE_DIRECTORIES)
+	else ()
+		# Fallback to manual search (for Cygwin and other systems without CMake config)
+		message(STATUS "yaml-cpp not found via find_package, trying manual search...")
+
+		find_path(YAML_CPP_INCLUDE_DIR yaml-cpp/yaml.h
+			PATHS
+				/usr/include
+				/usr/local/include
+		)
+
+		find_library(YAML_CPP_LIBRARY
+			NAMES yaml-cpp libyaml-cpp
+			PATHS
+				/usr/lib
+				/usr/local/lib
+				/lib
+		)
+
+		if (YAML_CPP_INCLUDE_DIR AND YAML_CPP_LIBRARY)
+			message(STATUS "yaml-cpp found manually: ${YAML_CPP_LIBRARY}")
+			set(YAML_CPP_INCLUDE_DIRS ${YAML_CPP_INCLUDE_DIR})
+			set(YAML_CPP_LIBRARIES ${YAML_CPP_LIBRARY})
+		else ()
+			message(FATAL_ERROR "yaml-cpp not found. Install libyaml-cpp-devel (Cygwin) or libyaml-cpp-dev (Debian/Ubuntu)")
+		endif ()
+	endif ()
+
 	add_definitions(-DHAVE_YAML)
-	
 	include_directories(${YAML_CPP_INCLUDE_DIRS})
-	target_link_libraries(circle.library yaml-cpp)
+	target_link_libraries(circle.library ${YAML_CPP_LIBRARIES})
 	message(STATUS "YAML is turned ON. Circle will support YAML world data source.")
 else ()
 	message(STATUS "YAML is turned off.")
