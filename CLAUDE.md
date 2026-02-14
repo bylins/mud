@@ -14,7 +14,7 @@ sudo apt update && sudo apt upgrade
 sudo apt install build-essential make libssl-dev libcurl4-gnutls-dev libexpat1-dev gettext unzip cmake gdb libgtest-dev
 git clone --recurse-submodules https://github.com/bylins/mud
 cd mud
-cp --update=none -r lib.template/* lib
+cp -n -r lib.template/* lib
 ```
 
 ### Standard Build (without tests)
@@ -22,7 +22,7 @@ cp --update=none -r lib.template/* lib
 mkdir build
 cd build
 cmake -DBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Test ..
-make -j$(nproc)
+make -j$(($(nproc)/2))
 cd ..
 ./build/circle 4000  # Start server on port 4000
 ```
@@ -32,13 +32,15 @@ cd ..
 mkdir build
 cd build
 cmake -DCMAKE_BUILD_TYPE=Test ..
-make tests -j$(nproc)
+make tests -j$(($(nproc)/2))
 ./tests/tests  # Run all tests
 ```
 
+**Important:** Always use `-j$(($(nproc)/2))` for parallel builds to avoid overloading the system.
+
 ### Build Types
 - **Release** - Optimized production build (-O0 with debug symbols, -rdynamic, -Wall)
-- **Debug** - Debug build with ASAN (-fsanitize=address, -D_GLIBCXX_DEBUG)
+- **Debug** - Debug build with ASAN (-fsanitize=address, NO _GLIBCXX_DEBUG due to yaml-cpp ABI compatibility)
 - **Test** - Test build with optimizations (-O3, -DTEST_BUILD, -DNOCRYPT)
 - **FastTest** - Fast test build (-Ofast, -DTEST_BUILD)
 
@@ -48,6 +50,45 @@ docker build -t mud-server --build-arg BUILD_TYPE=Test .
 docker run -d -p 4000:4000 -e MUD_PORT=4000 -v ./lib:/mud/lib --name mud mud-server
 docker stop mud
 ```
+
+### Running the Server
+
+**CRITICAL**: ALL binaries (circle, tests, converters, etc.) must ALWAYS be run from their build directory, NEVER from the source directory. Running binaries from the source directory creates runtime files (data/, misc/, etc.) in the wrong location and pollutes the source tree.
+
+**CRITICAL**: Build directories must ALWAYS be out-of-source (outside the source tree). Never run cmake or binaries from within the src/ directory or repository root.
+
+**CRITICAL**: CMake automatically creates test world `small/` in the build directory. All world data and configs are in `small/` directory itself, NOT in `small/lib/`. The `lib/` subdirectory DOES NOT EXIST in cmake-generated worlds. All paths in configuration.xml are relative to the `small/` directory.
+
+**Correct usage**:
+```bash
+cd build_debug       # Or build_yaml, build_sqlite, etc.
+./circle [-W] -d small <port>
+```
+
+**Parameters**:
+- `-W` - Enable world checksum calculation (optional)
+- `-d <world_directory>` - Specify world data directory (e.g., `small`)
+- `<port>` - Port number to listen on (e.g., `4000`)
+
+**Example**:
+```bash
+cd build_debug
+./circle -d small 4000
+```
+
+**World Structure (cmake-generated):**
+```
+build_debug/
+├── circle           # Binary
+└── small/           # Test world (created by cmake)
+    ├── misc/
+    │   └── configuration.xml
+    ├── world/       # Zone files
+    ├── etc/         # Additional configs
+    └── admin_api.sock  # Unix socket (if Admin API enabled)
+```
+
+**NOTE**: Do NOT confuse with repository's `lib/` directory - that is completely separate and used only for production deployments.
 
 ### Running Tests
 ```bash
@@ -257,7 +298,7 @@ lib/
 └── misc/          # Miscellaneous (grouping, noob_help.xml, configuration.xml)
 ```
 
-Copy template data: `cp --update=none -r lib.template/* lib`
+Copy template data: `cp -n -r lib.template/* lib`
 
 ## Testing Strategy
 
@@ -301,3 +342,131 @@ The heartbeat system includes built-in profiling:
 - **Pulse Timing**: Never use wall-clock delays; register actions with heartbeat system
 - **Script Depth**: DG Scripts limited to 512 recursion depth to prevent stack overflow
 - **Runtime Encoding**: While source files are KOI8-R, runtime text can be multiple encodings (Alt, Win, UTF-8, KOI8-R) based on client settings
+
+## Claude Code Workflow Rules
+
+### Build Directory Convention
+Use separate build directories for different CMake configurations to avoid lengthy rebuilds:
+```
+build/        - default build (without optional features)
+build_sqlite/ - build with -DHAVE_SQLITE=ON
+build_debug/  - debug build with -DCMAKE_BUILD_TYPE=Debug
+build_test/   - test data and converted worlds (not for compilation)
+```
+**Always warn the user when changing build directories or running cmake/make in a different directory.**
+
+### File Encoding - CRITICAL
+**Proper workflow for editing KOI8-R files:**
+
+For files marked as `working-tree-encoding=KOI8-R` in .gitattributes (all files in /src/**, /tests/**):
+
+```bash
+# 1. Convert to UTF-8 for editing
+iconv -f koi8-r -t utf-8 src/file.cpp > /tmp/file_utf8.cpp
+
+# 2. Edit the UTF-8 version with Edit tool or text editor
+# (make your changes here)
+
+# 3. Convert back to KOI8-R
+iconv -f utf-8 -t koi8-r /tmp/file_utf8.cpp > src/file.cpp
+```
+
+**NEVER use the Edit tool directly on existing .cpp/.h files that contain Russian text.**
+Only use Edit for:
+- Newly created files that will be pure ASCII/English
+- Temporary UTF-8 converted files (in /tmp)
+- Files in .gitattributes marked as UTF-8 (e.g., Python files)
+
+**NEVER use sed for editing source files.** Sed has tendency to:
+- Modify files in unexpected places (matching wrong lines)
+- Lead to file corruption detection and accidental `git checkout` (losing all uncommitted work)
+- Cause cumulative errors from multiple sed operations
+- Corrupt KOI8-R encoding
+
+**Alternative: unified diff patches** - for small targeted changes:
+```bash
+cat > /tmp/fix.patch << 'PATCH'
+--- a/src/file.cpp
++++ b/src/file.cpp
+@@ -10,3 +10,4 @@
+ existing line
+-old line
++new line
+PATCH
+patch -p1 < /tmp/fix.patch
+```
+Patches preserve encoding and fail cleanly if context doesn't match.
+
+### _GLIBCXX_DEBUG Disabled in Debug Build
+**Important:** `_GLIBCXX_DEBUG` is intentionally **disabled** for Debug builds due to ABI incompatibility with external libraries (yaml-cpp, SQLite).
+
+**Why:**
+- External libraries (yaml-cpp) are compiled without `_GLIBCXX_DEBUG`
+- They return STL objects (`std::string`) to our code
+- If our code uses `_GLIBCXX_DEBUG`, ABI mismatch causes heap-buffer-overflow
+- Solution: disable the flag for all Debug builds
+
+**Trade-off:** We lose STL iterator/bounds checking in Debug mode, but gain ASAN (AddressSanitizer) which catches most memory errors.
+
+### Directory Change Notifications
+Always explicitly notify the user before:
+- Running cmake in a different build directory
+- Running make in a different build directory  
+- Changing the working directory for any build operation
+
+Example: "Switching to build_sqlite/ directory for SQLite-enabled build."
+
+### World Data Formats and Testing
+
+The project supports three world data formats:
+1. **Legacy** - Original CircleMUD text format (default, in lib/ + lib.template/)
+2. **SQLite** - World data in SQLite database (requires -DHAVE_SQLITE=ON)
+3. **YAML** - Human-readable YAML format (requires -DHAVE_YAML=ON)
+
+**CRITICAL: Never use lib/ from repository directly!**
+- `lib/` contains base configuration files only (NOT complete world data)
+- `lib.template/` contains world files, player data, and additional configs
+- To get a working world: copy lib/ to build directory, then overlay lib.template/
+
+**Preparing world for conversion:**
+```bash
+# Create working copy (example for YAML build)
+mkdir -p build_yaml/small
+cp -r lib build_yaml/small/
+cp -r lib.template/* build_yaml/small/lib/
+
+# Now build_yaml/small/lib contains complete world data ready for conversion
+```
+
+**Conversion Tool:**
+```bash
+# Convert legacy world to YAML (in-place conversion)
+./tools/convert_to_yaml.py --input build_yaml/small/lib/world --output build_yaml/small/world --format yaml --type all
+
+# Convert to SQLite database
+./tools/convert_to_yaml.py --input build_sqlite/small/lib/world --output build_sqlite/small/world.db --format sqlite --type all
+```
+
+**Automated Testing & Conversion:**
+```bash
+# Run world loading tests (automatically prepares and converts worlds)
+./tools/run_load_tests.sh              # Full test suite
+./tools/run_load_tests.sh --quick      # Quick test (Legacy + YAML checksums)
+./tools/run_load_tests.sh --help       # Show all options
+```
+
+The `run_load_tests.sh` script:
+- Builds all three variants (Legacy, SQLite, YAML) in separate build directories
+- Automatically prepares working worlds (copies lib + lib.template)
+- Converts worlds if missing or outdated
+- Runs boot tests with configurable timeout (default 5 minutes)
+- Calculates checksums (zones, rooms, mobs, objects, triggers) to verify correctness
+- Compares checksums between formats to detect discrepancies
+- Generates detailed reports with boot times and performance comparison
+
+**Important:**
+- Schema/format changes should be tested with `run_load_tests.sh`
+- Conversion script is in `tools/convert_to_yaml.py`
+- String enum values (like "kWorm") in YAML/SQLite are intentional for human readability - map them in loader
+- When fixing loader issues, check if the problem is in converter or loader
+

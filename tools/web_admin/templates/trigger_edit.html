@@ -1,0 +1,690 @@
+{% extends "base.html" %}
+
+{% block title %}Редактирование триггера #{{ trig.vnum }} - Былины MUD{% endblock %}
+
+{% block head %}
+<!-- CodeMirror CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/dracula.min.css">
+<style>
+    .CodeMirror {
+        height: auto;
+        min-height: 400px;
+        border: 2px solid rgba(139, 69, 19, 0.15);
+        border-radius: 6px;
+        font-family: 'Courier New', Consolas, monospace;
+        font-size: 14px;
+        line-height: 1.5;
+        overflow: hidden !important;
+    }
+    .CodeMirror-scroll {
+        overflow-x: hidden !important;
+    }
+    .CodeMirror-focused {
+        border-color: #b45309;
+        box-shadow: 0 0 0 3px rgba(180, 83, 9, 0.1);
+    }
+</style>
+{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs-bar">
+    <div class="max-w-[1280px] mx-auto px-6 py-2.5">
+        <div class="flex items-center gap-2 font-inter text-sm text-ink-muted">
+            <a href="{{ url_for('index') }}">Главная</a>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #d4c49a;">
+                <polyline points="9 18 15 12 9 6"/>
+            </svg>
+            <a href="{{ url_for('triggers_list', zone=trig.vnum // 100) }}">Триггеры</a>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #d4c49a;">
+                <polyline points="9 18 15 12 9 6"/>
+            </svg>
+            <a href="{{ url_for('trigger_detail', vnum=trig.vnum) }}">#{{ trig.vnum }}</a>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #d4c49a;">
+                <polyline points="9 18 15 12 9 6"/>
+            </svg>
+            <span class="text-ink-light">Редактирование</span>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+
+    <!-- Page Header -->
+    <div class="page-header" style="margin-bottom: 8px;">
+        <div>
+            <h2 class="font-serif-display" style="font-size: 28px;">
+                Редактирование триггера <span class="text-amber-700">#{{ trig.vnum }}</span>
+            </h2>
+            <p class="page-subtitle" style="margin-top: 4px;">
+                {{ trig.name|default('Без названия') }}
+            </p>
+        </div>
+
+        <button type="button" class="btn-secondary" onclick="history.back()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            Отмена
+        </button>
+    </div>
+
+    <!-- Ornamental divider -->
+    <div class="ornament-divider">
+        <div class="ornament-divider-inner">
+            <div class="ornament-line ornament-line-left"></div>
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" style="opacity: 0.5;">
+                <path d="M10 2L12 8L18 8L13 12L15 18L10 14L5 18L7 12L2 8L8 8Z"/>
+            </svg>
+            <div class="ornament-line ornament-line-right"></div>
+        </div>
+    </div>
+
+    <form id="trigger-form" novalidate>
+
+        <!-- ===== SECTION 1: Basic Info ===== -->
+        <div class="parchment-section">
+            <div class="parchment-section-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+                </svg>
+                Основная информация
+            </div>
+
+            <div class="form-row" style="margin-bottom: 16px;">
+                <div class="field-group" style="grid-column: 1 / -1;">
+                    <label for="name">Название (name)</label>
+                    <input type="text" id="name" name="name" value="{{ trig.name if trig.name else '' }}"
+                           placeholder="Краткое имя триггера для идентификации">
+                </div>
+            </div>
+
+            <div class="form-row form-row-2" style="margin-bottom: 16px;">
+                <div class="field-group">
+                    <label for="attach_type">Тип привязки (attach type)</label>
+                    <select id="attach_type" name="attach_type" onchange="updateTriggerTypeFlags(); updateAddFlagVisibility()">
+                        <option value="0" {% if trig.attach_type == 0 %}selected{% endif %}>0 - К мобу (MOB)</option>
+                        <option value="1" {% if trig.attach_type == 1 %}selected{% endif %}>1 - К предмету (OBJ)</option>
+                        <option value="2" {% if trig.attach_type == 2 %}selected{% endif %}>2 - К комнате (WLD)</option>
+                    </select>
+                </div>
+
+                <div class="field-group">
+                    <label for="narg">Числовой аргумент (narg)</label>
+                    <input type="number" id="narg" name="narg" value="{{ trig.narg if trig.narg is defined else 0 }}">
+                </div>
+            </div>
+
+            <div class="form-row" id="add-flag-row" style="margin-bottom: 16px; display: none;">
+                <div class="field-group" style="grid-column: 1 / -1;">
+                    <label style="display: flex; align-items: center; cursor: pointer; user-select: none;">
+                        <input type="checkbox" id="add_flag" name="add_flag" {% if trig.add_flag %}checked{% endif %}
+                               style="width: 18px; height: 18px; margin-right: 8px; cursor: pointer;">
+                        <span>Добавлять в бою (add_flag) - только для MOB триггеров</span>
+                    </label>
+                </div>
+            </div>
+            <input type="hidden" id="trigger_type_value" name="trigger_type" value="{{ trig.trigger_type if trig.trigger_type is defined else 0 }}">
+
+            <div class="form-row">
+                <div class="field-group" style="grid-column: 1 / -1;">
+                    <label for="arglist">Текстовый аргумент (arglist)</label>
+                    <input type="text" id="arglist" name="arglist" value="{{ trig.arglist if trig.arglist else '' }}"
+                           placeholder="Ключевое слово (для триггеров типа COMMAND и т.д.)">
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== SECTION 2: Trigger Type Flags ===== -->
+        <div class="parchment-section">
+            <div class="parchment-section-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/>
+                    <line x1="4" y1="22" x2="4" y2="15"/>
+                </svg>
+                Тип триггера (флаги)
+            </div>
+
+            <p style="font-family: 'Inter', sans-serif; font-size: 13px; color: #8a7b6b; margin-bottom: 16px;">
+                Нажмите на флаг для включения или выключения. Можно выбрать несколько флагов одновременно.
+            </p>
+
+            <!-- MOB triggers -->
+            <div id="flags-mob" class="flag-toggle-group">
+                <div class="subsection-label" style="margin-top: 0;">MOB триггеры</div>
+                <div class="flag-toggle-grid">
+                    <button type="button" class="flag-toggle" data-bit="1" onclick="toggleFlag(this)"><span class="flag-toggle-bit">0x1</span><span class="flag-toggle-name">Случайный глобальный (Random Global)</span></button>
+                    <button type="button" class="flag-toggle" data-bit="2" onclick="toggleFlag(this)"><span class="flag-toggle-bit">0x2</span><span class="flag-toggle-name">Случайный (Random)</span></button>
+                    <button type="button" class="flag-toggle" data-bit="4" onclick="toggleFlag(this)"><span class="flag-toggle-bit">0x4</span><span class="flag-toggle-name">Команда (Command)</span></button>
+                    <button type="button" class="flag-toggle" data-bit="8" onclick="toggleFlag(this)"><span class="flag-toggle-bit">0x8</span><span class="flag-toggle-name">Речь (Speech)</span></button>
+                    <button type="button" class="flag-toggle" data-bit="16" onclick="toggleFlag(this)"><span class="flag-toggle-bit">0x10</span><span class="flag-toggle-name">Действие (Act)</span></button>
+                    <button type="button" class="flag-toggle" data-bit="32" onclick="toggleFlag(this)"><span class="flag-toggle-bit">0x20</span><span class="flag-toggle-name">Смерть (Death)</span></button>
+                    <button type="button" class="flag-toggle" data-bit="64" onclick="toggleFlag(this)"><span class="flag-toggle-bit">0x40</span><span class="flag-toggle-name">Приветствие (Greet)</span></button>
+                    <button type="button" class="flag-toggle" data-bit="128" onclick="toggleFlag(this)"><span class="flag-toggle-bit">0x80</span><span class="flag-toggle-name">Приветствие всех (Greet All)</span></button>
+                    <button type="button" class="flag-toggle" data-bit="256" onclick="toggleFlag(this)"><span class="flag-toggle-bit">0x100</span><span class="flag-toggle-name">Вход (Entry)</span></button>
+                    <button type="button" class="flag-toggle" data-bit="512" onclick="toggleFlag(this)"><span class="flag-toggle-bit">0x200</span><span class="flag-toggle-name">Получение (Receive)</span></button>
+                    <button type="button" class="flag-toggle" data-bit="1024" onclick="toggleFlag(this)"><span class="flag-toggle-bit">0x400</span><span class="flag-toggle-name">Бой (Fight)</span></button>
+                    <button type="button" class="flag-toggle" data-bit="2048" onclick="toggleFlag(this)"><span class="flag-toggle-bit">0x800</span><span class="flag-toggle-name">Процент HP (Hit Percent)</span></button>
+                    <button type="button" class="flag-toggle" data-bit="4096" onclick="toggleFlag(this)"><span class="flag-toggle-bit">0x1000</span><span class="flag-toggle-name">Взятка (Bribe)</span></button>
+                    <button type="button" class="flag-toggle" data-bit="8192" onclick="toggleFlag(this)"><span class="flag-toggle-bit">0x2000</span><span class="flag-toggle-name">Загрузка (Load)</span></button>
+                    <button type="button" class="flag-toggle" data-bit="16384" onclick="toggleFlag(this)"><span class="flag-toggle-bit">0x4000</span><span class="flag-toggle-name">Убийство (Kill)</span></button>
+                    <button type="button" class="flag-toggle" data-bit="32768" onclick="toggleFlag(this)"><span class="flag-toggle-bit">0x8000</span><span class="flag-toggle-name">Урон (Damage)</span></button>
+                    <button type="button" class="flag-toggle" data-bit="65536" onclick="toggleFlag(this)"><span class="flag-toggle-bit">0x10000</span><span class="flag-toggle-name">Приветствие игрока (Greet PC)</span></button>
+                    <button type="button" class="flag-toggle" data-bit="131072" onclick="toggleFlag(this)"><span class="flag-toggle-bit">0x20000</span><span class="flag-toggle-name">Приветствие всех игроков (Greet PC All)</span></button>
+                    <button type="button" class="flag-toggle" data-bit="262144" onclick="toggleFlag(this)"><span class="flag-toggle-bit">0x40000</span><span class="flag-toggle-name">Вход моба (Income)</span></button>
+                    <button type="button" class="flag-toggle" data-bit="524288" onclick="toggleFlag(this)"><span class="flag-toggle-bit">0x80000</span><span class="flag-toggle-name">Вход моба (если игрок) (Income PC)</span></button>
+                    <button type="button" class="flag-toggle" data-bit="1048576" onclick="toggleFlag(this)"><span class="flag-toggle-bit">0x100000</span><span class="flag-toggle-name">Начало боя (Start Fight)</span></button>
+                    <button type="button" class="flag-toggle" data-bit="2097152" onclick="toggleFlag(this)"><span class="flag-toggle-bit">0x200000</span><span class="flag-toggle-name">Раунд боя (Round Num)</span></button>
+                    <button type="button" class="flag-toggle" data-bit="4194304" onclick="toggleFlag(this)"><span class="flag-toggle-bit">0x400000</span><span class="flag-toggle-name">Заклинание (Cast)</span></button>
+                    <button type="button" class="flag-toggle" data-bit="8388608" onclick="toggleFlag(this)"><span class="flag-toggle-bit">0x800000</span><span class="flag-toggle-name">Смена времени (Timechange)</span></button>
+                </div>
+            </div>
+
+            <!-- OBJ triggers -->
+            <div id="flags-obj" class="flag-toggle-group" style="display: none;">
+                <div class="subsection-label" style="margin-top: 0;">OBJ триггеры</div>
+                <div class="flag-toggle-grid">
+                    <button type="button" class="flag-toggle" data-bit="1" onclick="toggleFlag(this)"><span class="flag-toggle-bit">0x1</span><span class="flag-toggle-name">Случайный глобальный (Random Global)</span></button>
+                    <button type="button" class="flag-toggle" data-bit="2" onclick="toggleFlag(this)"><span class="flag-toggle-bit">0x2</span><span class="flag-toggle-name">Случайный (Random)</span></button>
+                    <button type="button" class="flag-toggle" data-bit="4" onclick="toggleFlag(this)"><span class="flag-toggle-bit">0x4</span><span class="flag-toggle-name">Команда (Command)</span></button>
+                    <button type="button" class="flag-toggle" data-bit="8" onclick="toggleFlag(this)"><span class="flag-toggle-bit">0x8</span><span class="flag-toggle-name">Очистка (Purge)</span></button>
+                    <button type="button" class="flag-toggle" data-bit="16" onclick="toggleFlag(this)"><span class="flag-toggle-bit">0x10</span><span class="flag-toggle-name">Бой (Fight)</span></button>
+                    <button type="button" class="flag-toggle" data-bit="32" onclick="toggleFlag(this)"><span class="flag-toggle-bit">0x20</span><span class="flag-toggle-name">Таймер (Timer)</span></button>
+                    <button type="button" class="flag-toggle" data-bit="64" onclick="toggleFlag(this)"><span class="flag-toggle-bit">0x40</span><span class="flag-toggle-name">Взять (Get)</span></button>
+                    <button type="button" class="flag-toggle" data-bit="128" onclick="toggleFlag(this)"><span class="flag-toggle-bit">0x80</span><span class="flag-toggle-name">Уронить (Drop)</span></button>
+                    <button type="button" class="flag-toggle" data-bit="256" onclick="toggleFlag(this)"><span class="flag-toggle-bit">0x100</span><span class="flag-toggle-name">Дать (Give)</span></button>
+                    <button type="button" class="flag-toggle" data-bit="512" onclick="toggleFlag(this)"><span class="flag-toggle-bit">0x200</span><span class="flag-toggle-name">Надеть (Wear)</span></button>
+                    <button type="button" class="flag-toggle" data-bit="2048" onclick="toggleFlag(this)"><span class="flag-toggle-bit">0x800</span><span class="flag-toggle-name">Снять (Remove)</span></button>
+                    <button type="button" class="flag-toggle" data-bit="8192" onclick="toggleFlag(this)"><span class="flag-toggle-bit">0x2000</span><span class="flag-toggle-name">Загрузка (Load)</span></button>
+                    <button type="button" class="flag-toggle" data-bit="16384" onclick="toggleFlag(this)"><span class="flag-toggle-bit">0x4000</span><span class="flag-toggle-name">Отпирание замка (Unlock)</span></button>
+                    <button type="button" class="flag-toggle" data-bit="32768" onclick="toggleFlag(this)"><span class="flag-toggle-bit">0x8000</span><span class="flag-toggle-name">Открытие (Open)</span></button>
+                    <button type="button" class="flag-toggle" data-bit="65536" onclick="toggleFlag(this)"><span class="flag-toggle-bit">0x10000</span><span class="flag-toggle-name">Закрытие замка (Lock)</span></button>
+                    <button type="button" class="flag-toggle" data-bit="131072" onclick="toggleFlag(this)"><span class="flag-toggle-bit">0x20000</span><span class="flag-toggle-name">Закрытие (Close)</span></button>
+                    <button type="button" class="flag-toggle" data-bit="262144" onclick="toggleFlag(this)"><span class="flag-toggle-bit">0x40000</span><span class="flag-toggle-name">Взлом (Pick)</span></button>
+                    <button type="button" class="flag-toggle" data-bit="524288" onclick="toggleFlag(this)"><span class="flag-toggle-bit">0x80000</span><span class="flag-toggle-name">Приветствие всех игроков (Greet All PC)</span></button>
+                    <button type="button" class="flag-toggle" data-bit="1048576" onclick="toggleFlag(this)"><span class="flag-toggle-bit">0x100000</span><span class="flag-toggle-name">Смена времени (Timechange)</span></button>
+                    <button type="button" class="flag-toggle" data-bit="2097152" onclick="toggleFlag(this)"><span class="flag-toggle-bit">0x200000</span><span class="flag-toggle-name">Помещение (Put)</span></button>
+                </div>
+            </div>
+
+            <!-- WLD triggers -->
+            <div id="flags-wld" class="flag-toggle-group" style="display: none;">
+                <div class="subsection-label" style="margin-top: 0;">WLD триггеры</div>
+                <div class="flag-toggle-grid">
+                    <button type="button" class="flag-toggle" data-bit="1" onclick="toggleFlag(this)"><span class="flag-toggle-bit">0x1</span><span class="flag-toggle-name">Случайный глобальный (Random Global)</span></button>
+                    <button type="button" class="flag-toggle" data-bit="2" onclick="toggleFlag(this)"><span class="flag-toggle-bit">0x2</span><span class="flag-toggle-name">Случайный (Random)</span></button>
+                    <button type="button" class="flag-toggle" data-bit="4" onclick="toggleFlag(this)"><span class="flag-toggle-bit">0x4</span><span class="flag-toggle-name">Команда (Command)</span></button>
+                    <button type="button" class="flag-toggle" data-bit="8" onclick="toggleFlag(this)"><span class="flag-toggle-bit">0x8</span><span class="flag-toggle-name">Речь (Speech)</span></button>
+                    <button type="button" class="flag-toggle" data-bit="16" onclick="toggleFlag(this)"><span class="flag-toggle-bit">0x10</span><span class="flag-toggle-name">Вход игрока (Enter PC)</span></button>
+                    <button type="button" class="flag-toggle" data-bit="32" onclick="toggleFlag(this)"><span class="flag-toggle-bit">0x20</span><span class="flag-toggle-name">Сброс (Reset)</span></button>
+                    <button type="button" class="flag-toggle" data-bit="64" onclick="toggleFlag(this)"><span class="flag-toggle-bit">0x40</span><span class="flag-toggle-name">Вход (Enter)</span></button>
+                    <button type="button" class="flag-toggle" data-bit="128" onclick="toggleFlag(this)"><span class="flag-toggle-bit">0x80</span><span class="flag-toggle-name">Уронить (Drop)</span></button>
+                    <button type="button" class="flag-toggle" data-bit="256" onclick="toggleFlag(this)"><span class="flag-toggle-bit">0x100</span><span class="flag-toggle-name">Отпирание замка (Unlock)</span></button>
+                    <button type="button" class="flag-toggle" data-bit="512" onclick="toggleFlag(this)"><span class="flag-toggle-bit">0x200</span><span class="flag-toggle-name">Открытие (Open)</span></button>
+                    <button type="button" class="flag-toggle" data-bit="1024" onclick="toggleFlag(this)"><span class="flag-toggle-bit">0x400</span><span class="flag-toggle-name">Закрытие замка (Lock)</span></button>
+                    <button type="button" class="flag-toggle" data-bit="2048" onclick="toggleFlag(this)"><span class="flag-toggle-bit">0x800</span><span class="flag-toggle-name">Закрытие (Close)</span></button>
+                    <button type="button" class="flag-toggle" data-bit="4096" onclick="toggleFlag(this)"><span class="flag-toggle-bit">0x1000</span><span class="flag-toggle-name">Взлом (Pick)</span></button>
+                    <button type="button" class="flag-toggle" data-bit="8192" onclick="toggleFlag(this)"><span class="flag-toggle-bit">0x2000</span><span class="flag-toggle-name">Смена времени (Timechange)</span></button>
+                    <button type="button" class="flag-toggle" data-bit="16384" onclick="toggleFlag(this)"><span class="flag-toggle-bit">0x4000</span><span class="flag-toggle-name">Убийство игрока (Kill PC)</span></button>
+                </div>
+            </div>
+
+            <!-- Calculated value hint -->
+            <div class="flag-hint" id="trigger-type-hint">Итого: <strong id="trigger-type-hex">0x0</strong> (dec: <span id="trigger-type-dec" style="font-weight: 600; color: #5a4d3f;">0</span>)</div>
+        </div>
+
+        <!-- ===== SECTION 3: Script ===== -->
+        <div class="parchment-section">
+            <div class="parchment-section-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                </svg>
+                Тело скрипта (DG commands)
+            </div>
+
+            <div class="field-group">
+                <label for="script">Скрипт (script)</label>
+                <textarea id="script" name="script" rows="20"
+                          style="font-family: 'Courier New', monospace; font-size: 13px; resize: vertical; min-height: 200px;"
+                          placeholder="Каждая команда с новой строки">{% if trig.commands %}{% for cmd in trig.commands %}{{ cmd }}
+{% endfor %}{% endif %}</textarea>
+            </div>
+        </div>
+
+    </form>
+
+    <!-- Sticky action bar -->
+    <div style="position: sticky; bottom: 0; background-color: #f4ead5; border: 3px double rgba(120, 53, 15, 0.2); border-radius: 8px; padding: 16px 28px; display: flex; align-items: center; gap: 12px; box-shadow: 0 -4px 16px rgba(139, 69, 19, 0.08); z-index: 100;">
+        <button type="button" class="btn-primary" id="save-btn" onclick="window.saveTrigger()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                <polyline points="17 21 17 13 7 13 7 21"/>
+                <polyline points="7 3 7 8 15 8"/>
+            </svg>
+            Сохранить
+        </button>
+        <button type="button" class="btn-secondary" onclick="history.back()">
+            Отмена
+        </button>
+        <div style="margin-left: auto; font-family: 'Inter', sans-serif; font-size: 13px; color: #8a7b6b;" id="save-status"></div>
+    </div>
+
+    <!-- Toast container -->
+    <div id="toast" style="position: fixed; top: 24px; right: 24px; padding: 16px 24px; border-radius: 8px; font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 500; z-index: 9999; opacity: 0; transform: translateY(-12px); transition: all 0.25s ease; max-width: 420px; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);"></div>
+
+{% endblock %}
+
+{% block scripts %}
+<!-- CodeMirror JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+<script src="{{ url_for('static', filename='js/dgscript-mode.js') }}"></script>
+
+<script>
+(function() {
+    'use strict';
+
+    // --- CodeMirror Editor for DG Scripts ---
+    var scriptTextarea = document.getElementById('script');
+    var editor = null;
+
+    if (scriptTextarea) {
+        editor = CodeMirror.fromTextArea(scriptTextarea, {
+            mode: 'dgscript',
+            lineNumbers: true,
+            lineWrapping: true,
+            theme: 'dracula',
+            indentUnit: 2,
+            tabSize: 2,
+            indentWithTabs: false,
+            matchBrackets: true,
+            autoCloseBrackets: true,
+            extraKeys: {
+                "Tab": function(cm) {
+                    if (cm.somethingSelected()) {
+                        cm.indentSelection("add");
+                    } else {
+                        cm.replaceSelection("  ", "end");
+                    }
+                }
+            }
+        });
+
+        // Auto-resize editor to fit content
+        editor.setSize(null, "auto");
+
+        // Store editor globally for save function to access
+        window.triggerScriptEditor = editor;
+    }
+
+    // --- Toast notifications ---
+    window.showToast = function(message, type) {
+        var toast = document.getElementById('toast');
+        toast.textContent = message;
+        if (type === 'success') {
+            toast.style.backgroundColor = '#f4ead5';
+            toast.style.border = '2px solid rgba(120, 100, 15, 0.3)';
+            toast.style.color = '#5a4d3f';
+        } else {
+            toast.style.backgroundColor = '#fef2f2';
+            toast.style.border = '2px solid rgba(185, 28, 28, 0.2)';
+            toast.style.color = '#991b1b';
+        }
+        toast.style.opacity = '1';
+        toast.style.transform = 'translateY(0)';
+        setTimeout(function() {
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateY(-12px)';
+        }, 4000);
+    };
+
+    // --- Trigger type flags logic ---
+    var flagGroups = {
+        '0': document.getElementById('flags-mob'),
+        '1': document.getElementById('flags-obj'),
+        '2': document.getElementById('flags-wld')
+    };
+
+    // Toggle a single flag button on/off
+    window.toggleFlag = function(btn) {
+        btn.classList.toggle('active');
+        recalcTriggerType();
+    };
+
+    // Show/hide the add_flag field based on attach_type (only for MOB = 0)
+    window.updateAddFlagVisibility = function() {
+        var attachType = document.getElementById('attach_type').value;
+        var addFlagRow = document.getElementById('add-flag-row');
+        if (attachType === '0') {
+            addFlagRow.style.display = '';
+        } else {
+            addFlagRow.style.display = 'none';
+        }
+    };
+
+    // Show/hide the correct flag group based on attach_type
+    window.updateTriggerTypeFlags = function() {
+        var attachType = document.getElementById('attach_type').value;
+
+        // Hide all groups and deactivate all toggles in hidden groups
+        for (var key in flagGroups) {
+            flagGroups[key].style.display = 'none';
+            var toggles = flagGroups[key].querySelectorAll('.flag-toggle');
+            for (var i = 0; i < toggles.length; i++) {
+                toggles[i].classList.remove('active');
+            }
+        }
+
+        // Show the relevant group
+        if (flagGroups[attachType]) {
+            flagGroups[attachType].style.display = '';
+        }
+
+        // Recalculate (all deactivated after switch)
+        recalcTriggerType();
+    };
+
+    // Recalculate the bitmask from active toggles in the visible group
+    window.recalcTriggerType = function() {
+        var attachType = document.getElementById('attach_type').value;
+        var group = flagGroups[attachType];
+        if (!group) return;
+
+        var total = 0;
+        var toggles = group.querySelectorAll('.flag-toggle');
+        for (var i = 0; i < toggles.length; i++) {
+            if (toggles[i].classList.contains('active')) {
+                total += parseInt(toggles[i].getAttribute('data-bit'));
+            }
+        }
+        document.getElementById('trigger_type_value').value = total;
+
+        // Update the hint text
+        var hexStr = '0x' + total.toString(16).toUpperCase();
+        document.getElementById('trigger-type-hex').textContent = hexStr;
+        document.getElementById('trigger-type-dec').textContent = total;
+    };
+
+    // Initialize: set toggle buttons from the existing trigger_type value
+    function initFlags() {
+        var attachType = document.getElementById('attach_type').value;
+        var triggerType = parseInt(document.getElementById('trigger_type_value').value) || 0;
+
+        // Show the correct group
+        for (var key in flagGroups) {
+            flagGroups[key].style.display = (key === attachType) ? '' : 'none';
+        }
+
+        // Activate the appropriate toggle buttons in the visible group
+        var group = flagGroups[attachType];
+        if (group) {
+            var toggles = group.querySelectorAll('.flag-toggle');
+            for (var i = 0; i < toggles.length; i++) {
+                var bit = parseInt(toggles[i].getAttribute('data-bit'));
+                if ((triggerType & bit) !== 0) {
+                    toggles[i].classList.add('active');
+                }
+            }
+        }
+
+        // Update hint display
+        recalcTriggerType();
+    }
+
+    initFlags();
+    updateAddFlagVisibility();
+
+    // Save icon SVG for button restore
+    var SAVE_ICON = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Сохранить';
+
+    // --- Validation functions ---
+    function clearValidationErrors() {
+        document.querySelectorAll('.field-error').forEach(function(el) {
+            el.classList.remove('field-error');
+        });
+        document.querySelectorAll('.error-message').forEach(function(el) {
+            el.remove();
+        });
+        var errorsBlock = document.getElementById('validation-errors-block');
+        if (errorsBlock) {
+            errorsBlock.remove();
+        }
+    }
+
+    function displayValidationErrors(errors) {
+        var form = document.getElementById('trigger-form');
+        var errorsBlock = document.createElement('div');
+        errorsBlock.id = 'validation-errors-block';
+        errorsBlock.className = 'validation-errors';
+
+        var html = '<div style="display: flex; align-items: flex-start; gap: 12px;">';
+        html += '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 2px;">';
+        html += '<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>';
+        html += '</svg>';
+        html += '<div style="flex: 1;">';
+        html += '<div style="font-family: \'Inter\', sans-serif; font-weight: 600; font-size: 14px; color: #991b1b; margin-bottom: 8px;">Исправьте следующие ошибки:</div>';
+        html += '<ul style="margin: 0; padding-left: 20px; font-family: \'Inter\', sans-serif; font-size: 13px; color: #dc2626; line-height: 1.6;">';
+
+        var displayErrors = errors.slice(0, 5);
+        displayErrors.forEach(function(error) {
+            html += '<li>' + error.message + '</li>';
+        });
+
+        if (errors.length > 5) {
+            html += '<li>И ещё ' + (errors.length - 5) + ' ошибок...</li>';
+        }
+
+        html += '</ul></div></div>';
+        errorsBlock.innerHTML = html;
+
+        form.insertBefore(errorsBlock, form.firstChild);
+
+        errors.forEach(function(error) {
+            var field = error.field;
+            field.classList.add('field-error');
+
+            var errorMsg = document.createElement('div');
+            errorMsg.className = 'error-message';
+            errorMsg.textContent = error.message;
+            field.parentNode.appendChild(errorMsg);
+        });
+
+        if (errors.length > 0) {
+            errors[0].field.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            errors[0].field.focus();
+        }
+    }
+
+    function validateForm() {
+        var errors = [];
+        clearValidationErrors();
+
+        var nameEl = document.querySelector('[name="name"]');
+        if (!nameEl.value.trim()) {
+            errors.push({
+                field: nameEl,
+                message: 'Название триггера (name) обязательно'
+            });
+        }
+
+        var attachTypeEl = document.querySelector('[name="attach_type"]');
+        if (!attachTypeEl.value.trim()) {
+            errors.push({
+                field: attachTypeEl,
+                message: 'Тип прикрепления (attach_type) обязателен'
+            });
+        }
+
+        var triggerTypeEl = document.querySelector('[name="trigger_type"]');
+        var triggerTypeVal = parseInt(triggerTypeEl.value);
+        if (isNaN(triggerTypeVal) || triggerTypeVal <= 0) {
+            errors.push({
+                field: triggerTypeEl,
+                message: 'Выберите хотя бы один тип триггера (trigger_type)'
+            });
+        }
+
+        var scriptEl = document.querySelector('[name="script"]');
+        if (!scriptEl.value.trim()) {
+            errors.push({
+                field: scriptEl,
+                message: 'Тело скрипта (script) обязательно'
+            });
+        }
+
+        if (errors.length > 0) {
+            displayValidationErrors(errors);
+            return false;
+        }
+
+        return true;
+    }
+
+    // --- Main save function ---
+    window.saveTrigger = function() {
+        // Sync CodeMirror content back to textarea before validation
+        if (window.triggerScriptEditor) {
+            window.triggerScriptEditor.save();
+        }
+
+        if (!validateForm()) {
+            showToast('Форма содержит ошибки', 'error');
+            return;
+        }
+
+        var btn = document.getElementById('save-btn');
+        var statusEl = document.getElementById('save-status');
+
+        // Show loading state
+        btn.disabled = true;
+        btn.innerHTML = '<span style="display:inline-block;width:16px;height:16px;border:2px solid rgba(253,246,227,0.4);border-top-color:#fdf6e3;border-radius:50%;animation:spin 0.6s linear infinite;margin-right:8px;vertical-align:middle;"></span>Сохранение...';
+        statusEl.textContent = '';
+
+        var form = document.getElementById('trigger-form');
+        var data = {};
+
+        var nameEl = form.querySelector('[name="name"]');
+        if (nameEl) data.name = nameEl.value;
+
+        var attachTypeEl = form.querySelector('[name="attach_type"]');
+        if (attachTypeEl) data.attach_type = parseInt(attachTypeEl.value) || 0;
+
+        var triggerTypeEl = form.querySelector('[name="trigger_type"]');
+        if (triggerTypeEl) data.trigger_type = parseInt(triggerTypeEl.value) || 0;
+
+        var nargEl = form.querySelector('[name="narg"]');
+        if (nargEl) data.narg = parseInt(nargEl.value) || 0;
+
+        var arglistEl = form.querySelector('[name="arglist"]');
+        if (arglistEl) data.arglist = arglistEl.value;
+
+        var addFlagEl = form.querySelector('[name="add_flag"]');
+        if (addFlagEl) data.add_flag = addFlagEl.checked;
+
+        var scriptEl = form.querySelector('[name="script"]');
+        if (scriptEl) data.script = scriptEl.value;
+
+        // POST as JSON
+        fetch('/trigger/{{ trig.vnum }}/update', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        })
+        .then(function(response) { return response.json(); })
+        .then(function(result) {
+            btn.disabled = false;
+            btn.innerHTML = SAVE_ICON;
+
+            if (result.status === 'ok') {
+                showToast('Триггер успешно сохранён', 'success');
+                // Redirect to detail view
+                setTimeout(function() {
+                    window.location.href = '{{ url_for("trigger_detail", vnum=trig.vnum) }}';
+                }, 500);
+            } else {
+                showToast('Ошибка: ' + (result.error || 'Неизвестная ошибка'), 'error');
+                statusEl.textContent = '';
+            }
+        })
+        .catch(function(err) {
+            btn.disabled = false;
+            btn.innerHTML = SAVE_ICON;
+            showToast('Ошибка сети: ' + err.message, 'error');
+            statusEl.textContent = '';
+        });
+    };
+})();
+
+// ========== Color Overlay for Text Inputs ==========
+function addColorOverlay(inputId) {
+    const input = document.getElementById(inputId);
+    if (!input) return;
+
+    const isTextarea = input.tagName.toLowerCase() === 'textarea';
+
+    const wrapper = document.createElement('div');
+    wrapper.style.cssText = 'position: relative;';
+
+    const computedStyle = window.getComputedStyle(input);
+
+    const backdrop = document.createElement('div');
+    backdrop.className = 'mud-colorize';
+    backdrop.style.cssText = `
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        padding: ${computedStyle.padding || (isTextarea ? '8px 12px' : '0 12px')};
+        border: ${computedStyle.border || '2px solid rgba(120, 53, 15, 0.15)'};
+        border-radius: ${computedStyle.borderRadius || '4px'};
+        background: ${computedStyle.backgroundColor || '#fefdfb'};
+        font-family: ${computedStyle.fontFamily || 'Inter, sans-serif'};
+        font-size: ${computedStyle.fontSize || '14px'};
+        line-height: ${computedStyle.lineHeight || (isTextarea ? '1.5' : '38px')};
+        white-space: ${isTextarea ? 'pre-wrap' : 'pre'};
+        word-wrap: break-word;
+        color: #2d241e;
+        pointer-events: none;
+        overflow: ${isTextarea ? 'auto' : 'hidden'};
+        box-shadow: ${computedStyle.boxShadow || 'none'};
+    `;
+
+    input.parentNode.insertBefore(wrapper, input);
+    wrapper.appendChild(backdrop);
+    wrapper.appendChild(input);
+
+    input.style.position = 'relative';
+    input.style.background = 'transparent';
+    input.style.border = 'none';
+    input.style.outline = 'none';
+    input.style.color = 'transparent';
+    input.style.caretColor = '#2d241e';
+    input.style.zIndex = '1';
+
+    function updateBackdrop() {
+        let text = input.value;
+        if (text && !text.endsWith(' ')) text += ' ';
+        backdrop.textContent = text || ' ';
+        delete backdrop.dataset.colorized;
+        delete backdrop.dataset.originalText;
+        applyMudColors();
+    }
+
+    if (isTextarea) {
+        input.addEventListener('scroll', function() {
+            backdrop.scrollTop = input.scrollTop;
+            backdrop.scrollLeft = input.scrollLeft;
+        });
+    }
+
+    updateBackdrop();
+    input.addEventListener('input', updateBackdrop);
+    input.addEventListener('change', updateBackdrop);
+}
+
+// Add color overlay to trigger fields
+document.addEventListener('DOMContentLoaded', function() {
+    addColorOverlay('name');
+    addColorOverlay('arglist');
+});
+</script>
+{% endblock %}

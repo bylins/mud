@@ -19,6 +19,7 @@
 #include "utils/utils.h"
 #include "utils/id_converter.h"
 #include "engine/db/db.h"
+#include "engine/db/world_data_source_manager.h"
 #include "olc.h"
 #include "engine/scripting/dg_olc.h"
 #include "gameplay/crafting/im.h"
@@ -271,7 +272,9 @@ void oedit_save_internally(DescriptorData *d) {
 	}
 
 //	olc_add_to_save_list(zone_table[OLC_ZNUM(d)].vnum, OLC_SAVE_OBJ);
-	oedit_save_to_disk(OLC_ZNUM(d));
+	// Save only this specific object (vnum = OLC_NUM(d))
+	auto* data_source = world_loader::WorldDataSourceManager::Instance().GetDataSource();
+	data_source->SaveObjects(OLC_ZNUM(d), OLC_NUM(d));
 }
 
 //------------------------------------------------------------------------

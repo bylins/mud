@@ -858,14 +858,18 @@ inline void CharData::clear_ignores() {
 }
 
 inline int GET_INVIS_LEV(const CharData *ch) {
-	if (ch->player_specials->saved.invis_level)
+	if (ch->player_specials && ch->player_specials->saved.invis_level)
 		return ch->player_specials->saved.invis_level;
 	else
 		return 0;
 }
 inline int GET_INVIS_LEV(const CharData::shared_ptr &ch) { return GET_INVIS_LEV(ch.get()); }
 
-inline void SET_INVIS_LEV(const CharData *ch, const int level) { ch->player_specials->saved.invis_level = level; }
+inline void SET_INVIS_LEV(const CharData *ch, const int level) {
+	if (ch->player_specials) {
+		ch->player_specials->saved.invis_level = level;
+	}
+}
 inline void SET_INVIS_LEV(const CharData::shared_ptr &ch, const int level) { SET_INVIS_LEV(ch.get(), level); }
 
 inline void SetWaitState(CharData *ch, const unsigned cycle) {

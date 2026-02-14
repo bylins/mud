@@ -408,6 +408,7 @@ void zedit_save_internally(DescriptorData *d) {
 		}
 		zone_table[OLC_ZNUM(d)].under_construction = OLC_ZONE(d)->under_construction;
 		zone_table[OLC_ZNUM(d)].locked = OLC_ZONE(d)->locked;
+		zone_table[OLC_ZNUM(d)].is_town = OLC_ZONE(d)->is_town;
 		if (zone_table[OLC_ZNUM(d)].group != OLC_ZONE(d)->group) {
 			zone_table[OLC_ZNUM(d)].group = OLC_ZONE(d)->group;
 			HelpSystem::reload(HelpSystem::STATIC);
@@ -845,6 +846,11 @@ void zedit_disp_commands(DescriptorData *d) {
 
 // the main menu
 void zedit_disp_menu(DescriptorData *d) {
+	// Skip menu display if no character (e.g., called from Admin API)
+	if (!d->character) {
+		return;
+	}
+
 //	char *buf = (char *) malloc(32 * 1024);
 	char *type1_zones = (char *) malloc(1024);
 	char *type2_zones = (char *) malloc(1024);

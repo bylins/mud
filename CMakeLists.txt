@@ -57,6 +57,7 @@ set(SOURCES
 		src/engine/scripting/dg_comm.cpp
 		src/engine/scripting/dg_domination_helper.cpp
 		src/engine/scripting/dg_db_scripts.cpp
+		src/engine/scripting/trigger_indenter.cpp
 		src/engine/scripting/dg_event.cpp
 		src/engine/scripting/dg_handler.cpp
 		src/engine/scripting/dg_misc.cpp
@@ -146,11 +147,18 @@ set(SOURCES
 		src/gameplay/communication/spam.cpp
 		src/gameplay/ai/spec_assign.cpp
 		src/gameplay/ai/spec_procs.cpp
+		src/engine/network/admin_api.cpp
+		src/engine/network/admin_api/json_helpers.cpp
+		src/engine/network/admin_api/serializers.cpp
+		src/engine/network/admin_api/parsers.cpp
+		src/engine/network/admin_api/crud_handlers.cpp
+		src/engine/network/admin_api/command_registry.cpp
 		src/engine/network/descriptor_data.cpp
 		src/gameplay/mechanics/stuff.cpp
 		src/engine/structs/flags.hpp
 		src/utils/id_converter.cpp
 		src/utils/utils_time.cpp
+		src/utils/thread_pool.cpp
 		src/gameplay/mechanics/title.cpp
 		src/gameplay/statistics/top.cpp
 		src/utils/utils.cpp
@@ -160,6 +168,22 @@ set(SOURCES
 		src/utils/utils_string.cpp
 		src/engine/db/world_objects.cpp
 		src/engine/db/obj_prototypes.cpp
+		src/engine/db/world_checksum.cpp
+		src/engine/db/world_data_source.h
+		src/engine/db/world_data_source_manager.h
+		src/engine/db/world_data_source_manager.cpp
+		src/engine/db/null_world_data_source.h
+		src/engine/db/legacy_world_data_source.h
+		src/engine/db/legacy_world_data_source.cpp
+		src/engine/db/world_data_source_base.h
+		src/engine/db/world_data_source_base.cpp
+		$<$<BOOL:${HAVE_SQLITE}>:src/engine/db/sqlite_world_data_source.h>
+		$<$<BOOL:${HAVE_SQLITE}>:src/engine/db/sqlite_world_data_source.cpp>
+		$<$<BOOL:${HAVE_YAML}>:src/engine/db/yaml_world_data_source.h>
+		$<$<BOOL:${HAVE_YAML}>:src/engine/db/yaml_world_data_source.cpp>
+		$<$<BOOL:${HAVE_YAML}>:src/engine/db/dictionary_loader.h>
+		$<$<BOOL:${HAVE_YAML}>:src/engine/db/dictionary_loader.cpp>
+		# SQLite world data source (conditional)
 		src/engine/db/id.cpp
 		src/engine/db/utils_find_obj_id_by_vnum.cpp
 		src/engine/db/global_objects.cpp
@@ -503,6 +527,7 @@ set(HEADERS
 		src/engine/structs/radix_trie.h
 		src/engine/db/obj_prototypes.h
 		src/engine/db/world_objects.h
+		src/engine/db/world_checksum.h
 		src/utils/utils_string.h
 		src/gameplay/affects/affect_handler.h
 		src/gameplay/economics/auction.h
@@ -543,6 +568,7 @@ set(HEADERS
 		src/gameplay/mechanics/depot.h
 		src/engine/db/description.h
 		src/engine/scripting/dg_db_scripts.h
+		src/engine/scripting/trigger_indenter.h
 		src/engine/scripting/dg_domination_helper.h
 		src/engine/scripting/dg_event.h
 		src/engine/scripting/dg_olc.h
@@ -622,6 +648,13 @@ set(HEADERS
 		src/gameplay/skills/skills.h
 		src/gameplay/skills/skills_info.h
 		src/gameplay/communication/spam.h
+		src/engine/network/admin_api.h
+		src/engine/network/admin_api/admin_api_constants.h
+		src/engine/network/admin_api/json_helpers.h
+		src/engine/network/admin_api/serializers.h
+		src/engine/network/admin_api/parsers.h
+		src/engine/network/admin_api/crud_handlers.h
+		src/engine/network/admin_api/command_registry.h
 		src/engine/network/descriptor_data.h
 		src/engine/structs/structs.h
 		src/gameplay/mechanics/stuff.h
@@ -1132,6 +1165,9 @@ else ()
 	set(DEFAULT_HAVE_ZLIB "YES")
 endif ()
 option(HAVE_ZLIB "Should ZLib be compiled in. It is required to support MCCP." ${DEFAULT_HAVE_ZLIB})
+option(HAVE_SQLITE "Enable SQLite world data source for faster world loading." OFF)
+option(ENABLE_ADMIN_API "Enable Admin API via Unix socket" OFF)
+option(HAVE_YAML "Enable YAML world data source for human-readable world files." OFF)
 
 if (HAVE_ZLIB)
 	set(ZLIB_ROOT $ENV{ZLIB_ROOT})
@@ -1142,6 +1178,89 @@ if (HAVE_ZLIB)
 	message(STATUS "ZLib is turned ON. Circle will be compiled with MCCP support.")
 else ()
 	message(STATUS "ZLib is turned off. Circle will NOT support MCCP.")
+endif ()
+
+# Admin API support
+if (ENABLE_ADMIN_API)
+	add_definitions(-DENABLE_ADMIN_API)
+	include_directories(src/third_party_libs)
+	message(STATUS "Admin API: ENABLED")
+else ()
+	message(STATUS "Admin API: DISABLED")
+endif ()
+
+# SQLite support
+if (HAVE_SQLITE)
+	find_package(SQLite3 REQUIRED)
+	add_definitions(-DHAVE_SQLITE)
+	
+	# Create separate library for SQLite loader (without _GLIBCXX_DEBUG)
+	include_directories(${SQLite3_INCLUDE_DIRS})
+	target_link_libraries(circle.library SQLite::SQLite3)
+	message(STATUS "SQLite is turned ON. Circle will support SQLite world data source.")
+else ()
+	message(STATUS "SQLite is turned off.")
+endif ()
+
+# YAML support
+if (HAVE_YAML)
+	# Try to find yaml-cpp via CMake config first
+	find_package(yaml-cpp QUIET)
+
+	if (yaml-cpp_FOUND)
+		# Modern CMake target found
+		message(STATUS "yaml-cpp found via find_package")
+		if (TARGET yaml-cpp)
+			set(YAML_CPP_LIBRARIES yaml-cpp)
+			get_target_property(YAML_CPP_INCLUDE_DIRS yaml-cpp INTERFACE_INCLUDE_DIRECTORIES)
+		else ()
+			# Old-style variables (YAML_CPP_LIBRARIES, YAML_CPP_INCLUDE_DIRS should be set)
+			if (NOT YAML_CPP_LIBRARIES)
+				set(YAML_CPP_LIBRARIES ${YAML_CPP_LIBRARY})
+			endif ()
+		endif ()
+	else ()
+		# Fallback to manual search (for Cygwin and other systems without CMake config)
+		message(STATUS "yaml-cpp not found via find_package, trying manual search...")
+
+		find_path(YAML_CPP_INCLUDE_DIR yaml-cpp/yaml.h
+			PATHS
+				/usr/include
+				/usr/local/include
+		)
+
+		# Cygwin uses .dll.a suffix for import libraries
+		if (CYGWIN)
+			find_library(YAML_CPP_LIBRARY
+				NAMES yaml-cpp.dll libyaml-cpp.dll
+				PATHS /usr/lib
+			)
+		else ()
+			find_library(YAML_CPP_LIBRARY
+				NAMES yaml-cpp libyaml-cpp
+				PATHS
+					/usr/lib
+					/usr/local/lib
+					/lib
+					/usr/lib/x86_64-linux-gnu
+			)
+		endif ()
+
+		if (YAML_CPP_INCLUDE_DIR AND YAML_CPP_LIBRARY)
+			message(STATUS "yaml-cpp found manually: ${YAML_CPP_LIBRARY}")
+			set(YAML_CPP_INCLUDE_DIRS ${YAML_CPP_INCLUDE_DIR})
+			set(YAML_CPP_LIBRARIES ${YAML_CPP_LIBRARY})
+		else ()
+			message(FATAL_ERROR "yaml-cpp not found. Install libyaml-cpp-devel (Cygwin) or libyaml-cpp-dev (Debian/Ubuntu)")
+		endif ()
+	endif ()
+
+	add_definitions(-DHAVE_YAML)
+	include_directories(${YAML_CPP_INCLUDE_DIRS})
+	target_link_libraries(circle.library ${YAML_CPP_LIBRARIES})
+	message(STATUS "YAML is turned ON. Circle will support YAML world data source.")
+else ()
+	message(STATUS "YAML is turned off.")
 endif ()
 
 # Iconv
@@ -1207,7 +1326,7 @@ set(TESTBUILD_DEFINITIONS "-DNOCRYPT -DTEST_BUILD")
 set(ASAN_FLAGS)
 if (UNIX AND NOT CYGWIN)
 	set(DEFAULT_WITH_ASAN YES)
-elseif ()
+else ()
 	set(DEFAULT_WITH_ASAN NO)
 endif ()
 option(WITH_ASAN "Compile with ASAN" ${DEFAULT_WITH_ASAN})
@@ -1234,7 +1353,7 @@ endif ()
 if (CMAKE_HOST_UNIX)
 	if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang|AppleClang")
 		set(CMAKE_CXX_FLAGS_RELEASE  "-ggdb3 -O0 -rdynamic -Wall -Wextra -Wno-format-truncation ${DEBUG_CRYPT}")
-		set(CMAKE_CXX_FLAGS_DEBUG    "-ggdb3 -O0 -rdynamic -Wall -Wextra -Wno-format-truncation -D_GLIBCXX_DEBUG -D_GLIBXX_DEBUG_PEDANTIC ${ASAN_FLAGS} ${DEBUG_CRYPT}")
+		set(CMAKE_CXX_FLAGS_DEBUG    "-ggdb3 -O0 -rdynamic -Wall -Wextra -Wno-format-truncation ${ASAN_FLAGS} ${DEBUG_CRYPT}")
 		set(CMAKE_CXX_FLAGS_TEST     "-O3 -rdynamic -Wall -Wextra -Wno-format-truncation ${TESTBUILD_DEFINITIONS} -DLOG_AUTOFLUSH")
 		set(CMAKE_CXX_FLAGS_FASTTEST "-Ofast -Wall -Wextra -Wno-format-truncation ${TESTBUILD_DEFINITIONS}")
 
@@ -1307,3 +1426,55 @@ endif ()
 
 # vim: set ts=4 sw=4 ai tw=0 noet syntax=cmake :
 
+# =============================================================================
+# Data directories setup for running server from build directory
+# =============================================================================
+
+option(FULL_WORLD_PATH "Path to full world data directory (e.g., /path/to/full.world/lib)" "")
+
+# Only set up data directories if building out-of-source
+if (NOT "${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
+    # Setup small world directory (lib + lib.template)
+    set(SMALL_WORLD_DIR "${CMAKE_BINARY_DIR}/small")
+    
+    # Create small world directory by copying lib and overlaying lib.template
+    # First copy lib (base configuration)
+    execute_process(COMMAND ${CMAKE_COMMAND} -E remove_directory "${SMALL_WORLD_DIR}")
+    execute_process(COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/lib" "${SMALL_WORLD_DIR}"
+        RESULT_VARIABLE copy_result)
+    if (NOT copy_result EQUAL 0)
+        message(FATAL_ERROR "Failed to copy lib directory")
+    endif()
+
+    # Overlay lib.template (no conflicts since duplicates were removed)
+    execute_process(COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/lib.template" "${SMALL_WORLD_DIR}"
+        RESULT_VARIABLE copy_result)
+    if (NOT copy_result EQUAL 0)
+        message(FATAL_ERROR "Failed to overlay lib.template directory")
+    endif()
+    message(STATUS "Copied lib and overlaid lib.template to ${SMALL_WORLD_DIR}")
+    
+    message(STATUS "Small world directory configured at: ${SMALL_WORLD_DIR}")
+
+    # Create lib symlink for running server from build directory
+    set(LIB_LINK "${CMAKE_BINARY_DIR}/lib")
+    if (NOT EXISTS "${LIB_LINK}")
+        execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink "${CMAKE_SOURCE_DIR}/lib.template" "${LIB_LINK}")
+        message(STATUS "Created lib symlink: ${LIB_LINK} -> ${CMAKE_SOURCE_DIR}/lib.template")
+    endif()
+    
+    # Setup full world directory if path is specified
+    if (FULL_WORLD_PATH)
+        set(FULL_WORLD_DIR "${CMAKE_BINARY_DIR}/full")
+        if (EXISTS "${FULL_WORLD_PATH}" AND NOT EXISTS "${FULL_WORLD_DIR}")
+            execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink "${FULL_WORLD_PATH}" "${FULL_WORLD_DIR}")
+            message(STATUS "Full world directory configured at: ${FULL_WORLD_DIR} -> ${FULL_WORLD_PATH}")
+        elseif (NOT EXISTS "${FULL_WORLD_PATH}")
+            message(WARNING "FULL_WORLD_PATH specified but does not exist: ${FULL_WORLD_PATH}")
+        endif()
+    endif()
+else()
+    message(STATUS "In-source build detected, skipping data directory setup")
+endif()
+
+# vim: set ts=4 sw=4 ai tw=0 noet syntax=cmake :

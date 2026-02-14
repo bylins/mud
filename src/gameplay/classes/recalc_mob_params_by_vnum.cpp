@@ -947,15 +947,11 @@ void DGRecalcZone(const char *argument) {
 	const int difficulty    = atoi(arg4);
 
 	if (zone_vnum < dungeons::kZoneStartDungeons) {
-//		SendMsgToChar(ch,
-			mudlog("Ошибка: перерасчёт разрешён только для зон с vnum >= 30000.\r\n");
+		mudlog("Ошибка: перерасчёт разрешён только для зон с vnum >= 30000.\r\n");
 		return;
 	}
 
 	RecalcMobParamsInZoneWithLevel(zone_vnum, remorts, player_level, difficulty);
-	const int added_level_by_difficulty = difficulty * mob_classes::GetLvlPerDifficulty();
-//	SendMsgToChar(ch,
-//		"Zone recalc done. (zone=%d, remorts=%d, base_lvl=%d, difficulty=%d, +lvl=%d)\r\n",
 //		zone_vnum, remorts, player_level, difficulty, added_level_by_difficulty);
 
 }

@@ -19,10 +19,10 @@ class ZoneData {
 	ZoneData();
 
 	ZoneData(const ZoneData &) = delete;
-	ZoneData(ZoneData &&) = default;
+	ZoneData(ZoneData &&) noexcept;
 
 	ZoneData &operator=(const ZoneData &) = delete;
-	ZoneData &operator=(ZoneData &&) = default;
+	ZoneData &operator=(ZoneData &&) noexcept;
 
 	~ZoneData();
 

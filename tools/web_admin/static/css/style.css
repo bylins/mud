@@ -1,0 +1,1778 @@
+/* Bylins MUD Admin Panel - Modern Skeuomorphic SaaS Design System */
+/* "Digital Parchment" -- premium paper aesthetic for a contemporary web interface */
+
+/* ============================================================
+   1. RESET & BASE
+   ============================================================ */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size: 14px;
+    background-color: #fdf6e3;
+    color: #2d241e;
+    line-height: 1.6;
+}
+
+/* ============================================================
+   2. TYPOGRAPHY
+   ============================================================ */
+h1, h2, h3, h4 {
+    color: #2d241e;
+    font-weight: 600;
+    font-family: 'Playfair Display', Georgia, serif;
+    margin: 0;
+    padding: 0;
+    border: none;
+}
+
+h2 {
+    font-size: 24px;
+}
+
+h3 {
+    font-size: 18px;
+}
+
+/* ============================================================
+   3. LINKS
+   ============================================================ */
+a {
+    color: #b45309;
+    text-decoration: none;
+    transition: color 0.15s ease;
+}
+
+a:hover {
+    color: #92400e;
+}
+
+/* ============================================================
+   4. LAYOUT
+   ============================================================ */
+.container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 20px 24px;
+}
+
+/* ============================================================
+   5. BREADCRUMBS
+   ============================================================ */
+.breadcrumbs-bar {
+    background-color: rgba(249, 240, 214, 0.6);
+    border-bottom: 1px solid rgba(120, 53, 15, 0.06);
+}
+
+.breadcrumbs-bar a {
+    color: #8a7b6b;
+    text-decoration: none;
+    transition: color 0.15s ease;
+}
+
+.breadcrumbs-bar a:hover {
+    color: #b45309;
+    text-decoration: none;
+}
+
+/* ============================================================
+   6. PARCHMENT CARDS & SECTIONS
+   ============================================================ */
+.parchment-card {
+    background-color: #f4ead5;
+    border: 3px double rgba(120, 53, 15, 0.2);
+    border-radius: 8px;
+    padding: 28px;
+    box-shadow: inset 0 1px 2px rgba(139, 69, 19, 0.08);
+    transition: all 0.15s ease;
+}
+
+.parchment-card-hover:hover {
+    background-color: #f0e4cb;
+    box-shadow: inset 0 1px 2px rgba(139, 69, 19, 0.08), 0 4px 12px rgba(139, 69, 19, 0.1);
+}
+
+.parchment-section {
+    background-color: #f4ead5;
+    border: 3px double rgba(120, 53, 15, 0.2);
+    border-radius: 8px;
+    padding: 28px;
+    margin-bottom: 24px;
+    box-shadow: inset 0 1px 2px rgba(139, 69, 19, 0.08);
+}
+
+.parchment-section-title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 20px;
+    font-weight: 600;
+    color: #2d241e;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 2px double rgba(120, 53, 15, 0.15);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.parchment-section-title svg {
+    flex-shrink: 0;
+    color: #b45309;
+}
+
+/* ============================================================
+   7. STAT-NAV CARDS (Dashboard -- unified stat + navigation)
+   ============================================================ */
+.stat-nav-card-link {
+    text-decoration: none !important;
+    color: inherit !important;
+    display: block;
+}
+
+.stat-nav-card-link:hover {
+    text-decoration: none !important;
+}
+
+.stat-nav-card {
+    background-color: #f4ead5;
+    border: 3px double rgba(120, 53, 15, 0.2);
+    border-radius: 8px;
+    padding: 28px;
+    box-shadow: inset 0 1px 2px rgba(139, 69, 19, 0.08);
+    transition: all 0.15s ease;
+    cursor: pointer;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 6px;
+}
+
+.stat-nav-card:hover {
+    background-color: #f0e4cb;
+    box-shadow: inset 0 1px 2px rgba(139, 69, 19, 0.08), 0 4px 12px rgba(139, 69, 19, 0.1);
+}
+
+.stat-nav-card:active {
+    box-shadow: inset 0 2px 4px rgba(139, 69, 19, 0.12);
+}
+
+.stat-nav-card .stat-nav-icon {
+    width: 48px;
+    height: 48px;
+    background-color: rgba(180, 83, 9, 0.1);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 4px;
+    transition: background-color 0.15s ease;
+}
+
+.stat-nav-card:hover .stat-nav-icon {
+    background-color: rgba(180, 83, 9, 0.16);
+}
+
+.stat-nav-card .stat-nav-number {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 32px;
+    font-weight: 700;
+    color: #2d241e;
+    line-height: 1.2;
+}
+
+.stat-nav-card .stat-nav-label {
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    color: #5a4d3f;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.stat-nav-card .stat-nav-desc {
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    color: #8a7b6b;
+    line-height: 1.5;
+    margin-top: 4px;
+}
+
+/* Legacy alias */
+.stat-card {
+    background-color: #f4ead5;
+    border: 2px solid rgba(120, 53, 15, 0.12);
+    border-radius: 8px;
+    padding: 20px 24px;
+    box-shadow: inset 0 1px 2px rgba(139, 69, 19, 0.06);
+}
+
+/* ============================================================
+   8. TABLES - Parchment Style
+   ============================================================ */
+table {
+    border-collapse: separate;
+    border-spacing: 0;
+    width: 100%;
+    margin: 0;
+    background-color: #f4ead5;
+    border: 3px double rgba(120, 53, 15, 0.2);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: inset 0 1px 2px rgba(139, 69, 19, 0.08);
+}
+
+th {
+    background-color: rgba(120, 53, 15, 0.08);
+    color: #5a4d3f;
+    border: none;
+    padding: 14px 16px;
+    text-align: left;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    border-bottom: 2px solid rgba(120, 53, 15, 0.12);
+    white-space: nowrap;
+}
+
+td {
+    border-bottom: 1px solid rgba(120, 53, 15, 0.08);
+    border-left: none;
+    border-right: none;
+    padding: 12px 16px;
+    font-size: 14px;
+    color: #2d241e;
+}
+
+tr {
+    transition: background-color 0.1s ease;
+}
+
+tbody tr:hover,
+tr:hover {
+    background-color: rgba(180, 83, 9, 0.04);
+}
+
+tr:last-child td {
+    border-bottom: none;
+}
+
+/* ============================================================
+   9. FORMS
+   ============================================================ */
+input[type="text"],
+input[type="number"],
+input[type="password"],
+textarea {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    padding: 10px 12px;
+    border: 2px solid rgba(120, 53, 15, 0.15);
+    border-radius: 6px;
+    background-color: #fdf6e3;
+    color: #2d241e;
+    transition: all 0.15s ease;
+    width: 100%;
+    box-sizing: border-box;
+    line-height: 1.5;
+}
+
+/* Select: dedicated rule with matching visual appearance to text inputs.
+   Text inputs have `padding: 10px 12px`, so left padding is 12px.
+   Right padding leaves room for the dropdown arrow icon. */
+select {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    height: 42px;
+    padding: 0 36px 0 12px !important;
+    border: 2px solid rgba(120, 53, 15, 0.15);
+    border-radius: 6px;
+    background-color: #fdf6e3;
+    color: #2d241e;
+    transition: all 0.15s ease;
+    width: 100%;
+    box-sizing: border-box;
+    line-height: 1.5;
+    cursor: pointer;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235a4d3f' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    background-size: 12px;
+}
+
+/* Textarea: generous padding for multi-line content */
+textarea {
+    padding: 14px 12px !important; /* Left 12px = match text input */
+    line-height: 1.6;
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus,
+input[type="password"]:focus,
+textarea:focus,
+select:focus {
+    outline: none;
+    border-color: rgba(180, 83, 9, 0.4);
+    box-shadow: 0 0 0 3px rgba(180, 83, 9, 0.1);
+}
+
+input[type="text"]:hover,
+input[type="number"]:hover,
+input[type="password"]:hover,
+textarea:hover,
+select:hover {
+    border-color: rgba(120, 53, 15, 0.25);
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    font-size: 13px;
+    margin-bottom: 8px;
+    color: #5a4d3f;
+}
+
+/* Form layout rows */
+.form-row {
+    display: grid;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+.form-row-2 { grid-template-columns: 1fr 1fr; }
+.form-row-3 { grid-template-columns: 1fr 1fr 1fr; }
+.form-row-4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
+.form-row-6 { grid-template-columns: repeat(6, 1fr); }
+.form-row-7 { grid-template-columns: repeat(7, 1fr); }
+
+@media (max-width: 768px) {
+    .form-row-2, .form-row-3, .form-row-4, .form-row-6, .form-row-7 {
+        grid-template-columns: 1fr;
+    }
+}
+@media (min-width: 769px) and (max-width: 1024px) {
+    .form-row-3, .form-row-4, .form-row-6, .form-row-7 {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+/* Field groups */
+.field-group {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: 6px;
+}
+
+.field-group label {
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    color: #8a7b6b;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 0;
+}
+
+.field-group .field-hint {
+    font-size: 11px;
+    color: #8a7b6b;
+    font-weight: 400;
+    margin-left: 4px;
+    text-transform: none;
+    letter-spacing: normal;
+}
+
+/* ============================================================
+   10. BUTTONS
+   ============================================================ */
+.btn-primary {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 10px 24px;
+    background-color: #b45309;
+    color: #fdf6e3;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    box-shadow: 0 1px 3px rgba(139, 69, 19, 0.2);
+    text-decoration: none !important;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    line-height: 1.4;
+}
+
+.btn-primary:hover {
+    background-color: #92400e;
+    box-shadow: 0 2px 8px rgba(139, 69, 19, 0.3);
+    color: #fdf6e3;
+    transform: none;
+}
+
+.btn-primary:active {
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+
+.btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-secondary {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 10px 24px;
+    background-color: transparent;
+    color: #5a4d3f;
+    border: 2px solid rgba(120, 53, 15, 0.2);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    text-decoration: none !important;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    line-height: 1.4;
+}
+
+.btn-secondary:hover {
+    background-color: rgba(120, 53, 15, 0.05);
+    border-color: rgba(120, 53, 15, 0.3);
+    color: #2d241e;
+    transform: none;
+}
+
+.btn-secondary:active {
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Legacy button/submit overrides -- only when not using .btn-* classes */
+input[type="submit"],
+button:not(.btn-primary):not(.btn-secondary):not(.section-toggle):not(.flag-toggle) {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    padding: 10px 20px;
+    background-color: #b45309;
+    color: #fdf6e3;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    font-weight: 600;
+    box-shadow: 0 1px 3px rgba(139, 69, 19, 0.2);
+}
+
+input[type="submit"]:hover,
+button:not(.btn-primary):not(.btn-secondary):not(.section-toggle):not(.flag-toggle):hover {
+    background-color: #92400e;
+    box-shadow: 0 2px 8px rgba(139, 69, 19, 0.3);
+    transform: none;
+}
+
+input[type="submit"]:active,
+button:not(.btn-primary):not(.btn-secondary):not(.section-toggle):not(.flag-toggle):active {
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.15);
+    transform: none;
+}
+
+/* ============================================================
+   11. ACTION LINKS (table row actions)
+   ============================================================ */
+.action-link {
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 5px 12px;
+    border-radius: 5px;
+    text-decoration: none !important;
+    transition: all 0.15s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.action-link-view {
+    color: #5a4d3f;
+    border: 1px solid rgba(120, 53, 15, 0.15);
+    background-color: transparent;
+}
+
+.action-link-view:hover {
+    color: #2d241e;
+    background-color: rgba(120, 53, 15, 0.05);
+    border-color: rgba(120, 53, 15, 0.25);
+}
+
+.action-link-edit {
+    color: #b45309;
+    border: 1px solid rgba(180, 83, 9, 0.2);
+    background-color: rgba(180, 83, 9, 0.04);
+}
+
+.action-link-edit:hover {
+    color: #92400e;
+    background-color: rgba(180, 83, 9, 0.1);
+    border-color: rgba(180, 83, 9, 0.35);
+}
+
+/* ============================================================
+   12. VNUM BADGE
+   ============================================================ */
+.vnum-badge {
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: #b45309;
+    background-color: rgba(180, 83, 9, 0.08);
+    padding: 3px 10px;
+    border-radius: 4px;
+    display: inline-block;
+}
+
+/* ============================================================
+   13. TAGS (flags, triggers, etc.)
+   ============================================================ */
+.tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 8px 0;
+}
+
+.tag {
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    color: #5a4d3f;
+    background-color: rgba(180, 83, 9, 0.08);
+    border: 1px solid rgba(180, 83, 9, 0.15);
+    padding: 3px 10px;
+    border-radius: 4px;
+}
+
+/* ============================================================
+   14. READ-ONLY FIELD DISPLAY (detail pages)
+   ============================================================ */
+.detail-grid {
+    display: grid;
+    gap: 16px;
+}
+.detail-grid-2 { grid-template-columns: 1fr 1fr; }
+.detail-grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+.detail-grid-4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
+.detail-grid-6 { grid-template-columns: repeat(6, 1fr); }
+.detail-grid-7 { grid-template-columns: repeat(7, 1fr); }
+
+@media (max-width: 768px) {
+    .detail-grid-2, .detail-grid-3, .detail-grid-4, .detail-grid-6, .detail-grid-7 {
+        grid-template-columns: 1fr;
+    }
+}
+@media (min-width: 769px) and (max-width: 1024px) {
+    .detail-grid-3, .detail-grid-4, .detail-grid-6, .detail-grid-7 {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+.detail-field {
+    display: flex;
+    flex-direction: column;
+}
+
+.detail-field-label {
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    color: #8a7b6b;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 4px;
+}
+
+.detail-field-value {
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    color: #2d241e;
+    padding: 8px 12px;
+    background-color: rgba(253, 246, 227, 0.6);
+    border: 1px solid rgba(120, 53, 15, 0.08);
+    border-radius: 6px;
+    min-height: 38px;
+    display: flex;
+    align-items: center;
+    word-break: break-word;
+}
+
+.detail-field-value.multiline {
+    white-space: pre-wrap;
+    display: block;
+    padding: 10px 12px;
+    line-height: 1.6;
+    min-height: auto;
+}
+
+.detail-field-value.empty {
+    color: #8a7b6b;
+    font-style: italic;
+}
+
+.subsection-label {
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: #8a7b6b;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin: 20px 0 10px 0;
+}
+
+/* ============================================================
+   15. DICE DISPLAY
+   ============================================================ */
+.dice-display {
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    color: #2d241e;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 12px;
+    background-color: rgba(253, 246, 227, 0.6);
+    border: 1px solid rgba(120, 53, 15, 0.08);
+    border-radius: 6px;
+}
+
+.dice-display .dice-part {
+    font-weight: 600;
+    color: #b45309;
+}
+
+.dice-display .dice-sep {
+    color: #8a7b6b;
+    font-weight: 600;
+}
+
+.dice-display .dice-avg {
+    font-size: 13px;
+    color: #8a7b6b;
+    margin-left: 8px;
+}
+
+/* ============================================================
+   16. ORNAMENTAL DIVIDER
+   ============================================================ */
+.ornament-divider {
+    text-align: center;
+    margin: 28px 0;
+}
+
+.ornament-divider-inner {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    color: rgba(120, 53, 15, 0.3);
+}
+
+.ornament-line {
+    width: 60px;
+    height: 2px;
+}
+
+.ornament-line-left {
+    background: linear-gradient(to right, transparent, rgba(120, 53, 15, 0.25));
+}
+
+.ornament-line-right {
+    background: linear-gradient(to left, transparent, rgba(120, 53, 15, 0.25));
+}
+
+/* Wider variant */
+.ornament-line-wide {
+    width: 80px;
+}
+
+/* ============================================================
+   17. ZONE FILTER (select dropdowns in list pages)
+   ============================================================ */
+.zone-filter select {
+    height: 38px;
+    padding: 0 32px 0 12px;
+    min-width: 100px;
+    width: auto;
+}
+
+.zone-filter select:focus {
+    outline: none;
+    border-color: rgba(180, 83, 9, 0.4);
+    box-shadow: 0 0 0 3px rgba(180, 83, 9, 0.1);
+}
+
+.zone-filter select:hover {
+    border-color: rgba(120, 53, 15, 0.25);
+}
+
+/* ============================================================
+   18. EMPTY STATE
+   ============================================================ */
+.empty-state {
+    text-align: center;
+    padding: 48px 24px;
+    background-color: #f4ead5;
+    border: 3px double rgba(120, 53, 15, 0.2);
+    border-radius: 8px;
+    box-shadow: inset 0 1px 2px rgba(139, 69, 19, 0.08);
+}
+
+/* ============================================================
+   19. MESSAGES (error, success, info, warning)
+   ============================================================ */
+.msg-error {
+    background-color: rgba(185, 28, 28, 0.06);
+    border: 2px solid rgba(185, 28, 28, 0.15);
+    border-radius: 8px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 24px;
+}
+
+.msg-error .msg-text {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    color: #991b1b;
+}
+
+.msg-warning {
+    background-color: rgba(180, 83, 9, 0.06);
+    border: 2px solid rgba(180, 83, 9, 0.15);
+    border-radius: 8px;
+    padding: 20px 24px;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+}
+
+.msg-warning .msg-title {
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    color: #92400e;
+    margin-bottom: 4px;
+}
+
+.msg-warning .msg-text {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    color: #78350f;
+    line-height: 1.5;
+    opacity: 0.85;
+}
+
+.msg-success {
+    background-color: rgba(180, 83, 9, 0.06);
+    border-left: 4px solid #b45309;
+    padding: 15px;
+    margin: 15px 0;
+    color: #92400e;
+    border-radius: 6px;
+    font-family: 'Inter', sans-serif;
+}
+
+.msg-info {
+    background-color: rgba(120, 53, 15, 0.04);
+    border-left: 4px solid #78350f;
+    padding: 15px;
+    margin: 15px 0;
+    color: #5a4d3f;
+    border-radius: 6px;
+    font-family: 'Inter', sans-serif;
+}
+
+/* Legacy aliases (duplicated for backwards compatibility) */
+.error {
+    background-color: rgba(185, 28, 28, 0.06);
+    border-left: 4px solid #b91c1c;
+    padding: 15px;
+    margin: 15px 0;
+    color: #991b1b;
+    border-radius: 6px;
+    font-family: 'Inter', sans-serif;
+}
+
+.success {
+    background-color: rgba(180, 83, 9, 0.06);
+    border-left: 4px solid #b45309;
+    padding: 15px;
+    margin: 15px 0;
+    color: #92400e;
+    border-radius: 6px;
+    font-family: 'Inter', sans-serif;
+}
+
+.info {
+    background-color: rgba(120, 53, 15, 0.04);
+    border-left: 4px solid #78350f;
+    padding: 15px;
+    margin: 15px 0;
+    color: #5a4d3f;
+    border-radius: 6px;
+    font-family: 'Inter', sans-serif;
+}
+
+/* ============================================================
+   20. NAVIGATION CARDS (dashboard)
+   ============================================================ */
+.nav-card-link {
+    text-decoration: none !important;
+    color: inherit !important;
+}
+
+.nav-card-link:hover {
+    text-decoration: none !important;
+}
+
+.nav-card {
+    background-color: #f4ead5;
+    border: 3px double rgba(120, 53, 15, 0.2);
+    border-radius: 8px;
+    padding: 28px;
+    box-shadow: inset 0 1px 2px rgba(139, 69, 19, 0.08);
+    transition: all 0.15s ease;
+    cursor: pointer;
+    height: 100%;
+}
+
+.nav-card:hover {
+    background-color: #f0e4cb;
+    box-shadow: inset 0 1px 2px rgba(139, 69, 19, 0.08), 0 4px 12px rgba(139, 69, 19, 0.1);
+}
+
+/* ============================================================
+   21. LOGIN FORM
+   ============================================================ */
+.login-card input[type="text"],
+.login-card input[type="password"] {
+    font-size: 15px;
+    padding: 12px 14px;
+    border: 2px solid rgba(120, 53, 15, 0.15);
+    border-radius: 8px;
+    box-shadow: inset 0 1px 2px rgba(139, 69, 19, 0.06);
+}
+
+.login-card input:focus {
+    outline: none;
+    border-color: rgba(180, 83, 9, 0.4);
+    box-shadow: 0 0 0 3px rgba(180, 83, 9, 0.1), inset 0 1px 2px rgba(139, 69, 19, 0.06);
+}
+
+.login-card input:hover {
+    border-color: rgba(120, 53, 15, 0.25);
+}
+
+.login-card label {
+    display: block;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    color: #5a4d3f;
+    margin-bottom: 6px;
+}
+
+.login-card .login-btn {
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    padding: 12px 0;
+    width: 100%;
+    background-color: #b45309;
+    color: #fdf6e3;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    box-shadow: 0 1px 3px rgba(139, 69, 19, 0.2);
+}
+
+.login-card .login-btn:hover {
+    background-color: #92400e;
+    box-shadow: 0 2px 8px rgba(139, 69, 19, 0.3);
+    transform: none;
+}
+
+.login-card .login-btn:active {
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.15);
+    transform: none;
+}
+
+/* ============================================================
+   22. PAGE HEADER
+   ============================================================ */
+.page-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 2rem;
+}
+
+.page-header h2 {
+    font-size: 28px;
+    font-weight: 600;
+    margin: 0;
+    border: none;
+    padding: 0;
+}
+
+.page-header .page-subtitle {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    color: #8a7b6b;
+    margin-top: 6px;
+}
+
+/* ============================================================
+   23. UTILITY CLASSES
+   ============================================================ */
+.text-center { text-align: center; }
+.text-small { font-size: 12px; color: #8a7b6b; }
+
+.separator {
+    height: 2px;
+    background: linear-gradient(to right, transparent, rgba(120, 53, 15, 0.15), transparent);
+    margin: 25px 0;
+    border: none;
+}
+
+/* Legacy .block / .block-title */
+.block {
+    background-color: #f4ead5;
+    border: 3px double rgba(120, 53, 15, 0.2);
+    border-radius: 8px;
+    padding: 24px;
+    margin: 20px 0;
+    box-shadow: inset 0 1px 2px rgba(139, 69, 19, 0.08);
+}
+
+.block-title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-weight: 600;
+    font-size: 18px;
+    margin-bottom: 15px;
+    color: #2d241e;
+    padding-bottom: 10px;
+    border-bottom: 2px double rgba(120, 53, 15, 0.15);
+}
+
+/* ============================================================
+   24. EXIT CARD DELETE BUTTON (room edit)
+   ============================================================ */
+.exit-card .btn-secondary[title="Удалить выход"]:hover {
+    background-color: rgba(185, 28, 28, 0.06);
+    border-color: rgba(185, 28, 28, 0.35);
+    color: #991b1b;
+}
+
+.exit-card .btn-secondary[title="Удалить выход"]:active {
+    box-shadow: inset 0 1px 3px rgba(185, 28, 28, 0.15);
+}
+
+/* ============================================================
+   25. ERROR PAGE
+   ============================================================ */
+.error-page-card {
+    background-color: rgba(185, 28, 28, 0.04);
+    border: 3px double rgba(185, 28, 28, 0.2);
+    border-radius: 8px;
+    padding: 32px;
+    box-shadow: inset 0 1px 2px rgba(185, 28, 28, 0.06);
+    text-align: center;
+}
+
+/* ============================================================
+   26. (removed - bit-box display no longer used)
+   ============================================================ */
+
+/* ============================================================
+   27. FORM VALIDATION
+   ============================================================ */
+.field-error {
+    border-color: #dc2626 !important;
+    background-color: rgba(220, 38, 38, 0.04) !important;
+}
+
+.error-message {
+    color: #dc2626;
+    font-size: 12px;
+    font-family: 'Inter', sans-serif;
+    margin-top: 4px;
+    font-weight: 500;
+}
+
+.validation-errors {
+    background-color: rgba(220, 38, 38, 0.08);
+    border: 2px solid #dc2626;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-bottom: 20px;
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ============================================================
+   28. TRIGGER FLAG DISPLAY
+   ============================================================ */
+.detail-field-full {
+    grid-column: 1 / -1;
+}
+
+.detail-field-value.flag-value {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.flag-summary {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.flag-summary-label {
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    color: #8a7b6b;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.flag-summary-hex {
+    font-family: 'Courier New', Consolas, monospace;
+    font-size: 14px;
+    font-weight: 600;
+    color: #b45309;
+}
+
+.flag-summary-dec {
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+    font-size: 13px;
+    color: #8a7b6b;
+}
+
+.flag-grid {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 6px 12px;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    line-height: 1.8;
+}
+
+.flag-hex {
+    text-align: right;
+    color: #b45309;
+    font-family: 'Courier New', Consolas, monospace;
+    font-weight: 600;
+    font-size: 12px;
+}
+
+.flag-name {
+    color: #2d241e;
+}
+
+.flag-cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 4px;
+}
+
+.flag-card {
+    display: inline-block;
+    padding: 6px 12px;
+    background-color: rgba(180, 83, 9, 0.08);
+    border: 1px solid rgba(180, 83, 9, 0.2);
+    border-radius: 6px;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    color: #78350f;
+    box-shadow: 0 1px 2px rgba(139, 69, 19, 0.04);
+}
+
+/* ============================================================
+   29. DICE GROUP (edit forms: NdS+B format)
+   ============================================================ */
+.dice-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.dice-group input {
+    width: 70px;
+    text-align: center;
+}
+
+.dice-group .dice-sep {
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    color: #8a7b6b;
+    user-select: none;
+}
+
+/* ============================================================
+   30. COLLAPSIBLE SECTIONS (edit forms)
+   ============================================================ */
+.section-toggle {
+    cursor: pointer;
+    user-select: none;
+}
+
+.section-toggle::after {
+    content: '';
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-right: 2px solid #8a7b6b;
+    border-bottom: 2px solid #8a7b6b;
+    transform: rotate(-45deg);
+    transition: transform 0.15s ease;
+    margin-left: auto;
+}
+
+.section-toggle.collapsed::after {
+    transform: rotate(45deg);
+}
+
+.section-body.collapsed {
+    display: none;
+}
+
+/* ============================================================
+   31. TOAST NOTIFICATIONS
+   ============================================================ */
+.toast {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    padding: 16px 24px;
+    border-radius: 8px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    z-index: 9999;
+    opacity: 0;
+    transform: translateY(-12px);
+    transition: all 0.25s ease;
+    max-width: 420px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+.toast.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.toast-success {
+    background-color: #f4ead5;
+    border: 2px solid rgba(120, 100, 15, 0.3);
+    color: #5a4d3f;
+}
+
+.toast-error {
+    background-color: #fef2f2;
+    border: 2px solid rgba(185, 28, 28, 0.2);
+    color: #991b1b;
+}
+
+/* ============================================================
+   32. BUTTON SPINNER (loading state)
+   ============================================================ */
+.btn-spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(253, 246, 227, 0.4);
+    border-top-color: #fdf6e3;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+    margin-right: 8px;
+    vertical-align: middle;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ============================================================
+   33. STICKY ACTION BAR (edit forms)
+   ============================================================ */
+.action-bar {
+    position: sticky;
+    bottom: 0;
+    background-color: #f4ead5;
+    border: 3px double rgba(120, 53, 15, 0.2);
+    border-radius: 8px;
+    padding: 16px 28px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 -4px 16px rgba(139, 69, 19, 0.08);
+    z-index: 100;
+}
+
+/* ============================================================
+   34. PAGE-SPECIFIC HEADER OVERRIDES
+   ============================================================ */
+.mob-edit-header h2 {
+    border-bottom: none;
+    margin: 0;
+    padding: 0;
+    color: #2d241e;
+}
+
+/* ============================================================
+   35. FLAG TOGGLE BUTTONS (trigger types, object flags)
+   ============================================================ */
+.flag-toggle-group {
+    padding: 16px 20px;
+    background-color: rgba(253, 246, 227, 0.5);
+    border: 1px solid rgba(120, 53, 15, 0.1);
+    border-radius: 8px;
+    margin-bottom: 12px;
+}
+
+.flag-toggle-group-title {
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    color: #8a7b6b;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 10px;
+}
+
+.flag-toggle-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.flag-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 14px;
+    border: 2px solid rgba(120, 53, 15, 0.12);
+    border-radius: 6px;
+    background-color: #fdf6e3;
+    color: #5a4d3f;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.12s ease;
+    user-select: none;
+    line-height: 1.4;
+    box-shadow: 0 1px 2px rgba(139, 69, 19, 0.04);
+}
+
+.flag-toggle:hover {
+    border-color: rgba(180, 83, 9, 0.3);
+    background-color: rgba(180, 83, 9, 0.04);
+    color: #2d241e;
+}
+
+.flag-toggle:active {
+    box-shadow: inset 0 1px 3px rgba(139, 69, 19, 0.1);
+}
+
+.flag-toggle.active {
+    background-color: rgba(180, 83, 9, 0.12);
+    border-color: rgba(180, 83, 9, 0.4);
+    color: #78350f;
+    box-shadow: inset 0 1px 2px rgba(139, 69, 19, 0.08), 0 0 0 1px rgba(180, 83, 9, 0.08);
+}
+
+.flag-toggle.active:hover {
+    background-color: rgba(180, 83, 9, 0.18);
+    border-color: rgba(180, 83, 9, 0.5);
+}
+
+.flag-toggle-bit {
+    font-family: 'Courier New', Consolas, monospace;
+    font-size: 12px;
+    font-weight: 700;
+    color: #b45309;
+    background-color: rgba(180, 83, 9, 0.08);
+    padding: 1px 6px;
+    border-radius: 3px;
+    letter-spacing: 0.02em;
+    flex-shrink: 0;
+    min-width: 30px;
+    text-align: right;
+}
+
+.flag-toggle.active .flag-toggle-bit {
+    background-color: rgba(180, 83, 9, 0.18);
+    color: #92400e;
+}
+
+.flag-toggle-name {
+    white-space: nowrap;
+}
+
+.flag-hint {
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    color: #8a7b6b;
+    margin-top: 8px;
+}
+
+.flag-hint strong {
+    font-family: 'Courier New', Consolas, monospace;
+    color: #b45309;
+    font-weight: 600;
+}
+
+/* ============================================================
+   36. MUD COLOR CODES
+   ============================================================ */
+/* MUD color code styling for rendered text */
+[class^="mud-color-"], [class*=" mud-color-"] {
+    /* Force inline display and baseline alignment */
+    display: inline !important;
+    vertical-align: baseline !important;
+    /* Inherit everything else */
+    font: inherit;
+    line-height: inherit;
+    letter-spacing: inherit;
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+.mud-color-black { color: #404040; }
+.mud-color-black-bright { color: #808080; }
+.mud-color-blue { color: #0080FF; }
+.mud-color-blue-bright { color: #80C0FF; }
+.mud-color-cyan { color: #00FFFF; }
+.mud-color-cyan-bright { color: #80FFFF; }
+.mud-color-yellow { color: #CCCC00; }
+.mud-color-yellow-bright { color: #FFFF80; }
+.mud-color-magenta { color: #FF00FF; }
+.mud-color-magenta-bright { color: #FF80FF; }
+.mud-color-white { color: #CCCCCC; }
+.mud-color-white-bright { color: #FFFFFF; }
+.mud-color-red { color: #CC0000; }
+.mud-color-red-bright { color: #FF8080; }
+.mud-color-green { color: #00CC00; }
+.mud-color-green-bright { color: #80FF80; }
+.mud-color-normal { color: inherit; }
+
+/* ============================================================
+   37. RESPONSIVE
+   ============================================================ */
+@media (max-width: 768px) {
+    .container {
+        padding: 10px;
+    }
+
+    h2 {
+        font-size: 20px;
+    }
+
+    table {
+        font-size: 13px;
+    }
+
+    th, td {
+        padding: 8px 10px;
+    }
+
+    .page-header {
+        flex-direction: column;
+    }
+
+    .parchment-section,
+    .parchment-card {
+        padding: 20px;
+    }
+}
+
+/* ============================================================
+   36. DEATH LOAD LIST (mob_edit.html)
+   ============================================================ */
+.dl-item {
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(139, 69, 19, 0.06);
+}
+
+.dl-item:last-child {
+    border-bottom: none;
+}
+
+/* ============================================================
+   37. PARCHMENT TABLE (mob_detail.html death_load, reusable)
+   ============================================================ */
+.parchment-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+}
+
+.parchment-table thead tr {
+    border-bottom: 2px double rgba(139, 69, 19, 0.2);
+}
+
+.parchment-table th {
+    text-align: left;
+    padding: 8px 12px;
+    color: #5a4d3f;
+    font-weight: 600;
+    font-size: 13px;
+}
+
+.parchment-table td {
+    padding: 8px 12px;
+    color: #2d241e;
+}
+
+.parchment-table tbody tr {
+    border-bottom: 1px solid rgba(139, 69, 19, 0.1);
+}
+
+.parchment-table tbody tr:last-child {
+    border-bottom: none;
+}
+/* ============================================================
+   38. TABLE SORTING & SEARCH
+   ============================================================ */
+
+/* Search box for list pages */
+.search-box-container {
+    margin-bottom: 16px;
+}
+
+.search-box {
+    width: 100%;
+    max-width: 400px;
+    padding: 10px 36px 10px 12px;
+    border: 2px solid rgba(139, 69, 19, 0.15);
+    border-radius: 6px;
+    background-color: #ffffff;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    color: #2d241e;
+    transition: all 0.15s ease;
+    position: relative;
+}
+
+.search-box:focus {
+    outline: none;
+    border-color: #b45309;
+    box-shadow: 0 0 0 3px rgba(180, 83, 9, 0.1);
+}
+
+.search-box-wrapper {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+    max-width: 400px;
+}
+
+.search-clear-btn {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #8a7b6b;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 4px 8px;
+    line-height: 1;
+    transition: color 0.15s ease;
+}
+
+.search-clear-btn:hover {
+    color: #b45309;
+}
+
+/* Sortable table headers */
+table th.sortable {
+    cursor: pointer;
+    user-select: none;
+    position: relative;
+    padding-right: 24px;
+    transition: background-color 0.15s ease;
+}
+
+table th.sortable:hover {
+    background-color: rgba(180, 83, 9, 0.04);
+}
+
+table th.sortable::after {
+    content: '⇅';
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0.3;
+    font-size: 14px;
+    transition: opacity 0.15s ease;
+}
+
+table th.sortable:hover::after {
+    opacity: 0.6;
+}
+
+table th.sortable.sorted-asc::after {
+    content: '▲';
+    opacity: 1;
+    color: #b45309;
+}
+
+table th.sortable.sorted-desc::after {
+    content: '▼';
+    opacity: 1;
+    color: #b45309;
+}
+
+/* ============================================================
+   39. DG SCRIPT SYNTAX HIGHLIGHTING (CodeMirror tokens)
+   ============================================================ */
+.cm-keyword {
+    color: #C678DD;
+    font-weight: bold;
+} /* purple - if, else, while */
+
+.cm-builtin {
+    color: #61AFEF;
+} /* blue - act, send, teleport */
+
+.cm-def {
+    color: #56B6C2;
+    font-style: italic;
+} /* cyan - say, г, tell (MUD server commands) */
+
+.cm-variable {
+    color: #E06C75;
+} /* red - %actor%, %self% */
+
+.cm-string {
+    color: #98C379;
+} /* green - "strings" */
+
+.cm-number {
+    color: #D19A66;
+} /* orange - 123 */
+
+.cm-operator {
+    color: #56B6C2;
+} /* cyan - ==, &&, || */
+
+.cm-comment {
+    color: #5C6370;
+    font-style: italic;
+} /* gray - * comments */
+
+/* ============================================================
+   TAG INPUT COMPONENT
+   ============================================================ */
+
+.tag-input-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+    padding: 10px;
+    border: 2px solid rgba(139, 69, 19, 0.15);
+    border-radius: 6px;
+    background: #fdf6e3;
+    min-height: 44px;
+    cursor: text;
+    transition: all 0.2s ease;
+}
+
+.tag-input-container:focus-within {
+    border-color: #b45309;
+    box-shadow: 0 0 0 3px rgba(180, 83, 9, 0.1);
+}
+
+.tag-input-container .tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    background: linear-gradient(135deg, #f5ebe1 0%, #ede0d4 100%);
+    border: 1px solid #d4c49a;
+    border-radius: 4px;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    color: #2d241e;
+    transition: all 0.15s ease;
+}
+
+.tag-input-container .tag:hover {
+    background: linear-gradient(135deg, #ede0d4 0%, #e5d7c9 100%);
+    border-color: #b0a48e;
+}
+
+.tag-input-container .tag .tag-remove {
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: rgba(180, 83, 9, 0.1);
+    color: #b45309;
+    font-weight: bold;
+    font-size: 10px;
+    line-height: 1;
+    transition: all 0.15s ease;
+}
+
+.tag-input-container .tag .tag-remove:hover {
+    background: #b45309;
+    color: #ffffff;
+}
+
+.tag-input-container input {
+    flex: 1;
+    min-width: 120px;
+    border: none;
+    outline: none;
+    background: transparent;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    color: #2d241e;
+    padding: 4px;
+}
+
+.tag-input-container input::placeholder {
+    color: #b0a48e;
+}
+
+/* Tag input hint */
+.tag-input-hint {
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    color: #8a7b6b;
+    margin-top: 4px;
+}
+
+/* ============================================================
+   AUTOCOMPLETE COMPONENT
+   ============================================================ */
+
+.autocomplete-container {
+    position: relative;
+}
+
+.autocomplete-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    margin-top: 4px;
+    background: #ffffff;
+    border: 2px solid #b45309;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(45, 36, 30, 0.15);
+    max-height: 300px;
+    overflow-y: auto;
+    z-index: 1000;
+    display: none;
+}
+
+.autocomplete-dropdown.active {
+    display: block;
+}
+
+.autocomplete-item {
+    padding: 10px 12px;
+    cursor: pointer;
+    border-bottom: 1px solid rgba(139, 69, 19, 0.1);
+    transition: background 0.15s ease;
+}
+
+.autocomplete-item:last-child {
+    border-bottom: none;
+}
+
+.autocomplete-item:hover,
+.autocomplete-item.selected {
+    background: linear-gradient(135deg, #f5ebe1 0%, #ede0d4 100%);
+}
+
+.autocomplete-item-vnum {
+    display: inline-block;
+    padding: 2px 6px;
+    background: linear-gradient(135deg, #d4c49a 0%, #b0a48e 100%);
+    border-radius: 3px;
+    font-family: 'Inter', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    color: #2d241e;
+    margin-right: 8px;
+}
+
+.autocomplete-item-name {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    color: #2d241e;
+}
+
+.autocomplete-loading {
+    padding: 10px 12px;
+    text-align: center;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    color: #8a7b6b;
+}
+
+.autocomplete-empty {
+    padding: 10px 12px;
+    text-align: center;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    color: #8a7b6b;
+    font-style: italic;
+}

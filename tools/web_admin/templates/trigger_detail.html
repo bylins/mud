@@ -1,0 +1,312 @@
+{% extends "base.html" %}
+
+{% block title %}Триггер #{{ trig.vnum }} - Былины MUD{% endblock %}
+
+{% block head %}
+<!-- CodeMirror CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/dracula.min.css">
+<style>
+    .CodeMirror {
+        height: auto;
+        min-height: 200px;
+        border: 2px solid rgba(139, 69, 19, 0.15);
+        border-radius: 6px;
+        font-family: 'Courier New', Consolas, monospace;
+        font-size: 13px;
+        line-height: 1.6;
+        overflow: hidden !important;
+    }
+    .CodeMirror-scroll {
+        overflow-x: hidden !important;
+    }
+    .CodeMirror-readonly {
+        background-color: #faf8f3;
+        cursor: default;
+    }
+</style>
+{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs-bar">
+    <div class="max-w-[1280px] mx-auto px-6 py-2.5">
+        <div class="flex items-center gap-2 font-inter text-sm text-ink-muted">
+            <a href="{{ url_for('index') }}">Главная</a>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #d4c49a;">
+                <polyline points="9 18 15 12 9 6"/>
+            </svg>
+            <a href="{{ url_for('triggers_list', zone=trig.vnum // 100) }}">Триггеры</a>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #d4c49a;">
+                <polyline points="9 18 15 12 9 6"/>
+            </svg>
+            <span class="text-ink-light">Триггер #{{ trig.vnum }}</span>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+
+    <!-- Page Header -->
+    <div class="page-header" style="margin-bottom: 8px;">
+        <div>
+            <h2 class="font-serif-display" style="font-size: 28px;">
+                Триггер <span class="text-amber-700">#{{ trig.vnum }}</span>
+            </h2>
+            <p class="page-subtitle" style="margin-top: 4px;">
+                {{ trig.name|default('Без названия') }}
+            </p>
+        </div>
+
+        <div style="display: flex; gap: 12px;">
+            <a href="{{ url_for('trigger_edit', vnum=trig.vnum) }}" class="btn-primary">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                </svg>
+                Редактировать
+            </a>
+
+            <a href="{{ url_for('triggers_list', zone=trig.vnum // 100) }}" class="btn-secondary">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+                К списку
+            </a>
+        </div>
+    </div>
+
+    <!-- Ornamental divider -->
+    <div class="ornament-divider">
+        <div class="ornament-divider-inner">
+            <div class="ornament-line ornament-line-left"></div>
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" style="opacity: 0.5;">
+                <path d="M10 2L12 8L18 8L13 12L15 18L10 14L5 18L7 12L2 8L8 8Z"/>
+            </svg>
+            <div class="ornament-line ornament-line-right"></div>
+        </div>
+    </div>
+
+    <!-- SECTION 1: Basic Info -->
+    <div class="parchment-section">
+        <div class="parchment-section-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+            </svg>
+            Основная информация
+        </div>
+
+        <div class="detail-grid detail-grid-2">
+            <div class="detail-field">
+                <div class="detail-field-label">Vnum</div>
+                <div class="detail-field-value">{{ trig.vnum }}</div>
+            </div>
+
+            <div class="detail-field">
+                <div class="detail-field-label">Название</div>
+                <div class="detail-field-value{% if not trig.name %} empty{% endif %}">
+                    {{ trig.name|default('Не задано') }}
+                </div>
+            </div>
+
+            <div class="detail-field">
+                <div class="detail-field-label">Тип привязки (attach type)</div>
+                <div class="detail-field-value">
+                    {% if trig.attach_type == 0 %}0 - К мобу (MOB)
+                    {% elif trig.attach_type == 1 %}1 - К предмету (OBJ)
+                    {% elif trig.attach_type == 2 %}2 - К комнате (WLD)
+                    {% else %}{{ trig.attach_type }}{% endif %}
+                </div>
+            </div>
+
+            <div class="detail-field detail-field-full">
+                <div class="detail-field-label">Тип триггера (trigger type)</div>
+                {% set tt = trig.trigger_type|default(0)|int %}
+                {% if tt == 0 %}
+                <div class="detail-field-value empty">Не задано (0x0)</div>
+                {% else %}
+                <div class="detail-field-value flag-value">
+                    <div class="flag-summary">
+                        <span class="flag-summary-hex">0x{{ '%X' % tt }}</span>
+                        <span class="flag-summary-dec">(dec: {{ tt }})</span>
+                    </div>
+                    {# Define flag names per attach_type #}
+                    {% set mob_flags = {
+                        1: 'Случайный глобальный (Random Global)',
+                        2: 'Случайный (Random)',
+                        4: 'Команда (Command)',
+                        8: 'Речь (Speech)',
+                        16: 'Действие (Act)',
+                        32: 'Смерть (Death)',
+                        64: 'Приветствие (Greet)',
+                        128: 'Приветствие всех (Greet All)',
+                        256: 'Вход (Entry)',
+                        512: 'Получение (Receive)',
+                        1024: 'Бой (Fight)',
+                        2048: 'Процент HP (Hit Percent)',
+                        4096: 'Взятка (Bribe)',
+                        8192: 'Загрузка (Load)',
+                        16384: 'Убийство (Kill)',
+                        32768: 'Урон (Damage)',
+                        65536: 'Приветствие игрока (Greet PC)',
+                        131072: 'Приветствие всех игроков (Greet PC All)',
+                        262144: 'Вход моба (Income)',
+                        524288: 'Вход моба (если игрок) (Income PC)',
+                        1048576: 'Начало боя (Start Fight)',
+                        2097152: 'Раунд боя (Round Num)',
+                        4194304: 'Заклинание (Cast)',
+                        8388608: 'Смена времени (Timechange)'
+                    } %}
+                    {% set obj_flags = {
+                        1: 'Случайный глобальный (Random Global)',
+                        2: 'Случайный (Random)',
+                        4: 'Команда (Command)',
+                        8: 'Очистка (Purge)',
+                        16: 'Бой (Fight)',
+                        32: 'Таймер (Timer)',
+                        64: 'Взять (Get)',
+                        128: 'Уронить (Drop)',
+                        256: 'Дать (Give)',
+                        512: 'Надеть (Wear)',
+                        2048: 'Снять (Remove)',
+                        8192: 'Загрузка (Load)',
+                        16384: 'Отпирание замка (Unlock)',
+                        32768: 'Открытие (Open)',
+                        65536: 'Закрытие замка (Lock)',
+                        131072: 'Закрытие (Close)',
+                        262144: 'Взлом (Pick)',
+                        524288: 'Приветствие всех игроков (Greet All PC)',
+                        1048576: 'Смена времени (Timechange)',
+                        2097152: 'Помещение (Put)'
+                    } %}
+                    {% set wld_flags = {
+                        1: 'Случайный глобальный (Random Global)',
+                        2: 'Случайный (Random)',
+                        4: 'Команда (Command)',
+                        8: 'Речь (Speech)',
+                        16: 'Вход игрока (Enter PC)',
+                        32: 'Сброс (Reset)',
+                        64: 'Вход (Enter)',
+                        128: 'Уронить (Drop)',
+                        256: 'Отпирание замка (Unlock)',
+                        512: 'Открытие (Open)',
+                        1024: 'Закрытие замка (Lock)',
+                        2048: 'Закрытие (Close)',
+                        4096: 'Взлом (Pick)',
+                        8192: 'Смена времени (Timechange)',
+                        16384: 'Убийство игрока (Kill PC)'
+                    } %}
+                    {% if trig.attach_type == 1 %}
+                        {% set flags = obj_flags %}
+                    {% elif trig.attach_type == 2 %}
+                        {% set flags = wld_flags %}
+                    {% else %}
+                        {% set flags = mob_flags %}
+                    {% endif %}
+                    <div class="flag-cards">
+                        {% for bit, name in flags.items()|sort %}
+                            {% if ((tt // bit) % 2) == 1 %}
+                            <span class="flag-card">{{ name }}</span>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="detail-field">
+                <div class="detail-field-label">Числовой аргумент (narg)</div>
+                <div class="detail-field-value">{{ trig.narg if trig.narg is defined else '--' }}</div>
+            </div>
+
+            <div class="detail-field">
+                <div class="detail-field-label">Текстовый аргумент (arglist)</div>
+                <div class="detail-field-value mud-colorize{% if not trig.arglist %} empty{% endif %}">
+                    {{ trig.arglist|default('Не задано') }}
+                </div>
+            </div>
+
+            {% if trig.attach_type == 0 %}
+            <div class="detail-field">
+                <div class="detail-field-label">Добавлять в бою (add_flag)</div>
+                <div class="detail-field-value">
+                    {% if trig.add_flag %}
+                        <span style="color: #16a34a; font-weight: 500;">✓ Да</span>
+                    {% else %}
+                        <span style="color: #8a7b6b;">✗ Нет</span>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- SECTION 2: Script Commands -->
+    <div class="parchment-section">
+        <div class="parchment-section-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+            </svg>
+            Тело скрипта (DG commands)
+        </div>
+
+        {% if trig.commands and trig.commands|length > 0 %}
+        <textarea id="script-readonly" style="display: none;">{% for cmd in trig.commands %}{{ cmd }}
+{% endfor %}</textarea>
+        {% else %}
+        <div class="detail-field-value empty">Скрипт пуст</div>
+        {% endif %}
+    </div>
+
+    <!-- Bottom Actions -->
+    <div style="display: flex; gap: 12px; padding-top: 8px;">
+        <a href="{{ url_for('trigger_edit', vnum=trig.vnum) }}" class="btn-primary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+            </svg>
+            Редактировать
+        </a>
+
+        <a href="{{ url_for('triggers_list', zone=trig.vnum // 100) }}" class="btn-secondary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            Назад к списку
+        </a>
+    </div>
+
+{% endblock %}
+
+{% block scripts %}
+<!-- CodeMirror JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+<script src="{{ url_for('static', filename='js/dgscript-mode.js') }}"></script>
+
+<script>
+(function() {
+    'use strict';
+
+    // --- CodeMirror Readonly Editor for DG Scripts ---
+    var scriptTextarea = document.getElementById('script-readonly');
+
+    if (scriptTextarea && scriptTextarea.value.trim()) {
+        var editor = CodeMirror.fromTextArea(scriptTextarea, {
+            mode: 'dgscript',
+            lineNumbers: true,
+            lineWrapping: true,
+            theme: 'dracula',
+            readOnly: true,
+            cursorBlinkRate: -1, // Hide cursor in readonly mode
+        });
+
+        // Auto-resize editor to fit content
+        editor.setSize(null, "auto");
+    
+    // Apply MUD color codes
+    applyMudColors();
+    }
+})();
+</script>
+{% endblock %}

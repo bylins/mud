@@ -708,6 +708,19 @@ int process_output(DescriptorData *t) {
 		return -1;
 	}
 
+#ifdef ENABLE_ADMIN_API
+	// Admin API uses raw JSON output, skip formatting
+	if (t->admin_api_mode) {
+		if (!t->output || !*t->output)
+			return 0;
+
+		int result = write_to_descriptor(t->descriptor, t->output, strlen(t->output));
+		t->bufptr = 0;
+		*t->output = '\0';
+		return (result >= 0 ? 1 : -1);
+	}
+#endif
+
 	// Отправляю данные снуперам
 	// handle snooping: prepend "% " and send to snooper
 	if (t->output && t->snoop_by) {

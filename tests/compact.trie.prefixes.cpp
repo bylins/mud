@@ -18,7 +18,7 @@ void CompactTriePrefixes::fill_trie(strings_t strings)
 {
 	std::sort(strings.begin(), strings.end());
 
-	for (const auto s : strings)
+	for (const auto &s : strings)
 	{
 		ASSERT_TRUE(trie.add_string(s));
 	}
@@ -92,7 +92,7 @@ TEST_F(CompactTriePrefixes, TrieWithNonLeafFork)
 
 	EXPECT_EQ(PREFIX_VALUE, range.prefix());
 	size_t i = 0;
-	for (const auto string : range)
+	for (const auto &string : range)
 	{
 		ASSERT_LT(i, strings.size());
 		ASSERT_EQ(string.prefix(), strings[i++]);
@@ -114,7 +114,7 @@ TEST_F(CompactTriePrefixes, TrieWithLeafFork)
 
 	EXPECT_EQ(PREFIX_VALUE, range.prefix());
 	size_t i = 0;
-	for (const auto string : range)
+	for (const auto &string : range)
 	{
 		ASSERT_LT(i, strings.size());
 		ASSERT_EQ(string.prefix(), strings[i++]);
@@ -143,7 +143,7 @@ TEST_F(CompactTriePrefixes, SequencialSearch)
 	ASSERT_EQ(PREFIX_VALUE_1, range2.prefix());
 
 	size_t i = 1;
-	for (const auto string : range2)
+	for (const auto &string : range2)
 	{
 		ASSERT_LT(i, strings.size());
 		ASSERT_EQ(string.prefix(), strings[i++]);

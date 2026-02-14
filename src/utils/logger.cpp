@@ -206,7 +206,7 @@ void shop_log(const char *format, ...) {
 }
 
 void olc_log(const char *format, ...) {
-	const char *filename = "../log/olc.log";
+	const char *filename = "log/olc.log";
 
 	FILE *file = fopen(filename, "a");
 	if (!file) {

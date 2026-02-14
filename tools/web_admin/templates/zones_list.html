@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+
+{% block title %}Список зон - Былины MUD{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs-bar">
+    <div class="max-w-[1280px] mx-auto px-6 py-2.5">
+        <div class="flex items-center gap-2 font-inter text-sm text-ink-muted">
+            <a href="{{ url_for('index') }}">Главная</a>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #d4c49a;">
+                <polyline points="9 18 15 12 9 6"/>
+            </svg>
+            <span class="text-ink-light">Зоны</span>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <div>
+            <h2 class="font-serif-display" style="font-size: 28px;">
+                Список зон
+            </h2>
+            <p class="page-subtitle">
+                Всего зон: {{ zones|length }}
+            </p>
+        </div>
+    </div>
+
+    {% if zones %}
+    <!-- Search Box -->
+    <div class="search-box-container">
+        <div class="search-box-wrapper">
+            <input type="text" id="search-box" class="search-box" placeholder="Поиск по vnum, названию, автору...">
+            <button class="search-clear-btn" onclick="document.getElementById('search-box').value = ''; filterTable(document.getElementById('search-box'), document.getElementById('zones-table'));" style="display: none;">&times;</button>
+        </div>
+    </div>
+
+    <table id="zones-table">
+        <thead>
+            <tr>
+                <th class="sortable" onclick="sortTable(document.getElementById('zones-table'), 0, 'numeric')" style="width: 80px;">Vnum</th>
+                <th class="sortable" onclick="sortTable(document.getElementById('zones-table'), 1, 'text')">Название</th>
+                <th class="sortable" onclick="sortTable(document.getElementById('zones-table'), 2, 'numeric')" style="width: 100px; text-align: center;">Уровень</th>
+                <th class="sortable" onclick="sortTable(document.getElementById('zones-table'), 3, 'text')" style="width: 120px;">Автор</th>
+                <th style="width: 200px; text-align: right;">Действия</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for zone in zones %}
+            <tr>
+                <td>
+                    <span class="vnum-badge">{{ zone.vnum }}</span>
+                </td>
+                <td>
+                    <span class="mud-colorize" style="font-weight: 500;">{{ zone.name }}</span>
+                </td>
+                <td style="text-align: center;">
+                    <span class="font-inter text-sm text-ink-light">{{ zone.level|default('--') }}</span>
+                </td>
+                <td>
+                    <span class="font-inter text-sm text-ink-light">{{ zone.author|default('--') }}</span>
+                </td>
+                <td style="text-align: right;">
+                    <div style="display: flex; gap: 8px; justify-content: flex-end;">
+                        <a href="{{ url_for('zone_detail', vnum=zone.vnum) }}" class="action-link action-link-view">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -2px;">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                <circle cx="12" cy="12" r="3"/>
+                            </svg>
+                            Просмотр
+                        </a>
+                        <a href="{{ url_for('zone_edit', vnum=zone.vnum) }}" class="action-link action-link-edit">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -2px;">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                            </svg>
+                            Редактировать
+                        </a>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#d4c49a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin: 0 auto 16px;">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+        </svg>
+        <div class="font-serif-display text-lg text-ink-light" style="margin-bottom: 8px;">Зоны не найдены</div>
+        <div class="font-inter text-sm text-ink-muted">Список зон пуст.</div>
+    </div>
+    {% endif %}
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Initialize search functionality
+    const searchBox = document.getElementById('search-box');
+    const clearBtn = document.querySelector('.search-clear-btn');
+    const table = document.getElementById('zones-table');
+
+    if (searchBox && table) {
+        searchBox.addEventListener('input', function() {
+            filterTable(searchBox, table);
+            clearBtn.style.display = searchBox.value ? 'block' : 'none';
+        });
+    }
+
+    // Apply MUD color codes
+    applyMudColors();
+</script>
+{% endblock %}

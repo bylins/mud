@@ -21,6 +21,7 @@
 #include "gameplay/magic/magic.h"
 #include "gameplay/magic/magic_temp_spells.h"
 #include "engine/db/global_objects.h"
+#include "trigger_indenter.h"
 
 #include <stack>
 
@@ -36,7 +37,7 @@ extern IndexData *mob_index;
 
 // TODO: Get rid of me
 char *dirty_indent_trigger(char *cmd, int *level) {
-	static std::stack<std::string> indent_stack;
+	thread_local std::stack<std::string> indent_stack;
 
 	*level = std::max(0, *level);
 	if (*level == 0) {
@@ -111,8 +112,9 @@ char *dirty_indent_trigger(char *cmd, int *level) {
 }
 
 void indent_trigger(std::string &cmd, int *level) {
+	thread_local TriggerIndenter indenter;
 	char *cmd_copy = str_dup(cmd.c_str());;
-	cmd_copy = dirty_indent_trigger(cmd_copy, level);
+	cmd_copy = indenter.indent(cmd_copy, level);
 	cmd = cmd_copy;
 	free(cmd_copy);
 }

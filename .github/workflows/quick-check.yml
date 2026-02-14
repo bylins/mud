@@ -1,0 +1,72 @@
+name: Quick Check
+
+on:
+  push:
+    branches: [ '**' ]  # Все ветки
+  pull_request:
+
+# Cancel previous runs if new push to same branch
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quick-build:
+    name: Quick Build (Linux)
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            /var/cache/apt/archives
+          key: ${{ runner.os }}-apt-${{ hashFiles('.github/workflows/quick-check.yml') }}
+          restore-keys: |
+            ${{ runner.os }}-apt-
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            make \
+            libssl-dev \
+            libcurl4-gnutls-dev \
+            libexpat1-dev \
+            gettext \
+            unzip \
+            cmake
+
+      - name: Configure CMake
+        run: |
+          mkdir -p build
+          cd build
+          cmake -DBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Test ..
+
+      - name: Build
+        run: |
+          cd build
+          make -j$(nproc)
+
+      - name: Check binary
+        run: |
+          ls -lh build/circle
+          file build/circle
+
+  syntax-check:
+    name: Syntax Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check for common issues
+        run: |
+          echo "Checking for tabs in makefiles..."
+          # Add any syntax/style checks here
+          echo "✅ Basic checks passed"

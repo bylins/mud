@@ -32,13 +32,13 @@ class BasePulseMeasurements {
 	BasePulseMeasurements();
 	virtual ~BasePulseMeasurements() {}
 
-	const auto window_size() const { return WINDOW_SIZE; }
+	auto window_size() const { return WINDOW_SIZE; }
 
-	const auto window_sum() const { return m_sum; }
-	const auto current_window_size() const { return m_measurements.size(); }
+	auto window_sum() const { return m_sum; }
+	auto current_window_size() const { return m_measurements.size(); }
 
-	const auto global_sum() const { return m_global_sum; }
-	const auto global_count() const { return m_global_count; }
+	auto global_sum() const { return m_global_sum; }
+	auto global_count() const { return m_global_count; }
 
 	const auto &min() const { return m_min; }
 	const auto &max() const { return m_max; }
@@ -158,11 +158,11 @@ class Heartbeat {
 		PulseStep(std::string name, const int modulo, const int offset, pulse_action_t action);
 
 		const auto &name() const { return m_name; }
-		const auto modulo() const { return m_modulo; }
-		const auto offset() const { return m_offset; }
+		auto modulo() const { return m_modulo; }
+		auto offset() const { return m_offset; }
 		const auto &action() const { return m_action; }
-		const auto off() const { return m_off; }
-		const auto on() const { return !off(); }
+		auto off() const { return m_off; }
+		auto on() const { return !off(); }
 
 		void turn_on() { m_off = false; }
 		void turn_off() { m_off = true; }

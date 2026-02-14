@@ -1145,7 +1145,7 @@ void do_stat_room(CharData *ch, const int rnum = 0) {
 	SendMsgToChar(buf, ch);
 
 	SendMsgToChar("Описание:\r\n", ch);
-	SendMsgToChar(RoomDescription::show_desc(rm->description_num), ch);
+	SendMsgToChar(GlobalObjects::descriptions().get(rm->description_num), ch);
 
 	if (rm->ex_description) {
 		sprintf(buf, "Доп. описание:%s", kColorCyn);

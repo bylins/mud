@@ -13,6 +13,7 @@ std::unordered_map<std::string, std::shared_ptr<Account>> accounts;
 #if defined(NOCRYPT)
 #define CRYPT(a,b) ((char *) (a))
 #else
+#include <crypt.h>
 #define CRYPT(a, b) ((char *) crypt((a),(b)))
 #endif
 
