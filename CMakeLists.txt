@@ -1230,12 +1230,16 @@ if (HAVE_YAML)
 		)
 
 		find_library(YAML_CPP_LIBRARY
-			NAMES yaml-cpp libyaml-cpp
+			NAMES yaml-cpp libyaml-cpp yaml-cpp.dll cygyaml-cpp-0.7 cygyaml-cpp
 			PATHS
 				/usr/lib
 				/usr/local/lib
 				/lib
+				/usr/lib/x86_64-linux-gnu
 		)
+
+		message(STATUS "DEBUG: YAML_CPP_INCLUDE_DIR = ${YAML_CPP_INCLUDE_DIR}")
+		message(STATUS "DEBUG: YAML_CPP_LIBRARY = ${YAML_CPP_LIBRARY}")
 
 		if (YAML_CPP_INCLUDE_DIR AND YAML_CPP_LIBRARY)
 			message(STATUS "yaml-cpp found manually: ${YAML_CPP_LIBRARY}")
