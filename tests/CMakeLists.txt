@@ -36,6 +36,7 @@ if (NOT GTEST_INCLUDE OR NOT GTEST_LIB)
 				/usr/lib
 				/usr/lib64
 				/usr/local/lib
+				/lib
 				/usr/local/lib64
 		)
 
