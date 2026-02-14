@@ -1229,14 +1229,22 @@ if (HAVE_YAML)
 				/usr/local/include
 		)
 
-		find_library(YAML_CPP_LIBRARY
-			NAMES yaml-cpp libyaml-cpp yaml-cpp.dll cygyaml-cpp-0.7 cygyaml-cpp
-			PATHS
-				/usr/lib
-				/usr/local/lib
-				/lib
-				/usr/lib/x86_64-linux-gnu
-		)
+		# Cygwin uses .dll.a suffix for import libraries
+		if (CYGWIN)
+			find_library(YAML_CPP_LIBRARY
+				NAMES yaml-cpp.dll libyaml-cpp.dll
+				PATHS /usr/lib
+			)
+		else ()
+			find_library(YAML_CPP_LIBRARY
+				NAMES yaml-cpp libyaml-cpp
+				PATHS
+					/usr/lib
+					/usr/local/lib
+					/lib
+					/usr/lib/x86_64-linux-gnu
+			)
+		endif ()
 
 		message(STATUS "DEBUG: YAML_CPP_INCLUDE_DIR = ${YAML_CPP_INCLUDE_DIR}")
 		message(STATUS "DEBUG: YAML_CPP_LIBRARY = ${YAML_CPP_LIBRARY}")
