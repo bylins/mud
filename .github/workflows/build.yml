@@ -289,6 +289,61 @@ jobs:
           cd "$GITHUB_WORKSPACE/build"
           make -j$(nproc)
 
+  build-cygwin-yaml:
+    name: Cygwin + YAML (built from source)
+    runs-on: windows-latest
+    continue-on-error: true  # Soft-failure mode
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup Cygwin
+        uses: cygwin/cygwin-install-action@v6
+        with:
+          site: https://mirrors.sonic.net/cygwin/
+          packages: >-
+            gcc-g++
+            gcc-core
+            make
+            cmake
+            libssl-devel
+            libcurl-devel
+            libexpat1-devel
+            libcrypt-devel
+            gettext-devel
+            unzip
+            git
+            wget
+
+      - name: Build and install yaml-cpp from source
+        shell: C:\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
+        run: |
+          cd /tmp
+          wget https://github.com/jbeder/yaml-cpp/archive/refs/tags/0.8.0.tar.gz
+          tar xzf 0.8.0.tar.gz
+          cd yaml-cpp-0.8.0
+          mkdir build && cd build
+          cmake -DCMAKE_BUILD_TYPE=Release -DYAML_BUILD_SHARED_LIBS=ON ..
+          make -j$(nproc)
+          make install
+
+      - name: Configure CMake
+        shell: C:\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
+        run: |
+          cd "$GITHUB_WORKSPACE"
+          mkdir -p build
+          cd build
+          cmake -DBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Release -DHAVE_YAML=ON ..
+
+      - name: Build
+        shell: C:\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
+        run: |
+          git config --global --add safe.directory '*'
+          cd "$GITHUB_WORKSPACE/build"
+          make -j$(nproc)
+
   build-wsl:
     name: WSL (Ubuntu)
     runs-on: windows-latest
@@ -389,7 +444,7 @@ jobs:
   build-summary:
     name: Build Summary
     runs-on: ubuntu-latest
-    needs: [build-linux-matrix, build-linux-gcc15, build-windows-msvc, build-macos-clang, build-windows-clang, build-cygwin, build-wsl, build-wsl-yaml]
+    needs: [build-linux-matrix, build-linux-gcc15, build-windows-msvc, build-macos-clang, build-windows-clang, build-cygwin, build-wsl, build-cygwin-yaml, build-wsl-yaml]
     if: always()
 
     steps:
