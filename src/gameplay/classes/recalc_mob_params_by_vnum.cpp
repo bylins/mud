@@ -275,6 +275,7 @@ static bool ApplyMobParams(CharData* ch, int level, int remorts, int difficulty)
 	AFF_FLAGS(ch).unset(EAffect::kIceShield);
 	AFF_FLAGS(ch).unset(EAffect::kAirShield);
 	AFF_FLAGS(ch).unset(EAffect::kMagicGlass);
+	AFF_FLAGS(ch).unset(EAffect::kGodsShield);
 	ch->UnsetFlag(EMobFlag::kNotKillPunctual);
 	ch->UnsetFlag(EMobFlag::kNoBash);
 	ch->UnsetFlag(EMobFlag::kNoBattleExp);
@@ -287,7 +288,6 @@ static bool ApplyMobParams(CharData* ch, int level, int remorts, int difficulty)
 	ch->UnsetFlag(EMobFlag::kNoUndercut);
 	ch->UnsetFlag(EMobFlag::kAware);
 	ch->UnsetFlag(EMobFlag::kProtect);
-
 
 	const int calc = effective_level;      // расчётный уровень с учётом difficulty и boss_add_lvl
 
@@ -531,7 +531,7 @@ static bool ApplyMobParams(CharData* ch, int level, int remorts, int difficulty)
 			}
 
 			if (is_breathing) {
-				GET_NDD(ch) *= 0.5;
+				GET_NDD(ch) *= 0.8;
 			}
 			applied_any = 1;
 		}
@@ -554,7 +554,7 @@ static bool ApplyMobParams(CharData* ch, int level, int remorts, int difficulty)
 			}
 
 			if (is_breathing) {
-				GET_SDD(ch) *= 0.5;
+				GET_SDD(ch) *= 0.8;
 			}
 			applied_any = 1;
 		}
@@ -857,6 +857,16 @@ static bool ApplyMobParams(CharData* ch, int level, int remorts, int difficulty)
 			}
 			ch->mob_specials.have_spell = true;
 			SET_SPELL_MEM(ch, id, best_default_spell);
+	//Нахрен убираем длитхолд, потому что это хуйня - 7 раундов в холде = 100% смерть
+			SET_SPELL_MEM(ch, ESpell::kPowerHold, 0);
+	//Если есть у моба холд - отключаем остальные стан-умения, ибо слишком жирно
+			if (GET_SPELL_MEM(ch, ESpell::kHold) ||
+				GET_SPELL_MEM(ch, ESpell::kMassHold) >= 1) {
+				ch->set_skill(ESkill::kHammer, 0);
+				ch->set_skill(ESkill::kOverwhelm, 0);
+				ch->set_skill(ESkill::kChopoff, 0);
+				ch->set_skill(ESkill::kBash, 0);
+				}
 		}
 	}
 

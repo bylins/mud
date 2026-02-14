@@ -20,21 +20,21 @@
         </savings>
 
         <skills>
-            <skill id="kUndefined" base="60" low_increment="2.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kUndefined" base="70" low_increment="2.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
             <skill id="kPunch" base="80" low_increment="3" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
             <skill id="kPunctual" base="0" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kAirMagic" base="50" low_increment="3.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kFireMagic" base="50" low_increment="3.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kWaterMagic" base="50" low_increment="3.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kEarthMagic" base="50" low_increment="3.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kLightMagic" base="50" low_increment="3.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kDarkMagic" base="50" low_increment="3.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kMindMagic" base="50" low_increment="3.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kLifeMagic" base="20" low_increment="1" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kAirMagic" base="30" low_increment="3.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kFireMagic" base="30" low_increment="3.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kWaterMagic" base="30" low_increment="3.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kEarthMagic" base="30" low_increment="3.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kLightMagic" base="30" low_increment="3.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kDarkMagic" base="30" low_increment="3.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kMindMagic" base="30" low_increment="3.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kLifeMagic" base="10" low_increment="0.7" threshold_mort="30" increment="0" deviation_type="0" deviation="0"/>
         </skills>
 
         <spells>
-            <spell id="kUndefined" base="5" low_increment="0.5" threshold_mort="10" increment="0" deviation_type="1" deviation="0"/>
+            <spell id="kUndefined" base="3" low_increment="0.4" threshold_mort="10" increment="0" deviation_type="1" deviation="0"/>
         </spells>
 
         <resistances>
@@ -56,13 +56,13 @@
             <param id="kAbsorb" base="0" low_increment="0" threshold_mort="10" increment="1" deviation_type="0" deviation="0"/>
             <param id="kDamNoDice" base="3" low_increment="0" threshold_mort="0" increment="0.3" deviation_type="0" deviation="0"/>
             <param id="kDamSizeDice" base="3" low_increment="0" threshold_mort="0" increment="0.3" deviation_type="0" deviation="0"/>
-            <param id="kHitroll" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="0"/>
+            <param id="kHitroll" base="5" low_increment="1" threshold_mort="20" increment="0" deviation_type="0" deviation="0"/>
             <param id="kMorale" base="10" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
             <param id="kInitiative" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
-            <param id="kCastSuccess" base="5" low_increment="5.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <param id="kCastSuccess" base="0" low_increment="4.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
             <param id="kHitPoints" base="1800" low_increment="0" threshold_mort="0" increment="120" deviation_type="1" deviation="0"/>
             <param id="kSize" base="10" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
-            <param id="kExp" base="180000" low_increment="0" threshold_mort="17" increment="8000" deviation_type="1" deviation="0"/>
+            <param id="kExp" base="120000" low_increment="0" threshold_mort="17" increment="6000" deviation_type="1" deviation="0"/>
             <param id="kLikesWork" base="30" low_increment="0.5" threshold_mort="20" increment="0" deviation_type="0" deviation="0"/>
             <param id="kPhysDamage" base="0" low_increment="0" threshold_mort="20" increment="0.1" deviation_type="0" deviation="0"/>
             <param id="kSpellPower" base="0" low_increment="0" threshold_mort="20" increment="0.1" deviation_type="0" deviation="0"/>
@@ -116,21 +116,21 @@
         </savings>
 
         <skills>
-            <skill id="kUndefined" base="60" low_increment="2.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kUndefined" base="70" low_increment="2.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
             <skill id="kPunch" base="80" low_increment="3" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
             <skill id="kPunctual" base="0" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kAirMagic" base="50" low_increment="3.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kFireMagic" base="50" low_increment="3.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kWaterMagic" base="50" low_increment="3.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kEarthMagic" base="50" low_increment="3.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kLightMagic" base="50" low_increment="3.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kDarkMagic" base="50" low_increment="3.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kMindMagic" base="50" low_increment="3.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kLifeMagic" base="20" low_increment="1" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kAirMagic" base="30" low_increment="3.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kFireMagic" base="30" low_increment="3.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kWaterMagic" base="30" low_increment="3.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kEarthMagic" base="30" low_increment="3.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kLightMagic" base="30" low_increment="3.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kDarkMagic" base="30" low_increment="3.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kMindMagic" base="30" low_increment="3.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kLifeMagic" base="10" low_increment="0.7" threshold_mort="30" increment="0" deviation_type="0" deviation="0"/>
         </skills>
 
         <spells>
-            <spell id="kUndefined" base="5" low_increment="0.5" threshold_mort="10" increment="0" deviation_type="1" deviation="0"/>
+            <spell id="kUndefined" base="3" low_increment="0.4" threshold_mort="10" increment="0" deviation_type="1" deviation="0"/>
         </spells>
 
         <resistances>
@@ -152,13 +152,13 @@
             <param id="kAbsorb" base="0" low_increment="0" threshold_mort="10" increment="1" deviation_type="0" deviation="0"/>
             <param id="kDamNoDice" base="3" low_increment="0" threshold_mort="0" increment="0.3" deviation_type="0" deviation="0"/>
             <param id="kDamSizeDice" base="3" low_increment="0" threshold_mort="0" increment="0.3" deviation_type="0" deviation="0"/>
-            <param id="kHitroll" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="0"/>
+            <param id="kHitroll" base="5" low_increment="1" threshold_mort="20" increment="0" deviation_type="0" deviation="0"/>
             <param id="kMorale" base="10" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
             <param id="kInitiative" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
-            <param id="kCastSuccess" base="5" low_increment="5.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <param id="kCastSuccess" base="0" low_increment="4.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
             <param id="kHitPoints" base="1800" low_increment="0" threshold_mort="0" increment="120" deviation_type="1" deviation="0"/>
             <param id="kSize" base="10" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
-            <param id="kExp" base="180000" low_increment="0" threshold_mort="17" increment="8000" deviation_type="1" deviation="0"/>
+            <param id="kExp" base="120000" low_increment="0" threshold_mort="17" increment="6000" deviation_type="1" deviation="0"/>
             <param id="kLikesWork" base="30" low_increment="0.5" threshold_mort="20" increment="0" deviation_type="0" deviation="0"/>
             <param id="kPhysDamage" base="0" low_increment="0" threshold_mort="20" increment="0.1" deviation_type="0" deviation="0"/>
             <param id="kSpellPower" base="0" low_increment="0" threshold_mort="20" increment="0.1" deviation_type="0" deviation="0"/>
@@ -212,21 +212,21 @@
         </savings>
 
         <skills>
-            <skill id="kUndefined" base="60" low_increment="2.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kUndefined" base="70" low_increment="2.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
             <skill id="kPunch" base="80" low_increment="3" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
             <skill id="kPunctual" base="0" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kAirMagic" base="50" low_increment="3.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kFireMagic" base="50" low_increment="3.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kWaterMagic" base="50" low_increment="3.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kEarthMagic" base="50" low_increment="3.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kLightMagic" base="50" low_increment="3.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kDarkMagic" base="50" low_increment="3.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kMindMagic" base="50" low_increment="3.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kLifeMagic" base="20" low_increment="1" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kAirMagic" base="30" low_increment="3.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kFireMagic" base="30" low_increment="3.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kWaterMagic" base="30" low_increment="3.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kEarthMagic" base="30" low_increment="3.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kLightMagic" base="30" low_increment="3.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kDarkMagic" base="30" low_increment="3.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kMindMagic" base="30" low_increment="3.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kLifeMagic" base="10" low_increment="0.7" threshold_mort="30" increment="0" deviation_type="0" deviation="0"/>
         </skills>
 
         <spells>
-            <spell id="kUndefined" base="5" low_increment="0.5" threshold_mort="10" increment="0" deviation_type="1" deviation="0"/>
+            <spell id="kUndefined" base="3" low_increment="0.4" threshold_mort="10" increment="0" deviation_type="1" deviation="0"/>
         </spells>
 
         <resistances>
@@ -248,13 +248,13 @@
             <param id="kAbsorb" base="0" low_increment="0" threshold_mort="10" increment="1" deviation_type="0" deviation="0"/>
             <param id="kDamNoDice" base="3" low_increment="0" threshold_mort="0" increment="0.3" deviation_type="0" deviation="0"/>
             <param id="kDamSizeDice" base="3" low_increment="0" threshold_mort="0" increment="0.3" deviation_type="0" deviation="0"/>
-            <param id="kHitroll" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="0"/>
+            <param id="kHitroll" base="5" low_increment="1" threshold_mort="20" increment="0" deviation_type="0" deviation="0"/>
             <param id="kMorale" base="10" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
             <param id="kInitiative" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
-            <param id="kCastSuccess" base="5" low_increment="5.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <param id="kCastSuccess" base="0" low_increment="4.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
             <param id="kHitPoints" base="1800" low_increment="0" threshold_mort="0" increment="120" deviation_type="1" deviation="0"/>
             <param id="kSize" base="10" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
-            <param id="kExp" base="180000" low_increment="0" threshold_mort="17" increment="8000" deviation_type="1" deviation="0"/>
+            <param id="kExp" base="120000" low_increment="0" threshold_mort="17" increment="6000" deviation_type="1" deviation="0"/>
             <param id="kLikesWork" base="30" low_increment="0.5" threshold_mort="20" increment="0" deviation_type="0" deviation="0"/>
             <param id="kPhysDamage" base="0" low_increment="0" threshold_mort="20" increment="0.1" deviation_type="0" deviation="0"/>
             <param id="kSpellPower" base="0" low_increment="0" threshold_mort="20" increment="0.1" deviation_type="0" deviation="0"/>
@@ -308,21 +308,21 @@
         </savings>
 
         <skills>
-            <skill id="kUndefined" base="60" low_increment="2.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kUndefined" base="70" low_increment="2.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
             <skill id="kPunch" base="80" low_increment="3" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
             <skill id="kPunctual" base="0" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kAirMagic" base="50" low_increment="3.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kFireMagic" base="50" low_increment="3.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kWaterMagic" base="50" low_increment="3.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kEarthMagic" base="50" low_increment="3.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kLightMagic" base="50" low_increment="3.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kDarkMagic" base="50" low_increment="3.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kMindMagic" base="50" low_increment="3.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kLifeMagic" base="20" low_increment="1" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kAirMagic" base="30" low_increment="3.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kFireMagic" base="30" low_increment="3.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kWaterMagic" base="30" low_increment="3.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kEarthMagic" base="30" low_increment="3.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kLightMagic" base="30" low_increment="3.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kDarkMagic" base="30" low_increment="3.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kMindMagic" base="30" low_increment="3.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kLifeMagic" base="10" low_increment="0.7" threshold_mort="30" increment="0" deviation_type="0" deviation="0"/>
         </skills>
 
         <spells>
-            <spell id="kUndefined" base="5" low_increment="0.5" threshold_mort="10" increment="0" deviation_type="1" deviation="0"/>
+            <spell id="kUndefined" base="3" low_increment="0.4" threshold_mort="10" increment="0" deviation_type="1" deviation="0"/>
         </spells>
 
         <resistances>
@@ -344,13 +344,13 @@
             <param id="kAbsorb" base="0" low_increment="0" threshold_mort="10" increment="1" deviation_type="0" deviation="0"/>
             <param id="kDamNoDice" base="3" low_increment="0" threshold_mort="0" increment="0.3" deviation_type="0" deviation="0"/>
             <param id="kDamSizeDice" base="3" low_increment="0" threshold_mort="0" increment="0.3" deviation_type="0" deviation="0"/>
-            <param id="kHitroll" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="0"/>
+            <param id="kHitroll" base="5" low_increment="1" threshold_mort="20" increment="0" deviation_type="0" deviation="0"/>
             <param id="kMorale" base="10" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
             <param id="kInitiative" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
-            <param id="kCastSuccess" base="5" low_increment="5.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <param id="kCastSuccess" base="0" low_increment="4.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
             <param id="kHitPoints" base="1800" low_increment="0" threshold_mort="0" increment="120" deviation_type="1" deviation="0"/>
             <param id="kSize" base="10" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
-            <param id="kExp" base="180000" low_increment="0" threshold_mort="17" increment="8000" deviation_type="1" deviation="0"/>
+            <param id="kExp" base="120000" low_increment="0" threshold_mort="17" increment="6000" deviation_type="1" deviation="0"/>
             <param id="kLikesWork" base="30" low_increment="0.5" threshold_mort="20" increment="0" deviation_type="0" deviation="0"/>
             <param id="kPhysDamage" base="0" low_increment="0" threshold_mort="20" increment="0.1" deviation_type="0" deviation="0"/>
             <param id="kSpellPower" base="0" low_increment="0" threshold_mort="20" increment="0.1" deviation_type="0" deviation="0"/>
@@ -404,21 +404,21 @@
         </savings>
 
         <skills>
-            <skill id="kUndefined" base="60" low_increment="2.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kUndefined" base="70" low_increment="2.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
             <skill id="kPunch" base="80" low_increment="3" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
             <skill id="kPunctual" base="0" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kAirMagic" base="50" low_increment="3.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kFireMagic" base="50" low_increment="3.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kWaterMagic" base="50" low_increment="3.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kEarthMagic" base="50" low_increment="3.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kLightMagic" base="50" low_increment="3.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kDarkMagic" base="50" low_increment="3.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kMindMagic" base="50" low_increment="3.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kLifeMagic" base="20" low_increment="1" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kAirMagic" base="30" low_increment="3.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kFireMagic" base="30" low_increment="3.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kWaterMagic" base="30" low_increment="3.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kEarthMagic" base="30" low_increment="3.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kLightMagic" base="30" low_increment="3.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kDarkMagic" base="30" low_increment="3.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kMindMagic" base="30" low_increment="3.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kLifeMagic" base="10" low_increment="0.7" threshold_mort="30" increment="0" deviation_type="0" deviation="0"/>
         </skills>
 
         <spells>
-            <spell id="kUndefined" base="5" low_increment="0.5" threshold_mort="10" increment="0" deviation_type="1" deviation="0"/>
+            <spell id="kUndefined" base="3" low_increment="0.4" threshold_mort="10" increment="0" deviation_type="1" deviation="0"/>
         </spells>
 
         <resistances>
@@ -440,13 +440,13 @@
             <param id="kAbsorb" base="0" low_increment="0" threshold_mort="10" increment="1" deviation_type="0" deviation="0"/>
             <param id="kDamNoDice" base="3" low_increment="0" threshold_mort="0" increment="0.3" deviation_type="0" deviation="0"/>
             <param id="kDamSizeDice" base="3" low_increment="0" threshold_mort="0" increment="0.3" deviation_type="0" deviation="0"/>
-            <param id="kHitroll" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="0"/>
+            <param id="kHitroll" base="5" low_increment="1" threshold_mort="20" increment="0" deviation_type="0" deviation="0"/>
             <param id="kMorale" base="10" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
             <param id="kInitiative" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
-            <param id="kCastSuccess" base="5" low_increment="5.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <param id="kCastSuccess" base="0" low_increment="4.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
             <param id="kHitPoints" base="1800" low_increment="0" threshold_mort="0" increment="120" deviation_type="1" deviation="0"/>
             <param id="kSize" base="10" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
-            <param id="kExp" base="180000" low_increment="0" threshold_mort="17" increment="8000" deviation_type="1" deviation="0"/>
+            <param id="kExp" base="120000" low_increment="0" threshold_mort="17" increment="6000" deviation_type="1" deviation="0"/>
             <param id="kLikesWork" base="30" low_increment="0.5" threshold_mort="20" increment="0" deviation_type="0" deviation="0"/>
             <param id="kPhysDamage" base="0" low_increment="0" threshold_mort="20" increment="0.1" deviation_type="0" deviation="0"/>
             <param id="kSpellPower" base="0" low_increment="0" threshold_mort="20" increment="0.1" deviation_type="0" deviation="0"/>
@@ -500,21 +500,21 @@
         </savings>
 
         <skills>
-            <skill id="kUndefined" base="60" low_increment="2.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kUndefined" base="70" low_increment="2.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
             <skill id="kPunch" base="80" low_increment="3" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
             <skill id="kPunctual" base="0" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kAirMagic" base="50" low_increment="3.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kFireMagic" base="50" low_increment="3.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kWaterMagic" base="50" low_increment="3.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kEarthMagic" base="50" low_increment="3.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kLightMagic" base="50" low_increment="3.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kDarkMagic" base="50" low_increment="3.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kMindMagic" base="50" low_increment="3.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kLifeMagic" base="20" low_increment="1" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kAirMagic" base="30" low_increment="3.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kFireMagic" base="30" low_increment="3.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kWaterMagic" base="30" low_increment="3.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kEarthMagic" base="30" low_increment="3.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kLightMagic" base="30" low_increment="3.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kDarkMagic" base="30" low_increment="3.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kMindMagic" base="30" low_increment="3.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kLifeMagic" base="10" low_increment="0.7" threshold_mort="30" increment="0" deviation_type="0" deviation="0"/>
         </skills>
 
         <spells>
-            <spell id="kUndefined" base="5" low_increment="0.5" threshold_mort="10" increment="0" deviation_type="1" deviation="0"/>
+            <spell id="kUndefined" base="3" low_increment="0.4" threshold_mort="10" increment="0" deviation_type="1" deviation="0"/>
         </spells>
 
         <resistances>
@@ -536,13 +536,13 @@
             <param id="kAbsorb" base="0" low_increment="0" threshold_mort="10" increment="1" deviation_type="0" deviation="0"/>
             <param id="kDamNoDice" base="3" low_increment="0" threshold_mort="0" increment="0.3" deviation_type="0" deviation="0"/>
             <param id="kDamSizeDice" base="3" low_increment="0" threshold_mort="0" increment="0.3" deviation_type="0" deviation="0"/>
-            <param id="kHitroll" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="0"/>
+            <param id="kHitroll" base="5" low_increment="1" threshold_mort="20" increment="0" deviation_type="0" deviation="0"/>
             <param id="kMorale" base="10" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
             <param id="kInitiative" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
-            <param id="kCastSuccess" base="5" low_increment="5.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <param id="kCastSuccess" base="0" low_increment="4.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
             <param id="kHitPoints" base="1800" low_increment="0" threshold_mort="0" increment="120" deviation_type="1" deviation="0"/>
             <param id="kSize" base="10" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
-            <param id="kExp" base="180000" low_increment="0" threshold_mort="17" increment="8000" deviation_type="1" deviation="0"/>
+            <param id="kExp" base="120000" low_increment="0" threshold_mort="17" increment="6000" deviation_type="1" deviation="0"/>
             <param id="kLikesWork" base="30" low_increment="0.5" threshold_mort="20" increment="0" deviation_type="0" deviation="0"/>
             <param id="kPhysDamage" base="0" low_increment="0" threshold_mort="20" increment="0.1" deviation_type="0" deviation="0"/>
             <param id="kSpellPower" base="0" low_increment="0" threshold_mort="20" increment="0.1" deviation_type="0" deviation="0"/>
@@ -596,22 +596,22 @@
         </savings>
 
         <skills>
-            <skill id="kUndefined" base="60" low_increment="2.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kUndefined" base="70" low_increment="2.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
             <skill id="kPunch" base="80" low_increment="3" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
             <skill id="kPunctual" base="0" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
             <skill id="kBackstab" base="20" low_increment="5" threshold_mort="45" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kAirMagic" base="50" low_increment="3.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kFireMagic" base="50" low_increment="3.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kWaterMagic" base="50" low_increment="3.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kEarthMagic" base="50" low_increment="3.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kLightMagic" base="50" low_increment="3.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kDarkMagic" base="50" low_increment="3.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kMindMagic" base="50" low_increment="3.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kLifeMagic" base="20" low_increment="1" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kAirMagic" base="30" low_increment="3.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kFireMagic" base="30" low_increment="3.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kWaterMagic" base="30" low_increment="3.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kEarthMagic" base="30" low_increment="3.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kLightMagic" base="30" low_increment="3.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kDarkMagic" base="30" low_increment="3.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kMindMagic" base="30" low_increment="3.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kLifeMagic" base="10" low_increment="0.7" threshold_mort="30" increment="0" deviation_type="0" deviation="0"/>
         </skills>
 
         <spells>
-            <spell id="kUndefined" base="5" low_increment="0.5" threshold_mort="10" increment="0" deviation_type="1" deviation="0"/>
+            <spell id="kUndefined" base="3" low_increment="0.4" threshold_mort="10" increment="0" deviation_type="1" deviation="0"/>
         </spells>
 
         <resistances>
@@ -633,13 +633,13 @@
             <param id="kAbsorb" base="0" low_increment="0" threshold_mort="10" increment="1" deviation_type="0" deviation="0"/>
             <param id="kDamNoDice" base="3" low_increment="0" threshold_mort="0" increment="0.3" deviation_type="0" deviation="0"/>
             <param id="kDamSizeDice" base="3" low_increment="0" threshold_mort="0" increment="0.3" deviation_type="0" deviation="0"/>
-            <param id="kHitroll" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="0"/>
+            <param id="kHitroll" base="5" low_increment="1" threshold_mort="20" increment="0" deviation_type="0" deviation="0"/>
             <param id="kMorale" base="10" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
             <param id="kInitiative" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
-            <param id="kCastSuccess" base="5" low_increment="5.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <param id="kCastSuccess" base="0" low_increment="4.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
             <param id="kHitPoints" base="1800" low_increment="0" threshold_mort="0" increment="120" deviation_type="1" deviation="0"/>
             <param id="kSize" base="10" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
-            <param id="kExp" base="180000" low_increment="0" threshold_mort="17" increment="8000" deviation_type="1" deviation="0"/>
+            <param id="kExp" base="120000" low_increment="0" threshold_mort="17" increment="6000" deviation_type="1" deviation="0"/>
             <param id="kLikesWork" base="30" low_increment="0.5" threshold_mort="20" increment="0" deviation_type="0" deviation="0"/>
             <param id="kPhysDamage" base="0" low_increment="0" threshold_mort="20" increment="0.1" deviation_type="0" deviation="0"/>
             <param id="kSpellPower" base="0" low_increment="0" threshold_mort="20" increment="0.1" deviation_type="0" deviation="0"/>
@@ -692,21 +692,21 @@
         </savings>
 
         <skills>
-            <skill id="kUndefined" base="60" low_increment="2.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kUndefined" base="70" low_increment="2.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
             <skill id="kPunch" base="80" low_increment="3" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
             <skill id="kPunctual" base="0" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kAirMagic" base="50" low_increment="3.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kFireMagic" base="50" low_increment="3.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kWaterMagic" base="50" low_increment="3.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kEarthMagic" base="50" low_increment="3.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kLightMagic" base="50" low_increment="3.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kDarkMagic" base="50" low_increment="3.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kMindMagic" base="50" low_increment="3.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kLifeMagic" base="20" low_increment="1" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kAirMagic" base="30" low_increment="3.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kFireMagic" base="30" low_increment="3.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kWaterMagic" base="30" low_increment="3.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kEarthMagic" base="30" low_increment="3.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kLightMagic" base="30" low_increment="3.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kDarkMagic" base="30" low_increment="3.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kMindMagic" base="30" low_increment="3.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kLifeMagic" base="10" low_increment="0.7" threshold_mort="30" increment="0" deviation_type="0" deviation="0"/>
         </skills>
 
         <spells>
-            <spell id="kUndefined" base="5" low_increment="0.5" threshold_mort="10" increment="0" deviation_type="1" deviation="0"/>
+            <spell id="kUndefined" base="3" low_increment="0.4" threshold_mort="10" increment="0" deviation_type="1" deviation="0"/>
         </spells>
 
         <resistances>
@@ -728,13 +728,13 @@
             <param id="kAbsorb" base="0" low_increment="0" threshold_mort="10" increment="1" deviation_type="0" deviation="0"/>
             <param id="kDamNoDice" base="3" low_increment="0" threshold_mort="0" increment="0.3" deviation_type="0" deviation="0"/>
             <param id="kDamSizeDice" base="3" low_increment="0" threshold_mort="0" increment="0.3" deviation_type="0" deviation="0"/>
-            <param id="kHitroll" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="0"/>
+            <param id="kHitroll" base="5" low_increment="1" threshold_mort="20" increment="0" deviation_type="0" deviation="0"/>
             <param id="kMorale" base="10" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
             <param id="kInitiative" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
-            <param id="kCastSuccess" base="5" low_increment="5.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <param id="kCastSuccess" base="0" low_increment="4.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
             <param id="kHitPoints" base="1800" low_increment="0" threshold_mort="0" increment="120" deviation_type="1" deviation="0"/>
             <param id="kSize" base="10" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
-            <param id="kExp" base="180000" low_increment="0" threshold_mort="17" increment="8000" deviation_type="1" deviation="0"/>
+            <param id="kExp" base="120000" low_increment="0" threshold_mort="17" increment="6000" deviation_type="1" deviation="0"/>
             <param id="kLikesWork" base="30" low_increment="0.5" threshold_mort="20" increment="0" deviation_type="0" deviation="0"/>
             <param id="kPhysDamage" base="0" low_increment="0" threshold_mort="20" increment="0.1" deviation_type="0" deviation="0"/>
             <param id="kSpellPower" base="0" low_increment="0" threshold_mort="20" increment="0.1" deviation_type="0" deviation="0"/>
@@ -788,21 +788,21 @@
         </savings>
 
         <skills>
-            <skill id="kUndefined" base="60" low_increment="2.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kUndefined" base="70" low_increment="2.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
             <skill id="kPunch" base="80" low_increment="3" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
             <skill id="kPunctual" base="0" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kAirMagic" base="50" low_increment="3.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kFireMagic" base="50" low_increment="3.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kWaterMagic" base="50" low_increment="3.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kEarthMagic" base="50" low_increment="3.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kLightMagic" base="50" low_increment="3.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kDarkMagic" base="50" low_increment="3.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kMindMagic" base="50" low_increment="3.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kLifeMagic" base="20" low_increment="1" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kAirMagic" base="30" low_increment="3.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kFireMagic" base="30" low_increment="3.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kWaterMagic" base="30" low_increment="3.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kEarthMagic" base="30" low_increment="3.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kLightMagic" base="30" low_increment="3.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kDarkMagic" base="30" low_increment="3.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kMindMagic" base="30" low_increment="3.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kLifeMagic" base="10" low_increment="0.7" threshold_mort="30" increment="0" deviation_type="0" deviation="0"/>
         </skills>
 
         <spells>
-            <spell id="kUndefined" base="5" low_increment="0.5" threshold_mort="10" increment="0" deviation_type="1" deviation="0"/>
+            <spell id="kUndefined" base="3" low_increment="0.4" threshold_mort="10" increment="0" deviation_type="1" deviation="0"/>
         </spells>
 
         <resistances>
@@ -824,13 +824,13 @@
             <param id="kAbsorb" base="0" low_increment="0" threshold_mort="10" increment="1" deviation_type="0" deviation="0"/>
             <param id="kDamNoDice" base="3" low_increment="0" threshold_mort="0" increment="0.3" deviation_type="0" deviation="0"/>
             <param id="kDamSizeDice" base="3" low_increment="0" threshold_mort="0" increment="0.3" deviation_type="0" deviation="0"/>
-            <param id="kHitroll" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="0"/>
+            <param id="kHitroll" base="5" low_increment="1" threshold_mort="20" increment="0" deviation_type="0" deviation="0"/>
             <param id="kMorale" base="10" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
             <param id="kInitiative" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
-            <param id="kCastSuccess" base="5" low_increment="5.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <param id="kCastSuccess" base="0" low_increment="4.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
             <param id="kHitPoints" base="1800" low_increment="0" threshold_mort="0" increment="120" deviation_type="1" deviation="0"/>
             <param id="kSize" base="10" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
-            <param id="kExp" base="180000" low_increment="0" threshold_mort="17" increment="8000" deviation_type="1" deviation="0"/>
+            <param id="kExp" base="120000" low_increment="0" threshold_mort="17" increment="6000" deviation_type="1" deviation="0"/>
             <param id="kLikesWork" base="30" low_increment="0.5" threshold_mort="20" increment="0" deviation_type="0" deviation="0"/>
             <param id="kPhysDamage" base="0" low_increment="0" threshold_mort="20" increment="0.1" deviation_type="0" deviation="0"/>
             <param id="kSpellPower" base="0" low_increment="0" threshold_mort="20" increment="0.1" deviation_type="0" deviation="0"/>
@@ -884,21 +884,21 @@
         </savings>
 
         <skills>
-            <skill id="kUndefined" base="60" low_increment="2.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kUndefined" base="70" low_increment="2.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
             <skill id="kPunch" base="80" low_increment="3" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
             <skill id="kPunctual" base="0" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kAirMagic" base="50" low_increment="3.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kFireMagic" base="50" low_increment="3.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kWaterMagic" base="50" low_increment="3.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kEarthMagic" base="50" low_increment="3.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kLightMagic" base="50" low_increment="3.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kDarkMagic" base="50" low_increment="3.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kMindMagic" base="50" low_increment="3.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kLifeMagic" base="20" low_increment="1" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kAirMagic" base="30" low_increment="3.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kFireMagic" base="30" low_increment="3.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kWaterMagic" base="30" low_increment="3.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kEarthMagic" base="30" low_increment="3.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kLightMagic" base="30" low_increment="3.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kDarkMagic" base="30" low_increment="3.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kMindMagic" base="30" low_increment="3.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <skill id="kLifeMagic" base="10" low_increment="0.7" threshold_mort="30" increment="0" deviation_type="0" deviation="0"/>
         </skills>
 
         <spells>
-            <spell id="kUndefined" base="5" low_increment="0.5" threshold_mort="10" increment="0" deviation_type="1" deviation="0"/>
+            <spell id="kUndefined" base="3" low_increment="0.4" threshold_mort="10" increment="0" deviation_type="1" deviation="0"/>
         </spells>
 
         <resistances>
@@ -920,13 +920,13 @@
             <param id="kAbsorb" base="0" low_increment="0" threshold_mort="10" increment="1" deviation_type="0" deviation="0"/>
             <param id="kDamNoDice" base="3" low_increment="0" threshold_mort="0" increment="0.3" deviation_type="0" deviation="0"/>
             <param id="kDamSizeDice" base="3" low_increment="0" threshold_mort="0" increment="0.3" deviation_type="0" deviation="0"/>
-            <param id="kHitroll" base="20" low_increment="0" threshold_mort="0" increment="1" deviation_type="0" deviation="0"/>
+            <param id="kHitroll" base="5" low_increment="1" threshold_mort="20" increment="0" deviation_type="0" deviation="0"/>
             <param id="kMorale" base="10" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
             <param id="kInitiative" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
-            <param id="kCastSuccess" base="5" low_increment="5.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
+            <param id="kCastSuccess" base="0" low_increment="4.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
             <param id="kHitPoints" base="1800" low_increment="0" threshold_mort="0" increment="120" deviation_type="1" deviation="0"/>
             <param id="kSize" base="10" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
-            <param id="kExp" base="180000" low_increment="0" threshold_mort="17" increment="8000" deviation_type="1" deviation="0"/>
+            <param id="kExp" base="120000" low_increment="0" threshold_mort="17" increment="6000" deviation_type="1" deviation="0"/>
             <param id="kLikesWork" base="30" low_increment="0.5" threshold_mort="20" increment="0" deviation_type="0" deviation="0"/>
             <param id="kPhysDamage" base="0" low_increment="0" threshold_mort="20" increment="0.1" deviation_type="0" deviation="0"/>
             <param id="kSpellPower" base="0" low_increment="0" threshold_mort="20" increment="0.1" deviation_type="0" deviation="0"/>
