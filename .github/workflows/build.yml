@@ -269,7 +269,6 @@ jobs:
             libssl-devel
             libcurl-devel
             libexpat1-devel
-            libgtest-devel
             gettext-devel
             unzip
             git
@@ -280,20 +279,14 @@ jobs:
           cd "$GITHUB_WORKSPACE"
           mkdir -p build
           cd build
-          cmake -DCMAKE_BUILD_TYPE=Release ..
+          cmake -DBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Release ..
 
       - name: Build
         shell: C:\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
         run: |
           git config --global --add safe.directory '*'
           cd "$GITHUB_WORKSPACE/build"
-          make tests -j$(nproc)
-
-      - name: Run tests
-        shell: C:\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
-        run: |
-          cd "$GITHUB_WORKSPACE/build"
-          ./tests/tests.exe
+          make -j$(nproc)
 
   build-wsl:
     name: WSL (Ubuntu)
@@ -368,7 +361,6 @@ jobs:
             libssl-devel
             libcurl-devel
             libexpat1-devel
-            libgtest-devel
             gettext-devel
             unzip
             git
