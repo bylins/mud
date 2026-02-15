@@ -10,7 +10,7 @@
 #include "engine/db/global_objects.h"
 #include "gameplay/magic/magic.h"
 #include "utils/utils.h"
-#include "gameplay/mechanics/dungeons.cpp"
+#include "gameplay/mechanics/dungeons.h"
 
 static constexpr int kWorstPossibleSaving = 300;
 static constexpr int kMaxMobResist = 95;
