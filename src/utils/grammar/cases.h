@@ -12,6 +12,7 @@
 #include <memory>
 #include <array>
 #include <string>
+#include <string>
 
 // \TODO Перенести список падажей в неймспейс grammar
 enum ECase {

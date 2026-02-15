@@ -2051,7 +2051,7 @@ void perform_violence() {
 			continue;
 		}
 
-		const int initiative = calc_initiative(it.ch, true);
+		int initiative = calc_initiative(it.ch, true);
 		if (initiative > 100) { //откуда больше 100??????
 			log("initiative calc: %s (%d) == %d", GET_NAME(it.ch), GET_MOB_VNUM(it.ch), initiative);
 		}
