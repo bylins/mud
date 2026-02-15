@@ -432,13 +432,6 @@ ChecksumResult Calculate()
 	for (RoomRnum i = 0; i <= top_of_world; ++i)
 	{
 		std::string serialized = SerializeRoom(world[i]);
-
-		// DEBUG: dump room 100
-		if (world[i] && world[i]->vnum == 100)
-		{
-			fprintf(stderr, "\n=== ROOM 100 BUFFER ===\n%s\n=== END BUFFER ===\n\n", serialized.c_str());
-		}
-
 		uint32_t crc = CRC32String(serialized);
 		rooms_xor ^= crc;
 		++result.rooms_count;
@@ -480,17 +473,17 @@ ChecksumResult Calculate()
 
 	// ===== RUNTIME CHECKSUMS (after initialization) =====
 
-	// Calculate room scripts checksum (actual Script objects)
+	// Calculate room scripts checksum (prototype triggers)
 	uint32_t room_scripts_xor = 0;
 	for (RoomRnum i = 0; i <= top_of_world; ++i)
 	{
-		if (world[i]->script && world[i]->script->has_triggers())
+		if (world[i]->proto_script && !world[i]->proto_script->empty())
 		{
 			std::ostringstream oss;
 			oss << world[i]->vnum << "|";
-			for (const auto &trig : world[i]->script->script_trig_list)
+			for (const auto trig_vnum : *world[i]->proto_script)
 			{
-				oss << trig_index[trig->get_rnum()]->vnum << ",";
+				oss << trig_vnum << ",";
 			}
 			uint32_t crc = CRC32String(oss.str());
 			room_scripts_xor ^= crc;
@@ -499,17 +492,17 @@ ChecksumResult Calculate()
 	}
 	result.room_scripts = room_scripts_xor;
 
-	// Calculate mob scripts checksum
+	// Calculate mob scripts checksum (prototype triggers)
 	uint32_t mob_scripts_xor = 0;
 	for (MobRnum i = 0; i <= top_of_mobt; ++i)
 	{
-		if (mob_proto[i].script && mob_proto[i].script->has_triggers())
+		if (mob_proto[i].proto_script && !mob_proto[i].proto_script->empty())
 		{
 			std::ostringstream oss;
 			oss << mob_index[i].vnum << "|";
-			for (const auto &trig : mob_proto[i].script->script_trig_list)
+			for (const auto trig_vnum : *mob_proto[i].proto_script)
 			{
-				oss << trig_index[trig->get_rnum()]->vnum << ",";
+				oss << trig_vnum << ",";
 			}
 			uint32_t crc = CRC32String(oss.str());
 			mob_scripts_xor ^= crc;
@@ -542,7 +535,7 @@ ChecksumResult Calculate()
 	uint32_t door_rnums_xor = 0;
 	for (RoomRnum i = 0; i <= top_of_world; ++i)
 	{
-		for (const auto &exit : world[i]->dir_option)
+		for (const auto &exit : world[i]->dir_option_proto)
 		{
 			if (exit)
 			{
@@ -637,7 +630,7 @@ void LogResult(const ChecksumResult &result)
 	log("=======================");
 }
 
-void SaveDetailedChecksums(const char *filename)
+void SaveDetailedChecksums(const char *filename, const ChecksumResult &checksums)
 {
 	FILE *f = fopen(filename, "w");
 	if (!f)
@@ -702,6 +695,13 @@ void SaveDetailedChecksums(const char *filename)
 			fprintf(f, "TRIG %d %08X\n", trig_index[i]->vnum, crc);
 		}
 	}
+
+	// Runtime Checksums
+	fprintf(f, "\n# Runtime Checksums\n");
+	fprintf(f, "ROOM_SCRIPTS %08X\n", checksums.room_scripts);
+	fprintf(f, "MOB_SCRIPTS %08X\n", checksums.mob_scripts);
+	fprintf(f, "OBJ_SCRIPTS %08X\n", checksums.obj_scripts);
+	fprintf(f, "DOOR_RNUMS %08X\n", checksums.door_rnums);
 
 	fclose(f);
 	log("Detailed checksums saved to %s", filename);

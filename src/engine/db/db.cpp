@@ -477,7 +477,7 @@ void GameLoader::BootWorld(std::unique_ptr<world_loader::IWorldDataSource> data_
 		log("Calculating world checksums...");
 		auto checksums = WorldChecksum::Calculate();
 		WorldChecksum::LogResult(checksums);
-		WorldChecksum::SaveDetailedChecksums("checksums_detailed.txt");
+		WorldChecksum::SaveDetailedChecksums("checksums_detailed.txt", checksums);
 		if (!WorldChecksum::SaveDetailedBuffers("checksums_buffers"))
 		{
 			log("WARNING: Failed to save detailed buffers (see errors above)");

@@ -45,7 +45,7 @@ struct ChecksumResult
 
 ChecksumResult Calculate();
 void LogResult(const ChecksumResult &result);
-void SaveDetailedChecksums(const char *filename);
+void SaveDetailedChecksums(const char *filename, const ChecksumResult &checksums);
 
 // Extended functions for debugging SQLite vs Legacy differences
 // Save buffers with labeled fields for comparison

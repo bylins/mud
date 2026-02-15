@@ -612,10 +612,17 @@ run_test() {
             echo "  Boot time:     ${duration}s"
         fi
 
-        # Object counts
+        # World checksums
         LANG=C grep -aoE "(Zones:|Rooms:|Mobs:|Objects:|Triggers:).*" "$data_dir/syslog" | tail -5 | while read line; do
             echo "  $line"
         done
+
+        # Runtime checksums (only if -W flag was used)
+        if echo "$extra_flags" | grep -q -- "-W"; then
+            LANG=C grep -aoE "(Room Scripts:|Mob Scripts:|Object Scripts:|Door Rnums:).*" "$data_dir/syslog" | tail -4 | while read line; do
+                echo "  $line"
+            done
+        fi
 
         # Checksum calculation time
         local cs_begin=$(LANG=C grep -a "Calculating world checksums" "$data_dir/syslog" | head -1 | cut -d' ' -f2)
