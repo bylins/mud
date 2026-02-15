@@ -1397,6 +1397,17 @@ elseif (CMAKE_HOST_WIN32)
 		endif()
 		# 3) Disable fmt Unicode mode (incompatible with KOI8-R source charset)
 		target_compile_definitions(circle.library PRIVATE FMT_UNICODE=0)
+		# 4) Suppress warnings in third-party headers included with <>
+		target_compile_options(circle.library PRIVATE /external:anglebrackets /external:W0)
+		# 5) Enable parallel compilation
+		target_compile_options(circle.library PRIVATE /MP)
+		# 6) Suppress warnings from fmt template instantiations
+		#     /external:templates requires MSVC 19.34+ (VS 2022 17.4+); if unavailable,
+		#     ensure all fmt #includes use <> (not "") so /external:anglebrackets applies
+		# target_compile_options(circle.library PRIVATE /external:templates)
+		# 7) Suppress warnings in third-party library TUs (their own compilation units)
+		target_compile_options(fmt PRIVATE /W0)
+		target_compile_options(fort PRIVATE /W0)
 		target_link_libraries(circle.library DbgHelp)
 		set(CMAKE_EXE_LINKER_FLAGS_DEBUG "/DEBUG")
 		set(CMAKE_EXE_LINKER_FLAGS_TEST "/DEBUG")

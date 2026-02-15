@@ -47,7 +47,7 @@ void do_commands(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 						strcat(buf, "\r\n");
 					no++;
 				}
-			} else if (cmd_info[i].minimum_level >= 0 && (socials == cmd_sort_info[i].is_social)) {
+			} else if (cmd_info[i].minimum_level >= 0 && (static_cast<bool>(socials) == cmd_sort_info[i].is_social)) {
 				sprintf(buf + strlen(buf), "%-15s", cmd_info[i].command);
 				if (!(no % 5))
 					strcat(buf, "\r\n");

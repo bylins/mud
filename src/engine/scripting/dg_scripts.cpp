@@ -328,14 +328,14 @@ int count_char_vnum(MobVnum mvn) {
 	Characters::list_t mobs;
 
 	character_list.get_mobs_by_vnum(mvn, mobs);
-	return mobs.size();
+	return static_cast<int>(mobs.size());
 }
 
 int CountGameObjs(ObjRnum rnum) {
 	std::list<ObjData *> objs;
 
 	world_objects.GetObjListByRnum(rnum, objs);
-	return objs.size();
+	return static_cast<int>(objs.size());
 }
 
 // return room with UID n
@@ -852,7 +852,7 @@ static std::string print_variable_name(const std::string &name) {
 		const std::string &guid_name = text_mapping.first;
 		const std::string &print_text = text_mapping.second;
 
-		const int guid_start_offcet = name.length() - guid_name.length();
+		const auto guid_start_offcet = static_cast<int>(name.length()) - static_cast<int>(guid_name.length());
 		if (guid_start_offcet > 0 && guid_name == name.substr(guid_start_offcet)) {
 			if (display_state_vars) {
 				result = print_text;
@@ -1314,7 +1314,7 @@ int text_processed(char *field, char *subfield, TriggerVar vd, char *str) {
 		return false;
 
 	if (!str_cmp(field, "strlen")) {
-		sprintf(str, "%lu", vd.value.size());
+		sprintf(str, "%zu", vd.value.size());
 		return true;
 	} else if (!str_cmp(field, "trim")) {
 		strcpy(str, utils::TrimCopy(vd.value).c_str());
@@ -1886,7 +1886,7 @@ void find_replacement(void *go,
 			} else if (!str_cmp(field, "exact")) {
 				auto now = std::chrono::system_clock::now();
 				auto now_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(now);
-				sprintf(str, "%ld", now_ms.time_since_epoch().count());
+				sprintf(str, "%lld", static_cast<long long>(now_ms.time_since_epoch().count()));
 			} else if (!str_cmp(field, "yday")) {
 				strftime(str, kMaxInputLength, "%j", localtime(&now_time));
 			} else if (!str_cmp(field, "wday")) {
@@ -2086,7 +2086,7 @@ void find_replacement(void *go,
 					sprintf(str, "0");
 				} else {
 					size_t dst = std::distance(arr.begin(), result);
-					sprintf(str, "%ld", dst + 1);
+					sprintf(str, "%zu", dst + 1);
 				}
 				return;
 			} else if (!str_cmp(field, "remove")) {
