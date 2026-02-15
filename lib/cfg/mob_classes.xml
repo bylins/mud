@@ -56,7 +56,7 @@
             <param id="kAbsorb" base="0" low_increment="0" threshold_mort="10" increment="1" deviation_type="0" deviation="0"/>
             <param id="kDamNoDice" base="3" low_increment="0" threshold_mort="0" increment="0.3" deviation_type="0" deviation="0"/>
             <param id="kDamSizeDice" base="3" low_increment="0" threshold_mort="0" increment="0.3" deviation_type="0" deviation="0"/>
-            <param id="kHitroll" base="5" low_increment="1" threshold_mort="20" increment="0" deviation_type="0" deviation="0"/>
+            <param id="kHitroll" base="10" low_increment="1" threshold_mort="25" increment="0" deviation_type="0" deviation="0"/>
             <param id="kMorale" base="10" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
             <param id="kInitiative" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
             <param id="kCastSuccess" base="0" low_increment="4.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
@@ -152,7 +152,7 @@
             <param id="kAbsorb" base="0" low_increment="0" threshold_mort="10" increment="1" deviation_type="0" deviation="0"/>
             <param id="kDamNoDice" base="3" low_increment="0" threshold_mort="0" increment="0.3" deviation_type="0" deviation="0"/>
             <param id="kDamSizeDice" base="3" low_increment="0" threshold_mort="0" increment="0.3" deviation_type="0" deviation="0"/>
-            <param id="kHitroll" base="5" low_increment="1" threshold_mort="20" increment="0" deviation_type="0" deviation="0"/>
+            <param id="kHitroll" base="10" low_increment="1" threshold_mort="25" increment="0" deviation_type="0" deviation="0"/>
             <param id="kMorale" base="10" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
             <param id="kInitiative" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
             <param id="kCastSuccess" base="0" low_increment="4.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
@@ -248,7 +248,7 @@
             <param id="kAbsorb" base="0" low_increment="0" threshold_mort="10" increment="1" deviation_type="0" deviation="0"/>
             <param id="kDamNoDice" base="3" low_increment="0" threshold_mort="0" increment="0.3" deviation_type="0" deviation="0"/>
             <param id="kDamSizeDice" base="3" low_increment="0" threshold_mort="0" increment="0.3" deviation_type="0" deviation="0"/>
-            <param id="kHitroll" base="5" low_increment="1" threshold_mort="20" increment="0" deviation_type="0" deviation="0"/>
+            <param id="kHitroll" base="10" low_increment="1" threshold_mort="25" increment="0" deviation_type="0" deviation="0"/>
             <param id="kMorale" base="10" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
             <param id="kInitiative" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
             <param id="kCastSuccess" base="0" low_increment="4.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
@@ -344,7 +344,7 @@
             <param id="kAbsorb" base="0" low_increment="0" threshold_mort="10" increment="1" deviation_type="0" deviation="0"/>
             <param id="kDamNoDice" base="3" low_increment="0" threshold_mort="0" increment="0.3" deviation_type="0" deviation="0"/>
             <param id="kDamSizeDice" base="3" low_increment="0" threshold_mort="0" increment="0.3" deviation_type="0" deviation="0"/>
-            <param id="kHitroll" base="5" low_increment="1" threshold_mort="20" increment="0" deviation_type="0" deviation="0"/>
+            <param id="kHitroll" base="10" low_increment="1" threshold_mort="25" increment="0" deviation_type="0" deviation="0"/>
             <param id="kMorale" base="10" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
             <param id="kInitiative" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
             <param id="kCastSuccess" base="0" low_increment="4.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
@@ -440,7 +440,7 @@
             <param id="kAbsorb" base="0" low_increment="0" threshold_mort="10" increment="1" deviation_type="0" deviation="0"/>
             <param id="kDamNoDice" base="3" low_increment="0" threshold_mort="0" increment="0.3" deviation_type="0" deviation="0"/>
             <param id="kDamSizeDice" base="3" low_increment="0" threshold_mort="0" increment="0.3" deviation_type="0" deviation="0"/>
-            <param id="kHitroll" base="5" low_increment="1" threshold_mort="20" increment="0" deviation_type="0" deviation="0"/>
+            <param id="kHitroll" base="10" low_increment="1" threshold_mort="25" increment="0" deviation_type="0" deviation="0"/>
             <param id="kMorale" base="10" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
             <param id="kInitiative" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
             <param id="kCastSuccess" base="0" low_increment="4.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
@@ -536,7 +536,7 @@
             <param id="kAbsorb" base="0" low_increment="0" threshold_mort="10" increment="1" deviation_type="0" deviation="0"/>
             <param id="kDamNoDice" base="3" low_increment="0" threshold_mort="0" increment="0.3" deviation_type="0" deviation="0"/>
             <param id="kDamSizeDice" base="3" low_increment="0" threshold_mort="0" increment="0.3" deviation_type="0" deviation="0"/>
-            <param id="kHitroll" base="5" low_increment="1" threshold_mort="20" increment="0" deviation_type="0" deviation="0"/>
+            <param id="kHitroll" base="10" low_increment="1" threshold_mort="25" increment="0" deviation_type="0" deviation="0"/>
             <param id="kMorale" base="10" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
             <param id="kInitiative" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
             <param id="kCastSuccess" base="0" low_increment="4.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
@@ -633,7 +633,7 @@
             <param id="kAbsorb" base="0" low_increment="0" threshold_mort="10" increment="1" deviation_type="0" deviation="0"/>
             <param id="kDamNoDice" base="3" low_increment="0" threshold_mort="0" increment="0.3" deviation_type="0" deviation="0"/>
             <param id="kDamSizeDice" base="3" low_increment="0" threshold_mort="0" increment="0.3" deviation_type="0" deviation="0"/>
-            <param id="kHitroll" base="5" low_increment="1" threshold_mort="20" increment="0" deviation_type="0" deviation="0"/>
+            <param id="kHitroll" base="10" low_increment="1" threshold_mort="25" increment="0" deviation_type="0" deviation="0"/>
             <param id="kMorale" base="10" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
             <param id="kInitiative" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
             <param id="kCastSuccess" base="0" low_increment="4.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
@@ -728,7 +728,7 @@
             <param id="kAbsorb" base="0" low_increment="0" threshold_mort="10" increment="1" deviation_type="0" deviation="0"/>
             <param id="kDamNoDice" base="3" low_increment="0" threshold_mort="0" increment="0.3" deviation_type="0" deviation="0"/>
             <param id="kDamSizeDice" base="3" low_increment="0" threshold_mort="0" increment="0.3" deviation_type="0" deviation="0"/>
-            <param id="kHitroll" base="5" low_increment="1" threshold_mort="20" increment="0" deviation_type="0" deviation="0"/>
+            <param id="kHitroll" base="10" low_increment="1" threshold_mort="25" increment="0" deviation_type="0" deviation="0"/>
             <param id="kMorale" base="10" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
             <param id="kInitiative" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
             <param id="kCastSuccess" base="0" low_increment="4.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
@@ -824,7 +824,7 @@
             <param id="kAbsorb" base="0" low_increment="0" threshold_mort="10" increment="1" deviation_type="0" deviation="0"/>
             <param id="kDamNoDice" base="3" low_increment="0" threshold_mort="0" increment="0.3" deviation_type="0" deviation="0"/>
             <param id="kDamSizeDice" base="3" low_increment="0" threshold_mort="0" increment="0.3" deviation_type="0" deviation="0"/>
-            <param id="kHitroll" base="5" low_increment="1" threshold_mort="20" increment="0" deviation_type="0" deviation="0"/>
+            <param id="kHitroll" base="10" low_increment="1" threshold_mort="25" increment="0" deviation_type="0" deviation="0"/>
             <param id="kMorale" base="10" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
             <param id="kInitiative" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
             <param id="kCastSuccess" base="0" low_increment="4.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
@@ -920,7 +920,7 @@
             <param id="kAbsorb" base="0" low_increment="0" threshold_mort="10" increment="1" deviation_type="0" deviation="0"/>
             <param id="kDamNoDice" base="3" low_increment="0" threshold_mort="0" increment="0.3" deviation_type="0" deviation="0"/>
             <param id="kDamSizeDice" base="3" low_increment="0" threshold_mort="0" increment="0.3" deviation_type="0" deviation="0"/>
-            <param id="kHitroll" base="5" low_increment="1" threshold_mort="20" increment="0" deviation_type="0" deviation="0"/>
+            <param id="kHitroll" base="10" low_increment="1" threshold_mort="25" increment="0" deviation_type="0" deviation="0"/>
             <param id="kMorale" base="10" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
             <param id="kInitiative" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
             <param id="kCastSuccess" base="0" low_increment="4.5" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
