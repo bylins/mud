@@ -677,6 +677,80 @@ void ParseRoomUpdate(RoomData* room, const nlohmann::json& data)
 		}
 		room->write_flags(flags);
 	}
+
+	// Description
+	if (HasString(data, "description"))
+	{
+		if (room->temp_description)
+		{
+			free(room->temp_description);
+		}
+		room->temp_description = str_dup(Utf8ToKoi8r(data["description"].get<std::string>()).c_str());
+	}
+
+	// Exits (array format: [{direction: 0, to_room: 101, ...}, ...])
+	if (data.contains("exits") && data["exits"].is_array())
+	{
+		// Clear all existing exits first
+		for (int dir = 0; dir < EDirection::kMaxDirNum; ++dir)
+		{
+			room->dir_option_proto[dir] = nullptr;
+		}
+
+		// Rebuild exits from JSON
+		for (const auto &exit_json : data["exits"])
+		{
+			// Parse direction as number (0-5)
+			if (!exit_json.contains("direction")) continue;
+			int dir = exit_json["direction"].get<int>();
+			if (dir < 0 || dir >= EDirection::kMaxDirNum) continue;
+
+			// Create exit
+			room->dir_option_proto[dir] = std::make_shared<ExitData>();
+			auto &exit = room->dir_option_proto[dir];
+
+			// Update exit fields
+			if (exit_json.contains("to_room"))
+			{
+				int target_vnum = exit_json["to_room"].get<int>();
+				RoomRnum target_rnum = GetRoomRnum(target_vnum);
+				exit->to_room(target_rnum);
+			}
+			if (exit_json.contains("general_description"))
+			{
+				exit->general_description = Utf8ToKoi8r(exit_json["general_description"].get<std::string>());
+			}
+			if (exit_json.contains("keyword"))
+			{
+				exit->set_keyword(Utf8ToKoi8r(exit_json["keyword"].get<std::string>()));
+			}
+			if (exit_json.contains("exit_info"))
+			{
+				exit->exit_info = exit_json["exit_info"].get<int>();
+			}
+			if (exit_json.contains("key"))
+			{
+				exit->key = exit_json["key"].get<int>();
+			}
+			if (exit_json.contains("lock_complexity"))
+			{
+				exit->lock_complexity = exit_json["lock_complexity"].get<int>();
+			}
+		}
+	}
+
+	// Triggers (array of trigger vnums)
+	if (data.contains("triggers") && data["triggers"].is_array())
+	{
+		room->proto_script->clear();
+		for (const auto &trigger_vnum : data["triggers"])
+		{
+			if (trigger_vnum.is_number_integer())
+			{
+				room->proto_script->push_back(trigger_vnum.get<int>());
+			}
+		}
+	}
 }
 
 // ============================================================================

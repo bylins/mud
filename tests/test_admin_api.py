@@ -624,15 +624,14 @@ def test_comprehensive_room(sock, vnum):
             exit_dirs = [e['direction'] for e in exits]
             room_flags = room.get('room_flags', [0,0,0,0])
             print(f"  ✓ Verified: sector={room.get('sector_type')}, triggers={triggers}")
-            print(f"  ✓ Verified: exits={exit_dirs} (note: exit update not implemented in Admin API)")
+            print(f"  ✓ Verified: exits={exit_dirs} (expected: [0, 4])")
             print(f"  ✓ Verified: room_flags[0]={room_flags[0]} (expected: 6 = DARK+DEATH)")
-            # Note: exits update is not implemented in ParseRoomUpdate, so we only check flags
-            if room_flags[0] == 6:
-                print(f"  ✅ ROOM UPDATE TEST PASSED (flags verified, exits update not implemented)")
+            if sorted(exit_dirs) == [0, 4] and room_flags[0] == 6:
+                print(f"  ✅ ROOM UPDATE TEST PASSED (exits + flags verified)")
                 return True
             else:
-                print(f"  ❌ ROOM UPDATE TEST FAILED - flags mismatch")
-                print(f"      Got: room_flags[0]={room_flags[0]} (expected: 6)")
+                print(f"  ❌ ROOM UPDATE TEST FAILED - exits or flags mismatch")
+                print(f"      Got: exits={exit_dirs}, room_flags[0]={room_flags[0]}")
                 return False
         else:
             print(f"  ❌ ROOM UPDATE TEST FAILED - verification failed")

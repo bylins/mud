@@ -594,6 +594,9 @@ run_admin_api_test() {
         setup_full_world "$loader_type" > /tmp/admin_api_setup_${loader_type}.log 2>&1
     fi
 
+    # setup_small_world/setup_full_world change back to MUD_DIR, so cd back to work_dir
+    cd "$work_dir"
+
     # Enable admin_api in configuration
     enable_admin_api "$data_dir/misc/configuration.xml"
 
