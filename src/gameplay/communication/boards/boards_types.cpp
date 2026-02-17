@@ -131,11 +131,13 @@ void Board::Save() {
 		return;
 	}
 	std::ofstream file(file_.c_str());
+#ifndef _WIN32
 	if (chmod(file_.c_str(), S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP) < 0) {
 		std::stringstream ss;
 		ss << "Error chmod file: " << file_.c_str() << " (" << __FILE__ << " "<< __func__ << "  "<< __LINE__ << ")";
 		mudlog(ss.str(), BRF, kLvlGod, SYSLOG, true);
 	}
+#endif
 	if (!file.is_open()) {
 		log("Error open file: %s! (%s %s %d)", file_.c_str(), __FILE__, __func__, __LINE__);
 		return;

@@ -580,11 +580,13 @@ bool trigedit_save_to_disk(int zone_rnum, int notify_level) {
 	sprintf(buf, "%s/%d.trg", TRG_PREFIX, zone);
 	remove(buf);
 	rename(fname, buf);
+#ifndef _WIN32
 	if (chmod(buf, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP) < 0) {
 		std::stringstream ss;
 		ss << "Error chmod file: " << buf << " (" << __FILE__ << " "<< __func__ << "  "<< __LINE__ << ")";
 		mudlog(ss.str(), BRF, kLvlGod, SYSLOG, true);
 	}
+#endif
 
 	trigedit_create_index(zone, "trg");
 	return true;

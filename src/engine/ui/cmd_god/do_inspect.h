@@ -6,6 +6,8 @@
 #include <deque>
 #include <vector>
 #include <map>
+#include <string>
+#include <string_view>
 
 #ifndef BYLINS_SRC_CMD_GOD_INSPECT_H_
 #define BYLINS_SRC_CMD_GOD_INSPECT_H_
