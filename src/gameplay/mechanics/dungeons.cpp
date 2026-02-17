@@ -315,7 +315,7 @@ void ZoneDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to, std::vector<ZrnComplexList
 	zone_to.typeB_count = 0;
 	zone_to.under_construction = zone_from.under_construction;
 	zone_to.locked = zone_from.locked;
-	zone_to.group = 1;
+	zone_to.group = 0;
 /*
 	if (zone_to.typeA_count) {
 		CREATE(zone_to.typeA_list, zone_to.typeA_count); //почистить
@@ -543,6 +543,7 @@ void MobDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 		mob_proto[mrn_to] = mob_proto[i];
 		mob_proto[mrn_to].set_rnum(old_rnum);
 		mob_index[mrn_to] = mob_index[i];
+		mob_index[mrn_to].zone = zrn_to;
 		mob_index[mrn_to].vnum = zone_table[zrn_to].vnum * 100 + mob_index[i].vnum % 100;
 		if (mob_index[i].func == shop_ext) {
 			AddDungeonShopSeller(i, mrn_to);
