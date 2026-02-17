@@ -30,8 +30,8 @@ json SerializeFlags(const FlagData& flagset)
 			if (plane_bits & (1U << bit))
 			{
 				// Encode as: (plane << 30) | (1 << bit)
-				int flag_value = (plane << 30) | (1U << bit);
-				flags_array.push_back(flag_value);
+				unsigned int flag_value = (static_cast<unsigned int>(plane) << 30) | (1U << bit);
+				flags_array.push_back(static_cast<int>(flag_value));
 			}
 		}
 	}
@@ -47,8 +47,8 @@ json SerializeBitvector(Bitvector bits, size_t plane)
 	{
 		if (bits & (1U << bit))
 		{
-			int flag_value = (plane << 30) | (1U << bit);
-			flags_array.push_back(flag_value);
+			unsigned int flag_value = (static_cast<unsigned int>(plane) << 30) | (1U << bit);
+			flags_array.push_back(static_cast<int>(flag_value));
 		}
 	}
 
@@ -56,7 +56,7 @@ json SerializeBitvector(Bitvector bits, size_t plane)
 }
 
 // ============================================================================
-// String Conversion (KOI8-R Б├■ UTF-8)
+// String Conversion (KOI8-R <-> UTF-8)
 // ============================================================================
 
 std::string Koi8rToUtf8(const char* koi8r)

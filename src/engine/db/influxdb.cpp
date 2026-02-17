@@ -2,6 +2,8 @@
 
 #include "utils/logger.h"
 
+#include <chrono>
+
 #ifndef WIN32
 #include <netinet/in.h>
 #include <netdb.h>

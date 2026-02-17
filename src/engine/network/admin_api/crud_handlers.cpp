@@ -152,7 +152,7 @@ void HandleUpdateMob(DescriptorData* d, int mob_vnum, const char* json_data)
 
 		SendJsonResponse(d, response);
 	}
-	catch (const json::parse_error& e)
+	catch (const json::parse_error&)
 	{
 		SendErrorResponse(d, "Invalid JSON format");
 	}
@@ -233,7 +233,7 @@ void HandleUpdateZone(DescriptorData* d, int zone_vnum, const char* json_data)
 		response["message"] = "Zone updated successfully";
 		SendJsonResponse(d, response);
 	}
-	catch (const json::parse_error& e)
+	catch (const json::parse_error&)
 	{
 		SendErrorResponse(d, "Invalid JSON format");
 	}
@@ -397,7 +397,7 @@ void HandleUpdateObject(DescriptorData* d, int obj_vnum, const char* json_data)
 
 		SendJsonResponse(d, response);
 	}
-	catch (const json::parse_error& e)
+	catch (const json::parse_error&)
 	{
 		SendErrorResponse(d, "Invalid JSON format");
 	}
@@ -517,7 +517,7 @@ void HandleUpdateRoom(DescriptorData* d, int room_vnum, const char* json_data)
 		response["message"] = "Room updated successfully";
 		SendJsonResponse(d, response);
 	}
-	catch (const json::parse_error& e)
+	catch (const json::parse_error&)
 	{
 		SendErrorResponse(d, "Invalid JSON format");
 	}
@@ -677,7 +677,7 @@ void HandleUpdateTrigger(DescriptorData* d, int trig_vnum, const char* json_data
 		response["message"] = "Trigger updated successfully via OLC";
 		SendJsonResponse(d, response);
 	}
-	catch (const json::parse_error& e)
+	catch (const json::parse_error&)
 	{
 		SendErrorResponse(d, "Invalid JSON format");
 	}
@@ -821,7 +821,7 @@ void HandleCreateTrigger(DescriptorData* d, int zone_vnum, const char* json_data
 		}
 		SendJsonResponse(d, response);
 	}
-	catch (const json::parse_error& e)
+	catch (const json::parse_error&)
 	{
 		SendErrorResponse(d, "Invalid JSON format");
 	}
