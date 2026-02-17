@@ -606,7 +606,7 @@ def test_comprehensive_room(sock, vnum):
         "triggers": [100],  # Add trigger 100
         "room_flags": [6, 0, 0, 0],  # Plane 0: bits 1 and 2 (DARK + DEATH = 0x6)
         "exits": [
-            {"direction": 0, "to_room": 101, "exit_info": 0},  # North to room 101
+            {"direction": 0, "to_room": 100, "exit_info": 0},  # North to room 100
             {"direction": 4, "to_room": 102, "exit_info": 1}   # Up to room 102 (door)
         ]
     }

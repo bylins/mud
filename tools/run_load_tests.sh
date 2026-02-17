@@ -563,7 +563,26 @@ run_admin_api_test() {
 
     local work_dir="$(dirname "$test_dir")"
     local data_dir="$(basename "$test_dir")"
+    local world_size=$(basename "$work_dir" | sed 's/build_\(test\|sqlite\|yaml\)//')
+
     cd "$work_dir"
+
+    # Recreate world to avoid checksum contamination from previous Admin API tests
+    echo "  Recreating world for clean Admin API test..."
+    local loader_type=""
+    if [ "$world_format" = "legacy" ]; then
+        loader_type="legacy"
+    elif [ "$world_format" = "sqlite" ]; then
+        loader_type="sqlite"
+    elif [ "$world_format" = "yaml" ]; then
+        loader_type="yaml"
+    fi
+
+    if [ "$data_dir" = "small" ]; then
+        setup_small_world "$loader_type" > /tmp/admin_api_setup_${loader_type}.log 2>&1
+    elif [ "$data_dir" = "full" ]; then
+        setup_full_world "$loader_type" > /tmp/admin_api_setup_${loader_type}.log 2>&1
+    fi
 
     # Enable admin_api in configuration
     enable_admin_api "$data_dir/misc/configuration.xml"
