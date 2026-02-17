@@ -1422,6 +1422,9 @@ bool IsUID(const char *name) {
 return false;
 }
 
+#ifdef _MSC_VER
+#pragma optimize("", off)  // Disable optimizations for MSVC to avoid "blocks nested too deeply" error
+#endif
 void find_replacement(void *go,
 					  Script *sc,
 					  Trigger *trig,
@@ -3811,6 +3814,9 @@ void find_replacement(void *go,
 			return;
 	}
 }
+#ifdef _MSC_VER
+#pragma optimize("", on)  // Re-enable optimizations
+#endif
 
 // substitutes any variables into line and returns it as buf
 void var_subst(void *go, Script *sc, Trigger *trig, int type, const char *line, char *buf) {
