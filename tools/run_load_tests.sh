@@ -293,8 +293,7 @@ setup_small_world() {
             -i "$dest_dir" \
             -o "$dest_dir" \
             -f sqlite \
-            --db "$dest_dir/world.db" \
-            --delete-source > /tmp/convert_small_sqlite.log 2>&1 || {
+            --db "$dest_dir/world.db" > /tmp/convert_small_sqlite.log 2>&1 || {
             echo "X ERROR: Conversion failed"
             echo "  Log: /tmp/convert_small_sqlite.log"
             tail -10 /tmp/convert_small_sqlite.log
@@ -306,8 +305,7 @@ setup_small_world() {
         python3 "$MUD_DIR/tools/converter/convert_to_yaml.py" \
             -i "$dest_dir" \
             -o "$dest_dir" \
-            -f yaml \
-            --delete-source > /tmp/convert_small_yaml.log 2>&1 || {
+            -f yaml > /tmp/convert_small_yaml.log 2>&1 || {
             echo "X ERROR: Conversion failed"
             echo "  Log: /tmp/convert_small_yaml.log"
             tail -10 /tmp/convert_small_yaml.log
@@ -376,7 +374,7 @@ setup_full_world() {
                 -o "$dest_dir" \
                 -f sqlite \
                 --db "$dest_dir/world.db" \
-                --delete-source > /tmp/convert_full_sqlite.log 2>&1 || {
+ > /tmp/convert_full_sqlite.log 2>&1 || {
                 echo "X ERROR: Conversion failed"
                 echo "  Log: /tmp/convert_full_sqlite.log"
                 tail -20 /tmp/convert_full_sqlite.log
@@ -388,7 +386,7 @@ setup_full_world() {
                 -i "$dest_dir/lib" \
                 -o "$dest_dir" \
                 -f yaml \
-                --delete-source > /tmp/convert_full_yaml.log 2>&1 || {
+ > /tmp/convert_full_yaml.log 2>&1 || {
                 echo "X ERROR: Conversion failed"
                 echo "  Log: /tmp/convert_full_yaml.log"
                 tail -20 /tmp/convert_full_yaml.log
