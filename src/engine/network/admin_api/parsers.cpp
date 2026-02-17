@@ -827,7 +827,7 @@ void ParseZoneUpdate(ZoneData* zone, const nlohmann::json& data)
 }
 
 // ============================================================================
-// Trigger Parsing (stub for now)
+// Trigger Parsing
 // ============================================================================
 
 void ParseTriggerUpdate(Trigger* trig, const nlohmann::json& data)
@@ -837,6 +837,7 @@ void ParseTriggerUpdate(Trigger* trig, const nlohmann::json& data)
 		return;
 	}
 
+	// Basic text fields
 	if (HasString(data, "name"))
 	{
 		trig->set_name(Utf8ToKoi8r(data["name"].get<std::string>()));
@@ -845,6 +846,8 @@ void ParseTriggerUpdate(Trigger* trig, const nlohmann::json& data)
 	{
 		trig->arglist = Utf8ToKoi8r(data["arglist"].get<std::string>());
 	}
+
+	// Numeric fields
 	if (data.contains("narg"))
 	{
 		trig->narg = data["narg"].get<int>();
@@ -853,6 +856,19 @@ void ParseTriggerUpdate(Trigger* trig, const nlohmann::json& data)
 	{
 		trig->set_trigger_type(data["trigger_type"].get<long>());
 	}
+	if (data.contains("attach_type"))
+	{
+		trig->set_attach_type(static_cast<byte>(data["attach_type"].get<int>()));
+	}
+
+	// Boolean flags
+	if (data.contains("add_flag"))
+	{
+		trig->add_flag = data["add_flag"].get<bool>();
+	}
+
+	// Note: Script handling is done in the handler via temp_d->olc->storage
+	// because it requires OLC-specific processing (cmdlist parsing)
 }
 
 }  // namespace admin_api::parsers

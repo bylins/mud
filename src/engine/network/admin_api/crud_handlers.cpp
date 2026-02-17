@@ -637,31 +637,8 @@ void HandleUpdateTrigger(DescriptorData* d, int trig_vnum, const char* json_data
 		}
 		temp_d->olc->trig = trig;
 
-		// Apply JSON fields
-		if (data.contains("name"))
-		{
-			trig->set_name(Utf8ToKoi8r(data["name"].get<std::string>()));
-		}
-		if (data.contains("arglist"))
-		{
-			trig->arglist = Utf8ToKoi8r(data["arglist"].get<std::string>());
-		}
-		if (data.contains("narg"))
-		{
-			trig->narg = data["narg"].get<int>();
-		}
-		if (data.contains("trigger_type"))
-		{
-			trig->set_trigger_type(data["trigger_type"].get<long>());
-		}
-		if (data.contains("attach_type"))
-		{
-			trig->set_attach_type(static_cast<byte>(data["attach_type"].get<int>()));
-		}
-		if (data.contains("add_flag"))
-		{
-			trig->add_flag = data["add_flag"].get<bool>();
-		}
+		// Apply JSON fields via parser
+		ParseTriggerUpdate(trig, data);
 
 		// Script (OLC format: single text block with \n separators)
 		if (data.contains("script"))
