@@ -273,6 +273,10 @@ setup_small_world() {
         return 0
     fi
 
+    # Clean old converted world to ensure fresh conversion
+    echo "Cleaning old converted world..."
+    rm -rf "$dest_dir/world" "$dest_dir/world.db" 2>/dev/null || true
+
     echo "Converting world data to $loader format..."
 
     if [ "$loader" = "sqlite" ]; then
