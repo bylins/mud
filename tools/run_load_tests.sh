@@ -426,20 +426,20 @@ if [ -z "$FILTER_WORLD" ] || [ "$FILTER_WORLD" = "full" ]; then
     NEED_FULL=1
 fi
 
-# Build binaries if needed
+# Build binaries if needed (with Admin API enabled for testing)
 if [ $NEED_LEGACY -eq 1 ]; then
-    
-    build_binary "$MUD_DIR/build_test" "-DCMAKE_BUILD_TYPE=Debug" "legacy" || exit 1
+
+    build_binary "$MUD_DIR/build_test" "-DENABLE_ADMIN_API=ON -DCMAKE_BUILD_TYPE=Debug" "legacy" || exit 1
 fi
 
 if [ $NEED_SQLITE -eq 1 ]; then
-    
-    build_binary "$MUD_DIR/build_sqlite" "-DHAVE_SQLITE=ON -DCMAKE_BUILD_TYPE=Debug" "sqlite" || exit 1
+
+    build_binary "$MUD_DIR/build_sqlite" "-DENABLE_ADMIN_API=ON -DHAVE_SQLITE=ON -DCMAKE_BUILD_TYPE=Debug" "sqlite" || exit 1
 fi
 if [ $NEED_YAML -eq 1 ]; then
-    
 
-    build_binary "$MUD_DIR/build_yaml" "-DHAVE_YAML=ON -DCMAKE_BUILD_TYPE=Debug" "yaml" || exit 1
+
+    build_binary "$MUD_DIR/build_yaml" "-DENABLE_ADMIN_API=ON -DHAVE_YAML=ON -DCMAKE_BUILD_TYPE=Debug" "yaml" || exit 1
 fi
 # Setup worlds
 if [ $NEED_SMALL -eq 1 ]; then
@@ -483,26 +483,34 @@ echo ""
 # Function to check if test should run based on filters
 should_run_test() {
     local test_name="$1"
-    
-    # Extract components from test name (e.g., "Small_YAML_checksums")
+
+    # Extract components from test name (e.g., "Small_YAML_checksums" or "Small_Legacy_AdminAPI")
     local world=$(echo "$test_name" | cut -d_ -f1 | tr 'A-Z' 'a-z')
     local loader=$(echo "$test_name" | cut -d_ -f2 | tr 'A-Z' 'a-z')
+
+    # Check if this is an Admin API test
+    local is_admin_api=0
+    if echo "$test_name" | grep -qi "adminapi"; then
+        is_admin_api=1
+    fi
+
     if echo "$test_name" | grep -q "checksums$"; then
         local has_checksums="yes"
     else
         local has_checksums="no"
     fi
-    
+
     # Apply filters
     if [ -n "$FILTER_LOADER" ] && [ "$loader" != "$FILTER_LOADER" ]; then
         return 1
     fi
-    
+
     if [ -n "$FILTER_WORLD" ] && [ "$world" != "$FILTER_WORLD" ]; then
         return 1
     fi
-    
-    if [ -n "$FILTER_CHECKSUMS" ]; then
+
+    # Admin API tests ignore checksums filter (they test API, not boot performance)
+    if [ $is_admin_api -eq 0 ] && [ -n "$FILTER_CHECKSUMS" ]; then
         if [ "$FILTER_CHECKSUMS" = "yes" ] && [ "$has_checksums" != "yes" ]; then
             return 1
         fi
@@ -510,13 +518,109 @@ should_run_test() {
             return 1
         fi
     fi
-    
+
     # Quick mode: only legacy and yaml
     if [ $QUICK_MODE -eq 1 ] && [ "$loader" != "legacy" ] && [ "$loader" != "yaml" ]; then
         return 1
     fi
-    
+
     return 0
+}
+
+# Function to enable Admin API in configuration.xml
+enable_admin_api() {
+    local config_file="$1"
+
+    # Check if admin_api section already exists
+    if grep -q "<admin_api>" "$config_file"; then
+        return 0
+    fi
+
+    # Add admin_api section before </configuration>
+    sed -i '/<\/configuration>/i\
+\t<admin_api>\
+\t\t<enabled>true</enabled>\
+\t\t<socket_path>admin_api.sock</socket_path>\
+\t\t<require_auth>false</require_auth>\
+\t</admin_api>' "$config_file"
+
+    return 0
+}
+
+# Function to run Admin API CRUD test
+run_admin_api_test() {
+    local name="$1"
+    local binary="$2"
+    local test_dir="$3"
+    local world_format="$4"  # legacy, yaml, sqlite
+
+    # Check if this test should run
+    if ! should_run_test "$name"; then
+        return
+    fi
+
+    echo "--- $name (Admin API Test) ---"
+
+    local work_dir="$(dirname "$test_dir")"
+    local data_dir="$(basename "$test_dir")"
+    cd "$work_dir"
+
+    # Enable admin_api in configuration
+    enable_admin_api "$data_dir/misc/configuration.xml"
+
+    # Clean previous run
+    rm -rf "$data_dir/syslog" "$data_dir/admin_api.sock" 2>/dev/null || true
+
+    # Start server in background with admin API enabled
+    echo "  Starting server with Admin API..."
+    "$binary" -d "$data_dir" 4001 > "$data_dir/stdout_admin.log" 2>&1 &
+    local server_pid=$!
+
+    # Wait for socket to appear (max 30 seconds)
+    local waited=0
+    while [ $waited -lt 60 ] && [ ! -S "$data_dir/admin_api.sock" ]; do
+        sleep 0.5
+        waited=$((waited + 1))
+    done
+
+    if [ ! -S "$data_dir/admin_api.sock" ]; then
+        echo "  X ERROR: Admin API socket not created"
+        cat "$data_dir/stdout_admin.log" 2>/dev/null || echo "  (no stdout log)"
+        kill $server_pid 2>/dev/null || true
+        cd "$MUD_DIR"
+        return 1
+    fi
+
+    echo "  Running Admin API CRUD tests..."
+
+    # Run admin API test (no auth required for tests)
+    SOCKET_PATH="$data_dir/admin_api.sock" \
+    WORLD_DIR="$data_dir" \
+    WORLD_FORMAT="$world_format" \
+    python3 "$MUD_DIR/tests/test_admin_api.py" full_crud_test > "$data_dir/admin_api_test.log" 2>&1
+
+    local test_result=$?
+
+    # Kill server
+    kill $server_pid 2>/dev/null
+    sleep 1
+    kill -9 $server_pid 2>/dev/null || true
+
+    # Display results
+    if [ $test_result -eq 0 ]; then
+        echo "  ✅ Admin API CRUD tests PASSED"
+        # Show summary from log
+        grep -E "(PASSED|FAILED|✅|❌)" "$data_dir/admin_api_test.log" | tail -10
+    else
+        echo "  ❌ Admin API CRUD tests FAILED"
+        echo "  Last 30 lines of test log:"
+        tail -30 "$data_dir/admin_api_test.log"
+    fi
+
+    echo ""
+    cd "$MUD_DIR"
+
+    return $test_result
 }
 
 # Function to run a single test
@@ -680,6 +784,14 @@ if [ -z "$FILTER_WORLD" ] || [ "$FILTER_WORLD" = "small" ]; then
     [ -n "$SQLITE_BIN" ] && run_test "Small_SQLite_no_checksums" "$SQLITE_BIN" "$MUD_DIR/build_sqlite/small" ""
     [ -n "$YAML_BIN" ] && [ -d "$MUD_DIR/build_yaml/small" ] && run_test "Small_YAML_checksums" "$YAML_BIN" "$MUD_DIR/build_yaml/small" "-W"
     [ -n "$YAML_BIN" ] && [ -d "$MUD_DIR/build_yaml/small" ] && run_test "Small_YAML_no_checksums" "$YAML_BIN" "$MUD_DIR/build_yaml/small" ""
+
+    # Admin API CRUD Tests (only for checksums variant to avoid duplication)
+    echo ""
+    echo "=== SMALL WORLD - ADMIN API TESTS ==="
+    echo ""
+    [ -n "$LEGACY_BIN" ] && run_admin_api_test "Small_Legacy_AdminAPI" "$LEGACY_BIN" "$MUD_DIR/build_test/small" "legacy"
+    [ -n "$SQLITE_BIN" ] && run_admin_api_test "Small_SQLite_AdminAPI" "$SQLITE_BIN" "$MUD_DIR/build_sqlite/small" "sqlite"
+    [ -n "$YAML_BIN" ] && [ -d "$MUD_DIR/build_yaml/small" ] && run_admin_api_test "Small_YAML_AdminAPI" "$YAML_BIN" "$MUD_DIR/build_yaml/small" "yaml"
 fi
 
 # Full World Tests
@@ -692,6 +804,14 @@ if [ -z "$FILTER_WORLD" ] || [ "$FILTER_WORLD" = "full" ]; then
     [ -n "$SQLITE_BIN" ] && run_test "Full_SQLite_no_checksums" "$SQLITE_BIN" "$MUD_DIR/build_sqlite/full" ""
     [ -n "$YAML_BIN" ] && [ -d "$MUD_DIR/build_yaml/full" ] && run_test "Full_YAML_checksums" "$YAML_BIN" "$MUD_DIR/build_yaml/full" "-W"
     [ -n "$YAML_BIN" ] && [ -d "$MUD_DIR/build_yaml/full" ] && run_test "Full_YAML_no_checksums" "$YAML_BIN" "$MUD_DIR/build_yaml/full" ""
+
+    # Admin API CRUD Tests (only for checksums variant to avoid duplication)
+    echo ""
+    echo "=== FULL WORLD - ADMIN API TESTS ==="
+    echo ""
+    [ -n "$LEGACY_BIN" ] && run_admin_api_test "Full_Legacy_AdminAPI" "$LEGACY_BIN" "$MUD_DIR/build_test/full" "legacy"
+    [ -n "$SQLITE_BIN" ] && run_admin_api_test "Full_SQLite_AdminAPI" "$SQLITE_BIN" "$MUD_DIR/build_sqlite/full" "sqlite"
+    [ -n "$YAML_BIN" ] && [ -d "$MUD_DIR/build_yaml/full" ] && run_admin_api_test "Full_YAML_AdminAPI" "$YAML_BIN" "$MUD_DIR/build_yaml/full" "yaml"
 fi
 
 # Compare checksums (only if checksums were calculated)

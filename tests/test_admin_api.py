@@ -8,6 +8,7 @@ import sys
 import os
 
 SOCKET_PATH = os.getenv("SOCKET_PATH", "admin_api.sock")
+WORLD_FORMAT = os.getenv("WORLD_FORMAT", "legacy")  # legacy, yaml, sqlite
 
 def send_command(sock, command, **kwargs):
     """Send JSON command and receive response."""
@@ -50,10 +51,41 @@ def send_command(sock, command, **kwargs):
                 # Non-chunked response
                 return json.loads(line.decode('utf-8'))
 
+def verify_legacy_file(entity_type, vnum, expected_fields):
+    """Verify that legacy file contains the vnum (basic check)."""
+    world_dir = os.environ.get('WORLD_DIR', os.path.expanduser('~/repos/mud/build_test/small'))
+
+    # Determine zone file based on vnum
+    zone_num = vnum // 100
+
+    if entity_type == 'mob':
+        file_path = f"{world_dir}/world/mob/{zone_num}.mob"
+    elif entity_type == 'object':
+        file_path = f"{world_dir}/world/obj/{zone_num}.obj"
+    elif entity_type == 'room':
+        file_path = f"{world_dir}/world/wld/{zone_num}.wld"
+    else:
+        return False, "Unknown entity type"
+
+    if not os.path.exists(file_path):
+        return False, f"Legacy file not found: {file_path}"
+
+    try:
+        with open(file_path, 'r', encoding='koi8-r') as f:
+            content = f.read()
+            # Check if vnum exists in file
+            vnum_marker = f"#{vnum}\n"
+            if vnum_marker in content:
+                return True, "Legacy file contains vnum"
+            else:
+                return False, f"Vnum #{vnum} not found in {file_path}"
+    except Exception as e:
+        return False, f"Error reading legacy file: {e}"
+
 def verify_yaml_file(entity_type, vnum, expected_fields):
     """Verify that YAML file was actually saved with expected values."""
     import yaml
-    
+
     # Remove vnum from expected_fields - it's not in YAML content
     expected_fields = {k: v for k, v in expected_fields.items() if k != 'vnum'}
     
@@ -135,6 +167,18 @@ def verify_yaml_file(entity_type, vnum, expected_fields):
     except Exception as e:
         return False, f"Error reading YAML: {e}"
 
+def verify_file(entity_type, vnum, expected_fields):
+    """Verify that file was saved (format-agnostic wrapper)."""
+    if WORLD_FORMAT == "legacy":
+        return verify_legacy_file(entity_type, vnum, expected_fields)
+    elif WORLD_FORMAT == "yaml":
+        return verify_yaml_file(entity_type, vnum, expected_fields)
+    elif WORLD_FORMAT == "sqlite":
+        # SQLite doesn't write individual files - skip verification
+        return True, "SQLite format (no file verification)"
+    else:
+        return False, f"Unknown world format: {WORLD_FORMAT}"
+
 def test_get_mob(sock, vnum):
     """Test get_mob command."""
     print(f"\n=== Testing get_mob {vnum} ===")
@@ -158,12 +202,12 @@ def test_update_mob(sock, vnum, data):
     if response.get("status") == "ok":
         print(f"✓ Mob {vnum} updated successfully")
 
-        # Verify YAML file
-        success, msg = verify_yaml_file('mob', vnum, data)
+        # Verify file
+        success, msg = verify_file('mob', vnum, data)
         if success:
-            print(f"  ✓ YAML file verified: {msg}")
+            print(f"  ✓ File verified: {msg}")
         else:
-            print(f"  ✗ YAML verification failed: {msg}")
+            print(f"  ✗ File verification failed: {msg}")
     else:
         print(f"✗ Error: {response.get('error')}")
 
@@ -193,12 +237,12 @@ def test_update_object(sock, vnum, data):
     if response.get("status") == "ok":
         print(f"✓ Object {vnum} updated successfully")
 
-        # Verify YAML file
-        success, msg = verify_yaml_file('object', vnum, data)
+        # Verify file
+        success, msg = verify_file('object', vnum, data)
         if success:
-            print(f"  ✓ YAML file verified: {msg}")
+            print(f"  ✓ File verified: {msg}")
         else:
-            print(f"  ✗ YAML verification failed: {msg}")
+            print(f"  ✗ File verification failed: {msg}")
     else:
         print(f"✗ Error: {response.get('error')}")
 
@@ -227,12 +271,12 @@ def test_update_room(sock, vnum, data):
     if response.get("status") == "ok":
         print(f"✓ Room {vnum} updated successfully")
 
-        # Verify YAML file
-        success, msg = verify_yaml_file('room', vnum, data)
+        # Verify file
+        success, msg = verify_file('room', vnum, data)
         if success:
-            print(f"  ✓ YAML file verified: {msg}")
+            print(f"  ✓ File verified: {msg}")
         else:
-            print(f"  ✗ YAML verification failed: {msg}")
+            print(f"  ✗ File verification failed: {msg}")
     else:
         print(f"✗ Error: {response.get('error')}")
 
@@ -321,9 +365,9 @@ def test_create_mob(sock, zone, data):
         if vnum != "?":
             success, msg = verify_yaml_file('mob', vnum, data)
             if success:
-                print(f"  ✓ YAML file verified: {msg}")
+                print(f"  ✓ File verified: {msg}")
             else:
-                print(f"  ✗ YAML verification failed: {msg}")
+                print(f"  ✗ File verification failed: {msg}")
 
         return vnum
     else:
@@ -357,9 +401,9 @@ def test_create_object(sock, zone, data):
         if vnum != "?":
             success, msg = verify_yaml_file('object', vnum, data)
             if success:
-                print(f"  ✓ YAML file verified: {msg}")
+                print(f"  ✓ File verified: {msg}")
             else:
-                print(f"  ✗ YAML verification failed: {msg}")
+                print(f"  ✗ File verification failed: {msg}")
 
         return vnum
     else:
@@ -393,9 +437,9 @@ def test_create_room(sock, zone, data):
         if vnum != "?":
             success, msg = verify_yaml_file('room', vnum, data)
             if success:
-                print(f"  ✓ YAML file verified: {msg}")
+                print(f"  ✓ File verified: {msg}")
             else:
-                print(f"  ✗ YAML verification failed: {msg}")
+                print(f"  ✗ File verification failed: {msg}")
 
         return vnum
     else:
@@ -807,35 +851,38 @@ def test_comprehensive_trigger(sock, zone_vnum=1):
         print(f"  ✗ No commands in updated trigger")
         all_ok = False
     
-    # Verify YAML file
-    print(f"  → Verifying YAML file was saved...")
-    world_dir = os.environ.get('WORLD_DIR', os.path.expanduser('~/repos/world.yaml'))
-    yaml_path = f"{world_dir}/world/triggers/{vnum}.yaml"
-    
-    if os.path.exists(yaml_path):
-        try:
-            import yaml
-            with open(yaml_path, 'r', encoding='koi8-r') as f:
-                yaml_data = yaml.safe_load(f)
-            
-            if yaml_data.get('name') == update_data['name']:
-                print(f"  ✓ YAML file saved with correct name")
-            else:
-                print(f"  ✗ YAML file has wrong name: {yaml_data.get('name')}")
+    # Verify file (format-dependent)
+    if WORLD_FORMAT == "yaml":
+        print(f"  → Verifying YAML file was saved...")
+        world_dir = os.environ.get('WORLD_DIR', os.path.expanduser('~/repos/world.yaml'))
+        yaml_path = f"{world_dir}/world/triggers/{vnum}.yaml"
+
+        if os.path.exists(yaml_path):
+            try:
+                import yaml
+                with open(yaml_path, 'r', encoding='koi8-r') as f:
+                    yaml_data = yaml.safe_load(f)
+
+                if yaml_data.get('name') == update_data['name']:
+                    print(f"  ✓ YAML file saved with correct name")
+                else:
+                    print(f"  ✗ YAML file has wrong name: {yaml_data.get('name')}")
+                    all_ok = False
+
+                if yaml_data.get('arglist') == update_data['arglist']:
+                    print(f"  ✓ YAML file saved with correct arglist")
+                else:
+                    print(f"  ✗ YAML file has wrong arglist: {yaml_data.get('arglist')}")
+                    all_ok = False
+
+            except Exception as e:
+                print(f"  ✗ Failed to read YAML: {e}")
                 all_ok = False
-                
-            if yaml_data.get('arglist') == update_data['arglist']:
-                print(f"  ✓ YAML file saved with correct arglist")
-            else:
-                print(f"  ✗ YAML file has wrong arglist: {yaml_data.get('arglist')}")
-                all_ok = False
-                
-        except Exception as e:
-            print(f"  ✗ Failed to read YAML: {e}")
+        else:
+            print(f"  ✗ YAML file not found: {yaml_path}")
             all_ok = False
     else:
-        print(f"  ✗ YAML file not found: {yaml_path}")
-        all_ok = False
+        print(f"  → Skipping file verification for {WORLD_FORMAT} format")
     
     # PART 4: Cleanup - delete the test trigger
     print(f"  → Deleting test trigger {vnum}...")
@@ -1076,8 +1123,27 @@ def test_large_payload(sock, vnum):
         return False
 
 def main():
-    if len(sys.argv) < 2:
-        print("Usage: test_admin_api.py <command> [args...]")
+    global WORLD_FORMAT
+
+    # Parse --world-format argument and --help
+    args = sys.argv[1:]
+
+    # Check for --help first
+    if '--help' in args or '-h' in args:
+        args = []  # Force help display
+
+    for i, arg in enumerate(args[:]):  # Iterate over copy to allow modification
+        if arg.startswith('--world-format='):
+            WORLD_FORMAT = arg.split('=', 1)[1]
+            args.remove(arg)
+            break
+
+    if len(args) < 1:
+        print("Usage: test_admin_api.py [--world-format=FORMAT] <command> [args...]")
+        print("\nOptions:")
+        print("  --world-format=FORMAT  World data format (legacy|yaml|sqlite)")
+        print("                         Can also be set via WORLD_FORMAT env variable")
+        print("                         Default: legacy")
         print("\nIndividual commands:")
         print("  get_mob <vnum>")
         print("  update_mob <vnum>")
@@ -1092,9 +1158,15 @@ def main():
         print("\nTest suites:")
         print("  create_delete_test  - Test create/delete operations")
         print("  full_crud_test      - Test all endpoints with comprehensive field data")
+        print("\nEnvironment variables:")
+        print("  SOCKET_PATH  - Path to admin API socket (default: admin_api.sock)")
+        print("  WORLD_DIR    - Path to world directory (default varies by format)")
+        print("  WORLD_FORMAT - World data format (legacy|yaml|sqlite, default: legacy)")
+        print("  MUD_USERNAME - Username for authentication")
+        print("  MUD_PASSWORD - Password for authentication")
         sys.exit(1)
 
-    command = sys.argv[1]
+    command = args[0]
 
     # Connect to Unix socket
     sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
@@ -1113,28 +1185,31 @@ def main():
         print(f"Connected: {welcome}")
 
         # Authenticate (using environment variables)
+        # Note: Always send 'auth' command, even if require_auth=false
+        # Server will auto-authenticate if require_auth=false
         username = os.getenv("MUD_USERNAME", "TestUser")
         password = os.getenv("MUD_PASSWORD", "")
-
-        if not password:
-            print("Error: MUD_PASSWORD environment variable not set")
-            print("Usage: MUD_USERNAME=YourName MUD_PASSWORD=YourPassword ./test_admin_api.py <command>")
-            sys.exit(1)
 
         auth_response = send_command(sock, "auth", username=username, password=password)
         print(f"DEBUG: Auth response: {auth_response}")
         if auth_response.get("status") != "ok":
             print(f"✗ Authentication failed: {auth_response.get('error')}")
-            sys.exit(1)
+            if password:
+                # Real password was provided, so this is a real auth failure
+                sys.exit(1)
+            else:
+                # No password provided, but auth still failed - server requires auth
+                print("  Hint: Server requires authentication. Set MUD_USERNAME and MUD_PASSWORD.")
+                sys.exit(1)
         print("✓ Authenticated")
 
         # Execute command
         if command == "get_mob":
-            vnum = int(sys.argv[2]) if len(sys.argv) > 2 else 100
+            vnum = int(args[1]) if len(args) > 1 else 100
             test_get_mob(sock, vnum)
 
         elif command == "update_mob":
-            vnum = int(sys.argv[2]) if len(sys.argv) > 2 else 100
+            vnum = int(args[1]) if len(args) > 1 else 100
 
             # Get current mob
             mob = test_get_mob(sock, vnum)
@@ -1156,11 +1231,11 @@ def main():
             test_get_mob(sock, vnum)
 
         elif command == "get_object":
-            vnum = int(sys.argv[2]) if len(sys.argv) > 2 else 100
+            vnum = int(args[1]) if len(args) > 1 else 100
             test_get_object(sock, vnum)
 
         elif command == "update_object":
-            vnum = int(sys.argv[2]) if len(sys.argv) > 2 else 100
+            vnum = int(args[1]) if len(args) > 1 else 100
 
             # Get current object
             obj = test_get_object(sock, vnum)
@@ -1178,11 +1253,11 @@ def main():
             test_get_object(sock, vnum)
 
         elif command == "get_room":
-            vnum = int(sys.argv[2]) if len(sys.argv) > 2 else 3000
+            vnum = int(args[1]) if len(args) > 1 else 3000
             test_get_room(sock, vnum)
 
         elif command == "update_room":
-            vnum = int(sys.argv[2]) if len(sys.argv) > 2 else 3000
+            vnum = int(args[1]) if len(args) > 1 else 3000
 
             # Get current room
             room = test_get_room(sock, vnum)
@@ -1200,15 +1275,15 @@ def main():
             test_get_room(sock, vnum)
 
         elif command == "list_mobs":
-            zone = sys.argv[2] if len(sys.argv) > 2 else "1"
+            zone = args[1] if len(args) > 1 else "1"
             test_list_mobs(sock, zone)
 
         elif command == "list_objects":
-            zone = sys.argv[2] if len(sys.argv) > 2 else "1"
+            zone = args[1] if len(args) > 1 else "1"
             test_list_objects(sock, zone)
 
         elif command == "list_rooms":
-            zone = sys.argv[2] if len(sys.argv) > 2 else "1"
+            zone = args[1] if len(args) > 1 else "1"
             test_list_rooms(sock, zone)
 
         elif command == "list_zones":
