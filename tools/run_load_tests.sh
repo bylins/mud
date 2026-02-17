@@ -273,9 +273,17 @@ setup_small_world() {
         return 0
     fi
 
-    # Clean old converted world to ensure fresh conversion
-    echo "Cleaning old converted world..."
-    rm -rf "$dest_dir/world" "$dest_dir/world.db" 2>/dev/null || true
+    # Clean old CONVERTED world files (YAML/SQLite), keep legacy source files for conversion
+    echo "Cleaning old converted world files..."
+    if [ "$loader" = "yaml" ]; then
+        # Remove YAML converted directories, keep legacy source files (world/mob/, world/obj/, etc.)
+        rm -rf "$dest_dir/world/mobs" "$dest_dir/world/objects" "$dest_dir/world/zones" \
+               "$dest_dir/world/triggers" "$dest_dir/world/dictionaries" \
+               "$dest_dir/world/world_config.yaml" "$dest_dir/world/index.yaml" 2>/dev/null || true
+    elif [ "$loader" = "sqlite" ]; then
+        # Remove SQLite database
+        rm -f "$dest_dir/world.db" 2>/dev/null || true
+    fi
 
     echo "Converting world data to $loader format..."
 
