@@ -1604,7 +1604,7 @@ int CharData::get_zone_group() const {
 	if (this->IsNpc()
 		&& rnum >= 0
 		&& mob_index[rnum].zone >= 0) {
-		const auto zone = mob_index[rnum].zone;
+		const auto zone = GetZoneRnum(GET_MOB_VNUM(this) / 100);
 		return std::max(1, zone_table[zone].group);
 	}
 
