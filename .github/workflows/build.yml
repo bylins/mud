@@ -36,6 +36,11 @@ jobs:
             packages: "libsqlite3-dev"
             run_tests: true
 
+          - name: "Base + Admin API"
+            cmake_flags: "-DCMAKE_BUILD_TYPE=Release -DENABLE_ADMIN_API=ON"
+            packages: ""
+            run_tests: true
+
           - name: "YAML + Admin API"
             cmake_flags: "-DCMAKE_BUILD_TYPE=Release -DHAVE_YAML=ON -DENABLE_ADMIN_API=ON"
             packages: "libyaml-cpp-dev"
