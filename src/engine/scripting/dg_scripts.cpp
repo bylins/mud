@@ -1422,9 +1422,6 @@ bool IsUID(const char *name) {
 return false;
 }
 
-#ifdef _MSC_VER
-#pragma optimize("", off)  // Disable optimizations for MSVC to avoid "blocks nested too deeply" error
-#endif
 void find_replacement(void *go,
 					  Script *sc,
 					  Trigger *trig,
@@ -2157,6 +2154,7 @@ void find_replacement(void *go,
 		if (text_processed(field, subfield, vd, str)) {
 			return;
 		}
+		bool char_handled = true;
 		if (!str_cmp(field, "global")) {
 			if (c->IsNpc()) {
 				char *p = strchr(subfield, ',');
@@ -2842,7 +2840,11 @@ void find_replacement(void *go,
 			strcpy(str, spell_count(trig, c, subfield));
 		else if (!str_cmp(field, "spelltype"))
 			strcpy(str, spell_knowledge(trig, c, subfield));
-		else if (!str_cmp(field, "quested")) {
+		else
+			char_handled = false;
+		// Continue char field dispatch (split for MSVC C1061)
+		if (!char_handled) {
+		if (!str_cmp(field, "quested")) {
 			if (*subfield && (num = atoi(subfield)) > 0) {
 				if (c->quested_get(num))
 					strcpy(str, "1");
@@ -3171,7 +3173,8 @@ void find_replacement(void *go,
 				sprintf(buf2, "unknown char field: '%s'", field);
 				trig_log(trig, buf2);
 			}
-		} 
+		}
+		} // if (!char_handled)
 	} else if (o) {
 		if (text_processed(field, subfield, vd, str)) {
 			return;
@@ -3814,9 +3817,6 @@ void find_replacement(void *go,
 			return;
 	}
 }
-#ifdef _MSC_VER
-#pragma optimize("", on)  // Re-enable optimizations
-#endif
 
 // substitutes any variables into line and returns it as buf
 void var_subst(void *go, Script *sc, Trigger *trig, int type, const char *line, char *buf) {
