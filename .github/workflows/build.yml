@@ -22,34 +22,23 @@ jobs:
       matrix:
         config:
           - name: "Base"
-            cmake_flags: "-DBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Release"
-            packages: ""
-
-          - name: "With Tests"
             cmake_flags: "-DCMAKE_BUILD_TYPE=Release"
             packages: ""
             run_tests: true
 
           - name: "YAML"
-            cmake_flags: "-DBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Release -DHAVE_YAML=ON"
-            packages: "libyaml-cpp-dev"
-
-          - name: "SQLite"
-            cmake_flags: "-DBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Release -DHAVE_SQLITE=ON"
-            packages: "libsqlite3-dev"
-
-          - name: "YAML + Admin API"
-            cmake_flags: "-DBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Release -DHAVE_YAML=ON -DENABLE_ADMIN_API=ON"
-            packages: "libyaml-cpp-dev"
-
-          - name: "YAML + Tests"
             cmake_flags: "-DCMAKE_BUILD_TYPE=Release -DHAVE_YAML=ON"
             packages: "libyaml-cpp-dev"
             run_tests: true
 
-          - name: "SQLite + Tests"
+          - name: "SQLite"
             cmake_flags: "-DCMAKE_BUILD_TYPE=Release -DHAVE_SQLITE=ON"
             packages: "libsqlite3-dev"
+            run_tests: true
+
+          - name: "YAML + Admin API"
+            cmake_flags: "-DCMAKE_BUILD_TYPE=Release -DHAVE_YAML=ON -DENABLE_ADMIN_API=ON"
+            packages: "libyaml-cpp-dev"
             run_tests: true
 
     steps:
@@ -176,12 +165,17 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake -DBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake ..
+          cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake ..
 
       - name: Build
         run: |
           cd build
           cmake --build . --config Test -j
+
+      - name: Run tests
+        run: |
+          cd build
+          ./tests/Test/tests.exe
 
   build-macos-clang:
     name: macOS (Clang)
@@ -280,14 +274,20 @@ jobs:
           cd "$GITHUB_WORKSPACE"
           mkdir -p build
           cd build
-          cmake -DBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Release ..
+          cmake -DCMAKE_BUILD_TYPE=Release ..
 
       - name: Build
         shell: C:\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
         run: |
           git config --global --add safe.directory '*'
           cd "$GITHUB_WORKSPACE/build"
-          make -j$(nproc)
+          make tests -j$(nproc)
+
+      - name: Run tests
+        shell: C:\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
+        run: |
+          cd "$GITHUB_WORKSPACE/build"
+          ./tests/tests
 
   build-cygwin-yaml:
     name: Cygwin + YAML (built from source)
@@ -433,13 +433,19 @@ jobs:
         run: |
           mkdir -p build
           cd build
-          cmake -DBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Release -DHAVE_YAML=ON ..
+          cmake -DCMAKE_BUILD_TYPE=Release -DHAVE_YAML=ON ..
 
       - name: Build in WSL
         shell: wsl-bash {0}
         run: |
           cd build
-          make -j$(nproc)
+          make tests -j$(nproc)
+
+      - name: Run tests in WSL
+        shell: wsl-bash {0}
+        run: |
+          cd build
+          ./tests/tests
 
   build-summary:
     name: Build Summary
