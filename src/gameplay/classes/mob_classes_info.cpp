@@ -317,6 +317,9 @@ void MobClassInfoBuilder::ParseCombatStatsData(ItemPtr &info, DataNode &node) {
         } else if (id_str == "kHitroll") {
             info->hitroll = data;
             info->has_hitroll = true;
+        } else if (id_str == "kDamroll") {
+            info->damroll = data;
+            info->has_damroll = true;
         } else if (id_str == "kMorale") {
             info->morale = data;
             info->has_morale = true;
@@ -633,6 +636,17 @@ void MobClassInfo::PrintCombatStatsTable(CharData *ch, std::ostringstream &buffe
               << hitroll.increment
               << DeviationTypeToString(hitroll.deviation_type)
               << hitroll.deviation
+              << table_wrapper::kEndRow;
+    }
+
+    if (has_damroll) {
+        table << "Damroll"
+              << damroll.base
+              << damroll.low_increment
+              << damroll.threshold_mort
+              << damroll.increment
+              << DeviationTypeToString(damroll.deviation_type)
+              << damroll.deviation
               << table_wrapper::kEndRow;
     }
 
