@@ -20,7 +20,7 @@ int main(int argc, char** argv)
 
 	const auto result = RUN_ALL_TESTS();
 
-	// Use exit() instead of return to avoid calling global destructors
-	// This prevents heap corruption on Windows when runtime_config is destroyed
-	exit(result);
+	// Use _Exit() to skip all cleanup (atexit, global destructors, etc.)
+	// exit() still causes heap corruption on Windows, _Exit() bypasses everything
+	_Exit(result);
 }
