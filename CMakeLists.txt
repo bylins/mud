@@ -1099,6 +1099,7 @@ add_dependencies(circle.library versioning changelog)
 # Linfort integration
 # Disable building tests and examples in libfort project
 set(FORT_ENABLE_TESTING OFF CACHE INTERNAL "")
+set(FORT_HAVE_UTF8 ON CACHE INTERNAL "")
 add_subdirectory(src/third_party_libs/libfort)
 target_link_libraries(circle.library fort)
 
