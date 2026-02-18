@@ -19,7 +19,7 @@ private:
 
 void FightPenalties::SetUp()
 {
-	EXPECT_EQ(0, m_grouping.init())
+	ASSERT_EQ(0, m_grouping.init())
 		<< "Couldn't initialize group penalties table.";
 }
 
