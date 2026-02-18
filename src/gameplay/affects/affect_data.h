@@ -15,6 +15,9 @@
 #include <unordered_set>
 #include <unordered_map>
 #include <array>
+#include <set>
+
+extern std::set<CharData *> affected_mob;
 
 // An affect structure. //
 class IAffectHandler;

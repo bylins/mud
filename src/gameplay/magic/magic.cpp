@@ -1806,8 +1806,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 				break;
 			}
 			af[0].location = EApply::kStr;
-			af[0].duration =
-				CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch), 1, 0, 0) * koef_duration;
+			af[0].duration = CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch), 1, 0, 0) * koef_duration;
 			if (ch == victim)
 				af[0].modifier = (level + 9) / 10 + koef_modifier + GetRealRemort(ch) / 5;
 			else
