@@ -17,7 +17,7 @@
 #include "gameplay/core/base_stats.h"
 #include "gameplay/fight/fight.h"
 
-std::set<CharData *> affected_mob;
+std::unordered_set<CharData *> affected_mobs;
 
 bool no_bad_affects(ObjData *obj) {
 	static std::list<EWeaponAffect> bad_waffects =
@@ -345,7 +345,7 @@ void mobile_affect_update() {
 	utils::CExecutionTimer timer;
 	int count = 0;
 
-	for (auto it = affected_mob.begin(); it != affected_mob.end();) {
+	for (auto it = affected_mobs.begin(); it != affected_mobs.end();) {
 		const auto &ch = *it;
 		int was_charmed = false, charmed_msg = false;
 		bool was_purged = false;
@@ -422,7 +422,7 @@ void mobile_affect_update() {
 			}
 		}
 		if (ch->affected.empty()) {
-			it = affected_mob.erase(it);
+			it = affected_mobs.erase(it);
 		} else
 			++it;
 
@@ -450,7 +450,7 @@ void RemoveAffectFromChar(CharData *ch, ESpell spell_id) {
 	}
 	if (ch->IsNpc()) {
 		if (ch->affected.empty()) {
-			std::erase_if(affected_mob, [ch] (CharData *it) { return (it == ch); });
+			affected_mobs.erase(ch);
 		}
 		if (spell_id == ESpell::kCharm) {
 			ch->extract_timer = 5;
@@ -785,7 +785,7 @@ void affect_to_char(CharData *ch, const Affect<EApply> &af) {
 	Affect<EApply>::shared_ptr affected_alloc(new Affect<EApply>(af));
 
 	if (ch->IsNpc()) {
-		affected_mob.insert(ch);
+		affected_mobs.insert(ch);
 	}
 	ch->affected.push_front(affected_alloc);
 
@@ -944,8 +944,8 @@ void reset_affects(CharData *ch) {
 		}
 	}
 	GET_COND(ch, DRUNK) = 0; // Чтобы не шатало без аффекта "под мухой"
-	if (ch->IsNpc()) {
-		std::erase_if(affected_mob, [ch] (CharData *it) { return (it == ch); });
+	if (ch->IsNpc() && affected_mobs.empty()) {
+		affected_mobs.erase(ch);
 	}
 	affect_total(ch);
 }
