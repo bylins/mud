@@ -176,6 +176,8 @@ jobs:
         run: |
           cd build
           ./tests/Test/tests.exe
+          echo "Exit code: $LASTEXITCODE"
+          exit $LASTEXITCODE
 
   build-macos-clang:
     name: macOS (Clang)
@@ -240,6 +242,8 @@ jobs:
         run: |
           cd build
           ./tests/Release/tests.exe
+          echo "Exit code: $LASTEXITCODE"
+          exit $LASTEXITCODE
 
   build-cygwin:
     name: Cygwin
@@ -267,7 +271,19 @@ jobs:
             gettext-devel
             unzip
             git
-            libgtest-devel
+            wget
+
+      - name: Build and install googletest from source
+        shell: C:\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
+        run: |
+          cd /tmp
+          wget https://github.com/google/googletest/archive/refs/tags/v1.14.0.tar.gz
+          tar xzf v1.14.0.tar.gz
+          cd googletest-1.14.0
+          mkdir build && cd build
+          cmake -DCMAKE_BUILD_TYPE=Release ..
+          make -j$(nproc)
+          make install
 
       - name: Configure CMake
         shell: C:\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
@@ -317,7 +333,18 @@ jobs:
             unzip
             git
             wget
-            libgtest-devel
+
+      - name: Build and install googletest from source
+        shell: C:\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
+        run: |
+          cd /tmp
+          wget https://github.com/google/googletest/archive/refs/tags/v1.14.0.tar.gz
+          tar xzf v1.14.0.tar.gz
+          cd googletest-1.14.0
+          mkdir build && cd build
+          cmake -DCMAKE_BUILD_TYPE=Release ..
+          make -j$(nproc)
+          make install
 
       - name: Build and install yaml-cpp from source
         shell: C:\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
@@ -337,14 +364,20 @@ jobs:
           cd "$GITHUB_WORKSPACE"
           mkdir -p build
           cd build
-          cmake -DBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Release -DHAVE_YAML=ON ..
+          cmake -DCMAKE_BUILD_TYPE=Release -DHAVE_YAML=ON ..
 
       - name: Build
         shell: C:\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
         run: |
           git config --global --add safe.directory '*'
           cd "$GITHUB_WORKSPACE/build"
-          make -j$(nproc)
+          make tests -j$(nproc)
+
+      - name: Run tests
+        shell: C:\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
+        run: |
+          cd "$GITHUB_WORKSPACE/build"
+          ./tests/tests
 
   build-wsl:
     name: WSL (Ubuntu)
