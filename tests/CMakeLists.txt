@@ -102,6 +102,11 @@ if (NOT WIN32)
 	target_link_libraries(tests pthread)
 endif ()
 
+# Disable fmt Unicode mode on Windows (KOI8-R source charset)
+if (WIN32 AND (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC" OR (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "MSVC")))
+	target_compile_definitions(tests PRIVATE FMT_UNICODE=0)
+endif ()
+
 add_test(all tests)
 
 add_custom_target(checks COMMAND ${CMAKE_CTEST_COMMAND} -V DEPENDS tests)
