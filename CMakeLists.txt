@@ -1384,7 +1384,7 @@ elseif (CMAKE_HOST_WIN32)
 
 	# EPOLL>>> ...and suppose that Windows does not
 	option(HAS_EPOLL "Does system support epoll call?" OFF)
-	if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+	if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC" OR (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "MSVC"))
 		# Project source files are KOI8-R encoded, not UTF-8.
 		# 1) Replace vcpkg's /utf-8 with KOI8-R charset (local scope only, won't affect fmt/fort)
 		string(REGEX REPLACE "/utf-8|/source-charset:[^ ]*|/execution-charset:[^ ]*" "" _CXX_FLAGS_FIXED "${CMAKE_CXX_FLAGS}")
