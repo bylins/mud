@@ -107,7 +107,8 @@ if (WIN32 AND (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC" OR (CMAKE_CXX_COMPILER_ID S
 	target_compile_definitions(tests PRIVATE FMT_UNICODE=0)
 endif ()
 
-add_test(NAME all COMMAND tests WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
+add_test(NAME all COMMAND tests)
+set_tests_properties(all PROPERTIES WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
 
 add_custom_target(checks COMMAND ${CMAKE_CTEST_COMMAND} -V DEPENDS tests)
 
