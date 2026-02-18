@@ -267,6 +267,7 @@ jobs:
             gettext-devel
             unzip
             git
+            libgtest-devel
 
       - name: Configure CMake
         shell: C:\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
@@ -316,6 +317,7 @@ jobs:
             unzip
             git
             wget
+            libgtest-devel
 
       - name: Build and install yaml-cpp from source
         shell: C:\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
@@ -374,7 +376,8 @@ jobs:
             cmake \
             gdb \
             libgtest-dev \
-            zlib1g-dev
+            zlib1g-dev \
+            libcrypt-dev
 
       - name: Configure CMake in WSL
         shell: wsl-bash {0}
@@ -425,7 +428,9 @@ jobs:
             unzip \
             cmake \
             gdb \
+            libgtest-dev \
             zlib1g-dev \
+            libcrypt-dev \
             libyaml-cpp-dev
 
       - name: Configure CMake in WSL
