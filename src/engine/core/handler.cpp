@@ -1716,6 +1716,7 @@ void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset) {
 	}
 
 	if (ch->IsNpc()) {
+		affected_mobs.erase(ch);
 		// дроп гривен до изменений последователей за мобом
 		ExtMoney::drop_torc(ch);
 	}
