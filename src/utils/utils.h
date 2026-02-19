@@ -27,6 +27,7 @@
 #include "utils/id_converter.h"
 #include "utils_string.h"
 #include "logger.h"
+#include "utils/backtrace.h"
 
 #include <third_party_libs/fmt/include/fmt/format.h>
 
