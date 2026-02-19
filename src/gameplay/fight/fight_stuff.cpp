@@ -145,7 +145,7 @@ void process_mobmax(CharData *ch, CharData *killer) {
 
 bool stone_rebirth(CharData *ch, CharData *killer) {
 	RoomRnum rnum_start, rnum_stop;
-	if (ch->IsNpc()){
+	if (ch->IsNpc() && !IS_CHARMICE(ch)){
 		return false;
 	}
 	if (killer && (!killer->IsNpc() || IS_CHARMICE(killer)) && (ch != killer)) { //не нычка в ПК
@@ -158,6 +158,10 @@ bool stone_rebirth(CharData *ch, CharData *killer) {
 			for (ObjData *j = rm->contents; j; j = j->get_next_content()) {
 				if (j->get_vnum() == 1000) { // камень возрождения
 					act("$n погиб$q смертью храбрых.", false, ch, nullptr, nullptr, kToRoom);
+					if (ch->IsNpc()) {
+						mob_ai::extract_charmice(ch, false);
+						return true;
+					}
 					SendMsgToChar("Божественная сила спасла вашу жизнь!\r\n", ch);
 					RemoveCharFromRoom(ch);
 					PlaceCharToRoom(ch, rnum_start);
