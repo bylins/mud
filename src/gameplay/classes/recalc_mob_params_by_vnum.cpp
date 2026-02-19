@@ -576,6 +576,22 @@ static bool ApplyMobParams(CharData* ch, int level, int remorts, int difficulty)
 			applied_any = 1;
 		}
 
+		if (info->has_damroll) {
+			p_data = &info->damroll;
+
+			int base_value = CalcBaseValue(p_data, calc, effective_remorts);
+			base_value = ApplyDeviation(p_data, base_value);
+
+			if (is_first_role_pass) {
+				GET_DR(ch) = base_value;
+			} else {
+				if (base_value > GET_DR(ch)) {
+					GET_DR(ch) = base_value;
+				}
+			}
+			applied_any = 1;
+		}
+
 		if (info->has_morale) {
 			p_data = &info->morale;
 
