@@ -253,13 +253,7 @@ CharData::char_affects_list_t::iterator CharData::AffectRemove(const char_affect
 			log("SYSERR: player_specials is not set.");
 		}
 	}
-	auto result = affected.erase(affect_i);
-
-	if (this->IsNpc() && this->affected.empty()) {
-		affected_mobs.erase(this);
-		return affected.end();
-	}
-	return result;
+	return affected.erase(affect_i);
 }
 
 bool CharData::has_any_affect(const affects_list_t &affects) {

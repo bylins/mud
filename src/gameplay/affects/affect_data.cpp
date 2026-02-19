@@ -358,6 +358,7 @@ void mobile_affect_update() {
 
 		if (ch->affected.empty()) {
 			mudlog(fmt::format("ERROR!!! Проверка счетчика аффектов у очищенного моба {} #{}", ch->get_name(), GET_MOB_VNUM(ch)));
+			it = affected_mobs.erase(it);
 			continue;
 		}
 		while (affect_i != ch->affected.end()) {
@@ -454,9 +455,6 @@ void RemoveAffectFromChar(CharData *ch, ESpell spell_id) {
 		}
 	}
 	if (ch->IsNpc()) {
-		if (ch->affected.empty()) {
-			affected_mobs.erase(ch);
-		}
 		if (spell_id == ESpell::kCharm) {
 			ch->extract_timer = 5;
 			ch->mob_specials.hire_price = 0;// added by WorM (Видолюб) 2010.06.04 Сбрасываем цену найма
@@ -949,9 +947,6 @@ void reset_affects(CharData *ch) {
 		}
 	}
 	GET_COND(ch, DRUNK) = 0; // Чтобы не шатало без аффекта "под мухой"
-	if (ch->IsNpc() && affected_mobs.empty()) {
-		affected_mobs.erase(ch);
-	}
 	affect_total(ch);
 }
 
