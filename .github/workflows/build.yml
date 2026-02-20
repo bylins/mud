@@ -542,6 +542,13 @@ jobs:
           genhtml build/coverage_filtered.info \
             --output-directory build/coverage_html
 
+      - name: Upload to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          files: build/coverage_filtered.info
+          fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
+
       - name: Upload HTML report as artifact
         uses: actions/upload-artifact@v4
         with:
