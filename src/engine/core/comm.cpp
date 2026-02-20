@@ -57,6 +57,7 @@
 #include "utils_char_obj.inl"
 #include "utils/id_converter.h"
 #include "utils/logger.h"
+#include "utils/backtrace.h"
 #include "engine/network/msdp/msdp.h"
 #include "engine/network/msdp/msdp_constants.h"
 #include "engine/entities/zone.h"
@@ -1988,6 +1989,7 @@ RETSIGTYPE reap(int/* sig*/) {
 
 RETSIGTYPE crash_handle(int/* sig*/) {
 	log("Crash detected !");
+	debug::backtrace(runtime_config.logs(SYSLOG).handle());
 	// Сливаем файловые буферы.
 	fflush(stdout);
 	fflush(stderr);
