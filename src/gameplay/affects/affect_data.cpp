@@ -186,6 +186,35 @@ void UpdateAffectOnPulse(CharData *ch, int count) {
 		affect_total(ch);
 	}
 }
+
+void player_timed_update() {
+	for (auto d = descriptor_list; d; d = d->next) {
+		if (d->state != EConState::kPlaying)
+			continue;
+		const auto i = d->get_character();
+		auto ch = i.get();
+
+		decltype(ch->timed) timed_skill;
+		for (auto timed = ch->timed; timed; timed = timed_skill) {
+			timed_skill = timed->next;
+			if (timed->time >= 1) {
+				timed->time--;
+			} else {
+				ExpireTimedSkill(ch, timed);
+			}
+		}
+		decltype(ch->timed_feat) timed_feat;
+		for (auto timed = ch->timed_feat; timed; timed = timed_feat) {
+			timed_feat = timed->next;
+			if (timed->time >= 1) {
+				timed->time--;
+			} else {
+				ExpireTimedFeat(ch, timed);
+			}
+		}
+	}
+}
+
 // игроки раз в 2 секунды
 void player_affect_update() {
 	utils::CExecutionTimer timer;

@@ -68,6 +68,7 @@ struct obj_affected_type {
 };
 
 void UpdateAffectOnPulse(CharData *ch, int count);
+void player_timed_update();
 void player_affect_update();
 void battle_affect_update(CharData *ch);
 void mobile_affect_update();
