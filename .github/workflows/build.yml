@@ -488,6 +488,74 @@ jobs:
           cd build
           ./tests/tests
 
+  coverage:
+    name: Coverage
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master' || github.event_name == 'pull_request'
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libssl-dev libcurl4-gnutls-dev libexpat1-dev \
+            gettext libgtest-dev lcov
+
+      - name: Configure CMake with coverage
+        run: |
+          mkdir build
+          cd build
+          cmake -DCMAKE_BUILD_TYPE=Debug -DENABLE_COVERAGE=ON -DWITH_ASAN=OFF ..
+
+      - name: Build tests
+        run: make tests -j$(($(nproc)/2))
+        working-directory: build
+
+      - name: Run tests
+        run: ./tests/tests
+        working-directory: build
+
+      - name: Generate lcov report
+        run: |
+          lcov --capture --ignore-errors mismatch,negative \
+            --directory . \
+            --output-file coverage.info
+          lcov --remove coverage.info --ignore-errors unused \
+            '/usr/*' '*/third_party_libs/*' '*/tests/*' \
+            --output-file coverage_filtered.info
+        working-directory: build
+
+      - name: Post coverage summary
+        run: |
+          echo "## Coverage Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          lcov --summary build/coverage_filtered.info 2>&1 >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+      - name: Generate HTML report
+        run: |
+          genhtml build/coverage_filtered.info \
+            --output-directory build/coverage_html
+
+      - name: Upload HTML report as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-html
+          path: build/coverage_html/
+          retention-days: 30
+
+      - name: Upload to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: build/coverage_filtered.info
+          fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
+
   build-summary:
     name: Build Summary
     runs-on: ubuntu-latest
