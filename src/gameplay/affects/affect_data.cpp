@@ -218,7 +218,7 @@ void player_timed_update() {
 // игроки раз в 2 секунды
 void player_affect_update() {
 	utils::CExecutionTimer timer;
-	int count = 0;
+	int count = 0, call = 0;
 //	character_list.foreach_on_copy([&count](const CharData::shared_ptr &i) {
 	for (auto d = descriptor_list; d; d = d->next) {
 		if (d->state != EConState::kPlaying)
@@ -231,7 +231,10 @@ void player_affect_update() {
 		if (i->purged() || deathtrap::tunnel_damage(i.get())) {
 			return;
 		}
-		count++;
+		if (!i->affected.empty()) {
+			++count;
+		}
+		++call;
 		bool was_purged = false;
 		bool set_abstinent = false;
 		auto affect_i = i->affected.begin();
@@ -308,7 +311,7 @@ void player_affect_update() {
 			affect_total(i.get());
 		}
 	}
-	log("player affect update: timer %f, num players %d", timer.delta().count(), count);
+	log("player affect update: timer %f, num affected players %d, all %d", timer.delta().count(), count, call);
 }
 
 // This file update battle affects only
