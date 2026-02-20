@@ -386,7 +386,7 @@ void mobile_affect_update() {
 		auto affect_i = ch->affected.begin();
 
 		if (ch->affected.empty()) {
-			mudlog(fmt::format("ERROR!!! Проверка счетчика аффектов у очищенного моба {} #{}", ch->get_name(), GET_MOB_VNUM(ch)));
+			log(fmt::format("ERROR!!! Проверка счетчика аффектов у очищенного моба {} #{}", ch->get_name(), GET_MOB_VNUM(ch)));
 			it = affected_mobs.erase(it);
 			continue;
 		}
