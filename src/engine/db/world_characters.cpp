@@ -148,16 +148,22 @@ void Characters::remove(CharData *character) {
 		const auto vnum = mob_index[character->get_rnum()].vnum;
 		mobs_by_vnum_remove(character, vnum);
 	}
-	if (m_extracted_list.contains(character)) {
-		m_extracted_list.erase(character);
+	if (character->IsNpc()) {
+		affected_mobs.erase(character);
 	}
-	if (chardata_wait_list.contains(character)) {
+	auto elist = m_extracted_list.find(character);
+	if (elist != m_extracted_list.end()){
+		m_extracted_list.erase(elist);
+	}
+	auto wlist = chardata_wait_list.find(character);
+	if (wlist != chardata_wait_list.end()) {
 		character->zero_wait();
-		chardata_wait_list.erase(character);
+		chardata_wait_list.erase(wlist);
 	}
-	if (chardata_cooldown_list.contains(character)) {
+	auto clist = chardata_cooldown_list.find(character);
+	if (clist != chardata_cooldown_list.end()) {
 		character->ZeroCooldowns();
-		chardata_cooldown_list.erase(character);
+		chardata_cooldown_list.erase(clist);
 	}
 	m_list.erase(index_i->second);
 	m_character_raw_ptr_to_character_ptr.erase(index_i);

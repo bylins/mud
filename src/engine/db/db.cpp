@@ -3131,21 +3131,20 @@ void CharTimerUpdate() {
 	std::list<CharData *> cooldown_list;
 
 	for (auto it : chardata_cooldown_list) {
-//		log("Считаем кулдаун для %s", GET_NAME(it));
 		if (!it->HaveDecreaseCooldowns()) {
 			cooldown_list.push_back(it);
 		}
 	}
-	for (auto it : chardata_wait_list) {
+	for (auto &it : chardata_wait_list) {
 		it->wait_dec();
 		if (it->get_wait() == 0) {
 			wait_list.push_back(it);
 		}
 	}
-	for (auto it : wait_list) {
+	for (auto &it : wait_list) {
 		chardata_wait_list.erase(it);
 	}
-	for (auto it : cooldown_list) {
+	for (auto &it : cooldown_list) {
 		chardata_cooldown_list.erase(it);
 	}
 }
