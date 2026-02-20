@@ -148,4 +148,99 @@ TEST(ThreadPool, DistributeBatchesMoreBatchesThanItems) {
 	}
 }
 
+// Test: Exception in task propagates through future
+TEST(ThreadPool, ExceptionInTask_FutureRethrows) {
+	ThreadPool pool(2);
+
+	auto future = pool.Enqueue([]() -> int {
+		throw std::runtime_error("task error");
+		return 42;
+	});
+
+	EXPECT_THROW(future.get(), std::runtime_error);
+}
+
+// Test: ThreadPool(0) falls back to hardware_concurrency (at least 1 thread)
+TEST(ThreadPool, ZeroThreads_FallsBackToHardwareConcurrency) {
+	ThreadPool pool(0);
+	EXPECT_GE(pool.NumThreads(), 1u);
+}
+
+// Test: WaitAll on empty pool returns immediately (no pending tasks)
+TEST(ThreadPool, WaitAll_EmptyPool_ReturnsImmediately) {
+	ThreadPool pool(4);
+	// Should not block
+	pool.WaitAll();
+	EXPECT_EQ(0u, pool.PendingTasks());
+}
+
+// Test: Stress - 10,000 tasks all complete correctly
+TEST(ThreadPool, StressTest_ManyTasks_AllComplete) {
+	ThreadPool pool(8);
+	std::atomic<int> counter{0};
+
+	std::vector<std::future<void>> futures;
+	futures.reserve(10000);
+	for (int i = 0; i < 10000; ++i) {
+		futures.push_back(pool.Enqueue([&counter]() {
+			counter.fetch_add(1, std::memory_order_relaxed);
+		}));
+	}
+
+	pool.WaitAll();
+	EXPECT_EQ(10000, counter.load());
+}
+
+// Test: DistributeBatches with a single item
+TEST(ThreadPool, DistributeBatches_SingleItem) {
+	std::vector<int> items = {42};
+	auto batches = DistributeBatches(items, 4);
+
+	EXPECT_EQ(4u, batches.size());
+	EXPECT_EQ(1u, batches[0].size());
+	EXPECT_EQ(42, batches[0][0]);
+	for (size_t i = 1; i < 4; ++i) {
+		EXPECT_TRUE(batches[i].empty());
+	}
+}
+
+// Test: DistributeBatches with a single batch - all items in one batch
+TEST(ThreadPool, DistributeBatches_SingleBatch_AllItemsInOne) {
+	std::vector<int> items = {1, 2, 3, 4, 5};
+	auto batches = DistributeBatches(items, 1);
+
+	EXPECT_EQ(1u, batches.size());
+	EXPECT_EQ(5u, batches[0].size());
+	EXPECT_EQ(items, batches[0]);
+}
+
+// Test: DistributeBatches preserves order within each batch
+TEST(ThreadPool, DistributeBatches_OrderPreservation) {
+	// items: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
+	// 3 batches (round-robin): [0,3,6,9], [1,4,7], [2,5,8]
+	std::vector<int> items = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+	auto batches = DistributeBatches(items, 3);
+
+	EXPECT_EQ(3u, batches.size());
+
+	// Batch 0: items at positions 0, 3, 6, 9 -> values 0, 3, 6, 9
+	ASSERT_EQ(4u, batches[0].size());
+	EXPECT_EQ(0, batches[0][0]);
+	EXPECT_EQ(3, batches[0][1]);
+	EXPECT_EQ(6, batches[0][2]);
+	EXPECT_EQ(9, batches[0][3]);
+
+	// Batch 1: items at positions 1, 4, 7 -> values 1, 4, 7
+	ASSERT_EQ(3u, batches[1].size());
+	EXPECT_EQ(1, batches[1][0]);
+	EXPECT_EQ(4, batches[1][1]);
+	EXPECT_EQ(7, batches[1][2]);
+
+	// Batch 2: items at positions 2, 5, 8 -> values 2, 5, 8
+	ASSERT_EQ(3u, batches[2].size());
+	EXPECT_EQ(2, batches[2][0]);
+	EXPECT_EQ(5, batches[2][1]);
+	EXPECT_EQ(8, batches[2][2]);
+}
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

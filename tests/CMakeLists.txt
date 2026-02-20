@@ -84,7 +84,11 @@ set(TESTS
 		utils.encoding.cpp
 		world_load_order.cpp
 		yaml.save.encoding.cpp
-		compact.trie.prefixes.cpp)
+		compact.trie.prefixes.cpp
+		thread_pool.cpp
+		world_data_source_manager.cpp
+		flag_data.cpp
+		extra_description.cpp)
 set(UTILITIES
 		char.utilities.hpp
 		char.utilities.cpp)
@@ -111,6 +115,56 @@ add_test(NAME all COMMAND tests)
 set_tests_properties(all PROPERTIES WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
 
 add_custom_target(checks COMMAND ${CMAKE_CTEST_COMMAND} -V DEPENDS tests)
+
+# Coverage support (GCC + gcov + lcov)
+# Usage: cmake -DENABLE_COVERAGE=ON .. && make tests && make coverage
+# Result: coverage_html/index.html in build directory
+option(ENABLE_COVERAGE "Enable gcov/lcov coverage reporting (GCC only)" OFF)
+if (ENABLE_COVERAGE)
+	if (NOT CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+		message(WARNING "Coverage is only supported with GCC. Disabling.")
+		set(ENABLE_COVERAGE OFF)
+	else ()
+		message(STATUS "Coverage enabled: compiling with --coverage")
+		# -fprofile-update=atomic: thread-safe counter updates for parallel tests
+		target_compile_options(tests PRIVATE --coverage -fprofile-update=atomic -O0 -g)
+		target_link_options(tests PRIVATE --coverage)
+		target_compile_options(circle.library PRIVATE --coverage -fprofile-update=atomic -O0 -g)
+		target_link_options(circle.library PRIVATE --coverage)
+		# Signal main.cpp to call __gcov_dump() before _Exit()
+		target_compile_definitions(tests PRIVATE ENABLE_GCOV_FLUSH)
+
+		find_program(LCOV_EXECUTABLE lcov)
+		find_program(GENHTML_EXECUTABLE genhtml)
+		if (NOT LCOV_EXECUTABLE OR NOT GENHTML_EXECUTABLE)
+			message(WARNING "lcov/genhtml not found. Install with: sudo apt install lcov")
+		else ()
+			add_custom_target(coverage
+				COMMENT "Running tests and generating coverage report..."
+				COMMAND ${CMAKE_BINARY_DIR}/tests/tests
+				COMMAND ${LCOV_EXECUTABLE}
+					--capture
+					--ignore-errors mismatch,negative
+					--directory ${CMAKE_BINARY_DIR}
+					--output-file coverage.info
+				COMMAND ${LCOV_EXECUTABLE}
+					--remove coverage.info
+						--ignore-errors unused
+						"/usr/*"
+						"*/third_party_libs/*"
+						"*/tests/*"
+					--output-file coverage_filtered.info
+				COMMAND ${GENHTML_EXECUTABLE}
+					coverage_filtered.info
+					--output-directory coverage_html
+				COMMAND ${CMAKE_COMMAND} -E echo
+					"Report: ${CMAKE_BINARY_DIR}/coverage_html/index.html"
+				WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+				DEPENDS tests
+			)
+		endif ()
+	endif ()
+endif ()
 
 # Копируем тестовые данные в корень проекта (откуда запускаются тесты)
 add_custom_target(tests.misc.grouping
