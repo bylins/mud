@@ -13,7 +13,7 @@ concurrency:
 
 jobs:
   build-linux-matrix:
-    name: Linux (${{ matrix.config.name }})
+    name: Linux / GCC / ${{ matrix.config.name }}
     runs-on: ubuntu-latest
     continue-on-error: true  # Soft-failure mode
 
@@ -91,7 +91,7 @@ jobs:
           ./tests/tests
 
   build-linux-gcc15:
-    name: Linux (GCC 15)
+    name: Linux / GCC 15 / Base
     runs-on: ubuntu-latest
     continue-on-error: true  # Soft-failure mode
 
@@ -150,7 +150,7 @@ jobs:
           ./tests/tests
 
   build-windows-msvc:
-    name: Windows (MSVC)
+    name: Windows / MSVC / Base
     runs-on: windows-latest
     continue-on-error: true  # Soft-failure mode
 
@@ -185,7 +185,7 @@ jobs:
           exit $LASTEXITCODE
 
   build-macos-clang:
-    name: macOS (Clang)
+    name: macOS / Clang / Base
     runs-on: macos-latest
     continue-on-error: true  # Soft-failure mode
 
@@ -217,7 +217,7 @@ jobs:
           ./tests/tests
 
   build-windows-clang:
-    name: Windows (Clang)
+    name: Windows / Clang / Base
     runs-on: windows-latest
     continue-on-error: true  # Soft-failure mode
 
@@ -251,7 +251,7 @@ jobs:
           exit $LASTEXITCODE
 
   build-cygwin:
-    name: Cygwin
+    name: Cygwin / GCC / Base
     runs-on: windows-latest
     continue-on-error: true  # Soft-failure mode
 
@@ -311,7 +311,7 @@ jobs:
           ./tests/tests
 
   build-cygwin-yaml:
-    name: Cygwin + YAML (built from source)
+    name: Cygwin / GCC / YAML
     runs-on: windows-latest
     continue-on-error: true  # Soft-failure mode
 
@@ -383,7 +383,7 @@ jobs:
           ./tests/tests
 
   build-wsl:
-    name: WSL (Ubuntu)
+    name: WSL / GCC / Base
     runs-on: windows-latest
     continue-on-error: true  # Soft-failure mode
 
@@ -436,7 +436,7 @@ jobs:
 
 
   build-wsl-yaml:
-    name: WSL + YAML
+    name: WSL / GCC / YAML
     runs-on: windows-latest
     continue-on-error: true  # Soft-failure mode
 
@@ -489,7 +489,7 @@ jobs:
           ./tests/tests
 
   coverage:
-    name: Coverage
+    name: Linux / GCC / Coverage
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/world-load-refactoring' || github.ref == 'refs/heads/master' || github.event_name == 'pull_request'
 
