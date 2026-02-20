@@ -1074,7 +1074,7 @@ set(MISC_FILES
 
 source_group("Misc" FILES ${MISC_FILES})
 
-set(CIRCLE_FILES ${SOURCES} ${HEADERS} readme.markdown CONTRIBUTING.md ${CRAFT_FILES} ${MISC_FILES} )
+set(CIRCLE_FILES ${SOURCES} ${HEADERS} README.md CONTRIBUTING.md ${CRAFT_FILES} ${MISC_FILES} )
 
 # Sort source and header files. Just to convenience.
 list(SORT CIRCLE_FILES)
