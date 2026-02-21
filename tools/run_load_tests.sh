@@ -232,12 +232,14 @@ setup_small_world() {
     fi
     
     local dest_dir="$build_dir/small"
-    
+
     echo ""
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     echo "Setting up: small world ($loader)"
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    
+
+    rm -rf "$dest_dir"
+
     # Reconfigure CMake to recreate small directory with symlinks
     echo "Reconfiguring CMake to create small world structure..."
 
@@ -454,17 +456,14 @@ if [ $NEED_YAML -eq 1 ]; then
 fi
 # Setup worlds
 if [ $NEED_SMALL -eq 1 ]; then
-    if [ $NEED_LEGACY -eq 1 ] && ([ $RECREATE_BUILDS -eq 1 ] || [ ! -e "$MUD_DIR/build_test/small" ]); then
+    if [ $NEED_LEGACY -eq 1 ]; then
         setup_small_world "legacy" || exit 1
     fi
     if [ $NEED_SQLITE -eq 1 ]; then
-        # Always convert SQLite (fast, avoids stale/empty databases)
         setup_small_world "sqlite" || exit 1
     fi
     if [ $NEED_YAML -eq 1 ]; then
-        if [ $RECREATE_BUILDS -eq 1 ] || [ ! -d "$MUD_DIR/build_yaml/small/world/dictionaries" ]; then
         setup_small_world "yaml" || exit 1
-        fi
     fi
 fi
 
