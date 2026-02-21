@@ -1069,9 +1069,9 @@ set(CRAFT_FILES
 	${CRAFT_HEADER_FILES})
 
 set(MISC_FILES
-	lib/misc/noob_help.xml
+	lib.template/misc/noob_help.xml
 	lib/misc/configuration.xml
-	lib/misc/grouping)
+	lib.template/misc/grouping)
 
 source_group("Misc" FILES ${MISC_FILES})
 
