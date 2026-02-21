@@ -15,7 +15,6 @@ jobs:
   build-linux-matrix:
     name: Linux / GCC / ${{ matrix.config.name }}
     runs-on: ubuntu-latest
-    continue-on-error: true  # Soft-failure mode
 
     strategy:
       fail-fast: false
@@ -93,7 +92,6 @@ jobs:
   build-linux-gcc15:
     name: Linux / GCC 15 / Base
     runs-on: ubuntu-latest
-    continue-on-error: true  # Soft-failure mode
 
     container:
       image: debian:sid
@@ -152,7 +150,6 @@ jobs:
   build-windows-msvc:
     name: Windows / MSVC / Base
     runs-on: windows-latest
-    continue-on-error: true  # Soft-failure mode
 
     steps:
       - uses: actions/checkout@v4
@@ -187,7 +184,6 @@ jobs:
   build-macos-clang:
     name: macOS / Clang / Base
     runs-on: macos-latest
-    continue-on-error: true  # Soft-failure mode
 
     steps:
       - uses: actions/checkout@v4
@@ -219,7 +215,6 @@ jobs:
   build-windows-clang:
     name: Windows / Clang / Base
     runs-on: windows-latest
-    continue-on-error: true  # Soft-failure mode
 
     steps:
       - uses: actions/checkout@v4
@@ -253,7 +248,6 @@ jobs:
   build-cygwin:
     name: Cygwin / GCC / Base
     runs-on: windows-latest
-    continue-on-error: true  # Soft-failure mode
 
     steps:
       - uses: actions/checkout@v4
@@ -313,7 +307,6 @@ jobs:
   build-cygwin-yaml:
     name: Cygwin / GCC / YAML
     runs-on: windows-latest
-    continue-on-error: true  # Soft-failure mode
 
     steps:
       - uses: actions/checkout@v4
@@ -385,7 +378,6 @@ jobs:
   build-wsl:
     name: WSL / GCC / Base
     runs-on: windows-latest
-    continue-on-error: true  # Soft-failure mode
 
     steps:
       - uses: actions/checkout@v4
@@ -438,7 +430,6 @@ jobs:
   build-wsl-yaml:
     name: WSL / GCC / YAML
     runs-on: windows-latest
-    continue-on-error: true  # Soft-failure mode
 
     steps:
       - uses: actions/checkout@v4
@@ -596,4 +587,4 @@ jobs:
           echo "| Cygwin | ${{ needs.build-cygwin.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "| WSL | ${{ needs.build-wsl.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Note:** All jobs run in soft-failure mode (continue-on-error: true)" >> $GITHUB_STEP_SUMMARY
+          echo "**Note:** All jobs are hard-failures -- a red build means something is broken." >> $GITHUB_STEP_SUMMARY
