@@ -4316,14 +4316,14 @@ cmdlist_element::shared_ptr find_else_end(Trigger *trig,
 	return cl;
 }
 
-cmdlist_element::shared_ptr find_continue_done(cmdlist_element::shared_ptr cl) {
+cmdlist_element::shared_ptr find_continue_done(Trigger *trig, cmdlist_element::shared_ptr cl) {
 	const char *p = nullptr;
 	cmdlist_element::shared_ptr cl_prev;
 
 	while ((cl = cl ? cl->next : cl) != nullptr) {
 		for (p = cl->cmd.c_str(); *p && isspace(*reinterpret_cast<const unsigned char *>(p)); p++);
 		if (!strn_cmp("while ", p, 6) || !strn_cmp("switch ", p, 7) || !strn_cmp("foreach ", p, 8)) {
-			cl = find_continue_done(cl);
+			cl = find_done(trig, cl);
 		} else if (!strn_cmp("done", p, 4)) {
 			break;
 		}
@@ -5758,7 +5758,7 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 		} else if (!strn_cmp("break", p, 5)) {
 			cl = find_done(trig, cl);
 		} else if (!strn_cmp("continue", p, 8)) {
-			cl = find_continue_done(cl);
+			cl = find_continue_done(trig, cl);
 		} else if (!strn_cmp("case", p, 4))    // Do nothing, this allows multiple cases to a single instance
 		{
 		} else {
