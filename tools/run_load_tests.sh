@@ -365,15 +365,19 @@ setup_full_world() {
         rmdir "$dest_dir/lib"
         echo " Ready at $dest_dir"
     elif [ "$loader" = "sqlite" ] || [ "$loader" = "yaml" ]; then
-        echo "[2/3] Converting world data (this may take several minutes)..."
+        echo "[2/3] Flattening archive structure..."
+        mv "$dest_dir/lib/"* "$dest_dir/"
+        rmdir "$dest_dir/lib"
+
+        echo "[3/3] Converting world data (this may take several minutes)..."
         echo "      Format: $loader"
         echo "      Log: /tmp/convert_full_${loader}.log"
         echo "      Tip: Run 'tail -f /tmp/convert_full_${loader}.log' in another terminal to watch progress"
         echo ""
-        
+
         if [ "$loader" = "sqlite" ]; then
             python3 "$MUD_DIR/tools/converter/convert_to_yaml.py" \
-                -i "$dest_dir/lib" \
+                -i "$dest_dir" \
                 -o "$dest_dir" \
                 -f sqlite \
                 --db "$dest_dir/world.db" \
@@ -386,7 +390,7 @@ setup_full_world() {
             echo " Converted to SQLite format"
         else
             python3 "$MUD_DIR/tools/converter/convert_to_yaml.py" \
-                -i "$dest_dir/lib" \
+                -i "$dest_dir" \
                 -o "$dest_dir" \
                 -f yaml \
  > /tmp/convert_full_yaml.log 2>&1 || {
@@ -398,11 +402,6 @@ setup_full_world() {
             echo " Converted to YAML format"
         fi
 
-		# Move non-world content from lib/ to root (world/ already converted above)
-		rm -rf "$dest_dir/lib/world"
-		mv "$dest_dir/lib/"* "$dest_dir/"
-		rm -rf "$dest_dir/lib"
-        
     fi
     
     echo ""
