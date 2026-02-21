@@ -21,6 +21,7 @@ int perform_mob_switch(CharData *ch);
 void do_aggressive_room(CharData *ch, int check_sneak);
 bool find_master_charmice(CharData *charmice);
 int attack_best(CharData *ch, CharData *victim, bool do_mode = false);
+void extract_charmice(CharData *ch, bool on_ground);
 
 } //namespace mob_ai
 

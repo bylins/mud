@@ -175,7 +175,7 @@ int CalcSaving(CharData *killer, CharData *victim, ESaving saving, bool need_log
 
 		save -= victim->GetSkill(ESkill::kAwake) / 5; //CalculateSkillAwakeModifier(killer, victim);
 	}
-	save += GetSave(victim, saving);    // одежда бафы и слава
+	save += round(GetSave(victim, saving) * abilities::kSaveWeight);    // одежда бафы и слава
 	if (need_log) {
 		killer->send_to_TC(false, true, true,
 				"SAVING (%s): Killer==%s  Target==%s vnum==%d Level==%d base_save==%d save_equip==%d save_awake=-%d result_save=%d\r\n",
@@ -1806,8 +1806,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 				break;
 			}
 			af[0].location = EApply::kStr;
-			af[0].duration =
-				CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch), 1, 0, 0) * koef_duration;
+			af[0].duration = CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch), 1, 0, 0) * koef_duration;
 			if (ch == victim)
 				af[0].modifier = (level + 9) / 10 + koef_modifier + GetRealRemort(ch) / 5;
 			else

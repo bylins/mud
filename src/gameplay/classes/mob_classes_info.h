@@ -81,16 +81,17 @@ public:
     bool has_dam_n_dice{false};
     bool has_dam_s_dice{false};
 
-    // Hitroll / luck(morale) / cast success
+    // Hitroll / damroll / luck(morale) / cast success
     ParametersData hitroll;
+    ParametersData damroll;
     ParametersData morale;
     ParametersData initiative;
     ParametersData cast_success;
     bool has_hitroll{false};
+    bool has_damroll{false};
     bool has_morale{false};
     bool has_initiative{false};
     bool has_cast_success{false};
-
 
     // HP / size / exp / likes_work
     ParametersData hit_points;
