@@ -398,7 +398,8 @@ setup_full_world() {
             echo " Converted to YAML format"
         fi
 
-		# Move all content from lib/ to root
+		# Move non-world content from lib/ to root (world/ already converted above)
+		rm -rf "$dest_dir/lib/world"
 		mv "$dest_dir/lib/"* "$dest_dir/"
 		rm -rf "$dest_dir/lib"
         

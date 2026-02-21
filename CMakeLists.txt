@@ -1481,13 +1481,6 @@ if (NOT "${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
     
     message(STATUS "Small world directory configured at: ${SMALL_WORLD_DIR}")
 
-    # Create lib symlink for running server from build directory
-    set(LIB_LINK "${CMAKE_BINARY_DIR}/lib")
-    if (NOT EXISTS "${LIB_LINK}")
-        execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink "${CMAKE_SOURCE_DIR}/lib.template" "${LIB_LINK}")
-        message(STATUS "Created lib symlink: ${LIB_LINK} -> ${CMAKE_SOURCE_DIR}/lib.template")
-    endif()
-    
     # Setup full world directory if path is specified
     if (FULL_WORLD_PATH)
         set(FULL_WORLD_DIR "${CMAKE_BINARY_DIR}/full")
