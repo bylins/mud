@@ -88,7 +88,10 @@ set(TESTS
 		thread_pool.cpp
 		world_data_source_manager.cpp
 		flag_data.cpp
-		extra_description.cpp)
+		extra_description.cpp
+		trigger_indenter.cpp
+		dg_string_matching.cpp
+		dg_var_context.cpp)
 set(UTILITIES
 		char.utilities.hpp
 		char.utilities.cpp)

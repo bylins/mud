@@ -573,6 +573,7 @@ set(HEADERS
 		src/engine/scripting/dg_event.h
 		src/engine/scripting/dg_olc.h
 		src/engine/scripting/dg_scripts.h
+		src/engine/scripting/dg_triggers.h
 		src/gameplay/economics/dictionary.h
 		src/utils/diskio.h
 		src/engine/structs/structs_double_map.h
