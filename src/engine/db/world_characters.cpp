@@ -149,7 +149,10 @@ void Characters::remove(CharData *character) {
 		mobs_by_vnum_remove(character, vnum);
 	}
 	if (character->IsNpc()) {
-		affected_mobs.erase(character);
+		auto it_erase = affected_mobs.find(character);
+		if (it_erase != affected_mobs.end()) {
+			affected_mobs.erase(it_erase);
+		}
 	}
 	auto elist = m_extracted_list.find(character);
 	if (elist != m_extracted_list.end()){

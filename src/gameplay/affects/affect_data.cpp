@@ -377,8 +377,9 @@ void battle_affect_update(CharData *ch) {
 void mobile_affect_update() {
 	utils::CExecutionTimer timer;
 	int count = 0;
+	auto copy = affected_mobs;
 
-	for (auto it = affected_mobs.begin(); it != affected_mobs.end();) {
+	for (auto it = copy.begin(); it != copy.end(); it++) {
 		const auto &ch = *it;
 		int was_charmed = false, charmed_msg = false;
 		bool was_purged = false;
@@ -390,8 +391,11 @@ void mobile_affect_update() {
 
 		if (ch->affected.empty()) {
 			log(fmt::format("ERROR!!! Проверка счетчика аффектов у очищенного моба {} #{}", ch->get_name(), GET_MOB_VNUM(ch)));
-			it = affected_mobs.erase(it);
-			continue;
+			auto it_erase = affected_mobs.find(ch);
+			if (it_erase != affected_mobs.end()) {
+				affected_mobs.erase(it_erase);
+				continue;
+			}
 		}
 		while (affect_i != ch->affected.end()) {
 			const auto &affect = *affect_i;
@@ -460,10 +464,11 @@ void mobile_affect_update() {
 			}
 		}
 		if (ch->affected.empty()) {
-			it = affected_mobs.erase(it);
-		} else
-			++it;
-
+			auto it_erase = affected_mobs.find(ch);
+			if (it_erase != affected_mobs.end()) {
+				affected_mobs.erase(it_erase);
+			}
+		} 
 	}
 	log("mobile affect update: timer %f, num mobs %d", timer.delta().count(), count);
 }
@@ -790,7 +795,6 @@ void ImposeAffect(CharData *ch, Affect<EApply> &af, bool add_dur, bool max_dur, 
 
 		while (it != ch->affected.end()) {
 			const auto &affect = *it;
-
 			if (affect->type == af.type
 				&& affect->location == af.location) {
 				if (add_dur) {
