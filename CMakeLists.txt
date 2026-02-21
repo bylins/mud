@@ -1450,7 +1450,6 @@ if (BUILD_TESTS)
 	add_subdirectory(tests)
 endif ()
 
-# vim: set ts=4 sw=4 ai tw=0 noet syntax=cmake :
 
 # =============================================================================
 # Data directories setup for running server from build directory
