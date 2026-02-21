@@ -225,8 +225,11 @@ void HandleUpdateZone(DescriptorData* d, int zone_vnum, const char* json_data)
 		// Apply updates
 		ParseZoneUpdate(zone, data);
 
-		// TODO: Save to disk
-		// For now, changes are in memory only. Need to implement zone save via data source.
+		// Note: changes are applied directly to zone_table in memory and intentionally bypass
+		// the OLC pipeline. OLC (zedit) also edits zone headers in memory only -- it defers
+		// disk writes to an explicit "save zone" command issued by the builder. The Admin API
+		// follows the same model: call the "save_zone" endpoint (or trigger OLC save) to
+		// persist changes to disk via the active IWorldDataSource.
 
 		json response;
 		response["status"] = "ok";

@@ -848,11 +848,6 @@ void zedit_disp_commands(DescriptorData *d) {
 
 // the main menu
 void zedit_disp_menu(DescriptorData *d) {
-	// Skip menu display if no character (e.g., called from Admin API)
-	if (!d->character) {
-		return;
-	}
-
 //	char *buf = (char *) malloc(32 * 1024);
 	char *type1_zones = (char *) malloc(1024);
 	char *type2_zones = (char *) malloc(1024);
