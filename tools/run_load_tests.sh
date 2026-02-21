@@ -347,6 +347,7 @@ setup_full_world() {
     echo "      Source: $FULL_WORLD_ARCHIVE"
     echo "      Target: $dest_dir"
     
+    rm -rf "$dest_dir"
     mkdir -p "$dest_dir"
     tar -xzf "$FULL_WORLD_ARCHIVE" -C "$dest_dir" > /tmp/extract_full.log 2>&1 || {
         echo "X ERROR: Extraction failed"
@@ -472,14 +473,13 @@ if [ $NEED_FULL -eq 1 ]; then
         echo "WARNING: Full world tests skipped - archive not found: $FULL_WORLD_ARCHIVE"
         NEED_FULL=0
     else
-        if [ $NEED_LEGACY -eq 1 ] && ([ $RECREATE_BUILDS -eq 1 ] || [ ! -d "$MUD_DIR/build_test/full" ]); then
+        if [ $NEED_LEGACY -eq 1 ]; then
             setup_full_world "legacy" || exit 1
         fi
         if [ $NEED_SQLITE -eq 1 ]; then
-            # Always convert SQLite (fast, avoids stale/empty databases)
             setup_full_world "sqlite" || exit 1
         fi
-        if [ $NEED_YAML -eq 1 ] && ([ $RECREATE_BUILDS -eq 1 ] || [ ! -d "$MUD_DIR/build_yaml/full/world" ]); then
+        if [ $NEED_YAML -eq 1 ]; then
             setup_full_world "yaml" || exit 1
         fi
     fi
