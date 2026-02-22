@@ -38,7 +38,7 @@ void pers_log(CharData *ch, const char *format, ...) {
 		for (ptr = name; *ptr; ptr++) {
 			*ptr = LOWER(AtoL(*ptr));
 		}
-		sprintf(filename, "../log/perslog/%s.log", name);
+		sprintf(filename, "log/perslog/%s.log", name);
 		ch->desc->pers_log = fopen(filename, "a");
 		if (!ch->desc->pers_log) {
 			log("SYSERR: error open %s (%s %s %d)", filename, __FILE__, __func__, __LINE__);

@@ -1461,8 +1461,7 @@ class ZoneFile : public DataFile {
 	static int s_zone_number;
 };
 
-// Start from 1 because zone_table[0] is reserved for kNowhere (like world[0] for rooms)
-int ZoneFile::s_zone_number = 1;
+int ZoneFile::s_zone_number = 0;
 
 bool ZoneFile::load_zone() {
 	auto &zone = zone_table[s_zone_number];

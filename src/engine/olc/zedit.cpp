@@ -1938,7 +1938,7 @@ void zedit_parse(DescriptorData *d, char *arg) {
 				SendMsgToChar(d->character.get(), "Не нужно писать адакадабру, повторите ввод: ");
 			} else  if (zone_table[OLC_ZNUM(d)].vnum == pos) {
 				SendMsgToChar(d->character.get(), "Зачем добавлять саму себя? повторите ввод: ");
-			} else if (GetZoneRnum(pos) == 0) {
+			} else if (GetZoneRnum(pos) == kNoZone) {
 				SendMsgToChar(d->character.get(), "Некорректны номер зоны, повторите ввод (2-%d) : ",
 						zone_table[zone_table.size() - 1 - dungeons::kNumberOfZoneDungeons].vnum);
 			} else {
@@ -1982,7 +1982,7 @@ void zedit_parse(DescriptorData *d, char *arg) {
 		case ZEDIT_TYPE_B_LIST:
 			// * Add or delete new zone in the type A zones list.
 			pos = atoi(arg);
-			if (!is_number(arg) || GetZoneRnum(pos) == 0) {
+			if (!is_number(arg) || GetZoneRnum(pos) == kNoZone) {
 				SendMsgToChar(d->character.get(), "Повторите ввод (1-%d) : ",
 							  zone_table[zone_table.size() - 1 - dungeons::kNumberOfZoneDungeons].vnum);
 			} else {

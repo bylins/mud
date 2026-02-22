@@ -467,7 +467,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 		SendMsgToChar(kColorNrm, ch);
 		SendMsgToChar(ch, "\r\n");
 		// информация о маршруте моба
-		if (k->mob_specials.dest_count > 0) {
+		if (k->mob_specials.dest_count > 0 && k->in_room != kNowhere) {
 			// подготавливаем путевые точки
 			std::stringstream str_dest_list;
 			for (auto i = 0; i < k->mob_specials.dest_count; i++) {

@@ -627,19 +627,18 @@ void YamlWorldDataSource::LoadZonesParallel()
 	}
 
 	int zone_count = zone_vnums.size();
-	// Reserve zone_table[0] as kNowhere (unused), like world[0] for rooms
-	zone_table.reserve(zone_count + 1 + dungeons::kNumberOfZoneDungeons);
-	zone_table.resize(zone_count + 1);
+	zone_table.reserve(zone_count + dungeons::kNumberOfZoneDungeons);
+	zone_table.resize(zone_count);
 	log("   %d zones, %zd bytes.", zone_count, sizeof(ZoneData) * zone_count);
 
 	// Sort zone vnums to match Legacy loader order (CRITICAL for checksums)
 	std::sort(zone_vnums.begin(), zone_vnums.end());
 
-	// Build vnum to index mapping (zones start from index 1, index 0 is kNowhere)
+	// Build vnum to index mapping
 	std::map<int, size_t> vnum_to_idx;
 	for (size_t i = 0; i < zone_vnums.size(); ++i)
 	{
-		vnum_to_idx[zone_vnums[i]] = i + 1;  // +1: reserve zone_table[0] as kNowhere
+		vnum_to_idx[zone_vnums[i]] = i;
 	}
 
 	// Distribute zones into batches

@@ -748,7 +748,7 @@ void zone_traffic_load() {
 		ZoneRnum zrn;
 		zrn = GetZoneRnum(zone_vnum);
 		int num = atoi(node.attribute("traffic").value());
-		if (zrn == 0 && zone_vnum != 1) {
+		if (zrn == kNoZone) {
 			snprintf(buf, kMaxStringLength,
 					 "zone_traffic: несуществующий номер зоны %d ее траффик %d ",
 					 zone_vnum, num);
@@ -1291,9 +1291,8 @@ void GameLoader::PrepareGlobalStructures(const EBootType mode, const int rec_cou
 			break;
 
 		case DB_BOOT_ZON: {
-			// Reserve zone_table[0] as kNowhere (unused), like world[0] for rooms
-			zone_table.reserve(rec_count + 1 + dungeons::kNumberOfZoneDungeons);
-			zone_table.resize(rec_count + 1);
+			zone_table.reserve(rec_count + dungeons::kNumberOfZoneDungeons);
+			zone_table.resize(rec_count);
 			const size_t zones_size = sizeof(ZoneData) * rec_count;
 			log("   %d zones, %zd bytes.", rec_count, zones_size);
 		}
@@ -1394,8 +1393,7 @@ void CalculateFirstAndLastRooms() {
 	RoomRnum rn;
 	ZoneRnum zrn = 0;
 
-	// zone_table[0] is reserved as kNowhere (unused), zones start from [1]
-	// First room for the initial zone will be set in the loop below
+	zone_table[0].RnumRoomsLocation.first = 1;
 	for (rn = 1; rn <= static_cast<RoomRnum>(world.size() - 1); rn++) {
 		zrn = world[rn]->zone_rn;
 		if (current != zrn) {
@@ -1406,8 +1404,7 @@ void CalculateFirstAndLastRooms() {
 	}
 	zone_table[zrn].RnumRoomsLocation.first = zone_table[zrn - 1].RnumRoomsLocation.second + 1;
 	zone_table[zrn].RnumRoomsLocation.second = rn - 1;
-	// Skip zone_table[0] (kNowhere)
-	for (size_t i = 1; i < zone_table.size(); ++i) {
+	for (size_t i = 0; i < zone_table.size(); ++i) {
 		auto &zone_data = zone_table[i];
 		zone_data.RnumRoomsLocation.second--; //уберем виртуалки
 		if (zone_data.entrance == 0) {  //если в зонфайле не указана стартовая комната
@@ -1501,7 +1498,7 @@ void SetZoneRnumForTriggers() {
 		ZoneVnum zone_vnum = trig_vnum / 100;
 		ZoneRnum zone_rnum = GetZoneRnum(zone_vnum);
 
-		if (zone_rnum == kNowhere) {
+		if (zone_rnum == kNoZone) {
 			log("FATAL: Trigger %d belongs to non-existent zone %d (zone_table has %zu zones)",
 				trig_vnum, zone_vnum, zone_table.size());
 			log("FATAL: This indicates broken world data or initialization order bug.");
@@ -1524,7 +1521,7 @@ void ResolveZoneCmdVnumArgsToRnums(ZoneData &zone_data) {
 	char local_buf[128];
 	int i;
 	for (i = 0; i < zone_data.typeA_count; i++) {
-		if (GetZoneRnum(zone_data.typeA_list[i]) == 0) {
+		if (GetZoneRnum(zone_data.typeA_list[i]) == kNoZone) {
 			sprintf(local_buf,
 					"SYSERROR: некорректное значение в typeA (%d) для зоны: %d",
 					zone_data.typeA_list[i],
@@ -1533,7 +1530,7 @@ void ResolveZoneCmdVnumArgsToRnums(ZoneData &zone_data) {
 		}
 	}
 	for (i = 0; i < zone_data.typeB_count; i++) {
-		if (GetZoneRnum(zone_data.typeB_list[i]) == 0) {
+		if (GetZoneRnum(zone_data.typeB_list[i]) == kNoZone) {
 			sprintf(local_buf,
 					"SYSERROR: некорректное значение в typeB (%d) для зоны: %d",
 					zone_data.typeB_list[i],
@@ -3003,7 +3000,7 @@ ObjRnum GetObjRnum(ObjVnum vnum) {
 ZoneRnum GetZoneRnum(ZoneVnum vnum) {
 	ZoneRnum bot, top, mid;
 
-	bot = 1;  // 0 - zone is kNowhere (reserved, unused)
+	bot = 0;
 	top = static_cast<ZoneRnum>(zone_table.size() - 1);
 
 	for (;;) {
@@ -3012,7 +3009,7 @@ ZoneRnum GetZoneRnum(ZoneVnum vnum) {
 		if (zone_table[mid].vnum == vnum)
 			return (mid);
 		if (bot >= top)
-			return (kNowhere);
+			return (kNoZone);
 		if (zone_table[mid].vnum > vnum)
 			top = mid - 1;
 		else
