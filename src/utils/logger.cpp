@@ -7,6 +7,7 @@
 #include <cstdarg>
 #include <cstdio>
 #include <format>
+#include <sys/stat.h>
 
 #if defined(__clang__) || defined(__CYGWIN__)
 #define HAS_TIME_ZONE 0
@@ -38,6 +39,8 @@ void pers_log(CharData *ch, const char *format, ...) {
 		for (ptr = name; *ptr; ptr++) {
 			*ptr = LOWER(AtoL(*ptr));
 		}
+		mkdir("../log", 0700);
+		mkdir("../log/perslog", 0700);
 		sprintf(filename, "../log/perslog/%s.log", name);
 		ch->desc->pers_log = fopen(filename, "a");
 		if (!ch->desc->pers_log) {

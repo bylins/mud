@@ -603,8 +603,9 @@ run_admin_api_test() {
     rm -rf "$data_dir/syslog" "$data_dir/admin_api.sock" 2>/dev/null || true
 
     # Start server in background with admin API enabled (cd into data_dir so syslog/log/ land there)
+    # exec replaces the subshell so $! captures the binary's PID, not the shell's
     echo "  Starting server with Admin API..."
-    (cd "$data_dir" && "$binary" -d . 4001 > "stdout_admin.log" 2>&1) &
+    (cd "$data_dir" && exec "$binary" -d . 4001 > "stdout_admin.log" 2>&1) &
     local server_pid=$!
 
     # Wait for socket to appear (max 30 seconds)
@@ -674,8 +675,9 @@ run_test() {
     rm -rf "$data_dir/syslog" "$data_dir/checksums_detailed.txt" "$data_dir/checksums_buffers" 2>/dev/null || true
 
     # Start server in background (cd into data_dir so syslog/log/ land there)
+    # exec replaces the subshell so $! captures the binary's PID, not the shell's
     echo "  Running: $binary -d . $extra_flags 4000 (from $data_dir)"
-    (cd "$data_dir" && "$binary" -d . $extra_flags 4000 > "stdout.log" 2>&1) &
+    (cd "$data_dir" && exec "$binary" -d . $extra_flags 4000 > "stdout.log" 2>&1) &
 
     # Wait for syslog to appear (max 10 seconds)
     local waited=0
