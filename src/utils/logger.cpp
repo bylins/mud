@@ -38,7 +38,7 @@ void pers_log(CharData *ch, const char *format, ...) {
 		for (ptr = name; *ptr; ptr++) {
 			*ptr = LOWER(AtoL(*ptr));
 		}
-		sprintf(filename, "log/perslog/%s.log", name);
+		sprintf(filename, "../log/perslog/%s.log", name);
 		ch->desc->pers_log = fopen(filename, "a");
 		if (!ch->desc->pers_log) {
 			log("SYSERR: error open %s (%s %s %d)", filename, __FILE__, __func__, __LINE__);
@@ -206,7 +206,7 @@ void shop_log(const char *format, ...) {
 }
 
 void olc_log(const char *format, ...) {
-	const char *filename = "log/olc.log";
+	const char *filename = "../log/olc.log";
 
 	FILE *file = fopen(filename, "a");
 	if (!file) {

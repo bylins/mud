@@ -708,17 +708,23 @@ int main_function(int argc, char **argv) {
 	printf("%s\r\n", DG_SCRIPT_VERSION);
 	if (getcwd(cwd, sizeof(cwd))) {};
 	printf("Current directory '%s' using '%s' as data directory.\r\n", cwd, dir);
-	if (chdir(dir) < 0) {
-		perror("\r\nSYSERR: Fatal error changing to data directory");
-		exit(1);
+	{
+		std::string config_path = std::string(dir) + "/misc/configuration.xml";
+		runtime_config.load(config_path.c_str());
 	}
-	runtime_config.load();
 	if (runtime_config.msdp_debug()) {
 		msdp::debug(true);
 	}
 	// All arguments have been parsed, try to open log file.
+	// setup_logs() must be called before chdir() so that log/ and log/perslog/
+	// directories are created in the working directory (next to the binary),
+	// not inside the data directory.
 	runtime_config.setup_logs();
 	logfile = runtime_config.logs(SYSLOG).handle();
+	if (chdir(dir) < 0) {
+		perror("\r\nSYSERR: Fatal error changing to data directory");
+		exit(1);
+	}
 	log_code_date();
 	printf("Code version %s, revision: %s\r\n", build_datetime, revision);
 	if (scheck) {
