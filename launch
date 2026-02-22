@@ -1,1 +1,4 @@
-./autorun &
+#!/bin/bash
+nohup ./autorun > autorun.out 2>&1 &
+echo $! > autorun.pid
+echo "Started autorun with PID $(cat autorun.pid)"
