@@ -1,11 +1,11 @@
 #!/bin/bash
-PORT=4000
+PORT=${MUD_PORT:-4000}
 ulimit -c unlimited
 umask u=rwx,g=rwx,o=
 export ASAN_OPTIONS=log_path=/home/mud/mud/asan.log
 # Default flags to pass to the MUD server (see admin.txt for a description
-# of all flags).
-FLAGS=''
+# of all flags). Override with MUD_FLAGS environment variable.
+FLAGS=${MUD_FLAGS:-''}
 #############################################################################
 while ( : ) do
   DATE=`date`
