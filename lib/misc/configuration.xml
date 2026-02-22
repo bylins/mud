@@ -114,4 +114,9 @@
 		</server>
 	</statistics>
 	-->
+	<admin_api>
+		<enabled>false</enabled>
+		<socket_path>admin_api.sock</socket_path>
+		<port>12000</port>
+	</admin_api>
 </configuration>
