@@ -1,5 +1,5 @@
 #!/bin/bash
-CIRCLE=${MUD_BINARY:-build/circle}
+CIRCLE=${CIRCLE:-build/circle}
 ulimit -c unlimited
 umask u=rwx,g=rwx,o=
 export ASAN_OPTIONS=log_path=/home/mud/mud/asan.log

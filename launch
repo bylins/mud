@@ -1,4 +1,5 @@
 #!/bin/bash
-nohup ./autorun "$@" > autorun.out 2>&1 &
+DIR="$(dirname "$0")"
+nohup "$DIR/autorun" "$@" > autorun.out 2>&1 &
 echo $! > autorun.pid
 echo "Started autorun with PID $(cat autorun.pid)"
