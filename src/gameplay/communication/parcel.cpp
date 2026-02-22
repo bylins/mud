@@ -15,6 +15,7 @@
 #include "gameplay/mechanics/dungeons.h"
 
 #include <iomanip>
+#include "engine/db/global_objects.h"
 
 #include <third_party_libs/fmt/include/fmt/format.h>
 
@@ -74,12 +75,12 @@ SenderListType return_list; // временный список на возвра
 
 // * Отдельный лог для отладки.
 void parcel_log(const char *format, ...) {
-	const char *filename = "../log/parcel.log";
+	const auto filename = runtime_config.log_dir() + "/parcel.log";
 	static FILE *file = 0;
 	if (!file) {
-		file = fopen(filename, "a");
+		file = fopen(filename.c_str(), "a");
 		if (!file) {
-			log("SYSERR: can't open %s!", filename);
+			log("SYSERR: can't open %s!", filename.c_str());
 			return;
 		}
 		opened_files.push_back(file);

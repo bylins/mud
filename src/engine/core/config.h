@@ -156,6 +156,7 @@ class RuntimeConfiguration {
 	const CLogInfo &logs(EOutputStream id) { return m_logs[static_cast<size_t>(id)]; }
 	void handle(const EOutputStream stream, FILE *handle);
 	const std::string &log_stderr() { return m_log_stderr; }
+	const std::string &log_dir() const { return m_log_dir; }
 	auto output_thread() const { return m_output_thread; }
 	auto output_queue_size() const { return m_output_queue_size; }
 
@@ -209,6 +210,7 @@ class RuntimeConfiguration {
 
 	logs_t m_logs;
 	std::string m_log_stderr;
+	std::string m_log_dir;
 	bool m_output_thread;
 	std::size_t m_output_queue_size;
 	converter_t m_syslog_converter;

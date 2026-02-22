@@ -466,6 +466,11 @@ void RuntimeConfiguration::setup_logs() {
 	mkdir("log", 0700);
 	mkdir("log/perslog", 0700);
 
+	char abs_path[4096];
+	if (getcwd(abs_path, sizeof(abs_path))) {
+		m_log_dir = std::string(abs_path) + "/log";
+	}
+
 	for (int i = 0; i < 1 + LAST_LOG; ++i) {
 		auto stream = static_cast<EOutputStream>(i);
 
