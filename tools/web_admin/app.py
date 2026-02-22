@@ -649,14 +649,18 @@ def api_spells():
 
 
 if __name__ == '__main__':
-    # Get host and port from environment or use defaults
     HOST = os.environ.get('FLASK_HOST', '127.0.0.1')
     PORT = int(os.environ.get('FLASK_PORT', 5000))
+    DEBUG = os.environ.get('FLASK_DEBUG', '0').lower() in ('1', 'true', 'yes')
+    # Flask built-in server: threaded=True enables concurrent requests (one thread per request).
+    # For a fixed thread pool use gunicorn: gunicorn -w 1 --threads 2 app:app
+    THREADED = int(os.environ.get('FLASK_THREADS', 2)) > 1
 
     print("=" * 60)
     print("Bylins MUD Web Admin Interface")
     print("=" * 60)
     print(f"Socket path: {SOCKET_PATH}")
     print(f"Starting server on http://{HOST}:{PORT}")
+    print(f"Debug: {DEBUG}, Threaded: {THREADED}")
     print("=" * 60)
-    app.run(debug=True, host=HOST, port=PORT)
+    app.run(debug=DEBUG, host=HOST, port=PORT, threaded=THREADED)
