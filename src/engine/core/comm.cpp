@@ -951,7 +951,7 @@ socket_t init_socket(ush_int port) {
 		}
 		log("Max players set to %d", max_players);
 
-		if ((s = socket(PF_INET, SOCK_STREAM, 0)) == SOCKET_ERROR)
+		if ((s = socket(PF_INET, SOCK_STREAM, 0)) == static_cast<socket_t>(SOCKET_ERROR))
 		{
 			log("SYSERR: Error opening network connection: Winsock error #%d", WSAGetLastError());
 			exit(1);
@@ -1729,7 +1729,7 @@ int new_descriptor(socket_t s)
 
 	// accept the new connection
 	i = sizeof(peer);
-	if ((desc = accept(s, (struct sockaddr *) &peer, &i)) == SOCKET_ERROR) {
+	if ((desc = accept(s, (struct sockaddr *) &peer, &i)) == static_cast<socket_t>(SOCKET_ERROR)) {
 #ifdef EWOULDBLOCK
 		if (errno != EINTR && errno != EAGAIN && errno != EWOULDBLOCK)
 #else

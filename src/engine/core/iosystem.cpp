@@ -1062,7 +1062,7 @@ int mccp_end(DescriptorData *t, int ver) {
 }
 #endif
 
-int toggle_compression(DescriptorData *t) {
+int toggle_compression([[maybe_unused]] DescriptorData *t) {
 #if defined(HAVE_ZLIB)
 	if (t->mccp_version == 0)
 		return 0;

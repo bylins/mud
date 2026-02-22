@@ -61,7 +61,7 @@ void print_gain(CharData *ch) {
 	if (!tmp_list.empty()) {
 		SendMsgToChar(ch,
 					  "Gain exp stats:\r\n"
-					  "Total zones: %lu\r\n"
+					  "Total zones: %zu\r\n"
 					  "  vnum - exp\r\n"
 					  "================\r\n", tmp_list.size());
 	} else {

@@ -24,8 +24,8 @@ constexpr size_t WRAPPER_LENGTH = HEAD_LENGTH + TAIL_LENGTH;
 /** @} */
 
 void debug(const bool on);
-void log(const char *format, ...) __attribute__((format(printf, 1, 2)));
-void debug_log(const char *format, ...) __attribute__((format(printf, 1, 2)));
+void log(const char *format, ...) __attribute__((format(gnu_printf, 1, 2)));
+void debug_log(const char *format, ...) __attribute__((format(gnu_printf, 1, 2)));
 void hexdump(const char *ptr, const size_t buflen, const char *title = nullptr);
 
 inline std::string indent(size_t level) { return std::string(level, '\t'); }

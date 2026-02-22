@@ -3367,7 +3367,7 @@ void find_replacement(void *go,
 					out << it << "#";
 				}
 				if (out.str().size() > kMaxInputLength) {
-					sprintf(buf, "Список переменных переполнен, сократите на %ld символов", out.str().size() - kMaxInputLength);
+					sprintf(buf, "Список переменных переполнен, сократите на %zu символов", out.str().size() - kMaxInputLength);
 					trig_log(trig, buf);
 				} else
 					o->set_dgscript_field(out.str());
@@ -4494,7 +4494,7 @@ void process_set(Script * /*sc*/, Trigger *trig, char *cmd) {
 		return;
 	}
 	if (strlen(name) > kMaxTrglineLength) {
-		sprintf(buf2, "eval result превышает максимальную длину триггерной строки (%ld), команда: '%s'", strlen(name), cmd);
+		sprintf(buf2, "eval result превышает максимальную длину триггерной строки (%zu), команда: '%s'", strlen(name), cmd);
 		trig_log(trig, buf2);
 	}
 	add_var_cntx(trig->var_list, name, value, 0);
@@ -4514,7 +4514,7 @@ void process_eval(void *go, Script *sc, Trigger *trig, int type, char *cmd) {
 	size_t len_expr = strlen(expr);
 
 	if (len_expr > kMaxTrglineLength) {
-		sprintf(buf2, "eval: expr превышает максимальную длину триггерной строки (%ld), команда: '%s'", len_expr, cmd);
+		sprintf(buf2, "eval: expr превышает максимальную длину триггерной строки (%zu), команда: '%s'", len_expr, cmd);
 		trig_log(trig, buf2);
 	}
 	eval_expr(expr, result, go, sc, trig, type);

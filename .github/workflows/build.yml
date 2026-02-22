@@ -159,6 +159,15 @@ jobs:
       - name: Setup MSVC
         uses: ilammy/msvc-dev-cmd@v1
 
+      - name: Cache vcpkg packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            C:\vcpkg\installed
+            C:\vcpkg\packages
+          key: vcpkg-msvc-${{ hashFiles('.github/workflows/build.yml') }}
+          restore-keys: vcpkg-msvc-
+
       - name: Install dependencies with vcpkg
         run: |
           vcpkg install openssl:x64-windows curl:x64-windows expat:x64-windows gtest:x64-windows
@@ -221,6 +230,15 @@ jobs:
         with:
           submodules: recursive
 
+      - name: Cache vcpkg packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            C:\vcpkg\installed
+            C:\vcpkg\packages
+          key: vcpkg-clang-${{ hashFiles('.github/workflows/build.yml') }}
+          restore-keys: vcpkg-clang-
+
       - name: Install dependencies with vcpkg
         run: |
           vcpkg install openssl:x64-windows curl:x64-windows expat:x64-windows gtest:x64-windows
@@ -244,6 +262,41 @@ jobs:
           ./tests/Release/tests.exe
           echo "Exit code: $LASTEXITCODE"
           exit $LASTEXITCODE
+
+  build-windows-mingw:
+    name: Windows / MinGW / Base
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup MSYS2 / MinGW-w64
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          update: false
+          install: >-
+            mingw-w64-x86_64-gcc
+            mingw-w64-x86_64-cmake
+            mingw-w64-x86_64-ninja
+            mingw-w64-x86_64-openssl
+            mingw-w64-x86_64-curl
+            mingw-w64-x86_64-expat
+
+      - name: Configure CMake
+        shell: msys2 {0}
+        run: |
+          mkdir -p build
+          cd build
+          cmake -G Ninja -DCMAKE_BUILD_TYPE=Test -DBUILD_TESTS=OFF ..
+
+      - name: Build
+        shell: msys2 {0}
+        run: |
+          cd build
+          ninja -j$(nproc)
 
   build-cygwin:
     name: Cygwin / GCC / Base
@@ -551,7 +604,7 @@ jobs:
   build-summary:
     name: Build Summary
     runs-on: ubuntu-latest
-    needs: [build-linux-matrix, build-linux-gcc15, build-windows-msvc, build-macos-clang, build-windows-clang, build-cygwin, build-wsl, build-cygwin-yaml, build-wsl-yaml]
+    needs: [build-linux-matrix, build-linux-gcc15, build-windows-msvc, build-macos-clang, build-windows-clang, build-windows-mingw, build-cygwin, build-wsl, build-cygwin-yaml, build-wsl-yaml]
     if: always()
 
     steps:
@@ -584,6 +637,7 @@ jobs:
           echo "| macOS (Clang) | ${{ needs.build-macos-clang.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Windows (MSVC) | ${{ needs.build-windows-msvc.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Windows (Clang) | ${{ needs.build-windows-clang.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Windows (MinGW) | ${{ needs.build-windows-mingw.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Cygwin | ${{ needs.build-cygwin.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "| WSL | ${{ needs.build-wsl.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY

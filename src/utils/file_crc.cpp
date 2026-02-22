@@ -11,7 +11,7 @@
 #include "engine/core/comm.h"
 
 namespace FileCRC {
-void add_message(const char *text, ...) __attribute__((format(printf, 1, 2)));
+void add_message(const char *text, ...) __attribute__((format(gnu_printf, 1, 2)));
 
 class PlayerCRC {
  public:

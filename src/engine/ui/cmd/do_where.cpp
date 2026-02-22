@@ -271,7 +271,7 @@ void FindErrorCountObj(CharData *ch) {
 			sum += objs_orig.size();
 		}
 		if (sum != (size_t)obj_proto.total_online(orn)) {
-			SendMsgToChar(ch, "Найден предмет с ошибкой в реальном количестве %s #%d sum = %ld \r\n",
+			SendMsgToChar(ch, "Найден предмет с ошибкой в реальном количестве %s #%d sum = %zu \r\n",
 						  (*it)->get_PName(ECase::kNom).c_str(), (*it)->get_vnum(), sum);
 			for (auto object : objs) {
 				PrintObjectLocation(num++, object, ch);
