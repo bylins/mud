@@ -49,7 +49,7 @@ class TargetsRosterType {
 	auto end() const noexcept { return std::make_reverse_iterator(std::begin(_roster)); };
 	CharData *getRandomItem(const PredicateType &predicate);
 	CharData *getRandomItem();
-	int amount() { return _roster.size(); };
+	int amount() { return static_cast<int>(_roster.size()); };
 	int count(const PredicateType &predicate);
 	void flip();
 };

@@ -15,6 +15,8 @@
 #ifndef DB_H_
 #define DB_H_
 
+#include "world_data_source.h"
+
 #include "engine/boot/boot_constants.h"
 #include "engine/core/conf.h"    // to get definition of build type: (CIRCLE_AMIGA|CIRCLE_UNIX|CIRCLE_WINDOWS|CIRCLE_ACORN|CIRCLE_VMS)
 #include "administration/name_adviser.h"
@@ -162,7 +164,7 @@ class UniqueList: private std::list<T> {
 private:
 	using base_t = std::list<T>;
 public:
-	using iterator = base_t::iterator;
+	using iterator = typename base_t::iterator;
 	void push_back(const T& value) {
 		if (std::find(base_t::begin(), base_t::end(), value) == base_t::end()) {
 			base_t::push_back(value);
@@ -215,14 +217,14 @@ class GameLoader {
  public:
 	GameLoader() = default;
 
-	static void BootWorld();
+	static void BootWorld(std::unique_ptr<world_loader::IWorldDataSource> data_source = nullptr);
 	static void BootIndex(EBootType mode);
 
  private:
 	static void PrepareGlobalStructures(const EBootType mode, const int rec_count);
 };
 
-extern GameLoader world_loader;
+extern GameLoader game_loader;
 
 #endif // DB_H_
 

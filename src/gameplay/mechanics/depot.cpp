@@ -22,6 +22,7 @@
 #include <third_party_libs/fmt/include/fmt/format.h>
 
 #include <cmath>
+#include "engine/db/global_objects.h"
 
 extern int bank(CharData *, void *, int, char *);
 extern void olc_update_object(int robj_num, ObjData *obj, ObjData *olc_proto);
@@ -99,12 +100,12 @@ DepotListType depot_list; // список личных хранилищ
 
 // * Капитально расширенная версия сислога для хранилищ.
 void depot_log(const char *format, ...) {
-	const char *filename = "../log/depot.log";
+	const auto filename = runtime_config.log_dir() + "/depot.log";
 	static FILE *file = 0;
 	if (!file) {
-		file = fopen(filename, "a");
+		file = fopen(filename.c_str(), "a");
 		if (!file) {
-			log("SYSERR: can't open %s!", filename);
+			log("SYSERR: can't open %s!", filename.c_str());
 			return;
 		}
 		opened_files.push_back(file);

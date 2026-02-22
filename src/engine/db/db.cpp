@@ -57,9 +57,23 @@
 #include "gameplay/ai/spec_procs.h"
 #include "gameplay/communication/social.h"
 #include "player_index.h"
+#include "world_checksum.h"
+#include "legacy_world_data_source.h"
+#include "world_data_source_base.h"
+#ifdef HAVE_SQLITE
+#include "sqlite_world_data_source.h"
+#endif
+#ifdef HAVE_YAML
+#include "yaml_world_data_source.h"
+#endif
+#include "world_data_source_manager.h"
+
 
 #include <third_party_libs/fmt/include/fmt/format.h>
 #include <sys/stat.h>
+#ifndef _WIN32
+#include <unistd.h>
+#endif
 
 #include <memory>
 
@@ -99,6 +113,7 @@ int global_uid = 0;
 long top_idnum = 0;        // highest idnum in use
 
 int circle_restrict = 0;    // level of game restriction
+bool enable_world_checksum = false;	// enable world checksum calculation
 RoomRnum r_mortal_start_room;    // rnum of mortal start room
 RoomRnum r_immort_start_room;    // rnum of immort start room
 RoomRnum r_frozen_start_room;    // rnum of frozen start room
@@ -127,7 +142,7 @@ const FlagData clear_flags;
 const char *ZONE_TRAFFIC_FILE = LIB_PLRSTUFF"zone_traffic.xml";
 time_t zones_stat_date;
 
-GameLoader world_loader;
+GameLoader game_loader;
 
 // local functions
 void LoadGlobalUid();
@@ -147,6 +162,7 @@ void ResetGameWorldTime();
 int CountMobsInRoom(int m_num, int r_num);
 void SetZoneRnumForObjects();
 void SetZoneRnumForMobiles();
+void SetZoneRnumForTriggers();
 void InitBasicValues();
 void LoadMessages();
 int CompareSocials(const void *a, const void *b);
@@ -347,28 +363,43 @@ void ConvertObjValues() {
 	}
 }
 
-void GameLoader::BootWorld() {
+void GameLoader::BootWorld(std::unique_ptr<world_loader::IWorldDataSource> data_source) {
 	utils::CSteppedProfiler boot_profiler("World booting", 1.1);
 
+	// Create default data source if none provided
+	if (!data_source)
+	{
+#ifdef HAVE_YAML
+		data_source = world_loader::CreateYamlDataSource("world");
+#elif defined(HAVE_SQLITE)
+		data_source = world_loader::CreateSqliteDataSource("world.db");
+#else
+		data_source = world_loader::CreateLegacyDataSource();
+#endif
+	}
+	log("Using data source: %s", data_source->GetName().c_str());
+
+	// Register data source in manager for OLC access
+	auto* ds_ptr = data_source.get();
+	world_loader::WorldDataSourceManager::Instance().SetDataSource(std::move(data_source));
+
 	boot_profiler.next_step("Loading zone table");
-	log("Loading zone table.");
-	GameLoader::BootIndex(DB_BOOT_ZON);
+	ds_ptr->LoadZones();
 
 	boot_profiler.next_step("Create blank zoness for dungeons");
 	log("Create zones for dungeons.");
 	dungeons::CreateBlankZoneDungeon();
 
 	boot_profiler.next_step("Loading triggers");
-	log("Loading triggers and generating index.");
-	GameLoader::BootIndex(DB_BOOT_TRG);
+	ds_ptr->LoadTriggers();
 
 	boot_profiler.next_step("Create blank triggers for dungeons");
 	log("Create triggers for dungeons.");
 	dungeons::CreateBlankTrigsDungeon();
 
 	boot_profiler.next_step("Loading rooms");
-	log("Loading rooms.");
-	GameLoader::BootIndex(DB_BOOT_WLD);
+	ds_ptr->LoadRooms();
+
 
 	boot_profiler.next_step("Create blank rooms for dungeons");
 	log("Create blank rooms for dungeons.");
@@ -391,8 +422,7 @@ void GameLoader::BootWorld() {
 	CheckStartRooms();
 
 	boot_profiler.next_step("Loading mobs and regerating index");
-	log("Loading mobs and generating index.");
-	GameLoader::BootIndex(DB_BOOT_MOB);
+	ds_ptr->LoadMobs();
 
 	boot_profiler.next_step("Counting mob's levels");
 	log("Count mob quantity by level");
@@ -407,8 +437,7 @@ void GameLoader::BootWorld() {
 //	CalculateFirstAndLastMobs();
 
 	boot_profiler.next_step("Loading objects");
-	log("Loading objs and generating index.");
-	GameLoader::BootIndex(DB_BOOT_OBJ);
+	ds_ptr->LoadObjects();
 
 	boot_profiler.next_step("Create blank obj for dungeons");
 	log("Create blank obj for dungeons.");
@@ -434,11 +463,36 @@ void GameLoader::BootWorld() {
 	log("Renumbering Mob_zone.");
 	SetZoneRnumForMobiles();
 
+	boot_profiler.next_step("Calculating trigger locations for zones");
+	log("Calculating trigger locations for zones.");
+	SetZoneRnumForTriggers();
+
 	boot_profiler.next_step("Initialization of object rnums");
 	log("Init system_obj rnums.");
 	system_obj::init();
 
 	log("Init global_drop_obj.");
+
+	if (enable_world_checksum)
+	{
+		boot_profiler.next_step("Calculating world checksums");
+		log("Calculating world checksums...");
+		auto checksums = WorldChecksum::Calculate();
+		WorldChecksum::LogResult(checksums);
+		WorldChecksum::SaveDetailedChecksums("checksums_detailed.txt", checksums);
+		if (!WorldChecksum::SaveDetailedBuffers("checksums_buffers"))
+		{
+			log("WARNING: Failed to save detailed buffers (see errors above)");
+		}
+
+		// If BASELINE_DIR is set, compare with baseline checksums
+		const char *baseline_dir = getenv("BASELINE_DIR");
+		if (baseline_dir)
+		{
+			log("Comparing with baseline from: %s", baseline_dir);
+			WorldChecksum::CompareWithBaseline(baseline_dir);
+		}
+	}
 }
 
 void InitZoneTypes() {
@@ -694,7 +748,7 @@ void zone_traffic_load() {
 		ZoneRnum zrn;
 		zrn = GetZoneRnum(zone_vnum);
 		int num = atoi(node.attribute("traffic").value());
-		if (zrn == 0 && zone_vnum != 1) {
+		if (zrn == kNoZone) {
 			snprintf(buf, kMaxStringLength,
 					 "zone_traffic: несуществующий номер зоны %d ее траффик %d ",
 					 zone_vnum, num);
@@ -707,6 +761,7 @@ void zone_traffic_load() {
 
 // body of the booting system
 void BootMudDataBase() {
+	auto boot_start = std::chrono::high_resolution_clock::now();
 	utils::CSteppedProfiler boot_profiler("MUD booting", 1.1);
 
 	log("Boot db -- BEGIN.");
@@ -990,6 +1045,12 @@ void BootMudDataBase() {
 	}
 	reset_q.head = reset_q.tail = nullptr;
 
+
+	// Assign room triggers AFTER zone reset completes
+	boot_profiler.next_step("Assigning triggers to rooms");
+	world_loader::WorldDataSourceBase::AssignTriggersToLoadedRooms();
+
+
 	// делается после резета зон, см камент к функции
 	boot_profiler.next_step("Loading depot chests");
 	log("Load depot chests.");
@@ -1092,6 +1153,10 @@ void BootMudDataBase() {
 
 	shutdown_parameters.mark_boot_time();
 	log("Boot db -- DONE.");
+
+	auto boot_end = std::chrono::high_resolution_clock::now();
+	auto boot_duration = std::chrono::duration<double>(boot_end - boot_start).count();
+	log("Boot db total time: %.3f seconds", boot_duration);
 
 }
 
@@ -1339,7 +1404,8 @@ void CalculateFirstAndLastRooms() {
 	}
 	zone_table[zrn].RnumRoomsLocation.first = zone_table[zrn - 1].RnumRoomsLocation.second + 1;
 	zone_table[zrn].RnumRoomsLocation.second = rn - 1;
-	for (auto &zone_data : zone_table) {
+	for (size_t i = 0; i < zone_table.size(); ++i) {
+		auto &zone_data = zone_table[i];
 		zone_data.RnumRoomsLocation.second--; //уберем виртуалки
 		if (zone_data.entrance == 0) {  //если в зонфайле не указана стартовая комната
 			log("Отсутствует стартовая комната для зоны %d", zone_data.vnum);
@@ -1376,7 +1442,7 @@ void AddVirtualRoomsToAllZones() {
 		new_room->zone_rn = rnum;
 		new_room->vnum = last_room;
 		new_room->set_name(std::string("Виртуальная комната"));
-		new_room->description_num = RoomDescription::add_desc(std::string("Похоже, здесь вам делать нечего."));
+		new_room->description_num = GlobalObjects::descriptions().add(std::string("Похоже, здесь вам делать нечего."));
 		new_room->clear_flags();
 		new_room->sector_type = ESector::kSecret;
 
@@ -1417,12 +1483,45 @@ void SetZoneRnumForMobiles() {
 	}
 }
 
+void SetZoneRnumForTriggers() {
+	// Calculate RnumTrigsLocation (first and last trigger rnum) for each zone
+	// This works for all data source formats (Legacy, YAML, SQLite)
+
+	// First pass: find first and last trigger for each zone
+	// NOTE: top_of_trigt is the COUNT, not the last index (unlike top_of_mobt)
+	for (int i = 0; i < top_of_trigt; ++i) {
+		if (!trig_index[i]) {
+			continue;
+		}
+
+		int trig_vnum = trig_index[i]->vnum;
+		ZoneVnum zone_vnum = trig_vnum / 100;
+		ZoneRnum zone_rnum = GetZoneRnum(zone_vnum);
+
+		if (zone_rnum == kNoZone) {
+			log("FATAL: Trigger %d belongs to non-existent zone %d (zone_table has %zu zones)",
+				trig_vnum, zone_vnum, zone_table.size());
+			log("FATAL: This indicates broken world data or initialization order bug.");
+			log("FATAL: Boot aborted. Triggers cannot function without valid zone assignment.");
+			exit(1);
+		}
+
+		// Set first trigger for this zone (if not set yet)
+		if (zone_table[zone_rnum].RnumTrigsLocation.first == -1) {
+			zone_table[zone_rnum].RnumTrigsLocation.first = i;
+		}
+
+		// Always update last trigger for this zone
+		zone_table[zone_rnum].RnumTrigsLocation.second = i;
+	}
+}
+
 void ResolveZoneCmdVnumArgsToRnums(ZoneData &zone_data) {
 	int cmd_no, a, b, c, olda, oldb, oldc;
 	char local_buf[128];
 	int i;
 	for (i = 0; i < zone_data.typeA_count; i++) {
-		if (GetZoneRnum(zone_data.typeA_list[i]) == 0) {
+		if (GetZoneRnum(zone_data.typeA_list[i]) == kNoZone) {
 			sprintf(local_buf,
 					"SYSERROR: некорректное значение в typeA (%d) для зоны: %d",
 					zone_data.typeA_list[i],
@@ -1431,7 +1530,7 @@ void ResolveZoneCmdVnumArgsToRnums(ZoneData &zone_data) {
 		}
 	}
 	for (i = 0; i < zone_data.typeB_count; i++) {
-		if (GetZoneRnum(zone_data.typeB_list[i]) == 0) {
+		if (GetZoneRnum(zone_data.typeB_list[i]) == kNoZone) {
 			sprintf(local_buf,
 					"SYSERROR: некорректное значение в typeB (%d) для зоны: %d",
 					zone_data.typeB_list[i],
@@ -2903,12 +3002,14 @@ ZoneRnum GetZoneRnum(ZoneVnum vnum) {
 
 	bot = 0;
 	top = static_cast<ZoneRnum>(zone_table.size() - 1);
+
 	for (;;) {
 		mid = (bot + top) / 2;
+
 		if (zone_table[mid].vnum == vnum)
 			return (mid);
 		if (bot >= top)
-			return (kNowhere);
+			return (kNoZone);
 		if (zone_table[mid].vnum > vnum)
 			top = mid - 1;
 		else

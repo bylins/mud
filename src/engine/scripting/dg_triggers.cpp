@@ -14,6 +14,7 @@
 **************************************************************************/
 
 #include "dg_scripts.h"
+#include "dg_triggers.h"
 #include "engine/core/handler.h"
 #include "gameplay/magic/spells_info.h"
 #include "engine/olc/olc.h"

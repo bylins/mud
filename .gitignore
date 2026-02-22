@@ -21,3 +21,10 @@ cmake-build-release-wsl/
 log/
 syslog
 cmake-build-*
+build/
+build_*/
+magic.mgc
+data/
+misc/
+
+__pycache__/

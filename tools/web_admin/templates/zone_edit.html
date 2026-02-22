@@ -1,0 +1,699 @@
+{% extends "base.html" %}
+
+{% block title %}Редактирование зоны {{ zone["vnum"] }} - Былины MUD{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs-bar">
+    <div class="max-w-[1280px] mx-auto px-6 py-2.5">
+        <div class="flex items-center gap-2 font-inter text-sm text-ink-muted">
+            <a href="{{ url_for('index') }}">Главная</a>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #d4c49a;">
+                <polyline points="9 18 15 12 9 6"/>
+            </svg>
+            <a href="{{ url_for('zones_list') }}">Зоны</a>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #d4c49a;">
+                <polyline points="9 18 15 12 9 6"/>
+            </svg>
+            <a href="{{ url_for('zone_detail', vnum=zone["vnum"]) }}">#{{ zone["vnum"] }}</a>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #d4c49a;">
+                <polyline points="9 18 15 12 9 6"/>
+            </svg>
+            <span class="text-ink-light">Редактирование</span>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+
+    <!-- Page Header -->
+    <div class="page-header" style="margin-bottom: 8px;">
+        <div>
+            <h2 class="font-serif-display" style="font-size: 28px;">
+                Редактирование зоны <span class="text-amber-700">#{{ zone["vnum"] }}</span>
+            </h2>
+            <p class="page-subtitle" style="margin-top: 4px;">
+                {{ zone['name'] }}
+            </p>
+        </div>
+
+        <button type="button" class="btn-secondary" onclick="history.back()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            Отмена
+        </button>
+    </div>
+
+    <!-- Ornamental divider -->
+    <div class="ornament-divider">
+        <div class="ornament-divider-inner">
+            <div class="ornament-line ornament-line-left"></div>
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" style="opacity: 0.5;">
+                <path d="M10 2L12 8L18 8L13 12L15 18L10 14L5 18L7 12L2 8L8 8Z"/>
+            </svg>
+            <div class="ornament-line ornament-line-right"></div>
+        </div>
+    </div>
+
+    <form id="zone-edit-form" novalidate>
+
+    <!-- ===== SECTION 1: Basic Information (Основные данные) ===== -->
+    <div class="parchment-section">
+        <div class="parchment-section-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+            </svg>
+            Основные данные
+        </div>
+
+        <div class="form-row" style="margin-bottom: 16px;">
+            <div class="field-group" style="grid-column: 1 / -1;">
+                <label for="name">Название</label>
+                <input type="text" id="name" name="name" value="{{ zone['name'] }}"
+                       placeholder="Название зоны">
+            </div>
+        </div>
+
+        <div class="form-row form-row-2" style="margin-bottom: 16px;">
+            <div class="field-group">
+                <label for="author">Автор</label>
+                <input type="text" id="author" name="author" value="{{ zone["author"]|default('') }}"
+                       placeholder="Имя автора зоны">
+            </div>
+            <div class="field-group">
+                <label for="comment">Комментарий</label>
+                <input type="text" id="comment" name="comment" value="{{ zone["comment"]|default('') }}"
+                       placeholder="Краткий комментарий">
+            </div>
+        </div>
+
+        <div class="form-row form-row-3">
+            <div class="field-group">
+                <label for="level">Уровень</label>
+                <input type="number" id="level" name="level" min="0"
+                       value="{{ zone["level"]|default(0) }}">
+            </div>
+            <div class="field-group">
+                <label for="type">Тип зоны (zone type)</label>
+                <select id="type" name="type">
+                    <option value="0" {{ 'selected' if zone["type"] is defined and zone["type"] == 0 }}>0 - Ингридиентов нет</option>
+                    <option value="1" {{ 'selected' if zone["type"] is defined and zone["type"] == 1 }}>1 - Город</option>
+                    <option value="2" {{ 'selected' if zone["type"] is defined and zone["type"] == 2 }}>2 - Светлый лес</option>
+                    <option value="3" {{ 'selected' if zone["type"] is defined and zone["type"] == 3 }}>3 - Темный лес</option>
+                    <option value="4" {{ 'selected' if zone["type"] is defined and zone["type"] == 4 }}>4 - Поля</option>
+                    <option value="5" {{ 'selected' if zone["type"] is defined and zone["type"] == 5 }}>5 - Горы</option>
+                    <option value="6" {{ 'selected' if zone["type"] is defined and zone["type"] == 6 }}>6 - Реки</option>
+                    <option value="7" {{ 'selected' if zone["type"] is defined and zone["type"] == 7 }}>7 - Дом</option>
+                    <option value="8" {{ 'selected' if zone["type"] is defined and zone["type"] == 8 }}>8 - Лужайка</option>
+                    <option value="9" {{ 'selected' if zone["type"] is defined and zone["type"] == 9 }}>9 - Холмы</option>
+                    <option value="10" {{ 'selected' if zone["type"] is defined and zone["type"] == 10 }}>10 - Пещеры</option>
+                    <option value="11" {{ 'selected' if zone["type"] is defined and zone["type"] == 11 }}>11 - Поселок</option>
+                    <option value="12" {{ 'selected' if zone["type"] is defined and zone["type"] == 12 }}>12 - Деревня</option>
+                    <option value="13" {{ 'selected' if zone["type"] is defined and zone["type"] == 13 }}>13 - Городские окрестности</option>
+                    <option value="14" {{ 'selected' if zone["type"] is defined and zone["type"] == 14 }}>14 - Дикий лес</option>
+                    <option value="15" {{ 'selected' if zone["type"] is defined and zone["type"] == 15 }}>15 - Дикая степь</option>
+                    <option value="16" {{ 'selected' if zone["type"] is defined and zone["type"] == 16 }}>16 - Океан</option>
+                    <option value="17" {{ 'selected' if zone["type"] is defined and zone["type"] == 17 }}>17 - Руины</option>
+                    <option value="18" {{ 'selected' if zone["type"] is defined and zone["type"] == 18 }}>18 - Лесная тропа</option>
+                    <option value="19" {{ 'selected' if zone["type"] is defined and zone["type"] == 19 }}>19 - Степная дорога</option>
+                    <option value="20" {{ 'selected' if zone["type"] is defined and zone["type"] == 20 }}>20 - Горная тропа</option>
+                    <option value="21" {{ 'selected' if zone["type"] is defined and zone["type"] == 21 }}>21 - Болото</option>
+                    <option value="22" {{ 'selected' if zone["type"] is defined and zone["type"] == 22 }}>22 - Пустыня</option>
+                    <option value="23" {{ 'selected' if zone["type"] is defined and zone["type"] == 23 }}>23 - Замок</option>
+                    <option value="24" {{ 'selected' if zone["type"] is defined and zone["type"] == 24 }}>24 - Окрестности замка</option>
+                </select>
+            </div>
+            <div class="field-group">
+                <label for="group">Группа зон <span style="font-weight: 400; text-transform: none; letter-spacing: normal; color: #8a7b6b;">(1-20)</span></label>
+                <input type="number" id="group" name="group" min="1" max="20"
+                       value="{{ zone["group"]|default(1) }}">
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== SECTION 2: Location & Description (Расположение и описание) ===== -->
+    <div class="parchment-section">
+        <div class="parchment-section-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                <circle cx="12" cy="10" r="3"/>
+            </svg>
+            Расположение и описание
+        </div>
+
+        <div class="form-row" style="margin-bottom: 16px;">
+            <div class="field-group">
+                <label for="location">Локация на карте</label>
+                <input type="text" id="location" name="location" value="{{ zone["location"]|default('') }}"
+                       placeholder="Описание расположения зоны на игровой карте">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="field-group">
+                <label for="description">Описание зоны</label>
+                <textarea id="description" name="description" rows="4"
+                          placeholder="Подробное описание зоны, её атмосферы и особенностей"
+                          style="resize: vertical; min-height: 80px;">{{ zone["description"]|default('') }}</textarea>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== SECTION 3: Reset Settings (Настройки сброса) ===== -->
+    <div class="parchment-section">
+        <div class="parchment-section-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="23 4 23 10 17 10"/>
+                <polyline points="1 20 1 14 7 14"/>
+                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+            </svg>
+            Настройки сброса
+        </div>
+
+        <div class="form-row form-row-2" style="margin-bottom: 16px;">
+            <div class="field-group">
+                <label for="reset_mode">Режим сброса</label>
+                <select id="reset_mode" name="reset_mode" onchange="updateTypeListsVisibility()">
+                    <option value="0" {{ 'selected' if zone["reset_mode"] is defined and zone["reset_mode"] == 0 }}>0 - Никогда не сбрасывается</option>
+                    <option value="1" {{ 'selected' if zone["reset_mode"] is defined and zone["reset_mode"] == 1 }}>1 - Когда нет игроков</option>
+                    <option value="2" {{ 'selected' if zone["reset_mode"] is defined and zone["reset_mode"] == 2 }}>2 - Всегда сбрасывается</option>
+                    <option value="3" {{ 'selected' if zone["reset_mode"] is defined and zone["reset_mode"] == 3 }}>3 - Сложный режим (typeA/typeB)</option>
+                </select>
+            </div>
+            <div class="field-group">
+                <label for="lifespan">Интервал сброса <span style="font-weight: 400; text-transform: none; letter-spacing: normal; color: #8a7b6b;">(мин)</span></label>
+                <input type="number" id="lifespan" name="lifespan" min="0"
+                       value="{{ zone["lifespan"]|default(0) }}">
+            </div>
+        </div>
+
+        <div id="type-lists-row" style="margin-bottom: 16px; display: none;">
+            <div class="form-row">
+                <div class="field-group" style="grid-column: 1 / -1;">
+                    <label for="type_a_list">TypeA список (type_a_list)</label>
+                    <input type="text" id="type_a_list" name="type_a_list"
+                           value="{% if zone.get('type_a_list') %}{{ zone['type_a_list']|join(', ') }}{% endif %}"
+                           placeholder="Vnums через запятую, например: 100, 101, 102">
+                    <div style="font-family: 'Inter', sans-serif; font-size: 12px; color: #8a7b6b; margin-top: 4px;">
+                        Список vnums для режима сброса 3 (сложный режим)
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="field-group" style="grid-column: 1 / -1;">
+                    <label for="type_b_list">TypeB список (type_b_list)</label>
+                    <input type="text" id="type_b_list" name="type_b_list"
+                           value="{% if zone.get('type_b_list') %}{{ zone['type_b_list']|join(', ') }}{% endif %}"
+                           placeholder="Vnums через запятую, например: 200, 201, 202">
+                    <div style="font-family: 'Inter', sans-serif; font-size: 12px; color: #8a7b6b; margin-top: 4px;">
+                        Список vnums для режима сброса 3 (сложный режим)
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-row form-row-2">
+            <div class="field-group">
+                <label for="reset_idle" style="margin-bottom: 10px;">Сбрасывать только при отсутствии игроков (reset_idle)</label>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; text-transform: none; letter-spacing: normal; font-weight: 400; font-size: 14px; color: #2d241e;">
+                        <input type="radio" name="reset_idle" value="1"
+                               {{ 'checked' if zone["reset_idle"] }}
+                               style="width: auto; accent-color: #b45309;">
+                        Да
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; text-transform: none; letter-spacing: normal; font-weight: 400; font-size: 14px; color: #2d241e;">
+                        <input type="radio" name="reset_idle" value="0"
+                               {{ 'checked' if not zone["reset_idle"] }}
+                               style="width: auto; accent-color: #b45309;">
+                        Нет
+                    </label>
+                </div>
+            </div>
+            <div class="field-group">
+                <label for="top">Максимальный VNUM комнаты (top)</label>
+                <input type="number" id="top" name="top" min="0"
+                       value="{{ zone["top"]|default(0) }}"
+                       placeholder="Верхняя граница диапазона VNUMов комнат зоны">
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== SECTION 4: Technical Settings (Технические настройки) ===== -->
+    <div class="parchment-section">
+        <div class="parchment-section-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="3"/>
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+            </svg>
+            Технические настройки
+        </div>
+
+        <div class="form-row form-row-3">
+            <div class="field-group">
+                <label for="under_construction" style="margin-bottom: 10px;">В разработке</label>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; text-transform: none; letter-spacing: normal; font-weight: 400; font-size: 14px; color: #2d241e;">
+                        <input type="radio" name="under_construction" value="1"
+                               {{ 'checked' if zone["under_construction"] }}
+                               style="width: auto; accent-color: #b45309;">
+                        Да
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; text-transform: none; letter-spacing: normal; font-weight: 400; font-size: 14px; color: #2d241e;">
+                        <input type="radio" name="under_construction" value="0"
+                               {{ 'checked' if not zone["under_construction"] }}
+                               style="width: auto; accent-color: #b45309;">
+                        Нет
+                    </label>
+                </div>
+            </div>
+            <div class="field-group">
+                <label for="is_town" style="margin-bottom: 10px;">Городская зона</label>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; text-transform: none; letter-spacing: normal; font-weight: 400; font-size: 14px; color: #2d241e;">
+                        <input type="radio" name="is_town" value="1"
+                               {{ 'checked' if zone["is_town"] }}
+                               style="width: auto; accent-color: #b45309;">
+                        Да
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; text-transform: none; letter-spacing: normal; font-weight: 400; font-size: 14px; color: #2d241e;">
+                        <input type="radio" name="is_town" value="0"
+                               {{ 'checked' if not zone["is_town"] }}
+                               style="width: auto; accent-color: #b45309;">
+                        Нет
+                    </label>
+                </div>
+            </div>
+            <div class="field-group">
+                <label for="locked" style="margin-bottom: 10px;">Заблокирована</label>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; text-transform: none; letter-spacing: normal; font-weight: 400; font-size: 14px; color: #2d241e;">
+                        <input type="radio" name="locked" value="1"
+                               {{ 'checked' if zone["locked"] }}
+                               style="width: auto; accent-color: #b45309;">
+                        Да
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; text-transform: none; letter-spacing: normal; font-weight: 400; font-size: 14px; color: #2d241e;">
+                        <input type="radio" name="locked" value="0"
+                               {{ 'checked' if not zone["locked"] }}
+                               style="width: auto; accent-color: #b45309;">
+                        Нет
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    </form>
+
+    <!-- Sticky action bar -->
+    <div style="position: sticky; bottom: 0; background-color: #f4ead5; border: 3px double rgba(120, 53, 15, 0.2); border-radius: 8px; padding: 16px 28px; display: flex; align-items: center; gap: 12px; box-shadow: 0 -4px 16px rgba(139, 69, 19, 0.08); z-index: 100;">
+        <button type="button" class="btn-primary" id="save-btn" onclick="window.saveZone()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                <polyline points="17 21 17 13 7 13 7 21"/>
+                <polyline points="7 3 7 8 15 8"/>
+            </svg>
+            Сохранить
+        </button>
+        <button type="button" class="btn-secondary" onclick="history.back()">
+            Отмена
+        </button>
+        <div style="margin-left: auto; font-family: 'Inter', sans-serif; font-size: 13px; color: #8a7b6b;" id="save-status"></div>
+    </div>
+
+    <!-- Toast container -->
+    <div id="toast" style="position: fixed; top: 24px; right: 24px; padding: 16px 24px; border-radius: 8px; font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 500; z-index: 9999; opacity: 0; transform: translateY(-12px); transition: all 0.25s ease; max-width: 420px; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);"></div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function() {
+    'use strict';
+
+    // --- Toast notifications ---
+    window.showToast = function(message, type) {
+        var toast = document.getElementById('toast');
+        toast.textContent = message;
+        if (type === 'success') {
+            toast.style.backgroundColor = '#f4ead5';
+            toast.style.border = '2px solid rgba(120, 100, 15, 0.3)';
+            toast.style.color = '#5a4d3f';
+        } else {
+            toast.style.backgroundColor = '#fef2f2';
+            toast.style.border = '2px solid rgba(185, 28, 28, 0.2)';
+            toast.style.color = '#991b1b';
+        }
+        toast.style.opacity = '1';
+        toast.style.transform = 'translateY(0)';
+        setTimeout(function() {
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateY(-12px)';
+        }, 4000);
+    };
+
+    // --- Validation functions ---
+    function clearValidationErrors() {
+        document.querySelectorAll('.field-error').forEach(function(el) {
+            el.classList.remove('field-error');
+        });
+        document.querySelectorAll('.error-message').forEach(function(el) {
+            el.remove();
+        });
+        var errorsBlock = document.getElementById('validation-errors-block');
+        if (errorsBlock) {
+            errorsBlock.remove();
+        }
+    }
+
+    function displayValidationErrors(errors) {
+        var form = document.getElementById('zone-edit-form');
+        var errorsBlock = document.createElement('div');
+        errorsBlock.id = 'validation-errors-block';
+        errorsBlock.className = 'validation-errors';
+
+        var html = '<div style="display: flex; align-items: flex-start; gap: 12px;">';
+        html += '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 2px;">';
+        html += '<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>';
+        html += '</svg>';
+        html += '<div style="flex: 1;">';
+        html += '<div style="font-family: \'Inter\', sans-serif; font-weight: 600; font-size: 14px; color: #991b1b; margin-bottom: 8px;">Исправьте следующие ошибки:</div>';
+        html += '<ul style="margin: 0; padding-left: 20px; font-family: \'Inter\', sans-serif; font-size: 13px; color: #dc2626; line-height: 1.6;">';
+
+        var displayErrors = errors.slice(0, 5);
+        displayErrors.forEach(function(error) {
+            html += '<li>' + error.message + '</li>';
+        });
+
+        if (errors.length > 5) {
+            html += '<li>И ещё ' + (errors.length - 5) + ' ошибок...</li>';
+        }
+
+        html += '</ul></div></div>';
+        errorsBlock.innerHTML = html;
+
+        form.insertBefore(errorsBlock, form.firstChild);
+
+        errors.forEach(function(error) {
+            var field = error.field;
+            field.classList.add('field-error');
+
+            var errorMsg = document.createElement('div');
+            errorMsg.className = 'error-message';
+            errorMsg.textContent = error.message;
+            field.parentNode.appendChild(errorMsg);
+        });
+
+        if (errors.length > 0) {
+            errors[0].field.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            errors[0].field.focus();
+        }
+    }
+
+    function validateForm() {
+        var errors = [];
+        clearValidationErrors();
+
+        var nameEl = document.querySelector('[name="name"]');
+        if (!nameEl.value.trim()) {
+            errors.push({
+                field: nameEl,
+                message: 'Название зоны обязательно'
+            });
+        }
+
+        var lifespanEl = document.querySelector('[name="lifespan"]');
+        var lifespanVal = parseInt(lifespanEl.value);
+        if (isNaN(lifespanVal) || lifespanVal < 0) {
+            errors.push({
+                field: lifespanEl,
+                message: 'Интервал сброса должен быть >= 0'
+            });
+        }
+
+        var topEl = document.querySelector('[name="top"]');
+        var topVal = parseInt(topEl.value);
+        if (isNaN(topVal) || topVal <= 0) {
+            errors.push({
+                field: topEl,
+                message: 'Максимальный VNUM комнаты должен быть > 0'
+            });
+        }
+
+        if (errors.length > 0) {
+            displayValidationErrors(errors);
+            return false;
+        }
+
+        return true;
+    }
+
+    // --- Main save function ---
+    window.saveZone = function() {
+        if (!validateForm()) {
+            showToast('Форма содержит ошибки', 'error');
+            return;
+        }
+
+        var btn = document.getElementById('save-btn');
+        var statusEl = document.getElementById('save-status');
+
+        // Show loading state
+        btn.disabled = true;
+        btn.innerHTML = '<span style="display:inline-block;width:16px;height:16px;border:2px solid rgba(253,246,227,0.4);border-top-color:#fdf6e3;border-radius:50%;animation:spin 0.6s linear infinite;margin-right:8px;vertical-align:middle;"></span>Сохранение...';
+        statusEl.textContent = '';
+
+        var form = document.getElementById('zone-edit-form');
+        var data = {};
+
+        // Text fields
+        var nameEl = form.querySelector('[name="name"]');
+        if (nameEl && nameEl.value.trim()) {
+            data.name = nameEl.value;
+        }
+
+        var authorEl = form.querySelector('[name="author"]');
+        if (authorEl) {
+            data.author = authorEl.value;
+        }
+
+        var commentEl = form.querySelector('[name="comment"]');
+        if (commentEl) {
+            data.comment = commentEl.value;
+        }
+
+        var locationEl = form.querySelector('[name="location"]');
+        if (locationEl) {
+            data.location = locationEl.value;
+        }
+
+        var descEl = form.querySelector('[name="description"]');
+        if (descEl) {
+            data.description = descEl.value;
+        }
+
+        // Number fields
+        var levelEl = form.querySelector('[name="level"]');
+        if (levelEl) {
+            data.level = parseInt(levelEl.value) || 0;
+        }
+
+        var typeEl = form.querySelector('[name="type"]');
+        if (typeEl) {
+            data.type = parseInt(typeEl.value) || 0;
+        }
+
+        var groupEl = form.querySelector('[name="group"]');
+        if (groupEl) {
+            data.group = parseInt(groupEl.value) || 1;
+        }
+
+        var lifespanEl = form.querySelector('[name="lifespan"]');
+        if (lifespanEl) {
+            data.lifespan = parseInt(lifespanEl.value) || 0;
+        }
+
+        var resetModeEl = form.querySelector('[name="reset_mode"]');
+        if (resetModeEl) {
+            data.reset_mode = parseInt(resetModeEl.value) || 0;
+        }
+
+        // TypeA/TypeB lists (only for reset_mode=3)
+        var typeAListEl = form.querySelector('[name="type_a_list"]');
+        if (typeAListEl && typeAListEl.value.trim()) {
+            var typeAStr = typeAListEl.value.trim();
+            data.type_a_list = typeAStr.split(',').map(function(v) {
+                return parseInt(v.trim());
+            }).filter(function(v) {
+                return !isNaN(v);
+            });
+        } else {
+            data.type_a_list = [];
+        }
+
+        var typeBListEl = form.querySelector('[name="type_b_list"]');
+        if (typeBListEl && typeBListEl.value.trim()) {
+            var typeBStr = typeBListEl.value.trim();
+            data.type_b_list = typeBStr.split(',').map(function(v) {
+                return parseInt(v.trim());
+            }).filter(function(v) {
+                return !isNaN(v);
+            });
+        } else {
+            data.type_b_list = [];
+        }
+
+        // Boolean fields (radio buttons)
+        var resetIdleEl = form.querySelector('[name="reset_idle"]:checked');
+        if (resetIdleEl) {
+            data.reset_idle = resetIdleEl.value === '1';
+        }
+
+        var underConstructionEl = form.querySelector('[name="under_construction"]:checked');
+        if (underConstructionEl) {
+            data.under_construction = parseInt(underConstructionEl.value);
+        }
+
+        var isTownEl = form.querySelector('[name="is_town"]:checked');
+        if (isTownEl) {
+            data.is_town = isTownEl.value === '1';
+        }
+
+        var lockedEl = form.querySelector('[name="locked"]:checked');
+        if (lockedEl) {
+            data.locked = lockedEl.value === '1';
+        }
+
+        // POST as JSON
+        fetch('{{ url_for("zone_update", vnum=zone["vnum"]) }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+        .then(function(response) {
+            return response.json();
+        })
+        .then(function(result) {
+            btn.disabled = false;
+            btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Сохранить';
+
+            if (result.status === 'ok') {
+                showToast('Зона успешно сохранена', 'success');
+                // Redirect to detail view
+                setTimeout(function() {
+                    window.location.href = '{{ url_for("zone_detail", vnum=zone["vnum"]) }}';
+                }, 500);
+            } else {
+                showToast('Ошибка: ' + (result.error || 'Неизвестная ошибка'), 'error');
+                statusEl.textContent = '';
+            }
+        })
+        .catch(function(err) {
+            btn.disabled = false;
+            btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Сохранить';
+            showToast('Ошибка сети: ' + err.message, 'error');
+            statusEl.textContent = '';
+        });
+    };
+
+    // --- TypeA/TypeB visibility toggle ---
+    window.updateTypeListsVisibility = function() {
+        var resetMode = document.getElementById('reset_mode').value;
+        var typeListsRow = document.getElementById('type-lists-row');
+        if (resetMode === '3') {
+            typeListsRow.style.display = '';
+        } else {
+            typeListsRow.style.display = 'none';
+        }
+    };
+
+    // Initialize visibility on page load
+    updateTypeListsVisibility();
+})();
+
+// ========== Color Overlay for Text Inputs ==========
+function addColorOverlay(inputId) {
+    const input = document.getElementById(inputId);
+    if (!input) return;
+
+    const isTextarea = input.tagName.toLowerCase() === 'textarea';
+
+    const wrapper = document.createElement('div');
+    wrapper.style.cssText = 'position: relative;';
+
+    const computedStyle = window.getComputedStyle(input);
+
+    const backdrop = document.createElement('div');
+    backdrop.className = 'mud-colorize';
+    backdrop.style.cssText = `
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        padding: ${computedStyle.padding || (isTextarea ? '8px 12px' : '0 12px')};
+        border: ${computedStyle.border || '2px solid rgba(120, 53, 15, 0.15)'};
+        border-radius: ${computedStyle.borderRadius || '4px'};
+        background: ${computedStyle.backgroundColor || '#fefdfb'};
+        font-family: ${computedStyle.fontFamily || 'Inter, sans-serif'};
+        font-size: ${computedStyle.fontSize || '14px'};
+        line-height: ${computedStyle.lineHeight || (isTextarea ? '1.5' : '38px')};
+        white-space: ${isTextarea ? 'pre-wrap' : 'pre'};
+        word-wrap: break-word;
+        color: #2d241e;
+        pointer-events: none;
+        overflow: ${isTextarea ? 'auto' : 'hidden'};
+        box-shadow: ${computedStyle.boxShadow || 'none'};
+    `;
+
+    input.parentNode.insertBefore(wrapper, input);
+    wrapper.appendChild(backdrop);
+    wrapper.appendChild(input);
+
+    input.style.position = 'relative';
+    input.style.background = 'transparent';
+    input.style.border = 'none';
+    input.style.outline = 'none';
+    input.style.color = 'transparent';
+    input.style.caretColor = '#2d241e';
+    input.style.zIndex = '1';
+
+    function updateBackdrop() {
+        let text = input.value;
+        if (text && !text.endsWith(' ')) text += ' ';
+        backdrop.textContent = text || ' ';
+        delete backdrop.dataset.colorized;
+        delete backdrop.dataset.originalText;
+        applyMudColors();
+    }
+
+    if (isTextarea) {
+        input.addEventListener('scroll', function() {
+            backdrop.scrollTop = input.scrollTop;
+            backdrop.scrollLeft = input.scrollLeft;
+        });
+    }
+
+    updateBackdrop();
+    input.addEventListener('input', updateBackdrop);
+    input.addEventListener('change', updateBackdrop);
+}
+
+// Add color overlay to zone fields
+document.addEventListener('DOMContentLoaded', function() {
+    addColorOverlay('name');
+    addColorOverlay('author');
+    addColorOverlay('comment');
+    addColorOverlay('location');
+    addColorOverlay('description');
+});
+</script>
+<style>
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+</style>
+{% endblock %}

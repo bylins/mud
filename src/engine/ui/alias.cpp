@@ -127,7 +127,7 @@ constexpr int kNumTokens{0};
 
 void perform_complex_alias(struct iosystem::TextBlocksQueue *input_q, char *orig, struct alias_data *a) {
 	struct iosystem::TextBlocksQueue temp_queue;
-	char *tokens[kNumTokens], *temp, *write_point;
+	char *tokens[1], *temp, *write_point;
 	int num_of_tokens = 0, num;
 
 	// First, parse the original string

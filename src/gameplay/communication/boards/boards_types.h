@@ -56,7 +56,7 @@ class Board {
 
 	MessageListType messages; // список сообщений
 
-	const auto get_type() const { return type_; }
+	auto get_type() const { return type_; }
 
 	const auto &get_name() const { return name_; }
 	void set_name(const std::string &new_name) { name_ = new_name; }
@@ -84,7 +84,7 @@ class Board {
 	void set_file_name(const std::string &file_name) { file_ = file_name; }
 
 	void set_clan_rent(const int value) { clan_rent_ = value; }
-	const auto get_clan_rent() const { return clan_rent_; }
+	auto get_clan_rent() const { return clan_rent_; }
 
 	void set_pers_unique(const int uid) { pers_unique_ = uid; }
 	const auto &get_pers_uniq() const { return pers_unique_; }
@@ -96,8 +96,8 @@ class Board {
 	auto messages_count() const { return messages.size(); }
 	void erase_message(const size_t index);
 	int count_unread(time_t last_read) const;
-	const auto get_last_message() const { return *messages.begin(); }
-	const auto get_message(const size_t index) const { return messages[index]; }
+	auto get_last_message() const { return *messages.begin(); }
+	auto get_message(const size_t index) const { return messages[index]; }
 
 	void Load();
 

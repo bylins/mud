@@ -212,7 +212,7 @@ Runestone &RunestoneRoster::FindRunestone(RoomVnum vnum) {
 	auto predicate = [vnum](const Runestone &p) { return p.GetRoomVnum() == vnum; };
 	auto it = std::find_if(begin(), end(), predicate);
 	if (it != end()) {
-		return *it.base();
+		return *it;
 	}
 
 	return incorrect_stone_;
@@ -222,7 +222,7 @@ Runestone &RunestoneRoster::FindRunestone(std::string_view name) {
 	auto predicate = [name](const Runestone &p) { return p.GetName() == name; };
 	auto it = std::find_if(begin(), end(), predicate);
 	if (it != end()) {
-		return *it.base();
+		return *it;
 	}
 
 	return incorrect_stone_;

@@ -15,6 +15,7 @@
 #include "engine/ui/interpreter.h"
 #include "engine/core/comm.h"
 #include "engine/db/db.h"
+#include "engine/db/world_data_source_manager.h"
 #include "engine/scripting/dg_olc.h"
 #include "engine/ui/color.h"
 #include "gameplay/crafting/item_creation.h"
@@ -208,7 +209,9 @@ void do_olc(CharData *ch, char *argument, int cmd, int subcmd) {
 		sprintf(buf, "(GC) %s has locked zone %d", GET_NAME(ch), zone_table[OLC_ZNUM(d)].vnum);
 		olc_log("%s locks zone %d", GET_NAME(ch), zone_table[OLC_ZNUM(d)].vnum);
 		mudlog(buf, LGH, kLvlImplementator, SYSLOG, true);
-		zedit_save_to_disk(OLC_ZNUM(d));
+		
+		auto* data_source = world_loader::WorldDataSourceManager::Instance().GetDataSource();
+			data_source->SaveZone(OLC_ZNUM(d));
 		delete d->olc;
 		return;
 	}
@@ -219,7 +222,9 @@ void do_olc(CharData *ch, char *argument, int cmd, int subcmd) {
 		sprintf(buf, "(GC) %s has unlocked zone %d", GET_NAME(ch), zone_table[OLC_ZNUM(d)].vnum);
 		olc_log("%s unlocks zone %d", GET_NAME(ch), zone_table[OLC_ZNUM(d)].vnum);
 		mudlog(buf, LGH, kLvlImplementator, SYSLOG, true);
-		zedit_save_to_disk(OLC_ZNUM(d));
+		
+		auto* data_source = world_loader::WorldDataSourceManager::Instance().GetDataSource();
+			data_source->SaveZone(OLC_ZNUM(d));
 		delete d->olc;
 		return;
 	}
@@ -263,14 +268,16 @@ void do_olc(CharData *ch, char *argument, int cmd, int subcmd) {
 		olc_log("%s save %s in Z%d", GET_NAME(ch), type, zone_table[OLC_ZNUM(d)].vnum);
 		mudlog(buf, LGH, std::max(kLvlBuilder, GET_INVIS_LEV(ch)), SYSLOG, true);
 
+		auto* data_source = world_loader::WorldDataSourceManager::Instance().GetDataSource();
+
 		switch (subcmd) {
-			case kScmdOlcRedit: redit_save_to_disk(OLC_ZNUM(d));
+			case kScmdOlcRedit: data_source->SaveRooms(OLC_ZNUM(d));
 				break;
-			case kScmdOlcZedit: zedit_save_to_disk(OLC_ZNUM(d));
+			case kScmdOlcZedit: data_source->SaveZone(OLC_ZNUM(d));
 				break;
-			case kScmdOlcOedit: oedit_save_to_disk(OLC_ZNUM(d));
+			case kScmdOlcOedit: data_source->SaveObjects(OLC_ZNUM(d));
 				break;
-			case kScmdOlcMedit: medit_save_to_disk(OLC_ZNUM(d));
+			case kScmdOlcMedit: data_source->SaveMobs(OLC_ZNUM(d));
 				break;
 		}
 		delete d->olc;

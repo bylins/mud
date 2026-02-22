@@ -334,10 +334,10 @@ EDirection SelectRndDirection(CharData *ch, int fail_chance) {
 		}
 	}
 
-	if (directions.empty() || number(1, 100 + 25 * directions.size()) < fail_chance) {
+	if (directions.empty() || number(1, 100 + 25 * static_cast<int>(directions.size())) < fail_chance) {
 		return EDirection::kUndefinedDir;
 	}
-	return directions[number(0, directions.size() - 1)];
+	return directions[number(0, static_cast<int>(directions.size()) - 1)];
 }
 
 int SelectDrunkDirection(CharData *ch, int direction) {

@@ -1,0 +1,617 @@
+{% extends "base.html" %}
+
+{% block title %}Объект #{{ obj.vnum }} - Былины MUD{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs-bar">
+    <div class="max-w-[1280px] mx-auto px-6 py-2.5">
+        <div class="flex items-center gap-2 font-inter text-sm text-ink-muted">
+            <a href="{{ url_for('index') }}">Главная</a>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #d4c49a;">
+                <polyline points="9 18 15 12 9 6"/>
+            </svg>
+            <a href="{{ url_for('objects_list', zone=obj.vnum // 100) }}">Предметы</a>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #d4c49a;">
+                <polyline points="9 18 15 12 9 6"/>
+            </svg>
+            <span class="text-ink-light">Объект #{{ obj.vnum }}</span>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+
+    <!-- Page Header -->
+    <div class="page-header" style="margin-bottom: 8px;">
+        <div>
+            <h2 class="font-serif-display" style="font-size: 28px;">
+                Объект <span class="text-amber-700">#{{ obj.vnum }}</span>
+            </h2>
+            <p class="page-subtitle mud-colorize" style="margin-top: 4px;">
+                {{ obj.short_desc|default('Без описания') }}
+            </p>
+        </div>
+
+        <div style="display: flex; gap: 12px;">
+            <a href="{{ url_for('object_edit', vnum=obj.vnum) }}" class="btn-primary">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                </svg>
+                Редактировать
+            </a>
+
+            <a href="{{ url_for('objects_list', zone=obj.vnum // 100) }}" class="btn-secondary">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+                К списку
+            </a>
+        </div>
+    </div>
+
+    <!-- Ornamental divider -->
+    <div class="ornament-divider">
+        <div class="ornament-divider-inner">
+            <div class="ornament-line ornament-line-left"></div>
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" style="opacity: 0.5;">
+                <path d="M10 2L12 8L18 8L13 12L15 18L10 14L5 18L7 12L2 8L8 8Z"/>
+            </svg>
+            <div class="ornament-line ornament-line-right"></div>
+        </div>
+    </div>
+
+    {% set obj_types = {
+        0: '0 - Не определён', 1: '1 - Источник света', 2: '2 - Свиток', 3: '3 - Жезл', 4: '4 - Посох',
+        5: '5 - Оружие', 6: '6 - Стихийное оружие', 7: '7 - Снаряд', 8: '8 - Сокровище', 9: '9 - Броня',
+        10: '10 - Зелье', 11: '11 - Червь', 12: '12 - Прочее', 13: '13 - Мусор', 14: '14 - Ловушка',
+        15: '15 - Контейнер', 16: '16 - Записка', 17: '17 - Ёмкость для жидкости', 18: '18 - Ключ',
+        19: '19 - Еда', 20: '20 - Деньги', 21: '21 - Перо', 22: '22 - Лодка', 23: '23 - Фонтан',
+        24: '24 - Книга', 25: '25 - Ингредиент', 26: '26 - Маг. ингредиент', 27: '27 - Материал для крафта',
+        28: '28 - Бинты', 29: '29 - Лёгкая броня', 30: '30 - Средняя броня', 31: '31 - Тяжёлая броня',
+        32: '32 - Зачарование', 33: '33 - Маг. материал', 34: '34 - Маг. стрела', 35: '35 - Маг. контейнер',
+        36: '36 - Материал для крафта 2'
+    } %}
+    {% set obj_materials = {
+        0: '0 - Не определён', 1: '1 - Булат', 2: '2 - Бронза', 3: '3 - Железо', 4: '4 - Сталь',
+        5: '5 - Кованая сталь', 6: '6 - Драг. металл', 7: '7 - Хрусталь', 8: '8 - Дерево',
+        9: '9 - Прочное дерево', 10: '10 - Керамика', 11: '11 - Стекло', 12: '12 - Камень', 13: '13 - Кость',
+        14: '14 - Ткань', 15: '15 - Кожа', 16: '16 - Органика', 17: '17 - Бумага', 18: '18 - Алмаз'
+    } %}
+
+    <!-- SECTION 1: Names -->
+    <div class="parchment-section">
+        <div class="parchment-section-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+            </svg>
+            Имена и падежи
+        </div>
+
+        <div class="detail-grid detail-grid-2" style="margin-bottom: 20px;">
+            <div class="detail-field" style="grid-column: 1 / -1;">
+                <div class="detail-field-label">Ключевые слова (aliases)</div>
+                <div class="detail-field-value mud-colorize{% if not obj.aliases %} empty{% endif %}">
+                    {{ obj.aliases if obj.aliases else 'Не задано' }}
+                </div>
+            </div>
+        </div>
+
+        <div class="subsection-label">Падежи</div>
+
+        <div class="detail-grid detail-grid-3" style="margin-bottom: 16px;">
+            <div class="detail-field">
+                <div class="detail-field-label">Именительный (кто? что?)</div>
+                <div class="detail-field-value mud-colorize{% if not obj.names or not obj.names.nominative %} empty{% endif %}">
+                    {{ obj.names.nominative if obj.names and obj.names.nominative else '--' }}
+                </div>
+            </div>
+            <div class="detail-field">
+                <div class="detail-field-label">Родительный (кого? чего?)</div>
+                <div class="detail-field-value mud-colorize{% if not obj.names or not obj.names.genitive %} empty{% endif %}">
+                    {{ obj.names.genitive if obj.names and obj.names.genitive else '--' }}
+                </div>
+            </div>
+            <div class="detail-field">
+                <div class="detail-field-label">Дательный (кому? чему?)</div>
+                <div class="detail-field-value mud-colorize{% if not obj.names or not obj.names.dative %} empty{% endif %}">
+                    {{ obj.names.dative if obj.names and obj.names.dative else '--' }}
+                </div>
+            </div>
+            <div class="detail-field">
+                <div class="detail-field-label">Винительный (кого? что?)</div>
+                <div class="detail-field-value mud-colorize{% if not obj.names or not obj.names.accusative %} empty{% endif %}">
+                    {{ obj.names.accusative if obj.names and obj.names.accusative else '--' }}
+                </div>
+            </div>
+            <div class="detail-field">
+                <div class="detail-field-label">Творительный (кем? чем?)</div>
+                <div class="detail-field-value mud-colorize{% if not obj.names or not obj.names.instrumental %} empty{% endif %}">
+                    {{ obj.names.instrumental if obj.names and obj.names.instrumental else '--' }}
+                </div>
+            </div>
+            <div class="detail-field">
+                <div class="detail-field-label">Предложный (о ком? о чём?)</div>
+                <div class="detail-field-value mud-colorize{% if not obj.names or not obj.names.prepositional %} empty{% endif %}">
+                    {{ obj.names.prepositional if obj.names and obj.names.prepositional else '--' }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECTION 2: Descriptions -->
+    <div class="parchment-section">
+        <div class="parchment-section-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+            </svg>
+            Описания
+        </div>
+
+        <div class="detail-grid detail-grid-1">
+            <div class="detail-field">
+                <div class="detail-field-label">Короткое описание (short desc)</div>
+                <div class="detail-field-value mud-colorize{% if not obj.short_desc %} empty{% endif %}">
+                    {{ obj.short_desc if obj.short_desc else 'Не задано' }}
+                </div>
+            </div>
+
+            <div class="detail-field">
+                <div class="detail-field-label">Полное описание</div>
+                <div class="detail-field-value mud-colorize{% if not obj.description %} empty{% endif %}" style="white-space: pre-wrap;">
+                    {{ obj.description if obj.description else 'Не задано' }}
+                </div>
+            </div>
+
+            <div class="detail-field">
+                <div class="detail-field-label">Описание действия (action desc)</div>
+                <div class="detail-field-value mud-colorize{% if not obj.action_desc %} empty{% endif %}">
+                    {{ obj.action_desc if obj.action_desc else 'Не задано' }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECTION 3: Stats -->
+    <div class="parchment-section">
+        <div class="parchment-section-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="1" x2="12" y2="23"/>
+                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+            </svg>
+            Характеристики
+        </div>
+
+        <div class="detail-grid detail-grid-3">
+            <div class="detail-field">
+                <div class="detail-field-label">Тип предмета</div>
+                <div class="detail-field-value">
+                    {% if obj.type is defined %}{{ obj_types.get(obj.type, obj.type) }}{% else %}--{% endif %}
+                </div>
+            </div>
+
+            <div class="detail-field">
+                <div class="detail-field-label">Вес</div>
+                <div class="detail-field-value">{{ obj.weight if obj.weight is defined else '--' }}</div>
+            </div>
+
+            <div class="detail-field">
+                <div class="detail-field-label">Цена</div>
+                <div class="detail-field-value">{{ obj.cost if obj.cost is defined else '--' }}</div>
+            </div>
+
+            <div class="detail-field">
+                <div class="detail-field-label">Рента если надет (rent when worn)</div>
+                <div class="detail-field-value">{{ obj.rent_on if obj.rent_on is defined else '--' }}</div>
+            </div>
+
+            <div class="detail-field">
+                <div class="detail-field-label">Рента если снят (rent when removed)</div>
+                <div class="detail-field-value">{{ obj.rent_off if obj.rent_off is defined else '--' }}</div>
+            </div>
+
+            <div class="detail-field">
+                <div class="detail-field-label">Мин. уровень</div>
+                <div class="detail-field-value">{{ obj.level if obj.level is defined else '--' }}</div>
+            </div>
+
+            <div class="detail-field">
+                <div class="detail-field-label">Род</div>
+                <div class="detail-field-value">
+                    {% if obj.sex == 0 %}Средний
+                    {% elif obj.sex == 1 %}Мужской
+                    {% elif obj.sex == 2 %}Женский
+                    {% elif obj.sex == 3 %}Множественное число
+                    {% else %}--{% endif %}
+                </div>
+            </div>
+
+            <div class="detail-field">
+                <div class="detail-field-label">Материал</div>
+                <div class="detail-field-value">
+                    {% if obj.material is defined %}{{ obj_materials.get(obj.material, obj.material) }}{% else %}--{% endif %}
+                </div>
+            </div>
+
+            <div class="detail-field">
+                <div class="detail-field-label">Таймер</div>
+                <div class="detail-field-value">{{ obj.timer if obj.timer is defined else '--' }}</div>
+            </div>
+
+            <div class="detail-field">
+                <div class="detail-field-label">Прочность</div>
+                <div class="detail-field-value">
+                    {% if obj.durability %}
+                        {{ obj.durability.current }}/{{ obj.durability.maximum }}
+                    {% else %}--{% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECTION 4: Flags (wear, extra, no, anti) -->
+    <div class="parchment-section">
+        <div class="parchment-section-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/>
+                <line x1="4" y1="22" x2="4" y2="15"/>
+            </svg>
+            Флаги предмета
+        </div>
+
+        {# === Wear Flags === #}
+        {% set wear_flags_map = {
+            1: 'Можно взять (Take)', 2: 'Палец (Finger)', 4: 'Шея (Neck)',
+            8: 'Тело (Body)', 16: 'Голова (Head)', 32: 'Ноги (Legs)',
+            64: 'Ступни (Feet)', 128: 'Кисти (Hands)', 256: 'Руки (Arms)',
+            512: 'Щит (Shield)', 1024: 'Плечи (Shoulders)', 2048: 'Пояс (Waist)',
+            4096: 'Запястье (Wrist)', 8192: 'Правая рука (Wield)', 16384: 'Левая рука (Hold)',
+            32768: 'Обе руки (Both)', 65536: 'Колчан (Quiver)'
+        } %}
+        {% set wf = obj.wear_flags|default(0)|int %}
+        <div class="subsection-label">Куда надевать (wear flags)</div>
+        {% if wf == 0 %}
+        <div class="detail-field-value empty" style="margin-bottom: 20px;">Не задано</div>
+        {% else %}
+        <div style="margin-bottom: 20px;">
+            <div class="flag-summary" style="margin-bottom: 6px;">
+                <span class="flag-summary-hex">0x{{ '%X' % wf }}</span>
+                <span class="flag-summary-dec">(dec: {{ wf }})</span>
+            </div>
+            <div class="flag-cards">
+                {% for bit, name in wear_flags_map.items()|sort %}
+                    {% if ((wf // bit) % 2) == 1 %}
+                    <span class="flag-card">{{ name }}</span>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        {# === Extra Flags === #}
+        {% set extra_flags_p0 = {
+            1: 'Светится (Glow)', 2: 'Гудит (Hum)', 4: 'Нельзя хранить (Norent)',
+            8: 'Нельзя пожертв. (Nodonate)', 16: 'Видим невидящ. (Noinvis)',
+            32: 'Невидимый (Invisible)', 64: 'Магический (Magic)', 128: 'Нельзя бросить (Nodrop)',
+            256: 'Благословлён (Bless)', 512: 'Нельзя продать (Nosell)', 1024: 'Распадается (Decay)',
+            2048: 'Зон. распад (Zonedecay)', 4096: 'Нельзя обезоружить (Nodisarm)',
+            8192: 'Не распадается (Nodecay)', 16384: 'Отравлен (Poisoned)',
+            32768: 'Заточен (Sharpen)', 65536: 'Укреплён (Armored)',
+            131072: 'Появляется днём (Day)', 262144: 'Появляется ночью (Night)',
+            524288: 'Появляется в полнолуние (Fullmoon)',
+            1048576: 'Появляется зимой (Winter)', 2097152: 'Появляется весной (Spring)',
+            4194304: 'Появляется летом (Summer)', 8388608: 'Появляется осенью (Autumn)',
+            16777216: 'Плавающий (Swimming)', 33554432: 'Летающий (Flying)',
+            67108864: 'Метательный (Throwing)', 134217728: 'Таймер по тикам (Ticktimer)',
+            268435456: 'Горит (Fire)', 536870912: 'Распад при репопе (RepopDecay)'
+        } %}
+        {% set extra_flags_p1 = {
+            1: 'Нельзя найти (Nolocate)', 2: 'Уровень по таймеру (TimedLvl)',
+            4: 'Нельзя изменить (Noalter)', 8: '1 слот (HasOneSlot)',
+            16: '2 слота (HasTwoSlots)', 32: '3 слота (HasThreeSlots)',
+            64: 'Часть набора (SetItem)', 128: 'Без фейла (Nofail)',
+            256: 'Именной (Named)', 512: 'Окровавлен (Bloody)',
+            1024: 'Квестовый (QuestItem)', 2048: '2 инкрустации (2inlaid)',
+            4096: '3 инкрустации (3inlaid)', 8192: 'Нельзя перелить (Nopour)',
+            16384: 'Уникальный (Unique)', 32768: 'Зачарован (Transformed)',
+            65536: 'Без таймера ренты (NoRentTimer)', 131072: 'Ограниченный таймер (LimitedTimer)',
+            262144: 'Привязка при покупке (BindOnPurchase)', 524288: 'Не один в хранилище (NotOneInClanChest)'
+        } %}
+        {% set ef = obj.extra_flags|default([0,0,0,0]) %}
+        {% set ef0 = ef[0]|default(0)|int %}
+        {% set ef1 = ef[1]|default(0)|int %}
+        <div class="subsection-label">Доп. флаги (extra flags)</div>
+        {% if ef0 == 0 and ef1 == 0 %}
+        <div class="detail-field-value empty" style="margin-bottom: 20px;">Не задано</div>
+        {% else %}
+        <div style="margin-bottom: 20px;">
+            {% if ef0 != 0 %}
+            <div class="flag-summary" style="margin-bottom: 6px;">
+                <span class="flag-summary-dec">Группа 0:</span>
+                <span class="flag-summary-hex">0x{{ '%X' % ef0 }}</span>
+            </div>
+            <div class="flag-cards" style="margin-bottom: 10px;">
+                {% for bit, name in extra_flags_p0.items()|sort %}
+                    {% if ((ef0 // bit) % 2) == 1 %}
+                    <span class="flag-card">{{ name }}</span>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% if ef1 != 0 %}
+            <div class="flag-summary" style="margin-bottom: 6px;">
+                <span class="flag-summary-dec">Группа 1:</span>
+                <span class="flag-summary-hex">0x{{ '%X' % ef1 }}</span>
+            </div>
+            <div class="flag-cards">
+                {% for bit, name in extra_flags_p1.items()|sort %}
+                    {% if ((ef1 // bit) % 2) == 1 %}
+                    <span class="flag-card">{{ name }}</span>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        {# === No Flags === #}
+        {% set no_flags_p0 = {
+            1: 'Моно (Mono)', 2: 'Поли (Poly)', 4: 'Нейтрал (Neutral)',
+            8: 'Колдун (Mage)', 16: 'Чародей (Sorcerer)', 32: 'Вор (Thief)',
+            64: 'Воин (Warrior)', 128: 'Убийца (Assassin)', 256: 'Страж (Guard)',
+            512: 'Паладин (Paladin)', 1024: 'Следопыт (Ranger)', 2048: 'Дозорный (Vigilant)',
+            4096: 'Купец (Merchant)', 8192: 'Маг (Magus)', 16384: 'Заклинатель (Conjurer)',
+            32768: 'Чернокнижник (Charmer)', 65536: 'Волшебник (Wizard)',
+            131072: 'Некромант (Necromancer)', 262144: 'Боец (Fighter)'
+        } %}
+        {% set no_flags_p1 = {
+            1: 'Убийца (Killer)', 2: 'Цветной (Colored)', 4: 'Боевой (Battle)'
+        } %}
+        {% set no_flags_p2 = {
+            64: 'Мужской (Male)', 128: 'Женский (Female)', 256: 'Чармис (Charmice)'
+        } %}
+        {% set no_flags_p3 = {
+            1: 'Free13', 2: 'Free14', 4: 'Free15', 8: 'Не для !ПК клана (NoPkClan)'
+        } %}
+        {% set nf = obj.no_flags|default([0,0,0,0]) %}
+        {% set nf0 = nf[0]|default(0)|int %}
+        {% set nf1 = nf[1]|default(0)|int %}
+        {% set nf2 = nf[2]|default(0)|int %}
+        {% set nf3 = nf[3]|default(0)|int %}
+        <div class="subsection-label">Запрет для (no flags)</div>
+        {% if nf0 == 0 and nf1 == 0 and nf2 == 0 and nf3 == 0 %}
+        <div class="detail-field-value empty" style="margin-bottom: 20px;">Не задано</div>
+        {% else %}
+        <div style="margin-bottom: 20px;">
+            {% if nf0 != 0 %}
+            <div class="flag-summary" style="margin-bottom: 6px;"><span class="flag-summary-dec">Религии и классы:</span> <span class="flag-summary-hex">0x{{ '%X' % nf0 }}</span></div>
+            <div class="flag-cards" style="margin-bottom: 10px;">
+                {% for bit, name in no_flags_p0.items()|sort %}{% if ((nf0 // bit) % 2) == 1 %}<span class="flag-card">{{ name }}</span>{% endif %}{% endfor %}
+            </div>
+            {% endif %}
+            {% if nf1 != 0 %}
+            <div class="flag-summary" style="margin-bottom: 6px;"><span class="flag-summary-dec">Прочие:</span> <span class="flag-summary-hex">0x{{ '%X' % nf1 }}</span></div>
+            <div class="flag-cards" style="margin-bottom: 10px;">
+                {% for bit, name in no_flags_p1.items()|sort %}{% if ((nf1 // bit) % 2) == 1 %}<span class="flag-card">{{ name }}</span>{% endif %}{% endfor %}
+            </div>
+            {% endif %}
+            {% if nf2 != 0 %}
+            <div class="flag-summary" style="margin-bottom: 6px;"><span class="flag-summary-dec">Пол и тип:</span> <span class="flag-summary-hex">0x{{ '%X' % nf2 }}</span></div>
+            <div class="flag-cards" style="margin-bottom: 10px;">
+                {% for bit, name in no_flags_p2.items()|sort %}{% if ((nf2 // bit) % 2) == 1 %}<span class="flag-card">{{ name }}</span>{% endif %}{% endfor %}
+            </div>
+            {% endif %}
+            {% if nf3 != 0 %}
+            <div class="flag-summary" style="margin-bottom: 6px;"><span class="flag-summary-dec">Дополнительные:</span> <span class="flag-summary-hex">0x{{ '%X' % nf3 }}</span></div>
+            <div class="flag-cards">
+                {% for bit, name in no_flags_p3.items()|sort %}{% if ((nf3 // bit) % 2) == 1 %}<span class="flag-card">{{ name }}</span>{% endif %}{% endfor %}
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        {# === Anti Flags === #}
+        {% set anti_flags_p0 = {
+            1: 'Моно (Mono)', 2: 'Поли (Poly)', 4: 'Нейтрал (Neutral)',
+            8: 'Колдун (Mage)', 16: 'Чародей (Sorcerer)', 32: 'Вор (Thief)',
+            64: 'Воин (Warrior)', 128: 'Убийца (Assassin)', 256: 'Страж (Guard)',
+            512: 'Паладин (Paladin)', 1024: 'Следопыт (Ranger)', 2048: 'Дозорный (Vigilant)',
+            4096: 'Купец (Merchant)', 8192: 'Маг (Magus)', 16384: 'Заклинатель (Conjurer)',
+            32768: 'Чернокнижник (Charmer)', 65536: 'Волшебник (Wizard)',
+            131072: 'Некромант (Necromancer)', 262144: 'Боец (Fighter)'
+        } %}
+        {% set anti_flags_p1 = {
+            1: 'Убийца (Killer)', 2: 'Цветной (Colored)', 4: 'Боевой (Battle)'
+        } %}
+        {% set anti_flags_p2 = {
+            64: 'Мужской (Male)', 128: 'Женский (Female)', 256: 'Чармис (Charmice)'
+        } %}
+        {% set anti_flags_p3 = {
+            8: 'Не для !ПК клана (NoPkClan)'
+        } %}
+        {% set af = obj.anti_flags|default([0,0,0,0]) %}
+        {% set af0 = af[0]|default(0)|int %}
+        {% set af1 = af[1]|default(0)|int %}
+        {% set af2 = af[2]|default(0)|int %}
+        {% set af3 = af[3]|default(0)|int %}
+        <div class="subsection-label">Анти-флаги (anti flags)</div>
+        {% if af0 == 0 and af1 == 0 and af2 == 0 and af3 == 0 %}
+        <div class="detail-field-value empty">Не задано</div>
+        {% else %}
+        <div>
+            {% if af0 != 0 %}
+            <div class="flag-summary" style="margin-bottom: 6px;"><span class="flag-summary-dec">Религии и классы:</span> <span class="flag-summary-hex">0x{{ '%X' % af0 }}</span></div>
+            <div class="flag-cards" style="margin-bottom: 10px;">
+                {% for bit, name in anti_flags_p0.items()|sort %}{% if ((af0 // bit) % 2) == 1 %}<span class="flag-card">{{ name }}</span>{% endif %}{% endfor %}
+            </div>
+            {% endif %}
+            {% if af1 != 0 %}
+            <div class="flag-summary" style="margin-bottom: 6px;"><span class="flag-summary-dec">Прочие:</span> <span class="flag-summary-hex">0x{{ '%X' % af1 }}</span></div>
+            <div class="flag-cards" style="margin-bottom: 10px;">
+                {% for bit, name in anti_flags_p1.items()|sort %}{% if ((af1 // bit) % 2) == 1 %}<span class="flag-card">{{ name }}</span>{% endif %}{% endfor %}
+            </div>
+            {% endif %}
+            {% if af2 != 0 %}
+            <div class="flag-summary" style="margin-bottom: 6px;"><span class="flag-summary-dec">Пол и тип:</span> <span class="flag-summary-hex">0x{{ '%X' % af2 }}</span></div>
+            <div class="flag-cards" style="margin-bottom: 10px;">
+                {% for bit, name in anti_flags_p2.items()|sort %}{% if ((af2 // bit) % 2) == 1 %}<span class="flag-card">{{ name }}</span>{% endif %}{% endfor %}
+            </div>
+            {% endif %}
+            {% if af3 != 0 %}
+            <div class="flag-summary" style="margin-bottom: 6px;"><span class="flag-summary-dec">Дополнительные:</span> <span class="flag-summary-hex">0x{{ '%X' % af3 }}</span></div>
+            <div class="flag-cards">
+                {% for bit, name in anti_flags_p3.items()|sort %}{% if ((af3 // bit) % 2) == 1 %}<span class="flag-card">{{ name }}</span>{% endif %}{% endfor %}
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- SECTION 5: Type-Specific Values -->
+    <div class="parchment-section">
+        <div class="parchment-section-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
+                <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+            </svg>
+            Параметры по типу (type-specific values)
+        </div>
+
+        <div class="detail-grid detail-grid-4">
+            <div class="detail-field">
+                <div class="detail-field-label">Значение 0 (value 0)</div>
+                <div class="detail-field-value">{{ obj.type_specific.value0 if obj.type_specific else '--' }}</div>
+            </div>
+
+            <div class="detail-field">
+                <div class="detail-field-label">Значение 1 (value 1)</div>
+                <div class="detail-field-value">{{ obj.type_specific.value1 if obj.type_specific else '--' }}</div>
+            </div>
+
+            <div class="detail-field">
+                <div class="detail-field-label">Значение 2 (value 2)</div>
+                <div class="detail-field-value">{{ obj.type_specific.value2 if obj.type_specific else '--' }}</div>
+            </div>
+
+            <div class="detail-field">
+                <div class="detail-field-label">Значение 3 (value 3)</div>
+                <div class="detail-field-value">{{ obj.type_specific.value3 if obj.type_specific else '--' }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECTION 6: Affects -->
+    {% if obj.affects and obj.affects|length > 0 %}
+    {% set apply_locations = {
+        0: '0 - NONE', 1: '1 - STR', 2: '2 - DEX', 3: '3 - INT', 4: '4 - WIS',
+        5: '5 - CON', 6: '6 - CHA', 7: '7 - CLASS', 8: '8 - LEVEL', 9: '9 - AGE',
+        10: '10 - CHAR_WEIGHT', 11: '11 - CHAR_HEIGHT', 12: '12 - MANAREG',
+        13: '13 - HIT', 14: '14 - MOVE', 15: '15 - GOLD', 16: '16 - EXP',
+        17: '17 - AC', 18: '18 - HITROLL', 19: '19 - DAMROLL',
+        20: '20 - SAVING_WILL', 21: '21 - SAVING_CRITICAL', 22: '22 - SAVING_STABILITY',
+        23: '23 - SAVING_REFLEX', 24: '24 - RESIST_FIRE', 25: '25 - RESIST_AIR',
+        26: '26 - RESIST_WATER', 27: '27 - RESIST_EARTH', 28: '28 - RESIST_VITALITY',
+        29: '29 - RESIST_MIND', 30: '30 - RESIST_IMMUNITY'
+    } %}
+    <div class="parchment-section">
+        <div class="parchment-section-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+            </svg>
+            Модификаторы (affects)
+        </div>
+
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="border-bottom: 2px solid #e7dac3;">
+                    <th style="padding: 12px; text-align: left; font-weight: 600; color: #78350f;">Параметр (location)</th>
+                    <th style="padding: 12px; text-align: left; font-weight: 600; color: #78350f;">Модификатор (modifier)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for affect in obj.affects %}
+                <tr style="border-bottom: 1px solid #f3eed9;">
+                    <td style="padding: 12px; color: #4b5563;">{{ apply_locations.get(affect.location, affect.location) }}</td>
+                    <td style="padding: 12px; color: #4b5563;">{{ affect.modifier }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+
+    <!-- SECTION 7: Extra Descriptions -->
+    {% if obj.extra_descriptions and obj.extra_descriptions|length > 0 %}
+    <div class="parchment-section">
+        <div class="parchment-section-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+            </svg>
+            Дополнительные описания (extra descriptions)
+        </div>
+
+        {% for ed in obj.extra_descriptions %}
+        <div style="margin-bottom: 16px; padding: 12px; background: #faf8f3; border-left: 3px solid #d4c49a;">
+            <div style="font-weight: 600; color: #78350f; margin-bottom: 6px;">Ключевые слова: {{ ed.keywords }}</div>
+            <div style="color: #4b5563; white-space: pre-wrap;">{{ ed.description }}</div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- SECTION 8: Triggers -->
+    {% if obj.triggers and obj.triggers|length > 0 %}
+    <div class="parchment-section">
+        <div class="parchment-section-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+            </svg>
+            Триггеры (DG Scripts)
+        </div>
+
+        <div class="tag-list">
+            {% if obj.triggers_enriched %}
+                {% for t in obj.triggers_enriched %}
+                <a href="{{ url_for('trigger_detail', vnum=t.vnum) }}" class="tag" style="text-decoration: none;">
+                    #{{ t.vnum }}{% if t.name %}: {{ t.name }}{% endif %}
+                </a>
+                {% endfor %}
+            {% else %}
+                {% for trig in obj.triggers %}
+                <a href="{{ url_for('trigger_detail', vnum=trig) }}" class="tag" style="text-decoration: none;">
+                    #{{ trig }}
+                </a>
+                {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Bottom Actions -->
+    <div style="display: flex; gap: 12px; padding-top: 8px;">
+        <a href="{{ url_for('object_edit', vnum=obj.vnum) }}" class="btn-primary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+            </svg>
+            Редактировать
+        </a>
+
+        <a href="{{ url_for('objects_list', zone=obj.vnum // 100) }}" class="btn-secondary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            Назад к списку
+        </a>
+    </div>
+
+
+{% block scripts %}
+<script>
+    applyMudColors();
+</script>
+{% endblock %}
+{% endblock %}

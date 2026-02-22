@@ -38,7 +38,7 @@ void pers_log(CharData *ch, const char *format, ...) {
 		for (ptr = name; *ptr; ptr++) {
 			*ptr = LOWER(AtoL(*ptr));
 		}
-		sprintf(filename, "../log/perslog/%s.log", name);
+		sprintf(filename, "%s/perslog/%s.log", runtime_config.log_dir().c_str(), name);
 		ch->desc->pers_log = fopen(filename, "a");
 		if (!ch->desc->pers_log) {
 			log("SYSERR: error open %s (%s %s %d)", filename, __FILE__, __func__, __LINE__);
@@ -184,11 +184,11 @@ void log(const char *format, ...) {
 }
 
 void shop_log(const char *format, ...) {
-	const char *filename = "../log/shop.log";
+	const auto filename = runtime_config.log_dir() + "/shop.log";
 
-	FILE *file = fopen(filename, "a");
+	FILE *file = fopen(filename.c_str(), "a");
 	if (!file) {
-		log("SYSERR: can't open %s!", filename);
+		log("SYSERR: can't open %s!", filename.c_str());
 		return;
 	}
 
@@ -206,11 +206,11 @@ void shop_log(const char *format, ...) {
 }
 
 void olc_log(const char *format, ...) {
-	const char *filename = "../log/olc.log";
+	const auto filename = runtime_config.log_dir() + "/olc.log";
 
-	FILE *file = fopen(filename, "a");
+	FILE *file = fopen(filename.c_str(), "a");
 	if (!file) {
-		log("SYSERR: can't open %s!", filename);
+		log("SYSERR: can't open %s!", filename.c_str());
 		return;
 	}
 
@@ -228,11 +228,11 @@ void olc_log(const char *format, ...) {
 }
 
 void imm_log(const char *format, ...) {
-	const char *filename = "../log/imm.log";
+	const auto filename = runtime_config.log_dir() + "/imm.log";
 
-	FILE *file = fopen(filename, "a");
+	FILE *file = fopen(filename.c_str(), "a");
 	if (!file) {
-		log("SYSERR: can't open %s!", filename);
+		log("SYSERR: can't open %s!", filename.c_str());
 		return;
 	}
 
@@ -264,8 +264,9 @@ void err_log(const char *format, ...) {
 void ip_log(const char *ip) {
 	FILE *iplog;
 
-	if (!(iplog = fopen("../log/ip.log", "a"))) {
-		log("SYSERR: ../log/ip.log");
+	const auto ip_log_path = runtime_config.log_dir() + "/ip.log";
+	if (!(iplog = fopen(ip_log_path.c_str(), "a"))) {
+		log("SYSERR: %s", ip_log_path.c_str());
 		return;
 	}
 

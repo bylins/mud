@@ -27,6 +27,7 @@
 #include "engine/ui/cmd_god/do_set_all.h"
 #include "gameplay/classes/mob_classes_info.h"
 #include "engine/db/player_index.h"
+#include "engine/db/description.h"
 
 class BanList;    // to avoid inclusion of ban.hpp
 
@@ -90,6 +91,7 @@ class GlobalObjects {
 	static DailyQuest::DailyQuestMap &daily_quests();
 	static Strengthening &strengthening();
 	static obj2triggers_t &obj_triggers();
+	static RoomDescriptions &descriptions();
 };
 
 using MUD = GlobalObjects;

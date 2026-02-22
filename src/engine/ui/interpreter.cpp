@@ -28,6 +28,9 @@
 #include "engine/ui/cmd_god/do_arena_restore.h"
 #include "engine/ui/cmd_god/do_at_room.h"
 #include "engine/ui/cmd_god/do_occupation.h"
+#ifdef ENABLE_ADMIN_API
+#include "engine/network/admin_api.h"
+#endif
 #include "engine/ui/cmd_god/do_date.h"
 #include "engine/ui/cmd_god/do_dc.h"
 #include "engine/ui/cmd_god/do_delete_obj.h"
@@ -2527,6 +2530,12 @@ void nanny(DescriptorData *d, char *argument) {
 			ShowEncodingPrompt(d, false);
 			d->state = EConState::kGetKeytable;
 			break;
+
+#ifdef ENABLE_ADMIN_API
+		case EConState::kAdminAPI:
+			admin_api_parse(d, argument);
+			break;
+#endif
 
 			//. OLC states .
 		case EConState::kOedit: oedit_parse(d, argument);

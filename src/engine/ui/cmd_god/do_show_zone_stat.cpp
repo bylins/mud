@@ -65,11 +65,11 @@ void DoShowZoneStat(CharData *ch, char *argument, int, int) {
 	}
 	int tmp1 = GetZoneRnum(atoi(arg1));
 	int tmp2 = GetZoneRnum(atoi(arg2));
-	if (tmp1 >= 0 && !*arg2) {
+	if (tmp1 != kNoZone && !*arg2) {
 		PrintZoneStat(ch, tmp1, tmp1, sort);
 		return;
 	}
-	if (tmp1 > 0 && tmp2 > 0) {
+	if (tmp1 != kNoZone && tmp2 != kNoZone) {
 		PrintZoneStat(ch, tmp1, tmp2, sort);
 		return;
 	}

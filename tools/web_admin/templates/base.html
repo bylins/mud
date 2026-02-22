@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Былины MUD - Админка{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'serif-display': ['"Playfair Display"', 'Georgia', 'serif'],
+                        'inter': ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+                    },
+                    colors: {
+                        parchment: {
+                            50: '#fdf6e3',
+                            100: '#f9f0d6',
+                            200: '#f4ead5',
+                            300: '#e8d9b8',
+                            400: '#d4c49a',
+                        },
+                        ink: {
+                            DEFAULT: '#2d241e',
+                            light: '#5a4d3f',
+                            muted: '#8a7b6b',
+                        },
+                    },
+                },
+            },
+        }
+    </script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block head %}{% endblock %}
+</head>
+<body class="bg-parchment-50 min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-[#2a1f14] border-b-4 border-double border-amber-900/40">
+        <div class="max-w-[1280px] mx-auto px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <!-- Logo / Brand Mark -->
+                <a href="{{ url_for('index') }}" class="w-10 h-10 rounded-lg bg-amber-800/30 flex items-center justify-center flex-shrink-0 hover:bg-amber-800/40 transition-colors" style="text-decoration: none;">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#d4a853" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+                    </svg>
+                </a>
+                <div>
+                    <h1 class="font-serif-display text-xl font-semibold text-[#e8d9b8] tracking-wide leading-tight">
+                        Былины МПМ
+                    </h1>
+                    <div class="font-inter text-xs text-[#a89478] tracking-wider uppercase mt-0.5">
+                        Админская панель
+                    </div>
+                </div>
+            </div>
+
+            {% if session.get('username') %}
+            <div class="flex items-center gap-4">
+                <div class="font-inter text-sm text-[#a89478]">
+                    <span class="text-[#d4a853]">{{ session.get('username') }}</span>
+                </div>
+                <a href="{{ url_for('logout') }}"
+                   class="font-inter text-xs font-medium text-[#a89478] hover:text-[#e8d9b8] border border-amber-800/30 hover:border-amber-700/50 rounded-md px-3 py-1.5 transition-all duration-150"
+                   style="text-decoration: none;">
+                    Выход
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </header>
+
+    {% if session.get('username') %}
+    <!-- Navigation -->
+    <nav class="bg-[#352a1e] border-b-2 border-amber-900/20 shadow-sm">
+        <div class="max-w-[1280px] mx-auto px-6">
+            <div class="flex items-center gap-1 overflow-x-auto">
+                {% set nav_items = [
+                    ('index', 'Главная', none),
+                    ('zones_list', 'Зоны', none),
+                    ('mobs_list', 'Мобы', {'zone': 1}),
+                    ('objects_list', 'Предметы', {'zone': 1}),
+                    ('rooms_list', 'Комнаты', {'zone': 1}),
+                    ('triggers_list', 'Триггеры', {'zone': 1}),
+                ] %}
+
+                {% for route, label, params in nav_items %}
+                <a href="{{ url_for(route, **(params or {})) }}"
+                   style="text-decoration: none;"
+                   class="font-inter text-sm font-medium px-4 py-3 text-[#c4b094] hover:text-[#e8d9b8] hover:bg-amber-900/15 border-b-2 border-transparent hover:border-[#d4a853]/60 transition-all duration-150 whitespace-nowrap
+                          {% if request.endpoint == route %} text-[#e8d9b8] border-[#d4a853]/80 bg-amber-900/10{% endif %}">
+                    {{ label }}
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+    </nav>
+    {% endif %}
+
+    <!-- Breadcrumbs -->
+    {% block breadcrumbs %}{% endblock %}
+
+    <!-- Main Content -->
+    <main class="flex-1">
+        <div class="max-w-[1280px] mx-auto px-6 py-8">
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t-2 border-double border-amber-900/15 bg-[#f0e6cf]">
+        <div class="max-w-[1280px] mx-auto px-6 py-5">
+            <div class="flex items-center justify-between">
+                <div class="font-inter text-xs text-ink-muted">
+                    Былины MUD Admin Panel
+                </div>
+                <div class="font-inter text-xs text-ink-muted">
+                    Powered by Flask & OLC API
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // MUD Color Code Rendering
+        function renderMudColors(text) {
+            if (!text) return text;
+
+            const colorMap = {
+                'K': 'black',
+                'k': 'black-bright',
+                'B': 'blue',
+                'b': 'blue-bright',
+                'C': 'cyan',
+                'c': 'cyan-bright',
+                'Y': 'yellow',
+                'y': 'yellow-bright',
+                'M': 'magenta',
+                'm': 'magenta-bright',
+                'W': 'white',
+                'w': 'white-bright',
+                'R': 'red',
+                'r': 'red-bright',
+                'G': 'green',
+                'g': 'green-bright',
+                'n': 'normal'
+            };
+
+            // Replace color codes with spans but KEEP the codes visible OUTSIDE spans
+            let result = '';
+            let currentColor = null;
+            let i = 0;
+
+            while (i < text.length) {
+                if (text[i] === '&' && i + 1 < text.length) {
+                    const code = text[i + 1];
+
+                    // Check if it's a color code
+                    if (colorMap[code]) {
+                        // Close previous span if any
+                        if (currentColor) {
+                            result += '</span>';
+                        }
+
+                        // Add the code OUTSIDE the span (visible but not colored)
+                        result += '&' + code;
+
+                        // Open new span (unless it's reset)
+                        if (code === 'n') {
+                            currentColor = null;
+                        } else {
+                            currentColor = colorMap[code];
+                            result += '<span class="mud-color-' + currentColor + '">';
+                        }
+
+                        i += 2; // Skip &X
+                        continue;
+                    } else if (code >= '0' && code <= '9') {
+                        // Numeric codes - keep them outside too
+                        if (currentColor) {
+                            result += '</span>';
+                            currentColor = null;
+                        }
+                        result += '&' + code;
+                        i += 2;
+                        continue;
+                    }
+                }
+
+                result += text[i];
+                i++;
+            }
+
+            // Close any open span
+            if (currentColor) {
+                result += '</span>';
+            }
+
+            return result;
+        }
+
+        // Apply MUD colors to elements with class 'mud-colorize'
+        function applyMudColors() {
+            document.querySelectorAll('.mud-colorize').forEach(function(el) {
+                // Skip if already processed
+                if (el.dataset.colorized) return;
+
+                // Get raw text content (no HTML entities, just actual text)
+                const text = el.textContent;
+
+                // Store original for potential re-processing
+                el.dataset.originalText = text;
+                el.dataset.colorized = 'true';
+
+                // Just apply colors, keep codes visible, don't touch newlines
+                const colored = renderMudColors(text);
+                el.innerHTML = colored;
+            });
+        }
+
+        // Table sorting utility
+        function sortTable(table, columnIndex, dataType = 'text') {
+            const tbody = table.querySelector('tbody');
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+            const th = table.querySelectorAll('th')[columnIndex];
+            const currentOrder = th.getAttribute('data-sort-order') || 'none';
+
+            // Clear all sort indicators
+            table.querySelectorAll('th').forEach(header => {
+                header.setAttribute('data-sort-order', 'none');
+                header.classList.remove('sorted-asc', 'sorted-desc');
+            });
+
+            // Determine new sort order
+            let newOrder = 'asc';
+            if (currentOrder === 'asc') {
+                newOrder = 'desc';
+            }
+
+            // Sort rows
+            rows.sort((a, b) => {
+                const aCell = a.querySelectorAll('td')[columnIndex];
+                const bCell = b.querySelectorAll('td')[columnIndex];
+
+                let aValue = aCell.textContent.trim();
+                let bValue = bCell.textContent.trim();
+
+                // Extract numeric values if data type is numeric
+                if (dataType === 'numeric') {
+                    aValue = parseInt(aValue.replace(/[^\d-]/g, '')) || 0;
+                    bValue = parseInt(bValue.replace(/[^\d-]/g, '')) || 0;
+                } else {
+                    aValue = aValue.toLowerCase();
+                    bValue = bValue.toLowerCase();
+                }
+
+                if (aValue < bValue) return newOrder === 'asc' ? -1 : 1;
+                if (aValue > bValue) return newOrder === 'asc' ? 1 : -1;
+                return 0;
+            });
+
+            // Update table
+            rows.forEach(row => tbody.appendChild(row));
+
+            // Update sort indicator
+            th.setAttribute('data-sort-order', newOrder);
+            th.classList.add(newOrder === 'asc' ? 'sorted-asc' : 'sorted-desc');
+        }
+
+        // Table search/filter utility
+        function filterTable(searchInput, table) {
+            const searchTerm = searchInput.value.toLowerCase();
+            const tbody = table.querySelector('tbody');
+            const rows = tbody.querySelectorAll('tr');
+
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                if (text.includes(searchTerm)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        /**
+         * Create a tag input component with autocomplete
+         * @param {string} inputId - ID of the original input element
+         * @param {Object} options - Configuration options
+         * @param {string} options.autocompleteUrl - URL for autocomplete API
+         * @param {string} options.valueSeparator - Delimiter for key:value pairs (default: ':')
+         * @param {string} options.placeholder - Placeholder text
+         * @param {boolean} options.requireValue - Require value part for key:value (default: false)
+         */
+        function createTagInput(inputId, options = {}) {
+            const originalInput = document.getElementById(inputId);
+            if (!originalInput) return;
+
+            const autocompleteUrl = options.autocompleteUrl;
+            const valueSeparator = options.valueSeparator || null;
+            const placeholder = options.placeholder || 'Введите значение и нажмите Enter...';
+            const requireValue = options.requireValue !== false;
+
+            // Hide original input
+            originalInput.style.display = 'none';
+
+            // Create wrapper
+            const wrapper = document.createElement('div');
+            wrapper.className = 'autocomplete-container';
+            originalInput.parentNode.insertBefore(wrapper, originalInput);
+
+            // Create container
+            const container = document.createElement('div');
+            container.className = 'tag-input-container';
+            container.onclick = () => newInput.focus();
+            wrapper.appendChild(container);
+
+            // Create dropdown
+            const dropdown = document.createElement('div');
+            dropdown.className = 'autocomplete-dropdown';
+            wrapper.appendChild(dropdown);
+
+            // Create new input
+            const newInput = document.createElement('input');
+            newInput.type = 'text';
+            newInput.placeholder = placeholder;
+            newInput.autocomplete = 'off';
+
+            // Parse initial value into tags
+            const tags = [];
+            if (originalInput.value) {
+                originalInput.value.split(',').forEach(item => {
+                    item = item.trim();
+                    if (item) tags.push(item);
+                });
+            }
+
+            let selectedIndex = -1;
+            let suggestions = [];
+            let searchTimeout = null;
+            let editingIndex = -1;
+
+            // Render tags
+            function renderTags() {
+                container.innerHTML = '';
+                tags.forEach((tag, index) => {
+                    const tagEl = document.createElement('span');
+                    tagEl.className = 'tag';
+
+                    // Double click to edit
+                    tagEl.ondblclick = (e) => {
+                        e.stopPropagation();
+                        editingIndex = index;
+                        newInput.value = tag;
+                        newInput.focus();
+                        newInput.select();
+                    };
+
+                    const tagText = document.createElement('span');
+                    tagText.textContent = tag;
+                    tagEl.appendChild(tagText);
+
+                    const removeBtn = document.createElement('span');
+                    removeBtn.className = 'tag-remove';
+                    removeBtn.innerHTML = '×';
+                    removeBtn.onclick = (e) => {
+                        e.stopPropagation();
+                        tags.splice(index, 1);
+                        updateOriginalInput();
+                        renderTags();
+                    };
+                    tagEl.appendChild(removeBtn);
+
+                    container.appendChild(tagEl);
+                });
+                container.appendChild(newInput);
+            }
+
+            // Update original input
+            function updateOriginalInput() {
+                originalInput.value = tags.join(', ');
+            }
+
+            // Fetch suggestions
+            async function fetchSuggestions(query) {
+                if (!autocompleteUrl || !query.trim()) {
+                    dropdown.classList.remove('active');
+                    return;
+                }
+
+                // For key:value format - don't show suggestions when entering value part
+                if (valueSeparator && query.includes(valueSeparator)) {
+                    const parts = query.split(valueSeparator);
+                    // If already has both parts, don't show autocomplete
+                    if (parts.length === 2 && parts[1].trim()) {
+                        dropdown.classList.remove('active');
+                        return;
+                    }
+                    // Only search by key part
+                    query = parts[0];
+                }
+
+                try {
+                    const url = `${autocompleteUrl}?q=${encodeURIComponent(query)}`;
+                    const response = await fetch(url);
+                    const data = await response.json();
+                    suggestions = data.results || [];
+
+                    if (suggestions.length === 0) {
+                        dropdown.classList.remove('active');
+                        return;
+                    }
+
+                    renderSuggestions();
+                } catch (error) {
+                    console.error('Autocomplete error:', error);
+                    dropdown.classList.remove('active');
+                }
+            }
+
+            // Render suggestions
+            function renderSuggestions() {
+                dropdown.innerHTML = '';
+                selectedIndex = -1;
+
+                suggestions.forEach((item, index) => {
+                    const div = document.createElement('div');
+                    div.className = 'autocomplete-item';
+
+                    // Different rendering for mobs vs skills/spells
+                    if (typeof item === 'object' && item.vnum !== undefined) {
+                        div.innerHTML = `<span class="autocomplete-item-vnum">#${item.vnum}</span><span class="autocomplete-item-name">${item.name}</span>`;
+                        div.onclick = () => selectSuggestion(item.vnum.toString());
+                    } else {
+                        div.textContent = item;
+                        div.onclick = () => selectSuggestion(item);
+                    }
+
+                    dropdown.appendChild(div);
+                });
+
+                dropdown.classList.add('active');
+            }
+
+            // Select suggestion
+            function selectSuggestion(value) {
+                if (valueSeparator) {
+                    // For skills: show "skill:" and let user enter level
+                    newInput.value = value + valueSeparator;
+                    dropdown.classList.remove('active');
+                    newInput.focus();
+                } else {
+                    // For spells/helpers: add directly
+                    newInput.value = value;
+                    addTag(value);
+                }
+            }
+
+            // Add tag
+            function addTag(value) {
+                value = value.trim();
+                if (!value) return false;
+
+                // Validate format for key:value pairs
+                if (valueSeparator) {
+                    if (!value.includes(valueSeparator)) {
+                        if (requireValue) {
+                            alert(`Требуется формат: название${valueSeparator}значение (например, bash${valueSeparator}50)`);
+                            return false;
+                        }
+                    } else {
+                        const parts = value.split(valueSeparator);
+                        if (parts.length !== 2 || !parts[0].trim() || !parts[1].trim()) {
+                            alert(`Неверный формат. Требуется: название${valueSeparator}значение`);
+                            return false;
+                        }
+                        // Validate numeric value
+                        if (isNaN(parseInt(parts[1]))) {
+                            alert('Значение должно быть числом');
+                            return false;
+                        }
+                    }
+                }
+
+                if (editingIndex >= 0) {
+                    tags[editingIndex] = value;
+                    editingIndex = -1;
+                } else {
+                    tags.push(value);
+                }
+
+                updateOriginalInput();
+                renderTags();
+                newInput.value = '';
+                dropdown.classList.remove('active');
+                return true;
+            }
+
+            // Handle keyboard
+            newInput.addEventListener('keydown', (e) => {
+                const items = dropdown.querySelectorAll('.autocomplete-item');
+
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    if (selectedIndex < items.length - 1) {
+                        selectedIndex++;
+                        updateSelection(items);
+                    }
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    if (selectedIndex > 0) {
+                        selectedIndex--;
+                        updateSelection(items);
+                    }
+                } else if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (selectedIndex >= 0 && suggestions[selectedIndex]) {
+                        const item = suggestions[selectedIndex];
+                        selectSuggestion(typeof item === 'object' ? item.vnum.toString() : item);
+                    } else {
+                        addTag(newInput.value);
+                    }
+                } else if (e.key === 'Escape') {
+                    dropdown.classList.remove('active');
+                    if (editingIndex >= 0) {
+                        editingIndex = -1;
+                        newInput.value = '';
+                    }
+                } else if (e.key === 'Backspace' && !newInput.value && tags.length > 0) {
+                    tags.pop();
+                    updateOriginalInput();
+                    renderTags();
+                }
+            });
+
+            // Update selection
+            function updateSelection(items) {
+                items.forEach((item, index) => {
+                    if (index === selectedIndex) {
+                        item.classList.add('selected');
+                        item.scrollIntoView({ block: 'nearest' });
+                    } else {
+                        item.classList.remove('selected');
+                    }
+                });
+            }
+
+            // Handle input with debounce
+            newInput.addEventListener('input', () => {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    fetchSuggestions(newInput.value);
+                }, 300);
+            });
+
+            // Close dropdown on outside click
+            document.addEventListener('click', (e) => {
+                if (!wrapper.contains(e.target)) {
+                    dropdown.classList.remove('active');
+                }
+            });
+
+            // Initial render
+            renderTags();
+        }
+
+        /**
+         * Create an autocomplete component for entity references
+         * @param {string} inputId - ID of the input element
+         * @param {Object} options - Configuration options
+         * @param {string} options.entityType - Type of entity to search (mobs, objects, rooms)
+         * @param {number} options.zone - Optional zone filter
+         * @param {Function} options.onSelect - Callback when item is selected
+         */
+        function createAutocomplete(inputId, options = {}) {
+            const input = document.getElementById(inputId);
+            if (!input) return;
+
+            const entityType = options.entityType || 'mobs';
+            const zone = options.zone || null;
+            const onSelect = options.onSelect || null;
+
+            // Wrap input in container
+            const wrapper = document.createElement('div');
+            wrapper.className = 'autocomplete-container';
+            input.parentNode.insertBefore(wrapper, input);
+            wrapper.appendChild(input);
+
+            // Create dropdown
+            const dropdown = document.createElement('div');
+            dropdown.className = 'autocomplete-dropdown';
+            wrapper.appendChild(dropdown);
+
+            let selectedIndex = -1;
+            let results = [];
+            let searchTimeout = null;
+
+            // Fetch results
+            async function fetchResults(query) {
+                if (!query.trim()) {
+                    dropdown.classList.remove('active');
+                    return;
+                }
+
+                dropdown.innerHTML = '<div class="autocomplete-loading">Поиск...</div>';
+                dropdown.classList.add('active');
+
+                try {
+                    let url = `/api/search/${entityType}?q=${encodeURIComponent(query)}`;
+                    if (zone) url += `&zone=${zone}`;
+
+                    const response = await fetch(url);
+                    const data = await response.json();
+
+                    if (data.error) {
+                        dropdown.innerHTML = `<div class="autocomplete-empty">Ошибка: ${data.error}</div>`;
+                        return;
+                    }
+
+                    results = data.results || [];
+
+                    if (results.length === 0) {
+                        dropdown.innerHTML = '<div class="autocomplete-empty">Ничего не найдено</div>';
+                        return;
+                    }
+
+                    renderResults();
+                } catch (error) {
+                    console.error('Autocomplete error:', error);
+                    dropdown.innerHTML = '<div class="autocomplete-empty">Ошибка загрузки</div>';
+                }
+            }
+
+            // Render results
+            function renderResults() {
+                dropdown.innerHTML = '';
+                selectedIndex = -1;
+
+                results.forEach((item, index) => {
+                    const div = document.createElement('div');
+                    div.className = 'autocomplete-item';
+                    div.innerHTML = `
+                        <span class="autocomplete-item-vnum">#${item.vnum}</span>
+                        <span class="autocomplete-item-name">${item.name}</span>
+                    `;
+                    div.onclick = () => selectItem(item);
+                    dropdown.appendChild(div);
+                });
+            }
+
+            // Select item
+            function selectItem(item) {
+                input.value = item.vnum;
+                dropdown.classList.remove('active');
+                if (onSelect) onSelect(item);
+            }
+
+            // Handle keyboard navigation
+            input.addEventListener('keydown', (e) => {
+                const items = dropdown.querySelectorAll('.autocomplete-item');
+
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    if (selectedIndex < items.length - 1) {
+                        selectedIndex++;
+                        updateSelection(items);
+                    }
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    if (selectedIndex > 0) {
+                        selectedIndex--;
+                        updateSelection(items);
+                    }
+                } else if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (selectedIndex >= 0 && results[selectedIndex]) {
+                        selectItem(results[selectedIndex]);
+                    }
+                } else if (e.key === 'Escape') {
+                    dropdown.classList.remove('active');
+                }
+            });
+
+            // Update visual selection
+            function updateSelection(items) {
+                items.forEach((item, index) => {
+                    if (index === selectedIndex) {
+                        item.classList.add('selected');
+                        item.scrollIntoView({ block: 'nearest' });
+                    } else {
+                        item.classList.remove('selected');
+                    }
+                });
+            }
+
+            // Handle input
+            input.addEventListener('input', () => {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    fetchResults(input.value);
+                }, 300); // Debounce 300ms
+            });
+
+            // Close dropdown on outside click
+            document.addEventListener('click', (e) => {
+                if (!wrapper.contains(e.target)) {
+                    dropdown.classList.remove('active');
+                }
+            });
+        }
+    </script>
+
+    {% block scripts %}{% endblock %}
+
+</body>
+</html>

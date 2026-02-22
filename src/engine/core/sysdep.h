@@ -256,9 +256,7 @@ struct in_addr
 #  pragma warn -pia		// to turn off possibly incorrect assignment. 'if (!(x=a))' //
 #  pragma warn -sig		// to turn off conversion may lose significant digits. //
 # endif
-# ifndef _WINSOCK2API_		// Winsock1 and Winsock 2 conflict. //
-#  include <winsock.h>
-# endif
+# include <winsock2.h>
 # ifndef FD_SETSIZE		// MSVC 6 is reported to have 64. //
 #  define FD_SETSIZE		1024
 # endif

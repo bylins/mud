@@ -156,11 +156,12 @@ class RuntimeConfiguration {
 	const CLogInfo &logs(EOutputStream id) { return m_logs[static_cast<size_t>(id)]; }
 	void handle(const EOutputStream stream, FILE *handle);
 	const std::string &log_stderr() { return m_log_stderr; }
+	const std::string &log_dir() const { return m_log_dir; }
 	auto output_thread() const { return m_output_thread; }
 	auto output_queue_size() const { return m_output_queue_size; }
 
 	void setup_logs();
-	const auto syslog_converter() const { return m_syslog_converter; }
+	auto syslog_converter() const { return m_syslog_converter; }
 
 	void enable_logging() { m_logging_enabled = true; }
 	void disable_logging() { m_logging_enabled = false; }
@@ -175,6 +176,15 @@ class RuntimeConfiguration {
 	const auto &external_reboot_trigger_file_name() const { return m_external_reboot_trigger_file_name; }
 
 	const auto &statistics() const { return m_statistics; }
+
+	size_t yaml_threads() const { return m_yaml_threads; }
+
+#ifdef ENABLE_ADMIN_API
+	const auto &admin_socket_path() const { return m_admin_socket_path; }
+	bool admin_api_enabled() const { return m_admin_api_enabled; }
+	bool admin_require_auth() const { return m_admin_require_auth; }
+	int admin_max_connections() const { return m_admin_max_connections; }
+#endif
 
  private:
 	static const char *CONFIGURATION_FILE_NAME;
@@ -193,9 +203,14 @@ class RuntimeConfiguration {
 	void load_boards_configuration(const pugi::xml_node *root);
 	void load_external_triggers(const pugi::xml_node *root);
 	void load_statistics_configuration(const pugi::xml_node *root);
+	void load_world_loader_configuration(const pugi::xml_node *root);
+#ifdef ENABLE_ADMIN_API
+	void load_admin_api_configuration(const pugi::xml_node *root);
+#endif
 
 	logs_t m_logs;
 	std::string m_log_stderr;
+	std::string m_log_dir;
 	bool m_output_thread;
 	std::size_t m_output_queue_size;
 	converter_t m_syslog_converter;
@@ -207,6 +222,15 @@ class RuntimeConfiguration {
 	std::string m_external_reboot_trigger_file_name;
 
 	StatisticsConfiguration m_statistics;
+
+	size_t m_yaml_threads;
+
+#ifdef ENABLE_ADMIN_API
+	std::string m_admin_socket_path{"admin_api.sock"};
+	bool m_admin_api_enabled{false};
+	bool m_admin_require_auth{true};
+	int m_admin_max_connections{1};
+#endif
 };
 
 extern RuntimeConfiguration runtime_config;
