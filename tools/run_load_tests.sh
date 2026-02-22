@@ -599,8 +599,10 @@ run_admin_api_test() {
     # Enable admin_api in configuration
     enable_admin_api "$data_dir/misc/configuration.xml"
 
-    # Clean previous run
+    # Clean previous run; also kill any stale process on port 4001
     rm -rf "$data_dir/syslog" "$data_dir/admin_api.sock" 2>/dev/null || true
+    fuser -k 4001/tcp 2>/dev/null || true
+    sleep 0.5
 
     # Start server in background with admin API enabled (cd into data_dir so syslog/log/ land there)
     # exec replaces the subshell so $! captures the binary's PID, not the shell's
@@ -619,6 +621,7 @@ run_admin_api_test() {
         echo "  X ERROR: Admin API socket not created"
         cat "$data_dir/stdout_admin.log" 2>/dev/null || echo "  (no stdout log)"
         kill $server_pid 2>/dev/null || true
+        wait $server_pid 2>/dev/null || true
         cd "$MUD_DIR"
         return 1
     fi
@@ -633,10 +636,11 @@ run_admin_api_test() {
 
     local test_result=$?
 
-    # Kill server
+    # Kill server and wait for port to be released
     kill $server_pid 2>/dev/null
     sleep 1
     kill -9 $server_pid 2>/dev/null || true
+    wait $server_pid 2>/dev/null || true
 
     # Display results
     if [ $test_result -eq 0 ]; then
