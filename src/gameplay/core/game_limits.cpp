@@ -27,6 +27,9 @@
 #include "gameplay/economics/ext_money.h"
 #include "gameplay/statistics/mob_stat.h"
 #include "gameplay/mechanics/liquid.h"
+#include "engine/observability/otel_helpers.h"
+#include "engine/observability/otel_metrics.h"
+#include "utils/tracing/trace_manager.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/mechanics/sight.h"
 #include "gameplay/ai/mob_memory.h"
@@ -620,6 +623,14 @@ void beat_punish(const CharData::shared_ptr &i) {
 }
 
 void beat_points_update(int pulse) {
+	// OpenTelemetry: Track beat points update
+	auto beat_span = tracing::TraceManager::Instance().StartSpan("Beat Points Update");
+	observability::ScopedMetric beat_metric("player.beat_update.duration");
+	
+	// Player statistics
+	int online_count = 0;
+	int in_combat_count = 0;
+	std::map<std::string, int> level_remort_distribution; // "level_X_remort_Y" -> count
 	int restore;
 
 	if (!UPDATE_PC_ON_BEAT)
@@ -637,6 +648,18 @@ void beat_points_update(int pulse) {
 			log("SYSERR: Pulse character in kNowhere.");
 			continue;
 		}
+		
+		// OpenTelemetry: Collect player statistics
+		online_count++;
+		if (d->character->GetEnemy()) {
+			in_combat_count++;
+		}
+		
+		// Level/remort distribution
+		int level = d->character->GetLevel();
+		int remort = d->character->get_remort();
+		std::string key = "level_" + std::to_string(level) + "_remort_" + std::to_string(remort);
+		level_remort_distribution[key]++;
 
 		if (NORENTABLE(d->character.get()) <= time(nullptr)) {
 			d->character->player_specials->may_rent = 0;
@@ -742,6 +765,27 @@ void beat_points_update(int pulse) {
 			d->character.get()->set_move(std::min(d->character.get()->get_move() + restore, d->character.get()->get_real_max_move()));
 		}
 		//-MZ.overflow_fix
+	}
+	
+	// OpenTelemetry: Record player statistics
+	beat_span->SetAttribute("player_count", static_cast<int64_t>(online_count));
+	
+	observability::OtelMetrics::RecordGauge("players.online.count", online_count);
+	observability::OtelMetrics::RecordGauge("players.in_combat.count", in_combat_count);
+	
+	// Record level/remort distribution
+	for (const auto& [key, count] : level_remort_distribution) {
+		// Parse key "level_X_remort_Y"
+		size_t level_pos = key.find("level_") + 6;
+		size_t remort_pos = key.find("_remort_") + 8;
+		std::string level_str = key.substr(level_pos, key.find("_remort_") - level_pos);
+		std::string remort_str = key.substr(remort_pos);
+		
+		std::map<std::string, std::string> attrs;
+		attrs["level"] = level_str;
+		attrs["remort"] = remort_str;
+		
+		observability::OtelMetrics::RecordGauge("players.by_level_remort.count", count, attrs);
 	}
 }
 

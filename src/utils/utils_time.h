@@ -6,6 +6,7 @@
 #include <memory>
 #include <list>
 #include <string>
+#include "tracing/trace_sender.h"
 
 #define LOAD_LOG_FOLDER "log/"
 #define LOAD_LOG_FILE "profiler.log"
@@ -51,7 +52,7 @@ class CSteppedProfiler {
 
 	using step_t = std::shared_ptr<CExecutionStepProfiler>;
 
-	CSteppedProfiler(const std::string &scope_name, const double time_probe = 0) : m_scope_name(scope_name), m_time_probe(time_probe) {}
+	CSteppedProfiler(const std::string &scope_name, const double time_probe = 0);
 	~CSteppedProfiler();
 	void next_step(const std::string &step_name);
 
@@ -63,6 +64,8 @@ class CSteppedProfiler {
 	const std::string m_scope_name;
 	const double m_time_probe;
 	std::list<step_t> m_steps;
+	std::unique_ptr<tracing::ISpan> m_parent_span;
+	std::unique_ptr<tracing::ISpan> m_current_child_span;
 	CExecutionTimer m_timer;
 };
 

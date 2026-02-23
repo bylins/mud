@@ -39,6 +39,9 @@
 #include "utils/backtrace.h"
 #include "gameplay/mechanics/armor.h"
 #include "gameplay/classes/recalc_mob_params_by_vnum.h"
+#include "engine/observability/otel_helpers.h"
+#include "engine/observability/otel_metrics.h"
+#include "utils/tracing/trace_manager.h"
 
 extern int max_exp_gain_pc(CharData *ch);
 extern long GetExpUntilNextLvl(CharData *ch, int level);
@@ -666,6 +669,23 @@ ObjData *get_obj_by_char(CharData *ch, char *name) {
 void script_trigger_check(int mode) {
 	utils::CExecutionTimer timer;
 
+	// OpenTelemetry: Track script trigger checking
+	auto trigger_span = tracing::TraceManager::Instance().StartSpan("Script Trigger Check");
+	observability::ScopedMetric trigger_metric("script.trigger.duration");
+	
+	// Determine trigger type
+	std::string trigger_type;
+	switch (mode) {
+		case MOB_TRIGGER: trigger_type = "MOB"; break;
+		case OBJ_TRIGGER: trigger_type = "OBJ"; break;
+		case WLD_TRIGGER: trigger_type = "WLD"; break;
+		default: trigger_type = "UNKNOWN"; break;
+	}
+	
+	trigger_span->SetAttribute("trigger_type", trigger_type);
+	trigger_span->SetAttribute("mode", static_cast<int64_t>(mode));
+	
+
 	switch (mode) {
 		case MOB_TRIGGER:
 			for (auto ch : character_list) {
@@ -709,6 +729,11 @@ void script_trigger_check(int mode) {
 		default:
 		break;
 	}
+	
+	// OpenTelemetry: Record script trigger metrics
+	std::map<std::string, std::string> attrs;
+	attrs["trigger_type"] = trigger_type;
+
 	log("script_trigger_check() mode %d всего: %f ms.", mode, timer.delta().count());
 }
 

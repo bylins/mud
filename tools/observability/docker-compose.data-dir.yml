@@ -1,0 +1,41 @@
+version: '3.8'
+
+# Override file: replaces named volumes with bind mounts to ${DATA_DIR}.
+# Containers run as the current host user (UID:GID) so that written files
+# are owned by the user who started the stack.
+#
+# Usage:
+#   export DATA_DIR=/var/lib/mud-observability
+#   mkdir -p $DATA_DIR/{prometheus,tempo,loki,grafana}
+#   docker-compose \
+#     -f docker-compose.observability.yml \
+#     -f docker-compose.data-dir.yml \
+#     up -d
+#
+# Or put DATA_DIR in a .env file next to the compose files.
+
+services:
+  prometheus:
+    user: "${UID}:${GID}"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ${DATA_DIR}/prometheus:/prometheus
+
+  tempo:
+    user: "${UID}:${GID}"
+    volumes:
+      - ./tempo-config.yaml:/etc/tempo.yaml:ro
+      - ${DATA_DIR}/tempo:/tmp/tempo
+
+  loki:
+    user: "${UID}:${GID}"
+    volumes:
+      - ./loki-config.yaml:/etc/loki/config.yaml:ro
+      - ${DATA_DIR}/loki:/loki
+
+  grafana:
+    user: "${UID}:${GID}"
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./dashboards:/var/lib/grafana/dashboards:ro
+      - ${DATA_DIR}/grafana:/var/lib/grafana

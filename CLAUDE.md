@@ -351,9 +351,21 @@ Use separate build directories for different CMake configurations to avoid lengt
 build/        - default build (without optional features)
 build_sqlite/ - build with -DHAVE_SQLITE=ON
 build_debug/  - debug build with -DCMAKE_BUILD_TYPE=Debug
+build_otel/   - build with -DWITH_OTEL=ON (requires vcpkg)
 build_test/   - test data and converted worlds (not for compilation)
 ```
 **Always warn the user when changing build directories or running cmake/make in a different directory.**
+
+### OpenTelemetry Build (WITH_OTEL)
+opentelemetry-cpp is installed via vcpkg at `~/repos/vcpkg`. Always pass the toolchain file and prefix path:
+```bash
+cmake -S . -B build_otel \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DWITH_OTEL=ON \
+  -DCMAKE_TOOLCHAIN_FILE=~/repos/vcpkg/scripts/buildsystems/vcpkg.cmake \
+  -DCMAKE_PREFIX_PATH=~/repos/vcpkg/installed/x64-linux
+make -C build_otel -j$(($(nproc)/2))
+```
 
 ### File Encoding - CRITICAL
 **Proper workflow for editing KOI8-R files:**

@@ -27,6 +27,8 @@
 #include "gameplay/skills/shield_block.h"
 #include "gameplay/skills/backstab.h"
 #include "gameplay/skills/ironwind.h"
+#include "engine/observability/otel_helpers.h"
+#include "engine/observability/otel_metrics.h"
 #include "gameplay/mechanics/armor.h"
 #include "gameplay/skills/addshot.h"
 
@@ -863,6 +865,9 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 		return;
 	}
 
+
+	// OpenTelemetry: Measure hit duration
+	observability::ScopedMetric hit_metric("combat.hit.duration");
 	// Do some sanity checking, in case someone flees, etc.
 	if (ch->in_room != victim->in_room || ch->in_room == kNowhere) {
 		if (ch->GetEnemy() && ch->GetEnemy() == victim) {

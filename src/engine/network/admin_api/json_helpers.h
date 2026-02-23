@@ -182,7 +182,7 @@ inline std::optional<json> ParseNested(const json& j, const char* key)
 }
 
 // ============================================================================
-// String Conversion Helpers (KOI8-R Б├■ UTF-8)
+// String Conversion Helpers (KOI8-R ? UTF-8)
 // ============================================================================
 
 /**

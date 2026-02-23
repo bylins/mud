@@ -37,12 +37,17 @@
 #include "gameplay/mechanics/noob.h"
 #include "obj_prototypes.h"
 #include "engine/olc/olc.h"
+#include "engine/observability/otel_helpers.h"
+#include "engine/observability/otel_metrics.h"
+#include "utils/tracing/trace_manager.h"
 #include "gameplay/communication/offtop.h"
 #include "gameplay/communication/parcel.h"
 #include "administration/privilege.h"
 #include "gameplay/mechanics/sets_drop.h"
 #include "gameplay/mechanics/stable_objs.h"
 #include "gameplay/economics/shop_ext.h"
+#include "engine/observability/otel_metrics.h"
+#include "engine/observability/otel_traces.h"
 #include "gameplay/mechanics/stuff.h"
 #include "gameplay/mechanics/title.h"
 #include "gameplay/statistics/top.h"
@@ -1932,6 +1937,11 @@ void ZoneUpdate() {
 	struct reset_q_element *update_u, *temp;
 	static int timer = 0;
 	utils::CExecutionTimer timer_count;
+	// OpenTelemetry: Track zone updates
+	auto zone_span = tracing::TraceManager::Instance().StartSpan("Zone Update");
+	observability::ScopedMetric zone_metric("zone.update.duration");
+	
+	int zones_reset_count = 0;
 	if (((++timer * kPulseZone) / kPassesPerSec) >= 60)    // one minute has passed
 	{
 		/*
@@ -1992,6 +2002,14 @@ void ZoneUpdate() {
 				ss << zone_table[it].vnum << " ";
 				if (zone_table[it].vnum < dungeons::kZoneStartDungeons) {
 					ResetZone(it);
+					zones_reset_count++;
+					
+					// OpenTelemetry: Record zone reset
+					std::map<std::string, std::string> attrs;
+					attrs["zone_vnum"] = std::to_string(zone_table[it].vnum);
+					attrs["reset_mode"] = std::to_string(zone_table[it].reset_mode);
+					
+					observability::OtelMetrics::RecordCounter("zone.reset.total", 1, attrs);
 				} else {
 					log("Закрываю брошенный dungeon %d", it);
 					dungeons::DungeonReset(it);
@@ -2017,6 +2035,9 @@ void ZoneUpdate() {
 			if (k >= kZonesReset)
 				break;
 		}
+	
+	// OpenTelemetry: Record total zones reset
+	zone_span->SetAttribute("zones_reset_count", static_cast<int64_t>(zones_reset_count));
 }
 
 bool CanBeReset(ZoneRnum zone) {
@@ -2307,18 +2328,15 @@ class ZoneReset {
 void ZoneReset::Reset() {
 	utils::CExecutionTimer timer;
 
-	if (GlobalObjects::stats_sender().ready()) {
-		ResetZoneEssential();
-		const auto execution_time = timer.delta();
+	ResetZoneEssential();
+	const auto execution_time = timer.delta();
 
-		influxdb::Record record("zone_reset");
-		record.add_tag("pulse", GlobalObjects::heartbeat().pulse_number());
-		record.add_tag("zone", zone_table[m_zone_rnum].vnum);
-		record.add_field("duration", execution_time.count());
-		GlobalObjects::stats_sender().send(record);
-	} else {
-		ResetZoneEssential();
-	}
+#ifdef WITH_OTEL
+	std::map<std::string, std::string> attrs;
+	attrs["pulse"] = std::to_string(GlobalObjects::heartbeat().pulse_number());
+	attrs["zone"] = std::to_string(zone_table[m_zone_rnum].vnum);
+	observability::OtelMetrics::RecordHistogram("zone.reset.duration", execution_time.count(), attrs);
+#endif
 }
 
 bool ZoneReset::HandleZoneCmdQ(const MobRnum rnum) const {
@@ -2345,18 +2363,13 @@ bool ZoneReset::HandleZoneCmdQ(const MobRnum rnum) const {
 
 	const auto execution_time = overall_timer.delta();
 
-	if (GlobalObjects::stats_sender().ready()) {
-		influxdb::Record record("Q_command");
-
-		record.add_tag("pulse", GlobalObjects::heartbeat().pulse_number());
-		record.add_tag("zone", zone_table[m_zone_rnum].vnum);
-		record.add_tag("rnum", rnum);
-
-		record.add_field("duration", execution_time.count());
-		record.add_field("extract", extract_time.count());
-		record.add_field("get_mobs", get_mobs_time.count());
-		GlobalObjects::stats_sender().send(record);
-	}
+#ifdef WITH_OTEL
+	std::map<std::string, std::string> attrs;
+	attrs["pulse"] = std::to_string(GlobalObjects::heartbeat().pulse_number());
+	attrs["zone"] = std::to_string(zone_table[m_zone_rnum].vnum);
+	attrs["rnum"] = std::to_string(rnum);
+	observability::OtelMetrics::RecordHistogram("zone.command.Q.duration", execution_time.count(), attrs);
+#endif
 
 	return extracted;
 }
@@ -2912,6 +2925,12 @@ void SetGodSkills(CharData *ch) {
 // по умолчанию reboot = 0 (пользуется только при ребуте)
 int LoadPlayerCharacter(const char *name, CharData *char_element, int load_flags) {
 	const auto player_i = char_element->load_char_ascii(name, load_flags);
+	// OpenTelemetry: Track player loading
+	auto load_span = tracing::TraceManager::Instance().StartSpan("Load Player");
+	load_span->SetAttribute("character_name", std::string(name));
+	
+	observability::ScopedMetric load_metric("player.load.duration");
+	
 	if (player_i > -1) {
 		char_element->set_pfilepos(player_i);
 	}

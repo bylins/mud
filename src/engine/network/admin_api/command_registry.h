@@ -92,7 +92,7 @@ public:
 private:
 	CommandRegistry() = default;
 
-	// Command name Б├▓ handler function
+	// Command name -> handler function
 	std::unordered_map<std::string, CommandHandler> handlers_;
 };
 

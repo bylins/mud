@@ -17,6 +17,9 @@
 #include "engine/db/global_objects.h"
 #include "gameplay/core/base_stats.h"
 #include "gameplay/core/constants.h"
+#include "engine/observability/otel_helpers.h"
+#include "engine/observability/otel_metrics.h"
+#include "utils/tracing/trace_manager.h"
 
 #include <cmath>
 
@@ -1599,6 +1602,15 @@ int MakeRecept::make(CharData *ch) {
 	// Проверяем возможность создания предмета
 	if (!IS_IMMORTAL(ch) && (skill == ESkill::kMakeStaff)) {
 		const ObjData obj(*tobj);
+
+	// OpenTelemetry: Track crafting
+	auto craft_span = tracing::TraceManager::Instance().StartSpan("Craft Item");
+	observability::ScopedMetric craft_metric("craft.duration");
+	
+	auto tobj_name = tobj->get_PName(ECase::kNom);
+	craft_span->SetAttribute("recipe_id", static_cast<int64_t>(obj_proto));
+	craft_span->SetAttribute("recipe_name", std::string(tobj_name.c_str()));
+	craft_span->SetAttribute("skill", NAME_BY_ITEM(skill));
 		act("Вы не готовы к тому чтобы сделать $o3.", false, ch, &obj, 0, kToChar);
 		return (false);
 	}
@@ -1892,6 +1904,13 @@ int MakeRecept::make(CharData *ch) {
 				ExtractObjFromWorld(ingrs[i]);
 			}
 		}
+
+		// OpenTelemetry: Record craft failure
+		std::map<std::string, std::string> attrs;
+		attrs["recipe_id"] = std::to_string(obj_proto);
+		attrs["skill"] = NAME_BY_ITEM(skill);
+		attrs["failure_reason"] = "craft_failed";
+		observability::OtelMetrics::RecordCounter("craft.failures.total", 1, attrs);
 		return (false);
 	}
 	// Лоадим предмет игроку
@@ -2055,6 +2074,12 @@ int MakeRecept::make(CharData *ch) {
 	} else {
 		PlaceObjToInventory(obj.get(), ch);
 	}
+
+	// OpenTelemetry: Record craft success
+	std::map<std::string, std::string> attrs;
+	attrs["recipe_id"] = std::to_string(obj_proto);
+	attrs["skill"] = NAME_BY_ITEM(skill);
+	observability::OtelMetrics::RecordCounter("craft.completed.total", 1, attrs);
 	return (true);
 }
 // вытащить рецепт из строки.

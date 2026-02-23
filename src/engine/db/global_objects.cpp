@@ -3,6 +3,7 @@
 #include <memory>
 
 #include "administration/ban.h"
+#include "utils/logging/log_manager.h"
 
 namespace {
 // This struct defines order of creating and destroying global objects
@@ -11,6 +12,9 @@ struct GlobalObjectsStorage {
 
 	/// This object should be destroyed last because it serves all output operations. So I define it first.
 	std::shared_ptr<OutputThread> output_thread;
+
+	/// LogManager intentionally leaked (never destroyed) to serve log() calls from destructors
+	logging::LogManager* log_manager;
 
 	celebrates::CelebrateList mono_celebrates;
 	celebrates::CelebrateList poly_celebrates;
@@ -46,7 +50,6 @@ struct GlobalObjectsStorage {
   	InspectRequestDeque inspect_request_deque;
 	BanList *ban;
 	Heartbeat heartbeat;
-	std::shared_ptr<influxdb::Sender> stats_sender;
 	ZoneTable zone_table;
 	DailyQuest::DailyQuestMap daily_quests;
 	Strengthening strengthening;
@@ -55,7 +58,9 @@ struct GlobalObjectsStorage {
 };
 
 GlobalObjectsStorage::GlobalObjectsStorage() :
-	ban(nullptr) {
+	ban(nullptr),
+	log_manager(new logging::LogManager()) {
+	// log_manager intentionally never deleted - will leak at shutdown
 }
 
 // This function ensures that global objects will be created at the moment of getting access to them
@@ -170,13 +175,8 @@ Heartbeat &GlobalObjects::heartbeat() {
 	return global_objects().heartbeat;
 }
 
-influxdb::Sender &GlobalObjects::stats_sender() {
-	if (!global_objects().stats_sender) {
-		global_objects().stats_sender = std::make_shared<influxdb::Sender>(
-			runtime_config.statistics().host(), runtime_config.statistics().port());
-	}
-
-	return *global_objects().stats_sender;
+observability::OtelProvider &GlobalObjects::otel_provider() {
+	return observability::OtelProvider::Instance();
 }
 
 OutputThread &GlobalObjects::output_thread() {
@@ -251,6 +251,9 @@ obj2triggers_t &GlobalObjects::obj_triggers() {
 	return global_objects().obj2triggers;
 }
 
+logging::LogManager &GlobalObjects::log_manager() {
+	return *global_objects().log_manager;
+}
 RoomDescriptions &GlobalObjects::descriptions() {
 	return global_objects().room_descriptions;
 }

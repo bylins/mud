@@ -27,7 +27,7 @@ constexpr size_t kMaxLargeBufferSize = 1048576;
 constexpr int kMaxChunks = 4;
 
 // Note: Command enum and string conversion functions were removed as unused.
-// CommandRegistry uses direct stringБ├▓handler mapping via std::unordered_map.
+// CommandRegistry uses direct string->handler mapping via std::unordered_map.
 
 }  // namespace admin_api
 

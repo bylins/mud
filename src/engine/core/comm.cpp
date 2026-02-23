@@ -37,6 +37,7 @@
 #include "engine/db/world_characters.h"
 #include "engine/entities/entities_constants.h"
 #include "administration/shutdown_parameters.h"
+#include "engine/observability/otel_provider.h"
 #include "external_trigger.h"
 #include "handler.h"
 #include "gameplay/clans/house.h"
@@ -673,7 +674,9 @@ int main_function(int argc, char **argv) {
 					   "  -h             Print this command line argument help.\n"
 					   "  -o <file>      Write log to <file> instead of stderr.\n"
 					   "  -r             Restrict MUD -- no new players allowed.\n"
-					   "  -s             Suppress special procedure assignments.\n", argv[0]);
+					   "  -s             Suppress special procedure assignments.\n"
+				   "\n"
+				   	   "  -S <database>  Use SQLite database for world loading.\n", argv[0]);
 				exit(0);
 
 			default: printf("SYSERR: Unknown option -%c in argument string.\n", *(argv[pos] + 1));
@@ -683,7 +686,9 @@ int main_function(int argc, char **argv) {
 					   "  -h             Print this command line argument help.\n"
 					   "  -o <file>      Write log to <file> instead of stderr.\n"
 					   "  -r             Restrict MUD -- no new players allowed.\n"
-					   "  -s             Suppress special procedure assignments.\n", argv[0]);
+					   "  -s             Suppress special procedure assignments.\n"
+				   "\n"
+				   	   "  -S <database>  Use SQLite database for world loading.\n", argv[0]);
 				exit(1);
 			break;
 		}
@@ -759,6 +764,11 @@ void stop_game(ush_int port) {
 
 	log("Opening mother connection.");
 	mother_desc = init_socket(port);
+	if (mother_desc < 0) {
+		log("SYSERR: Failed to bind to port %d. Server cannot start.", port);
+		log("Please check if another instance is running or if you have permission to use this port.");
+		exit(1);
+	}
 
 #ifdef ENABLE_ADMIN_API
 	if (runtime_config.admin_api_enabled()) {
@@ -825,6 +835,9 @@ void stop_game(ush_int port) {
 	log("Polling using select().");
 	game_loop(mother_desc);
 #endif
+
+	// Shutdown OTEL providers to flush remaining telemetry
+	observability::OtelProvider::Instance().Shutdown();
 
 	FlushPlayerIndex();
 
@@ -1009,9 +1022,9 @@ socket_t init_socket(ush_int port) {
 	sa.sin_addr = *(get_bind_addr());
 
 	if (bind(s, (struct sockaddr *) &sa, sizeof(sa)) < 0) {
-		perror("SYSERR: bind");
+		log("SYSERR: bind() failed - port %d is already in use or permission denied", port);
 		CLOSE_SOCKET(s);
-		exit(1);
+		return -1;
 	}
 	nonblock(s);
 	listen(s, 5);
@@ -2178,8 +2191,7 @@ RETSIGTYPE checkpointing(int/* sig*/) {
 }
 
 RETSIGTYPE hupsig(int/* sig*/) {
-	log("SYSERR: Received SIGHUP, SIGINT, or SIGTERM.  Shutting down...");
-	exit(1);        // perhaps something more elegant should substituted
+	shutdown_parameters.shutdown_now();
 }
 
 #endif                // CIRCLE_UNIX
