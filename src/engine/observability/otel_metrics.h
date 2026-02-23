@@ -8,17 +8,17 @@ namespace observability {
 
 class OtelMetrics {
 public:
-    // п║я┤я▒я┌я┤п╦п╨ (Counter) - п╪п╬п╫п╬я┌п╬п╫п╫п╬ я─п╟я│я┌я┐я┴п╣п╣ п╥п╫п╟я┤п╣п╫п╦п╣
+    // Счётчик (Counter) - монотонно растущее значение
     static void RecordCounter(const std::string& name, int64_t value);
     static void RecordCounter(const std::string& name, int64_t value,
                             const std::map<std::string, std::string>& attributes);
     
-    // п⌠п╦я│я┌п╬пЁя─п╟п╪п╪п╟ (Histogram) - я─п╟я│п©я─п╣п╢п╣п╩п╣п╫п╦п╣ п╥п╫п╟я┤п╣п╫п╦п╧
+    // Гистограмма (Histogram) - распределение значений
     static void RecordHistogram(const std::string& name, double value);
     static void RecordHistogram(const std::string& name, double value,
                                const std::map<std::string, std::string>& attributes);
     
-    // п≤п╥п╪п╣я─п╦я┌п╣п╩я▄ (Gauge) - я┌п╣п╨я┐я┴п╣п╣ п╥п╫п╟я┤п╣п╫п╦п╣
+    // Измеритель (Gauge) - текущее значение
     static void RecordGauge(const std::string& name, double value);
     static void RecordGauge(const std::string& name, double value,
                            const std::map<std::string, std::string>& attributes);

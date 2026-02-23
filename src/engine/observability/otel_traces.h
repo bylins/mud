@@ -43,7 +43,7 @@ public:
                          const std::map<std::string, std::string>& attributes);
 };
 
-// RAII span guard п╢п╩я▐ п╟п╡я┌п╬п╪п╟я┌п╦я┤п╣я│п╨п╬пЁп╬ п╥п╟п╡п╣я─я┬п╣п╫п╦я▐
+// RAII span guard для автоматического завершения
 class SpanGuard {
 public:
     explicit SpanGuard(Span span) : m_span(std::move(span)) {}
