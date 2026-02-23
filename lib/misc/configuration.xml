@@ -147,7 +147,7 @@
 			<version>1.0.0</version>
 		</service>
 		<logs>
-			<mode>file-only</mode>
+			<mode>duplicate</mode>
 		</logs>
 	</telemetry>
 </configuration>
