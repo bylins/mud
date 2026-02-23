@@ -36,23 +36,13 @@ jobs:
             run_tests: true
 
           - name: "Base + Admin API"
-            cmake_flags: "-DCMAKE_BUILD_TYPE=Release -DENABLE_ADMIN_API=ON"
-            packages: ""
+            cmake_flags: "-DCMAKE_BUILD_TYPE=Release -DENABLE_ADMIN_API=ON -DWITH_OTEL=ON"
+            packages: "libopentelemetry-cpp-dev"
             run_tests: true
 
           - name: "YAML + Admin API"
-            cmake_flags: "-DCMAKE_BUILD_TYPE=Release -DHAVE_YAML=ON -DENABLE_ADMIN_API=ON"
-            packages: "libyaml-cpp-dev"
-            run_tests: true
-
-          - name: "OTEL"
-            cmake_flags: "-DCMAKE_BUILD_TYPE=Release -DWITH_OTEL=ON"
-            packages: "libopentelemetry-cpp-dev"
-            run_tests: true
-
-          - name: "OTEL + Admin API"
-            cmake_flags: "-DCMAKE_BUILD_TYPE=Release -DWITH_OTEL=ON -DENABLE_ADMIN_API=ON"
-            packages: "libopentelemetry-cpp-dev"
+            cmake_flags: "-DCMAKE_BUILD_TYPE=Release -DHAVE_YAML=ON -DENABLE_ADMIN_API=ON -DWITH_OTEL=ON"
+            packages: "libyaml-cpp-dev libopentelemetry-cpp-dev"
             run_tests: true
 
     steps:
