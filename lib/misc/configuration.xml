@@ -130,7 +130,7 @@
 	  duplicate  - логи и в файл, и в OTEL
 	-->
 	<telemetry>
-		<enabled>false</enabled>
+		<enabled>true</enabled>
 		<otlp>
 			<metrics>
 				<endpoint>http://localhost:4318/v1/metrics</endpoint>
