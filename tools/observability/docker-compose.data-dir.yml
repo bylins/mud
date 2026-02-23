@@ -1,0 +1,28 @@
+version: '3.8'
+
+# Override file: replaces named volumes with bind mounts to ${DATA_DIR}.
+# Usage:
+#   DATA_DIR=/var/lib/mud-observability \
+#   docker-compose -f docker-compose.observability.yml -f docker-compose.data-dir.yml up -d
+
+services:
+  prometheus:
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ${DATA_DIR}/prometheus:/prometheus
+
+  tempo:
+    volumes:
+      - ./tempo-config.yaml:/etc/tempo.yaml:ro
+      - ${DATA_DIR}/tempo:/tmp/tempo
+
+  loki:
+    volumes:
+      - ./loki-config.yaml:/etc/loki/config.yaml:ro
+      - ${DATA_DIR}/loki:/loki
+
+  grafana:
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./dashboards:/var/lib/grafana/dashboards:ro
+      - ${DATA_DIR}/grafana:/var/lib/grafana
