@@ -45,6 +45,16 @@ jobs:
             packages: "libyaml-cpp-dev"
             run_tests: true
 
+          - name: "OTEL"
+            cmake_flags: "-DCMAKE_BUILD_TYPE=Release -DWITH_OTEL=ON"
+            packages: "libopentelemetry-cpp-dev"
+            run_tests: true
+
+          - name: "OTEL + Admin API"
+            cmake_flags: "-DCMAKE_BUILD_TYPE=Release -DWITH_OTEL=ON -DENABLE_ADMIN_API=ON"
+            packages: "libopentelemetry-cpp-dev"
+            run_tests: true
+
     steps:
       - uses: actions/checkout@v4
         with:

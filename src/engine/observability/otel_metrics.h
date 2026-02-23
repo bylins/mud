@@ -2,6 +2,7 @@
 #define BYLINS_OTEL_METRICS_H
 
 #include <string>
+#include <cstdint>
 #include <map>
 
 namespace observability {
