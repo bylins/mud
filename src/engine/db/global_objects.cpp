@@ -58,8 +58,8 @@ struct GlobalObjectsStorage {
 };
 
 GlobalObjectsStorage::GlobalObjectsStorage() :
-	ban(nullptr),
-	log_manager(new logging::LogManager()) {
+	log_manager(new logging::LogManager()),
+	ban(nullptr) {
 	// log_manager intentionally never deleted - will leak at shutdown
 }
 
