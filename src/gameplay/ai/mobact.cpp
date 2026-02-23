@@ -1274,7 +1274,7 @@ void extract_charmice(CharData *ch, bool on_ground) {
 		if (on_ground || !ch->get_master()) {
 			DropObjOnZoneReset(ch, charmice_box, true, false);
 		} else {
-			SendMsgToChar(ch->get_master(), "&YВолшебный узелок с вещами появился у вас в инвентаре.&n");
+			SendMsgToChar(ch->get_master(), "&YВолшебный узелок с вещами появился у вас в инвентаре.&n\r\n");
 			PlaceObjToInventory(charmice_box, ch->get_master());
 		}
 	}
