@@ -649,14 +649,15 @@ def api_spells():
 
 
 if __name__ == '__main__':
-    # Get host and port from environment or use defaults
     HOST = os.environ.get('FLASK_HOST', '127.0.0.1')
     PORT = int(os.environ.get('FLASK_PORT', 5000))
+    DEBUG = os.environ.get('FLASK_DEBUG', '0').lower() in ('1', 'true', 'yes')
 
     print("=" * 60)
     print("Bylins MUD Web Admin Interface")
     print("=" * 60)
     print(f"Socket path: {SOCKET_PATH}")
     print(f"Starting server on http://{HOST}:{PORT}")
+    print(f"Debug: {DEBUG}")
     print("=" * 60)
-    app.run(debug=True, host=HOST, port=PORT)
+    app.run(debug=DEBUG, host=HOST, port=PORT)
