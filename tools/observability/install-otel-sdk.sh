@@ -49,7 +49,7 @@ install_via_vcpkg() {
     fi
 
     echo "Installing opentelemetry-cpp $OTEL_VERSION via vcpkg ..."
-    "$VCPKG_DIR/vcpkg" install "opentelemetry-cpp:x64-linux"
+    "$VCPKG_DIR/vcpkg" install "opentelemetry-cpp[otlp-http]:x64-linux"
 
     echo ""
     echo "Done. Build the server with:"
