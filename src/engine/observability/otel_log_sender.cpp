@@ -94,10 +94,10 @@ static void AddAttributesToLogRecord(
 
 static opentelemetry::logs::Severity to_otel_level(logging::LogLevel level) {
 	switch (level) {
-		case logging::LogLevel::DEBUG: return opentelemetry::logs::Severity::kDebug;
-		case logging::LogLevel::INFO: return opentelemetry::logs::Severity::kInfo;
-		case logging::LogLevel::WARN: return opentelemetry::logs::Severity::kWarn;
-		case logging::LogLevel::ERROR: return opentelemetry::logs::Severity::kError;
+		case logging::LogLevel::kDebug: return opentelemetry::logs::Severity::kDebug;
+		case logging::LogLevel::kInfo: return opentelemetry::logs::Severity::kInfo;
+		case logging::LogLevel::kWarn: return opentelemetry::logs::Severity::kWarn;
+		case logging::LogLevel::kError: return opentelemetry::logs::Severity::kError;
 		default: return opentelemetry::logs::Severity::kInfo;
 	}
 }
@@ -125,39 +125,39 @@ static void LogWithLevel(logging::LogLevel level,
 
 // All methods now delegate to LogWithLevel
 void OtelLogSender::Debug(const std::string& message) {
-	LogWithLevel(logging::LogLevel::DEBUG, message, {});
+	LogWithLevel(logging::LogLevel::kDebug, message, {});
 }
 
 void OtelLogSender::Debug(const std::string& message,
 						 const std::map<std::string, std::string>& attributes) {
-	LogWithLevel(logging::LogLevel::DEBUG, message, attributes);
+	LogWithLevel(logging::LogLevel::kDebug, message, attributes);
 }
 
 void OtelLogSender::Info(const std::string& message) {
-	LogWithLevel(logging::LogLevel::INFO, message, {});
+	LogWithLevel(logging::LogLevel::kInfo, message, {});
 }
 
 void OtelLogSender::Info(const std::string& message,
 						const std::map<std::string, std::string>& attributes) {
-	LogWithLevel(logging::LogLevel::INFO, message, attributes);
+	LogWithLevel(logging::LogLevel::kInfo, message, attributes);
 }
 
 void OtelLogSender::Warn(const std::string& message) {
-	LogWithLevel(logging::LogLevel::WARN, message, {});
+	LogWithLevel(logging::LogLevel::kWarn, message, {});
 }
 
 void OtelLogSender::Warn(const std::string& message,
 						const std::map<std::string, std::string>& attributes) {
-	LogWithLevel(logging::LogLevel::WARN, message, attributes);
+	LogWithLevel(logging::LogLevel::kWarn, message, attributes);
 }
 
 void OtelLogSender::Error(const std::string& message) {
-	LogWithLevel(logging::LogLevel::ERROR, message, {});
+	LogWithLevel(logging::LogLevel::kError, message, {});
 }
 
 void OtelLogSender::Error(const std::string& message,
 						 const std::map<std::string, std::string>& attributes) {
-	LogWithLevel(logging::LogLevel::ERROR, message, attributes);
+	LogWithLevel(logging::LogLevel::kError, message, attributes);
 }
 
 } // namespace observability

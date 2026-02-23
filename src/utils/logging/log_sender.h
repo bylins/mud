@@ -7,10 +7,10 @@
 namespace logging {
 
 enum class LogLevel {
-    DEBUG,
-    INFO,
-    WARN,
-    ERROR
+    kDebug,
+    kInfo,
+    kWarn,
+    kError
 };
 
 // Interface for log sending (Null Object Pattern)
