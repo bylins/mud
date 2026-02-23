@@ -8,6 +8,10 @@ chmod 644 ./*.yml ./*.yaml 2>/dev/null || true
 chmod 644 grafana/provisioning/datasources/*.yml 2>/dev/null || true
 chmod 644 grafana/provisioning/dashboards/*.yml 2>/dev/null || true
 
+if [ $# -eq 0 ]; then
+    set -- up -d
+fi
+
 if [ -n "$DATA_DIR" ]; then
     echo "Using bind mounts in: $DATA_DIR"
     mkdir -p "$DATA_DIR/prometheus" "$DATA_DIR/tempo" "$DATA_DIR/loki" "$DATA_DIR/grafana"
