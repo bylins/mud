@@ -15,12 +15,12 @@ template<typename T>
 struct Unimplemented {};
 
 template<typename E>
-const std::string &NAME_BY_ITEM(const E item) {
+const std::string &NAME_BY_ITEM(const E) {
 	return Unimplemented<E>::FAIL;
 }
 
 template<typename E>
-E ITEM_BY_NAME(const std::string &name) {
+E ITEM_BY_NAME(const std::string &) {
 	return Unimplemented<E>::FAIL;
 }
 

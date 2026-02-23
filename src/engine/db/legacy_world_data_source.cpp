@@ -3,6 +3,7 @@
 
 #include "legacy_world_data_source.h"
 #include "db.h"
+#include "obj_prototypes.h"
 #include "utils/logger.h"
 
 // Forward declarations for OLC save functions
@@ -10,7 +11,7 @@ void zedit_save_to_disk(int zone_rnum);
 void redit_save_to_disk(int zone_rnum);
 void medit_save_to_disk(int zone_rnum);
 void oedit_save_to_disk(int zone_rnum);
-void trigedit_save_to_disk(int zone_rnum);
+bool trigedit_save_to_disk(int zone_rnum, int notify_level);
 
 namespace world_loader
 {
@@ -50,23 +51,27 @@ void LegacyWorldDataSource::SaveZone(int zone_rnum)
 	zedit_save_to_disk(zone_rnum);
 }
 
-void LegacyWorldDataSource::SaveTriggers(int zone_rnum)
+bool LegacyWorldDataSource::SaveTriggers(int zone_rnum, int specific_vnum, int notify_level)
 {
-	trigedit_save_to_disk(zone_rnum);
+	(void)specific_vnum; // Legacy format always saves entire zone
+	return trigedit_save_to_disk(zone_rnum, notify_level);
 }
 
-void LegacyWorldDataSource::SaveRooms(int zone_rnum)
+void LegacyWorldDataSource::SaveRooms(int zone_rnum, int specific_vnum)
 {
+	(void)specific_vnum; // Legacy format always saves entire zone
 	redit_save_to_disk(zone_rnum);
 }
 
-void LegacyWorldDataSource::SaveMobs(int zone_rnum)
+void LegacyWorldDataSource::SaveMobs(int zone_rnum, int specific_vnum)
 {
+	(void)specific_vnum; // Legacy format always saves entire zone
 	medit_save_to_disk(zone_rnum);
 }
 
-void LegacyWorldDataSource::SaveObjects(int zone_rnum)
+void LegacyWorldDataSource::SaveObjects(int zone_rnum, int specific_vnum)
 {
+	(void)specific_vnum; // Legacy format always saves entire zone
 	oedit_save_to_disk(zone_rnum);
 }
 

@@ -90,7 +90,7 @@ void CharRemember::add_str(std::string text, int flag) {
 			break;
 		case PERSONAL: add_to_cont(personal_, buffer);
 			break;
-		case GROUP:// added by WorM  групптелы 2010.10.13
+		case Remember::GROUP:// added by WorM  групптелы 2010.10.13
 			add_to_cont(group_, buffer);
 			break;
 		case GOSSIP: add_to_cont(gossip, buffer);
@@ -118,7 +118,7 @@ std::string CharRemember::get_text(int flag) const {
 			break;
 		case PERSONAL: buffer = get_from_cont(personal_, num_str_);
 			break;
-		case GROUP:// added by WorM  групптелы 2010.10.13
+		case Remember::GROUP:// added by WorM  групптелы 2010.10.13
 			buffer = get_from_cont(group_, num_str_);
 			break;
 		case GOSSIP: buffer = get_from_cont(gossip, num_str_);

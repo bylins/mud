@@ -79,7 +79,6 @@ const char *diag_obj_timer(const ObjData *obj);
 void look_at_room(CharData *ch, int ignore_brief, bool msdp_mode) {
 	if (!ch->desc)
 		return;
-
 	if (is_dark(ch->in_room) && !CAN_SEE_IN_DARK(ch) && !CanUseFeat(ch, EFeat::kDarkReading)) {
 		SendMsgToChar("Слишком темно...\r\n", ch);
 		show_glow_objs(ch);
@@ -136,7 +135,7 @@ void look_at_room(CharData *ch, int ignore_brief, bool msdp_mode) {
 	if (is_dark(ch->in_room) && !ch->IsFlagged(EPrf::kHolylight)) {
 		SendMsgToChar("Слишком темно...\r\n", ch);
 	} else if ((!ch->IsNpc() && !ch->IsFlagged(EPrf::kBrief)) || ignore_brief || ROOM_FLAGGED(ch->in_room, ERoomFlag::kDeathTrap)) {
-		show_extend_room(RoomDescription::show_desc(world[ch->in_room]->description_num).c_str(), ch);
+		show_extend_room(GlobalObjects::descriptions().get(world[ch->in_room]->description_num).c_str(), ch);
 	}
 
 	if (ch->IsFlagged(EPrf::kAutoexit) && !ch->IsFlagged(EPlrFlag::kScriptWriter)) {

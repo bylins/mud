@@ -138,7 +138,7 @@ void CheckScheduledRebootCall::perform(int, int) {
 	if (uptime_minutes >= (shutdown_parameters.get_reboot_uptime() - 60)
 		&& shutdown_parameters.get_shutdown_timeout() == 0) {
 		//reboot after 60 minutes minimum. Auto reboot cannot run earlier.
-		SendMsgToAll("О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ 60 О©╫О©╫О©╫О©╫О©╫.\r\n");
+		SendMsgToAll("АВТОМАТИЧЕСКАЯ ПЕРЕЗАГРУЗКА ЧЕРЕЗ 60 МИНУТ.\r\n");
 		shutdown_parameters.reboot(3600);
 	}
 }
@@ -159,7 +159,7 @@ void CheckTriggeredRebootCall::perform(int, int) {
 
 	if (m_external_trigger_checker
 		&& m_external_trigger_checker->check()) {
-		mudlog("О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫.", DEF, kLvlImplementator, SYSLOG, true);
+		mudlog("Сработал внешний триггер перезагрузки.", DEF, kLvlImplementator, SYSLOG, true);
 		shutdown_parameters.reboot();
 	}
 }
@@ -462,6 +462,10 @@ Heartbeat::steps_t &pulse_steps() {
 							 kSecsPerMudHour * kPassesPerSec,
 							 16,
 							 std::make_shared<SimpleCall>(mobile_affect_update)),
+		Heartbeat::PulseStep("Player timed updating",
+							 kSecsPerMudHour * kPassesPerSec,
+							 16,
+							 std::make_shared<SimpleCall>(player_timed_update)),
 		Heartbeat::PulseStep("Objects point updating",
 							 kSecsPerMudHour * kPassesPerSec,
 							 11,

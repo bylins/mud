@@ -71,6 +71,7 @@ class ObjData;    // forward declaration to avoid inclusion of obj.hpp and any d
 class Trigger;
 
 const int8_t kNowhere = 0;        // nil reference for room-database
+const ZoneRnum kNoZone = -1;      // nil reference for zone-database
 const int8_t kNothing = -1;        // nil reference for objects
 const int8_t kNobody = -1;        // nil reference for mobiles
 

@@ -164,7 +164,7 @@ class UniqueList: private std::list<T> {
 private:
 	using base_t = std::list<T>;
 public:
-	using iterator = base_t::iterator;
+	using iterator = typename base_t::iterator;
 	void push_back(const T& value) {
 		if (std::find(base_t::begin(), base_t::end(), value) == base_t::end()) {
 			base_t::push_back(value);

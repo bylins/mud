@@ -1346,6 +1346,7 @@ bool CheckObjDecay(ObjData *object,  bool need_extract) {
 		act("$o0 медленно утонул$G.",
 			false, world[room]->first_character(), object, nullptr, kToChar);
 		if (need_extract) {
+			log("[Obj decay] for: %s vnum == %d", object->get_PName(ECase::kNom).c_str(), GET_OBJ_VNUM(object));
 			ExtractObjFromWorld(object);
 		}
 		return true;
@@ -1358,19 +1359,21 @@ bool CheckObjDecay(ObjData *object,  bool need_extract) {
 		act("$o0 упал$G вниз.",
 			false, world[room]->first_character(), object, nullptr, kToChar);
 		if (need_extract) {
+			log("[Obj decay] for: %s vnum == %d", object->get_PName(ECase::kNom).c_str(), GET_OBJ_VNUM(object));
 			ExtractObjFromWorld(object);
 		}
 		return true;
 	}
 
 	if (object->has_flag(EObjFlag::kDecay) ||
-		(object->has_flag(EObjFlag::kZonedacay) &&
+		(object->has_flag(EObjFlag::kZonedecay) &&
 		object->get_vnum_zone_from() != zone_table[world[room]->zone_rn].vnum)) {
 		act("$o0 рассыпал$U в мелкую пыль, которую развеял ветер.", false,
 			world[room]->first_character(), object, nullptr, kToRoom);
 		act("$o0 рассыпал$U в мелкую пыль, которую развеял ветер.", false,
 			world[room]->first_character(), object, nullptr, kToChar);
 		if (need_extract) {
+			log("[Obj decay] for: %s vnum == %d", object->get_PName(ECase::kNom).c_str(), GET_OBJ_VNUM(object));
 			ExtractObjFromWorld(object);
 		}
 		return true;
@@ -1478,7 +1481,8 @@ void ExtractObjFromWorld(ObjData *obj, bool showlog) {
 	utils::CExecutionTimer timer;
 
 	strcpy(name, obj->get_PName(ECase::kNom).c_str());
-	if (showlog) {
+//	if (showlog);
+	{
 		log("[Extract obj] Start for: %s vnum == %d room = %d timer == %d",
 				name, GET_OBJ_VNUM(obj), roomload, obj->get_timer());
 	}
@@ -1537,11 +1541,10 @@ void ExtractObjFromWorld(ObjData *obj, bool showlog) {
 
 	check_auction(nullptr, obj);
 	check_exchange(obj);
-	const auto rnum = obj->get_rnum();
-	obj_proto.dec_number(rnum);
 	obj->get_script()->set_purged();
 	world_objects.remove(obj);
-	if (showlog) {
+//	if (showlog);
+	{
 		log("[Extract obj] Stop, delta %f", timer.delta().count());
 	}
 }

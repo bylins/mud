@@ -1,0 +1,4 @@
+coverage:
+  ignore:
+    - "tests/"
+    - "src/third_party_libs/"

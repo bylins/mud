@@ -743,7 +743,7 @@ enum class EObjFlag : Bitvector {
 	kBless = 1 << 8,
 	kNosell = 1 << 9,
 	kDecay = 1 << 10,
-	kZonedacay = 1 << 11,
+	kZonedecay = 1 << 11,
 	kNodisarm = 1 << 12,
 	kNodecay = 1 << 13,
 	kPoisoned = 1 << 14,

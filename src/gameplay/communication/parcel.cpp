@@ -15,6 +15,7 @@
 #include "gameplay/mechanics/dungeons.h"
 
 #include <iomanip>
+#include "engine/db/global_objects.h"
 
 #include <third_party_libs/fmt/include/fmt/format.h>
 
@@ -74,12 +75,12 @@ SenderListType return_list; // временный список на возвра
 
 // * Отдельный лог для отладки.
 void parcel_log(const char *format, ...) {
-	const char *filename = "../log/parcel.log";
+	const auto filename = runtime_config.log_dir() + "/parcel.log";
 	static FILE *file = 0;
 	if (!file) {
-		file = fopen(filename, "a");
+		file = fopen(filename.c_str(), "a");
 		if (!file) {
-			log("SYSERR: can't open %s!", filename);
+			log("SYSERR: can't open %s!", filename.c_str());
 			return;
 		}
 		opened_files.push_back(file);
@@ -145,14 +146,8 @@ int total_sended(CharData *ch) {
 // * Проверка возможности отправить шмотку почтой.
 bool can_send(CharData *ch, CharData *mailman, ObjData *obj, long vict_uid) {
 	if (obj->has_flag(EObjFlag::kNodrop)
-		|| obj->has_flag(EObjFlag::kNorent)
-		|| obj->has_flag(EObjFlag::kZonedacay)
-		|| obj->has_flag(EObjFlag::kRepopDecay)
+		|| obj->is_unrentable()
 		|| obj->has_flag(EObjFlag::kDecay)
-		|| obj->has_flag(EObjFlag::kNorent)
-		|| obj->get_type() == EObjType::kKey
-		|| obj->get_rent_off() < 0
-		|| obj->get_rnum() <= kNothing
 		|| obj->get_owner()) {
 		snprintf(buf, kMaxStringLength, "$n сказал$g вам : '%s - мы не отправляем такие вещи!'\r\n",
 				 obj->get_PName(ECase::kNom).c_str());

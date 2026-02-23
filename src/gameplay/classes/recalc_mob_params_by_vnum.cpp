@@ -10,7 +10,7 @@
 #include "engine/db/global_objects.h"
 #include "gameplay/magic/magic.h"
 #include "utils/utils.h"
-#include "gameplay/mechanics/dungeons.cpp"
+#include "gameplay/mechanics/dungeons.h"
 
 static constexpr int kWorstPossibleSaving = 300;
 static constexpr int kMaxMobResist = 95;
@@ -232,8 +232,21 @@ static bool ApplyMobParams(CharData* ch, int level, int remorts, int difficulty)
 
 	ch->set_level(effective_level);
 
-	// Количество атак всегда фиксируем в 1
-	ch->mob_specials.extra_attack = 0;
+	// Количество дополнительных атак
+	ch->mob_specials.extra_attack = 1;
+
+	// Замакс делаем большой
+	ch->mob_specials.MaxFactor = 100;
+
+	// Проверяем бризит ли моб
+	bool is_breathing = false;
+	if (ch->IsFlagged(EMobFlag::kFireBreath) ||
+		ch->IsFlagged(EMobFlag::kGasBreath) ||
+		ch->IsFlagged(EMobFlag::kFrostBreath) ||
+		ch->IsFlagged(EMobFlag::kAcidBreath) ||
+		ch->IsFlagged(EMobFlag::kLightingBreath)) {
+		is_breathing = true;
+	}
 
 	// --- Сохранить текущие идентификаторы навыков/заклинаний (чтобы мы могли их сохранить и применить значения по умолчанию, если они не указаны в конфиге). ---
 	std::vector<ESkill> old_skills;
@@ -242,7 +255,7 @@ static bool ApplyMobParams(CharData* ch, int level, int remorts, int difficulty)
 		if (id == ESkill::kUndefined) {
 			continue;
 		}
-		if (ch->GetTrainedSkill(id) > 0) {
+		if (ch->GetSkill(id) > 0) {
 			old_skills.push_back(id);
 		}
 	}
@@ -259,7 +272,10 @@ static bool ApplyMobParams(CharData* ch, int level, int remorts, int difficulty)
 
 	// Очищаем ненужные флаги и аффекты
 	AFF_FLAGS(ch).unset(EAffect::kFireShield);
+	AFF_FLAGS(ch).unset(EAffect::kIceShield);
+	AFF_FLAGS(ch).unset(EAffect::kAirShield);
 	AFF_FLAGS(ch).unset(EAffect::kMagicGlass);
+	AFF_FLAGS(ch).unset(EAffect::kGodsShield);
 	ch->UnsetFlag(EMobFlag::kNotKillPunctual);
 	ch->UnsetFlag(EMobFlag::kNoBash);
 	ch->UnsetFlag(EMobFlag::kNoBattleExp);
@@ -272,7 +288,6 @@ static bool ApplyMobParams(CharData* ch, int level, int remorts, int difficulty)
 	ch->UnsetFlag(EMobFlag::kNoUndercut);
 	ch->UnsetFlag(EMobFlag::kAware);
 	ch->UnsetFlag(EMobFlag::kProtect);
-
 
 	const int calc = effective_level;      // расчётный уровень с учётом difficulty и boss_add_lvl
 
@@ -514,6 +529,10 @@ static bool ApplyMobParams(CharData* ch, int level, int remorts, int difficulty)
 					GET_NDD(ch) = base_value;
 				}
 			}
+
+			if (is_breathing) {
+				GET_NDD(ch) *= 0.8;
+			}
 			applied_any = 1;
 		}
 
@@ -533,6 +552,10 @@ static bool ApplyMobParams(CharData* ch, int level, int remorts, int difficulty)
 					GET_SDD(ch) = base_value;
 				}
 			}
+
+			if (is_breathing) {
+				GET_SDD(ch) *= 0.8;
+			}
 			applied_any = 1;
 		}
 
@@ -548,6 +571,22 @@ static bool ApplyMobParams(CharData* ch, int level, int remorts, int difficulty)
 			} else {
 				if (base_value > GET_HR(ch)) {
 					GET_HR(ch) = base_value;
+				}
+			}
+			applied_any = 1;
+		}
+
+		if (info->has_damroll) {
+			p_data = &info->damroll;
+
+			int base_value = CalcBaseValue(p_data, calc, effective_remorts);
+			base_value = ApplyDeviation(p_data, base_value);
+
+			if (is_first_role_pass) {
+				GET_DR(ch) = base_value;
+			} else {
+				if (base_value > GET_DR(ch)) {
+					GET_DR(ch) = base_value;
 				}
 			}
 			applied_any = 1;
@@ -644,28 +683,7 @@ static bool ApplyMobParams(CharData* ch, int level, int remorts, int difficulty)
 		if (info->has_exp) {
 			p_data = &info->exp;
 
-			// --- 30-й уровень: полный опыт из конфига + вклад мортов (low до порога, high после) ---
-			int threshold = p_data->threshold_mort;
-			if (threshold < 0) threshold = 0;
-
-			const int remorts = std::max(0, effective_remorts);
-			const int low_morts  = std::min(remorts, threshold);
-			const int high_morts = std::max(0, remorts - threshold);
-
-			const double inc_sum =
-				(double)p_data->low_increment * (double)low_morts +
-				(double)p_data->increment      * (double)high_morts;
-
-			const double exp_full_30 = (double)p_data->base + inc_sum;
-
-			// --- кривая по уровню: lvl1=1%, lvl30=100% ---
-			const int lvl = std::max(1, calc);
-			const double koeff = (double)(lvl - 1) / 29.0;          // 0..1
-			const double exp_scale = 0.01 + 0.99 * (koeff * koeff);      // можно koeff^3, если нужно жёстче
-
-			int base_value = (int)std::lround(exp_full_30 * exp_scale);
-
-			// deviation применяем ПОСЛЕ кривой, чтобы ?% было относительно итогового exp на этом уровне
+			int base_value = CalcBaseValue(p_data, calc, effective_remorts);
 			base_value = ApplyDeviation(p_data, base_value);
 			base_value = std::max(0, base_value);
 
@@ -855,6 +873,16 @@ static bool ApplyMobParams(CharData* ch, int level, int remorts, int difficulty)
 			}
 			ch->mob_specials.have_spell = true;
 			SET_SPELL_MEM(ch, id, best_default_spell);
+	//Нахрен убираем длитхолд, потому что это хуйня - 7 раундов в холде = 100% смерть
+			SET_SPELL_MEM(ch, ESpell::kPowerHold, 0);
+	//Если есть у моба холд - отключаем остальные стан-умения, ибо слишком жирно
+			if (GET_SPELL_MEM(ch, ESpell::kHold) ||
+				GET_SPELL_MEM(ch, ESpell::kMassHold) >= 1) {
+				ch->set_skill(ESkill::kHammer, 0);
+				ch->set_skill(ESkill::kOverwhelm, 0);
+				ch->set_skill(ESkill::kChopoff, 0);
+				ch->set_skill(ESkill::kBash, 0);
+				}
 		}
 	}
 
@@ -924,9 +952,9 @@ bool RecalcMobParamsInZoneWithLevel(int zone_vnum, int remorts, int set_level, i
 	RecalcMobParamsInZone(zone_vnum, remorts, set_level, difficulty);
 	return true;
 }
-
 // --------------------- Команда recalc_zone -----------------------------------
-void do_recalc_zone(const char *argument) {
+
+void DGRecalcZone(const char *argument) {
 	constexpr size_t kBuf = 256;
 
 	char arg1[kBuf]{}; // zone_vnum
@@ -938,29 +966,40 @@ void do_recalc_zone(const char *argument) {
 	argument = three_arguments(argument, arg1, arg2, arg3);
 	one_argument(argument, arg4);
 
-//	if (!*arg1 || !*arg2 || !*arg3 || !*arg4) {
-//		SendMsgToChar(ch,
-//			"Usage: recalc_zone <zone_vnum> <remorts> <player_level> <difficulty>\r\n");
-//		return;
-//	}
 
 	const int zone_vnum		= atoi(arg1);
 	const int remorts		= atoi(arg2);
 	const int player_level  = atoi(arg3);
 	const int difficulty    = atoi(arg4);
 
-//	if (zone_vnum < dungeons::kZoneStartDungeons) {
-//		SendMsgToChar(ch,
-//			"Ошибка: перерасчёт разрешён только для зон с vnum >= 30000.\r\n");
-//		return;
-//	}
+	if (zone_vnum < dungeons::kZoneStartDungeons) {
+		mudlog("Ошибка: перерасчёт разрешён только для зон с vnum >= 30000.\r\n");
+		return;
+	}
 
 	RecalcMobParamsInZoneWithLevel(zone_vnum, remorts, player_level, difficulty);
-	//const int added_level_by_difficulty = difficulty * mob_classes::GetLvlPerDifficulty();
-//	SendMsgToChar(ch,
-//		"Zone recalc done. (zone=%d, remorts=%d, base_lvl=%d, difficulty=%d, +lvl=%d)\r\n",
 //		zone_vnum, remorts, player_level, difficulty, added_level_by_difficulty);
 
+}
+
+void do_recalc_zone(CharData *ch, char *argument, int /*cmd*/, int /*subcmd*/) {
+	constexpr size_t kBuf = 256;
+	char arg1[kBuf]{}; // zone_vnum
+	char arg2[kBuf]{}; // remorts
+	char arg3[kBuf]{}; // player_level
+	char arg4[kBuf]{}; // difficulty
+	std::string full_arg{argument};
+	// <zone_vnum> <remorts> <player_level> <difficulty>
+	argument = three_arguments(argument, arg1, arg2, arg3);
+	one_argument(argument, arg4);
+	
+	if (!*arg1 || !*arg2 || !*arg3 || !*arg4) {
+		SendMsgToChar(ch,
+			"Usage: recalc_zone <zone_vnum> <remorts> <player_level> <difficulty>\r\n");
+		return;
+	}
+	DGRecalcZone(full_arg.c_str());
+	SendMsgToChar(ch, "Zone recalc done. %s", full_arg.c_str());
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

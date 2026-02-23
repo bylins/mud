@@ -28,6 +28,9 @@
 #include "engine/ui/cmd_god/do_arena_restore.h"
 #include "engine/ui/cmd_god/do_at_room.h"
 #include "engine/ui/cmd_god/do_occupation.h"
+#ifdef ENABLE_ADMIN_API
+#include "engine/network/admin_api.h"
+#endif
 #include "engine/ui/cmd_god/do_date.h"
 #include "engine/ui/cmd_god/do_dc.h"
 #include "engine/ui/cmd_god/do_delete_obj.h"
@@ -276,6 +279,7 @@
 #include "gameplay/mechanics/doors.h"
 #include "gameplay/skills/frenzy.h"
 #include "gameplay/mechanics/groups.h"
+#include "gameplay/classes/recalc_mob_params_by_vnum.h"
 #include "alias.h"
 #include "engine/db/player_index.h"
 
@@ -640,6 +644,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"перевоплотитьс", EPosition::kStand, DoRemort, 0, 0, -1},
 		{"перевоплотиться", EPosition::kStand, DoRemort, 0, 1, -1},
 		{"перелить", EPosition::kStand, do_pour, 0, kScmdPour, 500},
+		{"пересчитатьзону", EPosition::kDead, do_recalc_zone, kLvlImmortal, 0, 0},
 		{"перешить", EPosition::kRest, DoFit, 0, kScmdMakeOver, 500},
 		{"пить", EPosition::kRest, DoDrink, 0, kScmdDrink, 400},
 		{"писать", EPosition::kStand, do_write, 1, 0, -1},
@@ -2525,6 +2530,12 @@ void nanny(DescriptorData *d, char *argument) {
 			ShowEncodingPrompt(d, false);
 			d->state = EConState::kGetKeytable;
 			break;
+
+#ifdef ENABLE_ADMIN_API
+		case EConState::kAdminAPI:
+			admin_api_parse(d, argument);
+			break;
+#endif
 
 			//. OLC states .
 		case EConState::kOedit: oedit_parse(d, argument);

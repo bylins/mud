@@ -30,6 +30,7 @@ using ETelemetryLogMode = RuntimeConfiguration::ETelemetryLogMode;
 #endif
 
 #include <iostream>
+#include <cstdlib>
 
 #define YES        1
 #define NO        0
@@ -469,6 +470,11 @@ void RuntimeConfiguration::setup_logs() {
 	mkdir("log", 0700);
 	mkdir("log/perslog", 0700);
 
+	char abs_path[4096];
+	if (getcwd(abs_path, sizeof(abs_path))) {
+		m_log_dir = std::string(abs_path) + "/log";
+	}
+
 	for (int i = 0; i < 1 + LAST_LOG; ++i) {
 		auto stream = static_cast<EOutputStream>(i);
 
@@ -568,6 +574,29 @@ void RuntimeConfiguration::load_statistics_configuration(const pugi::xml_node *r
 	}
 
 	m_statistics = StatisticsConfiguration(host, port);
+}
+
+void RuntimeConfiguration::load_world_loader_configuration(const pugi::xml_node *root) {
+	// Read YAML_THREADS environment variable (takes precedence)
+	const char* env_threads = std::getenv("YAML_THREADS");
+	if (env_threads) {
+		size_t threads = static_cast<size_t>(std::strtoul(env_threads, nullptr, 10));
+		if (threads > 0 && threads <= 64) {  // Sanity check
+			m_yaml_threads = threads;
+			return;
+		}
+	}
+
+	// Fall back to XML configuration if available
+	const auto world_loader = root->child("world_loader");
+	if (!world_loader) {
+		return;
+	}
+
+	const auto yaml_config = world_loader.child("yaml");
+	if (yaml_config) {
+		m_yaml_threads = static_cast<size_t>(std::strtoul(yaml_config.child_value("threads"), nullptr, 10));
+	}
 }
 
 typedef std::map<EOutputStream, std::string> EOutputStream_name_by_value_t;
@@ -702,6 +731,7 @@ RuntimeConfiguration::RuntimeConfiguration() :
 	m_telemetry_service_name("bylins-mud"),
 	m_telemetry_service_version("1.0.0"),
 	m_telemetry_log_mode(ETelemetryLogMode::kFileOnly) {
+	m_yaml_threads(0) {
 }
 
 void RuntimeConfiguration::load_from_file(const char *filename) {
@@ -723,12 +753,18 @@ void RuntimeConfiguration::load_from_file(const char *filename) {
 		load_statistics_configuration(&root);
 		load_telemetry_configuration_impl(&root);
 		load_telemetry_configuration(&root);
+		load_world_loader_configuration(&root);
+#ifdef ENABLE_ADMIN_API
+		load_admin_api_configuration(&root);
+#endif
 	}
 	catch (const std::exception &e) {
-		std::cerr << "Error when loading configuration file " << filename << ": " << e.what() << "\r\n";
+		std::cerr << "ERROR: Failed to load configuration file " << filename << ": " << e.what() << "\r\n";
+		std::cerr << "WARNING: Running with default configuration settings. YAML_THREADS will use hardware_concurrency().\r\n";
 	}
 	catch (...) {
-		std::cerr << "Unexpected error when loading configuration file " << filename << "\r\n";
+		std::cerr << "ERROR: Unexpected error when loading configuration file " << filename << "\r\n";
+		std::cerr << "WARNING: Running with default configuration settings.\r\n";
 	}
 }
 
@@ -853,3 +889,37 @@ void RuntimeConfiguration::load_telemetry_configuration(const pugi::xml_node *) 
 #endif
 }
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
+
+#ifdef ENABLE_ADMIN_API
+void RuntimeConfiguration::load_admin_api_configuration(const pugi::xml_node *root) {
+	const auto admin_api = root->child("admin_api");
+	if (!admin_api) {
+		return;
+	}
+
+	const auto enabled = admin_api.child("enabled");
+	if (enabled) {
+		const std::string value = enabled.child_value();
+		m_admin_api_enabled = (value == "true" || value == "1" || value == "yes");
+	}
+
+	const auto socket_path = admin_api.child("socket_path");
+	if (socket_path) {
+		m_admin_socket_path = socket_path.child_value();
+	}
+
+	const auto require_auth = admin_api.child("require_auth");
+	if (require_auth) {
+		const std::string value = require_auth.child_value();
+		m_admin_require_auth = (value == "true" || value == "1" || value == "yes");
+	}
+
+	const auto max_connections = admin_api.child("max_connections");
+	if (max_connections) {
+		m_admin_max_connections = atoi(max_connections.child_value());
+		if (m_admin_max_connections < 1) {
+			m_admin_max_connections = 1;
+		}
+	}
+}
+#endif

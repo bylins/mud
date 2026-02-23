@@ -641,7 +641,8 @@ int SendSkillMessages(int dam, CharData *ch, CharData *vict, ESkill skill_id, co
 int SendSkillMessages(int dam, CharData *ch, CharData *vict, ESpell spell_id, const std::string add) {
 	return SendSkillMessages(dam, ch, vict, to_underlying(spell_id), add);
 }
-
+ 
+/* неточный дубль CalcSaving
 int GetRealSave(CharData *ch, const ESkill skill_id) {
 	int rate = static_cast<int>(round(GetSave(ch, MUD::Skill(skill_id).save_type) * kSaveWeight));
 
@@ -663,6 +664,7 @@ int GetRealSave(CharData *ch, const ESkill skill_id) {
 	}
 	return rate;
 }
+*/ 
 
 int CalculateVictimRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 	if (!vict) {
@@ -842,7 +844,7 @@ int CalculateVictimRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 
 	if (!MUD::Skill(skill_id).autosuccess) {
 		rate /= 2;
-		rate -= GetRealSave(vict, skill_id);
+		rate -= CalcSaving(ch, vict, MUD::Skill(skill_id).save_type, false);
 	}
 	return rate;
 }
@@ -1316,39 +1318,41 @@ SkillRollResult MakeSkillTest(CharData *ch, ESkill skill_id, CharData *vict, boo
 void SendSkillRollMsg(CharData *ch, CharData *victim, ESkill skill_id,
 	int actor_rate, int victim_rate, int /*threshold*/, int roll, SkillRollResult &result) {
 	std::stringstream buffer;
-	int save = GetRealSave(victim, skill_id);
+	int save = CalcSaving(ch, victim, MUD::Skill(skill_id).save_type, false);
 
 //	sprintf(buf, "Saving2 == %d dex_bouus %d", save, dex_bonus(GetRealDex(victim)));
 //	mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 	buffer << kColorBoldCyn
-		   << "Skill: '" << MUD::Skill(skill_id).name << "'"
+		   << "Skill:'" << MUD::Skill(skill_id).name << "'"
 //		   << " SkillRate: " << result.SkillRate
-		   << " Total_Percent: " << result.SkillRate
-		   << " ActorRate: " << actor_rate
-		<< " Victim: " << victim->get_name()
-		<< " V.Rate: " << victim_rate
-		<< " Difficulty: " << MUD::Skill(skill_id).difficulty
+		   << " T.Percent:" << result.SkillRate
+		   << " A.Rate:" << actor_rate
+		<< " Vict:" << victim->get_name()
+		<< " V.Rate:" << victim_rate
+		<< " Dfclt:" << MUD::Skill(skill_id).difficulty
 //		   << " Threshold: " << threshold
-		   << " Percent: " << roll
-		<< " Success: " << (result.success ? "&Gyes&C" : "&Rno&C")
+		   << " Percent:" << roll
+		<< " Success:" << (result.success ? "&Gyes&C" : "&Rno&C")
 //		   << " Crit: " << (result.critical ? "yes" : "no")
-		   << " CritLuck: " << (result.CritLuck ? "&Gyes&C" : "&Rno&C")
+		   << " CritLuck:" << (result.CritLuck ? "&Gyes&C" : "&Rno&C")
 //		   << " Degree: " << result.degree
-		   << " Saving: " << save
+		   << " SavType:" << saving_name.at(MUD::Skill(skill_id).save_type)
+		   << " Saving:" << save
 		<< kColorNrm << "\r\n";
 	ch->send_to_TC(false, true, true, buffer.str().c_str());
 	if (GET_GOD_FLAG(ch, EGf::kSkillTester) && skill_id != ESkill::kUndefined) {
 		buffer.str("");
 		buffer << "SKILLTEST:;" << GET_NAME(ch)
 			   << ";Skill;" << MUD::Skill(skill_id).name
-			   << ";Total_Percent;" << result.SkillRate
-			   << ";ActorRate;" << actor_rate
-			   << ";Victim " << victim->get_name() << "(" << GET_MOB_VNUM(victim) << ");"
+			   << ";T.Percent;" << result.SkillRate
+			   << ";A.Rate;" << actor_rate
+			   << ";Vict " << victim->get_name() << "(" << GET_MOB_VNUM(victim) << ");"
 			   << ";V.Rate;" << victim_rate
-			   << ";Difficulty;" << MUD::Skill(skill_id).difficulty
+			   << ";Dfclt;" << MUD::Skill(skill_id).difficulty
 			   << ";Percent;"<< roll
 			   << ";Success;" << (result.success ? "yes" : "no")
 			   << ";CritLuck;" << (result.CritLuck ? "yes" : "no")
+			   << ";SaviType;" << saving_name.at(MUD::Skill(skill_id).save_type)
 			   << ";Saving;" << save;
 		log("%s",  buffer.str().c_str());
 	}

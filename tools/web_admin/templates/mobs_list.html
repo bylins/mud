@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+
+{% block title %}Мобы зоны {{ zone }} - Былины MUD{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs-bar">
+    <div class="max-w-[1280px] mx-auto px-6 py-2.5">
+        <div class="flex items-center gap-2 font-inter text-sm text-ink-muted">
+            <a href="{{ url_for('index') }}">Главная</a>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #d4c49a;">
+                <polyline points="9 18 15 12 9 6"/>
+            </svg>
+            <span class="text-ink-light">Мобы</span>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+
+    <!-- Page Header -->
+    <div class="page-header" style="align-items: flex-end;">
+        <div>
+            <h2 class="font-serif-display">
+                Мобы зоны <span class="text-amber-700">{{ zone }}</span>
+            </h2>
+            <p class="page-subtitle">
+                {% if mobs %}Найдено {{ mobs|length }} моб{{ 'ов' if mobs|length > 4 else ('а' if mobs|length > 1 else '') }}{% else %}Мобы не найдены{% endif %}
+            </p>
+        </div>
+
+        <!-- Zone Filter -->
+        <div class="zone-filter">
+            <form method="GET" action="{{ url_for('mobs_list') }}" style="display: flex; align-items: center; gap: 10px;">
+                <label class="font-inter text-sm text-ink-muted font-medium" for="zone-select">Зона:</label>
+                <select id="zone-select" name="zone" onchange="this.form.submit()">
+                    {% for z in range(0, 100) %}
+                    <option value="{{ z }}" {{ 'selected' if z == zone|int }}>{{ z }}</option>
+                    {% endfor %}
+                </select>
+            </form>
+        </div>
+    </div>
+
+    {% if mobs %}
+    <!-- Search Box -->
+    <div class="search-box-container">
+        <div class="search-box-wrapper">
+            <input type="text" id="search-box" class="search-box" placeholder="Поиск по vnum, названию...">
+            <button class="search-clear-btn" onclick="document.getElementById('search-box').value = ''; filterTable(document.getElementById('search-box'), document.getElementById('mobs-table'));" style="display: none;">&times;</button>
+        </div>
+    </div>
+
+    <!-- Mobs Table -->
+    <table id="mobs-table">
+        <thead>
+            <tr>
+                <th class="sortable" onclick="sortTable(document.getElementById('mobs-table'), 0, 'numeric')" style="width: 100px;">Vnum</th>
+                <th class="sortable" onclick="sortTable(document.getElementById('mobs-table'), 1, 'text')">Название</th>
+                <th class="sortable" onclick="sortTable(document.getElementById('mobs-table'), 2, 'numeric')" style="width: 80px; text-align: center;">Уровень</th>
+                <th style="width: 200px; text-align: right;">Действия</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in mobs %}
+            <tr>
+                <td>
+                    <span class="vnum-badge">{{ item.vnum }}</span>
+                </td>
+                <td>
+                    <span class="mud-colorize" style="font-weight: 500;">{{ item.name|default('--') }}</span>
+                </td>
+                <td style="text-align: center;">
+                    <span class="font-inter text-sm text-ink-light">{{ item.level|default('--') }}</span>
+                </td>
+                <td style="text-align: right;">
+                    <div style="display: flex; gap: 8px; justify-content: flex-end;">
+                        <a href="{{ url_for('mob_detail', vnum=item.vnum) }}" class="action-link action-link-view">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -2px;">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                <circle cx="12" cy="12" r="3"/>
+                            </svg>
+                            Просмотр
+                        </a>
+                        <a href="{{ url_for('mob_edit', vnum=item.vnum) }}" class="action-link action-link-edit">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -2px;">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                            </svg>
+                            Редактировать
+                        </a>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <!-- Empty State -->
+    <div class="empty-state">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#d4c49a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin: 0 auto 16px;">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+        </svg>
+        <div class="font-serif-display text-lg text-ink-light" style="margin-bottom: 8px;">Мобы не найдены</div>
+        <div class="font-inter text-sm text-ink-muted">В зоне {{ zone }} нет мобов. Попробуйте выбрать другую зону.</div>
+    </div>
+    {% endif %}
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Initialize search functionality
+    const searchBox = document.getElementById('search-box');
+    const clearBtn = document.querySelector('.search-clear-btn');
+    const table = document.getElementById('mobs-table');
+
+    if (searchBox && table) {
+        searchBox.addEventListener('input', function() {
+            filterTable(searchBox, table);
+            clearBtn.style.display = searchBox.value ? 'block' : 'none';
+        });
+    }
+
+    // Apply MUD color codes
+    applyMudColors();
+</script>
+{% endblock %}

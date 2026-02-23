@@ -23,5 +23,8 @@ syslog
 cmake-build-*
 build/
 build_*/
-test/
 magic.mgc
+data/
+misc/
+
+__pycache__/

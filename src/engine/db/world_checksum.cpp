@@ -5,6 +5,7 @@
 
 #include "db.h"
 #include "obj_prototypes.h"
+#include "global_objects.h"
 #include "engine/entities/zone.h"
 #include "engine/entities/room_data.h"
 #include "engine/entities/char_data.h"
@@ -14,8 +15,8 @@
 
 #include <sstream>
 #include <vector>
+#include <filesystem>
 
-#include <fstream>
 #include <iomanip>
 
 namespace
@@ -105,6 +106,8 @@ std::string SerializeZone(const ZoneData &zone)
 		}
 	}
 
+
+
 	return oss.str();
 }
 
@@ -124,6 +127,17 @@ std::string SerializeRoom(const RoomData *room)
 	if (room->name)
 	{
 		oss << room->name;
+	}
+	oss << "|";
+
+	// Serialize room description (actual text content)
+	if (room->temp_description)
+	{
+		oss << room->temp_description;
+	}
+	else
+	{
+		oss << GlobalObjects::descriptions().get(room->description_num);
 	}
 	oss << "|";
 
@@ -349,6 +363,7 @@ std::string SerializeObject(const CObjectPrototype::shared_ptr &obj)
 		oss << trig_vnum << ",";
 	}
 
+
 	return oss.str();
 }
 
@@ -387,6 +402,7 @@ std::string SerializeTrigger(int rnum)
 			cmd = cmd->next;
 		}
 	}
+
 
 	return oss.str();
 }
@@ -455,6 +471,131 @@ ChecksumResult Calculate()
 	}
 	result.triggers = triggers_xor;
 
+	// ===== RUNTIME CHECKSUMS (after initialization) =====
+
+	// Calculate room scripts checksum (prototype triggers)
+	uint32_t room_scripts_xor = 0;
+	for (RoomRnum i = 0; i <= top_of_world; ++i)
+	{
+		if (world[i]->proto_script && !world[i]->proto_script->empty())
+		{
+			std::ostringstream oss;
+			oss << world[i]->vnum << "|";
+			for (const auto trig_vnum : *world[i]->proto_script)
+			{
+				oss << trig_vnum << ",";
+			}
+			uint32_t crc = CRC32String(oss.str());
+			room_scripts_xor ^= crc;
+			++result.rooms_with_scripts;
+		}
+	}
+	result.room_scripts = room_scripts_xor;
+
+	// Calculate mob scripts checksum (prototype triggers)
+	uint32_t mob_scripts_xor = 0;
+	for (MobRnum i = 0; i <= top_of_mobt; ++i)
+	{
+		if (mob_proto[i].proto_script && !mob_proto[i].proto_script->empty())
+		{
+			std::ostringstream oss;
+			oss << mob_index[i].vnum << "|";
+			for (const auto trig_vnum : *mob_proto[i].proto_script)
+			{
+				oss << trig_vnum << ",";
+			}
+			uint32_t crc = CRC32String(oss.str());
+			mob_scripts_xor ^= crc;
+			++result.mobs_with_scripts;
+		}
+	}
+	result.mob_scripts = mob_scripts_xor;
+
+	// Calculate object scripts checksum
+	uint32_t obj_scripts_xor = 0;
+	for (size_t i = 0; i < obj_proto.size(); ++i)
+	{
+		const auto &obj = obj_proto[i];
+		if (!obj_proto.proto_script(i).empty())
+		{
+			std::ostringstream oss;
+			oss << obj->get_vnum() << "|";
+			for (const auto trig_vnum : obj_proto.proto_script(i))
+			{
+				oss << trig_vnum << ",";
+			}
+			uint32_t crc = CRC32String(oss.str());
+			obj_scripts_xor ^= crc;
+			++result.objects_with_scripts;
+		}
+	}
+	result.obj_scripts = obj_scripts_xor;
+
+	// Calculate door rnums checksum
+	uint32_t door_rnums_xor = 0;
+	for (RoomRnum i = 0; i <= top_of_world; ++i)
+	{
+		for (const auto &exit : world[i]->dir_option_proto)
+		{
+			if (exit)
+			{
+				std::ostringstream oss;
+				oss << world[i]->vnum << "|" << exit->to_room();
+				door_rnums_xor ^= CRC32String(oss.str());
+			}
+		}
+	}
+	result.door_rnums = door_rnums_xor;
+
+	// Calculate zone_rnum checksums for mobs
+	uint32_t zone_rnums_mobs_xor = 0;
+	for (MobRnum i = 0; i <= top_of_mobt; ++i)
+	{
+		std::ostringstream oss;
+		oss << mob_index[i].vnum << "|" << mob_index[i].zone;
+		zone_rnums_mobs_xor ^= CRC32String(oss.str());
+	}
+	result.zone_rnums_mobs = zone_rnums_mobs_xor;
+
+	// Calculate zone_rnum checksums for objects
+	uint32_t zone_rnums_objects_xor = 0;
+	for (size_t i = 0; i < obj_proto.size(); ++i)
+	{
+		std::ostringstream oss;
+		oss << obj_proto[i]->get_vnum() << "|" << obj_proto.zone(i);
+		zone_rnums_objects_xor ^= CRC32String(oss.str());
+	}
+	result.zone_rnums_objects = zone_rnums_objects_xor;
+
+	// Calculate zone commands rnums checksum
+	uint32_t zone_cmd_rnums_xor = 0;
+	for (const auto &zone : zone_table)
+	{
+		if (zone.cmd)
+		{
+			for (int i = 0; zone.cmd[i].command != 'S'; ++i)
+			{
+				const auto &cmd = zone.cmd[i];
+				std::ostringstream oss;
+				oss << zone.vnum << "|" << cmd.command << "|";
+				oss << cmd.arg1 << "|" << cmd.arg2 << "|" << cmd.arg3;
+				zone_cmd_rnums_xor ^= CRC32String(oss.str());
+			}
+		}
+	}
+	result.zone_cmd_rnums = zone_cmd_rnums_xor;
+
+	// Calculate combined runtime checksum
+	std::ostringstream runtime_combined;
+	runtime_combined << result.room_scripts << "|";
+	runtime_combined << result.mob_scripts << "|";
+	runtime_combined << result.obj_scripts << "|";
+	runtime_combined << result.door_rnums << "|";
+	runtime_combined << result.zone_rnums_mobs << "|";
+	runtime_combined << result.zone_rnums_objects << "|";
+	runtime_combined << result.zone_cmd_rnums;
+	result.runtime_combined = CRC32String(runtime_combined.str());
+
 	// Calculate combined checksum
 	std::ostringstream combined;
 	combined << result.zones << "|";
@@ -476,10 +617,20 @@ void LogResult(const ChecksumResult &result)
 	log("Objects:  %08X (%zu objects)", result.objects, result.objects_count);
 	log("Triggers: %08X (%zu triggers)", result.triggers, result.triggers_count);
 	log("Combined: %08X", result.combined);
+
+	log("=== Runtime Checksums (after initialization) ===");
+	log("Room Scripts:      %08X (%zu rooms with scripts)", result.room_scripts, result.rooms_with_scripts);
+	log("Mob Scripts:       %08X (%zu mobs with scripts)", result.mob_scripts, result.mobs_with_scripts);
+	log("Object Scripts:    %08X (%zu objects with scripts)", result.obj_scripts, result.objects_with_scripts);
+	log("Door Rnums:        %08X", result.door_rnums);
+	log("Zone Rnums (Mobs): %08X", result.zone_rnums_mobs);
+	log("Zone Rnums (Objs): %08X", result.zone_rnums_objects);
+	log("Zone Cmd Rnums:    %08X", result.zone_cmd_rnums);
+	log("Runtime Combined:  %08X", result.runtime_combined);
 	log("=======================");
 }
 
-void SaveDetailedChecksums(const char *filename)
+void SaveDetailedChecksums(const char *filename, const ChecksumResult &checksums)
 {
 	FILE *f = fopen(filename, "w");
 	if (!f)
@@ -545,19 +696,29 @@ void SaveDetailedChecksums(const char *filename)
 		}
 	}
 
+	// Runtime Checksums
+	fprintf(f, "\n# Runtime Checksums\n");
+	fprintf(f, "ROOM_SCRIPTS %08X\n", checksums.room_scripts);
+	fprintf(f, "MOB_SCRIPTS %08X\n", checksums.mob_scripts);
+	fprintf(f, "OBJ_SCRIPTS %08X\n", checksums.obj_scripts);
+	fprintf(f, "DOOR_RNUMS %08X\n", checksums.door_rnums);
+
 	fclose(f);
 	log("Detailed checksums saved to %s", filename);
 }
 
-void SaveDetailedBuffers(const char *dir)
+bool SaveDetailedBuffers(const char *dir)
 {
-	std::string cmd = "mkdir -p ";
-	cmd += dir;
-	system(cmd.c_str());
+	try {
+		std::filesystem::create_directories(dir);
 
 	auto save_buffer = [](const char *filepath, const std::string &buffer, uint32_t crc) {
 		FILE *f = fopen(filepath, "w");
-		if (!f) return;
+		if (!f)
+		{
+			log("SYSERR: Failed to open file for writing: %s", filepath);
+			return;
+		}
 		fprintf(f, "CRC32: %08X\n", crc);
 		fprintf(f, "Length: %zu\n", buffer.size());
 		fprintf(f, "---RAW---\n%s\n", buffer.c_str());
@@ -572,7 +733,7 @@ void SaveDetailedBuffers(const char *dir)
 	};
 
 	std::string zones_dir = std::string(dir) + "/zones";
-	system((std::string("mkdir -p ") + zones_dir).c_str());
+	std::filesystem::create_directories(zones_dir);
 	for (const auto &zone : zone_table)
 	{
 		std::string serialized = SerializeZone(zone);
@@ -582,7 +743,7 @@ void SaveDetailedBuffers(const char *dir)
 	}
 
 	std::string rooms_dir = std::string(dir) + "/rooms";
-	system((std::string("mkdir -p ") + rooms_dir).c_str());
+	std::filesystem::create_directories(rooms_dir);
 	for (RoomRnum i = 0; i <= top_of_world; ++i)
 	{
 		if (world[i])
@@ -595,7 +756,7 @@ void SaveDetailedBuffers(const char *dir)
 	}
 
 	std::string mobs_dir = std::string(dir) + "/mobs";
-	system((std::string("mkdir -p ") + mobs_dir).c_str());
+	std::filesystem::create_directories(mobs_dir);
 	for (MobRnum i = 0; i <= top_of_mobt; ++i)
 	{
 		std::string serialized = SerializeMob(i);
@@ -605,7 +766,7 @@ void SaveDetailedBuffers(const char *dir)
 	}
 
 	std::string objs_dir = std::string(dir) + "/objects";
-	system((std::string("mkdir -p ") + objs_dir).c_str());
+	std::filesystem::create_directories(objs_dir);
 	for (size_t i = 0; i < obj_proto.size(); ++i)
 	{
 		if (obj_proto[i])
@@ -618,7 +779,7 @@ void SaveDetailedBuffers(const char *dir)
 	}
 
 	std::string trigs_dir = std::string(dir) + "/triggers";
-	system((std::string("mkdir -p ") + trigs_dir).c_str());
+	std::filesystem::create_directories(trigs_dir);
 	for (int i = 0; i < top_of_trigt; ++i)
 	{
 		if (trig_index[i])
@@ -631,6 +792,12 @@ void SaveDetailedBuffers(const char *dir)
 	}
 
 	log("Detailed buffers saved to %s", dir);
+	return true;
+
+	} catch (const std::filesystem::filesystem_error &e) {
+		log("SYSERR: Failed to create directories in '%s': %s", dir, e.what());
+		return false;
+	}
 }
 
 std::map<std::string, uint32_t> LoadBaselineChecksums(const char *filename)

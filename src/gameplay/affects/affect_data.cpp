@@ -16,6 +16,9 @@
 #include "engine/ui/cmd/do_equip.h"
 #include "gameplay/core/base_stats.h"
 #include "gameplay/fight/fight.h"
+#include "utils/backtrace.h"
+
+std::unordered_set<CharData *> affected_mobs;
 
 bool no_bad_affects(ObjData *obj) {
 	static std::list<EWeaponAffect> bad_waffects =
@@ -183,10 +186,39 @@ void UpdateAffectOnPulse(CharData *ch, int count) {
 		affect_total(ch);
 	}
 }
+
+void player_timed_update() {
+	for (auto d = descriptor_list; d; d = d->next) {
+		if (d->state != EConState::kPlaying)
+			continue;
+		const auto i = d->get_character();
+		auto ch = i.get();
+
+		decltype(ch->timed) timed_skill;
+		for (auto timed = ch->timed; timed; timed = timed_skill) {
+			timed_skill = timed->next;
+			if (timed->time >= 1) {
+				timed->time--;
+			} else {
+				ExpireTimedSkill(ch, timed);
+			}
+		}
+		decltype(ch->timed_feat) timed_feat;
+		for (auto timed = ch->timed_feat; timed; timed = timed_feat) {
+			timed_feat = timed->next;
+			if (timed->time >= 1) {
+				timed->time--;
+			} else {
+				ExpireTimedFeat(ch, timed);
+			}
+		}
+	}
+}
+
 // игроки раз в 2 секунды
 void player_affect_update() {
 	utils::CExecutionTimer timer;
-	int count = 0;
+	int count = 0, call = 0;
 //	character_list.foreach_on_copy([&count](const CharData::shared_ptr &i) {
 	for (auto d = descriptor_list; d; d = d->next) {
 		if (d->state != EConState::kPlaying)
@@ -199,7 +231,10 @@ void player_affect_update() {
 		if (i->purged() || deathtrap::tunnel_damage(i.get())) {
 			return;
 		}
-		count++;
+		if (!i->affected.empty()) {
+			++count;
+		}
+		++call;
 		bool was_purged = false;
 		bool set_abstinent = false;
 		auto affect_i = i->affected.begin();
@@ -276,7 +311,7 @@ void player_affect_update() {
 			affect_total(i.get());
 		}
 	}
-	log("player affect update: timer %f, num players %d", timer.delta().count(), count);
+	log("player affect update: timer %f, num affected players %d, all %d", timer.delta().count(), count, call);
 }
 
 // This file update battle affects only
@@ -341,89 +376,101 @@ void battle_affect_update(CharData *ch) {
 // раз в минуту
 void mobile_affect_update() {
 	utils::CExecutionTimer timer;
-	int count = 0, count2 = 0, count3 = 0;
-	character_list.foreach_on_copy([&count, &count2, &count3](const CharData::shared_ptr &i) {
+	int count = 0;
+	auto copy = affected_mobs;
+
+	for (auto it = copy.begin(); it != copy.end(); it++) {
+		const auto &ch = *it;
 		int was_charmed = false, charmed_msg = false;
 		bool was_purged = false;
+		count++;
+//		if (!ch->in_used_zone()) {
+//			return;
+//		}
+		auto affect_i = ch->affected.begin();
 
-		if (i->IsNpc()) {
-			count++;
-			if (!i->in_used_zone()) {
-				return;
+		if (ch->affected.empty()) {
+			log(fmt::format("ERROR!!! Проверка счетчика аффектов у очищенного моба {} #{}", ch->get_name(), GET_MOB_VNUM(ch)));
+			auto it_erase = affected_mobs.find(ch);
+			if (it_erase != affected_mobs.end()) {
+				affected_mobs.erase(it_erase);
+				continue;
 			}
-			count2++;
-			auto affect_i = i->affected.begin();
-			if (!i->affected.empty())
-				count3++;
-			while (affect_i != i->affected.end()) {
-				const auto &affect = *affect_i;
-
-				if (affect->duration == 0) {
-					if (affect->type >= ESpell::kFirst && affect->type <= ESpell::kLast) {
-						if (affect->type == ESpell::kCharm || affect->bitvector == to_underlying(EAffect::kCharmed)) {
-							was_charmed = true;
-						}
-						auto next_affect_i = affect_i;
-
-						++next_affect_i;
-						if (next_affect_i == i->affected.end()
-								|| (*next_affect_i)->type != affect->type
-								|| (*next_affect_i)->duration > 0) {
-							ShowAffExpiredMsg(affect->type, i.get());
-						}
+		}
+		while (affect_i != ch->affected.end()) {
+			const auto &affect = *affect_i;
+			
+			if (affect->duration == 0) {
+				if (affect->type >= ESpell::kFirst && affect->type <= ESpell::kLast) {
+					if (affect->type == ESpell::kCharm || affect->bitvector == to_underlying(EAffect::kCharmed)) {
+						was_charmed = true;
 					}
-					affect_i = i->AffectRemove(affect_i);
-				} else {
-					if (affect->duration > 0) {
-						if (IS_SET(affect->battleflag, kAfSameTime)
-							&& (!i->GetEnemy() || affect->location == EApply::kPoison)) {
-							// здесь плеера могут спуржить
-							if (ProcessPoisonDmg(i.get(), affect) == -1) {
-								was_purged = true;
-								break;
-							}
-						}
-						affect->duration--;
-						if (affect->type == ESpell::kCharm && !charmed_msg && affect->duration <= 1) {
-							act("$n начал$g растерянно оглядываться по сторонам.",
-									false, i.get(), nullptr, nullptr, kToRoom | kToArenaListen);
-						charmed_msg = true;
-						}
+					auto next_affect_i = affect_i;
+
+					++next_affect_i;
+					if (next_affect_i == ch->affected.end()
+							|| (*next_affect_i)->type != affect->type
+							|| (*next_affect_i)->duration > 0) {
+						ShowAffExpiredMsg(affect->type, ch);
 					}
-					++affect_i;
 				}
+				affect_i = ch->AffectRemove(affect_i);
+			} else {
+				if (affect->duration > 0) {
+					if (IS_SET(affect->battleflag, kAfSameTime)
+						&& (!ch->GetEnemy() || affect->location == EApply::kPoison)) {
+						// здесь плеера могут спуржить
+						if (ProcessPoisonDmg(ch, affect) == -1) {
+							was_purged = true;
+							break;
+						}
+					}
+					affect->duration--;
+					if (affect->type == ESpell::kCharm && !charmed_msg && affect->duration <= 1) {
+						act("$n начал$g растерянно оглядываться по сторонам.",
+								false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
+					charmed_msg = true;
+					}
+				}
+				++affect_i;
 			}
 		}
 		if (!was_purged) {
-			affect_total(i.get());
+			affect_total(ch);
 // обработка таймеров скилов фитов игрока
-			decltype(i->timed) timed_skill;
-			for (auto timed = i->timed; timed; timed = timed_skill) {
+			decltype(ch->timed) timed_skill;
+			for (auto timed = ch->timed; timed; timed = timed_skill) {
 				timed_skill = timed->next;
 				if (timed->time >= 1) {
 					timed->time--;
 				} else {
-					ExpireTimedSkill(i.get(), timed);
+					ExpireTimedSkill(ch, timed);
 				}
 			}
-			decltype(i->timed_feat) timed_feat;
-			for (auto timed = i->timed_feat; timed; timed = timed_feat) {
+			decltype(ch->timed_feat) timed_feat;
+			for (auto timed = ch->timed_feat; timed; timed = timed_feat) {
 				timed_feat = timed->next;
 				if (timed->time >= 1) {
 					timed->time--;
 				} else {
-					ExpireTimedFeat(i.get(), timed);
+					ExpireTimedFeat(ch, timed);
 				}
 			}
-			if (deathtrap::check_death_trap(i.get())) {
+			if (deathtrap::check_death_trap(ch)) {
 				return;
 			}
 			if (was_charmed) {
-				stop_follower(i.get(), kSfCharmlost);
+				stop_follower(ch, kSfCharmlost);
 			}
 		}
-	});
-	log("mobile affect update: timer %f, num mobs %d, count update %d, affected mobs: %d", timer.delta().count(), count, count2, count3);
+		if (ch->affected.empty()) {
+			auto it_erase = affected_mobs.find(ch);
+			if (it_erase != affected_mobs.end()) {
+				affected_mobs.erase(it_erase);
+			}
+		} 
+	}
+	log("mobile affect update: timer %f, num mobs %d", timer.delta().count(), count);
 }
 
 void RemoveAffectFromCharAndRecalculate(CharData *ch, ESpell spell_id) {
@@ -444,9 +491,11 @@ void RemoveAffectFromChar(CharData *ch, ESpell spell_id) {
 			++it;
 		}
 	}
-	if (ch->IsNpc() && spell_id == ESpell::kCharm) {
-		ch->extract_timer = 5;
-		ch->mob_specials.hire_price = 0;// added by WorM (Видолюб) 2010.06.04 Сбрасываем цену найма
+	if (ch->IsNpc()) {
+		if (spell_id == ESpell::kCharm) {
+			ch->extract_timer = 5;
+			ch->mob_specials.hire_price = 0;// added by WorM (Видолюб) 2010.06.04 Сбрасываем цену найма
+		}
 	}
 }
 
@@ -746,7 +795,6 @@ void ImposeAffect(CharData *ch, Affect<EApply> &af, bool add_dur, bool max_dur, 
 
 		while (it != ch->affected.end()) {
 			const auto &affect = *it;
-
 			if (affect->type == af.type
 				&& affect->location == af.location) {
 				if (add_dur) {
@@ -775,6 +823,9 @@ void ImposeAffect(CharData *ch, Affect<EApply> &af, bool add_dur, bool max_dur, 
 void affect_to_char(CharData *ch, const Affect<EApply> &af) {
 	Affect<EApply>::shared_ptr affected_alloc(new Affect<EApply>(af));
 
+	if (ch->IsNpc()) {
+		affected_mobs.insert(ch);
+	}
 	ch->affected.push_front(affected_alloc);
 
 	AFF_FLAGS(ch) += af.aff;
@@ -1001,6 +1052,7 @@ bool GetAffectNumByName(const std::string &affName, EAffect &result) {
 
 int CalcDuration(CharData *ch, int cnst, int level, int level_divisor, int min, int max) {
 	int result = 0;
+
 	if (ch->IsNpc()) {
 		result = cnst;
 		if (level > 0 && level_divisor > 0)

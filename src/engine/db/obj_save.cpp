@@ -1167,11 +1167,13 @@ int Crash_write_timer(const std::size_t index) {
 		fwrite(&(SAVEINFO(index)->time[i]), sizeof(SaveTimeInfo), 1, fl);
 	}
 	fclose(fl);
+#ifndef _WIN32
 	if (chmod(fname, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP) < 0) {
 		std::stringstream ss;
 		ss << "Error chmod file: " << fname << " (" << __FILE__ << " "<< __func__ << "  "<< __LINE__ << ")";
 		mudlog(ss.str(), BRF, kLvlGod, SYSLOG, true);
 	}
+#endif
 	FileCRC::check_crc(fname, FileCRC::UPDATE_TIMEOBJS, player_table[index].uid());
 	return true;
 }
@@ -1551,7 +1553,7 @@ int Crash_load(CharData *ch) {
 		}
 
 		//очищаем ZoneDecay объедки
-		if (obj->has_flag(EObjFlag::kZonedacay)) {
+		if (obj->has_flag(EObjFlag::kZonedecay)) {
 			sprintf(buf, "%s рассыпал%s в прах.\r\n", cap.c_str(), GET_OBJ_SUF_2(obj));
 			SendMsgToChar(buf, ch);
 			ExtractObjFromWorld(obj.get());
@@ -1687,18 +1689,9 @@ int Crash_is_unrentable(CharData *ch, ObjData *obj) {
 	if (!obj) {
 		return false;
 	}
-
-	if (obj->has_flag(EObjFlag::kNorent)
-		|| obj->get_rent_off() < 0
-		|| obj->has_flag(EObjFlag::kRepopDecay)
-		|| obj->has_flag(EObjFlag::kZonedacay)
-		|| (obj->get_rnum() <= kNothing
-			&& obj->get_type() != EObjType::kMoney)
-		|| obj->get_type() == EObjType::kKey
-		|| SetSystem::is_norent_set(ch, obj)) {
+	if (obj->is_unrentable() || SetSystem::is_norent_set(ch, obj)) {
 		return true;
 	}
-
 	return false;
 }
 
@@ -1980,11 +1973,13 @@ int save_char_objects(CharData *ch, int savetype, int rentcost) {
 		write_buffer << "\n$\n$\n";
 		file << write_buffer.rdbuf();
 		file.close();
+#ifndef _WIN32
 		if (chmod(fname, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP) < 0) {
 			std::stringstream ss;
 			ss << "Error chmod file: " << fname << " (" << __FILE__ << " "<< __func__ << "  "<< __LINE__ << ")";
 			mudlog(ss.str(), BRF, kLvlGod, SYSLOG, true);
 		}
+#endif
 		FileCRC::check_crc(fname, FileCRC::UPDATE_TEXTOBJS, ch->get_uid());
 	} else {
 		Crash_delete_files(iplayer);

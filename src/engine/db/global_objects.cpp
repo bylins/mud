@@ -54,6 +54,7 @@ struct GlobalObjectsStorage {
 	DailyQuest::DailyQuestMap daily_quests;
 	Strengthening strengthening;
 	obj2triggers_t obj2triggers;
+	RoomDescriptions room_descriptions;
 };
 
 GlobalObjectsStorage::GlobalObjectsStorage() :
@@ -252,6 +253,8 @@ obj2triggers_t &GlobalObjects::obj_triggers() {
 
 logging::LogManager &GlobalObjects::log_manager() {
 	return *global_objects().log_manager;
+RoomDescriptions &GlobalObjects::descriptions() {
+	return global_objects().room_descriptions;
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

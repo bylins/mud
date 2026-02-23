@@ -1678,7 +1678,7 @@ int CharData::get_zone_group() const {
 	if (this->IsNpc()
 		&& rnum >= 0
 		&& mob_index[rnum].zone >= 0) {
-		const auto zone = mob_index[rnum].zone;
+		const auto zone = GetZoneRnum(GET_MOB_VNUM(this) / 100);
 		return std::max(1, zone_table[zone].group);
 	}
 
@@ -2079,8 +2079,11 @@ void CharData::set_master(CharData::ptr_t master) {
 void CharData::set_wait(const unsigned _) {
 
 	if (_ > 0) {
-//	debug::backtrace(runtime_config.logs(SYSLOG).handle());
-//		log("ставим вайт для %s (%d)", GET_NAME(this), GET_MOB_VNUM(this));
+/*		if (!this->IsNpc()) {
+			debug::backtrace(runtime_config.logs(SYSLOG).handle());
+			mudlog(fmt::format("ставим вайт для {} {}", GET_NAME(this), _));
+		}
+*/
 		chardata_wait_list.insert(this);
 		m_wait = _;
 	}

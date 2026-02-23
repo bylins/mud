@@ -1353,6 +1353,7 @@ void obj_point_update() {
 	std::list<ObjData *> obj_destroy;
 	std::list<ObjData *> obj_decay_timer;
 
+	log("!!!obj_point_update!!!");
 	world_objects.foreach([&obj_destroy, &obj_decay_timer](const ObjData::shared_ptr &j) {
 		if (j->get_where_obj() == EWhereObj::kSeller) {
 			return;
@@ -1369,7 +1370,7 @@ void obj_point_update() {
 		}
 		if (j->get_destroyer() == 0
 				|| j->get_timer() == 0
-				|| (j->has_flag(EObjFlag::kZonedacay)
+				|| (j->has_flag(EObjFlag::kZonedecay)
 						&& j->get_vnum_zone_from()
 						&& up_obj_where(j.get()) != kNowhere
 						&& j->get_vnum_zone_from() != zone_table[world[up_obj_where(j.get())]->zone_rn].vnum)) {

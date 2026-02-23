@@ -15,6 +15,9 @@
 #include <unordered_set>
 #include <unordered_map>
 #include <array>
+#include <set>
+
+extern std::unordered_set<CharData *> affected_mobs;
 
 // An affect structure. //
 class IAffectHandler;
@@ -65,6 +68,7 @@ struct obj_affected_type {
 };
 
 void UpdateAffectOnPulse(CharData *ch, int count);
+void player_timed_update();
 void player_affect_update();
 void battle_affect_update(CharData *ch);
 void mobile_affect_update();

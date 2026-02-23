@@ -18,7 +18,6 @@
 #include <iostream>
 #include <third_party_libs/fmt/include/fmt/format.h>
 
-#include "logger.h"
 #include "engine/core/sysdep.h"
 #include "engine/core/conf.h"
 #include "backtrace.h"

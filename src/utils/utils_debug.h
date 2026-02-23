@@ -13,9 +13,9 @@ class LogQueue {
 	void push(const std::string &s);
 	std::ostream &print(std::ostream &os) const;
 	void print_queue(std::ostream &os, const std::string &key) const;
-	const auto size() const { return m_queue.size(); }
-	const auto begin() const { return m_queue.begin(); }
-	const auto end() const { return m_queue.end(); }
+	auto size() const { return m_queue.size(); }
+	auto begin() const { return m_queue.begin(); }
+	auto end() const { return m_queue.end(); }
 
  private:
 	using queue_t = std::list<std::string>;

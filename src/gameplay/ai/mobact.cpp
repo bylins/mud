@@ -63,6 +63,7 @@ void npc_light(CharData *ch);
 extern void SetWait(CharData *ch, int waittime, int victim_in_room);
 void DropObjOnZoneReset(CharData *ch, ObjData *obj, bool inv, bool zone_reset);
 
+
 namespace mob_ai {
 
 const short kStupidMob{10};
@@ -878,67 +879,6 @@ bool allow_enter(RoomData *room, CharData *ch) {
 	return true;
 }
 
-namespace {
-ObjData *create_charmice_box(CharData *ch) {
-	const auto obj = world_objects.create_blank();
-
-	obj->set_aliases("узелок вещами");
-	const std::string descr = std::string("узелок с вещами ") + ch->get_pad(1);
-	obj->set_short_description(descr);
-	obj->set_description("Туго набитый узел лежит тут.");
-	obj->set_ex_description(descr.c_str(), "Кто-то сильно торопился, когда набивал этот узелок.");
-	obj->set_PName(ECase::kNom, "узелок");
-	obj->set_PName(ECase::kGen, "узелка");
-	obj->set_PName(ECase::kDat, "узелку");
-	obj->set_PName(ECase::kAcc, "узелок");
-	obj->set_PName(ECase::kIns, "узелком");
-	obj->set_PName(ECase::kPre, "узелке");
-	obj->set_sex(EGender::kMale);
-	obj->set_type(EObjType::kContainer);
-	obj->set_wear_flags(to_underlying(EWearFlag::kTake));
-	obj->set_weight(1);
-	obj->set_cost(1);
-	obj->set_rent_off(1);
-	obj->set_rent_on(1);
-	obj->set_timer(9999);
-
-	obj->set_extra_flag(EObjFlag::kNosell);
-	obj->set_extra_flag(EObjFlag::kNolocate);
-	obj->set_extra_flag(EObjFlag::kNodecay);
-	obj->set_extra_flag(EObjFlag::kSwimming);
-	obj->set_extra_flag(EObjFlag::kFlying);
-
-	return obj.get();
-}
-
-void extract_charmice(CharData *ch) {
-	std::vector<ObjData *> objects;
-	for (int i = 0; i < EEquipPos::kNumEquipPos; ++i) {
-		if (GET_EQ(ch, i)) {
-			ObjData *obj = UnequipChar(ch, i, CharEquipFlags());
-			if (obj) {
-				remove_otrigger(obj, ch);
-				objects.push_back(obj);
-			}
-		}
-	}
-
-	while (ch->carrying) {
-		ObjData *obj = ch->carrying;
-		RemoveObjFromChar(obj);
-		objects.push_back(obj);
-	}
-
-	if (!objects.empty()) {
-		ObjData *charmice_box = create_charmice_box(ch);
-		for (auto &object : objects) {
-			PlaceObjIntoObj(object, charmice_box);
-		}
-		DropObjOnZoneReset(ch, charmice_box, true, false);
-	}
-	character_list.AddToExtractedList(ch);
-}
-}
 
 void mobile_activity(int activity_level, int missed_pulses) {
 
@@ -1079,9 +1019,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 			  --(ch->extract_timer);
 
 			  if (!(ch->extract_timer)) {
-
-				  extract_charmice(ch.get());
-
+				  extract_charmice(ch.get(), true);
 				  continue;
 
 			  }
@@ -1629,6 +1567,70 @@ void mobile_activity(int activity_level, int missed_pulses) {
 	observability::OtelMetrics::RecordGauge("mob.active.count", active_mob_count);
 	
 	// Span and metric automatically closed by destructors
+}
+ObjData *create_charmice_box(CharData *ch) {
+	const auto obj = world_objects.create_blank();
+
+	obj->set_aliases("узелок вещами");
+	const std::string descr = std::string("узелок с вещами ") + ch->get_pad(1);
+	obj->set_short_description(descr);
+	obj->set_description("Туго набитый узел лежит тут.");
+	obj->set_ex_description(descr.c_str(), "Кто-то сильно торопился, когда набивал этот узелок.");
+	obj->set_PName(ECase::kNom, "узелок");
+	obj->set_PName(ECase::kGen, "узелка");
+	obj->set_PName(ECase::kDat, "узелку");
+	obj->set_PName(ECase::kAcc, "узелок");
+	obj->set_PName(ECase::kIns, "узелком");
+	obj->set_PName(ECase::kPre, "узелке");
+	obj->set_sex(EGender::kMale);
+	obj->set_type(EObjType::kContainer);
+	obj->set_wear_flags(to_underlying(EWearFlag::kTake));
+	obj->set_weight(1);
+	obj->set_cost(1);
+	obj->set_rent_off(1);
+	obj->set_rent_on(1);
+	obj->set_timer(9999);
+
+	obj->set_extra_flag(EObjFlag::kNosell);
+	obj->set_extra_flag(EObjFlag::kNolocate);
+	obj->set_extra_flag(EObjFlag::kNodecay);
+	obj->set_extra_flag(EObjFlag::kSwimming);
+	obj->set_extra_flag(EObjFlag::kFlying);
+
+	return obj.get();
+}
+
+void extract_charmice(CharData *ch, bool on_ground) {
+	std::vector<ObjData *> objects;
+	for (int i = 0; i < EEquipPos::kNumEquipPos; ++i) {
+		if (GET_EQ(ch, i)) {
+			ObjData *obj = UnequipChar(ch, i, CharEquipFlags());
+			if (obj) {
+				remove_otrigger(obj, ch);
+				objects.push_back(obj);
+			}
+		}
+	}
+
+	while (ch->carrying) {
+		ObjData *obj = ch->carrying;
+		RemoveObjFromChar(obj);
+		objects.push_back(obj);
+	}
+
+	if (!objects.empty()) {
+		ObjData *charmice_box = create_charmice_box(ch);
+		for (auto &object : objects) {
+			PlaceObjIntoObj(object, charmice_box);
+		}
+		if (on_ground || !ch->get_master()) {
+			DropObjOnZoneReset(ch, charmice_box, true, false);
+		} else {
+			SendMsgToChar(ch->get_master(), "&YВолшебный узелок с вещами появился у вас в инвентаре.&n");
+			PlaceObjToInventory(charmice_box, ch->get_master());
+		}
+	}
+	character_list.AddToExtractedList(ch);
 }
 
 

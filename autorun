@@ -1,18 +1,15 @@
 #!/bin/bash
-PORT=4000
+CIRCLE=${CIRCLE:-build/circle}
 ulimit -c unlimited
 umask u=rwx,g=rwx,o=
 export ASAN_OPTIONS=log_path=/home/mud/mud/asan.log
-# Default flags to pass to the MUD server (see admin.txt for a description
-# of all flags).
-FLAGS=''
 #############################################################################
 while ( : ) do
   DATE=`date`
   echo "autorun starting game $DATE" >> syslog
-  echo "running bin/circle $FLAGS $PORT" >> syslog
+  echo "running $CIRCLE $@" >> syslog
   chmod 660 /home/mud/mud/lib/etc/board/*
-  build/circle $FLAGS $PORT >>sd.out
+  $CIRCLE "$@" >>sd.out
   mv syslog.CRASH.1 syslog.CRASH.2
   mv syslog.CRASH syslog.CRASH.1
   tail -1000 syslog > syslog.CRASH
