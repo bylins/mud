@@ -509,6 +509,49 @@ providers:
       foldersFromFilesStructure: true
 ```
 
+## Сборка Bylins MUD с поддержкой OTEL
+
+> Если вы деплоите готовый бинарник (собранный на другой машине или в CI),
+> этот раздел можно пропустить — opentelemetry-cpp нужен только при сборке.
+
+### Установка SDK
+
+Пакет `libopentelemetry-cpp-dev` отсутствует в стандартных репозиториях Ubuntu.
+Используйте скрипт `tools/observability/install-otel-sdk.sh`:
+
+```bash
+cd tools/observability
+
+# Вариант 1 (основной): vcpkg
+# Устанавливает vcpkg в ~/vcpkg (или $VCPKG_DIR) и собирает SDK через него.
+./install-otel-sdk.sh
+
+# Вариант 2 (альтернатива): сборка из исходников
+# Устанавливает SDK в /usr/local (или $OTEL_INSTALL_PREFIX).
+# Занимает ~15 минут.
+./install-otel-sdk.sh --source
+```
+
+### Сборка сервера
+
+**После vcpkg:**
+```bash
+cmake -S . -B build_otel \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DWITH_OTEL=ON \
+  -DCMAKE_TOOLCHAIN_FILE=~/vcpkg/scripts/buildsystems/vcpkg.cmake \
+  -DCMAKE_PREFIX_PATH=~/vcpkg/installed/x64-linux
+make -C build_otel -j$(($(nproc)/2))
+```
+
+**После сборки из исходников** (SDK в `/usr/local`, cmake найдёт сам):
+```bash
+cmake -S . -B build_otel \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DWITH_OTEL=ON
+make -C build_otel -j$(($(nproc)/2))
+```
+
 ## Запуск стека
 
 ### Шаг 1: Подготовка файлов
