@@ -332,8 +332,6 @@ class CharData : public ProtectedCharData {
 	using followers_list_t = std::list<CharData *>;
 
 	CharData();
-	CharData(const CharData& other);
-	CharData& operator=(const CharData& other);
 	~CharData() override;
 
 	friend void do_mtransform(CharData *ch, char *argument, int cmd, int subcmd);
@@ -837,8 +835,8 @@ class CharData : public ProtectedCharData {
 	bool IsLeader();
 
 	// OpenTelemetry combat tracing (instrumentation)
-	std::unique_ptr<tracing::ISpan> m_combat_root_span;
-	std::unique_ptr<observability::BaggageScope> m_combat_baggage_scope;
+	std::shared_ptr<tracing::ISpan> m_combat_root_span;
+	std::shared_ptr<observability::BaggageScope> m_combat_baggage_scope;
 	std::string m_combat_id;
 };
 
