@@ -917,7 +917,7 @@ set(HEADERS
 		src/engine/observability/otel_metrics.h
 		src/engine/observability/otel_helpers.h
 		src/engine/observability/otel_log_sender.h
-		src/utils/logging/log_sender.h)
+		src/utils/logging/log_sender.h
 		src/gameplay/classes/recalc_mob_params_by_vnum.h)
 
 # Build types

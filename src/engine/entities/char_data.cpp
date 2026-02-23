@@ -2,6 +2,7 @@
 // Copyright (c) 2008 Krodo
 // Part of Bylins http://www.mud.ru
 
+#include "engine/observability/otel_helpers.h"
 #include "engine/core/handler.h"
 #include "administration/privilege.h"
 #include "char_player.h"
@@ -18,7 +19,6 @@
 #include "gameplay/affects/affect_data.h"
 #include "gameplay/mechanics/illumination.h"
 #include "utils/tracing/trace_sender.h"
-#include "engine/observability/otel_helpers.h"
 #include "engine/ui/alias.h"
 
 #include <third_party_libs/fmt/include/fmt/format.h>

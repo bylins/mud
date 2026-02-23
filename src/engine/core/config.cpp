@@ -730,7 +730,7 @@ RuntimeConfiguration::RuntimeConfiguration() :
 	m_telemetry_logs_endpoint("http://localhost:4318/v1/logs"),
 	m_telemetry_service_name("bylins-mud"),
 	m_telemetry_service_version("1.0.0"),
-	m_telemetry_log_mode(ETelemetryLogMode::kFileOnly) {
+	m_telemetry_log_mode(ETelemetryLogMode::kFileOnly),
 	m_yaml_threads(0) {
 }
 

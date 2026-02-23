@@ -125,6 +125,18 @@ private:
  */
 std::string GetBaggage(const std::string& key);
 
+#else // !WITH_OTEL
+
+// Stub for when OTel is disabled - allows CharData to compile with unique_ptr<BaggageScope>
+class BaggageScope {
+public:
+	BaggageScope(const std::string&, const std::string&) {}
+	~BaggageScope() = default;
+
+	BaggageScope(const BaggageScope&) = delete;
+	BaggageScope& operator=(const BaggageScope&) = delete;
+};
+
 #endif // WITH_OTEL
 
 } // namespace observability

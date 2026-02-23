@@ -253,6 +253,7 @@ obj2triggers_t &GlobalObjects::obj_triggers() {
 
 logging::LogManager &GlobalObjects::log_manager() {
 	return *global_objects().log_manager;
+}
 RoomDescriptions &GlobalObjects::descriptions() {
 	return global_objects().room_descriptions;
 }

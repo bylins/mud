@@ -656,10 +656,6 @@ int main_function(int argc, char **argv) {
 		enable_world_checksum = true;
 		puts("World checksum calculation enabled.");
 				break;
-			case 'C':
-				no_world_checksum = true;
-				puts("World checksum calculation disabled.");
-				break;
 			case 'd':
 				if (*(argv[pos] + 2))
 					dir = argv[pos] + 2;

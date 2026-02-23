@@ -29,6 +29,10 @@
 #include <chrono>
 #endif
 
+#ifndef WITH_OTEL
+#include <iostream>
+#endif
+
 namespace observability {
 
 OtelProvider& OtelProvider::Instance() {
@@ -165,7 +169,9 @@ void OtelProvider::Initialize(const std::string& metrics_endpoint,
 		std::cout << "TraceManager initialized with NoOpTraceSender (OTEL init failed)" << std::endl;
     }
 #else
-    (void)endpoint;
+    (void)metrics_endpoint;
+    (void)traces_endpoint;
+    (void)logs_endpoint;
     (void)service_name;
     (void)service_version;
 	// Initialize TraceManager with NoOp sender (no OTEL)
