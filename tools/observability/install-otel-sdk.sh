@@ -29,10 +29,10 @@ fi
 
 # ── vcpkg (primary) ──────────────────────────────────────────────────────────
 install_via_vcpkg() {
-    for dep in curl zip unzip tar git cmake; do
+    for dep in curl zip unzip tar git cmake pkg-config; do
         if ! command -v "$dep" >/dev/null 2>&1; then
             echo "Error: '$dep' is not installed. Run:"
-            echo "  sudo apt-get install curl zip unzip tar git build-essential cmake"
+            echo "  sudo apt-get install curl zip unzip tar git build-essential cmake pkg-config"
             exit 1
         fi
     done
