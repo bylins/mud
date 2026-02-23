@@ -161,6 +161,7 @@ class RuntimeConfiguration {
 	auto output_queue_size() const { return m_output_queue_size; }
 
 	void setup_logs();
+	void setup_telemetry(int port);
 	auto syslog_converter() const { return m_syslog_converter; }
 
 	void enable_logging() { m_logging_enabled = true; }

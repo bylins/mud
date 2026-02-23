@@ -725,6 +725,7 @@ int main_function(int argc, char **argv) {
 	// directories are created in the working directory (next to the binary),
 	// not inside the data directory.
 	runtime_config.setup_logs();
+	runtime_config.setup_telemetry(port);
 	logfile = runtime_config.logs(SYSLOG).handle();
 	if (chdir(dir) < 0) {
 		perror("\r\nSYSERR: Fatal error changing to data directory");

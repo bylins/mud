@@ -114,4 +114,40 @@
 		</server>
 	</statistics>
 	-->
+	<!--
+	Настройки телеметрии OpenTelemetry (OTLP HTTP).
+	Требует сборки с -DWITH_OTEL=ON.
+	Без этой сборки секция будет прочитана, но проигнорирована.
+
+	Переменные в service/name:
+	  ${port}    - порт, на котором запущен сервер (из аргументов командной строки)
+	  ${host}    - имя хоста (hostname)
+	  ${version} - версия сервиса (из service/version ниже)
+
+	Режимы логирования (logs/mode):
+	  file-only  - логи только в файл (по умолчанию)
+	  otel-only  - логи только в OTEL (Loki)
+	  duplicate  - логи и в файл, и в OTEL
+	-->
+	<telemetry>
+		<enabled>false</enabled>
+		<otlp>
+			<metrics>
+				<endpoint>http://localhost:4318/v1/metrics</endpoint>
+			</metrics>
+			<traces>
+				<endpoint>http://localhost:4318/v1/traces</endpoint>
+			</traces>
+			<logs_otlp>
+				<endpoint>http://localhost:4318/v1/logs</endpoint>
+			</logs_otlp>
+		</otlp>
+		<service>
+			<name>bylins-${host}-${port}</name>
+			<version>1.0.0</version>
+		</service>
+		<logs>
+			<mode>file-only</mode>
+		</logs>
+	</telemetry>
 </configuration>

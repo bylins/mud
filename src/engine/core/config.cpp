@@ -27,6 +27,7 @@
 #endif
 using ETelemetryLogMode = RuntimeConfiguration::ETelemetryLogMode;
 #include <sys/stat.h>
+#include <unistd.h>
 #endif
 
 #include <iostream>
@@ -877,15 +878,41 @@ void RuntimeConfiguration::load_telemetry_configuration_impl(const pugi::xml_nod
 }
 
 void RuntimeConfiguration::load_telemetry_configuration(const pugi::xml_node *) {
+	// OtelProvider is initialized later via setup_telemetry(port)
+	// once the game port is known from command-line arguments.
+}
+
+void RuntimeConfiguration::setup_telemetry(int port) {
 #ifdef WITH_OTEL
-	if (m_telemetry_enabled) {
-		observability::OtelProvider::Instance().Initialize(
-			m_telemetry_metrics_endpoint,
-			m_telemetry_traces_endpoint,
-			m_telemetry_logs_endpoint,
-			m_telemetry_service_name,
-			m_telemetry_service_version);
+	if (!m_telemetry_enabled) {
+		return;
 	}
+
+	// Interpolate variables in service name: ${port}, ${host}, ${version}
+	char hostname[256] = "unknown";
+	gethostname(hostname, sizeof(hostname));
+
+	auto replace_all = [](std::string str, const std::string &var, const std::string &val) {
+		std::string::size_type pos;
+		while ((pos = str.find(var)) != std::string::npos) {
+			str.replace(pos, var.size(), val);
+		}
+		return str;
+	};
+
+	std::string name = m_telemetry_service_name;
+	name = replace_all(name, "${port}", std::to_string(port));
+	name = replace_all(name, "${host}", hostname);
+	name = replace_all(name, "${version}", m_telemetry_service_version);
+
+	observability::OtelProvider::Instance().Initialize(
+		m_telemetry_metrics_endpoint,
+		m_telemetry_traces_endpoint,
+		m_telemetry_logs_endpoint,
+		name,
+		m_telemetry_service_version);
+#else
+	(void)port;
 #endif
 }
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
