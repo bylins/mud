@@ -29,6 +29,9 @@ fi
 
 # ── vcpkg (primary) ──────────────────────────────────────────────────────────
 install_via_vcpkg() {
+    echo "Installing vcpkg dependencies ..."
+    sudo apt-get install -y curl zip unzip tar git build-essential cmake pkg-config
+
     if [ ! -f "$VCPKG_DIR/vcpkg" ]; then
         echo "Installing vcpkg to $VCPKG_DIR ..."
         git clone https://github.com/microsoft/vcpkg "$VCPKG_DIR"
