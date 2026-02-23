@@ -37,9 +37,15 @@
 - **Network**: 1 Gbps (локальная сеть)
 
 ### Software
-- Docker 20.10+
-- Docker Compose 2.0+
-- Или: Kubernetes 1.21+
+- `docker.io` (Docker 20.10+)
+- `docker-compose` (standalone, пакет `docker-compose`, не плагин `docker compose`)
+
+Установка на Ubuntu:
+```bash
+sudo apt install docker.io docker-compose
+sudo usermod -aG docker $USER  # добавить себя в группу docker
+newgrp docker                  # применить без перелогина
+```
 
 ## Вариант 1: Docker Compose (рекомендуется для начала)
 
@@ -508,21 +514,50 @@ providers:
 ### Шаг 1: Подготовка файлов
 
 ```bash
-cd /home/kvirund/repos/mud.otel
+cd tools/observability
 
-# Создать директории для конфигов
-mkdir -p grafana/provisioning/{datasources,dashboards}
-
-# Скопировать конфиги (создайте файлы выше)
-# Дашборды уже в tools/observability/dashboards/
+# Конфиги должны быть читаемы контейнерами (которые запускаются не от root)
+chmod 644 *.yml *.yaml
+chmod 644 grafana/provisioning/datasources/*.yml
+chmod 644 grafana/provisioning/dashboards/*.yml
 ```
 
 ### Шаг 2: Запуск сервисов
 
-```bash
-# Запустить весь стек
-docker-compose -f docker-compose.observability.yml up -d
+#### Вариант A: данные в Docker named volumes (по умолчанию)
 
+```bash
+docker-compose -f docker-compose.observability.yml up -d
+```
+
+Данные хранятся в Docker volumes, управляемых демоном. Расположение:
+`/var/lib/docker/volumes/observability_<name>/`
+
+#### Вариант B: данные в директории хоста
+
+Контейнеры записывают данные от своего внутреннего пользователя. Чтобы файлы
+принадлежали запустившему пользователю, используется `user:` в override-файле.
+
+```bash
+export DATA_DIR=/var/lib/mud-observability
+export UID=$(id -u)
+export GID=$(id -g)
+mkdir -p $DATA_DIR/{prometheus,tempo,loki,grafana}
+
+docker-compose \
+  -f docker-compose.observability.yml \
+  -f docker-compose.data-dir.yml \
+  up -d
+```
+
+`DATA_DIR` можно задать в `.env` файле рядом с compose-файлами:
+```bash
+echo "DATA_DIR=/var/lib/mud-observability" > .env
+```
+
+#### Общие команды
+
+```bash
 # Проверить статус
 docker-compose -f docker-compose.observability.yml ps
 
