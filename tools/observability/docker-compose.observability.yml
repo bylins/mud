@@ -78,7 +78,7 @@ services:
       - ./dashboards:/var/lib/grafana/dashboards:ro
       - grafana-data:/var/lib/grafana
     ports:
-      - "127.0.0.1:3000:3000"
+      - "127.0.0.1:12000:3000"
     networks:
       - observability
     depends_on:
