@@ -2,6 +2,7 @@
 #define BYLINS_OTEL_TRACES_H
 
 #include <string>
+#include <cstdint>
 #include <map>
 
 #ifdef WITH_OTEL

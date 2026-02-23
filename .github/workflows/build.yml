@@ -35,15 +35,17 @@ jobs:
             packages: "libsqlite3-dev"
             run_tests: true
 
-          - name: "Base + Admin API"
-            cmake_flags: "-DCMAKE_BUILD_TYPE=Release -DENABLE_ADMIN_API=ON -DWITH_OTEL=ON"
-            packages: "libopentelemetry-cpp-dev"
+          - name: "Base + Admin API + OTEL"
+            cmake_flags: "-DCMAKE_BUILD_TYPE=Release -DENABLE_ADMIN_API=ON -DWITH_OTEL=ON -DCMAKE_PREFIX_PATH=/opt/opentelemetry-cpp"
+            packages: ""
             run_tests: true
+            with_otel: true
 
-          - name: "YAML + Admin API"
-            cmake_flags: "-DCMAKE_BUILD_TYPE=Release -DHAVE_YAML=ON -DENABLE_ADMIN_API=ON -DWITH_OTEL=ON"
-            packages: "libyaml-cpp-dev libopentelemetry-cpp-dev"
+          - name: "YAML + Admin API + OTEL"
+            cmake_flags: "-DCMAKE_BUILD_TYPE=Release -DHAVE_YAML=ON -DENABLE_ADMIN_API=ON -DWITH_OTEL=ON -DCMAKE_PREFIX_PATH=/opt/opentelemetry-cpp"
+            packages: "libyaml-cpp-dev"
             run_tests: true
+            with_otel: true
 
     steps:
       - uses: actions/checkout@v4
@@ -72,6 +74,31 @@ jobs:
         if: matrix.config.packages != ''
         run: |
           sudo apt-get install -y ${{ matrix.config.packages }}
+
+      - name: Cache opentelemetry-cpp
+        if: matrix.config.with_otel
+        id: cache-otel
+        uses: actions/cache@v4
+        with:
+          path: /opt/opentelemetry-cpp
+          key: otel-cpp-1.24.0-ubuntu-x64
+
+      - name: Build opentelemetry-cpp
+        if: matrix.config.with_otel && steps.cache-otel.outputs.cache-hit != 'true'
+        run: |
+          sudo apt-get install -y libgrpc++-dev libprotobuf-dev protobuf-compiler-grpc || true
+          wget -q https://github.com/open-telemetry/opentelemetry-cpp/archive/refs/tags/v1.24.0.tar.gz
+          tar xzf v1.24.0.tar.gz
+          cmake -S opentelemetry-cpp-1.24.0 -B otel-build \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_INSTALL_PREFIX=/opt/opentelemetry-cpp \
+            -DWITH_OTLP_HTTP=ON \
+            -DWITH_OTLP_GRPC=OFF \
+            -DBUILD_TESTING=OFF \
+            -DWITH_BENCHMARK=OFF \
+            -DWITH_EXAMPLES=OFF
+          cmake --build otel-build -j$(nproc)
+          sudo cmake --install otel-build
 
       - name: Configure CMake
         run: |
