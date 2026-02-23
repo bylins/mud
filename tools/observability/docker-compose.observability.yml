@@ -1,5 +1,9 @@
 version: '3.8'
 
+# Set DATA_DIR to configure where persistent data is stored on the host.
+# Example: DATA_DIR=/var/lib/mud-observability docker-compose -f docker-compose.observability.yml up -d
+# Default: ./data (relative to this file)
+
 services:
   # OpenTelemetry Collector
   otel-collector:
@@ -29,7 +33,7 @@ services:
       - '--enable-feature=exemplar-storage'
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
-      - prometheus-data:/prometheus
+      - ${DATA_DIR:-./data}/prometheus:/prometheus
     ports:
       - "127.0.0.1:9090:9090"
     networks:
@@ -43,7 +47,7 @@ services:
     command: ["-config.file=/etc/tempo.yaml"]
     volumes:
       - ./tempo-config.yaml:/etc/tempo.yaml:ro
-      - tempo-data:/tmp/tempo
+      - ${DATA_DIR:-./data}/tempo:/tmp/tempo
     ports:
       - "127.0.0.1:3200:3200"   # Tempo HTTP
     networks:
@@ -57,7 +61,7 @@ services:
     command: -config.file=/etc/loki/config.yaml
     volumes:
       - ./loki-config.yaml:/etc/loki/config.yaml:ro
-      - loki-data:/loki
+      - ${DATA_DIR:-./data}/loki:/loki
     ports:
       - "127.0.0.1:3100:3100"
     networks:
@@ -76,7 +80,7 @@ services:
     volumes:
       - ./grafana/provisioning:/etc/grafana/provisioning:ro
       - ./dashboards:/var/lib/grafana/dashboards:ro
-      - grafana-data:/var/lib/grafana
+      - ${DATA_DIR:-./data}/grafana:/var/lib/grafana
     ports:
       - "127.0.0.1:3000:3000"
     networks:
@@ -86,12 +90,6 @@ services:
       - tempo
       - loki
     restart: unless-stopped
-
-volumes:
-  prometheus-data:
-  tempo-data:
-  loki-data:
-  grafana-data:
 
 networks:
   observability:
