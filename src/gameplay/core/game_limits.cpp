@@ -1133,8 +1133,6 @@ void room_point_update() {
 				deathtrap::remove(world[count]);
 			}
 
-		world[count]->glight = (world[count]->glight < 0 ? 0 : world[count]->glight);
-		world[count]->gdark = (world[count]->gdark < 0 ? 0 : world[count]->gdark);
 
 		struct TrackData *track, *next_track, *temp;
 		auto time_decrease{2};

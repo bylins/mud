@@ -335,7 +335,7 @@ void DoPrintArmor(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 	}
 	if (!out.str().empty()) {
-		SendMsgToChar(ch, "Всего найдено предметов: %lu\r\n\r\n", tmp_list.size());
+		SendMsgToChar(ch, "Всего найдено предметов: %zu\r\n\r\n", tmp_list.size());
 		page_string(ch->desc, out.str());
 	} else {
 		SendMsgToChar("Ничего не найдено.\r\n", ch);

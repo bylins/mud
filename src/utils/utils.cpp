@@ -1361,7 +1361,7 @@ double CCheckTable::test_time() const
 		unsigned i = 0;
 		do
 		{
-			bool result = 0 != m_original(i % 256);
+			(void)(0 != m_original(i % 256));
 			++i;
 		} while (0 < i);
 	}

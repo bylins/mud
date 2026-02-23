@@ -35,7 +35,12 @@
 #define NOCRYPT 1
 #define TEST_BUILD 1
 #define LOG_AUTOFLUSH 1
+
+#ifdef __MINGW32__
+#include <sys/time.h>
+#else
 #define __func__ ""
+#endif
 
 #ifdef __BORLANDC__
 #include <dir.h>
@@ -49,8 +54,11 @@
 #undef min
 #define min min
 
+#ifndef __MINGW32__
 #define ssize_t int
+#endif
 #define socklen_t int
+
 #if (_MSC_VER < 1900)
 #define snprintf _snprintf
 #endif

@@ -14,6 +14,9 @@
 
 #ifdef _WIN32
 #include <winsock2.h>
+#ifdef __MINGW32__
+#include <sys/time.h>
+#endif
 #else
 #include <sys/time.h>
 #endif

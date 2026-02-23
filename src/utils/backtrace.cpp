@@ -3,10 +3,14 @@
 #include <climits>
 #ifdef _WIN32
 #include <windows.h>
+#ifdef _MSC_VER
 #pragma warning(push)
 #pragma warning(disable:4091)
+#endif
 #include <DbgHelp.h>
+#ifdef _MSC_VER
 #pragma warning(pop)
+#endif
 #elif __CYGWIN__
 // если цигвин ничего не делаем
 #elif defined(__GLIBC__)

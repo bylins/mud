@@ -229,7 +229,7 @@ std::string generate_purged_text(long uid, int obj_vnum, unsigned int obj_uid) {
 			continue;
 		}
 
-		if (obj->get_unique_id() == obj_uid
+		if (static_cast<unsigned int>(obj->get_unique_id()) == obj_uid
 			&& obj->get_vnum() == obj_vnum) {
 			std::ostringstream text;
 			text << "[Персональное хранилище]: " << kColorBoldRed << "'"
@@ -1237,7 +1237,7 @@ void CharNode::load_online_objs(int file_type, bool reload) {
 			// собсна сверимся со списком таймеров и проставим изменившиеся данные
 			TimerListType::iterator obj_it = std::find_if(offline_list.begin(), offline_list.end(),
 														  [&](const OfflineNode &x) {
-															  return x.uid == obj->get_unique_id();
+															  return x.uid == static_cast<unsigned int>(obj->get_unique_id());
 														  });
 
 			if (obj_it != offline_list.end() && obj_it->vnum == obj->get_vnum()) {

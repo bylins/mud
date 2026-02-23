@@ -40,7 +40,7 @@ void print(CharData *ch) {
 	if (!tmp_list.empty()) {
 		SendMsgToChar(ch,
 					  "Money drop stats:\r\n"
-					  "Total zones: %lu\r\n"
+					  "Total zones: %zu\r\n"
 					  "  vnum - money\r\n"
 					  "================\r\n", tmp_list.size());
 	} else {

@@ -1413,7 +1413,18 @@ elseif (CMAKE_HOST_WIN32)
 		target_link_libraries(circle.library DbgHelp)
 		set(CMAKE_EXE_LINKER_FLAGS_DEBUG "/DEBUG")
 		set(CMAKE_EXE_LINKER_FLAGS_TEST "/DEBUG")
+	elseif (MINGW)
+		# MinGW GCC on Windows
+		# Redirect printf/sprintf/snprintf to MinGW's ANSI-compliant implementations
+		# (__mingw_printf etc.) which support %zu/%zd and use gnu_printf format checking.
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D__USE_MINGW_ANSI_STDIO=1")
+		set(CMAKE_CXX_FLAGS_RELEASE  "-ggdb3 -O0 -Wall -Wextra -Wno-format-truncation ${DEBUG_CRYPT}")
+		set(CMAKE_CXX_FLAGS_DEBUG    "-ggdb3 -O0 -Wall -Wextra -Wno-format-truncation ${DEBUG_CRYPT}")
+		set(CMAKE_CXX_FLAGS_TEST     "-O3 -Wall -Wextra -Wno-format-truncation ${TESTBUILD_DEFINITIONS} -DLOG_AUTOFLUSH")
+		set(CMAKE_CXX_FLAGS_FASTTEST "-Ofast -Wall -Wextra -Wno-format-truncation ${TESTBUILD_DEFINITIONS}")
+		target_link_libraries(circle.library DbgHelp ws2_32)
 	else ()
+		# Other Windows compilers (fallback)
 		target_link_libraries(circle.library DbgHelp ws2_32)
 	endif()
 endif ()
