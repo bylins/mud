@@ -72,7 +72,7 @@
           "refId": "A"
         }
       ],
-      "title": "Players Online",
+      "title": "Игроки онлайн",
       "type": "gauge"
     },
     {
@@ -129,7 +129,7 @@
           "refId": "A"
         }
       ],
-      "title": "Players in Combat",
+      "title": "Игроки в бою",
       "type": "gauge"
     },
     {
@@ -202,16 +202,16 @@
       "targets": [
         {
           "expr": "players_online_count",
-          "legendFormat": "Online",
+          "legendFormat": "Онлайн",
           "refId": "A"
         },
         {
           "expr": "players_in_combat_count",
-          "legendFormat": "In Combat",
+          "legendFormat": "В бою",
           "refId": "B"
         }
       ],
-      "title": "Player Activity Over Time",
+      "title": "Активность игроков",
       "type": "timeseries"
     },
     {
@@ -261,11 +261,11 @@
       "targets": [
         {
           "expr": "topk(10, players_by_level_remort_count)",
-          "legendFormat": "Level {{level}} Remort {{remort}}",
+          "legendFormat": "Уровень {{level}} Реморт {{remort}}",
           "refId": "A"
         }
       ],
-      "title": "Player Distribution by Level & Remort (Top 10)",
+      "title": "Распределение игроков по уровню и реморту (Топ 10)",
       "type": "piechart"
     },
     {
@@ -338,11 +338,11 @@
       "targets": [
         {
           "expr": "players_by_level_remort_count",
-          "legendFormat": "L{{level}}R{{remort}}",
+          "legendFormat": "Ур{{level}}Р{{remort}}",
           "refId": "A"
         }
       ],
-      "title": "All Players by Level/Remort (Current)",
+      "title": "Все игроки по уровню/реморту (текущие)",
       "type": "barchart",
       "options": {
         "orientation": "horizontal",
@@ -422,16 +422,16 @@
       "targets": [
         {
           "expr": "histogram_quantile(0.95, rate(player_beat_update_duration_bucket[5m]))",
-          "legendFormat": "p95 Beat Update",
+          "legendFormat": "p95 Обновление хартбита",
           "refId": "A"
         },
         {
           "expr": "histogram_quantile(0.99, rate(player_beat_update_duration_bucket[5m]))",
-          "legendFormat": "p99 Beat Update",
+          "legendFormat": "p99 Обновление хартбита",
           "refId": "B"
         }
       ],
-      "title": "Beat Points Update Duration (HP/Mana/Move Regen)",
+      "title": "Длительность обновления хартбита (HP/Мана/Движение)",
       "type": "timeseries"
     },
     {
@@ -504,21 +504,21 @@
       "targets": [
         {
           "expr": "combat_active_count",
-          "legendFormat": "Active Combats",
+          "legendFormat": "Активные бои",
           "refId": "A"
         },
         {
           "expr": "mob_active_count",
-          "legendFormat": "Active Mobs",
+          "legendFormat": "Активные мобы",
           "refId": "B"
         },
         {
           "expr": "auction_lots_active",
-          "legendFormat": "Auction Lots",
+          "legendFormat": "Лоты аукциона",
           "refId": "C"
         }
       ],
-      "title": "System Activity Gauges",
+      "title": "Счётчики активности системы",
       "type": "timeseries"
     },
     {
@@ -591,21 +591,21 @@
       "targets": [
         {
           "expr": "histogram_quantile(0.95, rate(combat_round_duration_bucket[5m]))",
-          "legendFormat": "p95 Combat Round",
+          "legendFormat": "p95 Раунд боя",
           "refId": "A"
         },
         {
           "expr": "histogram_quantile(0.95, rate(zone_update_duration_bucket[5m]))",
-          "legendFormat": "p95 Zone Update",
+          "legendFormat": "p95 Обновление зоны",
           "refId": "B"
         },
         {
           "expr": "histogram_quantile(0.95, rate(spell_cast_duration_bucket[5m]))",
-          "legendFormat": "p95 Spell Cast",
+          "legendFormat": "p95 Чтение заклинания",
           "refId": "C"
         }
       ],
-      "title": "Key Operation Latencies (p95)",
+      "title": "Задержка ключевых операций (p95)",
       "type": "timeseries"
     },
     {
@@ -657,32 +657,32 @@
           "expr": "histogram_quantile(0.99, rate(combat_round_duration_bucket[5m]))",
           "format": "table",
           "instant": true,
-          "legendFormat": "Combat Round",
+          "legendFormat": "Раунд боя",
           "refId": "A"
         },
         {
           "expr": "histogram_quantile(0.99, rate(spell_cast_duration_bucket[5m]))",
           "format": "table",
           "instant": true,
-          "legendFormat": "Spell Cast",
+          "legendFormat": "Чтение заклинания",
           "refId": "B"
         },
         {
           "expr": "histogram_quantile(0.99, rate(zone_update_duration_bucket[5m]))",
           "format": "table",
           "instant": true,
-          "legendFormat": "Zone Update",
+          "legendFormat": "Обновление зоны",
           "refId": "C"
         },
         {
           "expr": "histogram_quantile(0.99, rate(mob_ai_duration_bucket[5m]))",
           "format": "table",
           "instant": true,
-          "legendFormat": "Mob AI",
+          "legendFormat": "ИИ моба",
           "refId": "D"
         }
       ],
-      "title": "p99 Latencies (Current)",
+      "title": "Задержки p99 (текущие)",
       "type": "table",
       "transformations": [
         {
@@ -694,7 +694,7 @@
               "instance": true
             },
             "renameByName": {
-              "Value": "Duration (s)"
+              "Value": "Длительность (с)"
             }
           }
         }
@@ -713,7 +713,8 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "Bylins MUD - Operational Dashboard",
+  "title": "Bylins MUD - Операционный дашборд",
+  "description": "Только для чтения. Чтобы внести изменения — клонируйте дашборд в Grafana (кнопка Save As).",
   "uid": "bylins-operational",
   "version": 0
 }

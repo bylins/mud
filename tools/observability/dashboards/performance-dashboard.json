@@ -92,21 +92,21 @@
       "targets": [
         {
           "expr": "histogram_quantile(0.50, rate(combat_round_duration_bucket[5m]))",
-          "legendFormat": "p50 Combat Round",
+          "legendFormat": "p50 Раунд боя",
           "refId": "A"
         },
         {
           "expr": "histogram_quantile(0.95, rate(combat_round_duration_bucket[5m]))",
-          "legendFormat": "p95 Combat Round",
+          "legendFormat": "p95 Раунд боя",
           "refId": "B"
         },
         {
           "expr": "histogram_quantile(0.99, rate(combat_round_duration_bucket[5m]))",
-          "legendFormat": "p99 Combat Round",
+          "legendFormat": "p99 Раунд боя",
           "refId": "C"
         }
       ],
-      "title": "Combat Round Duration (Percentiles)",
+      "title": "Длительность раунда боя (перцентили)",
       "type": "timeseries"
     },
     {
@@ -163,7 +163,7 @@
           "refId": "A"
         }
       ],
-      "title": "Active Combats",
+      "title": "Активные бои",
       "type": "gauge"
     },
     {
@@ -220,7 +220,7 @@
           "refId": "A"
         }
       ],
-      "title": "Active Mobs",
+      "title": "Активные мобы",
       "type": "gauge"
     },
     {
@@ -293,16 +293,16 @@
       "targets": [
         {
           "expr": "rate(combat_rounds_total[5m])",
-          "legendFormat": "Rounds/sec",
+          "legendFormat": "Раундов/сек",
           "refId": "A"
         },
         {
           "expr": "rate(combat_hits_total[5m])",
-          "legendFormat": "Hits/sec ({{result}})",
+          "legendFormat": "Ударов/сек ({{result}})",
           "refId": "B"
         }
       ],
-      "title": "Combat Activity Rate",
+      "title": "Частота боевой активности",
       "type": "timeseries"
     },
     {
@@ -375,16 +375,16 @@
       "targets": [
         {
           "expr": "histogram_quantile(0.95, rate(mob_ai_duration_bucket[5m]))",
-          "legendFormat": "p95 AI Duration",
+          "legendFormat": "p95 Длительность ИИ",
           "refId": "A"
         },
         {
           "expr": "histogram_quantile(0.99, rate(mob_ai_duration_bucket[5m]))",
-          "legendFormat": "p99 AI Duration",
+          "legendFormat": "p99 Длительность ИИ",
           "refId": "B"
         }
       ],
-      "title": "Mobile AI Processing Duration",
+      "title": "Длительность обработки ИИ мобов",
       "type": "timeseries"
     },
     {
@@ -457,21 +457,21 @@
       "targets": [
         {
           "expr": "histogram_quantile(0.95, rate(player_load_duration_bucket[5m]))",
-          "legendFormat": "p95 Load",
+          "legendFormat": "p95 Загрузка",
           "refId": "A"
         },
         {
           "expr": "histogram_quantile(0.95, rate(player_save_duration_bucket{save_type=\"frac\"}[5m]))",
-          "legendFormat": "p95 Save (frac)",
+          "legendFormat": "p95 Сохранение (частичное)",
           "refId": "B"
         },
         {
           "expr": "histogram_quantile(0.95, rate(player_save_duration_bucket{save_type=\"full\"}[5m]))",
-          "legendFormat": "p95 Save (full)",
+          "legendFormat": "p95 Сохранение (полное)",
           "refId": "C"
         }
       ],
-      "title": "Player Save/Load Duration (p95)",
+      "title": "Длительность сохранения/загрузки игрока (p95)",
       "type": "timeseries"
     },
     {
@@ -544,11 +544,11 @@
       "targets": [
         {
           "expr": "rate(player_save_total[5m])",
-          "legendFormat": "Saves/sec ({{save_type}})",
+          "legendFormat": "Сохранений/сек ({{save_type}})",
           "refId": "A"
         }
       ],
-      "title": "Player Save Rate",
+      "title": "Частота сохранения игроков",
       "type": "timeseries"
     },
     {
@@ -621,16 +621,16 @@
       "targets": [
         {
           "expr": "histogram_quantile(0.95, rate(zone_update_duration_bucket[5m]))",
-          "legendFormat": "p95 Zone Update",
+          "legendFormat": "p95 Обновление зоны",
           "refId": "A"
         },
         {
           "expr": "histogram_quantile(0.99, rate(zone_update_duration_bucket[5m]))",
-          "legendFormat": "p99 Zone Update",
+          "legendFormat": "p99 Обновление зоны",
           "refId": "B"
         }
       ],
-      "title": "Zone Update Duration",
+      "title": "Длительность обновления зоны",
       "type": "timeseries"
     },
     {
@@ -703,11 +703,11 @@
       "targets": [
         {
           "expr": "rate(zone_reset_total[5m])",
-          "legendFormat": "Zone Resets/sec",
+          "legendFormat": "Сбросов зоны/сек",
           "refId": "A"
         }
       ],
-      "title": "Zone Reset Rate",
+      "title": "Частота сброса зон",
       "type": "timeseries"
     }
   ],
@@ -723,7 +723,8 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "Bylins MUD - Performance Dashboard",
+  "title": "Bylins MUD - Дашборд производительности",
+  "description": "Только для чтения. Чтобы внести изменения — клонируйте дашборд в Grafana (кнопка Save As).",
   "uid": "bylins-performance",
   "version": 0
 }

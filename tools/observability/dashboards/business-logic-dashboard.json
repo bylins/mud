@@ -92,7 +92,7 @@
           "refId": "A"
         }
       ],
-      "title": "Top 10 Most Cast Spells (Rate)",
+      "title": "Топ 10 самых используемых заклинаний (частота)",
       "type": "timeseries"
     },
     {
@@ -165,16 +165,16 @@
       "targets": [
         {
           "expr": "histogram_quantile(0.95, rate(spell_cast_duration_bucket[5m]))",
-          "legendFormat": "p95 Spell Duration",
+          "legendFormat": "p95 Длительность заклинания",
           "refId": "A"
         },
         {
           "expr": "histogram_quantile(0.99, rate(spell_cast_duration_bucket[5m]))",
-          "legendFormat": "p99 Spell Duration",
+          "legendFormat": "p99 Длительность заклинания",
           "refId": "B"
         }
       ],
-      "title": "Spell Cast Duration (Percentiles)",
+      "title": "Длительность чтения заклинания (перцентили)",
       "type": "timeseries"
     },
     {
@@ -247,16 +247,16 @@
       "targets": [
         {
           "expr": "rate(craft_completed_total[5m])",
-          "legendFormat": "Completed ({{recipe_id}})",
+          "legendFormat": "Успешно ({{recipe_id}})",
           "refId": "A"
         },
         {
           "expr": "rate(craft_failures_total[5m])",
-          "legendFormat": "Failed ({{recipe_id}})",
+          "legendFormat": "Неудача ({{recipe_id}})",
           "refId": "B"
         }
       ],
-      "title": "Crafting Success vs Failures (Rate)",
+      "title": "Крафт: успехи и неудачи (частота)",
       "type": "timeseries"
     },
     {
@@ -329,11 +329,11 @@
       "targets": [
         {
           "expr": "histogram_quantile(0.95, rate(craft_duration_bucket[5m]))",
-          "legendFormat": "p95 Craft Duration",
+          "legendFormat": "p95 Длительность крафта",
           "refId": "A"
         }
       ],
-      "title": "Craft Duration (p95)",
+      "title": "Длительность крафта (p95)",
       "type": "timeseries"
     },
     {
@@ -390,7 +390,7 @@
           "refId": "A"
         }
       ],
-      "title": "Active Auction Lots",
+      "title": "Активные лоты аукциона",
       "type": "gauge"
     },
     {
@@ -463,16 +463,16 @@
       "targets": [
         {
           "expr": "rate(auction_sale_total[5m])",
-          "legendFormat": "Sales/sec",
+          "legendFormat": "Продаж/сек",
           "refId": "A"
         },
         {
           "expr": "rate(auction_revenue_total[5m])",
-          "legendFormat": "Revenue/sec (gold)",
+          "legendFormat": "Выручка/сек (золото)",
           "refId": "B"
         }
       ],
-      "title": "Auction Activity (Sales & Revenue)",
+      "title": "Активность аукциона (продажи и выручка)",
       "type": "timeseries"
     },
     {
@@ -545,11 +545,11 @@
       "targets": [
         {
           "expr": "histogram_quantile(0.95, rate(auction_duration_seconds_bucket[5m]))",
-          "legendFormat": "p95 Auction Duration",
+          "legendFormat": "p95 Длительность аукциона",
           "refId": "A"
         }
       ],
-      "title": "Auction Duration (from start to sale)",
+      "title": "Длительность аукциона (от выставления до продажи)",
       "type": "timeseries"
     },
     {
@@ -631,7 +631,7 @@
           "refId": "B"
         }
       ],
-      "title": "Script Trigger Duration (by type)",
+      "title": "Длительность срабатывания триггеров (по типу)",
       "type": "timeseries"
     },
     {
@@ -704,11 +704,11 @@
       "targets": [
         {
           "expr": "topk(10, sum by (recipe_id) (increase(craft_completed_total[1h])))",
-          "legendFormat": "Recipe {{recipe_id}}",
+          "legendFormat": "Рецепт {{recipe_id}}",
           "refId": "A"
         }
       ],
-      "title": "Top 10 Most Crafted Recipes (Last Hour)",
+      "title": "Топ 10 наиболее используемых рецептов (за последний час)",
       "type": "timeseries"
     }
   ],
@@ -724,7 +724,8 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "Bylins MUD - Business Logic Dashboard",
+  "title": "Bylins MUD - Дашборд игровой логики",
+  "description": "Только для чтения. Чтобы внести изменения — клонируйте дашборд в Grafana (кнопка Save As).",
   "uid": "bylins-business-logic",
   "version": 0
 }
