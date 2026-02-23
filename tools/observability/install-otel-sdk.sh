@@ -37,12 +37,15 @@ install_via_vcpkg() {
         fi
     done
 
-    if [ ! -f "$VCPKG_DIR/vcpkg" ]; then
+    if [ -f "$VCPKG_DIR/vcpkg" ]; then
+        echo "vcpkg found at $VCPKG_DIR"
+    elif [ -d "$VCPKG_DIR/.git" ]; then
+        echo "vcpkg repo found at $VCPKG_DIR, bootstrapping ..."
+        "$VCPKG_DIR/bootstrap-vcpkg.sh" -disableMetrics
+    else
         echo "Installing vcpkg to $VCPKG_DIR ..."
         git clone https://github.com/microsoft/vcpkg "$VCPKG_DIR"
         "$VCPKG_DIR/bootstrap-vcpkg.sh" -disableMetrics
-    else
-        echo "vcpkg found at $VCPKG_DIR"
     fi
 
     echo "Installing opentelemetry-cpp $OTEL_VERSION via vcpkg ..."
