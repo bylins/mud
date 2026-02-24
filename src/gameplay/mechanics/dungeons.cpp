@@ -768,7 +768,7 @@ ZoneVnum CheckDungionErrors(ZoneRnum zrn_from) {
 void DungeonReset(int zrn) {
 	utils::CExecutionTimer timer;
 
-	if (zrn == 0) {
+	if (zrn < 0) {
 		sprintf(buf, "Неправильный номер зоны");
 		mudlog(buf, LGH, kLvlGreatGod, SYSLOG, true);
 		return;

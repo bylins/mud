@@ -892,7 +892,7 @@ void stop_game(ush_int port) {
 			if (entry->type < 0 || entry->type > 4) {
 				sprintf(buf, "OLC: Illegal save type %d!", entry->type);
 				log("%s", buf);
-			} else if ((rznum = get_zone_rnum_by_zone_vnum(entry->zone)) == -1) {
+			} else if ((rznum = GetZoneRnum(entry->zone)) == -1) {
 				sprintf(buf, "OLC: Illegal save zone %d!", entry->zone);
 				log("%s", buf);
 			} else if (rznum < 0 || rznum >= static_cast<int>(zone_table.size())) {

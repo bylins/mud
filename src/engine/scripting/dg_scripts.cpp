@@ -1769,7 +1769,11 @@ void find_replacement(void *go,
 				}
 			} else if (!str_cmp(field, "zreset") && num > 0) {
 				UniqueList<ZoneRnum> zone_repop_list;
-				ZoneRnum zrn = get_zone_rnum_by_zone_vnum(num);
+				ZoneRnum zrn = GetZoneRnum(num);
+				if (zrn < 0) {
+					trig_log(trig, "Некорректный номер зоны в zreset");
+					return;
+				}
 				zone_repop_list.push_back(zrn);
 				DecayObjectsOnRepop(zone_repop_list);
 				ResetZone(zrn);
