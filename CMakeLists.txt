@@ -943,6 +943,10 @@ set(CMAKE_EXE_LINKER_FLAGS_RELEASE "")
 set(CMAKE_EXE_LINKER_FLAGS_TEST "")
 set(CMAKE_EXE_LINKER_FLAGS_FASTTEST "")
 
+if (UNIX AND NOT APPLE)
+	add_link_options(-fuse-ld=gold)
+endif ()
+
 ## Look for required components
 # Python
 # You can specify preferred Python version using cmake command line parameter. Like this:
