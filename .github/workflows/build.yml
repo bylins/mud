@@ -304,7 +304,15 @@ jobs:
             git
             wget
 
+      - name: Cache Cygwin libraries
+        id: cache-cygwin-libs
+        uses: actions/cache@v4
+        with:
+          path: C:\cygwin\usr\local
+          key: cygwin-gtest-1.14.0
+
       - name: Build and install googletest from source
+        if: steps.cache-cygwin-libs.outputs.cache-hit != 'true'
         shell: C:\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
         run: |
           cd /tmp
@@ -363,7 +371,15 @@ jobs:
             git
             wget
 
+      - name: Cache Cygwin libraries
+        id: cache-cygwin-libs
+        uses: actions/cache@v4
+        with:
+          path: C:\cygwin\usr\local
+          key: cygwin-gtest-1.14.0-yaml-0.7.0
+
       - name: Build and install googletest from source
+        if: steps.cache-cygwin-libs.outputs.cache-hit != 'true'
         shell: C:\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
         run: |
           cd /tmp
@@ -376,6 +392,7 @@ jobs:
           make install
 
       - name: Build and install yaml-cpp from source
+        if: steps.cache-cygwin-libs.outputs.cache-hit != 'true'
         shell: C:\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
         run: |
           cd /tmp
