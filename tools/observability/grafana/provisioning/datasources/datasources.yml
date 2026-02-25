@@ -24,14 +24,15 @@ datasources:
       httpMethod: GET
       tracesToLogs:
         datasourceUid: loki
-        tags: ['trace_id', 'span_id']
-        mappedTags: [{ key: 'service.name', value: 'service' }]
-        mapTagNamesEnabled: true
+        filterByTraceID: false
+        filterBySpanID: false
         spanStartTimeShift: '-1m'
         spanEndTimeShift: '1m'
+        customQuery: true
+        query: '{service_name="$${__span.tags[\"service.name\"]}"} | trace_id="$${__trace.traceId}"'
       tracesToMetrics:
         datasourceUid: prometheus
-        tags: [{ key: 'service.name', value: 'service' }]
+        tags: [{key: 'service.name', value: 'service'}]
       serviceMap:
         datasourceUid: prometheus
       nodeGraph:
@@ -47,6 +48,8 @@ datasources:
       maxLines: 1000
       derivedFields:
         - datasourceUid: tempo
-          matcherRegex: "trace_id=(\\w+)"
+          matcherType: label
+          matcherRegex: trace_id
           name: TraceID
           url: '$${__value.raw}'
+          urlDisplayLabel: Open in Tempo

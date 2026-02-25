@@ -140,7 +140,12 @@ static void LogWithLevel(logging::LogLevel level,
 			auto log_record = logger->CreateLogRecord();
 			if (log_record) {
 				log_record->SetSeverity(to_otel_level(level));
-				log_record->SetBody(koi8r_to_utf8(message));
+
+				// Strip timestamp prefix "YYYY-MM-DD HH:MM:SS.mmm :: " added by format_log_message.
+				// OTEL log records carry their own timestamp metadata.
+				const auto sep = message.find(" :: ");
+				const std::string body = (sep != std::string::npos) ? message.substr(sep + 4) : message;
+				log_record->SetBody(koi8r_to_utf8(body));
 
 				// Automatically add trace context + user attributes
 				AddAttributesToLogRecord(log_record, attributes);
