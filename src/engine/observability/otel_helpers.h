@@ -139,6 +139,13 @@ public:
 
 #endif // WITH_OTEL
 
+/**
+ * Convert string from KOI8-R to UTF-8.
+ * Safe to call on ASCII strings (pass through unchanged).
+ * Used to sanitize all strings before sending to OTEL (protobuf requires UTF-8).
+ */
+std::string koi8r_to_utf8(const std::string& input);
+
 } // namespace observability
 
 #endif // BYLINS_OTEL_HELPERS_H

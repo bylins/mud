@@ -1,6 +1,7 @@
 #include "otel_helpers.h"
 #include "utils/tracing/trace_manager.h"
 #include "utils/tracing/noop_trace_sender.h"
+#include <iconv.h>
 
 #ifdef WITH_OTEL
 #include "otel_trace_sender.h"
@@ -207,6 +208,35 @@ std::string GetBaggage(const std::string& key) {
 }
 
 #endif // WITH_OTEL
+
+std::string koi8r_to_utf8(const std::string& input) {
+	if (input.empty()) {
+		return input;
+	}
+	iconv_t cd = iconv_open("UTF-8", "KOI8-R");
+	if (cd == (iconv_t)-1) {
+		return input;
+	}
+	const size_t out_size = input.size() * 4;
+	std::string output(out_size, '\0');
+	char* in_ptr = const_cast<char*>(input.data());
+	char* out_ptr = &output[0];
+	size_t in_left = input.size();
+	size_t out_left = out_size;
+	if (iconv(cd, &in_ptr, &in_left, &out_ptr, &out_left) == (size_t)-1) {
+		iconv_close(cd);
+		// Replace non-ASCII bytes with '?' to guarantee valid UTF-8 output
+		std::string safe;
+		safe.reserve(input.size());
+		for (unsigned char c : input) {
+			safe += (c < 128) ? static_cast<char>(c) : '?';
+		}
+		return safe;
+	}
+	iconv_close(cd);
+	output.resize(out_size - out_left);
+	return output;
+}
 
 } // namespace observability
 

@@ -1,6 +1,7 @@
 #include "otel_trace_sender.h"
 
 #ifdef WITH_OTEL
+#include "otel_helpers.h"
 #include "otel_provider.h"
 #include "opentelemetry/trace/provider.h"
 
@@ -29,7 +30,7 @@ void OtelSpan::AddEvent(const std::string& name) {
 
 void OtelSpan::SetAttribute(const std::string& key, const std::string& value) {
 	if (m_span) {
-		m_span->SetAttribute(key, value);
+		m_span->SetAttribute(key, observability::koi8r_to_utf8(value));
 	}
 }
 
@@ -60,7 +61,7 @@ std::unique_ptr<ISpan> OtelTraceSender::StartSpan(const std::string& name) {
 	if (observability::OtelProvider::Instance().IsEnabled()) {
 		auto tracer = observability::OtelProvider::Instance().GetTracer();
 		if (tracer) {
-			auto span = tracer->StartSpan(name);
+			auto span = tracer->StartSpan(observability::koi8r_to_utf8(name));
 			return std::make_unique<OtelSpan>(span);
 		}
 	}
@@ -83,7 +84,7 @@ std::unique_ptr<ISpan> OtelTraceSender::StartChildSpan(
 			opentelemetry::trace::StartSpanOptions options;
 			options.parent = otel_parent->GetContext();
 
-			auto span = tracer->StartSpan(name, {}, options);
+			auto span = tracer->StartSpan(observability::koi8r_to_utf8(name), {}, options);
 			return std::make_unique<OtelSpan>(span);
 		}
 	}

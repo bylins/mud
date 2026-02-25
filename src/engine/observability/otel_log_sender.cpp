@@ -2,9 +2,9 @@
 
 #ifdef WITH_OTEL
 
-#include <iconv.h>
 #include <string>
 
+#include "otel_helpers.h"
 #include "otel_provider.h"
 #include "opentelemetry/logs/provider.h"
 #include "opentelemetry/logs/logger.h"
@@ -20,31 +20,6 @@
 #include "opentelemetry/baggage/baggage_context.h"
 
 namespace observability {
-
-// Convert KOI8-R string to UTF-8. Returns original string on failure.
-static std::string koi8r_to_utf8(const std::string& input) {
-	if (input.empty()) {
-		return input;
-	}
-	iconv_t cd = iconv_open("UTF-8", "KOI8-R");
-	if (cd == (iconv_t)-1) {
-		return input;
-	}
-	const size_t out_size = input.size() * 4;
-	std::string output(out_size, '\0');
-	char* in_ptr = const_cast<char*>(input.data());
-	char* out_ptr = &output[0];
-	size_t in_left = input.size();
-	size_t out_left = out_size;
-	if (iconv(cd, &in_ptr, &in_left, &out_ptr, &out_left) == (size_t)-1) {
-		iconv_close(cd);
-		return input;
-	}
-	iconv_close(cd);
-	output.resize(out_size - out_left);
-	return output;
-}
-
 
 // Helper: extract trace_id and span_id from current active span
 static std::pair<std::string, std::string> GetCurrentTraceContext() {
@@ -107,16 +82,15 @@ static void AddAttributesToLogRecord(
 		baggage->GetAllEntries([&log_record](opentelemetry::nostd::string_view key,
 		                                      opentelemetry::nostd::string_view value) {
 			std::string key_str(key.data(), key.size());
-			std::string value_str(value.data(), value.size());
+			std::string value_str(koi8r_to_utf8(std::string(value.data(), value.size())));
 			log_record->SetAttribute(key_str, value_str);
 			return true; // continue iteration
 		});
 	}
 
-
 	// Add user attributes
 	for (const auto& [key, value] : user_attributes) {
-		log_record->SetAttribute(key, value);
+		log_record->SetAttribute(key, koi8r_to_utf8(value));
 	}
 }
 
