@@ -382,6 +382,7 @@ void battle_affect_update(CharData *ch) {
 
 // раз в минуту
 void mobile_affect_update() {
+	bool need_recalc = false;
 	utils::CExecutionTimer timer;
 	int count = 0;
 	auto copy = affected_mobs;
@@ -422,6 +423,7 @@ void mobile_affect_update() {
 					}
 				}
 				affect_i = ch->AffectRemove(affect_i);
+				need_recalc = true;
 			} else {
 				if (affect->duration > 0) {
 					if (IS_SET(affect->battleflag, kAfSameTime)
@@ -443,8 +445,9 @@ void mobile_affect_update() {
 			}
 		}
 		if (!was_purged) {
-			affect_total(ch);
-// обработка таймеров скилов фитов игрока
+			if (need_recalc) {
+				affect_total(ch);
+			}
 			decltype(ch->timed) timed_skill;
 			for (auto timed = ch->timed; timed; timed = timed_skill) {
 				timed_skill = timed->next;
