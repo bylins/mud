@@ -12,15 +12,6 @@ processors:
     send_batch_size: 512
     send_batch_max_size: 1024
 
-  resource:
-    attributes:
-      - key: service.name
-        value: bylins-mud
-        action: upsert
-      - key: deployment.environment
-        value: production
-        action: upsert
-
   memory_limiter:
     check_interval: 1s
     limit_mib: 512
@@ -46,17 +37,17 @@ service:
   pipelines:
     metrics:
       receivers: [otlp]
-      processors: [memory_limiter, batch, resource]
+      processors: [memory_limiter, batch]
       exporters: [prometheusremotewrite]
 
     traces:
       receivers: [otlp]
-      processors: [memory_limiter, batch, resource]
+      processors: [memory_limiter, batch]
       exporters: [otlp/tempo]
 
     logs:
       receivers: [otlp]
-      processors: [memory_limiter, batch, resource]
+      processors: [memory_limiter, batch]
       exporters: [otlphttp/loki]
 
   telemetry:
