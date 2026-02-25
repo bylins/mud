@@ -2,14 +2,14 @@ cmake_minimum_required(VERSION 3.10)
 
 enable_testing()
 
-# Поиск GTest: сначала пробуем find_package (работает на большинстве дистрибутивов),
-# затем ручной поиск для нестандартных установок
+# О©╫О©╫О©╫О©╫О©╫ GTest: О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ find_package (О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫),
+# О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
 if (NOT GTEST_INCLUDE OR NOT GTEST_LIB)
-	# Сначала пробуем стандартный поиск через find_package
+	# О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ find_package
 	find_package(GTest QUIET)
 	if (GTest_FOUND OR GTEST_FOUND)
 		message(STATUS "GTest found via find_package")
-		# Современный CMake (3.20+) использует GTest::gtest target
+		# О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ CMake (3.20+) О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ GTest::gtest target
 		if (TARGET GTest::gtest)
 			set(GTEST_LIB GTest::gtest)
 			get_target_property(GTEST_INCLUDE GTest::gtest INTERFACE_INCLUDE_DIRECTORIES)
@@ -18,10 +18,10 @@ if (NOT GTEST_INCLUDE OR NOT GTEST_LIB)
 			set(GTEST_INCLUDE "${GTEST_INCLUDE_DIRS}")
 		endif ()
 	else ()
-		# Ручной поиск для нестандартных установок
+		# О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
 		message(STATUS "GTest not found via find_package, trying manual search...")
 
-		# Ищем заголовочные файлы
+		# О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫
 		find_path(GTEST_INCLUDE_DIR gtest/gtest.h
 			PATHS
 				$ENV{GTEST_ROOT}/include
@@ -29,7 +29,7 @@ if (NOT GTEST_INCLUDE OR NOT GTEST_LIB)
 				/usr/local/include
 		)
 
-		# Ищем библиотеку в стандартных путях для разных дистрибутивов
+		# О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
 		find_library(GTEST_LIB gtest
 			PATHS
 				$ENV{GTEST_ROOT}/lib
@@ -91,7 +91,8 @@ set(TESTS
 		extra_description.cpp
 		trigger_indenter.cpp
 		dg_string_matching.cpp
-		dg_var_context.cpp)
+		dg_var_context.cpp
+		descriptor.encoding.cpp)
 set(UTILITIES
 		char.utilities.hpp
 		char.utilities.cpp)
@@ -169,7 +170,7 @@ if (ENABLE_COVERAGE)
 	endif ()
 endif ()
 
-# Копируем тестовые данные в корень проекта (откуда запускаются тесты)
+# О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ (О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫)
 add_custom_target(tests.misc.grouping
 		DEPENDS ${CMAKE_SOURCE_DIR}/lib.template/misc/grouping
 		COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/misc

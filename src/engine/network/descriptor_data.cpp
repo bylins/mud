@@ -163,6 +163,10 @@ void DescriptorData::msdp_report_changed_vars() {
 }
 
 void DescriptorData::string_to_client_encoding(const char *in_str, char *out_str) const {
+	if (!in_str) {
+		*out_str = '\0';
+		return;
+	}
 	switch (keytable) {
 		case kCodePageAlt:
 			for (; *in_str; *out_str = KtoA(*in_str), in_str++, out_str++);
