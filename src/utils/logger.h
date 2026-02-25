@@ -49,6 +49,7 @@ inline void hexdump(const EOutputStream stream, const char *ptr, size_t buflen, 
 }
 
 void write_time(FILE *file);
+void write_log_message(const std::string& message, FILE* file);
 
 class AbstractLogger {
  public:

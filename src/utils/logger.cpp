@@ -58,66 +58,90 @@ void pers_log(CharData *ch, const char *format, ...) {
 // Файл для вывода
 FILE *logfile = nullptr;
 
-std::size_t vlog_buffer(char *buffer, const std::size_t buffer_size, const char *format, va_list args) {
-    std::size_t result = ~0u;
-    int timestamp_length = -1;
-
+static std::string make_timestamp() {
 #if HAS_TIME_ZONE
-    // Реализация с использованием std::chrono::time_zone
     const std::chrono::time_zone* time_zone;
     try {
         time_zone = std::chrono::current_zone();
     }
     catch(const std::runtime_error&) {
         puts("SYSERR: failed to get local timezone.");
-        return result;
+        return {};
     }
-
     const auto utc_now = std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::system_clock::now());
     const auto now = std::chrono::zoned_time{time_zone, utc_now};
-    const auto str = std::format("{:%Y-%m-%d %T}", now);
-    timestamp_length = snprintf(buffer, buffer_size, "%s :: ", str.c_str());
+    return std::format("{:%Y-%m-%d %T}", now);
 #else
-    // Реализация без std::chrono::time_zone, используем std::chrono::local_time
     const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::system_clock::now());
-        const auto time_t_now = std::chrono::system_clock::to_time_t(now);
-        auto* local_tm = std::localtime(&time_t_now);
+    const auto time_t_now = std::chrono::system_clock::to_time_t(now);
+    auto* local_tm = std::localtime(&time_t_now);
+    if (!local_tm) {
+        puts("SYSERR: failed to get local time.");
+        return {};
+    }
+    const auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()) % 1000;
+    char time_str[64];
+    std::strftime(time_str, sizeof(time_str), "%Y-%m-%d %H:%M:%S", local_tm);
+    std::snprintf(time_str + std::strlen(time_str), sizeof(time_str) - std::strlen(time_str), ".%03ld", ms.count());
+    return time_str;
+#endif
+}
 
-        if (!local_tm) {
-            puts("SYSERR: failed to get local time.");
-            return result;
-        }
-
-        const auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()) % 1000;
-        char time_str[64];
-        std::strftime(time_str, sizeof(time_str), "%Y-%m-%d %H:%M:%S", local_tm);
-        std::snprintf(time_str + std::strlen(time_str), sizeof(time_str) - std::strlen(time_str), ".%03ld", ms.count());
-        const std::string str = time_str;
-        timestamp_length = snprintf(buffer, buffer_size, "%s :: ", str.c_str());
-    #endif
-
-    if (0 > timestamp_length) {
-        puts("SYSERR: failed to print timestamp inside log() function.");
-        return result;
+static std::string format_log_message(const char *format, va_list args) {
+    const std::string ts = make_timestamp();
+    if (ts.empty()) {
+        return {};
     }
 
     va_list args_copy;
     va_copy(args_copy, args);
-    const int length = vsnprintf(buffer + timestamp_length, buffer_size - timestamp_length, format, args_copy);
+    const int len = vsnprintf(nullptr, 0, format, args_copy);
     va_end(args_copy);
 
-    if (0 > length) {
-        puts("SYSERR: failed to print message contents inside log() function.");
-        return result;
+    if (len < 0) {
+        puts("SYSERR: failed to format log message.");
+        return {};
     }
 
-    result = timestamp_length + length;
-    if (buffer_size <= result) {
-        const char truncated_suffix[] = "[TRUNCATED]";
-        snprintf(buffer, buffer_size - sizeof(truncated_suffix), "%s", truncated_suffix);
-    }
+    std::string msg(len, '\0');
+    va_copy(args_copy, args);
+    vsnprintf(&msg[0], len + 1, format, args_copy);
+    va_end(args_copy);
 
-    return result;
+    return ts + " :: " + msg;
+}
+
+static const char* stream_name_for_file(FILE* file) {
+	for (int i = 0; i <= LAST_LOG; i++) {
+		const auto stream = static_cast<EOutputStream>(i);
+		if (runtime_config.logs(stream).handle() == file) {
+			switch (stream) {
+				case SYSLOG:    return "syslog";
+				case ERRLOG:    return "errlog";
+				case IMLOG:     return "imlog";
+				case MSDP_LOG:  return "msdp";
+				case MONEY_LOG: return "money";
+				default:        return "syslog";
+			}
+		}
+	}
+	return "syslog";
+}
+
+void write_log_message(const std::string& message, FILE* file) {
+	if (!file) {
+		return;
+	}
+	if (!runtime_config.output_thread() && runtime_config.log_stderr().empty()) {
+		fputs(message.c_str(), file);
+		fputs("\n", file);
+	} else {
+		const std::size_t len = message.size();
+		std::shared_ptr<char> buffer(new char[len + 1], [](char *p) { delete[] p; });
+		memcpy(buffer.get(), message.c_str(), len);
+		buffer.get()[len] = '\0';
+		GlobalObjects::output_thread().output(OutputThread::message_t{buffer, len, file});
+	}
 }
 
 void vlog(const char *format, va_list args, FILE *logfile) {
@@ -135,20 +159,13 @@ void vlog(const char *format, va_list args, FILE *logfile) {
 		format = "SYSERR: log() received a NULL format.";
 	}
 
-	if (!runtime_config.output_thread()
-		&& runtime_config.log_stderr().empty()) {
-		const time_t ct = time(0);
-		const char *time_s = asctime(localtime(&ct));
-
-		fprintf(logfile, "%-15.15s :: ", time_s + 4);
-		vfprintf(logfile, format, args);
-		fprintf(logfile, "\n");
-	} else {
-		constexpr std::size_t BUFFER_SIZE = 4096;
-		std::shared_ptr<char> buffer(new char[BUFFER_SIZE], [](char *p) { delete[] p; });
-		const std::size_t length = vlog_buffer(buffer.get(), BUFFER_SIZE, format, args);
-		GlobalObjects::output_thread().output(OutputThread::message_t{buffer, length, logfile});
+	const std::string message = format_log_message(format, args);
+	if (message.empty()) {
+		return;
 	}
+
+	const char* stream_name = stream_name_for_file(logfile);
+	logging::LogManager::Info(message, {{"log_type", stream_name}});
 }
 
 void vlog(const char *format, va_list args) {
@@ -156,13 +173,32 @@ void vlog(const char *format, va_list args) {
 }
 
 void vlog(const EOutputStream steam, const char *format, va_list rargs) {
+	if (!runtime_config.logging_enabled()) {
+		return;
+	}
+
+	if (format == nullptr) {
+		format = "SYSERR: log() received a NULL format.";
+	}
+
 	va_list args;
 	va_copy(args, rargs);
-
-	const auto log = runtime_config.logs(steam).handle();
-	vlog(format, args, log);
-
+	const std::string message = format_log_message(format, args);
 	va_end(args);
+	if (message.empty()) {
+		return;
+	}
+
+	const char* stream_name;
+	switch (steam) {
+		case SYSLOG:    stream_name = "syslog"; break;
+		case ERRLOG:    stream_name = "errlog"; break;
+		case IMLOG:     stream_name = "imlog"; break;
+		case MSDP_LOG:  stream_name = "msdp"; break;
+		case MONEY_LOG: stream_name = "money"; break;
+		default:        stream_name = "syslog"; break;
+	}
+	logging::LogManager::Info(message, {{"log_type", stream_name}});
 }
 
 void log(std::string format) {
