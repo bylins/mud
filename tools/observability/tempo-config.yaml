@@ -15,6 +15,26 @@ compactor:
   compaction:
     block_retention: 720h  # 30 days
 
+metrics_generator:
+  registry:
+    external_labels:
+      source: tempo
+  storage:
+    path: /var/tempo/generator/wal
+  processor:
+    service_graphs:
+      wait: 10s
+      max_items: 10000
+    span_metrics: {}
+  remote_write:
+    - url: http://prometheus:9090/api/v1/write
+      send_exemplars: true
+
+overrides:
+  defaults:
+    metrics_generator:
+      processors: [service-graphs, span-metrics]
+
 storage:
   trace:
     backend: local

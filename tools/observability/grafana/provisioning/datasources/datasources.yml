@@ -26,10 +26,10 @@ datasources:
         datasourceUid: loki
         filterByTraceID: false
         filterBySpanID: false
-        spanStartTimeShift: '-1m'
-        spanEndTimeShift: '1m'
+        spanStartTimeShift: '-5m'
+        spanEndTimeShift: '5m'
         customQuery: true
-        query: '{service_name="$${__span.tags[\"service.name\"]}"} | trace_id="$${__trace.traceId}"'
+        query: '{service_name=~".+"} | trace_id = "$${__trace.traceId}"'
       tracesToMetrics:
         datasourceUid: prometheus
         tags: [{key: 'service.name', value: 'service'}]

@@ -21,42 +21,14 @@
 
 namespace observability {
 
-// Helper: extract trace_id and span_id from current active span
-static std::pair<std::string, std::string> GetCurrentTraceContext() {
-	// Get current active span from runtime context
+// Helper: get SpanContext from current active span
+static opentelemetry::trace::SpanContext GetCurrentSpanContext() {
 	auto context_value = opentelemetry::context::RuntimeContext::GetValue(opentelemetry::trace::kSpanKey);
 	auto span_ptr = opentelemetry::nostd::get_if<opentelemetry::nostd::shared_ptr<opentelemetry::trace::Span>>(&context_value);
-
 	if (!span_ptr || !(*span_ptr)) {
-		return {"", ""};
+		return opentelemetry::trace::SpanContext::GetInvalid();
 	}
-
-	auto span = *span_ptr;
-
-	auto span_context = span->GetContext();
-
-	// Check context validity
-	if (!span_context.IsValid()) {
-		return {"", ""};
-	}
-
-	// Extract trace_id (16 bytes = 32 hex chars)
-	char trace_id_hex[32];
-	span_context.trace_id().ToLowerBase16(
-		opentelemetry::nostd::span<char, 32>(trace_id_hex, 32)
-	);
-
-	// Extract span_id (8 bytes = 16 hex chars)
-	char span_id_hex[16];
-	span_context.span_id().ToLowerBase16(
-		opentelemetry::nostd::span<char, 16>(span_id_hex, 16)
-	);
-
-	// IMPORTANT: ToLowerBase16 doesn't add '\0'!
-	return {
-		std::string(trace_id_hex, 32),
-		std::string(span_id_hex, 16)
-	};
+	return (*span_ptr)->GetContext();
 }
 
 // Helper: add trace context and user attributes to log record
@@ -68,11 +40,19 @@ static void AddAttributesToLogRecord(
 		return;
 	}
 
-	// Add trace context (if there's an active span)
-	auto [trace_id, span_id] = GetCurrentTraceContext();
-	if (!trace_id.empty()) {
-		log_record->SetAttribute("trace_id", trace_id);
-		log_record->SetAttribute("span_id", span_id);
+	// Set native OTEL trace context on the log record.
+	// This populates the standard OTLP LogRecord fields (trace_id, span_id, flags)
+	// which Loki stores as structured metadata and Grafana can filter by.
+	auto span_context = GetCurrentSpanContext();
+	if (span_context.IsValid()) {
+		log_record->SetTraceId(span_context.trace_id());
+		log_record->SetSpanId(span_context.span_id());
+		log_record->SetTraceFlags(span_context.trace_flags());
+
+		// Also store as string attribute for Loki derivedFields (Loki->Tempo link)
+		char trace_id_hex[33] = {};
+		span_context.trace_id().ToLowerBase16(opentelemetry::nostd::span<char, 32>(trace_id_hex, 32));
+		log_record->SetAttribute("trace_id", std::string(trace_id_hex, 32));
 	}
 
 	// Add baggage values (combat_trace_id, quest_trace_id, etc.)
