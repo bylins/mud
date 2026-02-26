@@ -8,7 +8,6 @@
 #include <string>
 #include "tracing/trace_sender.h"
 
-#define LOAD_LOG_FOLDER "log/"
 #define LOAD_LOG_FILE "profiler.log"
 
 namespace utils {

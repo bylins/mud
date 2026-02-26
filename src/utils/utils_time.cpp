@@ -2,6 +2,7 @@
 
 #include "logger.h"
 #include "tracing/trace_manager.h"
+#include "engine/core/config.h"
 
 #include <sstream>
 #include <iomanip>
@@ -105,9 +106,10 @@ void CSteppedProfiler::report() const {
 // спам сислога, кому надо уберите
 //		log("INFO: %s\n", ss.str().c_str());
 
-		flog = fopen(LOAD_LOG_FOLDER LOAD_LOG_FILE, "a");
+		const std::string profiler_path = runtime_config.log_dir() + "/" + LOAD_LOG_FILE;
+		flog = fopen(profiler_path.c_str(), "a");
 		if (!flog) {
-				log("ERROR: Can't open file %s", LOAD_LOG_FOLDER LOAD_LOG_FILE);
+				log("ERROR: Can't open file %s", profiler_path.c_str());
 			return;
 		}
 
