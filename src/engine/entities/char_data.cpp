@@ -338,8 +338,6 @@ void CharData::zero_init() {
 	punctual_wait = 0;
 	last_comm.clear();
 	player_specials = nullptr;
-	timed = nullptr;
-	timed_feat = nullptr;
 	carrying = nullptr;
 	desc = nullptr;
 	followers = nullptr;
@@ -430,10 +428,7 @@ void CharData::purge() {
 			free(this->mob_specials.Questor);
 	}
 	this->affected.clear();
-	while (this->timed) {
-		ExpireTimedSkill(this, this->timed);
-	}
-
+	this->timed_skill.clear();
 	celebrates::RemoveFromMobLists(this->get_uid());
 
 	const bool keep_player_specials = player_specials == player_special_data::s_for_mobiles ? true : false;

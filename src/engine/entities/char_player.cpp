@@ -411,7 +411,6 @@ void Player::save_char() {
 	int i;
 	time_t li;
 	ObjData *char_eq[EEquipPos::kNumEquipPos];
-	struct TimedSkill *skj;
 
 	int tmp = time(0) - this->player_data.time.logon;
 
@@ -539,8 +538,8 @@ void Player::save_char() {
 
 	if (GetRealLevel(this) < kLvlImmortal) {
 		fprintf(saved, "FtTm:\n");
-		for (auto tf = this->timed_feat; tf; tf = tf->next) {
-			fprintf(saved, "%d %d %s\n", to_underlying(tf->feat), tf->time, MUD::Feat(tf->feat).GetCName());
+		for (auto tf : this->timed_feat) {
+			fprintf(saved, "%d %d %s\n", to_underlying(tf.first), tf.second, MUD::Feat(tf.first).GetCName());
 		}
 		fprintf(saved, "0 0\n");
 	}
@@ -566,8 +565,8 @@ void Player::save_char() {
 	// Задержки на скилы
 	if (GetRealLevel(this) < kLvlImmortal) {
 		fprintf(saved, "SkTm:\n");
-		for (skj = this->timed; skj; skj = skj->next) {
-			fprintf(saved, "%d %d\n", to_underlying(skj->skill), skj->time);
+		for (auto skj : this->timed_skill) {
+			fprintf(saved, "%d %d %s\n", to_underlying(skj.first), skj.second, MUD::Skill(skj.first).GetName());
 		}
 		fprintf(saved, "0 0\n");
 	}
@@ -956,7 +955,6 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 	char filename[40];
 	char line[kMaxStringLength], tag[6];
 	char line1[kMaxStringLength];
-	TimedSkill timed;
 	TimedFeat timed_feat;
 	*filename = '\0';
 	log("Load ascii char %s", name);
@@ -1769,9 +1767,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 						fbgetline(fl, line);
 						sscanf(line, "%d %d", &num, &num2);
 						if (num != 0) {
-							timed.skill = static_cast<ESkill>(num);
-							timed.time = num2;
-							ImposeTimedSkill(this, &timed);
+							this->timed_skill[static_cast<ESkill>(num)] = num2;
 						}
 					} while (num != 0);
 				} else if (!strcmp(tag, "Spel")) {

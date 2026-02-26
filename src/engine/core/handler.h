@@ -42,10 +42,10 @@ void CheckLight(CharData *ch, int was_equip, int was_single, int was_holylight, 
 
 // handling the affected-structures //
 void ImposeTimedFeat(CharData *ch, TimedFeat *timed);
-void ExpireTimedFeat(CharData *ch, TimedFeat *timed);
+void ExpireTimedFeat(CharData *ch, EFeat feat);
 int IsTimedByFeat(CharData *ch, EFeat feat);
-void ImposeTimedSkill(CharData *ch, struct TimedSkill *timed);
-void ExpireTimedSkill(CharData *ch, struct TimedSkill *timed);
+void ImposeTimedSkill(CharData *ch, TimedSkill *timed);
+void ExpireTimedSkill(CharData *ch, ESkill skill);
 int IsTimedBySkill(CharData *ch, ESkill id);
 void DecreaseFeatTimer(CharData *ch, EFeat feat_id);
 
