@@ -25,12 +25,11 @@ datasources:
       httpMethod: GET
       tracesToLogs:
         datasourceUid: loki
-        filterByTraceID: false
+        filterByTraceID: true
         filterBySpanID: false
         spanStartTimeShift: '-5m'
         spanEndTimeShift: '5m'
-        customQuery: true
-        query: '{service_name=~".+"} | trace_id = "$${__trace.traceId}"'
+        customQuery: false
       tracesToMetrics:
         datasourceUid: prometheus
         tags: [{key: 'service.name', value: 'service'}]
