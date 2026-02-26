@@ -1163,10 +1163,10 @@ std::string MakePrompt(DescriptorData *d) {
 		}
 
 		if (ch->IsFlagged(EPrf::kDispTimed)) {
-			for (auto timed = ch->timed; timed; timed = timed->next) {
-				if (timed->skill != ESkill::kWarcry && timed->skill != ESkill::kTurnUndead) {
+			for (auto timed : ch->timed_skill) {
+				if (timed.first != ESkill::kWarcry && timed.first != ESkill::kTurnUndead) {
 					fmt::format_to(std::back_inserter(out), "{}:{} ",
-							  MUD::Skill(timed->skill).GetAbbr(), +timed->time);
+							  MUD::Skill(timed.first).GetAbbr(), +timed.second);
 				}
 			}
 			if (ch->GetSkill(ESkill::kWarcry)) {
