@@ -8,6 +8,7 @@
 #include "utils/tracing/trace_manager.h"
 
 #ifdef WITH_OTEL
+#include "absl/log/initialize.h"
 #include "opentelemetry/sdk/trace/tracer_provider_factory.h"
 #include "opentelemetry/sdk/trace/batch_span_processor_factory.h"
 #include "opentelemetry/sdk/metrics/meter_provider_factory.h"
@@ -64,6 +65,8 @@ void OtelProvider::Initialize(const std::string& metrics_endpoint,
     }
 
     try {
+        absl::InitializeLog();
+
         // Create resource attributes
         auto resource = otel::sdk::resource::Resource::Create({
             {"service.name", service_name},

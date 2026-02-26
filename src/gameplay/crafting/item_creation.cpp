@@ -1609,8 +1609,8 @@ int MakeRecept::make(CharData *ch) {
 	
 	auto tobj_name = tobj->get_PName(ECase::kNom);
 	craft_span->SetAttribute("recipe_id", static_cast<int64_t>(obj_proto));
-	craft_span->SetAttribute("recipe_name", std::string(tobj_name.c_str()));
-	craft_span->SetAttribute("skill", NAME_BY_ITEM(skill));
+	craft_span->SetAttribute("recipe_name", observability::koi8r_to_utf8(std::string(tobj_name.c_str())));
+	craft_span->SetAttribute("skill", observability::koi8r_to_utf8(std::string(NAME_BY_ITEM(skill))));
 		act("Вы не готовы к тому чтобы сделать $o3.", false, ch, &obj, 0, kToChar);
 		return (false);
 	}

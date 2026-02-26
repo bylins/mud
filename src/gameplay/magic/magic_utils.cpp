@@ -350,8 +350,8 @@ int CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict
 	// Set spell attributes
 	std::string spell_name = MUD::Spell(spell_id).GetCName();
 	spell_span->SetAttribute("spell_id", static_cast<int64_t>(to_underlying(spell_id)));
-	spell_span->SetAttribute("spell_name", spell_name);
-	spell_span->SetAttribute("caster_class", NAME_BY_ITEM(caster->GetClass()));
+	spell_span->SetAttribute("spell_name", observability::koi8r_to_utf8(spell_name));
+	spell_span->SetAttribute("caster_class", observability::koi8r_to_utf8(std::string(NAME_BY_ITEM(caster->GetClass()))));
 	spell_span->SetAttribute("spell_level", static_cast<int64_t>(level));
 	
 	// Determine target type

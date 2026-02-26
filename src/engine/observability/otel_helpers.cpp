@@ -60,7 +60,7 @@ DualSpan::DualSpan(const std::string& heartbeat_name,
 				opentelemetry::trace::StartSpanOptions options;
 				options.parent = *parent_ctx;
 
-				auto otel_span = tracer->StartSpan(secondary_name, {}, options);
+				auto otel_span = tracer->StartSpan(koi8r_to_utf8(secondary_name), {}, options);
 				// Create OtelSpan WITHOUT Scope (don't call ITraceSender::StartSpan which creates Scope)
 				m_secondary_span = std::make_unique<tracing::OtelSpan>(otel_span, false); // false = no Scope
 			}
