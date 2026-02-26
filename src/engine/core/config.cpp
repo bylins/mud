@@ -22,8 +22,6 @@
 #include "engine/structs/meta_enum.h"
 
 #if CIRCLE_UNIX
-#ifdef WITH_OTEL
-#include "engine/observability/otel_provider.h"
 #include <chrono>
 #include <ctime>
 
@@ -41,6 +39,8 @@ inline std::string NowTs() {
 	return result;
 }
 } // anonymous namespace
+#ifdef WITH_OTEL
+#include "engine/observability/otel_provider.h"
 #endif
 using ETelemetryLogMode = RuntimeConfiguration::ETelemetryLogMode;
 #include <sys/stat.h>
