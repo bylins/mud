@@ -24,7 +24,7 @@
 #if CIRCLE_UNIX
 #ifdef WITH_OTEL
 #include "engine/observability/otel_provider.h"
-#include "engine/observability/otel_helpers.h"
+#include "utils/timestamp.h"
 #endif
 using ETelemetryLogMode = RuntimeConfiguration::ETelemetryLogMode;
 #include <sys/stat.h>
@@ -487,20 +487,20 @@ void RuntimeConfiguration::setup_logs() {
 
 		if (logs(stream).filename().empty()) {
 			handle(stream, stderr);
-			printf("[%s] Using file descriptor for logging.\n", observability::NowTs().c_str());
+			printf("[%s] Using file descriptor for logging.\n", utils::NowTs().c_str());
 			continue;
 		}
 
 		if (!runtime_config.open_log(stream))    //s_fp
 		{
-			printf("[%s] SYSERR: Couldn't open anything to log to, giving up.\n", observability::NowTs().c_str());
+			printf("[%s] SYSERR: Couldn't open anything to log to, giving up.\n", utils::NowTs().c_str());
 			exit(1);
 		}
 	}
 
 	setup_converters();
 
-	printf("[%s] Bylins server will use %schronous output into syslog file.\n", observability::NowTs().c_str(),
+	printf("[%s] Bylins server will use %schronous output into syslog file.\n", utils::NowTs().c_str(),
 		   output_thread() ? "asyn" : "syn");
 }
 
@@ -798,7 +798,7 @@ bool CLogInfo::open() {
 
 		m_handle = handle;
 		printf("[%s] Using log file '%s' with %s buffering. Opening in %s mode.\n",
-			   observability::NowTs().c_str(), filename().c_str(),
+			   utils::NowTs().c_str(), filename().c_str(),
 			   NAME_BY_ITEM(buffered()).c_str(),
 			   NAME_BY_ITEM(this->mode()).c_str());
 		return true;

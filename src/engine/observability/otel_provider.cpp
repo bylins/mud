@@ -1,5 +1,6 @@
 #include "otel_provider.h"
 #include "otel_helpers.h"
+#include "utils/timestamp.h"
 #include "engine/core/config.h"
 #include "utils/logging/log_manager.h"
 #include "otel_log_sender.h"
@@ -143,37 +144,37 @@ void OtelProvider::Initialize(const std::string& metrics_endpoint,
         if (mode == RuntimeConfiguration::ETelemetryLogMode::kDuplicate) {
             // File sender already registered by LogManager constructor, add OTEL
             logging::LogManager::Instance().AddSender(std::make_unique<OtelLogSender>());
-            std::cout << "[" << observability::NowTs() << "] Log mode: duplicate (file + OTEL)" << std::endl;
+            std::cout << "[" << utils::NowTs() << "] Log mode: duplicate (file + OTEL)" << std::endl;
         } else if (mode == RuntimeConfiguration::ETelemetryLogMode::kOtelOnly) {
             // Replace file sender with OTEL only
             logging::LogManager::Instance().ClearSenders();
             logging::LogManager::Instance().AddSender(std::make_unique<OtelLogSender>());
-            std::cout << "[" << observability::NowTs() << "] Log mode: otel-only" << std::endl;
+            std::cout << "[" << utils::NowTs() << "] Log mode: otel-only" << std::endl;
         } else {
             // kFileOnly - no OTEL senders
             // File sender already registered by LogManager constructor, do nothing
-            std::cout << "[" << observability::NowTs() << "] Log mode: file-only (OTEL initialized but not used for logs)" << std::endl;
+            std::cout << "[" << utils::NowTs() << "] Log mode: file-only (OTEL initialized but not used for logs)" << std::endl;
         }
 
 		// Initialize TraceManager with appropriate sender
 		tracing::TraceManager::Instance().SetSender(
 			std::make_unique<tracing::OtelTraceSender>()
 		);
-		std::cout << "[" << observability::NowTs() << "] TraceManager initialized with OtelTraceSender" << std::endl;
+		std::cout << "[" << utils::NowTs() << "] TraceManager initialized with OtelTraceSender" << std::endl;
 
         m_enabled = true;
-        std::cout << "[" << observability::NowTs() << "] OpenTelemetry initialized successfully:" << std::endl;
+        std::cout << "[" << utils::NowTs() << "] OpenTelemetry initialized successfully:" << std::endl;
         std::cout << "  Metrics: " << metrics_endpoint << std::endl;
         std::cout << "  Traces:  " << traces_endpoint << std::endl;
         std::cout << "  Logs:    " << logs_endpoint << std::endl;
     } catch (const std::exception& e) {
-        std::cerr << "[" << observability::NowTs() << "] Failed to initialize OpenTelemetry: " << e.what() << std::endl;
+        std::cerr << "[" << utils::NowTs() << "] Failed to initialize OpenTelemetry: " << e.what() << std::endl;
         m_enabled = false;
 		// Initialize TraceManager with NoOp sender on error
 		tracing::TraceManager::Instance().SetSender(
 			std::make_unique<tracing::NoOpTraceSender>()
 		);
-		std::cout << "[" << observability::NowTs() << "] TraceManager initialized with NoOpTraceSender (OTEL init failed)" << std::endl;
+		std::cout << "[" << utils::NowTs() << "] TraceManager initialized with NoOpTraceSender (OTEL init failed)" << std::endl;
     }
 #else
     (void)metrics_endpoint;
@@ -185,7 +186,7 @@ void OtelProvider::Initialize(const std::string& metrics_endpoint,
 	tracing::TraceManager::Instance().SetSender(
 		std::make_unique<tracing::NoOpTraceSender>()
 	);
-	std::cout << "[" << observability::NowTs() << "] TraceManager initialized with NoOpTraceSender (no OTEL)" << std::endl;
+	std::cout << "[" << utils::NowTs() << "] TraceManager initialized with NoOpTraceSender (no OTEL)" << std::endl;
 #endif
 }
 
@@ -211,9 +212,9 @@ void OtelProvider::Shutdown() {
         }
 
         m_enabled = false;
-        std::cout << "[" << observability::NowTs() << "] OpenTelemetry shutdown successfully" << std::endl;
+        std::cout << "[" << utils::NowTs() << "] OpenTelemetry shutdown successfully" << std::endl;
     } catch (const std::exception& e) {
-        std::cerr << "[" << observability::NowTs() << "] Error during OpenTelemetry shutdown: " << e.what() << std::endl;
+        std::cerr << "[" << utils::NowTs() << "] Error during OpenTelemetry shutdown: " << e.what() << std::endl;
     }
 #endif
 }
