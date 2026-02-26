@@ -44,6 +44,7 @@
 #include "common.h"
 
 #include <third_party_libs/fmt/include/fmt/format.h>
+#include "engine/observability/otel_metrics.h"
 
 // Structures
 std::list<combat_list_element> combat_list;
@@ -2030,6 +2031,7 @@ void perform_violence() {
 	round_profiler.next_step("Calc initiative");
 	// почистим удаленных между раундами боя
 	std::erase_if(combat_list, [](auto flag) {return flag.deleted;});
+	observability::OtelMetrics::RecordGauge("combat.active.count", static_cast<double>(combat_list.size()));
 	for (auto &it : combat_list) {
 		if (it.deleted)
 			continue;

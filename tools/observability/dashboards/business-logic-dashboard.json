@@ -25,7 +25,7 @@
       "gridPos": {"h": 2, "w": 24, "x": 0, "y": 0},
       "options": {
         "mode": "markdown",
-        "content": "> **Дашборд только для чтения.** Управляется из файла в репозитории. Чтобы внести изменения — используйте **Save As** (создайте копию)."
+        "content": "> **Дашборд только для чтения.** Управляется из файла в репозитории. Чтобы внести изменения — используйте **Save As** (создайте копию).\n>\n> Панели аукциона и крафта показывают данные только после соответствующих игровых событий."
       },
       "transparent": true
     },
@@ -35,20 +35,12 @@
         "defaults": {
           "color": {"mode": "palette-classic"},
           "custom": {
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 10,
-            "gradientMode": "none",
+            "axisLabel": "", "axisPlacement": "auto", "barAlignment": 0,
+            "drawStyle": "line", "fillOpacity": 10, "gradientMode": "none",
             "hideFrom": {"tooltip": false, "viz": false, "legend": false},
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {"type": "linear"},
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {"group": "A", "mode": "none"},
+            "lineInterpolation": "linear", "lineWidth": 1, "pointSize": 5,
+            "scaleDistribution": {"type": "linear"}, "showPoints": "never",
+            "spanNulls": false, "stacking": {"group": "A", "mode": "none"},
             "thresholdsStyle": {"mode": "off"}
           },
           "mappings": [],
@@ -80,20 +72,12 @@
         "defaults": {
           "color": {"mode": "palette-classic"},
           "custom": {
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 10,
-            "gradientMode": "none",
+            "axisLabel": "", "axisPlacement": "auto", "barAlignment": 0,
+            "drawStyle": "line", "fillOpacity": 10, "gradientMode": "none",
             "hideFrom": {"tooltip": false, "viz": false, "legend": false},
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {"type": "linear"},
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {"group": "A", "mode": "none"},
+            "lineInterpolation": "linear", "lineWidth": 1, "pointSize": 5,
+            "scaleDistribution": {"type": "linear"}, "showPoints": "never",
+            "spanNulls": false, "stacking": {"group": "A", "mode": "none"},
             "thresholdsStyle": {"mode": "off"}
           },
           "mappings": [],
@@ -111,17 +95,17 @@
       "pluginVersion": "8.0.0",
       "targets": [
         {
-          "expr": "histogram_quantile(0.95, rate(spell_cast_duration_bucket[5m]))",
-          "legendFormat": "p95",
+          "expr": "histogram_quantile(0.95, sum by (spell_id, le) (rate(spell_cast_duration_bucket[5m])))",
+          "legendFormat": "p95 {{spell_id}}",
           "refId": "A"
         },
         {
           "expr": "histogram_quantile(0.99, rate(spell_cast_duration_bucket[5m]))",
-          "legendFormat": "p99",
+          "legendFormat": "p99 (все)",
           "refId": "B"
         }
       ],
-      "title": "Длительность выполнения заклинания (перцентили)",
+      "title": "Длительность выполнения заклинания",
       "type": "timeseries"
     },
     {
@@ -130,20 +114,12 @@
         "defaults": {
           "color": {"mode": "palette-classic"},
           "custom": {
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 10,
-            "gradientMode": "none",
+            "axisLabel": "", "axisPlacement": "auto", "barAlignment": 0,
+            "drawStyle": "line", "fillOpacity": 10, "gradientMode": "none",
             "hideFrom": {"tooltip": false, "viz": false, "legend": false},
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {"type": "linear"},
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {"group": "A", "mode": "none"},
+            "lineInterpolation": "linear", "lineWidth": 1, "pointSize": 5,
+            "scaleDistribution": {"type": "linear"}, "showPoints": "never",
+            "spanNulls": false, "stacking": {"group": "A", "mode": "none"},
             "thresholdsStyle": {"mode": "off"}
           },
           "mappings": [],
@@ -166,7 +142,7 @@
           "refId": "A"
         }
       ],
-      "title": "Частота заклинаний по классу",
+      "title": "Заклинания по классу (частота)",
       "type": "timeseries"
     },
     {
@@ -175,20 +151,12 @@
         "defaults": {
           "color": {"mode": "palette-classic"},
           "custom": {
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 10,
-            "gradientMode": "none",
+            "axisLabel": "", "axisPlacement": "auto", "barAlignment": 0,
+            "drawStyle": "line", "fillOpacity": 10, "gradientMode": "none",
             "hideFrom": {"tooltip": false, "viz": false, "legend": false},
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {"type": "linear"},
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {"group": "A", "mode": "none"},
+            "lineInterpolation": "linear", "lineWidth": 1, "pointSize": 5,
+            "scaleDistribution": {"type": "linear"}, "showPoints": "never",
+            "spanNulls": false, "stacking": {"group": "A", "mode": "none"},
             "thresholdsStyle": {"mode": "off"}
           },
           "mappings": [],
@@ -206,17 +174,96 @@
       "pluginVersion": "8.0.0",
       "targets": [
         {
-          "expr": "histogram_quantile(0.95, sum by (trigger_type) (rate(script_trigger_duration_bucket[5m])))",
+          "expr": "histogram_quantile(0.95, sum by (trigger_type, le) (rate(script_trigger_duration_bucket[5m])))",
           "legendFormat": "p95 {{trigger_type}}",
           "refId": "A"
         },
         {
-          "expr": "histogram_quantile(0.99, sum by (trigger_type) (rate(script_trigger_duration_bucket[5m])))",
+          "expr": "histogram_quantile(0.99, sum by (trigger_type, le) (rate(script_trigger_duration_bucket[5m])))",
           "legendFormat": "p99 {{trigger_type}}",
           "refId": "B"
         }
       ],
-      "title": "Длительность проверки триггеров DG Scripts (по типу)",
+      "title": "Длительность триггеров DG Scripts (по типу)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "palette-classic"},
+          "custom": {
+            "axisLabel": "", "axisPlacement": "auto", "barAlignment": 0,
+            "drawStyle": "line", "fillOpacity": 10, "gradientMode": "none",
+            "hideFrom": {"tooltip": false, "viz": false, "legend": false},
+            "lineInterpolation": "linear", "lineWidth": 1, "pointSize": 5,
+            "scaleDistribution": {"type": "linear"}, "showPoints": "never",
+            "spanNulls": false, "stacking": {"group": "A", "mode": "none"},
+            "thresholdsStyle": {"mode": "off"}
+          },
+          "mappings": [],
+          "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]},
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 18},
+      "id": 5,
+      "options": {
+        "legend": {"calcs": ["mean", "last"], "displayMode": "table", "placement": "right"},
+        "tooltip": {"mode": "multi"}
+      },
+      "pluginVersion": "8.0.0",
+      "targets": [
+        {
+          "expr": "rate(player_deaths_total[5m])",
+          "legendFormat": "Смертей/сек ({{death_type}})",
+          "refId": "A"
+        }
+      ],
+      "title": "Смерти игроков (PvP / PvE)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "palette-classic"},
+          "custom": {
+            "axisLabel": "", "axisPlacement": "auto", "barAlignment": 0,
+            "drawStyle": "line", "fillOpacity": 10, "gradientMode": "none",
+            "hideFrom": {"tooltip": false, "viz": false, "legend": false},
+            "lineInterpolation": "linear", "lineWidth": 1, "pointSize": 5,
+            "scaleDistribution": {"type": "linear"}, "showPoints": "never",
+            "spanNulls": false, "stacking": {"group": "A", "mode": "none"},
+            "thresholdsStyle": {"mode": "off"}
+          },
+          "mappings": [],
+          "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]},
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 18},
+      "id": 6,
+      "options": {
+        "legend": {"calcs": ["mean", "last"], "displayMode": "table", "placement": "right"},
+        "tooltip": {"mode": "multi"}
+      },
+      "pluginVersion": "8.0.0",
+      "targets": [
+        {
+          "expr": "rate(craft_completed_total[5m])",
+          "legendFormat": "Успешно ({{recipe_id}})",
+          "refId": "A"
+        },
+        {
+          "expr": "rate(craft_failures_total[5m])",
+          "legendFormat": "Неудача ({{failure_reason}})",
+          "refId": "B"
+        }
+      ],
+      "title": "Крафт: успехи и неудачи (появится при первом крафте)",
       "type": "timeseries"
     },
     {
@@ -237,8 +284,8 @@
         },
         "overrides": []
       },
-      "gridPos": {"h": 8, "w": 6, "x": 0, "y": 18},
-      "id": 5,
+      "gridPos": {"h": 8, "w": 6, "x": 0, "y": 26},
+      "id": 7,
       "options": {
         "orientation": "auto",
         "reduceOptions": {"values": false, "calcs": ["lastNotNull"], "fields": ""},
@@ -262,20 +309,12 @@
         "defaults": {
           "color": {"mode": "palette-classic"},
           "custom": {
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 10,
-            "gradientMode": "none",
+            "axisLabel": "", "axisPlacement": "auto", "barAlignment": 0,
+            "drawStyle": "line", "fillOpacity": 10, "gradientMode": "none",
             "hideFrom": {"tooltip": false, "viz": false, "legend": false},
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {"type": "linear"},
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {"group": "A", "mode": "none"},
+            "lineInterpolation": "linear", "lineWidth": 1, "pointSize": 5,
+            "scaleDistribution": {"type": "linear"}, "showPoints": "never",
+            "spanNulls": false, "stacking": {"group": "A", "mode": "none"},
             "thresholdsStyle": {"mode": "off"}
           },
           "mappings": [],
@@ -284,8 +323,8 @@
         },
         "overrides": []
       },
-      "gridPos": {"h": 8, "w": 18, "x": 6, "y": 18},
-      "id": 6,
+      "gridPos": {"h": 8, "w": 18, "x": 6, "y": 26},
+      "id": 8,
       "options": {
         "legend": {"calcs": ["mean", "last"], "displayMode": "table", "placement": "right"},
         "tooltip": {"mode": "multi"}
@@ -296,54 +335,14 @@
           "expr": "rate(auction_lots_active_gauge_sum[5m]) / rate(auction_lots_active_gauge_count[5m])",
           "legendFormat": "Активные лоты",
           "refId": "A"
-        }
-      ],
-      "title": "Активность аукциона (лоты)",
-      "type": "timeseries"
-    },
-    {
-      "datasource": "Prometheus",
-      "fieldConfig": {
-        "defaults": {
-          "color": {"mode": "palette-classic"},
-          "custom": {
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 10,
-            "gradientMode": "none",
-            "hideFrom": {"tooltip": false, "viz": false, "legend": false},
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {"type": "linear"},
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {"group": "A", "mode": "none"},
-            "thresholdsStyle": {"mode": "off"}
-          },
-          "mappings": [],
-          "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]},
-          "unit": "short"
         },
-        "overrides": []
-      },
-      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 26},
-      "id": 7,
-      "options": {
-        "legend": {"calcs": ["mean", "last"], "displayMode": "table", "placement": "right"},
-        "tooltip": {"mode": "multi"}
-      },
-      "pluginVersion": "8.0.0",
-      "targets": [
         {
-          "expr": "rate(zone_reset_total[5m])",
-          "legendFormat": "Сбросов зон/сек ({{reset_mode}})",
-          "refId": "A"
+          "expr": "rate(auction_sale_total[5m])",
+          "legendFormat": "Продаж/сек",
+          "refId": "B"
         }
       ],
-      "title": "Сбросы зон (по режиму)",
+      "title": "Аукцион (продажи появятся после первой сделки)",
       "type": "timeseries"
     },
     {
@@ -352,20 +351,12 @@
         "defaults": {
           "color": {"mode": "palette-classic"},
           "custom": {
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 10,
-            "gradientMode": "none",
+            "axisLabel": "", "axisPlacement": "auto", "barAlignment": 0,
+            "drawStyle": "line", "fillOpacity": 10, "gradientMode": "none",
             "hideFrom": {"tooltip": false, "viz": false, "legend": false},
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {"type": "linear"},
-            "showPoints": "never",
-            "spanNulls": false,
-            "stacking": {"group": "A", "mode": "none"},
+            "lineInterpolation": "linear", "lineWidth": 1, "pointSize": 5,
+            "scaleDistribution": {"type": "linear"}, "showPoints": "never",
+            "spanNulls": false, "stacking": {"group": "A", "mode": "none"},
             "thresholdsStyle": {"mode": "off"}
           },
           "mappings": [],
@@ -374,8 +365,8 @@
         },
         "overrides": []
       },
-      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 26},
-      "id": 8,
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 34},
+      "id": 9,
       "options": {
         "legend": {"calcs": ["mean", "max"], "displayMode": "table", "placement": "right"},
         "tooltip": {"mode": "multi"}
@@ -383,17 +374,49 @@
       "pluginVersion": "8.0.0",
       "targets": [
         {
-          "expr": "histogram_quantile(0.95, rate(player_save_duration_bucket[5m]))",
-          "legendFormat": "p95 Сохранение ({{save_type}})",
+          "expr": "histogram_quantile(0.95, rate(auction_duration_seconds_bucket[5m]))",
+          "legendFormat": "p95 Длительность (от выставления до продажи)",
           "refId": "A"
-        },
-        {
-          "expr": "histogram_quantile(0.95, rate(player_load_duration_bucket[5m]))",
-          "legendFormat": "p95 Загрузка",
-          "refId": "B"
         }
       ],
-      "title": "Длительность сохранения/загрузки игрока",
+      "title": "Длительность аукционов (появится после первой продажи)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "palette-classic"},
+          "custom": {
+            "axisLabel": "", "axisPlacement": "auto", "barAlignment": 0,
+            "drawStyle": "line", "fillOpacity": 10, "gradientMode": "none",
+            "hideFrom": {"tooltip": false, "viz": false, "legend": false},
+            "lineInterpolation": "linear", "lineWidth": 1, "pointSize": 5,
+            "scaleDistribution": {"type": "linear"}, "showPoints": "never",
+            "spanNulls": false, "stacking": {"group": "A", "mode": "none"},
+            "thresholdsStyle": {"mode": "off"}
+          },
+          "mappings": [],
+          "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]},
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 34},
+      "id": 10,
+      "options": {
+        "legend": {"calcs": ["mean", "max"], "displayMode": "table", "placement": "right"},
+        "tooltip": {"mode": "multi"}
+      },
+      "pluginVersion": "8.0.0",
+      "targets": [
+        {
+          "expr": "rate(zone_reset_total[5m])",
+          "legendFormat": "Сбросов/сек ({{reset_mode}})",
+          "refId": "A"
+        }
+      ],
+      "title": "Сбросы зон (по режиму)",
       "type": "timeseries"
     }
   ],

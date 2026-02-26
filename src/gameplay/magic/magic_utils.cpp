@@ -345,7 +345,10 @@ bool MayCastHere(CharData *caster, CharData *victim, ESpell spell_id) {
 int CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict, ESpell spell_id, int level) {
 	// OpenTelemetry: Track spell casting
 	auto spell_span = tracing::TraceManager::Instance().StartSpan("Spell Cast");
-	observability::ScopedMetric spell_metric("spell.cast.duration");
+	std::map<std::string, std::string> spell_dur_attrs;
+	spell_dur_attrs["spell_id"] = std::to_string(to_underlying(spell_id));
+	spell_dur_attrs["caster_class"] = NAME_BY_ITEM(caster->GetClass());
+	observability::ScopedMetric spell_metric("spell.cast.duration", spell_dur_attrs);
 	
 	// Set spell attributes
 	std::string spell_name = MUD::Spell(spell_id).GetCName();

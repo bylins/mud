@@ -36,6 +36,7 @@ rate(metric_name_total[5m])
 | `player_load_duration` | histogram | — | Длительность загрузки персонажа |
 | `player_save_duration` | histogram | `save_type` (`frac`/`full`) | Длительность сохранения |
 | `player_save_total` | counter | `save_type` | Количество сохранений |
+| `player_deaths_total` | counter | `death_type` (`pvp`/`pve`/`other`) | Смерти игроков по типу |
 
 Prometheus-имена gauges: `players_online_count_gauge_{bucket,sum,count}` и т.д.
 
@@ -77,9 +78,12 @@ Prometheus: `mob_active_count_gauge_{bucket,sum,count}`
 
 | Метрика | Тип | Атрибуты | Описание |
 |---------|-----|----------|----------|
+| `combat_active_count` | gauge | — | Количество активных комбатантов (обновляется каждые 2 сек) |
 | `combat_hit_duration` | histogram | — | Длительность расчёта одного удара |
 
-> `combat_active_count`, `combat_round_duration`, `combat_rounds_total` — в Prometheus **отсутствуют**.
+Prometheus: `combat_active_count_gauge_{bucket,sum,count}`
+
+> `combat_round_duration`, `combat_rounds_total` — в Prometheus **отсутствуют**.
 
 ---
 
@@ -105,10 +109,13 @@ Prometheus: `mob_active_count_gauge_{bucket,sum,count}`
 | Метрика | Тип | Атрибуты | Описание |
 |---------|-----|----------|----------|
 | `auction_lots_active` | gauge | — | Активные лоты |
+| `auction_sale_total` | counter | — | Количество продаж |
+| `auction_revenue_total` | counter | — | Выручка с продаж (в единицах валюты) |
+| `auction_duration_seconds` | histogram | — | Длительность аукциона (от лота до продажи) |
 
 Prometheus: `auction_lots_active_gauge_{bucket,sum,count}`
 
-> `auction_sale_total`, `auction_revenue_total`, `auction_duration_seconds` — в Prometheus **отсутствуют**.
+> Метрики `auction_sale_total`, `auction_revenue_total`, `auction_duration_seconds` появятся в Prometheus после первой продажи на аукционе.
 
 ---
 
@@ -148,4 +155,10 @@ increase(heartbeat_missed_pulses_total[1h])
 
 # Активные мобы (текущее)
 rate(mob_active_count_gauge_sum[5m]) / rate(mob_active_count_gauge_count[5m])
+
+# Активные комбатанты
+rate(combat_active_count_gauge_sum[5m]) / rate(combat_active_count_gauge_count[5m])
+
+# Смерти игроков по типу за последний час
+sum by (death_type) (increase(player_deaths_total[1h]))
 ```

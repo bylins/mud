@@ -28,6 +28,7 @@
 #include "gameplay/mechanics/sight.h"
 #include "gameplay/ai/mob_memory.h"
 #include "engine/entities/zone.h"
+#include "engine/observability/otel_metrics.h"
 #include "gameplay/core/game_limits.h"
 #include "gameplay/mechanics/illumination.h"
 #include "utils/utils_time.h"
@@ -564,6 +565,19 @@ void raw_kill(CharData *ch, CharData *killer) {
 				NRM, kLvlGod, ERRLOG, true);
 		return;
 	}
+	// OpenTelemetry: count player deaths
+	if (!ch->IsNpc()) {
+		std::string death_type = "pve";
+		if (killer && !killer->IsNpc() && !IS_CHARMICE(killer)) {
+			death_type = "pvp";
+		} else if (!killer) {
+			death_type = "other";
+		}
+		std::map<std::string, std::string> death_attrs;
+		death_attrs["death_type"] = death_type;
+		observability::OtelMetrics::RecordCounter("player.deaths.total", 1, death_attrs);
+	}
+
 	if (!ROOM_FLAGGED(ch->in_room, ERoomFlag::kDominationArena)) {
 		reset_affects(ch);
 	}
