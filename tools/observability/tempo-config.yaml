@@ -28,7 +28,13 @@ metrics_generator:
     service_graphs:
       wait: 10s
       max_items: 10000
-    span_metrics: {}
+    span_metrics:
+      histogram_buckets: [0.001, 0.002, 0.005, 0.010, 0.025, 0.050, 0.100, 0.250, 0.500, 1.0, 2.5]
+      dimensions:
+        - step
+        - spell_name
+        - trigger_type
+      enable_target_info: true
 
 overrides:
   defaults:
