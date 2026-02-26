@@ -338,7 +338,6 @@ void CharData::zero_init() {
 	punctual_wait = 0;
 	last_comm.clear();
 	player_specials = nullptr;
-	timed_feat = nullptr;
 	carrying = nullptr;
 	desc = nullptr;
 	followers = nullptr;

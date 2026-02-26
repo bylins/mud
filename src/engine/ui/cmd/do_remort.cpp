@@ -93,9 +93,7 @@ void DoRemort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	}
 
 	ch->timed_skill.clear();
-	while (ch->timed_feat) {
-		ExpireTimedFeat(ch, ch->timed_feat);
-	}
+	ch->timed_feat.clear();
 	for (const auto &feat : MUD::Feats()) {
 		ch->UnsetFeat(feat.GetId());
 	}

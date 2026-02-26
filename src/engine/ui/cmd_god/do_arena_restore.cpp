@@ -40,9 +40,8 @@ void DoArenaRestore(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		RemoveAffectFromChar(vict, ESpell::kAbstinent);
 
 		//сброс таймеров скиллов и фитов
-		vict->timed_skill.clear();
-		while (vict->timed_feat)
-			ExpireTimedFeat(vict, vict->timed_feat);
+		ch->timed_skill.clear();
+		ch->timed_feat.clear();
 		reset_affects(vict);
 		for (int i = 0; i < EEquipPos::kNumEquipPos; i++) {
 			if (GET_EQ(vict, i)) {

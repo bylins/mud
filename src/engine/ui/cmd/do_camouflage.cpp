@@ -66,7 +66,7 @@ void do_camouflage(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*
 	if (!IS_IMMORTAL(ch)) {
 		timed.skill = ESkill::kDisguise;
 		timed.time = 2;
-		ImposeTimedSkill(ch, timed);
+		ImposeTimedSkill(ch, &timed);
 	}
 }
 

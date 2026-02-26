@@ -50,10 +50,8 @@ void DoRestore(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		RemoveAffectFromChar(vict, ESpell::kAbstinent);
 
 		//сброс таймеров скиллов и фитов
-		vict->timed_skill.clear();
-		while (vict->timed_feat)
-			ExpireTimedFeat(vict, vict->timed_feat);
-
+		ch->timed_skill.clear();
+		ch->timed_feat.clear();
 		if (subcmd == kScmdRestoreGod) {
 			SendMsgToChar(OK, ch);
 			act("Вы были полностью восстановлены $N4!",

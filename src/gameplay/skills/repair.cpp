@@ -71,7 +71,7 @@ void DoRepair(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		timed.skill = ESkill::kRepair;
 		auto modif = ch->GetSkill(ESkill::kRepair) / 7 + number(1, 5);
 		timed.time = std::max(1, 25 - modif);
-		ImposeTimedSkill(ch, timed);
+		ImposeTimedSkill(ch, &timed);
 		obj->set_current_durability(std::min(obj->get_maximum_durability(), obj->get_current_durability() * percent / prob + 1));
 		SendMsgToChar(ch, "Теперь %s выгляд%s лучше.\r\n",
 					  obj->get_PName(ECase::kNom).c_str(), GET_OBJ_POLY_1(ch, obj));

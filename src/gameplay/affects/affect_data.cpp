@@ -201,13 +201,12 @@ void player_timed_update() {
 				timed = ch->timed_skill.erase(timed);
 			}
 		}
-		decltype(ch->timed_feat) timed_feat;
-		for (auto timed = ch->timed_feat; timed; timed = timed_feat) {
-			timed_feat = timed->next;
-			if (timed->time >= 1) {
-				timed->time--;
+		for (auto timed = ch->timed_feat.begin(); timed != ch->timed_feat.end();) {
+			if (timed->second >= 1) {
+				timed->second--;
+				++timed;
 			} else {
-				ExpireTimedFeat(ch, timed);
+				timed = ch->timed_feat.erase(timed);
 			}
 		}
 	}
@@ -454,13 +453,12 @@ void mobile_affect_update() {
 					timed = ch->timed_skill.erase(timed);
 				}
 			}
-			decltype(ch->timed_feat) timed_feat;
-			for (auto timed = ch->timed_feat; timed; timed = timed_feat) {
-				timed_feat = timed->next;
-				if (timed->time >= 1) {
-					timed->time--;
+			for (auto timed = ch->timed_feat.begin(); timed != ch->timed_feat.end();) {
+				if (timed->second >= 1) {
+					timed->second--;
+					++timed;
 				} else {
-					ExpireTimedFeat(ch, timed);
+					timed = ch->timed_feat.erase(timed);
 				}
 			}
 			if (deathtrap::check_death_trap(ch)) {

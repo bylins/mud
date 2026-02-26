@@ -538,8 +538,8 @@ void Player::save_char() {
 
 	if (GetRealLevel(this) < kLvlImmortal) {
 		fprintf(saved, "FtTm:\n");
-		for (auto tf = this->timed_feat; tf; tf = tf->next) {
-			fprintf(saved, "%d %d %s\n", to_underlying(tf->feat), tf->time, MUD::Feat(tf->feat).GetCName());
+		for (auto tf : this->timed_feat) {
+			fprintf(saved, "%d %d %s\n", to_underlying(tf.first), tf.second, MUD::Feat(tf.first).GetCName());
 		}
 		fprintf(saved, "0 0\n");
 	}
@@ -566,7 +566,7 @@ void Player::save_char() {
 	if (GetRealLevel(this) < kLvlImmortal) {
 		fprintf(saved, "SkTm:\n");
 		for (auto skj : this->timed_skill) {
-			fprintf(saved, "%d %d\n", to_underlying(skj.first), skj.second);
+			fprintf(saved, "%d %d %s\n", to_underlying(skj.first), skj.second, MUD::Skill(skj.first).GetName());
 		}
 		fprintf(saved, "0 0\n");
 	}

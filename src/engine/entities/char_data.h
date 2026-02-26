@@ -776,7 +776,7 @@ class CharData : public ProtectedCharData {
 
 	char_affects_list_t affected;    // affected by what spells
 	std::unordered_map<ESkill, ubyte> timed_skill;    // use which timed skill/spells
-	struct TimedFeat *timed_feat;    // use which timed feats
+	std::unordered_map<EFeat, ubyte> timed_feat;    // use which timed feats
 	ObjData *equipment[EEquipPos::kNumEquipPos];    // Equipment array
 
 	ObjData *carrying;    // Head of list

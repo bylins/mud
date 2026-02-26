@@ -79,7 +79,7 @@ void DoFirstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (CanUseFeat(ch, EFeat::kPhysicians))
 			time /=2;
 		timed.time = time;
-		ImposeTimedSkill(ch, timed);
+		ImposeTimedSkill(ch, &timed);
 		ImproveSkill(ch, ESkill::kFirstAid, success, nullptr);
 		if (vict != ch) {
 			if (success) {

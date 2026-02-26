@@ -94,7 +94,7 @@ void do_warcry(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			if (ch->get_wait() <= 0) {
 				SetWaitState(ch, kBattleRound);
 			}
-			ImposeTimedSkill(ch, timed);
+			ImposeTimedSkill(ch, &timed);
 			ch->set_move(ch->get_move() - MUD::Spell(spell_id).GetMaxMana());
 		}
 		TrainSkill(ch, ESkill::kWarcry, true, nullptr);

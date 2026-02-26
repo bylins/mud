@@ -85,6 +85,6 @@ void do_manadrain(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			timed.time = 1;
 		else
 			timed.time = 6 - std::min(4, (ch->GetSkill(ESkill::kJinx) + 30) / 50);
-		ImposeTimedSkill(ch, timed);
+		ImposeTimedSkill(ch, &timed);
 	}
 }
