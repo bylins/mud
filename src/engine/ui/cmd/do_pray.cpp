@@ -99,7 +99,7 @@ void do_pray(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 
 	timed.skill = ESkill::kReligion;
 	timed.time = 12;
-	ImposeTimedSkill(ch, &timed);
+	ImposeTimedSkill(ch, timed);
 
 	for (const auto &i : pray_affect) {
 		if (i.metter == metter) {

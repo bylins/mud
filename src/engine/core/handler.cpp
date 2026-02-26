@@ -191,42 +191,26 @@ int IsTimedByFeat(CharData *ch, EFeat feat) {
 /**
  * Insert an TimedSkill in a char_data structure
  */
-void ImposeTimedSkill(CharData *ch, struct TimedSkill *timed) {
-	timed->time = std::max(1, timed->time + GetTalentTimerMod(ch, timed->skill));
-
-	struct TimedSkill *timed_alloc, *skj;
-	for (skj = ch->timed; skj; skj = skj->next) {
-		if (skj->skill == timed->skill) {
-			skj->time = timed->time;
-			return;
-		}
-	}
-
-	CREATE(timed_alloc, 1);
-
-	*timed_alloc = *timed;
-	timed_alloc->next = ch->timed;
-	ch->timed = timed_alloc;
+void ImposeTimedSkill(CharData *ch, struct TimedSkill timed) {
+	ch->timed_skill[timed.skill] = std::max(1, timed.time + GetTalentTimerMod(ch, timed.skill));
 }
 
-void ExpireTimedSkill(CharData *ch, struct TimedSkill *timed) {
-	if (ch->timed == nullptr) {
+void ExpireTimedSkill(CharData *ch, ESkill skill) {
+	if (ch->timed_skill.empty()) {
 		log("SYSERR: ExpireTimedSkill(%s) when no timed...", GET_NAME(ch));
 		// core_dump();
 		return;
 	}
 
-	REMOVE_FROM_LIST(timed, ch->timed);
-	free(timed);
+	ch->timed_skill.erase(skill);
 }
 
 int IsTimedBySkill(CharData *ch, ESkill id) {
-	struct TimedSkill *hjp;
-
-	for (hjp = ch->timed; hjp; hjp = hjp->next)
-		if (hjp->skill == id)
-			return (hjp->time);
-
+	
+	auto it = ch->timed_skill.find(id);
+	if (it != ch->timed_skill.end()) {
+		return it->second;
+	}
 	return (0);
 }
 

@@ -92,10 +92,7 @@ void DoRemort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		}
 	}
 
-	while (ch->timed) {
-		ExpireTimedSkill(ch, ch->timed);
-	}
-
+	ch->timed_skill.clear();
 	while (ch->timed_feat) {
 		ExpireTimedFeat(ch, ch->timed_feat);
 	}

@@ -123,7 +123,7 @@ void SetSkillTownportalTimer(CharData *ch) {
 		// timed.time - это unsigned char, поэтому при уходе в минус будет вынос на 255 и ниже
 		int modif = ch->GetSkill(ESkill::kTownportal) / 7 + number(1, 5);
 		timed.time = MAX(1, 25 - modif);
-		ImposeTimedSkill(ch, &timed);
+		ImposeTimedSkill(ch, timed);
 	}
 }
 

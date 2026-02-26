@@ -56,7 +56,7 @@ void go_stun(CharData *ch, CharData *vict) {
 
 	timed.skill = ESkill::kStun;
 	timed.time = std::clamp(7 - (ch->GetSkill(ESkill::kStun) - (MUD::Skill(ESkill::kStun).cap / 4 * 3)) / 10, 2, 7);
-	ImposeTimedSkill(ch, &timed);
+	ImposeTimedSkill(ch, timed);
 
 	int percent = number(1, MUD::Skill(ESkill::kStun).difficulty);
 	int prob = CalcCurrentSkill(ch, ESkill::kStun, vict);

@@ -36,12 +36,6 @@ void DoRestore(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		} else {
 			vict->mem_queue.stored = vict->mem_queue.total;
 		}
-		if (vict->GetSkill(ESkill::kWarcry) > 0) {
-			struct TimedSkill wctimed;
-			wctimed.skill = ESkill::kWarcry;
-			wctimed.time = 0;
-			ImposeTimedSkill(vict, &wctimed);
-		}
 		if (IS_GRGOD(ch) && IS_IMMORTAL(vict)) {
 			vict->set_str(25);
 			vict->set_int(25);
@@ -56,8 +50,7 @@ void DoRestore(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		RemoveAffectFromChar(vict, ESpell::kAbstinent);
 
 		//сброс таймеров скиллов и фитов
-		while (vict->timed)
-			ExpireTimedSkill(vict, vict->timed);
+		vict->timed_skill.clear();
 		while (vict->timed_feat)
 			ExpireTimedFeat(vict, vict->timed_feat);
 

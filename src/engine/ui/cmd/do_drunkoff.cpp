@@ -101,7 +101,7 @@ void do_drunkoff(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	timed.skill = ESkill::kHangovering;
 	timed.time = 12;
-	ImposeTimedSkill(ch, &timed);
+	ImposeTimedSkill(ch, timed);
 
 	percent = number(1, MUD::Skill(ESkill::kHangovering).difficulty);
 	prob = CalcCurrentSkill(ch, ESkill::kHangovering, nullptr);

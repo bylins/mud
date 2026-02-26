@@ -165,7 +165,6 @@ struct SkillRollResult {
 struct TimedSkill {
 	ESkill skill{ESkill::kUndefined};	// Used skill //
 	ubyte time{0};						// Time for next using //
-	TimedSkill *next{nullptr};
 };
 
 int SendSkillMessages(int dam, CharData *ch, CharData *vict, int attacktype, std::string add = "");

@@ -44,8 +44,8 @@ void CheckLight(CharData *ch, int was_equip, int was_single, int was_holylight, 
 void ImposeTimedFeat(CharData *ch, TimedFeat *timed);
 void ExpireTimedFeat(CharData *ch, TimedFeat *timed);
 int IsTimedByFeat(CharData *ch, EFeat feat);
-void ImposeTimedSkill(CharData *ch, struct TimedSkill *timed);
-void ExpireTimedSkill(CharData *ch, struct TimedSkill *timed);
+void ImposeTimedSkill(CharData *ch, struct TimedSkill timed);
+void ExpireTimedSkill(CharData *ch, ESkill skill);
 int IsTimedBySkill(CharData *ch, ESkill id);
 void DecreaseFeatTimer(CharData *ch, EFeat feat_id);
 

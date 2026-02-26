@@ -49,7 +49,7 @@ void mobRemember(CharData *ch, CharData *victim) {
 	if (!IsTimedBySkill(victim, ESkill::kHideTrack) && victim->GetSkill(ESkill::kHideTrack)) {
 		timed.skill = ESkill::kHideTrack;
 		timed.time = ch->GetSkill(ESkill::kTrack) ? 6 : 3;
-		ImposeTimedSkill(victim, &timed);
+		ImposeTimedSkill(victim, timed);
 	}
 }
 

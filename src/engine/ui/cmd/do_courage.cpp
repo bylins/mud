@@ -28,7 +28,7 @@ void do_courage(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 	struct TimedSkill timed;
 	timed.skill = ESkill::kCourage;
 	timed.time = 6;
-	ImposeTimedSkill(ch, &timed);
+	ImposeTimedSkill(ch, timed);
 	auto prob = CalcCurrentSkill(ch, ESkill::kCourage, nullptr) / 20;
 	auto dur = 1 + std::min(5, ch->GetSkill(ESkill::kCourage) / 40);
 	Affect<EApply> af[4];

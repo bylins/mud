@@ -191,16 +191,14 @@ void player_timed_update() {
 	for (auto d = descriptor_list; d; d = d->next) {
 		if (d->state != EConState::kPlaying)
 			continue;
-		const auto i = d->get_character();
-		auto ch = i.get();
+		const auto ch = d->get_character().get();
 
-		decltype(ch->timed) timed_skill;
-		for (auto timed = ch->timed; timed; timed = timed_skill) {
-			timed_skill = timed->next;
-			if (timed->time >= 1) {
-				timed->time--;
+		for (auto timed = ch->timed_skill.begin(); timed != ch->timed_skill.end();) {
+			if (timed->second >= 1) {
+				timed->second--;
+				++timed;
 			} else {
-				ExpireTimedSkill(ch, timed);
+				timed = ch->timed_skill.erase(timed);
 			}
 		}
 		decltype(ch->timed_feat) timed_feat;
@@ -448,13 +446,12 @@ void mobile_affect_update() {
 			if (need_recalc) {
 				affect_total(ch);
 			}
-			decltype(ch->timed) timed_skill;
-			for (auto timed = ch->timed; timed; timed = timed_skill) {
-				timed_skill = timed->next;
-				if (timed->time >= 1) {
-					timed->time--;
+			for (auto timed = ch->timed_skill.begin(); timed != ch->timed_skill.end();) {
+				if (timed->second >= 1) {
+					timed->second--;
+					++timed;
 				} else {
-					ExpireTimedSkill(ch, timed);
+					timed = ch->timed_skill.erase(timed);
 				}
 			}
 			decltype(ch->timed_feat) timed_feat;
