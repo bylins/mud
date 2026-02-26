@@ -24,7 +24,7 @@ void OtelSpan::End() {
 
 void OtelSpan::AddEvent(const std::string& name) {
 	if (m_span) {
-		m_span->AddEvent(name);
+		m_span->AddEvent(observability::koi8r_to_utf8(name));
 	}
 }
 
