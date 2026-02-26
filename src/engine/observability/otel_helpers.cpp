@@ -213,18 +213,44 @@ std::string koi8r_to_utf8(const std::string& input) {
 	if (input.empty()) {
 		return input;
 	}
-	iconv_t cd = iconv_open("UTF-8", "KOI8-R");
-	if (cd == (iconv_t)-1) {
+	// Fast path: ASCII-only strings need no conversion
+	bool has_high = false;
+	for (unsigned char c : input) {
+		if (c >= 128) {
+			has_high = true;
+			break;
+		}
+	}
+	if (!has_high) {
 		return input;
 	}
+	// Cache iconv descriptor globally - game loop is single-threaded
+	struct IconvHandle {
+		iconv_t cd;
+		IconvHandle() : cd(iconv_open("UTF-8", "KOI8-R")) {}
+		~IconvHandle() { if (cd != (iconv_t)-1) { iconv_close(cd); } }
+	};
+	static IconvHandle handle;
+
+	if (handle.cd == (iconv_t)-1) {
+		// iconv unavailable: replace non-ASCII bytes with '?'
+		std::string safe;
+		safe.reserve(input.size());
+		for (unsigned char c : input) {
+			safe += (c < 128) ? static_cast<char>(c) : '?';
+		}
+		return safe;
+	}
+	// Reset shift state from any previous call
+	iconv(handle.cd, nullptr, nullptr, nullptr, nullptr);
+
 	const size_t out_size = input.size() * 4;
 	std::string output(out_size, '\0');
 	char* in_ptr = const_cast<char*>(input.data());
 	char* out_ptr = &output[0];
 	size_t in_left = input.size();
 	size_t out_left = out_size;
-	if (iconv(cd, &in_ptr, &in_left, &out_ptr, &out_left) == (size_t)-1) {
-		iconv_close(cd);
+	if (iconv(handle.cd, &in_ptr, &in_left, &out_ptr, &out_left) == (size_t)-1) {
 		// Replace non-ASCII bytes with '?' to guarantee valid UTF-8 output
 		std::string safe;
 		safe.reserve(input.size());
@@ -233,7 +259,6 @@ std::string koi8r_to_utf8(const std::string& input) {
 		}
 		return safe;
 	}
-	iconv_close(cd);
 	output.resize(out_size - out_left);
 	return output;
 }
