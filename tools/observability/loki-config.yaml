@@ -40,6 +40,21 @@ limits_config:
   ingestion_burst_size_mb: 20
   allow_structured_metadata: true
   volume_enabled: true
+  otlp_config:
+    resource_attributes:
+      attributes_config:
+        - action: index_label
+          attributes:
+            - service.name
+            - service.namespace
+        - action: structured_metadata
+          regex: .*
+    log_attributes:
+      - action: structured_metadata
+        regex: .*
+    scope_attributes:
+      - action: structured_metadata
+        regex: .*
 
 table_manager:
   retention_deletes_enabled: true

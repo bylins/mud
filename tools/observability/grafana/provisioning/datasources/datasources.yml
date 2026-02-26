@@ -30,7 +30,7 @@ datasources:
         spanStartTimeShift: '-5m'
         spanEndTimeShift: '5m'
         customQuery: true
-        query: '{trace_id="$${__trace.traceId}"}'
+        query: '{service_name=~".+"} | trace_id = "$${__trace.traceId}"'
       tracesToMetrics:
         datasourceUid: prometheus
         tags: [{key: 'service.name', value: 'service'}]
