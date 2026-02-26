@@ -1,5 +1,6 @@
 #include "otel_traces.h"
 #include "otel_provider.h"
+#include "otel_helpers.h"
 
 #ifdef WITH_OTEL
 #include "opentelemetry/trace/provider.h"
@@ -18,13 +19,13 @@ void Span::End() {
 
 void Span::AddEvent(const std::string& name) {
     if (m_span) {
-        m_span->AddEvent(name);
+        m_span->AddEvent(koi8r_to_utf8(name));
     }
 }
 
 void Span::SetAttribute(const std::string& key, const std::string& value) {
     if (m_span) {
-        m_span->SetAttribute(key, value);
+        m_span->SetAttribute(key, koi8r_to_utf8(value));
     }
 }
 
@@ -46,7 +47,7 @@ Span OtelTraces::StartSpan(const std::string& name) {
     if (OtelProvider::Instance().IsEnabled()) {
         auto tracer = OtelProvider::Instance().GetTracer();
         if (tracer) {
-            return Span(tracer->StartSpan(name));
+            return Span(tracer->StartSpan(koi8r_to_utf8(name)));
         }
     }
 #endif
@@ -59,9 +60,9 @@ Span OtelTraces::StartSpan(const std::string& name,
     if (OtelProvider::Instance().IsEnabled()) {
         auto tracer = OtelProvider::Instance().GetTracer();
         if (tracer) {
-            auto span = tracer->StartSpan(name);
+            auto span = tracer->StartSpan(koi8r_to_utf8(name));
             for (const auto& attr : attributes) {
-                span->SetAttribute(attr.first, attr.second);
+                span->SetAttribute(attr.first, koi8r_to_utf8(attr.second));
             }
             return Span(span);
         }
