@@ -24,7 +24,23 @@
 #if CIRCLE_UNIX
 #ifdef WITH_OTEL
 #include "engine/observability/otel_provider.h"
-#include "utils/timestamp.h"
+#include <chrono>
+#include <ctime>
+
+namespace {
+inline std::string NowTs() {
+	auto now = std::chrono::system_clock::now();
+	auto t = std::chrono::system_clock::to_time_t(now);
+	auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()) % 1000;
+	struct tm tm_buf;
+	localtime_r(&t, &tm_buf);
+	char result[32];
+	std::snprintf(result, sizeof(result), "%04d-%02d-%02d %02d:%02d:%02d.%03lld",
+		tm_buf.tm_year + 1900, tm_buf.tm_mon + 1, tm_buf.tm_mday,
+		tm_buf.tm_hour, tm_buf.tm_min, tm_buf.tm_sec, (long long)ms.count());
+	return result;
+}
+} // anonymous namespace
 #endif
 using ETelemetryLogMode = RuntimeConfiguration::ETelemetryLogMode;
 #include <sys/stat.h>
@@ -487,20 +503,20 @@ void RuntimeConfiguration::setup_logs() {
 
 		if (logs(stream).filename().empty()) {
 			handle(stream, stderr);
-			printf("[%s] Using file descriptor for logging.\n", utils::NowTs().c_str());
+			printf("[%s] Using file descriptor for logging.\n", NowTs().c_str());
 			continue;
 		}
 
 		if (!runtime_config.open_log(stream))    //s_fp
 		{
-			printf("[%s] SYSERR: Couldn't open anything to log to, giving up.\n", utils::NowTs().c_str());
+			printf("[%s] SYSERR: Couldn't open anything to log to, giving up.\n", NowTs().c_str());
 			exit(1);
 		}
 	}
 
 	setup_converters();
 
-	printf("[%s] Bylins server will use %schronous output into syslog file.\n", utils::NowTs().c_str(),
+	printf("[%s] Bylins server will use %schronous output into syslog file.\n", NowTs().c_str(),
 		   output_thread() ? "asyn" : "syn");
 }
 
@@ -798,7 +814,7 @@ bool CLogInfo::open() {
 
 		m_handle = handle;
 		printf("[%s] Using log file '%s' with %s buffering. Opening in %s mode.\n",
-			   utils::NowTs().c_str(), filename().c_str(),
+			   NowTs().c_str(), filename().c_str(),
 			   NAME_BY_ITEM(buffered()).c_str(),
 			   NAME_BY_ITEM(this->mode()).c_str());
 		return true;
