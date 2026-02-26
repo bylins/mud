@@ -38,6 +38,7 @@
 #include "engine/entities/entities_constants.h"
 #include "administration/shutdown_parameters.h"
 #include "engine/observability/otel_provider.h"
+#include "engine/observability/otel_helpers.h"
 #include "external_trigger.h"
 #include "handler.h"
 #include "gameplay/clans/house.h"
@@ -709,10 +710,10 @@ int main_function(int argc, char **argv) {
 	 * Moved here to distinguish command line options and to show up
 	 * in the log if stderr is redirected to a file.
 	 */
-	printf("%s\r\n", circlemud_version);
-	printf("%s\r\n", DG_SCRIPT_VERSION);
+	printf("[%s] %s\r\n", observability::NowTs().c_str(), circlemud_version);
+	printf("[%s] %s\r\n", observability::NowTs().c_str(), DG_SCRIPT_VERSION);
 	if (getcwd(cwd, sizeof(cwd))) {};
-	printf("Current directory '%s' using '%s' as data directory.\r\n", cwd, dir);
+	printf("[%s] Current directory '%s' using '%s' as data directory.\r\n", observability::NowTs().c_str(), cwd, dir);
 	{
 		std::string config_path = std::string(dir) + "/misc/configuration.xml";
 		runtime_config.load(config_path.c_str());
@@ -732,12 +733,12 @@ int main_function(int argc, char **argv) {
 		exit(1);
 	}
 	log_code_date();
-	printf("Code version %s, revision: %s\r\n", build_datetime, revision);
+	printf("[%s] Code version %s, revision: %s\r\n", observability::NowTs().c_str(), build_datetime, revision);
 	if (scheck) {
 		GameLoader::BootWorld();
 		printf("Done.");
 	} else {
-		printf("Running game on port %d.\r\n", port);
+		printf("[%s] Running game on port %d.\r\n", observability::NowTs().c_str(), port);
 
 		// стль и буст юзаются уже немало где, а про их экспешены никто не думает
 		// пока хотя бы стльные ловить и просто логировать факт того, что мы вышли
@@ -1407,7 +1408,7 @@ void game_loop(int epoll, socket_t mother_desc)
 void game_loop(socket_t mother_desc)
 #endif
 {
-	printf("Game started.\n");
+	printf("[%s] Game started.\n", observability::NowTs().c_str());
 
 #ifdef HAS_EPOLL
 	struct epoll_event *events;

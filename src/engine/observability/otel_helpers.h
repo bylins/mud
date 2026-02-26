@@ -146,6 +146,12 @@ public:
  */
 std::string koi8r_to_utf8(const std::string& input);
 
+/**
+ * Current timestamp as "YYYY-MM-DD HH:MM:SS.mmm".
+ * Used to prefix startup messages printed to stdout.
+ */
+std::string NowTs();
+
 } // namespace observability
 
 #endif // BYLINS_OTEL_HELPERS_H
