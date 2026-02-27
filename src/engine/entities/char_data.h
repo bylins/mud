@@ -27,9 +27,6 @@
 #include <bitset>
 #include <list>
 #include <map>
-// Forward declarations for OpenTelemetry
-namespace tracing { class ISpan; }
-namespace observability { class BaggageScope; }
 
 
 // pernalty types
@@ -834,10 +831,6 @@ class CharData : public ProtectedCharData {
 	void dismount();
 	bool IsLeader();
 
-	// OpenTelemetry combat tracing (instrumentation)
-	std::shared_ptr<tracing::ISpan> m_combat_root_span;
-	std::shared_ptr<observability::BaggageScope> m_combat_baggage_scope;
-	std::string m_combat_id;
 };
 
 # define MAX_FIRSTAID_REMOVE 17
