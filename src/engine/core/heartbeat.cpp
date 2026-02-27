@@ -576,13 +576,6 @@ void Heartbeat::operator()(const int missed_pulses) {
 	m_measurements.add(label, pulse_number(), execution_time.count());
 
 #ifdef WITH_OTEL
-	static int debug_counter = 0;
-	if (++debug_counter % 250 == 0) {  // Every 10 seconds
-		char debug_buf[256];
-		snprintf(debug_buf, sizeof(debug_buf), "DEBUG: Heartbeat OTEL called, label.size=%zu, pulse_mod=%d",
-			label.size(), pulse_number() % 25);
-		mudlog(debug_buf, CMP, kLvlImmortal, SYSLOG, true);
-	}
 	// 1. Metrics for each executed step
 	for (const auto& [step_index, step_time] : label) {
 		if (step_index < m_steps.size()) {

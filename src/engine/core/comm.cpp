@@ -675,9 +675,7 @@ int main_function(int argc, char **argv) {
 					   "  -h             Print this command line argument help.\n"
 					   "  -o <file>      Write log to <file> instead of stderr.\n"
 					   "  -r             Restrict MUD -- no new players allowed.\n"
-					   "  -s             Suppress special procedure assignments.\n"
-				   "\n"
-				   	   "  -S <database>  Use SQLite database for world loading.\n", argv[0]);
+					   "  -s             Suppress special procedure assignments.\n", argv[0]);
 				exit(0);
 
 			default: printf("SYSERR: Unknown option -%c in argument string.\n", *(argv[pos] + 1));
@@ -687,9 +685,7 @@ int main_function(int argc, char **argv) {
 					   "  -h             Print this command line argument help.\n"
 					   "  -o <file>      Write log to <file> instead of stderr.\n"
 					   "  -r             Restrict MUD -- no new players allowed.\n"
-					   "  -s             Suppress special procedure assignments.\n"
-				   "\n"
-				   	   "  -S <database>  Use SQLite database for world loading.\n", argv[0]);
+					   "  -s             Suppress special procedure assignments.\n", argv[0]);
 				exit(1);
 			break;
 		}
