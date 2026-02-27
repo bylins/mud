@@ -222,28 +222,6 @@ void OtelProvider::Shutdown() {
 #endif
 }
 
-#ifdef WITH_OTEL
-nostd::shared_ptr<trace_api::Tracer> OtelProvider::GetTracer() {
-    if (!m_enabled || !m_tracer_provider) {
-        return nostd::shared_ptr<trace_api::Tracer>(nullptr);
-    }
-    return m_tracer_provider->GetTracer("bylins-tracer", "1.0.0");
-}
-
-nostd::shared_ptr<metrics_api::Meter> OtelProvider::GetMeter() {
-    if (!m_enabled || !m_meter_provider) {
-        return nostd::shared_ptr<metrics_api::Meter>(nullptr);
-    }
-    return m_meter_provider->GetMeter("bylins-meter", "1.0.0");
-}
-
-nostd::shared_ptr<logs_api::Logger> OtelProvider::GetLogger() {
-    if (!m_enabled || !m_logger_provider) {
-        return nostd::shared_ptr<logs_api::Logger>(nullptr);
-    }
-    return m_logger_provider->GetLogger("bylins-logger", "", "", "");
-}
-#endif
 
 } // namespace observability
 

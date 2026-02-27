@@ -622,6 +622,16 @@ void beat_punish(const CharData::shared_ptr &i) {
 	}
 }
 
+static void record_level_remort_distribution(const std::map<std::string, int>& distribution) {
+	for (const auto& [key, count] : distribution) {
+		size_t level_end = key.find("_remort_");
+		std::string level_str = key.substr(6, level_end - 6);
+		std::string remort_str = key.substr(level_end + 8);
+		observability::OtelMetrics::RecordGauge("players.by_level_remort.count", count,
+			{{"level", level_str}, {"remort", remort_str}});
+	}
+}
+
 void beat_points_update(int pulse) {
 	// OpenTelemetry: Track beat points update
 	auto beat_span = tracing::TraceManager::Instance().StartSpan("Beat Points Update");
@@ -767,26 +777,10 @@ void beat_points_update(int pulse) {
 		//-MZ.overflow_fix
 	}
 	
-	// OpenTelemetry: Record player statistics
 	beat_span->SetAttribute("player_count", static_cast<int64_t>(online_count));
-	
 	observability::OtelMetrics::RecordGauge("players.online.count", online_count);
 	observability::OtelMetrics::RecordGauge("players.in_combat.count", in_combat_count);
-	
-	// Record level/remort distribution
-	for (const auto& [key, count] : level_remort_distribution) {
-		// Parse key "level_X_remort_Y"
-		size_t level_pos = key.find("level_") + 6;
-		size_t remort_pos = key.find("_remort_") + 8;
-		std::string level_str = key.substr(level_pos, key.find("_remort_") - level_pos);
-		std::string remort_str = key.substr(remort_pos);
-		
-		std::map<std::string, std::string> attrs;
-		attrs["level"] = level_str;
-		attrs["remort"] = remort_str;
-		
-		observability::OtelMetrics::RecordGauge("players.by_level_remort.count", count, attrs);
-	}
+	record_level_remort_distribution(level_remort_distribution);
 }
 
 void update_clan_exp(CharData *ch, int gain) {

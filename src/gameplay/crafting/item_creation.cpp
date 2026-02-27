@@ -17,9 +17,7 @@
 #include "engine/db/global_objects.h"
 #include "gameplay/core/base_stats.h"
 #include "gameplay/core/constants.h"
-#include "engine/observability/otel_helpers.h"
 #include "engine/observability/otel_metrics.h"
-#include "utils/tracing/trace_manager.h"
 
 #include <cmath>
 
@@ -1602,15 +1600,6 @@ int MakeRecept::make(CharData *ch) {
 	// Проверяем возможность создания предмета
 	if (!IS_IMMORTAL(ch) && (skill == ESkill::kMakeStaff)) {
 		const ObjData obj(*tobj);
-
-	// OpenTelemetry: Track crafting
-	auto craft_span = tracing::TraceManager::Instance().StartSpan("Craft Item");
-	observability::ScopedMetric craft_metric("craft.duration");
-	
-	auto tobj_name = tobj->get_PName(ECase::kNom);
-	craft_span->SetAttribute("recipe_id", static_cast<int64_t>(obj_proto));
-	craft_span->SetAttribute("recipe_name", observability::koi8r_to_utf8(std::string(tobj_name.c_str())));
-	craft_span->SetAttribute("skill", observability::koi8r_to_utf8(std::string(NAME_BY_ITEM(skill))));
 		act("Вы не готовы к тому чтобы сделать $o3.", false, ch, &obj, 0, kToChar);
 		return (false);
 	}

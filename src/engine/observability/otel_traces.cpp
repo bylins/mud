@@ -45,7 +45,7 @@ void Span::SetAttribute(const std::string& key, double value) {
 Span OtelTraces::StartSpan(const std::string& name) {
 #ifdef WITH_OTEL
     if (OtelProvider::Instance().IsEnabled()) {
-        auto tracer = OtelProvider::Instance().GetTracer();
+        auto tracer = trace_api::Provider::GetTracerProvider()->GetTracer("bylins-tracer", "1.0.0");
         if (tracer) {
             return Span(tracer->StartSpan(koi8r_to_utf8(name)));
         }
@@ -58,7 +58,7 @@ Span OtelTraces::StartSpan(const std::string& name,
                           const std::map<std::string, std::string>& attributes) {
 #ifdef WITH_OTEL
     if (OtelProvider::Instance().IsEnabled()) {
-        auto tracer = OtelProvider::Instance().GetTracer();
+        auto tracer = trace_api::Provider::GetTracerProvider()->GetTracer("bylins-tracer", "1.0.0");
         if (tracer) {
             auto span = tracer->StartSpan(koi8r_to_utf8(name));
             for (const auto& attr : attributes) {

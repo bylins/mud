@@ -665,24 +665,23 @@ ObjData *get_obj_by_char(CharData *ch, char *name) {
 	return nullptr;
 }
 
+static const char *trigger_type_name(int mode) {
+	switch (mode) {
+		case MOB_TRIGGER: return "MOB";
+		case OBJ_TRIGGER: return "OBJ";
+		case WLD_TRIGGER: return "WLD";
+		default: return "UNKNOWN";
+	}
+}
+
 // checks every PLUSE_SCRIPT for random triggers
 void script_trigger_check(int mode) {
 	utils::CExecutionTimer timer;
 
-	// OpenTelemetry: Track script trigger checking
 	auto trigger_span = tracing::TraceManager::Instance().StartSpan("Script Trigger Check");
 	observability::ScopedMetric trigger_metric("script.trigger.duration");
-	
-	// Determine trigger type
-	std::string trigger_type;
-	switch (mode) {
-		case MOB_TRIGGER: trigger_type = "MOB"; break;
-		case OBJ_TRIGGER: trigger_type = "OBJ"; break;
-		case WLD_TRIGGER: trigger_type = "WLD"; break;
-		default: trigger_type = "UNKNOWN"; break;
-	}
-	
-	trigger_span->SetAttribute("trigger_type", trigger_type);
+
+	trigger_span->SetAttribute("trigger_type", trigger_type_name(mode));
 	trigger_span->SetAttribute("mode", static_cast<int64_t>(mode));
 	
 
@@ -730,10 +729,6 @@ void script_trigger_check(int mode) {
 		break;
 	}
 	
-	// OpenTelemetry: Record script trigger metrics
-	std::map<std::string, std::string> attrs;
-	attrs["trigger_type"] = trigger_type;
-
 	log("script_trigger_check() mode %d всего: %f ms.", mode, timer.delta().count());
 }
 

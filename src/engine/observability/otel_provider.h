@@ -35,12 +35,6 @@ public:
     
     bool IsEnabled() const { return m_enabled; }
 
-#ifdef WITH_OTEL
-    nostd::shared_ptr<trace_api::Tracer> GetTracer();
-    nostd::shared_ptr<metrics_api::Meter> GetMeter();
-    nostd::shared_ptr<logs_api::Logger> GetLogger();
-#endif
-
 private:
     OtelProvider();
     ~OtelProvider() = default;

@@ -89,7 +89,7 @@ static void LogWithLevel(logging::LogLevel level,
 						const std::string& message,
 						const std::map<std::string, std::string>& attributes) {
 	if (OtelProvider::Instance().IsEnabled()) {
-		auto logger = OtelProvider::Instance().GetLogger();
+		auto logger = logs_api::Provider::GetLoggerProvider()->GetLogger("bylins-logger", "", "", "");
 		if (logger) {
 			auto log_record = logger->CreateLogRecord();
 			if (log_record) {

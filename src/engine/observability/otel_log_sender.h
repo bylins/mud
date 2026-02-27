@@ -3,8 +3,6 @@
 
 #include "utils/logging/log_sender.h"
 
-#ifdef WITH_OTEL
-
 namespace observability {
 
 // OTEL implementation of log sender
@@ -31,7 +29,5 @@ public:
 };
 
 } // namespace observability
-
-#endif // WITH_OTEL
 
 #endif // BYLINS_OTEL_LOG_SENDER_H

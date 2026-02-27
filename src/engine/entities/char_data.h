@@ -28,7 +28,6 @@
 #include <list>
 #include <map>
 
-
 // pernalty types
 enum { P_DAMROLL, P_HITROLL, P_CAST, P_MEM_GAIN, P_MOVE_GAIN, P_HIT_GAIN, P_AC };
 
@@ -830,7 +829,6 @@ class CharData : public ProtectedCharData {
 	bool IsHorsePrevents();
 	void dismount();
 	bool IsLeader();
-
 };
 
 # define MAX_FIRSTAID_REMOVE 17
