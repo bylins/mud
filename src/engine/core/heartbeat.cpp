@@ -550,6 +550,24 @@ Heartbeat::Heartbeat() :
 	m_global_pulse_number(0) {
 }
 
+void Heartbeat::record_otel_metrics(const pulse_label_t &label, double execution_time_sec, int missed_pulses) {
+	for (const auto& [step_index, step_time] : label) {
+		if (step_index < m_steps.size()) {
+			std::map<std::string, std::string> step_attrs;
+			step_attrs["step"] = m_steps[step_index].name();
+			observability::OtelMetrics::RecordHistogram("heartbeat.step.duration", step_time, step_attrs);
+		}
+	}
+
+	std::map<std::string, std::string> pulse_attrs;
+	pulse_attrs["pulse_mod"] = std::to_string(pulse_number() % 25);
+	observability::OtelMetrics::RecordHistogram("heartbeat.total.duration", execution_time_sec, pulse_attrs);
+
+	if (missed_pulses > 0) {
+		observability::OtelMetrics::RecordCounter("heartbeat.missed_pulses_total", missed_pulses);
+	}
+}
+
 void Heartbeat::operator()(const int missed_pulses) {
 	pulse_label_t label;
 
@@ -574,27 +592,7 @@ void Heartbeat::operator()(const int missed_pulses) {
 		mudlog(tmpbuf, LGH, kLvlImmortal, SYSLOG, true);
 	}
 	m_measurements.add(label, pulse_number(), execution_time.count());
-
-#ifdef WITH_OTEL
-	// 1. Metrics for each executed step
-	for (const auto& [step_index, step_time] : label) {
-		if (step_index < m_steps.size()) {
-			std::map<std::string, std::string> step_attrs;
-			step_attrs["step"] = m_steps[step_index].name();
-			observability::OtelMetrics::RecordHistogram("heartbeat.step.duration", step_time, step_attrs);
-		}
-	}
-	
-	// 2. Total pulse duration with modulo
-	std::map<std::string, std::string> pulse_attrs;
-	pulse_attrs["pulse_mod"] = std::to_string(pulse_number() % 25);
-	observability::OtelMetrics::RecordHistogram("heartbeat.total.duration", execution_time.count(), pulse_attrs);
-	
-	// 3. Record missed pulses if any
-	if (missed_pulses > 0) {
-		observability::OtelMetrics::RecordCounter("heartbeat.missed_pulses_total", missed_pulses);
-	}
-#endif
+	record_otel_metrics(label, execution_time.count(), missed_pulses);
 
 	// Close parent span
 	pulse_span->SetAttribute("heartbeat_number", static_cast<int64_t>(current_heartbeat_number));

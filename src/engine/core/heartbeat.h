@@ -206,6 +206,7 @@ class Heartbeat {
 
 	void advance_pulse_numbers();
 	void pulse(const int missed_pulses, pulse_label_t &label);
+	void record_otel_metrics(const pulse_label_t &label, double execution_time_sec, int missed_pulses);
 
 	steps_t m_steps;
 	pulse_t m_pulse_number;
