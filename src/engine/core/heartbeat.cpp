@@ -550,7 +550,7 @@ Heartbeat::Heartbeat() :
 	m_global_pulse_number(0) {
 }
 
-void Heartbeat::record_otel_metrics(const pulse_label_t &label, double execution_time_sec, int missed_pulses) {
+void Heartbeat::record_metrics(const pulse_label_t &label, double execution_time_sec, int missed_pulses) {
 	for (const auto& [step_index, step_time] : label) {
 		if (step_index < m_steps.size()) {
 			std::map<std::string, std::string> step_attrs;
@@ -592,7 +592,7 @@ void Heartbeat::operator()(const int missed_pulses) {
 		mudlog(tmpbuf, LGH, kLvlImmortal, SYSLOG, true);
 	}
 	m_measurements.add(label, pulse_number(), execution_time.count());
-	record_otel_metrics(label, execution_time.count(), missed_pulses);
+	record_metrics(label, execution_time.count(), missed_pulses);
 
 	// Close parent span
 	pulse_span->SetAttribute("heartbeat_number", static_cast<int64_t>(current_heartbeat_number));
