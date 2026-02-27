@@ -580,7 +580,7 @@ void Heartbeat::operator()(const int missed_pulses) {
 	for (const auto& [step_index, step_time] : label) {
 		if (step_index < m_steps.size()) {
 			std::map<std::string, std::string> step_attrs;
-			step_attrs["step"] = observability::koi8r_to_utf8(m_steps[step_index].name());
+			step_attrs["step"] = m_steps[step_index].name();
 			observability::OtelMetrics::RecordHistogram("heartbeat.step.duration", step_time, step_attrs);
 		}
 	}
@@ -656,7 +656,7 @@ void Heartbeat::pulse(const int missed_pulses, pulse_label_t &label) {
 			utils::CExecutionTimer timer;
 			
 			// Create child span for this step
-			auto step_span = tracing::TraceManager::Instance().StartSpan(observability::koi8r_to_utf8(step.name()));
+			auto step_span = tracing::TraceManager::Instance().StartSpan(step.name());
 			step_span->SetAttribute("step_index", static_cast<int64_t>(i));
 			step_span->SetAttribute("step_modulo", static_cast<int64_t>(step.modulo()));
 			step.action()->perform(pulse_number(), missed_pulses);
