@@ -13,8 +13,8 @@ struct GlobalObjectsStorage {
 	/// This object should be destroyed last because it serves all output operations. So I define it first.
 	std::shared_ptr<OutputThread> output_thread;
 
-	/// LogManager intentionally leaked (never destroyed) to serve log() calls from destructors
-	logging::LogManager* log_manager;
+	/// Declared before other game objects so it is destroyed after them (C++ reverse-init order).
+	std::unique_ptr<logging::LogManager> log_manager;
 
 	celebrates::CelebrateList mono_celebrates;
 	celebrates::CelebrateList poly_celebrates;
@@ -58,9 +58,8 @@ struct GlobalObjectsStorage {
 };
 
 GlobalObjectsStorage::GlobalObjectsStorage() :
-	log_manager(new logging::LogManager()),
+	log_manager(std::make_unique<logging::LogManager>()),
 	ban(nullptr) {
-	// log_manager intentionally never deleted - will leak at shutdown
 }
 
 // This function ensures that global objects will be created at the moment of getting access to them

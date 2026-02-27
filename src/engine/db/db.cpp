@@ -2331,12 +2331,10 @@ void ZoneReset::Reset() {
 	ResetZoneEssential();
 	const auto execution_time = timer.delta();
 
-#ifdef WITH_OTEL
 	std::map<std::string, std::string> attrs;
 	attrs["pulse"] = std::to_string(GlobalObjects::heartbeat().pulse_number());
 	attrs["zone"] = std::to_string(zone_table[m_zone_rnum].vnum);
 	observability::OtelMetrics::RecordHistogram("zone.reset.duration", execution_time.count(), attrs);
-#endif
 }
 
 bool ZoneReset::HandleZoneCmdQ(const MobRnum rnum) const {
@@ -2363,13 +2361,11 @@ bool ZoneReset::HandleZoneCmdQ(const MobRnum rnum) const {
 
 	const auto execution_time = overall_timer.delta();
 
-#ifdef WITH_OTEL
 	std::map<std::string, std::string> attrs;
 	attrs["pulse"] = std::to_string(GlobalObjects::heartbeat().pulse_number());
 	attrs["zone"] = std::to_string(zone_table[m_zone_rnum].vnum);
 	attrs["rnum"] = std::to_string(rnum);
 	observability::OtelMetrics::RecordHistogram("zone.command.Q.duration", execution_time.count(), attrs);
-#endif
 
 	return extracted;
 }
