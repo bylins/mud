@@ -46,7 +46,6 @@
 #include "gameplay/mechanics/sets_drop.h"
 #include "gameplay/mechanics/stable_objs.h"
 #include "gameplay/economics/shop_ext.h"
-#include "engine/observability/otel_metrics.h"
 #include "gameplay/mechanics/stuff.h"
 #include "gameplay/mechanics/title.h"
 #include "gameplay/statistics/top.h"
@@ -1930,6 +1929,31 @@ void after_reset_zone(ZoneRnum nr_zone) {
 
 const int ZO_DEAD{999999};
 
+// Zone name is KOI8-R; OtelMetrics auto-converts to UTF-8.
+class ZoneResetMetrics {
+public:
+	explicit ZoneResetMetrics(ZoneRnum zone_rnum)
+		: m_zone_name(zone_table[zone_rnum].name) {}
+
+	void RecordReset(double duration_seconds) {
+		observability::OtelMetrics::RecordHistogram("zone.reset.duration", duration_seconds,
+			{{"zone", m_zone_name}});
+	}
+
+	void RecordResetCount() {
+		observability::OtelMetrics::RecordCounter("zone.reset.total", 1,
+			{{"zone", m_zone_name}});
+	}
+
+	void RecordZoneCmdQ(double duration_seconds, MobRnum rnum) {
+		observability::OtelMetrics::RecordHistogram("zone.command.Q.duration", duration_seconds,
+			{{"zone", m_zone_name}, {"rnum", std::to_string(rnum)}});
+	}
+
+private:
+	std::string m_zone_name; // KOI8-R; auto-converted by OtelMetrics
+};
+
 // update zone ages, queue for reset if necessary, and dequeue when possible
 void ZoneUpdate() {
 	int k = 0;
@@ -2003,11 +2027,7 @@ void ZoneUpdate() {
 					ResetZone(it);
 					zones_reset_count++;
 					
-					// OpenTelemetry: Record zone reset
-					std::map<std::string, std::string> attrs;
-					attrs["zone"] = observability::koi8r_to_utf8(zone_table[it].name);
-					
-					observability::OtelMetrics::RecordCounter("zone.reset.total", 1, attrs);
+					ZoneResetMetrics(it).RecordResetCount();
 				} else {
 					log("Закрываю брошенный dungeon %d", it);
 					dungeons::DungeonReset(it);
@@ -2329,9 +2349,7 @@ void ZoneReset::Reset() {
 	ResetZoneEssential();
 	const auto execution_time = timer.delta();
 
-	std::map<std::string, std::string> attrs;
-	attrs["zone"] = observability::koi8r_to_utf8(zone_table[m_zone_rnum].name);
-	observability::OtelMetrics::RecordHistogram("zone.reset.duration", execution_time.count(), attrs);
+	ZoneResetMetrics(m_zone_rnum).RecordReset(execution_time.count());
 }
 
 bool ZoneReset::HandleZoneCmdQ(const MobRnum rnum) const {
@@ -2358,10 +2376,7 @@ bool ZoneReset::HandleZoneCmdQ(const MobRnum rnum) const {
 
 	const auto execution_time = overall_timer.delta();
 
-	std::map<std::string, std::string> attrs;
-	attrs["zone"] = observability::koi8r_to_utf8(zone_table[m_zone_rnum].name);
-	attrs["rnum"] = std::to_string(rnum);
-	observability::OtelMetrics::RecordHistogram("zone.command.Q.duration", execution_time.count(), attrs);
+	ZoneResetMetrics(m_zone_rnum).RecordZoneCmdQ(execution_time.count(), rnum);
 
 	return extracted;
 }

@@ -27,7 +27,6 @@
 #include "gameplay/statistics/spell_usage.h"
 #include "utils/backtrace.h"
 
-#include "engine/observability/otel_helpers.h"
 #include "engine/observability/otel_metrics.h"
 #include "utils/tracing/trace_manager.h"
 #include <third_party_libs/fmt/include/fmt/format.h>
@@ -339,8 +338,8 @@ class SpellCastMetrics {
 public:
 	SpellCastMetrics(ESpell spell_id, const CharData* caster, int level,
 	                 const CharData* cvict, const ObjData* ovict, const RoomData* rvict)
-		: m_spell_name(observability::koi8r_to_utf8(MUD::Spell(spell_id).GetCName()))
-		, m_caster_class(observability::koi8r_to_utf8(MUD::Class(caster->GetClass()).GetName()))
+		: m_spell_name(MUD::Spell(spell_id).GetCName())
+		, m_caster_class(MUD::Class(caster->GetClass()).GetName())
 		, m_span(tracing::TraceManager::Instance().StartSpan("Spell Cast"))
 		, m_duration("spell.cast.duration", {
 			{"spell_name",   m_spell_name},

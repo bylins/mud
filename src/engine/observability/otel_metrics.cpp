@@ -14,8 +14,10 @@ namespace observability {
 #ifdef WITH_OTEL
 static std::unordered_map<std::string, std::unique_ptr<opentelemetry::metrics::Histogram<double>>> histogram_cache;
 
-// Convert all string attribute values from KOI8-R to UTF-8 at the wrapper boundary.
-// This ensures callers never need to manually convert - the OtelMetrics API handles it.
+// Convert all string attribute values from KOI8-R to UTF-8 at the API boundary.
+// Callers MUST pass raw KOI8-R strings -- do NOT call koi8r_to_utf8() before passing attrs here,
+// that would cause double-conversion and produce garbage.
+// NOTE: ISpan::SetAttribute(string) also auto-converts -- same rule applies there.
 static std::map<std::string, std::string> ToUtf8Attrs(const std::map<std::string, std::string>& attrs) {
     std::map<std::string, std::string> result;
     for (const auto& [k, v] : attrs) {
