@@ -75,7 +75,7 @@
 
 **Частота**: каждые 400ms (каждые 10 тиков)
 
-- ScopedMetric `mob.ai.duration`: ~300 ns
+- ScopedMetric `mob.activity.duration`: ~300 ns
 - RecordGauge `mob.active.count`: ~150 ns
 
 **Overhead**: ~0.5 µs на цикл = **пренебрежимо**
@@ -110,7 +110,7 @@ Overhead <<< времени I/O операции. **Пренебрежимо.**
 
 **Частота**: 5–50 заклинаний в секунду
 
-- ScopedMetric `spell.cast.duration` с атрибутами spell_id/caster_class: ~400 ns
+- ScopedMetric `spell.cast.duration` с атрибутами spell_name/caster_class (русские имена): ~400 ns
 - RecordCounter `spell.cast.total`: ~150 ns
 
 **При 20 заклинаниях/сек**: ~11 µs/сек = **0.001% CPU**
@@ -144,8 +144,7 @@ Overhead <<< времени I/O операции. **Пренебрежимо.**
 
 **Частота**: редко (ручной крафт игроками)
 
-- ScopedMetric `craft.duration`: ~300 ns
-- RecordCounter `craft.completed.total` / `craft.failures.total`: ~150 ns
+- RecordCounter `craft.completed.total` / `craft.failures.total`: ~150 ns × 2
 
 **Overhead**: **пренебрежимо**
 
