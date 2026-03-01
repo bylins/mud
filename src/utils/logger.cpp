@@ -128,21 +128,6 @@ static const char* stream_name_for_file(FILE* file) {
 	return "syslog";
 }
 
-void write_log_message(const std::string& message, FILE* file) {
-	if (!file) {
-		return;
-	}
-	if (!runtime_config.output_thread() && runtime_config.log_stderr().empty()) {
-		fputs(message.c_str(), file);
-		fputs("\n", file);
-	} else {
-		const std::size_t len = message.size();
-		std::shared_ptr<char> buffer(new char[len + 1], [](char *p) { delete[] p; });
-		memcpy(buffer.get(), message.c_str(), len);
-		buffer.get()[len] = '\0';
-		GlobalObjects::output_thread().output(OutputThread::message_t{buffer, len, file});
-	}
-}
 
 void vlog(const char *format, va_list args, FILE *logfile) {
 	if (!runtime_config.logging_enabled()) {

@@ -1,8 +1,27 @@
 #include "file_log_sender.h"
 #include "utils/logger.h"
 #include "engine/core/config.h"
+#include "engine/db/global_objects.h"
+
+#include <cstring>
 
 namespace logging {
+
+static void write_log_message(const std::string& message, FILE* file) {
+	if (!file) {
+		return;
+	}
+	if (!runtime_config.output_thread() && runtime_config.log_stderr().empty()) {
+		fputs(message.c_str(), file);
+		fputs("\n", file);
+	} else {
+		const std::size_t len = message.size();
+		std::shared_ptr<char> buffer(new char[len + 1], [](char *p) { delete[] p; });
+		memcpy(buffer.get(), message.c_str(), len);
+		buffer.get()[len] = '\0';
+		GlobalObjects::output_thread().output(OutputThread::message_t{buffer, len, file});
+	}
+}
 
 FileLogSender::FileLogSender() {
     // Constructor - file handles are managed by runtime_config
