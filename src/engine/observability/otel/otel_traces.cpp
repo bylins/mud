@@ -1,6 +1,6 @@
 #include "otel_traces.h"
-#include "otel_provider.h"
-#include "otel_helpers.h"
+#include "engine/observability/otel_provider.h"
+#include "engine/observability/otel_helpers.h"
 #include "opentelemetry/trace/provider.h"
 
 namespace observability {

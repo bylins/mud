@@ -2,8 +2,8 @@
 
 #include <string>
 
-#include "otel_helpers.h"
-#include "otel_provider.h"
+#include "engine/observability/otel_helpers.h"
+#include "engine/observability/otel_provider.h"
 #include "opentelemetry/logs/provider.h"
 #include "opentelemetry/logs/logger.h"
 #include "opentelemetry/trace/provider.h"

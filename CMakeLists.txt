@@ -671,7 +671,7 @@ set(HEADERS
 		src/utils/utils_time.h
 		src/utils/tracing/trace_sender.h
 		src/utils/tracing/trace_manager.h
-		src/engine/observability/otel_trace_sender.h
+		src/engine/observability/otel/otel_trace_sender.h
 		src/gameplay/mechanics/title.h
 		src/gameplay/statistics/top.h
 		src/utils/utils.h
@@ -909,10 +909,10 @@ set(HEADERS
 		src/gameplay/skills/addshot.h
 		src/engine/db/player_index.h
 		src/engine/observability/otel_provider.h
-		src/engine/observability/otel_traces.h
+		src/engine/observability/otel/otel_traces.h
 		src/engine/observability/otel_metrics.h
 		src/engine/observability/otel_helpers.h
-		src/engine/observability/otel_log_sender.h
+		src/engine/observability/otel/otel_log_sender.h
 		src/utils/logging/log_sender.h
 		src/gameplay/classes/recalc_mob_params_by_vnum.h)
 
@@ -1236,9 +1236,9 @@ if (WITH_OTEL)
 
 	# OTEL-specific implementation files (require OTEL headers)
 	target_sources(circle.library PRIVATE
-		src/engine/observability/otel_trace_sender.cpp
-		src/engine/observability/otel_traces.cpp
-		src/engine/observability/otel_log_sender.cpp
+		src/engine/observability/otel/otel_trace_sender.cpp
+		src/engine/observability/otel/otel_traces.cpp
+		src/engine/observability/otel/otel_log_sender.cpp
 	)
 
 	# Link OpenTelemetry libraries
