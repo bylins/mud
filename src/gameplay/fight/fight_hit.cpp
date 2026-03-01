@@ -27,8 +27,8 @@
 #include "gameplay/skills/shield_block.h"
 #include "gameplay/skills/backstab.h"
 #include "gameplay/skills/ironwind.h"
-#include "engine/observability/otel_helpers.h"
-#include "engine/observability/otel_metrics.h"
+#include "engine/observability/helpers.h"
+#include "engine/observability/metrics.h"
 #include "gameplay/mechanics/armor.h"
 #include "gameplay/skills/addshot.h"
 

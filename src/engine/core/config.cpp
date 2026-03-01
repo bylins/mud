@@ -40,7 +40,7 @@ inline std::string NowTs() {
 }
 } // anonymous namespace
 #ifdef WITH_OTEL
-#include "engine/observability/otel_provider.h"
+#include "engine/observability/provider.h"
 #endif
 using ETelemetryLogMode = RuntimeConfiguration::ETelemetryLogMode;
 #include <sys/stat.h>

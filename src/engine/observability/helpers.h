@@ -3,7 +3,7 @@
 
 #include "utils/utils_time.h"
 #include "utils/timestamp.h"
-#include "otel_metrics.h"
+#include "metrics.h"
 #include <string>
 #include <map>
 #include <memory>

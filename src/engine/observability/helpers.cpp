@@ -1,4 +1,4 @@
-#include "otel_helpers.h"
+#include "helpers.h"
 #include <iconv.h>
 
 namespace observability {

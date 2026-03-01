@@ -44,7 +44,7 @@
 #include "common.h"
 
 #include <third_party_libs/fmt/include/fmt/format.h>
-#include "engine/observability/otel_metrics.h"
+#include "engine/observability/metrics.h"
 
 // Structures
 std::list<combat_list_element> combat_list;

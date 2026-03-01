@@ -16,8 +16,8 @@
 #include "gameplay/mechanics/named_stuff.h"
 #include "gameplay/fight/pk.h"
 #include "gameplay/ai/spec_procs.h"
-#include "engine/observability/otel_helpers.h"
-#include "engine/observability/otel_metrics.h"
+#include "engine/observability/helpers.h"
+#include "engine/observability/metrics.h"
 #include "utils/tracing/trace_manager.h"
 
 const int kMaxAuctionLot = 3;

@@ -28,7 +28,7 @@
 #include "gameplay/mechanics/sight.h"
 #include "gameplay/ai/mob_memory.h"
 #include "engine/entities/zone.h"
-#include "engine/observability/otel_metrics.h"
+#include "engine/observability/metrics.h"
 #include "gameplay/core/game_limits.h"
 #include "gameplay/mechanics/illumination.h"
 #include "utils/utils_time.h"

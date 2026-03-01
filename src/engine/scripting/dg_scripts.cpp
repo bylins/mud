@@ -39,8 +39,8 @@
 #include "utils/backtrace.h"
 #include "gameplay/mechanics/armor.h"
 #include "gameplay/classes/recalc_mob_params_by_vnum.h"
-#include "engine/observability/otel_helpers.h"
-#include "engine/observability/otel_metrics.h"
+#include "engine/observability/helpers.h"
+#include "engine/observability/metrics.h"
 #include "utils/tracing/trace_manager.h"
 
 extern int max_exp_gain_pc(CharData *ch);

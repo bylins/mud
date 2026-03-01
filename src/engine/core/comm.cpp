@@ -37,7 +37,7 @@
 #include "engine/db/world_characters.h"
 #include "engine/entities/entities_constants.h"
 #include "administration/shutdown_parameters.h"
-#include "engine/observability/otel_provider.h"
+#include "engine/observability/provider.h"
 #include "utils/timestamp.h"
 #include "external_trigger.h"
 #include "handler.h"

@@ -27,8 +27,8 @@
 
 #include "gameplay/abilities/abilities_rollsystem.h"
 #include "engine/core/action_targeting.h"
-#include "engine/observability/otel_helpers.h"
-#include "engine/observability/otel_metrics.h"
+#include "engine/observability/helpers.h"
+#include "engine/observability/metrics.h"
 #include "utils/tracing/trace_manager.h"
 #include "engine/core/char_movement.h"
 #include "engine/db/world_characters.h"

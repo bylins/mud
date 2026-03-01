@@ -27,8 +27,8 @@
 #include "player_index.h"
 
 #include <sys/stat.h>
-#include "engine/observability/otel_helpers.h"
-#include "engine/observability/otel_metrics.h"
+#include "engine/observability/helpers.h"
+#include "engine/observability/metrics.h"
 #include "utils/tracing/trace_manager.h"
 #include <third_party_libs/fmt/include/fmt/format.h>
 

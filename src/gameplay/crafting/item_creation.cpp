@@ -17,7 +17,7 @@
 #include "engine/db/global_objects.h"
 #include "gameplay/core/base_stats.h"
 #include "gameplay/core/constants.h"
-#include "engine/observability/otel_metrics.h"
+#include "engine/observability/metrics.h"
 
 #include <cmath>
 

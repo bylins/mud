@@ -1,10 +1,10 @@
-#include "otel_metrics.h"
-#include "otel_provider.h"
+#include "metrics.h"
+#include "provider.h"
 #include <unordered_map>
 #include <memory>
 
 #ifdef WITH_OTEL
-#include "otel_helpers.h"
+#include "helpers.h"
 #include "opentelemetry/metrics/provider.h"
 #include "opentelemetry/context/context.h"
 
