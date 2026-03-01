@@ -715,6 +715,16 @@ private:
 	double m_duration;
 };
 
+static void record_active_lots() {
+	int count = 0;
+	for (int j = 0; j < kMaxAuctionLot; j++) {
+		if (GET_LOT(j)->seller && GET_LOT(j)->item) {
+			++count;
+		}
+	}
+	observability::OtelMetrics::RecordGauge("auction.lots.active", count);
+}
+
 void sell_auction(int lot) {
 	CharData *ch, *tch;
 	ObjData *obj;
@@ -859,15 +869,7 @@ void tact_auction(void) {
 			sell_auction(i);
 	}
 
-	{
-		int active_lots = 0;
-		for (int j = 0; j < kMaxAuctionLot; j++) {
-			if (GET_LOT(j)->seller && GET_LOT(j)->item) {
-				++active_lots;
-			}
-		}
-		observability::OtelMetrics::RecordGauge("auction.lots.active", active_lots);
-	}
+	record_active_lots();
 }
 
 AuctionItem *free_auction(int *lotnum) {
