@@ -1,7 +1,5 @@
 #include "otel_log_sender.h"
 
-#ifdef WITH_OTEL
-
 #include <string>
 
 #include "otel_helpers.h"
@@ -150,7 +148,5 @@ void OtelLogSender::Error(const std::string& message,
 }
 
 } // namespace observability
-
-#endif // WITH_OTEL
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

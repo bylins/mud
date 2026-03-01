@@ -1,6 +1,4 @@
 #include "otel_trace_sender.h"
-
-#ifdef WITH_OTEL
 #include "otel_helpers.h"
 #include "otel_provider.h"
 #include "opentelemetry/trace/provider.h"
@@ -106,7 +104,5 @@ std::unique_ptr<ISpan> OtelTraceSender::StartChildSpan(
 }
 
 } // namespace tracing
-
-#endif // WITH_OTEL
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
