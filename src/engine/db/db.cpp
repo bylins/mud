@@ -47,7 +47,6 @@
 #include "gameplay/mechanics/stable_objs.h"
 #include "gameplay/economics/shop_ext.h"
 #include "engine/observability/otel_metrics.h"
-#include "engine/observability/otel_traces.h"
 #include "gameplay/mechanics/stuff.h"
 #include "gameplay/mechanics/title.h"
 #include "gameplay/statistics/top.h"

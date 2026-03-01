@@ -26,7 +26,6 @@
 #include "gameplay/mechanics/corpse.h"
 #include "engine/db/global_objects.h"
 #include "engine/ui/cmd_god/do_set_all.h"
-#include "engine/observability/otel_traces.h"
 #include "engine/observability/otel_metrics.h"
 #include "engine/observability/otel_helpers.h"
 #include "gameplay/statistics/money_drop.h"

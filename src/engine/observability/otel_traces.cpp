@@ -1,15 +1,11 @@
 #include "otel_traces.h"
 #include "otel_provider.h"
 #include "otel_helpers.h"
-
-#ifdef WITH_OTEL
 #include "opentelemetry/trace/provider.h"
-#endif
 
 namespace observability {
 
-#ifdef WITH_OTEL
-Span::Span(opentelemetry::nostd::shared_ptr<trace_api::Span> span) : m_span(span) {}
+Span::Span(opentelemetry::nostd::shared_ptr<opentelemetry::trace::Span> span) : m_span(span) {}
 
 void Span::End() {
     if (m_span) {
@@ -40,25 +36,21 @@ void Span::SetAttribute(const std::string& key, double value) {
         m_span->SetAttribute(key, value);
     }
 }
-#endif
 
 Span OtelTraces::StartSpan(const std::string& name) {
-#ifdef WITH_OTEL
     if (OtelProvider::Instance().IsEnabled()) {
-        auto tracer = trace_api::Provider::GetTracerProvider()->GetTracer("bylins-tracer", "1.0.0");
+        auto tracer = opentelemetry::trace::Provider::GetTracerProvider()->GetTracer("bylins-tracer", "1.0.0");
         if (tracer) {
             return Span(tracer->StartSpan(koi8r_to_utf8(name)));
         }
     }
-#endif
     return Span();
 }
 
-Span OtelTraces::StartSpan(const std::string& name, 
+Span OtelTraces::StartSpan(const std::string& name,
                           const std::map<std::string, std::string>& attributes) {
-#ifdef WITH_OTEL
     if (OtelProvider::Instance().IsEnabled()) {
-        auto tracer = trace_api::Provider::GetTracerProvider()->GetTracer("bylins-tracer", "1.0.0");
+        auto tracer = opentelemetry::trace::Provider::GetTracerProvider()->GetTracer("bylins-tracer", "1.0.0");
         if (tracer) {
             auto span = tracer->StartSpan(koi8r_to_utf8(name));
             for (const auto& attr : attributes) {
@@ -67,8 +59,9 @@ Span OtelTraces::StartSpan(const std::string& name,
             return Span(span);
         }
     }
-#endif
     return Span();
 }
 
 } // namespace observability
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :
