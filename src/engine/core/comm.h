@@ -28,7 +28,7 @@ extern DescriptorData *descriptor_list;
 // comm.cpp
 void SendMsgToAll(const char *msg);
 void SendMsgToChar(const char *msg, const CharData *ch);
-void SendMsgToChar(const CharData *ch, const char *msg, ...) __attribute__((format(printf, 2, 3)));
+void SendMsgToChar(const CharData *ch, const char *msg, ...) __attribute__((format(gnu_printf, 2, 3)));
 void SendMsgToChar(const std::string &msg, const CharData *ch);
 void send_stat_char(const CharData *ch);
 void SendMsgToRoom(const char *msg, RoomRnum room, int to_awake);

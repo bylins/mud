@@ -2,7 +2,7 @@
 #include "engine/entities/char_player.h"
 #include "engine/db/world_characters.h"
 
-void do_telegram(CharData *ch, char *argument, int, int) {
+void do_telegram([[maybe_unused]] CharData *ch, [[maybe_unused]] char *argument, int, int) {
 #if defined(HAVE_TG)
 	unsigned long int tgId = 0;
 	bool found = false;
@@ -62,7 +62,7 @@ size_t noop_cb(void *, size_t size, size_t nmemb, void *) {
 	return size * nmemb;
 }
 
-bool TelegramBot::sendMessage(unsigned long chatId, const std::string &msg) {
+bool TelegramBot::sendMessage([[maybe_unused]] unsigned long chatId, [[maybe_unused]] const std::string &msg) {
 	bool result = true;
 #if defined(HAVE_TG)
 	char msgBuf[kMaxStringLength];

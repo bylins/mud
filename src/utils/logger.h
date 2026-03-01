@@ -12,16 +12,16 @@
 extern FILE *logfile;
 extern std::list<FILE *> opened_files;
 
-void pers_log(CharData *ch, const char *format, ...) __attribute__((format(printf, 2, 3)));
+void pers_log(CharData *ch, const char *format, ...) __attribute__((format(gnu_printf, 2, 3)));
 
 void log(std::string format);
-void log(const char *format, ...) __attribute__((format(printf, 1, 2)));
-void vlog(const char *format, va_list args) __attribute__((format(printf, 1, 0)));
-void vlog(const EOutputStream steam, const char *format, va_list args) __attribute__((format(printf, 2, 0)));
-void shop_log(const char *format, ...) __attribute__((format(printf, 1, 2)));
-void olc_log(const char *format, ...) __attribute__((format(printf, 1, 2)));
-void imm_log(const char *format, ...) __attribute__((format(printf, 1, 2)));
-void err_log(const char *format, ...) __attribute__((format(printf, 1, 2)));
+void log(const char *format, ...) __attribute__((format(gnu_printf, 1, 2)));
+void vlog(const char *format, va_list args) __attribute__((format(gnu_printf, 1, 0)));
+void vlog(const EOutputStream steam, const char *format, va_list args) __attribute__((format(gnu_printf, 2, 0)));
+void shop_log(const char *format, ...) __attribute__((format(gnu_printf, 1, 2)));
+void olc_log(const char *format, ...) __attribute__((format(gnu_printf, 1, 2)));
+void imm_log(const char *format, ...) __attribute__((format(gnu_printf, 1, 2)));
+void err_log(const char *format, ...) __attribute__((format(gnu_printf, 1, 2)));
 void ip_log(const char *ip);
 
 // defines for mudlog() //
@@ -50,7 +50,7 @@ class AbstractLogger {
  public:
 	~AbstractLogger() {}
 
-	virtual void operator()(const char *format, ...) __attribute__((format(printf, 2, 3))) = 0;
+	virtual void operator()(const char *format, ...) __attribute__((format(gnu_printf, 2, 3))) = 0;
 };
 
 class Logger : public AbstractLogger {
@@ -67,7 +67,7 @@ class Logger : public AbstractLogger {
 
 	void operator()(const char *format, ...) override
 	__attribute__((
-	format(printf,
+	format(gnu_printf,
 	2, 3)));
 
  private:

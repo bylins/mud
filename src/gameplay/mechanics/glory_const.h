@@ -46,7 +46,7 @@ int main_stats_count(CharData *ch);
 
 void show_stats(CharData *ch);
 
-void transfer_log(const char *format, ...) __attribute__((format(printf, 1, 2)));
+void transfer_log(const char *format, ...) __attribute__((format(gnu_printf, 1, 2)));
 void add_total_spent(int amount);
 void apply_modifiers(CharData *ch);
 void PrintGloryChart(CharData *ch);

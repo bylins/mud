@@ -335,7 +335,7 @@ std::string base64_decode(const std::string &encoded_string) {
 
 std::string to_iso8601(time_t time) {
 	char buf_[kMaxInputLength];
-	strftime(buf_, sizeof(buf_), "%FT%T", localtime(&time));
+	strftime(buf_, sizeof(buf_), "%Y-%m-%dT%H:%M:%S", localtime(&time));
 	return buf_;
 }
 

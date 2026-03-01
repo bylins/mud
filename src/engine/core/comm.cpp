@@ -903,7 +903,7 @@ void stop_game(ush_int port) {
 			if (entry->type < 0 || entry->type > 4) {
 				sprintf(buf, "OLC: Illegal save type %d!", entry->type);
 				log("%s", buf);
-			} else if ((rznum = get_zone_rnum_by_zone_vnum(entry->zone)) == -1) {
+			} else if ((rznum = GetZoneRnum(entry->zone)) == -1) {
 				sprintf(buf, "OLC: Illegal save zone %d!", entry->zone);
 				log("%s", buf);
 			} else if (rznum < 0 || rznum >= static_cast<int>(zone_table.size())) {
@@ -962,7 +962,7 @@ socket_t init_socket(ush_int port) {
 		}
 		log("Max players set to %d", max_players);
 
-		if ((s = socket(PF_INET, SOCK_STREAM, 0)) == SOCKET_ERROR)
+		if ((s = socket(PF_INET, SOCK_STREAM, 0)) == static_cast<socket_t>(SOCKET_ERROR))
 		{
 			log("SYSERR: Error opening network connection: Winsock error #%d", WSAGetLastError());
 			exit(1);
@@ -1740,7 +1740,7 @@ int new_descriptor(socket_t s)
 
 	// accept the new connection
 	i = sizeof(peer);
-	if ((desc = accept(s, (struct sockaddr *) &peer, &i)) == SOCKET_ERROR) {
+	if ((desc = accept(s, (struct sockaddr *) &peer, &i)) == static_cast<socket_t>(SOCKET_ERROR)) {
 #ifdef EWOULDBLOCK
 		if (errno != EINTR && errno != EAGAIN && errno != EWOULDBLOCK)
 #else

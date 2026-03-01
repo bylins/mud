@@ -218,7 +218,7 @@ void player_timed_update() {
 // игроки раз в 2 секунды
 void player_affect_update() {
 	utils::CExecutionTimer timer;
-	int count = 0, call = 0;
+	int count = 0, c_all = 0, recalc  = 0;
 //	character_list.foreach_on_copy([&count](const CharData::shared_ptr &i) {
 	for (auto d = descriptor_list; d; d = d->next) {
 		if (d->state != EConState::kPlaying)
@@ -234,9 +234,10 @@ void player_affect_update() {
 		if (!i->affected.empty()) {
 			++count;
 		}
-		++call;
+		++c_all;
 		bool was_purged = false;
 		bool set_abstinent = false;
+		bool need_recalc = false;
 		auto affect_i = i->affected.begin();
 
 		while (affect_i != i->affected.end()) {
@@ -270,6 +271,7 @@ void player_affect_update() {
 					set_abstinent = true;
 				}
 				affect_i = i->AffectRemove(affect_i);
+				need_recalc = true;
 			} else {
 				if (affect->duration > 0) {
 					if (IS_SET(affect->battleflag, kAfSameTime) && !i->GetEnemy()) {
@@ -306,16 +308,18 @@ void player_affect_update() {
 		if (set_abstinent) {
 			i->set_abstinent();
 		}
-		if (!was_purged) {
+		if (!was_purged && need_recalc ) {
 			MemQ_slots(i.get());    // сколько каких слотов занято (с коррекцией)
 			affect_total(i.get());
+			++recalc;
 		}
 	}
-	log("player affect update: timer %f, num affected players %d, all %d", timer.delta().count(), count, call);
+	log("player affect update: timer %f, num affected players %d, all %d recalc %d", timer.delta().count(), count, c_all, recalc);
 }
 
 // This file update battle affects only
 void battle_affect_update(CharData *ch) {
+	bool need_recalc = false;
 	if (ch->purged()) {
 		char tmpbuf[256];
 		sprintf(tmpbuf,"WARNING: battle_affect_update ch purged. Name %s vnum %d", GET_NAME(ch), GET_MOB_VNUM(ch));
@@ -349,6 +353,7 @@ void battle_affect_update(CharData *ch) {
 				}
 			}
 			affect_i = ch->AffectRemove(affect_i);
+			need_recalc = true;
 		} else {
 			if (affect->duration > 0) {
 				if (IS_SET(affect->battleflag, kAfSameTime)) {
@@ -370,11 +375,14 @@ void battle_affect_update(CharData *ch) {
 			++affect_i;
 		}
 	}
-	affect_total(ch);
+	if (need_recalc) {
+		affect_total(ch);
+	}
 }
 
 // раз в минуту
 void mobile_affect_update() {
+	bool need_recalc = false;
 	utils::CExecutionTimer timer;
 	int count = 0;
 	auto copy = affected_mobs;
@@ -415,6 +423,7 @@ void mobile_affect_update() {
 					}
 				}
 				affect_i = ch->AffectRemove(affect_i);
+				need_recalc = true;
 			} else {
 				if (affect->duration > 0) {
 					if (IS_SET(affect->battleflag, kAfSameTime)
@@ -436,8 +445,9 @@ void mobile_affect_update() {
 			}
 		}
 		if (!was_purged) {
-			affect_total(ch);
-// обработка таймеров скилов фитов игрока
+			if (need_recalc) {
+				affect_total(ch);
+			}
 			decltype(ch->timed) timed_skill;
 			for (auto timed = ch->timed; timed; timed = timed_skill) {
 				timed_skill = timed->next;

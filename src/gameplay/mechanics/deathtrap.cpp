@@ -63,7 +63,7 @@ void deathtrap::activity() {
 	for (auto it = room_list.cbegin(); it != room_list.cend(); ++it) {
 		const auto people = (*it)->people; // make copy of people in the room
 		for (const auto i : people) {
-			if (i->purged() || i->IsNpc()) {
+			if (i->purged() || (i->IsNpc() && !IS_CHARMICE(i))) {
 				continue;
 			}
 			std::string name = i->get_name_str();

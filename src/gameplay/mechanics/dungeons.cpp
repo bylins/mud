@@ -17,6 +17,7 @@
 #include "engine/entities/char_data.h"
 #include "utils/utils_time.h"
 #include "gameplay/ai/spec_procs.h"
+#include "gameplay/mechanics/deathtrap.h"
 
 #include <third_party_libs/fmt/include/fmt/format.h>
 
@@ -397,6 +398,9 @@ void RoomDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to, std::vector<ZrnComplexList
 		new_room->fires = 0;
 		new_room->gdark = 0;
 		new_room->glight = 0;
+		if (ROOM_FLAGGED(i, ERoomFlag::kSlowDeathTrap) || ROOM_FLAGGED(i, ERoomFlag::kIceTrap)) {
+			deathtrap::add(world[new_rnum]);
+		}
 		for (int dir = 0; dir < EDirection::kMaxDirNum; ++dir) {
 			const auto &from = world[i]->dir_option_proto[dir];
 			if (from) {
@@ -764,7 +768,7 @@ ZoneVnum CheckDungionErrors(ZoneRnum zrn_from) {
 void DungeonReset(int zrn) {
 	utils::CExecutionTimer timer;
 
-	if (zrn == 0) {
+	if (zrn < 0) {
 		sprintf(buf, "Неправильный номер зоны");
 		mudlog(buf, LGH, kLvlGreatGod, SYSLOG, true);
 		return;
@@ -873,9 +877,12 @@ void ClearRoom(RoomData *room) {
 void RoomDataFree(ZoneRnum zrn) {
 	RoomRnum rrn_start = zone_table[zrn].RnumRoomsLocation.first;
 
-	for (RoomVnum rrn = rrn_start; rrn <= rrn_start + 99; rrn++) {
+	for (RoomRnum rrn = rrn_start; rrn <= rrn_start + 99; rrn++) {
 		while (room_spells::IsRoomAffected(world[rrn], ESpell::kPortalTimer)) {
 			RemovePortalGate(rrn);
+		}
+		if (ROOM_FLAGGED(rrn, ERoomFlag::kSlowDeathTrap) || ROOM_FLAGGED(rrn, ERoomFlag::kIceTrap)) {
+			deathtrap::remove(world[rrn]);
 		}
 	}
 	for (RoomVnum rvn = 0; rvn <= 99; rvn++) {
