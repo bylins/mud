@@ -1572,6 +1572,21 @@ void MakeRecept::make_object(CharData *ch, ObjData *obj, ObjData *ingrs[MAX_PART
 		add_rnd_skills(ch, ingrs[j], obj); //переноси случайную умелку с ингров
 	}
 }
+static void record_craft_failure(int recipe_id, ESkill skill) {
+	observability::OtelMetrics::RecordCounter("craft.failures.total", 1, {
+		{"recipe_id",      std::to_string(recipe_id)},
+		{"skill",          NAME_BY_ITEM(skill)},
+		{"failure_reason", "craft_failed"}
+	});
+}
+
+static void record_craft_success(int recipe_id, ESkill skill) {
+	observability::OtelMetrics::RecordCounter("craft.completed.total", 1, {
+		{"recipe_id", std::to_string(recipe_id)},
+		{"skill",     NAME_BY_ITEM(skill)}
+	});
+}
+
 // создать предмет по рецепту
 int MakeRecept::make(CharData *ch) {
 	char tmpbuf[kMaxStringLength];//, tmpbuf2[kMaxStringLength];
@@ -1894,12 +1909,7 @@ int MakeRecept::make(CharData *ch) {
 			}
 		}
 
-		// OpenTelemetry: Record craft failure
-		std::map<std::string, std::string> attrs;
-		attrs["recipe_id"] = std::to_string(obj_proto);
-		attrs["skill"] = NAME_BY_ITEM(skill);
-		attrs["failure_reason"] = "craft_failed";
-		observability::OtelMetrics::RecordCounter("craft.failures.total", 1, attrs);
+		record_craft_failure(obj_proto, skill);
 		return (false);
 	}
 	// Лоадим предмет игроку
@@ -2064,11 +2074,7 @@ int MakeRecept::make(CharData *ch) {
 		PlaceObjToInventory(obj.get(), ch);
 	}
 
-	// OpenTelemetry: Record craft success
-	std::map<std::string, std::string> attrs;
-	attrs["recipe_id"] = std::to_string(obj_proto);
-	attrs["skill"] = NAME_BY_ITEM(skill);
-	observability::OtelMetrics::RecordCounter("craft.completed.total", 1, attrs);
+	record_craft_success(obj_proto, skill);
 	return (true);
 }
 // вытащить рецепт из строки.

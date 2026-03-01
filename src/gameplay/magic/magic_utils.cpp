@@ -335,6 +335,40 @@ bool MayCastHere(CharData *caster, CharData *victim, ESpell spell_id) {
 	return true;
 }
 
+class SpellCastMetrics {
+public:
+	SpellCastMetrics(ESpell spell_id, const CharData* caster, int level,
+	                 const CharData* cvict, const ObjData* ovict, const RoomData* rvict)
+		: m_span(tracing::TraceManager::Instance().StartSpan("Spell Cast"))
+		, m_duration("spell.cast.duration", {
+			{"spell_id",     std::to_string(to_underlying(spell_id))},
+			{"caster_class", NAME_BY_ITEM(caster->GetClass())}
+		  })
+		, m_spell_id(spell_id)
+		, m_caster_class(NAME_BY_ITEM(caster->GetClass()))
+	{
+		const std::string target = cvict ? "char" : ovict ? "obj" : rvict ? "room" : "none";
+		m_span->SetAttribute("spell_id",     static_cast<int64_t>(to_underlying(spell_id)));
+		m_span->SetAttribute("spell_name",   observability::koi8r_to_utf8(MUD::Spell(spell_id).GetCName()));
+		m_span->SetAttribute("caster_class", observability::koi8r_to_utf8(m_caster_class));
+		m_span->SetAttribute("spell_level",  static_cast<int64_t>(level));
+		m_span->SetAttribute("target_type",  target);
+	}
+
+	void send() {
+		observability::OtelMetrics::RecordCounter("spell.cast.total", 1, {
+			{"spell_id",     std::to_string(to_underlying(m_spell_id))},
+			{"caster_class", m_caster_class}
+		});
+	}
+
+private:
+	std::unique_ptr<tracing::ISpan> m_span;
+	observability::ScopedMetric m_duration;
+	ESpell m_spell_id;
+	std::string m_caster_class;
+};
+
 /*
  * This function is the very heart of the entire magic system.  All
  * invocations of all types of magic -- objects, spoken and unspoken PC
@@ -343,27 +377,8 @@ bool MayCastHere(CharData *caster, CharData *victim, ESpell spell_id) {
  * Spellnum 0 is legal but silently ignored here, to make callers simpler.
  */
 int CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict, ESpell spell_id, int level) {
-	// OpenTelemetry: Track spell casting
-	auto spell_span = tracing::TraceManager::Instance().StartSpan("Spell Cast");
-	std::map<std::string, std::string> spell_dur_attrs;
-	spell_dur_attrs["spell_id"] = std::to_string(to_underlying(spell_id));
-	spell_dur_attrs["caster_class"] = NAME_BY_ITEM(caster->GetClass());
-	observability::ScopedMetric spell_metric("spell.cast.duration", spell_dur_attrs);
-	
-	// Set spell attributes
-	std::string spell_name = MUD::Spell(spell_id).GetCName();
-	spell_span->SetAttribute("spell_id", static_cast<int64_t>(to_underlying(spell_id)));
-	spell_span->SetAttribute("spell_name", observability::koi8r_to_utf8(spell_name));
-	spell_span->SetAttribute("caster_class", observability::koi8r_to_utf8(std::string(NAME_BY_ITEM(caster->GetClass()))));
-	spell_span->SetAttribute("spell_level", static_cast<int64_t>(level));
-	
-	// Determine target type
-	std::string target_type = "none";
-	if (cvict) target_type = "char";
-	else if (ovict) target_type = "obj";
-	else if (rvict) target_type = "room";
-	spell_span->SetAttribute("target_type", target_type);
-	
+	SpellCastMetrics metrics(spell_id, caster, level, cvict, ovict, rvict);
+
 
 	if (spell_id < ESpell::kFirst || spell_id > ESpell::kLast)
 		return 0;
@@ -392,11 +407,7 @@ int CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict
 		SpellUsage::AddSpellStat(caster->GetClass(), spell_id);
 	}
 	
-	// OpenTelemetry: Record spell cast attempt
-	std::map<std::string, std::string> attrs;
-	attrs["spell_id"] = std::to_string(to_underlying(spell_id));
-	attrs["caster_class"] = NAME_BY_ITEM(caster->GetClass());
-	observability::OtelMetrics::RecordCounter("spell.cast.total", 1, attrs);
+	metrics.send();
 
 	if (MUD::Spell(spell_id).IsFlagged(kMagAreas) || MUD::Spell(spell_id).IsFlagged(kMagMasses)) {
 		return CallMagicToArea(caster, cvict, rvict, spell_id, abs(level));

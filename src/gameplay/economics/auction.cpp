@@ -685,6 +685,36 @@ void trans_auction(int lot) {
 	return;
 }
 
+class AuctionSaleMetrics {
+public:
+	explicit AuctionSaleMetrics(int lot)
+		: m_span(tracing::TraceManager::Instance().StartSpan("Auction Sale"))
+		, m_seller_id(GET_LOT(lot)->seller_unique)
+		, m_cost(GET_LOT(lot)->cost)
+		, m_duration((GET_LOT(lot)->tact * kAuctionPulses) / 10.0)
+	{
+		m_span->SetAttribute("lot",              static_cast<int64_t>(lot));
+		m_span->SetAttribute("seller_id",        static_cast<int64_t>(m_seller_id));
+		m_span->SetAttribute("buyer_id",         static_cast<int64_t>(GET_LOT(lot)->buyer_unique));
+		m_span->SetAttribute("cost",             static_cast<int64_t>(m_cost));
+		m_span->SetAttribute("item_id",          static_cast<int64_t>(GET_LOT(lot)->item_id));
+		m_span->SetAttribute("duration_seconds", m_duration);
+	}
+
+	void send() {
+		const std::map<std::string, std::string> attrs{{"seller_id", std::to_string(m_seller_id)}};
+		observability::OtelMetrics::RecordCounter("auction.sale.total",    1,        attrs);
+		observability::OtelMetrics::RecordCounter("auction.revenue.total", m_cost,   attrs);
+		observability::OtelMetrics::RecordHistogram("auction.duration.seconds", m_duration, attrs);
+	}
+
+private:
+	std::unique_ptr<tracing::ISpan> m_span;
+	int m_seller_id;
+	int m_cost;
+	double m_duration;
+};
+
 void sell_auction(int lot) {
 	CharData *ch, *tch;
 	ObjData *obj;
@@ -698,16 +728,7 @@ void sell_auction(int lot) {
 	if (!check_sell(lot))
 		return;
 
-	// OpenTelemetry: Track auction sale
-	auto sale_span = tracing::TraceManager::Instance().StartSpan("Auction Sale");
-	double duration_seconds = (GET_LOT(lot)->tact * kAuctionPulses) / 10.0;
-	
-	sale_span->SetAttribute("lot", static_cast<int64_t>(lot));
-	sale_span->SetAttribute("seller_id", static_cast<int64_t>(GET_LOT(lot)->seller_unique));
-	sale_span->SetAttribute("buyer_id", static_cast<int64_t>(GET_LOT(lot)->buyer_unique));
-	sale_span->SetAttribute("cost", static_cast<int64_t>(GET_LOT(lot)->cost));
-	sale_span->SetAttribute("item_id", static_cast<int64_t>(GET_LOT(lot)->item_id));
-	sale_span->SetAttribute("duration_seconds", duration_seconds);
+	AuctionSaleMetrics metrics(lot);
 
 	if (ch->in_room != tch->in_room
 		|| !ROOM_FLAGGED(ch->in_room, ERoomFlag::kPeaceful)) {
@@ -752,13 +773,7 @@ void sell_auction(int lot) {
 	tch->remove_both_gold(GET_LOT(lot)->cost);
 
 
-	// OpenTelemetry: Record auction sale metrics
-	std::map<std::string, std::string> attrs;
-	attrs["seller_id"] = std::to_string(GET_LOT(lot)->seller_unique);
-	
-	observability::OtelMetrics::RecordCounter("auction.sale.total", 1, attrs);
-	observability::OtelMetrics::RecordCounter("auction.revenue.total", GET_LOT(lot)->cost, attrs);
-	observability::OtelMetrics::RecordHistogram("auction.duration.seconds", duration_seconds, attrs);
+	metrics.send();
 	clear_auction(lot);
 	return;
 }
@@ -844,14 +859,15 @@ void tact_auction(void) {
 			sell_auction(i);
 	}
 
-	// OpenTelemetry: Track active auction lots
-	int active_lots = 0;
-	for (int j = 0; j < kMaxAuctionLot; j++) {
-		if (GET_LOT(j)->seller && GET_LOT(j)->item) {
-			active_lots++;
+	{
+		int active_lots = 0;
+		for (int j = 0; j < kMaxAuctionLot; j++) {
+			if (GET_LOT(j)->seller && GET_LOT(j)->item) {
+				++active_lots;
+			}
 		}
+		observability::OtelMetrics::RecordGauge("auction.lots.active", active_lots);
 	}
-	observability::OtelMetrics::RecordGauge("auction.lots.active", active_lots);
 }
 
 AuctionItem *free_auction(int *lotnum) {
