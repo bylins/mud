@@ -673,7 +673,6 @@ set(HEADERS
 		src/engine/network/telnet.h
 		src/utils/utils_time.h
 		src/utils/tracing/trace_sender.h
-		src/utils/tracing/noop_trace_sender.h
 		src/utils/tracing/trace_manager.h
 		src/engine/observability/otel_trace_sender.h
 		src/gameplay/mechanics/title.h
