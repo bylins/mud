@@ -3,14 +3,11 @@
 
 #include "engine/core/config.h"
 #include "engine/core/sysdep.h"
-#include "logging/log_manager.h"
-#include "engine/observability/otel_provider.h"
 
+#include <atomic>
 #include <list>
 #include <string>
-#include <atomic>
 #include <thread>
-#include <map>
 
 extern FILE *logfile;
 extern std::list<FILE *> opened_files;
@@ -26,7 +23,6 @@ void olc_log(const char *format, ...) __attribute__((format(printf, 1, 2)));
 void imm_log(const char *format, ...) __attribute__((format(printf, 1, 2)));
 void err_log(const char *format, ...) __attribute__((format(printf, 1, 2)));
 void ip_log(const char *ip);
-
 
 // defines for mudlog() //
 enum LogMode : int {
