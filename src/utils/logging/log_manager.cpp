@@ -9,13 +9,7 @@ LogManager& LogManager::Instance() {
 }
 
 LogManager::LogManager() {
-#ifdef TEST_BUILD
-    // In test mode, use NoOp sender by default
-    m_senders.push_back(std::make_unique<NoOpLogSender>());
-#else
-    // By default, use file logging
     m_senders.push_back(std::make_unique<FileLogSender>());
-#endif
 }
 
 void LogManager::AddSender(std::unique_ptr<ILogSender> sender) {
