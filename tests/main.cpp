@@ -17,7 +17,7 @@ public:
 void BylinsEnvironment::SetUp()
 {
 	runtime_config.disable_logging();
-	logging::LogManager::ClearSenders();
+	logging::LogManager::Instance().ClearSenders();
 }
 
 int main(int argc, char** argv)

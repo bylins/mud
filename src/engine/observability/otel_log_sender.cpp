@@ -19,6 +19,8 @@
 #include "opentelemetry/baggage/baggage.h"
 #include "opentelemetry/baggage/baggage_context.h"
 
+namespace logs_api = opentelemetry::logs;
+
 namespace observability {
 
 // Helper: get SpanContext from current active span

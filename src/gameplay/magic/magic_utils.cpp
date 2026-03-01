@@ -27,6 +27,7 @@
 #include "gameplay/statistics/spell_usage.h"
 #include "utils/backtrace.h"
 
+#include "engine/observability/otel_helpers.h"
 #include "engine/observability/otel_metrics.h"
 #include "utils/tracing/trace_manager.h"
 #include <third_party_libs/fmt/include/fmt/format.h>

@@ -156,8 +156,8 @@ void OtelProvider::Initialize(const std::string& metrics_endpoint,
     } catch (const std::exception& e) {
         std::cerr << "[" << utils::NowTs() << "] Failed to initialize OpenTelemetry: " << e.what() << std::endl;
         m_enabled = false;
-        tracing::TraceManager::Instance().SetSender(std::make_unique<tracing::NoOpTraceSender>());
-        std::cout << "[" << utils::NowTs() << "] TraceManager initialized with NoOpTraceSender (OTEL init failed)" << std::endl;
+        // OtelTraceSender checks IsEnabled() before creating spans, so no sender swap needed.
+        std::cout << "[" << utils::NowTs() << "] OpenTelemetry init failed; tracing disabled" << std::endl;
     }
 #else
     (void)metrics_endpoint;
@@ -165,8 +165,7 @@ void OtelProvider::Initialize(const std::string& metrics_endpoint,
     (void)logs_endpoint;
     (void)service_name;
     (void)service_version;
-    tracing::TraceManager::Instance().SetSender(std::make_unique<tracing::NoOpTraceSender>());
-    std::cout << "[" << utils::NowTs() << "] TraceManager initialized with NoOpTraceSender (no OTEL)" << std::endl;
+    // TraceManager defaults to NoOp sender; no action needed without WITH_OTEL.
 #endif
 }
 

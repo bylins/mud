@@ -689,12 +689,11 @@ class AuctionSaleMetrics {
 public:
 	explicit AuctionSaleMetrics(int lot)
 		: m_span(tracing::TraceManager::Instance().StartSpan("Auction Sale"))
-		, m_seller_id(GET_LOT(lot)->seller_unique)
 		, m_cost(GET_LOT(lot)->cost)
 		, m_duration((GET_LOT(lot)->tact * kAuctionPulses) / 10.0)
 	{
 		m_span->SetAttribute("lot",              static_cast<int64_t>(lot));
-		m_span->SetAttribute("seller_id",        static_cast<int64_t>(m_seller_id));
+		m_span->SetAttribute("seller_id",        static_cast<int64_t>(GET_LOT(lot)->seller_unique));
 		m_span->SetAttribute("buyer_id",         static_cast<int64_t>(GET_LOT(lot)->buyer_unique));
 		m_span->SetAttribute("cost",             static_cast<int64_t>(m_cost));
 		m_span->SetAttribute("item_id",          static_cast<int64_t>(GET_LOT(lot)->item_id));

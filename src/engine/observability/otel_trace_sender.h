@@ -2,6 +2,8 @@
 #define BYLINS_OTEL_TRACE_SENDER_H
 
 #include "utils/tracing/trace_sender.h"
+
+#ifdef WITH_OTEL
 #include "opentelemetry/trace/span.h"
 #include "opentelemetry/trace/scope.h"
 #include "opentelemetry/nostd/shared_ptr.h"
@@ -35,6 +37,8 @@ public:
 };
 
 } // namespace tracing
+#endif // WITH_OTEL
+
 #endif // BYLINS_OTEL_TRACE_SENDER_H
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

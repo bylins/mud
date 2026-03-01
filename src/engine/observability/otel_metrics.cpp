@@ -7,6 +7,8 @@
 #include "otel_helpers.h"
 #include "opentelemetry/metrics/provider.h"
 #include "opentelemetry/context/context.h"
+
+namespace metrics_api = opentelemetry::metrics;
 #endif
 
 namespace observability {

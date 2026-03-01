@@ -5,7 +5,21 @@
 #include "otel_provider.h"
 #include "opentelemetry/trace/provider.h"
 
+namespace trace_api = opentelemetry::trace;
+
 namespace tracing {
+
+namespace {
+class NoOpSpan : public ISpan {
+public:
+	void End() override {}
+	void AddEvent(const std::string&) override {}
+	void SetAttribute(const std::string&, const std::string&) override {}
+	void SetAttribute(const std::string&, int64_t) override {}
+	void SetAttribute(const std::string&, double) override {}
+	bool IsValid() const override { return false; }
+};
+} // namespace
 OtelSpan::OtelSpan(opentelemetry::nostd::shared_ptr<opentelemetry::trace::Span> span)
 	: m_span(span)
 	, m_scope(span ? opentelemetry::nostd::unique_ptr<opentelemetry::trace::Scope>(
