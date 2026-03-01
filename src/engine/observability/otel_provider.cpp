@@ -3,8 +3,6 @@
 #include "utils/timestamp.h"
 #include "engine/core/config.h"
 #include "utils/logging/log_manager.h"
-#include "otel_log_sender.h"
-#include "otel_trace_sender.h"
 #include "utils/tracing/trace_manager.h"
 
 #include <iostream>
@@ -13,6 +11,8 @@
 #include <cstdio>
 
 #ifdef WITH_OTEL
+#include "otel_log_sender.h"
+#include "otel_trace_sender.h"
 #include "absl/log/initialize.h"
 #include "opentelemetry/sdk/trace/tracer_provider.h"
 #include "opentelemetry/sdk/trace/tracer_provider_factory.h"

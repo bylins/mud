@@ -160,7 +160,6 @@ set(SOURCES
 		src/utils/id_converter.cpp
 		src/utils/utils_time.cpp
 		src/utils/tracing/trace_manager.cpp
-		src/engine/observability/otel_trace_sender.cpp
 		src/utils/thread_pool.cpp
 		src/gameplay/mechanics/title.cpp
 		src/gameplay/statistics/top.cpp
@@ -466,10 +465,8 @@ set(SOURCES
 		src/gameplay/classes/mob_classes_info.cpp
 		src/gameplay/classes/recalc_mob_params_by_vnum.cpp
 		src/engine/observability/otel_provider.cpp
-		src/engine/observability/otel_traces.cpp
 		src/engine/observability/otel_metrics.cpp
-		src/engine/observability/otel_helpers.cpp
-		src/engine/observability/otel_log_sender.cpp)
+		src/engine/observability/otel_helpers.cpp)
 
 
 
@@ -1236,6 +1233,13 @@ if (WITH_OTEL)
 
 	# Define WITH_OTEL for preprocessor
 	add_definitions(-DWITH_OTEL)
+
+	# OTEL-specific implementation files (require OTEL headers)
+	target_sources(circle.library PRIVATE
+		src/engine/observability/otel_trace_sender.cpp
+		src/engine/observability/otel_traces.cpp
+		src/engine/observability/otel_log_sender.cpp
+	)
 
 	# Link OpenTelemetry libraries
 	target_link_libraries(circle.library
