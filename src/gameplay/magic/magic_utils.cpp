@@ -339,34 +339,34 @@ class SpellCastMetrics {
 public:
 	SpellCastMetrics(ESpell spell_id, const CharData* caster, int level,
 	                 const CharData* cvict, const ObjData* ovict, const RoomData* rvict)
-		: m_span(tracing::TraceManager::Instance().StartSpan("Spell Cast"))
+		: m_spell_name(observability::koi8r_to_utf8(MUD::Spell(spell_id).GetCName()))
+		, m_caster_class(observability::koi8r_to_utf8(MUD::Class(caster->GetClass()).GetName()))
+		, m_span(tracing::TraceManager::Instance().StartSpan("Spell Cast"))
 		, m_duration("spell.cast.duration", {
-			{"spell_id",     std::to_string(to_underlying(spell_id))},
-			{"caster_class", NAME_BY_ITEM(caster->GetClass())}
+			{"spell_name",   m_spell_name},
+			{"caster_class", m_caster_class}
 		  })
-		, m_spell_id(spell_id)
-		, m_caster_class(NAME_BY_ITEM(caster->GetClass()))
 	{
 		const std::string target = cvict ? "char" : ovict ? "obj" : rvict ? "room" : "none";
 		m_span->SetAttribute("spell_id",     static_cast<int64_t>(to_underlying(spell_id)));
-		m_span->SetAttribute("spell_name",   observability::koi8r_to_utf8(MUD::Spell(spell_id).GetCName()));
-		m_span->SetAttribute("caster_class", observability::koi8r_to_utf8(m_caster_class));
+		m_span->SetAttribute("spell_name",   m_spell_name);
+		m_span->SetAttribute("caster_class", m_caster_class);
 		m_span->SetAttribute("spell_level",  static_cast<int64_t>(level));
 		m_span->SetAttribute("target_type",  target);
 	}
 
 	void send() {
 		observability::OtelMetrics::RecordCounter("spell.cast.total", 1, {
-			{"spell_id",     std::to_string(to_underlying(m_spell_id))},
+			{"spell_name",   m_spell_name},
 			{"caster_class", m_caster_class}
 		});
 	}
 
 private:
+	std::string m_spell_name;
+	std::string m_caster_class;
 	std::unique_ptr<tracing::ISpan> m_span;
 	observability::ScopedMetric m_duration;
-	ESpell m_spell_id;
-	std::string m_caster_class;
 };
 
 /*

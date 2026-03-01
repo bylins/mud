@@ -2005,8 +2005,7 @@ void ZoneUpdate() {
 					
 					// OpenTelemetry: Record zone reset
 					std::map<std::string, std::string> attrs;
-					attrs["zone_vnum"] = std::to_string(zone_table[it].vnum);
-					attrs["reset_mode"] = std::to_string(zone_table[it].reset_mode);
+					attrs["zone"] = observability::koi8r_to_utf8(zone_table[it].name);
 					
 					observability::OtelMetrics::RecordCounter("zone.reset.total", 1, attrs);
 				} else {
@@ -2331,8 +2330,7 @@ void ZoneReset::Reset() {
 	const auto execution_time = timer.delta();
 
 	std::map<std::string, std::string> attrs;
-	attrs["pulse"] = std::to_string(GlobalObjects::heartbeat().pulse_number());
-	attrs["zone"] = std::to_string(zone_table[m_zone_rnum].vnum);
+	attrs["zone"] = observability::koi8r_to_utf8(zone_table[m_zone_rnum].name);
 	observability::OtelMetrics::RecordHistogram("zone.reset.duration", execution_time.count(), attrs);
 }
 
@@ -2361,8 +2359,7 @@ bool ZoneReset::HandleZoneCmdQ(const MobRnum rnum) const {
 	const auto execution_time = overall_timer.delta();
 
 	std::map<std::string, std::string> attrs;
-	attrs["pulse"] = std::to_string(GlobalObjects::heartbeat().pulse_number());
-	attrs["zone"] = std::to_string(zone_table[m_zone_rnum].vnum);
+	attrs["zone"] = observability::koi8r_to_utf8(zone_table[m_zone_rnum].name);
 	attrs["rnum"] = std::to_string(rnum);
 	observability::OtelMetrics::RecordHistogram("zone.command.Q.duration", execution_time.count(), attrs);
 

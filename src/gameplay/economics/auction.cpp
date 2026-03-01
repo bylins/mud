@@ -702,15 +702,13 @@ public:
 	}
 
 	void send() {
-		const std::map<std::string, std::string> attrs{{"seller_id", std::to_string(m_seller_id)}};
-		observability::OtelMetrics::RecordCounter("auction.sale.total",    1,        attrs);
-		observability::OtelMetrics::RecordCounter("auction.revenue.total", m_cost,   attrs);
-		observability::OtelMetrics::RecordHistogram("auction.duration.seconds", m_duration, attrs);
+		observability::OtelMetrics::RecordCounter("auction.sale.total",    1);
+		observability::OtelMetrics::RecordCounter("auction.revenue.total", m_cost);
+		observability::OtelMetrics::RecordHistogram("auction.duration.seconds", m_duration);
 	}
 
 private:
 	std::unique_ptr<tracing::ISpan> m_span;
-	int m_seller_id;
 	int m_cost;
 	double m_duration;
 };

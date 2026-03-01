@@ -18,6 +18,7 @@
 #include "gameplay/core/base_stats.h"
 #include "gameplay/core/constants.h"
 #include "engine/observability/otel_metrics.h"
+#include "engine/observability/otel_helpers.h"
 
 #include <cmath>
 
@@ -1572,18 +1573,26 @@ void MakeRecept::make_object(CharData *ch, ObjData *obj, ObjData *ingrs[MAX_PART
 		add_rnd_skills(ch, ingrs[j], obj); //переноси случайную умелку с ингров
 	}
 }
+static std::string craft_recipe_name(int recipe_id) {
+	const auto proto = GetObjectPrototype(recipe_id);
+	if (proto) {
+		return observability::koi8r_to_utf8(proto->get_PName(ECase::kNom));
+	}
+	return std::to_string(recipe_id);
+}
+
 static void record_craft_failure(int recipe_id, ESkill skill) {
 	observability::OtelMetrics::RecordCounter("craft.failures.total", 1, {
-		{"recipe_id",      std::to_string(recipe_id)},
-		{"skill",          NAME_BY_ITEM(skill)},
+		{"recipe_name",    craft_recipe_name(recipe_id)},
+		{"skill",          observability::koi8r_to_utf8(MUD::Skill(skill).GetName())},
 		{"failure_reason", "craft_failed"}
 	});
 }
 
 static void record_craft_success(int recipe_id, ESkill skill) {
 	observability::OtelMetrics::RecordCounter("craft.completed.total", 1, {
-		{"recipe_id", std::to_string(recipe_id)},
-		{"skill",     NAME_BY_ITEM(skill)}
+		{"recipe_name", craft_recipe_name(recipe_id)},
+		{"skill",       observability::koi8r_to_utf8(MUD::Skill(skill).GetName())}
 	});
 }
 
