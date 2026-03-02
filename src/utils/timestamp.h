@@ -17,7 +17,11 @@ inline std::string NowTs() {
 	auto t = std::chrono::system_clock::to_time_t(now);
 	auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()) % 1000;
 	struct tm tm_buf;
+#ifdef _WIN32
+	localtime_s(&tm_buf, &t);
+#else
 	localtime_r(&t, &tm_buf);
+#endif
 	char result[32];
 	std::snprintf(result, sizeof(result), "%04d-%02d-%02d %02d:%02d:%02d.%03lld",
 		tm_buf.tm_year + 1900, tm_buf.tm_mon + 1, tm_buf.tm_mday,

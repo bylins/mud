@@ -147,6 +147,7 @@ jobs:
           apt-get install -y \
             gcc-15 \
             g++-15 \
+            binutils \
             build-essential \
             make \
             libssl-dev \

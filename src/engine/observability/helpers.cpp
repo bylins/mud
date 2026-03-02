@@ -1,5 +1,7 @@
 #include "helpers.h"
+#ifdef HAVE_ICONV
 #include <iconv.h>
+#endif
 
 namespace observability {
 
@@ -36,6 +38,15 @@ std::string koi8r_to_utf8(const std::string& input) {
 	if (!has_high) {
 		return input;
 	}
+#ifndef HAVE_ICONV
+	// iconv not available: replace non-ASCII bytes with '?'
+	std::string safe;
+	safe.reserve(input.size());
+	for (unsigned char c : input) {
+		safe += (c < 128) ? static_cast<char>(c) : '?';
+	}
+	return safe;
+#else
 	// Cache iconv descriptor globally - game loop is single-threaded
 	struct IconvHandle {
 		iconv_t cd;
@@ -73,6 +84,7 @@ std::string koi8r_to_utf8(const std::string& input) {
 	}
 	output.resize(out_size - out_left);
 	return output;
+#endif // HAVE_ICONV
 }
 
 } // namespace observability
