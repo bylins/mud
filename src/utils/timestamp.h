@@ -23,7 +23,7 @@ inline std::string NowTs() {
 	localtime_r(&t, &tm_buf);
 #endif
 	char result[32];
-	std::snprintf(result, sizeof(result), "%04d-%02d-%02d %02d:%02d:%02d.%03lld",
+	snprintf(result, sizeof(result), "%04d-%02d-%02d %02d:%02d:%02d.%03lld",
 		tm_buf.tm_year + 1900, tm_buf.tm_mon + 1, tm_buf.tm_mday,
 		tm_buf.tm_hour, tm_buf.tm_min, tm_buf.tm_sec, (long long)ms.count());
 	return result;
