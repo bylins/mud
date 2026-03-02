@@ -1,5 +1,7 @@
 #include "helpers.h"
-#ifdef HAVE_ICONV
+// iconv is available on Linux (glibc) and macOS (libSystem), but not on Windows
+#if !defined(_WIN32) && !defined(__CYGWIN__)
+#define OBSERVABILITY_HAS_ICONV
 #include <iconv.h>
 #endif
 
@@ -38,8 +40,8 @@ std::string koi8r_to_utf8(const std::string& input) {
 	if (!has_high) {
 		return input;
 	}
-#ifndef HAVE_ICONV
-	// iconv not available: replace non-ASCII bytes with '?'
+#ifndef OBSERVABILITY_HAS_ICONV
+	// iconv not available (Windows): replace non-ASCII bytes with '?'
 	std::string safe;
 	safe.reserve(input.size());
 	for (unsigned char c : input) {
@@ -84,7 +86,7 @@ std::string koi8r_to_utf8(const std::string& input) {
 	}
 	output.resize(out_size - out_left);
 	return output;
-#endif // HAVE_ICONV
+#endif // OBSERVABILITY_HAS_ICONV
 }
 
 } // namespace observability

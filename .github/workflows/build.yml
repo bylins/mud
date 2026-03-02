@@ -148,6 +148,7 @@ jobs:
             gcc-15 \
             g++-15 \
             binutils \
+            binutils-gold \
             build-essential \
             make \
             libssl-dev \
