@@ -11,8 +11,8 @@
 #include <cstdio>
 
 #ifdef WITH_OTEL
-#include "engine/observability/otel/log_sender.h"
-#include "engine/observability/otel/trace_sender.h"
+#include "log_sender.h"
+#include "trace_sender.h"
 #include "absl/log/initialize.h"
 #include "opentelemetry/sdk/trace/tracer_provider.h"
 #include "opentelemetry/sdk/trace/tracer_provider_factory.h"

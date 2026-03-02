@@ -1,6 +1,6 @@
 #include "trace_sender.h"
-#include "engine/observability/helpers.h"
-#include "engine/observability/provider.h"
+#include "helpers.h"
+#include "provider.h"
 #include "opentelemetry/trace/provider.h"
 
 namespace trace_api = opentelemetry::trace;
