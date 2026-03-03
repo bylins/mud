@@ -1334,14 +1334,6 @@ if (HAVE_ICONV)
 	endif ()
 endif ()
 
-# On macOS, iconv is in the system library (libSystem) -- link it explicitly for observability helpers
-if (APPLE)
-	find_library(ICONV_SYSTEM_LIB iconv)
-	if (ICONV_SYSTEM_LIB)
-		target_link_libraries(circle.library ${ICONV_SYSTEM_LIB})
-	endif ()
-endif ()
-
 # Telegram integration
 if (CMAKE_HOST_WIN32)
 	set(DEFAULT_TG "NO")
