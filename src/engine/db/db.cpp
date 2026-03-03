@@ -1945,9 +1945,9 @@ public:
 			{{"zone", m_zone_name}});
 	}
 
-	void RecordZoneCmdQ(double duration_seconds, MobRnum rnum) {
+	void RecordZoneCmdQ(double duration_seconds, MobVnum vnum) {
 		observability::OtelMetrics::RecordHistogram("zone.command.Q.duration", duration_seconds,
-			{{"zone", m_zone_name}, {"rnum", std::to_string(rnum)}});
+			{{"zone", m_zone_name}, {"vnum", std::to_string(vnum)}});
 	}
 
 private:
@@ -2376,7 +2376,7 @@ bool ZoneReset::HandleZoneCmdQ(const MobRnum rnum) const {
 
 	const auto execution_time = overall_timer.delta();
 
-	ZoneResetMetrics(m_zone_rnum).RecordZoneCmdQ(execution_time.count(), rnum);
+	ZoneResetMetrics(m_zone_rnum).RecordZoneCmdQ(execution_time.count(), mob_index[rnum].vnum);
 
 	return extracted;
 }

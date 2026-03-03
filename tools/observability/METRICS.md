@@ -78,11 +78,11 @@ Prometheus: `mob_active_count_gauge_{bucket,sum,count}`
 | `zone_update_duration` | histogram | — | Длительность цикла обновления всех зон |
 | `zone_reset_duration` | histogram | `zone` (название зоны) | Длительность сброса одной зоны |
 | `zone_reset_total` | counter | `zone` (название зоны) | Количество сбросов зон |
-| `zone_command_Q_duration` | histogram | `zone`, `rnum` (rnum моба) | Длительность обработки команды Q (извлечение мобов) |
+| `zone_command_Q_duration` | histogram | `zone`, `vnum` (vnum прототипа моба) | Длительность обработки команды Q (извлечение мобов) |
 
 **Расшифровка атрибутов:**
 - `zone` — человекочитаемое название зоны (напр., `"Мидгаард"`)
-- `rnum` — внутренний номер прототипа моба (rnum, не vnum); используется для отладки команды Q
+- `vnum` — стабильный vnum прототипа моба (напр., `3005`)
 
 ---
 
