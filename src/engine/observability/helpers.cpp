@@ -1,9 +1,5 @@
 #include "helpers.h"
-// iconv is available on Linux (glibc) and macOS (libSystem), but not on Windows
-#if !defined(_WIN32) && !defined(__CYGWIN__)
-#define OBSERVABILITY_HAS_ICONV
-#include <iconv.h>
-#endif
+#include "utils/utils.h"
 
 namespace observability {
 
@@ -40,53 +36,11 @@ std::string koi8r_to_utf8(const std::string& input) {
 	if (!has_high) {
 		return input;
 	}
-#ifndef OBSERVABILITY_HAS_ICONV
-	// iconv not available (Windows): replace non-ASCII bytes with '?'
-	std::string safe;
-	safe.reserve(input.size());
-	for (unsigned char c : input) {
-		safe += (c < 128) ? static_cast<char>(c) : '?';
-	}
-	return safe;
-#else
-	// Cache iconv descriptor globally - game loop is single-threaded
-	struct IconvHandle {
-		iconv_t cd;
-		IconvHandle() : cd(iconv_open("UTF-8", "KOI8-R")) {}
-		~IconvHandle() { if (cd != (iconv_t)-1) { iconv_close(cd); } }
-	};
-	static IconvHandle handle;
-
-	if (handle.cd == (iconv_t)-1) {
-		// iconv unavailable: replace non-ASCII bytes with '?'
-		std::string safe;
-		safe.reserve(input.size());
-		for (unsigned char c : input) {
-			safe += (c < 128) ? static_cast<char>(c) : '?';
-		}
-		return safe;
-	}
-	// Reset shift state from any previous call
-	iconv(handle.cd, nullptr, nullptr, nullptr, nullptr);
-
-	const size_t out_size = input.size() * 4;
-	std::string output(out_size, '\0');
-	char* in_ptr = const_cast<char*>(input.data());
-	char* out_ptr = &output[0];
-	size_t in_left = input.size();
-	size_t out_left = out_size;
-	if (iconv(handle.cd, &in_ptr, &in_left, &out_ptr, &out_left) == (size_t)-1) {
-		// Replace non-ASCII bytes with '?' to guarantee valid UTF-8 output
-		std::string safe;
-		safe.reserve(input.size());
-		for (unsigned char c : input) {
-			safe += (c < 128) ? static_cast<char>(c) : '?';
-		}
-		return safe;
-	}
-	output.resize(out_size - out_left);
+	// Each KOI8-R byte expands to at most 3 UTF-8 bytes, plus null terminator
+	std::string output(input.size() * 3 + 1, '\0');
+	koi_to_utf8(const_cast<char*>(input.c_str()), &output[0]);
+	output.resize(strlen(output.c_str()));
 	return output;
-#endif // OBSERVABILITY_HAS_ICONV
 }
 
 } // namespace observability
