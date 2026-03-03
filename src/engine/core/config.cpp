@@ -24,10 +24,9 @@
 
 using utils::NowTs;
 
-#if CIRCLE_UNIX
-#ifdef WITH_OTEL
 #include "engine/observability/provider.h"
-#endif
+
+#if CIRCLE_UNIX
 using ETelemetryLogMode = RuntimeConfiguration::ETelemetryLogMode;
 #include <sys/stat.h>
 #include <unistd.h>
@@ -886,7 +885,6 @@ void RuntimeConfiguration::load_telemetry_configuration(const pugi::xml_node *) 
 }
 
 void RuntimeConfiguration::setup_telemetry(int port) {
-#ifdef WITH_OTEL
 	if (!m_telemetry_enabled) {
 		return;
 	}
@@ -914,9 +912,6 @@ void RuntimeConfiguration::setup_telemetry(int port) {
 		m_telemetry_logs_endpoint,
 		name,
 		m_telemetry_service_version);
-#else
-	(void)port;
-#endif
 }
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
 
