@@ -1254,13 +1254,6 @@ base_stat id - (например "kWis") какой берем параметр,
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
     </spell>
-    <spell id="kFrenzyTimer" element="kUndefined" mode="kService">
-        <name rus="исступление" eng="!set by programm!"/>
-        <misc pos="kFight" violent="N" danger="0"/>
-        <mana max="0" min="0" change="0"/>
-        <targets val="kTarNone"/>
-        <flags val="kMagManual"/>
-    </spell>
     <spell id="kWaterbreath" element="kWater" mode="kEnabled">
         <name rus="дышать водой" eng="waterbreath"/>
         <misc pos="kStand" violent="N" danger="0"/>
