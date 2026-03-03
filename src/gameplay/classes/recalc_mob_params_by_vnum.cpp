@@ -96,6 +96,48 @@ static int CalcBaseValue(const mob_classes::MobClassInfo::ParametersData *param_
 	return (int)std::lround(raw);
 }
 
+// Опыт считается как обычный параметр (как CalcBaseValue),
+// но по уровню игрока, а не по уровню моба.
+// difficulty двигает "уровень опыта" на 5 уровней за шаг.
+// Если "уровень опыта" уехал ниже 1 ? делим итоговый опыт на (1 + underflow_steps).
+//
+static int CalcExpValue(const mob_classes::MobClassInfo::ParametersData *param_data,
+						int player_level,
+						int difficulty,
+						int remorts) {
+	if (!param_data) {
+		return 0;
+	}
+
+	if (player_level < 1) player_level = 1;
+	if (remorts < 0) remorts = 0;
+
+	static constexpr int kExpLevelPerDifficulty = 5;
+
+	const int raw_exp_level = player_level + difficulty * kExpLevelPerDifficulty;
+
+	int underflow_levels = 0;
+	int exp_level = raw_exp_level;
+
+	if (exp_level < 1) {
+		underflow_levels = 1 - exp_level;
+		exp_level = 1;
+	}
+
+	// ВАЖНО: опыт считаем ровно как CalcBaseValue, но по exp_level
+	int exp_value = CalcBaseValue(param_data, exp_level, remorts);
+
+	// Если "уровень опыта" ушёл ниже 1 ? штраф делением
+	if (underflow_levels > 0) {
+		const int underflow_steps = (underflow_levels + (kExpLevelPerDifficulty - 1)) / kExpLevelPerDifficulty;
+		const int divisor = 1 + underflow_steps;
+
+		exp_value = exp_value / divisor;
+	}
+
+	return exp_value;
+}
+
 // --- Отклонение ---
 static int ApplyDeviation(const mob_classes::MobClassInfo::ParametersData *param, int base_value) {
 	if (!param) {
@@ -210,6 +252,17 @@ static bool ApplyMobParams(CharData* ch, int level, int remorts, int difficulty)
 		return false;
 	}
 
+	// Уровень игрока для расчёта опыта (НЕ зависит от минимального уровня моба)
+	int player_level_for_exp = level;
+	if (player_level_for_exp < 1) {
+		player_level_for_exp = 1;
+	}
+
+	// Минимальный уровень моба: ниже 15 быть не может
+	if (level < 15) {
+		level = 15;
+	}
+
 	int effective_remorts = remorts;
 	if (effective_remorts < 0) {
 		effective_remorts = 0;
@@ -226,8 +279,9 @@ static bool ApplyMobParams(CharData* ch, int level, int remorts, int difficulty)
 		effective_level += boss_add_lvl;
 	}
 
-	if (effective_level < 1) {
-		effective_level = 1;
+	// Минимальный реальный/расчётный уровень: 15
+	if (effective_level < 15) {
+		effective_level = 15;
 	}
 
 	ch->set_level(effective_level);
@@ -683,15 +737,15 @@ static bool ApplyMobParams(CharData* ch, int level, int remorts, int difficulty)
 		if (info->has_exp) {
 			p_data = &info->exp;
 
-			int base_value = CalcBaseValue(p_data, calc, effective_remorts);
-			base_value = ApplyDeviation(p_data, base_value);
-			base_value = std::max(0, base_value);
+			int exp_value = CalcExpValue(p_data, player_level_for_exp, difficulty, effective_remorts);
+			exp_value = ApplyDeviation(p_data, exp_value);
+			exp_value = std::max(0, exp_value);
 
 			if (is_first_role_pass) {
-				ch->set_exp(base_value);
+				ch->set_exp(exp_value);
 			} else {
-				if ((long)base_value > ch->get_exp()) {
-					ch->set_exp(base_value);
+				if ((long)exp_value > ch->get_exp()) {
+					ch->set_exp(exp_value);
 				}
 			}
 			applied_any = 1;
@@ -854,6 +908,10 @@ static bool ApplyMobParams(CharData* ch, int level, int remorts, int difficulty)
 				continue;
 			}
 			ch->set_skill(id, best_default_skill);
+	//Лимитируем точку, ибо овер
+			if (id == ESkill::kPunctual) {
+				ch->set_skill(ESkill::kPunctual, 10);
+			}
 		}
 	}
 
@@ -883,6 +941,13 @@ static bool ApplyMobParams(CharData* ch, int level, int remorts, int difficulty)
 				ch->set_skill(ESkill::kChopoff, 0);
 				ch->set_skill(ESkill::kBash, 0);
 				}
+	//Если есть у моба группхил - убираем остальные хилы, ибо слишком жирно
+			if (GET_SPELL_MEM(ch, ESpell::kGroupHeal)) {
+				SET_SPELL_MEM(ch, ESpell::kGreatHeal, 0);
+				SET_SPELL_MEM(ch, ESpell::kHeal, 0);
+				SET_SPELL_MEM(ch, ESpell::kCureCritic, 0);
+				SET_SPELL_MEM(ch, ESpell::kCureLight, 0);
+			}
 		}
 	}
 

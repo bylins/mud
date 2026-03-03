@@ -22,7 +22,6 @@
         <skills>
             <skill id="kUndefined" base="70" low_increment="2.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
             <skill id="kPunch" base="80" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kPunctual" base="0" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
             <skill id="kAirMagic" base="1" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
             <skill id="kFireMagic" base="1" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
             <skill id="kWaterMagic" base="1" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
@@ -54,13 +53,13 @@
         <combat_stats>
             <param id="kArmour" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
             <param id="kAbsorb" base="0" low_increment="0" threshold_mort="10" increment="1" deviation_type="0" deviation="0"/>
-            <param id="kDamNoDice" base="4" low_increment="1" threshold_mort="10" increment="0.12" deviation_type="0" deviation="0"/>
-            <param id="kDamSizeDice" base="4" low_increment="1" threshold_mort="10" increment="0.12" deviation_type="0" deviation="0"/>
-            <param id="kHitroll" base="18" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
+            <param id="kDamNoDice" base="4" low_increment="0.5" threshold_mort="10" increment="0.12" deviation_type="0" deviation="0"/>
+            <param id="kDamSizeDice" base="4" low_increment="0.5" threshold_mort="10" increment="0.12" deviation_type="0" deviation="0"/>
+            <param id="kHitroll" base="15" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
             <param id="kDamroll" base="1" low_increment="0.5" threshold_mort="20" increment="0" deviation_type="0" deviation="0"/>
             <param id="kMorale" base="10" low_increment="0" threshold_mort="10" increment="0.1" deviation_type="0" deviation="0"/>
-            <param id="kInitiative" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
-            <param id="kCastSuccess" base="0" low_increment="2" threshold_mort="25" increment="0" deviation_type="0" deviation="0"/>
+            <param id="kInitiative" base="1" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
+            <param id="kCastSuccess" base="0" low_increment="1" threshold_mort="50" increment="0" deviation_type="0" deviation="0"/>
             <param id="kHitPoints" base="1800" low_increment="0" threshold_mort="0" increment="50" deviation_type="1" deviation="0"/>
             <param id="kSize" base="10" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
             <param id="kExp" base="100000" low_increment="0" threshold_mort="17" increment="5000" deviation_type="1" deviation="0"/>
@@ -119,7 +118,6 @@
         <skills>
             <skill id="kUndefined" base="70" low_increment="2.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
             <skill id="kPunch" base="80" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kPunctual" base="0" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
             <skill id="kAirMagic" base="1" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
             <skill id="kFireMagic" base="1" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
             <skill id="kWaterMagic" base="1" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
@@ -151,13 +149,13 @@
         <combat_stats>
             <param id="kArmour" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
             <param id="kAbsorb" base="0" low_increment="0" threshold_mort="10" increment="1" deviation_type="0" deviation="0"/>
-            <param id="kDamNoDice" base="4" low_increment="1" threshold_mort="10" increment="0.12" deviation_type="0" deviation="0"/>
-            <param id="kDamSizeDice" base="4" low_increment="1" threshold_mort="10" increment="0.12" deviation_type="0" deviation="0"/>
-            <param id="kHitroll" base="18" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
+            <param id="kDamNoDice" base="4" low_increment="0.5" threshold_mort="10" increment="0.12" deviation_type="0" deviation="0"/>
+            <param id="kDamSizeDice" base="4" low_increment="0.5" threshold_mort="10" increment="0.12" deviation_type="0" deviation="0"/>
+            <param id="kHitroll" base="15" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
             <param id="kDamroll" base="1" low_increment="0.5" threshold_mort="20" increment="0" deviation_type="0" deviation="0"/>
             <param id="kMorale" base="10" low_increment="0" threshold_mort="10" increment="0.1" deviation_type="0" deviation="0"/>
-            <param id="kInitiative" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
-            <param id="kCastSuccess" base="0" low_increment="2" threshold_mort="25" increment="0" deviation_type="0" deviation="0"/>
+            <param id="kInitiative" base="1" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
+            <param id="kCastSuccess" base="0" low_increment="1" threshold_mort="50" increment="0" deviation_type="0" deviation="0"/>
             <param id="kHitPoints" base="1800" low_increment="0" threshold_mort="0" increment="50" deviation_type="1" deviation="0"/>
             <param id="kSize" base="10" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
             <param id="kExp" base="100000" low_increment="0" threshold_mort="17" increment="5000" deviation_type="1" deviation="0"/>
@@ -216,7 +214,6 @@
         <skills>
             <skill id="kUndefined" base="70" low_increment="2.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
             <skill id="kPunch" base="80" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kPunctual" base="0" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
             <skill id="kAirMagic" base="1" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
             <skill id="kFireMagic" base="1" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
             <skill id="kWaterMagic" base="1" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
@@ -248,13 +245,13 @@
         <combat_stats>
             <param id="kArmour" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
             <param id="kAbsorb" base="0" low_increment="0" threshold_mort="10" increment="1" deviation_type="0" deviation="0"/>
-            <param id="kDamNoDice" base="4" low_increment="1" threshold_mort="10" increment="0.12" deviation_type="0" deviation="0"/>
-            <param id="kDamSizeDice" base="4" low_increment="1" threshold_mort="10" increment="0.12" deviation_type="0" deviation="0"/>
-            <param id="kHitroll" base="18" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
+            <param id="kDamNoDice" base="4" low_increment="0.5" threshold_mort="10" increment="0.12" deviation_type="0" deviation="0"/>
+            <param id="kDamSizeDice" base="4" low_increment="0.5" threshold_mort="10" increment="0.12" deviation_type="0" deviation="0"/>
+            <param id="kHitroll" base="15" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
             <param id="kDamroll" base="1" low_increment="0.5" threshold_mort="20" increment="0" deviation_type="0" deviation="0"/>
             <param id="kMorale" base="10" low_increment="0" threshold_mort="10" increment="0.1" deviation_type="0" deviation="0"/>
-            <param id="kInitiative" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
-            <param id="kCastSuccess" base="0" low_increment="2" threshold_mort="25" increment="0" deviation_type="0" deviation="0"/>
+            <param id="kInitiative" base="1" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
+            <param id="kCastSuccess" base="0" low_increment="1" threshold_mort="50" increment="0" deviation_type="0" deviation="0"/>
             <param id="kHitPoints" base="1800" low_increment="0" threshold_mort="0" increment="50" deviation_type="1" deviation="0"/>
             <param id="kSize" base="10" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
             <param id="kExp" base="100000" low_increment="0" threshold_mort="17" increment="5000" deviation_type="1" deviation="0"/>
@@ -313,7 +310,6 @@
         <skills>
             <skill id="kUndefined" base="70" low_increment="2.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
             <skill id="kPunch" base="80" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kPunctual" base="0" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
             <skill id="kAirMagic" base="1" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
             <skill id="kFireMagic" base="1" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
             <skill id="kWaterMagic" base="1" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
@@ -345,13 +341,13 @@
         <combat_stats>
             <param id="kArmour" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
             <param id="kAbsorb" base="0" low_increment="0" threshold_mort="10" increment="1" deviation_type="0" deviation="0"/>
-            <param id="kDamNoDice" base="4" low_increment="1" threshold_mort="10" increment="0.12" deviation_type="0" deviation="0"/>
-            <param id="kDamSizeDice" base="4" low_increment="1" threshold_mort="10" increment="0.12" deviation_type="0" deviation="0"/>
-            <param id="kHitroll" base="18" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
+            <param id="kDamNoDice" base="4" low_increment="0.5" threshold_mort="10" increment="0.12" deviation_type="0" deviation="0"/>
+            <param id="kDamSizeDice" base="4" low_increment="0.5" threshold_mort="10" increment="0.12" deviation_type="0" deviation="0"/>
+            <param id="kHitroll" base="15" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
             <param id="kDamroll" base="1" low_increment="0.5" threshold_mort="20" increment="0" deviation_type="0" deviation="0"/>
             <param id="kMorale" base="10" low_increment="0" threshold_mort="10" increment="0.1" deviation_type="0" deviation="0"/>
-            <param id="kInitiative" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
-            <param id="kCastSuccess" base="0" low_increment="2" threshold_mort="25" increment="0" deviation_type="0" deviation="0"/>
+            <param id="kInitiative" base="1" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
+            <param id="kCastSuccess" base="0" low_increment="1" threshold_mort="50" increment="0" deviation_type="0" deviation="0"/>
             <param id="kHitPoints" base="1800" low_increment="0" threshold_mort="0" increment="50" deviation_type="1" deviation="0"/>
             <param id="kSize" base="10" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
             <param id="kExp" base="100000" low_increment="0" threshold_mort="17" increment="5000" deviation_type="1" deviation="0"/>
@@ -410,7 +406,6 @@
         <skills>
             <skill id="kUndefined" base="70" low_increment="2.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
             <skill id="kPunch" base="80" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kPunctual" base="0" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
             <skill id="kAirMagic" base="1" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
             <skill id="kFireMagic" base="1" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
             <skill id="kWaterMagic" base="1" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
@@ -442,13 +437,13 @@
         <combat_stats>
             <param id="kArmour" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
             <param id="kAbsorb" base="0" low_increment="0" threshold_mort="10" increment="1" deviation_type="0" deviation="0"/>
-            <param id="kDamNoDice" base="4" low_increment="1" threshold_mort="10" increment="0.12" deviation_type="0" deviation="0"/>
-            <param id="kDamSizeDice" base="4" low_increment="1" threshold_mort="10" increment="0.12" deviation_type="0" deviation="0"/>
-            <param id="kHitroll" base="18" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
+            <param id="kDamNoDice" base="4" low_increment="0.5" threshold_mort="10" increment="0.12" deviation_type="0" deviation="0"/>
+            <param id="kDamSizeDice" base="4" low_increment="0.5" threshold_mort="10" increment="0.12" deviation_type="0" deviation="0"/>
+            <param id="kHitroll" base="15" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
             <param id="kDamroll" base="1" low_increment="0.5" threshold_mort="20" increment="0" deviation_type="0" deviation="0"/>
             <param id="kMorale" base="10" low_increment="0" threshold_mort="10" increment="0.1" deviation_type="0" deviation="0"/>
-            <param id="kInitiative" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
-            <param id="kCastSuccess" base="0" low_increment="2" threshold_mort="25" increment="0" deviation_type="0" deviation="0"/>
+            <param id="kInitiative" base="1" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
+            <param id="kCastSuccess" base="0" low_increment="1" threshold_mort="50" increment="0" deviation_type="0" deviation="0"/>
             <param id="kHitPoints" base="1800" low_increment="0" threshold_mort="0" increment="50" deviation_type="1" deviation="0"/>
             <param id="kSize" base="10" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
             <param id="kExp" base="100000" low_increment="0" threshold_mort="17" increment="5000" deviation_type="1" deviation="0"/>
@@ -507,7 +502,6 @@
         <skills>
             <skill id="kUndefined" base="70" low_increment="2.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
             <skill id="kPunch" base="80" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kPunctual" base="0" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
             <skill id="kAirMagic" base="1" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
             <skill id="kFireMagic" base="1" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
             <skill id="kWaterMagic" base="1" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
@@ -539,13 +533,13 @@
         <combat_stats>
             <param id="kArmour" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
             <param id="kAbsorb" base="0" low_increment="0" threshold_mort="10" increment="1" deviation_type="0" deviation="0"/>
-            <param id="kDamNoDice" base="4" low_increment="1" threshold_mort="10" increment="0.12" deviation_type="0" deviation="0"/>
-            <param id="kDamSizeDice" base="4" low_increment="1" threshold_mort="10" increment="0.12" deviation_type="0" deviation="0"/>
-            <param id="kHitroll" base="18" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
+            <param id="kDamNoDice" base="4" low_increment="0.5" threshold_mort="10" increment="0.12" deviation_type="0" deviation="0"/>
+            <param id="kDamSizeDice" base="4" low_increment="0.5" threshold_mort="10" increment="0.12" deviation_type="0" deviation="0"/>
+            <param id="kHitroll" base="15" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
             <param id="kDamroll" base="1" low_increment="0.5" threshold_mort="20" increment="0" deviation_type="0" deviation="0"/>
             <param id="kMorale" base="10" low_increment="0" threshold_mort="10" increment="0.1" deviation_type="0" deviation="0"/>
-            <param id="kInitiative" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
-            <param id="kCastSuccess" base="0" low_increment="2" threshold_mort="25" increment="0" deviation_type="0" deviation="0"/>
+            <param id="kInitiative" base="1" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
+            <param id="kCastSuccess" base="0" low_increment="1" threshold_mort="50" increment="0" deviation_type="0" deviation="0"/>
             <param id="kHitPoints" base="1800" low_increment="0" threshold_mort="0" increment="50" deviation_type="1" deviation="0"/>
             <param id="kSize" base="10" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
             <param id="kExp" base="100000" low_increment="0" threshold_mort="17" increment="5000" deviation_type="1" deviation="0"/>
@@ -604,7 +598,6 @@
         <skills>
             <skill id="kUndefined" base="70" low_increment="2.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
             <skill id="kPunch" base="80" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kPunctual" base="0" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
             <skill id="kBackstab" base="20" low_increment="1" threshold_mort="45" increment="0" deviation_type="0" deviation="0"/>
             <skill id="kAirMagic" base="1" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
             <skill id="kFireMagic" base="1" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
@@ -637,13 +630,13 @@
         <combat_stats>
             <param id="kArmour" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
             <param id="kAbsorb" base="0" low_increment="0" threshold_mort="10" increment="1" deviation_type="0" deviation="0"/>
-            <param id="kDamNoDice" base="4" low_increment="1" threshold_mort="10" increment="0.12" deviation_type="0" deviation="0"/>
-            <param id="kDamSizeDice" base="4" low_increment="1" threshold_mort="10" increment="0.12" deviation_type="0" deviation="0"/>
-            <param id="kHitroll" base="18" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
+            <param id="kDamNoDice" base="4" low_increment="0.5" threshold_mort="10" increment="0.12" deviation_type="0" deviation="0"/>
+            <param id="kDamSizeDice" base="4" low_increment="0.5" threshold_mort="10" increment="0.12" deviation_type="0" deviation="0"/>
+            <param id="kHitroll" base="15" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
             <param id="kDamroll" base="1" low_increment="0.5" threshold_mort="20" increment="0" deviation_type="0" deviation="0"/>
             <param id="kMorale" base="10" low_increment="0" threshold_mort="10" increment="0.1" deviation_type="0" deviation="0"/>
-            <param id="kInitiative" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
-            <param id="kCastSuccess" base="0" low_increment="2" threshold_mort="25" increment="0" deviation_type="0" deviation="0"/>
+            <param id="kInitiative" base="1" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
+            <param id="kCastSuccess" base="0" low_increment="1" threshold_mort="50" increment="0" deviation_type="0" deviation="0"/>
             <param id="kHitPoints" base="1800" low_increment="0" threshold_mort="0" increment="50" deviation_type="1" deviation="0"/>
             <param id="kSize" base="10" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
             <param id="kExp" base="100000" low_increment="0" threshold_mort="17" increment="5000" deviation_type="1" deviation="0"/>
@@ -701,7 +694,6 @@
         <skills>
             <skill id="kUndefined" base="70" low_increment="2.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
             <skill id="kPunch" base="80" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kPunctual" base="0" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
             <skill id="kAirMagic" base="1" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
             <skill id="kFireMagic" base="1" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
             <skill id="kWaterMagic" base="1" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
@@ -733,13 +725,13 @@
         <combat_stats>
             <param id="kArmour" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
             <param id="kAbsorb" base="0" low_increment="0" threshold_mort="10" increment="1" deviation_type="0" deviation="0"/>
-            <param id="kDamNoDice" base="4" low_increment="1" threshold_mort="10" increment="0.12" deviation_type="0" deviation="0"/>
-            <param id="kDamSizeDice" base="4" low_increment="1" threshold_mort="10" increment="0.12" deviation_type="0" deviation="0"/>
-            <param id="kHitroll" base="18" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
+            <param id="kDamNoDice" base="4" low_increment="0.5" threshold_mort="10" increment="0.12" deviation_type="0" deviation="0"/>
+            <param id="kDamSizeDice" base="4" low_increment="0.5" threshold_mort="10" increment="0.12" deviation_type="0" deviation="0"/>
+            <param id="kHitroll" base="15" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
             <param id="kDamroll" base="1" low_increment="0.5" threshold_mort="20" increment="0" deviation_type="0" deviation="0"/>
             <param id="kMorale" base="10" low_increment="0" threshold_mort="10" increment="0.1" deviation_type="0" deviation="0"/>
-            <param id="kInitiative" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
-            <param id="kCastSuccess" base="0" low_increment="2" threshold_mort="25" increment="0" deviation_type="0" deviation="0"/>
+            <param id="kInitiative" base="1" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
+            <param id="kCastSuccess" base="0" low_increment="1" threshold_mort="50" increment="0" deviation_type="0" deviation="0"/>
             <param id="kHitPoints" base="1800" low_increment="0" threshold_mort="0" increment="50" deviation_type="1" deviation="0"/>
             <param id="kSize" base="10" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
             <param id="kExp" base="100000" low_increment="0" threshold_mort="17" increment="5000" deviation_type="1" deviation="0"/>
@@ -798,7 +790,6 @@
         <skills>
             <skill id="kUndefined" base="70" low_increment="2.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
             <skill id="kPunch" base="80" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kPunctual" base="0" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
             <skill id="kAirMagic" base="1" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
             <skill id="kFireMagic" base="1" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
             <skill id="kWaterMagic" base="1" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
@@ -830,13 +821,13 @@
         <combat_stats>
             <param id="kArmour" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
             <param id="kAbsorb" base="0" low_increment="0" threshold_mort="10" increment="1" deviation_type="0" deviation="0"/>
-            <param id="kDamNoDice" base="4" low_increment="1" threshold_mort="10" increment="0.12" deviation_type="0" deviation="0"/>
-            <param id="kDamSizeDice" base="4" low_increment="1" threshold_mort="10" increment="0.12" deviation_type="0" deviation="0"/>
-            <param id="kHitroll" base="18" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
+            <param id="kDamNoDice" base="4" low_increment="0.5" threshold_mort="10" increment="0.12" deviation_type="0" deviation="0"/>
+            <param id="kDamSizeDice" base="4" low_increment="0.5" threshold_mort="10" increment="0.12" deviation_type="0" deviation="0"/>
+            <param id="kHitroll" base="15" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
             <param id="kDamroll" base="1" low_increment="0.5" threshold_mort="20" increment="0" deviation_type="0" deviation="0"/>
             <param id="kMorale" base="10" low_increment="0" threshold_mort="10" increment="0.1" deviation_type="0" deviation="0"/>
-            <param id="kInitiative" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
-            <param id="kCastSuccess" base="0" low_increment="2" threshold_mort="25" increment="0" deviation_type="0" deviation="0"/>
+            <param id="kInitiative" base="1" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
+            <param id="kCastSuccess" base="0" low_increment="1" threshold_mort="50" increment="0" deviation_type="0" deviation="0"/>
             <param id="kHitPoints" base="1800" low_increment="0" threshold_mort="0" increment="50" deviation_type="1" deviation="0"/>
             <param id="kSize" base="10" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
             <param id="kExp" base="100000" low_increment="0" threshold_mort="17" increment="5000" deviation_type="1" deviation="0"/>
@@ -895,7 +886,6 @@
         <skills>
             <skill id="kUndefined" base="70" low_increment="2.8" threshold_mort="40" increment="0" deviation_type="0" deviation="0"/>
             <skill id="kPunch" base="80" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
-            <skill id="kPunctual" base="0" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
             <skill id="kAirMagic" base="1" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
             <skill id="kFireMagic" base="1" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
             <skill id="kWaterMagic" base="1" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
@@ -927,13 +917,13 @@
         <combat_stats>
             <param id="kArmour" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
             <param id="kAbsorb" base="0" low_increment="0" threshold_mort="10" increment="1" deviation_type="0" deviation="0"/>
-            <param id="kDamNoDice" base="4" low_increment="1" threshold_mort="10" increment="0.12" deviation_type="0" deviation="0"/>
-            <param id="kDamSizeDice" base="4" low_increment="1" threshold_mort="10" increment="0.12" deviation_type="0" deviation="0"/>
-            <param id="kHitroll" base="18" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
+            <param id="kDamNoDice" base="4" low_increment="0.5" threshold_mort="10" increment="0.12" deviation_type="0" deviation="0"/>
+            <param id="kDamSizeDice" base="4" low_increment="0.5" threshold_mort="10" increment="0.12" deviation_type="0" deviation="0"/>
+            <param id="kHitroll" base="15" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
             <param id="kDamroll" base="1" low_increment="0.5" threshold_mort="20" increment="0" deviation_type="0" deviation="0"/>
             <param id="kMorale" base="10" low_increment="0" threshold_mort="10" increment="0.1" deviation_type="0" deviation="0"/>
-            <param id="kInitiative" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
-            <param id="kCastSuccess" base="0" low_increment="2" threshold_mort="25" increment="0" deviation_type="0" deviation="0"/>
+            <param id="kInitiative" base="1" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
+            <param id="kCastSuccess" base="0" low_increment="1" threshold_mort="50" increment="0" deviation_type="0" deviation="0"/>
             <param id="kHitPoints" base="1800" low_increment="0" threshold_mort="0" increment="50" deviation_type="1" deviation="0"/>
             <param id="kSize" base="10" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
             <param id="kExp" base="100000" low_increment="0" threshold_mort="17" increment="5000" deviation_type="1" deviation="0"/>
