@@ -566,7 +566,7 @@ void Player::save_char() {
 	if (GetRealLevel(this) < kLvlImmortal) {
 		fprintf(saved, "SkTm:\n");
 		for (auto skj : this->timed_skill) {
-			fprintf(saved, "%d %d %s\n", to_underlying(skj.first), skj.second, MUD::Skill(skj.first).GetName());
+			fprintf(saved, "%d %ld %s\n", to_underlying(skj.first), std::max(0l, skj.second - time(0)), MUD::Skill(skj.first).GetName());
 		}
 		fprintf(saved, "0 0\n");
 	}
@@ -1764,10 +1764,11 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 					} while (num != 0);
 				} else if (!strcmp(tag, "SkTm")) {
 					do {
+						time_t num3;
 						fbgetline(fl, line);
-						sscanf(line, "%d %d", &num, &num2);
+						sscanf(line, "%d %ld", &num, &num3);
 						if (num != 0) {
-							this->timed_skill[static_cast<ESkill>(num)] = num2;
+							this->timed_skill[static_cast<ESkill>(num)] = time(0) + num3;
 						}
 					} while (num != 0);
 				} else if (!strcmp(tag, "Spel")) {

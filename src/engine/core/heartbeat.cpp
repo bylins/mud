@@ -21,6 +21,7 @@
 #include "gameplay/statistics/mob_stat.h"
 #include "gameplay/magic/magic.h"
 #include "gameplay/core/game_limits.h"
+#include "engine/core/handler.h"
 #include "gameplay/ai/mobact.h"
 #include "engine/scripting/dg_event.h"
 #include "gameplay/mechanics/corpse.h"
@@ -327,7 +328,7 @@ Heartbeat::steps_t &pulse_steps() {
 							 std::make_shared<SimpleCall>(tact_auction)),
 		Heartbeat::PulseStep("Room affect update",
 							 room_spells::kSecsPerRoomAffect * kPassesPerSec,
-							 0,
+							 17,
 							 std::make_shared<SimpleCall>(room_spells::UpdateRoomsAffects)),
 		Heartbeat::PulseStep("Player affect update",
 							 kSecsPerPlayerAffect * kPassesPerSec,
@@ -460,8 +461,8 @@ Heartbeat::steps_t &pulse_steps() {
 							 16,
 							 std::make_shared<SimpleCall>(mobile_affect_update)),
 		Heartbeat::PulseStep("Player timed updating",
-							 kSecsPerMudHour * kPassesPerSec,
-							 16,
+							 kSecsPerPlayerTimed * kPassesPerSec,
+							 17,
 							 std::make_shared<SimpleCall>(player_timed_update)),
 		Heartbeat::PulseStep("Objects point updating",
 							 kSecsPerMudHour * kPassesPerSec,

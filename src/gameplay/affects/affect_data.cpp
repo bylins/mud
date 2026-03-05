@@ -194,11 +194,14 @@ void player_timed_update() {
 		const auto ch = d->get_character().get();
 
 		for (auto timed = ch->timed_skill.begin(); timed != ch->timed_skill.end();) {
-			if (timed->second >= 1) {
-				timed->second--;
-				++timed;
-			} else {
+/*			if (timed->first == ESkill::kTownportal) {
+				mudlog(fmt::format("таймер == {} time0 {} time {}" , (timed->second - time(0) - 1) / 60 + 1, time(0), timed->second));
+			}
+*/
+			if (time(0) >= timed->second) {
 				timed = ch->timed_skill.erase(timed);
+			} else {
+				++timed;
 			}
 		}
 		for (auto timed = ch->timed_feat.begin(); timed != ch->timed_feat.end();) {

@@ -73,8 +73,6 @@ class RunestoneRoster : private std::vector<Runestone> {
    bool IsOverfilled(CharData *ch);
 };
 
-void DecayPortalMessage(RoomRnum room_num);
-
 /**
 * Список односторонних порталов (по втригеру и вратам), единственная цель - не перебирать все
 * комнаты при резете зоны для удаления всех пент на ее комнаты, ибо занимает много ресурсов.

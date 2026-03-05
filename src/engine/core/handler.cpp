@@ -149,7 +149,7 @@ int GetTalentTimerMod(CharData *ch, TalentId id) {
 }
 
 void ImposeTimedFeat(CharData *ch, TimedFeat *timed) {
-	ch->timed_feat[timed->feat] = std::max(1, timed->time + GetTalentTimerMod(ch, timed->feat));
+	ch->timed_feat[timed->feat] = time(0) + timed->time * 60 + GetTalentTimerMod(ch, timed->feat) * kSecsPerMudHour / kSecsPerPlayerTimed;
 }
 
 void ExpireTimedFeat(CharData *ch, EFeat feat) {
@@ -164,7 +164,7 @@ void ExpireTimedFeat(CharData *ch, EFeat feat) {
 int IsTimedByFeat(CharData *ch, EFeat feat) {
 	auto it = ch->timed_feat.find(feat);
 	if (it != ch->timed_feat.end()) {
-		return it->second;
+		return (it->second - time(0) - 1) / 60 + 1;
 	}
 	return (0);
 }
@@ -173,7 +173,8 @@ int IsTimedByFeat(CharData *ch, EFeat feat) {
  * Insert an TimedSkill in a char_data structure
  */
 void ImposeTimedSkill(CharData *ch, struct TimedSkill *timed) {
-	ch->timed_skill[timed->skill] = std::max(1, timed->time + GetTalentTimerMod(ch, timed->skill));
+	ch->timed_skill[timed->skill] = time(0) + timed->time * 60 + GetTalentTimerMod(ch, timed->skill) * kSecsPerMudHour / kSecsPerPlayerTimed;
+//	mudlog(fmt::format("Время установлено {} count {}", ch->timed_skill[timed->skill], timed->time));
 }
 
 void ExpireTimedSkill(CharData *ch, ESkill skill) {
@@ -190,7 +191,7 @@ int IsTimedBySkill(CharData *ch, ESkill id) {
 	
 	auto it = ch->timed_skill.find(id);
 	if (it != ch->timed_skill.end()) {
-		return it->second;
+		return (it->second - time(0) - 1) / 60 + 1;
 	}
 	return (0);
 }
