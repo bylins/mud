@@ -24,7 +24,7 @@ struct RoomData;
 const int kLightNo = 0;
 const int kLightYes = 1;
 const int kLightUndef = 2;
-
+const int kSecsPerPlayerTimed = 1;
 enum class CharEquipFlag : uint8_t {
 	no_cast,	// no spell casting
 	skip_total,	// no total affect update
@@ -42,10 +42,9 @@ void CheckLight(CharData *ch, int was_equip, int was_single, int was_holylight, 
 
 // handling the affected-structures //
 void ImposeTimedFeat(CharData *ch, TimedFeat *timed);
-void ExpireTimedFeat(CharData *ch, TimedFeat *timed);
 int IsTimedByFeat(CharData *ch, EFeat feat);
-void ImposeTimedSkill(CharData *ch, struct TimedSkill *timed);
-void ExpireTimedSkill(CharData *ch, struct TimedSkill *timed);
+void ImposeTimedSkill(CharData *ch, TimedSkill *timed);
+void ExpireTimedSkill(CharData *ch, ESkill skill);
 int IsTimedBySkill(CharData *ch, ESkill id);
 void DecreaseFeatTimer(CharData *ch, EFeat feat_id);
 

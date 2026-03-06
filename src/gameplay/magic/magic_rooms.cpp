@@ -136,6 +136,10 @@ ESpell RemoveControlledRoomAffect(CharData *ch) {
 void SendRemoveAffectMsgToRoom(ESpell affect_type, RoomRnum room) {
 	const std::string &msg = GetAffExpiredText(static_cast<ESpell>(affect_type));
 	if (affect_type >= ESpell::kFirst && affect_type <= ESpell::kLast && !msg.empty()) {
+/*		if (affect_type == ESpell::kPortalTimer){
+			mudlog("Пентаграмма медленно растаяла.");
+		}
+*/
 		SendMsgToRoom(msg.c_str(), room, 0);
 	};
 }
@@ -320,7 +324,8 @@ void UpdateRoomsAffects() {
 
 			if (!(ch && MUD::Spell(spell_id).IsFlagged(kMagCasterInworldDelay))) {
 				switch (spell_id) {
-					case ESpell::kRuneLabel: affect->duration--;
+					case ESpell::kRuneLabel: 
+					affect->duration--;
 					default: break;
 				}
 			}

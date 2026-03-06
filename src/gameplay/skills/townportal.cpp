@@ -117,14 +117,14 @@ void OpenTownportal(CharData *ch, const Runestone &stone) {
 }
 
 void SetSkillTownportalTimer(CharData *ch) {
-	if (!IS_IMMORTAL(ch)) {
+//	if (!IS_IMMORTAL(ch)) {
 		TimedSkill timed;
 		timed.skill = ESkill::kTownportal;
 		// timed.time - это unsigned char, поэтому при уходе в минус будет вынос на 255 и ниже
 		int modif = ch->GetSkill(ESkill::kTownportal) / 7 + number(1, 5);
 		timed.time = MAX(1, 25 - modif);
 		ImposeTimedSkill(ch, &timed);
-	}
+//	}
 }
 
 int CalcMinRunestoneLevel(CharData *ch, const Runestone &stone) {
@@ -162,11 +162,6 @@ void ReplacePortalTimer(CharData *ch, RoomRnum from_room, RoomRnum to_room, int 
 }
 
 } // namespace OneWayPortal
-
-inline void DecayPortalMessage(const RoomRnum room_num) {
-	act("Пентаграмма медленно растаяла.", false, world[room_num]->first_character(), nullptr, nullptr, kToRoom);
-	act("Пентаграмма медленно растаяла.", false, world[room_num]->first_character(), nullptr, nullptr, kToChar);
-}
 
 void Runestone::SetEnabled(bool enabled) {
 	if (state_ != State::kForbidden) {
