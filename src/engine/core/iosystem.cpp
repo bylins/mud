@@ -1162,7 +1162,7 @@ std::string MakePrompt(DescriptorData *d) {
 			}
 		}
 
-//		if (ch->IsFlagged(EPrf::kDispTimed)) {
+		if (ch->IsFlagged(EPrf::kDispTimed)) {
 			for (auto timed : ch->timed_skill) {
 				int display_time = (timed.second - time(0) - 1) / 60 + 1;
 
@@ -1183,7 +1183,7 @@ std::string MakePrompt(DescriptorData *d) {
 						  MUD::Skill(ESkill::kTurnUndead).GetAbbr(),
 						  (kHoursPerDay - IsTimedBySkill(ch.get(), ESkill::kTurnUndead)) / bonus);
 			}
-//		}
+		}
 
 		if (!ch->GetEnemy() || ch->in_room != ch->GetEnemy()->in_room) {
 			if (ch->IsFlagged(EPrf::kDispLvl)) {
