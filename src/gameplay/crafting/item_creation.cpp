@@ -17,6 +17,7 @@
 #include "engine/db/global_objects.h"
 #include "gameplay/core/base_stats.h"
 #include "gameplay/core/constants.h"
+#include "engine/observability/metrics.h"
 
 #include <cmath>
 
@@ -1571,6 +1572,29 @@ void MakeRecept::make_object(CharData *ch, ObjData *obj, ObjData *ingrs[MAX_PART
 		add_rnd_skills(ch, ingrs[j], obj); //переноси случайную умелку с ингров
 	}
 }
+static std::string craft_recipe_name(int recipe_id) {
+	const auto proto = GetObjectPrototype(recipe_id);
+	if (proto) {
+		return proto->get_PName(ECase::kNom); // KOI8-R; auto-converted by OtelMetrics
+	}
+	return std::to_string(recipe_id);
+}
+
+static void record_craft_failure(int recipe_id, ESkill skill) {
+	observability::OtelMetrics::RecordCounter("craft.failures.total", 1, {
+		{"recipe_name",    craft_recipe_name(recipe_id)},
+		{"skill",          MUD::Skill(skill).GetName()}, // KOI8-R; auto-converted by OtelMetrics
+		{"failure_reason", "craft_failed"}
+	});
+}
+
+static void record_craft_success(int recipe_id, ESkill skill) {
+	observability::OtelMetrics::RecordCounter("craft.completed.total", 1, {
+		{"recipe_name", craft_recipe_name(recipe_id)},
+		{"skill",       MUD::Skill(skill).GetName()} // KOI8-R; auto-converted by OtelMetrics
+	});
+}
+
 // создать предмет по рецепту
 int MakeRecept::make(CharData *ch) {
 	char tmpbuf[kMaxStringLength];//, tmpbuf2[kMaxStringLength];
@@ -1892,6 +1916,8 @@ int MakeRecept::make(CharData *ch) {
 				ExtractObjFromWorld(ingrs[i]);
 			}
 		}
+
+		record_craft_failure(obj_proto, skill);
 		return (false);
 	}
 	// Лоадим предмет игроку
@@ -2055,6 +2081,8 @@ int MakeRecept::make(CharData *ch) {
 	} else {
 		PlaceObjToInventory(obj.get(), ch);
 	}
+
+	record_craft_success(obj_proto, skill);
 	return (true);
 }
 // вытащить рецепт из строки.

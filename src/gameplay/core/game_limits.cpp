@@ -27,6 +27,9 @@
 #include "gameplay/economics/ext_money.h"
 #include "gameplay/statistics/mob_stat.h"
 #include "gameplay/mechanics/liquid.h"
+#include "engine/observability/helpers.h"
+#include "engine/observability/metrics.h"
+#include "utils/tracing/trace_manager.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/mechanics/sight.h"
 #include "gameplay/ai/mob_memory.h"
@@ -619,7 +622,48 @@ void beat_punish(const CharData::shared_ptr &i) {
 	}
 }
 
+class BeatPointsMetrics {
+public:
+	BeatPointsMetrics()
+		: m_span(tracing::TraceManager::Instance().StartSpan("Beat Points Update"))
+		, m_duration("player.beat_update.duration")
+		, m_online(0)
+		, m_in_combat(0)
+	{}
+
+	void track(const CharData* ch) {
+		++m_online;
+		if (ch->GetEnemy()) {
+			++m_in_combat;
+		}
+		std::string key = "level_" + std::to_string(ch->GetLevel())
+			+ "_remort_" + std::to_string(ch->get_remort());
+		++m_by_level_remort[key];
+	}
+
+	void send() {
+		m_span->SetAttribute("player_count", static_cast<int64_t>(m_online));
+		observability::OtelMetrics::RecordGauge("players.online.count", m_online);
+		observability::OtelMetrics::RecordGauge("players.in_combat.count", m_in_combat);
+		for (const auto& [key, count] : m_by_level_remort) {
+			size_t level_end = key.find("_remort_");
+			observability::OtelMetrics::RecordGauge("players.by_level_remort.count", count, {
+				{"level",  key.substr(6, level_end - 6)},
+				{"remort", key.substr(level_end + 8)}
+			});
+		}
+	}
+
+private:
+	std::unique_ptr<tracing::ISpan> m_span;
+	observability::ScopedMetric m_duration;
+	int m_online;
+	int m_in_combat;
+	std::map<std::string, int> m_by_level_remort;
+};
+
 void beat_points_update(int pulse) {
+	BeatPointsMetrics metrics;
 	int restore;
 
 	if (!UPDATE_PC_ON_BEAT)
@@ -637,6 +681,8 @@ void beat_points_update(int pulse) {
 			log("SYSERR: Pulse character in kNowhere.");
 			continue;
 		}
+		
+		metrics.track(d->character.get());
 
 		if (NORENTABLE(d->character.get()) <= time(nullptr)) {
 			d->character->player_specials->may_rent = 0;
@@ -743,6 +789,8 @@ void beat_points_update(int pulse) {
 		}
 		//-MZ.overflow_fix
 	}
+	
+	metrics.send();
 }
 
 void update_clan_exp(CharData *ch, int gain) {

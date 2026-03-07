@@ -15,14 +15,21 @@
 #define __CONFIG_C__
 
 #include "config.h"
+#include "utils/timestamp.h"
 
 #include "gameplay/communication/boards/boards_changelog_loaders.h"
 #include "gameplay/communication/boards/boards_constants.h"
 #include "engine/entities/char_data.h"
 #include "engine/structs/meta_enum.h"
 
+using utils::NowTs;
+
+#include "engine/observability/provider.h"
+
 #if CIRCLE_UNIX
+using ETelemetryLogMode = RuntimeConfiguration::ETelemetryLogMode;
 #include <sys/stat.h>
+#include <unistd.h>
 #endif
 
 #include <iostream>
@@ -481,20 +488,20 @@ void RuntimeConfiguration::setup_logs() {
 
 		if (logs(stream).filename().empty()) {
 			handle(stream, stderr);
-			puts("Using file descriptor for logging.");
+			printf("[%s] Using file descriptor for logging.\n", NowTs().c_str());
 			continue;
 		}
 
 		if (!runtime_config.open_log(stream))    //s_fp
 		{
-			puts("SYSERR: Couldn't open anything to log to, giving up.");
+			printf("[%s] SYSERR: Couldn't open anything to log to, giving up.\n", NowTs().c_str());
 			exit(1);
 		}
 	}
 
 	setup_converters();
 
-	printf("Bylins server will use %schronous output into syslog file.\n",
+	printf("[%s] Bylins server will use %schronous output into syslog file.\n", NowTs().c_str(),
 		   output_thread() ? "asyn" : "syn");
 }
 
@@ -720,6 +727,13 @@ RuntimeConfiguration::RuntimeConfiguration() :
 	m_msdp_debug(false),
 	m_changelog_file_name(Boards::constants::CHANGELOG_FILE_NAME),
 	m_changelog_format(Boards::constants::loader_formats::GIT),
+	m_telemetry_enabled(false),
+	m_telemetry_metrics_endpoint("http://localhost:4318/v1/metrics"),
+	m_telemetry_traces_endpoint("http://localhost:4318/v1/traces"),
+	m_telemetry_logs_endpoint("http://localhost:4318/v1/logs"),
+	m_telemetry_service_name("bylins-mud"),
+	m_telemetry_service_version("1.0.0"),
+	m_telemetry_log_mode(ETelemetryLogMode::kFileOnly),
 	m_yaml_threads(0) {
 }
 
@@ -740,6 +754,8 @@ void RuntimeConfiguration::load_from_file(const char *filename) {
 		load_boards_configuration(&root);
 		load_external_triggers(&root);
 		load_statistics_configuration(&root);
+		load_telemetry_configuration_impl(&root);
+		load_telemetry_configuration(&root);
 		load_world_loader_configuration(&root);
 #ifdef ENABLE_ADMIN_API
 		load_admin_api_configuration(&root);
@@ -782,8 +798,8 @@ bool CLogInfo::open() {
 		setvbuf(handle, m_buffer, buffered(), BUFFER_SIZE);
 
 		m_handle = handle;
-		printf("Using log file '%s' with %s buffering. Opening in %s mode.\n",
-			   filename().c_str(),
+		printf("[%s] Using log file '%s' with %s buffering. Opening in %s mode.\n",
+			   NowTs().c_str(), filename().c_str(),
 			   NAME_BY_ITEM(buffered()).c_str(),
 			   NAME_BY_ITEM(this->mode()).c_str());
 		return true;
@@ -796,6 +812,107 @@ bool CLogInfo::open() {
 
 RuntimeConfiguration runtime_config;
 
+void RuntimeConfiguration::load_telemetry_configuration_impl(const pugi::xml_node *root) {
+	const auto telemetry = root->child("telemetry");
+	if (!telemetry) {
+		return;
+	}
+
+	const auto enabled = telemetry.child("enabled");
+	if (enabled) {
+		const std::string value = enabled.child_value();
+		m_telemetry_enabled = (value == "true" || value == "1");
+	}
+
+	const auto otlp = telemetry.child("otlp");
+	if (otlp) {
+		const auto metrics = otlp.child("metrics");
+		if (metrics) {
+			const auto endpoint = metrics.child("endpoint");
+			if (endpoint) {
+				m_telemetry_metrics_endpoint = endpoint.child_value();
+			}
+		}
+		
+		const auto traces = otlp.child("traces");
+		if (traces) {
+			const auto endpoint = traces.child("endpoint");
+			if (endpoint) {
+				m_telemetry_traces_endpoint = endpoint.child_value();
+			}
+		}
+		
+		const auto logs_otlp = otlp.child("logs_otlp");
+		if (logs_otlp) {
+			const auto endpoint = logs_otlp.child("endpoint");
+			if (endpoint) {
+				m_telemetry_logs_endpoint = endpoint.child_value();
+			}
+		}
+	}
+
+	const auto service = telemetry.child("service");
+	if (service) {
+		const auto name = service.child("name");
+		if (name) {
+			m_telemetry_service_name = name.child_value();
+		}
+		const auto version = service.child("version");
+		if (version) {
+			m_telemetry_service_version = version.child_value();
+		}
+	}
+
+	const auto logs = telemetry.child("logs");
+	if (logs) {
+		const auto mode = logs.child("mode");
+		if (mode) {
+			const std::string mode_str = mode.child_value();
+			if (mode_str == "file-only") {
+				m_telemetry_log_mode = ETelemetryLogMode::kFileOnly;
+			} else if (mode_str == "otel-only") {
+				m_telemetry_log_mode = ETelemetryLogMode::kOtelOnly;
+			} else if (mode_str == "duplicate") {
+				m_telemetry_log_mode = ETelemetryLogMode::kDuplicate;
+			}
+		}
+	}
+}
+
+void RuntimeConfiguration::load_telemetry_configuration(const pugi::xml_node *) {
+	// OtelProvider is initialized later via setup_telemetry(port)
+	// once the game port is known from command-line arguments.
+}
+
+void RuntimeConfiguration::setup_telemetry(int port) {
+	if (!m_telemetry_enabled) {
+		return;
+	}
+
+	// Interpolate variables in service name: ${port}, ${host}, ${version}
+	char hostname[256] = "unknown";
+	gethostname(hostname, sizeof(hostname));
+
+	auto replace_all = [](std::string str, const std::string &var, const std::string &val) {
+		std::string::size_type pos;
+		while ((pos = str.find(var)) != std::string::npos) {
+			str.replace(pos, var.size(), val);
+		}
+		return str;
+	};
+
+	std::string name = m_telemetry_service_name;
+	name = replace_all(name, "${port}", std::to_string(port));
+	name = replace_all(name, "${host}", hostname);
+	name = replace_all(name, "${version}", m_telemetry_service_version);
+
+	observability::OtelProvider::Instance().Initialize(
+		m_telemetry_metrics_endpoint,
+		m_telemetry_traces_endpoint,
+		m_telemetry_logs_endpoint,
+		name,
+		m_telemetry_service_version);
+}
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
 
 #ifdef ENABLE_ADMIN_API
