@@ -3,6 +3,7 @@
 #include "utils/timestamp.h"
 #include "engine/core/config.h"
 #include "utils/logging/log_manager.h"
+#include "utils/logging/file_log_sender.h"
 #include "utils/tracing/trace_manager.h"
 
 #include <iostream>
@@ -55,7 +56,12 @@ OtelProvider& OtelProvider::Instance() {
 
 OtelProvider::OtelProvider() : m_providers(std::make_unique<Providers>()) {}
 
-OtelProvider::~OtelProvider() = default;
+OtelProvider::~OtelProvider() {
+    // Remove OTEL log sender before OTEL SDK providers are destroyed.
+    // This prevents use-after-free if any global destructor (e.g. Characters)
+    // logs after OtelProvider is gone but before LogManager is destroyed.
+    Shutdown();
+}
 
 void OtelProvider::Initialize(const std::string& metrics_endpoint,
                              const std::string& traces_endpoint,
@@ -167,6 +173,11 @@ void OtelProvider::Initialize(const std::string& metrics_endpoint,
 }
 
 void OtelProvider::Shutdown() {
+    // Remove OTEL sender from LogManager so any subsequent log() calls
+    // (from global destructors running after us) go to FileLogSender only.
+    logging::LogManager::Instance().ClearSenders();
+    logging::LogManager::Instance().AddSender(std::make_unique<logging::FileLogSender>());
+
 #ifdef WITH_OTEL
     if (!m_enabled) {
         return;
