@@ -4,9 +4,11 @@ set -e
 cd "$(dirname "$0")"
 
 # Fix config file permissions (containers run as non-root)
+chmod 755 grafana/ grafana/provisioning/ grafana/provisioning/datasources/ grafana/provisioning/dashboards/ dashboards/ 2>/dev/null || true
 chmod 644 ./*.yml ./*.yaml 2>/dev/null || true
 chmod 644 grafana/provisioning/datasources/*.yml 2>/dev/null || true
 chmod 644 grafana/provisioning/dashboards/*.yml 2>/dev/null || true
+chmod 644 dashboards/*.json 2>/dev/null || true
 
 if [ $# -eq 0 ]; then
     set -- up -d
