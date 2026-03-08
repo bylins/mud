@@ -104,13 +104,11 @@ class InfoContainer {
 	/**
 	 *  Инициализация. Для реинициализации используйте Reload();
 	 */
-	template<typename RangeT>
-	void Init(const RangeT &data);
+	void Init(const NodeRange &data);
 	/**
 	 *  Горячая перезагрузка. Позволяет перегрузить данные контейнера.
 	 */
-	template<typename RangeT>
-	void Reload(const RangeT &data);
+	void Reload(const NodeRange &data);
 	/**
 	 *  Id известен. Не гарантируется, что он означает корректный элемент.
 	 */
@@ -166,12 +164,10 @@ class InfoContainer {
 	 */
 	class RegisterBuilder {
 	 public:
-		template<typename RangeT>
-		static RegisterPtr Build(const RangeT &data, bool stop_on_error);
+		static RegisterPtr Build(const NodeRange &data, bool stop_on_error);
 
 	 private:
-		template<typename RangeT>
-		static RegisterPtr Parse(const RangeT &data, bool stop_on_error);
+		static RegisterPtr Parse(const NodeRange &data, bool stop_on_error);
 		static void EmplaceItem(Register &items, ItemPtr &item);
 		static void EmplaceDefaultItems(Register &items);
 	};
@@ -208,8 +204,7 @@ InfoContainer<IdEnum, Item, ItemBuilder>::InfoContainer() {
 }
 
 template<typename IdEnum, typename Item, typename ItemBuilder>
-template<typename RangeT>
-void InfoContainer<IdEnum, Item, ItemBuilder>::Reload(const RangeT &data) {
+void InfoContainer<IdEnum, Item, ItemBuilder>::Reload(const NodeRange &data) {
 	auto new_items = RegisterBuilder::Build(data, true);
 	if (new_items) {
 		items_ = std::move(new_items);
@@ -219,8 +214,7 @@ void InfoContainer<IdEnum, Item, ItemBuilder>::Reload(const RangeT &data) {
 }
 
 template<typename IdEnum, typename Item, typename ItemBuilder>
-template<typename RangeT>
-void InfoContainer<IdEnum, Item, ItemBuilder>::Init(const RangeT &data) {
+void InfoContainer<IdEnum, Item, ItemBuilder>::Init(const NodeRange &data) {
 	if (IsInitizalized()) {
 		err_log("Don't try reinit containers. Use 'Reload()'.");
 		return;
@@ -284,9 +278,8 @@ EItemMode IItemBuilder<Item>::ParseItemMode(parser_wrapper::DataNode &node, EIte
 }
 
 template<typename IdEnum, typename Item, typename ItemBuilder>
-template<typename RangeT>
 typename InfoContainer<IdEnum, Item, ItemBuilder>::RegisterPtr
-	InfoContainer<IdEnum, Item, ItemBuilder>::RegisterBuilder::Build(const RangeT &data, bool stop_on_error) {
+	InfoContainer<IdEnum, Item, ItemBuilder>::RegisterBuilder::Build(const NodeRange &data, bool stop_on_error) {
 	auto items = Parse(data, stop_on_error);
 	if (items) {
 		EmplaceDefaultItems(*items);
@@ -295,9 +288,8 @@ typename InfoContainer<IdEnum, Item, ItemBuilder>::RegisterPtr
 }
 
 template<typename IdEnum, typename Item, typename ItemBuilder>
-template<typename RangeT>
 typename InfoContainer<IdEnum, Item, ItemBuilder>::RegisterPtr
-	InfoContainer<IdEnum, Item, ItemBuilder>::RegisterBuilder::Parse(const RangeT &data, bool stop_on_error) {
+	InfoContainer<IdEnum, Item, ItemBuilder>::RegisterBuilder::Parse(const NodeRange &data, bool stop_on_error) {
 	auto items = std::make_unique<Register>();
 
 	ItemBuilder builder;
@@ -409,13 +401,11 @@ class InfoContainer<int, Item, ItemBuilder> {
 	/**
 	 *  Инициализация. Для реинициализации используйте Reload();
 	 */
-	template<typename RangeT>
-	void Init(const RangeT &data);
+	void Init(const NodeRange &data);
 	/**
 	 *  Горячая перезагрузка. Позволяет перегрузить данные контейнера.
 	 */
-	template<typename RangeT>
-	void Reload(const RangeT &data);
+	void Reload(const NodeRange &data);
 	/**
 	 *  Id известен. Не гарантируется, что он означает корректный элемент.
 	 */
@@ -476,12 +466,10 @@ class InfoContainer<int, Item, ItemBuilder> {
 	 */
 	class RegisterBuilder {
 	 public:
-		template<typename RangeT>
-		static RegisterPtr Build(const RangeT &data, bool stop_on_error);
+		static RegisterPtr Build(const NodeRange &data, bool stop_on_error);
 
 	 private:
-		template<typename RangeT>
-		static RegisterPtr Parse(const RangeT &data, bool stop_on_error);
+		static RegisterPtr Parse(const NodeRange &data, bool stop_on_error);
 		static void EmplaceItem(Register &items, ItemPtr &item);
 		static void EmplaceDefaultItems(Register &items);
 	};
@@ -523,8 +511,7 @@ InfoContainer<int, Item, ItemBuilder>::InfoContainer() {
 }
 
 template<typename Item, typename ItemBuilder>
-template<typename RangeT>
-void InfoContainer<int, Item, ItemBuilder>::Reload(const RangeT &data) {
+void InfoContainer<int, Item, ItemBuilder>::Reload(const NodeRange &data) {
 	auto new_items = RegisterBuilder::Build(data, true);
 	if (new_items) {
 		items_ = std::move(new_items);
@@ -535,8 +522,7 @@ void InfoContainer<int, Item, ItemBuilder>::Reload(const RangeT &data) {
 }
 
 template<typename Item, typename ItemBuilder>
-template<typename RangeT>
-void InfoContainer<int, Item, ItemBuilder>::Init(const RangeT &data) {
+void InfoContainer<int, Item, ItemBuilder>::Init(const NodeRange &data) {
 	if (IsInitizalized()) {
 		err_log("Don't try reinit containers. Use 'Reload()'.");
 		return;
@@ -599,9 +585,8 @@ const Item &InfoContainer<int, Item, ItemBuilder>::FindAvailableItem(const std::
  ---------------------------------------------------------------------- */
 
 template<typename Item, typename ItemBuilder>
-template<typename RangeT>
 typename InfoContainer<int, Item, ItemBuilder>::RegisterPtr
-InfoContainer<int, Item, ItemBuilder>::RegisterBuilder::Build(const RangeT &data, bool stop_on_error) {
+InfoContainer<int, Item, ItemBuilder>::RegisterBuilder::Build(const NodeRange &data, bool stop_on_error) {
 	auto items = Parse(data, stop_on_error);
 	if (items) {
 		EmplaceDefaultItems(*items);
@@ -610,9 +595,8 @@ InfoContainer<int, Item, ItemBuilder>::RegisterBuilder::Build(const RangeT &data
 }
 
 template<typename Item, typename ItemBuilder>
-template<typename RangeT>
 typename InfoContainer<int, Item, ItemBuilder>::RegisterPtr
-InfoContainer<int, Item, ItemBuilder>::RegisterBuilder::Parse(const RangeT &data, bool stop_on_error) {
+InfoContainer<int, Item, ItemBuilder>::RegisterBuilder::Parse(const NodeRange &data, bool stop_on_error) {
 	auto items = std::make_unique<Register>();
 
 	ItemBuilder builder;
