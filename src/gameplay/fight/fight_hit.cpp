@@ -956,7 +956,7 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 		// собсно выяснение попали или нет
 		if (victim_lvl_miss - ch_lvl_miss <= 5 || (!ch->IsNpc() && !victim->IsNpc())) {
 			// 5% шанс промазать, если цель в пределах 5 уровней или пвп случай
-			if ((number(1, 200) <= 5)) {
+			if ((number(1, 100) <= 5)) {
 				hit_params.dam = 0;
 				hit_params.ProcessExtradamage(ch, victim);
 				hitprcnt_mtrigger(victim);
@@ -965,7 +965,7 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 		} else {
 			// шанс промазать = разнице уровней и мортов
 			const int diff = victim_lvl_miss - ch_lvl_miss;
-			if (number(1, 100) <= diff) {
+			if (number(1, 200) <= diff) {
 				hit_params.dam = 0;
 				hit_params.ProcessExtradamage(ch, victim);
 				hitprcnt_mtrigger(victim);
