@@ -91,13 +91,16 @@ set(TESTS
 		extra_description.cpp
 		trigger_indenter.cpp
 		dg_string_matching.cpp
-		dg_var_context.cpp)
+		dg_var_context.cpp
+		mob_classes.loader.cpp)
 set(UTILITIES
 		char.utilities.hpp
 		char.utilities.cpp)
 set(ADDITIONAL_FILES
 		data/boards/changelog.sample
-		data/boards/news.sample)
+		data/boards/news.sample
+		data/mob_classes/test_initial.xml
+		data/mob_classes/test_updated.xml)
 source_group("Tests data" FILES ${ADDITIONAL_FILES})
 source_group("Tests" FILES ${TESTS})
 source_group("Tests helpers" FILES ${UTILITIES})
@@ -189,7 +192,21 @@ add_custom_target(tests.data.boards.news_sample
 		COMMENT "Copy tests/data/boards/news.sample for tests.")
 set_target_properties(tests.data.boards.news_sample PROPERTIES FOLDER "Utility targets/Tests data")
 
-add_dependencies(tests tests.misc.grouping tests.data.boards.changelog_sample tests.data.boards.news_sample)
+add_custom_target(tests.data.mob_classes
+		DEPENDS
+			${CMAKE_SOURCE_DIR}/tests/data/mob_classes/test_initial.xml
+			${CMAKE_SOURCE_DIR}/tests/data/mob_classes/test_updated.xml
+		COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_BINARY_DIR}/data/mob_classes
+		COMMAND ${CMAKE_COMMAND} -E copy
+			${CMAKE_SOURCE_DIR}/tests/data/mob_classes/test_initial.xml
+			${CMAKE_BINARY_DIR}/data/mob_classes/test_initial.xml
+		COMMAND ${CMAKE_COMMAND} -E copy
+			${CMAKE_SOURCE_DIR}/tests/data/mob_classes/test_updated.xml
+			${CMAKE_BINARY_DIR}/data/mob_classes/test_updated.xml
+		COMMENT "Copy tests/data/mob_classes XML fixtures for tests.")
+set_target_properties(tests.data.mob_classes PROPERTIES FOLDER "Utility targets/Tests data")
+
+add_dependencies(tests tests.misc.grouping tests.data.boards.changelog_sample tests.data.boards.news_sample tests.data.mob_classes)
 add_dependencies(checks tests)
 
 # vim: set ts=4 sw=4 ai tw=0 noet syntax=cmake :
