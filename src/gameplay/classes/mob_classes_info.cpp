@@ -54,12 +54,12 @@ int GetBossAddLvl() {
 
 void MobClassesLoader::Load(DataNode data) {
     ParseGlobalVarsFromRoot(data);
-    MUD::MobClasses().Init(data.Children());
+    MUD::MobClasses().Init(data.Children("mobclass"));
 }
 
 void MobClassesLoader::Reload(DataNode data) {
     ParseGlobalVarsFromRoot(data);
-    MUD::MobClasses().Reload(data.Children());
+    MUD::MobClasses().Reload(data.Children("mobclass"));
 }
 
 void MobClassesLoader::ParseGlobalVarsFromRoot(DataNode &data) {
