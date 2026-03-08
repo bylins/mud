@@ -36,6 +36,7 @@ class DataNode {
 	DocPtr xml_doc_;
 	// Получить указатель на ноду непосредственно штатными средстваим нельзя.
 	pugi::xml_node curren_xml_node_;
+	std::string filter_name_;
 
  public:
 	DataNode() :
@@ -47,30 +48,6 @@ class DataNode {
 	DataNode(const DataNode &d);
 
 	~DataNode() = default;
-
-	class NameIterator {
-		std::shared_ptr<DataNode> node_;
-	 public:
-		NameIterator() :
-			node_{std::make_shared<DataNode>()} {};
-
-		explicit NameIterator(DataNode &node) :
-			node_{std::make_shared<DataNode>(node)}
-		{};
-
-		NameIterator &operator++();
-
-		const NameIterator operator++(int);
-
-		bool operator==(const NameIterator &it) const { return node_->curren_xml_node_ == it.node_->curren_xml_node_; };
-
-		bool operator!=(const NameIterator &other) const { return !(*this == other); };
-
-		reference operator*() const { return *node_; }
-
-		pointer operator->() { return node_.get(); }
-
-	};
 
 	DataNode &operator=(const DataNode &d) = default;
 
@@ -166,7 +143,7 @@ class DataNode {
 	/*
 	 * Диапазон дочерних узлов с именем key,
 	 */
-	[[nodiscard]] iterators::Range<NameIterator> Children(const std::string &key);
+	[[nodiscard]] iterators::Range<DataNode> Children(const std::string &key);
 
 };
 

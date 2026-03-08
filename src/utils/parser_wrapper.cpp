@@ -20,6 +20,7 @@ DataNode::DataNode(const DataNode &d) :
 {
 	xml_doc_ = d.xml_doc_;
 	curren_xml_node_ = d.curren_xml_node_;
+	filter_name_ = d.filter_name_;
 }
 
 bool DataNode::IsEmpty() const {
@@ -102,7 +103,11 @@ DataNode::pointer DataNode::operator->() {
 }
 
 DataNode &DataNode::operator++() {
-	curren_xml_node_ = curren_xml_node_.next_sibling();
+	if (filter_name_.empty()) {
+		curren_xml_node_ = curren_xml_node_.next_sibling();
+	} else {
+		curren_xml_node_ = curren_xml_node_.next_sibling(filter_name_.c_str());
+	}
 	return *this;
 }
 
@@ -129,21 +134,11 @@ const DataNode DataNode::operator--(int) {
 	return iterators::Range(node);
 }
 
-[[nodiscard]] iterators::Range<DataNode::NameIterator> DataNode::Children(const std::string &key) {
-	auto it = NameIterator(*this);
-	(*it)->GoToChild(key);
-	return iterators::Range(it);
-}
-
-DataNode::NameIterator &DataNode::NameIterator::operator++() {
-	node_->curren_xml_node_ = node_->curren_xml_node_.next_sibling(node_->curren_xml_node_.name());
-	return *this;
-}
-
-const DataNode::NameIterator DataNode::NameIterator::operator++(int) {
-	auto retval = *this;
-	++*this;
-	return retval;
+[[nodiscard]] iterators::Range<DataNode> DataNode::Children(const std::string &key) {
+	auto node = *this;
+	node.filter_name_ = key;
+	node.curren_xml_node_ = node.curren_xml_node_.child(key.c_str());
+	return iterators::Range(node);
 }
 
 } // namespace
