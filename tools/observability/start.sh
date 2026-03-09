@@ -3,6 +3,12 @@ set -e
 
 cd "$(dirname "$0")"
 
+# Deployment mode:
+#   all-in-one         — full stack on this machine, OTEL on 127.0.0.1 (default)
+#   monitoring-server  — full stack, OTEL also on WireGuard IP (OTEL_BIND=10.10.0.1)
+#   agent              — OTEL Collector only, forwards to remote OTEL_GATEWAY
+MODE=${MODE:-all-in-one}
+
 # Fix config file permissions (containers run as non-root)
 chmod 755 grafana/ grafana/provisioning/ grafana/provisioning/datasources/ grafana/provisioning/dashboards/ dashboards/ 2>/dev/null || true
 chmod 644 ./*.yml ./*.yaml 2>/dev/null || true
@@ -14,21 +20,51 @@ if [ $# -eq 0 ]; then
     set -- up -d
 fi
 
-if [ -n "$DATA_DIR" ]; then
-    echo "Using bind mounts in: $DATA_DIR"
-    mkdir -p "$DATA_DIR/prometheus" "$DATA_DIR/tempo" "$DATA_DIR/loki" "$DATA_DIR/grafana"
+case "$MODE" in
+    agent)
+        echo "Mode: agent  (forwards to OTEL_GATEWAY=${OTEL_GATEWAY:-10.10.0.1})"
+        exec docker-compose \
+            -f docker-compose.agent.yml \
+            "$@"
+        ;;
 
-    export UID=$(id -u)
-    export GID=$(id -g)
+    monitoring-server)
+        export OTEL_BIND=${OTEL_BIND:-10.10.0.1}
+        echo "Mode: monitoring-server  (OTEL bound to ${OTEL_BIND})"
+        if [ -n "$DATA_DIR" ]; then
+            echo "Using bind mounts in: $DATA_DIR"
+            mkdir -p "$DATA_DIR/prometheus" "$DATA_DIR/tempo" "$DATA_DIR/loki" "$DATA_DIR/grafana"
+            export UID=$(id -u)
+            export GID=$(id -g)
+            exec docker-compose \
+                -f docker-compose.observability.yml \
+                -f docker-compose.data-dir.yml \
+                "$@"
+        else
+            echo "Using Docker named volumes (set DATA_DIR to use a host directory)"
+            exec docker-compose \
+                -f docker-compose.observability.yml \
+                "$@"
+        fi
+        ;;
 
-    exec docker-compose \
-        -f docker-compose.observability.yml \
-        -f docker-compose.data-dir.yml \
-        "$@"
-else
-    echo "Using Docker named volumes (set DATA_DIR to use a host directory)"
-
-    exec docker-compose \
-        -f docker-compose.observability.yml \
-        "$@"
-fi
+    *)
+        export OTEL_BIND=${OTEL_BIND:-127.0.0.1}
+        echo "Mode: all-in-one  (OTEL bound to ${OTEL_BIND})"
+        if [ -n "$DATA_DIR" ]; then
+            echo "Using bind mounts in: $DATA_DIR"
+            mkdir -p "$DATA_DIR/prometheus" "$DATA_DIR/tempo" "$DATA_DIR/loki" "$DATA_DIR/grafana"
+            export UID=$(id -u)
+            export GID=$(id -g)
+            exec docker-compose \
+                -f docker-compose.observability.yml \
+                -f docker-compose.data-dir.yml \
+                "$@"
+        else
+            echo "Using Docker named volumes (set DATA_DIR to use a host directory)"
+            exec docker-compose \
+                -f docker-compose.observability.yml \
+                "$@"
+        fi
+        ;;
+esac
