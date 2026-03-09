@@ -1,5 +1,3 @@
-version: '3.8'
-
 # Overlay for monitoring-server mode.
 # Mounts Let's Encrypt certificates into the OTEL Collector container.
 # The full /etc/letsencrypt tree is needed so that symlinks inside

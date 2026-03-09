@@ -1,5 +1,3 @@
-version: '3.8'
-
 # Override file: replaces named volumes with bind mounts to ${DATA_DIR}.
 # Containers run as the current host user (UID:GID) so that written files
 # are owned by the user who started the stack.

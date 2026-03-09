@@ -1,5 +1,3 @@
-version: '3.8'
-
 # Lightweight OTEL Collector agent for the Bylins game server.
 # Receives telemetry from circle locally and forwards it to the
 # remote monitoring server over WireGuard.
