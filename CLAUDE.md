@@ -11,10 +11,16 @@ This is **Bylins MUD** - a Russian-language Multi-User Dungeon game server based
 ### Initial Setup (Ubuntu/WSL)
 ```bash
 sudo apt update && sudo apt upgrade
-sudo apt install build-essential make libssl-dev libcurl4-gnutls-dev libexpat1-dev gettext unzip cmake gdb libgtest-dev
+sudo apt install build-essential make libssl-dev libcurl4-gnutls-dev libexpat1-dev gettext unzip cmake gdb libgtest-dev zlib1g-dev
 git clone --recurse-submodules https://github.com/bylins/mud
 cd mud
 cp -n -r lib.template/* lib
+```
+
+### Если репозиторий уже склонирован без submodules
+
+```bash
+git submodule update --init --recurse-submodules
 ```
 
 ### Standard Build (without tests)
