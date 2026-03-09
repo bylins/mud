@@ -3,6 +3,13 @@ set -e
 
 cd "$(dirname "$0")"
 
+# Prefer docker compose v2 (plugin) over docker-compose v1
+if docker compose version >/dev/null 2>&1; then
+    COMPOSE="docker compose"
+else
+    COMPOSE="docker-compose"
+fi
+
 # Load .env if present (variables already in environment take precedence)
 if [ -f .env ]; then
     # shellcheck disable=SC1091
@@ -33,7 +40,7 @@ case "$MODE" in
             echo "ERROR: OTEL_AUTH_TOKEN is not set. Use the same token as on the monitoring server." >&2
             exit 1
         fi
-        exec docker-compose \
+        exec $COMPOSE \
             -f docker-compose.agent.yml \
             "$@"
         ;;
@@ -51,14 +58,14 @@ case "$MODE" in
             mkdir -p "$DATA_DIR/prometheus" "$DATA_DIR/tempo" "$DATA_DIR/loki" "$DATA_DIR/grafana"
             export UID=$(id -u)
             export GID=$(id -g)
-            exec docker-compose \
+            exec $COMPOSE \
                 -f docker-compose.observability.yml \
                 -f docker-compose.tls.yml \
                 -f docker-compose.data-dir.yml \
                 "$@"
         else
             echo "Using Docker named volumes (set DATA_DIR to use a host directory)"
-            exec docker-compose \
+            exec $COMPOSE \
                 -f docker-compose.observability.yml \
                 -f docker-compose.tls.yml \
                 "$@"
@@ -73,13 +80,13 @@ case "$MODE" in
             mkdir -p "$DATA_DIR/prometheus" "$DATA_DIR/tempo" "$DATA_DIR/loki" "$DATA_DIR/grafana"
             export UID=$(id -u)
             export GID=$(id -g)
-            exec docker-compose \
+            exec $COMPOSE \
                 -f docker-compose.observability.yml \
                 -f docker-compose.data-dir.yml \
                 "$@"
         else
             echo "Using Docker named volumes (set DATA_DIR to use a host directory)"
-            exec docker-compose \
+            exec $COMPOSE \
                 -f docker-compose.observability.yml \
                 "$@"
         fi
