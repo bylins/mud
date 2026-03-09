@@ -2,6 +2,18 @@
 
 Инструкции по развёртыванию для разных конфигураций.
 
+## Требования
+
+Docker и docker-compose нужны на каждом сервере, где запускается стек или агент:
+
+```bash
+sudo apt install docker.io docker-compose
+sudo usermod -aG docker $USER
+newgrp docker  # применить без перелогина
+```
+
+---
+
 ## Режим 1: All-in-one
 
 Circle и весь стек мониторинга на одном сервере. Авторизация не нужна — всё на localhost.
@@ -62,14 +74,18 @@ openssl rand -hex 32
 
 ```bash
 # На monitoring.bylins.su:
-echo "OTEL_AUTH_TOKEN=<сгенерированный_токен>" > tools/observability/.env
+cat > tools/observability/.env << EOF
+OTEL_AUTH_TOKEN=<сгенерированный_токен>
+EOF
 
 # На bylins.su:
-echo "OTEL_AUTH_TOKEN=<тот_же_токен>" > tools/observability/.env
-echo "OTEL_GATEWAY=monitoring.bylins.su" >> tools/observability/.env
+cat > tools/observability/.env << EOF
+OTEL_AUTH_TOKEN=<тот_же_токен>
+OTEL_GATEWAY=monitoring.bylins.su
+EOF
 ```
 
-Файл `.env` подхватывается docker-compose автоматически. Его нет в git (добавлен в .gitignore).
+`start.sh` читает `.env` автоматически при запуске. Файл не хранится в git (`.gitignore`).
 
 ### Шаг 3: Файрвол на monitoring.bylins.su
 

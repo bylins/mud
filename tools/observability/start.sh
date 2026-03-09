@@ -3,6 +3,12 @@ set -e
 
 cd "$(dirname "$0")"
 
+# Load .env if present (variables already in environment take precedence)
+if [ -f .env ]; then
+    # shellcheck disable=SC1091
+    . .env
+fi
+
 # Deployment mode:
 #   all-in-one         — full stack on this machine, OTEL on 127.0.0.1 (default)
 #   monitoring-server  — full stack, OTEL also on WireGuard IP (OTEL_BIND=10.10.0.1)
