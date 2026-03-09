@@ -7,6 +7,7 @@ version: '3.8'
 
 services:
   otel-collector:
-    user: "0"  # read root-owned Let's Encrypt certs (600)
+    cap_add:
+      - DAC_READ_SEARCH  # allow reading root-owned LE privkey.pem (600) without running as root
     volumes:
       - /etc/letsencrypt:/etc/letsencrypt:ro
