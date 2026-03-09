@@ -8,4 +8,4 @@ version: '3.8'
 services:
   otel-collector:
     volumes:
-      - /etc/letsencrypt:/etc/letsencrypt:ro
+      - /opt/otel-certs:/certs:ro
