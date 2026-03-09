@@ -153,7 +153,7 @@
 	<admin_api>
 		<enabled>false</enabled>
 		<socket_path>admin_api.sock</socket_path>
-		<port>12000</port>
+		<port>12001</port>
 		<!-- <max_connections>5</max_connections> -->
 	</admin_api>
 </configuration>
