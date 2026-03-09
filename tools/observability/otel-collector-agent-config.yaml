@@ -23,7 +23,7 @@ processors:
     spike_limit_mib: 32
 
 exporters:
-  otlp/gateway:
+  otlp_grpc/gateway:
     endpoint: "${env:OTEL_GATEWAY}:4317"
     tls:
       insecure: false  # Let's Encrypt cert is trusted by system CAs
@@ -45,17 +45,17 @@ service:
     metrics:
       receivers: [otlp]
       processors: [memory_limiter, batch]
-      exporters: [otlp/gateway]
+      exporters: [otlp_grpc/gateway]
 
     traces:
       receivers: [otlp]
       processors: [memory_limiter, batch]
-      exporters: [otlp/gateway]
+      exporters: [otlp_grpc/gateway]
 
     logs:
       receivers: [otlp]
       processors: [memory_limiter, batch]
-      exporters: [otlp/gateway]
+      exporters: [otlp_grpc/gateway]
 
   telemetry:
     logs:
