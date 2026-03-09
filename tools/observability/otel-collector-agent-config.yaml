@@ -1,3 +1,7 @@
+extensions:
+  bearertokenauth:
+    token: "${env:OTEL_AUTH_TOKEN}"
+
 receivers:
   otlp:
     protocols:
@@ -8,7 +12,7 @@ receivers:
 
 processors:
   batch:
-    # Larger batch window: amortises 40ms RTT to monitoring server
+    # Larger batch window to amortise network RTT to monitoring server
     timeout: 30s
     send_batch_size: 1024
     send_batch_max_size: 2048
@@ -22,8 +26,9 @@ exporters:
   otlp/gateway:
     endpoint: "${env:OTEL_GATEWAY}:4317"
     tls:
-      # WireGuard tunnel provides encryption; no TLS needed at app layer
-      insecure: true
+      insecure: false  # Let's Encrypt cert is trusted by system CAs
+    auth:
+      authenticator: bearertokenauth
     retry_on_failure:
       enabled: true
       initial_interval: 5s
@@ -35,6 +40,7 @@ exporters:
       queue_size: 1000
 
 service:
+  extensions: [bearertokenauth]
   pipelines:
     metrics:
       receivers: [otlp]

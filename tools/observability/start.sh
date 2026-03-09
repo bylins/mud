@@ -22,15 +22,24 @@ fi
 
 case "$MODE" in
     agent)
-        echo "Mode: agent  (forwards to OTEL_GATEWAY=${OTEL_GATEWAY:-10.10.0.1})"
+        echo "Mode: agent  (forwards to OTEL_GATEWAY=${OTEL_GATEWAY:-monitoring.bylins.su})"
+        if [ -z "$OTEL_AUTH_TOKEN" ]; then
+            echo "ERROR: OTEL_AUTH_TOKEN is not set. Use the same token as on the monitoring server." >&2
+            exit 1
+        fi
         exec docker-compose \
             -f docker-compose.agent.yml \
             "$@"
         ;;
 
     monitoring-server)
-        export OTEL_BIND=${OTEL_BIND:-10.10.0.1}
-        echo "Mode: monitoring-server  (OTEL bound to ${OTEL_BIND})"
+        export OTEL_BIND=${OTEL_BIND:-0.0.0.0}
+        export OTEL_COLLECTOR_CONFIG=otel-collector-gateway-config.yaml
+        echo "Mode: monitoring-server  (OTEL bound to ${OTEL_BIND}, TLS+auth enabled)"
+        if [ -z "$OTEL_AUTH_TOKEN" ]; then
+            echo "ERROR: OTEL_AUTH_TOKEN is not set. Generate one with: openssl rand -hex 32" >&2
+            exit 1
+        fi
         if [ -n "$DATA_DIR" ]; then
             echo "Using bind mounts in: $DATA_DIR"
             mkdir -p "$DATA_DIR/prometheus" "$DATA_DIR/tempo" "$DATA_DIR/loki" "$DATA_DIR/grafana"
@@ -38,12 +47,14 @@ case "$MODE" in
             export GID=$(id -g)
             exec docker-compose \
                 -f docker-compose.observability.yml \
+                -f docker-compose.tls.yml \
                 -f docker-compose.data-dir.yml \
                 "$@"
         else
             echo "Using Docker named volumes (set DATA_DIR to use a host directory)"
             exec docker-compose \
                 -f docker-compose.observability.yml \
+                -f docker-compose.tls.yml \
                 "$@"
         fi
         ;;

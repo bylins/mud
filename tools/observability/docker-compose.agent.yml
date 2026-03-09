@@ -18,7 +18,8 @@ services:
     volumes:
       - ./otel-collector-agent-config.yaml:/etc/otel-collector-config.yaml:ro
     environment:
-      - OTEL_GATEWAY=${OTEL_GATEWAY:-10.10.0.1}
+      - OTEL_GATEWAY=${OTEL_GATEWAY:-monitoring.bylins.su}
+      - OTEL_AUTH_TOKEN=${OTEL_AUTH_TOKEN}
     ports:
       - "127.0.0.1:4317:4317"   # OTLP gRPC (circle connects here)
       - "127.0.0.1:4318:4318"   # OTLP HTTP

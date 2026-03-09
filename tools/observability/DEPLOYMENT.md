@@ -4,7 +4,7 @@
 
 ## Режим 1: All-in-one
 
-Circle и весь стек мониторинга на одном сервере.
+Circle и весь стек мониторинга на одном сервере. Авторизация не нужна — всё на localhost.
 
 ```bash
 cd tools/observability
@@ -17,108 +17,92 @@ Grafana: http://localhost:12000
 
 ## Режим 2: Split — Bylins + monitoring.bylins.su
 
-### Шаг 1: WireGuard
-
-Установка на **обоих** серверах:
-
-```bash
-sudo apt install wireguard
+```
+[bylins.su]                              [monitoring.bylins.su]
+  circle                                   UFW: 4317/tcp только с bylins.su IP
+    |                                        |
+    v 127.0.0.1:4317                         v 0.0.0.0:4317  (TLS + bearer token)
+  OTEL Agent ── TLS + bearer token ──────> OTEL Gateway
+                                             |  (docker internal network)
+                                             |── Prometheus  127.0.0.1:9090
+                                             |── Loki        127.0.0.1:3100
+                                             └── Tempo       127.0.0.1:3200
+                                            Grafana          127.0.0.1:12000
 ```
 
-**На monitoring.bylins.su:**
+### Шаг 1: TLS-сертификат на monitoring.bylins.su
 
 ```bash
-# Генерируем ключи
-wg genkey | sudo tee /etc/wireguard/privatekey | wg pubkey | sudo tee /etc/wireguard/publickey
+sudo apt install certbot
+sudo certbot certonly --standalone -d monitoring.bylins.su
+```
 
-# Создаём конфиг
-sudo tee /etc/wireguard/wg0.conf > /dev/null << 'EOF'
-[Interface]
-Address = 10.10.0.1/24
-ListenPort = 51820
-PrivateKey = <ВСТАВИТЬ приватный ключ monitoring.bylins.su>
+Сертификат будет в `/etc/letsencrypt/live/monitoring.bylins.su/`.
 
-[Peer]
-PublicKey = <ВСТАВИТЬ публичный ключ bylins.su>
-AllowedIPs = 10.10.0.2/32
+Настроить автоматический перезапуск OTEL Collector после обновления сертификата:
+
+```bash
+sudo tee /etc/letsencrypt/renewal-hooks/deploy/restart-otel-collector.sh > /dev/null << 'EOF'
+#!/bin/sh
+cd /path/to/mud/tools/observability
+MODE=monitoring-server ./start.sh restart otel-collector
 EOF
-
-sudo chmod 600 /etc/wireguard/wg0.conf
-sudo wg-quick up wg0
-sudo systemctl enable wg-quick@wg0
+sudo chmod +x /etc/letsencrypt/renewal-hooks/deploy/restart-otel-collector.sh
 ```
 
-**На bylins.su:**
+### Шаг 2: Bearer token
+
+Сгенерировать токен (один раз, хранить в тайне):
 
 ```bash
-wg genkey | sudo tee /etc/wireguard/privatekey | wg pubkey | sudo tee /etc/wireguard/publickey
-
-sudo tee /etc/wireguard/wg0.conf > /dev/null << 'EOF'
-[Interface]
-Address = 10.10.0.2/24
-PrivateKey = <ВСТАВИТЬ приватный ключ bylins.su>
-
-[Peer]
-PublicKey = <ВСТАВИТЬ публичный ключ monitoring.bylins.su>
-Endpoint = monitoring.bylins.su:51820
-AllowedIPs = 10.10.0.1/32
-PersistentKeepalive = 25
-EOF
-
-sudo chmod 600 /etc/wireguard/wg0.conf
-sudo wg-quick up wg0
-sudo systemctl enable wg-quick@wg0
+openssl rand -hex 32
 ```
 
-**Проверка туннеля:**
+Сохранить в `.env` файл на **каждом** сервере (в директории `tools/observability/`):
 
 ```bash
-# На bylins.su:
-ping 10.10.0.1
-
 # На monitoring.bylins.su:
-ping 10.10.0.2
+echo "OTEL_AUTH_TOKEN=<сгенерированный_токен>" > tools/observability/.env
 
-# Статус туннеля:
-sudo wg show
+# На bylins.su:
+echo "OTEL_AUTH_TOKEN=<тот_же_токен>" > tools/observability/.env
+echo "OTEL_GATEWAY=monitoring.bylins.su" >> tools/observability/.env
 ```
 
-### Шаг 2: Стек метрик на monitoring.bylins.su
+Файл `.env` подхватывается docker-compose автоматически. Его нет в git (добавлен в .gitignore).
+
+### Шаг 3: Файрвол на monitoring.bylins.su
+
+Открыть SSH и OTEL-порт только с IP сервера Былин:
+
+```bash
+sudo ufw allow ssh
+sudo ufw allow from <IP_bylins.su> to any port 4317 proto tcp
+sudo ufw enable
+```
+
+Всё остальное (Prometheus, Loki, Tempo, Grafana) остаётся только на 127.0.0.1.
+
+### Шаг 4: Стек метрик на monitoring.bylins.su
 
 ```bash
 cd tools/observability
 MODE=monitoring-server ./start.sh
 ```
 
-OTEL Collector будет слушать на `10.10.0.1:4317` и `127.0.0.1:4317`.
+OTEL Collector поднимается с TLS и bearer token auth на `0.0.0.0:4317`.
 Grafana — только на `127.0.0.1:12000`.
 
-Открыть порт WireGuard в файрволе (если есть ufw):
-
-```bash
-sudo ufw allow 51820/udp
-```
-
-OTEL порт **не открываем** в интернет — он доступен только через WireGuard.
-
-### Шаг 3: OTEL агент на bylins.su
+### Шаг 5: OTEL агент на bylins.su
 
 ```bash
 cd tools/observability
 MODE=agent ./start.sh
 ```
 
-Агент принимает данные от circle на `127.0.0.1:4317` и форвардит на `10.10.0.1:4317`.
+Агент принимает данные от circle на `127.0.0.1:4317` и форвардит на `monitoring.bylins.su:4317` с TLS и токеном.
 
-Если нужно переопределить адрес gateway:
-
-```bash
-MODE=agent OTEL_GATEWAY=10.10.0.1 ./start.sh
-```
-
-### Шаг 4: Запуск circle
-
-Circle отправляет метрики на локальный OTEL агент — конфигурация та же, что и при all-in-one:
+### Шаг 6: Запуск circle
 
 ```bash
 cd build_otel
@@ -127,32 +111,24 @@ cd build_otel
 
 Адрес OTEL Collector в `configuration.xml` — `127.0.0.1:4317` (агент на том же сервере).
 
-### Шаг 5: Grafana через SSH-туннель
-
-Grafana работает только на `127.0.0.1:12000` на monitoring.bylins.su. Для доступа:
+### Шаг 7: Grafana через SSH-туннель
 
 ```bash
 ssh -L 12000:127.0.0.1:12000 user@monitoring.bylins.su
 ```
 
-Затем открыть http://localhost:12000 в браузере.
+Открыть http://localhost:12000 в браузере.
 
 ---
 
 ## Режим 3: Circle на monitoring.bylins.su (без агента)
 
-Если circle запущен прямо на сервере метрик, дополнительный агент не нужен —
-OTEL Collector уже слушает на `127.0.0.1:4317` как часть основного стека.
+Стек поднимается в режиме `monitoring-server`. Circle подключается к `127.0.0.1:4317`
+без TLS и авторизации — OTEL gateway принимает локальные подключения без проверок.
 
-```bash
-# На monitoring.bylins.su запускаем стек:
-MODE=monitoring-server ./start.sh
-
-# Запускаем circle (в build_otel):
-cd build_otel
-./circle -d small 4000
-# Circle отправляет на 127.0.0.1:4317 — попадает прямо в OTEL Collector стека
-```
+> Примечание: в текущей конфигурации gateway требует bearer token на всех подключениях,
+> включая локальные. Если circle запускается на том же сервере, передай токен через
+> переменную окружения в `configuration.xml` или используй режим `all-in-one`.
 
 ---
 
@@ -160,31 +136,37 @@ cd build_otel
 
 ```bash
 # Остановить
-./start.sh down
+./start.sh down                         # all-in-one
+MODE=monitoring-server ./start.sh down  # мониторинговый сервер
+MODE=agent ./start.sh down              # агент на bylins.su
 
 # Остановить с очисткой volumes (удалит все данные!)
-./start.sh down -v
+MODE=monitoring-server ./start.sh down -v
 
 # Обновить образы
-./start.sh pull
-./start.sh up -d
+MODE=monitoring-server ./start.sh pull
+MODE=monitoring-server ./start.sh up -d
 ```
 
 ## Диагностика
 
 ```bash
 # Статус контейнеров
-./start.sh ps
+MODE=monitoring-server ./start.sh ps
 
-# Логи OTEL Collector
-./start.sh logs otel-collector
+# Логи OTEL gateway (на monitoring.bylins.su)
+MODE=monitoring-server ./start.sh logs otel-collector
 
-# Логи агента (на bylins.su)
+# Логи OTEL агента (на bylins.su)
 MODE=agent ./start.sh logs otel-agent
 
-# Проверить, что агент получает данные
-curl -s http://localhost:13133/  # health check агента
+# Health check агента
+curl -s http://localhost:13133/
 
-# Посмотреть метрики самого коллектора
+# Метрики самого коллектора (экспорт данных в Prometheus)
 curl -s http://localhost:8888/metrics | grep otelcol_exporter
+
+# Проверить TLS и аутентификацию вручную (с bylins.su):
+grpcurl -H "Authorization: Bearer <token>" monitoring.bylins.su:4317 \
+    grpc.health.v1.Health/Check
 ```

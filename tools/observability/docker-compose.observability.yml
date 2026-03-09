@@ -7,7 +7,9 @@ services:
     container_name: mud-otel-collector
     command: ["--config=/etc/otel-collector-config.yaml"]
     volumes:
-      - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml:ro
+      - ./${OTEL_COLLECTOR_CONFIG:-otel-collector-config.yaml}:/etc/otel-collector-config.yaml:ro
+    environment:
+      - OTEL_AUTH_TOKEN=${OTEL_AUTH_TOKEN:-}
     ports:
       - "${OTEL_BIND:-127.0.0.1}:4317:4317"   # OTLP gRPC receiver
       - "${OTEL_BIND:-127.0.0.1}:4318:4318"   # OTLP HTTP receiver
