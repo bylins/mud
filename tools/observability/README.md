@@ -98,12 +98,24 @@ tools/observability/
 
 ## Сборка сервера с OTEL
 
+Сначала установить opentelemetry-cpp SDK (один раз):
+
+```bash
+# Через vcpkg (рекомендуется, устанавливает vcpkg автоматически):
+./tools/observability/install-otel-sdk.sh
+
+# Или собрать из исходников (~15 минут, без vcpkg):
+./tools/observability/install-otel-sdk.sh --source
+```
+
+Затем собрать circle:
+
 ```bash
 cmake -S . -B build_otel \
   -DCMAKE_BUILD_TYPE=Release \
   -DWITH_OTEL=ON \
-  -DCMAKE_TOOLCHAIN_FILE=~/repos/vcpkg/scripts/buildsystems/vcpkg.cmake \
-  -DCMAKE_PREFIX_PATH=~/repos/vcpkg/installed/x64-linux
+  -DCMAKE_TOOLCHAIN_FILE=~/vcpkg/scripts/buildsystems/vcpkg.cmake \
+  -DCMAKE_PREFIX_PATH=~/vcpkg/installed/x64-linux
 make -C build_otel -j$(($(nproc)/2))
 ```
 
