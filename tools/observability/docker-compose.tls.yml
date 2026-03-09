@@ -5,7 +5,6 @@
 
 services:
   otel-collector:
-    cap_add:
-      - DAC_READ_SEARCH  # allow reading root-owned LE privkey.pem (600) without running as root
+    user: "0"  # needs root to read LE privkey.pem (600); CAP_DAC_READ_SEARCH ineffective for non-root processes
     volumes:
       - /etc/letsencrypt:/etc/letsencrypt:ro
