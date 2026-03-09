@@ -51,29 +51,11 @@ sudo certbot certonly --standalone -d monitoring.bylins.su
 
 Сертификат будет в `/etc/letsencrypt/live/monitoring.bylins.su/`.
 
-Let's Encrypt хранит приватный ключ с правами 600 (только root). Docker-контейнер
-читать его не может, поэтому копируем сертификаты в отдельную директорию:
-
-```bash
-sudo mkdir -p /opt/otel-certs
-sudo cp /etc/letsencrypt/live/monitoring.bylins.su/fullchain.pem /opt/otel-certs/
-sudo cp /etc/letsencrypt/live/monitoring.bylins.su/privkey.pem /opt/otel-certs/
-sudo chmod 644 /opt/otel-certs/*.pem
-```
-
-Настроить автоматическое обновление копии и перезапуск OTEL Collector после продления сертификата:
-
-```bash
-sudo tee /etc/letsencrypt/renewal-hooks/deploy/refresh-otel-certs.sh > /dev/null << 'EOF'
-#!/bin/sh
-cp /etc/letsencrypt/live/monitoring.bylins.su/fullchain.pem /opt/otel-certs/
-cp /etc/letsencrypt/live/monitoring.bylins.su/privkey.pem /opt/otel-certs/
-chmod 644 /opt/otel-certs/*.pem
-cd /path/to/mud/tools/observability
-MODE=monitoring-server ./start.sh restart otel-collector
-EOF
-sudo chmod +x /etc/letsencrypt/renewal-hooks/deploy/refresh-otel-certs.sh
-```
+Сертификат монтируется в OTEL Collector напрямую из `/etc/letsencrypt`.
+Контейнер запускается от root (см. `docker-compose.tls.yml`), поэтому имеет
+доступ к приватному ключу. При продлении certbot обновляет файлы на месте —
+перезапускать контейнер не нужно (OTEL Collector перечитывает TLS-контекст
+при каждом новом подключении).
 
 ### Шаг 2: Bearer token
 

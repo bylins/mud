@@ -7,5 +7,6 @@ version: '3.8'
 
 services:
   otel-collector:
+    user: "0"  # read root-owned Let's Encrypt certs (600)
     volumes:
-      - /opt/otel-certs:/certs:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro

@@ -8,15 +8,15 @@ receivers:
       grpc:
         endpoint: 0.0.0.0:4317
         tls:
-          cert_file: /certs/fullchain.pem
-          key_file: /certs/privkey.pem
+          cert_file: /etc/letsencrypt/live/monitoring.bylins.su/fullchain.pem
+          key_file: /etc/letsencrypt/live/monitoring.bylins.su/privkey.pem
         auth:
           authenticator: bearertokenauth
       http:
         endpoint: 0.0.0.0:4318
         tls:
-          cert_file: /certs/fullchain.pem
-          key_file: /certs/privkey.pem
+          cert_file: /etc/letsencrypt/live/monitoring.bylins.su/fullchain.pem
+          key_file: /etc/letsencrypt/live/monitoring.bylins.su/privkey.pem
         auth:
           authenticator: bearertokenauth
 
