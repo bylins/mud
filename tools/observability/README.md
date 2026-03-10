@@ -12,12 +12,11 @@
 
 ### All-in-one (по умолчанию)
 
-Circle и весь стек мониторинга на одном сервере. Circle отправляет метрики
-на `127.0.0.1:4317`.
+Circle и весь стек мониторинга на одном сервере.
 
 ```
-circle ──OTLP──> OTEL Collector ──> Prometheus / Loki / Tempo ──> Grafana
-                 127.0.0.1:4317                                    :12000
+circle ──OTLP/HTTP──> OTEL Collector ──> Prometheus / Loki / Tempo ──> Grafana
+                      127.0.0.1:4318                                    :12000
 ```
 
 ```bash
@@ -32,35 +31,38 @@ Grafana: http://localhost:12000 (admin / admin123)
 ### Split: Сервер Былин + monitoring.bylins.su
 
 Circle работает на `bylins.su`, весь стек — на `monitoring.bylins.su`.
-Трафик идёт через WireGuard-туннель (`10.10.0.0/24`).
+Трафик идёт напрямую через интернет с TLS + bearer token аутентификацией.
 Grafana доступна через SSH-туннель с `monitoring.bylins.su`.
 
-Подробная инструкция по настройке WireGuard: [DEPLOYMENT.md](DEPLOYMENT.md)
+Подробная инструкция: [DEPLOYMENT.md](DEPLOYMENT.md)
 
 ```
-[bylins.su]                             [monitoring.bylins.su]
-  circle                                  OTEL Collector (gateway)
-    |                                       |
-    v  OTLP/gRPC 127.0.0.1:4317            |── Prometheus  :9090
-  OTEL Agent ──── WireGuard ──────────>    |── Loki        :3100
-  ~50 MB RAM      10.10.0.1:4317           └── Tempo       :3200
-                                          Grafana :12000 (только 127.0.0.1)
+[bylins.su]                              [monitoring.bylins.su]
+  circle                                   UFW: 4317/tcp открыт
+    |                                        |
+    v 127.0.0.1:4317                         v 0.0.0.0:4317  (TLS + bearer token)
+  OTEL Agent ── OTLP/gRPC + TLS ──────────> OTEL Gateway
+                bearer token auth            |  (docker internal network)
+                                             |── Prometheus  127.0.0.1:9090
+                                             |── Loki        127.0.0.1:3100
+                                             └── Tempo       127.0.0.1:3200
+                                            Grafana          127.0.0.1:12000
 ```
 
 **На мониторинговом сервере** (`monitoring.bylins.su`):
 ```bash
 MODE=monitoring-server ./start.sh
 ```
-OTEL Collector поднимается на `10.10.0.1:4317` (WireGuard IP) и `127.0.0.1:4317`.
+OTEL Collector поднимается на `0.0.0.0:4317` (TLS + auth) и `127.0.0.1:4319` (локально, без auth).
 
 **На сервере Былин** (`bylins.su`):
 ```bash
 MODE=agent ./start.sh
 ```
-Агент принимает данные от circle на `127.0.0.1:4317` и форвардит на `10.10.0.1:4317`.
+Агент принимает данные от circle на `127.0.0.1:4317` и форвардит на `monitoring.bylins.su:4317`.
 
-**Если circle запущен прямо на monitoring.bylins.su** — дополнительный агент не нужен.
-Circle отправляет на `127.0.0.1:4317`, который уже слушает OTEL Collector стека.
+**Если circle запущен прямо на monitoring.bylins.su** — агент не нужен.
+Circle отправляет на `127.0.0.1:4319` (HTTP, без TLS/auth), который слушает OTEL Collector стека.
 
 ## Файлы
 
@@ -69,14 +71,16 @@ tools/observability/
 ├── start.sh                              # Скрипт запуска (все режимы)
 ├── docker-compose.observability.yml      # Полный стек (all-in-one / monitoring-server)
 ├── docker-compose.agent.yml              # Только OTEL агент (для bylins.su)
+├── docker-compose.tls.yml                # TLS overlay для monitoring-server
 ├── docker-compose.data-dir.yml           # Bind mounts вместо named volumes
-├── otel-collector-config.yaml            # Конфиг коллектора (полный стек)
+├── otel-collector-config.yaml            # Конфиг коллектора (all-in-one)
+├── otel-collector-gateway-config.yaml    # Конфиг gateway (monitoring-server, TLS+auth)
 ├── otel-collector-agent-config.yaml      # Конфиг агента (форвард на remote)
 ├── prometheus.yml                        # Prometheus scrape config
 ├── loki-config.yaml                      # Loki
 ├── tempo-config.yaml                     # Tempo
 ├── METRICS.md                            # Список всех метрик
-├── DEPLOYMENT.md                         # WireGuard + пошаговые инструкции
+├── DEPLOYMENT.md                         # Пошаговые инструкции
 ├── grafana/
 │   └── provisioning/
 │       ├── datasources/datasources.yml
@@ -92,8 +96,9 @@ tools/observability/
 | Переменная | Режим | Описание | По умолчанию |
 |-----------|-------|----------|--------------|
 | `MODE` | — | Режим: `all-in-one`, `monitoring-server`, `agent` | `all-in-one` |
-| `OTEL_BIND` | `monitoring-server` | IP, на котором слушает OTEL Collector | `10.10.0.1` |
-| `OTEL_GATEWAY` | `agent` | IP/хост удалённого OTEL Collector | `10.10.0.1` |
+| `OTEL_BIND` | `monitoring-server` | IP для внешних портов (4317/4318) | `0.0.0.0` |
+| `OTEL_AUTH_TOKEN` | `monitoring-server`, `agent` | Bearer token для аутентификации | — |
+| `OTEL_GATEWAY` | `agent` | Хост удалённого OTEL Collector | `monitoring.bylins.su` |
 | `DATA_DIR` | `all-in-one`, `monitoring-server` | Путь для bind-mount данных | не задан |
 
 ## Сборка сервера с OTEL
@@ -132,10 +137,18 @@ make -C build_otel -j$(($(nproc)/2))
 
 > Полный список метрик с Prometheus-именами → [METRICS.md](METRICS.md)
 
+## Идентификация сервера
+
+Circle автоматически устанавливает `service.name = bylins-<hostname>-<port>` (например,
+`bylins-overseer-4000`). В Prometheus это значение становится лейблом `job`.
+
+Все дашборды в Grafana имеют дропдаун **Service** для фильтрации по серверу.
+
 ## Prometheus: запросы для gauge метрик
 
 Gauges хранятся как histograms с суффиксом `_gauge`. Для текущего значения:
 
 ```promql
-rate(players_online_count_gauge_sum[5m]) / rate(players_online_count_gauge_count[5m])
+rate(players_online_count_gauge_sum{job=~"bylins-.*"}[5m]) /
+rate(players_online_count_gauge_count{job=~"bylins-.*"}[5m])
 ```
