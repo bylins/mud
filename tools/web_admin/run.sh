@@ -8,7 +8,7 @@ echo "Bylins MUD Web Admin Interface"
 echo "=================================="
 echo ""
 
-MUD_SOCKET="${MUD_SOCKET:-/home/mud/mud/admin_api.sock}"
+MUD_SOCKET="${MUD_SOCKET:-admin_api.sock}"
 
 if [ ! -S "$MUD_SOCKET" ]; then
     echo "❌ MUD server socket not found: $MUD_SOCKET"

@@ -5,7 +5,7 @@ umask u=rwx,g=rwx,o=
 export ASAN_OPTIONS=log_path=/home/mud/mud/asan.log
 
 # Parse -d <world_dir> from arguments to find board files
-WORLD_DIR=""
+WORLD_DIR="lib"
 args=("$@")
 for (( i=0; i<${#args[@]}; i++ )); do
   if [ "${args[$i]}" = "-d" ]; then
@@ -13,7 +13,7 @@ for (( i=0; i<${#args[@]}; i++ )); do
     break
   fi
 done
-BOARD_DIR="${WORLD_DIR:-lib}/etc/board"
+BOARD_DIR="$WORLD_DIR/etc/board"
 
 CIRCLE_PID=""
 trap 'kill $CIRCLE_PID 2>/dev/null; exit' TERM INT
@@ -46,7 +46,7 @@ while ( : ) do
   mv syslog.bz2 archive/syslog.$(date +%d%m%y-%H%M%S).bz2
   mv core.2 core.3
   mv core.1 core.2
-  mv "${WORLD_DIR:-lib}"/core* core.1 2>/dev/null || true
+  mv "$WORLD_DIR"/core* core.1 2>/dev/null || true
   chmod 660 core.1
 
   if [ -r .killscript ]; then
