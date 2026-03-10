@@ -9,8 +9,9 @@ services:
     environment:
       - OTEL_AUTH_TOKEN=${OTEL_AUTH_TOKEN:-}
     ports:
-      - "${OTEL_BIND:-127.0.0.1}:4317:4317"   # OTLP gRPC receiver
-      - "${OTEL_BIND:-127.0.0.1}:4318:4318"   # OTLP HTTP receiver
+      - "${OTEL_BIND:-127.0.0.1}:4317:4317"   # OTLP gRPC receiver (external, TLS+auth)
+      - "${OTEL_BIND:-127.0.0.1}:4318:4318"   # OTLP HTTP receiver (external, TLS+auth)
+      - "127.0.0.1:4319:4319"                  # OTLP HTTP receiver (local, no auth)
       - "127.0.0.1:8888:8888"                  # Prometheus metrics (collector's own metrics)
       - "127.0.0.1:13133:13133"                # Health check
     networks:

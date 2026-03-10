@@ -15,13 +15,18 @@ for (( i=0; i<${#args[@]}; i++ )); do
 done
 BOARD_DIR="${WORLD_DIR:-lib}/etc/board"
 
+CIRCLE_PID=""
+trap 'kill $CIRCLE_PID 2>/dev/null; exit' TERM INT
+
 #############################################################################
 while ( : ) do
   DATE=`date`
   echo "autorun starting game $DATE" >> syslog
   echo "running $CIRCLE $@" >> syslog
   chmod 660 "$BOARD_DIR"/* 2>/dev/null || true
-  $CIRCLE "$@" >>sd.out
+  $CIRCLE "$@" >>sd.out &
+  CIRCLE_PID=$!
+  wait $CIRCLE_PID
   mv syslog.CRASH.1 syslog.CRASH.2
   mv syslog.CRASH syslog.CRASH.1
   tail -1000 syslog > syslog.CRASH
