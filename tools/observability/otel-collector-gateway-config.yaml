@@ -20,6 +20,12 @@ receivers:
         auth:
           authenticator: bearertokenauth
 
+  # Local receiver for circle running on the same host (no TLS, no auth)
+  otlp/local:
+    protocols:
+      http:
+        endpoint: 127.0.0.1:4319
+
 processors:
   batch:
     timeout: 5s
@@ -51,17 +57,17 @@ service:
   extensions: [bearertokenauth]
   pipelines:
     metrics:
-      receivers: [otlp]
+      receivers: [otlp, otlp/local]
       processors: [memory_limiter, batch]
       exporters: [prometheusremotewrite]
 
     traces:
-      receivers: [otlp]
+      receivers: [otlp, otlp/local]
       processors: [memory_limiter, batch]
       exporters: [otlp_grpc/tempo]
 
     logs:
-      receivers: [otlp]
+      receivers: [otlp, otlp/local]
       processors: [memory_limiter, batch]
       exporters: [otlp_http/loki]
 
