@@ -3,12 +3,24 @@ CIRCLE=${CIRCLE:-build/circle}
 ulimit -c unlimited
 umask u=rwx,g=rwx,o=
 export ASAN_OPTIONS=log_path=/home/mud/mud/asan.log
+
+# Parse -d <world_dir> from arguments to find board files
+WORLD_DIR=""
+args=("$@")
+for (( i=0; i<${#args[@]}; i++ )); do
+  if [ "${args[$i]}" = "-d" ]; then
+    WORLD_DIR="${args[$((i+1))]}"
+    break
+  fi
+done
+BOARD_DIR="${WORLD_DIR:-lib}/etc/board"
+
 #############################################################################
 while ( : ) do
   DATE=`date`
   echo "autorun starting game $DATE" >> syslog
   echo "running $CIRCLE $@" >> syslog
-  chmod 660 /home/mud/mud/lib/etc/board/*
+  chmod 660 "$BOARD_DIR"/* 2>/dev/null || true
   $CIRCLE "$@" >>sd.out
   mv syslog.CRASH.1 syslog.CRASH.2
   mv syslog.CRASH syslog.CRASH.1
@@ -29,7 +41,7 @@ while ( : ) do
   mv syslog.bz2 archive/syslog.$(date +%d%m%y-%H%M%S).bz2
   mv core.2 core.3
   mv core.1 core.2
-  mv lib/core* core.1
+  mv "${WORLD_DIR:-lib}"/core* core.1 2>/dev/null || true
   chmod 660 core.1
 
   if [ -r .killscript ]; then
