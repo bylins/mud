@@ -105,7 +105,7 @@ void OtelProvider::Initialize(const std::string& metrics_endpoint,
                 std::move(exporter), reader_options
             );
 
-            auto meter_context = otel::sdk::metrics::MeterContextFactory::Create();
+            auto meter_context = otel::sdk::metrics::MeterContextFactory::Create({}, resource);
             meter_context->AddMetricReader(std::move(reader));
 
             m_providers->meter = otel::sdk::metrics::MeterProviderFactory::Create(std::move(meter_context));
