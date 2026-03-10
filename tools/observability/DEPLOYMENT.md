@@ -179,8 +179,8 @@ CIRCLE=./build_otel/circle ./launch -d <world_dir> 4000
 MODE=monitoring-server ./start.sh down  # мониторинговый сервер
 MODE=agent ./start.sh down              # агент на bylins.su
 
-# Остановить с очисткой volumes (удалит все данные!)
-MODE=monitoring-server ./start.sh down -v
+# Сбросить Docker volumes (только если DATA_DIR=docker-volumes; bind mounts не затрагивает)
+DATA_DIR=docker-volumes MODE=monitoring-server ./start.sh down -v
 
 # Обновить образы
 MODE=monitoring-server ./start.sh pull

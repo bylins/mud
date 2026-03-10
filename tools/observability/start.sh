@@ -53,7 +53,13 @@ case "$MODE" in
             echo "ERROR: OTEL_AUTH_TOKEN is not set. Generate one with: openssl rand -hex 32" >&2
             exit 1
         fi
-        if [ -n "$DATA_DIR" ]; then
+        if [ "${DATA_DIR}" = "docker-volumes" ]; then
+            echo "Using Docker named volumes (WARNING: 'down -v' will delete all data)"
+            exec $COMPOSE \
+                -f docker-compose.observability.yml \
+                -f docker-compose.tls.yml \
+                "$@"
+        elif [ -n "$DATA_DIR" ]; then
             echo "Using bind mounts in: $DATA_DIR"
             mkdir -p "$DATA_DIR/prometheus" "$DATA_DIR/tempo" "$DATA_DIR/loki" "$DATA_DIR/grafana"
             export UID=$(id -u)
@@ -64,18 +70,24 @@ case "$MODE" in
                 -f docker-compose.data-dir.yml \
                 "$@"
         else
-            echo "Using Docker named volumes (set DATA_DIR to use a host directory)"
-            exec $COMPOSE \
-                -f docker-compose.observability.yml \
-                -f docker-compose.tls.yml \
-                "$@"
+            echo "ERROR: DATA_DIR is not set." >&2
+            echo "  Set DATA_DIR to a host directory to persist data:" >&2
+            echo "    DATA_DIR=/var/lib/bylins-monitoring $0" >&2
+            echo "  Or use Docker named volumes (data lost on 'down -v'):" >&2
+            echo "    DATA_DIR=docker-volumes $0" >&2
+            exit 1
         fi
         ;;
 
     *)
         export OTEL_BIND=${OTEL_BIND:-127.0.0.1}
         echo "Mode: all-in-one  (OTEL bound to ${OTEL_BIND})"
-        if [ -n "$DATA_DIR" ]; then
+        if [ "${DATA_DIR}" = "docker-volumes" ]; then
+            echo "Using Docker named volumes (WARNING: 'down -v' will delete all data)"
+            exec $COMPOSE \
+                -f docker-compose.observability.yml \
+                "$@"
+        elif [ -n "$DATA_DIR" ]; then
             echo "Using bind mounts in: $DATA_DIR"
             mkdir -p "$DATA_DIR/prometheus" "$DATA_DIR/tempo" "$DATA_DIR/loki" "$DATA_DIR/grafana"
             export UID=$(id -u)
@@ -85,10 +97,12 @@ case "$MODE" in
                 -f docker-compose.data-dir.yml \
                 "$@"
         else
-            echo "Using Docker named volumes (set DATA_DIR to use a host directory)"
-            exec $COMPOSE \
-                -f docker-compose.observability.yml \
-                "$@"
+            echo "ERROR: DATA_DIR is not set." >&2
+            echo "  Set DATA_DIR to a host directory to persist data:" >&2
+            echo "    DATA_DIR=/var/lib/bylins-monitoring $0" >&2
+            echo "  Or use Docker named volumes (data lost on 'down -v'):" >&2
+            echo "    DATA_DIR=docker-volumes $0" >&2
+            exit 1
         fi
         ;;
 esac

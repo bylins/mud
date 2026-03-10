@@ -99,7 +99,7 @@ tools/observability/
 | `OTEL_BIND` | `monitoring-server` | IP для внешних портов (4317/4318) | `0.0.0.0` |
 | `OTEL_AUTH_TOKEN` | `monitoring-server`, `agent` | Bearer token для аутентификации | — |
 | `OTEL_GATEWAY` | `agent` | Хост удалённого OTEL Collector | `monitoring.bylins.su` |
-| `DATA_DIR` | `all-in-one`, `monitoring-server` | Путь для bind-mount данных | не задан |
+| `DATA_DIR` | `all-in-one`, `monitoring-server` | Путь для хранения данных на хосте; `docker-volumes` — использовать Docker named volumes (данные теряются при `down -v`) | **обязателен** |
 
 ## Сборка сервера с OTEL
 
