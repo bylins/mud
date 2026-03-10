@@ -134,12 +134,40 @@ ssh -L 12000:127.0.0.1:12000 user@monitoring.bylins.su
 
 ## Режим 3: Circle на monitoring.bylins.su (без агента)
 
-Стек поднимается в режиме `monitoring-server`. Circle подключается к `127.0.0.1:4317`
-без TLS и авторизации — OTEL gateway принимает локальные подключения без проверок.
+```
+[monitoring.bylins.su]
+  circle ──OTLP/HTTP──> OTEL Gateway (порт 4319, без TLS/auth)
+                          |── Prometheus  127.0.0.1:9090
+                          |── Loki        127.0.0.1:3100
+                          └── Tempo       127.0.0.1:3200
+                         Grafana          127.0.0.1:12000
+```
 
-> Примечание: в текущей конфигурации gateway требует bearer token на всех подключениях,
-> включая локальные. Если circle запускается на том же сервере, передай токен через
-> переменную окружения в `configuration.xml` или используй режим `all-in-one`.
+Стек поднимается в режиме `monitoring-server`. Для circle, запущенного на том же хосте,
+gateway слушает на `127.0.0.1:4319` (HTTP, без TLS, без авторизации).
+Внешний порт 4317 по-прежнему требует TLS + bearer token (для агентов с других серверов).
+
+### Шаг 1–4: как в Режиме 2 (TLS, токен, файрвол, стек)
+
+### Шаг 5: Настройка circle
+
+В `configuration.xml` укажи endpoint на порт 4319:
+
+```xml
+<telemetry>
+  <otlp>
+    <metrics><endpoint>http://localhost:4319/v1/metrics</endpoint></metrics>
+    <traces><endpoint>http://localhost:4319/v1/traces</endpoint></traces>
+    <logs_otlp><endpoint>http://localhost:4319/v1/logs</endpoint></logs_otlp>
+  </otlp>
+</telemetry>
+```
+
+### Шаг 6: Запуск circle
+
+```bash
+CIRCLE=./build_otel/circle ./launch -d <world_dir> 4000
+```
 
 ---
 
