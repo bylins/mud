@@ -1,0 +1,86 @@
+extensions:
+  bearertokenauth:
+    token: "${env:OTEL_AUTH_TOKEN}"
+
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+        tls:
+          cert_file: /etc/letsencrypt/live/monitoring.bylins.su/fullchain.pem
+          key_file: /etc/letsencrypt/live/monitoring.bylins.su/privkey.pem
+        auth:
+          authenticator: bearertokenauth
+      http:
+        endpoint: 0.0.0.0:4318
+        tls:
+          cert_file: /etc/letsencrypt/live/monitoring.bylins.su/fullchain.pem
+          key_file: /etc/letsencrypt/live/monitoring.bylins.su/privkey.pem
+        auth:
+          authenticator: bearertokenauth
+
+  # Local receiver for circle running on the same host (no TLS, no auth).
+  # Must bind to 0.0.0.0 inside the container — Docker port forwarding
+  # can't reach 127.0.0.1 inside the container's network namespace.
+  # Access is restricted to localhost on the host side via the port mapping.
+  otlp/local:
+    protocols:
+      http:
+        endpoint: 0.0.0.0:4319
+
+processors:
+  batch:
+    timeout: 5s
+    send_batch_size: 512
+    send_batch_max_size: 1024
+
+  memory_limiter:
+    check_interval: 1s
+    limit_mib: 512
+    spike_limit_mib: 128
+
+exporters:
+  prometheusremotewrite:
+    endpoint: http://prometheus:9090/api/v1/write
+    tls:
+      insecure: true
+
+  otlp_grpc/tempo:
+    endpoint: tempo:4317
+    tls:
+      insecure: true
+
+  otlp_http/loki:
+    endpoint: http://loki:3100/otlp
+    tls:
+      insecure: true
+
+service:
+  extensions: [bearertokenauth]
+  pipelines:
+    metrics:
+      receivers: [otlp, otlp/local]
+      processors: [memory_limiter, batch]
+      exporters: [prometheusremotewrite]
+
+    traces:
+      receivers: [otlp, otlp/local]
+      processors: [memory_limiter, batch]
+      exporters: [otlp_grpc/tempo]
+
+    logs:
+      receivers: [otlp, otlp/local]
+      processors: [memory_limiter, batch]
+      exporters: [otlp_http/loki]
+
+  telemetry:
+    logs:
+      level: info
+    metrics:
+      readers:
+        - pull:
+            exporter:
+              prometheus:
+                host: "0.0.0.0"
+                port: 8888

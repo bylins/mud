@@ -1,0 +1,25 @@
+# Lightweight OTEL Collector agent for the Bylins game server.
+# Receives telemetry from circle locally and forwards it to the
+# remote monitoring server over WireGuard.
+#
+# Usage:
+#   OTEL_GATEWAY=10.10.0.1 ./start.sh --agent
+#
+# OTEL_GATEWAY — WireGuard IP (or hostname) of the monitoring server.
+# Default: 10.10.0.1 (monitoring server end of the WireGuard tunnel).
+
+services:
+  otel-agent:
+    image: otel/opentelemetry-collector-contrib:0.146.0
+    container_name: mud-otel-agent
+    command: ["--config=/etc/otel-collector-config.yaml"]
+    volumes:
+      - ./otel-collector-agent-config.yaml:/etc/otel-collector-config.yaml:ro
+    environment:
+      - OTEL_GATEWAY=${OTEL_GATEWAY:-monitoring.bylins.su}
+      - OTEL_AUTH_TOKEN=${OTEL_AUTH_TOKEN}
+    ports:
+      - "127.0.0.1:4317:4317"   # OTLP gRPC (circle connects here)
+      - "127.0.0.1:4318:4318"   # OTLP HTTP
+      - "127.0.0.1:13133:13133" # Health check
+    restart: unless-stopped

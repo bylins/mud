@@ -37,6 +37,8 @@
 #include "engine/db/world_characters.h"
 #include "engine/entities/entities_constants.h"
 #include "administration/shutdown_parameters.h"
+#include "engine/observability/provider.h"
+#include "utils/timestamp.h"
 #include "external_trigger.h"
 #include "handler.h"
 #include "gameplay/clans/house.h"
@@ -704,10 +706,10 @@ int main_function(int argc, char **argv) {
 	 * Moved here to distinguish command line options and to show up
 	 * in the log if stderr is redirected to a file.
 	 */
-	printf("%s\r\n", circlemud_version);
-	printf("%s\r\n", DG_SCRIPT_VERSION);
+	printf("[%s] %s\r\n", utils::NowTs().c_str(), circlemud_version);
+	printf("[%s] %s\r\n", utils::NowTs().c_str(), DG_SCRIPT_VERSION);
 	if (getcwd(cwd, sizeof(cwd))) {};
-	printf("Current directory '%s' using '%s' as data directory.\r\n", cwd, dir);
+	printf("[%s] Current directory '%s' using '%s' as data directory.\r\n", utils::NowTs().c_str(), cwd, dir);
 	{
 		std::string config_path = std::string(dir) + "/misc/configuration.xml";
 		runtime_config.load(config_path.c_str());
@@ -720,18 +722,19 @@ int main_function(int argc, char **argv) {
 	// directories are created in the working directory (next to the binary),
 	// not inside the data directory.
 	runtime_config.setup_logs();
+	runtime_config.setup_telemetry(port);
 	logfile = runtime_config.logs(SYSLOG).handle();
 	if (chdir(dir) < 0) {
 		perror("\r\nSYSERR: Fatal error changing to data directory");
 		exit(1);
 	}
 	log_code_date();
-	printf("Code version %s, revision: %s\r\n", build_datetime, revision);
+	printf("[%s] Code version %s, revision: %s\r\n", utils::NowTs().c_str(), build_datetime, revision);
 	if (scheck) {
 		GameLoader::BootWorld();
 		printf("Done.");
 	} else {
-		printf("Running game on port %d.\r\n", port);
+		printf("[%s] Running game on port %d.\r\n", utils::NowTs().c_str(), port);
 
 		// стль и буст юзаются уже немало где, а про их экспешены никто не думает
 		// пока хотя бы стльные ловить и просто логировать факт того, что мы вышли
@@ -759,6 +762,11 @@ void stop_game(ush_int port) {
 
 	log("Opening mother connection.");
 	mother_desc = init_socket(port);
+	if (mother_desc < 0) {
+		log("SYSERR: Failed to bind to port %d. Server cannot start.", port);
+		log("Please check if another instance is running or if you have permission to use this port.");
+		exit(1);
+	}
 
 #ifdef ENABLE_ADMIN_API
 	if (runtime_config.admin_api_enabled()) {
@@ -825,6 +833,9 @@ void stop_game(ush_int port) {
 	log("Polling using select().");
 	game_loop(mother_desc);
 #endif
+
+	// Shutdown OTEL providers to flush remaining telemetry
+	observability::OtelProvider::Instance().Shutdown();
 
 	FlushPlayerIndex();
 
@@ -1009,9 +1020,9 @@ socket_t init_socket(ush_int port) {
 	sa.sin_addr = *(get_bind_addr());
 
 	if (bind(s, (struct sockaddr *) &sa, sizeof(sa)) < 0) {
-		perror("SYSERR: bind");
+		log("SYSERR: bind() failed - port %d is already in use or permission denied", port);
 		CLOSE_SOCKET(s);
-		exit(1);
+		return -1;
 	}
 	nonblock(s);
 	listen(s, 5);
@@ -1393,7 +1404,7 @@ void game_loop(int epoll, socket_t mother_desc)
 void game_loop(socket_t mother_desc)
 #endif
 {
-	printf("Game started.\n");
+	printf("[%s] Game started.\n", utils::NowTs().c_str());
 
 #ifdef HAS_EPOLL
 	struct epoll_event *events;
@@ -2178,8 +2189,7 @@ RETSIGTYPE checkpointing(int/* sig*/) {
 }
 
 RETSIGTYPE hupsig(int/* sig*/) {
-	log("SYSERR: Received SIGHUP, SIGINT, or SIGTERM.  Shutting down...");
-	exit(1);        // perhaps something more elegant should substituted
+	shutdown_parameters.shutdown_now();
 }
 
 #endif                // CIRCLE_UNIX

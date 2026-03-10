@@ -27,6 +27,9 @@
 
 #include "gameplay/abilities/abilities_rollsystem.h"
 #include "engine/core/action_targeting.h"
+#include "engine/observability/helpers.h"
+#include "engine/observability/metrics.h"
+#include "utils/tracing/trace_manager.h"
 #include "engine/core/char_movement.h"
 #include "engine/db/world_characters.h"
 #include "engine/db/world_objects.h"
@@ -878,6 +881,11 @@ bool allow_enter(RoomData *room, CharData *ch) {
 
 
 void mobile_activity(int activity_level, int missed_pulses) {
+	auto activity_span = tracing::TraceManager::Instance().StartSpan("mob.activity");
+	observability::ScopedMetric activity_metric("mob.activity.duration", {
+		{"activity_level", std::to_string(activity_level)}
+	});
+
 //	int door, max, was_in = -1, activity_lev, i, ch_activity;
 //	int std_lev = activity_level % kPulseMobile;
 

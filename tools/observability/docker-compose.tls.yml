@@ -1,0 +1,10 @@
+# Overlay for monitoring-server mode.
+# Mounts Let's Encrypt certificates into the OTEL Collector container.
+# The full /etc/letsencrypt tree is needed so that symlinks inside
+# live/monitoring.bylins.su/ resolve correctly inside the container.
+
+services:
+  otel-collector:
+    user: "0"  # needs root to read LE privkey.pem (600); CAP_DAC_READ_SEARCH ineffective for non-root processes
+    volumes:
+      - /etc/letsencrypt:/etc/letsencrypt:ro

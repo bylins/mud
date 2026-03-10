@@ -39,6 +39,9 @@
 #include "utils/backtrace.h"
 #include "gameplay/mechanics/armor.h"
 #include "gameplay/classes/recalc_mob_params_by_vnum.h"
+#include "engine/observability/helpers.h"
+#include "engine/observability/metrics.h"
+#include "utils/tracing/trace_manager.h"
 
 extern int max_exp_gain_pc(CharData *ch);
 extern long GetExpUntilNextLvl(CharData *ch, int level);
@@ -662,9 +665,25 @@ ObjData *get_obj_by_char(CharData *ch, char *name) {
 	return nullptr;
 }
 
+static const char *trigger_type_name(int mode) {
+	switch (mode) {
+		case MOB_TRIGGER: return "MOB";
+		case OBJ_TRIGGER: return "OBJ";
+		case WLD_TRIGGER: return "WLD";
+		default: return "UNKNOWN";
+	}
+}
+
 // checks every PLUSE_SCRIPT for random triggers
 void script_trigger_check(int mode) {
 	utils::CExecutionTimer timer;
+
+	auto trigger_span = tracing::TraceManager::Instance().StartSpan("Script Trigger Check");
+	observability::ScopedMetric trigger_metric("script.trigger.duration");
+
+	trigger_span->SetAttribute("trigger_type", trigger_type_name(mode));
+	trigger_span->SetAttribute("mode", static_cast<int64_t>(mode));
+	
 
 	switch (mode) {
 		case MOB_TRIGGER:
@@ -709,6 +728,7 @@ void script_trigger_check(int mode) {
 		default:
 		break;
 	}
+	
 	log("script_trigger_check() mode %d всего: %f ms.", mode, timer.delta().count());
 }
 

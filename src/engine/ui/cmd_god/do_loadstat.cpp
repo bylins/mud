@@ -7,17 +7,19 @@
 */
 
 #include "engine/entities/char_data.h"
+#include "engine/core/config.h"
 #include "utils/utils_time.h"
 
 #include <fstream>
 
 void DoLoadstat(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	std::ifstream istream(LOAD_LOG_FOLDER LOAD_LOG_FILE, std::ifstream::in);
+	const std::string profiler_path = runtime_config.log_dir() + "/" + LOAD_LOG_FILE;
+	std::ifstream istream(profiler_path, std::ifstream::in);
 	int length;
 
 	if (!istream.is_open()) {
 		SendMsgToChar("Can't open file", ch);
-		log("ERROR: Can't open file %s", LOAD_LOG_FOLDER LOAD_LOG_FILE);
+		log("ERROR: Can't open file %s", profiler_path.c_str());
 		return;
 	}
 

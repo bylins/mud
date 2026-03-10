@@ -28,3 +28,10 @@ data/
 misc/
 
 __pycache__/
+autorun.out
+autorun.pid
+sd.out
+syslog.CRASH
+syslog.CRASH.*
+syslog.bz2
+archive/

@@ -1,4 +1,5 @@
 #include "engine/core/config.h"
+#include "utils/logging/log_manager.h"
 
 #include <gtest/gtest.h>
 
@@ -16,6 +17,7 @@ public:
 void BylinsEnvironment::SetUp()
 {
 	runtime_config.disable_logging();
+	logging::LogManager::Instance().ClearSenders();
 }
 
 int main(int argc, char** argv)

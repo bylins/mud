@@ -10,7 +10,6 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 set(SOURCES
 		src/engine/structs/blocking_queue.cpp
-		src/engine/db/influxdb.cpp
 		src/engine/core/heartbeat.cpp
 		src/engine/core/heartbeat_commands.cpp
 		src/gameplay/abilities/abilities_rollsystem.cpp
@@ -98,6 +97,8 @@ set(SOURCES
 		src/utils/levenshtein.cpp
 		src/gameplay/mechanics/liquid.cpp
 		src/utils/logger.cpp
+		src/utils/logging/file_log_sender.cpp
+		src/utils/logging/log_manager.cpp
 		src/gameplay/magic/magic.cpp
 		src/gameplay/magic/magic_items.cpp
 		src/gameplay/magic/magic_rooms.cpp
@@ -158,6 +159,7 @@ set(SOURCES
 		src/engine/structs/flags.hpp
 		src/utils/id_converter.cpp
 		src/utils/utils_time.cpp
+		src/utils/tracing/trace_manager.cpp
 		src/utils/thread_pool.cpp
 		src/gameplay/mechanics/title.cpp
 		src/gameplay/statistics/top.cpp
@@ -461,7 +463,10 @@ set(SOURCES
 		src/engine/db/player_index.cpp
 		src/gameplay/skills/addshot.cpp
 		src/gameplay/classes/mob_classes_info.cpp
-		src/gameplay/classes/recalc_mob_params_by_vnum.cpp)
+		src/gameplay/classes/recalc_mob_params_by_vnum.cpp
+		src/engine/observability/provider.cpp
+		src/engine/observability/metrics.cpp
+		src/engine/observability/helpers.cpp)
 
 
 
@@ -511,7 +516,6 @@ set(HEADERS
 		src/administration/accounts.h
 		src/engine/core/action_targeting.h
 		src/engine/structs/blocking_queue.h
-		src/engine/db/influxdb.h
 		src/engine/core/heartbeat_commands.h
 		src/gameplay/mechanics/weather.h
 		src/gameplay/core/game_limits.h
@@ -605,6 +609,9 @@ set(HEADERS
 		src/utils/levenshtein.h
 		src/gameplay/mechanics/liquid.h
 		src/utils/logger.h
+		src/utils/logging/log_sender.h
+		src/utils/logging/file_log_sender.h
+		src/utils/logging/log_manager.h
 		src/gameplay/magic/magic.h
 		src/gameplay/magic/magic_items.h
 		src/gameplay/magic/magic_rooms.h
@@ -662,6 +669,9 @@ set(HEADERS
 		src/engine/core/sysdep.h
 		src/engine/network/telnet.h
 		src/utils/utils_time.h
+		src/utils/tracing/trace_sender.h
+		src/utils/tracing/trace_manager.h
+		src/engine/observability/trace_sender.h
 		src/gameplay/mechanics/title.h
 		src/gameplay/statistics/top.h
 		src/utils/utils.h
@@ -898,6 +908,12 @@ set(HEADERS
 		src/gameplay/mechanics/tutelar.h
 		src/gameplay/skills/addshot.h
 		src/engine/db/player_index.h
+		src/engine/observability/provider.h
+		src/engine/observability/traces.h
+		src/engine/observability/metrics.h
+		src/engine/observability/helpers.h
+		src/engine/observability/log_sender.h
+		src/utils/logging/log_sender.h
 		src/gameplay/classes/recalc_mob_params_by_vnum.h)
 
 # Build types
@@ -922,6 +938,10 @@ set(CMAKE_EXE_LINKER_FLAGS_DEBUG "")
 set(CMAKE_EXE_LINKER_FLAGS_RELEASE "")
 set(CMAKE_EXE_LINKER_FLAGS_TEST "")
 set(CMAKE_EXE_LINKER_FLAGS_FASTTEST "")
+
+if (UNIX AND NOT APPLE AND NOT CYGWIN)
+	add_link_options(-fuse-ld=gold)
+endif ()
 
 ## Look for required components
 # Python
@@ -1204,6 +1224,36 @@ else ()
 	message(STATUS "SQLite is turned off.")
 endif ()
 
+# OpenTelemetry support
+if (WITH_OTEL)
+	message(STATUS "OpenTelemetry integration: ENABLED")
+
+	# Find OpenTelemetry from vcpkg
+	find_package(opentelemetry-cpp CONFIG REQUIRED)
+
+	# Define WITH_OTEL for preprocessor
+	add_definitions(-DWITH_OTEL)
+
+	# OTEL-specific implementation files (require OTEL headers)
+	target_sources(circle.library PRIVATE
+		src/engine/observability/trace_sender.cpp
+		src/engine/observability/traces.cpp
+		src/engine/observability/log_sender.cpp
+	)
+
+	# Link OpenTelemetry libraries
+	target_link_libraries(circle.library
+		opentelemetry-cpp::api
+		opentelemetry-cpp::sdk
+		opentelemetry-cpp::ext
+		opentelemetry-cpp::otlp_http_exporter
+		opentelemetry-cpp::otlp_http_metric_exporter
+		opentelemetry-cpp::otlp_http_log_record_exporter
+		opentelemetry-cpp::resources
+	)
+else()
+	message(STATUS "OpenTelemetry integration: DISABLED")
+endif()
 # YAML support
 if (HAVE_YAML)
 	# Try to find yaml-cpp via CMake config first
@@ -1330,7 +1380,7 @@ if (UNIX AND NOT CYGWIN)
 	set(DEFAULT_WITH_ASAN YES)
 else ()
 	set(DEFAULT_WITH_ASAN NO)
-endif ()
+endif()
 option(WITH_ASAN "Compile with ASAN" ${DEFAULT_WITH_ASAN})
 
 if (WITH_ASAN)
@@ -1461,6 +1511,9 @@ if (BUILD_TESTS)
 	add_subdirectory(tests)
 endif ()
 
+option(WITH_OTEL "Enable OpenTelemetry integration" OFF)
+
+# vim: set ts=4 sw=4 ai tw=0 noet syntax=cmake :
 
 # =============================================================================
 # Data directories setup for running server from build directory

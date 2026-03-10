@@ -4,9 +4,9 @@
 #include "engine/core/config.h"
 #include "engine/core/sysdep.h"
 
+#include <atomic>
 #include <list>
 #include <string>
-#include <atomic>
 #include <thread>
 
 extern FILE *logfile;
