@@ -22,10 +22,15 @@
       "id": 999,
       "type": "text",
       "title": "",
-      "gridPos": {"h": 2, "w": 24, "x": 0, "y": 0},
+      "gridPos": {
+        "h": 2,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
       "options": {
         "mode": "markdown",
-        "content": "> **Дашборд только для чтения.** Управляется из файла в репозитории. Чтобы внести изменения — используйте **Save As** (создайте копию)."
+        "content": "> **\u0414\u0430\u0448\u0431\u043e\u0440\u0434 \u0442\u043e\u043b\u044c\u043a\u043e \u0434\u043b\u044f \u0447\u0442\u0435\u043d\u0438\u044f.** \u0423\u043f\u0440\u0430\u0432\u043b\u044f\u0435\u0442\u0441\u044f \u0438\u0437 \u0444\u0430\u0439\u043b\u0430 \u0432 \u0440\u0435\u043f\u043e\u0437\u0438\u0442\u043e\u0440\u0438\u0438. \u0427\u0442\u043e\u0431\u044b \u0432\u043d\u0435\u0441\u0442\u0438 \u0438\u0437\u043c\u0435\u043d\u0435\u043d\u0438\u044f \u2014 \u0438\u0441\u043f\u043e\u043b\u044c\u0437\u0443\u0439\u0442\u0435 **Save As** (\u0441\u043e\u0437\u0434\u0430\u0439\u0442\u0435 \u043a\u043e\u043f\u0438\u044e)."
       },
       "transparent": true
     },
@@ -33,7 +38,9 @@
       "datasource": "Prometheus",
       "fieldConfig": {
         "defaults": {
-          "color": {"mode": "palette-classic"},
+          "color": {
+            "mode": "palette-classic"
+          },
           "custom": {
             "axisLabel": "",
             "axisPlacement": "auto",
@@ -41,79 +48,135 @@
             "drawStyle": "line",
             "fillOpacity": 10,
             "gradientMode": "none",
-            "hideFrom": {"tooltip": false, "viz": false, "legend": false},
+            "hideFrom": {
+              "tooltip": false,
+              "viz": false,
+              "legend": false
+            },
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
-            "scaleDistribution": {"type": "linear"},
+            "scaleDistribution": {
+              "type": "linear"
+            },
             "showPoints": "never",
             "spanNulls": false,
-            "stacking": {"group": "A", "mode": "none"},
-            "thresholdsStyle": {"mode": "off"}
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
           },
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              {"color": "green", "value": null},
-              {"color": "yellow", "value": 0.03},
-              {"color": "red", "value": 0.04}
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 0.03
+              },
+              {
+                "color": "red",
+                "value": 0.04
+              }
             ]
           },
           "unit": "s"
         },
         "overrides": []
       },
-      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 2},
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 2
+      },
       "id": 1,
       "options": {
-        "legend": {"calcs": ["mean", "max"], "displayMode": "table", "placement": "right"},
-        "tooltip": {"mode": "multi"}
+        "legend": {
+          "calcs": [
+            "mean",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "right"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
       },
       "pluginVersion": "8.0.0",
       "targets": [
         {
-          "expr": "histogram_quantile(0.50, rate(heartbeat_total_duration_bucket[5m]))",
-          "legendFormat": "p50 Тик хартбита",
+          "expr": "histogram_quantile(0.50, rate(heartbeat_total_duration_bucket{job=~\"$service\"}[5m]))",
+          "legendFormat": "p50 \u0422\u0438\u043a \u0445\u0430\u0440\u0442\u0431\u0438\u0442\u0430",
           "refId": "A"
         },
         {
-          "expr": "histogram_quantile(0.95, rate(heartbeat_total_duration_bucket[5m]))",
-          "legendFormat": "p95 Тик хартбита",
+          "expr": "histogram_quantile(0.95, rate(heartbeat_total_duration_bucket{job=~\"$service\"}[5m]))",
+          "legendFormat": "p95 \u0422\u0438\u043a \u0445\u0430\u0440\u0442\u0431\u0438\u0442\u0430",
           "refId": "B"
         },
         {
-          "expr": "histogram_quantile(0.99, rate(heartbeat_total_duration_bucket[5m]))",
-          "legendFormat": "p99 Тик хартбита",
+          "expr": "histogram_quantile(0.99, rate(heartbeat_total_duration_bucket{job=~\"$service\"}[5m]))",
+          "legendFormat": "p99 \u0422\u0438\u043a \u0445\u0430\u0440\u0442\u0431\u0438\u0442\u0430",
           "refId": "C"
         }
       ],
-      "title": "Длительность тика хартбита (перцентили, target: <40ms)",
+      "title": "\u0414\u043b\u0438\u0442\u0435\u043b\u044c\u043d\u043e\u0441\u0442\u044c \u0442\u0438\u043a\u0430 \u0445\u0430\u0440\u0442\u0431\u0438\u0442\u0430 (\u043f\u0435\u0440\u0446\u0435\u043d\u0442\u0438\u043b\u0438, target: <40ms)",
       "type": "timeseries"
     },
     {
       "datasource": "Prometheus",
       "fieldConfig": {
         "defaults": {
-          "color": {"mode": "thresholds"},
+          "color": {
+            "mode": "thresholds"
+          },
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              {"color": "green", "value": null},
-              {"color": "yellow", "value": 5},
-              {"color": "red", "value": 10}
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 5
+              },
+              {
+                "color": "red",
+                "value": 10
+              }
             ]
           },
           "unit": "short"
         },
         "overrides": []
       },
-      "gridPos": {"h": 8, "w": 6, "x": 12, "y": 2},
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 12,
+        "y": 2
+      },
       "id": 2,
       "options": {
         "orientation": "auto",
-        "reduceOptions": {"values": false, "calcs": ["lastNotNull"], "fields": ""},
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
         "showThresholdLabels": false,
         "showThresholdMarkers": true,
         "text": {}
@@ -121,36 +184,58 @@
       "pluginVersion": "8.0.0",
       "targets": [
         {
-          "expr": "rate(players_in_combat_count_gauge_sum[5m]) / rate(players_in_combat_count_gauge_count[5m])",
+          "expr": "rate(players_in_combat_count_gauge_sum{job=~\"$service\"}[5m]) / rate(players_in_combat_count_gauge_count{job=~\"$service\"}[5m])",
           "refId": "A"
         }
       ],
-      "title": "Игроки в бою",
+      "title": "\u0418\u0433\u0440\u043e\u043a\u0438 \u0432 \u0431\u043e\u044e",
       "type": "gauge"
     },
     {
       "datasource": "Prometheus",
       "fieldConfig": {
         "defaults": {
-          "color": {"mode": "thresholds"},
+          "color": {
+            "mode": "thresholds"
+          },
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              {"color": "green", "value": null},
-              {"color": "yellow", "value": 500},
-              {"color": "red", "value": 1000}
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 500
+              },
+              {
+                "color": "red",
+                "value": 1000
+              }
             ]
           },
           "unit": "short"
         },
         "overrides": []
       },
-      "gridPos": {"h": 8, "w": 6, "x": 18, "y": 2},
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 18,
+        "y": 2
+      },
       "id": 3,
       "options": {
         "orientation": "auto",
-        "reduceOptions": {"values": false, "calcs": ["lastNotNull"], "fields": ""},
+        "reduceOptions": {
+          "values": false,
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": ""
+        },
         "showThresholdLabels": false,
         "showThresholdMarkers": true,
         "text": {}
@@ -158,18 +243,20 @@
       "pluginVersion": "8.0.0",
       "targets": [
         {
-          "expr": "rate(mob_active_count_gauge_sum[5m]) / rate(mob_active_count_gauge_count[5m])",
+          "expr": "rate(mob_active_count_gauge_sum{job=~\"$service\"}[5m]) / rate(mob_active_count_gauge_count{job=~\"$service\"}[5m])",
           "refId": "A"
         }
       ],
-      "title": "Активные мобы",
+      "title": "\u0410\u043a\u0442\u0438\u0432\u043d\u044b\u0435 \u043c\u043e\u0431\u044b",
       "type": "gauge"
     },
     {
       "datasource": "Prometheus",
       "fieldConfig": {
         "defaults": {
-          "color": {"mode": "palette-classic"},
+          "color": {
+            "mode": "palette-classic"
+          },
           "custom": {
             "axisLabel": "",
             "axisPlacement": "auto",
@@ -177,44 +264,79 @@
             "drawStyle": "line",
             "fillOpacity": 10,
             "gradientMode": "none",
-            "hideFrom": {"tooltip": false, "viz": false, "legend": false},
+            "hideFrom": {
+              "tooltip": false,
+              "viz": false,
+              "legend": false
+            },
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
-            "scaleDistribution": {"type": "linear"},
+            "scaleDistribution": {
+              "type": "linear"
+            },
             "showPoints": "never",
             "spanNulls": false,
-            "stacking": {"group": "A", "mode": "none"},
-            "thresholdsStyle": {"mode": "off"}
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
           },
           "mappings": [],
-          "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]},
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
           "unit": "s"
         },
         "overrides": []
       },
-      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 10},
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 10
+      },
       "id": 4,
       "options": {
-        "legend": {"calcs": ["mean", "max"], "displayMode": "table", "placement": "right"},
-        "tooltip": {"mode": "multi"}
+        "legend": {
+          "calcs": [
+            "mean",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "right"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
       },
       "pluginVersion": "8.0.0",
       "targets": [
         {
-          "expr": "histogram_quantile(0.95, sum by (step) (rate(heartbeat_step_duration_bucket[5m])))",
+          "expr": "histogram_quantile(0.95, sum by (step) (rate(heartbeat_step_duration_bucket{job=~\"$service\"}[5m])))",
           "legendFormat": "p95 {{step}}",
           "refId": "A"
         }
       ],
-      "title": "Длительность шагов хартбита (p95)",
+      "title": "\u0414\u043b\u0438\u0442\u0435\u043b\u044c\u043d\u043e\u0441\u0442\u044c \u0448\u0430\u0433\u043e\u0432 \u0445\u0430\u0440\u0442\u0431\u0438\u0442\u0430 (p95)",
       "type": "timeseries"
     },
     {
       "datasource": "Prometheus",
       "fieldConfig": {
         "defaults": {
-          "color": {"mode": "palette-classic"},
+          "color": {
+            "mode": "palette-classic"
+          },
           "custom": {
             "axisLabel": "",
             "axisPlacement": "auto",
@@ -222,49 +344,84 @@
             "drawStyle": "line",
             "fillOpacity": 10,
             "gradientMode": "none",
-            "hideFrom": {"tooltip": false, "viz": false, "legend": false},
+            "hideFrom": {
+              "tooltip": false,
+              "viz": false,
+              "legend": false
+            },
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
-            "scaleDistribution": {"type": "linear"},
+            "scaleDistribution": {
+              "type": "linear"
+            },
             "showPoints": "never",
             "spanNulls": false,
-            "stacking": {"group": "A", "mode": "none"},
-            "thresholdsStyle": {"mode": "off"}
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
           },
           "mappings": [],
-          "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]},
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
           "unit": "s"
         },
         "overrides": []
       },
-      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 10},
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 10
+      },
       "id": 5,
       "options": {
-        "legend": {"calcs": ["mean", "max"], "displayMode": "table", "placement": "right"},
-        "tooltip": {"mode": "multi"}
+        "legend": {
+          "calcs": [
+            "mean",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "right"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
       },
       "pluginVersion": "8.0.0",
       "targets": [
         {
-          "expr": "histogram_quantile(0.95, rate(mob_ai_duration_bucket[5m]))",
-          "legendFormat": "p95 AI мобов",
+          "expr": "histogram_quantile(0.95, rate(mob_ai_duration_bucket{job=~\"$service\"}[5m]))",
+          "legendFormat": "p95 AI \u043c\u043e\u0431\u043e\u0432",
           "refId": "A"
         },
         {
-          "expr": "histogram_quantile(0.99, rate(mob_ai_duration_bucket[5m]))",
-          "legendFormat": "p99 AI мобов",
+          "expr": "histogram_quantile(0.99, rate(mob_ai_duration_bucket{job=~\"$service\"}[5m]))",
+          "legendFormat": "p99 AI \u043c\u043e\u0431\u043e\u0432",
           "refId": "B"
         }
       ],
-      "title": "Длительность обработки AI мобов",
+      "title": "\u0414\u043b\u0438\u0442\u0435\u043b\u044c\u043d\u043e\u0441\u0442\u044c \u043e\u0431\u0440\u0430\u0431\u043e\u0442\u043a\u0438 AI \u043c\u043e\u0431\u043e\u0432",
       "type": "timeseries"
     },
     {
       "datasource": "Prometheus",
       "fieldConfig": {
         "defaults": {
-          "color": {"mode": "palette-classic"},
+          "color": {
+            "mode": "palette-classic"
+          },
           "custom": {
             "axisLabel": "",
             "axisPlacement": "auto",
@@ -272,54 +429,89 @@
             "drawStyle": "line",
             "fillOpacity": 10,
             "gradientMode": "none",
-            "hideFrom": {"tooltip": false, "viz": false, "legend": false},
+            "hideFrom": {
+              "tooltip": false,
+              "viz": false,
+              "legend": false
+            },
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
-            "scaleDistribution": {"type": "linear"},
+            "scaleDistribution": {
+              "type": "linear"
+            },
             "showPoints": "never",
             "spanNulls": false,
-            "stacking": {"group": "A", "mode": "none"},
-            "thresholdsStyle": {"mode": "off"}
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
           },
           "mappings": [],
-          "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]},
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
           "unit": "s"
         },
         "overrides": []
       },
-      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 18},
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 18
+      },
       "id": 6,
       "options": {
-        "legend": {"calcs": ["mean", "max"], "displayMode": "table", "placement": "right"},
-        "tooltip": {"mode": "multi"}
+        "legend": {
+          "calcs": [
+            "mean",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "right"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
       },
       "pluginVersion": "8.0.0",
       "targets": [
         {
-          "expr": "histogram_quantile(0.95, rate(player_load_duration_bucket[5m]))",
-          "legendFormat": "p95 Загрузка",
+          "expr": "histogram_quantile(0.95, rate(player_load_duration_bucket{job=~\"$service\"}[5m]))",
+          "legendFormat": "p95 \u0417\u0430\u0433\u0440\u0443\u0437\u043a\u0430",
           "refId": "A"
         },
         {
-          "expr": "histogram_quantile(0.95, rate(player_save_duration_bucket{save_type=\"frac\"}[5m]))",
-          "legendFormat": "p95 Сохранение (частичное)",
+          "expr": "histogram_quantile(0.95, rate(player_save_duration_bucket{job=~\"$service\",save_type=\"frac\"}[5m]))",
+          "legendFormat": "p95 \u0421\u043e\u0445\u0440\u0430\u043d\u0435\u043d\u0438\u0435 (\u0447\u0430\u0441\u0442\u0438\u0447\u043d\u043e\u0435)",
           "refId": "B"
         },
         {
-          "expr": "histogram_quantile(0.95, rate(player_save_duration_bucket{save_type=\"full\"}[5m]))",
-          "legendFormat": "p95 Сохранение (полное)",
+          "expr": "histogram_quantile(0.95, rate(player_save_duration_bucket{job=~\"$service\",save_type=\"full\"}[5m]))",
+          "legendFormat": "p95 \u0421\u043e\u0445\u0440\u0430\u043d\u0435\u043d\u0438\u0435 (\u043f\u043e\u043b\u043d\u043e\u0435)",
           "refId": "C"
         }
       ],
-      "title": "Длительность сохранения/загрузки игрока (p95)",
+      "title": "\u0414\u043b\u0438\u0442\u0435\u043b\u044c\u043d\u043e\u0441\u0442\u044c \u0441\u043e\u0445\u0440\u0430\u043d\u0435\u043d\u0438\u044f/\u0437\u0430\u0433\u0440\u0443\u0437\u043a\u0438 \u0438\u0433\u0440\u043e\u043a\u0430 (p95)",
       "type": "timeseries"
     },
     {
       "datasource": "Prometheus",
       "fieldConfig": {
         "defaults": {
-          "color": {"mode": "palette-classic"},
+          "color": {
+            "mode": "palette-classic"
+          },
           "custom": {
             "axisLabel": "",
             "axisPlacement": "auto",
@@ -327,44 +519,79 @@
             "drawStyle": "line",
             "fillOpacity": 10,
             "gradientMode": "none",
-            "hideFrom": {"tooltip": false, "viz": false, "legend": false},
+            "hideFrom": {
+              "tooltip": false,
+              "viz": false,
+              "legend": false
+            },
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
-            "scaleDistribution": {"type": "linear"},
+            "scaleDistribution": {
+              "type": "linear"
+            },
             "showPoints": "never",
             "spanNulls": false,
-            "stacking": {"group": "A", "mode": "none"},
-            "thresholdsStyle": {"mode": "off"}
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
           },
           "mappings": [],
-          "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]},
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
           "unit": "short"
         },
         "overrides": []
       },
-      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 18},
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 18
+      },
       "id": 7,
       "options": {
-        "legend": {"calcs": ["mean", "max"], "displayMode": "table", "placement": "right"},
-        "tooltip": {"mode": "multi"}
+        "legend": {
+          "calcs": [
+            "mean",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "right"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
       },
       "pluginVersion": "8.0.0",
       "targets": [
         {
-          "expr": "rate(player_save_total[5m])",
-          "legendFormat": "Сохранений/сек ({{save_type}})",
+          "expr": "rate(player_save_total{job=~\"$service\"}[5m])",
+          "legendFormat": "\u0421\u043e\u0445\u0440\u0430\u043d\u0435\u043d\u0438\u0439/\u0441\u0435\u043a ({{save_type}})",
           "refId": "A"
         }
       ],
-      "title": "Частота сохранения игроков",
+      "title": "\u0427\u0430\u0441\u0442\u043e\u0442\u0430 \u0441\u043e\u0445\u0440\u0430\u043d\u0435\u043d\u0438\u044f \u0438\u0433\u0440\u043e\u043a\u043e\u0432",
       "type": "timeseries"
     },
     {
       "datasource": "Prometheus",
       "fieldConfig": {
         "defaults": {
-          "color": {"mode": "palette-classic"},
+          "color": {
+            "mode": "palette-classic"
+          },
           "custom": {
             "axisLabel": "",
             "axisPlacement": "auto",
@@ -372,49 +599,84 @@
             "drawStyle": "line",
             "fillOpacity": 10,
             "gradientMode": "none",
-            "hideFrom": {"tooltip": false, "viz": false, "legend": false},
+            "hideFrom": {
+              "tooltip": false,
+              "viz": false,
+              "legend": false
+            },
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
-            "scaleDistribution": {"type": "linear"},
+            "scaleDistribution": {
+              "type": "linear"
+            },
             "showPoints": "never",
             "spanNulls": false,
-            "stacking": {"group": "A", "mode": "none"},
-            "thresholdsStyle": {"mode": "off"}
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
           },
           "mappings": [],
-          "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]},
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
           "unit": "s"
         },
         "overrides": []
       },
-      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 26},
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 26
+      },
       "id": 8,
       "options": {
-        "legend": {"calcs": ["mean", "max"], "displayMode": "table", "placement": "right"},
-        "tooltip": {"mode": "multi"}
+        "legend": {
+          "calcs": [
+            "mean",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "right"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
       },
       "pluginVersion": "8.0.0",
       "targets": [
         {
-          "expr": "histogram_quantile(0.95, rate(zone_update_duration_bucket[5m]))",
-          "legendFormat": "p95 Обновление зоны",
+          "expr": "histogram_quantile(0.95, rate(zone_update_duration_bucket{job=~\"$service\"}[5m]))",
+          "legendFormat": "p95 \u041e\u0431\u043d\u043e\u0432\u043b\u0435\u043d\u0438\u0435 \u0437\u043e\u043d\u044b",
           "refId": "A"
         },
         {
-          "expr": "histogram_quantile(0.99, rate(zone_update_duration_bucket[5m]))",
-          "legendFormat": "p99 Обновление зоны",
+          "expr": "histogram_quantile(0.99, rate(zone_update_duration_bucket{job=~\"$service\"}[5m]))",
+          "legendFormat": "p99 \u041e\u0431\u043d\u043e\u0432\u043b\u0435\u043d\u0438\u0435 \u0437\u043e\u043d\u044b",
           "refId": "B"
         }
       ],
-      "title": "Длительность обновления зоны",
+      "title": "\u0414\u043b\u0438\u0442\u0435\u043b\u044c\u043d\u043e\u0441\u0442\u044c \u043e\u0431\u043d\u043e\u0432\u043b\u0435\u043d\u0438\u044f \u0437\u043e\u043d\u044b",
       "type": "timeseries"
     },
     {
       "datasource": "Prometheus",
       "fieldConfig": {
         "defaults": {
-          "color": {"mode": "palette-classic"},
+          "color": {
+            "mode": "palette-classic"
+          },
           "custom": {
             "axisLabel": "",
             "axisPlacement": "auto",
@@ -422,44 +684,79 @@
             "drawStyle": "line",
             "fillOpacity": 10,
             "gradientMode": "none",
-            "hideFrom": {"tooltip": false, "viz": false, "legend": false},
+            "hideFrom": {
+              "tooltip": false,
+              "viz": false,
+              "legend": false
+            },
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
-            "scaleDistribution": {"type": "linear"},
+            "scaleDistribution": {
+              "type": "linear"
+            },
             "showPoints": "never",
             "spanNulls": false,
-            "stacking": {"group": "A", "mode": "none"},
-            "thresholdsStyle": {"mode": "off"}
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
           },
           "mappings": [],
-          "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]},
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
           "unit": "short"
         },
         "overrides": []
       },
-      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 26},
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 26
+      },
       "id": 9,
       "options": {
-        "legend": {"calcs": ["mean", "max"], "displayMode": "table", "placement": "right"},
-        "tooltip": {"mode": "multi"}
+        "legend": {
+          "calcs": [
+            "mean",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "right"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
       },
       "pluginVersion": "8.0.0",
       "targets": [
         {
-          "expr": "rate(zone_reset_total[5m])",
-          "legendFormat": "Сбросов зоны/сек",
+          "expr": "rate(zone_reset_total{job=~\"$service\"}[5m])",
+          "legendFormat": "\u0421\u0431\u0440\u043e\u0441\u043e\u0432 \u0437\u043e\u043d\u044b/\u0441\u0435\u043a",
           "refId": "A"
         }
       ],
-      "title": "Частота сброса зон",
+      "title": "\u0427\u0430\u0441\u0442\u043e\u0442\u0430 \u0441\u0431\u0440\u043e\u0441\u0430 \u0437\u043e\u043d",
       "type": "timeseries"
     },
     {
       "datasource": "Prometheus",
       "fieldConfig": {
         "defaults": {
-          "color": {"mode": "palette-classic"},
+          "color": {
+            "mode": "palette-classic"
+          },
           "custom": {
             "axisLabel": "",
             "axisPlacement": "auto",
@@ -467,44 +764,79 @@
             "drawStyle": "line",
             "fillOpacity": 10,
             "gradientMode": "none",
-            "hideFrom": {"tooltip": false, "viz": false, "legend": false},
+            "hideFrom": {
+              "tooltip": false,
+              "viz": false,
+              "legend": false
+            },
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
-            "scaleDistribution": {"type": "linear"},
+            "scaleDistribution": {
+              "type": "linear"
+            },
             "showPoints": "never",
             "spanNulls": false,
-            "stacking": {"group": "A", "mode": "none"},
-            "thresholdsStyle": {"mode": "off"}
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
           },
           "mappings": [],
-          "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]},
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
           "unit": "short"
         },
         "overrides": []
       },
-      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 34},
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 34
+      },
       "id": 10,
       "options": {
-        "legend": {"calcs": ["mean", "max"], "displayMode": "table", "placement": "right"},
-        "tooltip": {"mode": "multi"}
+        "legend": {
+          "calcs": [
+            "mean",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "right"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
       },
       "pluginVersion": "8.0.0",
       "targets": [
         {
-          "expr": "increase(heartbeat_missed_pulses_total[5m])",
-          "legendFormat": "Пропущенных пульсов за 5 мин",
+          "expr": "increase(heartbeat_missed_pulses_total{job=~\"$service\"}[5m])",
+          "legendFormat": "\u041f\u0440\u043e\u043f\u0443\u0449\u0435\u043d\u043d\u044b\u0445 \u043f\u0443\u043b\u044c\u0441\u043e\u0432 \u0437\u0430 5 \u043c\u0438\u043d",
           "refId": "A"
         }
       ],
-      "title": "Пропущенные пульсы хартбита (лаг сервера)",
+      "title": "\u041f\u0440\u043e\u043f\u0443\u0449\u0435\u043d\u043d\u044b\u0435 \u043f\u0443\u043b\u044c\u0441\u044b \u0445\u0430\u0440\u0442\u0431\u0438\u0442\u0430 (\u043b\u0430\u0433 \u0441\u0435\u0440\u0432\u0435\u0440\u0430)",
       "type": "timeseries"
     },
     {
       "datasource": "Prometheus",
       "fieldConfig": {
         "defaults": {
-          "color": {"mode": "palette-classic"},
+          "color": {
+            "mode": "palette-classic"
+          },
           "custom": {
             "axisLabel": "",
             "axisPlacement": "auto",
@@ -512,54 +844,123 @@
             "drawStyle": "line",
             "fillOpacity": 10,
             "gradientMode": "none",
-            "hideFrom": {"tooltip": false, "viz": false, "legend": false},
+            "hideFrom": {
+              "tooltip": false,
+              "viz": false,
+              "legend": false
+            },
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
-            "scaleDistribution": {"type": "linear"},
+            "scaleDistribution": {
+              "type": "linear"
+            },
             "showPoints": "never",
             "spanNulls": false,
-            "stacking": {"group": "A", "mode": "none"},
-            "thresholdsStyle": {"mode": "off"}
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
           },
           "mappings": [],
-          "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]},
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
           "unit": "s"
         },
         "overrides": []
       },
-      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 34},
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 34
+      },
       "id": 11,
       "options": {
-        "legend": {"calcs": ["mean", "max"], "displayMode": "table", "placement": "right"},
-        "tooltip": {"mode": "multi"}
+        "legend": {
+          "calcs": [
+            "mean",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "right"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
       },
       "pluginVersion": "8.0.0",
       "targets": [
         {
-          "expr": "histogram_quantile(0.95, rate(combat_hit_duration_bucket[5m]))",
-          "legendFormat": "p95 Расчёт удара",
+          "expr": "histogram_quantile(0.95, rate(combat_hit_duration_bucket{job=~\"$service\"}[5m]))",
+          "legendFormat": "p95 \u0420\u0430\u0441\u0447\u0451\u0442 \u0443\u0434\u0430\u0440\u0430",
           "refId": "A"
         },
         {
-          "expr": "histogram_quantile(0.99, rate(combat_hit_duration_bucket[5m]))",
-          "legendFormat": "p99 Расчёт удара",
+          "expr": "histogram_quantile(0.99, rate(combat_hit_duration_bucket{job=~\"$service\"}[5m]))",
+          "legendFormat": "p99 \u0420\u0430\u0441\u0447\u0451\u0442 \u0443\u0434\u0430\u0440\u0430",
           "refId": "B"
         }
       ],
-      "title": "Длительность расчёта удара в бою",
+      "title": "\u0414\u043b\u0438\u0442\u0435\u043b\u044c\u043d\u043e\u0441\u0442\u044c \u0440\u0430\u0441\u0447\u0451\u0442\u0430 \u0443\u0434\u0430\u0440\u0430 \u0432 \u0431\u043e\u044e",
       "type": "timeseries"
     }
   ],
   "schemaVersion": 27,
   "style": "dark",
-  "tags": ["bylins", "performance", "mud"],
-  "templating": {"list": []},
-  "time": {"from": "now-6h", "to": "now"},
+  "tags": [
+    "bylins",
+    "performance",
+    "mud"
+  ],
+  "templating": {
+    "list": [
+      {
+        "current": {
+          "selected": false,
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${DS_PROMETHEUS}"
+        },
+        "hide": 0,
+        "includeAll": true,
+        "multi": true,
+        "name": "service",
+        "label": "Service",
+        "options": [],
+        "query": {
+          "qryType": 1,
+          "query": "label_values(heartbeat_total_duration_sum, job)",
+          "refId": "StandardVariableQuery"
+        },
+        "refresh": 2,
+        "regex": "/^bylins-.*/",
+        "sort": 1,
+        "type": "query"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
   "timepicker": {},
   "timezone": "",
-  "title": "Bylins MUD - Дашборд производительности",
-  "description": "Только для чтения. Чтобы внести изменения — клонируйте дашборд в Grafana (кнопка Save As).",
+  "title": "Bylins MUD - \u0414\u0430\u0448\u0431\u043e\u0440\u0434 \u043f\u0440\u043e\u0438\u0437\u0432\u043e\u0434\u0438\u0442\u0435\u043b\u044c\u043d\u043e\u0441\u0442\u0438",
+  "description": "\u0422\u043e\u043b\u044c\u043a\u043e \u0434\u043b\u044f \u0447\u0442\u0435\u043d\u0438\u044f. \u0427\u0442\u043e\u0431\u044b \u0432\u043d\u0435\u0441\u0442\u0438 \u0438\u0437\u043c\u0435\u043d\u0435\u043d\u0438\u044f \u2014 \u043a\u043b\u043e\u043d\u0438\u0440\u0443\u0439\u0442\u0435 \u0434\u0430\u0448\u0431\u043e\u0440\u0434 \u0432 Grafana (\u043a\u043d\u043e\u043f\u043a\u0430 Save As).",
   "uid": "bylins-performance",
   "version": 0
 }
