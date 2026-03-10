@@ -20,11 +20,14 @@ receivers:
         auth:
           authenticator: bearertokenauth
 
-  # Local receiver for circle running on the same host (no TLS, no auth)
+  # Local receiver for circle running on the same host (no TLS, no auth).
+  # Must bind to 0.0.0.0 inside the container — Docker port forwarding
+  # can't reach 127.0.0.1 inside the container's network namespace.
+  # Access is restricted to localhost on the host side via the port mapping.
   otlp/local:
     protocols:
       http:
-        endpoint: 127.0.0.1:4319
+        endpoint: 0.0.0.0:4319
 
 processors:
   batch:
