@@ -172,7 +172,7 @@ void HandleListZones(DescriptorData* d)
 	response["status"] = "ok";
 	response["zones"] = json::array();
 
-	for (ZoneRnum zrn = 1; zrn < static_cast<ZoneRnum>(zone_table.size()); ++zrn)
+	for (ZoneRnum zrn = 0; zrn < static_cast<ZoneRnum>(zone_table.size()); ++zrn)
 	{
 		const ZoneData &zone = zone_table[zrn];
 		json zone_obj;
@@ -845,8 +845,8 @@ void HandleGetStats(DescriptorData* d)
 	json response;
 	response["status"] = "ok";
 
-	// Count zones (skip zone_table[0])
-	response["zones"] = zone_table.size() - 1;
+	// Count zones
+	response["zones"] = zone_table.size();
 
 	// Count mobs
 	response["mobs"] = top_of_mobt + 1;
