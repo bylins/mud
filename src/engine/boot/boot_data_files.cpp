@@ -1087,6 +1087,17 @@ void MobileFile::parse_mobile(const int nr) {
 	if ((mob_proto + 1)->GetLevel() == 0)
 		SetTestData(mob_proto + i);
 
+	if (mob_proto[i].IsFlagged(EMobFlag::kSentinel)) {
+		for (const auto dest : mob_proto[i].mob_specials.dest) {
+			if (dest != 0) {
+				log("WARNING: Mob #%d (%s) has movement route and !sentinel flag at the same time.",
+					nr,
+					mob_proto[i].get_npc_name().c_str());
+				break;
+			}
+		}
+	}
+
 	top_of_mobt = i++;
 }
 
