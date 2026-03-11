@@ -939,8 +939,9 @@ set(CMAKE_EXE_LINKER_FLAGS_RELEASE "")
 set(CMAKE_EXE_LINKER_FLAGS_TEST "")
 set(CMAKE_EXE_LINKER_FLAGS_FASTTEST "")
 
-if (UNIX AND NOT APPLE AND NOT CYGWIN)
-	add_link_options(-fuse-ld=gold)
+set(LINKER "" CACHE STRING "Linker to use: gold, mold, lld, bfd, or empty for system default")
+if (LINKER AND UNIX AND NOT APPLE AND NOT CYGWIN)
+	add_link_options(-fuse-ld=${LINKER})
 endif ()
 
 ## Look for required components
