@@ -55,6 +55,7 @@
 #include "engine/ui/cmd_god/do_beep.h"
 #include "engine/ui/cmd_god/do_overstuff.h"
 #include "engine/ui/cmd_god/do_poof_msg.h"
+#include "engine/ui/cmd_god/do_profile.h"
 #include "engine/ui/cmd_god/do_print_armor.h"
 #include "engine/ui/cmd_god/do_purge.h"
 #include "engine/ui/cmd_god/do_godtest.h"
@@ -918,6 +919,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"pour", EPosition::kStand, do_pour, 0, kScmdPour, -1},
 		{"practice", EPosition::kStand, do_not_here, 0, 0, -1},
 		{"prompt", EPosition::kDead, do_display, 0, 0, 0},
+		{"profile", EPosition::kDead, do_profile, kLvlImmortal, 0, 0},
 		{"proxy", EPosition::kDead, do_proxy, kLvlGreatGod, 0, 0},
 		{"purge", EPosition::kDead, DoPurge, kLvlGod, 0, 0},
 		{"put", EPosition::kRest, do_put, 0, 0, 500},
