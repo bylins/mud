@@ -53,9 +53,9 @@
         <combat_stats>
             <param id="kArmour" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
             <param id="kAbsorb" base="0" low_increment="0" threshold_mort="10" increment="1" deviation_type="0" deviation="0"/>
-            <param id="kDamNoDice" base="4" low_increment="0.5" threshold_mort="10" increment="0.18" deviation_type="0" deviation="0"/>
-            <param id="kDamSizeDice" base="4" low_increment="0.5" threshold_mort="10" increment="0.18" deviation_type="0" deviation="0"/>
-            <param id="kHitroll" base="0" low_increment="1" threshold_mort="17" increment="0" deviation_type="0" deviation="0"/>
+            <param id="kDamNoDice" base="4" low_increment="0.5" threshold_mort="10" increment="0.36" deviation_type="0" deviation="0"/>
+            <param id="kDamSizeDice" base="4" low_increment="0.5" threshold_mort="10" increment="0.36" deviation_type="0" deviation="0"/>
+            <param id="kHitroll" base="0" low_increment="1" threshold_mort="20" increment="0" deviation_type="0" deviation="0"/>
             <param id="kDamroll" base="1" low_increment="0.5" threshold_mort="20" increment="0" deviation_type="0" deviation="0"/>
             <param id="kMorale" base="10" low_increment="0" threshold_mort="10" increment="0.1" deviation_type="0" deviation="0"/>
             <param id="kInitiative" base="-7" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
@@ -149,9 +149,9 @@
         <combat_stats>
             <param id="kArmour" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
             <param id="kAbsorb" base="0" low_increment="0" threshold_mort="10" increment="1" deviation_type="0" deviation="0"/>
-            <param id="kDamNoDice" base="4" low_increment="0.5" threshold_mort="10" increment="0.18" deviation_type="0" deviation="0"/>
-            <param id="kDamSizeDice" base="4" low_increment="0.5" threshold_mort="10" increment="0.18" deviation_type="0" deviation="0"/>
-            <param id="kHitroll" base="0" low_increment="1" threshold_mort="17" increment="0" deviation_type="0" deviation="0"/>
+            <param id="kDamNoDice" base="4" low_increment="0.5" threshold_mort="10" increment="0.36" deviation_type="0" deviation="0"/>
+            <param id="kDamSizeDice" base="4" low_increment="0.5" threshold_mort="10" increment="0.36" deviation_type="0" deviation="0"/>
+            <param id="kHitroll" base="0" low_increment="1" threshold_mort="20" increment="0" deviation_type="0" deviation="0"/>
             <param id="kDamroll" base="1" low_increment="0.5" threshold_mort="20" increment="0" deviation_type="0" deviation="0"/>
             <param id="kMorale" base="10" low_increment="0" threshold_mort="10" increment="0.1" deviation_type="0" deviation="0"/>
             <param id="kInitiative" base="-7" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
@@ -245,9 +245,9 @@
         <combat_stats>
             <param id="kArmour" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
             <param id="kAbsorb" base="0" low_increment="0" threshold_mort="10" increment="1" deviation_type="0" deviation="0"/>
-            <param id="kDamNoDice" base="4" low_increment="0.5" threshold_mort="10" increment="0.18" deviation_type="0" deviation="0"/>
-            <param id="kDamSizeDice" base="4" low_increment="0.5" threshold_mort="10" increment="0.18" deviation_type="0" deviation="0"/>
-            <param id="kHitroll" base="0" low_increment="1" threshold_mort="17" increment="0" deviation_type="0" deviation="0"/>
+            <param id="kDamNoDice" base="4" low_increment="0.5" threshold_mort="10" increment="0.36" deviation_type="0" deviation="0"/>
+            <param id="kDamSizeDice" base="4" low_increment="0.5" threshold_mort="10" increment="0.36" deviation_type="0" deviation="0"/>
+            <param id="kHitroll" base="0" low_increment="1" threshold_mort="20" increment="0" deviation_type="0" deviation="0"/>
             <param id="kDamroll" base="1" low_increment="0.5" threshold_mort="20" increment="0" deviation_type="0" deviation="0"/>
             <param id="kMorale" base="10" low_increment="0" threshold_mort="10" increment="0.1" deviation_type="0" deviation="0"/>
             <param id="kInitiative" base="-7" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
@@ -341,9 +341,9 @@
         <combat_stats>
             <param id="kArmour" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
             <param id="kAbsorb" base="0" low_increment="0" threshold_mort="10" increment="1" deviation_type="0" deviation="0"/>
-            <param id="kDamNoDice" base="4" low_increment="0.5" threshold_mort="10" increment="0.18" deviation_type="0" deviation="0"/>
-            <param id="kDamSizeDice" base="4" low_increment="0.5" threshold_mort="10" increment="0.18" deviation_type="0" deviation="0"/>
-            <param id="kHitroll" base="0" low_increment="1" threshold_mort="17" increment="0" deviation_type="0" deviation="0"/>
+            <param id="kDamNoDice" base="4" low_increment="0.5" threshold_mort="10" increment="0.36" deviation_type="0" deviation="0"/>
+            <param id="kDamSizeDice" base="4" low_increment="0.5" threshold_mort="10" increment="0.36" deviation_type="0" deviation="0"/>
+            <param id="kHitroll" base="0" low_increment="1" threshold_mort="20" increment="0" deviation_type="0" deviation="0"/>
             <param id="kDamroll" base="1" low_increment="0.5" threshold_mort="20" increment="0" deviation_type="0" deviation="0"/>
             <param id="kMorale" base="10" low_increment="0" threshold_mort="10" increment="0.1" deviation_type="0" deviation="0"/>
             <param id="kInitiative" base="-7" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
@@ -437,9 +437,9 @@
         <combat_stats>
             <param id="kArmour" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
             <param id="kAbsorb" base="0" low_increment="0" threshold_mort="10" increment="1" deviation_type="0" deviation="0"/>
-            <param id="kDamNoDice" base="4" low_increment="0.5" threshold_mort="10" increment="0.18" deviation_type="0" deviation="0"/>
-            <param id="kDamSizeDice" base="4" low_increment="0.5" threshold_mort="10" increment="0.18" deviation_type="0" deviation="0"/>
-            <param id="kHitroll" base="0" low_increment="1" threshold_mort="17" increment="0" deviation_type="0" deviation="0"/>
+            <param id="kDamNoDice" base="4" low_increment="0.5" threshold_mort="10" increment="0.36" deviation_type="0" deviation="0"/>
+            <param id="kDamSizeDice" base="4" low_increment="0.5" threshold_mort="10" increment="0.36" deviation_type="0" deviation="0"/>
+            <param id="kHitroll" base="0" low_increment="1" threshold_mort="20" increment="0" deviation_type="0" deviation="0"/>
             <param id="kDamroll" base="1" low_increment="0.5" threshold_mort="20" increment="0" deviation_type="0" deviation="0"/>
             <param id="kMorale" base="10" low_increment="0" threshold_mort="10" increment="0.1" deviation_type="0" deviation="0"/>
             <param id="kInitiative" base="-7" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
@@ -533,9 +533,9 @@
         <combat_stats>
             <param id="kArmour" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
             <param id="kAbsorb" base="0" low_increment="0" threshold_mort="10" increment="1" deviation_type="0" deviation="0"/>
-            <param id="kDamNoDice" base="4" low_increment="0.5" threshold_mort="10" increment="0.18" deviation_type="0" deviation="0"/>
-            <param id="kDamSizeDice" base="4" low_increment="0.5" threshold_mort="10" increment="0.18" deviation_type="0" deviation="0"/>
-            <param id="kHitroll" base="0" low_increment="1" threshold_mort="17" increment="0" deviation_type="0" deviation="0"/>
+            <param id="kDamNoDice" base="4" low_increment="0.5" threshold_mort="10" increment="0.36" deviation_type="0" deviation="0"/>
+            <param id="kDamSizeDice" base="4" low_increment="0.5" threshold_mort="10" increment="0.36" deviation_type="0" deviation="0"/>
+            <param id="kHitroll" base="0" low_increment="1" threshold_mort="20" increment="0" deviation_type="0" deviation="0"/>
             <param id="kDamroll" base="1" low_increment="0.5" threshold_mort="20" increment="0" deviation_type="0" deviation="0"/>
             <param id="kMorale" base="10" low_increment="0" threshold_mort="10" increment="0.1" deviation_type="0" deviation="0"/>
             <param id="kInitiative" base="-7" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
@@ -630,9 +630,9 @@
         <combat_stats>
             <param id="kArmour" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
             <param id="kAbsorb" base="0" low_increment="0" threshold_mort="10" increment="1" deviation_type="0" deviation="0"/>
-            <param id="kDamNoDice" base="4" low_increment="0.5" threshold_mort="10" increment="0.18" deviation_type="0" deviation="0"/>
-            <param id="kDamSizeDice" base="4" low_increment="0.5" threshold_mort="10" increment="0.18" deviation_type="0" deviation="0"/>
-            <param id="kHitroll" base="0" low_increment="1" threshold_mort="17" increment="0" deviation_type="0" deviation="0"/>
+            <param id="kDamNoDice" base="4" low_increment="0.5" threshold_mort="10" increment="0.36" deviation_type="0" deviation="0"/>
+            <param id="kDamSizeDice" base="4" low_increment="0.5" threshold_mort="10" increment="0.36" deviation_type="0" deviation="0"/>
+            <param id="kHitroll" base="0" low_increment="1" threshold_mort="20" increment="0" deviation_type="0" deviation="0"/>
             <param id="kDamroll" base="1" low_increment="0.5" threshold_mort="20" increment="0" deviation_type="0" deviation="0"/>
             <param id="kMorale" base="10" low_increment="0" threshold_mort="10" increment="0.1" deviation_type="0" deviation="0"/>
             <param id="kInitiative" base="-7" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
@@ -725,9 +725,9 @@
         <combat_stats>
             <param id="kArmour" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
             <param id="kAbsorb" base="0" low_increment="0" threshold_mort="10" increment="1" deviation_type="0" deviation="0"/>
-            <param id="kDamNoDice" base="4" low_increment="0.5" threshold_mort="10" increment="0.18" deviation_type="0" deviation="0"/>
-            <param id="kDamSizeDice" base="4" low_increment="0.5" threshold_mort="10" increment="0.18" deviation_type="0" deviation="0"/>
-            <param id="kHitroll" base="0" low_increment="1" threshold_mort="17" increment="0" deviation_type="0" deviation="0"/>
+            <param id="kDamNoDice" base="4" low_increment="0.5" threshold_mort="10" increment="0.36" deviation_type="0" deviation="0"/>
+            <param id="kDamSizeDice" base="4" low_increment="0.5" threshold_mort="10" increment="0.36" deviation_type="0" deviation="0"/>
+            <param id="kHitroll" base="0" low_increment="1" threshold_mort="20" increment="0" deviation_type="0" deviation="0"/>
             <param id="kDamroll" base="1" low_increment="0.5" threshold_mort="20" increment="0" deviation_type="0" deviation="0"/>
             <param id="kMorale" base="10" low_increment="0" threshold_mort="10" increment="0.1" deviation_type="0" deviation="0"/>
             <param id="kInitiative" base="-7" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
@@ -821,9 +821,9 @@
         <combat_stats>
             <param id="kArmour" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
             <param id="kAbsorb" base="0" low_increment="0" threshold_mort="10" increment="1" deviation_type="0" deviation="0"/>
-            <param id="kDamNoDice" base="4" low_increment="0.5" threshold_mort="10" increment="0.18" deviation_type="0" deviation="0"/>
-            <param id="kDamSizeDice" base="4" low_increment="0.5" threshold_mort="10" increment="0.18" deviation_type="0" deviation="0"/>
-            <param id="kHitroll" base="0" low_increment="1" threshold_mort="17" increment="0" deviation_type="0" deviation="0"/>
+            <param id="kDamNoDice" base="4" low_increment="0.5" threshold_mort="10" increment="0.36" deviation_type="0" deviation="0"/>
+            <param id="kDamSizeDice" base="4" low_increment="0.5" threshold_mort="10" increment="0.36" deviation_type="0" deviation="0"/>
+            <param id="kHitroll" base="0" low_increment="1" threshold_mort="20" increment="0" deviation_type="0" deviation="0"/>
             <param id="kDamroll" base="1" low_increment="0.5" threshold_mort="20" increment="0" deviation_type="0" deviation="0"/>
             <param id="kMorale" base="10" low_increment="0" threshold_mort="10" increment="0.1" deviation_type="0" deviation="0"/>
             <param id="kInitiative" base="-7" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
@@ -917,9 +917,9 @@
         <combat_stats>
             <param id="kArmour" base="0" low_increment="0" threshold_mort="5" increment="1" deviation_type="0" deviation="0"/>
             <param id="kAbsorb" base="0" low_increment="0" threshold_mort="10" increment="1" deviation_type="0" deviation="0"/>
-            <param id="kDamNoDice" base="4" low_increment="0.5" threshold_mort="10" increment="0.18" deviation_type="0" deviation="0"/>
-            <param id="kDamSizeDice" base="4" low_increment="0.5" threshold_mort="10" increment="0.18" deviation_type="0" deviation="0"/>
-            <param id="kHitroll" base="0" low_increment="1" threshold_mort="17" increment="0" deviation_type="0" deviation="0"/>
+            <param id="kDamNoDice" base="4" low_increment="0.5" threshold_mort="10" increment="0.36" deviation_type="0" deviation="0"/>
+            <param id="kDamSizeDice" base="4" low_increment="0.5" threshold_mort="10" increment="0.36" deviation_type="0" deviation="0"/>
+            <param id="kHitroll" base="0" low_increment="1" threshold_mort="20" increment="0" deviation_type="0" deviation="0"/>
             <param id="kDamroll" base="1" low_increment="0.5" threshold_mort="20" increment="0" deviation_type="0" deviation="0"/>
             <param id="kMorale" base="10" low_increment="0" threshold_mort="10" increment="0.1" deviation_type="0" deviation="0"/>
             <param id="kInitiative" base="-7" low_increment="0" threshold_mort="0" increment="0" deviation_type="0" deviation="0"/>
