@@ -89,6 +89,9 @@ int find_first_step(RoomRnum src, RoomRnum target, CharData *ch) {
 	if (src == target)
 		return (kBfsAlreadyThere);
 
+	if (ch->IsNpc() && ch->IsFlagged(EMobFlag::kSentinel))
+		return (kBfsNoPath);
+
 	// clear marks first, some OLC systems will save the mark.
 	if (ch->IsNpc()) {
 		// Запрещаем искать мобам  в другой зоне ...
@@ -157,7 +160,7 @@ int find_first_step(RoomRnum src, RoomRnum target, CharData *ch) {
 	bfs_queue.clear();
 	if (ch->IsNpc()) {
 		sprintf(buf, "[%d] Mob (mob: %s vnum: %d) can't find path.", GET_ROOM_VNUM(ch->in_room), GET_NAME(ch), GET_MOB_VNUM(ch));
-		mudlog(buf, NRM, -1, ERRLOG, true);
+		mudlog(buf, NRM, kLvlBuilder, ERRLOG, true);
 	}
 	return (kBfsNoPath);
 }
