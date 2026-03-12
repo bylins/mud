@@ -26,6 +26,7 @@
 
 #include <yaml-cpp/yaml.h>
 #include <algorithm>
+#include <iomanip>
 #include <regex>
 #include <filesystem>
 #include <fstream>
@@ -345,23 +346,28 @@ std::vector<int> YamlWorldDataSource::GetZoneList()
 std::vector<int> YamlWorldDataSource::GetMobList()
 {
 	std::vector<int> mobs;
-	std::string index_path = m_world_dir + "/mobs/index.yaml";
+	std::vector<int> zone_vnums = GetZoneList();
 
-	try
+	for (int zone_vnum : zone_vnums)
 	{
-		YAML::Node root = YAML::LoadFile(index_path);
-		if (root["mobs"] && root["mobs"].IsSequence())
+		std::string index_path = m_world_dir + "/zones/" + std::to_string(zone_vnum) + "/mobs/index.yaml";
+
+		try
 		{
-			for (const auto &mob_node : root["mobs"])
+			YAML::Node root = YAML::LoadFile(index_path);
+			if (root["mobs"] && root["mobs"].IsSequence())
 			{
-				mobs.push_back(mob_node.as<int>());
+				for (const auto &rel_node : root["mobs"])
+				{
+					int rel_num = rel_node.as<int>();
+					mobs.push_back(zone_vnum * 100 + rel_num);
+				}
 			}
 		}
-	}
-	catch (const YAML::Exception &e)
-	{
-		// Index file is optional, if missing load all mobs
-		return mobs;
+		catch (const YAML::Exception &e)
+		{
+			// No mobs in this zone - that's OK
+		}
 	}
 
 	return mobs;
@@ -370,23 +376,28 @@ std::vector<int> YamlWorldDataSource::GetMobList()
 std::vector<int> YamlWorldDataSource::GetObjectList()
 {
 	std::vector<int> objects;
-	std::string index_path = m_world_dir + "/objects/index.yaml";
+	std::vector<int> zone_vnums = GetZoneList();
 
-	try
+	for (int zone_vnum : zone_vnums)
 	{
-		YAML::Node root = YAML::LoadFile(index_path);
-		if (root["objects"] && root["objects"].IsSequence())
+		std::string index_path = m_world_dir + "/zones/" + std::to_string(zone_vnum) + "/objects/index.yaml";
+
+		try
 		{
-			for (const auto &obj_node : root["objects"])
+			YAML::Node root = YAML::LoadFile(index_path);
+			if (root["objects"] && root["objects"].IsSequence())
 			{
-				objects.push_back(obj_node.as<int>());
+				for (const auto &rel_node : root["objects"])
+				{
+					int rel_num = rel_node.as<int>();
+					objects.push_back(zone_vnum * 100 + rel_num);
+				}
 			}
 		}
-	}
-	catch (const YAML::Exception &e)
-	{
-		// Index file is optional, if missing load all objects
-		return objects;
+		catch (const YAML::Exception &e)
+		{
+			// No objects in this zone - that's OK
+		}
 	}
 
 	return objects;
@@ -395,23 +406,28 @@ std::vector<int> YamlWorldDataSource::GetObjectList()
 std::vector<int> YamlWorldDataSource::GetTriggerList()
 {
 	std::vector<int> triggers;
-	std::string index_path = m_world_dir + "/triggers/index.yaml";
+	std::vector<int> zone_vnums = GetZoneList();
 
-	try
+	for (int zone_vnum : zone_vnums)
 	{
-		YAML::Node root = YAML::LoadFile(index_path);
-		if (root["triggers"] && root["triggers"].IsSequence())
+		std::string index_path = m_world_dir + "/zones/" + std::to_string(zone_vnum) + "/triggers/index.yaml";
+
+		try
 		{
-			for (const auto &trigger_node : root["triggers"])
+			YAML::Node root = YAML::LoadFile(index_path);
+			if (root["triggers"] && root["triggers"].IsSequence())
 			{
-				triggers.push_back(trigger_node.as<int>());
+				for (const auto &rel_node : root["triggers"])
+				{
+					int rel_num = rel_node.as<int>();
+					triggers.push_back(zone_vnum * 100 + rel_num);
+				}
 			}
 		}
-	}
-	catch (const YAML::Exception &e)
-	{
-		// Index file is optional, if missing load all triggers
-		return triggers;
+		catch (const YAML::Exception &e)
+		{
+			// No triggers in this zone - that's OK
+		}
 	}
 
 	return triggers;
@@ -716,6 +732,167 @@ void YamlWorldDataSource::LoadZones()
 	LoadZonesParallel();
 }
 
+static bool ParseCommandString(const std::string &line, struct reset_com &cmd)
+{
+	// Strip comment (everything after #)
+	std::string s = line;
+	auto hash_pos = s.find('#');
+	if (hash_pos != std::string::npos)
+	{
+		s = s.substr(0, hash_pos);
+	}
+	// Trim whitespace
+	while (!s.empty() && std::isspace(static_cast<unsigned char>(s.back()))) s.pop_back();
+	while (!s.empty() && std::isspace(static_cast<unsigned char>(s.front()))) s = s.substr(1);
+
+	if (s.empty()) return false;
+
+	std::istringstream iss(s);
+	std::string keyword;
+	iss >> keyword;
+
+	cmd.if_flag = 0;
+	cmd.arg1 = 0;
+	cmd.arg2 = 0;
+	cmd.arg3 = 0;
+	cmd.arg4 = -1;
+	cmd.sarg1 = nullptr;
+	cmd.sarg2 = nullptr;
+	cmd.line = 0;
+
+	if (keyword == "MOB")
+	{
+		cmd.command = 'M';
+		int if_flag, mob_vnum, max_world, room_vnum, max_room = -1;
+		iss >> if_flag >> mob_vnum >> max_world >> room_vnum;
+		iss >> max_room;  // optional
+		cmd.if_flag = if_flag;
+		cmd.arg1 = mob_vnum;
+		cmd.arg2 = max_world;
+		cmd.arg3 = room_vnum;
+		cmd.arg4 = iss.fail() ? -1 : max_room;
+	}
+	else if (keyword == "OBJECT")
+	{
+		cmd.command = 'O';
+		int if_flag, obj_vnum, max_val, room_vnum, load_prob = -1;
+		iss >> if_flag >> obj_vnum >> max_val >> room_vnum;
+		iss >> load_prob;
+		cmd.if_flag = if_flag;
+		cmd.arg1 = obj_vnum;
+		cmd.arg2 = max_val;
+		cmd.arg3 = room_vnum;
+		cmd.arg4 = iss.fail() ? -1 : load_prob;
+	}
+	else if (keyword == "GIVE")
+	{
+		cmd.command = 'G';
+		int if_flag, obj_vnum, max_val, load_prob = -1;
+		iss >> if_flag >> obj_vnum >> max_val;
+		iss >> load_prob;
+		cmd.if_flag = if_flag;
+		cmd.arg1 = obj_vnum;
+		cmd.arg2 = max_val;
+		cmd.arg3 = -1;
+		cmd.arg4 = iss.fail() ? -1 : load_prob;
+	}
+	else if (keyword == "EQUIP")
+	{
+		cmd.command = 'E';
+		int if_flag, obj_vnum, max_val, wear_pos, load_prob = -1;
+		iss >> if_flag >> obj_vnum >> max_val >> wear_pos;
+		iss >> load_prob;
+		cmd.if_flag = if_flag;
+		cmd.arg1 = obj_vnum;
+		cmd.arg2 = max_val;
+		cmd.arg3 = wear_pos;
+		cmd.arg4 = iss.fail() ? -1 : load_prob;
+	}
+	else if (keyword == "PUT")
+	{
+		cmd.command = 'P';
+		int if_flag, obj_vnum, max_val, container_vnum, load_prob = -1;
+		iss >> if_flag >> obj_vnum >> max_val >> container_vnum;
+		iss >> load_prob;
+		cmd.if_flag = if_flag;
+		cmd.arg1 = obj_vnum;
+		cmd.arg2 = max_val;
+		cmd.arg3 = container_vnum;
+		cmd.arg4 = iss.fail() ? -1 : load_prob;
+	}
+	else if (keyword == "DOOR")
+	{
+		cmd.command = 'D';
+		int if_flag, room_vnum, direction, state;
+		iss >> if_flag >> room_vnum >> direction >> state;
+		cmd.if_flag = if_flag;
+		cmd.arg1 = room_vnum;
+		cmd.arg2 = direction;
+		cmd.arg3 = state;
+	}
+	else if (keyword == "REMOVE")
+	{
+		cmd.command = 'R';
+		int if_flag, room_vnum, obj_vnum;
+		iss >> if_flag >> room_vnum >> obj_vnum;
+		cmd.if_flag = if_flag;
+		cmd.arg1 = room_vnum;
+		cmd.arg2 = obj_vnum;
+	}
+	else if (keyword == "TRIGGER")
+	{
+		cmd.command = 'T';
+		int if_flag, trigger_type, trigger_vnum, room_vnum = -1;
+		iss >> if_flag >> trigger_type >> trigger_vnum;
+		iss >> room_vnum;
+		cmd.if_flag = if_flag;
+		cmd.arg1 = trigger_type;
+		cmd.arg2 = trigger_vnum;
+		cmd.arg3 = iss.fail() ? -1 : room_vnum;
+	}
+	else if (keyword == "VAR")
+	{
+		cmd.command = 'V';
+		int if_flag, trigger_type, context, room_vnum;
+		iss >> if_flag >> trigger_type >> context >> room_vnum;
+		cmd.if_flag = if_flag;
+		cmd.arg1 = trigger_type;
+		cmd.arg2 = context;
+		cmd.arg3 = room_vnum;
+		std::string var_name, var_value;
+		iss >> var_name;
+		std::getline(iss, var_value);
+		// Trim leading space from var_value
+		if (!var_value.empty() && var_value[0] == ' ') var_value = var_value.substr(1);
+		if (!var_name.empty()) cmd.sarg1 = str_dup(var_name.c_str());
+		if (!var_value.empty()) cmd.sarg2 = str_dup(var_value.c_str());
+	}
+	else if (keyword == "EXTRACT")
+	{
+		cmd.command = 'Q';
+		int if_flag, mob_vnum;
+		iss >> if_flag >> mob_vnum;
+		cmd.if_flag = 0;  // forced to 0
+		cmd.arg1 = mob_vnum;
+	}
+	else if (keyword == "FOLLOW")
+	{
+		cmd.command = 'F';
+		int if_flag, room_vnum, leader_vnum, follower_vnum;
+		iss >> if_flag >> room_vnum >> leader_vnum >> follower_vnum;
+		cmd.if_flag = if_flag;
+		cmd.arg1 = room_vnum;
+		cmd.arg2 = leader_vnum;
+		cmd.arg3 = follower_vnum;
+	}
+	else
+	{
+		return false;
+	}
+
+	return true;
+}
+
 void YamlWorldDataSource::LoadZoneCommands(ZoneData &zone, const YAML::Node &commands_node)
 {
 	if (!commands_node.IsSequence())
@@ -734,7 +911,7 @@ void YamlWorldDataSource::LoadZoneCommands(ZoneData &zone, const YAML::Node &com
 		struct reset_com &cmd = zone.cmd[idx];
 
 		cmd.command = '*';
-		cmd.if_flag = GetInt(cmd_node, "if_flag", 0);
+		cmd.if_flag = 0;
 		cmd.arg1 = 0;
 		cmd.arg2 = 0;
 		cmd.arg3 = 0;
@@ -743,91 +920,106 @@ void YamlWorldDataSource::LoadZoneCommands(ZoneData &zone, const YAML::Node &com
 		cmd.sarg2 = nullptr;
 		cmd.line = 0;
 
-		std::string cmd_type = GetText(cmd_node, "type", "");
+		// Handle string format (new) or map format (old)
+		if (cmd_node.IsScalar())
+		{
+			std::string cmd_str = cmd_node.as<std::string>();
+			if (!ParseCommandString(cmd_str, cmd))
+			{
+				// Skip unknown/empty commands
+				continue;
+			}
+		}
+		else
+		{
+			// Legacy map format
+			cmd.if_flag = GetInt(cmd_node, "if_flag", 0);
+			std::string cmd_type = GetText(cmd_node, "type", "");
 
-		if (cmd_type == "LOAD_MOB" || cmd_type == "M")
-		{
-			cmd.command = 'M';
-			cmd.arg1 = GetInt(cmd_node, "mob_vnum");
-			cmd.arg2 = GetInt(cmd_node, "max_world");
-			cmd.arg3 = GetInt(cmd_node, "room_vnum");
-			cmd.arg4 = GetInt(cmd_node, "max_room", -1);
-		}
-		else if (cmd_type == "LOAD_OBJ" || cmd_type == "O")
-		{
-			cmd.command = 'O';
-			cmd.arg1 = GetInt(cmd_node, "obj_vnum");
-			cmd.arg2 = GetInt(cmd_node, "max");
-			cmd.arg3 = GetInt(cmd_node, "room_vnum");
-			cmd.arg4 = GetInt(cmd_node, "load_prob", -1);
-		}
-		else if (cmd_type == "GIVE_OBJ" || cmd_type == "G")
-		{
-			cmd.command = 'G';
-			cmd.arg1 = GetInt(cmd_node, "obj_vnum");
-			cmd.arg2 = GetInt(cmd_node, "max");
-			cmd.arg3 = -1;
-			cmd.arg4 = GetInt(cmd_node, "load_prob", -1);
-		}
-		else if (cmd_type == "EQUIP_MOB" || cmd_type == "E")
-		{
-			cmd.command = 'E';
-			cmd.arg1 = GetInt(cmd_node, "obj_vnum");
-			cmd.arg2 = GetInt(cmd_node, "max");
-			cmd.arg3 = GetInt(cmd_node, "wear_pos");
-			cmd.arg4 = GetInt(cmd_node, "load_prob", -1);
-		}
-		else if (cmd_type == "PUT_OBJ" || cmd_type == "P")
-		{
-			cmd.command = 'P';
-			cmd.arg1 = GetInt(cmd_node, "obj_vnum");
-			cmd.arg2 = GetInt(cmd_node, "max");
-			cmd.arg3 = GetInt(cmd_node, "container_vnum");
-			cmd.arg4 = GetInt(cmd_node, "load_prob", -1);
-		}
-		else if (cmd_type == "DOOR" || cmd_type == "D")
-		{
-			cmd.command = 'D';
-			cmd.arg1 = GetInt(cmd_node, "room_vnum");
-			cmd.arg2 = GetInt(cmd_node, "direction");
-			cmd.arg3 = GetInt(cmd_node, "state");
-		}
-		else if (cmd_type == "REMOVE_OBJ" || cmd_type == "R")
-		{
-			cmd.command = 'R';
-			cmd.arg1 = GetInt(cmd_node, "room_vnum");
-			cmd.arg2 = GetInt(cmd_node, "obj_vnum");
-		}
-		else if (cmd_type == "TRIGGER" || cmd_type == "T")
-		{
-			cmd.command = 'T';
-			cmd.arg1 = GetInt(cmd_node, "trigger_type");
-			cmd.arg2 = GetInt(cmd_node, "trigger_vnum");
-			cmd.arg3 = GetInt(cmd_node, "room_vnum", -1);
-		}
-		else if (cmd_type == "VARIABLE" || cmd_type == "V")
-		{
-			cmd.command = 'V';
-			cmd.arg1 = GetInt(cmd_node, "trigger_type");
-			cmd.arg2 = GetInt(cmd_node, "context");
-			cmd.arg3 = GetInt(cmd_node, "room_vnum");
-			std::string var_name = GetText(cmd_node, "var_name");
-			std::string var_value = GetText(cmd_node, "var_value");
-			if (!var_name.empty()) cmd.sarg1 = str_dup(var_name.c_str());
-			if (!var_value.empty()) cmd.sarg2 = str_dup(var_value.c_str());
-		}
-		else if (cmd_type == "EXTRACT_MOB" || cmd_type == "Q")
-		{
-			cmd.command = 'Q';
-			cmd.arg1 = GetInt(cmd_node, "mob_vnum");
-		cmd.if_flag = 0; // Legacy loader forces if_flag = 0 for EXTRACT_MOB
-		}
-		else if (cmd_type == "FOLLOW" || cmd_type == "F")
-		{
-			cmd.command = 'F';
-			cmd.arg1 = GetInt(cmd_node, "room_vnum");
-			cmd.arg2 = GetInt(cmd_node, "leader_mob_vnum");
-			cmd.arg3 = GetInt(cmd_node, "follower_mob_vnum");
+			if (cmd_type == "LOAD_MOB" || cmd_type == "M")
+			{
+				cmd.command = 'M';
+				cmd.arg1 = GetInt(cmd_node, "mob_vnum");
+				cmd.arg2 = GetInt(cmd_node, "max_world");
+				cmd.arg3 = GetInt(cmd_node, "room_vnum");
+				cmd.arg4 = GetInt(cmd_node, "max_room", -1);
+			}
+			else if (cmd_type == "LOAD_OBJ" || cmd_type == "O")
+			{
+				cmd.command = 'O';
+				cmd.arg1 = GetInt(cmd_node, "obj_vnum");
+				cmd.arg2 = GetInt(cmd_node, "max");
+				cmd.arg3 = GetInt(cmd_node, "room_vnum");
+				cmd.arg4 = GetInt(cmd_node, "load_prob", -1);
+			}
+			else if (cmd_type == "GIVE_OBJ" || cmd_type == "G")
+			{
+				cmd.command = 'G';
+				cmd.arg1 = GetInt(cmd_node, "obj_vnum");
+				cmd.arg2 = GetInt(cmd_node, "max");
+				cmd.arg3 = -1;
+				cmd.arg4 = GetInt(cmd_node, "load_prob", -1);
+			}
+			else if (cmd_type == "EQUIP_MOB" || cmd_type == "E")
+			{
+				cmd.command = 'E';
+				cmd.arg1 = GetInt(cmd_node, "obj_vnum");
+				cmd.arg2 = GetInt(cmd_node, "max");
+				cmd.arg3 = GetInt(cmd_node, "wear_pos");
+				cmd.arg4 = GetInt(cmd_node, "load_prob", -1);
+			}
+			else if (cmd_type == "PUT_OBJ" || cmd_type == "P")
+			{
+				cmd.command = 'P';
+				cmd.arg1 = GetInt(cmd_node, "obj_vnum");
+				cmd.arg2 = GetInt(cmd_node, "max");
+				cmd.arg3 = GetInt(cmd_node, "container_vnum");
+				cmd.arg4 = GetInt(cmd_node, "load_prob", -1);
+			}
+			else if (cmd_type == "DOOR" || cmd_type == "D")
+			{
+				cmd.command = 'D';
+				cmd.arg1 = GetInt(cmd_node, "room_vnum");
+				cmd.arg2 = GetInt(cmd_node, "direction");
+				cmd.arg3 = GetInt(cmd_node, "state");
+			}
+			else if (cmd_type == "REMOVE_OBJ" || cmd_type == "R")
+			{
+				cmd.command = 'R';
+				cmd.arg1 = GetInt(cmd_node, "room_vnum");
+				cmd.arg2 = GetInt(cmd_node, "obj_vnum");
+			}
+			else if (cmd_type == "TRIGGER" || cmd_type == "T")
+			{
+				cmd.command = 'T';
+				cmd.arg1 = GetInt(cmd_node, "trigger_type");
+				cmd.arg2 = GetInt(cmd_node, "trigger_vnum");
+				cmd.arg3 = GetInt(cmd_node, "room_vnum", -1);
+			}
+			else if (cmd_type == "VARIABLE" || cmd_type == "V")
+			{
+				cmd.command = 'V';
+				cmd.arg1 = GetInt(cmd_node, "trigger_type");
+				cmd.arg2 = GetInt(cmd_node, "context");
+				cmd.arg3 = GetInt(cmd_node, "room_vnum");
+				std::string var_name = GetText(cmd_node, "var_name");
+				std::string var_value = GetText(cmd_node, "var_value");
+				if (!var_name.empty()) cmd.sarg1 = str_dup(var_name.c_str());
+				if (!var_value.empty()) cmd.sarg2 = str_dup(var_value.c_str());
+			}
+			else if (cmd_type == "EXTRACT_MOB" || cmd_type == "Q")
+			{
+				cmd.command = 'Q';
+				cmd.arg1 = GetInt(cmd_node, "mob_vnum");
+				cmd.if_flag = 0;
+			}
+			else if (cmd_type == "FOLLOW" || cmd_type == "F")
+			{
+				cmd.command = 'F';
+				cmd.arg1 = GetInt(cmd_node, "room_vnum");
+				cmd.arg2 = GetInt(cmd_node, "leader_mob_vnum");
+				cmd.arg3 = GetInt(cmd_node, "follower_mob_vnum");
+			}
 		}
 
 		idx++;
@@ -912,7 +1104,12 @@ void YamlWorldDataSource::LoadTriggersParallel()
 			log("DEBUG: Thread %zu started, processing %zu triggers", thread_id, batches[thread_id].size());
 			for (int vnum : batches[thread_id])
 			{
-				std::string filepath = m_world_dir + "/triggers/" + std::to_string(vnum) + ".yaml";
+				int zone_vnum = vnum / 100;
+				int rel_num = vnum % 100;
+				std::ostringstream filepath_ss;
+				filepath_ss << m_world_dir << "/zones/" << zone_vnum << "/triggers/"
+				            << std::setfill('0') << std::setw(2) << rel_num << ".yaml";
+				std::string filepath = filepath_ss.str();
 				try
 				{
 					log("DEBUG: Thread %zu parsing trigger %d", thread_id, vnum);
@@ -1095,15 +1292,25 @@ void YamlWorldDataSource::LoadRoomsParallel()
 		std::string rooms_dir = zone_entry.path().string() + "/rooms";
 		if (!fs::exists(rooms_dir)) continue;
 
-		for (const auto &room_entry : fs::directory_iterator(rooms_dir))
+		std::string rooms_index_path = rooms_dir + "/index.yaml";
+		try
 		{
-			if (!room_entry.is_regular_file()) continue;
-			std::string filename = room_entry.path().filename().string();
-			if (filename.size() < 6 || filename.substr(filename.size() - 5) != ".yaml") continue;
-
-			int rel_num = std::atoi(filename.substr(0, filename.size() - 5).c_str());
-			int vnum = zone_vnum * 100 + rel_num;
-			room_files.emplace_back(vnum, room_entry.path().string());
+			YAML::Node rooms_index = YAML::LoadFile(rooms_index_path);
+			if (rooms_index["rooms"] && rooms_index["rooms"].IsSequence())
+			{
+				for (const auto &rel_node : rooms_index["rooms"])
+				{
+					int rel_num = rel_node.as<int>();
+					int vnum = zone_vnum * 100 + rel_num;
+					std::ostringstream ss;
+					ss << rooms_dir << "/" << std::setfill('0') << std::setw(2) << rel_num << ".yaml";
+					room_files.emplace_back(vnum, ss.str());
+				}
+			}
+		}
+		catch (const YAML::Exception &e)
+		{
+			log("SYSERR: Failed to load rooms index for zone %d: %s", zone_vnum, e.what());
 		}
 	}
 
@@ -1663,7 +1870,12 @@ void YamlWorldDataSource::LoadMobsParallel()
 		futures.push_back(m_thread_pool->Enqueue([this, thread_id, &batches, &vnum_to_idx, &error_count]() {
 			for (int vnum : batches[thread_id])
 			{
-				std::string filepath = m_world_dir + "/mobs/" + std::to_string(vnum) + ".yaml";
+				int zone_vnum = vnum / 100;
+				int rel_num = vnum % 100;
+				std::ostringstream filepath_ss;
+				filepath_ss << m_world_dir << "/zones/" << zone_vnum << "/mobs/"
+				            << std::setfill('0') << std::setw(2) << rel_num << ".yaml";
+				std::string filepath = filepath_ss.str();
 				try
 				{
 					size_t mob_idx = vnum_to_idx.at(vnum);
@@ -1753,16 +1965,10 @@ void YamlWorldDataSource::LoadMobs()
 }
 
 // Parse single object file (thread-safe worker function)
-CObjectPrototype* YamlWorldDataSource::ParseObjectFile(const std::string &file_path)
+CObjectPrototype* YamlWorldDataSource::ParseObjectFile(const std::string &file_path, int vnum)
 {
 	YAML::Node root = YAML::LoadFile(file_path);
-	
-	// Extract vnum from filename
-	size_t last_slash = file_path.find_last_of('/');
-	size_t last_dot = file_path.find_last_of('.');
-	std::string vnum_str = file_path.substr(last_slash + 1, last_dot - last_slash - 1);
-	int vnum = std::atoi(vnum_str.c_str());
-	
+
 	// NOTE: This returns raw pointer - caller must wrap in shared_ptr
 	auto obj_ptr = new CObjectPrototype(vnum);
 	
@@ -2024,10 +2230,15 @@ void YamlWorldDataSource::LoadObjectsParallel()
 		futures.push_back(m_thread_pool->Enqueue([this, thread_id, &batches, &thread_results, &thread_triggers, &error_count]() {
 			for (int vnum : batches[thread_id])
 			{
-				std::string filepath = m_world_dir + "/objects/" + std::to_string(vnum) + ".yaml";
+				int zone_vnum = vnum / 100;
+				int rel_num = vnum % 100;
+				std::ostringstream filepath_ss;
+				filepath_ss << m_world_dir << "/zones/" << zone_vnum << "/objects/"
+				            << std::setfill('0') << std::setw(2) << rel_num << ".yaml";
+				std::string filepath = filepath_ss.str();
 				try
 				{
-					CObjectPrototype* obj = ParseObjectFile(filepath);
+					CObjectPrototype* obj = ParseObjectFile(filepath, vnum);
 
 					// Load object triggers (if present)
 					YAML::Node root = YAML::LoadFile(filepath);
@@ -2313,87 +2524,56 @@ void YamlWorldDataSource::SaveZone(int zone_rnum)
 		for (int i = 0; zone.cmd[i].command != 'S'; ++i)
 		{
 			const struct reset_com &cmd = zone.cmd[i];
-			YAML::Node cmd_node;
-
-			cmd_node["if_flag"] = cmd.if_flag;
+			std::ostringstream oss;
 
 			switch (cmd.command)
 			{
 			case 'M':
-				cmd_node["type"] = "LOAD_MOB";
-				cmd_node["mob_vnum"] = cmd.arg1;
-				cmd_node["max_world"] = cmd.arg2;
-				cmd_node["room_vnum"] = cmd.arg3;
-				if (cmd.arg4 != -1) cmd_node["max_room"] = cmd.arg4;
+				oss << "MOB " << cmd.if_flag << " " << cmd.arg1 << " " << cmd.arg2 << " " << cmd.arg3;
+				if (cmd.arg4 != -1) oss << " " << cmd.arg4;
 				break;
 			case 'O':
-				cmd_node["type"] = "LOAD_OBJ";
-				cmd_node["obj_vnum"] = cmd.arg1;
-				cmd_node["max"] = cmd.arg2;
-				cmd_node["room_vnum"] = cmd.arg3;
-				if (cmd.arg4 != -1) cmd_node["load_prob"] = cmd.arg4;
+				oss << "OBJECT " << cmd.if_flag << " " << cmd.arg1 << " " << cmd.arg2 << " " << cmd.arg3;
+				if (cmd.arg4 != -1) oss << " " << cmd.arg4;
 				break;
 			case 'G':
-				cmd_node["type"] = "GIVE_OBJ";
-				cmd_node["obj_vnum"] = cmd.arg1;
-				cmd_node["max"] = cmd.arg2;
-				if (cmd.arg4 != -1) cmd_node["load_prob"] = cmd.arg4;
+				oss << "GIVE " << cmd.if_flag << " " << cmd.arg1 << " " << cmd.arg2;
+				if (cmd.arg4 != -1) oss << " " << cmd.arg4;
 				break;
 			case 'E':
-				cmd_node["type"] = "EQUIP_MOB";
-				cmd_node["obj_vnum"] = cmd.arg1;
-				cmd_node["max"] = cmd.arg2;
-				cmd_node["wear_pos"] = cmd.arg3;
-				if (cmd.arg4 != -1) cmd_node["load_prob"] = cmd.arg4;
+				oss << "EQUIP " << cmd.if_flag << " " << cmd.arg1 << " " << cmd.arg2 << " " << cmd.arg3;
+				if (cmd.arg4 != -1) oss << " " << cmd.arg4;
 				break;
 			case 'P':
-				cmd_node["type"] = "PUT_OBJ";
-				cmd_node["obj_vnum"] = cmd.arg1;
-				cmd_node["max"] = cmd.arg2;
-				cmd_node["container_vnum"] = cmd.arg3;
-				if (cmd.arg4 != -1) cmd_node["load_prob"] = cmd.arg4;
+				oss << "PUT " << cmd.if_flag << " " << cmd.arg1 << " " << cmd.arg2 << " " << cmd.arg3;
+				if (cmd.arg4 != -1) oss << " " << cmd.arg4;
 				break;
 			case 'D':
-				cmd_node["type"] = "DOOR";
-				cmd_node["room_vnum"] = cmd.arg1;
-				cmd_node["direction"] = cmd.arg2;
-				cmd_node["state"] = cmd.arg3;
+				oss << "DOOR " << cmd.if_flag << " " << cmd.arg1 << " " << cmd.arg2 << " " << cmd.arg3;
 				break;
 			case 'R':
-				cmd_node["type"] = "REMOVE_OBJ";
-				cmd_node["room_vnum"] = cmd.arg1;
-				cmd_node["obj_vnum"] = cmd.arg2;
+				oss << "REMOVE " << cmd.if_flag << " " << cmd.arg1 << " " << cmd.arg2;
 				break;
 			case 'T':
-				cmd_node["type"] = "TRIGGER";
-				cmd_node["trigger_type"] = cmd.arg1;
-				cmd_node["trigger_vnum"] = cmd.arg2;
-				if (cmd.arg3 != -1) cmd_node["room_vnum"] = cmd.arg3;
+				oss << "TRIGGER " << cmd.if_flag << " " << cmd.arg1 << " " << cmd.arg2;
+				if (cmd.arg3 != -1) oss << " " << cmd.arg3;
 				break;
 			case 'V':
-				cmd_node["type"] = "VARIABLE";
-				cmd_node["trigger_type"] = cmd.arg1;
-				cmd_node["context"] = cmd.arg2;
-				cmd_node["room_vnum"] = cmd.arg3;
-				if (cmd.sarg1) cmd_node["var_name"] = cmd.sarg1;
-				if (cmd.sarg2) cmd_node["var_value"] = cmd.sarg2;
+				oss << "VAR " << cmd.if_flag << " " << cmd.arg1 << " " << cmd.arg2 << " " << cmd.arg3;
+				if (cmd.sarg1) oss << " " << cmd.sarg1;
+				if (cmd.sarg2) oss << " " << cmd.sarg2;
 				break;
 			case 'Q':
-				cmd_node["type"] = "EXTRACT_MOB";
-				cmd_node["mob_vnum"] = cmd.arg1;
-				cmd_node["if_flag"] = 0;
+				oss << "EXTRACT 0 " << cmd.arg1;
 				break;
 			case 'F':
-				cmd_node["type"] = "FOLLOW";
-				cmd_node["room_vnum"] = cmd.arg1;
-				cmd_node["leader_mob_vnum"] = cmd.arg2;
-				cmd_node["follower_mob_vnum"] = cmd.arg3;
+				oss << "FOLLOW " << cmd.if_flag << " " << cmd.arg1 << " " << cmd.arg2 << " " << cmd.arg3;
 				break;
 			default:
 				continue;
 			}
 
-			commands.push_back(cmd_node);
+			commands.push_back(oss.str());
 		}
 		root["commands"] = commands;
 	}
@@ -2428,12 +2608,7 @@ bool YamlWorldDataSource::SaveTriggers(int zone_rnum, int specific_vnum, int not
 		return true; // Not an error - zone just has no triggers
 	}
 
-	std::string trig_dir = m_world_dir + "/triggers";
 	namespace fs = std::filesystem;
-	if (!fs::exists(trig_dir))
-	{
-		fs::create_directories(trig_dir);
-	}
 
 	int saved_count = 0;
 	log("SaveTriggers: Iterating triggers from %d to %d, specific_vnum=%d", first_trig, last_trig, specific_vnum);
@@ -2460,8 +2635,19 @@ bool YamlWorldDataSource::SaveTriggers(int zone_rnum, int specific_vnum, int not
 		}
 
 		log("SaveTriggers: Saving trigger #%d", trig_vnum);
-		// Open temp file for writing
-		std::string trig_file = trig_dir + "/" + std::to_string(trig_vnum) + ".yaml";
+		// Build per-zone path
+		int zone_vnum_for_trig = trig_vnum / 100;
+		int rel_num = trig_vnum % 100;
+		std::ostringstream trig_dir_ss;
+		trig_dir_ss << m_world_dir << "/zones/" << zone_vnum_for_trig << "/triggers";
+		std::string trig_dir = trig_dir_ss.str();
+		if (!fs::exists(trig_dir))
+		{
+			fs::create_directories(trig_dir);
+		}
+		std::ostringstream trig_file_ss;
+		trig_file_ss << trig_dir << "/" << std::setfill('0') << std::setw(2) << rel_num << ".yaml";
+		std::string trig_file = trig_file_ss.str();
 		std::string temp_file = trig_file + ".tmp";
 		log("SaveTriggers: Writing to %s", temp_file.c_str());
 		std::ofstream out(temp_file);
@@ -2836,12 +3022,7 @@ void YamlWorldDataSource::SaveMobs(int zone_rnum, int specific_vnum)
 		return;
 	}
 
-	std::string mobs_dir = m_world_dir + "/mobs";
 	namespace fs = std::filesystem;
-	if (!fs::exists(mobs_dir))
-	{
-		fs::create_directories(mobs_dir);
-	}
 
 	int saved_count = 0;
 	for (MobRnum mob_rnum = first_mob; mob_rnum <= last_mob && mob_rnum <= top_of_mobt; ++mob_rnum)
@@ -2860,8 +3041,19 @@ void YamlWorldDataSource::SaveMobs(int zone_rnum, int specific_vnum)
 			continue;
 		}
 
-		// Open temp file for writing
-		std::string mob_file = mobs_dir + "/" + std::to_string(mob_vnum) + ".yaml";
+		int zone_vnum = mob_vnum / 100;
+		int rel_num = mob_vnum % 100;
+		std::ostringstream mobs_dir_ss;
+		mobs_dir_ss << m_world_dir << "/zones/" << zone_vnum << "/mobs";
+		std::string mobs_dir = mobs_dir_ss.str();
+		if (!fs::exists(mobs_dir))
+		{
+			fs::create_directories(mobs_dir);
+		}
+
+		std::ostringstream mob_file_ss;
+		mob_file_ss << mobs_dir << "/" << std::setfill('0') << std::setw(2) << rel_num << ".yaml";
+		std::string mob_file = mob_file_ss.str();
 		std::string temp_file = mob_file + ".tmp";
 		std::ofstream out(temp_file);
 		if (!out.is_open())
@@ -3408,12 +3600,7 @@ void YamlWorldDataSource::SaveObjects(int zone_rnum, int specific_vnum)
 
 	const ZoneData &zone = zone_table[zone_rnum];
 
-	std::string objs_dir = m_world_dir + "/objects";
 	namespace fs = std::filesystem;
-	if (!fs::exists(objs_dir))
-	{
-		fs::create_directories(objs_dir);
-	}
 
 	int saved_count = 0;
 	int start_vnum = zone.vnum * 100;
@@ -3438,8 +3625,19 @@ void YamlWorldDataSource::SaveObjects(int zone_rnum, int specific_vnum)
 			continue;
 		}
 
-		// Open temp file for writing
-		std::string obj_file = objs_dir + "/" + std::to_string(obj_vnum) + ".yaml";
+		int zone_vnum_for_obj = obj_vnum / 100;
+		int rel_num = obj_vnum % 100;
+		std::ostringstream objs_dir_ss;
+		objs_dir_ss << m_world_dir << "/zones/" << zone_vnum_for_obj << "/objects";
+		std::string objs_dir = objs_dir_ss.str();
+		if (!fs::exists(objs_dir))
+		{
+			fs::create_directories(objs_dir);
+		}
+
+		std::ostringstream obj_file_ss;
+		obj_file_ss << objs_dir << "/" << std::setfill('0') << std::setw(2) << rel_num << ".yaml";
+		std::string obj_file = obj_file_ss.str();
 		std::string temp_file = obj_file + ".tmp";
 		std::ofstream out(temp_file);
 		if (!out.is_open())

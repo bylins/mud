@@ -113,7 +113,7 @@ private:
 	Trigger* ParseTriggerFile(const std::string &file_path);
 	RoomData* ParseRoomFile(const std::string &file_path, int zone_rnum, LocalDescriptionIndex &local_index, size_t &local_desc_idx);
 	CharData ParseMobFile(const std::string &file_path);
-	CObjectPrototype* ParseObjectFile(const std::string &file_path);
+	CObjectPrototype* ParseObjectFile(const std::string &file_path, int vnum);
 
 	// Helper: get configured thread count from runtime config
 	size_t GetConfiguredThreadCount() const;
