@@ -542,6 +542,13 @@ enable_admin_api() {
 
     # Check if admin_api section already exists
     if grep -q "<admin_api>" "$config_file"; then
+        # Section exists - ensure enabled=true and require_auth=false
+        sed -i 's|<enabled>false</enabled>|<enabled>true</enabled>|g' "$config_file"
+        sed -i 's|<require_auth>true</require_auth>|<require_auth>false</require_auth>|g' "$config_file"
+        # Add require_auth if missing
+        if ! grep -q "<require_auth>" "$config_file"; then
+            sed -i 's|</admin_api>|\t<require_auth>false</require_auth>\n\t</admin_api>|' "$config_file"
+        fi
         return 0
     fi
 
