@@ -45,6 +45,7 @@ constexpr Bitvector kEafIronWind = 1 << 18;
 constexpr Bitvector kEafAutoblock = 1 << 19;	// автоматический блок щитом в осторожном стиле
 constexpr Bitvector kEafPoisoned = 1 << 20;		// отравление с пушек раз в раунд
 constexpr Bitvector kEafFirstPoison = 1 << 21;	// отравление цели первый раз за бой
+constexpr Bitvector kEafInvisible = 1 << 22;	// одет автоинвиз
 
 /// Flags for ingredient items (kIngredient)
 enum EIngredientFlag {

@@ -867,7 +867,6 @@ void EquipObj(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip_f
 				if (j.aff_spell == ESpell::kUndefined || !obj->GetEWeaponAffect(j.aff_pos)) {
 					continue;
 				}
-
 				if (!no_cast) {
 					if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoMagic)) {
 						act("Магия $o1 потерпела неудачу и развеялась по воздуху.",

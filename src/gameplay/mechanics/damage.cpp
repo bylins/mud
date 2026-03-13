@@ -643,8 +643,6 @@ int Damage::Process(CharData *ch, CharData *victim) {
 	}
 
 	mob_ai::update_mob_memory(ch, victim);
-	Appear(ch);
-	Appear(victim);
 
 	// If you attack a pet, it hates your guts
 	if (!group::same_group(ch, victim)) {
@@ -671,6 +669,8 @@ int Damage::Process(CharData *ch, CharData *victim) {
 			ch->DropFromHorse();
 		}
 	}
+	Appear(ch);
+	Appear(victim);
 
 	if (dam < 0 || ch->in_room == kNowhere || victim->in_room == kNowhere || ch->in_room != victim->in_room) {
 		return 0;
