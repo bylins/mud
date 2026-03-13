@@ -2465,7 +2465,15 @@ void ZoneReset::ResetZoneEssential() {
 						}
 
 						if (leader) {
-							for (const auto ch : world[reset_cmd.arg1]->people) {
+							// Snapshot people list to avoid iterator invalidation:
+							// stop_follower/add_follower trigger act() -> act_mtrigger -> DG scripts
+							// which may extract characters and remove them from the people list.
+							std::vector<CharData *> people_snapshot(world[reset_cmd.arg1]->people.begin(),
+								world[reset_cmd.arg1]->people.end());
+							for (const auto ch : people_snapshot) {
+								if (ch->purged() || ch->in_room == kNowhere) {
+									continue;
+								}
 								if (ch->IsNpc()
 									&& GET_MOB_RNUM(ch) == reset_cmd.arg3
 									&& leader != ch
@@ -2473,7 +2481,9 @@ void ZoneReset::ResetZoneEssential() {
 									if (ch->has_master()) {
 										stop_follower(ch, kSfEmpty);
 									}
-
+									if (ch->purged() || ch->in_room == kNowhere) {
+										continue;
+									}
 									leader->add_follower(ch);
 
 									curr_state = 1;
