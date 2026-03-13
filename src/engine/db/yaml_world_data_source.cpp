@@ -922,7 +922,7 @@ void YamlWorldDataSource::LoadZoneCommands(ZoneData &zone, const YAML::Node &com
 
 		if (!cmd_node.IsScalar())
 		{
-			log("SYSERR: Zone %d: command is not a string (map format is no longer supported)", zone.vnum);
+			log("SYSERR: Zone %d: command is not a string", zone.vnum);
 			continue;
 		}
 		std::string cmd_str = cmd_node.as<std::string>();
