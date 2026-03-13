@@ -3428,14 +3428,11 @@ def zon_to_yaml(zone):
                 parts = ['MOB', if_flag, mob_vnum, max_world, room_vnum, max_room]
                 mob_name = strip_color_codes(get_mob_name(mob_vnum))
                 room_name = strip_color_codes(get_room_name(room_vnum))
-                parts_comment = []
-                if mob_name:
-                    parts_comment.append(mob_name)
-                if room_name:
-                    parts_comment.append(f"-> {room_name}")
+                name_part = ' '.join(p for p in [mob_name, f"-> {room_name}" if room_name else ''] if p)
                 if max_room != -1:
-                    parts_comment.append(f"mr:{max_room} mw:{max_world}")
-                comment = '; '.join(parts_comment) if parts_comment else None
+                    comment = f"{name_part}; mr:{max_room} mw:{max_world}" if name_part else f"mr:{max_room} mw:{max_world}"
+                else:
+                    comment = name_part or None
             elif cmd_type == 'LOAD_OBJ':
                 obj_vnum = cmd.get('obj_vnum', 0)
                 max_val = cmd.get('max', 0)
