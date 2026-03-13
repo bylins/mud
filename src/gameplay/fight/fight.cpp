@@ -220,6 +220,9 @@ void SetFighting(CharData *ch, CharData *vict) {
 	ch->SetEnemy(vict);
 
 	ch->battle_affects.clear();
+	if (AFF_FLAGGED(ch, EAffect::kInvisible)) {
+		ch->battle_affects.set(kEafInvisible);
+	}
 	ch->set_touching(nullptr);
 	ch->initiative = 0;
 	ch->battle_counter = 0;
@@ -282,6 +285,9 @@ void stop_fighting(CharData *ch, int switch_others) {
 	ch->SetExtraAttack(kExtraAttackUnused, nullptr);
 	ch->SetCast(ESpell::kUndefined, ESpell::kUndefined, nullptr, nullptr, nullptr);
 	restore_battle_pos(ch);
+	if (ch->battle_affects.get(kEafInvisible)) {
+		AFF_FLAGS(ch).set(EAffect::kInvisible);
+	}
 	ch->battle_affects.clear();
 	DpsSystem::check_round(ch);
 	StopFightParameters params(ch); //готовим параметры нужного типа и вызываем шаблонную функцию
