@@ -783,18 +783,23 @@ class YamlSaver(BaseSaver):
         world/dictionaries/*.yaml - Dictionary files
         world/zones/{zone_vnum}/zone.yaml - Zone definition
         world/zones/{zone_vnum}/rooms/{NN}.yaml - Room files (NN = 00-99)
-        world/mobs/{vnum}.yaml - Mob files
-        world/objects/{vnum}.yaml - Object files
-        world/triggers/{vnum}.yaml - Trigger files
+        world/zones/{zone_vnum}/mobs/{NN}.yaml - Mob files
+        world/zones/{zone_vnum}/objects/{NN}.yaml - Object files
+        world/zones/{zone_vnum}/triggers/{NN}.yaml - Trigger files
         world/zones/index.yaml - List of zones to load
+        world/zones/{zone_vnum}/rooms/index.yaml - List of rooms per zone
+        world/zones/{zone_vnum}/mobs/index.yaml - List of mobs per zone
+        world/zones/{zone_vnum}/objects/index.yaml - List of objects per zone
+        world/zones/{zone_vnum}/triggers/index.yaml - List of triggers per zone
     """
 
     def __init__(self, output_dir):
         self.output_dir = Path(output_dir) / 'world'
         self._zone_vnums = set()
-        self._mob_vnums = set()
-        self._obj_vnums = set()
-        self._trigger_vnums = set()
+        self._mob_zone_rel_nums = {}    # zone_vnum -> set of rel_nums
+        self._obj_zone_rel_nums = {}    # zone_vnum -> set of rel_nums
+        self._trigger_zone_rel_nums = {}  # zone_vnum -> set of rel_nums
+        self._room_zone_rel_nums = {}   # zone_vnum -> set of rel_nums
 
     def __enter__(self):
         self._generate_dictionaries()
@@ -869,23 +874,29 @@ class YamlSaver(BaseSaver):
 
     def save_mob(self, mob):
         yaml_content = mob_to_yaml(mob)
-        out_dir = self._ensure_root_dir('mobs')
-        out_file = out_dir / f"{mob['vnum']}.yaml"
+        vnum = mob['vnum']
+        zone_vnum = vnum // 100
+        rel_num = vnum % 100
+        out_dir = self._ensure_zone_dir(zone_vnum, 'mobs')
+        out_file = out_dir / f"{rel_num:02d}.yaml"
         with open(out_file, 'w', encoding='koi8-r') as f:
             f.write(yaml_content)
-        # Track enabled mobs for index
         if mob.get('enabled', 1):
-            self._mob_vnums.add(mob['vnum'])
+            self._mob_zone_rel_nums.setdefault(zone_vnum, set()).add(rel_num)
+            self._zone_vnums.add(zone_vnum)
 
     def save_object(self, obj):
         yaml_content = obj_to_yaml(obj)
-        out_dir = self._ensure_root_dir('objects')
-        out_file = out_dir / f"{obj['vnum']}.yaml"
+        vnum = obj['vnum']
+        zone_vnum = vnum // 100
+        rel_num = vnum % 100
+        out_dir = self._ensure_zone_dir(zone_vnum, 'objects')
+        out_file = out_dir / f"{rel_num:02d}.yaml"
         with open(out_file, 'w', encoding='koi8-r') as f:
             f.write(yaml_content)
-        # Track enabled objects for index
         if obj.get('enabled', 1):
-            self._obj_vnums.add(obj['vnum'])
+            self._obj_zone_rel_nums.setdefault(zone_vnum, set()).add(rel_num)
+            self._zone_vnums.add(zone_vnum)
 
     def save_room(self, room):
         yaml_content = room_to_yaml(room)
@@ -893,6 +904,7 @@ class YamlSaver(BaseSaver):
         rel_num = room['vnum'] % 100
         if room.get('enabled', 1):
             self._zone_vnums.add(zone_vnum)
+            self._room_zone_rel_nums.setdefault(zone_vnum, set()).add(rel_num)
         out_dir = self._ensure_zone_dir(zone_vnum, 'rooms')
         out_file = out_dir / f"{rel_num:02d}.yaml"
         with open(out_file, 'w', encoding='koi8-r') as f:
@@ -911,13 +923,16 @@ class YamlSaver(BaseSaver):
 
     def save_trigger(self, trigger):
         yaml_content = trg_to_yaml(trigger)
-        out_dir = self._ensure_root_dir('triggers')
-        out_file = out_dir / f"{trigger['vnum']}.yaml"
+        vnum = trigger['vnum']
+        zone_vnum = vnum // 100
+        rel_num = vnum % 100
+        out_dir = self._ensure_zone_dir(zone_vnum, 'triggers')
+        out_file = out_dir / f"{rel_num:02d}.yaml"
         with open(out_file, 'w', encoding='koi8-r') as f:
             f.write(yaml_content)
-        # Track enabled triggers for index
         if trigger.get('enabled', 1):
-            self._trigger_vnums.add(trigger['vnum'])
+            self._trigger_zone_rel_nums.setdefault(zone_vnum, set()).add(rel_num)
+            self._zone_vnums.add(zone_vnum)
 
     def finalize(self):
         """Create index files for all entity types."""
@@ -931,35 +946,52 @@ class YamlSaver(BaseSaver):
                 get_main_yaml().dump(index_data, f)
             print(f"Created zones/index.yaml with {len(self._zone_vnums)} zones")
 
-        # Create mobs index
-        if self._mob_vnums:
-            mobs_dir = self.output_dir / 'mobs'
+        # Create per-zone index files for all entity types.
+        # Every zone must have all four index files (rooms/mobs/objects/triggers),
+        # even if empty — the loader requires them and treats missing index as fatal error.
+        total_rooms = total_mobs = total_objs = total_trgs = 0
+        for zone_vnum in sorted(self._zone_vnums):
+            zone_dir = self.output_dir / 'zones' / str(zone_vnum)
+
+            rooms_rel = sorted(self._room_zone_rel_nums.get(zone_vnum, set()))
+            rooms_dir = zone_dir / 'rooms'
+            rooms_dir.mkdir(parents=True, exist_ok=True)
+            index_data = CommentedMap()
+            index_data['rooms'] = CommentedSeq(rooms_rel)
+            with open(rooms_dir / 'index.yaml', 'w', encoding='koi8-r') as f:
+                get_main_yaml().dump(index_data, f)
+            total_rooms += len(rooms_rel)
+
+            mobs_rel = sorted(self._mob_zone_rel_nums.get(zone_vnum, set()))
+            mobs_dir = zone_dir / 'mobs'
             mobs_dir.mkdir(parents=True, exist_ok=True)
             index_data = CommentedMap()
-            index_data['mobs'] = CommentedSeq(sorted(self._mob_vnums))
+            index_data['mobs'] = CommentedSeq(mobs_rel)
             with open(mobs_dir / 'index.yaml', 'w', encoding='koi8-r') as f:
                 get_main_yaml().dump(index_data, f)
-            print(f"Created mobs/index.yaml with {len(self._mob_vnums)} mobs")
+            total_mobs += len(mobs_rel)
 
-        # Create objects index
-        if self._obj_vnums:
-            objs_dir = self.output_dir / 'objects'
+            objs_rel = sorted(self._obj_zone_rel_nums.get(zone_vnum, set()))
+            objs_dir = zone_dir / 'objects'
             objs_dir.mkdir(parents=True, exist_ok=True)
             index_data = CommentedMap()
-            index_data['objects'] = CommentedSeq(sorted(self._obj_vnums))
+            index_data['objects'] = CommentedSeq(objs_rel)
             with open(objs_dir / 'index.yaml', 'w', encoding='koi8-r') as f:
                 get_main_yaml().dump(index_data, f)
-            print(f"Created objects/index.yaml with {len(self._obj_vnums)} objects")
+            total_objs += len(objs_rel)
 
-        # Create triggers index
-        if self._trigger_vnums:
-            triggers_dir = self.output_dir / 'triggers'
+            trgs_rel = sorted(self._trigger_zone_rel_nums.get(zone_vnum, set()))
+            triggers_dir = zone_dir / 'triggers'
             triggers_dir.mkdir(parents=True, exist_ok=True)
             index_data = CommentedMap()
-            index_data['triggers'] = CommentedSeq(sorted(self._trigger_vnums))
+            index_data['triggers'] = CommentedSeq(trgs_rel)
             with open(triggers_dir / 'index.yaml', 'w', encoding='koi8-r') as f:
                 get_main_yaml().dump(index_data, f)
-            print(f"Created triggers/index.yaml with {len(self._trigger_vnums)} triggers")
+            total_trgs += len(trgs_rel)
+
+        num_zones = len(self._zone_vnums)
+        print(f"Created per-zone index files for {num_zones} zones: "
+              f"{total_rooms} rooms, {total_mobs} mobs, {total_objs} objects, {total_trgs} triggers")
 
 
 class SqliteSaver(BaseSaver):
@@ -3336,82 +3368,160 @@ def zon_to_yaml(zone):
                 typeB.yaml_add_eol_comment(zone_name, i)
         data['typeB_zones'] = typeB
 
-    # Commands with name comments
+    # Commands as one-liner strings
     if zone.get('commands'):
         cmds = CommentedSeq()
+        cmd_idx = 0
         for cmd in zone['commands']:
-            c = CommentedMap()
-            c['type'] = cmd['type']
+            cmd_type = cmd.get('type', '')
+            if_flag = cmd.get('if_flag', 0)
 
-            if 'if_flag' in cmd:
-                c['if_flag'] = cmd['if_flag']
+            # Build the command string and comment based on type
+            parts = []
+            comment = None
 
-            # Add fields with name comments
-            if 'mob_vnum' in cmd:
-                c['mob_vnum'] = cmd['mob_vnum']
-                name = get_mob_name(cmd['mob_vnum'])
-                if name:
-                    c.yaml_add_eol_comment(name, 'mob_vnum')
-
-            if 'obj_vnum' in cmd:
-                c['obj_vnum'] = cmd['obj_vnum']
-                name = get_obj_name(cmd['obj_vnum'])
-                if name:
-                    c.yaml_add_eol_comment(name, 'obj_vnum')
-
-            if 'room_vnum' in cmd:
-                c['room_vnum'] = cmd['room_vnum']
-                name = get_room_name(cmd['room_vnum'])
-                if name:
-                    c.yaml_add_eol_comment(name, 'room_vnum')
-
-            if 'container_vnum' in cmd:
-                c['container_vnum'] = cmd['container_vnum']
-                name = get_obj_name(cmd['container_vnum'])
-                if name:
-                    c.yaml_add_eol_comment(name, 'container_vnum')
-
-            if 'trigger_vnum' in cmd:
-                c['trigger_vnum'] = cmd['trigger_vnum']
-                name = get_trigger_name(cmd['trigger_vnum'])
-                if name:
-                    c.yaml_add_eol_comment(name, 'trigger_vnum')
-
-            # FOLLOW command fields
-            if 'leader_mob_vnum' in cmd:
-                c['leader_mob_vnum'] = cmd['leader_mob_vnum']
-                name = get_mob_name(cmd['leader_mob_vnum'])
-                if name:
-                    c.yaml_add_eol_comment(name, 'leader_mob_vnum')
-
-            if 'follower_mob_vnum' in cmd:
-                c['follower_mob_vnum'] = cmd['follower_mob_vnum']
-                name = get_mob_name(cmd['follower_mob_vnum'])
-                if name:
-                    c.yaml_add_eol_comment(name, 'follower_mob_vnum')
-
-            # Wear position with comment
-            if 'wear_pos' in cmd:
-                c['wear_pos'] = cmd['wear_pos']
-                pos_name = get_wear_pos_name(cmd['wear_pos'])
+            if cmd_type == 'LOAD_MOB':
+                mob_vnum = cmd.get('mob_vnum', 0)
+                max_world = cmd.get('max_world', 0)
+                room_vnum = cmd.get('room_vnum', 0)
+                max_room = cmd.get('max_room', -1)
+                parts = ['MOB', if_flag, mob_vnum, max_world, room_vnum, max_room]
+                mob_name = get_mob_name(mob_vnum)
+                room_name = get_room_name(room_vnum)
+                parts_comment = []
+                if mob_name:
+                    parts_comment.append(mob_name)
+                if room_name:
+                    parts_comment.append(f"-> {room_name}")
+                comment = ' '.join(parts_comment) if parts_comment else None
+            elif cmd_type == 'LOAD_OBJ':
+                obj_vnum = cmd.get('obj_vnum', 0)
+                max_val = cmd.get('max', 0)
+                room_vnum = cmd.get('room_vnum', 0)
+                load_prob = cmd.get('load_prob', -1)
+                parts = ['OBJECT', if_flag, obj_vnum, max_val, room_vnum, load_prob]
+                obj_name = get_obj_name(obj_vnum)
+                room_name = get_room_name(room_vnum)
+                parts_comment = []
+                if obj_name:
+                    parts_comment.append(obj_name)
+                if room_name:
+                    parts_comment.append(f"-> {room_name}")
+                comment = ' '.join(parts_comment) if parts_comment else None
+            elif cmd_type == 'GIVE_OBJ':
+                obj_vnum = cmd.get('obj_vnum', 0)
+                max_val = cmd.get('max', 0)
+                load_prob = cmd.get('load_prob', -1)
+                if load_prob != -1:
+                    parts = ['GIVE', if_flag, obj_vnum, max_val, load_prob]
+                else:
+                    parts = ['GIVE', if_flag, obj_vnum, max_val]
+                obj_name = get_obj_name(obj_vnum)
+                comment = obj_name if obj_name else None
+            elif cmd_type == 'EQUIP_MOB':
+                obj_vnum = cmd.get('obj_vnum', 0)
+                max_val = cmd.get('max', 0)
+                wear_pos = cmd.get('wear_pos', 0)
+                load_prob = cmd.get('load_prob', -1)
+                if load_prob != -1:
+                    parts = ['EQUIP', if_flag, obj_vnum, max_val, wear_pos, load_prob]
+                else:
+                    parts = ['EQUIP', if_flag, obj_vnum, max_val, wear_pos]
+                obj_name = get_obj_name(obj_vnum)
+                pos_name = get_wear_pos_name(wear_pos)
+                parts_comment = []
+                if obj_name:
+                    parts_comment.append(obj_name)
                 if pos_name:
-                    c.yaml_add_eol_comment(pos_name, 'wear_pos')
-
-            # Direction with comment
-            if 'direction' in cmd:
-                c['direction'] = cmd['direction']
-                dir_name = get_direction_name(cmd['direction'])
+                    parts_comment.append(f"wear: {pos_name}")
+                comment = ', '.join(parts_comment) if parts_comment else None
+            elif cmd_type == 'PUT_OBJ':
+                obj_vnum = cmd.get('obj_vnum', 0)
+                max_val = cmd.get('max', 0)
+                container_vnum = cmd.get('container_vnum', 0)
+                load_prob = cmd.get('load_prob', -1)
+                parts = ['PUT', if_flag, obj_vnum, max_val, container_vnum, load_prob]
+                obj_name = get_obj_name(obj_vnum)
+                cont_name = get_obj_name(container_vnum)
+                parts_comment = []
+                if obj_name:
+                    parts_comment.append(obj_name)
+                if cont_name:
+                    parts_comment.append(f"-> {cont_name}")
+                comment = ' '.join(parts_comment) if parts_comment else None
+            elif cmd_type == 'DOOR':
+                room_vnum = cmd.get('room_vnum', 0)
+                direction = cmd.get('direction', 0)
+                state = cmd.get('state', 0)
+                parts = ['DOOR', if_flag, room_vnum, direction, state]
+                room_name = get_room_name(room_vnum)
+                dir_name = get_direction_name(direction)
+                parts_comment = []
+                if room_name:
+                    parts_comment.append(room_name)
                 if dir_name:
-                    c.yaml_add_eol_comment(dir_name, 'direction')
+                    parts_comment.append(f"dir: {dir_name}")
+                comment = ', '.join(parts_comment) if parts_comment else None
+            elif cmd_type == 'REMOVE_OBJ':
+                room_vnum = cmd.get('room_vnum', 0)
+                obj_vnum = cmd.get('obj_vnum', 0)
+                parts = ['REMOVE', if_flag, room_vnum, obj_vnum]
+                room_name = get_room_name(room_vnum)
+                obj_name = get_obj_name(obj_vnum)
+                parts_comment = []
+                if room_name:
+                    parts_comment.append(room_name)
+                if obj_name:
+                    parts_comment.append(obj_name)
+                comment = ', '.join(parts_comment) if parts_comment else None
+            elif cmd_type == 'TRIGGER':
+                trigger_type = cmd.get('trigger_type', 0)
+                trigger_vnum = cmd.get('trigger_vnum', 0)
+                room_vnum = cmd.get('room_vnum', -1)
+                if room_vnum != -1:
+                    parts = ['TRIGGER', if_flag, trigger_type, trigger_vnum, room_vnum]
+                else:
+                    parts = ['TRIGGER', if_flag, trigger_type, trigger_vnum]
+                trig_name = get_trigger_name(trigger_vnum)
+                comment = trig_name if trig_name else None
+            elif cmd_type == 'VARIABLE':
+                trigger_type = cmd.get('trigger_type', 0)
+                context = cmd.get('context', 0)
+                room_vnum = cmd.get('room_vnum', 0)
+                var_name = cmd.get('var_name', '')
+                var_value = cmd.get('var_value', '')
+                parts = ['VAR', if_flag, trigger_type, context, room_vnum, var_name, var_value]
+                comment = f"{var_name} = {var_value}" if var_name else None
+            elif cmd_type == 'EXTRACT_MOB':
+                mob_vnum = cmd.get('mob_vnum', 0)
+                parts = ['EXTRACT', 0, mob_vnum]  # if_flag forced to 0
+                mob_name = get_mob_name(mob_vnum)
+                comment = mob_name if mob_name else None
+            elif cmd_type == 'FOLLOW':
+                room_vnum = cmd.get('room_vnum', 0)
+                leader_vnum = cmd.get('leader_mob_vnum', 0)
+                follower_vnum = cmd.get('follower_mob_vnum', 0)
+                parts = ['FOLLOW', if_flag, room_vnum, leader_vnum, follower_vnum]
+                leader_name = get_mob_name(leader_vnum)
+                follower_name = get_mob_name(follower_vnum)
+                room_name = get_room_name(room_vnum)
+                parts_comment = []
+                if leader_name:
+                    parts_comment.append(leader_name)
+                if follower_name:
+                    parts_comment.append(f"-> {follower_name}")
+                if room_name:
+                    parts_comment.append(f"in {room_name}")
+                comment = ', '.join(parts_comment) if parts_comment else None
+            else:
+                continue  # skip unknown types
 
-            # Other fields
-            for key in ['max_world', 'max_room', 'max', 'load_prob',
-                       'state', 'trigger_type', 'entity_vnum',
-                       'context', 'var_vnum', 'var_name', 'var_value']:
-                if key in cmd:
-                    c[key] = cmd[key]
+            cmd_str = ' '.join(str(p) for p in parts)
+            cmds.append(cmd_str)
+            if comment:
+                cmds.yaml_add_eol_comment(comment, cmd_idx)
+            cmd_idx += 1
 
-            cmds.append(c)
         data['commands'] = cmds
 
     return yaml_dump_to_string(data)
@@ -3540,7 +3650,7 @@ def create_world_config(output_dir):
     # Determine if we're writing to world/ or to output_dir directly
     # Check if output_path has a 'world' subdirectory with YAML files
     world_subdir = output_path / 'world'
-    if world_subdir.exists() and (world_subdir / 'mobs').exists():
+    if world_subdir.exists() and ((world_subdir / 'zones').exists() or (world_subdir / 'mobs').exists()):
         config_path = world_subdir / 'world_config.yaml'
     else:
         config_path = output_path / 'world_config.yaml'

@@ -896,7 +896,7 @@ void load() {
 	pugi::xml_document doc;
 	pugi::xml_parse_result result = doc.load_file(LIB_PLRSTUFF"glory_const.xml");
 	if (!result) {
-		snprintf(buf, kMaxStringLength, "SYSERR: error reading glory_const.xml: %s", result.description());
+		snprintf(buf, kMaxStringLength, "WARNING: glory_const.xml not found or unreadable (%s), skipping (non-fatal)", result.description());
 		perror(buf);
 		return;
 	}

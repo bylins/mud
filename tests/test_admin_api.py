@@ -123,9 +123,13 @@ def verify_yaml_file(entity_type, vnum, expected_fields):
     world_dir = os.environ.get('WORLD_DIR', os.path.expanduser('~/repos/world.yaml'))
 
     if entity_type == 'mob':
-        yaml_path = f"{world_dir}/world/mobs/{vnum}.yaml"
+        zone_vnum = vnum // 100
+        rel_num = vnum % 100
+        yaml_path = f"{world_dir}/world/zones/{zone_vnum}/mobs/{rel_num:02d}.yaml"
     elif entity_type == 'object':
-        yaml_path = f"{world_dir}/world/objects/{vnum}.yaml"
+        zone_vnum = vnum // 100
+        rel_num = vnum % 100
+        yaml_path = f"{world_dir}/world/zones/{zone_vnum}/objects/{rel_num:02d}.yaml"
     elif entity_type == 'room':
         zone = vnum // 100
         rel_num = vnum % 100
@@ -855,7 +859,9 @@ def test_comprehensive_trigger(sock, zone_vnum=1):
     if WORLD_FORMAT == "yaml":
         print(f"  → Verifying YAML file was saved...")
         world_dir = os.environ.get('WORLD_DIR', os.path.expanduser('~/repos/world.yaml'))
-        yaml_path = f"{world_dir}/world/triggers/{vnum}.yaml"
+        zone_vnum = vnum // 100
+        rel_num = vnum % 100
+        yaml_path = f"{world_dir}/world/zones/{zone_vnum}/triggers/{rel_num:02d}.yaml"
 
         if os.path.exists(yaml_path):
             try:
