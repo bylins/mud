@@ -237,6 +237,7 @@ MOB_NAMES = {}     # vnum -> name
 OBJ_NAMES = {}     # vnum -> name
 TRIGGER_NAMES = {} # vnum -> name
 ZONE_NAMES = {}    # vnum -> name
+ZONE_TYPE_NAMES = {}   # index -> name (from ztypes.lst)
 
 # Spell names (spell_id -> Russian name)
 SPELL_NAMES = {
@@ -1538,6 +1539,33 @@ def get_zone_name(vnum):
 
 
 
+def strip_color_codes(s):
+    """Strip MUD color codes (&X) from string."""
+    if not s:
+        return s
+    import re
+    return re.sub(r'&[a-zA-Z0-9]', '', s)
+
+
+def load_zone_type_names(ztypes_path):
+    """Load zone type names from ztypes.lst file."""
+    global ZONE_TYPE_NAMES
+    try:
+        idx = 0
+        with open(ztypes_path, 'r', encoding='koi8-r') as f:
+            for line in f:
+                line = line.strip()
+                if line.startswith('*') or not line:
+                    continue
+                if line.startswith('ИМЯ '):
+                    ZONE_TYPE_NAMES[idx] = line[4:].strip()
+                    idx += 1
+        if ZONE_TYPE_NAMES:
+            print(f"Loaded {len(ZONE_TYPE_NAMES)} zone type names from {ztypes_path}")
+    except Exception as e:
+        print(f"Warning: Could not load zone type names from {ztypes_path}: {e}")
+
+
 def get_spell_name(spell_id):
     """Get spell Russian name by spell_id."""
     return SPELL_NAMES.get(spell_id, '')
@@ -1617,8 +1645,8 @@ def build_name_registries(world_dir):
                             vnum = int(line_stripped[5:].strip())
                         elif line_stripped == 'names:':
                             in_names = True
-                        elif in_names and line_stripped.startswith('aliases:'):
-                            name = line_stripped[8:].strip()
+                        elif in_names and line_stripped.startswith('nominative:'):
+                            name = line_stripped[11:].strip()
                             if name.startswith('"') and name.endswith('"'):
                                 name = name[1:-1]
                             break
@@ -1795,11 +1823,6 @@ def parse_mob_file(filepath):
             if idx < len(lines):
                 names_parts.append(lines[idx].rstrip('~'))
             mob['names'] = {'aliases': '\r\n'.join(names_parts)}
-            # Register mob name for cross-references
-            if mob['vnum'] and mob['names'].get('aliases'):
-                first_line = mob['names']['aliases'].split('\r\n')[0].strip()
-                if first_line:
-                    MOB_NAMES[mob['vnum']] = first_line
             idx += 1
 
             # Parse 6 case forms (each ending with ~)
@@ -1815,6 +1838,16 @@ def parse_mob_file(filepath):
                     case_parts.append(lines[idx].rstrip('~'))
                 mob['names'][case_name] = '\r\n'.join(case_parts)
                 idx += 1
+
+            # Register mob name for cross-references (use nominative)
+            if mob['vnum'] and mob['names'].get('nominative'):
+                nom = mob['names']['nominative'].split('\r\n')[0].strip()
+                if nom:
+                    MOB_NAMES[mob['vnum']] = nom
+            elif mob['vnum'] and mob['names'].get('aliases'):
+                first_line = mob['names']['aliases'].split('\r\n')[0].strip()
+                if first_line:
+                    MOB_NAMES[mob['vnum']] = first_line
 
             # Short description (until ~)
             desc_parts = []
@@ -3334,10 +3367,17 @@ def zon_to_yaml(zone):
         data['top_room'] = zone['top_room']
     if 'mode' in zone:
         data['mode'] = zone['mode']
+        data.yaml_add_eol_comment('level', 'mode')
     if 'zone_type' in zone:
         data['zone_type'] = zone['zone_type']
+        zone_type_name = ZONE_TYPE_NAMES.get(zone['zone_type'], '')
+        if zone_type_name:
+            data.yaml_add_eol_comment(zone_type_name, 'zone_type')
     if zone.get('zone_group'):
         data['zone_group'] = zone['zone_group']
+        group = zone['zone_group']
+        group_comment = 'solo' if group <= 1 else f'group:{group}'
+        data.yaml_add_eol_comment(group_comment, 'zone_group')
     if 'entrance' in zone:
         data['entrance'] = zone['entrance']
     if 'lifespan' in zone:
@@ -3386,22 +3426,24 @@ def zon_to_yaml(zone):
                 room_vnum = cmd.get('room_vnum', 0)
                 max_room = cmd.get('max_room', -1)
                 parts = ['MOB', if_flag, mob_vnum, max_world, room_vnum, max_room]
-                mob_name = get_mob_name(mob_vnum)
-                room_name = get_room_name(room_vnum)
+                mob_name = strip_color_codes(get_mob_name(mob_vnum))
+                room_name = strip_color_codes(get_room_name(room_vnum))
                 parts_comment = []
                 if mob_name:
                     parts_comment.append(mob_name)
                 if room_name:
                     parts_comment.append(f"-> {room_name}")
-                comment = ' '.join(parts_comment) if parts_comment else None
+                if max_room != -1:
+                    parts_comment.append(f"mr:{max_room} mw:{max_world}")
+                comment = '; '.join(parts_comment) if parts_comment else None
             elif cmd_type == 'LOAD_OBJ':
                 obj_vnum = cmd.get('obj_vnum', 0)
                 max_val = cmd.get('max', 0)
                 room_vnum = cmd.get('room_vnum', 0)
                 load_prob = cmd.get('load_prob', -1)
                 parts = ['OBJECT', if_flag, obj_vnum, max_val, room_vnum, load_prob]
-                obj_name = get_obj_name(obj_vnum)
-                room_name = get_room_name(room_vnum)
+                obj_name = strip_color_codes(get_obj_name(obj_vnum))
+                room_name = strip_color_codes(get_room_name(room_vnum))
                 parts_comment = []
                 if obj_name:
                     parts_comment.append(obj_name)
@@ -3416,7 +3458,7 @@ def zon_to_yaml(zone):
                     parts = ['GIVE', if_flag, obj_vnum, max_val, load_prob]
                 else:
                     parts = ['GIVE', if_flag, obj_vnum, max_val]
-                obj_name = get_obj_name(obj_vnum)
+                obj_name = strip_color_codes(get_obj_name(obj_vnum))
                 comment = obj_name if obj_name else None
             elif cmd_type == 'EQUIP_MOB':
                 obj_vnum = cmd.get('obj_vnum', 0)
@@ -3427,7 +3469,7 @@ def zon_to_yaml(zone):
                     parts = ['EQUIP', if_flag, obj_vnum, max_val, wear_pos, load_prob]
                 else:
                     parts = ['EQUIP', if_flag, obj_vnum, max_val, wear_pos]
-                obj_name = get_obj_name(obj_vnum)
+                obj_name = strip_color_codes(get_obj_name(obj_vnum))
                 pos_name = get_wear_pos_name(wear_pos)
                 parts_comment = []
                 if obj_name:
@@ -3441,8 +3483,8 @@ def zon_to_yaml(zone):
                 container_vnum = cmd.get('container_vnum', 0)
                 load_prob = cmd.get('load_prob', -1)
                 parts = ['PUT', if_flag, obj_vnum, max_val, container_vnum, load_prob]
-                obj_name = get_obj_name(obj_vnum)
-                cont_name = get_obj_name(container_vnum)
+                obj_name = strip_color_codes(get_obj_name(obj_vnum))
+                cont_name = strip_color_codes(get_obj_name(container_vnum))
                 parts_comment = []
                 if obj_name:
                     parts_comment.append(obj_name)
@@ -3454,7 +3496,7 @@ def zon_to_yaml(zone):
                 direction = cmd.get('direction', 0)
                 state = cmd.get('state', 0)
                 parts = ['DOOR', if_flag, room_vnum, direction, state]
-                room_name = get_room_name(room_vnum)
+                room_name = strip_color_codes(get_room_name(room_vnum))
                 dir_name = get_direction_name(direction)
                 parts_comment = []
                 if room_name:
@@ -3466,8 +3508,8 @@ def zon_to_yaml(zone):
                 room_vnum = cmd.get('room_vnum', 0)
                 obj_vnum = cmd.get('obj_vnum', 0)
                 parts = ['REMOVE', if_flag, room_vnum, obj_vnum]
-                room_name = get_room_name(room_vnum)
-                obj_name = get_obj_name(obj_vnum)
+                room_name = strip_color_codes(get_room_name(room_vnum))
+                obj_name = strip_color_codes(get_obj_name(obj_vnum))
                 parts_comment = []
                 if room_name:
                     parts_comment.append(room_name)
@@ -3495,16 +3537,16 @@ def zon_to_yaml(zone):
             elif cmd_type == 'EXTRACT_MOB':
                 mob_vnum = cmd.get('mob_vnum', 0)
                 parts = ['EXTRACT', 0, mob_vnum]  # if_flag forced to 0
-                mob_name = get_mob_name(mob_vnum)
+                mob_name = strip_color_codes(get_mob_name(mob_vnum))
                 comment = mob_name if mob_name else None
             elif cmd_type == 'FOLLOW':
                 room_vnum = cmd.get('room_vnum', 0)
                 leader_vnum = cmd.get('leader_mob_vnum', 0)
                 follower_vnum = cmd.get('follower_mob_vnum', 0)
                 parts = ['FOLLOW', if_flag, room_vnum, leader_vnum, follower_vnum]
-                leader_name = get_mob_name(leader_vnum)
-                follower_name = get_mob_name(follower_vnum)
-                room_name = get_room_name(room_vnum)
+                leader_name = strip_color_codes(get_mob_name(leader_vnum))
+                follower_name = strip_color_codes(get_mob_name(follower_vnum))
+                room_name = strip_color_codes(get_room_name(room_vnum))
                 parts_comment = []
                 if leader_name:
                     parts_comment.append(leader_name)
@@ -3862,6 +3904,15 @@ def main():
 #         # Build name registries from output directory if it exists (only for YAML format)
 #         if args.format == 'yaml' and output_path.exists():
 #             build_name_registries(output_path / 'world')
+
+        # Load zone type names for comments
+        for ztypes_candidate in [
+            input_path / 'misc' / 'ztypes.lst',
+            world_dir.parent / 'misc' / 'ztypes.lst',
+        ]:
+            if ztypes_candidate.exists():
+                load_zone_type_names(ztypes_candidate)
+                break
 
         convert_directory(world_dir, output_path, delete_source=args.delete_source,
                          max_workers=args.workers, output_format=args.format,
