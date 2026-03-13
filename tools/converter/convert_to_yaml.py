@@ -946,57 +946,52 @@ class YamlSaver(BaseSaver):
                 get_main_yaml().dump(index_data, f)
             print(f"Created zones/index.yaml with {len(self._zone_vnums)} zones")
 
-        # Create per-zone rooms index
-        for zone_vnum, rel_nums in sorted(self._room_zone_rel_nums.items()):
-            rooms_dir = self.output_dir / 'zones' / str(zone_vnum) / 'rooms'
+        # Create per-zone index files for all entity types.
+        # Every zone must have all four index files (rooms/mobs/objects/triggers),
+        # even if empty — the loader requires them and treats missing index as fatal error.
+        total_rooms = total_mobs = total_objs = total_trgs = 0
+        for zone_vnum in sorted(self._zone_vnums):
+            zone_dir = self.output_dir / 'zones' / str(zone_vnum)
+
+            rooms_rel = sorted(self._room_zone_rel_nums.get(zone_vnum, set()))
+            rooms_dir = zone_dir / 'rooms'
             rooms_dir.mkdir(parents=True, exist_ok=True)
             index_data = CommentedMap()
-            index_data['rooms'] = CommentedSeq(sorted(rel_nums))
+            index_data['rooms'] = CommentedSeq(rooms_rel)
             with open(rooms_dir / 'index.yaml', 'w', encoding='koi8-r') as f:
                 get_main_yaml().dump(index_data, f)
+            total_rooms += len(rooms_rel)
 
-        total_rooms = sum(len(v) for v in self._room_zone_rel_nums.values())
-        if total_rooms > 0:
-            print(f"Created rooms/index.yaml for {len(self._room_zone_rel_nums)} zones ({total_rooms} rooms total)")
-
-        # Create per-zone mobs index
-        for zone_vnum, rel_nums in sorted(self._mob_zone_rel_nums.items()):
-            mobs_dir = self.output_dir / 'zones' / str(zone_vnum) / 'mobs'
+            mobs_rel = sorted(self._mob_zone_rel_nums.get(zone_vnum, set()))
+            mobs_dir = zone_dir / 'mobs'
             mobs_dir.mkdir(parents=True, exist_ok=True)
             index_data = CommentedMap()
-            index_data['mobs'] = CommentedSeq(sorted(rel_nums))
+            index_data['mobs'] = CommentedSeq(mobs_rel)
             with open(mobs_dir / 'index.yaml', 'w', encoding='koi8-r') as f:
                 get_main_yaml().dump(index_data, f)
+            total_mobs += len(mobs_rel)
 
-        total_mobs = sum(len(v) for v in self._mob_zone_rel_nums.values())
-        if total_mobs > 0:
-            print(f"Created mobs/index.yaml for {len(self._mob_zone_rel_nums)} zones ({total_mobs} mobs total)")
-
-        # Create per-zone objects index
-        for zone_vnum, rel_nums in sorted(self._obj_zone_rel_nums.items()):
-            objs_dir = self.output_dir / 'zones' / str(zone_vnum) / 'objects'
+            objs_rel = sorted(self._obj_zone_rel_nums.get(zone_vnum, set()))
+            objs_dir = zone_dir / 'objects'
             objs_dir.mkdir(parents=True, exist_ok=True)
             index_data = CommentedMap()
-            index_data['objects'] = CommentedSeq(sorted(rel_nums))
+            index_data['objects'] = CommentedSeq(objs_rel)
             with open(objs_dir / 'index.yaml', 'w', encoding='koi8-r') as f:
                 get_main_yaml().dump(index_data, f)
+            total_objs += len(objs_rel)
 
-        total_objs = sum(len(v) for v in self._obj_zone_rel_nums.values())
-        if total_objs > 0:
-            print(f"Created objects/index.yaml for {len(self._obj_zone_rel_nums)} zones ({total_objs} objects total)")
-
-        # Create per-zone triggers index
-        for zone_vnum, rel_nums in sorted(self._trigger_zone_rel_nums.items()):
-            triggers_dir = self.output_dir / 'zones' / str(zone_vnum) / 'triggers'
+            trgs_rel = sorted(self._trigger_zone_rel_nums.get(zone_vnum, set()))
+            triggers_dir = zone_dir / 'triggers'
             triggers_dir.mkdir(parents=True, exist_ok=True)
             index_data = CommentedMap()
-            index_data['triggers'] = CommentedSeq(sorted(rel_nums))
+            index_data['triggers'] = CommentedSeq(trgs_rel)
             with open(triggers_dir / 'index.yaml', 'w', encoding='koi8-r') as f:
                 get_main_yaml().dump(index_data, f)
+            total_trgs += len(trgs_rel)
 
-        total_trgs = sum(len(v) for v in self._trigger_zone_rel_nums.values())
-        if total_trgs > 0:
-            print(f"Created triggers/index.yaml for {len(self._trigger_zone_rel_nums)} zones ({total_trgs} triggers total)")
+        num_zones = len(self._zone_vnums)
+        print(f"Created per-zone index files for {num_zones} zones: "
+              f"{total_rooms} rooms, {total_mobs} mobs, {total_objs} objects, {total_trgs} triggers")
 
 
 class SqliteSaver(BaseSaver):

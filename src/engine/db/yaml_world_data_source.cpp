@@ -351,7 +351,6 @@ std::vector<int> YamlWorldDataSource::GetMobList()
 	for (int zone_vnum : zone_vnums)
 	{
 		std::string index_path = m_world_dir + "/zones/" + std::to_string(zone_vnum) + "/mobs/index.yaml";
-
 		try
 		{
 			YAML::Node root = YAML::LoadFile(index_path);
@@ -366,7 +365,8 @@ std::vector<int> YamlWorldDataSource::GetMobList()
 		}
 		catch (const YAML::Exception &e)
 		{
-			// No mobs in this zone - that's OK
+			log("SYSERR: Failed to load mobs index for zone %d ('%s'): %s", zone_vnum, index_path.c_str(), e.what());
+			exit(1);
 		}
 	}
 
@@ -381,7 +381,6 @@ std::vector<int> YamlWorldDataSource::GetObjectList()
 	for (int zone_vnum : zone_vnums)
 	{
 		std::string index_path = m_world_dir + "/zones/" + std::to_string(zone_vnum) + "/objects/index.yaml";
-
 		try
 		{
 			YAML::Node root = YAML::LoadFile(index_path);
@@ -396,7 +395,8 @@ std::vector<int> YamlWorldDataSource::GetObjectList()
 		}
 		catch (const YAML::Exception &e)
 		{
-			// No objects in this zone - that's OK
+			log("SYSERR: Failed to load objects index for zone %d ('%s'): %s", zone_vnum, index_path.c_str(), e.what());
+			exit(1);
 		}
 	}
 
@@ -411,7 +411,6 @@ std::vector<int> YamlWorldDataSource::GetTriggerList()
 	for (int zone_vnum : zone_vnums)
 	{
 		std::string index_path = m_world_dir + "/zones/" + std::to_string(zone_vnum) + "/triggers/index.yaml";
-
 		try
 		{
 			YAML::Node root = YAML::LoadFile(index_path);
@@ -426,7 +425,8 @@ std::vector<int> YamlWorldDataSource::GetTriggerList()
 		}
 		catch (const YAML::Exception &e)
 		{
-			// No triggers in this zone - that's OK
+			log("SYSERR: Failed to load triggers index for zone %d ('%s'): %s", zone_vnum, index_path.c_str(), e.what());
+			exit(1);
 		}
 	}
 
@@ -760,7 +760,7 @@ static bool ParseCommandString(const std::string &line, struct reset_com &cmd)
 	cmd.sarg2 = nullptr;
 	cmd.line = 0;
 
-	if (keyword == "MOB")
+	if (keyword == "MOB" || keyword == "M")
 	{
 		cmd.command = 'M';
 		int if_flag, mob_vnum, max_world, room_vnum, max_room = -1;
@@ -772,7 +772,7 @@ static bool ParseCommandString(const std::string &line, struct reset_com &cmd)
 		cmd.arg3 = room_vnum;
 		cmd.arg4 = iss.fail() ? -1 : max_room;
 	}
-	else if (keyword == "OBJECT")
+	else if (keyword == "OBJECT" || keyword == "O")
 	{
 		cmd.command = 'O';
 		int if_flag, obj_vnum, max_val, room_vnum, load_prob = -1;
@@ -784,7 +784,7 @@ static bool ParseCommandString(const std::string &line, struct reset_com &cmd)
 		cmd.arg3 = room_vnum;
 		cmd.arg4 = iss.fail() ? -1 : load_prob;
 	}
-	else if (keyword == "GIVE")
+	else if (keyword == "GIVE" || keyword == "G")
 	{
 		cmd.command = 'G';
 		int if_flag, obj_vnum, max_val, load_prob = -1;
@@ -796,7 +796,7 @@ static bool ParseCommandString(const std::string &line, struct reset_com &cmd)
 		cmd.arg3 = -1;
 		cmd.arg4 = iss.fail() ? -1 : load_prob;
 	}
-	else if (keyword == "EQUIP")
+	else if (keyword == "EQUIP" || keyword == "E")
 	{
 		cmd.command = 'E';
 		int if_flag, obj_vnum, max_val, wear_pos, load_prob = -1;
@@ -808,7 +808,7 @@ static bool ParseCommandString(const std::string &line, struct reset_com &cmd)
 		cmd.arg3 = wear_pos;
 		cmd.arg4 = iss.fail() ? -1 : load_prob;
 	}
-	else if (keyword == "PUT")
+	else if (keyword == "PUT" || keyword == "P")
 	{
 		cmd.command = 'P';
 		int if_flag, obj_vnum, max_val, container_vnum, load_prob = -1;
@@ -820,7 +820,7 @@ static bool ParseCommandString(const std::string &line, struct reset_com &cmd)
 		cmd.arg3 = container_vnum;
 		cmd.arg4 = iss.fail() ? -1 : load_prob;
 	}
-	else if (keyword == "DOOR")
+	else if (keyword == "DOOR" || keyword == "D")
 	{
 		cmd.command = 'D';
 		int if_flag, room_vnum, direction, state;
@@ -830,7 +830,7 @@ static bool ParseCommandString(const std::string &line, struct reset_com &cmd)
 		cmd.arg2 = direction;
 		cmd.arg3 = state;
 	}
-	else if (keyword == "REMOVE")
+	else if (keyword == "REMOVE" || keyword == "R")
 	{
 		cmd.command = 'R';
 		int if_flag, room_vnum, obj_vnum;
@@ -839,7 +839,7 @@ static bool ParseCommandString(const std::string &line, struct reset_com &cmd)
 		cmd.arg1 = room_vnum;
 		cmd.arg2 = obj_vnum;
 	}
-	else if (keyword == "TRIGGER")
+	else if (keyword == "TRIGGER" || keyword == "T")
 	{
 		cmd.command = 'T';
 		int if_flag, trigger_type, trigger_vnum, room_vnum = -1;
@@ -850,7 +850,7 @@ static bool ParseCommandString(const std::string &line, struct reset_com &cmd)
 		cmd.arg2 = trigger_vnum;
 		cmd.arg3 = iss.fail() ? -1 : room_vnum;
 	}
-	else if (keyword == "VAR")
+	else if (keyword == "VAR" || keyword == "V")
 	{
 		cmd.command = 'V';
 		int if_flag, trigger_type, context, room_vnum;
@@ -867,7 +867,7 @@ static bool ParseCommandString(const std::string &line, struct reset_com &cmd)
 		if (!var_name.empty()) cmd.sarg1 = str_dup(var_name.c_str());
 		if (!var_value.empty()) cmd.sarg2 = str_dup(var_value.c_str());
 	}
-	else if (keyword == "EXTRACT")
+	else if (keyword == "EXTRACT" || keyword == "Q")
 	{
 		cmd.command = 'Q';
 		int if_flag, mob_vnum;
@@ -875,7 +875,7 @@ static bool ParseCommandString(const std::string &line, struct reset_com &cmd)
 		cmd.if_flag = 0;  // forced to 0
 		cmd.arg1 = mob_vnum;
 	}
-	else if (keyword == "FOLLOW")
+	else if (keyword == "FOLLOW" || keyword == "F")
 	{
 		cmd.command = 'F';
 		int if_flag, room_vnum, leader_vnum, follower_vnum;
@@ -920,106 +920,16 @@ void YamlWorldDataSource::LoadZoneCommands(ZoneData &zone, const YAML::Node &com
 		cmd.sarg2 = nullptr;
 		cmd.line = 0;
 
-		// Handle string format (new) or map format (old)
-		if (cmd_node.IsScalar())
+		if (!cmd_node.IsScalar())
 		{
-			std::string cmd_str = cmd_node.as<std::string>();
-			if (!ParseCommandString(cmd_str, cmd))
-			{
-				// Skip unknown/empty commands
-				continue;
-			}
+			log("SYSERR: Zone %d: command is not a string (map format is no longer supported)", zone.vnum);
+			continue;
 		}
-		else
+		std::string cmd_str = cmd_node.as<std::string>();
+		if (!ParseCommandString(cmd_str, cmd))
 		{
-			// Legacy map format
-			cmd.if_flag = GetInt(cmd_node, "if_flag", 0);
-			std::string cmd_type = GetText(cmd_node, "type", "");
-
-			if (cmd_type == "LOAD_MOB" || cmd_type == "M")
-			{
-				cmd.command = 'M';
-				cmd.arg1 = GetInt(cmd_node, "mob_vnum");
-				cmd.arg2 = GetInt(cmd_node, "max_world");
-				cmd.arg3 = GetInt(cmd_node, "room_vnum");
-				cmd.arg4 = GetInt(cmd_node, "max_room", -1);
-			}
-			else if (cmd_type == "LOAD_OBJ" || cmd_type == "O")
-			{
-				cmd.command = 'O';
-				cmd.arg1 = GetInt(cmd_node, "obj_vnum");
-				cmd.arg2 = GetInt(cmd_node, "max");
-				cmd.arg3 = GetInt(cmd_node, "room_vnum");
-				cmd.arg4 = GetInt(cmd_node, "load_prob", -1);
-			}
-			else if (cmd_type == "GIVE_OBJ" || cmd_type == "G")
-			{
-				cmd.command = 'G';
-				cmd.arg1 = GetInt(cmd_node, "obj_vnum");
-				cmd.arg2 = GetInt(cmd_node, "max");
-				cmd.arg3 = -1;
-				cmd.arg4 = GetInt(cmd_node, "load_prob", -1);
-			}
-			else if (cmd_type == "EQUIP_MOB" || cmd_type == "E")
-			{
-				cmd.command = 'E';
-				cmd.arg1 = GetInt(cmd_node, "obj_vnum");
-				cmd.arg2 = GetInt(cmd_node, "max");
-				cmd.arg3 = GetInt(cmd_node, "wear_pos");
-				cmd.arg4 = GetInt(cmd_node, "load_prob", -1);
-			}
-			else if (cmd_type == "PUT_OBJ" || cmd_type == "P")
-			{
-				cmd.command = 'P';
-				cmd.arg1 = GetInt(cmd_node, "obj_vnum");
-				cmd.arg2 = GetInt(cmd_node, "max");
-				cmd.arg3 = GetInt(cmd_node, "container_vnum");
-				cmd.arg4 = GetInt(cmd_node, "load_prob", -1);
-			}
-			else if (cmd_type == "DOOR" || cmd_type == "D")
-			{
-				cmd.command = 'D';
-				cmd.arg1 = GetInt(cmd_node, "room_vnum");
-				cmd.arg2 = GetInt(cmd_node, "direction");
-				cmd.arg3 = GetInt(cmd_node, "state");
-			}
-			else if (cmd_type == "REMOVE_OBJ" || cmd_type == "R")
-			{
-				cmd.command = 'R';
-				cmd.arg1 = GetInt(cmd_node, "room_vnum");
-				cmd.arg2 = GetInt(cmd_node, "obj_vnum");
-			}
-			else if (cmd_type == "TRIGGER" || cmd_type == "T")
-			{
-				cmd.command = 'T';
-				cmd.arg1 = GetInt(cmd_node, "trigger_type");
-				cmd.arg2 = GetInt(cmd_node, "trigger_vnum");
-				cmd.arg3 = GetInt(cmd_node, "room_vnum", -1);
-			}
-			else if (cmd_type == "VARIABLE" || cmd_type == "V")
-			{
-				cmd.command = 'V';
-				cmd.arg1 = GetInt(cmd_node, "trigger_type");
-				cmd.arg2 = GetInt(cmd_node, "context");
-				cmd.arg3 = GetInt(cmd_node, "room_vnum");
-				std::string var_name = GetText(cmd_node, "var_name");
-				std::string var_value = GetText(cmd_node, "var_value");
-				if (!var_name.empty()) cmd.sarg1 = str_dup(var_name.c_str());
-				if (!var_value.empty()) cmd.sarg2 = str_dup(var_value.c_str());
-			}
-			else if (cmd_type == "EXTRACT_MOB" || cmd_type == "Q")
-			{
-				cmd.command = 'Q';
-				cmd.arg1 = GetInt(cmd_node, "mob_vnum");
-				cmd.if_flag = 0;
-			}
-			else if (cmd_type == "FOLLOW" || cmd_type == "F")
-			{
-				cmd.command = 'F';
-				cmd.arg1 = GetInt(cmd_node, "room_vnum");
-				cmd.arg2 = GetInt(cmd_node, "leader_mob_vnum");
-				cmd.arg3 = GetInt(cmd_node, "follower_mob_vnum");
-			}
+			// Skip unknown/empty commands
+			continue;
 		}
 
 		idx++;
@@ -1311,6 +1221,7 @@ void YamlWorldDataSource::LoadRoomsParallel()
 		catch (const YAML::Exception &e)
 		{
 			log("SYSERR: Failed to load rooms index for zone %d: %s", zone_vnum, e.what());
+			exit(1);
 		}
 	}
 
