@@ -255,6 +255,13 @@ void HandleAddZoneCommand(DescriptorData* d, int zone_vnum, const char* json_dat
  */
 void HandleDeleteZoneCommand(DescriptorData* d, int zone_vnum, int cmd_index);
 
+/**
+ * \brief Reset a zone (reload mobs/objects)
+ * \param d Descriptor to send response to
+ * \param zone_vnum Zone virtual number
+ */
+void HandleResetZone(DescriptorData* d, int zone_vnum);
+
 // ============================================================================
 // Statistics and Players
 // ============================================================================

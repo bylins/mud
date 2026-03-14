@@ -263,6 +263,12 @@ static void HandleDeleteZoneCommandCommand(DescriptorData* d, const nlohmann::js
 	HandleDeleteZoneCommand(d, zone, index);
 }
 
+static void HandleResetZoneCommand(DescriptorData* d, const nlohmann::json& request)
+{
+	int zone = request.value("zone", -1);
+	HandleResetZone(d, zone);
+}
+
 // Statistics and players
 static void HandleGetStatsCommand(DescriptorData* d, const nlohmann::json& request)
 {
@@ -324,6 +330,8 @@ void InitializeCommandRegistry()
 	registry.Register("list_zone_commands", HandleListZoneCommandsCommand);
 	registry.Register("add_zone_command", HandleAddZoneCommandCommand);
 	registry.Register("delete_zone_command", HandleDeleteZoneCommandCommand);
+
+	registry.Register("reset_zone", HandleResetZoneCommand);
 
 	// Statistics and players
 	registry.Register("get_stats", HandleGetStatsCommand);

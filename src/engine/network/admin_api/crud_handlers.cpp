@@ -1676,6 +1676,28 @@ void HandleDeleteZoneCommand(DescriptorData* d, int zone_vnum, int cmd_index)
 	SendJsonResponse(d, response);
 }
 
+void HandleResetZone(DescriptorData* d, int zone_vnum)
+{
+	ZoneRnum zrn = GetZoneRnum(zone_vnum);
+	if (zrn < 0)
+	{
+		SendErrorResponse(d, "Zone not found");
+		return;
+	}
+
+	UniqueList<ZoneRnum> zone_repop_list;
+	zone_repop_list.push_back(zrn);
+	DecayObjectsOnRepop(zone_repop_list);
+	ResetZone(zrn);
+
+	json response;
+	response["status"] = "ok";
+	response["message"] = "Zone reset successfully";
+	response["zone_vnum"] = zone_vnum;
+	response["zone_name"] = admin_api::json::Koi8rToUtf8(zone_table[zrn].name);
+	SendJsonResponse(d, response);
+}
+
 }  // namespace admin_api::handlers
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

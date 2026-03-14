@@ -397,6 +397,10 @@ void admin_api_parse(DescriptorData *d, char *argument) {
 			int index = request.value("index", -1);
 			HandleDeleteZoneCommand(d, zone, index);
 		}
+		else if (command == "reset_zone") {
+			int zone = request.value("zone", -1);
+			HandleResetZone(d, zone);
+		}
 		// Stats and players
 		else if (command == "get_stats") {
 			HandleGetStats(d);
