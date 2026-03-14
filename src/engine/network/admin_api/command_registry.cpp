@@ -196,8 +196,9 @@ static void HandleUpdateRoomCommand(DescriptorData* d, const nlohmann::json& req
 
 static void HandleCreateRoomCommand(DescriptorData* d, const nlohmann::json& request)
 {
+	int zone = request.value("zone", -1);
 	std::string data_str = request.dump();
-	HandleCreateRoom(d, data_str.c_str());
+	HandleCreateRoom(d, zone, data_str.c_str());
 }
 
 static void HandleDeleteRoomCommand(DescriptorData* d, const nlohmann::json& request)

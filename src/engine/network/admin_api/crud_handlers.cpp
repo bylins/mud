@@ -530,10 +530,105 @@ void HandleUpdateRoom(DescriptorData* d, int room_vnum, const char* json_data)
 	}
 }
 
-void HandleCreateRoom(DescriptorData* d, const char* json_data)
+void HandleCreateRoom(DescriptorData* d, int zone_vnum, const char* json_data)
 {
-	(void)json_data;
-	SendErrorResponse(d, "Room creation not implemented - use in-game OLC");
+	using admin_api::json::Utf8ToKoi8r;
+
+	try
+	{
+		json data = json::parse(json_data);
+
+		if (zone_vnum < 0)
+		{
+			SendErrorResponse(d, "zone_vnum is required");
+			return;
+		}
+
+		ZoneRnum zone_rnum = GetZoneRnum(zone_vnum);
+		if (zone_rnum < 0)
+		{
+			SendErrorResponse(d, "Zone not found");
+			return;
+		}
+
+		const ZoneData &zone = zone_table[zone_rnum];
+		int zone_start = zone_vnum * 100;
+		int zone_top = zone.top;
+
+		// Find available vnum or validate provided one
+		int vnum = data.value("vnum", -1);
+		if (vnum < 0)
+		{
+			vnum = zone_start;
+			while (vnum <= zone_top && GetRoomRnum(vnum) != kNowhere)
+			{
+				++vnum;
+			}
+			if (vnum > zone_top)
+			{
+				SendErrorResponse(d, "No available vnums in zone range");
+				return;
+			}
+		}
+		else
+		{
+			if (vnum < zone_start || vnum > zone_top)
+			{
+				SendErrorResponse(d, "Vnum is outside zone range");
+				return;
+			}
+			if (GetRoomRnum(vnum) != kNowhere)
+			{
+				SendErrorResponse(d, "Vnum already in use");
+				return;
+			}
+		}
+
+		// Create temporary OLC descriptor
+		auto *temp_d = new DescriptorData();
+		temp_d->olc = new olc_data();
+		temp_d->output = temp_d->small_outbuf;
+		temp_d->bufspace = kSmallBufsize - 1;
+		*temp_d->output = '\0';
+		temp_d->bufptr = 0;
+		temp_d->olc->number = vnum;
+		temp_d->olc->zone_num = zone_rnum;
+
+		// Create dummy character to prevent OLC crashes
+		temp_d->character = std::make_shared<CharData>();
+		temp_d->character->desc = temp_d;
+
+		// Initialize new room with defaults (like redit_setup with kNowhere)
+		RoomData *room = new RoomData;
+		room->name = str_dup("Unfurnished room.");
+		room->temp_description = str_dup("You are in an unfinished room.\r\n");
+
+		// Apply JSON fields
+		ParseRoomUpdate(room, data);
+
+		OLC_ROOM(temp_d) = room;
+
+		// Save via OLC (handles insertion, index updates, disk save)
+		redit_save_internally(temp_d);
+
+		// Clean up
+		delete temp_d->olc;
+		delete temp_d;
+
+		json response;
+		response["status"] = "ok";
+		response["message"] = "Room created successfully";
+		response["vnum"] = vnum;
+		SendJsonResponse(d, response);
+	}
+	catch (const json::parse_error&)
+	{
+		SendErrorResponse(d, "Invalid JSON format");
+	}
+	catch (const std::exception& e)
+	{
+		SendErrorResponse(d, (std::string("Create failed: ") + e.what()).c_str());
+	}
 }
 
 void HandleDeleteRoom(DescriptorData* d, int room_vnum)

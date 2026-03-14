@@ -173,9 +173,10 @@ void HandleUpdateRoom(DescriptorData* d, int room_vnum, const char* json_data);
 /**
  * \brief Create new room
  * \param d Descriptor to send response to
+ * \param zone_vnum Zone virtual number
  * \param json_data JSON room data
  */
-void HandleCreateRoom(DescriptorData* d, const char* json_data);
+void HandleCreateRoom(DescriptorData* d, int zone_vnum, const char* json_data);
 
 /**
  * \brief Delete room

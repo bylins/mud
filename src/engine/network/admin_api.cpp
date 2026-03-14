@@ -349,8 +349,9 @@ void admin_api_parse(DescriptorData *d, char *argument) {
 			HandleUpdateRoom(d, vnum, data.dump().c_str());
 		}
 		else if (command == "create_room") {
+			int zone = request.value("zone", -1);
 			json data = request.value("data", json::object());
-			HandleCreateRoom(d, data.dump().c_str());
+			HandleCreateRoom(d, zone, data.dump().c_str());
 		}
 		else if (command == "delete_room") {
 			int vnum = request.value("vnum", -1);
