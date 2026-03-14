@@ -140,7 +140,11 @@ void DoEnter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 						!AFF_FLAGGED(k->follower, EAffect::kHold) &&
 						k->follower->GetPosition() == EPosition::kStand &&
 						k->follower->in_room == from_room) {
-						snprintf(buf2, kMaxStringLength, "войти пентаграмма");
+						if (fnum > 1) {
+							snprintf(buf2, kMaxStringLength, "enter %d.%s", fnum, smallBuf);
+						} else {
+							snprintf(buf2, kMaxStringLength, "enter %s", smallBuf);
+						}
 						command_interpreter(k->follower, buf2);
 					}
 				}
