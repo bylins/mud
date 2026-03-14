@@ -185,6 +185,17 @@ public:
 	void EmptyLine() {
 		out_ << std::endl;
 	}
+
+	// Begin a nested block (for nested maps): outputs newline after key's colon, increases indent
+	void BeginBlock() {
+		out_ << std::endl;
+		indent_ += 2;
+	}
+
+	// End a nested block: decreases indent
+	void EndBlock() {
+		indent_ -= 2;
+	}
 };
 
 // ============================================================================
@@ -226,6 +237,81 @@ std::string GetMaterialNameComment(int material_id) {
 // Get apply type name by ID (for apply location comments)
 std::string GetApplyTypeNameComment(int apply_id) {
 	return ::apply_types[apply_id];
+}
+
+// Strip MUD color codes (&X) from string
+std::string StripMudColorCodes(const std::string &s)
+{
+	std::string result;
+	result.reserve(s.size());
+	for (size_t i = 0; i < s.size(); ++i)
+	{
+		if (s[i] == '&' && i + 1 < s.size())
+		{
+			++i;  // skip &X
+		}
+		else
+		{
+			result += s[i];
+		}
+	}
+	return result;
+}
+
+// Get mob name (nominative) by vnum (for zone command comments)
+std::string GetMobNameComment(int mob_vnum)
+{
+	MobRnum rnum = GetMobRnum(mob_vnum);
+	if (rnum < 0 || !mob_proto)
+	{
+		return "";
+	}
+	const char *name = mob_proto[rnum].get_pad(0);
+	if (!name || *name == '\0')
+	{
+		return "";
+	}
+	return StripMudColorCodes(name);
+}
+
+// Get room name by vnum (for zone command comments)
+std::string GetRoomNameByVnum(int room_vnum)
+{
+	RoomRnum rnum = GetRoomRnum(room_vnum);
+	return StripMudColorCodes(GetRoomNameComment(rnum));
+}
+
+// Get zone type name by type index
+std::string GetZoneTypeName(int type_id)
+{
+	if (zone_types == nullptr || type_id < 0)
+	{
+		return "";
+	}
+	for (int i = 0; *zone_types[i].name != '\n'; ++i)
+	{
+		if (i == type_id)
+		{
+			return zone_types[i].name;
+		}
+	}
+	return "";
+}
+
+// Get object name (nominative) by vnum (for zone command comments)
+std::string GetObjNameComment(int obj_vnum)
+{
+	int rnum = obj_proto.get_rnum(obj_vnum);
+	if (rnum < 0)
+	{
+		return "";
+	}
+	auto obj = obj_proto[rnum];
+	if (!obj)
+	{
+		return "";
+	}
+	return StripMudColorCodes(obj->get_PName(ECase::kNom));
 }
 
 // ============================================================================
@@ -2381,6 +2467,7 @@ void YamlWorldDataSource::SaveZone(int zone_rnum)
 	const ZoneData &zone = zone_table[zone_rnum];
 	std::string zone_dir = m_world_dir + "/zones/" + std::to_string(zone.vnum);
 	std::string zone_file = zone_dir + "/zone.yaml";
+	std::string temp_file = zone_file + ".tmp";
 
 	namespace fs = std::filesystem;
 	if (!fs::exists(zone_dir))
@@ -2388,112 +2475,264 @@ void YamlWorldDataSource::SaveZone(int zone_rnum)
 		fs::create_directories(zone_dir);
 	}
 
-	YAML::Node root;
-	root["vnum"] = zone.vnum;
-	root["name"] = zone.name;
-	root["zone_group"] = zone.group;
+	std::ofstream out(temp_file);
+	if (!out.is_open())
+	{
+		log("SYSERR: Failed to open temp file for writing: %s", temp_file.c_str());
+		return;
+	}
 
-	YAML::Node metadata;
-	if (!zone.comment.empty()) metadata["comment"] = zone.comment;
-	if (!zone.location.empty()) metadata["location"] = zone.location;
-	if (!zone.author.empty()) metadata["author"] = zone.author;
-	if (!zone.description.empty()) metadata["description"] = zone.description;
-	if (metadata.size() > 0) root["metadata"] = metadata;
+	Koi8rYamlEmitter yaml(out);
 
-	root["top_room"] = zone.top;
-	root["lifespan"] = zone.lifespan;
-	root["reset_mode"] = zone.reset_mode;
-	root["reset_idle"] = zone.reset_idle ? 1 : 0;
-	root["zone_type"] = zone.type;
-	root["mode"] = zone.level;
-	if (zone.entrance != 0) root["entrance"] = zone.entrance;
-	root["under_construction"] = zone.under_construction;
+	// Header comment
+	yaml.Comment("Zone #" + std::to_string(zone.vnum));
+	yaml.EmptyLine();
+
+	yaml.Key("vnum");
+	yaml.Value(zone.vnum);
+
+	yaml.Key("name");
+	yaml.Value(zone.name);
+
+	// Metadata block (optional)
+	if (!zone.comment.empty() || !zone.location.empty() || !zone.author.empty() || !zone.description.empty())
+	{
+		yaml.Key("metadata");
+		yaml.BeginBlock();
+		if (!zone.comment.empty())
+		{
+			yaml.Key("comment");
+			yaml.Value(zone.comment);
+		}
+		if (!zone.location.empty())
+		{
+			yaml.Key("location");
+			yaml.Value(zone.location);
+		}
+		if (!zone.author.empty())
+		{
+			yaml.Key("author");
+			yaml.Value(zone.author);
+		}
+		if (!zone.description.empty())
+		{
+			yaml.Key("description");
+			yaml.Value(zone.description, true);
+		}
+		yaml.EndBlock();
+	}
+
+	yaml.Key("top_room");
+	yaml.Value(zone.top);
+
+	yaml.Key("lifespan");
+	yaml.Value(zone.lifespan);
+
+	yaml.Key("reset_mode");
+	yaml.Value(zone.reset_mode);
+
+	yaml.Key("reset_idle");
+	yaml.Value(zone.reset_idle ? 1 : 0);
+
+	{
+		std::string zone_type_name = GetZoneTypeName(zone.type);
+		yaml.Key("zone_type");
+		yaml.Value(zone.type, zone_type_name);
+	}
+
+	yaml.Key("mode");
+	yaml.Value(zone.level, "level");
+
+	if (zone.entrance != 0)
+	{
+		yaml.Key("entrance");
+		yaml.Value(zone.entrance);
+	}
+
+	yaml.Key("under_construction");
+	yaml.Value(zone.under_construction);
+
+	if (zone.group > 0)
+	{
+		std::string group_comment = (zone.group <= 1) ? "solo" : ("group:" + std::to_string(zone.group));
+		yaml.Key("zone_group");
+		yaml.Value(zone.group, group_comment);
+	}
 
 	if (zone.typeA_count > 0)
 	{
-		YAML::Node typeA_zones;
+		yaml.Key("typeA_zones");
+		yaml.BeginSequence();
+		yaml.IncreaseIndent();
 		for (int i = 0; i < zone.typeA_count; ++i)
 		{
-			typeA_zones.push_back(zone.typeA_list[i]);
+			yaml.SequenceItem(zone.typeA_list[i]);
 		}
-		root["typeA_zones"] = typeA_zones;
+		yaml.DecreaseIndent();
 	}
 
 	if (zone.typeB_count > 0)
 	{
-		YAML::Node typeB_zones;
+		yaml.Key("typeB_zones");
+		yaml.BeginSequence();
+		yaml.IncreaseIndent();
 		for (int i = 0; i < zone.typeB_count; ++i)
 		{
-			typeB_zones.push_back(zone.typeB_list[i]);
+			yaml.SequenceItem(zone.typeB_list[i]);
 		}
-		root["typeB_zones"] = typeB_zones;
+		yaml.DecreaseIndent();
 	}
 
 	if (zone.cmd && zone.cmd[0].command != 'S')
 	{
-		YAML::Node commands;
+		yaml.Key("commands");
+		yaml.BeginSequence();
+		yaml.IncreaseIndent();
+
 		for (int i = 0; zone.cmd[i].command != 'S'; ++i)
 		{
 			const struct reset_com &cmd = zone.cmd[i];
 			std::ostringstream oss;
+			std::string comment;
 
 			switch (cmd.command)
 			{
 			case 'M':
+			{
 				oss << "MOB " << cmd.if_flag << " " << cmd.arg1 << " " << cmd.arg2 << " " << cmd.arg3;
 				if (cmd.arg4 != -1) oss << " " << cmd.arg4;
+				std::string mob_name = GetMobNameComment(cmd.arg1);
+				std::string room_name = GetRoomNameByVnum(cmd.arg3);
+				std::ostringstream coss;
+				if (!mob_name.empty()) coss << mob_name;
+				if (!room_name.empty())
+				{
+					if (!coss.str().empty()) coss << " -> ";
+					coss << room_name;
+				}
+				if (cmd.arg4 != -1)
+				{
+					if (!coss.str().empty()) coss << "; ";
+					coss << "mr:" << cmd.arg4 << " mw:" << cmd.arg2;
+				}
+				comment = coss.str();
 				break;
+			}
 			case 'O':
+			{
 				oss << "OBJECT " << cmd.if_flag << " " << cmd.arg1 << " " << cmd.arg2 << " " << cmd.arg3;
 				if (cmd.arg4 != -1) oss << " " << cmd.arg4;
+				std::string obj_name = GetObjNameComment(cmd.arg1);
+				std::string room_name = GetRoomNameByVnum(cmd.arg3);
+				std::ostringstream coss;
+				if (!obj_name.empty()) coss << obj_name;
+				if (!room_name.empty())
+				{
+					if (!coss.str().empty()) coss << " -> ";
+					coss << room_name;
+				}
+				comment = coss.str();
 				break;
+			}
 			case 'G':
 				oss << "GIVE " << cmd.if_flag << " " << cmd.arg1 << " " << cmd.arg2;
 				if (cmd.arg4 != -1) oss << " " << cmd.arg4;
+				comment = GetObjNameComment(cmd.arg1);
 				break;
 			case 'E':
+			{
 				oss << "EQUIP " << cmd.if_flag << " " << cmd.arg1 << " " << cmd.arg2 << " " << cmd.arg3;
 				if (cmd.arg4 != -1) oss << " " << cmd.arg4;
+				std::string obj_name = GetObjNameComment(cmd.arg1);
+				std::ostringstream coss;
+				if (!obj_name.empty()) coss << obj_name;
+				coss << ", wear: " << cmd.arg3;
+				comment = coss.str();
 				break;
+			}
 			case 'P':
+			{
 				oss << "PUT " << cmd.if_flag << " " << cmd.arg1 << " " << cmd.arg2 << " " << cmd.arg3;
 				if (cmd.arg4 != -1) oss << " " << cmd.arg4;
+				std::string obj_name = GetObjNameComment(cmd.arg1);
+				std::string cont_name = GetObjNameComment(cmd.arg3);
+				std::ostringstream coss;
+				if (!obj_name.empty()) coss << obj_name;
+				if (!cont_name.empty())
+				{
+					if (!coss.str().empty()) coss << " -> ";
+					coss << cont_name;
+				}
+				comment = coss.str();
 				break;
+			}
 			case 'D':
+			{
 				oss << "DOOR " << cmd.if_flag << " " << cmd.arg1 << " " << cmd.arg2 << " " << cmd.arg3;
+				std::string room_name = GetRoomNameByVnum(cmd.arg1);
+				std::ostringstream coss;
+				if (!room_name.empty()) coss << room_name;
+				coss << ", dir: " << cmd.arg2;
+				comment = coss.str();
 				break;
+			}
 			case 'R':
+			{
 				oss << "REMOVE " << cmd.if_flag << " " << cmd.arg1 << " " << cmd.arg2;
+				comment = GetRoomNameByVnum(cmd.arg1);
 				break;
+			}
 			case 'T':
 				oss << "TRIGGER " << cmd.if_flag << " " << cmd.arg1 << " " << cmd.arg2;
 				if (cmd.arg3 != -1) oss << " " << cmd.arg3;
+				comment = GetTriggerNameComment(cmd.arg2);
 				break;
 			case 'V':
 				oss << "VAR " << cmd.if_flag << " " << cmd.arg1 << " " << cmd.arg2 << " " << cmd.arg3;
 				if (cmd.sarg1) oss << " " << cmd.sarg1;
 				if (cmd.sarg2) oss << " " << cmd.sarg2;
+				if (cmd.sarg1 && cmd.sarg2)
+				{
+					comment = std::string(cmd.sarg1) + " = " + cmd.sarg2;
+				}
 				break;
 			case 'Q':
 				oss << "EXTRACT 0 " << cmd.arg1;
+				comment = GetMobNameComment(cmd.arg1);
 				break;
 			case 'F':
+			{
 				oss << "FOLLOW " << cmd.if_flag << " " << cmd.arg1 << " " << cmd.arg2 << " " << cmd.arg3;
+				std::string leader_name = GetMobNameComment(cmd.arg2);
+				std::string follower_name = GetMobNameComment(cmd.arg3);
+				std::string room_name = GetRoomNameByVnum(cmd.arg1);
+				std::ostringstream coss;
+				if (!leader_name.empty()) coss << leader_name;
+				if (!follower_name.empty())
+				{
+					if (!coss.str().empty()) coss << " -> ";
+					coss << follower_name;
+				}
+				if (!room_name.empty())
+				{
+					if (!coss.str().empty()) coss << ", in ";
+					coss << room_name;
+				}
+				comment = coss.str();
 				break;
+			}
 			default:
 				continue;
 			}
 
-			commands.push_back(oss.str());
+			yaml.SequenceItem(oss.str(), comment);
 		}
-		root["commands"] = commands;
+
+		yaml.DecreaseIndent();
 	}
 
-	if (!WriteYamlAtomic(zone_file, root))
-	{
-		log("SYSERR: Failed to save zone %d", zone.vnum);
-		return;
-	}
+	out.close();
+	std::rename(temp_file.c_str(), zone_file.c_str());
 
 	log("Saved zone %d to YAML file", zone.vnum);
 }
