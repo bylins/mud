@@ -275,6 +275,7 @@ void HandleListMobs(DescriptorData* d, const char* zone_vnum_str)
 
 		json mob_data;
 		mob_data["vnum"] = mob_vnum;
+		mob_data["name"] = admin_api::json::Koi8rToUtf8(mob_proto[i].player_data.PNames[ECase::kNom]);
 		mob_data["aliases"] = admin_api::json::Koi8rToUtf8(mob_proto[i].get_npc_name());
 		mob_data["short_desc"] = admin_api::json::Koi8rToUtf8(mob_proto[i].player_data.long_descr);
 		mob_data["level"] = mob_proto[i].GetLevel();
@@ -429,6 +430,7 @@ void HandleListObjects(DescriptorData* d, const char* zone_vnum_str)
 
 		json obj_data;
 		obj_data["vnum"] = obj->get_vnum();
+		obj_data["name"] = admin_api::json::Koi8rToUtf8(obj->get_short_description());
 		obj_data["aliases"] = admin_api::json::Koi8rToUtf8(obj->get_aliases());
 		obj_data["short_desc"] = admin_api::json::Koi8rToUtf8(obj->get_short_description());
 		obj_data["type"] = static_cast<int>(obj->get_type());
