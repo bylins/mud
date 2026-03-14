@@ -27,6 +27,8 @@
 #include "gameplay/skills/shield_block.h"
 #include "gameplay/skills/backstab.h"
 #include "gameplay/skills/ironwind.h"
+#include "engine/observability/helpers.h"
+#include "engine/observability/metrics.h"
 #include "gameplay/mechanics/armor.h"
 #include "gameplay/skills/addshot.h"
 
@@ -296,6 +298,9 @@ void HitData::Init(CharData *ch, CharData *victim) {
 		// удар голыми руками
 		weap_skill = ESkill::kPunch;
 	}
+	if (skill_num == ESkill::kBackstab || skill_num == ESkill::kThrow) {
+		TrainSkill(ch, weap_skill, true, victim);
+	}
 	if (skill_num == ESkill::kUndefined) {
 		TrainSkill(ch, weap_skill, true, victim);
 		SkillRollResult result = MakeSkillTest(ch, weap_skill, victim);
@@ -311,7 +316,7 @@ void HitData::Init(CharData *ch, CharData *victim) {
 		}
 	}
 	//* обработка ESkill::kNoParryHit //
-	if (skill_num == ESkill::kUndefined && ch->GetSkill(ESkill::kNoParryHit)) {
+	if ((skill_num == ESkill::kUndefined || skill_num == ESkill::kBackstab) && ch->GetSkill(ESkill::kNoParryHit)) {
 		int tmp_skill = CalcCurrentSkill(ch, ESkill::kNoParryHit, victim);
 		bool success = tmp_skill >= number(1, MUD::Skill(ESkill::kNoParryHit).difficulty);
 		TrainSkill(ch, ESkill::kNoParryHit, success, victim);
@@ -502,6 +507,7 @@ void HitData::CalcCircumstantialHitroll(CharData *ch, CharData *victim) {
 	if (skill_num != ESkill::kThrow && skill_num != ESkill::kBackstab) {
 		int prob = (ch->GetSkill(weap_skill) + cha_app[GetRealCha(ch)].illusive) -
 			(victim->GetSkill(weap_skill) + int_app[GetRealInt(victim)].observation);
+
 		if (prob >= 30 && !victim->battle_affects.get(kEafAwake)
 			&& (ch->IsNpc() || !ch->battle_affects.get(kEafPunctual))) {
 			calc_thaco -= static_cast<int>((ch->GetSkill(weap_skill) -
@@ -858,6 +864,10 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 			victim->purged() ? "purged" : "true", __FILE__, __LINE__);
 		return;
 	}
+
+
+	// OpenTelemetry: Measure hit duration
+	observability::ScopedMetric hit_metric("combat.hit.duration");
 	// Do some sanity checking, in case someone flees, etc.
 	if (ch->in_room != victim->in_room || ch->in_room == kNowhere) {
 		if (ch->GetEnemy() && ch->GetEnemy() == victim) {
@@ -926,6 +936,7 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 		if (ch->purged() || victim->purged()) { // вдруг помер
 			return;
 		}
+
 		if (ch->in_room != victim->in_room) {  //если сбег по трусости
 			return;
 		}
@@ -959,7 +970,7 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 		} else {
 			// шанс промазать = разнице уровней и мортов
 			const int diff = victim_lvl_miss - ch_lvl_miss;
-			if (number(1, 100) <= diff) {
+			if (number(1, 200) <= diff) {
 				hit_params.dam = 0;
 				hit_params.ProcessExtradamage(ch, victim);
 				hitprcnt_mtrigger(victim);
@@ -1064,7 +1075,6 @@ void ProcessExtrahits(CharData *ch, CharData *victim, ESkill type, fight::Attack
 		log("SYSERROR: ch = %s (%s:%d)", ch ? (ch->purged() ? "purged" : "true") : "false", __FILE__, __LINE__);
 		return;
 	}
-
 	ProcessIronWindHits(ch, weapon);
 	ProcessMultyShotHits(ch, victim, type, weapon);
 	hit(ch, victim, type, weapon);

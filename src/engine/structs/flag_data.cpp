@@ -169,11 +169,11 @@ bool FlagData::sprintbits(const char *names[], char *result, const char *div, co
 	return have_flags;
 }
 
-void FlagData::gm_flag(const char *subfield, const char *const *const list, char *res) {
-	strcpy(res, "0");
+int FlagData::gm_flag(const char *subfield, const char *const *const list, char *res) {
+//	strcpy(res, "0");
 
 	if ('\0' == *subfield) {
-		return;
+		return 0;
 	}
 
 	if (*subfield == '-') {
@@ -184,7 +184,8 @@ void FlagData::gm_flag(const char *subfield, const char *const *const list, char
 			{
 				strcpy(res, "");
 			}
-		}
+		} else 
+			return 0;
 	} else if (*subfield == '+') {
 		const int flag = ext_search_block(subfield + 1, list, false);
 		if (flag) {
@@ -193,15 +194,19 @@ void FlagData::gm_flag(const char *subfield, const char *const *const list, char
 			{
 				strcpy(res, "");
 			}
-		}
+		} else 
+			return 0;
 	} else {
 		const int flag = ext_search_block(subfield, list, false);
-		if (flag && get(flag)) {
-			strcpy(res, "1");
+		if (flag) {
+			if (get(flag)) {
+				strcpy(res, "1");
+			} else
+				strcpy(res, "0");
 		} else
-			strcpy(res, "0");
-
+			return 0;
 	}
+	return 1;
 }
 
 // заколебали эти флаги... сравниваем num и все поля в flags

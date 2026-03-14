@@ -72,8 +72,6 @@ void DoRemort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	log("Remort %s", GET_NAME(ch));
 	ch->remort();
 	act(remort_msg2, false, ch, nullptr, nullptr, kToRoom);
-
-	if (ch->is_morphed()) ch->reset_morph();
 	ch->set_remort(ch->get_remort() + 1);
 	CLR_GOD_FLAG(ch, EGf::kRemort);
 	ch->inc_str(1);
@@ -94,13 +92,8 @@ void DoRemort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		}
 	}
 
-	while (ch->timed) {
-		ExpireTimedSkill(ch, ch->timed);
-	}
-
-	while (ch->timed_feat) {
-		ExpireTimedFeat(ch, ch->timed_feat);
-	}
+	ch->timed_skill.clear();
+	ch->timed_feat.clear();
 	for (const auto &feat : MUD::Feats()) {
 		ch->UnsetFeat(feat.GetId());
 	}

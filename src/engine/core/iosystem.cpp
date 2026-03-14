@@ -708,6 +708,19 @@ int process_output(DescriptorData *t) {
 		return -1;
 	}
 
+#ifdef ENABLE_ADMIN_API
+	// Admin API uses raw JSON output, skip formatting
+	if (t->admin_api_mode) {
+		if (!t->output || !*t->output)
+			return 0;
+
+		int result = write_to_descriptor(t->descriptor, t->output, strlen(t->output));
+		t->bufptr = 0;
+		*t->output = '\0';
+		return (result >= 0 ? 1 : -1);
+	}
+#endif
+
 	// Отправляю данные снуперам
 	// handle snooping: prepend "% " and send to snooper
 	if (t->output && t->snoop_by) {
@@ -1049,7 +1062,7 @@ int mccp_end(DescriptorData *t, int ver) {
 }
 #endif
 
-int toggle_compression(DescriptorData *t) {
+int toggle_compression([[maybe_unused]] DescriptorData *t) {
 #if defined(HAVE_ZLIB)
 	if (t->mccp_version == 0)
 		return 0;
@@ -1150,10 +1163,12 @@ std::string MakePrompt(DescriptorData *d) {
 		}
 
 		if (ch->IsFlagged(EPrf::kDispTimed)) {
-			for (auto timed = ch->timed; timed; timed = timed->next) {
-				if (timed->skill != ESkill::kWarcry && timed->skill != ESkill::kTurnUndead) {
+			for (auto timed : ch->timed_skill) {
+				int display_time = (timed.second - time(0) - 1) / 60 + 1;
+
+				if (display_time > 0 && timed.first != ESkill::kWarcry && timed.first != ESkill::kTurnUndead) {
 					fmt::format_to(std::back_inserter(out), "{}:{} ",
-							  MUD::Skill(timed->skill).GetAbbr(), +timed->time);
+							  MUD::Skill(timed.first).GetAbbr(), +display_time);
 				}
 			}
 			if (ch->GetSkill(ESkill::kWarcry)) {

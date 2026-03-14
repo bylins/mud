@@ -132,11 +132,11 @@ void glory_hide(CharData *ch,
 }
 
 void transfer_log(const char *format, ...) {
-	const char *filename = "../log/glory_transfer.log";
+	const auto filename = runtime_config.log_dir() + "/glory_transfer.log";
 
-	FILE *file = fopen(filename, "a");
+	FILE *file = fopen(filename.c_str(), "a");
 	if (!file) {
-		log("SYSERR: can't open %s!", filename);
+		log("SYSERR: can't open %s!", filename.c_str());
 		return;
 	}
 
@@ -896,7 +896,7 @@ void load() {
 	pugi::xml_document doc;
 	pugi::xml_parse_result result = doc.load_file(LIB_PLRSTUFF"glory_const.xml");
 	if (!result) {
-		snprintf(buf, kMaxStringLength, "SYSERR: error reading glory_const.xml: %s", result.description());
+		snprintf(buf, kMaxStringLength, "WARNING: glory_const.xml not found or unreadable (%s), skipping (non-fatal)", result.description());
 		perror(buf);
 		return;
 	}

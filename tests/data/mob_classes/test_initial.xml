@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Minimal mob_classes XML for unit tests: initial state with kBoss -->
+<mob_classes>
+    <global_vars lvl_per_difficulty="3" boss_add_lvl="7"/>
+    <mobclass id="kBoss" mode="kEnabled">
+        <name rus="Boss" eng="Boss"/>
+        <savings>
+            <saving id="kWill" base="0" low_increment="0" threshold_mort="1" increment="-1" deviation_type="0" deviation="0"/>
+        </savings>
+        <skills>
+            <skill id="kUndefined" base="70" low_increment="0" threshold_mort="1" increment="0" deviation_type="0" deviation="0"/>
+        </skills>
+    </mobclass>
+</mob_classes>

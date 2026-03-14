@@ -125,17 +125,15 @@ void CheckLight(CharData *ch, int was_equip, int was_single, int was_holylight, 
 }
 
 void DecreaseFeatTimer(CharData *ch, EFeat feat_id) {
-	for (auto *skj = ch->timed_feat; skj; skj = skj->next) {
-		if (skj->feat == feat_id) {
-			if (skj->time >= 1) {
-				--(skj->time);
-			} else {
-				ExpireTimedFeat(ch, skj);
-			}
-			return;
+	auto it = ch->timed_feat.find(feat_id);
+	if (it !=  ch->timed_feat.end()) {
+		if (it->second >= 1) {
+			--(it->second);
+		} else {
+			ch->timed_feat.erase(it);
 		}
 	}
-};
+}
 
 template <class TalentId>
 int GetTalentTimerMod(CharData *ch, TalentId id) {
@@ -151,40 +149,23 @@ int GetTalentTimerMod(CharData *ch, TalentId id) {
 }
 
 void ImposeTimedFeat(CharData *ch, TimedFeat *timed) {
-	timed->time = std::max(1, timed->time + GetTalentTimerMod(ch, timed->feat));
-
-	struct TimedFeat *timed_alloc, *skj;
-	for (skj = ch->timed_feat; skj; skj = skj->next) {
-		if (skj->feat == timed->feat) {
-			skj->time = timed->time;
-			return;
-		}
-	}
-
-	CREATE(timed_alloc, 1);
-
-	*timed_alloc = *timed;
-	timed_alloc->next = ch->timed_feat;
-	ch->timed_feat = timed_alloc;
+	ch->timed_feat[timed->feat] = std::max(time(0) + 60, time(0) + timed->time * 60 + GetTalentTimerMod(ch, timed->feat) * kSecsPerMudHour / kSecsPerPlayerTimed);
 }
 
-void ExpireTimedFeat(CharData *ch, TimedFeat *timed) {
-	if (ch->timed_feat == nullptr) {
+void ExpireTimedFeat(CharData *ch, EFeat feat) {
+	if (ch->timed_feat.empty()) {
 		log("SYSERR: timed_feat_from_char(%s) when no timed...", GET_NAME(ch));
 		return;
 	}
 
-	REMOVE_FROM_LIST(timed, ch->timed_feat);
-	free(timed);
+	ch->timed_feat.erase(feat);
 }
 
 int IsTimedByFeat(CharData *ch, EFeat feat) {
-	struct TimedFeat *hjp;
-
-	for (hjp = ch->timed_feat; hjp; hjp = hjp->next)
-		if (hjp->feat == feat)
-			return (hjp->time);
-
+	auto it = ch->timed_feat.find(feat);
+	if (it != ch->timed_feat.end()) {
+		return (it->second - time(0) - 1) / 60 + 1;
+	}
 	return (0);
 }
 
@@ -192,41 +173,26 @@ int IsTimedByFeat(CharData *ch, EFeat feat) {
  * Insert an TimedSkill in a char_data structure
  */
 void ImposeTimedSkill(CharData *ch, struct TimedSkill *timed) {
-	timed->time = std::max(1, timed->time + GetTalentTimerMod(ch, timed->skill));
-
-	struct TimedSkill *timed_alloc, *skj;
-	for (skj = ch->timed; skj; skj = skj->next) {
-		if (skj->skill == timed->skill) {
-			skj->time = timed->time;
-			return;
-		}
-	}
-
-	CREATE(timed_alloc, 1);
-
-	*timed_alloc = *timed;
-	timed_alloc->next = ch->timed;
-	ch->timed = timed_alloc;
+	ch->timed_skill[timed->skill] = std::max(time(0) + 60, time(0) + timed->time * 60 + GetTalentTimerMod(ch, timed->skill) * kSecsPerMudHour / kSecsPerPlayerTimed);
+//	mudlog(fmt::format("Время установлено {} count {}", ch->timed_skill[timed->skill], timed->time));
 }
 
-void ExpireTimedSkill(CharData *ch, struct TimedSkill *timed) {
-	if (ch->timed == nullptr) {
+void ExpireTimedSkill(CharData *ch, ESkill skill) {
+	if (ch->timed_skill.empty()) {
 		log("SYSERR: ExpireTimedSkill(%s) when no timed...", GET_NAME(ch));
 		// core_dump();
 		return;
 	}
 
-	REMOVE_FROM_LIST(timed, ch->timed);
-	free(timed);
+	ch->timed_skill.erase(skill);
 }
 
 int IsTimedBySkill(CharData *ch, ESkill id) {
-	struct TimedSkill *hjp;
-
-	for (hjp = ch->timed; hjp; hjp = hjp->next)
-		if (hjp->skill == id)
-			return (hjp->time);
-
+	
+	auto it = ch->timed_skill.find(id);
+	if (it != ch->timed_skill.end()) {
+		return (it->second - time(0) - 1) / 60 + 1;
+	}
 	return (0);
 }
 
@@ -449,7 +415,7 @@ void PlaceObjToInventory(ObjData *object, CharData *ch) {
 				inworld = 1;
 				// Объект готов для проверки. Ищем в мире такой же.
 				world_objects.foreach_with_vnum(GET_OBJ_VNUM(object), [&inworld, tuid, object](const ObjData::shared_ptr &i) {
-					if (i->get_unique_id() == tuid // UID совпадает
+					if (static_cast<unsigned int>(i->get_unique_id()) == tuid // UID совпадает
 						&& i->get_timer() > 0  // Целенький
 						&& object != i.get()) // Не оно же
 					{
@@ -901,7 +867,6 @@ void EquipObj(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip_f
 				if (j.aff_spell == ESpell::kUndefined || !obj->GetEWeaponAffect(j.aff_pos)) {
 					continue;
 				}
-
 				if (!no_cast) {
 					if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoMagic)) {
 						act("Магия $o1 потерпела неудачу и развеялась по воздуху.",
@@ -1346,6 +1311,7 @@ bool CheckObjDecay(ObjData *object,  bool need_extract) {
 		act("$o0 медленно утонул$G.",
 			false, world[room]->first_character(), object, nullptr, kToChar);
 		if (need_extract) {
+			log("[Obj decay] for: %s vnum == %d", object->get_PName(ECase::kNom).c_str(), GET_OBJ_VNUM(object));
 			ExtractObjFromWorld(object);
 		}
 		return true;
@@ -1358,19 +1324,21 @@ bool CheckObjDecay(ObjData *object,  bool need_extract) {
 		act("$o0 упал$G вниз.",
 			false, world[room]->first_character(), object, nullptr, kToChar);
 		if (need_extract) {
+			log("[Obj decay] for: %s vnum == %d", object->get_PName(ECase::kNom).c_str(), GET_OBJ_VNUM(object));
 			ExtractObjFromWorld(object);
 		}
 		return true;
 	}
 
 	if (object->has_flag(EObjFlag::kDecay) ||
-		(object->has_flag(EObjFlag::kZonedacay) &&
+		(object->has_flag(EObjFlag::kZonedecay) &&
 		object->get_vnum_zone_from() != zone_table[world[room]->zone_rn].vnum)) {
 		act("$o0 рассыпал$U в мелкую пыль, которую развеял ветер.", false,
 			world[room]->first_character(), object, nullptr, kToRoom);
 		act("$o0 рассыпал$U в мелкую пыль, которую развеял ветер.", false,
 			world[room]->first_character(), object, nullptr, kToChar);
 		if (need_extract) {
+			log("[Obj decay] for: %s vnum == %d", object->get_PName(ECase::kNom).c_str(), GET_OBJ_VNUM(object));
 			ExtractObjFromWorld(object);
 		}
 		return true;
@@ -1478,7 +1446,8 @@ void ExtractObjFromWorld(ObjData *obj, bool showlog) {
 	utils::CExecutionTimer timer;
 
 	strcpy(name, obj->get_PName(ECase::kNom).c_str());
-	if (showlog) {
+//	if (showlog);
+	{
 		log("[Extract obj] Start for: %s vnum == %d room = %d timer == %d",
 				name, GET_OBJ_VNUM(obj), roomload, obj->get_timer());
 	}
@@ -1537,11 +1506,10 @@ void ExtractObjFromWorld(ObjData *obj, bool showlog) {
 
 	check_auction(nullptr, obj);
 	check_exchange(obj);
-	const auto rnum = obj->get_rnum();
-	obj_proto.dec_number(rnum);
 	obj->get_script()->set_purged();
 	world_objects.remove(obj);
-	if (showlog) {
+//	if (showlog);
+	{
 		log("[Extract obj] Stop, delta %f", timer.delta().count());
 	}
 }
@@ -1643,6 +1611,25 @@ void change_npc_leader(CharData *ch) {
 
 } // namespace
 
+void DropEquipment(CharData *ch, bool zone_reset) {
+	for (auto i = 0; i < EEquipPos::kNumEquipPos; i++) {
+		if (GET_EQ(ch, i)) {
+			ObjData *obj_eq = UnequipChar(ch, i, CharEquipFlags());
+			if (!obj_eq) {
+				continue;
+			}
+			remove_otrigger(obj_eq, ch);
+			DropObjOnZoneReset(ch, obj_eq, false, zone_reset);
+		}
+	}
+}
+void DropInventory(CharData *ch, bool zone_reset) {
+	while (ch->carrying) {
+		ObjData *obj = ch->carrying;
+		RemoveObjFromChar(obj);
+		DropObjOnZoneReset(ch, obj, true, zone_reset);
+	}
+}
 /**
 * Extract a ch completely from the world, and leave his stuff behind
 * \param zone_reset - 0 обычный пурж когда угодно (по умолчанию), 1 - пурж при резете зоны
@@ -1652,7 +1639,7 @@ void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset) {
 		log("SYSERROR: double extract_char (%s:%d)", __FILE__, __LINE__);
 		return;
 	}
-
+	
 	if (ch->IsFlagged(EMobFlag::kMobFreed) || ch->IsFlagged(EMobFlag::kMobDeleted)) {
 		return;
 	}
@@ -1687,24 +1674,10 @@ void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset) {
 	}
 
 	// transfer equipment to room, if any
-//	log("[Extract char] Drop equipment");
-	for (auto i = 0; i < EEquipPos::kNumEquipPos; i++) {
-		if (GET_EQ(ch, i)) {
-			ObjData *obj_eq = UnequipChar(ch, i, CharEquipFlags());
-			if (!obj_eq) {
-				continue;
-			}
-			remove_otrigger(obj_eq, ch);
-			DropObjOnZoneReset(ch, obj_eq, false, zone_reset);
-		}
-	}
-
-	// transfer objects to room, if any
-//	log("[Extract char] Drop objects");
-	while (ch->carrying) {
-		ObjData *obj = ch->carrying;
-		RemoveObjFromChar(obj);
-		DropObjOnZoneReset(ch, obj, true, zone_reset);
+//	log("[Extract char] Drop equipment & inventory");
+	if (ch->in_room != kNowhere) {
+		DropEquipment(ch, zone_reset);
+		DropInventory(ch, zone_reset);
 	}
 
 	if (ch->IsNpc()) {
@@ -1736,7 +1709,9 @@ void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset) {
 	change_fighting(ch, true);
 
 //	log("[Extract char] Remove char from room");
-	RemoveCharFromRoom(ch);
+	if (ch->in_room != kNowhere) {
+		RemoveCharFromRoom(ch);
+	}
 
 	// pull the char from the list
 	ch->SetFlag(EMobFlag::kMobDeleted);

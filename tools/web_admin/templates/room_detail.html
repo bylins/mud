@@ -1,0 +1,343 @@
+{% extends "base.html" %}
+
+{% block title %}Комната #{{ room.vnum }} - Былины MUD{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs-bar">
+    <div class="max-w-[1280px] mx-auto px-6 py-2.5">
+        <div class="flex items-center gap-2 font-inter text-sm text-ink-muted">
+            <a href="{{ url_for('index') }}">Главная</a>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #d4c49a;">
+                <polyline points="9 18 15 12 9 6"/>
+            </svg>
+            <a href="{{ url_for('rooms_list', zone=room.vnum // 100) }}">Комнаты</a>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #d4c49a;">
+                <polyline points="9 18 15 12 9 6"/>
+            </svg>
+            <span class="text-ink-light">Комната #{{ room.vnum }}</span>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+
+    <!-- Page Header -->
+    <div class="page-header" style="margin-bottom: 8px;">
+        <div>
+            <h2 class="font-serif-display" style="font-size: 28px;">
+                Комната <span class="text-amber-700">#{{ room.vnum }}</span>
+            </h2>
+            <p class="page-subtitle mud-colorize" style="margin-top: 4px;">
+                {{ room.name|default('Без названия') }}
+                <span style="color: #b0a48e; margin-left: 12px;">зона {{ room.vnum // 100 }}{% if zone.name %} - {{ zone.name }}{% endif %}</span>
+            </p>
+        </div>
+
+        <div style="display: flex; gap: 10px; align-items: center;">
+            <a href="{{ url_for('room_edit', vnum=room.vnum) }}" class="btn-primary">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                </svg>
+                Редактировать
+            </a>
+            <a href="{{ url_for('rooms_list', zone=room.vnum // 100) }}" class="btn-secondary">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+                К списку
+            </a>
+        </div>
+    </div>
+
+    <!-- Ornamental divider -->
+    <div class="ornament-divider">
+        <div class="ornament-divider-inner">
+            <div class="ornament-line ornament-line-left"></div>
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" style="opacity: 0.5;">
+                <path d="M10 2L12 8L18 8L13 12L15 18L10 14L5 18L7 12L2 8L8 8Z"/>
+            </svg>
+            <div class="ornament-line ornament-line-right"></div>
+        </div>
+    </div>
+
+    {% set sector_names = {
+        0: '0 - Внутри помещения',
+        1: '1 - Город',
+        2: '2 - Поле',
+        3: '3 - Лес',
+        4: '4 - Холмы',
+        5: '5 - Горы',
+        6: '6 - Плавание (вода)',
+        7: '7 - Под водой',
+        8: '8 - Полет',
+        9: '9 - Секрет',
+        10: '10 - Густой лес',
+        11: '11 - Тонкий лед',
+        12: '12 - Нормальный лед',
+        13: '13 - Крепкий лед',
+        14: '14 - Глубокая вода'
+    } %}
+
+    <!-- ===== SECTION 1: Basic Information ===== -->
+    <div class="parchment-section">
+        <div class="parchment-section-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                <polyline points="9 22 9 12 15 12 15 22"/>
+            </svg>
+            Основная информация
+        </div>
+
+        <div class="detail-grid detail-grid-3">
+            <div class="detail-field">
+                <div class="detail-field-label">Vnum</div>
+                <div class="detail-field-value">{{ room.vnum }}</div>
+            </div>
+            <div class="detail-field">
+                <div class="detail-field-label">Название</div>
+                <div class="detail-field-value mud-colorize{% if not room.name %} empty{% endif %}">{{ room.name|default('--') }}</div>
+            </div>
+            <div class="detail-field">
+                <div class="detail-field-label">Тип местности</div>
+                <div class="detail-field-value">
+                    {{ sector_names.get(room.sector_type, room.sector_type) }}
+                </div>
+            </div>
+        </div>
+
+        {% if room.description %}
+        <div style="margin-top: 16px;">
+            <div class="detail-field">
+                <div class="detail-field-label">Описание</div>
+                <div class="detail-field-value mud-colorize" style="white-space: pre-wrap; line-height: 1.6;">{{ room.description }}</div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- ===== SECTION 2: Exits ===== -->
+    <div class="parchment-section">
+        <div class="parchment-section-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                <polyline points="15 3 21 3 21 9"/>
+                <line x1="10" y1="14" x2="21" y2="3"/>
+            </svg>
+            Выходы
+        </div>
+
+        {% set dir_names = ['Север', 'Восток', 'Юг', 'Запад', 'Вверх', 'Вниз'] %}
+
+        {% if room.exits and room.exits|length > 0 %}
+        <div class="detail-grid detail-grid-3">
+            {% for exit in room.exits %}
+            <div class="detail-field" style="background-color: rgba(253, 246, 227, 0.5); border: 1px solid rgba(120, 53, 15, 0.08); border-radius: 6px; padding: 12px 16px;">
+                <div class="detail-field-label" style="display: flex; align-items: center; gap: 6px;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b45309" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M5 12h14M12 5l7 7-7 7"/>
+                    </svg>
+                    {{ dir_names[exit.direction] if exit.direction < 6 else 'Направление ' ~ exit.direction }}
+                </div>
+                <div class="detail-field-value">
+                    {% if exit.to_room is defined and exit.to_room >= 0 %}
+                    <a href="{{ url_for('room_detail', vnum=exit.to_room) }}" class="action-link" style="font-weight: 600;">
+                        #{{ exit.to_room }}{% if exit.to_room_name %}: {{ exit.to_room_name }}{% endif %}
+                    </a>
+                    {% else %}
+                    <span style="color: #8a7b6b;">--</span>
+                    {% endif %}
+                    {% if exit.keyword %}
+                    <span style="color: #8a7b6b; font-size: 13px; margin-left: 6px;">({{ exit.keyword }})</span>
+                    {% endif %}
+                </div>
+                {% if exit.description %}
+                <div style="font-size: 13px; color: #5a4d3f; margin-top: 4px;">{{ exit.description }}</div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div style="font-family: 'Inter', sans-serif; font-size: 14px; color: #8a7b6b; padding: 20px; text-align: center; background-color: rgba(253, 246, 227, 0.4); border: 1px dashed rgba(120, 53, 15, 0.12); border-radius: 8px;">
+            Выходов нет
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- ===== SECTION 3: Room Flags ===== -->
+    {% set rf0 = room.room_flags[0]|default(0)|int if room.room_flags else 0 %}
+    {% set rf1 = room.room_flags[1]|default(0)|int if room.room_flags else 0 %}
+    {% set rf2 = room.room_flags[2]|default(0)|int if room.room_flags else 0 %}
+    {% set has_any_flags = (rf0 != 0) or (rf1 != 0) or (rf2 != 0) %}
+
+    {% if has_any_flags %}
+    <div class="parchment-section">
+        <div class="parchment-section-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/>
+                <line x1="4" y1="22" x2="4" y2="15"/>
+            </svg>
+            Флаги комнаты (room flags)
+        </div>
+
+        {# === Группа 0: Basic room flags === #}
+        {% set room_flags_p0 = {
+            1: 'Темная (Dark)', 2: 'ДТ (Death Trap)', 4: 'Не для мобов (No Mob)',
+            8: 'Внутри (Indoors)', 16: 'Мирная (Peaceful)', 32: 'Глухая (Soundproof)',
+            64: 'Не выследить (No Track)', 128: 'Нет магии (No Magic)',
+            256: 'Однопроходная (Tunnel)', 512: 'Телепорт в запрещен (No Teleport In)',
+            1024: 'Боги (Gods Room)', 2048: 'Замок (House)', 8192: 'Вход в замок (House Entry)',
+            65536: 'Для магов (For Mages)', 131072: 'Для лекарей (For Sorcerers)',
+            262144: 'Для воров (For Thieves)', 524288: 'Для богатырей (For Warriors)',
+            1048576: 'Для наемников (For Assassins)', 2097152: 'Для дружинников (For Guards)',
+            4194304: 'Для витязей (For Paladins)', 8388608: 'Для охотников (For Rangers)',
+            16777216: 'Жертвенник (Poly)', 33554432: 'Молельня (Mono)',
+            67108864: 'Кузница (Forge)', 134217728: 'Для купцов (For Merchants)',
+            268435456: 'Для волхвов (For Maguses)', 536870912: 'Арена (Arena)'
+        } %}
+
+        {% if rf0 != 0 %}
+        <div class="subsection-label">Группа 0 -- Основные</div>
+        <div style="margin-bottom: 16px;">
+            <div class="flag-summary" style="margin-bottom: 6px;">
+                <span class="flag-summary-hex">0x{{ '%X' % rf0 }}</span>
+                <span class="flag-summary-dec">(dec: {{ rf0 }})</span>
+            </div>
+            <div class="flag-cards">
+                {% for bit, name in room_flags_p0.items()|sort %}
+                    {% if ((rf0 // bit) % 2) == 1 %}
+                    <span class="flag-card">{{ name }}</span>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        {# === Группа 1: Extended room flags === #}
+        {% set room_flags_p1 = {
+            1: 'Не призвать (No Summon Out)', 2: 'Телепорт из запрещен (No Teleport Out)',
+            4: 'Нельзя верхом (No Horse)', 8: 'Внепогодная (No Weather)',
+            16: 'Медленный ДТ (Slow Death Trap)', 32: 'Провалился под лед (Ice Trap)',
+            64: 'Не переместиться (No Relocate In)', 128: 'Слышно арену (Tribune)',
+            256: 'Транслируем арену (Arena Send)', 512: 'Нельзя атаковать (No Battle)',
+            2048: 'Всегда светло (Always Lit)', 4096: 'Нет внумов (MoMapper)'
+        } %}
+
+        {% if rf1 != 0 %}
+        <div class="subsection-label">Группа 1 -- Дополнительные</div>
+        <div style="margin-bottom: 16px;">
+            <div class="flag-summary" style="margin-bottom: 6px;">
+                <span class="flag-summary-hex">0x{{ '%X' % rf1 }}</span>
+                <span class="flag-summary-dec">(dec: {{ rf1 }})</span>
+            </div>
+            <div class="flag-cards">
+                {% for bit, name in room_flags_p1.items()|sort %}
+                    {% if ((rf1 // bit) % 2) == 1 %}
+                    <span class="flag-card">{{ name }}</span>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        {# === Группа 2: Special room flags === #}
+        {% set room_flags_p2 = {
+            1: 'Передача вещей запрещена (No Item)', 2: 'Арена Доминирования (Domination Arena)'
+        } %}
+
+        {% if rf2 != 0 %}
+        <div class="subsection-label">Группа 2 -- Специальные</div>
+        <div>
+            <div class="flag-summary" style="margin-bottom: 6px;">
+                <span class="flag-summary-hex">0x{{ '%X' % rf2 }}</span>
+                <span class="flag-summary-dec">(dec: {{ rf2 }})</span>
+            </div>
+            <div class="flag-cards">
+                {% for bit, name in room_flags_p2.items()|sort %}
+                    {% if ((rf2 // bit) % 2) == 1 %}
+                    <span class="flag-card">{{ name }}</span>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- ===== SECTION 4: Extra Descriptions ===== -->
+    {% if room.extra_descriptions and room.extra_descriptions|length > 0 %}
+    <div class="parchment-section">
+        <div class="parchment-section-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+                <line x1="16" y1="13" x2="8" y2="13"/>
+                <line x1="16" y1="17" x2="8" y2="17"/>
+            </svg>
+            Дополнительные описания (extra descriptions)
+        </div>
+
+        {% for ed in room.extra_descriptions %}
+        <div style="background-color: rgba(253, 246, 227, 0.5); border: 1px solid rgba(120, 53, 15, 0.08); border-radius: 6px; padding: 12px 16px; margin-bottom: 8px;">
+            <div style="font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 600; color: #8a7b6b; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">
+                {{ ed.keyword|default('--') }}
+            </div>
+            <div style="font-family: 'Inter', sans-serif; font-size: 14px; color: #2d241e; white-space: pre-wrap; line-height: 1.5;">{{ ed.description|default('--') }}</div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- ===== SECTION 5: Triggers ===== -->
+    {% if room.triggers and room.triggers|length > 0 %}
+    <div class="parchment-section">
+        <div class="parchment-section-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+            </svg>
+            Триггеры
+        </div>
+
+        <div class="tag-list">
+            {% if room.triggers_enriched %}
+                {% for t in room.triggers_enriched %}
+                <a href="{{ url_for('trigger_detail', vnum=t.vnum) }}" class="tag" style="text-decoration: none;">
+                    #{{ t.vnum }}{% if t.name %}: {{ t.name }}{% endif %}
+                </a>
+                {% endfor %}
+            {% else %}
+                {% for trig_vnum in room.triggers %}
+                <a href="{{ url_for('trigger_detail', vnum=trig_vnum) }}" class="tag" style="text-decoration: none;">
+                    #{{ trig_vnum }}
+                </a>
+                {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Bottom Actions -->
+    <div style="display: flex; gap: 12px; padding-top: 8px;">
+        <a href="{{ url_for('room_edit', vnum=room.vnum) }}" class="btn-primary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+            </svg>
+            Редактировать
+        </a>
+        <a href="{{ url_for('rooms_list', zone=room.vnum // 100) }}" class="btn-secondary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            Назад к списку
+        </a>
+    </div>
+
+
+{% block scripts %}
+<script>
+    applyMudColors();
+</script>
+{% endblock %}
+{% endblock %}

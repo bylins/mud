@@ -209,10 +209,10 @@ std::string main_menu_objlist(const SetNode &set, int menu) {
 			snprintf(buf_vnum, sizeof(buf_vnum), "%d", i.first);
 		}
 
-		snprintf(format, sizeof(format), "%s%2d%s) %s : %s%%-%zus%s   ",
+		snprintf(format, sizeof(format), "%s%2d%s) %s : %s%%-%llus%s   ",
 				 kColorGrn, menu++, kColorNrm,
 				 colored_name(i.second, left ? l_max_name : r_max_name, true),
-				 kColorCyn, (left ? l_max_vnum : r_max_vnum), kColorNrm);
+				 kColorCyn, static_cast<unsigned long long>(left ? l_max_vnum : r_max_vnum), kColorNrm);
 		snprintf(buf_, sizeof(buf_), format, buf_vnum);
 		out += buf_;
 		if (!left) {
@@ -286,7 +286,7 @@ void sedit::show_main(CharData *ch) {
 			return;
 		}
 		snprintf(buf_, sizeof(buf_),
-				 "Редактирование набора предметов #%zu\r\n", idx + 1);
+				 "Редактирование набора предметов #%llu\r\n", static_cast<unsigned long long>(idx + 1));
 		out += buf_;
 	}
 	int i = 1;
@@ -1211,17 +1211,17 @@ void sedit::show_activ_prof(CharData *ch) {
 	std::bitset<kNumPlayerClasses> &bits = olc_set.activ_list.at(activ_edit).prof;
 
 	for (size_t i = 0; i < bits.size(); ++i) {
-		snprintf(buf_, sizeof(buf_), "%s%2zu%s) %s\r\n",
-				 kColorGrn, i + 1, kColorNrm,
+		snprintf(buf_, sizeof(buf_), "%s%2llu%s) %s\r\n",
+				 kColorGrn, static_cast<unsigned long long>(i + 1), kColorNrm,
 				 MUD::Classes().FindAvailableItem(static_cast<int>(i)).GetCName());
 		out += buf_;
 	}
 
 	snprintf(buf_, sizeof(buf_),
-			 "%s%2zu%s) Сбросить все\r\n"
-			 "%s%2zu%s) Установить все\r\n",
-			 kColorGrn, bits.size() + 1, kColorNrm,
-			 kColorGrn, bits.size() + 2, kColorNrm);
+			 "%s%2llu%s) Сбросить все\r\n"
+			 "%s%2llu%s) Установить все\r\n",
+			 kColorGrn, static_cast<unsigned long long>(bits.size() + 1), kColorNrm,
+			 kColorGrn, static_cast<unsigned long long>(bits.size() + 2), kColorNrm);
 	out += buf_;
 
 	snprintf(buf_, sizeof(buf_), "Текущие профессии : %s", kColorCyn);

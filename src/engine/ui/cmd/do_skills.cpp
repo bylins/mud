@@ -68,7 +68,7 @@ void DisplaySkills(CharData *ch, CharData *vict, const char *filter/* = nullptr*
 				case ESkill::kTownportal:
 				case ESkill::kStun:
 				case ESkill::kRepair:
-					if (IsTimedBySkill(ch, skill_id))
+					if (IsTimedBySkill(ch, skill_id) > 0)
 						sprintf(buf, "[%3d] ", IsTimedBySkill(ch, skill_id));
 					else
 						sprintf(buf, "[-!-] ");

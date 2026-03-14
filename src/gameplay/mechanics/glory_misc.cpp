@@ -32,10 +32,10 @@ GloryLogType glory_log;
 
 // * Загрузка лога славы.
 void load_log() {
-	const char *glory_file = "../log/glory.log";
+	const auto glory_file = runtime_config.log_dir() + "/glory.log";
 	std::ifstream file(glory_file);
 	if (!file.is_open()) {
-		log("GloryLog: не удалось открыть файл на чтение: %s", glory_file);
+		log("GloryLog: не удалось открыть файл на чтение: %s", glory_file.c_str());
 		return;
 	}
 
@@ -86,10 +86,10 @@ void save_log() {
 	for (GloryLogType::const_iterator it = glory_log.begin(); it != glory_log.end(); ++it)
 		out << it->first << " " << it->second->type << " " << it->second->num << " " << it->second->karma << "\n";
 
-	const char *glory_file = "../log/glory.log";
+	const auto glory_file = runtime_config.log_dir() + "/glory.log";
 	std::ofstream file(glory_file);
 	if (!file.is_open()) {
-		log("GloryLog: не удалось открыть файл на запись: %s", glory_file);
+		log("GloryLog: не удалось открыть файл на запись: %s", glory_file.c_str());
 		return;
 	}
 	file << out.rdbuf();

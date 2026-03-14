@@ -270,7 +270,7 @@ bool IsTimerUnlimited(const CObjectPrototype *obj) {
 		return false;
 	}
 	// рассыпется вне зоны
-	if (obj->has_flag(EObjFlag::kZonedacay)) {
+	if (obj->has_flag(EObjFlag::kZonedecay)) {
 		return false;
 	}
 	// рассыпется на репоп зоны

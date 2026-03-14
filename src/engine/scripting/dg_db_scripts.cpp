@@ -21,6 +21,7 @@
 #include "gameplay/magic/magic.h"
 #include "gameplay/magic/magic_temp_spells.h"
 #include "engine/db/global_objects.h"
+#include "trigger_indenter.h"
 
 #include <stack>
 
@@ -36,7 +37,7 @@ extern IndexData *mob_index;
 
 // TODO: Get rid of me
 char *dirty_indent_trigger(char *cmd, int *level) {
-	static std::stack<std::string> indent_stack;
+	thread_local std::stack<std::string> indent_stack;
 
 	*level = std::max(0, *level);
 	if (*level == 0) {
@@ -111,8 +112,9 @@ char *dirty_indent_trigger(char *cmd, int *level) {
 }
 
 void indent_trigger(std::string &cmd, int *level) {
+	thread_local TriggerIndenter indenter;
 	char *cmd_copy = str_dup(cmd.c_str());;
-	cmd_copy = dirty_indent_trigger(cmd_copy, level);
+	cmd_copy = indenter.indent(cmd_copy, level);
 	cmd = cmd_copy;
 	free(cmd_copy);
 }
@@ -299,7 +301,7 @@ void trg_featturn(CharData *ch, EFeat feat_id, int featdiff, int vnum) {
 }
 
 void trg_skillturn(CharData *ch, const ESkill skill_id, int skilldiff, int vnum) {
-	if (ch->GetMorphSkill(skill_id)) {
+	if (ch->GetSkillBonus(skill_id)) {
 		if (skilldiff) {
 			return;
 		}
@@ -314,26 +316,26 @@ void trg_skillturn(CharData *ch, const ESkill skill_id, int skilldiff, int vnum)
 }
 
 void AddSkill(CharData *ch, const ESkill skillnum, int skilldiff, int vnum) {
-	int skill = ch->GetMorphSkill(skillnum);
+	int skill = ch->GetSkillBonus(skillnum);
 
 	ch->set_skill(skillnum, std::clamp(skill + skilldiff, 1, MUD::Skill(skillnum).cap));
 	log("Add skill %s for char %s, skilldif %d, room %d, trigger %d, line %d", 
 			MUD::Skill(skillnum).GetName(), GET_NAME(ch), skilldiff, GET_ROOM_VNUM(ch->in_room), vnum, last_trig_line_num);
-	if (skill > ch->GetMorphSkill(skillnum)) {
+	if (skill > ch->GetSkillBonus(skillnum)) {
 		SendMsgToChar(ch, "Ваше умение '%s' понизилось.\r\n", MUD::Skill(skillnum).GetName());
 		log("Decrease %s to %s from %d to %d (diff %d)(trigskilladd) trigvnum %d",
 			MUD::Skill(skillnum).GetName(), GET_NAME(ch), skill,
-			ch->GetMorphSkill(skillnum), skilldiff, vnum);
-	} else if (skill < ch->GetMorphSkill(skillnum)) {
+			ch->GetSkillBonus(skillnum), skilldiff, vnum);
+	} else if (skill < ch->GetSkillBonus(skillnum)) {
 		SendMsgToChar(ch, "Вы повысили свое умение '%s'.\r\n", MUD::Skill(skillnum).GetName());
 		log("Raise %s to %s from %d to %d (diff %d)(trigskilladd) trigvnum %d",
 			MUD::Skill(skillnum).GetName(), GET_NAME(ch), skill,
-			ch->GetMorphSkill(skillnum), skilldiff, vnum);
+			ch->GetSkillBonus(skillnum), skilldiff, vnum);
 	} else {
 		SendMsgToChar(ch, "Ваше умение '%s' не изменилось.\r\n", MUD::Skill(skillnum).GetName());
 		log("Unchanged %s to %s from %d to %d (diff %d)(trigskilladd) trigvnum %d",
 			MUD::Skill(skillnum).GetName(), GET_NAME(ch), skill,
-			ch->GetMorphSkill(skillnum), skilldiff, vnum);
+			ch->GetSkillBonus(skillnum), skilldiff, vnum);
 	}
 }
 

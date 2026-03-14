@@ -23,6 +23,7 @@
 #include <sys/stat.h>
 #include "engine/db/world_characters.h"
 #include "engine/db/global_objects.h"
+#include "engine/db/world_data_source_manager.h"
 #include "dg_db_scripts.h"
 #include "gameplay/mechanics/dungeons.h"
 
@@ -36,6 +37,7 @@ void free_varlist(struct TriggerVar *vd);
 
 void trigedit_disp_menu(DescriptorData *d);
 void trigedit_save(DescriptorData *d);
+bool trigedit_save_to_disk(int zone_rnum, int notify_level);
 void trigedit_create_index(int znum, const char *type);
 void indent_trigger(std::string &cmd, int *level);
 
@@ -361,13 +363,8 @@ void trigedit_save(DescriptorData *d) {
 	Trigger *proto;
 	Trigger *trig = OLC_TRIG(d);
 	IndexData **new_index;
+	int zone;
 	DescriptorData *dsc;
-	FILE *trig_file;
-	int zone, top;
-	char buf[kMaxStringLength];
-	char bitBuf[kMaxInputLength];
-	char fname[kMaxInputLength];
-	char logbuf[kMaxInputLength];
 
 	// Recompile the command list from the new script
 	s = OLC_STORAGE(d);
@@ -483,25 +480,52 @@ void trigedit_save(DescriptorData *d) {
 			}
 		}
 	}
-	// now write the trigger out to disk, along with the rest of the  //
-	// triggers for this zone, of course                              //
-	// note: we write this to disk NOW instead of letting the builder //
-	// have control because if we lose this after having assigned a   //
-	// new trigger to an item, we will get SYSERR's upton reboot that //
-	// could make things hard to debug.                               //
+	
+	// Save trigger to disk using data source abstraction (YAML/SQLite/Legacy)
 	TriggerDistribution(d);
 	zone = zone_table[OLC_ZNUM(d)].vnum;
-	top = zone_table[OLC_ZNUM(d)].top;
-	if (zone >= dungeons::kZoneStartDungeons) {
-			sprintf(buf, "Отказ сохранения зоны %d на диск.", zone);
-			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-			return;
+	int notify_level = MAX(kLvlBuilder, GET_INVIS_LEV(d->character));
+
+	auto* data_source = world_loader::WorldDataSourceManager::Instance().GetDataSource();
+	if (!data_source->SaveTriggers(OLC_ZNUM(d), OLC_NUM(d), notify_level)) {
+		SendMsgToChar("ОШИБКА: Не удалось сохранить триггер!\r\n", d->character.get());
+		return;
 	}
+
+	SendMsgToChar("Триггер сохранен.\r\n", d->character.get());
+	trigedit_create_index(zone, "trg");
+}
+
+// Save all triggers for a zone to disk (without requiring DescriptorData)
+bool trigedit_save_to_disk(int zone_rnum, int notify_level) {
+	FILE *trig_file;
+	int trig_rnum, i;
+	Trigger *trig;
+	int zone, top;
+	char buf[kMaxStringLength];
+	char bitBuf[kMaxInputLength];
+	char fname[kMaxInputLength];
+	char logbuf[kMaxInputLength];
+
+	if (zone_rnum < 0 || zone_rnum >= static_cast<int>(zone_table.size())) {
+		log("SYSERR: trigedit_save_to_disk: Invalid zone rnum %d", zone_rnum);
+		return false;
+	}
+
+	zone = zone_table[zone_rnum].vnum;
+	top = zone_table[zone_rnum].top;
+
+	if (zone >= dungeons::kZoneStartDungeons) {
+		sprintf(buf, "Отказ сохранения зоны %d на диск.", zone);
+		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
+		return false;
+	}
+
 	sprintf(fname, "%s/%i.new", TRG_PREFIX, zone);
 	if (!(trig_file = fopen(fname, "w"))) {
 		snprintf(logbuf, kMaxInputLength, "SYSERR: OLC: Can't open trig file \"%s\"", fname);
-		mudlog(logbuf, BRF, MAX(kLvlBuilder, GET_INVIS_LEV(d->character)), SYSLOG, true);
-		return;
+		mudlog(logbuf, BRF, notify_level, SYSLOG, true);
+		return false;
 	}
 
 	for (i = zone * 100; i <= top; i++) {
@@ -510,9 +534,9 @@ void trigedit_save(DescriptorData *d) {
 
 			if (fprintf(trig_file, "#%d\n", i) < 0) {
 				sprintf(logbuf, "SYSERR: OLC: Can't write trig file!");
-				mudlog(logbuf, BRF, MAX(kLvlBuilder, GET_INVIS_LEV(d->character)), SYSLOG, true);
+				mudlog(logbuf, BRF, notify_level, SYSLOG, true);
 				fclose(trig_file);
-				return;
+				return false;
 			}
 			sprintbyts(GET_TRIG_TYPE(trig), bitBuf);
 			fprintf(trig_file, "%s~\n"
@@ -525,15 +549,11 @@ void trigedit_save(DescriptorData *d) {
 			// Build the text for the script
 			int lev = 0;
 			strcpy(buf, "");
-			for (cmd = *trig->cmdlist; cmd; cmd = cmd->next) {
+			for (auto cmd = *trig->cmdlist; cmd; cmd = cmd->next) {
 				// Indenting
 				indent_trigger(cmd->cmd, &lev);
 				strcat(buf, cmd->cmd.c_str());
 				strcat(buf, "\n");
-			}
-
-			if (lev > 0) {
-				SendMsgToChar(d->character.get(), "WARNING: Positive indent-level on trigger #%d end.\r\n", i);
 			}
 
 			if (!buf[0]) {
@@ -556,16 +576,20 @@ void trigedit_save(DescriptorData *d) {
 
 	fprintf(trig_file, "$\n$\n");
 	fclose(trig_file);
+
 	sprintf(buf, "%s/%d.trg", TRG_PREFIX, zone);
 	remove(buf);
 	rename(fname, buf);
+#ifndef _WIN32
 	if (chmod(buf, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP) < 0) {
 		std::stringstream ss;
 		ss << "Error chmod file: " << buf << " (" << __FILE__ << " "<< __func__ << "  "<< __LINE__ << ")";
 		mudlog(ss.str(), BRF, kLvlGod, SYSLOG, true);
 	}
-	SendMsgToChar("Триггер сохранен.\r\n", d->character.get());
+#endif
+
 	trigedit_create_index(zone, "trg");
+	return true;
 }
 
 void trigedit_create_index(int znum, const char *type) {

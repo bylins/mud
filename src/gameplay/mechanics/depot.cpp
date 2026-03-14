@@ -22,6 +22,7 @@
 #include "../subprojects/fmt/include/fmt/format.h"
 
 #include <cmath>
+#include "engine/db/global_objects.h"
 
 extern int bank(CharData *, void *, int, char *);
 extern void olc_update_object(int robj_num, ObjData *obj, ObjData *olc_proto);
@@ -99,12 +100,12 @@ DepotListType depot_list; // список личных хранилищ
 
 // * Капитально расширенная версия сислога для хранилищ.
 void depot_log(const char *format, ...) {
-	const char *filename = "../log/depot.log";
+	const auto filename = runtime_config.log_dir() + "/depot.log";
 	static FILE *file = 0;
 	if (!file) {
-		file = fopen(filename, "a");
+		file = fopen(filename.c_str(), "a");
 		if (!file) {
-			log("SYSERR: can't open %s!", filename);
+			log("SYSERR: can't open %s!", filename.c_str());
 			return;
 		}
 		opened_files.push_back(file);
@@ -228,7 +229,7 @@ std::string generate_purged_text(long uid, int obj_vnum, unsigned int obj_uid) {
 			continue;
 		}
 
-		if (obj->get_unique_id() == obj_uid
+		if (static_cast<unsigned int>(obj->get_unique_id()) == obj_uid
 			&& obj->get_vnum() == obj_vnum) {
 			std::ostringstream text;
 			text << "[Персональное хранилище]: " << kColorBoldRed << "'"
@@ -938,15 +939,9 @@ void put_gold_chest(CharData *ch, const ObjData::shared_ptr &obj) {
 */
 bool can_put_chest(CharData *ch, ObjData *obj) {
 	// depot_log("can_put_chest: %s, %s", GET_NAME(ch), obj->get_PName(ECase::kNom));
-	if (obj->has_flag(EObjFlag::kZonedacay)
-		|| obj->has_flag(EObjFlag::kRepopDecay)
+	if (obj->is_unrentable()
 		|| obj->has_flag(EObjFlag::kDecay)
-		|| obj->has_flag(EObjFlag::kNorent)
-		|| obj->get_type() == EObjType::kKey
-		|| obj->get_rent_off() < 0
-		|| obj->get_rnum() <= kNothing
 		|| NamedStuff::check_named(ch, obj, 0)) {
-//		|| (NamedStuff::check_named(ch, obj, 0) && ch->get_uid() != obj->get_owner())) {
 		SendMsgToChar(ch, "Неведомая сила помешала положить %s в хранилище.\r\n", obj->get_PName(ECase::kAcc).c_str());
 		return 0;
 	} else if (obj->get_type() == EObjType::kContainer
@@ -1242,7 +1237,7 @@ void CharNode::load_online_objs(int file_type, bool reload) {
 			// собсна сверимся со списком таймеров и проставим изменившиеся данные
 			TimerListType::iterator obj_it = std::find_if(offline_list.begin(), offline_list.end(),
 														  [&](const OfflineNode &x) {
-															  return x.uid == obj->get_unique_id();
+															  return x.uid == static_cast<unsigned int>(obj->get_unique_id());
 														  });
 
 			if (obj_it != offline_list.end() && obj_it->vnum == obj->get_vnum()) {

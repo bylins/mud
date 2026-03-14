@@ -3,7 +3,6 @@
 //
 
 #include "engine/entities/char_data.h"
-#include "gameplay/skills/morph.hpp"
 #include "engine/ui/color.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/mechanics/weather.h"
@@ -118,19 +117,6 @@ void do_affects(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					strcat(buf, buf2);
 				}
 				SendMsgToChar(strcat(buf, "\r\n"), ch);
-			}
-		}
-	}
-
-	if (ch->is_morphed()) {
-		*buf2 = '\0';
-		SendMsgToChar("Автоаффекты звериной формы: ", ch);
-		const IMorph::affects_list_t &affs = ch->GetMorphAffects();
-		for (auto it = affs.cbegin(); it != affs.cend();) {
-			sprintbit(to_underlying(*it), affected_bits, buf2);
-			SendMsgToChar(std::string(kColorBoldYel) + std::string(buf2) + std::string(kColorNrm), ch);
-			if (++it != affs.end()) {
-				SendMsgToChar(", ", ch);
 			}
 		}
 	}

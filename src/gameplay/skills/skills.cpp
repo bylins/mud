@@ -641,7 +641,8 @@ int SendSkillMessages(int dam, CharData *ch, CharData *vict, ESkill skill_id, co
 int SendSkillMessages(int dam, CharData *ch, CharData *vict, ESpell spell_id, const std::string add) {
 	return SendSkillMessages(dam, ch, vict, to_underlying(spell_id), add);
 }
-
+ 
+/* неточный дубль CalcSaving
 int GetRealSave(CharData *ch, const ESkill skill_id) {
 	int rate = static_cast<int>(round(GetSave(ch, MUD::Skill(skill_id).save_type) * kSaveWeight));
 
@@ -663,6 +664,7 @@ int GetRealSave(CharData *ch, const ESkill skill_id) {
 	}
 	return rate;
 }
+*/ 
 
 int CalculateVictimRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 	if (!vict) {
@@ -842,7 +844,7 @@ int CalculateVictimRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 
 	if (!MUD::Skill(skill_id).autosuccess) {
 		rate /= 2;
-		rate -= GetRealSave(vict, skill_id);
+		rate -= CalcSaving(ch, vict, MUD::Skill(skill_id).save_type, false);
 	}
 	return rate;
 }
@@ -1316,39 +1318,41 @@ SkillRollResult MakeSkillTest(CharData *ch, ESkill skill_id, CharData *vict, boo
 void SendSkillRollMsg(CharData *ch, CharData *victim, ESkill skill_id,
 	int actor_rate, int victim_rate, int /*threshold*/, int roll, SkillRollResult &result) {
 	std::stringstream buffer;
-	int save = GetRealSave(victim, skill_id);
+	int save = CalcSaving(ch, victim, MUD::Skill(skill_id).save_type, false);
 
 //	sprintf(buf, "Saving2 == %d dex_bouus %d", save, dex_bonus(GetRealDex(victim)));
 //	mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 	buffer << kColorBoldCyn
-		   << "Skill: '" << MUD::Skill(skill_id).name << "'"
+		   << "Skill:'" << MUD::Skill(skill_id).name << "'"
 //		   << " SkillRate: " << result.SkillRate
-		   << " Total_Percent: " << result.SkillRate
-		   << " ActorRate: " << actor_rate
-		<< " Victim: " << victim->get_name()
-		<< " V.Rate: " << victim_rate
-		<< " Difficulty: " << MUD::Skill(skill_id).difficulty
+		   << " T.Percent:" << result.SkillRate
+		   << " A.Rate:" << actor_rate
+		<< " Vict:" << victim->get_name()
+		<< " V.Rate:" << victim_rate
+		<< " Dfclt:" << MUD::Skill(skill_id).difficulty
 //		   << " Threshold: " << threshold
-		   << " Percent: " << roll
-		<< " Success: " << (result.success ? "&Gyes&C" : "&Rno&C")
+		   << " Percent:" << roll
+		<< " Success:" << (result.success ? "&Gyes&C" : "&Rno&C")
 //		   << " Crit: " << (result.critical ? "yes" : "no")
-		   << " CritLuck: " << (result.CritLuck ? "&Gyes&C" : "&Rno&C")
+		   << " CritLuck:" << (result.CritLuck ? "&Gyes&C" : "&Rno&C")
 //		   << " Degree: " << result.degree
-		   << " Saving: " << save
+		   << " SavType:" << saving_name.at(MUD::Skill(skill_id).save_type)
+		   << " Saving:" << save
 		<< kColorNrm << "\r\n";
 	ch->send_to_TC(false, true, true, buffer.str().c_str());
 	if (GET_GOD_FLAG(ch, EGf::kSkillTester) && skill_id != ESkill::kUndefined) {
 		buffer.str("");
 		buffer << "SKILLTEST:;" << GET_NAME(ch)
 			   << ";Skill;" << MUD::Skill(skill_id).name
-			   << ";Total_Percent;" << result.SkillRate
-			   << ";ActorRate;" << actor_rate
-			   << ";Victim " << victim->get_name() << "(" << GET_MOB_VNUM(victim) << ");"
+			   << ";T.Percent;" << result.SkillRate
+			   << ";A.Rate;" << actor_rate
+			   << ";Vict " << victim->get_name() << "(" << GET_MOB_VNUM(victim) << ");"
 			   << ";V.Rate;" << victim_rate
-			   << ";Difficulty;" << MUD::Skill(skill_id).difficulty
+			   << ";Dfclt;" << MUD::Skill(skill_id).difficulty
 			   << ";Percent;"<< roll
 			   << ";Success;" << (result.success ? "yes" : "no")
 			   << ";CritLuck;" << (result.CritLuck ? "yes" : "no")
+			   << ";SaviType;" << saving_name.at(MUD::Skill(skill_id).save_type)
 			   << ";Saving;" << save;
 		log("%s",  buffer.str().c_str());
 	}
@@ -1940,7 +1944,7 @@ void RemoveAllSkills(CharData *ch) {
 }
 
 void ImproveSkill(CharData *ch, const ESkill skill, int success, CharData *victim) {
-	const int trained_skill = ch->GetMorphSkill(skill);
+	const int trained_skill = ch->GetTrainedSkill(skill);
 
 	if (trained_skill <= 0 || trained_skill >= CalcSkillMinCap(ch, skill)) {
 		return;
@@ -1971,7 +1975,7 @@ void ImproveSkill(CharData *ch, const ESkill skill, int success, CharData *victi
 	}
 
 	// Если чар нуб, то до 50% скиллы качаются гораздо быстрее
-	int INT_PLAYER = (ch->GetMorphSkill(skill) < 51
+	int INT_PLAYER = (ch->GetTrainedSkill(skill) < 51
 		&& (AFF_FLAGGED(ch, EAffect::kNoobRegen))) ? 50 : GetRealInt(ch);
 
 	long div = int_app[INT_PLAYER].improve;
@@ -1997,10 +2001,9 @@ void ImproveSkill(CharData *ch, const ESkill skill, int success, CharData *victi
 					kColorBoldCyn, MUD::Skill(skill).GetName(), kColorNrm);
 		}
 		SendMsgToChar(buf, ch);
-		ch->set_morphed_skill(skill, (trained_skill + number(1, 2)));
+		ch->set_skill(skill, (trained_skill + number(1, 2)));
 		if (!IS_IMMORTAL(ch)) {
-			ch->set_morphed_skill(skill,
-								  (std::min(kZeroRemortSkillCap + GetRealRemort(ch) * 5, ch->GetMorphSkill(skill))));
+			ch->set_skill(skill, (std::min(kZeroRemortSkillCap + GetRealRemort(ch) * 5, ch->GetSkillBonus(skill))));
 		}
 		if (victim && victim->IsNpc()) {
 			victim->SetFlag(EMobFlag::kNoSkillTrain);
@@ -2011,7 +2014,7 @@ void ImproveSkill(CharData *ch, const ESkill skill, int success, CharData *victi
 void TrainSkill(CharData *ch, const ESkill skill, bool success, CharData *vict) {
 	if (!ch->IsNpc()) {
 		if (skill != ESkill::kSideAttack
-			&& ch->GetMorphSkill(skill) > 0
+			&& ch->GetSkillBonus(skill) > 0
 			&& (!vict
 				|| (vict->IsNpc()
 					&& !vict->IsFlagged(EMobFlag::kProtect)
@@ -2024,7 +2027,7 @@ void TrainSkill(CharData *ch, const ESkill skill, bool success, CharData *vict) 
 		if (ch->GetSkill(skill) > 0
 			&& GetRealInt(ch) <= number(0, 1000 - 20 * GetRealWis(ch))
 			&& ch->GetSkill(skill) < MUD::Skill(skill).difficulty) {
-			ch->set_skill(skill, ch->GetMorphSkill(skill) + 1);
+			ch->set_skill(skill, ch->GetSkillBonus(skill) + 1);
 		}
 	}
 }

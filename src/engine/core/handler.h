@@ -24,7 +24,7 @@ struct RoomData;
 const int kLightNo = 0;
 const int kLightYes = 1;
 const int kLightUndef = 2;
-
+const int kSecsPerPlayerTimed = 1;
 enum class CharEquipFlag : uint8_t {
 	no_cast,	// no spell casting
 	skip_total,	// no total affect update
@@ -42,10 +42,9 @@ void CheckLight(CharData *ch, int was_equip, int was_single, int was_holylight, 
 
 // handling the affected-structures //
 void ImposeTimedFeat(CharData *ch, TimedFeat *timed);
-void ExpireTimedFeat(CharData *ch, TimedFeat *timed);
 int IsTimedByFeat(CharData *ch, EFeat feat);
-void ImposeTimedSkill(CharData *ch, struct TimedSkill *timed);
-void ExpireTimedSkill(CharData *ch, struct TimedSkill *timed);
+void ImposeTimedSkill(CharData *ch, TimedSkill *timed);
+void ExpireTimedSkill(CharData *ch, ESkill skill);
 int IsTimedBySkill(CharData *ch, ESkill id);
 void DecreaseFeatTimer(CharData *ch, EFeat feat_id);
 
@@ -91,6 +90,8 @@ inline void char_from_room(const CharData::shared_ptr &ch) { RemoveCharFromRoom(
 void PlaceCharToRoom(CharData *ch, RoomRnum room);
 inline void char_to_room(const CharData::shared_ptr &ch, RoomRnum room) { PlaceCharToRoom(ch.get(), room); }
 void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset = false);
+void DropEquipment(CharData *ch, bool zone_reset);
+void DropInventory(CharData *ch, bool zone_reset);
 
 // find if character can see //
 CharData *get_char_room_vis(CharData *ch, const char *name);

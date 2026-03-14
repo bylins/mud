@@ -555,7 +555,6 @@ void shop_node::filter_shop_list(CharData *ch, char *argument, int keeper_vnum) 
 						 num, numToShow, print_value, item->get_price());
 			} 
 			if (tmp_obj) {
-				obj_proto.dec_number(tmp_obj->get_rnum());
 				world_objects.remove(tmp_obj);
 			}
 		} else {
@@ -1004,7 +1003,7 @@ void shop_node::do_shop_cmd(CharData *ch, CharData *keeper, ObjData *obj, std::s
 		if (obj->has_flag(EObjFlag::kNosell)
 			|| obj->has_flag(EObjFlag::kNamed)
 			|| obj->has_flag(EObjFlag::kRepopDecay)
-			|| obj->has_flag(EObjFlag::kZonedacay)) {
+			|| obj->has_flag(EObjFlag::kZonedecay)) {
 			tell_to_char(keeper, ch, "Такое я не покупаю.");
 			return;
 		} else {
@@ -1020,7 +1019,7 @@ void shop_node::do_shop_cmd(CharData *ch, CharData *keeper, ObjData *obj, std::s
 			|| obj->has_flag(EObjFlag::kNamed)
 			|| obj->has_flag(EObjFlag::kRepopDecay)
 			|| (buy_price <= 1)
-			|| obj->has_flag(EObjFlag::kZonedacay)
+			|| obj->has_flag(EObjFlag::kZonedecay)
 			|| bloody::is_bloody(obj)) {
 			if (bloody::is_bloody(obj)) {
 				tell_to_char(keeper, ch, "Пшел вон убивец, и руки от крови отмой!");

@@ -68,7 +68,7 @@ mode - режим умения.
     <skill id="kOverwhelm"		name="оглушить"			abbr="Ог"	saving="kStability"	difficulty="200"	cap="1000"/>
     <skill id="kPoisoning"		name="отравить"			abbr="Отр"	saving="kCritical"	difficulty="200"	cap="1000"/>
     <skill id="kLeadership"		name="лидерство"		abbr="Лд"	saving="kReflex"	difficulty="100"	cap="1000"/>
-    <skill id="kPunctual"		name="точный стиль"		abbr="Тс"	saving="kCritical"	difficulty="110"	cap="200"/>
+    <skill id="kPunctual"		name="точный стиль"		abbr="Тс"	saving="kCritical"	difficulty="110"	cap="1000"/>
     <skill id="kAwake"			name="осторожный стиль"		abbr="Ос"	saving="kReflex"	difficulty="100"	cap="200"/>
     <skill id="kSense"			name="найти"			abbr="Нйт"	saving="kWill"		difficulty="160"	cap="200"/>
     <skill id="kRiding"			name="сражение верхом"		abbr="Срв"	saving="kReflex"	difficulty="200"	cap="1000"/>

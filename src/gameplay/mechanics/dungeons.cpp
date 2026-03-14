@@ -17,6 +17,7 @@
 #include "engine/entities/char_data.h"
 #include "utils/utils_time.h"
 #include "gameplay/ai/spec_procs.h"
+#include "gameplay/mechanics/deathtrap.h"
 
 #include "../subprojects/fmt/include/fmt/format.h"
 
@@ -172,6 +173,7 @@ void CreateBlankZoneDungeon() {
 		new_zone.name = "Зона для данжей";
 		new_zone.under_construction = true;
 		new_zone.top = zone_vnum * 100 + 99;
+		new_zone.entrance = zone_vnum * 100;
 		new_zone.cmd = nullptr; //[0].command = 'S'; //пустой список команд
 		zone_table.push_back(std::move(new_zone));
 		zone_vnum++;
@@ -269,6 +271,7 @@ void CreateBlankMobsDungeon() {
 			new_index[rnum].vnum = mvn + zvn * 100;
 			new_proto[rnum].set_npc_name("пустой моб");
 			new_proto[rnum].SetCharAliases("моб");
+			new_proto[rnum].SetNpcAttribute(true);
 			new_proto[rnum].player_data.PNames[ECase::kNom] = "пустой моб";
 			new_index[rnum].total_online = 0;
 			new_index[rnum].stored = 0;
@@ -314,7 +317,7 @@ void ZoneDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to, std::vector<ZrnComplexList
 	zone_to.typeB_count = 0;
 	zone_to.under_construction = zone_from.under_construction;
 	zone_to.locked = zone_from.locked;
-	zone_to.group = zone_from.group;
+	zone_to.group = 0;
 /*
 	if (zone_to.typeA_count) {
 		CREATE(zone_to.typeA_list, zone_to.typeA_count); //почистить
@@ -396,6 +399,9 @@ void RoomDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to, std::vector<ZrnComplexList
 		new_room->fires = 0;
 		new_room->gdark = 0;
 		new_room->glight = 0;
+		if (ROOM_FLAGGED(i, ERoomFlag::kSlowDeathTrap) || ROOM_FLAGGED(i, ERoomFlag::kIceTrap)) {
+			deathtrap::add(world[new_rnum]);
+		}
 		for (int dir = 0; dir < EDirection::kMaxDirNum; ++dir) {
 			const auto &from = world[i]->dir_option_proto[dir];
 			if (from) {
@@ -542,6 +548,7 @@ void MobDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to) {
 		mob_proto[mrn_to] = mob_proto[i];
 		mob_proto[mrn_to].set_rnum(old_rnum);
 		mob_index[mrn_to] = mob_index[i];
+		mob_index[mrn_to].zone = zrn_to;
 		mob_index[mrn_to].vnum = zone_table[zrn_to].vnum * 100 + mob_index[i].vnum % 100;
 		if (mob_index[i].func == shop_ext) {
 			AddDungeonShopSeller(i, mrn_to);
@@ -762,7 +769,7 @@ ZoneVnum CheckDungionErrors(ZoneRnum zrn_from) {
 void DungeonReset(int zrn) {
 	utils::CExecutionTimer timer;
 
-	if (zrn == 0) {
+	if (zrn < 0) {
 		sprintf(buf, "Неправильный номер зоны");
 		mudlog(buf, LGH, kLvlGreatGod, SYSLOG, true);
 		return;
@@ -871,9 +878,12 @@ void ClearRoom(RoomData *room) {
 void RoomDataFree(ZoneRnum zrn) {
 	RoomRnum rrn_start = zone_table[zrn].RnumRoomsLocation.first;
 
-	for (RoomVnum rrn = rrn_start; rrn <= rrn_start + 99; rrn++) {
+	for (RoomRnum rrn = rrn_start; rrn <= rrn_start + 99; rrn++) {
 		while (room_spells::IsRoomAffected(world[rrn], ESpell::kPortalTimer)) {
 			RemovePortalGate(rrn);
+		}
+		if (ROOM_FLAGGED(rrn, ERoomFlag::kSlowDeathTrap) || ROOM_FLAGGED(rrn, ERoomFlag::kIceTrap)) {
+			deathtrap::remove(world[rrn]);
 		}
 	}
 	for (RoomVnum rvn = 0; rvn <= 99; rvn++) {
@@ -1178,7 +1188,6 @@ ObjData *SwapOriginalObject(ObjData *obj) {
 		if (wearer) {
 			EquipObj(wearer, obj_original.get(), pos, CharEquipFlags());
 		}
-		obj_proto.dec_number(obj->get_rnum());
 		world_objects.remove(obj);
 		return obj_original.get();
 	}

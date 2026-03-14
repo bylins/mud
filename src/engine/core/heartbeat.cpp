@@ -21,11 +21,14 @@
 #include "gameplay/statistics/mob_stat.h"
 #include "gameplay/magic/magic.h"
 #include "gameplay/core/game_limits.h"
+#include "engine/core/handler.h"
 #include "gameplay/ai/mobact.h"
 #include "engine/scripting/dg_event.h"
 #include "gameplay/mechanics/corpse.h"
 #include "engine/db/global_objects.h"
 #include "engine/ui/cmd_god/do_set_all.h"
+#include "engine/observability/metrics.h"
+#include "engine/observability/helpers.h"
 #include "gameplay/statistics/money_drop.h"
 #include "gameplay/mechanics/weather.h"
 #include "utils/utils_time.h"
@@ -33,6 +36,7 @@
 #include "gameplay/communication/check_invoice.h"
 #include "gameplay/mechanics/depot.h"
 #include "gameplay/statistics/spell_usage.h"
+#include "utils/tracing/trace_manager.h"
 
 #if defined WITH_SCRIPTING
 #include "scripting.hpp"
@@ -189,16 +193,6 @@ void ExchangeDatabaseSaveCall::perform(int, int) {
 	}
 }
 
-class ExtractListProcessingCall : public AbstractPulseAction {
- public:
-	void perform(int, int) override;
-};
-
-void ExtractListProcessingCall::perform(int, int) {
-	character_list.PurgeExtractedList();
-	world_objects.PurgeExtractedList();
-}
-
 class ExchangeDatabaseBackupSaveCall : public AbstractPulseAction {
  public:
 	void perform(int, int) override;
@@ -337,7 +331,7 @@ Heartbeat::steps_t &pulse_steps() {
 							 std::make_shared<SimpleCall>(tact_auction)),
 		Heartbeat::PulseStep("Room affect update",
 							 room_spells::kSecsPerRoomAffect * kPassesPerSec,
-							 0,
+							 17,
 							 std::make_shared<SimpleCall>(room_spells::UpdateRoomsAffects)),
 		Heartbeat::PulseStep("Player affect update",
 							 kSecsPerPlayerAffect * kPassesPerSec,
@@ -469,6 +463,10 @@ Heartbeat::steps_t &pulse_steps() {
 							 kSecsPerMudHour * kPassesPerSec,
 							 16,
 							 std::make_shared<SimpleCall>(mobile_affect_update)),
+		Heartbeat::PulseStep("Player timed updating",
+							 kSecsPerPlayerTimed * kPassesPerSec,
+							 17,
+							 std::make_shared<SimpleCall>(player_timed_update)),
 		Heartbeat::PulseStep("Objects point updating",
 							 kSecsPerMudHour * kPassesPerSec,
 							 11,
@@ -506,10 +504,6 @@ Heartbeat::steps_t &pulse_steps() {
 							 EXCHANGE_AUTOSAVETIME * kPassesPerSec,
 							 9,
 							 std::make_shared<ExchangeDatabaseBackupSaveCall>()),
-		Heartbeat::PulseStep("Processing for extracted_list in triggers",
-							 1,
-							 11,
-							 std::make_shared<ExtractListProcessingCall>()),
 		Heartbeat::PulseStep("Global UID saving", 60 * kPassesPerSec, 9, std::make_shared<GlobalSaveUIDCall>()),
 		Heartbeat::PulseStep("Crash save", 60 * kPassesPerSec, 11, std::make_shared<CrashSaveCall>()),
 		Heartbeat::PulseStep("Clan experience updating",
@@ -556,8 +550,35 @@ Heartbeat::Heartbeat() :
 	m_global_pulse_number(0) {
 }
 
+void Heartbeat::record_metrics(const pulse_label_t &label, double execution_time_sec, int missed_pulses) {
+	for (const auto& [step_index, step_time] : label) {
+		if (step_index < m_steps.size()) {
+			std::map<std::string, std::string> step_attrs;
+			step_attrs["step"] = m_steps[step_index].name();
+			observability::OtelMetrics::RecordHistogram("heartbeat.step.duration", step_time, step_attrs);
+		}
+	}
+
+	std::map<std::string, std::string> pulse_attrs;
+	pulse_attrs["pulse_mod"] = std::to_string(pulse_number() % 25);
+	observability::OtelMetrics::RecordHistogram("heartbeat.total.duration", execution_time_sec, pulse_attrs);
+
+	if (missed_pulses > 0) {
+		observability::OtelMetrics::RecordCounter("heartbeat.missed_pulses_total", missed_pulses);
+	}
+}
+
 void Heartbeat::operator()(const int missed_pulses) {
 	pulse_label_t label;
+
+	// Capture current pulse numbers BEFORE advance
+	const auto current_heartbeat_number = global_pulse_number();
+	const auto current_pulse_number = pulse_number();
+
+	// Create trace span for this pulse
+	char span_name[64];
+	snprintf(span_name, sizeof(span_name), "Heartbeat #%lu pulse #%d", current_heartbeat_number, current_pulse_number);
+	auto pulse_span = tracing::TraceManager::Instance().StartSpan(span_name);
 
 	utils::CExecutionTimer timer;
 	pulse(missed_pulses, label);
@@ -571,12 +592,15 @@ void Heartbeat::operator()(const int missed_pulses) {
 		mudlog(tmpbuf, LGH, kLvlImmortal, SYSLOG, true);
 	}
 	m_measurements.add(label, pulse_number(), execution_time.count());
-	if (GlobalObjects::stats_sender().ready()) {
-		influxdb::Record record("heartbeat");
-		record.add_tag("pulse", pulse_number());
-		record.add_field("duration", execution_time.count());
-		GlobalObjects::stats_sender().send(record);
-	}
+	record_metrics(label, execution_time.count(), missed_pulses);
+
+	// Close parent span
+	pulse_span->SetAttribute("heartbeat_number", static_cast<int64_t>(current_heartbeat_number));
+	pulse_span->SetAttribute("pulse_number", static_cast<int64_t>(current_pulse_number));
+	pulse_span->SetAttribute("execution_time_seconds", execution_time.count());
+	pulse_span->SetAttribute("missed_pulses", static_cast<int64_t>(missed_pulses));
+	pulse_span->SetAttribute("steps_executed", static_cast<int64_t>(label.size()));
+	pulse_span->End();
 }
 
 long long Heartbeat::period() const {
@@ -611,10 +635,12 @@ void Heartbeat::advance_pulse_numbers() {
 
 void Heartbeat::pulse(const int missed_pulses, pulse_label_t &label) {
 	static int last_pmem_used = 0;
+
 	label.clear();
 	advance_pulse_numbers();
 	log("Heartbeat pulse");
-
+	character_list.PurgeExtractedList();
+	world_objects.PurgeExtractedList();
 	for (std::size_t i = 0; i != m_steps.size(); ++i) {
 		auto &step = m_steps[i];
 		auto get_mem = TotalMemUse();
@@ -626,7 +652,11 @@ void Heartbeat::pulse(const int missed_pulses, pulse_label_t &label) {
 
 		if (0 == (m_pulse_number + step.offset()) % step.modulo()) {
 			utils::CExecutionTimer timer;
-
+			
+			// Create child span for this step
+			auto step_span = tracing::TraceManager::Instance().StartSpan(step.name());
+			step_span->SetAttribute("step_index", static_cast<int64_t>(i));
+			step_span->SetAttribute("step_modulo", static_cast<int64_t>(step.modulo()));
 			step.action()->perform(pulse_number(), missed_pulses);
 			const auto execution_time = timer.delta().count();
 			if (step.modulo() >= kSecsPerMudHour * kPassesPerSec) {
@@ -638,6 +668,8 @@ void Heartbeat::pulse(const int missed_pulses, pulse_label_t &label) {
 				log("HeartBeat memory resize, step:(%s), memory used: virt (%d kB) phys (%d kB)", step.name().c_str(), vmem_used, pmem_used);
 //				mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 			}
+			step_span->SetAttribute("execution_time_seconds", execution_time);
+			step_span->End();
 			label.emplace(i, execution_time);
 			m_executed_steps.insert(i);
 			step.add_measurement(i, pulse_number(), execution_time);

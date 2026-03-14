@@ -1,0 +1,134 @@
+#!/bin/bash
+
+# ============================================================================
+# Pre-commit hook: проверка кодировки файлов
+# ============================================================================
+# Блокирует коммит если:
+# 1. Найден символ замены U+FFFD (О©╫)
+# 2. Файл должен быть KOI8-R, но находится в UTF-8
+# 3. Найдены типичные паттерны битой кодировки
+# ============================================================================
+
+# Код символа О©╫ (Unicode Replacement Character U+FFFD) в UTF-8: \xEF\xBF\xBD
+BAD_CHAR=$(printf "\xef\xbf\xbd")
+
+# Получаем список измененных файлов (только текст, исключая удаленные)
+FILES=$(git diff --cached --name-only --diff-filter=ACM)
+
+# Если файлов нет, просто выходим
+[ -z "$FILES" ] && exit 0
+
+ERROR_FOUND=0
+
+# Функция проверки, должен ли файл быть в KOI8-R
+is_koi8r_file() {
+    local file="$1"
+    # Проверяем .gitattributes
+    git check-attr working-tree-encoding "$file" | grep -q "koi8-r\|KOI8-R"
+}
+
+# Функция определения кодировки файла
+detect_encoding() {
+    local file="$1"
+    # Используем file для определения кодировки
+    file -b --mime-encoding "$file" 2>/dev/null
+}
+
+# Паттерны типичной битой кодировки (UTF-8 байты от русских букв в KOI8-R)
+# п·б╘ = d0 bf c2 b7 d0 b1 e2 95 98
+# Это происходит когда KOI8-R текст читается как UTF-8
+check_corruption_patterns() {
+    local file="$1"
+    
+    # Проверка 1: Символ замены U+FFFD
+    if grep -q "$BAD_CHAR" "$file" 2>/dev/null; then
+        echo "  ⚠ Найден символ замены U+FFFD (О©╫)"
+        return 1
+    fi
+    
+    # Проверка 2: Типичные битые паттерны
+    # п·б (d0 bf c2 b7)
+    if grep -qP '\xd0[\xbf\xb1]\xc2\xb7' "$file" 2>/dev/null; then
+        echo "  ⚠ Найден паттерн битой кодировки (п·б)"
+        return 1
+    fi
+    
+    # Проверка 3: Частые последовательности из двойной кодировки
+    # ╘Б∙╚ (e2 95 98 d0 91 e2 88 99)
+    if grep -qP '\xe2\x95[\x98\x9a]' "$file" 2>/dev/null; then
+        echo "  ⚠ Найден паттерн битой кодировки (╘Б∙)"
+        return 1
+    fi
+    
+    return 0
+}
+
+echo "🔍 Проверка кодировки файлов..."
+
+for FILE in $FILES; do
+    # Пропускаем несуществующие файлы
+    [ ! -f "$FILE" ] && continue
+    
+    # Пропускаем бинарные файлы
+    if file "$FILE" | grep -q "executable\|binary\|archive"; then
+        continue
+    fi
+    
+    # Проверяем, должен ли файл быть в KOI8-R
+    if is_koi8r_file "$FILE"; then
+        ENCODING=$(detect_encoding "$FILE")
+        
+        echo "📄 $FILE"
+        echo "  Ожидается: KOI8-R (по .gitattributes)"
+        echo "  Обнаружено: $ENCODING"
+        
+        # Проверка: файл должен быть ISO-8859 (KOI8-R определяется как ISO-8859)
+        if [[ "$ENCODING" == "utf-8" ]]; then
+            echo "  ❌ ОШИБКА: Файл в UTF-8, а должен быть в KOI8-R!"
+            ERROR_FOUND=1
+            continue
+        fi
+        
+        # Даже если encoding правильный, проверяем на битые паттерны
+        if ! check_corruption_patterns "$FILE"; then
+            echo "  ❌ ОШИБКА: Обнаружена битая кодировка!"
+            ERROR_FOUND=1
+            continue
+        fi
+        
+        echo "  ✅ Кодировка правильная"
+    else
+        # Для не-KOI8-R файлов проверяем только символ замены
+        if grep -q "$BAD_CHAR" "$FILE" 2>/dev/null; then
+            echo "❌ [BLOCKER] Символ замены (О©╫) найден в: $FILE"
+            ERROR_FOUND=1
+        fi
+    fi
+done
+
+if [ $ERROR_FOUND -ne 0 ]; then
+    echo ""
+    echo "════════════════════════════════════════════════════════"
+    echo "❌ КОММИТ ЗАБЛОКИРОВАН"
+    echo "════════════════════════════════════════════════════════"
+    echo ""
+    echo "Обнаружены проблемы с кодировкой файлов."
+    echo ""
+    echo "Как исправить:"
+    echo "  1. Для KOI8-R файлов используйте iconv:"
+    echo "     iconv -f utf-8 -t koi8-r file_utf8.cpp > file.cpp"
+    echo ""
+    echo "  2. Или используйте Edit tool на UTF-8 версии:"
+    echo "     iconv -f koi8-r -t utf-8 file.cpp > /tmp/file_utf8.cpp"
+    echo "     # Edit /tmp/file_utf8.cpp"
+    echo "     iconv -f utf-8 -t koi8-r /tmp/file_utf8.cpp > file.cpp"
+    echo ""
+    echo "  3. Для срочного коммита (не рекомендуется):"
+    echo "     git commit --no-verify"
+    echo ""
+    echo "════════════════════════════════════════════════════════"
+    exit 1
+fi
+
+echo "✅ Все проверки пройдены"
+exit 0

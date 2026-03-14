@@ -28,6 +28,9 @@
 
 #include <sys/stat.h>
 #include "../subprojects/fmt/include/fmt/format.h"
+#include "engine/observability/helpers.h"
+#include "engine/observability/metrics.h"
+#include "utils/tracing/trace_manager.h"
 
 const int LOC_INVENTORY = 0;
 //const int MAX_BAG_ROWS = 5;
@@ -551,34 +554,22 @@ void write_one_object(std::stringstream &out, ObjData *object, int location) {
 	char buf2[kMaxStringLength];
 	int i, j;
 	ObjRnum orn = object->get_rnum();
+	CObjectPrototype::shared_ptr proto;
 
-	// vnum
-	if (obj_proto[orn]->get_parent_rnum() > -1) {
-		out << "#" << obj_proto[orn]->get_parent_vnum();
+	if (object->get_parent_rnum() > -1) {
+		proto = obj_proto[object->get_parent_rnum()];
+		out << "#" << object->get_parent_vnum();
 	} else {
+		proto = obj_proto[orn];
 		out << "#" << GET_OBJ_VNUM(object);
 	}
-
 	out << "\n";
 	// Положение в экипировке (сохраняем только если > 0)
 	if (location) {
 		out << "Lctn: " << location << "~\n";
 	}
-
-	// Если у шмотки есть прототип то будем сохранять по обрезанной схеме, иначе
-	// придется сохранять все статсы шмотки.
-	auto proto = GetObjectPrototype(GET_OBJ_VNUM(object));
-
-/*	auto obj_ptr = world_objects.get_by_raw_ptr(object);
-	if (!obj_ptr)
-	{
-		log("Object was purged.");
-		//return;
-	}
-*/
 //	log("Write one object: %s", object->get_PName(ECase::kNom).c_str());
-
-	if (GET_OBJ_VNUM(object) >= 0 && proto) {
+	if (GET_OBJ_VNUM(object) >= 0) {
 		// Сохраняем UID
 		out << "Ouid: " << object->get_unique_id() << "~\n";
 		// Алиасы
@@ -698,7 +689,8 @@ void write_one_object(std::stringstream &out, ObjData *object, int location) {
 		if (blooded) {
 			object->unset_extraflag(EObjFlag::kBloody);
 		}
-		bool nosell = object->has_flag(EObjFlag::kNosell) && !obj_proto[orn]->has_flag(EObjFlag::kNosell);
+		auto nosell = object->has_flag(EObjFlag::kNosell) && !proto->has_flag(EObjFlag::kNosell);
+
 		if (nosell) {
 			object->unset_extraflag(EObjFlag::kNosell);
 		}
@@ -1175,11 +1167,13 @@ int Crash_write_timer(const std::size_t index) {
 		fwrite(&(SAVEINFO(index)->time[i]), sizeof(SaveTimeInfo), 1, fl);
 	}
 	fclose(fl);
+#ifndef _WIN32
 	if (chmod(fname, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP) < 0) {
 		std::stringstream ss;
 		ss << "Error chmod file: " << fname << " (" << __FILE__ << " "<< __func__ << "  "<< __LINE__ << ")";
 		mudlog(ss.str(), BRF, kLvlGod, SYSLOG, true);
 	}
+#endif
 	FileCRC::check_crc(fname, FileCRC::UPDATE_TIMEOBJS, player_table[index].uid());
 	return true;
 }
@@ -1559,7 +1553,7 @@ int Crash_load(CharData *ch) {
 		}
 
 		//очищаем ZoneDecay объедки
-		if (obj->has_flag(EObjFlag::kZonedacay)) {
+		if (obj->has_flag(EObjFlag::kZonedecay)) {
 			sprintf(buf, "%s рассыпал%s в прах.\r\n", cap.c_str(), GET_OBJ_SUF_2(obj));
 			SendMsgToChar(buf, ch);
 			ExtractObjFromWorld(obj.get());
@@ -1695,18 +1689,9 @@ int Crash_is_unrentable(CharData *ch, ObjData *obj) {
 	if (!obj) {
 		return false;
 	}
-
-	if (obj->has_flag(EObjFlag::kNorent)
-		|| obj->get_rent_off() < 0
-		|| obj->has_flag(EObjFlag::kRepopDecay)
-		|| obj->has_flag(EObjFlag::kZonedacay)
-		|| (obj->get_rnum() <= kNothing
-			&& obj->get_type() != EObjType::kMoney)
-		|| obj->get_type() == EObjType::kKey
-		|| SetSystem::is_norent_set(ch, obj)) {
+	if (obj->is_unrentable() || SetSystem::is_norent_set(ch, obj)) {
 		return true;
 	}
-
 	return false;
 }
 
@@ -1988,11 +1973,13 @@ int save_char_objects(CharData *ch, int savetype, int rentcost) {
 		write_buffer << "\n$\n$\n";
 		file << write_buffer.rdbuf();
 		file.close();
+#ifndef _WIN32
 		if (chmod(fname, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP) < 0) {
 			std::stringstream ss;
 			ss << "Error chmod file: " << fname << " (" << __FILE__ << " "<< __func__ << "  "<< __LINE__ << ")";
 			mudlog(ss.str(), BRF, kLvlGod, SYSLOG, true);
 		}
+#endif
 		FileCRC::check_crc(fname, FileCRC::UPDATE_TEXTOBJS, ch->get_uid());
 	} else {
 		Crash_delete_files(iplayer);
@@ -2451,6 +2438,12 @@ int receptionist(CharData *ch, void *me, int cmd, char *argument) {
 
 void Crash_frac_save_all(int frac_part) {
 	DescriptorData *d;
+	// OpenTelemetry: Track fractional save
+	auto save_span = tracing::TraceManager::Instance().StartSpan("Player Save (Fractional)");
+	save_span->SetAttribute("save_type", "frac");
+	save_span->SetAttribute("frac_part", static_cast<int64_t>(frac_part));
+	
+	int saved_count = 0;
 
 	for (d = descriptor_list; d; d = d->next) {
 		if ((d->state == EConState::kPlaying) && !d->character->IsNpc() && GET_ACTIVITY(d->character) == frac_part) {
@@ -2465,12 +2458,24 @@ void Crash_frac_save_all(int frac_part) {
 			if (timer1.delta().count() > 0.1)
 				log("Crash_frac_save_all: save_char, timer %f, save player: %s", timer1.delta().count(), d->character->get_name().c_str());
 			d->character->UnsetFlag(EPlrFlag::kCrashSave);
+			saved_count++;
+			
+			// OpenTelemetry: Record save metrics
+			std::map<std::string, std::string> attrs;
+			attrs["save_type"] = "frac";
+			attrs["character"] = d->character->get_name();
+			
+			observability::OtelMetrics::RecordHistogram("player.save.duration", timer.delta().count(), attrs);
+			observability::OtelMetrics::RecordCounter("player.save.total", 1, attrs);
 		}
 	}
 }
 
 void Crash_save_all(void) {
 	DescriptorData *d;
+	auto save_span = tracing::TraceManager::Instance().StartSpan("Player Save (Full)");
+	save_span->SetAttribute("save_type", "full");
+
 	for (d = descriptor_list; d; d = d->next) {
 		if ((d->state == EConState::kPlaying) && d->character->IsFlagged(EPlrFlag::kCrashSave)) {
 			Crash_crashsave(d->character.get());

@@ -78,7 +78,7 @@ class FlagData {
 	};
 
 	/// Изменение указанного флага
-	void gm_flag(const char *subfield, const char *const *const list, char *res);
+	int  gm_flag(const char *subfield, const char *const *const list, char *res);
 
  protected:
 	std::array<Bitvector, kPlanesNumber> m_flags;

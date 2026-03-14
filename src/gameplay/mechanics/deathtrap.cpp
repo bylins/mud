@@ -13,6 +13,7 @@
 #include "gameplay/fight/fight_stuff.h"
 #include "gameplay/mechanics/damage.h"
 #include "boat.h"
+#include "engine/db/global_objects.h"
 
 extern void death_cry(CharData *ch, CharData *killer);
 
@@ -62,7 +63,7 @@ void deathtrap::activity() {
 	for (auto it = room_list.cbegin(); it != room_list.cend(); ++it) {
 		const auto people = (*it)->people; // make copy of people in the room
 		for (const auto i : people) {
-			if (i->purged() || i->IsNpc()) {
+			if (i->purged() || (i->IsNpc() && !IS_CHARMICE(i))) {
 				continue;
 			}
 			std::string name = i->get_name_str();
@@ -81,12 +82,12 @@ void deathtrap::activity() {
 
 // * Логирование в отдельный файл уходов в дт для интересу и мб статистики.
 void deathtrap::log_death_trap(CharData *ch) {
-	const char *filename = "../log/death_trap.log";
+	const auto filename = runtime_config.log_dir() + "/death_trap.log";
 	static FILE *file = 0;
 	if (!file) {
-		file = fopen(filename, "a");
+		file = fopen(filename.c_str(), "a");
 		if (!file) {
-			log("SYSERR: can't open %s!", filename);
+			log("SYSERR: can't open %s!", filename.c_str());
 			return;
 		}
 		opened_files.push_back(file);

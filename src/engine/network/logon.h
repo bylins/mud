@@ -11,7 +11,7 @@
 #include <ctime>
 #include <vector>
 
-class DescriptorData;
+struct DescriptorData;
 
 namespace network {
 

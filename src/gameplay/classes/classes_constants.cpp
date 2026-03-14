@@ -72,7 +72,7 @@ void init_EMobClass_ITEM_NAMES() {
 
 	EMobClass_name_by_value[EMobClass::kUndefined] = "kUndefined";
 	EMobClass_name_by_value[EMobClass::kBoss] = "kBoss";
-	EMobClass_name_by_value[EMobClass::kAdd] = "kAdd";
+	EMobClass_name_by_value[EMobClass::kTrash] = "kTrash";
 	EMobClass_name_by_value[EMobClass::kTank] = "kTank";
 	EMobClass_name_by_value[EMobClass::kMelleeDmg] = "kMelleeDmg";
 	EMobClass_name_by_value[EMobClass::kArcher] = "kArcher";

@@ -1,5 +1,8 @@
 /src/**           working-tree-encoding=KOI8-R eol=lf
 /tests/**         working-tree-encoding=KOI8-R eol=lf
+/tests/**/*.py    working-tree-encoding=UTF-8 eol=lf
+*.md              working-tree-encoding=UTF-8 eol=lf
+/.githooks/**     working-tree-encoding=UTF-8 eol=lf
 /lib.template/**  working-tree-encoding=KOI8-R eol=lf
 /lib/text/help/** working-tree-encoding=KOI8-R eol=lf
 /lib/etc/board/** working-tree-encoding=KOI8-R eol=lf

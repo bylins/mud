@@ -640,7 +640,7 @@ void string_add(DescriptorData *d, char *str) {
 		if (strlen(str) + d->writer->length() + 3 > d->max_str)    // \r\n\0 //
 		{
 			SendMsgToChar(d->character.get(),
-						  "Слишком длинное послание > %lu симв. Последняя строка проигнорирована.\r\n",
+						  "Слишком длинное послание > %zu симв. Последняя строка проигнорирована.\r\n",
 						  d->max_str - 3);
 			action = true;
 		} else {
@@ -1134,7 +1134,7 @@ char *next_page(char *str, CharData *ch) {
 						break;
 					default: color = kColorNrm;
 				}
-			strncpy(str, color, strlen(color));
+			memcpy(str, color, strlen(color));
 			str += (strlen(color) - 1);
 		} else if (*str == '\x1B' && !spec_code)
 			spec_code = true;

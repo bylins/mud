@@ -42,7 +42,7 @@ ECharClass ITEM_BY_NAME<ECharClass>(const std::string &name);
 enum class EMobClass {
 	kUndefined,
 	kBoss,
-	kAdd,
+	kTrash,
 	kTank,
 	kMelleeDmg,
 	kArcher,

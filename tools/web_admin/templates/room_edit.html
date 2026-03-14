@@ -1,0 +1,1010 @@
+{% extends "base.html" %}
+
+{% block title %}Редактирование комнаты {{ room.vnum }} - Былины MUD{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs-bar">
+    <div class="max-w-[1280px] mx-auto px-6 py-2.5">
+        <div class="flex items-center gap-2 font-inter text-sm text-ink-muted">
+            <a href="{{ url_for('index') }}">Главная</a>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #d4c49a;">
+                <polyline points="9 18 15 12 9 6"/>
+            </svg>
+            <a href="{{ url_for('rooms_list', zone=room.vnum // 100) }}">Комнаты</a>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #d4c49a;">
+                <polyline points="9 18 15 12 9 6"/>
+            </svg>
+            <a href="{{ url_for('room_detail', vnum=room.vnum) }}">#{{ room.vnum }}</a>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #d4c49a;">
+                <polyline points="9 18 15 12 9 6"/>
+            </svg>
+            <span class="text-ink-light">Редактирование</span>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+
+    <!-- Page Header -->
+    <div class="page-header" style="margin-bottom: 8px;">
+        <div>
+            <h2 class="font-serif-display" style="font-size: 28px;">
+                Редактирование комнаты <span class="text-amber-700">#{{ room.vnum }}</span>
+            </h2>
+            <p class="page-subtitle" style="margin-top: 4px;">
+                {{ room.name|default('Без названия') }}
+            </p>
+        </div>
+
+        <button type="button" class="btn-secondary" onclick="history.back()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            Отмена
+        </button>
+    </div>
+
+    <!-- Ornamental divider -->
+    <div class="ornament-divider">
+        <div class="ornament-divider-inner">
+            <div class="ornament-line ornament-line-left"></div>
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" style="opacity: 0.5;">
+                <path d="M10 2L12 8L18 8L13 12L15 18L10 14L5 18L7 12L2 8L8 8Z"/>
+            </svg>
+            <div class="ornament-line ornament-line-right"></div>
+        </div>
+    </div>
+
+    <form id="room-edit-form" novalidate>
+
+    <!-- ===== SECTION 1: Basic Information ===== -->
+    <div class="parchment-section">
+        <div class="parchment-section-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                <polyline points="9 22 9 12 15 12 15 22"/>
+            </svg>
+            Основная информация
+        </div>
+
+        <div class="form-row" style="margin-bottom: 16px;">
+            <div class="field-group" style="grid-column: 1 / -1;">
+                <label for="name">Название</label>
+                <input type="text" id="name" name="name" value="{{ room.name|default('') }}"
+                       placeholder="Название комнаты">
+            </div>
+        </div>
+
+        <div class="form-row form-row-2" style="margin-bottom: 16px;">
+            <div class="field-group">
+                <label for="sector_type">Тип местности</label>
+                <select id="sector_type" name="sector_type">
+                    <option value="0" {{ 'selected' if room.sector_type is defined and room.sector_type == 0 }}>0 - Внутри помещения</option>
+                    <option value="1" {{ 'selected' if room.sector_type is defined and room.sector_type == 1 }}>1 - Город</option>
+                    <option value="2" {{ 'selected' if room.sector_type is defined and room.sector_type == 2 }}>2 - Поле</option>
+                    <option value="3" {{ 'selected' if room.sector_type is defined and room.sector_type == 3 }}>3 - Лес</option>
+                    <option value="4" {{ 'selected' if room.sector_type is defined and room.sector_type == 4 }}>4 - Холмы</option>
+                    <option value="5" {{ 'selected' if room.sector_type is defined and room.sector_type == 5 }}>5 - Горы</option>
+                    <option value="6" {{ 'selected' if room.sector_type is defined and room.sector_type == 6 }}>6 - Плавание (вода)</option>
+                    <option value="7" {{ 'selected' if room.sector_type is defined and room.sector_type == 7 }}>7 - Под водой</option>
+                    <option value="8" {{ 'selected' if room.sector_type is defined and room.sector_type == 8 }}>8 - Полет</option>
+                    <option value="9" {{ 'selected' if room.sector_type is defined and room.sector_type == 9 }}>9 - Секрет</option>
+                    <option value="10" {{ 'selected' if room.sector_type is defined and room.sector_type == 10 }}>10 - Густой лес</option>
+                    <option value="11" {{ 'selected' if room.sector_type is defined and room.sector_type == 11 }}>11 - Тонкий лед</option>
+                    <option value="12" {{ 'selected' if room.sector_type is defined and room.sector_type == 12 }}>12 - Нормальный лед</option>
+                    <option value="13" {{ 'selected' if room.sector_type is defined and room.sector_type == 13 }}>13 - Крепкий лед</option>
+                    <option value="14" {{ 'selected' if room.sector_type is defined and room.sector_type == 14 }}>14 - Глубокая вода</option>
+                </select>
+            </div>
+            <div class="field-group">
+                <label>Vnum</label>
+                <div style="font-family: 'Inter', sans-serif; font-size: 14px; color: #5a4d3f; padding: 10px 12px; background-color: rgba(253, 246, 227, 0.6); border: 1px solid rgba(120, 53, 15, 0.08); border-radius: 6px;">
+                    <strong style="color: #2d241e;">{{ room.vnum }}</strong>
+                    <span style="color: #8a7b6b; margin-left: 8px;">(зона {{ room.vnum // 100 }})</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="field-group">
+                <label for="description">Описание комнаты</label>
+                <textarea id="description" name="description" rows="5"
+                          placeholder="Описание того, что видит персонаж, когда смотрит на комнату"
+                          style="resize: vertical; min-height: 100px;">{{ room.description|default('') }}</textarea>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== SECTION 2: Room Flags ===== -->
+    <div class="parchment-section">
+        <div class="parchment-section-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/>
+                <line x1="4" y1="22" x2="4" y2="15"/>
+            </svg>
+            Флаги комнаты (room flags)
+        </div>
+
+        <!-- Группа 0: Basic room flags -->
+        <div class="subsection-label" style="margin-bottom: 8px;">Группа 0 -- Основные</div>
+        <div class="flag-toggle-group" id="roomflags-p0-group">
+            <div class="flag-toggle-grid" id="roomflags-p0-grid">
+                <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="0" data-bit="1"><span class="flag-toggle-bit">0x1</span><span class="flag-toggle-name">Темная (Dark)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="0" data-bit="2"><span class="flag-toggle-bit">0x2</span><span class="flag-toggle-name">ДТ (Death Trap)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="0" data-bit="4"><span class="flag-toggle-bit">0x4</span><span class="flag-toggle-name">Не для мобов (No Mob)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="0" data-bit="8"><span class="flag-toggle-bit">0x8</span><span class="flag-toggle-name">Внутри (Indoors)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="0" data-bit="16"><span class="flag-toggle-bit">0x10</span><span class="flag-toggle-name">Мирная (Peaceful)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="0" data-bit="32"><span class="flag-toggle-bit">0x20</span><span class="flag-toggle-name">Глухая (Soundproof)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="0" data-bit="64"><span class="flag-toggle-bit">0x40</span><span class="flag-toggle-name">Не выследить (No Track)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="0" data-bit="128"><span class="flag-toggle-bit">0x80</span><span class="flag-toggle-name">Нет магии (No Magic)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="0" data-bit="256"><span class="flag-toggle-bit">0x100</span><span class="flag-toggle-name">Однопроходная (Tunnel)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="0" data-bit="512"><span class="flag-toggle-bit">0x200</span><span class="flag-toggle-name">Телепорт в запрещен (No Teleport In)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="0" data-bit="1024"><span class="flag-toggle-bit">0x400</span><span class="flag-toggle-name">Боги (Gods Room)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="0" data-bit="2048"><span class="flag-toggle-bit">0x800</span><span class="flag-toggle-name">Замок (House)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="0" data-bit="8192"><span class="flag-toggle-bit">0x2000</span><span class="flag-toggle-name">Вход в замок (House Entry)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="0" data-bit="65536"><span class="flag-toggle-bit">0x10000</span><span class="flag-toggle-name">Для магов (For Mages)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="0" data-bit="131072"><span class="flag-toggle-bit">0x20000</span><span class="flag-toggle-name">Для лекарей (For Sorcerers)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="0" data-bit="262144"><span class="flag-toggle-bit">0x40000</span><span class="flag-toggle-name">Для воров (For Thieves)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="0" data-bit="524288"><span class="flag-toggle-bit">0x80000</span><span class="flag-toggle-name">Для богатырей (For Warriors)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="0" data-bit="1048576"><span class="flag-toggle-bit">0x100000</span><span class="flag-toggle-name">Для наемников (For Assassins)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="0" data-bit="2097152"><span class="flag-toggle-bit">0x200000</span><span class="flag-toggle-name">Для дружинников (For Guards)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="0" data-bit="4194304"><span class="flag-toggle-bit">0x400000</span><span class="flag-toggle-name">Для витязей (For Paladins)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="0" data-bit="8388608"><span class="flag-toggle-bit">0x800000</span><span class="flag-toggle-name">Для охотников (For Rangers)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="0" data-bit="16777216"><span class="flag-toggle-bit">0x1000000</span><span class="flag-toggle-name">Жертвенник (Poly)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="0" data-bit="33554432"><span class="flag-toggle-bit">0x2000000</span><span class="flag-toggle-name">Молельня (Mono)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="0" data-bit="67108864"><span class="flag-toggle-bit">0x4000000</span><span class="flag-toggle-name">Кузница (Forge)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="0" data-bit="134217728"><span class="flag-toggle-bit">0x8000000</span><span class="flag-toggle-name">Для купцов (For Merchants)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="0" data-bit="268435456"><span class="flag-toggle-bit">0x10000000</span><span class="flag-toggle-name">Для волхвов (For Maguses)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="0" data-bit="536870912"><span class="flag-toggle-bit">0x20000000</span><span class="flag-toggle-name">Арена (Arena)</span></button>
+            </div>
+            <div class="flag-hint" id="roomflags-p0-hint">Группа 0: <strong>0x0</strong></div>
+        </div>
+
+        <!-- Группа 1: Extended room flags -->
+        <div class="subsection-label" style="margin-bottom: 8px;">Группа 1 -- Дополнительные</div>
+        <div class="flag-toggle-group" id="roomflags-p1-group">
+            <div class="flag-toggle-grid" id="roomflags-p1-grid">
+                <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="1" data-bit="1"><span class="flag-toggle-bit">0x1</span><span class="flag-toggle-name">Не призвать (No Summon Out)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="1" data-bit="2"><span class="flag-toggle-bit">0x2</span><span class="flag-toggle-name">Телепорт из запрещен (No Teleport Out)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="1" data-bit="4"><span class="flag-toggle-bit">0x4</span><span class="flag-toggle-name">Нельзя верхом (No Horse)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="1" data-bit="8"><span class="flag-toggle-bit">0x8</span><span class="flag-toggle-name">Внепогодная (No Weather)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="1" data-bit="16"><span class="flag-toggle-bit">0x10</span><span class="flag-toggle-name">Медленный ДТ (Slow Death Trap)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="1" data-bit="32"><span class="flag-toggle-bit">0x20</span><span class="flag-toggle-name">Провалился под лед (Ice Trap)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="1" data-bit="64"><span class="flag-toggle-bit">0x40</span><span class="flag-toggle-name">Не переместиться (No Relocate In)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="1" data-bit="128"><span class="flag-toggle-bit">0x80</span><span class="flag-toggle-name">Слышно арену (Tribune)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="1" data-bit="256"><span class="flag-toggle-bit">0x100</span><span class="flag-toggle-name">Транслируем арену (Arena Send)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="1" data-bit="512"><span class="flag-toggle-bit">0x200</span><span class="flag-toggle-name">Нельзя атаковать (No Battle)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="1" data-bit="2048"><span class="flag-toggle-bit">0x800</span><span class="flag-toggle-name">Всегда светло (Always Lit)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="1" data-bit="4096"><span class="flag-toggle-bit">0x1000</span><span class="flag-toggle-name">Нет внумов (MoMapper)</span></button>
+            </div>
+            <div class="flag-hint" id="roomflags-p1-hint">Группа 1: <strong>0x0</strong></div>
+        </div>
+
+        <!-- Группа 2: Special room flags -->
+        <div class="subsection-label" style="margin-bottom: 8px;">Группа 2 -- Специальные</div>
+        <div class="flag-toggle-group" id="roomflags-p2-group">
+            <div class="flag-toggle-grid" id="roomflags-p2-grid">
+                <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="2" data-bit="1"><span class="flag-toggle-bit">0x1</span><span class="flag-toggle-name">Передача вещей запрещена (No Item)</span></button>
+                <button type="button" class="flag-toggle" data-flag-group="roomflags" data-plane="2" data-bit="2"><span class="flag-toggle-bit">0x2</span><span class="flag-toggle-name">Арена Доминирования (Domination Arena)</span></button>
+            </div>
+            <div class="flag-hint" id="roomflags-p2-hint">Группа 2: <strong>0x0</strong></div>
+        </div>
+    </div>
+
+    <!-- ===== SECTION 3: Exits ===== -->
+    <div class="parchment-section">
+        <div class="parchment-section-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                <polyline points="15 3 21 3 21 9"/>
+                <line x1="10" y1="14" x2="21" y2="3"/>
+            </svg>
+            Выходы
+        </div>
+
+        <p style="font-family: 'Inter', sans-serif; font-size: 13px; color: #8a7b6b; margin-bottom: 20px;">
+            Настройте выходы из комнаты. Добавляйте новые направления или удаляйте ненужные.
+        </p>
+
+        {% set dir_names = ['Север', 'Восток', 'Юг', 'Запад', 'Вверх', 'Вниз'] %}
+        {% set dir_icons = [
+            'M12 19V5M5 12l7-7 7 7',
+            'M5 12h14M12 5l7 7-7 7',
+            'M12 5v14M19 12l-7 7-7-7',
+            'M19 12H5M12 19l-7-7 7 7',
+            'M12 19V5M5 12l7-7 7 7',
+            'M12 5v14M19 12l-7 7-7-7'
+        ] %}
+
+        <div id="exits-list">
+        {% for dir_idx in range(6) %}
+        {% set exit = namespace(data=none) %}
+        {% for e in room.exits|default([]) %}
+            {% if e.direction == dir_idx %}
+                {% set exit.data = e %}
+            {% endif %}
+        {% endfor %}
+
+        {% if exit.data and exit.data.to_room is defined and exit.data.to_room >= 0 %}
+        <div class="exit-card" data-direction="{{ dir_idx }}" style="background-color: rgba(253, 246, 227, 0.5); border: 1px solid rgba(120, 53, 15, 0.1); border-radius: 8px; padding: 16px 20px; margin-bottom: 12px;">
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+                <div style="width: 32px; height: 32px; border-radius: 6px; background-color: rgba(180, 83, 9, 0.1); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#b45309" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="{{ dir_icons[dir_idx] }}"/>
+                    </svg>
+                </div>
+                <span style="font-family: 'Playfair Display', Georgia, serif; font-size: 16px; font-weight: 600; color: #2d241e;">{{ dir_names[dir_idx] }}</span>
+                <span style="font-family: 'Inter', sans-serif; font-size: 12px; color: #8a7b6b; margin-left: auto;">
+                    Текущий: #{{ exit.data.to_room }}
+                </span>
+                <button type="button" class="btn-secondary" onclick="window.removeExit(this)" style="padding: 5px 10px; margin-left: 8px; flex-shrink: 0; color: #991b1b; border-color: rgba(185, 28, 28, 0.2);" title="Удалить выход">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                    </svg>
+                    <span style="font-size: 12px;">Удалить</span>
+                </button>
+            </div>
+
+            <div class="form-row form-row-3">
+                <div class="field-group">
+                    <label for="exit-{{ dir_idx }}-to-room">Комната назначения <span style="font-weight: 400; text-transform: none; letter-spacing: normal; color: #8a7b6b;">(vnum)</span></label>
+                    <input type="number" id="exit-{{ dir_idx }}-to-room"
+                           name="exit_{{ dir_idx }}_to_room"
+                           value="{{ exit.data.to_room }}"
+                           placeholder="Vnum комнаты">
+                </div>
+                <div class="field-group">
+                    <label for="exit-{{ dir_idx }}-keyword">Ключевые слова</label>
+                    <input type="text" id="exit-{{ dir_idx }}-keyword"
+                           name="exit_{{ dir_idx }}_keyword"
+                           value="{{ exit.data.keyword|default('') }}"
+                           placeholder="дверь ворота">
+                </div>
+                <div class="field-group">
+                    <label for="exit-{{ dir_idx }}-key">Ключ <span style="font-weight: 400; text-transform: none; letter-spacing: normal; color: #8a7b6b;">(vnum предмета)</span></label>
+                    <input type="number" id="exit-{{ dir_idx }}-key"
+                           name="exit_{{ dir_idx }}_key"
+                           value="{{ exit.data.key_vnum|default('') if exit.data.key_vnum is defined and exit.data.key_vnum > 0 else '' }}"
+                           placeholder="Vnum ключа">
+                </div>
+            </div>
+
+            <div class="form-row form-row-2" style="margin-top: 8px;">
+                <div class="field-group">
+                    <label for="exit-{{ dir_idx }}-desc">Описание выхода</label>
+                    <input type="text" id="exit-{{ dir_idx }}-desc"
+                           name="exit_{{ dir_idx }}_description"
+                           value="{{ exit.data.description|default('') }}"
+                           placeholder="Что видит персонаж, смотря в этом направлении">
+                </div>
+                <div class="field-group">
+                    <label for="exit-{{ dir_idx }}-exit-info">Тип выхода</label>
+                    <select id="exit-{{ dir_idx }}-exit-info" name="exit_{{ dir_idx }}_exit_info">
+                        <option value="0" {{ 'selected' if exit.data.exit_info is defined and exit.data.exit_info == 0 }}>0 - Открытый проход</option>
+                        <option value="1" {{ 'selected' if exit.data.exit_info is defined and exit.data.exit_info == 1 }}>1 - Дверь</option>
+                        <option value="2" {{ 'selected' if exit.data.exit_info is defined and exit.data.exit_info == 2 }}>2 - Запертая дверь</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        {% endfor %}
+        </div>
+
+        <div id="exits-empty" style="font-family: 'Inter', sans-serif; font-size: 14px; color: #8a7b6b; padding: 20px; text-align: center; background-color: rgba(253, 246, 227, 0.4); border: 1px dashed rgba(120, 53, 15, 0.12); border-radius: 8px; margin-bottom: 12px; {% set has_exits = [] %}{% for e in room.exits|default([]) %}{% if e.to_room is defined and e.to_room >= 0 %}{% if has_exits.append(1) %}{% endif %}{% endif %}{% endfor %}{% if has_exits|length > 0 %}display: none;{% endif %}">
+            Выходов нет. Нажмите кнопку ниже, чтобы добавить выход.
+        </div>
+
+        <!-- Add exit control -->
+        <div style="display: flex; align-items: center; gap: 10px; margin-top: 4px;">
+            <select id="new-exit-direction" style="width: auto; min-width: 180px;">
+                <!-- Options populated dynamically by updateExitDropdown() -->
+            </select>
+            <button type="button" class="btn-secondary" onclick="window.addExit()" id="add-exit-btn">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                </svg>
+                Добавить выход
+            </button>
+        </div>
+    </div>
+
+    <!-- ===== SECTION 4: Extra Descriptions ===== -->
+    <div class="parchment-section">
+        <div class="parchment-section-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+                <line x1="16" y1="13" x2="8" y2="13"/>
+                <line x1="16" y1="17" x2="8" y2="17"/>
+            </svg>
+            Дополнительные описания
+        </div>
+
+        <div id="extra-descs-list">
+            {% if room.extra_descriptions and room.extra_descriptions|length > 0 %}
+            {% for ed in room.extra_descriptions %}
+            <div class="extra-desc-item" style="background-color: rgba(253, 246, 227, 0.5); border: 1px solid rgba(120, 53, 15, 0.1); border-radius: 8px; padding: 16px 20px; margin-bottom: 12px;">
+                <div style="display: flex; align-items: flex-start; gap: 12px;">
+                    <div style="flex: 1;">
+                        <div class="form-row form-row-2" style="margin-bottom: 0;">
+                            <div class="field-group">
+                                <label>Ключевые слова</label>
+                                <input type="text" name="extra_desc_keyword_{{ loop.index0 }}"
+                                       value="{{ ed.keyword|default('') }}"
+                                       placeholder="стена рисунок">
+                            </div>
+                            <div class="field-group">
+                                <label>Описание</label>
+                                <textarea name="extra_desc_description_{{ loop.index0 }}" rows="2"
+                                          placeholder="Что видит персонаж при осмотре"
+                                          style="resize: vertical; min-height: 60px;">{{ ed.description|default('') }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-secondary" onclick="removeExtraDesc(this)" style="padding: 6px 10px; margin-top: 18px; flex-shrink: 0;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+            {% endif %}
+        </div>
+
+        <div id="extra-descs-empty" style="font-family: 'Inter', sans-serif; font-size: 14px; color: #8a7b6b; padding: 20px; text-align: center; background-color: rgba(253, 246, 227, 0.4); border: 1px dashed rgba(120, 53, 15, 0.12); border-radius: 8px; margin-bottom: 12px; {% if room.extra_descriptions and room.extra_descriptions|length > 0 %}display: none;{% endif %}">
+            Дополнительных описаний нет
+        </div>
+
+        <button type="button" class="btn-secondary" onclick="addExtraDesc()" style="margin-top: 4px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            Добавить описание
+        </button>
+    </div>
+
+    <!-- ===== SECTION 5: Triggers ===== -->
+    <div class="parchment-section">
+        <div class="parchment-section-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+            </svg>
+            Триггеры
+        </div>
+
+        <div class="field-group">
+            <label for="triggers">Vnums триггеров <span style="font-weight: 400; text-transform: none; letter-spacing: normal; color: #8a7b6b;">(через запятую)</span></label>
+            <input type="text" id="triggers" name="triggers"
+                   value="{{ room.triggers|join(', ') if room.triggers else '' }}"
+                   placeholder="100, 101, 102">
+        </div>
+    </div>
+
+    </form>
+
+    <!-- Sticky action bar -->
+    <div style="position: sticky; bottom: 0; background-color: #f4ead5; border: 3px double rgba(120, 53, 15, 0.2); border-radius: 8px; padding: 16px 28px; display: flex; align-items: center; gap: 12px; box-shadow: 0 -4px 16px rgba(139, 69, 19, 0.08); z-index: 100;">
+        <button type="button" class="btn-primary" id="save-btn" onclick="window.saveRoom()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                <polyline points="17 21 17 13 7 13 7 21"/>
+                <polyline points="7 3 7 8 15 8"/>
+            </svg>
+            Сохранить
+        </button>
+        <button type="button" class="btn-secondary" onclick="history.back()">
+            Отмена
+        </button>
+        <div style="margin-left: auto; font-family: 'Inter', sans-serif; font-size: 13px; color: #8a7b6b;" id="save-status"></div>
+    </div>
+
+    <!-- Toast container -->
+    <div id="toast" style="position: fixed; top: 24px; right: 24px; padding: 16px 24px; border-radius: 8px; font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 500; z-index: 9999; opacity: 0; transform: translateY(-12px); transition: all 0.25s ease; max-width: 420px; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);"></div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function() {
+    'use strict';
+
+    // --- Toast notifications ---
+    window.showToast = function(message, type) {
+        var toast = document.getElementById('toast');
+        toast.textContent = message;
+        if (type === 'success') {
+            toast.style.backgroundColor = '#f4ead5';
+            toast.style.border = '2px solid rgba(120, 100, 15, 0.3)';
+            toast.style.color = '#5a4d3f';
+        } else {
+            toast.style.backgroundColor = '#fef2f2';
+            toast.style.border = '2px solid rgba(185, 28, 28, 0.2)';
+            toast.style.color = '#991b1b';
+        }
+        toast.style.opacity = '1';
+        toast.style.transform = 'translateY(0)';
+        setTimeout(function() {
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateY(-12px)';
+        }, 4000);
+    };
+
+    // --- Parse comma-separated ints ---
+    function parseIntCSV(str) {
+        if (!str || !str.trim()) return [];
+        return str.split(',').map(function(s) { return parseInt(s.trim()); }).filter(function(n) { return !isNaN(n); });
+    }
+
+    // --- Room flags toggle system ---
+    function toggleFlag(btn) {
+        btn.classList.toggle('active');
+        updateRoomFlagHints();
+    }
+
+    // Attach click handler to all flag-toggle buttons
+    document.querySelectorAll('.flag-toggle').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            toggleFlag(this);
+        });
+    });
+
+    // Calculate plane values for room flags
+    function getRoomFlagPlanes() {
+        var planes = [0, 0, 0, 0];
+        document.querySelectorAll('.flag-toggle[data-flag-group="roomflags"].active').forEach(function(btn) {
+            var plane = parseInt(btn.getAttribute('data-plane'));
+            var bit = parseInt(btn.getAttribute('data-bit'));
+            planes[plane] |= bit;
+        });
+        return planes;
+    }
+
+    // Update hint displays for all planes
+    function updateRoomFlagHints() {
+        var planes = getRoomFlagPlanes();
+        var h0 = document.getElementById('roomflags-p0-hint');
+        var h1 = document.getElementById('roomflags-p1-hint');
+        var h2 = document.getElementById('roomflags-p2-hint');
+        if (h0) h0.innerHTML = 'Группа 0: <strong>0x' + planes[0].toString(16).toUpperCase() + '</strong> (dec: ' + planes[0] + ')';
+        if (h1) h1.innerHTML = 'Группа 1: <strong>0x' + planes[1].toString(16).toUpperCase() + '</strong> (dec: ' + planes[1] + ')';
+        if (h2) h2.innerHTML = 'Группа 2: <strong>0x' + planes[2].toString(16).toUpperCase() + '</strong> (dec: ' + planes[2] + ')';
+    }
+
+    // Initialize room flags from server data
+    function initRoomFlags() {
+        var serverPlanes = {{ room.room_flags|default([0,0,0,0])|tojson }};
+        document.querySelectorAll('.flag-toggle[data-flag-group="roomflags"]').forEach(function(btn) {
+            var plane = parseInt(btn.getAttribute('data-plane'));
+            var bit = parseInt(btn.getAttribute('data-bit'));
+            if (serverPlanes[plane] & bit) btn.classList.add('active');
+        });
+        updateRoomFlagHints();
+    }
+
+    // Init flags on page load
+    initRoomFlags();
+
+    // --- Direction constants ---
+    var DIR_NAMES = ['Север', 'Восток', 'Юг', 'Запад', 'Вверх', 'Вниз'];
+    var DIR_ICONS = [
+        'M12 19V5M5 12l7-7 7 7',
+        'M5 12h14M12 5l7 7-7 7',
+        'M12 5v14M19 12l-7 7-7-7',
+        'M19 12H5M12 19l-7-7 7 7',
+        'M12 19V5M5 12l7-7 7 7',
+        'M12 5v14M19 12l-7 7-7-7'
+    ];
+
+    // --- Dynamic exits ---
+    function getUsedDirections() {
+        var used = [];
+        var cards = document.querySelectorAll('#exits-list .exit-card');
+        cards.forEach(function(card) {
+            used.push(parseInt(card.getAttribute('data-direction')));
+        });
+        return used;
+    }
+
+    function updateExitDropdown() {
+        var select = document.getElementById('new-exit-direction');
+        var btn = document.getElementById('add-exit-btn');
+        var used = getUsedDirections();
+        select.innerHTML = '';
+        var available = 0;
+        for (var i = 0; i < 6; i++) {
+            if (used.indexOf(i) === -1) {
+                var opt = document.createElement('option');
+                opt.value = i;
+                opt.textContent = i + ' - ' + DIR_NAMES[i];
+                select.appendChild(opt);
+                available++;
+            }
+        }
+        if (available === 0) {
+            select.style.display = 'none';
+            btn.style.display = 'none';
+        } else {
+            select.style.display = '';
+            btn.style.display = '';
+        }
+    }
+
+    function updateExitsEmptyState() {
+        var list = document.getElementById('exits-list');
+        var empty = document.getElementById('exits-empty');
+        if (list.querySelectorAll('.exit-card').length === 0) {
+            empty.style.display = '';
+        } else {
+            empty.style.display = 'none';
+        }
+    }
+
+    window.addExit = function() {
+        var select = document.getElementById('new-exit-direction');
+        if (!select) {
+            alert('Ошибка: элемент select не найден');
+            return;
+        }
+        if (select.options.length === 0) {
+            alert('Все направления уже заняты');
+            return;
+        }
+        var dir = parseInt(select.value);
+        if (isNaN(dir) || dir < 0 || dir > 5) {
+            alert('Ошибка: неверное направление (' + select.value + ')');
+            return;
+        }
+
+        var list = document.getElementById('exits-list');
+        var html = '<div class="exit-card" data-direction="' + dir + '" style="background-color: rgba(253, 246, 227, 0.5); border: 1px solid rgba(120, 53, 15, 0.1); border-radius: 8px; padding: 16px 20px; margin-bottom: 12px;">'
+            + '<div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">'
+            + '<div style="width: 32px; height: 32px; border-radius: 6px; background-color: rgba(180, 83, 9, 0.1); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">'
+            + '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#b45309" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="' + DIR_ICONS[dir] + '"/></svg>'
+            + '</div>'
+            + '<span style="font-family: \'Playfair Display\', Georgia, serif; font-size: 16px; font-weight: 600; color: #2d241e;">' + DIR_NAMES[dir] + '</span>'
+            + '<span style="font-family: \'Inter\', sans-serif; font-size: 12px; color: #b45309; margin-left: auto; font-weight: 500;">Новый</span>'
+            + '<button type="button" class="btn-secondary" onclick="window.removeExit(this)" style="padding: 5px 10px; margin-left: 8px; flex-shrink: 0; color: #991b1b; border-color: rgba(185, 28, 28, 0.2);" title="Удалить выход">'
+            + '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>'
+            + ' <span style="font-size: 12px;">Удалить</span></button>'
+            + '</div>'
+            + '<div class="form-row form-row-3">'
+            + '<div class="field-group"><label for="exit-' + dir + '-to-room">Комната назначения <span style="font-weight: 400; text-transform: none; letter-spacing: normal; color: #8a7b6b;">(vnum)</span></label>'
+            + '<input type="number" id="exit-' + dir + '-to-room" name="exit_' + dir + '_to_room" value="" placeholder="Vnum комнаты"></div>'
+            + '<div class="field-group"><label for="exit-' + dir + '-keyword">Ключевые слова</label>'
+            + '<input type="text" id="exit-' + dir + '-keyword" name="exit_' + dir + '_keyword" value="" placeholder="дверь ворота"></div>'
+            + '<div class="field-group"><label for="exit-' + dir + '-key">Ключ <span style="font-weight: 400; text-transform: none; letter-spacing: normal; color: #8a7b6b;">(vnum предмета)</span></label>'
+            + '<input type="number" id="exit-' + dir + '-key" name="exit_' + dir + '_key" value="" placeholder="Vnum ключа"></div>'
+            + '</div>'
+            + '<div class="form-row form-row-2" style="margin-top: 8px;">'
+            + '<div class="field-group"><label for="exit-' + dir + '-desc">Описание выхода</label>'
+            + '<input type="text" id="exit-' + dir + '-desc" name="exit_' + dir + '_description" value="" placeholder="Что видит персонаж, смотря в этом направлении"></div>'
+            + '<div class="field-group"><label for="exit-' + dir + '-exit-info">Тип выхода</label>'
+            + '<select id="exit-' + dir + '-exit-info" name="exit_' + dir + '_exit_info">'
+            + '<option value="0" selected>0 - Открытый проход</option>'
+            + '<option value="1">1 - Дверь</option>'
+            + '<option value="2">2 - Запертая дверь</option>'
+            + '</select></div>'
+            + '</div>'
+            + '</div>';
+
+        list.insertAdjacentHTML('beforeend', html);
+        updateExitDropdown();
+        updateExitsEmptyState();
+
+        // Focus on the to_room field of the new card
+        var newInput = document.getElementById('exit-' + dir + '-to-room');
+        if (newInput) {
+            newInput.focus();
+            // Add autocomplete to to_room field
+            createAutocomplete('exit-' + dir + '-to-room', {
+                entityType: 'rooms',
+                zone: {{ room.vnum // 100 if room and room.vnum else 'null' }}
+            });
+            // Add autocomplete to key field
+            createAutocomplete('exit-' + dir + '-key', {
+                entityType: 'objects',
+                zone: {{ room.vnum // 100 if room and room.vnum else 'null' }}
+            });
+        }
+    };
+
+    window.removeExit = function(btn) {
+        var card = btn.closest('.exit-card');
+        if (card) {
+            card.remove();
+            updateExitDropdown();
+            updateExitsEmptyState();
+        }
+    };
+
+    // Initialize dropdown on page load
+    updateExitDropdown();
+    updateExitsEmptyState();
+
+    // --- Dynamic extra descriptions ---
+    var edCounter = {{ (room.extra_descriptions|length) if room.extra_descriptions else 0 }};
+
+    function updateEmptyState() {
+        var list = document.getElementById('extra-descs-list');
+        var empty = document.getElementById('extra-descs-empty');
+        if (list.querySelectorAll('.extra-desc-item').length === 0) {
+            empty.style.display = '';
+        } else {
+            empty.style.display = 'none';
+        }
+    }
+
+    window.addExtraDesc = function() {
+        var list = document.getElementById('extra-descs-list');
+        var idx = edCounter++;
+        var html = '<div class="extra-desc-item" style="background-color: rgba(253, 246, 227, 0.5); border: 1px solid rgba(120, 53, 15, 0.1); border-radius: 8px; padding: 16px 20px; margin-bottom: 12px;">'
+            + '<div style="display: flex; align-items: flex-start; gap: 12px;">'
+            + '<div style="flex: 1;"><div class="form-row form-row-2" style="margin-bottom: 0;">'
+            + '<div class="field-group"><label>Ключевые слова</label><input type="text" name="extra_desc_keyword_' + idx + '" value="" placeholder="стена рисунок"></div>'
+            + '<div class="field-group"><label>Описание</label><textarea name="extra_desc_description_' + idx + '" rows="2" placeholder="Что видит персонаж при осмотре" style="resize: vertical; min-height: 60px;"></textarea></div>'
+            + '</div></div>'
+            + '<button type="button" class="btn-secondary" onclick="removeExtraDesc(this)" style="padding: 6px 10px; margin-top: 18px; flex-shrink: 0;">'
+            + '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>'
+            + '</button></div></div>';
+        list.insertAdjacentHTML('beforeend', html);
+        updateEmptyState();
+    };
+
+    window.removeExtraDesc = function(btn) {
+        btn.closest('.extra-desc-item').remove();
+        updateEmptyState();
+    };
+
+    // Save icon SVG for button restore
+    var SAVE_ICON = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Сохранить';
+
+    // --- Validation functions ---
+    function clearValidationErrors() {
+        document.querySelectorAll('.field-error').forEach(function(el) {
+            el.classList.remove('field-error');
+        });
+        document.querySelectorAll('.error-message').forEach(function(el) {
+            el.remove();
+        });
+        var errorsBlock = document.getElementById('validation-errors-block');
+        if (errorsBlock) {
+            errorsBlock.remove();
+        }
+    }
+
+    function displayValidationErrors(errors) {
+        var form = document.getElementById('room-edit-form');
+        var errorsBlock = document.createElement('div');
+        errorsBlock.id = 'validation-errors-block';
+        errorsBlock.className = 'validation-errors';
+
+        var html = '<div style="display: flex; align-items: flex-start; gap: 12px;">';
+        html += '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 2px;">';
+        html += '<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>';
+        html += '</svg>';
+        html += '<div style="flex: 1;">';
+        html += '<div style="font-family: \'Inter\', sans-serif; font-weight: 600; font-size: 14px; color: #991b1b; margin-bottom: 8px;">Исправьте следующие ошибки:</div>';
+        html += '<ul style="margin: 0; padding-left: 20px; font-family: \'Inter\', sans-serif; font-size: 13px; color: #dc2626; line-height: 1.6;">';
+
+        var displayErrors = errors.slice(0, 5);
+        displayErrors.forEach(function(error) {
+            html += '<li>' + error.message + '</li>';
+        });
+
+        if (errors.length > 5) {
+            html += '<li>И ещё ' + (errors.length - 5) + ' ошибок...</li>';
+        }
+
+        html += '</ul></div></div>';
+        errorsBlock.innerHTML = html;
+
+        form.insertBefore(errorsBlock, form.firstChild);
+
+        errors.forEach(function(error) {
+            var field = error.field;
+            field.classList.add('field-error');
+
+            var errorMsg = document.createElement('div');
+            errorMsg.className = 'error-message';
+            errorMsg.textContent = error.message;
+            field.parentNode.appendChild(errorMsg);
+        });
+
+        if (errors.length > 0) {
+            errors[0].field.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            errors[0].field.focus();
+        }
+    }
+
+    function validateForm() {
+        var errors = [];
+        clearValidationErrors();
+
+        var nameEl = document.querySelector('[name="name"]');
+        if (!nameEl.value.trim()) {
+            errors.push({
+                field: nameEl,
+                message: 'Название комнаты обязательно'
+            });
+        }
+
+        var exitCards = document.querySelectorAll('#exits-list .exit-card');
+        exitCards.forEach(function(card) {
+            var dir = parseInt(card.getAttribute('data-direction'));
+            var toRoomEl = card.querySelector('[name="exit_' + dir + '_to_room"]');
+
+            if (toRoomEl && !toRoomEl.value.trim()) {
+                errors.push({
+                    field: toRoomEl,
+                    message: 'Укажите VNUM комнаты назначения для выхода "' + DIR_NAMES[dir] + '"'
+                });
+            } else if (toRoomEl) {
+                var vnum = parseInt(toRoomEl.value);
+                if (isNaN(vnum) || vnum < 0) {
+                    errors.push({
+                        field: toRoomEl,
+                        message: 'VNUM должен быть положительным числом (выход "' + DIR_NAMES[dir] + '")'
+                    });
+                }
+            }
+        });
+
+        if (errors.length > 0) {
+            displayValidationErrors(errors);
+            return false;
+        }
+
+        return true;
+    }
+
+    // --- Main save function ---
+    window.saveRoom = function() {
+        if (!validateForm()) {
+            showToast('Форма содержит ошибки', 'error');
+            return;
+        }
+
+        var btn = document.getElementById('save-btn');
+        var statusEl = document.getElementById('save-status');
+
+        // Show loading state
+        btn.disabled = true;
+        btn.innerHTML = '<span style="display:inline-block;width:16px;height:16px;border:2px solid rgba(253,246,227,0.4);border-top-color:#fdf6e3;border-radius:50%;animation:spin 0.6s linear infinite;margin-right:8px;vertical-align:middle;"></span>Сохранение...';
+        statusEl.textContent = '';
+
+        var form = document.getElementById('room-edit-form');
+        var data = {};
+
+        // --- Basic fields ---
+        var nameEl = form.querySelector('[name="name"]');
+        if (nameEl) {
+            data.name = nameEl.value;
+        }
+
+        var descEl = form.querySelector('[name="description"]');
+        if (descEl) {
+            data.description = descEl.value;
+        }
+
+        var sectorEl = form.querySelector('[name="sector_type"]');
+        if (sectorEl) {
+            data.sector_type = parseInt(sectorEl.value) || 0;
+        }
+
+        // --- Exits (iterate over visible exit cards) ---
+        var exits = [];
+        var exitCards = document.querySelectorAll('#exits-list .exit-card');
+
+        exitCards.forEach(function(card) {
+            var dir = parseInt(card.getAttribute('data-direction'));
+            if (isNaN(dir)) return;
+
+            var toRoomEl = card.querySelector('[name="exit_' + dir + '_to_room"]');
+            var toRoomVal = toRoomEl ? toRoomEl.value.trim() : '';
+
+            // Skip if no room specified
+            if (toRoomVal === '') return;
+
+            var toRoom = parseInt(toRoomVal);
+            if (isNaN(toRoom)) return;
+
+            var exitObj = {
+                direction: dir,
+                to_room: toRoom
+            };
+
+            // Keyword
+            var kwEl = card.querySelector('[name="exit_' + dir + '_keyword"]');
+            if (kwEl && kwEl.value.trim()) {
+                exitObj.keyword = kwEl.value.trim();
+            }
+
+            // Description
+            var descExitEl = card.querySelector('[name="exit_' + dir + '_description"]');
+            if (descExitEl && descExitEl.value.trim()) {
+                exitObj.general_description = descExitEl.value.trim();
+            }
+
+            // Exit info (door type)
+            var exitInfoEl = card.querySelector('[name="exit_' + dir + '_exit_info"]');
+            if (exitInfoEl) {
+                exitObj.exit_info = parseInt(exitInfoEl.value) || 0;
+            }
+
+            // Key vnum
+            var keyEl = card.querySelector('[name="exit_' + dir + '_key"]');
+            if (keyEl && keyEl.value.trim()) {
+                var keyVnum = parseInt(keyEl.value.trim());
+                if (!isNaN(keyVnum) && keyVnum > 0) {
+                    exitObj.key = keyVnum;
+                }
+            }
+
+            exits.push(exitObj);
+        });
+
+        data.exits = exits;
+
+        // --- Extra Descriptions (collect from DOM) ---
+        var extraDescs = [];
+        var edItems = document.querySelectorAll('#extra-descs-list .extra-desc-item');
+        edItems.forEach(function(item) {
+            var kwInput = item.querySelector('input[name^="extra_desc_keyword_"]');
+            var descInput = item.querySelector('textarea[name^="extra_desc_description_"]');
+            if (kwInput && descInput) {
+                var kw = kwInput.value.trim();
+                var edDesc = descInput.value.trim();
+                if (kw || edDesc) {
+                    extraDescs.push({ keyword: kw, description: edDesc });
+                }
+            }
+        });
+        data.extra_descriptions = extraDescs;
+
+        // --- Room Flags ---
+        data.room_flags = getRoomFlagPlanes();
+
+        // --- Triggers ---
+        var triggersEl = form.querySelector('[name="triggers"]');
+        if (triggersEl) {
+            var trigList = parseIntCSV(triggersEl.value);
+            data.triggers = trigList;
+        }
+
+        // --- POST as JSON ---
+        fetch('{{ url_for("room_update", vnum=room.vnum) }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+        .then(function(response) {
+            return response.json();
+        })
+        .then(function(result) {
+            btn.disabled = false;
+            btn.innerHTML = SAVE_ICON;
+
+            if (result.status === 'ok') {
+                showToast('Комната успешно сохранена', 'success');
+                // Redirect to detail view
+                setTimeout(function() {
+                    window.location.href = '{{ url_for("room_detail", vnum=room.vnum) }}';
+                }, 500);
+            } else {
+                showToast('Ошибка: ' + (result.error || 'Неизвестная ошибка'), 'error');
+                statusEl.textContent = '';
+            }
+        })
+        .catch(function(err) {
+            btn.disabled = false;
+            btn.innerHTML = SAVE_ICON;
+            showToast('Ошибка сети: ' + err.message, 'error');
+            statusEl.textContent = '';
+        });
+    };
+})();
+
+// ========== Color Overlay for Text Inputs ==========
+function addColorOverlay(inputId) {
+    const input = document.getElementById(inputId);
+    if (!input) return;
+
+    const isTextarea = input.tagName.toLowerCase() === 'textarea';
+
+    const wrapper = document.createElement('div');
+    wrapper.style.cssText = 'position: relative;';
+
+    const computedStyle = window.getComputedStyle(input);
+
+    const backdrop = document.createElement('div');
+    backdrop.className = 'mud-colorize';
+    backdrop.style.cssText = `
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        padding: ${computedStyle.padding || (isTextarea ? '8px 12px' : '0 12px')};
+        border: ${computedStyle.border || '2px solid rgba(120, 53, 15, 0.15)'};
+        border-radius: ${computedStyle.borderRadius || '4px'};
+        background: ${computedStyle.backgroundColor || '#fefdfb'};
+        font-family: ${computedStyle.fontFamily || 'Inter, sans-serif'};
+        font-size: ${computedStyle.fontSize || '14px'};
+        line-height: ${computedStyle.lineHeight || (isTextarea ? '1.5' : '38px')};
+        white-space: ${isTextarea ? 'pre-wrap' : 'pre'};
+        word-wrap: break-word;
+        color: #2d241e;
+        pointer-events: none;
+        overflow: ${isTextarea ? 'auto' : 'hidden'};
+        box-shadow: ${computedStyle.boxShadow || 'none'};
+    `;
+
+    input.parentNode.insertBefore(wrapper, input);
+    wrapper.appendChild(backdrop);
+    wrapper.appendChild(input);
+
+    input.style.position = 'relative';
+    input.style.background = 'transparent';
+    input.style.border = 'none';
+    input.style.outline = 'none';
+    input.style.color = 'transparent';
+    input.style.caretColor = '#2d241e';
+    input.style.zIndex = '1';
+
+    function updateBackdrop() {
+        let text = input.value;
+        if (text && !text.endsWith(' ')) text += ' ';
+        backdrop.textContent = text || ' ';
+        delete backdrop.dataset.colorized;
+        delete backdrop.dataset.originalText;
+        applyMudColors();
+    }
+
+    if (isTextarea) {
+        input.addEventListener('scroll', function() {
+            backdrop.scrollTop = input.scrollTop;
+            backdrop.scrollLeft = input.scrollLeft;
+        });
+    }
+
+    updateBackdrop();
+    input.addEventListener('input', updateBackdrop);
+    input.addEventListener('change', updateBackdrop);
+}
+
+// Add color overlay to room fields
+document.addEventListener('DOMContentLoaded', function() {
+    addColorOverlay('name');
+    addColorOverlay('description');
+
+    // Initialize autocomplete for existing exits
+    {% for exit in room.exits|default([]) %}
+    {% if exit.direction is defined %}
+    {% set dir_idx = exit.direction %}
+    var toRoomField{{ dir_idx }} = document.getElementById('exit-{{ dir_idx }}-to-room');
+    if (toRoomField{{ dir_idx }}) {
+        createAutocomplete('exit-{{ dir_idx }}-to-room', {
+            entityType: 'rooms',
+            zone: {{ room.vnum // 100 if room and room.vnum else 'null' }}
+        });
+    }
+    var keyField{{ dir_idx }} = document.getElementById('exit-{{ dir_idx }}-key');
+    if (keyField{{ dir_idx }}) {
+        createAutocomplete('exit-{{ dir_idx }}-key', {
+            entityType: 'objects',
+            zone: {{ room.vnum // 100 if room and room.vnum else 'null' }}
+        });
+    }
+    {% endif %}
+    {% endfor %}
+});
+</script>
+<style>
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+</style>
+{% endblock %}

@@ -44,6 +44,7 @@
 #include "common.h"
 
 #include "../subprojects/fmt/include/fmt/format.h"
+#include "engine/observability/metrics.h"
 
 // Structures
 std::list<combat_list_element> combat_list;
@@ -95,10 +96,6 @@ void go_autoassist(CharData *ch) {
 // Добавил проверку на лаг, чтобы правильно работали Каменное проклятие и
 // Круг пустоты, ибо позицию делают меньше чем поз_станнед.
 void update_pos(CharData *victim) {
-	if (AFF_FLAGGED(victim, EAffect::kSleep) && victim->GetPosition() != EPosition::kSleep) {
-		RemoveAffectFromChar(victim, ESpell::kSleep);
-		AFF_FLAGS(victim).unset(EAffect::kSleep);
-	}
 	if ((victim->get_hit() > 0) && (victim->GetPosition() > EPosition::kStun)) {
 		victim->SetPosition(victim->GetPosition());
 		return;
@@ -223,6 +220,9 @@ void SetFighting(CharData *ch, CharData *vict) {
 	ch->SetEnemy(vict);
 
 	ch->battle_affects.clear();
+	if (AFF_FLAGGED(ch, EAffect::kInvisible)) {
+		ch->battle_affects.set(kEafInvisible);
+	}
 	ch->set_touching(nullptr);
 	ch->initiative = 0;
 	ch->battle_counter = 0;
@@ -285,6 +285,9 @@ void stop_fighting(CharData *ch, int switch_others) {
 	ch->SetExtraAttack(kExtraAttackUnused, nullptr);
 	ch->SetCast(ESpell::kUndefined, ESpell::kUndefined, nullptr, nullptr, nullptr);
 	restore_battle_pos(ch);
+	if (ch->battle_affects.get(kEafInvisible)) {
+		AFF_FLAGS(ch).set(EAffect::kInvisible);
+	}
 	ch->battle_affects.clear();
 	DpsSystem::check_round(ch);
 	StopFightParameters params(ch); //готовим параметры нужного типа и вызываем шаблонную функцию
@@ -302,13 +305,14 @@ void stop_fighting(CharData *ch, int switch_others) {
 			if (temp.ch->GetCastChar() == ch)
 				temp.ch->SetCast(ESpell::kUndefined, ESpell::kUndefined, 0, 0, 0);
 			if (temp.ch->GetEnemy() == ch && switch_others) {
-				log("[Stop fighting] %s : Change victim for fighting", GET_NAME(temp.ch));
 				for (found = combat_list.begin(); found != combat_list.end(); found++) {
 					if ((*found).deleted)
 						continue;
 					if ((*found).ch != ch && (*found).ch->GetEnemy() == temp.ch) {
-						if (!temp.ch->IsNpc())
+						if (!temp.ch->IsNpc()) {
 							act("Вы переключили свое внимание на $N3.", false, temp.ch, 0, (*found).ch, kToChar);
+						}
+						log("[Stop fighting] %s : Change victim for fighting on %s", GET_NAME(temp.ch), (*found).ch->get_name().c_str());
 						temp.ch->SetEnemy((*found).ch);
 						break;
 					}
@@ -1781,9 +1785,14 @@ void process_npc_attack(CharData *ch) {
 	}
 
 	bool no_extra_attack = IS_SET(trigger_code, kNoExtraAttack);
-	if ((AFF_FLAGGED(ch, EAffect::kCharmed) || ch->IsFlagged(EMobFlag::kTutelar))
-		&& ch->has_master() && ch->in_room == ch->get_master()->in_room  // && !ch->master->IsNpc()
-		&& AWAKE(ch) && !IsUnableToAct(ch) && ch->GetPosition() >= EPosition::kFight) {
+	if ((AFF_FLAGGED(ch, EAffect::kCharmed) 
+				|| ch->IsFlagged(EMobFlag::kTutelar))
+				&& ch->has_master() 
+				&& ch->in_room == ch->get_master()->in_room  // && !ch->master->IsNpc()
+				&& AWAKE(ch) 
+				&& !IsUnableToAct(ch) 
+				&& ch->get_wait() <= 0
+				&& ch->GetPosition() >= EPosition::kFight) {
 		// сначала мытаемся спасти
 		if (CAN_SEE(ch, ch->get_master()) && AFF_FLAGGED(ch, EAffect::kHelper)) {
 			for (const auto vict : world[ch->in_room]->people) {
@@ -1872,19 +1881,20 @@ void process_player_attack(CharData *ch, int min_init) {
 			return;
 		}
 	}
-
 	if (ch->battle_affects.get(kEafMultyparry))
 		return;
 	//* применение экстра скилл-атак (пнуть, оглушить и прочая)
-	if (!IS_SET(trigger_code, kNoExtraAttack) && ch->GetExtraVictim()
-		&& ch->get_wait() <= 0 && using_extra_attack(ch)) {
+	if (!IS_SET(trigger_code, kNoExtraAttack) 
+			&& ch->GetExtraVictim()
+			&& ch->in_room == ch->GetExtraVictim()->in_room
+			&& ch->get_wait() <= 0 
+			&& using_extra_attack(ch)) {
 		ch->SetExtraAttack(kExtraAttackUnused, nullptr);
 		if (ch->initiative > min_init) {
 			--(ch->initiative);
 			return;
 		}
 	}
-
 	if (!ch->GetEnemy() || ch->in_room != ch->GetEnemy()->in_room) {
 		return;
 	}
@@ -1968,8 +1978,8 @@ bool stuff_before_round(CharData *ch) {
 		return false;
 
 	if (AFF_FLAGGED(ch, EAffect::kHold)
-		|| AFF_FLAGGED(ch, EAffect::kStopFight)
-		|| AFF_FLAGGED(ch, EAffect::kMagicStopFight)) {
+			|| AFF_FLAGGED(ch, EAffect::kStopFight)
+			|| AFF_FLAGGED(ch, EAffect::kMagicStopFight)) {
 		TryToRescueWithTutelar(ch);
 		return false;
 	}
@@ -2027,6 +2037,7 @@ void perform_violence() {
 	round_profiler.next_step("Calc initiative");
 	// почистим удаленных между раундами боя
 	std::erase_if(combat_list, [](auto flag) {return flag.deleted;});
+	observability::OtelMetrics::RecordGauge("combat.active.count", static_cast<double>(combat_list.size()));
 	for (auto &it : combat_list) {
 		if (it.deleted)
 			continue;
@@ -2048,11 +2059,11 @@ void perform_violence() {
 			continue;
 		}
 
-		const int initiative = calc_initiative(it.ch, true);
+		int initiative = calc_initiative(it.ch, true);
 		if (initiative > 100) { //откуда больше 100??????
 			log("initiative calc: %s (%d) == %d", GET_NAME(it.ch), GET_MOB_VNUM(it.ch), initiative);
 		}
-		std::clamp(initiative, -100, 100);
+		initiative = std::clamp(initiative, -100, 100);
 		if (initiative == 0) {
 			it.ch->initiative = -100; //Если кубик выпал в 0 - бей последним шанс 1 из 201
 			min_init = MIN(min_init, -100);

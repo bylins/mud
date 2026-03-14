@@ -6,22 +6,23 @@
 #include "depot.h"
 #include "gameplay/communication/parcel.h"
 #include "engine/db/world_characters.h"
+#include "utils/backtrace.h"
 
 namespace ObjSaveSync {
 
 struct NodeType {
 	// уид чара/внум клан-ренты инициатора
-	int init_uid;
+	long init_uid;
 	// флаг для уида инициатора
 	int init_type;
 	// уид чара/внум клан-ренты на сейв
-	int targ_uid;
+	long targ_uid;
 	// флаг для уида на сейв
 	int targ_type;
 };
 
 struct ForceNodeType {
-	int uid;
+	long uid;
 	int type;
 };
 
@@ -30,7 +31,7 @@ std::list<NodeType> save_list;
 // очищенный от дублей список на текущий форс-сейв
 std::vector<ForceNodeType> force_list;
 
-void add(int init_uid, int targ_uid, int targ_type) {
+void add(long init_uid, long targ_uid, int targ_type) {
 	NodeType node;
 	node.init_uid = init_uid;
 	node.init_type = CHAR_SAVE;
@@ -39,13 +40,15 @@ void add(int init_uid, int targ_uid, int targ_type) {
 	save_list.push_front(node);
 }
 
-void write_file(int uid, int type) {
+void write_file(long uid, int type) {
 	if (type == CHAR_SAVE) {
-		for (const auto &ch : character_list) {
-			if (ch->get_uid() == uid) {
-				Crash_crashsave(ch.get());
-				return;
-			}
+		CharData *ch = find_char(uid);
+		if (ch) {
+			Crash_crashsave(ch);
+			return;
+		} else {
+			mudlog(fmt::format("Запрошена запись в файл неизвестного игрока, uid {} Создан coredump", uid));
+			debug::backtrace(runtime_config.logs(SYSLOG).handle());
 		}
 	} else if (type == CLAN_SAVE) {
 		for (const auto &i : Clan::ClanList) {
@@ -61,7 +64,7 @@ void write_file(int uid, int type) {
 	}
 }
 
-void add_to_list(int uid, int type) {
+void add_to_list(long uid, int type) {
 	if (type == PARCEL_SAVE) {
 		// почта одна на всех - отсекаются дубли по совпадению type
 		std::vector<ForceNodeType>::const_iterator i =
@@ -91,7 +94,7 @@ void add_to_list(int uid, int type) {
 	force_list.push_back(node);
 }
 
-void fill_force_list(int uid, int type) {
+void fill_force_list(long uid, int type) {
 	for (std::list<NodeType>::iterator i = save_list.begin();
 		 i != save_list.end(); /* empty */) {
 		// случай с посылками, у которых вся бд в одном файле
@@ -99,7 +102,7 @@ void fill_force_list(int uid, int type) {
 		// поэтому дергаем всех, завязанных на посылки в targ
 		if ((type == PARCEL_SAVE && i->targ_type == PARCEL_SAVE)
 			|| (i->targ_uid == uid && i->targ_type == type)) {
-			const int uid = i->init_uid, type = i->init_type;
+			const long uid = i->init_uid, type = i->init_type;
 			save_list.erase(i);
 			add_to_list(uid, type);
 			fill_force_list(uid, type);
@@ -121,10 +124,10 @@ void fill_force_list(int uid, int type) {
 // проверки и пытаться записать файлы
 bool checking = false;
 
-void check(int uid, int type) {
+void check(long uid, int type) {
 	if (checking) return;
 
-	log("ObjSaveSync::check start");
+	log("ObjSaveSync::check start uid %ld type %d", uid, type);
 	checking = true;
 
 	fill_force_list(uid, type);

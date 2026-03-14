@@ -28,6 +28,9 @@
 #include "engine/ui/cmd_god/do_arena_restore.h"
 #include "engine/ui/cmd_god/do_at_room.h"
 #include "engine/ui/cmd_god/do_occupation.h"
+#ifdef ENABLE_ADMIN_API
+#include "engine/network/admin_api.h"
+#endif
 #include "engine/ui/cmd_god/do_date.h"
 #include "engine/ui/cmd_god/do_dc.h"
 #include "engine/ui/cmd_god/do_delete_obj.h"
@@ -276,7 +279,7 @@
 #include "gameplay/mechanics/doors.h"
 #include "gameplay/skills/frenzy.h"
 #include "gameplay/mechanics/groups.h"
-#include "gameplay/classes/recalc_mob_params_by_vnum.cpp"
+#include "gameplay/classes/recalc_mob_params_by_vnum.h"
 #include "alias.h"
 #include "engine/db/player_index.h"
 
@@ -377,8 +380,6 @@ void do_cook(CharData *ch, char *argument, int cmd, int subcmd);
 void do_forgive(CharData *ch, char *argument, int cmd, int subcmd);
 void DoTownportal(CharData *ch, char *argument, int, int);
 void do_dmeter(CharData *ch, char *argument, int cmd, int subcmd);
-void do_morph(CharData *ch, char *argument, int cmd, int subcmd);
-void do_morphset(CharData *ch, char *argument, int cmd, int subcmd);
 void DoShowZoneStat(CharData *ch, char *argument, int, int);
 void do_show_mobmax(CharData *ch, char *, int, int);
 
@@ -536,7 +537,6 @@ cpp_extern const struct command_info cmd_info[] =
 		{"зачистить", EPosition::kDead, DoSanitize, kLvlGreatGod, 0, 0},
 		{"золото", EPosition::kRest, do_gold, 0, 0, 0},
 		{"зона", EPosition::kRest, DoZone, 0, 0, 0},
-		{ "зонапересчитать", EPosition::kDead, do_recalc_zone, kLvlImmortal, 0, 0},
 		{"зоныстат", EPosition::kDead, DoShowZoneStat, kLvlImmortal, 0, 0},
 		{"инвентарь", EPosition::kSleep, DoInventory, 0, 0, 0},
 		{"игнорировать", EPosition::kDead, do_ignore, 0, 0, 0},
@@ -597,7 +597,6 @@ cpp_extern const struct command_info cmd_info[] =
 		{"нацарапать", EPosition::kRest, DoSign, 0, 0, 0},
 
 		{"обезоружить", EPosition::kFight, do_disarm, 0, 0, -1},
-		{"обернуться", EPosition::kStand, do_morph, 0, 0, -1},
 		{"облачить", EPosition::kRest, do_wear, 0, 0, 500},
 		{"обмен", EPosition::kStand, do_not_here, 0, 0, 0},
 		{"обменять", EPosition::kStand, do_not_here, 0, 0, 0},
@@ -644,8 +643,8 @@ cpp_extern const struct command_info cmd_info[] =
 		{"переместиться", EPosition::kStand, do_relocate, 1, 0, 0},
 		{"перевоплотитьс", EPosition::kStand, DoRemort, 0, 0, -1},
 		{"перевоплотиться", EPosition::kStand, DoRemort, 0, 1, -1},
-		//{ "пересчитать", EPosition::kDead, do_recalc_mob, kLvlImmortal, 0 },
 		{"перелить", EPosition::kStand, do_pour, 0, kScmdPour, 500},
+		{"пересчитатьзону", EPosition::kDead, do_recalc_zone, kLvlImmortal, 0, 0},
 		{"перешить", EPosition::kRest, DoFit, 0, kScmdMakeOver, 500},
 		{"пить", EPosition::kRest, DoDrink, 0, kScmdDrink, 400},
 		{"писать", EPosition::kStand, do_write, 1, 0, -1},
@@ -927,8 +926,6 @@ cpp_extern const struct command_info cmd_info[] =
 		{"quaff", EPosition::kRest, do_employ, 0, SCMD_QUAFF, 500},
 		{"qui", EPosition::kSleep, do_quit, 0, 0, 0},
 		{"quit", EPosition::kSleep, do_quit, 0, kScmdQuit, -1},
-		//{"recalc_mob", EPosition::kDead, do_recalc_mob, kLvlImmortal, 0, 0},
-		{"recalc_zone", EPosition::kDead, do_recalc_zone, kLvlImmortal, 0, 0},
 		{"read", EPosition::kRest, DoLook, 0, kScmdRead, 200},
 		{"receive", EPosition::kStand, do_not_here, 1, 0, -1},
 		{"recipes", EPosition::kRest, do_recipes, 0, 0, 0},
@@ -966,7 +963,6 @@ cpp_extern const struct command_info cmd_info[] =
 		{"skills", EPosition::kRest, DoSkills, 0, 0, 0},
 		{"skillset", EPosition::kSleep, do_skillset, kLvlImplementator, 0, 0},
 		{"slay", EPosition::kFight, do_slay, 1, 0, -1},
-		{"morphset", EPosition::kSleep, do_morphset, kLvlImplementator, 0, 0},
 		{"setall", EPosition::kDead, do_setall, kLvlImplementator, 0, 0},
 		{"sleep", EPosition::kSleep, do_sleep, 0, 0, -1},
 		{"sneak", EPosition::kStand, do_sneak, 1, 0, -2},
@@ -2349,7 +2345,6 @@ void init_char(CharData *ch, PlayerIndexElement &element) {
 
 	if (GetRealLevel(ch) > kLvlGod) {
 		SetGodSkills(ch);
-		set_god_morphs(ch);
 	}
 
 	for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
@@ -2535,6 +2530,12 @@ void nanny(DescriptorData *d, char *argument) {
 			ShowEncodingPrompt(d, false);
 			d->state = EConState::kGetKeytable;
 			break;
+
+#ifdef ENABLE_ADMIN_API
+		case EConState::kAdminAPI:
+			admin_api_parse(d, argument);
+			break;
+#endif
 
 			//. OLC states .
 		case EConState::kOedit: oedit_parse(d, argument);

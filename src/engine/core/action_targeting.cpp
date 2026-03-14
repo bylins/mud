@@ -141,7 +141,7 @@ CharData *TargetsRosterType::getRandomItem() {
 	if (_roster.empty()) {
 		return nullptr;
 	}
-	return _roster[number(0, _roster.size() - 1)];
+	return _roster[number(0, static_cast<int>(_roster.size()) - 1)];
 };
 
 /*

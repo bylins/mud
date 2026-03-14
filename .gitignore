@@ -21,3 +21,17 @@ cmake-build-release-wsl/
 log/
 syslog
 cmake-build-*
+build/
+build_*/
+magic.mgc
+data/
+misc/
+
+__pycache__/
+autorun.out
+autorun.pid
+sd.out
+syslog.CRASH
+syslog.CRASH.*
+syslog.bz2
+archive/

@@ -1,0 +1,1675 @@
+{% extends "base.html" %}
+
+{% block title %}Редактирование моба {{ mob.vnum }} - Былины MUD{% endblock %}
+
+{% block content %}
+
+<!-- Header -->
+<div class="mob-edit-header" style="margin-bottom: 8px;">
+    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 4px;">
+        <a href="{{ url_for('mobs_list', zone=mob.vnum // 100) }}" style="display: inline-flex; align-items: center; gap: 4px; color: #8a7b6b; text-decoration: none; font-family: 'Inter', sans-serif; font-size: 13px; transition: color 0.15s;"
+           onmouseover="this.style.color='#b45309'" onmouseout="this.style.color='#8a7b6b'">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            <span>Список мобов</span>
+        </a>
+        <span style="color: #d4c49a;">/</span>
+        <span style="color: #8a7b6b; font-family: 'Inter', sans-serif; font-size: 13px;">Моб #{{ mob.vnum }}</span>
+    </div>
+    <h2 class="font-serif-display" style="font-size: 28px; font-weight: 600; color: #2d241e; border: none; margin: 0; padding: 0;">
+        Редактирование моба <span style="color: #b45309;">#{{ mob.vnum }}</span>
+    </h2>
+    <p style="font-family: 'Inter', sans-serif; font-size: 14px; color: #8a7b6b; margin-top: 4px;">
+        {{ mob.names.nominative if mob.names else 'Без имени' }}
+    </p>
+</div>
+
+<!-- Ornamental divider -->
+<div class="ornament-divider">
+    <div class="ornament-divider-inner">
+        <div class="ornament-line ornament-line-left"></div>
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" style="opacity: 0.5;">
+            <path d="M10 2L12 8L18 8L13 12L15 18L10 14L5 18L7 12L2 8L8 8Z"/>
+        </svg>
+        <div class="ornament-line ornament-line-right"></div>
+    </div>
+</div>
+
+<form id="mob-edit-form" novalidate>
+
+<!-- ===== SECTION 1: Names (Имена) ===== -->
+<div class="parchment-section">
+    <div class="parchment-section-title">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+        </svg>
+        Имена и падежи
+    </div>
+
+    <div class="form-row form-row-2" style="margin-bottom: 20px;">
+        <div class="field-group" style="grid-column: 1 / -1;">
+            <label for="names-aliases">Ключевые слова (aliases)</label>
+            <input type="text" id="names-aliases" name="names.aliases"
+                   value="{{ mob.names.aliases if mob.names else '' }}"
+                   placeholder="моб стражник guard">
+        </div>
+    </div>
+
+    <div class="subsection-label">Падежи</div>
+
+    <div class="form-row form-row-3">
+        <div class="field-group">
+            <label for="names-nominative">Именительный <span class="field-hint">(кто?)</span></label>
+            <input type="text" id="names-nominative" name="names.nominative"
+                   value="{{ mob.names.nominative if mob.names else '' }}"
+                   placeholder="стражник">
+        </div>
+        <div class="field-group">
+            <label for="names-genitive">Родительный <span class="field-hint">(кого?)</span></label>
+            <input type="text" id="names-genitive" name="names.genitive"
+                   value="{{ mob.names.genitive if mob.names else '' }}"
+                   placeholder="стражника">
+        </div>
+        <div class="field-group">
+            <label for="names-dative">Дательный <span class="field-hint">(кому?)</span></label>
+            <input type="text" id="names-dative" name="names.dative"
+                   value="{{ mob.names.dative if mob.names else '' }}"
+                   placeholder="стражнику">
+        </div>
+    </div>
+
+    <div class="form-row form-row-3">
+        <div class="field-group">
+            <label for="names-accusative">Винительный <span class="field-hint">(кого?)</span></label>
+            <input type="text" id="names-accusative" name="names.accusative"
+                   value="{{ mob.names.accusative if mob.names else '' }}"
+                   placeholder="стражника">
+        </div>
+        <div class="field-group">
+            <label for="names-instrumental">Творительный <span class="field-hint">(кем?)</span></label>
+            <input type="text" id="names-instrumental" name="names.instrumental"
+                   value="{{ mob.names.instrumental if mob.names else '' }}"
+                   placeholder="стражником">
+        </div>
+        <div class="field-group">
+            <label for="names-prepositional">Предложный <span class="field-hint">(о ком?)</span></label>
+            <input type="text" id="names-prepositional" name="names.prepositional"
+                   value="{{ mob.names.prepositional if mob.names else '' }}"
+                   placeholder="стражнике">
+        </div>
+    </div>
+</div>
+
+<!-- ===== SECTION 2: Descriptions (Описания) ===== -->
+<div class="parchment-section">
+    <div class="parchment-section-title">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <line x1="16" y1="13" x2="8" y2="13"/>
+            <line x1="16" y1="17" x2="8" y2="17"/>
+        </svg>
+        Описания
+    </div>
+
+    <div class="form-row" style="margin-bottom: 16px;">
+        <div class="field-group">
+            <label for="desc-short">Краткое описание <span class="field-hint">(в комнате)</span></label>
+            <input type="text" id="desc-short" name="descriptions.short_desc"
+                   value="{{ mob.descriptions.short_desc if mob.descriptions else '' }}"
+                   placeholder="Суровый стражник стоит здесь, охраняя проход.">
+        </div>
+    </div>
+
+    <div class="form-row">
+        <div class="field-group">
+            <label for="desc-long">Полное описание <span class="field-hint">(при осмотре)</span></label>
+            <textarea id="desc-long" name="descriptions.long_desc" rows="4"
+                      placeholder="Перед вами стоит суровый стражник в кожаных доспехах..."
+                      style="resize: vertical; min-height: 80px;">{{ mob.descriptions.long_desc if mob.descriptions else '' }}</textarea>
+        </div>
+    </div>
+</div>
+
+<!-- ===== SECTION 3: Stats (Характеристики) ===== -->
+<div class="parchment-section">
+    <div class="parchment-section-title">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+        </svg>
+        Характеристики
+    </div>
+
+    <div class="form-row form-row-4">
+        <div class="field-group">
+            <label for="stats-level">Уровень</label>
+            <input type="number" id="stats-level" name="stats.level" min="1" max="100"
+                   value="{{ mob.stats.level if mob.stats else 1 }}">
+        </div>
+        <div class="field-group">
+            <label for="stats-sex">Пол</label>
+            <select id="stats-sex" name="stats.sex">
+                <option value="0" {{ 'selected' if mob.stats and mob.stats.sex == 0 }}>0 - Нейтральный</option>
+                <option value="1" {{ 'selected' if mob.stats and mob.stats.sex == 1 }}>1 - Мужской</option>
+                <option value="2" {{ 'selected' if mob.stats and mob.stats.sex == 2 }}>2 - Женский</option>
+                <option value="3" {{ 'selected' if mob.stats and mob.stats.sex == 3 }}>3 - Множественный</option>
+            </select>
+        </div>
+        <div class="field-group">
+            <label for="stats-race">Раса (race)</label>
+            <select id="stats-race" name="stats.race">
+                <option value="100" {{ 'selected' if mob.stats and mob.stats.race == 100 }}>100 - Базовая (Basic)</option>
+                <option value="101" {{ 'selected' if mob.stats and mob.stats.race == 101 }}>101 - Человек (Human)</option>
+                <option value="102" {{ 'selected' if mob.stats and mob.stats.race == 102 }}>102 - Зверочеловек (Beastman)</option>
+                <option value="103" {{ 'selected' if mob.stats and mob.stats.race == 103 }}>103 - Птица (Bird)</option>
+                <option value="104" {{ 'selected' if mob.stats and mob.stats.race == 104 }}>104 - Животное (Animal)</option>
+                <option value="105" {{ 'selected' if mob.stats and mob.stats.race == 105 }}>105 - Рептилия (Reptile)</option>
+                <option value="106" {{ 'selected' if mob.stats and mob.stats.race == 106 }}>106 - Рыба (Fish)</option>
+                <option value="107" {{ 'selected' if mob.stats and mob.stats.race == 107 }}>107 - Насекомое (Insect)</option>
+                <option value="108" {{ 'selected' if mob.stats and mob.stats.race == 108 }}>108 - Растение (Plant)</option>
+                <option value="109" {{ 'selected' if mob.stats and mob.stats.race == 109 }}>109 - Конструкт (Construct)</option>
+                <option value="110" {{ 'selected' if mob.stats and mob.stats.race == 110 }}>110 - Зомби (Zombie)</option>
+                <option value="111" {{ 'selected' if mob.stats and mob.stats.race == 111 }}>111 - Призрак (Ghost)</option>
+                <option value="112" {{ 'selected' if mob.stats and mob.stats.race == 112 }}>112 - Домовой (Boggart)</option>
+                <option value="113" {{ 'selected' if mob.stats and mob.stats.race == 113 }}>113 - Дух (Spirit)</option>
+                <option value="114" {{ 'selected' if mob.stats and mob.stats.race == 114 }}>114 - Магическое существо (MagicCreature)</option>
+            </select>
+        </div>
+        <div class="field-group">
+            <label for="stats-alignment">Характер <span class="field-hint">(-1000..1000)</span></label>
+            <input type="number" id="stats-alignment" name="stats.alignment" min="-1000" max="1000"
+                   value="{{ mob.stats.alignment if mob.stats else 0 }}">
+        </div>
+    </div>
+
+    <div class="form-row form-row-3">
+        <div class="field-group">
+            <label for="stats-armor">Класс брони</label>
+            <input type="number" id="stats-armor" name="stats.armor"
+                   value="{{ mob.stats.armor if mob.stats else 100 }}">
+        </div>
+        <div class="field-group">
+            <label for="stats-hitroll">Штраф попадания</label>
+            <input type="number" id="stats-hitroll" name="stats.hitroll_penalty"
+                   value="{{ mob.stats.hitroll_penalty if mob.stats else 0 }}">
+        </div>
+        <div class="field-group"></div>
+    </div>
+
+    <!-- HP Dice -->
+    <div class="subsection-label">Очки жизни (HP)</div>
+    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px; flex-wrap: wrap;">
+        <div class="field-group" style="width: 90px;">
+            <label for="hp-dice-count">Кубиков</label>
+            <input type="number" id="hp-dice-count" name="stats.hp.dice_count" min="0"
+                   value="{{ mob.stats.hp.dice_count if mob.stats and mob.stats.hp else 1 }}"
+                   style="text-align: center;">
+        </div>
+        <span class="dice-sep" style="margin-top: 22px;">d</span>
+        <div class="field-group" style="width: 90px;">
+            <label for="hp-dice-size">Размер</label>
+            <input type="number" id="hp-dice-size" name="stats.hp.dice_size" min="1"
+                   value="{{ mob.stats.hp.dice_size if mob.stats and mob.stats.hp else 10 }}"
+                   style="text-align: center;">
+        </div>
+        <span class="dice-sep" style="margin-top: 22px;">+</span>
+        <div class="field-group" style="width: 90px;">
+            <label for="hp-bonus">Бонус</label>
+            <input type="number" id="hp-bonus" name="stats.hp.bonus"
+                   value="{{ mob.stats.hp.bonus if mob.stats and mob.stats.hp else 0 }}"
+                   style="text-align: center;">
+        </div>
+        <div style="margin-top: 22px; font-family: 'Inter', sans-serif; font-size: 13px; color: #8a7b6b; margin-left: 8px;">
+            = <span id="hp-preview">--</span> средн. HP
+        </div>
+    </div>
+
+    <!-- Damage Dice -->
+    <div class="subsection-label">Урон (damage)</div>
+    <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+        <div class="field-group" style="width: 90px;">
+            <label for="dmg-dice-count">Кубиков</label>
+            <input type="number" id="dmg-dice-count" name="stats.damage.dice_count" min="0"
+                   value="{{ mob.stats.damage.dice_count if mob.stats and mob.stats.damage else 1 }}"
+                   style="text-align: center;">
+        </div>
+        <span class="dice-sep" style="margin-top: 22px;">d</span>
+        <div class="field-group" style="width: 90px;">
+            <label for="dmg-dice-size">Размер</label>
+            <input type="number" id="dmg-dice-size" name="stats.damage.dice_size" min="1"
+                   value="{{ mob.stats.damage.dice_size if mob.stats and mob.stats.damage else 4 }}"
+                   style="text-align: center;">
+        </div>
+        <span class="dice-sep" style="margin-top: 22px;">+</span>
+        <div class="field-group" style="width: 90px;">
+            <label for="dmg-bonus">Бонус</label>
+            <input type="number" id="dmg-bonus" name="stats.damage.bonus"
+                   value="{{ mob.stats.damage.bonus if mob.stats and mob.stats.damage else 0 }}"
+                   style="text-align: center;">
+        </div>
+        <div style="margin-top: 22px; font-family: 'Inter', sans-serif; font-size: 13px; color: #8a7b6b; margin-left: 8px;">
+            = <span id="dmg-preview">--</span> средн. урон
+        </div>
+    </div>
+</div>
+
+<!-- ===== SECTION 3b: Physical (Физические характеристики) ===== -->
+<div class="parchment-section">
+    <div class="parchment-section-title section-toggle" onclick="toggleSection(this)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+        </svg>
+        Физические параметры
+    </div>
+
+    <div class="section-body">
+        <div class="form-row form-row-4">
+            <div class="field-group">
+                <label for="phys-height">Рост (height)</label>
+                <input type="number" id="phys-height" name="physical.height" min="0" max="255"
+                       value="{{ mob.physical.height if mob.physical else 0 }}">
+            </div>
+            <div class="field-group">
+                <label for="phys-weight">Вес (weight)</label>
+                <input type="number" id="phys-weight" name="physical.weight" min="0" max="255"
+                       value="{{ mob.physical.weight if mob.physical else 0 }}">
+            </div>
+            <div class="field-group">
+                <label for="phys-size">Размер (size) <span class="field-hint">(1-100)</span></label>
+                <input type="number" id="phys-size" name="physical.size" min="0" max="100"
+                       value="{{ mob.physical.size if mob.physical else 0 }}">
+            </div>
+            <div class="field-group">
+                <label for="phys-extra-attack">Доп. атаки (extra_attack)</label>
+                <input type="number" id="phys-extra-attack" name="physical.extra_attack" min="0" max="255"
+                       value="{{ mob.physical.extra_attack if mob.physical else 0 }}">
+            </div>
+        </div>
+
+        <div class="form-row form-row-3">
+            <div class="field-group">
+                <label for="phys-remort">Мин. реморт (remort)</label>
+                <input type="number" id="phys-remort" name="physical.remort" min="0"
+                       value="{{ mob.physical.remort if mob.physical else 0 }}">
+            </div>
+            <div class="field-group">
+                <label for="phys-like-work">Шанс умений (like_work)</label>
+                <input type="number" id="phys-like-work" name="physical.like_work" min="0" max="255"
+                       value="{{ mob.physical.like_work if mob.physical else 0 }}">
+            </div>
+            <div class="field-group">
+                <label for="phys-maxfactor">Множитель HP (maxfactor)</label>
+                <input type="number" id="phys-maxfactor" name="physical.maxfactor" min="0"
+                       value="{{ mob.physical.maxfactor if mob.physical else 0 }}">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== SECTION 4: Abilities (Способности) ===== -->
+<div class="parchment-section">
+    <div class="parchment-section-title">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+        Способности <span class="field-hint">(3 - 50)</span>
+    </div>
+
+    <div class="form-row form-row-6">
+        <div class="field-group">
+            <label for="abil-str">Сила</label>
+            <input type="number" id="abil-str" name="abilities.strength" min="3" max="50"
+                   value="{{ mob.abilities.strength if mob.abilities else 11 }}">
+        </div>
+        <div class="field-group">
+            <label for="abil-dex">Ловкость</label>
+            <input type="number" id="abil-dex" name="abilities.dexterity" min="3" max="50"
+                   value="{{ mob.abilities.dexterity if mob.abilities else 11 }}">
+        </div>
+        <div class="field-group">
+            <label for="abil-con">Телосложение</label>
+            <input type="number" id="abil-con" name="abilities.constitution" min="3" max="50"
+                   value="{{ mob.abilities.constitution if mob.abilities else 11 }}">
+        </div>
+        <div class="field-group">
+            <label for="abil-int">Интеллект</label>
+            <input type="number" id="abil-int" name="abilities.intelligence" min="3" max="50"
+                   value="{{ mob.abilities.intelligence if mob.abilities else 11 }}">
+        </div>
+        <div class="field-group">
+            <label for="abil-wis">Мудрость</label>
+            <input type="number" id="abil-wis" name="abilities.wisdom" min="3" max="50"
+                   value="{{ mob.abilities.wisdom if mob.abilities else 11 }}">
+        </div>
+        <div class="field-group">
+            <label for="abil-cha">Обаяние</label>
+            <input type="number" id="abil-cha" name="abilities.charisma" min="3" max="50"
+                   value="{{ mob.abilities.charisma if mob.abilities else 11 }}">
+        </div>
+    </div>
+</div>
+
+<!-- ===== SECTION 5: Resistances (Сопротивления) ===== -->
+<div class="parchment-section">
+    <div class="parchment-section-title section-toggle" onclick="toggleSection(this)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            <path d="M9 12l2 2 4-4"/>
+        </svg>
+        Сопротивления <span class="field-hint">(-200 .. 200)</span>
+    </div>
+
+    <div class="section-body">
+        <div class="form-row form-row-7">
+            <div class="field-group">
+                <label for="res-fire">Огонь</label>
+                <input type="number" id="res-fire" name="resistances.fire" min="-200" max="200"
+                       value="{{ mob.resistances.fire if mob.resistances else 0 }}">
+            </div>
+            <div class="field-group">
+                <label for="res-air">Воздух</label>
+                <input type="number" id="res-air" name="resistances.air" min="-200" max="200"
+                       value="{{ mob.resistances.air if mob.resistances else 0 }}">
+            </div>
+            <div class="field-group">
+                <label for="res-water">Вода</label>
+                <input type="number" id="res-water" name="resistances.water" min="-200" max="200"
+                       value="{{ mob.resistances.water if mob.resistances else 0 }}">
+            </div>
+            <div class="field-group">
+                <label for="res-earth">Земля</label>
+                <input type="number" id="res-earth" name="resistances.earth" min="-200" max="200"
+                       value="{{ mob.resistances.earth if mob.resistances else 0 }}">
+            </div>
+            <div class="field-group">
+                <label for="res-vitality">Жизнь</label>
+                <input type="number" id="res-vitality" name="resistances.vitality" min="-200" max="200"
+                       value="{{ mob.resistances.vitality if mob.resistances else 0 }}">
+            </div>
+            <div class="field-group">
+                <label for="res-mind">Разум</label>
+                <input type="number" id="res-mind" name="resistances.mind" min="-200" max="200"
+                       value="{{ mob.resistances.mind if mob.resistances else 0 }}">
+            </div>
+            <div class="field-group">
+                <label for="res-immunity">Иммунитет</label>
+                <input type="number" id="res-immunity" name="resistances.immunity" min="-200" max="200"
+                       value="{{ mob.resistances.immunity if mob.resistances else 0 }}">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== SECTION 6: Savings (Спасброски) ===== -->
+<div class="parchment-section">
+    <div class="parchment-section-title section-toggle" onclick="toggleSection(this)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+        </svg>
+        Спасброски
+    </div>
+
+    <div class="section-body">
+        <div class="form-row form-row-3">
+            <div class="field-group">
+                <label for="save-will">Воля</label>
+                <input type="number" id="save-will" name="savings.will"
+                       value="{{ mob.savings.will if mob.savings else 0 }}">
+            </div>
+            <div class="field-group">
+                <label for="save-stability">Стойкость</label>
+                <input type="number" id="save-stability" name="savings.stability"
+                       value="{{ mob.savings.stability if mob.savings else 0 }}">
+            </div>
+            <div class="field-group">
+                <label for="save-reflex">Рефлекс</label>
+                <input type="number" id="save-reflex" name="savings.reflex"
+                       value="{{ mob.savings.reflex if mob.savings else 0 }}">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== SECTION 7: Position (Позиция) ===== -->
+<div class="parchment-section">
+    <div class="parchment-section-title section-toggle" onclick="toggleSection(this)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M8 14s1.5 2 4 2 4-2 4-2"/>
+            <line x1="9" y1="9" x2="9.01" y2="9"/>
+            <line x1="15" y1="9" x2="15.01" y2="9"/>
+        </svg>
+        Позиция
+    </div>
+
+    <div class="section-body">
+        <div class="form-row form-row-2">
+            <div class="field-group">
+                <label for="pos-default">Позиция по умолчанию</label>
+                <select id="pos-default" name="position.default_position">
+                    <option value="0" {{ 'selected' if mob.position and mob.position.default_position == 0 }}>0 - Мертв</option>
+                    <option value="1" {{ 'selected' if mob.position and mob.position.default_position == 1 }}>1 - Смертельно ранен</option>
+                    <option value="2" {{ 'selected' if mob.position and mob.position.default_position == 2 }}>2 - Без сознания</option>
+                    <option value="3" {{ 'selected' if mob.position and mob.position.default_position == 3 }}>3 - Оглушен</option>
+                    <option value="4" {{ 'selected' if mob.position and mob.position.default_position == 4 }}>4 - Спит</option>
+                    <option value="5" {{ 'selected' if mob.position and mob.position.default_position == 5 }}>5 - Отдыхает</option>
+                    <option value="6" {{ 'selected' if mob.position and mob.position.default_position == 6 }}>6 - Сидит</option>
+                    <option value="7" {{ 'selected' if mob.position and mob.position.default_position == 7 }}>7 - Сражается</option>
+                    <option value="8" {{ 'selected' if mob.position and mob.position.default_position == 8 }}>8 - Стоит</option>
+                </select>
+            </div>
+            <div class="field-group">
+                <label for="pos-load">Позиция при загрузке</label>
+                <select id="pos-load" name="position.load_position">
+                    <option value="0" {{ 'selected' if mob.position and mob.position.load_position == 0 }}>0 - Мертв</option>
+                    <option value="1" {{ 'selected' if mob.position and mob.position.load_position == 1 }}>1 - Смертельно ранен</option>
+                    <option value="2" {{ 'selected' if mob.position and mob.position.load_position == 2 }}>2 - Без сознания</option>
+                    <option value="3" {{ 'selected' if mob.position and mob.position.load_position == 3 }}>3 - Оглушен</option>
+                    <option value="4" {{ 'selected' if mob.position and mob.position.load_position == 4 }}>4 - Спит</option>
+                    <option value="5" {{ 'selected' if mob.position and mob.position.load_position == 5 }}>5 - Отдыхает</option>
+                    <option value="6" {{ 'selected' if mob.position and mob.position.load_position == 6 }}>6 - Сидит</option>
+                    <option value="7" {{ 'selected' if mob.position and mob.position.load_position == 7 }}>7 - Сражается</option>
+                    <option value="8" {{ 'selected' if mob.position and mob.position.load_position == 8 }}>8 - Стоит</option>
+                </select>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== SECTION 8: Behavior (Поведение) ===== -->
+<div class="parchment-section">
+    <div class="parchment-section-title section-toggle" onclick="toggleSection(this)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+        Поведение
+    </div>
+
+    <div class="section-body">
+        <div class="form-row form-row-4">
+            <div class="field-group">
+                <label for="beh-class">Класс NPC (class)</label>
+                <select id="beh-class" name="behavior.class">
+                    <option value="-1" {{ 'selected' if mob.behavior and mob.behavior.class == -1 }}>-1 - Не определён (Undefined)</option>
+                    <option value="0" {{ 'selected' if mob.behavior and mob.behavior.class == 0 }}>0 - Колдун (Sorcerer)</option>
+                    <option value="1" {{ 'selected' if mob.behavior and mob.behavior.class == 1 }}>1 - Волхв (Conjurer)</option>
+                    <option value="2" {{ 'selected' if mob.behavior and mob.behavior.class == 2 }}>2 - Вор (Thief)</option>
+                    <option value="3" {{ 'selected' if mob.behavior and mob.behavior.class == 3 }}>3 - Воин (Warrior)</option>
+                    <option value="4" {{ 'selected' if mob.behavior and mob.behavior.class == 4 }}>4 - Убийца (Assassine)</option>
+                    <option value="5" {{ 'selected' if mob.behavior and mob.behavior.class == 5 }}>5 - Дружинник (Guard)</option>
+                    <option value="6" {{ 'selected' if mob.behavior and mob.behavior.class == 6 }}>6 - Кудесник (Charmer)</option>
+                    <option value="7" {{ 'selected' if mob.behavior and mob.behavior.class == 7 }}>7 - Чародей (Wizard)</option>
+                    <option value="8" {{ 'selected' if mob.behavior and mob.behavior.class == 8 }}>8 - Некромант (Necromancer)</option>
+                    <option value="9" {{ 'selected' if mob.behavior and mob.behavior.class == 9 }}>9 - Витязь (Paladine)</option>
+                    <option value="10" {{ 'selected' if mob.behavior and mob.behavior.class == 10 }}>10 - Богатырь (Ranger)</option>
+                    <option value="11" {{ 'selected' if mob.behavior and mob.behavior.class == 11 }}>11 - Охотник (Vigilant)</option>
+                    <option value="12" {{ 'selected' if mob.behavior and mob.behavior.class == 12 }}>12 - Купец (Merchant)</option>
+                    <option value="13" {{ 'selected' if mob.behavior and mob.behavior.class == 13 }}>13 - Волшебник (Magus)</option>
+                </select>
+            </div>
+            <div class="field-group">
+                <label for="beh-special">Спецпроцедура</label>
+                <input type="number" id="beh-special" name="behavior.special" min="0"
+                       value="{{ mob.behavior.special if mob.behavior else 0 }}">
+            </div>
+            <div class="field-group">
+                <label for="beh-attack">Тип атаки (attack_type)</label>
+                <select id="beh-attack" name="behavior.attack_type">
+                    <option value="0" {{ 'selected' if mob.behavior and mob.behavior.attack_type == 0 }}>0 - Удар (hit)</option>
+                    <option value="1" {{ 'selected' if mob.behavior and mob.behavior.attack_type == 1 }}>1 - Кожа (skin)</option>
+                    <option value="2" {{ 'selected' if mob.behavior and mob.behavior.attack_type == 2 }}>2 - Кнут (whip)</option>
+                    <option value="3" {{ 'selected' if mob.behavior and mob.behavior.attack_type == 3 }}>3 - Рубящий (slash)</option>
+                    <option value="4" {{ 'selected' if mob.behavior and mob.behavior.attack_type == 4 }}>4 - Укус (bite)</option>
+                    <option value="5" {{ 'selected' if mob.behavior and mob.behavior.attack_type == 5 }}>5 - Дубина (bludgeon)</option>
+                    <option value="6" {{ 'selected' if mob.behavior and mob.behavior.attack_type == 6 }}>6 - Раздавить (crush)</option>
+                    <option value="7" {{ 'selected' if mob.behavior and mob.behavior.attack_type == 7 }}>7 - Колотить (pound)</option>
+                    <option value="8" {{ 'selected' if mob.behavior and mob.behavior.attack_type == 8 }}>8 - Коготь (claw)</option>
+                    <option value="9" {{ 'selected' if mob.behavior and mob.behavior.attack_type == 9 }}>9 - Терзать (maul)</option>
+                    <option value="10" {{ 'selected' if mob.behavior and mob.behavior.attack_type == 10 }}>10 - Молотить (thrash)</option>
+                    <option value="11" {{ 'selected' if mob.behavior and mob.behavior.attack_type == 11 }}>11 - Прокол (pierce)</option>
+                    <option value="12" {{ 'selected' if mob.behavior and mob.behavior.attack_type == 12 }}>12 - Взрыв (blast)</option>
+                    <option value="13" {{ 'selected' if mob.behavior and mob.behavior.attack_type == 13 }}>13 - Кулак (punch)</option>
+                    <option value="14" {{ 'selected' if mob.behavior and mob.behavior.attack_type == 14 }}>14 - Колоть (stab)</option>
+                    <option value="15" {{ 'selected' if mob.behavior and mob.behavior.attack_type == 15 }}>15 - Пика (pick)</option>
+                    <option value="16" {{ 'selected' if mob.behavior and mob.behavior.attack_type == 16 }}>16 - Жало (sting)</option>
+                </select>
+            </div>
+            <div class="field-group">
+                <label for="beh-exp">Бонус опыта <span class="field-hint">(%)</span></label>
+                <input type="number" id="beh-exp" name="behavior.exp_bonus"
+                       value="{{ mob.behavior.exp_bonus if mob.behavior else 0 }}">
+            </div>
+        </div>
+
+        <!-- Gold dice -->
+        <div class="subsection-label">Золото</div>
+        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px; flex-wrap: wrap;">
+            <div class="field-group" style="width: 90px;">
+                <label for="gold-dice-count">Кубиков</label>
+                <input type="number" id="gold-dice-count" name="behavior.gold.dice_count" min="0"
+                       value="{{ mob.behavior.gold.dice_count if mob.behavior and mob.behavior.gold else 0 }}"
+                       style="text-align: center;">
+            </div>
+            <span class="dice-sep" style="margin-top: 22px;">d</span>
+            <div class="field-group" style="width: 90px;">
+                <label for="gold-dice-size">Размер</label>
+                <input type="number" id="gold-dice-size" name="behavior.gold.dice_size" min="0"
+                       value="{{ mob.behavior.gold.dice_size if mob.behavior and mob.behavior.gold else 0 }}"
+                       style="text-align: center;">
+            </div>
+            <span class="dice-sep" style="margin-top: 22px;">+</span>
+            <div class="field-group" style="width: 90px;">
+                <label for="gold-bonus">Бonус</label>
+                <input type="number" id="gold-bonus" name="behavior.gold.bonus"
+                       value="{{ mob.behavior.gold.bonus if mob.behavior and mob.behavior.gold else 0 }}"
+                       style="text-align: center;">
+            </div>
+            <div style="margin-top: 22px; font-family: 'Inter', sans-serif; font-size: 13px; color: #8a7b6b; margin-left: 8px;">
+                = <span id="gold-preview">--</span> средн. золото
+            </div>
+        </div>
+
+        <!-- Helpers -->
+        <div class="field-group">
+            <label for="beh-helpers">Помощники <span class="field-hint">(vnums через запятую)</span></label>
+            <input type="text" id="beh-helpers" name="behavior.helpers"
+                   value="{{ mob.behavior.helpers|join(', ') if mob.behavior and mob.behavior.helpers else '' }}"
+                   placeholder="100, 101, 102">
+        </div>
+    </div>
+</div>
+
+<!-- ===== SECTION 9: Flags (Флаги) ===== -->
+<div class="parchment-section">
+    <div class="parchment-section-title section-toggle" onclick="toggleSection(this)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/>
+            <line x1="4" y1="22" x2="4" y2="15"/>
+        </svg>
+        Флаги
+    </div>
+
+    <div class="section-body">
+        <!-- MOB Flags (3 planes) -->
+        <div class="subsection-label" style="margin-bottom: 8px;">MOB флаги</div>
+        <div class="flag-toggle-group" id="mob-flags-group">
+            <div class="flag-toggle-group-title">Группа 0 -- Основные</div>
+            <div class="flag-toggle-grid">
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="1"><span class="flag-toggle-name">Спец-проц (Spec)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="2"><span class="flag-toggle-name">Страж (Sentinel)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="4"><span class="flag-toggle-name">Мусорщик (Scavenger)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="8"><span class="flag-toggle-name">NPC флаг (Npc)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="16"><span class="flag-toggle-name">Осторожный (Aware)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="32"><span class="flag-toggle-name">Агрессивный (Aggressive)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="64"><span class="flag-toggle-name">Не уходит из зоны (StayZone)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="128"><span class="flag-toggle-name">Трус (Wimpy)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="256"><span class="flag-toggle-name">Агр. днём (AggressiveDay)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="512"><span class="flag-toggle-name">Агр. ночью (AggressiveNight)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="1024"><span class="flag-toggle-name">Агр. в полнолуние (AggressiveFullmoon)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="2048"><span class="flag-toggle-name">Память (Memory)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="4096"><span class="flag-toggle-name">Помощник (Helper)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="8192"><span class="flag-toggle-name">Не зачаровать (NoCharm)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="16384"><span class="flag-toggle-name">Не призвать (NoSummon)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="32768"><span class="flag-toggle-name">Не усыпить (NoSleep)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="65536"><span class="flag-toggle-name">Не сломить (NoBash)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="131072"><span class="flag-toggle-name">Не ослепить (NoBlind)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="262144"><span class="flag-toggle-name">Скакун (Mounting)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="524288"><span class="flag-toggle-name">Не удержать (NoHold)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="1048576"><span class="flag-toggle-name">Не заткнуть (NoSilence)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="2097152"><span class="flag-toggle-name">Агр. Моно (AggressiveMono)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="4194304"><span class="flag-toggle-name">Агр. Поли (AggressivePoly)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="8388608"><span class="flag-toggle-name">Не испугать (NoFear)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="16777216"><span class="flag-toggle-name">Не группируется (NoGroup)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="33554432"><span class="flag-toggle-name">Труп (Corpse)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="67108864"><span class="flag-toggle-name">Грабитель (Looter)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="134217728"><span class="flag-toggle-name">Защитник (Protect)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="268435456"><span class="flag-toggle-name">Удалён (MobDeleted)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="536870912"><span class="flag-toggle-name">Освобождён (MobFreed)</span></button>
+            </div>
+            <div class="flag-toggle-group-title" style="margin-top: 14px;">Группа 1 -- Расширенные</div>
+            <div class="flag-toggle-grid">
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="1073741825"><span class="flag-toggle-name">Плавающий (Swimming)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="1073741826"><span class="flag-toggle-name">Летающий (Flying)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="1073741828"><span class="flag-toggle-name">Только плавает (OnlySwimming)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="1073741832"><span class="flag-toggle-name">Агр. зимой (AggressiveWinter)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="1073741840"><span class="flag-toggle-name">Агр. весной (AggressiveSpring)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="1073741856"><span class="flag-toggle-name">Агр. летом (AggressiveSummer)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="1073741888"><span class="flag-toggle-name">Агр. осенью (AggressiveAutumn)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="1073741952"><span class="flag-toggle-name">Появ. днём (AppearsDay)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="1073742080"><span class="flag-toggle-name">Появ. ночью (AppearsNight)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="1073742336"><span class="flag-toggle-name">Появ. в полнолуние (AppearsFullmoon)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="1073742848"><span class="flag-toggle-name">Появ. зимой (AppearsWinter)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="1073743872"><span class="flag-toggle-name">Появ. весной (AppearsSpring)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="1073745920"><span class="flag-toggle-name">Появ. летом (AppearsSummer)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="1073750016"><span class="flag-toggle-name">Появ. осенью (AppearsAutumn)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="1073758208"><span class="flag-toggle-name">Не дерётся (NoFight)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="1073774592"><span class="flag-toggle-name">Меньше атак (DecreaseAttack)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="1073807360"><span class="flag-toggle-name">Орда (Horde)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="1073872896"><span class="flag-toggle-name">Клон (Clone)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="1074003968"><span class="flag-toggle-name">Не убивать точным (NotKillPunctual)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="1074266112"><span class="flag-toggle-name">Не подсечь (NoUndercut)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="1074790400"><span class="flag-toggle-name">Покровитель (Tutelar)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="1075838976"><span class="flag-toggle-name">Страж города (CityGuardian)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="1077936128"><span class="flag-toggle-name">Игнор. запретные (IgnoreForbidden)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="1082130432"><span class="flag-toggle-name">Нет опыта за бой (NoBattleExp)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="1090519040"><span class="flag-toggle-name">Нет молота (NoHammer)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="1107296256"><span class="flag-toggle-name">Ментальная тень (MentalShadow)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="1140850688"><span class="flag-toggle-name">Призванный (Summoned)</span></button>
+            </div>
+            <div class="flag-toggle-group-title" style="margin-top: 14px;">Группа 2 -- Дополнительные</div>
+            <div class="flag-toggle-grid">
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="2147483649"><span class="flag-toggle-name">Дыхание огня (FireBreath)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="2147483650"><span class="flag-toggle-name">Дыхание газа (GasBreath)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="2147483652"><span class="flag-toggle-name">Дыхание холода (FrostBreath)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="2147483656"><span class="flag-toggle-name">Дыхание кислоты (AcidBreath)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="2147483664"><span class="flag-toggle-name">Дыхание молнии (LightingBreath)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="2147483680"><span class="flag-toggle-name">Не тренирует (NoSkillTrain)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="2147483712"><span class="flag-toggle-name">Не отдыхает (NoRest)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="2147483776"><span class="flag-toggle-name">Атака зоны (AreaAttack)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="2147483904"><span class="flag-toggle-name">Не подавить (NoOverwhelm)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="2147484160"><span class="flag-toggle-name">Не помогает (NoHelp)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="2147484672"><span class="flag-toggle-name">Открывает двери (OpensDoor)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="2147485696"><span class="flag-toggle-name">Игнор. NoMob (IgnoresNoMob)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="2147487744"><span class="flag-toggle-name">Игнор. мирную (IgnoresPeaceRoom)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="2147491840"><span class="flag-toggle-name">Воскрешён (Resurrected)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="2148532224"><span class="flag-toggle-name">Не воскресить (NoResurrection)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="2149580800"><span class="flag-toggle-name">Всегда бодр (MobAwake)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="mob_flags" data-flag-value="2151677952"><span class="flag-toggle-name">Игнор. строй (IgnoresFormation)</span></button>
+            </div>
+            <div class="flag-hint" id="mob-flags-hint">Выбрано: 0 флагов</div>
+        </div>
+
+        <!-- AFF Flags (3 planes) -->
+        <div class="subsection-label" style="margin-bottom: 8px; margin-top: 20px;">AFF флаги (аффекты)</div>
+        <div class="flag-toggle-group" id="aff-flags-group">
+            <div class="flag-toggle-group-title">Группа 0 -- Основные</div>
+            <div class="flag-toggle-grid">
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="1"><span class="flag-toggle-name">Слепота (Blind)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="2"><span class="flag-toggle-name">Невидимость (Invisible)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="4"><span class="flag-toggle-name">Чувств. характер (DetectAlign)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="8"><span class="flag-toggle-name">Видит невид. (DetectInvisible)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="16"><span class="flag-toggle-name">Чувств. магию (DetectMagic)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="32"><span class="flag-toggle-name">Чувств. жизнь (DetectLife)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="64"><span class="flag-toggle-name">Хождение по воде (WaterWalk)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="128"><span class="flag-toggle-name">Святилище (Sanctuary)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="256"><span class="flag-toggle-name">Группа (Group)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="512"><span class="flag-toggle-name">Проклятие (Curse)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="1024"><span class="flag-toggle-name">Инфразрение (Infravision)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="2048"><span class="flag-toggle-name">Отравлен (Poisoned)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="4096"><span class="flag-toggle-name">Защ. от тьмы (ProtectFromDark)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="8192"><span class="flag-toggle-name">Защ. от разума (ProtectFromMind)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="16384"><span class="flag-toggle-name">Сон (Sleep)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="32768"><span class="flag-toggle-name">Без следов (NoTrack)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="65536"><span class="flag-toggle-name">Привязан (Tethered)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="131072"><span class="flag-toggle-name">Благословение (Bless)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="262144"><span class="flag-toggle-name">Скрытность (Sneak)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="524288"><span class="flag-toggle-name">Прятаться (Hide)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="1048576"><span class="flag-toggle-name">Храбрость (Courage)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="2097152"><span class="flag-toggle-name">Очарован (Charmed)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="4194304"><span class="flag-toggle-name">Удержание (Hold)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="8388608"><span class="flag-toggle-name">Полёт (Fly)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="16777216"><span class="flag-toggle-name">Безмолвие (Silence)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="33554432"><span class="flag-toggle-name">Осведомлённость (Awarness)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="67108864"><span class="flag-toggle-name">Мерцание (Blink)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="134217728"><span class="flag-toggle-name">Конь (Horse)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="268435456"><span class="flag-toggle-name">Не бежать (NoFlee)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="536870912"><span class="flag-toggle-name">Одиночный свет (SingleLight)</span></button>
+            </div>
+            <div class="flag-toggle-group-title" style="margin-top: 14px;">Группа 1 -- Расширенные</div>
+            <div class="flag-toggle-grid">
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="1073741825"><span class="flag-toggle-name">Святой свет (HolyLight)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="1073741826"><span class="flag-toggle-name">Святая тьма (HolyDark)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="1073741828"><span class="flag-toggle-name">Чувств. яд (DetectPoison)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="1073741832"><span class="flag-toggle-name">Пьян (Drunked)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="1073741840"><span class="flag-toggle-name">Воздержание (Abstinent)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="1073741856"><span class="flag-toggle-name">Стоп правой (StopRight)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="1073741888"><span class="flag-toggle-name">Стоп левой (StopLeft)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="1073741952"><span class="flag-toggle-name">Стоп бою (StopFight)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="1073742080"><span class="flag-toggle-name">Кровотечение (Haemorrhage)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="1073742336"><span class="flag-toggle-name">Маскировка (Disguise)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="1073742848"><span class="flag-toggle-name">Дыхание под водой (WaterBreath)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="1073743872"><span class="flag-toggle-name">Замедление (Slow)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="1073745920"><span class="flag-toggle-name">Ускорение (Haste)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="1073750016"><span class="flag-toggle-name">Щит богов (GodsShield)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="1073758208"><span class="flag-toggle-name">Воздушный щит (AirShield)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="1073774592"><span class="flag-toggle-name">Огненный щит (FireShield)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="1073807360"><span class="flag-toggle-name">Ледяной щит (IceShield)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="1073872896"><span class="flag-toggle-name">Магич. зеркало (MagicGlass)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="1074003968"><span class="flag-toggle-name">Лестница (Stairs)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="1074266112"><span class="flag-toggle-name">Каменные руки (StoneHands)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="1074790400"><span class="flag-toggle-name">Призматич. аура (PrismaticAura)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="1075838976"><span class="flag-toggle-name">Помощник (Helper)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="1077936128"><span class="flag-toggle-name">Силы зла (ForcesOfEvil)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="1082130432"><span class="flag-toggle-name">Воздушная аура (AirAura)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="1090519040"><span class="flag-toggle-name">Огненная аура (FireAura)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="1107296256"><span class="flag-toggle-name">Ледяная аура (IceAura)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="1140850688"><span class="flag-toggle-name">Глухота (Deafness)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="1207959552"><span class="flag-toggle-name">Плач (Crying)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="1342177280"><span class="flag-toggle-name">Мирный (Peaceful)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="1610612736"><span class="flag-toggle-name">Магич. стоп (MagicStopFight)</span></button>
+            </div>
+            <div class="flag-toggle-group-title" style="margin-top: 14px;">Группа 2 -- Дополнительные</div>
+            <div class="flag-toggle-grid">
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="2147483649"><span class="flag-toggle-name">Берсерк (Berserk)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="2147483650"><span class="flag-toggle-name">Лёгкая поступь (LightWalk)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="2147483652"><span class="flag-toggle-name">Разорванные цепи (BrokenChains)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="2147483656"><span class="flag-toggle-name">Облако стрел (CloudOfArrows)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="2147483664"><span class="flag-toggle-name">Плащ теней (ShadowCloak)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="2147483680"><span class="flag-toggle-name">Блёстки (GlitterDust)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="2147483712"><span class="flag-toggle-name">Испуг (Affright)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="2147483776"><span class="flag-toggle-name">Яд скополы (ScopolaPoison)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="2147483904"><span class="flag-toggle-name">Яд дурмана (DaturaPoison)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="2147484160"><span class="flag-toggle-name">Снижение умений (SkillReduce)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="2147484672"><span class="flag-toggle-name">Без переключения (NoBattleSwitch)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="2147485696"><span class="flag-toggle-name">Яд белены (BelenaPoison)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="2147487744"><span class="flag-toggle-name">Без телепорта (NoTeleport)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="2147491840"><span class="flag-toggle-name">Боевая удача (CombatLuck)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="2147500032"><span class="flag-toggle-name">Бинт (Bandage)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="2147516416"><span class="flag-toggle-name">Нельзя бинтовать (CannotBeBandaged)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="2147549184"><span class="flag-toggle-name">Превращение (Morphing)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="2147614720"><span class="flag-toggle-name">Удушение (Strangled)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="2147745792"><span class="flag-toggle-name">Запомин. заклин. (MemorizeSpells)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="2148007936"><span class="flag-toggle-name">Новичок реген (NoobRegen)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="2148532224"><span class="flag-toggle-name">Вампиризм (Vampirism)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="2149580800"><span class="flag-toggle-name">Рваные раны (Lacerations)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="2151677952"><span class="flag-toggle-name">Командир (Commander)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="2155872256"><span class="flag-toggle-name">Земная аура (EarthAura)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="2164260864"><span class="flag-toggle-name">Затуманенность (Cloudly)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="2181038080"><span class="flag-toggle-name">Замешательство (Confused)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="2214592512"><span class="flag-toggle-name">Без рывка (NoCharge)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="2281701376"><span class="flag-toggle-name">Ранен (Injured)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="affect_flags" data-flag-value="2415919104"><span class="flag-toggle-name">Безумие (Frenzy)</span></button>
+            </div>
+            <div class="flag-hint" id="aff-flags-hint">Выбрано: 0 флагов</div>
+        </div>
+
+        <!-- NPC Flags (2 planes) -->
+        <div class="subsection-label" style="margin-bottom: 8px; margin-top: 20px;">NPC флаги</div>
+        <div class="flag-toggle-group" id="npc-flags-group">
+            <div class="flag-toggle-group-title">Группа 0 -- Основные</div>
+            <div class="flag-toggle-grid">
+                <button type="button" class="flag-toggle" data-flag-type="npc_flags" data-flag-value="1"><span class="flag-toggle-name">Блок север (BlockNorth)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="npc_flags" data-flag-value="2"><span class="flag-toggle-name">Блок восток (BlockEast)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="npc_flags" data-flag-value="4"><span class="flag-toggle-name">Блок юг (BlockSouth)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="npc_flags" data-flag-value="8"><span class="flag-toggle-name">Блок запад (BlockWest)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="npc_flags" data-flag-value="16"><span class="flag-toggle-name">Блок вверх (BlockUp)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="npc_flags" data-flag-value="32"><span class="flag-toggle-name">Блок вниз (BlockDown)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="npc_flags" data-flag-value="64"><span class="flag-toggle-name">Ядовитый (Toxic)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="npc_flags" data-flag-value="128"><span class="flag-toggle-name">Невидим (Invis)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="npc_flags" data-flag-value="256"><span class="flag-toggle-name">Скрытность (Sneaking)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="npc_flags" data-flag-value="512"><span class="flag-toggle-name">Маскировка (Disguising)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="npc_flags" data-flag-value="2048"><span class="flag-toggle-name">Движение полёт (MoveFly)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="npc_flags" data-flag-value="4096"><span class="flag-toggle-name">Движение ползком (MoveCreep)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="npc_flags" data-flag-value="8192"><span class="flag-toggle-name">Движение прыжком (MoveJump)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="npc_flags" data-flag-value="16384"><span class="flag-toggle-name">Движение плавание (MoveSwim)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="npc_flags" data-flag-value="32768"><span class="flag-toggle-name">Движение бег (MoveRun)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="npc_flags" data-flag-value="1048576"><span class="flag-toggle-name">Воздушное сущ. (AirCreature)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="npc_flags" data-flag-value="2097152"><span class="flag-toggle-name">Водное сущ. (WaterCreature)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="npc_flags" data-flag-value="4194304"><span class="flag-toggle-name">Земное сущ. (EarthCreature)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="npc_flags" data-flag-value="8388608"><span class="flag-toggle-name">Огненное сущ. (FireCreature)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="npc_flags" data-flag-value="16777216"><span class="flag-toggle-name">Помог (Helped)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="npc_flags" data-flag-value="33554432"><span class="flag-toggle-name">Свободная добыча (FreeDrop)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="npc_flags" data-flag-value="67108864"><span class="flag-toggle-name">Без сбора ингр. (NoIngrDrop)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="npc_flags" data-flag-value="134217728"><span class="flag-toggle-name">Не в списке наёмников (NoMercList)</span></button>
+            </div>
+            <div class="flag-toggle-group-title" style="margin-top: 14px;">Группа 1 -- Расширенные</div>
+            <div class="flag-toggle-grid">
+                <button type="button" class="flag-toggle" data-flag-type="npc_flags" data-flag-value="1073741825"><span class="flag-toggle-name">Воровство (Stealing)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="npc_flags" data-flag-value="1073741826"><span class="flag-toggle-name">Владение оружием (Wielding)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="npc_flags" data-flag-value="1073741828"><span class="flag-toggle-name">Бронирование (Armoring)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="npc_flags" data-flag-value="1073741832"><span class="flag-toggle-name">Использование света (UsingLight)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="npc_flags" data-flag-value="1073741840"><span class="flag-toggle-name">Не берёт предметы (NoTakeItems)</span></button>
+                <button type="button" class="flag-toggle" data-flag-type="npc_flags" data-flag-value="1073741856"><span class="flag-toggle-name">Игнор. редкие убийства (IgnoreRareKill)</span></button>
+            </div>
+            <div class="flag-hint" id="npc-flags-hint">Выбрано: 0 флагов</div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== SECTION 10: Roles (Роли NPC) ===== -->
+<div class="parchment-section">
+    <div class="parchment-section-title section-toggle" onclick="toggleSection(this)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M16 12h-4v-4"/>
+        </svg>
+        Роли NPC (roles)
+    </div>
+
+    <div class="section-body">
+        <div class="flag-toggle-group">
+            <div class="flag-toggle-grid" id="roles-grid">
+                <button type="button" class="flag-toggle" data-role-bit="0"
+                    {% if mob.roles and 0 in mob.roles %}data-active="1"{% endif %}>
+                    <span class="flag-toggle-name">Босс (Boss)</span>
+                </button>
+                <button type="button" class="flag-toggle" data-role-bit="1"
+                    {% if mob.roles and 1 in mob.roles %}data-active="1"{% endif %}>
+                    <span class="flag-toggle-name">Треш (Trash)</span>
+                </button>
+                <button type="button" class="flag-toggle" data-role-bit="2"
+                    {% if mob.roles and 2 in mob.roles %}data-active="1"{% endif %}>
+                    <span class="flag-toggle-name">Танк (Tank)</span>
+                </button>
+                <button type="button" class="flag-toggle" data-role-bit="3"
+                    {% if mob.roles and 3 in mob.roles %}data-active="1"{% endif %}>
+                    <span class="flag-toggle-name">Мили-ДД (MeleeDmg)</span>
+                </button>
+                <button type="button" class="flag-toggle" data-role-bit="4"
+                    {% if mob.roles and 4 in mob.roles %}data-active="1"{% endif %}>
+                    <span class="flag-toggle-name">Лучник (Archer)</span>
+                </button>
+                <button type="button" class="flag-toggle" data-role-bit="5"
+                    {% if mob.roles and 5 in mob.roles %}data-active="1"{% endif %}>
+                    <span class="flag-toggle-name">Разбойник (Rogue)</span>
+                </button>
+                <button type="button" class="flag-toggle" data-role-bit="6"
+                    {% if mob.roles and 6 in mob.roles %}data-active="1"{% endif %}>
+                    <span class="flag-toggle-name">Маг-ДД (MageDmg)</span>
+                </button>
+                <button type="button" class="flag-toggle" data-role-bit="7"
+                    {% if mob.roles and 7 in mob.roles %}data-active="1"{% endif %}>
+                    <span class="flag-toggle-name">Маг-Бафф (MageBuff)</span>
+                </button>
+                <button type="button" class="flag-toggle" data-role-bit="8"
+                    {% if mob.roles and 8 in mob.roles %}data-active="1"{% endif %}>
+                    <span class="flag-toggle-name">Хилер (Healer)</span>
+                </button>
+            </div>
+        </div>
+        <div class="flag-hint" id="roles-hint">Выбрано: 0 ролей</div>
+    </div>
+</div>
+
+<!-- ===== SECTION 11: Death Load (Предметы при смерти) ===== -->
+<div class="parchment-section">
+    <div class="parchment-section-title section-toggle" onclick="toggleSection(this)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+        </svg>
+        Предметы при смерти (death_load)
+    </div>
+
+    <div class="section-body">
+        <div id="deathload-list">
+            {% if mob.death_load %}
+            {% for item in mob.death_load %}
+            <div class="dl-item" style="display: flex; align-items: flex-end; gap: 8px; margin-bottom: 10px; flex-wrap: wrap;">
+                <div class="field-group" style="width: 120px;">
+                    {% if loop.first %}<label>Vnum объекта</label>{% endif %}
+                    <input type="number" class="dl-vnum" value="{{ item.obj_vnum }}" min="0" placeholder="vnum">
+                </div>
+                <div class="field-group" style="width: 100px;">
+                    {% if loop.first %}<label>Вероятность</label>{% endif %}
+                    <input type="number" class="dl-prob" value="{{ item.load_prob }}" min="0" max="100" placeholder="%">
+                </div>
+                <div class="field-group" style="width: 120px;">
+                    {% if loop.first %}<label>Тип загрузки</label>{% endif %}
+                    <select class="dl-type">
+                        <option value="0" {{ 'selected' if item.load_type == 0 }}>0 - Обычный</option>
+                        <option value="1" {{ 'selected' if item.load_type == 1 }}>1 - Прогрессия</option>
+                        <option value="2" {{ 'selected' if item.load_type == 2 }}>2 - Скин</option>
+                    </select>
+                </div>
+                <div class="field-group" style="width: 100px;">
+                    {% if loop.first %}<label>Спец.параметр</label>{% endif %}
+                    <input type="number" class="dl-spec" value="{{ item.spec_param }}" min="0" placeholder="0">
+                </div>
+                <button type="button" class="btn-secondary" onclick="removeDLItem(this)" style="padding: 8px 12px; margin-bottom: 0; flex-shrink: 0;"
+                        title="Удалить">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </button>
+            </div>
+            {% endfor %}
+            {% endif %}
+        </div>
+
+        <div id="deathload-empty" style="display: {% if not mob.death_load %}block{% else %}none{% endif %}; font-family: 'Inter', sans-serif; font-size: 14px; color: #8a7b6b; font-style: italic; margin-bottom: 12px;">
+            Предметы не определены
+        </div>
+
+        <button type="button" class="btn-secondary" onclick="addDLItem()" style="margin-top: 8px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            Добавить предмет
+        </button>
+    </div>
+</div>
+
+<!-- ===== SECTION 12: Triggers (Триггеры) ===== -->
+<div class="parchment-section">
+    <div class="parchment-section-title">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+        </svg>
+        Триггеры
+    </div>
+
+    <div class="field-group">
+        <label for="triggers">Vnums триггеров <span class="field-hint">(через запятую)</span></label>
+        <input type="text" id="triggers" name="triggers"
+               value="{{ mob.triggers|join(', ') if mob.triggers else '' }}"
+               placeholder="100, 101, 102">
+    </div>
+</div>
+
+<!-- ===== SECTION 13: Skills / Features / Spells (Умения / Особенности / Заклинания) ===== -->
+<div class="parchment-section">
+    <div class="parchment-section-title section-toggle" onclick="toggleSection(this)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+        </svg>
+        Умения, особенности и заклинания
+    </div>
+
+    <div class="section-body">
+        <div class="field-group" style="margin-bottom: 16px;">
+            <label for="skills">Умения <span class="field-hint">(формат: backstab:50, bash:30)</span></label>
+            <input type="text" id="skills" name="skills"
+                   value="{% if mob.skills %}{% for k, v in mob.skills.items() %}{{ k }}:{{ v }}{% if not loop.last %}, {% endif %}{% endfor %}{% endif %}"
+                   placeholder="backstab:50, bash:30, kick:20">
+        </div>
+
+        <div class="field-group" style="margin-bottom: 16px;">
+            <label for="features">Особенности <span class="field-hint">(через запятую: dodge, parry)</span></label>
+            <input type="text" id="features" name="features"
+                   value="{% if mob.features %}{% for k, v in mob.features.items() %}{{ k }}{% if not loop.last %}, {% endif %}{% endfor %}{% endif %}"
+                   placeholder="dodge, parry, double_attack">
+        </div>
+
+        <div class="field-group">
+            <label for="spells">Заклинания <span class="field-hint">(через запятую: fireball, heal)</span></label>
+            <input type="text" id="spells" name="spells"
+                   value="{% if mob.spells %}{% for k, v in mob.spells.items() %}{{ k }}{% if not loop.last %}, {% endif %}{% endfor %}{% endif %}"
+                   placeholder="fireball, heal, blindness">
+        </div>
+    </div>
+</div>
+
+</form>
+
+<!-- Sticky action bar -->
+<div class="action-bar">
+    <button type="button" class="btn-primary" id="save-btn" onclick="window.saveMob()">
+        Сохранить
+    </button>
+    <button type="button" class="btn-secondary" onclick="history.back()">
+        Отмена
+    </button>
+    <div style="margin-left: auto; font-family: 'Inter', sans-serif; font-size: 13px; color: #8a7b6b;" id="save-status"></div>
+</div>
+
+<!-- Toast container -->
+<div id="toast" class="toast"></div>
+
+<script>
+(function() {
+    'use strict';
+
+    // --- Dice preview calculator ---
+    function updateDicePreview(countId, sizeId, bonusId, previewId) {
+        var count = parseInt(document.getElementById(countId).value) || 0;
+        var size = parseInt(document.getElementById(sizeId).value) || 0;
+        var bonus = parseInt(document.getElementById(bonusId).value) || 0;
+        var avg = Math.round(count * (size + 1) / 2 + bonus);
+        document.getElementById(previewId).textContent = avg;
+    }
+
+    // HP preview
+    ['hp-dice-count', 'hp-dice-size', 'hp-bonus'].forEach(function(id) {
+        document.getElementById(id).addEventListener('input', function() {
+            updateDicePreview('hp-dice-count', 'hp-dice-size', 'hp-bonus', 'hp-preview');
+        });
+    });
+    updateDicePreview('hp-dice-count', 'hp-dice-size', 'hp-bonus', 'hp-preview');
+
+    // Damage preview
+    ['dmg-dice-count', 'dmg-dice-size', 'dmg-bonus'].forEach(function(id) {
+        document.getElementById(id).addEventListener('input', function() {
+            updateDicePreview('dmg-dice-count', 'dmg-dice-size', 'dmg-bonus', 'dmg-preview');
+        });
+    });
+    updateDicePreview('dmg-dice-count', 'dmg-dice-size', 'dmg-bonus', 'dmg-preview');
+
+    // Gold preview
+    ['gold-dice-count', 'gold-dice-size', 'gold-bonus'].forEach(function(id) {
+        document.getElementById(id).addEventListener('input', function() {
+            updateDicePreview('gold-dice-count', 'gold-dice-size', 'gold-bonus', 'gold-preview');
+        });
+    });
+    updateDicePreview('gold-dice-count', 'gold-dice-size', 'gold-bonus', 'gold-preview');
+})();
+
+// --- Roles toggle buttons ---
+(function() {
+    var grid = document.getElementById('roles-grid');
+    if (!grid) return;
+
+    // Initialize active states from server data
+    grid.querySelectorAll('.flag-toggle[data-active="1"]').forEach(function(btn) {
+        btn.classList.add('active');
+    });
+
+    // Click handler for role toggles
+    grid.addEventListener('click', function(e) {
+        var btn = e.target.closest('.flag-toggle');
+        if (!btn) return;
+        btn.classList.toggle('active');
+        updateRolesHint();
+    });
+
+    function updateRolesHint() {
+        var active = grid.querySelectorAll('.flag-toggle.active');
+        var names = [];
+        active.forEach(function(btn) {
+            var nameEl = btn.querySelector('.flag-toggle-name');
+            if (nameEl) names.push(nameEl.textContent);
+        });
+        var hint = document.getElementById('roles-hint');
+        if (hint) {
+            hint.textContent = names.length > 0
+                ? 'Выбрано: ' + names.join(', ')
+                : 'Выбрано: 0 ролей';
+        }
+    }
+
+    updateRolesHint();
+})();
+
+// --- Flag toggle system for mob_flags, affect_flags, npc_flags ---
+(function() {
+    'use strict';
+
+    // Parse server data for flags
+    var serverMobFlags = {{ mob.flags.mob_flags|default([])|tojson }};
+    var serverAffFlags = {{ mob.flags.affect_flags|default([])|tojson }};
+    var serverNpcFlags = {{ mob.flags.npc_flags|default([])|tojson }};
+
+    // Initialize flags from server data
+    function initFlags() {
+        // MOB flags
+        document.querySelectorAll('.flag-toggle[data-flag-type="mob_flags"]').forEach(function(btn) {
+            var flagValue = parseInt(btn.getAttribute('data-flag-value'));
+            if (serverMobFlags.includes(flagValue)) {
+                btn.classList.add('active');
+            }
+        });
+
+        // AFF flags
+        document.querySelectorAll('.flag-toggle[data-flag-type="affect_flags"]').forEach(function(btn) {
+            var flagValue = parseInt(btn.getAttribute('data-flag-value'));
+            if (serverAffFlags.includes(flagValue)) {
+                btn.classList.add('active');
+            }
+        });
+
+        // NPC flags
+        document.querySelectorAll('.flag-toggle[data-flag-type="npc_flags"]').forEach(function(btn) {
+            var flagValue = parseInt(btn.getAttribute('data-flag-value'));
+            if (serverNpcFlags.includes(flagValue)) {
+                btn.classList.add('active');
+            }
+        });
+
+        updateAllFlagHints();
+    }
+
+    // Click handler for all flag toggles
+    document.querySelectorAll('.flag-toggle[data-flag-type]').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            this.classList.toggle('active');
+            updateFlagHint(this.getAttribute('data-flag-type'));
+        });
+    });
+
+    // Update hint for a specific flag type
+    function updateFlagHint(flagType) {
+        var hintId = flagType.replace('_flags', '-flags-hint');
+        var hintEl = document.getElementById(hintId);
+        if (!hintEl) return;
+
+        var activeButtons = document.querySelectorAll('.flag-toggle[data-flag-type="' + flagType + '"].active');
+        hintEl.textContent = 'Выбрано: ' + activeButtons.length + ' флагов';
+    }
+
+    // Update all flag hints
+    function updateAllFlagHints() {
+        updateFlagHint('mob_flags');
+        updateFlagHint('affect_flags');
+        updateFlagHint('npc_flags');
+    }
+
+    // Initialize on page load
+    initFlags();
+
+    // Export function to collect active flags (used by saveMob)
+    window.getActiveFlags = function(flagType) {
+        var flags = [];
+        document.querySelectorAll('.flag-toggle[data-flag-type="' + flagType + '"].active').forEach(function(btn) {
+            flags.push(parseInt(btn.getAttribute('data-flag-value')));
+        });
+        return flags;
+    };
+})();
+
+// --- Death Load dynamic list ---
+function addDLItem() {
+    var list = document.getElementById('deathload-list');
+    var html = '<div class="dl-item" style="display: flex; align-items: flex-end; gap: 8px; margin-bottom: 10px; flex-wrap: wrap;">'
+        + '<div class="field-group" style="width: 120px;">'
+        + '<input type="number" class="dl-vnum" value="" min="0" placeholder="vnum">'
+        + '</div>'
+        + '<div class="field-group" style="width: 100px;">'
+        + '<input type="number" class="dl-prob" value="" min="0" max="100" placeholder="%">'
+        + '</div>'
+        + '<div class="field-group" style="width: 120px;">'
+        + '<select class="dl-type">'
+        + '<option value="0">0 - Обычный</option>'
+        + '<option value="1">1 - Прогрессия</option>'
+        + '<option value="2">2 - Скин</option>'
+        + '</select>'
+        + '</div>'
+        + '<div class="field-group" style="width: 100px;">'
+        + '<input type="number" class="dl-spec" value="0" min="0" placeholder="0">'
+        + '</div>'
+        + '<button type="button" class="btn-secondary" onclick="removeDLItem(this)" style="padding: 8px 12px; margin-bottom: 0; flex-shrink: 0;" title="Удалить">'
+        + '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'
+        + '<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>'
+        + '</svg>'
+        + '</button>'
+        + '</div>';
+    list.insertAdjacentHTML('beforeend', html);
+    updateDLEmptyState();
+}
+
+function removeDLItem(btn) {
+    btn.closest('.dl-item').remove();
+    updateDLEmptyState();
+}
+
+function updateDLEmptyState() {
+    var list = document.getElementById('deathload-list');
+    var empty = document.getElementById('deathload-empty');
+    if (empty) {
+        empty.style.display = list.querySelectorAll('.dl-item').length === 0 ? 'block' : 'none';
+    }
+}
+
+// --- Collapsible sections ---
+function toggleSection(titleEl) {
+    titleEl.classList.toggle('collapsed');
+    var body = titleEl.nextElementSibling;
+    while (body && !body.classList.contains('section-body')) {
+        body = body.nextElementSibling;
+    }
+    if (body) {
+        body.classList.toggle('collapsed');
+    }
+}
+
+// --- Toast notifications ---
+function showToast(message, type) {
+    var toast = document.getElementById('toast');
+    toast.textContent = message;
+    toast.className = 'toast toast-' + type + ' show';
+    setTimeout(function() {
+        toast.classList.remove('show');
+    }, 4000);
+}
+
+// --- Parse comma-separated string into trimmed array ---
+function parseCSV(str) {
+    if (!str || !str.trim()) return [];
+    return str.split(',').map(function(s) { return s.trim(); }).filter(function(s) { return s.length > 0; });
+}
+
+// --- Parse comma-separated ints ---
+function parseIntCSV(str) {
+    if (!str || !str.trim()) return [];
+    return str.split(',').map(function(s) { return parseInt(s.trim()); }).filter(function(n) { return !isNaN(n); });
+}
+
+// --- Parse "key:value, key2:value2" into object ---
+function parseKeyValueCSV(str) {
+    if (!str || !str.trim()) return {};
+    var result = {};
+    str.split(',').forEach(function(pair) {
+        pair = pair.trim();
+        if (!pair) return;
+        var parts = pair.split(':');
+        if (parts.length === 2) {
+            var key = parts[0].trim();
+            var val = parseInt(parts[1].trim());
+            if (key && !isNaN(val)) {
+                result[key] = val;
+            }
+        }
+    });
+    return result;
+}
+
+// --- Parse "key, key2" into {key: true, key2: true} ---
+function parseBoolCSV(str) {
+    if (!str || !str.trim()) return {};
+    var result = {};
+    str.split(',').forEach(function(s) {
+        s = s.trim();
+        if (s) result[s] = true;
+    });
+    return result;
+}
+
+// --- Build nested object from flat "a.b.c" keys ---
+function setNestedValue(obj, path, value) {
+    var keys = path.split('.');
+    var current = obj;
+    for (var i = 0; i < keys.length - 1; i++) {
+        if (!(keys[i] in current)) {
+            current[keys[i]] = {};
+        }
+        current = current[keys[i]];
+    }
+    current[keys[keys.length - 1]] = value;
+}
+
+// --- Remove empty objects recursively ---
+function cleanEmptyObjects(obj) {
+    if (typeof obj !== 'object' || obj === null || Array.isArray(obj)) {
+        return obj;
+    }
+
+    var cleaned = {};
+    for (var key in obj) {
+        if (!obj.hasOwnProperty(key)) continue;
+
+        var value = obj[key];
+        if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+            var cleanedValue = cleanEmptyObjects(value);
+            // Only add if not empty object
+            if (Object.keys(cleanedValue).length > 0) {
+                cleaned[key] = cleanedValue;
+            }
+        } else {
+            cleaned[key] = value;
+        }
+    }
+    return cleaned;
+}
+
+// --- Validation functions ---
+function clearValidationErrors() {
+    document.querySelectorAll('.field-error').forEach(function(el) {
+        el.classList.remove('field-error');
+    });
+    document.querySelectorAll('.error-message').forEach(function(el) {
+        el.remove();
+    });
+    var errorsBlock = document.getElementById('validation-errors-block');
+    if (errorsBlock) {
+        errorsBlock.remove();
+    }
+}
+
+function displayValidationErrors(errors) {
+    var form = document.getElementById('mob-edit-form');
+    var errorsBlock = document.createElement('div');
+    errorsBlock.id = 'validation-errors-block';
+    errorsBlock.className = 'validation-errors';
+
+    var html = '<div style="display: flex; align-items: flex-start; gap: 12px;">';
+    html += '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 2px;">';
+    html += '<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>';
+    html += '</svg>';
+    html += '<div style="flex: 1;">';
+    html += '<div style="font-family: \'Inter\', sans-serif; font-weight: 600; font-size: 14px; color: #991b1b; margin-bottom: 8px;">Исправьте следующие ошибки:</div>';
+    html += '<ul style="margin: 0; padding-left: 20px; font-family: \'Inter\', sans-serif; font-size: 13px; color: #dc2626; line-height: 1.6;">';
+
+    var displayErrors = errors.slice(0, 5);
+    displayErrors.forEach(function(error) {
+        html += '<li>' + error.message + '</li>';
+    });
+
+    if (errors.length > 5) {
+        html += '<li>И ещё ' + (errors.length - 5) + ' ошибок...</li>';
+    }
+
+    html += '</ul></div></div>';
+    errorsBlock.innerHTML = html;
+
+    form.insertBefore(errorsBlock, form.firstChild);
+
+    errors.forEach(function(error) {
+        var field = error.field;
+        field.classList.add('field-error');
+
+        var errorMsg = document.createElement('div');
+        errorMsg.className = 'error-message';
+        errorMsg.textContent = error.message;
+        field.parentNode.appendChild(errorMsg);
+    });
+
+    if (errors.length > 0) {
+        errors[0].field.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        errors[0].field.focus();
+    }
+}
+
+function validateDice(prefix, label) {
+    var countEl = document.querySelector('[name="' + prefix + '.count"]');
+    var sizeEl = document.querySelector('[name="' + prefix + '.size"]');
+    var bonusEl = document.querySelector('[name="' + prefix + '.bonus"]');
+
+    var countVal = countEl ? countEl.value.trim() : '';
+    var sizeVal = sizeEl ? sizeEl.value.trim() : '';
+    var bonusVal = bonusEl ? bonusEl.value.trim() : '';
+
+    var hasAny = countVal !== '' || sizeVal !== '' || bonusVal !== '';
+    var hasAll = countVal !== '' && sizeVal !== '' && bonusVal !== '';
+
+    if (hasAny && !hasAll) {
+        var errors = [];
+        if (countVal === '' && countEl) {
+            errors.push({ field: countEl, message: label + ': укажите количество кубиков (count)' });
+        }
+        if (sizeVal === '' && sizeEl) {
+            errors.push({ field: sizeEl, message: label + ': укажите размер кубика (size)' });
+        }
+        if (bonusVal === '' && bonusEl) {
+            errors.push({ field: bonusEl, message: label + ': укажите бонус (bonus)' });
+        }
+        return errors;
+    }
+
+    return [];
+}
+
+function validateForm() {
+    var errors = [];
+    clearValidationErrors();
+
+    var aliasesEl = document.querySelector('[name="names.aliases"]');
+    if (!aliasesEl || !aliasesEl.value.trim()) {
+        errors.push({
+            field: aliasesEl,
+            message: 'Алиасы (aliases) обязательны'
+        });
+    }
+
+    var shortDescEl = document.querySelector('[name="descriptions.short_desc"]');
+    if (!shortDescEl || !shortDescEl.value.trim()) {
+        errors.push({
+            field: shortDescEl,
+            message: 'Короткое описание (short_desc) обязательно'
+        });
+    }
+
+    var levelEl = document.querySelector('[name="stats.level"]');
+    if (levelEl) {
+        var levelVal = parseInt(levelEl.value);
+        if (isNaN(levelVal) || levelVal < 0) {
+            errors.push({
+                field: levelEl,
+                message: 'Уровень (level) должен быть >= 0'
+            });
+        }
+    }
+
+    errors = errors.concat(validateDice('hit', 'Hit'));
+    errors = errors.concat(validateDice('damage', 'Damage'));
+    errors = errors.concat(validateDice('gold', 'Gold'));
+
+    if (errors.length > 0) {
+        displayValidationErrors(errors);
+        return false;
+    }
+
+    return true;
+}
+
+// --- Main save function ---
+function saveMob() {
+    if (!validateForm()) {
+        showToast('Форма содержит ошибки', 'error');
+        return;
+    }
+
+    var btn = document.getElementById('save-btn');
+    var statusEl = document.getElementById('save-status');
+
+    // Show loading state
+    btn.disabled = true;
+    btn.innerHTML = '<span class="btn-spinner"></span>Сохранение...';
+    statusEl.textContent = '';
+
+    // Collect all form fields
+    var form = document.getElementById('mob-edit-form');
+    var inputs = form.querySelectorAll('input, textarea, select');
+    var data = {};
+
+    inputs.forEach(function(input) {
+        var name = input.name;
+        if (!name) return;
+
+        var value = input.value;
+
+        // Special handling for specific field types
+        if (name === 'triggers') {
+            data.triggers = parseIntCSV(value);
+            return;
+        }
+        if (name === 'behavior.helpers') {
+            setNestedValue(data, name, parseIntCSV(value));
+            return;
+        }
+        // Skip old text inputs for flags (now handled by toggle buttons)
+        if (name === 'flags.mob_flags' || name === 'flags.affect_flags' || name === 'flags.npc_flags') {
+            return;
+        }
+        if (name === 'skills') {
+            data.skills = parseKeyValueCSV(value);
+            return;
+        }
+        if (name === 'features') {
+            data.features = parseBoolCSV(value);
+            return;
+        }
+        if (name === 'spells') {
+            data.spells = parseBoolCSV(value);
+            return;
+        }
+
+        // Determine if this should be a number
+        if (input.type === 'number' || input.tagName === 'SELECT') {
+            var numVal = parseInt(value);
+            if (!isNaN(numVal)) {
+                setNestedValue(data, name, numVal);
+            }
+        } else {
+            // String field - only set if non-empty
+            if (value && value.trim()) {
+                setNestedValue(data, name, value);
+            }
+        }
+    });
+
+    // Collect roles (from toggle buttons)
+    var rolesArr = [];
+    document.querySelectorAll('#roles-grid .flag-toggle.active').forEach(function(btn) {
+        var bit = parseInt(btn.getAttribute('data-role-bit'));
+        if (!isNaN(bit)) rolesArr.push(bit);
+    });
+    data.roles = rolesArr;
+
+    // Collect flags (from toggle buttons)
+    data.flags = {
+        mob_flags: window.getActiveFlags('mob_flags'),
+        affect_flags: window.getActiveFlags('affect_flags'),
+        npc_flags: window.getActiveFlags('npc_flags')
+    };
+
+    // Collect death_load items
+    var dlItems = [];
+    document.querySelectorAll('#deathload-list .dl-item').forEach(function(row) {
+        var vnum = parseInt(row.querySelector('.dl-vnum').value) || 0;
+        var prob = parseInt(row.querySelector('.dl-prob').value) || 0;
+        var loadType = parseInt(row.querySelector('.dl-type').value) || 0;
+        var spec = parseInt(row.querySelector('.dl-spec').value) || 0;
+        if (vnum > 0) {
+            dlItems.push({obj_vnum: vnum, load_prob: prob, load_type: loadType, spec_param: spec});
+        }
+    });
+    data.death_load = dlItems;
+
+    // Clean empty objects before sending
+    data = cleanEmptyObjects(data);
+
+    // POST as JSON
+    fetch('{{ url_for("mob_update", vnum=mob.vnum) }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    })
+    .then(function(response) {
+        return response.json();
+    })
+    .then(function(result) {
+        btn.disabled = false;
+        btn.innerHTML = 'Сохранить';
+
+        if (result.status === 'ok') {
+            showToast('Моб успешно сохранен', 'success');
+            // Redirect to detail view
+            setTimeout(function() {
+                window.location.href = '{{ url_for("mob_detail", vnum=mob.vnum) }}';
+            }, 500);
+        } else {
+            showToast('Ошибка: ' + (result.error || 'Неизвестная ошибка'), 'error');
+            statusEl.textContent = '';
+        }
+    })
+    .catch(function(err) {
+        btn.disabled = false;
+        btn.innerHTML = 'Сохранить';
+        showToast('Ошибка сети: ' + err.message, 'error');
+        statusEl.textContent = '';
+    });
+}
+
+// ========== Color Overlay for Text Inputs ==========
+function addColorOverlay(inputId) {
+    const input = document.getElementById(inputId);
+    if (!input) {
+        console.warn('addColorOverlay: input not found:', inputId);
+        return;
+    }
+
+    // Check if already has color overlay
+    if (input.parentNode && input.parentNode.querySelector('.mud-colorize')) {
+        console.log('addColorOverlay: already wrapped:', inputId);
+        return;
+    }
+
+    console.log('addColorOverlay: processing', inputId);
+
+    const isTextarea = input.tagName.toLowerCase() === 'textarea';
+
+    // Create wrapper
+    const wrapper = document.createElement('div');
+    wrapper.style.cssText = 'position: relative;';
+
+    // Create colored background layer
+    // Get computed styles from input
+    const computedStyle = window.getComputedStyle(input);
+
+    const backdrop = document.createElement('div');
+    backdrop.className = 'mud-colorize';
+    backdrop.style.cssText = `
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        padding: ${computedStyle.padding || (isTextarea ? '8px 12px' : '0 12px')};
+        border: ${computedStyle.border || '2px solid rgba(120, 53, 15, 0.15)'};
+        border-radius: ${computedStyle.borderRadius || '4px'};
+        background: ${computedStyle.backgroundColor || '#fefdfb'};
+        font-family: ${computedStyle.fontFamily || 'Inter, sans-serif'};
+        font-size: ${computedStyle.fontSize || '14px'};
+        line-height: ${computedStyle.lineHeight || (isTextarea ? '1.5' : '38px')};
+        white-space: ${isTextarea ? 'pre-wrap' : 'pre'};
+        word-wrap: break-word;
+        color: #2d241e;
+        pointer-events: none;
+        overflow: ${isTextarea ? 'auto' : 'hidden'};
+        box-shadow: ${computedStyle.boxShadow || 'none'};
+    `;
+
+    // Wrap input and insert backdrop
+    input.parentNode.insertBefore(wrapper, input);
+    wrapper.appendChild(backdrop);
+    wrapper.appendChild(input);
+
+    // Make input transparent over backdrop
+    input.style.position = 'relative';
+    input.style.background = 'transparent';
+    input.style.border = 'none';
+    input.style.outline = 'none';
+    input.style.color = 'transparent';
+    input.style.caretColor = '#2d241e';
+    input.style.zIndex = '1';
+
+    // Sync backdrop with input
+    function updateBackdrop() {
+        let text = input.value;
+        // Add space at end to prevent caret from disappearing
+        if (text && !text.endsWith(' ')) text += ' ';
+        backdrop.textContent = text || ' ';
+        delete backdrop.dataset.colorized;
+        delete backdrop.dataset.originalText;
+        applyMudColors();
+    }
+
+    // Sync scroll for textarea
+    if (isTextarea) {
+        input.addEventListener('scroll', function() {
+            backdrop.scrollTop = input.scrollTop;
+            backdrop.scrollLeft = input.scrollLeft;
+        });
+    }
+
+    updateBackdrop();
+    input.addEventListener('input', updateBackdrop);
+    input.addEventListener('change', updateBackdrop);
+}
+
+// Add color overlay to text fields
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOMContentLoaded fired - adding color overlays');
+    // Single-line inputs
+    addColorOverlay('names-aliases');
+    addColorOverlay('names-nominative');
+    addColorOverlay('names-genitive');
+    addColorOverlay('names-dative');
+    addColorOverlay('names-accusative');
+    addColorOverlay('names-instrumental');
+    addColorOverlay('names-prepositional');
+    addColorOverlay('desc-short');
+
+    // Multi-line textarea
+    addColorOverlay('desc-long');
+
+    // Tag input disabled - using plain text input for now
+    // TODO: improve tag input implementation later
+});
+</script>
+
+{% endblock %}

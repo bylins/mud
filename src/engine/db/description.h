@@ -11,30 +11,60 @@
 #include <map>
 
 /**
-* глобальный класс-контейнер уникальных описаний комнат, тупо экономит 70+мб памяти.
-* действия: грузим описания комнат, попутно отсекая дубликаты. в комнату пишется
-* не само описание, а его порядковый номер в глобальном массиве этих описаний.
-* если у вас возникнет мысль делать тоже самое построчно, то не мучайтесь,
-* т.к. вы ничего на этом не сэкономите, по крайней мере с текущим форматом зон.
-* при редактировании в олц старые описания остаются в массиве, т.к. это все херня
+ * LocalDescriptionIndex - Thread-local description index for parallel room loading.
+ * Used by worker threads to collect room descriptions without race conditions.
+ */
+class LocalDescriptionIndex {
+public:
+	LocalDescriptionIndex() = default;
+	~LocalDescriptionIndex() = default;
 
-* \todo В последствии нужно переместить в class room, а потом вообще убрать из кода,
-* т.к. есть куда более прикольная тема с шаблонами в файлах зон.
-*/
-class RoomDescription {
- public:
-	static size_t add_desc(const std::string &text);
-	static const std::string &show_desc(size_t desc_num);
+	// Add description to local index. Returns 0-based index.
+	size_t add(const std::string &text);
 
- private:
-	RoomDescription();
-	~RoomDescription();
-	// отсюда дергаем описания при работе мада
-	static std::vector<std::string> _desc_list;
-	// а это чтобы мад не грузился пол часа. из-за оптимизации копирования строк мап
-	// проще оставлять на все время работы мада для олц, а мож и дальнейшего релоада описаний
-	typedef std::map<std::string, size_t> reboot_map_t;
-	static reboot_map_t _reboot_map;
+	// Get description by 0-based index.
+	const std::string &get(size_t idx) const;
+
+	// Number of descriptions in index.
+	size_t size() const { return _desc_list.size(); }
+
+	// Direct access to descriptions (for merge).
+	const std::vector<std::string> &descriptions() const { return _desc_list; }
+
+private:
+	std::vector<std::string> _desc_list;
+	std::map<std::string, size_t> _desc_map;
+};
+
+/**
+ * RoomDescriptions - Global room description storage.
+ * Maintains unique descriptions in GlobalObjects to save memory.
+ *
+ * Saves ~50% memory on room descriptions (>70K rooms in full MUD).
+ * Each room stores only description index (0-based) instead of full text.
+ */
+class RoomDescriptions {
+public:
+	RoomDescriptions() = default;
+	~RoomDescriptions() = default;
+
+	// Add description to global index. Returns 0-based index.
+	// If description already exists, returns existing index.
+	size_t add(const std::string &text);
+
+	// Get description by 0-based index.
+	const std::string &get(size_t idx) const;
+
+	// Number of descriptions in index.
+	size_t size() const { return _desc_list.size(); }
+
+	// Merge thread-local descriptions into global index.
+	// Returns mapping from local indices to global indices.
+	std::vector<size_t> merge(const LocalDescriptionIndex &local_index);
+
+private:
+	std::vector<std::string> _desc_list;
+	std::map<std::string, size_t> _desc_map;
 };
 
 #endif // _DESCRIPTION_H_INCLUDED

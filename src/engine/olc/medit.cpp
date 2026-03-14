@@ -12,6 +12,7 @@
 #include "engine/core/comm.h"
 #include "gameplay/magic/spells.h"
 #include "engine/db/db.h"
+#include "engine/db/world_data_source_manager.h"
 #include "olc.h"
 #include "engine/core/handler.h"
 #include "engine/scripting/dg_olc.h"
@@ -163,7 +164,6 @@ void CopyMobilePrototypeForMedit(CharData *dst, CharData *src, bool partial_copy
 
 	// Копирую все поверх
 	*dst = *src;
-	dst->set_normal_morph();//вот это копировать не нада
 	if (partial_copy) {
 		dst->SetCharAliases(tmp.GetCharAliases());
 		dst->set_npc_name(tmp.get_npc_name());
@@ -509,7 +509,9 @@ void medit_save_internally(DescriptorData *d) {
 #endif
 
 //	olc_add_to_save_list(zone_table[OLC_ZNUM(d)].vnum, OLC_SAVE_MOB);
-	medit_save_to_disk(OLC_ZNUM(d));
+	// Save only this specific mob (vnum = OLC_NUM(d))
+	auto* data_source = world_loader::WorldDataSourceManager::Instance().GetDataSource();
+	data_source->SaveMobs(OLC_ZNUM(d), OLC_NUM(d));
 }
 
 //-------------------------------------------------------------------
@@ -548,7 +550,6 @@ void medit_save_to_disk(ZoneRnum zone_num) {
 			return;
 		}
 		mob = (mob_proto + rmob_num);
-		mob->set_normal_morph();
 			// * Clean up strings.
 		if (mob->player_data.long_descr.empty())
 			mob->player_data.long_descr = "неопределен";
@@ -686,11 +687,13 @@ void medit_save_to_disk(ZoneRnum zone_num) {
 	// * We're fubar'd if we crash between the two lines below.
 	remove(buf2);
 	rename(fname, buf2);
+#ifndef _WIN32
 	if (chmod(buf2, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP) < 0) {
 		std::stringstream ss;
 		ss << "Error chmod file: " << buf2 << " (" << __FILE__ << " "<< __func__ << "  "<< __LINE__ << ")";
 		mudlog(ss.str(), BRF, kLvlGod, SYSLOG, true);
 	}
+#endif
 	olc_remove_from_save_list(zone_table[zone_num].vnum, OLC_SAVE_MOB);
 }
 
@@ -751,7 +754,7 @@ void medit_disp_resistances(DescriptorData *d) {
 				grn, i + 1, nrm, resistance_types[i], cyn, GET_RESIST(OLC_MOB(d), i), nrm);
 		SendMsgToChar(buf, d->character.get());
 	}
-	SendMsgToChar("Введите номер и величину сопротивления (-100..100\%) (0 - конец) : ", d->character.get());
+	SendMsgToChar("Введите номер и величину сопротивления (-100..100%) (0 - конец) : ", d->character.get());
 }
 
 // *  Display saves

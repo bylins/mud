@@ -6,6 +6,7 @@
 #include "bonus_command_parser.h"
 #include "engine/ui/modify.h"
 #include "engine/entities/char_player.h"
+#include "engine/db/global_objects.h"
 
 namespace Bonus {
 const size_t MAXIMUM_BONUS_RECORDS = 10;
@@ -57,7 +58,8 @@ void bonus_log_add(const std::string &name) {
 	utils::EraseAll(buf, "\r\n");
 	bonus_log.push_back(buf);
 
-	std::ofstream fout("../log/bonus.log", std::ios_base::app);
+	const auto bonus_log_file = runtime_config.log_dir() + "/bonus.log";
+	std::ofstream fout(bonus_log_file, std::ios_base::app);
 	fout << buf << "\r\n";
 	fout.close();
 }
@@ -201,7 +203,8 @@ bool is_bonus_active() {
 
 // загружает лог бонуса из файла
 void bonus_log_load() {
-	std::ifstream fin("../log/bonus.log");
+	const auto bonus_log_file = runtime_config.log_dir() + "/bonus.log";
+	std::ifstream fin(bonus_log_file);
 	if (!fin.is_open()) {
 		return;
 	}

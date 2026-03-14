@@ -79,7 +79,6 @@ const char *diag_obj_timer(const ObjData *obj);
 void look_at_room(CharData *ch, int ignore_brief, bool msdp_mode) {
 	if (!ch->desc)
 		return;
-
 	if (is_dark(ch->in_room) && !CAN_SEE_IN_DARK(ch) && !CanUseFeat(ch, EFeat::kDarkReading)) {
 		SendMsgToChar("Слишком темно...\r\n", ch);
 		show_glow_objs(ch);
@@ -136,7 +135,7 @@ void look_at_room(CharData *ch, int ignore_brief, bool msdp_mode) {
 	if (is_dark(ch->in_room) && !ch->IsFlagged(EPrf::kHolylight)) {
 		SendMsgToChar("Слишком темно...\r\n", ch);
 	} else if ((!ch->IsNpc() && !ch->IsFlagged(EPrf::kBrief)) || ignore_brief || ROOM_FLAGGED(ch->in_room, ERoomFlag::kDeathTrap)) {
-		show_extend_room(RoomDescription::show_desc(world[ch->in_room]->description_num).c_str(), ch);
+		show_extend_room(GlobalObjects::descriptions().get(world[ch->in_room]->description_num).c_str(), ch);
 	}
 
 	if (ch->IsFlagged(EPrf::kAutoexit) && !ch->IsFlagged(EPlrFlag::kScriptWriter)) {
@@ -485,9 +484,7 @@ void look_at_char(CharData *i, CharData *ch) {
 			SendMsgToChar(ch, "*\r\n%s*\r\n", AddLeadingStringSpace(i->player_data.description).c_str());
 	} else if (!i->IsNpc()) {
 		strcpy(buf, "\r\nЭто");
-		if (i->is_morphed())
-			strcat(buf, std::string(" " + i->get_morph_desc() + ".\r\n").c_str());
-		else if (IS_FEMALE(i)) {
+		if (IS_FEMALE(i)) {
 			if (GET_HEIGHT(i) <= 151) {
 				if (GET_WEIGHT(i) >= 140)
 					strcat(buf, " маленькая плотная дамочка.\r\n");
@@ -605,29 +602,22 @@ void look_at_char(CharData *i, CharData *ch) {
 
 	diag_char_to_char(i, ch);
 
-	if (i->is_morphed()) {
+	found = false;
+	for (j = 0; !found && j < EEquipPos::kNumEquipPos; j++) {
+		if (GET_EQ(i, j) && CAN_SEE_OBJ(ch, GET_EQ(i, j)))
+			found = true;
+	}
+	if (found) {
 		SendMsgToChar("\r\n", ch);
-		std::string coverDesc = "$n покрыт$a " + i->get_cover_desc() + ".";
-		act(coverDesc.c_str(), false, i, nullptr, ch, kToVict);
-		SendMsgToChar("\r\n", ch);
-	} else {
-		found = false;
-		for (j = 0; !found && j < EEquipPos::kNumEquipPos; j++)
-			if (GET_EQ(i, j) && CAN_SEE_OBJ(ch, GET_EQ(i, j)))
-				found = true;
-
-		if (found) {
-			SendMsgToChar("\r\n", ch);
-			act("$n одет$a :", false, i, nullptr, ch, kToVict);
-			for (j = 0; j < EEquipPos::kNumEquipPos; j++) {
-				if (GET_EQ(i, j) && CAN_SEE_OBJ(ch, GET_EQ(i, j))) {
-					SendMsgToChar(where[j], ch);
-					if (i->has_master()
-						&& i->IsNpc()) {
-						show_obj_to_char(GET_EQ(i, j), ch, 1, ch == i->get_master(), 1);
-					} else {
-						show_obj_to_char(GET_EQ(i, j), ch, 1, ch == i, 1);
-					}
+		act("$n одет$a :", false, i, nullptr, ch, kToVict);
+		for (j = 0; j < EEquipPos::kNumEquipPos; j++) {
+			if (GET_EQ(i, j) && CAN_SEE_OBJ(ch, GET_EQ(i, j))) {
+				SendMsgToChar(where[j], ch);
+				if (i->has_master()
+					&& i->IsNpc()) {
+					show_obj_to_char(GET_EQ(i, j), ch, 1, ch == i->get_master(), 1);
+				} else {
+					show_obj_to_char(GET_EQ(i, j), ch, 1, ch == i, 1);
 				}
 			}
 		}
@@ -1706,7 +1696,7 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 			strcat(buf1, "(под седлом) ");
 		utils::CAP(buf1);
 	} else {
-		sprintf(buf1, "%s%s ", i->get_morphed_title().c_str(), i->IsFlagged(EPlrFlag::kKiller) ? " <ДУШЕГУБ>" : "");
+		sprintf(buf1, "%s%s ", i->race_or_title().c_str(), i->IsFlagged(EPlrFlag::kKiller) ? " <ДУШЕГУБ>" : "");
 	}
 
 	snprintf(buf, kMaxStringLength, "%s%s", AFF_FLAGGED(i, EAffect::kCharmed) ? "*" : "", buf1);

@@ -335,7 +335,7 @@ std::string base64_decode(const std::string &encoded_string) {
 
 std::string to_iso8601(time_t time) {
 	char buf_[kMaxInputLength];
-	strftime(buf_, sizeof(buf_), "%FT%T", localtime(&time));
+	strftime(buf_, sizeof(buf_), "%Y-%m-%dT%H:%M:%S", localtime(&time));
 	return buf_;
 }
 
@@ -615,7 +615,7 @@ void load() {
 			// технические сообщения старше года
 			continue;
 		}
-		if (message.from > 0 && !GetPlayerNameByUnique(message.from).empty()) {
+		if (message.from > 0 && GetPlayerNameByUnique(message.from).empty()) {
 			// убираем левые уиды, чтобы потом с кем-нить другим не совпало
 			message.from = -2;
 		}

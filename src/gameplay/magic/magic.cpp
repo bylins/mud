@@ -168,10 +168,14 @@ int CalcSaving(CharData *killer, CharData *victim, ESaving saving, bool need_log
 	if (victim->IsFlagged(EPrf::kAwake)) {
 		if (CanUseFeat(victim, EFeat::kImpregnable)) {
 			save -= std::max(0, victim->GetSkill(ESkill::kAwake) - 80) / 2;
+		// справка танцующая: "Осторожный стиль" добавочно увеличивает спас-броски персонажа. почему-то было давно убрано с комментом "фикс осторожки дружинника"
+		} else if (CanUseFeat(victim, EFeat::kShadowStrike)) {
+			save -= std::max(0, victim->GetSkill(ESkill::kAwake) - 80) / 2.5;
 		}
+
 		save -= victim->GetSkill(ESkill::kAwake) / 5; //CalculateSkillAwakeModifier(killer, victim);
 	}
-	save += GetSave(victim, saving);    // одежда бафы и слава
+	save += round(GetSave(victim, saving) * abilities::kSaveWeight);    // одежда бафы и слава
 	if (need_log) {
 		killer->send_to_TC(false, true, true,
 				"SAVING (%s): Killer==%s  Target==%s vnum==%d Level==%d base_save==%d save_equip==%d save_awake=-%d result_save=%d\r\n",
@@ -807,6 +811,7 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 	for (; count > 0 && rand >= 0; count--) {
 		if (ch->in_room != kNowhere
 			&& victim->in_room != kNowhere
+			&& victim->in_room == ch->in_room
 			&& ch->GetPosition() > EPosition::kStun
 			&& victim->GetPosition() > EPosition::kDead) {
 			// инит полей для дамага
@@ -1801,8 +1806,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 				break;
 			}
 			af[0].location = EApply::kStr;
-			af[0].duration =
-				CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch), 1, 0, 0) * koef_duration;
+			af[0].duration = CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch), 1, 0, 0) * koef_duration;
 			if (ch == victim)
 				af[0].modifier = (level + 9) / 10 + koef_modifier + GetRealRemort(ch) / 5;
 			else
@@ -2786,7 +2790,6 @@ int CastSummon(int level, CharData *ch, ObjData *obj, ESpell spell_id, bool need
 			else {
 				const int real_mob_num = GetMobRnum(mob_num);
 				tmp_mob = (mob_proto + real_mob_num);
-				tmp_mob->set_normal_morph();
 				pfail = 10 + tmp_mob->get_con() * 2
 					- number(1, GetRealLevel(ch)) - GET_CAST_SUCCESS(ch) - GetRealRemort(ch) * 5;
 
@@ -2840,10 +2843,7 @@ int CastSummon(int level, CharData *ch, ObjData *obj, ESpell spell_id, bool need
 			handle_corpse = true;
 			msg = 11;
 			fmsg = number(2, 6);
-
 			tmp_mob = mob_proto + GetMobRnum(mob_num);
-			tmp_mob->set_normal_morph();
-
 			pfail = 10 + tmp_mob->get_con() * 2
 				- number(1, GetRealLevel(ch)) - GET_CAST_SUCCESS(ch) - GetRealRemort(ch) * 5;
 			break;

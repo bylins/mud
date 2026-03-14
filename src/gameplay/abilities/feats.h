@@ -24,7 +24,6 @@
 struct TimedFeat {
 	EFeat feat{EFeat::kUndefined};	// Used feature //
 	ubyte time{0};				// Time for next using //
-	struct TimedFeat *next{nullptr};
 };
 
 int CalcMaxFeatSlotPerLvl(const CharData *ch);

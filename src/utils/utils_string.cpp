@@ -127,6 +127,37 @@ bool IsAbbr(const char *arg1, const char *arg2) {
 	}
 }
 
+bool IsEqual(const std::string &abbr, const std::string &words) {
+	std::vector<std::string> words_list = utils::Split(words);
+	std::vector<std::string> abbr_list = utils::Split(utils::FixDot(abbr));
+	auto it = words_list.begin();
+
+	for (auto abr : abbr_list) {
+		if (it == words_list.end() || !utils::IsAbbr(abr.c_str(), (*it).c_str()))
+			return false;
+		++it;
+	}
+	return true;
+}
+
+
+bool IsEquivalent(const std::string &abbr, const std::string &words) {
+	std::vector<std::string> words_list = utils::Split(words);
+	std::vector<std::string> abbr_list = utils::Split(utils::FixDot(abbr));
+	auto it = words_list.begin();
+
+	for (auto abr : abbr_list) {
+		for (; it != words_list.end(); it++) {
+			if (utils::IsAbbr(abr.c_str(), (*it).c_str())) {
+				break;
+			}
+		}
+		if (it == words_list.end())
+			return false;
+	}
+	return true;
+}
+
 std::string ReplaceSymbol(std::string s, const char ToSearch, const char Replacer) {
 	for (char &it: s) {
 		if (it == ToSearch) {
@@ -247,6 +278,15 @@ void TrimLeft(std::string &s) {
 		return !std::isspace(ch);
 	}));
 }
+void TrimLeft(char *s) {
+	char* f = s;
+	while (*f && isspace((unsigned char)*f)) {
+		f++;
+	}
+	if (f != s) {
+		memmove(s, f, strlen(f) + 1);
+	}
+}
 
 void TrimRight(std::string &s) {
 	s.erase(std::find_if(s.rbegin(), s.rend(), [](unsigned char ch) {
@@ -255,8 +295,8 @@ void TrimRight(std::string &s) {
 }
 
 void Trim(std::string &s) {
-	TrimLeft(s);
 	TrimRight(s);
+	TrimLeft(s);
 }
 
 void TrimRight(char* string) {
@@ -271,7 +311,9 @@ void TrimRight(char* string) {
 }
 
 void Trim(char *s) {
-	skip_spaces(&s);
+	if (!s || !*s)
+		return;
+	TrimLeft(s);
 	TrimRight(s);
 }
 

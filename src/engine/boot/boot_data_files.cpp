@@ -294,6 +294,7 @@ void TriggersFile::parse_trigger(int vnum) {
 	get_line(file(), line);
 
 	int attach_type = 0;
+	t = 0;  // Initialize narg to avoid undefined behavior when only 2 fields present
 	k = sscanf(line, "%d %s %d %d", &attach_type, flags, &t, &add_flag);
 
 	if (0 > attach_type
@@ -421,7 +422,7 @@ void WorldFile::parse_room(int virtual_nr) {
 	std::string desc = fread_string();
 	utils::TrimRightIf(desc, " _");
 	desc.shrink_to_fit();
-	world[room_realnum]->description_num = RoomDescription::add_desc(desc);
+	world[room_realnum]->description_num = GlobalObjects::descriptions().add(desc);
 
 	if (!get_line(file(), line)) {
 		log("SYSERR: Expecting roomflags/sector type of room #%d but file ended!", virtual_nr);
@@ -829,7 +830,7 @@ void ObjectFile::parse_object(const int nr) {
 
 			case '$':
 			case '#': check_object(tobj);        // Anton Gorev (2015/12/29): do we need the result of this check?
-				if (tobj->has_flag(EObjFlag::kZonedacay)
+				if (tobj->has_flag(EObjFlag::kZonedecay)
 					|| tobj->has_flag(EObjFlag::kRepopDecay))
 					tobj->set_max_in_world(-1);
 				obj_proto.add(tobj, nr);
@@ -1085,6 +1086,17 @@ void MobileFile::parse_mobile(const int nr) {
 	mob_proto[i].desc = nullptr;
 	if ((mob_proto + 1)->GetLevel() == 0)
 		SetTestData(mob_proto + i);
+
+	if (mob_proto[i].IsFlagged(EMobFlag::kSentinel)) {
+		for (const auto dest : mob_proto[i].mob_specials.dest) {
+			if (dest != 0) {
+				log("WARNING: Mob #%d (%s) has movement route and !sentinel flag at the same time.",
+					nr,
+					mob_proto[i].get_npc_name().c_str());
+				break;
+			}
+		}
+	}
 
 	top_of_mobt = i++;
 }

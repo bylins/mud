@@ -14,21 +14,21 @@ public:
 	constexpr const static int number_of_bits = std::numeric_limits<typename std::underlying_type<EnumType>::type>::digits;
 
 	constexpr BitFlag() = default;
-	constexpr BitFlag(EnumType value) : bits(1 << static_cast<std::size_t>(value)) {}
+	constexpr BitFlag(EnumType value) : bits(std::size_t{1} << static_cast<std::size_t>(value)) {}
 	constexpr BitFlag(const BitFlag& other) : bits(other.bits) {}
 
-	constexpr BitFlag operator|(EnumType value) const { BitFlag result = *this; result.bits |= 1 << static_cast<std::size_t>(value); return result; }
-	constexpr BitFlag operator&(EnumType value) const { BitFlag result = *this; result.bits &= 1 << static_cast<std::size_t>(value); return result; }
-	constexpr BitFlag operator^(EnumType value) const { BitFlag result = *this; result.bits ^= 1 << static_cast<std::size_t>(value); return result; }
+	constexpr BitFlag operator|(EnumType value) const { BitFlag result = *this; result.bits |= std::size_t{1} << static_cast<std::size_t>(value); return result; }
+	constexpr BitFlag operator&(EnumType value) const { BitFlag result = *this; result.bits &= std::size_t{1} << static_cast<std::size_t>(value); return result; }
+	constexpr BitFlag operator^(EnumType value) const { BitFlag result = *this; result.bits ^= std::size_t{1} << static_cast<std::size_t>(value); return result; }
 	constexpr BitFlag operator~() const { BitFlag result = *this; result.bits.flip(); return result; }
 
 	constexpr BitFlag operator|(BitFlag other) const { BitFlag result = *this; result.bits |= other.bits; return result; }
 	constexpr BitFlag operator&(BitFlag other) const { BitFlag result = *this; result.bits &= other.bits; return result; }
 	constexpr BitFlag operator^(BitFlag other) const { BitFlag result = *this; result.bits ^= other.bits; return result; }
 
-	constexpr BitFlag& operator|=(EnumType value) { bits |= 1 << static_cast<std::size_t>(value); return *this; }
-	constexpr BitFlag& operator&=(EnumType value) { bits &= 1 << static_cast<std::size_t>(value); return *this; }
-	constexpr BitFlag& operator^=(EnumType value) { bits ^= 1 << static_cast<std::size_t>(value); return *this; }
+	constexpr BitFlag& operator|=(EnumType value) { bits |= std::size_t{1} << static_cast<std::size_t>(value); return *this; }
+	constexpr BitFlag& operator&=(EnumType value) { bits &= std::size_t{1} << static_cast<std::size_t>(value); return *this; }
+	constexpr BitFlag& operator^=(EnumType value) { bits ^= std::size_t{1} << static_cast<std::size_t>(value); return *this; }
 
 	constexpr bool any() const { return bits.any(); }
 	constexpr bool all() const { return bits.all(); }

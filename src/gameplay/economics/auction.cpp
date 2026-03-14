@@ -16,6 +16,9 @@
 #include "gameplay/mechanics/named_stuff.h"
 #include "gameplay/fight/pk.h"
 #include "gameplay/ai/spec_procs.h"
+#include "engine/observability/helpers.h"
+#include "engine/observability/metrics.h"
+#include "utils/tracing/trace_manager.h"
 
 const int kMaxAuctionLot = 3;
 const int kMaxAuctionTactBuy = 5;
@@ -682,6 +685,43 @@ void trans_auction(int lot) {
 	return;
 }
 
+class AuctionSaleMetrics {
+public:
+	explicit AuctionSaleMetrics(int lot)
+		: m_span(tracing::TraceManager::Instance().StartSpan("Auction Sale"))
+		, m_cost(GET_LOT(lot)->cost)
+		, m_duration((GET_LOT(lot)->tact * kAuctionPulses) / 10.0)
+	{
+		m_span->SetAttribute("lot",              static_cast<int64_t>(lot));
+		m_span->SetAttribute("seller_id",        static_cast<int64_t>(GET_LOT(lot)->seller_unique));
+		m_span->SetAttribute("buyer_id",         static_cast<int64_t>(GET_LOT(lot)->buyer_unique));
+		m_span->SetAttribute("cost",             static_cast<int64_t>(m_cost));
+		m_span->SetAttribute("item_id",          static_cast<int64_t>(GET_LOT(lot)->item_id));
+		m_span->SetAttribute("duration_seconds", m_duration);
+	}
+
+	void send() {
+		observability::OtelMetrics::RecordCounter("auction.sale.total",    1);
+		observability::OtelMetrics::RecordCounter("auction.revenue.total", m_cost);
+		observability::OtelMetrics::RecordHistogram("auction.duration.seconds", m_duration);
+	}
+
+private:
+	std::unique_ptr<tracing::ISpan> m_span;
+	int m_cost;
+	double m_duration;
+};
+
+static void record_active_lots() {
+	int count = 0;
+	for (int j = 0; j < kMaxAuctionLot; j++) {
+		if (GET_LOT(j)->seller && GET_LOT(j)->item) {
+			++count;
+		}
+	}
+	observability::OtelMetrics::RecordGauge("auction.lots.active", count);
+}
+
 void sell_auction(int lot) {
 	CharData *ch, *tch;
 	ObjData *obj;
@@ -694,6 +734,8 @@ void sell_auction(int lot) {
 
 	if (!check_sell(lot))
 		return;
+
+	AuctionSaleMetrics metrics(lot);
 
 	if (ch->in_room != tch->in_room
 		|| !ROOM_FLAGGED(ch->in_room, ERoomFlag::kPeaceful)) {
@@ -737,6 +779,8 @@ void sell_auction(int lot) {
 	ch->add_bank(GET_LOT(lot)->cost);
 	tch->remove_both_gold(GET_LOT(lot)->cost);
 
+
+	metrics.send();
 	clear_auction(lot);
 	return;
 }
@@ -821,6 +865,8 @@ void tact_auction(void) {
 		} else
 			sell_auction(i);
 	}
+
+	record_active_lots();
 }
 
 AuctionItem *free_auction(int *lotnum) {

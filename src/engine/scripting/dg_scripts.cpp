@@ -38,6 +38,10 @@
 #include "gameplay/core/game_limits.h"
 #include "utils/backtrace.h"
 #include "gameplay/mechanics/armor.h"
+#include "gameplay/classes/recalc_mob_params_by_vnum.h"
+#include "engine/observability/helpers.h"
+#include "engine/observability/metrics.h"
+#include "utils/tracing/trace_manager.h"
 
 extern int max_exp_gain_pc(CharData *ch);
 extern long GetExpUntilNextLvl(CharData *ch, int level);
@@ -165,6 +169,7 @@ cmdlist_element::shared_ptr find_end(Trigger *trig, cmdlist_element::shared_ptr 
 cmdlist_element::shared_ptr find_done(Trigger *trig, cmdlist_element::shared_ptr cl);
 cmdlist_element::shared_ptr find_case(Trigger *trig, cmdlist_element::shared_ptr cl, void *go, Script *sc, int type, char *cond);
 cmdlist_element::shared_ptr find_else_end(Trigger *trig, cmdlist_element::shared_ptr cl, void *go, Script *sc, int type);
+cmdlist_element::shared_ptr find_continue_done(cmdlist_element::shared_ptr cl);
 
 std::list<TriggerVar> worlds_vars;
 
@@ -327,14 +332,14 @@ int count_char_vnum(MobVnum mvn) {
 	Characters::list_t mobs;
 
 	character_list.get_mobs_by_vnum(mvn, mobs);
-	return mobs.size();
+	return static_cast<int>(mobs.size());
 }
 
 int CountGameObjs(ObjRnum rnum) {
 	std::list<ObjData *> objs;
 
 	world_objects.GetObjListByRnum(rnum, objs);
-	return objs.size();
+	return static_cast<int>(objs.size());
 }
 
 // return room with UID n
@@ -660,9 +665,25 @@ ObjData *get_obj_by_char(CharData *ch, char *name) {
 	return nullptr;
 }
 
+static const char *trigger_type_name(int mode) {
+	switch (mode) {
+		case MOB_TRIGGER: return "MOB";
+		case OBJ_TRIGGER: return "OBJ";
+		case WLD_TRIGGER: return "WLD";
+		default: return "UNKNOWN";
+	}
+}
+
 // checks every PLUSE_SCRIPT for random triggers
 void script_trigger_check(int mode) {
 	utils::CExecutionTimer timer;
+
+	auto trigger_span = tracing::TraceManager::Instance().StartSpan("Script Trigger Check");
+	observability::ScopedMetric trigger_metric("script.trigger.duration");
+
+	trigger_span->SetAttribute("trigger_type", trigger_type_name(mode));
+	trigger_span->SetAttribute("mode", static_cast<int64_t>(mode));
+	
 
 	switch (mode) {
 		case MOB_TRIGGER:
@@ -707,6 +728,7 @@ void script_trigger_check(int mode) {
 		default:
 		break;
 	}
+	
 	log("script_trigger_check() mode %d всего: %f ms.", mode, timer.delta().count());
 }
 
@@ -851,7 +873,7 @@ static std::string print_variable_name(const std::string &name) {
 		const std::string &guid_name = text_mapping.first;
 		const std::string &print_text = text_mapping.second;
 
-		const int guid_start_offcet = name.length() - guid_name.length();
+		const auto guid_start_offcet = static_cast<int>(name.length()) - static_cast<int>(guid_name.length());
 		if (guid_start_offcet > 0 && guid_name == name.substr(guid_start_offcet)) {
 			if (display_state_vars) {
 				result = print_text;
@@ -1313,7 +1335,7 @@ int text_processed(char *field, char *subfield, TriggerVar vd, char *str) {
 		return false;
 
 	if (!str_cmp(field, "strlen")) {
-		sprintf(str, "%lu", vd.value.size());
+		sprintf(str, "%zu", vd.value.size());
 		return true;
 	} else if (!str_cmp(field, "trim")) {
 		strcpy(str, utils::TrimCopy(vd.value).c_str());
@@ -1650,27 +1672,35 @@ void find_replacement(void *go,
 			} else if (!str_cmp(field, "people") && num > 0) {
 				sprintf(str, "%d", trgvar_in_room(num));
 			} else if (!str_cmp(field, "zonenpc") && num > 0) {
-				int from = 0, to = 0;
-				GetZoneRooms(GetZoneRnum(num), &from , &to);
-				for (const auto &tch : character_list) {
-					if ((tch->IsNpc() && !IS_CHARMICE(tch)) && (tch->in_room >= from && tch->in_room <= to)) {
-						snprintf(str + strlen(str), kMaxTrglineLength, "%c%ld ", UID_CHAR, tch->get_uid());
+				int from =0, to = 0;
+				auto result = GetZoneRooms(GetZoneRnum(num), &from , &to);
+				if (result == 0) {
+					trig_log(trig, fmt::format("В зоне {} нет комнат", num));
+				}
+				for (RoomRnum rrn = from; rrn <= to; rrn++) {
+					for (const auto ch : world[rrn]->people) {
+						if (!ch->IsNpc() || IS_CHARMICE(ch))
+							continue;
+						snprintf(str + strlen(str), kMaxTrglineLength, "%c%ld ", UID_CHAR, ch->get_uid());
 					}
 				}
-				utils::TrimRight(str);
+				str[strlen(str) - 1] = '\0';
 			} else if (!str_cmp(field, "zonechar") && num > 0) {
-				int from = 0, to = 0;
-				GetZoneRooms(GetZoneRnum(num), &from , &to);
-				for (const auto &tch : character_list) {
-					if (!tch->IsNpc() && !tch->desc)
-						continue;
-					if (GET_INVIS_LEV(tch) > 0)
-						continue;
-					if ((IS_CHARMICE(tch) || !tch->IsNpc()) && (tch->in_room >= from && tch->in_room <= to)) {
-						snprintf(str + strlen(str), kMaxTrglineLength, "%c%ld ", UID_CHAR, tch->get_uid());
+				int from =0, to = 0;
+				auto result = GetZoneRooms(GetZoneRnum(num), &from , &to);
+				if (result == 0) {
+					trig_log(trig, fmt::format("В зоне {} нет комнат", num));
+				}
+				for (RoomRnum rrn = from; rrn <= to; rrn++) {
+					for (const auto ch : world[rrn]->people) {
+						if (ch->IsNpc() && !IS_CHARMICE(ch))
+							continue;
+						if (GET_INVIS_LEV(ch) > 0)
+							continue;
+						snprintf(str + strlen(str), kMaxTrglineLength, "%c%ld ", UID_CHAR, ch->get_uid());
 					}
 				}
-				utils::TrimRight(str);
+				str[strlen(str) - 1] = '\0';
 			} else if (!str_cmp(field, "zonepc") && num > 0) {
 				int from = 0, to = 0;
 				GetZoneRooms(GetZoneRnum(num), &from , &to);
@@ -1681,20 +1711,19 @@ void find_replacement(void *go,
 						snprintf(str + strlen(str), kMaxTrglineLength, "%c%ld ", UID_CHAR, d->character->get_uid());
 					}
 				}
-				utils::TrimRight(str);
+				str[strlen(str) - 1] = '\0';
 			} else if (!str_cmp(field, "zoneall") && num > 0) {
 				int from =0, to = 0;
-				GetZoneRooms(GetZoneRnum(num), &from , &to);
-				for (const auto &tch : character_list) {
-					if (!tch->IsNpc() && !tch->desc)
-						continue;
-					if (GET_INVIS_LEV(tch) > 0)
-						continue;
-					if (tch->in_room >= from && tch->in_room <= to) {
-						snprintf(str + strlen(str), kMaxTrglineLength, "%c%ld ", UID_CHAR, tch->get_uid());
+				auto result = GetZoneRooms(GetZoneRnum(num), &from , &to);
+				if (result == 0) {
+					trig_log(trig, fmt::format("В зоне {} нет комнат", num));
+				}
+				for (RoomRnum rrn = from; rrn <= to; rrn++) {
+					for (const auto ch : world[rrn]->people) {
+						snprintf(str + strlen(str), kMaxTrglineLength, "%c%ld ", UID_CHAR, ch->get_uid());
 					}
 				}
-				utils::TrimRight(str);
+				str[strlen(str) - 1] = '\0';
 			} else if (!str_cmp(field, "runestonevnums")) {
 				const auto &runestone_vnums = MUD::Runestones().GetVnumRoster();
 				auto result = fmt::format("{}", fmt::join(runestone_vnums, " "));
@@ -1707,6 +1736,28 @@ void find_replacement(void *go,
 				num = count_char_vnum(num);
 				if (num >= 0)
 					sprintf(str, "%d", num);
+		} else if (!str_cmp(field, "recalczone")) {
+			auto param = utils::Split(subfield, ',');
+			if (param.size() != 4) {
+				trig_log(trig, "recalc: несоответствие параметров");
+				return;
+			}
+			ZoneRnum zrn = GetZoneRnum(atoi(param[0].c_str()));
+			if (zrn == 0) {
+				trig_log(trig, "recalc: нет такой зоны");
+				return;
+			}
+			trig_log(trig, fmt::format("Пересчитываю зону {} {} {} {}", param[0], param[1], param[2], param[3]));
+			auto value = param[0] + " " +  param[1]+ " " + param[2] + " " +param[3];
+			DGRecalcZone(value.c_str());
+			UniqueList<ZoneRnum> zone_repop_list;
+			for (auto rrn = zone_table[zrn].RnumRoomsLocation.first; rrn <= zone_table[zrn].RnumRoomsLocation.second; rrn++) {
+				dungeons::ClearRoom(world[rrn]);
+			}
+			dungeons::ClearRoom(world[zone_table[zrn].RnumRoomsLocation.second + 1]); //виртуалку
+			zone_repop_list.push_back(zrn);
+			DecayObjectsOnRepop(zone_repop_list);
+			ResetZone(zrn);
 			} else if (!str_cmp(field, "createdungeon")) {
 				utils::Trim(subfield);
 				std::string arg = subfield;
@@ -1738,7 +1789,11 @@ void find_replacement(void *go,
 				}
 			} else if (!str_cmp(field, "zreset") && num > 0) {
 				UniqueList<ZoneRnum> zone_repop_list;
-				ZoneRnum zrn = get_zone_rnum_by_zone_vnum(num);
+				ZoneRnum zrn = GetZoneRnum(num);
+				if (zrn < 0) {
+					trig_log(trig, "Некорректный номер зоны в zreset");
+					return;
+				}
 				zone_repop_list.push_back(zrn);
 				DecayObjectsOnRepop(zone_repop_list);
 				ResetZone(zrn);
@@ -1856,7 +1911,7 @@ void find_replacement(void *go,
 			} else if (!str_cmp(field, "exact")) {
 				auto now = std::chrono::system_clock::now();
 				auto now_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(now);
-				sprintf(str, "%ld", now_ms.time_since_epoch().count());
+				sprintf(str, "%lld", static_cast<long long>(now_ms.time_since_epoch().count()));
 			} else if (!str_cmp(field, "yday")) {
 				strftime(str, kMaxInputLength, "%j", localtime(&now_time));
 			} else if (!str_cmp(field, "wday")) {
@@ -1959,7 +2014,7 @@ void find_replacement(void *go,
 				int y = atoi(s2.c_str());
 				sprintf(str, "%d", number(x, y));
 			}
-		return;
+			return;
 		} else if (!str_cmp(var, "what")) {
 			if (*subfield == UID_CHAR || *subfield == UID_CHAR_ALL)
 				sprintf(str, "%s", "char");
@@ -2056,7 +2111,7 @@ void find_replacement(void *go,
 					sprintf(str, "0");
 				} else {
 					size_t dst = std::distance(arr.begin(), result);
-					sprintf(str, "%ld", dst + 1);
+					sprintf(str, "%zu", dst + 1);
 				}
 				return;
 			} else if (!str_cmp(field, "remove")) {
@@ -2124,9 +2179,21 @@ void find_replacement(void *go,
 		if (text_processed(field, subfield, vd, str)) {
 			return;
 		}
-		if (!str_cmp(field, "global")) {    // get global of something else
+		bool char_handled = true;
+		if (!str_cmp(field, "global")) {
 			if (c->IsNpc()) {
-				find_replacement(go, c->script.get(), nullptr, MOB_TRIGGER, subfield, nullptr, nullptr, str);
+				char *p = strchr(subfield, ',');
+				if (p) {
+					*p++ = '\0';
+					std::string mstr{p};
+					utils::Trim(mstr);
+					add_var_cntx(c->script->global_vars, subfield, mstr.c_str(), trig->context);
+				} else {
+					vd = find_var_cntx(c->script->global_vars, subfield, trig->context);
+					if (!vd.name.empty()) {
+						sprintf(str, "%s", vd.value.c_str());
+					}
+				}
 			}
 		} else if (*field == 'u' || *field == 'U') {
 			if (!str_cmp(field, "uniq")) {
@@ -2247,6 +2314,8 @@ void find_replacement(void *go,
 			}
 		}
 		else if (!str_cmp(field, "id"))
+			sprintf(str, "%c%ld", UID_CHAR, c->get_uid());
+		else if (!str_cmp(field, "uid"))
 			sprintf(str, "%c%ld", UID_CHAR, c->get_uid());
 		else if (!str_cmp(field, "level"))
 			sprintf(str, "%d", GetRealLevel(c));
@@ -2796,319 +2865,357 @@ void find_replacement(void *go,
 			strcpy(str, spell_count(trig, c, subfield));
 		else if (!str_cmp(field, "spelltype"))
 			strcpy(str, spell_knowledge(trig, c, subfield));
-		else if (!str_cmp(field, "quested")) {
-			if (*subfield && (num = atoi(subfield)) > 0) {
-				if (c->quested_get(num))
-					strcpy(str, "1");
-				else
-					strcpy(str, "0");
-			}
-		} else if (!str_cmp(field, "getquest")) {
-			if (*subfield && (num = atoi(subfield)) > 0) {
-				strcpy(str, (c->quested_get_text(num)).c_str());
-			}
-		} else if (!str_cmp(field, "setquest")) {
-			if (*subfield) {
-				subfield = one_argument(subfield, buf);
-				skip_spaces(&subfield);
-				if ((num = atoi(buf)) > 0) {
-					c->quested_add(c, num, subfield);
+		else
+			char_handled = false;
+		// Continue char field dispatch (split for MSVC C1061)
+		if (!char_handled) {
+			if (!str_cmp(field, "quested")) {
+				if (*subfield && (num = atoi(subfield)) > 0) {
+					if (c->quested_get(num))
+						strcpy(str, "1");
+					else
+						strcpy(str, "0");
 				}
-			}
-		} else if (!str_cmp(field, "alliance")) {
-			if (*subfield) {
-				subfield = one_argument(subfield, buf);
-				if (ClanSystem::is_alliance(c, buf))
-					strcpy(str, "1");
-				else
-					strcpy(str, "0");
-			}
-		} else if (!str_cmp(field, "eq")) {
-			int pos = -1;
-			if (a_isdigit(*subfield))
-				pos = atoi(subfield);
-			else if (*subfield)
-				pos = find_eq_pos(c, nullptr, subfield);
-			if (!*subfield || pos < 0 || pos >= EEquipPos::kNumEquipPos)
-				strcpy(str, "");
-			else {
-				if (!GET_EQ(c, pos))
-					strcpy(str, "");
-				else
-					sprintf(str, "%c%ld", UID_OBJ, GET_EQ(c, pos)->get_id());
-			}
-		} else if (!str_cmp(field, "haveobj") || !str_cmp(field, "haveobjs")) {
-			int pos;
-			if (a_isdigit(*subfield)) {
-				pos = atoi(subfield);
-				for (obj = c->carrying; obj; obj = obj->get_next_content()) {
-					if (GET_OBJ_VNUM(obj) == pos) {
-						break;
+			} else if (!str_cmp(field, "getquest")) {
+				if (*subfield && (num = atoi(subfield)) > 0) {
+					strcpy(str, (c->quested_get_text(num)).c_str());
+				}
+			} else if (!str_cmp(field, "setquest")) {
+				if (*subfield) {
+					subfield = one_argument(subfield, buf);
+					skip_spaces(&subfield);
+					if ((num = atoi(buf)) > 0) {
+						c->quested_add(c, num, subfield);
 					}
 				}
-			} else {
-				obj = get_obj_in_list_vis(c, subfield, c->carrying);
-			}
+			} else if (!str_cmp(field, "alliance")) {
+				if (*subfield) {
+					subfield = one_argument(subfield, buf);
+					if (ClanSystem::is_alliance(c, buf))
+						strcpy(str, "1");
+					else
+						strcpy(str, "0");
+				}
+			} else if (!str_cmp(field, "eq")) {
+				int pos = -1;
+				if (a_isdigit(*subfield))
+					pos = atoi(subfield);
+				else if (*subfield)
+					pos = find_eq_pos(c, nullptr, subfield);
+				if (!*subfield || pos < 0 || pos >= EEquipPos::kNumEquipPos)
+					strcpy(str, "");
+				else {
+					if (!GET_EQ(c, pos))
+						strcpy(str, "");
+					else
+						sprintf(str, "%c%ld", UID_OBJ, GET_EQ(c, pos)->get_id());
+				}
+			} else if (!str_cmp(field, "haveobj") || !str_cmp(field, "haveobjs")) {
+				int pos;
+				if (a_isdigit(*subfield)) {
+					pos = atoi(subfield);
+					for (obj = c->carrying; obj; obj = obj->get_next_content()) {
+						if (GET_OBJ_VNUM(obj) == pos) {
+							break;
+						}
+					}
+				} else {
+					obj = get_obj_in_list_vis(c, subfield, c->carrying);
+				}
 
-			if (obj) {
-				sprintf(str, "%c%ld", UID_OBJ, obj->get_id());
-			} else {
-				strcpy(str, "0");
-			}
-		} else if (!str_cmp(field, "varexist") || !str_cmp(field, "varexists")) {
-			vd = find_var_cntx(SCRIPT(c)->global_vars, subfield, trig->context);
-			if (!vd.name.empty()) {
-				strcpy(str, "1");
-			} else {
-				strcpy(str, "0");
-			}
-		} else if (!str_cmp(field, "nextinroom")) {
-			CharData *next = nullptr;
-			const auto room = world[c->in_room];
+				if (obj) {
+					sprintf(str, "%c%ld", UID_OBJ, obj->get_id());
+				} else {
+					strcpy(str, "0");
+				}
+			} else if (!str_cmp(field, "varexist") || !str_cmp(field, "varexists")) {
+				vd = find_var_cntx(SCRIPT(c)->global_vars, subfield, trig->context);
+				if (!vd.name.empty()) {
+					strcpy(str, "1");
+				} else {
+					strcpy(str, "0");
+				}
+			} else if (!str_cmp(field, "nextinroom")) {
+				CharData *next = nullptr;
+				const auto room = world[c->in_room];
 
-			auto people_i = std::find(room->people.begin(), room->people.end(), c);
-
-			if (people_i != room->people.end()) {
-				++people_i;
-				people_i = std::find_if(people_i, room->people.end(), [](const CharData *ch) { return !GET_INVIS_LEV(ch); });
+				auto people_i = std::find(room->people.begin(), room->people.end(), c);
 
 				if (people_i != room->people.end()) {
-					next = *people_i;
-				}
-			}
+					++people_i;
+					people_i = std::find_if(people_i, room->people.end(), [](const CharData *ch) { return !GET_INVIS_LEV(ch); });
 
-			if (next) {
-				sprintf(str, "%c%ld", UID_CHAR, next->get_uid());
-			} else {
-				strcpy(str, "");
-			}
-		} else if (!str_cmp(field, "position")) {
-			if (!*subfield) {
-				sprintf(str, "%d", static_cast<int>(c->GetPosition()));
-			} else {
-				auto pos = std::clamp(static_cast<EPosition>(atoi(subfield)), EPosition::kPerish, --EPosition::kLast);
-				if (!IS_IMMORTAL(c)) {
-					if (c->IsOnHorse()) {
-						c->dismount();
+					if (people_i != room->people.end()) {
+						next = *people_i;
 					}
-					c->SetPosition(pos);
 				}
-			}
-		} else if (!str_cmp(field, "wait") || !str_cmp(field, "lag")) {
-			int pos;
 
-			if (!*subfield || (pos = atoi(subfield)) <= 0) {
-				sprintf(str, "%d", c->get_wait());
-			} else if (!IS_IMMORTAL(c)) {
-				char tmp;
-				if (sscanf(subfield, "%d %c", &pos, &tmp) == 2) {
-					if (tmp == 'p') {
-						SetWaitState(c, pos);
+				if (next) {
+					sprintf(str, "%c%ld", UID_CHAR, next->get_uid());
+				} else {
+					strcpy(str, "");
+				}
+			} else if (!str_cmp(field, "position")) {
+				if (!*subfield) {
+					sprintf(str, "%d", static_cast<int>(c->GetPosition()));
+				} else {
+					auto pos = std::clamp(static_cast<EPosition>(atoi(subfield)), EPosition::kPerish, --EPosition::kLast);
+					if (!IS_IMMORTAL(c)) {
+						if (c->IsOnHorse()) {
+							c->dismount();
+						}
+						c->SetPosition(pos);
 					}
 				}
-				else {
-					SetWaitState(c, pos * kBattleRound);
-				}
-			}
-		} else if (!str_cmp(field, "applyvalue")) {
-			int num;
-			int sum  = 0;
-			for (num = 0; num < EApply::kNumberApplies; num++) {
-				if (!strn_cmp(subfield, apply_types[num], strlen(subfield)))
-					break;
-			}
-			if (num == EApply::kNumberApplies) {
-				sprintf(buf, "Не найден апплай '%s' в списке ApplyTypes", subfield);
-				trig_log(trig, buf);
-				return;
-			}
-			if (!c->affected.empty()) {
-				for (const auto &aff : c->affected) {
-					if (aff->location == num){
-						sum += aff->modifier;
+			} else if (!str_cmp(field, "wait") || !str_cmp(field, "lag")) {
+				int pos;
+
+				if (!*subfield || (pos = atoi(subfield)) <= 0) {
+					sprintf(str, "%d", c->get_wait());
+				} else if (!IS_IMMORTAL(c)) {
+					char tmp;
+					if (sscanf(subfield, "%d %c", &pos, &tmp) == 2) {
+						if (tmp == 'p') {
+							SetWaitState(c, pos);
+						}
+					}
+					else {
+						SetWaitState(c, pos * kBattleRound);
 					}
 				}
-			}
-			sprintf(str, "%d", sum);
-		} else if (!str_cmp(field, "affect")) {
-			c->char_specials.saved.affected_by.gm_flag(subfield, affected_bits, str);
-			//подозреваю что никто из билдеров даже не вкурсе насчет всего функционала этого affect
-			//к тому же аффекты в том списке не все кличи например никак там не отображаются
-		} else if (!str_cmp(field, "affectedby")) {
-			char *p = strchr(subfield, ',');
-			if (!p) {
-				auto spell_id = FixNameAndFindSpellId(subfield);
-				if (spell_id == ESpell::kUndefined) {
-					sprintf(buf, "Не найден спелл %s в списке AffectedBy", subfield);
+			} else if (!str_cmp(field, "applyvalue")) {
+				int num;
+				int sum  = 0;
+				for (num = 0; num < EApply::kNumberApplies; num++) {
+					if (!strn_cmp(subfield, apply_types[num], strlen(subfield)))
+						break;
+				}
+				if (num == EApply::kNumberApplies) {
+					sprintf(buf, "Не найден апплай '%s' в списке ApplyTypes", subfield);
 					trig_log(trig, buf);
 					return;
 				}
-				if (spell_id >= ESpell::kFirst && spell_id < ESpell::kLast) {
+				if (!c->affected.empty()) {
+					for (const auto &aff : c->affected) {
+						if (aff->location == num){
+							sum += aff->modifier;
+						}
+					}
+				}
+				sprintf(str, "%d", sum);
+			} else if (!str_cmp(field, "affect")) {
+				c->char_specials.saved.affected_by.gm_flag(subfield, affected_bits, str);
+				//подозреваю что никто из билдеров даже не вкурсе насчет всего функционала этого affect
+				//к тому же аффекты в том списке не все кличи например никак там не отображаются
+			} else if (!str_cmp(field, "affectedby")) {
+				char *p = strchr(subfield, ',');
+				if (!p) {
+					auto spell_id = FixNameAndFindSpellId(subfield);
+					if (spell_id == ESpell::kUndefined) {
+						sprintf(buf, "Не найден спелл %s в списке AffectedBy", subfield);
+						trig_log(trig, buf);
+						return;
+					}
+					if (spell_id >= ESpell::kFirst && spell_id < ESpell::kLast) {
+						for (const auto &affect : c->affected) {
+							if (affect->type == spell_id) {
+								sprintf(str, "%s", "1");
+								return;
+							}
+						}
+						sprintf(str, "%s", "0");
+					}
+				} else {
+					int num;
+					*(p++) = '\0';
+					auto spell_id = FixNameAndFindSpellId(subfield);
+					if (spell_id == ESpell::kUndefined) {
+						sprintf(buf, "Не найден спелл %s в списке AffecteBby", p);
+						trig_log(trig, buf);
+						return;
+					}
+					for (num = 0; num < EApply::kNumberApplies; num++) {
+						if (!str_cmp(p, apply_types[num]))
+						break;
+					}
+					if (num == EApply::kNumberApplies) {
+						sprintf(buf, "Не найден апплай '%s' в списке AffectedBy", p);
+						trig_log(trig, buf);
+						return;
+					}
 					for (const auto &affect : c->affected) {
 						if (affect->type == spell_id) {
-							sprintf(str, "%s", "1");
-							return;
+							if (affect->location == num) {
+								sprintf(str, "%d", affect->modifier);
+								return;
+							}
 						}
 					}
 					sprintf(str, "%s", "0");
 				}
-			} else {
-				int num;
-				*(p++) = '\0';
-				auto spell_id = FixNameAndFindSpellId(subfield);
-				if (spell_id == ESpell::kUndefined) {
-					sprintf(buf, "Не найден спелл %s в списке AffecteBby", p);
-					trig_log(trig, buf);
-					return;
-				}
-				for (num = 0; num < EApply::kNumberApplies; num++) {
-					if (!str_cmp(p, apply_types[num]))
-					break;
-				}
-				if (num == EApply::kNumberApplies) {
-					sprintf(buf, "Не найден апплай '%s' в списке AffectedBy", p);
-					trig_log(trig, buf);
-					return;
-				}
-				for (const auto &affect : c->affected) {
-					if (affect->type == spell_id) {
-						if (affect->location == num) {
-							sprintf(str, "%d", affect->modifier);
-							return;
-						}
+			} else if (!str_cmp(field, "mobflag")) {
+				if (c->IsNpc()) {
+	//				mudlog(fmt::format("mob flag {}", subfield));
+					bool val = c->char_specials.saved.act.gm_flag(subfield, action_bits, str);
+					if (!val) {
+						trig_log(trig, fmt::format("mobflag: неправильный параметр в скобках - ({})", subfield));
+						return;
 					}
 				}
-				sprintf(str, "%s", "0");
-			}
-		} else if (!str_cmp(field, "action")) {
-			if (c->IsNpc()) {
-				c->char_specials.saved.act.gm_flag(subfield, action_bits, str);
-			}
-		} else if (!str_cmp(field, "leader")) {
-			if (c->has_master()) {
-				sprintf(str, "%c%ld", uid_type, (c->get_master())->get_uid());
-			}
-		} else if (!str_cmp(field, "group")) {
-			CharData *l;
-			struct FollowerType *f;
-			if (!AFF_FLAGGED(c, EAffect::kGroup)) {
-				return;
-			}
-			l = c->get_master();
-			if (!l) {
-				l = c;
-			}
-			// l - лидер группы
-			sprintf(str + strlen(str), "%c%ld ", uid_type, l->get_uid());
-			for (f = l->followers; f; f = f->next) {
-				if (!AFF_FLAGGED(f->follower, EAffect::kGroup)) {
-					continue;
+			} else if (!str_cmp(field, "npcflag")) {
+				if (c->IsNpc()) {
+	//				mudlog(fmt::format("npc flag {}", subfield));
+					bool val = c->mob_specials.npc_flags.gm_flag(subfield, function_bits, str);
+					if (!val) {
+						trig_log(trig, fmt::format("npcflag: неправильный параметр в скобках - ({})", subfield));
+						return;
+					}
 				}
-				sprintf(str + strlen(str), "%c%ld ", uid_type, f->follower->get_uid());
-			}
-		} else if (!str_cmp(field, "attackers")) {
-			size_t str_length = strlen(str);
-			for (auto it : combat_list) {
-				if (it.deleted)
-					continue;
-				if (it.ch->GetEnemy() != c) {
-					continue;
+			} else if (!str_cmp(field, "role")) {
+				std::string out;
+				if (c->get_role_bits().any()) {
+					print_bitset(c->get_role_bits(), npc_role_types, " ", out);
+					sprintf(str, "%s", out.c_str());
 				}
-				int n = snprintf(tmp, kMaxTrglineLength, "%c%ld ", UID_CHAR, it.ch->get_uid());
-				if (str_length + n < kMaxTrglineLength) // not counting the terminating null character
-				{
-					strcpy(str + str_length, tmp);
-					str_length += n;
-				} else {
-					break; // too many attackers
+			} else if (!str_cmp(field, "leader")) {
+				if (c->has_master()) {
+					sprintf(str, "%c%ld", uid_type, (c->get_master())->get_uid());
 				}
-			}
-		} else if (!str_cmp(field, "people")) {
-			//const auto first_char = world[c->in_room]->first_character();
-			const auto room = world[c->in_room]->people;
-			const auto first_char = std::find_if(room.begin(), room.end(), [](CharData *ch) {
-				return !GET_INVIS_LEV(ch);
-			});
-
-			if (first_char != room.end()) {
-				sprintf(str, "%c%ld", UID_CHAR, (*first_char)->get_uid());
-			} else {
-				strcpy(str, "");
-			}
-		}
-		else if (!str_cmp(field, "objs")) {
-			size_t str_length = strlen(str);
-			for (obj = c->carrying; obj; obj = obj->get_next_content()) {
-				int n = snprintf(tmp, kMaxTrglineLength, "%c%ld ", UID_OBJ, obj->get_id());
-				if (str_length + n < kMaxTrglineLength) // not counting the terminating null character
-				{
-					strcpy(str + str_length, tmp);
-					str_length += n;
-				} else {
-					break; // too many carying objects
+			} else if (!str_cmp(field, "group")) {
+				CharData *l;
+				struct FollowerType *f;
+				if (!AFF_FLAGGED(c, EAffect::kGroup)) {
+					return;
 				}
-			}
-		}
-		else if (!str_cmp(field, "char")
-			|| !str_cmp(field, "pc")
-			|| !str_cmp(field, "npc")
-			|| !str_cmp(field, "all")) {
-			int inroom;
-
-			// Составление списка (для mob)
-			inroom = c->in_room;
-			if (inroom == kNowhere) {
-				trig_log(trig, "mob-построитель списка в kNowhere");
-				return;
-			}
-
-			size_t str_length = strlen(str);
-			for (const auto rndm : world[inroom]->people) {
-				if ((c == rndm)
-					|| GET_INVIS_LEV(rndm)) {
-					continue;
+				l = c->get_master();
+				if (!l) {
+					l = c;
 				}
-
-				if ((*field == 'a')
-					|| (!rndm->IsNpc()
-						&& *field != 'n'
-						&& rndm->desc)
-					|| (rndm->IsNpc()
-						&& IS_CHARMED(rndm)
-						&& *field == 'c')
-					|| (rndm->IsNpc()
-						&& !IS_CHARMED(rndm)
-						&& *field == 'n')) {
-					int n = snprintf(tmp, kMaxTrglineLength, "%c%ld ", UID_CHAR, rndm->get_uid());
+				// l - лидер группы
+				sprintf(str + strlen(str), "%c%ld ", uid_type, l->get_uid());
+				for (f = l->followers; f; f = f->next) {
+					if (!AFF_FLAGGED(f->follower, EAffect::kGroup)) {
+						continue;
+					}
+					sprintf(str + strlen(str), "%c%ld ", uid_type, f->follower->get_uid());
+				}
+			} else if (!str_cmp(field, "attackers")) {
+				size_t str_length = strlen(str);
+				for (auto it : combat_list) {
+					if (it.deleted)
+						continue;
+					if (it.ch->GetEnemy() != c) {
+						continue;
+					}
+					int n = snprintf(tmp, kMaxTrglineLength, "%c%ld ", UID_CHAR, it.ch->get_uid());
 					if (str_length + n < kMaxTrglineLength) // not counting the terminating null character
 					{
 						strcpy(str + str_length, tmp);
 						str_length += n;
 					} else {
-						break; // too many characters
+						break; // too many attackers
+					}
+				}
+			} else if (!str_cmp(field, "people")) {
+				//const auto first_char = world[c->in_room]->first_character();
+				const auto room = world[c->in_room]->people;
+				const auto first_char = std::find_if(room.begin(), room.end(), [](CharData *ch) {
+					return !GET_INVIS_LEV(ch);
+				});
+
+				if (first_char != room.end()) {
+					sprintf(str, "%c%ld", UID_CHAR, (*first_char)->get_uid());
+				} else {
+					strcpy(str, "");
+				}
+			}
+			else if (!str_cmp(field, "objs")) {
+				size_t str_length = strlen(str);
+				for (obj = c->carrying; obj; obj = obj->get_next_content()) {
+					int n = snprintf(tmp, kMaxTrglineLength, "%c%ld ", UID_OBJ, obj->get_id());
+					if (str_length + n < kMaxTrglineLength) // not counting the terminating null character
+					{
+						strcpy(str + str_length, tmp);
+						str_length += n;
+					} else {
+						break; // too many carying objects
 					}
 				}
 			}
+			else if (!str_cmp(field, "char")
+				|| !str_cmp(field, "pc")
+				|| !str_cmp(field, "npc")
+				|| !str_cmp(field, "all")) {
+				int inroom;
 
-			return;
-		} else if (!str_cmp(field, "isnoob")) {
-			strcpy(str, Noob::is_noob(c) ? "1" : "0");
-		} else if (!str_cmp(field, "nooboutfit")) {
-			std::string vnum_str = Noob::print_start_outfit(c);
-			snprintf(str, kMaxTrglineLength, "%s", vnum_str.c_str());
-		} else {
-			vd = find_var_cntx(SCRIPT(c)->global_vars, field, trig->context);
-			if (!vd.name.empty()) {
-				sprintf(str, "%s", vd.value.c_str());
+				// Составление списка (для mob)
+				inroom = c->in_room;
+				if (inroom == kNowhere) {
+					trig_log(trig, "mob-построитель списка в kNowhere");
+					return;
+				}
+
+				size_t str_length = strlen(str);
+				for (const auto rndm : world[inroom]->people) {
+					if ((c == rndm)
+						|| GET_INVIS_LEV(rndm)) {
+						continue;
+					}
+
+					if ((*field == 'a')
+						|| (!rndm->IsNpc()
+							&& *field != 'n'
+							&& rndm->desc)
+						|| (rndm->IsNpc()
+							&& IS_CHARMED(rndm)
+							&& *field == 'c')
+						|| (rndm->IsNpc()
+							&& !IS_CHARMED(rndm)
+							&& *field == 'n')) {
+						int n = snprintf(tmp, kMaxTrglineLength, "%c%ld ", UID_CHAR, rndm->get_uid());
+						if (str_length + n < kMaxTrglineLength) // not counting the terminating null character
+						{
+							strcpy(str + str_length, tmp);
+							str_length += n;
+						} else {
+							break; // too many characters
+						}
+					}
+				}
+
+				return;
+			} else if (!str_cmp(field, "isnoob")) {
+				strcpy(str, Noob::is_noob(c) ? "1" : "0");
+			} else if (!str_cmp(field, "nooboutfit")) {
+				std::string vnum_str = Noob::print_start_outfit(c);
+				snprintf(str, kMaxTrglineLength, "%s", vnum_str.c_str());
+			} else {
+				vd = find_var_cntx(SCRIPT(c)->global_vars, field, trig->context);
+				if (!vd.name.empty()) {
+					sprintf(str, "%s", vd.value.c_str());
+				}
+				else {
+					sprintf(buf2, "unknown char field: '%s'", field);
+					trig_log(trig, buf2);
+				}
 			}
-			else {
-				sprintf(buf2, "unknown char field: '%s'", field);
-				trig_log(trig, buf2);
-			}
-		} 
+		} // if (!char_handled)
 	} else if (o) {
 		if (text_processed(field, subfield, vd, str)) {
 			return;
+		} 
+		if (!str_cmp(field, "global")) {
+			char *p = strchr(subfield, ',');
+			if (p) {
+				*p++ = '\0';
+				utils::Trim(p);
+				add_var_cntx(o->get_script()->global_vars, subfield, p, trig->context);
+			} else {
+				vd = find_var_cntx(o->get_script()->global_vars, subfield, trig->context);
+				if (!vd.name.empty()) {
+					sprintf(str, "%s", vd.value.c_str());
+				}
+			}
 		} else if (!str_cmp(field, "iname")) {
 			if (!o->get_PName(ECase::kNom).empty()) {
 				strcpy(str, o->get_PName(ECase::kNom).c_str());
@@ -3284,7 +3391,7 @@ void find_replacement(void *go,
 					out << it << "#";
 				}
 				if (out.str().size() > kMaxInputLength) {
-					sprintf(buf, "Список переменных переполнен, сократите на %ld символов", out.str().size() - kMaxInputLength);
+					sprintf(buf, "Список переменных переполнен, сократите на %zu символов", out.str().size() - kMaxInputLength);
 					trig_log(trig, buf);
 				} else
 					o->set_dgscript_field(out.str());
@@ -3563,6 +3670,20 @@ void find_replacement(void *go,
 	} else if (r) {
 		if (text_processed(field, subfield, vd, str)) {
 			return;
+		}
+		if (!str_cmp(field, "global")) {
+			char *p = strchr(subfield, ',');
+			if (p) {
+				*p++ = '\0';
+				std::string mstr{p};
+				utils::Trim(mstr);
+				add_var_cntx(r->script->global_vars, subfield, mstr.c_str(), trig->context);
+			} else {
+				vd = find_var_cntx(r->script->global_vars, subfield, trig->context);
+				if (!vd.name.empty()) {
+					sprintf(str, "%s", vd.value.c_str());
+				}
+			}
 		} else if (!str_cmp(field, "name")) {
 			if (*subfield) {
 				if (r->name)
@@ -4225,6 +4346,24 @@ cmdlist_element::shared_ptr find_else_end(Trigger *trig,
 	return cl;
 }
 
+cmdlist_element::shared_ptr find_continue_done(Trigger *trig, cmdlist_element::shared_ptr cl) {
+	const char *p = nullptr;
+	cmdlist_element::shared_ptr cl_prev;
+
+	while ((cl = cl ? cl->next : cl) != nullptr) {
+		for (p = cl->cmd.c_str(); *p && isspace(*reinterpret_cast<const unsigned char *>(p)); p++);
+		if (!strn_cmp("while ", p, 6) || !strn_cmp("switch ", p, 7) || !strn_cmp("foreach ", p, 8)) {
+			cl = find_done(trig, cl);
+		} else if (!strn_cmp("done", p, 4)) {
+			break;
+		}
+		cl_prev = cl;
+	}
+
+	return cl_prev;
+}
+
+
 /*
 * scans for end of while/foreach/switch-blocks.
 * returns the line containg 'end', or NULL
@@ -4379,7 +4518,7 @@ void process_set(Script * /*sc*/, Trigger *trig, char *cmd) {
 		return;
 	}
 	if (strlen(name) > kMaxTrglineLength) {
-		sprintf(buf2, "eval result превышает максимальную длину триггерной строки (%ld), команда: '%s'", strlen(name), cmd);
+		sprintf(buf2, "eval result превышает максимальную длину триггерной строки (%zu), команда: '%s'", strlen(name), cmd);
 		trig_log(trig, buf2);
 	}
 	add_var_cntx(trig->var_list, name, value, 0);
@@ -4399,7 +4538,7 @@ void process_eval(void *go, Script *sc, Trigger *trig, int type, char *cmd) {
 	size_t len_expr = strlen(expr);
 
 	if (len_expr > kMaxTrglineLength) {
-		sprintf(buf2, "eval: expr превышает максимальную длину триггерной строки (%ld), команда: '%s'", len_expr, cmd);
+		sprintf(buf2, "eval: expr превышает максимальную длину триггерной строки (%zu), команда: '%s'", len_expr, cmd);
 		trig_log(trig, buf2);
 	}
 	eval_expr(expr, result, go, sc, trig, type);
@@ -5537,7 +5676,8 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 		break;
 		
 	}
-	for (; !stop && cl && trig && GET_TRIG_DEPTH(trig) && !trig->is_halted(); cl = cl ? cl->next : cl) { //log("Drive go <%s>",cl->cmd.c_str());
+	for (; !stop && cl && trig && GET_TRIG_DEPTH(trig) && !trig->is_halted(); cl = cl ? cl->next : cl) { 
+//		log("Drive go <%s>",cl->cmd.c_str());
 		last_trig_line_num = cl->line_num;
 		trig->curr_line = cl;
 		if (CharacterLinkDrop) {
@@ -5606,7 +5746,13 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 			}
 		} else if (!strn_cmp("end", p, 3)) {
 			GET_TRIG_DEPTH(trig)--;
-		} else if (!strn_cmp("done", p, 4) || !strn_cmp("continue", p, 8)) {
+		} else if (!strn_cmp("done", p, 4)) {
+			if (*p == 'c') {
+				const auto temp = find_done(trig, cl);
+				if (temp) {
+					cl->original = temp->original;
+				}
+			}
 			if (cl->original) {
 				auto orig_cmd = cl->original->cmd.c_str();
 				while (*orig_cmd && isspace(*orig_cmd)) {
@@ -5641,6 +5787,8 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 			}
 		} else if (!strn_cmp("break", p, 5)) {
 			cl = find_done(trig, cl);
+		} else if (!strn_cmp("continue", p, 8)) {
+			cl = find_continue_done(trig, cl);
 		} else if (!strn_cmp("case", p, 4))    // Do nothing, this allows multiple cases to a single instance
 		{
 		} else {
@@ -6010,13 +6158,13 @@ void TriggerRemoveObserverI::notify(Trigger *trigger) {
 }
 
 TriggersList::iterator::iterator(TriggersList *owner, const IteratorPosition position)
-	: m_owner(owner), m_removed(false) {
+	: m_owner(owner), m_removed_trigger(nullptr) {
 	m_iterator = position == BEGIN ? m_owner->m_list.begin() : m_owner->m_list.end();
 	setup_observer();
 }
 
 TriggersList::iterator::iterator(const iterator &rhv)
-	: m_owner(rhv.m_owner), m_iterator(rhv.m_iterator), m_removed(rhv.m_removed) {
+	: m_owner(rhv.m_owner), m_iterator(rhv.m_iterator), m_removed_trigger(nullptr) {
 	setup_observer();
 }
 
@@ -6025,10 +6173,10 @@ TriggersList::iterator::~iterator() {
 }
 
 TriggersList::TriggersList::iterator &TriggersList::iterator::operator++() {
-	if (!m_removed) {
+	if (!m_removed_trigger) {
 		++m_iterator;
 	} else {
-		m_removed = false;
+		m_removed_trigger = nullptr;
 	}
 
 	return *this;
@@ -6043,7 +6191,7 @@ void TriggersList::iterator::remove_event(Trigger *trigger) {
 	if (m_iterator != m_owner->m_list.end()
 		&& *m_iterator == trigger) {
 		++m_iterator;
-		m_removed = true;
+		m_removed_trigger = trigger;
 	}
 }
 

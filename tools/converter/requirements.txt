@@ -1,0 +1,3 @@
+ruamel.yaml>=0.17
+# Optional: PyYAML for faster output (--yaml-lib pyyaml), no comments/literal blocks
+# pyyaml>=6.0

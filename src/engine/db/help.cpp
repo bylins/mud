@@ -1297,7 +1297,7 @@ void check_update_dynamic() {
 void reload(Flags flag) {
 	switch (flag) {
 		case STATIC: static_help.clear();
-			world_loader.BootIndex(DB_BOOT_HLP);
+			game_loader.BootIndex(DB_BOOT_HLP);
 			init_group_zones();
 			init_zone_all();
 			ClassRecipiesHelp();
@@ -1349,7 +1349,7 @@ bool help_compare(const std::string &arg, const std::string &text, bool strong) 
 		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 		return arg == text;
 	}
-	return IsEquivalent(name, text);
+	return utils::IsAbbr(name, text);
 }
 
 void UserSearch::process(int flag) {
@@ -1475,6 +1475,8 @@ void UserSearch::search(const std::vector<help_node> &cont) {
 using namespace HelpSystem;
 
 void do_help(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+	std::string arg_str(argument);
+
 	if (!ch->desc) {
 		return;
 	}
@@ -1483,22 +1485,32 @@ void do_help(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		page_string(ch->desc, help, 0);
 		return;
 	}
-
+	if (arg_str.size() > 100) {
+		SendMsgToChar(ch, "Слишком длинная строка в запросе справки.\r\n");
+		return;
+	}
 	UserSearch user_search(ch);
 	// trust_level справки для демигодов - kLevelImmortal
 	user_search.level = GET_GOD_FLAG(ch, EGf::kDemigod) ? kLvlImmortal : GetRealLevel(ch);
-	utils::ConvertToLow(argument);
-	// Получаем topic_num для индексации топика
-	sscanf(argument, "%d.%s", &user_search.topic_num, argument);
-	// если последний символ аргумента '!' -- включаем строгий поиск
-	if (strlen(argument) > 1 && *(argument + strlen(argument) - 1) == '!') {
-		user_search.strong = true;
-		*(argument + strlen(argument) - 1) = '\0';
-		user_search.arg_str = argument;
-	} else {
-		user_search.arg_str = utils::FixDot(argument);
+	utils::ConvertToLow(arg_str);
+	// Парсинг topic_num
+	size_t dot_pos = arg_str.find('.');
+    
+	if (dot_pos != std::string::npos) {
+		try {
+			user_search.topic_num = std::stoi(arg_str.substr(0, dot_pos));
+			arg_str = arg_str.substr(dot_pos + 1);
+		} catch (...) {
+			user_search.topic_num = 0;
+		}
 	}
-
+	// если последний символ аргумента '!' -- включаем строгий поиск
+	if (arg_str.size() > 1 && arg_str.back() == '!') {
+		user_search.strong = true;
+		user_search.arg_str = arg_str;
+	} else {
+		user_search.arg_str = arg_str;
+	}
 	// поиск по всем массивам или до стопа по флагу
 	for (int i = STATIC; i < TOTAL_NUM && !user_search.stop; ++i) {
 		user_search.process(i);

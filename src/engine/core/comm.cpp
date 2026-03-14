@@ -37,6 +37,8 @@
 #include "engine/db/world_characters.h"
 #include "engine/entities/entities_constants.h"
 #include "administration/shutdown_parameters.h"
+#include "engine/observability/provider.h"
+#include "utils/timestamp.h"
 #include "external_trigger.h"
 #include "handler.h"
 #include "gameplay/clans/house.h"
@@ -61,6 +63,9 @@
 #include "engine/network/msdp/msdp_constants.h"
 #include "engine/entities/zone.h"
 #include "engine/db/db.h"
+#ifdef HAVE_SQLITE
+#include "engine/db/sqlite_world_data_source.h"
+#endif
 #include "utils/utils.h"
 #include "engine/core/conf.h"
 #include "engine/ui/modify.h"
@@ -77,6 +82,12 @@
 
 #ifdef HAS_EPOLL
 #include <sys/epoll.h>
+#endif
+
+#ifdef ENABLE_ADMIN_API
+#include "engine/network/admin_api.h"
+#include <sys/un.h>
+#include <sys/stat.h>
 #endif
 
 #ifdef CIRCLE_MACINTOSH        // Includes for the Macintosh
@@ -351,6 +362,7 @@ extern int num_invalid;
 extern char *greetings;
 extern const char *circlemud_version;
 extern int circle_restrict;
+extern bool enable_world_checksum;
 extern FILE *player_fl;
 extern ush_int DFLT_PORT;
 extern const char *DFLT_DIR;
@@ -366,12 +378,15 @@ extern void log_code_date();
 
 // local globals
 DescriptorData *descriptor_list = nullptr;    // master desc list
+#ifdef ENABLE_ADMIN_API
+static socket_t admin_socket = -1;
+#endif
 
 
 int no_specials = 0;        // Suppress ass. of special routines
 int max_players = 0;        // max descriptors available
 int tics = 0;            // for extern checkpointing
-int scheck = 0;            // for syntax checking mode
+int scheck = 0;
 struct timeval null_time;    // zero-valued time structure
 int dg_act_check;        // toggle for act_trigger
 unsigned long cmd_cnt = 0;
@@ -518,6 +533,9 @@ int new_descriptor(socket_t s);
 #endif
 
 socket_t init_socket(ush_int port);
+#ifdef ENABLE_ADMIN_API
+socket_t init_unix_socket(const char *path);
+#endif
 
 int get_max_players();
 void timeadd(struct timeval *sum, struct timeval *a, struct timeval *b);
@@ -633,7 +651,11 @@ int main_function(int argc, char **argv) {
 				break;
 
 			case 's': no_specials = 1;
-				puts("Suppressing assignment of special routines.");
+		puts("Suppressing assignment of special routines.");
+		break;
+	case 'W':
+		enable_world_checksum = true;
+		puts("World checksum calculation enabled.");
 				break;
 			case 'd':
 				if (*(argv[pos] + 2))
@@ -684,28 +706,35 @@ int main_function(int argc, char **argv) {
 	 * Moved here to distinguish command line options and to show up
 	 * in the log if stderr is redirected to a file.
 	 */
-	printf("%s\r\n", circlemud_version);
-	printf("%s\r\n", DG_SCRIPT_VERSION);
+	printf("[%s] %s\r\n", utils::NowTs().c_str(), circlemud_version);
+	printf("[%s] %s\r\n", utils::NowTs().c_str(), DG_SCRIPT_VERSION);
 	if (getcwd(cwd, sizeof(cwd))) {};
-	printf("Current directory '%s' using '%s' as data directory.\r\n", cwd, dir);
-	runtime_config.load();
+	printf("[%s] Current directory '%s' using '%s' as data directory.\r\n", utils::NowTs().c_str(), cwd, dir);
+	{
+		std::string config_path = std::string(dir) + "/misc/configuration.xml";
+		runtime_config.load(config_path.c_str());
+	}
 	if (runtime_config.msdp_debug()) {
 		msdp::debug(true);
 	}
 	// All arguments have been parsed, try to open log file.
+	// setup_logs() must be called before chdir() so that log/ and log/perslog/
+	// directories are created in the working directory (next to the binary),
+	// not inside the data directory.
 	runtime_config.setup_logs();
+	runtime_config.setup_telemetry(port);
 	logfile = runtime_config.logs(SYSLOG).handle();
-	log_code_date();
 	if (chdir(dir) < 0) {
 		perror("\r\nSYSERR: Fatal error changing to data directory");
 		exit(1);
 	}
-	printf("Code version %s, revision: %s\r\n", build_datetime, revision);
+	log_code_date();
+	printf("[%s] Code version %s, revision: %s\r\n", utils::NowTs().c_str(), build_datetime, revision);
 	if (scheck) {
-		world_loader.BootWorld();
+		GameLoader::BootWorld();
 		printf("Done.");
 	} else {
-		printf("Running game on port %d.\r\n", port);
+		printf("[%s] Running game on port %d.\r\n", utils::NowTs().c_str(), port);
 
 		// стль и буст юзаются уже немало где, а про их экспешены никто не думает
 		// пока хотя бы стльные ловить и просто логировать факт того, что мы вышли
@@ -733,6 +762,23 @@ void stop_game(ush_int port) {
 
 	log("Opening mother connection.");
 	mother_desc = init_socket(port);
+	if (mother_desc < 0) {
+		log("SYSERR: Failed to bind to port %d. Server cannot start.", port);
+		log("Please check if another instance is running or if you have permission to use this port.");
+		exit(1);
+	}
+
+#ifdef ENABLE_ADMIN_API
+	if (runtime_config.admin_api_enabled()) {
+		const char *socket_path = runtime_config.admin_socket_path().c_str();
+		log("Admin API enabled, socket_path: %s", socket_path);
+		// Current working directory is the world directory after chdir(dir) above
+		admin_socket = init_unix_socket(socket_path);
+	} else {
+		log("Admin API disabled in configuration");
+	}
+#endif
+
 #if defined WITH_SCRIPTING
 	scripting::init();
 #endif
@@ -769,11 +815,27 @@ void stop_game(ush_int port) {
 		return;
 	}
 
+
+#ifdef ENABLE_ADMIN_API
+	if (admin_socket >= 0) {
+		DescriptorData *admin_d = (DescriptorData *) calloc(1, sizeof(DescriptorData));
+		admin_d->descriptor = admin_socket;
+		event.data.ptr = admin_d;
+		event.events = EPOLLIN;
+		if (epoll_ctl(epoll, EPOLL_CTL_ADD, admin_socket, &event) == -1) {
+			perror("EPOLL: epoll_ctl() failed on EPOLL_CTL_ADD admin_socket");
+			log("Warning: Admin API socket not added to epoll");
+		}
+	}
+#endif
 	game_loop(epoll, mother_desc);
 #else
 	log("Polling using select().");
 	game_loop(mother_desc);
 #endif
+
+	// Shutdown OTEL providers to flush remaining telemetry
+	observability::OtelProvider::Instance().Shutdown();
 
 	FlushPlayerIndex();
 
@@ -841,7 +903,7 @@ void stop_game(ush_int port) {
 			if (entry->type < 0 || entry->type > 4) {
 				sprintf(buf, "OLC: Illegal save type %d!", entry->type);
 				log("%s", buf);
-			} else if ((rznum = get_zone_rnum_by_zone_vnum(entry->zone)) == -1) {
+			} else if ((rznum = GetZoneRnum(entry->zone)) == -1) {
 				sprintf(buf, "OLC: Illegal save zone %d!", entry->zone);
 				log("%s", buf);
 			} else if (rznum < 0 || rznum >= static_cast<int>(zone_table.size())) {
@@ -900,7 +962,7 @@ socket_t init_socket(ush_int port) {
 		}
 		log("Max players set to %d", max_players);
 
-		if ((s = socket(PF_INET, SOCK_STREAM, 0)) == SOCKET_ERROR)
+		if ((s = socket(PF_INET, SOCK_STREAM, 0)) == static_cast<socket_t>(SOCKET_ERROR))
 		{
 			log("SYSERR: Error opening network connection: Winsock error #%d", WSAGetLastError());
 			exit(1);
@@ -958,14 +1020,111 @@ socket_t init_socket(ush_int port) {
 	sa.sin_addr = *(get_bind_addr());
 
 	if (bind(s, (struct sockaddr *) &sa, sizeof(sa)) < 0) {
-		perror("SYSERR: bind");
+		log("SYSERR: bind() failed - port %d is already in use or permission denied", port);
 		CLOSE_SOCKET(s);
-		exit(1);
+		return -1;
 	}
 	nonblock(s);
 	listen(s, 5);
 	return (s);
 }
+
+#ifdef ENABLE_ADMIN_API
+socket_t init_unix_socket(const char *path) {
+	socket_t s;
+	struct sockaddr_un sa;
+
+	s = socket(AF_UNIX, SOCK_STREAM, 0);
+	if (s < 0) {
+		log("SYSERR: Error creating Unix domain socket: %s", strerror(errno));
+		exit(1);
+	}
+
+	memset(&sa, 0, sizeof(sa));
+	sa.sun_family = AF_UNIX;
+	strncpy(sa.sun_path, path, sizeof(sa.sun_path) - 1);
+
+	unlink(path);
+
+	if (bind(s, (struct sockaddr *)&sa, sizeof(sa)) < 0) {
+		log("SYSERR: Cannot bind Unix socket to %s: %s", path, strerror(errno));
+		CLOSE_SOCKET(s);
+		exit(1);
+	}
+
+	chmod(path, 0600);
+	nonblock(s);
+
+	if (listen(s, 1) < 0) {
+		log("SYSERR: Cannot listen on Unix socket: %s", strerror(errno));
+		CLOSE_SOCKET(s);
+		exit(1);
+	}
+
+	log("Admin API listening on Unix socket: %s", path);
+	return s;
+}
+
+int new_admin_descriptor(int epoll, socket_t s) {
+	socket_t desc;
+	DescriptorData *newd;
+
+	desc = accept(s, nullptr, nullptr);
+	if (desc == -1) {
+		return -1;
+	}
+
+	// Check connection limit
+	int admin_connections = 0;
+	for (DescriptorData *d = descriptor_list; d; d = d->next) {
+		if (d->admin_api_mode) {
+			admin_connections++;
+		}
+	}
+
+	int max_connections = runtime_config.admin_max_connections();
+	if (admin_connections >= max_connections) {
+		log("Admin API: connection rejected (limit %d reached)", max_connections);
+		const char *error_msg = "{\"status\":\"error\",\"message\":\"connection limit reached\"}\n";
+		iosystem::write_to_descriptor(desc, error_msg, strlen(error_msg));
+		CLOSE_SOCKET(desc);
+		return -1;
+	}
+
+	nonblock(desc);
+	NEWCREATE(newd);
+
+	newd->descriptor = desc;
+	newd->state = EConState::kAdminAPI;
+	newd->admin_api_mode = true;
+	newd->keytable = kCodePageUTF8;
+	strcpy(newd->host, "unix-socket");
+	newd->login_time = newd->input_time = time(0);
+
+	// Initialize output buffer
+	newd->output = newd->small_outbuf;
+	newd->bufspace = kSmallBufsize - 1;
+	*newd->output = '\0';
+	newd->bufptr = 0;
+
+#ifdef HAS_EPOLL
+	struct epoll_event event;
+	event.data.ptr = newd;
+	event.events = EPOLLIN | EPOLLOUT | EPOLLRDHUP;
+	epoll_ctl(epoll, EPOLL_CTL_ADD, desc, &event);
+#endif
+
+	newd->next = descriptor_list;
+	descriptor_list = newd;
+
+	log("Admin API: new connection from Unix socket");
+
+	const char *welcome = "{\"status\":\"ready\",\"version\":\"1.0\"}\n";
+	iosystem::write_to_descriptor(desc, welcome, strlen(welcome));
+
+	return 0;
+}
+#endif // ENABLE_ADMIN_API
 
 int get_max_players(void) {
 	return (max_playing);
@@ -1049,15 +1208,26 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 			d = (DescriptorData *) events[i].data.ptr;
 			if (d == nullptr)
 				continue;
-			if (mother_desc == d->descriptor) // событие на mother_desc: принимаем все ждущие соединения
-			{
+			if (mother_desc == d->descriptor) { // событие на mother_desc: принимаем все ждущие соединения
 				int desc;
 				do
 					desc = new_descriptor(epoll, mother_desc);
 				while (desc > 0 || desc == -3);
-			} else // событие на клиентском дескрипторе: получаем данные и закрываем сокет, если EOF
-			if (iosystem::process_input(d) < 0)
-				close_socket(d, false, epoll, events, n);
+			}
+#ifdef ENABLE_ADMIN_API
+			else if (admin_socket >= 0 && admin_socket == d->descriptor) {
+				new_admin_descriptor(epoll, admin_socket);
+			}
+#endif
+			else { // событие на клиентском дескрипторе: получаем данные и закрываем сокет, если EOF
+#ifdef ENABLE_ADMIN_API
+				int result = (d->admin_api_mode) ? admin_api_process_input(d) : iosystem::process_input(d);
+#else
+				int result = iosystem::process_input(d);
+#endif
+				if (result < 0)
+					close_socket(d, false, epoll, events, n);
+			}
 		} else if (events[i].events & !EPOLLOUT & !EPOLLIN) // тут ловим все события, имеющие флаги кроме in и out
 		{
 			// надо будет помониторить сислог на предмет этих сообщений
@@ -1104,6 +1274,11 @@ inline void process_io(fd_set input_set, fd_set output_set, fd_set exc_set, fd_s
 	// Process commands we just read from process_input
 	for (d = descriptor_list; d; d = next_d) {
 		next_d = d->next;
+
+		// Admin API connections don't use the input queue - skip command processing
+		if (d->admin_api_mode) {
+			continue;
+		}
 
 		/*
 		 * Not combined to retain --(d->wait) behavior. -gg 2/20/98
@@ -1229,7 +1404,7 @@ void game_loop(int epoll, socket_t mother_desc)
 void game_loop(socket_t mother_desc)
 #endif
 {
-	printf("Game started.\n");
+	printf("[%s] Game started.\n", utils::NowTs().c_str());
 
 #ifdef HAS_EPOLL
 	struct epoll_event *events;
@@ -1565,7 +1740,7 @@ int new_descriptor(socket_t s)
 
 	// accept the new connection
 	i = sizeof(peer);
-	if ((desc = accept(s, (struct sockaddr *) &peer, &i)) == SOCKET_ERROR) {
+	if ((desc = accept(s, (struct sockaddr *) &peer, &i)) == static_cast<socket_t>(SOCKET_ERROR)) {
 #ifdef EWOULDBLOCK
 		if (errno != EINTR && errno != EAGAIN && errno != EWOULDBLOCK)
 #else
@@ -1749,6 +1924,9 @@ void close_socket(DescriptorData * d, int direct)
 								 __func__, __FILE__, __LINE__).c_str());
 		return;
 	}
+
+	log("close_socket called: direct=%d, state=%d, admin_api_mode=%d, host=%s",
+	    direct, static_cast<int>(d->state), d->admin_api_mode, d->host);
 
 	//if (!direct && d->character && NORENTABLE(d->character))
 	//	return;
@@ -2011,8 +2189,7 @@ RETSIGTYPE checkpointing(int/* sig*/) {
 }
 
 RETSIGTYPE hupsig(int/* sig*/) {
-	log("SYSERR: Received SIGHUP, SIGINT, or SIGTERM.  Shutting down...");
-	exit(1);        // perhaps something more elegant should substituted
+	shutdown_parameters.shutdown_now();
 }
 
 #endif                // CIRCLE_UNIX

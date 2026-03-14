@@ -140,7 +140,7 @@ void init_EObjFlag_ITEM_NAMES() {
 	EObjFlag_name_by_value[EObjFlag::kBless] = "kBless";
 	EObjFlag_name_by_value[EObjFlag::kNosell] = "kNosell";
 	EObjFlag_name_by_value[EObjFlag::kDecay] = "kDecay";
-	EObjFlag_name_by_value[EObjFlag::kZonedacay] = "kZonedacay";
+	EObjFlag_name_by_value[EObjFlag::kZonedecay] = "kZonedecay";
 	EObjFlag_name_by_value[EObjFlag::kNodisarm] = "kNodisarm";
 	EObjFlag_name_by_value[EObjFlag::kNodecay] = "kNodecay";
 	EObjFlag_name_by_value[EObjFlag::kPoisoned] = "kPoisoned";

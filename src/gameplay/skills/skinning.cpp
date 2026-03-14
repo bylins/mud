@@ -327,7 +327,6 @@ void DoSkinning(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	const auto mob = (mob_proto + GetMobRnum(mobn));
-	mob->set_normal_morph();
 
 	if (!IS_IMMORTAL(ch)
 		&& GET_RACE(mob) != ENpcRace::kAnimal

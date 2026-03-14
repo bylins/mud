@@ -408,6 +408,7 @@ void zedit_save_internally(DescriptorData *d) {
 		}
 		zone_table[OLC_ZNUM(d)].under_construction = OLC_ZONE(d)->under_construction;
 		zone_table[OLC_ZNUM(d)].locked = OLC_ZONE(d)->locked;
+		zone_table[OLC_ZNUM(d)].is_town = OLC_ZONE(d)->is_town;
 		if (zone_table[OLC_ZNUM(d)].group != OLC_ZONE(d)->group) {
 			zone_table[OLC_ZNUM(d)].group = OLC_ZONE(d)->group;
 			HelpSystem::reload(HelpSystem::STATIC);
@@ -593,11 +594,13 @@ void zedit_save_to_disk(ZoneRnum zone_num) {
 	// * We're fubar'd if we crash between the two lines below.
 	remove(buf2);
 	rename(fname, buf2);
+#ifndef _WIN32
 	if (chmod(buf2, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP) < 0) {
 		std::stringstream ss;
 		ss << "Error chmod file: " << buf2 << " (" << __FILE__ << " "<< __func__ << "  "<< __LINE__ << ")";
 		mudlog(ss.str(), BRF, kLvlGod, SYSLOG, true);
 	}
+#endif
 
 	olc_remove_from_save_list(zone_table[zone_num].vnum, OLC_SAVE_ZONE);
 }
@@ -1935,7 +1938,7 @@ void zedit_parse(DescriptorData *d, char *arg) {
 				SendMsgToChar(d->character.get(), "Не нужно писать адакадабру, повторите ввод: ");
 			} else  if (zone_table[OLC_ZNUM(d)].vnum == pos) {
 				SendMsgToChar(d->character.get(), "Зачем добавлять саму себя? повторите ввод: ");
-			} else if (GetZoneRnum(pos) == 0) {
+			} else if (GetZoneRnum(pos) == kNoZone) {
 				SendMsgToChar(d->character.get(), "Некорректны номер зоны, повторите ввод (2-%d) : ",
 						zone_table[zone_table.size() - 1 - dungeons::kNumberOfZoneDungeons].vnum);
 			} else {
@@ -1979,7 +1982,7 @@ void zedit_parse(DescriptorData *d, char *arg) {
 		case ZEDIT_TYPE_B_LIST:
 			// * Add or delete new zone in the type A zones list.
 			pos = atoi(arg);
-			if (!is_number(arg) || GetZoneRnum(pos) == 0) {
+			if (!is_number(arg) || GetZoneRnum(pos) == kNoZone) {
 				SendMsgToChar(d->character.get(), "Повторите ввод (1-%d) : ",
 							  zone_table[zone_table.size() - 1 - dungeons::kNumberOfZoneDungeons].vnum);
 			} else {

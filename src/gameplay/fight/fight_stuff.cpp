@@ -28,6 +28,7 @@
 #include "gameplay/mechanics/sight.h"
 #include "gameplay/ai/mob_memory.h"
 #include "engine/entities/zone.h"
+#include "engine/observability/metrics.h"
 #include "gameplay/core/game_limits.h"
 #include "gameplay/mechanics/illumination.h"
 #include "utils/utils_time.h"
@@ -145,7 +146,7 @@ void process_mobmax(CharData *ch, CharData *killer) {
 
 bool stone_rebirth(CharData *ch, CharData *killer) {
 	RoomRnum rnum_start, rnum_stop;
-	if (ch->IsNpc()){
+	if (ch->IsNpc() && !IS_CHARMICE(ch)){
 		return false;
 	}
 	if (killer && (!killer->IsNpc() || IS_CHARMICE(killer)) && (ch != killer)) { //не нычка в ПК
@@ -158,6 +159,10 @@ bool stone_rebirth(CharData *ch, CharData *killer) {
 			for (ObjData *j = rm->contents; j; j = j->get_next_content()) {
 				if (j->get_vnum() == 1000) { // камень возрождения
 					act("$n погиб$q смертью храбрых.", false, ch, nullptr, nullptr, kToRoom);
+					if (ch->IsNpc()) {
+						mob_ai::extract_charmice(ch, false);
+						return true;
+					}
 					SendMsgToChar("Божественная сила спасла вашу жизнь!\r\n", ch);
 					RemoveCharFromRoom(ch);
 					PlaceCharToRoom(ch, rnum_start);
@@ -560,6 +565,19 @@ void raw_kill(CharData *ch, CharData *killer) {
 				NRM, kLvlGod, ERRLOG, true);
 		return;
 	}
+	// OpenTelemetry: count player deaths
+	if (!ch->IsNpc()) {
+		std::string death_type = "pve";
+		if (killer && !killer->IsNpc() && !IS_CHARMICE(killer)) {
+			death_type = "pvp";
+		} else if (!killer) {
+			death_type = "other";
+		}
+		std::map<std::string, std::string> death_attrs;
+		death_attrs["death_type"] = death_type;
+		observability::OtelMetrics::RecordCounter("player.deaths.total", 1, death_attrs);
+	}
+
 	if (!ROOM_FLAGGED(ch->in_room, ERoomFlag::kDominationArena)) {
 		reset_affects(ch);
 	}
@@ -599,7 +617,8 @@ void raw_kill(CharData *ch, CharData *killer) {
 			arena_kill(ch, killer);
 		} else {
 			real_kill(ch, killer);
-			ExtractCharFromWorld(ch, true);
+			character_list.AddToExtractedList(ch);
+//			ExtractCharFromWorld(ch, true);
 		}
 	}
 }
@@ -646,16 +665,22 @@ long long get_extend_exp(long long exp, CharData *ch, CharData *victim) {
 
 	if (!victim->IsNpc() || ch->IsNpc())
 		return (exp);
+	MobVnum vnum  = GET_MOB_VNUM(victim);
+	if (vnum >= dungeons::kZoneStartDungeons * 100) {
+		ZoneVnum zvn = vnum / 100;
+		MobVnum  mvn = vnum % 100;
+		vnum = zone_table[GetZoneRnum(zvn)].copy_from_zone * 100 + mvn;
+	}
 
 	ch->send_to_TC(false, true, false,
 				   "&RУ моба еще %d убийств без замакса, экспа %d, убито %d&n\r\n",
-				   mob_proto[victim->get_rnum()].mob_specials.MaxFactor,
+				   victim->mob_specials.MaxFactor,
 				   exp,
-				   ch->mobmax_get(GET_MOB_VNUM(victim)));
+				   ch->mobmax_get(vnum));
 
 	exp += static_cast<int>(exp * (ch->add_abils.percent_exp_add) / 100.0);
 	for (koef = 100, base = 0, diff =
-		ch->mobmax_get(GET_MOB_VNUM(victim)) - mob_proto[victim->get_rnum()].mob_specials.MaxFactor;
+		 ch->mobmax_get(vnum) - victim->mob_specials.MaxFactor;
 		 base < diff && koef > 5; base++, koef = koef * (95 - get_remort_mobmax(ch)) / 100);
 	// минимальный опыт при замаксе 15% от полного опыта
 	exp = exp * std::max(15, koef) / 100;

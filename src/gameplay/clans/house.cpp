@@ -2252,12 +2252,7 @@ bool Clan::PutChest(CharData *ch, ObjData *obj, ObjData *chest) {
 		SendMsgToChar(ch, "Вы вложили в казну дружины %ld %s.\r\n", gold, GetDeclensionInNumber(gold, EWhat::kMoneyU));
 
 	} else if (obj->has_flag(EObjFlag::kNodrop)
-		|| obj->has_flag(EObjFlag::kZonedacay)
-		|| obj->has_flag(EObjFlag::kRepopDecay)
-		|| obj->get_type() == EObjType::kKey
-		|| obj->has_flag(EObjFlag::kNorent)
-		|| obj->get_rent_off() < 0
-		|| obj->get_rnum() <= kNothing
+		|| obj->is_unrentable()
 		|| obj->has_flag(EObjFlag::kNamed)
 		|| obj->get_owner()) {
 		act("Неведомая сила помешала положить $o3 в $O3.", false, ch, obj, chest, kToChar);
@@ -4307,7 +4302,7 @@ bool Clan::put_ingr_chest(CharData *ch, ObjData *obj, ObjData *chest) {
 			SendMsgToChar(ch, "Вы вновь обрели %d %s.\r\n", howmany, GetDeclensionInNumber(howmany, EWhat::kMoneyU));
 		}
 	} else if (obj->has_flag(EObjFlag::kNodrop)
-		|| obj->has_flag(EObjFlag::kZonedacay)
+		|| obj->has_flag(EObjFlag::kZonedecay)
 		|| obj->has_flag(EObjFlag::kRepopDecay)
 		|| obj->has_flag(EObjFlag::kNorent)
 		|| obj->get_rent_off() < 0

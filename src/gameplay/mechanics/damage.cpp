@@ -28,6 +28,8 @@
 #include "gameplay/mechanics/groups.h"
 #include "gameplay/mechanics/tutelar.h"
 #include "gameplay/mechanics/sight.h"
+#include "utils/backtrace.h"
+
 
 void TryRemoveExtrahits(CharData *ch, CharData *victim);
 
@@ -316,6 +318,10 @@ void Damage::CalcArmorDmgAbsorption(CharData *victim) {
 				// непробиваемый в осторожке - до 75 брони
 				max_armour = 75;
 			}
+			if (CanUseFeat(victim, EFeat::kShadowStrike) && victim->IsFlagged(EPrf::kAwake)) {
+				// танцующая тень в осторожке - до 60 брони
+				max_armour = 60;
+			}
 			int tmp_dam = dam * std::max(0, std::min(max_armour, GET_ARMOUR(victim))) / 100;
 			// ополовинивание брони по флагу скила
 			if (tmp_dam >= 2 && flags[fight::kHalfIgnoreArmor]) {
@@ -598,17 +604,27 @@ void Damage::PerformPostInit(CharData *ch, CharData *victim) {
 // возвращает сделанный дамаг
 int Damage::Process(CharData *ch, CharData *victim) {
 	PerformPostInit(ch, victim);
-	if (!check_valid_chars(ch, victim, __FILE__, __LINE__)) {
-		return 0;
-	}
 	if (victim->in_room == kNowhere || ch->in_room == kNowhere || ch->in_room != victim->in_room) {
 		log("SYSERR: Attempt to damage '%s' in room kNowhere by '%s'.",
 			GET_NAME(victim), GET_NAME(ch));
+		debug::backtrace(runtime_config.logs(SYSLOG).handle());
+		return 0;
+	}
+	if (victim->purged()) { //будем мониторить коредамп
+		log("SYSERR: Attempt to damage purged char/mob '%s' in room #%d by '%s'.",
+			GET_NAME(victim), GET_ROOM_VNUM(victim->in_room), GET_NAME(ch));
+		debug::backtrace(runtime_config.logs(SYSLOG).handle());
+		return 0;
+	}
+	if (!check_valid_chars(ch, victim, __FILE__, __LINE__)) {
+		log("SYSERR: Attempt to damage purged char/mob ch or vict");
+		debug::backtrace(runtime_config.logs(SYSLOG).handle());
 		return 0;
 	}
 	if (victim->GetPosition() <= EPosition::kDead) {
 		log("SYSERR: Attempt to damage corpse '%s' in room #%d by '%s'.",
 			GET_NAME(victim), GET_ROOM_VNUM(victim->in_room), GET_NAME(ch));
+		debug::backtrace(runtime_config.logs(SYSLOG).handle());
 		die(victim, nullptr);
 		return 0;
 	}
@@ -627,8 +643,6 @@ int Damage::Process(CharData *ch, CharData *victim) {
 	}
 
 	mob_ai::update_mob_memory(ch, victim);
-	Appear(ch);
-	Appear(victim);
 
 	// If you attack a pet, it hates your guts
 	if (!group::same_group(ch, victim)) {
@@ -655,6 +669,8 @@ int Damage::Process(CharData *ch, CharData *victim) {
 			ch->DropFromHorse();
 		}
 	}
+	Appear(ch);
+	Appear(victim);
 
 	if (dam < 0 || ch->in_room == kNowhere || victim->in_room == kNowhere || ch->in_room != victim->in_room) {
 		return 0;

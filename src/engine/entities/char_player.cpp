@@ -411,7 +411,6 @@ void Player::save_char() {
 	int i;
 	time_t li;
 	ObjData *char_eq[EEquipPos::kNumEquipPos];
-	struct TimedSkill *skj;
 
 	int tmp = time(0) - this->player_data.time.logon;
 
@@ -539,8 +538,8 @@ void Player::save_char() {
 
 	if (GetRealLevel(this) < kLvlImmortal) {
 		fprintf(saved, "FtTm:\n");
-		for (auto tf = this->timed_feat; tf; tf = tf->next) {
-			fprintf(saved, "%d %d %s\n", to_underlying(tf->feat), tf->time, MUD::Feat(tf->feat).GetCName());
+		for (auto tf : this->timed_feat) {
+			fprintf(saved, "%d %d %s\n", to_underlying(tf.first), tf.second, MUD::Feat(tf.first).GetCName());
 		}
 		fprintf(saved, "0 0\n");
 	}
@@ -566,8 +565,8 @@ void Player::save_char() {
 	// Задержки на скилы
 	if (GetRealLevel(this) < kLvlImmortal) {
 		fprintf(saved, "SkTm:\n");
-		for (skj = this->timed; skj; skj = skj->next) {
-			fprintf(saved, "%d %d\n", to_underlying(skj->skill), skj->time);
+		for (auto skj : this->timed_skill) {
+			fprintf(saved, "%d %ld %s\n", to_underlying(skj.first), std::max(static_cast<long int>(0), static_cast<long int>(skj.second - time(0))), MUD::Skill(skj.first).GetName());
 		}
 		fprintf(saved, "0 0\n");
 	}
@@ -863,10 +862,7 @@ void Player::save_char() {
 	this->quested_save(saved);
 	this->mobmax_save(saved);
 	save_pkills(this, saved);
-	morphs_save(this, saved);
-
 	fprintf(saved, "Map : %s\n", map_options_.bit_list_.to_string().c_str());
-
 	fprintf(saved, "TrcG: %d\n", ext_money_[ExtMoney::kTorcGold]);
 	fprintf(saved, "TrcS: %d\n", ext_money_[ExtMoney::kTorcSilver]);
 	fprintf(saved, "TrcB: %d\n", ext_money_[ExtMoney::kTorcBronze]);
@@ -902,11 +898,13 @@ void Player::save_char() {
 	}
 	fprintf(saved, "Tlgr: %lu\n", this->player_specials->saved.telegram_id);
 	fclose(saved);
+#ifndef _WIN32
 	if (chmod(filename, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP) < 0) {
 		std::stringstream ss;
 		ss << "Error chmod file: " << filename << " (" << __FILE__ << " "<< __func__ << "  "<< __LINE__ << ")";
 		mudlog(ss.str(), BRF, kLvlGod, SYSLOG, true);
 	}
+#endif
 	FileCRC::check_crc(filename, FileCRC::UPDATE_PLAYER, this->get_uid());
 
 	// восстанавливаем аффекты
@@ -957,7 +955,6 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 	char filename[40];
 	char line[kMaxStringLength], tag[6];
 	char line1[kMaxStringLength];
-	TimedSkill timed;
 	TimedFeat timed_feat;
 	*filename = '\0';
 	log("Load ascii char %s", name);
@@ -998,6 +995,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 	char_specials.saved.act.from_string("");    // suspicious line: we should clear flags. Loading from "" does not clear flags.
 
 	bool skip_file = 0;
+//	log("plrname %s bool %d", get_name().c_str(), get_extracted_list());
 
 	do {
 		if (!fbgetline(fl, line)) {
@@ -1551,8 +1549,6 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 						sscanf(line, "%d %d", &num, &num2);
 						this->mobmax_load(this, num, num2, MobMax::get_level_by_vnum(num));
 					} while (true);
-				} else if (!strcmp(tag, "Mrph")) {
-					morphs_load(this, std::string(line));
 				}
 				break;
 			case 'N':
@@ -1768,12 +1764,11 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 					} while (num != 0);
 				} else if (!strcmp(tag, "SkTm")) {
 					do {
+						long int num3;
 						fbgetline(fl, line);
-						sscanf(line, "%d %d", &num, &num2);
+						sscanf(line, "%d %ld", &num, &num3);
 						if (num != 0) {
-							timed.skill = static_cast<ESkill>(num);
-							timed.time = num2;
-							ImposeTimedSkill(this, &timed);
+							this->timed_skill[static_cast<ESkill>(num)] = time(0) + num3;
 						}
 					} while (num != 0);
 				} else if (!strcmp(tag, "Spel")) {
@@ -1847,8 +1842,8 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 				} else if (!strcmp(tag, "Tglo")) {
 					this->setGloryRespecTime(static_cast<time_t>(num));
 				} else if (!strcmp(tag, "Tlgr")) {
-					if (lnum <= 10000000000000) {
-						this->player_specials->saved.telegram_id = lnum;
+					if (llnum <= 10000000000000ULL) {
+						this->player_specials->saved.telegram_id = static_cast<unsigned long>(llnum);
 					} else  // зачищаем остатки старой баги
 						this->player_specials->saved.telegram_id = 0;
 				} else if (!strcmp(tag, "TSpl")) {
@@ -1889,7 +1884,6 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 	// initialization for imms
 	if (GetRealLevel(this) >= kLvlImmortal) {
 		SetGodSkills(this);
-		set_god_morphs(this);
 		GET_COND(this, FULL) = -1;
 		GET_COND(this, THIRST) = -1;
 		GET_COND(this, DRUNK) = -1;

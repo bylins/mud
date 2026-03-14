@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Minimal mob_classes XML for unit tests: updated state with kTrash (no kBoss) -->
+<mob_classes>
+    <global_vars lvl_per_difficulty="5" boss_add_lvl="10"/>
+    <mobclass id="kTrash" mode="kEnabled">
+        <name rus="Trash" eng="Trash"/>
+        <savings>
+            <saving id="kWill" base="0" low_increment="0" threshold_mort="1" increment="-1" deviation_type="0" deviation="0"/>
+        </savings>
+        <skills>
+            <skill id="kUndefined" base="50" low_increment="0" threshold_mort="1" increment="0" deviation_type="0" deviation="0"/>
+        </skills>
+    </mobclass>
+</mob_classes>

@@ -1,18 +1,32 @@
 #!/bin/bash
-PORT=4000
+CIRCLE=${CIRCLE:-build/circle}
 ulimit -c unlimited
 umask u=rwx,g=rwx,o=
 export ASAN_OPTIONS=log_path=/home/mud/mud/asan.log
-# Default flags to pass to the MUD server (see admin.txt for a description
-# of all flags).
-FLAGS=''
+
+# Parse -d <world_dir> from arguments to find board files
+WORLD_DIR="lib"
+args=("$@")
+for (( i=0; i<${#args[@]}; i++ )); do
+  if [ "${args[$i]}" = "-d" ]; then
+    WORLD_DIR="${args[$((i+1))]}"
+    break
+  fi
+done
+BOARD_DIR="$WORLD_DIR/etc/board"
+
+CIRCLE_PID=""
+trap 'kill $CIRCLE_PID 2>/dev/null; exit' TERM INT
+
 #############################################################################
 while ( : ) do
   DATE=`date`
   echo "autorun starting game $DATE" >> syslog
-  echo "running bin/circle $FLAGS $PORT" >> syslog
-  chmod 660 /home/mud/mud/lib/etc/board/*
-  build/circle $FLAGS $PORT >>sd.out
+  echo "running $CIRCLE $@" >> syslog
+  chmod 660 "$BOARD_DIR"/* 2>/dev/null || true
+  $CIRCLE "$@" >>sd.out &
+  CIRCLE_PID=$!
+  wait $CIRCLE_PID
   mv syslog.CRASH.1 syslog.CRASH.2
   mv syslog.CRASH syslog.CRASH.1
   tail -1000 syslog > syslog.CRASH
@@ -32,7 +46,7 @@ while ( : ) do
   mv syslog.bz2 archive/syslog.$(date +%d%m%y-%H%M%S).bz2
   mv core.2 core.3
   mv core.1 core.2
-  mv lib/core* core.1
+  mv "$WORLD_DIR"/core* core.1 2>/dev/null || true
   chmod 660 core.1
 
   if [ -r .killscript ]; then
@@ -42,7 +56,7 @@ while ( : ) do
     exit
   fi
   if [ ! -r .fastboot ]; then
-    sleep 60
+    sleep 30
   else
     rm .fastboot
     sleep 5

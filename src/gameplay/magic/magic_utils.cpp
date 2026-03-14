@@ -25,8 +25,12 @@
 #include "gameplay/mechanics/weather.h"
 #include "gameplay/core/base_stats.h"
 #include "gameplay/statistics/spell_usage.h"
+#include "utils/backtrace.h"
 
 #include "../subprojects/fmt/include/fmt/format.h"
+#include "engine/observability/helpers.h"
+#include "engine/observability/metrics.h"
+#include "utils/tracing/trace_manager.h"
 
 char cast_argument[kMaxStringLength];
 
@@ -165,7 +169,7 @@ void SaySpell(CharData *ch, ESpell spell_id, CharData *tch, ObjData *tobj) {
 
 abilities::EAbility FindAbilityId(const char *name) {
 	for (const auto &ability : MUD::Abilities()) {
-		if (ability.IsValid() && IsEquivalent(name, ability.GetName())) {
+		if (ability.IsValid() && utils::IsEquivalent(name, ability.GetName())) {
 			return ability.GetId();
 		}
 	}
@@ -174,7 +178,7 @@ abilities::EAbility FindAbilityId(const char *name) {
 
 EFeat FindFeatId(const char *name) {
 	for (const auto &feat : MUD::Feats()) {
-		if (feat.IsValid() && IsEquivalent(name, feat.GetName())) {
+		if (feat.IsValid() && utils::IsEquivalent(name, feat.GetName())) {
 			return feat.GetId();
 		}
 	}
@@ -183,7 +187,7 @@ EFeat FindFeatId(const char *name) {
 
 ESkill FindSkillId(const char *name) {
 	for (const auto &skill : MUD::Skills()) {
-		if (skill.IsValid() && IsEquivalent(name, skill.GetName())) {
+		if (skill.IsValid() && utils::IsEquivalent(name, skill.GetName())) {
 			return skill.GetId();
 		}
 	}
@@ -198,14 +202,13 @@ ESpell FindSpellId(const char *name) {
 	int use_syn = (((ubyte) *name <= (ubyte) 'z')
 		&& ((ubyte) *name >= (ubyte) 'a'))
 		|| (((ubyte) *name <= (ubyte) 'Z') && ((ubyte) *name >= (ubyte) 'A'));
-
 	for (auto spell_id = ESpell::kFirst ; spell_id <= ESpell::kLast; ++spell_id) {
 		char const *realname = (use_syn) ? MUD::Spell(spell_id).GetEngCName() : MUD::Spell(spell_id).GetCName();
 
 		if (!realname || !*realname) {
 			continue;
 		}
-		if (IsEquivalent(name, realname)) {
+		if (utils::IsEqual(name, realname)) {
 			return spell_id;
 		}
 	}
@@ -217,38 +220,12 @@ ESpell FindSpellIdWithName(const std::string &name) {
 		if (spell.IsInvalid()) {
 			continue;
 		}
-		if (IsEquivalent(name, spell.GetName())) {
+		if (utils::IsEquivalent(name, spell.GetName())) {
 			return spell.GetId();
 		}
 	}
 
 	return ESpell::kUndefined;
-}
-
-bool IsEquivalent(const std::string &first_str, const std::string &second_str) {
-	return IsEquivalent(first_str.c_str(), second_str.c_str());
-};
-
-bool IsEquivalent(const char *first_str, const char *second_str) {
-	char const *temp, *temp2;
-	char first[256], first2[256];
-
-	if (utils::IsAbbr(first_str, second_str)) {
-		return true;
-	}
-	auto ok{true};
-	temp = any_one_arg(second_str, first);
-	temp2 = any_one_arg(first_str, first2);
-	while (*first && *first2 && ok) {
-		if (!utils::IsAbbr(first2, first))
-			ok = false;
-		temp = any_one_arg(temp, first);
-		temp2 = any_one_arg(temp2, first2);
-	}
-	if (ok && !*first2) {
-		return true;
-	}
-	return false;
 }
 
 template<typename T>
@@ -358,6 +335,40 @@ bool MayCastHere(CharData *caster, CharData *victim, ESpell spell_id) {
 	return true;
 }
 
+class SpellCastMetrics {
+public:
+	SpellCastMetrics(ESpell spell_id, const CharData* caster, int level,
+	                 const CharData* cvict, const ObjData* ovict, const RoomData* rvict)
+		: m_spell_name(MUD::Spell(spell_id).GetCName())
+		, m_caster_class(MUD::Class(caster->GetClass()).GetName())
+		, m_span(tracing::TraceManager::Instance().StartSpan("Spell Cast"))
+		, m_duration("spell.cast.duration", {
+			{"spell_name",   m_spell_name},
+			{"caster_class", m_caster_class}
+		  })
+	{
+		const std::string target = cvict ? "char" : ovict ? "obj" : rvict ? "room" : "none";
+		m_span->SetAttribute("spell_id",     static_cast<int64_t>(to_underlying(spell_id)));
+		m_span->SetAttribute("spell_name",   m_spell_name);
+		m_span->SetAttribute("caster_class", m_caster_class);
+		m_span->SetAttribute("spell_level",  static_cast<int64_t>(level));
+		m_span->SetAttribute("target_type",  target);
+	}
+
+	void send() {
+		observability::OtelMetrics::RecordCounter("spell.cast.total", 1, {
+			{"spell_name",   m_spell_name},
+			{"caster_class", m_caster_class}
+		});
+	}
+
+private:
+	std::string m_spell_name;
+	std::string m_caster_class;
+	std::unique_ptr<tracing::ISpan> m_span;
+	observability::ScopedMetric m_duration;
+};
+
 /*
  * This function is the very heart of the entire magic system.  All
  * invocations of all types of magic -- objects, spoken and unspoken PC
@@ -366,6 +377,8 @@ bool MayCastHere(CharData *caster, CharData *victim, ESpell spell_id) {
  * Spellnum 0 is legal but silently ignored here, to make callers simpler.
  */
 int CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict, ESpell spell_id, int level) {
+	SpellCastMetrics metrics(spell_id, caster, level, cvict, ovict, rvict);
+
 
 	if (spell_id < ESpell::kFirst || spell_id > ESpell::kLast)
 		return 0;
@@ -393,6 +406,8 @@ int CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict
 	if (SpellUsage::is_active) {
 		SpellUsage::AddSpellStat(caster->GetClass(), spell_id);
 	}
+	
+	metrics.send();
 
 	if (MUD::Spell(spell_id).IsFlagged(kMagAreas) || MUD::Spell(spell_id).IsFlagged(kMagMasses)) {
 		return CallMagicToArea(caster, cvict, rvict, spell_id, abs(level));

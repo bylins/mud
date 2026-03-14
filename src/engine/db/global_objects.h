@@ -15,9 +15,11 @@
 #include "engine/ui/cmd_god/do_inspect.h"
 #include "engine/scripting/dg_event.h"
 #include "gameplay/economics/shops_implementation.h"
+#include "engine/observability/provider.h"
+#include "utils/logging/log_manager.h"
 #include "world_objects.h"
 #include "world_characters.h"
-#include "influxdb.h"
+#include "engine/observability/provider.h"
 #include "engine/entities/zone.h"
 #include "gameplay/quests/daily_quest.h"
 #include "gameplay/skills/skills_info.h"
@@ -27,6 +29,7 @@
 #include "engine/ui/cmd_god/do_set_all.h"
 #include "gameplay/classes/mob_classes_info.h"
 #include "engine/db/player_index.h"
+#include "engine/db/description.h"
 
 class BanList;    // to avoid inclusion of ban.hpp
 
@@ -69,8 +72,9 @@ class GlobalObjects {
 	static SetAllInspReqListType &setall_inspect_list();
 	static BanList *&ban();
 	static Heartbeat &heartbeat();
-	static influxdb::Sender &stats_sender();
+	static observability::OtelProvider &otel_provider();
 	static OutputThread &output_thread();
+	static logging::LogManager &log_manager();
 	static ZoneTable &zone_table();
   	static RunestoneRoster &Runestones();
 
@@ -90,6 +94,7 @@ class GlobalObjects {
 	static DailyQuest::DailyQuestMap &daily_quests();
 	static Strengthening &strengthening();
 	static obj2triggers_t &obj_triggers();
+	static RoomDescriptions &descriptions();
 };
 
 using MUD = GlobalObjects;
