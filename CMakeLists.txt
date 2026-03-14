@@ -147,6 +147,7 @@ set(SOURCES
 		src/gameplay/skills/skills_info.cpp
 		src/gameplay/communication/spam.cpp
 		src/gameplay/ai/spec_assign.cpp
+		src/gameplay/ai/spec_assign_reload.cpp
 		src/gameplay/ai/spec_procs.cpp
 		src/engine/network/admin_api.cpp
 		src/engine/network/admin_api/json_helpers.cpp

@@ -19,6 +19,7 @@
 #include "engine/entities/char_data.h"
 #include "gameplay/mechanics/noob.h"
 #include "gameplay/ai/spec_procs.h"
+#include "gameplay/ai/spec_assign.h"
 
 extern int dts_are_dumps;
 
@@ -28,11 +29,6 @@ int dump(CharData *ch, void *me, int cmd, char *argument);
 int puff(CharData *ch, void *me, int cmd, char *argument);
 
 void assign_kings_castle(void);
-
-// local functions
-void AssignMobiles(void);
-void AssignObjects(void);
-void AssignRooms(void);
 
 typedef int special_f(CharData *, void *, int, char *);
 
