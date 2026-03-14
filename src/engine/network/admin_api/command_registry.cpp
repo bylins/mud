@@ -242,6 +242,27 @@ static void HandleDeleteTriggerCommand(DescriptorData* d, const nlohmann::json& 
 	HandleDeleteTrigger(d, vnum);
 }
 
+// Zone reset commands
+static void HandleListZoneCommandsCommand(DescriptorData* d, const nlohmann::json& request)
+{
+	int zone = request.value("zone", -1);
+	HandleListZoneCommands(d, zone);
+}
+
+static void HandleAddZoneCommandCommand(DescriptorData* d, const nlohmann::json& request)
+{
+	int zone = request.value("zone", -1);
+	std::string data_str = request.dump();
+	HandleAddZoneCommand(d, zone, data_str.c_str());
+}
+
+static void HandleDeleteZoneCommandCommand(DescriptorData* d, const nlohmann::json& request)
+{
+	int zone = request.value("zone", -1);
+	int index = request.value("index", -1);
+	HandleDeleteZoneCommand(d, zone, index);
+}
+
 // Statistics and players
 static void HandleGetStatsCommand(DescriptorData* d, const nlohmann::json& request)
 {
@@ -298,6 +319,11 @@ void InitializeCommandRegistry()
 	registry.Register("update_trigger", HandleUpdateTriggerCommand);
 	registry.Register("create_trigger", HandleCreateTriggerCommand);
 	registry.Register("delete_trigger", HandleDeleteTriggerCommand);
+
+	// Zone reset commands
+	registry.Register("list_zone_commands", HandleListZoneCommandsCommand);
+	registry.Register("add_zone_command", HandleAddZoneCommandCommand);
+	registry.Register("delete_zone_command", HandleDeleteZoneCommandCommand);
 
 	// Statistics and players
 	registry.Register("get_stats", HandleGetStatsCommand);

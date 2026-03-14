@@ -382,6 +382,21 @@ void admin_api_parse(DescriptorData *d, char *argument) {
 			int vnum = request.value("vnum", -1);
 			HandleDeleteTrigger(d, vnum);
 		}
+		// Zone reset commands
+		else if (command == "list_zone_commands") {
+			int zone = request.value("zone", -1);
+			HandleListZoneCommands(d, zone);
+		}
+		else if (command == "add_zone_command") {
+			int zone = request.value("zone", -1);
+			json data = request.value("data", json::object());
+			HandleAddZoneCommand(d, zone, data.dump().c_str());
+		}
+		else if (command == "delete_zone_command") {
+			int zone = request.value("zone", -1);
+			int index = request.value("index", -1);
+			HandleDeleteZoneCommand(d, zone, index);
+		}
 		// Stats and players
 		else if (command == "get_stats") {
 			HandleGetStats(d);

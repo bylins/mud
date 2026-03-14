@@ -229,6 +229,33 @@ void HandleCreateTrigger(DescriptorData* d, int zone_vnum, const char* json_data
 void HandleDeleteTrigger(DescriptorData* d, int trig_vnum);
 
 // ============================================================================
+// Zone Reset Commands
+// ============================================================================
+
+/**
+ * \brief List zone reset commands
+ * \param d Descriptor to send response to
+ * \param zone_vnum Zone virtual number
+ */
+void HandleListZoneCommands(DescriptorData* d, int zone_vnum);
+
+/**
+ * \brief Add zone reset command
+ * \param d Descriptor to send response to
+ * \param zone_vnum Zone virtual number
+ * \param json_data JSON command data
+ */
+void HandleAddZoneCommand(DescriptorData* d, int zone_vnum, const char* json_data);
+
+/**
+ * \brief Delete zone reset command
+ * \param d Descriptor to send response to
+ * \param zone_vnum Zone virtual number
+ * \param cmd_index Command index to delete
+ */
+void HandleDeleteZoneCommand(DescriptorData* d, int zone_vnum, int cmd_index);
+
+// ============================================================================
 // Statistics and Players
 // ============================================================================
 
