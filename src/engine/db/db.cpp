@@ -2473,9 +2473,9 @@ void ZoneReset::ResetZoneEssential() {
 									if (ch->has_master()) {
 										stop_follower(ch, kSfEmpty);
 									}
-
+									if (ch->purged() || ch->in_room == kNowhere)
+										continue;
 									leader->add_follower(ch);
-
 									curr_state = 1;
 								}
 							}
