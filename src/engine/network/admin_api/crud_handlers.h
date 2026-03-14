@@ -93,9 +93,10 @@ void HandleUpdateMob(DescriptorData* d, int mob_vnum, const char* json_data);
 /**
  * \brief Create new mob
  * \param d Descriptor to send response to
+ * \param zone_vnum Zone virtual number
  * \param json_data JSON mob data
  */
-void HandleCreateMob(DescriptorData* d, const char* json_data);
+void HandleCreateMob(DescriptorData* d, int zone_vnum, const char* json_data);
 
 /**
  * \brief Delete mob
@@ -133,9 +134,10 @@ void HandleUpdateObject(DescriptorData* d, int obj_vnum, const char* json_data);
 /**
  * \brief Create new object
  * \param d Descriptor to send response to
+ * \param zone_vnum Zone virtual number
  * \param json_data JSON object data
  */
-void HandleCreateObject(DescriptorData* d, const char* json_data);
+void HandleCreateObject(DescriptorData* d, int zone_vnum, const char* json_data);
 
 /**
  * \brief Delete object

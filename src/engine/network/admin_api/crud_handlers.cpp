@@ -36,6 +36,7 @@ extern void oedit_save_internally(DescriptorData *d);
 extern void redit_save_internally(DescriptorData *d);
 extern void trigedit_save(DescriptorData *d);
 extern void CopyRoom(RoomData *to, RoomData *from);
+extern void medit_mobile_init(CharData *mob);
 
 // External admin_api helpers (from admin_api.cpp)
 extern void admin_api_send_json(DescriptorData *d, const char *json_str);
@@ -282,11 +283,114 @@ void HandleListMobs(DescriptorData* d, const char* zone_vnum_str)
 	SendJsonResponse(d, response);
 }
 
-void HandleCreateMob(DescriptorData* d, const char* json_data)
+void HandleCreateMob(DescriptorData* d, int zone_vnum, const char* json_data)
 {
-	// TODO: Implement using parsers
-	(void)json_data;
-	SendErrorResponse(d, "Not implemented yet");
+	try
+	{
+		json data = json::parse(json_data);
+
+		if (zone_vnum < 0)
+		{
+			SendErrorResponse(d, "zone_vnum is required");
+			return;
+		}
+
+		ZoneRnum zone_rnum = GetZoneRnum(zone_vnum);
+		if (zone_rnum < 0)
+		{
+			SendErrorResponse(d, "Zone not found");
+			return;
+		}
+
+		const ZoneData &zone = zone_table[zone_rnum];
+		int zone_start = zone_vnum * 100;
+		int zone_top = zone.top;
+
+		// Find available vnum or validate provided one
+		int vnum = data.value("vnum", -1);
+		if (vnum < 0)
+		{
+			vnum = zone_start;
+			while (vnum <= zone_top && GetMobRnum(vnum) != kNobody)
+			{
+				++vnum;
+			}
+			if (vnum > zone_top)
+			{
+				SendErrorResponse(d, "No available vnums in zone range");
+				return;
+			}
+		}
+		else
+		{
+			if (vnum < zone_start || vnum > zone_top)
+			{
+				SendErrorResponse(d, "Vnum is outside zone range");
+				return;
+			}
+			if (GetMobRnum(vnum) != kNobody)
+			{
+				SendErrorResponse(d, "Vnum already in use");
+				return;
+			}
+		}
+
+		// Create temporary OLC descriptor
+		auto *temp_d = new DescriptorData();
+		temp_d->olc = new olc_data();
+		temp_d->output = temp_d->small_outbuf;
+		temp_d->bufspace = kSmallBufsize - 1;
+		*temp_d->output = '\0';
+		temp_d->bufptr = 0;
+		temp_d->olc->number = vnum;
+		temp_d->olc->zone_num = zone_rnum;
+
+		// Create dummy character to prevent OLC crashes
+		temp_d->character = std::make_shared<CharData>();
+		temp_d->character->desc = temp_d;
+
+		// Initialize new mob with defaults (like medit_setup with real_num == -1)
+		CharData *mob = new CharData;
+		medit_mobile_init(mob);
+		mob->set_rnum(kNobody);
+		mob->SetCharAliases("new mob");
+		mob->set_npc_name("new mob");
+		mob->player_data.long_descr = "A new mob stands here.\r\n";
+		mob->player_data.description = "Unremarkable in every way.\r\n";
+		mob->player_data.PNames[ECase::kNom] = "new mob";
+		mob->player_data.PNames[ECase::kGen] = "new mob";
+		mob->player_data.PNames[ECase::kDat] = "new mob";
+		mob->player_data.PNames[ECase::kAcc] = "new mob";
+		mob->player_data.PNames[ECase::kIns] = "new mob";
+		mob->player_data.PNames[ECase::kPre] = "new mob";
+		mob->mob_specials.Questor = nullptr;
+
+		// Apply JSON fields
+		ParseMobUpdate(mob, data);
+
+		OLC_MOB(temp_d) = mob;
+
+		// Save via OLC (handles array expansion, indexing, disk save)
+		medit_save_internally(temp_d);
+
+		// Clean up
+		delete temp_d->olc;
+		delete temp_d;
+
+		json response;
+		response["status"] = "ok";
+		response["message"] = "Mob created successfully";
+		response["vnum"] = vnum;
+		SendJsonResponse(d, response);
+	}
+	catch (const json::parse_error&)
+	{
+		SendErrorResponse(d, "Invalid JSON format");
+	}
+	catch (const std::exception& e)
+	{
+		SendErrorResponse(d, (std::string("Create failed: ") + e.what()).c_str());
+	}
 }
 
 void HandleDeleteMob(DescriptorData* d, int mob_vnum)
@@ -410,9 +514,112 @@ void HandleUpdateObject(DescriptorData* d, int obj_vnum, const char* json_data)
 	}
 }
 
-void HandleCreateObject(DescriptorData* d, const char* /* json_data */)
+void HandleCreateObject(DescriptorData* d, int zone_vnum, const char* json_data)
 {
-	SendErrorResponse(d, "Object creation not implemented - use in-game OLC");
+	try
+	{
+		json data = json::parse(json_data);
+
+		if (zone_vnum < 0)
+		{
+			SendErrorResponse(d, "zone_vnum is required");
+			return;
+		}
+
+		ZoneRnum zone_rnum = GetZoneRnum(zone_vnum);
+		if (zone_rnum < 0)
+		{
+			SendErrorResponse(d, "Zone not found");
+			return;
+		}
+
+		const ZoneData &zone = zone_table[zone_rnum];
+		int zone_start = zone_vnum * 100;
+		int zone_top = zone.top;
+
+		// Find available vnum or validate provided one
+		int vnum = data.value("vnum", -1);
+		if (vnum < 0)
+		{
+			vnum = zone_start;
+			while (vnum <= zone_top && GetObjRnum(vnum) >= 0)
+			{
+				++vnum;
+			}
+			if (vnum > zone_top)
+			{
+				SendErrorResponse(d, "No available vnums in zone range");
+				return;
+			}
+		}
+		else
+		{
+			if (vnum < zone_start || vnum > zone_top)
+			{
+				SendErrorResponse(d, "Vnum is outside zone range");
+				return;
+			}
+			if (GetObjRnum(vnum) >= 0)
+			{
+				SendErrorResponse(d, "Vnum already in use");
+				return;
+			}
+		}
+
+		// Create temporary OLC descriptor
+		auto *temp_d = new DescriptorData();
+		temp_d->olc = new olc_data();
+		temp_d->output = temp_d->small_outbuf;
+		temp_d->bufspace = kSmallBufsize - 1;
+		*temp_d->output = '\0';
+		temp_d->bufptr = 0;
+		temp_d->olc->number = vnum;
+		temp_d->olc->zone_num = zone_rnum;
+
+		// Create dummy character to prevent OLC crashes
+		temp_d->character = std::make_shared<CharData>();
+		temp_d->character->desc = temp_d;
+
+		// Initialize new object with defaults (like oedit_setup with real_num == -1)
+		ObjData *obj;
+		NEWCREATE(obj, vnum);
+		obj->set_aliases("new object");
+		obj->set_description("Something new lies here.");
+		obj->set_short_description("new object");
+		obj->set_PName(ECase::kNom, "new object");
+		obj->set_PName(ECase::kGen, "new object");
+		obj->set_PName(ECase::kDat, "new object");
+		obj->set_PName(ECase::kAcc, "new object");
+		obj->set_PName(ECase::kIns, "new object");
+		obj->set_PName(ECase::kPre, "new object");
+		obj->set_wear_flags(to_underlying(EWearFlag::kTake));
+
+		// Apply JSON fields
+		ParseObjectUpdate(obj, data);
+
+		OLC_OBJ(temp_d) = obj;
+
+		// Save via OLC (handles index expansion, disk save)
+		oedit_save_internally(temp_d);
+
+		// Clean up
+		delete temp_d->olc;
+		delete temp_d;
+
+		json response;
+		response["status"] = "ok";
+		response["message"] = "Object created successfully";
+		response["vnum"] = vnum;
+		SendJsonResponse(d, response);
+	}
+	catch (const json::parse_error&)
+	{
+		SendErrorResponse(d, "Invalid JSON format");
+	}
+	catch (const std::exception& e)
+	{
+		SendErrorResponse(d, (std::string("Create failed: ") + e.what()).c_str());
+	}
 }
 
 void HandleDeleteObject(DescriptorData* d, int obj_vnum)

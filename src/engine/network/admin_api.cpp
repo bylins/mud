@@ -305,8 +305,9 @@ void admin_api_parse(DescriptorData *d, char *argument) {
 			HandleUpdateMob(d, vnum, data.dump().c_str());
 		}
 		else if (command == "create_mob") {
+			int zone = request.value("zone", -1);
 			json data = request.value("data", json::object());
-			HandleCreateMob(d, data.dump().c_str());
+			HandleCreateMob(d, zone, data.dump().c_str());
 		}
 		else if (command == "delete_mob") {
 			int vnum = request.value("vnum", -1);
@@ -327,8 +328,9 @@ void admin_api_parse(DescriptorData *d, char *argument) {
 			HandleUpdateObject(d, vnum, data.dump().c_str());
 		}
 		else if (command == "create_object") {
+			int zone = request.value("zone", -1);
 			json data = request.value("data", json::object());
-			HandleCreateObject(d, data.dump().c_str());
+			HandleCreateObject(d, zone, data.dump().c_str());
 		}
 		else if (command == "delete_object") {
 			int vnum = request.value("vnum", -1);

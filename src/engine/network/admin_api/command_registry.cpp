@@ -132,8 +132,9 @@ static void HandleUpdateMobCommand(DescriptorData* d, const nlohmann::json& requ
 
 static void HandleCreateMobCommand(DescriptorData* d, const nlohmann::json& request)
 {
+	int zone = request.value("zone", -1);
 	std::string data_str = request.dump();
-	HandleCreateMob(d, data_str.c_str());
+	HandleCreateMob(d, zone, data_str.c_str());
 }
 
 static void HandleDeleteMobCommand(DescriptorData* d, const nlohmann::json& request)
@@ -164,8 +165,9 @@ static void HandleUpdateObjectCommand(DescriptorData* d, const nlohmann::json& r
 
 static void HandleCreateObjectCommand(DescriptorData* d, const nlohmann::json& request)
 {
+	int zone = request.value("zone", -1);
 	std::string data_str = request.dump();
-	HandleCreateObject(d, data_str.c_str());
+	HandleCreateObject(d, zone, data_str.c_str());
 }
 
 static void HandleDeleteObjectCommand(DescriptorData* d, const nlohmann::json& request)
