@@ -118,6 +118,9 @@ int deathtrap::check_death_trap(CharData *ch) {
 
 			sprintf(buf1, "Player %s died in DT (room %d)", GET_NAME(ch), GET_ROOM_VNUM(ch->in_room));
 			mudlog(buf1, LGH, kLvlImmortal, SYSLOG, true);
+			if (!ch->IsNpc() && stone_rebirth(ch, nullptr)) {
+				return true;
+			}
 			death_cry(ch, nullptr);
 			corpse = make_corpse(ch);
 			if (corpse != nullptr) {

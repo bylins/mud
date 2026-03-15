@@ -4,6 +4,7 @@
 class CharData;    // to avoid inclusion "char.hpp" into header file.
 
 bool check_tester_death(CharData *ch, CharData *killer);
+bool stone_rebirth(CharData *ch, CharData *killer);
 
 #endif // __FIGHT_STUFF_HPP__
 
