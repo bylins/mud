@@ -201,12 +201,12 @@ int npc_scavenge(CharData *ch) {
 	}
 
 	npc_dropunuse(ch);
-	if (world[ch->in_room]->contents && number(0, 25) <= GetRealInt(ch)) {
+	if (world[ch->in_room]->contents.empty() == false && number(0, 25) <= GetRealInt(ch)) {
 		max = 1;
 		best_obj = nullptr;
 		cont = nullptr;
 		best_cont = nullptr;
-		for (obj = world[ch->in_room]->contents; obj; obj = obj->get_next_content()) {
+		for (auto obj : world[ch->in_room]->contents) {
 			if (obj->get_type() == EObjType::kMagicIngredient
 				|| Clan::is_clan_chest(obj)
 				|| ClanSystem::is_ingr_chest(obj)) {
@@ -292,8 +292,8 @@ int npc_loot(CharData *ch) {
 	if (IS_SHOPKEEPER(ch))
 		return (false);
 	npc_dropunuse(ch);
-	if (world[ch->in_room]->contents && number(0, GetRealInt(ch)) > 10) {
-		for (obj = world[ch->in_room]->contents; obj; obj = obj->get_next_content()) {
+	if (world[ch->in_room]->contents.empty() == false && number(0, GetRealInt(ch)) > 10) {
+		for (auto obj : world[ch->in_room]->contents) {
 			if (CAN_SEE_OBJ(ch, obj) && IS_CORPSE(obj)) {
 				// Сначала лутим то, что не в контейнерах
 				for (loot_obj = obj->get_contains(); loot_obj; loot_obj = next_loot) {
@@ -755,9 +755,9 @@ int npc_battle_scavenge(CharData *ch) {
 	if (IS_SHOPKEEPER(ch))
 		return (false);
 
-	if (world[ch->in_room]->contents && number(0, GetRealInt(ch)) > 10)
-		for (obj = world[ch->in_room]->contents; obj; obj = next_obj) {
-			next_obj = obj->get_next_content();
+	if (world[ch->in_room]->contents.empty() == false && number(0, GetRealInt(ch)) > 10)
+		for (auto it = world[ch->in_room]->contents.begin(); it != world[ch->in_room]->contents.end(); ) {
+			auto obj = *it; ++it;
 			if (CAN_GET_OBJ(ch, obj)
 				&& !has_curse(obj)
 				&& (ObjSystem::is_armor_type(obj)
@@ -989,7 +989,8 @@ int dump(CharData *ch, void * /*me*/, int cmd, char *argument) {
 	ObjData *k;
 	int value = 0;
 
-	for (k = world[ch->in_room]->contents; k; k = world[ch->in_room]->contents) {
+	while (!world[ch->in_room]->contents.empty()) {
+		auto k = world[ch->in_room]->contents.front();
 		act("$p рассыпал$U в прах!", false, 0, k, 0, kToRoom);
 		ExtractObjFromWorld(k);
 	}
@@ -999,7 +1000,8 @@ int dump(CharData *ch, void * /*me*/, int cmd, char *argument) {
 
 	DoDrop(ch, argument, cmd, 0);
 
-	for (k = world[ch->in_room]->contents; k; k = world[ch->in_room]->contents) {
+	while (!world[ch->in_room]->contents.empty()) {
+		auto k = world[ch->in_room]->contents.front();
 		act("$p рассыпал$U в прах!", false, 0, k, 0, kToRoom);
 		value += MAX(1, MIN(1, k->get_cost() / 10));
 		ExtractObjFromWorld(k);
@@ -1223,7 +1225,7 @@ int fido(CharData *ch, void * /*me*/, int cmd, char * /*argument*/) {
 	if (cmd || !AWAKE(ch))
 		return (false);
 
-	for (i = world[ch->in_room]->contents; i; i = i->get_next_content()) {
+	for (auto i : world[ch->in_room]->contents) {
 		if (IS_CORPSE(i)) {
 			act("$n savagely devours a corpse.", false, ch, 0, 0, kToRoom);
 			for (temp = i->get_contains(); temp; temp = next_obj) {
@@ -1244,7 +1246,7 @@ int janitor(CharData *ch, void * /*me*/, int cmd, char * /*argument*/) {
 	if (cmd || !AWAKE(ch))
 		return (false);
 
-	for (i = world[ch->in_room]->contents; i; i = i->get_next_content()) {
+	for (auto i : world[ch->in_room]->contents) {
 		if (!CAN_WEAR(i, EWearFlag::kTake)) {
 			continue;
 		}

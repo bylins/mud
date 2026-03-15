@@ -1184,15 +1184,17 @@ void do_stat_room(CharData *ch, const int rnum = 0) {
 	}
 	SendMsgToChar(kColorNrm, ch);
 
-	if (rm->contents) {
+	if (!rm->contents.empty()) {
 		sprintf(buf, "Предметы:%s", kColorGrn);
-		for (found = 0, j = rm->contents; j; j = j->get_next_content()) {
+		found = 0;
+		for (auto it = rm->contents.begin(); it != rm->contents.end(); ++it) {
+			auto j = *it;
 			if (!CAN_SEE_OBJ(ch, j))
 				continue;
 			sprintf(buf2, "%s %s", found++ ? "," : "", j->get_short_description().c_str());
 			strcat(buf, buf2);
 			if (strlen(buf) >= 62) {
-				if (j->get_next_content()) {
+				if (std::next(it) != rm->contents.end()) {
 					SendMsgToChar(strcat(buf, ",\r\n"), ch);
 				} else {
 					SendMsgToChar(strcat(buf, "\r\n"), ch);

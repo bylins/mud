@@ -41,7 +41,7 @@ void do_mark(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					found = true;
 				}
 			}
-			for (cont = world[ch->in_room]->contents; cont; cont = cont->get_next_content()) {
+			for (auto cont : world[ch->in_room]->contents) {
 				if (CAN_SEE_OBJ(ch, cont)
 					&& (cont_dotmode == kFindAll
 						|| isname(arg2, cont->get_aliases()))) {

@@ -2197,7 +2197,7 @@ void SpellHolystrike(int/* level*/, CharData *ch, CharData* /*victim*/, ObjData*
 
 	ObjData *o = nullptr;
 	do {
-		for (o = world[ch->in_room]->contents; o; o = o->get_next_content()) {
+		for (auto o : world[ch->in_room]->contents) {
 			if (!IS_CORPSE(o)) {
 				continue;
 			}
