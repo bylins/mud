@@ -393,7 +393,7 @@ void RoomDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to, std::vector<ZrnComplexList
 		new_room->sector_type = world[i]->sector_type;
 		new_room->people.clear();
 		new_room->func = nullptr;
-		new_room->contents.clear();
+		new_room->contents = nullptr;
 		new_room->track = nullptr;
 		new_room->light = 0;
 		new_room->fires = 0;
@@ -864,13 +864,13 @@ void ClearRoom(RoomData *room) {
 		}
 		ObjData *obj, *next_o;
 
-		while (!room->contents.empty()) {
-			auto obj = room->contents.front();
+		for (obj = room->contents; obj; obj = next_o) {
+			next_o = obj->get_next_content();
 			ExtractObjFromWorld(obj);
 		}
 // вдруг лежала сумка с вещами игрока, пройдемся еще раз
-		while (!room->contents.empty()) {
-			auto obj = room->contents.front();
+		for (obj = room->contents; obj; obj = next_o) {
+			next_o = obj->get_next_content();
 			ExtractObjFromWorld(obj);
 		}
 }

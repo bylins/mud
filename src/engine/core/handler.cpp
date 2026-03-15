@@ -369,17 +369,6 @@ void ArrangeObjs(ObjData *obj, ObjData **list_start) {
 	before->set_next_content(p); // будет 0 если после перемещаемых ничего не лежало
 }
 
-void ArrangeObjInList(ObjData *obj, ObjData::obj_list_t &list) {
-	for (auto it = list.begin(); it != list.end(); ++it) {
-		if (IsObjsStackable(*it, obj)) {
-			list.insert(it, obj);
-			return;
-		}
-	}
-	list.push_front(obj);
-}
-
-
 } // no-name namespace
 
 // * Инициализация уида для нового объекта.
@@ -1201,15 +1190,6 @@ ObjData *GetObjByRnumInContent(ObjRnum rnum, ObjData *list) {
 	return nullptr;
 }
 
-ObjData *GetObjByRnumInContent(ObjRnum rnum, const ObjData::obj_list_t &list) {
-	for (auto i : list) {
-		if (i->get_rnum() == rnum) {
-			return i;
-		}
-	}
-	return nullptr;
-}
-
 /**
  * Search an object in list by vnum.
  * @param vnum - object vnum.
@@ -1279,7 +1259,7 @@ bool PlaceObjToRoom(ObjData *object, RoomRnum room) {
 			room, top_of_world, object);
 		return false;
 	} 
-	ArrangeObjInList(object, world[room]->contents);
+	ArrangeObjs(object, &world[room]->contents);
 	if (world[room]->vnum % 100 == 99 && zone_table[world[room]->zone_rn].vnum < dungeons::kZoneStartDungeons) {
 		if (!(object->has_flag(EObjFlag::kAppearsDay)
 				|| object->has_flag(EObjFlag::kAppearsFullmoon)
@@ -1375,10 +1355,7 @@ void RemoveObjFromRoom(ObjData *object) {
 		return;
 	}
 
-	{
-		auto &list = world[object->get_in_room()]->contents;
-		list.remove(object);
-	}
+	object->remove_me_from_contains_list(world[object->get_in_room()]->contents);
 
 	object->set_in_room(kNowhere);
 	object->set_next_content(nullptr);
@@ -1903,7 +1880,8 @@ CharData *get_char_vis(CharData *ch, const char *name, int where) {
 	return nullptr;
 }
 
-ObjData *get_obj_in_list_vis(CharData *ch, const char *name, const ObjData::obj_list_t &list, bool locate_item) {
+ObjData *get_obj_in_list_vis(CharData *ch, const char *name, ObjData *list, bool locate_item) {
+	ObjData *i;
 	int j = 0, number;
 	char tmpname[kMaxInputLength];
 	char *tmp = tmpname;
@@ -1916,8 +1894,7 @@ ObjData *get_obj_in_list_vis(CharData *ch, const char *name, const ObjData::obj_
 	if (number > 1 && locate_item)
 		return (nullptr);
 
-	for (auto i : list) {
-		if (j > number) break;
+	for (i = list; i && (j <= number); i = i->get_next_content()) {
 		if (i->get_extracted_list()) {
 			continue;
 		}
@@ -1942,14 +1919,7 @@ ObjData *get_obj_in_list_vis(CharData *ch, const char *name, const ObjData::obj_
 	return (nullptr);
 }
 
-// Legacy overloads for ObjData* linked lists (carrying, equipment)
-ObjData *get_obj_in_list_vis(CharData *ch, const char *name, ObjData *list, bool locate_item) {
-	ObjData::obj_list_t tmp_list;
-	for (auto obj = list; obj; obj = obj->get_next_content()) {
-		tmp_list.push_back(obj);
-	}
-	return get_obj_in_list_vis(ch, name, tmp_list, locate_item);
-}
+class ExitLoopException : std::exception {};
 
 ObjData *get_obj_vis_and_dec_num(CharData *ch,
 								 const char *name,
@@ -1957,27 +1927,6 @@ ObjData *get_obj_vis_and_dec_num(CharData *ch,
 								 std::unordered_set<unsigned int> &id_obj_set,
 								 int &number) {
 	for (auto item = list; item != nullptr; item = item->get_next_content()) {
-		if (CAN_SEE_OBJ(ch, item)) {
-			if (isname(name, item->get_aliases())
-				|| CHECK_CUSTOM_LABEL(name, item, ch)) {
-				if (--number == 0) {
-					return item;
-				}
-				id_obj_set.insert(item->get_id());
-			}
-		}
-	}
-	return nullptr;
-}
-
-class ExitLoopException : std::exception {};
-
-ObjData *get_obj_vis_and_dec_num(CharData *ch,
-								 const char *name,
-								 const ObjData::obj_list_t &list,
-								 std::unordered_set<unsigned int> &id_obj_set,
-								 int &number) {
-	for (auto item : list) {
 		if (CAN_SEE_OBJ(ch, item)) {
 			if (isname(name, item->get_aliases())
 				|| CHECK_CUSTOM_LABEL(name, item, ch)) {
@@ -2287,8 +2236,8 @@ int generic_find(char *arg, Bitvector bitvector, CharData *ch, CharData **tar_ch
 		}
 	}
 	if (IS_SET(bitvector, EFind::kObjRoom)) {
-	for (auto i : world[ch->in_room]->contents) {
-		if (j > number) break;
+		for (i = world[ch->in_room]->contents;
+			 i && (j <= number); i = i->get_next_content()) {
 			if (isname(tmp, i->get_aliases())
 				|| CHECK_CUSTOM_LABEL(tmp, i, ch)
 				|| (IS_SET(bitvector, EFind::kObjExtraDesc)

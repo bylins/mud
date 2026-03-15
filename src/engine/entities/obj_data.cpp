@@ -1432,7 +1432,8 @@ bool is_norent_set(int vnum, std::vector<int> objs) {
 // * Поиск в хране из списка vnum_list.
 bool house_find_set_item(CharData *ch, const std::set<int> &vnum_list) {
 	// храны у нас через задницу сделаны
-	for (auto chest : world[GetRoomRnum(CLAN(ch)->get_chest_room())]->contents) {
+	for (ObjData *chest = world[GetRoomRnum(CLAN(ch)->get_chest_room())]->contents; chest;
+		 chest = chest->get_next_content()) {
 		if (Clan::is_clan_chest(chest)) {
 			for (ObjData *temp = chest->get_contains(); temp; temp = temp->get_next_content()) {
 				if (vnum_list.find(obj_sets::normalize_vnum(temp->get_vnum())) != vnum_list.end()) {

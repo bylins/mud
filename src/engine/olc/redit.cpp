@@ -142,7 +142,7 @@ void redit_save_internally(DescriptorData *d) {
 					}
 				}
 
-				for (auto temp_obj : world[i]->contents) {
+				for (temp_obj = world[i]->contents; temp_obj; temp_obj = temp_obj->get_next_content()) {
 					if (temp_obj->get_in_room() != kNowhere) {
 						temp_obj->set_in_room(i);
 					}
@@ -876,7 +876,7 @@ void CopyRoom(RoomData *dst, RoomData *src) {
 	{
 		// Сохраняю track, contents, people, аффекты
 		struct TrackData *track = dst->track;
-		auto contents = std::move(dst->contents);
+		ObjData *contents = dst->contents;
 		const auto people_backup = dst->people;
 		auto affected = dst->affected;
 
@@ -885,7 +885,7 @@ void CopyRoom(RoomData *dst, RoomData *src) {
 
 		// Восстанавливаю track, contents, people, аффекты
 		dst->track = track;
-		dst->contents = std::move(contents);
+		dst->contents = contents;
 		dst->people = people_backup;
 		dst->affected = affected;
 	}

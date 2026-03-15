@@ -1534,7 +1534,7 @@ int special(CharData *ch, int cmd, char *argument, int fnum) {
 	}
 
 	// special in object present? //
-	for (auto i : world[ch->in_room]->contents) {
+	for (i = world[ch->in_room]->contents; i; i = i->get_next_content()) {
 		auto spec = GET_OBJ_SPEC(i);
 		if (spec != nullptr && spec(ch, i, cmd, argument)) {
 			check_hiding_cmd(ch, -1);

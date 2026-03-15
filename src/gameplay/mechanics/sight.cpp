@@ -57,7 +57,6 @@ const char *ObjState[8][2] = {{"рассыпается", "рассыпается
 							  {"великолепно", "в великолепном состоянии"}
 };
 
-void list_obj_to_char(const ObjData::obj_list_t &list, CharData *ch, int mode, int show);
 void do_auto_exits(CharData *ch);
 void show_extend_room(const char *description, CharData *ch);
 void list_char_to_char_thing(const RoomData::people_t &list, CharData *ch);
@@ -249,7 +248,8 @@ void look_at_room(CharData *ch, int ignore_brief, bool msdp_mode) {
 
 void show_glow_objs(CharData *ch) {
 	unsigned cnt = 0;
-	for (auto obj : world[ch->in_room]->contents) {
+	for (ObjData *obj = world[ch->in_room]->contents;
+		 obj; obj = obj->get_next_content()) {
 		if (obj->has_flag(EObjFlag::kGlow)) {
 			++cnt;
 			if (cnt > 1) {
@@ -796,7 +796,6 @@ void do_auto_exits(CharData *ch) {
 	SendMsgToChar(buf2, ch);
 }
 
-
 void list_obj_to_char(ObjData *list, CharData *ch, int mode, int show) {
 	ObjData *i, *push = nullptr;
 	bool found = false;
@@ -849,54 +848,6 @@ void list_obj_to_char(ObjData *list, CharData *ch, int mode, int show) {
 	}
 	if (clan_chest)
 		page_string(ch->desc, buffer.str());
-}
-
-void list_obj_to_char(const ObjData::obj_list_t &list, CharData *ch, int mode, int show) {
-	ObjData *push = nullptr;
-	bool found = false;
-	int push_count = 0;
-	std::ostringstream buffer;
-	long cost = 0, count = 0;
-
-	bool clan_chest = false;
-	if (mode == 1 && (show == 3 || show == 4)) {
-		clan_chest = true;
-	}
-
-	for (auto i : list) {
-		if (CAN_SEE_OBJ(ch, i)) {
-			if (!push) {
-				push = i;
-				push_count = 1;
-			} else if ((!IsObjsStackable(i, push))
-				|| (quest_item(i))) {
-				if (clan_chest) {
-					buffer << show_obj_to_char(push, ch, mode, show, push_count);
-					count += push_count;
-					cost += push->get_rent_on() * push_count;
-				} else
-					show_obj_to_char(push, ch, mode, show, push_count);
-				push = i;
-				push_count = 1;
-			} else
-				push_count++;
-			found = true;
-		}
-	}
-	if (push && push_count) {
-		if (clan_chest) {
-			buffer << show_obj_to_char(push, ch, mode, show, push_count);
-			count += push_count;
-			cost += push->get_rent_on() * push_count;
-		} else
-			show_obj_to_char(push, ch, mode, show, push_count);
-	}
-	if (!found && show) {
-		SendMsgToChar(" \xce\xc9\xde\xc5\xc7\xd8.\r\n", ch);
-	}
-	if (clan_chest) {
-		SendMsgToChar(ch, "%s", buffer.str().c_str());
-	}
 }
 
 void list_char_to_char(const RoomData::people_t &list, CharData *ch) {

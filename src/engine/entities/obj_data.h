@@ -22,7 +22,6 @@
 #include <vector>
 #include <string>
 #include <map>
-#include <list>
 
 std::string print_obj_affects(const obj_affected_type &affect);
 void print_obj_affects(CharData *ch, const obj_affected_type &affect);
@@ -666,7 +665,6 @@ class Script;    // to avoid inclusion of "dg_scripts.h"
 class ObjData : public CObjectPrototype {
  public:
 	using shared_ptr = std::shared_ptr<ObjData>;
-	using obj_list_t = std::list<ObjData*>;
 
 	constexpr static const int DEFAULT_MAKER = 0;
 	constexpr static const int DEFAULT_OWNER = 0;

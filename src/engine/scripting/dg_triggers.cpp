@@ -968,7 +968,7 @@ int command_otrigger(CharData *actor, char *cmd, const char *argument) {
 		}
 	}
 
-	for (auto obj : world[actor->in_room]->contents) {
+	for (ObjData *obj = world[actor->in_room]->contents; obj; obj = obj->get_next_content()) {
 		if (cmd_otrig(obj, actor, cmd, argument, OCMD_ROOM)) {
 			return 1;
 		}
@@ -1164,7 +1164,7 @@ void greet_otrigger(CharData *actor, int dir) {
 		return;
 	}
 
-	for (auto obj : world[actor->in_room]->contents) {
+	for (obj = world[actor->in_room]->contents; obj; obj = obj->get_next_content()) {
 		if (!CheckSript(obj, OTRIG_GREET_ALL_PC)) {
 			continue;
 		}

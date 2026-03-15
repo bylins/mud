@@ -142,15 +142,12 @@ bool FindObjIDByVNUM::lookup_worn(const CharData *character) {
 }
 
 bool FindObjIDByVNUM::lookup_room(const RoomRnum room) {
-	const auto &room_contents = world[room]->contents;
-	if (room_contents.empty()) {
+	const auto room_contents = world[room]->contents;
+	if (!room_contents) {
 		return false;
 	}
 
-	for (const auto obj : room_contents) {
-		if (lookup_list(obj)) return true;
-	}
-	return false;
+	return lookup_list(room_contents);
 }
 
 bool FindObjIDByVNUM::lookup_list(const ObjData *list) {

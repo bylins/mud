@@ -89,7 +89,7 @@ struct RoomData {
 	Script::shared_ptr script;    // script info for the object //
 	struct TrackData *track;
 
-	ObjData::obj_list_t contents;    // List of items in room              //
+	ObjData *contents;    // List of items in room              //
 	people_t people;    // List of NPC / PC in room           //
 
 	room_spells::RoomAffects affected;    // affected by what spells       //

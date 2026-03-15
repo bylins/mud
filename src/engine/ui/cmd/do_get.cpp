@@ -270,8 +270,8 @@ void get_from_room(CharData *ch, char *local_arg, int howmany) {
 			SendMsgToChar("Взять что \"все\"?\r\n", ch);
 			return;
 		}
-		for (auto it = world[ch->in_room]->contents.begin(); it != world[ch->in_room]->contents.end(); ) {
-			auto obj = *it; ++it;
+		for (obj = world[ch->in_room]->contents; obj; obj = next_obj) {
+			next_obj = obj->get_next_content();
 			if (CAN_SEE_OBJ(ch, obj)
 				&& (dotmode == kFindAll
 					|| isname(local_arg, obj->get_aliases())
@@ -367,7 +367,8 @@ void do_get(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					}
 				}
 			}
-			if (IS_SET(where_bits, EFind::kObjRoom)) for (auto cont : world[ch->in_room]->contents) {
+			for (cont = world[ch->in_room]->contents; cont && IS_SET(where_bits, EFind::kObjRoom);
+				 cont = cont->get_next_content()) {
 				if (CAN_SEE_OBJ(ch, cont)
 					&& (cont_dotmode == kFindAll
 						|| isname(thecont, cont->get_aliases())
