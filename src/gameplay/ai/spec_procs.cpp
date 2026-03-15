@@ -201,7 +201,7 @@ int npc_scavenge(CharData *ch) {
 	}
 
 	npc_dropunuse(ch);
-	if (world[ch->in_room]->contents.empty() == false && number(0, 25) <= GetRealInt(ch)) {
+	if (!world[ch->in_room]->contents.empty() && number(0, 25) <= GetRealInt(ch)) {
 		max = 1;
 		best_obj = nullptr;
 		cont = nullptr;
@@ -292,7 +292,7 @@ int npc_loot(CharData *ch) {
 	if (IS_SHOPKEEPER(ch))
 		return (false);
 	npc_dropunuse(ch);
-	if (world[ch->in_room]->contents.empty() == false && number(0, GetRealInt(ch)) > 10) {
+	if (!world[ch->in_room]->contents.empty() && number(0, GetRealInt(ch)) > 10) {
 		for (auto obj : world[ch->in_room]->contents) {
 			if (CAN_SEE_OBJ(ch, obj) && IS_CORPSE(obj)) {
 				// Сначала лутим то, что не в контейнерах
@@ -755,7 +755,7 @@ int npc_battle_scavenge(CharData *ch) {
 	if (IS_SHOPKEEPER(ch))
 		return (false);
 
-	if (world[ch->in_room]->contents.empty() == false && number(0, GetRealInt(ch)) > 10)
+	if (!world[ch->in_room]->contents.empty() && number(0, GetRealInt(ch)) > 10)
 		for (auto it = world[ch->in_room]->contents.begin(); it != world[ch->in_room]->contents.end(); ) {
 			auto obj = *it; ++it;
 			if (CAN_GET_OBJ(ch, obj)
