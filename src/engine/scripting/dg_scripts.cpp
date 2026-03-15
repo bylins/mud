@@ -291,6 +291,27 @@ ObjData *get_obj_in_list(const char *name, ObjData *list) {
 	return nullptr;
 }
 
+ObjData *get_obj_in_list(const char *name, const ObjData::obj_list_t &list) {
+	long id;
+
+	if (*name == UID_OBJ) {
+		id = atoi(name + 1);
+		for (auto i : list) {
+			if (id == i->get_id()) {
+				return i;
+			}
+		}
+	} else {
+		for (auto i : list) {
+			if (isname(name, i->get_aliases())) {
+				return i;
+			}
+		}
+	}
+
+	return nullptr;
+}
+
 ObjData *get_object_in_equip(CharData *ch, const char *name) {
 	int j, n = 0, number;
 	ObjData *obj;
@@ -611,7 +632,7 @@ ObjData *get_obj_by_room(RoomData *room, const char *name) {
 	if (*name == UID_OBJ) {
 		id = atoi(name + 1);
 
-		for (obj = room->contents; obj; obj = obj->get_next_content()) {
+		for (auto obj : room->contents) {
 			if (id == obj->get_id()) {
 				return obj;
 			}
@@ -619,7 +640,7 @@ ObjData *get_obj_by_room(RoomData *room, const char *name) {
 
 		return world_objects.find_by_id(id).get();
 	} else {
-		for (obj = room->contents; obj; obj = obj->get_next_content()) {
+		for (auto obj : room->contents) {
 			if (isname(name, obj->get_aliases())) {
 				return obj;
 			}
@@ -3809,7 +3830,7 @@ void find_replacement(void *go,
 			}
 
 			size_t str_length = strlen(str);
-			for (obj = world[inroom]->contents; obj; obj = obj->get_next_content()) {
+			for (auto obj : world[inroom]->contents) {
 				int n = snprintf(tmp, kMaxTrglineLength, "%c%ld ", UID_OBJ, obj->get_id());
 				if (str_length + n < kMaxTrglineLength) // not counting the terminating null character
 				{

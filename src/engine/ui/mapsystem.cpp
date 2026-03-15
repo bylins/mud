@@ -320,7 +320,7 @@ void draw_objs(const CharData *ch, int room_rnum, int next_y, int next_x) {
 	} else {
 		int cnt = 0;
 
-		for (ObjData *obj = world[room_rnum]->contents; obj; obj = obj->get_next_content()) {
+		for (auto obj : world[room_rnum]->contents) {
 			if (IS_CORPSE(obj) && GET_OBJ_VAL(obj, 2) >= 0
 				&& !ch->map_check_option(MAP_MODE_MOBS_CORPSES)) {
 				continue;
