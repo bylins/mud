@@ -1256,6 +1256,46 @@ ObjData *create_charmice_box(CharData *ch) {
 	return obj.get();
 }
 
+bool drop_mob_objects_to_box(CharData *ch)
+{
+	std::vector<ObjData *> objects;
+
+	for (int i = 0; i < EEquipPos::kNumEquipPos; ++i)
+	{
+		if (GET_EQ(ch, i))
+		{
+			ObjData *obj = UnequipChar(ch, i, CharEquipFlags());
+			if (obj)
+			{
+				remove_otrigger(obj, ch);
+				objects.push_back(obj);
+			}
+		}
+	}
+
+	while (ch->carrying)
+	{
+		ObjData *obj = ch->carrying;
+		RemoveObjFromChar(obj);
+		objects.push_back(obj);
+	}
+
+	if (objects.empty())
+	{
+		return false;
+	}
+
+	ObjData *charmice_box = create_charmice_box(ch);
+	for (auto &object : objects)
+	{
+		PlaceObjIntoObj(object, charmice_box);
+	}
+
+	DropObjOnZoneReset(ch, charmice_box, true, false);
+
+	return true;
+}
+
 void extract_charmice(CharData *ch, bool on_ground) {
 	std::vector<ObjData *> objects;
 	for (int i = 0; i < EEquipPos::kNumEquipPos; ++i) {
