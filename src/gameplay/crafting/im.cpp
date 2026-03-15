@@ -882,8 +882,8 @@ void im_reset_room(RoomData *room, int level, int type) {
 	int pow, lev = level;
 	// 40 * level / MAX_ZONE_LEVEL;
 
-	for (o = room->contents; o; o = next) {
-		next = o->get_next_content();
+	for (auto it = room->contents.begin(); it != room->contents.end(); ) {
+		auto o = *it; ++it;
 		if (o->get_type() == EObjType::kMagicIngredient) {
 			ExtractObjFromWorld(o, false);
 		}

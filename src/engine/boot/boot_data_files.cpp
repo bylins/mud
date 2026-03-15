@@ -439,7 +439,7 @@ void WorldFile::parse_room(int virtual_nr) {
 
 	CheckRoomForIncompatibleFlags(room_realnum);
 	world[room_realnum]->func = nullptr;
-	world[room_realnum]->contents = nullptr;
+	world[room_realnum]->contents.clear();
 	world[room_realnum]->track = nullptr;
 	world[room_realnum]->light = 0;    // Zero light sources
 	world[room_realnum]->fires = 0;

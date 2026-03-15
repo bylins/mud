@@ -1450,7 +1450,7 @@ void AddVirtualRoomsToAllZones() {
 		new_room->sector_type = ESector::kSecret;
 
 		new_room->func = nullptr;
-		new_room->contents = nullptr;
+		new_room->contents.clear();
 		new_room->track = nullptr;
 		new_room->light = 0;
 		new_room->fires = 0;
@@ -2308,8 +2308,7 @@ void paste_on_reset(RoomData *to_room) {
 	}
 	ObjData *obj_next;
 
-	for (ObjData *obj = to_room->contents; obj; obj = obj_next) {
-		obj_next = obj->get_next_content();
+	for (auto obj : to_room->contents) {
 		paste_obj(obj, obj->get_in_room());
 	}
 }
@@ -2508,8 +2507,8 @@ void ZoneReset::ResetZoneEssential() {
 							&& (reset_cmd.arg3 == zone_data.cmd[cmd_tmp].arg3))
 							obj_in_room_max++;
 					// Теперь считаем склько их на текущей клетке
-					for (obj_room = world[reset_cmd.arg3]->contents, obj_in_room = 0; obj_room;
-						 obj_room = obj_room->get_next_content()) {
+					obj_in_room = 0;
+					for (auto obj_room : world[reset_cmd.arg3]->contents) {
 						if (reset_cmd.arg1 == obj_room->get_rnum()) {
 							obj_in_room++;
 						}
