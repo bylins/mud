@@ -3652,7 +3652,7 @@ void Clan::HouseStat(CharData *ch, std::string &buffer) {
 				it.second->level = GetRealLevel(d->character);
 				it.second->class_abbr = MUD::Class(d->character->GetClass()).GetAbbr();
 				it.second->remort = GET_GOD_FLAG(d->character, EGf::kRemort) ? true : false;
-				it.second->remorts_amount = d->character->get_remort();
+				it.second->remorts_amount = GetRealRemort(d->character);
 			}
 		} else if (name) {
 			if (!CompareParam(buffer2, it.second->name)) {

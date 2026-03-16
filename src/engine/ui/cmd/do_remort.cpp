@@ -38,7 +38,7 @@ void DoRemort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		return;
 	}
 */
-	if (ch->get_remort() > kMaxRemort) {
+	if (ch->get_remort() >= kMaxRemort) {
 		SendMsgToChar("Достигнуто максимальное количество перевоплощений.\r\n", ch);
 		return;
 	}
