@@ -621,8 +621,8 @@ void ProcessLoadCelebrate(CelebrateDataPtr &celebrate, int vnum) {
 				}
 			}
 			for (load = (*room)->objects.begin(); load != (*room)->objects.end(); ++load) {
-				ObjData *obj_room;
 				ObjRnum rnum = GetObjRnum((*load)->vnum);
+
 				if (rnum == -1) {
 					log("{Error] Processing celebrate %s while loading obj %d", celebrate->name.c_str(), (*load)->vnum);
 					return;

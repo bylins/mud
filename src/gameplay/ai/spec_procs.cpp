@@ -190,7 +190,7 @@ void npc_dropunuse(CharData *ch) {
 
 int npc_scavenge(CharData *ch) {
 	int max = 1;
-	ObjData *obj, *best_obj, *cont, *best_cont, *cobj;
+	ObjData *best_obj, *cont, *best_cont, *cobj;
 
 	if (!ch->IsFlagged(EMobFlag::kScavenger)) {
 		return (false);
@@ -285,7 +285,7 @@ int npc_scavenge(CharData *ch) {
 
 int npc_loot(CharData *ch) {
 	int max = false;
-	ObjData *obj, *loot_obj, *next_loot, *cobj, *cnext_obj;
+	ObjData *loot_obj, *next_loot, *cobj, *cnext_obj;
 
 	if (!ch->IsFlagged(EMobFlag::kLooter))
 		return (false);
@@ -747,7 +747,6 @@ void npc_light(CharData *ch) {
 
 int npc_battle_scavenge(CharData *ch) {
 	int max = false;
-	ObjData *obj, *next_obj = nullptr;
 
 	if (!ch->IsFlagged(EMobFlag::kScavenger))
 		return (false);
@@ -986,7 +985,6 @@ void npc_groupbattle(CharData *ch) {
 }
 
 int dump(CharData *ch, void * /*me*/, int cmd, char *argument) {
-	ObjData *k;
 	int value = 0;
 
 	while (!world[ch->in_room]->contents.empty()) {
@@ -1220,7 +1218,7 @@ int puff(CharData * /*ch*/, void * /*me*/, int/* cmd*/, char * /*argument*/) {
 }
 
 int fido(CharData *ch, void * /*me*/, int cmd, char * /*argument*/) {
-	ObjData *i, *temp, *next_obj;
+	ObjData *temp, *next_obj;
 
 	if (cmd || !AWAKE(ch))
 		return (false);
@@ -1241,8 +1239,6 @@ int fido(CharData *ch, void * /*me*/, int cmd, char * /*argument*/) {
 }
 
 int janitor(CharData *ch, void * /*me*/, int cmd, char * /*argument*/) {
-	ObjData *i;
-
 	if (cmd || !AWAKE(ch))
 		return (false);
 

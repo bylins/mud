@@ -98,7 +98,6 @@ extern void RestoreRoomExitData(RoomRnum rrn);
 // * Сохранить новую комнату в памяти
 void redit_save_internally(DescriptorData *d) {
 	int j, rrn, cmd_no;
-	ObjData *temp_obj;
 
 	rrn = GetRoomRnum(OLC_ROOM(d)->vnum);
 	// дальше temp_description уже нигде не участвует, описание берется как обычно через число

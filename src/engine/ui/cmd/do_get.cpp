@@ -242,7 +242,7 @@ int perform_get_from_room(CharData *ch, ObjData *obj) {
 }
 
 void get_from_room(CharData *ch, char *local_arg, int howmany) {
-	ObjData *obj, *next_obj;
+	ObjData *obj;
 	int dotmode, found = 0;
 
 	// Are they trying to take something in a room extra description?

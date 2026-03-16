@@ -12,7 +12,7 @@
 
 void DoPurge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *vict;
-	ObjData *obj, *next_o;
+	ObjData *obj;
 
 	one_argument(argument, buf);
 

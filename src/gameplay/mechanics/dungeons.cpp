@@ -862,8 +862,6 @@ void ClearRoom(RoomData *room) {
 				act("$n появил$u, окутанн$w розовым туманом.", false, vict, nullptr, nullptr, kToRoom);
 			}
 		}
-		ObjData *obj, *next_o;
-
 		while (!room->contents.empty()) {
 			auto obj = room->contents.front();
 			ExtractObjFromWorld(obj);
