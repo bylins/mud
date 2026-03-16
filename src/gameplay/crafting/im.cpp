@@ -876,7 +876,7 @@ void im_parse(int **ing_list, char *line) {
 }
 
 void im_reset_room(RoomData *room, int level, int type) {
-	ObjData *o, *next;
+	ObjData *o;
 	int i, indx;
 	im_memb *after, *before;
 	int pow, lev = level;

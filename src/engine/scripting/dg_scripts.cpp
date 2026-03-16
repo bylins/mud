@@ -623,7 +623,6 @@ ObjData *get_obj_by_obj(ObjData *obj, const char *name) {
 
 // returns obj with name
 ObjData *get_obj_by_room(RoomData *room, const char *name) {
-	ObjData *obj;
 	long id;
 
 	if ((*name == UID_ROOM) || (*name == UID_CHAR) || *name == UID_CHAR_ALL)

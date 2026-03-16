@@ -1123,7 +1123,6 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 void do_stat_room(CharData *ch, const int rnum = 0) {
 	RoomData *rm = world[ch->in_room];
 	int i, found;
-	ObjData *j;
 	CharData *k;
 	char tmpBuf[255];
 

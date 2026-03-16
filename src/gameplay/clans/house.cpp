@@ -1318,7 +1318,7 @@ void Clan::HouseLeave(CharData *ch) {
 int Clan::delete_obj(int vnum) {
 	int num = 0;
 	for (auto &clan : Clan::ClanList) {
-		ObjData *temp, *chest;
+		ObjData *temp;
 		for (auto chest : world[GetRoomRnum(clan->chest_room)]->contents) {
 			if (Clan::is_clan_chest(chest)) {
 				for (temp = chest->get_contains(); temp; temp = temp->get_next_content()) {
@@ -2133,7 +2133,7 @@ void Clan::DestroyClan(Clan::shared_ptr clan, char *reason) {
 	clan->storehouse = 0;
 	clan->pkList.clear();
 	clan->frList.clear();
-	ObjData *temp, *chest, *obj_next;
+	ObjData *temp, *obj_next;
 	for (auto chest : world[GetRoomRnum(clan->chest_room)]->contents) {
 		if (Clan::is_clan_chest(chest)) {
 			for (temp = chest->get_contains(); temp; temp = obj_next) {
@@ -2500,7 +2500,7 @@ void Clan::ChestUpdate() {
 		// TODO: а тут придется опять искать, ибо выше сундук уже похерен, надо фиксить
 		if ((*clan)->bank < 0) {
 			(*clan)->bank = 0;
-			ObjData *temp, *chest, *obj_next;
+			ObjData *temp, *obj_next;
 			for (auto chest : world[GetRoomRnum((*clan)->chest_room)]->contents) {
 				if (Clan::is_clan_chest(chest)) {
 					for (temp = chest->get_contains(); temp; temp = obj_next) {
@@ -3745,7 +3745,7 @@ void Clan::ChestInvoice() {
 }
 
 int Clan::ChestTax() {
-	ObjData *temp, *chest;
+	ObjData *temp;
 	int cost = 0;
 	int count = 0;
 	for (auto chest : world[GetRoomRnum(this->chest_room)]->contents) {
@@ -4034,7 +4034,7 @@ std::string Clan::print_imm_where_obj(const ObjData *obj) {
 
 int Clan::print_spell_locate_object(CharData *ch, int count, std::string name) {
 	for (ClanListType::const_iterator clan = Clan::ClanList.begin(); clan != Clan::ClanList.end(); ++clan) {
-		ObjData *temp, *chest;
+		ObjData *temp;
 		for (auto chest : world[GetRoomRnum((*clan)->chest_room)]->contents) {
 			if (Clan::is_clan_chest(chest)) {
 				for (temp = chest->get_contains(); temp; temp = temp->get_next_content()) {
@@ -5396,7 +5396,6 @@ void do_show_alliance(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 
 // вобщем это копи-паст из биржи + флаги
 void DoStoreHouse(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	ObjData *chest;
 	if (ch->IsNpc() || !CLAN(ch)) {
 		SendMsgToChar("Чаво?\r\n", ch);
 		return;

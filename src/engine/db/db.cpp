@@ -2334,8 +2334,6 @@ void paste_on_reset(RoomData *to_room) {
 	for (const auto &ch : people_copy) {
 		paste_mob(ch, ch->in_room);
 	}
-	ObjData *obj_next;
-
 	for (auto obj : to_room->contents) {
 		paste_obj(obj, obj->get_in_room());
 	}
@@ -2412,7 +2410,7 @@ void ZoneReset::ResetZoneEssential() {
 	int cmd_no;
 	int cmd_tmp, obj_in_room_max, obj_in_room = 0;
 	CharData *mob = nullptr, *leader = nullptr;
-	ObjData *obj_to, *obj_room;
+	ObjData *obj_to;
 	CharData *tmob = nullptr;    // for trigger assignment
 	ObjData *tobj = nullptr;    // for trigger assignment
 	int last_state, curr_state;    // статус завершения последней и текущей команды

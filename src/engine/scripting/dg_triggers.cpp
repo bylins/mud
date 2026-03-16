@@ -1157,7 +1157,6 @@ int close_otrigger(ObjData *obj, CharData *actor, int lock) {
 
 void greet_otrigger(CharData *actor, int dir) {
 	char buf[kMaxInputLength];
-	ObjData *obj;
 	int rev_dir[] = {EDirection::kSouth, EDirection::kWest, EDirection::kNorth, EDirection::kEast, EDirection::kDown, EDirection::kUp};
 
 	if (actor->IsNpc() || GET_INVIS_LEV(actor)) {
