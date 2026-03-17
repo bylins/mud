@@ -1671,7 +1671,8 @@ void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset) {
 	DescriptorData *t_desc;
 	utils::CExecutionTimer timer;
 
-	log("[Extract char] Start function for char %s VNUM: %d", name.c_str(), GET_MOB_VNUM(ch));
+	log("[Extract char] Start function for char %s VNUM: %d in room %d", 
+			name.c_str(), GET_MOB_VNUM(ch), world[ch->in_room]->vnum);
 	if (!ch->IsNpc() && !ch->desc) {
 //		log("[Extract char] Extract descriptors");
 		for (t_desc = descriptor_list; t_desc; t_desc = t_desc->next) {
