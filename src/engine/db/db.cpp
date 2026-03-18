@@ -2470,6 +2470,9 @@ void ZoneReset::ResetZoneEssential() {
 									&& GET_MOB_RNUM(ch) == reset_cmd.arg3
 									&& leader != ch
 									&& !ch->makes_loop(leader)) {
+									if (IS_CHARMICE(ch)) {
+										continue;
+									}
 									if (ch->has_master()) {
 										stop_follower(ch, kSfEmpty);
 									}
