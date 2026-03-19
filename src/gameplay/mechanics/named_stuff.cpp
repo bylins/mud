@@ -204,7 +204,7 @@ bool parse_nedit_menu(CharData *ch, char *arg) {
 				return false;
 			}
 			ch->desc->named_obj->uid = num;
-			ch->desc->named_obj->mail = str_dup(player_table[GetPtableByUnique(num)].mail);
+			ch->desc->named_obj->mail = player_table[GetPtableByUnique(num)].mail;
 			break;
 
 		case '3':
@@ -343,7 +343,7 @@ void do_named(CharData *ch, char *argument, int cmd, int subcmd) {
 			uid = GetUniqueByName(buf);
 			//*buf = '\0';
 			if (uid > 0) {
-				strcpy(buf, player_table[GetPtableByUnique(uid)].mail);
+				strcpy(buf, player_table[GetPtableByUnique(uid)].mail.c_str());
 			}
 		}
 	}

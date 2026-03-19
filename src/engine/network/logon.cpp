@@ -33,9 +33,7 @@ void add_logon_record(DescriptorData *d) {
 
 	int pos = d->character->get_pfilepos();
 	if (pos >= 0) {
-		if (player_table[pos].last_ip)
-			free(player_table[pos].last_ip);
-		player_table[pos].last_ip = str_dup(d->host);
+		player_table[pos].last_ip = d->host;
 		player_table[pos].last_logon = LAST_LOGON(d->character);
 	}
 }

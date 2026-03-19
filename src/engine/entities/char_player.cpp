@@ -456,14 +456,10 @@ void Player::save_char() {
 	fprintf(saved, "Clas: %d\n", to_underlying(this->GetClass()));
 	fprintf(saved, "LstL: %ld\n", static_cast<long int>(LAST_LOGON(this)));
 	// сохраняем last_ip, который должен содержать айпишник с последнего удачного входа
-	if (player_table[this->get_pfilepos()].last_ip) {
-		strcpy(buf, player_table[this->get_pfilepos()].last_ip);
-	} else {
-		strcpy(buf, "Unknown");
+	if (player_table[this->get_pfilepos()].last_ip.empty()) {
+		player_table[this->get_pfilepos()].last_ip = "Unknown";
 	}
-	fprintf(saved, "Host: %s\n", buf);
-	free(player_table[this->get_pfilepos()].last_ip);
-	player_table[this->get_pfilepos()].last_ip = str_dup(buf);
+	fprintf(saved, "Host: %s\n", player_table[this->get_pfilepos()].last_ip.c_str());
 	fprintf(saved, "Id  : %ld\n", this->get_uid());
 	fprintf(saved, "Exp : %ld\n", this->get_exp());
 	fprintf(saved, "Rmrt: %d\n", this->get_remort());
@@ -929,10 +925,7 @@ void Player::save_char() {
 		player_table[i].last_logon = LAST_LOGON(this);
 		player_table[i].level = GetRealLevel(this);
 		player_table[i].remorts = GetRealRemort(this);
-		if (player_table[i].mail) {
-			free(player_table[i].mail);
-		}
-		player_table[i].mail = str_dup(GET_EMAIL(this));
+		player_table[i].mail = GET_EMAIL(this);
 		player_table[i].set_uid(this->get_uid());
 		player_table[i].plr_class = GetClass();
 		//end by WorM

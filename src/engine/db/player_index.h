@@ -20,8 +20,8 @@ class PlayerIndexElement {
  public:
   explicit PlayerIndexElement(std::string_view name);
 
-  char *mail{nullptr};
-  char *last_ip{nullptr};
+  std::string mail;
+  std::string last_ip;
   int level{0};
   int remorts{0};
   ECharClass plr_class{ECharClass::kUndefined};
