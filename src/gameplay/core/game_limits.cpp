@@ -41,6 +41,7 @@
 #include "gameplay/communication/parcel.h"
 #include "gameplay/mechanics/damage.h"
 #include "gameplay/mechanics/bonus.h"
+#include "gameplay/ai/mobact.h"
 
 #include <third_party_libs/fmt/include/fmt/format.h>
 
@@ -57,6 +58,25 @@ void decrease_level(CharData *ch);
 int max_exp_gain_pc(CharData *ch);
 int max_exp_loss_pc(CharData *ch);
 int average_day_temp();
+
+namespace {
+
+void CollectCharmiceBoxesForIdleExtract(CharData *master) {
+	if (!master || master->IsNpc()) {
+		return;
+	}
+
+	const auto followers = master->get_followers_list();
+	for (const auto follower : followers) {
+		if (!follower || !IS_CHARMICE(follower) || follower->get_master() != master) {
+			continue;
+		}
+
+		mob_ai::extract_charmice(follower, false);
+	}
+}
+
+} // namespace
 
 // local functions
 int graf(int age, int p0, int p1, int p2, int p3, int p4, int p5, int p6);
@@ -1068,6 +1088,7 @@ void check_idling(CharData *ch) {
 				if (ch->in_room != kNowhere)
 					RemoveCharFromRoom(ch);
 				PlaceCharToRoom(ch, kStrangeRoom);
+				CollectCharmiceBoxesForIdleExtract(ch);
 				Crash_idlesave(ch);
 				Depot::exit_char(ch);
 				Clan::clan_invoice(ch, false);
