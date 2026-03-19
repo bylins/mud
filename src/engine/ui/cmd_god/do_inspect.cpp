@@ -98,8 +98,8 @@ class ExtractedCharacterInfo {
 void ExtractedCharacterInfo::ExtractDataFromIndex(const PlayerIndexElement &index) {
 	online_ = (DescriptorByUid(index.uid()) != nullptr);
 	name_ = (index.name().empty() ? kUndefined : index.name());
-	mail_ = (index.mail ? index.mail : kUndefined);
-	last_ip_ = (index.last_ip ? index.last_ip : kUndefined);
+	mail_ = (index.mail.empty() ? kUndefined : index.mail);
+	last_ip_ = (index.last_ip.empty() ? kUndefined : index.last_ip);
 	class_name_ = MUD::Class(index.plr_class).GetName();
 	level_ = index.level;
 	remort_ = index.remorts;
@@ -401,7 +401,7 @@ InspectRequestIp::InspectRequestIp(const CharData *author, const std::vector<std
 }
 
 bool InspectRequestIp::IsIndexMatched(const PlayerIndexElement &index) {
-	return (index.last_ip && strstr(index.last_ip, GetRequestText().data()));
+	return (!index.last_ip.empty() && index.last_ip.find(GetRequestText()) != std::string::npos);
 }
 
 // =======================================  INSPECT MAIL  ============================================
@@ -423,7 +423,7 @@ InspectRequestMail::InspectRequestMail(const CharData *author, const std::vector
 }
 
 bool InspectRequestMail::IsIndexMatched(const PlayerIndexElement &index) {
-	return (index.mail && strstr(index.mail, GetRequestText().data()));
+	return (!index.mail.empty() && index.mail.find(GetRequestText()) != std::string::npos);
 }
 
 // =======================================  INSPECT CHAR  ============================================
@@ -452,8 +452,8 @@ InspectRequestChar::InspectRequestChar(const CharData *author, const std::vector
 }
 
 void InspectRequestChar::NoteVictimInfo(const PlayerIndexElement &index) {
-	mail_ = (index.mail ? index.mail : kUndefined);
-	last_ip_ = (index.last_ip ? index.last_ip : kUndefined);
+	mail_ = (index.mail.empty() ? kUndefined : index.mail);
+	last_ip_ = (index.last_ip.empty() ? kUndefined : index.last_ip);
 	report_generator_.SetReportHeader(fmt::format(
 		"Incpecting character (e-mail or last IP): {}{}{}. E-mail: {} Last IP: {}\r\n",
 		kColorWht,
@@ -464,7 +464,7 @@ void InspectRequestChar::NoteVictimInfo(const PlayerIndexElement &index) {
 }
 
 bool InspectRequestChar::IsIndexMatched(const PlayerIndexElement &index) {
-	return ((index.mail && (mail_ == index.mail)) || (index.last_ip && (last_ip_ == index.last_ip)));
+	return ((!index.mail.empty() && (mail_ == index.mail)) || (!index.last_ip.empty() && (last_ip_ == index.last_ip)));
 }
 
 // =======================================  INSPECT ALL  ============================================

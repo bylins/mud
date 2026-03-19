@@ -57,8 +57,8 @@ void setall_inspect() {
 		d_vict = DescriptorByUid(player_table[it->second->pos].uid());
 		if (d_vict)
 			is_online = 1;
-		if (player_table[it->second->pos].mail)
-			if (strstr(player_table[it->second->pos].mail, it->second->mail)) {
+		if (!player_table[it->second->pos].mail.empty())
+			if (player_table[it->second->pos].mail.find(it->second->mail) != std::string::npos) {
 				it->second->found++;
 				if (it->second->type_req == kSetallFreeze) {
 					if (is_online) {
@@ -106,7 +106,7 @@ void setall_inspect() {
 						sprintf(buf2,
 								"Смена e-mail адреса персонажа %s с %s на %s.\r\n",
 								player_table[it->second->pos].name().c_str(),
-								player_table[it->second->pos].mail,
+								player_table[it->second->pos].mail.c_str(),
 								it->second->newmail);
 						AddKarma(d_vict->character.get(), buf2, GET_NAME(imm_d->character));
 						it->second->out += buf2;
@@ -129,7 +129,7 @@ void setall_inspect() {
 							sprintf(buf2,
 									"Смена e-mail адреса персонажа %s с %s на %s.\r\n",
 									player_table[it->second->pos].name().c_str(),
-									player_table[it->second->pos].mail,
+									player_table[it->second->pos].mail.c_str(),
 									it->second->newmail);
 							it->second->out += buf2;
 							AddKarma(vict, buf2, GET_NAME(imm_d->character));

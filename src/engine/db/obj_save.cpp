@@ -469,7 +469,7 @@ ObjData::shared_ptr read_one_object_new(char **data, int *error) {
 				if (object->get_custom_label()->author > 0) {
 					for (std::size_t i = 0; i < player_table.size(); i++) {
 						if (player_table[i].uid() == object->get_custom_label()->author) {
-							object->get_custom_label()->author_mail = str_dup(player_table[i].mail);
+							object->get_custom_label()->author_mail = str_dup(player_table[i].mail.c_str());
 							break;
 						}
 					}
