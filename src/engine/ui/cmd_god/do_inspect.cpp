@@ -479,7 +479,7 @@ class InspectRequestAll : public InspectRequest {
   std::ostringstream current_char_intercesting_logons_;
 
   void NoteVictimInfo(const CharData::shared_ptr &vict);
-  bool IsIpMatched(const char *ip);
+  bool IsIpMatched(const std::string &ip);
   bool IsLogonsIntersect(const CharData::shared_ptr &player);
   void NoteLogonInfo(const network::Logon &logon);
   void FlushLogonsBufferToReportGenerator();
@@ -514,7 +514,7 @@ void InspectRequestAll::NoteVictimInfo(const CharData::shared_ptr &vict) {
 												  kColorNrm));
 	vict_uid_ = vict->get_uid();
 	for (const auto &logon : LOGON_LIST(vict)) {
-		if (logon.ip && !kIgnoredIpChecklist.contains(logon.ip)) {
+		if (!logon.ip.empty() && !kIgnoredIpChecklist.contains(logon.ip)) {
 			victim_ip_log_.insert(logon.ip);
 		}
 	}
@@ -563,8 +563,8 @@ bool InspectRequestAll::IsLogonsIntersect(const CharData::shared_ptr &player) {
 	return result;
 }
 
-bool InspectRequestAll::IsIpMatched(const char *ip) {
-	return (ip && !kIgnoredIpChecklist.contains(ip) && victim_ip_log_.contains(ip));
+bool InspectRequestAll::IsIpMatched(const std::string &ip) {
+	return (!ip.empty() && !kIgnoredIpChecklist.contains(ip) && victim_ip_log_.contains(ip));
 }
 
 void InspectRequestAll::NoteLogonInfo(const network::Logon &logon) {
