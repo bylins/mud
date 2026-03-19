@@ -65,6 +65,7 @@ void setall_inspect() {
 						if (GetRealLevel(d_vict->character) >= kLvlGod) {
 							sprintf(buf1, "Персонаж %s бессмертный!\r\n", player_table[it->second->pos].name().c_str());
 							it->second->out += buf1;
+							delete vict;
 							continue;
 						}
 						punishments::SetFreeze(imm_d->character.get(),
@@ -82,6 +83,7 @@ void setall_inspect() {
 							if (GetRealLevel(vict) >= kLvlGod) {
 								sprintf(buf1, "Персонаж %s бессмертный!\r\n", player_table[it->second->pos].name().c_str());
 								it->second->out += buf1;
+								delete vict;
 								continue;
 							}
 							punishments::SetFreeze(imm_d->character.get(),
@@ -96,6 +98,7 @@ void setall_inspect() {
 						if (GetRealLevel(d_vict->character) >= kLvlGod) {
 							sprintf(buf1, "Персонаж %s бессмертный!\r\n", player_table[it->second->pos].name().c_str());
 							it->second->out += buf1;
+							delete vict;
 							continue;
 						}
 						strncpy(GET_EMAIL(d_vict->character), it->second->newmail, 127);
@@ -118,6 +121,7 @@ void setall_inspect() {
 						} else {
 							if (GetRealLevel(vict) >= kLvlGod) {
 								it->second->out += buf1;
+								delete vict;
 								continue;
 							}
 							strncpy(GET_EMAIL(vict), it->second->newmail, 127);
@@ -137,6 +141,7 @@ void setall_inspect() {
 						if (GetRealLevel(d_vict->character) >= kLvlGod) {
 							sprintf(buf1, "Персонаж %s бессмертный!\r\n", player_table[it->second->pos].name().c_str());
 							it->second->out += buf1;
+							delete vict;
 							continue;
 						}
 						Password::set_password(d_vict->character.get(), std::string(it->second->pwd));
@@ -156,6 +161,7 @@ void setall_inspect() {
 						if (GetRealLevel(vict) >= kLvlGod) {
 							sprintf(buf1, "Персонаж %s бессмертный!\r\n", player_table[it->second->pos].name().c_str());
 							it->second->out += buf1;
+							delete vict;
 							continue;
 						}
 						Password::set_password(vict, std::string(it->second->pwd));
@@ -173,6 +179,7 @@ void setall_inspect() {
 						if (GetRealLevel(d_vict->character) >= kLvlGod) {
 							sprintf(buf1, "Персонаж %s бессмертный!\r\n", player_table[it->second->pos].name().c_str());
 							it->second->out += buf1;
+							delete vict;
 							continue;
 						}
 						punishments::SetHell(imm_d->character.get(),
@@ -190,6 +197,7 @@ void setall_inspect() {
 							if (GetRealLevel(vict) >= kLvlGod) {
 								sprintf(buf1, "Персонаж %s бессмертный!\r\n", player_table[it->second->pos].name().c_str());
 								it->second->out += buf1;
+								delete vict;
 								continue;
 							}
 							punishments::SetHell(imm_d->character.get(),
