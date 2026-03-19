@@ -404,12 +404,12 @@ bool has_connected_bosses(CharData *ch) {
 		}
 	}
 	// если у данного моба есть живые последователи-боссы
-	for (FollowerType *i = ch->followers; i; i = i->next) {
-		if (i->follower != ch
-			&& i->follower->IsNpc()
-			&& !IS_CHARMICE(i->follower)
-			&& i->follower->get_master() == ch
-			&& i->follower->get_role(static_cast<unsigned>(EMobClass::kBoss))) {
+	for (auto *i : ch->followers) {
+		if (i != ch
+			&& i->IsNpc()
+			&& !IS_CHARMICE(i)
+			&& i->get_master() == ch
+			&& i->get_role(static_cast<unsigned>(EMobClass::kBoss))) {
 			return true;
 		}
 	}
@@ -571,10 +571,10 @@ void drop_torc(CharData *mob) {
 						: d->character.get();
 
 	int members = 1;
-	for (FollowerType *f = leader->followers; f; f = f->next) {
-		if (AFF_FLAGGED(f->follower, EAffect::kGroup)
-			&& f->follower->in_room == mob->in_room
-			&& !f->follower->IsNpc()) {
+	for (auto *f : leader->followers) {
+		if (AFF_FLAGGED(f, EAffect::kGroup)
+			&& f->in_room == mob->in_room
+			&& !f->IsNpc()) {
 			++members;
 		}
 	}
@@ -592,13 +592,13 @@ void drop_torc(CharData *mob) {
 		gain_torc(leader, drop);
 	}
 
-	for (FollowerType *f = leader->followers; f; f = f->next) {
-		if (AFF_FLAGGED(f->follower, EAffect::kGroup)
-			&& f->follower->in_room == mob->in_room
-			&& !f->follower->IsNpc()
-			&& GET_GOD_FLAG(f->follower, EGf::kRemort)
-			&& mob->get_attacker(f->follower, ATTACKER_ROUNDS) >= damager.second / 2) {
-			gain_torc(f->follower, drop);
+	for (auto *f : leader->followers) {
+		if (AFF_FLAGGED(f, EAffect::kGroup)
+			&& f->in_room == mob->in_room
+			&& !f->IsNpc()
+			&& GET_GOD_FLAG(f, EGf::kRemort)
+			&& mob->get_attacker(f, ATTACKER_ROUNDS) >= damager.second / 2) {
+			gain_torc(f, drop);
 		}
 	}
 }

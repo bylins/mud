@@ -13,7 +13,6 @@ void PerformDropGold(CharData *ch, int amount);
 // TODO: по всем вызовам не проходил, может еще где-то коряво вызывается, кроме передачи скакунов -- Krodo
 // при персонаже на входе - пуржить не должно полюбому, если начнет, как минимум в change_leader будут глюки
 bool stop_follower(CharData *ch, int mode) {
-	struct FollowerType *j, *k;
 	int i;
 
 	//log("[Stop ch] Start function(%s->%s)",ch ? GET_NAME(ch) : "none",
@@ -39,27 +38,14 @@ bool stop_follower(CharData *ch, int mode) {
 	}
 
 	//log("[Stop ch] Remove from followers list");
-	if (!ch->get_master()->followers) {
+	if (ch->get_master()->followers.empty()) {
 		log("[Stop ch] SYSERR: Followers absent for %s (master %s).", GET_NAME(ch), GET_NAME(ch->get_master()));
-	} else if (ch->get_master()->followers->follower == ch)    // Head of ch-list?
-	{
-		k = ch->get_master()->followers;
-		ch->get_master()->followers = k->next;
-		if (!ch->get_master()->followers
+	} else {
+		ch->get_master()->followers.remove(ch);
+		if (ch->get_master()->followers.empty()
 			&& !ch->get_master()->has_master()) {
 			//AFF_FLAGS(ch->get_master()).unset(EAffectFlag::AFF_GROUP);
 			ch->get_master()->removeGroupFlags();
-		}
-		free(k);
-	} else        // locate ch who is not head of list
-	{
-		for (k = ch->get_master()->followers; k->next && k->next->follower != ch; k = k->next);
-		if (!k->next) {
-			log("[Stop ch] SYSERR: Undefined %s in %s followers list.", GET_NAME(ch), GET_NAME(ch->get_master()));
-		} else {
-			j = k->next;
-			k->next = j->next;
-			free(j);
 		}
 	}
 
@@ -131,8 +117,6 @@ bool stop_follower(CharData *ch, int mode) {
 
 // * Called when a character that follows/is followed dies
 bool die_follower(CharData *ch) {
-	struct FollowerType *j, *k = ch->followers;
-
 	if (ch->has_master() && stop_follower(ch, kSfFollowerdie)) {
 		//  чармиса спуржили в stop_follower
 		return true;
@@ -142,9 +126,9 @@ bool die_follower(CharData *ch) {
 		AFF_FLAGS(ch).unset(EAffect::kHorse);
 	}
 
-	for (k = ch->followers; k; k = j) {
-		j = k->next;
-		stop_follower(k->follower, kSfMasterdie);
+	auto copy = ch->followers;
+	for (auto *f : copy) {
+		stop_follower(f, kSfMasterdie);
 	}
 	return false;
 }
@@ -166,7 +150,6 @@ bool circle_follow(CharData *ch, CharData *victim) {
 
 void do_follow(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *leader;
-	struct FollowerType *f;
 	one_argument(argument, smallBuf);
 
 	if (ch->IsNpc() && AFF_FLAGGED(ch, EAffect::kCharmed) && ch->GetEnemy())
@@ -216,9 +199,9 @@ void do_follow(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 			//AFF_FLAGS(ch).unset(EAffectFlag::AFF_GROUP);
 			ch->removeGroupFlags();
-			for (f = ch->followers; f; f = f->next) {
+			for (auto *f : ch->followers) {
 				//AFF_FLAGS(f->ch).unset(EAffectFlag::AFF_GROUP);
-				f->follower->removeGroupFlags();
+				f->removeGroupFlags();
 			}
 
 			leader->add_follower(ch);

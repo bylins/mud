@@ -62,8 +62,6 @@ void npc_wield(CharData *ch);
 void npc_armor(CharData *ch);
 
 void go_autoassist(CharData *ch) {
-	struct FollowerType *k;
-	struct FollowerType *d;
 	CharData *ch_lider = 0;
 	if (ch->has_master()) {
 		ch_lider = ch->get_master();
@@ -72,19 +70,19 @@ void go_autoassist(CharData *ch) {
 	}
 
 	buf2[0] = '\0';
-	for (k = ch_lider->followers; k; k = k->next) {
-		if (k->follower->IsFlagged(EPrf::kAutoassist) &&
-			(k->follower->in_room == ch->in_room) && !k->follower->GetEnemy() &&
-			(k->follower->GetPosition() == EPosition::kStand) && k->follower->get_wait() <= 0) {
+	for (auto *k : ch_lider->followers) {
+		if (k->IsFlagged(EPrf::kAutoassist) &&
+			(k->in_room == ch->in_room) && !k->GetEnemy() &&
+			(k->GetPosition() == EPosition::kStand) && k->get_wait() <= 0) {
 			// Здесь проверяем на кастеров
-			if (IsCaster(k->follower)) {
+			if (IsCaster(k)) {
 				// здесь проходим по чармисам кастера, и если находим их, то вписываем в драку
-				for (d = k->follower->followers; d; d = d->next)
-					if ((d->follower->in_room == ch->in_room) && !d->follower->GetEnemy() &&
-						(d->follower->GetPosition() == EPosition::kStand) && d->follower->get_wait() <= 0)
-						do_assist(d->follower, buf2, 0, 0);
+				for (auto *d : k->followers)
+					if ((d->in_room == ch->in_room) && !d->GetEnemy() &&
+						(d->GetPosition() == EPosition::kStand) && d->get_wait() <= 0)
+						do_assist(d, buf2, 0, 0);
 			} else {
-				do_assist(k->follower, buf2, 0, 0);
+				do_assist(k, buf2, 0, 0);
 			}
 		}
 	}

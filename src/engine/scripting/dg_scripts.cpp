@@ -2525,9 +2525,9 @@ void find_replacement(void *go,
 						} else {
 							num = 0;
 						}
-						for (auto f = k->followers; f; f = f->next) {
-							if (AFF_FLAGGED(f->follower, EAffect::kGroup)
-									&& !f->follower->IsNpc() && f->follower->in_room == c->in_room) {
+						for (auto *f : k->followers) {
+							if (AFF_FLAGGED(f, EAffect::kGroup)
+									&& !f->IsNpc() && f->in_room == c->in_room) {
 								num++;
 							}
 						}
@@ -2536,10 +2536,10 @@ void find_replacement(void *go,
 							int rest = val % num;
 							if (AFF_FLAGGED(k, EAffect::kGroup) && k->in_room == c->in_room && !k->IsNpc() && k != c)
 								k->add_nogata(share);
-							for (auto f = k->followers; f; f = f->next) {
-								if (AFF_FLAGGED(f->follower, EAffect::kGroup)
-										&& !f->follower->IsNpc() && f->follower->in_room == c->in_room && f->follower != c) {
-									f->follower->add_nogata(share);
+							for (auto *f : k->followers) {
+								if (AFF_FLAGGED(f, EAffect::kGroup)
+										&& !f->IsNpc() && f->in_room == c->in_room && f != c) {
+									f->add_nogata(share);
 								}
 							}
 							sprintf(buf, "Вы разделили %d %s на %d  -  по %d каждому.\r\n",
@@ -3103,7 +3103,6 @@ void find_replacement(void *go,
 				}
 			} else if (!str_cmp(field, "group")) {
 				CharData *l;
-				struct FollowerType *f;
 				if (!AFF_FLAGGED(c, EAffect::kGroup)) {
 					return;
 				}
@@ -3113,11 +3112,11 @@ void find_replacement(void *go,
 				}
 				// l - лидер группы
 				sprintf(str + strlen(str), "%c%ld ", uid_type, l->get_uid());
-				for (f = l->followers; f; f = f->next) {
-					if (!AFF_FLAGGED(f->follower, EAffect::kGroup)) {
+				for (auto *f : l->followers) {
+					if (!AFF_FLAGGED(f, EAffect::kGroup)) {
 						continue;
 					}
-					sprintf(str + strlen(str), "%c%ld ", uid_type, f->follower->get_uid());
+					sprintf(str + strlen(str), "%c%ld ", uid_type, f->get_uid());
 				}
 			} else if (!str_cmp(field, "attackers")) {
 				size_t str_length = strlen(str);

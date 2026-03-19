@@ -957,22 +957,18 @@ void npc_group(CharData *ch) {
 }
 
 void npc_groupbattle(CharData *ch) {
-	struct FollowerType *k;
-	CharData *tch, *helper;
-
 	if (!ch->IsNpc()
 		|| !ch->GetEnemy()
 		|| AFF_FLAGGED(ch, EAffect::kCharmed)
 		|| !ch->has_master()
 		|| ch->in_room == kNowhere
-		|| !ch->followers) {
+		|| ch->followers.empty()) {
 		return;
 	}
 
-	k = ch->has_master() ? ch->get_master()->followers : ch->followers;
-	tch = ch->has_master() ? ch->get_master() : ch;
-	for (; k; (k = tch ? k : k->next), tch = nullptr) {
-		helper = tch ? tch : k->follower;
+	auto *leader = ch->has_master() ? ch->get_master() : ch;
+	// Check the leader first, then iterate through their followers
+	auto check_helper = [&](CharData *helper) {
 		if (ch->in_room == helper->in_room
 			&& !helper->GetEnemy()
 			&& !helper->IsNpc()
@@ -981,6 +977,10 @@ void npc_groupbattle(CharData *ch) {
 			SetFighting(helper, ch->GetEnemy());
 			act("$n вступил$u за $N3.", false, helper, 0, ch, kToRoom);
 		}
+	};
+	check_helper(leader);
+	for (auto *f : leader->followers) {
+		check_helper(f);
 	}
 }
 

@@ -288,29 +288,29 @@ void GroupReporter::get(Variable::shared_ptr &response) {
 	const auto ch = descriptor()->character.get();
 	const auto master = ch->has_master() ? ch->get_master() : ch;
 	append_char(group_descriptor, ch, master, true);
-	for (auto f = master->followers; f; f = f->next) {
-		if (!AFF_FLAGGED(f->follower, EAffect::kGroup)
-			&& !(AFF_FLAGGED(f->follower, EAffect::kCharmed)
-				|| f->follower->IsFlagged(EMobFlag::kTutelar)
-				|| f->follower->IsFlagged(EMobFlag::kMentalShadow))) {
+	for (auto *f : master->followers) {
+		if (!AFF_FLAGGED(f, EAffect::kGroup)
+			&& !(AFF_FLAGGED(f, EAffect::kCharmed)
+				|| f->IsFlagged(EMobFlag::kTutelar)
+				|| f->IsFlagged(EMobFlag::kMentalShadow))) {
 			continue;
 		}
 
-		append_char(group_descriptor, ch, f->follower, false);
+		append_char(group_descriptor, ch, f, false);
 
 		// followers of a ch
-		if (!AFF_FLAGGED(f->follower, EAffect::kGroup)) {
+		if (!AFF_FLAGGED(f, EAffect::kGroup)) {
 			continue;
 		}
 
-		for (auto ff = f->follower->followers; ff; ff = ff->next) {
-			if (!(AFF_FLAGGED(ff->follower, EAffect::kCharmed)
-				|| ff->follower->IsFlagged(EMobFlag::kTutelar)
-				|| ff->follower->IsFlagged(EMobFlag::kMentalShadow))) {
+		for (auto *ff : f->followers) {
+			if (!(AFF_FLAGGED(ff, EAffect::kCharmed)
+				|| ff->IsFlagged(EMobFlag::kTutelar)
+				|| ff->IsFlagged(EMobFlag::kMentalShadow))) {
 				continue;
 			}
 
-			append_char(group_descriptor, ch, ff->follower, false);
+			append_char(group_descriptor, ch, ff, false);
 		}
 	}
 

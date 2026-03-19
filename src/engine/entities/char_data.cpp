@@ -72,8 +72,7 @@ CharData::CharData() :
 	m_wait(~0u),
 	m_master(nullptr),
 	proto_script(new ObjData::triggers_list_t()),
-	script(new Script()),
-	followers(nullptr) {
+	script(new Script()) {
 	this->zero_init();
 	caching::character_cache.Add(this);
 	skills[ESkill::kGlobalCooldown].skillLevel = 0; //добавим позицию в map
@@ -186,7 +185,7 @@ void CharData::reset() {
 	}
 	memset((void *) &add_abils, 0, sizeof(add_abils));
 
-	followers = nullptr;
+	followers.clear();
 	m_master = nullptr;
 	in_room = kNowhere;
 	carrying = nullptr;
@@ -340,7 +339,7 @@ void CharData::zero_init() {
 	player_specials = nullptr;
 	carrying = nullptr;
 	desc = nullptr;
-	followers = nullptr;
+	followers.clear();
 	m_master = nullptr;
 	caster_level = 0;
 	damage_level = 0;
@@ -490,12 +489,7 @@ void CharData::purge() {
 	name_.clear();
 	short_descr_.clear();
 
-	auto follower = followers;
-	while (follower) {
-		const auto next_one = follower->next;
-		free(follower);
-		follower = next_one;
-	}
+	followers.clear();
 }
 
 int CharData::GetSkillBonus(const ESkill skill_id) const {
@@ -797,8 +791,8 @@ bool CharData::IsLeader() {
 	if (this->get_master() != this) {
 		return false;
 	}
-	for (FollowerType *f = this->followers; f; f = f->next) {
-		if (!f->follower->IsNpc()) {
+	for (auto *f : this->followers) {
+		if (!f->IsNpc()) {
 			return true;
 		}
 	}
@@ -1738,16 +1732,6 @@ void CharData::add_follower(CharData *ch) {
 	}
 }
 
-CharData::followers_list_t CharData::get_followers_list() const {
-	CharData::followers_list_t result;
-	auto pos = followers;
-	while (pos) {
-		const auto follower = pos->follower;
-		result.push_back(follower);
-		pos = pos->next;
-	}
-	return result;
-}
 
 bool CharData::low_charm() const {
 	for (const auto &aff : affected) {
@@ -1764,8 +1748,6 @@ void CharData::cleanup_script() {
 }
 
 void CharData::add_follower_silently(CharData *ch) {
-	struct FollowerType *k;
-
 	if (ch->has_master()) {
 		log("SYSERR: add_follower_implementation(%s->%s) when master existing(%s)...",
 			GET_NAME(ch), get_name().c_str(), GET_NAME(ch->get_master()));
@@ -1778,11 +1760,7 @@ void CharData::add_follower_silently(CharData *ch) {
 
 	ch->set_master(this);
 
-	CREATE(k, 1);
-
-	k->follower = ch;
-	k->next = followers;
-	followers = k;
+	followers.push_front(ch);
 }
 
 const CharData::role_t &CharData::get_role_bits() const {
@@ -2090,15 +2068,13 @@ bool CharData::have_mind() const {
 }
 
 bool CharData::has_horse(bool same_room) const {
-	struct FollowerType *f;
-
 	if (this->IsNpc()) {
 		return false;
 	}
 
-	for (f = this->followers; f; f = f->next) {
-		if (f->follower->IsNpc() && AFF_FLAGGED(f->follower, EAffect::kHorse)
-			&& (!same_room || this->in_room == f->follower->in_room)) {
+	for (auto *f : this->followers) {
+		if (f->IsNpc() && AFF_FLAGGED(f, EAffect::kHorse)
+			&& (!same_room || this->in_room == f->in_room)) {
 			return true;
 		}
 	}
@@ -2152,14 +2128,12 @@ void CharData::dismount() {
 }
 
 CharData *CharData::get_horse() {
-	struct FollowerType *f;
-
 	if (this->IsNpc())
 		return nullptr;
 
-	for (f = this->followers; f; f = f->next) {
-		if (f->follower->IsNpc() && AFF_FLAGGED(f->follower, EAffect::kHorse)) {
-			return (f->follower);
+	for (auto *f : this->followers) {
+		if (f->IsNpc() && AFF_FLAGGED(f, EAffect::kHorse)) {
+			return f;
 		}
 	}
 	return nullptr;

@@ -16,10 +16,10 @@ extern char *find_exdesc(const char *word, const ExtraDescription::shared_ptr &l
 int other_pc_in_group(CharData *ch) {
 	int num = 0;
 	CharData *k = ch->has_master() ? ch->get_master() : ch;
-	for (FollowerType *f = k->followers; f; f = f->next) {
-		if (AFF_FLAGGED(f->follower, EAffect::kGroup)
-			&& !f->follower->IsNpc()
-			&& f->follower->in_room == ch->in_room) {
+	for (auto *f : k->followers) {
+		if (AFF_FLAGGED(f, EAffect::kGroup)
+			&& !f->IsNpc()
+			&& f->in_room == ch->in_room) {
 			++num;
 		}
 	}

@@ -426,7 +426,7 @@ void do_mpurge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigge
 		return;
 	}
 
-	if (victim->followers
+	if (!victim->followers.empty()
 		|| victim->has_master()) {
 		die_follower(victim);
 	}
@@ -619,12 +619,11 @@ void do_mteleport(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 			}
 		}
 		from_room = vict->in_room;
-		if (!str_cmp(argument, "followers") && vict->followers) {
-			FollowerType *ft;
-			for (ft = vict->followers; ft; ft = ft->next) {
-				if (ft->follower->in_room == from_room && ft->follower->IsNpc()) {
-					RemoveCharFromRoom(ft->follower);
-					PlaceCharToRoom(ft->follower, target);
+		if (!str_cmp(argument, "followers") && !vict->followers.empty()) {
+			for (auto *ft : vict->followers) {
+				if (ft->in_room == from_room && ft->IsNpc()) {
+					RemoveCharFromRoom(ft);
+					PlaceCharToRoom(ft, target);
 				}
 			}
 		}
@@ -842,10 +841,9 @@ void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 			SetFighting(ch, m->GetEnemy());
 			m->SetEnemy(nullptr);
 		}
-		ch->followers = m->followers;
-		m->followers = nullptr;
-		for (struct FollowerType *l = ch->followers; l; l = l->next) {
-			l->follower->set_master(ch);
+		ch->followers = std::move(m->followers);
+		for (auto *l : ch->followers) {
+			l->set_master(ch);
 		}
 		for (const auto &af : m->affected) {
 			const auto &affect = *af;
@@ -866,9 +864,9 @@ void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 		ch->set_wait(m->get_wait());  
 		ch->set_master(m->get_master());
 		if (m->get_master()) {
-			for (auto f = m->get_master()->followers; f; f = f->next) {
-				if (f->follower == m) {
-					f->follower = ch;
+			for (auto &f : m->get_master()->followers) {
+				if (f == m) {
+					f = ch;
 				}
 			}
 		}

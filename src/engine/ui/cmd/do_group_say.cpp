@@ -14,7 +14,6 @@
 
 void do_gsay(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *k;
-	struct FollowerType *f;
 
 	if (AFF_FLAGGED(ch, EAffect::kSilence)) {
 		SendMsgToChar(SIELENCE, ch);
@@ -58,20 +57,20 @@ void do_gsay(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				k->remember_add(buf1, Remember::GROUP);
 			}
 		}
-		for (f = k->followers; f; f = f->next) {
-			if (AFF_FLAGGED(f->follower, EAffect::kGroup)
-				&& (f->follower != ch)
-				&& !ignores(f->follower, ch, EIgnore::kGroup)) {
-				act(buf, false, ch, nullptr, f->follower, kToVict | kToSleep | kToNotDeaf);
-				if (!AFF_FLAGGED(f->follower, EAffect::kDeafness)
-					&& f->follower->GetPosition() > EPosition::kDead) {
+		for (auto *f : k->followers) {
+			if (AFF_FLAGGED(f, EAffect::kGroup)
+				&& (f != ch)
+				&& !ignores(f, ch, EIgnore::kGroup)) {
+				act(buf, false, ch, nullptr, f, kToVict | kToSleep | kToNotDeaf);
+				if (!AFF_FLAGGED(f, EAffect::kDeafness)
+					&& f->GetPosition() > EPosition::kDead) {
 					sprintf(buf1,
 							"%s сообщил%s группе : '%s'\r\n",
-							tell_can_see(ch, f->follower) ? ch->get_name().c_str() : "Кто-то",
-							GET_CH_VIS_SUF_1(ch, f->follower),
+							tell_can_see(ch, f) ? ch->get_name().c_str() : "Кто-то",
+							GET_CH_VIS_SUF_1(ch, f),
 							argument);
-					f->follower->remember_add(buf1, Remember::ALL);
-					f->follower->remember_add(buf1, Remember::GROUP);
+					f->remember_add(buf1, Remember::ALL);
+					f->remember_add(buf1, Remember::GROUP);
 				}
 			}
 		}

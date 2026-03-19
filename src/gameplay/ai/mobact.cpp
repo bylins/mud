@@ -708,14 +708,13 @@ int perform_best_mob_attack(CharData *ch, int extmode) {
 		}
 
 		if (!best->IsNpc()) {
-			struct FollowerType *f;
 			// поиск клонов и отработка атаки в клона персонажа
-			for (f = best->followers; f; f = f->next)
-				if (f->follower->IsFlagged(EMobFlag::kClone))
+			for (auto *f : best->followers)
+				if (f->IsFlagged(EMobFlag::kClone))
 					clone_number++;
-			for (f = best->followers; f; f = f->next)
-				if (f->follower->IsNpc() && f->follower->IsFlagged(EMobFlag::kClone)
-					&& f->follower->in_room == best->in_room) {
+			for (auto *f : best->followers)
+				if (f->IsNpc() && f->IsFlagged(EMobFlag::kClone)
+					&& f->in_room == best->in_room) {
 					if (number(0, clone_number) == 1)
 						break;
 					if ((GetRealInt(ch) < 20) && number(0, clone_number))
@@ -725,7 +724,7 @@ int perform_best_mob_attack(CharData *ch, int extmode) {
 					if ((GetRealInt(ch) >= 20)
 						&& number(1, 10 + VPOSI((35 - GetRealInt(ch)), 0, 15) * clone_number) <= 10)
 						break;
-					best = f->follower;
+					best = f;
 					break;
 				}
 		}
