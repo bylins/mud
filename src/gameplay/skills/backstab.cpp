@@ -160,12 +160,18 @@ bool ProcessBackstab(CharData *ch, CharData *victim, HitData &hit_data) {
 	if (hit_data.skill_num != ESkill::kBackstab) {
 		return false;
 	}
+	// если ударили скрытым, то ресетим флаги, см fight.cpp: обработка ESkill::kNoParryHit
+	hit_data.ResetFlag(fight::kIgnoreArmor);
+	hit_data.ResetFlag(fight::kHalfIgnoreArmor);
+	hit_data.ResetFlag(fight::kIgnoreAbsorbe);
+
 	hit_data.ResetFlag(fight::kCritHit);
 	hit_data.SetFlag(fight::kIgnoreFireShield);
+	// тати
 	if (CanUseFeat(ch, EFeat::kThieveStrike)) {
 		hit_data.SetFlag(fight::kIgnoreSanct);
 		hit_data.SetFlag(fight::kIgnoreBlink);
-		hit_data.SetFlag(fight::kIgnoreArmor);
+	// наёмы
 	} else if (CanUseFeat(ch, EFeat::kShadowStrike)) {
 		hit_data.SetFlag(fight::kIgnoreArmor);
 	} else {
@@ -188,13 +194,11 @@ bool ProcessBackstab(CharData *ch, CharData *victim, HitData &hit_data) {
 		&& CanUseFeat(ch, EFeat::kShadowStrike)
 		&& !ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena)
 		&& !(AFF_FLAGGED(victim, EAffect::kGodsShield) && !(victim->IsFlagged(EMobFlag::kProtect)))
-		&& (number(1, 100) <= 6 * ch->get_cond_penalty(P_HITROLL))
-		&& !victim->get_role(static_cast<unsigned>(EMobClass::kBoss))) {
-		victim->set_hit(1);
-		hit_data.dam = victim->get_hit() + fight::kLethalDmg;
-		SendMsgToChar(ch, "&GПрямо в сердце, насмерть!&n\r\n");
-		hit_data.SetFlag(fight::kIgnoreBlink);
-		hit_data.ProcessExtradamage(ch, victim);
+		&& (number(1, 100) <= CalcCritBackstabPercent(ch) * ch->get_cond_penalty(P_HITROLL))) {
+			hit_data.dam = static_cast<int>(hit_data.dam * CalcCritBackstabMultiplier(ch, victim));
+			SendMsgToChar(ch, "&GПрямо в сердце, насмерть!&n\r\n");
+			hit_data.SetFlag(fight::kIgnoreBlink); // крит, игнорируем блинк
+			hit_data.ProcessExtradamage(ch, victim); // так ещё и с левой руки его добиваем.
 		return true;
 	}
 
