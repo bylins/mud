@@ -1719,10 +1719,8 @@ void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset) {
 	}
 
 //	log("[Extract char] Die followers");
-	if ((!ch->followers.empty() || ch->has_master())
-		&& die_follower(ch)) {
-		// TODO: странно все это с пуржем в stop_follower
-		//закостылил чтоб экстракт тут не делался для ch->has_master()
+	if (!ch->followers.empty() || ch->has_master()) {
+		die_follower(ch);
 	}
 //	log("[Extract char] Stop all fight for opponee");
 	change_fighting(ch, true);
