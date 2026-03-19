@@ -461,6 +461,10 @@ void CharData::purge() {
 			free(FREEZE_REASON(this));
 		if (NAME_REASON(this))
 			free(NAME_REASON(this));
+		if (GCURSE_REASON(this))
+			free(GCURSE_REASON(this));
+		if (UNREG_REASON(this))
+			free(UNREG_REASON(this));
 // End reasons cleanup
 
 		if (KARMA(this))
