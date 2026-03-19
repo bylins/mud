@@ -679,8 +679,7 @@ void SpellSummon(CharData *ch, CharData *victim) {
 	victim->dismount();
 	look_at_room(victim, 0);
 	// призываем чармисов
-	auto followers_copy = victim->followers;
-	for (auto *k : followers_copy) {
+	for (auto *k : victim->followers) {
 		if (k->in_room == vic_room) {
 			if (AFF_FLAGGED(k, EAffect::kCharmed)) {
 				if (!k->GetEnemy()) {

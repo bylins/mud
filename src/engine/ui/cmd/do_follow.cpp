@@ -126,9 +126,8 @@ bool die_follower(CharData *ch) {
 		AFF_FLAGS(ch).unset(EAffect::kHorse);
 	}
 
-	auto copy = ch->followers;
-	for (auto *f : copy) {
-		stop_follower(f, kSfMasterdie);
+	while (!ch->followers.empty()) {
+		stop_follower(ch->followers.front(), kSfMasterdie);
 	}
 	return false;
 }

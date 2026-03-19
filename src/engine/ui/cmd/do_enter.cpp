@@ -110,8 +110,7 @@ void DoEnter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				SetWait(ch, 3, false);
 				act("$n появил$u из пентаграммы.", true, ch, nullptr, nullptr, kToRoom);
 				// ищем ангела и лошадь
-				auto followers_copy = ch->followers;
-				for (auto *k : followers_copy) {
+				for (auto *k : ch->followers) {
 					if (IS_HORSE(k) &&
 						!k->GetEnemy() &&
 						!AFF_FLAGGED(k, EAffect::kHold) &&
