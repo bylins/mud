@@ -213,15 +213,6 @@ void setall_inspect() {
 	}
 	if (it->second->mail && it->second->pwd)
 		Password::send_password(it->second->mail, it->second->pwd);
-	// освобождение памяти
-	if (it->second->pwd)
-		free(it->second->pwd);
-	if (it->second->reason)
-		free(it->second->reason);
-	if (it->second->newmail)
-		free(it->second->newmail);
-	if (it->second->mail)
-		free(it->second->mail);
 	gettimeofday(&stop, nullptr);
 	timediff(&result, &stop, &it->second->start);
 	sprintf(buf1, "Всего найдено: %d.\r\n", it->second->found);
