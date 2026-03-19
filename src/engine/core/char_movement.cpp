@@ -712,8 +712,7 @@ bool PerformMove(CharData *ch, int dir, int need_specials_check, int checkmob, C
 			if (!PerformSimpleMove(ch, dir, need_specials_check, master, EMoveType::kDefault)) {
 				return false;
 			}
-			auto followers_copy = ch->followers;
-			for (auto *k : followers_copy) {
+			for (auto *k : ch->followers) {
 				if (!k->get_master())
 					continue;
 				if (k->in_room == was_in
