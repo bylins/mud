@@ -164,9 +164,13 @@ void ExpireTimedFeat(CharData *ch, EFeat feat) {
 int IsTimedByFeat(CharData *ch, EFeat feat) {
 	auto it = ch->timed_feat.find(feat);
 	if (it != ch->timed_feat.end()) {
+		if (it->second <= time(0)) {
+			ch->timed_feat.erase(it);
+			return 0;
+		}
 		return (it->second - time(0) - 1) / 60 + 1;
 	}
-	return (0);
+	return 0;
 }
 
 /**
@@ -188,12 +192,15 @@ void ExpireTimedSkill(CharData *ch, ESkill skill) {
 }
 
 int IsTimedBySkill(CharData *ch, ESkill id) {
-	
 	auto it = ch->timed_skill.find(id);
 	if (it != ch->timed_skill.end()) {
+		if (it->second <= time(0)) {
+			ch->timed_skill.erase(it);
+			return 0;
+		}
 		return (it->second - time(0) - 1) / 60 + 1;
 	}
-	return (0);
+	return 0;
 }
 
 // move a player out of a room
