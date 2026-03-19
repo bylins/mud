@@ -81,7 +81,7 @@ void do_statip(CharData *ch, CharData *k) {
 		for (const auto &logon : LOGON_LIST(k)) {
 			sprintf(buf1,
 					"%16s %5ld %20s%s\r\n",
-					logon.ip,
+					logon.ip.c_str(),
 					logon.count,
 					rustime(localtime(&logon.lasttime)),
 					logon.is_first ? " (создание)" : "");
