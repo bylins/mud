@@ -34,6 +34,13 @@ struct setall_inspect_request {
   int pos; // позиция в таблице
   struct timeval start;        //время когда запустили запрос для отладки
   std::string out;        //буфер в который накапливается вывод
+
+  ~setall_inspect_request() {
+	free(mail);
+	free(pwd);
+	free(newmail);
+	free(reason);
+  }
 };
 
 class CharData;
