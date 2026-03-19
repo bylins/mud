@@ -1723,6 +1723,8 @@ void CharData::add_follower(CharData *ch) {
 	if (ch->IsNpc() && ch->IsFlagged(EMobFlag::kNoGroup))
 		return;
 	if (this->in_room != ch->in_room) {
+		log(fmt::format("попытка загрупить игроков в разных комнатах, лидер {} #{} фолловер {} #{}",
+				this->get_name(), GET_MOB_VNUM(this), ch->get_name(), GET_MOB_VNUM(ch)));
 		mudlog(fmt::format("попытка загрупить игроков в разных комнатах, лидер {} #{} фолловер {} #{}",
 				this->get_name(), GET_MOB_VNUM(this), ch->get_name(), GET_MOB_VNUM(ch)));
 		return;
