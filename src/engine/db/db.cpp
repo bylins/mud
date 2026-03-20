@@ -1997,7 +1997,8 @@ void ZoneUpdate() {
 		}
 	}
 	UniqueList<ZoneRnum> zone_repop_list;
-	for (update_u = reset_q.head; update_u; update_u = update_u->next)
+	for (update_u = reset_q.head; update_u; ) {
+		auto *next_u = update_u->next;
 		if (zone_table[update_u->zone_to_reset].reset_mode == 2
 			|| (zone_table[update_u->zone_to_reset].reset_mode != 3 && IsZoneEmpty(update_u->zone_to_reset))
 			|| CanBeReset(update_u->zone_to_reset)) {
@@ -2007,7 +2008,6 @@ void ZoneUpdate() {
 				<< zone_table[update_u->zone_to_reset].vnum << ")";
 			if (zone_table[update_u->zone_to_reset].reset_mode == 3) {
 				for (auto i = 0; i < zone_table[update_u->zone_to_reset].typeA_count; i++) {
-					//Ищем ZoneRnum по vnum
 					for (ZoneRnum j = 0; j < static_cast<ZoneRnum>(zone_table.size()); j++) {
 						if (zone_table[j].vnum ==
 							zone_table[update_u->zone_to_reset].typeA_list[i]) {
@@ -2027,7 +2027,7 @@ void ZoneUpdate() {
 				if (zone_table[it].vnum < dungeons::kZoneStartDungeons) {
 					ResetZone(it);
 					zones_reset_count++;
-					
+
 					ZoneResetMetrics(it).RecordResetCount();
 				} else {
 					log("Закрываю брошенный dungeon %d", it);
@@ -2041,9 +2041,9 @@ void ZoneUpdate() {
 			mudlog(ss.str(), LGH, kLvlGod, SYSLOG, false);
 			out << " ]\r\n[ Time reset: " << timer_count.delta().count();
 			mudlog(out.str(), LGH, kLvlGod, SYSLOG, false);
-			if (update_u == reset_q.head)
+			if (update_u == reset_q.head) {
 				reset_q.head = reset_q.head->next;
-			else {
+			} else {
 				for (temp = reset_q.head; temp->next != update_u; temp = temp->next);
 				if (!update_u->next)
 					reset_q.tail = temp;
@@ -2054,6 +2054,8 @@ void ZoneUpdate() {
 			if (k >= kZonesReset)
 				break;
 		}
+		update_u = next_u;
+	}
 	
 	// OpenTelemetry: Record total zones reset
 	zone_span->SetAttribute("zones_reset_count", static_cast<int64_t>(zones_reset_count));
