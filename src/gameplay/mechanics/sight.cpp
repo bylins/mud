@@ -77,6 +77,54 @@ char *diag_uses_to_char(ObjData *obj, CharData *ch);
 char *diag_shot_to_char(ObjData *obj, CharData *ch);
 const char *diag_obj_timer(const ObjData *obj);
 
+namespace {
+
+std::string BuildBriefShieldSuffix(const CharData *viewer, const CharData *target) {
+	if (!viewer->IsFlagged(EPrf::kBriefShields)) {
+		return std::string();
+	}
+
+	std::string result;
+	auto append = [&result](const char *text) {
+		if (!result.empty()) {
+			result += " ";
+		}
+		result += text;
+	};
+
+	if (AFF_FLAGGED(target, EAffect::kFireShield)) {
+		append("ОШ");
+	}
+	if (AFF_FLAGGED(target, EAffect::kAirShield)) {
+		append("ВШ");
+	}
+	if (AFF_FLAGGED(target, EAffect::kIceShield)) {
+		append("ЛШ");
+	}
+	if (AFF_FLAGGED(viewer, EAffect::kDetectMagic) && AFF_FLAGGED(target, EAffect::kMagicGlass)) {
+		append("МЗ");
+	}
+
+	return result.empty() ? std::string() : std::string(" (") + result + ")";
+}
+
+void AppendBriefShieldSuffix(std::string &text, const CharData *viewer, const CharData *target) {
+	const auto suffix = BuildBriefShieldSuffix(viewer, target);
+	if (suffix.empty()) {
+		return;
+	}
+
+	const std::string newline = "\r\n";
+	if (text.size() >= newline.size()
+		&& text.compare(text.size() - newline.size(), newline.size(), newline) == 0) {
+		text.insert(text.size() - newline.size(), suffix);
+	} else {
+		text += suffix;
+	}
+}
+
+} // namespace
+
 void look_at_room(CharData *ch, int ignore_brief, bool msdp_mode) {
 	if (!ch->desc)
 		return;
@@ -1641,8 +1689,10 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 		if (AFF_FLAGGED(i, EAffect::kHorse))
 			strcat(buf, "(под седлом) ");
 
-		strcat(buf, i->player_data.long_descr.c_str());
-		SendMsgToChar(buf, ch);
+		std::string line = buf;
+		line += i->player_data.long_descr;
+		AppendBriefShieldSuffix(line, ch, i);
+		SendMsgToChar(line, ch);
 
 		*aura_txt = '\0';
 		if (AFF_FLAGGED(i, EAffect::kGodsShield)) {
@@ -1682,14 +1732,15 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 			strcat(aura_txt, " щитом ");
 		else if (n > 1)
 			strcat(aura_txt, " щитами ");
-		if (n > 0)
+		if (n > 0 && !ch->IsFlagged(EPrf::kBriefShields))
 			act(aura_txt, false, i, nullptr, ch, kToVict);
 
 		if (AFF_FLAGGED(ch, EAffect::kDetectMagic)) {
 			*aura_txt = '\0';
 			n = 0;
 			strcat(aura_txt, "...");
-			if (AFF_FLAGGED(i, EAffect::kMagicGlass)) {
+			if (AFF_FLAGGED(i, EAffect::kMagicGlass)
+				&& !ch->IsFlagged(EPrf::kBriefShields)) {
 				if (n > 0)
 					strcat(aura_txt, ", серебристая");
 				else
@@ -1845,8 +1896,10 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 			|| IsAffectedBySpell(i, ESpell::kBelenaPoison))
 			sprintf(buf + strlen(buf), "(отравлен%s) ", GET_CH_SUF_6(i));
 
-	strcat(buf, "\r\n");
-	SendMsgToChar(buf, ch);
+	std::string line = buf;
+	AppendBriefShieldSuffix(line, ch, i);
+	line += "\r\n";
+	SendMsgToChar(line, ch);
 
 	*aura_txt = '\0';
 	if (AFF_FLAGGED(i, EAffect::kGodsShield)) {
@@ -1886,13 +1939,14 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 		strcat(aura_txt, " щитом ");
 	else if (n > 1)
 		strcat(aura_txt, " щитами ");
-	if (n > 0)
+	if (n > 0 && !ch->IsFlagged(EPrf::kBriefShields))
 		act(aura_txt, false, i, nullptr, ch, kToVict);
 	if (AFF_FLAGGED(ch, EAffect::kDetectMagic)) {
 		*aura_txt = '\0';
 		n = 0;
 		strcat(aura_txt, " ..");
-		if (AFF_FLAGGED(i, EAffect::kMagicGlass)) {
+		if (AFF_FLAGGED(i, EAffect::kMagicGlass)
+			&& !ch->IsFlagged(EPrf::kBriefShields)) {
 			if (n > 0)
 				strcat(aura_txt, ", серебристая");
 			else
