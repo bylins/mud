@@ -107,9 +107,12 @@ void PerformWeaponThrow(abilities_roll::TechniqueRoll &technique, Damage &damage
 			damage.flags.set(fight::kCritHit);
 			damage.flags.set(fight::kIgnoreBlink);
 		};
-		if (IsTimedByFeat(technique.GetActor(), EFeat::kShadowThrower)) {
-			DecreaseFeatTimer(technique.GetActor(), EFeat::kShadowThrower);
-		};
+		{
+			auto it = technique.GetActor()->timed_feat.find(EFeat::kShadowThrower);
+			if (it != technique.GetActor()->timed_feat.end()) {
+				it->second -= 60;
+			}
+		}
 		if (technique.GetAbilityId() == abilities::EAbility::kShadowThrower) {
 			PerformShadowThrowSideAbilities(technique);
 		};
