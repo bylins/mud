@@ -267,7 +267,7 @@ void ActualizePlayersIndex(char *name) {
 				}
 
 #ifdef TEST_BUILD
-				log("entry: char:%s level:%d mail:%s ip:%s", element.name().c_str(), element.level, element.mail, element.last_ip);
+				log("entry: char:%s level:%d mail:%s ip:%s", element.name().c_str(), element.level, element.mail.c_str(), element.last_ip.c_str());
 #endif
 
 				top_idnum = std::max(top_idnum, short_ch->get_uid());
