@@ -32,17 +32,29 @@ void SaveProxyList();
 unsigned long TxtToIp(std::string &text);
 
 struct ProxyIp {
-  unsigned long ip2{0L};   // конечный ип в случае диапазона
-  int num{0};             // кол-во максимальных коннектов
-  std::string text;    // комментарий
-  std::string textIp;  // ип в виде строки
-  std::string textIp2; // конечный ип в виде строки
+  unsigned long ip2{0L};
+  int num{0};
+  std::string text;
+  std::string textIp;
+  std::string textIp2;
 };
 
 using ProxyIpPtr = std::shared_ptr<ProxyIp>;
 using ProxyListType = std::map<unsigned long, ProxyIpPtr>;
 extern ProxyListType proxy_list;
 extern const int kMaxProxyConnect;
+
+struct DescriptorData;
+
+enum class EProxyCheck {
+	kNotInList,
+	kLimitReached,
+	kAllowed
+};
+
+const ProxyIpPtr FindProxyEntry(unsigned long ip);
+int CountPlayersFromIp(DescriptorData *d);
+EProxyCheck CheckProxy(DescriptorData *d);
 
 #endif //BYLINS_SRC_ADMINISTRATION_PROXY_H_
 

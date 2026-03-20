@@ -76,34 +76,42 @@ void RegisterSystem::LoadProxyList() {
 	SaveProxyList();
 }
 
-// проверка на присутствие в списке зарегистрированных ip и кол-ва соединений
-// 0 - нету, 1 - в маде уже макс. число коннектов с данного ip, 2 - все ок
-int CheckProxy(DescriptorData *ch) {
-	//сначала ищем в списке, зачем зря коннекты считать
-	ProxyListType::const_iterator it;
-	// мысль простая - есть второй ип, знач смотрим диапазон, нету - знач сверяем на равенство ип
-	for (it = proxy_list.begin(); it != proxy_list.end(); ++it) {
-		if (!it->second->ip2) {
-			if (it->first == ch->ip)
-				break;
-		} else if ((it->first <= ch->ip) && (ch->ip <= it->second->ip2))
-			break;
+const ProxyIpPtr FindProxyEntry(unsigned long ip) {
+	for (const auto &it : proxy_list) {
+		if (!it.second->ip2) {
+			if (it.first == ip) {
+				return it.second;
+			}
+		} else if (it.first <= ip && ip <= it.second->ip2) {
+			return it.second;
+		}
 	}
-	if (it == proxy_list.end())
-		return 0;
+	return nullptr;
+}
 
-	// терь можно и посчитать
-	DescriptorData *i;
-	int num_ip = 0;
-	for (i = descriptor_list; i; i = i->next)
-		if (i != ch && i->character && !IS_IMMORTAL(i->character) && (i->ip == ch->ip))
-			num_ip++;
+int CountPlayersFromIp(DescriptorData *d) {
+	int count = 0;
+	for (auto *i = descriptor_list; i; i = i->next) {
+		if (i != d
+			&& i->character
+			&& !IS_IMMORTAL(i->character)
+			&& i->ip == d->ip
+			&& (i->state == EConState::kPlaying || i->state == EConState::kMenu)) {
+			count++;
+		}
+	}
+	return count;
+}
 
-	// проверяем на кол-во коннектов
-	if (it->second->num <= num_ip)
-		return 1;
-
-	return 2;
+EProxyCheck CheckProxy(DescriptorData *d) {
+	auto proxy = FindProxyEntry(d->ip);
+	if (!proxy) {
+		return EProxyCheck::kNotInList;
+	}
+	if (CountPlayersFromIp(d) >= proxy->num) {
+		return EProxyCheck::kLimitReached;
+	}
+	return EProxyCheck::kAllowed;
 }
 
 // Тут все, что связано с регистрацией клубов и т.п.
