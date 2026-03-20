@@ -2756,20 +2756,26 @@ void ZoneReset::ResetZoneEssential() {
 					// 'T' <flag> <trigger_type> <trigger_vnum> <RoomVnum, для WLD_TRIGGER>
 					if (reset_cmd.arg1 == MOB_TRIGGER && tmob) {
 						auto trig = read_trigger(reset_cmd.arg2);
-						if (!add_trigger(SCRIPT(tmob).get(), trig, -1)) {
+						if (add_trigger(SCRIPT(tmob).get(), trig, -1)) {
+							add_trig_to_owner(-1, trig_index[reset_cmd.arg2]->vnum, GET_MOB_VNUM(tmob));
+						} else {
 							ExtractTrigger(trig);
 						}
 						curr_state = 1;
 					} else if (reset_cmd.arg1 == OBJ_TRIGGER && tobj) {
 						auto trig = read_trigger(reset_cmd.arg2);
-						if (!add_trigger(tobj->get_script().get(), trig, -1)) {
+						if (add_trigger(tobj->get_script().get(), trig, -1)) {
+							add_trig_to_owner(-1, trig_index[reset_cmd.arg2]->vnum, GET_OBJ_VNUM(tobj));
+						} else {
 							ExtractTrigger(trig);
 						}
 						curr_state = 1;
 					} else if (reset_cmd.arg1 == WLD_TRIGGER) {
 						if (reset_cmd.arg3 > kNowhere) {
 							auto trig = read_trigger(reset_cmd.arg2);
-							if (!add_trigger(world[reset_cmd.arg3]->script.get(), trig, -1)) {
+							if (add_trigger(world[reset_cmd.arg3]->script.get(), trig, -1)) {
+								add_trig_to_owner(-1, trig_index[reset_cmd.arg2]->vnum, world[reset_cmd.arg3]->vnum);
+							} else {
 								ExtractTrigger(trig);
 							}
 							curr_state = 1;
