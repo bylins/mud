@@ -64,15 +64,14 @@ void DoSpellCapable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	FollowerType *k;
 	CharData *follower = nullptr;
-	for (k = ch->followers; k; k = k->next) {
-		if (AFF_FLAGGED(k->follower, EAffect::kCharmed)
-			&& k->follower->get_master() == ch
-			&& k->follower->IsFlagged(EMobFlag::kClone)
-			&& !IsAffectedBySpell(k->follower, ESpell::kCapable)
-			&& ch->isInSameRoom(k->follower)) {
-			follower = k->follower;
+	for (auto *k : ch->followers) {
+		if (AFF_FLAGGED(k, EAffect::kCharmed)
+			&& k->get_master() == ch
+			&& k->IsFlagged(EMobFlag::kClone)
+			&& !IsAffectedBySpell(k, ESpell::kCapable)
+			&& ch->isInSameRoom(k)) {
+			follower = k;
 			break;
 		}
 	}

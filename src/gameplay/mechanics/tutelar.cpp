@@ -20,14 +20,12 @@ void SummonTutelar(CharData *ch) {
 	MobVnum mob_num = 108;
 	//int modifier = 0;
 	CharData *mob = nullptr;
-	struct FollowerType *k, *k_next;
-
 	auto eff_cha = get_effective_cha(ch);
 
-	for (k = ch->followers; k; k = k_next) {
-		k_next = k->next;
-		if (k->follower->IsFlagged(EMobFlag::kTutelar)) {
-			stop_follower(k->follower, kSfCharmlost);
+	auto followers_copy = ch->followers;
+	for (auto *k : followers_copy) {
+		if (k->IsFlagged(EMobFlag::kTutelar)) {
+			stop_follower(k, kSfCharmlost);
 		}
 	}
 
@@ -236,24 +234,22 @@ void CheckTutelarSelfSacrfice(CharData *ch, CharData *victim) {
 }
 
 void TryToRescueWithTutelar(CharData *ch) {
-	struct FollowerType *k, *k_next;
-	for (k = ch->followers; k; k = k_next) {
-		k_next = k->next;
-		if (AFF_FLAGGED(k->follower, EAffect::kHelper)
-			&& k->follower->IsFlagged(EMobFlag::kTutelar)
-			&& !k->follower->GetEnemy()
-			&& k->follower->in_room == ch->in_room
-			&& CAN_SEE(k->follower, ch)
-			&& AWAKE(k->follower)
-			&& !IsUnableToAct(k->follower)
-			&& k->follower->get_wait() <= 0
-			&& k->follower->GetPosition() >= EPosition::kFight) {
+	for (auto *k : ch->followers) {
+		if (AFF_FLAGGED(k, EAffect::kHelper)
+			&& k->IsFlagged(EMobFlag::kTutelar)
+			&& !k->GetEnemy()
+			&& k->in_room == ch->in_room
+			&& CAN_SEE(k, ch)
+			&& AWAKE(k)
+			&& !IsUnableToAct(k)
+			&& k->get_wait() <= 0
+			&& k->GetPosition() >= EPosition::kFight) {
 			for (const auto vict : world[ch->in_room]->people) {
 				if (vict->GetEnemy() == ch
 					&& vict != ch
-					&& vict != k->follower) {
-					if (k->follower->GetSkill(ESkill::kRescue)) {
-						go_rescue(k->follower, ch, vict);
+					&& vict != k) {
+					if (k->GetSkill(ESkill::kRescue)) {
+						go_rescue(k, ch, vict);
 					}
 					break;
 				}

@@ -176,8 +176,8 @@ class CharacterWrapper : public Wrapper<CharacterData> {
 	py::list get_followers() {
 		Ensurer ch(*this);
 		py::list result;
-		for (follow_type *i = ch->followers; i; i = i->next)
-			result.append(CharacterWrapper(i->follower));
+		for (auto *i : ch->followers)
+			result.append(CharacterWrapper(i));
 		return result;
 	}
 

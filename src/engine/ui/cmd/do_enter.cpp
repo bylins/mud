@@ -20,7 +20,6 @@ void DoEnter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	RoomRnum from_room;
 	int fnum;
 	const char *p_str = "пентаграмма";
-	struct FollowerType *k, *k_next;
 	char *pnumber;
 
 	one_argument(argument, smallBuf);
@@ -111,41 +110,40 @@ void DoEnter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				SetWait(ch, 3, false);
 				act("$n появил$u из пентаграммы.", true, ch, nullptr, nullptr, kToRoom);
 				// ищем ангела и лошадь
-				for (k = ch->followers; k; k = k_next) {
-					k_next = k->next;
-					if (IS_HORSE(k->follower) &&
-						!k->follower->GetEnemy() &&
-						!AFF_FLAGGED(k->follower, EAffect::kHold) &&
-						k->follower->in_room == from_room && AWAKE(k->follower)) {
+				for (auto *k : ch->followers) {
+					if (IS_HORSE(k) &&
+						!k->GetEnemy() &&
+						!AFF_FLAGGED(k, EAffect::kHold) &&
+						k->in_room == from_room && AWAKE(k)) {
 						if (!ROOM_FLAGGED(door, ERoomFlag::kNohorse)) {
-							RemoveCharFromRoom(k->follower);
-							PlaceCharToRoom(k->follower, door);
+							RemoveCharFromRoom(k);
+							PlaceCharToRoom(k, door);
 						}
 					}
-					if (AFF_FLAGGED(k->follower, EAffect::kHelper)
-						&& !AFF_FLAGGED(k->follower, EAffect::kHold)
-						&& (k->follower->IsFlagged(EMobFlag::kTutelar) || k->follower->IsFlagged(EMobFlag::kMentalShadow))
-						&& !k->follower->GetEnemy()
-						&& k->follower->in_room == from_room
-						&& AWAKE(k->follower)) {
+					if (AFF_FLAGGED(k, EAffect::kHelper)
+						&& !AFF_FLAGGED(k, EAffect::kHold)
+						&& (k->IsFlagged(EMobFlag::kTutelar) || k->IsFlagged(EMobFlag::kMentalShadow))
+						&& !k->GetEnemy()
+						&& k->in_room == from_room
+						&& AWAKE(k)) {
 						act("$n исчез$q в пентаграмме.", true,
-							k->follower, nullptr, nullptr, kToRoom);
-						RemoveCharFromRoom(k->follower);
-						PlaceCharToRoom(k->follower, door);
-						SetWait(k->follower, 3, false);
+							k, nullptr, nullptr, kToRoom);
+						RemoveCharFromRoom(k);
+						PlaceCharToRoom(k, door);
+						SetWait(k, 3, false);
 						act("$n появил$u из пентаграммы.", true,
-							k->follower, nullptr, nullptr, kToRoom);
+							k, nullptr, nullptr, kToRoom);
 					}
-					if (IS_CHARMICE(k->follower) &&
-						!AFF_FLAGGED(k->follower, EAffect::kHold) &&
-						k->follower->GetPosition() == EPosition::kStand &&
-						k->follower->in_room == from_room) {
+					if (IS_CHARMICE(k) &&
+						!AFF_FLAGGED(k, EAffect::kHold) &&
+						k->GetPosition() == EPosition::kStand &&
+						k->in_room == from_room) {
 						if (fnum > 1) {
 							snprintf(buf2, kMaxStringLength, "enter %d.%s", fnum, smallBuf);
 						} else {
 							snprintf(buf2, kMaxStringLength, "enter %s", smallBuf);
 						}
-						command_interpreter(k->follower, buf2);
+						command_interpreter(k, buf2);
 					}
 				}
 				if (ch->desc != nullptr)

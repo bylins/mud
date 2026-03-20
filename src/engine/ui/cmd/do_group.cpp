@@ -32,7 +32,7 @@ void do_group(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (!ch->followers) {
+	if (ch->followers.empty()) {
 		SendMsgToChar("За вами никто не следует.\r\n", ch);
 		return;
 	}

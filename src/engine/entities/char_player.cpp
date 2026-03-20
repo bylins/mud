@@ -824,28 +824,28 @@ void Player::save_char() {
 
 	// added by WorM (Видолюб) 2010.06.04 бабки потраченные на найм(возвращаются при креше)
 	i = 0;
-	if (this->followers
+	if (!this->followers.empty()
 		&& CanUseFeat(this, EFeat::kEmployer)
 		&& !IS_IMMORTAL(this)) {
-		struct FollowerType *k = nullptr;
-		for (k = this->followers; k; k = k->next) {
-			if (k->follower
-				&& AFF_FLAGGED(k->follower, EAffect::kHelper)
-				&& AFF_FLAGGED(k->follower, EAffect::kCharmed)) {
+		CharData *found_follower = nullptr;
+		for (auto *k : this->followers) {
+			if (k
+				&& AFF_FLAGGED(k, EAffect::kHelper)
+				&& AFF_FLAGGED(k, EAffect::kCharmed)) {
+				found_follower = k;
 				break;
 			}
 		}
 
-		if (k
-			&& k->follower
-			&& !k->follower->affected.empty()) {
-			for (const auto &aff : k->follower->affected) {
+		if (found_follower
+			&& !found_follower->affected.empty()) {
+			for (const auto &aff : found_follower->affected) {
 				if (aff->type == ESpell::kCharm) {
-					if (k->follower->mob_specials.hire_price == 0) {
+					if (found_follower->mob_specials.hire_price == 0) {
 						break;
 					}
 
-					int i = ((aff->duration - 1) / 2) * k->follower->mob_specials.hire_price;
+					int i = ((aff->duration - 1) / 2) * found_follower->mob_specials.hire_price;
 					if (i != 0) {
 						fprintf(saved, "GldH: %d\n", i);
 					}

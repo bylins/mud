@@ -1604,11 +1604,11 @@ namespace {
 void change_npc_leader(CharData *ch) {
 	std::vector<CharData *> tmp_list;
 
-	for (FollowerType *i = ch->followers; i; i = i->next) {
-		if (i->follower->IsNpc()
-			&& !IS_CHARMICE(i->follower)
-			&& i->follower->get_master() == ch) {
-			tmp_list.push_back(i->follower);
+	for (auto *i : ch->followers) {
+		if (i->IsNpc()
+			&& !IS_CHARMICE(i)
+			&& i->get_master() == ch) {
+			tmp_list.push_back(i);
 		}
 	}
 	if (tmp_list.empty()) {
@@ -1706,20 +1706,20 @@ void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset) {
 
 	if (!ch->IsNpc()
 		&& !ch->has_master()
-		&& ch->followers
+		&& !ch->followers.empty()
 		&& AFF_FLAGGED(ch, EAffect::kGroup)) {
 //		log("[Extract char] Change group leader");
 		change_leader(ch, nullptr);
 	} else if (ch->IsNpc()
 		&& !IS_CHARMICE(ch)
 		&& !ch->has_master()
-		&& ch->followers) {
+		&& !ch->followers.empty()) {
 //		log("[Extract char] Changing NPC leader");
 		change_npc_leader(ch);
 	}
 
 //	log("[Extract char] Die followers");
-	if ((ch->followers || ch->has_master())
+	if ((!ch->followers.empty() || ch->has_master())
 		&& die_follower(ch)) {
 		// TODO: странно все это с пуржем в stop_follower
 		//закостылил чтоб экстракт тут не делался для ch->has_master()

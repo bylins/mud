@@ -53,7 +53,7 @@ void DoPurge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		const auto people_copy = world[ch->in_room]->people;
 		for (const auto vict : people_copy) {
 			if (vict->IsNpc()) {
-				if (vict->followers
+				if (!vict->followers.empty()
 					|| vict->has_master()) {
 					die_follower(vict);
 				}

@@ -684,7 +684,6 @@ bool PerformMove(CharData *ch, int dir, int need_specials_check, int checkmob, C
 	ch->set_motion(true);
 
 	RoomRnum was_in;
-	struct FollowerType *k, *next;
 /*
 	if (!ch->IsNpc() || IS_CHARMICE(ch)) {
 		std::ostringstream out;
@@ -703,7 +702,7 @@ bool PerformMove(CharData *ch, int dir, int need_specials_check, int checkmob, C
 		} else
 			SendMsgToChar("Закрыто.\r\n", ch);
 	} else {
-		if (!ch->followers) {
+		if (ch->followers.empty()) {
 			if (!PerformSimpleMove(ch, dir, need_specials_check, master, EMoveType::kDefault))
 				return false;
 		} else {
@@ -713,32 +712,33 @@ bool PerformMove(CharData *ch, int dir, int need_specials_check, int checkmob, C
 			if (!PerformSimpleMove(ch, dir, need_specials_check, master, EMoveType::kDefault)) {
 				return false;
 			}
-			for (k = ch->followers; k && k->follower->get_master(); k = next) {
-				next = k->next;
-				if (k->follower->in_room == was_in
-					&& !k->follower->GetEnemy()
-					&& HERE(k->follower)
-					&& !(AFF_FLAGGED(k->follower, EAffect::kHold)
-							|| AFF_FLAGGED(k->follower, EAffect::kStopFight)
-							|| AFF_FLAGGED(k->follower, EAffect::kMagicStopFight))
-					&& AWAKE(k->follower)
-					&& (k->follower->IsNpc()
-						|| (!k->follower->IsFlagged(EPlrFlag::kMailing)
-							&& !k->follower->IsFlagged(EPlrFlag::kWriting)))
-					&& (!IS_HORSE(k->follower)
-						|| !AFF_FLAGGED(k->follower, EAffect::kTethered))) {
-					if (k->follower->GetPosition() < EPosition::kStand) {
-						if (k->follower->IsNpc()
-							&& k->follower->get_master()->IsNpc()
-							&& k->follower->GetPosition() > EPosition::kSleep
-							&& !k->follower->get_wait()) {
-							act("$n поднял$u.", false, k->follower, nullptr, nullptr, kToRoom | kToArenaListen);
-							k->follower->SetPosition(EPosition::kStand);
+			for (auto *k : ch->followers) {
+				if (!k->get_master())
+					continue;
+				if (k->in_room == was_in
+					&& !k->GetEnemy()
+					&& HERE(k)
+					&& !(AFF_FLAGGED(k, EAffect::kHold)
+							|| AFF_FLAGGED(k, EAffect::kStopFight)
+							|| AFF_FLAGGED(k, EAffect::kMagicStopFight))
+					&& AWAKE(k)
+					&& (k->IsNpc()
+						|| (!k->IsFlagged(EPlrFlag::kMailing)
+							&& !k->IsFlagged(EPlrFlag::kWriting)))
+					&& (!IS_HORSE(k)
+						|| !AFF_FLAGGED(k, EAffect::kTethered))) {
+					if (k->GetPosition() < EPosition::kStand) {
+						if (k->IsNpc()
+							&& k->get_master()->IsNpc()
+							&& k->GetPosition() > EPosition::kSleep
+							&& !k->get_wait()) {
+							act("$n поднял$u.", false, k, nullptr, nullptr, kToRoom | kToArenaListen);
+							k->SetPosition(EPosition::kStand);
 						} else {
 							continue;
 						}
 					}
-					PerformMove(k->follower, dir, 1, false, ch);
+					PerformMove(k, dir, 1, false, ch);
 				}
 			}
 		}

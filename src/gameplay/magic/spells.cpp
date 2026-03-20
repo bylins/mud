@@ -555,7 +555,6 @@ void SpellPortal(CharData *ch, CharData *victim) {
 
 void SpellSummon(CharData *ch, CharData *victim) {
 	RoomRnum ch_room, vic_room;
-	struct FollowerType *k, *k_next;
 
 	if (ch == nullptr || victim == nullptr || ch == victim) {
 		return;
@@ -680,18 +679,17 @@ void SpellSummon(CharData *ch, CharData *victim) {
 	victim->dismount();
 	look_at_room(victim, 0);
 	// призываем чармисов
-	for (k = victim->followers; k; k = k_next) {
-		k_next = k->next;
-		if (k->follower->in_room == vic_room) {
-			if (AFF_FLAGGED(k->follower, EAffect::kCharmed)) {
-				if (!k->follower->GetEnemy()) {
+	for (auto *k : victim->followers) {
+		if (k->in_room == vic_room) {
+			if (AFF_FLAGGED(k, EAffect::kCharmed)) {
+				if (!k->GetEnemy()) {
 					act("$n растворил$u на ваших глазах.",
-						true, k->follower, nullptr, nullptr, kToRoom | kToArenaListen);
-					RemoveCharFromRoom(k->follower);
-					PlaceCharToRoom(k->follower, ch_room);
+						true, k, nullptr, nullptr, kToRoom | kToArenaListen);
+					RemoveCharFromRoom(k);
+					PlaceCharToRoom(k, ch_room);
 					act("$n прибыл$g за хозяином.",
-						true, k->follower, nullptr, nullptr, kToRoom | kToArenaListen);
-					act("$n призвал$g вас!", false, ch, nullptr, k->follower, kToVict);
+						true, k, nullptr, nullptr, kToRoom | kToArenaListen);
+					act("$n призвал$g вас!", false, ch, nullptr, k, kToVict);
 				}
 			}
 		}
@@ -898,18 +896,17 @@ void SpellCreateWeapon(int/* level*/, CharData* /*ch*/, CharData* /*victim*/, Ob
 }
 
 int CheckCharmices(CharData *ch, CharData *victim, ESpell spell_id) {
-	struct FollowerType *k;
 	int cha_summ = 0, reformed_hp_summ = 0;
 	bool undead_in_group = false, living_in_group = false;
 
-	for (k = ch->followers; k; k = k->next) {
-		if (AFF_FLAGGED(k->follower, EAffect::kCharmed)
-			&& k->follower->get_master() == ch) {
+	for (auto *k : ch->followers) {
+		if (AFF_FLAGGED(k, EAffect::kCharmed)
+			&& k->get_master() == ch) {
 			cha_summ++;
 			//hp_summ += GET_REAL_MAX_HIT(k->ch);
-			reformed_hp_summ += GetReformedCharmiceHp(ch, k->follower, spell_id);
+			reformed_hp_summ += GetReformedCharmiceHp(ch, k, spell_id);
 // Проверка на тип последователей -- некрасиво, зато эффективно
-			if (k->follower->IsFlagged(EMobFlag::kCorpse)) {
+			if (k->IsFlagged(EMobFlag::kCorpse)) {
 				undead_in_group = true;
 			} else {
 				living_in_group = true;
@@ -1026,11 +1023,9 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 		if (CanUseFeat(ch, EFeat::kAnimalMaster) && GET_RACE(victim) == 104) {
 			int type_mob;
 			std::vector<int> rndcharmice = {1, 2, 3, 4, 5, 6, 7, 8};
-			struct FollowerType *k, *k_next;
-			for (k = ch->followers; k; k = k_next) {
-				k_next = k->next;
-				if (IS_CHARMICE(k->follower) && k->follower->get_type_charmice() > 0) {
-					auto it = std::find(rndcharmice.begin(), rndcharmice.end(),  k->follower->get_type_charmice());
+			for (auto *k : ch->followers) {
+				if (IS_CHARMICE(k) && k->get_type_charmice() > 0) {
+					auto it = std::find(rndcharmice.begin(), rndcharmice.end(),  k->get_type_charmice());
 					if (it != rndcharmice.end()) {
 						rndcharmice.erase(it);
 					}
@@ -2132,7 +2127,6 @@ void do_sacrifice(CharData *ch, int dam) {
 
 void SpellSacrifice(int/* level*/, CharData *ch, CharData *victim, ObjData* /*obj*/) {
 	int dam, d0 = victim->get_hit();
-	struct FollowerType *f;
 
 	// Высосать жизнь - некроманы - уровень 18 круг 6й (5)
 	// *** мин 54 макс 66 (330)
@@ -2154,12 +2148,12 @@ void SpellSacrifice(int/* level*/, CharData *ch, CharData *victim, ObjData* /*ob
 
 	do_sacrifice(ch, dam);
 	if (!ch->IsNpc()) {
-		for (f = ch->followers; f; f = f->next) {
-			if (f->follower->IsNpc()
-				&& AFF_FLAGGED(f->follower, EAffect::kCharmed)
-				&& f->follower->IsFlagged(EMobFlag::kCorpse)
-				&& ch->in_room == f->follower->in_room) {
-				do_sacrifice(f->follower, dam);
+		for (auto *f : ch->followers) {
+			if (f->IsNpc()
+				&& AFF_FLAGGED(f, EAffect::kCharmed)
+				&& f->IsFlagged(EMobFlag::kCorpse)
+				&& ch->in_room == f->in_room) {
+				do_sacrifice(f, dam);
 			}
 		}
 	}
@@ -2219,11 +2213,10 @@ void SpellMentalShadow(CharData *ch) {
 	MobVnum mob_num = kMobMentalShadow;
 
 	CharData *mob = nullptr;
-	struct FollowerType *k, *k_next;
-	for (k = ch->followers; k; k = k_next) {
-		k_next = k->next;
-		if (k->follower->IsFlagged(EMobFlag::kMentalShadow)) {
-			stop_follower(k->follower, false);
+	auto followers_copy = ch->followers;
+	for (auto *k : followers_copy) {
+		if (k->IsFlagged(EMobFlag::kMentalShadow)) {
+			stop_follower(k, false);
 		}
 	}
 	auto eff_int = get_effective_int(ch);

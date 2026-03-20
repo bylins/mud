@@ -838,7 +838,7 @@ void ClearRoom(RoomData *room) {
 					continue;
 			}
 			if (vict->IsNpc()) {
-				if (vict->followers
+				if (!vict->followers.empty()
 					|| vict->has_master()) {
 					die_follower(vict);
 				}
