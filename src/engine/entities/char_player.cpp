@@ -539,7 +539,7 @@ void Player::save_char() {
 	if (GetRealLevel(this) < kLvlImmortal) {
 		fprintf(saved, "FtTm:\n");
 		for (auto tf : this->timed_feat) {
-			fprintf(saved, "%d %d %s\n", to_underlying(tf.first), tf.second, MUD::Feat(tf.first).GetCName());
+			fprintf(saved, "%d %ld %s\n", to_underlying(tf.first), std::max(0L, static_cast<long>(tf.second - time(0))), MUD::Feat(tf.first).GetCName());
 		}
 		fprintf(saved, "0 0\n");
 	}
@@ -1432,12 +1432,11 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 					} while (num != 0);
 				} else if (!strcmp(tag, "FtTm")) {
 					do {
+						long int num3;
 						fbgetline(fl, line);
-						sscanf(line, "%d %d", &num, &num2);
+						sscanf(line, "%d %ld", &num, &num3);
 						if (num != 0) {
-							timed_feat.feat = static_cast<EFeat>(num);
-							timed_feat.time = num2;
-							ImposeTimedFeat(this, &timed_feat);
+							this->timed_feat[static_cast<EFeat>(num)] = time(0) + num3;
 						}
 					} while (num != 0);
 				}
