@@ -858,7 +858,7 @@ void HandleGetStats(DescriptorData* d)
 	response["rooms"] = world.size();
 
 	// Count triggers
-	response["triggers"] = top_of_trigt + 1;
+	response["triggers"] = top_of_trigt;
 
 	SendJsonResponse(d, response);
 }

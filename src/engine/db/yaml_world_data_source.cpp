@@ -205,7 +205,7 @@ public:
 // Get trigger name by vnum (for trigger comments)
 std::string GetTriggerNameComment(int trigger_vnum) {
 	int rnum = GetTriggerRnum(trigger_vnum);
-	if (rnum >= 0 && rnum <= top_of_trigt) {
+	if (rnum >= 0 && rnum < top_of_trigt) {
 		return trig_index[rnum]->proto->get_name();
 	}
 	return "";
@@ -2762,7 +2762,7 @@ bool YamlWorldDataSource::SaveTriggers(int zone_rnum, int specific_vnum, int not
 
 	int saved_count = 0;
 	log("SaveTriggers: Iterating triggers from %d to %d, specific_vnum=%d", first_trig, last_trig, specific_vnum);
-	for (TrgRnum trig_rnum = first_trig; trig_rnum <= last_trig && trig_rnum <= top_of_trigt; ++trig_rnum)
+	for (TrgRnum trig_rnum = first_trig; trig_rnum <= last_trig && trig_rnum < top_of_trigt; ++trig_rnum)
 	{
 		if (!trig_index[trig_rnum])
 		{

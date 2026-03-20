@@ -2548,7 +2548,7 @@ bool SqliteWorldDataSource::SaveTriggers(int zone_rnum, int specific_vnum, int n
 	}
 
 	int saved_count = 0;
-	for (TrgRnum trig_rnum = first_trig; trig_rnum <= last_trig && trig_rnum <= top_of_trigt; ++trig_rnum)
+	for (TrgRnum trig_rnum = first_trig; trig_rnum <= last_trig && trig_rnum < top_of_trigt; ++trig_rnum)
 	{
 		if (!trig_index[trig_rnum])
 		{
