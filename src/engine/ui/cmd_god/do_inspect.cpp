@@ -81,8 +81,8 @@ class ExtractedCharacterInfo {
   std::string clan_abbrev_;
   std::string class_name_;
   std::string name_;
-  std::string_view mail_;
-  std::string_view last_ip_;
+  std::string mail_;
+  std::string last_ip_;
   std::ostringstream punishments_;
   std::ostringstream extra_info_;
 
@@ -433,8 +433,8 @@ class InspectRequestChar : public InspectRequest {
   explicit InspectRequestChar(const CharData *author, const std::vector<std::string> &args);
 
  private:
-  std::string_view mail_;
-  std::string_view last_ip_;
+  std::string mail_;
+  std::string last_ip_;
 
   void NoteVictimInfo(const PlayerIndexElement &index);
   bool IsIndexMatched(const PlayerIndexElement &index) final;
