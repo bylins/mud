@@ -53,7 +53,6 @@ extern int check_dupes_host(DescriptorData *d, bool autocheck = false);
 extern int idle_rent_time;
 extern int idle_max_level;
 extern int idle_void;
-extern int CheckProxy(DescriptorData *ch);
 void decrease_level(CharData *ch);
 int max_exp_gain_pc(CharData *ch);
 int max_exp_loss_pc(CharData *ch);
