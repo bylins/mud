@@ -124,17 +124,6 @@ void CheckLight(CharData *ch, int was_equip, int was_single, int was_holylight, 
 	}
 }
 
-void DecreaseFeatTimer(CharData *ch, EFeat feat_id) {
-	auto it = ch->timed_feat.find(feat_id);
-	if (it !=  ch->timed_feat.end()) {
-		if (it->second >= 1) {
-			--(it->second);
-		} else {
-			ch->timed_feat.erase(it);
-		}
-	}
-}
-
 template <class TalentId>
 int GetTalentTimerMod(CharData *ch, TalentId id) {
 	// ABYRVALG Тут нужен цикл по способностям _персонажа_, но в настоящий момнет это невозможно из-за особенностей
