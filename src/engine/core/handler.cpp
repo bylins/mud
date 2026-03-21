@@ -1116,7 +1116,7 @@ ObjData *UnequipChar(CharData *ch, int pos, const CharEquipFlags& equip_flags) {
 					continue;
 				}
 				if (ch->IsNpc()
-					&& AFF_FLAGGED(&mob_proto[GET_MOB_RNUM(ch)], static_cast<EAffect>(j.aff_bitvector))) {
+					&& AFF_FLAGGED(&mob_proto[ch->get_rnum()], static_cast<EAffect>(j.aff_bitvector))) {
 					continue;
 				}
 				affect_modify(ch, EApply::kNone, 0, static_cast<EAffect>(j.aff_bitvector), false);
@@ -1746,8 +1746,8 @@ void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset) {
 		Crash_delete_crashfile(ch);
 	} else {
 //		log("[Extract char] All clear for NPC");
-		if ((GET_MOB_RNUM(ch) >= 0) && !ch->IsFlagged(EMobFlag::kSummoned)) {
-			mob_index[GET_MOB_RNUM(ch)].total_online--;
+		if ((ch->get_rnum() >= 0) && !ch->IsFlagged(EMobFlag::kSummoned)) {
+			mob_index[ch->get_rnum()].total_online--;
 		}
 	}
 	chardata_by_uid.erase(ch->get_uid());

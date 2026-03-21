@@ -415,12 +415,12 @@ void CharData::purge() {
 		}
 	}
 
-	if (!this->IsNpc() || (this->IsNpc() && GET_MOB_RNUM(this) == -1)) {
+	if (!this->IsNpc() || (this->IsNpc() && this->get_rnum() == -1)) {
 		if (this->IsNpc() && this->mob_specials.Questor)
 			free(this->mob_specials.Questor);
 		pk_free_list(this);
 		this->summon_helpers.clear();
-	} else if ((i = GET_MOB_RNUM(this))
+	} else if ((i = this->get_rnum())
 		>= 0) {    // otherwise, free strings only if the string is not pointing at proto
 
 		if (this->mob_specials.Questor && this->mob_specials.Questor != mob_proto[i].mob_specials.Questor)
@@ -1855,16 +1855,16 @@ void CharData::restore_mob() {
 	update_pos(this);
 
 	for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
-		GET_SPELL_MEM(this, spell_id) = GET_SPELL_MEM(&mob_proto[GET_MOB_RNUM(this)], spell_id);
+		GET_SPELL_MEM(this, spell_id) = GET_SPELL_MEM(&mob_proto[this->get_rnum()], spell_id);
 	}
-	this->caster_level = (&mob_proto[GET_MOB_RNUM(this)])->caster_level;
+	this->caster_level = (&mob_proto[this->get_rnum()])->caster_level;
 }
 //
 void CharData::restore_npc() {
 	if(!this->IsNpc()) return;
 	
 	attackers_.clear();
-	auto proto = (&mob_proto[GET_MOB_RNUM(this)]);
+	auto proto = (&mob_proto[this->get_rnum()]);
 	// ресторим хпшки / мувы
 		
 	this->set_hit(1 + proto->get_hit());

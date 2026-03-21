@@ -181,10 +181,10 @@ constexpr int kSecsPerRealHour = 60*kSecsPerRealMin;
 constexpr int kSecsPerRealDay = 24*kSecsPerRealHour;
 
 
-#define IS_SHOPKEEPER(ch) (((ch)->IsNpc()) && mob_index[GET_MOB_RNUM(ch)].func == shop_ext)
-#define IS_RENTKEEPER(ch) (((ch)->IsNpc()) && mob_index[GET_MOB_RNUM(ch)].func == receptionist)
-#define IS_POSTKEEPER(ch) (((ch)->IsNpc()) && mob_index[GET_MOB_RNUM(ch)].func == postmaster)
-#define IS_BANKKEEPER(ch) (((ch)->IsNpc()) && mob_index[GET_MOB_RNUM(ch)].func == bank)
+#define IS_SHOPKEEPER(ch) (((ch)->IsNpc()) && mob_index[ch->get_rnum()].func == shop_ext)
+#define IS_RENTKEEPER(ch) (((ch)->IsNpc()) && mob_index[ch->get_rnum()].func == receptionist)
+#define IS_POSTKEEPER(ch) (((ch)->IsNpc()) && mob_index[ch->get_rnum()].func == postmaster)
+#define IS_BANKKEEPER(ch) (((ch)->IsNpc()) && mob_index[ch->get_rnum()].func == bank)
 
 // string utils *********************************************************
 
@@ -495,7 +495,6 @@ const int kNameLevel = 5;
 #define GET_EQ(ch, i)      ((ch)->equipment[i])
 
 #define GET_MOB_SPEC(ch)   (((ch)->IsNpc()) ? mob_index[(ch)->get_rnum()].func : nullptr)
-#define GET_MOB_RNUM(mob)  (mob)->get_rnum()
 #define GET_MOB_VNUM(mob)  (((mob)->IsNpc()) ? mob_index[(mob)->get_rnum()].vnum : -1)
 
 #define GET_DEFAULT_POS(ch)   ((ch)->mob_specials.default_pos)

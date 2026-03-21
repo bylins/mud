@@ -581,7 +581,7 @@ bool PerformSimpleMove(CharData *ch, int dir, int following, CharData *leader, E
 	// add track info
 	if (!AFF_FLAGGED(ch, EAffect::kNoTrack)
 		&& (!ch->IsNpc()
-			|| (mob_rnum = GET_MOB_RNUM(ch)) >= 0)) {
+			|| (mob_rnum = ch->get_rnum()) >= 0)) {
 		for (track = world[go_to]->track; track; track = track->next) {
 			if ((ch->IsNpc() && IS_SET(track->track_info, TRACK_NPC) && track->who == mob_rnum)
 				|| (!ch->IsNpc() && !IS_SET(track->track_info, TRACK_NPC) && track->who == ch->get_uid())) {

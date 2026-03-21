@@ -673,7 +673,7 @@ void affect_total(CharData *ch) {
 	{
 		saved = ch->char_specials.saved.affected_by;
 		if (ch->IsNpc()) {
-			ch->char_specials.saved.affected_by = mob_proto[GET_MOB_RNUM(ch)].char_specials.saved.affected_by;
+			ch->char_specials.saved.affected_by = mob_proto[ch->get_rnum()].char_specials.saved.affected_by;
 		} else {
 			ch->char_specials.saved.affected_by = clear_flags;
 		}
@@ -701,7 +701,7 @@ void affect_total(CharData *ch) {
 //			GET_REAL_MAX_HIT(ch), add_hp_per_level, GET_HIT_ADD(ch), ch->get_start_stat(G_CON), GetRealLevel(ch));
 	}
 	if (ch->IsNpc()) {
-		(ch)->add_abils = (&mob_proto[GET_MOB_RNUM(ch)])->add_abils;
+		(ch)->add_abils = (&mob_proto[ch->get_rnum()])->add_abils;
 	}
 	// move object modifiers
 	for (int i = EEquipPos::kFirstEquipPos; i < EEquipPos::kNumEquipPos; i++) {

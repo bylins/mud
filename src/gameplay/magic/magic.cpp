@@ -3714,7 +3714,7 @@ void ReactToCast(CharData *victim, CharData *caster, ESpell spell_id) {
 		return;
 
 	if (caster->IsNpc()
-		&& GET_MOB_RNUM(caster) == GetMobRnum(kDgCasterProxy))
+		&& caster->get_rnum() == GetMobRnum(kDgCasterProxy))
 		return;
 
 	if (CAN_SEE(victim, caster) && MAY_ATTACK(victim) && victim->in_room == caster->in_room) {

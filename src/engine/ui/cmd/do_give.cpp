@@ -22,7 +22,7 @@ void perform_give(CharData *ch, CharData *vict, ObjData *obj) {
 			false, ch, nullptr, vict, kToChar);
 		return;
 	}
-	if (vict->IsNpc() && mob_index[GET_MOB_RNUM(vict)].func && mob_index[GET_MOB_RNUM(vict)].func != guilds::GuildInfo::DoGuildLearn) {
+	if (vict->IsNpc() && mob_index[vict->get_rnum()].func && mob_index[vict->get_rnum()].func != guilds::GuildInfo::DoGuildLearn) {
 		act("$N не нуждается в ваших подачках, своего барахла навалом.",
 			false, ch, nullptr, vict, kToChar);
 		sprintf(buf, "Попытка мобу с спецпроцедурой дать предмет: Моб %s (%d) в комнате #%d, игрок: %s", 

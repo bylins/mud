@@ -127,7 +127,7 @@ long CalcHirePrice(CharData *ch, CharData *victim) {
 	hirePoints = hirePoints * 5 * GetRealLevel(ch);
 
 	int min_price = MAX((m_dr / 300 * GetRealLevel(victim)), (GetRealLevel(victim) * 5));
-	min_price = MAX(min_price, mob_proto[GET_MOB_RNUM(victim)].get_gold());
+	min_price = MAX(min_price, mob_proto[victim->get_rnum()].get_gold());
 	long finalPrice = MAX(min_price, (int) ceil(price - hirePoints));
 
 	ch->send_to_TC(true, true, true,

@@ -925,13 +925,13 @@ void mobile_activity(int activity_level, int missed_pulses) {
 
 	  // Examine call for special procedure
 	  if (ch->IsFlagged(EMobFlag::kSpec) && !no_specials) {
-		  if (mob_index[GET_MOB_RNUM(ch)].func == nullptr) {
+		  if (mob_index[ch->get_rnum()].func == nullptr) {
 			  log("SYSERR: %s (#%d): Attempting to call non-existing mob function.",
 				  GET_NAME(ch), GET_MOB_VNUM(ch));
 			  ch->UnsetFlag(EMobFlag::kSpec);
 		  } else {
 			  buf2[0] = '\0';
-			  if ((mob_index[GET_MOB_RNUM(ch)].func)(ch.get(), ch.get(), 0, buf2)) {
+			  if ((mob_index[ch->get_rnum()].func)(ch.get(), ch.get(), 0, buf2)) {
 				  continue;    // go to next char
 			  }
 		  }

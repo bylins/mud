@@ -132,7 +132,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 				"Синонимы: &S%s&s, VNum: [%5d], RNum: [%5d]\r\n",
 				k->GetCharAliases().c_str(),
 				GET_MOB_VNUM(k),
-				GET_MOB_RNUM(k));
+				k->get_rnum());
 		SendMsgToChar(buf, ch);
 	}
 
@@ -298,8 +298,8 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 		strcat(buf, "\r\n");
 		SendMsgToChar(buf, ch);
 	} else {
-		int mob_online = mob_index[GET_MOB_RNUM(k)].total_online - (virt ? 1 : 0);
-		sprintf(buf, "Сейчас в мире : %d, макс %d. ", mob_online, mob_index[GET_MOB_RNUM(k)].stored);
+		int mob_online = mob_index[k->get_rnum()].total_online - (virt ? 1 : 0);
+		sprintf(buf, "Сейчас в мире : %d, макс %d. ", mob_online, mob_index[k->get_rnum()].stored);
 		SendMsgToChar(buf, ch);
 		std::string stats;
 		mob_stat::GetLastMobKill(k, stats);

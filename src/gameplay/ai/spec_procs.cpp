@@ -1343,7 +1343,7 @@ int pet_shops(CharData *ch, void * /*me*/, int cmd, char *argument) {
 		}
 		ch->remove_gold(PET_PRICE(pet));
 
-		pet = ReadMobile(GET_MOB_RNUM(pet), kReal);
+		pet = ReadMobile(pet->get_rnum(), kReal);
 		pet->set_exp(0);
 		AFF_FLAGS(pet).set(EAffect::kCharmed);
 
