@@ -33,7 +33,7 @@ int IsHaveNoExtraAttack(CharData *ch) {
 }
 
 void SetWait(CharData *ch, int waittime, int wait_if_fight) {
-	if (!ch->IsImmortal() && (!wait_if_fight || (ch->GetEnemy() && ch->isInSameRoom(ch->GetEnemy())))) {
+	if (!IS_IMMORTAL(ch) && (!wait_if_fight || (ch->GetEnemy() && ch->isInSameRoom(ch->GetEnemy())))) {
 		SetWaitState(ch, waittime * kBattleRound);
 	}
 }

@@ -33,7 +33,7 @@ void DoParry(CharData *ch, char */* argument*/, int /* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (!ch->IsImmortal() && !GET_GOD_FLAG(ch, EGf::kGodsLike)) {
+	if (!IS_IMMORTAL(ch) && !GET_GOD_FLAG(ch, EGf::kGodsLike)) {
 		if (GET_EQ(ch, EEquipPos::kBoths)) {
 			SendMsgToChar("Вы не можете отклонить атаку двуручным оружием.\r\n", ch);
 			return;
@@ -89,7 +89,7 @@ void ProcessParry(CharData *ch, CharData *victim, HitData &hit_data) {
 		&& GET_EQ(victim, EEquipPos::kHold)
 		&& GET_EQ(victim, EEquipPos::kHold)->get_type() == EObjType::kWeapon)
 		|| victim->IsNpc()
-		|| victim->IsImmortal())) {
+		|| IS_IMMORTAL(victim))) {
 		SendMsgToChar("У вас нечем отклонить атаку противника.\r\n", victim);
 		victim->battle_affects.unset(kEafParry);
 	} else {
@@ -103,7 +103,7 @@ void ProcessParry(CharData *ch, CharData *victim, HitData &hit_data) {
 		}
 		if (prob < 70
 			|| ((hit_data.weap_skill == ESkill::kBows || hit_data.hit_type == fight::type_maul)
-				&& !victim->IsImmortal()
+				&& !IS_IMMORTAL(victim)
 				&& (!CanUseFeat(victim, EFeat::kParryArrow)
 					|| number(1, 1000) >= 20 * std::min(GetRealDex(victim), 35)))) {
 			act("Вы не смогли отбить атаку $N1.", false, victim, nullptr, ch, kToChar);

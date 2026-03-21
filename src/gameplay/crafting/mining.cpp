@@ -143,33 +143,33 @@ void do_dig(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (!check_for_dig(ch) && !ch->IsImmortal()) {
+	if (!check_for_dig(ch) && !IS_IMMORTAL(ch)) {
 		SendMsgToChar("Вам бы лопату взять в руки... Или кирку...\r\n", ch);
 		return;
 	}
 
 	if (world[ch->in_room]->sector_type != ESector::kMountain &&
-		world[ch->in_room]->sector_type != ESector::kHills && !ch->IsImmortal()) {
+		world[ch->in_room]->sector_type != ESector::kHills && !IS_IMMORTAL(ch)) {
 		SendMsgToChar("Полезные минералы водятся только в гористой местности!\r\n", ch);
 		return;
 	}
 
-	if (!ch->IsImmortal() && ch->IsOnHorse()) {
+	if (!IS_IMMORTAL(ch) && ch->IsOnHorse()) {
 		SendMsgToChar("Верхом это сделать затруднительно.\r\n", ch);
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, EAffect::kBlind) && !ch->IsImmortal()) {
+	if (AFF_FLAGGED(ch, EAffect::kBlind) && !IS_IMMORTAL(ch)) {
 		SendMsgToChar("Вы слепы и не видите где копать.\r\n", ch);
 		return;
 	}
 
-	if (is_dark(ch->in_room) && !CAN_SEE_IN_DARK(ch) && !ch->IsImmortal()) {
+	if (is_dark(ch->in_room) && !CAN_SEE_IN_DARK(ch) && !IS_IMMORTAL(ch)) {
 		SendMsgToChar("Куда копать? Чего копать? Ничего не видно...\r\n", ch);
 		return;
 	}
 
-	if (!make_hole(ch) && !ch->IsImmortal())
+	if (!make_hole(ch) && !IS_IMMORTAL(ch))
 		return;
 
 	if (!check_moves(ch, dig_vars.need_moves))

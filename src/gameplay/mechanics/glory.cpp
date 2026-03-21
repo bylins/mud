@@ -755,7 +755,7 @@ void print_glory(CharData *ch, GloryListType::iterator &it) {
 // * Команда 'слава' - вложение имеющейся у игрока славы в статы без участия иммов.
 void do_spend_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	auto it = glory_list.find(ch->get_uid());
-	if (it == glory_list.end() || ch->IsImmortal()) {
+	if (it == glory_list.end() || IS_IMMORTAL(ch)) {
 		SendMsgToChar("Вам это не нужно...\r\n", ch);
 		return;
 	}
@@ -963,7 +963,7 @@ bool remove_stats(CharData *ch, CharData *god, int amount) {
 * что было у передающего (свободная слава плюсуется).
 */
 void transfer_stats(CharData *ch, CharData *god, const std::string& name, char *reason) {
-	if (ch->IsImmortal()) {
+	if (IS_IMMORTAL(ch)) {
 		SendMsgToChar(god, "Трансфер славы с бессмертных на других персонажей запрещен.\r\n");
 		return;
 	}
@@ -1001,7 +1001,7 @@ void transfer_stats(CharData *ch, CharData *god, const std::string& name, char *
 	}
 
 	// дальше у нас принимающий vict в любом случае
-	if (vict->IsImmortal()) {
+	if (IS_IMMORTAL(vict)) {
 		SendMsgToChar(god, "Трансфер славы на бессмертного - это глупо.\r\n");
 		return;
 	}

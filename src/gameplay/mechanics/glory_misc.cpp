@@ -206,7 +206,7 @@ int bad_real_stats(CharData *ch, int check) {
 */
 bool check_stats(CharData *ch) {
 	// иммов травмировать не стоит
-	if (ch->IsImmortal()) {
+	if (IS_IMMORTAL(ch)) {
 		return 1;
 	}
 

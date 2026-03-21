@@ -93,16 +93,16 @@ std::string BuildBriefShieldSuffix(const CharData *viewer, const CharData *targe
 	};
 
 	if (AFF_FLAGGED(target, EAffect::kFireShield)) {
-		append("&RОШ&n");
+		append("ОШ");
 	}
 	if (AFF_FLAGGED(target, EAffect::kAirShield)) {
-		append("&WВШ&n");
+		append("ВШ");
 	}
 	if (AFF_FLAGGED(target, EAffect::kIceShield)) {
-		append("&CЛШ&n");
+		append("ЛШ");
 	}
 	if (AFF_FLAGGED(viewer, EAffect::kDetectMagic) && AFF_FLAGGED(target, EAffect::kMagicGlass)) {
-		append("&wМЗ&n");
+		append("МЗ");
 	}
 
 	return result.empty() ? std::string() : std::string(" (") + result + ")";
@@ -192,7 +192,7 @@ void look_at_room(CharData *ch, int ignore_brief, bool msdp_mode) {
 	}
 
 	// Отображаем аффекты комнаты. После автовыходов чтобы не ломать популярный маппер.
-	if (AFF_FLAGGED(ch, EAffect::kDetectMagic) || ch->IsImmortal()) {
+	if (AFF_FLAGGED(ch, EAffect::kDetectMagic) || IS_IMMORTAL(ch)) {
 		show_room_affects(ch, room_aff_invis_bits, room_self_aff_invis_bits);
 	} else {
 		show_room_affects(ch, room_aff_visib_bits, room_aff_visib_bits);
@@ -206,7 +206,7 @@ void look_at_room(CharData *ch, int ignore_brief, bool msdp_mode) {
 	if (room_spells::IsRoomAffected(world[ch->in_room], ESpell::kPortalTimer)) {
 		for (const auto &aff : world[ch->in_room]->affected) {
 			if (aff->type == ESpell::kPortalTimer && aff->bitvector != room_spells::ERoomAffect::kNoPortalExit) {
-				if (ch->IsGod()) {
+				if (IS_GOD(ch)) {
 					sprintf(buf, "&BЛазурная пентаграмма ярко сверкает здесь. (время: %d, куда: %d)&n\r\n",
 							aff->duration,  world[aff->modifier]->vnum);
 				} else {
@@ -423,9 +423,9 @@ bool look_at_target(CharData *ch, char *arg, int subcmd) {
 				fnum = number(1, MUD::Skill(ESkill::kPry).difficulty);
 				found = CalcCurrentSkill(ch, ESkill::kPry, found_char);
 				TrainSkill(ch, ESkill::kPry, found < fnum, found_char);
-				if (!ch->IsImmortal())
+				if (!IS_IMMORTAL(ch))
 					SetWaitState(ch, 1 * kBattleRound);
-				if (found >= fnum && (fnum < 100 || ch->IsImmortal()) && !found_char->IsImmortal())
+				if (found >= fnum && (fnum < 100 || IS_IMMORTAL(ch)) && !IS_IMMORTAL(found_char))
 					return false;
 			}
 			if (CAN_SEE(found_char, ch))
@@ -671,7 +671,7 @@ void look_at_char(CharData *i, CharData *ch) {
 		}
 	}
 
-	if (ch != i && (ch->GetSkill(ESkill::kPry) || ch->IsImmortal())) {
+	if (ch != i && (ch->GetSkill(ESkill::kPry) || IS_IMMORTAL(ch))) {
 		found = false;
 		act("\r\nВы попытались заглянуть в $s ношу:", false, i, nullptr, ch, kToVict);
 		for (tmp_obj = i->carrying; tmp_obj; tmp_obj = tmp_obj->get_next_content()) {
@@ -1010,9 +1010,9 @@ void look_in_direction(CharData *ch, int dir, int info_is) {
 					probe = CalcCurrentSkill(ch, ESkill::kLooking, tch);
 					TrainSkill(ch, ESkill::kLooking, probe >= percent, tch);
 					if (HERE(tch) && INVIS_OK(ch, tch) && probe >= percent
-						&& (percent < 100 || ch->IsImmortal())) {
+						&& (percent < 100 || IS_IMMORTAL(ch))) {
 						// Если моб не вещь и смотрящий не им
-						if (GET_RACE(tch) != ENpcRace::kConstruct || ch->IsImmortal()) {
+						if (GET_RACE(tch) != ENpcRace::kConstruct || IS_IMMORTAL(ch)) {
 							ListOneChar(tch, ch, ESkill::kLooking);
 							count++;
 						}
@@ -1596,7 +1596,7 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 
 	if (mode == ESkill::kLooking) {
 		if (HERE(i) && INVIS_OK(ch, i) && GetRealLevel(ch) >= (i->IsNpc() ? 0 : GET_INVIS_LEV(i))) {
-			if (GET_RACE(i) == ENpcRace::kConstruct && ch->IsImmortal()) {
+			if (GET_RACE(i) == ENpcRace::kConstruct && IS_IMMORTAL(ch)) {
 				sprintf(buf, "Вы разглядели %s.(предмет)\r\n", GET_PAD(i, 3));
 			} else {
 				sprintf(buf, "Вы разглядели %s.\r\n", GET_PAD(i, 3));

@@ -20,7 +20,7 @@ void do_force(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	if (!*arg || !*to_force) {
 		SendMsgToChar("Кого и что вы хотите принудить сделать?\r\n", ch);
-	} else if (!ch->IsGrGod() || (str_cmp("all", arg) && str_cmp("room", arg) && str_cmp("все", arg)
+	} else if (!IS_GRGOD(ch) || (str_cmp("all", arg) && str_cmp("room", arg) && str_cmp("все", arg)
 		&& str_cmp("здесь", arg))) {
 		const auto vict = get_char_vis(ch, arg, EFind::kCharInWorld);
 		if (!vict) {

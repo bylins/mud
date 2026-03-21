@@ -6,7 +6,7 @@ bool ignores(CharData *who, CharData *whom, unsigned int flag) {
 
 	long ign_id;
 
-	if (whom->IsImmortal()) {
+	if (IS_IMMORTAL(whom)) {
 		return false;
 	}
 

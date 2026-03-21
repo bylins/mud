@@ -79,7 +79,7 @@ void do_manadrain(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	manadrainDamage.flags.set(fight::kIgnoreBlink);
 	manadrainDamage.Process(ch, vict);
 
-	if (!ch->IsImmortal()) {
+	if (!IS_IMMORTAL(ch)) {
 		timed.skill = ESkill::kJinx;
 		if (CritLuckTest(ch, vict) || !success)
 			timed.time = 1;

@@ -30,11 +30,11 @@ void doList(CharData *ch, CharData *boss, bool isFavList) {
 			tell_to_char(boss, ch, "Ступай, поначалу заведи знакомства, потом ко мне приходи.");
 		else if (IS_SPELL_SET(ch, ESpell::kCharm, ESpellType::kKnow))
 			tell_to_char(boss, ch, "Поищи себе марионетку, да потренируйся, а затем ко мне приходи.");
-		else if (ch->IsImmortal())
+		else if (IS_IMMORTAL(ch))
 			tell_to_char(boss, ch, "Не гневайся, боже, но не было у тебя последователей еще.");
 		return;
 	}
-	if (ch->IsImmortal()) {
+	if (IS_IMMORTAL(ch)) {
 		sprintf(buf, "Вот, %s тварей земных, чьим разумом ты владел:",
 				isFavList ? "краткий список" : "полный список");
 	} else if (CanUseFeat(ch, EFeat::kEmployer)) {
@@ -118,7 +118,7 @@ void doBring(CharData *ch, CharData *boss, unsigned int pos, char *bank) {
 			sprintf(buf, "Спустя некоторое время, %s вернул$U, ведя за собой $n3.", boss->get_npc_name().c_str());
 			act(buf, true, mob, nullptr, ch, kToRoom);
 		}
-		if (!ch->IsImmortal()) {
+		if (!IS_IMMORTAL(ch)) {
 			if (isname(bank, "банк bank"))
 				ch->remove_bank(cost);
 			else
@@ -186,7 +186,7 @@ int mercenary(CharData *ch, void * /*me*/, int cmd, char *argument) {
 	CharData *boss = MERC::findMercboss(ch->in_room);
 	if (!boss) return 0;
 
-	if (!ch->IsImmortal() && !CanUseFeat(ch, EFeat::kEmployer) && ch->GetClass() != ECharClass::kCharmer) {
+	if (!IS_IMMORTAL(ch) && !CanUseFeat(ch, EFeat::kEmployer) && ch->GetClass() != ECharClass::kCharmer) {
 		tell_to_char(boss, ch, "Эти знания тебе недоступны, ступай с миром");
 		return 0;
 	}

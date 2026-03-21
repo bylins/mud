@@ -1128,7 +1128,7 @@ void show_lots(char *filter, short int show_type, CharData *ch) {
 
 	std::string buffer;
 	SendMsgToChar(ch, "Ваш фильтр: %s\r\n", params.print().c_str());
-	if (ch->IsGod()) {
+	if (IS_GOD(ch)) {
 		buffer =
 			"vnum    Лот      Предмет                                                     Цена  Состояние\r\n"
 			"--------------------------------------------------------------------------------------------\r\n";
@@ -1197,7 +1197,7 @@ void show_lots(char *filter, short int show_type, CharData *ch) {
 		}
 		char *tmstr;
 		tmstr = (char *) asctime(localtime(&(j->time)));
-		if (ch->IsGod()) {//asctime добавляет перевод строки лишний
+		if (IS_GOD(ch)) {//asctime добавляет перевод строки лишний
 			sprintf(tmpbuf,
 					"(%5d) %s %9d  %-s %s", GET_EXCHANGE_ITEM(j)->get_vnum(),
 					colored_name(tmpbuf, 63, true),
@@ -1246,7 +1246,7 @@ void do_exchange(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 	} else if ((utils::IsAbbr(arg1, "выставить") || utils::IsAbbr(arg1, "exhibit")
 		|| utils::IsAbbr(arg1, "цена") || utils::IsAbbr(arg1, "cost")
 		|| utils::IsAbbr(arg1, "снять") || utils::IsAbbr(arg1, "withdraw")
-		|| utils::IsAbbr(arg1, "купить") || utils::IsAbbr(arg1, "purchase")) && !ch->IsImpl()) {
+		|| utils::IsAbbr(arg1, "купить") || utils::IsAbbr(arg1, "purchase")) && !IS_IMPL(ch)) {
 		SendMsgToChar("Вам необходимо находиться возле базарного торговца, чтобы воспользоваться этой командой.\r\n",
 					 ch);
 	} else

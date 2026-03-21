@@ -26,7 +26,7 @@ void add(int zone_vnum, long money) {
 }
 
 void print(CharData *ch) {
-	if (!ch->IsGrGod()) {
+	if (!IS_GRGOD(ch)) {
 		SendMsgToChar(ch, "Только для иммов 33+.\r\n");
 		return;
 	}

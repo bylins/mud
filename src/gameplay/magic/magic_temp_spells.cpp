@@ -36,7 +36,7 @@ void update_times() {
 	time_t now = time(nullptr);
 	for (const auto &ch : character_list) {
 		if (ch->IsNpc()
-			|| ch->IsImmortal()) {
+			|| IS_IMMORTAL(ch)) {
 			continue;
 		}
 

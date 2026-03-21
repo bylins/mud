@@ -65,7 +65,7 @@ void TryOpenTownportal(CharData *ch, const Runestone &stone) {
 		return;
 	}
 
-	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoMagic) && !ch->IsGrGod()) {
+	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoMagic) && !IS_GRGOD(ch)) {
 		SendMsgToChar("Ваша магия потерпела неудачу и развеялась по воздуху.\r\n", ch);
 		act("Магия $n1 потерпела неудачу и развеялась по воздуху.", false, ch, nullptr, nullptr, kToRoom);
 		return;
@@ -117,7 +117,7 @@ void OpenTownportal(CharData *ch, const Runestone &stone) {
 }
 
 void SetSkillTownportalTimer(CharData *ch) {
-//	if (!ch->IsImmortal()) {
+//	if (!IS_IMMORTAL(ch)) {
 		TimedSkill timed;
 		timed.skill = ESkill::kTownportal;
 		// timed.time - это unsigned char, поэтому при уходе в минус будет вынос на 255 и ниже

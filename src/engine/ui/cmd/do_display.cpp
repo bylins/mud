@@ -89,7 +89,7 @@ void set_display_bits(CharData *ch, bool flag) {
 		ch->SetFlag(EPrf::kDispExp);
 		ch->SetFlag(EPrf::kDispFight);
 		ch->SetFlag(EPrf::kDispCooldowns);
-		if (!ch->IsImmortal()) {
+		if (!IS_IMMORTAL(ch)) {
 			ch->SetFlag(EPrf::kDispTimed);
 		}
 	} else {

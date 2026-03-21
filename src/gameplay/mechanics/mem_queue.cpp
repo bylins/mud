@@ -132,7 +132,7 @@ float druid_manacost_modifier[] {
 int CalcSpellManacost(CharData *ch, ESpell spell_id) {
 	int result = 0;
 
-	if (ch->IsImmortal()) {
+	if (IS_IMMORTAL(ch)) {
 		return 1;
 	}
 	if (IS_MANA_CASTER(ch) && GetRealLevel(ch) >= MagusCastRequiredLevel(ch, spell_id)) {

@@ -1111,7 +1111,7 @@ void advance_level(CharData *ch) {
 
 	SetInbornAndRaceFeats(ch);
 
-	if (ch->IsImmortal()) {
+	if (IS_IMMORTAL(ch)) {
 		for (i = 0; i < 3; i++) {
 			GET_COND(ch, i) = (char) -1;
 		}
@@ -1151,7 +1151,7 @@ void decrease_level(CharData *ch) {
 	ch->set_max_move(ch->get_max_move() - std::clamp(add_move, 1, ch->get_max_move()));
 
 	GET_WIMP_LEV(ch) = std::clamp(GET_WIMP_LEV(ch), 0, ch->get_real_max_hit()/2);
-	if (!ch->IsImmortal()) {
+	if (!IS_IMMORTAL(ch)) {
 		ch->UnsetFlag(EPrf::kHolylight);
 	}
 
@@ -1177,7 +1177,7 @@ int invalid_unique(CharData *ch, const ObjData *obj) {
 		|| !obj
 		|| (ch->IsNpc()
 			&& !AFF_FLAGGED(ch, EAffect::kCharmed))
-		|| ch->IsImmortal()
+		|| IS_IMMORTAL(ch)
 		|| obj->get_owner() == 0
 		|| obj->get_owner() == ch->get_uid()) {
 		return (false);
@@ -1197,7 +1197,7 @@ int invalid_anti_class(CharData *ch, const ObjData *obj) {
 		&& AFF_FLAGGED(ch, EAffect::kCharmed)) {
 		return (true);
 	}
-	if ((ch->IsNpc() || ch->IsImmortal()) && !IS_CHARMICE(ch)) {
+	if ((ch->IsNpc() || IS_IMMORTAL(ch)) && !IS_CHARMICE(ch)) {
 		return (false);
 	}
 	if ((obj->has_anti_flag(EAntiFlag::kNoPkClan) && char_to_pk_clan(ch))) {
@@ -1240,7 +1240,7 @@ int invalid_no_class(CharData *ch, const ObjData *obj) {
 
 	if (!IS_CHARMICE(ch)
 		&& (ch->IsNpc()
-			|| ch->IsImmortal())) {
+			|| IS_IMMORTAL(ch))) {
 		return false;
 	}
 

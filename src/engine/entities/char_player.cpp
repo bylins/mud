@@ -826,7 +826,7 @@ void Player::save_char() {
 	i = 0;
 	if (!this->followers.empty()
 		&& CanUseFeat(this, EFeat::kEmployer)
-		&& !this->IsImmortal()) {
+		&& !IS_IMMORTAL(this)) {
 		CharData *found_follower = nullptr;
 		for (auto *k : this->followers) {
 			if (k
@@ -879,7 +879,7 @@ void Player::save_char() {
 	auto it = this->charmeeHistory.begin();
 	if (this->charmeeHistory.size() > 0 &&
 		(IS_SPELL_SET(this, ESpell::kCharm, ESpellType::kKnow) ||
-		CanUseFeat(this, EFeat::kEmployer) || this->IsImmortal())) {
+		CanUseFeat(this, EFeat::kEmployer) || IS_IMMORTAL(this))) {
 		fprintf(saved, "Chrm:\n");
 		for (; it != this->charmeeHistory.end(); ++it) {
 			fprintf(saved, "%d %d %d %d %d %d\n",
@@ -1444,7 +1444,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 					this->player_specials->saved.GodsLike = lnum;
 					// added by WorM (Видолюб) 2010.06.04 бабки потраченные на найм(возвращаются при креше)
 				else if (!strcmp(tag, "GldH")) {
-					if (num != 0 && !this->IsImmortal() && CanUseFeat(this, EFeat::kEmployer)) {
+					if (num != 0 && !IS_IMMORTAL(this) && CanUseFeat(this, EFeat::kEmployer)) {
 						this->player_specials->saved.HiredCost = num;
 					}
 				}
@@ -1884,13 +1884,13 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 
 	SetInbornAndRaceFeats(this);
 
-	if (this->IsGrGod()) {
+	if (IS_GRGOD(this)) {
 		for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
 			GET_SPELL_TYPE(this, spell_id) = GET_SPELL_TYPE(this, spell_id) |
 				ESpellType::kItemCast | ESpellType::kKnow | ESpellType::kRunes | ESpellType::kScrollCast
 				| ESpellType::kPotionCast | ESpellType::kWandCast;
 		}
-	} else if (!this->IsImmortal()) {
+	} else if (!IS_IMMORTAL(this)) {
 		for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
 			const auto spell = MUD::Class(this->GetClass()).spells[spell_id];
 			if (spell.GetCircle() == kMaxMemoryCircle) {

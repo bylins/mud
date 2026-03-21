@@ -855,7 +855,7 @@ int npc_steal(CharData *ch) {
 
 	for (const auto cons : world[ch->in_room]->people) {
 		if (!cons->IsNpc()
-			&& !cons->IsImmortal()
+			&& !IS_IMMORTAL(cons)
 			&& (number(0, GetRealInt(ch)) > 10)) {
 			return (do_npc_steal(ch, cons));
 		}
@@ -1343,7 +1343,7 @@ int pet_shops(CharData *ch, void * /*me*/, int cmd, char *argument) {
 		}
 		ch->remove_gold(PET_PRICE(pet));
 
-		pet = ReadMobile(pet->get_rnum(), kReal);
+		pet = ReadMobile(GET_MOB_RNUM(pet), kReal);
 		pet->set_exp(0);
 		AFF_FLAGS(pet).set(EAffect::kCharmed);
 
@@ -1424,7 +1424,7 @@ int bank(CharData *ch, void * /*me*/, int cmd, char *argument) {
 	} else if (CMD_IS("transfer") || CMD_IS("перевести")) {
 		argument = one_argument(argument, arg);
 		amount = atoi(argument);
-		if (ch->IsGod() && !ch->IsImpl()) {
+		if (IS_GOD(ch) && !IS_IMPL(ch)) {
 			SendMsgToChar("Почитить захотелось?\r\n", ch);
 			return (1);
 

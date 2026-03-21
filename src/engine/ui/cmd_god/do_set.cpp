@@ -265,7 +265,7 @@ int PerformSet(CharData *ch, CharData *vict, int mode, char *val_arg) {
 	int rod;
 
 	// Check to make sure all the levels are correct
-	if (!ch->IsImpl()) {
+	if (!IS_IMPL(ch)) {
 		if (!vict->IsNpc() && vict != ch) {
 			if (!GET_GOD_FLAG(ch, EGf::kDemigod)) {
 				if (GetRealLevel(ch) <= GetRealLevel(vict) && !ch->IsFlagged(EPrf::kCoderinfo)) {
@@ -369,14 +369,14 @@ int PerformSet(CharData *ch, CharData *vict, int mode, char *val_arg) {
 			affect_total(vict);
 			break;
 		case 17:
-			if (!ch->IsImpl() && ch != vict && !ch->IsFlagged(EPrf::kCoderinfo)) {
+			if (!IS_IMPL(ch) && ch != vict && !ch->IsFlagged(EPrf::kCoderinfo)) {
 				SendMsgToChar("Вы не столь Божественны, как вам кажется!\r\n", ch);
 				return (0);
 			}
 			SET_INVIS_LEV(vict, std::clamp(value, 0, GetRealLevel(vict)));
 			break;
 		case 18:
-			if (!ch->IsImpl() && ch != vict && !ch->IsFlagged(EPrf::kCoderinfo)) {
+			if (!IS_IMPL(ch) && ch != vict && !ch->IsFlagged(EPrf::kCoderinfo)) {
 				SendMsgToChar("Вы не столь Божественны, как вам кажется!\r\n", ch);
 				return (0);
 			}
@@ -454,7 +454,7 @@ int PerformSet(CharData *ch, CharData *vict, int mode, char *val_arg) {
 		case 29: on_off_mode ? vict->SetFlag(EPlrFlag::kSiteOk) : vict->UnsetFlag(EPlrFlag::kSiteOk);
 			break;
 		case 30:
-			if (vict->IsImpl() || vict->IsFlagged(EPrf::kCoderinfo)) {
+			if (IS_IMPL(vict) || vict->IsFlagged(EPrf::kCoderinfo)) {
 				SendMsgToChar("Истинные боги вечны!\r\n", ch);
 				return 0;
 			}
@@ -477,7 +477,7 @@ int PerformSet(CharData *ch, CharData *vict, int mode, char *val_arg) {
 		}
 		case 32:
 			// Флаг для морталов с привилегиями
-			if (!ch->IsImpl() && !ch->IsFlagged(EPrf::kCoderinfo)) {
+			if (!IS_IMPL(ch) && !ch->IsFlagged(EPrf::kCoderinfo)) {
 				SendMsgToChar("Вы не столь Божественны, как вам кажется!\r\n", ch);
 				return 0;
 			}
@@ -513,11 +513,11 @@ int PerformSet(CharData *ch, CharData *vict, int mode, char *val_arg) {
 			return 0;
 			break;
 		case 36:
-			if (!ch->IsImpl() && !ch->IsFlagged(EPrf::kCoderinfo) && ch != vict) {
+			if (!IS_IMPL(ch) && !ch->IsFlagged(EPrf::kCoderinfo) && ch != vict) {
 				SendMsgToChar("Давайте не будем экспериментировать.\r\n", ch);
 				return (0);
 			}
-			if (vict->IsImpl() && ch != vict) {
+			if (IS_IMPL(vict) && ch != vict) {
 				SendMsgToChar("Вы не можете ЭТО изменить.\r\n", ch);
 				return (0);
 			}
@@ -592,7 +592,7 @@ int PerformSet(CharData *ch, CharData *vict, int mode, char *val_arg) {
 			}
 			break;
 		case 44:
-			if (ch->IsFlagged(EPrf::kCoderinfo) || ch->IsImpl())
+			if (ch->IsFlagged(EPrf::kCoderinfo) || IS_IMPL(ch))
 				GET_OLC_ZONE(vict) = value;
 			else {
 				sprintf(buf, "Слишком низкий уровень чтоб раздавать права OLC.\r\n");
@@ -648,7 +648,7 @@ int PerformSet(CharData *ch, CharData *vict, int mode, char *val_arg) {
 
 				if (!vict->IsFlagged(EPlrFlag::kFrozen)
 					&& !vict->IsFlagged(EPlrFlag::kDeleted)
-					&& !vict->IsImmortal()) {
+					&& !IS_IMMORTAL(vict)) {
 					TopPlayer::Remove(vict);
 				}
 
@@ -663,7 +663,7 @@ int PerformSet(CharData *ch, CharData *vict, int mode, char *val_arg) {
 
 				if (!vict->IsFlagged(EPlrFlag::kFrozen)
 					&& !vict->IsFlagged(EPlrFlag::kDeleted)
-					&& !vict->IsImmortal()) {
+					&& !IS_IMMORTAL(vict)) {
 					TopPlayer::Refresh(vict);
 				}
 
@@ -817,7 +817,7 @@ int PerformSet(CharData *ch, CharData *vict, int mode, char *val_arg) {
 			}
 			break;
 		case 55:
-			if (GetRealLevel(vict) >= kLvlImmortal && !ch->IsImpl() && !ch->IsFlagged(EPrf::kCoderinfo)) {
+			if (GetRealLevel(vict) >= kLvlImmortal && !IS_IMPL(ch) && !ch->IsFlagged(EPrf::kCoderinfo)) {
 				SendMsgToChar("Кем вы себя возомнили?\r\n", ch);
 				return 0;
 			}

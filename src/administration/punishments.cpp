@@ -326,7 +326,7 @@ bool IsVictimIncorrect(CharData *ch, CharData *vict) {
 		SendMsgToChar("Это слишком жестоко...\r\n", ch);
 		return true;
 	}
-	if ((GetRealLevel(vict) >= kLvlImmortal && !ch->IsImpl()) || vict->IsImpl()) {
+	if ((GetRealLevel(vict) >= kLvlImmortal && !IS_IMPL(ch)) || IS_IMPL(vict)) {
 		SendMsgToChar("Кем вы себя возомнили?\r\n", ch);
 		return true;
 	}

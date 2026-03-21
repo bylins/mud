@@ -24,7 +24,7 @@ void do_recall(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (!ch->IsImmortal()
+	if (!IS_IMMORTAL(ch)
 		&& (SECT(ch->in_room) == ESector::kSecret
 			|| ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoMagic)
 			|| ROOM_FLAGGED(ch->in_room, ERoomFlag::kDeathTrap)
@@ -41,7 +41,7 @@ void do_recall(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	SendMsgToChar("Вам очень захотелось оказаться подальше от этого места!\r\n", ch);
-	if (ch->IsGod() || Noob::is_noob(ch)) {
+	if (IS_GOD(ch) || Noob::is_noob(ch)) {
 		if (ch->in_room != rent_room) {
 			SendMsgToChar("Вы почувствовали, как чья-то огромная рука подхватила вас и куда-то унесла!\r\n", ch);
 			act("$n поднял$a глаза к небу и внезапно исчез$q!", true, ch, nullptr, nullptr, kToRoom | kToArenaListen);

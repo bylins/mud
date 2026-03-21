@@ -894,7 +894,7 @@ void show_depot(CharData *ch) {
 	if (ch->IsNpc()) return;
 
 #ifndef TEST_BUILD
-	if (ch->IsImmortal() && !ch->IsImpl()) {
+	if (IS_IMMORTAL(ch) && !IS_IMPL(ch)) {
 		SendMsgToChar("И без хранилища обойдешься...\r\n", ch);
 		return;
 	}
@@ -972,7 +972,7 @@ bool put_depot(CharData *ch, ObjData::shared_ptr &obj) {
 	if (ch->IsNpc()) return 0;
 
 #ifndef TEST_BUILD
-	if (ch->IsImmortal() && !ch->IsImpl()) {
+	if (IS_IMMORTAL(ch) && !IS_IMPL(ch)) {
 		SendMsgToChar("И без хранилища обойдешься...\r\n", ch);
 		return 0;
 	}
@@ -1040,7 +1040,7 @@ void take_depot(CharData *vict, char *arg, int howmany) {
 	if (vict->IsNpc()) return;
 
 #ifndef TEST_BUILD
-	if (vict->IsImmortal() && !vict->IsImpl()) {
+	if (IS_IMMORTAL(vict) && !IS_IMPL(vict)) {
 		SendMsgToChar("И без хранилища обойдешься...\r\n", vict);
 		return;
 	}
@@ -1400,12 +1400,12 @@ void reload_char(long uid, CharData *ch) {
 std::string PrintSpellLocateObject(CharData *ch, ObjData *obj) {
 	for (auto it : depot_list) {
 		for (auto obj_it : it.second.pers_online) {
-			if (!ch->IsGod()) {
+			if (!IS_GOD(ch)) {
 				if (number(1, 100) > (40 + std::max((GetRealInt(ch) - 25) * 2, 0))) {
 					continue;
 				}
 				if (obj_it->has_flag(EObjFlag::kNolocate)
-					&& !ch->IsGod()) {
+					&& !IS_GOD(ch)) {
 					continue;
 				}
 			}

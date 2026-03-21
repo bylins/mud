@@ -229,7 +229,7 @@ void PlaceCharToRoom(CharData *ch, RoomRnum room) {
 	if (!ch->IsNpc() 
 			&& NORENTABLE(ch) 
 			&& ROOM_FLAGGED(room, ERoomFlag::kArena) 
-			&& !ch->IsImmortal()) {
+			&& !IS_IMMORTAL(ch)) {
 		SendMsgToChar("Вы не можете попасть на арену в состоянии боевых действий!\r\n", ch);
 		room = ch->get_from_room();
 	}
@@ -503,7 +503,7 @@ void RemoveObjFromChar(ObjData *object) {
 }
 
 bool HaveIncompatibleAlign(CharData *ch, ObjData *obj) {
-	if (ch->IsNpc() || ch->IsImmortal()) {
+	if (ch->IsNpc() || IS_IMMORTAL(ch)) {
 		return false;
 	}
 	if (obj->has_anti_flag(EAntiFlag::kMono) && GET_RELIGION(ch) == kReligionMono) {
@@ -801,7 +801,7 @@ void EquipObj(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip_f
 	if (!ch->IsNpc() || IS_CHARMICE(ch)) {
 		CharData *master = IS_CHARMICE(ch) && ch->has_master() ? ch->get_master() : ch;
 		if ((obj->get_auto_mort_req() >= 0) && (obj->get_auto_mort_req() > GetRealRemort(master))
-			&& !master->IsImmortal()) {
+			&& !IS_IMMORTAL(master)) {
 			SendMsgToChar(master, "Для использования %s требуется %d %s.\r\n",
 						  obj->get_PName(ECase::kGen).c_str(),
 						  obj->get_auto_mort_req(),
@@ -812,7 +812,7 @@ void EquipObj(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip_f
 			}
 			return;
 		} else if ((obj->get_auto_mort_req() < -1) && (abs(obj->get_auto_mort_req()) < GetRealRemort(master))
-			&& !master->IsImmortal()) {
+			&& !IS_IMMORTAL(master)) {
 			SendMsgToChar(master, "Максимально количество перевоплощений для использования %s равно %d.\r\n",
 						  obj->get_PName(ECase::kGen).c_str(),
 						  abs(obj->get_auto_mort_req()));
@@ -1116,7 +1116,7 @@ ObjData *UnequipChar(CharData *ch, int pos, const CharEquipFlags& equip_flags) {
 					continue;
 				}
 				if (ch->IsNpc()
-					&& AFF_FLAGGED(&mob_proto[ch->get_rnum()], static_cast<EAffect>(j.aff_bitvector))) {
+					&& AFF_FLAGGED(&mob_proto[GET_MOB_RNUM(ch)], static_cast<EAffect>(j.aff_bitvector))) {
 					continue;
 				}
 				affect_modify(ch, EApply::kNone, 0, static_cast<EAffect>(j.aff_bitvector), false);
@@ -1746,8 +1746,8 @@ void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset) {
 		Crash_delete_crashfile(ch);
 	} else {
 //		log("[Extract char] All clear for NPC");
-		if ((ch->get_rnum() >= 0) && !ch->IsFlagged(EMobFlag::kSummoned)) {
-			mob_index[ch->get_rnum()].total_online--;
+		if ((GET_MOB_RNUM(ch) >= 0) && !ch->IsFlagged(EMobFlag::kSummoned)) {
+			mob_index[GET_MOB_RNUM(ch)].total_online--;
 		}
 	}
 	chardata_by_uid.erase(ch->get_uid());
@@ -2113,7 +2113,7 @@ ObjData *get_obj_vis_for_locate(CharData *ch, const char *name) {
 }
 
 bool try_locate_obj(CharData *ch, ObjData *i) {
-	if (IS_CORPSE(i) || ch->IsGod()) //имм может локейтить и можно локейтить трупы
+	if (IS_CORPSE(i) || IS_GOD(ch)) //имм может локейтить и можно локейтить трупы
 	{
 		return true;
 	} else if (i->has_flag(EObjFlag::kNolocate)) //если флаг !локейт и ее нет в комнате/инвентаре - пропустим ее
@@ -2363,7 +2363,7 @@ RoomRnum FindRoomRnum(CharData *ch, char *rawroomstr, int trig) {
 	}
 
 	// a location has been found -- if you're < GRGOD, check restrictions.
-	if (!ch->IsGrGod() && !ch->IsFlagged(EPrf::kCoderinfo)) {
+	if (!IS_GRGOD(ch) && !ch->IsFlagged(EPrf::kCoderinfo)) {
 		if (ROOM_FLAGGED(location, ERoomFlag::kGodsRoom) && GetRealLevel(ch) < kLvlGreatGod) {
 			SendMsgToChar("Вы не столь божественны, чтобы получить доступ в эту комнату!\r\n", ch);
 			return (kNowhere);
@@ -2385,7 +2385,7 @@ int IsEquipInMetall(CharData *ch) {
 
 	if (ch->IsNpc() && !AFF_FLAGGED(ch, EAffect::kCharmed))
 		return (false);
-	if (ch->IsGod())
+	if (IS_GOD(ch))
 		return (false);
 
 	for (i = 0; i < EEquipPos::kNumEquipPos; i++) {
@@ -2439,7 +2439,7 @@ int num_pc_in_room(RoomData *room) {
 }
 
 int check_moves(CharData *ch, int how_moves) {
-	if (ch->IsImmortal() || ch->IsNpc())
+	if (IS_IMMORTAL(ch) || ch->IsNpc())
 		return (true);
 	if (ch->get_move() < how_moves) {
 		SendMsgToChar("Вы слишком устали.\r\n", ch);

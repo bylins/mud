@@ -78,7 +78,7 @@ bool check_named(CharData *ch, const ObjData *obj, const bool simple) {
 		if (IS_CHARMICE(ch)) // Чармисы тоже могут работать с именными вещами
 		{
 			CharData *master = ch->get_master();
-			if (master->IsImmortal()) // Чармис имма
+			if (IS_IMMORTAL(master)) // Чармис имма
 			{
 				return false;
 			}
@@ -107,7 +107,7 @@ bool check_named(CharData *ch, const ObjData *obj, const bool simple) {
 		}
 		if (ch->IsNpc())
 			return true;
-		if (ch->IsImmortal()) // Имм
+		if (IS_IMMORTAL(ch)) // Имм
 			return false;
 		if (it->second->uid == ch->get_uid())//Это владелец предмета
 			return false;
@@ -384,7 +384,7 @@ void do_named(CharData *ch, char *argument, int cmd, int subcmd) {
 							sprintf(buf1, "%6d) %s",
 									obj_proto[r_num]->get_vnum(),
 									colored_name(obj_proto[r_num]->get_short_description().c_str(), -32));
-							if (ch->IsGrGod() || ch->IsFlagged(EPrf::kCoderinfo)) {
+							if (IS_GRGOD(ch) || ch->IsFlagged(EPrf::kCoderinfo)) {
 								snprintf(buf2, kMaxStringLength, "%s Игра:%d Пост:%d Владелец:%-16s e-mail:&S%s&s\r\n", buf1,
 										 obj_proto.total_online(r_num), obj_proto.stored(r_num),
 										 GetNameByUnique(it->second->uid, false).c_str(), it->second->mail.c_str());

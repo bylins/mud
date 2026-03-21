@@ -21,7 +21,7 @@ void do_memorize(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		show_wizdom(ch, 0x07);
 		return;
 	}
-	if (ch->IsImmortal()) {
+	if (IS_IMMORTAL(ch)) {
 		SendMsgToChar("Господи, хоть ты не подкалывай!\r\n", ch);
 		return;
 	}
@@ -69,7 +69,7 @@ void show_wizdom(CharData *ch, int bitset) {
 				continue;
 			}
 			count = GET_SPELL_MEM(ch, spell_id);
-			if (ch->IsImmortal())
+			if (IS_IMMORTAL(ch))
 				count = 10;
 			if (!count)
 				continue;

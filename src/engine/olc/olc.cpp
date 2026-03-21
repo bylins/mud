@@ -188,7 +188,7 @@ void do_olc(CharData *ch, char *argument, int cmd, int subcmd) {
 	d = ch->desc;
 
 	// лок/анлок редактирования зон только 34м и по привилегии
-	if ((lock || unlock) && !ch->IsImpl() && !privilege::CheckFlag(d->character.get(), privilege::kFullzedit)) {
+	if ((lock || unlock) && !IS_IMPL(ch) && !privilege::CheckFlag(d->character.get(), privilege::kFullzedit)) {
 		SendMsgToChar("Вы не можете использовать эту команду.\r\n", ch);
 		return;
 	}

@@ -380,7 +380,7 @@ void obj_load_on_death(ObjData *corpse, CharData *ch) {
 		return;
 	}
 
-	const int rnum = SetsDrop::check_mob(ch->get_rnum());
+	const int rnum = SetsDrop::check_mob(GET_MOB_RNUM(ch));
 	if (rnum > 0) {
 		obj_to_corpse(corpse, ch, rnum, true);
 	}

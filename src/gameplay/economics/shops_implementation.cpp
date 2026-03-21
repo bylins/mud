@@ -1088,12 +1088,12 @@ void shop_node::do_shop_cmd(CharData *ch, CharData *keeper, ObjData *obj, std::s
 				obj->get_PName(ECase::kGen), repair_price, GetDeclensionInNumber(repair_price, EWhat::kMoneyU));
 		tell_to_char(keeper, ch, tell.c_str());
 
-		if (!ch->IsGod() && repair_price > ch->get_gold()) {
+		if (!IS_GOD(ch) && repair_price > ch->get_gold()) {
 			act("А вот их у тебя как-раз то и нет.", false, ch, 0, 0, kToChar);
 			return;
 		}
 
-		if (!ch->IsGod()) {
+		if (!IS_GOD(ch)) {
 			ch->remove_gold(repair_price);
 		}
 

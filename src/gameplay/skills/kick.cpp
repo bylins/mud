@@ -216,7 +216,7 @@ void do_kick(CharData *ch, CharData *vict) {
 		return;
 	}
 
-	if (ch->IsImpl() || !ch->GetEnemy()) {
+	if (IS_IMPL(ch) || !ch->GetEnemy()) {
 		go_kick(ch, vict);
 	} else if (IsHaveNoExtraAttack(ch)) {
 		act("Хорошо. Вы попытаетесь пнуть $N3.", false, ch, nullptr, vict, kToChar);

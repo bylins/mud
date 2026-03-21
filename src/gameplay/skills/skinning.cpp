@@ -328,7 +328,7 @@ void DoSkinning(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	const auto mob = (mob_proto + GetMobRnum(mobn));
 
-	if (!ch->IsImmortal()
+	if (!IS_IMMORTAL(ch)
 		&& GET_RACE(mob) != ENpcRace::kAnimal
 		&& GET_RACE(mob) != ENpcRace::kReptile
 		&& GET_RACE(mob) != ENpcRace::kFish
@@ -373,7 +373,7 @@ void DoSkinning(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 		if (GET_RACE(mob) == ENpcRace::kAnimal) // шкуры только с животных
 		{
-			if (ch->IsImmortal() || skill_to_skin(mob, ch)) {
+			if (IS_IMMORTAL(ch) || skill_to_skin(mob, ch)) {
 				entrails.push_back(create_skin(mob, ch));
 			}
 		}

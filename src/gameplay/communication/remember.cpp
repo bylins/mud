@@ -174,12 +174,12 @@ void do_remember_char(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	argument = one_argument(argument, arg);
 
 	if (utils::IsAbbr(arg, "воззвать")) {
-		if (ch->IsImmortal() || ch->IsFlagged(EPrf::kCoderinfo)) {
+		if (IS_IMMORTAL(ch) || ch->IsFlagged(EPrf::kCoderinfo)) {
 			SendMsgToChar(ch->remember_get(Remember::PRAY), ch);
 		} else {
 			SendMsgToChar(ch->remember_get(Remember::PRAY_PERSONAL), ch);
 		}
-	} else if ((GetRealLevel(ch) < kLvlImmortal || ch->IsImpl()) && utils::IsAbbr(arg, "оффтоп")) {
+	} else if ((GetRealLevel(ch) < kLvlImmortal || IS_IMPL(ch)) && utils::IsAbbr(arg, "оффтоп")) {
 		if (!ch->IsFlagged(EPrf::kStopOfftop)) {
 			SendMsgToChar(ch->remember_get(Remember::OFFTOP), ch);
 		} else {
@@ -204,14 +204,14 @@ void do_remember_char(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 			SendMsgToChar(ch, "Вам нечего вспомнить.\r\n");
 		}
 		return;
-	} else if (utils::IsAbbr(arg, "гбогам") && ch->IsImmortal()) {
+	} else if (utils::IsAbbr(arg, "гбогам") && IS_IMMORTAL(ch)) {
 		SendMsgToChar(get_from_flaged_cont(wiznet_, ch->remember_get_num(), GetRealLevel(ch)), ch);
 		return;
 	} else if (utils::IsAbbr(arg, "все")) {
 		SendMsgToChar(ch->remember_get(Remember::ALL), ch);
 		return;
 	} else {
-		if (ch->IsImmortal() && !ch->IsImpl())
+		if (IS_IMMORTAL(ch) && !IS_IMPL(ch))
 			SendMsgToChar("Формат команды: вспомнить [без параметров|болтать|воззвать|гг|гд|гс|гб|все]\r\n", ch);
 		else
 			SendMsgToChar("Формат команды: вспомнить [без параметров|болтать|оффтоп|гг|гд|гс|все]\r\n", ch);

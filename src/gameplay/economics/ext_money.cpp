@@ -579,7 +579,7 @@ void drop_torc(CharData *mob) {
 		}
 	}
 
-	const int zone_lvl = zone_table[mob_index[mob->get_rnum()].zone].mob_level;
+	const int zone_lvl = zone_table[mob_index[GET_MOB_RNUM(mob)].zone].mob_level;
 	const int drop = calc_drop_torc(zone_lvl, members);
 	if (drop <= 0) {
 		return;

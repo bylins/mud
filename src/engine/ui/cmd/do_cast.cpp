@@ -90,7 +90,7 @@ void DoCast(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	}
 
 	auto substitute_spell_id{ESpell::kUndefined};
-	if (!GET_SPELL_MEM(ch, spell_id) && !ch->IsImmortal()) {
+	if (!GET_SPELL_MEM(ch, spell_id) && !IS_IMMORTAL(ch)) {
 		substitute_spell_id = FindSubstituteSpellId(ch, spell_id);
 		if (substitute_spell_id == ESpell::kUndefined) {
 			SendMsgToChar("Вы совершенно не помните, как произносится это заклинание...\r\n", ch);
@@ -127,12 +127,12 @@ void DoCast(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 
 	ch->SetCast(ESpell::kUndefined, ESpell::kUndefined, nullptr, nullptr, nullptr);
 	if (!CalcCastSuccess(ch, tch, ESaving::kStability, spell_id)) {
-		if (!(ch->IsImmortal() || GET_GOD_FLAG(ch, EGf::kGodsLike)))
+		if (!(IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, EGf::kGodsLike)))
 			SetWaitState(ch, kBattleRound);
 		if (GET_SPELL_MEM(ch, substitute_spell_id)) {
 			GET_SPELL_MEM(ch, substitute_spell_id)--;
 		}
-		if (!ch->IsNpc() && !ch->IsImmortal() && ch->IsFlagged(EPrf::kAutomem)) {
+		if (!ch->IsNpc() && !IS_IMMORTAL(ch) && ch->IsFlagged(EPrf::kAutomem)) {
 			MemQ_remember(ch, substitute_spell_id);
 		}
 		affect_total(ch);
@@ -140,14 +140,14 @@ void DoCast(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 			SendMsgToChar("Вы не смогли сосредоточиться!\r\n", ch);
 		}
 	} else {
-		if (ch->GetEnemy() && !ch->IsImpl()) {
+		if (ch->GetEnemy() && !IS_IMPL(ch)) {
 			ch->SetCast(spell_id, substitute_spell_id, tch, tobj, troom);
 			sprintf(buf, "Вы приготовились применить заклинание %s'%s'%s%s.\r\n",
 					kColorCyn, MUD::Spell(spell_id).GetCName(), kColorNrm,
 					tch == ch ? " на себя" : tch ? " на $N3" : tobj ? " на $o3" : troom ? " на всех" : "");
 			act(buf, false, ch, tobj, tch, kToChar);
 		} else if (CastSpell(ch, tch, tobj, troom, spell_id, substitute_spell_id) >= 0) {
-			if (!(ch->IsImmortal() || ch->get_wait() > 0))
+			if (!(IS_IMMORTAL(ch) || ch->get_wait() > 0))
 				SetWaitState(ch, kBattleRound);
 		} else if (ch->get_wait() == 0)
 			SetWaitState(ch, 1);

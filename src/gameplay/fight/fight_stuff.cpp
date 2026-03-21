@@ -264,7 +264,7 @@ void die(CharData *ch, CharData *killer) {
 		|| !ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena)
 		|| NORENTABLE(ch)) {
 		if (!(ch->IsNpc()
-			|| ch->IsImmortal()
+			|| IS_IMMORTAL(ch)
 			|| GET_GOD_FLAG(ch, EGf::kGodsLike)
 			|| (killer && killer->IsFlagged(EPrf::kExecutor))))//если убил не палач
 		{
@@ -798,7 +798,7 @@ void perform_group_gain(CharData *ch, CharData *victim, int members, int koef) {
 		TopPlayer::Refresh(ch);
 		if (!EXTRA_FLAGGED(victim, EXTRA_GRP_KILL_COUNT)
 				&& !ch->IsNpc()
-				&& !ch->IsImmortal()
+				&& !IS_IMMORTAL(ch)
 				&& victim->IsNpc()
 				&& !IS_CHARMICE(victim)
 				&& !ROOM_FLAGGED(victim->in_room, ERoomFlag::kArena)) {

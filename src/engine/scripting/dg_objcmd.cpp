@@ -585,7 +585,7 @@ void do_odamage(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Trigg
 		return;
 	}
 
-	if (ch->IsImmortal()) {
+	if (IS_IMMORTAL(ch)) {
 		SendMsgToChar("Being the cool immortal you are, you sidestep a trap, obviously placed to kill you.", ch);
 		return;
 	}

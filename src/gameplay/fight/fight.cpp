@@ -347,7 +347,7 @@ int GET_MAXCASTER(CharData *ch) {
 		|| ch->get_wait() > 0)
 		return 0;
 	else
-		return ch->IsImmortal() ? 1 : ch->caster_level;
+		return IS_IMMORTAL(ch) ? 1 : ch->caster_level;
 }
 
 int get_hp_perc(CharData *ch) {
@@ -1698,7 +1698,7 @@ void update_round_affs() {
 		}
 		if (it.ch->battle_affects.get(kEafBlock)) {
 			it.ch->battle_affects.unset(kEafBlock);
-			if (!it.ch->IsImmortal() && it.ch->get_wait() < kBattleRound)
+			if (!IS_IMMORTAL(it.ch) && it.ch->get_wait() < kBattleRound)
 				SetWaitState(it.ch, 1 * kBattleRound);
 		}
 
@@ -1869,7 +1869,7 @@ void process_player_attack(CharData *ch, int min_init) {
 			ch->SetCast(ESpell::kUndefined, ESpell::kUndefined, 0, 0, 0);
 		} else {
 			CastSpell(ch, ch->GetCastChar(), ch->GetCastObj(), 0, ch->GetCastSpell(), ch->GetCastSubst());
-			if (!(ch->IsImmortal() || GET_GOD_FLAG(ch, EGf::kGodsLike) || ch->get_wait() > 0)) {
+			if (!(IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, EGf::kGodsLike) || ch->get_wait() > 0)) {
 				SetWaitState(ch, kBattleRound);
 			}
 			ch->SetCast(ESpell::kUndefined, ESpell::kUndefined, 0, 0, 0);
@@ -1899,7 +1899,7 @@ void process_player_attack(CharData *ch, int min_init) {
 	//**** удар основным оружием или рукой
 	if (ch->battle_affects.get(kEafFirst)) {
 		if (!IS_SET(trigger_code, kNoRightHandAttack) && !AFF_FLAGGED(ch, EAffect::kStopRight)
-			&& (ch->IsImmortal() || GET_GOD_FLAG(ch, EGf::kGodsLike) || !ch->battle_affects.get(kEafUsedright))) {
+			&& (IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, EGf::kGodsLike) || !ch->battle_affects.get(kEafUsedright))) {
 			//Знаю, выглядит страшно, но зато в hit()
 			//можно будет узнать применялось ли оглушить
 			//или молотить, по баттл-аффекту узнать получиться
@@ -1933,10 +1933,10 @@ void process_player_attack(CharData *ch, int min_init) {
 		&& GET_EQ(ch, EEquipPos::kHold)->get_type() == EObjType::kWeapon
 		&& ch->battle_affects.get(kEafSecond)
 		&& !AFF_FLAGGED(ch, EAffect::kStopLeft)
-		&& (ch->IsImmortal()
+		&& (IS_IMMORTAL(ch)
 			|| GET_GOD_FLAG(ch, EGf::kGodsLike)
 			|| ch->GetSkill(ESkill::kSideAttack) > number(1, 101))) {
-		if (ch->IsImmortal()
+		if (IS_IMMORTAL(ch)
 			|| GET_GOD_FLAG(ch, EGf::kGodsLike)
 			|| !ch->battle_affects.get(kEafUsedleft)) {
 			ProcessExtrahits(ch, ch->GetEnemy(), ESkill::kUndefined, fight::AttackType::kOffHand);
@@ -1948,7 +1948,7 @@ void process_player_attack(CharData *ch, int min_init) {
 		&& !GET_EQ(ch, EEquipPos::kLight) && !GET_EQ(ch, EEquipPos::kShield) && !GET_EQ(ch, EEquipPos::kBoths)
 		&& !AFF_FLAGGED(ch, EAffect::kStopLeft) && ch->battle_affects.get(kEafSecond)
 		&& ch->GetSkill(ESkill::kLeftHit)) {
-		if (ch->IsImmortal() || !ch->battle_affects.get(kEafUsedleft)) {
+		if (IS_IMMORTAL(ch) || !ch->battle_affects.get(kEafUsedleft)) {
 			ProcessExtrahits(ch, ch->GetEnemy(), ESkill::kUndefined, fight::AttackType::kOffHand);
 		}
 		ch->battle_affects.unset(kEafSecond);

@@ -14,14 +14,14 @@ void do_frenzy(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 	if (ch->GetPosition() != EPosition::kFight
-		&& !ch->IsImmortal()
+		&& !IS_IMMORTAL(ch)
 		&& (!IsAffectedBySpell(ch, ESpell::kCourage)
 			|| !IsAffectedBySpell(ch, ESpell::kFrenzy)
 			|| !IsAffectedBySpell(ch, ESpell::kBerserk))) {
 		SendMsgToChar("Вы не можете впасть в &Rисступление&n находясь в тишине и покое!\r\n", ch);
 		return;
 	}
-	if (ch->HasCooldown(ESkill::kFrenzy) && !ch->IsImmortal()) {
+	if (ch->HasCooldown(ESkill::kFrenzy) && !IS_IMMORTAL(ch)) {
 		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
 		return;
 	}
@@ -91,7 +91,7 @@ void do_frenzy(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 			SendMsgToChar("&RВы жаждете крови своих соперников!&n\r\n", ch);
 		}
 	}
-	if (!ch->IsImmortal()) {
+	if (!IS_IMMORTAL(ch)) {
 		constexpr int cooldown = 7;
 		SetSkillCooldown(ch, ESkill::kFrenzy, cooldown);
 		SetSkillCooldown(ch, ESkill::kGlobalCooldown, 1);

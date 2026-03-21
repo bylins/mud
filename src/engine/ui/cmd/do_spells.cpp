@@ -62,7 +62,7 @@ void DisplaySpells(CharData *ch, CharData *vict, bool all) {
 			continue;
 		if (IS_MANA_CASTER(ch) && !spell_create.contains(spell_id))
 			continue;
-		if (!IS_MANA_CASTER(ch) && !ch->IsGod() && ROOM_FLAGGED(ch->in_room, ERoomFlag::kDominationArena)) {
+		if (!IS_MANA_CASTER(ch) && !IS_GOD(ch) && ROOM_FLAGGED(ch->in_room, ERoomFlag::kDominationArena)) {
 			if (!IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kTemp) && !all)
 				continue;
 		}

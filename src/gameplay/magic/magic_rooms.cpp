@@ -569,7 +569,7 @@ int CallMagicToRoom(int/* level*/, CharData *ch, RoomData *room, ESpell spell_id
 	} else
 		SendMsgToChar(NOEFFECT, ch);
 
-	if (!ch->IsImmortal())
+	if (!IS_IMMORTAL(ch))
 		SetWaitState(ch, lag * kBattleRound);
 
 	return 0;
@@ -680,7 +680,7 @@ void RemoveSingleAffectFromWorld(CharData *ch, ESpell spell_id) {
 }
 
 void ProcessRoomAffectsOnEntry(CharData *ch, RoomRnum room) {
-	if (ch->IsImmortal()) {
+	if (IS_IMMORTAL(ch)) {
 		return;
 	}
 

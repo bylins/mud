@@ -79,7 +79,7 @@ void TitleSystem::do_title(CharData *ch, char *argument, int/* cmd*/, int/* subc
 
 	// какие тока извраты не приходится делать, чтобы соответствовать синтаксису одобрения имен
 	int result = TITLE_NEED_HELP;
-	if (ch->IsGod() || privilege::CheckFlag(ch, privilege::kTitle)) {
+	if (IS_GOD(ch) || privilege::CheckFlag(ch, privilege::kTitle)) {
 		utils::Trim(buffer);
 		if (CompareParam(buffer, "удалить")) {
 			utils::Trim(buffer2);
@@ -138,7 +138,7 @@ void TitleSystem::do_title(CharData *ch, char *argument, int/* cmd*/, int/* subc
 			if (!check_title(buffer, ch)) return;
 			title = buffer;
 		}
-		if (ch->IsGod() || privilege::CheckFlag(ch, privilege::kTitle)) {
+		if (IS_GOD(ch) || privilege::CheckFlag(ch, privilege::kTitle)) {
 			set_player_title(ch, pre_title, title, GET_NAME(ch));
 			SendMsgToChar("Титул установлен\r\n", ch);
 			return;
@@ -203,7 +203,7 @@ void TitleSystem::do_title(CharData *ch, char *argument, int/* cmd*/, int/* subc
 bool TitleSystem::check_title(const std::string &text, CharData *ch) {
 	if (!check_alphabet(text, ch, " ,.-?Ёё")) return false;
 
-	if (GetRealLevel(ch) < 25 && !GetRealRemort(ch) && !ch->IsGod() && !privilege::CheckFlag(ch, privilege::kTitle)) {
+	if (GetRealLevel(ch) < 25 && !GetRealRemort(ch) && !IS_GOD(ch) && !privilege::CheckFlag(ch, privilege::kTitle)) {
 		SendMsgToChar(ch, "Для права на титул вы должны достигнуть 25го уровня или иметь перевоплощения.\r\n");
 		return false;
 	}
@@ -221,7 +221,7 @@ bool TitleSystem::check_pre_title(const std::string& text, CharData *ch) {
 	if (!check_alphabet(text, ch, " .-?Ёё")) 
 		return false;
 
-	if (ch->IsGod() || privilege::CheckFlag(ch, privilege::kTitle)) 
+	if (IS_GOD(ch) || privilege::CheckFlag(ch, privilege::kTitle)) 
 		return true;
 
 	if (!GetRealRemort(ch)) {
@@ -393,7 +393,7 @@ void TitleSystem::set_player_title(CharData *ch,
 
 // * Для распечатки разных подсказок имму и игроку
 const char *TitleSystem::print_help_string(CharData *ch) {
-	if (ch->IsGod() || privilege::CheckFlag(ch, privilege::kTitle))
+	if (IS_GOD(ch) || privilege::CheckFlag(ch, privilege::kTitle))
 		return GOD_DO_TITLE_FORMAT;
 
 	return MORTAL_DO_TITLE_FORMAT;
@@ -462,7 +462,7 @@ std::string TitleSystem::print_agree_string(bool new_petition) {
 
 // * Обработка пустого вызова команды титул
 void TitleSystem::do_title_empty(CharData *ch) {
-	if ((ch->IsGod() || privilege::CheckFlag(ch, privilege::kTitle)) && !title_list.empty())
+	if ((IS_GOD(ch) || privilege::CheckFlag(ch, privilege::kTitle)) && !title_list.empty())
 		show_title_list(ch);
 	else {
 		std::stringstream out;
