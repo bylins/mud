@@ -122,7 +122,7 @@ void skip_dots(char **string);
 char *str_str(const char *cs, const char *ct);
 void kill_ems(char *str);
 void cut_one_word(std::string &str, std::string &word);
-size_t strl_cpy(char *dst, const char *src, size_t siz);
+// strl_cpy moved to utils_string.h
 bool is_head(std::string name);
 
 template<typename T> inline std::string to_string(const T &t) {
@@ -946,7 +946,7 @@ void skip_spaces(T string) {
 }
 
 
-std::string thousands_sep(long long n);
+// thousands_sep moved to utils_string.h
 
 #define IS_CORPSE(obj)     ((obj)->get_type() == EObjType::kContainer && \
                GET_OBJ_VAL((obj), 3) == ObjData::CORPSE_INDICATOR)
@@ -1050,8 +1050,7 @@ const char *one_word(const char *argument, char *first_arg);
 
 void ReadEndString(std::ifstream &file);
 // замена символа (в данном случае конца строки) на свою строку, для остального функций хватает
-void StringReplace(std::string &buffer, char s, const std::string &d);
-std::string &format_news_message(std::string &text);
+// StringReplace, format_news_message moved to utils_string.h
 
 template<typename T>
 class JoinRange {
@@ -1161,7 +1160,7 @@ reversion_wrapper<T> reverse (T&& iterable) { return { iterable }; }
  *  @param num  - обрабатываемоле число.
  *  @param separator - разделитель разрядов.
  */
-std::string PrintNumberByDigits(long long num, char separator = ' ');
+// PrintNumberByDigits moved to utils_string.h
 
 // PruneCrlf moved to utils_string.h
 

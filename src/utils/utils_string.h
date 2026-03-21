@@ -324,6 +324,24 @@ int is_number(const char *str);
 /// Используется для отмены экранирования act() при прямом выводе.
 char *delete_doubledollar(char *string);
 
+/// Замена всех вхождений символа s на строку d в буфере.
+void StringReplace(std::string &buffer, char s, const std::string &d);
+
+/// Форматирование новостного сообщения (добавляет отступы).
+std::string &format_news_message(std::string &text);
+
+/// Безопасное копирование строки с ограничением размера (аналог strlcpy из OpenBSD).
+/// Возвращает длину src; если >= siz, произошло усечение.
+size_t strl_cpy(char *dst, const char *src, size_t siz);
+
+/// Форматирование числа с разделением по разрядам.
+/// Пример: 1234567 -> "1 234 567" (с разделителем separator).
+std::string PrintNumberByDigits(long long num, char separator = ' ');
+
+/// Форматирование числа с разделением запятыми.
+/// Пример: 1234567 -> "1,234,567".
+std::string thousands_sep(long long n);
+
 #endif // UTILS_STRING_HPP_
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

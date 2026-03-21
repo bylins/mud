@@ -693,4 +693,105 @@ int strn_cmp(const std::string &arg1, const std::string &arg2, size_t n) {
 		return (LOWER(arg1[i]) - LOWER('\0'));
 }
 
+void StringReplace(std::string &buffer, char s, const std::string &d) {
+	for (size_t index = 0; index = buffer.find(s, index), index != std::string::npos;) {
+		buffer.replace(index, 1, d);
+		index += d.length();
+	}
+}
+
+std::string &format_news_message(std::string &text) {
+	StringReplace(text, '\n', "\n   ");
+	utils::Trim(text);
+	text.insert(0, "   ");
+	text += '\n';
+	return text;
+}
+
+size_t strl_cpy(char *dst, const char *src, size_t siz) {
+	char *d = dst;
+	const char *s = src;
+	size_t n = siz;
+	if (n != 0) {
+		while (--n != 0) {
+			if ((*d++ = *s++) == '\0')
+				break;
+		}
+	}
+	if (n == 0) {
+		if (siz != 0)
+			*d = '\0';
+		while (*s++);
+	}
+	return (s - src - 1);
+}
+
+std::string PrintNumberByDigits(long long num, const char separator) {
+	const int digits_num{3};
+	bool negative{false};
+	if (num < 0) {
+		num = -num;
+		negative = true;
+	}
+	std::string buffer;
+	try {
+		buffer = std::to_string(num);
+	} catch (std::bad_alloc &) {
+		log("SYSERROR : string.at() (%s:%d)", __FILE__, __LINE__);
+		return "<Out Of Range>";
+	}
+	fmt::memory_buffer out;
+	if (negative) {
+		out.push_back('-');
+	}
+	if (digits_num >= static_cast<int>(buffer.size())) {
+		fmt::format_to(std::back_inserter(out), "{}", buffer);
+	} else {
+		auto modulo = buffer.size() % digits_num;
+		if (modulo != 0) {
+			fmt::format_to(std::back_inserter(out), "{}{}", buffer.substr(0, modulo), separator);
+		}
+		unsigned pos = modulo;
+		while (pos < buffer.size() - digits_num) {
+			fmt::format_to(std::back_inserter(out), "{}{}", buffer.substr(pos, digits_num), separator);
+			pos += digits_num;
+		}
+		fmt::format_to(std::back_inserter(out), "{}", buffer.substr(pos, digits_num));
+	}
+	return to_string(out);
+}
+
+std::string thousands_sep(long long n) {
+	bool negative = false;
+	if (n < 0) {
+		n = -n;
+		negative = true;
+	}
+	int size = 50;
+	int curr_pos = size - 1;
+	const int comma = ',';
+	std::string buffer;
+	buffer.resize(size);
+	int i = 0;
+	try {
+		do {
+			if (i % 3 == 0 && i != 0) {
+				buffer.at(--curr_pos) = comma;
+			}
+			buffer.at(--curr_pos) = '0' + n % 10;
+			n /= 10;
+			i++;
+		} while (n != 0);
+		if (negative) {
+			buffer.at(--curr_pos) = '-';
+		}
+	}
+	catch (...) {
+		log("SYSERROR : string.at() (%s:%d)", __FILE__, __LINE__);
+		return "<OutOfRange>";
+	}
+	buffer = buffer.substr(curr_pos, size - 1);
+	return buffer;
+}
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
