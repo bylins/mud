@@ -365,7 +365,7 @@ void arena_kill(CharData *ch, CharData *killer) {
 			PlaceCharToRoom(f, to_room);
 		}
 	}
-	for (int i=0; i < MAX_FIRSTAID_REMOVE; i++) {
+	for (int i=0; i < kMaxFirstaidRemove; i++) {
 		RemoveAffectFromChar(ch, GetRemovableSpellId(i));
 	}
 	// наемовские яды

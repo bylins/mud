@@ -831,17 +831,39 @@ class CharData : public ProtectedCharData {
 	bool IsLeader();
 };
 
-# define MAX_FIRSTAID_REMOVE 17
+enum ERemovableSpell {
+	kRemAbstinent = 0,
+	kRemPoison,
+	kRemMadness,
+	kRemWeakness,
+	kRemSlowdown,
+	kRemMindless,
+	kRemColdWind,
+	kRemFever,
+	kRemCurse,
+	kRemDeafness,
+	kRemSilence,
+	kRemBlindness,
+	kRemSleep,
+	kRemHold,
+	kRemVacuum,
+	kRemHaemorrhage,
+	kRemBattle,
+	kMaxFirstaidRemove
+};
+
 inline ESpell GetRemovableSpellId(int num) {
-	static const ESpell spell[MAX_FIRSTAID_REMOVE] = {ESpell::kAbstinent, ESpell::kPoison, ESpell::kMadness,
+	static const ESpell spell[kMaxFirstaidRemove] = {
+		ESpell::kAbstinent, ESpell::kPoison, ESpell::kMadness,
 		ESpell::kWeaknes, ESpell::kSlowdown, ESpell::kMindless, ESpell::kColdWind,
 		ESpell::kFever, ESpell::kCurse, ESpell::kDeafness, ESpell::kSilence,
-		ESpell::kBlindness, ESpell::kSleep, ESpell::kHold, ESpell::kVacuum, ESpell::kHaemorrhage, ESpell::kBattle};
-	if (num < MAX_FIRSTAID_REMOVE) {
+		ESpell::kBlindness, ESpell::kSleep, ESpell::kHold, ESpell::kVacuum,
+		ESpell::kHaemorrhage, ESpell::kBattle
+	};
+	if (num < kMaxFirstaidRemove) {
 		return spell[num];
-	} else {
-		return ESpell::kUndefined;
 	}
+	return ESpell::kUndefined;
 }
 inline const player_special_data::ignores_t &CharData::get_ignores() const {
 	const auto &ps = get_player_specials();

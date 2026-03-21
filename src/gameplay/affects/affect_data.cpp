@@ -284,7 +284,7 @@ void player_affect_update() {
 //					sprintf(buf, "ЧАР: Спелл %s висит на %s длительносить %d\r\n", MUD::Spell(affect->type).GetCName(), GET_PAD(i, 5), affect->duration);
 //					mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
 					if (ROOM_FLAGGED(i->in_room, ERoomFlag::kDominationArena)) {
-						for (int count = MAX_FIRSTAID_REMOVE - 1; count >= 0; count--) {
+						for (int count = kMaxFirstaidRemove - 1; count >= 0; count--) {
 							if (affect->type == GetRemovableSpellId(count)) {
 								affect->duration -= 15;
 								break;
