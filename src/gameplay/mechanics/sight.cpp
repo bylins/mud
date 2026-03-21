@@ -93,16 +93,16 @@ std::string BuildBriefShieldSuffix(const CharData *viewer, const CharData *targe
 	};
 
 	if (AFF_FLAGGED(target, EAffect::kFireShield)) {
-		append("ОШ");
+		append("&RОШ&n");
 	}
 	if (AFF_FLAGGED(target, EAffect::kAirShield)) {
-		append("ВШ");
+		append("&WВШ&n");
 	}
 	if (AFF_FLAGGED(target, EAffect::kIceShield)) {
-		append("ЛШ");
+		append("&CЛШ&n");
 	}
 	if (AFF_FLAGGED(viewer, EAffect::kDetectMagic) && AFF_FLAGGED(target, EAffect::kMagicGlass)) {
-		append("МЗ");
+		append("&wМЗ&n");
 	}
 
 	return result.empty() ? std::string() : std::string(" (") + result + ")";
