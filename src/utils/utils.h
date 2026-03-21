@@ -155,7 +155,6 @@ extern const char *ACTNULL;
 #endif
 
 constexpr int kSfEmpty = 1 << 0;
-constexpr int kSfFollowerdie = 1 << 1;
 constexpr int kSfMasterdie = 1 << 2;
 constexpr int kSfCharmlost = 1 << 3;
 constexpr int kSfSilence = 1 << 4;

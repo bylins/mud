@@ -72,9 +72,7 @@ bool stop_follower(CharData *ch, int mode) {
 				GET_LASTROOM(ch) = ch->in_room;
 				PerformDropGold(ch, ch->get_gold());
 				ch->set_gold(0);
-				if (!IS_SET(mode, kSfFollowerdie)) {
 					ExtractCharFromWorld(ch, false);
-				}
 				return (true);
 			} else if (AFF_FLAGGED(ch, EAffect::kHelper)) {
 				AFF_FLAGS(ch).unset(EAffect::kHelper);
@@ -115,11 +113,20 @@ bool stop_follower(CharData *ch, int mode) {
 	return (false);
 }
 
-// * Called when a character that follows/is followed dies
-bool die_follower(CharData *ch) {
-	if (ch->has_master() && stop_follower(ch, kSfFollowerdie)) {
-		//  чармиса спуржили в stop_follower
-		return true;
+// Called when a character that follows/is followed dies.
+// Detaches ch from its master (if any) and dismisses all of ch's followers.
+void die_follower(CharData *ch) {
+	if (ch->has_master()) {
+		if (ch->get_master()->get_horse() == ch && ch->get_master()->IsOnHorse()) {
+			ch->DropFromHorse();
+		}
+
+		ch->get_master()->followers.remove(ch);
+		if (ch->get_master()->followers.empty() && !ch->get_master()->has_master()) {
+			ch->get_master()->removeGroupFlags();
+		}
+		ch->set_master(nullptr);
+		ch->removeGroupFlags();
 	}
 
 	if (ch->IsOnHorse()) {
@@ -129,7 +136,6 @@ bool die_follower(CharData *ch) {
 	while (!ch->followers.empty()) {
 		stop_follower(ch->followers.front(), kSfMasterdie);
 	}
-	return false;
 }
 
 // Check if making CH follow VICTIM will create an illegal //
