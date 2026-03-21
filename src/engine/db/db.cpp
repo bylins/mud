@@ -1910,8 +1910,10 @@ CObjectPrototype::shared_ptr GetObjectPrototype(ObjVnum nr, int type) {
 
 void after_reset_zone(ZoneRnum nr_zone) {
 	for (auto d = descriptor_list; d; d = d->next) {
-		// Чар должен быть в игре
 		if (d->state == EConState::kPlaying) {
+			if (GetRealLevel(d->character) >= kLvlImmortal && GET_INVIS_LEV(d->character) > 0) {
+				continue;
+			}
 			if (world[d->character->in_room]->zone_rn == nr_zone) {
 				zone_table[nr_zone].used = true;
 				return;
@@ -2912,7 +2914,8 @@ bool IsZoneEmpty(ZoneRnum zone_nr, bool debug) {
 	for (; rnum_start <= rnum_stop; rnum_start++) {
 // num_pc_in_room() использовать нельзя, т.к. считает вместе с иммами.
 		for (const auto c : world[rnum_start]->people) {
-			if (!c->IsNpc() && (GetRealLevel(c) < kLvlImmortal)) {
+			if (!c->IsNpc()
+				&& !(GetRealLevel(c) >= kLvlImmortal && GET_INVIS_LEV(c) > 0)) {
 				return false;
 			}
 		}
@@ -2922,7 +2925,7 @@ bool IsZoneEmpty(ZoneRnum zone_nr, bool debug) {
 		const int was = c->get_was_in_room();
 
 		if (was == kNowhere
-			|| GetRealLevel(c) >= kLvlImmortal
+			|| (GetRealLevel(c) >= kLvlImmortal && GET_INVIS_LEV(c) > 0)
 			|| world[was]->zone_rn != zone_nr) {
 			continue;
 		}

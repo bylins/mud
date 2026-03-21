@@ -793,10 +793,10 @@ void FleeToRoom(CharData *ch, RoomRnum room) {
 		stop_fighting(ch, true);
 	}
 
-	if (!ch->IsNpc()) {
+	if (!ch->IsNpc() && !(GetRealLevel(ch) >= kLvlImmortal && GET_INVIS_LEV(ch) > 0)) {
 		zone_table[world[room]->zone_rn].used = true;
 		zone_table[world[room]->zone_rn].activity++;
-	} else {
+	} else if (ch->IsNpc()) {
 		//sventovit: здесь обрабатываются только неписи, чтобы игрок успел увидеть комнату
 		room_spells::ProcessRoomAffectsOnEntry(ch, ch->in_room);
 	}
