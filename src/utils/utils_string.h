@@ -2,6 +2,7 @@
 #define UTILS_STRING_HPP_
 
 #include <cstring>
+#include <fstream>
 #include <memory>
 #include <string>
 #include <vector>
@@ -295,6 +296,84 @@ char *CAP(char *txt);
 std::string CAP(const std::string txt);
 
 } // namespace utils
+
+/// Сравнение строк без учета регистра (аналог strcmp).
+/// Возвращает: 0 если равны, >0 если arg1 > arg2, <0 если arg1 < arg2.
+int str_cmp(const char *arg1, const char *arg2);
+int str_cmp(const std::string &arg1, const char *arg2);
+int str_cmp(const char *arg1, const std::string &arg2);
+int str_cmp(const std::string &arg1, const std::string &arg2);
+
+/// Сравнение строк без учета регистра с ограничением длины (аналог strncmp).
+/// Возвращает: 0 если равны, >0 если arg1 > arg2, <0 если arg1 < arg2.
+int strn_cmp(const char *arg1, const char *arg2, size_t n);
+int strn_cmp(const std::string &arg1, const char *arg2, size_t n);
+int strn_cmp(const char *arg1, const std::string &arg2, size_t n);
+int strn_cmp(const std::string &arg1, const std::string &arg2, size_t n);
+
+/// Удаление завершающих \r\n из строки.
+void PruneCrlf(char *txt);
+
+/// Возвращает указатель на первую видимую букву, пропуская цветовые коды.
+const char *first_letter(const char *txt);
+
+/// Проверяет что строка состоит только из цифр.
+/// Возвращает 1 если да, 0 если нет.
+int is_number(const char *str);
+
+/// Убирает двойные доллары ($$) из строки, модифицируя на месте.
+/// Используется для отмены экранирования act() при прямом выводе.
+char *delete_doubledollar(char *string);
+
+/// Замена всех вхождений символа s на строку d в буфере.
+void StringReplace(std::string &buffer, char s, const std::string &d);
+
+/// Форматирование новостного сообщения (добавляет отступы).
+std::string &format_news_message(std::string &text);
+
+/// Безопасное копирование строки с ограничением размера (аналог strlcpy из OpenBSD).
+/// Возвращает длину src; если >= siz, произошло усечение.
+size_t strl_cpy(char *dst, const char *src, size_t siz);
+
+/// Форматирование числа с разделением по разрядам.
+/// Пример: 1234567 -> "1 234 567" (с разделителем separator).
+std::string PrintNumberByDigits(long long num, char separator = ' ');
+
+/// Форматирование числа с разделением запятыми.
+/// Пример: 1234567 -> "1,234,567".
+std::string thousands_sep(long long n);
+
+/// Пропуск точек и пробелов в строке.
+void skip_dots(char **string);
+
+/// Поиск подстроки без учета регистра (аналог strstr).
+/// Возвращает указатель на первое вхождение ct в cs, или nullptr.
+char *str_str(const char *cs, const char *ct);
+
+/// Удаление символов \r из строки (^M).
+void kill_ems(char *str);
+
+/// Вырезание первого алфавитно-цифрового слова из строки str в word.
+void cut_one_word(std::string &str, std::string &word);
+
+/// Пропуск остатка строки в ifstream (до \n).
+void ReadEndString(std::ifstream &file);
+
+/// Валидация формата email адреса.
+bool IsValidEmail(const char *address);
+
+/// Проверка совпадения строки str со списком имен namelist (разделенных пробелами).
+/// Без учета регистра, поддерживает частичное совпадение.
+bool isname(const char *str, const char *namelist);
+inline bool isname(const std::string &str, const char *namelist) { return isname(str.c_str(), namelist); }
+inline bool isname(const char *str, const std::string &namelist) { return isname(str, namelist.c_str()); }
+inline bool isname(const std::string &str, const std::string &namelist) {
+	return isname(str.c_str(), namelist.c_str());
+}
+
+/// Извлечение первого слова из строки с приведением к нижнему регистру.
+/// Поддерживает кавычки для слов с пробелами.
+const char *one_word(const char *argument, char *first_arg);
 
 #endif // UTILS_STRING_HPP_
 

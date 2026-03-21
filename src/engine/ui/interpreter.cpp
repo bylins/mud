@@ -1340,46 +1340,7 @@ int search_block(const std::string &block, const char **list, int exact) {
 	return (-1);
 }
 
-int is_number(const char *str) {
-	while (*str) {
-		if (!a_isdigit(*(str++))) {
-			return 0;
-		}
-	}
-
-	return 1;
-}
-
-/*
- * Given a string, change all instances of double dollar signs ($$) to
- * single dollar signs ($).  When strings come in, all $'s are changed
- * to $$'s to avoid having users be able to crash the system if the
- * inputted string is eventually sent to act().  If you are using user
- * input to produce screen output AND YOU ARE SURE IT WILL NOT BE SENT
- * THROUGH THE act() FUNCTION (i.e., do_gecho, but NOT do_say),
- * you can call delete_doubledollar() to make the output look correct.
- *
- * Modifies the string in-place.
- */
-char *delete_doubledollar(char *string) {
-	char *read, *write;
-
-	// If the string has no dollar signs, return immediately //
-	if ((write = strchr(string, '$')) == nullptr)
-		return (string);
-
-	// Start from the location of the first dollar sign //
-	read = write;
-
-	while (*read)        // Until we reach the end of the string... //
-		if ((*(write++) = *(read++)) == '$')    // copy one char //
-			if (*read == '$')
-				read++;    // skip if we saw 2 $'s in a row //
-
-	*write = '\0';
-
-	return (string);
-}
+// is_number and delete_doubledollar moved to utils_string.cpp
 
 int fill_word(const char *argument) {
 	return (search_block(argument, dir_fill, true) >= 0);
