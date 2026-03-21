@@ -26,7 +26,7 @@ void DoIntercept(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	};
 
 	ObjData *primary = GET_EQ(ch, EEquipPos::kWield) ? GET_EQ(ch, EEquipPos::kWield) : GET_EQ(ch, EEquipPos::kBoths);
-	if (!(IS_IMMORTAL(ch) || ch->IsNpc() || GET_GOD_FLAG(ch, EGf::kGodsLike) || !primary)) {
+	if (!(ch->IsImmortal() || ch->IsNpc() || GET_GOD_FLAG(ch, EGf::kGodsLike) || !primary)) {
 		SendMsgToChar("У вас заняты руки.\r\n", ch);
 		return;
 	}
@@ -101,14 +101,14 @@ void PerformIntercept(CharData *ch, CharData *vict, HitData &hit_data) {
 		&& !AFF_FLAGGED(vict, EAffect::kStopRight)
 		&& vict->get_wait() <= 0
 		&& !AFF_FLAGGED(vict, EAffect::kHold)
-		&& (IS_IMMORTAL(vict) || vict->IsNpc()
+		&& (vict->IsImmortal() || vict->IsNpc()
 			|| !(GET_EQ(vict, EEquipPos::kWield) || GET_EQ(vict, EEquipPos::kBoths)))
 		&& vict->GetPosition() > EPosition::kSleep) {
 		int percent = number(1, MUD::Skill(ESkill::kIntercept).difficulty);
 		int prob = CalcCurrentSkill(vict, ESkill::kIntercept, ch);
 		TrainSkill(vict, ESkill::kIntercept, prob >= percent, ch);
 		SendSkillBalanceMsg(ch, MUD::Skill(ESkill::kIntercept).name, percent, prob, prob >= 70);
-		if (IS_IMMORTAL(vict) || GET_GOD_FLAG(vict, EGf::kGodsLike)) {
+		if (vict->IsImmortal() || GET_GOD_FLAG(vict, EGf::kGodsLike)) {
 			percent = prob;
 		}
 		if (GET_GOD_FLAG(vict, EGf::kGodscurse)) {

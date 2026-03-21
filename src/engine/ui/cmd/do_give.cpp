@@ -12,7 +12,7 @@ extern void split_or_clan_tax(CharData *ch, long amount);
 void perform_give(CharData *ch, CharData *vict, ObjData *obj) {
 	if (!bloody::handle_transfer(ch, vict, obj))
 		return;
-	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoItem) && !IS_GOD(ch)) {
+	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoItem) && !ch->IsGod()) {
 		act("Неведомая сила помешала вам сделать это!",
 			false, ch, nullptr, nullptr, kToChar);
 		return;
@@ -93,11 +93,11 @@ void perform_give_gold(CharData *ch, CharData *vict, int amount) {
 		SendMsgToChar("Ха-ха-ха (3 раза)...\r\n", ch);
 		return;
 	}
-	if (ch->get_gold() < amount && (ch->IsNpc() || !IS_IMPL(ch))) {
+	if (ch->get_gold() < amount && (ch->IsNpc() || !ch->IsImpl())) {
 		SendMsgToChar("И откуда вы их взять собираетесь?\r\n", ch);
 		return;
 	}
-	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoItem) && !IS_GOD(ch)) {
+	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoItem) && !ch->IsGod()) {
 		act("Неведомая сила помешала вам сделать это!",
 			false, ch, nullptr, nullptr, kToChar);
 		return;
@@ -117,7 +117,7 @@ void perform_give_gold(CharData *ch, CharData *vict, int amount) {
 				GET_PAD(vict, 4));
 		mudlog(buf, NRM, kLvlGreatGod, MONEY_LOG, true);
 	}
-	if (ch->IsNpc() || !IS_IMPL(ch)) {
+	if (ch->IsNpc() || !ch->IsImpl()) {
 		ch->remove_gold(amount);
 	}
 	// если денег дает моб - снимаем клан-налог
@@ -135,11 +135,11 @@ void perform_give_nogat(CharData *ch, CharData *vict, int amount) {
 		SendMsgToChar("Ха-ха-ха (3 раза)...\r\n", ch);
 		return;
 	}
-	if (ch->get_nogata() < amount && (ch->IsNpc() || !IS_IMPL(ch))) {
+	if (ch->get_nogata() < amount && (ch->IsNpc() || !ch->IsImpl())) {
 		SendMsgToChar("И откуда ты их взять собирался?\r\n", ch);
 		return;
 	}
-	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoItem) && !IS_GOD(ch)) {
+	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoItem) && !ch->IsGod()) {
 		act("Неведомая сила помешала вам сделать это!",
 			false, ch, nullptr, nullptr, kToChar);
 		return;
@@ -152,7 +152,7 @@ void perform_give_nogat(CharData *ch, CharData *vict, int amount) {
 	else
 		sprintf(buf, "$n дал$g %s $N2.", GetDeclensionInNumber(amount, EWhat::kNogataU));
 	act(buf, true, ch, nullptr, vict, kToNotVict | kToArenaListen);
-	if (ch->IsNpc() || !IS_IMPL(ch)) {
+	if (ch->IsNpc() || !ch->IsImpl()) {
 		ch->sub_nogata(amount);
 	}
 	vict->add_nogata(amount);

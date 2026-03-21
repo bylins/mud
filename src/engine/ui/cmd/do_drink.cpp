@@ -218,7 +218,7 @@ int IsAbleToDrink(CharData *ch, ObjData *jar, int amount) {
 		}
 	}
 
-	if (amount <= 0 && !IS_GOD(ch)) {
+	if (amount <= 0 && !ch->IsGod()) {
 		SendMsgToChar("В вас больше не лезет.\r\n", ch);
 		return 0;
 	}

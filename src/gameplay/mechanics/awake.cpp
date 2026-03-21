@@ -18,7 +18,7 @@ extern bool IsWearingLight(CharData *ch);
 int check_awake(CharData *ch, int what) {
 	int i, retval = 0, wgt = 0;
 
-	if (!IS_GOD(ch)) {
+	if (!ch->IsGod()) {
 		if (IS_SET(what, kAcheckAffects)
 			&& (AFF_FLAGGED(ch, EAffect::kStairs) || AFF_FLAGGED(ch, EAffect::kSanctuary)))
 			SET_BIT(retval, kAcheckAffects);
@@ -58,7 +58,7 @@ int check_awake(CharData *ch, int what) {
 }
 
 int awake_hide(CharData *ch) {
-	if (IS_GOD(ch))
+	if (ch->IsGod())
 		return (false);
 	return check_awake(ch, kAcheckAffects | kAcheckLight | kAcheckHumming
 		| kAcheckGlowing | kAcheckWeight);
@@ -69,7 +69,7 @@ int awake_sneak(CharData *ch) {
 }
 
 int awake_invis(CharData *ch) {
-	if (IS_GOD(ch))
+	if (ch->IsGod())
 		return (false);
 	return check_awake(ch, kAcheckAffects | kAcheckLight | kAcheckHumming
 		| kAcheckGlowing);
@@ -80,7 +80,7 @@ int awake_camouflage(CharData *ch) {
 }
 
 int awaking(CharData *ch, int mode) {
-	if (IS_GOD(ch))
+	if (ch->IsGod())
 		return (false);
 	if (IS_SET(mode, kAwHide) && awake_hide(ch))
 		return (true);
@@ -94,7 +94,7 @@ int awaking(CharData *ch, int mode) {
 }
 
 bool IsAwakeOthers(CharData *ch) {
-	if ((ch->IsNpc() && !AFF_FLAGGED(ch, EAffect::kCharmed)) || IS_GOD(ch)) {
+	if ((ch->IsNpc() && !AFF_FLAGGED(ch, EAffect::kCharmed)) || ch->IsGod()) {
 		return false;
 	}
 

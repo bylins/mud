@@ -54,7 +54,7 @@ int go_track(CharData *ch, CharData *victim, const ESkill skill_no) {
 	if_sense = (skill_no == ESkill::kSense) ? 100 : 0;
 	percent = number(0, MUD::Skill(skill_no).difficulty - if_sense);
 	//current_skillpercent = GET_SKILL(ch, ESkill::kSense);
-	if ((!victim->IsNpc()) && (!IS_GOD(ch)) && (!ch->IsNpc())) //Если цель чар и ищет не бог
+	if ((!victim->IsNpc()) && (!ch->IsGod()) && (!ch->IsNpc())) //Если цель чар и ищет не бог
 	{
 		percent = MIN(99, number(0, GetRealRemort(victim)) + percent);
 	}

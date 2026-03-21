@@ -81,7 +81,7 @@ int CalcMoveCost(CharData *ch, int dir) {
 	int need_movement = (IS_FLY(ch) || ch->IsOnHorse()) ? 1 :
 						(movement_loss[ch_inroom] + movement_loss[ch_toroom]) / 2;
 
-	if (IS_IMMORTAL(ch))
+	if (ch->IsImmortal())
 		need_movement = 0;
 	else if (IsAffectedBySpell(ch, ESpell::kCamouflage))
 		need_movement += kCamouflageMoves;
@@ -180,7 +180,7 @@ bool IsCorrectDirection(CharData *ch, int dir, bool check_specials, bool show_ms
 			return false;
 		}
 		if (real_sector(EXIT(ch, dir)->to_room()) == ESector::kOnlyFlying
-			&& !IS_GOD(ch)
+			&& !ch->IsGod()
 			&& !AFF_FLAGGED(ch, EAffect::kFly)) {
 			if (show_msg) {
 				SendMsgToChar("Туда можно только влететь.\r\n", ch);
@@ -257,7 +257,7 @@ bool IsCorrectDirection(CharData *ch, int dir, bool check_specials, bool show_ms
 			return false;
 		}
 
-		if (ROOM_FLAGGED(EXIT(ch, dir)->to_room(), ERoomFlag::kGodsRoom) && !IS_GRGOD(ch)) {
+		if (ROOM_FLAGGED(EXIT(ch, dir)->to_room(), ERoomFlag::kGodsRoom) && !ch->IsGrGod()) {
 			if (show_msg)
 				SendMsgToChar("Вы не столь Божественны, как вам кажется!\r\n", ch);
 			return false;
@@ -275,7 +275,7 @@ bool IsCorrectDirection(CharData *ch, int dir, bool check_specials, bool show_ms
 				if (show_msg) {
 					act("$N преградил$G вам путь.", false, ch, nullptr, tch, kToChar);
 				}
-				if (IS_GRGOD(ch) || InTestZone(ch)) {
+				if (ch->IsGrGod() || InTestZone(ch)) {
 					act("Но уважительно пропустил$G дальше.", false, ch, nullptr, tch, kToChar);
 					return true;
 				}
@@ -380,7 +380,7 @@ bool PerformSimpleMove(CharData *ch, int dir, int following, CharData *leader, E
 	}
 
 	// Now we know we're allowed to go into the room.
-	if (!IS_IMMORTAL(ch) && !ch->IsNpc())
+	if (!ch->IsImmortal() && !ch->IsNpc())
 		ch->set_move(ch->get_move() - CalcMoveCost(ch, dir));
 
 	i = MUD::Skill(ESkill::kSneak).difficulty;
@@ -761,7 +761,7 @@ void FleeToRoom(CharData *ch, RoomRnum room) {
 		room = ch->get_from_room();
 	}
 
-	if (!ch->IsNpc() && NORENTABLE(ch) && ROOM_FLAGGED(room, ERoomFlag::kArena) && !IS_IMMORTAL(ch)) {
+	if (!ch->IsNpc() && NORENTABLE(ch) && ROOM_FLAGGED(room, ERoomFlag::kArena) && !ch->IsImmortal()) {
 		SendMsgToChar("Вы не можете попасть на арену в состоянии боевых действий!\r\n", ch);
 		room = ch->get_from_room();
 	}

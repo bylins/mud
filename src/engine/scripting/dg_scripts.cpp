@@ -2980,7 +2980,7 @@ void find_replacement(void *go,
 					sprintf(str, "%d", static_cast<int>(mob->GetPosition()));
 				} else {
 					auto pos = std::clamp(static_cast<EPosition>(atoi(subfield)), EPosition::kPerish, --EPosition::kLast);
-					if (!IS_IMMORTAL(mob)) {
+					if (!mob->IsImmortal()) {
 						if (mob->IsOnHorse()) {
 							mob->dismount();
 						}
@@ -2992,7 +2992,7 @@ void find_replacement(void *go,
 
 				if (!*subfield || (pos = atoi(subfield)) <= 0) {
 					sprintf(str, "%d", mob->get_wait());
-				} else if (!IS_IMMORTAL(mob)) {
+				} else if (!mob->IsImmortal()) {
 					char tmp;
 					if (sscanf(subfield, "%d %c", &pos, &tmp) == 2) {
 						if (tmp == 'p') {

@@ -95,7 +95,7 @@ void PerformOverhelm(CharData *ch, CharData *victim, HitData &hit_data) {
 	ch->battle_affects.unset(kEafOverwhelm);
 	hit_data.SetFlag(fight::kIgnoreBlink);
 	const int minimum_weapon_weigth = 19;
-	if (IS_IMMORTAL(ch)) {
+	if (ch->IsImmortal()) {
 		hit_data.dam = CalcOverhelmDmg(ch, victim, hit_data.dam);
 	} else if (ch->IsNpc()) {
 		const bool wielded_with_bow = hit_data.wielded &&
@@ -142,7 +142,7 @@ int CalcOverhelmDmg(CharData *ch, CharData *victim, int dmg) {
 		prob = std::max(prob, percent * 150 / 100 + 1);
 	}
 
-	if (IS_IMMORTAL(victim)) {
+	if (victim->IsImmortal()) {
 		prob = 0;
 	}
 

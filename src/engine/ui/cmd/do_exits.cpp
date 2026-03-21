@@ -26,7 +26,7 @@ void DoExits(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	}
 	for (door = 0; door < EDirection::kMaxDirNum; door++)
 		if (EXIT(ch, door) && EXIT(ch, door)->to_room() != kNowhere && !EXIT_FLAGGED(EXIT(ch, door), EExitFlag::kClosed)) {
-			if (IS_GOD(ch))
+			if (ch->IsGod())
 				sprintf(buf2, "%-6s - [%5d] %s\r\n", dirs_rus[door],
 						GET_ROOM_VNUM(EXIT(ch, door)->to_room()), world[EXIT(ch, door)->to_room()]->name);
 			else {
@@ -65,7 +65,7 @@ void do_blind_exits(CharData *ch) {
 	}
 	for (door = 0; door < EDirection::kMaxDirNum; door++)
 		if (EXIT(ch, door) && EXIT(ch, door)->to_room() != kNowhere && !EXIT_FLAGGED(EXIT(ch, door), EExitFlag::kClosed)) {
-			if (IS_GOD(ch))
+			if (ch->IsGod())
 				sprintf(buf2, "&W%s - [%d] %s ", dirs_rus[door],
 						GET_ROOM_VNUM(EXIT(ch, door)->to_room()), world[EXIT(ch, door)->to_room()]->name);
 			else {

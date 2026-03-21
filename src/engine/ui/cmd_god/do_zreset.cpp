@@ -26,7 +26,7 @@ void DoZreset(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 		SendMsgToChar("Укажите зону.\r\n", ch);
 		return;
 	}
-	if (!IS_IMMORTAL(ch) && GET_OLC_ZONE(ch) != atoi(arg)) {
+	if (!ch->IsImmortal() && GET_OLC_ZONE(ch) != atoi(arg)) {
 		SendMsgToChar("Доступ к данной зоне запрещен!\r\n", ch);
 		return;
 	}

@@ -32,7 +32,7 @@ void DoVstat(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 	}
 
 
-	if (!IS_IMMORTAL(ch) && GET_OLC_ZONE(ch) != first) {
+	if (!ch->IsImmortal() && GET_OLC_ZONE(ch) != first) {
 		SendMsgToChar("Доступ к данной зоне запрещен!\r\n", ch);
 		return;
 	}

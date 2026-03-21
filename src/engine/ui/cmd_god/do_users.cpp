@@ -52,7 +52,7 @@ void do_users(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					strcpy(buf, buf1);
 					break;
 				case 'l':
-					if (!IS_GOD(ch))
+					if (!ch->IsGod())
 						return;
 					playing = 1;
 					half_chop(buf1, arg, buf);
@@ -68,7 +68,7 @@ void do_users(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					half_chop(buf1, host_by_name, buf);
 					break;
 				case 'w':
-					if (!IS_GRGOD(ch))
+					if (!ch->IsGrGod())
 						return;
 					playing = 1;
 					locating = 1;
@@ -250,7 +250,7 @@ void do_users(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 		if (d->character
 			&& d->state == EConState::kPlaying
-			&& !IS_GOD(d->character)) {
+			&& !d->character->IsGod()) {
 			sprintf(idletime, "%-3d", d->character->char_specials.timer *
 				kSecsPerMudHour / kSecsPerRealMin);
 		} else {

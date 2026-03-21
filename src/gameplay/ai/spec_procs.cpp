@@ -855,7 +855,7 @@ int npc_steal(CharData *ch) {
 
 	for (const auto cons : world[ch->in_room]->people) {
 		if (!cons->IsNpc()
-			&& !IS_IMMORTAL(cons)
+			&& !cons->IsImmortal()
 			&& (number(0, GetRealInt(ch)) > 10)) {
 			return (do_npc_steal(ch, cons));
 		}
@@ -1424,7 +1424,7 @@ int bank(CharData *ch, void * /*me*/, int cmd, char *argument) {
 	} else if (CMD_IS("transfer") || CMD_IS("перевести")) {
 		argument = one_argument(argument, arg);
 		amount = atoi(argument);
-		if (IS_GOD(ch) && !IS_IMPL(ch)) {
+		if (ch->IsGod() && !ch->IsImpl()) {
 			SendMsgToChar("Почитить захотелось?\r\n", ch);
 			return (1);
 

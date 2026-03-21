@@ -10,12 +10,12 @@ void DoSpellCapable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	struct TimedFeat timed;
 
-	if (!IS_IMPL(ch) && (ch->IsNpc() || !CanUseFeat(ch, EFeat::kSpellCapabler))) {
+	if (!ch->IsImpl() && (ch->IsNpc() || !CanUseFeat(ch, EFeat::kSpellCapabler))) {
 		SendMsgToChar("Вы не столь могущественны.\r\n", ch);
 		return;
 	}
 
-	if (IsTimedByFeat(ch, EFeat::kSpellCapabler) && !IS_IMPL(ch)) {
+	if (IsTimedByFeat(ch, EFeat::kSpellCapabler) && !ch->IsImpl()) {
 		SendMsgToChar("Невозможно использовать это так часто.\r\n", ch);
 		return;
 	}
@@ -59,7 +59,7 @@ void DoSpellCapable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 	}
 
-	if (!GET_SPELL_MEM(ch, spell_id) && !IS_IMMORTAL(ch)) {
+	if (!GET_SPELL_MEM(ch, spell_id) && !ch->IsImmortal()) {
 		SendMsgToChar("Вы совершенно не помните, как произносится это заклинание...\r\n", ch);
 		return;
 	}
@@ -75,7 +75,7 @@ void DoSpellCapable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			break;
 		}
 	}
-	if (!GET_SPELL_MEM(ch, spell_id) && !IS_IMMORTAL(ch)) {
+	if (!GET_SPELL_MEM(ch, spell_id) && !ch->IsImmortal()) {
 		SendMsgToChar("Вы совершенно не помните, как произносится это заклинание...\r\n", ch);
 		return;
 	}
@@ -89,7 +89,7 @@ void DoSpellCapable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	act("$n принял$u делать какие-то пассы и что-то бормотать в сторону $N3.", false, ch, nullptr, follower, kToRoom);
 
 	GET_SPELL_MEM(ch, spell_id)--;
-	if (!ch->IsNpc() && !IS_IMMORTAL(ch) && ch->IsFlagged(EPrf::kAutomem))
+	if (!ch->IsNpc() && !ch->IsImmortal() && ch->IsFlagged(EPrf::kAutomem))
 		MemQ_remember(ch, spell_id);
 
 	if (!MUD::Spell(spell_id).IsViolent() ||

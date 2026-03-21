@@ -55,14 +55,14 @@ void do_disarm(CharData *ch, CharData *vict) {
 			act("Не получится - $N уже понял$G, что от Вас можно ожидать всякого!",
 				false, ch, nullptr, vict, kToChar);
 		} else if (IsAffectedBySpellWithCasterId(ch, vict, ESpell::kNoInjure) && (vict->HasWeapon())) {
-			if (IS_IMPL(ch) || !ch->GetEnemy()) {
+			if (ch->IsImpl() || !ch->GetEnemy()) {
 				go_disarm(ch, vict);
 			} else if (IsHaveNoExtraAttack(ch)) {
 				act("Хорошо. Вы попытаетесь разоружить $N3.", false, ch, nullptr, vict, kToChar);
 				ch->SetExtraAttack(kExtraAttackDisarm, vict);
 			}
 		} else {
-			if (IS_IMPL(ch) || !ch->GetEnemy()) {
+			if (ch->IsImpl() || !ch->GetEnemy()) {
 				go_injure(ch, vict);
 			} else if (IsHaveNoExtraAttack(ch)) {
 				act("Хорошо. Вы попытаетесь ранить $N3.", false, ch, nullptr, vict, kToChar);
@@ -74,7 +74,7 @@ void do_disarm(CharData *ch, CharData *vict) {
 			SendMsgToChar("Вы не сможете обезоружить безоружного!\r\n", ch);
 			return;
 		} else {
-			if (IS_IMPL(ch) || !ch->GetEnemy()) {
+			if (ch->IsImpl() || !ch->GetEnemy()) {
 				go_disarm(ch, vict);
 			} else if (IsHaveNoExtraAttack(ch)) {
 				act("Хорошо. Вы попытаетесь разоружить $N3.", false, ch, nullptr, vict, kToChar);
@@ -184,9 +184,9 @@ void go_disarm(CharData *ch, CharData *vict) {
 	bool success = result.success;
 	int lag;
 
-	if (IS_IMMORTAL(ch) || GET_GOD_FLAG(vict, EGf::kGodscurse) || GET_GOD_FLAG(ch, EGf::kGodsLike))
+	if (ch->IsImmortal() || GET_GOD_FLAG(vict, EGf::kGodscurse) || GET_GOD_FLAG(ch, EGf::kGodsLike))
 		success = true;
-	if (IS_IMMORTAL(vict) || GET_GOD_FLAG(ch, EGf::kGodscurse) || GET_GOD_FLAG(vict, EGf::kGodsLike)
+	if (vict->IsImmortal() || GET_GOD_FLAG(ch, EGf::kGodscurse) || GET_GOD_FLAG(vict, EGf::kGodsLike)
 		|| CanUseFeat(vict, EFeat::kStrongClutch))
 		success = false;
 

@@ -1651,7 +1651,7 @@ std::string CharData::GetTitleAndNameWithoutClan() const {
 }
 
 std::string CharData::GetClanTitleAddition() {
-	if (CLAN(this) && !IS_IMMORTAL(this)) {
+	if (CLAN(this) && !this->IsImmortal()) {
 		return fmt::format("({})", GET_CLAN_STATUS(this));
 	}
 
@@ -2038,7 +2038,7 @@ void CharData::send_to_TC(bool to_impl, bool to_tester, bool to_coder, const cha
 		return;
 
 	if (to_impl &&
-		(IS_IMPL(this) || (IS_CHARMICE(this) && IS_IMPL(this->get_master()))))
+		(this->IsImpl() || (IS_CHARMICE(this) && this->get_master()->IsImpl())))
 		needSend = true;
 	if (!needSend && to_coder &&
 		(this->IsFlagged(EPrf::kCoderinfo) || (IS_CHARMICE(this) && (this->get_master()->IsFlagged(EPrf::kCoderinfo)))))
@@ -2198,7 +2198,7 @@ player_special_data_saved::player_special_data_saved() :
 player_special_data::shared_ptr player_special_data::s_for_mobiles = std::make_shared<player_special_data>();
 
 int ClampBaseStat(const CharData *ch, const EBaseStat stat_id, const int stat_value) {
-	if (ch->IsNpc() || IS_GOD(ch))
+	if (ch->IsNpc() || ch->IsGod())
 		return std::clamp(stat_value, kLeastBaseStat, kMobBaseStatCap);
 	else
 		return std::clamp(stat_value, kLeastBaseStat, MUD::Class(ch->GetClass()).GetBaseStatCap(stat_id));
@@ -2267,7 +2267,7 @@ int GetRealLevel(const CharData *ch) {
 		return std::clamp(ch->GetLevel() + ch->get_level_add(), 0, kMaxMobLevel);
 	}
 
-	if (IS_IMMORTAL(ch)) {
+	if (ch->IsImmortal()) {
 		return ch->GetLevel();
 	}
 

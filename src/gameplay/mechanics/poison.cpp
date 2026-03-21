@@ -480,7 +480,7 @@ int ProcessPoisonDmg(CharData *ch, const Affect<EApply>::shared_ptr &af) {
 }
 
 void TryDrinkPoison(CharData *ch, ObjData *jar, int amount) {
-	if ((GET_OBJ_VAL(jar, 3) == 1) && !IS_GOD(ch)) {
+	if ((GET_OBJ_VAL(jar, 3) == 1) && !ch->IsGod()) {
 		SendMsgToChar("Что-то вкус какой-то странный!\r\n", ch);
 		act("$n поперхнул$u и закашлял$g.", true, ch, 0, 0, kToRoom);
 		Affect<EApply> af;

@@ -63,7 +63,7 @@ void DoCities(CharData *ch, char *, int, int) {
 	SendMsgToChar("Города на Руси:\r\n", ch);
 	for (unsigned int i = 0; i < cities_roster.size(); i++) {
 		sprintf(buf, "%3d.", i + 1);
-		if (IS_IMMORTAL(ch)) {
+		if (ch->IsImmortal()) {
 			sprintf(buf1, " [VNUM: %d]", cities_roster[i].rent_vnum);
 			strcat(buf, buf1);
 		}

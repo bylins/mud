@@ -272,7 +272,7 @@ abilities::EAbility FixNameAndFindAbilityId(const std::string &name) {
 }
 
 bool MayCastInNomagic(CharData *caster, ESpell spell_id) {
-	if (IS_GRGOD(caster) || MUD::Spell(spell_id).IsFlagged(kMagWarcry)) {
+	if (caster->IsGrGod() || MUD::Spell(spell_id).IsFlagged(kMagWarcry)) {
 		return true;
 	}
 	if (caster->IsNpc() &&
@@ -284,7 +284,7 @@ bool MayCastInNomagic(CharData *caster, ESpell spell_id) {
 bool MayCastHere(CharData *caster, CharData *victim, ESpell spell_id) {
 	int ignore;
 
-	if (IS_GRGOD(caster) || !ROOM_FLAGGED(caster->in_room, ERoomFlag::kPeaceful)) {
+	if (caster->IsGrGod() || !ROOM_FLAGGED(caster->in_room, ERoomFlag::kPeaceful)) {
 		return true;
 	}
 
@@ -313,7 +313,7 @@ bool MayCastHere(CharData *caster, CharData *victim, ESpell spell_id) {
 					!MUD::Spell(spell_id).IsFlagged(kMagAreas);
 
 	for (const auto ch_vict : world[caster->in_room]->people) {
-		if (IS_IMMORTAL(ch_vict))
+		if (ch_vict->IsImmortal())
 			continue;
 		if (!HERE(ch_vict))
 			continue;
@@ -613,7 +613,7 @@ int CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, ESpel
 		return 0;
 	}
 
-	if (tch != ch && !IS_IMMORTAL(ch) && MUD::Spell(spell_id).AllowTarget(kTarSelfOnly)) {
+	if (tch != ch && !ch->IsImmortal() && MUD::Spell(spell_id).AllowTarget(kTarSelfOnly)) {
 		SendMsgToChar("Вы можете колдовать это только на себя!\r\n", ch);
 		return 0;
 	}
@@ -673,7 +673,7 @@ int CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, ESpel
 		GET_SPELL_MEM(ch, spell_subst) = 0;
 	}
 
-	if (!ch->IsNpc() && !IS_IMMORTAL(ch) && ch->IsFlagged(EPrf::kAutomem)) {
+	if (!ch->IsNpc() && !ch->IsImmortal() && ch->IsFlagged(EPrf::kAutomem)) {
 		MemQ_remember(ch, spell_subst);
 	}
 
@@ -687,7 +687,7 @@ int CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, ESpel
 }
 
 int CalcCastSuccess(CharData *ch, CharData *victim, ESaving saving, ESpell spell_id) {
-	if (IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, EGf::kGodsLike)) {
+	if (ch->IsImmortal() || GET_GOD_FLAG(ch, EGf::kGodsLike)) {
 		return true;
 	}
 

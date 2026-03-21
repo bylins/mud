@@ -24,7 +24,7 @@ void do_pray_gods(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (IS_IMMORTAL(ch)) {
+	if (ch->IsImmortal()) {
 		// Выделяем чара кому отвечают иммы
 		argument = one_argument(argument, arg1);
 		skip_spaces(&argument);
@@ -49,7 +49,7 @@ void do_pray_gods(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	else {
 		if (ch->IsNpc())
 			return;
-		if (IS_IMMORTAL(ch)) {
+		if (ch->IsImmortal()) {
 			sprintf(buf, "&RВы одарили СЛОВОМ %s : '%s'&n\r\n", GET_PAD(victim, 3), argument);
 		} else {
 			sprintf(buf, "&RВы воззвали к Богам с сообщением : '%s'&n\r\n", argument);
@@ -59,7 +59,7 @@ void do_pray_gods(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		ch->remember_add(buf, Remember::PRAY_PERSONAL);
 	}
 
-	if (IS_IMMORTAL(ch)) {
+	if (ch->IsImmortal()) {
 		sprintf(buf, "&R%s ответил%s вам : '%s'&n\r\n", GET_NAME(ch), GET_CH_SUF_1(ch), argument);
 		SendMsgToChar(buf, victim);
 		victim->remember_add(buf, Remember::PRAY_PERSONAL);
@@ -81,7 +81,7 @@ void do_pray_gods(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	for (i = descriptor_list; i; i = i->next) {
 		if  (i->state == EConState::kPlaying) {
-			if ((IS_IMMORTAL(i->character.get())
+			if ((i->character.get(->IsImmortal())
 				|| (GET_GOD_FLAG(i->character.get(), EGf::kDemigod)
 					&& (GetRealLevel(ch) < 6)))
 				&& (i->character.get() != ch)) {

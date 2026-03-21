@@ -10,7 +10,7 @@ void DoFirstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Вам следует этому научиться.\r\n", ch);
 		return;
 	}
-	if (!IS_GOD(ch) && IsTimedBySkill(ch, ESkill::kFirstAid)) {
+	if (!ch->IsGod() && IsTimedBySkill(ch, ESkill::kFirstAid)) {
 		SendMsgToChar("Так много лечить нельзя - больных не останется.\r\n", ch);
 		return;
 	}
@@ -38,7 +38,7 @@ void DoFirstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 	int percent = number(1, MUD::Skills()[ESkill::kFirstAid].difficulty);
 	int prob = CalcCurrentSkill(ch, ESkill::kFirstAid, vict);
-	if (IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, EGf::kGodsLike) || GET_GOD_FLAG(vict, EGf::kGodsLike)) {
+	if (ch->IsImmortal() || GET_GOD_FLAG(ch, EGf::kGodsLike) || GET_GOD_FLAG(vict, EGf::kGodsLike)) {
 		percent = 0;
 	}
 	if (GET_GOD_FLAG(ch, EGf::kGodscurse) || GET_GOD_FLAG(vict, EGf::kGodscurse)) {
@@ -75,7 +75,7 @@ void DoFirstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		act("У вас не хватило умения вылечить $N3.", false, ch, nullptr, vict, kToChar);
 	} else {
 		timed.skill = ESkill::kFirstAid;
-		int time = IS_IMMORTAL(ch) ? 1 : IS_PALADINE(ch) ? 4 : IS_SORCERER(ch) ? 2 : 6;
+		int time = ch->IsImmortal() ? 1 : IS_PALADINE(ch) ? 4 : IS_SORCERER(ch) ? 2 : 6;
 		if (CanUseFeat(ch, EFeat::kPhysicians))
 			time /=2;
 		timed.time = time;
