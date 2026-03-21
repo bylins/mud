@@ -89,7 +89,7 @@ void DoMighthit(CharData *ch, CharData *victim) {
 			SendMsgToChar("Невозможно. Вы сосредоточены на захвате противника.\r\n", ch);
 		return;
 	}
-	if (!ch->IsNpc() && !IS_IMMORTAL(ch)
+	if (!ch->IsNpc() && !ch->IsImmortal()
 		&& (GET_EQ(ch, EEquipPos::kBoths)
 			|| GET_EQ(ch, EEquipPos::kWield)
 			|| GET_EQ(ch, EEquipPos::kHold)
@@ -125,7 +125,7 @@ void PerformMighthit(CharData *ch, CharData *victim, HitData &hit_data) {
 		percent = number(1, 25);
 	}
 
-	if (IS_IMMORTAL(victim)) {
+	if (victim->IsImmortal()) {
 		prob = 0;
 	}
 

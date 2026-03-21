@@ -22,7 +22,7 @@ void DoZone(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	if (zone_table[world[ch->in_room]->zone_rn].copy_from_zone > 0) {
 		SendMsgToChar(ch, "Зазеркальный мир.\r\n");
 	}
-	if ((IS_IMMORTAL(ch) || ch->IsFlagged(EPrf::kCoderinfo))
+	if ((ch->IsImmortal() || ch->IsFlagged(EPrf::kCoderinfo))
 		&& !zone_table[world[ch->in_room]->zone_rn].comment.empty()) {
 		SendMsgToChar(ch, "Комментарий: %s.\r\n", zone_table[world[ch->in_room]->zone_rn].comment.c_str());
 	}

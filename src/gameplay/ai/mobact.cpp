@@ -892,7 +892,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 	  int door, max, was_in = -1, activity_lev, i, ch_activity;
 	  auto std_lev = activity_level % kPulseMobile;
 
-	  if (ch->purged()  || !IS_MOB(ch) || !ch->in_used_zone()) {
+	  if (ch->purged()  || !ch->IsNpc() || !ch->in_used_zone()) {
 		continue;
 	  }
 	  UpdateAffectOnPulse(ch.get(), missed_pulses);
@@ -925,13 +925,13 @@ void mobile_activity(int activity_level, int missed_pulses) {
 
 	  // Examine call for special procedure
 	  if (ch->IsFlagged(EMobFlag::kSpec) && !no_specials) {
-		  if (mob_index[GET_MOB_RNUM(ch)].func == nullptr) {
+		  if (mob_index[ch->get_rnum()].func == nullptr) {
 			  log("SYSERR: %s (#%d): Attempting to call non-existing mob function.",
 				  GET_NAME(ch), GET_MOB_VNUM(ch));
 			  ch->UnsetFlag(EMobFlag::kSpec);
 		  } else {
 			  buf2[0] = '\0';
-			  if ((mob_index[GET_MOB_RNUM(ch)].func)(ch.get(), ch.get(), 0, buf2)) {
+			  if ((mob_index[ch->get_rnum()].func)(ch.get(), ch.get(), 0, buf2)) {
 				  continue;    // go to next char
 			  }
 		  }

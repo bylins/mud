@@ -107,7 +107,7 @@ int CharData::get_souls() {
 }
 
 bool CharData::in_used_zone() const {
-	if (IS_MOB(this)) {
+	if (this->IsNpc()) {
 		return 0 != zone_table[world[in_room]->zone_rn].used;
 	}
 	return false;
@@ -415,12 +415,12 @@ void CharData::purge() {
 		}
 	}
 
-	if (!this->IsNpc() || (this->IsNpc() && GET_MOB_RNUM(this) == -1)) {
+	if (!this->IsNpc() || (this->IsNpc() && this->get_rnum() == -1)) {
 		if (this->IsNpc() && this->mob_specials.Questor)
 			free(this->mob_specials.Questor);
 		pk_free_list(this);
 		this->summon_helpers.clear();
-	} else if ((i = GET_MOB_RNUM(this))
+	} else if ((i = this->get_rnum())
 		>= 0) {    // otherwise, free strings only if the string is not pointing at proto
 
 		if (this->mob_specials.Questor && this->mob_specials.Questor != mob_proto[i].mob_specials.Questor)
@@ -1651,7 +1651,7 @@ std::string CharData::GetTitleAndNameWithoutClan() const {
 }
 
 std::string CharData::GetClanTitleAddition() {
-	if (CLAN(this) && !IS_IMMORTAL(this)) {
+	if (CLAN(this) && !this->IsImmortal()) {
 		return fmt::format("({})", GET_CLAN_STATUS(this));
 	}
 
@@ -1855,16 +1855,16 @@ void CharData::restore_mob() {
 	update_pos(this);
 
 	for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
-		GET_SPELL_MEM(this, spell_id) = GET_SPELL_MEM(&mob_proto[GET_MOB_RNUM(this)], spell_id);
+		GET_SPELL_MEM(this, spell_id) = GET_SPELL_MEM(&mob_proto[this->get_rnum()], spell_id);
 	}
-	this->caster_level = (&mob_proto[GET_MOB_RNUM(this)])->caster_level;
+	this->caster_level = (&mob_proto[this->get_rnum()])->caster_level;
 }
 //
 void CharData::restore_npc() {
 	if(!this->IsNpc()) return;
 	
 	attackers_.clear();
-	auto proto = (&mob_proto[GET_MOB_RNUM(this)]);
+	auto proto = (&mob_proto[this->get_rnum()]);
 	// ресторим хпшки / мувы
 		
 	this->set_hit(1 + proto->get_hit());
@@ -2038,7 +2038,7 @@ void CharData::send_to_TC(bool to_impl, bool to_tester, bool to_coder, const cha
 		return;
 
 	if (to_impl &&
-		(IS_IMPL(this) || (IS_CHARMICE(this) && IS_IMPL(this->get_master()))))
+		(this->IsImpl() || (IS_CHARMICE(this) && this->get_master()->IsImpl())))
 		needSend = true;
 	if (!needSend && to_coder &&
 		(this->IsFlagged(EPrf::kCoderinfo) || (IS_CHARMICE(this) && (this->get_master()->IsFlagged(EPrf::kCoderinfo)))))
@@ -2198,7 +2198,7 @@ player_special_data_saved::player_special_data_saved() :
 player_special_data::shared_ptr player_special_data::s_for_mobiles = std::make_shared<player_special_data>();
 
 int ClampBaseStat(const CharData *ch, const EBaseStat stat_id, const int stat_value) {
-	if (ch->IsNpc() || IS_GOD(ch))
+	if (ch->IsNpc() || ch->IsGod())
 		return std::clamp(stat_value, kLeastBaseStat, kMobBaseStatCap);
 	else
 		return std::clamp(stat_value, kLeastBaseStat, MUD::Class(ch->GetClass()).GetBaseStatCap(stat_id));
@@ -2267,7 +2267,7 @@ int GetRealLevel(const CharData *ch) {
 		return std::clamp(ch->GetLevel() + ch->get_level_add(), 0, kMaxMobLevel);
 	}
 
-	if (IS_IMMORTAL(ch)) {
+	if (ch->IsImmortal()) {
 		return ch->GetLevel();
 	}
 

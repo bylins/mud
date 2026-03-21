@@ -231,7 +231,7 @@ void DoThrow(CharData *ch, CharData *victim) {
 		return;
 	}
 
-	if (IS_IMPL(ch) || !ch->GetEnemy()) {
+	if (ch->IsImpl() || !ch->GetEnemy()) {
 		GoThrow(ch, victim);
 	} else {
 		if (IsHaveNoExtraAttack(ch)) {

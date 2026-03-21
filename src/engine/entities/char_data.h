@@ -613,6 +613,10 @@ class CharData : public ProtectedCharData {
 	bool IsNpc() const { return is_npc_; }
 	void SetNpcAttribute(bool _) { is_npc_ = _; }
 	bool IsPlayer() const { return !IsNpc(); }
+	bool IsImmortal() const { return !IsNpc() && GetLevel() >= kLvlImmortal; }
+	bool IsGod() const { return !IsNpc() && GetLevel() >= kLvlGod; }
+	bool IsGrGod() const { return !IsNpc() && GetLevel() >= kLvlGreatGod; }
+	bool IsImpl() const { return !IsNpc() && GetLevel() >= kLvlImplementator; }
 	bool have_mind() const;
 	bool HasWeapon();
 

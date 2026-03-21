@@ -31,7 +31,7 @@ void TopPlayer::Refresh(CharData *short_ch, bool reboot) {
 	if (short_ch->IsNpc()
 		|| short_ch->IsFlagged(EPlrFlag::kFrozen)
 		|| short_ch->IsFlagged(EPlrFlag::kDeleted)
-		|| IS_IMMORTAL(short_ch)) {
+		|| short_ch->IsImmortal()) {
 		return;
 	}
 	if (!reboot) {

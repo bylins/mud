@@ -139,7 +139,7 @@ void do_eat(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		return;
 	}
 
-	if (!IS_GOD(ch)) {
+	if (!ch->IsGod()) {
 		if (food->get_type() == EObjType::kMagicIngredient) //Сообщение на случай попытки проглотить ингры
 		{
 			SendMsgToChar("Не можешь приготовить - покупай готовое!\r\n", ch);
@@ -192,7 +192,7 @@ void do_eat(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 
 	}
 
-	if ((GET_OBJ_VAL(food, 3) == 1) && !IS_IMMORTAL(ch))    // The shit was poisoned !
+	if ((GET_OBJ_VAL(food, 3) == 1) && !ch->IsImmortal())    // The shit was poisoned !
 	{
 		SendMsgToChar("Однако, какой странный вкус!\r\n", ch);
 		act("$n закашлял$u и начал$g отплевываться.",

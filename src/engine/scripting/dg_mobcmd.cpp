@@ -1385,7 +1385,7 @@ void do_mdamage(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigg
 			return;
 		}
 
-		if (IS_IMMORTAL(victim) && dam > 0) {
+		if (victim->IsImmortal() && dam > 0) {
 			SendMsgToChar("Будучи очень крутым, вы сделали шаг в сторону и не получили повреждений...\r\n", victim);
 			return;
 		}

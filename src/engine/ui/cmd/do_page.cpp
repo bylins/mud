@@ -25,7 +25,7 @@ void do_page(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		buffer << "\007\007*$n*" << buf2;
 //		sprintf(buf, "\007\007*$n* %s", buf2);
 		if (!str_cmp(arg, "all") || !str_cmp(arg, "все")) {
-			if (IS_GRGOD(ch)) {
+			if (ch->IsGrGod()) {
 				for (d = descriptor_list; d; d = d->next) {
 					if (d->state == EConState::kPlaying && d->character) {
 						act(buf, false, ch, nullptr, d->character.get(), kToVict);

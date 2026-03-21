@@ -127,7 +127,7 @@ long CalcHirePrice(CharData *ch, CharData *victim) {
 	hirePoints = hirePoints * 5 * GetRealLevel(ch);
 
 	int min_price = MAX((m_dr / 300 * GetRealLevel(victim)), (GetRealLevel(victim) * 5));
-	min_price = MAX(min_price, mob_proto[GET_MOB_RNUM(victim)].get_gold());
+	min_price = MAX(min_price, mob_proto[victim->get_rnum()].get_gold());
 	long finalPrice = MAX(min_price, (int) ceil(price - hirePoints));
 
 	ch->send_to_TC(true, true, true,
@@ -170,7 +170,7 @@ int GetReformedCharmiceHp(CharData *ch, CharData *victim, ESpell spell_id) {
 
 void DoFindhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->IsNpc()
-		|| (!IS_IMMORTAL(ch) && !CanUseFeat(ch, EFeat::kEmployer))) {
+		|| (!ch->IsImmortal() && !CanUseFeat(ch, EFeat::kEmployer))) {
 		SendMsgToChar("Вам недоступно это!\r\n", ch);
 		return;
 	}
@@ -299,7 +299,7 @@ void DoFindhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 		}
 		RemoveAffectFromChar(helpee, ESpell::kCharm);
-		if (!IS_IMMORTAL(ch)) {
+		if (!ch->IsImmortal()) {
 			if (isname(isbank, "банк bank")) {
 				ch->remove_bank(cost);
 				helpee->mob_specials.hire_price = -hire_price;
@@ -359,7 +359,7 @@ void DoFindhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 void DoFreehelpee(CharData *ch, char * /* argument*/, int/* cmd*/, int/* subcmd*/) {
 	if (ch->IsNpc()
-		|| (!IS_IMMORTAL(ch) && !CanUseFeat(ch, EFeat::kEmployer))) {
+		|| (!ch->IsImmortal() && !CanUseFeat(ch, EFeat::kEmployer))) {
 		SendMsgToChar("Вам недоступно это!\r\n", ch);
 		return;
 	}
@@ -388,7 +388,7 @@ void DoFreehelpee(CharData *ch, char * /* argument*/, int/* cmd*/, int/* subcmd*
 		return;
 	}
 
-	if (!IS_IMMORTAL(ch)) {
+	if (!ch->IsImmortal()) {
 		for (const auto &aff : hired->affected) {
 			if (aff->type == ESpell::kCharm) {
 				long cost = MAX(0, (int) ((aff->duration - 1) / 2) * (int) abs(hired->mob_specials.hire_price));

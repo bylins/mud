@@ -23,7 +23,7 @@ bool PrintObjectLocation(int num, const ObjData *obj, CharData *ch);
 void DoWhere(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	one_argument(argument, arg);
 
-	if (IS_GRGOD(ch) || ch->IsFlagged(EPrf::kCoderinfo))
+	if (ch->IsGrGod() || ch->IsFlagged(EPrf::kCoderinfo))
 		PerformImmortWhere(ch, arg);
 	else
 		PerformMortalWhere(ch, arg);
@@ -161,7 +161,7 @@ bool PrintObjectLocation(int num, const ObjData *obj, CharData *ch) {
 	std::stringstream ss;
 	if (num > 0) {
 		ss << fmt::format("{:>2}. ", num);
-		if (IS_GRGOD(ch)) {
+		if (ch->IsGrGod()) {
 			ss <<  fmt::format("[{:>7}] {:<25} - ", GET_OBJ_VNUM(obj), obj->get_short_description().c_str());
 		} else {
 			ss << fmt::format("{:<34} - ", obj->get_short_description().c_str());

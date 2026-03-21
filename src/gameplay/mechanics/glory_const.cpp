@@ -585,7 +585,7 @@ const char *GLORY_CONST_FORMAT =
 
 void do_spend_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	GloryListType::iterator it = glory_list.find(ch->get_uid());
-	if (glory_list.end() == it || IS_IMMORTAL(ch)) {
+	if (glory_list.end() == it || ch->IsImmortal()) {
 		SendMsgToChar("Вам это не нужно...\r\n", ch);
 		return;
 	}
@@ -1098,7 +1098,7 @@ void PrintGloryChart(CharData *ch) {
 	std::stringstream hide;
 
 	bool print_hide = false;
-	if (IS_IMMORTAL(ch)) {
+	if (ch->IsImmortal()) {
 		print_hide = true;
 		hide << "\r\nПерсонажи, исключенные из списка: ";
 	}

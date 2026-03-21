@@ -561,7 +561,7 @@ void identify(CharData *ch, const ObjData *obj) {
 	if (amount > 0) {
 		// есть какие-то заклы
 		if (obj->GetPotionValueKey(ObjVal::EValueKey::POTION_PROTO_VNUM) >= 0) {
-			if (IS_IMMORTAL(ch)) {
+			if (ch->IsImmortal()) {
 				snprintf(buf_, sizeof(buf_), "Содержит %d %s %s (VNUM: %d).\r\n",
 						 amount,
 						 GetDeclensionInNumber(amount, EWhat::kGulp),

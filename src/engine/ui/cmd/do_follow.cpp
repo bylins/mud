@@ -106,7 +106,7 @@ bool stop_follower(CharData *ch, int mode) {
 	}
 	
 	 
-	if (ch->IsNpc() && (i = GET_MOB_RNUM(ch)) >= 0) {
+	if (ch->IsNpc() && (i = ch->get_rnum()) >= 0) {
 		ch->CopyFlagsFrom(mob_proto + i);
 	}
 

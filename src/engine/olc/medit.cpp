@@ -222,7 +222,7 @@ void medit_mobile_free(CharData *mob)
 		return;
 	}
 
-	i = GET_MOB_RNUM(mob);    // задается в функции medit_setup
+	i = mob->get_rnum();    // задается в функции medit_setup
 
 	if (i == -1 || mob == &mob_proto[i]) {
 		// Нет прототипа или сам прототип, удалять все подряд
@@ -334,7 +334,7 @@ void medit_save_internally(DescriptorData *d) {
 	DescriptorData *dsc;
 
 	//  rmob_num = GetMobRnum(OLC_NUM(d));
-	rmob_num = GET_MOB_RNUM(OLC_MOB(d));
+	rmob_num = OLC_MOB(d->get_rnum());
 	//	set_test_data(OLC_MOB(d));
 
 	if (rmob_num >= 0) {
@@ -362,7 +362,7 @@ void medit_save_internally(DescriptorData *d) {
 
 		// В живых мобах необходимо обновить строки, иначе будут крэши
 		for (const auto &live_mob : character_list) {
-			if (IS_MOB(live_mob) && GET_MOB_RNUM(live_mob) == rmob_num) {
+			if (live_mob->IsNpc() && live_mob->get_rnum() == rmob_num) {
 				live_mob->SetCharAliases((mob_proto + rmob_num)->GetCharAliases().c_str());
 				live_mob->set_npc_name((mob_proto + rmob_num)->get_npc_name().c_str());
 				// Только строки. Остальное после ресета/ребута
@@ -453,7 +453,7 @@ void medit_save_internally(DescriptorData *d) {
 		// new_mob_num - индекс, куда вставлен новый моб //
 		// Для всех существующих мобов с RNUM>=new_mob_num нужно увеличить RNUM //
 		for (const auto &live_mob : character_list) {
-			if (GET_MOB_RNUM(live_mob) >= new_mob_num) {
+			if (live_mob->get_rnum() >= new_mob_num) {
 				live_mob->set_rnum(1 + live_mob->get_rnum());
 			}
 		}
@@ -478,7 +478,7 @@ void medit_save_internally(DescriptorData *d) {
 		// * Update keepers in shops being edited and other mobs being edited.
 		for (dsc = descriptor_list; dsc; dsc = dsc->next) {
 			if (dsc->state == EConState::kMedit) {
-				if (GET_MOB_RNUM(OLC_MOB(dsc)) >= new_mob_num) {
+				if (OLC_MOB(dsc->get_rnum()) >= new_mob_num) {
 					OLC_MOB(dsc)->set_rnum(1 + OLC_MOB(dsc)->get_rnum());
 				}
 			}
@@ -2264,7 +2264,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 				return;
 			}
 
-			auto rnum_old = GET_MOB_RNUM(OLC_MOB(d));
+			auto rnum_old = OLC_MOB(d->get_rnum());
 			CopyMobilePrototypeForMedit(OLC_MOB(d), &mob_proto[rnum], false);
 			OLC_MOB(d)->set_rnum(rnum_old);
 
@@ -2279,7 +2279,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 				return;
 			}
 
-			auto rnum_old = GET_MOB_RNUM(OLC_MOB(d));
+			auto rnum_old = OLC_MOB(d->get_rnum());
 			auto proto_script_old = OLC_MOB(d)->proto_script;
 			CopyMobilePrototypeForMedit(OLC_MOB(d), &mob_proto[rnum], false);
 			OLC_MOB(d)->set_rnum(rnum_old);
@@ -2296,7 +2296,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 				return;
 			}
 
-			auto rnum_old = GET_MOB_RNUM(OLC_MOB(d));
+			auto rnum_old = OLC_MOB(d->get_rnum());
 			auto proto_script_old = OLC_MOB(d)->proto_script;
 			CopyMobilePrototypeForMedit(OLC_MOB(d), &mob_proto[rnum], true);
 			OLC_MOB(d)->set_rnum(rnum_old);

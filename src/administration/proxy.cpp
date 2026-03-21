@@ -94,7 +94,7 @@ int CountPlayersFromIp(DescriptorData *d) {
 	for (auto *i = descriptor_list; i; i = i->next) {
 		if (i != d
 			&& i->character
-			&& !IS_IMMORTAL(i->character)
+			&& !i->character->IsImmortal()
 			&& i->ip == d->ip
 			&& (i->state == EConState::kPlaying || i->state == EConState::kMenu)) {
 			count++;

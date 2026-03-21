@@ -1167,7 +1167,7 @@ int CalcCircleSlotsAmount(CharData *ch, int circle) {
 		return -1;
 	}
 
-	if (IS_IMMORTAL(ch)) {
+	if (ch->IsImmortal()) {
 		return SPELL_SLOTS_FOR_IMMORTAL;
 	}
 

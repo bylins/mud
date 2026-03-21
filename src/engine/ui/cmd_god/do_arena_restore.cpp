@@ -26,7 +26,7 @@ void DoArenaRestore(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		} else {
 			vict->mem_queue.stored = vict->mem_queue.total;
 		}
-		if (IS_GRGOD(ch) && IS_IMMORTAL(vict)) {
+		if (ch->IsGrGod() && vict->IsImmortal()) {
 			vict->set_str(25);
 			vict->set_int(25);
 			vict->set_wis(25);

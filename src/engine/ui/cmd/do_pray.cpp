@@ -21,7 +21,7 @@ void do_pray(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		return;
 	}
 
-	if (!IS_IMMORTAL(ch)
+	if (!ch->IsImmortal()
 		&& ((subcmd == SCMD_DONATE
 			&& GET_RELIGION(ch) != kReligionPoly)
 			|| (subcmd == SCMD_PRAY
@@ -91,7 +91,7 @@ void do_pray(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	} else
 		return;
 
-	if (!IS_IMMORTAL(ch) && (IsTimedBySkill(ch, ESkill::kReligion)
+	if (!ch->IsImmortal() && (IsTimedBySkill(ch, ESkill::kReligion)
 		|| IsAffectedBySpell(ch, ESpell::kReligion))) {
 		SendMsgToChar("Вы не можете так часто взывать к Богам.\r\n", ch);
 		return;

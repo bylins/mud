@@ -117,7 +117,7 @@ int apply_armour(CharData *ch, int eq_pos) {
 // Была ошибка, у нубов реген хитов был всегда 50, хотя с 26 по 30, должен быть 60.
 // Теперь аффект регенерация новичка держится 3 реморта, с каждыи ремортом все слабее и слабее
 void apply_natural_affects(CharData *ch) {
-	if (GetRealRemort(ch) <= 3 && !IS_IMMORTAL(ch)) {
+	if (GetRealRemort(ch) <= 3 && !ch->IsImmortal()) {
 		affect_modify(ch, EApply::kHpRegen, 60 - (GetRealRemort(ch) * 10), EAffect::kNoobRegen, true);
 		affect_modify(ch, EApply::kMoveRegen, 100, EAffect::kNoobRegen, true);
 		affect_modify(ch, EApply::kManaRegen, 100 - (GetRealRemort(ch) * 20), EAffect::kNoobRegen, true);
@@ -673,7 +673,7 @@ void affect_total(CharData *ch) {
 	{
 		saved = ch->char_specials.saved.affected_by;
 		if (ch->IsNpc()) {
-			ch->char_specials.saved.affected_by = mob_proto[GET_MOB_RNUM(ch)].char_specials.saved.affected_by;
+			ch->char_specials.saved.affected_by = mob_proto[ch->get_rnum()].char_specials.saved.affected_by;
 		} else {
 			ch->char_specials.saved.affected_by = clear_flags;
 		}
@@ -701,7 +701,7 @@ void affect_total(CharData *ch) {
 //			GET_REAL_MAX_HIT(ch), add_hp_per_level, GET_HIT_ADD(ch), ch->get_start_stat(G_CON), GetRealLevel(ch));
 	}
 	if (ch->IsNpc()) {
-		(ch)->add_abils = (&mob_proto[GET_MOB_RNUM(ch)])->add_abils;
+		(ch)->add_abils = (&mob_proto[ch->get_rnum()])->add_abils;
 	}
 	// move object modifiers
 	for (int i = EEquipPos::kFirstEquipPos; i < EEquipPos::kNumEquipPos; i++) {
@@ -765,7 +765,7 @@ void affect_total(CharData *ch) {
 				ch->set_hit_add(ch->get_hit_add() - (i - 1));
 			}
 		}
-		if (!IS_IMMORTAL(ch) && ch->IsOnHorse()) {
+		if (!ch->IsImmortal() && ch->IsOnHorse()) {
 			AFF_FLAGS(ch).unset(EAffect::kHide);
 			AFF_FLAGS(ch).unset(EAffect::kSneak);
 			AFF_FLAGS(ch).unset(EAffect::kDisguise);
@@ -774,7 +774,7 @@ void affect_total(CharData *ch) {
 	}
 
 	// correctize all weapon
-	if (!IS_IMMORTAL(ch)) {
+	if (!ch->IsImmortal()) {
 		if ((obj = GET_EQ(ch, EEquipPos::kBoths)) && !CanBeTakenInBothHands(ch, obj)) {
 			if (!ch->IsNpc()) {
 				act("Вам слишком тяжело держать $o3 в обоих руках!", false, ch, obj, nullptr, kToChar);

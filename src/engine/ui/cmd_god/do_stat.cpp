@@ -127,12 +127,12 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 			k->get_uid());
 	SendMsgToChar(strcat(buf, buf2), ch);
 	SendMsgToChar(ch, " ЛАГ: [%d]\r\n", k->get_wait());
-	if (IS_MOB(k)) {
+	if (k->IsNpc()) {
 		sprintf(buf,
 				"Синонимы: &S%s&s, VNum: [%5d], RNum: [%5d]\r\n",
 				k->GetCharAliases().c_str(),
 				GET_MOB_VNUM(k),
-				GET_MOB_RNUM(k));
+				k->get_rnum());
 		SendMsgToChar(buf, ch);
 	}
 
@@ -298,8 +298,8 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 		strcat(buf, "\r\n");
 		SendMsgToChar(buf, ch);
 	} else {
-		int mob_online = mob_index[GET_MOB_RNUM(k)].total_online - (virt ? 1 : 0);
-		sprintf(buf, "Сейчас в мире : %d, макс %d. ", mob_online, mob_index[GET_MOB_RNUM(k)].stored);
+		int mob_online = mob_index[k->get_rnum()].total_online - (virt ? 1 : 0);
+		sprintf(buf, "Сейчас в мире : %d, макс %d. ", mob_online, mob_index[k->get_rnum()].stored);
 		SendMsgToChar(buf, ch);
 		std::string stats;
 		mob_stat::GetLastMobKill(k, stats);
@@ -521,14 +521,14 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 		sprintf(buf, "PRF: %s%s%s\r\n", kColorGrn, smallBuf, kColorNrm);
 		SendMsgToChar(buf, ch);
 
-		if (IS_IMPL(ch)) {
+		if (ch->IsImpl()) {
 			sprintbitwd(k->player_specials->saved.GodsLike, godslike_bits, smallBuf, ",");
 			sprintf(buf, "GFL: %s%s%s\r\n", kColorCyn, smallBuf, kColorNrm);
 			SendMsgToChar(buf, ch);
 		}
 	}
 
-	if (IS_MOB(k)) {
+	if (k->IsNpc()) {
 
 		sprintf(buf, "Mob СпецПроц: &R%s&n, NPC сила удара: %dd%d\r\n",
 				print_special(k).c_str(),
@@ -676,7 +676,7 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 	ObjVnum rnum, vnum;
 	ObjData *j2;
 	long int li;
-	bool is_grgod = (IS_GRGOD(ch) || ch->IsFlagged(EPrf::kCoderinfo)) ? true : false;
+	bool is_grgod = (ch->IsGrGod() || ch->IsFlagged(EPrf::kCoderinfo)) ? true : false;
 
 	vnum = GET_OBJ_VNUM(j);
 	rnum = j->get_rnum();
@@ -1167,7 +1167,7 @@ void do_stat_room(CharData *ch, const int rnum = 0) {
 			continue;
 		}
 		sprintf(buf2, "%s %s(%s)", found++ ? "," : "", GET_NAME(k),
-				(!k->IsNpc() ? "PC" : (!IS_MOB(k) ? "NPC" : "MOB")));
+				(!k->IsNpc() ? "PC" : (!k->IsNpc() ? "NPC" : "MOB")));
 		strcat(buf, buf2);
 		if (strlen(buf) >= 62) {
 			if (counter != rm->people.size()) {
@@ -1263,7 +1263,7 @@ void do_stat(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 		SendMsgToChar("Состояние КОГО или ЧЕГО?\r\n", ch);
 		return;
 	}
-	if (*buf1 && IS_IMMORTAL(ch)) {
+	if (*buf1 && ch->IsImmortal()) {
 		if (utils::IsAbbr(buf1, "room") && level >= kLvlBuilder) {
 			int vnum, rnum = kNowhere;
 			if (*buf2 && (vnum = atoi(buf2))) {
@@ -1366,7 +1366,7 @@ void do_stat(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 			return;
 		}
 	}
-	if (IS_IMMORTAL(ch)) {
+	if (ch->IsImmortal()) {
 		if ((object = get_object_in_equip_vis(ch, buf1, ch->equipment, &tmp)) != nullptr) {
 			do_stat_object(ch, object);
 			return;

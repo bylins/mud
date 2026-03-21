@@ -147,7 +147,7 @@ void do_gen_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 #define MAX_UPPERS_CHAR_PRC 30
 #define MAX_UPPERS_SEQ_CHAR 3
 
-	if ((subcmd != kScmdAuction) && (!IS_IMMORTAL(ch)) && (!ch->IsNpc())) {
+	if ((subcmd != kScmdAuction) && (!ch->IsImmortal()) && (!ch->IsNpc())) {
 		const unsigned int bad_smb_procent = MAX_UPPERS_CHAR_PRC;
 		int bad_simb_cnt = 0, bad_seq_cnt = 0;
 
@@ -288,7 +288,7 @@ std::string format_gossip_name(CharData *ch, CharData *vict) {
 		log("SYSERROR: мы не должны были сюда попасть, func: %s", __func__);
 		return "";
 	}
-	std::string name = IS_IMMORTAL(ch) ? GET_NAME(ch) : PERS(ch, vict, 0);
+	std::string name = ch->IsImmortal() ? GET_NAME(ch) : PERS(ch, vict, 0);
 	name[0] = UPPER(name[0]);
 	return name;
 }

@@ -159,7 +159,7 @@ void do_chopoff(CharData *ch, CharData *vict) {
 		return;
 	}
 
-	if (IS_IMPL(ch) || !ch->GetEnemy())
+	if (ch->IsImpl() || !ch->GetEnemy())
 		go_chopoff(ch, vict);
 	else if (IsHaveNoExtraAttack(ch)) {
 		if (!ch->IsNpc())

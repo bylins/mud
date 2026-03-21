@@ -843,7 +843,7 @@ Clan::shared_ptr Clan::GetClanByRoom(RoomRnum room) {
 bool Clan::MayEnter(CharData *ch, RoomRnum room, bool mode) {
 	const auto clan = GetClanByRoom(room);
 	if (!clan
-		|| IS_GRGOD(ch)
+		|| ch->IsGrGod()
 		|| !ROOM_FLAGGED(room, ERoomFlag::kHouse)
 		|| clan->entranceMode
 		|| ch->IsFlagged(EPrf::kCoderinfo)) {
@@ -1854,7 +1854,7 @@ void Clan::hcontrol_exphistory(CharData *ch, std::string &text) {
 }
 
 void Clan::hcontrol_set_ingr_chest(CharData *ch, std::string &text) {
-	if (!ch->IsFlagged(EPrf::kCoderinfo) || !IS_IMPL(ch)) {
+	if (!ch->IsFlagged(EPrf::kCoderinfo) || !ch->IsImpl()) {
 		SendMsgToChar(HCONTROL_FORMAT, ch);
 		return;
 	}
@@ -2221,7 +2221,7 @@ bool Clan::PutChest(CharData *ch, ObjData *obj, ObjData *chest) {
 
 	if (obj->get_type() == EObjType::kMoney) {
 		long gold = GET_OBJ_VAL(obj, 0);
-		if (IS_IMMORTAL(ch)) {
+		if (ch->IsImmortal()) {
 			RemoveObjFromChar(obj);
 			ExtractObjFromWorld(obj);
 			ch->add_gold(gold);
@@ -3648,7 +3648,7 @@ void Clan::HouseStat(CharData *ch, std::string &buffer) {
 			DescriptorData *d = DescriptorByUid(it.first);
 			if (!d) {
 				continue;
-			} else if (!IS_IMMORTAL(d->character)) {
+			} else if (!d->character->IsImmortal()) {
 				it.second->level = GetRealLevel(d->character);
 				it.second->class_abbr = MUD::Class(d->character->GetClass()).GetAbbr();
 				it.second->remort = GET_GOD_FLAG(d->character, EGf::kRemort) ? true : false;
@@ -4038,7 +4038,7 @@ int Clan::print_spell_locate_object(CharData *ch, int count, std::string name) {
 		for (auto chest : world[GetRoomRnum((*clan)->chest_room)]->contents) {
 			if (Clan::is_clan_chest(chest)) {
 				for (temp = chest->get_contains(); temp; temp = temp->get_next_content()) {
-					if (!IS_GOD(ch)) {
+					if (!ch->IsGod()) {
 						if (number(1, 100) > (40 + MAX((GetRealInt(ch) - 25) * 2, 0))) {
 							continue;
 						}
@@ -4056,7 +4056,7 @@ int Clan::print_spell_locate_object(CharData *ch, int count, std::string name) {
 							GET_OBJ_POLY_1(ch, temp),
 							(*clan)->GetAbbrev());
 //					CAP(buf);
-					if (IS_GRGOD(ch)) {
+					if (ch->IsGrGod()) {
 						sprintf(buf2, " Vnum предмета: %d", GET_OBJ_VNUM(temp));
 						strcat(buf, buf2);
 					}
@@ -4543,7 +4543,7 @@ void tax_manage(CharData *ch, std::string &buffer) {
 long do_gold_tax(CharData *ch, long gold) {
 	if (gold >= MIN_GOLD_TAX_AMOUNT
 #ifndef TEST_BUILD
-		&& !IS_IMMORTAL(ch)
+		&& !ch->IsImmortal()
 #endif
 		&& CLAN(ch) && CLAN(ch)->get_gold_tax_pct() > 0
 		&& CLAN_MEMBER(ch)) {
@@ -4637,7 +4637,7 @@ bool is_alliance_by_abbr(const CharData *ch, char *abbrev) {
 bool CHECK_CUSTOM_LABEL_CORE(const ObjData *obj, const CharData *ch) {
 	return (obj->get_custom_label()->author == (ch)->get_uid()
 		&& !(obj->get_custom_label()->clan_abbrev))
-		|| IS_IMPL(ch)
+		|| ch->IsImpl()
 		|| ((ch)->player_specials->clan
 			&& obj->get_custom_label()->clan_abbrev != nullptr
 			&& is_alliance_by_abbr(ch, obj->get_custom_label()->clan_abbrev))
@@ -4782,7 +4782,7 @@ void DoClanChannel(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	std::string buffer = argument;
 
 	// большой неклановый или 34 клановый БОГ говорит какой-то дружине
-	if (IS_IMPL(ch) || (IS_GRGOD(ch) && !CLAN(ch))) {
+	if (ch->IsImpl() || (ch->IsGrGod() && !CLAN(ch))) {
 		std::string buffer2;
 		GetOneParam(buffer, buffer2);
 
@@ -4813,7 +4813,7 @@ void DoClanChannel(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		}
 
 		// ограничения на клан-канал не канают на любое звание, если это БОГ
-		if (!IS_IMMORTAL(ch)
+		if (!ch->IsImmortal()
 			&& (!(CLAN(ch))->privileges[CLAN_MEMBER(ch)->rank_num][MAY_CLAN_CHANNEL]
 				|| ch->IsFlagged(EPlrFlag::kDumbed))) {
 			SendMsgToChar("Вы не можете пользоваться каналом дружины.\r\n", ch);
@@ -4891,7 +4891,7 @@ void DoClanList(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			&& d->character->in_room != kNowhere
 			&& CLAN(d->character)
 			&& CAN_SEE_CHAR(ch, d->character)
-			&& !IS_IMMORTAL(d->character)
+			&& !d->character->IsImmortal()
 			&& !d->character->IsFlagged(EPrf::kCoderinfo)
 			&& (all || CLAN(d->character) == *clan)) {
 			temp_list.push_back(d->character);
