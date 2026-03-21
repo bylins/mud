@@ -983,4 +983,57 @@ const char *one_word(const char *argument, char *first_arg) {
 	return argument;
 }
 
+// std::string overloads
+
+void PruneCrlf(std::string &txt) {
+	while (!txt.empty() && (txt.back() == '\n' || txt.back() == '\r')) {
+		txt.pop_back();
+	}
+}
+
+std::string first_letter(const std::string &txt) {
+	const char *result = first_letter(txt.c_str());
+	return result ? std::string(result) : std::string();
+}
+
+void delete_doubledollar(std::string &string) {
+	std::string::size_type pos = 0;
+	while ((pos = string.find("$$", pos)) != std::string::npos) {
+		string.erase(pos, 1);
+		++pos;
+	}
+}
+
+int is_number(const std::string &str) {
+	return is_number(str.c_str());
+}
+
+bool IsValidEmail(const std::string &address) {
+	return IsValidEmail(address.c_str());
+}
+
+void skip_dots(std::string &string) {
+	auto pos = string.find_first_not_of(" .");
+	if (pos != std::string::npos) {
+		string.erase(0, pos);
+	} else {
+		string.clear();
+	}
+}
+
+std::string::size_type str_str(const std::string &cs, const std::string &ct) {
+	if (cs.empty() || ct.empty()) {
+		return std::string::npos;
+	}
+	const char *result = str_str(cs.c_str(), ct.c_str());
+	if (!result) {
+		return std::string::npos;
+	}
+	return result - cs.c_str();
+}
+
+void kill_ems(std::string &str) {
+	str.erase(std::remove(str.begin(), str.end(), '\r'), str.end());
+}
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
