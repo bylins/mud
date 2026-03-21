@@ -30,8 +30,7 @@ void DoMove(CharData *ch, char *, int, int subcmd);
 void command_interpreter(CharData *ch, char *argument);
 int search_block(const char *target_string, const char **list, int exact);
 int search_block(const std::string &block, const char **list, int exact);
-int fill_word(const char *argument);
-void half_chop(char const *string, char *arg1, char *arg2);
+// fill_word, half_chop moved to mud_string.h
 void nanny(DescriptorData *d, char *argument);
 
 // is_number moved to utils_string.h
@@ -121,38 +120,7 @@ struct SortStruct {
 extern SortStruct *cmd_sort_info;
 extern int num_of_cmds;
 
-/**
-* copy the first non-fill-word, space-delimited argument of 'argument'
-* to 'first_arg'; return a pointer to the remainder of the string.
-*/
-char *one_argument(char *argument, char *first_arg);
-const char *one_argument(const char *argument, char *first_arg);
-
-///
-/// same as one_argument except that it doesn't ignore fill words
-/// как бы декларируем, что first_arg должен быть не менее kMaxInputLength
-///
-char *any_one_arg(char *argument, char *first_arg);
-const char *any_one_arg(const char *argument, char *first_arg);
-
-/**
-* Same as one_argument except that it takes two args and returns the rest;
-* ignores fill words
-*/
-template<typename T>
-T two_arguments(T argument, char *first_arg, char *second_arg) {
-	return (one_argument(one_argument(argument, first_arg), second_arg));
-}
-
-template<typename T>
-T three_arguments(T argument, char *first_arg, char *second_arg, char *third_arg) {
-	return (one_argument(one_argument(one_argument(argument, first_arg), second_arg), third_arg));
-}
-
-// читает все аргументы из arguments в out
-void SplitArgument(const char *arguments, std::vector<std::string> &out);
-void SplitArgument(const char *arguments, std::vector<short> &out);
-void SplitArgument(const char *arguments, std::vector<int> &out);
+// one_argument, any_one_arg, two_arguments, three_arguments, SplitArgument moved to mud_string.h
 
 void SortCommands();
 
