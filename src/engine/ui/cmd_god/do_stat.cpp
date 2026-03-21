@@ -127,7 +127,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 			k->get_uid());
 	SendMsgToChar(strcat(buf, buf2), ch);
 	SendMsgToChar(ch, " ЛАГ: [%d]\r\n", k->get_wait());
-	if (IS_MOB(k)) {
+	if (k->IsNpc()) {
 		sprintf(buf,
 				"Синонимы: &S%s&s, VNum: [%5d], RNum: [%5d]\r\n",
 				k->GetCharAliases().c_str(),
@@ -528,7 +528,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 		}
 	}
 
-	if (IS_MOB(k)) {
+	if (k->IsNpc()) {
 
 		sprintf(buf, "Mob СпецПроц: &R%s&n, NPC сила удара: %dd%d\r\n",
 				print_special(k).c_str(),
@@ -1167,7 +1167,7 @@ void do_stat_room(CharData *ch, const int rnum = 0) {
 			continue;
 		}
 		sprintf(buf2, "%s %s(%s)", found++ ? "," : "", GET_NAME(k),
-				(!k->IsNpc() ? "PC" : (!IS_MOB(k) ? "NPC" : "MOB")));
+				(!k->IsNpc() ? "PC" : (!k->IsNpc() ? "NPC" : "MOB")));
 		strcat(buf, buf2);
 		if (strlen(buf) >= 62) {
 			if (counter != rm->people.size()) {

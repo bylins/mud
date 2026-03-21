@@ -107,7 +107,7 @@ int CharData::get_souls() {
 }
 
 bool CharData::in_used_zone() const {
-	if (IS_MOB(this)) {
+	if (this->IsNpc()) {
 		return 0 != zone_table[world[in_room]->zone_rn].used;
 	}
 	return false;

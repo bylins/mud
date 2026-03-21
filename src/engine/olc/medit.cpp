@@ -362,7 +362,7 @@ void medit_save_internally(DescriptorData *d) {
 
 		// В живых мобах необходимо обновить строки, иначе будут крэши
 		for (const auto &live_mob : character_list) {
-			if (IS_MOB(live_mob) && GET_MOB_RNUM(live_mob) == rmob_num) {
+			if (live_mob->IsNpc() && GET_MOB_RNUM(live_mob) == rmob_num) {
 				live_mob->SetCharAliases((mob_proto + rmob_num)->GetCharAliases().c_str());
 				live_mob->set_npc_name((mob_proto + rmob_num)->get_npc_name().c_str());
 				// Только строки. Остальное после ресета/ребута
