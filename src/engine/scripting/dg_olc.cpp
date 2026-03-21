@@ -373,9 +373,18 @@ void trigedit_save(DescriptorData *d) {
 	trig->cmdlist->reset(new cmdlist_element());
 	const auto &cmdlist = *trig->cmdlist;
 	const auto cmd_token = strtok(s, "\n\r");
+	// lowercase the command (first word, ASCII only) for faster comparison at runtime
+	auto lowercase_first_word = [](std::string &str) {
+		for (auto &c : str) {
+			if (c == ' ') break;
+			if (c >= 'A' && c <= 'Z') c += 'a' - 'A';
+		}
+	};
+
 	if (cmd_token) { //тут штатная ошибка циркуля, если strok не нашел подстроку то он возвращает не nullptr а строку полностью т.е. надо str_cmp(cmd_token, s)
 		cmdlist->cmd = cmd_token;
 		cmdlist->line_num = 1;
+		lowercase_first_word(cmdlist->cmd);
 	} else {
 		cmdlist->cmd = "";
 		cmdlist->line_num = 0;
@@ -387,6 +396,7 @@ void trigedit_save(DescriptorData *d) {
 		cmd = cmd->next;
 		cmd->cmd = s;
 		cmd->line_num = line_num++;
+		lowercase_first_word(cmd->cmd);
 	}
 	cmd->next.reset();
 //	log("Триггер зона1 %d внум %d ласт %d", OLC_ZNUM(d), zone_table[OLC_ZNUM(d)].vnum, trig_index[zone_table[OLC_ZNUM(d)].RnumTrigsLocation.second]->vnum);

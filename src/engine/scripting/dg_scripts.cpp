@@ -4303,9 +4303,9 @@ cmdlist_element::shared_ptr find_end(Trigger *trig, cmdlist_element::shared_ptr 
 	while ((cl = cl ? cl->next : cl) != nullptr) {
 		for (p = cl->cmd.c_str(); *p && isspace(*p); p++);
 
-		if (!strn_cmp("if ", p, 3)) {
+		if (!strncmp(p, "if ", 3)) {
 			cl = find_end(trig, cl);
-		} else if (!strn_cmp("end", p, 3)) {
+		} else if (!strncmp(p, "end", 3)) {
 			break;
 		}
 	}
@@ -4337,9 +4337,9 @@ cmdlist_element::shared_ptr find_else_end(Trigger *trig,
 	while ((cl = cl ? cl->next : cl) != nullptr) {
 		for (p = cl->cmd.c_str(); *p && isspace(*p); p++);
 
-		if (!strn_cmp("if ", p, 3)) {
+		if (!strncmp(p, "if ", 3)) {
 			cl = find_end(trig, cl);
-		} else if (!strn_cmp("elseif ", p, 7)) {
+		} else if (!strncmp(p, "elseif ", 7)) {
 			if (process_if(p + 7, go, sc, trig, type)) {
 				GET_TRIG_DEPTH(trig)++;
 			} else {
@@ -4347,10 +4347,10 @@ cmdlist_element::shared_ptr find_else_end(Trigger *trig,
 			}
 
 			break;
-		} else if (!strn_cmp("else", p, 4)) {
+		} else if (!strncmp(p, "else", 4)) {
 			GET_TRIG_DEPTH(trig)++;
 			break;
-		} else if (!strn_cmp("end", p, 3)) {
+		} else if (!strncmp(p, "end", 3)) {
 			break;
 		}
 	}
@@ -4371,9 +4371,9 @@ cmdlist_element::shared_ptr find_continue_done(Trigger *trig, cmdlist_element::s
 
 	while ((cl = cl ? cl->next : cl) != nullptr) {
 		for (p = cl->cmd.c_str(); *p && isspace(*reinterpret_cast<const unsigned char *>(p)); p++);
-		if (!strn_cmp("while ", p, 6) || !strn_cmp("switch ", p, 7) || !strn_cmp("foreach ", p, 8)) {
+		if (!strncmp(p, "while ", 6) || !strncmp(p, "switch ", 7) || !strncmp(p, "foreach ", 8)) {
 			cl = find_done(trig, cl);
-		} else if (!strn_cmp("done", p, 4)) {
+		} else if (!strncmp(p, "done", 4)) {
 			break;
 		}
 		cl_prev = cl;
@@ -4396,9 +4396,9 @@ cmdlist_element::shared_ptr find_done(Trigger *trig, cmdlist_element::shared_ptr
 	while ((cl = cl ? cl->next : cl) != nullptr) {
 		for (p = cl->cmd.c_str(); *p && isspace(*reinterpret_cast<const unsigned char *>(p)); p++);
 
-		if (!strn_cmp("while ", p, 6) || !strn_cmp("switch ", p, 7) || !strn_cmp("foreach ", p, 8)) {
+		if (!strncmp(p, "while ", 6) || !strncmp(p, "switch ", 7) || !strncmp(p, "foreach ", 8)) {
 			cl = find_done(trig, cl);
-		} else if (!strn_cmp("done", p, 4)) {
+		} else if (!strncmp(p, "done", 4)) {
 			break;
 		}
 	}
@@ -4434,9 +4434,9 @@ cmdlist_element::shared_ptr find_case(Trigger *trig,
 	while ((cl = cl ? cl->next : cl) != nullptr) {
 		for (p = cl->cmd.c_str(); *p && isspace(*reinterpret_cast<const unsigned char *>(p)); p++);
 
-		if (!strn_cmp("while ", p, 6) || !strn_cmp("switch ", p, 7) || !strn_cmp("foreach ", p, 8)) {
+		if (!strncmp(p, "while ", 6) || !strncmp(p, "switch ", 7) || !strncmp(p, "foreach ", 8)) {
 			cl = find_done(trig, cl);
-		} else if (!strn_cmp("case ", p, 5)) {
+		} else if (!strncmp(p, "case ", 5)) {
 			char *tmpbuf = (char *) malloc(kMaxStringLength);
 			eval_op("==", result, p + 5, tmpbuf, go, sc, trig);
 			if (*tmpbuf && *tmpbuf != '0') {
@@ -4444,9 +4444,9 @@ cmdlist_element::shared_ptr find_case(Trigger *trig,
 				break;
 			}
 			free(tmpbuf);
-		} else if (!strn_cmp("default", p, 7)) {
+		} else if (!strncmp(p, "default", 7)) {
 			break;
-		} else if (!strn_cmp("done", p, 4)) {
+		} else if (!strncmp(p, "done", 4)) {
 			break;
 		}
 	}
@@ -5709,7 +5709,7 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 		if (*p == '*' || *p == '/')    // comment
 		{
 			continue;
-		} else if (!strn_cmp(p, "if ", 3)) {
+		} else if (!strncmp(p, "if ", 3)) {
 			if (process_if(p + 3, go, sc, trig, type)) {
 				GET_TRIG_DEPTH(trig)++;
 			} else {
@@ -5720,7 +5720,7 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 				mudlog(buf, BRF, -1, ERRLOG, true);
 				break;
 			}
-		} else if (!strn_cmp("elseif ", p, 7) || !strn_cmp("else", p, 4)) {
+		} else if (!strncmp(p, "elseif ", 7) || !strncmp(p, "else", 4)) {
 			cl = find_end(trig, cl);
 			GET_TRIG_DEPTH(trig)--;
 			if (CharacterLinkDrop) {
@@ -5728,7 +5728,7 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 				mudlog(buf, BRF, -1, ERRLOG, true);
 				break;
 			}
-		} else if (!strn_cmp("while ", p, 6)) {
+		} else if (!strncmp(p, "while ", 6)) {
 			const auto temp = find_done(trig, cl);
 			if (process_if(p + 6, go, sc, trig, type)) {
 				if (temp) {
@@ -5742,7 +5742,7 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 				mudlog(buf, BRF, -1, ERRLOG, true);
 				break;
 			}
-		} else if (!strn_cmp("foreach ", p, 8)) {
+		} else if (!strncmp(p, "foreach ", 8)) {
 			const auto temp = find_done(trig, cl);
 			if (process_foreach_begin(p + 8, go, sc, trig, type)) {
 				if (temp) {
@@ -5756,16 +5756,16 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 				mudlog(buf, BRF, -1, ERRLOG, true);
 				break;
 			}
-		} else if (!strn_cmp("switch ", p, 7)) {
+		} else if (!strncmp(p, "switch ", 7)) {
 			cl = find_case(trig, cl, go, sc, type, p + 7);
 			if (CharacterLinkDrop) {
 				sprintf(buf, "[TrigVnum: %d] Character in LinkDrop.\r\n", last_trig_vnum);
 				mudlog(buf, BRF, -1, ERRLOG, true);
 				break;
 			}
-		} else if (!strn_cmp("end", p, 3)) {
+		} else if (!strncmp(p, "end", 3)) {
 			GET_TRIG_DEPTH(trig)--;
-		} else if (!strn_cmp("done", p, 4)) {
+		} else if (!strncmp(p, "done", 4)) {
 			if (*p == 'c') {
 				const auto temp = find_done(trig, cl);
 				if (temp) {
@@ -5804,11 +5804,11 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 					}
 				}
 			}
-		} else if (!strn_cmp("break", p, 5)) {
+		} else if (!strncmp(p, "break", 5)) {
 			cl = find_done(trig, cl);
-		} else if (!strn_cmp("continue", p, 8)) {
+		} else if (!strncmp(p, "continue", 8)) {
 			cl = find_continue_done(trig, cl);
-		} else if (!strn_cmp("case", p, 4))    // Do nothing, this allows multiple cases to a single instance
+		} else if (!strncmp(p, "case", 4))    // Do nothing, this allows multiple cases to a single instance
 		{
 		} else {
 			var_subst(go, sc, trig, type, p, cmd);
@@ -5817,74 +5817,74 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 				mudlog(buf, BRF, -1, ERRLOG, true);
 				break;
 			}
-			if (!strn_cmp(cmd, "eval ", 5)) {
+			if (!strncmp(cmd, "eval ", 5)) {
 				process_eval(go, sc, trig, type, cmd);
-			} else if (!strn_cmp(cmd, "nop ", 4)) { ;    // nop: do nothing
-			} else if (!strn_cmp(cmd, "add_stuf_zone ", 14)) {
+			} else if (!strncmp(cmd, "nop ", 4)) { ;    // nop: do nothing
+			} else if (!strncmp(cmd, "add_stuf_zone ", 14)) {
 				add_stuf_zone(trig, cmd);
-			} else if (!strn_cmp(cmd, "extract ", 8)) {
+			} else if (!strncmp(cmd, "extract ", 8)) {
 				extract_value(sc, trig, cmd);
-			} else if (!strn_cmp(cmd, "makeuid ", 8)) {
+			} else if (!strncmp(cmd, "makeuid ", 8)) {
 				makeuid_var(go, sc, trig, type, cmd);
-			} else if (!strn_cmp(cmd, "calcuid ", 8)) {
+			} else if (!strncmp(cmd, "calcuid ", 8)) {
 				calcuid_var(go, trig, type, cmd);
-			} else if (!strn_cmp(cmd, "calcuidall ", 11)) {
+			} else if (!strncmp(cmd, "calcuidall ", 11)) {
 				calcuidall_var(go, sc, trig, type, cmd);
-			} else if (!strn_cmp(cmd, "charuid ", 8)) {
+			} else if (!strncmp(cmd, "charuid ", 8)) {
 				charuid_var(go, sc, trig, cmd);
-			} else if (!strn_cmp(cmd, "charuidall ", 11)) {
+			} else if (!strncmp(cmd, "charuidall ", 11)) {
 				charuidall_var(go, sc, trig, cmd);
-			} else if (!strn_cmp(cmd, "halt", 4)) {
+			} else if (!strncmp(cmd, "halt", 4)) {
 				if (process_halt(trig, cmd)) {
 					break;
 				}
-			} else if (!strn_cmp(cmd, "DgCast ", 7)) {
+			} else if (!strncmp(cmd, "dgcast ", 7)) {
 				do_dg_cast(go, trig, type, cmd);
 				if (type == MOB_TRIGGER && reinterpret_cast<CharData *>(go)->purged()) {
 					depth--;
 					cur_trig = prev_trig;
 					return ret_val;
 				}
-			} else if (!strn_cmp(cmd, "DgAffect ", 9)) {
+			} else if (!strncmp(cmd, "dgaffect ", 9)) {
 				do_dg_affect(go, sc, trig, type, cmd);
-			} else if (!strn_cmp(cmd, "global ", 7)) {
+			} else if (!strncmp(cmd, "global ", 7)) {
 				process_global(sc, trig, cmd, trig->context);
-			} else if (!strn_cmp(cmd, "addicecurrency ", 15)) {
+			} else if (!strncmp(cmd, "addicecurrency ", 15)) {
 				do_dg_add_ice_currency(go, sc, trig, type, cmd);
-			} else if (!strn_cmp(cmd, "bonus ", 6)) {
+			} else if (!strncmp(cmd, "bonus ", 6)) {
 				Bonus::dg_do_bonus(cmd + 6);
-			} else if (!strn_cmp(cmd, "worldecho ", 10)) {
+			} else if (!strncmp(cmd, "worldecho ", 10)) {
 				do_worldecho(cmd + 10);
-			} else if (!strn_cmp(cmd, "worlds ", 7)) {
+			} else if (!strncmp(cmd, "worlds ", 7)) {
 				process_worlds(sc, trig, cmd, trig->context);
-			} else if (!strn_cmp(cmd, "context ", 8)) {
+			} else if (!strncmp(cmd, "context ", 8)) {
 				process_context(sc, trig, cmd);
-			} else if (!strn_cmp(cmd, "remote ", 7)) {
+			} else if (!strncmp(cmd, "remote ", 7)) {
 				process_remote(sc, trig, cmd);
-			} else if (!strn_cmp(cmd, "rdelete ", 8)) {
+			} else if (!strncmp(cmd, "rdelete ", 8)) {
 				process_rdelete(sc, trig, cmd);
-			} else if (!strn_cmp(cmd, "return ", 7)) {
+			} else if (!strncmp(cmd, "return ", 7)) {
 				ret_val = process_return(trig, cmd);
-			} else if (!strn_cmp(cmd, "set ", 4)) {
+			} else if (!strncmp(cmd, "set ", 4)) {
 				process_set(sc, trig, cmd);
-			} else if (!strn_cmp(cmd, "unset ", 6)) {
+			} else if (!strncmp(cmd, "unset ", 6)) {
 				process_unset(sc, trig, cmd);
-			} else if (!strn_cmp(cmd, "clearcontext ", 13)) {
+			} else if (!strncmp(cmd, "clearcontext ", 13)) {
 				ClearContextVar(trig, cmd);
-			} else if (!strn_cmp(cmd, "log ", 4)) {
+			} else if (!strncmp(cmd, "log ", 4)) {
 				trig_log(trig, cmd + 4);
-			} else if (!strn_cmp(cmd, "syslog ", 7)) {
+			} else if (!strncmp(cmd, "syslog ", 7)) {
 				log("TRIGGER LOG (Trigger: %s, VNum: %i) : %s", GET_TRIG_NAME(trig), GET_TRIG_VNUM(trig), cmd + 7);
-			} else if (!strn_cmp(cmd, "wait ", 5)) {
+			} else if (!strncmp(cmd, "wait ", 5)) {
 				process_wait(go, trig, type, cmd, cl);
 				depth--;
 				cur_trig = prev_trig;
 				return ret_val;
-			} else if (!strn_cmp(cmd, "attach ", 7)) {
+			} else if (!strncmp(cmd, "attach ", 7)) {
 				process_attach(go, sc, trig, type, cmd);
-			} else if (!strn_cmp(cmd, "detach ", 7)) {
+			} else if (!strncmp(cmd, "detach ", 7)) {
 				trig = process_detach(go, sc, trig, type, cmd);
-			} else if (!strn_cmp(cmd, "run ", 4)) {
+			} else if (!strncmp(cmd, "run ", 4)) {
 				process_run(go, &sc, &trig, type, cmd, &ret_val);
 				if (!trig || !sc) {
 					depth--;
@@ -5892,7 +5892,7 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 					return ret_val;
 				}
 				stop = ret_val;
-			} else if (!strn_cmp(cmd, "exec ", 5)) {
+			} else if (!strncmp(cmd, "exec ", 5)) {
 				process_run(go, &sc, &trig, type, cmd, &ret_val);
 				if (!trig || !sc) {
 					depth--;
@@ -5900,9 +5900,9 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 					return ret_val;
 				}\
 
-			} else if (!strn_cmp(cmd, "arena_round", 11)) {
+			} else if (!strncmp(cmd, "arena_round", 11)) {
 				process_arena_round(trig, cmd);
-			} else if (!strn_cmp(cmd, "version", 7)) {
+			} else if (!strncmp(cmd, "version", 7)) {
 				mudlog(DG_SCRIPT_VERSION, BRF, kLvlBuilder, SYSLOG, true);
 			} else {
 				switch (type) {
