@@ -100,14 +100,7 @@ extern char AltToLat[];
 char *rustime(const struct tm *timeptr);
 char *str_dup(const char *source);
 char *str_add(char *dst, const char *src);
-int str_cmp(const char *arg1, const char *arg2);
-int str_cmp(const std::string &arg1, const char *arg2);
-int str_cmp(const char *arg1, const std::string &arg2);
-int str_cmp(const std::string &arg1, const std::string &arg2);
-int strn_cmp(const char *arg1, const char *arg2, size_t n);
-int strn_cmp(const std::string &arg1, const char *arg2, size_t n);
-int strn_cmp(const char *arg1, const std::string &arg2, size_t n);
-int strn_cmp(const std::string &arg1, const std::string &arg2, size_t n);
+// str_cmp, strn_cmp moved to utils_string.h
 int touch(const char *path);
 // \todo убрать и оставить только в random.h
 int number(int from, int to);

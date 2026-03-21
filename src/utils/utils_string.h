@@ -296,18 +296,32 @@ std::string CAP(const std::string txt);
 
 } // namespace utils
 
-/// Strip trailing \r\n from end of C string.
+/// Сравнение строк без учета регистра (аналог strcmp).
+/// Возвращает: 0 если равны, >0 если arg1 > arg2, <0 если arg1 < arg2.
+int str_cmp(const char *arg1, const char *arg2);
+int str_cmp(const std::string &arg1, const char *arg2);
+int str_cmp(const char *arg1, const std::string &arg2);
+int str_cmp(const std::string &arg1, const std::string &arg2);
+
+/// Сравнение строк без учета регистра с ограничением длины (аналог strncmp).
+/// Возвращает: 0 если равны, >0 если arg1 > arg2, <0 если arg1 < arg2.
+int strn_cmp(const char *arg1, const char *arg2, size_t n);
+int strn_cmp(const std::string &arg1, const char *arg2, size_t n);
+int strn_cmp(const char *arg1, const std::string &arg2, size_t n);
+int strn_cmp(const std::string &arg1, const std::string &arg2, size_t n);
+
+/// Удаление завершающих \r\n из строки.
 void PruneCrlf(char *txt);
 
-/// Return pointer to first visible letter in string, skipping color codes.
+/// Возвращает указатель на первую видимую букву, пропуская цветовые коды.
 const char *first_letter(const char *txt);
 
-/// Check if C string contains only digits.
-/// Returns 1 if true, 0 if false.
+/// Проверяет что строка состоит только из цифр.
+/// Возвращает 1 если да, 0 если нет.
 int is_number(const char *str);
 
-/// Remove doubled dollar signs ($$) from string, modifying it in-place.
-/// Used to undo act() escaping for direct output.
+/// Убирает двойные доллары ($$) из строки, модифицируя на месте.
+/// Используется для отмены экранирования act() при прямом выводе.
 char *delete_doubledollar(char *string);
 
 #endif // UTILS_STRING_HPP_
