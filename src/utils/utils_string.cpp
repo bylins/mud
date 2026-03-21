@@ -794,4 +794,193 @@ std::string thousands_sep(long long n) {
 	return buffer;
 }
 
+void skip_dots(char **string) {
+	for (; **string && (strchr(" .", **string) != nullptr); (*string)++);
+}
+
+char *str_str(const char *cs, const char *ct) {
+	if (!cs || !ct) {
+		return nullptr;
+	}
+	while (*cs) {
+		const char *t = ct;
+		while (*cs && (LOWER(*cs) != LOWER(*t))) {
+			cs++;
+		}
+		char *s = (char*)cs;
+		while (*t && *cs && (LOWER(*cs) == LOWER(*t))) {
+			t++;
+			cs++;
+		}
+		if (!*t) {
+			return s;
+		}
+	}
+	return nullptr;
+}
+
+void kill_ems(char *str) {
+	char *ptr1, *ptr2;
+	ptr1 = str;
+	ptr2 = str;
+	while (*ptr1) {
+		if ('\r' != *ptr1) {
+			*ptr2 = *ptr1;
+			++ptr2;
+		}
+		++ptr1;
+	}
+	*ptr2 = '\0';
+}
+
+void cut_one_word(std::string &str, std::string &word) {
+	if (str.empty()) {
+		word.clear();
+		return;
+	}
+	bool process = false;
+	unsigned begin = 0, end = 0;
+	for (unsigned i = 0; i < str.size(); ++i) {
+		if (!process && a_isalnum(str.at(i))) {
+			process = true;
+			begin = i;
+			continue;
+		}
+		if (process && !a_isalnum(str.at(i))) {
+			end = i;
+			break;
+		}
+	}
+	if (process) {
+		if (!end || end >= str.size()) {
+			word = str.substr(begin);
+			str.clear();
+		} else {
+			word = str.substr(begin, end - begin);
+			str.erase(0, end);
+		}
+		return;
+	}
+	str.clear();
+	word.clear();
+}
+
+void ReadEndString(std::ifstream &file) {
+	char c;
+	while (file.get(c)) {
+		if (c == '\n') {
+			return;
+		}
+	}
+}
+
+bool IsValidEmail(const char *address) {
+	int count = 0;
+	static std::string special_symbols("\r\n ()<>,;:\\\"[]|/&'`$");
+	std::string addr = address;
+	std::string::size_type dog_pos = 0, pos = 0;
+	if (addr.find_first_of(special_symbols) != std::string::npos) {
+		return false;
+	}
+	size_t size = addr.size();
+	for (size_t i = 0; i < size; i++) {
+		if (addr[i] <= ' ' || addr[i] >= 127) {
+			return false;
+		}
+	}
+	while ((pos = addr.find_first_of('@', pos)) != std::string::npos) {
+		dog_pos = pos;
+		++count;
+		++pos;
+	}
+	if (count != 1 || dog_pos == 0) {
+		return false;
+	}
+	if (size - dog_pos <= 3) {
+		return false;
+	}
+	if (addr[dog_pos + 1] == '.' || addr[size - 1] == '.' || addr.find('.', dog_pos) == std::string::npos) {
+		return false;
+	}
+	return true;
+}
+
+bool isname(const char *str, const char *namelist) {
+	bool once_ok = false;
+	const char *curname, *curstr, *laststr;
+	if (!namelist || !*namelist || !str) {
+		return false;
+	}
+	for (curstr = str; !a_isalnum(*curstr); curstr++) {
+		if (!*curstr) {
+			return once_ok;
+		}
+	}
+	laststr = curstr;
+	curname = namelist;
+	for (;;) {
+		once_ok = false;
+		for (;; curstr++, curname++) {
+			if (!*curstr) {
+				return once_ok;
+			}
+			if (*curstr == '!') {
+				if (a_isalnum(*curname)) {
+					curstr = laststr;
+					break;
+				}
+			}
+			if (!a_isalnum(*curstr)) {
+				for (; !a_isalnum(*curstr); curstr++) {
+					if (!*curstr) {
+						return once_ok;
+					}
+				}
+				laststr = curstr;
+				break;
+			}
+			if (!*curname) {
+				return false;
+			}
+			if (!a_isalnum(*curname)) {
+				curstr = laststr;
+				break;
+			}
+			if (LOWER(*curstr) != LOWER(*curname)) {
+				curstr = laststr;
+				break;
+			} else {
+				once_ok = true;
+			}
+		}
+		for (; a_isalnum(*curname); curname++);
+		for (; !a_isalnum(*curname); curname++) {
+			if (!*curname) {
+				return false;
+			}
+		}
+	}
+}
+
+const char *one_word(const char *argument, char *first_arg) {
+	char *begin = first_arg;
+	skip_spaces(&argument);
+	first_arg = begin;
+	if (*argument == '\"') {
+		argument++;
+		while (*argument && *argument != '\"') {
+			*(first_arg++) = a_lcc(*argument);
+			argument++;
+		}
+		argument++;
+	} else {
+		while (*argument && !a_isspace(*argument)) {
+			*(first_arg++) = a_lcc(*argument);
+			argument++;
+		}
+	}
+	*first_arg = '\0';
+	return argument;
+}
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

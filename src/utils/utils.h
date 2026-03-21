@@ -117,11 +117,7 @@ void koi_to_utf8(char *str_i, char *str_o);
 void utf8_to_koi(char *str_i, char *str_o);
 // \todo Заменить на фунции из STD
 int roundup(float fl);
-bool IsValidEmail(const char *address);
-void skip_dots(char **string);
-char *str_str(const char *cs, const char *ct);
-void kill_ems(char *str);
-void cut_one_word(std::string &str, std::string &word);
+// IsValidEmail, skip_dots, str_str, kill_ems, cut_one_word moved to utils_string.h
 // strl_cpy moved to utils_string.h
 bool is_head(std::string name);
 
@@ -1038,17 +1034,7 @@ inline void graceful_exit(int retcode) {
 	_exit(retcode);
 }
 
-bool isname(const char *str, const char *namelist);
-inline bool isname(const std::string &str, const char *namelist) { return isname(str.c_str(), namelist); }
-inline bool isname(const char *str, const std::string &namelist) { return isname(str, namelist.c_str()); }
-inline bool isname(const std::string &str, const std::string &namelist) {
-	return isname(str.c_str(),
-				  namelist.c_str());
-}
-
-const char *one_word(const char *argument, char *first_arg);
-
-void ReadEndString(std::ifstream &file);
+// isname, one_word, ReadEndString moved to utils_string.h
 // замена символа (в данном случае конца строки) на свою строку, для остального функций хватает
 // StringReplace, format_news_message moved to utils_string.h
 
