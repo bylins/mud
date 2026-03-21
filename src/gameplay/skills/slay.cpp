@@ -75,7 +75,7 @@ void go_slay(CharData *ch, CharData *vict) {
 		}
 	}
 	switch (lag) {
-		case 0: SetWait(ch, 0, true);
+		case 0: ch->zero_wait();
 			break;
 		case 1: SetSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 1);
 			break;
