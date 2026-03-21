@@ -330,10 +330,10 @@ void TriggersFile::parse_trigger(int vnum) {
 			(*ptr)->cmd = line;
 			(*ptr)->line_num = num++;
 
-			// lowercase the command (first word, ASCII only) for faster comparison at runtime
+			// lowercase the command (first word) for faster comparison at runtime
 			for (auto &c : (*ptr)->cmd) {
 				if (c == ' ') break;
-				if (c >= 'A' && c <= 'Z') c += 'a' - 'A';
+				c = LOWER(c);
 			}
 			ptr = &(*ptr)->next;
 

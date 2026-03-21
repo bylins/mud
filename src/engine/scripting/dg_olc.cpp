@@ -373,11 +373,11 @@ void trigedit_save(DescriptorData *d) {
 	trig->cmdlist->reset(new cmdlist_element());
 	const auto &cmdlist = *trig->cmdlist;
 	const auto cmd_token = strtok(s, "\n\r");
-	// lowercase the command (first word, ASCII only) for faster comparison at runtime
+	// lowercase the command (first word) for faster comparison at runtime
 	auto lowercase_first_word = [](std::string &str) {
 		for (auto &c : str) {
 			if (c == ' ') break;
-			if (c >= 'A' && c <= 'Z') c += 'a' - 'A';
+			c = LOWER(c);
 		}
 	};
 
