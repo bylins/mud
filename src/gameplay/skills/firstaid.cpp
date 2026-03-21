@@ -59,7 +59,7 @@ void DoFirstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 	}
 	auto spell_id{ESpell::kUndefined};
-	for (int count = MAX_FIRSTAID_REMOVE - 1; count >= 0; count--) {
+	for (int count = kMaxFirstaidRemove - 1; count >= 0; count--) {
 		spell_id = GetRemovableSpellId(count);
 		if (IsAffectedBySpell(vict, spell_id)) {
 			need = true;
