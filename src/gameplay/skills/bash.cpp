@@ -267,7 +267,7 @@ void go_bash(CharData *ch, CharData *vict) {
 
 	//разные типы лагов в зависимости от того, есть ли "удар щитом", а так же при фейле/успехе и т.д.
 	switch (lag) {
-		case 0: SetWait(ch, 0, true);
+		case 0: ch->zero_wait();
 			break;
 		case 1: SetSkillCooldownInFight(ch, ESkill::kBash, 1);
 			break;

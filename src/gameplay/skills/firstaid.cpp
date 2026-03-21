@@ -94,8 +94,7 @@ void DoFirstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				else 
 					sprintf(buf, "%s оказала вам первую помощь.\r\n", ch->get_name().c_str());
 				SendMsgToChar(buf, vict);
-				if (vict->get_wait() > 0)
-					vict->set_wait(0);
+				vict->zero_wait();
 				update_pos(vict);
 			} else {
 				act("Вы безрезультатно попытались оказать первую помощь $N2.",

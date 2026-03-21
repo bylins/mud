@@ -556,7 +556,7 @@ void raw_kill(CharData *ch, CharData *killer) {
 		if (hitter.deleted)
 			continue;
 		if (hitter.ch->GetEnemy() == ch) {
-			SetWaitState(hitter.ch, 0);
+			hitter.ch->zero_wait();
 		}
 	}
 	if (!ch || ch->purged()) {
