@@ -169,6 +169,7 @@ set(SOURCES
 		src/gameplay/mechanics/weather.cpp
 		src/engine/olc/zedit.cpp
 		src/utils/utils_string.cpp
+		src/utils/mud_string.cpp
 		src/engine/db/world_objects.cpp
 		src/engine/db/obj_prototypes.cpp
 		src/engine/db/world_checksum.cpp
@@ -534,6 +535,7 @@ set(HEADERS
 		src/engine/db/world_objects.h
 		src/engine/db/world_checksum.h
 		src/utils/utils_string.h
+		src/utils/mud_string.h
 		src/gameplay/affects/affect_handler.h
 		src/gameplay/economics/auction.h
 		src/utils/backtrace.h

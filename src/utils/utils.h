@@ -26,6 +26,7 @@
 #include "engine/core/config.h"
 #include "utils/id_converter.h"
 #include "utils_string.h"
+#include "mud_string.h"
 #include "logger.h"
 #include "utils/backtrace.h"
 
