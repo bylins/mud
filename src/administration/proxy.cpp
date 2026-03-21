@@ -94,7 +94,7 @@ int CountPlayersFromIp(DescriptorData *d) {
 	for (auto *i = descriptor_list; i; i = i->next) {
 		if (i != d
 			&& i->character
-			&& !i->character->IsImmortal()
+			&& !IS_IMMORTAL(i->character)
 			&& i->ip == d->ip
 			&& (i->state == EConState::kPlaying || i->state == EConState::kMenu)) {
 			count++;
@@ -172,10 +172,10 @@ void RegisterSystem::add(CharData *ch, const char *text, const char *reason) {
 	ch->SetFlag(EPlrFlag::kRegistred);
 	if (!text || !reason) return;
 	std::stringstream out;
-	out << GET_NAME(ch) << " -> " << text << " [" << reason << "]";
-	auto it = email_list.find(GET_EMAIL(ch));
+	out << ch->get_name().c_str() << " -> " << text << " [" << reason << "]";
+	auto it = email_list.find(ch->player_specials->saved.EMail);
 	if (it == email_list.end()) {
-		email_list[GET_EMAIL(ch)] = out.str();
+		email_list[ch->player_specials->saved.EMail] = out.str();
 		need_save = true;
 	}
 }
@@ -186,7 +186,7 @@ void RegisterSystem::add(CharData *ch, const char *text, const char *reason) {
 */
 void RegisterSystem::remove(CharData *ch) {
 	ch->UnsetFlag(EPlrFlag::kRegistred);
-	auto it = email_list.find(GET_EMAIL(ch));
+	auto it = email_list.find(ch->player_specials->saved.EMail);
 	if (it != email_list.end()) {
 		email_list.erase(it);
 		if (ch->desc) {

@@ -18,13 +18,13 @@ void do_recall(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	const int rent_room = GetRoomRnum(GET_LOADROOM(ch));
+	const int rent_room = GetRoomRnum(ch->player_specials->saved.load_room);
 	if (rent_room == kNowhere || ch->in_room == kNowhere) {
 		SendMsgToChar("Вам некуда возвращаться!\r\n", ch);
 		return;
 	}
 
-	if (!ch->IsImmortal()
+	if (!IS_IMMORTAL(ch)
 		&& (SECT(ch->in_room) == ESector::kSecret
 			|| ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoMagic)
 			|| ROOM_FLAGGED(ch->in_room, ERoomFlag::kDeathTrap)
@@ -41,7 +41,7 @@ void do_recall(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	SendMsgToChar("Вам очень захотелось оказаться подальше от этого места!\r\n", ch);
-	if (ch->IsGod() || Noob::is_noob(ch)) {
+	if (IS_GOD(ch) || Noob::is_noob(ch)) {
 		if (ch->in_room != rent_room) {
 			SendMsgToChar("Вы почувствовали, как чья-то огромная рука подхватила вас и куда-то унесла!\r\n", ch);
 			act("$n поднял$a глаза к небу и внезапно исчез$q!", true, ch, nullptr, nullptr, kToRoom | kToArenaListen);

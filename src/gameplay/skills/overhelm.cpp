@@ -95,14 +95,14 @@ void PerformOverhelm(CharData *ch, CharData *victim, HitData &hit_data) {
 	ch->battle_affects.unset(kEafOverwhelm);
 	hit_data.SetFlag(fight::kIgnoreBlink);
 	const int minimum_weapon_weigth = 19;
-	if (ch->IsImmortal()) {
+	if (IS_IMMORTAL(ch)) {
 		hit_data.dam = CalcOverhelmDmg(ch, victim, hit_data.dam);
 	} else if (ch->IsNpc()) {
 		const bool wielded_with_bow = hit_data.wielded &&
 			(static_cast<ESkill>(hit_data.wielded->get_spec_param()) == ESkill::kBows);
 		if (AFF_FLAGGED(ch, EAffect::kCharmed) || AFF_FLAGGED(ch, EAffect::kHelper)) {
 			// проверка оружия для глуша чармисов
-			const bool wielded_for_stupor = GET_EQ(ch, EEquipPos::kWield) || GET_EQ(ch, EEquipPos::kBoths);
+			const bool wielded_for_stupor = ch->equipment[EEquipPos::kWield] || ch->equipment[EEquipPos::kBoths];
 			const bool weapon_weigth_ok = hit_data.wielded && (hit_data.wielded->get_weight() >= minimum_weapon_weigth);
 			if (wielded_for_stupor && !wielded_with_bow && weapon_weigth_ok) {
 				hit_data.dam = CalcOverhelmDmg(ch, victim, hit_data.dam);
@@ -126,7 +126,7 @@ void PerformOverhelm(CharData *ch, CharData *victim, HitData &hit_data) {
 	else {
 		sprintf(buf, "&c&qВы оказались без оружия, а пальцем оглушить нельзя.&Q&n\r\n");
 		SendMsgToChar(buf, ch);
-		sprintf(buf, "&c&q%s оказался без оружия и не смог вас оглушить.&Q&n\r\n", GET_NAME(ch));
+		sprintf(buf, "&c&q%s оказался без оружия и не смог вас оглушить.&Q&n\r\n", ch->get_name().c_str());
 		SendMsgToChar(buf, victim);
 	}
 }
@@ -142,7 +142,7 @@ int CalcOverhelmDmg(CharData *ch, CharData *victim, int dmg) {
 		prob = std::max(prob, percent * 150 / 100 + 1);
 	}
 
-	if (victim->IsImmortal()) {
+	if (IS_IMMORTAL(victim)) {
 		prob = 0;
 	}
 

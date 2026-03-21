@@ -538,7 +538,7 @@ void GuildInfo::GuildSpell::SetTalent(CharData *ch) const {
 		auto spell_duration = spell_time_sec_ + temporary_spells::GetSpellLeftTime(ch, id_);
 		temporary_spells::AddSpell(ch, id_, time(nullptr), spell_duration);
 	} else {
-		SET_BIT(GET_SPELL_TYPE(ch, id_), ESpellType::kKnow);
+		SET_BIT(ch->real_abils.SplKnw[to_underlying(id_)], ESpellType::kKnow);
 	}
 }
 
@@ -611,7 +611,7 @@ void WithdrawCurrency(CharData *ch, Vnum currency_id, long amount) {
 		case 1: { // слава
 			GloryConst::add_total_spent(amount);
 			GloryConst::remove_glory(ch->get_uid(), amount);
-			GloryConst::transfer_log("%s spent %ld const glory in a guild.", GET_NAME(ch), amount);
+			GloryConst::transfer_log("%s spent %ld const glory in a guild.", ch->get_name().c_str(), amount);
 			break;
 		}
 		case 2: { // гривны

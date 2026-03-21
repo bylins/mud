@@ -101,14 +101,14 @@ void setall_inspect() {
 							delete vict;
 							continue;
 						}
-						strncpy(GET_EMAIL(d_vict->character), it->second->newmail, 127);
-						*(GET_EMAIL(d_vict->character) + 127) = '\0';
+						strncpy(d_vict->character->player_specials->saved.EMail, it->second->newmail, 127);
+						*(d_vict->character->player_specials->saved.EMail + 127) = '\0';
 						sprintf(buf2,
 								"Смена e-mail адреса персонажа %s с %s на %s.\r\n",
 								player_table[it->second->pos].name().c_str(),
 								player_table[it->second->pos].mail.c_str(),
 								it->second->newmail);
-						AddKarma(d_vict->character.get(), buf2, GET_NAME(imm_d->character));
+						AddKarma(d_vict->character.get(), buf2, imm_d->character->get_name().c_str());
 						it->second->out += buf2;
 
 					} else {
@@ -124,15 +124,15 @@ void setall_inspect() {
 								delete vict;
 								continue;
 							}
-							strncpy(GET_EMAIL(vict), it->second->newmail, 127);
-							*(GET_EMAIL(vict) + 127) = '\0';
+							strncpy(vict->player_specials->saved.EMail, it->second->newmail, 127);
+							*(vict->player_specials->saved.EMail + 127) = '\0';
 							sprintf(buf2,
 									"Смена e-mail адреса персонажа %s с %s на %s.\r\n",
 									player_table[it->second->pos].name().c_str(),
 									player_table[it->second->pos].mail.c_str(),
 									it->second->newmail);
 							it->second->out += buf2;
-							AddKarma(vict, buf2, GET_NAME(imm_d->character));
+							AddKarma(vict, buf2, imm_d->character->get_name().c_str());
 							vict->save_char();
 						}
 					}
@@ -149,7 +149,7 @@ void setall_inspect() {
 						it->second->out += buf2;
 						sprintf(buf1, "\r\n");
 						it->second->out += buf1;
-						AddKarma(d_vict->character.get(), buf2, GET_NAME(imm_d->character));
+						AddKarma(d_vict->character.get(), buf2, imm_d->character->get_name().c_str());
 					} else {
 						if (LoadPlayerCharacter(player_table[it->second->pos].name().c_str(), vict,
 												ELoadCharFlags::kFindId | ELoadCharFlags::kNoCrcCheck) < 0) {
@@ -171,7 +171,7 @@ void setall_inspect() {
 						it->second->out += buf2;
 						sprintf(buf1, "\r\n");
 						it->second->out += buf1;
-						AddKarma(vict, buf2, GET_NAME(imm_d->character));
+						AddKarma(vict, buf2, imm_d->character->get_name().c_str());
 						vict->save_char();
 					}
 				} else if (it->second->type_req == kSetallHell) {

@@ -12,7 +12,7 @@ extern void split_or_clan_tax(CharData *ch, long amount);
 void perform_give(CharData *ch, CharData *vict, ObjData *obj) {
 	if (!bloody::handle_transfer(ch, vict, obj))
 		return;
-	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoItem) && !ch->IsGod()) {
+	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoItem) && !IS_GOD(ch)) {
 		act("Неведомая сила помешала вам сделать это!",
 			false, ch, nullptr, nullptr, kToChar);
 		return;
@@ -22,11 +22,11 @@ void perform_give(CharData *ch, CharData *vict, ObjData *obj) {
 			false, ch, nullptr, vict, kToChar);
 		return;
 	}
-	if (vict->IsNpc() && mob_index[vict->get_rnum()].func && mob_index[vict->get_rnum()].func != guilds::GuildInfo::DoGuildLearn) {
+	if (vict->IsNpc() && mob_index[GET_MOB_RNUM(vict)].func && mob_index[GET_MOB_RNUM(vict)].func != guilds::GuildInfo::DoGuildLearn) {
 		act("$N не нуждается в ваших подачках, своего барахла навалом.",
 			false, ch, nullptr, vict, kToChar);
 		sprintf(buf, "Попытка мобу с спецпроцедурой дать предмет: Моб %s (%d) в комнате #%d, игрок: %s", 
-			GET_NAME(vict), GET_MOB_VNUM(vict), GET_ROOM_VNUM(vict->in_room), GET_NAME(ch));
+			vict->get_name().c_str(), GET_MOB_VNUM(vict), GET_ROOM_VNUM(vict->in_room), ch->get_name().c_str());
 		mudlog(buf, CMP, kLvlGod, SYSLOG, true);
 		return;
 	}
@@ -93,11 +93,11 @@ void perform_give_gold(CharData *ch, CharData *vict, int amount) {
 		SendMsgToChar("Ха-ха-ха (3 раза)...\r\n", ch);
 		return;
 	}
-	if (ch->get_gold() < amount && (ch->IsNpc() || !ch->IsImpl())) {
+	if (ch->get_gold() < amount && (ch->IsNpc() || !IS_IMPL(ch))) {
 		SendMsgToChar("И откуда вы их взять собираетесь?\r\n", ch);
 		return;
 	}
-	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoItem) && !ch->IsGod()) {
+	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoItem) && !IS_GOD(ch)) {
 		act("Неведомая сила помешала вам сделать это!",
 			false, ch, nullptr, nullptr, kToChar);
 		return;
@@ -114,10 +114,10 @@ void perform_give_gold(CharData *ch, CharData *vict, int amount) {
 				ch->get_name().c_str(),
 				GET_ROOM_VNUM(ch->in_room),
 				amount,
-				GET_PAD(vict, 4));
+				vict->player_data.PNames[4].c_str());
 		mudlog(buf, NRM, kLvlGreatGod, MONEY_LOG, true);
 	}
-	if (ch->IsNpc() || !ch->IsImpl()) {
+	if (ch->IsNpc() || !IS_IMPL(ch)) {
 		ch->remove_gold(amount);
 	}
 	// если денег дает моб - снимаем клан-налог
@@ -135,11 +135,11 @@ void perform_give_nogat(CharData *ch, CharData *vict, int amount) {
 		SendMsgToChar("Ха-ха-ха (3 раза)...\r\n", ch);
 		return;
 	}
-	if (ch->get_nogata() < amount && (ch->IsNpc() || !ch->IsImpl())) {
+	if (ch->get_nogata() < amount && (ch->IsNpc() || !IS_IMPL(ch))) {
 		SendMsgToChar("И откуда ты их взять собирался?\r\n", ch);
 		return;
 	}
-	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoItem) && !ch->IsGod()) {
+	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoItem) && !IS_GOD(ch)) {
 		act("Неведомая сила помешала вам сделать это!",
 			false, ch, nullptr, nullptr, kToChar);
 		return;
@@ -152,7 +152,7 @@ void perform_give_nogat(CharData *ch, CharData *vict, int amount) {
 	else
 		sprintf(buf, "$n дал$g %s $N2.", GetDeclensionInNumber(amount, EWhat::kNogataU));
 	act(buf, true, ch, nullptr, vict, kToNotVict | kToArenaListen);
-	if (ch->IsNpc() || !ch->IsImpl()) {
+	if (ch->IsNpc() || !IS_IMPL(ch)) {
 		ch->sub_nogata(amount);
 	}
 	vict->add_nogata(amount);

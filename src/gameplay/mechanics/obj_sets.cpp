@@ -1202,7 +1202,7 @@ WornSets worn_sets;
 void check_enchants(CharData *ch) {
 	ObjData *obj;
 	for (int i = 0; i < EEquipPos::kNumEquipPos; i++) {
-		obj = GET_EQ(ch, i);
+		obj = ch->equipment[i];
 		if (obj) {
 			auto i = ch->obj_bonus().enchants.find(normalize_vnum(GET_OBJ_VNUM(obj)));
 			if (i != ch->obj_bonus().enchants.end()) {
@@ -1218,7 +1218,7 @@ void activ_sum::update(CharData *ch) {
 	this->DoClear();
 	worn_sets.clear();
 	for (int i = 0; i < EEquipPos::kNumEquipPos; i++) {
-		worn_sets.add(GET_EQ(ch, i));
+		worn_sets.add(ch->equipment[i]);
 	}
 	worn_sets.check(ch);
 	check_enchants(ch);

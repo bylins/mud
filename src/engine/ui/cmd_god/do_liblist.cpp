@@ -219,8 +219,8 @@ namespace mob_list {
 
 std::string PrintRace(CharData *mob) {
 	std::string out;
-	if (GET_RACE(mob) <= ENpcRace::kLastNpcRace) {
-		out += npc_race_types[GET_RACE(mob) - ENpcRace::kBasic];
+	if (mob->player_data.Race <= ENpcRace::kLastNpcRace) {
+		out += npc_race_types[mob->player_data.Race - ENpcRace::kBasic];
 	} else {
 		out += "UNDEF";
 	}

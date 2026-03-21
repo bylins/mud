@@ -232,8 +232,8 @@ void trigedit_parse(DescriptorData *d, char *arg) {
 		case TRIGEDIT_CONFIRM_SAVESTRING:
 			switch (tolower(*arg)) {
 				case 'y': trigedit_save(d);
-					sprintf(buf, "OLC: %s edits trigger %d", GET_NAME(d->character), OLC_NUM(d));
-					olc_log("%s end trig %d", GET_NAME(d->character), OLC_NUM(d));
+					sprintf(buf, "OLC: %s edits trigger %d", d->character->get_name().c_str(), OLC_NUM(d));
+					olc_log("%s end trig %d", d->character->get_name().c_str(), OLC_NUM(d));
 					mudlog(buf, NRM, MAX(kLvlBuilder, GET_INVIS_LEV(d->character)), SYSLOG, true);
 					// fall through
 
@@ -368,23 +368,14 @@ void trigedit_save(DescriptorData *d) {
 
 	// Recompile the command list from the new script
 	s = OLC_STORAGE(d);
-	olc_log("%s start trig %d:\n%s", GET_NAME(d->character), OLC_NUM(d), OLC_STORAGE(d));
+	olc_log("%s start trig %d:\n%s", d->character->get_name().c_str(), OLC_NUM(d), OLC_STORAGE(d));
 
 	trig->cmdlist->reset(new cmdlist_element());
 	const auto &cmdlist = *trig->cmdlist;
 	const auto cmd_token = strtok(s, "\n\r");
-	// lowercase the command (first word) for faster comparison at runtime
-	auto lowercase_first_word = [](std::string &str) {
-		for (auto &c : str) {
-			if (c == ' ') break;
-			c = LOWER(c);
-		}
-	};
-
 	if (cmd_token) { //тут штатная ошибка циркуля, если strok не нашел подстроку то он возвращает не nullptr а строку полностью т.е. надо str_cmp(cmd_token, s)
 		cmdlist->cmd = cmd_token;
 		cmdlist->line_num = 1;
-		lowercase_first_word(cmdlist->cmd);
 	} else {
 		cmdlist->cmd = "";
 		cmdlist->line_num = 0;
@@ -396,7 +387,6 @@ void trigedit_save(DescriptorData *d) {
 		cmd = cmd->next;
 		cmd->cmd = s;
 		cmd->line_num = line_num++;
-		lowercase_first_word(cmd->cmd);
 	}
 	cmd->next.reset();
 //	log("Триггер зона1 %d внум %d ласт %d", OLC_ZNUM(d), zone_table[OLC_ZNUM(d)].vnum, trig_index[zone_table[OLC_ZNUM(d)].RnumTrigsLocation.second]->vnum);

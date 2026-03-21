@@ -24,7 +24,7 @@ void do_pray_gods(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (ch->IsImmortal()) {
+	if (IS_IMMORTAL(ch)) {
 		// Выделяем чара кому отвечают иммы
 		argument = one_argument(argument, arg1);
 		skip_spaces(&argument);
@@ -49,8 +49,8 @@ void do_pray_gods(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	else {
 		if (ch->IsNpc())
 			return;
-		if (ch->IsImmortal()) {
-			sprintf(buf, "&RВы одарили СЛОВОМ %s : '%s'&n\r\n", GET_PAD(victim, 3), argument);
+		if (IS_IMMORTAL(ch)) {
+			sprintf(buf, "&RВы одарили СЛОВОМ %s : '%s'&n\r\n", victim->player_data.PNames[3].c_str(), argument);
 		} else {
 			sprintf(buf, "&RВы воззвали к Богам с сообщением : '%s'&n\r\n", argument);
 			SetWait(ch, 3, false);
@@ -59,30 +59,30 @@ void do_pray_gods(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		ch->remember_add(buf, Remember::PRAY_PERSONAL);
 	}
 
-	if (ch->IsImmortal()) {
-		sprintf(buf, "&R%s ответил%s вам : '%s'&n\r\n", GET_NAME(ch), GET_CH_SUF_1(ch), argument);
+	if (IS_IMMORTAL(ch)) {
+		sprintf(buf, "&R%s ответил%s вам : '%s'&n\r\n", ch->get_name().c_str(), GET_CH_SUF_1(ch), argument);
 		SendMsgToChar(buf, victim);
 		victim->remember_add(buf, Remember::PRAY_PERSONAL);
 
 		snprintf(buf1, kMaxStringLength, "&R%s ответил%s %s : '%s&n\r\n",
-				 GET_NAME(ch), GET_CH_SUF_1(ch), GET_PAD(victim, 2), argument);
+				 ch->get_name().c_str(), GET_CH_SUF_1(ch), victim->player_data.PNames[2].c_str(), argument);
 		ch->remember_add(buf1, Remember::PRAY);
 
 		snprintf(buf, kMaxStringLength, "&R%s ответил%s на воззвание %s : '%s'&n\r\n",
-				 GET_NAME(ch), GET_CH_SUF_1(ch), GET_PAD(victim, 1), argument);
+				 ch->get_name().c_str(), GET_CH_SUF_1(ch), victim->player_data.PNames[1].c_str(), argument);
 	} else {
 		snprintf(buf1, kMaxStringLength, "&R%s воззвал%s к богам : '%s&n\r\n",
-				 GET_NAME(ch), GET_CH_SUF_1(ch), argument);
+				 ch->get_name().c_str(), GET_CH_SUF_1(ch), argument);
 		ch->remember_add(buf1, Remember::PRAY);
 
 		snprintf(buf, kMaxStringLength, "&R[%5d] %s воззвал%s к богам с сообщением : '%s'&n\r\n",
-				 world[ch->in_room]->vnum, GET_NAME(ch), GET_CH_SUF_1(ch), argument);
+				 world[ch->in_room]->vnum, ch->get_name().c_str(), GET_CH_SUF_1(ch), argument);
 	}
 
 	for (i = descriptor_list; i; i = i->next) {
 		if  (i->state == EConState::kPlaying) {
-			if ((i->character.get(->IsImmortal())
-				|| (GET_GOD_FLAG(i->character.get(), EGf::kDemigod)
+			if ((IS_IMMORTAL(i->character.get())
+				|| ((IS_SET(i->character.get()->player_specials->saved.GodsLike, EGf::kDemigod))
 					&& (GetRealLevel(ch) < 6)))
 				&& (i->character.get() != ch)) {
 				SendMsgToChar(buf, i->character.get());

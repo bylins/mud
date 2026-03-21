@@ -18,7 +18,7 @@ float get_effective_cha(CharData *ch) {
 
 	key_value = ch->get_cha();
 	auto max_cha = MUD::Class(ch->GetClass()).GetBaseStatCap(EBaseStat::kCha);
-	key_value_add = std::min(max_cha - ch->get_cha(), GET_CHA_ADD(ch)); // до переделки формул ограничим кап так
+	key_value_add = std::min(max_cha - ch->get_cha(), ch->get_cha_add()); // до переделки формул ограничим кап так
 
 	float eff_cha = 0.0;
 	if (GetRealLevel(ch) <= 14) {
@@ -40,7 +40,7 @@ float CalcEffectiveWis(CharData *ch, ESpell spell_id) {
 
 	if (spell_id == ESpell::kResurrection || spell_id == ESpell::kAnimateDead) {
 		key_value = ch->get_wis();
-		key_value_add = std::min(max_wis - ch->get_wis(), GET_WIS_ADD(ch));
+		key_value_add = std::min(max_wis - ch->get_wis(), ch->get_wis_add());
 	} else {
 		//если гдето вылезет косяком
 		key_value = 0;
@@ -66,7 +66,7 @@ float get_effective_int(CharData *ch) {
 
 	key_value = ch->get_int();
 	auto max_int = MUD::Class(ch->GetClass()).GetBaseStatCap(EBaseStat::kInt);
-	key_value_add = std::min(max_int - ch->get_int(), GET_INT_ADD(ch));
+	key_value_add = std::min(max_int - ch->get_int(), ch->get_int_add());
 
 	float eff_int = 0.0;
 	if (GetRealLevel(ch) <= 14) {
@@ -118,8 +118,8 @@ int CalcCharmPoint(CharData *ch, ESpell spell_id) {
 void ClearMinionTalents(CharData *ch) {
 	ch->real_abils.Feats.reset();
 	for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
-		GET_SPELL_TYPE(ch, spell_id) = 0;
-		GET_SPELL_MEM(ch, spell_id) = 0;
+		ch->real_abils.SplKnw[to_underlying(spell_id)] = 0;
+		ch->real_abils.SplMem[to_underlying(spell_id)] = 0;
 	}
 	ch->clear_skills();
 }

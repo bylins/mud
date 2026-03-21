@@ -6,7 +6,7 @@
 void RemoveEquipment(CharData *ch, int pos) {
 	ObjData *obj;
 
-	if (!(obj = GET_EQ(ch, pos))) {
+	if (!(obj = ch->equipment[pos])) {
 		log("SYSERR: RemoveEquipment: bad pos %d passed.", pos);
 	} else {
 		/*
@@ -46,7 +46,7 @@ void do_remove(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (dotmode == kFindAll) {
 		found = 0;
 		for (i = 0; i < EEquipPos::kNumEquipPos; i++) {
-			if (GET_EQ(ch, i)) {
+			if (ch->equipment[i]) {
 				RemoveEquipment(ch, i);
 				found = 1;
 			}
@@ -62,10 +62,10 @@ void do_remove(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		} else {
 			found = 0;
 			for (i = 0; i < EEquipPos::kNumEquipPos; i++) {
-				if (GET_EQ(ch, i)
-					&& CAN_SEE_OBJ(ch, GET_EQ(ch, i))
-					&& (isname(arg, GET_EQ(ch, i)->get_aliases())
-						|| CHECK_CUSTOM_LABEL(arg, GET_EQ(ch, i), ch))) {
+				if (ch->equipment[i]
+					&& CAN_SEE_OBJ(ch, ch->equipment[i])
+					&& (isname(arg, ch->equipment[i]->get_aliases())
+						|| CHECK_CUSTOM_LABEL(arg, ch->equipment[i], ch))) {
 					RemoveEquipment(ch, i);
 					found = 1;
 				}
@@ -81,13 +81,13 @@ void do_remove(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (!get_object_in_equip_vis(ch, arg, ch->equipment, &i)) {
 			// если предмет не найден, то возможно игрок ввел "левая" или "правая"
 			if (!str_cmp("правая", arg)) {
-				if (!GET_EQ(ch, EEquipPos::kWield)) {
+				if (!ch->equipment[EEquipPos::kWield]) {
 					SendMsgToChar("В правой руке ничего нет.\r\n", ch);
 				} else {
 					RemoveEquipment(ch, EEquipPos::kWield);
 				}
 			} else if (!str_cmp("левая", arg)) {
-				if (!GET_EQ(ch, EEquipPos::kHold))
+				if (!ch->equipment[EEquipPos::kHold])
 					SendMsgToChar("В левой руке ничего нет.\r\n", ch);
 				else
 					RemoveEquipment(ch, EEquipPos::kHold);
@@ -101,7 +101,7 @@ void do_remove(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 	}
 	//мы что-то да снимали. значит проверю я доп слот
-	if ((obj = GET_EQ(ch, EEquipPos::kQuiver)) && !GET_EQ(ch, EEquipPos::kBoths)) {
+	if ((obj = ch->equipment[EEquipPos::kQuiver]) && !ch->equipment[EEquipPos::kBoths]) {
 		SendMsgToChar("Нету лука, нет и стрел.\r\n", ch);
 		act("$n прекратил$g использовать $o3.", false, ch, obj, nullptr, kToRoom);
 		PlaceObjToInventory(UnequipChar(ch, EEquipPos::kQuiver, CharEquipFlags()), ch);

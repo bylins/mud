@@ -401,7 +401,7 @@ int CallMagicToRoom(int/* level*/, CharData *ch, RoomData *room, ESpell spell_id
 			af[0].must_handled = false;
 			accum_duration = false;
 			update_spell = true;
-			if (IS_MANA_CASTER(ch)) {
+			if (ch->IsManaCaster()) {
 				af[0].modifier = 95;
 			} else {
 				af[0].modifier = MIN(100, GetRealInt(ch) + MAX((GetRealInt(ch) - 30) * 4, 0));
@@ -569,7 +569,7 @@ int CallMagicToRoom(int/* level*/, CharData *ch, RoomData *room, ESpell spell_id
 	} else
 		SendMsgToChar(NOEFFECT, ch);
 
-	if (!ch->IsImmortal())
+	if (!IS_IMMORTAL(ch))
 		SetWaitState(ch, lag * kBattleRound);
 
 	return 0;
@@ -680,7 +680,7 @@ void RemoveSingleAffectFromWorld(CharData *ch, ESpell spell_id) {
 }
 
 void ProcessRoomAffectsOnEntry(CharData *ch, RoomRnum room) {
-	if (ch->IsImmortal()) {
+	if (IS_IMMORTAL(ch)) {
 		return;
 	}
 

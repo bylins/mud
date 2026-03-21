@@ -37,7 +37,7 @@ void do_statistic(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 		if (tch->IsNpc() || GetRealLevel(tch) >= kLvlImmortal || !HERE(tch)) {
 			continue;
 		}
-		CLAN(tch) ? ++clan : ++noclan;
+		tch->player_specials->clan ? ++clan : ++noclan;
 		GetRealRemort(tch) >= 1 ? ++rem : ++norem;
 		pk_count(tch.get()) >= 1 ? ++pk : ++nopk;
 

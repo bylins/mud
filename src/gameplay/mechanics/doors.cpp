@@ -387,8 +387,8 @@ int HasKey(CharData *ch, ObjVnum key) {
 		}
 	}
 
-	if (GET_EQ(ch, kHold)) {
-		if (GET_OBJ_VNUM(GET_EQ(ch, kHold)) == key && key != -1) {
+	if (ch->equipment[kHold]) {
+		if (GET_OBJ_VNUM(ch->equipment[kHold]) == key && key != -1) {
 			return true;
 		}
 	}
@@ -425,7 +425,7 @@ void go_gen_door(CharData *ch, char *type, char *dir, int where_bits, int subcmd
 	}
 
 	if ((obj) || (door.dir != EDirection::kUndefinedDir)) {
-		if ((obj) && !ch->IsImmortal() && (obj->has_flag(EObjFlag::kNamed))
+		if ((obj) && !IS_IMMORTAL(ch) && (obj->has_flag(EObjFlag::kNamed))
 			&& NamedStuff::check_named(ch, obj, true))//Именной предмет открывать(закрывать) может только владелец
 		{
 			if (!NamedStuff::wear_msg(ch, obj))
@@ -433,7 +433,7 @@ void go_gen_door(CharData *ch, char *type, char *dir, int where_bits, int subcmd
 			return;
 		}
 		auto keynum = GetDoorKeyVnum(ch, obj, door.dir);
-		if ((subcmd == kScmdClose || subcmd == kScmdLock) && !ch->IsNpc() && NORENTABLE(ch))
+		if ((subcmd == kScmdClose || subcmd == kScmdLock) && !ch->IsNpc() && (ch->IsNpc() ? 0 : ch->player_specials->may_rent))
 			SendMsgToChar("Ведите себя достойно во время боевых действий!\r\n", ch);
 		else if (!(IsdoorOpenable(ch, obj, door.dir)))
 			act("Вы никогда не сможете $F это!", false, ch, nullptr, a_cmd_door[subcmd], kToChar);

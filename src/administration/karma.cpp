@@ -15,7 +15,7 @@ void AddKarma(CharData *ch, const char *punish, const char *reason) {
 		char smallbuf[kMaxInputLength];
 		time_t nt = time(nullptr);
 		snprintf(smallbuf, kMaxInputLength, "%s :: %s [%s]\r\n", rustime(localtime(&nt)), punish, reason);
-		KARMA(ch) = str_add(KARMA(ch), smallbuf);
+		ch->player_specials->Karma = str_add(ch->player_specials->Karma, smallbuf);
 	}
 }
 

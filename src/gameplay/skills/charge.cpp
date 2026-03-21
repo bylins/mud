@@ -126,7 +126,7 @@ void GoCharge(CharData *ch, int direction) {
 					dmg.dam = 0;
 					dmg.Process(target, ch);
 				} else {
-					if (ch->GetSkill(ESkill::kShieldBash) && ch->GetSkill(ESkill::kBash) && (GET_EQ(ch, kShield)) && !is_awake) {
+					if (ch->GetSkill(ESkill::kShieldBash) && ch->GetSkill(ESkill::kBash) && (ch->equipment[kShield]) && !is_awake) {
 						go_bash(ch,target);
 					} else {
 						act("Хорошенько разогнавшись Вы прописали $N2 роскошного тумака!",

@@ -613,10 +613,7 @@ class CharData : public ProtectedCharData {
 	bool IsNpc() const { return is_npc_; }
 	void SetNpcAttribute(bool _) { is_npc_ = _; }
 	bool IsPlayer() const { return !IsNpc(); }
-	bool IsImmortal() const { return !IsNpc() && GetLevel() >= kLvlImmortal; }
-	bool IsGod() const { return !IsNpc() && GetLevel() >= kLvlGod; }
-	bool IsGrGod() const { return !IsNpc() && GetLevel() >= kLvlGreatGod; }
-	bool IsImpl() const { return !IsNpc() && GetLevel() >= kLvlImplementator; }
+	bool IsManaCaster() const { return GetClass() == ECharClass::kMagus; }
 	bool have_mind() const;
 	bool HasWeapon();
 
@@ -1017,8 +1014,8 @@ inline void SetSave(CharData *ch, ESaving save, int mod) {
 inline bool IS_UNDEAD(CharData *ch) {
 	return ch->IsNpc()
 			&& (ch->IsFlagged(EMobFlag::kResurrected)
-					|| GET_RACE(ch) == ENpcRace::kZombie
-					|| GET_RACE(ch) == ENpcRace::kGhost);
+					|| ch->player_data.Race == ENpcRace::kZombie
+					|| ch->player_data.Race == ENpcRace::kGhost);
 }
 
 void change_fighting(CharData *ch, int need_stop);

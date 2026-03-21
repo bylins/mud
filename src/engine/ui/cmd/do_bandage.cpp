@@ -62,7 +62,7 @@ void DoBandage(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	ImposeAffect(ch, af, false, false, false, false);
 
 	bandage->set_weight(bandage->get_weight() - 1);
-	IS_CARRYING_W(ch) -= 1;
+	ch->char_specials.carry_weight -= 1;
 	if (bandage->get_weight() <= 0) {
 		SendMsgToChar("Очередная пачка бинтов подошла к концу.\r\n", ch);
 		ExtractObjFromWorld(bandage);

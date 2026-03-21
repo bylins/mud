@@ -376,7 +376,7 @@ const WeapForAct init_weap(CharData *ch, int dam, int attacktype) {
 	int weap_i = 0;
 
 	switch (attacktype) {
-		case to_underlying(ESkill::kBackstab) + kTypeHit: weap = GET_EQ(ch, EEquipPos::kWield);
+		case to_underlying(ESkill::kBackstab) + kTypeHit: weap = ch->equipment[EEquipPos::kWield];
 			if (!weap.get_prototype_raw_ptr()) {
 				weap_i = GetObjRnum(kDummyKnight);
 				if (0 <= weap_i) {
@@ -385,7 +385,7 @@ const WeapForAct init_weap(CharData *ch, int dam, int attacktype) {
 			}
 			break;
 
-		case to_underlying(ESkill::kThrow) + kTypeHit: weap = GET_EQ(ch, EEquipPos::kWield);
+		case to_underlying(ESkill::kThrow) + kTypeHit: weap = ch->equipment[EEquipPos::kWield];
 			if (!weap.get_prototype_raw_ptr()) {
 				weap_i = GetObjRnum(kDummyKnight);
 				if (0 <= weap_i) {
@@ -394,7 +394,7 @@ const WeapForAct init_weap(CharData *ch, int dam, int attacktype) {
 			}
 			break;
 
-		case to_underlying(ESkill::kBash) + kTypeHit: weap = GET_EQ(ch, EEquipPos::kShield);
+		case to_underlying(ESkill::kBash) + kTypeHit: weap = ch->equipment[EEquipPos::kShield];
 			if (!weap.get_prototype_raw_ptr()) {
 				weap_i = GetObjRnum(kDummyShield);
 				if (0 <= weap_i) {
@@ -761,7 +761,7 @@ int CalculateVictimRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 
 		case ESkill::kDisarm: {
 			rate += dex_bonus(GetRealStr(ch));
-			if (GET_EQ(vict, EEquipPos::kBoths))
+			if (vict->equipment[EEquipPos::kBoths])
 				rate -= 10;
 			if (vict->IsFlagged(EPrf::kAwake))
 				rate -= CalculateSkillAwakeModifier(ch, vict);
@@ -903,8 +903,8 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 
 		case ESkill::kBash: {
 			parameter_bonus += dex_bonus(GetRealDex(ch));
-			bonus = (GET_REAL_SIZE(ch) - 50) + (GET_EQ(ch, EEquipPos::kShield) ?
-							weapon_app[std::clamp(GET_EQ(ch, EEquipPos::kShield)->get_weight(), 0, 35)].bashing : 0);
+			bonus = (GET_REAL_SIZE(ch) - 50) + (ch->equipment[EEquipPos::kShield] ?
+							weapon_app[std::clamp(ch->equipment[EEquipPos::kShield]->get_weight(), 0, 35)].bashing : 0);
 			if (ch->IsFlagged(EPrf::kAwake)) {
 				bonus = -50;
 			}
@@ -1040,17 +1040,17 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 			if (ch->battle_affects.get(kEafAwake)) {
 				bonus += ch->GetSkill(ESkill::kAwake);
 			}
-			if (GET_EQ(ch, EEquipPos::kHold)
-				&& GET_EQ(ch, EEquipPos::kHold)->get_type() == EObjType::kWeapon) {
-				bonus += weapon_app[std::clamp(GET_EQ(ch, EEquipPos::kHold)->get_weight(), 0, 50)].parrying;
+			if (ch->equipment[EEquipPos::kHold]
+				&& ch->equipment[EEquipPos::kHold]->get_type() == EObjType::kWeapon) {
+				bonus += weapon_app[std::clamp(ch->equipment[EEquipPos::kHold]->get_weight(), 0, 50)].parrying;
 			}
 			break;
 		}
 
 		case ESkill::kShieldBlock: {
 			parameter_bonus += dex_bonus(GetRealDex(ch));
-			bonus += GET_EQ(ch, EEquipPos::kShield) ?
-					 std::clamp(GET_EQ(ch, EEquipPos::kShield)->get_weight() - 20, 0, 10) : 0;
+			bonus += ch->equipment[EEquipPos::kShield] ?
+					 std::clamp(ch->equipment[EEquipPos::kShield]->get_weight() - 20, 0, 10) : 0;
 			break;
 		}
 
@@ -1142,11 +1142,11 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 
 		case ESkill::kOverwhelm: {
 			bonus = dex_bonus(GetRealStr(ch));
-			if (GET_EQ(ch, EEquipPos::kWield)) {
-				bonus += weapon_app[GET_EQ(ch, EEquipPos::kWield)->get_weight()].shocking;
+			if (ch->equipment[EEquipPos::kWield]) {
+				bonus += weapon_app[ch->equipment[EEquipPos::kWield]->get_weight()].shocking;
 			} else {
-				if (GET_EQ(ch, EEquipPos::kBoths)) {
-					bonus += weapon_app[GET_EQ(ch, EEquipPos::kBoths)->get_weight()].shocking;
+				if (ch->equipment[EEquipPos::kBoths]) {
+					bonus += weapon_app[ch->equipment[EEquipPos::kBoths]->get_weight()].shocking;
 				}
 			}
 			break;
@@ -1159,17 +1159,17 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 
 		case ESkill::kPunctual: {
 			parameter_bonus = dex_bonus(GetRealInt(ch));
-			if (GET_EQ(ch, EEquipPos::kWield))
-				bonus += std::max(18, GET_EQ(ch, EEquipPos::kWield)->get_weight()) - 18
-					+ std::max(25, GET_EQ(ch, EEquipPos::kWield)->get_weight()) - 25
-					+ std::max(30, GET_EQ(ch, EEquipPos::kWield)->get_weight()) - 30;
-			if (GET_EQ(ch, EEquipPos::kHold))
-				bonus += std::max(18, GET_EQ(ch, EEquipPos::kHold)->get_weight()) - 18
-					+ std::max(25, GET_EQ(ch, EEquipPos::kHold)->get_weight()) - 25
-					+ std::max(30, GET_EQ(ch, EEquipPos::kHold)->get_weight()) - 30;
-			if (GET_EQ(ch, EEquipPos::kBoths))
-				bonus += std::max(25, GET_EQ(ch, EEquipPos::kBoths)->get_weight()) - 25
-					+ std::max(30, GET_EQ(ch, EEquipPos::kBoths)->get_weight()) - 30;
+			if (ch->equipment[EEquipPos::kWield])
+				bonus += std::max(18, ch->equipment[EEquipPos::kWield]->get_weight()) - 18
+					+ std::max(25, ch->equipment[EEquipPos::kWield]->get_weight()) - 25
+					+ std::max(30, ch->equipment[EEquipPos::kWield]->get_weight()) - 30;
+			if (ch->equipment[EEquipPos::kHold])
+				bonus += std::max(18, ch->equipment[EEquipPos::kHold]->get_weight()) - 18
+					+ std::max(25, ch->equipment[EEquipPos::kHold]->get_weight()) - 25
+					+ std::max(30, ch->equipment[EEquipPos::kHold]->get_weight()) - 30;
+			if (ch->equipment[EEquipPos::kBoths])
+				bonus += std::max(25, ch->equipment[EEquipPos::kBoths]->get_weight()) - 25
+					+ std::max(30, ch->equipment[EEquipPos::kBoths]->get_weight()) - 30;
 			break;
 		}
 
@@ -1230,10 +1230,10 @@ int CalculateSkillRate(CharData *ch, const ESkill skill_id, CharData *vict) {
 
 		case ESkill::kStun: {
 			parameter_bonus = dex_bonus(GetRealStr(ch));
-			if (GET_EQ(ch, EEquipPos::kWield))
-				bonus += weapon_app[GET_EQ(ch, EEquipPos::kWield)->get_weight()].shocking;
-			else if (GET_EQ(ch, EEquipPos::kBoths))
-				bonus += weapon_app[GET_EQ(ch, EEquipPos::kBoths)->get_weight()].shocking;
+			if (ch->equipment[EEquipPos::kWield])
+				bonus += weapon_app[ch->equipment[EEquipPos::kWield]->get_weight()].shocking;
+			else if (ch->equipment[EEquipPos::kBoths])
+				bonus += weapon_app[ch->equipment[EEquipPos::kBoths]->get_weight()].shocking;
 			break;
 		}
 		default: break;
@@ -1340,9 +1340,9 @@ void SendSkillRollMsg(CharData *ch, CharData *victim, ESkill skill_id,
 		   << " Saving:" << save
 		<< kColorNrm << "\r\n";
 	ch->send_to_TC(false, true, true, buffer.str().c_str());
-	if (GET_GOD_FLAG(ch, EGf::kSkillTester) && skill_id != ESkill::kUndefined) {
+	if ((IS_SET(ch->player_specials->saved.GodsLike, EGf::kSkillTester)) && skill_id != ESkill::kUndefined) {
 		buffer.str("");
-		buffer << "SKILLTEST:;" << GET_NAME(ch)
+		buffer << "SKILLTEST:;" << ch->get_name().c_str()
 			   << ";Skill;" << MUD::Skill(skill_id).name
 			   << ";T.Percent;" << result.SkillRate
 			   << ";A.Rate;" << actor_rate
@@ -1426,8 +1426,8 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict, bool /
 			victim_sav = CalcSaving(ch, vict, ESaving::kReflex, 0);
 			bonus = (GET_REAL_SIZE(ch) - 50)
 				+ dex_bonus(GetRealDex(ch))
-				+ (GET_EQ(ch, EEquipPos::kShield)
-				   ? weapon_app[std::clamp(GET_EQ(ch, EEquipPos::kShield)->get_weight(), 0, 50)].bashing
+				+ (ch->equipment[EEquipPos::kShield]
+				   ? weapon_app[std::clamp(ch->equipment[EEquipPos::kShield]->get_weight(), 0, 50)].bashing
 				   : 0);
 			if (vict) {
 				if (vict->GetPosition() < EPosition::kFight && vict->GetPosition() > EPosition::kSleep) {
@@ -1579,10 +1579,10 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict, bool /
 				bonus += ch->GetSkill(ESkill::kAwake);
 			}
 
-			if (GET_EQ(ch, EEquipPos::kHold)
-				&& GET_EQ(ch, EEquipPos::kHold)->get_type() == EObjType::kWeapon) {
+			if (ch->equipment[EEquipPos::kHold]
+				&& ch->equipment[EEquipPos::kHold]->get_type() == EObjType::kWeapon) {
 				bonus +=
-					weapon_app[std::clamp(GET_EQ(ch, EEquipPos::kHold)->get_weight(), 0, 50)].parrying;
+					weapon_app[std::clamp(ch->equipment[EEquipPos::kHold]->get_weight(), 0, 50)].parrying;
 			}
 			victim_modi = 100;
 			break;
@@ -1590,8 +1590,8 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict, bool /
 
 		case ESkill::kShieldBlock: {
 			int shield_mod =
-				GET_EQ(ch, EEquipPos::kShield) ?
-					std::min(10, std::max(0, GET_EQ(ch, EEquipPos::kShield)->get_weight() - 20)) : 0;
+				ch->equipment[EEquipPos::kShield] ?
+					std::min(10, std::max(0, ch->equipment[EEquipPos::kShield]->get_weight() - 20)) : 0;
 			int dex_mod = std::max(0, (GetRealDex(ch) - 20) / 3);
 			bonus = dex_mod + shield_mod;
 			break;
@@ -1645,7 +1645,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict, bool /
 			bonus = dex_bonus(GetRealDex(ch)) + dex_bonus(GetRealStr(ch));
 			if (vict) {
 				victim_modi -= dex_bonus(GetRealStr(ch));
-				if (GET_EQ(vict, EEquipPos::kBoths))
+				if (vict->equipment[EEquipPos::kBoths])
 					victim_modi -= 10;
 				if (vict->IsFlagged(EPrf::kAwake))
 					victim_modi -= CalculateSkillAwakeModifier(ch, vict);
@@ -1737,12 +1737,12 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict, bool /
 		case ESkill::kOverwhelm: {
 			victim_sav = CalcSaving(ch, vict, ESaving::kStability, 0);
 			bonus = dex_bonus(GetRealStr(ch));
-			if (GET_EQ(ch, EEquipPos::kWield))
+			if (ch->equipment[EEquipPos::kWield])
 				bonus +=
-					weapon_app[GET_EQ(ch, EEquipPos::kWield)->get_weight()].shocking;
-			else if (GET_EQ(ch, EEquipPos::kBoths))
+					weapon_app[ch->equipment[EEquipPos::kWield]->get_weight()].shocking;
+			else if (ch->equipment[EEquipPos::kBoths])
 				bonus +=
-					weapon_app[GET_EQ(ch, EEquipPos::kBoths)->get_weight()].shocking;
+					weapon_app[ch->equipment[EEquipPos::kBoths]->get_weight()].shocking;
 
 			if (vict) {
 				victim_modi -= GetRealCon(vict);
@@ -1758,17 +1758,17 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict, bool /
 		case ESkill::kPunctual: {
 			victim_sav = CalcSaving(ch, vict, ESaving::kCritical, 0);
 			bonus = dex_bonus(GetRealInt(ch));
-			if (GET_EQ(ch, EEquipPos::kWield))
-				bonus += std::max(18, GET_EQ(ch, EEquipPos::kWield)->get_weight()) - 18
-					+ std::max(25, GET_EQ(ch, EEquipPos::kWield)->get_weight()) - 25
-					+ std::max(30, GET_EQ(ch, EEquipPos::kWield)->get_weight()) - 30;
-			if (GET_EQ(ch, EEquipPos::kHold))
-				bonus += std::max(18, GET_EQ(ch, EEquipPos::kHold)->get_weight()) - 18
-					+ std::max(25, GET_EQ(ch, EEquipPos::kHold)->get_weight()) - 25
-					+ std::max(30, GET_EQ(ch, EEquipPos::kHold)->get_weight()) - 30;
-			if (GET_EQ(ch, EEquipPos::kBoths))
-				bonus += std::max(25, GET_EQ(ch, EEquipPos::kBoths)->get_weight()) - 25
-					+ std::max(30, GET_EQ(ch, EEquipPos::kBoths)->get_weight()) - 30;
+			if (ch->equipment[EEquipPos::kWield])
+				bonus += std::max(18, ch->equipment[EEquipPos::kWield]->get_weight()) - 18
+					+ std::max(25, ch->equipment[EEquipPos::kWield]->get_weight()) - 25
+					+ std::max(30, ch->equipment[EEquipPos::kWield]->get_weight()) - 30;
+			if (ch->equipment[EEquipPos::kHold])
+				bonus += std::max(18, ch->equipment[EEquipPos::kHold]->get_weight()) - 18
+					+ std::max(25, ch->equipment[EEquipPos::kHold]->get_weight()) - 25
+					+ std::max(30, ch->equipment[EEquipPos::kHold]->get_weight()) - 30;
+			if (ch->equipment[EEquipPos::kBoths])
+				bonus += std::max(25, ch->equipment[EEquipPos::kBoths]->get_weight()) - 25
+					+ std::max(30, ch->equipment[EEquipPos::kBoths]->get_weight()) - 30;
 			if (vict) {
 				victim_modi -= int_app[GetRealInt(vict)].observation;
 			}
@@ -1846,10 +1846,10 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict, bool /
 				victim_sav -= GetRealLevel(vict);
 
 			bonus = dex_bonus(GetRealStr(ch));
-			if (GET_EQ(ch, EEquipPos::kWield))
-				bonus += weapon_app[GET_EQ(ch, EEquipPos::kWield)->get_weight()].shocking;
-			else if (GET_EQ(ch, EEquipPos::kBoths))
-				bonus += weapon_app[GET_EQ(ch, EEquipPos::kBoths)->get_weight()].shocking;
+			if (ch->equipment[EEquipPos::kWield])
+				bonus += weapon_app[ch->equipment[EEquipPos::kWield]->get_weight()].shocking;
+			else if (ch->equipment[EEquipPos::kBoths])
+				bonus += weapon_app[ch->equipment[EEquipPos::kBoths]->get_weight()].shocking;
 
 			if (vict->IsFlagged(EPrf::kAwake))
 				victim_modi -= CalculateSkillAwakeModifier(ch, vict);
@@ -1892,15 +1892,15 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict, bool /
 		total_percent /= 2;
 	}
 
-	if (GET_GOD_FLAG(ch, EGf::kGodsLike) || (vict && GET_GOD_FLAG(vict, EGf::kGodscurse))) {
+	if ((IS_SET(ch->player_specials->saved.GodsLike, EGf::kGodsLike)) || (vict && (IS_SET(vict->player_specials->saved.GodsLike, EGf::kGodscurse)))) {
 		total_percent = MUD::Skill(skill_id).cap;
-	} else if (GET_GOD_FLAG(ch, EGf::kGodscurse)) {
+	} else if ((IS_SET(ch->player_specials->saved.GodsLike, EGf::kGodscurse))) {
 		total_percent = 0;
 	}
-	if (GET_GOD_FLAG(ch, EGf::kSkillTester) && skill_id != ESkill::kUndefined) {
+	if ((IS_SET(ch->player_specials->saved.GodsLike, EGf::kSkillTester)) && skill_id != ESkill::kUndefined) {
 		log("SKILLTEST:;%s;Target %s (%d);skill;%s;base_percent;%d;bonus;%d;victim_save;%d;victim_modi;%d;total_percent;%d;удача;%s",
-			GET_NAME(ch),
-			vict ? GET_NAME(vict) : "NULL",
+			ch->get_name().c_str(),
+			vict ? vict->get_name().c_str() : "NULL",
 			vict ? GET_MOB_VNUM(vict) : -1,
 			MUD::Skill(skill_id).GetName(),
 			base_percent,
@@ -1912,7 +1912,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict, bool /
 	}
 	ch->send_to_TC(false, true, true,
 			"&CTarget: %s, skill: %s, base_percent: %d, bonus: %d, victim_save: %d, victim_modi: %d, total_percent: %d, удача: %s&n\r\n",
-			vict ? GET_NAME(vict) : "NULL",
+			vict ? vict->get_name().c_str() : "NULL",
 				   MUD::Skill(skill_id).GetName(),
 			base_percent,
 			bonus,
@@ -1923,7 +1923,7 @@ int CalcCurrentSkill(CharData *ch, const ESkill skill_id, CharData *vict, bool /
 	if (vict && !vict->IsNpc()) {
 			vict->send_to_TC(false, true, true,
 					"&CKiller: %s, skill: %s, base_percent: %d, bonus: %d, victim_save: %d, victim_modi: %d, total_percent: %d, удача: %s&n\r\n",
-					ch ? GET_NAME(ch) : "NULL",
+					ch ? ch->get_name().c_str() : "NULL",
 						   MUD::Skill(skill_id).GetName(),
 					base_percent,
 					bonus,
@@ -2002,7 +2002,7 @@ void ImproveSkill(CharData *ch, const ESkill skill, int success, CharData *victi
 		}
 		SendMsgToChar(buf, ch);
 		ch->set_skill(skill, (trained_skill + number(1, 2)));
-		if (!ch->IsImmortal()) {
+		if (!IS_IMMORTAL(ch)) {
 			ch->set_skill(skill, (std::min(kZeroRemortSkillCap + GetRealRemort(ch) * 5, ch->GetSkillBonus(skill))));
 		}
 		if (victim && victim->IsNpc()) {

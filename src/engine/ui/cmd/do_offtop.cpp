@@ -53,7 +53,7 @@ void do_offtop(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	ch->set_last_tell(argument);
 	if (ch->IsFlagged(EPlrFlag::kSpamer)) // а вот фиг, еще проверка :)
 		return;
-	snprintf(buf, kMaxStringLength, "[оффтоп] %s : '%s'\r\n", GET_NAME(ch), argument);
+	snprintf(buf, kMaxStringLength, "[оффтоп] %s : '%s'\r\n", ch->get_name().c_str(), argument);
 	snprintf(buf1, kMaxStringLength, "&c%s&n", buf);
 	for (DescriptorData *i = descriptor_list; i; i = i->next) {
 		// переплут как любитель почитывать логи за ночь очень хотел этот канал...
@@ -61,7 +61,7 @@ void do_offtop(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if  (i->state == EConState::kPlaying
 			&& i->character
 // оффтоп видят все, временно
-//			&& (GetRealLevel(i->character) < kLvlImmortal || i->character->IsImpl())
+//			&& (GetRealLevel(i->character) < kLvlImmortal || IS_IMPL(i->character))
 			&& i->character->IsFlagged(EPrf::kOfftopMode)
 			&& !i->character->IsFlagged(EPrf::kStopOfftop)
 			&& !ignores(i->character.get(), ch, EIgnore::kOfftop)) {

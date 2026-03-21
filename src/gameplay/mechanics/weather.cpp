@@ -53,7 +53,7 @@ void gods_day_now(CharData *ch) {
 	std::string poly_name = celebrates::GetNamePoly(celebrates::GetMudDay());
 	std::string real_name = celebrates::GetNameReal(celebrates::GetRealDay());
 
-	if (ch->IsImmortal()) {
+	if (IS_IMMORTAL(ch)) {
 		sprintf(poly, "Язычники : %s Нет праздника. %s\r\n", kColorWht, kColorNrm);
 		sprintf(mono, "Христиане: %s Нет праздника. %s\r\n", kColorWht, kColorNrm);
 		sprintf(real, "В реальном мире: %s Нет праздника. %s\r\n", kColorWht, kColorNrm);
@@ -71,13 +71,13 @@ void gods_day_now(CharData *ch) {
 		sprintf(mono + strlen(mono), "Пасха    : %d.%02d\r\n", EasterDay + 1, EasterMonth + 1);
 		SendMsgToChar(poly, ch);
 		SendMsgToChar(mono, ch);
-	} else if (GET_RELIGION(ch) == kReligionPoly) {
+	} else if (ch->player_data.Religion == kReligionPoly) {
 		if (!poly_name.empty()) {
 			sprintf(poly, "%s Сегодня %s. %s\r\n", kColorWht,
 					poly_name.c_str(), kColorNrm);
 			SendMsgToChar(poly, ch);
 		}
-	} else if (GET_RELIGION(ch) == kReligionMono) {
+	} else if (ch->player_data.Religion == kReligionMono) {
 		if (!mono_name.empty()) {
 			sprintf(mono, "%s Сегодня %s. %s\r\n", kColorWht,
 					mono_name.c_str(), kColorNrm);
@@ -846,7 +846,7 @@ int CalcDaySpellMod(CharData *ch, ESpell /* spell_id */, int type, int value) {
 			break;
 		case GAPPLY_SPELL_EFFECT: break;
 	}
-	if (ch->IsImmortal() || GET_GOD_FLAG(ch, EGf::kGodsLike))
+	if (IS_IMMORTAL(ch) || (IS_SET(ch->player_specials->saved.GodsLike, EGf::kGodsLike)))
 		modi = MAX(modi, value);
 	return (modi);
 }
@@ -1027,7 +1027,7 @@ int weather_skill_modifier(CharData *ch, ESkill skillnum, int type, int value) {
 			}
 			break;
 	}
-	if (ch->IsImmortal())
+	if (IS_IMMORTAL(ch))
 		modi = MAX(modi, value);
 	return (modi);
 }

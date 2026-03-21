@@ -97,7 +97,7 @@ void Characters::AddToExtractedList(CharData *ch) {
 	if (ch->IsNpc()) {
 		mobs_by_vnum_remove(ch, mob_index[(ch)->get_rnum()].vnum);
 	}
-	log("add mob to extracted list %s %d", GET_NAME(ch), GET_MOB_VNUM(ch));
+	log("add mob to extracted list %s %d", ch->get_name().c_str(), GET_MOB_VNUM(ch));
 	ch->set_purged(true);
 	DropEquipment(ch, false);
 	DropInventory(ch, false);

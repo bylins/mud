@@ -564,8 +564,8 @@ void redit_parse(DescriptorData *d, char *arg) {
 				case 'Y':
 				case 'д':
 				case 'Д': redit_save_internally(d);
-					sprintf(buf, "OLC: %s edits room %d.", GET_NAME(d->character), OLC_NUM(d));
-					olc_log("%s edit room %d", GET_NAME(d->character), OLC_NUM(d));
+					sprintf(buf, "OLC: %s edits room %d.", d->character->get_name().c_str(), OLC_NUM(d));
+					olc_log("%s edit room %d", d->character->get_name().c_str(), OLC_NUM(d));
 					mudlog(buf, NRM, std::max(kLvlBuilder, GET_INVIS_LEV(d->character)), SYSLOG, true);
 					// * Do NOT free strings! Just the room structure.
 					cleanup_olc(d, CLEANUP_STRUCTS);
@@ -669,7 +669,7 @@ void redit_parse(DescriptorData *d, char *arg) {
 					redit_disp_menu(d);
 					break;
 			}
-			olc_log("%s command %c", GET_NAME(d->character), *arg);
+			olc_log("%s command %c", d->character->get_name().c_str(), *arg);
 			return;
 
 		case OLC_SCRIPT_EDIT:

@@ -374,7 +374,7 @@ void do_edit_make(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	// Проверяем не правит ли кто-то рецепты для исключения конфликтов
 	for (d = descriptor_list; d; d = d->next) {
 		if (d->olc && d->state == EConState::kMredit) {
-			sprintf(tmpbuf, "Рецепты в настоящий момент редактируются %s.\r\n", GET_PAD(d->character, 4));
+			sprintf(tmpbuf, "Рецепты в настоящий момент редактируются %s.\r\n", d->character->player_data.PNames[4].c_str());
 			SendMsgToChar(tmpbuf, ch);
 			return;
 		}
@@ -929,7 +929,7 @@ void do_transform_weapon(CharData *ch, char *argument, int/* cmd*/, int subcmd) 
 				act("$o сделан$G из неподходящего материала.", false, ch, obj, 0, kToChar);
 				return;
 			}
-			if (!ch->IsImmortal()) {
+			if (!IS_IMMORTAL(ch)) {
 				if (!ROOM_FLAGGED(ch->in_room, ERoomFlag::kForge)) {
 					SendMsgToChar("Вам нужно попасть в кузницу для этого.\r\n", ch);
 					return;
@@ -1234,7 +1234,7 @@ int MakeRecept::can_make(CharData *ch) {
 		int ingr_lev = get_ingr_lev(ingrobj);
 		// Если чар ниже уровня ингридиента то он не может делать рецепты с его
 		// участием.
-		if (!ch->IsImpl() && (ingr_lev > (GetRealLevel(ch) + 2 * GetRealRemort(ch)))) {
+		if (!IS_IMPL(ch) && (ingr_lev > (GetRealLevel(ch) + 2 * GetRealRemort(ch)))) {
 			SendMsgToChar("Вы слишком малого уровня и вам что-то не подходит для шитья.\r\n", ch);
 			return (false);
 		}
@@ -1618,7 +1618,7 @@ int MakeRecept::make(CharData *ch) {
 		return 0;
 	}
 	// Проверяем возможность создания предмета
-	if (!ch->IsImmortal() && (skill == ESkill::kMakeStaff)) {
+	if (!IS_IMMORTAL(ch) && (skill == ESkill::kMakeStaff)) {
 		const ObjData obj(*tobj);
 		act("Вы не готовы к тому чтобы сделать $o3.", false, ch, &obj, 0, kToChar);
 		return (false);
@@ -1631,7 +1631,7 @@ int MakeRecept::make(CharData *ch) {
 			break;
 		ingrs[i] = get_obj_in_list_ingr(parts[i].proto, ch->carrying);
 		ingr_lev = get_ingr_lev(ingrs[i]);
-		if (!ch->IsImpl() && (ingr_lev > (GetRealLevel(ch) + 2 * GetRealRemort(ch)))) {
+		if (!IS_IMPL(ch) && (ingr_lev > (GetRealLevel(ch) + 2 * GetRealRemort(ch)))) {
 			tmpstr = "Вы побоялись испортить " + ingrs[i]->get_PName(ECase::kAcc)
 				+ "\r\n и прекратили работу над " + tobj->get_PName(ECase::kIns) + ".\r\n";
 			SendMsgToChar(tmpstr.c_str(), ch);
@@ -1651,7 +1651,7 @@ int MakeRecept::make(CharData *ch) {
 		case ESkill::kMakeWeapon:
 		case ESkill::kMakeArmor:
 			// Проверяем есть ли тут наковальня или комната кузня.
-			if ((!ROOM_FLAGGED(ch->in_room, ERoomFlag::kForge)) && (!ch->IsImmortal())) {
+			if ((!ROOM_FLAGGED(ch->in_room, ERoomFlag::kForge)) && (!IS_IMMORTAL(ch))) {
 				SendMsgToChar("Вам нужно попасть в кузницу для этого.\r\n", ch);
 				return (false);
 			}
@@ -1777,12 +1777,12 @@ int MakeRecept::make(CharData *ch) {
 			created_lev += ingr_lev;
 		}
 		// Шанс испортить не ингредиент всетаки есть.
-		if ((number(0, 30) < (5 + ingr_lev - GetRealLevel(ch) - 2 * GetRealRemort(ch))) && !ch->IsImpl()) {
+		if ((number(0, 30) < (5 + ingr_lev - GetRealLevel(ch) - 2 * GetRealRemort(ch))) && !IS_IMPL(ch)) {
 			tmpstr = "Вы испортили " + ingrs[i]->get_PName(ECase::kAcc) + ".\r\n";
 			SendMsgToChar(tmpstr.c_str(), ch);
 			//extract_obj(ingrs[i]); //заменим на обнуление веса
 			//чтобы не крешило дальше в обработке фейла (Купала)
-			IS_CARRYING_W(ch) -= ingrs[i]->get_weight();
+			ch->char_specials.carry_weight -= ingrs[i]->get_weight();
 			ingrs[i]->set_weight(0);
 			make_fail = true;
 		}
@@ -1798,7 +1798,7 @@ int MakeRecept::make(CharData *ch) {
 		SendMsgToChar(tmpstr.c_str(), ch);
 		make_fail = true;
 	} else {
-		if (!ch->IsImpl()) {
+		if (!IS_IMPL(ch)) {
 			ch->set_move(ch->get_move() - craft_move);
 		}
 	}
@@ -1809,7 +1809,7 @@ int MakeRecept::make(CharData *ch) {
 		for (i = 0; i < ingr_cnt; i++) {
 			if (skill == ESkill::kMakeWear && i == 0) //для шитья всегда раскраиваем шкуру
 			{
-				IS_CARRYING_W(ch) -= ingrs[0]->get_weight();
+				ch->char_specials.carry_weight -= ingrs[0]->get_weight();
 				ingrs[0]->set_weight(0);  // шкуру дикеим полностью
 				tmpstr = "Вы раскроили полностью " + ingrs[0]->get_PName(ECase::kAcc) + ".\r\n";
 				SendMsgToChar(tmpstr.c_str(), ch);
@@ -1841,12 +1841,12 @@ int MakeRecept::make(CharData *ch) {
 				if (ingrs[i]->get_weight() > state) {
 					ingrs[i]->sub_weight(state);
 					SendMsgToChar(ch, "Вы использовали %s.\r\n", ingrs[i]->get_PName(ECase::kAcc).c_str());
-					IS_CARRYING_W(ch) -= state;
+					ch->char_specials.carry_weight -= state;
 					break;
 				}
 					//Если вес ингра ровно столько, сколько требуется, вычитаем вес, ломаем ингр и останавливаем итерацию.
 				else if (ingrs[i]->get_weight() == state) {
-					IS_CARRYING_W(ch) -= ingrs[i]->get_weight();
+					ch->char_specials.carry_weight -= ingrs[i]->get_weight();
 					ingrs[i]->set_weight(0);
 					SendMsgToChar(ch, "Вы полностью использовали %s.\r\n", ingrs[i]->get_PName(ECase::kAcc).c_str());
 					//extract_obj(ingrs[i]);
@@ -1859,7 +1859,7 @@ int MakeRecept::make(CharData *ch) {
 								  "Вы полностью использовали %s и начали искать следующий ингредиент.\r\n",
 								  ingrs[i]->get_PName(ECase::kAcc).c_str());
 					std::string tmpname = std::string(ingrs[i]->get_PName(ECase::kGen).c_str());
-					IS_CARRYING_W(ch) -= ingrs[i]->get_weight();
+					ch->char_specials.carry_weight -= ingrs[i]->get_weight();
 					ingrs[i]->set_weight(0);
 					ExtractObjFromWorld(ingrs[i]);
 					ingrs[i] = nullptr;
@@ -1901,7 +1901,7 @@ int MakeRecept::make(CharData *ch) {
 				// Убился веником.
 				if (!ch->IsNpc()) {
 					sprintf(tmpbuf, "%s killed by a crafting at %s",
-							GET_NAME(ch),
+							ch->get_name().c_str(),
 							ch->in_room == kNowhere ? "kNowhere" : world[ch->in_room]->name);
 					mudlog(tmpbuf, BRF, kLvlBuilder, SYSLOG, true);
 				}
@@ -2267,15 +2267,15 @@ char *format_act(const char *orig, CharData *ch, ObjData *obj, const void *vict_
 						i = ch->get_name().c_str();
 					else {
 						padis = *(++orig) - '0';
-						i = GET_PAD(ch, padis);
+						i = ch->player_data.PNames[padis].c_str();
 					}
 					break;
 				case 'N':
 					if (*(orig + 1) < '0' || *(orig + 1) > '5') {
-						CHECK_NULL(vict_obj, GET_PAD((const CharData *) vict_obj, 0));
+						CHECK_NULL(vict_obj, (const CharData *) vict_obj->player_data.PNames[0].c_str());
 					} else {
 						padis = *(++orig) - '0';
-						CHECK_NULL(vict_obj, GET_PAD((const CharData *) vict_obj, padis));
+						CHECK_NULL(vict_obj, (const CharData *) vict_obj->player_data.PNames[padis].c_str());
 					}
 					//dg_victim = (CharacterData *) vict_obj;
 					break;

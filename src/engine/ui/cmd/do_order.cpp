@@ -13,7 +13,7 @@ void do_order(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 
 	half_chop(argument, name, message);
-	if (GET_GOD_FLAG(ch, EGf::kGodscurse)) {
+	if ((IS_SET(ch->player_specials->saved.GodsLike, EGf::kGodscurse))) {
 		SendMsgToChar("Вы прокляты Богами и никто не слушается вас!\r\n", ch);
 		return;
 	}
@@ -29,7 +29,7 @@ void do_order(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	else if (ch == vict && !utils::IsAbbr(name, "все") && !utils::IsAbbr(name, "всем"))
 		SendMsgToChar("Вы начали слышать императивные голоса - срочно к психиатру!\r\n", ch);
 	else {
-		if (vict && !vict->IsNpc() && !ch->IsGod()) {
+		if (vict && !vict->IsNpc() && !IS_GOD(ch)) {
 			SendMsgToChar(ch, "Игрокам приказывать могут только Боги!\r\n");
 			return;
 		}

@@ -147,7 +147,7 @@ void do_gen_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 #define MAX_UPPERS_CHAR_PRC 30
 #define MAX_UPPERS_SEQ_CHAR 3
 
-	if ((subcmd != kScmdAuction) && (!ch->IsImmortal()) && (!ch->IsNpc())) {
+	if ((subcmd != kScmdAuction) && (!IS_IMMORTAL(ch)) && (!ch->IsNpc())) {
 		const unsigned int bad_smb_procent = MAX_UPPERS_CHAR_PRC;
 		int bad_simb_cnt = 0, bad_seq_cnt = 0;
 
@@ -221,20 +221,20 @@ void do_gen_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		snprintf(out_str, kMaxStringLength, "$n %s : '%s'", com_msgs[subcmd].hi_action, argument);
 		if (IS_FEMALE(ch)) {
 			if (!ch->IsNpc() && (subcmd == kScmdGossip)) {
-				snprintf(buf1, kMaxStringLength, "%s%s заметила :'%s'%s\r\n", color_on, GET_NAME(ch), argument, kColorNrm);
+				snprintf(buf1, kMaxStringLength, "%s%s заметила :'%s'%s\r\n", color_on, ch->get_name().c_str(), argument, kColorNrm);
 				ch->remember_add(buf1, Remember::GOSSIP);
 			}
 			if (!ch->IsNpc() && (subcmd == kScmdHoller)) {
-				snprintf(buf1, kMaxStringLength, "%s%s заорала :'%s'%s\r\n", color_on, GET_NAME(ch), argument, kColorNrm);
+				snprintf(buf1, kMaxStringLength, "%s%s заорала :'%s'%s\r\n", color_on, ch->get_name().c_str(), argument, kColorNrm);
 				ch->remember_add(buf1, Remember::GOSSIP);
 			}
 		} else {
 			if (!ch->IsNpc() && (subcmd == kScmdGossip)) {
-				snprintf(buf1, kMaxStringLength, "%s%s заметил :'%s'%s\r\n", color_on, GET_NAME(ch), argument, kColorNrm);
+				snprintf(buf1, kMaxStringLength, "%s%s заметил :'%s'%s\r\n", color_on, ch->get_name().c_str(), argument, kColorNrm);
 				ch->remember_add(buf1, Remember::GOSSIP);
 			}
 			if (!ch->IsNpc() && (subcmd == kScmdHoller)) {
-				snprintf(buf1, kMaxStringLength, "%s%s заорал :'%s'%s\r\n", color_on, GET_NAME(ch), argument, kColorNrm);
+				snprintf(buf1, kMaxStringLength, "%s%s заорал :'%s'%s\r\n", color_on, ch->get_name().c_str(), argument, kColorNrm);
 				ch->remember_add(buf1, Remember::GOSSIP);
 			}
 		}
@@ -288,7 +288,7 @@ std::string format_gossip_name(CharData *ch, CharData *vict) {
 		log("SYSERROR: мы не должны были сюда попасть, func: %s", __func__);
 		return "";
 	}
-	std::string name = ch->IsImmortal() ? GET_NAME(ch) : PERS(ch, vict, 0);
+	std::string name = IS_IMMORTAL(ch) ? ch->get_name().c_str() : PERS(ch, vict, 0);
 	name[0] = UPPER(name[0]);
 	return name;
 }

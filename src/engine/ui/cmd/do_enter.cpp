@@ -53,7 +53,7 @@ void DoEnter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					return;
 				}
 				// Если чар под местью, и портал односторонний, то не пускать
-				if (NORENTABLE(ch) && !ch->IsNpc()) {
+				if ((ch->IsNpc() ? 0 : ch->player_specials->may_rent) && !ch->IsNpc()) {
 					SendMsgToChar("Грехи мешают вам воспользоваться вратами.\r\n", ch);
 					return;
 				}
@@ -76,7 +76,7 @@ void DoEnter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					}
 				}
 				// Обработка флагов NOTELEPORTIN и NOTELEPORTOUT здесь же
-				if (!ch->IsImmortal()
+				if (!IS_IMMORTAL(ch)
 					&& ((!ch->IsNpc() && !Clan::MayEnter(ch, door, kHousePortal))
 						|| (ROOM_FLAGGED(from_room, ERoomFlag::kNoTeleportOut) || ROOM_FLAGGED(door, ERoomFlag::kNoTeleportIn))
 						|| AFF_FLAGGED(ch, EAffect::kNoTeleport)
@@ -98,7 +98,7 @@ void DoEnter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					return;
 				act("$n исчез$q в пентаграмме.", true, ch, nullptr, nullptr, kToRoom);
 				if (world[from_room]->pkPenterUnique && world[from_room]->pkPenterUnique != ch->get_uid()
-					&& !ch->IsImmortal()) {
+					&& !IS_IMMORTAL(ch)) {
 					SendMsgToChar(ch, "%sВаш поступок был расценен как потенциально агрессивный.%s\r\n",
 								  kColorBoldRed, kColorBoldBlk);
 					pkPortal(ch);

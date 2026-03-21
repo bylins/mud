@@ -205,7 +205,7 @@ bool check_tester_death(CharData *ch, CharData *killer) {
 	// Сюда попадают только тестеры на волоске от смерти. Для инх функция должна вернуть true.
 	// Теоретически ожидается, что вызывающая функция в этом случае не убъёт игрока-тестера.
 	act("$n погиб$q смертью храбрых.", false, ch, nullptr, nullptr, kToRoom);
-	const int rent_room = GetRoomRnum(GET_LOADROOM(ch));
+	const int rent_room = GetRoomRnum(ch->player_specials->saved.load_room);
 	if (rent_room == kNowhere) {
 		SendMsgToChar("Вам некуда возвращаться!\r\n", ch);
 		return true;
@@ -234,7 +234,7 @@ void die(CharData *ch, CharData *killer) {
 	auto char_exp = ch->get_exp();
 
 	if (!ch->IsNpc() && (ch->in_room == kNowhere)) {
-		log("SYSERR: %s is dying in room kNowhere.", GET_NAME(ch));
+		log("SYSERR: %s is dying in room kNowhere.", ch->get_name().c_str());
 		return;
 	}
 	if (check_tester_death(ch, killer)) {
@@ -262,13 +262,13 @@ void die(CharData *ch, CharData *killer) {
 
 	if (ch->IsNpc()
 		|| !ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena)
-		|| NORENTABLE(ch)) {
+		|| (ch->IsNpc() ? 0 : ch->player_specials->may_rent)) {
 		if (!(ch->IsNpc()
-			|| ch->IsImmortal()
-			|| GET_GOD_FLAG(ch, EGf::kGodsLike)
+			|| IS_IMMORTAL(ch)
+			|| (IS_SET(ch->player_specials->saved.GodsLike, EGf::kGodsLike))
 			|| (killer && killer->IsFlagged(EPrf::kExecutor))))//если убил не палач
 		{
-			if (!NORENTABLE(ch))
+			if (!(ch->IsNpc() ? 0 : ch->player_specials->may_rent))
 				dec_exp =
 					(GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1) - GetExpUntilNextLvl(ch, GetRealLevel(ch))) / (3 + std::min(3, GetRealRemort(ch) / 5))
 						/ ch->death_player_count();
@@ -349,14 +349,14 @@ void arena_kill(CharData *ch, CharData *killer) {
 	ch->set_hit(1);
 	ch->DropFromHorse();
 	ch->SetPosition(EPosition::kSit);
-	int to_room = GetRoomRnum(GET_LOADROOM(ch));
+	int to_room = GetRoomRnum(ch->player_specials->saved.load_room);
 	// тут придется ручками тащить чара за ворота, если ему в замке не рады
 	if (!Clan::MayEnter(ch, to_room, kHousePortal)) {
 		to_room = Clan::CloseRent(to_room);
 	}
 	if (to_room == kNowhere) {
 		ch->SetFlag(EPlrFlag::kHelled);
-		HELL_DURATION(ch) = time(nullptr) + 6;
+		ch->player_specials->phell.duration = time(nullptr) + 6;
 		to_room = r_helled_start_room;
 	}
 	for (auto *f : ch->followers) {
@@ -455,7 +455,7 @@ void check_spell_capable(CharData *ch, CharData *killer) {
 
 void clear_mobs_memory(CharData *ch) {
 	for (const auto &hitter : character_list) {
-		if (hitter->IsNpc() && MEMORY(hitter)) {
+		if (hitter->IsNpc() && hitter->mob_specials.memory) {
 			mob_ai::mobForget(hitter.get(), ch);
 		}
 	}
@@ -464,22 +464,22 @@ void clear_mobs_memory(CharData *ch) {
 bool change_rep(CharData *ch, CharData *killer) {
 	return false;
 	// проверяем, в кланах ли оба игрока
-	if ((!CLAN(ch)) || (!CLAN(killer)))
+	if ((!ch->player_specials->clan) || (!killer->player_specials->clan))
 		return false;
 	// кланы должны быть разные
-	if (CLAN(ch) == CLAN(killer))
+	if (ch->player_specials->clan == killer->player_specials->clan)
 		return false;
 
 	// 1/10 репутации замка уходит замку киллера
-	int rep_ch = CLAN(ch)->get_rep() * 0.1 + 1;
-	CLAN(ch)->set_rep(CLAN(ch)->get_rep() - rep_ch);
-	CLAN(killer)->set_rep(CLAN(killer)->get_rep() + rep_ch);
+	int rep_ch = ch->player_specials->clan->get_rep() * 0.1 + 1;
+	ch->player_specials->clan->set_rep(ch->player_specials->clan->get_rep() - rep_ch);
+	killer->player_specials->clan->set_rep(killer->player_specials->clan->get_rep() + rep_ch);
 	SendMsgToChar("Вы потеряли очко репутации своего клана! Стыд и позор вам.\r\n", ch);
 	SendMsgToChar("Вы заработали очко репутации для своего клана! Честь и похвала вам.\r\n", killer);
 	// проверяем репу клана у убитого
-	if (CLAN(ch)->get_rep() < 1) {
+	if (ch->player_specials->clan->get_rep() < 1) {
 		// сам распустится
-		//CLAN(ch)->bank = 0;
+		//ch->player_specials->clan->bank = 0;
 	}
 	return true;
 }
@@ -493,7 +493,7 @@ void real_kill(CharData *ch, CharData *killer) {
 	bloody::handle_corpse(corpse, ch, killer);
 	// Перенес вызов pk_revenge_action из die, чтобы на момент создания
 	// трупа месть на убийцу была еще жива
-	if (ch->IsNpc() || !ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena) || NORENTABLE(ch)) {
+	if (ch->IsNpc() || !ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena) || (ch->IsNpc() ? 0 : ch->player_specials->may_rent)) {
 		round_profiler.next_step("pk_revenge_action");
 		pk_revenge_action(killer, ch);
 	}
@@ -502,8 +502,8 @@ void real_kill(CharData *ch, CharData *killer) {
 		clear_mobs_memory(ch);
 		// Если убит в бою - то может выйти из игры
 		ch->player_specials->may_rent = 0;
-		AGRESSOR(ch) = 0;
-		AGRO(ch) = 0;
+		ch->player_specials->agressor = 0;
+		ch->player_specials->agro_time = 0;
 		ch->agrobd = false;
 #if defined WITH_SCRIPTING
 		//scripting::on_pc_dead(ch, killer, corpse);
@@ -610,7 +610,7 @@ void raw_kill(CharData *ch, CharData *killer) {
 	if (ch->in_room != kNowhere) {
 		if (killer && (!killer->IsNpc() || IS_CHARMICE(killer)) && !ch->IsNpc())
  			kill_pc_wtrigger(killer, ch);
-		if (!ch->IsNpc() && (!NORENTABLE(ch) && ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena))) {
+		if (!ch->IsNpc() && (!(ch->IsNpc() ? 0 : ch->player_specials->may_rent) && ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena))) {
 			//Если убили на арене
 			arena_kill(ch, killer);
 		} else if (change_rep(ch, killer)) {
@@ -697,7 +697,7 @@ void change_alignment(CharData *ch, CharData *victim) {
 	 * new alignment change algorithm: if you kill a monster with alignment A,
 	 * you move 1/16th of the way to having alignment -A.  Simple and fast.
 	 */
-	GET_ALIGNMENT(ch) += (-GET_ALIGNMENT(victim) - GET_ALIGNMENT(ch)) / 16;
+	ch->char_specials.saved.alignment += (-victim->char_specials.saved.alignment - ch->char_specials.saved.alignment) / 16;
 }
 
 /*++
@@ -798,7 +798,7 @@ void perform_group_gain(CharData *ch, CharData *victim, int members, int koef) {
 		TopPlayer::Refresh(ch);
 		if (!EXTRA_FLAGGED(victim, EXTRA_GRP_KILL_COUNT)
 				&& !ch->IsNpc()
-				&& !ch->IsImmortal()
+				&& !IS_IMMORTAL(ch)
 				&& victim->IsNpc()
 				&& !IS_CHARMICE(victim)
 				&& !ROOM_FLAGGED(victim->in_room, ERoomFlag::kArena)) {
@@ -1034,8 +1034,8 @@ void char_dam_message(int dam, CharData *ch, CharData *victim, bool noflee) {
 				&& victim->GetPosition() > EPosition::kSit
 				&& !victim->IsNpc()
 				&& HERE(victim)
-				&& GET_WIMP_LEV(victim)
-				&& victim->get_hit() < GET_WIMP_LEV(victim)
+				&& victim->player_specials->saved.wimp_level
+				&& victim->get_hit() < victim->player_specials->saved.wimp_level
 				&& !noflee) {
 				SendMsgToChar("Вы запаниковали и попытались убежать!\r\n", victim);
 				DoFlee(victim, nullptr, 0, 0);

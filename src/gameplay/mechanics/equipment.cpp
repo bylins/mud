@@ -47,10 +47,10 @@ void DamageEquipment(CharData *ch, int pos, int dam, int chance) {
 			pos = EEquipPos::kHold;
 	}
 
-	if (pos <= 0 || pos > EEquipPos::kBoths || !GET_EQ(ch, pos) || dam < 0 || AFF_FLAGGED(ch, EAffect::kGodsShield)) {
+	if (pos <= 0 || pos > EEquipPos::kBoths || !ch->equipment[pos] || dam < 0 || AFF_FLAGGED(ch, EAffect::kGodsShield)) {
 		return;
 	}
-	DamageObj(GET_EQ(ch, pos), dam, chance);
+	DamageObj(ch->equipment[pos], dam, chance);
 }
 
 // * Alterate equipment
@@ -65,7 +65,7 @@ void DamageObj(ObjData *obj, int dam, int chance) {
 			* (static_cast<ESkill>(obj->get_spec_param()) == ESkill::kBows ? 3 : 1)));
 
 	if (dam > 0 && chance >= number(1, 100)) {
-		if (dam > 1 && obj->get_worn_by() && GET_EQ(obj->get_worn_by(), EEquipPos::kShield) == obj) {
+		if (dam > 1 && obj->get_worn_by() && obj->get_worn_by()->equipment[EEquipPos::kShield] == obj) {
 			dam /= 2;
 		}
 

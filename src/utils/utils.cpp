@@ -1205,4 +1205,62 @@ void MemLeakInfo() {
 	}
 }
 
+int GET_REAL_AGE(CharData *ch) {
+	return CalcCharAge(ch)->year + ch->add_abils.age_add;
+}
+
+int GET_REAL_SIZE(CharData *ch) {
+	return VPOSI(ch->real_abils.size + ch->add_abils.size_add, 1, 100);
+}
+
+int GET_POS_SIZE(CharData *ch) {
+	return POSI(GET_REAL_SIZE(ch) >> 1);
+}
+
+int GET_REAL_HR(CharData *ch) {
+	return VPOSI(ch->real_abils.hitroll + ch->add_abils.hr_add, -50, (IS_MORTIFIER(ch) ? 100 : 50));
+}
+
+bool CAN_SEE_IN_DARK(const CharData *ch) {
+	return AFF_FLAGGED(ch, EAffect::kInfravision) || (!ch->IsNpc() && ch->IsFlagged(EPrf::kHolylight));
+}
+
+bool IS_GOOD(const CharData *ch) {
+	return ch->char_specials.saved.alignment >= kAligGoodMore;
+}
+
+bool IS_EVIL(const CharData *ch) {
+	return ch->char_specials.saved.alignment <= kAligEvilLess;
+}
+
+bool SAME_ALIGN(const CharData *ch, const CharData *vict) {
+	int diff = ch->char_specials.saved.alignment - vict->char_specials.saved.alignment;
+	return (diff >= 0 ? diff : -diff) <= ALIGN_DELTA;
+}
+
+bool IS_SPELL_SET(CharData *ch, ESpell i, int pct) {
+	return ch->real_abils.SplKnw[to_underlying(i)] & pct;
+}
+
+void UNSET_SPELL_TYPE(CharData *ch, ESpell i, int pct) {
+	ch->real_abils.SplKnw[to_underlying(i)] &= ~pct;
+}
+
+void SET_SPELL_MEM(CharData *ch, ESpell i, int pct) {
+	ch->real_abils.SplMem[to_underlying(i)] = pct;
+}
+
+int GET_MOB_VNUM(const CharData *mob) {
+	return (mob->IsNpc() && mob->get_rnum() >= 0) ? mob_index[mob->get_rnum()].vnum : -1;
+}
+
+RoomRnum GET_DEST(const CharData *ch) {
+	return ch->mob_specials.dest_count ? ch->mob_specials.dest[ch->mob_specials.dest_pos] : kNowhere;
+}
+
+EGender GET_OBJ_SEX(const ObjData *obj) { return obj->get_sex(); }
+bool IS_OBJ_NOSEXY(const ObjData *obj) { return obj->get_sex() == EGender::kNeutral; }
+bool IS_OBJ_MALE(const ObjData *obj) { return obj->get_sex() == EGender::kMale; }
+bool IS_OBJ_FEMALE(const ObjData *obj) { return obj->get_sex() == EGender::kFemale; }
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

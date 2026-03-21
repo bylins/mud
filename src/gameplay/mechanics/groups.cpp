@@ -219,8 +219,8 @@ void group::print_one_line(CharData *ch, CharData *k, int leader, int header) {
 	  affects += AFF_FLAGGED(k, EAffect::kInvisible) ? "&CН" : " ";
 	  affects += (AFF_FLAGGED(k, EAffect::kSingleLight)
 		  || AFF_FLAGGED(k, EAffect::kHolyLight)
-		  || (GET_EQ(k, EEquipPos::kLight)
-			  && GET_OBJ_VAL(GET_EQ(k, EEquipPos::kLight), 2))) ? "&YС" : " ";
+		  || (k->equipment[EEquipPos::kLight]
+			  && GET_OBJ_VAL(k->equipment[EEquipPos::kLight], 2))) ? "&YС" : " ";
 	  affects += AFF_FLAGGED(k, EAffect::kFly) ? "&BЛ" : " ";
 	  affects += k->IsOnHorse() ? "&YВ" : " ";
 
@@ -242,11 +242,11 @@ void group::print_one_line(CharData *ch, CharData *k, int leader, int header) {
 
 	auto generate_mem_string = [](CharData *k) -> std::string {
 	  int ok, ok2, div;
-	  if ((!IS_MANA_CASTER(k) && !k->mem_queue.Empty()) ||
-		  (IS_MANA_CASTER(k) && k->mem_queue.stored < GET_MAX_MANA(k))) {
+	  if ((!k->IsManaCaster() && !k->mem_queue.Empty()) ||
+		  (k->IsManaCaster() && k->mem_queue.stored < GET_MAX_MANA(k))) {
 		  div = CalcManaGain(k);
 		  if (div > 0) {
-			  if (!IS_MANA_CASTER(k)) {
+			  if (!k->IsManaCaster()) {
 				  ok2 = std::max(0, 1 + k->mem_queue.total - k->mem_queue.stored);
 				  ok2 = ok2 * 60 / div;    // время мема в сек
 			  } else {
@@ -326,7 +326,7 @@ void group::print_list_group(CharData *ch) {
 	if (AFF_FLAGGED(ch, EAffect::kGroup)) {
 		SendMsgToChar("Ваша группа состоит из:\r\n", ch);
 		if (AFF_FLAGGED(k, EAffect::kGroup)) {
-			sprintf(buf1, "Лидер: %s\r\n", GET_NAME(k));
+			sprintf(buf1, "Лидер: %s\r\n", k->get_name().c_str());
 			SendMsgToChar(buf1, ch);
 		}
 
@@ -334,7 +334,7 @@ void group::print_list_group(CharData *ch) {
 			if (!AFF_FLAGGED(f, EAffect::kGroup)) {
 				continue;
 			}
-			sprintf(buf1, "%d. Согруппник: %s\r\n", count, GET_NAME(f));
+			sprintf(buf1, "%d. Согруппник: %s\r\n", count, f->get_name().c_str());
 			SendMsgToChar(buf1, ch);
 			count++;
 		}
@@ -482,7 +482,7 @@ void group::GoGroup(CharData *ch, char *argument) {
 			return;
 		} else if (!AFF_FLAGGED(vict, EAffect::kGroup)
 			|| vict->get_master() != ch) {
-			SendMsgToChar(ch, "%s не является членом вашей группы.\r\n", GET_NAME(vict));
+			SendMsgToChar(ch, "%s не является членом вашей группы.\r\n", vict->get_name().c_str());
 			return;
 		}
 		change_leader(ch, vict);
@@ -521,7 +521,7 @@ void group::GoGroup(CharData *ch, char *argument) {
 void group::GoUngroup(CharData *ch, char *argument) {
 	CharData *tch;
 	if (!*argument) {
-		sprintf(buf2, "Вы исключены из группы %s.\r\n", GET_PAD(ch, 1));
+		sprintf(buf2, "Вы исключены из группы %s.\r\n", ch->player_data.PNames[1].c_str());
 		auto copy = ch->followers;
 		for (auto *f : copy) {
 			if (AFF_FLAGGED(f, EAffect::kGroup)) {
@@ -566,9 +566,9 @@ void do_report(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			SendMsgToChar("И перед кем вы отчитываетесь?\r\n", ch);
 			return;
 		}
-		if (IS_MANA_CASTER(ch)) {
+		if (ch->IsManaCaster()) {
 			sprintf(buf, "%s доложил%s : %d(%d)H, %d(%d)V, %d(%d)M\r\n",
-					GET_NAME(ch), GET_CH_SUF_1(ch),
+					ch->get_name().c_str(), GET_CH_SUF_1(ch),
 					ch->get_hit(), ch->get_real_max_hit(),
 					ch->get_move(), ch->get_real_max_move(),
 					ch->mem_queue.stored, GET_MAX_MANA(ch));
@@ -582,13 +582,13 @@ void do_report(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				}
 			}
 			sprintf(buf, "%s доложил%s : %d(%d)H, %d(%d)V, %dL\r\n",
-					GET_NAME(ch), GET_CH_SUF_1(ch),
+					ch->get_name().c_str(), GET_CH_SUF_1(ch),
 					ch->get_hit(), ch->get_real_max_hit(),
 					ch->get_move(), ch->get_real_max_move(),
 					loyalty);
 		} else {
 			sprintf(buf, "%s доложил%s : %d(%d)H, %d(%d)V\r\n",
-					GET_NAME(ch), GET_CH_SUF_1(ch),
+					ch->get_name().c_str(), GET_CH_SUF_1(ch),
 					ch->get_hit(), ch->get_real_max_hit(),
 					ch->get_move(), ch->get_real_max_move());
 		}
@@ -703,7 +703,7 @@ void group::do_split(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, 
 		}
 
 		sprintf(buf, "%s разделил%s %d %s; вам досталось %d.\r\n",
-				GET_NAME(ch), GET_CH_SUF_1(ch), amount, GetDeclensionInNumber(amount, what_currency), share);
+				ch->get_name().c_str(), GET_CH_SUF_1(ch), amount, GetDeclensionInNumber(amount, what_currency), share);
 		if (AFF_FLAGGED(k, EAffect::kGroup) && k->in_room == ch->in_room && !k->IsNpc() && k != ch) {
 			SendMsgToChar(buf, k);
 			switch (currency) {

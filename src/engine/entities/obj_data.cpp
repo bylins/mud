@@ -666,11 +666,11 @@ void ObjData::dec_timer(int time, bool ignore_utimer, bool exchange) {
 		if (get_in_room() != kNowhere) {
 			buffer << ", находится в комнате vnum: " << world[get_in_room()]->vnum;
 		} else if (get_carried_by()) {
-			buffer << ", затарено: " << GET_NAME(get_carried_by()) << "["
+			buffer << ", затарено: " << get_carried_by(->get_name().c_str()) << "["
 				   << GET_MOB_VNUM(get_carried_by()) << "] в комнате: [" << world[this->get_carried_by()->in_room]->vnum
 				   << "]";
 		} else if (get_worn_by()) {
-			buffer << ", надет на перс: " << GET_NAME(get_worn_by()) << "[" << GET_MOB_VNUM(get_worn_by())
+			buffer << ", надет на перс: " << get_worn_by(->get_name().c_str()) << "[" << GET_MOB_VNUM(get_worn_by())
 				   << "] в комнате: ["
 				   << world[get_worn_by()->in_room]->vnum << "]";
 		} else if (get_in_obj()) {
@@ -1432,7 +1432,7 @@ bool is_norent_set(int vnum, std::vector<int> objs) {
 // * Поиск в хране из списка vnum_list.
 bool house_find_set_item(CharData *ch, const std::set<int> &vnum_list) {
 	// храны у нас через задницу сделаны
-	for (auto chest : world[GetRoomRnum(CLAN(ch)->get_chest_room())]->contents) {
+	for (auto chest : world[GetRoomRnum(ch->player_specials->clan->get_chest_room())]->contents) {
 		if (Clan::is_clan_chest(chest)) {
 			for (ObjData *temp = chest->get_contains(); temp; temp = temp->get_next_content()) {
 				if (vnum_list.find(obj_sets::normalize_vnum(temp->get_vnum())) != vnum_list.end()) {
@@ -1462,7 +1462,7 @@ bool is_norent_set(CharData *ch, ObjData *obj, bool clan_chest) {
 
 	// экипировка
 	for (int i = 0; i < EEquipPos::kNumEquipPos; ++i) {
-		if (find_set_item(GET_EQ(ch, i))) {
+		if (find_set_item(ch->equipment[i])) {
 			return false;
 		}
 	}
@@ -1480,7 +1480,7 @@ bool is_norent_set(CharData *ch, ObjData *obj, bool clan_chest) {
 			}
 
 			for (int j = 0; j < EEquipPos::kNumEquipPos; j++) {
-				if (find_set_item(GET_EQ(k, j))) {
+				if (find_set_item(k->equipment[j])) {
 					return false;
 				}
 			}

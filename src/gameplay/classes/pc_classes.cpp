@@ -963,18 +963,18 @@ int GetExtraDamroll(ECharClass class_id, int level) {
 void init_warcry(CharData *ch) // проставление кличей в обход античита
 {
 	if (ch->GetClass() == ECharClass::kGuard)
-		SET_BIT(GET_SPELL_TYPE(ch, ESpell::kWarcryOfDefence), ESpellType::kKnow); // клич призыв к обороне
+		SET_BIT(ch->real_abils.SplKnw[to_underlying(ESpell::kWarcryOfDefence)], ESpellType::kKnow); // клич призыв к обороне
 
 	if (ch->GetClass() == ECharClass::kRanger) {
-		SET_BIT(GET_SPELL_TYPE(ch, ESpell::kWarcryOfExperience), ESpellType::kKnow); // клич опыта
-		SET_BIT(GET_SPELL_TYPE(ch, ESpell::kWarcryOfLuck), ESpellType::kKnow); // клич удачи
-		SET_BIT(GET_SPELL_TYPE(ch, ESpell::kWarcryOfPhysdamage), ESpellType::kKnow); // клич +дамага
+		SET_BIT(ch->real_abils.SplKnw[to_underlying(ESpell::kWarcryOfExperience)], ESpellType::kKnow); // клич опыта
+		SET_BIT(ch->real_abils.SplKnw[to_underlying(ESpell::kWarcryOfLuck)], ESpellType::kKnow); // клич удачи
+		SET_BIT(ch->real_abils.SplKnw[to_underlying(ESpell::kWarcryOfPhysdamage)], ESpellType::kKnow); // клич +дамага
 	}
 	if (ch->GetClass() == ECharClass::kWarrior) {
-		SET_BIT(GET_SPELL_TYPE(ch, ESpell::kWarcryOfBattle), ESpellType::kKnow); // клич призыв битвы
-		SET_BIT(GET_SPELL_TYPE(ch, ESpell::kWarcryOfPower), ESpellType::kKnow); // клич призыв мощи
-		SET_BIT(GET_SPELL_TYPE(ch, ESpell::kWarcryOfBless), ESpellType::kKnow); // клич призывы доблести
-		SET_BIT(GET_SPELL_TYPE(ch, ESpell::kWarcryOfCourage), ESpellType::kKnow); // клич призыв отваги
+		SET_BIT(ch->real_abils.SplKnw[to_underlying(ESpell::kWarcryOfBattle)], ESpellType::kKnow); // клич призыв битвы
+		SET_BIT(ch->real_abils.SplKnw[to_underlying(ESpell::kWarcryOfPower)], ESpellType::kKnow); // клич призыв мощи
+		SET_BIT(ch->real_abils.SplKnw[to_underlying(ESpell::kWarcryOfBless)], ESpellType::kKnow); // клич призывы доблести
+		SET_BIT(ch->real_abils.SplKnw[to_underlying(ESpell::kWarcryOfCourage)], ESpellType::kKnow); // клич призыв отваги
 	}
 
 }
@@ -987,14 +987,14 @@ void DoPcInit(CharData *ch, bool is_newbie) {
 		ch->set_skill(ESkill::kHangovering, 10);
 	}
 
-	if (is_newbie && IS_MANA_CASTER(ch)) {
+	if (is_newbie && ch->IsManaCaster()) {
 		for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
-			GET_SPELL_TYPE(ch, spell_id) = ESpellType::kRunes;
+			ch->real_abils.SplKnw[to_underlying(spell_id)] = ESpellType::kRunes;
 		}
 	}
 
 	if (is_newbie) {
-		log("Create new player %s", GET_NAME(ch));
+		log("Create new player %s", ch->get_name().c_str());
 		std::vector<int> outfit_list(Noob::get_start_outfit(ch));
 		for (int & i : outfit_list) {
 			const ObjData::shared_ptr obj = world_objects.create_from_prototype_by_vnum(i);
@@ -1038,15 +1038,15 @@ void DoPcInit(CharData *ch, bool is_newbie) {
 	}
 
 	advance_level(ch);
-	sprintf(buf, "%s advanced to level %d", GET_NAME(ch), GetRealLevel(ch));
+	sprintf(buf, "%s advanced to level %d", ch->get_name().c_str(), GetRealLevel(ch));
 	mudlog(buf, BRF, kLvlImplementator, SYSLOG, true);
 
 	ch->set_hit(ch->get_real_max_hit());
 	ch->set_move(ch->get_real_max_move());
 
-	GET_COND(ch, THIRST) = 0;
-	GET_COND(ch, FULL) = 0;
-	GET_COND(ch, DRUNK) = 0;
+	ch->player_specials->saved.conditions[THIRST] = 0;
+	ch->player_specials->saved.conditions[FULL] = 0;
+	ch->player_specials->saved.conditions[DRUNK] = 0;
 	// проставим кличи
 	init_warcry(ch);
 	if (siteok_everyone) {
@@ -1111,9 +1111,9 @@ void advance_level(CharData *ch) {
 
 	SetInbornAndRaceFeats(ch);
 
-	if (ch->IsImmortal()) {
+	if (IS_IMMORTAL(ch)) {
 		for (i = 0; i < 3; i++) {
-			GET_COND(ch, i) = (char) -1;
+			ch->player_specials->saved.conditions[i] = (char) -1;
 		}
 		ch->SetFlag(EPrf::kHolylight);
 	}
@@ -1150,8 +1150,8 @@ void decrease_level(CharData *ch) {
 	check_max_hp(ch);
 	ch->set_max_move(ch->get_max_move() - std::clamp(add_move, 1, ch->get_max_move()));
 
-	GET_WIMP_LEV(ch) = std::clamp(GET_WIMP_LEV(ch), 0, ch->get_real_max_hit()/2);
-	if (!ch->IsImmortal()) {
+	ch->player_specials->saved.wimp_level = std::clamp(ch->player_specials->saved.wimp_level, 0, ch->get_real_max_hit()/2);
+	if (!IS_IMMORTAL(ch)) {
 		ch->UnsetFlag(EPrf::kHolylight);
 	}
 
@@ -1177,7 +1177,7 @@ int invalid_unique(CharData *ch, const ObjData *obj) {
 		|| !obj
 		|| (ch->IsNpc()
 			&& !AFF_FLAGGED(ch, EAffect::kCharmed))
-		|| ch->IsImmortal()
+		|| IS_IMMORTAL(ch)
 		|| obj->get_owner() == 0
 		|| obj->get_owner() == ch->get_uid()) {
 		return (false);
@@ -1197,15 +1197,15 @@ int invalid_anti_class(CharData *ch, const ObjData *obj) {
 		&& AFF_FLAGGED(ch, EAffect::kCharmed)) {
 		return (true);
 	}
-	if ((ch->IsNpc() || ch->IsImmortal()) && !IS_CHARMICE(ch)) {
+	if ((ch->IsNpc() || IS_IMMORTAL(ch)) && !IS_CHARMICE(ch)) {
 		return (false);
 	}
 	if ((obj->has_anti_flag(EAntiFlag::kNoPkClan) && char_to_pk_clan(ch))) {
 		return (true);
 	}
 
-	if ((obj->has_anti_flag(EAntiFlag::kMono) && GET_RELIGION(ch) == kReligionMono)
-		|| (obj->has_anti_flag(EAntiFlag::kPoly) && GET_RELIGION(ch) == kReligionPoly)
+	if ((obj->has_anti_flag(EAntiFlag::kMono) && ch->player_data.Religion == kReligionMono)
+		|| (obj->has_anti_flag(EAntiFlag::kPoly) && ch->player_data.Religion == kReligionPoly)
 		|| (obj->has_anti_flag(EAntiFlag::kMage) && IsMage(ch))
 		|| (obj->has_anti_flag(EAntiFlag::kConjurer) && IS_CONJURER(ch))
 		|| (obj->has_anti_flag(EAntiFlag::kCharmer) && IS_CHARMER(ch))
@@ -1240,12 +1240,12 @@ int invalid_no_class(CharData *ch, const ObjData *obj) {
 
 	if (!IS_CHARMICE(ch)
 		&& (ch->IsNpc()
-			|| ch->IsImmortal())) {
+			|| IS_IMMORTAL(ch))) {
 		return false;
 	}
 
-	if ((obj->has_no_flag(ENoFlag::kMono) && GET_RELIGION(ch) == kReligionMono)
-		|| (obj->has_no_flag(ENoFlag::kPoly) && GET_RELIGION(ch) == kReligionPoly)
+	if ((obj->has_no_flag(ENoFlag::kMono) && ch->player_data.Religion == kReligionMono)
+		|| (obj->has_no_flag(ENoFlag::kPoly) && ch->player_data.Religion == kReligionPoly)
 		|| (obj->has_no_flag(ENoFlag::kMage) && IsMage(ch))
 		|| (obj->has_no_flag(ENoFlag::kConjurer) && IS_CONJURER(ch))
 		|| (obj->has_no_flag(ENoFlag::kCharmer) && IS_CHARMER(ch))

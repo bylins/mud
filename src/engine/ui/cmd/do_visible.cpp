@@ -12,7 +12,7 @@
 #include "gameplay/mechanics/sight.h"
 
 void do_visible(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	if (ch->IsImmortal()) {
+	if (IS_IMMORTAL(ch)) {
 		perform_immort_vis(ch);
 		return;
 	}

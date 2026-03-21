@@ -110,12 +110,12 @@ void DoSharpening(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	//С мортами все меньший уровень требуется для макс. заточки
 	max_mod = std::clamp((GetRealLevel(ch) + 5 + GetRealRemort(ch)/4)/6, 1, 5);
 	oldstate = stable_objs::IsTimerUnlimited(obj); // запомним какая шмотка была до заточки
-	if (ch->IsImmortal()) {
+	if (IS_IMMORTAL(ch)) {
 		add_dr = add_hr = 10;
 	} else {
 		add_dr = add_hr = (max_mod <= min_mod) ? min_mod : number(min_mod, max_mod);
 	}
-	if (percent > prob || GET_GOD_FLAG(ch, EGf::kGodscurse)) {
+	if (percent > prob || (IS_SET(ch->player_specials->saved.GodsLike, EGf::kGodscurse))) {
 		act("Но только загубили $S.", false, ch, obj, nullptr, kToChar);
 		add_hr = -add_hr;
 		add_dr = -add_dr;
@@ -135,7 +135,7 @@ void DoSharpening(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	const auto curent_weight = obj->get_weight();
 	if (change_weight && !(curent_weight == 0 && weight < 0)) {
 		obj->set_weight(curent_weight + weight);
-		IS_CARRYING_W(ch) += weight;
+		ch->char_specials.carry_weight += weight;
 	}
 }
 

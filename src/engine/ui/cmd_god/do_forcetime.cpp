@@ -44,7 +44,7 @@ void DoForcetime(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	SendMsgToChar(ch, "Вы перевели игровое время на %d сек вперед.\r\n", t);
-	sprintf(buf, "(GC) %s перевел игровое время на %d сек вперед.", GET_NAME(ch), t);
+	sprintf(buf, "(GC) %s перевел игровое время на %d сек вперед.", ch->get_name().c_str(), t);
 	mudlog(buf, NRM, kLvlImmortal, IMLOG, false);
 	SendMsgToChar(OK, ch);
 

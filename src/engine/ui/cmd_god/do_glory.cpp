@@ -92,10 +92,10 @@ void DoGlory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			int amount = atoi((num + 1));
 			Glory::add_glory(vict->get_uid(), amount);
 			SendMsgToChar(ch, "%s добавлено %d у.е. славы (Всего: %d у.е.).\r\n",
-						  GET_PAD(vict, 2), amount, Glory::get_glory(vict->get_uid()));
-			imm_log("(GC) %s sets +%d glory to %s.", GET_NAME(ch), amount, GET_NAME(vict));
+						  vict->player_data.PNames[2].c_str(), amount, Glory::get_glory(vict->get_uid()));
+			imm_log("(GC) %s sets +%d glory to %s.", ch->get_name().c_str(), amount, vict->get_name().c_str());
 			// запись в карму
-			sprintf(buf, "Change glory +%d by %s", amount, GET_NAME(ch));
+			sprintf(buf, "Change glory +%d by %s", amount, ch->get_name().c_str());
 			AddKarma(vict, buf, reason);
 			GloryMisc::add_log(mode, amount, std::string(buf), std::string(reason), vict);
 			break;
@@ -103,21 +103,21 @@ void DoGlory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		case kSubGlory: {
 			int amount = Glory::remove_glory(vict->get_uid(), atoi((num + 1)));
 			if (amount <= 0) {
-				SendMsgToChar(ch, "У %s нет свободной славы.", GET_PAD(vict, 1));
+				SendMsgToChar(ch, "У %s нет свободной славы.", vict->player_data.PNames[1].c_str());
 				break;
 			}
 			SendMsgToChar(ch, "У %s вычтено %d у.е. славы (Всего: %d у.е.).\r\n",
-						  GET_PAD(vict, 1), amount, Glory::get_glory(vict->get_uid()));
-			imm_log("(GC) %s sets -%d glory to %s.", GET_NAME(ch), amount, GET_NAME(vict));
+						  vict->player_data.PNames[1].c_str(), amount, Glory::get_glory(vict->get_uid()));
+			imm_log("(GC) %s sets -%d glory to %s.", ch->get_name().c_str(), amount, vict->get_name().c_str());
 			// запись в карму
-			sprintf(buf, "Change glory -%d by %s", amount, GET_NAME(ch));
+			sprintf(buf, "Change glory -%d by %s", amount, ch->get_name().c_str());
 			AddKarma(vict, buf, reason);
 			GloryMisc::add_log(mode, amount, std::string(buf), std::string(reason), vict);
 			break;
 		}
 		case kSubStats: {
 			if (Glory::remove_stats(vict, ch, atoi(arg1))) {
-				sprintf(buf, "Remove stats %s by %s", arg1, GET_NAME(ch));
+				sprintf(buf, "Remove stats %s by %s", arg1, ch->get_name().c_str());
 				AddKarma(vict, buf, reason);
 				GloryMisc::add_log(mode, 0, std::string(buf), std::string(reason), vict);
 			}
@@ -129,7 +129,7 @@ void DoGlory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 		case kSubHide: {
 			Glory::hide_char(vict, ch, arg1);
-			sprintf(buf, "Hide %s by %s", arg1, GET_NAME(ch));
+			sprintf(buf, "Hide %s by %s", arg1, ch->get_name().c_str());
 			AddKarma(vict, buf, reason);
 			GloryMisc::add_log(mode, 0, std::string(buf), std::string(reason), vict);
 			break;

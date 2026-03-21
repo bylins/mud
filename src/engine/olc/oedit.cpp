@@ -1323,8 +1323,8 @@ void oedit_parse(DescriptorData *d, char *arg) {
 				case 'Д': SendMsgToChar("Объект сохранен.\r\n", d->character.get());
 					OLC_OBJ(d)->remove_incorrect_values_keys(OLC_OBJ(d)->get_type());
 					oedit_save_internally(d);
-					sprintf(buf, "OLC: %s edits obj %d", GET_NAME(d->character), OLC_NUM(d));
-					olc_log("%s edit obj %d", GET_NAME(d->character), OLC_NUM(d));
+					sprintf(buf, "OLC: %s edits obj %d", d->character->get_name().c_str(), OLC_NUM(d));
+					olc_log("%s edit obj %d", d->character->get_name().c_str(), OLC_NUM(d));
 					mudlog(buf, NRM, std::max(kLvlBuilder, GET_INVIS_LEV(d->character)), SYSLOG, true);
 					cleanup_olc(d, CLEANUP_STRUCTS);
 					break;
@@ -1566,7 +1566,7 @@ void oedit_parse(DescriptorData *d, char *arg) {
 				default: oedit_disp_menu(d);
 					break;
 			}
-			olc_log("%s command %c", GET_NAME(d->character), *arg);
+			olc_log("%s command %c", d->character->get_name().c_str(), *arg);
 			return;
 			// * end of OEDIT_MAIN_MENU
 
@@ -1607,7 +1607,7 @@ void oedit_parse(DescriptorData *d, char *arg) {
 				return;
 			} else {
 				OLC_OBJ(d)->set_type(static_cast<EObjType>(number));
-				sprintf(buf, "%s  меняет тип предмета для %d!!!", GET_NAME(d->character), OLC_NUM(d));
+				sprintf(buf, "%s  меняет тип предмета для %d!!!", d->character->get_name().c_str(), OLC_NUM(d));
 				mudlog(buf, BRF, kLvlGod, SYSLOG, true);
 				if (number != EObjType::kWeapon && number != EObjType::kIngredient) {
 					OLC_OBJ(d)->set_spec_param(0);

@@ -34,9 +34,9 @@ void ProcessMultyShotHits(CharData *ch, CharData *victim, ESkill type, fight::At
 bool IsArmedWithBow(CharData *ch, fight::AttackType weapon) {
 	const auto wielded = GetUsedWeapon(ch, weapon);
 	return (wielded
-		&& !GET_EQ(ch, EEquipPos::kShield)
+		&& !ch->equipment[EEquipPos::kShield]
 		&& static_cast<ESkill>(wielded->get_spec_param()) == ESkill::kBows
-		&& GET_EQ(ch, EEquipPos::kBoths));
+		&& ch->equipment[EEquipPos::kBoths]);
 }
 
 void ProcessDoubleShotHits(CharData *ch, ESkill type, fight::AttackType weapon) {

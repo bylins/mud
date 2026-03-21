@@ -42,9 +42,9 @@ void DoClearZone(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 		zone_repop_list.push_back(zrn);
 		DecayObjectsOnRepop(zone_repop_list);
 		ResetZone(zrn);
-		sprintf(buf, "(GC) %s clear and reset zone %d (%s), delta %f", GET_NAME(ch), zrn, zone_table[zrn].name.c_str(), timer.delta().count());
+		sprintf(buf, "(GC) %s clear and reset zone %d (%s), delta %f", ch->get_name().c_str(), zrn, zone_table[zrn].name.c_str(), timer.delta().count());
 		mudlog(buf, NRM, MAX(kLvlGreatGod, GET_INVIS_LEV(ch)), SYSLOG, true);
-		imm_log("%s clear and reset zone %d (%s)", GET_NAME(ch), zrn, zone_table[zrn].name.c_str());
+		imm_log("%s clear and reset zone %d (%s)", ch->get_name().c_str(), zrn, zone_table[zrn].name.c_str());
 	} else {
 		SendMsgToChar("Нет такой зоны.\r\n", ch);
 	}

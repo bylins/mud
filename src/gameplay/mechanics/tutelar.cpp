@@ -138,14 +138,14 @@ void SummonTutelar(CharData *ch) {
 	mob->set_wis(1 + floorf(additional_wis_for_charisma * eff_cha));
 	mob->set_cha(1 + floorf(additional_cha_for_charisma * eff_cha));
 
-	GET_WEIGHT(mob) = 150;
-	GET_HEIGHT(mob) = 200;
-	GET_SIZE(mob) = 65;
+	mob->player_data.weight = 150;
+	mob->player_data.height = 200;
+	mob->real_abils.size = 65;
 
-	GET_HR(mob) = 1;
-	GET_AC(mob) = floorf(base_ac + additional_ac_for_charisma * eff_cha);
-	GET_DR(mob) = 0;
-	GET_ARMOUR(mob) = floorf(base_armour + additional_armour_for_charisma * eff_cha);
+	mob->real_abils.hitroll = 1;
+	mob->real_abils.armor = floorf(base_ac + additional_ac_for_charisma * eff_cha);
+	mob->real_abils.damroll = 0;
+	mob->add_abils.armour = floorf(base_armour + additional_armour_for_charisma * eff_cha);
 
 	mob->mob_specials.damnodice = 1;
 	mob->mob_specials.damsizedice = 1;
@@ -156,11 +156,11 @@ void SummonTutelar(CharData *ch) {
 	mob->set_max_hit(floorf(base_hp + additional_hp_for_charisma * eff_cha));
 	mob->set_hit(mob->get_max_hit());
 	mob->set_gold(0);
-	GET_GOLD_NoDs(mob) = 0;
-	GET_GOLD_SiDs(mob) = 0;
+	mob->mob_specials.GoldNoDs = 0;
+	mob->mob_specials.GoldSiDs = 0;
 
 	mob->SetPosition(EPosition::kStand);
-	GET_DEFAULT_POS(mob) = EPosition::kStand;
+	mob->mob_specials.default_pos = EPosition::kStand;
 
 	mob->set_skill(ESkill::kRescue, floorf(base_rescue + additional_rescue_for_charisma * eff_cha));
 	mob->set_skill(ESkill::kAwake, floorf(base_awake + additional_awake_for_charisma * eff_cha));
@@ -176,9 +176,9 @@ void SummonTutelar(CharData *ch) {
 	if (mob->GetSkill(ESkill::kAwake)) {
 		mob->SetFlag(EPrf::kAwake);
 	}
-	GET_LIKES(mob) = 100;
-	IS_CARRYING_W(mob) = 0;
-	IS_CARRYING_N(mob) = 0;
+	mob->mob_specials.like_work = 100;
+	mob->char_specials.carry_weight = 0;
+	mob->char_specials.carry_items = 0;
 	mob->SetFlag(EMobFlag::kCorpse);
 	mob->SetFlag(EMobFlag::kTutelar);
 	mob->SetFlag(EMobFlag::kLightingBreath);
@@ -217,12 +217,12 @@ void CheckTutelarSelfSacrfice(CharData *ch, CharData *victim) {
 					if (!pk_agro_action(keeper->get_master(), ch)) {
 						return;
 					}
-					log("angel_sacrifice: Nmae (ch): %s, Name(charmice): %s, name(victim): %s", GET_NAME(ch), GET_NAME(keeper), GET_NAME(victim));
+					log("angel_sacrifice: Nmae (ch): %s, Name(charmice): %s, name(victim): %s", ch->get_name().c_str(), keeper->get_name().c_str(), victim->get_name().c_str());
 
 					SendMsgToChar(victim, "%s пожертвовал%s своей жизнью, вытаскивая вас с того света!\r\n",
-								  GET_PAD(keeper, 0), GET_CH_SUF_1(keeper));
+								  keeper->player_data.PNames[0].c_str(), GET_CH_SUF_1(keeper));
 					snprintf(buf, kMaxStringLength, "%s пожертвовал%s своей жизнью, вытаскивая %s с того света!",
-							 GET_PAD(keeper, 0), GET_CH_SUF_1(keeper), GET_PAD(victim, 3));
+							 keeper->player_data.PNames[0].c_str(), GET_CH_SUF_1(keeper), victim->player_data.PNames[3].c_str());
 					act(buf, false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
 
 					ExtractCharFromWorld(keeper, 0);

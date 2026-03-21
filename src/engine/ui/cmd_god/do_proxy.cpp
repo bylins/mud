@@ -73,7 +73,7 @@ void do_proxy(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		strftime(timeBuf, sizeof(timeBuf), "%d/%m/%Y", localtime(&now));
 
 		ProxyIpPtr tempIp(new ProxyIp);
-		tempIp->text = buffer + " [" + GET_NAME(ch) + " " + timeBuf + "]";
+		tempIp->text = buffer + " [" + ch->get_name().c_str() + " " + timeBuf + "]";
 		tempIp->num = num;
 		tempIp->textIp = textIp;
 		tempIp->textIp2 = textIp2;

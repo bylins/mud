@@ -31,7 +31,7 @@ void do_wiznet(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	//	if (EPrf::FLAGGED(ch, EPrf::CODERINFO)) return;
 
 	// Опускаем level для gf_demigod
-	if (GET_GOD_FLAG(ch, EGf::kDemigod))
+	if ((IS_SET(ch->player_specials->saved.GodsLike, EGf::kDemigod)))
 		level = kLvlImmortal;
 
 	// использование доп. аргументов
@@ -55,14 +55,14 @@ void do_wiznet(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			// Обнаруживаем всех кто может (теоретически) нас услышать
 			for (d = descriptor_list; d; d = d->next) {
 				if (d->state == EConState::kPlaying &&
-					(d->character->IsImmortal() || GET_GOD_FLAG(d->character, EGf::kDemigod)) &&
-					!d->character->IsFlagged(EPrf::kNoWiz) && (CAN_SEE(ch, d->character) || ch->IsImpl())) {
+					(IS_IMMORTAL(d->character) || (IS_SET(d->character->player_specials->saved.GodsLike, EGf::kDemigod))) &&
+					!d->character->IsFlagged(EPrf::kNoWiz) && (CAN_SEE(ch, d->character) || IS_IMPL(ch))) {
 					if (!bookmark1) {
 						strcpy(buf1,
 							   "Боги/привилегированные которые смогут (наверное) вас услышать:\r\n");
 						bookmark1 = true;
 					}
-					sprintf(buf1 + strlen(buf1), "  %s", GET_NAME(d->character));
+					sprintf(buf1 + strlen(buf1), "  %s", d->character->get_name().c_str());
 					if (d->character->IsFlagged(EPlrFlag::kWriting))
 						strcat(buf1, " (пишет)\r\n");
 					else if (d->character->IsFlagged(EPlrFlag::kMailing))
@@ -73,7 +73,7 @@ void do_wiznet(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 			for (d = descriptor_list; d; d = d->next) {
 				if (d->state == EConState::kPlaying &&
-					(d->character->IsImmortal() || GET_GOD_FLAG(d->character, EGf::kDemigod)) &&
+					(IS_IMMORTAL(d->character) || (IS_SET(d->character->player_specials->saved.GodsLike, EGf::kDemigod))) &&
 					d->character->IsFlagged(EPrf::kNoWiz) && CAN_SEE(ch, d->character)) {
 					if (!bookmark2) {
 						if (!bookmark1)
@@ -85,7 +85,7 @@ void do_wiznet(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 						bookmark2 = true;
 					}
-					sprintf(buf1 + strlen(buf1), "  %s\r\n", GET_NAME(d->character));
+					sprintf(buf1 + strlen(buf1), "  %s\r\n", d->character->get_name().c_str());
 				}
 			}
 			SendMsgToChar(buf1, ch);
@@ -104,10 +104,10 @@ void do_wiznet(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 	if (level != kLvlGod) {
-		sprintf(buf1, "%s%s: <%d> %s%s\r\n", GET_NAME(ch),
+		sprintf(buf1, "%s%s: <%d> %s%s\r\n", ch->get_name().c_str(),
 				emote ? "" : " богам", level, emote ? "<--- " : "", argument);
 	} else {
-		sprintf(buf1, "%s%s: %s%s\r\n", GET_NAME(ch), emote ? "" : " богам", emote ? "<--- " : "", argument);
+		sprintf(buf1, "%s%s: %s%s\r\n", ch->get_name().c_str(), emote ? "" : " богам", emote ? "<--- " : "", argument);
 	}
 	snprintf(buf2, kMaxStringLength, "&c%s&n", buf1);
 	Remember::add_to_flaged_cont(Remember::wiznet_, buf2, level);
@@ -116,7 +116,7 @@ void do_wiznet(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	for (d = descriptor_list; d; d = d->next) {
 		if ((d->state == EConState::kPlaying) &&    // персонаж должен быть в игре
 			((GetRealLevel(d->character) >= level) ||    // уровень равным или выше level
-				(GET_GOD_FLAG(d->character, EGf::kDemigod) && level == 31)) &&    // демигоды видят 31 канал
+				((IS_SET(d->character->player_specials->saved.GodsLike, EGf::kDemigod)) && level == 31)) &&    // демигоды видят 31 канал
 			(!d->character->IsFlagged(EPrf::kNoWiz)) &&    // игрок с режимом NOWIZ не видит имм канала
 			(!d->character->IsFlagged(EPlrFlag::kWriting)) &&    // пишущий не видит имм канала
 			(!d->character->IsFlagged(EPlrFlag::kMailing)))    // отправляющий письмо не видит имм канала

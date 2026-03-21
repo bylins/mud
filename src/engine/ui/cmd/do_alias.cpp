@@ -20,7 +20,7 @@ void do_alias(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	if (!*arg) {
 		SendMsgToChar("Определены следующие алиасы:\r\n", ch);
-		if ((a = GET_ALIASES(ch)) == nullptr)
+		if ((a = ch->player_specials->aliases) == nullptr)
 			SendMsgToChar(" Нет алиасов.\r\n", ch);
 		else {
 			while (a != nullptr) {
@@ -30,8 +30,8 @@ void do_alias(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 		}
 	} else {
-		if ((a = FindAlias(GET_ALIASES(ch), arg)) != nullptr) {
-			REMOVE_FROM_LIST(a, GET_ALIASES(ch));
+		if ((a = FindAlias(ch->player_specials->aliases, arg)) != nullptr) {
+			REMOVE_FROM_LIST(a, ch->player_specials->aliases);
 			FreeAlias(a);
 		}
 
@@ -53,8 +53,8 @@ void do_alias(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				a->type = kAliasComplex;
 			else
 				a->type = kAliasSimple;
-			a->next = GET_ALIASES(ch);
-			GET_ALIASES(ch) = a;
+			a->next = ch->player_specials->aliases;
+			ch->player_specials->aliases = a;
 			SendMsgToChar("Алиас успешно добавлен.\r\n", ch);
 		}
 		SetWaitState(ch, 1 * kBattleRound);

@@ -74,11 +74,11 @@ void do_statip(CharData *ch, CharData *k) {
 	log("Start logon list stat");
 
 	// Отображаем список ip-адресов с которых персонаж входил
-	if (!LOGON_LIST(k).empty()) {
+	if (!k->player_specials->logons.empty()) {
 		// update: логон-лист может быть капитально большим, поэтому пишем это в свой дин.буфер, а не в buf2
 		// заодно будет постраничный вывод ип, чтобы имма не посылало на йух с **OVERFLOW**
 		std::ostringstream out("Персонаж заходил с IP-адресов:\r\n");
-		for (const auto &logon : LOGON_LIST(k)) {
+		for (const auto &logon : k->player_specials->logons) {
 			sprintf(buf1,
 					"%16s %5ld %20s%s\r\n",
 					logon.ip.c_str(),
@@ -95,11 +95,11 @@ void do_statip(CharData *ch, CharData *k) {
 
 void DoStatKarma(CharData *ch, CharData *victim) {
 	std::stringstream ss;
-	if (!KARMA(victim)) {
-		SendMsgToChar(ch, "Карма у игрока %s отсутствует.\r\n", GET_NAME(victim));
+	if (!victim->player_specials->Karma) {
+		SendMsgToChar(ch, "Карма у игрока %s отсутствует.\r\n", victim->get_name().c_str());
 		return;
 	}
-	ss << "Карма игрока " << GET_NAME(victim) << ":\r\n" << KARMA(victim);
+	ss << "Карма игрока " << victim->get_name().c_str() << ":\r\n" << victim->player_specials->Karma;
 	SendMsgToChar(ss.str(), ch);
 }
 
@@ -116,108 +116,108 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 
 	sprinttype(to_underlying(k->get_sex()), genders, tmpbuf);
 	if (k->IsNpc()) {
-		sprinttype(GET_RACE(k) - ENpcRace::kBasic, npc_race_types, smallBuf);
+		sprinttype(k->player_data.Race - ENpcRace::kBasic, npc_race_types, smallBuf);
 		sprintf(buf, "%s %s ", tmpbuf, smallBuf);
 	}
 	sprintf(buf2,
 			"%s '%s' В комнате [%d] Текущий UID:[%ld]",
 			(!k->IsNpc() ? "PC" : "MOB"),
-			GET_NAME(k),
+			k->get_name().c_str(),
 			k_room,
 			k->get_uid());
 	SendMsgToChar(strcat(buf, buf2), ch);
 	SendMsgToChar(ch, " ЛАГ: [%d]\r\n", k->get_wait());
-	if (k->IsNpc()) {
+	if (IS_MOB(k)) {
 		sprintf(buf,
 				"Синонимы: &S%s&s, VNum: [%5d], RNum: [%5d]\r\n",
 				k->GetCharAliases().c_str(),
 				GET_MOB_VNUM(k),
-				k->get_rnum());
+				GET_MOB_RNUM(k));
 		SendMsgToChar(buf, ch);
 	}
 
 	sprintf(buf,
 			"Падежи: %s/%s/%s/%s/%s/%s ",
-			GET_PAD(k, 0),
-			GET_PAD(k, 1),
-			GET_PAD(k, 2),
-			GET_PAD(k, 3),
-			GET_PAD(k, 4),
-			GET_PAD(k, 5));
+			k->player_data.PNames[0].c_str(),
+			k->player_data.PNames[1].c_str(),
+			k->player_data.PNames[2].c_str(),
+			k->player_data.PNames[3].c_str(),
+			k->player_data.PNames[4].c_str(),
+			k->player_data.PNames[5].c_str());
 	SendMsgToChar(buf, ch);
 
 	if (!k->IsNpc()) {
 
-		if (!NAME_GOD(k)) {
+		if (!k->player_specials->saved.NameGod) {
 			sprintf(buf, "Имя никем не одобрено!\r\n");
 			SendMsgToChar(buf, ch);
-		} else if (NAME_GOD(k) < 1000) {
-			sprintf(buf, "Имя запрещено! - %s\r\n", GetNameById(NAME_ID_GOD(k)).c_str());
+		} else if (k->player_specials->saved.NameGod < 1000) {
+			sprintf(buf, "Имя запрещено! - %s\r\n", GetNameById(k->player_specials->saved.NameIDGod).c_str());
 			SendMsgToChar(buf, ch);
 		} else {
-			sprintf(buf, "Имя одобрено! - %s\r\n", GetNameById(NAME_ID_GOD(k)).c_str());
+			sprintf(buf, "Имя одобрено! - %s\r\n", GetNameById(k->player_specials->saved.NameIDGod).c_str());
 			SendMsgToChar(buf, ch);
 		}
 
-		sprintf(buf, "Вероисповедание: %s\r\n", religion_name[(int) GET_RELIGION(k)][(int) k->get_sex()]);
+		sprintf(buf, "Вероисповедание: %s\r\n", religion_name[(int) k->player_data.Religion][(int) k->get_sex()]);
 		SendMsgToChar(buf, ch);
 
-		std::string file_name = GET_NAME(k);
+		std::string file_name = k->get_name().c_str();
 		CreateFileName(file_name);
-		sprintf(buf, "E-mail: &S%s&s File: %s\r\n", GET_EMAIL(k), file_name.c_str());
+		sprintf(buf, "E-mail: &S%s&s File: %s\r\n", k->player_specials->saved.EMail, file_name.c_str());
 		SendMsgToChar(buf, ch);
 
-		std::string text = RegisterSystem::ShowComment(GET_EMAIL(k));
+		std::string text = RegisterSystem::ShowComment(k->player_specials->saved.EMail);
 		if (!text.empty())
 			SendMsgToChar(ch, "Registered by email from %s\r\n", text.c_str());
 
 		if (k->player_specials->saved.telegram_id != 0)
 			SendMsgToChar(ch, "Подключен Телеграм, chat_id: %lu\r\n", k->player_specials->saved.telegram_id);
 
-		if (k->IsFlagged(EPlrFlag::kFrozen) && FREEZE_DURATION(k)) {
+		if (k->IsFlagged(EPlrFlag::kFrozen) && k->player_specials->pfreeze.duration) {
 			sprintf(buf, "Заморожен : %ld час [%s].\r\n",
-					static_cast<long>((FREEZE_DURATION(k) - time(nullptr)) / 3600),
-					FREEZE_REASON(k) ? FREEZE_REASON(k) : "-");
+					static_cast<long>((k->player_specials->pfreeze.duration - time(nullptr)) / 3600),
+					k->player_specials->pfreeze.reason ? k->player_specials->pfreeze.reason : "-");
 			SendMsgToChar(buf, ch);
 		}
-		if (k->IsFlagged(EPlrFlag::kHelled) && HELL_DURATION(k)) {
+		if (k->IsFlagged(EPlrFlag::kHelled) && k->player_specials->phell.duration) {
 			sprintf(buf, "Находится в темнице : %ld час [%s].\r\n",
-					static_cast<long>((HELL_DURATION(k) - time(nullptr)) / 3600),
-					HELL_REASON(k) ? HELL_REASON(k) : "-");
+					static_cast<long>((k->player_specials->phell.duration - time(nullptr)) / 3600),
+					k->player_specials->phell.reason ? k->player_specials->phell.reason : "-");
 			SendMsgToChar(buf, ch);
 		}
-		if (k->IsFlagged(EPlrFlag::kNameDenied) && NAME_DURATION(k)) {
+		if (k->IsFlagged(EPlrFlag::kNameDenied) && k->player_specials->pname.duration) {
 			sprintf(buf, "Находится в комнате имени : %ld час.\r\n",
-					static_cast<long>((NAME_DURATION(k) - time(nullptr)) / 3600));
+					static_cast<long>((k->player_specials->pname.duration - time(nullptr)) / 3600));
 			SendMsgToChar(buf, ch);
 		}
-		if (k->IsFlagged(EPlrFlag::kMuted) && MUTE_DURATION(k)) {
+		if (k->IsFlagged(EPlrFlag::kMuted) && k->player_specials->pmute.duration) {
 			sprintf(buf, "Будет молчать : %ld час [%s].\r\n",
-					static_cast<long>((MUTE_DURATION(k) - time(nullptr)) / 3600),
-					MUTE_REASON(k) ? MUTE_REASON(k) : "-");
+					static_cast<long>((k->player_specials->pmute.duration - time(nullptr)) / 3600),
+					k->player_specials->pmute.reason ? k->player_specials->pmute.reason : "-");
 			SendMsgToChar(buf, ch);
 		}
-		if (k->IsFlagged(EPlrFlag::kDumbed) && DUMB_DURATION(k)) {
+		if (k->IsFlagged(EPlrFlag::kDumbed) && k->player_specials->pdumb.duration) {
 			sprintf(buf, "Будет нем : %ld мин [%s].\r\n",
-					static_cast<long>((DUMB_DURATION(k) - time(nullptr)) / 60),
-					DUMB_REASON(k) ? DUMB_REASON(k) : "-");
+					static_cast<long>((k->player_specials->pdumb.duration - time(nullptr)) / 60),
+					k->player_specials->pdumb.reason ? k->player_specials->pdumb.reason : "-");
 			SendMsgToChar(buf, ch);
 		}
-		if (!k->IsFlagged(EPlrFlag::kRegistred) && UNREG_DURATION(k)) {
+		if (!k->IsFlagged(EPlrFlag::kRegistred) && k->player_specials->punreg.duration) {
 			sprintf(buf, "Не будет зарегистрирован : %ld час [%s].\r\n",
-					static_cast<long>((UNREG_DURATION(k) - time(nullptr)) / 3600),
-					UNREG_REASON(k) ? UNREG_REASON(k) : "-");
+					static_cast<long>((k->player_specials->punreg.duration - time(nullptr)) / 3600),
+					k->player_specials->punreg.reason ? k->player_specials->punreg.reason : "-");
 			SendMsgToChar(buf, ch);
 		}
 
-		if (GET_GOD_FLAG(k, EGf::kGodsLike) && GCURSE_DURATION(k)) {
+		if ((IS_SET(k->player_specials->saved.GodsLike, EGf::kGodsLike)) && k->player_specials->pgcurse.duration) {
 			sprintf(buf, "Под защитой Богов : %ld час.\r\n",
-					static_cast<long>((GCURSE_DURATION(k) - time(nullptr)) / 3600));
+					static_cast<long>((k->player_specials->pgcurse.duration - time(nullptr)) / 3600));
 			SendMsgToChar(buf, ch);
 		}
-		if (GET_GOD_FLAG(k, EGf::kGodscurse) && GCURSE_DURATION(k)) {
+		if ((IS_SET(k->player_specials->saved.GodsLike, EGf::kGodscurse)) && k->player_specials->pgcurse.duration) {
 			sprintf(buf, "Проклят Богами : %ld час.\r\n",
-					static_cast<long>((GCURSE_DURATION(k) - time(nullptr)) / 3600));
+					static_cast<long>((k->player_specials->pgcurse.duration - time(nullptr)) / 3600));
 			SendMsgToChar(buf, ch);
 		}
 	}
@@ -236,7 +236,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 	if (!k->IsNpc()) {
 		strcpy(smallBuf, MUD::Class(k->GetClass()).GetCName());
 		sprintf(buf, "Племя: %s, Род: %s, Профессия: %s",
-				PlayerRace::GetKinNameByNum(GET_KIN(k), k->get_sex()).c_str(),
+				PlayerRace::GetKinNameByNum(k->player_data.Kin, k->get_sex()).c_str(),
 				k->get_race_name().c_str(),
 				smallBuf);
 		SendMsgToChar(buf, ch);
@@ -260,13 +260,13 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 
 	sprintf(buf, ", Уровень: [%s%2d%s], Опыт: [%s%10ld%s]%s, Наклонности: [%4d]\r\n",
 			kColorYel, GetRealLevel(k), kColorNrm, kColorYel,
-			k->get_exp(), kColorNrm, tmp_buf, GET_ALIGNMENT(k));
+			k->get_exp(), kColorNrm, tmp_buf, k->char_specials.saved.alignment);
 
 	SendMsgToChar(buf, ch);
 
 	if (!k->IsNpc()) {
-		if (CLAN(k)) {
-			SendMsgToChar(ch, "Статус дружины: %s\r\n", GET_CLAN_STATUS(k));
+		if (k->player_specials->clan) {
+			SendMsgToChar(ch, "Статус дружины: %s\r\n", k->player_specials->clanStatus);
 		}
 
 		//added by WorM когда статишь файл собсно показывалось текущее время а не время последнего входа
@@ -284,7 +284,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 
 		k->add_today_torc(0);
 		sprintf(buf, "Рента: [%d], Денег: [%9ld], В банке: [%9ld] (Всего: %ld), Гривны: %d/%d/%d %d, Ногат: %d",
-				GET_LOADROOM(k), k->get_gold(), k->get_bank(), k->get_total_gold(),
+				k->player_specials->saved.load_room, k->get_gold(), k->get_bank(), k->get_total_gold(),
 				k->get_ext_money(ExtMoney::kTorcGold),
 				k->get_ext_money(ExtMoney::kTorcSilver),
 				k->get_ext_money(ExtMoney::kTorcBronze),
@@ -298,8 +298,8 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 		strcat(buf, "\r\n");
 		SendMsgToChar(buf, ch);
 	} else {
-		int mob_online = mob_index[k->get_rnum()].total_online - (virt ? 1 : 0);
-		sprintf(buf, "Сейчас в мире : %d, макс %d. ", mob_online, mob_index[k->get_rnum()].stored);
+		int mob_online = mob_index[GET_MOB_RNUM(k)].total_online - (virt ? 1 : 0);
+		sprintf(buf, "Сейчас в мире : %d, макс %d. ", mob_online, mob_index[GET_MOB_RNUM(k)].stored);
 		SendMsgToChar(buf, ch);
 		std::string stats;
 		mob_stat::GetLastMobKill(k, stats);
@@ -315,14 +315,14 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 			kColorCyn, k->GetInbornDex(), GetRealDex(k), kColorNrm,
 			kColorCyn, k->GetInbornCon(), GetRealCon(k), kColorNrm,
 			kColorCyn, k->GetInbornCha(), GetRealCha(k), kColorNrm,
-			kColorCyn, GET_SIZE(k), GET_REAL_SIZE(k), kColorNrm);
+			kColorCyn, k->real_abils.size, GET_REAL_SIZE(k), kColorNrm);
 	SendMsgToChar(buf, ch);
 
 	sprintf(buf, "Жизни :[%s%d/%d+%d%s]  Энергии :[%s%d/%d+%d%s]",
 			kColorGrn, k->get_hit(), k->get_real_max_hit(), hit_gain(k),
 			kColorNrm, kColorGrn, k->get_move(), k->get_real_max_move(), move_gain(k), kColorNrm);
 	SendMsgToChar(buf, ch);
-	if (IS_MANA_CASTER(k)) {
+	if (k->IsManaCaster()) {
 		sprintf(buf, " Мана :[%s%d/%d+%d%s]\r\n",
 				kColorGrn, k->mem_queue.stored, GET_MAX_MANA(k), CalcManaGain(k), kColorNrm);
 	} else {
@@ -334,14 +334,14 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 			"Glory: [%d], ConstGlory: [%d], AC: [%d/%d(%d)], Броня: [%d], Попадания: [%2d/%2d/%d], Повреждения: [%2d/%2d/%d]\r\n",
 			Glory::get_glory(k->get_uid()),
 			GloryConst::get_glory(k->get_uid()),
-			GET_AC(k),
+			k->real_abils.armor,
 			GetRealAc(k),
 			CalcBaseAc(k),
-			GET_ARMOUR(k),
-			GET_HR(k),
+			k->add_abils.armour,
+			k->real_abils.hitroll,
 			GET_REAL_HR(k),
 			GET_REAL_HR(k) + str_bonus(GetRealStr(k), STR_TO_HIT),
-			GET_DR(k),
+			k->real_abils.damroll,
 			GetRealDamroll(k),
 			GetRealDamroll(k) + str_bonus(GetRealStr(k), STR_TO_DAM));
 	SendMsgToChar(buf, ch);
@@ -351,7 +351,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 			GetBasicSave(k, ESaving::kCritical),
 			GetBasicSave(k, ESaving::kStability),
 			GetBasicSave(k, ESaving::kReflex),
-			GET_ABSORBE(k),
+			k->add_abils.absorb,
 			CalcSaving(k, k, ESaving::kWill, 0),
 			CalcSaving(k, k, ESaving::kCritical, 0),
 			CalcSaving(k, k, ESaving::kStability, 0),
@@ -359,31 +359,31 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 	SendMsgToChar(buf, ch);
 	sprintf(buf,
 			"Резисты: [Огонь:%d/Воздух:%d/Вода:%d/Земля:%d/Жизнь:%d/Разум:%d/Иммунитет:%d/Тьма:%d]\r\n",
-			GET_RESIST(k, 0), GET_RESIST(k, 1), GET_RESIST(k, 2), GET_RESIST(k, 3),
-			GET_RESIST(k, 4), GET_RESIST(k, 5), GET_RESIST(k, 6), GET_RESIST(k, 7));
+			k->add_abils.apply_resistance[0], k->add_abils.apply_resistance[1], k->add_abils.apply_resistance[2], k->add_abils.apply_resistance[3],
+			k->add_abils.apply_resistance[4], k->add_abils.apply_resistance[5], k->add_abils.apply_resistance[6], k->add_abils.apply_resistance[7]);
 	SendMsgToChar(buf, ch);
 	sprintf(buf,
 			"Защита от маг. аффектов: [%d], Защита от маг. урона: [%d], Защита от физ. урона: [%d], Маг.урон: [%d], Физ.урон: [%d]\r\n",
-			GET_AR(k),
-			GET_MR(k),
-			GET_PR(k),
+			k->add_abils.aresist,
+			k->add_abils.mresist,
+			k->add_abils.presist,
 			k->add_abils.percent_spellpower_add,
 			k->add_abils.percent_physdam_add);
 	SendMsgToChar(buf, ch);
 	sprintf(buf,
 			"Запом: [%d], УспехКолд: [%d], ВоссЖиз: [%d], ВоссСил: [%d], Поглощ: [%d], Удача: [%d], Иниц: [%d]\r\n",
-			GET_MANAREG(k),
-			GET_CAST_SUCCESS(k),
+			k->add_abils.manareg,
+			k->add_abils.cast_success,
 			k->get_hitreg(),
 			k->get_movereg(),
-			GET_ABSORBE(k),
+			k->add_abils.absorb,
 			k->calc_morale(),
-			GET_INITIATIVE(k));
+			k->add_abils.initiative_add);
 	SendMsgToChar(buf, ch);
 
 	sprinttype(static_cast<int>(k->GetPosition()), position_types, smallBuf);
 	sprintf(buf, "Положение: %s, Сражается: %s, Экипирован в металл: %s",
-			smallBuf, (k->GetEnemy() ? GET_NAME(k->GetEnemy()) : "Нет"), (IsEquipInMetall(k) ? "Да" : "Нет"));
+			smallBuf, (k->GetEnemy() ? k->GetEnemy(->get_name().c_str()) : "Нет"), (IsEquipInMetall(k) ? "Да" : "Нет"));
 
 	if (k->IsNpc()) {
 		strcat(buf, ", Тип атаки: ");
@@ -448,8 +448,8 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 				if (MUD::Spell(spell_id).IsUnavailable()) {
 					continue;
 				}
-				if (GET_SPELL_MEM(k, spell_id)) {
-					SendMsgToChar(ch, " %s:[%d]", MUD::Spell(spell_id).GetCName(), GET_SPELL_MEM(k, spell_id));
+				if (k->real_abils.SplMem[to_underlying(spell_id)]) {
+					SendMsgToChar(ch, " %s:[%d]", MUD::Spell(spell_id).GetCName(), k->real_abils.SplMem[to_underlying(spell_id)]);
 				}
 			}
 		}
@@ -521,14 +521,14 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 		sprintf(buf, "PRF: %s%s%s\r\n", kColorGrn, smallBuf, kColorNrm);
 		SendMsgToChar(buf, ch);
 
-		if (ch->IsImpl()) {
+		if (IS_IMPL(ch)) {
 			sprintbitwd(k->player_specials->saved.GodsLike, godslike_bits, smallBuf, ",");
 			sprintf(buf, "GFL: %s%s%s\r\n", kColorCyn, smallBuf, kColorNrm);
 			SendMsgToChar(buf, ch);
 		}
 	}
 
-	if (k->IsNpc()) {
+	if (IS_MOB(k)) {
 
 		sprintf(buf, "Mob СпецПроц: &R%s&n, NPC сила удара: %dd%d\r\n",
 				print_special(k).c_str(),
@@ -541,7 +541,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 	sprintf(buf + strlen(buf), "(в инвентаре) : %d, ", i);
 
 	for (i = 0, i2 = 0; i < EEquipPos::kNumEquipPos; i++) {
-		if (GET_EQ(k, i)) {
+		if (k->equipment[i]) {
 			i2++;
 		}
 	}
@@ -551,12 +551,12 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 
 	if (!k->IsNpc()) {
 		sprintf(buf, "Голод: %d, Жажда: %d, Опьянение: %d\r\n",
-				GET_COND(k, FULL), GET_COND(k, THIRST), GET_COND(k, DRUNK));
+				k->player_specials->saved.conditions[FULL], k->player_specials->saved.conditions[THIRST], k->player_specials->saved.conditions[DRUNK]);
 		SendMsgToChar(buf, ch);
 	}
 
 	if (god_level >= kLvlGreatGod) {
-		sprintf(buf, "Ведущий: %s, Ведомые:", (k->has_master() ? GET_NAME(k->get_master()) : "<нет>"));
+		sprintf(buf, "Ведущий: %s, Ведомые:", (k->has_master() ? k->get_master(->get_name().c_str()) : "<нет>"));
 
 		for (auto it = k->followers.begin(); it != k->followers.end(); ++it) {
 			auto *fol = *it;
@@ -619,10 +619,10 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 	// check mobiles for a script
 	if (k->IsNpc() && god_level >= kLvlBuilder) {
 		do_sstat_character(ch, k);
-		if (MEMORY(k)) {
+		if (k->mob_specials.memory) {
 			struct mob_ai::MemoryRecord *memchar;
 			SendMsgToChar("Помнит:\r\n", ch);
-			for (memchar = MEMORY(k); memchar; memchar = memchar->next) {
+			for (memchar = k->mob_specials.memory; memchar; memchar = memchar->next) {
 				sprintf(buf, "%10ld - %10ld\r\n",
 						static_cast<long>(memchar->id),
 						static_cast<long>(memchar->time - time(nullptr)));
@@ -657,13 +657,13 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 		if (!quested.empty())
 			SendMsgToChar(ch, "Выполнил квесты:\r\n%s\r\n", quested.c_str());
 
-		if (NORENTABLE(k)) {
+		if ((k->IsNpc() ? 0 : k->player_specials->may_rent)) {
 			sprintf(buf, "Не может уйти на постой %ld\r\n",
-					static_cast<long int>(NORENTABLE(k) - time(nullptr)));
+					static_cast<long int>((k->IsNpc() ? 0 : k->player_specials->may_rent) - time(nullptr)));
 			SendMsgToChar(buf, ch);
 		}
-		if (AGRO(k)) {
-			sprintf(buf, "Агрессор %ld\r\n", static_cast<long int>(AGRO(k) - time(nullptr)));
+		if (k->player_specials->agro_time) {
+			sprintf(buf, "Агрессор %ld\r\n", static_cast<long int>(k->player_specials->agro_time - time(nullptr)));
 			SendMsgToChar(buf, ch);
 		}
 		pk_list_sprintf(k, buf);
@@ -676,7 +676,7 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 	ObjVnum rnum, vnum;
 	ObjData *j2;
 	long int li;
-	bool is_grgod = (ch->IsGrGod() || ch->IsFlagged(EPrf::kCoderinfo)) ? true : false;
+	bool is_grgod = (IS_GRGOD(ch) || ch->IsFlagged(EPrf::kCoderinfo)) ? true : false;
 
 	vnum = GET_OBJ_VNUM(j);
 	rnum = j->get_rnum();
@@ -832,17 +832,17 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 		}
 		strcat(buf, ", В инвентаре: ");
 		if (j->get_carried_by() && is_grgod) {
-			strcat(buf, GET_NAME(j->get_carried_by()));
+			strcat(buf, j->get_carried_by(->get_name().c_str()));
 		} else if (j->get_in_obj() && j->get_in_obj()->get_carried_by() && is_grgod) {
-			strcat(buf, GET_NAME(j->get_in_obj()->get_carried_by()));
+			strcat(buf, j->get_in_obj(->get_name().c_str()->get_carried_by()));
 		} else {
 			strcat(buf, "Нет");
 		}
 		strcat(buf, ", Надет: ");
 		if (j->get_worn_by() && is_grgod) {
-			strcat(buf, GET_NAME(j->get_worn_by()));
+			strcat(buf, j->get_worn_by(->get_name().c_str()));
 		} else if (j->get_in_obj() && j->get_in_obj()->get_worn_by() && is_grgod) {
-			strcat(buf, GET_NAME(j->get_in_obj()->get_worn_by()));
+			strcat(buf, j->get_in_obj(->get_name().c_str()->get_worn_by()));
 		} else {
 			strcat(buf, "Нет");
 		}
@@ -1166,8 +1166,8 @@ void do_stat_room(CharData *ch, const int rnum = 0) {
 		if (!CAN_SEE(ch, k)) {
 			continue;
 		}
-		sprintf(buf2, "%s %s(%s)", found++ ? "," : "", GET_NAME(k),
-				(!k->IsNpc() ? "PC" : (!k->IsNpc() ? "NPC" : "MOB")));
+		sprintf(buf2, "%s %s(%s)", found++ ? "," : "", k->get_name().c_str(),
+				(!k->IsNpc() ? "PC" : (!IS_MOB(k) ? "NPC" : "MOB")));
 		strcat(buf, buf2);
 		if (strlen(buf) >= 62) {
 			if (counter != rm->people.size()) {
@@ -1239,7 +1239,7 @@ void do_stat_room(CharData *ch, const int rnum = 0) {
 					MUD::Spell(aff->type).GetCName(),
 					aff->duration,
 					aff->type == ESpell::kPortalTimer ? world[aff->modifier]->vnum : aff->modifier,
-					(k = find_char(aff->caster_id)) ? GET_NAME(k) : "неизвестно");
+					(k = find_char(aff->caster_id)) ? k->get_name().c_str() : "неизвестно");
 		}
 		SendMsgToChar(buf1, ch);
 	}
@@ -1263,7 +1263,7 @@ void do_stat(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 		SendMsgToChar("Состояние КОГО или ЧЕГО?\r\n", ch);
 		return;
 	}
-	if (*buf1 && ch->IsImmortal()) {
+	if (*buf1 && IS_IMMORTAL(ch)) {
 		if (utils::IsAbbr(buf1, "room") && level >= kLvlBuilder) {
 			int vnum, rnum = kNowhere;
 			if (*buf2 && (vnum = atoi(buf2))) {
@@ -1366,7 +1366,7 @@ void do_stat(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 			return;
 		}
 	}
-	if (ch->IsImmortal()) {
+	if (IS_IMMORTAL(ch)) {
 		if ((object = get_object_in_equip_vis(ch, buf1, ch->equipment, &tmp)) != nullptr) {
 			do_stat_object(ch, object);
 			return;

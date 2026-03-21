@@ -27,7 +27,7 @@ void go_rescue(CharData *ch, CharData *vict, CharData *tmp_ch) {
 		return;
 	}
 	if (ch->IsOnHorse()) {
-		SendMsgToChar(ch, "Ну раскорячили вы ноги по сторонам, но спасти %s как?\r\n", GET_PAD(vict, 1));
+		SendMsgToChar(ch, "Ну раскорячили вы ноги по сторонам, но спасти %s как?\r\n", vict->player_data.PNames[1].c_str());
 		return;
 	}
 
@@ -35,9 +35,9 @@ void go_rescue(CharData *ch, CharData *vict, CharData *tmp_ch) {
 	int prob = CalcCurrentSkill(ch, ESkill::kRescue, tmp_ch);
 	ImproveSkill(ch, ESkill::kRescue, prob >= percent, tmp_ch);
 
-	if (GET_GOD_FLAG(ch, EGf::kGodsLike))
+	if ((IS_SET(ch->player_specials->saved.GodsLike, EGf::kGodsLike)))
 		prob = percent;
-	if (GET_GOD_FLAG(ch, EGf::kGodscurse))
+	if ((IS_SET(ch->player_specials->saved.GodsLike, EGf::kGodscurse)))
 		prob = 0;
 
 	bool success = percent <= prob;

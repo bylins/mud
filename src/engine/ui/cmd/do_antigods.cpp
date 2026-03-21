@@ -9,7 +9,7 @@
 #include "engine/entities/char_data.h"
 
 void do_antigods(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	if (ch->IsImmortal()) {
+	if (IS_IMMORTAL(ch)) {
 		SendMsgToChar("Оно вам надо?\r\n", ch);
 		return;
 	}

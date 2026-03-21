@@ -323,7 +323,7 @@ ObjData *get_object_in_equip(CharData *ch, const char *name) {
 		id = atoi(name + 1);
 
 		for (j = 0; j < EEquipPos::kNumEquipPos; j++)
-			if ((obj = GET_EQ(ch, j)))
+			if ((obj = ch->equipment[j]))
 				if (id == obj->get_id())
 					return (obj);
 	} else {
@@ -332,7 +332,7 @@ ObjData *get_object_in_equip(CharData *ch, const char *name) {
 			return nullptr;
 
 		for (j = 0; (j < EEquipPos::kNumEquipPos) && (n <= number); j++) {
-			obj = GET_EQ(ch, j);
+			obj = ch->equipment[j];
 			if (!obj) {
 				continue;
 			}
@@ -1337,7 +1337,7 @@ bool CheckSript(const RoomData *go, const long type) {
 long gm_char_field(CharData *ch, char *field, char *subfield, long val) {
 	int tmpval;
 	if (*subfield) {
-		sprintf(buf, "DG_Script: Set %s with <%s> for %s.", field, subfield, GET_NAME(ch));
+		sprintf(buf, "DG_Script: Set %s with <%s> for %s.", field, subfield, ch->get_name().c_str());
 		log("%s", buf);
 		if (*subfield == '-')
 			return (val - atoi(subfield + 1));
@@ -1649,7 +1649,7 @@ void find_replacement(void *go,
 				for (auto d = descriptor_list; d; d = d->next) {
 					if (d->state != EConState::kPlaying)
 						continue;
-					if (!str_cmp(subfield, GET_NAME(d->character))) {
+					if (!str_cmp(subfield, d->character->get_name().c_str())) {
 						sprintf(str, "1");
 						return;
 					}
@@ -2222,25 +2222,25 @@ void find_replacement(void *go,
 			} else if (!str_cmp(field, "u")) {
 				strcpy(str, GET_CH_SUF_2(mob));
 			} else if (!str_cmp(field, "UPiname")) {
-				std::string tmpname = GET_PAD(mob, 0);
+				std::string tmpname = mob->player_data.PNames[0].c_str();
 				strcpy(str, utils::colorCAP(tmpname).c_str());
 			} else if (!str_cmp(field, "UPrname")) {
-				std::string tmpname = GET_PAD(mob, 1);
+				std::string tmpname = mob->player_data.PNames[1].c_str();
 				strcpy(str, utils::colorCAP(tmpname).c_str());
 			} else if (!str_cmp(field, "UPdname")) {
-				std::string tmpname = GET_PAD(mob, 2);
+				std::string tmpname = mob->player_data.PNames[2].c_str();
 				strcpy(str, utils::colorCAP(tmpname).c_str());
 			} else if (!str_cmp(field, "UPvname")) {
-				std::string tmpname = GET_PAD(mob, 3);
+				std::string tmpname = mob->player_data.PNames[3].c_str();
 				strcpy(str, utils::colorCAP(tmpname).c_str());
 			} else if (!str_cmp(field, "UPtname")) {
-				std::string tmpname = GET_PAD(mob, 4);
+				std::string tmpname = mob->player_data.PNames[4].c_str();
 				strcpy(str, utils::colorCAP(tmpname).c_str());
 			} else if (!str_cmp(field, "UPpname")) {
-				std::string tmpname = GET_PAD(mob, 5);
+				std::string tmpname = mob->player_data.PNames[5].c_str();
 				strcpy(str, utils::colorCAP(tmpname).c_str());
 			} else if (!str_cmp(field, "UPname")) {
-				std::string tmpname = GET_NAME(mob);
+				std::string tmpname = mob->get_name().c_str();
 				strcpy(str, utils::colorCAP(tmpname).c_str());
 				CharacterLinkDrop = false;
 			} else if (!str_cmp(field, "unsetquest")) {
@@ -2259,7 +2259,7 @@ void find_replacement(void *go,
 				mob->player_data.PNames[ECase::kNom] = subfield;
 			}
 			else
-				strcpy(str, GET_PAD(mob, 0));
+				strcpy(str, mob->player_data.PNames[0].c_str());
 		}
 		else if (!str_cmp(field, "rname")) {
 			if (*subfield) {
@@ -2268,7 +2268,7 @@ void find_replacement(void *go,
 				mob->player_data.PNames[ECase::kGen] = subfield;
 			}
 			else
-				strcpy(str, GET_PAD(mob, 1));
+				strcpy(str, mob->player_data.PNames[1].c_str());
 		}
 		else if (!str_cmp(field, "dname")) {
 			if (*subfield) {
@@ -2277,7 +2277,7 @@ void find_replacement(void *go,
 				mob->player_data.PNames[ECase::kDat] = subfield;
 			}
 			else
-				strcpy(str, GET_PAD(mob, 2));
+				strcpy(str, mob->player_data.PNames[2].c_str());
 		}
 		else if (!str_cmp(field, "vname")) {
 			if (*subfield) {
@@ -2286,7 +2286,7 @@ void find_replacement(void *go,
 				mob->player_data.PNames[ECase::kAcc] = subfield;
 			}
 			else
-				strcpy(str, GET_PAD(mob, 3));
+				strcpy(str, mob->player_data.PNames[3].c_str());
 		}
 		else if (!str_cmp(field, "tname")) {
 			if (*subfield) {
@@ -2295,7 +2295,7 @@ void find_replacement(void *go,
 				mob->player_data.PNames[ECase::kIns] = subfield;
 			}
 			else
-				strcpy(str, GET_PAD(mob, 4));
+				strcpy(str, mob->player_data.PNames[4].c_str());
 		}
 		else if (!str_cmp(field, "pname")) {
 			if (*subfield) {
@@ -2304,7 +2304,7 @@ void find_replacement(void *go,
 				mob->player_data.PNames[ECase::kPre] = subfield;
 			}
 			else
-				strcpy(str, GET_PAD(mob, 5));
+				strcpy(str, mob->player_data.PNames[5].c_str());
 		}
 		else if (!str_cmp(field, "name")) {
 			if (*subfield) {
@@ -2313,7 +2313,7 @@ void find_replacement(void *go,
 				mob->set_name(subfield);
 			}
 			else {
-				strcpy(str, GET_NAME(mob));
+				strcpy(str, mob->get_name().c_str());
 				CharacterLinkDrop = false;
 			}
 		} else if (!str_cmp(field, "description")) {
@@ -2402,56 +2402,56 @@ void find_replacement(void *go,
 				sprintf(str, "%d", mob->get_move_add());
 		} else if (!str_cmp(field, "castsucc")) {
 			if (*subfield)
-				GET_CAST_SUCCESS(mob) = (int) gm_char_field(mob, field, subfield, (long) GET_CAST_SUCCESS(mob));
+				mob->add_abils.cast_success = (int) gm_char_field(mob, field, subfield, (long) mob->add_abils.cast_success);
 			else
-				sprintf(str, "%d", GET_CAST_SUCCESS(mob));
+				sprintf(str, "%d", mob->add_abils.cast_success);
 		} else if (!str_cmp(field, "age")) {
 			if (!mob->IsNpc())
 				sprintf(str, "%d", GET_REAL_AGE(mob));
 		} else if (!str_cmp(field, "hrbase")) {
-			sprintf(str, "%d", GET_HR(mob));
+			sprintf(str, "%d", mob->real_abils.hitroll);
 		} else if (!str_cmp(field, "hradd")) {
 			if (*subfield)
-				GET_HR_ADD(mob) = (int) gm_char_field(mob, field, subfield, (long) GET_HR(mob));
+				mob->add_abils.hr_add = (int) gm_char_field(mob, field, subfield, (long) mob->real_abils.hitroll);
 			else
-				sprintf(str, "%d", GET_HR_ADD(mob));
+				sprintf(str, "%d", mob->add_abils.hr_add);
 		} else if (!str_cmp(field, "hr")) {
 			sprintf(str, "%d", GET_REAL_HR(mob));
 		} else if (!str_cmp(field, "drbase")) {
-			sprintf(str, "%d", GET_DR(mob));
+			sprintf(str, "%d", mob->real_abils.damroll);
 		} else if (!str_cmp(field, "dradd")) {
 			if (*subfield)
-				GET_DR_ADD(mob) = (int) gm_char_field(mob, field, subfield, (long) GET_DR(mob));
+				mob->add_abils.dr_add = (int) gm_char_field(mob, field, subfield, (long) mob->real_abils.damroll);
 			else
-				sprintf(str, "%d", GET_DR_ADD(mob));
+				sprintf(str, "%d", mob->add_abils.dr_add);
 		} else if (!str_cmp(field, "dr")) {
 			sprintf(str, "%d", GetRealDamroll(mob));
 		} else if (!str_cmp(field, "acbase")) {
-			sprintf(str, "%d", GET_AC(mob));
+			sprintf(str, "%d", mob->real_abils.armor);
 		} else if (!str_cmp(field, "acadd")) {
 			if (*subfield)
-				GET_AC_ADD(mob) = (int) gm_char_field(mob, field, subfield, (long) GET_AC(mob));
+				mob->add_abils.ac_add = (int) gm_char_field(mob, field, subfield, (long) mob->real_abils.armor);
 			else
-				sprintf(str, "%d", GET_AC_ADD(mob));
+				sprintf(str, "%d", mob->add_abils.ac_add);
 		} else if (!str_cmp(field, "ac")) {
 			sprintf(str, "%d", GetRealAc(mob));
 		} else if (!str_cmp(field, "morale")) { // общая сумма морали
 			sprintf(str, "%d", mob->calc_morale());
 		} else if (!str_cmp(field, "moraleadd")) {// добавочная мораль
 			if (*subfield)
-				GET_MORALE(mob) = (int) gm_char_field(mob, field, subfield, (long) GET_MORALE(mob));
+				mob->add_abils.morale = (int) gm_char_field(mob, field, subfield, (long) mob->add_abils.morale);
 			else
-				sprintf(str, "%d", GET_MORALE(mob));
+				sprintf(str, "%d", mob->add_abils.morale);
 		} else if (!str_cmp(field, "poison")) {
 			if (*subfield)
-				GET_POISON(mob) = (int) gm_char_field(mob, field, subfield, (long) GET_POISON(mob));
+				mob->add_abils.poison_add = (int) gm_char_field(mob, field, subfield, (long) mob->add_abils.poison_add);
 			else
-				sprintf(str, "%d", GET_POISON(mob));
+				sprintf(str, "%d", mob->add_abils.poison_add);
 		} else if (!str_cmp(field, "initiative")) {
 			if (*subfield)
-				GET_INITIATIVE(mob) = (int) gm_char_field(mob, field, subfield, (long) GET_INITIATIVE(mob));
+				mob->add_abils.initiative_add = (int) gm_char_field(mob, field, subfield, (long) mob->add_abils.initiative_add);
 			else
-				sprintf(str, "%d", GET_INITIATIVE(mob));
+				sprintf(str, "%d", mob->add_abils.initiative_add);
 		} else if (!str_cmp(field, "linkdrop")) {
 			if (!mob->IsNpc() && !mob->desc) {
 				sprintf(str, "1");
@@ -2462,16 +2462,16 @@ void find_replacement(void *go,
 		} else if (!str_cmp(field, "align")) {
 			if (*subfield) {
 				if (*subfield == '-')
-					GET_ALIGNMENT(mob) -= std::max(1, atoi(subfield + 1));
+					mob->char_specials.saved.alignment -= std::max(1, atoi(subfield + 1));
 				else if (*subfield == '+')
-					GET_ALIGNMENT(mob) += std::max(1, atoi(subfield + 1));
+					mob->char_specials.saved.alignment += std::max(1, atoi(subfield + 1));
 			} else
-				sprintf(str, "%d", GET_ALIGNMENT(mob));
+				sprintf(str, "%d", mob->char_specials.saved.alignment);
 		} else if (!str_cmp(field, "religion")) {
 			if (*subfield && ((atoi(subfield) == kReligionPoly) || (atoi(subfield) == kReligionMono)))
-				GET_RELIGION(mob) = atoi(subfield);
+				mob->player_data.Religion = atoi(subfield);
 			else
-				sprintf(str, "%d", GET_RELIGION(mob));
+				sprintf(str, "%d", mob->player_data.Religion);
 		} else if ((!str_cmp(field, "restore")) || (!str_cmp(field, "fullrestore"))) {
 			if (!str_cmp(field, "fullrestore")) {
 				DoArenaRestore(mob, (char *) mob->get_name().c_str(), 0, kScmdRestoreTrigger);
@@ -2493,7 +2493,7 @@ void find_replacement(void *go,
 				mob->set_hryvn(std::max(long(0), gm_char_field(mob, field, subfield, mob->get_hryvn())));
 				value = mob->get_hryvn() - before;
 				sprintf(buf, "<%s> {%d} получил триггером %d %s. [Trigger: %s, Vnum: %d]",
-						GET_PAD(mob, 0),
+						mob->player_data.PNames[0].c_str(),
 						GET_ROOM_VNUM(mob->in_room),
 						value,
 						GetDeclensionInNumber(value, EWhat::kTorcU),
@@ -2569,7 +2569,7 @@ void find_replacement(void *go,
 				value = mob->get_gold() - before;
 				sprintf(buf,
 						"<%s> {%d} получил триггером %d %s. [Trigger: %s, Vnum: %d]",
-						GET_PAD(mob, 0),
+						mob->player_data.PNames[0].c_str(),
 						GET_ROOM_VNUM(mob->in_room),
 						value,
 						GetDeclensionInNumber(value, EWhat::kMoneyU),
@@ -2616,7 +2616,7 @@ void find_replacement(void *go,
 						EndowExpToChar(mob, -std::max(1, atoi(subfield + 1)));
 						sprintf(buf,
 								"SCRIPT_LOG (exp) у %s уменьшен опыт на %d в триггере %d",
-								GET_NAME(mob),
+								mob->get_name().c_str(),
 								std::max(1, atoi(subfield + 1)),
 								GET_TRIG_VNUM(trig));
 						mudlog(buf, BRF, kLvlGreatGod, ERRLOG, 1);
@@ -2624,14 +2624,14 @@ void find_replacement(void *go,
 						EndowExpToChar(mob, +std::max(1, atoi(subfield + 1)));
 						sprintf(buf,
 								"SCRIPT_LOG (exp) у %s увеличен опыт на %d в триггере %d",
-								GET_NAME(mob),
+								mob->get_name().c_str(),
 								std::max(1, atoi(subfield + 1)),
 								GET_TRIG_VNUM(trig));
 						mudlog(buf, BRF, kLvlGreatGod, ERRLOG, 1);
 					} else {
 						sprintf(buf,
 								"SCRIPT_LOG (exp) ОШИБКА! у %s напрямую указан опыт %d в триггере %d",
-								GET_NAME(mob),
+								mob->get_name().c_str(),
 								atoi(subfield + 1),
 								GET_TRIG_VNUM(trig));
 						mudlog(buf, BRF, kLvlGreatGod, ERRLOG, 1);
@@ -2646,20 +2646,20 @@ void find_replacement(void *go,
 		} else if (!str_cmp(field, "sex")) {
 			sprintf(str, "%d", (int) mob->get_sex());
 		} else if (!str_cmp(field, "clan")) {
-			if (CLAN(mob)) {
-				sprintf(str, "%s", CLAN(mob)->GetAbbrev());
+			if (mob->player_specials->clan) {
+				sprintf(str, "%s", mob->player_specials->clan->GetAbbrev());
 				for (i = 0; str[i]; i++)
 					str[i] = LOWER(str[i]);
 			} else
 				sprintf(str, "0");
 		} else if (!str_cmp(field, "ClanRank")) {
-			if (CLAN(mob) && CLAN_MEMBER(mob))
-				sprintf(str, "%d", CLAN_MEMBER(mob)->rank_num);
+			if (mob->player_specials->clan && mob->player_specials->clan_member)
+				sprintf(str, "%d", mob->player_specials->clan_member->rank_num);
 			else
 				sprintf(str, "0");
 		} else if (!str_cmp(field, "ClanLevel")) {
-			if (CLAN(mob) && CLAN_MEMBER(mob))
-				sprintf(str, "%d", CLAN(mob)->GetClanLevel());
+			if (mob->player_specials->clan && mob->player_specials->clan_member)
+				sprintf(str, "%d", mob->player_specials->clan->GetClanLevel());
 			else
 				sprintf(str, "0");
 		} else if (!str_cmp(field, "m"))
@@ -2683,7 +2683,7 @@ void find_replacement(void *go,
 		else if (!str_cmp(field, "x"))
 			strcpy(str, GET_CH_SUF_8(mob));
 		else if (!str_cmp(field, "weight"))
-			sprintf(str, "%d", GET_WEIGHT(mob));
+			sprintf(str, "%d", mob->player_data.weight);
 		else if (!str_cmp(field, "CarryWeight"))
 			sprintf(str, "%d", mob->char_specials.carry_weight);
 		else if (!str_cmp(field, "cancarryweight"))
@@ -2697,7 +2697,7 @@ void find_replacement(void *go,
 		} else if (!str_cmp(field, "class")) {
 			sprintf(str, "%d",  to_underlying(mob->GetClass()));
 		} else if (!str_cmp(field, "race")) {
-			sprintf(str, "%d", (int) GET_RACE(mob));
+			sprintf(str, "%d", (int) mob->player_data.Race);
 		} else if (!str_cmp(field, "fighting")) {
 			if (mob->GetEnemy()) {
 				sprintf(str, "%c%ld", UID_CHAR, (mob->GetEnemy())->get_uid());
@@ -2721,7 +2721,7 @@ void find_replacement(void *go,
 				strcpy(str, "0");
 			}
 		} else if (!str_cmp(field, "rentable")) {
-			if (!mob->IsNpc() && NORENTABLE(mob)) {
+			if (!mob->IsNpc() && (mob->IsNpc() ? 0 : mob->player_specials->may_rent)) {
 				strcpy(str, "0");
 			} else {
 				strcpy(str, "1");
@@ -2764,8 +2764,8 @@ void find_replacement(void *go,
 				strcpy(str, "0");
 			}
 		} else if (!str_cmp(field, "agressor")) {
-			if (AGRESSOR(mob))
-				sprintf(str, "%d", AGRESSOR(mob));
+			if (mob->player_specials->agressor)
+				sprintf(str, "%d", mob->player_specials->agressor);
 			else
 				strcpy(str, "0");
 		} else if (!str_cmp(field, "vnum")) {
@@ -2773,19 +2773,19 @@ void find_replacement(void *go,
 		} else if (!str_cmp(field, "str")) {
 			sprintf(str, "%d", mob->get_str());
 		} else if (!str_cmp(field, "stradd")) {
-			sprintf(str, "%d", GET_STR_ADD(mob));
+			sprintf(str, "%d", mob->get_str_add());
 		} else if (!str_cmp(field, "realstr")) {
 			sprintf(str, "%d", GetRealStr(mob));
 		} else if (!str_cmp(field, "int")) {
 			sprintf(str, "%d", mob->get_int());
 		} else if (!str_cmp(field, "intadd")) {
-			sprintf(str, "%d", GET_INT_ADD(mob));
+			sprintf(str, "%d", mob->get_int_add());
 		} else if (!str_cmp(field, "realint")) {
 			sprintf(str, "%d", GetRealInt(mob));
 		} else if (!str_cmp(field, "wis")) {
 			sprintf(str, "%d", mob->get_wis());
 		} else if (!str_cmp(field, "wisadd")) {
-			sprintf(str, "%d", GET_WIS_ADD(mob));
+			sprintf(str, "%d", mob->get_wis_add());
 		} else if (!str_cmp(field, "realwis")) {
 			sprintf(str, "%d", GetRealWis(mob));
 		} else if (!str_cmp(field, "dex")) {
@@ -2797,17 +2797,17 @@ void find_replacement(void *go,
 		} else if (!str_cmp(field, "con")) {
 			sprintf(str, "%d", mob->get_con());
 		} else if (!str_cmp(field, "conadd")) {
-			sprintf(str, "%d", GET_CON_ADD(mob));
+			sprintf(str, "%d", mob->get_con_add());
 		} else if (!str_cmp(field, "realcon")) {
 			sprintf(str, "%d", GetRealCon(mob));
 		} else if (!str_cmp(field, "cha")) {
 			sprintf(str, "%d", mob->get_cha());
 		} else if (!str_cmp(field, "chaadd")) {
-			sprintf(str, "%d", GET_CHA_ADD(mob));
+			sprintf(str, "%d", mob->get_cha_add());
 		} else if (!str_cmp(field, "realcha")) {
 			sprintf(str, "%d", GetRealCha(mob));
 		} else if (!str_cmp(field, "size")) {
-			sprintf(str, "%d", GET_SIZE(mob));
+			sprintf(str, "%d", mob->real_abils.size);
 		} else if (!str_cmp(field, "will")) {
 			sprintf(str, "%d", CalcSaving(mob, mob, ESaving::kWill, 0));
 		} else if (!str_cmp(field, "reflex")) {
@@ -2818,10 +2818,10 @@ void find_replacement(void *go,
 			sprintf(str, "%d", CalcSaving(mob, mob, ESaving::kCritical, 0));
 		} else if (!str_cmp(field, "sizeadd")) {
 			if (*subfield)
-				GET_SIZE_ADD(mob) =
-					(sbyte) std::max(long(1), gm_char_field(mob, field, subfield, (long) GET_SIZE_ADD(mob)));
+				mob->add_abils.size_add =
+					(sbyte) std::max(long(1), gm_char_field(mob, field, subfield, (long) mob->add_abils.size_add));
 				else
-				sprintf(str, "%d", GET_SIZE_ADD(mob));
+				sprintf(str, "%d", mob->add_abils.size_add);
 		} else if (!str_cmp(field, "realsize")) {
 			sprintf(str, "%d", GET_REAL_SIZE(mob));
 		} else if (!str_cmp(field, "room")) {
@@ -2851,11 +2851,11 @@ void find_replacement(void *go,
 		} else if (!str_cmp(field, "loadroom")) {
 			if (!mob->IsNpc()) {
 				if (!*subfield)
-					sprintf(str, "%d", GET_LOADROOM(mob));
+					sprintf(str, "%d", mob->player_specials->saved.load_room);
 				else {
 					int pos = atoi(subfield);
 					if (GetRoomRnum(pos) != kNowhere) {
-						GET_LOADROOM(mob) = pos;
+						mob->player_specials->saved.load_room = pos;
 						mob->save_char();
 						return;
 					} else {
@@ -2925,10 +2925,10 @@ void find_replacement(void *go,
 				if (!*subfield || pos < 0 || pos >= EEquipPos::kNumEquipPos)
 					strcpy(str, "");
 				else {
-					if (!GET_EQ(mob, pos))
+					if (!mob->equipment[pos])
 						strcpy(str, "");
 					else
-						sprintf(str, "%c%ld", UID_OBJ, GET_EQ(mob, pos)->get_id());
+						sprintf(str, "%c%ld", UID_OBJ, mob->equipment[pos]->get_id());
 				}
 			} else if (!str_cmp(field, "haveobj") || !str_cmp(field, "haveobjs")) {
 				int pos;
@@ -2980,7 +2980,7 @@ void find_replacement(void *go,
 					sprintf(str, "%d", static_cast<int>(mob->GetPosition()));
 				} else {
 					auto pos = std::clamp(static_cast<EPosition>(atoi(subfield)), EPosition::kPerish, --EPosition::kLast);
-					if (!mob->IsImmortal()) {
+					if (!IS_IMMORTAL(mob)) {
 						if (mob->IsOnHorse()) {
 							mob->dismount();
 						}
@@ -2992,7 +2992,7 @@ void find_replacement(void *go,
 
 				if (!*subfield || (pos = atoi(subfield)) <= 0) {
 					sprintf(str, "%d", mob->get_wait());
-				} else if (!mob->IsImmortal()) {
+				} else if (!IS_IMMORTAL(mob)) {
 					char tmp;
 					if (sscanf(subfield, "%d %c", &pos, &tmp) == 2) {
 						if (tmp == 'p') {
@@ -4303,9 +4303,9 @@ cmdlist_element::shared_ptr find_end(Trigger *trig, cmdlist_element::shared_ptr 
 	while ((cl = cl ? cl->next : cl) != nullptr) {
 		for (p = cl->cmd.c_str(); *p && isspace(*p); p++);
 
-		if (!strncmp(p, "if ", 3)) {
+		if (!strn_cmp("if ", p, 3)) {
 			cl = find_end(trig, cl);
-		} else if (!strncmp(p, "end", 3)) {
+		} else if (!strn_cmp("end", p, 3)) {
 			break;
 		}
 	}
@@ -4337,9 +4337,9 @@ cmdlist_element::shared_ptr find_else_end(Trigger *trig,
 	while ((cl = cl ? cl->next : cl) != nullptr) {
 		for (p = cl->cmd.c_str(); *p && isspace(*p); p++);
 
-		if (!strncmp(p, "if ", 3)) {
+		if (!strn_cmp("if ", p, 3)) {
 			cl = find_end(trig, cl);
-		} else if (!strncmp(p, "elseif ", 7)) {
+		} else if (!strn_cmp("elseif ", p, 7)) {
 			if (process_if(p + 7, go, sc, trig, type)) {
 				GET_TRIG_DEPTH(trig)++;
 			} else {
@@ -4347,10 +4347,10 @@ cmdlist_element::shared_ptr find_else_end(Trigger *trig,
 			}
 
 			break;
-		} else if (!strncmp(p, "else", 4)) {
+		} else if (!strn_cmp("else", p, 4)) {
 			GET_TRIG_DEPTH(trig)++;
 			break;
-		} else if (!strncmp(p, "end", 3)) {
+		} else if (!strn_cmp("end", p, 3)) {
 			break;
 		}
 	}
@@ -4371,9 +4371,9 @@ cmdlist_element::shared_ptr find_continue_done(Trigger *trig, cmdlist_element::s
 
 	while ((cl = cl ? cl->next : cl) != nullptr) {
 		for (p = cl->cmd.c_str(); *p && isspace(*reinterpret_cast<const unsigned char *>(p)); p++);
-		if (!strncmp(p, "while ", 6) || !strncmp(p, "switch ", 7) || !strncmp(p, "foreach ", 8)) {
+		if (!strn_cmp("while ", p, 6) || !strn_cmp("switch ", p, 7) || !strn_cmp("foreach ", p, 8)) {
 			cl = find_done(trig, cl);
-		} else if (!strncmp(p, "done", 4)) {
+		} else if (!strn_cmp("done", p, 4)) {
 			break;
 		}
 		cl_prev = cl;
@@ -4396,9 +4396,9 @@ cmdlist_element::shared_ptr find_done(Trigger *trig, cmdlist_element::shared_ptr
 	while ((cl = cl ? cl->next : cl) != nullptr) {
 		for (p = cl->cmd.c_str(); *p && isspace(*reinterpret_cast<const unsigned char *>(p)); p++);
 
-		if (!strncmp(p, "while ", 6) || !strncmp(p, "switch ", 7) || !strncmp(p, "foreach ", 8)) {
+		if (!strn_cmp("while ", p, 6) || !strn_cmp("switch ", p, 7) || !strn_cmp("foreach ", p, 8)) {
 			cl = find_done(trig, cl);
-		} else if (!strncmp(p, "done", 4)) {
+		} else if (!strn_cmp("done", p, 4)) {
 			break;
 		}
 	}
@@ -4434,9 +4434,9 @@ cmdlist_element::shared_ptr find_case(Trigger *trig,
 	while ((cl = cl ? cl->next : cl) != nullptr) {
 		for (p = cl->cmd.c_str(); *p && isspace(*reinterpret_cast<const unsigned char *>(p)); p++);
 
-		if (!strncmp(p, "while ", 6) || !strncmp(p, "switch ", 7) || !strncmp(p, "foreach ", 8)) {
+		if (!strn_cmp("while ", p, 6) || !strn_cmp("switch ", p, 7) || !strn_cmp("foreach ", p, 8)) {
 			cl = find_done(trig, cl);
-		} else if (!strncmp(p, "case ", 5)) {
+		} else if (!strn_cmp("case ", p, 5)) {
 			char *tmpbuf = (char *) malloc(kMaxStringLength);
 			eval_op("==", result, p + 5, tmpbuf, go, sc, trig);
 			if (*tmpbuf && *tmpbuf != '0') {
@@ -4444,9 +4444,9 @@ cmdlist_element::shared_ptr find_case(Trigger *trig,
 				break;
 			}
 			free(tmpbuf);
-		} else if (!strncmp(p, "default", 7)) {
+		} else if (!strn_cmp("default", p, 7)) {
 			break;
-		} else if (!strncmp(p, "done", 4)) {
+		} else if (!strn_cmp("done", p, 4)) {
 			break;
 		}
 	}
@@ -5118,7 +5118,7 @@ void charuidall_var(void * /*go*/, Script * /*sc*/, Trigger *trig, char *cmd) {
 		if (tch->IsNpc()) {
 			continue;
 		}
-		if (str_cmp(who, GET_NAME(tch))) {
+		if (str_cmp(who, tch->get_name().c_str())) {
 			continue;
 		}
 		if (tch->in_room != kNowhere) {
@@ -5709,7 +5709,7 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 		if (*p == '*' || *p == '/')    // comment
 		{
 			continue;
-		} else if (!strncmp(p, "if ", 3)) {
+		} else if (!strn_cmp(p, "if ", 3)) {
 			if (process_if(p + 3, go, sc, trig, type)) {
 				GET_TRIG_DEPTH(trig)++;
 			} else {
@@ -5720,7 +5720,7 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 				mudlog(buf, BRF, -1, ERRLOG, true);
 				break;
 			}
-		} else if (!strncmp(p, "elseif ", 7) || !strncmp(p, "else", 4)) {
+		} else if (!strn_cmp("elseif ", p, 7) || !strn_cmp("else", p, 4)) {
 			cl = find_end(trig, cl);
 			GET_TRIG_DEPTH(trig)--;
 			if (CharacterLinkDrop) {
@@ -5728,7 +5728,7 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 				mudlog(buf, BRF, -1, ERRLOG, true);
 				break;
 			}
-		} else if (!strncmp(p, "while ", 6)) {
+		} else if (!strn_cmp("while ", p, 6)) {
 			const auto temp = find_done(trig, cl);
 			if (process_if(p + 6, go, sc, trig, type)) {
 				if (temp) {
@@ -5742,7 +5742,7 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 				mudlog(buf, BRF, -1, ERRLOG, true);
 				break;
 			}
-		} else if (!strncmp(p, "foreach ", 8)) {
+		} else if (!strn_cmp("foreach ", p, 8)) {
 			const auto temp = find_done(trig, cl);
 			if (process_foreach_begin(p + 8, go, sc, trig, type)) {
 				if (temp) {
@@ -5756,16 +5756,16 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 				mudlog(buf, BRF, -1, ERRLOG, true);
 				break;
 			}
-		} else if (!strncmp(p, "switch ", 7)) {
+		} else if (!strn_cmp("switch ", p, 7)) {
 			cl = find_case(trig, cl, go, sc, type, p + 7);
 			if (CharacterLinkDrop) {
 				sprintf(buf, "[TrigVnum: %d] Character in LinkDrop.\r\n", last_trig_vnum);
 				mudlog(buf, BRF, -1, ERRLOG, true);
 				break;
 			}
-		} else if (!strncmp(p, "end", 3)) {
+		} else if (!strn_cmp("end", p, 3)) {
 			GET_TRIG_DEPTH(trig)--;
-		} else if (!strncmp(p, "done", 4)) {
+		} else if (!strn_cmp("done", p, 4)) {
 			if (*p == 'c') {
 				const auto temp = find_done(trig, cl);
 				if (temp) {
@@ -5804,11 +5804,11 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 					}
 				}
 			}
-		} else if (!strncmp(p, "break", 5)) {
+		} else if (!strn_cmp("break", p, 5)) {
 			cl = find_done(trig, cl);
-		} else if (!strncmp(p, "continue", 8)) {
+		} else if (!strn_cmp("continue", p, 8)) {
 			cl = find_continue_done(trig, cl);
-		} else if (!strncmp(p, "case", 4))    // Do nothing, this allows multiple cases to a single instance
+		} else if (!strn_cmp("case", p, 4))    // Do nothing, this allows multiple cases to a single instance
 		{
 		} else {
 			var_subst(go, sc, trig, type, p, cmd);
@@ -5817,74 +5817,74 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 				mudlog(buf, BRF, -1, ERRLOG, true);
 				break;
 			}
-			if (!strncmp(cmd, "eval ", 5)) {
+			if (!strn_cmp(cmd, "eval ", 5)) {
 				process_eval(go, sc, trig, type, cmd);
-			} else if (!strncmp(cmd, "nop ", 4)) { ;    // nop: do nothing
-			} else if (!strncmp(cmd, "add_stuf_zone ", 14)) {
+			} else if (!strn_cmp(cmd, "nop ", 4)) { ;    // nop: do nothing
+			} else if (!strn_cmp(cmd, "add_stuf_zone ", 14)) {
 				add_stuf_zone(trig, cmd);
-			} else if (!strncmp(cmd, "extract ", 8)) {
+			} else if (!strn_cmp(cmd, "extract ", 8)) {
 				extract_value(sc, trig, cmd);
-			} else if (!strncmp(cmd, "makeuid ", 8)) {
+			} else if (!strn_cmp(cmd, "makeuid ", 8)) {
 				makeuid_var(go, sc, trig, type, cmd);
-			} else if (!strncmp(cmd, "calcuid ", 8)) {
+			} else if (!strn_cmp(cmd, "calcuid ", 8)) {
 				calcuid_var(go, trig, type, cmd);
-			} else if (!strncmp(cmd, "calcuidall ", 11)) {
+			} else if (!strn_cmp(cmd, "calcuidall ", 11)) {
 				calcuidall_var(go, sc, trig, type, cmd);
-			} else if (!strncmp(cmd, "charuid ", 8)) {
+			} else if (!strn_cmp(cmd, "charuid ", 8)) {
 				charuid_var(go, sc, trig, cmd);
-			} else if (!strncmp(cmd, "charuidall ", 11)) {
+			} else if (!strn_cmp(cmd, "charuidall ", 11)) {
 				charuidall_var(go, sc, trig, cmd);
-			} else if (!strncmp(cmd, "halt", 4)) {
+			} else if (!strn_cmp(cmd, "halt", 4)) {
 				if (process_halt(trig, cmd)) {
 					break;
 				}
-			} else if (!strncmp(cmd, "dgcast ", 7)) {
+			} else if (!strn_cmp(cmd, "DgCast ", 7)) {
 				do_dg_cast(go, trig, type, cmd);
 				if (type == MOB_TRIGGER && reinterpret_cast<CharData *>(go)->purged()) {
 					depth--;
 					cur_trig = prev_trig;
 					return ret_val;
 				}
-			} else if (!strncmp(cmd, "dgaffect ", 9)) {
+			} else if (!strn_cmp(cmd, "DgAffect ", 9)) {
 				do_dg_affect(go, sc, trig, type, cmd);
-			} else if (!strncmp(cmd, "global ", 7)) {
+			} else if (!strn_cmp(cmd, "global ", 7)) {
 				process_global(sc, trig, cmd, trig->context);
-			} else if (!strncmp(cmd, "addicecurrency ", 15)) {
+			} else if (!strn_cmp(cmd, "addicecurrency ", 15)) {
 				do_dg_add_ice_currency(go, sc, trig, type, cmd);
-			} else if (!strncmp(cmd, "bonus ", 6)) {
+			} else if (!strn_cmp(cmd, "bonus ", 6)) {
 				Bonus::dg_do_bonus(cmd + 6);
-			} else if (!strncmp(cmd, "worldecho ", 10)) {
+			} else if (!strn_cmp(cmd, "worldecho ", 10)) {
 				do_worldecho(cmd + 10);
-			} else if (!strncmp(cmd, "worlds ", 7)) {
+			} else if (!strn_cmp(cmd, "worlds ", 7)) {
 				process_worlds(sc, trig, cmd, trig->context);
-			} else if (!strncmp(cmd, "context ", 8)) {
+			} else if (!strn_cmp(cmd, "context ", 8)) {
 				process_context(sc, trig, cmd);
-			} else if (!strncmp(cmd, "remote ", 7)) {
+			} else if (!strn_cmp(cmd, "remote ", 7)) {
 				process_remote(sc, trig, cmd);
-			} else if (!strncmp(cmd, "rdelete ", 8)) {
+			} else if (!strn_cmp(cmd, "rdelete ", 8)) {
 				process_rdelete(sc, trig, cmd);
-			} else if (!strncmp(cmd, "return ", 7)) {
+			} else if (!strn_cmp(cmd, "return ", 7)) {
 				ret_val = process_return(trig, cmd);
-			} else if (!strncmp(cmd, "set ", 4)) {
+			} else if (!strn_cmp(cmd, "set ", 4)) {
 				process_set(sc, trig, cmd);
-			} else if (!strncmp(cmd, "unset ", 6)) {
+			} else if (!strn_cmp(cmd, "unset ", 6)) {
 				process_unset(sc, trig, cmd);
-			} else if (!strncmp(cmd, "clearcontext ", 13)) {
+			} else if (!strn_cmp(cmd, "clearcontext ", 13)) {
 				ClearContextVar(trig, cmd);
-			} else if (!strncmp(cmd, "log ", 4)) {
+			} else if (!strn_cmp(cmd, "log ", 4)) {
 				trig_log(trig, cmd + 4);
-			} else if (!strncmp(cmd, "syslog ", 7)) {
+			} else if (!strn_cmp(cmd, "syslog ", 7)) {
 				log("TRIGGER LOG (Trigger: %s, VNum: %i) : %s", GET_TRIG_NAME(trig), GET_TRIG_VNUM(trig), cmd + 7);
-			} else if (!strncmp(cmd, "wait ", 5)) {
+			} else if (!strn_cmp(cmd, "wait ", 5)) {
 				process_wait(go, trig, type, cmd, cl);
 				depth--;
 				cur_trig = prev_trig;
 				return ret_val;
-			} else if (!strncmp(cmd, "attach ", 7)) {
+			} else if (!strn_cmp(cmd, "attach ", 7)) {
 				process_attach(go, sc, trig, type, cmd);
-			} else if (!strncmp(cmd, "detach ", 7)) {
+			} else if (!strn_cmp(cmd, "detach ", 7)) {
 				trig = process_detach(go, sc, trig, type, cmd);
-			} else if (!strncmp(cmd, "run ", 4)) {
+			} else if (!strn_cmp(cmd, "run ", 4)) {
 				process_run(go, &sc, &trig, type, cmd, &ret_val);
 				if (!trig || !sc) {
 					depth--;
@@ -5892,7 +5892,7 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 					return ret_val;
 				}
 				stop = ret_val;
-			} else if (!strncmp(cmd, "exec ", 5)) {
+			} else if (!strn_cmp(cmd, "exec ", 5)) {
 				process_run(go, &sc, &trig, type, cmd, &ret_val);
 				if (!trig || !sc) {
 					depth--;
@@ -5900,9 +5900,9 @@ int timed_script_driver(void *go, Trigger *trig, int type, int mode) {
 					return ret_val;
 				}\
 
-			} else if (!strncmp(cmd, "arena_round", 11)) {
+			} else if (!strn_cmp(cmd, "arena_round", 11)) {
 				process_arena_round(trig, cmd);
-			} else if (!strncmp(cmd, "version", 7)) {
+			} else if (!strn_cmp(cmd, "version", 7)) {
 				mudlog(DG_SCRIPT_VERSION, BRF, kLvlBuilder, SYSLOG, true);
 			} else {
 				switch (type) {
@@ -6110,7 +6110,7 @@ void read_saved_vars(CharData *ch) {
 	char context_str[16], *c;
 
 	// find the file that holds the saved variables and open it
-	get_filename(GET_NAME(ch), fn, kScriptVarsFile);
+	get_filename(ch->get_name().c_str(), fn, kScriptVarsFile);
 	file = fopen(fn, "r");
 
 	// if we failed to open the file, return
@@ -6152,7 +6152,7 @@ void save_char_vars(CharData *ch) {
 		return;
 	if (ch->script->global_vars.empty())
 		return;
-	get_filename(GET_NAME(ch), fn, kScriptVarsFile);
+	get_filename(ch->get_name().c_str(), fn, kScriptVarsFile);
 	std::remove(fn);
 	file = fopen(fn, "wt");
 	for (auto vars: ch->script->global_vars) {

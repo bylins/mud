@@ -26,7 +26,7 @@ void DoZreset(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 		SendMsgToChar("Укажите зону.\r\n", ch);
 		return;
 	}
-	if (!ch->IsImmortal() && GET_OLC_ZONE(ch) != atoi(arg)) {
+	if (!IS_IMMORTAL(ch) && GET_OLC_ZONE(ch) != atoi(arg)) {
 		SendMsgToChar("Доступ к данной зоне запрещен!\r\n", ch);
 		return;
 	}
@@ -39,9 +39,9 @@ void DoZreset(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 			ResetZone(i);
 		}
 		SendMsgToChar("Перезагружаю мир.\r\n", ch);
-		sprintf(buf, "(GC) %s reset entire world.", GET_NAME(ch));
+		sprintf(buf, "(GC) %s reset entire world.", ch->get_name().c_str());
 		mudlog(buf, NRM, MAX(kLvlGreatGod, GET_INVIS_LEV(ch)), SYSLOG, true);
-		imm_log("%s reset entire world.", GET_NAME(ch));
+		imm_log("%s reset entire world.", ch->get_name().c_str());
 		return;
 	} else if (*arg == '.') {
 		i = world[ch->in_room]->zone_rn;
@@ -56,9 +56,9 @@ void DoZreset(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 		zone_repop_list.push_back(i);
 		DecayObjectsOnRepop(zone_repop_list);
 		ResetZone(i);
-		sprintf(buf, "(GC) %s reset zone %d (%s), delta %f", GET_NAME(ch), i, zone_table[i].name.c_str(), timer.delta().count());
+		sprintf(buf, "(GC) %s reset zone %d (%s), delta %f", ch->get_name().c_str(), i, zone_table[i].name.c_str(), timer.delta().count());
 		mudlog(buf, NRM, MAX(kLvlGreatGod, GET_INVIS_LEV(ch)), SYSLOG, true);
-		imm_log("%s reset zone %d (%s)", GET_NAME(ch), i, zone_table[i].name.c_str());
+		imm_log("%s reset zone %d (%s)", ch->get_name().c_str(), i, zone_table[i].name.c_str());
 	} else {
 		SendMsgToChar("Нет такой зоны.\r\n", ch);
 	}

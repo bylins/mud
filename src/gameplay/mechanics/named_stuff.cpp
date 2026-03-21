@@ -78,7 +78,7 @@ bool check_named(CharData *ch, const ObjData *obj, const bool simple) {
 		if (IS_CHARMICE(ch)) // Чармисы тоже могут работать с именными вещами
 		{
 			CharData *master = ch->get_master();
-			if (master->IsImmortal()) // Чармис имма
+			if (IS_IMMORTAL(master)) // Чармис имма
 			{
 				return false;
 			}
@@ -86,20 +86,20 @@ bool check_named(CharData *ch, const ObjData *obj, const bool simple) {
 			if (it->second->uid == master->get_uid()) // Чармис владельца предмета
 			{
 				return false;
-			} else if (!strcmp(GET_EMAIL(master), it->second->mail.c_str()))  // Чармис владельца предмета судя по мылу
+			} else if (!strcmp(master->player_specials->saved.EMail, it->second->mail.c_str()))  // Чармис владельца предмета судя по мылу
 			{
 				return false;
 			}
 
-			if (!simple && CLAN(master)) {
+			if (!simple && master->player_specials->clan) {
 				if ((it->second->can_clan)
-					&& (CLAN(master)->is_clan_member(it->second->uid)))//Это чармис соклановца и предмет доступен соклановцам
+					&& (master->player_specials->clan->is_clan_member(it->second->uid)))//Это чармис соклановца и предмет доступен соклановцам
 				{
 					return false;
 				}
 
 				if ((it->second->can_alli)
-					&& (CLAN(master)->is_alli_member(it->second->uid)))//Предмет доступен альянсу и это чармис чара из альянса
+					&& (master->player_specials->clan->is_alli_member(it->second->uid)))//Предмет доступен альянсу и это чармис чара из альянса
 				{
 					return false;
 				}
@@ -107,19 +107,19 @@ bool check_named(CharData *ch, const ObjData *obj, const bool simple) {
 		}
 		if (ch->IsNpc())
 			return true;
-		if (ch->IsImmortal()) // Имм
+		if (IS_IMMORTAL(ch)) // Имм
 			return false;
 		if (it->second->uid == ch->get_uid())//Это владелец предмета
 			return false;
-		else if (!strcmp(GET_EMAIL(ch), it->second->mail.c_str()))//Это владелец предмета судя по мылу
+		else if (!strcmp(ch->player_specials->saved.EMail, it->second->mail.c_str()))//Это владелец предмета судя по мылу
 			return false;
-		if (!simple && CLAN(ch))//Предмет доступен сокланам или альянсу
+		if (!simple && ch->player_specials->clan)//Предмет доступен сокланам или альянсу
 		{
 			if ((it->second->can_clan)
-				&& (CLAN(ch)->is_clan_member(it->second->uid)))//Это соклановец и предмет доступен соклановцам
+				&& (ch->player_specials->clan->is_clan_member(it->second->uid)))//Это соклановец и предмет доступен соклановцам
 				return false;
 			if ((it->second->can_alli)
-				&& (CLAN(ch)->is_alli_member(it->second->uid)))//Предмет доступен альянсу и это чар из альянса
+				&& (ch->player_specials->clan->is_alli_member(it->second->uid)))//Предмет доступен альянсу и это чар из альянса
 				return false;
 		}
 		return true;
@@ -384,7 +384,7 @@ void do_named(CharData *ch, char *argument, int cmd, int subcmd) {
 							sprintf(buf1, "%6d) %s",
 									obj_proto[r_num]->get_vnum(),
 									colored_name(obj_proto[r_num]->get_short_description().c_str(), -32));
-							if (ch->IsGrGod() || ch->IsFlagged(EPrf::kCoderinfo)) {
+							if (IS_GRGOD(ch) || ch->IsFlagged(EPrf::kCoderinfo)) {
 								snprintf(buf2, kMaxStringLength, "%s Игра:%d Пост:%d Владелец:%-16s e-mail:&S%s&s\r\n", buf1,
 										 obj_proto.total_online(r_num), obj_proto.stored(r_num),
 										 GetNameByUnique(it->second->uid, false).c_str(), it->second->mail.c_str());
@@ -494,7 +494,7 @@ void receive_items(CharData *ch, CharData *mailman) {
 	int in_world = 0;
 	snprintf(buf1, kMaxStringLength, "не найден именной предмет");
 	for (StuffListType::const_iterator it = stuff_list.begin(), iend = stuff_list.end(); it != iend; ++it) {
-		if ((it->second->uid == ch->get_uid()) || (!strcmp(GET_EMAIL(ch), it->second->mail.c_str()))) {
+		if ((it->second->uid == ch->get_uid()) || (!strcmp(ch->player_specials->saved.EMail, it->second->mail.c_str()))) {
 			if ((r_num = GetObjRnum(it->first)) < 0) {
 				SendMsgToChar("Странно, но такого объекта не существует.\r\n", ch);
 				snprintf(buf1, kMaxStringLength, "объект не существует!!!");
@@ -523,7 +523,7 @@ void receive_items(CharData *ch, CharData *mailman) {
 						 obj_proto.actual_count(r_num));
 				in_world++;
 			}
-			snprintf(buf, kMaxStringLength, "NamedStuff: %s vnum:%ld %s", GET_PAD(ch, 0), it->first, buf1);
+			snprintf(buf, kMaxStringLength, "NamedStuff: %s vnum:%ld %s", ch->player_data.PNames[0].c_str(), it->first, buf1);
 			mudlog(buf, LGH, kLvlImmortal, SYSLOG, true);
 		}
 	}

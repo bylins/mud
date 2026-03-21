@@ -14,7 +14,7 @@
 
 bool unique_stuff(const CharData *ch, const ObjData *obj) {
 	for (unsigned int i = 0; i < EEquipPos::kNumEquipPos; i++)
-		if (GET_EQ(ch, i) && (GET_OBJ_VNUM(GET_EQ(ch, i)) == GET_OBJ_VNUM(obj))) {
+		if (ch->equipment[i] && (GET_OBJ_VNUM(ch->equipment[i]) == GET_OBJ_VNUM(obj))) {
 			return true;
 		}
 	return false;
@@ -50,18 +50,18 @@ int find_eq_pos(CharData *ch, ObjData *obj, char *local_arg) {
 	if (!local_arg || !*local_arg) {
 		int tmp_where = -1;
 		if (CAN_WEAR(obj, EWearFlag::kFinger)) {
-			if (!GET_EQ(ch, EEquipPos::kFingerR)) {
+			if (!ch->equipment[EEquipPos::kFingerR]) {
 				equip_pos = EEquipPos::kFingerR;
-			} else if (!GET_EQ(ch, EEquipPos::kFingerL)) {
+			} else if (!ch->equipment[EEquipPos::kFingerL]) {
 				equip_pos = EEquipPos::kFingerL;
 			} else {
 				tmp_where = EEquipPos::kFingerR;
 			}
 		}
 		if (CAN_WEAR(obj, EWearFlag::kNeck)) {
-			if (!GET_EQ(ch, EEquipPos::kNeck)) {
+			if (!ch->equipment[EEquipPos::kNeck]) {
 				equip_pos = EEquipPos::kNeck;
-			} else if (!GET_EQ(ch, EEquipPos::kChest)) {
+			} else if (!ch->equipment[EEquipPos::kChest]) {
 				equip_pos = EEquipPos::kChest;
 			} else {
 				tmp_where = EEquipPos::kNeck;
@@ -69,7 +69,7 @@ int find_eq_pos(CharData *ch, ObjData *obj, char *local_arg) {
 		}
 
 		if (CAN_WEAR(obj, EWearFlag::kBody)) {
-			if (!GET_EQ(ch, EEquipPos::kBody)) {
+			if (!ch->equipment[EEquipPos::kBody]) {
 				equip_pos = EEquipPos::kBody;
 			} else {
 				tmp_where = EEquipPos::kBody;
@@ -77,7 +77,7 @@ int find_eq_pos(CharData *ch, ObjData *obj, char *local_arg) {
 		}
 
 		if (CAN_WEAR(obj, EWearFlag::kHead)) {
-			if (!GET_EQ(ch, EEquipPos::kHead)) {
+			if (!ch->equipment[EEquipPos::kHead]) {
 				equip_pos = EEquipPos::kHead;
 			} else {
 				tmp_where = EEquipPos::kHead;
@@ -85,7 +85,7 @@ int find_eq_pos(CharData *ch, ObjData *obj, char *local_arg) {
 		}
 
 		if (CAN_WEAR(obj, EWearFlag::kLegs)) {
-			if (!GET_EQ(ch, EEquipPos::kLegs)) {
+			if (!ch->equipment[EEquipPos::kLegs]) {
 				equip_pos = EEquipPos::kLegs;
 			} else {
 				tmp_where = EEquipPos::kLegs;
@@ -93,7 +93,7 @@ int find_eq_pos(CharData *ch, ObjData *obj, char *local_arg) {
 		}
 
 		if (CAN_WEAR(obj, EWearFlag::kFeet)) {
-			if (!GET_EQ(ch, EEquipPos::kFeet)) {
+			if (!ch->equipment[EEquipPos::kFeet]) {
 				equip_pos = EEquipPos::kFeet;
 			} else {
 				tmp_where = EEquipPos::kFeet;
@@ -101,7 +101,7 @@ int find_eq_pos(CharData *ch, ObjData *obj, char *local_arg) {
 		}
 
 		if (CAN_WEAR(obj, EWearFlag::kHands)) {
-			if (!GET_EQ(ch, EEquipPos::kHands)) {
+			if (!ch->equipment[EEquipPos::kHands]) {
 				equip_pos = EEquipPos::kHands;
 			} else {
 				tmp_where = EEquipPos::kHands;
@@ -109,7 +109,7 @@ int find_eq_pos(CharData *ch, ObjData *obj, char *local_arg) {
 		}
 
 		if (CAN_WEAR(obj, EWearFlag::kArms)) {
-			if (!GET_EQ(ch, EEquipPos::kArms)) {
+			if (!ch->equipment[EEquipPos::kArms]) {
 				equip_pos = EEquipPos::kArms;
 			} else {
 				tmp_where = EEquipPos::kArms;
@@ -117,7 +117,7 @@ int find_eq_pos(CharData *ch, ObjData *obj, char *local_arg) {
 		}
 
 		if (CAN_WEAR(obj, EWearFlag::kShield)) {
-			if (!GET_EQ(ch, EEquipPos::kShield)) {
+			if (!ch->equipment[EEquipPos::kShield]) {
 				equip_pos = EEquipPos::kShield;
 			} else {
 				tmp_where = EEquipPos::kShield;
@@ -125,7 +125,7 @@ int find_eq_pos(CharData *ch, ObjData *obj, char *local_arg) {
 		}
 
 		if (CAN_WEAR(obj, EWearFlag::kShoulders)) {
-			if (!GET_EQ(ch, EEquipPos::kShoulders)) {
+			if (!ch->equipment[EEquipPos::kShoulders]) {
 				equip_pos = EEquipPos::kShoulders;
 			} else {
 				tmp_where = EEquipPos::kShoulders;
@@ -133,7 +133,7 @@ int find_eq_pos(CharData *ch, ObjData *obj, char *local_arg) {
 		}
 
 		if (CAN_WEAR(obj, EWearFlag::kWaist)) {
-			if (!GET_EQ(ch, EEquipPos::kWaist)) {
+			if (!ch->equipment[EEquipPos::kWaist]) {
 				equip_pos = EEquipPos::kWaist;
 			} else {
 				tmp_where = EEquipPos::kWaist;
@@ -141,7 +141,7 @@ int find_eq_pos(CharData *ch, ObjData *obj, char *local_arg) {
 		}
 
 		if (CAN_WEAR(obj, EWearFlag::kQuiver)) {
-			if (!GET_EQ(ch, EEquipPos::kQuiver)) {
+			if (!ch->equipment[EEquipPos::kQuiver]) {
 				equip_pos = EEquipPos::kQuiver;
 			} else {
 				tmp_where = EEquipPos::kQuiver;
@@ -149,9 +149,9 @@ int find_eq_pos(CharData *ch, ObjData *obj, char *local_arg) {
 		}
 
 		if (CAN_WEAR(obj, EWearFlag::kWrist)) {
-			if (!GET_EQ(ch, EEquipPos::kWristR)) {
+			if (!ch->equipment[EEquipPos::kWristR]) {
 				equip_pos = EEquipPos::kWristR;
-			} else if (!GET_EQ(ch, EEquipPos::kWristL)) {
+			} else if (!ch->equipment[EEquipPos::kWristL]) {
 				equip_pos = EEquipPos::kWristL;
 			} else {
 				tmp_where = EEquipPos::kWristR;
@@ -246,35 +246,35 @@ void perform_wear(CharData *ch, ObjData *obj, int equip_pos) {
 
 	// for neck, finger, and wrist, try pos 2 if pos 1 is already full
 	if (   // не может держать если есть свет или двуручник
-		(equip_pos == EEquipPos::kHold && (GET_EQ(ch, EEquipPos::kBoths) || GET_EQ(ch, EEquipPos::kLight)
-			|| GET_EQ(ch, EEquipPos::kShield))) ||
+		(equip_pos == EEquipPos::kHold && (ch->equipment[EEquipPos::kBoths] || ch->equipment[EEquipPos::kLight]
+			|| ch->equipment[EEquipPos::kShield])) ||
 			// не может вооружиться если есть двуручник
-			(equip_pos == EEquipPos::kWield && GET_EQ(ch, EEquipPos::kBoths)) ||
+			(equip_pos == EEquipPos::kWield && ch->equipment[EEquipPos::kBoths]) ||
 			// не может держать щит если что-то держит или двуручник
-			(equip_pos == EEquipPos::kShield && (GET_EQ(ch, EEquipPos::kHold) || GET_EQ(ch, EEquipPos::kBoths))) ||
+			(equip_pos == EEquipPos::kShield && (ch->equipment[EEquipPos::kHold] || ch->equipment[EEquipPos::kBoths])) ||
 			// не может двуручник если есть щит, свет, вооружен или держит
-			(equip_pos == EEquipPos::kBoths && (GET_EQ(ch, EEquipPos::kHold) || GET_EQ(ch, EEquipPos::kLight)
-				|| GET_EQ(ch, EEquipPos::kShield) || GET_EQ(ch, EEquipPos::kWield))) ||
+			(equip_pos == EEquipPos::kBoths && (ch->equipment[EEquipPos::kHold] || ch->equipment[EEquipPos::kLight]
+				|| ch->equipment[EEquipPos::kShield] || ch->equipment[EEquipPos::kWield])) ||
 			// не может держать свет если двуручник или держит
-			(equip_pos == EEquipPos::kLight && (GET_EQ(ch, EEquipPos::kHold) || GET_EQ(ch, EEquipPos::kBoths)))) {
+			(equip_pos == EEquipPos::kLight && (ch->equipment[EEquipPos::kHold] || ch->equipment[EEquipPos::kBoths]))) {
 		SendMsgToChar("У вас заняты руки.\r\n", ch);
 		return;
 	}
-	if ((equip_pos == EEquipPos::kQuiver && !(GET_EQ(ch, EEquipPos::kBoths) // не может одеть колчан если одет не лук
-				&& (GET_EQ(ch, EEquipPos::kBoths)->get_type() == EObjType::kWeapon)
-				&& (static_cast<ESkill>(GET_EQ(ch, EEquipPos::kBoths)->get_spec_param()) == ESkill::kBows)))) {
+	if ((equip_pos == EEquipPos::kQuiver && !(ch->equipment[EEquipPos::kBoths] // не может одеть колчан если одет не лук
+				&& (ch->equipment[EEquipPos::kBoths]->get_type() == EObjType::kWeapon)
+				&& (static_cast<ESkill>(ch->equipment[EEquipPos::kBoths]->get_spec_param()) == ESkill::kBows)))) {
 		SendMsgToChar("А стрелять чем будете?\r\n", ch);
 		return;
 	}
 	// нельзя надеть щит, если недостаточно силы
-	if (!ch->IsImmortal() && (equip_pos == EEquipPos::kShield) && !CanBeWearedAsShield(ch, obj)) {
+	if (!IS_IMMORTAL(ch) && (equip_pos == EEquipPos::kShield) && !CanBeWearedAsShield(ch, obj)) {
 	}
 
 	if ((equip_pos == EEquipPos::kFingerR) || (equip_pos == EEquipPos::kNeck) || (equip_pos == EEquipPos::kWristR))
-		if (GET_EQ(ch, equip_pos))
+		if (ch->equipment[equip_pos])
 			++equip_pos;
 
-	if (GET_EQ(ch, equip_pos)) {
+	if (ch->equipment[equip_pos]) {
 		SendMsgToChar(already_wearing[equip_pos], ch);
 		return;
 	}
@@ -384,7 +384,7 @@ void do_wield(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			if (!str_cmp(arg, "обе")
 				&& CAN_WEAR(obj, EWearFlag::kBoth)) {
 				// иногда бывает надо
-				if (!ch->IsImmortal() && !CanBeTakenInBothHands(ch, obj)) {
+				if (!IS_IMMORTAL(ch) && !CanBeTakenInBothHands(ch, obj)) {
 					act("Вам слишком тяжело держать $o3 двумя руками.",
 						false, ch, obj, nullptr, kToChar);
 					message_str_need(ch, obj, STR_BOTH_W);
@@ -400,7 +400,7 @@ void do_wield(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				wear = EEquipPos::kBoths;
 			}
 
-			if (wear == EEquipPos::kWield && !ch->IsImmortal() && !CanBeTakenInMajorHand(ch, obj)) {
+			if (wear == EEquipPos::kWield && !IS_IMMORTAL(ch) && !CanBeTakenInMajorHand(ch, obj)) {
 				act("Вам слишком тяжело держать $o3 в правой руке.",
 					false, ch, obj, nullptr, kToChar);
 				message_str_need(ch, obj, STR_WIELD_W);
@@ -412,7 +412,7 @@ void do_wield(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				}
 			}
 
-			if (wear == EEquipPos::kBoths && !ch->IsImmortal() && !CanBeTakenInBothHands(ch, obj)) {
+			if (wear == EEquipPos::kBoths && !IS_IMMORTAL(ch) && !CanBeTakenInBothHands(ch, obj)) {
 				act("Вам слишком тяжело держать $o3 двумя руками.",
 					false, ch, obj, nullptr, kToChar);
 				message_str_need(ch, obj, STR_BOTH_W);
@@ -463,7 +463,7 @@ void do_grab(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				SendMsgToChar("Ожившие трупы не могут вооружаться.\r\n", ch);
 				return;
 			}
-			if (!ch->IsImmortal()
+			if (!IS_IMMORTAL(ch)
 				&& !CanBeTakenInMinorHand(ch, obj)) {
 				act("Вам слишком тяжело держать $o3 в левой руке.",
 					false, ch, obj, nullptr, kToChar);
@@ -502,7 +502,7 @@ void message_str_need(CharData *ch, ObjData *obj, int type) {
 			break;
 		default:
 			log("SYSERROR: ch=%s, weight=%d, type=%d (%s %s %d)",
-				GET_NAME(ch), obj->get_weight(), type,
+				ch->get_name().c_str(), obj->get_weight(), type,
 				__FILE__, __func__, __LINE__);
 			return;
 	}

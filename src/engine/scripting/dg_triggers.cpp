@@ -957,7 +957,7 @@ int command_otrigger(CharData *actor, char *cmd, const char *argument) {
 		return 0;
 
 	for (int i = 0; i < EEquipPos::kNumEquipPos; i++) {
-		if (cmd_otrig(GET_EQ(actor, i), actor, cmd, argument, OCMD_EQUIP)) {
+		if (cmd_otrig(actor->equipment[i], actor, cmd, argument, OCMD_EQUIP)) {
 			return 1;
 		}
 	}

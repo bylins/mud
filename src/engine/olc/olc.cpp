@@ -179,7 +179,7 @@ void do_olc(CharData *ch, char *argument, int cmd, int subcmd) {
 		if (d->state == olc_scmd_info[subcmd].con_type) {
 			if (d->olc && OLC_NUM(d) == number) {
 				sprintf(buf, "%s в настоящий момент редактируется %s.\r\n",
-						olc_scmd_info[subcmd].text, GET_PAD(d->character, 4));
+						olc_scmd_info[subcmd].text, d->character->player_data.PNames[4].c_str());
 				SendMsgToChar(buf, ch);
 				return;
 			}
@@ -188,7 +188,7 @@ void do_olc(CharData *ch, char *argument, int cmd, int subcmd) {
 	d = ch->desc;
 
 	// лок/анлок редактирования зон только 34м и по привилегии
-	if ((lock || unlock) && !ch->IsImpl() && !privilege::CheckFlag(d->character.get(), privilege::kFullzedit)) {
+	if ((lock || unlock) && !IS_IMPL(ch) && !privilege::CheckFlag(d->character.get(), privilege::kFullzedit)) {
 		SendMsgToChar("Вы не можете использовать эту команду.\r\n", ch);
 		return;
 	}
@@ -206,8 +206,8 @@ void do_olc(CharData *ch, char *argument, int cmd, int subcmd) {
 	if (lock) {
 		zone_table[OLC_ZNUM(d)].locked = true;
 		SendMsgToChar("Защищаю зону от записи.\r\n", ch);
-		sprintf(buf, "(GC) %s has locked zone %d", GET_NAME(ch), zone_table[OLC_ZNUM(d)].vnum);
-		olc_log("%s locks zone %d", GET_NAME(ch), zone_table[OLC_ZNUM(d)].vnum);
+		sprintf(buf, "(GC) %s has locked zone %d", ch->get_name().c_str(), zone_table[OLC_ZNUM(d)].vnum);
+		olc_log("%s locks zone %d", ch->get_name().c_str(), zone_table[OLC_ZNUM(d)].vnum);
 		mudlog(buf, LGH, kLvlImplementator, SYSLOG, true);
 		
 		auto* data_source = world_loader::WorldDataSourceManager::Instance().GetDataSource();
@@ -219,8 +219,8 @@ void do_olc(CharData *ch, char *argument, int cmd, int subcmd) {
 	if (unlock) {
 		zone_table[OLC_ZNUM(d)].locked = false;
 		SendMsgToChar("Снимаю защиту от записи.\r\n", ch);
-		sprintf(buf, "(GC) %s has unlocked zone %d", GET_NAME(ch), zone_table[OLC_ZNUM(d)].vnum);
-		olc_log("%s unlocks zone %d", GET_NAME(ch), zone_table[OLC_ZNUM(d)].vnum);
+		sprintf(buf, "(GC) %s has unlocked zone %d", ch->get_name().c_str(), zone_table[OLC_ZNUM(d)].vnum);
+		olc_log("%s unlocks zone %d", ch->get_name().c_str(), zone_table[OLC_ZNUM(d)].vnum);
 		mudlog(buf, LGH, kLvlImplementator, SYSLOG, true);
 		
 		auto* data_source = world_loader::WorldDataSourceManager::Instance().GetDataSource();
@@ -264,8 +264,8 @@ void do_olc(CharData *ch, char *argument, int cmd, int subcmd) {
 		}
 		sprintf(buf, "Saving all %ss in zone %d.\r\n", type, zone_table[OLC_ZNUM(d)].vnum);
 		SendMsgToChar(buf, ch);
-		sprintf(buf, "OLC: %s saves %s info for zone %d.", GET_NAME(ch), type, zone_table[OLC_ZNUM(d)].vnum);
-		olc_log("%s save %s in Z%d", GET_NAME(ch), type, zone_table[OLC_ZNUM(d)].vnum);
+		sprintf(buf, "OLC: %s saves %s info for zone %d.", ch->get_name().c_str(), type, zone_table[OLC_ZNUM(d)].vnum);
+		olc_log("%s save %s in Z%d", ch->get_name().c_str(), type, zone_table[OLC_ZNUM(d)].vnum);
 		mudlog(buf, LGH, std::max(kLvlBuilder, GET_INVIS_LEV(ch)), SYSLOG, true);
 
 		auto* data_source = world_loader::WorldDataSourceManager::Instance().GetDataSource();

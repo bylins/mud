@@ -24,7 +24,7 @@ void do_commands(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 
 	sprintf(buf, "Следующие %s%s доступны %s:\r\n",
 			wizhelp ? "привилегированные " : "",
-			socials ? "социалы" : "команды", vict == ch ? "вам" : GET_PAD(vict, 2));
+			socials ? "социалы" : "команды", vict == ch ? "вам" : vict->player_data.PNames[2].c_str());
 
 	if (socials)
 		num_of = number_of_social_commands;

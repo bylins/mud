@@ -265,7 +265,7 @@ bool check_equal_exch(CharData *ch) {
 	}
 	if (before != after) {
 		sprintf(buf, "SYSERROR: Torc exch by %s not equal: %d -> %d",
-				GET_NAME(ch), before, after);
+				ch->get_name().c_str(), before, after);
 		mudlog(buf, DEF, kLvlImmortal, SYSLOG, true);
 		return false;
 	}
@@ -579,14 +579,14 @@ void drop_torc(CharData *mob) {
 		}
 	}
 
-	const int zone_lvl = zone_table[mob_index[mob->get_rnum()].zone].mob_level;
+	const int zone_lvl = zone_table[mob_index[GET_MOB_RNUM(mob)].zone].mob_level;
 	const int drop = calc_drop_torc(zone_lvl, members);
 	if (drop <= 0) {
 		return;
 	}
 
 	if (leader->in_room == mob->in_room
-		&& GET_GOD_FLAG(leader, EGf::kRemort)
+		&& (IS_SET(leader->player_specials->saved.GodsLike, EGf::kRemort))
 		&& (leader->get_uid() == damager.first
 			|| mob->get_attacker(leader, ATTACKER_ROUNDS) >= damager.second / 2)) {
 		gain_torc(leader, drop);
@@ -596,7 +596,7 @@ void drop_torc(CharData *mob) {
 		if (AFF_FLAGGED(f, EAffect::kGroup)
 			&& f->in_room == mob->in_room
 			&& !f->IsNpc()
-			&& GET_GOD_FLAG(f, EGf::kRemort)
+			&& (IS_SET(f->player_specials->saved.GodsLike, EGf::kRemort))
 			&& mob->get_attacker(f, ATTACKER_ROUNDS) >= damager.second / 2) {
 			gain_torc(f, drop);
 		}
@@ -770,7 +770,7 @@ void donat_torc(CharData *ch, const std::string &mob_name, unsigned type, int am
 				  "%s оценил ваши заслуги перед князем и народом земли русской и вознес вам хвалу.\r\n"
 				  "Вы почувствовали себя значительно опытней.\r\n", name.c_str());
 
-	if (GET_GOD_FLAG(ch, EGf::kRemort)) {
+	if ((IS_SET(ch->player_specials->saved.GodsLike, EGf::kRemort))) {
 		SendMsgToChar(ch,
 					  "%sПоздравляем, вы получили право на перевоплощение!%s\r\n",
 					  kColorBoldGrn, kColorNrm);
@@ -832,7 +832,7 @@ int torc(CharData *ch, void *me, int cmd, char * /*argument*/) {
 				"Вам не нужно подтверждать свое право на перевоплощение, просто наберите 'перевоплотиться'.\r\n", ch);
 		} else if (ch->IsFlagged(EPrf::kCanRemort)) {
 			// чар на этом морте уже жертвовал необходимое кол-во гривен
-			if (GET_GOD_FLAG(ch, EGf::kRemort)) {
+			if ((IS_SET(ch->player_specials->saved.GodsLike, EGf::kRemort))) {
 				SendMsgToChar(
 					"Вы уже подтвердили свое право на перевоплощение, просто наберите 'перевоплотиться'.\r\n", ch);
 			} else {

@@ -31,7 +31,7 @@ void DoLoad(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 	}
 	int first = atoi(buf2) / 100;
 
-	if (!ch->IsImmortal() && GET_OLC_ZONE(ch) != first) {
+	if (!IS_IMMORTAL(ch) && GET_OLC_ZONE(ch) != first) {
 		SendMsgToChar("Доступ к данной зоне запрещен!\r\n", ch);
 		return;
 	}
@@ -59,7 +59,7 @@ void DoLoad(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 		act("$n создал$g $N3!", false, ch, nullptr, mob, kToRoom);
 		act("Вы создали $N3.", false, ch, nullptr, mob, kToChar);
 		load_mtrigger(mob);
-		olc_log("%s load mob %s #%d", GET_NAME(ch), GET_NAME(mob), number);
+		olc_log("%s load mob %s #%d", ch->get_name().c_str(), mob->get_name().c_str(), number);
 	} else if (utils::IsAbbr(buf, "obj")) {
 		if ((r_num = GetObjRnum(number)) < 0) {
 			SendMsgToChar("Господи, да изучи ты номера объектов.\r\n", ch);
@@ -90,7 +90,7 @@ void DoLoad(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 		act("Вы создали $o3.", false, ch, obj.get(), nullptr, kToChar);
 		load_otrigger(obj.get());
 		CheckObjDecay(obj.get());
-		olc_log("%s load obj %s #%d", GET_NAME(ch), obj->get_short_description().c_str(), number);
+		olc_log("%s load obj %s #%d", ch->get_name().c_str(), obj->get_short_description().c_str(), number);
 	} else if (utils::IsAbbr(buf, "ing")) {
 		int power, i;
 		power = atoi(buf2);
@@ -109,11 +109,11 @@ void DoLoad(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 		act("$n покопал$u в МУДе.", true, ch, nullptr, nullptr, kToRoom);
 		act("$n создал$g $o3!", false, ch, obj, nullptr, kToRoom);
 		act("Вы создали $o3.", false, ch, obj, nullptr, kToChar);
-		sprintf(buf, "%s load ing %d %s", GET_NAME(ch), power, iname);
+		sprintf(buf, "%s load ing %d %s", ch->get_name().c_str(), power, iname);
 		mudlog(buf, NRM, kLvlBuilder, IMLOG, true);
 		load_otrigger(obj);
 		CheckObjDecay(obj);
-		olc_log("%s load ing %s #%d", GET_NAME(ch), obj->get_short_description().c_str(), power);
+		olc_log("%s load ing %s #%d", ch->get_name().c_str(), obj->get_short_description().c_str(), power);
 	} else {
 		SendMsgToChar("Нет уж. Ты создай че-нить нормальное.\r\n", ch);
 	}

@@ -18,8 +18,8 @@ void do_wimpy(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	one_argument(argument, arg);
 
 	if (!*arg) {
-		if (GET_WIMP_LEV(ch)) {
-			sprintf(buf, "Вы попытаетесь бежать при %d ХП.\r\n", GET_WIMP_LEV(ch));
+		if (ch->player_specials->saved.wimp_level) {
+			sprintf(buf, "Вы попытаетесь бежать при %d ХП.\r\n", ch->player_specials->saved.wimp_level);
 			SendMsgToChar(buf, ch);
 			return;
 		} else {
@@ -38,11 +38,11 @@ void do_wimpy(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			else {
 				sprintf(buf, "Ладушки. Вы сбегите (или сбежите) по достижению %d ХП.\r\n", wimp_lev);
 				SendMsgToChar(buf, ch);
-				GET_WIMP_LEV(ch) = wimp_lev;
+				ch->player_specials->saved.wimp_level = wimp_lev;
 			}
 		} else {
 			SendMsgToChar("Вы будете сражаться до конца (скорее всего своего ;).\r\n", ch);
-			GET_WIMP_LEV(ch) = 0;
+			ch->player_specials->saved.wimp_level = 0;
 		}
 	} else
 		SendMsgToChar("Уточните, при достижении какого количества ХП вы планируете сбежать (0 - драться до смерти)\r\n",

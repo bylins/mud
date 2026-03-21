@@ -25,8 +25,8 @@ void DoIntercept(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	};
 
-	ObjData *primary = GET_EQ(ch, EEquipPos::kWield) ? GET_EQ(ch, EEquipPos::kWield) : GET_EQ(ch, EEquipPos::kBoths);
-	if (!(ch->IsImmortal() || ch->IsNpc() || GET_GOD_FLAG(ch, EGf::kGodsLike) || !primary)) {
+	ObjData *primary = ch->equipment[EEquipPos::kWield] ? ch->equipment[EEquipPos::kWield] : ch->equipment[EEquipPos::kBoths];
+	if (!(IS_IMMORTAL(ch) || ch->IsNpc() || (IS_SET(ch->player_specials->saved.GodsLike, EGf::kGodsLike)) || !primary)) {
 		SendMsgToChar("У вас заняты руки.\r\n", ch);
 		return;
 	}
@@ -52,7 +52,7 @@ void DoIntercept(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	if (ch == vict) {
-		SendMsgToChar(GET_NAME(ch), ch);
+		SendMsgToChar(ch->get_name().c_str(), ch);
 		SendMsgToChar(", вы похожи на котенка, ловящего собственный хвост.\r\n", ch);
 		return;
 	}
@@ -101,17 +101,17 @@ void PerformIntercept(CharData *ch, CharData *vict, HitData &hit_data) {
 		&& !AFF_FLAGGED(vict, EAffect::kStopRight)
 		&& vict->get_wait() <= 0
 		&& !AFF_FLAGGED(vict, EAffect::kHold)
-		&& (vict->IsImmortal() || vict->IsNpc()
-			|| !(GET_EQ(vict, EEquipPos::kWield) || GET_EQ(vict, EEquipPos::kBoths)))
+		&& (IS_IMMORTAL(vict) || vict->IsNpc()
+			|| !(vict->equipment[EEquipPos::kWield] || vict->equipment[EEquipPos::kBoths]))
 		&& vict->GetPosition() > EPosition::kSleep) {
 		int percent = number(1, MUD::Skill(ESkill::kIntercept).difficulty);
 		int prob = CalcCurrentSkill(vict, ESkill::kIntercept, ch);
 		TrainSkill(vict, ESkill::kIntercept, prob >= percent, ch);
 		SendSkillBalanceMsg(ch, MUD::Skill(ESkill::kIntercept).name, percent, prob, prob >= 70);
-		if (vict->IsImmortal() || GET_GOD_FLAG(vict, EGf::kGodsLike)) {
+		if (IS_IMMORTAL(vict) || (IS_SET(vict->player_specials->saved.GodsLike, EGf::kGodsLike))) {
 			percent = prob;
 		}
-		if (GET_GOD_FLAG(vict, EGf::kGodscurse)) {
+		if ((IS_SET(vict->player_specials->saved.GodsLike, EGf::kGodscurse))) {
 			percent = 0;
 		}
 		vict->battle_affects.unset(kEafTouch);

@@ -1130,11 +1130,11 @@ void command_interpreter(CharData *ch, char *argument) {
 
 	if (!ch->IsNpc()) {
 		log("<%s> {%5d} [%s]",
-			GET_NAME(ch),
+			ch->get_name().c_str(),
 			GET_ROOM_VNUM(ch->in_room),
 			argument);
-		if (GetRealLevel(ch) >= kLvlImmortal || GET_GOD_FLAG(ch, EGf::kPerslog) || GET_GOD_FLAG(ch, EGf::kDemigod))
-			pers_log(ch, "<%s> {%5d} [%s]", GET_NAME(ch), GET_ROOM_VNUM(ch->in_room), argument);
+		if (GetRealLevel(ch) >= kLvlImmortal || (IS_SET(ch->player_specials->saved.GodsLike, EGf::kPerslog)) || (IS_SET(ch->player_specials->saved.GodsLike, EGf::kDemigod)))
+			pers_log(ch, "<%s> {%5d} [%s]", ch->get_name().c_str(), GET_ROOM_VNUM(ch->in_room), argument);
 	}
 
 	int fnum = get_number(&argument);
@@ -1167,7 +1167,7 @@ void command_interpreter(CharData *ch, char *argument) {
 		&& !AFF_FLAGGED(ch, EAffect::kHold)
 		&& !AFF_FLAGGED(ch, EAffect::kStopFight)
 		&& !AFF_FLAGGED(ch, EAffect::kMagicStopFight)
-		&& !(ch->IsGod() && !strcmp(arg, "invis")))  // let immortals switch to wizinvis to avoid broken command triggers
+		&& !(IS_GOD(ch) && !strcmp(arg, "invis")))  // let immortals switch to wizinvis to avoid broken command triggers
 	{
 		int cont;    // continue the command checks
 		cont = command_wtrigger(ch, arg, line);
@@ -1209,7 +1209,7 @@ void command_interpreter(CharData *ch, char *argument) {
 		}
 	}
 	if (!is_head(ch->get_name())
-		&& ((!ch->IsNpc() && (GET_FREEZE_LEV(ch) > GetRealLevel(ch))
+		&& ((!ch->IsNpc() && (ch->player_specials->pfreeze.level > GetRealLevel(ch))
 			&& (ch->IsFlagged(EPlrFlag::kFrozen)))
 			|| AFF_FLAGGED(ch, EAffect::kHold)
 			|| AFF_FLAGGED(ch, EAffect::kStopFight)
@@ -1360,8 +1360,8 @@ int special(CharData *ch, int cmd, char *argument, int fnum) {
 
 	// special in equipment list? //
 	for (j = 0; j < EEquipPos::kNumEquipPos; j++) {
-		if (GET_EQ(ch, j) && GET_OBJ_SPEC(GET_EQ(ch, j)) != nullptr) {
-			if (GET_OBJ_SPEC(GET_EQ(ch, j))(ch, GET_EQ(ch, j), cmd, argument)) {
+		if (ch->equipment[j] && GET_OBJ_SPEC(ch->equipment[j]) != nullptr) {
+			if (GET_OBJ_SPEC(ch->equipment[j])(ch, ch->equipment[j], cmd, argument)) {
 				check_hiding_cmd(ch, -1);
 				return (1);
 			}
@@ -1479,7 +1479,7 @@ int perform_dupe_check(DescriptorData *d) {
 		{
 			if (str_cmp(d->host, k->host)) {
 				sprintf(buf, "ПОВТОРНЫЙ ВХОД! Id = %ld Персонаж = %s Хост = %s(был %s)",
-						d->character->get_uid(), GET_NAME(d->character), k->host, d->host);
+						d->character->get_uid(), d->character->get_name().c_str(), k->host, d->host);
 				mudlog(buf, BRF, MAX(kLvlImmortal, GET_INVIS_LEV(d->character)), SYSLOG, true);
 				//send_to_gods(buf);
 			}
@@ -1501,7 +1501,7 @@ int perform_dupe_check(DescriptorData *d) {
 		} else if (k->character && (k->character->get_uid() == id)) {
 			if (str_cmp(d->host, k->host)) {
 				sprintf(buf, "ПОВТОРНЫЙ ВХОД! Id = %ld Name = %s Host = %s(был %s)",
-						d->character->get_uid(), GET_NAME(d->character), k->host, d->host);
+						d->character->get_uid(), d->character->get_name().c_str(), k->host, d->host);
 				mudlog(buf, BRF, MAX(kLvlImmortal, GET_INVIS_LEV(d->character)), SYSLOG, true);
 				//send_to_gods(buf);
 			}
@@ -1581,7 +1581,7 @@ int perform_dupe_check(DescriptorData *d) {
 			CheckLight(d->character.get(), kLightNo, kLightNo, kLightNo, kLightNo, 1);
 			act("$n восстановил$g связь.",
 				true, d->character.get(), nullptr, nullptr, kToRoom);
-			sprintf(buf, "%s [%s] has reconnected.", GET_NAME(d->character), d->host);
+			sprintf(buf, "%s [%s] has reconnected.", d->character->get_name().c_str(), d->host);
 			mudlog(buf, NRM, MAX(kLvlImmortal, GET_INVIS_LEV(d->character)), SYSLOG, true);
 			login_change_invoice(d->character.get());
 			break;
@@ -1590,12 +1590,12 @@ int perform_dupe_check(DescriptorData *d) {
 			act("$n надломил$u от боли, окруженн$w белой аурой...\r\n"
 				"Тело $s было захвачено новым духом!",
 				true, d->character.get(), nullptr, nullptr, kToRoom);
-			sprintf(buf, "%s has re-logged in ... disconnecting old socket.", GET_NAME(d->character));
+			sprintf(buf, "%s has re-logged in ... disconnecting old socket.", d->character->get_name().c_str());
 			mudlog(buf, NRM, MAX(kLvlImmortal, GET_INVIS_LEV(d->character)), SYSLOG, true);
 			break;
 
 		case UNSWITCH: iosystem::write_to_output("Пересоединяемся для перевключения игрока.", d);
-			sprintf(buf, "%s [%s] has reconnected (UNSWITCH).", GET_NAME(d->character), d->host);
+			sprintf(buf, "%s [%s] has reconnected (UNSWITCH).", d->character->get_name().c_str(), d->host);
 			mudlog(buf, NRM, MAX(kLvlImmortal, GET_INVIS_LEV(d->character)), SYSLOG, true);
 			break;
 
@@ -1631,7 +1631,7 @@ int pre_help(CharData *ch, char *argument) {
 //   4. Нет proxy записи - проверяем регистрацию персонажа/email
 //   5. Не зарегистрирован - в комнату незарегов
 int check_dupes_host(DescriptorData *d, bool autocheck = false) {
-	if (!d->character || d->character->IsImmortal() || d->character->desc->original) {
+	if (!d->character || IS_IMMORTAL(d->character) || d->character->desc->original) {
 		return 1;
 	}
 
@@ -1662,7 +1662,7 @@ int check_dupes_host(DescriptorData *d, bool autocheck = false) {
 		if (RegisterSystem::IsRegistered(d->character.get())) {
 			return 1;
 		}
-		if (RegisterSystem::IsRegisteredEmail(GET_EMAIL(d->character))) {
+		if (RegisterSystem::IsRegisteredEmail(d->character->player_specials->saved.EMail)) {
 			d->registered_email = true;
 			return 1;
 		}
@@ -1674,18 +1674,18 @@ int check_dupes_host(DescriptorData *d, bool autocheck = false) {
 	}
 
 	for (auto *i = descriptor_list; i; i = i->next) {
-		if (i != d && i->ip == d->ip && i->character && !i->character->IsImmortal()
+		if (i != d && i->ip == d->ip && i->character && !IS_IMMORTAL(i->character)
 			&& (i->state == EConState::kPlaying || i->state == EConState::kMenu)) {
 			SendMsgToChar(d->character.get(),
 						  "&RВы вошли с игроком %s с одного IP(%s)!\r\n"
 						  "Вам необходимо обратиться к Богам для регистрации.\r\n"
 						  "Пока вы будете помещены в комнату для незарегистрированных игроков.&n\r\n",
-						  GET_PAD(i->character, 4), i->host);
+						  i->character->player_data.PNames[4].c_str(), i->host);
 			sprintf(buf,
 					"! ВХОД С ОДНОГО IP ! незарегистрированного игрока.\r\n"
 					"Вошел - %s, в игре - %s, IP - %s.\r\n"
 					"Игрок помещен в комнату незарегистрированных игроков.",
-					GET_NAME(d->character), GET_NAME(i->character), d->host);
+					d->character->get_name().c_str(), i->character->get_name().c_str(), d->host);
 			mudlog(buf, NRM, MAX(kLvlImmortal, GET_INVIS_LEV(d->character)), SYSLOG, true);
 			break;
 		}
@@ -1695,7 +1695,7 @@ int check_dupes_host(DescriptorData *d, bool autocheck = false) {
 
 int check_dupes_email(DescriptorData *d) {
 	if (!d->character
-		|| d->character->IsImmortal()) {
+		|| IS_IMMORTAL(d->character)) {
 		return (1);
 	}
 
@@ -1705,8 +1705,8 @@ int check_dupes_email(DescriptorData *d) {
 			continue;
 		}
 
-		if (!ch->IsImmortal()
-			&& (!str_cmp(GET_EMAIL(ch), GET_EMAIL(d->character)))) {
+		if (!IS_IMMORTAL(ch)
+			&& (!str_cmp(ch->player_specials->saved.EMail, d->character->player_specials->saved.EMail))) {
 			sprintf(buf, "Персонаж с таким email уже находится в игре, вы не можете войти одновременно с ним!");
 			SendMsgToChar(buf, d->character.get());
 			return (0);
@@ -1718,11 +1718,11 @@ int check_dupes_email(DescriptorData *d) {
 
 // * Проверка на доступные религии конкретной профе (из текущей генерации чара).
 void check_religion(CharData *ch) {
-	if (class_religion[to_underlying(ch->GetClass())] == kReligionPoly && GET_RELIGION(ch) != kReligionPoly) {
-		GET_RELIGION(ch) = kReligionPoly;
+	if (class_religion[to_underlying(ch->GetClass())] == kReligionPoly && ch->player_data.Religion != kReligionPoly) {
+		ch->player_data.Religion = kReligionPoly;
 		log("Change religion to poly: %s", ch->get_name().c_str());
-	} else if (class_religion[to_underlying(ch->GetClass())] == kReligionMono && GET_RELIGION(ch) != kReligionMono) {
-		GET_RELIGION(ch) = kReligionMono;
+	} else if (class_religion[to_underlying(ch->GetClass())] == kReligionMono && ch->player_data.Religion != kReligionMono) {
+		ch->player_data.Religion = kReligionMono;
 		log("Change religion to mono: %s", ch->get_name().c_str());
 	}
 }
@@ -1764,7 +1764,7 @@ void do_entergame(DescriptorData *d) {
 		}
 
 		if (!flag) {
-			GET_LOGS(d->character)[0] = 0;
+			d->character->player_specials->logs[0] = 0;
 		}
 	}
 
@@ -1818,7 +1818,7 @@ void do_entergame(DescriptorData *d) {
 	else if (!check_dupes_host(d))
 		load_room = r_unreg_start_room;
 	else {
-		if ((load_room = GET_LOADROOM(d->character)) == kNowhere) {
+		if ((load_room = d->character->player_specials->saved.load_room) == kNowhere) {
 			load_room = calc_loadroom(d->character.get());
 		}
 		load_room = GetRoomRnum(load_room);
@@ -1856,7 +1856,7 @@ void do_entergame(DescriptorData *d) {
 		character->UnsetFlag(EMobFlag::kMobFreed);
 	}
 
-	log("Player %s enter at room %d", GET_NAME(d->character), GET_ROOM_VNUM(load_room));
+	log("Player %s enter at room %d", d->character->get_name().c_str(), GET_ROOM_VNUM(load_room));
 	char_to_room(d->character, load_room);
 	// а потом уже вычитаем за ренту
 	if (GetRealLevel(d->character) != 0) {
@@ -1922,7 +1922,7 @@ void do_entergame(DescriptorData *d) {
 	UnsetInaccessibleFeats(d->character.get());
 	SetInbornAndRaceFeats(d->character.get());
 
-	if (!d->character->IsImmortal()) {
+	if (!IS_IMMORTAL(d->character)) {
 		for (const auto &skill : MUD::Skills()) {
 			if (MUD::Class((d->character)->GetClass()).skills[skill.GetId()].IsInvalid()) {
 				d->character->set_skill(skill.GetId(), 0);
@@ -1948,10 +1948,10 @@ void do_entergame(DescriptorData *d) {
 
 	// with the copyover patch, this next line goes in enter_player_game()
 	chardata_by_uid[d->character->get_uid()] = d->character.get();
-	GET_ACTIVITY(d->character) = number(0, kPlayerSaveActivity - 1);
+	d->character->mob_specials.activity = number(0, kPlayerSaveActivity - 1);
 	d->character->set_last_logon(time(nullptr));
-//	player_table[GetPtableByUnique(d->character->get_uid())].last_logon = LAST_LOGON(d->character);
-	player_table[d->character->get_pfilepos()].last_logon = LAST_LOGON(d->character);
+//	player_table[GetPtableByUnique(d->character->get_uid())].last_logon = d->character->get_last_logon();
+	player_table[d->character->get_pfilepos()].last_logon = d->character->get_last_logon();
 	network::add_logon_record(d);
 	// чтобы восстановление маны спам-контроля "кто" не шло, когда чар заходит после
 	// того, как повисел на менюшке; важно, чтобы этот вызов шел раньше save_char()
@@ -1990,24 +1990,24 @@ void do_entergame(DescriptorData *d) {
 	init_warcry(d->character.get());
 
 	// На входе в игру вешаем флаг (странно, что он до этого нигде не вешался
-	if (privilege::IsContainedInGodsList(GET_NAME(d->character), d->character->get_uid())
+	if (privilege::IsContainedInGodsList(d->character->get_name().c_str(), d->character->get_uid())
 		&& (GetRealLevel(d->character) < kLvlGod)) {
-		SET_GOD_FLAG(d->character, EGf::kDemigod);
+		(SET_BIT(d->character->player_specials->saved.GodsLike, EGf::kDemigod));
 	}
 	// Насильственно забираем этот флаг у иммов (если он, конечно же, есть
-	if ((GET_GOD_FLAG(d->character, EGf::kDemigod) && GetRealLevel(d->character) >= kLvlGod)) {
-		CLR_GOD_FLAG(d->character, EGf::kDemigod);
+	if (((IS_SET(d->character->player_specials->saved.GodsLike, EGf::kDemigod)) && GetRealLevel(d->character) >= kLvlGod)) {
+		(REMOVE_BIT(d->character->player_specials->saved.GodsLike, EGf::kDemigod));
 	}
 
 	switch (d->character->get_sex()) {
 		case EGender::kLast: [[fallthrough]];
-		case EGender::kNeutral: sprintf(buf, "%s вошло в игру.", GET_NAME(d->character));
+		case EGender::kNeutral: sprintf(buf, "%s вошло в игру.", d->character->get_name().c_str());
 			break;
-		case EGender::kMale: sprintf(buf, "%s вошел в игру.", GET_NAME(d->character));
+		case EGender::kMale: sprintf(buf, "%s вошел в игру.", d->character->get_name().c_str());
 			break;
-		case EGender::kFemale: sprintf(buf, "%s вошла в игру.", GET_NAME(d->character));
+		case EGender::kFemale: sprintf(buf, "%s вошла в игру.", d->character->get_name().c_str());
 			break;
-		case EGender::kPoly: sprintf(buf, "%s вошли в игру.", GET_NAME(d->character));
+		case EGender::kPoly: sprintf(buf, "%s вошли в игру.", d->character->get_name().c_str());
 			break;
 	}
 
@@ -2040,7 +2040,7 @@ bool ValidateStats(DescriptorData *d) {
 	}
 
 	//Некорректный номер расы
-	if (PlayerRace::GetKinNameByNum(GET_KIN(d->character), d->character->get_sex()) == KIN_NAME_UNDEFINED) {
+	if (PlayerRace::GetKinNameByNum(d->character->player_data.Kin, d->character->get_sex()) == KIN_NAME_UNDEFINED) {
 		iosystem::write_to_output("\r\nЧто-то заплутал ты, путник. Откуда бредешь?\r\nВыберите народ:\r\n", d);
 		iosystem::write_to_output(string(PlayerRace::ShowKinsMenu()).c_str(), d);
 		iosystem::write_to_output("\r\nВыберите племя: ", d);
@@ -2049,17 +2049,17 @@ bool ValidateStats(DescriptorData *d) {
 	}
 
 	//Некорректный номер рода
-	if (PlayerRace::GetRaceNameByNum(GET_KIN(d->character), GET_RACE(d->character), d->character->get_sex())
+	if (PlayerRace::GetRaceNameByNum(d->character->player_data.Kin, d->character->player_data.Race, d->character->get_sex())
 		== RACE_NAME_UNDEFINED) {
 		iosystem::write_to_output("\r\nКакого роду-племени вы будете?\r\n", d);
-		iosystem::write_to_output(string(PlayerRace::ShowRacesMenu(GET_KIN(d->character))).c_str(), d);
+		iosystem::write_to_output(string(PlayerRace::ShowRacesMenu(d->character->player_data.Kin)).c_str(), d);
 		iosystem::write_to_output("\r\nИз чьих вы будете: ", d);
 		d->state = EConState::kResetRace;
 		return false;
 	}
 
 	// не корректный номер религии
-	if (GET_RELIGION(d->character) > kReligionMono) {
+	if (d->character->player_data.Religion > kReligionMono) {
 		iosystem::write_to_output(religion_menu, d);
 		iosystem::write_to_output("\n\rРелигия :", d);
 		d->state = EConState::kResetReligion;
@@ -2073,25 +2073,25 @@ void DoAfterPassword(DescriptorData *d) {
 	int load_result;
 
 	// Password was correct.
-	load_result = GET_BAD_PWS(d->character);
-	GET_BAD_PWS(d->character) = 0;
+	load_result = d->character->player_specials->saved.bad_pws;
+	d->character->player_specials->saved.bad_pws = 0;
 	d->bad_pws = 0;
 
 	if (ban->IsBanned(d->host) == BanList::BAN_SELECT && !d->character->IsFlagged(EPlrFlag::kSiteOk)) {
 		iosystem::write_to_output("Извините, вы не можете выбрать этого игрока с данного IP!\r\n", d);
 		d->state = EConState::kClose;
-		sprintf(buf, "Connection attempt for %s denied from %s", GET_NAME(d->character), d->host);
+		sprintf(buf, "Connection attempt for %s denied from %s", d->character->get_name().c_str(), d->host);
 		mudlog(buf, NRM, kLvlGod, SYSLOG, true);
 		return;
 	}
 	if (GetRealLevel(d->character) < circle_restrict) {
 		iosystem::write_to_output("Игра временно приостановлена.. Ждем вас немного позже.\r\n", d);
 		d->state = EConState::kClose;
-		sprintf(buf, "Request for login denied for %s [%s] (wizlock)", GET_NAME(d->character), d->host);
+		sprintf(buf, "Request for login denied for %s [%s] (wizlock)", d->character->get_name().c_str(), d->host);
 		mudlog(buf, NRM, kLvlGod, SYSLOG, true);
 		return;
 	}
-	if (new_loc_codes.count(GET_EMAIL(d->character)) != 0) {
+	if (new_loc_codes.count(d->character->player_specials->saved.EMail) != 0) {
 		iosystem::write_to_output("\r\nВам на электронную почту был выслан код. Введите его, пожалуйста: \r\n", d);
 		d->state = EConState::kRandomNumber;
 		return;
@@ -2100,20 +2100,20 @@ void DoAfterPassword(DescriptorData *d) {
 	std::set<uint32_t> subnets;
 
 	const uint32_t MASK = 16777215;
-	for (const auto &logon : LOGON_LIST(d->character)) {
+	for (const auto &logon : d->character->player_specials->logons) {
 		uint32_t current_subnet = inet_addr(logon.ip.c_str()) & MASK;
 		subnets.insert(current_subnet);
 	}
 
 	if (!subnets.empty()) {
 		if (subnets.count(inet_addr(d->host) & MASK) == 0) {
-			sprintf(buf, "Персонаж %s вошел с необычного места!", GET_NAME(d->character));
+			sprintf(buf, "Персонаж %s вошел с необычного места!", d->character->get_name().c_str());
 			mudlog(buf, CMP, kLvlGod, SYSLOG, true);
 			if (d->character->IsFlagged(EPrf::kIpControl)) {
 				int random_number = number(1000000, 9999999);
-				new_loc_codes[GET_EMAIL(d->character)] = random_number;
+				new_loc_codes[d->character->player_specials->saved.EMail] = random_number;
 				std::string cmd_line =
-					fmt::format("python3 send_code.py {} {} &", GET_EMAIL(d->character), random_number);
+					fmt::format("python3 send_code.py {} {} &", d->character->player_specials->saved.EMail, random_number);
 				auto result = system(cmd_line.c_str());
 				UNUSED_ARG(result);
 				iosystem::write_to_output("\r\nВам на электронную почту был выслан код. Введите его, пожалуйста: \r\n", d);
@@ -2131,18 +2131,18 @@ void DoAfterPassword(DescriptorData *d) {
 	// тут несколько вариантов как это проставить и все одинаково корявые с учетом релоада, без уверенности не трогать
 	Clan::SetClanData(d->character.get());
 
-	log("%s [%s] has connected.", GET_NAME(d->character), d->host);
+	log("%s [%s] has connected.", d->character->get_name().c_str(), d->host);
 
 	if (load_result) {
 		sprintf(buf, "\r\n\r\n\007\007\007"
 					 "%s%d LOGIN FAILURE%s SINCE LAST SUCCESSFUL LOGIN.%s\r\n",
 				kColorRed, load_result, (load_result > 1) ? "S" : "", kColorNrm);
 		iosystem::write_to_output(buf, d);
-		GET_BAD_PWS(d->character) = 0;
+		d->character->player_specials->saved.bad_pws = 0;
 	}
-	time_t tmp_time = LAST_LOGON(d->character);
+	time_t tmp_time = d->character->get_last_logon();
 	sprintf(buf, "\r\nПоследний раз вы заходили к нам в %s с адреса (%s).\r\n",
-			rustime(localtime(&tmp_time)), GET_LASTIP(d->character));
+			rustime(localtime(&tmp_time)), d->character->player_specials->saved.LastIP);
 	iosystem::write_to_output(buf, d);
 
 	//if (!GloryMisc::check_stats(d->character))
@@ -2176,7 +2176,7 @@ void init_char(CharData *ch, PlayerIndexElement &element) {
   }
 #endif
 
-	CREATE(GET_LOGS(ch), 1 + LAST_LOG);
+	CREATE(ch->player_specials->logs, 1 + LAST_LOG);
 	ch->set_npc_name(nullptr);
 	ch->player_data.long_descr = "";
 	ch->player_data.description = "";
@@ -2211,9 +2211,9 @@ void init_char(CharData *ch, PlayerIndexElement &element) {
 
 	for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
 		if (GetRealLevel(ch) < kLvlGreatGod) {
-			GET_SPELL_TYPE(ch, spell_id) = ESpellType::kUnknowm;
+			ch->real_abils.SplKnw[to_underlying(spell_id)] = ESpellType::kUnknowm;
 		} else {
-			GET_SPELL_TYPE(ch, spell_id) = ESpellType::kKnow;
+			ch->real_abils.SplKnw[to_underlying(spell_id)] = ESpellType::kKnow;
 		}
 	}
 
@@ -2222,7 +2222,7 @@ void init_char(CharData *ch, PlayerIndexElement &element) {
 		SetSave(ch, save, 0);
 	}
 	for (i = EResist::kFirstResist; i <= EResist::kLastResist; ++i) {
-		GET_RESIST(ch, i) = 0;
+		ch->add_abils.apply_resistance[i] = 0;
 	}
 
 	if (GetRealLevel(ch) == kLvlImplementator) {
@@ -2236,10 +2236,10 @@ void init_char(CharData *ch, PlayerIndexElement &element) {
 	ch->real_abils.size = 50;
 
 	for (i = 0; i < 3; i++) {
-		GET_COND(ch, i) = (GetRealLevel(ch) == kLvlImplementator ? -1 : i == DRUNK ? 0 : 24);
+		ch->player_specials->saved.conditions[i] = (GetRealLevel(ch) == kLvlImplementator ? -1 : i == DRUNK ? 0 : 24);
 	}
-	GET_LASTIP(ch)[0] = 0;
-	//	GET_LOADROOM(ch) = start_room;
+	ch->player_specials->saved.LastIP[0] = 0;
+	//	ch->player_specials->saved.load_room = start_room;
 	ch->SetFlag(EPrf::kDispHp);
 	ch->SetFlag(EPrf::kDispMana);
 	ch->SetFlag(EPrf::kDispExits);
@@ -2248,9 +2248,9 @@ void init_char(CharData *ch, PlayerIndexElement &element) {
 	ch->SetFlag(EPrf::kDispFight);
 	ch->UnsetFlag(EPrf::KSummonable);
 	ch->SetFlag(EPrf::kColor2);
-	STRING_LENGTH(ch) = 80;
-	STRING_WIDTH(ch) = 30;
-	NOTIFY_EXCH_PRICE(ch) = 0;
+	ch->player_specials->saved.stringLength = 80;
+	ch->player_specials->saved.stringWidth = 30;
+	ch->player_specials->saved.ntfyExchangePrice = 0;
 
 	ch->save_char();
 }
@@ -2269,9 +2269,9 @@ int create_entry(PlayerIndexElement &element) {
 }
 
 void DoAfterEmailConfirm(DescriptorData *d) {
-	PlayerIndexElement element(GET_PC_NAME(d->character));
+	PlayerIndexElement element(d->character->GetCharAliases().c_str());
 
-	// Now GET_NAME() will work properly.
+	// Now ->get_name().c_str() will work properly.
 	init_char(d->character.get(), element);
 
 	if (d->character->get_pfilepos() < 0) {
@@ -2282,19 +2282,19 @@ void DoAfterEmailConfirm(DescriptorData *d) {
 	d->character->get_account()->add_player(d->character->get_uid());
 
 	// добавляем в список ждущих одобрения
-	if (!(int) NAME_FINE(d->character)) {
+	if (!(int) (d->character->player_specials->saved.NameGod > 1000)) {
 		sprintf(buf, "%s - новый игрок. Падежи: %s/%s/%s/%s/%s/%s Email: %s Пол: %s. ]\r\n"
 					 "[ %s ждет одобрения имени.",
-				GET_NAME(d->character), GET_PAD(d->character, 0),
-				GET_PAD(d->character, 1), GET_PAD(d->character, 2),
-				GET_PAD(d->character, 3), GET_PAD(d->character, 4),
-				GET_PAD(d->character, 5), GET_EMAIL(d->character),
-				genders[(int) d->character->get_sex()], GET_NAME(d->character));
+				d->character->get_name().c_str(), d->character->player_data.PNames[0].c_str(),
+				d->character->player_data.PNames[1].c_str(), d->character->player_data.PNames[2].c_str(),
+				d->character->player_data.PNames[3].c_str(), d->character->player_data.PNames[4].c_str(),
+				d->character->player_data.PNames[5].c_str(), d->character->player_specials->saved.EMail,
+				genders[(int) d->character->get_sex()], d->character->get_name().c_str());
 		NewNames::add(d->character.get());
 	}
 
 	// remove from free names
-	player_table.GetNameAdviser().remove(GET_NAME(d->character));
+	player_table.GetNameAdviser().remove(d->character->get_name().c_str());
 
 	iosystem::write_to_output(motd, d);
 	iosystem::write_to_output("\r\n* В связи с проблемами перевода фразы ANYKEY нажмите ENTER *", d);
@@ -2512,7 +2512,7 @@ void nanny(DescriptorData *d, char *argument) {
 						|| !Password::compare_password(d->character.get(), pwd_pwd)) {
 						iosystem::write_to_output("Некорректное имя. Повторите, пожалуйста.\r\n" "Имя : ", d);
 						if (!d->character->IsFlagged(EPlrFlag::kDeleted)) {
-							sprintf(buffer, "Bad PW: %s [%s]", GET_NAME(d->character), d->host);
+							sprintf(buffer, "Bad PW: %s [%s]", d->character->get_name().c_str(), d->host);
 							mudlog(buffer, BRF, kLvlImmortal, SYSLOG, true);
 						}
 
@@ -2537,7 +2537,7 @@ void nanny(DescriptorData *d, char *argument) {
 					} else if (!IsNameOffline(tmp_name)) {
 						player_i = LoadPlayerCharacter(tmp_name, d->character.get(), ELoadCharFlags::kFindId);
 						d->character->set_pfilepos(player_i);
-						if (d->character->IsImmortal() || d->character->IsFlagged(EPrf::kCoderinfo)) {
+						if (IS_IMMORTAL(d->character) || d->character->IsFlagged(EPrf::kCoderinfo)) {
 							iosystem::write_to_output("Игрок с подобным именем является БЕССМЕРТНЫМ в игре.\r\n", d);
 						} else {
 							iosystem::write_to_output("Игрок с подобным именем находится в игре.\r\n", d);
@@ -2576,7 +2576,7 @@ void nanny(DescriptorData *d, char *argument) {
 						d->state = EConState::kNameConfirm;
 					} else    // undo it just in case they are set
 					{
-						if (d->character->IsImmortal() || d->character->IsFlagged(EPrf::kCoderinfo)) {
+						if (IS_IMMORTAL(d->character) || d->character->IsFlagged(EPrf::kCoderinfo)) {
 							iosystem::write_to_output("Игрок с подобным именем является БЕССМЕРТНЫМ в игре.\r\n", d);
 							iosystem::write_to_output("Во избежание недоразумений введите пару ИМЯ ПАРОЛЬ.\r\n", d);
 							iosystem::write_to_output("Имя и пароль через пробел : ", d);
@@ -2628,7 +2628,7 @@ void nanny(DescriptorData *d, char *argument) {
 			if (UPPER(*argument) == 'Y' || UPPER(*argument) == 'Д') {
 				if (ban->IsBanned(d->host) >= BanList::BAN_NEW) {
 					sprintf(buffer, "Попытка создания персонажа %s отклонена для [%s] (siteban)",
-							GET_PC_NAME(d->character), d->host);
+							d->character->GetCharAliases().c_str(), d->host);
 					mudlog(buffer, NRM, kLvlGod, SYSLOG, true);
 					iosystem::write_to_output("Извините, создание нового персонажа для вашего IP !!! ЗАПРЕЩЕНО !!!\r\n", d);
 					d->state = EConState::kClose;
@@ -2638,7 +2638,7 @@ void nanny(DescriptorData *d, char *argument) {
 				if (circle_restrict) {
 					iosystem::write_to_output("Извините, вы не можете создать новый персонаж в настоящий момент.\r\n", d);
 					sprintf(buffer, "Попытка создания нового персонажа %s отклонена для [%s] (wizlock)",
-							GET_PC_NAME(d->character), d->host);
+							d->character->GetCharAliases().c_str(), d->host);
 					mudlog(buffer, NRM, kLvlGod, SYSLOG, true);
 					d->state = EConState::kClose;
 					return;
@@ -2648,7 +2648,7 @@ void nanny(DescriptorData *d, char *argument) {
 					case NewNames::AUTO_ALLOW:
 						sprintf(buffer,
 								"Введите пароль для %s (не вводите пароли типа '123' или 'qwe', иначе ваших персонажев могут украсть) : ",
-								GET_PAD(d->character, 1));
+								d->character->player_data.PNames[1].c_str());
 						iosystem::write_to_output(buffer, d);
 						d->state = EConState::kNewpasswd;
 						return;
@@ -2725,7 +2725,7 @@ void nanny(DescriptorData *d, char *argument) {
 			}
 			if (ban->IsBanned(d->host) >= BanList::BAN_NEW) {
 				sprintf(buffer, "Попытка создания персонажа %s отклонена для [%s] (siteban)",
-						GET_PC_NAME(d->character), d->host);
+						d->character->GetCharAliases().c_str(), d->host);
 				mudlog(buffer, NRM, kLvlGod, SYSLOG, true);
 				iosystem::write_to_output("Извините, создание нового персонажа для вашего IP !!!ЗАПРЕЩЕНО!!!\r\n", d);
 				d->state = EConState::kClose;
@@ -2736,7 +2736,7 @@ void nanny(DescriptorData *d, char *argument) {
 				iosystem::write_to_output("Извините, вы не можете создать новый персонаж в настоящий момент.\r\n", d);
 				sprintf(buffer,
 						"Попытка создания нового персонажа %s отклонена для [%s] (wizlock)",
-						GET_PC_NAME(d->character), d->host);
+						d->character->GetCharAliases().c_str(), d->host);
 				mudlog(buffer, NRM, kLvlGod, SYSLOG, true);
 				d->state = EConState::kClose;
 				return;
@@ -2746,7 +2746,7 @@ void nanny(DescriptorData *d, char *argument) {
 				case NewNames::AUTO_ALLOW:
 					sprintf(buffer,
 							"Введите пароль для %s (не вводите пароли типа '123' или 'qwe', иначе ваших персонажев могут украсть) : ",
-							GET_PAD(d->character, 1));
+							d->character->player_data.PNames[1].c_str());
 					iosystem::write_to_output(buffer, d);
 					d->state = EConState::kNewpasswd;
 					return;
@@ -2779,9 +2779,9 @@ void nanny(DescriptorData *d, char *argument) {
 				d->state = EConState::kClose;
 			} else {
 				if (!Password::compare_password(d->character.get(), argument)) {
-					sprintf(buffer, "Bad PW: %s [%s]", GET_NAME(d->character), d->host);
+					sprintf(buffer, "Bad PW: %s [%s]", d->character->get_name().c_str(), d->host);
 					mudlog(buffer, BRF, kLvlImmortal, SYSLOG, true);
-					GET_BAD_PWS(d->character)++;
+					d->character->player_specials->saved.bad_pws++;
 					d->character->save_char();
 					if (++(d->bad_pws) >= max_bad_pws)    // 3 strikes and you're out.
 					{
@@ -2830,14 +2830,14 @@ void nanny(DescriptorData *d, char *argument) {
 			}
 
 			if (d->state == EConState::kCnfpasswd) {
-				GET_KIN(d->character) = 0;
+				d->character->player_data.Kin = 0;
 				DisplaySelectCharClassMenu(d);
 				iosystem::write_to_output(
 					"\r\nВаша профессия? (Для более полной информации вы можете набрать 'справка <интересующая профессия>'): ",
 					d);
 				d->state = EConState::kQclass;
 			} else {
-				sprintf(buffer, "%s заменил себе пароль.", GET_NAME(d->character));
+				sprintf(buffer, "%s заменил себе пароль.", d->character->get_name().c_str());
 				AddKarma(d->character.get(), buffer, "");
 				d->character->save_char();
 				iosystem::write_to_output("\r\nГотово.\r\n", d);
@@ -2889,7 +2889,7 @@ void nanny(DescriptorData *d, char *argument) {
 				return;
 			}
 
-			GET_KIN(d->character) = load_result;
+			d->character->player_data.Kin = load_result;
 			DisplaySelectCharClassMenu(d);
 			iosystem::write_to_output(
 				"\r\nВаша профессия? (Для более полной информации вы можете набрать 'справка <интересующая профессия>'): ",
@@ -2914,7 +2914,7 @@ void nanny(DescriptorData *d, char *argument) {
 						 "Так каким Богам вы хотите служить? ", d);
 						return;
 					}
-					GET_RELIGION(d->character) = kReligionPoly;
+					d->character->player_data.Religion = kReligionPoly;
 					break;
 
 				case 'Х':
@@ -2924,7 +2924,7 @@ void nanny(DescriptorData *d, char *argument) {
 						 "Так каким Богам вы хотите служить? ", d);
 						return;
 					}
-					GET_RELIGION(d->character) = kReligionMono;
+					d->character->player_data.Religion = kReligionMono;
 					break;
 
 				default: iosystem::write_to_output("Атеизм сейчас не моден :)\r\n" "Так каким Богам вы хотите служить? ", d);
@@ -2932,7 +2932,7 @@ void nanny(DescriptorData *d, char *argument) {
 			}
 
 			iosystem::write_to_output("\r\nКакой род вам ближе всего по духу:\r\n", d);
-			iosystem::write_to_output(string(PlayerRace::ShowRacesMenu(GET_KIN(d->character))).c_str(), d);
+			iosystem::write_to_output(string(PlayerRace::ShowRacesMenu(d->character->player_data.Kin)).c_str(), d);
 			sprintf(buffer, "Для вашей профессией больше всего подходит %s",
 					default_race[to_underlying(d->character->GetClass())]);
 			iosystem::write_to_output(buffer, d);
@@ -2976,22 +2976,22 @@ void nanny(DescriptorData *d, char *argument) {
 		case EConState::kRace:        // query race
 			if (pre_help(d->character.get(), argument)) {
 				iosystem::write_to_output("Какой род вам ближе всего по духу:\r\n", d);
-				iosystem::write_to_output(string(PlayerRace::ShowRacesMenu(GET_KIN(d->character))).c_str(), d);
+				iosystem::write_to_output(string(PlayerRace::ShowRacesMenu(d->character->player_data.Kin)).c_str(), d);
 				iosystem::write_to_output("\r\nРод: ", d);
 				d->state = EConState::kRace;
 				return;
 			}
 
-			load_result = PlayerRace::CheckRace(GET_KIN(d->character), argument);
+			load_result = PlayerRace::CheckRace(d->character->player_data.Kin, argument);
 
 			if (load_result == RACE_UNDEFINED) {
 				iosystem::write_to_output("Стыдно не помнить предков.\r\n" "Какой род вам ближе всего? ", d);
 				return;
 			}
 
-			GET_RACE(d->character) = load_result;
-			iosystem::write_to_output(string(Birthplaces::ShowMenu(PlayerRace::GetRaceBirthPlaces(GET_KIN(d->character),
-																				  GET_RACE(d->character)))).c_str(), d);
+			d->character->player_data.Race = load_result;
+			iosystem::write_to_output(string(Birthplaces::ShowMenu(PlayerRace::GetRaceBirthPlaces(d->character->player_data.Kin,
+																				  d->character->player_data.Race))).c_str(), d);
 			iosystem::write_to_output("\r\nГде вы хотите начать свои приключения: ", d);
 			d->state = EConState::kBirthplace;
 
@@ -2999,22 +2999,22 @@ void nanny(DescriptorData *d, char *argument) {
 
 		case EConState::kBirthplace:
 			if (pre_help(d->character.get(), argument)) {
-				iosystem::write_to_output(string(Birthplaces::ShowMenu(PlayerRace::GetRaceBirthPlaces(GET_KIN(d->character),
-																					  GET_RACE(d->character)))).c_str(),
+				iosystem::write_to_output(string(Birthplaces::ShowMenu(PlayerRace::GetRaceBirthPlaces(d->character->player_data.Kin,
+																					  d->character->player_data.Race))).c_str(),
 						  d);
 				iosystem::write_to_output("\r\nГде вы хотите начать свои приключения: ", d);
 				d->state = EConState::kBirthplace;
 				return;
 			}
 
-			load_result = PlayerRace::CheckBirthPlace(GET_KIN(d->character), GET_RACE(d->character), argument);
+			load_result = PlayerRace::CheckBirthPlace(d->character->player_data.Kin, d->character->player_data.Race, argument);
 
 			if (!Birthplaces::CheckId(load_result)) {
 				iosystem::write_to_output("Не уверены? Бывает.\r\n"
 						  "Подумайте еще разок, и выберите:", d);
 				return;
 			}
-			GET_LOADROOM(d->character) = calc_loadroom(d->character.get(), load_result);
+			d->character->player_specials->saved.load_room = calc_loadroom(d->character.get(), load_result);
 			iosystem::write_to_output(genchar_help, d);
 			iosystem::write_to_output("\r\n\r\nНажмите любую клавишу.\r\n", d);
 			d->state = EConState::kRollStats;
@@ -3048,20 +3048,20 @@ void nanny(DescriptorData *d, char *argument) {
 				return;
 			}
 #ifdef TEST_BUILD
-			strncpy(GET_EMAIL(d->character), argument, 127);
-	  *(GET_EMAIL(d->character) + 127) = '\0';
-	  utils::ConvertToLow(GET_EMAIL(d->character));
+			strncpy(d->character->player_specials->saved.EMail, argument, 127);
+	  *(d->character->player_specials->saved.EMail + 127) = '\0';
+	  utils::ConvertToLow(d->character->player_specials->saved.EMail);
 	  DoAfterEmailConfirm(d);
 	  break;
 #endif
 			{
 				int random_number = number(1000000, 9999999);
 				new_char_codes[d->character->GetCharAliases()] = random_number;
-				strncpy(GET_EMAIL(d->character), argument, 127);
-				*(GET_EMAIL(d->character) + 127) = '\0';
-				utils::ConvertToLow(GET_EMAIL(d->character));
+				strncpy(d->character->player_specials->saved.EMail, argument, 127);
+				*(d->character->player_specials->saved.EMail + 127) = '\0';
+				utils::ConvertToLow(d->character->player_specials->saved.EMail);
 				std::string cmd_line =
-					fmt::format("python3 send_code.py {} {} &", GET_EMAIL(d->character), random_number);
+					fmt::format("python3 send_code.py {} {} &", d->character->player_specials->saved.EMail, random_number);
 				auto result = system(cmd_line.c_str());
 				UNUSED_ARG(result);
 				iosystem::write_to_output("\r\nВам на электронную почту был выслан код. Введите его, пожалуйста: \r\n", d);
@@ -3092,17 +3092,17 @@ void nanny(DescriptorData *d, char *argument) {
 				break;
 			}
 
-			if (new_loc_codes.count(GET_EMAIL(d->character)) == 0) {
+			if (new_loc_codes.count(d->character->player_specials->saved.EMail) == 0) {
 				break;
 			}
 
-			if (new_loc_codes[GET_EMAIL(d->character)] != code_rand) {
+			if (new_loc_codes[d->character->player_specials->saved.EMail] != code_rand) {
 				iosystem::write_to_output("\r\nВы ввели неправильный код, попробуйте еще раз.\r\n", d);
 				d->state = EConState::kClose;
 				break;
 			}
 
-			new_loc_codes.erase(GET_EMAIL(d->character));
+			new_loc_codes.erase(d->character->player_specials->saved.EMail);
 			network::add_logon_record(d);
 			DoAfterPassword(d);
 
@@ -3178,7 +3178,7 @@ void nanny(DescriptorData *d, char *argument) {
 					break;
 
 				case '5':
-					if (d->character->IsImmortal()) {
+					if (IS_IMMORTAL(d->character)) {
 						iosystem::write_to_output("\r\nБоги бессмертны (с) Стрибог, просите чтоб пофризили :)))\r\n", d);
 						iosystem::write_to_output(MENU, d);
 						break;
@@ -3203,7 +3203,7 @@ void nanny(DescriptorData *d, char *argument) {
 					break;
 
 				case '6':
-					if (d->character->IsImmortal()) {
+					if (IS_IMMORTAL(d->character)) {
 						iosystem::write_to_output("\r\nВам это ни к чему...\r\n", d);
 						iosystem::write_to_output(MENU, d);
 						d->state = EConState::kMenu;
@@ -3278,10 +3278,10 @@ void nanny(DescriptorData *d, char *argument) {
 				if (GetRealLevel(d->character) >= kLvlGreatGod) {
 					return;
 				}
-				DeletePcByHimself(GET_NAME(d->character));
-				sprintf(buffer, "Персонаж '%s' удален!\r\n" "До свидания.\r\n", GET_NAME(d->character));
+				DeletePcByHimself(d->character->get_name().c_str());
+				sprintf(buffer, "Персонаж '%s' удален!\r\n" "До свидания.\r\n", d->character->get_name().c_str());
 				iosystem::write_to_output(buffer, d);
-				sprintf(buffer, "%s (lev %d) has self-deleted.", GET_NAME(d->character), GetRealLevel(d->character));
+				sprintf(buffer, "%s (lev %d) has self-deleted.", d->character->get_name().c_str(), GetRealLevel(d->character));
 				mudlog(buffer, NRM, kLvlGod, SYSLOG, true);
 				d->character->get_account()->remove_player(d->character->get_uid());
 				d->state = EConState::kClose;
@@ -3295,22 +3295,22 @@ void nanny(DescriptorData *d, char *argument) {
 
 		case EConState::kName2: skip_spaces(&argument);
 			if (strlen(argument) == 0) {
-				GetCase(GET_PC_NAME(d->character), d->character->get_sex(), 1, argument);
+				GetCase(d->character->GetCharAliases().c_str(), d->character->get_sex(), 1, argument);
 			}
 			if (!_parse_name(argument, tmp_name)
 				&& strlen(tmp_name) >= kMinNameLength
 				&& strlen(tmp_name) <= kMaxNameLength
 				&& !strn_cmp(tmp_name,
-							 GET_PC_NAME(d->character),
-							 std::min<size_t>(kMinNameLength, strlen(GET_PC_NAME(d->character)) - 1))) {
+							 d->character->GetCharAliases().c_str(),
+							 std::min<size_t>(kMinNameLength, strlen(d->character->GetCharAliases().c_str()) - 1))) {
 				d->character->player_data.PNames[ECase::kGen] = std::string(utils::CAP(tmp_name));
-				GetCase(GET_PC_NAME(d->character), d->character->get_sex(), 2, tmp_name);
+				GetCase(d->character->GetCharAliases().c_str(), d->character->get_sex(), 2, tmp_name);
 				sprintf(buffer, "Имя в дательном падеже (отправить КОМУ?) [%s]: ", tmp_name);
 				iosystem::write_to_output(buffer, d);
 				d->state = EConState::kName3;
 			} else {
 				iosystem::write_to_output("Некорректно.\r\n", d);
-				GetCase(GET_PC_NAME(d->character), d->character->get_sex(), 1, tmp_name);
+				GetCase(d->character->GetCharAliases().c_str(), d->character->get_sex(), 1, tmp_name);
 				sprintf(buffer, "Имя в родительном падеже (меч КОГО?) [%s]: ", tmp_name);
 				iosystem::write_to_output(buffer, d);
 			}
@@ -3319,23 +3319,23 @@ void nanny(DescriptorData *d, char *argument) {
 		case EConState::kName3: skip_spaces(&argument);
 
 			if (strlen(argument) == 0) {
-				GetCase(GET_PC_NAME(d->character), d->character->get_sex(), 2, argument);
+				GetCase(d->character->GetCharAliases().c_str(), d->character->get_sex(), 2, argument);
 			}
 
 			if (!_parse_name(argument, tmp_name)
 				&& strlen(tmp_name) >= kMinNameLength
 				&& strlen(tmp_name) <= kMaxNameLength
 				&& !strn_cmp(tmp_name,
-							 GET_PC_NAME(d->character),
-							 std::min<size_t>(kMinNameLength, strlen(GET_PC_NAME(d->character)) - 1))) {
+							 d->character->GetCharAliases().c_str(),
+							 std::min<size_t>(kMinNameLength, strlen(d->character->GetCharAliases().c_str()) - 1))) {
 				d->character->player_data.PNames[ECase::kDat] = std::string(utils::CAP(tmp_name));
-				GetCase(GET_PC_NAME(d->character), d->character->get_sex(), 3, tmp_name);
+				GetCase(d->character->GetCharAliases().c_str(), d->character->get_sex(), 3, tmp_name);
 				sprintf(buffer, "Имя в винительном падеже (ударить КОГО?) [%s]: ", tmp_name);
 				iosystem::write_to_output(buffer, d);
 				d->state = EConState::kName4;
 			} else {
 				iosystem::write_to_output("Некорректно.\r\n", d);
-				GetCase(GET_PC_NAME(d->character), d->character->get_sex(), 2, tmp_name);
+				GetCase(d->character->GetCharAliases().c_str(), d->character->get_sex(), 2, tmp_name);
 				sprintf(buffer, "Имя в дательном падеже (отправить КОМУ?) [%s]: ", tmp_name);
 				iosystem::write_to_output(buffer, d);
 			}
@@ -3344,23 +3344,23 @@ void nanny(DescriptorData *d, char *argument) {
 		case EConState::kName4: skip_spaces(&argument);
 
 			if (strlen(argument) == 0) {
-				GetCase(GET_PC_NAME(d->character), d->character->get_sex(), 3, argument);
+				GetCase(d->character->GetCharAliases().c_str(), d->character->get_sex(), 3, argument);
 			}
 
 			if (!_parse_name(argument, tmp_name)
 				&& strlen(tmp_name) >= kMinNameLength
 				&& strlen(tmp_name) <= kMaxNameLength
 				&& !strn_cmp(tmp_name,
-							 GET_PC_NAME(d->character),
-							 std::min<size_t>(kMinNameLength, strlen(GET_PC_NAME(d->character)) - 1))) {
+							 d->character->GetCharAliases().c_str(),
+							 std::min<size_t>(kMinNameLength, strlen(d->character->GetCharAliases().c_str()) - 1))) {
 				d->character->player_data.PNames[ECase::kAcc] = std::string(utils::CAP(tmp_name));
-				GetCase(GET_PC_NAME(d->character), d->character->get_sex(), 4, tmp_name);
+				GetCase(d->character->GetCharAliases().c_str(), d->character->get_sex(), 4, tmp_name);
 				sprintf(buffer, "Имя в творительном падеже (сражаться с КЕМ?) [%s]: ", tmp_name);
 				iosystem::write_to_output(buffer, d);
 				d->state = EConState::kName5;
 			} else {
 				iosystem::write_to_output("Некорректно.\n\r", d);
-				GetCase(GET_PC_NAME(d->character), d->character->get_sex(), 3, tmp_name);
+				GetCase(d->character->GetCharAliases().c_str(), d->character->get_sex(), 3, tmp_name);
 				sprintf(buffer, "Имя в винительном падеже (ударить КОГО?) [%s]: ", tmp_name);
 				iosystem::write_to_output(buffer, d);
 			}
@@ -3368,21 +3368,21 @@ void nanny(DescriptorData *d, char *argument) {
 
 		case EConState::kName5: skip_spaces(&argument);
 			if (strlen(argument) == 0)
-				GetCase(GET_PC_NAME(d->character), d->character->get_sex(), 4, argument);
+				GetCase(d->character->GetCharAliases().c_str(), d->character->get_sex(), 4, argument);
 			if (!_parse_name(argument, tmp_name) &&
 				strlen(tmp_name) >= kMinNameLength && strlen(tmp_name) <= kMaxNameLength &&
 				!strn_cmp(tmp_name,
-						  GET_PC_NAME(d->character),
-						  std::min<size_t>(kMinNameLength, strlen(GET_PC_NAME(d->character)) - 1))
+						  d->character->GetCharAliases().c_str(),
+						  std::min<size_t>(kMinNameLength, strlen(d->character->GetCharAliases().c_str()) - 1))
 				) {
 				d->character->player_data.PNames[ECase::kIns] = std::string(utils::CAP(tmp_name));
-				GetCase(GET_PC_NAME(d->character), d->character->get_sex(), 5, tmp_name);
+				GetCase(d->character->GetCharAliases().c_str(), d->character->get_sex(), 5, tmp_name);
 				sprintf(buffer, "Имя в предложном падеже (говорить о КОМ?) [%s]: ", tmp_name);
 				iosystem::write_to_output(buffer, d);
 				d->state = EConState::kName6;
 			} else {
 				iosystem::write_to_output("Некорректно.\n\r", d);
-				GetCase(GET_PC_NAME(d->character), d->character->get_sex(), 4, tmp_name);
+				GetCase(d->character->GetCharAliases().c_str(), d->character->get_sex(), 4, tmp_name);
 				sprintf(buffer, "Имя в творительном падеже (сражаться с КЕМ?) [%s]: ", tmp_name);
 				iosystem::write_to_output(buffer, d);
 			}
@@ -3390,22 +3390,22 @@ void nanny(DescriptorData *d, char *argument) {
 
 		case EConState::kName6: skip_spaces(&argument);
 			if (strlen(argument) == 0)
-				GetCase(GET_PC_NAME(d->character), d->character->get_sex(), 5, argument);
+				GetCase(d->character->GetCharAliases().c_str(), d->character->get_sex(), 5, argument);
 			if (!_parse_name(argument, tmp_name) &&
 				strlen(tmp_name) >= kMinNameLength && strlen(tmp_name) <= kMaxNameLength &&
 				!strn_cmp(tmp_name,
-						  GET_PC_NAME(d->character),
-						  std::min<size_t>(kMinNameLength, strlen(GET_PC_NAME(d->character)) - 1))
+						  d->character->GetCharAliases().c_str(),
+						  std::min<size_t>(kMinNameLength, strlen(d->character->GetCharAliases().c_str()) - 1))
 				) {
 				d->character->player_data.PNames[ECase::kPre] = std::string(utils::CAP(tmp_name));
 				sprintf(buffer,
 						"Введите пароль для %s (не вводите пароли типа '123' или 'qwe', иначе ваших персонажев могут украсть) : ",
-						GET_PAD(d->character, 1));
+						d->character->player_data.PNames[1].c_str());
 				iosystem::write_to_output(buffer, d);
 				d->state = EConState::kNewpasswd;
 			} else {
 				iosystem::write_to_output("Некорректно.\n\r", d);
-				GetCase(GET_PC_NAME(d->character), d->character->get_sex(), 5, tmp_name);
+				GetCase(d->character->GetCharAliases().c_str(), d->character->get_sex(), 5, tmp_name);
 				sprintf(buffer, "Имя в предложном падеже (говорить о КОМ?) [%s]: ", tmp_name);
 				iosystem::write_to_output(buffer, d);
 			}
@@ -3458,7 +3458,7 @@ void nanny(DescriptorData *d, char *argument) {
 				return;
 			}
 
-			GET_KIN(d->character) = load_result;
+			d->character->player_data.Kin = load_result;
 
 			if (!ValidateStats(d)) {
 				return;
@@ -3471,20 +3471,20 @@ void nanny(DescriptorData *d, char *argument) {
 		case EConState::kResetRace:
 			if (pre_help(d->character.get(), argument)) {
 				iosystem::write_to_output("Какой род вам ближе всего по духу:\r\n", d);
-				iosystem::write_to_output(string(PlayerRace::ShowRacesMenu(GET_KIN(d->character))).c_str(), d);
+				iosystem::write_to_output(string(PlayerRace::ShowRacesMenu(d->character->player_data.Kin)).c_str(), d);
 				iosystem::write_to_output("\r\nРод: ", d);
 				d->state = EConState::kResetRace;
 				return;
 			}
 
-			load_result = PlayerRace::CheckRace(GET_KIN(d->character), argument);
+			load_result = PlayerRace::CheckRace(d->character->player_data.Kin, argument);
 
 			if (load_result == RACE_UNDEFINED) {
 				iosystem::write_to_output("Стыдно не помнить предков.\r\n" "Какой род вам ближе всего? ", d);
 				return;
 			}
 
-			GET_RACE(d->character) = load_result;
+			d->character->player_data.Race = load_result;
 
 			if (!ValidateStats(d)) {
 				return;
@@ -3515,7 +3515,7 @@ void nanny(DescriptorData *d, char *argument) {
 						 "Так каким Богам вы хотите служить? ", d);
 						return;
 					}
-					GET_RELIGION(d->character) = kReligionPoly;
+					d->character->player_data.Religion = kReligionPoly;
 					break;
 
 				case 'Х':
@@ -3526,7 +3526,7 @@ void nanny(DescriptorData *d, char *argument) {
 						return;
 					}
 
-					GET_RELIGION(d->character) = kReligionMono;
+					d->character->player_data.Religion = kReligionMono;
 
 					break;
 
@@ -3545,7 +3545,7 @@ void nanny(DescriptorData *d, char *argument) {
 
 		default:
 			log("SYSERR: Nanny: illegal state of con'ness (%d) for '%s'; closing connection.",
-				static_cast<int>(d->state), d->character ? GET_NAME(d->character) : "<unknown>");
+				static_cast<int>(d->state), d->character ? d->character->get_name().c_str() : "<unknown>");
 			d->state = EConState::kDisconnect;    // Safest to do.
 
 			break;
@@ -3741,8 +3741,8 @@ void DeletePcByHimself(const char *name) {
 	if (id >= 0) {
 		st->SetFlag(EPlrFlag::kDeleted);
 		NewNames::remove(st);
-		if (NAME_FINE(st)) {
-			player_table.GetNameAdviser().add(GET_NAME(st));
+		if ((st->player_specials->saved.NameGod > 1000)) {
+			player_table.GetNameAdviser().add(st->get_name().c_str());
 		}
 		Clan::remove_from_clan(st->get_uid());
 		st->save_char();

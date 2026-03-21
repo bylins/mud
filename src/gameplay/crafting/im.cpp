@@ -102,7 +102,7 @@ int im_get_recipe_by_name(char *name) {
 
 im_rskill *im_get_char_rskill(CharData *ch, int rid) {
 	im_rskill *rs;
-	for (rs = GET_RSKILL(ch); rs; rs = rs->link)
+	for (rs = ch->player_specials->rskill; rs; rs = rs->link)
 		if (rs->rid == rid)
 			break;
 	return rs;
@@ -111,7 +111,7 @@ im_rskill *im_get_char_rskill(CharData *ch, int rid) {
 int im_get_char_rskill_count(CharData *ch) {
 	int cnt;
 	im_rskill *rs;
-	for (cnt = 0, rs = GET_RSKILL(ch); rs; rs = rs->link, ++cnt);
+	for (cnt = 0, rs = ch->player_specials->rskill; rs; rs = rs->link, ++cnt);
 	return cnt;
 }
 
@@ -234,7 +234,7 @@ const char *replace_alias(const char *ptr, im_memb *sample, int rnum, const char
 			if (k < 0 || k > 5)
 				continue;
 			ptr += 3;
-			strcpy(dst, GET_PAD(mob_proto + rnum, k));
+			strcpy(dst, mob_proto + rnum->player_data.PNames[k].c_str());
 			while (*dst != 0)
 				++dst;
 		}
@@ -367,7 +367,7 @@ void im_translate_rskill_to_id(void) {
 			continue;
 		}
 
-		for (rs = GET_RSKILL(ch); rs; rs = rs->link) {
+		for (rs = ch->player_specials->rskill; rs; rs = rs->link) {
 			rs->rid = imrecipes[rs->rid].id;
 		}
 	}
@@ -379,7 +379,7 @@ void im_translate_rskill_to_rid(void) {
 	for (const auto &ch : character_list) {
 		if (ch->IsNpc())
 			continue;
-		prs = &GET_RSKILL(ch);
+		prs = &ch->player_specials->rskill;
 		while ((rs = *prs) != nullptr) {
 			rid = im_get_recipe(rs->rid);
 			if (rid >= 0) {
@@ -948,7 +948,7 @@ ObjData *try_make_ingr(int *ing_list, int vnum, int max_prob) {
 }
 
 ObjData *try_make_ingr(CharData *mob, int prob_default) {
-	auto it = mob_races::mobraces_list.find(GET_RACE(mob));
+	auto it = mob_races::mobraces_list.find(mob->player_data.Race);
 	const int vnum = GET_MOB_VNUM(mob);
 	if (it != mob_races::mobraces_list.end()) {
 		size_t num_inrgs = it->second->ingrlist.size();
@@ -1024,7 +1024,7 @@ void list_recipes(CharData *ch, bool all_recipes) {
 
 	strcpy(buf2, buf);
 
-	for (rs = GET_RSKILL(ch), i = 0; rs; rs = rs->link) {
+	for (rs = ch->player_specials->rskill, i = 0; rs; rs = rs->link) {
 		if (strlen(buf2) >= kMaxStringLength - 60) {
 			strcat(buf2, "***ПЕРЕПОЛНЕНИЕ***\r\n");
 			break;
@@ -1137,14 +1137,14 @@ void do_rset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!rs) {
 		CREATE(rs, 1);
 		rs->rid = rcpt;
-		rs->link = GET_RSKILL(vict);
-		GET_RSKILL(vict) = rs;
+		rs->link = vict->player_specials->rskill;
+		vict->player_specials->rskill = rs;
 	}
 	rs->perc = value;
 
-	sprintf(buf2, "%s changed %s's %s to %d.", GET_NAME(ch), GET_NAME(vict), imrecipes[rcpt].name, value);
+	sprintf(buf2, "%s changed %s's %s to %d.", ch->get_name().c_str(), vict->get_name().c_str(), imrecipes[rcpt].name, value);
 	mudlog(buf2, BRF, -1, SYSLOG, true);
-	imm_log("%s changed %s's %s to %d.", GET_NAME(ch), GET_NAME(vict), imrecipes[rcpt].name, value);
+	imm_log("%s changed %s's %s to %d.", ch->get_name().c_str(), vict->get_name().c_str(), imrecipes[rcpt].name, value);
 	SendMsgToChar(buf2, ch);
 }
 
@@ -1179,7 +1179,7 @@ void im_improve_recipe(CharData *ch, im_rskill *rs, int success) {
 						kColorBoldCyn, imrecipes[rs->rid].name, kColorNrm);
 			SendMsgToChar(buf, ch);
 			rs->perc += number(1, 2);
-			if (!ch->IsImmortal())
+			if (!IS_IMMORTAL(ch))
 				rs->perc = MIN(kZeroRemortSkillCap + GetRealRemort(ch) * 5, rs->perc);
 		}
 	}
@@ -1285,7 +1285,7 @@ void do_cook(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	// rs - используемый рецепт
 	// argument - список ингредиентов
 
-	sprintf(name, "%s использует рецепт %s", GET_NAME(ch), imrecipes[rs->rid].name);
+	sprintf(name, "%s использует рецепт %s", ch->get_name().c_str(), imrecipes[rs->rid].name);
 	imlog(BRF, name);
 
 	// Преобразование строки аргументов в массив объектов
@@ -1694,13 +1694,13 @@ void trg_recipeturn(CharData *ch, int rid, int recipediff) {
 		if (imrecipes[rid].classknow[to_underlying(ch->GetClass())] == kKnownRecipe) {
 			CREATE(rs, 1);
 			rs->rid = rid;
-			rs->link = GET_RSKILL(ch);
-			GET_RSKILL(ch) = rs;
+			rs->link = ch->player_specials->rskill;
+			ch->player_specials->rskill = rs;
 			rs->perc = 5;
 		}
 		sprintf(buf, "Вы изучили рецепт '%s'.\r\n", imrecipes[rid].name);
 		SendMsgToChar(buf, ch);
-		sprintf(buf, "RECIPE: игроку %s добавлен рецепт %s", GET_NAME(ch), imrecipes[rid].name);
+		sprintf(buf, "RECIPE: игроку %s добавлен рецепт %s", ch->get_name().c_str(), imrecipes[rid].name);
 		log("%s", buf);
 	}
 }
@@ -1786,7 +1786,7 @@ void do_imlist(CharData *ch, char /**argument*/, int/* cmd*/, int/* subcmd*/) {
 			const auto mob = mob_proto + rnum;
 			sprintf(buf + strlen(buf), "Моб %d [%s,%d]\r\n%s\r\n",
 				GET_MOB_VNUM(mob),
-				GET_NAME(mob),
+				mob->get_name().c_str(),
 				GetRealLevel(mob),
 				buf1);
 		}

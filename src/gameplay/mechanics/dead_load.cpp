@@ -148,7 +148,7 @@ int ResolveTagsInObjName(ObjData *obj, CharData *ch) {
 		if (std::string::npos != j && 0 < j) {
 			// Родитель найден прописываем его.
 			k = atoi(obj_pad.substr(j + 2, j + 3).c_str());
-			obj_pad.replace(j, 3, GET_PAD(ch, k));
+			obj_pad.replace(j, 3, ch->player_data.PNames[k].c_str());
 
 			obj->set_PName(name_case, obj_pad);
 			if (i == ECase::kNom) {

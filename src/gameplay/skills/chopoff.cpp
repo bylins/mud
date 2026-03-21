@@ -41,14 +41,14 @@ void go_chopoff(CharData *ch, CharData *vict) {
 	if (IsAffectedBySpell(ch, ESpell::kWeb)) {
 		prob /= 3;
 	}
-	if (GET_GOD_FLAG(ch, EGf::kGodsLike)
+	if ((IS_SET(ch->player_specials->saved.GodsLike, EGf::kGodsLike))
 		|| AFF_FLAGGED(vict, EAffect::kHold)
-		|| GET_GOD_FLAG(vict, EGf::kGodscurse)) {
+		|| (IS_SET(vict->player_specials->saved.GodsLike, EGf::kGodscurse))) {
 		prob = percent;
 	}
 
-	if (GET_GOD_FLAG(ch, EGf::kGodscurse) ||
-		GET_GOD_FLAG(vict, EGf::kGodsLike) ||
+	if ((IS_SET(ch->player_specials->saved.GodsLike, EGf::kGodscurse)) ||
+		(IS_SET(vict->player_specials->saved.GodsLike, EGf::kGodsLike)) ||
 		vict->IsOnHorse() || vict->GetPosition() < EPosition::kFight || vict->IsFlagged(EMobFlag::kNoUndercut) || IS_IMMORTAL(
 		vict))
 		prob = 0;
@@ -75,7 +75,7 @@ void go_chopoff(CharData *ch, CharData *vict) {
 			ImposeAffect(ch, af, false, false, false, false);
 			af.location = EApply::kMagicResist;
 			ImposeAffect(ch, af, false, false, false, false);
-			SendMsgToChar(ch, "%sВы покатились по земле, пытаясь избежать атак %s.%s\r\n", kColorBoldGrn, GET_PAD(vict, 1), kColorNrm);
+			SendMsgToChar(ch, "%sВы покатились по земле, пытаясь избежать атак %s.%s\r\n", kColorBoldGrn, vict->player_data.PNames[1].c_str(), kColorNrm);
 			act("$n покатил$u по земле, пытаясь избежать ваших атак.", false, ch, nullptr, vict, kToVict);
 			act("$n покатил$u по земле, пытаясь избежать атак $N1.", true, ch, nullptr, vict, kToNotVict | kToArenaListen);
 		}
@@ -84,7 +84,7 @@ void go_chopoff(CharData *ch, CharData *vict) {
 			CharData *tch = vict->get_master();
 			act("$n ловко подсек$q $N3, заставив $S споткнуться.", true, ch, nullptr, vict, kToNotVict | kToArenaListen);
 			SendMsgToChar(ch, "%sВы провели подсечку, заставив %s споткнуться.%s\r\n",
-						  kColorBoldBlu, GET_PAD(vict, 3), kColorNrm);
+						  kColorBoldBlu, vict->player_data.PNames[3].c_str(), kColorNrm);
 			percent = number(1, MUD::Skill(ESkill::kRiding).difficulty);
 			prob = tch->GetSkill(ESkill::kRiding);
 			if (percent < prob) {
@@ -95,7 +95,7 @@ void go_chopoff(CharData *ch, CharData *vict) {
 			}
 		} else {
 			SendMsgToChar(ch, "%sВы провели подсечку, ловко усадив %s на землю.%s\r\n",
-						  kColorBoldBlu, GET_PAD(vict, 3), kColorNrm);
+						  kColorBoldBlu, vict->player_data.PNames[3].c_str(), kColorNrm);
 			act("$n ловко подсек$q вас, усадив на попу.", false, ch, nullptr, vict, kToVict);
 			act("$n ловко подсек$q $N3, уронив $S на землю.", true, ch, nullptr, vict, kToNotVict | kToArenaListen);
 			SetWait(vict, 3, false);
@@ -159,7 +159,7 @@ void do_chopoff(CharData *ch, CharData *vict) {
 		return;
 	}
 
-	if (ch->IsImpl() || !ch->GetEnemy())
+	if (IS_IMPL(ch) || !ch->GetEnemy())
 		go_chopoff(ch, vict);
 	else if (IsHaveNoExtraAttack(ch)) {
 		if (!ch->IsNpc())

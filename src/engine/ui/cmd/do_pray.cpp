@@ -21,11 +21,11 @@ void do_pray(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		return;
 	}
 
-	if (!ch->IsImmortal()
+	if (!IS_IMMORTAL(ch)
 		&& ((subcmd == SCMD_DONATE
-			&& GET_RELIGION(ch) != kReligionPoly)
+			&& ch->player_data.Religion != kReligionPoly)
 			|| (subcmd == SCMD_PRAY
-				&& GET_RELIGION(ch) != kReligionMono))) {
+				&& ch->player_data.Religion != kReligionMono))) {
 		SendMsgToChar("Не кощунствуйте!\r\n", ch);
 		return;
 	}
@@ -91,7 +91,7 @@ void do_pray(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	} else
 		return;
 
-	if (!ch->IsImmortal() && (IsTimedBySkill(ch, ESkill::kReligion)
+	if (!IS_IMMORTAL(ch) && (IsTimedBySkill(ch, ESkill::kReligion)
 		|| IsAffectedBySpell(ch, ESpell::kReligion))) {
 		SendMsgToChar("Вы не можете так часто взывать к Богам.\r\n", ch);
 		return;

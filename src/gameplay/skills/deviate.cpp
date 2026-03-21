@@ -58,7 +58,7 @@ void ProcessDeviate(CharData *ch, CharData *victim, HitData &hit_data) {
 	}
 	int range = number(1, MUD::Skill(ESkill::kDodge).difficulty);
 	int prob = CalcCurrentSkill(victim, ESkill::kDodge, ch);
-	if (GET_GOD_FLAG(victim, EGf::kGodscurse)) {
+	if ((IS_SET(victim->player_specials->saved.GodsLike, EGf::kGodscurse))) {
 		prob = 0;
 	}
 	prob = prob * 100 / range;

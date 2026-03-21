@@ -93,16 +93,16 @@ void deathtrap::log_death_trap(CharData *ch) {
 		opened_files.push_back(file);
 	}
 	write_time(file);
-	fprintf(file, "%s hit death trap #%d (%s)\n", GET_NAME(ch), GET_ROOM_VNUM(ch->in_room), world[ch->in_room]->name);
+	fprintf(file, "%s hit death trap #%d (%s)\n", ch->get_name().c_str(), GET_ROOM_VNUM(ch->in_room), world[ch->in_room]->name);
 	fflush(file);
 }
 
 // * Попадание в обычное дт.
 int deathtrap::check_death_trap(CharData *ch) {
 	if (ch->in_room != kNowhere && !ch->IsFlagged(EPrf::kCoderinfo)) {
-		if ((ROOM_FLAGGED(ch->in_room, ERoomFlag::kDeathTrap) && !ch->IsImmortal())
+		if ((ROOM_FLAGGED(ch->in_room, ERoomFlag::kDeathTrap) && !IS_IMMORTAL(ch))
 			|| (real_sector(ch->in_room) == ESector::kOnlyFlying && !ch->IsNpc() &&
-			!ch->IsGod() && !AFF_FLAGGED(ch, EAffect::kFly))
+			!IS_GOD(ch) && !AFF_FLAGGED(ch, EAffect::kFly))
 			|| IsCharCanDrownThere(ch, ch->in_room)) {
 			ObjData *corpse;
 			deathtrap::log_death_trap(ch);
@@ -110,16 +110,16 @@ int deathtrap::check_death_trap(CharData *ch) {
 			if (check_tester_death(ch, nullptr)) {
 				sprintf(buf1,
 						"Player %s died in DT (room %d) but zone is under construction.",
-						GET_NAME(ch),
+						ch->get_name().c_str(),
 						GET_ROOM_VNUM(ch->in_room));
 				mudlog(buf1, LGH, kLvlImmortal, SYSLOG, true);
 				return false;
 			}
 
-			sprintf(buf1, "Player %s died in DT (room %d)", GET_NAME(ch), GET_ROOM_VNUM(ch->in_room));
+			sprintf(buf1, "Player %s died in DT (room %d)", ch->get_name().c_str(), GET_ROOM_VNUM(ch->in_room));
 			mudlog(buf1, LGH, kLvlImmortal, SYSLOG, true);
 			if (!ch->IsNpc() && stone_rebirth(ch, nullptr)) {
-				sprintf(buf1, "Player %s saved by rebirth stone in DT (room %d)", GET_NAME(ch), GET_ROOM_VNUM(ch->in_room));
+				sprintf(buf1, "Player %s saved by rebirth stone in DT (room %d)", ch->get_name().c_str(), GET_ROOM_VNUM(ch->in_room));
 				mudlog(buf1, LGH, kLvlImmortal, SYSLOG, true);
 				return true;
 			}
@@ -131,7 +131,7 @@ int deathtrap::check_death_trap(CharData *ch) {
 			}
 			ch->set_hit(0);
 			ch->set_move(0);
-			if (NORENTABLE(ch)) {
+			if ((ch->IsNpc() ? 0 : ch->player_specials->may_rent)) {
 				die(ch, nullptr);
 			} else {
 				CharStat::UpdateOnKill(ch, nullptr, 0);
@@ -154,8 +154,8 @@ bool deathtrap::IsSlowDeathtrap(int rnum) {
 /// иначе - чара в tunnel_damage() не дамагнет
 int calc_tunnel_dmg(CharData *ch, int room_rnum) {
 	if (!ch->IsNpc()
-		&& !ch->IsImmortal()
-		&& NORENTABLE(ch)
+		&& !IS_IMMORTAL(ch)
+		&& (ch->IsNpc() ? 0 : ch->player_specials->may_rent)
 		&& ROOM_FLAGGED(room_rnum, ERoomFlag::kTunnel)) {
 		return std::max(20, ch->get_real_max_hit() >> 3);
 	}
@@ -210,7 +210,7 @@ bool deathtrap::CheckIceDeathTrap(RoomRnum room_rnum, CharData * /*ch*/) {
 	for (const auto vict : world[room_rnum]->people) {
 		if (!vict->IsNpc()
 			&& !AFF_FLAGGED(vict, EAffect::kFly)) {
-			mass += GET_WEIGHT(vict) + vict->GetCarryingWeight();
+			mass += vict->player_data.weight + vict->GetCarryingWeight();
 		}
 	}
 

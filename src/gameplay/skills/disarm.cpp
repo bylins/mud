@@ -55,14 +55,14 @@ void do_disarm(CharData *ch, CharData *vict) {
 			act("Не получится - $N уже понял$G, что от Вас можно ожидать всякого!",
 				false, ch, nullptr, vict, kToChar);
 		} else if (IsAffectedBySpellWithCasterId(ch, vict, ESpell::kNoInjure) && (vict->HasWeapon())) {
-			if (ch->IsImpl() || !ch->GetEnemy()) {
+			if (IS_IMPL(ch) || !ch->GetEnemy()) {
 				go_disarm(ch, vict);
 			} else if (IsHaveNoExtraAttack(ch)) {
 				act("Хорошо. Вы попытаетесь разоружить $N3.", false, ch, nullptr, vict, kToChar);
 				ch->SetExtraAttack(kExtraAttackDisarm, vict);
 			}
 		} else {
-			if (ch->IsImpl() || !ch->GetEnemy()) {
+			if (IS_IMPL(ch) || !ch->GetEnemy()) {
 				go_injure(ch, vict);
 			} else if (IsHaveNoExtraAttack(ch)) {
 				act("Хорошо. Вы попытаетесь ранить $N3.", false, ch, nullptr, vict, kToChar);
@@ -74,7 +74,7 @@ void do_disarm(CharData *ch, CharData *vict) {
 			SendMsgToChar("Вы не сможете обезоружить безоружного!\r\n", ch);
 			return;
 		} else {
-			if (ch->IsImpl() || !ch->GetEnemy()) {
+			if (IS_IMPL(ch) || !ch->GetEnemy()) {
 				go_disarm(ch, vict);
 			} else if (IsHaveNoExtraAttack(ch)) {
 				act("Хорошо. Вы попытаетесь разоружить $N3.", false, ch, nullptr, vict, kToChar);
@@ -156,8 +156,8 @@ void go_injure(CharData *ch, CharData *vict) {
 
 void go_disarm(CharData *ch, CharData *vict) {
 	ObjData
-		*wielded = GET_EQ(vict, EEquipPos::kWield) ? GET_EQ(vict, EEquipPos::kWield) : GET_EQ(vict, EEquipPos::kBoths),
-		*helded = GET_EQ(vict, EEquipPos::kHold);
+		*wielded = vict->equipment[EEquipPos::kWield] ? vict->equipment[EEquipPos::kWield] : vict->equipment[EEquipPos::kBoths],
+		*helded = vict->equipment[EEquipPos::kHold];
 
 	if (IsUnableToAct(ch)) {
 		SendMsgToChar("Вы временно не в состоянии сражаться.\r\n", ch);
@@ -171,12 +171,12 @@ void go_disarm(CharData *ch, CharData *vict) {
 	int pos = 0;
 
 	if (number(1, 100) > 30) {
-		pos = wielded ? (GET_EQ(vict, EEquipPos::kBoths) ? EEquipPos::kBoths : EEquipPos::kWield) : EEquipPos::kHold;
+		pos = wielded ? (vict->equipment[EEquipPos::kBoths] ? EEquipPos::kBoths : EEquipPos::kWield) : EEquipPos::kHold;
 	} else {
-		pos = helded ? EEquipPos::kHold : (GET_EQ(vict, EEquipPos::kBoths) ? EEquipPos::kBoths : EEquipPos::kWield);
+		pos = helded ? EEquipPos::kHold : (vict->equipment[EEquipPos::kBoths] ? EEquipPos::kBoths : EEquipPos::kWield);
 	}
 
-	if (!pos || !GET_EQ(vict, pos))
+	if (!pos || !vict->equipment[pos])
 		return;
 	if (!pk_agro_action(ch, vict))
 		return;
@@ -184,31 +184,31 @@ void go_disarm(CharData *ch, CharData *vict) {
 	bool success = result.success;
 	int lag;
 
-	if (ch->IsImmortal() || GET_GOD_FLAG(vict, EGf::kGodscurse) || GET_GOD_FLAG(ch, EGf::kGodsLike))
+	if (IS_IMMORTAL(ch) || (IS_SET(vict->player_specials->saved.GodsLike, EGf::kGodscurse)) || (IS_SET(ch->player_specials->saved.GodsLike, EGf::kGodsLike)))
 		success = true;
-	if (vict->IsImmortal() || GET_GOD_FLAG(ch, EGf::kGodscurse) || GET_GOD_FLAG(vict, EGf::kGodsLike)
+	if (IS_IMMORTAL(vict) || (IS_SET(ch->player_specials->saved.GodsLike, EGf::kGodscurse)) || (IS_SET(vict->player_specials->saved.GodsLike, EGf::kGodsLike))
 		|| CanUseFeat(vict, EFeat::kStrongClutch))
 		success = false;
 
 	TrainSkill(ch, ESkill::kDisarm, success, vict);
-	if (!success || GET_EQ(vict, pos)->has_flag(EObjFlag::kNodisarm)) {
+	if (!success || vict->equipment[pos]->has_flag(EObjFlag::kNodisarm)) {
 		SendMsgToChar(ch,
 					  "%sВы не сумели обезоружить %s...%s\r\n",
 					  kColorWht,
-					  GET_PAD(vict, 3),
+					  vict->player_data.PNames[3].c_str(),
 					  kColorNrm);
 		lag = 2;
 	} else {
-		wielded = GET_EQ(vict, pos);
+		wielded = vict->equipment[pos];
 		SendMsgToChar(ch, "%sВы ловко выбили %s из рук %s!%s\r\n",
-					  kColorBoldBlu, wielded->get_PName(ECase::kAcc).c_str(), GET_PAD(vict, 1), kColorNrm);
+					  kColorBoldBlu, wielded->get_PName(ECase::kAcc).c_str(), vict->player_data.PNames[1].c_str(), kColorNrm);
 		SendMsgToChar(vict, "Ловкий удар %s выбил %s%s из ваших рук.\r\n",
-					  GET_PAD(ch, 1), wielded->get_PName(ECase::kAcc).c_str(), char_get_custom_label(wielded, vict).c_str());
+					  ch->player_data.PNames[1].c_str(), wielded->get_PName(ECase::kAcc).c_str(), char_get_custom_label(wielded, vict).c_str());
 		act("$n ловко выбил$g $o3 из рук $N1.", true, ch, wielded, vict, kToNotVict | kToArenaListen);
 		UnequipChar(vict, pos, CharEquipFlags());
 		SetSkillCooldown(ch, ESkill::kGlobalCooldown, vict->IsNpc() ? 1 : 2);
 		lag = 2;
-		if (ROOM_FLAGGED(vict->in_room, ERoomFlag::kArena) || (!vict->IsNpc()) || vict->has_master()) {
+		if (ROOM_FLAGGED(vict->in_room, ERoomFlag::kArena) || (!IS_MOB(vict)) || vict->has_master()) {
 			PlaceObjToInventory(wielded, vict);
 		} else {
 			PlaceObjToRoom(wielded, vict->in_room);

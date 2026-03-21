@@ -334,7 +334,7 @@ void obj_to_corpse(ObjData *corpse, CharData *ch, int rnum, bool setload) {
 	}
 
 	log("Load obj #%d by %s in room #%d (%s)",
-		o->get_vnum(), GET_NAME(ch), GET_ROOM_VNUM(ch->in_room),
+		o->get_vnum(), ch->get_name().c_str(), GET_ROOM_VNUM(ch->in_room),
 		setload ? "setload" : "globaldrop");
 
 	if (!setload) {
@@ -380,7 +380,7 @@ void obj_load_on_death(ObjData *corpse, CharData *ch) {
 		return;
 	}
 
-	const int rnum = SetsDrop::check_mob(ch->get_rnum());
+	const int rnum = SetsDrop::check_mob(GET_MOB_RNUM(ch));
 	if (rnum > 0) {
 		obj_to_corpse(corpse, ch, rnum, true);
 	}

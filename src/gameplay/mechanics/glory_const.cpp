@@ -120,10 +120,10 @@ void glory_hide(CharData *ch,
 		 ++t_it) {
 		if (ch->get_uid() == t_it->get()->uid) {
 			if (mode == true) {
-				sprintf(buf, "Проставляю hide славы для %s", GET_NAME(ch));
+				sprintf(buf, "Проставляю hide славы для %s", ch->get_name().c_str());
 				mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 			} else {
-				sprintf(buf, "Убираю hide славы для %s", GET_NAME(ch));
+				sprintf(buf, "Убираю hide славы для %s", ch->get_name().c_str());
 				mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 			}
 			t_it->get()->hide = mode;
@@ -240,11 +240,11 @@ void print_glory(CharData *ch, GloryListType::iterator &it) {
 void print_to_god(CharData *ch, CharData *god) {
 	GloryListType::iterator it = glory_list.find(ch->get_uid());
 	if (it == glory_list.end()) {
-		SendMsgToChar(god, "У %s совсем не славы.\r\n", GET_PAD(ch, 1));
+		SendMsgToChar(god, "У %s совсем не славы.\r\n", ch->player_data.PNames[1].c_str());
 		return;
 	}
 
-	SendMsgToChar(god, "Информация об очках славы %s:\r\n", GET_PAD(ch, 1));
+	SendMsgToChar(god, "Информация об очках славы %s:\r\n", ch->player_data.PNames[1].c_str());
 	print_glory(god, it);
 }
 
@@ -585,7 +585,7 @@ const char *GLORY_CONST_FORMAT =
 
 void do_spend_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	GloryListType::iterator it = glory_list.find(ch->get_uid());
-	if (glory_list.end() == it || ch->IsImmortal()) {
+	if (glory_list.end() == it || IS_IMMORTAL(ch)) {
 		SendMsgToChar("Вам это не нужно...\r\n", ch);
 		return;
 	}
@@ -609,7 +609,7 @@ void do_spend_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			SendMsgToChar(ch, "%s - некорректное имя персонажа.\r\n", name.c_str());
 			return;
 		}
-		if (str_cmp(GET_EMAIL(ch), GET_EMAIL(vict))) {
+		if (str_cmp(ch->player_specials->saved.EMail, vict->player_specials->saved.EMail)) {
 			SendMsgToChar(ch, "Персонажи имеют разные email адреса.\r\n");
 			return;
 		}
@@ -643,21 +643,21 @@ void do_spend_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		add_glory(vict->get_uid(), total_amount);
 
 		snprintf(buf, kMaxStringLength,
-				 "Transfer %d const glory from %s", total_amount, GET_NAME(ch));
+				 "Transfer %d const glory from %s", total_amount, ch->get_name().c_str());
 		AddKarma(vict, buf, "командой");
 
-		snprintf(buf, kMaxStringLength, "Transfer %d const glory to %s", amount, GET_NAME(vict));
+		snprintf(buf, kMaxStringLength, "Transfer %d const glory to %s", amount, vict->get_name().c_str());
 		AddKarma(ch, buf, "командой");
 
 		total_charge += tax;
-		transfer_log("%s -> %s transfered %d (%d tax)", GET_NAME(ch), GET_NAME(vict), total_amount, tax);
+		transfer_log("%s -> %s transfered %d (%d tax)", ch->get_name().c_str(), vict->get_name().c_str(), total_amount, tax);
 
 		ch->save_char();
 		vict->save_char();
 		save();
 
 		SendMsgToChar(ch, "%s переведено %d постоянной славы (%d комиссии).\r\n",
-					  GET_PAD(vict, 2), total_amount, tax);
+					  vict->player_data.PNames[2].c_str(), total_amount, tax);
 		ch->setGloryRespecTime(time(nullptr));
 		return;
 	}
@@ -804,12 +804,12 @@ void do_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			int amount = atoi((num + 1));
 			add_glory(vict->get_uid(), amount);
 			SendMsgToChar(ch, "%s добавлено %d у.е. постоянной славы (Всего: %d у.е.).\r\n",
-						  GET_PAD(vict, 2), amount, get_glory(vict->get_uid()));
+						  vict->player_data.PNames[2].c_str(), amount, get_glory(vict->get_uid()));
 			// запись в карму, логи
-			sprintf(buf, "(GC) %s sets +%d const glory to %s.", GET_NAME(ch), amount, GET_NAME(vict));
+			sprintf(buf, "(GC) %s sets +%d const glory to %s.", ch->get_name().c_str(), amount, vict->get_name().c_str());
 			mudlog(buf, NRM, MAX(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
 			imm_log("%s", buf);
-			sprintf(buf, "Change const glory +%d by %s", amount, GET_NAME(ch));
+			sprintf(buf, "Change const glory +%d by %s", amount, ch->get_name().c_str());
 			AddKarma(vict, buf, reason);
 			GloryMisc::add_log(mode, amount, std::string(buf), std::string(reason), vict);
 			break;
@@ -817,16 +817,16 @@ void do_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		case SUB_GLORY: {
 			int amount = remove_glory(vict->get_uid(), atoi((num + 1)));
 			if (amount <= 0) {
-				SendMsgToChar(ch, "У %s нет свободной постоянной славы.\r\n", GET_PAD(vict, 1));
+				SendMsgToChar(ch, "У %s нет свободной постоянной славы.\r\n", vict->player_data.PNames[1].c_str());
 				break;
 			}
 			SendMsgToChar(ch, "У %s вычтено %d у.е. постоянной славы (Всего: %d у.е.).\r\n",
-						  GET_PAD(vict, 1), amount, get_glory(vict->get_uid()));
+						  vict->player_data.PNames[1].c_str(), amount, get_glory(vict->get_uid()));
 			// запись в карму, логи
-			sprintf(buf, "(GC) %s sets -%d const glory to %s.", GET_NAME(ch), amount, GET_NAME(vict));
+			sprintf(buf, "(GC) %s sets -%d const glory to %s.", ch->get_name().c_str(), amount, vict->get_name().c_str());
 			mudlog(buf, NRM, MAX(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
 			imm_log("%s", buf);
-			sprintf(buf, "Change const glory -%d by %s", amount, GET_NAME(ch));
+			sprintf(buf, "Change const glory -%d by %s", amount, ch->get_name().c_str());
 			AddKarma(vict, buf, reason);
 			GloryMisc::add_log(mode, amount, std::string(buf), std::string(reason), vict);
 			break;
@@ -835,10 +835,10 @@ void do_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			if (reset_glory(vict)) {
 				SendMsgToChar(ch, "%s - очищена запись постоянной славы.\r\n", vict->get_name().c_str());
 				// запись в карму, логи
-				sprintf(buf, "(GC) %s reset const glory to %s.", GET_NAME(ch), GET_NAME(vict));
+				sprintf(buf, "(GC) %s reset const glory to %s.", ch->get_name().c_str(), vict->get_name().c_str());
 				mudlog(buf, NRM, MAX(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
 				imm_log("%s", buf);
-				sprintf(buf, "Reset stats and const glory by %s", GET_NAME(ch));
+				sprintf(buf, "Reset stats and const glory by %s", ch->get_name().c_str());
 				AddKarma(vict, buf, reason);
 				GloryMisc::add_log(mode, 0, std::string(buf), std::string(reason), vict);
 			} else {
@@ -1098,7 +1098,7 @@ void PrintGloryChart(CharData *ch) {
 	std::stringstream hide;
 
 	bool print_hide = false;
-	if (ch->IsImmortal()) {
+	if (IS_IMMORTAL(ch)) {
 		print_hide = true;
 		hide << "\r\nПерсонажи, исключенные из списка: ";
 	}

@@ -39,17 +39,17 @@ int CalcBaseAc(CharData *ch) {
 	armorclass += (size_app[GET_POS_SIZE(ch)].ac * 10);
 
 	if (ch->battle_affects.get(kEafPunctual)) {
-		if (GET_EQ(ch, EEquipPos::kWield)) {
-			if (GET_EQ(ch, EEquipPos::kHold))
+		if (ch->equipment[EEquipPos::kWield]) {
+			if (ch->equipment[EEquipPos::kHold])
 				armorclass +=
 					10 * std::max(-1,
-								  (GET_EQ(ch, EEquipPos::kWield)->get_weight() +
-									  GET_EQ(ch, EEquipPos::kHold)->get_weight()) / 5 - 6);
+								  (ch->equipment[EEquipPos::kWield]->get_weight() +
+									  ch->equipment[EEquipPos::kHold]->get_weight()) / 5 - 6);
 			else
-				armorclass += 10 * std::max(-1, GET_EQ(ch, EEquipPos::kWield)->get_weight() / 5 - 6);
+				armorclass += 10 * std::max(-1, ch->equipment[EEquipPos::kWield]->get_weight() / 5 - 6);
 		}
-		if (GET_EQ(ch, EEquipPos::kBoths))
-			armorclass += 10 * std::max(-1, GET_EQ(ch, EEquipPos::kBoths)->get_weight() / 5 - 6);
+		if (ch->equipment[EEquipPos::kBoths])
+			armorclass += 10 * std::max(-1, ch->equipment[EEquipPos::kBoths]->get_weight() / 5 - 6);
 	}
 
 	if (CalcLeadership(ch)) {
@@ -61,7 +61,7 @@ int CalcBaseAc(CharData *ch) {
 }
 
 int GetRealAc(CharData *ch) {
-	return (GET_AC(ch)+GET_AC_ADD(ch));
+	return (ch->real_abils.armor+ch->add_abils.ac_add);
 }
 
 int GetClaccAcLimit(CharData *ch) {

@@ -20,7 +20,7 @@ std::vector<std::string> block_list;
 
 /// Проверка на наличие чара в стоп-списке и сет флага
 void SetStopOfftopFlag(CharData *ch) {
-	std::string mail(GET_EMAIL(ch));
+	std::string mail(ch->player_specials->saved.EMail);
 	utils::ConvertToLow(mail);
 	auto i = std::find(block_list.begin(), block_list.end(), mail);
 	if (i != block_list.end()) {

@@ -26,12 +26,12 @@ void go_steal(CharData *ch, CharData *vict, char *obj_name) {
 		return;
 	}
 
-	if (!ch->IsImmortal() && vict->GetEnemy()) {
+	if (!IS_IMMORTAL(ch) && vict->GetEnemy()) {
 		act("$N слишком быстро перемещается.", false, ch, nullptr, vict, kToChar);
 		return;
 	}
 
-	if (!ch->IsImmortal() && ROOM_FLAGGED(vict->in_room, ERoomFlag::kArena)) {
+	if (!IS_IMMORTAL(ch) && ROOM_FLAGGED(vict->in_room, ERoomFlag::kArena)) {
 		SendMsgToChar("Воровство при поединке недопустимо.\r\n", ch);
 		return;
 	}
@@ -39,15 +39,15 @@ void go_steal(CharData *ch, CharData *vict, char *obj_name) {
 	// 101% is a complete failure
 	percent = number(1, MUD::Skill(ESkill::kSteal).difficulty);
 
-	if (ch->IsImmortal() || (vict->GetPosition() <= EPosition::kSleep && !AFF_FLAGGED(vict, EAffect::kSleep)))
+	if (IS_IMMORTAL(ch) || (vict->GetPosition() <= EPosition::kSleep && !AFF_FLAGGED(vict, EAffect::kSleep)))
 		success = 1;    // ALWAYS SUCCESS, unless heavy object.
 
 	if (!AWAKE(vict))    // Easier to steal from sleeping people.
 		percent = MAX(percent - 50, 0);
 
 	// NO, NO With Imp's and Shopkeepers, and if player thieving is not allowed
-	if ((vict->IsImmortal() || GET_GOD_FLAG(vict, EGf::kGodsLike) || GET_MOB_SPEC(vict) == shop_ext)
-		&& !ch->IsImpl()) {
+	if ((IS_IMMORTAL(vict) || (IS_SET(vict->player_specials->saved.GodsLike, EGf::kGodsLike)) || GET_MOB_SPEC(vict) == shop_ext)
+		&& !IS_IMPL(ch)) {
 		SendMsgToChar("Вы постеснялись красть у такого хорошего человека.\r\n", ch);
 		return;
 	}
@@ -58,10 +58,10 @@ void go_steal(CharData *ch, CharData *vict, char *obj_name) {
 		&& str_cmp(obj_name, "деньги")) {
 		if (!(obj = get_obj_in_list_vis(ch, obj_name, vict->carrying))) {
 			for (eq_pos = 0; eq_pos < EEquipPos::kNumEquipPos; eq_pos++) {
-				if (GET_EQ(vict, eq_pos)
-					&& (isname(obj_name, GET_EQ(vict, eq_pos)->get_aliases()))
-					&& CAN_SEE_OBJ(ch, GET_EQ(vict, eq_pos))) {
-					obj = GET_EQ(vict, eq_pos);
+				if (vict->equipment[eq_pos]
+					&& (isname(obj_name, vict->equipment[eq_pos]->get_aliases()))
+					&& CAN_SEE_OBJ(ch, vict->equipment[eq_pos])) {
+					obj = vict->equipment[eq_pos];
 					break;
 				}
 			}
@@ -103,7 +103,7 @@ void go_steal(CharData *ch, CharData *vict, char *obj_name) {
 
 			if (AFF_FLAGGED(ch, EAffect::kHide))
 				prob += 5;
-			if (!ch->IsImmortal() && AFF_FLAGGED(vict, EAffect::kSleep))
+			if (!IS_IMMORTAL(ch) && AFF_FLAGGED(vict, EAffect::kSleep))
 				prob = 0;
 			if (percent > prob && !success) {
 				ohoh = true;
@@ -137,7 +137,7 @@ void go_steal(CharData *ch, CharData *vict, char *obj_name) {
 		prob = CalcCurrentSkill(ch, ESkill::kSteal, vict);
 		if (AFF_FLAGGED(ch, EAffect::kHide))
 			prob += 5;
-		if (!ch->IsImmortal() && AFF_FLAGGED(vict, EAffect::kSleep))
+		if (!IS_IMMORTAL(ch) && AFF_FLAGGED(vict, EAffect::kSleep))
 			prob = 0;
 		if (percent > prob && !success) {
 			ohoh = true;
@@ -178,7 +178,7 @@ void go_steal(CharData *ch, CharData *vict, char *obj_name) {
 							ch->get_name().c_str(),
 							GET_ROOM_VNUM(ch->in_room),
 							gold,
-							GET_PAD(vict, 0));
+							vict->player_data.PNames[0].c_str());
 					mudlog(buf, NRM, kLvlGreatGod, MONEY_LOG, true);
 					split_or_clan_tax(ch, gold);
 					vict->remove_gold(gold);
@@ -189,7 +189,7 @@ void go_steal(CharData *ch, CharData *vict, char *obj_name) {
 		if (CAN_SEE(vict, ch) && AWAKE(vict))
 			ImproveSkill(ch, ESkill::kSteal, 0, vict);
 	}
-	if (!ch->IsImmortal() && ohoh)
+	if (!IS_IMMORTAL(ch) && ohoh)
 		SetWaitState(ch, 3 * kBattleRound);
 	pk_thiefs_action(ch, vict);
 	if (ohoh && vict->IsNpc() && AWAKE(vict) && CAN_SEE(vict, ch) && MAY_ATTACK(vict))
@@ -204,7 +204,7 @@ void do_steal(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Но вы не знаете как.\r\n", ch);
 		return;
 	}
-	if (!ch->IsImmortal() && ch->IsOnHorse()) {
+	if (!IS_IMMORTAL(ch) && ch->IsOnHorse()) {
 		SendMsgToChar("Верхом это сделать затруднительно.\r\n", ch);
 		return;
 	}
@@ -216,7 +216,7 @@ void do_steal(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Попробуйте набрать \"бросить <n> кун\".\r\n", ch);
 		return;
 	}
-	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kPeaceful) && !(ch->IsImmortal() || GET_GOD_FLAG(ch, EGf::kGodsLike))) {
+	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kPeaceful) && !(IS_IMMORTAL(ch) || (IS_SET(ch->player_specials->saved.GodsLike, EGf::kGodsLike)))) {
 		SendMsgToChar("Здесь слишком мирно. Вам не хочется нарушать сию благодать...\r\n", ch);
 		return;
 	}
@@ -226,7 +226,7 @@ void do_steal(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 	if (vict->IsNpc() && (vict->IsFlagged(EMobFlag::kNoFight) || AFF_FLAGGED(vict, EAffect::kGodsShield)
 		|| vict->IsFlagged(EMobFlag::kProtect))
-		&& !(ch->IsImmortal() || GET_GOD_FLAG(ch, EGf::kGodsLike))) {
+		&& !(IS_IMMORTAL(ch) || (IS_SET(ch->player_specials->saved.GodsLike, EGf::kGodsLike)))) {
 		SendMsgToChar("А ежели поймают? Посодют ведь!\r\nПодумав так, вы отказались от сего намеренья.\r\n", ch);
 		return;
 	}

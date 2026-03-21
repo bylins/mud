@@ -18,7 +18,7 @@ auto FindSubstituteSpellId(CharData *ch, ESpell spell_id) {
 	if (CanUseFeat(ch, EFeat::kSpellSubstitute) && healing_spells.contains(spell_id)) {
 		for (const auto &test_spell : MUD::Class(ch->GetClass()).spells) {
 			auto test_spell_id = test_spell.GetId();
-			if (GET_SPELL_MEM(ch, test_spell_id) &&
+			if (ch->real_abils.SplMem[to_underlying(test_spell_id)] &&
 				MUD::Class(ch->GetClass()).spells[test_spell_id].GetCircle() ==
 					MUD::Class(ch->GetClass()).spells[spell_id].GetCircle()) {
 				subst_spell_id = test_spell_id;
@@ -76,7 +76,7 @@ void DoCast(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		return;
 	}
 	if (const auto spell = MUD::Class(ch->GetClass()).spells[spell_id];
-		(!IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kTemp | ESpellType::kKnow) ||
+		(!IS_SET(ch->real_abils.SplKnw[to_underlying(spell_id)], ESpellType::kTemp | ESpellType::kKnow) ||
 		GetRealRemort(ch) < spell.GetMinRemort()) &&
 		(GetRealLevel(ch) < kLvlGreatGod) && !ch->IsNpc()) {
 		if (GetRealLevel(ch) < CalcMinSpellLvl(ch, spell_id)
@@ -90,7 +90,7 @@ void DoCast(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	}
 
 	auto substitute_spell_id{ESpell::kUndefined};
-	if (!GET_SPELL_MEM(ch, spell_id) && !ch->IsImmortal()) {
+	if (!ch->real_abils.SplMem[to_underlying(spell_id)] && !IS_IMMORTAL(ch)) {
 		substitute_spell_id = FindSubstituteSpellId(ch, spell_id);
 		if (substitute_spell_id == ESpell::kUndefined) {
 			SendMsgToChar("Вы совершенно не помните, как произносится это заклинание...\r\n", ch);
@@ -119,7 +119,7 @@ void DoCast(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		SendMsgToChar("Тяжеловато найти цель вашего заклинания!\r\n", ch);
 		return;
 	}
-	if (!IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kTemp) &&
+	if (!IS_SET(ch->real_abils.SplKnw[to_underlying(spell_id)], ESpellType::kTemp) &&
 		ROOM_FLAGGED(ch->in_room, ERoomFlag::kDominationArena)) {
 		SendMsgToChar("На данной арене вы можете колдовать только временные заклинания!\r\n", ch);
 		return;
@@ -127,12 +127,12 @@ void DoCast(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 
 	ch->SetCast(ESpell::kUndefined, ESpell::kUndefined, nullptr, nullptr, nullptr);
 	if (!CalcCastSuccess(ch, tch, ESaving::kStability, spell_id)) {
-		if (!(ch->IsImmortal() || GET_GOD_FLAG(ch, EGf::kGodsLike)))
+		if (!(IS_IMMORTAL(ch) || (IS_SET(ch->player_specials->saved.GodsLike, EGf::kGodsLike))))
 			SetWaitState(ch, kBattleRound);
-		if (GET_SPELL_MEM(ch, substitute_spell_id)) {
-			GET_SPELL_MEM(ch, substitute_spell_id)--;
+		if (ch->real_abils.SplMem[to_underlying(substitute_spell_id)]) {
+			ch->real_abils.SplMem[to_underlying(substitute_spell_id)]--;
 		}
-		if (!ch->IsNpc() && !ch->IsImmortal() && ch->IsFlagged(EPrf::kAutomem)) {
+		if (!ch->IsNpc() && !IS_IMMORTAL(ch) && ch->IsFlagged(EPrf::kAutomem)) {
 			MemQ_remember(ch, substitute_spell_id);
 		}
 		affect_total(ch);
@@ -140,14 +140,14 @@ void DoCast(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 			SendMsgToChar("Вы не смогли сосредоточиться!\r\n", ch);
 		}
 	} else {
-		if (ch->GetEnemy() && !ch->IsImpl()) {
+		if (ch->GetEnemy() && !IS_IMPL(ch)) {
 			ch->SetCast(spell_id, substitute_spell_id, tch, tobj, troom);
 			sprintf(buf, "Вы приготовились применить заклинание %s'%s'%s%s.\r\n",
 					kColorCyn, MUD::Spell(spell_id).GetCName(), kColorNrm,
 					tch == ch ? " на себя" : tch ? " на $N3" : tobj ? " на $o3" : troom ? " на всех" : "");
 			act(buf, false, ch, tobj, tch, kToChar);
 		} else if (CastSpell(ch, tch, tobj, troom, spell_id, substitute_spell_id) >= 0) {
-			if (!(ch->IsImmortal() || ch->get_wait() > 0))
+			if (!(IS_IMMORTAL(ch) || ch->get_wait() > 0))
 				SetWaitState(ch, kBattleRound);
 		} else if (ch->get_wait() == 0)
 			SetWaitState(ch, 1);

@@ -274,7 +274,7 @@ void Dps::AddGroupDmg(CharData *ch, int dmg, int over_dmg) {
 		it->second.add_dmg(dmg, over_dmg);
 	} else {
 		PlayerDpsNode tmp_node;
-		tmp_node.set_name(GET_NAME(ch));
+		tmp_node.set_name(ch->get_name().c_str());
 		tmp_node.add_dmg(dmg, over_dmg);
 		group_dps_.insert(std::make_pair(ch->get_uid(), tmp_node));
 	}
@@ -286,7 +286,7 @@ void Dps::EndGroupRound(CharData *ch) {
 		it->second.end_round();
 	} else {
 		PlayerDpsNode tmp_node;
-		tmp_node.set_name(GET_NAME(ch));
+		tmp_node.set_name(ch->get_name().c_str());
 		tmp_node.end_round();
 		group_dps_.insert(std::make_pair(ch->get_uid(), tmp_node));
 	}
@@ -298,7 +298,7 @@ void Dps::AddGroupCharmDmg(CharData *ch, int dmg, int over_dmg) {
 		it->second.add_charm_dmg(ch, dmg, over_dmg);
 	} else {
 		PlayerDpsNode tmp_node;
-		tmp_node.set_name(GET_NAME(ch->get_master()));
+		tmp_node.set_name(ch->get_master(->get_name().c_str()));
 		tmp_node.add_charm_dmg(ch, dmg, over_dmg);
 		group_dps_.insert(std::make_pair((ch->get_master())->get_uid(), tmp_node));
 	}
@@ -310,7 +310,7 @@ void Dps::EndGroupCharmRound(CharData *ch) {
 		it->second.end_charm_round(ch);
 	} else {
 		PlayerDpsNode tmp_node;
-		tmp_node.set_name(GET_NAME(ch->get_master()));
+		tmp_node.set_name(ch->get_master(->get_name().c_str()));
 		tmp_node.end_charm_round(ch);
 		group_dps_.insert(std::make_pair((ch->get_master())->get_uid(), tmp_node));
 	}
@@ -351,7 +351,7 @@ CharmListType::iterator PlayerDpsNode::find_charmice(CharData *ch) {
 	}
 
 	DpsNode tmp_node(ch->get_uid());
-	tmp_node.set_name(GET_NAME(ch));
+	tmp_node.set_name(ch->get_name().c_str());
 
 	charm_list_.push_front(tmp_node);
 	if (charm_list_.size() > MAX_DPS_CHARMICE) {
@@ -435,7 +435,7 @@ void UpdateDpsStatistics(CharData *ch, int real_dam, int over_dam) {
 	if (!ch->IsNpc()) {
 		ch->dps_add_dmg(DpsSystem::PERS_DPS, real_dam, over_dam);
 /*		log("DmetrLog. Name(player): %s, class: %d, remort:%d, level:%d, dmg: %d, over_dmg:%d",
-			GET_NAME(ch),
+			ch->get_name().c_str(),
 			to_underlying(ch->GetClass()),
 			GetRealRemort(ch),
 			GetRealLevel(ch),

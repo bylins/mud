@@ -52,7 +52,7 @@ void do_users(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					strcpy(buf, buf1);
 					break;
 				case 'l':
-					if (!ch->IsGod())
+					if (!IS_GOD(ch))
 						return;
 					playing = 1;
 					half_chop(buf1, arg, buf);
@@ -68,7 +68,7 @@ void do_users(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					half_chop(buf1, host_by_name, buf);
 					break;
 				case 'w':
-					if (!ch->IsGrGod())
+					if (!IS_GRGOD(ch))
 						return;
 					playing = 1;
 					locating = 1;
@@ -128,7 +128,7 @@ void do_users(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			continue;
 		}
 
-		if (isname(host_by_name, GET_NAME(character))) {
+		if (isname(host_by_name, character->get_name().c_str())) {
 			strcpy(host_search, d->host);
 		}
 	}
@@ -155,7 +155,7 @@ void do_users(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 						break;
 
 					case 'e':
-						if (strcoll(t ? GET_EMAIL(t) : "", t_tmp ? GET_EMAIL(t_tmp) : "") > 0)
+						if (strcoll(t ? t->player_specials->saved.EMail : "", t_tmp ? t_tmp->player_specials->saved.EMail : "") > 0)
 							flag_change = 1;
 						break;
 
@@ -189,7 +189,7 @@ void do_users(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			if (*host_search && !strstr(d->host, host_search)) {
 				continue;
 			}
-			if (*name_search && !isname(name_search, GET_NAME(character))) {
+			if (*name_search && !isname(name_search, character->get_name().c_str())) {
 				continue;
 			}
 			if (!CAN_SEE(ch, character) || GetRealLevel(character) < low || GetRealLevel(character) > high) {
@@ -250,7 +250,7 @@ void do_users(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 		if (d->character
 			&& d->state == EConState::kPlaying
-			&& !d->character->IsGod()) {
+			&& !IS_GOD(d->character)) {
 			sprintf(idletime, "%-3d", d->character->char_specials.timer *
 				kSecsPerMudHour / kSecsPerRealMin);
 		} else {
@@ -291,7 +291,7 @@ void do_users(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 		if (showemail) {
 			sprintf(line2, "[&S%s&s]",
-					d->original ? GET_EMAIL(d->original) : d->character ? GET_EMAIL(d->character) : "");
+					d->original ? d->original->player_specials->saved.EMail : d->character ? d->character->player_specials->saved.EMail : "");
 			strcat(line, line2);
 		}
 
@@ -304,7 +304,7 @@ void do_users(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					if (d->original && d->character) {
 						sprintf(line2, " [%5d] %s (in %s)",
 								GET_ROOM_VNUM(d->character->in_room),
-								world[d->character->in_room]->name, GET_NAME(d->character));
+								world[d->character->in_room]->name, d->character->get_name().c_str());
 					} else {
 						sprintf(line2, " [%5d] %s",
 								GET_ROOM_VNUM(ci->in_room), world[ci->in_room]->name);

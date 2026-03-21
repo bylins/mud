@@ -39,16 +39,16 @@ void do_forget(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			SendMsgToChar("Вы вычеркнули все заклинания из своего списка для запоминания.\r\n", ch);
 		} else {
 			for (auto spell_id = ESpell::kFirst ; spell_id <= ESpell::kLast; ++spell_id) {
-				GET_SPELL_MEM(ch, spell_id) = 0;
+				ch->real_abils.SplMem[to_underlying(spell_id)] = 0;
 			}
 			sprintf(buf,
 					"Вы удалили все заклинания из %s.\r\n",
-					GET_RELIGION(ch) == kReligionMono ? "своего часослова" : "своих рез");
+					ch->player_data.Religion == kReligionMono ? "своего часослова" : "своих рез");
 			SendMsgToChar(buf, ch);
 		}
 		return;
 	}
-	if (ch->IsImmortal()) {
+	if (IS_IMMORTAL(ch)) {
 		SendMsgToChar("Господи, тебе лень набрать skillset?\r\n", ch);
 		return;
 	}
@@ -66,7 +66,7 @@ void do_forget(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("И откуда вы набрались таких выражений?\r\n", ch);
 		return;
 	}
-	if (!IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kKnow | ESpellType::kTemp)) {
+	if (!IS_SET(ch->real_abils.SplKnw[to_underlying(spell_id)], ESpellType::kKnow | ESpellType::kTemp)) {
 		SendMsgToChar("Трудно забыть то, чего не знаешь...\r\n", ch);
 		return;
 	}
@@ -77,15 +77,15 @@ void do_forget(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		is_in_mem = in_mem(arg);
 	}
 	if (!is_in_mem)
-		if (!GET_SPELL_MEM(ch, spell_id)) {
+		if (!ch->real_abils.SplMem[to_underlying(spell_id)]) {
 			SendMsgToChar("Прежде чем забыть что-то ненужное, следует заучить что-то ненужное...\r\n", ch);
 			return;
 		} else {
-			--GET_SPELL_MEM(ch, spell_id);
+			--ch->real_abils.SplMem[to_underlying(spell_id)];
 			ch->caster_level -= MUD::Spell(spell_id).GetDanger();
 			sprintf(buf, "Вы удалили заклинание '%s%s%s' из %s.\r\n",
 					kColorBoldCyn, MUD::Spell(spell_id).GetCName(),
-					kColorNrm, GET_RELIGION(ch) == kReligionMono ? "своего часослова" : "своих рез");
+					kColorNrm, ch->player_data.Religion == kReligionMono ? "своего часослова" : "своих рез");
 			SendMsgToChar(buf, ch);
 		}
 	else

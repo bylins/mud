@@ -18,7 +18,7 @@ constexpr long kMaxHirePrice = LONG_MAX / (kMaxHireTime + 1);
 
 //Функции для модифицированного чарма
 float CalcDamagePerRound(CharData *victim) {
-	float dam_per_attack = GET_DR(victim) + str_bonus(victim->get_str(), STR_TO_DAM)
+	float dam_per_attack = victim->real_abils.damroll + str_bonus(victim->get_str(), STR_TO_DAM)
 		+ victim->mob_specials.damnodice * (victim->mob_specials.damsizedice + 1) / 2.0
 		+ (AFF_FLAGGED(victim, EAffect::kCloudOfArrows) ? 14 : 0);
 	int num_attacks = 1 + victim->mob_specials.extra_attack
@@ -65,10 +65,10 @@ long CalcHirePrice(CharData *ch, CharData *victim) {
 
 	float m_hit = victim->get_max_hit() * 2;
 	float m_lvl = victim->GetLevel() * 50;
-	float m_ac = GET_AC(victim) * (-5);
-	float m_hr = GET_HR(victim) * 50;
-	float m_armor = GET_ARMOUR(victim) * 25;
-	float m_absorb = GET_ABSORBE(victim) * 4;
+	float m_ac = victim->real_abils.armor * (-5);
+	float m_hr = victim->real_abils.hitroll * 50;
+	float m_armor = victim->add_abils.armour * 25;
+	float m_absorb = victim->add_abils.absorb * 4;
 	ch->send_to_TC(true,
 				   true,
 				   true,
@@ -90,28 +90,28 @@ long CalcHirePrice(CharData *ch, CharData *victim) {
 				   m_stab, m_ref, m_crit, m_wil);
 	price += m_stab + m_ref + m_crit + m_wil;
 	// магические резисты
-	int m_fire = GET_RESIST(victim, EResist::kFire) * 4;
-	int m_air = GET_RESIST(victim, EResist::kAir) * 4;
-	int m_water = GET_RESIST(victim, EResist::kWater) * 4;
-	int m_earth = GET_RESIST(victim, EResist::kEarth) * 4;
-	int m_vita = GET_RESIST(victim, EResist::kVitality) * 4;
-	int m_mind = GET_RESIST(victim, EResist::kMind) * 4;
-	int m_immu = GET_RESIST(victim, EResist::kImmunity) * 4;
-	int m_dark = GET_RESIST(victim, EResist::kDark) * 4;
+	int m_fire = victim->add_abils.apply_resistance[EResist::kFire] * 4;
+	int m_air = victim->add_abils.apply_resistance[EResist::kAir] * 4;
+	int m_water = victim->add_abils.apply_resistance[EResist::kWater] * 4;
+	int m_earth = victim->add_abils.apply_resistance[EResist::kEarth] * 4;
+	int m_vita = victim->add_abils.apply_resistance[EResist::kVitality] * 4;
+	int m_mind = victim->add_abils.apply_resistance[EResist::kMind] * 4;
+	int m_immu = victim->add_abils.apply_resistance[EResist::kImmunity] * 4;
+	int m_dark = victim->add_abils.apply_resistance[EResist::kDark] * 4;
 	ch->send_to_TC(true, true, true,
 				   "Маг.резисты: Fire:%d Air:%d Water:%d Earth:%d Vita:%d Mind:%d Immu:%d Dark:%d\r\n",
 				   m_fire, m_air, m_water, m_earth, m_vita, m_mind, m_immu, m_dark);
 	price += m_fire + m_air + m_water + m_earth + m_vita + m_mind + m_immu + m_dark;
 	// удача и инициатива
 	int m_luck = victim->calc_morale() * 10;
-	int m_ini = GET_INITIATIVE(victim) * 10;
+	int m_ini = victim->add_abils.initiative_add * 10;
 	// сопротивления
-	int m_ar = GET_AR(victim) * 50;
-	int m_mr = GET_MR(victim) * 50;
-	int m_pr = GET_PR(victim) * 50;
+	int m_ar = victim->add_abils.aresist * 50;
+	int m_mr = victim->add_abils.mresist * 50;
+	int m_pr = victim->add_abils.presist * 50;
 	// дамаг
 	int m_dr = ((victim->mob_specials.damnodice * victim->mob_specials.damsizedice + victim->mob_specials.damnodice) / 2
-		+ GET_DR(victim)) * 10;
+		+ victim->real_abils.damroll) * 10;
 	float extraAttack = victim->mob_specials.extra_attack * m_dr;
 
 	ch->send_to_TC(true, true, true, "Остальные статы: Luck:%d Ini:%d AR:%d MR:%d PR:%d DR:%d ExAttack:%.4lf\r\n",
@@ -127,7 +127,7 @@ long CalcHirePrice(CharData *ch, CharData *victim) {
 	hirePoints = hirePoints * 5 * GetRealLevel(ch);
 
 	int min_price = MAX((m_dr / 300 * GetRealLevel(victim)), (GetRealLevel(victim) * 5));
-	min_price = MAX(min_price, mob_proto[victim->get_rnum()].get_gold());
+	min_price = MAX(min_price, mob_proto[GET_MOB_RNUM(victim)].get_gold());
 	long finalPrice = MAX(min_price, (int) ceil(price - hirePoints));
 
 	ch->send_to_TC(true, true, true,
@@ -170,7 +170,7 @@ int GetReformedCharmiceHp(CharData *ch, CharData *victim, ESpell spell_id) {
 
 void DoFindhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->IsNpc()
-		|| (!ch->IsImmortal() && !CanUseFeat(ch, EFeat::kEmployer))) {
+		|| (!IS_IMMORTAL(ch) && !CanUseFeat(ch, EFeat::kEmployer))) {
 		SendMsgToChar("Вам недоступно это!\r\n", ch);
 		return;
 	}
@@ -299,7 +299,7 @@ void DoFindhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 		}
 		RemoveAffectFromChar(helpee, ESpell::kCharm);
-		if (!ch->IsImmortal()) {
+		if (!IS_IMMORTAL(ch)) {
 			if (isname(isbank, "банк bank")) {
 				ch->remove_bank(cost);
 				helpee->mob_specials.hire_price = -hire_price;
@@ -328,12 +328,12 @@ void DoFindhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 		if (helpee->IsNpc()) {
 			for (auto i = 0; i < EEquipPos::kNumEquipPos; i++) {
-				if (GET_EQ(helpee, i)) {
-					if (!remove_otrigger(GET_EQ(helpee, i), helpee))
+				if (helpee->equipment[i]) {
+					if (!remove_otrigger(helpee->equipment[i], helpee))
 						continue;
 
-					act("Вы прекратили использовать $o3.", false, helpee, GET_EQ(helpee, i), 0, kToChar);
-					act("$n прекратил$g использовать $o3.", true, helpee, GET_EQ(helpee, i), 0, kToRoom);
+					act("Вы прекратили использовать $o3.", false, helpee, helpee->equipment[i], 0, kToChar);
+					act("$n прекратил$g использовать $o3.", true, helpee, helpee->equipment[i], 0, kToRoom);
 					PlaceObjToInventory(UnequipChar(helpee, i, CharEquipFlag::show_msg), helpee);
 				}
 			}
@@ -359,7 +359,7 @@ void DoFindhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 void DoFreehelpee(CharData *ch, char * /* argument*/, int/* cmd*/, int/* subcmd*/) {
 	if (ch->IsNpc()
-		|| (!ch->IsImmortal() && !CanUseFeat(ch, EFeat::kEmployer))) {
+		|| (!IS_IMMORTAL(ch) && !CanUseFeat(ch, EFeat::kEmployer))) {
 		SendMsgToChar("Вам недоступно это!\r\n", ch);
 		return;
 	}
@@ -388,7 +388,7 @@ void DoFreehelpee(CharData *ch, char * /* argument*/, int/* cmd*/, int/* subcmd*
 		return;
 	}
 
-	if (!ch->IsImmortal()) {
+	if (!IS_IMMORTAL(ch)) {
 		for (const auto &aff : hired->affected) {
 			if (aff->type == ESpell::kCharm) {
 				long cost = MAX(0, (int) ((aff->duration - 1) / 2) * (int) abs(hired->mob_specials.hire_price));
@@ -412,4 +412,3 @@ void DoFreehelpee(CharData *ch, char * /* argument*/, int/* cmd*/, int/* subcmd*
 
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
-

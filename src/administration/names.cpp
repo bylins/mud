@@ -45,18 +45,18 @@ int was_agree_name(DescriptorData *d) {
 		// Format First name/pad1/pad2/pad3/pad4/pad5/sex immname immlev
 		sscanf(temp, "%s %s %s %s %s %s %d %s %d", mortname[0],
 			   mortname[1], mortname[2], mortname[3], mortname[4], mortname[5], &sex, immname, &immlev);
-		if (!strcmp(mortname[0], GET_NAME(d->character))) {
+		if (!strcmp(mortname[0], d->character->get_name().c_str())) {
 			// We find char ...
 			for (i = 1; i < 6; i++) {
 				d->character->player_data.PNames[i] = std::string(mortname[i]);
 			}
 			d->character->set_sex(static_cast<EGender>(sex));
 			// Auto-Agree char ...
-			NAME_GOD(d->character) = immlev + 1000;
-			NAME_ID_GOD(d->character) = GetPlayerIdByName(immname);
+			d->character->player_specials->saved.NameGod = immlev + 1000;
+			d->character->player_specials->saved.NameIDGod = GetPlayerIdByName(immname);
 			sprintf(buf, "\r\nВаше имя одобрено!\r\n");
 			iosystem::write_to_output(buf, d);
-			sprintf(buf, "AUTOAGREE: %s was agreed by %s", GET_PC_NAME(d->character), immname);
+			sprintf(buf, "AUTOAGREE: %s was agreed by %s", d->character->GetCharAliases().c_str(), immname);
 			log(buf, d);
 			fclose(fp);
 			log("was_agree_name end");
@@ -87,12 +87,12 @@ int was_disagree_name(DescriptorData *d) {
 	while (get_line(fp, temp)) {
 		// Extract entities and
 		sscanf(temp, "%s %s %d", mortname, immname, &immlev);
-		if (!strcmp(mortname, GET_NAME(d->character))) {
+		if (!strcmp(mortname, d->character->get_name().c_str())) {
 			// Char found all ok;
 
 			sprintf(buf, "\r\nВаше имя запрещено!\r\n");
 		iosystem::write_to_output(buf, d);
-			sprintf(buf, "AUTOAGREE: %s was disagreed by %s", GET_PC_NAME(d->character), immname);
+			sprintf(buf, "AUTOAGREE: %s was disagreed by %s", d->character->GetCharAliases().c_str(), immname);
 			log(buf, d);
 
 			fclose(fp);
@@ -128,7 +128,7 @@ void rm_agree_name(CharData *d) {
 		// Get name ...
 		sscanf(temp, "%s %s %s %s %s %s %d %s %d", mortname[0],
 			   mortname[1], mortname[2], mortname[3], mortname[4], mortname[5], &sex, immname, &immlev);
-		if (strcmp(mortname[0], GET_NAME(d))) {
+		if (strcmp(mortname[0], d->get_name().c_str())) {
 			// Name un matches ... do copy ...
 			fprintf(fout, "%s\n", temp);
 		};
@@ -178,15 +178,15 @@ static void NewNames::cache_add(CharData *ch) {
 	NewNamePtr name(new NewName);
 
 	name->name0 = ch->get_name();
-	name->name1 = GET_PAD(ch, 1);
-	name->name2 = GET_PAD(ch, 2);
-	name->name3 = GET_PAD(ch, 3);
-	name->name4 = GET_PAD(ch, 4);
-	name->name5 = GET_PAD(ch, 5);
-	name->email = GET_EMAIL(ch);
+	name->name1 = ch->player_data.PNames[1].c_str();
+	name->name2 = ch->player_data.PNames[2].c_str();
+	name->name3 = ch->player_data.PNames[3].c_str();
+	name->name4 = ch->player_data.PNames[4].c_str();
+	name->name5 = ch->player_data.PNames[5].c_str();
+	name->email = ch->player_specials->saved.EMail;
 	name->sex = ch->get_sex();
 
-	NewNameList[GET_NAME(ch)] = name;
+	NewNameList[ch->get_name().c_str()] = name;
 }
 
 // добавление имени в список неодобренных для показа иммам
@@ -198,7 +198,7 @@ void NewNames::add(CharData *ch) {
 // поиск/удаление персонажа из списка неодобренных имен
 void NewNames::remove(CharData *ch) {
 	NewNameListType::iterator it;
-	it = NewNameList.find(GET_NAME(ch));
+	it = NewNameList.find(ch->get_name().c_str());
 	if (it != NewNameList.end())
 		NewNameList.erase(it);
 	save();
@@ -251,7 +251,7 @@ bool NewNames::show(CharData *actor) {
 		buffer << "Имя: " << it->first << " " << it->second->name0 << "/" << it->second->name1
 			   << "/" << it->second->name2 << "/" << it->second->name3 << "/" << it->second->name4
 			   << "/" << it->second->name5 << " Email: &S"
-			   << (GET_GOD_FLAG(actor, EGf::kDemigod) ? "неопределен" : it->second->email)
+			   << ((IS_SET(actor->player_specials->saved.GodsLike, EGf::kDemigod)) ? "неопределен" : it->second->email)
 			   << "&s Пол: " << genders[sex] << "\r\n";
 	}
 	buffer << kColorNrm;
@@ -292,7 +292,7 @@ static void rm_disagree_name(CharData *d) {
 	while (get_line(fin, temp)) {
 		// Get name ...
 		sscanf(temp, "%s %s %d", mortname, immname, &immlev);
-		if (strcmp(mortname, GET_NAME(d)) != 0) {
+		if (strcmp(mortname, d->get_name().c_str()) != 0) {
 			// Name un matches ... do copy ...
 			fprintf(fout, "%s\n", temp);
 		};
@@ -311,12 +311,12 @@ static void add_agree_name(CharData *d, const char *immname, int immlev) {
 	// Pos to the end ...
 	fprintf(fl,
 			"%s %s %s %s %s %s %d %s %d\r\n",
-			GET_NAME(d),
-			GET_PAD(d, 1),
-			GET_PAD(d, 2),
-			GET_PAD(d, 3),
-			GET_PAD(d, 4),
-			GET_PAD(d, 5),
+			d->get_name().c_str(),
+			d->player_data.PNames[1].c_str(),
+			d->player_data.PNames[2].c_str(),
+			d->player_data.PNames[3].c_str(),
+			d->player_data.PNames[4].c_str(),
+			d->player_data.PNames[5].c_str(),
 			static_cast<int>(d->get_sex()),
 			immname,
 			immlev);
@@ -330,7 +330,7 @@ static void add_disagree_name(CharData *d, const char *immname, int immlev) {
 		return;
 	}
 	// Pos to the end ...
-	fprintf(fl, "%s %s %d\r\n", GET_NAME(d), immname, immlev);
+	fprintf(fl, "%s %s %d\r\n", d->get_name().c_str(), immname, immlev);
 	fclose(fl);
 }
 
@@ -363,7 +363,7 @@ static void go_name(CharData *ch, CharData *vict, int action) {
 	}
 
 	// одобряем или нет
-	int lev = NAME_GOD(vict);
+	int lev = vict->player_specials->saved.NameGod;
 	if (lev > 1000)
 		lev = lev - 1000;
 	if (lev > god_level) {
@@ -372,27 +372,27 @@ static void go_name(CharData *ch, CharData *vict, int action) {
 	}
 
 	if (lev == god_level)
-		if (NAME_ID_GOD(vict) != ch->get_uid())
+		if (vict->player_specials->saved.NameIDGod != ch->get_uid())
 			SendMsgToChar("Об этом имени уже позаботился другой бог вашего уровня.\r\n", ch);
 
 	if (action == NAME_AGREE) {
-		NAME_GOD(vict) = god_level + 1000;
-		NAME_ID_GOD(vict) = ch->get_uid();
+		vict->player_specials->saved.NameGod = god_level + 1000;
+		vict->player_specials->saved.NameIDGod = ch->get_uid();
 		//SendMsgToChar("Имя одобрено!\r\n", ch);
 		SendMsgToChar(vict, "&GВаше имя одобрено!&n\r\n");
-		agree_name(vict, GET_NAME(ch), god_level);
-		sprintf(buf, "&c%s одобрил%s имя игрока %s.&n\r\n", GET_NAME(ch), GET_CH_SUF_1(ch), GET_NAME(vict));
+		agree_name(vict, ch->get_name().c_str(), god_level);
+		sprintf(buf, "&c%s одобрил%s имя игрока %s.&n\r\n", ch->get_name().c_str(), GET_CH_SUF_1(ch), vict->get_name().c_str());
 		SendMsgToGods(buf, true);
 		// В этом теперь нет смысла
 		//mudlog(buf, CMP, kLevelGod, SYSLOG, true);
 
 	} else {
-		NAME_GOD(vict) = god_level;
-		NAME_ID_GOD(vict) = ch->get_uid();
+		vict->player_specials->saved.NameGod = god_level;
+		vict->player_specials->saved.NameIDGod = ch->get_uid();
 		//SendMsgToChar("Имя запрещено!\r\n", ch);
 		SendMsgToChar(vict, "&RВаше имя запрещено!&n\r\n");
-		disagree_name(vict, GET_NAME(ch), god_level);
-		sprintf(buf, "&c%s запретил%s имя игрока %s.&n\r\n", GET_NAME(ch), GET_CH_SUF_1(ch), GET_NAME(vict));
+		disagree_name(vict, ch->get_name().c_str(), god_level);
+		sprintf(buf, "&c%s запретил%s имя игрока %s.&n\r\n", ch->get_name().c_str(), GET_CH_SUF_1(ch), vict->get_name().c_str());
 		SendMsgToGods(buf, true);
 		//mudlog(buf, CMP, kLevelGod, SYSLOG, true);
 
@@ -495,7 +495,7 @@ bool IsNameAvailable(char *newname) {
 
 bool IsNameOffline(char *newname) {
 	for (auto dt = descriptor_list; dt; dt = dt->next) {
-		if (dt->character && GET_NAME(dt->character) && !str_cmp(GET_NAME(dt->character), newname)) {
+		if (dt->character && dt->character->get_name().c_str() && !str_cmp(dt->character->get_name().c_str(), newname)) {
 			return false;
 		}
 	}

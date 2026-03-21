@@ -191,9 +191,9 @@ namespace {
 			af[0].modifier = -std::max(percent, 10);;
 			// -каст
 			af[1].location = EApply::kCastSuccess;
-			af[1].modifier = -(GET_CAST_SUCCESS(vict) * percent) * 0.01;
+			af[1].modifier = -(vict->add_abils.cast_success * percent) * 0.01;
 			// -мем
-			int remove_mem = (GET_MANAREG(vict) * percent) * 0.01;
+			int remove_mem = (vict->add_abils.manareg * percent) * 0.01;
 			af[2].location = EApply::kManaRegen;
 			af[2].modifier = -remove_mem;
 
@@ -230,7 +230,7 @@ namespace {
 							SendMsgToChar(ch, "%sОт действия вашего яда у %s закружилась голова!%s\r\n",
 										  kColorGrn, PERS(vict, ch, 1), kColorNrm);
 							SendMsgToChar(vict, "Вы почувствовали сильное головокружение и не смогли усидеть на %s!\r\n",
-										  GET_PAD(vict->get_horse(), 5));
+										  vict->get_horse()->player_data.PNames[5].c_str());
 							act("$n0 зашатал$u и не смог$q усидеть на $N5.",
 								true, vict, nullptr, vict->get_horse(), kToNotVict);
 							vict->DropFromHorse();
@@ -302,7 +302,7 @@ void ProcessToxicMob(CharData *ch, CharData *victim, HitData &hit_data) {
 		&& !AFF_FLAGGED(ch, EAffect::kCharmed)
 		&& ch->get_wait() <= 0
 		&& !AFF_FLAGGED(victim, EAffect::kPoisoned)
-		&& number(0, 100) < GET_LIKES(ch) + GetRealLevel(ch) - GetRealLevel(victim)
+		&& number(0, 100) < ch->mob_specials.like_work + GetRealLevel(ch) - GetRealLevel(victim)
 		&& !CalcGeneralSaving(ch, victim, ESaving::kCritical, -GetRealCon(victim))) {
 		PerformToxicate(ch, victim, std::max(1, GetRealLevel(ch) - GetRealLevel(victim)) * 10);
 	}
@@ -460,7 +460,7 @@ bool IsSpellPoison(ESpell spell_id) {
 int ProcessPoisonDmg(CharData *ch, const Affect<EApply>::shared_ptr &af) {
 	int result = 0;
 	if (af->location == EApply::kPoison) {
-		int poison_dmg = GET_POISON(ch) * (ch->IsNpc() ? 4 : 5);
+		int poison_dmg = ch->add_abils.poison_add * (ch->IsNpc() ? 4 : 5);
 		// мобов яд ядит на тике, а чаров каждый батл тик соответсвенно если это не моб надо делить на 30 или тип того
 		if (!ch->IsNpc())
 			poison_dmg = poison_dmg / 30;
@@ -480,7 +480,7 @@ int ProcessPoisonDmg(CharData *ch, const Affect<EApply>::shared_ptr &af) {
 }
 
 void TryDrinkPoison(CharData *ch, ObjData *jar, int amount) {
-	if ((GET_OBJ_VAL(jar, 3) == 1) && !ch->IsGod()) {
+	if ((GET_OBJ_VAL(jar, 3) == 1) && !IS_GOD(ch)) {
 		SendMsgToChar("Что-то вкус какой-то странный!\r\n", ch);
 		act("$n поперхнул$u и закашлял$g.", true, ch, 0, 0, kToRoom);
 		Affect<EApply> af;

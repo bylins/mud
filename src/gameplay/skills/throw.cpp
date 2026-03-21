@@ -14,7 +14,7 @@
 // Временная костыльная функция до реализации встроенного механизма работы сайдскиллов
 // TODO Не забыть реализовать постоянный механизм
 void PerformShadowThrowSideAbilities(abilities_roll::TechniqueRoll &technique) {
-	ObjData *weapon = GET_EQ(technique.GetActor(), technique.GetWeaponEquipPosition());
+	ObjData *weapon = technique.GetActor()->equipment[technique.GetWeaponEquipPosition(]);
 	if (!weapon) {
 		return;
 	}
@@ -231,7 +231,7 @@ void DoThrow(CharData *ch, CharData *victim) {
 		return;
 	}
 
-	if (ch->IsImpl() || !ch->GetEnemy()) {
+	if (IS_IMPL(ch) || !ch->GetEnemy()) {
 		GoThrow(ch, victim);
 	} else {
 		if (IsHaveNoExtraAttack(ch)) {

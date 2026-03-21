@@ -15,12 +15,12 @@ void PerformDropGold(CharData *ch, int amount);
 bool stop_follower(CharData *ch, int mode) {
 	int i;
 
-	//log("[Stop ch] Start function(%s->%s)",ch ? GET_NAME(ch) : "none",
-	//      ch->master ? GET_NAME(ch->master) : "none");
+	//log("[Stop ch] Start function(%s->%s)",ch ? ch->get_name().c_str() : "none",
+	//      ch->master ? ch->master->get_name().c_str() : "none");
 
 	if (!ch->has_master()) {
 //		debug::backtrace(runtime_config.logs(ERRLOG).handle());
-		log("SYSERR: stop_follower(%s) without master", GET_NAME(ch));
+		log("SYSERR: stop_follower(%s) without master", ch->get_name().c_str());
 		return (false);
 	}
 
@@ -39,7 +39,7 @@ bool stop_follower(CharData *ch, int mode) {
 
 	//log("[Stop ch] Remove from followers list");
 	if (ch->get_master()->followers.empty()) {
-		log("[Stop ch] SYSERR: Followers absent for %s (master %s).", GET_NAME(ch), GET_NAME(ch->get_master()));
+		log("[Stop ch] SYSERR: Followers absent for %s (master %s).", ch->get_name().c_str(), ch->get_master(->get_name().c_str()));
 	} else {
 		ch->get_master()->followers.remove(ch);
 		if (ch->get_master()->followers.empty()
@@ -69,7 +69,7 @@ bool stop_follower(CharData *ch, int mode) {
 		if (ch->IsNpc()) {
 			if (ch->IsFlagged(EMobFlag::kCorpse)) {
 				act("Налетевший ветер развеял $n3, не оставив и следа.", true, ch, 0, 0, kToRoom | kToArenaListen);
-				GET_LASTROOM(ch) = ch->in_room;
+				ch->mob_specials.LastRoom = ch->in_room;
 				PerformDropGold(ch, ch->get_gold());
 				ch->set_gold(0);
 					ExtractCharFromWorld(ch, false);
@@ -90,8 +90,8 @@ bool stop_follower(CharData *ch, int mode) {
 					}
 			
 			for (int i = 0; i < EEquipPos::kNumEquipPos; i++) { // убираем что одето
-				if (GET_EQ(ch, i)) {
-					if (!remove_otrigger(GET_EQ(ch, i), ch)) {
+				if (ch->equipment[i]) {
+					if (!remove_otrigger(ch->equipment[i], ch)) {
 						continue;
 					}
 					PlaceObjToInventory(UnequipChar(ch, i, CharEquipFlag::show_msg), ch);
@@ -106,7 +106,7 @@ bool stop_follower(CharData *ch, int mode) {
 	}
 	
 	 
-	if (ch->IsNpc() && (i = ch->get_rnum()) >= 0) {
+	if (ch->IsNpc() && (i = GET_MOB_RNUM(ch)) >= 0) {
 		ch->CopyFlagsFrom(mob_proto + i);
 	}
 

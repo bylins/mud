@@ -59,7 +59,7 @@ void DoHit(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 }
 
 void DoKill(CharData *ch, char *argument, int cmd, int subcmd) {
-	if (!ch->IsGrGod()) {
+	if (!IS_GRGOD(ch)) {
 		DoHit(ch, argument, cmd, subcmd);
 		return;
 	};
@@ -72,7 +72,7 @@ void DoKill(CharData *ch, char *argument, int cmd, int subcmd) {
 		SendMsgToChar("Вы мазохист... :(\r\n", ch);
 		return;
 	};
-	if (vict->IsImpl() || vict->IsFlagged(EPrf::kCoderinfo)) {
+	if (IS_IMPL(vict) || vict->IsFlagged(EPrf::kCoderinfo)) {
 		SendMsgToChar("А если он вас чайником долбанет? Думай, Господи, думай!\r\n", ch);
 	} else {
 		act("Вы обратили $N3 в прах! Взглядом! Одним!", false, ch, 0, vict, kToChar);

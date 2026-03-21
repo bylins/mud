@@ -87,7 +87,7 @@ void UnlockTreasureCase(CharData *ch, ObjData *obj) {
 			act("$n завизжал$g от радости.", false, ch, nullptr, nullptr, kToRoom);
 			load_otrigger(obj);
 			CheckObjDecay(obj);
-			olc_log("%s load obj %s #%d", GET_NAME(ch), obj->get_short_description().c_str(), vnum);
+			olc_log("%s load obj %s #%d", ch->get_name().c_str(), obj->get_short_description().c_str(), vnum);
 		}
 	}
 }

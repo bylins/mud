@@ -1363,7 +1363,7 @@ void UserSearch::process(int flag) {
 }
 
 void UserSearch::print_not_found() const {
-	snprintf(buf, sizeof(buf), "%s uses command HELP: %s (not found)", GET_NAME(ch), arg_str.c_str());
+	snprintf(buf, sizeof(buf), "%s uses command HELP: %s (not found)", ch->get_name().c_str(), arg_str.c_str());
 	mudlog(buf, LGH, kLvlImmortal, SYSLOG, true);
 	snprintf(buf, sizeof(buf),
 			 "&WПо вашему запросу '&w%s&W' ничего не было найдено.&n\r\n"
@@ -1384,7 +1384,7 @@ void UserSearch::print_curr_topic(const help_node &node) const {
 	}
 	if (!node.no_immlog) {
 		snprintf(buf, sizeof(buf), "%s uses command HELP: %s (read)",
-				 GET_NAME(ch), arg_str.c_str());
+				 ch->get_name().c_str(), arg_str.c_str());
 		mudlog(buf, LGH, kLvlImmortal, SYSLOG, true);
 	}
 	page_string(ch->desc, node.entry);
@@ -1413,7 +1413,7 @@ void UserSearch::print_key_list() const {
 		   "либо воспользуйтесь индексацией или строгим поиском.\r\n\r\n"
 		<< HELP_USE_EXMAPLES;
 
-	snprintf(buf, sizeof(buf), "%s uses command HELP: %s (list)", GET_NAME(ch), arg_str.c_str());
+	snprintf(buf, sizeof(buf), "%s uses command HELP: %s (list)", ch->get_name().c_str(), arg_str.c_str());
 	mudlog(buf, LGH, kLvlImmortal, SYSLOG, true);
 	page_string(ch->desc, out.str());
 }
@@ -1491,7 +1491,7 @@ void do_help(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 	UserSearch user_search(ch);
 	// trust_level справки для демигодов - kLevelImmortal
-	user_search.level = GET_GOD_FLAG(ch, EGf::kDemigod) ? kLvlImmortal : GetRealLevel(ch);
+	user_search.level = (IS_SET(ch->player_specials->saved.GodsLike, EGf::kDemigod)) ? kLvlImmortal : GetRealLevel(ch);
 	utils::ConvertToLow(arg_str);
 	// Парсинг topic_num
 	size_t dot_pos = arg_str.find('.');

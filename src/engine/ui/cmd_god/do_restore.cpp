@@ -31,12 +31,12 @@ void DoRestore(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 
 		vict->set_hit(vict->get_real_max_hit());
 		vict->set_move(vict->get_real_max_move());
-		if (IS_MANA_CASTER(vict)) {
+		if (vict->IsManaCaster()) {
 			vict->mem_queue.stored = GET_MAX_MANA(vict);
 		} else {
 			vict->mem_queue.stored = vict->mem_queue.total;
 		}
-		if (ch->IsGrGod() && vict->IsImmortal()) {
+		if (IS_GRGOD(ch) && IS_IMMORTAL(vict)) {
 			vict->set_str(25);
 			vict->set_int(25);
 			vict->set_wis(25);
@@ -46,7 +46,7 @@ void DoRestore(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		}
 		update_pos(vict);
 		RemoveAffectFromChar(vict, ESpell::kDrunked);
-		GET_DRUNK_STATE(vict) = GET_COND(vict, DRUNK) = 0;
+		vict->player_specials->saved.DrunkState = vict->player_specials->saved.conditions[DRUNK] = 0;
 		RemoveAffectFromChar(vict, ESpell::kAbstinent);
 
 		//сброс таймеров скиллов и фитов

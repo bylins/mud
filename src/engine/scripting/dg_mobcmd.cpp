@@ -216,7 +216,7 @@ void do_mjunk(CharData *ch, char */*argument*/, int/* cmd*/, int/* subcmd*/, Tri
 		ExtractObjFromWorld(obj, false);
 	}
 	for (pos = 0; pos < EEquipPos::kNumEquipPos; pos++) {
-		obj = GET_EQ(ch, pos);
+		obj = ch->equipment[pos];
 		if (obj) {
 			UnequipChar(ch, pos, CharEquipFlags());
 			world_objects.AddToExtractedList(obj);
@@ -351,7 +351,7 @@ void do_mload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger
 			mob_log(ch, trig, "mload: bad mob vnum");
 			return;
 		}
-		log("Load mob #%d by %s (mload)", number, GET_NAME(ch));
+		log("Load mob #%d by %s (mload)", number, ch->get_name().c_str());
 		uid_type = UID_CHAR;
 		idnum = mob->get_uid();
 		PlaceCharToRoom(mob, ch->in_room);
@@ -370,7 +370,7 @@ void do_mload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger
 //				return;
 			}
 		}
-		log("Load obj #%d by %s (mload)", number, GET_NAME(ch));
+		log("Load obj #%d by %s (mload)", number, ch->get_name().c_str());
 		object->set_vnum_zone_from(GetZoneVnumByCharPlace(ch));
 		uid_type = UID_OBJ;
 		idnum = object->get_id();
@@ -878,8 +878,8 @@ void do_mtransform(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 		}
 		ch->set_gold(m->get_gold());
 		ch->SetPosition(m->GetPosition());
-		IS_CARRYING_W(ch) = IS_CARRYING_W(m);
-		IS_CARRYING_N(ch) = IS_CARRYING_N(m);
+		ch->char_specials.carry_weight = m->char_specials.carry_weight;
+		ch->char_specials.carry_items = m->char_specials.carry_items;
 		trig->halt();
 		character_list.AddToExtractedList(m);
 		chardata_by_uid[ch->get_uid()] = ch;
@@ -1385,7 +1385,7 @@ void do_mdamage(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigg
 			return;
 		}
 
-		if (victim->IsImmortal() && dam > 0) {
+		if (IS_IMMORTAL(victim) && dam > 0) {
 			SendMsgToChar("Будучи очень крутым, вы сделали шаг в сторону и не получили повреждений...\r\n", victim);
 			return;
 		}
@@ -1408,7 +1408,7 @@ void do_mdamage(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigg
 			char_dam_message(dam, victim, victim, 0);
 			if (victim->GetPosition() == EPosition::kDead) {
 				if (!victim->IsNpc()) {
-					sprintf(buf2, "%s killed by mobdamage at %s [%d]",GET_NAME(victim),
+					sprintf(buf2, "%s killed by mobdamage at %s [%d]",victim->get_name().c_str(),
 						victim->in_room == kNowhere ? "kNowhere" : world[victim->in_room]->name,
 						GET_ROOM_VNUM(victim->in_room));
 				mudlog(buf2, BRF, 0, SYSLOG, true);

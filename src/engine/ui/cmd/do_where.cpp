@@ -23,7 +23,7 @@ bool PrintObjectLocation(int num, const ObjData *obj, CharData *ch);
 void DoWhere(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	one_argument(argument, arg);
 
-	if (ch->IsGrGod() || ch->IsFlagged(EPrf::kCoderinfo))
+	if (IS_GRGOD(ch) || ch->IsFlagged(EPrf::kCoderinfo))
 		PerformImmortWhere(ch, arg);
 	else
 		PerformMortalWhere(ch, arg);
@@ -41,12 +41,12 @@ void PerformImmortWhere(CharData *ch, char *arg) {
 				if (i && CAN_SEE(ch, i) && (i->in_room != kNowhere)) {
 					if (d->original) {
 						ss << fmt::format("{:<20} - [{:>7}] {} (in {})\r\n",
-										  GET_NAME(i),
+										  i->get_name().c_str(),
 										  GET_ROOM_VNUM(d->character->in_room),
 										  world[d->character->in_room]->name,
-										  GET_NAME(d->character));
+										  d->character->get_name().c_str());
 					} else {
-						ss << fmt::format("{:<20} - [{:>7}] {}\r\n", GET_NAME(i),
+						ss << fmt::format("{:<20} - [{:>7}] {}\r\n", i->get_name().c_str(),
 										  GET_ROOM_VNUM(i->in_room), world[i->in_room]->name);
 					}
 				}
@@ -64,7 +64,7 @@ void PerformImmortWhere(CharData *ch, char *arg) {
 								  num++,
 								  i->IsNpc() ? "Моб:   " : "Игрок: ",
 								  GET_MOB_VNUM(i),
-								  GET_NAME(i),
+								  i->get_name().c_str(),
 								  GET_ROOM_VNUM(i->in_room),
 								  world[i->in_room]->name,
 								  zone->name.c_str());
@@ -128,7 +128,7 @@ void PerformMortalWhere(CharData *ch, char *arg) {
 				continue;
 			}
 
-			sprintf(buf, "%-20s - %s\r\n", GET_NAME(i), world[i->in_room]->name);
+			sprintf(buf, "%-20s - %s\r\n", i->get_name().c_str(), world[i->in_room]->name);
 			SendMsgToChar(buf, ch);
 		}
 	} else        // print only FIRST char, not all.
@@ -148,7 +148,7 @@ void PerformMortalWhere(CharData *ch, char *arg) {
 				continue;
 			}
 
-			sprintf(buf, "%-25s - %s\r\n", GET_NAME(i), world[i->in_room]->name);
+			sprintf(buf, "%-25s - %s\r\n", i->get_name().c_str(), world[i->in_room]->name);
 			SendMsgToChar(buf, ch);
 			return;
 		}
@@ -161,7 +161,7 @@ bool PrintObjectLocation(int num, const ObjData *obj, CharData *ch) {
 	std::stringstream ss;
 	if (num > 0) {
 		ss << fmt::format("{:>2}. ", num);
-		if (ch->IsGrGod()) {
+		if (IS_GRGOD(ch)) {
 			ss <<  fmt::format("[{:>7}] {:<25} - ", GET_OBJ_VNUM(obj), obj->get_short_description().c_str());
 		} else {
 			ss << fmt::format("{:<34} - ", obj->get_short_description().c_str());

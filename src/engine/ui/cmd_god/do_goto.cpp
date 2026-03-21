@@ -16,8 +16,8 @@ void DoGoto(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if ((location = FindRoomRnum(ch, argument, 0)) == kNowhere)
 		return;
 
-	if (POOFOUT(ch))
-		sprintf(buf, "$n %s", POOFOUT(ch));
+	if (ch->player_specials->poofout)
+		sprintf(buf, "$n %s", ch->player_specials->poofout);
 	else
 		strcpy(buf, "$n растворил$u в клубах дыма.");
 
@@ -26,8 +26,8 @@ void DoGoto(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	PlaceCharToRoom(ch, location);
 	ch->dismount();
 
-	if (POOFIN(ch))
-		sprintf(buf, "$n %s", POOFIN(ch));
+	if (ch->player_specials->poofin)
+		sprintf(buf, "$n %s", ch->player_specials->poofin);
 	else
 		strcpy(buf, "$n возник$q посреди комнаты.");
 	act(buf, true, ch, nullptr, nullptr, kToRoom);

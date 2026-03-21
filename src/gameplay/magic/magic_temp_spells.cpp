@@ -18,7 +18,7 @@ void AddSpell(CharData *ch, ESpell spell_id, time_t set_time, time_t duration) {
 			it->second.duration = duration;
 		}
 	} else {
-		SET_BIT(GET_SPELL_TYPE(ch, spell_id), ESpellType::kTemp);
+		SET_BIT(ch->real_abils.SplKnw[to_underlying(spell_id)], ESpellType::kTemp);
 		ch->temp_spells[spell_id] = sp;
 	}
 }
@@ -36,7 +36,7 @@ void update_times() {
 	time_t now = time(nullptr);
 	for (const auto &ch : character_list) {
 		if (ch->IsNpc()
-			|| ch->IsImmortal()) {
+			|| IS_IMMORTAL(ch)) {
 			continue;
 		}
 
@@ -49,10 +49,10 @@ void update_char_times(CharData *ch, time_t now) {
 
 	for (auto it = ch->temp_spells.begin(); it != ch->temp_spells.end();) {
 		if ((it->second.set_time + it->second.duration) < now) {
-			REMOVE_BIT(GET_SPELL_TYPE(ch, it->first), ESpellType::kTemp);
+			REMOVE_BIT(ch->real_abils.SplKnw[to_underlying(it->first)], ESpellType::kTemp);
 
 			//Если заклинание за это время не стало постоянным, то удалим из мема
-			if (!IS_SET(GET_SPELL_TYPE(ch, it->first), ESpellType::kKnow)) {
+			if (!IS_SET(ch->real_abils.SplKnw[to_underlying(it->first)], ESpellType::kKnow)) {
 				//Удаляем из мема
 				for (i = &ch->mem_queue.queue; *i;) {
 					if (i[0]->spell_id == it->first) {
@@ -68,7 +68,7 @@ void update_char_times(CharData *ch, time_t now) {
 				}
 
 				//Удаляем из заученных
-				GET_SPELL_MEM(ch, it->first) = 0;
+				ch->real_abils.SplMem[to_underlying(it->first)] = 0;
 
 				sprintf(buf,
 						"Вы забыли заклинание \"%s%s%s\".\r\n",

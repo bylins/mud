@@ -319,7 +319,7 @@ static bool ApplyMobParams(CharData* ch, int level, int remorts, int difficulty)
 		if (id == ESpell::kUndefined) {
 			continue;
 		}
-		if (GET_SPELL_MEM(ch, id) > 0) {
+		if (ch->real_abils.SplMem[to_underlying(id)] > 0) {
 			old_spells.push_back(id);
 		}
 	}
@@ -345,9 +345,9 @@ static bool ApplyMobParams(CharData* ch, int level, int remorts, int difficulty)
 
 	const int calc = effective_level;      // расчётный уровень с учётом difficulty и boss_add_lvl
 
-	GET_ABSORBE(ch) = 0;
-	GET_ARMOUR(ch) = 0;
-	GET_INITIATIVE(ch) = 0;
+	ch->add_abils.absorb = 0;
+	ch->add_abils.armour = 0;
+	ch->add_abils.initiative_add = 0;
 
 	// Если есть стаб - проставляем роль разбойника
 	if (ch->GetSkill(ESkill::kBackstab) > 0) {
@@ -469,10 +469,10 @@ static bool ApplyMobParams(CharData* ch, int level, int remorts, int difficulty)
 			base_value = std::max(0, std::min(base_value, kMaxMobResist));
 
 			if (is_first_role_pass) {
-				GET_RESIST(ch, id) = base_value;
+				ch->add_abils.apply_resistance[id] = base_value;
 			} else {
-				if (base_value > GET_RESIST(ch, id)) {
-					GET_RESIST(ch, id) = base_value;
+				if (base_value > ch->add_abils.apply_resistance[id]) {
+					ch->add_abils.apply_resistance[id] = base_value;
 				}
 			}
 			applied_any = 1;
@@ -487,10 +487,10 @@ static bool ApplyMobParams(CharData* ch, int level, int remorts, int difficulty)
 			base_value = std::max(0, std::min(base_value, kMaxMobResist));
 
 			if (is_first_role_pass) {
-				GET_MR(ch) = base_value;
+				ch->add_abils.mresist = base_value;
 			} else {
-				if (base_value > GET_MR(ch)) {
-					GET_MR(ch) = base_value;
+				if (base_value > ch->add_abils.mresist) {
+					ch->add_abils.mresist = base_value;
 				}
 			}
 			applied_any = 1;
@@ -504,10 +504,10 @@ static bool ApplyMobParams(CharData* ch, int level, int remorts, int difficulty)
 			base_value = std::max(0, std::min(base_value, kMaxMobResist));
 
 			if (is_first_role_pass) {
-				GET_PR(ch) = base_value;
+				ch->add_abils.presist = base_value;
 			} else {
-				if (base_value > GET_PR(ch)) {
-					GET_PR(ch) = base_value;
+				if (base_value > ch->add_abils.presist) {
+					ch->add_abils.presist = base_value;
 				}
 			}
 			applied_any = 1;
@@ -521,10 +521,10 @@ static bool ApplyMobParams(CharData* ch, int level, int remorts, int difficulty)
 			base_value = std::max(0, std::min(base_value, kMaxMobResist));
 
 			if (is_first_role_pass) {
-				GET_AR(ch) = base_value;
+				ch->add_abils.aresist = base_value;
 			} else {
-				if (base_value > GET_AR(ch)) {
-					GET_AR(ch) = base_value;
+				if (base_value > ch->add_abils.aresist) {
+					ch->add_abils.aresist = base_value;
 				}
 			}
 			applied_any = 1;
@@ -539,10 +539,10 @@ static bool ApplyMobParams(CharData* ch, int level, int remorts, int difficulty)
 			base_value = std::max(0, base_value);
 
 			if (is_first_role_pass) {
-				GET_ARMOUR(ch) = base_value;
+				ch->add_abils.armour = base_value;
 			} else {
-				if (base_value > GET_ARMOUR(ch)) {
-					GET_ARMOUR(ch) = base_value;
+				if (base_value > ch->add_abils.armour) {
+					ch->add_abils.armour = base_value;
 				}
 			}
 			applied_any = 1;
@@ -557,10 +557,10 @@ static bool ApplyMobParams(CharData* ch, int level, int remorts, int difficulty)
 			base_value = std::max(0, base_value);
 
 			if (is_first_role_pass) {
-				GET_ABSORBE(ch) = base_value;
+				ch->add_abils.absorb = base_value;
 			} else {
-				if (base_value > GET_ABSORBE(ch)) {
-					GET_ABSORBE(ch) = base_value;
+				if (base_value > ch->add_abils.absorb) {
+					ch->add_abils.absorb = base_value;
 				}
 			}
 			applied_any = 1;
@@ -577,15 +577,15 @@ static bool ApplyMobParams(CharData* ch, int level, int remorts, int difficulty)
 			}
 
 			if (is_first_role_pass) {
-				GET_NDD(ch) = base_value;
+				ch->mob_specials.damnodice = base_value;
 			} else {
-				if (base_value > GET_NDD(ch)) {
-					GET_NDD(ch) = base_value;
+				if (base_value > ch->mob_specials.damnodice) {
+					ch->mob_specials.damnodice = base_value;
 				}
 			}
 
 			if (is_breathing) {
-				GET_NDD(ch) *= 0.8;
+				ch->mob_specials.damnodice *= 0.8;
 			}
 			applied_any = 1;
 		}
@@ -600,15 +600,15 @@ static bool ApplyMobParams(CharData* ch, int level, int remorts, int difficulty)
 			}
 
 			if (is_first_role_pass) {
-				GET_SDD(ch) = base_value;
+				ch->mob_specials.damsizedice = base_value;
 			} else {
-				if (base_value > GET_SDD(ch)) {
-					GET_SDD(ch) = base_value;
+				if (base_value > ch->mob_specials.damsizedice) {
+					ch->mob_specials.damsizedice = base_value;
 				}
 			}
 
 			if (is_breathing) {
-				GET_SDD(ch) *= 0.8;
+				ch->mob_specials.damsizedice *= 0.8;
 			}
 			applied_any = 1;
 		}
@@ -621,10 +621,10 @@ static bool ApplyMobParams(CharData* ch, int level, int remorts, int difficulty)
 			base_value = ApplyDeviation(p_data, base_value);
 
 			if (is_first_role_pass) {
-				GET_HR(ch) = base_value;
+				ch->real_abils.hitroll = base_value;
 			} else {
-				if (base_value > GET_HR(ch)) {
-					GET_HR(ch) = base_value;
+				if (base_value > ch->real_abils.hitroll) {
+					ch->real_abils.hitroll = base_value;
 				}
 			}
 			applied_any = 1;
@@ -637,10 +637,10 @@ static bool ApplyMobParams(CharData* ch, int level, int remorts, int difficulty)
 			base_value = ApplyDeviation(p_data, base_value);
 
 			if (is_first_role_pass) {
-				GET_DR(ch) = base_value;
+				ch->real_abils.damroll = base_value;
 			} else {
-				if (base_value > GET_DR(ch)) {
-					GET_DR(ch) = base_value;
+				if (base_value > ch->real_abils.damroll) {
+					ch->real_abils.damroll = base_value;
 				}
 			}
 			applied_any = 1;
@@ -653,10 +653,10 @@ static bool ApplyMobParams(CharData* ch, int level, int remorts, int difficulty)
 			base_value = ApplyDeviation(p_data, base_value);
 
 			if (is_first_role_pass) {
-				GET_MORALE(ch) = base_value;
+				ch->add_abils.morale = base_value;
 			} else {
-				if (base_value > GET_MORALE(ch)) {
-					GET_MORALE(ch) = base_value;
+				if (base_value > ch->add_abils.morale) {
+					ch->add_abils.morale = base_value;
 				}
 			}
 			applied_any = 1;
@@ -669,10 +669,10 @@ static bool ApplyMobParams(CharData* ch, int level, int remorts, int difficulty)
 			base_value = ApplyDeviation(p_data, base_value);
 
 			if (is_first_role_pass) {
-				GET_INITIATIVE(ch) = base_value;
+				ch->add_abils.initiative_add = base_value;
 			} else {
-				if (base_value > GET_INITIATIVE(ch)) {
-					GET_INITIATIVE(ch) = base_value;
+				if (base_value > ch->add_abils.initiative_add) {
+					ch->add_abils.initiative_add = base_value;
 				}
 			}
 			applied_any = 1;
@@ -685,10 +685,10 @@ static bool ApplyMobParams(CharData* ch, int level, int remorts, int difficulty)
 			base_value = ApplyDeviation(p_data, base_value);
 
 			if (is_first_role_pass) {
-				GET_CAST_SUCCESS(ch) = base_value;
+				ch->add_abils.cast_success = base_value;
 			} else {
-				if (base_value > GET_CAST_SUCCESS(ch)) {
-					GET_CAST_SUCCESS(ch) = base_value;
+				if (base_value > ch->add_abils.cast_success) {
+					ch->add_abils.cast_success = base_value;
 				}
 			}
 			applied_any = 1;
@@ -724,10 +724,10 @@ static bool ApplyMobParams(CharData* ch, int level, int remorts, int difficulty)
 			base_value = std::max(0, std::min(base_value, 100));
 
 			if (is_first_role_pass) {
-				GET_SIZE(ch) = static_cast<sbyte>(base_value);
+				ch->real_abils.size = static_cast<sbyte>(base_value);
 			} else {
-				if (base_value > GET_SIZE(ch)) {
-					GET_SIZE(ch) = static_cast<sbyte>(base_value);
+				if (base_value > ch->real_abils.size) {
+					ch->real_abils.size = static_cast<sbyte>(base_value);
 				}
 			}
 			applied_any = 1;
@@ -760,10 +760,10 @@ static bool ApplyMobParams(CharData* ch, int level, int remorts, int difficulty)
 			base_value = std::max(0, std::min(base_value, 100));
 
 			if (is_first_role_pass) {
-				GET_LIKES(ch) = base_value;
+				ch->mob_specials.like_work = base_value;
 			} else {
-				if (base_value > GET_LIKES(ch)) {
-					GET_LIKES(ch) = base_value;
+				if (base_value > ch->mob_specials.like_work) {
+					ch->mob_specials.like_work = base_value;
 				}
 			}
 			applied_any = 1;
@@ -934,15 +934,15 @@ static bool ApplyMobParams(CharData* ch, int level, int remorts, int difficulty)
 	//Нахрен убираем длитхолд, потому что это хуйня - 7 раундов в холде = 100% смерть
 			SET_SPELL_MEM(ch, ESpell::kPowerHold, 0);
 	//Если есть у моба холд - отключаем остальные стан-умения, ибо слишком жирно
-			if (GET_SPELL_MEM(ch, ESpell::kHold) ||
-				GET_SPELL_MEM(ch, ESpell::kMassHold) >= 1) {
+			if (ch->real_abils.SplMem[to_underlying(ESpell::kHold)] ||
+				ch->real_abils.SplMem[to_underlying(ESpell::kMassHold)] >= 1) {
 				ch->set_skill(ESkill::kHammer, 0);
 				ch->set_skill(ESkill::kOverwhelm, 0);
 				ch->set_skill(ESkill::kChopoff, 0);
 				ch->set_skill(ESkill::kBash, 0);
 				}
 	//Если есть у моба группхил - убираем остальные хилы, ибо слишком жирно
-			if (GET_SPELL_MEM(ch, ESpell::kGroupHeal)) {
+			if (ch->real_abils.SplMem[to_underlying(ESpell::kGroupHeal)]) {
 				SET_SPELL_MEM(ch, ESpell::kGreatHeal, 0);
 				SET_SPELL_MEM(ch, ESpell::kHeal, 0);
 				SET_SPELL_MEM(ch, ESpell::kCureCritic, 0);

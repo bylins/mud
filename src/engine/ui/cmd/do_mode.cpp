@@ -217,7 +217,7 @@ void DoMode(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	} else if ((i = search_block(arg, gen_tog_type, false)) < 0) {
 		showhelp = true;
 	} else if ((GetRealLevel(ch) < gen_tog_param[i >> 1].level)
-		|| (!GET_GOD_FLAG(ch, EGf::kAllowTesterMode) && gen_tog_param[i >> 1].tester)) {
+		|| (!(IS_SET(ch->player_specials->saved.GodsLike, EGf::kAllowTesterMode)) && gen_tog_param[i >> 1].tester)) {
 		SendMsgToChar("Эта команда вам недоступна.\r\n", ch);
 		return;
 	} else {
@@ -229,7 +229,7 @@ void DoMode(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		table_wrapper::Table table;
 		for (i = 0; *gen_tog_type[i << 1] != '\n'; i++) {
 			if ((GetRealLevel(ch) >= gen_tog_param[i].level)
-				&& (GET_GOD_FLAG(ch, EGf::kAllowTesterMode) || !gen_tog_param[i].tester)) {
+				&& ((IS_SET(ch->player_specials->saved.GodsLike, EGf::kAllowTesterMode)) || !gen_tog_param[i].tester)) {
 				table << gen_tog_type[i << 1] << gen_tog_type[(i << 1) + 1] << table_wrapper::kEndRow;
 			}
 		}
@@ -410,7 +410,7 @@ void do_gen_tog(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			result = TogglePrfFlag(ch, EPrf::kMapper);
 			break;
 		case kScmdTester:
-			//if (GET_GOD_FLAG(ch, EGodFlag::TESTER))
+			//if ((IS_SET(ch->player_specials->saved.GodsLike, EGodFlag::TESTER)))
 			//{
 			result = TogglePrfFlag(ch, EPrf::kTester);
 			//return;
@@ -534,11 +534,11 @@ void SetScreen(CharData *ch, char *argument, int flag) {
 	else if (flag == 1 && (size < 10 || size > 100))
 		SendMsgToChar("Высота экрана должна быть в пределах 10 - 100 строк.\r\n", ch);
 	else if (!flag) {
-		STRING_LENGTH(ch) = size;
+		ch->player_specials->saved.stringLength = size;
 		SendMsgToChar("Ладушки.\r\n", ch);
 		ch->save_char();
 	} else if (flag == 1) {
-		STRING_WIDTH(ch) = size;
+		ch->player_specials->saved.stringWidth = size;
 		SendMsgToChar("Ладушки.\r\n", ch);
 		ch->save_char();
 	} else {
@@ -561,12 +561,12 @@ void SetNotifyEchange(CharData *ch, char *argument) {
 					  "Вам будут приходить уведомления о продаже с базара ваших лотов стоимостью не менее чем %ld %s.\r\n",
 					  size,
 					  GetDeclensionInNumber(size, EWhat::kMoneyA));
-		NOTIFY_EXCH_PRICE(ch) = size;
+		ch->player_specials->saved.ntfyExchangePrice = size;
 		ch->save_char();
 	} else if (size >= 0 && size < 100) {
 		SendMsgToChar(ch,
 					  "Вам не будут приходить уведомления о продаже с базара ваших лотов, так как указана цена меньше 100 кун.\r\n");
-		NOTIFY_EXCH_PRICE(ch) = 0;
+		ch->player_specials->saved.ntfyExchangePrice = 0;
 		ch->save_char();
 	} else {
 		SendMsgToChar(ch, "Укажите стоимость лота от 0 до %d\r\n", 0x7fffffff);

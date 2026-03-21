@@ -21,20 +21,20 @@ void WriteAliases(CharData *ch) {
 	char fn[kMaxStringLength];
 	struct alias_data *temp;
 
-	log("Write alias %s", GET_NAME(ch));
-	get_filename(GET_NAME(ch), fn, kAliasFile);
+	log("Write alias %s", ch->get_name().c_str());
+	get_filename(ch->get_name().c_str(), fn, kAliasFile);
 	remove(fn);
 
-	if (GET_ALIASES(ch) == nullptr)
+	if (ch->player_specials->aliases == nullptr)
 		return;
 
 	if ((file = fopen(fn, "w")) == nullptr) {
-		log("SYSERR: Couldn't save aliases for %s in '%s'.", GET_NAME(ch), fn);
+		log("SYSERR: Couldn't save aliases for %s in '%s'.", ch->get_name().c_str(), fn);
 		perror("SYSERR: WriteAliases");
 		return;
 	}
 
-	for (temp = GET_ALIASES(ch); temp; temp = temp->next) {
+	for (temp = ch->player_specials->aliases; temp; temp = temp->next) {
 		size_t aliaslen = strlen(temp->alias);
 		size_t repllen = strlen(temp->replacement);
 
@@ -57,19 +57,19 @@ void ReadAliases(CharData *ch) {
 	struct alias_data *t2;
 	int length;
 
-	log("Read alias %s", GET_NAME(ch));
-	get_filename(GET_NAME(ch), xbuf, kAliasFile);
+	log("Read alias %s", ch->get_name().c_str());
+	get_filename(ch->get_name().c_str(), xbuf, kAliasFile);
 
 	if ((file = fopen(xbuf, "r")) == nullptr) {
 		if (errno != ENOENT) {
-			log("SYSERR: Couldn't open alias file '%s' for %s.", xbuf, GET_NAME(ch));
+			log("SYSERR: Couldn't open alias file '%s' for %s.", xbuf, ch->get_name().c_str());
 			perror("SYSERR: ReadAliases");
 		}
 		return;
 	}
 
-	CREATE(GET_ALIASES(ch), 1);
-	t2 = GET_ALIASES(ch);
+	CREATE(ch->player_specials->aliases, 1);
+	t2 = ch->player_specials->aliases;
 
 	const char *dummyc;
 	int dummyi;
@@ -192,7 +192,7 @@ int PerformAlias(DescriptorData *d, char *orig) {
 		return (0);
 
 	// bail out immediately if the guy doesn't have any aliases //
-	if ((tmp = GET_ALIASES(d->character)) == nullptr)
+	if ((tmp = d->character->player_specials->aliases) == nullptr)
 		return (0);
 
 	// find the alias we're supposed to match //

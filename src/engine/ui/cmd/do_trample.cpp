@@ -77,7 +77,7 @@ void DoTrample(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 			if (aff_i != room->affected.end()
 				&& (AFF_FLAGGED(ch, EAffect::kDetectMagic)
-					|| ch->IsImmortal()
+					|| IS_IMMORTAL(ch)
 					|| ch->IsFlagged(EPrf::kCoderinfo))) {
 				SendMsgToChar("Шаркнув несколько раз по земле, вы стерли светящуюся надпись.\r\n", ch);
 				act("$n шаркнул$g несколько раз по светящимся рунам, полностью их уничтожив.",
@@ -90,7 +90,7 @@ void DoTrample(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 						pk_thiefs_action(ch, caster);
 						sprintf(buf,
 								"Послышался далекий звук лопнувшей струны, и перед вами промельнул призрачный облик %s.\r\n",
-								GET_PAD(ch, 1));
+								ch->player_data.PNames[1].c_str());
 						SendMsgToChar(buf, caster);
 					}
 				}
@@ -104,7 +104,7 @@ void DoTrample(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		default: break;
 	}
 
-	if (!ch->IsImmortal()) {
+	if (!IS_IMMORTAL(ch)) {
 		SetWaitState(ch, lag * kBattleRound);
 	}
 }

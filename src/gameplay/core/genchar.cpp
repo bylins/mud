@@ -178,60 +178,60 @@ void SetStartAbils(CharData *ch) {
 	ch->set_cha(tmp_class.GetBaseStatGenMin(EBaseStat::kCha));
 	switch (ch->GetClass()) {
 		case ECharClass::kSorcerer: ch->set_cha(10);
-			GET_HEIGHT(ch) = IS_FEMALE(ch) ? number(150, 180) : number(150, 200);
-			GET_WEIGHT(ch) = IS_FEMALE(ch) ? number(120, 170) : number(120, 180);
+			ch->player_data.height = IS_FEMALE(ch) ? number(150, 180) : number(150, 200);
+			ch->player_data.weight = IS_FEMALE(ch) ? number(120, 170) : number(120, 180);
 			break;
 		case ECharClass::kConjurer:
 		case ECharClass::kWizard:
 		case ECharClass::kCharmer:
-			GET_HEIGHT(ch) = IS_FEMALE(ch) ? number(150, 170) : number(150, 180);
-			GET_WEIGHT(ch) = IS_FEMALE(ch) ? number(120, 150) : number(120, 180);
+			ch->player_data.height = IS_FEMALE(ch) ? number(150, 170) : number(150, 180);
+			ch->player_data.weight = IS_FEMALE(ch) ? number(120, 150) : number(120, 180);
 			break;
 		case ECharClass::kNecromancer:
-			GET_HEIGHT(ch) = IS_FEMALE(ch) ? number(150, 170) : number(150, 180);
-			GET_WEIGHT(ch) = IS_FEMALE(ch) ? number(120, 150) : number(120, 180);
+			ch->player_data.height = IS_FEMALE(ch) ? number(150, 170) : number(150, 180);
+			ch->player_data.weight = IS_FEMALE(ch) ? number(120, 150) : number(120, 180);
 			break;
 		case ECharClass::kThief:
-			GET_HEIGHT(ch) = IS_FEMALE(ch) ? number(150, 180) : number(150, 190);
-			GET_WEIGHT(ch) = IS_FEMALE(ch) ? number(120, 170) : number(120, 180);
+			ch->player_data.height = IS_FEMALE(ch) ? number(150, 180) : number(150, 190);
+			ch->player_data.weight = IS_FEMALE(ch) ? number(120, 170) : number(120, 180);
 			break;
 		case ECharClass::kWarrior: ch->set_cha(10);
-			GET_HEIGHT(ch) = IS_FEMALE(ch) ? number(165, 180) : number(170, 200);
-			GET_WEIGHT(ch) = IS_FEMALE(ch) ? number(160, 180) : number(170, 200);
+			ch->player_data.height = IS_FEMALE(ch) ? number(165, 180) : number(170, 200);
+			ch->player_data.weight = IS_FEMALE(ch) ? number(160, 180) : number(170, 200);
 			break;
 		case ECharClass::kAssasine: ch->set_cha(12);
-			GET_HEIGHT(ch) = IS_FEMALE(ch) ? number(150, 180) : number(150, 200);
-			GET_WEIGHT(ch) = IS_FEMALE(ch) ? number(120, 180) : number(150, 200);
+			ch->player_data.height = IS_FEMALE(ch) ? number(150, 180) : number(150, 200);
+			ch->player_data.weight = IS_FEMALE(ch) ? number(120, 180) : number(150, 200);
 			break;
 		case ECharClass::kGuard: ch->set_cha(12);
-			GET_HEIGHT(ch) = IS_FEMALE(ch) ? number(150, 180) : number(150, 200);
-			GET_WEIGHT(ch) = IS_FEMALE(ch) ? number(140, 170) : number(160, 200);
+			ch->player_data.height = IS_FEMALE(ch) ? number(150, 180) : number(150, 200);
+			ch->player_data.weight = IS_FEMALE(ch) ? number(140, 170) : number(160, 200);
 			break;
 		case ECharClass::kPaladine:
-			GET_HEIGHT(ch) = IS_FEMALE(ch) ? number(150, 180) : number(150, 200);
-			GET_WEIGHT(ch) = IS_FEMALE(ch) ? number(140, 175) : number(140, 190);
+			ch->player_data.height = IS_FEMALE(ch) ? number(150, 180) : number(150, 200);
+			ch->player_data.weight = IS_FEMALE(ch) ? number(140, 175) : number(140, 190);
 			break;
 		case ECharClass::kRanger:
-			GET_HEIGHT(ch) = IS_FEMALE(ch) ? number(150, 180) : number(150, 200);
-			GET_WEIGHT(ch) = IS_FEMALE(ch) ? number(120, 180) : number(120, 200);
+			ch->player_data.height = IS_FEMALE(ch) ? number(150, 180) : number(150, 200);
+			ch->player_data.weight = IS_FEMALE(ch) ? number(120, 180) : number(120, 200);
 			break;
 		case ECharClass::kVigilant:
-			GET_HEIGHT(ch) = IS_FEMALE(ch) ? number(160, 180) : number(170, 200);
-			GET_WEIGHT(ch) = IS_FEMALE(ch) ? number(150, 180) : number(170, 200);
+			ch->player_data.height = IS_FEMALE(ch) ? number(160, 180) : number(170, 200);
+			ch->player_data.weight = IS_FEMALE(ch) ? number(150, 180) : number(170, 200);
 			break;
 		case ECharClass::kMerchant:
-			GET_HEIGHT(ch) = IS_FEMALE(ch) ? number(150, 170) : number(150, 190);
-			GET_WEIGHT(ch) = IS_FEMALE(ch) ? number(120, 180) : number(120, 200);
+			ch->player_data.height = IS_FEMALE(ch) ? number(150, 170) : number(150, 190);
+			ch->player_data.weight = IS_FEMALE(ch) ? number(120, 180) : number(120, 200);
 			break;
 		case ECharClass::kMagus: ch->set_cha(12);
-			GET_HEIGHT(ch) = IS_FEMALE(ch) ? number(150, 180) : number(150, 190);
-			GET_WEIGHT(ch) = IS_FEMALE(ch) ? number(120, 170) : number(120, 180);
+			ch->player_data.height = IS_FEMALE(ch) ? number(150, 180) : number(150, 190);
+			ch->player_data.weight = IS_FEMALE(ch) ? number(120, 170) : number(120, 180);
 			for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
-				GET_SPELL_TYPE(ch, spell_id) = ESpellType::kRunes;
+				ch->real_abils.SplKnw[to_underlying(spell_id)] = ESpellType::kRunes;
 			}
 			break;
 		default: 
-			log("SYSERROR : ATTEMPT STORE ABILITIES FOR UNKNOWN CLASS (Player %s)", GET_NAME(ch));
+			log("SYSERROR : ATTEMPT STORE ABILITIES FOR UNKNOWN CLASS (Player %s)", ch->get_name().c_str());
 			break;
 	}
 }

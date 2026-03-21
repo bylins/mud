@@ -35,7 +35,7 @@ void do_camouflage(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*
 		return;
 	}
 
-	if (ch->IsImmortal()) {
+	if (IS_IMMORTAL(ch)) {
 		RemoveAffectFromChar(ch, ESpell::kCamouflage);
 	}
 
@@ -63,7 +63,7 @@ void do_camouflage(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*
 	}
 
 	affect_to_char(ch, af);
-	if (!ch->IsImmortal()) {
+	if (!IS_IMMORTAL(ch)) {
 		timed.skill = ESkill::kDisguise;
 		timed.time = 2;
 		ImposeTimedSkill(ch, &timed);

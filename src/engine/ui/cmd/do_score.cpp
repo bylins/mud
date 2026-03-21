@@ -107,9 +107,9 @@ void PrintBonusStateInfo(CharData *ch, std::ostringstream &out);
 
 // \todo Переписать на вывод в поток с использованием общих со "счет все" функций
 void PrintScoreList(CharData *ch) {
-	sprintf(buf, "%s", PlayerRace::GetKinNameByNum(GET_KIN(ch), ch->get_sex()).c_str());
+	sprintf(buf, "%s", PlayerRace::GetKinNameByNum(ch->player_data.Kin, ch->get_sex()).c_str());
 	buf[0] = LOWER(buf[0]);
-	sprintf(buf1, "%s", religion_name[GET_RELIGION(ch)][static_cast<int>(ch->get_sex())]);
+	sprintf(buf1, "%s", religion_name[ch->player_data.Religion][static_cast<int>(ch->get_sex())]);
 	buf1[0] = LOWER(buf1[0]);
 	SendMsgToChar(ch, "Вы %s, %s, %s, %s, уровень %d, перевоплощений %d.\r\n", ch->get_name().c_str(),
 				  buf,
@@ -119,13 +119,13 @@ void PrintScoreList(CharData *ch) {
 				  GetRealRemort(ch));
 	SendMsgToChar(ch, "Ваш возраст: %d, размер: %d(%d), рост: %d(%d), вес %d(%d).\r\n",
 				  CalcCharAge(ch)->year,
-				  GET_SIZE(ch), GET_REAL_SIZE(ch),
-				  GET_HEIGHT(ch), GET_REAL_HEIGHT(ch),
-				  GET_WEIGHT(ch), GET_REAL_WEIGHT(ch));
+				  ch->real_abils.size, GET_REAL_SIZE(ch),
+				  ch->player_data.height, (ch->player_data.height + ch->add_abils.height_add),
+				  ch->player_data.weight, (ch->player_data.weight + ch->add_abils.weight_add));
 	SendMsgToChar(ch, "Вы можете выдержать %d(%d) %s повреждений, и пройти %d(%d) %s по ровной местности.\r\n",
 				  ch->get_hit(), ch->get_real_max_hit(), GetDeclensionInNumber(ch->get_hit(), EWhat::kOneU),
 				  ch->get_move(), ch->get_real_max_move(), GetDeclensionInNumber(ch->get_move(), EWhat::kMoveU));
-	if (IS_MANA_CASTER(ch)) {
+	if (ch->IsManaCaster()) {
 		SendMsgToChar(ch, "Ваша магическая энергия %d(%d) и вы восстанавливаете %d в сек.\r\n",
 					  ch->mem_queue.stored, GET_MAX_MANA(ch), CalcManaGain(ch));
 	}
@@ -147,7 +147,7 @@ void PrintScoreList(CharData *ch) {
 	SendMsgToChar(ch, "Попадание: %d, повреждение: %d, запоминание: %d, успех колдовства: %d, удача: %d, инициатива: %d.\r\n",
 				  CalcHitroll(ch),
 				  max_dam,
-				  int(GET_MANAREG(ch) * ch->get_cond_penalty(P_CAST)),
+				  int(ch->add_abils.manareg * ch->get_cond_penalty(P_CAST)),
 				  CalcAntiSavings(ch),
 				  ch->calc_morale(),
 				  calc_initiative(ch, false));
@@ -156,22 +156,22 @@ void PrintScoreList(CharData *ch) {
 				  ch->add_abils.percent_physdam_add,
 				  ch->add_abils.percent_exp_add);
 	SendMsgToChar(ch, "Сопротивление: огню: %d, воздуху: %d, воде: %d, земле: %d, тьме: %d, живучесть: %d, разум: %d, иммунитет: %d.\r\n",
-				  MIN(GET_RESIST(ch, EResist::kFire), 75),
-				  MIN(GET_RESIST(ch, EResist::kAir), 75),
-				  MIN(GET_RESIST(ch, EResist::kWater), 75),
-				  MIN(GET_RESIST(ch, EResist::kEarth), 75),
-				  MIN(GET_RESIST(ch, EResist::kDark), 75),
-				  MIN(GET_RESIST(ch, EResist::kVitality), 75),
-				  MIN(GET_RESIST(ch, EResist::kMind), 75),
-				  MIN(GET_RESIST(ch, EResist::kImmunity), 75));
+				  MIN(ch->add_abils.apply_resistance[EResist::kFire], 75),
+				  MIN(ch->add_abils.apply_resistance[EResist::kAir], 75),
+				  MIN(ch->add_abils.apply_resistance[EResist::kWater], 75),
+				  MIN(ch->add_abils.apply_resistance[EResist::kEarth], 75),
+				  MIN(ch->add_abils.apply_resistance[EResist::kDark], 75),
+				  MIN(ch->add_abils.apply_resistance[EResist::kVitality], 75),
+				  MIN(ch->add_abils.apply_resistance[EResist::kMind], 75),
+				  MIN(ch->add_abils.apply_resistance[EResist::kImmunity], 75));
 	SendMsgToChar(ch, "Спас броски: воля: %d, здоровье: %d, стойкость: %d, реакция: %d, маг.резист: %d, физ.резист %d, отчар.резист: %d.\r\n",
 			-CalcSaving(ch, ch, ESaving::kWill, false),
 			-CalcSaving(ch, ch, ESaving::kCritical, false),
 			-CalcSaving(ch, ch, ESaving::kStability, false),
 			-CalcSaving(ch, ch, ESaving::kReflex, false),
-			GET_MR(ch),
-			GET_PR(ch),
-			GET_AR(ch));
+			ch->add_abils.mresist,
+			ch->add_abils.presist,
+			ch->add_abils.aresist);
 	SendMsgToChar(ch, "Восстановление: жизни: +%d%% (+%d), сил: +%d%% (+%d).\r\n",
 				  ch->get_hitreg(),
 				  hit_gain(ch),
@@ -183,24 +183,24 @@ void PrintScoreList(CharData *ch) {
 		ac = ac + mod > 5 ? 5 : ac + mod;
 	}
 	SendMsgToChar(ch, "Броня: %d, защита: %d, поглощение %d.\r\n",
-				  GET_ARMOUR(ch),
+				  ch->add_abils.armour,
 				  ac,
-				  GET_ABSORBE(ch));
+				  ch->add_abils.absorb);
 	SendMsgToChar(ch, "Вы имеете кун: на руках: %ld, на счету %ld. Гривны: %d, опыт: %ld, ДСУ: %ld.\r\n",
 				  ch->get_gold(),
 				  ch->get_bank(),
 				  ch->get_hryvn(),
 				  ch->get_exp(),
-				  ch->IsImmortal() ? 1 : GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1) - ch->get_exp());
+				  IS_IMMORTAL(ch) ? 1 : GetExpUntilNextLvl(ch, GetRealLevel(ch) + 1) - ch->get_exp());
 	if (!ch->IsOnHorse())
 		SendMsgToChar(ch, "Ваша позиция: %s", GetPositionStr(ch));
 	else
-		SendMsgToChar(ch, "Ваша позиция: Вы верхом на %s.\r\n", GET_PAD(ch->get_horse(), 5));
+		SendMsgToChar(ch, "Ваша позиция: Вы верхом на %s.\r\n", ch->get_horse()->player_data.PNames[5].c_str());
 	if (ch->IsFlagged(EPrf::KSummonable))
 		SendMsgToChar(ch, "Вы можете быть призваны.\r\n");
 	else
 		SendMsgToChar(ch, "Вы защищены от призыва.\r\n");
-	SendMsgToChar(ch, "Голоден: %s, жажда: %s.\r\n", (GET_COND(ch, FULL) > kNormCondition)? "да" : "нет", GET_COND_M(ch, THIRST)? "да" : "нет");
+	SendMsgToChar(ch, "Голоден: %s, жажда: %s.\r\n", (ch->player_specials->saved.conditions[FULL] > kNormCondition)? "да" : "нет", GET_COND_M(ch, THIRST)? "да" : "нет");
 	//Напоминаем о метке, если она есть.
 	RoomData *label_room = room_spells::FindAffectedRoomByCasterID(ch->get_uid(), ESpell::kRuneLabel);
 	if (label_room) {
@@ -215,10 +215,10 @@ void PrintScoreList(CharData *ch) {
 			*buf2 = '\0';
 		}
 	}
-	if (!NAME_GOD(ch) && GetRealLevel(ch) <= kNameLevel) {
+	if (!ch->player_specials->saved.NameGod && GetRealLevel(ch) <= kNameLevel) {
 		SendMsgToChar(ch, "ВНИМАНИЕ! ваше имя не одобрил никто из богов!\r\n");
 		SendMsgToChar(ch, "Cкоро вы прекратите получать опыт, обратитесь к богам для одобрения имени.\r\n");
-	} else if (NAME_BAD(ch)) {
+	} else if ((ch->player_specials->saved.NameGod < 1000 && ch->player_specials->saved.NameGod)) {
 		SendMsgToChar(ch, "ВНИМАНИЕ! ваше имя запрещено богами. Очень скоро вы прекратите получать опыт.\r\n");
 	}
 	SendMsgToChar(ch, "Вы можете вступить в группу с максимальной разницей в %2d %-75s\r\n",
@@ -253,7 +253,7 @@ const std::string &InfoStrPrefix(CharData *ch) {
 void PrintHorseInfo(CharData *ch, std::ostringstream &out) {
 	if (ch->has_horse(false)) {
 		if (ch->IsOnHorse()) {
-			out << InfoStrPrefix(ch) << "Вы верхом на " << GET_PAD(ch->get_horse(), 5) << "." << "\r\n";
+			out << InfoStrPrefix(ch) << "Вы верхом на " << ch->get_horse()->player_data.PNames[5].c_str() << "." << "\r\n";
 		} else {
 			out << InfoStrPrefix(ch) << "У вас есть " << ch->get_horse()->get_name() << "." << "\r\n";
 		}
@@ -288,12 +288,12 @@ void PrintGloryInfo(CharData *ch, std::ostringstream &out) {
 }
 
 void PrintNameStatusInfo(CharData *ch, std::ostringstream &out) {
-	if (!NAME_GOD(ch) && GetRealLevel(ch) <= kNameLevel) {
+	if (!ch->player_specials->saved.NameGod && GetRealLevel(ch) <= kNameLevel) {
 		out << InfoStrPrefix(ch) << kColorBoldRed << "ВНИМАНИЕ! " << kColorNrm
 			<< "ваше имя не одобрил никто из богов!" << "\r\n";
 		out << InfoStrPrefix(ch) << kColorBoldRed << "ВНИМАНИЕ! " << kColorNrm
 			<< "Cкоро вы прекратите получать опыт, обратитесь к богам для одобрения имени." << "\r\n";
-	} else if (NAME_BAD(ch)) {
+	} else if ((ch->player_specials->saved.NameGod < 1000 && ch->player_specials->saved.NameGod)) {
 		out << InfoStrPrefix(ch) << kColorBoldRed << "ВНИМАНИЕ! " << kColorNrm
 			<< "Ваше имя запрещено богами. Вы не можете получать опыт." << "\r\n";
 	}
@@ -315,7 +315,7 @@ void PrintBonusStateInfo(CharData *ch, std::ostringstream &out) {
 }
 
 void PrintExpTaxInfo(CharData *ch, std::ostringstream &out) {
-	if (GET_GOD_FLAG(ch, EGf::kRemort) && CLAN(ch)) {
+	if ((IS_SET(ch->player_specials->saved.GodsLike, EGf::kRemort)) && ch->player_specials->clan) {
 		out << InfoStrPrefix(ch) << "Вы самоотверженно отдаете весь получаемый опыт своей дружине." << "\r\n";
 	}
 }
@@ -340,8 +340,8 @@ void PrintGroupMembershipInfo(CharData *ch, std::ostringstream &out) {
 }
 
 void PrintRentableInfo(CharData *ch, std::ostringstream &out) {
-	if (NORENTABLE(ch)) {
-		const time_t rent_time = NORENTABLE(ch) - time(nullptr);
+	if ((ch->IsNpc() ? 0 : ch->player_specials->may_rent)) {
+		const time_t rent_time = (ch->IsNpc() ? 0 : ch->player_specials->may_rent) - time(nullptr);
 		const auto minutes = rent_time > 60 ? rent_time / 60 : 0;
 		out << InfoStrPrefix(ch) << kColorBoldRed << "В связи с боевыми действиями вы не можете уйти на постой еще ";
 		if (minutes) {
@@ -375,7 +375,7 @@ void PrintPostInfo(CharData *ch, std::ostringstream &out) {
 
 void PrintProtectInfo(CharData *ch, std::ostringstream &out) {
 	if (ch->get_protecting() && !ch->get_protecting()->purged()) {
-		out << InfoStrPrefix(ch) << "Вы прикрываете " << GET_PAD(ch->get_protecting(), 3)
+		out << InfoStrPrefix(ch) << "Вы прикрываете " << ch->get_protecting()->player_data.PNames[3].c_str()
 			<< " от нападения.\r\n";
 	}
 	if (!ch->who_protecting.empty()) {
@@ -467,7 +467,7 @@ void PrintPunishmentsInfo(CharData *ch, std::ostringstream &out) {
  	* наказаний, а отдельными флагами. По-хорошему, надо их привести к общему знаменателю (тем более, что счесть
  	* избранность богами наказанием - в некотором смысле символично).
  	*/
-	if (GET_GOD_FLAG(ch, EGf::kGodscurse) && GCURSE_DURATION(ch)) {
+	if ((IS_SET(ch->player_specials->saved.GodsLike, EGf::kGodscurse)) && ch->player_specials->pgcurse.duration) {
 		punish_info.punish = &ch->player_specials->pgcurse;
 		punish_info.msg = "Вы прокляты Богами на ";
 		PrintSinglePunishmentInfo(punish_info, out);
@@ -478,7 +478,7 @@ void PrintPunishmentsInfo(CharData *ch, std::ostringstream &out) {
 	 * персонаж НЕ наказан. Было бы разумнее ставить новым персонажам по умолчанию флаг unreg и снимать его при
 	 * регистрации, но увы.
 	 */
-	if (!ch->IsFlagged(EPlrFlag::kRegistred) && UNREG_DURATION(ch) != 0 && UNREG_DURATION(ch) > time(nullptr)) {
+	if (!ch->IsFlagged(EPlrFlag::kRegistred) && ch->player_specials->punreg.duration != 0 && ch->player_specials->punreg.duration > time(nullptr)) {
 		punish_info.punish = &ch->player_specials->punreg;
 		punish_info.msg = "Вы не сможете входить с одного IP еще ";
 		PrintSinglePunishmentInfo(punish_info, out);
@@ -494,8 +494,8 @@ void PrintPunishmentsInfo(CharData *ch, std::ostringstream &out) {
  */
 int PrintBaseInfoToTable(CharData *ch, table_wrapper::Table &table, std::size_t col) {
 	std::size_t row{0};
-	table[row][col] = std::string("Племя: ") + PlayerRace::GetRaceNameByNum(GET_KIN(ch), GET_RACE(ch), ch->get_sex());
-	table[++row][col] = std::string("Вера: ") + religion_name[GET_RELIGION(ch)][static_cast<int>(ch->get_sex())];
+	table[row][col] = std::string("Племя: ") + PlayerRace::GetRaceNameByNum(ch->player_data.Kin, ch->player_data.Race, ch->get_sex());
+	table[++row][col] = std::string("Вера: ") + religion_name[ch->player_data.Religion][static_cast<int>(ch->get_sex())];
 	table[++row][col] = std::string("Уровень: ") + std::to_string(GetRealLevel(ch));
 	table[++row][col] = std::string("Перевоплощений: ") + std::to_string(GetRealRemort(ch));
 	table[++row][col] = std::string("Возраст: ") + std::to_string(CalcCharAge(ch)->year);
@@ -507,9 +507,9 @@ int PrintBaseInfoToTable(CharData *ch, table_wrapper::Table &table, std::size_t 
 	table[++row][col] = std::string("Кун: ") + PrintNumberByDigits(ch->get_gold());
 	table[++row][col] = std::string("На счету: ") + PrintNumberByDigits(ch->get_bank());
 	table[++row][col] = GetShortPositionStr(ch);
-	table[++row][col] = std::string("Голоден: ") + (GET_COND(ch, FULL) > kNormCondition ? "Угу :(" : "Нет");
+	table[++row][col] = std::string("Голоден: ") + (ch->player_specials->saved.conditions[FULL] > kNormCondition ? "Угу :(" : "Нет");
 	table[++row][col] = std::string("Жажда: ") + (GET_COND_M(ch, THIRST) ? "Наливай!" : "Нет");
-	if (GET_COND(ch, DRUNK) >= kDrunked) {
+	if (ch->player_specials->saved.conditions[DRUNK] >= kDrunked) {
 		table[++row][col] = (IsAffectedBySpell(ch, ESpell::kAbstinent) ? "Похмелье." : "Вы пьяны.");
 	}
 	if (PlayerSystem::weight_dex_penalty(ch)) {
@@ -534,14 +534,14 @@ int PrintBaseStatsToTable(CharData *ch, table_wrapper::Table &table, std::size_t
 	table[++row][col] = "Мудрость";		table[row][col + 1] = std::to_string(ch->get_wis()) + " (" + std::to_string(GetRealWis(ch)) + ")";
 	table[++row][col] = "Интеллект";	table[row][col + 1] = std::to_string(ch->get_int()) + " (" + std::to_string(GetRealInt(ch)) + ")";
 	table[++row][col] = "Обаяние";		table[row][col + 1] = std::to_string(ch->get_cha()) + " (" + std::to_string(GetRealCha(ch)) + ")";
-	table[++row][col] = "Рост";			table[row][col + 1] = std::to_string(GET_HEIGHT(ch)) + " (" + std::to_string(GET_REAL_HEIGHT(ch)) + ")";
-	table[++row][col] = "Вес";			table[row][col + 1] = std::to_string(GET_WEIGHT(ch)) + " (" + std::to_string(GET_REAL_WEIGHT(ch)) + ")";
-	table[++row][col] = "Размер";		table[row][col + 1] = std::to_string(GET_SIZE(ch)) + " (" + std::to_string(GET_REAL_SIZE(ch)) + ")";
+	table[++row][col] = "Рост";			table[row][col + 1] = std::to_string(ch->player_data.height) + " (" + std::to_string((ch->player_data.height + ch->add_abils.height_add)) + ")";
+	table[++row][col] = "Вес";			table[row][col + 1] = std::to_string(ch->player_data.weight) + " (" + std::to_string((ch->player_data.weight + ch->add_abils.weight_add)) + ")";
+	table[++row][col] = "Размер";		table[row][col + 1] = std::to_string(ch->real_abils.size) + " (" + std::to_string(GET_REAL_SIZE(ch)) + ")";
 	table[++row][col] = "Жизнь";		table[row][col + 1] = std::to_string(ch->get_hit()) + "(" + std::to_string(ch->get_real_max_hit()) + ")";
 	table[++row][col] = "Восст. жизни";	table[row][col + 1] = "+" + std::to_string(ch->get_hitreg()) + "% (" + std::to_string(hit_gain(ch)) + ")";
 	table[++row][col] = "Выносливость";	table[row][col + 1] = std::to_string(ch->get_move()) + "(" + std::to_string(ch->get_real_max_move()) + ")";
 	table[++row][col] = "Восст. сил";	table[row][col + 1] = "+" + std::to_string(ch->get_movereg()) + "% (" + std::to_string(move_gain(ch)) + ")";
-	if (IS_MANA_CASTER(ch)) {
+	if (ch->IsManaCaster()) {
 		table[++row][col] = "Мана"; 		table[row][col + 1] = std::to_string(ch->mem_queue.stored) + "(" + std::to_string(GET_MAX_MANA(ch)) + ")";
 		table[++row][col] = "Восст. маны";	table[row][col + 1] = "+" + std::to_string(CalcManaGain(ch)) + " сек.";
 	}
@@ -567,7 +567,7 @@ int PrintSecondaryStatsToTable(CharData *ch, table_wrapper::Table &table, std::s
 	table[row][col] = "Попадание";		table[row][col + 1] = std::to_string(CalcHitroll(ch));
 	table[++row][col] = "Повреждение";	table[row][col + 1] = std::to_string(max_dam);
 	table[++row][col] = "Колдовство";	table[row][col + 1] = std::to_string(CalcAntiSavings(ch));
-	table[++row][col] = "Запоминание";	table[row][col + 1] = std::to_string(std::lround(GET_MANAREG(ch)*ch->get_cond_penalty(P_CAST)));
+	table[++row][col] = "Запоминание";	table[row][col + 1] = std::to_string(std::lround(ch->add_abils.manareg*ch->get_cond_penalty(P_CAST)));
 	table[++row][col] = "Удача";		table[row][col + 1] = std::to_string(ch->calc_morale());
 	table[++row][col] = "Сила заклинаний %";	table[row][col + 1] = std::to_string(ch->add_abils.percent_spellpower_add);
 	table[++row][col] = "Физ. урон %";	table[row][col + 1] = std::to_string(ch->add_abils.percent_physdam_add);
@@ -596,20 +596,20 @@ int PrintProtectiveStatsToTable(CharData *ch, table_wrapper::Table &table, std::
 		ac = ac + mod > 5 ? 5 : ac + mod;
 	}
 
-	table[row][col] = "Броня";				table[row][col + 1] = std::to_string(GET_ARMOUR(ch));
+	table[row][col] = "Броня";				table[row][col + 1] = std::to_string(ch->add_abils.armour);
 	table[++row][col] = "Защита";			table[row][col + 1] = std::to_string(ac);
-	table[++row][col] = "Поглощение";		table[row][col + 1] = std::to_string(GET_ABSORBE(ch));
+	table[++row][col] = "Поглощение";		table[row][col + 1] = std::to_string(ch->add_abils.absorb);
 	table[++row][col] = "Сопротивления: ";	table[row][col + 1] = " ";
-	table[++row][col] = "Урону";			table[row][col + 1] = std::to_string(GET_PR(ch));
-	table[++row][col] = "Заклинаниям";		table[row][col + 1] = std::to_string(GET_MR(ch));
-	table[++row][col] = "Магии огня";		table[row][col + 1] = std::to_string(std::min(GET_RESIST(ch, EResist::kFire), kMaxPcResist));
-	table[++row][col] = "Магии воды";		table[row][col + 1] = std::to_string(std::min(GET_RESIST(ch, EResist::kWater), kMaxPcResist));
-	table[++row][col] = "Магии земли";		table[row][col + 1] = std::to_string(std::min(GET_RESIST(ch, EResist::kEarth), kMaxPcResist));
-	table[++row][col] = "Магии воздуха";	table[row][col + 1] = std::to_string(std::min(GET_RESIST(ch, EResist::kAir), kMaxPcResist));
-	table[++row][col] = "Магии тьмы";		table[row][col + 1] = std::to_string(std::min(GET_RESIST(ch, EResist::kDark), kMaxPcResist));
-	table[++row][col] = "Магии разума";		table[row][col + 1] = std::to_string(std::min(GET_RESIST(ch, EResist::kMind), kMaxPcResist));
-	table[++row][col] = "Тяжелым ранам";	table[row][col + 1] = std::to_string(std::min(GET_RESIST(ch, EResist::kVitality), kMaxPcResist));
-	table[++row][col] = "Ядам и болезням";	table[row][col + 1] = std::to_string(std::min(GET_RESIST(ch, EResist::kImmunity), kMaxPcResist));
+	table[++row][col] = "Урону";			table[row][col + 1] = std::to_string(ch->add_abils.presist);
+	table[++row][col] = "Заклинаниям";		table[row][col + 1] = std::to_string(ch->add_abils.mresist);
+	table[++row][col] = "Магии огня";		table[row][col + 1] = std::to_string(std::min(ch->add_abils.apply_resistance[EResist::kFire], kMaxPcResist));
+	table[++row][col] = "Магии воды";		table[row][col + 1] = std::to_string(std::min(ch->add_abils.apply_resistance[EResist::kWater], kMaxPcResist));
+	table[++row][col] = "Магии земли";		table[row][col + 1] = std::to_string(std::min(ch->add_abils.apply_resistance[EResist::kEarth], kMaxPcResist));
+	table[++row][col] = "Магии воздуха";	table[row][col + 1] = std::to_string(std::min(ch->add_abils.apply_resistance[EResist::kAir], kMaxPcResist));
+	table[++row][col] = "Магии тьмы";		table[row][col + 1] = std::to_string(std::min(ch->add_abils.apply_resistance[EResist::kDark], kMaxPcResist));
+	table[++row][col] = "Магии разума";		table[row][col + 1] = std::to_string(std::min(ch->add_abils.apply_resistance[EResist::kMind], kMaxPcResist));
+	table[++row][col] = "Тяжелым ранам";	table[row][col + 1] = std::to_string(std::min(ch->add_abils.apply_resistance[EResist::kVitality], kMaxPcResist));
+	table[++row][col] = "Ядам и болезням";	table[row][col + 1] = std::to_string(std::min(ch->add_abils.apply_resistance[EResist::kImmunity], kMaxPcResist));
 
 	return 2; // заполнено столбцов
 }
@@ -695,9 +695,9 @@ void PrintScoreBase(CharData *ch) {
 	std::ostringstream out;
 
 	out << "Вы " << ch->GetTitleAndName() << " ("
-		<< PlayerRace::GetKinNameByNum(GET_KIN(ch), ch->get_sex()) << ", "
-		<< PlayerRace::GetRaceNameByNum(GET_KIN(ch), GET_RACE(ch), ch->get_sex()) << ", "
-		<< religion_name[GET_RELIGION(ch)][static_cast<int>(ch->get_sex())] << ", "
+		<< PlayerRace::GetKinNameByNum(ch->player_data.Kin, ch->get_sex()) << ", "
+		<< PlayerRace::GetRaceNameByNum(ch->player_data.Kin, ch->player_data.Race, ch->get_sex()) << ", "
+		<< religion_name[ch->player_data.Religion][static_cast<int>(ch->get_sex())] << ", "
 		<< MUD::Class(ch->GetClass()).GetCName() << " "
 		<< GetRealLevel(ch) << " уровня)." << "\r\n";
 
@@ -718,7 +718,7 @@ void PrintScoreBase(CharData *ch) {
 																	 EWhat::kOneU),
 			ch->get_move(), ch->get_real_max_move(), GetDeclensionInNumber(ch->get_move(), EWhat::kMoveU));
 
-	if (IS_MANA_CASTER(ch)) {
+	if (ch->IsManaCaster()) {
 		sprintf(buf + strlen(buf),
 				"Ваша магическая энергия %d(%d) и вы восстанавливаете %d в сек.\r\n",
 				ch->mem_queue.stored, GET_MAX_MANA(ch), CalcManaGain(ch));
@@ -741,16 +741,16 @@ void PrintScoreBase(CharData *ch) {
 			ch->get_wis(), GetRealWis(ch),
 			ch->get_int(), GetRealInt(ch),
 			ch->get_cha(), GetRealCha(ch),
-			GET_SIZE(ch), GET_REAL_SIZE(ch),
-			GET_HEIGHT(ch), GET_REAL_HEIGHT(ch), GET_WEIGHT(ch), GET_REAL_WEIGHT(ch), kColorNrm);
+			ch->real_abils.size, GET_REAL_SIZE(ch),
+			ch->player_data.height, (ch->player_data.height + ch->add_abils.height_add), ch->player_data.weight, (ch->player_data.weight + ch->add_abils.weight_add), kColorNrm);
 
-	if (ch->IsImmortal()) {
+	if (IS_IMMORTAL(ch)) {
 		sprintf(buf + strlen(buf),
 				"%sВаши боевые качества :\r\n"
 				"  AC   : %4d(%4d)"
 				"  DR   : %4d(%4d)%s\r\n",
-				kColorBoldGrn, GET_AC(ch), CalcBaseAc(ch),
-				GET_DR(ch), GetRealDamroll(ch), kColorNrm);
+				kColorBoldGrn, ch->real_abils.armor, CalcBaseAc(ch),
+				ch->real_abils.damroll, GetRealDamroll(ch), kColorNrm);
 	} else {
 		int ac = CalcBaseAc(ch) / 10;
 
@@ -763,7 +763,7 @@ void PrintScoreBase(CharData *ch) {
 		sprintf(buf + strlen(buf), "&GВаши боевые качества :\r\n"
 								   "  Защита  (AC)     : %4d - %s&G\r\n"
 								   "  Броня/Поглощение : %4d/%d&n\r\n",
-				ac, ac_text[ac_t], GET_ARMOUR(ch), GET_ABSORBE(ch));
+				ac, ac_text[ac_t], ch->add_abils.armour, ch->add_abils.absorb);
 	}
 	sprintf(buf + strlen(buf), "Ваш опыт - %ld %s, бонус %d %c. ", ch->get_exp(),
 			GetDeclensionInNumber(ch->get_exp(), EWhat::kPoint), ch->add_abils.percent_exp_add, '%');
@@ -826,7 +826,7 @@ void PrintScoreBase(CharData *ch) {
 		SendMsgToChar(ch, "%s", GetPositionStr(ch));
 
 	strcpy(buf, kColorBoldGrn);
-	const auto value_drunked = GET_COND(ch, DRUNK);
+	const auto value_drunked = ch->player_specials->saved.conditions[DRUNK];
 	if (value_drunked >= kDrunked) {
 		if (IsAffectedBySpell(ch, ESpell::kAbstinent))
 			strcat(buf, "Привет с большого бодуна!\r\n");
@@ -857,13 +857,13 @@ void PrintScoreBase(CharData *ch) {
 
 	if (ch->has_horse(false)) {
 		if (ch->IsOnHorse())
-			sprintf(buf + strlen(buf), "Вы верхом на %s.\r\n", GET_PAD(ch->get_horse(), 5));
+			sprintf(buf + strlen(buf), "Вы верхом на %s.\r\n", ch->get_horse()->player_data.PNames[5].c_str());
 		else
-			sprintf(buf + strlen(buf), "У вас есть %s.\r\n", GET_NAME(ch->get_horse()));
+			sprintf(buf + strlen(buf), "У вас есть %s.\r\n", ch->get_horse(->get_name().c_str()));
 	}
 	strcat(buf, kColorNrm);
 	SendMsgToChar(buf, ch);
-	if (NORENTABLE(ch)) {
+	if ((ch->IsNpc() ? 0 : ch->player_specials->may_rent)) {
 		sprintf(buf,
 				"%sВ связи с боевыми действиями вы не можете уйти на постой.%s\r\n",
 				kColorBoldRed, kColorNrm);
@@ -892,53 +892,53 @@ void PrintScoreBase(CharData *ch) {
 		SendMsgToChar(buf, ch);
 	}
 
-	if (ch->IsFlagged(EPlrFlag::kHelled) && HELL_DURATION(ch) && HELL_DURATION(ch) > time(nullptr)) {
-		const int hrs = (HELL_DURATION(ch) - time(nullptr)) / 3600;
-		const int mins = ((HELL_DURATION(ch) - time(nullptr)) % 3600 + 59) / 60;
+	if (ch->IsFlagged(EPlrFlag::kHelled) && ch->player_specials->phell.duration && ch->player_specials->phell.duration > time(nullptr)) {
+		const int hrs = (ch->player_specials->phell.duration - time(nullptr)) / 3600;
+		const int mins = ((ch->player_specials->phell.duration - time(nullptr)) % 3600 + 59) / 60;
 		sprintf(buf,
 				"Вам предстоит провести в темнице еще %d %s %d %s [%s].\r\n",
 				hrs, GetDeclensionInNumber(hrs, EWhat::kHour), mins, GetDeclensionInNumber(mins,
 																						   EWhat::kMinU),
-				HELL_REASON(ch) ? HELL_REASON(ch) : "-");
+				ch->player_specials->phell.reason ? ch->player_specials->phell.reason : "-");
 		SendMsgToChar(buf, ch);
 	}
-	if (ch->IsFlagged(EPlrFlag::kMuted) && MUTE_DURATION(ch) != 0 && MUTE_DURATION(ch) > time(nullptr)) {
-		const int hrs = (MUTE_DURATION(ch) - time(nullptr)) / 3600;
-		const int mins = ((MUTE_DURATION(ch) - time(nullptr)) % 3600 + 59) / 60;
+	if (ch->IsFlagged(EPlrFlag::kMuted) && ch->player_specials->pmute.duration != 0 && ch->player_specials->pmute.duration > time(nullptr)) {
+		const int hrs = (ch->player_specials->pmute.duration - time(nullptr)) / 3600;
+		const int mins = ((ch->player_specials->pmute.duration - time(nullptr)) % 3600 + 59) / 60;
 		sprintf(buf, "Вы не сможете кричать еще %d %s %d %s [%s].\r\n",
 				hrs, GetDeclensionInNumber(hrs, EWhat::kHour),
-				mins, GetDeclensionInNumber(mins, EWhat::kMinU), MUTE_REASON(ch) ? MUTE_REASON(ch) : "-");
+				mins, GetDeclensionInNumber(mins, EWhat::kMinU), ch->player_specials->pmute.reason ? ch->player_specials->pmute.reason : "-");
 		SendMsgToChar(buf, ch);
 	}
-	if (ch->IsFlagged(EPlrFlag::kDumbed) && DUMB_DURATION(ch) != 0 && DUMB_DURATION(ch) > time(nullptr)) {
-		const int hrs = (DUMB_DURATION(ch) - time(nullptr)) / 3600;
-		const int mins = ((DUMB_DURATION(ch) - time(nullptr)) % 3600 + 59) / 60;
+	if (ch->IsFlagged(EPlrFlag::kDumbed) && ch->player_specials->pdumb.duration != 0 && ch->player_specials->pdumb.duration > time(nullptr)) {
+		const int hrs = (ch->player_specials->pdumb.duration - time(nullptr)) / 3600;
+		const int mins = ((ch->player_specials->pdumb.duration - time(nullptr)) % 3600 + 59) / 60;
 		sprintf(buf, "Вы будете молчать еще %d %s %d %s [%s].\r\n",
 				hrs, GetDeclensionInNumber(hrs, EWhat::kHour),
-				mins, GetDeclensionInNumber(mins, EWhat::kMinU), DUMB_REASON(ch) ? DUMB_REASON(ch) : "-");
+				mins, GetDeclensionInNumber(mins, EWhat::kMinU), ch->player_specials->pdumb.reason ? ch->player_specials->pdumb.reason : "-");
 		SendMsgToChar(buf, ch);
 	}
-	if (ch->IsFlagged(EPlrFlag::kFrozen) && FREEZE_DURATION(ch) != 0 && FREEZE_DURATION(ch) > time(nullptr)) {
-		const int hrs = (FREEZE_DURATION(ch) - time(nullptr)) / 3600;
-		const int mins = ((FREEZE_DURATION(ch) - time(nullptr)) % 3600 + 59) / 60;
+	if (ch->IsFlagged(EPlrFlag::kFrozen) && ch->player_specials->pfreeze.duration != 0 && ch->player_specials->pfreeze.duration > time(nullptr)) {
+		const int hrs = (ch->player_specials->pfreeze.duration - time(nullptr)) / 3600;
+		const int mins = ((ch->player_specials->pfreeze.duration - time(nullptr)) % 3600 + 59) / 60;
 		sprintf(buf, "Вы будете заморожены еще %d %s %d %s [%s].\r\n",
 				hrs, GetDeclensionInNumber(hrs, EWhat::kHour),
-				mins, GetDeclensionInNumber(mins, EWhat::kMinU), FREEZE_REASON(ch) ? FREEZE_REASON(ch) : "-");
+				mins, GetDeclensionInNumber(mins, EWhat::kMinU), ch->player_specials->pfreeze.reason ? ch->player_specials->pfreeze.reason : "-");
 		SendMsgToChar(buf, ch);
 	}
 
-	if (!ch->IsFlagged(EPlrFlag::kRegistred) && UNREG_DURATION(ch) != 0 && UNREG_DURATION(ch) > time(nullptr)) {
-		const int hrs = (UNREG_DURATION(ch) - time(nullptr)) / 3600;
-		const int mins = ((UNREG_DURATION(ch) - time(nullptr)) % 3600 + 59) / 60;
+	if (!ch->IsFlagged(EPlrFlag::kRegistred) && ch->player_specials->punreg.duration != 0 && ch->player_specials->punreg.duration > time(nullptr)) {
+		const int hrs = (ch->player_specials->punreg.duration - time(nullptr)) / 3600;
+		const int mins = ((ch->player_specials->punreg.duration - time(nullptr)) % 3600 + 59) / 60;
 		sprintf(buf, "Вы не сможете заходить с одного IP еще %d %s %d %s [%s].\r\n",
 				hrs, GetDeclensionInNumber(hrs, EWhat::kHour),
-				mins, GetDeclensionInNumber(mins, EWhat::kMinU), UNREG_REASON(ch) ? UNREG_REASON(ch) : "-");
+				mins, GetDeclensionInNumber(mins, EWhat::kMinU), ch->player_specials->punreg.reason ? ch->player_specials->punreg.reason : "-");
 		SendMsgToChar(buf, ch);
 	}
 
-	if (GET_GOD_FLAG(ch, EGf::kGodscurse) && GCURSE_DURATION(ch)) {
-		const int hrs = (GCURSE_DURATION(ch) - time(nullptr)) / 3600;
-		const int mins = ((GCURSE_DURATION(ch) - time(nullptr)) % 3600 + 59) / 60;
+	if ((IS_SET(ch->player_specials->saved.GodsLike, EGf::kGodscurse)) && ch->player_specials->pgcurse.duration) {
+		const int hrs = (ch->player_specials->pgcurse.duration - time(nullptr)) / 3600;
+		const int mins = ((ch->player_specials->pgcurse.duration - time(nullptr)) % 3600 + 59) / 60;
 		sprintf(buf, "Вы прокляты Богами на %d %s %d %s.\r\n",
 				hrs, GetDeclensionInNumber(hrs, EWhat::kHour), mins, GetDeclensionInNumber(mins, EWhat::kMinU));
 		SendMsgToChar(buf, ch);
@@ -992,7 +992,7 @@ int CalcHitroll(CharData *ch) {
 	ESkill skill = ESkill::kTwohands;
 	int hr = 0;
 	int max_dam = 0;
-	ObjData *weapon = GET_EQ(ch, kBoths);
+	ObjData *weapon = ch->equipment[kBoths];
 	if (weapon) {
 		if (weapon->get_type() == EObjType::kWeapon) {
 			skill = static_cast<ESkill>(weapon->get_spec_param());
@@ -1003,7 +1003,7 @@ int CalcHitroll(CharData *ch) {
 			}
 		}
 	} else {
-		weapon = GET_EQ(ch, kHold);
+		weapon = ch->equipment[kHold];
 		if (weapon) {
 			if (weapon->get_type() == EObjType::kWeapon) {
 				skill = static_cast<ESkill>(weapon->get_spec_param());
@@ -1014,7 +1014,7 @@ int CalcHitroll(CharData *ch) {
 				}
 			}
 		}
-		weapon = GET_EQ(ch, kWield);
+		weapon = ch->equipment[kWield];
 		if (weapon) {
 			if (weapon->get_type() == EObjType::kWeapon) {
 				skill = static_cast<ESkill>(weapon->get_spec_param());
@@ -1074,7 +1074,7 @@ const char *GetPositionStr(CharData *ch) {
 			return "Вы сидите.\r\n";
 		case EPosition::kFight:
 			if (ch->GetEnemy()) {
-				sprintf(buf1, "Вы сражаетесь с %s.\r\n", GET_PAD(ch->GetEnemy(), 4));
+				sprintf(buf1, "Вы сражаетесь с %s.\r\n", ch->GetEnemy()->player_data.PNames[4].c_str());
 				return buf1;
 			}
 			else

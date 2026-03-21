@@ -81,7 +81,7 @@ int CalcMoveCost(CharData *ch, int dir) {
 	int need_movement = (IS_FLY(ch) || ch->IsOnHorse()) ? 1 :
 						(movement_loss[ch_inroom] + movement_loss[ch_toroom]) / 2;
 
-	if (ch->IsImmortal())
+	if (IS_IMMORTAL(ch))
 		need_movement = 0;
 	else if (IsAffectedBySpell(ch, ESpell::kCamouflage))
 		need_movement += kCamouflageMoves;
@@ -180,7 +180,7 @@ bool IsCorrectDirection(CharData *ch, int dir, bool check_specials, bool show_ms
 			return false;
 		}
 		if (real_sector(EXIT(ch, dir)->to_room()) == ESector::kOnlyFlying
-			&& !ch->IsGod()
+			&& !IS_GOD(ch)
 			&& !AFF_FLAGGED(ch, EAffect::kFly)) {
 			if (show_msg) {
 				SendMsgToChar("Туда можно только влететь.\r\n", ch);
@@ -234,7 +234,7 @@ bool IsCorrectDirection(CharData *ch, int dir, bool check_specials, bool show_ms
 			return (false);
 		}
 
-		if (ch->IsOnHorse() && GET_HORSESTATE(ch->get_horse()) <= 0) {
+		if (ch->IsOnHorse() && ch->get_horse(->mob_specials.HorseState) <= 0) {
 			if (show_msg)
 				act("$Z $N загнан$G настолько, что не может нести вас на себе.",
 					false, ch, nullptr, ch->get_horse(), kToChar);
@@ -257,7 +257,7 @@ bool IsCorrectDirection(CharData *ch, int dir, bool check_specials, bool show_ms
 			return false;
 		}
 
-		if (ROOM_FLAGGED(EXIT(ch, dir)->to_room(), ERoomFlag::kGodsRoom) && !ch->IsGrGod()) {
+		if (ROOM_FLAGGED(EXIT(ch, dir)->to_room(), ERoomFlag::kGodsRoom) && !IS_GRGOD(ch)) {
 			if (show_msg)
 				SendMsgToChar("Вы не столь Божественны, как вам кажется!\r\n", ch);
 			return false;
@@ -275,7 +275,7 @@ bool IsCorrectDirection(CharData *ch, int dir, bool check_specials, bool show_ms
 				if (show_msg) {
 					act("$N преградил$G вам путь.", false, ch, nullptr, tch, kToChar);
 				}
-				if (ch->IsGrGod() || InTestZone(ch)) {
+				if (IS_GRGOD(ch) || InTestZone(ch)) {
 					act("Но уважительно пропустил$G дальше.", false, ch, nullptr, tch, kToChar);
 					return true;
 				}
@@ -304,7 +304,7 @@ void PerformDunkSong(CharData *ch) {
 											   " - разухабисто протянул$g $n.",
 	};
 	// орем песни
-	if (!ch->GetEnemy() && number(10, 24) < GET_COND(ch, DRUNK)) {
+	if (!ch->GetEnemy() && number(10, 24) < ch->player_specials->saved.conditions[DRUNK]) {
 		sprintf(buf, "%s", drunk_songs[number(0, kMaxDrunkSong - 1)]);
 		SendMsgToChar(buf, ch);
 		SendMsgToChar("\r\n", ch);
@@ -342,8 +342,8 @@ EDirection SelectRndDirection(CharData *ch, int fail_chance) {
 
 int SelectDrunkDirection(CharData *ch, int direction) {
 	auto drunk_dir{direction};
-	if (!ch->IsNpc() && GET_COND(ch, DRUNK) >= kMortallyDrunked &&
-		!ch->IsOnHorse() && GET_COND(ch, DRUNK) >= number(kDrunked, 50)) {
+	if (!ch->IsNpc() && ch->player_specials->saved.conditions[DRUNK] >= kMortallyDrunked &&
+		!ch->IsOnHorse() && ch->player_specials->saved.conditions[DRUNK] >= number(kDrunked, 50)) {
 		drunk_dir = SelectRndDirection(ch, 60);
 	}
 
@@ -380,7 +380,7 @@ bool PerformSimpleMove(CharData *ch, int dir, int following, CharData *leader, E
 	}
 
 	// Now we know we're allowed to go into the room.
-	if (!ch->IsImmortal() && !ch->IsNpc())
+	if (!IS_IMMORTAL(ch) && !ch->IsNpc())
 		ch->set_move(ch->get_move() - CalcMoveCost(ch, dir));
 
 	i = MUD::Skill(ESkill::kSneak).difficulty;
@@ -491,7 +491,7 @@ bool PerformSimpleMove(CharData *ch, int dir, int following, CharData *leader, E
 	else
 		PlaceCharToRoom(ch, go_to);
 	if (horse) {
-		GET_HORSESTATE(horse) -= 1;
+		horse->mob_specials.HorseState -= 1;
 		RemoveCharFromRoom(horse);
 		PlaceCharToRoom(horse, go_to);
 	}
@@ -543,7 +543,7 @@ bool PerformSimpleMove(CharData *ch, int dir, int following, CharData *leader, E
 		} else
 			strcpy(smallBuf, "приш$y");
 
-		//log("%s-%d",GET_NAME(ch),ch->in_room);
+		//log("%s-%d",ch->get_name().c_str(),ch->in_room);
 		sprintf(buf2, "$n %s %s.", smallBuf, DirsFrom[dir]);
 		//log(buf2);
 		act(buf2, true, ch, nullptr, nullptr, kToRoom);
@@ -581,7 +581,7 @@ bool PerformSimpleMove(CharData *ch, int dir, int following, CharData *leader, E
 	// add track info
 	if (!AFF_FLAGGED(ch, EAffect::kNoTrack)
 		&& (!ch->IsNpc()
-			|| (mob_rnum = ch->get_rnum()) >= 0)) {
+			|| (mob_rnum = GET_MOB_RNUM(ch)) >= 0)) {
 		for (track = world[go_to]->track; track; track = track->next) {
 			if ((ch->IsNpc() && IS_SET(track->track_info, TRACK_NPC) && track->who == mob_rnum)
 				|| (!ch->IsNpc() && !IS_SET(track->track_info, TRACK_NPC) && track->who == ch->get_uid())) {
@@ -761,7 +761,7 @@ void FleeToRoom(CharData *ch, RoomRnum room) {
 		room = ch->get_from_room();
 	}
 
-	if (!ch->IsNpc() && NORENTABLE(ch) && ROOM_FLAGGED(room, ERoomFlag::kArena) && !ch->IsImmortal()) {
+	if (!ch->IsNpc() && (ch->IsNpc() ? 0 : ch->player_specials->may_rent) && ROOM_FLAGGED(room, ERoomFlag::kArena) && !IS_IMMORTAL(ch)) {
 		SendMsgToChar("Вы не можете попасть на арену в состоянии боевых действий!\r\n", ch);
 		room = ch->get_from_room();
 	}

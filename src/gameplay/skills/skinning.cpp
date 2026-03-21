@@ -184,7 +184,7 @@ bool skill_to_skin(CharData *mob, CharData *ch) {
 				if (number(1, 100) <= num)
 					return true;
 			} else {
-				sprintf(buf, "Ваше умение слишком низкое, чтобы содрать шкуру %s.\r\n", GET_PAD(mob, 1));
+				sprintf(buf, "Ваше умение слишком низкое, чтобы содрать шкуру %s.\r\n", mob->player_data.PNames[1].c_str());
 				SendMsgToChar(buf, ch);
 				return false;
 			}
@@ -196,7 +196,7 @@ bool skill_to_skin(CharData *mob, CharData *ch) {
 				if (number(1, 100) <= num)
 					return true;
 			} else {
-				sprintf(buf, "Ваше умение слишком низкое, чтобы содрать шкуру %s.\r\n", GET_PAD(mob, 1));
+				sprintf(buf, "Ваше умение слишком низкое, чтобы содрать шкуру %s.\r\n", mob->player_data.PNames[1].c_str());
 				SendMsgToChar(buf, ch);
 				return false;
 			}
@@ -208,7 +208,7 @@ bool skill_to_skin(CharData *mob, CharData *ch) {
 				if (number(1, 100) <= num)
 					return true;
 			} else {
-				sprintf(buf, "Ваше умение слишком низкое, чтобы содрать шкуру %s.\r\n", GET_PAD(mob, 1));
+				sprintf(buf, "Ваше умение слишком низкое, чтобы содрать шкуру %s.\r\n", mob->player_data.PNames[1].c_str());
 				SendMsgToChar(buf, ch);
 				return false;
 			}
@@ -220,7 +220,7 @@ bool skill_to_skin(CharData *mob, CharData *ch) {
 				if (number(1, 100) <= num)
 					return true;
 			} else {
-				sprintf(buf, "Ваше умение слишком низкое, чтобы содрать шкуру %s.\r\n", GET_PAD(mob, 1));
+				sprintf(buf, "Ваше умение слишком низкое, чтобы содрать шкуру %s.\r\n", mob->player_data.PNames[1].c_str());
 				SendMsgToChar(buf, ch);
 				return false;
 			}
@@ -328,17 +328,17 @@ void DoSkinning(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	const auto mob = (mob_proto + GetMobRnum(mobn));
 
-	if (!ch->IsImmortal()
-		&& GET_RACE(mob) != ENpcRace::kAnimal
-		&& GET_RACE(mob) != ENpcRace::kReptile
-		&& GET_RACE(mob) != ENpcRace::kFish
-		&& GET_RACE(mob) != ENpcRace::kBird
-		&& GET_RACE(mob) != ENpcRace::kBeastman) {
+	if (!IS_IMMORTAL(ch)
+		&& mob->player_data.Race != ENpcRace::kAnimal
+		&& mob->player_data.Race != ENpcRace::kReptile
+		&& mob->player_data.Race != ENpcRace::kFish
+		&& mob->player_data.Race != ENpcRace::kBird
+		&& mob->player_data.Race != ENpcRace::kBeastman) {
 		SendMsgToChar("Этот труп невозможно освежевать.\r\n", ch);
 		return;
 	}
 
-	if (GET_WEIGHT(mob) < 11) {
+	if (mob->player_data.weight < 11) {
 		SendMsgToChar("Этот труп слишком маленький, ничего не получится.\r\n", ch);
 		return;
 	}
@@ -371,9 +371,9 @@ void DoSkinning(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		std::vector<ObjData *> entrails;
 		entrails.push_back(tobj.get());
 
-		if (GET_RACE(mob) == ENpcRace::kAnimal) // шкуры только с животных
+		if (mob->player_data.Race == ENpcRace::kAnimal) // шкуры только с животных
 		{
-			if (ch->IsImmortal() || skill_to_skin(mob, ch)) {
+			if (IS_IMMORTAL(ch) || skill_to_skin(mob, ch)) {
 				entrails.push_back(create_skin(mob, ch));
 			}
 		}

@@ -64,7 +64,7 @@ void DoDropConnect(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 		sprintf(buf, "Соединение #%d закрыто.\r\n", num_to_dc);
 		SendMsgToChar(buf, ch);
-		imm_log("Connect closed by %s.", GET_NAME(ch));
+		imm_log("Connect closed by %s.", ch->get_name().c_str());
 	}
 }
 

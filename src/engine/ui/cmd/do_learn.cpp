@@ -69,14 +69,14 @@ void LearnSpellBook(CharData *ch, ObjData *obj) {
 		throw LowRemortOrLvl();
 	}
 	auto spell_name = MUD::Spell(spell_id).GetName();
-	if (GET_SPELL_TYPE(ch, spell_id) & ESpellType::kKnow) {
+	if (ch->real_abils.SplKnw[to_underlying(spell_id)] & ESpellType::kKnow) {
 		throw AlreadyKnown(spell_name);
 	}
 	if (IsLearningFailed(ch, obj)) {
 		throw LearningFail();
 	}
 
-	GET_SPELL_TYPE(ch, spell_id) |= ESpellType::kKnow;
+	ch->real_abils.SplKnw[to_underlying(spell_id)] |= ESpellType::kKnow;
 	SendSuccessLearningMessage(ch, obj, spell_name);
 }
 
@@ -165,8 +165,8 @@ void LearnReceiptBook(CharData *ch, ObjData *obj) {
 	SendSuccessLearningMessage(ch, obj, receipt_name);
 	CREATE(receipt_skill, 1);
 	receipt_skill->rid = receipt_id;
-	receipt_skill->link = GET_RSKILL(ch);
-	GET_RSKILL(ch) = receipt_skill;
+	receipt_skill->link = ch->player_specials->rskill;
+	ch->player_specials->rskill = receipt_skill;
 	receipt_skill->perc = 5;
 }
 

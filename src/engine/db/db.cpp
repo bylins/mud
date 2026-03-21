@@ -1715,14 +1715,14 @@ void SetTestData(CharData *mob) {
 						int min_cast = 20 + 3 * (mob->GetLevel() - 31);
 						min_cast = calc_boss_value(mob, min_cast);
 
-						if (GET_CAST_SUCCESS(mob) < min_cast) {
-							//log("test4: %s - %d -> %d", mob->get_name(), GET_CAST_SUCCESS(mob), min_cast);
-							GET_CAST_SUCCESS(mob) = min_cast;
+						if (mob->add_abils.cast_success < min_cast) {
+							//log("test4: %s - %d -> %d", mob->get_name(), mob->add_abils.cast_success, min_cast);
+							mob->add_abils.cast_success = min_cast;
 						}
 
 						int min_absorbe = calc_boss_value(mob, mob->GetLevel());
-						if (GET_ABSORBE(mob) < min_absorbe) {
-							GET_ABSORBE(mob) = min_absorbe;
+						if (mob->add_abils.absorb < min_absorbe) {
+							mob->add_abils.absorb = min_absorbe;
 						}
 
 						break;
@@ -1850,15 +1850,15 @@ CharData *ReadMobile(MobVnum nr, int type) {                // and MobRnum
 
 	mob->points.hit = mob->points.max_hit;
 	mob->mem_queue.total = mob->mem_queue.stored = 0;
-	GET_HORSESTATE(mob) = 800;
-	GET_LASTROOM(mob) = kNowhere;
+	mob->mob_specials.HorseState = 800;
+	mob->mob_specials.LastRoom = kNowhere;
 	if (mob->mob_specials.speed <= -1)
-		GET_ACTIVITY(mob) = number(0, kPulseMobile - 1);
+		mob->mob_specials.activity = number(0, kPulseMobile - 1);
 	else
-		GET_ACTIVITY(mob) = number(0, mob->mob_specials.speed);
+		mob->mob_specials.activity = number(0, mob->mob_specials.speed);
 	mob->extract_timer = 0;
 	mob->points.move = mob->points.max_move;
-	mob->add_gold(RollDices(GET_GOLD_NoDs(mob), GET_GOLD_SiDs(mob)));
+	mob->add_gold(RollDices(mob->mob_specials.GoldNoDs, mob->mob_specials.GoldSiDs));
 
 	mob->player_data.time.birth = time(nullptr);
 	mob->player_data.time.played = 0;
@@ -2173,14 +2173,14 @@ void paste_mob(CharData *ch, RoomRnum room) {
 				return;
 			}
 
-			if (GET_LASTROOM(ch) == kNowhere)
+			if (ch->mob_specials.LastRoom == kNowhere)
 			{
 				ExtractCharFromWorld(ch, false, true);
 				return;
 			}
 
 			RemoveCharFromRoom(ch);
-			PlaceCharToRoom(ch, GET_LASTROOM(ch));
+			PlaceCharToRoom(ch, ch->mob_specials.LastRoom);
 		}
 		else
 		{
@@ -2195,17 +2195,17 @@ void paste_mob(CharData *ch, RoomRnum room) {
 				{
 					char log_buf[kMaxInputLength];
 					snprintf(log_buf, sizeof(log_buf), "Сезонный моб %s [%d] сложил вещи в узелок в комнате %d перед уходом в виртуальную комнату.",
-						GET_NAME(ch), GET_MOB_VNUM(ch), world[room]->vnum);
+						ch->get_name().c_str(), GET_MOB_VNUM(ch), world[room]->vnum);
 					mudlog(log_buf, NRM, kLvlGod, SYSLOG, true);
 				}
 			}
 
-			GET_LASTROOM(ch) = room;
+			ch->mob_specials.LastRoom = room;
 			RemoveCharFromRoom(ch);
 			room = GetRoomRnum(zone_table[world[room]->zone_rn].top);
 
 			if (room == kNowhere)
-				room = GET_LASTROOM(ch);
+				room = ch->mob_specials.LastRoom;
 
 			PlaceCharToRoom(ch, room);
 		}
@@ -2484,7 +2484,7 @@ void ZoneReset::ResetZoneEssential() {
 					leader = nullptr;
 					if (reset_cmd.arg1 >= kFirstRoom && reset_cmd.arg1 <= top_of_world) {
 						for (const auto ch : world[reset_cmd.arg1]->people) {
-							if (ch->IsNpc() && ch->get_rnum() == reset_cmd.arg2) {
+							if (ch->IsNpc() && GET_MOB_RNUM(ch) == reset_cmd.arg2) {
 								leader = ch;
 							}
 						}
@@ -2492,7 +2492,7 @@ void ZoneReset::ResetZoneEssential() {
 						if (leader) {
 							for (const auto ch : world[reset_cmd.arg1]->people) {
 								if (ch->IsNpc()
-									&& ch->get_rnum() == reset_cmd.arg3
+									&& GET_MOB_RNUM(ch) == reset_cmd.arg3
 									&& leader != ch
 									&& !ch->makes_loop(leader)) {
 									if (IS_CHARMICE(ch)) {
@@ -2943,7 +2943,7 @@ int CountMobsInRoom(int m_num, int r_num) {
 	int count = 0;
 
 	for (const auto &ch : world[r_num]->people) {
-		if (m_num == ch->get_rnum()
+		if (m_num == GET_MOB_RNUM(ch)
 			&& !ch->IsFlagged(EMobFlag::kResurrected)) {
 			count++;
 		}

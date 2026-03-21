@@ -322,7 +322,7 @@ void Damage::CalcArmorDmgAbsorption(CharData *victim) {
 				// танцующая тень в осторожке - до 60 брони
 				max_armour = 60;
 			}
-			int tmp_dam = dam * std::max(0, std::min(max_armour, GET_ARMOUR(victim))) / 100;
+			int tmp_dam = dam * std::max(0, std::min(max_armour, victim->add_abils.armour)) / 100;
 			// ополовинивание брони по флагу скила
 			if (tmp_dam >= 2 && flags[fight::kHalfIgnoreArmor]) {
 				tmp_dam /= 2;
@@ -342,7 +342,7 @@ bool Damage::CalcDmgAbsorption(CharData *ch, CharData *victim) {
 		&& skill_id < ESkill::kFirst
 		&& spell_id < ESpell::kUndefined
 		&& dam > 0
-		&& GET_ABSORBE(victim) > 0) {
+		&& victim->add_abils.absorb > 0) {
 		// шансы поглощения: непробиваемый в осторожке 15%, остальные 10%
 		int chance = 10 + GetRealRemort(victim) / 3;
 		if (CanUseFeat(victim, EFeat::kImpregnable)
@@ -351,7 +351,7 @@ bool Damage::CalcDmgAbsorption(CharData *ch, CharData *victim) {
 		}
 		// физ урон - прямое вычитание из дамага
 		if (number(1, 100) <= chance) {
-			dam -= GET_ABSORBE(victim) / 2;
+			dam -= victim->add_abils.absorb / 2;
 			if (dam <= 0) {
 				act("Ваши доспехи полностью поглотили удар $n1.",
 					false, ch, nullptr, victim, kToVict);
@@ -365,10 +365,10 @@ bool Damage::CalcDmgAbsorption(CharData *ch, CharData *victim) {
 	}
 	if (dmg_type == fight::kMagicDmg
 		&& dam > 0
-		&& GET_ABSORBE(victim) > 0
+		&& victim->add_abils.absorb > 0
 		&& !flags[fight::kIgnoreAbsorbe]) {
 // маг урон - по 1% за каждые 2 абсорба, максимум 25% (цифры из mag_damage)
-		int absorb = std::min(GET_ABSORBE(victim) / 2, 25);
+		int absorb = std::min(victim->add_abils.absorb / 2, 25);
 		dam -= dam * absorb / 100;
 	}
 	return false;
@@ -507,7 +507,7 @@ void Damage::ProcessDeath(CharData *ch, CharData *victim) const {
 
 		for (const auto &ch_vict : world[ch->in_room]->people) {
 			//Мобы все кто присутствовал при смерти игрока забывают
-			if (ch_vict->IsImmortal())
+			if (IS_IMMORTAL(ch_vict))
 				continue;
 			if (!HERE(ch_vict))
 				continue;
@@ -606,13 +606,13 @@ int Damage::Process(CharData *ch, CharData *victim) {
 	PerformPostInit(ch, victim);
 	if (victim->in_room == kNowhere || ch->in_room == kNowhere || ch->in_room != victim->in_room) {
 		log("SYSERR: Attempt to damage '%s' in room kNowhere by '%s'.",
-			GET_NAME(victim), GET_NAME(ch));
+			victim->get_name().c_str(), ch->get_name().c_str());
 		debug::backtrace(runtime_config.logs(SYSLOG).handle());
 		return 0;
 	}
 	if (victim->purged()) { //будем мониторить коредамп
 		log("SYSERR: Attempt to damage purged char/mob '%s' in room #%d by '%s'.",
-			GET_NAME(victim), GET_ROOM_VNUM(victim->in_room), GET_NAME(ch));
+			victim->get_name().c_str(), GET_ROOM_VNUM(victim->in_room), ch->get_name().c_str());
 		debug::backtrace(runtime_config.logs(SYSLOG).handle());
 		return 0;
 	}
@@ -623,7 +623,7 @@ int Damage::Process(CharData *ch, CharData *victim) {
 	}
 	if (victim->GetPosition() <= EPosition::kDead) {
 		log("SYSERR: Attempt to damage corpse '%s' in room #%d by '%s'.",
-			GET_NAME(victim), GET_ROOM_VNUM(victim->in_room), GET_NAME(ch));
+			victim->get_name().c_str(), GET_ROOM_VNUM(victim->in_room), ch->get_name().c_str());
 		debug::backtrace(runtime_config.logs(SYSLOG).handle());
 		die(victim, nullptr);
 		return 0;
@@ -633,11 +633,11 @@ int Damage::Process(CharData *ch, CharData *victim) {
 		return 0;
 	}
 	if (dam > 0) {
-		if (victim->IsGod()) {
+		if (IS_GOD(victim)) {
 			dam = 0;
-		} else if (victim->IsImmortal() || GET_GOD_FLAG(victim, EGf::kGodsLike)) {
+		} else if (IS_IMMORTAL(victim) || (IS_SET(victim->player_specials->saved.GodsLike, EGf::kGodsLike))) {
 			dam /= 4;
-		} else if (GET_GOD_FLAG(victim, EGf::kGodscurse)) {
+		} else if ((IS_SET(victim->player_specials->saved.GodsLike, EGf::kGodscurse))) {
 			dam *= 2;
 		}
 	}
@@ -749,15 +749,15 @@ int Damage::Process(CharData *ch, CharData *victim) {
 		dam = dam * 8 / 10;
 	}
 
-	if (GET_PR(victim) && dmg_type == fight::kPhysDmg) {
-		int ResultDam = dam - (dam * GET_PR(victim) / 100);
+	if (victim->add_abils.presist && dmg_type == fight::kPhysDmg) {
+		int ResultDam = dam - (dam * victim->add_abils.presist / 100);
 		ch->send_to_TC(false, true, false,
 					   "&CУчет поглощения урона: %d начислено, %d применено.&n\r\n", dam, ResultDam);
 		victim->send_to_TC(false, true, false,
 						   "&CУчет поглощения урона: %d начислено, %d применено.&n\r\n", dam, ResultDam);
 		dam = ResultDam;
 	}
-	if (!ch->IsImmortal() && AFF_FLAGGED(victim, EAffect::kGodsShield)) {
+	if (!IS_IMMORTAL(ch) && AFF_FLAGGED(victim, EAffect::kGodsShield)) {
 		if (skill_id == ESkill::kBash) {
 			SendSkillMessages(dam, ch, victim, msg_num);
 		}
@@ -848,8 +848,8 @@ int Damage::Process(CharData *ch, CharData *victim) {
 	victim->set_hit(victim->get_hit() - dam);
 	victim->send_to_TC(false, true, true, "&MПолучен урон = %d&n\r\n", dam);
 	ch->send_to_TC(false, true, true, "&MПрименен урон = %d&n\r\n", dam);
-	if (dmg_type == fight::kPhysDmg && GET_GOD_FLAG(ch, EGf::kSkillTester) && skill_id != ESkill::kUndefined) {
-		log("SKILLTEST:;%s;skill;%s;damage;%d;Luck;%s", GET_NAME(ch), MUD::Skill(skill_id).GetName(), dam, flags[fight::kCritLuck] ? "yes" : "no");
+	if (dmg_type == fight::kPhysDmg && (IS_SET(ch->player_specials->saved.GodsLike, EGf::kSkillTester)) && skill_id != ESkill::kUndefined) {
+		log("SKILLTEST:;%s;skill;%s;damage;%d;Luck;%s", ch->get_name().c_str(), MUD::Skill(skill_id).GetName(), dam, flags[fight::kCritLuck] ? "yes" : "no");
 	}
 	// если на чармисе вампир
 	if (AFF_FLAGGED(ch, EAffect::kVampirism)) {

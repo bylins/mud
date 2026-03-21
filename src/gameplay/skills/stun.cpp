@@ -28,7 +28,7 @@ void do_stun(CharData *ch, char *argument, int, int) {
 		SendMsgToChar("Ваш грозный вид не испугает даже мышь, попробуйте ошеломить попозже.\r\n", ch);
 		return;
 	}
-	if (!ch->IsNpc() && !(GET_EQ(ch, EEquipPos::kWield) || GET_EQ(ch, EEquipPos::kBoths))) {
+	if (!ch->IsNpc() && !(ch->equipment[EEquipPos::kWield] || ch->equipment[EEquipPos::kBoths])) {
 		SendMsgToChar("Вы должны держать оружие в основной руке.\r\n", ch);
 		return;
 	}
@@ -72,7 +72,7 @@ void go_stun(CharData *ch, CharData *vict) {
 			true, ch, nullptr, vict, kToNotVict | kToArenaListen);
 		set_hit(ch, vict);
 	} else {
-		if (GET_EQ(ch, EEquipPos::kBoths)
+		if (ch->equipment[EEquipPos::kBoths]
 		&& static_cast<ESkill>((ch->equipment[EEquipPos::kBoths])->get_spec_param()) == ESkill::kBows) {
 			act("Точным выстрелом вы ошеломили $N3!",
 				false, ch, nullptr, vict, kToChar);

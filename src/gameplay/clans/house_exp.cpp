@@ -173,8 +173,8 @@ void ClanPkLog::load(const std::string &abbrev) {
 
 void ClanPkLog::check(CharData *ch, CharData *victim) {
 	if (!ch || !victim || ch->purged() || victim->purged()
-		|| victim->IsNpc() || !CLAN(victim) || ch == victim
-		|| (ROOM_FLAGGED(victim->in_room, ERoomFlag::kArena) && !NORENTABLE(victim))) {
+		|| victim->IsNpc() || !victim->player_specials->clan || ch == victim
+		|| (ROOM_FLAGGED(victim->in_room, ERoomFlag::kArena) && !(victim->IsNpc() ? 0 : victim->player_specials->may_rent))) {
 		return;
 	}
 	CharData *killer = ch;
@@ -183,18 +183,18 @@ void ClanPkLog::check(CharData *ch, CharData *victim) {
 		&& !killer->get_master()->IsNpc()) {
 		killer = killer->get_master();
 	}
-	if (!killer->IsNpc() && CLAN(killer) != CLAN(victim)) {
+	if (!killer->IsNpc() && killer->player_specials->clan != victim->player_specials->clan) {
 		char timeBuf[20];
 		time_t curr_time = time(0);
 		strftime(timeBuf, sizeof(timeBuf), "%d-%m-%Y (%H:%M)", localtime(&curr_time));
 		std::stringstream out;
 		out << timeBuf << ": "
-			<< GET_NAME(victim) << " убит" << GET_CH_SUF_6(victim) << " "
-			<< GET_PAD(killer, 4) << "\r\n";
+			<< victim->get_name().c_str() << " убит" << GET_CH_SUF_6(victim) << " "
+			<< killer->player_data.PNames[4].c_str() << "\r\n";
 
-		CLAN(victim)->pk_log.add(out.str());
-		if (CLAN(killer)) {
-			CLAN(killer)->pk_log.add(out.str());
+		victim->player_specials->clan->pk_log.add(out.str());
+		if (killer->player_specials->clan) {
+			killer->player_specials->clan->pk_log.add(out.str());
 		}
 	}
 }

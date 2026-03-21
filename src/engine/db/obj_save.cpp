@@ -48,7 +48,7 @@ extern RoomRnum r_named_start_room;
 extern RoomRnum r_unreg_start_room;
 
 #define RENTCODE(number) (player_table[(number)].timer->rent.rentcode)
-#define GET_INDEX(ch) (GetPlayerTablePosByName(GET_NAME(ch)))
+#define GET_INDEX(ch) (GetPlayerTablePosByName(ch->get_name().c_str()))
 
 // Extern functions
 void do_tell(CharData *ch, char *argument, int cmd, int subcmd);
@@ -929,7 +929,7 @@ int auto_equip(CharData *ch, ObjData *obj, int location) {
 
 		if (location > 0)    // Wearable.
 		{
-			if (!GET_EQ(ch, j)) {
+			if (!ch->equipment[j]) {
 				// Check the characters's alignment to prevent them from being
 				// zapped through the auto-equipping.
 				if (HaveIncompatibleAlign(ch, obj) || invalid_anti_class(ch, obj) || invalid_no_class(ch, obj)
@@ -942,7 +942,7 @@ int auto_equip(CharData *ch, ObjData *obj, int location) {
 			} else    // Oops, saved a player with double equipment?
 			{
 				char aeq[128];
-				sprintf(aeq, "SYSERR: autoeq: '%s' already equipped in position %d.", GET_NAME(ch), location);
+				sprintf(aeq, "SYSERR: autoeq: '%s' already equipped in position %d.", ch->get_name().c_str(), location);
 				mudlog(aeq, BRF, kLvlImmortal, SYSLOG, true);
 				location = LOC_INVENTORY;
 			}
@@ -1354,23 +1354,23 @@ int Crash_load(CharData *ch) {
 	Crash_reload_timer(index);
 
 	if (!SAVEINFO(index)) {
-		sprintf(buf, "%s entering game with no equipment.", GET_NAME(ch));
+		sprintf(buf, "%s entering game with no equipment.", ch->get_name().c_str());
 		mudlog(buf, NRM, MAX(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
 		return (1);
 	}
 
 	switch (RENTCODE(index)) {
-		case RENT_RENTED: sprintf(buf, "%s un-renting and entering game.", GET_NAME(ch));
+		case RENT_RENTED: sprintf(buf, "%s un-renting and entering game.", ch->get_name().c_str());
 			break;
-		case RENT_CRASH: sprintf(buf, "%s retrieving crash-saved items and entering game.", GET_NAME(ch));
+		case RENT_CRASH: sprintf(buf, "%s retrieving crash-saved items and entering game.", ch->get_name().c_str());
 			break;
-		case RENT_CRYO: sprintf(buf, "%s un-cryo'ing and entering game.", GET_NAME(ch));
+		case RENT_CRYO: sprintf(buf, "%s un-cryo'ing and entering game.", ch->get_name().c_str());
 			break;
-		case RENT_FORCED: sprintf(buf, "%s retrieving force-saved items and entering game.", GET_NAME(ch));
+		case RENT_FORCED: sprintf(buf, "%s retrieving force-saved items and entering game.", ch->get_name().c_str());
 			break;
-		case RENT_TIMEDOUT: sprintf(buf, "%s retrieving auto-saved items and entering game.", GET_NAME(ch));
+		case RENT_TIMEDOUT: sprintf(buf, "%s retrieving auto-saved items and entering game.", ch->get_name().c_str());
 			break;
-		default: sprintf(buf, "SYSERR: %s entering game with undefined rent code %d.", GET_NAME(ch), RENTCODE(index));
+		default: sprintf(buf, "SYSERR: %s entering game with undefined rent code %d.", ch->get_name().c_str(), RENTCODE(index));
 			mudlog(buf, BRF, MAX(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
 			SendMsgToChar("\r\n** Неизвестный код ренты **\r\n"
 						  "Проблемы с восстановлением ваших вещей из файла.\r\n"
@@ -1383,13 +1383,13 @@ int Crash_load(CharData *ch) {
 
 	//Деньги за постой
 	num_of_days = (float) (time(0) - SAVEINFO(index)->rent.time) / kSecsPerRealDay;
-	sprintf(buf, "%s was %1.2f days in rent.", GET_NAME(ch), num_of_days);
+	sprintf(buf, "%s was %1.2f days in rent.", ch->get_name().c_str(), num_of_days);
 	mudlog(buf, LGH, MAX(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
 	cost = (int) (SAVEINFO(index)->rent.net_cost_per_diem * num_of_days);
 	cost = MAX(0, cost);
 	// added by WorM (Видолюб) 2010.06.04 сумма потраченная на найм(возвращается при креше)
 	if (RENTCODE(index) == RENT_CRASH) {
-		if (!ch->IsImmortal() && CanUseFeat(ch, EFeat::kEmployer) && ch->player_specials->saved.HiredCost != 0) {
+		if (!IS_IMMORTAL(ch) && CanUseFeat(ch, EFeat::kEmployer) && ch->player_specials->saved.HiredCost != 0) {
 			if (ch->player_specials->saved.HiredCost < 0)
 				ch->add_bank(abs(ch->player_specials->saved.HiredCost), false);
 			else
@@ -1403,7 +1403,7 @@ int Crash_load(CharData *ch) {
 		&& SAVEINFO(index)->rent.time + free_crashrent_period * kSecsPerRealHour > time(0)) || free_rent) {
 		sprintf(buf, "%s** На сей раз постой был бесплатным **%s\r\n", kColorWht, kColorNrm);
 		SendMsgToChar(buf, ch);
-		sprintf(buf, "%s entering game, free crashrent.", GET_NAME(ch));
+		sprintf(buf, "%s entering game, free crashrent.", ch->get_name().c_str());
 		mudlog(buf, NRM, MAX(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
 	} else if (cost > ch->get_gold() + ch->get_bank()) {
 		sprintf(buf, "%sВы находились на постое %1.2f дней.\n\r"
@@ -1421,7 +1421,7 @@ int Crash_load(CharData *ch) {
 									  EWhat::kMoneyA), ch->get_gold() + ch->get_bank(),
 				GetDeclensionInNumber(ch->get_gold() + ch->get_bank(), EWhat::kMoneyA), kColorNrm);
 		SendMsgToChar(buf, ch);
-		sprintf(buf, "%s: rented equipment lost (no $).", GET_NAME(ch));
+		sprintf(buf, "%s: rented equipment lost (no $).", ch->get_name().c_str());
 		mudlog(buf, LGH, MAX(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
 		ch->set_bank(0);
 		ch->set_gold(0);
@@ -1446,7 +1446,7 @@ int Crash_load(CharData *ch) {
 	}
 
 	//Чтение описаний объектов в буфер
-	if (!get_filename(GET_NAME(ch), fname, kTextCrashFile) || !(fl = fopen(fname, "r+b"))) {
+	if (!get_filename(ch->get_name().c_str(), fname, kTextCrashFile) || !(fl = fopen(fname, "r+b"))) {
 		SendMsgToChar("\r\n** Нет файла описания вещей **\r\n"
 					  "Проблемы с восстановлением ваших вещей из файла.\r\n"
 					  "Обращайтесь за помощью к Богам.\r\n", ch);
@@ -1496,7 +1496,7 @@ int Crash_load(CharData *ch) {
 		if (!obj) {
 			//SendMsgToChar("Ошибка при чтении - чтение предметов прервано.\r\n", ch);
 			SendMsgToChar("Ошибка при чтении файла объектов.\r\n", ch);
-			sprintf(buf, "SYSERR: Objects reading fail for %s error %d, stop reading.", GET_NAME(ch), error);
+			sprintf(buf, "SYSERR: Objects reading fail for %s error %d, stop reading.", ch->get_name().c_str(), error);
 			mudlog(buf, BRF, kLvlImmortal, SYSLOG, true);
 			continue;    //Ann
 		}
@@ -1518,7 +1518,7 @@ int Crash_load(CharData *ch) {
 */
 		if (obj->get_vnum() != SAVEINFO(index)->time[fsize].vnum) {
 			SendMsgToChar("Нет соответствия заголовков - чтение предметов прервано.\r\n", ch);
-			sprintf(buf, "SYSERR: Objects reading fail for %s (2), stop reading.", GET_NAME(ch));
+			sprintf(buf, "SYSERR: Objects reading fail for %s (2), stop reading.", ch->get_name().c_str());
 			mudlog(buf, BRF, kLvlImmortal, SYSLOG, true);
 			ExtractObjFromWorld(obj.get());
 			break;
@@ -1614,7 +1614,7 @@ int Crash_load(CharData *ch) {
 			obj->set_worn_on(0);
 
 			auto_equip(ch, obj, location);
-			log("%s load_char_obj %d %ld %u", GET_NAME(ch), GET_OBJ_VNUM(obj), obj->get_unique_id(), obj->get_timer());
+			log("%s load_char_obj %d %ld %u", ch->get_name().c_str(), GET_OBJ_VNUM(obj), obj->get_unique_id(), obj->get_timer());
 		} else {
 			if (obj2
 				&& obj2->get_worn_on() < obj->get_worn_on()
@@ -1644,7 +1644,7 @@ int Crash_load(CharData *ch) {
 			} else {
 				PlaceObjToInventory(obj, ch);
 			}
-			log("%s load_char_obj %d %ld %u", GET_NAME(ch), GET_OBJ_VNUM(obj), obj->get_unique_id(), obj->get_timer());
+			log("%s load_char_obj %d %ld %u", ch->get_name().c_str(), GET_OBJ_VNUM(obj), obj->get_unique_id(), obj->get_timer());
 		}
 	}
 
@@ -1708,14 +1708,14 @@ void Crash_extract_norents(CharData *ch, ObjData *obj) {
 
 void Crash_extract_norent_eq(CharData *ch) {
 	for (int j = 0; j < EEquipPos::kNumEquipPos; j++) {
-		if (GET_EQ(ch, j) == nullptr) {
+		if (ch->equipment[j] == nullptr) {
 			continue;
 		}
 
-		if (Crash_is_unrentable(ch, GET_EQ(ch, j))) {
+		if (Crash_is_unrentable(ch, ch->equipment[j])) {
 			PlaceObjToInventory(UnequipChar(ch, j, CharEquipFlags()), ch);
 		} else {
-			Crash_extract_norents(ch, GET_EQ(ch, j));
+			Crash_extract_norents(ch, ch->equipment[j]);
 		}
 	}
 }
@@ -1728,14 +1728,14 @@ void Crash_extract_norent_charmee(CharData *ch) {
 				continue;
 			}
 			for (int j = 0; j < EEquipPos::kNumEquipPos; ++j) {
-				if (!GET_EQ(k, j)) {
+				if (!k->equipment[j]) {
 					continue;
 				}
 
-				if (Crash_is_unrentable(k, GET_EQ(k, j))) {
+				if (Crash_is_unrentable(k, k->equipment[j])) {
 					PlaceObjToInventory(UnequipChar(k, j, CharEquipFlags()), k);
 				} else {
-					Crash_extract_norents(k, GET_EQ(k, j));
+					Crash_extract_norents(k, k->equipment[j]);
 				}
 			}
 			Crash_extract_norents(k, k->carrying);
@@ -1772,7 +1772,7 @@ int Crash_calculate_charmee_rent(CharData *ch) {
 
 			cost = Crash_calculate_rent(k->carrying);
 			for (int j = 0; j < EEquipPos::kNumEquipPos; ++j) {
-				cost += Crash_calculate_rent_eq(GET_EQ(k, j));
+				cost += Crash_calculate_rent_eq(k->equipment[j]);
 			}
 		}
 	}
@@ -1795,7 +1795,7 @@ int Crash_calc_charmee_items(CharData *ch) {
 				|| !k->has_master())
 				continue;
 			for (int j = 0; j < EEquipPos::kNumEquipPos; j++)
-				num += Crash_calcitems(GET_EQ(k, j));
+				num += Crash_calcitems(k->equipment[j]);
 			num += Crash_calcitems(k->carrying);
 		}
 	}
@@ -1846,7 +1846,7 @@ int save_char_objects(CharData *ch, int savetype, int rentcost) {
 		return false;
 
 	if ((iplayer = GET_INDEX(ch)) < 0) {
-		sprintf(buf, "[SYSERR] Store file '%s' - INVALID Id %d", GET_NAME(ch), iplayer);
+		sprintf(buf, "[SYSERR] Store file '%s' - INVALID Id %d", ch->get_name().c_str(), iplayer);
 		mudlog(buf, BRF, kLvlImmortal, SYSLOG, true);
 		return false;
 	}
@@ -1863,7 +1863,7 @@ int save_char_objects(CharData *ch, int savetype, int rentcost) {
 
 	// подсчет количества предметов
 	for (j = 0; j < EEquipPos::kNumEquipPos; j++) {
-		num += Crash_calcitems(GET_EQ(ch, j));
+		num += Crash_calcitems(ch->equipment[j]);
 	}
 	num += Crash_calcitems(ch->carrying);
 
@@ -1884,7 +1884,7 @@ int save_char_objects(CharData *ch, int savetype, int rentcost) {
 	// цена ренты
 	cost = Crash_calculate_rent(ch->carrying);
 	for (j = 0; j < EEquipPos::kNumEquipPos; j++) {
-		cost += Crash_calculate_rent_eq(GET_EQ(ch, j));
+		cost += Crash_calculate_rent_eq(ch->equipment[j]);
 	}
 	if (savetype == RENT_CRASH || savetype == RENT_FORCED) {
 		cost += Crash_calculate_charmee_rent(ch);
@@ -1926,8 +1926,8 @@ int save_char_objects(CharData *ch, int savetype, int rentcost) {
 	write_buffer << "@ Items file\n";
 
 	for (j = 0; j < EEquipPos::kNumEquipPos; j++) {
-		if (GET_EQ(ch, j)) {
-			crash_save_and_restore_weight(write_buffer, iplayer, GET_EQ(ch, j), j + 1, savetype);
+		if (ch->equipment[j]) {
+			crash_save_and_restore_weight(write_buffer, iplayer, ch->equipment[j], j + 1, savetype);
 		}
 	}
 
@@ -1943,8 +1943,8 @@ int save_char_objects(CharData *ch, int savetype, int rentcost) {
 			}
 
 			for (j = 0; j < EEquipPos::kNumEquipPos; j++) {
-				if (GET_EQ(k, j)) {
-					crash_save_and_restore_weight(write_buffer, iplayer, GET_EQ(k, j), 0, savetype);
+				if (k->equipment[j]) {
+					crash_save_and_restore_weight(write_buffer, iplayer, k->equipment[j], 0, savetype);
 				}
 			}
 
@@ -1955,14 +1955,14 @@ int save_char_objects(CharData *ch, int savetype, int rentcost) {
 	// в принципе экстрактить здесь чармисовый шмот в случае ребута - смысла ноль
 	if (savetype != RENT_CRASH) {
 		for (j = 0; j < EEquipPos::kNumEquipPos; j++) {
-			if (GET_EQ(ch, j)) {
-				Crash_extract_objs(GET_EQ(ch, j));
+			if (ch->equipment[j]) {
+				Crash_extract_objs(ch->equipment[j]);
 			}
 		}
 		Crash_extract_objs(ch->carrying);
 	}
 
-	if (get_filename(GET_NAME(ch), fname, kTextCrashFile)) {
+	if (get_filename(ch->get_name().c_str(), fname, kTextCrashFile)) {
 		std::ofstream file(fname);
 		if (!file.is_open()) {
 			snprintf(buf, kMaxStringLength, "[SYSERR] Store objects file '%s'- MAY BE LOCKED.", fname);
@@ -2211,7 +2211,7 @@ int Crash_offer_rent(CharData *ch, CharData *receptionist, int rentshow, int fac
 	*totalcost = 0;
 	norent = Crash_report_unrentables(ch, receptionist, ch->carrying);
 	for (i = 0; i < EEquipPos::kNumEquipPos; i++)
-		norent += Crash_report_unrentables(ch, receptionist, GET_EQ(ch, i));
+		norent += Crash_report_unrentables(ch, receptionist, ch->equipment[i]);
 	norent += Depot::report_unrentables(ch, receptionist);
 
 	if (norent)
@@ -2220,7 +2220,7 @@ int Crash_offer_rent(CharData *ch, CharData *receptionist, int rentshow, int fac
 	*totalcost = min_rent_cost(ch) * factor;
 
 	for (i = 0; i < EEquipPos::kNumEquipPos; i++)
-		Crash_report_rent(ch, receptionist, GET_EQ(ch, i), totalcost, &numitems, rentshow, factor, true, false);
+		Crash_report_rent(ch, receptionist, ch->equipment[i], totalcost, &numitems, rentshow, factor, true, false);
 
 	numitems_weared = numitems;
 	numitems = 0;
@@ -2228,10 +2228,10 @@ int Crash_offer_rent(CharData *ch, CharData *receptionist, int rentshow, int fac
 	Crash_report_rent(ch, receptionist, ch->carrying, totalcost, &numitems, rentshow, factor, false, true);
 
 	for (i = 0; i < EEquipPos::kNumEquipPos; i++)
-		if (GET_EQ(ch, i)) {
+		if (ch->equipment[i]) {
 			Crash_report_rent(ch,
 							  receptionist,
-							  (GET_EQ(ch, i))->get_contains(),
+							  (ch->equipment[i])->get_contains(),
 							  totalcost,
 							  &numitems,
 							  rentshow,
@@ -2319,7 +2319,7 @@ int gen_receptionist(CharData *ch, CharData *recep, int cmd, char * /*arg*/, int
 	if (CMD_IS("конец") || CMD_IS("quit")) {
 		if (save_room != r_helled_start_room &&
 			save_room != r_named_start_room && save_room != r_unreg_start_room)
-			GET_LOADROOM(ch) = GET_ROOM_VNUM(save_room);
+			ch->player_specials->saved.load_room = GET_ROOM_VNUM(save_room);
 		return (false);
 	}
 
@@ -2336,7 +2336,7 @@ int gen_receptionist(CharData *ch, CharData *recep, int cmd, char * /*arg*/, int
 		act("$n сказал$g : \"Чужакам здесь не место!\"", false, recep, 0, 0, kToRoom);
 		return (true);
 	}
-	if (NORENTABLE(ch)) {
+	if ((ch->IsNpc() ? 0 : ch->player_specials->may_rent)) {
 		SendMsgToChar("В связи с боевыми действиями эвакуация временно прекращена.\r\n", ch);
 		return (true);
 	}
@@ -2378,14 +2378,14 @@ int gen_receptionist(CharData *ch, CharData *recep, int cmd, char * /*arg*/, int
 			act("$n запер$q ваши вещи в сундук и повел$g в тесную каморку.", false, recep, 0, ch, kToVict);
 			Crash_rentsave(ch, cost);
 			sprintf(buf, "%s has rented (%d/day, %ld tot.)",
-					GET_NAME(ch), cost, ch->get_gold() + ch->get_bank());
+					ch->get_name().c_str(), cost, ch->get_gold() + ch->get_bank());
 		} else    // cryo
 		{
 			act("$n запер$q ваши вещи в сундук и повел$g в тесную каморку.\r\n"
 				"Белый призрак появился в комнате, обдав вас холодом...\r\n"
 				"Вы потеряли связь с окружающими вас...", false, recep, 0, ch, kToVict);
 			Crash_cryosave(ch, cost);
-			sprintf(buf, "%s has cryo-rented.", GET_NAME(ch));
+			sprintf(buf, "%s has cryo-rented.", ch->get_name().c_str());
 			ch->SetFlag(EPlrFlag::kCryo);
 		}
 
@@ -2397,7 +2397,7 @@ int gen_receptionist(CharData *ch, CharData *recep, int cmd, char * /*arg*/, int
 			act("$n проводил$g $N3 мощным пинком на свободную лавку.", false, recep, 0, ch, kToRoom);
 		else {
 			act("$n помог$q $N2 отойти ко сну.", false, recep, 0, ch, kToNotVict);
-			GET_LOADROOM(ch) = GET_ROOM_VNUM(save_room);
+			ch->player_specials->saved.load_room = GET_ROOM_VNUM(save_room);
 		}
 		Clan::clan_invoice(ch, false);
 		ch->save_char();
@@ -2420,10 +2420,10 @@ int gen_receptionist(CharData *ch, CharData *recep, int cmd, char * /*arg*/, int
 				kToChar);
 			sprintf(buf,
 					"%s has changed loadroom from %d to %d.",
-					GET_NAME(ch),
-					GET_LOADROOM(ch),
+					ch->get_name().c_str(),
+					ch->player_specials->saved.load_room,
 					GET_ROOM_VNUM(save_room));
-			GET_LOADROOM(ch) = GET_ROOM_VNUM(save_room);
+			ch->player_specials->saved.load_room = GET_ROOM_VNUM(save_room);
 			mudlog(buf, NRM, MAX(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
 			SetWaitState(ch, 1 * kBattleRound);
 			ch->save_char();
@@ -2446,7 +2446,7 @@ void Crash_frac_save_all(int frac_part) {
 	int saved_count = 0;
 
 	for (d = descriptor_list; d; d = d->next) {
-		if ((d->state == EConState::kPlaying) && !d->character->IsNpc() && GET_ACTIVITY(d->character) == frac_part) {
+		if ((d->state == EConState::kPlaying) && !d->character->IsNpc() && d->character->mob_specials.activity == frac_part) {
 
 			utils::CExecutionTimer timer;
 			Crash_crashsave(d->character.get());
@@ -2490,7 +2490,7 @@ void Crash_save_all_rent(void) {
 	character_list.foreach_on_copy([&](const auto &ch) {
 		if (!ch->IsNpc()) {
 			save_char_objects(ch.get(), RENT_FORCED, 0);
-			log("Saving char: %s", GET_NAME(ch));
+			log("Saving char: %s", ch->get_name().c_str());
 			ch->UnsetFlag(EPlrFlag::kCrashSave);
 			//AFF_FLAGS(ch.get()).unset(EAffectFlag::AFF_GROUP);
 			(ch.get())->removeGroupFlags();

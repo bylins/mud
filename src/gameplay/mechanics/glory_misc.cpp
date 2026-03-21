@@ -106,7 +106,7 @@ void add_log(int type, int num, std::string punish, std::string reason, CharData
 	temp_node->type = type;
 	temp_node->num = num;
 	std::stringstream out;
-	out << GET_NAME(vict) << " : " << punish << " [" << reason << "]";
+	out << vict->get_name().c_str() << " : " << punish << " [" << reason << "]";
 	temp_node->karma = out.str();
 	glory_log.insert(std::make_pair(time(nullptr), temp_node));
 	save_log();
@@ -206,7 +206,7 @@ int bad_real_stats(CharData *ch, int check) {
 */
 bool check_stats(CharData *ch) {
 	// иммов травмировать не стоит
-	if (ch->IsImmortal()) {
+	if (IS_IMMORTAL(ch)) {
 		return 1;
 	}
 

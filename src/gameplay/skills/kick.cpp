@@ -32,10 +32,10 @@ void go_kick(CharData *ch, CharData *vict) {
 /*	} else {
 		int percent = ((10 - (compute_armor_class(vict) / 10)) * 2) + number(1, MUD::Skill(ESkill::kKick).difficulty);
 		int prob = CalcCurrentSkill(ch, ESkill::kKick, vict);
-		if (GET_GOD_FLAG(vict, EGf::kGodscurse) || AFF_FLAGGED(vict, EAffect::kHold)) {
+		if ((IS_SET(vict->player_specials->saved.GodsLike, EGf::kGodscurse)) || AFF_FLAGGED(vict, EAffect::kHold)) {
 			prob = percent;
 		}
-		if (GET_GOD_FLAG(ch, EGf::kGodscurse) || (!ch->IsOnHorse() && vict->IsOnHorse())) {
+		if ((IS_SET(ch->player_specials->saved.GodsLike, EGf::kGodscurse)) || (!ch->IsOnHorse() && vict->IsOnHorse())) {
 			prob = 0;
 		}
 		if (IsAffectedBySpell(ch, ESpell::kWeb)) {
@@ -58,7 +58,7 @@ void go_kick(CharData *ch, CharData *vict) {
 	int bottom = (nice? skill_modi / 4 : 0);
 	skill_modi = number(bottom, skill_modi);
 	dam += dam * skill_modi / 100;
-	int weight_modi = 5 * (20 + (GET_EQ(ch, EEquipPos::kFeet) ? GET_EQ(ch, EEquipPos::kFeet)->get_weight() : 0));
+	int weight_modi = 5 * (20 + (ch->equipment[EEquipPos::kFeet] ? ch->equipment[EEquipPos::kFeet]->get_weight() : 0));
 	dam = dam * weight_modi / 100;
 	dam = number(dam * 2  /5, dam);
 		if (ch->IsOnHorse() && (ch->GetSkill(ESkill::kRiding) >= 150) && (ch->GetSkill(ESkill::kKick) >= 150)) {
@@ -68,7 +68,7 @@ void go_kick(CharData *ch, CharData *vict) {
 			af.modifier = 0;
 			af.battleflag = 0;
 			float modi = ((ch->GetSkill(ESkill::kKick) + GetRealStr(ch) * 5)
-				+ (GET_EQ(ch, EEquipPos::kFeet) ? GET_EQ(ch, EEquipPos::kFeet)->get_weight() : 0) * 3) / float(GET_SIZE(vict));
+				+ (ch->equipment[EEquipPos::kFeet] ? ch->equipment[EEquipPos::kFeet]->get_weight() : 0) * 3) / float(vict->real_abils.size);
 			if (number(1, 1000) < modi * 10) {
 				switch (number(0, (ch->GetSkill(ESkill::kKick) - 150) / 10)) {
 					case 0:
@@ -216,7 +216,7 @@ void do_kick(CharData *ch, CharData *vict) {
 		return;
 	}
 
-	if (ch->IsImpl() || !ch->GetEnemy()) {
+	if (IS_IMPL(ch) || !ch->GetEnemy()) {
 		go_kick(ch, vict);
 	} else if (IsHaveNoExtraAttack(ch)) {
 		act("Хорошо. Вы попытаетесь пнуть $N3.", false, ch, nullptr, vict, kToChar);

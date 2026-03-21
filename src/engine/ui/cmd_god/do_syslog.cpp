@@ -20,7 +20,7 @@ void DoSyslog(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		return;
 	}
 
-	tp = GET_LOGS(ch)[subcmd];
+	tp = ch->player_specials->logs[subcmd];
 	if (tp > 4)
 		tp = 4;
 	if (tp < 0)
@@ -47,7 +47,7 @@ void DoSyslog(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 					("Формат: syslog { нет | начальный | краткий | нормальный | полный }\r\n", ch);
 			return;
 		}
-		GET_LOGS(ch)[subcmd] = tp;
+		ch->player_specials->logs[subcmd] = tp;
 	}
 	sprintf(buf,
 			"Тип вашего лога (%s) сейчас %s.\r\n",

@@ -89,12 +89,12 @@ void DoMighthit(CharData *ch, CharData *victim) {
 			SendMsgToChar("Невозможно. Вы сосредоточены на захвате противника.\r\n", ch);
 		return;
 	}
-	if (!ch->IsNpc() && !ch->IsImmortal()
-		&& (GET_EQ(ch, EEquipPos::kBoths)
-			|| GET_EQ(ch, EEquipPos::kWield)
-			|| GET_EQ(ch, EEquipPos::kHold)
-			|| GET_EQ(ch, EEquipPos::kShield)
-			|| GET_EQ(ch, EEquipPos::kLight))) {
+	if (!ch->IsNpc() && !IS_IMMORTAL(ch)
+		&& (ch->equipment[EEquipPos::kBoths]
+			|| ch->equipment[EEquipPos::kWield]
+			|| ch->equipment[EEquipPos::kHold]
+			|| ch->equipment[EEquipPos::kShield]
+			|| ch->equipment[EEquipPos::kLight])) {
 		SendMsgToChar("Ваша экипировка мешает вам нанести удар.\r\n", ch);
 		return;
 	}
@@ -125,7 +125,7 @@ void PerformMighthit(CharData *ch, CharData *victim, HitData &hit_data) {
 		percent = number(1, 25);
 	}
 
-	if (victim->IsImmortal()) {
+	if (IS_IMMORTAL(victim)) {
 		prob = 0;
 	}
 
@@ -223,11 +223,11 @@ void ProcessMighthitBash(CharData *ch, CharData *victim) {
 }
 
 bool IsArmedWithMighthitWeapon(CharData *ch) {
-	if (!GET_EQ(ch, EEquipPos::kBoths)
-		&& !GET_EQ(ch, EEquipPos::kWield)
-		&& !GET_EQ(ch, EEquipPos::kHold)
-		&& !GET_EQ(ch, EEquipPos::kLight)
-		&& !GET_EQ(ch, EEquipPos::kShield)) {
+	if (!ch->equipment[EEquipPos::kBoths]
+		&& !ch->equipment[EEquipPos::kWield]
+		&& !ch->equipment[EEquipPos::kHold]
+		&& !ch->equipment[EEquipPos::kLight]
+		&& !ch->equipment[EEquipPos::kShield]) {
 		return true;
 	}
 	return false;

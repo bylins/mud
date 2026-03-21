@@ -28,10 +28,10 @@ void DoWizutil(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		SendMsgToChar("Для кого?\r\n", ch);
 	else if (!(vict = get_player_pun(ch, arg, EFind::kCharInWorld)))
 		SendMsgToChar("Нет такого игрока.\r\n", ch);
-	else if (GetRealLevel(vict) > GetRealLevel(ch) && !GET_GOD_FLAG(ch, EGf::kDemigod)
+	else if (GetRealLevel(vict) > GetRealLevel(ch) && !(IS_SET(ch->player_specials->saved.GodsLike, EGf::kDemigod))
 		&& !ch->IsFlagged(EPrf::kCoderinfo))
 		SendMsgToChar("А он ведь старше вас....\r\n", ch);
-	else if (GetRealLevel(vict) >= kLvlImmortal && GET_GOD_FLAG(ch, EGf::kDemigod))
+	else if (GetRealLevel(vict) >= kLvlImmortal && (IS_SET(ch->player_specials->saved.GodsLike, EGf::kDemigod)))
 		SendMsgToChar("А он ведь старше вас....\r\n", ch);
 	else {
 		switch (subcmd) {
@@ -39,8 +39,8 @@ void DoWizutil(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 				vict->set_start_stat(G_STR, 0);
 				SendMsgToChar(vict, "&GВам сбросили парамерты персонажа, стоит перезайти в игру.\r\n&n");
 /*				roll_real_abils(vict);
-				log("(GC) %s has rerolled %s.", GET_NAME(ch), GET_NAME(vict));
-				imm_log("%s has rerolled %s.", GET_NAME(ch), GET_NAME(vict));
+				log("(GC) %s has rerolled %s.", ch->get_name().c_str(), vict->get_name().c_str());
+				imm_log("%s has rerolled %s.", ch->get_name().c_str(), vict->get_name().c_str());
 				sprintf(buf,
 						"Новые параметры: Str %d, Int %d, Wis %d, Dex %d, Con %d, Cha %d\r\n",
 						vict->GetInbornStr(), vict->GetInbornInt(), vict->GetInbornWis(),
@@ -52,9 +52,9 @@ void DoWizutil(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 				vict->IsFlagged(EPlrFlag::kNoTitle) ? vict->UnsetFlag(EPlrFlag::kNoTitle)
 													: vict->SetFlag(EPlrFlag::kNoTitle);
 				result = vict->IsFlagged(EPlrFlag::kNoTitle);
-				sprintf(buf, "(GC) Notitle %s for %s by %s.", (result ? "ON" : "OFF"), GET_NAME(vict), GET_NAME(ch));
+				sprintf(buf, "(GC) Notitle %s for %s by %s.", (result ? "ON" : "OFF"), vict->get_name().c_str(), ch->get_name().c_str());
 				mudlog(buf, NRM, MAX(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
-				imm_log("Notitle %s for %s by %s.", (result ? "ON" : "OFF"), GET_NAME(vict), GET_NAME(ch));
+				imm_log("Notitle %s for %s by %s.", (result ? "ON" : "OFF"), vict->get_name().c_str(), ch->get_name().c_str());
 				strcat(buf, "\r\n");
 				SendMsgToChar(buf, ch);
 				break;

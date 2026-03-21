@@ -77,7 +77,7 @@ void send_password(std::string email, std::string password) {
 // Дубликат set_password, который отправляет пароль на мыло
 void set_password_to_email(CharData *ch, const std::string &pwd) {
 	ch->set_passwd(generate_md5_hash(pwd));
-	send_password(std::string(GET_EMAIL(ch)), pwd.c_str(), std::string(GET_NAME(ch)));
+	send_password(std::string(ch->player_specials->saved.EMail), pwd.c_str(), std::string(ch->get_name().c_str()));
 }
 
 // дубликат set_password, который отправляет пароль на мыло
@@ -124,7 +124,7 @@ bool compare_password(CharData *ch, const std::string &pwd) {
 bool check_password(const CharData *ch, const char *pwd) {
 // при вырубленном криптовании на локалке пароль можно ставить любой
 #ifndef NOCRYPT
-	if (!pwd || !str_cmp(pwd, GET_PC_NAME(ch)) || strlen(pwd) > MAX_PWD_LENGTH || strlen(pwd) < MIN_PWD_LENGTH)
+	if (!pwd || !str_cmp(pwd, ch->GetCharAliases().c_str()) || strlen(pwd) > MAX_PWD_LENGTH || strlen(pwd) < MIN_PWD_LENGTH)
 		return 0;
 #else
 	UNUSED_ARG(ch);

@@ -21,7 +21,7 @@ void do_memorize(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		show_wizdom(ch, 0x07);
 		return;
 	}
-	if (ch->IsImmortal()) {
+	if (IS_IMMORTAL(ch)) {
 		SendMsgToChar("Господи, хоть ты не подкалывай!\r\n", ch);
 		return;
 	}
@@ -46,7 +46,7 @@ void do_memorize(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Рано еще вам бросаться такими словами!\r\n", ch);
 		return;
 	};
-	if (!IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kKnow | ESpellType::kTemp)) {
+	if (!IS_SET(ch->real_abils.SplKnw[to_underlying(spell_id)], ESpellType::kKnow | ESpellType::kTemp)) {
 		SendMsgToChar("Было бы неплохо изучить, для начала, это заклинание...\r\n", ch);
 		return;
 	}
@@ -62,14 +62,14 @@ void show_wizdom(CharData *ch, int bitset) {
 		int count = 0;
 
 		for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
-			if (!GET_SPELL_TYPE(ch, spell_id)) {
+			if (!ch->real_abils.SplKnw[to_underlying(spell_id)]) {
 				continue;
 			}
 			if (MUD::Spell(spell_id).IsInvalid()) {
 				continue;
 			}
-			count = GET_SPELL_MEM(ch, spell_id);
-			if (ch->IsImmortal())
+			count = ch->real_abils.SplMem[to_underlying(spell_id)];
+			if (IS_IMMORTAL(ch))
 				count = 10;
 			if (!count)
 				continue;
@@ -82,7 +82,7 @@ void show_wizdom(CharData *ch, int bitset) {
 				int columns = 0;
 				ss << "\r\nКруг: " << i.first + 1;
 				for (auto it : list_spell[i.first]) {
-					ss << fmt::format("{}|[{:>2}] {:<35}|", ((++columns % 2) ? "\r\n" : " "), GET_SPELL_MEM(ch, it), MUD::Spell(it).GetCName());
+					ss << fmt::format("{}|[{:>2}] {:<35}|", ((++columns % 2) ? "\r\n" : " "), ch->real_abils.SplMem[to_underlying(it)], MUD::Spell(it).GetCName());
 				}
 				if (ss.str().back() == '\n')
 					ss.seekp(-2, std::ios_base::end);
@@ -102,7 +102,7 @@ void show_wizdom(CharData *ch, int bitset) {
 			for (int i = 0; i < to_underlying(ESpell::kLast) + 1; i++)
 				cnt[i] = ESpell::kUndefined;
 			timestr[0] = 0;
-			if (!IS_MANA_CASTER(ch)) {
+			if (!ch->IsManaCaster()) {
 				int div, min, sec;
 				div = CalcManaGain(ch);
 				if (div > 0) {

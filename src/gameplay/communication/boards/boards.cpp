@@ -119,7 +119,7 @@ void changelog_message() {
 }
 
 bool is_spamer(CharData *ch, const Board &board) {
-	if (ch->IsImmortal() || privilege::CheckFlag(ch, privilege::kBoards)) {
+	if (IS_IMMORTAL(ch) || privilege::CheckFlag(ch, privilege::kBoards)) {
 		return false;
 	}
 	if (board.get_lastwrite() != ch->get_uid()) {
@@ -252,7 +252,7 @@ void DoBoard(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		}
 
 		if (subcmd == Boards::CLAN_BOARD) {
-			if (!CLAN(ch)->check_write_board(ch)) {
+			if (!ch->player_specials->clan->check_write_board(ch)) {
 				SendMsgToChar("Вам запретили сюда писать!\r\n", ch);
 				return;
 			}
@@ -263,7 +263,7 @@ void DoBoard(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			return;
 		}
 		/// написание новостей от другого имени
-		std::string name = GET_NAME(ch);
+		std::string name = ch->get_name().c_str();
 		if (ch->IsFlagged(EPrf::kCoderinfo)
 			&& (board.get_type() == NEWS_BOARD
 				|| board.get_type() == NOTICE_BOARD)) {
@@ -282,8 +282,8 @@ void DoBoard(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		ch->IsFlagged(EPrf::kCoderinfo) ? tempMessage->level = kLvlImplementator : tempMessage->level = GetRealLevel(ch);
 
 		// клановым еще ранг
-		if (CLAN(ch)) {
-			tempMessage->rank = CLAN_MEMBER(ch)->rank_num;
+		if (ch->player_specials->clan) {
+			tempMessage->rank = ch->player_specials->clan_member->rank_num;
 		} else {
 			tempMessage->rank = 0;
 		}
@@ -343,7 +343,7 @@ void DoBoard(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		} else if (board.get_type() == CLAN_BOARD
 			|| board.get_type() == CLANNEWS_BOARD) {
 			// у кого привилегия на новости, те могут удалять везде чужие, если ранк автора такой же или ниже
-			if (CLAN_MEMBER(ch)->rank_num > board.messages[messages_index]->rank) {
+			if (ch->player_specials->clan_member->rank_num > board.messages[messages_index]->rank) {
 				SendMsgToChar("У вас нет возможности удалить это сообщение.\r\n", ch);
 				return;
 			}
@@ -709,7 +709,7 @@ std::string Static::print_stats(CharData *ch, const Board::shared_ptr board, int
 	}
 
 	std::string out;
-	if (ch->IsImmortal()
+	if (IS_IMMORTAL(ch)
 		|| ch->IsFlagged(EPrf::kCoderinfo)
 		|| !board->get_blind()) {
 		const int unread = board->count_unread(ch->get_board_date(board->get_type()));
@@ -734,7 +734,7 @@ std::bitset<ACCESS_NUM> Static::get_access(CharData *ch, const Board::shared_ptr
 		case GENERAL_BOARD:
 		case IDEA_BOARD:
 			// все читают, пишут с мин.левела, 32 и по привилегии полный
-			if (ch->IsGod() || privilege::CheckFlag(ch, privilege::kBoards)) {
+			if (IS_GOD(ch) || privilege::CheckFlag(ch, privilege::kBoards)) {
 				access.set();
 			} else {
 				access.set(ACCESS_CAN_SEE);
@@ -745,19 +745,19 @@ std::bitset<ACCESS_NUM> Static::get_access(CharData *ch, const Board::shared_ptr
 		case ERROR_BOARD:
 		case MISPRINT_BOARD:
 			// все пишут с мин.левела, 34 и по привилегии полный
-			if (ch->IsImpl()
+			if (IS_IMPL(ch)
 				|| privilege::CheckFlag(ch, privilege::kBoards)
 				|| privilege::CheckFlag(ch, privilege::kMisprint)) {
 				access.set();
 			} else {
 				access.set(ACCESS_CAN_SEE);
 				access.set(ACCESS_CAN_WRITE);
-				if (ch->IsGod()) access.set(ACCESS_CAN_READ);
+				if (IS_GOD(ch)) access.set(ACCESS_CAN_READ);
 			}
 			break;
 		case NEWS_BOARD:
 			// все читают, 34 и по привилегии полный
-			if (ch->IsImpl() || privilege::CheckFlag(ch, privilege::kBoards)) {
+			if (IS_IMPL(ch) || privilege::CheckFlag(ch, privilege::kBoards)) {
 				access.set();
 			} else {
 				access.set(ACCESS_CAN_SEE);
@@ -766,9 +766,9 @@ std::bitset<ACCESS_NUM> Static::get_access(CharData *ch, const Board::shared_ptr
 			break;
 		case GODNEWS_BOARD:
 			// 32 читают, 34 и по привилегии полный
-			if (ch->IsImpl() || privilege::CheckFlag(ch, privilege::kBoards)) {
+			if (IS_IMPL(ch) || privilege::CheckFlag(ch, privilege::kBoards)) {
 				access.set();
-			} else if (ch->IsGod()) {
+			} else if (IS_GOD(ch)) {
 				access.set(ACCESS_CAN_SEE);
 				access.set(ACCESS_CAN_READ);
 			}
@@ -776,9 +776,9 @@ std::bitset<ACCESS_NUM> Static::get_access(CharData *ch, const Board::shared_ptr
 		case GODGENERAL_BOARD:
 		case GODPUNISH_BOARD:
 			// 32 читают/пишут, 34 полный
-			if (ch->IsImpl() || privilege::CheckFlag(ch, privilege::kBoards)) {
+			if (IS_IMPL(ch) || privilege::CheckFlag(ch, privilege::kBoards)) {
 				access.set();
-			} else if (ch->IsGod()) {
+			} else if (IS_GOD(ch)) {
 				access.set(ACCESS_CAN_SEE);
 				access.set(ACCESS_CAN_READ);
 				access.set(ACCESS_CAN_WRITE);
@@ -787,25 +787,25 @@ std::bitset<ACCESS_NUM> Static::get_access(CharData *ch, const Board::shared_ptr
 		case GODBUILD_BOARD:
 		case GODCODE_BOARD:
 			// 33 читают/пишут, 34 и по привилегии полный
-			if (ch->IsImpl() || privilege::CheckFlag(ch, privilege::kBoards)) {
+			if (IS_IMPL(ch) || privilege::CheckFlag(ch, privilege::kBoards)) {
 				access.set();
-			} else if (ch->IsGrGod()) {
+			} else if (IS_GRGOD(ch)) {
 				access.set(ACCESS_CAN_SEE);
 				access.set(ACCESS_CAN_READ);
 				access.set(ACCESS_CAN_WRITE);
 			}
 			break;
 		case PERS_BOARD:
-			if (ch->IsGod() && board->get_pers_uniq() == ch->get_uid()
-				&& CompareParam(board->get_pers_name(), GET_NAME(ch), 1)) {
+			if (IS_GOD(ch) && board->get_pers_uniq() == ch->get_uid()
+				&& CompareParam(board->get_pers_name(), ch->get_name().c_str(), 1)) {
 				access.set();
 			}
 			break;
 		case CLAN_BOARD:
 			// от клан-новостей отличается тем, что писать могут все звания
-			if (CLAN(ch) && CLAN(ch)->GetRent() == board->get_clan_rent()) {
+			if (ch->player_specials->clan && ch->player_specials->clan->GetRent() == board->get_clan_rent()) {
 				// воевода
-				if (CLAN(ch)->CheckPrivilege(CLAN_MEMBER(ch)->rank_num, ClanSystem::MAY_CLAN_NEWS)) {
+				if (ch->player_specials->clan->CheckPrivilege(ch->player_specials->clan_member->rank_num, ClanSystem::MAY_CLAN_NEWS)) {
 					access.set();
 				} else {
 					access.set(ACCESS_CAN_SEE);
@@ -816,8 +816,8 @@ std::bitset<ACCESS_NUM> Static::get_access(CharData *ch, const Board::shared_ptr
 			break;
 		case CLANNEWS_BOARD:
 			// неклановые не видят, клановые могут читать все, писать могут по привилегии, воевода может стирать чужие
-			if (CLAN(ch) && CLAN(ch)->GetRent() == board->get_clan_rent()) {
-				if (CLAN(ch)->CheckPrivilege(CLAN_MEMBER(ch)->rank_num, ClanSystem::MAY_CLAN_NEWS)) {
+			if (ch->player_specials->clan && ch->player_specials->clan->GetRent() == board->get_clan_rent()) {
+				if (ch->player_specials->clan->CheckPrivilege(ch->player_specials->clan_member->rank_num, ClanSystem::MAY_CLAN_NEWS)) {
 					access.set();
 				} else {
 					access.set(ACCESS_CAN_SEE);
@@ -827,9 +827,9 @@ std::bitset<ACCESS_NUM> Static::get_access(CharData *ch, const Board::shared_ptr
 			break;
 		case NOTICE_BOARD:
 			// 34+ и по привилегии полный, 32+ пишут/читают, остальные только читают
-			if (ch->IsImpl() || privilege::CheckFlag(ch, privilege::kBoards)) {
+			if (IS_IMPL(ch) || privilege::CheckFlag(ch, privilege::kBoards)) {
 				access.set();
-			} else if (ch->IsGod()) {
+			} else if (IS_GOD(ch)) {
 				access.set(ACCESS_CAN_SEE);
 				access.set(ACCESS_CAN_READ);
 				access.set(ACCESS_CAN_WRITE);
@@ -840,7 +840,7 @@ std::bitset<ACCESS_NUM> Static::get_access(CharData *ch, const Board::shared_ptr
 			break;
 		case SUGGEST_BOARD:
 			// по привилегии boards/suggest и 34 полный, остальным только запись с мин левела/морта
-			if (ch->IsImpl()
+			if (IS_IMPL(ch)
 				|| privilege::CheckFlag(ch, privilege::kBoards)
 				|| privilege::CheckFlag(ch, privilege::kSuggest)) {
 				access.set();
@@ -857,7 +857,7 @@ std::bitset<ACCESS_NUM> Static::get_access(CharData *ch, const Board::shared_ptr
 	}
 
 	// категории граждан, которые писать могут только на клан-доски
-	if (!ch->IsImmortal()
+	if (!IS_IMMORTAL(ch)
 		&& (ch->IsFlagged(EPlrFlag::kHelled)
 			|| ch->IsFlagged(EPlrFlag::kNameDenied)
 			|| ch->IsFlagged(EPlrFlag::kDumbed)
@@ -925,7 +925,7 @@ void report_on_board(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	}
 	// генерим мессагу (TODO: копипаст с написания на доску, надо бы вынести)
 	const auto temp_message = std::make_shared<Message>();
-	temp_message->author = GET_NAME(ch) ? GET_NAME(ch) : "неизвестен";
+	temp_message->author = ch->get_name().c_str() ? ch->get_name().c_str() : "неизвестен";
 	temp_message->unique = ch->get_uid();
 	// для досок кроме клановых и персональных пишет левел автора (для возможной очистки кем-то)
 	temp_message->level = GetRealLevel(ch);

@@ -433,7 +433,7 @@ void do_wexp(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Trigge
 
 	if ((ch = get_char_by_room(room, name))) {
 		EndowExpToChar(ch, atoi(amount));
-		sprintf(buf, "wexp: victim (%s) получил опыт %d", GET_NAME(ch), atoi(amount));
+		sprintf(buf, "wexp: victim (%s) получил опыт %d", ch->get_name().c_str(), atoi(amount));
 		wld_log(room, trig, buf);
 	} else {
 		wld_log(room, trig, "wexp: target not found");
@@ -552,7 +552,7 @@ void do_wdamage(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 			return;
 		}
 
-		if (ch->IsImmortal() && dam > 0) {
+		if (IS_IMMORTAL(ch) && dam > 0) {
 			SendMsgToChar("Будучи бессмертным, вы избежали повреждения...\r\n", ch);
 			return;
 		}
@@ -575,7 +575,7 @@ void do_wdamage(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 			char_dam_message(dam, ch, ch, 0);
 			if (ch->GetPosition() == EPosition::kDead) {
 				if (!ch->IsNpc()) {
-					sprintf(buf2, "%s killed by wdamage at %s [%d]", GET_NAME(ch),
+					sprintf(buf2, "%s killed by wdamage at %s [%d]", ch->get_name().c_str(),
 							ch->in_room == kNowhere ? "kNowhere" : world[ch->in_room]->name, GET_ROOM_VNUM(ch->in_room));
 					mudlog(buf2, BRF, kLvlBuilder, SYSLOG, true);
 				}

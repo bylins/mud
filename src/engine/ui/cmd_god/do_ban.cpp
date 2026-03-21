@@ -38,7 +38,7 @@ void do_ban(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					return;
 			};
 		std::string banned_ip(site);
-		std::string banner_name(GET_NAME(ch));
+		std::string banner_name(ch->get_name().c_str());
 
 		if (!ban->AddProxyBan(banned_ip, banner_name)) {
 			SendMsgToChar("The site is already in the proxy ban list.\r\n", ch);
@@ -88,7 +88,7 @@ void do_ban(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 	std::string banned_ip(site);
-	std::string banner_name(GET_NAME(ch));
+	std::string banner_name(ch->get_name().c_str());
 	std::string ban_reason(reason);
 	for (int i = BanList::BAN_NEW; i <= BanList::BAN_ALL; i++)
 		if (!str_cmp(flag, BanList::ban_types[i]))

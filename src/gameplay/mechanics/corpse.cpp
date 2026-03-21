@@ -320,7 +320,7 @@ bool check_mob(ObjData *corpse, CharData *mob) {
 			&& (!i->max_mob_lvl
 				|| GetRealLevel(mob) <= i->max_mob_lvl)        // моб в диапазоне уровней
 			&& ((i->race_mob < 0)
-				|| (GET_RACE(mob) == i->race_mob)
+				|| (mob->player_data.Race == i->race_mob)
 				|| (get_virtual_race(mob) == i->race_mob))        // совпадает раса или для всех
 			&& (i->day_start <= day && i->day_end >= day)            // временной промежуток
 			&& (!NPC_FLAGGED(mob, ENpcFlag::kFreeDrop))  //не падают из фридропа
@@ -343,7 +343,7 @@ bool check_mob(ObjData *corpse, CharData *mob) {
 					sprintf(buf, "Фридроп: упал предмет %s VNUM %d с моба %s VNUM %d (%d lvl)",
 							obj_proto[obj_rnum]->get_short_description().c_str(),
 							obj_proto[obj_rnum]->get_vnum(),
-							GET_NAME(mob),
+							mob->get_name().c_str(),
 							GET_MOB_VNUM(mob), GetRealLevel(mob));
 					mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 					obj_to_corpse(corpse, mob, obj_rnum, false);
@@ -362,25 +362,25 @@ void make_arena_corpse(CharData *ch, CharData *killer) {
 	auto corpse = world_objects.create_blank();
 	corpse->set_sex(EGender::kPoly);
 
-	sprintf(buf2, "Останки %s лежат на земле.", GET_PAD(ch, 1));
+	sprintf(buf2, "Останки %s лежат на земле.", ch->player_data.PNames[1].c_str());
 	corpse->set_description(buf2);
 
-	sprintf(buf2, "останки %s", GET_PAD(ch, 1));
+	sprintf(buf2, "останки %s", ch->player_data.PNames[1].c_str());
 	corpse->set_short_description(buf2);
 
-	sprintf(buf2, "останки %s", GET_PAD(ch, 1));
+	sprintf(buf2, "останки %s", ch->player_data.PNames[1].c_str());
 	corpse->set_PName(ECase::kNom, buf2);
 	corpse->set_aliases(buf2);
 
-	sprintf(buf2, "останков %s", GET_PAD(ch, 1));
+	sprintf(buf2, "останков %s", ch->player_data.PNames[1].c_str());
 	corpse->set_PName(ECase::kGen, buf2);
-	sprintf(buf2, "останкам %s", GET_PAD(ch, 1));
+	sprintf(buf2, "останкам %s", ch->player_data.PNames[1].c_str());
 	corpse->set_PName(ECase::kDat, buf2);
-	sprintf(buf2, "останки %s", GET_PAD(ch, 1));
+	sprintf(buf2, "останки %s", ch->player_data.PNames[1].c_str());
 	corpse->set_PName(ECase::kAcc, buf2);
-	sprintf(buf2, "останками %s", GET_PAD(ch, 1));
+	sprintf(buf2, "останками %s", ch->player_data.PNames[1].c_str());
 	corpse->set_PName(ECase::kIns, buf2);
-	sprintf(buf2, "останках %s", GET_PAD(ch, 1));
+	sprintf(buf2, "останках %s", ch->player_data.PNames[1].c_str());
 	corpse->set_PName(ECase::kPre, buf2);
 
 	corpse->set_type(EObjType::kContainer);
@@ -390,7 +390,7 @@ void make_arena_corpse(CharData *ch, CharData *killer) {
 	corpse->set_val(0, 0);    // You can't store stuff in a corpse
 	corpse->set_val(2, ch->IsNpc() ? GET_MOB_VNUM(ch) : -1);
 	corpse->set_val(3, 1);    // corpse identifier
-	corpse->set_weight(GET_WEIGHT(ch));
+	corpse->set_weight(ch->player_data.weight);
 	corpse->set_rent_off(100000);
 	if (ch->IsNpc() && !IS_CHARMICE(ch)) {
 		corpse->set_timer(5);
@@ -400,7 +400,7 @@ void make_arena_corpse(CharData *ch, CharData *killer) {
 	ExtraDescription::shared_ptr exdesc(new ExtraDescription());
 	exdesc->keyword = str_dup(corpse->get_PName(ECase::kNom).c_str());    // косметика
 	if (killer) {
-		sprintf(buf, "Убит%s на арене %s.\r\n", GET_CH_SUF_6(ch), GET_PAD(killer, 4));
+		sprintf(buf, "Убит%s на арене %s.\r\n", GET_CH_SUF_6(ch), killer->player_data.PNames[4].c_str());
 	} else {
 		sprintf(buf, "Умер%s на арене.\r\n", GET_CH_SUF_4(ch));
 	}
@@ -417,24 +417,24 @@ ObjData *make_corpse(CharData *ch, CharData *killer) {
 	if (ch->IsNpc() && ch->IsFlagged(EMobFlag::kCorpse))
 		return nullptr;
 	auto corpse = world_objects.create_blank();
-	sprintf(buf2, "труп %s", GET_PAD(ch, 1));
+	sprintf(buf2, "труп %s", ch->player_data.PNames[1].c_str());
 	corpse->set_aliases(buf2);
 	corpse->set_sex(EGender::kMale);
-	sprintf(buf2, "Труп %s лежит здесь.", GET_PAD(ch, 1));
+	sprintf(buf2, "Труп %s лежит здесь.", ch->player_data.PNames[1].c_str());
 	corpse->set_description(buf2);
-	sprintf(buf2, "труп %s", GET_PAD(ch, 1));
+	sprintf(buf2, "труп %s", ch->player_data.PNames[1].c_str());
 	corpse->set_short_description(buf2);
-	sprintf(buf2, "труп %s", GET_PAD(ch, 1));
+	sprintf(buf2, "труп %s", ch->player_data.PNames[1].c_str());
 	corpse->set_PName(ECase::kNom, buf2);
-	sprintf(buf2, "трупа %s", GET_PAD(ch, 1));
+	sprintf(buf2, "трупа %s", ch->player_data.PNames[1].c_str());
 	corpse->set_PName(ECase::kGen, buf2);
-	sprintf(buf2, "трупу %s", GET_PAD(ch, 1));
+	sprintf(buf2, "трупу %s", ch->player_data.PNames[1].c_str());
 	corpse->set_PName(ECase::kDat, buf2);
-	sprintf(buf2, "труп %s", GET_PAD(ch, 1));
+	sprintf(buf2, "труп %s", ch->player_data.PNames[1].c_str());
 	corpse->set_PName(ECase::kAcc, buf2);
-	sprintf(buf2, "трупом %s", GET_PAD(ch, 1));
+	sprintf(buf2, "трупом %s", ch->player_data.PNames[1].c_str());
 	corpse->set_PName(ECase::kIns, buf2);
-	sprintf(buf2, "трупе %s", GET_PAD(ch, 1));
+	sprintf(buf2, "трупе %s", ch->player_data.PNames[1].c_str());
 	corpse->set_PName(ECase::kPre, buf2);
 
 	corpse->set_type(EObjType::kContainer);
@@ -464,13 +464,13 @@ ObjData *make_corpse(CharData *ch, CharData *killer) {
 	}
 	// transfer character's equipment to the corpse
 	for (i = 0; i < EEquipPos::kNumEquipPos; i++) {
-		if (GET_EQ(ch, i)) {
-			remove_otrigger(GET_EQ(ch, i), ch);
+		if (ch->equipment[i]) {
+			remove_otrigger(ch->equipment[i], ch);
 			PlaceObjToInventory(UnequipChar(ch, i, CharEquipFlags()), ch);
 		}
 	}
 	// Считаем вес шмоток после того как разденем чара
-	corpse->set_weight(GET_WEIGHT(ch) + ch->GetCarryingWeight());
+	corpse->set_weight(ch->player_data.weight + ch->GetCarryingWeight());
 	// transfer character's inventory to the corpse
 	corpse->set_contains(ch->carrying);
 	for (obj = corpse->get_contains(); obj != nullptr; obj = obj->get_next_content()) {
@@ -504,10 +504,10 @@ ObjData *make_corpse(CharData *ch, CharData *killer) {
 	}
 
 	ch->carrying = nullptr;
-	IS_CARRYING_N(ch) = 0;
-	IS_CARRYING_W(ch) = 0;
+	ch->char_specials.carry_items = 0;
+	ch->char_specials.carry_weight = 0;
 
-	if (ch->IsNpc() && GET_RACE(ch) > ENpcRace::kBasic && !NPC_FLAGGED(ch, ENpcFlag::kNoIngrDrop)
+	if (ch->IsNpc() && ch->player_data.Race > ENpcRace::kBasic && !NPC_FLAGGED(ch, ENpcFlag::kNoIngrDrop)
 		&& !ROOM_FLAGGED(ch->in_room, ERoomFlag::kHouse)) {
 		ObjData *ingr = try_make_ingr(ch, 1000);
 		if (ingr) {
@@ -517,7 +517,7 @@ ObjData *make_corpse(CharData *ch, CharData *killer) {
 
 	// если чармис убит палачом или на арене(и владелец не в бд) то труп попадает не в клетку а в инвентарь к владельцу чармиса
 	if (IS_CHARMICE(ch) && !ch->IsFlagged(EMobFlag::kCorpse)
-		&& ((killer && killer->IsFlagged(EPrf::kExecutor)) || (ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena) && !NORENTABLE(ch->get_master())))) {
+		&& ((killer && killer->IsFlagged(EPrf::kExecutor)) || (ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena) && !(ch->get_master(->IsNpc() ? 0 : ch->get_master(->player_specials->may_rent))))) {
 		if (ch->has_master()) {
 			PlaceObjToInventory(corpse.get(), ch->get_master());
 		}

@@ -74,9 +74,9 @@ char *fname(const char *namelist) {
 bool IsWearingLight(CharData *ch) {
 	bool wear_light = false;
 	for (int wear_pos = 0; wear_pos < EEquipPos::kNumEquipPos; wear_pos++) {
-		if (GET_EQ(ch, wear_pos)
-			&& GET_EQ(ch, wear_pos)->get_type() == EObjType::kLightSource
-			&& GET_OBJ_VAL(GET_EQ(ch, wear_pos), 2)) {
+		if (ch->equipment[wear_pos]
+			&& ch->equipment[wear_pos]->get_type() == EObjType::kLightSource
+			&& GET_OBJ_VAL(ch->equipment[wear_pos], 2)) {
 			wear_light = true;
 		}
 	}
@@ -143,7 +143,7 @@ void ImposeTimedFeat(CharData *ch, TimedFeat *timed) {
 
 void ExpireTimedFeat(CharData *ch, EFeat feat) {
 	if (ch->timed_feat.empty()) {
-		log("SYSERR: timed_feat_from_char(%s) when no timed...", GET_NAME(ch));
+		log("SYSERR: timed_feat_from_char(%s) when no timed...", ch->get_name().c_str());
 		return;
 	}
 
@@ -172,7 +172,7 @@ void ImposeTimedSkill(CharData *ch, struct TimedSkill *timed) {
 
 void ExpireTimedSkill(CharData *ch, ESkill skill) {
 	if (ch->timed_skill.empty()) {
-		log("SYSERR: ExpireTimedSkill(%s) when no timed...", GET_NAME(ch));
+		log("SYSERR: ExpireTimedSkill(%s) when no timed...", ch->get_name().c_str());
 		// core_dump();
 		return;
 	}
@@ -227,9 +227,9 @@ void PlaceCharToRoom(CharData *ch, RoomRnum room) {
 	}
 
 	if (!ch->IsNpc() 
-			&& NORENTABLE(ch) 
+			&& (ch->IsNpc() ? 0 : ch->player_specials->may_rent) 
 			&& ROOM_FLAGGED(room, ERoomFlag::kArena) 
-			&& !ch->IsImmortal()) {
+			&& !IS_IMMORTAL(ch)) {
 		SendMsgToChar("Вы не можете попасть на арену в состоянии боевых действий!\r\n", ch);
 		room = ch->get_from_room();
 	}
@@ -437,7 +437,7 @@ void PlaceObjToInventory(ObjData *object, CharData *ch) {
 							object->get_PName(ECase::kNom).c_str(),
 							object->get_unique_id(),
 							GET_OBJ_VNUM(object),
-							GET_NAME(ch),
+							ch->get_name().c_str(),
 							inworld);
 					mudlog(buf, BRF, kLvlImmortal, SYSLOG, true);
 					act("$o0 замигал$Q и вы увидели медленно проступившие руны 'DUPE'.", false, ch, object, nullptr, kToChar);
@@ -448,7 +448,7 @@ void PlaceObjToInventory(ObjData *object, CharData *ch) {
 			else {
 				InitUid(object);
 				log("%s obj_to_char %s #%d|%ld",
-					GET_NAME(ch),
+					ch->get_name().c_str(),
 					object->get_PName(ECase::kNom).c_str(),
 					GET_OBJ_VNUM(object),
 					object->get_unique_id());
@@ -468,8 +468,8 @@ void PlaceObjToInventory(ObjData *object, CharData *ch) {
 
 		object->set_carried_by(ch);
 		object->set_in_room(kNowhere);
-		IS_CARRYING_W(ch) += object->get_weight();
-		IS_CARRYING_N(ch)++;
+		ch->char_specials.carry_weight += object->get_weight();
+		ch->char_specials.carry_items++;
 
 		if (!ch->IsNpc()) {
 			log("obj_to_char: %s -> %d", ch->get_name().c_str(), GET_OBJ_VNUM(object));
@@ -496,20 +496,20 @@ void RemoveObjFromChar(ObjData *object) {
 		log("obj_from_char: %s -> %d", object->get_carried_by()->get_name().c_str(), GET_OBJ_VNUM(object));
 	}
 
-	IS_CARRYING_W(object->get_carried_by()) -= object->get_weight();
-	IS_CARRYING_N(object->get_carried_by())--;
+	object->get_carried_by(->char_specials.carry_weight) -= object->get_weight();
+	object->get_carried_by(->char_specials.carry_items)--;
 	object->set_carried_by(nullptr);
 	object->set_next_content(nullptr);
 }
 
 bool HaveIncompatibleAlign(CharData *ch, ObjData *obj) {
-	if (ch->IsNpc() || ch->IsImmortal()) {
+	if (ch->IsNpc() || IS_IMMORTAL(ch)) {
 		return false;
 	}
-	if (obj->has_anti_flag(EAntiFlag::kMono) && GET_RELIGION(ch) == kReligionMono) {
+	if (obj->has_anti_flag(EAntiFlag::kMono) && ch->player_data.Religion == kReligionMono) {
 		return true;
 	}
-	if (obj->has_anti_flag(EAntiFlag::kPoly) && GET_RELIGION(ch) == kReligionPoly) {
+	if (obj->has_anti_flag(EAntiFlag::kPoly) && ch->player_data.Religion == kReligionPoly) {
 		return true;
 	}
 	return false;
@@ -592,7 +592,7 @@ int GetFlagDataByCharClass(const CharData *ch) {
 	}
 
 	return flag_data_by_num(ch->IsNpc() ? kNumPlayerClasses * kNumKins : to_underlying(ch->GetClass())
-		+ kNumPlayerClasses * GET_KIN(ch));
+		+ kNumPlayerClasses * ch->player_data.Kin);
 }
 
 unsigned int ActivateStuff(CharData *ch, ObjData *obj, id_to_set_info_map::const_iterator it,
@@ -604,14 +604,14 @@ unsigned int ActivateStuff(CharData *ch, ObjData *obj, id_to_set_info_map::const
 	if (pos < EEquipPos::kNumEquipPos) {
 		set_info::const_iterator set_obj_info;
 
-		if (GET_EQ(ch, pos) && GET_EQ(ch, pos)->has_flag(EObjFlag::KSetItem) &&
-			(set_obj_info = it->second.find(GET_OBJ_VNUM(GET_EQ(ch, pos)))) != it->second.end()) {
+		if (ch->equipment[pos] && ch->equipment[pos]->has_flag(EObjFlag::KSetItem) &&
+			(set_obj_info = it->second.find(GET_OBJ_VNUM(ch->equipment[pos]))) != it->second.end()) {
 			unsigned int oqty = ActivateStuff(ch, obj, it, pos + 1,
 											  (show_msg ? CharEquipFlag::show_msg : CharEquipFlags())
 												  | (no_cast ? CharEquipFlag::no_cast : CharEquipFlags()),
 											  set_obj_qty + 1);
 			qty_to_camap_map::const_iterator qty_info = set_obj_info->second.upper_bound(oqty);
-			qty_to_camap_map::const_iterator old_qty_info = GET_EQ(ch, pos) == obj ?
+			qty_to_camap_map::const_iterator old_qty_info = ch->equipment[pos] == obj ?
 															set_obj_info->second.begin() :
 															set_obj_info->second.upper_bound(oqty - 1);
 
@@ -623,11 +623,11 @@ unsigned int ActivateStuff(CharData *ch, ObjData *obj, id_to_set_info_map::const
 				const auto flags = GetFlagDataByCharClass(ch);
 				item.set(flags);
 				if ((class_info = qty_info->second.find(item)) != qty_info->second.end()) {
-					if (GET_EQ(ch, pos) != obj) {
+					if (ch->equipment[pos] != obj) {
 						for (int i = 0; i < kMaxObjAffect; i++) {
 							affect_modify(ch,
-										  GET_EQ(ch, pos)->get_affected(i).location,
-										  GET_EQ(ch, pos)->get_affected(i).modifier,
+										  ch->equipment[pos]->get_affected(i).location,
+										  ch->equipment[pos]->get_affected(i).modifier,
 										  static_cast<EAffect>(0),
 										  false);
 						}
@@ -635,7 +635,7 @@ unsigned int ActivateStuff(CharData *ch, ObjData *obj, id_to_set_info_map::const
 						if (ch->in_room != kNowhere) {
 							for (const auto &i : weapon_affect) {
 								if (i.aff_bitvector == 0
-									|| !GET_EQ(ch, pos)->GetEWeaponAffect(i.aff_pos)) {
+									|| !ch->equipment[pos]->GetEWeaponAffect(i.aff_pos)) {
 									continue;
 								}
 								affect_modify(ch, EApply::kNone, 0, static_cast<EAffect>(i.aff_bitvector), false);
@@ -643,32 +643,32 @@ unsigned int ActivateStuff(CharData *ch, ObjData *obj, id_to_set_info_map::const
 						}
 					}
 
-					std::string act_msg = GET_EQ(ch, pos)->activate_obj(class_info->second);
+					std::string act_msg = ch->equipment[pos]->activate_obj(class_info->second);
 					delim = act_msg.find('\n');
 
 					if (show_msg) {
-						act(act_msg.substr(0, delim).c_str(), false, ch, GET_EQ(ch, pos), nullptr, kToChar);
+						act(act_msg.substr(0, delim).c_str(), false, ch, ch->equipment[pos], nullptr, kToChar);
 						act(act_msg.erase(0, delim + 1).c_str(),
 							ch->IsNpc() && !AFF_FLAGGED(ch, EAffect::kCharmed) ? false : true,
-							ch, GET_EQ(ch, pos), nullptr, kToRoom);
+							ch, ch->equipment[pos], nullptr, kToRoom);
 					}
 
 					for (int i = 0; i < kMaxObjAffect; i++) {
-						affect_modify(ch, GET_EQ(ch, pos)->get_affected(i).location,
-									  GET_EQ(ch, pos)->get_affected(i).modifier, static_cast<EAffect>(0), true);
+						affect_modify(ch, ch->equipment[pos]->get_affected(i).location,
+									  ch->equipment[pos]->get_affected(i).modifier, static_cast<EAffect>(0), true);
 					}
 
 					if (ch->in_room != kNowhere) {
 						for (const auto &i : weapon_affect) {
-							if (i.aff_spell == ESpell::kUndefined || !GET_EQ(ch, pos)->GetEWeaponAffect(i.aff_pos)) {
+							if (i.aff_spell == ESpell::kUndefined || !ch->equipment[pos]->GetEWeaponAffect(i.aff_pos)) {
 								continue;
 							}
 							if (!no_cast) {
 								if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoMagic)) {
 									act("Магия $o1 потерпела неудачу и развеялась по воздуху.",
-										false, ch, GET_EQ(ch, pos), nullptr, kToRoom);
+										false, ch, ch->equipment[pos], nullptr, kToRoom);
 									act("Магия $o1 потерпела неудачу и развеялась по воздуху.",
-										false, ch, GET_EQ(ch, pos), nullptr, kToChar);
+										false, ch, ch->equipment[pos], nullptr, kToChar);
 								} else {
 									CastAffect(GetRealLevel(ch), ch, ch, i.aff_spell);
 								}
@@ -680,7 +680,7 @@ unsigned int ActivateStuff(CharData *ch, ObjData *obj, id_to_set_info_map::const
 				}
 			}
 
-			if (GET_EQ(ch, pos) == obj) {
+			if (ch->equipment[pos] == obj) {
 				for (int i = 0; i < kMaxObjAffect; i++) {
 					affect_modify(ch,
 								  obj->get_affected(i).location,
@@ -751,12 +751,12 @@ void EquipObj(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip_f
 	const bool show_msg = equip_flags.test(CharEquipFlag::show_msg);
 
 	if (pos < 0 || pos >= EEquipPos::kNumEquipPos) {
-		log("SYSERR: equip_char(%s,%d) in unknown pos...", GET_NAME(ch), pos);
+		log("SYSERR: equip_char(%s,%d) in unknown pos...", ch->get_name().c_str(), pos);
 		return;
 	}
 
-	if (GET_EQ(ch, pos)) {
-		log("SYSERR: Char is already equipped: %s, %s", GET_NAME(ch), obj->get_short_description().c_str());
+	if (ch->equipment[pos]) {
+		log("SYSERR: Char is already equipped: %s, %s", ch->get_name().c_str(), obj->get_short_description().c_str());
 		return;
 	}
 	//if (obj->carried_by) {
@@ -801,7 +801,7 @@ void EquipObj(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip_f
 	if (!ch->IsNpc() || IS_CHARMICE(ch)) {
 		CharData *master = IS_CHARMICE(ch) && ch->has_master() ? ch->get_master() : ch;
 		if ((obj->get_auto_mort_req() >= 0) && (obj->get_auto_mort_req() > GetRealRemort(master))
-			&& !master->IsImmortal()) {
+			&& !IS_IMMORTAL(master)) {
 			SendMsgToChar(master, "Для использования %s требуется %d %s.\r\n",
 						  obj->get_PName(ECase::kGen).c_str(),
 						  obj->get_auto_mort_req(),
@@ -812,7 +812,7 @@ void EquipObj(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip_f
 			}
 			return;
 		} else if ((obj->get_auto_mort_req() < -1) && (abs(obj->get_auto_mort_req()) < GetRealRemort(master))
-			&& !master->IsImmortal()) {
+			&& !IS_IMMORTAL(master)) {
 			SendMsgToChar(master, "Максимально количество перевоплощений для использования %s равно %d.\r\n",
 						  obj->get_PName(ECase::kGen).c_str(),
 						  abs(obj->get_auto_mort_req()));
@@ -831,7 +831,7 @@ void EquipObj(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip_f
 	}
 
 	was_lamp = IsWearingLight(ch);
-	GET_EQ(ch, pos) = obj;
+	ch->equipment[pos] = obj;
 	obj->set_worn_by(ch);
 	obj->set_worn_on(pos);
 	obj->set_next_content(nullptr);
@@ -845,7 +845,7 @@ void EquipObj(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip_f
 	}
 
 	if (ch->in_room == kNowhere) {
-		log("SYSERR: ch->in_room = kNowhere when equipping char %s.", GET_NAME(ch));
+		log("SYSERR: ch->in_room = kNowhere when equipping char %s.", ch->get_name().c_str());
 	}
 
 	auto it = ObjData::set_table.begin();
@@ -911,14 +911,14 @@ unsigned int DeactivateStuff(CharData *ch, ObjData *obj, id_to_set_info_map::con
 	if (pos < EEquipPos::kNumEquipPos) {
 		set_info::const_iterator set_obj_info;
 
-		if (GET_EQ(ch, pos)
-			&& GET_EQ(ch, pos)->has_flag(EObjFlag::KSetItem)
-			&& (set_obj_info = it->second.find(GET_OBJ_VNUM(GET_EQ(ch, pos)))) != it->second.end()) {
+		if (ch->equipment[pos]
+			&& ch->equipment[pos]->has_flag(EObjFlag::KSetItem)
+			&& (set_obj_info = it->second.find(GET_OBJ_VNUM(ch->equipment[pos]))) != it->second.end()) {
 			unsigned int oqty =
 				DeactivateStuff(ch, obj, it, pos + 1, (show_msg ? CharEquipFlag::show_msg : CharEquipFlags()),
 								set_obj_qty + 1);
 			qty_to_camap_map::const_iterator old_qty_info = set_obj_info->second.upper_bound(oqty);
-			qty_to_camap_map::const_iterator qty_info = GET_EQ(ch, pos) == obj ?
+			qty_to_camap_map::const_iterator qty_info = ch->equipment[pos] == obj ?
 														set_obj_info->second.begin() :
 														set_obj_info->second.upper_bound(oqty - 1);
 
@@ -936,8 +936,8 @@ unsigned int DeactivateStuff(CharData *ch, ObjData *obj, id_to_set_info_map::con
 						if (class_info2 != qty_info->second.end()) {
 							for (int i = 0; i < kMaxObjAffect; i++) {
 								affect_modify(ch,
-											  GET_EQ(ch, pos)->get_affected(i).location,
-											  GET_EQ(ch, pos)->get_affected(i).modifier,
+											  ch->equipment[pos]->get_affected(i).location,
+											  ch->equipment[pos]->get_affected(i).modifier,
 											  static_cast<EAffect>(0),
 											  false);
 							}
@@ -945,27 +945,27 @@ unsigned int DeactivateStuff(CharData *ch, ObjData *obj, id_to_set_info_map::con
 							if (ch->in_room != kNowhere) {
 								for (const auto &i : weapon_affect) {
 									if (i.aff_bitvector == 0
-										|| !GET_EQ(ch, pos)->GetEWeaponAffect(i.aff_pos)) {
+										|| !ch->equipment[pos]->GetEWeaponAffect(i.aff_pos)) {
 										continue;
 									}
 									affect_modify(ch, EApply::kNone, 0, static_cast<EAffect>(i.aff_bitvector), false);
 								}
 							}
 
-							std::string act_msg = GET_EQ(ch, pos)->activate_obj(class_info2->second);
+							std::string act_msg = ch->equipment[pos]->activate_obj(class_info2->second);
 							delim = act_msg.find('\n');
 
 							if (show_msg) {
-								act(act_msg.substr(0, delim).c_str(), false, ch, GET_EQ(ch, pos), nullptr, kToChar);
+								act(act_msg.substr(0, delim).c_str(), false, ch, ch->equipment[pos], nullptr, kToChar);
 								act(act_msg.erase(0, delim + 1).c_str(),
 									ch->IsNpc() && !AFF_FLAGGED(ch, EAffect::kCharmed) ? false : true,
-									ch, GET_EQ(ch, pos), nullptr, kToRoom);
+									ch, ch->equipment[pos], nullptr, kToRoom);
 							}
 
 							for (int i = 0; i < kMaxObjAffect; i++) {
 								affect_modify(ch,
-											  GET_EQ(ch, pos)->get_affected(i).location,
-											  GET_EQ(ch, pos)->get_affected(i).modifier,
+											  ch->equipment[pos]->get_affected(i).location,
+											  ch->equipment[pos]->get_affected(i).modifier,
 											  static_cast<EAffect>(0),
 											  true);
 							}
@@ -973,7 +973,7 @@ unsigned int DeactivateStuff(CharData *ch, ObjData *obj, id_to_set_info_map::con
 							if (ch->in_room != kNowhere) {
 								for (const auto &i : weapon_affect) {
 									if (i.aff_bitvector == 0
-										|| !GET_EQ(ch, pos)->GetEWeaponAffect(i.aff_pos)) {
+										|| !ch->equipment[pos]->GetEWeaponAffect(i.aff_pos)) {
 										continue;
 									}
 									affect_modify(ch, EApply::kNone, 0, static_cast<EAffect>(i.aff_bitvector), true);
@@ -985,35 +985,35 @@ unsigned int DeactivateStuff(CharData *ch, ObjData *obj, id_to_set_info_map::con
 					}
 
 					for (int i = 0; i < kMaxObjAffect; i++) {
-						affect_modify(ch, GET_EQ(ch, pos)->get_affected(i).location,
-									  GET_EQ(ch, pos)->get_affected(i).modifier, static_cast<EAffect>(0), false);
+						affect_modify(ch, ch->equipment[pos]->get_affected(i).location,
+									  ch->equipment[pos]->get_affected(i).modifier, static_cast<EAffect>(0), false);
 					}
 
 					if (ch->in_room != kNowhere) {
 						for (const auto &i : weapon_affect) {
 							if (i.aff_bitvector == 0
-								|| !GET_EQ(ch, pos)->GetEWeaponAffect(i.aff_pos)) {
+								|| !ch->equipment[pos]->GetEWeaponAffect(i.aff_pos)) {
 								continue;
 							}
 							affect_modify(ch, EApply::kNone, 0, static_cast<EAffect>(i.aff_bitvector), false);
 						}
 					}
 
-					std::string deact_msg = GET_EQ(ch, pos)->deactivate_obj(class_info->second);
+					std::string deact_msg = ch->equipment[pos]->deactivate_obj(class_info->second);
 					delim = deact_msg.find('\n');
 
 					if (show_msg) {
-						act(deact_msg.substr(0, delim).c_str(), false, ch, GET_EQ(ch, pos), nullptr, kToChar);
+						act(deact_msg.substr(0, delim).c_str(), false, ch, ch->equipment[pos], nullptr, kToChar);
 						act(deact_msg.erase(0, delim + 1).c_str(),
 							ch->IsNpc() && !AFF_FLAGGED(ch, EAffect::kCharmed) ? false : true,
-							ch, GET_EQ(ch, pos), nullptr, kToRoom);
+							ch, ch->equipment[pos], nullptr, kToRoom);
 					}
 
-					if (GET_EQ(ch, pos) != obj) {
+					if (ch->equipment[pos] != obj) {
 						for (int i = 0; i < kMaxObjAffect; i++) {
 							affect_modify(ch,
-										  GET_EQ(ch, pos)->get_affected(i).location,
-										  GET_EQ(ch, pos)->get_affected(i).modifier,
+										  ch->equipment[pos]->get_affected(i).location,
+										  ch->equipment[pos]->get_affected(i).modifier,
 										  static_cast<EAffect>(0),
 										  true);
 						}
@@ -1021,7 +1021,7 @@ unsigned int DeactivateStuff(CharData *ch, ObjData *obj, id_to_set_info_map::con
 						if (ch->in_room != kNowhere) {
 							for (const auto &i : weapon_affect) {
 								if (i.aff_bitvector == 0 ||
-									!GET_EQ(ch, pos)->GetEWeaponAffect(i.aff_pos)) {
+									!ch->equipment[pos]->GetEWeaponAffect(i.aff_pos)) {
 									continue;
 								}
 								affect_modify(ch, EApply::kNone, 0, static_cast<EAffect>(i.aff_bitvector), true);
@@ -1033,7 +1033,7 @@ unsigned int DeactivateStuff(CharData *ch, ObjData *obj, id_to_set_info_map::con
 				}
 			}
 
-			if (GET_EQ(ch, pos) == obj) {
+			if (ch->equipment[pos] == obj) {
 				for (int i = 0; i < kMaxObjAffect; i++) {
 					affect_modify(ch,
 								  obj->get_affected(i).location,
@@ -1078,20 +1078,20 @@ ObjData *UnequipChar(CharData *ch, int pos, const CharEquipFlags& equip_flags) {
 	const bool show_msg = equip_flags.test(CharEquipFlag::show_msg);
 
 	if (pos < 0 || pos >= EEquipPos::kNumEquipPos) {
-		log("SYSERR: UnequipChar(%s,%d) - unused pos...", GET_NAME(ch), pos);
+		log("SYSERR: UnequipChar(%s,%d) - unused pos...", ch->get_name().c_str(), pos);
 		return nullptr;
 	}
 
-	ObjData *obj = GET_EQ(ch, pos);
+	ObjData *obj = ch->equipment[pos];
 	if (nullptr == obj) {
-		log("SYSERR: UnequipChar(%s,%d) - no equip...", GET_NAME(ch), pos);
+		log("SYSERR: UnequipChar(%s,%d) - no equip...", ch->get_name().c_str(), pos);
 		return nullptr;
 	}
 
 	was_lamp = IsWearingLight(ch);
 
 	if (ch->in_room == kNowhere)
-		log("SYSERR: ch->in_room = kNowhere when unequipping char %s.", GET_NAME(ch));
+		log("SYSERR: ch->in_room = kNowhere when unequipping char %s.", ch->get_name().c_str());
 
 	auto it = ObjData::set_table.begin();
 	if (obj->has_flag(EObjFlag::KSetItem))
@@ -1116,7 +1116,7 @@ ObjData *UnequipChar(CharData *ch, int pos, const CharEquipFlags& equip_flags) {
 					continue;
 				}
 				if (ch->IsNpc()
-					&& AFF_FLAGGED(&mob_proto[ch->get_rnum()], static_cast<EAffect>(j.aff_bitvector))) {
+					&& AFF_FLAGGED(&mob_proto[GET_MOB_RNUM(ch)], static_cast<EAffect>(j.aff_bitvector))) {
 					continue;
 				}
 				affect_modify(ch, EApply::kNone, 0, static_cast<EAffect>(j.aff_bitvector), false);
@@ -1127,7 +1127,7 @@ ObjData *UnequipChar(CharData *ch, int pos, const CharEquipFlags& equip_flags) {
 			obj->deactivate_obj(activation());
 	}
 
-	GET_EQ(ch, pos) = nullptr;
+	ch->equipment[pos] = nullptr;
 	obj->set_worn_by(nullptr);
 	obj->set_worn_on(kNowhere);
 	obj->set_next_content(nullptr);
@@ -1402,7 +1402,7 @@ void PlaceObjIntoObj(ObjData *obj, ObjData *obj_to) {
 	// top level object.  Subtract weight from inventory if necessary.
 	tmp_obj->add_weight(obj->get_weight());
 	if (tmp_obj->get_carried_by()) {
-		IS_CARRYING_W(tmp_obj->get_carried_by()) += obj->get_weight();
+		tmp_obj->get_carried_by(->char_specials.carry_weight) += obj->get_weight();
 	}
 }
 
@@ -1428,7 +1428,7 @@ void RemoveObjFromObj(ObjData *obj) {
 	// Subtract weight from char that carries the object
 	temp->set_weight(std::max(1, temp->get_weight() - obj->get_weight()));
 	if (temp->get_carried_by()) {
-		IS_CARRYING_W(temp->get_carried_by()) = std::max(1, temp->get_carried_by()->GetCarryingWeight() - obj->get_weight());
+		temp->get_carried_by(->char_specials.carry_weight) = std::max(1, temp->get_carried_by()->GetCarryingWeight() - obj->get_weight());
 	}
 
 	obj->set_in_obj(nullptr);
@@ -1535,24 +1535,24 @@ void ExtractObjFromWorld(ObjData *obj, bool showlog) {
 
 void UpdateCharObjects(CharData *ch) {
 	for (int wear_pos = 0; wear_pos < EEquipPos::kNumEquipPos; wear_pos++) {
-		if (GET_EQ(ch, wear_pos) != nullptr) {
-			if (GET_EQ(ch, wear_pos)->get_type() == EObjType::kLightSource) {
-				if (GET_OBJ_VAL(GET_EQ(ch, wear_pos), 2) > 0) {
-					const int i = GET_EQ(ch, wear_pos)->dec_val(2);
+		if (ch->equipment[wear_pos] != nullptr) {
+			if (ch->equipment[wear_pos]->get_type() == EObjType::kLightSource) {
+				if (GET_OBJ_VAL(ch->equipment[wear_pos], 2) > 0) {
+					const int i = ch->equipment[wear_pos]->dec_val(2);
 					if (i == 1) {
 						act("$z $o замерцал$G и начал$G угасать.\r\n",
-							false, ch, GET_EQ(ch, wear_pos), nullptr, kToChar);
+							false, ch, ch->equipment[wear_pos], nullptr, kToChar);
 						act("$o $n1 замерцал$G и начал$G угасать.",
-							false, ch, GET_EQ(ch, wear_pos), nullptr, kToRoom);
+							false, ch, ch->equipment[wear_pos], nullptr, kToRoom);
 					} else if (i == 0) {
-						act("$z $o погас$Q.\r\n", false, ch, GET_EQ(ch, wear_pos), nullptr, kToChar);
-						act("$o $n1 погас$Q.", false, ch, GET_EQ(ch, wear_pos), nullptr, kToRoom);
+						act("$z $o погас$Q.\r\n", false, ch, ch->equipment[wear_pos], nullptr, kToChar);
+						act("$o $n1 погас$Q.", false, ch, ch->equipment[wear_pos], nullptr, kToRoom);
 						if (ch->in_room != kNowhere) {
 							if (world[ch->in_room]->light > 0)
 								world[ch->in_room]->light -= 1;
 						}
-						if (GET_EQ(ch, wear_pos)->has_flag(EObjFlag::kDecay)) {
-							ExtractObjFromWorld(GET_EQ(ch, wear_pos));
+						if (ch->equipment[wear_pos]->has_flag(EObjFlag::kDecay)) {
+							ExtractObjFromWorld(ch->equipment[wear_pos]);
 						}
 					}
 				}
@@ -1632,7 +1632,7 @@ void change_npc_leader(CharData *ch) {
 
 void DropEquipment(CharData *ch, bool zone_reset) {
 	for (auto i = 0; i < EEquipPos::kNumEquipPos; i++) {
-		if (GET_EQ(ch, i)) {
+		if (ch->equipment[i]) {
 			ObjData *obj_eq = UnequipChar(ch, i, CharEquipFlags());
 			if (!obj_eq) {
 				continue;
@@ -1663,7 +1663,7 @@ void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset) {
 		return;
 	}
 
-	std::string name = GET_NAME(ch);
+	std::string name = ch->get_name().c_str();
 	DescriptorData *t_desc;
 	utils::CExecutionTimer timer;
 
@@ -1746,8 +1746,8 @@ void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset) {
 		Crash_delete_crashfile(ch);
 	} else {
 //		log("[Extract char] All clear for NPC");
-		if ((ch->get_rnum() >= 0) && !ch->IsFlagged(EMobFlag::kSummoned)) {
-			mob_index[ch->get_rnum()].total_online--;
+		if ((GET_MOB_RNUM(ch) >= 0) && !ch->IsFlagged(EMobFlag::kSummoned)) {
+			mob_index[GET_MOB_RNUM(ch)].total_online--;
 		}
 	}
 	chardata_by_uid.erase(ch->get_uid());
@@ -1756,7 +1756,7 @@ void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset) {
 		&& ch->desc != nullptr) {
 		ch->desc->state = EConState::kMenu;
 		iosystem::write_to_output(MENU, ch->desc);
-		if (!ch->IsNpc() && NORENTABLE(ch) && clear_objs) {
+		if (!ch->IsNpc() && (ch->IsNpc() ? 0 : ch->player_specials->may_rent) && clear_objs) {
 			ch->zero_wait();
 			do_entergame(ch->desc);
 			left_in_game = true;
@@ -2113,7 +2113,7 @@ ObjData *get_obj_vis_for_locate(CharData *ch, const char *name) {
 }
 
 bool try_locate_obj(CharData *ch, ObjData *i) {
-	if (IS_CORPSE(i) || ch->IsGod()) //имм может локейтить и можно локейтить трупы
+	if (IS_CORPSE(i) || IS_GOD(ch)) //имм может локейтить и можно локейтить трупы
 	{
 		return true;
 	} else if (i->has_flag(EObjFlag::kNolocate)) //если флаг !локейт и ее нет в комнате/инвентаре - пропустим ее
@@ -2298,13 +2298,13 @@ int generic_find(char *arg, Bitvector bitvector, CharData *ch, CharData **tar_ch
 	}
 	if (IS_SET(bitvector, EFind::kObjEquip)) {
 		for (l = 0; l < EEquipPos::kNumEquipPos; l++) {
-			if (GET_EQ(ch, l) && CAN_SEE_OBJ(ch, GET_EQ(ch, l))) {
-				if (isname(tmp, GET_EQ(ch, l)->get_aliases())
-					|| CHECK_CUSTOM_LABEL(tmp, GET_EQ(ch, l), ch)
+			if (ch->equipment[l] && CAN_SEE_OBJ(ch, ch->equipment[l])) {
+				if (isname(tmp, ch->equipment[l]->get_aliases())
+					|| CHECK_CUSTOM_LABEL(tmp, ch->equipment[l], ch)
 					|| (IS_SET(bitvector, EFind::kObjExtraDesc)
-						&& find_exdesc(tmp, GET_EQ(ch, l)->get_ex_description()))) {
+						&& find_exdesc(tmp, ch->equipment[l]->get_ex_description()))) {
 					if (++j == number) {
-						*tar_obj = GET_EQ(ch, l);
+						*tar_obj = ch->equipment[l];
 						return (EFind::kObjEquip);
 					}
 				}
@@ -2363,7 +2363,7 @@ RoomRnum FindRoomRnum(CharData *ch, char *rawroomstr, int trig) {
 	}
 
 	// a location has been found -- if you're < GRGOD, check restrictions.
-	if (!ch->IsGrGod() && !ch->IsFlagged(EPrf::kCoderinfo)) {
+	if (!IS_GRGOD(ch) && !ch->IsFlagged(EPrf::kCoderinfo)) {
 		if (ROOM_FLAGGED(location, ERoomFlag::kGodsRoom) && GetRealLevel(ch) < kLvlGreatGod) {
 			SendMsgToChar("Вы не столь божественны, чтобы получить доступ в эту комнату!\r\n", ch);
 			return (kNowhere);
@@ -2385,14 +2385,14 @@ int IsEquipInMetall(CharData *ch) {
 
 	if (ch->IsNpc() && !AFF_FLAGGED(ch, EAffect::kCharmed))
 		return (false);
-	if (ch->IsGod())
+	if (IS_GOD(ch))
 		return (false);
 
 	for (i = 0; i < EEquipPos::kNumEquipPos; i++) {
-		if (GET_EQ(ch, i)
-			&& ObjSystem::is_armor_type(GET_EQ(ch, i))
-			&& GET_EQ(ch, i)->get_material() <= EObjMaterial::kPreciousMetel) {
-			wgt += GET_EQ(ch, i)->get_weight();
+		if (ch->equipment[i]
+			&& ObjSystem::is_armor_type(ch->equipment[i])
+			&& ch->equipment[i]->get_material() <= EObjMaterial::kPreciousMetel) {
+			wgt += ch->equipment[i]->get_weight();
 		}
 	}
 
@@ -2439,7 +2439,7 @@ int num_pc_in_room(RoomData *room) {
 }
 
 int check_moves(CharData *ch, int how_moves) {
-	if (ch->IsImmortal() || ch->IsNpc())
+	if (IS_IMMORTAL(ch) || ch->IsNpc())
 		return (true);
 	if (ch->get_move() < how_moves) {
 		SendMsgToChar("Вы слишком устали.\r\n", ch);

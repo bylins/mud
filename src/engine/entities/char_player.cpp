@@ -236,7 +236,7 @@ void Player::add_hryvn(int value) {
 	} else if (value == 0) {
 		return;
 	}
-	log("Персонаж %s получил %d [гривны].", GET_NAME(this), value);
+	log("Персонаж %s получил %d [гривны].", this->get_name().c_str(), value);
 	this->hryvn += value;
 }
 
@@ -417,19 +417,19 @@ void Player::save_char() {
 	if (this->IsNpc() || this->get_pfilepos() < 0)
 		return;
 	if (this->account == nullptr) {
-		this->account = Account::get_account(GET_EMAIL(this));
+		this->account = Account::get_account(this->player_specials->saved.EMail);
 		if (this->account == nullptr) {
-			const auto temp_account = std::make_shared<Account>(GET_EMAIL(this));
-			accounts.emplace(GET_EMAIL(this), temp_account);
+			const auto temp_account = std::make_shared<Account>(this->player_specials->saved.EMail);
+			accounts.emplace(this->player_specials->saved.EMail, temp_account);
 			this->account = temp_account;
 		}
 	}
 	this->account->save_to_file();
-	log("Save char %s", GET_NAME(this));
+	log("Save char %s", this->get_name().c_str());
 	save_char_vars(this);
 
 	// Запись чара в новом формате
-	get_filename(GET_NAME(this), filename, kPlayersFile);
+	get_filename(this->get_name().c_str(), filename, kPlayersFile);
 	if (!(saved = fopen(filename, "w"))) {
 		perror("Unable open charfile");
 		return;
@@ -437,7 +437,7 @@ void Player::save_char() {
 	// подготовка
 	// снимаем все возможные аффекты
 	for (i = 0; i < EEquipPos::kNumEquipPos; i++) {
-		if (GET_EQ(this, i)) {
+		if (this->equipment[i]) {
 			char_eq[i] = UnequipChar(this, i, CharEquipFlag::skip_total);
 #ifndef NO_EXTRANEOUS_TRIGGERS
 			remove_otrigger(char_eq[i], this);
@@ -450,11 +450,11 @@ void Player::save_char() {
 	affected.clear();
 
 	if (!get_name().empty()) {
-		fprintf(saved, "Name: %s\n", GET_NAME(this));
+		fprintf(saved, "Name: %s\n", this->get_name().c_str());
 	}
 	fprintf(saved, "Levl: %d\n", this->GetLevel());
 	fprintf(saved, "Clas: %d\n", to_underlying(this->GetClass()));
-	fprintf(saved, "LstL: %ld\n", static_cast<long int>(LAST_LOGON(this)));
+	fprintf(saved, "LstL: %ld\n", static_cast<long int>(this->get_last_logon()));
 	// сохраняем last_ip, который должен содержать айпишник с последнего удачного входа
 	if (player_table[this->get_pfilepos()].last_ip.empty()) {
 		player_table[this->get_pfilepos()].last_ip = "Unknown";
@@ -467,20 +467,20 @@ void Player::save_char() {
 	*buf = '\0';
 	char_specials.saved.act.tascii(FlagData::kPlanesNumber, buf);
 	fprintf(saved, "Act : %s\n", buf);
-	if (GET_EMAIL(this))//edited WorM 2010.08.27 перенесено чтоб грузилось для сохранения в индексе игроков
+	if (this->player_specials->saved.EMail)//edited WorM 2010.08.27 перенесено чтоб грузилось для сохранения в индексе игроков
 	{
-		fprintf(saved, "EMal: %s\n", GET_EMAIL(this));
+		fprintf(saved, "EMal: %s\n", this->player_specials->saved.EMail);
 	}
 	// это пишем обязательно посленим, потому что после него ничего не прочитается
 	fprintf(saved, "Rebt: следующие далее поля при перезагрузке не парсятся\n\n");
 	// дальше пишем как хотим и что хотим
 
-	fprintf(saved, "NmI : %s\n", GET_PAD(this, 0));
-	fprintf(saved, "NmR : %s\n", GET_PAD(this, 1));
-	fprintf(saved, "NmD : %s\n", GET_PAD(this, 2));
-	fprintf(saved, "NmV : %s\n", GET_PAD(this, 3));
-	fprintf(saved, "NmT : %s\n", GET_PAD(this, 4));
-	fprintf(saved, "NmP : %s\n", GET_PAD(this, 5));
+	fprintf(saved, "NmI : %s\n", this->player_data.PNames[0].c_str());
+	fprintf(saved, "NmR : %s\n", this->player_data.PNames[1].c_str());
+	fprintf(saved, "NmD : %s\n", this->player_data.PNames[2].c_str());
+	fprintf(saved, "NmV : %s\n", this->player_data.PNames[3].c_str());
+	fprintf(saved, "NmT : %s\n", this->player_data.PNames[4].c_str());
+	fprintf(saved, "NmP : %s\n", this->player_data.PNames[5].c_str());
 	if (!this->get_passwd().empty())
 		fprintf(saved, "Pass: %s\n", this->get_passwd().c_str());
 	if (!this->player_data.title.empty())
@@ -490,12 +490,12 @@ void Player::save_char() {
 		kill_ems(buf);
 		fprintf(saved, "Desc:\n%s~\n", buf);
 	}
-	if (POOFIN(this))
-		fprintf(saved, "PfIn: %s\n", POOFIN(this));
-	if (POOFOUT(this))
-		fprintf(saved, "PfOt: %s\n", POOFOUT(this));
+	if (this->player_specials->poofin)
+		fprintf(saved, "PfIn: %s\n", this->player_specials->poofin);
+	if (this->player_specials->poofout)
+		fprintf(saved, "PfOt: %s\n", this->player_specials->poofout);
 	fprintf(saved, "Sex : %d %s\n", static_cast<int>(this->get_sex()), genders[(int) this->get_sex()]);
-	fprintf(saved, "Kin : %d %s\n", GET_KIN(this), PlayerRace::GetKinNameByNum(GET_KIN(this), this->get_sex()).c_str());
+	fprintf(saved, "Kin : %d %s\n", this->player_data.Kin, PlayerRace::GetKinNameByNum(this->player_data.Kin, this->get_sex()).c_str());
 	li = this->player_data.time.birth;
 	fprintf(saved, "Brth: %ld %s\n", static_cast<long int>(li), ctime(&li));
 	// Gunner
@@ -504,11 +504,11 @@ void Player::save_char() {
 	// Gunner end
 	li = this->player_data.time.logon;
 	fprintf(saved, "Last: %ld %s\n", static_cast<long int>(li), ctime(&li));
-	fprintf(saved, "Hite: %d\n", GET_HEIGHT(this));
-	fprintf(saved, "Wate: %d\n", GET_WEIGHT(this));
-	fprintf(saved, "Size: %d\n", GET_SIZE(this));
+	fprintf(saved, "Hite: %d\n", this->player_data.height);
+	fprintf(saved, "Wate: %d\n", this->player_data.weight);
+	fprintf(saved, "Size: %d\n", this->real_abils.size);
 	// структуры
-	fprintf(saved, "Alin: %d\n", GET_ALIGNMENT(this));
+	fprintf(saved, "Alin: %d\n", this->char_specials.saved.alignment);
 	*buf = '\0';
 	AFF_FLAGS(this).tascii(FlagData::kPlanesNumber, buf);
 	fprintf(saved, "Aff : %s\n", buf);
@@ -567,18 +567,18 @@ void Player::save_char() {
 		fprintf(saved, "0 0\n");
 	}
 
-	if (GetRealLevel(this) < kLvlImmortal && !IS_MANA_CASTER(this)) {
+	if (GetRealLevel(this) < kLvlImmortal && !this->IsManaCaster()) {
 		fprintf(saved, "Spel:\n");
 		for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
-			if (GET_SPELL_TYPE(this, spell_id)) {
+			if (this->real_abils.SplKnw[to_underlying(spell_id)]) {
 				fprintf(saved, "%d %d %s\n", to_underlying(spell_id),
-						GET_SPELL_TYPE(this, spell_id), MUD::Spell(spell_id).GetCName());
+						this->real_abils.SplKnw[to_underlying(spell_id)], MUD::Spell(spell_id).GetCName());
 			}
 		}
 		fprintf(saved, "0 0\n");
 	}
 
-	if (GetRealLevel(this) < kLvlImmortal && !IS_MANA_CASTER(this)) {
+	if (GetRealLevel(this) < kLvlImmortal && !this->IsManaCaster()) {
 		fprintf(saved, "TSpl:\n");
 		for (auto & temp_spell : this->temp_spells) {
 			fprintf(saved,
@@ -595,8 +595,8 @@ void Player::save_char() {
 	if (GetRealLevel(this) < kLvlImmortal) {
 		fprintf(saved, "SpMe:\n");
 		for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
-			if (GET_SPELL_MEM(this, spell_id))
-				fprintf(saved, "%d %d\n", to_underlying(spell_id), GET_SPELL_MEM(this, spell_id));
+			if (this->real_abils.SplMem[to_underlying(spell_id)])
+				fprintf(saved, "%d %d\n", to_underlying(spell_id), this->real_abils.SplMem[to_underlying(spell_id)]);
 		}
 		fprintf(saved, "0 0\n");
 	}
@@ -615,7 +615,7 @@ void Player::save_char() {
 		im_rskill *rs;
 		im_recipe *r;
 		fprintf(saved, "Rcps:\n");
-		for (rs = GET_RSKILL(this); rs; rs = rs->link) {
+		for (rs = this->player_specials->rskill; rs; rs = rs->link) {
 			if (rs->perc <= 0)
 				continue;
 			r = &imrecipes[rs->rid];
@@ -624,9 +624,9 @@ void Player::save_char() {
 		fprintf(saved, "-1 -1\n");
 	}
 
-	fprintf(saved, "Hrol: %d\n", GET_HR(this));
-	fprintf(saved, "Drol: %d\n", GET_DR(this));
-	fprintf(saved, "Ac  : %d\n", GET_AC(this));
+	fprintf(saved, "Hrol: %d\n", this->real_abils.hitroll);
+	fprintf(saved, "Drol: %d\n", this->real_abils.damroll);
+	fprintf(saved, "Ac  : %d\n", this->real_abils.armor);
 	fprintf(saved, "Hry : %d\n", this->get_hryvn());
 	fprintf(saved, "Tglo: %ld\n", static_cast<long int>(this->getGloryRespecTime()));
 	fprintf(saved, "Hit : %d/%d\n", this->get_hit(), this->get_max_hit());
@@ -636,14 +636,14 @@ void Player::save_char() {
 	fprintf(saved, "Bank: %ld\n", get_bank());
 	fprintf(saved, "ICur: %d\n", get_ice_currency());
 	fprintf(saved, "Ruble: %ld\n", get_ruble());
-	fprintf(saved, "Wimp: %d\n", GET_WIMP_LEV(this));
-	fprintf(saved, "Frez: %d\n", GET_FREEZE_LEV(this));
+	fprintf(saved, "Wimp: %d\n", this->player_specials->saved.wimp_level);
+	fprintf(saved, "Frez: %d\n", this->player_specials->pfreeze.level);
 	fprintf(saved, "Invs: %d\n", GET_INVIS_LEV(this));
-	fprintf(saved, "Room: %d\n", GET_LOADROOM(this));
+	fprintf(saved, "Room: %d\n", this->player_specials->saved.load_room);
 //	li = this->player_data.time.birth;
 //	fprintf(saved, "Brth: %ld %s\n", static_cast<long int>(li), ctime(&li));
-	fprintf(saved, "Lexc: %ld\n", static_cast<long>(LAST_EXCHANGE(this)));
-	fprintf(saved, "Badp: %d\n", GET_BAD_PWS(this));
+	fprintf(saved, "Lexc: %ld\n", static_cast<long>(this->get_last_exchange()));
+	fprintf(saved, "Badp: %d\n", this->player_specials->saved.bad_pws);
 
 	for (unsigned i = 0; i < board_date_.size(); ++i) {
 		fprintf(saved, "Br%02u: %llu\n", i + 1, static_cast<unsigned long long>(board_date_.at(i)));
@@ -653,99 +653,99 @@ void Player::save_char() {
 		fprintf(saved, "St%02d: %i\n", i, this->get_start_stat(i));
 
 	if (GetRealLevel(this) < kLvlImmortal)
-		fprintf(saved, "Hung: %d\n", GET_COND(this, FULL));
+		fprintf(saved, "Hung: %d\n", this->player_specials->saved.conditions[FULL]);
 	if (GetRealLevel(this) < kLvlImmortal)
-		fprintf(saved, "Thir: %d\n", GET_COND(this, THIRST));
+		fprintf(saved, "Thir: %d\n", this->player_specials->saved.conditions[THIRST]);
 	if (GetRealLevel(this) < kLvlImmortal)
-		fprintf(saved, "Drnk: %d\n", GET_COND(this, DRUNK));
+		fprintf(saved, "Drnk: %d\n", this->player_specials->saved.conditions[DRUNK]);
 
-	fprintf(saved, "Reli: %d %s\n", GET_RELIGION(this), religion_name[GET_RELIGION(this)][(int) this->get_sex()]);
+	fprintf(saved, "Reli: %d %s\n", this->player_data.Religion, religion_name[this->player_data.Religion][(int) this->get_sex()]);
 	fprintf(saved,
 			"Race: %d %s\n",
-			GET_RACE(this),
-			PlayerRace::GetRaceNameByNum(GET_KIN(this), GET_RACE(this), this->get_sex()).c_str());
-	fprintf(saved, "DrSt: %d\n", GET_DRUNK_STATE(this));
+			this->player_data.Race,
+			PlayerRace::GetRaceNameByNum(this->player_data.Kin, this->player_data.Race, this->get_sex()).c_str());
+	fprintf(saved, "DrSt: %d\n", this->player_specials->saved.DrunkState);
 	fprintf(saved, "Olc : %d\n", GET_OLC_ZONE(this));
 	*buf = '\0';
 	this->player_specials->saved.pref.tascii(FlagData::kPlanesNumber, buf);
 	fprintf(saved, "Pref: %s\n", buf);
 
-	if (MUTE_DURATION(this) > 0 && this->IsFlagged(EPlrFlag::kMuted))
+	if (this->player_specials->pmute.duration > 0 && this->IsFlagged(EPlrFlag::kMuted))
 		fprintf(saved,
 				"PMut: %ld %d %ld %s~\n",
-				MUTE_DURATION(this),
-				GET_MUTE_LEV(this),
-				MUTE_GODID(this),
-				MUTE_REASON(this));
-	if (NAME_DURATION(this) > 0 && this->IsFlagged(EPlrFlag::kNameDenied))
+				this->player_specials->pmute.duration,
+				this->player_specials->pmute.level,
+				this->player_specials->pmute.godid,
+				this->player_specials->pmute.reason);
+	if (this->player_specials->pname.duration > 0 && this->IsFlagged(EPlrFlag::kNameDenied))
 		fprintf(saved,
 				"PNam: %ld %d %ld %s~\n",
-				NAME_DURATION(this),
+				this->player_specials->pname.duration,
 				GET_NAME_LEV(this),
-				NAME_GODID(this),
-				NAME_REASON(this));
-	if (DUMB_DURATION(this) > 0 && this->IsFlagged(EPlrFlag::kDumbed))
+				this->player_specials->pname.godid,
+				this->player_specials->pname.reason);
+	if (this->player_specials->pdumb.duration > 0 && this->IsFlagged(EPlrFlag::kDumbed))
 		fprintf(saved,
 				"PDum: %ld %d %ld %s~\n",
-				DUMB_DURATION(this),
-				GET_DUMB_LEV(this),
-				DUMB_GODID(this),
-				DUMB_REASON(this));
-	if (HELL_DURATION(this) > 0 && this->IsFlagged(EPlrFlag::kHelled))
+				this->player_specials->pdumb.duration,
+				this->player_specials->pdumb.level,
+				this->player_specials->pdumb.godid,
+				this->player_specials->pdumb.reason);
+	if (this->player_specials->phell.duration > 0 && this->IsFlagged(EPlrFlag::kHelled))
 		fprintf(saved,
 				"PHel: %ld %d %ld %s~\n",
-				HELL_DURATION(this),
-				GET_HELL_LEV(this),
-				HELL_GODID(this),
-				HELL_REASON(this));
-	if (GCURSE_DURATION(this) > 0)
+				this->player_specials->phell.duration,
+				this->player_specials->phell.level,
+				this->player_specials->phell.godid,
+				this->player_specials->phell.reason);
+	if (this->player_specials->pgcurse.duration > 0)
 		fprintf(saved,
 				"PGcs: %ld %d %ld %s~\n",
-				GCURSE_DURATION(this),
-				GET_GCURSE_LEV(this),
-				GCURSE_GODID(this),
-				GCURSE_REASON(this));
-	if (FREEZE_DURATION(this) > 0 && this->IsFlagged(EPlrFlag::kFrozen))
+				this->player_specials->pgcurse.duration,
+				this->player_specials->pgcurse.level,
+				this->player_specials->pgcurse.godid,
+				this->player_specials->pgcurse.reason);
+	if (this->player_specials->pfreeze.duration > 0 && this->IsFlagged(EPlrFlag::kFrozen))
 		fprintf(saved,
 				"PFrz: %ld %d %ld %s~\n",
-				FREEZE_DURATION(this),
-				GET_FREEZE_LEV(this),
-				FREEZE_GODID(this),
-				FREEZE_REASON(this));
-	if (UNREG_DURATION(this) > 0)
+				this->player_specials->pfreeze.duration,
+				this->player_specials->pfreeze.level,
+				this->player_specials->pfreeze.godid,
+				this->player_specials->pfreeze.reason);
+	if (this->player_specials->punreg.duration > 0)
 		fprintf(saved,
 				"PUnr: %ld %d %ld %s~\n",
-				UNREG_DURATION(this),
-				GET_UNREG_LEV(this),
-				UNREG_GODID(this),
-				UNREG_REASON(this));
+				this->player_specials->punreg.duration,
+				this->player_specials->punreg.level,
+				this->player_specials->punreg.godid,
+				this->player_specials->punreg.reason);
 
-	if (KARMA(this)) {
-		strcpy(buf, KARMA(this));
+	if (this->player_specials->Karma) {
+		strcpy(buf, this->player_specials->Karma);
 		kill_ems(buf);
 		fprintf(saved, "Karm:\n%s~\n", buf);
 	}
-	if (!LOGON_LIST(this).empty()) {
+	if (!this->player_specials->logons.empty()) {
 		log("Saving logon list.");
 		std::ostringstream buffer;
-		for (const auto &logon : LOGON_LIST(this)) {
+		for (const auto &logon : this->player_specials->logons) {
 			buffer << logon.ip << " " << logon.count << " " << logon.lasttime << "\n";
 		}
 		fprintf(saved, "LogL:\n%s~\n", buffer.str().c_str());
 	}
 	fprintf(saved, "GdFl: %ld\n", this->player_specials->saved.GodsLike);
-	fprintf(saved, "NamG: %d\n", NAME_GOD(this));
-	fprintf(saved, "NaID: %ld\n", NAME_ID_GOD(this));
-	fprintf(saved, "StrL: %d\n", STRING_LENGTH(this));
-	fprintf(saved, "StrW: %d\n", STRING_WIDTH(this));
-	fprintf(saved, "NtfE: %ld\n", NOTIFY_EXCH_PRICE(this));
+	fprintf(saved, "NamG: %d\n", this->player_specials->saved.NameGod);
+	fprintf(saved, "NaID: %ld\n", this->player_specials->saved.NameIDGod);
+	fprintf(saved, "StrL: %d\n", this->player_specials->saved.stringLength);
+	fprintf(saved, "StrW: %d\n", this->player_specials->saved.stringWidth);
+	fprintf(saved, "NtfE: %ld\n", this->player_specials->saved.ntfyExchangePrice);
 
 	if (this->remember_get_num() != Remember::DEF_REMEMBER_NUM) {
 		fprintf(saved, "Rmbr: %u\n", this->remember_get_num());
 	}
 
-	if (EXCHANGE_FILTER(this))
-		fprintf(saved, "ExFl: %s\n", EXCHANGE_FILTER(this));
+	if (this->player_specials->Exchange_filter)
+		fprintf(saved, "ExFl: %s\n", this->player_specials->Exchange_filter);
 
 	for (const auto &cur : get_ignores()) {
 		if (0 != cur->id) {
@@ -782,11 +782,11 @@ void Player::save_char() {
 	}
 
 	for (i = 0; i < 1 + LAST_LOG; ++i) {
-		if (!GET_LOGS(this)) {
-			log("SYSERR: Saving NULL logs for char %s", GET_NAME(this));
+		if (!this->player_specials->logs) {
+			log("SYSERR: Saving NULL logs for char %s", this->get_name().c_str());
 			break;
 		}
-		fprintf(saved, "Logs: %d %d\n", i, GET_LOGS(this)[i]);
+		fprintf(saved, "Logs: %d %d\n", i, this->player_specials->logs[i]);
 	}
 
 	fprintf(saved, "Disp: %ld\n", disposable_flags_.to_ulong());
@@ -826,7 +826,7 @@ void Player::save_char() {
 	i = 0;
 	if (!this->followers.empty()
 		&& CanUseFeat(this, EFeat::kEmployer)
-		&& !this->IsImmortal()) {
+		&& !IS_IMMORTAL(this)) {
 		CharData *found_follower = nullptr;
 		for (auto *k : this->followers) {
 			if (k
@@ -879,7 +879,7 @@ void Player::save_char() {
 	auto it = this->charmeeHistory.begin();
 	if (this->charmeeHistory.size() > 0 &&
 		(IS_SPELL_SET(this, ESpell::kCharm, ESpellType::kKnow) ||
-		CanUseFeat(this, EFeat::kEmployer) || this->IsImmortal())) {
+		CanUseFeat(this, EFeat::kEmployer) || IS_IMMORTAL(this))) {
 		fprintf(saved, "Chrm:\n");
 		for (; it != this->charmeeHistory.end(); ++it) {
 			fprintf(saved, "%d %d %d %d %d %d\n",
@@ -920,12 +920,12 @@ void Player::save_char() {
 	}
 	affect_total(this);
 
-	i = GetPlayerTablePosByName(GET_NAME(this));
+	i = GetPlayerTablePosByName(this->get_name().c_str());
 	if (i >= 0) {
-		player_table[i].last_logon = LAST_LOGON(this);
+		player_table[i].last_logon = this->get_last_logon();
 		player_table[i].level = GetRealLevel(this);
 		player_table[i].remorts = GetRealRemort(this);
-		player_table[i].mail = GET_EMAIL(this);
+		player_table[i].mail = this->player_specials->saved.EMail;
 		player_table[i].set_uid(this->get_uid());
 		player_table[i].plr_class = GetClass();
 		//end by WorM
@@ -983,8 +983,8 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 	set_last_logon(time(nullptr));
 	set_exp(0);
 	set_remort(0);
-	GET_LASTIP(this)[0] = 0;
-	GET_EMAIL(this)[0] = 0;
+	this->player_specials->saved.LastIP[0] = 0;
+	this->player_specials->saved.EMail[0] = 0;
 	char_specials.saved.act.from_string("");    // suspicious line: we should clear flags. Loading from "" does not clear flags.
 
 	bool skip_file = 0;
@@ -1025,11 +1025,11 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 					set_exp(lnum);
 				}
 				else if (!strcmp(tag, "EMal"))
-					strcpy(GET_EMAIL(this), line);
+					strcpy(this->player_specials->saved.EMail, line);
 				break;
 			case 'H':
 				if (!strcmp(tag, "Host")) {
-					strcpy(GET_LASTIP(this), line);
+					strcpy(this->player_specials->saved.LastIP, line);
 				}
 				break;
 			case 'I':
@@ -1061,7 +1061,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 	} while (!skip_file);
 
 	bool reboot = (load_flags & ELoadCharFlags::kReboot);
-	while ((reboot) && (!*GET_EMAIL(this) || !*GET_LASTIP(this))) {
+	while ((reboot) && (!*this->player_specials->saved.EMail || !*this->player_specials->saved.LastIP)) {
 		if (!fbgetline(fl, line)) {
 			log("SYSERROR: Wrong file ascii %d %s", id, filename);
 			return (-1);
@@ -1070,9 +1070,9 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 		ExtractTagFromArgument(line, tag);
 
 		if (!strcmp(tag, "EMal"))
-			strcpy(GET_EMAIL(this), line);
+			strcpy(this->player_specials->saved.EMail, line);
 		else if (!strcmp(tag, "Host"))
-			strcpy(GET_LASTIP(this), line);
+			strcpy(this->player_specials->saved.LastIP, line);
 	}
 
 	// если с загруженными выше полями что-то хочется делать после лоада - делайте это здесь
@@ -1081,14 +1081,14 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 	if (this->get_exp() < GetExpUntilNextLvl(this, GetRealLevel(this))) {
 		set_exp(GetExpUntilNextLvl(this, GetRealLevel(this)));
 	}
-	this->account = Account::get_account(GET_EMAIL(this));
+	this->account = Account::get_account(this->player_specials->saved.EMail);
 	if (this->account == nullptr) {
-//		log("Create account %s for player name %s", GET_EMAIL(this), name);
-		const auto temp_account = std::make_shared<Account>(GET_EMAIL(this));
-		accounts.emplace(GET_EMAIL(this), temp_account);
+//		log("Create account %s for player name %s", this->player_specials->saved.EMail, name);
+		const auto temp_account = std::make_shared<Account>(this->player_specials->saved.EMail);
+		accounts.emplace(this->player_specials->saved.EMail, temp_account);
 		this->account = temp_account;
 	}
-//	log("Add account %s player id %d  name %s", GET_EMAIL(this), this->get_uid(), name);
+//	log("Add account %s player id %d  name %s", this->player_specials->saved.EMail, this->get_uid(), name);
 	this->account->add_player(this->get_uid());
 
 	if (load_flags & ELoadCharFlags::kReboot) {
@@ -1108,23 +1108,23 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 
 	this->real_abils.Feats.reset();
 
-	if (IS_MANA_CASTER(this)) {
+	if (this->IsManaCaster()) {
 		for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
-			GET_SPELL_TYPE(this, spell_id) = ESpellType::kRunes;
+			this->real_abils.SplKnw[to_underlying(spell_id)] = ESpellType::kRunes;
 		}
 	} else {
 		for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
-			GET_SPELL_TYPE(this, spell_id) = ESpellType::kUnknowm;
+			this->real_abils.SplKnw[to_underlying(spell_id)] = ESpellType::kUnknowm;
 		}
 	}
 
 	for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
-		GET_SPELL_MEM(this, spell_id) = 0;
+		this->real_abils.SplMem[to_underlying(spell_id)] = 0;
 	}
 	this->char_specials.saved.affected_by = clear_flags;
-	POOFIN(this) = nullptr;
-	POOFOUT(this) = nullptr;
-	GET_RSKILL(this) = nullptr;    // рецептов не знает
+	this->player_specials->poofin = nullptr;
+	this->player_specials->poofout = nullptr;
+	this->player_specials->rskill = nullptr;    // рецептов не знает
 	this->char_specials.carry_weight = 0;
 	this->char_specials.carry_items = 0;
 	this->real_abils.armor = 100;
@@ -1132,11 +1132,11 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 	this->mem_queue.stored = 0;
 	MemQ_init(this);
 
-	GET_AC(this) = 10;
-	GET_ALIGNMENT(this) = 0;
-	GET_BAD_PWS(this) = 0;
+	this->real_abils.armor = 10;
+	this->char_specials.saved.alignment = 0;
+	this->player_specials->saved.bad_pws = 0;
 	this->player_data.time.birth = time(0);
-	GET_KIN(this) = 0;
+	this->player_data.Kin = 0;
 
 	this->set_str(10);
 	this->set_dex(10);
@@ -1145,48 +1145,48 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 	this->set_wis(10);
 	this->set_cha(10);
 
-	GET_COND(this, DRUNK) = 0;
-	GET_DRUNK_STATE(this) = 0;
+	this->player_specials->saved.conditions[DRUNK] = 0;
+	this->player_specials->saved.DrunkState = 0;
 
 // Punish Init
-	DUMB_DURATION(this) = 0;
-	DUMB_REASON(this) = 0;
-	GET_DUMB_LEV(this) = 0;
-	DUMB_GODID(this) = 0;
+	this->player_specials->pdumb.duration = 0;
+	this->player_specials->pdumb.reason = 0;
+	this->player_specials->pdumb.level = 0;
+	this->player_specials->pdumb.godid = 0;
 
-	MUTE_DURATION(this) = 0;
-	MUTE_REASON(this) = 0;
-	GET_MUTE_LEV(this) = 0;
-	MUTE_GODID(this) = 0;
+	this->player_specials->pmute.duration = 0;
+	this->player_specials->pmute.reason = 0;
+	this->player_specials->pmute.level = 0;
+	this->player_specials->pmute.godid = 0;
 
-	HELL_DURATION(this) = 0;
-	HELL_REASON(this) = 0;
-	GET_HELL_LEV(this) = 0;
-	HELL_GODID(this) = 0;
+	this->player_specials->phell.duration = 0;
+	this->player_specials->phell.reason = 0;
+	this->player_specials->phell.level = 0;
+	this->player_specials->phell.godid = 0;
 
-	FREEZE_DURATION(this) = 0;
-	FREEZE_REASON(this) = 0;
-	GET_FREEZE_LEV(this) = 0;
-	FREEZE_GODID(this) = 0;
+	this->player_specials->pfreeze.duration = 0;
+	this->player_specials->pfreeze.reason = 0;
+	this->player_specials->pfreeze.level = 0;
+	this->player_specials->pfreeze.godid = 0;
 
-	GCURSE_DURATION(this) = 0;
-	GCURSE_REASON(this) = 0;
-	GET_GCURSE_LEV(this) = 0;
-	GCURSE_GODID(this) = 0;
+	this->player_specials->pgcurse.duration = 0;
+	this->player_specials->pgcurse.reason = 0;
+	this->player_specials->pgcurse.level = 0;
+	this->player_specials->pgcurse.godid = 0;
 
-	NAME_DURATION(this) = 0;
-	NAME_REASON(this) = 0;
+	this->player_specials->pname.duration = 0;
+	this->player_specials->pname.reason = 0;
 	GET_NAME_LEV(this) = 0;
-	NAME_GODID(this) = 0;
+	this->player_specials->pname.godid = 0;
 
-	UNREG_DURATION(this) = 0;
-	UNREG_REASON(this) = 0;
-	GET_UNREG_LEV(this) = 0;
-	UNREG_GODID(this) = 0;
+	this->player_specials->punreg.duration = 0;
+	this->player_specials->punreg.reason = 0;
+	this->player_specials->punreg.level = 0;
+	this->player_specials->punreg.godid = 0;
 
 // End punish init
 
-	GET_DR(this) = 0;
+	this->real_abils.damroll = 0;
 
 	set_gold(0, false);
 	set_bank(0, false);
@@ -1194,35 +1194,35 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 	this->player_specials->saved.GodsLike = 0;
 	this->set_hit(21);
 	this->set_max_hit(21);
-	GET_HEIGHT(this) = 50;
-	GET_HR(this) = 0;
-	GET_COND(this, FULL) = 0;
+	this->player_data.height = 50;
+	this->real_abils.hitroll = 0;
+	this->player_specials->saved.conditions[FULL] = 0;
 	SET_INVIS_LEV(this, 0);
 	this->player_data.time.logon = time(0);
 	this->set_move(44);
 	this->set_max_move(44);
-	KARMA(this) = 0;
-	LOGON_LIST(this).clear();
-	NAME_GOD(this) = 0;
-	STRING_LENGTH(this) = 80;
-	STRING_WIDTH(this) = 30;
-	NAME_ID_GOD(this) = 0;
+	this->player_specials->Karma = 0;
+	this->player_specials->logons.clear();
+	this->player_specials->saved.NameGod = 0;
+	this->player_specials->saved.stringLength = 80;
+	this->player_specials->saved.stringWidth = 30;
+	this->player_specials->saved.NameIDGod = 0;
 	GET_OLC_ZONE(this) = -1;
 	this->player_data.time.played = 0;
-	GET_LOADROOM(this) = kNowhere;
-	GET_RELIGION(this) = 1;
-	GET_RACE(this) = 1;
+	this->player_specials->saved.load_room = kNowhere;
+	this->player_data.Religion = 1;
+	this->player_data.Race = 1;
 	this->set_sex(EGender::kNeutral);
-	GET_COND(this, THIRST) = kNormCondition;
-	GET_WEIGHT(this) = 50;
-	GET_WIMP_LEV(this) = 0;
+	this->player_specials->saved.conditions[THIRST] = kNormCondition;
+	this->player_data.weight = 50;
+	this->player_specials->saved.wimp_level = 0;
 	this->player_specials->saved.pref.from_string("");    // suspicious line: we should clear flags.. Loading from "" does not clear flags.
 	AFF_FLAGS(this).from_string("");    // suspicious line: we should clear flags.. Loading from "" does not clear flags.
 
-	EXCHANGE_FILTER(this) = nullptr;
+	this->player_specials->Exchange_filter = nullptr;
 	clear_ignores();
-	CREATE(GET_LOGS(this), 1 + LAST_LOG);
-	NOTIFY_EXCH_PRICE(this) = 0;
+	CREATE(this->player_specials->logs, 1 + LAST_LOG);
+	this->player_specials->saved.ntfyExchangePrice = 0;
 	this->player_specials->saved.HiredCost = 0;
 	this->set_who_mana(kWhoManaMax);
 	this->set_who_last(time(0));
@@ -1245,7 +1245,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 		switch (*tag) {
 			case 'A':
 				if (!strcmp(tag, "Ac  ")) {
-					GET_AC(this) = num;
+					this->real_abils.armor = num;
 				} else if (!strcmp(tag, "Aff ")) {
 					AFF_FLAGS(this).from_string(line);
 				} else if (!strcmp(tag, "Affs")) {
@@ -1271,13 +1271,13 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 					std::reverse(affected.begin(), affected.end());
 					/* do not load affects */
 				} else if (!strcmp(tag, "Alin")) {
-					GET_ALIGNMENT(this) = num;
+					this->char_specials.saved.alignment = num;
 				}
 				break;
 
 			case 'B':
 				if (!strcmp(tag, "Badp")) {
-					GET_BAD_PWS(this) = num;
+					this->player_specials->saved.bad_pws = num;
 				} else if (!strcmp(tag, "Bank")) {
 					set_bank(lnum, false);
 				} else if (!strcmp(tag, "Br01"))
@@ -1365,11 +1365,11 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 				} else if (!strcmp(tag, "Dex "))
 					this->set_dex(num);
 				else if (!strcmp(tag, "Drnk"))
-					GET_COND(this, DRUNK) = num;
+					this->player_specials->saved.conditions[DRUNK] = num;
 				else if (!strcmp(tag, "DrSt"))
-					GET_DRUNK_STATE(this) = num;
+					this->player_specials->saved.DrunkState = num;
 				else if (!strcmp(tag, "Drol"))
-					GET_DR(this) = num;
+					this->real_abils.damroll = num;
 				else if (!strcmp(tag, "DaiQ")) {
 
 					if (sscanf(line, "%d %d %ld", &num, &num2, &lnum) == 2) {
@@ -1384,9 +1384,9 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 
 			case 'E':
 				if (!strcmp(tag, "ExFl"))
-					EXCHANGE_FILTER(this) = str_dup(line);
+					this->player_specials->Exchange_filter = str_dup(line);
 				else if (!strcmp(tag, "EMal"))
-					strcpy(GET_EMAIL(this), line);
+					strcpy(this->player_specials->saved.EMail, line);
 				else if (!strcmp(tag, "Expa"))
 					IncreaseStatistic(CharStat::ArenaExpLost, llnum);
 				else if (!strcmp(tag, "Expm"))
@@ -1410,7 +1410,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 			case 'F':
 				// Оставлено для совместимости со старым форматом наказаний
 				if (!strcmp(tag, "Frez"))
-					GET_FREEZE_LEV(this) = num;
+					this->player_specials->pfreeze.level = num;
 				else if (!strcmp(tag, "Feat")) {
 					do {
 						fbgetline(fl, line);
@@ -1418,7 +1418,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 						auto feat_id = static_cast<EFeat>(num);
 						if (MUD::Feat(feat_id).IsAvailable()) {
 							if (MUD::Class(this->GetClass()).feats.IsAvailable(feat_id) ||
-								PlayerRace::FeatureCheck((int) GET_KIN(this), (int) GET_RACE(this), num)) {
+								PlayerRace::FeatureCheck((int) this->player_data.Kin, (int) this->player_data.Race, num)) {
 								this->SetFeat(feat_id);
 							}
 						}
@@ -1439,12 +1439,12 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 				if (!strcmp(tag, "Gold")) {
 					set_gold(lnum, false);
 				} else if (!strcmp(tag, "GodD"))
-					GCURSE_DURATION(this) = lnum;
+					this->player_specials->pgcurse.duration = lnum;
 				else if (!strcmp(tag, "GdFl"))
 					this->player_specials->saved.GodsLike = lnum;
 					// added by WorM (Видолюб) 2010.06.04 бабки потраченные на найм(возвращаются при креше)
 				else if (!strcmp(tag, "GldH")) {
-					if (num != 0 && !this->IsImmortal() && CanUseFeat(this, EFeat::kEmployer)) {
+					if (num != 0 && !IS_IMMORTAL(this) && CanUseFeat(this, EFeat::kEmployer)) {
 						this->player_specials->saved.HiredCost = num;
 					}
 				}
@@ -1457,17 +1457,17 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 					this->set_hit(num);
 					this->set_max_hit(num2);
 				} else if (!strcmp(tag, "Hite"))
-					GET_HEIGHT(this) = num;
+					this->player_data.height = num;
 				else if (!strcmp(tag, "Hrol"))
-					GET_HR(this) = num;
+					this->real_abils.hitroll = num;
 				else if (!strcmp(tag, "Hung"))
-					GET_COND(this, FULL) = num;
+					this->player_specials->saved.conditions[FULL] = num;
 				else if (!strcmp(tag, "Hry ")) {
 					if (num > cap_hryvn)
 						num = cap_hryvn;
 					this->set_hryvn(num);
 				} else if (!strcmp(tag, "Host"))
-					strcpy(GET_LASTIP(this), line);
+					strcpy(this->player_specials->saved.LastIP, line);
 				break;
 
 			case 'I':
@@ -1486,9 +1486,9 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 
 			case 'K':
 				if (!strcmp(tag, "Kin "))
-					GET_KIN(this) = num;
+					this->player_data.Kin = num;
 				else if (!strcmp(tag, "Karm"))
-					KARMA(this) = fbgetstring(fl);
+					this->player_specials->Karma = fbgetstring(fl);
 				break;
 			case 'L':
 				if (!strcmp(tag, "LogL")) {
@@ -1498,13 +1498,13 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 						sscanf(line, "%s %ld %ld", &buf[0], &lnum, &lnum2);
 						if (buf[0] != '~') {
 							const network::Logon cur_log = {buf, lnum, lnum2, false};
-							LOGON_LIST(this).push_back(cur_log);
+							this->player_specials->logons.push_back(cur_log);
 						} else break;
 					} while (true);
 
-					if (!LOGON_LIST(this).empty()) {
-						LOGON_LIST(this).at(0).is_first = true;
-						std::sort(LOGON_LIST(this).begin(), LOGON_LIST(this).end(),
+					if (!this->player_specials->logons.empty()) {
+						this->player_specials->logons.at(0).is_first = true;
+						std::sort(this->player_specials->logons.begin(), this->player_specials->logons.end(),
 								  [](const network::Logon &a, const network::Logon &b) {
 									  return a.lasttime < b.lasttime;
 								  });
@@ -1514,7 +1514,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 				else if (!strcmp(tag, "Logs")) {
 					sscanf(line, "%d %d", &num, &num2);
 					if (num >= 0 && num < 1 + LAST_LOG)
-						GET_LOGS(this)[num] = num2;
+						this->player_specials->logs[num] = num2;
 				} else if (!strcmp(tag, "Lexc"))
 					this->set_last_exchange(num);
 				break;
@@ -1557,13 +1557,13 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 				else if (!strcmp(tag, "NmP "))
 					this->player_data.PNames[ECase::kPre] = std::string(line);
 				else if (!strcmp(tag, "NamD"))
-					NAME_DURATION(this) = lnum;
+					this->player_specials->pname.duration = lnum;
 				else if (!strcmp(tag, "NamG"))
-					NAME_GOD(this) = num;
+					this->player_specials->saved.NameGod = num;
 				else if (!strcmp(tag, "NaID"))
-					NAME_ID_GOD(this) = lnum;
+					this->player_specials->saved.NameIDGod = lnum;
 				else if (!strcmp(tag, "NtfE"))
-					NOTIFY_EXCH_PRICE(this) = lnum;
+					this->player_specials->saved.ntfyExchangePrice = lnum;
 				break;
 
 			case 'O':
@@ -1577,9 +1577,9 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 				else if (!strcmp(tag, "Plyd"))
 					this->player_data.time.played = num;
 				else if (!strcmp(tag, "PfIn"))
-					POOFIN(this) = str_dup(line);
+					this->player_specials->poofin = str_dup(line);
 				else if (!strcmp(tag, "PfOt"))
-					POOFOUT(this) = str_dup(line);
+					this->player_specials->poofout = str_dup(line);
 				else if (!strcmp(tag, "Pref")) {
 					this->player_specials->saved.pref.from_string(line);
 				} else if (!strcmp(tag, "Pkil")) {
@@ -1625,46 +1625,46 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 					// Loads Here new punishment strings
 				} else if (!strcmp(tag, "PMut")) {
 					sscanf(line, "%ld %d %ld %[^~]", &lnum, &num2, &lnum3, &buf[0]);
-					MUTE_DURATION(this) = lnum;
-					GET_MUTE_LEV(this) = num2;
-					MUTE_GODID(this) = lnum3;
-					MUTE_REASON(this) = str_dup(buf);
+					this->player_specials->pmute.duration = lnum;
+					this->player_specials->pmute.level = num2;
+					this->player_specials->pmute.godid = lnum3;
+					this->player_specials->pmute.reason = str_dup(buf);
 				} else if (!strcmp(tag, "PHel")) {
 					sscanf(line, "%ld %d %ld %[^~]", &lnum, &num2, &lnum3, &buf[0]);
-					HELL_DURATION(this) = lnum;
-					GET_HELL_LEV(this) = num2;
-					HELL_GODID(this) = lnum3;
-					HELL_REASON(this) = str_dup(buf);
+					this->player_specials->phell.duration = lnum;
+					this->player_specials->phell.level = num2;
+					this->player_specials->phell.godid = lnum3;
+					this->player_specials->phell.reason = str_dup(buf);
 				} else if (!strcmp(tag, "PDum")) {
 					sscanf(line, "%ld %d %ld %[^~]", &lnum, &num2, &lnum3, &buf[0]);
-					DUMB_DURATION(this) = lnum;
-					GET_DUMB_LEV(this) = num2;
-					DUMB_GODID(this) = lnum3;
-					DUMB_REASON(this) = str_dup(buf);
+					this->player_specials->pdumb.duration = lnum;
+					this->player_specials->pdumb.level = num2;
+					this->player_specials->pdumb.godid = lnum3;
+					this->player_specials->pdumb.reason = str_dup(buf);
 				} else if (!strcmp(tag, "PNam")) {
 					sscanf(line, "%ld %d %ld %[^~]", &lnum, &num2, &lnum3, &buf[0]);
-					NAME_DURATION(this) = lnum;
+					this->player_specials->pname.duration = lnum;
 					GET_NAME_LEV(this) = num2;
-					NAME_GODID(this) = lnum3;
-					NAME_REASON(this) = str_dup(buf);
+					this->player_specials->pname.godid = lnum3;
+					this->player_specials->pname.reason = str_dup(buf);
 				} else if (!strcmp(tag, "PFrz")) {
 					sscanf(line, "%ld %d %ld %[^~]", &lnum, &num2, &lnum3, &buf[0]);
-					FREEZE_DURATION(this) = lnum;
-					GET_FREEZE_LEV(this) = num2;
-					FREEZE_GODID(this) = lnum3;
-					FREEZE_REASON(this) = str_dup(buf);
+					this->player_specials->pfreeze.duration = lnum;
+					this->player_specials->pfreeze.level = num2;
+					this->player_specials->pfreeze.godid = lnum3;
+					this->player_specials->pfreeze.reason = str_dup(buf);
 				} else if (!strcmp(tag, "PGcs")) {
 					sscanf(line, "%ld %d %ld %[^~]", &lnum, &num2, &lnum3, &buf[0]);
-					GCURSE_DURATION(this) = lnum;
-					GET_GCURSE_LEV(this) = num2;
-					GCURSE_GODID(this) = lnum3;
-					GCURSE_REASON(this) = str_dup(buf);
+					this->player_specials->pgcurse.duration = lnum;
+					this->player_specials->pgcurse.level = num2;
+					this->player_specials->pgcurse.godid = lnum3;
+					this->player_specials->pgcurse.reason = str_dup(buf);
 				} else if (!strcmp(tag, "PUnr")) {
 					sscanf(line, "%ld %d %ld %[^~]", &lnum, &num2, &lnum3, &buf[0]);
-					UNREG_DURATION(this) = lnum;
-					GET_UNREG_LEV(this) = num2;
-					UNREG_GODID(this) = lnum3;
-					UNREG_REASON(this) = str_dup(buf);
+					this->player_specials->punreg.duration = lnum;
+					this->player_specials->punreg.level = num2;
+					this->player_specials->punreg.godid = lnum3;
+					this->player_specials->punreg.reason = str_dup(buf);
 				}
 
 				break;
@@ -1679,7 +1679,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 
 			case 'R':
 				if (!strcmp(tag, "Room"))
-					GET_LOADROOM(this) = num;
+					this->player_specials->saved.load_room = num;
 				else if (!strcmp(tag, "Ripa"))
 					IncreaseStatistic(CharStat::ArenaRip, num);
 				else if (!strcmp(tag, "Riar"))
@@ -1709,9 +1709,9 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 				else if (!strcmp(tag, "Rmbr"))
 					this->remember_set_num(num);
 				else if (!strcmp(tag, "Reli"))
-					GET_RELIGION(this) = num;
+					this->player_data.Religion = num;
 				else if (!strcmp(tag, "Race"))
-					GET_RACE(this) = num;
+					this->player_data.Race = num;
 				else if (!strcmp(tag, "Rcps")) {
 					im_rskill *last = nullptr;
 					for (;;) {
@@ -1732,7 +1732,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 						if (last)
 							last->link = rs;
 						else
-							GET_RSKILL(this) = rs;
+							this->player_specials->rskill = rs;
 						last = rs;
 					}
 				}
@@ -1740,7 +1740,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 
 			case 'S':
 				if (!strcmp(tag, "Size"))
-					GET_SIZE(this) = num;
+					this->real_abils.size = num;
 				else if (!strcmp(tag, "Sex ")) {
 					this->set_sex(static_cast<EGender>(num));
 				} else if (!strcmp(tag, "Skil")) {
@@ -1769,7 +1769,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 						sscanf(line, "%d %d", &num, &num2);
 						auto spell_id = static_cast<ESpell>(num);
 						if (spell_id > ESpell::kUndefined && MUD::Spell(spell_id).IsValid()) {
-							GET_SPELL_TYPE(this, spell_id) = num2;
+							this->real_abils.SplKnw[to_underlying(spell_id)] = num2;
 						}
 					} while (num != 0);
 				} else if (!strcmp(tag, "SpMe")) {
@@ -1778,7 +1778,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 						sscanf(line, "%d %d", &num, &num2);
 						auto spell_id = static_cast<ESpell>(num);
 						if (spell_id > ESpell::kUndefined) {
-							GET_SPELL_MEM(this, spell_id) = num2;
+							this->real_abils.SplMem[to_underlying(spell_id)] = num2;
 						}
 					} while (num != 0);
 				} else if (!strcmp(tag, "SpTM")) {
@@ -1799,9 +1799,9 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 				} else if (!strcmp(tag, "Str "))
 					this->set_str(num);
 				else if (!strcmp(tag, "StrL"))
-					STRING_LENGTH(this) = num;
+					this->player_specials->saved.stringLength = num;
 				else if (!strcmp(tag, "StrW"))
-					STRING_WIDTH(this) = num;
+					this->player_specials->saved.stringWidth = num;
 				else if (!strcmp(tag, "St00"))
 					this->set_start_stat(G_STR, lnum);
 				else if (!strcmp(tag, "St01"))
@@ -1818,7 +1818,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 
 			case 'T':
 				if (!strcmp(tag, "Thir"))
-					GET_COND(this, THIRST) = num;
+					this->player_specials->saved.conditions[THIRST] = num;
 				else if (!strcmp(tag, "Titl"))
 					this->SetTitleStr(line);
 				else if (!strcmp(tag, "TrcG"))
@@ -1852,9 +1852,9 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 
 			case 'W':
 				if (!strcmp(tag, "Wate"))
-					GET_WEIGHT(this) = num;
+					this->player_data.weight = num;
 				else if (!strcmp(tag, "Wimp"))
-					GET_WIMP_LEV(this) = num;
+					this->player_specials->saved.wimp_level = num;
 				else if (!strcmp(tag, "Wis "))
 					this->set_wis(num);
 				else if (!strcmp(tag, "Wina"))
@@ -1876,28 +1876,28 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 	// initialization for imms
 	if (GetRealLevel(this) >= kLvlImmortal) {
 		SetGodSkills(this);
-		GET_COND(this, FULL) = -1;
-		GET_COND(this, THIRST) = -1;
-		GET_COND(this, DRUNK) = -1;
-		GET_LOADROOM(this) = kNowhere;
+		this->player_specials->saved.conditions[FULL] = -1;
+		this->player_specials->saved.conditions[THIRST] = -1;
+		this->player_specials->saved.conditions[DRUNK] = -1;
+		this->player_specials->saved.load_room = kNowhere;
 	}
 
 	SetInbornAndRaceFeats(this);
 
-	if (this->IsGrGod()) {
+	if (IS_GRGOD(this)) {
 		for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
-			GET_SPELL_TYPE(this, spell_id) = GET_SPELL_TYPE(this, spell_id) |
+			this->real_abils.SplKnw[to_underlying(spell_id)] = this->real_abils.SplKnw[to_underlying(spell_id)] |
 				ESpellType::kItemCast | ESpellType::kKnow | ESpellType::kRunes | ESpellType::kScrollCast
 				| ESpellType::kPotionCast | ESpellType::kWandCast;
 		}
-	} else if (!this->IsImmortal()) {
+	} else if (!IS_IMMORTAL(this)) {
 		for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
 			const auto spell = MUD::Class(this->GetClass()).spells[spell_id];
 			if (spell.GetCircle() == kMaxMemoryCircle) {
-				REMOVE_BIT(GET_SPELL_TYPE(this, spell.GetId()), ESpellType::kKnow | ESpellType::kTemp);
+				REMOVE_BIT(this->real_abils.SplKnw[to_underlying(spell.GetId()]), ESpellType::kKnow | ESpellType::kTemp);
 			}
 			if (GetRealRemort(this) < spell.GetMinRemort()) {
-				GET_SPELL_MEM(this, spell_id) = 0;
+				this->real_abils.SplMem[to_underlying(spell_id)] = 0;
 			}
 		}
 	}
@@ -1906,7 +1906,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 	 * If you're not poisioned and you've been away for more than an hour of
 	 * real time, we'll set your HMV back to full
 	 */
-	if (!AFF_FLAGGED(this, EAffect::kPoisoned) && (((long) (time(0) - LAST_LOGON(this))) >= kSecsPerRealHour)) {
+	if (!AFF_FLAGGED(this, EAffect::kPoisoned) && (((long) (time(0) - this->get_last_logon())) >= kSecsPerRealHour)) {
 		this->set_hit(this->get_real_max_hit());
 		this->set_move(this->get_real_max_move());
 	} else
@@ -2072,7 +2072,7 @@ void Player::add_value_cities(bool v) {
 void Player::reset_daily_quest() {
 	this->daily_quest.clear();
 	this->daily_quest_timed.clear();
-	log("Персонаж: %s. Были сброшены гривны.", GET_NAME(this));
+	log("Персонаж: %s. Были сброшены гривны.", this->get_name().c_str());
 }
 
 std::shared_ptr<Account> Player::get_account() {

@@ -76,19 +76,19 @@ void break_inst(CharData *ch) {
 	char buf[300];
 
 	for (i = EEquipPos::kWield; i <= EEquipPos::kBoths; i++) {
-		if (GET_EQ(ch, i)
-			&& (strstr(GET_EQ(ch, i)->get_aliases().c_str(), "лопата")
-				|| strstr(GET_EQ(ch, i)->get_aliases().c_str(), "кирка"))) {
-			if (GET_EQ(ch, i)->get_current_durability() > 1) {
+		if (ch->equipment[i]
+			&& (strstr(ch->equipment[i]->get_aliases().c_str(), "лопата")
+				|| strstr(ch->equipment[i]->get_aliases().c_str(), "кирка"))) {
+			if (ch->equipment[i]->get_current_durability() > 1) {
 				if (number(1, dig_vars.instr_crash_chance) == 1) {
-					const auto current = GET_EQ(ch, i)->get_current_durability();
-					GET_EQ(ch, i)->set_current_durability(current - 1);
+					const auto current = ch->equipment[i]->get_current_durability();
+					ch->equipment[i]->set_current_durability(current - 1);
 				}
 			} else {
-				GET_EQ(ch, i)->set_timer(0);
+				ch->equipment[i]->set_timer(0);
 			}
-			if (GET_EQ(ch, i)->get_current_durability() <= 1 && number(1, 3) == 1) {
-				sprintf(buf, "Ваша %s трескается!\r\n", GET_EQ(ch, i)->get_short_description().c_str());
+			if (ch->equipment[i]->get_current_durability() <= 1 && number(1, 3) == 1) {
+				sprintf(buf, "Ваша %s трескается!\r\n", ch->equipment[i]->get_short_description().c_str());
 				SendMsgToChar(buf, ch);
 			}
 		}
@@ -100,9 +100,9 @@ int check_for_dig(CharData *ch) {
 	int i;
 
 	for (i = EEquipPos::kWield; i <= EEquipPos::kBoths; i++) {
-		if (GET_EQ(ch, i)
-			&& (strstr(GET_EQ(ch, i)->get_aliases().c_str(), "лопата")
-				|| strstr(GET_EQ(ch, i)->get_aliases().c_str(), "кирка"))) {
+		if (ch->equipment[i]
+			&& (strstr(ch->equipment[i]->get_aliases().c_str(), "лопата")
+				|| strstr(ch->equipment[i]->get_aliases().c_str(), "кирка"))) {
 			return 1;
 		}
 	}
@@ -143,33 +143,33 @@ void do_dig(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (!check_for_dig(ch) && !ch->IsImmortal()) {
+	if (!check_for_dig(ch) && !IS_IMMORTAL(ch)) {
 		SendMsgToChar("Вам бы лопату взять в руки... Или кирку...\r\n", ch);
 		return;
 	}
 
 	if (world[ch->in_room]->sector_type != ESector::kMountain &&
-		world[ch->in_room]->sector_type != ESector::kHills && !ch->IsImmortal()) {
+		world[ch->in_room]->sector_type != ESector::kHills && !IS_IMMORTAL(ch)) {
 		SendMsgToChar("Полезные минералы водятся только в гористой местности!\r\n", ch);
 		return;
 	}
 
-	if (!ch->IsImmortal() && ch->IsOnHorse()) {
+	if (!IS_IMMORTAL(ch) && ch->IsOnHorse()) {
 		SendMsgToChar("Верхом это сделать затруднительно.\r\n", ch);
 		return;
 	}
 
-	if (AFF_FLAGGED(ch, EAffect::kBlind) && !ch->IsImmortal()) {
+	if (AFF_FLAGGED(ch, EAffect::kBlind) && !IS_IMMORTAL(ch)) {
 		SendMsgToChar("Вы слепы и не видите где копать.\r\n", ch);
 		return;
 	}
 
-	if (is_dark(ch->in_room) && !CAN_SEE_IN_DARK(ch) && !ch->IsImmortal()) {
+	if (is_dark(ch->in_room) && !CAN_SEE_IN_DARK(ch) && !IS_IMMORTAL(ch)) {
 		SendMsgToChar("Куда копать? Чего копать? Ничего не видно...\r\n", ch);
 		return;
 	}
 
-	if (!make_hole(ch) && !ch->IsImmortal())
+	if (!make_hole(ch) && !IS_IMMORTAL(ch))
 		return;
 
 	if (!check_moves(ch, dig_vars.need_moves))

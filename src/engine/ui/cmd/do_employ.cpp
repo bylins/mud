@@ -22,7 +22,7 @@ void do_employ(CharData *ch, char *argument, int cmd, int subcmd) {
 		return;
 	}
 
-	mag_item = GET_EQ(ch, kHold);
+	mag_item = ch->equipment[kHold];
 	if (!mag_item
 		|| !isname(arg, mag_item->get_aliases())) {
 		switch (subcmd) {
@@ -85,25 +85,25 @@ void do_employ(CharData *ch, char *argument, int cmd, int subcmd) {
 			}
 			break;
 	}
-	if (do_hold && GET_EQ(ch, EEquipPos::kHold) != mag_item) {
-		if (GET_EQ(ch, EEquipPos::kBoths))
+	if (do_hold && ch->equipment[EEquipPos::kHold] != mag_item) {
+		if (ch->equipment[EEquipPos::kBoths])
 			do_hold = EEquipPos::kBoths;
-		else if (GET_EQ(ch, EEquipPos::kShield))
+		else if (ch->equipment[EEquipPos::kShield])
 			do_hold = EEquipPos::kShield;
 		else
 			do_hold = EEquipPos::kHold;
 
-		if (GET_EQ(ch, do_hold)) {
-			act("Вы прекратили использовать $o3.", false, ch, GET_EQ(ch, do_hold), 0, kToChar);
-			act("$n прекратил$g использовать $o3.", false, ch, GET_EQ(ch, do_hold), 0, kToRoom | kToArenaListen);
+		if (ch->equipment[do_hold]) {
+			act("Вы прекратили использовать $o3.", false, ch, ch->equipment[do_hold], 0, kToChar);
+			act("$n прекратил$g использовать $o3.", false, ch, ch->equipment[do_hold], 0, kToRoom | kToArenaListen);
 			PlaceObjToInventory(UnequipChar(ch, do_hold, CharEquipFlags()), ch);
 		}
-		if (GET_EQ(ch, EEquipPos::kHold))
+		if (ch->equipment[EEquipPos::kHold])
 			PlaceObjToInventory(UnequipChar(ch, EEquipPos::kHold, CharEquipFlags()), ch);
 		//obj_from_char(mag_item);
 		EquipObj(ch, mag_item, EEquipPos::kHold, CharEquipFlags());
 	}
-	if ((do_hold && GET_EQ(ch, EEquipPos::kHold) == mag_item) || (!do_hold))
+	if ((do_hold && ch->equipment[EEquipPos::kHold] == mag_item) || (!do_hold))
 		EmployMagicItem(ch, mag_item, buf_temp);
 	free(buf_temp);
 

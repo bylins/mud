@@ -35,7 +35,7 @@ void do_warcry(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			if (realname
 				&& MUD::Spell(spell_id).IsFlagged(kMagWarcry)
 				&& ch->GetSkill(ESkill::kWarcry) >= MUD::Spell(spell_id).GetManaChange()) {
-				if (!IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kKnow | ESpellType::kTemp))
+				if (!IS_SET(ch->real_abils.SplKnw[to_underlying(spell_id)], ESpellType::kKnow | ESpellType::kTemp))
 					continue;
 				sprintf(buf + strlen(buf), "%s%2d%s) %s%s%s\r\n",
 						kColorGrn, cnt++, kColorNrm, MUD::Spell(spell_id).IsViolent() ? kColorBoldRed : kColorBoldGrn, realname, kColorNrm);
@@ -55,7 +55,7 @@ void do_warcry(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	if (spell_id == ESpell::kUndefined
 		|| (ch->GetSkill(ESkill::kWarcry) < MUD::Spell(spell_id).GetManaChange())
-		|| !IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kKnow | ESpellType::kTemp)) {
+		|| !IS_SET(ch->real_abils.SplKnw[to_underlying(spell_id)], ESpellType::kKnow | ESpellType::kTemp)) {
 		SendMsgToChar("И откуда вы набрались таких выражений?\r\n", ch);
 		return;
 	}
@@ -90,7 +90,7 @@ void do_warcry(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	SaySpell(ch, spell_id, nullptr, nullptr);
 
 	if (CallMagic(ch, nullptr, nullptr, nullptr, spell_id, GetRealLevel(ch)) >= 0) {
-		if (!ch->IsImmortal()) {
+		if (!IS_IMMORTAL(ch)) {
 			if (ch->get_wait() <= 0) {
 				SetWaitState(ch, kBattleRound);
 			}

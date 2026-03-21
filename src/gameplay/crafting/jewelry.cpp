@@ -68,7 +68,7 @@ void do_insertgem(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		return;
 	}
 
-	if (!ch->IsImmortal()) {
+	if (!IS_IMMORTAL(ch)) {
 		if (!ROOM_FLAGGED(ch->in_room, ERoomFlag::kForge)) {
 			SendMsgToChar("Вам нужно попасть в кузницу для этого.\r\n", ch);
 			return;
@@ -80,12 +80,12 @@ void do_insertgem(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		return;
 	}
 
-	if (is_dark(ch->in_room) && !CAN_SEE_IN_DARK(ch) && !ch->IsImmortal()) {
+	if (is_dark(ch->in_room) && !CAN_SEE_IN_DARK(ch) && !IS_IMMORTAL(ch)) {
 		SendMsgToChar("Да тут темно хоть глаза выколи...\r\n", ch);
 		return;
 	}
 
-	if (!ch->IsImmortal() && ch->IsOnHorse()) {
+	if (!IS_IMMORTAL(ch) && ch->IsOnHorse()) {
 		SendMsgToChar("Верхом это сделать затруднительно.\r\n", ch);
 		return;
 	}

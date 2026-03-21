@@ -184,7 +184,7 @@ void assign_triggers(void *i, int type) {
 
 	switch (type) {
 		case MOB_TRIGGER: mob = (CharData *) i;
-			for (const auto trigger_vnum : *mob_proto[mob->get_rnum()].proto_script) {
+			for (const auto trigger_vnum : *mob_proto[GET_MOB_RNUM(mob)].proto_script) {
 				rnum = GetTriggerRnum(trigger_vnum);
 				if (rnum == -1) {
 					const auto rnum = mob->get_rnum();
@@ -284,7 +284,7 @@ void trg_featturn(CharData *ch, EFeat feat_id, int featdiff, int vnum) {
 		else {
 			sprintf(buf, "Вы утратили способность '%s'.\r\n", MUD::Feat(feat_id).GetCName());
 			SendMsgToChar(buf, ch);
-			log("Remove %s to %s (trigfeatturn) trigvnum %d", MUD::Feat(feat_id).GetCName(), GET_NAME(ch), vnum);
+			log("Remove %s to %s (trigfeatturn) trigvnum %d", MUD::Feat(feat_id).GetCName(), ch->get_name().c_str(), vnum);
 			ch->UnsetFeat(feat_id);
 		}
 	} else {
@@ -293,7 +293,7 @@ void trg_featturn(CharData *ch, EFeat feat_id, int featdiff, int vnum) {
 				sprintf(buf, "Вы обрели способность '%s'.\r\n", MUD::Feat(feat_id).GetCName());
 				SendMsgToChar(buf, ch);
 				log("Add %s to %s (trigfeatturn) trigvnum %d",
-					MUD::Feat(feat_id).GetCName(), GET_NAME(ch), vnum);
+					MUD::Feat(feat_id).GetCName(), ch->get_name().c_str(), vnum);
 				ch->SetFeat(feat_id);
 			}
 		};
@@ -307,11 +307,11 @@ void trg_skillturn(CharData *ch, const ESkill skill_id, int skilldiff, int vnum)
 		}
 		ch->set_skill(skill_id, 0);
 		SendMsgToChar(ch, "Вас лишили умения '%s'.\r\n", MUD::Skill(skill_id).GetName());
-		log("Remove %s from %s (trigskillturn)", MUD::Skill(skill_id).GetName(), GET_NAME(ch));
+		log("Remove %s from %s (trigskillturn)", MUD::Skill(skill_id).GetName(), ch->get_name().c_str());
 	} else if (skilldiff && MUD::Class(ch->GetClass()).skills[skill_id].IsAvailable()) {
 		ch->set_skill(skill_id, 5);
 		SendMsgToChar(ch, "Вы изучили умение '%s'.\r\n", MUD::Skill(skill_id).GetName());
-		log("Add %s to %s (trigskillturn) trigvnum %d", MUD::Skill(skill_id).GetName(), GET_NAME(ch), vnum);
+		log("Add %s to %s (trigskillturn) trigvnum %d", MUD::Skill(skill_id).GetName(), ch->get_name().c_str(), vnum);
 	}
 }
 
@@ -320,53 +320,53 @@ void AddSkill(CharData *ch, const ESkill skillnum, int skilldiff, int vnum) {
 
 	ch->set_skill(skillnum, std::clamp(skill + skilldiff, 1, MUD::Skill(skillnum).cap));
 	log("Add skill %s for char %s, skilldif %d, room %d, trigger %d, line %d", 
-			MUD::Skill(skillnum).GetName(), GET_NAME(ch), skilldiff, GET_ROOM_VNUM(ch->in_room), vnum, last_trig_line_num);
+			MUD::Skill(skillnum).GetName(), ch->get_name().c_str(), skilldiff, GET_ROOM_VNUM(ch->in_room), vnum, last_trig_line_num);
 	if (skill > ch->GetSkillBonus(skillnum)) {
 		SendMsgToChar(ch, "Ваше умение '%s' понизилось.\r\n", MUD::Skill(skillnum).GetName());
 		log("Decrease %s to %s from %d to %d (diff %d)(trigskilladd) trigvnum %d",
-			MUD::Skill(skillnum).GetName(), GET_NAME(ch), skill,
+			MUD::Skill(skillnum).GetName(), ch->get_name().c_str(), skill,
 			ch->GetSkillBonus(skillnum), skilldiff, vnum);
 	} else if (skill < ch->GetSkillBonus(skillnum)) {
 		SendMsgToChar(ch, "Вы повысили свое умение '%s'.\r\n", MUD::Skill(skillnum).GetName());
 		log("Raise %s to %s from %d to %d (diff %d)(trigskilladd) trigvnum %d",
-			MUD::Skill(skillnum).GetName(), GET_NAME(ch), skill,
+			MUD::Skill(skillnum).GetName(), ch->get_name().c_str(), skill,
 			ch->GetSkillBonus(skillnum), skilldiff, vnum);
 	} else {
 		SendMsgToChar(ch, "Ваше умение '%s' не изменилось.\r\n", MUD::Skill(skillnum).GetName());
 		log("Unchanged %s to %s from %d to %d (diff %d)(trigskilladd) trigvnum %d",
-			MUD::Skill(skillnum).GetName(), GET_NAME(ch), skill,
+			MUD::Skill(skillnum).GetName(), ch->get_name().c_str(), skill,
 			ch->GetSkillBonus(skillnum), skilldiff, vnum);
 	}
 }
 
 void trg_spellturn(CharData *ch, ESpell spell_id, int spelldiff, int vnum) {
-	int spell = GET_SPELL_TYPE(ch, spell_id);
+	int spell = ch->real_abils.SplKnw[to_underlying(spell_id)];
 
 	if (!CanGetSpell(ch, spell_id)) {
 		log("Error trying to add %s to %s (trigspell) trigvnum %d",
-			MUD::Spell(spell_id).GetCName(), GET_NAME(ch), vnum);
+			MUD::Spell(spell_id).GetCName(), ch->get_name().c_str(), vnum);
 		return;
 	}
 
 	if (spell & ESpellType::kKnow) {
 		if (spelldiff) return;
 
-		REMOVE_BIT(GET_SPELL_TYPE(ch, spell_id), ESpellType::kKnow);
-		if (!IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kTemp))
-			GET_SPELL_MEM(ch, spell_id) = 0;
+		REMOVE_BIT(ch->real_abils.SplKnw[to_underlying(spell_id)], ESpellType::kKnow);
+		if (!IS_SET(ch->real_abils.SplKnw[to_underlying(spell_id)], ESpellType::kTemp))
+			ch->real_abils.SplMem[to_underlying(spell_id)] = 0;
 		SendMsgToChar(ch, "Вы начисто забыли заклинание '%s'.\r\n", MUD::Spell(spell_id).GetCName());
-		log("Remove %s from %s (trigspell) trigvnum %d", MUD::Spell(spell_id).GetCName(), GET_NAME(ch), vnum);
+		log("Remove %s from %s (trigspell) trigvnum %d", MUD::Spell(spell_id).GetCName(), ch->get_name().c_str(), vnum);
 	} else if (spelldiff) {
-		SET_BIT(GET_SPELL_TYPE(ch, spell_id), ESpellType::kKnow);
+		SET_BIT(ch->real_abils.SplKnw[to_underlying(spell_id)], ESpellType::kKnow);
 		SendMsgToChar(ch, "Вы постигли заклинание '%s'.\r\n", MUD::Spell(spell_id).GetCName());
-		log("Add %s to %s (trigspell) trigvnum %d", MUD::Spell(spell_id).GetCName(), GET_NAME(ch), vnum);
+		log("Add %s to %s (trigspell) trigvnum %d", MUD::Spell(spell_id).GetCName(), ch->get_name().c_str(), vnum);
 	}
 }
 
 void trg_spellturntemp(CharData *ch, ESpell spell_id, int spelldiff, int vnum) {
 	if (!CanGetSpell(ch, spell_id)) {
 		log("Error trying to add %s to %s (trigspelltemp) trigvnum %d",
-			MUD::Spell(spell_id).GetCName(), GET_NAME(ch), vnum);
+			MUD::Spell(spell_id).GetCName(), ch->get_name().c_str(), vnum);
 		return;
 	}
 
@@ -374,38 +374,38 @@ void trg_spellturntemp(CharData *ch, ESpell spell_id, int spelldiff, int vnum) {
 	SendMsgToChar(ch, "Вы дополнительно можете использовать заклинание '%s' некоторое время.\r\n",
 				  MUD::Spell(spell_id).GetCName());
 	log("Add %s for %d seconds to %s (trigspelltemp) trigvnum %d",
-		MUD::Spell(spell_id).GetCName(), spelldiff, GET_NAME(ch), vnum);
+		MUD::Spell(spell_id).GetCName(), spelldiff, ch->get_name().c_str(), vnum);
 }
 
 void trg_spelladd(CharData *ch, ESpell spell_id, int spelldiff, int vnum) {
-	int spell = GET_SPELL_MEM(ch, spell_id);
-	GET_SPELL_MEM(ch, spell_id) = std::max(0, MIN(spell + spelldiff, 50));
+	int spell = ch->real_abils.SplMem[to_underlying(spell_id)];
+	ch->real_abils.SplMem[to_underlying(spell_id)] = std::max(0, MIN(spell + spelldiff, 50));
 
-	if (spell > GET_SPELL_MEM(ch, spell_id)) {
-		if (GET_SPELL_MEM(ch, spell_id)) {
+	if (spell > ch->real_abils.SplMem[to_underlying(spell_id)]) {
+		if (ch->real_abils.SplMem[to_underlying(spell_id)]) {
 			log("Remove custom spell %s to %s (trigspell) trigvnum %d",
-				MUD::Spell(spell_id).GetCName(), GET_NAME(ch), vnum);
+				MUD::Spell(spell_id).GetCName(), ch->get_name().c_str(), vnum);
 			sprintf(buf, "Вы забыли часть заклинаний '%s'.\r\n", MUD::Spell(spell_id).GetCName());
 		} else {
 			sprintf(buf, "Вы забыли все заклинания '%s'.\r\n", MUD::Spell(spell_id).GetCName());
 			log("Remove all spells %s to %s (trigspell) trigvnum %d",
-				MUD::Spell(spell_id).GetCName(), GET_NAME(ch), vnum);
+				MUD::Spell(spell_id).GetCName(), ch->get_name().c_str(), vnum);
 		}
 		SendMsgToChar(buf, ch);
-	} else if (spell < GET_SPELL_MEM(ch, spell_id)) {
+	} else if (spell < ch->real_abils.SplMem[to_underlying(spell_id)]) {
 		SendMsgToChar(ch, "Вы выучили несколько заклинаний '%s'.\r\n", MUD::Spell(spell_id).GetCName());
-		log("Add %s to %s (trigspell) trigvnum %d", MUD::Spell(spell_id).GetCName(), GET_NAME(ch), vnum);
+		log("Add %s to %s (trigspell) trigvnum %d", MUD::Spell(spell_id).GetCName(), ch->get_name().c_str(), vnum);
 	}
 }
 
 void trg_spellitem(CharData *ch, ESpell spell_id, int spelldiff, ESpellType spell_type) {
 	char type[kMaxStringLength];
 
-	if ((spelldiff && IS_SET(GET_SPELL_TYPE(ch, spell_id), spell_type)) ||
-		(!spelldiff && !IS_SET(GET_SPELL_TYPE(ch, spell_id), spell_type)))
+	if ((spelldiff && IS_SET(ch->real_abils.SplKnw[to_underlying(spell_id)], spell_type)) ||
+		(!spelldiff && !IS_SET(ch->real_abils.SplKnw[to_underlying(spell_id)], spell_type)))
 		return;
 	if (!spelldiff) {
-		REMOVE_BIT(GET_SPELL_TYPE(ch, spell_id), spell_type);
+		REMOVE_BIT(ch->real_abils.SplKnw[to_underlying(spell_id)], spell_type);
 		switch (spell_type) {
 			case ESpellType::kScrollCast: strcpy(type, "создания свитка");
 				break;
@@ -424,7 +424,7 @@ void trg_spellitem(CharData *ch, ESpell spell_id, int spelldiff, ESpellType spel
 		SendMsgToChar(buffer.str(), ch);
 
 	} else {
-		SET_BIT(GET_SPELL_TYPE(ch, spell_id), spell_type);
+		SET_BIT(ch->real_abils.SplKnw[to_underlying(spell_id)], spell_type);
 		switch (spell_type) {
 			case ESpellType::kScrollCast:
 				if (!ch->GetSkill(ESkill::kCreateScroll))

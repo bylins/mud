@@ -107,7 +107,7 @@ int CharData::get_souls() {
 }
 
 bool CharData::in_used_zone() const {
-	if (this->IsNpc()) {
+	if (IS_MOB(this)) {
 		return 0 != zone_table[world[in_room]->zone_rn].used;
 	}
 	return false;
@@ -181,7 +181,7 @@ void CharData::reset() {
 	int i;
 
 	for (i = 0; i < EEquipPos::kNumEquipPos; i++) {
-		GET_EQ(this, i) = nullptr;
+		this->equipment[i] = nullptr;
 	}
 	memset((void *) &add_abils, 0, sizeof(add_abils));
 
@@ -215,7 +215,7 @@ void CharData::reset() {
 }
 
 void CharData::set_abstinent() {
-	int duration = CalcDuration(this, 2, std::max(0, GET_DRUNK_STATE(this) - kDrunked), 4, 2, 5);
+	int duration = CalcDuration(this, 2, std::max(0, this->player_specials->saved.DrunkState - kDrunked), 4, 2, 5);
 
 	if (CanUseFeat(this, EFeat::kDrunkard)) {
 		duration /= 2;
@@ -241,13 +241,13 @@ void CharData::set_abstinent() {
 
 CharData::char_affects_list_t::iterator CharData::AffectRemove(const char_affects_list_t::iterator &affect_i) {
 	if (affected.empty()) {
-		log("SYSERR: affect_remove(%s) when no affects...", GET_NAME(this));
+		log("SYSERR: affect_remove(%s) when no affects...", this->get_name().c_str());
 		return affected.end();
 	}
 	const auto af = *affect_i;
 	if (af->type == ESpell::kAbstinent) {
 		if (player_specials) {
-			GET_DRUNK_STATE(this) = GET_COND(this, DRUNK) = std::min(GET_COND(this, DRUNK), kDrunked - 1);
+			this->player_specials->saved.DrunkState = this->player_specials->saved.conditions[DRUNK] = std::min(this->player_specials->saved.conditions[DRUNK], kDrunked - 1);
 		} else {
 			log("SYSERR: player_specials is not set.");
 		}
@@ -401,13 +401,13 @@ void CharData::purge() {
 	caching::character_cache.Remove(this);
 
 //	if (!get_name().empty()) {
-//		log("[FREE CHAR] (%s)", GET_NAME(this));
+//		log("[FREE CHAR] (%s)", this->get_name().c_str());
 //	}
 	int i, id = -1;
 	struct alias_data *a;
 
 	if (!this->IsNpc() && !get_name().empty()) {
-		id = GetPlayerTablePosByName(GET_NAME(this));
+		id = GetPlayerTablePosByName(this->get_name().c_str());
 		if (id >= 0) {
 			player_table[id].level = GetRealLevel(this);
 			player_table[id].remorts = GetRealRemort(this);
@@ -415,12 +415,12 @@ void CharData::purge() {
 		}
 	}
 
-	if (!this->IsNpc() || (this->IsNpc() && this->get_rnum() == -1)) {
+	if (!this->IsNpc() || (this->IsNpc() && GET_MOB_RNUM(this) == -1)) {
 		if (this->IsNpc() && this->mob_specials.Questor)
 			free(this->mob_specials.Questor);
 		pk_free_list(this);
 		this->summon_helpers.clear();
-	} else if ((i = this->get_rnum())
+	} else if ((i = GET_MOB_RNUM(this))
 		>= 0) {    // otherwise, free strings only if the string is not pointing at proto
 
 		if (this->mob_specials.Questor && this->mob_specials.Questor != mob_proto[i].mob_specials.Questor)
@@ -432,8 +432,8 @@ void CharData::purge() {
 
 	const bool keep_player_specials = player_specials == player_special_data::s_for_mobiles ? true : false;
 	if (this->player_specials && !keep_player_specials) {
-		while ((a = GET_ALIASES(this)) != nullptr) {
-			GET_ALIASES(this) = (GET_ALIASES(this))->next;
+		while ((a = this->player_specials->aliases) != nullptr) {
+			this->player_specials->aliases = (this->player_specials->aliases)->next;
 			FreeAlias(a);
 		}
 		if (this->player_specials->poofin)
@@ -441,53 +441,53 @@ void CharData::purge() {
 		if (this->player_specials->poofout)
 			free(this->player_specials->poofout);
 		// рецепты
-		while (GET_RSKILL(this) != nullptr) {
+		while (this->player_specials->rskill != nullptr) {
 			im_rskill *r;
-			r = GET_RSKILL(this)->link;
-			free(GET_RSKILL(this));
-			GET_RSKILL(this) = r;
+			r = this->player_specials->rskill->link;
+			free(this->player_specials->rskill);
+			this->player_specials->rskill = r;
 		}
 		// порталы
 		this->ClearRunestones();
 // Cleanup punish reasons
-		if (MUTE_REASON(this))
-			free(MUTE_REASON(this));
-		if (DUMB_REASON(this))
-			free(DUMB_REASON(this));
-		if (HELL_REASON(this))
-			free(HELL_REASON(this));
-		if (FREEZE_REASON(this))
-			free(FREEZE_REASON(this));
-		if (NAME_REASON(this))
-			free(NAME_REASON(this));
-		if (GCURSE_REASON(this))
-			free(GCURSE_REASON(this));
-		if (UNREG_REASON(this))
-			free(UNREG_REASON(this));
+		if (this->player_specials->pmute.reason)
+			free(this->player_specials->pmute.reason);
+		if (this->player_specials->pdumb.reason)
+			free(this->player_specials->pdumb.reason);
+		if (this->player_specials->phell.reason)
+			free(this->player_specials->phell.reason);
+		if (this->player_specials->pfreeze.reason)
+			free(this->player_specials->pfreeze.reason);
+		if (this->player_specials->pname.reason)
+			free(this->player_specials->pname.reason);
+		if (this->player_specials->pgcurse.reason)
+			free(this->player_specials->pgcurse.reason);
+		if (this->player_specials->punreg.reason)
+			free(this->player_specials->punreg.reason);
 // End reasons cleanup
 
-		if (KARMA(this))
-			free(KARMA(this));
+		if (this->player_specials->Karma)
+			free(this->player_specials->Karma);
 
-		free(GET_LOGS(this));
+		free(this->player_specials->logs);
 
-		if (EXCHANGE_FILTER(this)) {
-			free(EXCHANGE_FILTER(this));
+		if (this->player_specials->Exchange_filter) {
+			free(this->player_specials->Exchange_filter);
 		}
-		EXCHANGE_FILTER(this) = nullptr;
+		this->player_specials->Exchange_filter = nullptr;
 
 		clear_ignores();
 
-		if (GET_CLAN_STATUS(this)) {
-			free(GET_CLAN_STATUS(this));
+		if (this->player_specials->clanStatus) {
+			free(this->player_specials->clanStatus);
 		}
 
-		LOGON_LIST(this).clear();
+		this->player_specials->logons.clear();
 
 		this->player_specials.reset();
 
 		if (this->IsNpc()) {
-			log("SYSERR: Mob %s (#%d) had player_specials allocated!", GET_NAME(this), GET_MOB_VNUM(this));
+			log("SYSERR: Mob %s (#%d) had player_specials allocated!", this->get_name().c_str(), GET_MOB_VNUM(this));
 		}
 	}
 	name_.clear();
@@ -519,7 +519,7 @@ int CharData::GetSkill(const ESkill skill_id) const {
 	}
 
 	if (AFF_FLAGGED(this, EAffect::kSkillReduce)) {
-		skill -= skill * GET_SKILL_REDUCE(this) / 100;
+		skill -= skill * this->add_abils.skill_reduce_add / 100;
 	}
 
 	if (ROOM_FLAGGED(this->in_room, ERoomFlag::kDominationArena)) {
@@ -725,8 +725,8 @@ void CharData::remove_protecting() {
 		if (it != protecting_->who_protecting.end()) {
 			protecting_->who_protecting.erase(it);
 			SendMsgToChar(this, "Вы перестали прикрывать %s.\r\n", 
-				GET_PAD(protecting_, 3));
-			SendMsgToChar(get_protecting(), "%s перестал%s прикрывать вас.\r\n", GET_NAME(this), GET_CH_SUF_1(this));
+				protecting_->player_data.PNames[3].c_str());
+			SendMsgToChar(get_protecting(), "%s перестал%s прикрывать вас.\r\n", this->get_name().c_str(), GET_CH_SUF_1(this));
 		}
 	}
 	protecting_ = nullptr;
@@ -855,8 +855,8 @@ bool CLEAR_MIND(const CharData *ch) {
 
 //Вы уверены,что функцияам расчете опыта самое место в классе персонажа?
 bool OK_GAIN_EXP(const CharData *ch, const CharData *victim) {
-	return !NAME_BAD(ch)
-		&& (NAME_FINE(ch)
+	return !(ch->player_specials->saved.NameGod < 1000 && ch->player_specials->saved.NameGod)
+		&& ((ch->player_specials->saved.NameGod > 1000)
 			|| !(GetRealLevel(ch) == kNameLevel))
 		&& !ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena)
 		&& victim->IsNpc()
@@ -1387,8 +1387,8 @@ long CharData::remove_both_gold(long num, bool need_log) {
 
 // * Удача (мораль) для расчетов в скилах и вывода чару по счет все.
 int CharData::calc_morale() const {
-	return GetRealCha(this) / 2 + GET_MORALE(this);
-//	return cha_app[GetRealCha(this)].morale + GET_MORALE(this);
+	return GetRealCha(this) / 2 + this->add_abils.morale;
+//	return cha_app[GetRealCha(this)].morale + this->add_abils.morale;
 }
 ///////////////////////////////////////////////////////////////////////////////
 int CharData::get_str() const {
@@ -1631,7 +1631,7 @@ std::string CharData::get_pretitle() const {
 }
 
 std::string CharData::get_race_name() const {
-	return PlayerRace::GetRaceNameByNum(GET_KIN(this), GET_RACE(this), this->get_sex());
+	return PlayerRace::GetRaceNameByNum(this->player_data.Kin, this->player_data.Race, this->get_sex());
 }
 
 std::string CharData::GetTitleAndNameWithoutClan() const {
@@ -1651,8 +1651,8 @@ std::string CharData::GetTitleAndNameWithoutClan() const {
 }
 
 std::string CharData::GetClanTitleAddition() {
-	if (CLAN(this) && !this->IsImmortal()) {
-		return fmt::format("({})", GET_CLAN_STATUS(this));
+	if (this->player_specials->clan && !IS_IMMORTAL(this)) {
+		return fmt::format("({})", this->player_specials->clanStatus);
 	}
 
 	return {};
@@ -1754,7 +1754,7 @@ void CharData::cleanup_script() {
 void CharData::add_follower_silently(CharData *ch) {
 	if (ch->has_master()) {
 		log("SYSERR: add_follower_implementation(%s->%s) when master existing(%s)...",
-			GET_NAME(ch), get_name().c_str(), GET_NAME(ch->get_master()));
+			ch->get_name().c_str(), get_name().c_str(), ch->get_master(->get_name().c_str()));
 		return;
 	}
 
@@ -1855,16 +1855,16 @@ void CharData::restore_mob() {
 	update_pos(this);
 
 	for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
-		GET_SPELL_MEM(this, spell_id) = GET_SPELL_MEM(&mob_proto[this->get_rnum()], spell_id);
+		this->real_abils.SplMem[to_underlying(spell_id)] = &mob_proto[GET_MOB_RNUM(this)]->real_abils.SplMem[to_underlying(spell_id)];
 	}
-	this->caster_level = (&mob_proto[this->get_rnum()])->caster_level;
+	this->caster_level = (&mob_proto[GET_MOB_RNUM(this)])->caster_level;
 }
 //
 void CharData::restore_npc() {
 	if(!this->IsNpc()) return;
 	
 	attackers_.clear();
-	auto proto = (&mob_proto[this->get_rnum()]);
+	auto proto = (&mob_proto[GET_MOB_RNUM(this)]);
 	// ресторим хпшки / мувы
 		
 	this->set_hit(1 + proto->get_hit());
@@ -1873,19 +1873,19 @@ void CharData::restore_npc() {
 	this->set_move(proto->get_real_max_move());
 	update_pos(this);
 	// ресторим хиты / дамы / ас / армор
-	GET_WEIGHT(this) = GET_WEIGHT(proto);
-	GET_HEIGHT(this) = GET_HEIGHT(proto);
-	GET_SIZE(this) = GET_SIZE(proto);
-	GET_HR(this) = GET_HR(proto);
-	GET_AC(this) = GET_AC(proto);
-	GET_DR(this) = GET_DR(proto);
-	GET_ARMOUR(this) = GET_ARMOUR(proto);
-	GET_INITIATIVE(this) = GET_INITIATIVE(proto);
-	GET_MORALE(this) = GET_MORALE(proto);
+	this->player_data.weight = proto->player_data.weight;
+	this->player_data.height = proto->player_data.height;
+	this->real_abils.size = proto->real_abils.size;
+	this->real_abils.hitroll = proto->real_abils.hitroll;
+	this->real_abils.armor = proto->real_abils.armor;
+	this->real_abils.damroll = proto->real_abils.damroll;
+	this->add_abils.armour = proto->add_abils.armour;
+	this->add_abils.initiative_add = proto->add_abils.initiative_add;
+	this->add_abils.morale = proto->add_abils.morale;
 	// ресторим резисты ФР/МР/АР
-	GET_AR(this) = GET_AR(proto);
-	GET_MR(this) = GET_MR(proto);
-	GET_PR(this) = GET_PR(proto);
+	this->add_abils.aresist = proto->add_abils.aresist;
+	this->add_abils.mresist = proto->add_abils.mresist;
+	this->add_abils.presist = proto->add_abils.presist;
 	// ресторим имена
 	this->player_data.PNames[ECase::kNom] = proto->player_data.PNames[ECase::kNom];
 	this->player_data.PNames[ECase::kGen] = proto->player_data.PNames[ECase::kGen];
@@ -1893,8 +1893,8 @@ void CharData::restore_npc() {
 	this->player_data.PNames[ECase::kAcc] = proto->player_data.PNames[ECase::kAcc];
 	this->player_data.PNames[ECase::kIns] = proto->player_data.PNames[ECase::kIns];
 	this->player_data.PNames[ECase::kPre] = proto->player_data.PNames[ECase::kPre];
-	this->SetCharAliases(GET_PC_NAME(proto));
-	this->set_npc_name(GET_NAME(proto));
+	this->SetCharAliases(proto->GetCharAliases().c_str());
+	this->set_npc_name(proto->get_name().c_str());
     // кубики // екстра атаки
 	this->mob_specials.damnodice = proto->mob_specials.damnodice;
 	this->mob_specials.damsizedice = proto->mob_specials.damsizedice;
@@ -1917,7 +1917,7 @@ void CharData::restore_npc() {
 	this->set_cha(GetRealCha(proto));
 	// ресторим мем	
 	for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
-		GET_SPELL_MEM(this, spell_id) = GET_SPELL_MEM(proto, spell_id);
+		this->real_abils.SplMem[to_underlying(spell_id)] = proto->real_abils.SplMem[to_underlying(spell_id)];
 	}
 
 	for (const auto &skill : MUD::Skills()) {
@@ -1991,7 +1991,7 @@ void CharData::set_wait(const unsigned _) {
 	if (_ > 0) {
 /*		if (!this->IsNpc()) {
 			debug::backtrace(runtime_config.logs(SYSLOG).handle());
-			mudlog(fmt::format("ставим вайт для {} {}", GET_NAME(this), _));
+			mudlog(fmt::format("ставим вайт для {} {}", this->get_name().c_str(), _));
 		}
 */
 		chardata_wait_list.insert(this);
@@ -2038,7 +2038,7 @@ void CharData::send_to_TC(bool to_impl, bool to_tester, bool to_coder, const cha
 		return;
 
 	if (to_impl &&
-		(this->IsImpl() || (IS_CHARMICE(this) && this->get_master()->IsImpl())))
+		(IS_IMPL(this) || (IS_CHARMICE(this) && IS_IMPL(this->get_master()))))
 		needSend = true;
 	if (!needSend && to_coder &&
 		(this->IsFlagged(EPrf::kCoderinfo) || (IS_CHARMICE(this) && (this->get_master()->IsFlagged(EPrf::kCoderinfo)))))
@@ -2111,7 +2111,7 @@ bool CharData::DropFromHorse() {
 		act("Вы упали с $N1.", false, plr, 0, this->get_horse(), kToChar);
 	} else //не лошадь и не всадник
 		return false;
-	sprintf(buf, "%s свалил%s со своего скакуна.", GET_PAD(plr, 0), GET_CH_SUF_2(plr));
+	sprintf(buf, "%s свалил%s со своего скакуна.", plr->player_data.PNames[0].c_str(), GET_CH_SUF_2(plr));
 	act(buf, false, plr, 0, 0, kToRoom | kToArenaListen);
 	AFF_FLAGS(plr).unset(EAffect::kHorse);
 	SetWaitState(plr, 3 * kBattleRound);
@@ -2148,12 +2148,12 @@ obj_sets::activ_sum &CharData::obj_bonus() {
 }
 
 bool CharData::HasWeapon() {
-	if ((GET_EQ(this, EEquipPos::kWield)
-	  && GET_EQ(this, EEquipPos::kWield)->get_type() != EObjType::kLightSource)
-	  || (GET_EQ(this, EEquipPos::kHold)
-	  && GET_EQ(this, EEquipPos::kHold)->get_type() != EObjType::kLightSource)
-	  || (GET_EQ(this, EEquipPos::kBoths)
-	  && GET_EQ(this, EEquipPos::kBoths)->get_type() != EObjType::kLightSource)) {
+	if ((this->equipment[EEquipPos::kWield]
+	  && this->equipment[EEquipPos::kWield]->get_type() != EObjType::kLightSource)
+	  || (this->equipment[EEquipPos::kHold]
+	  && this->equipment[EEquipPos::kHold]->get_type() != EObjType::kLightSource)
+	  || (this->equipment[EEquipPos::kBoths]
+	  && this->equipment[EEquipPos::kBoths]->get_type() != EObjType::kLightSource)) {
 		return true;
 	}
 	return false;
@@ -2198,7 +2198,7 @@ player_special_data_saved::player_special_data_saved() :
 player_special_data::shared_ptr player_special_data::s_for_mobiles = std::make_shared<player_special_data>();
 
 int ClampBaseStat(const CharData *ch, const EBaseStat stat_id, const int stat_value) {
-	if (ch->IsNpc() || ch->IsGod())
+	if (ch->IsNpc() || IS_GOD(ch))
 		return std::clamp(stat_value, kLeastBaseStat, kMobBaseStatCap);
 	else
 		return std::clamp(stat_value, kLeastBaseStat, MUD::Class(ch->GetClass()).GetBaseStatCap(stat_id));
@@ -2267,7 +2267,7 @@ int GetRealLevel(const CharData *ch) {
 		return std::clamp(ch->GetLevel() + ch->get_level_add(), 0, kMaxMobLevel);
 	}
 
-	if (ch->IsImmortal()) {
+	if (IS_IMMORTAL(ch)) {
 		return ch->GetLevel();
 	}
 

@@ -21,13 +21,13 @@ void tell_to_char(CharData *keeper, CharData *ch, const char *argument) {
 		return;
 	}
 	snprintf(local_buf, kMaxInputLength,
-			 "%s сказал%s вам : '%s'", GET_NAME(keeper), GET_CH_SUF_1(keeper), argument);
+			 "%s сказал%s вам : '%s'", keeper->get_name().c_str(), GET_CH_SUF_1(keeper), argument);
 	SendMsgToChar(ch, "%s%s%s\r\n",
 				  kColorBoldCyn, utils::CAP(local_buf), kColorNrm);
 }
 
 bool tell_can_see(CharData *ch, CharData *vict) {
-	if (CAN_SEE_CHAR(vict, ch) || ch->IsImmortal() || GET_INVIS_LEV(ch)) {
+	if (CAN_SEE_CHAR(vict, ch) || IS_IMMORTAL(ch) || GET_INVIS_LEV(ch)) {
 		return true;
 	} else {
 		return false;
@@ -50,7 +50,7 @@ int is_tell_ok(CharData *ch, CharData *vict) {
 		return (false);
 	}
 
-	if (ch->IsGod() || ch->IsFlagged(EPrf::kCoderinfo))
+	if (IS_GOD(ch) || ch->IsFlagged(EPrf::kCoderinfo))
 		return (true);
 
 	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kSoundproof))
@@ -60,10 +60,10 @@ int is_tell_ok(CharData *ch, CharData *vict) {
 		ROOM_FLAGGED(vict->in_room, ERoomFlag::kSoundproof)) {
 		if (ch->IsNpc()) {
 			if (ROOM_FLAGGED(vict->in_room, ERoomFlag::kSoundproof)) {
-				log("NOTELL: name %s room %d soundproof", GET_NAME(vict), GET_ROOM_VNUM(vict->in_room));
+				log("NOTELL: name %s room %d soundproof", vict->get_name().c_str(), GET_ROOM_VNUM(vict->in_room));
 			}
 			if (vict->IsFlagged(EPrf::kNoTell))
-				log("NOTELL: name %s глух как пробка", GET_NAME(vict));
+				log("NOTELL: name %s глух как пробка", vict->get_name().c_str());
 		}
 		act("$N не сможет вас услышать.", false, ch, nullptr, vict, kToChar | kToSleep);
 	} else if (vict->GetPosition() < EPosition::kRest || AFF_FLAGGED(vict, EAffect::kDeafness))
@@ -85,7 +85,7 @@ void perform_tell(CharData *ch, CharData *vict, char *arg) {
 
 	// TODO: если в act() останется показ иммов, то это и эхо ниже переделать на act()
 	if (tell_can_see(ch, vict)) {
-		snprintf(buf, kMaxStringLength, "%s сказал%s вам : '%s'", GET_NAME(ch), GET_CH_SUF_1(ch), arg);
+		snprintf(buf, kMaxStringLength, "%s сказал%s вам : '%s'", ch->get_name().c_str(), GET_CH_SUF_1(ch), arg);
 	} else {
 		snprintf(buf, kMaxStringLength, "Кто-то сказал вам : '%s'", arg);
 	}
@@ -97,7 +97,7 @@ void perform_tell(CharData *ch, CharData *vict, char *arg) {
 
 	if (!vict->IsNpc() && !ch->IsNpc()) {
 		snprintf(buf, kMaxStringLength, "%s%s : '%s'%s\r\n", kColorBoldCyn,
-				 tell_can_see(ch, vict) ? GET_NAME(ch) : "Кто-то", arg, kColorNrm);
+				 tell_can_see(ch, vict) ? ch->get_name().c_str() : "Кто-то", arg, kColorNrm);
 		vict->remember_add(buf, Remember::PERSONAL);
 	}
 

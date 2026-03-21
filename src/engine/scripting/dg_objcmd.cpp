@@ -271,7 +271,7 @@ void do_oexp(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Trigger 
 
 	if ((ch = get_char_by_obj(obj, name))) {
 		EndowExpToChar(ch, atoi(amount));
-		sprintf(buf, "oexp: victim (%s) получил опыт %d", GET_NAME(ch), atoi(amount));
+		sprintf(buf, "oexp: victim (%s) получил опыт %d", ch->get_name().c_str(), atoi(amount));
 		obj_log(obj, trig, buf);
 	} else {
 		obj_log(obj, trig, "oexp: target not found");
@@ -556,7 +556,7 @@ void ApplyDamage(CharData* target, int damage) {
 	char_dam_message(damage, target, target, 0);
 	if (target->GetPosition() == EPosition::kDead) {
 		if (!target->IsNpc()) {
-			sprintf(buf2, "%s killed by odamage at %s [%d]", GET_NAME(target),
+			sprintf(buf2, "%s killed by odamage at %s [%d]", target->get_name().c_str(),
 					target->in_room == kNowhere ? "NOWHERE" : world[target->in_room]->name, GET_ROOM_VNUM(target->in_room));
 			mudlog(buf2, BRF, kLvlBuilder, SYSLOG, true);
 		}
@@ -585,7 +585,7 @@ void do_odamage(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Trigg
 		return;
 	}
 
-	if (ch->IsImmortal()) {
+	if (IS_IMMORTAL(ch)) {
 		SendMsgToChar("Being the cool immortal you are, you sidestep a trap, obviously placed to kill you.", ch);
 		return;
 	}

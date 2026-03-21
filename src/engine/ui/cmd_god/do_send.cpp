@@ -27,7 +27,7 @@ void DoSendMsgToChar(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) 
 	if (ch->IsFlagged(EPrf::kNoRepeat))
 		SendMsgToChar("Послано.\r\n", ch);
 	else {
-		snprintf(buf2, kMaxStringLength, "Вы послали '%s' %s.\r\n", buf, GET_PAD(vict, 2));
+		snprintf(buf2, kMaxStringLength, "Вы послали '%s' %s.\r\n", buf, vict->player_data.PNames[2].c_str());
 		SendMsgToChar(buf2, ch);
 	}
 }

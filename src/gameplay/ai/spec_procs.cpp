@@ -86,9 +86,9 @@ int horse_keeper(CharData *ch, void *me, int cmd, char *argument) {
 		}
 		make_horse(horse, ch);
 		PlaceCharToRoom(horse, ch->in_room);
-		sprintf(buf, "$N оседлал$G %s и отдал$G %s вам.", GET_PAD(horse, 3), HSHR(horse));
+		sprintf(buf, "$N оседлал$G %s и отдал$G %s вам.", horse->player_data.PNames[3].c_str(), HSHR(horse));
 		act(buf, false, ch, 0, victim, kToChar);
-		sprintf(buf, "$N оседлал$G %s и отдал$G %s $n2.", GET_PAD(horse, 3), HSHR(horse));
+		sprintf(buf, "$N оседлал$G %s и отдал$G %s $n2.", horse->player_data.PNames[3].c_str(), HSHR(horse));
 		act(buf, false, ch, 0, victim, kToRoom);
 		ch->remove_gold(kHorseCost);
 		ch->SetFlag(EPlrFlag::kCrashSave);
@@ -116,9 +116,9 @@ int horse_keeper(CharData *ch, void *me, int cmd, char *argument) {
 			return (true);
 		}
 
-		sprintf(buf, "$N расседлал$G %s и отвел$G %s в стойло.", GET_PAD(horse, 3), HSHR(horse));
+		sprintf(buf, "$N расседлал$G %s и отвел$G %s в стойло.", horse->player_data.PNames[3].c_str(), HSHR(horse));
 		act(buf, false, ch, 0, victim, kToChar);
-		sprintf(buf, "$N расседлал$G %s и отвел$G %s в стойло.", GET_PAD(horse, 3), HSHR(horse));
+		sprintf(buf, "$N расседлал$G %s и отвел$G %s в стойло.", horse->player_data.PNames[3].c_str(), HSHR(horse));
 		act(buf, false, ch, 0, victim, kToRoom);
 		ExtractCharFromWorld(horse, false);
 		ch->add_gold((kHorseCost >> 1));
@@ -523,17 +523,17 @@ void npc_wield(CharData *ch) {
 	if (GetRealInt(ch) < 10 || IS_SHOPKEEPER(ch))
 		return;
 
-	if (GET_EQ(ch, EEquipPos::kHold)
-		&& GET_EQ(ch, EEquipPos::kHold)->get_type() == EObjType::kWeapon) {
-		left = GET_EQ(ch, EEquipPos::kHold);
+	if (ch->equipment[EEquipPos::kHold]
+		&& ch->equipment[EEquipPos::kHold]->get_type() == EObjType::kWeapon) {
+		left = ch->equipment[EEquipPos::kHold];
 	}
-	if (GET_EQ(ch, EEquipPos::kWield)
-		&& GET_EQ(ch, EEquipPos::kWield)->get_type() == EObjType::kWeapon) {
-		right = GET_EQ(ch, EEquipPos::kWield);
+	if (ch->equipment[EEquipPos::kWield]
+		&& ch->equipment[EEquipPos::kWield]->get_type() == EObjType::kWeapon) {
+		right = ch->equipment[EEquipPos::kWield];
 	}
-	if (GET_EQ(ch, EEquipPos::kBoths)
-		&& GET_EQ(ch, EEquipPos::kBoths)->get_type() == EObjType::kWeapon) {
-		both = GET_EQ(ch, EEquipPos::kBoths);
+	if (ch->equipment[EEquipPos::kBoths]
+		&& ch->equipment[EEquipPos::kBoths]->get_type() == EObjType::kWeapon) {
+		both = ch->equipment[EEquipPos::kBoths];
 	}
 
 	if (GetRealInt(ch) < 15 && ((left && right) || (both)))
@@ -556,51 +556,51 @@ void npc_wield(CharData *ch) {
 
 	if (both
 		&& calculate_weapon_class(ch, both) > calculate_weapon_class(ch, left) + calculate_weapon_class(ch, right)) {
-		if (both == GET_EQ(ch, EEquipPos::kBoths)) {
+		if (both == ch->equipment[EEquipPos::kBoths]) {
 			return;
 		}
-		if (GET_EQ(ch, EEquipPos::kBoths)) {
-			act("$n прекратил$g использовать $o3.", false, ch, GET_EQ(ch, EEquipPos::kBoths), 0, kToRoom);
+		if (ch->equipment[EEquipPos::kBoths]) {
+			act("$n прекратил$g использовать $o3.", false, ch, ch->equipment[EEquipPos::kBoths], 0, kToRoom);
 			PlaceObjToInventory(UnequipChar(ch, EEquipPos::kBoths, CharEquipFlag::show_msg), ch);
 		}
-		if (GET_EQ(ch, EEquipPos::kWield)) {
-			act("$n прекратил$g использовать $o3.", false, ch, GET_EQ(ch, EEquipPos::kWield), 0, kToRoom);
+		if (ch->equipment[EEquipPos::kWield]) {
+			act("$n прекратил$g использовать $o3.", false, ch, ch->equipment[EEquipPos::kWield], 0, kToRoom);
 			PlaceObjToInventory(UnequipChar(ch, EEquipPos::kWield, CharEquipFlag::show_msg), ch);
 		}
-		if (GET_EQ(ch, EEquipPos::kShield)) {
-			act("$n прекратил$g использовать $o3.", false, ch, GET_EQ(ch, EEquipPos::kShield), 0, kToRoom);
+		if (ch->equipment[EEquipPos::kShield]) {
+			act("$n прекратил$g использовать $o3.", false, ch, ch->equipment[EEquipPos::kShield], 0, kToRoom);
 			PlaceObjToInventory(UnequipChar(ch, EEquipPos::kShield, CharEquipFlag::show_msg), ch);
 		}
-		if (GET_EQ(ch, EEquipPos::kHold)) {
-			act("$n прекратил$g использовать $o3.", false, ch, GET_EQ(ch, EEquipPos::kHold), 0, kToRoom);
+		if (ch->equipment[EEquipPos::kHold]) {
+			act("$n прекратил$g использовать $o3.", false, ch, ch->equipment[EEquipPos::kHold], 0, kToRoom);
 			PlaceObjToInventory(UnequipChar(ch, EEquipPos::kHold, CharEquipFlag::show_msg), ch);
 		}
 		//obj_from_char(both);
 		EquipObj(ch, both, EEquipPos::kBoths, CharEquipFlag::show_msg);
 	} else {
-		if (left && GET_EQ(ch, EEquipPos::kHold) != left) {
-			if (GET_EQ(ch, EEquipPos::kBoths)) {
-				act("$n прекратил$g использовать $o3.", false, ch, GET_EQ(ch, EEquipPos::kBoths), 0, kToRoom);
+		if (left && ch->equipment[EEquipPos::kHold] != left) {
+			if (ch->equipment[EEquipPos::kBoths]) {
+				act("$n прекратил$g использовать $o3.", false, ch, ch->equipment[EEquipPos::kBoths], 0, kToRoom);
 				PlaceObjToInventory(UnequipChar(ch, EEquipPos::kBoths, CharEquipFlag::show_msg), ch);
 			}
-			if (GET_EQ(ch, EEquipPos::kShield)) {
-				act("$n прекратил$g использовать $o3.", false, ch, GET_EQ(ch, EEquipPos::kShield), 0, kToRoom);
+			if (ch->equipment[EEquipPos::kShield]) {
+				act("$n прекратил$g использовать $o3.", false, ch, ch->equipment[EEquipPos::kShield], 0, kToRoom);
 				PlaceObjToInventory(UnequipChar(ch, EEquipPos::kShield, CharEquipFlag::show_msg), ch);
 			}
-			if (GET_EQ(ch, EEquipPos::kHold)) {
-				act("$n прекратил$g использовать $o3.", false, ch, GET_EQ(ch, EEquipPos::kHold), 0, kToRoom);
+			if (ch->equipment[EEquipPos::kHold]) {
+				act("$n прекратил$g использовать $o3.", false, ch, ch->equipment[EEquipPos::kHold], 0, kToRoom);
 				PlaceObjToInventory(UnequipChar(ch, EEquipPos::kHold, CharEquipFlag::show_msg), ch);
 			}
 			//obj_from_char(left);
 			EquipObj(ch, left, EEquipPos::kHold, CharEquipFlag::show_msg);
 		}
-		if (right && GET_EQ(ch, EEquipPos::kWield) != right) {
-			if (GET_EQ(ch, EEquipPos::kBoths)) {
-				act("$n прекратил$g использовать $o3.", false, ch, GET_EQ(ch, EEquipPos::kBoths), 0, kToRoom);
+		if (right && ch->equipment[EEquipPos::kWield] != right) {
+			if (ch->equipment[EEquipPos::kBoths]) {
+				act("$n прекратил$g использовать $o3.", false, ch, ch->equipment[EEquipPos::kBoths], 0, kToRoom);
 				PlaceObjToInventory(UnequipChar(ch, EEquipPos::kBoths, CharEquipFlag::show_msg), ch);
 			}
-			if (GET_EQ(ch, EEquipPos::kWield)) {
-				act("$n прекратил$g использовать $o3.", false, ch, GET_EQ(ch, EEquipPos::kWield), 0, kToRoom);
+			if (ch->equipment[EEquipPos::kWield]) {
+				act("$n прекратил$g использовать $o3.", false, ch, ch->equipment[EEquipPos::kWield], 0, kToRoom);
 				PlaceObjToInventory(UnequipChar(ch, EEquipPos::kWield, CharEquipFlag::show_msg), ch);
 			}
 			//obj_from_char(right);
@@ -684,26 +684,26 @@ void npc_armor(CharData *ch) {
 		}
 
 		if ((where == EEquipPos::kFingerR) || (where == EEquipPos::kNeck) || (where == EEquipPos::kWristR)) {
-			if (GET_EQ(ch, where)) {
+			if (ch->equipment[where]) {
 				where++;
 			}
 		}
 
-		if (where == EEquipPos::kShield && (GET_EQ(ch, EEquipPos::kBoths) || GET_EQ(ch, EEquipPos::kHold))) {
+		if (where == EEquipPos::kShield && (ch->equipment[EEquipPos::kBoths] || ch->equipment[EEquipPos::kHold])) {
 			continue;
 		}
 
-		if (GET_EQ(ch, where)) {
+		if (ch->equipment[where]) {
 			if (GetRealInt(ch) < 15) {
 				continue;
 			}
 
 			if (GET_OBJ_VAL(obj, 0) + GET_OBJ_VAL(obj, 1) * 3
-				<= GET_OBJ_VAL(GET_EQ(ch, where), 0) + GET_OBJ_VAL(GET_EQ(ch, where), 1) * 3
+				<= GET_OBJ_VAL(ch->equipment[where], 0) + GET_OBJ_VAL(ch->equipment[where], 1) * 3
 				|| has_curse(obj)) {
 				continue;
 			}
-			act("$n прекратил$g использовать $o3.", false, ch, GET_EQ(ch, where), 0, kToRoom);
+			act("$n прекратил$g использовать $o3.", false, ch, ch->equipment[where], 0, kToRoom);
 			PlaceObjToInventory(UnequipChar(ch, where, CharEquipFlag::show_msg), ch);
 		}
 		//obj_from_char(obj);
@@ -721,12 +721,12 @@ void npc_light(CharData *ch) {
 	if (AFF_FLAGGED(ch, EAffect::kInfravision))
 		return;
 
-	if ((obj = GET_EQ(ch, EEquipPos::kLight)) && (GET_OBJ_VAL(obj, 2) == 0 || !is_dark(ch->in_room))) {
+	if ((obj = ch->equipment[EEquipPos::kLight]) && (GET_OBJ_VAL(obj, 2) == 0 || !is_dark(ch->in_room))) {
 		act("$n прекратил$g использовать $o3.", false, ch, obj, 0, kToRoom);
 		PlaceObjToInventory(UnequipChar(ch, EEquipPos::kLight, CharEquipFlag::show_msg), ch);
 	}
 
-	if (!GET_EQ(ch, EEquipPos::kLight) && is_dark(ch->in_room)) {
+	if (!ch->equipment[EEquipPos::kLight] && is_dark(ch->in_room)) {
 		for (obj = ch->carrying; obj; obj = next) {
 			next = obj->get_next_content();
 			if (obj->get_type() != EObjType::kLightSource) {
@@ -855,7 +855,7 @@ int npc_steal(CharData *ch) {
 
 	for (const auto cons : world[ch->in_room]->people) {
 		if (!cons->IsNpc()
-			&& !cons->IsImmortal()
+			&& !IS_IMMORTAL(cons)
 			&& (number(0, GetRealInt(ch)) > 10)) {
 			return (do_npc_steal(ch, cons));
 		}
@@ -1295,15 +1295,15 @@ int cityguard(CharData *ch, void * /*me*/, int cmd, char * /*argument*/) {
 
 	for (const auto tch : world[ch->in_room]->people) {
 		if (CAN_SEE(ch, tch) && tch->GetEnemy()) {
-			if ((GET_ALIGNMENT(tch) < max_evil) && (tch->IsNpc() || tch->GetEnemy()->IsNpc())) {
-				max_evil = GET_ALIGNMENT(tch);
+			if ((tch->char_specials.saved.alignment < max_evil) && (tch->IsNpc() || tch->GetEnemy()->IsNpc())) {
+				max_evil = tch->char_specials.saved.alignment;
 				evil = tch;
 			}
 		}
 	}
 
 	if (evil
-		&& (GET_ALIGNMENT(evil->GetEnemy()) >= 0)) {
+		&& (evil->GetEnemy(->char_specials.saved.alignment) >= 0)) {
 		act("$n screams 'PROTECT THE INNOCENT!  BANZAI!  CHARGE!  ARARARAGGGHH!'", false, ch, 0, 0, kToRoom);
 		hit(ch, evil, ESkill::kUndefined, fight::kMainHand);
 
@@ -1325,7 +1325,7 @@ int pet_shops(CharData *ch, void * /*me*/, int cmd, char *argument) {
 	if (CMD_IS("list")) {
 		SendMsgToChar("Available pets are:\r\n", ch);
 		for (const auto pet : world[pet_room]->people) {
-			sprintf(buf, "%8d - %s\r\n", PET_PRICE(pet), GET_NAME(pet));
+			sprintf(buf, "%8d - %s\r\n", PET_PRICE(pet), pet->get_name().c_str());
 			SendMsgToChar(buf, ch);
 		}
 
@@ -1343,7 +1343,7 @@ int pet_shops(CharData *ch, void * /*me*/, int cmd, char *argument) {
 		}
 		ch->remove_gold(PET_PRICE(pet));
 
-		pet = ReadMobile(pet->get_rnum(), kReal);
+		pet = ReadMobile(GET_MOB_RNUM(pet), kReal);
 		pet->set_exp(0);
 		AFF_FLAGS(pet).set(EAffect::kCharmed);
 
@@ -1363,8 +1363,8 @@ int pet_shops(CharData *ch, void * /*me*/, int cmd, char *argument) {
 		load_mtrigger(pet);
 
 		// Be certain that pets can't get/carry/use/wield/wear items
-		IS_CARRYING_W(pet) = 1000;
-		IS_CARRYING_N(pet) = 100;
+		pet->char_specials.carry_weight = 1000;
+		pet->char_specials.carry_items = 100;
 
 		SendMsgToChar("May you enjoy your pet.\r\n", ch);
 		act("$n buys $N as a pet.", false, ch, 0, pet, kToRoom);
@@ -1424,7 +1424,7 @@ int bank(CharData *ch, void * /*me*/, int cmd, char *argument) {
 	} else if (CMD_IS("transfer") || CMD_IS("перевести")) {
 		argument = one_argument(argument, arg);
 		amount = atoi(argument);
-		if (ch->IsGod() && !ch->IsImpl()) {
+		if (IS_GOD(ch) && !IS_IMPL(ch)) {
 			SendMsgToChar("Почитить захотелось?\r\n", ch);
 			return (1);
 
@@ -1458,18 +1458,18 @@ int bank(CharData *ch, void * /*me*/, int cmd, char *argument) {
 			if (amount <= 100) ch->remove_bank(5);
 			else ch->remove_bank(((amount * 5) / 100));
 			sprintf(buf, "%sВы перевели %d кун %s%s.\r\n", kColorWht, amount,
-					GET_PAD(vict, 2), kColorNrm);
+					vict->player_data.PNames[2].c_str(), kColorNrm);
 			SendMsgToChar(buf, ch);
 			vict->add_bank(amount);
 			sprintf(buf, "%sВы получили %d кун банковским переводом от %s%s.\r\n", kColorWht, amount,
-					GET_PAD(ch, 1), kColorNrm);
+					ch->player_data.PNames[1].c_str(), kColorNrm);
 			SendMsgToChar(buf, vict);
 			sprintf(buf,
 					"<%s> {%d} перевел %d кун банковским переводом %s.",
 					ch->get_name().c_str(),
 					GET_ROOM_VNUM(ch->in_room),
 					amount,
-					GET_PAD(vict, 2));
+					vict->player_data.PNames[2].c_str());
 			mudlog(buf, NRM, kLvlGreatGod, MONEY_LOG, true);
 			return (1);
 
@@ -1485,14 +1485,14 @@ int bank(CharData *ch, void * /*me*/, int cmd, char *argument) {
 			if (amount <= 100) ch->remove_bank(5);
 			else ch->remove_bank(((amount * 5) / 100));
 			sprintf(buf, "%sВы перевели %d кун %s%s.\r\n", kColorWht, amount,
-					GET_PAD(vict, 2), kColorNrm);
+					vict->player_data.PNames[2].c_str(), kColorNrm);
 			SendMsgToChar(buf, ch);
 			sprintf(buf,
 					"<%s> {%d} перевел %d кун банковским переводом %s.",
 					ch->get_name().c_str(),
 					GET_ROOM_VNUM(ch->in_room),
 					amount,
-					GET_PAD(vict, 2));
+					vict->player_data.PNames[2].c_str());
 			mudlog(buf, NRM, kLvlGreatGod, MONEY_LOG, true);
 			vict->add_bank(amount);
 			Depot::add_offline_money(vict->get_uid(), amount);

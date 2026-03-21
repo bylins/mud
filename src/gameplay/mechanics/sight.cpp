@@ -192,7 +192,7 @@ void look_at_room(CharData *ch, int ignore_brief, bool msdp_mode) {
 	}
 
 	// Отображаем аффекты комнаты. После автовыходов чтобы не ломать популярный маппер.
-	if (AFF_FLAGGED(ch, EAffect::kDetectMagic) || ch->IsImmortal()) {
+	if (AFF_FLAGGED(ch, EAffect::kDetectMagic) || IS_IMMORTAL(ch)) {
 		show_room_affects(ch, room_aff_invis_bits, room_self_aff_invis_bits);
 	} else {
 		show_room_affects(ch, room_aff_visib_bits, room_aff_visib_bits);
@@ -206,7 +206,7 @@ void look_at_room(CharData *ch, int ignore_brief, bool msdp_mode) {
 	if (room_spells::IsRoomAffected(world[ch->in_room], ESpell::kPortalTimer)) {
 		for (const auto &aff : world[ch->in_room]->affected) {
 			if (aff->type == ESpell::kPortalTimer && aff->bitvector != room_spells::ERoomAffect::kNoPortalExit) {
-				if (ch->IsGod()) {
+				if (IS_GOD(ch)) {
 					sprintf(buf, "&BЛазурная пентаграмма ярко сверкает здесь. (время: %d, куда: %d)&n\r\n",
 							aff->duration,  world[aff->modifier]->vnum);
 				} else {
@@ -423,9 +423,9 @@ bool look_at_target(CharData *ch, char *arg, int subcmd) {
 				fnum = number(1, MUD::Skill(ESkill::kPry).difficulty);
 				found = CalcCurrentSkill(ch, ESkill::kPry, found_char);
 				TrainSkill(ch, ESkill::kPry, found < fnum, found_char);
-				if (!ch->IsImmortal())
+				if (!IS_IMMORTAL(ch))
 					SetWaitState(ch, 1 * kBattleRound);
-				if (found >= fnum && (fnum < 100 || ch->IsImmortal()) && !found_char->IsImmortal())
+				if (found >= fnum && (fnum < 100 || IS_IMMORTAL(ch)) && !IS_IMMORTAL(found_char))
 					return false;
 			}
 			if (CAN_SEE(found_char, ch))
@@ -533,73 +533,73 @@ void look_at_char(CharData *i, CharData *ch) {
 	} else if (!i->IsNpc()) {
 		strcpy(buf, "\r\nЭто");
 		if (IS_FEMALE(i)) {
-			if (GET_HEIGHT(i) <= 151) {
-				if (GET_WEIGHT(i) >= 140)
+			if (i->player_data.height <= 151) {
+				if (i->player_data.weight >= 140)
 					strcat(buf, " маленькая плотная дамочка.\r\n");
-				else if (GET_WEIGHT(i) >= 125)
+				else if (i->player_data.weight >= 125)
 					strcat(buf, " маленькая женщина.\r\n");
 				else
 					strcat(buf, " миниатюрная дамочка.\r\n");
-			} else if (GET_HEIGHT(i) <= 159) {
-				if (GET_WEIGHT(i) >= 145)
+			} else if (i->player_data.height <= 159) {
+				if (i->player_data.weight >= 145)
 					strcat(buf, " невысокая плотная мадам.\r\n");
-				else if (GET_WEIGHT(i) >= 130)
+				else if (i->player_data.weight >= 130)
 					strcat(buf, " невысокая женщина.\r\n");
 				else
 					strcat(buf, " изящная леди.\r\n");
-			} else if (GET_HEIGHT(i) <= 165) {
-				if (GET_WEIGHT(i) >= 145)
+			} else if (i->player_data.height <= 165) {
+				if (i->player_data.weight >= 145)
 					strcat(buf, " среднего роста женщина.\r\n");
 				else
 					strcat(buf, " среднего роста изящная красавица.\r\n");
-			} else if (GET_HEIGHT(i) <= 175) {
-				if (GET_WEIGHT(i) >= 150)
+			} else if (i->player_data.height <= 175) {
+				if (i->player_data.weight >= 150)
 					strcat(buf, " высокая дородная баба.\r\n");
-				else if (GET_WEIGHT(i) >= 135)
+				else if (i->player_data.weight >= 135)
 					strcat(buf, " высокая стройная женщина.\r\n");
 				else
 					strcat(buf, " высокая изящная женщина.\r\n");
 			} else {
-				if (GET_WEIGHT(i) >= 155)
+				if (i->player_data.weight >= 155)
 					strcat(buf, " очень высокая крупная дама.\r\n");
-				else if (GET_WEIGHT(i) >= 140)
+				else if (i->player_data.weight >= 140)
 					strcat(buf, " очень высокая стройная женщина.\r\n");
 				else
 					strcat(buf, " очень высокая худощавая женщина.\r\n");
 			}
 		} else {
-			if (GET_HEIGHT(i) <= 165) {
-				if (GET_WEIGHT(i) >= 170)
+			if (i->player_data.height <= 165) {
+				if (i->player_data.weight >= 170)
 					strcat(buf, " маленький, похожий на колобок, мужчина.\r\n");
-				else if (GET_WEIGHT(i) >= 150)
+				else if (i->player_data.weight >= 150)
 					strcat(buf, " маленький плотный мужчина.\r\n");
 				else
 					strcat(buf, " маленький плюгавенький мужичонка.\r\n");
-			} else if (GET_HEIGHT(i) <= 175) {
-				if (GET_WEIGHT(i) >= 175)
+			} else if (i->player_data.height <= 175) {
+				if (i->player_data.weight >= 175)
 					strcat(buf, " невысокий коренастый крепыш.\r\n");
-				else if (GET_WEIGHT(i) >= 160)
+				else if (i->player_data.weight >= 160)
 					strcat(buf, " невысокий крепкий мужчина.\r\n");
 				else
 					strcat(buf, " невысокий худощавый мужчина.\r\n");
-			} else if (GET_HEIGHT(i) <= 185) {
-				if (GET_WEIGHT(i) >= 180)
+			} else if (i->player_data.height <= 185) {
+				if (i->player_data.weight >= 180)
 					strcat(buf, " среднего роста коренастый мужчина.\r\n");
-				else if (GET_WEIGHT(i) >= 165)
+				else if (i->player_data.weight >= 165)
 					strcat(buf, " среднего роста крепкий мужчина.\r\n");
 				else
 					strcat(buf, " среднего роста худощавый мужчина.\r\n");
-			} else if (GET_HEIGHT(i) <= 195) {
-				if (GET_WEIGHT(i) >= 185)
+			} else if (i->player_data.height <= 195) {
+				if (i->player_data.weight >= 185)
 					strcat(buf, " высокий крупный мужчина.\r\n");
-				else if (GET_WEIGHT(i) >= 170)
+				else if (i->player_data.weight >= 170)
 					strcat(buf, " высокий стройный мужчина.\r\n");
 				else
 					strcat(buf, " длинный, худощавый мужчина.\r\n");
 			} else {
-				if (GET_WEIGHT(i) >= 190)
+				if (i->player_data.weight >= 190)
 					strcat(buf, " огромный мужик.\r\n");
-				else if (GET_WEIGHT(i) >= 180)
+				else if (i->player_data.weight >= 180)
 					strcat(buf, " очень высокий, крупный амбал.\r\n");
 				else
 					strcat(buf, " длиннющий, похожий на жердь мужчина.\r\n");
@@ -637,11 +637,11 @@ void look_at_char(CharData *i, CharData *ch) {
 	if (IS_HORSE(i)
 		&& i->get_master() == ch) {
 		strcpy(buf, "\r\nЭто ваш скакун. Он ");
-		if (GET_HORSESTATE(i) <= 0)
+		if (i->mob_specials.HorseState <= 0)
 			strcat(buf, "загнан.\r\n");
-		else if (GET_HORSESTATE(i) <= 20)
+		else if (i->mob_specials.HorseState <= 20)
 			strcat(buf, "весь в мыле.\r\n");
-		else if (GET_HORSESTATE(i) <= 80)
+		else if (i->mob_specials.HorseState <= 80)
 			strcat(buf, "в хорошем состоянии.\r\n");
 		else
 			strcat(buf, "выглядит совсем свежим.\r\n");
@@ -652,26 +652,26 @@ void look_at_char(CharData *i, CharData *ch) {
 
 	found = false;
 	for (j = 0; !found && j < EEquipPos::kNumEquipPos; j++) {
-		if (GET_EQ(i, j) && CAN_SEE_OBJ(ch, GET_EQ(i, j)))
+		if (i->equipment[j] && CAN_SEE_OBJ(ch, i->equipment[j]))
 			found = true;
 	}
 	if (found) {
 		SendMsgToChar("\r\n", ch);
 		act("$n одет$a :", false, i, nullptr, ch, kToVict);
 		for (j = 0; j < EEquipPos::kNumEquipPos; j++) {
-			if (GET_EQ(i, j) && CAN_SEE_OBJ(ch, GET_EQ(i, j))) {
+			if (i->equipment[j] && CAN_SEE_OBJ(ch, i->equipment[j])) {
 				SendMsgToChar(where[j], ch);
 				if (i->has_master()
 					&& i->IsNpc()) {
-					show_obj_to_char(GET_EQ(i, j), ch, 1, ch == i->get_master(), 1);
+					show_obj_to_char(i->equipment[j], ch, 1, ch == i->get_master(), 1);
 				} else {
-					show_obj_to_char(GET_EQ(i, j), ch, 1, ch == i, 1);
+					show_obj_to_char(i->equipment[j], ch, 1, ch == i, 1);
 				}
 			}
 		}
 	}
 
-	if (ch != i && (ch->GetSkill(ESkill::kPry) || ch->IsImmortal())) {
+	if (ch != i && (ch->GetSkill(ESkill::kPry) || IS_IMMORTAL(ch))) {
 		found = false;
 		act("\r\nВы попытались заглянуть в $s ношу:", false, i, nullptr, ch, kToVict);
 		for (tmp_obj = i->carrying; tmp_obj; tmp_obj = tmp_obj->get_next_content()) {
@@ -699,7 +699,7 @@ void look_at_char(CharData *i, CharData *ch) {
 void list_char_to_char_thing(const RoomData::people_t &list, CharData *ch) {
 	for (const auto i : list) {
 		if (ch != i) {
-			if (GET_RACE(i) == ENpcRace::kConstruct) {
+			if (i->player_data.Race == ENpcRace::kConstruct) {
 				ListOneChar(i, ch, ESkill::kAny);
 			}
 		}
@@ -950,7 +950,7 @@ void list_obj_to_char(const ObjData::obj_list_t &list, CharData *ch, int mode, i
 void list_char_to_char(const RoomData::people_t &list, CharData *ch) {
 	for (const auto i : list) {
 		if (ch != i) {
-			if (HERE(i) && (GET_RACE(i) != ENpcRace::kConstruct)
+			if (HERE(i) && (i->player_data.Race != ENpcRace::kConstruct)
 				&& (CAN_SEE(ch, i)
 					|| awaking(i, kAwHide | kAwInvis | kAwCamouflage))) {
 				ListOneChar(i, ch, ESkill::kAny);
@@ -1010,9 +1010,9 @@ void look_in_direction(CharData *ch, int dir, int info_is) {
 					probe = CalcCurrentSkill(ch, ESkill::kLooking, tch);
 					TrainSkill(ch, ESkill::kLooking, probe >= percent, tch);
 					if (HERE(tch) && INVIS_OK(ch, tch) && probe >= percent
-						&& (percent < 100 || ch->IsImmortal())) {
+						&& (percent < 100 || IS_IMMORTAL(ch))) {
 						// Если моб не вещь и смотрящий не им
-						if (GET_RACE(tch) != ENpcRace::kConstruct || ch->IsImmortal()) {
+						if (tch->player_data.Race != ENpcRace::kConstruct || IS_IMMORTAL(ch)) {
 							ListOneChar(tch, ch, ESkill::kLooking);
 							count++;
 						}
@@ -1596,10 +1596,10 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 
 	if (mode == ESkill::kLooking) {
 		if (HERE(i) && INVIS_OK(ch, i) && GetRealLevel(ch) >= (i->IsNpc() ? 0 : GET_INVIS_LEV(i))) {
-			if (GET_RACE(i) == ENpcRace::kConstruct && ch->IsImmortal()) {
-				sprintf(buf, "Вы разглядели %s.(предмет)\r\n", GET_PAD(i, 3));
+			if (i->player_data.Race == ENpcRace::kConstruct && IS_IMMORTAL(ch)) {
+				sprintf(buf, "Вы разглядели %s.(предмет)\r\n", i->player_data.PNames[3].c_str());
 			} else {
-				sprintf(buf, "Вы разглядели %s.\r\n", GET_PAD(i, 3));
+				sprintf(buf, "Вы разглядели %s.\r\n", i->player_data.PNames[3].c_str());
 			}
 			SendMsgToChar(buf, ch);
 		}
@@ -1647,7 +1647,7 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 
 	if (i->IsNpc()
 		&& !i->player_data.long_descr.empty()
-		&& i->GetPosition() == GET_DEFAULT_POS(i)
+		&& i->GetPosition() == i->mob_specials.default_pos
 		&& ch->in_room == i->in_room
 		&& !AFF_FLAGGED(i, EAffect::kCharmed)
 		&& !IS_HORSE(i)) {
@@ -1843,7 +1843,7 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 			else if (i->GetEnemy() == ch)
 				strcat(buf, "ВАМИ");
 			else
-				strcat(buf, GET_PAD(i->GetEnemy(), 4));
+				strcat(buf, i->GetEnemy()->player_data.PNames[4].c_str());
 			if (i->IsOnHorse())
 				sprintf(buf + strlen(buf), ", сидя верхом на %s! ", PERS(i->get_horse(), ch, 5));
 			else
@@ -1985,7 +1985,7 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 		strcat(aura_txt, " ...реет стяг над головой");
 	if (*aura_txt)
 		act(aura_txt, false, i, nullptr, ch, kToVict);
-/*	if (IS_MANA_CASTER(i)) {
+/*	if (i->IsManaCaster()) {
 		*aura_txt = '\0';
 		if (i->GetMorphSkill(ESkill::kDarkMagic) > 0)
 			strcat(aura_txt, "...все сферы магии кружатся над головой");
@@ -2146,7 +2146,7 @@ char *diag_uses_to_char(ObjData *obj, CharData *ch) {
 	*out_str = 0;
 	if (obj->get_type() == EObjType::kIngredient
 		&& IS_SET(obj->get_spec_param(), kItemCheckUses)
-		&& IS_MANA_CASTER(ch)) {
+		&& ch->IsManaCaster()) {
 		int i = -1;
 		if ((i = GetObjRnum(GET_OBJ_VAL(obj, 1))) >= 0) {
 			sprintf(out_str, "Прототип: %s%s%s.\r\n",
@@ -2163,7 +2163,7 @@ char *diag_shot_to_char(ObjData *obj, CharData *ch) {
 
 	*out_str = 0;
 	if (obj->get_type() == EObjType::kMagicContaner
-		&& (ch->GetClass() == ECharClass::kRanger || ch->GetClass() == ECharClass::kCharmer || IS_MANA_CASTER(ch))) {
+		&& (ch->GetClass() == ECharClass::kRanger || ch->GetClass() == ECharClass::kCharmer || ch->IsManaCaster())) {
 		sprintf(out_str + strlen(out_str), "Осталось стрел: %s%d&n.\r\n",
 				GET_OBJ_VAL(obj, 2) > 3 ? "&G" : "&R", GET_OBJ_VAL(obj, 2));
 	}

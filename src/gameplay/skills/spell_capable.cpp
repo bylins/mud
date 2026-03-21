@@ -10,12 +10,12 @@ void DoSpellCapable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	struct TimedFeat timed;
 
-	if (!ch->IsImpl() && (ch->IsNpc() || !CanUseFeat(ch, EFeat::kSpellCapabler))) {
+	if (!IS_IMPL(ch) && (ch->IsNpc() || !CanUseFeat(ch, EFeat::kSpellCapabler))) {
 		SendMsgToChar("Вы не столь могущественны.\r\n", ch);
 		return;
 	}
 
-	if (IsTimedByFeat(ch, EFeat::kSpellCapabler) && !ch->IsImpl()) {
+	if (IsTimedByFeat(ch, EFeat::kSpellCapabler) && !IS_IMPL(ch)) {
 		SendMsgToChar("Невозможно использовать это так часто.\r\n", ch);
 		return;
 	}
@@ -46,7 +46,7 @@ void DoSpellCapable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	const auto spell = MUD::Class(ch->GetClass()).spells[spell_id];
-	if ((!IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kTemp | ESpellType::kKnow) ||
+	if ((!IS_SET(ch->real_abils.SplKnw[to_underlying(spell_id)], ESpellType::kTemp | ESpellType::kKnow) ||
 		GetRealRemort(ch) < spell.GetMinRemort()) &&
 		(GetRealLevel(ch) < kLvlGreatGod) && (!ch->IsNpc())) {
 		if (GetRealLevel(ch) < CalcMinSpellLvl(ch, spell_id) ||
@@ -59,7 +59,7 @@ void DoSpellCapable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 	}
 
-	if (!GET_SPELL_MEM(ch, spell_id) && !ch->IsImmortal()) {
+	if (!ch->real_abils.SplMem[to_underlying(spell_id)] && !IS_IMMORTAL(ch)) {
 		SendMsgToChar("Вы совершенно не помните, как произносится это заклинание...\r\n", ch);
 		return;
 	}
@@ -75,7 +75,7 @@ void DoSpellCapable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			break;
 		}
 	}
-	if (!GET_SPELL_MEM(ch, spell_id) && !ch->IsImmortal()) {
+	if (!ch->real_abils.SplMem[to_underlying(spell_id)] && !IS_IMMORTAL(ch)) {
 		SendMsgToChar("Вы совершенно не помните, как произносится это заклинание...\r\n", ch);
 		return;
 	}
@@ -88,8 +88,8 @@ void DoSpellCapable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	act("Вы принялись зачаровывать $N3.", false, ch, nullptr, follower, kToChar);
 	act("$n принял$u делать какие-то пассы и что-то бормотать в сторону $N3.", false, ch, nullptr, follower, kToRoom);
 
-	GET_SPELL_MEM(ch, spell_id)--;
-	if (!ch->IsNpc() && !ch->IsImmortal() && ch->IsFlagged(EPrf::kAutomem))
+	ch->real_abils.SplMem[to_underlying(spell_id)]--;
+	if (!ch->IsNpc() && !IS_IMMORTAL(ch) && ch->IsFlagged(EPrf::kAutomem))
 		MemQ_remember(ch, spell_id);
 
 	if (!MUD::Spell(spell_id).IsViolent() ||
@@ -128,7 +128,7 @@ void DoSpellCapable(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 	ImposeTimedFeat(ch, &timed);
 
-	GET_CAST_SUCCESS(follower) = GetRealRemort(ch) * 4;
+	follower->add_abils.cast_success = GetRealRemort(ch) * 4;
 	Affect<EApply> af;
 	af.type = ESpell::kCapable;
 	af.duration = 48;

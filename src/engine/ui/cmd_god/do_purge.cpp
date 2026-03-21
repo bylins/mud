@@ -24,9 +24,9 @@ void DoPurge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 			act("$n обратил$g в прах $N3.", false, ch, nullptr, vict, kToNotVict);
 			if (!vict->IsNpc()) {
-				sprintf(buf, "(GC) %s has purged %s.", GET_NAME(ch), GET_NAME(vict));
+				sprintf(buf, "(GC) %s has purged %s.", ch->get_name().c_str(), vict->get_name().c_str());
 				mudlog(buf, CMP, std::max(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
-				imm_log("%s has purged %s.", GET_NAME(ch), GET_NAME(vict));
+				imm_log("%s has purged %s.", ch->get_name().c_str(), vict->get_name().c_str());
 				if (vict->desc) {
 					vict->desc->state = EConState::kClose;
 					vict->desc->character = nullptr;

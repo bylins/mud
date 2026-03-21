@@ -34,7 +34,7 @@ void pers_log(CharData *ch, const char *format, ...) {
 
 	if (!ch->desc->pers_log) {
 		char filename[128], name[64], *ptr;
-		strcpy(name, GET_NAME(ch));
+		strcpy(name, ch->get_name().c_str());
 		for (ptr = name; *ptr; ptr++) {
 			*ptr = LOWER(AtoL(*ptr));
 		}
@@ -334,7 +334,7 @@ void mudlog(const char *str, LogMode type, int level, EOutputStream channel, boo
 	for (i = descriptor_list; i; i = i->next) {
 		if  (i->state != EConState::kPlaying || i->character->IsNpc())    // switch
 			continue;
-		if (GET_LOGS(i->character)[channel] < type && type != DEF)
+		if (i->character->player_specials->logs[channel] < type && type != DEF)
 			continue;
 		if (type == DEF && GetRealLevel(i->character) < kLvlImmortal && !i->character->IsFlagged(EPrf::kCoderinfo))
 			continue;

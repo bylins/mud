@@ -63,7 +63,7 @@ void do_courage(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 
 	SendMsgToChar("Вы пришли в ярость.\r\n", ch);
 	ObjData *obj;
-	if ((obj = GET_EQ(ch, EEquipPos::kWield)) || (obj = GET_EQ(ch, EEquipPos::kBoths))) {
+	if ((obj = ch->equipment[EEquipPos::kWield]) || (obj = ch->equipment[EEquipPos::kBoths])) {
 		strcpy(buf, "Глаза $n1 налились кровью и $e яростно сжал$g в руках $o3.");
 	} else {
 		strcpy(buf, "Глаза $n1 налились кровью.");

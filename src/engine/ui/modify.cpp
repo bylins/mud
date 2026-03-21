@@ -550,7 +550,7 @@ void string_add(DescriptorData *d, char *str) {
 
 	// почту логировать как-то не оно
 	if (d->character && !d->character->IsFlagged(EPlrFlag::kMailing))
-		log("[SA] <%s> adds string '%s'", GET_NAME(d->character), str);
+		log("[SA] <%s> adds string '%s'", d->character->get_name().c_str(), str);
 
 	smash_tilde(str);
 	if (!d->writer) {
@@ -755,21 +755,21 @@ void string_add(DescriptorData *d, char *str) {
 				std::string body = d->writer->get_string();
 				utils::Trim(body);
 				if (body.empty()) {
-					CLAN(d->character)->write_mod(body);
+					d->character->player_specials->clan->write_mod(body);
 					SendMsgToChar("Сообщение удалено.\r\n", d->character.get());
 				} else {
 					// за время редактирования могли лишиться привилегии/клана
 					if (d->character
-						&& CLAN(d->character)
-						&& CLAN(d->character)->CheckPrivilege(
-							CLAN_MEMBER(d->character)->rank_num,
+						&& d->character->player_specials->clan
+						&& d->character->player_specials->clan->CheckPrivilege(
+							d->character->player_specials->clan_member->rank_num,
 							ClanSystem::MAY_CLAN_MOD)) {
-						std::string head = fmt::format("Сообщение дружины (автор {}):\r\n", GET_NAME(d->character));
+						std::string head = fmt::format("Сообщение дружины (автор {}):\r\n", d->character->get_name().c_str());
 						// отступ (копи-паст из CON_WRITEBOARD выше)
 						format_news_message(body);
 						head += body;
 
-						CLAN(d->character)->write_mod(head);
+						d->character->player_specials->clan->write_mod(head);
 						iosystem::write_to_output("Сообщение добавлено.\r\n", d);
 					} else {
 						iosystem::write_to_output("Ошибочка вышла...\r\n", d);
@@ -934,7 +934,7 @@ void do_featset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	sprintf(buf2, "%s changed %s's %s to '%s'.", GET_NAME(ch), GET_NAME(vict),
+	sprintf(buf2, "%s changed %s's %s to '%s'.", ch->get_name().c_str(), vict->get_name().c_str(),
 			MUD::Feat(feat_id).GetCName(), value ? "enabled" : "disabled");
 	mudlog(buf2, BRF, -1, SYSLOG, true);
 	imm_log("%s", buf2);
@@ -944,7 +944,7 @@ void do_featset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		vict->UnsetFeat(feat_id);
 	}
 
-	sprintf(buf2, "Вы изменили для %s '%s' на '%s'.\r\n", GET_PAD(vict, 1),
+	sprintf(buf2, "Вы изменили для %s '%s' на '%s'.\r\n", vict->player_data.PNames[1].c_str(),
 			MUD::Feat(feat_id).GetCName(), value ? "доступно" : "недоступно");
 	if (!CanGetFeat(vict, feat_id) && value == 1) {
 		SendMsgToChar("Эта способность недоступна персонажу и будет удалена при повторном входе в игру.\r\n",
@@ -1046,11 +1046,11 @@ void do_skillset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		value = MUD::Skill(skill_id).cap;
 	}
 
-	sprintf(buf2, "%s changed %s's %s to %d.", GET_NAME(ch), GET_NAME(vict),
+	sprintf(buf2, "%s changed %s's %s to %d.", ch->get_name().c_str(), vict->get_name().c_str(),
 			spell_id >= ESpell::kFirst ? MUD::Spell(spell_id).GetCName() : MUD::Skill(skill_id).GetName(), value);
 	mudlog(buf2, BRF, kLvlImmortal, SYSLOG, true);
 	if (spell_id >= ESpell::kFirst && spell_id <= ESpell::kLast) {
-		if (value == 0 && IS_SET(GET_SPELL_TYPE(vict, spell_id), ESpellType::kTemp)) {
+		if (value == 0 && IS_SET(vict->real_abils.SplKnw[to_underlying(spell_id)], ESpellType::kTemp)) {
 			for (auto it = vict->temp_spells.begin(); it != vict->temp_spells.end();) {
 				if (it->second.spell == spell_id) {
 					it = vict->temp_spells.erase(it);
@@ -1061,11 +1061,11 @@ void do_skillset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (IS_SET(value, ESpellType::kTemp)) {
 			temporary_spells::AddSpell(vict, spell_id, time(nullptr), 3600);
 		}
-		GET_SPELL_TYPE(vict, spell_id) = value;
+		vict->real_abils.SplKnw[to_underlying(spell_id)] = value;
 	} else if (ESkill::kUndefined != skill_id && skill_id <= ESkill::kLast) {
 		vict->set_skill(skill_id, value);
 	}
-	sprintf(buf2, "Вы изменили для %s '%s' на %d.\r\n", GET_PAD(vict, 1),
+	sprintf(buf2, "Вы изменили для %s '%s' на %d.\r\n", vict->player_data.PNames[1].c_str(),
 			spell_id > ESpell::kUndefined ? MUD::Spell(spell_id).GetCName() : MUD::Skill(skill_id).GetName(), value);
 	SendMsgToChar(buf2, ch);
 }
@@ -1091,7 +1091,7 @@ char *next_page(char *str, CharData *ch) {
 			return (nullptr);
 
 			// If we're at the start of the next page, return this fact. //
-		else if (STRING_WIDTH(ch) && line > STRING_WIDTH(ch))
+		else if (ch->player_specials->saved.stringWidth && line > ch->player_specials->saved.stringWidth)
 			return (str);
 
 			// Check for the begining of an ANSI color code block. //
@@ -1154,7 +1154,7 @@ char *next_page(char *str, CharData *ch) {
 
 				// * We need to check here and see if we are over the page width,
 				// * and if so, compensate by going to the begining of the next line.
-			else if (STRING_LENGTH(ch) && ++col > STRING_LENGTH(ch)) {
+			else if (ch->player_specials->saved.stringLength && ++col > ch->player_specials->saved.stringLength) {
 				col = 1;
 				line++;
 			}

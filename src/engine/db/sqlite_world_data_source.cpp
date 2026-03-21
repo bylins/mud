@@ -1327,12 +1327,12 @@ void SqliteWorldDataSource::LoadMobs()
 		mob.player_data.description = GetText(stmt, 9);
 
 		// Base parameters
-		GET_ALIGNMENT(&mob) = sqlite3_column_int(stmt, 10);
+		&mob->char_specials.saved.alignment = sqlite3_column_int(stmt, 10);
 
 		// Stats
 		mob.set_level(sqlite3_column_int(stmt, 12));
-		GET_HR(&mob) = sqlite3_column_int(stmt, 13);
-		GET_AC(&mob) = sqlite3_column_int(stmt, 14);
+		&mob->real_abils.hitroll = sqlite3_column_int(stmt, 13);
+		&mob->real_abils.armor = sqlite3_column_int(stmt, 14);
 
 		// HP dice
 		mob.mem_queue.total = sqlite3_column_int(stmt, 15);  // hp_dice_count
@@ -1371,9 +1371,9 @@ void SqliteWorldDataSource::LoadMobs()
 			static_cast<EGender>(gender_it->second) : EGender::kMale);
 
 		// Physical attributes
-		GET_SIZE(&mob) = sqlite3_column_int(stmt, 28);
-		GET_HEIGHT(&mob) = sqlite3_column_int(stmt, 29);
-		GET_WEIGHT(&mob) = sqlite3_column_int(stmt, 30);
+		&mob->real_abils.size = sqlite3_column_int(stmt, 28);
+		&mob->player_data.height = sqlite3_column_int(stmt, 29);
+		&mob->player_data.weight = sqlite3_column_int(stmt, 30);
 
 		// Class and race
 		mob.set_class(static_cast<ECharClass>(sqlite3_column_int(stmt, 31)));
@@ -2804,7 +2804,7 @@ void SqliteWorldDataSource::SaveMobRecord(int mob_vnum, CharData &mob)
 	sqlite3_bind_int(stmt, col++, mob_vnum);
 	
 	// Names
-	sqlite3_bind_text(stmt, col++, GET_PC_NAME(&mob), -1, SQLITE_TRANSIENT);
+	sqlite3_bind_text(stmt, col++, &mob->GetCharAliases().c_str(), -1, SQLITE_TRANSIENT);
 	sqlite3_bind_text(stmt, col++, mob.player_data.PNames[ECase::kNom].c_str(), -1, SQLITE_TRANSIENT);
 	sqlite3_bind_text(stmt, col++, mob.player_data.PNames[ECase::kGen].c_str(), -1, SQLITE_TRANSIENT);
 	sqlite3_bind_text(stmt, col++, mob.player_data.PNames[ECase::kDat].c_str(), -1, SQLITE_TRANSIENT);
@@ -2817,7 +2817,7 @@ void SqliteWorldDataSource::SaveMobRecord(int mob_vnum, CharData &mob)
 	sqlite3_bind_text(stmt, col++, mob.player_data.description.c_str(), -1, SQLITE_TRANSIENT);
 	
 	// Base parameters
-	sqlite3_bind_int(stmt, col++, GET_ALIGNMENT(&mob));
+	sqlite3_bind_int(stmt, col++, &mob->char_specials.saved.alignment);
 	
 	// Mob type (E or S)
 	std::string mob_type = (mob.get_str() > 0) ? "E" : "S";
@@ -2825,8 +2825,8 @@ void SqliteWorldDataSource::SaveMobRecord(int mob_vnum, CharData &mob)
 	
 	// Stats
 	sqlite3_bind_int(stmt, col++, mob.GetLevel());
-	sqlite3_bind_int(stmt, col++, GET_HR(&mob));
-	sqlite3_bind_int(stmt, col++, GET_AC(&mob));
+	sqlite3_bind_int(stmt, col++, &mob->real_abils.hitroll);
+	sqlite3_bind_int(stmt, col++, &mob->real_abils.armor);
 	
 	// HP dice (stored in mem_queue for dice, hit for bonus)
 	sqlite3_bind_int(stmt, col++, mob.mem_queue.total);
@@ -2855,13 +2855,13 @@ void SqliteWorldDataSource::SaveMobRecord(int mob_vnum, CharData &mob)
 	sqlite3_bind_int(stmt, col++, static_cast<int>(mob.get_sex()));
 	
 	// Physical attributes
-	sqlite3_bind_int(stmt, col++, GET_SIZE(&mob));
-	sqlite3_bind_int(stmt, col++, GET_HEIGHT(&mob));
-	sqlite3_bind_int(stmt, col++, GET_WEIGHT(&mob));
+	sqlite3_bind_int(stmt, col++, &mob->real_abils.size);
+	sqlite3_bind_int(stmt, col++, &mob->player_data.height);
+	sqlite3_bind_int(stmt, col++, &mob->player_data.weight);
 	
 	// Class and race
 	sqlite3_bind_int(stmt, col++, static_cast<int>(mob.GetClass()));
-	sqlite3_bind_int(stmt, col++, static_cast<int>(GET_RACE(&mob)));
+	sqlite3_bind_int(stmt, col++, static_cast<int>(&mob->player_data.Race));
 	
 	// Attributes (E-spec)
 	sqlite3_bind_int(stmt, col++, mob.get_str());
@@ -2934,13 +2934,13 @@ void SqliteWorldDataSource::SaveMobRecord(int mob_vnum, CharData &mob)
 	const char *resist_sql = "INSERT INTO mob_resistances (mob_vnum, resist_type, value) VALUES (?, ?, ?)";
 	for (size_t i = 0; i < mob.add_abils.apply_resistance.size(); ++i)
 	{
-		if (GET_RESIST(&mob, i) != 0)
+		if (&mob->add_abils.apply_resistance[i] != 0)
 		{
 			if (sqlite3_prepare_v2(m_db, resist_sql, -1, &stmt, nullptr) == SQLITE_OK)
 			{
 				sqlite3_bind_int(stmt, 1, mob_vnum);
 				sqlite3_bind_int(stmt, 2, i);
-				sqlite3_bind_int(stmt, 3, GET_RESIST(&mob, i));
+				sqlite3_bind_int(stmt, 3, &mob->add_abils.apply_resistance[i]);
 				sqlite3_step(stmt);
 				sqlite3_finalize(stmt);
 			}

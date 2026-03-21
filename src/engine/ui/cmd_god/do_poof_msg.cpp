@@ -14,9 +14,9 @@ void DoSetPoofMsg(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	char **msg;
 
 	switch (subcmd) {
-		case kScmdPoofin: msg = &(POOFIN(ch));
+		case kScmdPoofin: msg = &(ch->player_specials->poofin);
 			break;
-		case kScmdPoofout: msg = &(POOFOUT(ch));
+		case kScmdPoofout: msg = &(ch->player_specials->poofout);
 			break;
 		default: return;
 	}

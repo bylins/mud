@@ -20,7 +20,7 @@ void do_force(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	if (!*arg || !*to_force) {
 		SendMsgToChar("Кого и что вы хотите принудить сделать?\r\n", ch);
-	} else if (!ch->IsGrGod() || (str_cmp("all", arg) && str_cmp("room", arg) && str_cmp("все", arg)
+	} else if (!IS_GRGOD(ch) || (str_cmp("all", arg) && str_cmp("room", arg) && str_cmp("все", arg)
 		&& str_cmp("здесь", arg))) {
 		const auto vict = get_char_vis(ch, arg, EFind::kCharInWorld);
 		if (!vict) {
@@ -31,20 +31,20 @@ void do_force(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			char *pstr;
 			SendMsgToChar(OK, ch);
 			act(buf1, true, ch, nullptr, vict, kToVict);
-			sprintf(buf, "(GC) %s forced %s to %s", GET_NAME(ch), GET_NAME(vict), to_force);
+			sprintf(buf, "(GC) %s forced %s to %s", ch->get_name().c_str(), vict->get_name().c_str(), to_force);
 			while ((pstr = strchr(buf, '%')) != nullptr) {
 				pstr[0] = '*';
 			}
 			mudlog(buf, NRM, std::max(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
-			imm_log("%s forced %s to %s", GET_NAME(ch), GET_NAME(vict), to_force);
+			imm_log("%s forced %s to %s", ch->get_name().c_str(), vict->get_name().c_str(), to_force);
 			command_interpreter(vict, to_force);
 		}
 	} else if (!str_cmp("room", arg)
 		|| !str_cmp("здесь", arg)) {
 		SendMsgToChar(OK, ch);
-		sprintf(buf, "(GC) %s forced room %d to %s", GET_NAME(ch), GET_ROOM_VNUM(ch->in_room), to_force);
+		sprintf(buf, "(GC) %s forced room %d to %s", ch->get_name().c_str(), GET_ROOM_VNUM(ch->in_room), to_force);
 		mudlog(buf, NRM, std::max(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
-		imm_log("%s forced room %d to %s", GET_NAME(ch), GET_ROOM_VNUM(ch->in_room), to_force);
+		imm_log("%s forced room %d to %s", ch->get_name().c_str(), GET_ROOM_VNUM(ch->in_room), to_force);
 
 		const auto people_copy = world[ch->in_room]->people;
 		for (const auto vict : people_copy) {
@@ -60,9 +60,9 @@ void do_force(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	} else        // force all
 	{
 		SendMsgToChar(OK, ch);
-		sprintf(buf, "(GC) %s forced all to %s", GET_NAME(ch), to_force);
+		sprintf(buf, "(GC) %s forced all to %s", ch->get_name().c_str(), to_force);
 		mudlog(buf, NRM, std::max(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
-		imm_log("%s forced all to %s", GET_NAME(ch), to_force);
+		imm_log("%s forced all to %s", ch->get_name().c_str(), to_force);
 
 		for (i = descriptor_list; i; i = next_desc) {
 			next_desc = i->next;

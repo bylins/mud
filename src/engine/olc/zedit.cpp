@@ -1377,8 +1377,8 @@ void zedit_parse(DescriptorData *d, char *arg) {
 					// * Save the zone in memory, hiding invisible people.
 					SendMsgToChar("Зона сохранена.\r\n", d->character.get());
 					zedit_save_internally(d);
-					sprintf(buf, "OLC: %s edits zone info for room %d.", GET_NAME(d->character), OLC_NUM(d));
-					olc_log("%s edit zone %d", GET_NAME(d->character), OLC_NUM(d));
+					sprintf(buf, "OLC: %s edits zone info for room %d.", d->character->get_name().c_str(), OLC_NUM(d));
+					olc_log("%s edit zone %d", d->character->get_name().c_str(), OLC_NUM(d));
 					mudlog(buf, NRM, MAX(kLvlBuilder, GET_INVIS_LEV(d->character)), SYSLOG, true);
 					// FALL THROUGH
 				case 'n':

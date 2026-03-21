@@ -847,7 +847,7 @@ void ClearRoom(RoomData *room) {
 				}
 			} else {
 				RemoveCharFromRoom(vict);
-				if ((to_room = GetRoomRnum(GET_LOADROOM(vict))) == kNowhere) {
+				if ((to_room = GetRoomRnum(vict->player_specials->saved.load_room)) == kNowhere) {
 					to_room = GetRoomRnum(calc_loadroom(vict));
 				}
 				PlaceCharToRoom(vict, to_room);

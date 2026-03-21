@@ -72,25 +72,25 @@ void DoDrink(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		(drink_aff[GET_OBJ_VAL(jar, 2)][DRUNK] > 0) && //Если жидкость с градусом
 			(
 				// Чар все еще не смертельно пьян и не начал трезветь
-				(GET_DRUNK_STATE(ch) < kMortallyDrunked && GET_DRUNK_STATE(ch) == GET_COND(ch, DRUNK)) ||
+				(ch->player_specials->saved.DrunkState < kMortallyDrunked && ch->player_specials->saved.DrunkState == ch->player_specials->saved.conditions[DRUNK]) ||
 					// Или Чар еще не пьян
-					(GET_COND(ch, DRUNK) < kDrunked)
+					(ch->player_specials->saved.conditions[DRUNK] < kDrunked)
 			)
 		) {
 		// Не понимаю зачем делить на 4, но оставим для пьянки 2
 		gain_condition(ch, DRUNK, (int) ((int) drink_aff[GET_OBJ_VAL(jar, 2)][DRUNK] * amount) / 2);
-		GET_DRUNK_STATE(ch) = std::max(GET_DRUNK_STATE(ch), GET_COND(ch, DRUNK));
+		ch->player_specials->saved.DrunkState = std::max(ch->player_specials->saved.DrunkState, ch->player_specials->saved.conditions[DRUNK]);
 	}
 
 	if (drink_aff[GET_OBJ_VAL(jar, 2)][FULL] != 0) {
 		gain_condition(ch, FULL, drink_aff[GET_OBJ_VAL(jar, 2)][FULL] * amount);
-		if (drink_aff[GET_OBJ_VAL(jar, 2)][FULL] < 0 && GET_COND(ch, FULL) <= kNormCondition)
+		if (drink_aff[GET_OBJ_VAL(jar, 2)][FULL] < 0 && ch->player_specials->saved.conditions[FULL] <= kNormCondition)
 			SendMsgToChar("Вы чувствуете приятную тяжесть в желудке.\r\n", ch);
 	}
 
 	if (drink_aff[GET_OBJ_VAL(jar, 2)][THIRST] != 0) {
 		gain_condition(ch, THIRST, drink_aff[GET_OBJ_VAL(jar, 2)][THIRST] * amount);
-		if (drink_aff[GET_OBJ_VAL(jar, 2)][THIRST] < 0 && GET_COND(ch, THIRST) <= kNormCondition)
+		if (drink_aff[GET_OBJ_VAL(jar, 2)][THIRST] < 0 && ch->player_specials->saved.conditions[THIRST] <= kNormCondition)
 			SendMsgToChar("Вы не чувствуете жажды.\r\n", ch);
 	}
 
@@ -160,11 +160,11 @@ int CalcDrinkAmount(CharData *ch, ObjData *jar, int subcmd) {
 	float V = 1.0;
 
 	if (drink_aff[GET_OBJ_VAL(jar, 2)][DRUNK] > 0) {
-		if (GET_COND(ch, DRUNK) >= kMortallyDrunked) {
+		if (ch->player_specials->saved.conditions[DRUNK] >= kMortallyDrunked) {
 			amount = -1;
 		} else {
 			//Тут магия из-за /4
-			amount = (2 * kMortallyDrunked - GET_COND(ch, DRUNK)) / drink_aff[GET_OBJ_VAL(jar, 2)][DRUNK];
+			amount = (2 * kMortallyDrunked - ch->player_specials->saved.conditions[DRUNK]) / drink_aff[GET_OBJ_VAL(jar, 2)][DRUNK];
 			amount = std::max(1, amount); // ну еще чуть-чуть
 		}
 	} else {
@@ -173,10 +173,10 @@ int CalcDrinkAmount(CharData *ch, ObjData *jar, int subcmd) {
 
 	// Если жидкость утоляет жаду
 	if (drink_aff[GET_OBJ_VAL(jar, 2)][THIRST] < 0) {
-		V = (float) -GET_COND(ch, THIRST) / drink_aff[GET_OBJ_VAL(jar, 2)][THIRST];
+		V = (float) -ch->player_specials->saved.conditions[THIRST] / drink_aff[GET_OBJ_VAL(jar, 2)][THIRST];
 	} else if (drink_aff[GET_OBJ_VAL(jar, 2)][THIRST] > 0) {
 		// Если жидоксть вызывает сушняк
-		V = (float) (kMaxCondition - GET_COND(ch, THIRST)) / drink_aff[GET_OBJ_VAL(jar, 2)][THIRST];
+		V = (float) (kMaxCondition - ch->player_specials->saved.conditions[THIRST]) / drink_aff[GET_OBJ_VAL(jar, 2)][THIRST];
 	} else {
 		V = 999.0;
 	}
@@ -210,15 +210,15 @@ int IsAbleToDrink(CharData *ch, ObjData *jar, int amount) {
 			}
 			return 0;
 		}
-		if (GET_COND(ch, DRUNK) >= kDrunked) {
-			if (GET_DRUNK_STATE(ch) == kMortallyDrunked || GET_COND(ch, DRUNK) < GET_DRUNK_STATE(ch)) {
+		if (ch->player_specials->saved.conditions[DRUNK] >= kDrunked) {
+			if (ch->player_specials->saved.DrunkState == kMortallyDrunked || ch->player_specials->saved.conditions[DRUNK] < ch->player_specials->saved.DrunkState) {
 				SendMsgToChar("На сегодня вам достаточно, крошки уже плавают...\r\n", ch);
 				return 0;
 			}
 		}
 	}
 
-	if (amount <= 0 && !ch->IsGod()) {
+	if (amount <= 0 && !IS_GOD(ch)) {
 		SendMsgToChar("В вас больше не лезет.\r\n", ch);
 		return 0;
 	}
@@ -240,21 +240,21 @@ void TryDrinkAlcohol(CharData *ch, ObjData *jar, int amount) {
 		return;
 
 	// \TODO Все, что ниже, нужно перенестив в отдельную механику опьянения (а можеет и всю функцию)
-	if (GET_COND(ch, DRUNK) >= kDrunked) {
-		if (GET_COND(ch, DRUNK) >= kMortallyDrunked) {
+	if (ch->player_specials->saved.conditions[DRUNK] >= kDrunked) {
+		if (ch->player_specials->saved.conditions[DRUNK] >= kMortallyDrunked) {
 			SendMsgToChar("Напилися вы пьяны, не дойти вам до дому....\r\n", ch);
 		} else {
 			SendMsgToChar("Приятное тепло разлилось по вашему телу.\r\n", ch);
 		}
 
-		duration = 2 + std::max(0, GET_COND(ch, DRUNK) - kDrunked);
+		duration = 2 + std::max(0, ch->player_specials->saved.conditions[DRUNK] - kDrunked);
 
 		if (CanUseFeat(ch, EFeat::kDrunkard))
 			duration += duration / 2;
 
 		if (!AFF_FLAGGED(ch, EAffect::kAbstinent)
-			&& GET_DRUNK_STATE(ch) < kMaxCondition
-			&& GET_DRUNK_STATE(ch) == GET_COND(ch, DRUNK)) {
+			&& ch->player_specials->saved.DrunkState < kMaxCondition
+			&& ch->player_specials->saved.DrunkState == ch->player_specials->saved.conditions[DRUNK]) {
 			SendMsgToChar("Винные пары ударили вам в голову.\r\n", ch);
 			// **** Decrease AC ***** //
 			Affect<EApply> af;

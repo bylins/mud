@@ -349,7 +349,7 @@ int process_input(DescriptorData *t) {
 					||  t->state == EConState::kWriteNote
 					||  t->state == EConState::kWriteMod)) {
 				// Иммам или морталам с EGodFlag::DEMIGOD разрешено использовать ";".
-				if (GetRealLevel(t->character) < kLvlImmortal && !GET_GOD_FLAG(t->character, EGf::kDemigod))
+				if (GetRealLevel(t->character) < kLvlImmortal && !(IS_SET(t->character->player_specials->saved.GodsLike, EGf::kDemigod)))
 					*ptr = ',';
 			}
 			if (*ptr == '&'
@@ -776,7 +776,7 @@ int process_output(DescriptorData *t) {
 				"SYSERR: %s pos:%d player:%s in proc_color!",
 				(pos < 0 ? (pos == -1 ? "NULL buffer" : "zero length buffer") : "go out of buffer"),
 				pos,
-				GET_NAME(t->character));
+				t->character->get_name().c_str());
 		mudlog(buf, BRF, kLvlGod, SYSLOG, true);
 	}
 
@@ -1115,14 +1115,14 @@ std::string MakePrompt(DescriptorData *d) {
 					  GetWarmValueColor(ch->get_move(), ch->get_real_max_move()), ch->get_move(), kColorNrm);
 		}
 
-		if (ch->IsFlagged(EPrf::kDispMana) && IS_MANA_CASTER(ch)) {
+		if (ch->IsFlagged(EPrf::kDispMana) && ch->IsManaCaster()) {
 			int current_mana = 100 * ch->mem_queue.stored;
 			fmt::format_to(std::back_inserter(out), "{}э{}{} ",
 					  GetColdValueColor(current_mana, GET_MAX_MANA((ch).get())), ch->mem_queue.stored, kColorNrm);
 		}
 
 		if (ch->IsFlagged(EPrf::kDispExp)) {
-			if (ch->IsImmortal()) {
+			if (IS_IMMORTAL(ch)) {
 				fmt::format_to(std::back_inserter(out), "??? ");
 			} else {
 				fmt::format_to(std::back_inserter(out), "{}o ",
@@ -1130,7 +1130,7 @@ std::string MakePrompt(DescriptorData *d) {
 			}
 		}
 
-		if (ch->IsFlagged(EPrf::kDispMana) && !IS_MANA_CASTER(ch)) {
+		if (ch->IsFlagged(EPrf::kDispMana) && !ch->IsManaCaster()) {
 			if (!ch->mem_queue.Empty()) {
 				auto mana_gain = CalcManaGain(ch.get());
 				if (mana_gain) {

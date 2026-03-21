@@ -57,7 +57,7 @@ void do_turn_undead(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd
 		roll.Init(ch, abilities::EAbility::kTurnUndead, target);
 		if (roll.IsSuccess()) {
 			if (roll.IsCriticalSuccess() && GetRealLevel(ch) > target->GetLevel() + RollDices(1, 5)) {
-				SendMsgToChar(ch, "&GВы окончательно изгнали %s из мира!&n\r\n", GET_PAD(target, 3));
+				SendMsgToChar(ch, "&GВы окончательно изгнали %s из мира!&n\r\n", target->player_data.PNames[3].c_str());
 				damage.dam = std::max(1, target->get_hit() + 11);
 			} else {
 				damage.dam = roll.CalcDamage();

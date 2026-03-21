@@ -276,12 +276,12 @@ Damage HitData::GenerateExtradamage(int initial_dmg) {
 void HitData::Init(CharData *ch, CharData *victim) {
 	// Find weapon for attack number weapon //
 	if (weapon == fight::AttackType::kMainHand) {
-		if (!(wielded = GET_EQ(ch, EEquipPos::kWield))) {
-			wielded = GET_EQ(ch, EEquipPos::kBoths);
+		if (!(wielded = ch->equipment[EEquipPos::kWield])) {
+			wielded = ch->equipment[EEquipPos::kBoths];
 			weapon_pos = EEquipPos::kBoths;
 		}
 	} else if (weapon == fight::AttackType::kOffHand) {
-		wielded = GET_EQ(ch, EEquipPos::kHold);
+		wielded = ch->equipment[EEquipPos::kHold];
 		weapon_pos = EEquipPos::kHold;
 		if (!wielded) { // удар второй рукой
 			weap_skill = ESkill::kLeftHit;
@@ -654,7 +654,7 @@ void HitData::AddBareHandsDmg(CharData *ch, bool need_dice) {
 	if (!ch->battle_affects.get(kEafHammer)
 		|| GetFlags()[fight::kCritHit]) //в метком молоте идет учет перчаток
 	{
-		int modi = 10 * (5 + (GET_EQ(ch, EEquipPos::kHands) ? std::min(GET_EQ(ch, EEquipPos::kHands)->get_weight(), 18)
+		int modi = 10 * (5 + (ch->equipment[EEquipPos::kHands] ? std::min(ch->equipment[EEquipPos::kHands]->get_weight(), 18)
 															: 0)); //вес перчаток больше 18 не учитывается
 		if (ch->IsNpc() || CanUseFeat(ch, EFeat::kBully)) {
 			modi = std::max(100, modi);
@@ -760,7 +760,7 @@ int HitData::CalcDmg(CharData *ch, bool need_dice) {
 		if (ch->IsFlagged(EPrf::kExecutor))
 			SendMsgToChar(ch, "&YДамага +кубики оружия дамага == %d вооружен %s vnum %d&n\r\n", dam,
 						  wielded->get_PName(ECase::kGen).c_str(), GET_OBJ_VNUM(wielded));
-		if (GET_EQ(ch, EEquipPos::kBoths) && weap_skill != ESkill::kBows) { //двуруч множим на 2
+		if (ch->equipment[EEquipPos::kBoths] && weap_skill != ESkill::kBows) { //двуруч множим на 2
 			dam *= 2;
 		if (ch->IsFlagged(EPrf::kExecutor))
 			SendMsgToChar(ch, "&YДамага двуручем множим на 2 == %d&n\r\n", dam);
@@ -899,7 +899,7 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 				const auto
 					people = world[ch->in_room]->people;    // make copy because inside loop this list might be changed.
 				for (const auto &tch : people) {
-					if (tch->IsImmortal() || ch->in_room == kNowhere || tch->in_room == kNowhere)
+					if (IS_IMMORTAL(tch) || ch->in_room == kNowhere || tch->in_room == kNowhere)
 						continue;
 					if (tch != ch && !group::same_group(ch, tch)) {
 						CastDamage(GetRealLevel(ch), ch, tch, spell_id);
@@ -1013,7 +1013,7 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 		SkillRollResult result = MakeSkillTest(ch, ESkill::kPunctual, victim);
 		bool success = result.success;
 		TrainSkill(ch, ESkill::kPunctual, success, victim);
-		if (!ch->IsImmortal()) {
+		if (!IS_IMMORTAL(ch)) {
 			PUNCTUAL_WAIT_STATE(ch, 1 * kBattleRound);
 		}
 		if (success && (hit_params.calc_thaco - hit_params.diceroll < hit_params.victim_ac - 5
@@ -1022,7 +1022,7 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 			hit_params.dam_critic = CalcPunctualCritDmg(ch, victim, hit_params.wielded);
 			ch->send_to_TC(false, true, false, "&CДамага точки равна = %d&n\r\n", hit_params.dam_critic);
 			victim->send_to_TC(false, true, false, "&CДамага точки равна = %d&n\r\n", hit_params.dam_critic);
-			if (!ch->IsImmortal()) {
+			if (!IS_IMMORTAL(ch)) {
 				PUNCTUAL_WAIT_STATE(ch, 2 * kBattleRound);
 			}
 			CallMagic(ch, victim, nullptr, nullptr, ESpell::kPaladineInspiration, GetRealLevel(ch));
@@ -1108,18 +1108,18 @@ int CalcNpcDamrollBonus(CharData *ch) {
 */
 int GetRealDamroll(CharData *ch) {
 	if (ch->IsNpc() && !IS_CHARMICE(ch)) {
-		return std::max(0, GET_DR(ch) + GET_DR_ADD(ch) + CalcNpcDamrollBonus(ch));
+		return std::max(0, ch->real_abils.damroll + ch->add_abils.dr_add + CalcNpcDamrollBonus(ch));
 	}
 
 	int bonus = CalcPcDamrollBonus(ch);
-	return std::clamp(GET_DR(ch) + GET_DR_ADD(ch) + 2 * bonus, -50, (IS_MORTIFIER(ch) ? 100 : 50) + 2 * bonus);
+	return std::clamp(ch->real_abils.damroll + ch->add_abils.dr_add + 2 * bonus, -50, (IS_MORTIFIER(ch) ? 100 : 50) + 2 * bonus);
 }
 
 int GetAutoattackDamroll(CharData *ch, int weapon_skill) {
 	if (ch->IsNpc() && !IS_CHARMICE(ch)) {
-		return std::max(0, GET_DR(ch) + GET_DR_ADD(ch) + CalcNpcDamrollBonus(ch));
+		return std::max(0, ch->real_abils.damroll + ch->add_abils.dr_add + CalcNpcDamrollBonus(ch));
 	}
-	return std::min(GET_DR(ch) + GET_DR_ADD(ch) + 2 * CalcPcDamrollBonus(ch), weapon_skill / 2); //попробюуем так
+	return std::min(ch->real_abils.damroll + ch->add_abils.dr_add + 2 * CalcPcDamrollBonus(ch), weapon_skill / 2); //попробюуем так
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

@@ -25,7 +25,7 @@ bool login_change_invoice(CharData *ch) {
 
 	hasMessages |= Boards::Static::LoginInfo(ch);
 
-	if (ch->IsImmortal())
+	if (IS_IMMORTAL(ch))
 		hasMessages |= single_god_invoice(ch);
 
 	if (mail::has_mail(ch->get_uid())) {
@@ -37,8 +37,8 @@ bool login_change_invoice(CharData *ch) {
 		SendMsgToChar("&RВас ожидает посылка. ЗАЙДИТЕ НА ПОЧТУ!&n\r\n", ch);
 	}
 	hasMessages |= Depot::show_purged_message(ch);
-	if (CLAN(ch)) {
-		hasMessages |= CLAN(ch)->print_mod(ch);
+	if (ch->player_specials->clan) {
+		hasMessages |= ch->player_specials->clan->print_mod(ch);
 	}
 
 	return hasMessages;
@@ -56,8 +56,8 @@ bool single_god_invoice(CharData *ch) {
 void god_work_invoice() {
 	for (DescriptorData *d = descriptor_list; d; d = d->next) {
 		if (d->character && d->state == EConState::kPlaying) {
-			if (d->character->IsImmortal()
-				|| GET_GOD_FLAG(d->character, EGf::kDemigod)) {
+			if (IS_IMMORTAL(d->character)
+				|| (IS_SET(d->character->player_specials->saved.GodsLike, EGf::kDemigod))) {
 				single_god_invoice(d->character.get());
 			}
 		}

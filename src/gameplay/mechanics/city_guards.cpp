@@ -82,21 +82,21 @@ bool MustGuardianAttack(CharData *ch, CharData *vict) {
 	}
 
 	const auto &tmp_guard = guardian_roster[GET_MOB_VNUM(ch)];
-	if ((tmp_guard.agro_all_agressors && AGRESSOR(vict)) ||
+	if ((tmp_guard.agro_all_agressors && vict->player_specials->agressor) ||
 		(tmp_guard.agro_killers && vict->IsFlagged(EPlrFlag::kKiller))) {
 		return true;
 	}
 
-	if (CLAN(vict)) {
+	if (vict->player_specials->clan) {
 		auto num_wars_vict = Clan::GetClanWars(vict);
-		int clan_town_vnum = CLAN(vict)->GetOutRent() / 100; //Polud подскажите мне другой способ определить vnum зоны
+		int clan_town_vnum = vict->player_specials->clan->GetOutRent() / 100; //Polud подскажите мне другой способ определить vnum зоны
 		int mob_town_vnum = GET_MOB_VNUM(ch) / 100;          //по vnum комнаты, не перебирая все комнаты и зоны мира
 		return (num_wars_vict && num_wars_vict > tmp_guard.max_wars_allow && clan_town_vnum != mob_town_vnum);
 	}
 
-	if (AGRESSOR(vict)) {
+	if (vict->player_specials->agressor) {
 		for (const int agro_argressors_in_zone : tmp_guard.agro_argressors_in_zones) {
-			return (agro_argressors_in_zone == AGRESSOR(vict) / 100);
+			return (agro_argressors_in_zone == vict->player_specials->agressor / 100);
 		}
 	}
 

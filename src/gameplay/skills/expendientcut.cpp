@@ -42,7 +42,7 @@ void PerformCutSuccess(abilities_roll::TechniqueRoll &roll) {
 		false, roll.GetActor(), nullptr, roll.GetRival(), kToVict);
 	act("$n сделал$g неуловимое движение, сместившись за спину $N1.",
 		true, roll.GetActor(), nullptr, roll.GetRival(), kToNotVict | kToArenaListen);
-	if (!IS_UNDEAD(roll.GetRival()) && GET_RACE(roll.GetRival()) != ENpcRace::kConstruct) {
+	if (!IS_UNDEAD(roll.GetRival()) && roll.GetRival(->player_data.Race) != ENpcRace::kConstruct) {
 		ApplyDebuffs(roll);
 	}
 }
@@ -103,12 +103,12 @@ void GoExpedientCut(CharData *ch, CharData *vict) {
 	};
 	damage.dam = dmg;
 	damage.flags.set(fight::kIgnoreBlink);
-	damage.wielded = GET_EQ(ch, EEquipPos::kWield);
+	damage.wielded = ch->equipment[EEquipPos::kWield];
 	damage.msg_num = to_underlying(ESkill::kCutting) + kTypeHit;
 	damage.Process(roll.GetActor(), roll.GetRival());
 	if (roll.GetActor()->in_room == roll.GetRival()->in_room) {
 		damage.dam = dmg;
-		damage.wielded = GET_EQ(ch, EEquipPos::kHold);
+		damage.wielded = ch->equipment[EEquipPos::kHold];
 		damage.msg_num = to_underlying(ESkill::kCutting) + kTypeHit;
 		damage.Process(roll.GetActor(), roll.GetRival());
 		ApplyNoFleeAffect(ch, no_flee_duration);
@@ -132,7 +132,7 @@ void SetExtraAttackCut(CharData *ch, CharData *victim) {
 }
 
 void DoExpedientCut(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
-	if (ch->IsNpc() || (!CanUseFeat(ch, EFeat::kCutting) && !ch->IsImpl())) {
+	if (ch->IsNpc() || (!CanUseFeat(ch, EFeat::kCutting) && !IS_IMPL(ch))) {
 		SendMsgToChar("Вы не владеете таким приемом.\r\n", ch);
 		return;
 	}

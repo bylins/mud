@@ -31,7 +31,7 @@ void GoFlee(CharData *ch) {
 		return;
 	}
 
-	if (!ch->IsImmortal()) {
+	if (!IS_IMMORTAL(ch)) {
 		SetWaitState(ch, kBattleRound);
 	}
 
@@ -98,7 +98,7 @@ void GoDirectFlee(CharData *ch, int direction) {
 				ReduceExpAfterFlee(ch, was_fighting, was_in);
 			}
 
-			if (!ch->IsImmortal()) {
+			if (!IS_IMMORTAL(ch)) {
 				SetWaitState(ch, 1 * kBattleRound);
 			}
 			return;
@@ -113,7 +113,7 @@ void DoFlee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Но вы ведь ни с кем не сражаетесь!\r\n", ch);
 		return;
 	}
-	if (CanUseFeat(ch, EFeat::kCalmness) || GET_GOD_FLAG(ch, EGf::kGodsLike)) {
+	if (CanUseFeat(ch, EFeat::kCalmness) || (IS_SET(ch->player_specials->saved.GodsLike, EGf::kGodsLike))) {
 		one_argument(argument, arg);
 		if ((direction = search_block(arg, dirs, false)) >= 0 ||
 			(direction = search_block(arg, dirs_rus, false)) >= 0) {

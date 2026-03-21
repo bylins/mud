@@ -42,7 +42,7 @@ void do_telegram([[maybe_unused]] CharData *ch, [[maybe_unused]] char *argument,
 		return;
 	}
 
-	snprintf(smallBuf, kMaxInputLength, "Поступила телега от %s, сообщают следующее:\r\n%s", GET_NAME(ch), output);
+	snprintf(smallBuf, kMaxInputLength, "Поступила телега от %s, сообщают следующее:\r\n%s", ch->get_name().c_str(), output);
 	koi_to_utf8(const_cast<char *>(smallBuf), utfBuf);
 	if (strlen(utfBuf) < 10) {
 		SendMsgToChar("Ошибочка вышла..\r\n", ch);

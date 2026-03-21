@@ -31,7 +31,7 @@ void CheckCharactersInZone(ZoneRnum zone_nr, CharData *ch) {
 				"Проверка по дискрипторам: В зоне (vnum: %d клетка: %d) находится персонаж: %s.\r\n",
 				zone_table[zone_nr].vnum,
 				GET_ROOM_VNUM(i->character->in_room),
-				GET_NAME(i->character));
+				i->character->get_name().c_str());
 		SendMsgToChar(buf2, ch);
 		found = true;
 	}
@@ -53,7 +53,7 @@ void CheckCharactersInZone(ZoneRnum zone_nr, CharData *ch) {
 							"Проверка по списку чаров (с учетом linkdrop): в зоне vnum: %d клетка: %d находится персонаж: %s.\r\n",
 							zone_table[zone_nr].vnum,
 							GET_ROOM_VNUM(c->in_room),
-							GET_NAME(c));
+							c->get_name().c_str());
 					SendMsgToChar(buf2, ch);
 					found = true;
 				}
@@ -72,7 +72,7 @@ void CheckCharactersInZone(ZoneRnum zone_nr, CharData *ch) {
 
 		sprintf(buf2,
 				"В прокси руме сидит игрок %s находящийся в зоне vnum: %d клетка: %d\r\n",
-				GET_NAME(c),
+				c->get_name().c_str(),
 				zone_table[zone_nr].vnum,
 				GET_ROOM_VNUM(c->in_room));
 		SendMsgToChar(buf2, ch);

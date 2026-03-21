@@ -61,12 +61,12 @@ void DoAdvance(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	SendMsgToChar(OK, ch);
 	if (newlevel < oldlevel) {
-		log("(GC) %s demoted %s from level %d to %d.", GET_NAME(ch), GET_NAME(victim), oldlevel, newlevel);
-		imm_log("%s demoted %s from level %d to %d.", GET_NAME(ch), GET_NAME(victim), oldlevel, newlevel);
+		log("(GC) %s demoted %s from level %d to %d.", ch->get_name().c_str(), victim->get_name().c_str(), oldlevel, newlevel);
+		imm_log("%s demoted %s from level %d to %d.", ch->get_name().c_str(), victim->get_name().c_str(), oldlevel, newlevel);
 	} else {
 		log("(GC) %s has advanced %s to level %d (from %d)",
-			GET_NAME(ch), GET_NAME(victim), newlevel, oldlevel);
-		imm_log("%s has advanced %s to level %d (from %d)", GET_NAME(ch), GET_NAME(victim), newlevel, oldlevel);
+			ch->get_name().c_str(), victim->get_name().c_str(), newlevel, oldlevel);
+		imm_log("%s has advanced %s to level %d (from %d)", ch->get_name().c_str(), victim->get_name().c_str(), newlevel, oldlevel);
 	}
 
 	gain_exp_regardless(victim, GetExpUntilNextLvl(victim, newlevel)

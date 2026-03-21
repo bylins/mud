@@ -16,10 +16,10 @@ void DoEquipment(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	SendMsgToChar("На вас надето:\r\n", ch);
 	for (i = 0; i < EEquipPos::kNumEquipPos; i++) {
-		if (GET_EQ(ch, i)) {
-			if (CAN_SEE_OBJ(ch, GET_EQ(ch, i))) {
+		if (ch->equipment[i]) {
+			if (CAN_SEE_OBJ(ch, ch->equipment[i])) {
 				SendMsgToChar(where[i], ch);
-				show_obj_to_char(GET_EQ(ch, i), ch, 1, true, 1);
+				show_obj_to_char(ch->equipment[i], ch, 1, true, 1);
 				found = true;
 			} else {
 				SendMsgToChar(where[i], ch);
@@ -28,19 +28,19 @@ void DoEquipment(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 		} else {
 			if (utils::IsAbbr(argument, "все") || utils::IsAbbr(argument, "all")) {
-				if (GET_EQ(ch, EEquipPos::kBoths))
+				if (ch->equipment[EEquipPos::kBoths])
 					if ((i == EEquipPos::kWield) || (i == EEquipPos::kHold))
 						continue;
-				if ((i == EEquipPos::kQuiver) && (GET_EQ(ch, EEquipPos::kBoths))) {
-					if (!((GET_EQ(ch, EEquipPos::kBoths)->get_type() == EObjType::kWeapon)
-						&& (static_cast<ESkill>(GET_EQ(ch, EEquipPos::kBoths)->get_spec_param()) == ESkill::kBows)))
+				if ((i == EEquipPos::kQuiver) && (ch->equipment[EEquipPos::kBoths])) {
+					if (!((ch->equipment[EEquipPos::kBoths]->get_type() == EObjType::kWeapon)
+						&& (static_cast<ESkill>(ch->equipment[EEquipPos::kBoths]->get_spec_param()) == ESkill::kBows)))
 						continue;
 				} else if (i == EEquipPos::kQuiver)
 					continue;
-				if (GET_EQ(ch, EEquipPos::kWield) || GET_EQ(ch, EEquipPos::kHold))
+				if (ch->equipment[EEquipPos::kWield] || ch->equipment[EEquipPos::kHold])
 					if (i == EEquipPos::kBoths)
 						continue;
-				if (GET_EQ(ch, EEquipPos::kShield)) {
+				if (ch->equipment[EEquipPos::kShield]) {
 					if ((i == EEquipPos::kHold) || (i == EEquipPos::kBoths))
 						continue;
 				}

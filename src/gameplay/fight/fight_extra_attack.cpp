@@ -8,7 +8,7 @@ WeaponMagicalAttack::WeaponMagicalAttack(CharacterData *ch) { ch_ = ch; }
 void WeaponMagicalAttack::set_attack(CharacterData *ch, CharacterData *victim) {
 	ObjectData *mag_cont;
 
-	mag_cont = GET_EQ(ch, WEAR_QUIVER);
+	mag_cont = ch->equipment[WEAR_QUIVER];
 	if (GET_OBJ_VAL(mag_cont, 2) <= 0) {
 		act("Эх какой выстрел мог бы быть, а так колчан пуст.", false, ch, 0, 0, TO_CHAR);
 		act("$n пошарил$g в колчане и достал$g оттуда мышь.", false, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
@@ -21,13 +21,13 @@ void WeaponMagicalAttack::set_attack(CharacterData *ch, CharacterData *victim) {
 
 bool WeaponMagicalAttack::set_count_attack(CharacterData *ch) {
 	ObjectData *mag_cont;
-	mag_cont = GET_EQ(ch, WEAR_QUIVER);
+	mag_cont = ch->equipment[WEAR_QUIVER];
 	//sprintf(buf, "Количество выстрелов %d", get_count());
 	//act(buf, true, ch, 0, 0, TO_ROOM | TO_ARENA_LISTEN);
 	//выстрел из колчана
-	if ((GET_EQ(ch, WEAR_BOTHS) && GET_EQ(ch, WEAR_BOTHS)->get_type() == EObjType::kWeapon))
-		&& (GET_OBJ_SKILL(GET_EQ(ch, WEAR_BOTHS)) == SKILL_BOWS)
-		&& (GET_EQ(ch, WEAR_QUIVER))) {
+	if ((ch->equipment[WEAR_BOTHS] && ch->equipment[WEAR_BOTHS]->get_type() == EObjType::kWeapon))
+		&& (GET_OBJ_SKILL(ch->equipment[WEAR_BOTHS]) == SKILL_BOWS)
+		&& (ch->equipment[WEAR_QUIVER])) {
 		//если у нас в руках лук и носим колчан
 		set_count(get_count() + 1);
 

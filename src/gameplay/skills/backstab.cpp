@@ -62,12 +62,12 @@ void do_backstab(CharData *ch, CharData *vict) {
 		return;
 	}
 
-	if (!GET_EQ(ch, EEquipPos::kWield) && (!ch->IsNpc() || IS_CHARMICE(ch))) {
+	if (!ch->equipment[EEquipPos::kWield] && (!ch->IsNpc() || IS_CHARMICE(ch))) {
 		SendMsgToChar("Требуется держать оружие в правой руке.\r\n", ch);
 		return;
 	}
 
-	if ((!ch->IsNpc() || IS_CHARMICE(ch)) && GET_OBJ_VAL(GET_EQ(ch, EEquipPos::kWield), 3) != fight::type_pierce) {
+	if ((!ch->IsNpc() || IS_CHARMICE(ch)) && GET_OBJ_VAL(ch->equipment[EEquipPos::kWield], 3) != fight::type_pierce) {
 		SendMsgToChar("ЗаКОЛоть можно только КОЛющим оружием!\r\n", ch);
 		return;
 	}
@@ -100,7 +100,7 @@ void GoBackstab(CharData *ch, CharData *vict) {
 	if (!pk_agro_action(ch, vict))
 		return;
 
-	if ((vict->IsFlagged(EMobFlag::kAware) && AWAKE(vict)) && !ch->IsGod()) {
+	if ((vict->IsFlagged(EMobFlag::kAware) && AWAKE(vict)) && !IS_GOD(ch)) {
 		act("Вы заметили, что $N попытал$u вас заколоть!", false, vict, nullptr, ch, kToChar);
 		act("$n заметил$g вашу попытку заколоть $s!", false, vict, nullptr, ch, kToVict);
 		act("$n заметил$g попытку $N1 заколоть $s!", false, vict, nullptr, ch, kToNotVict | kToArenaListen);
@@ -134,10 +134,10 @@ void GoBackstab(CharData *ch, CharData *vict) {
 		if (AFF_FLAGGED(vict, EAffect::kHold)) {
 			prob = prob * 5 / 4;
 		}
-		if (GET_GOD_FLAG(vict, EGf::kGodscurse)) {
+		if ((IS_SET(vict->player_specials->saved.GodsLike, EGf::kGodscurse))) {
 			prob = percent;
 		}
-		if (GET_GOD_FLAG(vict, EGf::kGodsLike) || GET_GOD_FLAG(ch, EGf::kGodscurse)) {
+		if ((IS_SET(vict->player_specials->saved.GodsLike, EGf::kGodsLike)) || (IS_SET(ch->player_specials->saved.GodsLike, EGf::kGodscurse))) {
 			prob = 0;
 		}
 		success = percent <= prob;

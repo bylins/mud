@@ -118,7 +118,7 @@ int exchange(CharData *ch, void * /*me*/, int cmd, char *argument) {
 			SendMsgToChar(buf1, ch);
 			return 1;
 		}
-		if (NORENTABLE(ch)) {
+		if ((ch->IsNpc() ? 0 : ch->player_specials->may_rent)) {
 			SendMsgToChar("Завершите сначала боевые действия.\r\n", ch);
 			return 1;
 		}
@@ -608,7 +608,7 @@ int exchange_purchase(CharData *ch, char *arg) {
 		seller->add_bank(GET_EXCHANGE_ITEM_COST(item), true);
 		ch->remove_both_gold(GET_EXCHANGE_ITEM_COST(item), true);
 
-		if (NOTIFY_EXCH_PRICE(seller) && GET_EXCHANGE_ITEM_COST(item) >= NOTIFY_EXCH_PRICE(seller)) {
+		if (seller->player_specials->saved.ntfyExchangePrice && GET_EXCHANGE_ITEM_COST(item) >= seller->player_specials->saved.ntfyExchangePrice) {
 			sprintf(tmpbuf, "Базар : лот %d(%s) продан%s. %d %s переведено на ваш счет.\r\n", lot,
 					GET_EXCHANGE_ITEM(item)->get_PName(ECase::kNom).c_str(), GET_OBJ_SUF_6(GET_EXCHANGE_ITEM(item)),
 					GET_EXCHANGE_ITEM_COST(item), GetDeclensionInNumber(GET_EXCHANGE_ITEM_COST(item), EWhat::kMoneyA));
@@ -685,7 +685,7 @@ int exchange_offers(CharData *ch, char *arg) {
 		strcpy(filter, "М0+");
 	} else if (utils::IsAbbr(arg1, "мои") || utils::IsAbbr(arg1, "mine")) {
 		show_type = 1;
-		sprintf(filter, "В%s", GET_NAME(ch));
+		sprintf(filter, "В%s", ch->get_name().c_str());
 	} else {
 		while (*arg1) {
 			arg1[0] = UPPER(arg1[0]);
@@ -694,8 +694,8 @@ int exchange_offers(CharData *ch, char *arg) {
 			arg = one_argument(arg, arg1);
 		}
 	}
-	if (show_type == 0 && EXCHANGE_FILTER(ch)) {
-		snprintf(buf, kMaxInputLength, "%s %s", EXCHANGE_FILTER(ch), filter);
+	if (show_type == 0 && ch->player_specials->Exchange_filter) {
+		snprintf(buf, kMaxInputLength, "%s %s", ch->player_specials->Exchange_filter, filter);
 		strcpy(filter, buf);
 	}
 	if (!correct_filter_length(ch, filter)) {
@@ -711,12 +711,12 @@ int exchange_offers(CharData *ch, char *arg) {
 bool exchange_setfilter(CharData *ch, char *argument) {
 	if (!*argument) {
 		ParseFilter params(ParseFilter::EXCHANGE);
-		if (!EXCHANGE_FILTER(ch)) {
+		if (!ch->player_specials->Exchange_filter) {
 			SendMsgToChar("Ваш фильтр базара пуст.\r\n", ch);
 			params.parse_filter(ch, params, argument);
 			return true;
 		}
-		SendMsgToChar(ch, "Ваш текущий фильтр базара: %s\r\n", EXCHANGE_FILTER(ch));
+		SendMsgToChar(ch, "Ваш текущий фильтр базара: %s\r\n", ch->player_specials->Exchange_filter);
 		return true;
 	}
 	char filter[kMaxInputLength];
@@ -726,9 +726,9 @@ bool exchange_setfilter(CharData *ch, char *argument) {
 		return false;
 	}
 	if (!strncmp(argument, "нет", 3)) {
-		if (EXCHANGE_FILTER(ch)) {
-			free(EXCHANGE_FILTER(ch));
-			EXCHANGE_FILTER(ch) = nullptr;
+		if (ch->player_specials->Exchange_filter) {
+			free(ch->player_specials->Exchange_filter);
+			ch->player_specials->Exchange_filter = nullptr;
 		}
 		SendMsgToChar("Фильтр базара очищен.\r\n", ch);
 		return true;
@@ -740,14 +740,14 @@ bool exchange_setfilter(CharData *ch, char *argument) {
 		char tmps[1] = ""; //обход варнинга
 		params.parse_filter(ch, params, tmps);
 		SendMsgToChar(buf, ch);
-		free(EXCHANGE_FILTER(ch));
-		EXCHANGE_FILTER(ch) = nullptr;
+		free(ch->player_specials->Exchange_filter);
+		ch->player_specials->Exchange_filter = nullptr;
 		return false;
 	}
 	SendMsgToChar(ch, "Ваш фильтр: %s\r\n", params.print().c_str());
-	if (EXCHANGE_FILTER(ch))
-		free(EXCHANGE_FILTER(ch));
-	EXCHANGE_FILTER(ch) = str_dup(filter);
+	if (ch->player_specials->Exchange_filter)
+		free(ch->player_specials->Exchange_filter);
+	ch->player_specials->Exchange_filter = str_dup(filter);
 	return true;
 }
 
@@ -1106,8 +1106,8 @@ void message_exchange(char *message, CharData *ch, ExchangeItem *j) {
 				continue;
 			}
 			ParseFilter params(ParseFilter::EXCHANGE);
-			if (!EXCHANGE_FILTER(i->character) 
-					|| (EXCHANGE_FILTER(i->character) && params.parse_filter(nullptr, params, EXCHANGE_FILTER(i->character))
+			if (!i->character->player_specials->Exchange_filter 
+					|| (i->character->player_specials->Exchange_filter && params.parse_filter(nullptr, params, i->character->player_specials->Exchange_filter)
 					&& params.check(j))) {
 				SendMsgToChar(i->character.get(), "&Y%s&n", message);
 			}
@@ -1128,7 +1128,7 @@ void show_lots(char *filter, short int show_type, CharData *ch) {
 
 	std::string buffer;
 	SendMsgToChar(ch, "Ваш фильтр: %s\r\n", params.print().c_str());
-	if (ch->IsGod()) {
+	if (IS_GOD(ch)) {
 		buffer =
 			"vnum    Лот      Предмет                                                     Цена  Состояние\r\n"
 			"--------------------------------------------------------------------------------------------\r\n";
@@ -1138,7 +1138,7 @@ void show_lots(char *filter, short int show_type, CharData *ch) {
 			"--------------------------------------------------------------------------------------------\r\n";
 	}
 	for (ExchangeItem *j = exchange_item_list; j; j = j->next) {
-		if (show_type == 1 && !isname(GET_NAME(ch), GetNameById(GET_EXCHANGE_ITEM_SELLERID(j))))
+		if (show_type == 1 && !isname(ch->get_name().c_str(), GetNameById(GET_EXCHANGE_ITEM_SELLERID(j))))
 			continue;
 		// ну идиотизм сидеть статить 5-10 страниц резных
 		// Идиотизм - это тупым хардком по названию предмета вот так проверять.
@@ -1197,7 +1197,7 @@ void show_lots(char *filter, short int show_type, CharData *ch) {
 		}
 		char *tmstr;
 		tmstr = (char *) asctime(localtime(&(j->time)));
-		if (ch->IsGod()) {//asctime добавляет перевод строки лишний
+		if (IS_GOD(ch)) {//asctime добавляет перевод строки лишний
 			sprintf(tmpbuf,
 					"(%5d) %s %9d  %-s %s", GET_EXCHANGE_ITEM(j)->get_vnum(),
 					colored_name(tmpbuf, 63, true),
@@ -1246,7 +1246,7 @@ void do_exchange(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 	} else if ((utils::IsAbbr(arg1, "выставить") || utils::IsAbbr(arg1, "exhibit")
 		|| utils::IsAbbr(arg1, "цена") || utils::IsAbbr(arg1, "cost")
 		|| utils::IsAbbr(arg1, "снять") || utils::IsAbbr(arg1, "withdraw")
-		|| utils::IsAbbr(arg1, "купить") || utils::IsAbbr(arg1, "purchase")) && !ch->IsImpl()) {
+		|| utils::IsAbbr(arg1, "купить") || utils::IsAbbr(arg1, "purchase")) && !IS_IMPL(ch)) {
 		SendMsgToChar("Вам необходимо находиться возле базарного торговца, чтобы воспользоваться этой командой.\r\n",
 					 ch);
 	} else

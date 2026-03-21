@@ -18,7 +18,7 @@ extern bool IsWearingLight(CharData *ch);
 int check_awake(CharData *ch, int what) {
 	int i, retval = 0, wgt = 0;
 
-	if (!ch->IsGod()) {
+	if (!IS_GOD(ch)) {
 		if (IS_SET(what, kAcheckAffects)
 			&& (AFF_FLAGGED(ch, EAffect::kStairs) || AFF_FLAGGED(ch, EAffect::kSanctuary)))
 			SET_BIT(retval, kAcheckAffects);
@@ -29,25 +29,25 @@ int check_awake(CharData *ch, int what) {
 			SET_BIT(retval, kAcheckLight);
 
 		for (i = 0; i < EEquipPos::kNumEquipPos; i++) {
-			if (!GET_EQ(ch, i))
+			if (!ch->equipment[i])
 				continue;
 
-			if (IS_SET(what, kAcheckHumming) && GET_EQ(ch, i)->has_flag(EObjFlag::kHum))
+			if (IS_SET(what, kAcheckHumming) && ch->equipment[i]->has_flag(EObjFlag::kHum))
 				SET_BIT(retval, kAcheckHumming);
 
-			if (IS_SET(what, kAcheckGlowing) && GET_EQ(ch, i)->has_flag(EObjFlag::kGlow))
+			if (IS_SET(what, kAcheckGlowing) && ch->equipment[i]->has_flag(EObjFlag::kGlow))
 				SET_BIT(retval, kAcheckGlowing);
 
 			if (IS_SET(what, kAcheckLight)
 				&& IsDefaultDark(ch->in_room)
-				&& GET_EQ(ch, i)->get_type() == EObjType::kLightSource
-				&& GET_OBJ_VAL(GET_EQ(ch, i), 2)) {
+				&& ch->equipment[i]->get_type() == EObjType::kLightSource
+				&& GET_OBJ_VAL(ch->equipment[i], 2)) {
 				SET_BIT(retval, kAcheckLight);
 			}
 
-			if (ObjSystem::is_armor_type(GET_EQ(ch, i))
-				&& GET_EQ(ch, i)->get_material() <= EObjMaterial::kPreciousMetel) {
-				wgt += GET_EQ(ch, i)->get_weight();
+			if (ObjSystem::is_armor_type(ch->equipment[i])
+				&& ch->equipment[i]->get_material() <= EObjMaterial::kPreciousMetel) {
+				wgt += ch->equipment[i]->get_weight();
 			}
 		}
 
@@ -58,7 +58,7 @@ int check_awake(CharData *ch, int what) {
 }
 
 int awake_hide(CharData *ch) {
-	if (ch->IsGod())
+	if (IS_GOD(ch))
 		return (false);
 	return check_awake(ch, kAcheckAffects | kAcheckLight | kAcheckHumming
 		| kAcheckGlowing | kAcheckWeight);
@@ -69,7 +69,7 @@ int awake_sneak(CharData *ch) {
 }
 
 int awake_invis(CharData *ch) {
-	if (ch->IsGod())
+	if (IS_GOD(ch))
 		return (false);
 	return check_awake(ch, kAcheckAffects | kAcheckLight | kAcheckHumming
 		| kAcheckGlowing);
@@ -80,7 +80,7 @@ int awake_camouflage(CharData *ch) {
 }
 
 int awaking(CharData *ch, int mode) {
-	if (ch->IsGod())
+	if (IS_GOD(ch))
 		return (false);
 	if (IS_SET(mode, kAwHide) && awake_hide(ch))
 		return (true);
@@ -94,7 +94,7 @@ int awaking(CharData *ch, int mode) {
 }
 
 bool IsAwakeOthers(CharData *ch) {
-	if ((ch->IsNpc() && !AFF_FLAGGED(ch, EAffect::kCharmed)) || ch->IsGod()) {
+	if ((ch->IsNpc() && !AFF_FLAGGED(ch, EAffect::kCharmed)) || IS_GOD(ch)) {
 		return false;
 	}
 

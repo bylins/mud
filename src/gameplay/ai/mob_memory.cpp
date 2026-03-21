@@ -32,7 +32,7 @@ void mobRemember(CharData *ch, CharData *victim) {
 		AFF_FLAGGED(ch, EAffect::kCharmed))
 		return;
 
-	for (tmp = MEMORY(ch); tmp && !present; tmp = tmp->next)
+	for (tmp = ch->mob_specials.memory; tmp && !present; tmp = tmp->next)
 		if (tmp->id == victim->get_uid()) {
 			if (tmp->time > 0)
 				tmp->time = time(nullptr) + kMobMemKoeff * GetRealInt(ch);
@@ -41,10 +41,10 @@ void mobRemember(CharData *ch, CharData *victim) {
 
 	if (!present) {
 		CREATE(tmp, 1);
-		tmp->next = MEMORY(ch);
+		tmp->next = ch->mob_specials.memory;
 		tmp->id = victim->get_uid();
 		tmp->time = time(nullptr) + kMobMemKoeff * GetRealInt(ch);
-		MEMORY(ch) = tmp;
+		ch->mob_specials.memory = tmp;
 	}
 	if (!IsTimedBySkill(victim, ESkill::kHideTrack) && victim->GetSkill(ESkill::kHideTrack)) {
 		timed.skill = ESkill::kHideTrack;
@@ -61,7 +61,7 @@ void mobForget(CharData *ch, CharData *victim) {
 	if (AFF_FLAGGED(ch, EAffect::kCharmed))
 		return;
 
-	if (!(curr = MEMORY(ch)))
+	if (!(curr = ch->mob_specials.memory))
 		return;
 
 	while (curr && curr->id != victim->get_uid()) {
@@ -72,8 +72,8 @@ void mobForget(CharData *ch, CharData *victim) {
 	if (!curr)
 		return;        // person wasn't there at all.
 
-	if (curr == MEMORY(ch))
-		MEMORY(ch) = curr->next;
+	if (curr == ch->mob_specials.memory)
+		ch->mob_specials.memory = curr->next;
 	else
 		prev->next = curr->next;
 
@@ -86,14 +86,14 @@ void mobForget(CharData *ch, CharData *victim) {
 void clearMemory(CharData *ch) {
 	MemoryRecord *curr, *next;
 
-	curr = MEMORY(ch);
+	curr = ch->mob_specials.memory;
 
 	while (curr) {
 		next = curr->next;
 		free(curr);
 		curr = next;
 	}
-	MEMORY(ch) = nullptr;
+	ch->mob_specials.memory = nullptr;
 }
 
 CharData *FimdRememberedEnemyInRoom(CharData *mob, int check_sneak) {
@@ -109,7 +109,7 @@ CharData *FimdRememberedEnemyInRoom(CharData *mob, int check_sneak) {
 		if (vict->IsNpc() || vict->IsFlagged(EPrf::kNohassle)) {
 			continue;
 		}
-		for (MemoryRecord *names = MEMORY(mob); names && !victim; names = names->next) {
+		for (MemoryRecord *names = mob->mob_specials.memory; names && !victim; names = names->next) {
 			if (names->id == vict->get_uid()) {
 				if (!MAY_SEE(mob, mob, vict) || !may_kill_here(mob, vict, NoArgument)) {
 					continue;
@@ -146,7 +146,7 @@ void AttackToRememberedVictim(CharData *mob, CharData *victim) {
 			act("$n вскочил$g.", false, mob, nullptr, nullptr, kToRoom);
 			mob->SetPosition(EPosition::kStand);
 		}
-		if (GET_RACE(mob) != ENpcRace::kHuman) {
+		if (mob->player_data.Race != ENpcRace::kHuman) {
 			act("$n вспомнил$g $N3.", false, mob, nullptr, victim, kToRoom);
 		} else {
 			act("'$N - ты пытал$U убить меня! Попал$U! Умри!!!', воскликнул$g $n.",

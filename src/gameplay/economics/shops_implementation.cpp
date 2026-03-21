@@ -305,7 +305,7 @@ void shop_node::process_buy(CharData *ch, CharData *keeper, char *argument) {
 
 		char local_buf[kMaxInputLength];
 		switch (number(0, 3)) {
-			case 0: snprintf(local_buf, kMaxInputLength, "ругать %s!", GET_NAME(ch));
+			case 0: snprintf(local_buf, kMaxInputLength, "ругать %s!", ch->get_name().c_str());
 				do_social(keeper, local_buf);
 				break;
 
@@ -327,7 +327,7 @@ void shop_node::process_buy(CharData *ch, CharData *keeper, char *argument) {
 		snprintf(buf, kMaxStringLength,
 				 "%s, я понимаю, своя ноша карман не тянет,\r\n"
 				 "но %s вам явно некуда положить.\r\n",
-				 GET_NAME(ch), name);
+				 ch->get_name().c_str(), name);
 		SendMsgToChar(buf, ch);
 		return;
 	}
@@ -373,7 +373,7 @@ void shop_node::process_buy(CharData *ch, CharData *keeper, char *argument) {
 				GloryConst::add_total_spent(price);
 				GloryConst::remove_glory(ch->get_uid(), price);
 				GloryConst::transfer_log("%s bought %s for %ld const glory",
-										 GET_NAME(ch), proto->get_PName(ECase::kNom).c_str(), price);
+										 ch->get_name().c_str(), proto->get_PName(ECase::kNom).c_str(), price);
 			} else if (currency == "лед") {
 				// книги за лед, как и за славу, не фейлим
 				if (EObjType::kBook == obj->get_type()) {
@@ -770,7 +770,7 @@ void shop_node::process_ident(CharData *ch, CharData *keeper, char *argument, co
 			tell_to_char(keeper, ch, "У вас нет столько денег!");
 			char local_buf[kMaxInputLength];
 			switch (number(0, 3)) {
-				case 0: snprintf(local_buf, kMaxInputLength, "ругать %s!", GET_NAME(ch));
+				case 0: snprintf(local_buf, kMaxInputLength, "ругать %s!", ch->get_name().c_str());
 					do_social(keeper, local_buf);
 					break;
 
@@ -1088,12 +1088,12 @@ void shop_node::do_shop_cmd(CharData *ch, CharData *keeper, ObjData *obj, std::s
 				obj->get_PName(ECase::kGen), repair_price, GetDeclensionInNumber(repair_price, EWhat::kMoneyU));
 		tell_to_char(keeper, ch, tell.c_str());
 
-		if (!ch->IsGod() && repair_price > ch->get_gold()) {
+		if (!IS_GOD(ch) && repair_price > ch->get_gold()) {
 			act("А вот их у тебя как-раз то и нет.", false, ch, 0, 0, kToChar);
 			return;
 		}
 
-		if (!ch->IsGod()) {
+		if (!IS_GOD(ch)) {
 			ch->remove_gold(repair_price);
 		}
 

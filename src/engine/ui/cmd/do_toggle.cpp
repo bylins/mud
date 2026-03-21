@@ -11,10 +11,10 @@ const char *BoolToOnOffStr(bool value);
 void do_toggle(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	if (ch->IsNpc())
 		return;
-	if (GET_WIMP_LEV(ch) == 0)
+	if (ch->player_specials->saved.wimp_level == 0)
 		strcpy(buf2, "нет");
 	else
-		sprintf(buf2, "%-3d", GET_WIMP_LEV(ch));
+		sprintf(buf2, "%-3d", ch->player_specials->saved.wimp_level);
 
 	if (GetRealLevel(ch) >= kLvlImmortal || ch->IsFlagged(EPrf::kCoderinfo)) {
 		snprintf(buf, kMaxStringLength,
@@ -92,8 +92,8 @@ void do_toggle(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 			 BoolToOnOffStr(ch->IsFlagged(EPrf::kAutomoney)),
 			 BoolToOnOffStr(!ch->IsFlagged(EPrf::kNoArena)),
 			 buf2,
-			 STRING_LENGTH(ch),
-			 STRING_WIDTH(ch),
+			 ch->player_specials->saved.stringLength,
+			 ch->player_specials->saved.stringWidth,
 #if defined(HAVE_ZLIB)
 			 ch->desc->deflate == nullptr ? "нет" : (ch->desc->mccp_version == 2 ? "MCCPv2" : "MCCPv1"),
 #else
@@ -111,8 +111,8 @@ void do_toggle(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 			 BoolToOnOffStr(ch->IsFlagged(EPrf::kNoIngrMode)),
 			 ch->remember_get_num());
 	SendMsgToChar(buf, ch);
-	if (NOTIFY_EXCH_PRICE(ch) > 0) {
-		sprintf(buf, " Уведомления   : %-7ld ", NOTIFY_EXCH_PRICE(ch));
+	if (ch->player_specials->saved.ntfyExchangePrice > 0) {
+		sprintf(buf, " Уведомления   : %-7ld ", ch->player_specials->saved.ntfyExchangePrice);
 	} else {
 		sprintf(buf, " Уведомления   : %-7s ", "Нет");
 	}
@@ -131,7 +131,7 @@ void do_toggle(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 			 BoolToOnOffStr(ch->IsFlagged(EPrf::kMapper)),
 			 BoolToOnOffStr(ch->IsFlagged(EPrf::kIpControl)));
 	SendMsgToChar(buf, ch);
-	if (GET_GOD_FLAG(ch, EGf::kAllowTesterMode))
+	if ((IS_SET(ch->player_specials->saved.GodsLike, EGf::kAllowTesterMode)))
 		sprintf(buf, " Тестер        : %-3s\r\n", BoolToOnOffStr(ch->IsFlagged(EPrf::kTester)));
 	else
 		sprintf(buf, "\r\n");

@@ -46,7 +46,7 @@ void DoUnfreeze(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 			continue;
 		}
 		vict = &t_vict;
-		if (GET_EMAIL(vict) != email) {
+		if (vict->player_specials->saved.EMail != email) {
 			sprintf(buf, "У чара %s другой емайл.\r\n", name_buffer.c_str());
 			SendMsgToChar(buf, ch);
 			continue;

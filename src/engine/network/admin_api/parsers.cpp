@@ -177,15 +177,15 @@ void ParseMobUpdate(CharData* mob, const nlohmann::json& data)
 		const auto& physical = data["physical"];
 		if (HasNumber(physical, "height"))
 		{
-			GET_HEIGHT(mob) = static_cast<ubyte>(physical["height"].get<int>());
+			mob->player_data.height = static_cast<ubyte>(physical["height"].get<int>());
 		}
 		if (HasNumber(physical, "weight"))
 		{
-			GET_WEIGHT(mob) = static_cast<ubyte>(physical["weight"].get<int>());
+			mob->player_data.weight = static_cast<ubyte>(physical["weight"].get<int>());
 		}
 		if (HasNumber(physical, "size"))
 		{
-			GET_SIZE(mob) = static_cast<sbyte>(physical["size"].get<int>());
+			mob->real_abils.size = static_cast<sbyte>(physical["size"].get<int>());
 		}
 		if (HasNumber(physical, "extra_attack"))
 		{

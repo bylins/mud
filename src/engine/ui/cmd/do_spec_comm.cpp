@@ -49,13 +49,13 @@ void do_spec_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	else if (vict == ch)
 		SendMsgToChar("От ваших уст до ушей - всего одна ладонь...\r\n", ch);
 	else if (ignores(vict, ch, subcmd == kScmdWhisper ? EIgnore::kWhisper : EIgnore::kAsk)) {
-		sprintf(buf, "%s не желает вас слышать.\r\n", GET_NAME(vict));
+		sprintf(buf, "%s не желает вас слышать.\r\n", vict->get_name().c_str());
 		SendMsgToChar(buf, ch);
 	} else {
 		if (subcmd == kScmdWhisper)
-			sprintf(vict3, "%s", GET_PAD(vict, 2));
+			sprintf(vict3, "%s", vict->player_data.PNames[2].c_str());
 		else
-			sprintf(vict3, "у %s", GET_PAD(vict, 1));
+			sprintf(vict3, "у %s", vict->player_data.PNames[1].c_str());
 
 		std::stringstream buffer;
 		buffer << "$n " << action_plur << "$g " << vict2 << " : " << buf2;

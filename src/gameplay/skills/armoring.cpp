@@ -90,8 +90,8 @@ void DoArmoring(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	percent = number(1, MUD::Skills()[ESkill::kArmoring].difficulty);
 	prob = CalcCurrentSkill(ch, ESkill::kArmoring, nullptr);
 	TrainSkill(ch, ESkill::kArmoring, percent <= prob, nullptr);
-	add_ac = ch->IsImmortal() ? -20 : -number(1, (GetRealLevel(ch) + 4) / 5);
-	if (percent > prob || GET_GOD_FLAG(ch, EGf::kGodscurse)) {
+	add_ac = IS_IMMORTAL(ch) ? -20 : -number(1, (GetRealLevel(ch) + 4) / 5);
+	if (percent > prob || (IS_SET(ch->player_specials->saved.GodsLike, EGf::kGodscurse))) {
 		act("Но только испортили $S.", false, ch, obj, nullptr, kToChar);
 		add_ac = -add_ac;
 	} else if (ch->GetSkill(ESkill::kArmoring) >= 100) {

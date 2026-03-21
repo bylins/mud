@@ -27,7 +27,7 @@ void DoThrowout(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Кого вы так сильно ненавидите, что хотите вышвырнуть отсюда?\r\n", ch);
 		return;
 	}
-	if (!IsAffectedBySpell(ch, ESpell::kFrenzy) && !ch->IsImmortal()) {
+	if (!IsAffectedBySpell(ch, ESpell::kFrenzy) && !IS_IMMORTAL(ch)) {
 		SendMsgToChar("Не получается! Вы ещё не достаточно разъярились!\r\n", ch);
 		return;
 	}
@@ -45,7 +45,7 @@ void DoThrowout(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			false, ch, nullptr,vict, kToChar);
 		return;
 	}
-	if (!ch->IsImmortal() && ch->HasCooldown(ESkill::kThrowout)) {
+	if (!IS_IMMORTAL(ch) && ch->HasCooldown(ESkill::kThrowout)) {
 		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
 		return;
 	}
@@ -78,7 +78,7 @@ void ProcessThrowoutFail(CharData *ch, CharData *vict) {
 void GoThrowout(CharData *ch, CharData *vict) {
 //Если у моба 30 или выше уровня больше 75% хп - вышвырнуть нельзя.
 	int vict_hp_limit = 0.75 * vict->get_real_max_hit();
-	if (!ch->IsImmortal() && GetRealLevel(vict) >= 30 && (vict->get_hit() > vict_hp_limit)) {
+	if (!IS_IMMORTAL(ch) && GetRealLevel(vict) >= 30 && (vict->get_hit() > vict_hp_limit)) {
 		act("Вы не можете вышвырнуть $N3 - $E ещё слишком цел$G и бодр$G!",
 			false, ch, nullptr,vict, kToChar);
 		return;
@@ -118,7 +118,7 @@ void GoThrowout(CharData *ch, CharData *vict) {
 	    		}
 	    	stop_fighting(vict, true);
 			PerformSimpleMove(vict, direction, false, nullptr, EMoveType::kThrowOut);
-	    	if (!ch->IsImmortal()) {
+	    	if (!IS_IMMORTAL(ch)) {
 	    		SetSkillCooldown(ch, ESkill::kThrowout, cooldown_if_success);
 	    	}
 	    } else if (!IsCorrectDirection(vict, direction, false, false)) {

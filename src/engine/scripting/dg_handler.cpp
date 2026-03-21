@@ -103,8 +103,8 @@ const char *spell_count(Trigger *trig, CharData *ch, char *spell) {
 		return ("0");
 	}
 
-	if (GET_SPELL_MEM(ch, spell_id)) {
-		sprintf(retval, "%d", GET_SPELL_MEM(ch, spell_id));
+	if (ch->real_abils.SplMem[to_underlying(spell_id)]) {
+		sprintf(retval, "%d", ch->real_abils.SplMem[to_underlying(spell_id)]);
 	} else {
 		strcpy(retval, "0");
 	}
@@ -121,8 +121,8 @@ const char *spell_knowledge(Trigger *trig, CharData *ch, char *spell) {
 		return ("0");
 	}
 
-	if (GET_SPELL_TYPE(ch, spell_id))
-		sprintf(retval, "%d", GET_SPELL_TYPE(ch, spell_id));
+	if (ch->real_abils.SplKnw[to_underlying(spell_id)])
+		sprintf(retval, "%d", ch->real_abils.SplKnw[to_underlying(spell_id)]);
 	else
 		strcpy(retval, "0");
 	return retval;

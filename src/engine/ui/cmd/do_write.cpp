@@ -52,19 +52,19 @@ void do_write(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			return;
 		}
 
-		if (!GET_EQ(ch, kHold)) {
+		if (!ch->equipment[kHold]) {
 			sprintf(buf, "Вам нечем писать!\r\n");
 			SendMsgToChar(buf, ch);
 			return;
 		}
-		if (!CAN_SEE_OBJ(ch, GET_EQ(ch, kHold))) {
+		if (!CAN_SEE_OBJ(ch, ch->equipment[kHold])) {
 			SendMsgToChar("Вы держите что-то невидимое!  Жаль, но писать этим трудно!!\r\n", ch);
 			return;
 		}
 		if (pen)
-			paper = GET_EQ(ch, kHold);
+			paper = ch->equipment[kHold];
 		else
-			pen = GET_EQ(ch, kHold);
+			pen = ch->equipment[kHold];
 	}
 
 	if (pen->get_type() != EObjType::kPen) {

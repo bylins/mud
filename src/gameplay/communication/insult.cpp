@@ -21,7 +21,7 @@ void do_insult(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			SendMsgToChar("&KА он вас и не услышит :(&n\r\n", ch);
 		else {
 			if (victim != ch) {
-				sprintf(buf, "&KВы оскорбили %s.&n\r\n", GET_PAD(victim, 3));
+				sprintf(buf, "&KВы оскорбили %s.&n\r\n", victim->player_data.PNames[3].c_str());
 				SendMsgToChar(buf, ch);
 
 				switch (number(0, 2)) {

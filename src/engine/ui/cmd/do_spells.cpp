@@ -54,22 +54,22 @@ void DisplaySpells(CharData *ch, CharData *vict, bool all) {
 	for (const auto &spl_info : MUD::Spells()) {
 		auto spell_id = spl_info.GetId();
 		const auto &class_spell = MUD::Class(ch->GetClass()).spells[spell_id];
-		if (!GET_SPELL_TYPE(ch, spell_id) && !all)
+		if (!ch->real_abils.SplKnw[to_underlying(spell_id)] && !all)
 			continue;
 		if (MUD::Spell(spell_id).IsInvalid())
 			continue;
 		if (MUD::Spell(spell_id).IsFlagged(kMagWarcry))
 			continue;
-		if (IS_MANA_CASTER(ch) && !spell_create.contains(spell_id))
+		if (ch->IsManaCaster() && !spell_create.contains(spell_id))
 			continue;
-		if (!IS_MANA_CASTER(ch) && !ch->IsGod() && ROOM_FLAGGED(ch->in_room, ERoomFlag::kDominationArena)) {
-			if (!IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kTemp) && !all)
+		if (!ch->IsManaCaster() && !IS_GOD(ch) && ROOM_FLAGGED(ch->in_room, ERoomFlag::kDominationArena)) {
+			if (!IS_SET(ch->real_abils.SplKnw[to_underlying(spell_id)], ESpellType::kTemp) && !all)
 				continue;
 		}
 		if ((CalcMinSpellLvl(ch, spell_id) > GetRealLevel(ch) ||
 			class_spell.GetMinRemort() > GetRealRemort(ch) ||
 			CalcCircleSlotsAmount(ch, class_spell.GetCircle()) <= 0) &&
-			all && !GET_SPELL_TYPE(ch, spell_id)) {
+			all && !ch->real_abils.SplKnw[to_underlying(spell_id)]) {
 			continue;
 		}
 		if (class_spell.GetMinRemort() > GetRealRemort(ch)) {
@@ -78,7 +78,7 @@ void DisplaySpells(CharData *ch, CharData *vict, bool all) {
 			slot_num = class_spell.GetCircle() - 1;
 		}
 		max_slot = std::max(slot_num + 1, max_slot);
-		if (IS_MANA_CASTER(ch)) {
+		if (ch->IsManaCaster()) {
 			if (!spell_create.contains(spell_id))
 				continue;
 			if (CalcSpellManacost(ch, spell_id) > GET_MAX_MANA(ch))
@@ -98,14 +98,14 @@ void DisplaySpells(CharData *ch, CharData *vict, bool all) {
 			}
 		} else {
 			time_str.clear();
-			if (IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kTemp)) {
+			if (IS_SET(ch->real_abils.SplKnw[to_underlying(spell_id)], ESpellType::kTemp)) {
 				time_str.append("[");
 				time_str.append(std::to_string(MAX(1,
 						static_cast<int>(std::ceil(static_cast<double>(temporary_spells::GetSpellLeftTime(ch, spell_id))
 						/ kSecsPerMudHour)))));
 				time_str.append("]");
 			}
-			if (CalcMinSpellLvl(ch, spell_id) > GetRealLevel(ch) && IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kKnow)) {
+			if (CalcMinSpellLvl(ch, spell_id) > GetRealLevel(ch) && IS_SET(ch->real_abils.SplKnw[to_underlying(spell_id)], ESpellType::kKnow)) {
 				sprintf(buf1, "%d", CalcMinSpellLvl(ch, spell_id) - GetRealLevel(ch));
 			}
 			else {
@@ -114,13 +114,13 @@ void DisplaySpells(CharData *ch, CharData *vict, bool all) {
 			slots[slot_num] += sprintf(names[slot_num] + slots[slot_num],
 					"%s|<%s%c%c%c%c%c%c%c>%s%s%-30s %-7s&n|",
 					slots[slot_num] % 116 < 10 ? "\r\n" : "  ",
-					IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kKnow) ? buf1 : ".",
-					IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kTemp) ? 'T' : '.',
-					IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kPotionCast) ? 'P' : '.',
-					IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kWandCast) ? 'W' : '.',
-					IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kScrollCast) ? 'S' : '.',
-					IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kItemCast) ? 'I' : '.',
-					IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kRunes) ? 'R' : '.',
+					IS_SET(ch->real_abils.SplKnw[to_underlying(spell_id)], ESpellType::kKnow) ? buf1 : ".",
+					IS_SET(ch->real_abils.SplKnw[to_underlying(spell_id)], ESpellType::kTemp) ? 'T' : '.',
+					IS_SET(ch->real_abils.SplKnw[to_underlying(spell_id)], ESpellType::kPotionCast) ? 'P' : '.',
+					IS_SET(ch->real_abils.SplKnw[to_underlying(spell_id)], ESpellType::kWandCast) ? 'W' : '.',
+					IS_SET(ch->real_abils.SplKnw[to_underlying(spell_id)], ESpellType::kScrollCast) ? 'S' : '.',
+					IS_SET(ch->real_abils.SplKnw[to_underlying(spell_id)], ESpellType::kItemCast) ? 'I' : '.',
+					IS_SET(ch->real_abils.SplKnw[to_underlying(spell_id)], ESpellType::kRunes) ? 'R' : '.',
 					 '.',
 					(CalcMinSpellLvl(ch, spell_id) - GetRealLevel(ch) < 10) ? "  " : " ",
 					GetSpellColor(spell_id),
@@ -133,7 +133,7 @@ void DisplaySpells(CharData *ch, CharData *vict, bool all) {
 	if (have_spells) {
 		for (i = 0; i < max_slot; i++) {
 			if (slots[i] != 0) {
-				if (!IS_MANA_CASTER(ch))
+				if (!ch->IsManaCaster())
 					gcount += sprintf(buf2 + gcount, "\r\nКруг %d", i + 1);
 			}
 			if (slots[i])

@@ -86,7 +86,7 @@ void showlots(CharData *ch) {
 		sprintf(tmpbuf, "Аукцион : лот %2d - %s%s%s - ставка %d %s, попытка %d, владелец %s.\r\n",
 				i, kColorBoldYel, obj->get_PName(ECase::kNom).c_str(), kColorNrm,
 				GET_LOT(i)->cost, GetDeclensionInNumber(GET_LOT(i)->cost, EWhat::kMoneyA),
-				GET_LOT(i)->tact < 0 ? 1 : GET_LOT(i)->tact + 1, GET_NAME(sch));
+				GET_LOT(i)->tact < 0 ? 1 : GET_LOT(i)->tact + 1, sch->get_name().c_str());
 
 		if (GET_LOT(i)->prefect && GET_LOT(i)->prefect_unique == ch->get_uid()) {
 			strcat(tmpbuf, "(Специально для вас).\r\n");
@@ -157,7 +157,7 @@ bool auction_drive(CharData *ch, char *argument) {
 				SendMsgToChar(tmpbuf, ch);
 				return false;
 			}
-/*			if (ch->IsGod()) {
+/*			if (IS_GOD(ch)) {
 				sprintf(tmpbuf, "&CДелай что-нибудь полезное для мада, фридроп или мобу подложи эту штуку!\n\r\n");
 				SendMsgToChar(tmpbuf, ch);
 				return false;
@@ -196,7 +196,7 @@ bool auction_drive(CharData *ch, char *argument) {
 
 			if (tch) {
 				sprintf(tmpbuf, "Вы выставили на аукцион $O3 за %d %s (для %s)",
-						value, GetDeclensionInNumber(value, EWhat::kMoneyU), GET_PAD(tch, 1));
+						value, GetDeclensionInNumber(value, EWhat::kMoneyU), tch->player_data.PNames[1].c_str());
 			} else {
 				sprintf(tmpbuf, "Вы выставили на аукцион $O3 за %d %s", value,
 						GetDeclensionInNumber(value, EWhat::kMoneyU));
@@ -282,7 +282,7 @@ bool auction_drive(CharData *ch, char *argument) {
 			SendMsgToChar(tmpbuf, ch);
 			sprintf(tmpbuf,
 					"Принята ставка %s на лот %d(%s) %d %s.\r\n",
-					GET_PAD(ch, 1),
+					ch->player_data.PNames[1].c_str(),
 					lot,
 					GET_LOT(lot)->item->get_PName(ECase::kNom).c_str(),
 					value,
@@ -356,7 +356,7 @@ bool auction_drive(CharData *ch, char *argument) {
 				return false;
 			}
 
-			if ch->IsImmortal() {
+			if IS_IMMORTAL(ch) {
 				SendMsgToChar("Господи, ну зачем тебе это?.\r\n", ch);
 				return false;
 			}
@@ -575,7 +575,7 @@ void trans_auction(int lot) {
 	// Проверяем условия передачи предмета.
 	// Оба чара в мирке
 	// Оба чара без БД
-	if (NORENTABLE(ch)) {
+	if ((ch->IsNpc() ? 0 : ch->player_specials->may_rent)) {
 		tmpstr = "Завершите боевые действия для передачи " + obj->get_PName(ECase::kGen) + " $N2.\r\n";
 
 		act(tmpstr.c_str(), false, ch, 0, tch, kToChar | kToSleep);
@@ -586,7 +586,7 @@ void trans_auction(int lot) {
 		return;
 	}
 
-	if (NORENTABLE(tch)) {
+	if ((tch->IsNpc() ? 0 : tch->player_specials->may_rent)) {
 		tmpstr = "Завершите боевые действия для получения денег от $n1.\r\n";
 
 		act(tmpstr.c_str(), false, ch, 0, tch, kToVict | kToSleep);

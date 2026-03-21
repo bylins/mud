@@ -246,12 +246,12 @@ void ActualizePlayersIndex(char *name) {
 			if (!MustBeDeleted(short_ch)) {
 				deleted = 0;
 
-				PlayerIndexElement element(GET_NAME(short_ch));
+				PlayerIndexElement element(short_ch->get_name().c_str());
 
-				element.mail = GET_EMAIL(short_ch);
+				element.mail = short_ch->player_specials->saved.EMail;
 				for (auto &c : element.mail) c = LOWER(c);
 
-				element.last_ip = GET_LASTIP(short_ch);
+				element.last_ip = short_ch->player_specials->saved.LastIP;
 
 				element.set_uid(short_ch->get_uid());
 				element.level = GetRealLevel(short_ch);
@@ -262,7 +262,7 @@ void ActualizePlayersIndex(char *name) {
 					element.last_logon = -1;
 					element.activity = -1;
 				} else {
-					element.last_logon = LAST_LOGON(short_ch);
+					element.last_logon = short_ch->get_last_logon();
 					element.activity = number(0, kObjectSaveActivity - 1);
 				}
 
@@ -277,7 +277,7 @@ void ActualizePlayersIndex(char *name) {
 				player_table.Append(element);
 			} else {
 				log("Delete %s from account email: %s",
-					GET_NAME(short_ch),
+					short_ch->get_name().c_str(),
 					short_ch->get_account()->get_email().c_str());
 				short_ch->get_account()->remove_player(short_ch->get_uid());
 			}
@@ -384,7 +384,7 @@ bool MustBeDeleted(CharData *short_ch) {
 	}
 	if (timeout >= 0) {
 		timeout *= kSecsPerRealDay;
-		if ((time(nullptr) - LAST_LOGON(short_ch)) > timeout) {
+		if ((time(nullptr) - short_ch->get_last_logon()) > timeout) {
 			return true;
 		}
 	}

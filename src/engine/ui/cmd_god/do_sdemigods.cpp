@@ -17,11 +17,11 @@ void DoSendMsgToDemigods(CharData *ch, char *argument, int/* cmd*/, int/* subcmd
 		SendMsgToChar("Что Вы хотите сообщить ?\r\n", ch);
 		return;
 	}
-	sprintf(buf1, "&c%s демигодам: '%s'&n\r\n", GET_NAME(ch), argument);
+	sprintf(buf1, "&c%s демигодам: '%s'&n\r\n", ch->get_name().c_str(), argument);
 
 	for (d = descriptor_list; d; d = d->next) {
 		if (d->state == EConState::kPlaying) {
-			if ((GET_GOD_FLAG(d->character, EGf::kDemigod)) || (GetRealLevel(d->character) == kLvlImplementator)) {
+			if (((IS_SET(d->character->player_specials->saved.GodsLike, EGf::kDemigod))) || (GetRealLevel(d->character) == kLvlImplementator)) {
 				if ((!d->character->IsFlagged(EPlrFlag::kWriting)) &&
 					(!d->character->IsFlagged(EPlrFlag::kMailing)) &&
 					(!d->character->IsFlagged(EPrf::kDemigodChat))) {

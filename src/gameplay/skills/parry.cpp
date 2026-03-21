@@ -33,17 +33,17 @@ void DoParry(CharData *ch, char */* argument*/, int /* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (!ch->IsImmortal() && !GET_GOD_FLAG(ch, EGf::kGodsLike)) {
-		if (GET_EQ(ch, EEquipPos::kBoths)) {
+	if (!IS_IMMORTAL(ch) && !(IS_SET(ch->player_specials->saved.GodsLike, EGf::kGodsLike))) {
+		if (ch->equipment[EEquipPos::kBoths]) {
 			SendMsgToChar("Вы не можете отклонить атаку двуручным оружием.\r\n", ch);
 			return;
 		}
 
 		bool prim = 0, offh = 0;
-		if (GET_EQ(ch, EEquipPos::kWield) && GET_EQ(ch, EEquipPos::kWield)->get_type() == EObjType::kWeapon) {
+		if (ch->equipment[EEquipPos::kWield] && ch->equipment[EEquipPos::kWield]->get_type() == EObjType::kWeapon) {
 			prim = 1;
 		}
-		if (GET_EQ(ch, EEquipPos::kHold) && GET_EQ(ch, EEquipPos::kHold)->get_type() == EObjType::kWeapon) {
+		if (ch->equipment[EEquipPos::kHold] && ch->equipment[EEquipPos::kHold]->get_type() == EObjType::kWeapon) {
 			offh = 1;
 		}
 
@@ -84,12 +84,12 @@ void ProcessParry(CharData *ch, CharData *victim, HitData &hit_data) {
 	if (!CanPerformParry(victim, hit_data)) {
 		return;
 	}
-	if (!((GET_EQ(victim, EEquipPos::kWield)
-		&& GET_EQ(victim, EEquipPos::kWield)->get_type() == EObjType::kWeapon
-		&& GET_EQ(victim, EEquipPos::kHold)
-		&& GET_EQ(victim, EEquipPos::kHold)->get_type() == EObjType::kWeapon)
+	if (!((victim->equipment[EEquipPos::kWield]
+		&& victim->equipment[EEquipPos::kWield]->get_type() == EObjType::kWeapon
+		&& victim->equipment[EEquipPos::kHold]
+		&& victim->equipment[EEquipPos::kHold]->get_type() == EObjType::kWeapon)
 		|| victim->IsNpc()
-		|| victim->IsImmortal())) {
+		|| IS_IMMORTAL(victim))) {
 		SendMsgToChar("У вас нечем отклонить атаку противника.\r\n", victim);
 		victim->battle_affects.unset(kEafParry);
 	} else {
@@ -103,7 +103,7 @@ void ProcessParry(CharData *ch, CharData *victim, HitData &hit_data) {
 		}
 		if (prob < 70
 			|| ((hit_data.weap_skill == ESkill::kBows || hit_data.hit_type == fight::type_maul)
-				&& !victim->IsImmortal()
+				&& !IS_IMMORTAL(victim)
 				&& (!CanUseFeat(victim, EFeat::kParryArrow)
 					|| number(1, 1000) >= 20 * std::min(GetRealDex(victim), 35)))) {
 			act("Вы не смогли отбить атаку $N1.", false, victim, nullptr, ch, kToChar);

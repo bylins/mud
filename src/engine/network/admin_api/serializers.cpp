@@ -46,8 +46,8 @@ json SerializeMob(const CharData& mob, int vnum)
 	// Stats (level, HP, damage, etc.)
 	json stats;
 	stats["level"] = mob.GetLevel();
-	stats["hitroll_penalty"] = GET_HR(&mob);
-	stats["armor"] = GET_AC(&mob);
+	stats["hitroll_penalty"] = &mob->real_abils.hitroll;
+	stats["armor"] = &mob->real_abils.armor;
 
 	// HP (dice format)
 	json hp;
@@ -72,9 +72,9 @@ json SerializeMob(const CharData& mob, int vnum)
 
 	// Physical characteristics
 	json physical;
-	physical["height"] = static_cast<int>(GET_HEIGHT(&mob));
-	physical["weight"] = static_cast<int>(GET_WEIGHT(&mob));
-	physical["size"] = static_cast<int>(GET_SIZE(&mob));
+	physical["height"] = static_cast<int>(&mob->player_data.height);
+	physical["weight"] = static_cast<int>(&mob->player_data.weight);
+	physical["size"] = static_cast<int>(&mob->real_abils.size);
 	physical["extra_attack"] = static_cast<int>(mob.mob_specials.extra_attack);
 	physical["like_work"] = static_cast<int>(mob.mob_specials.like_work);
 	physical["maxfactor"] = mob.mob_specials.MaxFactor;

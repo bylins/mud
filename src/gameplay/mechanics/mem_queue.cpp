@@ -132,10 +132,10 @@ float druid_manacost_modifier[] {
 int CalcSpellManacost(CharData *ch, ESpell spell_id) {
 	int result = 0;
 
-	if (ch->IsImmortal()) {
+	if (IS_IMMORTAL(ch)) {
 		return 1;
 	}
-	if (IS_MANA_CASTER(ch) && GetRealLevel(ch) >= MagusCastRequiredLevel(ch, spell_id)) {
+	if (ch->IsManaCaster() && GetRealLevel(ch) >= MagusCastRequiredLevel(ch, spell_id)) {
 		result = static_cast<int>(druid_manacost_modifier[GetRealInt(ch)]
 			* std::max(MUD::Spell(spell_id).GetMaxMana() 
 					- (MUD::Spell(spell_id).GetManaChange() * (GetRealLevel(ch) - CalcMinRuneSpellLvl(ch, spell_id))),  
@@ -152,7 +152,7 @@ int CalcSpellManacost(CharData *ch, ESpell spell_id) {
 //		log("manacost Потрачено манны множитель %f  затраты %d всего = %d\r\n", druid_manacost_modifier[GetRealInt(ch)], tmp, result );
 
 	} else {
-		if (!IS_MANA_CASTER(ch)
+		if (!ch->IsManaCaster()
 					&& GetRealLevel(ch) >= CalcMinSpellLvl(ch, spell_id)
 					&& GetRealRemort(ch) >= MUD::Class(ch->GetClass()).spells[spell_id].GetMinRemort()) {
 			result = std::max(MUD::Spell(spell_id).GetMaxMana() 
@@ -228,7 +228,7 @@ void MemQ_remember(CharData *ch, ESpell spell_id) {
 		return;
 	}
 
-	if (GET_RELIGION(ch) == kReligionMono)
+	if (ch->player_data.Religion == kReligionMono)
 		sprintf(buf, "Вы дописали заклинание \"%s%s%s\" в свой часослов.\r\n",
 				kColorBoldMag, MUD::Spell(spell_id).GetCName(), kColorNrm);
 	else
@@ -283,21 +283,21 @@ int *MemQ_slots(CharData *ch) {
 	//for (auto spell_id = ESpell::kLast; spell_id >= ESpell::kFirst; --spell_id) {
 	auto sloti{0};
 	for (auto spell_id = ESpell::kFirst ; spell_id <= ESpell::kLast; ++spell_id) {
-		if (!IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kKnow | ESpellType::kTemp))
+		if (!IS_SET(ch->real_abils.SplKnw[to_underlying(spell_id)], ESpellType::kKnow | ESpellType::kTemp))
 			continue;
-		auto spell_mem = GET_SPELL_MEM(ch, spell_id);
+		auto spell_mem = ch->real_abils.SplMem[to_underlying(spell_id)];
 		if (spell_mem == 0) {
 			continue;
 		}
 		sloti = MUD::Class(ch->GetClass()).spells[spell_id].GetCircle() - 1;
 		if (CalcMinSpellLvl(ch, spell_id) > GetRealLevel(ch) ||
 			MUD::Class(ch->GetClass()).spells[spell_id].GetMinRemort() > GetRealRemort(ch)) {
-			GET_SPELL_MEM(ch, spell_id) = 0;
+			ch->real_abils.SplMem[to_underlying(spell_id)] = 0;
 			continue;
 		}
 		slots[sloti] -= spell_mem;
 		if (slots[sloti] < 0) {
-			GET_SPELL_MEM(ch, spell_id) += slots[sloti];
+			ch->real_abils.SplMem[to_underlying(spell_id)] += slots[sloti];
 			slots[sloti] = 0;
 		}
 
@@ -368,9 +368,9 @@ void forget_all_spells(CharData *ch) {
 	int slotn;
 
 	for (auto spell_id = ESpell::kFirst ; spell_id <= ESpell::kLast; ++spell_id) {
-		if (ch->IsFlagged(EPrf::kAutomem) && GET_SPELL_MEM(ch, spell_id)) {
+		if (ch->IsFlagged(EPrf::kAutomem) && ch->real_abils.SplMem[to_underlying(spell_id)]) {
 			slotn = MUD::Class(ch->GetClass()).spells[spell_id].GetCircle() - 1;
-			for (unsigned j = 0; (slots[slotn] > 0 && j < GET_SPELL_MEM(ch, spell_id)); ++j, --slots[slotn]) {
+			for (unsigned j = 0; (slots[slotn] > 0 && j < ch->real_abils.SplMem[to_underlying(spell_id)]); ++j, --slots[slotn]) {
 				ch->mem_queue.total += CalcSpellManacost(ch, spell_id);
 				CREATE(qi_cur, 1);
 				*qi = qi_cur;
@@ -379,7 +379,7 @@ void forget_all_spells(CharData *ch) {
 				qi = &qi_cur->next;
 			}
 		}
-		GET_SPELL_MEM(ch, spell_id) = 0;
+		ch->real_abils.SplMem[to_underlying(spell_id)] = 0;
 	}
 	if (max_slot) {
 		Affect<EApply> af;
@@ -396,4 +396,3 @@ void forget_all_spells(CharData *ch) {
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
-

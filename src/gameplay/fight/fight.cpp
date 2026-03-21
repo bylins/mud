@@ -185,7 +185,7 @@ void SetFighting(CharData *ch, CharData *vict) {
 		return;
 	if (ch->GetEnemy()) {
 		log("SYSERR: SetFighting(%s->%s) when already fighting(%s)...",
-			GET_NAME(ch), GET_NAME(vict), GET_NAME(ch->GetEnemy()));
+			ch->get_name().c_str(), vict->get_name().c_str(), ch->GetEnemy(->get_name().c_str()));
 		// core_dump();
 		return;
 	}
@@ -310,7 +310,7 @@ void stop_fighting(CharData *ch, int switch_others) {
 						if (!temp.ch->IsNpc()) {
 							act("Вы переключили свое внимание на $N3.", false, temp.ch, 0, (*found).ch, kToChar);
 						}
-						log("[Stop fighting] %s : Change victim for fighting on %s", GET_NAME(temp.ch), (*found).ch->get_name().c_str());
+						log("[Stop fighting] %s : Change victim for fighting on %s", temp.ch->get_name().c_str(), (*found).ch->get_name().c_str());
 						temp.ch->SetEnemy((*found).ch);
 						break;
 					}
@@ -347,7 +347,7 @@ int GET_MAXCASTER(CharData *ch) {
 		|| ch->get_wait() > 0)
 		return 0;
 	else
-		return ch->IsImmortal() ? 1 : ch->caster_level;
+		return IS_IMMORTAL(ch) ? 1 : ch->caster_level;
 }
 
 int get_hp_perc(CharData *ch) {
@@ -978,20 +978,20 @@ CharData *find_minhp(CharData *caster) {
 
 CharData *find_cure(CharData *caster, CharData *patient, ESpell &spell_id) {
 	if (get_hp_perc(patient) <= number(20, 33)) {
-		if (GET_SPELL_MEM(caster, ESpell::kExtraHits))
+		if (caster->real_abils.SplMem[to_underlying(ESpell::kExtraHits)])
 			spell_id = ESpell::kExtraHits;
-		else if (GET_SPELL_MEM(caster, ESpell::kHeal))
+		else if (caster->real_abils.SplMem[to_underlying(ESpell::kHeal)])
 			spell_id = ESpell::kHeal;
-		else if (GET_SPELL_MEM(caster, ESpell::kCureCritic))
+		else if (caster->real_abils.SplMem[to_underlying(ESpell::kCureCritic)])
 			spell_id = ESpell::kCureCritic;
-		else if (GET_SPELL_MEM(caster, ESpell::kGroupHeal))
+		else if (caster->real_abils.SplMem[to_underlying(ESpell::kGroupHeal)])
 			spell_id = ESpell::kGroupHeal;
 	} else if (get_hp_perc(patient) <= number(50, 65)) {
-		if (GET_SPELL_MEM(caster, ESpell::kCureCritic))
+		if (caster->real_abils.SplMem[to_underlying(ESpell::kCureCritic)])
 			spell_id = ESpell::kCureCritic;
-		else if (GET_SPELL_MEM(caster, ESpell::kCureSerious))
+		else if (caster->real_abils.SplMem[to_underlying(ESpell::kCureSerious)])
 			spell_id = ESpell::kCureSerious;
-		else if (GET_SPELL_MEM(caster, ESpell::kCureLight))
+		else if (caster->real_abils.SplMem[to_underlying(ESpell::kCureLight)])
 			spell_id = ESpell::kCureLight;
 	}
 	if (spell_id != ESpell::kUndefined) {
@@ -1015,14 +1015,14 @@ void mob_casting(CharData *ch) {
 
 	memset(&battle_spells, 0, sizeof(battle_spells));
 	for (auto spell_id = ESpell::kFirst ; spell_id <= ESpell::kLast; ++spell_id) {
-		if (GET_SPELL_MEM(ch, spell_id) && MUD::Spell(spell_id).IsFlagged(NPC_CALCULATE)) {
+		if (ch->real_abils.SplMem[to_underlying(spell_id)] && MUD::Spell(spell_id).IsFlagged(NPC_CALCULATE)) {
 			battle_spells[spells++] = spell_id;
 		}
 	}
 	item = ch->carrying;
 	while (spells < kMaxStringLength
 		&& item
-		&& GET_RACE(ch) == ENpcRace::kHuman
+		&& ch->player_data.Race == ENpcRace::kHuman
 		&& !(ch->IsFlagged(EMobFlag::kTutelar) || ch->IsFlagged(EMobFlag::kMentalShadow))) {
 		switch (item->get_type()) {
 			case EObjType::kWand:
@@ -1124,13 +1124,13 @@ void mob_casting(CharData *ch) {
 		while (!AFF_FLAGGED(ch, EAffect::kCharmed)
 			&& !(ch->IsFlagged(EMobFlag::kTutelar) || ch->IsFlagged(EMobFlag::kMentalShadow))
 			&& item
-			&& GET_RACE(ch) == ENpcRace::kHuman) {
+			&& ch->player_data.Race == ENpcRace::kHuman) {
 			switch (item->get_type()) {
 				case EObjType::kWand:
 				case EObjType::kStaff:
 					if (GET_OBJ_VAL(item, 2) > 0
 						&& static_cast<ESpell>(GET_OBJ_VAL(item, 3)) == spell_id_2) {
-						EmployMagicItem(ch, item, GET_NAME(victim));
+						EmployMagicItem(ch, item, victim->get_name().c_str());
 						return;
 					}
 					break;
@@ -1145,7 +1145,7 @@ void mob_casting(CharData *ch) {
 							} else {
 								victim = ch;
 							}
-							EmployMagicItem(victim, item, GET_NAME(victim));
+							EmployMagicItem(victim, item, victim->get_name().c_str());
 							return;
 						}
 					}
@@ -1154,7 +1154,7 @@ void mob_casting(CharData *ch) {
 				case EObjType::kScroll:
 					for (int i = 1; i <= 3; i++) {
 						if (static_cast<ESpell>(GET_OBJ_VAL(item, i)) == spell_id_2) {
-							EmployMagicItem(ch, item, GET_NAME(victim));
+							EmployMagicItem(ch, item, victim->get_name().c_str());
 							return;
 						}
 					}
@@ -1193,7 +1193,7 @@ void summon_mob_helpers(CharData *ch) {
 				continue;
 			}
 			vict->SetFlag(EMobFlag::kHelper);
-			if (GET_RACE(ch) == ENpcRace::kHuman) {
+			if (ch->player_data.Race == ENpcRace::kHuman) {
 				act("$n воззвал$g : \"На помощь, мои верные соратники!\"",
 					false, ch, 0, 0, kToRoom | kToArenaListen);
 			}
@@ -1258,37 +1258,37 @@ void set_mob_skills_flags(CharData *ch) {
 	bool sk_use = false;
 	// 1) parry
 	int do_this = number(0, 100);
-	if (do_this <= GET_LIKES(ch) && ch->GetSkill(ESkill::kParry)) {
+	if (do_this <= ch->mob_specials.like_work && ch->GetSkill(ESkill::kParry)) {
 		ch->battle_affects.set(kEafParry);
 		sk_use = true;
 	}
 	// 2) blocking
 	do_this = number(0, 100);
-	if (!sk_use && do_this <= GET_LIKES(ch) && ch->GetSkill(ESkill::kShieldBlock)) {
+	if (!sk_use && do_this <= ch->mob_specials.like_work && ch->GetSkill(ESkill::kShieldBlock)) {
 		ch->battle_affects.set(kEafBlock);
 		sk_use = true;
 	}
 	// 3) multyparry
 	do_this = number(0, 100);
-	if (!sk_use && do_this <= GET_LIKES(ch) && ch->GetSkill(ESkill::kMultiparry)) {
+	if (!sk_use && do_this <= ch->mob_specials.like_work && ch->GetSkill(ESkill::kMultiparry)) {
 		ch->battle_affects.set(kEafMultyparry);
 		sk_use = true;
 	}
 	// 4) deviate
 	do_this = number(0, 100);
-	if (!sk_use && do_this <= GET_LIKES(ch) && ch->GetSkill(ESkill::kDodge)) {
+	if (!sk_use && do_this <= ch->mob_specials.like_work && ch->GetSkill(ESkill::kDodge)) {
 		ch->battle_affects.set(kEafDodge);
 		sk_use = true;
 	}
 	// 5) styles
 	do_this = number(0, 100);
-	if (do_this <= GET_LIKES(ch) && ch->GetSkill(ESkill::kAwake) > number(1, 101)) {
+	if (do_this <= ch->mob_specials.like_work && ch->GetSkill(ESkill::kAwake) > number(1, 101)) {
 		ch->battle_affects.set(kEafAwake);
 	} else {
 		ch->battle_affects.unset(kEafAwake);
 	}
 	do_this = number(0, 100);
-	if (do_this <= GET_LIKES(ch) && ch->GetSkill(ESkill::kPunctual) > number(1, 101)) {
+	if (do_this <= ch->mob_specials.like_work && ch->GetSkill(ESkill::kPunctual) > number(1, 101)) {
 		ch->battle_affects.set(kEafPunctual);
 	} else {
 		ch->battle_affects.unset(kEafPunctual);
@@ -1306,7 +1306,7 @@ int calc_initiative(CharData *ch, bool mode) {
 			initiative += i;
 	};
 
-	initiative += GET_INITIATIVE(ch);
+	initiative += ch->add_abils.initiative_add;
 
 	if (!ch->IsNpc()) {
 		switch (ch->GetCarryingWeight() * 10 / MAX(1, CAN_CARRY_W(ch))) {
@@ -1342,12 +1342,12 @@ int calc_initiative(CharData *ch, bool mode) {
 void using_charmice_skills(CharData *ch) {
 	// если чармис вооружен и может глушить - будем глушить
 	// если нет оружия но есть молот - будем молотить
-	const bool charmice_wielded_for_stupor = GET_EQ(ch, EEquipPos::kWield) || GET_EQ(ch, EEquipPos::kBoths);
-	const bool charmice_not_wielded = !(GET_EQ(ch, EEquipPos::kWield) || GET_EQ(ch, EEquipPos::kBoths) || GET_EQ(ch, EEquipPos::kHold));
-	ObjData *wielded = GET_EQ(ch, EEquipPos::kWield);
-	const bool charmice_wielded_for_throw = (GET_EQ(ch, EEquipPos::kWield) && wielded->has_flag(EObjFlag::kThrowing)); //
+	const bool charmice_wielded_for_stupor = ch->equipment[EEquipPos::kWield] || ch->equipment[EEquipPos::kBoths];
+	const bool charmice_not_wielded = !(ch->equipment[EEquipPos::kWield] || ch->equipment[EEquipPos::kBoths] || ch->equipment[EEquipPos::kHold]);
+	ObjData *wielded = ch->equipment[EEquipPos::kWield];
+	const bool charmice_wielded_for_throw = (ch->equipment[EEquipPos::kWield] && wielded->has_flag(EObjFlag::kThrowing)); //
 	const int do_this = number(0, 100);
-	const bool do_skill_without_command = GET_LIKES(ch) >= do_this;
+	const bool do_skill_without_command = ch->mob_specials.like_work >= do_this;
 	CharData *master = (ch->get_master() && !ch->get_master()->IsNpc()) ? ch->get_master() : nullptr;
 	
 	if (charmice_wielded_for_stupor && ch->GetSkill(ESkill::kOverwhelm) > 0) { // оглушить
@@ -1421,7 +1421,7 @@ void using_mob_skills(CharData *ch) {
 	auto sk_num{ESkill::kUndefined};
 	for (int sk_use = GetRealInt(ch); MAY_LIKES(ch) && sk_use > 0; sk_use--) {
 		int do_this = number(0, 100);
-		if (do_this > GET_LIKES(ch)) {
+		if (do_this > ch->mob_specials.like_work) {
 			continue;
 		}
 
@@ -1594,7 +1594,7 @@ void using_mob_skills(CharData *ch) {
 				&& (sk_num == ESkill::kBash || sk_num == ESkill::kChopoff)) {
 				if (sk_num == ESkill::kBash) {
 //SendMsgToChar(caster, "Баш предфункция\r\n");
-//sprintf(buf, "%s башат предфункция\r\n",GET_NAME(caster));
+//sprintf(buf, "%s башат предфункция\r\n",caster->get_name().c_str());
 //mudlog(buf, LGH, MAX(kLevelImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
 					if (caster->GetPosition() >= EPosition::kFight
 						|| CalcCurrentSkill(ch, ESkill::kBash, caster) > number(50, 80)) {
@@ -1603,7 +1603,7 @@ void using_mob_skills(CharData *ch) {
 					}
 				} else {
 //SendMsgToChar(caster, "Подножка предфункция\r\n");
-//sprintf(buf, "%s подсекают предфункция\r\n",GET_NAME(caster));
+//sprintf(buf, "%s подсекают предфункция\r\n",caster->get_name().c_str());
 //                mudlog(buf, LGH, MAX(kLevelImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
 
 					if (caster->GetPosition() >= EPosition::kFight
@@ -1650,9 +1650,9 @@ void using_mob_skills(CharData *ch) {
 						go_chopoff(ch, damager);
 					}
 				} else if (sk_num == ESkill::kDisarm
-					&& (GET_EQ(damager, EEquipPos::kWield)
-						|| GET_EQ(damager, EEquipPos::kBoths)
-						|| (GET_EQ(damager, EEquipPos::kHold)))) {
+					&& (damager->equipment[EEquipPos::kWield]
+						|| damager->equipment[EEquipPos::kBoths]
+						|| (damager->equipment[EEquipPos::kHold]))) {
 					sk_use = 0;
 					go_disarm(ch, damager);
 				}
@@ -1698,7 +1698,7 @@ void update_round_affs() {
 		}
 		if (it.ch->battle_affects.get(kEafBlock)) {
 			it.ch->battle_affects.unset(kEafBlock);
-			if (!it.ch->IsImmortal() && it.ch->get_wait() < kBattleRound)
+			if (!IS_IMMORTAL(it.ch) && it.ch->get_wait() < kBattleRound)
 				SetWaitState(it.ch, 1 * kBattleRound);
 		}
 
@@ -1869,7 +1869,7 @@ void process_player_attack(CharData *ch, int min_init) {
 			ch->SetCast(ESpell::kUndefined, ESpell::kUndefined, 0, 0, 0);
 		} else {
 			CastSpell(ch, ch->GetCastChar(), ch->GetCastObj(), 0, ch->GetCastSpell(), ch->GetCastSubst());
-			if (!(ch->IsImmortal() || GET_GOD_FLAG(ch, EGf::kGodsLike) || ch->get_wait() > 0)) {
+			if (!(IS_IMMORTAL(ch) || (IS_SET(ch->player_specials->saved.GodsLike, EGf::kGodsLike)) || ch->get_wait() > 0)) {
 				SetWaitState(ch, kBattleRound);
 			}
 			ch->SetCast(ESpell::kUndefined, ESpell::kUndefined, 0, 0, 0);
@@ -1899,7 +1899,7 @@ void process_player_attack(CharData *ch, int min_init) {
 	//**** удар основным оружием или рукой
 	if (ch->battle_affects.get(kEafFirst)) {
 		if (!IS_SET(trigger_code, kNoRightHandAttack) && !AFF_FLAGGED(ch, EAffect::kStopRight)
-			&& (ch->IsImmortal() || GET_GOD_FLAG(ch, EGf::kGodsLike) || !ch->battle_affects.get(kEafUsedright))) {
+			&& (IS_IMMORTAL(ch) || (IS_SET(ch->player_specials->saved.GodsLike, EGf::kGodsLike)) || !ch->battle_affects.get(kEafUsedright))) {
 			//Знаю, выглядит страшно, но зато в hit()
 			//можно будет узнать применялось ли оглушить
 			//или молотить, по баттл-аффекту узнать получиться
@@ -1914,10 +1914,10 @@ void process_player_attack(CharData *ch, int min_init) {
 			ProcessExtrahits(ch, ch->GetEnemy(), tmpSkilltype, fight::AttackType::kMainHand);
 		}
 // допатака двуручем
-		if (!IS_SET(trigger_code, kNoExtraAttack) && GET_EQ(ch, EEquipPos::kBoths) 
+		if (!IS_SET(trigger_code, kNoExtraAttack) && ch->equipment[EEquipPos::kBoths] 
 			&& CanUseFeat(ch, EFeat::kTwohandsFocus)
 			&& CanUseFeat(ch, EFeat::kSlashMaster)
-			&& (static_cast<ESkill>(GET_EQ(ch, EEquipPos::kBoths)->get_spec_param()) == ESkill::kTwohands)) {
+			&& (static_cast<ESkill>(ch->equipment[EEquipPos::kBoths]->get_spec_param()) == ESkill::kTwohands)) {
 			if (ch->GetSkill(ESkill::kTwohands) > (number(1, 500)))
 				hit(ch, ch->GetEnemy(), ESkill::kUndefined, fight::AttackType::kMainHand);
 		}
@@ -1929,26 +1929,26 @@ void process_player_attack(CharData *ch, int min_init) {
 		}
 	}
 	//**** удар вторым оружием если оно есть и умение позволяет
-	if (!IS_SET(trigger_code, kNoLeftHandAttack) && GET_EQ(ch, EEquipPos::kHold)
-		&& GET_EQ(ch, EEquipPos::kHold)->get_type() == EObjType::kWeapon
+	if (!IS_SET(trigger_code, kNoLeftHandAttack) && ch->equipment[EEquipPos::kHold]
+		&& ch->equipment[EEquipPos::kHold]->get_type() == EObjType::kWeapon
 		&& ch->battle_affects.get(kEafSecond)
 		&& !AFF_FLAGGED(ch, EAffect::kStopLeft)
-		&& (ch->IsImmortal()
-			|| GET_GOD_FLAG(ch, EGf::kGodsLike)
+		&& (IS_IMMORTAL(ch)
+			|| (IS_SET(ch->player_specials->saved.GodsLike, EGf::kGodsLike))
 			|| ch->GetSkill(ESkill::kSideAttack) > number(1, 101))) {
-		if (ch->IsImmortal()
-			|| GET_GOD_FLAG(ch, EGf::kGodsLike)
+		if (IS_IMMORTAL(ch)
+			|| (IS_SET(ch->player_specials->saved.GodsLike, EGf::kGodsLike))
 			|| !ch->battle_affects.get(kEafUsedleft)) {
 			ProcessExtrahits(ch, ch->GetEnemy(), ESkill::kUndefined, fight::AttackType::kOffHand);
 		}
 		ch->battle_affects.unset(kEafSecond);
 	}
 		//**** удар второй рукой если она свободна и умение позволяет
-	else if (!IS_SET(trigger_code, kNoLeftHandAttack) && !GET_EQ(ch, EEquipPos::kHold)
-		&& !GET_EQ(ch, EEquipPos::kLight) && !GET_EQ(ch, EEquipPos::kShield) && !GET_EQ(ch, EEquipPos::kBoths)
+	else if (!IS_SET(trigger_code, kNoLeftHandAttack) && !ch->equipment[EEquipPos::kHold]
+		&& !ch->equipment[EEquipPos::kLight] && !ch->equipment[EEquipPos::kShield] && !ch->equipment[EEquipPos::kBoths]
 		&& !AFF_FLAGGED(ch, EAffect::kStopLeft) && ch->battle_affects.get(kEafSecond)
 		&& ch->GetSkill(ESkill::kLeftHit)) {
-		if (ch->IsImmortal() || !ch->battle_affects.get(kEafUsedleft)) {
+		if (IS_IMMORTAL(ch) || !ch->battle_affects.get(kEafUsedleft)) {
 			ProcessExtrahits(ch, ch->GetEnemy(), ESkill::kUndefined, fight::AttackType::kOffHand);
 		}
 		ch->battle_affects.unset(kEafSecond);
@@ -2059,7 +2059,7 @@ void perform_violence() {
 
 		int initiative = calc_initiative(it.ch, true);
 		if (initiative > 100) { //откуда больше 100??????
-			log("initiative calc: %s (%d) == %d", GET_NAME(it.ch), GET_MOB_VNUM(it.ch), initiative);
+			log("initiative calc: %s (%d) == %d", it.ch->get_name().c_str(), GET_MOB_VNUM(it.ch), initiative);
 		}
 		initiative = std::clamp(initiative, -100, 100);
 		if (initiative == 0) {
@@ -2324,10 +2324,10 @@ ObjData *GetUsedWeapon(CharData *ch, fight::AttackType AttackType) {
 	ObjData *UsedWeapon = nullptr;
 
 	if (AttackType == fight::AttackType::kMainHand) {
-		if (!(UsedWeapon = GET_EQ(ch, EEquipPos::kWield)))
-			UsedWeapon = GET_EQ(ch, EEquipPos::kBoths);
+		if (!(UsedWeapon = ch->equipment[EEquipPos::kWield]))
+			UsedWeapon = ch->equipment[EEquipPos::kBoths];
 	} else if (AttackType == fight::AttackType::kOffHand)
-		UsedWeapon = GET_EQ(ch, EEquipPos::kHold);
+		UsedWeapon = ch->equipment[EEquipPos::kHold];
 
 	return UsedWeapon;
 }

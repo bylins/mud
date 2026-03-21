@@ -79,7 +79,7 @@ void DoSign(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				std::shared_ptr<custom_label> label(new custom_label());
 				label->text_label = str_dup(labels);
 				label->author = ch->get_uid();
-				label->author_mail = str_dup(GET_EMAIL(ch));
+				label->author_mail = str_dup(ch->player_specials->saved.EMail);
 
 				const char *msg = "Вы покрыли $o3 каракулями, которые никто кроме вас не разберет.";
 				if (clan && ch->player_specials->clan) {

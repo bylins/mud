@@ -463,9 +463,9 @@ bool BanList::UnbanIp(std::string Ip, CharData *ch) {
 	if (i != ban_list_.end()) {
 		SendMsgToChar("Site unbanned.\r\n", ch);
 		sprintf(buf, "%s removed the %s-player ban on %s.",
-				GET_NAME(ch), ban_types[(*i)->BanType], (*i)->BannedIp.c_str());
+				ch->get_name().c_str(), ban_types[(*i)->BanType], (*i)->BannedIp.c_str());
 		mudlog(buf, BRF, std::max(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
-		imm_log("%s removed the %s-player ban on %s.", GET_NAME(ch),
+		imm_log("%s removed the %s-player ban on %s.", ch->get_name().c_str(),
 				ban_types[(*i)->BanType], (*i)->BannedIp.c_str());
 		ban_list_.erase(i);
 		SaveIp();
@@ -481,9 +481,9 @@ bool BanList::UnbanProxy(std::string ProxyIp, CharData *ch) {
 
 	if (i != proxy_ban_list_.end()) {
 		SendMsgToChar("Proxy unbanned.\r\n", ch);
-		sprintf(buf, "%s removed the proxy ban on %s.", GET_NAME(ch), (*i)->BannedIp.c_str());
+		sprintf(buf, "%s removed the proxy ban on %s.", ch->get_name().c_str(), (*i)->BannedIp.c_str());
 		mudlog(buf, BRF, std::max(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
-		imm_log("%s removed the proxy ban on %s.", GET_NAME(ch), (*i)->BannedIp.c_str());
+		imm_log("%s removed the proxy ban on %s.", ch->get_name().c_str(), (*i)->BannedIp.c_str());
 		proxy_ban_list_.erase(i);
 		SaveProxy();
 		return true;

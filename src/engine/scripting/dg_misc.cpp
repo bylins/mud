@@ -75,8 +75,8 @@ int find_dg_cast_target(ESpell spell_id, const char *t, CharData *ch, CharData *
 		if (MUD::Spell(spell_id).AllowTarget(kTarObjEquip)) {
 			int i;
 			for (i = 0; i < EEquipPos::kNumEquipPos; i++) {
-				if (GET_EQ(ch, i) && isname(t, GET_EQ(ch, i)->get_aliases())) {
-					*tobj = GET_EQ(ch, i);
+				if (ch->equipment[i] && isname(t, ch->equipment[i]->get_aliases())) {
+					*tobj = ch->equipment[i];
 					return true;
 				}
 			}
@@ -219,13 +219,13 @@ void do_dg_cast(void *go, Trigger *trig, int type, char *cmd) {
 			snprintf(buf2, kMaxStringLength, "dg_cast: victim (%s) not found, аргумент: %s", arg + 1, argument.c_str());
 			trig_log(trig, buf2);
 		} else if (kNowhere == caster->in_room) {
-			sprintf(buf2, "dg_cast: caster (%s) in kNowhere", GET_NAME(caster));
+			sprintf(buf2, "dg_cast: caster (%s) in kNowhere", caster->get_name().c_str());
 			trig_log(trig, buf2);
 		} else if (tch->in_room != caster->in_room) {
 			sprintf(buf2,
 					"dg_cast: caster (%s) and victim (%s) в разных клетках комнат",
-					GET_NAME(caster),
-					GET_NAME(tch));
+					caster->get_name().c_str(),
+					tch->get_name().c_str());
 			trig_log(trig, buf2);
 		} else {
 			target = 1;

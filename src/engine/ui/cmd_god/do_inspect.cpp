@@ -491,7 +491,7 @@ class InspectRequestAll : public InspectRequest {
 
 InspectRequestAll::InspectRequestAll(const CharData *author, const std::vector<std::string> &args)
 	: InspectRequest(author, args) {
-	if (!author->IsGrGod()) {
+	if (!IS_GRGOD(author)) {
 		SendMsgToChar("Вы не столь божественны, как вам кажется.\r\n", author);
 		status_ = kFinished;
 		return;
@@ -513,7 +513,7 @@ void InspectRequestAll::NoteVictimInfo(const CharData::shared_ptr &vict) {
 												  GetRequestText(),
 												  kColorNrm));
 	vict_uid_ = vict->get_uid();
-	for (const auto &logon : LOGON_LIST(vict)) {
+	for (const auto &logon : vict->player_specials->logons) {
 		if (!logon.ip.empty() && !kIgnoredIpChecklist.contains(logon.ip)) {
 			victim_ip_log_.insert(logon.ip);
 		}

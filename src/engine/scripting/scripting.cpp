@@ -183,12 +183,12 @@ class CharacterWrapper : public Wrapper<CharacterData> {
 
 	bool is_immortal() {
 		Ensurer ch(*this);
-		return ch->IsImmortal();
+		return IS_IMMORTAL(ch);
 	}
 
 	bool is_impl() {
 		Ensurer ch(*this);
-		return ch->IsImpl();
+		return IS_IMPL(ch);
 	}
 
 	bool is_NPC() {
@@ -428,7 +428,7 @@ class CharacterWrapper : public Wrapper<CharacterData> {
 
 	const char *get_email() const {
 		Ensurer ch(*this);
-		return GET_EMAIL(ch);
+		return ch->player_specials->saved.EMail;
 	}
 
 	const object get_pad(const int v) const {
@@ -517,12 +517,12 @@ class CharacterWrapper : public Wrapper<CharacterData> {
 
 	ubyte get_spell(int spell_num) const {
 		Ensurer ch(*this);
-		return GET_SPELL_TYPE(ch, spell_num);
+		return ch->real_abils.SplKnw[to_underlying(spell_num)];
 	}
 
 	void set_spell(int spell_num, ubyte value) {
 		Ensurer ch(*this);
-		GET_SPELL_TYPE(ch, spell_num) = value;
+		ch->real_abils.SplKnw[to_underlying(spell_num)] = value;
 	}
 
 	void interpret(char *command) {
@@ -576,7 +576,7 @@ class CharacterWrapper : public Wrapper<CharacterData> {
 		Ensurer vict(*this);
 		vict->set_hit(vict->get_real_max_hit());
 		vict->set_move(vict->get_real_max_move());
-		if (IS_MANA_CASTER(vict)) {
+		if (vict->IsManaCaster()) {
 			vict->mem_queue.stored = GET_MAX_MANA(vict);
 		} else {
 			vict->mem_queue.stored = vict->mem_queue.total;
@@ -615,7 +615,7 @@ class CharacterWrapper : public Wrapper<CharacterData> {
 
 	std::string clan_status() {
 		Ensurer ch(*this);
-		return GET_CLAN_STATUS(ch);
+		return ch->player_specials->clanStatus;
 	}
 
 	bool set_password_wrapped(const std::string &/* name*/, const std::string &/* password*/) {

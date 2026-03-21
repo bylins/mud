@@ -1583,15 +1583,15 @@ CharData YamlWorldDataSource::ParseMobFile(const std::string &file_path)
 	}
 
 	// Base parameters
-	GET_ALIGNMENT(&mob) = GetInt(root, "alignment", 0);
+	&mob->char_specials.saved.alignment = GetInt(root, "alignment", 0);
 
 	// Stats
 	YAML::Node stats = root["stats"];
 	if (stats)
 	{
 		mob.set_level(GetInt(stats, "level", 1));
-		GET_HR(&mob) = GetInt(stats, "hitroll_penalty", 20);
-		GET_AC(&mob) = GetInt(stats, "armor", 100);
+		&mob->real_abils.hitroll = GetInt(stats, "hitroll_penalty", 20);
+		&mob->real_abils.armor = GetInt(stats, "armor", 100);
 
 		YAML::Node hp = stats["hp"];
 		if (hp)
@@ -1644,9 +1644,9 @@ CharData YamlWorldDataSource::ParseMobFile(const std::string &file_path)
 	mob.player_data.Race = static_cast<ENpcRace>(GetInt(root, "race", ENpcRace::kBasic));
 
 	// Physical attributes
-	GET_SIZE(&mob) = GetInt(root, "size", 0);
-	GET_HEIGHT(&mob) = GetInt(root, "height", 0);
-	GET_WEIGHT(&mob) = GetInt(root, "weight", 0);
+	&mob->real_abils.size = GetInt(root, "size", 0);
+	&mob->player_data.height = GetInt(root, "height", 0);
+	&mob->player_data.weight = GetInt(root, "weight", 0);
 
 	// E-spec attributes - set defaults, then override
 	mob.set_str(11);
@@ -3259,7 +3259,7 @@ void YamlWorldDataSource::SaveMobs(int zone_rnum, int specific_vnum)
 
 		// Alignment
 		yaml.Key("alignment");
-		yaml.Value(GET_ALIGNMENT(&mob));
+		yaml.Value(&mob->char_specials.saved.alignment);
 
 		// Stats
 		yaml.Key("stats");
@@ -3270,10 +3270,10 @@ void YamlWorldDataSource::SaveMobs(int zone_rnum, int specific_vnum)
 		yaml.Value(mob.GetLevel());
 
 		yaml.Key("hitroll_penalty");
-		yaml.Value(GET_HR(&mob));
+		yaml.Value(&mob->real_abils.hitroll);
 
 		yaml.Key("armor");
-		yaml.Value(GET_AC(&mob));
+		yaml.Value(&mob->real_abils.armor);
 
 		// HP
 		yaml.Key("hp");
@@ -3347,13 +3347,13 @@ void YamlWorldDataSource::SaveMobs(int zone_rnum, int specific_vnum)
 
 		// Size, height, weight
 		yaml.Key("size");
-		yaml.Value(GET_SIZE(&mob));
+		yaml.Value(&mob->real_abils.size);
 
 		yaml.Key("height");
-		yaml.Value(static_cast<int>(GET_HEIGHT(&mob)));  // ubyte Б├▓ int
+		yaml.Value(static_cast<int>(&mob->player_data.height));  // ubyte Б├▓ int
 
 		yaml.Key("weight");
-		yaml.Value(static_cast<int>(GET_WEIGHT(&mob)));  // ubyte Б├▓ int
+		yaml.Value(static_cast<int>(&mob->player_data.weight));  // ubyte Б├▓ int
 
 		// Attributes (only if set)
 		if (mob.get_str() > 0)

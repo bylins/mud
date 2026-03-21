@@ -180,11 +180,15 @@ const int kSecsPerRealMin = 60;
 constexpr int kSecsPerRealHour = 60*kSecsPerRealMin;
 constexpr int kSecsPerRealDay = 24*kSecsPerRealHour;
 
+#define IS_IMMORTAL(ch)     (!(ch)->IsNpc() && (ch)->GetLevel() >= kLvlImmortal)
+#define IS_GOD(ch)          (!(ch)->IsNpc() && (ch)->GetLevel() >= kLvlGod)
+#define IS_GRGOD(ch)        (!(ch)->IsNpc() && (ch)->GetLevel() >= kLvlGreatGod)
+#define IS_IMPL(ch)         (!(ch)->IsNpc() && (ch)->GetLevel() >= kLvlImplementator)
 
-#define IS_SHOPKEEPER(ch) (((ch)->IsNpc()) && mob_index[ch->get_rnum()].func == shop_ext)
-#define IS_RENTKEEPER(ch) (((ch)->IsNpc()) && mob_index[ch->get_rnum()].func == receptionist)
-#define IS_POSTKEEPER(ch) (((ch)->IsNpc()) && mob_index[ch->get_rnum()].func == postmaster)
-#define IS_BANKKEEPER(ch) (((ch)->IsNpc()) && mob_index[ch->get_rnum()].func == bank)
+#define IS_SHOPKEEPER(ch) (IS_MOB(ch) && mob_index[GET_MOB_RNUM(ch)].func == shop_ext)
+#define IS_RENTKEEPER(ch) (IS_MOB(ch) && mob_index[GET_MOB_RNUM(ch)].func == receptionist)
+#define IS_POSTKEEPER(ch) (IS_MOB(ch) && mob_index[GET_MOB_RNUM(ch)].func == postmaster)
+#define IS_BANKKEEPER(ch) (IS_MOB(ch) && mob_index[GET_MOB_RNUM(ch)].func == bank)
 
 // string utils *********************************************************
 
@@ -324,6 +328,7 @@ inline void TOGGLE_BIT(T &var, const Bitvector bit) {
 #define NPC_FLAGS(ch)  ((ch)->mob_specials.npc_flags)
 #define EXTRA_FLAGS(ch) ((ch)->Temporary)
 
+#define IS_MOB(ch)          ((ch)->IsNpc() && (ch)->get_rnum() >= 0)
 
 #define NPC_FLAGGED(ch, flag)   (NPC_FLAGS(ch).get(flag))
 #define EXTRA_FLAGGED(ch, flag) (EXTRA_FLAGS(ch).get(flag))
@@ -341,183 +346,57 @@ inline void TOGGLE_BIT(T &var, const Bitvector bit) {
 #define GET_ROOM_SPEC(room) (VALID_RNUM(room) ? world[(room)]->func : nullptr)
 
 // char utils ***********************************************************
-#define IS_MANA_CASTER(ch) ((ch)->GetClass() == ECharClass::kMagus)
-#define GET_REAL_AGE(ch) (CalcCharAge((ch))->year + GET_AGE_ADD(ch))
-#define GET_PC_NAME(ch) ((ch)->GetCharAliases().c_str())
-#define GET_NAME(ch)    ((ch)->get_name().c_str())
-#define GET_MAX_MANA(ch)      (mana[MIN(50, GetRealWis(ch))])
-#define GET_MEM_CURRENT(ch)   ((ch)->mem_queue.Empty() ? 0 : CalcSpellManacost(ch, (ch)->mem_queue.queue->spell_id))
 
-#define GET_EMAIL(ch)          ((ch)->player_specials->saved.EMail)
-#define GET_LASTIP(ch)         ((ch)->player_specials->saved.LastIP)
-#define GET_GOD_FLAG(ch, flag)  (IS_SET((ch)->player_specials->saved.GodsLike, flag))
-#define SET_GOD_FLAG(ch, flag)  (SET_BIT((ch)->player_specials->saved.GodsLike, flag))
-#define CLR_GOD_FLAG(ch, flag)  (REMOVE_BIT((ch)->player_specials->saved.GodsLike, flag))
-#define LAST_LOGON(ch)         ((ch)->get_last_logon())
-#define LAST_EXCHANGE(ch)         ((ch)->get_last_exchange())
-#define NAME_GOD(ch)  ((ch)->player_specials->saved.NameGod)
-#define NAME_ID_GOD(ch)  ((ch)->player_specials->saved.NameIDGod)
-
-#define STRING_LENGTH(ch)  ((ch)->player_specials->saved.stringLength)
-#define STRING_WIDTH(ch)  ((ch)->player_specials->saved.stringWidth)
-#define NOTIFY_EXCH_PRICE(ch)  ((ch)->player_specials->saved.ntfyExchangePrice)
-
-#define POSI(val)      (((val) < 50) ? (((val) > 0) ? (val) : 1) : 50)
+inline int POSI(int val) {
+	return (val < 50) ? ((val > 0) ? val : 1) : 50;
+}
 
 template<typename T>
 inline T VPOSI(const T val, const T min, const T max) {
 	return ((val < max) ? ((val > min) ? val : min) : max);
 }
 
-#define GET_KIN(ch)     ((ch)->player_data.Kin)
-#define GET_HEIGHT(ch)  ((ch)->player_data.height)
-#define GET_HEIGHT_ADD(ch) ((ch)->add_abils.height_add)
-#define GET_REAL_HEIGHT(ch) (GET_HEIGHT(ch) + GET_HEIGHT_ADD(ch))
-#define GET_WEIGHT(ch)  ((ch)->player_data.weight)
-#define GET_WEIGHT_ADD(ch) ((ch)->add_abils.weight_add)
-#define GET_REAL_WEIGHT(ch) (GET_WEIGHT(ch) + GET_WEIGHT_ADD(ch))
+int GET_REAL_AGE(CharData *ch);
+int GET_REAL_SIZE(CharData *ch);
+int GET_POS_SIZE(CharData *ch);
+int GET_REAL_HR(CharData *ch);
 
-#define GET_RELIGION(ch) ((ch)->player_data.Religion)
-#define GET_RACE(ch) ((ch)->player_data.Race)
-#define GET_PAD(ch, i)    ((ch)->player_data.PNames[i].c_str())
-#define GET_DRUNK_STATE(ch) ((ch)->player_specials->saved.DrunkState)
+#define GET_MAX_MANA(ch)      (mana[std::min(50, GetRealWis(ch))])
+#define GET_MEM_CURRENT(ch)   ((ch)->mem_queue.Empty() ? 0 : CalcSpellManacost(ch, (ch)->mem_queue.queue->spell_id))
 
-#define GET_STR_ADD(ch) ((ch)->get_str_add())
-#define GET_CON_ADD(ch) ((ch)->get_con_add())
-#define GET_WIS_ADD(ch) ((ch)->get_wis_add())
-#define GET_INT_ADD(ch) ((ch)->get_int_add())
-#define GET_CHA_ADD(ch) ((ch)->get_cha_add())
-#define GET_SIZE(ch)    ((ch)->real_abils.size)
-#define GET_SIZE_ADD(ch)  ((ch)->add_abils.size_add)
-#define GET_REAL_SIZE(ch) (VPOSI(GET_SIZE(ch) + GET_SIZE_ADD(ch), 1, 100))
-#define GET_POS_SIZE(ch)  (POSI(GET_REAL_SIZE(ch) >> 1))
-#define GET_HR(ch)         ((ch)->real_abils.hitroll)
-#define GET_HR_ADD(ch)    ((ch)->add_abils.hr_add)
-#define GET_REAL_HR(ch)   (VPOSI(GET_HR(ch)+GET_HR_ADD(ch), -50, (IS_MORTIFIER(ch) ? 100 : 50)))
-#define GET_DR(ch)         ((ch)->real_abils.damroll)
-#define GET_DR_ADD(ch)    ((ch)->add_abils.dr_add)
-#define GET_AC(ch)         ((ch)->real_abils.armor)
-#define GET_AC_ADD(ch)    ((ch)->add_abils.ac_add)
-#define GET_MORALE(ch)       ((ch)->add_abils.morale)
-#define GET_INITIATIVE(ch)   ((ch)->add_abils.initiative_add)
-#define GET_POISON(ch)      ((ch)->add_abils.poison_add)
-#define GET_SKILL_REDUCE(ch)      ((ch)->add_abils.skill_reduce_add)
-#define GET_CAST_SUCCESS(ch) ((ch)->add_abils.cast_success)
-#define GET_PRAY(ch)         ((ch)->add_abils.pray_add)
-
-#define GET_MANAREG(ch)   ((ch)->add_abils.manareg)
-#define GET_ARMOUR(ch)    ((ch)->add_abils.armour)
-#define GET_ABSORBE(ch)   ((ch)->add_abils.absorb)
-#define GET_AGE_ADD(ch)   ((ch)->add_abils.age_add)
-#define GET_RESIST(ch, i)  ((ch)->add_abils.apply_resistance[i])
-#define GET_AR(ch)        ((ch)->add_abils.aresist)
-#define GET_MR(ch)        ((ch)->add_abils.mresist)
-#define GET_PR(ch)        ((ch)->add_abils.presist)
-#define GET_LIKES(ch)     ((ch)->mob_specials.like_work)
-#define IS_CARRYING_W(ch) ((ch)->char_specials.carry_weight)
-#define IS_CARRYING_N(ch) ((ch)->char_specials.carry_items)
 
 // Получение кубиков урона - работает только для мобов!
-#define GET_NDD(ch) ((ch)->mob_specials.damnodice)
-#define GET_SDD(ch) ((ch)->mob_specials.damsizedice)
 
 const int kAligEvilLess = -300;
 const int kAligGoodMore = 300;
 
-#define GET_ALIGNMENT(ch)     ((ch)->char_specials.saved.alignment)
 
 const int kNameLevel = 5;
-#define NAME_FINE(ch)          (NAME_GOD(ch)>1000)
-#define NAME_BAD(ch)           (NAME_GOD(ch)<1000 && NAME_GOD(ch))
 
-#define GET_COND(ch, i)        ((ch)->player_specials->saved.conditions[(i)])
-#define GET_LOADROOM(ch)    ((ch)->player_specials->saved.load_room)
-#define GET_WIMP_LEV(ch)    ((ch)->player_specials->saved.wimp_level)
-#define GET_BAD_PWS(ch)        ((ch)->player_specials->saved.bad_pws)
-#define POOFIN(ch)            ((ch)->player_specials->poofin)
-#define POOFOUT(ch)            ((ch)->player_specials->poofout)
-#define NORENTABLE(ch)        ((ch)->IsNpc() ? 0 : (ch)->player_specials->may_rent)
-#define AGRESSOR(ch)        ((ch)->player_specials->agressor)
-#define AGRO(ch)            ((ch)->player_specials->agro_time)
 
-#define EXCHANGE_FILTER(ch)    ((ch)->player_specials->Exchange_filter)
 
-#define GET_ALIASES(ch)        ((ch)->player_specials->aliases)
-#define GET_RSKILL(ch)        ((ch)->player_specials->rskill)
-#define GET_LOGS(ch)        ((ch)->player_specials->logs)
 
 // Punishments structs
-#define MUTE_REASON(ch)        ((ch)->player_specials->pmute.reason)
-#define DUMB_REASON(ch)        ((ch)->player_specials->pdumb.reason)
-#define HELL_REASON(ch)        ((ch)->player_specials->phell.reason)
-#define FREEZE_REASON(ch)    ((ch)->player_specials->pfreeze.reason)
-#define GCURSE_REASON(ch)    ((ch)->player_specials->pgcurse.reason)
-#define NAME_REASON(ch)        ((ch)->player_specials->pname.reason)
-#define UNREG_REASON(ch)    ((ch)->player_specials->punreg.reason)
 
-#define GET_MUTE_LEV(ch)    ((ch)->player_specials->pmute.level)
-#define GET_DUMB_LEV(ch)    ((ch)->player_specials->pdumb.level)
-#define GET_HELL_LEV(ch)    ((ch)->player_specials->phell.level)
-#define GET_FREEZE_LEV(ch)    ((ch)->player_specials->pfreeze.level)
-#define GET_GCURSE_LEV(ch)    ((ch)->player_specials->pgcurse.level)
-#define GET_NAME_LEV(ch)    ((ch)->player_specials->pname.level)
-#define GET_UNREG_LEV(ch)    ((ch)->player_specials->punreg.level)
 
-#define MUTE_GODID(ch)        ((ch)->player_specials->pmute.godid)
-#define DUMB_GODID(ch)        ((ch)->player_specials->pdumb.godid)
-#define HELL_GODID(ch)        ((ch)->player_specials->phell.godid)
-#define FREEZE_GODID(ch)    ((ch)->player_specials->pfreeze.godid)
-#define GCURSE_GODID(ch)    ((ch)->player_specials->pgcurse.godid)
-#define NAME_GODID(ch)        ((ch)->player_specials->pname.godid)
-#define UNREG_GODID(ch)        ((ch)->player_specials->punreg.godid)
 
-#define GCURSE_DURATION(ch)    ((ch)->player_specials->pgcurse.duration)
-#define MUTE_DURATION(ch)    ((ch)->player_specials->pmute.duration)
-#define DUMB_DURATION(ch)    ((ch)->player_specials->pdumb.duration)
-#define FREEZE_DURATION(ch)    ((ch)->player_specials->pfreeze.duration)
-#define HELL_DURATION(ch)    ((ch)->player_specials->phell.duration)
-#define NAME_DURATION(ch)    ((ch)->player_specials->pname.duration)
-#define UNREG_DURATION(ch)    ((ch)->player_specials->punreg.duration)
 
-#define KARMA(ch)            ((ch)->player_specials->Karma)
-#define LOGON_LIST(ch)        ((ch)->player_specials->logons)
 
-#define CLAN(ch)            ((ch)->player_specials->clan)
-#define CLAN_MEMBER(ch)        ((ch)->player_specials->clan_member)
-#define GET_CLAN_STATUS(ch)    ((ch)->player_specials->clanStatus)
 
-#define IS_SPELL_SET(ch, i, pct) (GET_SPELL_TYPE((ch), (i)) & (pct))
-#define GET_SPELL_TYPE(ch, i) ((ch)->real_abils.SplKnw[to_underlying(i)])
-#define UNSET_SPELL_TYPE(ch, i, pct) (GET_SPELL_TYPE((ch), (i)) &= ~(pct))
-#define GET_SPELL_MEM(ch, i)  ((ch)->real_abils.SplMem[to_underlying(i)])
-#define SET_SPELL_MEM(ch, i, pct) ((ch)->real_abils.SplMem[to_underlying(i)] = (pct))
+bool IS_SPELL_SET(CharData *ch, ESpell i, int pct);
+void UNSET_SPELL_TYPE(CharData *ch, ESpell i, int pct);
+void SET_SPELL_MEM(CharData *ch, ESpell i, int pct);
 
-#define GET_EQ(ch, i)      ((ch)->equipment[i])
+#define GET_MOB_SPEC(ch)   (((ch)->IsNpc() && (ch)->get_rnum() >= 0) ? mob_index[(ch)->get_rnum()].func : nullptr)
+int GET_MOB_VNUM(const CharData *mob);
 
-#define GET_MOB_SPEC(ch)   (((ch)->IsNpc()) ? mob_index[(ch)->get_rnum()].func : nullptr)
-#define GET_MOB_VNUM(mob)  (((mob)->IsNpc()) ? mob_index[(mob)->get_rnum()].vnum : -1)
+RoomRnum GET_DEST(const CharData *ch);
 
-#define GET_DEFAULT_POS(ch)   ((ch)->mob_specials.default_pos)
-#define MEMORY(ch)          ((ch)->mob_specials.memory)
-#define GET_DEST(ch)        (((ch)->mob_specials.dest_count ? \
-                              (ch)->mob_specials.dest[(ch)->mob_specials.dest_pos] : \
-                              kNowhere))
-#define GET_ACTIVITY(ch)    ((ch)->mob_specials.activity)
-#define GET_GOLD_NoDs(ch)   ((ch)->mob_specials.GoldNoDs)
-#define GET_GOLD_SiDs(ch)   ((ch)->mob_specials.GoldSiDs)
-#define GET_HORSESTATE(ch)  ((ch)->mob_specials.HorseState)
-#define GET_LASTROOM(ch)    ((ch)->mob_specials.LastRoom)
-
-#define CAN_SEE_IN_DARK(ch) \
-   (AFF_FLAGGED(ch, EAffect::kInfravision) || (!(ch)->IsNpc() && (ch)->IsFlagged(EPrf::kHolylight)))
-
-#define IS_GOOD(ch)          (GET_ALIGNMENT(ch) >= kAligGoodMore)
-#define IS_EVIL(ch)          (GET_ALIGNMENT(ch) <= kAligEvilLess)
-#define ALIGN_DELTA  10
-#define SAME_ALIGN(ch, vict)  (GET_ALIGNMENT(ch)>GET_ALIGNMENT(vict)?\
-                              (GET_ALIGNMENT(ch)-GET_ALIGNMENT(vict))<=ALIGN_DELTA:\
-                              (GET_ALIGNMENT(vict)-GET_ALIGNMENT(ch))<=ALIGN_DELTA\
-                             )
+bool CAN_SEE_IN_DARK(const CharData *ch);
+bool IS_GOOD(const CharData *ch);
+bool IS_EVIL(const CharData *ch);
+const int ALIGN_DELTA = 10;
+bool SAME_ALIGN(const CharData *ch, const CharData *vict);
 #define GET_CH_SUF_1(ch) (IS_NOSEXY(ch) ? "о" :\
                           IS_MALE(ch) ? ""  :\
                           IS_FEMALE(ch) ? "а" : "и")
@@ -576,10 +455,10 @@ const int kNameLevel = 5;
                           IS_MALE(ch) ? "ой"  :\
                           IS_FEMALE(ch) ? "ая" : "ие")
 
-#define GET_OBJ_SEX(obj) ((obj)->get_sex())
-#define IS_OBJ_NOSEXY(obj)    (GET_OBJ_SEX(obj) == EGender::kNeutral)
-#define IS_OBJ_MALE(obj)   (GET_OBJ_SEX(obj) == EGender::kMale)
-#define IS_OBJ_FEMALE(obj)    (GET_OBJ_SEX(obj) == EGender::kFemale)
+EGender GET_OBJ_SEX(const ObjData *obj);
+bool IS_OBJ_NOSEXY(const ObjData *obj);
+bool IS_OBJ_MALE(const ObjData *obj);
+bool IS_OBJ_FEMALE(const ObjData *obj);
 #define GET_OBJ_SUF_1(obj) (IS_OBJ_NOSEXY(obj) ? "о" :\
                             IS_OBJ_MALE(obj) ? ""  :\
                             IS_OBJ_FEMALE(obj) ? "а" : "и")
@@ -672,11 +551,16 @@ const int kNameLevel = 5;
          IMM_CAN_SEE_CHAR(sub, obj)))
 // End of CAN_SEE
 
-#define GET_PAD_PERS(pad) ((pad) == 5 ? "ком-то" :\
-                           (pad) == 4 ? "кем-то" :\
-                           (pad) == 3 ? "кого-то" :\
-                           (pad) == 2 ? "кому-то" :\
-                           (pad) == 1 ? "кого-то" : "кто-то")
+inline const char *GET_PAD_PERS(int pad) {
+	switch (pad) {
+		case 5: return "ком-то";
+		case 4: return "кем-то";
+		case 3: return "кого-то";
+		case 2: return "кому-то";
+		case 1: return "кого-то";
+		default: return "кто-то";
+	}
+}
 
 #define PERS(ch, vict, pad) (CAN_SEE(vict, ch) ? GET_PAD(ch,pad) : GET_PAD_PERS(pad))
 //для арены
@@ -686,11 +570,16 @@ const int kNameLevel = 5;
 #define AOBJS(obj, vict, arena) ((arena) || CAN_SEE_OBJ((vict), (obj)) ? \
                       (obj)->get_short_description().c_str() : "что-то")
 
-#define GET_PAD_OBJ(pad)  ((pad) == 5 ? "чем-то" :\
-                           (pad) == 4 ? "чем-то" :\
-                           (pad) == 3 ? "что-то" :\
-                           (pad) == 2 ? "чему-то" :\
-                           (pad) == 1 ? "чего-то" : "что-то")
+inline const char *GET_PAD_OBJ(int pad) {
+	switch (pad) {
+		case 5: return "чем-то";
+		case 4: return "чем-то";
+		case 3: return "что-то";
+		case 2: return "чему-то";
+		case 1: return "чего-то";
+		default: return "что-то";
+	}
+}
 
 //для арены
 #define AOBJN(obj, vict, pad, arena) ((arena) || CAN_SEE_OBJ((vict), (obj)) ? \
@@ -940,6 +829,7 @@ void skip_spaces(T string) {
 
 #define IS_CORPSE(obj)     ((obj)->get_type() == EObjType::kContainer && \
                GET_OBJ_VAL((obj), 3) == ObjData::CORPSE_INDICATOR)
+#define IS_MOB_CORPSE(obj) (IS_CORPSE(obj) &&  GET_OBJ_VAL((obj), 2) != -1)
 
 /// аналог sprintbitwd и производных
 /// \param bits - bitset|boost::dynamic_bitset

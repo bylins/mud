@@ -24,7 +24,7 @@ struct FilterType {
 };
 
 void DoPrintArmor(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	if (ch->IsNpc() || (!ch->IsGrGod() && !ch->IsFlagged(EPrf::kCoderinfo))) {
+	if (ch->IsNpc() || (!IS_GRGOD(ch) && !ch->IsFlagged(EPrf::kCoderinfo))) {
 		SendMsgToChar("Чаво?\r\n", ch);
 		return;
 	}

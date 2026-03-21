@@ -57,7 +57,7 @@ void do_bash(CharData *ch, CharData *vict) {
 		return;
 	}
 
-	if (ch->IsImpl() || !ch->GetEnemy()) {
+	if (IS_IMPL(ch) || !ch->GetEnemy()) {
 		go_bash(ch, vict);
 	} else if (IsHaveNoExtraAttack(ch)) {
 		if (!ch->IsNpc())
@@ -86,8 +86,8 @@ void go_bash(CharData *ch, CharData *vict) {
 		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
 		return;
 	}
-	if (!(ch->IsNpc() || GET_EQ(ch, kShield) || ch->IsImmortal() || AFF_FLAGGED(vict, EAffect::kHold)
-		|| GET_GOD_FLAG(vict, EGf::kGodscurse))) {
+	if (!(ch->IsNpc() || ch->equipment[kShield] || IS_IMMORTAL(ch) || AFF_FLAGGED(vict, EAffect::kHold)
+		|| (IS_SET(vict->player_specials->saved.GodsLike, EGf::kGodscurse)))) {
 		SendMsgToChar("Вы не можете сделать этого без щита.\r\n", ch);
 		return;
 	}
@@ -114,7 +114,7 @@ void go_bash(CharData *ch, CharData *vict) {
 
 	int damage = number(ch->GetSkill(ESkill::kBash) / 1.25, ch->GetSkill(ESkill::kBash) * 1.25);
 	bool can_shield_bash = false;
-	if (ch->GetSkill(ESkill::kShieldBash) && GET_EQ(ch, kShield) && !ch->IsFlagged(kAwake)) {
+	if (ch->GetSkill(ESkill::kShieldBash) && ch->equipment[kShield] && !ch->IsFlagged(kAwake)) {
 		can_shield_bash = true;
 	}
 	SkillRollResult result_shield_bash = MakeSkillTest(ch, ESkill::kShieldBash, vict);
@@ -135,7 +135,7 @@ void go_bash(CharData *ch, CharData *vict) {
 			affect_to_char(vict, af);
 			const auto shield_bash = ch->GetSkill(ESkill::kShieldBash);
 			const auto char_size = GET_REAL_SIZE(ch);
-			const auto shield_weight = GET_EQ(ch, EEquipPos::kShield)->get_weight();
+			const auto shield_weight = ch->equipment[EEquipPos::kShield]->get_weight();
 			const auto skill_base = (char_size * shield_weight * 1.5) / 5 + shield_bash * 3 + shield_bash * 2;
 			damage = number(ceil(skill_base / 1.25), ceil(skill_base * 1.25)) * GetRealLevel(ch) / 30;
 			if (GetRealStr(ch) < 55) {
@@ -148,10 +148,10 @@ void go_bash(CharData *ch, CharData *vict) {
 	bool success = result.success;
 	TrainSkill(ch, ESkill::kBash, success, vict);
 
-	if (AFF_FLAGGED(vict, EAffect::kHold) || GET_GOD_FLAG(vict, EGf::kGodscurse)) {
+	if (AFF_FLAGGED(vict, EAffect::kHold) || (IS_SET(vict->player_specials->saved.GodsLike, EGf::kGodscurse))) {
 		success = true;
 	}
-	if (vict->IsFlagged(EMobFlag::kNoBash) || GET_GOD_FLAG(ch, EGf::kGodscurse)) {
+	if (vict->IsFlagged(EMobFlag::kNoBash) || (IS_SET(ch->player_specials->saved.GodsLike, EGf::kGodscurse))) {
 		success = false;
 	}
 
@@ -197,7 +197,7 @@ void go_bash(CharData *ch, CharData *vict) {
 //делаем блокирование баша
 		if ((vict->battle_affects.get(kEafBlock)
 			|| (CanUseFeat(vict, EFeat::kDefender)
-				&& GET_EQ(vict, kShield)
+				&& vict->equipment[kShield]
 				&& vict->IsFlagged(EPrf::kAwake)
 				&& vict->GetSkill(ESkill::kAwake)
 				&& vict->GetSkill(ESkill::kShieldBlock)
@@ -207,7 +207,7 @@ void go_bash(CharData *ch, CharData *vict) {
 			&& !AFF_FLAGGED(vict, EAffect::kStopLeft)
 			&& vict->get_wait() <= 0
 			&& AFF_FLAGGED(vict, EAffect::kHold) == 0) {
-			if (!(GET_EQ(vict, kShield) || vict->IsNpc() || vict->IsImmortal() || GET_GOD_FLAG(vict, EGf::kGodsLike)))
+			if (!(vict->equipment[kShield] || vict->IsNpc() || IS_IMMORTAL(vict) || (IS_SET(vict->player_specials->saved.GodsLike, EGf::kGodsLike))))
 				SendMsgToChar("У вас нечем отразить атаку противника.\r\n", vict);
 			else {
 				int range, prob2;
@@ -244,7 +244,7 @@ void go_bash(CharData *ch, CharData *vict) {
 		dmg.flags.set(fight::kIgnoreBlink);
 		damage = dmg.Process(ch, vict);
 		// Сам баш:
-		if (!vict->IsImpl()) {
+		if (!IS_IMPL(vict)) {
 			if (vict->GetPosition() > EPosition::kSit) {
 				vict->SetPosition(EPosition::kSit);
 				vict->DropFromHorse();

@@ -329,12 +329,6 @@ void TriggersFile::parse_trigger(int vnum) {
 			indent_trigger(line, &indlev);
 			(*ptr)->cmd = line;
 			(*ptr)->line_num = num++;
-
-			// lowercase the command (first word) for faster comparison at runtime
-			for (auto &c : (*ptr)->cmd) {
-				if (c == ' ') break;
-				c = LOWER(c);
-			}
 			ptr = &(*ptr)->next;
 
 			std::smatch match;
@@ -1039,7 +1033,7 @@ void MobileFile::parse_mobile(const int nr) {
 	mob_proto[i].SetFlagsFromString(f1);
 	mob_proto[i].SetNpcAttribute(true); 
 	AFF_FLAGS(&mob_proto[i]).from_string(f2);
-	GET_ALIGNMENT(mob_proto + i) = t[2];
+	mob_proto + i->char_specials.saved.alignment = t[2];
 	switch (UPPER(letter)) {
 		case 'S':        // Simple monsters
 			parse_simple_mob(i, nr);
@@ -1157,8 +1151,8 @@ void MobileFile::parse_simple_mob(int i, int nr) {
 	}
 
 	mob_proto[i].set_gold(t[2], false);
-	GET_GOLD_NoDs(mob_proto + i) = t[0];
-	GET_GOLD_SiDs(mob_proto + i) = t[1];
+	mob_proto + i->mob_specials.GoldNoDs = t[0];
+	mob_proto + i->mob_specials.GoldSiDs = t[1];
 	mob_proto[i].set_exp(t[3]);
 
 	if (!get_line(file(), line)) {
@@ -1259,15 +1253,15 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 			return;
 		}
 		for (unsigned kk = 0; kk < array_string.size(); ++kk) {
-			GET_RESIST(mob_proto + i, kk) = std::clamp(atoi(array_string[kk].c_str()), kMinResistance, kMaxNpcResist);
+			mob_proto + i->add_abils.apply_resistance[kk] = std::clamp(atoi(array_string[kk].c_str()), kMinResistance, kMaxNpcResist);
 		}
 
 
 /*		заготовка парса резистов у моба при загрузке мада, чтоб в след раз не придумывать
-		if (GET_RESIST(mob_proto + i, 4) > 49 && !mob_proto[i].get_role(kBoss)) // жизнь и не боссы
+		if (mob_proto + i->add_abils.apply_resistance[4] > 49 && !mob_proto[i].get_role(kBoss)) // жизнь и не боссы
 		{
 			if (zone_table[world[&mob_proto[i]->in_room]->zone].group < 3) // в зонах 0-2 группы
-				log("RESIST LIVE num: %d Vnum: %d Level: %d Name: %s", GET_RESIST(mob_proto + i, 4), mob_index[i].vnum, GetRealLevel(&mob_proto[i]), GET_PAD(&mob_proto[i], 0));
+				log("RESIST LIVE num: %d Vnum: %d Level: %d Name: %s", mob_proto + i->add_abils.apply_resistance[4], mob_index[i].vnum, GetRealLevel(&mob_proto[i]), &mob_proto[i]->player_data.PNames[0].c_str());
 		}
 */
 	}
@@ -1432,7 +1426,7 @@ void MobileFile::interpret_espec(const char *keyword, const char *value, int i, 
 			log("SYSERROR : Unknown spell No %d for MOB #%d", t[0], nr);
 			return;
 		}
-		GET_SPELL_MEM(mob_proto + i, spell_id) += 1;
+		mob_proto + i->real_abils.SplMem[to_underlying(spell_id)] += 1;
 		(mob_proto + i)->caster_level += (MUD::Spell(spell_id).IsFlagged(NPC_CALCULATE) ? 1 : 0);
 		mob_proto[i].mob_specials.have_spell = true;
 	}

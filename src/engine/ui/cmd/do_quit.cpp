@@ -41,13 +41,13 @@ void do_quit(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		SendMsgToChar("Если вы хотите выйти из игры с потерей всех вещей, то просто наберите 'конец'.\r\n", ch);
 	} else {
 //		int loadroom = ch->in_room;
-		if (NORENTABLE(ch)) {
+		if ((ch->IsNpc() ? 0 : ch->player_specials->may_rent)) {
 			SendMsgToChar("В связи с боевыми действиями эвакуация временно прекращена.\r\n", ch);
 			return;
 		}
 		if (!GET_INVIS_LEV(ch))
 			act("$n покинул$g игру.", true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-		sprintf(buf, "%s quit the game.", GET_NAME(ch));
+		sprintf(buf, "%s quit the game.", ch->get_name().c_str());
 		mudlog(buf, NRM, std::max(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
 		SendMsgToChar("До свидания, странник... Мы ждем тебя снова!\r\n", ch);
 

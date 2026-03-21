@@ -33,7 +33,7 @@ void DoListen(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 			SendMsgToChar("Вы начали сосредоточенно прислушиваться.\r\n", ch);
 			for (i = 0; i < EDirection::kMaxDirNum; i++)
 				hear_in_direction(ch, i, 0);
-			if (!(ch->IsImmortal() || GET_GOD_FLAG(ch, EGf::kGodsLike)))
+			if (!(IS_IMMORTAL(ch) || (IS_SET(ch->player_specials->saved.GodsLike, EGf::kGodsLike))))
 				SetWaitState(ch, 1 * kBattleRound);
 		}
 	} else
@@ -76,10 +76,10 @@ void hear_in_direction(CharData *ch, int dir, int info_is) {
 			if ((probe >= percent
 				|| ((!AFF_FLAGGED(tch, EAffect::kSneak) || !AFF_FLAGGED(tch, EAffect::kHide))
 					&& (probe > percent * 2)))
-				&& (percent < 100 || ch->IsImmortal())
+				&& (percent < 100 || IS_IMMORTAL(ch))
 				&& !fight_count) {
 				if (tch->IsNpc()) {
-					if (GET_RACE(tch) == ENpcRace::kConstruct) {
+					if (tch->player_data.Race == ENpcRace::kConstruct) {
 						if (GetRealLevel(tch) < 5)
 							tmpstr += " Вы слышите чье-то тихое поскрипывание.\r\n";
 						else if (GetRealLevel(tch) < 15)

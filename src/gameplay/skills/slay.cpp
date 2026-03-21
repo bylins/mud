@@ -39,11 +39,11 @@ void go_slay(CharData *ch, CharData *vict) {
 	SkillRollResult result = MakeSkillTest(ch, ESkill::kSlay, vict);
 	bool success = result.success;
 
-	if (AFF_FLAGGED(vict, EAffect::kHold) || GET_GOD_FLAG(vict, EGf::kGodscurse)) {
+	if (AFF_FLAGGED(vict, EAffect::kHold) || (IS_SET(vict->player_specials->saved.GodsLike, EGf::kGodscurse))) {
 		success = result.success;
 	}
 
-	if (GET_GOD_FLAG(ch, EGf::kGodscurse)) {
+	if ((IS_SET(ch->player_specials->saved.GodsLike, EGf::kGodscurse))) {
 		success = !result.success;
 	}
 
@@ -103,11 +103,11 @@ void do_slay(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Вы не можете потрошить врагов и при этом осторожничать!\r\n", ch);
 		return;
 	}
-	if (!ch->IsImmortal() && !(GET_EQ(ch, EEquipPos::kWield) || GET_EQ(ch, EEquipPos::kBoths))) {
+	if (!IS_IMMORTAL(ch) && !(ch->equipment[EEquipPos::kWield] || ch->equipment[EEquipPos::kBoths])) {
 		SendMsgToChar("Для этого Вам потребуется оружие!\r\n", ch);
 		return;
 	}
-	if (!(AFF_FLAGGED(vict, EAffect::kConfused) || ch->IsImmortal())) {
+	if (!(AFF_FLAGGED(vict, EAffect::kConfused) || IS_IMMORTAL(ch))) {
 		SendMsgToChar("Это не так просто! Сначала попробуйте обескуражить противника!\r\n", ch);
 		return;
 	}
@@ -119,7 +119,7 @@ void do_slay(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	if (!check_pkill(ch, vict, arg))
 		return;
-	if (ch->IsImpl() || !ch->GetEnemy()) {
+	if (IS_IMPL(ch) || !ch->GetEnemy()) {
 		go_slay(ch, vict);
 	} else if (IsHaveNoExtraAttack(ch)) {
 		if (!ch->IsNpc())
@@ -127,4 +127,3 @@ void do_slay(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		ch->SetExtraAttack(kExtraAttackSlay, vict);
 	}
 }
-

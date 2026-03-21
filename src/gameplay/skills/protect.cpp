@@ -119,7 +119,7 @@ CharData *TryToFindProtector(CharData *victim, CharData *ch) {
 			if (protect) {
 				SendMsgToChar(vict,
 							  "Чьи-то широкие плечи помешали вам прикрыть %s.\r\n",
-							  GET_PAD(vict->get_protecting(), 3));
+							  vict->get_protecting()->player_data.PNames[3].c_str());
 				continue;
 			}
 
@@ -130,7 +130,7 @@ CharData *TryToFindProtector(CharData *victim, CharData *ch) {
 			if (vict->HasCooldown(ESkill::kProtect)) {
 				prob /= 2;
 			};
-			if (GET_GOD_FLAG(vict, EGf::kGodscurse)) {
+			if ((IS_SET(vict->player_specials->saved.GodsLike, EGf::kGodscurse))) {
 				prob = 0;
 			}
 			bool success = prob >= percent;

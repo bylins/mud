@@ -27,7 +27,7 @@ void do_identify(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Похоже, здесь этого нет.\r\n", ch);
 		return;
 	}
-	if (!ch->IsImmortal()) {
+	if (!IS_IMMORTAL(ch)) {
 		timed.skill = ESkill::kIdentify;
 		auto time = 12;
 		time = std::max(1, time);

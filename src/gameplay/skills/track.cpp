@@ -54,7 +54,7 @@ int go_track(CharData *ch, CharData *victim, const ESkill skill_no) {
 	if_sense = (skill_no == ESkill::kSense) ? 100 : 0;
 	percent = number(0, MUD::Skill(skill_no).difficulty - if_sense);
 	//current_skillpercent = GET_SKILL(ch, ESkill::kSense);
-	if ((!victim->IsNpc()) && (!ch->IsGod()) && (!ch->IsNpc())) //Если цель чар и ищет не бог
+	if ((!victim->IsNpc()) && (!IS_GOD(ch)) && (!ch->IsNpc())) //Если цель чар и ищет не бог
 	{
 		percent = MIN(99, number(0, GetRealRemort(victim)) + percent);
 	}
@@ -100,7 +100,7 @@ void do_track(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		for (track = world[ch->in_room]->track; track; track = track->next) {
 			*name = '\0';
 			if (IS_SET(track->track_info, TRACK_NPC)) {
-				strcpy(name, GET_NAME(mob_proto + track->who));
+				strcpy(name, mob_proto + track->who->get_name().c_str());
 			} else {
 				for (const auto & c : player_table) {
 					if (c.uid() == track->who) {
@@ -136,7 +136,7 @@ void do_track(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	for (track = world[ch->in_room]->track; track; track = track->next) {
 		*name = '\0';
 		if (IS_SET(track->track_info, TRACK_NPC)) {
-			strcpy(name, GET_NAME(mob_proto + track->who));
+			strcpy(name, mob_proto + track->who->get_name().c_str());
 		} else {
 			for (std::size_t c = 0; c < player_table.size(); c++) {
 				if (player_table[c].uid() == track->who) {

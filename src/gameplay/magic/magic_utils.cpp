@@ -68,7 +68,7 @@ void SaySpell(CharData *ch, ESpell spell_id, CharData *tch, ObjData *tobj) {
 		return;
 	}
 	if (ch->IsNpc()) {
-		switch (GET_RACE(ch)) {
+		switch (ch->player_data.Race) {
 			case ENpcRace::kBoggart:
 			case ENpcRace::kGhost:
 			case ENpcRace::kHuman:
@@ -110,7 +110,7 @@ void SaySpell(CharData *ch, ESpell spell_id, CharData *tch, ObjData *tobj) {
 						MUD::Spell(spell_id).GetCName(), kColorNrm);
 			SendMsgToChar(buf, ch);
 		}
-		const std::string &cast_phrase = GET_RELIGION(ch) ? cast_phrase_list->text_for_christian : cast_phrase_list->text_for_heathen;
+		const std::string &cast_phrase = ch->player_data.Religion ? cast_phrase_list->text_for_christian : cast_phrase_list->text_for_heathen;
 		if (!cast_phrase.empty()) {
 			strcpy(buf, cast_phrase.c_str());
 		}
@@ -142,7 +142,7 @@ void SaySpell(CharData *ch, ESpell spell_id, CharData *tch, ObjData *tobj) {
 			continue;
 		}
 
-		if (IS_SET(GET_SPELL_TYPE(i, spell_id), ESpellType::kKnow | ESpellType::kTemp)) {
+		if (IS_SET(i->real_abils.SplKnw[to_underlying(spell_id)], ESpellType::kKnow | ESpellType::kTemp)) {
 			perform_act(buf1, ch, tobj, tch, i);
 		} else {
 			perform_act(buf2, ch, tobj, tch, i);
@@ -154,11 +154,11 @@ void SaySpell(CharData *ch, ESpell spell_id, CharData *tch, ObjData *tobj) {
 	if (tch != nullptr && tch != ch && tch->in_room == ch->in_room && !AFF_FLAGGED(tch, EAffect::kDeafness)) {
 		if (MUD::Spell(spell_id).IsViolent()) {
 			sprintf(buf1, damagee_vict,
-					IS_SET(GET_SPELL_TYPE(tch, spell_id), ESpellType::kKnow | ESpellType::kTemp) ?
+					IS_SET(tch->real_abils.SplKnw[to_underlying(spell_id)], ESpellType::kKnow | ESpellType::kTemp) ?
 					MUD::Spell(spell_id).GetCName() : buf);
 		} else {
 			sprintf(buf1, helpee_vict,
-					IS_SET(GET_SPELL_TYPE(tch, spell_id), ESpellType::kKnow | ESpellType::kTemp) ?
+					IS_SET(tch->real_abils.SplKnw[to_underlying(spell_id)], ESpellType::kKnow | ESpellType::kTemp) ?
 					MUD::Spell(spell_id).GetCName() : buf);
 		}
 		act(buf1, false, ch, nullptr, tch, kToVict);
@@ -272,7 +272,7 @@ abilities::EAbility FixNameAndFindAbilityId(const std::string &name) {
 }
 
 bool MayCastInNomagic(CharData *caster, ESpell spell_id) {
-	if (caster->IsGrGod() || MUD::Spell(spell_id).IsFlagged(kMagWarcry)) {
+	if (IS_GRGOD(caster) || MUD::Spell(spell_id).IsFlagged(kMagWarcry)) {
 		return true;
 	}
 	if (caster->IsNpc() &&
@@ -284,7 +284,7 @@ bool MayCastInNomagic(CharData *caster, ESpell spell_id) {
 bool MayCastHere(CharData *caster, CharData *victim, ESpell spell_id) {
 	int ignore;
 
-	if (caster->IsGrGod() || !ROOM_FLAGGED(caster->in_room, ERoomFlag::kPeaceful)) {
+	if (IS_GRGOD(caster) || !ROOM_FLAGGED(caster->in_room, ERoomFlag::kPeaceful)) {
 		return true;
 	}
 
@@ -313,7 +313,7 @@ bool MayCastHere(CharData *caster, CharData *victim, ESpell spell_id) {
 					!MUD::Spell(spell_id).IsFlagged(kMagAreas);
 
 	for (const auto ch_vict : world[caster->in_room]->people) {
-		if (ch_vict->IsImmortal())
+		if (IS_IMMORTAL(ch_vict))
 			continue;
 		if (!HERE(ch_vict))
 			continue;
@@ -583,7 +583,7 @@ int CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, ESpel
 	}
 
 	if (tch && ch) {
-		if (tch->IsNpc() && ch->IsNpc() && !SAME_ALIGN(ch, tch) && !MUD::Spell(spell_id).IsViolent()) {
+		if (IS_MOB(tch) && IS_MOB(ch) && !SAME_ALIGN(ch, tch) && !MUD::Spell(spell_id).IsViolent()) {
 			return 0;
 		}
 	}
@@ -613,7 +613,7 @@ int CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, ESpel
 		return 0;
 	}
 
-	if (tch != ch && !ch->IsImmortal() && MUD::Spell(spell_id).AllowTarget(kTarSelfOnly)) {
+	if (tch != ch && !IS_IMMORTAL(ch) && MUD::Spell(spell_id).AllowTarget(kTarSelfOnly)) {
 		SendMsgToChar("Вы можете колдовать это только на себя!\r\n", ch);
 		return 0;
 	}
@@ -667,13 +667,13 @@ int CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, ESpel
 	}
 	// Комнату тут в SaySpell не обрабатываем - будет сказал "что-то"
 	SaySpell(ch, spell_id, tch, tobj);
-	if (GET_SPELL_MEM(ch, spell_subst) > 0) {
-		GET_SPELL_MEM(ch, spell_subst)--;
+	if (ch->real_abils.SplMem[to_underlying(spell_subst)] > 0) {
+		ch->real_abils.SplMem[to_underlying(spell_subst)]--;
 	} else {
-		GET_SPELL_MEM(ch, spell_subst) = 0;
+		ch->real_abils.SplMem[to_underlying(spell_subst)] = 0;
 	}
 
-	if (!ch->IsNpc() && !ch->IsImmortal() && ch->IsFlagged(EPrf::kAutomem)) {
+	if (!ch->IsNpc() && !IS_IMMORTAL(ch) && ch->IsFlagged(EPrf::kAutomem)) {
 		MemQ_remember(ch, spell_subst);
 	}
 
@@ -687,7 +687,7 @@ int CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, ESpel
 }
 
 int CalcCastSuccess(CharData *ch, CharData *victim, ESaving saving, ESpell spell_id) {
-	if (ch->IsImmortal() || GET_GOD_FLAG(ch, EGf::kGodsLike)) {
+	if (IS_IMMORTAL(ch) || (IS_SET(ch->player_specials->saved.GodsLike, EGf::kGodsLike))) {
 		return true;
 	}
 
@@ -695,7 +695,7 @@ int CalcCastSuccess(CharData *ch, CharData *victim, ESaving saving, ESpell spell
 	// \todo Svent: Это очевидно какой-то тупой костыль, но пока не буду исправлять.
 	switch (saving) {
 		case ESaving::kStability:
-			prob = wis_bonus(GetRealWis(ch), WIS_FAILS) + GET_CAST_SUCCESS(ch);
+			prob = wis_bonus(GetRealWis(ch), WIS_FAILS) + ch->add_abils.cast_success;
 			if ((IsMage(ch) && ch->in_room != kNowhere && ROOM_FLAGGED(ch->in_room, ERoomFlag::kForMages))
 				|| (IS_SORCERER(ch) && ch->in_room != kNowhere && ROOM_FLAGGED(ch->in_room, ERoomFlag::kForSorcerers))
 				|| (IS_PALADINE(ch) && ch->in_room != kNowhere && ROOM_FLAGGED(ch->in_room, ERoomFlag::kForPaladines))
@@ -713,14 +713,14 @@ int CalcCastSuccess(CharData *ch, CharData *victim, ESaving saving, ESpell spell
 	}
 
 	prob = CalcComplexSpellMod(ch, spell_id, GAPPLY_SPELL_SUCCESS, prob);
-	if (GET_GOD_FLAG(ch, EGf::kGodscurse) ||
-		(MUD::Spell(spell_id).IsViolent() && victim && GET_GOD_FLAG(victim, EGf::kGodsLike)) ||
-		(!MUD::Spell(spell_id).IsViolent() && victim && GET_GOD_FLAG(victim, EGf::kGodscurse))) {
+	if ((IS_SET(ch->player_specials->saved.GodsLike, EGf::kGodscurse)) ||
+		(MUD::Spell(spell_id).IsViolent() && victim && (IS_SET(victim->player_specials->saved.GodsLike, EGf::kGodsLike))) ||
+		(!MUD::Spell(spell_id).IsViolent() && victim && (IS_SET(victim->player_specials->saved.GodsLike, EGf::kGodscurse)))) {
 		prob -= 50;
 	}
 
-	if ((MUD::Spell(spell_id).IsViolent() && victim && GET_GOD_FLAG(victim, EGf::kGodscurse)) ||
-		(!MUD::Spell(spell_id).IsViolent() && victim && GET_GOD_FLAG(victim, EGf::kGodsLike))) {
+	if ((MUD::Spell(spell_id).IsViolent() && victim && (IS_SET(victim->player_specials->saved.GodsLike, EGf::kGodscurse))) ||
+		(!MUD::Spell(spell_id).IsViolent() && victim && (IS_SET(victim->player_specials->saved.GodsLike, EGf::kGodsLike)))) {
 		prob += 50;
 	}
 
@@ -755,7 +755,7 @@ EResist GetResistType(ESpell spell_id) {
 }
 
 int ApplyResist(CharData *ch, EResist resist_type, int value) {
-	int resistance = GET_RESIST(ch, resist_type);
+	int resistance = ch->add_abils.apply_resistance[resist_type];
 	if (resistance <= 0) {
 		return value - resistance * value / 100;
 	}

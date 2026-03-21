@@ -33,7 +33,7 @@ void do_drunkoff(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (!AFF_FLAGGED(ch, EAffect::kAbstinent) && GET_COND(ch, DRUNK) < kDrunked) {
+	if (!AFF_FLAGGED(ch, EAffect::kAbstinent) && ch->player_specials->saved.conditions[DRUNK] < kDrunked) {
 		SendMsgToChar("Не стоит делать этого на трезвую голову.\r\n", ch);
 		return;
 	}
@@ -93,7 +93,7 @@ void do_drunkoff(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			return;
 	}
 
-	amount = std::max(1, GET_WEIGHT(ch) / 50);
+	amount = std::max(1, ch->player_data.weight / 50);
 	if (amount > GET_OBJ_VAL(obj, 1)) {
 		SendMsgToChar("Вам точно не хватит этого количества для опохмела...\r\n", ch);
 		return;

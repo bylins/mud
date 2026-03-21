@@ -18,14 +18,14 @@ void add_logon_record(DescriptorData *d) {
 	// Добавляем запись в LOG_LIST
 	d->character->get_account()->add_login(std::string(d->host));
 
-	const auto logon = std::find_if(LOGON_LIST(d->character).begin(), LOGON_LIST(d->character).end(),
+	const auto logon = std::find_if(d->character->player_specials->logons.begin(), d->character->player_specials->logons.end(),
 									[&](const Logon &l) -> bool {
 									  return l.ip == d->host;
 									});
 
-	if (logon == LOGON_LIST(d->character).end()) {
+	if (logon == d->character->player_specials->logons.end()) {
 		const Logon cur_log = {d->host, 1, time(nullptr), false};
-		LOGON_LIST(d->character).push_back(cur_log);
+		d->character->player_specials->logons.push_back(cur_log);
 	} else {
 		++logon->count;
 		logon->lasttime = time(nullptr);
@@ -34,7 +34,7 @@ void add_logon_record(DescriptorData *d) {
 	int pos = d->character->get_pfilepos();
 	if (pos >= 0) {
 		player_table[pos].last_ip = d->host;
-		player_table[pos].last_logon = LAST_LOGON(d->character);
+		player_table[pos].last_logon = d->character->get_last_logon();
 	}
 }
 

@@ -39,13 +39,13 @@ void do_shops_list(CharData *ch);
 void show_apply(CharData *ch, CharData *vict) {
 	ObjData *obj = nullptr;
 	for (int i = 0; i < EEquipPos::kNumEquipPos; i++) {
-		if ((obj = GET_EQ(vict, i))) {
+		if ((obj = vict->equipment[i])) {
 			SendMsgToChar(ch, "Предмет: %s (%d)\r\n", obj->get_PName(ECase::kNom).c_str(), GET_OBJ_VNUM(obj));
 			// Update weapon applies
 			for (int j = 0; j < kMaxObjAffect; j++) {
-				if (GET_EQ(vict, i)->get_affected(j).modifier != 0) {
+				if (vict->equipment[i]->get_affected(j).modifier != 0) {
 					SendMsgToChar(ch, "Добавляет (apply): %s, модификатор: %d\r\n",
-								  apply_types[(int) GET_EQ(vict, i)->get_affected(j).location], GET_EQ(vict, i)->get_affected(j).modifier);
+								  apply_types[(int) vict->equipment[i]->get_affected(j).location], vict->equipment[i]->get_affected(j).modifier);
 				}
 			}
 		}
@@ -578,16 +578,16 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			sprinttype(to_underlying(vict->get_sex()), genders, buf + strlen(buf));
 			sprintf(buf + strlen(buf), ")&n\r\n");
 			sprintf(buf + strlen(buf), "Падежи : %s/%s/%s/%s/%s/%s\r\n",
-					GET_PAD(vict, 0), GET_PAD(vict, 1), GET_PAD(vict, 2),
-					GET_PAD(vict, 3), GET_PAD(vict, 4), GET_PAD(vict, 5));
-			if (!NAME_GOD(vict)) {
+					vict->player_data.PNames[0].c_str(), vict->player_data.PNames[1].c_str(), vict->player_data.PNames[2].c_str(),
+					vict->player_data.PNames[3].c_str(), vict->player_data.PNames[4].c_str(), vict->player_data.PNames[5].c_str());
+			if (!vict->player_specials->saved.NameGod) {
 				sprintf(buf + strlen(buf), "Имя никем не одобрено!\r\n");
-			} else if (NAME_GOD(vict) < 1000) {
-				sprintf(buf1, "%s", GetNameById(NAME_ID_GOD(vict)).c_str());
+			} else if (vict->player_specials->saved.NameGod < 1000) {
+				sprintf(buf1, "%s", GetNameById(vict->player_specials->saved.NameIDGod).c_str());
 				*buf1 = UPPER(*buf1);
 				snprintf(buf + strlen(buf), kMaxStringLength, "Имя запрещено богом %s\r\n", buf1);
 			} else {
-				sprintf(buf1, "%s", GetNameById(NAME_ID_GOD(vict)).c_str());
+				sprintf(buf1, "%s", GetNameById(vict->player_specials->saved.NameIDGod).c_str());
 				*buf1 = UPPER(*buf1);
 				snprintf(buf + strlen(buf), kMaxStringLength, "Имя одобрено богом %s\r\n", buf1);
 			}
@@ -605,8 +605,8 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					(vict->player_data.description.empty() ? "<Нет>" : vict->player_data.description.c_str()));
 			SendMsgToChar(buf, ch);
 			// Отображаем карму.
-			if (KARMA(vict)) {
-				sprintf(buf, "\r\n&WИнформация по наказаниям и поощрениям:&n\r\n%s", KARMA(vict));
+			if (vict->player_specials->Karma) {
+				sprintf(buf, "\r\n&WИнформация по наказаниям и поощрениям:&n\r\n%s", vict->player_specials->Karma);
 				SendMsgToChar(buf, ch);
 			}
 			break;
@@ -709,8 +709,8 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 						|| ch->IsFlagged(EPrf::kCoderinfo))) {
 					sprintf(buf + strlen(buf),
 							"%-10s - подслушивается %s (map %s).\r\n",
-							GET_NAME(d->snooping->character),
-							GET_PAD(d->character, 4),
+							d->snooping->character->get_name().c_str(),
+							d->character->player_data.PNames[4].c_str(),
 							d->snoop_with_map ? "on" : "off");
 				}
 			}
@@ -722,7 +722,7 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			SendMsgToChar(buf, ch);
 			i = 0;
 			for (const auto &character : character_list) {
-				if (character->IsGod() || character->IsNpc() ||
+				if (IS_GOD(character) || character->IsNpc() ||
 					character->desc != nullptr || character->in_room == kNowhere) {
 					continue;
 				}
@@ -747,38 +747,38 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					continue;
 				buf[0] = 0;
 				if (d->character->IsFlagged(EPlrFlag::kFrozen)
-					&& FREEZE_DURATION(d->character))
+					&& d->character->player_specials->pfreeze.duration)
 					sprintf(buf + strlen(buf), "Заморожен : %ld час [%s].\r\n",
-							static_cast<long>((FREEZE_DURATION(d->character) - time(nullptr)) / 3600),
-							FREEZE_REASON(d->character) ? FREEZE_REASON(d->character) : "-");
+							static_cast<long>((d->character->player_specials->pfreeze.duration - time(nullptr)) / 3600),
+							d->character->player_specials->pfreeze.reason ? d->character->player_specials->pfreeze.reason : "-");
 
 				if (d->character->IsFlagged(EPlrFlag::kMuted)
-					&& MUTE_DURATION(d->character))
+					&& d->character->player_specials->pmute.duration)
 					sprintf(buf + strlen(buf), "Будет молчать : %ld час [%s].\r\n",
-							static_cast<long>((MUTE_DURATION(d->character) - time(nullptr)) / 3600),
-							MUTE_REASON(d->character) ? MUTE_REASON(d->character) : "-");
+							static_cast<long>((d->character->player_specials->pmute.duration - time(nullptr)) / 3600),
+							d->character->player_specials->pmute.reason ? d->character->player_specials->pmute.reason : "-");
 
 				if (d->character->IsFlagged(EPlrFlag::kDumbed)
-					&& DUMB_DURATION(d->character))
+					&& d->character->player_specials->pdumb.duration)
 					sprintf(buf + strlen(buf), "Будет нем : %ld час [%s].\r\n",
-							static_cast<long>((DUMB_DURATION(d->character) - time(nullptr)) / 3600),
-							DUMB_REASON(d->character) ? DUMB_REASON(d->character) : "-");
+							static_cast<long>((d->character->player_specials->pdumb.duration - time(nullptr)) / 3600),
+							d->character->player_specials->pdumb.reason ? d->character->player_specials->pdumb.reason : "-");
 
 				if (d->character->IsFlagged(EPlrFlag::kHelled)
-					&& HELL_DURATION(d->character))
+					&& d->character->player_specials->phell.duration)
 					sprintf(buf + strlen(buf), "Будет в аду : %ld час [%s].\r\n",
-							static_cast<long>((HELL_DURATION(d->character) - time(nullptr)) / 3600),
-							HELL_REASON(d->character) ? HELL_REASON(d->character) : "-");
+							static_cast<long>((d->character->player_specials->phell.duration - time(nullptr)) / 3600),
+							d->character->player_specials->phell.reason ? d->character->player_specials->phell.reason : "-");
 
 				if (!d->character->IsFlagged(EPlrFlag::kRegistred)
-					&& UNREG_DURATION(d->character)) {
+					&& d->character->player_specials->punreg.duration) {
 					sprintf(buf + strlen(buf), "Не сможет заходить с одного IP : %ld час [%s].\r\n",
-							static_cast<long>((UNREG_DURATION(d->character) - time(nullptr)) / 3600),
-							UNREG_REASON(d->character) ? UNREG_REASON(d->character) : "-");
+							static_cast<long>((d->character->player_specials->punreg.duration - time(nullptr)) / 3600),
+							d->character->player_specials->punreg.reason ? d->character->player_specials->punreg.reason : "-");
 				}
 
 				if (buf[0]) {
-					SendMsgToChar(GET_NAME(d->character), ch);
+					SendMsgToChar(d->character->get_name().c_str(), ch);
 					SendMsgToChar("\r\n", ch);
 					SendMsgToChar(buf, ch);
 				}

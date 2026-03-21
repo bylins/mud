@@ -139,7 +139,7 @@ void CharStat::UpdateOnKill(CharData *ch, CharData *killer, ullong dec_exp) {
 		} else {
 			snprintf(buf, kMaxStringLength,
 					 "die: %s killed by %s (without master)",
-					 GET_PAD(ch, 0), GET_PAD(rkiller, 0));
+					 ch->player_data.PNames[0].c_str(), rkiller->player_data.PNames[0].c_str());
 			mudlog(buf, LGH, kLvlImmortal, SYSLOG, true);
 			rkiller = nullptr;
 		}

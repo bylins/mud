@@ -23,7 +23,7 @@ void DoRemort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	int i;
 	const char *remort_msg2 = "$n вспыхнул$g ослепительным пламенем и пропал$g!\r\n";
 
-	if (ch->IsNpc() || ch->IsImmortal()) {
+	if (ch->IsNpc() || IS_IMMORTAL(ch)) {
 		SendMsgToChar("Вам это, похоже, совсем ни к чему.\r\n", ch);
 		return;
 	}
@@ -42,7 +42,7 @@ void DoRemort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		SendMsgToChar("Достигнуто максимальное количество перевоплощений.\r\n", ch);
 		return;
 	}
-	if (NORENTABLE(ch)) {
+	if ((ch->IsNpc() ? 0 : ch->player_specials->may_rent)) {
 		SendMsgToChar("Вы не можете перевоплотиться в связи с боевыми действиями.\r\n", ch);
 		return;
 	}
@@ -55,13 +55,13 @@ void DoRemort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	int place_of_destination;
 	if (!*arg) {
 		const auto msg = fmt::format("Укажите, где вы хотите заново начать свой путь:\r\n{}",
-									 Birthplaces::ShowMenu(PlayerRace::GetRaceBirthPlaces(GET_KIN(ch), GET_RACE(ch))));
+									 Birthplaces::ShowMenu(PlayerRace::GetRaceBirthPlaces(ch->player_data.Kin, ch->player_data.Race)));
 		SendMsgToChar(msg, ch);
 		return;
 	} else {
 		place_of_destination = Birthplaces::ParseSelect(arg);
 		if (place_of_destination == kBirthplaceUndefined) {
-			place_of_destination = PlayerRace::CheckBirthPlace(GET_KIN(ch), GET_RACE(ch), arg);
+			place_of_destination = PlayerRace::CheckBirthPlace(ch->player_data.Kin, ch->player_data.Race, arg);
 			if (!Birthplaces::CheckId(place_of_destination)) {
 				SendMsgToChar("Багдад далече, выберите себе местечко среди родных осин.\r\n", ch);
 				return;
@@ -69,11 +69,11 @@ void DoRemort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		}
 	}
 
-	log("Remort %s", GET_NAME(ch));
+	log("Remort %s", ch->get_name().c_str());
 	ch->remort();
 	act(remort_msg2, false, ch, nullptr, nullptr, kToRoom);
 	ch->set_remort(ch->get_remort() + 1);
-	CLR_GOD_FLAG(ch, EGf::kRemort);
+	(REMOVE_BIT(ch->player_specials->saved.GodsLike, EGf::kRemort));
 	ch->inc_str(1);
 	ch->inc_dex(1);
 	ch->inc_con(1);
@@ -87,7 +87,7 @@ void DoRemort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	ch->affected.clear();
 // Снимаем весь стафф
 	for (i = 0; i < EEquipPos::kNumEquipPos; i++) {
-		if (GET_EQ(ch, i)) {
+		if (ch->equipment[i]) {
 			PlaceObjToInventory(UnequipChar(ch, i, CharEquipFlags()), ch);
 		}
 	}
@@ -101,17 +101,17 @@ void DoRemort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	if (ch->get_remort() >= 9 && ch->get_remort() % 3 == 0) {
 		ch->clear_skills();
 		for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
-			GET_SPELL_TYPE(ch, spell_id) = (IS_MANA_CASTER(ch) ? ESpellType::kRunes : 0);
-			GET_SPELL_MEM(ch, spell_id) = 0;
+			ch->real_abils.SplKnw[to_underlying(spell_id)] = (ch->IsManaCaster() ? ESpellType::kRunes : 0);
+			ch->real_abils.SplMem[to_underlying(spell_id)] = 0;
 		}
 	} else {
 		ch->SetSkillAfterRemort();
 		for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
-			if (IS_MANA_CASTER(ch)) {
-				GET_SPELL_TYPE(ch, spell_id) = ESpellType::kRunes;
+			if (ch->IsManaCaster()) {
+				ch->real_abils.SplKnw[to_underlying(spell_id)] = ESpellType::kRunes;
 			} else if (MUD::Class(ch->GetClass()).spells[spell_id].GetCircle() >= 8) {
-				GET_SPELL_TYPE(ch, spell_id) = ESpellType::kUnknowm;
-				GET_SPELL_MEM(ch, spell_id) = 0;
+				ch->real_abils.SplKnw[to_underlying(spell_id)] = ESpellType::kUnknowm;
+				ch->real_abils.SplMem[to_underlying(spell_id)] = 0;
 			}
 		}
 	}
@@ -122,9 +122,9 @@ void DoRemort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	ch->set_move(82);
 	ch->mem_queue.total = ch->mem_queue.stored = 0;
 	ch->set_level(0);
-	GET_WIMP_LEV(ch) = 0;
-	GET_AC(ch) = 100;
-	GET_LOADROOM(ch) = calc_loadroom(ch, place_of_destination);
+	ch->player_specials->saved.wimp_level = 0;
+	ch->real_abils.armor = 100;
+	ch->player_specials->saved.load_room = calc_loadroom(ch, place_of_destination);
 	ch->UnsetFlag(EPrf::KSummonable);
 	ch->UnsetFlag(EPrf::kAwake);
 	ch->UnsetFlag(EPrf::kPunctual);
@@ -161,7 +161,7 @@ void DoRemort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	else if (ch->IsFlagged(EPlrFlag::kFrozen))
 		load_room = r_frozen_start_room;
 	else {
-		if ((load_room = GET_LOADROOM(ch)) == kNowhere)
+		if ((load_room = ch->player_specials->saved.load_room) == kNowhere)
 			load_room = calc_loadroom(ch);
 		load_room = GetRoomRnum(load_room);
 	}

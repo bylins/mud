@@ -80,7 +80,7 @@ void PerformPunctualHit(CharData *ch, CharData *victim, HitData &hit_data) {
 					break;
 				case 7:
 				case 9:    // armor damaged else foot damaged, speed/4
-					if (GET_EQ(victim, EEquipPos::kLegs))
+					if (victim->equipment[EEquipPos::kLegs])
 						DamageEquipment(victim, EEquipPos::kLegs, 100, 100);
 					else {
 						hit_data.dam *= std::min((ch->GetSkill(ESkill::kPunctual)) / 8, 25);
@@ -163,7 +163,7 @@ void PerformPunctualHit(CharData *ch, CharData *victim, HitData &hit_data) {
 					break;
 				case 6:    // armor damaged else dam*3, waits 1d6
 					SetWaitState(victim, number(2, 6) * kBattleRound);
-					if (GET_EQ(victim, EEquipPos::kWaist))
+					if (victim->equipment[EEquipPos::kWaist])
 						DamageEquipment(victim, EEquipPos::kWaist, 100, 100);
 					else
 						hit_data.dam *= std::min((ch->GetSkill(ESkill::kPunctual)) / 7, 29);
@@ -342,43 +342,43 @@ void PerformPunctualHit(CharData *ch, CharData *victim, HitData &hit_data) {
 				case 4:    // hands damaged, weapon/shield putdown
 					to_char = "ослабило натиск $N1";
 					to_vict = "ранило вам руку";
-					if (GET_EQ(victim, EEquipPos::kBoths))
+					if (victim->equipment[EEquipPos::kBoths])
 						unequip_pos = EEquipPos::kBoths;
-					else if (GET_EQ(victim, EEquipPos::kWield))
+					else if (victim->equipment[EEquipPos::kWield])
 						unequip_pos = EEquipPos::kWield;
-					else if (GET_EQ(victim, EEquipPos::kHold))
+					else if (victim->equipment[EEquipPos::kHold])
 						unequip_pos = EEquipPos::kHold;
-					else if (GET_EQ(victim, EEquipPos::kShield))
+					else if (victim->equipment[EEquipPos::kShield])
 						unequip_pos = EEquipPos::kShield;
 					break;
 				case 5:    // hands damaged, shield damaged/weapon putdown
 					to_char = "ослабило натиск $N1";
 					to_vict = "ранило вас в руку";
-					if (GET_EQ(victim, EEquipPos::kShield))
+					if (victim->equipment[EEquipPos::kShield])
 						DamageEquipment(victim, EEquipPos::kShield, 100, 100);
-					else if (GET_EQ(victim, EEquipPos::kBoths))
+					else if (victim->equipment[EEquipPos::kBoths])
 						unequip_pos = EEquipPos::kBoths;
-					else if (GET_EQ(victim, EEquipPos::kWield))
+					else if (victim->equipment[EEquipPos::kWield])
 						unequip_pos = EEquipPos::kWield;
-					else if (GET_EQ(victim, EEquipPos::kHold))
+					else if (victim->equipment[EEquipPos::kHold])
 						unequip_pos = EEquipPos::kHold;
 					break;
 
 				case 6:    // hands damaged, HR-2, shield putdown
 					to_char = "ослабило натиск $N1";
 					to_vict = "сломало вам руку";
-					if (GET_EQ(victim, EEquipPos::kShield))
+					if (victim->equipment[EEquipPos::kShield])
 						unequip_pos = EEquipPos::kShield;
 					af[0].type = ESpell::kBattle;
 					af[0].location = EApply::kHitroll;
 					af[0].modifier = -2;
 					break;
 				case 7:    // armor damaged, hand damaged if no armour
-					if (GET_EQ(victim, EEquipPos::kArms))
+					if (victim->equipment[EEquipPos::kArms])
 						DamageEquipment(victim, EEquipPos::kArms, 100, 100);
 					else
 						DamageEquipment(victim, EEquipPos::kHands, 100, 100);
-					if (!GET_EQ(victim, EEquipPos::kArms) && !GET_EQ(victim, EEquipPos::kHands))
+					if (!victim->equipment[EEquipPos::kArms] && !victim->equipment[EEquipPos::kHands])
 						hit_data.dam *= std::min((ch->GetSkill(ESkill::kPunctual)) / 7, 29);
 					to_char = "ослабило атаку $N1";
 					to_vict = "повредило вам руку";
@@ -392,11 +392,11 @@ void PerformPunctualHit(CharData *ch, CharData *victim, HitData &hit_data) {
 					break;
 				case 9:    // weapon putdown, hands damaged, waits 1d4
 					SetWaitState(victim, number(2, 4) * kBattleRound);
-					if (GET_EQ(victim, EEquipPos::kBoths))
+					if (victim->equipment[EEquipPos::kBoths])
 						unequip_pos = EEquipPos::kBoths;
-					else if (GET_EQ(victim, EEquipPos::kWield))
+					else if (victim->equipment[EEquipPos::kWield])
 						unequip_pos = EEquipPos::kWield;
-					else if (GET_EQ(victim, EEquipPos::kHold))
+					else if (victim->equipment[EEquipPos::kHold])
 						unequip_pos = EEquipPos::kHold;
 					hit_data.dam *= std::min(ch->GetSkill(ESkill::kPunctual) / 5, 40);
 					to_char = "придержало $N3";
@@ -474,7 +474,7 @@ void PerformPunctualHit(CharData *ch, CharData *victim, HitData &hit_data) {
 
 				case 5:    // head damaged, cap putdown, waits 1, HR-2 if no cap
 					SetWaitState(victim, 2 * kBattleRound);
-					if (GET_EQ(victim, EEquipPos::kHead))
+					if (victim->equipment[EEquipPos::kHead])
 						unequip_pos = EEquipPos::kHead;
 					else {
 						af[0].type = ESpell::kBattle;
@@ -603,7 +603,7 @@ void PerformPunctualHit(CharData *ch, CharData *victim, HitData &hit_data) {
 		sprintf(buf, "&R&qМеткое попадание $n1 %s.&Q&n", to_vict);
 		act(buf, false, ch, nullptr, victim, kToVict);
 	}
-	if (unequip_pos && GET_EQ(victim, unequip_pos)) {
+	if (unequip_pos && victim->equipment[unequip_pos]) {
 		obj = UnequipChar(victim, unequip_pos, CharEquipFlags());
 		switch (unequip_pos) {
 			case 6:        //WEAR_HEAD
@@ -692,7 +692,7 @@ int CalcPunctualCritDmg(CharData *ch, CharData * /*victim*/, ObjData *wielded) {
 
 	if (wielded) {
 		wapp = (int) ((static_cast<ESkill>(wielded->get_spec_param()) == ESkill::kBows) &&
-			GET_EQ(ch, EEquipPos::kBoths)) ? wielded->get_weight() * 1 / 3 : wielded->get_weight();
+			ch->equipment[EEquipPos::kBoths]) ? wielded->get_weight() * 1 / 3 : wielded->get_weight();
 	}
 	if (wapp < 10)
 		dam_critic = RollDices(1, 6);

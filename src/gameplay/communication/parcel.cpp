@@ -267,7 +267,7 @@ void send(CharData *ch, CharData *mailman, long vict_uid, char *arg) {
 		act("$n сказал$g вам : 'Не загружай понапрасну почту!'", false, mailman, 0, ch, kToVict);
 		return;
 	}
-	if (NORENTABLE(ch)) {
+	if ((ch->IsNpc() ? 0 : ch->player_specials->may_rent)) {
 		act("$n сказал$g вам : 'Да у тебя руки по локоть в крови, проваливай!'", false, mailman, 0, ch, kToVict);
 		return;
 	}
@@ -385,12 +385,12 @@ std::string PrintSpellLocateObject(CharData *ch, ObjData *obj) {
 	for (auto i : parcel_list) {
 		for (auto k : i.second) {
 			for (auto o : k.second) {
-				if (!ch->IsGod()) {
+				if (!IS_GOD(ch)) {
 					if (number(1, 100) > (40 + std::max((GetRealInt(ch) - 25) * 2, 0))) {
 						continue;
 					}
 				}
-				if (o.obj_->has_flag(EObjFlag::kNolocate) && !ch->IsGod()) {
+				if (o.obj_->has_flag(EObjFlag::kNolocate) && !IS_GOD(ch)) {
 					continue;
 				}
 				if (obj->get_id() == o.obj_->get_id()) {
@@ -439,7 +439,7 @@ void return_money(std::string const &name, int money, bool add) {
 
 // * Экстра-описание на самой посылке при получении.
 void fill_ex_desc(CharData *ch, ObjData *obj, std::string sender) {
-	size_t size = std::max(strlen(GET_NAME(ch)), sender.size());
+	size_t size = std::max(strlen(ch->get_name().c_str()), sender.size());
 	std::stringstream out;
 	out.setf(std::ios_base::left);
 
@@ -448,7 +448,7 @@ void fill_ex_desc(CharData *ch, ObjData *obj, std::string sender) {
 		   "На табличке сбоку видны надписи:\r\n\r\n";
 	out << std::setw(size + 16) << std::setfill('-') << " " << std::setfill(' ') << "\r\n";
 	out << "| Отправитель: " << std::setw(size) << sender
-		<< " |\r\n|  Получатель: " << std::setw(size) << GET_NAME(ch) << " |\r\n";
+		<< " |\r\n|  Получатель: " << std::setw(size) << ch->get_name().c_str() << " |\r\n";
 	out << std::setw(size + 16) << std::setfill('-') << " " << std::setfill(' ') << "\r\n";
 
 	obj->set_ex_description("посылка бандероль пакет ящик parcel box case chest", out.str().c_str());
@@ -909,7 +909,7 @@ void bring_back(CharData *ch, CharData *mailman) {
 	if (!empty && money > 0) {
 		act("$n сказал$g вам : 'За экстренный возврат посылок с вас удержана половина зарезервированных кун.'",
 			false, mailman, 0, ch, kToVict);
-		std::string name = GET_NAME(ch);
+		std::string name = ch->get_name().c_str();
 		return_money(name, money / 2, RETURN_WITH_MONEY);
 		ObjSaveSync::add(ch->get_uid(), ch->get_uid(), ObjSaveSync::PARCEL_SAVE);
 	} else if (empty) {

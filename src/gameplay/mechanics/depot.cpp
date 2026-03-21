@@ -470,7 +470,7 @@ void load_chests() {
 				return;
 			}
 			if (world[ch->in_room]->vnum % 100 == 99) {
-				PlaceObjToRoom(pers_chest.get(), GET_LASTROOM(ch));
+				PlaceObjToRoom(pers_chest.get(), ch->mob_specials.LastRoom);
 			} else {
 				PlaceObjToRoom(pers_chest.get(), ch->in_room);
 			}
@@ -894,13 +894,13 @@ void show_depot(CharData *ch) {
 	if (ch->IsNpc()) return;
 
 #ifndef TEST_BUILD
-	if (ch->IsImmortal() && !ch->IsImpl()) {
+	if (IS_IMMORTAL(ch) && !IS_IMPL(ch)) {
 		SendMsgToChar("И без хранилища обойдешься...\r\n", ch);
 		return;
 	}
 #endif
 
-	if (NORENTABLE(ch)) {
+	if ((ch->IsNpc() ? 0 : ch->player_specials->may_rent)) {
 		SendMsgToChar(ch, "%sХранилище недоступно в связи с боевыми действиями.%s\r\n",
 					  kColorBoldRed, kColorNrm);
 		return;
@@ -909,7 +909,7 @@ void show_depot(CharData *ch) {
 	DepotListType::iterator it = create_depot(ch->get_uid(), ch);
 	if (it == depot_list.end()) {
 		SendMsgToChar("Ошибочка, сообщие богам...\r\n", ch);
-		log("Хранилище: UID %ld, name: %s - возвращен некорректный уид персонажа.", ch->get_uid(), GET_NAME(ch));
+		log("Хранилище: UID %ld, name: %s - возвращен некорректный уид персонажа.", ch->get_uid(), ch->get_name().c_str());
 		return;
 	}
 
@@ -938,7 +938,7 @@ void put_gold_chest(CharData *ch, const ObjData::shared_ptr &obj) {
 * FIXME с кланами копипаст.
 */
 bool can_put_chest(CharData *ch, ObjData *obj) {
-	// depot_log("can_put_chest: %s, %s", GET_NAME(ch), obj->get_PName(ECase::kNom));
+	// depot_log("can_put_chest: %s, %s", ch->get_name().c_str(), obj->get_PName(ECase::kNom));
 	if (obj->is_unrentable()
 		|| obj->has_flag(EObjFlag::kDecay)
 		|| NamedStuff::check_named(ch, obj, 0)) {
@@ -972,13 +972,13 @@ bool put_depot(CharData *ch, ObjData::shared_ptr &obj) {
 	if (ch->IsNpc()) return 0;
 
 #ifndef TEST_BUILD
-	if (ch->IsImmortal() && !ch->IsImpl()) {
+	if (IS_IMMORTAL(ch) && !IS_IMPL(ch)) {
 		SendMsgToChar("И без хранилища обойдешься...\r\n", ch);
 		return 0;
 	}
 #endif
 
-	if (NORENTABLE(ch)) {
+	if ((ch->IsNpc() ? 0 : ch->player_specials->may_rent)) {
 		SendMsgToChar(ch,
 					  "%sХранилище недоступно в связи с боевыми действиями.%s\r\n",
 					  kColorBoldRed, kColorNrm);
@@ -998,7 +998,7 @@ bool put_depot(CharData *ch, ObjData::shared_ptr &obj) {
 	DepotListType::iterator it = create_depot(ch->get_uid(), ch);
 	if (it == depot_list.end()) {
 		SendMsgToChar("Ошибочка, сообщие богам...\r\n", ch);
-		log("Хранилище: UID %ld, name: %s - возвращен некорректный уид персонажа.", ch->get_uid(), GET_NAME(ch));
+		log("Хранилище: UID %ld, name: %s - возвращен некорректный уид персонажа.", ch->get_uid(), ch->get_name().c_str());
 		return 0;
 	}
 
@@ -1021,7 +1021,7 @@ bool put_depot(CharData *ch, ObjData::shared_ptr &obj) {
 	}
 	obj = world_objects.get_by_raw_ptr(dungeons::SwapOriginalObject(obj.get()));
 	depot_log("put_depot %s %ld: %s %d %d",
-			  GET_NAME(ch), ch->get_uid(), obj->get_short_description().c_str(),
+			  ch->get_name().c_str(), ch->get_uid(), obj->get_short_description().c_str(),
 			  obj->get_unique_id(), GET_OBJ_VNUM(obj.get()));
 	it->second.pers_online.push_front(obj);
 	it->second.need_save = true;
@@ -1040,13 +1040,13 @@ void take_depot(CharData *vict, char *arg, int howmany) {
 	if (vict->IsNpc()) return;
 
 #ifndef TEST_BUILD
-	if (vict->IsImmortal() && !vict->IsImpl()) {
+	if (IS_IMMORTAL(vict) && !IS_IMPL(vict)) {
 		SendMsgToChar("И без хранилища обойдешься...\r\n", vict);
 		return;
 	}
 #endif
 
-	if (NORENTABLE(vict)) {
+	if ((vict->IsNpc() ? 0 : vict->player_specials->may_rent)) {
 		SendMsgToChar(vict, "%sХранилище недоступно в связи с боевыми действиями.%s\r\n",
 					  kColorBoldRed, kColorNrm);
 		return;
@@ -1289,7 +1289,7 @@ void enter_char(CharData *ch) {
 				// есть вариант, что денег не хватит, потому что помимо хранилищ еще капает за
 				// одежду и инвентарь, а учитывать еще и их при расчетах уже как-то мутно
 				// поэтому мы просто готовы, если что, все технично спуржить при входе
-				depot_log("no money %s %ld: reset depot", GET_NAME(ch), ch->get_uid());
+				depot_log("no money %s %ld: reset depot", ch->get_name().c_str(), ch->get_uid());
 				it->second.reset();
 				// файл убьется позже при ребуте на пустом хране,
 				// даже если не будет никаких перезаписей по ходу игры
@@ -1388,7 +1388,7 @@ void reload_char(long uid, CharData *ch) {
 		}
 	}
 
-	snprintf(buf, kMaxStringLength, "Depot: %s reload items for %s.", GET_NAME(ch), it->second.name.c_str());
+	snprintf(buf, kMaxStringLength, "Depot: %s reload items for %s.", ch->get_name().c_str(), it->second.name.c_str());
 	mudlog(buf, DEF, std::max(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
 	imm_log("%s", buf);
 }
@@ -1400,12 +1400,12 @@ void reload_char(long uid, CharData *ch) {
 std::string PrintSpellLocateObject(CharData *ch, ObjData *obj) {
 	for (auto it : depot_list) {
 		for (auto obj_it : it.second.pers_online) {
-			if (!ch->IsGod()) {
+			if (!IS_GOD(ch)) {
 				if (number(1, 100) > (40 + std::max((GetRealInt(ch) - 25) * 2, 0))) {
 					continue;
 				}
 				if (obj_it->has_flag(EObjFlag::kNolocate)
-					&& !ch->IsGod()) {
+					&& !IS_GOD(ch)) {
 					continue;
 				}
 			}
@@ -1463,7 +1463,7 @@ void olc_update_from_proto(int robj_num, ObjData *olc_proto) {
 void rename_char(CharData *ch) {
 	DepotListType::iterator it = depot_list.find(ch->get_uid());
 	if (it != depot_list.end()) {
-		it->second.name = GET_NAME(ch);
+		it->second.name = ch->get_name().c_str();
 	}
 }
 
