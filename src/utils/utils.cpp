@@ -59,13 +59,7 @@ char AltToLat[] = {
 
 const char *ACTNULL = "<NULL>";
 
-int MIN(int a, int b) {
-	return (a < b ? a : b);
-}
-
-int MAX(int a, int b) {
-	return (a > b ? a : b);
-}
+// MIN/MAX removed - use std::min/std::max
 
 // Create and append to dynamic length string - Alez
 char *str_add(char *dst, const char *src) {

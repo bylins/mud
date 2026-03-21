@@ -647,7 +647,7 @@ void ObjectFile::parse_object(const int nr) {
 	tobj->set_spec_param(sparam);
 
 	tobj->set_maximum_durability(t[1]);
-	tobj->set_current_durability(MIN(t[1], t[2]));
+	tobj->set_current_durability(std::min(t[1], t[2]));
 	tobj->set_material(static_cast<EObjMaterial>(t[3]));
 
 	if (tobj->get_current_durability() > tobj->get_maximum_durability()) {
@@ -1810,7 +1810,7 @@ bool HelpFile::load_help() {
 		if ((*line == '#') && (*(line + 1) != 0)) {
 			min_level = atoi((line + 1));
 		}
-		min_level = MAX(0, MIN(min_level, kLvlImplementator));
+		min_level = std::max(0, std::min(min_level, kLvlImplementator));
 		// now, add the entry to the index with each keyword on the keyword line
 		std::string entry_str(entry);
 		scan = one_word(key, next_key);

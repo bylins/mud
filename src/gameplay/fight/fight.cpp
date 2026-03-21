@@ -1309,7 +1309,7 @@ int calc_initiative(CharData *ch, bool mode) {
 	initiative += GET_INITIATIVE(ch);
 
 	if (!ch->IsNpc()) {
-		switch (ch->GetCarryingWeight() * 10 / MAX(1, CAN_CARRY_W(ch))) {
+		switch (ch->GetCarryingWeight() * 10 / std::max(1, CAN_CARRY_W(ch))) {
 			case 10:
 			case 9:
 			case 8: initiative -= 20;
@@ -1595,7 +1595,7 @@ void using_mob_skills(CharData *ch) {
 				if (sk_num == ESkill::kBash) {
 //SendMsgToChar(caster, "Баш предфункция\r\n");
 //sprintf(buf, "%s башат предфункция\r\n",GET_NAME(caster));
-//mudlog(buf, LGH, MAX(kLevelImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
+//mudlog(buf, LGH, std::max(kLevelImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
 					if (caster->GetPosition() >= EPosition::kFight
 						|| CalcCurrentSkill(ch, ESkill::kBash, caster) > number(50, 80)) {
 						sk_use = 0;
@@ -1604,7 +1604,7 @@ void using_mob_skills(CharData *ch) {
 				} else {
 //SendMsgToChar(caster, "Подножка предфункция\r\n");
 //sprintf(buf, "%s подсекают предфункция\r\n",GET_NAME(caster));
-//                mudlog(buf, LGH, MAX(kLevelImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
+//                mudlog(buf, LGH, std::max(kLevelImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
 
 					if (caster->GetPosition() >= EPosition::kFight
 						|| CalcCurrentSkill(ch, ESkill::kChopoff, caster) > number(50, 80)) {
@@ -2064,14 +2064,14 @@ void perform_violence() {
 		initiative = std::clamp(initiative, -100, 100);
 		if (initiative == 0) {
 			it.ch->initiative = -100; //Если кубик выпал в 0 - бей последним шанс 1 из 201
-			min_init = MIN(min_init, -100);
+			min_init = std::min(min_init, -100);
 		} else {
 			it.ch->initiative = initiative;
 		}
 
 		it.ch->battle_affects.set(kEafFirst);
-		max_init = MAX(max_init, initiative);
-		min_init = MIN(min_init, initiative);
+		max_init = std::max(max_init, initiative);
+		min_init = std::min(min_init, initiative);
 	}
 	int size = 0;
 	//* обработка раунда по очередности инициативы

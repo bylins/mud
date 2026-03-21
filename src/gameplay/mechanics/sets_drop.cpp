@@ -641,7 +641,7 @@ int calc_drop_chance(std::list<MobNode>::iterator &mob, int obj_rnum) {
 	} else {
 		// 2.6% .. 3.4% / 38 ... 28
 /*		int mob_lvl = mob_proto[mob->rnum].get_level();
-		int lvl_mod = MIN(MAX(0, mob_lvl - MIN_SOLO_MOB_LVL), 6);
+		int lvl_mod = std::min(std::max(0, mob_lvl - MIN_SOLO_MOB_LVL), 6);
 		drop_chance = (26 + lvl_mod * 1.45) / mob->miw;
 */
 		chance = DEFAULT_SOLO_CHANCE;

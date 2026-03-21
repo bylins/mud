@@ -807,7 +807,7 @@ void do_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 						  GET_PAD(vict, 2), amount, get_glory(vict->get_uid()));
 			// запись в карму, логи
 			sprintf(buf, "(GC) %s sets +%d const glory to %s.", GET_NAME(ch), amount, GET_NAME(vict));
-			mudlog(buf, NRM, MAX(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
+			mudlog(buf, NRM, std::max(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
 			imm_log("%s", buf);
 			sprintf(buf, "Change const glory +%d by %s", amount, GET_NAME(ch));
 			AddKarma(vict, buf, reason);
@@ -824,7 +824,7 @@ void do_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 						  GET_PAD(vict, 1), amount, get_glory(vict->get_uid()));
 			// запись в карму, логи
 			sprintf(buf, "(GC) %s sets -%d const glory to %s.", GET_NAME(ch), amount, GET_NAME(vict));
-			mudlog(buf, NRM, MAX(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
+			mudlog(buf, NRM, std::max(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
 			imm_log("%s", buf);
 			sprintf(buf, "Change const glory -%d by %s", amount, GET_NAME(ch));
 			AddKarma(vict, buf, reason);
@@ -836,7 +836,7 @@ void do_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				SendMsgToChar(ch, "%s - очищена запись постоянной славы.\r\n", vict->get_name().c_str());
 				// запись в карму, логи
 				sprintf(buf, "(GC) %s reset const glory to %s.", GET_NAME(ch), GET_NAME(vict));
-				mudlog(buf, NRM, MAX(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
+				mudlog(buf, NRM, std::max(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
 				imm_log("%s", buf);
 				sprintf(buf, "Reset stats and const glory by %s", GET_NAME(ch));
 				AddKarma(vict, buf, reason);

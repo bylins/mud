@@ -1677,7 +1677,7 @@ void oedit_parse(DescriptorData *d, char *arg) {
 		case OEDIT_MAXVALUE: OLC_OBJ(d)->set_maximum_durability(atoi(arg));
 			break;
 
-		case OEDIT_CURVALUE: OLC_OBJ(d)->set_current_durability(MIN(OLC_OBJ(d)->get_maximum_durability(), atoi(arg)));
+		case OEDIT_CURVALUE: OLC_OBJ(d)->set_current_durability(std::min(OLC_OBJ(d)->get_maximum_durability(), atoi(arg)));
 			break;
 
 		case OEDIT_SEXVALUE:
@@ -1908,7 +1908,7 @@ void oedit_parse(DescriptorData *d, char *arg) {
 			}
 			if (need_break)
 				break;
-			OLC_OBJ(d)->set_val(2, MAX(min_val, MIN(number, max_val)));
+			OLC_OBJ(d)->set_val(2, std::max(min_val, std::min(number, max_val)));
 			OLC_VAL(d) = 1;
 			oedit_disp_val4_menu(d);
 			return;
@@ -1946,7 +1946,7 @@ void oedit_parse(DescriptorData *d, char *arg) {
 				default:
 					break;
 			}
-			OLC_OBJ(d)->set_val(3, MAX(min_val, MIN(number, max_val)));
+			OLC_OBJ(d)->set_val(3, std::max(min_val, std::min(number, max_val)));
 			break;
 
 		case OEDIT_AFFECTS: number = planebit(arg, &plane, &bit);

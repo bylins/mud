@@ -180,7 +180,7 @@ int CalcDrinkAmount(CharData *ch, ObjData *jar, int subcmd) {
 	} else {
 		V = 999.0;
 	}
-	amount = MIN(amount, round(V + 0.49999));
+	amount = std::min(amount, round(V + 0.49999));
 
 	if (subcmd != kScmdDrink) // пьем прямо, не глотаем, не пробуем
 	{

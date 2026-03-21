@@ -895,7 +895,7 @@ int shop_node::can_sell_count(const int item_index) const {
 
 		if (numToSell != -1) {
 			numToSell -=
-				MIN(numToSell, obj_proto.actual_count(rnum));    //считаем не только онлайн, но и то что в ренте
+				std::min(numToSell, obj_proto.actual_count(rnum));    //считаем не только онлайн, но и то что в ренте
 		}
 
 		return numToSell;
@@ -1060,7 +1060,7 @@ void shop_node::do_shop_cmd(CharData *ch, CharData *keeper, ObjData *obj, std::s
 			case EObjMaterial::kBronze:
 			case EObjMaterial::kCeramic:
 			case EObjMaterial::kBone:
-			case EObjMaterial::kOrganic: repair_price += MAX(1, repair_price / 2);
+			case EObjMaterial::kOrganic: repair_price += std::max(1, repair_price / 2);
 				break;
 
 			case EObjMaterial::kIron:

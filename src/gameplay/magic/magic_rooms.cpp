@@ -404,7 +404,7 @@ int CallMagicToRoom(int/* level*/, CharData *ch, RoomData *room, ESpell spell_id
 			if (IS_MANA_CASTER(ch)) {
 				af[0].modifier = 95;
 			} else {
-				af[0].modifier = MIN(100, GetRealInt(ch) + MAX((GetRealInt(ch) - 30) * 4, 0));
+				af[0].modifier = std::min(100, GetRealInt(ch) + std::max((GetRealInt(ch) - 30) * 4, 0));
 			}
 			if (af[0].modifier > 99) {
 				to_char = "Вы запечатали магией все входы.";

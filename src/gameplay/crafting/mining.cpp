@@ -254,7 +254,7 @@ void do_dig(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 	// возможность копать мощные камни зависит от навыка
-	random_stone = number(1, MIN(prob, 100));
+	random_stone = number(1, std::min(prob, 100));
 	if (random_stone >= dig_vars.stone9_skill)
 		stone_num = 9;
 	else if (random_stone >= dig_vars.stone8_skill)

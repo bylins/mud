@@ -3760,7 +3760,7 @@ int Clan::ChestTax() {
 		}
 	}
 	this->chest_objcount = count;
-	this->chest_discount = MAX(50, 75 - 5 * (this->clan_level));
+	this->chest_discount = std::max(50, 75 - 5 * (this->clan_level));
 	return cost * this->chest_discount / 100;
 }
 
@@ -4038,8 +4038,8 @@ int Clan::print_spell_locate_object(CharData *ch, int count, std::string name) {
 		for (auto chest : world[GetRoomRnum((*clan)->chest_room)]->contents) {
 			if (Clan::is_clan_chest(chest)) {
 				for (temp = chest->get_contains(); temp; temp = temp->get_next_content()) {
-					if (!ch->IsGod()) {
-						if (number(1, 100) > (40 + MAX((GetRealInt(ch) - 25) * 2, 0))) {
+					if (!IS_GOD(ch)) {
+						if (number(1, 100) > (40 + std::max((GetRealInt(ch) - 25) * 2, 0))) {
 							continue;
 						}
 						if (temp->has_flag(EObjFlag::kNolocate)) {
@@ -4474,7 +4474,7 @@ void Clan::disable_ingr_chest(CharData *ch) {
 }
 
 int Clan::ingr_chest_max_objects() {
-	return 600 * MAX(1, this->clan_level) + this->last_exp.get_exp() / 10000000;
+	return 600 * std::max(1, this->clan_level) + this->last_exp.get_exp() / 10000000;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

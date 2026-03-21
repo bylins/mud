@@ -40,7 +40,7 @@ void DoZreset(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 		}
 		SendMsgToChar("Перезагружаю мир.\r\n", ch);
 		sprintf(buf, "(GC) %s reset entire world.", GET_NAME(ch));
-		mudlog(buf, NRM, MAX(kLvlGreatGod, GET_INVIS_LEV(ch)), SYSLOG, true);
+		mudlog(buf, NRM, std::max(kLvlGreatGod, GET_INVIS_LEV(ch)), SYSLOG, true);
 		imm_log("%s reset entire world.", GET_NAME(ch));
 		return;
 	} else if (*arg == '.') {
@@ -57,7 +57,7 @@ void DoZreset(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 		DecayObjectsOnRepop(zone_repop_list);
 		ResetZone(i);
 		sprintf(buf, "(GC) %s reset zone %d (%s), delta %f", GET_NAME(ch), i, zone_table[i].name.c_str(), timer.delta().count());
-		mudlog(buf, NRM, MAX(kLvlGreatGod, GET_INVIS_LEV(ch)), SYSLOG, true);
+		mudlog(buf, NRM, std::max(kLvlGreatGod, GET_INVIS_LEV(ch)), SYSLOG, true);
 		imm_log("%s reset zone %d (%s)", GET_NAME(ch), i, zone_table[i].name.c_str());
 	} else {
 		SendMsgToChar("Нет такой зоны.\r\n", ch);

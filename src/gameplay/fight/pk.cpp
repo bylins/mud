@@ -101,7 +101,7 @@ int pk_calc_spamm(CharData *ch) {
 			for (pkg = pk->next; pkg && spamPK; pkg = pkg->next) {
 				long j = GetPtableByUnique(pkg->unique);
 				// Cчитаем убийства со временем больше TIME_PK_GROUP (5 секунд) и чаров с разных мыл
-				spamPK = !(MAX(pk->kill_at, pkg->kill_at) - MIN(pk->kill_at, pkg->kill_at) <= TIME_PK_GROUP
+				spamPK = !(std::max(pk->kill_at, pkg->kill_at) - std::min(pk->kill_at, pkg->kill_at) <= TIME_PK_GROUP
 					|| player_table[i].mail == player_table[j].mail);
 			}
 			if (spamPK) {
@@ -208,7 +208,7 @@ void pk_update_revenge(CharData *agressor, CharData *victim, int attime, int ren
 	}
 	pk->battle_exp = time(nullptr) + attime * 60;
 	if (!group::same_group(agressor, victim)) {
-		agressor->player_specials->may_rent = MAX(NORENTABLE(agressor), time(nullptr) + renttime * 60);
+		agressor->player_specials->may_rent = std::max(NORENTABLE(agressor), time(nullptr) + renttime * 60);
 	}
 	return;
 }
@@ -250,7 +250,7 @@ void pk_increment_kill(CharData *agressor, CharData *victim, int rent, bool flag
 		pk_check_spamm(agressor);
 	}
 
-	AGRO(agressor) = MAX(AGRO(agressor), time(nullptr) + KILLER_UNRENTABLE * 60);
+	AGRO(agressor) = std::max(AGRO(agressor), time(nullptr) + KILLER_UNRENTABLE * 60);
 	agressor->agrobd = true;
 	pk_update_revenge(agressor, victim, BATTLE_DURATION, rent ? KILLER_UNRENTABLE : 0);
 	pk_update_revenge(victim, agressor, BATTLE_DURATION, rent ? REVENGE_UNRENTABLE : 0);
@@ -491,7 +491,7 @@ void pk_thiefs_action(CharData *thief, CharData *victim) {
 			else
 				act("$N продлил$G право на ваш отстрел!", false, thief, 0, victim, kToChar);
 			pk->thief_exp = time(nullptr) + THIEF_UNRENTABLE * 60;
-			thief->player_specials->may_rent = MAX(NORENTABLE(thief), time(nullptr) + THIEF_UNRENTABLE * 60);
+			thief->player_specials->may_rent = std::max(NORENTABLE(thief), time(nullptr) + THIEF_UNRENTABLE * 60);
 			break;
 	}
 	return;
@@ -1025,8 +1025,8 @@ bool has_clan_members_in_group(CharData *ch) {
 }
 
 void pkPortal(CharData *ch) {
-	AGRO(ch) = MAX(AGRO(ch), time(nullptr) + PENTAGRAM_TIME * 60);
-	ch->player_specials->may_rent = MAX(NORENTABLE(ch), time(nullptr) + PENTAGRAM_TIME * 60);
+	AGRO(ch) = std::max(AGRO(ch), time(nullptr) + PENTAGRAM_TIME * 60);
+	ch->player_specials->may_rent = std::max(NORENTABLE(ch), time(nullptr) + PENTAGRAM_TIME * 60);
 }
 
 BloodyInfoMap &bloody_map = GlobalObjects::bloody_map();
@@ -1105,8 +1105,8 @@ bool bloody::handle_transfer(CharData *ch, CharData *victim, ObjData *obj, ObjDa
 			{
 				return false;
 			}
-			AGRO(victim) = MAX(AGRO(victim), KILLER_UNRENTABLE * 60 + it->second.kill_at);
-			victim->player_specials->may_rent = MAX(NORENTABLE(victim), KILLER_UNRENTABLE * 60 + it->second.kill_at);
+			AGRO(victim) = std::max(AGRO(victim), KILLER_UNRENTABLE * 60 + it->second.kill_at);
+			victim->player_specials->may_rent = std::max(NORENTABLE(victim), KILLER_UNRENTABLE * 60 + it->second.kill_at);
 			result = true;
 		} else if (ch
 			&& container

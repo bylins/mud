@@ -170,7 +170,7 @@ void SpellCreateWater(int/* level*/, CharData *ch, CharData *victim, ObjData *ob
 	int water;
 	if (ch == nullptr || (obj == nullptr && victim == nullptr))
 		return;
-	// level = MAX(MIN(level, kLevelImplementator), 1);       - not used
+	// level = std::max(std::min(level, kLevelImplementator), 1);       - not used
 
 	if (obj
 		&& obj->get_type() == EObjType::kLiquidContainer) {
@@ -1920,9 +1920,9 @@ void mort_show_char_values(CharData *victim, CharData *ch, int fullness) {
 	sprintf(buf, "Уровень : %d, может выдержать повреждений : %d(%d), ", val0, val1, val2);
 	SendMsgToChar(buf, ch);
 	SendMsgToChar(ch, "Перевоплощений : %d\r\n", GetRealRemort(victim));
-	val0 = MIN(GET_AR(victim), 100);
-	val1 = MIN(GET_MR(victim), 100);
-	val2 = MIN(GET_PR(victim), 100);
+	val0 = std::min(GET_AR(victim), 100);
+	val1 = std::min(GET_MR(victim), 100);
+	val2 = std::min(GET_PR(victim), 100);
 	sprintf(buf,
 			"Защита от чар : %d, Защита от магических повреждений : %d, Защита от физических повреждений : %d\r\n",
 			val0,

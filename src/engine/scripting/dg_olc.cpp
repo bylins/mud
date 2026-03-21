@@ -234,7 +234,7 @@ void trigedit_parse(DescriptorData *d, char *arg) {
 				case 'y': trigedit_save(d);
 					sprintf(buf, "OLC: %s edits trigger %d", GET_NAME(d->character), OLC_NUM(d));
 					olc_log("%s end trig %d", GET_NAME(d->character), OLC_NUM(d));
-					mudlog(buf, NRM, MAX(kLvlBuilder, GET_INVIS_LEV(d->character)), SYSLOG, true);
+					mudlog(buf, NRM, std::max(kLvlBuilder, GET_INVIS_LEV(d->character)), SYSLOG, true);
 					// fall through
 
 				case 'n': cleanup_olc(d, CLEANUP_ALL);
@@ -494,7 +494,7 @@ void trigedit_save(DescriptorData *d) {
 	// Save trigger to disk using data source abstraction (YAML/SQLite/Legacy)
 	TriggerDistribution(d);
 	zone = zone_table[OLC_ZNUM(d)].vnum;
-	int notify_level = MAX(kLvlBuilder, GET_INVIS_LEV(d->character));
+	int notify_level = std::max(kLvlBuilder, GET_INVIS_LEV(d->character));
 
 	auto* data_source = world_loader::WorldDataSourceManager::Instance().GetDataSource();
 	if (!data_source->SaveTriggers(OLC_ZNUM(d), OLC_NUM(d), notify_level)) {

@@ -169,9 +169,9 @@ int go_sense(CharData *ch, CharData *victim) {
 	int percent, dir, skill = CalcCurrentSkill(ch, ESkill::kSense, victim);
 
 	skill = skill
-		- MAX(1, (GetRealRemort(victim) - GetRealRemort(ch)) * 5); // разница в ремортах *5 вычитается из текущего умения
-	skill = skill - MAX(1, (GetRealLevel(victim) - GetRealLevel(ch)) * 5);
-	skill = MAX(0, skill);
+		- std::max(1, (GetRealRemort(victim) - GetRealRemort(ch)) * 5); // разница в ремортах *5 вычитается из текущего умения
+	skill = skill - std::max(1, (GetRealLevel(victim) - GetRealLevel(ch)) * 5);
+	skill = std::max(0, skill);
 	percent = number(0, MUD::Skill(ESkill::kSense).difficulty);
 	if (percent > skill) {
 		int tries = 10;

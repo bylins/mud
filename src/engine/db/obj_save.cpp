@@ -1141,7 +1141,7 @@ void Crash_reload_timer(int index) {
 
 	if (!ReadCrashTimerFile(index, false)) {
 		sprintf(buf, "SYSERR: Unable to read timer file for %s.", player_table[index].name().c_str());
-		mudlog(buf, BRF, MAX(kLvlImmortal, kLvlGod), SYSLOG, true);
+		mudlog(buf, BRF, std::max(kLvlImmortal, kLvlGod), SYSLOG, true);
 	}
 }
 
@@ -1247,7 +1247,7 @@ void Crash_timer_obj(const std::size_t index, long time) {
 	if (idelete) {
 		if (!Crash_write_timer(index)) {
 			sprintf(buf, "SYSERR: [TO] Error writing timer file for %s.", name.c_str());
-			mudlog(buf, CMP, MAX(kLvlImmortal, kLvlGod), SYSLOG, true);
+			mudlog(buf, CMP, std::max(kLvlImmortal, kLvlGod), SYSLOG, true);
 		}
 	}
 }
@@ -1288,7 +1288,7 @@ void Crash_list_objects(CharData *ch, int index) {
 			int tmr = data.timer;
 			auto obj = obj_proto[rnum];
 			if (!(stable_objs::IsTimerUnlimited(obj.get()) || obj->has_flag(EObjFlag::kNoRentTimer))) {
-				tmr = MAX(-1, data.timer - timer_dec);
+				tmr = std::max(-1, data.timer - timer_dec);
 			}
 			ss << fmt::format(" [{:>7}] ({:>5}au) <{:>6}> {:<20}\r\n",
 					data.vnum, obj->get_rent_off(), tmr, obj->get_short_description().c_str());
@@ -1355,7 +1355,7 @@ int Crash_load(CharData *ch) {
 
 	if (!SAVEINFO(index)) {
 		sprintf(buf, "%s entering game with no equipment.", GET_NAME(ch));
-		mudlog(buf, NRM, MAX(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
+		mudlog(buf, NRM, std::max(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
 		return (1);
 	}
 
@@ -1371,7 +1371,7 @@ int Crash_load(CharData *ch) {
 		case RENT_TIMEDOUT: sprintf(buf, "%s retrieving auto-saved items and entering game.", GET_NAME(ch));
 			break;
 		default: sprintf(buf, "SYSERR: %s entering game with undefined rent code %d.", GET_NAME(ch), RENTCODE(index));
-			mudlog(buf, BRF, MAX(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
+			mudlog(buf, BRF, std::max(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
 			SendMsgToChar("\r\n** Неизвестный код ренты **\r\n"
 						  "Проблемы с восстановлением ваших вещей из файла.\r\n"
 						  "Обращайтесь за помощью к Богам.\r\n", ch);
@@ -1379,14 +1379,14 @@ int Crash_load(CharData *ch) {
 			return (1);
 			break;
 	}
-	mudlog(buf, NRM, MAX(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
+	mudlog(buf, NRM, std::max(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
 
 	//Деньги за постой
 	num_of_days = (float) (time(0) - SAVEINFO(index)->rent.time) / kSecsPerRealDay;
 	sprintf(buf, "%s was %1.2f days in rent.", GET_NAME(ch), num_of_days);
-	mudlog(buf, LGH, MAX(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
+	mudlog(buf, LGH, std::max(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
 	cost = (int) (SAVEINFO(index)->rent.net_cost_per_diem * num_of_days);
-	cost = MAX(0, cost);
+	cost = std::max(0, cost);
 	// added by WorM (Видолюб) 2010.06.04 сумма потраченная на найм(возвращается при креше)
 	if (RENTCODE(index) == RENT_CRASH) {
 		if (!ch->IsImmortal() && CanUseFeat(ch, EFeat::kEmployer) && ch->player_specials->saved.HiredCost != 0) {
@@ -1404,7 +1404,7 @@ int Crash_load(CharData *ch) {
 		sprintf(buf, "%s** На сей раз постой был бесплатным **%s\r\n", kColorWht, kColorNrm);
 		SendMsgToChar(buf, ch);
 		sprintf(buf, "%s entering game, free crashrent.", GET_NAME(ch));
-		mudlog(buf, NRM, MAX(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
+		mudlog(buf, NRM, std::max(kLvlImmortal, GET_INVIS_LEV(ch)), SYSLOG, true);
 	} else if (cost > ch->get_gold() + ch->get_bank()) {
 		sprintf(buf, "%sВы находились на постое %1.2f дней.\n\r"
 					 "%s"
@@ -1422,7 +1422,7 @@ int Crash_load(CharData *ch) {
 				GetDeclensionInNumber(ch->get_gold() + ch->get_bank(), EWhat::kMoneyA), kColorNrm);
 		SendMsgToChar(buf, ch);
 		sprintf(buf, "%s: rented equipment lost (no $).", GET_NAME(ch));
-		mudlog(buf, LGH, MAX(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
+		mudlog(buf, LGH, std::max(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
 		ch->set_bank(0);
 		ch->set_gold(0);
 		ClearCrashSavedObjects(index);
@@ -1747,7 +1747,7 @@ int Crash_calculate_rent(ObjData *obj) {
 	int cost = 0;
 	for (; obj; obj = obj->get_next_content()) {
 		cost += Crash_calculate_rent(obj->get_contains());
-		cost += MAX(0, obj->get_rent_off());
+		cost += std::max(0, obj->get_rent_off());
 	}
 	return (cost);
 }
@@ -1756,7 +1756,7 @@ int Crash_calculate_rent_eq(ObjData *obj) {
 	int cost = 0;
 	for (; obj; obj = obj->get_next_content()) {
 		cost += Crash_calculate_rent(obj->get_contains());
-		cost += MAX(0, obj->get_rent_on());
+		cost += std::max(0, obj->get_rent_on());
 	}
 	return (cost);
 }
@@ -1807,7 +1807,7 @@ void Crash_save(std::stringstream &write_buffer, int iplayer, ObjData *obj, int 
 		if (obj->get_in_obj()) {
 			obj->get_in_obj()->sub_weight(obj->get_weight());
 		}
-		Crash_save(write_buffer, iplayer, obj->get_contains(), MIN(0, location) - 1, savetype);
+		Crash_save(write_buffer, iplayer, obj->get_contains(), std::min(0, location) - 1, savetype);
 		if (iplayer >= 0) {
 			write_one_object(write_buffer, obj, location);
 			SaveTimeInfo tmp_node;
@@ -1892,7 +1892,7 @@ int save_char_objects(CharData *ch, int savetype, int rentcost) {
 
 	// чаевые
 	if (min_rent_cost(ch) > 0) {
-		cost += MAX(0, min_rent_cost(ch));
+		cost += std::max(0, min_rent_cost(ch));
 	} else {
 		cost /= 2;
 	}
@@ -2117,7 +2117,7 @@ void Crash_report_rent(CharData *ch, CharData *recep, ObjData *obj, int *cost,
 	if (obj) {
 		if (!Crash_is_unrentable(ch, obj)) {
 			/*(*nitems)++;
-			*cost += MAX(0, ((equip ? obj->get_rent_on() : obj->get_rent_off()) * factor));
+			*cost += std::max(0, ((equip ? obj->get_rent_on() : obj->get_rent_off()) * factor));
 			if (rentshow)
 			{
 				if (*nitems == 1)
@@ -2151,7 +2151,7 @@ void Crash_report_rent(CharData *ch, CharData *recep, ObjData *obj, int *cost,
 			// - 2700 кун (900 если надеть) за красный пузырек [9]
 			for (i = obj; i; i = i->get_next_content()) {
 				(*nitems)++;
-				*cost += MAX(0, ((equip ? i->get_rent_on() : i->get_rent_off()) * factor));
+				*cost += std::max(0, ((equip ? i->get_rent_on() : i->get_rent_off()) * factor));
 				if (rentshow) {
 					if (*nitems == 1) {
 						if (!recursive) {
@@ -2278,12 +2278,12 @@ int Crash_offer_rent(CharData *ch, CharData *receptionist, int rentshow, int fac
 				(factor == RENT_FACTOR ? "в день " : ""));
 		act(buf, false, receptionist, 0, ch, kToVict);
 
-		if (MAX(0, *totalcost / divide) > ch->get_gold() + ch->get_bank()) {
+		if (std::max(0, *totalcost / divide) > ch->get_gold() + ch->get_bank()) {
 			act("\"...которых у тебя отродясь не было.\"", false, receptionist, 0, ch, kToVict);
 			return (false);
 		}
 
-		*totalcost = MAX(0, *totalcost / divide);
+		*totalcost = std::max(0, *totalcost / divide);
 		if (divide == 2) {
 			act("$n сказал$g вам : \"Так уж и быть, я скощу тебе половину.\"",
 				false, receptionist, 0, ch, kToVict);
@@ -2293,7 +2293,7 @@ int Crash_offer_rent(CharData *ch, CharData *receptionist, int rentshow, int fac
 			Crash_rent_deadline(ch, receptionist, *totalcost);
 		}
 	} else {
-		*totalcost = MAX(0, *totalcost / divide);
+		*totalcost = std::max(0, *totalcost / divide);
 	}
 	return (true);
 }
@@ -2389,7 +2389,7 @@ int gen_receptionist(CharData *ch, CharData *recep, int cmd, char * /*arg*/, int
 			ch->SetFlag(EPlrFlag::kCryo);
 		}
 
-		mudlog(buf, NRM, MAX(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
+		mudlog(buf, NRM, std::max(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
 
 		if ((save_room == r_helled_start_room)
 			|| (save_room == r_named_start_room)
@@ -2424,7 +2424,7 @@ int gen_receptionist(CharData *ch, CharData *recep, int cmd, char * /*arg*/, int
 					GET_LOADROOM(ch),
 					GET_ROOM_VNUM(save_room));
 			GET_LOADROOM(ch) = GET_ROOM_VNUM(save_room);
-			mudlog(buf, NRM, MAX(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
+			mudlog(buf, NRM, std::max(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
 			SetWaitState(ch, 1 * kBattleRound);
 			ch->save_char();
 		}

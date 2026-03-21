@@ -1001,7 +1001,7 @@ int dump(CharData *ch, void * /*me*/, int cmd, char *argument) {
 	while (!world[ch->in_room]->contents.empty()) {
 		auto k = world[ch->in_room]->contents.front();
 		act("$p рассыпал$U в прах!", false, 0, k, 0, kToRoom);
-		value += MAX(1, MIN(1, k->get_cost() / 10));
+		value += std::max(1, std::min(1, k->get_cost() / 10));
 		ExtractObjFromWorld(k);
 	}
 

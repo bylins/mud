@@ -136,21 +136,10 @@ extern const char *ACTNULL;
 #define MIN_TITLE_LEV   25
 
 // undefine MAX and MIN so that our functions are used instead
-#ifdef MAX
-#undef MAX
-#endif
-
-#ifdef MIN
-#undef MIN
-#endif
-
 constexpr int kSfEmpty = 1 << 0;
 constexpr int kSfMasterdie = 1 << 2;
 constexpr int kSfCharmlost = 1 << 3;
 constexpr int kSfSilence = 1 << 4;
-
-int MAX(int a, int b);
-int MIN(int a, int b);
 
 #define KtoW(c) ((ubyte)(c) < 128 ? (c) : KoiToWin[(ubyte)(c)-128])
 #define KtoW2(c) ((ubyte)(c) < 128 ? (c) : KoiToWin2[(ubyte)(c)-128])
@@ -345,7 +334,7 @@ inline void TOGGLE_BIT(T &var, const Bitvector bit) {
 #define GET_REAL_AGE(ch) (CalcCharAge((ch))->year + GET_AGE_ADD(ch))
 #define GET_PC_NAME(ch) ((ch)->GetCharAliases().c_str())
 #define GET_NAME(ch)    ((ch)->get_name().c_str())
-#define GET_MAX_MANA(ch)      (mana[MIN(50, GetRealWis(ch))])
+#define GET_MAX_MANA(ch)      (mana[std::min(50, GetRealWis(ch))])
 #define GET_MEM_CURRENT(ch)   ((ch)->mem_queue.Empty() ? 0 : CalcSpellManacost(ch, (ch)->mem_queue.queue->spell_id))
 
 #define GET_EMAIL(ch)          ((ch)->player_specials->saved.EMail)

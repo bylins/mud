@@ -100,7 +100,7 @@ void DisplaySpells(CharData *ch, CharData *vict, bool all) {
 			time_str.clear();
 			if (IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kTemp)) {
 				time_str.append("[");
-				time_str.append(std::to_string(MAX(1,
+				time_str.append(std::to_string(std::max(1,
 						static_cast<int>(std::ceil(static_cast<double>(temporary_spells::GetSpellLeftTime(ch, spell_id))
 						/ kSecsPerMudHour)))));
 				time_str.append("]");

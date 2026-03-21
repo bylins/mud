@@ -91,7 +91,7 @@ int GaussIntNumber(double mean, double sigma, int min_val, int max_val) {
 	//округляем
 	iresult = ((dresult < mean) ? ceil(dresult) : floor(dresult));
 	//возвращаем с обрезанием по диапазону
-	return MAX(MIN(iresult, max_val), min_val);
+	return std::max(std::min(iresult, max_val), min_val);
 }
 
 

@@ -1480,7 +1480,7 @@ int perform_dupe_check(DescriptorData *d) {
 			if (str_cmp(d->host, k->host)) {
 				sprintf(buf, "ПОВТОРНЫЙ ВХОД! Id = %ld Персонаж = %s Хост = %s(был %s)",
 						d->character->get_uid(), GET_NAME(d->character), k->host, d->host);
-				mudlog(buf, BRF, MAX(kLvlImmortal, GET_INVIS_LEV(d->character)), SYSLOG, true);
+				mudlog(buf, BRF, std::max(kLvlImmortal, GET_INVIS_LEV(d->character)), SYSLOG, true);
 				//send_to_gods(buf);
 			}
 
@@ -1502,7 +1502,7 @@ int perform_dupe_check(DescriptorData *d) {
 			if (str_cmp(d->host, k->host)) {
 				sprintf(buf, "ПОВТОРНЫЙ ВХОД! Id = %ld Name = %s Host = %s(был %s)",
 						d->character->get_uid(), GET_NAME(d->character), k->host, d->host);
-				mudlog(buf, BRF, MAX(kLvlImmortal, GET_INVIS_LEV(d->character)), SYSLOG, true);
+				mudlog(buf, BRF, std::max(kLvlImmortal, GET_INVIS_LEV(d->character)), SYSLOG, true);
 				//send_to_gods(buf);
 			}
 
@@ -1582,7 +1582,7 @@ int perform_dupe_check(DescriptorData *d) {
 			act("$n восстановил$g связь.",
 				true, d->character.get(), nullptr, nullptr, kToRoom);
 			sprintf(buf, "%s [%s] has reconnected.", GET_NAME(d->character), d->host);
-			mudlog(buf, NRM, MAX(kLvlImmortal, GET_INVIS_LEV(d->character)), SYSLOG, true);
+			mudlog(buf, NRM, std::max(kLvlImmortal, GET_INVIS_LEV(d->character)), SYSLOG, true);
 			login_change_invoice(d->character.get());
 			break;
 
@@ -1591,12 +1591,12 @@ int perform_dupe_check(DescriptorData *d) {
 				"Тело $s было захвачено новым духом!",
 				true, d->character.get(), nullptr, nullptr, kToRoom);
 			sprintf(buf, "%s has re-logged in ... disconnecting old socket.", GET_NAME(d->character));
-			mudlog(buf, NRM, MAX(kLvlImmortal, GET_INVIS_LEV(d->character)), SYSLOG, true);
+			mudlog(buf, NRM, std::max(kLvlImmortal, GET_INVIS_LEV(d->character)), SYSLOG, true);
 			break;
 
 		case UNSWITCH: iosystem::write_to_output("Пересоединяемся для перевключения игрока.", d);
 			sprintf(buf, "%s [%s] has reconnected (UNSWITCH).", GET_NAME(d->character), d->host);
-			mudlog(buf, NRM, MAX(kLvlImmortal, GET_INVIS_LEV(d->character)), SYSLOG, true);
+			mudlog(buf, NRM, std::max(kLvlImmortal, GET_INVIS_LEV(d->character)), SYSLOG, true);
 			break;
 
 		default:
@@ -1686,7 +1686,7 @@ int check_dupes_host(DescriptorData *d, bool autocheck = false) {
 					"Вошел - %s, в игре - %s, IP - %s.\r\n"
 					"Игрок помещен в комнату незарегистрированных игроков.",
 					GET_NAME(d->character), GET_NAME(i->character), d->host);
-			mudlog(buf, NRM, MAX(kLvlImmortal, GET_INVIS_LEV(d->character)), SYSLOG, true);
+			mudlog(buf, NRM, std::max(kLvlImmortal, GET_INVIS_LEV(d->character)), SYSLOG, true);
 			break;
 		}
 	}

@@ -1379,7 +1379,7 @@ void zedit_parse(DescriptorData *d, char *arg) {
 					zedit_save_internally(d);
 					sprintf(buf, "OLC: %s edits zone info for room %d.", GET_NAME(d->character), OLC_NUM(d));
 					olc_log("%s edit zone %d", GET_NAME(d->character), OLC_NUM(d));
-					mudlog(buf, NRM, MAX(kLvlBuilder, GET_INVIS_LEV(d->character)), SYSLOG, true);
+					mudlog(buf, NRM, std::max(kLvlBuilder, GET_INVIS_LEV(d->character)), SYSLOG, true);
 					// FALL THROUGH
 				case 'n':
 				case 'N':
@@ -2026,9 +2026,9 @@ void zedit_parse(DescriptorData *d, char *arg) {
 		case ZEDIT_ZONE_TOP:
 			// * Parse and add new top room in zone and return to main menu.
 			if (OLC_ZNUM(d) == static_cast<ZoneRnum>(zone_table.size()) - 1) {
-				OLC_ZONE(d)->top = MAX(OLC_ZNUM(d) * 100, MIN(99900, atoi(arg)));
+				OLC_ZONE(d)->top = std::max(OLC_ZNUM(d) * 100, std::min(99900, atoi(arg)));
 			} else {
-				OLC_ZONE(d)->top = MAX(OLC_ZNUM(d) * 100, MIN(zone_table[OLC_ZNUM(d) + 1].vnum * 100, atoi(arg)));
+				OLC_ZONE(d)->top = std::max(OLC_ZNUM(d) * 100, std::min(zone_table[OLC_ZNUM(d) + 1].vnum * 100, atoi(arg)));
 			}
 
 			OLC_ZONE(d)->top = (OLC_ZONE(d)->top / 100) * 100 + 99;

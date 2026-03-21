@@ -1168,7 +1168,7 @@ void im_improve_recipe(CharData *ch, im_rskill *rs, int success) {
 		else
 			prob += (10 * diff);
 		prob += number(1, rs->perc * 5);
-		if (number(1, MAX(1, prob)) <= GetRealInt(ch)) {
+		if (number(1, std::max(1, prob)) <= GetRealInt(ch)) {
 			if (success)
 				sprintf(buf,
 						"%sВы постигли тонкости приготовления рецепта \"%s\".%s\r\n",
@@ -1179,8 +1179,8 @@ void im_improve_recipe(CharData *ch, im_rskill *rs, int success) {
 						kColorBoldCyn, imrecipes[rs->rid].name, kColorNrm);
 			SendMsgToChar(buf, ch);
 			rs->perc += number(1, 2);
-			if (!ch->IsImmortal())
-				rs->perc = MIN(kZeroRemortSkillCap + GetRealRemort(ch) * 5, rs->perc);
+			if (!IS_IMMORTAL(ch))
+				rs->perc = std::min(kZeroRemortSkillCap + GetRealRemort(ch) * 5, rs->perc);
 		}
 	}
 }
@@ -1714,7 +1714,7 @@ void AddRecipe(CharData *ch, int rid, int recipediff) {
 		return;
 
 	skill = rs->perc;
-	rs->perc = MAX(1, MIN(skill + recipediff, kMaxRecipeLevel));
+	rs->perc = std::max(1, std::min(skill + recipediff, kMaxRecipeLevel));
 
 	if (skill > rs->perc)
 		sprintf(buf, "Ваше знание рецепта '%s' понизилось.\r\n", imrecipes[rid].name);

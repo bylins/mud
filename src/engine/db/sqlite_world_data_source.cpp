@@ -1936,7 +1936,7 @@ void SqliteWorldDataSource::LoadObjects()
 		int max_dur = sqlite3_column_int(stmt, 21);
 		int cur_dur = sqlite3_column_int(stmt, 22);
 		obj->set_maximum_durability(max_dur);
-		obj->set_current_durability(std::min(max_dur, cur_dur));  // Match Legacy: MIN(max, cur)
+		obj->set_current_durability(std::min(max_dur, cur_dur));  // Match Legacy: std::min(max, cur)
 		int timer = sqlite3_column_int(stmt, 23);
 		if (timer <= 0) {
 			timer = ObjData::SEVEN_DAYS;  // Match Legacy: default timer is 7 days

@@ -1242,17 +1242,17 @@ void show_string(DescriptorData *d, char *input) {
 		// R is for refresh, so back up one page internally so we can display
 		// it again.
 	else if (LOWER(*buf) == 'r' || LOWER(*buf) == 'п') {
-		d->showstr_page = MAX(0, d->showstr_page - 1);
+		d->showstr_page = std::max(0, d->showstr_page - 1);
 	}
 		// B is for back, so back up two pages internally so we can display the
 		// correct page here.
 	else if (LOWER(*buf) == 'b' || LOWER(*buf) == 'н') {
-		d->showstr_page = MAX(0, d->showstr_page - 2);
+		d->showstr_page = std::max(0, d->showstr_page - 2);
 	}
 		// Feature to 'goto' a page.  Just type the number of the page and you
 		// are there!
 	else if (a_isdigit(*buf)) {
-		d->showstr_page = MAX(0, MIN(atoi(buf) - 1, d->showstr_count - 1));
+		d->showstr_page = std::max(0, std::min(atoi(buf) - 1, d->showstr_count - 1));
 	} else if (*buf) {
 		SendMsgToChar("Листать : <RETURN>, Q<К>онец, R<П>овтор, B<Н>азад, или номер страницы.\r\n", d->character.get());
 		return;

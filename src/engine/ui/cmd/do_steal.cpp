@@ -43,7 +43,7 @@ void go_steal(CharData *ch, CharData *vict, char *obj_name) {
 		success = 1;    // ALWAYS SUCCESS, unless heavy object.
 
 	if (!AWAKE(vict))    // Easier to steal from sleeping people.
-		percent = MAX(percent - 50, 0);
+		percent = std::max(percent - 50, 0);
 
 	// NO, NO With Imp's and Shopkeepers, and if player thieving is not allowed
 	if ((vict->IsImmortal() || GET_GOD_FLAG(vict, EGf::kGodsLike) || GET_MOB_SPEC(vict) == shop_ext)

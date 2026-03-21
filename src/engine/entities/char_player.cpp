@@ -818,7 +818,7 @@ void Player::save_char() {
 	fprintf(saved, "Expt: %llu\n", GetStatistic(CharStat::PkRemortExpLost));
 
 	// не забываем рестить ману и при сейве
-	this->set_who_mana(MIN(kWhoManaMax,
+	this->set_who_mana(std::min(kWhoManaMax,
 						   this->get_who_mana() + (time(0) - this->get_who_last()) * kWhoManaRestPerSecond));
 	fprintf(saved, "Wman: %u\n", this->get_who_mana());
 
@@ -2045,7 +2045,7 @@ void Player::add_ice_currency(int value) {
 }
 
 void Player::sub_ice_currency(int value) {
-	this->ice_currency = MAX(0, ice_currency - value);
+	this->ice_currency = std::max(0, ice_currency - value);
 }
 
 bool Player::is_arena_player() {
@@ -2211,7 +2211,7 @@ unsigned long int Player::getTelegramId() {
 }
 
 void Player::setGloryRespecTime(time_t param) {
-	this->player_specials->saved.lastGloryRespecTime = MAX(1, param);
+	this->player_specials->saved.lastGloryRespecTime = std::max(1, param);
 }
 
 time_t Player::getGloryRespecTime() {

@@ -1186,7 +1186,7 @@ int CalcCircleSlotsAmount(CharData *ch, int circle) {
 			break;
 		case ECharClass::kSorcerer:
 			if (GetRealLevel(ch) >= MIN_CL_LEVEL && circle < MAX_CL_SLOT && GetRealWis(ch) >= MIN_CL_WIS) {
-				wis_block = MIN(MAX_CL_WIS, GetRealWis(ch)) - MIN_CL_WIS;
+				wis_block = std::min(MAX_CL_WIS, GetRealWis(ch)) - MIN_CL_WIS;
 				wis_block = wis_block / CL_WIS_DIV;
 				wis_block = wis_block * (MAX_CL_LEVEL - MIN_CL_LEVEL + 1);
 				wis_line = GetRealLevel(ch) - MIN_CL_LEVEL;
@@ -1195,7 +1195,7 @@ int CalcCircleSlotsAmount(CharData *ch, int circle) {
 			break;
 		case ECharClass::kPaladine:
 			if (GetRealLevel(ch) >= MIN_PA_LEVEL && circle < MAX_PA_SLOT && GetRealWis(ch) >= MIN_PA_WIS) {
-				wis_block = MIN(MAX_PA_WIS, GetRealWis(ch)) - MIN_PA_WIS;
+				wis_block = std::min(MAX_PA_WIS, GetRealWis(ch)) - MIN_PA_WIS;
 				wis_block = wis_block / PA_WIS_DIV;
 				wis_block = wis_block * (MAX_PA_LEVEL - MIN_PA_LEVEL + 1);
 				wis_line = GetRealLevel(ch) - MIN_PA_LEVEL;

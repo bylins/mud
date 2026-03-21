@@ -342,11 +342,11 @@ void weather_change() {
 		}
 	}
 
-	weather_info.icelevel = MAX(0, MIN(100, weather_info.icelevel + icelevel));
+	weather_info.icelevel = std::max(0, std::min(100, weather_info.icelevel + icelevel));
 	if (gsnowlevel < -1 && weather_info.rainlevel < 20)
 		weather_info.rainlevel -= (gsnowlevel / 2);
-	weather_info.snowlevel = MAX(0, MIN(120, weather_info.snowlevel + gsnowlevel));
-	weather_info.rainlevel = MAX(0, MIN(80, weather_info.rainlevel + grainlevel));
+	weather_info.snowlevel = std::max(0, std::min(120, weather_info.snowlevel + gsnowlevel));
+	weather_info.rainlevel = std::max(0, std::min(80, weather_info.rainlevel + grainlevel));
 
 	profiler.next_step("Change some values for world");
 
@@ -367,11 +367,11 @@ void weather_change() {
 		else
 			world[i]->weather.duration--;
 
-		world[i]->weather.icelevel = MAX(0, MIN(100, world[i]->weather.icelevel + icelevel));
+		world[i]->weather.icelevel = std::max(0, std::min(100, world[i]->weather.icelevel + icelevel));
 		if (snowcast < -1 && world[i]->weather.rainlevel < 20)
 			world[i]->weather.rainlevel -= (snowcast / 2);
-		world[i]->weather.snowlevel = MAX(0, MIN(120, world[i]->weather.snowlevel + snowcast));
-		world[i]->weather.rainlevel = MAX(0, MIN(80, world[i]->weather.rainlevel + raincast));
+		world[i]->weather.snowlevel = std::max(0, std::min(120, world[i]->weather.snowlevel + snowcast));
+		world[i]->weather.rainlevel = std::max(0, std::min(80, world[i]->weather.rainlevel + raincast));
 	}
 	profiler.next_step("weather");
 	switch (time_info.month) {
@@ -421,13 +421,13 @@ void weather_change() {
 
 	weather_info.change += (RollDices(1, 4) * diff + RollDices(2, 6) - RollDices(2, 6));
 
-	weather_info.change = MIN(weather_info.change, 12);
-	weather_info.change = MAX(weather_info.change, -12);
+	weather_info.change = std::min(weather_info.change, 12);
+	weather_info.change = std::max(weather_info.change, -12);
 
 	weather_info.pressure += weather_info.change;
 
-	weather_info.pressure = MIN(weather_info.pressure, 1040);
-	weather_info.pressure = MAX(weather_info.pressure, 960);
+	weather_info.pressure = std::min(weather_info.pressure, 1040);
+	weather_info.pressure = std::max(weather_info.pressure, 960);
 
 	if (time_info.month == EMonth::kMay)
 		weather_info.season = ESeason::kSpring;
@@ -579,7 +579,7 @@ void weather_change() {
 		strcat(buf, "Резкое потепление.\r\n");
 		SET_BIT(cweather_type, kWeatherQuickhot);
 	}
-	weather_info.temperature = MIN(year_temp[time_info.month].max, MAX(year_temp[time_info.month].min, temp));
+	weather_info.temperature = std::min(year_temp[time_info.month].max, std::max(year_temp[time_info.month].min, temp));
 
 	if (weather_info.change >= 10 || weather_info.change <= -10) {
 		strcat(buf, "Сильный ветер.\r\n");
@@ -846,8 +846,8 @@ int CalcDaySpellMod(CharData *ch, ESpell /* spell_id */, int type, int value) {
 			break;
 		case GAPPLY_SPELL_EFFECT: break;
 	}
-	if (ch->IsImmortal() || GET_GOD_FLAG(ch, EGf::kGodsLike))
-		modi = MAX(modi, value);
+	if (IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, EGf::kGodsLike))
+		modi = std::max(modi, value);
 	return (modi);
 }
 
@@ -1027,8 +1027,8 @@ int weather_skill_modifier(CharData *ch, ESkill skillnum, int type, int value) {
 			}
 			break;
 	}
-	if (ch->IsImmortal())
-		modi = MAX(modi, value);
+	if (IS_IMMORTAL(ch))
+		modi = std::max(modi, value);
 	return (modi);
 }
 

@@ -156,14 +156,14 @@ void PrintScoreList(CharData *ch) {
 				  ch->add_abils.percent_physdam_add,
 				  ch->add_abils.percent_exp_add);
 	SendMsgToChar(ch, "Сопротивление: огню: %d, воздуху: %d, воде: %d, земле: %d, тьме: %d, живучесть: %d, разум: %d, иммунитет: %d.\r\n",
-				  MIN(GET_RESIST(ch, EResist::kFire), 75),
-				  MIN(GET_RESIST(ch, EResist::kAir), 75),
-				  MIN(GET_RESIST(ch, EResist::kWater), 75),
-				  MIN(GET_RESIST(ch, EResist::kEarth), 75),
-				  MIN(GET_RESIST(ch, EResist::kDark), 75),
-				  MIN(GET_RESIST(ch, EResist::kVitality), 75),
-				  MIN(GET_RESIST(ch, EResist::kMind), 75),
-				  MIN(GET_RESIST(ch, EResist::kImmunity), 75));
+				  std::min(GET_RESIST(ch, EResist::kFire), 75),
+				  std::min(GET_RESIST(ch, EResist::kAir), 75),
+				  std::min(GET_RESIST(ch, EResist::kWater), 75),
+				  std::min(GET_RESIST(ch, EResist::kEarth), 75),
+				  std::min(GET_RESIST(ch, EResist::kDark), 75),
+				  std::min(GET_RESIST(ch, EResist::kVitality), 75),
+				  std::min(GET_RESIST(ch, EResist::kMind), 75),
+				  std::min(GET_RESIST(ch, EResist::kImmunity), 75));
 	SendMsgToChar(ch, "Спас броски: воля: %d, здоровье: %d, стойкость: %d, реакция: %d, маг.резист: %d, физ.резист %d, отчар.резист: %d.\r\n",
 			-CalcSaving(ch, ch, ESaving::kWill, false),
 			-CalcSaving(ch, ch, ESaving::kCritical, false),

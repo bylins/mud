@@ -30,7 +30,7 @@ void do_invis(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				perform_immort_invis(ch, GetRealLevel(ch));
 		}
 	} else {
-		level = MIN(atoi(arg), kLvlImplementator);
+		level = std::min(atoi(arg), kLvlImplementator);
 		if (level > GetRealLevel(ch) && !ch->IsFlagged(EPrf::kCoderinfo))
 			SendMsgToChar("Вы не можете достичь невидимости выше вашего уровня.\r\n", ch);
 		else if (GetRealLevel(ch) < kLvlImplementator && level > kLvlImmortal && !ch->IsFlagged(EPrf::kCoderinfo))

@@ -56,7 +56,7 @@ int go_track(CharData *ch, CharData *victim, const ESkill skill_no) {
 	//current_skillpercent = GET_SKILL(ch, ESkill::kSense);
 	if ((!victim->IsNpc()) && (!ch->IsGod()) && (!ch->IsNpc())) //Если цель чар и ищет не бог
 	{
-		percent = MIN(99, number(0, GetRealRemort(victim)) + percent);
+		percent = std::min(99, number(0, GetRealRemort(victim)) + percent);
 	}
 	if (percent > CalcCurrentSkill(ch, skill_no, victim)) {
 		int tries = 10;
@@ -248,11 +248,11 @@ void do_hidetrack(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 		for (i = 0; i <= EDirection::kMaxDirNum; i++)
 			if (track[i]) {
 				if (i < EDirection::kMaxDirNum)
-					track[i]->time_outgone[Reverse[i]] <<= MIN(31, prob);
+					track[i]->time_outgone[Reverse[i]] <<= std::min(31, prob);
 				else
 					for (rdir = 0; rdir < EDirection::kMaxDirNum; rdir++) {
-						track[i]->time_income[rdir] <<= MIN(31, prob);
-						track[i]->time_outgone[rdir] <<= MIN(31, prob);
+						track[i]->time_income[rdir] <<= std::min(31, prob);
+						track[i]->time_outgone[rdir] <<= std::min(31, prob);
 					}
 				//sprintf(buf,"Заметены следы %d\r\n",i);
 				//SendMsgToChar(buf,ch);

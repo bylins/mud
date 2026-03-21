@@ -107,8 +107,8 @@ int apply_armour(CharData *ch, int eq_pos) {
 		factor *= kMobArmourMult;
 
 	// чтобы не плюсовать левую броню на стафе с текущей прочностью выше максимальной
-	int cur_dur = MIN(obj->get_maximum_durability(), obj->get_current_durability());
-	return (factor * GET_OBJ_VAL(obj, 1) * cur_dur / MAX(1, obj->get_maximum_durability()));
+	int cur_dur = std::min(obj->get_maximum_durability(), obj->get_current_durability());
+	return (factor * GET_OBJ_VAL(obj, 1) * cur_dur / std::max(1, obj->get_maximum_durability()));
 }
 
 ///
@@ -330,13 +330,13 @@ void player_affect_update() {
 							}
 						}
 						if (IS_SET(affect->battleflag, kAfPulsedec))
-							affect->duration -= MIN(affect->duration, kSecsPerPlayerAffect * kPassesPerSec);
+							affect->duration -= std::min(affect->duration, kSecsPerPlayerAffect * kPassesPerSec);
 						else
 							affect->duration--;
 						profile.sections[static_cast<std::size_t>(Section::kDominationAdjust)] += domination_timer.delta().count();
 					} else {
 						if (IS_SET(affect->battleflag, kAfPulsedec))
-							affect->duration -= MIN(affect->duration, kSecsPerPlayerAffect * kPassesPerSec);
+							affect->duration -= std::min(affect->duration, kSecsPerPlayerAffect * kPassesPerSec);
 						else
 							affect->duration--;
 					}

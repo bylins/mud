@@ -53,7 +53,7 @@ void DoWizutil(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 													: vict->SetFlag(EPlrFlag::kNoTitle);
 				result = vict->IsFlagged(EPlrFlag::kNoTitle);
 				sprintf(buf, "(GC) Notitle %s for %s by %s.", (result ? "ON" : "OFF"), GET_NAME(vict), GET_NAME(ch));
-				mudlog(buf, NRM, MAX(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
+				mudlog(buf, NRM, std::max(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
 				imm_log("Notitle %s for %s by %s.", (result ? "ON" : "OFF"), GET_NAME(vict), GET_NAME(ch));
 				strcat(buf, "\r\n");
 				SendMsgToChar(buf, ch);

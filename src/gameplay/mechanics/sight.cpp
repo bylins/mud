@@ -200,7 +200,7 @@ void look_at_room(CharData *ch, int ignore_brief, bool msdp_mode) {
 
 	// now list characters & objects
 	if (world[ch->in_room]->fires) {
-		sprintf(buf, "%sВ центре %s.%s\r\n", kColorRed, Fires[MIN(world[ch->in_room]->fires, MAX_FIRES - 1)], kColorNrm);
+		sprintf(buf, "%sВ центре %s.%s\r\n", kColorRed, Fires[std::min(world[ch->in_room]->fires, MAX_FIRES - 1)], kColorNrm);
 		SendMsgToChar(buf, ch);
 	}
 	if (room_spells::IsRoomAffected(world[ch->in_room], ESpell::kPortalTimer)) {

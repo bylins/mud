@@ -118,7 +118,7 @@ void GloryNode::copy_stat(const GloryTimePtr& k) {
 	if (spend_glory < MAX_STATS_BY_GLORY) {
 		GloryTimePtr tmp_node(new glory_time);
 		*tmp_node = *k;
-		tmp_node->glory = MIN(k->glory, MAX_STATS_BY_GLORY - spend_glory);
+		tmp_node->glory = std::min(k->glory, MAX_STATS_BY_GLORY - spend_glory);
 		spend_glory += tmp_node->glory;
 		timers.push_back(tmp_node);
 	}
@@ -702,7 +702,7 @@ void spend_glory_menu(CharData *ch) {
 		out << "    (" << (ch->desc->glory->olc_add_cha > 0 ? "+" : "") << ch->desc->glory->olc_add_cha << ")";
 	out << "\r\n\r\n"
 		<< "  Можно добавить: "
-		<< MIN((MAX_STATS_BY_GLORY - ch->desc->glory->olc_add_spend_glory),
+		<< std::min((MAX_STATS_BY_GLORY - ch->desc->glory->olc_add_spend_glory),
 			   ch->desc->glory->olc_node->free_glory / 1000)
 		<< "\r\n\r\n";
 

@@ -654,7 +654,7 @@ void go_create_weapon(CharData *ch, ObjData *obj, int obj_type, ESkill skill) {
 		percent = number(1, MUD::Skill(skill).difficulty);
 		prob = CalcCurrentSkill(ch, skill, nullptr);
 		TrainSkill(ch, skill, true, nullptr);
-		weight = MIN(obj->get_weight() - 2, obj->get_weight() * prob / percent);
+		weight = std::min(obj->get_weight() - 2, obj->get_weight() * prob / percent);
 	}
 	if (weight < created_item[obj_type].min_weight) {
 		SendMsgToChar("У вас не хватило материала.\r\n", ch);
@@ -665,7 +665,7 @@ void go_create_weapon(CharData *ch, ObjData *obj, int obj_type, ESkill skill) {
 		if (!tobj) {
 			SendMsgToChar("Образец был невозвратимо утерян.\r\n", ch);
 		} else {
-			tobj->set_weight(MIN(weight, created_item[obj_type].max_weight));
+			tobj->set_weight(std::min(weight, created_item[obj_type].max_weight));
 			tobj->set_cost(2 * obj->get_cost() / 3);
 			tobj->set_owner(ch->get_uid());
 			tobj->set_extra_flag(EObjFlag::kTransformed);
@@ -677,9 +677,9 @@ void go_create_weapon(CharData *ch, ObjData *obj, int obj_type, ESkill skill) {
 			if (skill == ESkill::kReforging) {
 				if (ch->GetSkill(skill) >= 105 && number(1, 100) <= 2 + (ch->GetSkill(skill) - 105) / 10) {
 					tobj->set_extra_flag(EObjFlag::kHasThreeSlots);
-				} else if (number(1, 100) <= 5 + MAX((ch->GetSkill(skill) - 80), 0) / 5) {
+				} else if (number(1, 100) <= 5 + std::max((ch->GetSkill(skill) - 80), 0) / 5) {
 					tobj->set_extra_flag(EObjFlag::kHasTwoSlots);
-				} else if (number(1, 100) <= 20 + MAX((ch->GetSkill(skill) - 80), 0) / 5 * 4) {
+				} else if (number(1, 100) <= 20 + std::max((ch->GetSkill(skill) - 80), 0) / 5 * 4) {
 					tobj->set_extra_flag(EObjFlag::kHasOneSlot);
 				}
 			}
@@ -691,30 +691,30 @@ void go_create_weapon(CharData *ch, ObjData *obj, int obj_type, ESkill skill) {
 				case 4:
 				case 11: {
 					// Карачун. Таймер должен зависить от таймера прототипа.
-					// Формула MAX(<минимум>, <максимум>/100*<процент скила>-<рандом от 0 до 25% максимума>)
+					// Формула std::max(<минимум>, <максимум>/100*<процент скила>-<рандом от 0 до 25% максимума>)
 					// В минимуме один день реала, в максимуме таймер из прототипа
 					const int
 						timer_value =
 						tobj->get_timer() / 100 * ch->GetSkill(skill) - number(0, tobj->get_timer() / 100 * 25);
-					const int timer = MAX(ObjData::ONE_DAY, timer_value);
+					const int timer = std::max(ObjData::ONE_DAY, timer_value);
 					tobj->set_timer(timer);
 					sprintf(buf, "Ваше изделие продержится примерно %d дней\n", tobj->get_timer() / 24 / 60);
 					act(buf, false, ch, tobj.get(), 0, kToChar);
 					tobj->set_material(obj->get_material());
 					// Карачун. Так логичнее.
-					// было tobj->get_maximum_durability() = MAX(50, MIN(300, 300 * prob / percent));
-					// Формула MAX(<минимум>, <максимум>/100*<процент скила>-<рандом от 0 до 25% максимума>)
+					// было tobj->get_maximum_durability() = std::max(50, std::min(300, 300 * prob / percent));
+					// Формула std::max(<минимум>, <максимум>/100*<процент скила>-<рандом от 0 до 25% максимума>)
 					// при расчете числа умножены на 100, перед приравниванием делятся на 100. Для не потерять десятые.
 					tobj->set_maximum_durability(
-						MAX(20000, 35000 / 100 * ch->GetSkill(skill) - number(0, 35000 / 100 * 25)) / 100);
+						std::max(20000, 35000 / 100 * ch->GetSkill(skill) - number(0, 35000 / 100 * 25)) / 100);
 					tobj->set_current_durability(tobj->get_maximum_durability());
 					percent = number(1, MUD::Skill(skill).difficulty);
 					prob = CalcCurrentSkill(ch, skill, nullptr);
-					ndice = MAX(2, MIN(4, prob / percent));
+					ndice = std::max(2, std::min(4, prob / percent));
 					ndice += tobj->get_weight() / 10;
 					percent = number(1, MUD::Skill(skill).difficulty);
 					prob = CalcCurrentSkill(ch, skill, nullptr);
-					sdice = MAX(2, MIN(5, prob / percent));
+					sdice = std::max(2, std::min(5, prob / percent));
 					sdice += tobj->get_weight() / 10;
 					tobj->set_val(1, ndice);
 					tobj->set_val(2, sdice);
@@ -743,9 +743,9 @@ void go_create_weapon(CharData *ch, ObjData *obj, int obj_type, ESkill skill) {
 				case 6: tobj->set_timer(ObjData::ONE_DAY);
 					tobj->set_maximum_durability(50);
 					tobj->set_current_durability(50);
-					ndice = MAX(2, MIN(4, GetRealLevel(ch) / number(6, 8)));
+					ndice = std::max(2, std::min(4, GetRealLevel(ch) / number(6, 8)));
 					ndice += (tobj->get_weight() / 10);
-					sdice = MAX(2, MIN(5, GetRealLevel(ch) / number(4, 5)));
+					sdice = std::max(2, std::min(5, GetRealLevel(ch) / number(4, 5)));
 					sdice += (tobj->get_weight() / 10);
 					tobj->set_val(1, ndice);
 					tobj->set_val(2, sdice);
@@ -761,29 +761,29 @@ void go_create_weapon(CharData *ch, ObjData *obj, int obj_type, ESkill skill) {
 				case 9:
 				case 10: {
 					// Карачун. Таймер должен зависить от таймера прототипа.
-					// Формула MAX(<минимум>, <максимум>/100*<процент скила>-<рандом от 0 до 25% максимума>)
+					// Формула std::max(<минимум>, <максимум>/100*<процент скила>-<рандом от 0 до 25% максимума>)
 					// В минимуме один день реала, в максимуме таймер из прототипа
 					const int
 						timer_value =
 						tobj->get_timer() / 100 * ch->GetSkill(skill) - number(0, tobj->get_timer() / 100 * 25);
-					const int timer = MAX(ObjData::ONE_DAY, timer_value);
+					const int timer = std::max(ObjData::ONE_DAY, timer_value);
 					tobj->set_timer(timer);
 					sprintf(buf, "Ваше изделие продержится примерно %d дней\n", tobj->get_timer() / 24 / 60);
 					act(buf, false, ch, tobj.get(), 0, kToChar);
 					tobj->set_material(obj->get_material());
 					// Карачун. Так логичнее.
-					// было tobj->get_maximum_durability() = MAX(50, MIN(300, 300 * prob / percent));
-					// Формула MAX(<минимум>, <максимум>/100*<процент скила>-<рандом от 0 до 25% максимума>)
+					// было tobj->get_maximum_durability() = std::max(50, std::min(300, 300 * prob / percent));
+					// Формула std::max(<минимум>, <максимум>/100*<процент скила>-<рандом от 0 до 25% максимума>)
 					// при расчете числа умножены на 100, перед приравниванием делятся на 100. Для не потерять десятые.
 					tobj->set_maximum_durability(
-						MAX(20000, 10000 / 100 * ch->GetSkill(skill) - number(0, 15000 / 100 * 25)) / 100);
+						std::max(20000, 10000 / 100 * ch->GetSkill(skill) - number(0, 15000 / 100 * 25)) / 100);
 					tobj->set_current_durability(tobj->get_maximum_durability());
 					percent = number(1, MUD::Skill(skill).difficulty);
 					prob = CalcCurrentSkill(ch, skill, nullptr);
-					ndice = MAX(2, MIN((105 - material_value[tobj->get_material()]) / 10, prob / percent));
+					ndice = std::max(2, std::min((105 - material_value[tobj->get_material()]) / 10, prob / percent));
 					percent = number(1, MUD::Skill(skill).difficulty);
 					prob = CalcCurrentSkill(ch, skill, nullptr);
-					sdice = MAX(1, MIN((105 - material_value[tobj->get_material()]) / 15, prob / percent));
+					sdice = std::max(1, std::min((105 - material_value[tobj->get_material()]) / 15, prob / percent));
 					tobj->set_val(0, ndice);
 					tobj->set_val(1, sdice);
 					tobj->set_wear_flags(created_item[obj_type].wear);
@@ -1787,7 +1787,7 @@ int MakeRecept::make(CharData *ch) {
 			make_fail = true;
 		}
 	};
-	created_lev = created_lev / MAX(1, (ingr_cnt - used_non_ingrs));
+	created_lev = created_lev / std::max(1, (ingr_cnt - used_non_ingrs));
 	int j;
 	int craft_move = MIN_MAKE_MOVE + (created_lev / 2) - 1;
 	// Снимаем мувы за умение

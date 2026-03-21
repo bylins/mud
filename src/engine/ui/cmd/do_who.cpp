@@ -330,7 +330,7 @@ bool PerformWhoSpamcontrol(CharData *ch, unsigned short int mode) {
 
 	// рестим ману, в БД скорость реста маны удваивается
 	time_t ctime = time(nullptr);
-	who_cost_mana = MIN(kWhoManaMax,
+	who_cost_mana = std::min(kWhoManaMax,
 						who_cost_mana + (ctime - last) * kWhoManaRestPerSecond
 							+ (ctime - last) * kWhoManaRestPerSecond * (NORENTABLE(ch) ? 1 : 0));
 	ch->set_who_mana(who_cost_mana);

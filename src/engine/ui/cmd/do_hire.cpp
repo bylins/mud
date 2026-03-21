@@ -126,9 +126,9 @@ long CalcHirePrice(CharData *ch, CharData *victim) {
 	hirePoints += rem_hirePoints + int_hirePoints + cha_hirePoints;
 	hirePoints = hirePoints * 5 * GetRealLevel(ch);
 
-	int min_price = MAX((m_dr / 300 * GetRealLevel(victim)), (GetRealLevel(victim) * 5));
-	min_price = MAX(min_price, mob_proto[victim->get_rnum()].get_gold());
-	long finalPrice = MAX(min_price, (int) ceil(price - hirePoints));
+	int min_price = std::max((m_dr / 300 * GetRealLevel(victim)), (GetRealLevel(victim) * 5));
+	min_price = std::max(min_price, mob_proto[GET_MOB_RNUM(victim)].get_gold());
+	long finalPrice = std::max(min_price, (int) ceil(price - hirePoints));
 
 	ch->send_to_TC(true, true, true,
 				   "Параметры персонажа: RMRT: %.4lf, CHA: %.4lf, INT: %.4lf, TOTAL: %.4lf. Цена чармиса:  %.4lf. Итоговая цена: %d \r\n",
@@ -285,7 +285,7 @@ void DoFindhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				}
 			}
 			if (aff != hired->affected.end()) {
-				long oldcost = MAX(0, (int) (((*aff)->duration - 1) / 2) * (int) abs(hired->mob_specials.hire_price));
+				long oldcost = std::max(0, (int) (((*aff)->duration - 1) / 2) * (int) abs(hired->mob_specials.hire_price));
 				if (oldcost > 0) {
 					if (hired->mob_specials.hire_price < 0) {
 						ch->add_bank(oldcost);
@@ -391,7 +391,7 @@ void DoFreehelpee(CharData *ch, char * /* argument*/, int/* cmd*/, int/* subcmd*
 	if (!ch->IsImmortal()) {
 		for (const auto &aff : hired->affected) {
 			if (aff->type == ESpell::kCharm) {
-				long cost = MAX(0, (int) ((aff->duration - 1) / 2) * (int) abs(hired->mob_specials.hire_price));
+				long cost = std::max(0, (int) ((aff->duration - 1) / 2) * (int) abs(hired->mob_specials.hire_price));
 				if (cost > 0) {
 					if (hired->mob_specials.hire_price < 0) {
 						ch->add_bank(cost);
