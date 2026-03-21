@@ -515,4 +515,57 @@ std::string CAP(const std::string txt) {
 
 } //namespace utils
 
+// Moved from utils.cpp
+void PruneCrlf(char *txt) {
+	size_t i = strlen(txt) - 1;
+	while (txt[i] == '\n' || txt[i] == '\r') {
+		txt[i--] = '\0';
+	}
+}
+
+const char *first_letter(const char *txt) {
+	if (txt) {
+		while (*txt && !a_isalpha(*txt)) {
+			if ('\x1B' == *txt) {
+				while (*txt && 'm' != *txt) {
+					++txt;
+				}
+				if (!*txt) {
+					return txt;
+				}
+			} else if ('&' == *txt) {
+				++txt;
+				if (!*txt) {
+					return txt;
+				}
+			}
+			++txt;
+		}
+	}
+	return txt;
+}
+
+// Moved from interpreter.cpp
+int is_number(const char *str) {
+	while (*str) {
+		if (!a_isdigit(*(str++))) {
+			return 0;
+		}
+	}
+	return 1;
+}
+
+char *delete_doubledollar(char *string) {
+	char *read, *write;
+	if ((write = strchr(string, '$')) == nullptr)
+		return (string);
+	read = write;
+	while (*read)
+		if ((*(write++) = *(read++)) == '$')
+			if (*read == '$')
+				read++;
+	*write = '\0';
+	return (string);
+}
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

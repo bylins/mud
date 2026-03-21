@@ -67,31 +67,6 @@ int MAX(int a, int b) {
 	return (a > b ? a : b);
 }
 
-const char *first_letter(const char *txt) {
-	if (txt) {
-		while (*txt && !a_isalpha(*txt)) {
-			//Предполагается, что для отправки клиенту используется только управляющий код с цветом
-			//На данный момент в коде присутствует только еще один управляющий код для очистки экрана,
-			//но он не используется (см. CLEAR_SCREEN)
-			if ('\x1B' == *txt) {
-				while (*txt && 'm' != *txt) {
-					++txt;
-				}
-				if (!*txt) {
-					return txt;
-				}
-			} else if ('&' == *txt) {
-				++txt;
-				if (!*txt) {
-					return txt;
-				}
-			}
-			++txt;
-		}
-	}
-	return txt;
-}
-
 // Create and append to dynamic length string - Alez
 char *str_add(char *dst, const char *src) {
 	if (dst == nullptr) {
@@ -126,14 +101,7 @@ return result;
 }
 */
 
-// * Strips \r\n from end of string.
-void PruneCrlf(char *txt) {
-	size_t i = strlen(txt) - 1;
 
-	while (txt[i] == '\n' || txt[i] == '\r') {
-		txt[i--] = '\0';
-	}
-}
 
 bool is_head(std::string name) {
 	if ((name == "Стрибог") || (name == "стрибог"))

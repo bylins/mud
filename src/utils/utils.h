@@ -1170,7 +1170,7 @@ reversion_wrapper<T> reverse (T&& iterable) { return { iterable }; }
  */
 std::string PrintNumberByDigits(long long num, char separator = ' ');
 
-void PruneCrlf(char *txt);
+// PruneCrlf moved to utils_string.h
 
 bool sprintbitwd(Bitvector bitvector, const char *names[], char *result, const char *div, int print_flag = 0);
 

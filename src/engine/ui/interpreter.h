@@ -34,7 +34,7 @@ int fill_word(const char *argument);
 void half_chop(char const *string, char *arg1, char *arg2);
 void nanny(DescriptorData *d, char *argument);
 
-int is_number(const char *str);
+// is_number moved to utils_string.h
 int find_command(const char *command);
 // блок подобной же фигни для стрингов
 void GetOneParam(std::string &buffer, std::string &buffer2);
@@ -52,7 +52,7 @@ int find_name(const char *name);
 
 void check_hiding_cmd(CharData *ch, int percent);
 
-char *delete_doubledollar(char *string);
+// delete_doubledollar moved to utils_string.h
 // Cоответствие классов и религий (Кард)
 extern const int class_religion[];
 

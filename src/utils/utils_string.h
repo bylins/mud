@@ -296,6 +296,20 @@ std::string CAP(const std::string txt);
 
 } // namespace utils
 
+/// Strip trailing \r\n from end of C string.
+void PruneCrlf(char *txt);
+
+/// Return pointer to first visible letter in string, skipping color codes.
+const char *first_letter(const char *txt);
+
+/// Check if C string contains only digits.
+/// Returns 1 if true, 0 if false.
+int is_number(const char *str);
+
+/// Remove doubled dollar signs ($$) from string, modifying it in-place.
+/// Used to undo act() escaping for direct output.
+char *delete_doubledollar(char *string);
+
 #endif // UTILS_STRING_HPP_
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
