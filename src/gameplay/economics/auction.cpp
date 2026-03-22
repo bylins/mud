@@ -356,7 +356,7 @@ bool auction_drive(CharData *ch, char *argument) {
 				return false;
 			}
 
-			if ch->IsImmortal() {
+			if (ch->IsImmortal()) {
 				SendMsgToChar("Господи, ну зачем тебе это?.\r\n", ch);
 				return false;
 			}
