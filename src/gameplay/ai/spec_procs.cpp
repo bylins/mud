@@ -794,7 +794,7 @@ int npc_walk(CharData *ch) {
 			return (npc_walk(ch));
 	}
 
-	door = find_first_step(ch->in_room, GetRoomRnum(GET_DEST(ch)), ch);
+	door = find_first_step(ch->in_room, rnum, ch);
 
 	return (door);
 }
