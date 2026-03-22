@@ -334,7 +334,7 @@ void medit_save_internally(DescriptorData *d) {
 	DescriptorData *dsc;
 
 	//  rmob_num = GetMobRnum(OLC_NUM(d));
-	rmob_num = OLC_MOB(d->get_rnum());
+	rmob_num = OLC_MOB(d)->get_rnum();
 	//	set_test_data(OLC_MOB(d));
 
 	if (rmob_num >= 0) {
@@ -478,7 +478,7 @@ void medit_save_internally(DescriptorData *d) {
 		// * Update keepers in shops being edited and other mobs being edited.
 		for (dsc = descriptor_list; dsc; dsc = dsc->next) {
 			if (dsc->state == EConState::kMedit) {
-				if (OLC_MOB(dsc->get_rnum()) >= new_mob_num) {
+				if (OLC_MOB(dsc)->get_rnum() >= new_mob_num) {
 					OLC_MOB(dsc)->set_rnum(1 + OLC_MOB(dsc)->get_rnum());
 				}
 			}
@@ -2264,7 +2264,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 				return;
 			}
 
-			auto rnum_old = OLC_MOB(d->get_rnum());
+			auto rnum_old = OLC_MOB(d)->get_rnum();
 			CopyMobilePrototypeForMedit(OLC_MOB(d), &mob_proto[rnum], false);
 			OLC_MOB(d)->set_rnum(rnum_old);
 
@@ -2279,7 +2279,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 				return;
 			}
 
-			auto rnum_old = OLC_MOB(d->get_rnum());
+			auto rnum_old = OLC_MOB(d)->get_rnum();
 			auto proto_script_old = OLC_MOB(d)->proto_script;
 			CopyMobilePrototypeForMedit(OLC_MOB(d), &mob_proto[rnum], false);
 			OLC_MOB(d)->set_rnum(rnum_old);
@@ -2296,7 +2296,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 				return;
 			}
 
-			auto rnum_old = OLC_MOB(d->get_rnum());
+			auto rnum_old = OLC_MOB(d)->get_rnum();
 			auto proto_script_old = OLC_MOB(d)->proto_script;
 			CopyMobilePrototypeForMedit(OLC_MOB(d), &mob_proto[rnum], true);
 			OLC_MOB(d)->set_rnum(rnum_old);
