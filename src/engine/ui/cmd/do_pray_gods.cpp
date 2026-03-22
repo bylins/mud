@@ -81,7 +81,7 @@ void do_pray_gods(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	for (i = descriptor_list; i; i = i->next) {
 		if  (i->state == EConState::kPlaying) {
-			if ((i->character.get(->IsImmortal())
+			if ((i->character->IsImmortal()
 				|| (GET_GOD_FLAG(i->character.get(), EGf::kDemigod)
 					&& (GetRealLevel(ch) < 6)))
 				&& (i->character.get() != ch)) {
