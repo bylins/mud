@@ -68,17 +68,17 @@ void do_time(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 
 	day = time_info.day + 1;    // day in [1..30]
 	*buf = '\0';
-	if (GET_RELIGION(ch) == kReligionPoly || IS_IMMORTAL(ch)) {
+	if (GET_RELIGION(ch) == kReligionPoly || ch->IsImmortal()) {
 		days_go = time_info.month * kDaysPerMonth + time_info.day;
 		month = days_go / 40;
 		days_go = (days_go % 40) + 1;
 		sprintf(buf + strlen(buf), "%s, %dй День, Год %d%s",
-				month_name_poly[month], days_go, time_info.year, IS_IMMORTAL(ch) ? ".\r\n" : "");
+				month_name_poly[month], days_go, time_info.year, ch->IsImmortal() ? ".\r\n" : "");
 	}
-	if (GET_RELIGION(ch) == kReligionMono || IS_IMMORTAL(ch))
+	if (GET_RELIGION(ch) == kReligionMono || ch->IsImmortal())
 		sprintf(buf + strlen(buf), "%s, %dй День, Год %d",
 				month_name[static_cast<int>(time_info.month)], day, time_info.year);
-	if (IS_IMMORTAL(ch))
+	if (ch->IsImmortal())
 		sprintf(buf + strlen(buf),
 				"\r\n%d.%d.%d, дней с начала года: %d",
 				day,

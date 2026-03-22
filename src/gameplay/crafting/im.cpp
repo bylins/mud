@@ -1179,7 +1179,7 @@ void im_improve_recipe(CharData *ch, im_rskill *rs, int success) {
 						kColorBoldCyn, imrecipes[rs->rid].name, kColorNrm);
 			SendMsgToChar(buf, ch);
 			rs->perc += number(1, 2);
-			if (!IS_IMMORTAL(ch))
+			if (!ch->IsImmortal())
 				rs->perc = MIN(kZeroRemortSkillCap + GetRealRemort(ch) * 5, rs->perc);
 		}
 	}

@@ -183,12 +183,12 @@ class CharacterWrapper : public Wrapper<CharacterData> {
 
 	bool is_immortal() {
 		Ensurer ch(*this);
-		return IS_IMMORTAL(ch);
+		return ch->IsImmortal();
 	}
 
 	bool is_impl() {
 		Ensurer ch(*this);
-		return IS_IMPL(ch);
+		return ch->IsImpl();
 	}
 
 	bool is_NPC() {

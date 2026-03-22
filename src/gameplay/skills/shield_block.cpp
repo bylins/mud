@@ -31,7 +31,7 @@ void do_block(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	};
 	if (!(ch->IsNpc()
 		|| GET_EQ(ch, kShield)
-		|| IS_IMMORTAL(ch)
+		|| ch->IsImmortal()
 		|| GET_GOD_FLAG(ch, EGf::kGodsLike))) {
 		SendMsgToChar("Вы не можете сделать это без щита.\r\n", ch);
 		return;
@@ -47,7 +47,7 @@ void ProcessShieldBlock(CharData *ch, CharData *victim, HitData &hit_data) {
 	if (!CanPerformShieldBlock(victim, hit_data)) {
 		return;
 	}
-	if (!(GET_EQ(victim, EEquipPos::kShield) || victim->IsNpc() || IS_IMMORTAL(victim))) {
+	if (!(GET_EQ(victim, EEquipPos::kShield) || victim->IsNpc() || victim->IsImmortal())) {
 		SendMsgToChar("У вас нечем отразить атаку противника.\r\n", victim);
 	} else {
 		int range = number(1, MUD::Skill(ESkill::kShieldBlock).difficulty);

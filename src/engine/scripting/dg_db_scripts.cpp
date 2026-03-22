@@ -184,7 +184,7 @@ void assign_triggers(void *i, int type) {
 
 	switch (type) {
 		case MOB_TRIGGER: mob = (CharData *) i;
-			for (const auto trigger_vnum : *mob_proto[GET_MOB_RNUM(mob)].proto_script) {
+			for (const auto trigger_vnum : *mob_proto[mob->get_rnum()].proto_script) {
 				rnum = GetTriggerRnum(trigger_vnum);
 				if (rnum == -1) {
 					const auto rnum = mob->get_rnum();

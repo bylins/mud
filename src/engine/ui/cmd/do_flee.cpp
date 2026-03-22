@@ -31,7 +31,7 @@ void GoFlee(CharData *ch) {
 		return;
 	}
 
-	if (!IS_IMMORTAL(ch)) {
+	if (!ch->IsImmortal()) {
 		SetWaitState(ch, kBattleRound);
 	}
 
@@ -98,7 +98,7 @@ void GoDirectFlee(CharData *ch, int direction) {
 				ReduceExpAfterFlee(ch, was_fighting, was_in);
 			}
 
-			if (!IS_IMMORTAL(ch)) {
+			if (!ch->IsImmortal()) {
 				SetWaitState(ch, 1 * kBattleRound);
 			}
 			return;

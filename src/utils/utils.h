@@ -180,15 +180,11 @@ const int kSecsPerRealMin = 60;
 constexpr int kSecsPerRealHour = 60*kSecsPerRealMin;
 constexpr int kSecsPerRealDay = 24*kSecsPerRealHour;
 
-#define IS_IMMORTAL(ch)     (!(ch)->IsNpc() && (ch)->GetLevel() >= kLvlImmortal)
-#define IS_GOD(ch)          (!(ch)->IsNpc() && (ch)->GetLevel() >= kLvlGod)
-#define IS_GRGOD(ch)        (!(ch)->IsNpc() && (ch)->GetLevel() >= kLvlGreatGod)
-#define IS_IMPL(ch)         (!(ch)->IsNpc() && (ch)->GetLevel() >= kLvlImplementator)
 
-#define IS_SHOPKEEPER(ch) (IS_MOB(ch) && mob_index[GET_MOB_RNUM(ch)].func == shop_ext)
-#define IS_RENTKEEPER(ch) (IS_MOB(ch) && mob_index[GET_MOB_RNUM(ch)].func == receptionist)
-#define IS_POSTKEEPER(ch) (IS_MOB(ch) && mob_index[GET_MOB_RNUM(ch)].func == postmaster)
-#define IS_BANKKEEPER(ch) (IS_MOB(ch) && mob_index[GET_MOB_RNUM(ch)].func == bank)
+#define IS_SHOPKEEPER(ch) (((ch)->IsNpc()) && mob_index[ch->get_rnum()].func == shop_ext)
+#define IS_RENTKEEPER(ch) (((ch)->IsNpc()) && mob_index[ch->get_rnum()].func == receptionist)
+#define IS_POSTKEEPER(ch) (((ch)->IsNpc()) && mob_index[ch->get_rnum()].func == postmaster)
+#define IS_BANKKEEPER(ch) (((ch)->IsNpc()) && mob_index[ch->get_rnum()].func == bank)
 
 // string utils *********************************************************
 
@@ -328,7 +324,6 @@ inline void TOGGLE_BIT(T &var, const Bitvector bit) {
 #define NPC_FLAGS(ch)  ((ch)->mob_specials.npc_flags)
 #define EXTRA_FLAGS(ch) ((ch)->Temporary)
 
-#define IS_MOB(ch)          ((ch)->IsNpc() && (ch)->get_rnum() >= 0)
 
 #define NPC_FLAGGED(ch, flag)   (NPC_FLAGS(ch).get(flag))
 #define EXTRA_FLAGGED(ch, flag) (EXTRA_FLAGS(ch).get(flag))
@@ -499,9 +494,8 @@ const int kNameLevel = 5;
 
 #define GET_EQ(ch, i)      ((ch)->equipment[i])
 
-#define GET_MOB_SPEC(ch)   (IS_MOB(ch) ? mob_index[(ch)->get_rnum()].func : nullptr)
-#define GET_MOB_RNUM(mob)  (mob)->get_rnum()
-#define GET_MOB_VNUM(mob)  (IS_MOB(mob) ? mob_index[(mob)->get_rnum()].vnum : -1)
+#define GET_MOB_SPEC(ch)   (((ch)->IsNpc()) ? mob_index[(ch)->get_rnum()].func : nullptr)
+#define GET_MOB_VNUM(mob)  (((mob)->IsNpc()) ? mob_index[(mob)->get_rnum()].vnum : -1)
 
 #define GET_DEFAULT_POS(ch)   ((ch)->mob_specials.default_pos)
 #define MEMORY(ch)          ((ch)->mob_specials.memory)
@@ -946,7 +940,6 @@ void skip_spaces(T string) {
 
 #define IS_CORPSE(obj)     ((obj)->get_type() == EObjType::kContainer && \
                GET_OBJ_VAL((obj), 3) == ObjData::CORPSE_INDICATOR)
-#define IS_MOB_CORPSE(obj) (IS_CORPSE(obj) &&  GET_OBJ_VAL((obj), 2) != -1)
 
 /// аналог sprintbitwd и производных
 /// \param bits - bitset|boost::dynamic_bitset

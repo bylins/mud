@@ -425,7 +425,7 @@ void go_gen_door(CharData *ch, char *type, char *dir, int where_bits, int subcmd
 	}
 
 	if ((obj) || (door.dir != EDirection::kUndefinedDir)) {
-		if ((obj) && !IS_IMMORTAL(ch) && (obj->has_flag(EObjFlag::kNamed))
+		if ((obj) && !ch->IsImmortal() && (obj->has_flag(EObjFlag::kNamed))
 			&& NamedStuff::check_named(ch, obj, true))//Именной предмет открывать(закрывать) может только владелец
 		{
 			if (!NamedStuff::wear_msg(ch, obj))

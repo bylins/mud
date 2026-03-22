@@ -1,4 +1,6 @@
 #include "affect_data.h"
+#include "gameplay/affects/mobile_affect_update_profiler.h"
+#include "gameplay/affects/player_affect_update_profiler.h"
 #include "engine/entities/char_player.h"
 #include "engine/db/world_characters.h"
 #include "gameplay/fight/fight_hit.h"
@@ -19,6 +21,12 @@
 #include "utils/backtrace.h"
 
 std::unordered_set<CharData *> affected_mobs;
+
+int apply_ac(CharData *ch, int eq_pos);
+int apply_armour(CharData *ch, int eq_pos);
+void apply_natural_affects(CharData *ch);
+extern std::array<EAffect, 2> char_saved_aff;
+extern std::array<EAffect, 3> char_stealth_aff;
 
 bool no_bad_affects(ObjData *obj) {
 	static std::list<EWeaponAffect> bad_waffects =
@@ -109,7 +117,7 @@ int apply_armour(CharData *ch, int eq_pos) {
 // Была ошибка, у нубов реген хитов был всегда 50, хотя с 26 по 30, должен быть 60.
 // Теперь аффект регенерация новичка держится 3 реморта, с каждыи ремортом все слабее и слабее
 void apply_natural_affects(CharData *ch) {
-	if (GetRealRemort(ch) <= 3 && !IS_IMMORTAL(ch)) {
+	if (GetRealRemort(ch) <= 3 && !ch->IsImmortal()) {
 		affect_modify(ch, EApply::kHpRegen, 60 - (GetRealRemort(ch) * 10), EAffect::kNoobRegen, true);
 		affect_modify(ch, EApply::kMoveRegen, 100, EAffect::kNoobRegen, true);
 		affect_modify(ch, EApply::kManaRegen, 100 - (GetRealRemort(ch) * 20), EAffect::kNoobRegen, true);
@@ -217,22 +225,42 @@ void player_timed_update() {
 
 // игроки раз в 2 секунды
 void player_affect_update() {
-	utils::CExecutionTimer timer;
-	int count = 0, c_all = 0, recalc  = 0;
+	using player_affect_update_profiler::Counter;
+	using player_affect_update_profiler::RunStats;
+	using player_affect_update_profiler::Section;
+
+	RunStats profile;
+	utils::CExecutionTimer total_timer;
+	int count = 0, c_all = 0, recalc = 0;
 //	character_list.foreach_on_copy([&count](const CharData::shared_ptr &i) {
 	for (auto d = descriptor_list; d; d = d->next) {
 		if (d->state != EConState::kPlaying)
 			continue;
+
+		utils::CExecutionTimer descriptor_timer;
 		const auto i = d->get_character();
-					
+		++profile.counters[static_cast<std::size_t>(Counter::kPlayers)];
+				
 		// на всякий случай проверка на пурж, в целом пурж чармисов внутри
 		// такого цикла сейчас выглядит безопасным, чармисы если и есть, то они
 		// добавлялись в чар-лист в начало списка и идут до самого чара
-		if (i->purged() || deathtrap::tunnel_damage(i.get())) {
-			return;
+
+		{
+			utils::CExecutionTimer tunnel_timer;
+			if (i->purged() || deathtrap::tunnel_damage(i.get())) {
+				profile.sections[static_cast<std::size_t>(Section::kTunnelDamage)] += tunnel_timer.delta().count();
+				++profile.counters[static_cast<std::size_t>(Counter::kPurgedPlayers)];
+				profile.sections[static_cast<std::size_t>(Section::kDescriptorLoop)] += descriptor_timer.delta().count();
+				profile.sections[static_cast<std::size_t>(Section::kTotal)] = total_timer.delta().count();
+				player_affect_update_profiler::record_run(profile);
+				return;
+			}
+			profile.sections[static_cast<std::size_t>(Section::kTunnelDamage)] += tunnel_timer.delta().count();
 		}
+
 		if (!i->affected.empty()) {
 			++count;
+			++profile.counters[static_cast<std::size_t>(Counter::kAffectedPlayers)];
 		}
 		++c_all;
 		bool was_purged = false;
@@ -241,11 +269,15 @@ void player_affect_update() {
 		auto affect_i = i->affected.begin();
 
 		while (affect_i != i->affected.end()) {
+			utils::CExecutionTimer affect_timer;
+			++profile.counters[static_cast<std::size_t>(Counter::kAffectEntries)];
 			const auto &affect = *affect_i;
 
 			// нечего тикать аффектам вне раунда боя
 			if (IS_SET(affect->battleflag, kAfBattledec) && i->GetEnemy()) {
+				++profile.counters[static_cast<std::size_t>(Counter::kSkippedBattleDecAffects)];
 				++affect_i;
+				profile.sections[static_cast<std::size_t>(Section::kAffectLoop)] += affect_timer.delta().count();
 				continue;
 			}
 			if (affect->duration == 0) {
@@ -275,15 +307,22 @@ void player_affect_update() {
 			} else {
 				if (affect->duration > 0) {
 					if (IS_SET(affect->battleflag, kAfSameTime) && !i->GetEnemy()) {
+						utils::CExecutionTimer poison_timer;
+						++profile.counters[static_cast<std::size_t>(Counter::kPoisonCalls)];
 						// здесь плеера могут спуржить
 						if (ProcessPoisonDmg(i.get(), affect) == -1) {
+							profile.sections[static_cast<std::size_t>(Section::kProcessPoison)] += poison_timer.delta().count();
 							was_purged = true;
+							++profile.counters[static_cast<std::size_t>(Counter::kPurgedPlayers)];
 							break;
 						}
+						profile.sections[static_cast<std::size_t>(Section::kProcessPoison)] += poison_timer.delta().count();
 					}
 //					sprintf(buf, "ЧАР: Спелл %s висит на %s длительносить %d\r\n", MUD::Spell(affect->type).GetCName(), GET_PAD(i, 5), affect->duration);
 //					mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
 					if (ROOM_FLAGGED(i->in_room, ERoomFlag::kDominationArena)) {
+						utils::CExecutionTimer domination_timer;
+						++profile.counters[static_cast<std::size_t>(Counter::kDominationAffects)];
 						for (int count = kMaxFirstaidRemove - 1; count >= 0; count--) {
 							if (affect->type == GetRemovableSpellId(count)) {
 								affect->duration -= 15;
@@ -294,6 +333,7 @@ void player_affect_update() {
 							affect->duration -= MIN(affect->duration, kSecsPerPlayerAffect * kPassesPerSec);
 						else
 							affect->duration--;
+						profile.sections[static_cast<std::size_t>(Section::kDominationAdjust)] += domination_timer.delta().count();
 					} else {
 						if (IS_SET(affect->battleflag, kAfPulsedec))
 							affect->duration -= MIN(affect->duration, kSecsPerPlayerAffect * kPassesPerSec);
@@ -304,17 +344,34 @@ void player_affect_update() {
 				}
 				++affect_i;
 			}
+			profile.sections[static_cast<std::size_t>(Section::kAffectLoop)] += affect_timer.delta().count();
 		}
 		if (set_abstinent) {
+			utils::CExecutionTimer abstinent_timer;
 			i->set_abstinent();
+			profile.sections[static_cast<std::size_t>(Section::kSetAbstinent)] += abstinent_timer.delta().count();
+			++profile.counters[static_cast<std::size_t>(Counter::kAbstinentPlayers)];
 		}
-		if (!was_purged && need_recalc ) {
-			MemQ_slots(i.get());    // сколько каких слотов занято (с коррекцией)
-			affect_total(i.get());
+		if (!was_purged && need_recalc) {
+			{
+				utils::CExecutionTimer memq_timer;
+				MemQ_slots(i.get());    // сколько каких слотов занято (с коррекцией)
+				profile.sections[static_cast<std::size_t>(Section::kMemQSlots)] += memq_timer.delta().count();
+			}
+			{
+				utils::CExecutionTimer recalc_timer;
+				affect_total(i.get());
+				profile.sections[static_cast<std::size_t>(Section::kRecalc)] += recalc_timer.delta().count();
+			}
 			++recalc;
+			++profile.counters[static_cast<std::size_t>(Counter::kRecalcPlayers)];
 		}
+		profile.sections[static_cast<std::size_t>(Section::kDescriptorLoop)] += descriptor_timer.delta().count();
 	}
-	log("player affect update: timer %f, num affected players %d, all %d recalc %d", timer.delta().count(), count, c_all, recalc);
+	const auto total_elapsed = total_timer.delta().count();
+	profile.sections[static_cast<std::size_t>(Section::kTotal)] = total_elapsed;
+	player_affect_update_profiler::record_run(profile);
+	log("player affect update: timer %f, num affected players %d, all %d recalc %d", total_elapsed, count, c_all, recalc);
 }
 
 // This file update battle affects only
@@ -382,39 +439,55 @@ void battle_affect_update(CharData *ch) {
 
 // раз в минуту
 void mobile_affect_update() {
-	bool need_recalc = false;
-	utils::CExecutionTimer timer;
-	int count = 0;
-	auto copy = affected_mobs;
+	using mobile_affect_update_profiler::Counter;
+	using mobile_affect_update_profiler::RunStats;
+	using mobile_affect_update_profiler::Section;
 
-	for (auto it = copy.begin(); it != copy.end(); it++) {
+	RunStats profile;
+	utils::CExecutionTimer total_timer;
+	int count = 0;
+	int recalc = 0;
+
+	utils::CExecutionTimer copy_timer;
+	auto copy = affected_mobs;
+	profile.sections[static_cast<std::size_t>(Section::kCopyAffectedMobs)] += copy_timer.delta().count();
+
+	for (auto it = copy.begin(); it != copy.end(); ++it) {
+		utils::CExecutionTimer mob_timer;
 		const auto &ch = *it;
 		int was_charmed = false, charmed_msg = false;
 		bool was_purged = false;
-		count++;
+		bool need_recalc = false;
+		++count;
+		++profile.counters[static_cast<std::size_t>(Counter::kMobs)];
 //		if (!ch->in_used_zone()) {
 //			return;
 //		}
+
 		auto affect_i = ch->affected.begin();
 
 		if (ch->affected.empty()) {
+			++profile.counters[static_cast<std::size_t>(Counter::kEmptyMobs)];
 			log(fmt::format("ERROR!!! Проверка счетчика аффектов у очищенного моба {} #{}", ch->get_name(), GET_MOB_VNUM(ch)));
 			auto it_erase = affected_mobs.find(ch);
 			if (it_erase != affected_mobs.end()) {
 				affected_mobs.erase(it_erase);
+				profile.sections[static_cast<std::size_t>(Section::kMobLoop)] += mob_timer.delta().count();
 				continue;
 			}
 		}
+
 		while (affect_i != ch->affected.end()) {
+			utils::CExecutionTimer affect_timer;
+			++profile.counters[static_cast<std::size_t>(Counter::kAffectEntries)];
 			const auto &affect = *affect_i;
-			
+
 			if (affect->duration == 0) {
 				if (affect->type >= ESpell::kFirst && affect->type <= ESpell::kLast) {
 					if (affect->type == ESpell::kCharm || affect->bitvector == to_underlying(EAffect::kCharmed)) {
 						was_charmed = true;
 					}
 					auto next_affect_i = affect_i;
-
 					++next_affect_i;
 					if (next_affect_i == ch->affected.end()
 							|| (*next_affect_i)->type != affect->type
@@ -428,57 +501,97 @@ void mobile_affect_update() {
 				if (affect->duration > 0) {
 					if (IS_SET(affect->battleflag, kAfSameTime)
 						&& (!ch->GetEnemy() || affect->location == EApply::kPoison)) {
+						utils::CExecutionTimer poison_timer;
+						++profile.counters[static_cast<std::size_t>(Counter::kPoisonCalls)];
 						// здесь плеера могут спуржить
 						if (ProcessPoisonDmg(ch, affect) == -1) {
+							profile.sections[static_cast<std::size_t>(Section::kProcessPoison)] += poison_timer.delta().count();
 							was_purged = true;
+							++profile.counters[static_cast<std::size_t>(Counter::kPurgedMobs)];
 							break;
 						}
+						profile.sections[static_cast<std::size_t>(Section::kProcessPoison)] += poison_timer.delta().count();
 					}
 					affect->duration--;
 					if (affect->type == ESpell::kCharm && !charmed_msg && affect->duration <= 1) {
 						act("$n начал$g растерянно оглядываться по сторонам.",
 								false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-					charmed_msg = true;
+						charmed_msg = true;
 					}
 				}
 				++affect_i;
 			}
+			profile.sections[static_cast<std::size_t>(Section::kAffectLoop)] += affect_timer.delta().count();
 		}
+
 		if (!was_purged) {
 			if (need_recalc) {
+				utils::CExecutionTimer recalc_timer;
 				affect_total(ch);
+				profile.sections[static_cast<std::size_t>(Section::kRecalc)] += recalc_timer.delta().count();
+				++recalc;
+				++profile.counters[static_cast<std::size_t>(Counter::kRecalcMobs)];
 			}
-			for (auto timed = ch->timed_skill.begin(); timed != ch->timed_skill.end();) {
-				if (timed->second >= 1) {
-					timed->second--;
-					++timed;
-				} else {
-					timed = ch->timed_skill.erase(timed);
+			{
+				utils::CExecutionTimer timed_skill_timer;
+				for (auto timed = ch->timed_skill.begin(); timed != ch->timed_skill.end();) {
+					++profile.counters[static_cast<std::size_t>(Counter::kTimedSkillEntries)];
+					if (timed->second >= 1) {
+						timed->second--;
+						++timed;
+					} else {
+						timed = ch->timed_skill.erase(timed);
+					}
 				}
+				profile.sections[static_cast<std::size_t>(Section::kTimedSkill)] += timed_skill_timer.delta().count();
 			}
-			for (auto timed = ch->timed_feat.begin(); timed != ch->timed_feat.end();) {
-				if (timed->second >= 1) {
-					timed->second--;
-					++timed;
-				} else {
-					timed = ch->timed_feat.erase(timed);
+			{
+				utils::CExecutionTimer timed_feat_timer;
+				for (auto timed = ch->timed_feat.begin(); timed != ch->timed_feat.end();) {
+					++profile.counters[static_cast<std::size_t>(Counter::kTimedFeatEntries)];
+					if (timed->second >= 1) {
+						timed->second--;
+						++timed;
+					} else {
+						timed = ch->timed_feat.erase(timed);
+					}
 				}
+				profile.sections[static_cast<std::size_t>(Section::kTimedFeat)] += timed_feat_timer.delta().count();
 			}
-			if (deathtrap::check_death_trap(ch)) {
-				return;
+			{
+				utils::CExecutionTimer deathtrap_timer;
+				++profile.counters[static_cast<std::size_t>(Counter::kDeathTrapChecks)];
+				if (deathtrap::check_death_trap(ch)) {
+					profile.sections[static_cast<std::size_t>(Section::kDeathTrap)] += deathtrap_timer.delta().count();
+					profile.sections[static_cast<std::size_t>(Section::kMobLoop)] += mob_timer.delta().count();
+					profile.sections[static_cast<std::size_t>(Section::kTotal)] = total_timer.delta().count();
+					mobile_affect_update_profiler::record_run(profile);
+					return;
+				}
+				profile.sections[static_cast<std::size_t>(Section::kDeathTrap)] += deathtrap_timer.delta().count();
 			}
 			if (was_charmed) {
+				utils::CExecutionTimer stop_follower_timer;
 				stop_follower(ch, kSfCharmlost);
+				profile.sections[static_cast<std::size_t>(Section::kStopFollower)] += stop_follower_timer.delta().count();
+				++profile.counters[static_cast<std::size_t>(Counter::kCharmStops)];
 			}
 		}
+
 		if (ch->affected.empty()) {
 			auto it_erase = affected_mobs.find(ch);
 			if (it_erase != affected_mobs.end()) {
 				affected_mobs.erase(it_erase);
 			}
-		} 
+		}
+
+		profile.sections[static_cast<std::size_t>(Section::kMobLoop)] += mob_timer.delta().count();
 	}
-	log("mobile affect update: timer %f, num mobs %d", timer.delta().count(), count);
+
+	const auto total_elapsed = total_timer.delta().count();
+	profile.sections[static_cast<std::size_t>(Section::kTotal)] = total_elapsed;
+	mobile_affect_update_profiler::record_run(profile);
+	log("mobile affect update: timer %f, num mobs %d recalc %d", total_elapsed, count, recalc);
 }
 
 void RemoveAffectFromCharAndRecalculate(CharData *ch, ESpell spell_id) {
@@ -560,7 +673,7 @@ void affect_total(CharData *ch) {
 	{
 		saved = ch->char_specials.saved.affected_by;
 		if (ch->IsNpc()) {
-			ch->char_specials.saved.affected_by = mob_proto[GET_MOB_RNUM(ch)].char_specials.saved.affected_by;
+			ch->char_specials.saved.affected_by = mob_proto[ch->get_rnum()].char_specials.saved.affected_by;
 		} else {
 			ch->char_specials.saved.affected_by = clear_flags;
 		}
@@ -588,7 +701,7 @@ void affect_total(CharData *ch) {
 //			GET_REAL_MAX_HIT(ch), add_hp_per_level, GET_HIT_ADD(ch), ch->get_start_stat(G_CON), GetRealLevel(ch));
 	}
 	if (ch->IsNpc()) {
-		(ch)->add_abils = (&mob_proto[GET_MOB_RNUM(ch)])->add_abils;
+		(ch)->add_abils = (&mob_proto[ch->get_rnum()])->add_abils;
 	}
 	// move object modifiers
 	for (int i = EEquipPos::kFirstEquipPos; i < EEquipPos::kNumEquipPos; i++) {
@@ -652,7 +765,7 @@ void affect_total(CharData *ch) {
 				ch->set_hit_add(ch->get_hit_add() - (i - 1));
 			}
 		}
-		if (!IS_IMMORTAL(ch) && ch->IsOnHorse()) {
+		if (!ch->IsImmortal() && ch->IsOnHorse()) {
 			AFF_FLAGS(ch).unset(EAffect::kHide);
 			AFF_FLAGS(ch).unset(EAffect::kSneak);
 			AFF_FLAGS(ch).unset(EAffect::kDisguise);
@@ -661,7 +774,7 @@ void affect_total(CharData *ch) {
 	}
 
 	// correctize all weapon
-	if (!IS_IMMORTAL(ch)) {
+	if (!ch->IsImmortal()) {
 		if ((obj = GET_EQ(ch, EEquipPos::kBoths)) && !CanBeTakenInBothHands(ch, obj)) {
 			if (!ch->IsNpc()) {
 				act("Вам слишком тяжело держать $o3 в обоих руках!", false, ch, obj, nullptr, kToChar);

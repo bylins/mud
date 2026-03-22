@@ -185,7 +185,7 @@ void do_horsetake(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 		// Исправил ошибку не дававшую воровать коняжек. -- Четырь (13.10.10)
-	else if (!IS_GOD(ch)
+	else if (!ch->IsGod()
 		&& !horse->IsFlagged(EMobFlag::kMounting)
 		&& !(horse->has_master()
 			&& AFF_FLAGGED(horse, EAffect::kHorse))) {
@@ -201,7 +201,7 @@ void do_horsetake(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		act("$N не сможет стать вашим скакуном.", false, ch, 0, horse, kToChar);
 		return;
 	} else if (IS_HORSE(horse)) {
-		if (!IS_IMMORTAL(ch)) {
+		if (!ch->IsImmortal()) {
 			SendMsgToChar("Это не ваш скакун.\r\n", ch);
 			return;
 		}

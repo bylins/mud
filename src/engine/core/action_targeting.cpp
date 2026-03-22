@@ -47,7 +47,7 @@ const FilterType isCorrectVictim = [](CharData *actor, CharData *target) {
 	if (isNotCorrectTarget(actor, target)) {
 		return false;
 	};
-	if (group::same_group(actor, target) || IS_IMMORTAL(target)) {
+	if (group::same_group(actor, target) || target->IsImmortal()) {
 		return false;
 	};
 	if (!may_kill_here(actor, target, NoArgument)) {

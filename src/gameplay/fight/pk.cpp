@@ -155,14 +155,14 @@ void pk_translate_pair(CharData **pkiller, CharData **pvictim) {
 void pk_update_clanflag(CharData *agressor, CharData *victim) {
 	struct PK_Memory_type *pk = findPKEntry(agressor, victim);
 
-	if (!pk && (!IS_GOD(victim))) {
+	if (!pk && (!victim->IsGod())) {
 		CREATE(pk, 1);
 		pk->unique = victim->get_uid();
 		pk->next = agressor->pk_list;
 		agressor->pk_list = pk;
 	}
 
-	if (victim->desc && (!IS_GOD(victim))) {
+	if (victim->desc && (!victim->IsGod())) {
 		if (pk->clan_exp > time(nullptr)) {
 			act("Вы продлили право клановой мести $N2!", false, victim, 0, agressor, kToChar);
 			act("$N продлил$G право еще раз отомстить вам!", false, agressor, 0, victim, kToChar);
@@ -228,7 +228,7 @@ void pk_increment_kill(CharData *agressor, CharData *victim, int rent, bool flag
 		pk_update_clanflag(agressor, victim);
 	} else {
 		struct PK_Memory_type *pk = findPKEntry(agressor, victim);
-		if (!pk && (!IS_GOD(victim))) {
+		if (!pk && (!victim->IsGod())) {
 			CREATE(pk, 1);
 			pk->unique = victim->get_uid();
 			pk->next = agressor->pk_list;
@@ -342,7 +342,7 @@ void pk_increment_gkill(CharData *agressor, CharData *victim) {
 
 	CharData *leader;
 	bool has_clanmember = false;
-	if (!IS_GOD(victim)) {
+	if (!victim->IsGod()) {
 		has_clanmember = has_clan_members_in_group(victim);
 	}
 
@@ -407,7 +407,7 @@ bool pk_agro_action(CharData *agressor, CharData *victim) {
 			break;
 
 		case PK_ACTION_KILL:
-			if (IS_GOD(agressor) || IS_GOD(victim)) {
+			if (agressor->IsGod() || victim->IsGod()) {
 				break;
 			}
 			pk_increment_gkill(agressor, victim);
@@ -451,9 +451,9 @@ int pk_action_type_summon(CharData *agressor, CharData *victim) {
 			// действия клан-флага
 			pk->clan_exp > time(nullptr))
 			return PK_ACTION_REVENGE;    // месть по клан-флагу
-		if (pk->kill_num && !(CLAN(agressor) && CLAN(victim)) && !IS_GOD(agressor))
+		if (pk->kill_num && !(CLAN(agressor) && CLAN(victim)) && !agressor->IsGod())
 			return PK_ACTION_REVENGE;    // обычная месть
-		if (pk->thief_exp > time(nullptr) && (!IS_GOD(agressor)))
+		if (pk->thief_exp > time(nullptr) && (!agressor->IsGod()))
 			return PK_ACTION_REVENGE;    // месть вору
 	}
 
@@ -479,7 +479,7 @@ void pk_thiefs_action(CharData *thief, CharData *victim) {
 			for (pk = thief->pk_list; pk; pk = pk->next)
 				if (pk->unique == victim->get_uid())
 					break;
-			if (!pk && (!IS_GOD(victim)) && (!IS_GOD(thief))) {
+			if (!pk && (!victim->IsGod()) && (!thief->IsGod())) {
 				CREATE(pk, 1);
 				pk->unique = victim->get_uid();
 				pk->next = thief->pk_list;
@@ -907,7 +907,7 @@ int may_kill_here(CharData *ch, CharData *victim, char *argument) {
 		if (ch->IsNpc() && ch->get_rnum() == GetMobRnum(kDgCasterProxy))
 			return true;
 		// богам, мстящим и продолжающим агро-бд можно
-		if (IS_GOD(ch) || pk_action_type(ch, victim) & (PK_ACTION_REVENGE | PK_ACTION_FIGHT))
+		if (ch->IsGod() || pk_action_type(ch, victim) & (PK_ACTION_REVENGE | PK_ACTION_FIGHT))
 			return true;
 		SendMsgToChar("Здесь слишком мирно, чтобы начинать драку...\r\n", ch);
 		return false;
@@ -1082,7 +1082,7 @@ void bloody::remove_obj(const ObjData *obj) {
 bool bloody::handle_transfer(CharData *ch, CharData *victim, ObjData *obj, ObjData *container) {
 	CharData *initial_ch = ch;
 	CharData *initial_victim = victim;
-	if (!obj || (ch && IS_GOD(ch))) return true;
+	if (!obj || (ch && ch->IsGod())) return true;
 	pk_translate_pair(&ch, &victim);
 	bool result = false;
 	BloodyInfoMap::iterator it = bloody_map.find(obj);
@@ -1099,7 +1099,7 @@ bool bloody::handle_transfer(CharData *ch, CharData *victim, ObjData *obj, ObjDa
 				|| player_table[GetPtableByUnique(it->second.owner_unique)].mail == GET_EMAIL(victim))) {
 			remove_obj(obj); //снимаем флаг
 			result = true;
-		} else if (!ch && victim && (!IS_GOD(victim))) //лут не владельцем
+		} else if (!ch && victim && (!victim->IsGod())) //лут не владельцем
 		{
 			if (initial_victim->IsNpc()) //чармисам брать нельзя
 			{
@@ -1144,7 +1144,7 @@ void bloody::handle_corpse(ObjData *corpse, CharData *ch, CharData *killer) {
 		&& !killer->IsNpc()
 		&& !ch->IsFlagged(EPlrFlag::kKiller)
 		&& !AGRO(ch)
-		&& !IS_GOD(killer)) {
+		&& !killer->IsGod()) {
 		//Проверим, может у killer есть месть на ch
 		struct PK_Memory_type *pk = 0;
 		for (pk = ch->pk_list; pk; pk = pk->next)

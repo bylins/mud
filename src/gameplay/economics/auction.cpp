@@ -157,7 +157,7 @@ bool auction_drive(CharData *ch, char *argument) {
 				SendMsgToChar(tmpbuf, ch);
 				return false;
 			}
-/*			if (IS_GOD(ch)) {
+/*			if (ch->IsGod()) {
 				sprintf(tmpbuf, "&CДелай что-нибудь полезное для мада, фридроп или мобу подложи эту штуку!\n\r\n");
 				SendMsgToChar(tmpbuf, ch);
 				return false;
@@ -356,7 +356,7 @@ bool auction_drive(CharData *ch, char *argument) {
 				return false;
 			}
 
-			if IS_IMMORTAL(ch) {
+			if ch->IsImmortal() {
 				SendMsgToChar("Господи, ну зачем тебе это?.\r\n", ch);
 				return false;
 			}
