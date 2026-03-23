@@ -456,14 +456,10 @@ void Player::save_char() {
 	fprintf(saved, "Clas: %d\n", to_underlying(this->GetClass()));
 	fprintf(saved, "LstL: %ld\n", static_cast<long int>(LAST_LOGON(this)));
 	// сохраняем last_ip, который должен содержать айпишник с последнего удачного входа
-	if (player_table[this->get_pfilepos()].last_ip) {
-		strcpy(buf, player_table[this->get_pfilepos()].last_ip);
-	} else {
-		strcpy(buf, "Unknown");
+	if (player_table[this->get_pfilepos()].last_ip.empty()) {
+		player_table[this->get_pfilepos()].last_ip = "Unknown";
 	}
-	fprintf(saved, "Host: %s\n", buf);
-	free(player_table[this->get_pfilepos()].last_ip);
-	player_table[this->get_pfilepos()].last_ip = str_dup(buf);
+	fprintf(saved, "Host: %s\n", player_table[this->get_pfilepos()].last_ip.c_str());
 	fprintf(saved, "Id  : %ld\n", this->get_uid());
 	fprintf(saved, "Exp : %ld\n", this->get_exp());
 	fprintf(saved, "Rmrt: %d\n", this->get_remort());
@@ -539,7 +535,7 @@ void Player::save_char() {
 	if (GetRealLevel(this) < kLvlImmortal) {
 		fprintf(saved, "FtTm:\n");
 		for (auto tf : this->timed_feat) {
-			fprintf(saved, "%d %d %s\n", to_underlying(tf.first), tf.second, MUD::Feat(tf.first).GetCName());
+			fprintf(saved, "%d %ld %s\n", to_underlying(tf.first), std::max(0L, static_cast<long>(tf.second - time(0))), MUD::Feat(tf.first).GetCName());
 		}
 		fprintf(saved, "0 0\n");
 	}
@@ -828,28 +824,28 @@ void Player::save_char() {
 
 	// added by WorM (Видолюб) 2010.06.04 бабки потраченные на найм(возвращаются при креше)
 	i = 0;
-	if (this->followers
+	if (!this->followers.empty()
 		&& CanUseFeat(this, EFeat::kEmployer)
-		&& !IS_IMMORTAL(this)) {
-		struct FollowerType *k = nullptr;
-		for (k = this->followers; k; k = k->next) {
-			if (k->follower
-				&& AFF_FLAGGED(k->follower, EAffect::kHelper)
-				&& AFF_FLAGGED(k->follower, EAffect::kCharmed)) {
+		&& !this->IsImmortal()) {
+		CharData *found_follower = nullptr;
+		for (auto *k : this->followers) {
+			if (k
+				&& AFF_FLAGGED(k, EAffect::kHelper)
+				&& AFF_FLAGGED(k, EAffect::kCharmed)) {
+				found_follower = k;
 				break;
 			}
 		}
 
-		if (k
-			&& k->follower
-			&& !k->follower->affected.empty()) {
-			for (const auto &aff : k->follower->affected) {
+		if (found_follower
+			&& !found_follower->affected.empty()) {
+			for (const auto &aff : found_follower->affected) {
 				if (aff->type == ESpell::kCharm) {
-					if (k->follower->mob_specials.hire_price == 0) {
+					if (found_follower->mob_specials.hire_price == 0) {
 						break;
 					}
 
-					int i = ((aff->duration - 1) / 2) * k->follower->mob_specials.hire_price;
+					int i = ((aff->duration - 1) / 2) * found_follower->mob_specials.hire_price;
 					if (i != 0) {
 						fprintf(saved, "GldH: %d\n", i);
 					}
@@ -883,7 +879,7 @@ void Player::save_char() {
 	auto it = this->charmeeHistory.begin();
 	if (this->charmeeHistory.size() > 0 &&
 		(IS_SPELL_SET(this, ESpell::kCharm, ESpellType::kKnow) ||
-		CanUseFeat(this, EFeat::kEmployer) || IS_IMMORTAL(this))) {
+		CanUseFeat(this, EFeat::kEmployer) || this->IsImmortal())) {
 		fprintf(saved, "Chrm:\n");
 		for (; it != this->charmeeHistory.end(); ++it) {
 			fprintf(saved, "%d %d %d %d %d %d\n",
@@ -929,10 +925,7 @@ void Player::save_char() {
 		player_table[i].last_logon = LAST_LOGON(this);
 		player_table[i].level = GetRealLevel(this);
 		player_table[i].remorts = GetRealRemort(this);
-		if (player_table[i].mail) {
-			free(player_table[i].mail);
-		}
-		player_table[i].mail = str_dup(GET_EMAIL(this));
+		player_table[i].mail = GET_EMAIL(this);
 		player_table[i].set_uid(this->get_uid());
 		player_table[i].plr_class = GetClass();
 		//end by WorM
@@ -1432,12 +1425,11 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 					} while (num != 0);
 				} else if (!strcmp(tag, "FtTm")) {
 					do {
+						long int num3;
 						fbgetline(fl, line);
-						sscanf(line, "%d %d", &num, &num2);
+						sscanf(line, "%d %ld", &num, &num3);
 						if (num != 0) {
-							timed_feat.feat = static_cast<EFeat>(num);
-							timed_feat.time = num2;
-							ImposeTimedFeat(this, &timed_feat);
+							this->timed_feat[static_cast<EFeat>(num)] = time(0) + num3;
 						}
 					} while (num != 0);
 				}
@@ -1452,7 +1444,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 					this->player_specials->saved.GodsLike = lnum;
 					// added by WorM (Видолюб) 2010.06.04 бабки потраченные на найм(возвращаются при креше)
 				else if (!strcmp(tag, "GldH")) {
-					if (num != 0 && !IS_IMMORTAL(this) && CanUseFeat(this, EFeat::kEmployer)) {
+					if (num != 0 && !this->IsImmortal() && CanUseFeat(this, EFeat::kEmployer)) {
 						this->player_specials->saved.HiredCost = num;
 					}
 				}
@@ -1505,7 +1497,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 						fbgetline(fl, line);
 						sscanf(line, "%s %ld %ld", &buf[0], &lnum, &lnum2);
 						if (buf[0] != '~') {
-							const network::Logon cur_log = {str_dup(buf), lnum, lnum2, false};
+							const network::Logon cur_log = {buf, lnum, lnum2, false};
 							LOGON_LIST(this).push_back(cur_log);
 						} else break;
 					} while (true);
@@ -1892,13 +1884,13 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 
 	SetInbornAndRaceFeats(this);
 
-	if (IS_GRGOD(this)) {
+	if (this->IsGrGod()) {
 		for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
 			GET_SPELL_TYPE(this, spell_id) = GET_SPELL_TYPE(this, spell_id) |
 				ESpellType::kItemCast | ESpellType::kKnow | ESpellType::kRunes | ESpellType::kScrollCast
 				| ESpellType::kPotionCast | ESpellType::kWandCast;
 		}
-	} else if (!IS_IMMORTAL(this)) {
+	} else if (!this->IsImmortal()) {
 		for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
 			const auto spell = MUD::Class(this->GetClass()).spells[spell_id];
 			if (spell.GetCircle() == kMaxMemoryCircle) {

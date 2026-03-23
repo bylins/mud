@@ -75,7 +75,7 @@ void go_slay(CharData *ch, CharData *vict) {
 		}
 	}
 	switch (lag) {
-		case 0: SetWait(ch, 0, true);
+		case 0: ch->zero_wait();
 			break;
 		case 1: SetSkillCooldownInFight(ch, ESkill::kGlobalCooldown, 1);
 			break;
@@ -103,11 +103,11 @@ void do_slay(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Вы не можете потрошить врагов и при этом осторожничать!\r\n", ch);
 		return;
 	}
-	if (!IS_IMMORTAL(ch) && !(GET_EQ(ch, EEquipPos::kWield) || GET_EQ(ch, EEquipPos::kBoths))) {
+	if (!ch->IsImmortal() && !(GET_EQ(ch, EEquipPos::kWield) || GET_EQ(ch, EEquipPos::kBoths))) {
 		SendMsgToChar("Для этого Вам потребуется оружие!\r\n", ch);
 		return;
 	}
-	if (!(AFF_FLAGGED(vict, EAffect::kConfused) || IS_IMMORTAL(ch))) {
+	if (!(AFF_FLAGGED(vict, EAffect::kConfused) || ch->IsImmortal())) {
 		SendMsgToChar("Это не так просто! Сначала попробуйте обескуражить противника!\r\n", ch);
 		return;
 	}
@@ -119,7 +119,7 @@ void do_slay(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	if (!check_pkill(ch, vict, arg))
 		return;
-	if (IS_IMPL(ch) || !ch->GetEnemy()) {
+	if (ch->IsImpl() || !ch->GetEnemy()) {
 		go_slay(ch, vict);
 	} else if (IsHaveNoExtraAttack(ch)) {
 		if (!ch->IsNpc())

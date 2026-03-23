@@ -176,19 +176,19 @@ class CharacterWrapper : public Wrapper<CharacterData> {
 	py::list get_followers() {
 		Ensurer ch(*this);
 		py::list result;
-		for (follow_type *i = ch->followers; i; i = i->next)
-			result.append(CharacterWrapper(i->follower));
+		for (auto *i : ch->followers)
+			result.append(CharacterWrapper(i));
 		return result;
 	}
 
 	bool is_immortal() {
 		Ensurer ch(*this);
-		return IS_IMMORTAL(ch);
+		return ch->IsImmortal();
 	}
 
 	bool is_impl() {
 		Ensurer ch(*this);
-		return IS_IMPL(ch);
+		return ch->IsImpl();
 	}
 
 	bool is_NPC() {

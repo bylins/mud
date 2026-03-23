@@ -62,8 +62,6 @@ void npc_wield(CharData *ch);
 void npc_armor(CharData *ch);
 
 void go_autoassist(CharData *ch) {
-	struct FollowerType *k;
-	struct FollowerType *d;
 	CharData *ch_lider = 0;
 	if (ch->has_master()) {
 		ch_lider = ch->get_master();
@@ -72,19 +70,19 @@ void go_autoassist(CharData *ch) {
 	}
 
 	buf2[0] = '\0';
-	for (k = ch_lider->followers; k; k = k->next) {
-		if (k->follower->IsFlagged(EPrf::kAutoassist) &&
-			(k->follower->in_room == ch->in_room) && !k->follower->GetEnemy() &&
-			(k->follower->GetPosition() == EPosition::kStand) && k->follower->get_wait() <= 0) {
+	for (auto *k : ch_lider->followers) {
+		if (k->IsFlagged(EPrf::kAutoassist) &&
+			(k->in_room == ch->in_room) && !k->GetEnemy() &&
+			(k->GetPosition() == EPosition::kStand) && k->get_wait() <= 0) {
 			// Здесь проверяем на кастеров
-			if (IsCaster(k->follower)) {
+			if (IsCaster(k)) {
 				// здесь проходим по чармисам кастера, и если находим их, то вписываем в драку
-				for (d = k->follower->followers; d; d = d->next)
-					if ((d->follower->in_room == ch->in_room) && !d->follower->GetEnemy() &&
-						(d->follower->GetPosition() == EPosition::kStand) && d->follower->get_wait() <= 0)
-						do_assist(d->follower, buf2, 0, 0);
+				for (auto *d : k->followers)
+					if ((d->in_room == ch->in_room) && !d->GetEnemy() &&
+						(d->GetPosition() == EPosition::kStand) && d->get_wait() <= 0)
+						do_assist(d, buf2, 0, 0);
 			} else {
-				do_assist(k->follower, buf2, 0, 0);
+				do_assist(k, buf2, 0, 0);
 			}
 		}
 	}
@@ -349,7 +347,7 @@ int GET_MAXCASTER(CharData *ch) {
 		|| ch->get_wait() > 0)
 		return 0;
 	else
-		return IS_IMMORTAL(ch) ? 1 : ch->caster_level;
+		return ch->IsImmortal() ? 1 : ch->caster_level;
 }
 
 int get_hp_perc(CharData *ch) {
@@ -1700,7 +1698,7 @@ void update_round_affs() {
 		}
 		if (it.ch->battle_affects.get(kEafBlock)) {
 			it.ch->battle_affects.unset(kEafBlock);
-			if (!IS_IMMORTAL(it.ch) && it.ch->get_wait() < kBattleRound)
+			if (!it.ch->IsImmortal() && it.ch->get_wait() < kBattleRound)
 				SetWaitState(it.ch, 1 * kBattleRound);
 		}
 
@@ -1871,7 +1869,7 @@ void process_player_attack(CharData *ch, int min_init) {
 			ch->SetCast(ESpell::kUndefined, ESpell::kUndefined, 0, 0, 0);
 		} else {
 			CastSpell(ch, ch->GetCastChar(), ch->GetCastObj(), 0, ch->GetCastSpell(), ch->GetCastSubst());
-			if (!(IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, EGf::kGodsLike) || ch->get_wait() > 0)) {
+			if (!(ch->IsImmortal() || GET_GOD_FLAG(ch, EGf::kGodsLike) || ch->get_wait() > 0)) {
 				SetWaitState(ch, kBattleRound);
 			}
 			ch->SetCast(ESpell::kUndefined, ESpell::kUndefined, 0, 0, 0);
@@ -1901,7 +1899,7 @@ void process_player_attack(CharData *ch, int min_init) {
 	//**** удар основным оружием или рукой
 	if (ch->battle_affects.get(kEafFirst)) {
 		if (!IS_SET(trigger_code, kNoRightHandAttack) && !AFF_FLAGGED(ch, EAffect::kStopRight)
-			&& (IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, EGf::kGodsLike) || !ch->battle_affects.get(kEafUsedright))) {
+			&& (ch->IsImmortal() || GET_GOD_FLAG(ch, EGf::kGodsLike) || !ch->battle_affects.get(kEafUsedright))) {
 			//Знаю, выглядит страшно, но зато в hit()
 			//можно будет узнать применялось ли оглушить
 			//или молотить, по баттл-аффекту узнать получиться
@@ -1935,10 +1933,10 @@ void process_player_attack(CharData *ch, int min_init) {
 		&& GET_EQ(ch, EEquipPos::kHold)->get_type() == EObjType::kWeapon
 		&& ch->battle_affects.get(kEafSecond)
 		&& !AFF_FLAGGED(ch, EAffect::kStopLeft)
-		&& (IS_IMMORTAL(ch)
+		&& (ch->IsImmortal()
 			|| GET_GOD_FLAG(ch, EGf::kGodsLike)
 			|| ch->GetSkill(ESkill::kSideAttack) > number(1, 101))) {
-		if (IS_IMMORTAL(ch)
+		if (ch->IsImmortal()
 			|| GET_GOD_FLAG(ch, EGf::kGodsLike)
 			|| !ch->battle_affects.get(kEafUsedleft)) {
 			ProcessExtrahits(ch, ch->GetEnemy(), ESkill::kUndefined, fight::AttackType::kOffHand);
@@ -1950,7 +1948,7 @@ void process_player_attack(CharData *ch, int min_init) {
 		&& !GET_EQ(ch, EEquipPos::kLight) && !GET_EQ(ch, EEquipPos::kShield) && !GET_EQ(ch, EEquipPos::kBoths)
 		&& !AFF_FLAGGED(ch, EAffect::kStopLeft) && ch->battle_affects.get(kEafSecond)
 		&& ch->GetSkill(ESkill::kLeftHit)) {
-		if (IS_IMMORTAL(ch) || !ch->battle_affects.get(kEafUsedleft)) {
+		if (ch->IsImmortal() || !ch->battle_affects.get(kEafUsedleft)) {
 			ProcessExtrahits(ch, ch->GetEnemy(), ESkill::kUndefined, fight::AttackType::kOffHand);
 		}
 		ch->battle_affects.unset(kEafSecond);

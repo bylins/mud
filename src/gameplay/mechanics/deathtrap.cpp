@@ -100,9 +100,9 @@ void deathtrap::log_death_trap(CharData *ch) {
 // * Попадание в обычное дт.
 int deathtrap::check_death_trap(CharData *ch) {
 	if (ch->in_room != kNowhere && !ch->IsFlagged(EPrf::kCoderinfo)) {
-		if ((ROOM_FLAGGED(ch->in_room, ERoomFlag::kDeathTrap) && !IS_IMMORTAL(ch))
+		if ((ROOM_FLAGGED(ch->in_room, ERoomFlag::kDeathTrap) && !ch->IsImmortal())
 			|| (real_sector(ch->in_room) == ESector::kOnlyFlying && !ch->IsNpc() &&
-			!IS_GOD(ch) && !AFF_FLAGGED(ch, EAffect::kFly))
+			!ch->IsGod() && !AFF_FLAGGED(ch, EAffect::kFly))
 			|| IsCharCanDrownThere(ch, ch->in_room)) {
 			ObjData *corpse;
 			deathtrap::log_death_trap(ch);
@@ -118,6 +118,11 @@ int deathtrap::check_death_trap(CharData *ch) {
 
 			sprintf(buf1, "Player %s died in DT (room %d)", GET_NAME(ch), GET_ROOM_VNUM(ch->in_room));
 			mudlog(buf1, LGH, kLvlImmortal, SYSLOG, true);
+			if (!ch->IsNpc() && stone_rebirth(ch, nullptr)) {
+				sprintf(buf1, "Player %s saved by rebirth stone in DT (room %d)", GET_NAME(ch), GET_ROOM_VNUM(ch->in_room));
+				mudlog(buf1, LGH, kLvlImmortal, SYSLOG, true);
+				return true;
+			}
 			death_cry(ch, nullptr);
 			corpse = make_corpse(ch);
 			if (corpse != nullptr) {
@@ -149,7 +154,7 @@ bool deathtrap::IsSlowDeathtrap(int rnum) {
 /// иначе - чара в tunnel_damage() не дамагнет
 int calc_tunnel_dmg(CharData *ch, int room_rnum) {
 	if (!ch->IsNpc()
-		&& !IS_IMMORTAL(ch)
+		&& !ch->IsImmortal()
 		&& NORENTABLE(ch)
 		&& ROOM_FLAGGED(room_rnum, ERoomFlag::kTunnel)) {
 		return std::max(20, ch->get_real_max_hit() >> 3);

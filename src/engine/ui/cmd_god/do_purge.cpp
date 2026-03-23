@@ -12,7 +12,7 @@
 
 void DoPurge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *vict;
-	ObjData *obj, *next_o;
+	ObjData *obj;
 
 	one_argument(argument, buf);
 
@@ -46,14 +46,14 @@ void DoPurge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	{
 		act("$n произнес$q СЛОВО... вас окружило пламя!", false, ch, nullptr, nullptr, kToRoom);
 		SendMsgToRoom("Мир стал немного чище.\r\n", ch->in_room, false);
-		for (obj = world[ch->in_room]->contents; obj; obj = next_o) { //сначала шмотки, иначе потетеряешь весь стаф с случайных чармисов
-			next_o = obj->get_next_content();
+		for (auto it = world[ch->in_room]->contents.begin(); it != world[ch->in_room]->contents.end(); ) {
+			auto obj = *it; ++it;
 			ExtractObjFromWorld(obj);
 		}
 		const auto people_copy = world[ch->in_room]->people;
 		for (const auto vict : people_copy) {
 			if (vict->IsNpc()) {
-				if (vict->followers
+				if (!vict->followers.empty()
 					|| vict->has_master()) {
 					die_follower(vict);
 				}

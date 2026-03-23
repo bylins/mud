@@ -285,7 +285,7 @@ void check_position_and_put_on_screen(int next_y, int next_x, int sign_num, int 
 }
 
 void draw_mobs(const CharData *ch, int room_rnum, int next_y, int next_x) {
-	if (is_dark(room_rnum) && !IS_IMMORTAL(ch)) {
+	if (is_dark(room_rnum) && !ch->IsImmortal()) {
 		put_on_screen(next_y, next_x - 1, SCREEN_MOB_UNDEF, 1);
 	} else {
 		int cnt = 0;
@@ -315,12 +315,12 @@ void draw_mobs(const CharData *ch, int room_rnum, int next_y, int next_x) {
 }
 
 void draw_objs(const CharData *ch, int room_rnum, int next_y, int next_x) {
-	if (is_dark(room_rnum) && !IS_IMMORTAL(ch)) {
+	if (is_dark(room_rnum) && !ch->IsImmortal()) {
 		put_on_screen(next_y, next_x + 1, SCREEN_OBJ_UNDEF, 1);
 	} else {
 		int cnt = 0;
 
-		for (ObjData *obj = world[room_rnum]->contents; obj; obj = obj->get_next_content()) {
+		for (auto obj : world[room_rnum]->contents) {
 			if (IS_CORPSE(obj) && GET_OBJ_VAL(obj, 2) >= 0
 				&& !ch->map_check_option(MAP_MODE_MOBS_CORPSES)) {
 				continue;
@@ -461,7 +461,7 @@ void draw_room(CharData *ch, const RoomData *room, int cur_depth, int y, int x) 
 
 		if (room->dir_option[i]
 			&& room->dir_option[i]->to_room() != kNowhere
-			&& (!EXIT_FLAGGED(room->dir_option[i], EExitFlag::kHidden) || IS_IMMORTAL(ch))) {
+			&& (!EXIT_FLAGGED(room->dir_option[i], EExitFlag::kHidden) || ch->IsImmortal())) {
 			// отрисовка выхода
 			if (EXIT_FLAGGED(room->dir_option[i], EExitFlag::kClosed)) {
 				put_on_screen(cur_y, cur_x, cur_sign + 1, cur_depth);
@@ -471,7 +471,7 @@ void draw_room(CharData *ch, const RoomData *room, int cur_depth, int y, int x) 
 				put_on_screen(cur_y, cur_x, cur_sign, cur_depth);
 			}
 			// за двери закрытые смотрят только иммы
-			if (EXIT_FLAGGED(room->dir_option[i], EExitFlag::kClosed) && !IS_IMMORTAL(ch)) {
+			if (EXIT_FLAGGED(room->dir_option[i], EExitFlag::kClosed) && !ch->IsImmortal()) {
 				continue;
 			}
 			// здесь важна очередность, что первое отрисовалось - то и будет
@@ -486,7 +486,7 @@ void draw_room(CharData *ch, const RoomData *room, int cur_depth, int y, int x) 
 			// дт иммам и нубам с 0 мортов
 			if (next_room->get_flag(ERoomFlag::kDeathTrap)
 				&& (GetRealRemort(ch) <= 5
-					|| view_dt || IS_IMMORTAL(ch))) {
+					|| view_dt || ch->IsImmortal())) {
 				check_position_and_put_on_screen(next_y, next_x, SCREEN_DEATH_TRAP, cur_depth, i);
 			}
 			// можно утонуть
@@ -524,7 +524,7 @@ void draw_room(CharData *ch, const RoomData *room, int cur_depth, int y, int x) 
 			}
 			// существа
 			if (cur_depth == 1
-				&& (!EXIT_FLAGGED(room->dir_option[i], EExitFlag::kClosed) || IS_IMMORTAL(ch))
+				&& (!EXIT_FLAGGED(room->dir_option[i], EExitFlag::kClosed) || ch->IsImmortal())
 				&& (ch->map_check_option(MAP_MODE_MOBS) || ch->map_check_option(MAP_MODE_PLAYERS))) {
 				// в случае вверх/вниз next_y/x = y/x, рисуется относительно
 				// координат чара, со смещением, чтобы писать около полей v и ^
@@ -541,7 +541,7 @@ void draw_room(CharData *ch, const RoomData *room, int cur_depth, int y, int x) 
 			}
 			// предметы
 			if (cur_depth == 1
-				&& (!EXIT_FLAGGED(room->dir_option[i], EExitFlag::kClosed) || IS_IMMORTAL(ch))
+				&& (!EXIT_FLAGGED(room->dir_option[i], EExitFlag::kClosed) || ch->IsImmortal())
 				&& (ch->map_check_option(MAP_MODE_MOBS_CORPSES)
 					|| ch->map_check_option(MAP_MODE_PLAYER_CORPSES)
 					|| ch->map_check_option(MAP_MODE_INGREDIENTS)
@@ -557,7 +557,7 @@ void draw_room(CharData *ch, const RoomData *room, int cur_depth, int y, int x) 
 			// проход по следующей в глубину комнате
 			if (i != EDirection::kUp && i != EDirection::kDown
 				&& cur_depth < MAX_DEPTH_ROOMS
-				&& (!EXIT_FLAGGED(room->dir_option[i], EExitFlag::kClosed) || IS_IMMORTAL(ch))
+				&& (!EXIT_FLAGGED(room->dir_option[i], EExitFlag::kClosed) || ch->IsImmortal())
 				&& next_room->zone_rn == world[ch->in_room]->zone_rn
 				&& mode_allow(ch, cur_depth)) {
 				draw_room(ch, next_room, cur_depth + 1, next_y, next_x);

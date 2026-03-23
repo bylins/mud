@@ -26,6 +26,7 @@
 #include "engine/core/config.h"
 #include "utils/id_converter.h"
 #include "utils_string.h"
+#include "mud_string.h"
 #include "logger.h"
 #include "utils/backtrace.h"
 
@@ -100,14 +101,7 @@ extern char AltToLat[];
 char *rustime(const struct tm *timeptr);
 char *str_dup(const char *source);
 char *str_add(char *dst, const char *src);
-int str_cmp(const char *arg1, const char *arg2);
-int str_cmp(const std::string &arg1, const char *arg2);
-int str_cmp(const char *arg1, const std::string &arg2);
-int str_cmp(const std::string &arg1, const std::string &arg2);
-int strn_cmp(const char *arg1, const char *arg2, size_t n);
-int strn_cmp(const std::string &arg1, const char *arg2, size_t n);
-int strn_cmp(const char *arg1, const std::string &arg2, size_t n);
-int strn_cmp(const std::string &arg1, const std::string &arg2, size_t n);
+// str_cmp, strn_cmp moved to utils_string.h
 int touch(const char *path);
 // \todo убрать и оставить только в random.h
 int number(int from, int to);
@@ -124,12 +118,8 @@ void koi_to_utf8(char *str_i, char *str_o);
 void utf8_to_koi(char *str_i, char *str_o);
 // \todo Заменить на фунции из STD
 int roundup(float fl);
-bool IsValidEmail(const char *address);
-void skip_dots(char **string);
-char *str_str(const char *cs, const char *ct);
-void kill_ems(char *str);
-void cut_one_word(std::string &str, std::string &word);
-size_t strl_cpy(char *dst, const char *src, size_t siz);
+// IsValidEmail, skip_dots, str_str, kill_ems, cut_one_word moved to utils_string.h
+// strl_cpy moved to utils_string.h
 bool is_head(std::string name);
 
 template<typename T> inline std::string to_string(const T &t) {
@@ -155,7 +145,6 @@ extern const char *ACTNULL;
 #endif
 
 constexpr int kSfEmpty = 1 << 0;
-constexpr int kSfFollowerdie = 1 << 1;
 constexpr int kSfMasterdie = 1 << 2;
 constexpr int kSfCharmlost = 1 << 3;
 constexpr int kSfSilence = 1 << 4;
@@ -953,7 +942,7 @@ void skip_spaces(T string) {
 }
 
 
-std::string thousands_sep(long long n);
+// thousands_sep moved to utils_string.h
 
 #define IS_CORPSE(obj)     ((obj)->get_type() == EObjType::kContainer && \
                GET_OBJ_VAL((obj), 3) == ObjData::CORPSE_INDICATOR)
@@ -1045,20 +1034,9 @@ inline void graceful_exit(int retcode) {
 	_exit(retcode);
 }
 
-bool isname(const char *str, const char *namelist);
-inline bool isname(const std::string &str, const char *namelist) { return isname(str.c_str(), namelist); }
-inline bool isname(const char *str, const std::string &namelist) { return isname(str, namelist.c_str()); }
-inline bool isname(const std::string &str, const std::string &namelist) {
-	return isname(str.c_str(),
-				  namelist.c_str());
-}
-
-const char *one_word(const char *argument, char *first_arg);
-
-void ReadEndString(std::ifstream &file);
+// isname, one_word, ReadEndString moved to utils_string.h
 // замена символа (в данном случае конца строки) на свою строку, для остального функций хватает
-void StringReplace(std::string &buffer, char s, const std::string &d);
-std::string &format_news_message(std::string &text);
+// StringReplace, format_news_message moved to utils_string.h
 
 template<typename T>
 class JoinRange {
@@ -1168,9 +1146,9 @@ reversion_wrapper<T> reverse (T&& iterable) { return { iterable }; }
  *  @param num  - обрабатываемоле число.
  *  @param separator - разделитель разрядов.
  */
-std::string PrintNumberByDigits(long long num, char separator = ' ');
+// PrintNumberByDigits moved to utils_string.h
 
-void PruneCrlf(char *txt);
+// PruneCrlf moved to utils_string.h
 
 bool sprintbitwd(Bitvector bitvector, const char *names[], char *result, const char *div, int print_flag = 0);
 

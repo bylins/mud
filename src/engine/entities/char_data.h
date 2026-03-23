@@ -592,7 +592,7 @@ class CharData : public ProtectedCharData {
 	* \param silent - для смены лидера группы без лишнего спама (по дефолту 0)
 	*/
 	void add_follower_silently(CharData *ch);
-	followers_list_t get_followers_list() const;
+	const followers_list_t &get_followers_list() const { return followers; }
 	const player_special_data::ignores_t &get_ignores() const;
 	void add_ignore(const ignore_data::shared_ptr& ignore);
 	void clear_ignores();
@@ -613,6 +613,10 @@ class CharData : public ProtectedCharData {
 	bool IsNpc() const { return is_npc_; }
 	void SetNpcAttribute(bool _) { is_npc_ = _; }
 	bool IsPlayer() const { return !IsNpc(); }
+	bool IsImmortal() const { return !IsNpc() && GetLevel() >= kLvlImmortal; }
+	bool IsGod() const { return !IsNpc() && GetLevel() >= kLvlGod; }
+	bool IsGrGod() const { return !IsNpc() && GetLevel() >= kLvlGreatGod; }
+	bool IsImpl() const { return !IsNpc() && GetLevel() >= kLvlImplementator; }
 	bool have_mind() const;
 	bool HasWeapon();
 
@@ -776,7 +780,7 @@ class CharData : public ProtectedCharData {
 
 	char_affects_list_t affected;    // affected by what spells
 	std::unordered_map<ESkill, time_t> timed_skill;    // use which timed skill/spells
-	std::unordered_map<EFeat, ubyte> timed_feat;    // use which timed feats
+	std::unordered_map<EFeat, time_t> timed_feat;    // use which timed feats
 	ObjData *equipment[EEquipPos::kNumEquipPos];    // Equipment array
 
 	ObjData *carrying;    // Head of list
@@ -816,7 +820,7 @@ class CharData : public ProtectedCharData {
 	std::vector<int> kill_list; //used only for MTRIG_KILL
  public:
 	// FOLLOWERS
-	struct FollowerType *followers;
+	std::list<CharData *> followers;
 	CharData::ptr_t get_master() const { return m_master; }
 	void set_master(CharData::ptr_t master);
 	bool has_master() const { return nullptr != m_master; }
@@ -831,17 +835,39 @@ class CharData : public ProtectedCharData {
 	bool IsLeader();
 };
 
-# define MAX_FIRSTAID_REMOVE 17
+enum ERemovableSpell {
+	kRemAbstinent = 0,
+	kRemPoison,
+	kRemMadness,
+	kRemWeakness,
+	kRemSlowdown,
+	kRemMindless,
+	kRemColdWind,
+	kRemFever,
+	kRemCurse,
+	kRemDeafness,
+	kRemSilence,
+	kRemBlindness,
+	kRemSleep,
+	kRemHold,
+	kRemVacuum,
+	kRemHaemorrhage,
+	kRemBattle,
+	kMaxFirstaidRemove
+};
+
 inline ESpell GetRemovableSpellId(int num) {
-	static const ESpell spell[MAX_FIRSTAID_REMOVE] = {ESpell::kAbstinent, ESpell::kPoison, ESpell::kMadness,
+	static const ESpell spell[kMaxFirstaidRemove] = {
+		ESpell::kAbstinent, ESpell::kPoison, ESpell::kMadness,
 		ESpell::kWeaknes, ESpell::kSlowdown, ESpell::kMindless, ESpell::kColdWind,
 		ESpell::kFever, ESpell::kCurse, ESpell::kDeafness, ESpell::kSilence,
-		ESpell::kBlindness, ESpell::kSleep, ESpell::kHold, ESpell::kVacuum, ESpell::kHaemorrhage, ESpell::kBattle};
-	if (num < MAX_FIRSTAID_REMOVE) {
+		ESpell::kBlindness, ESpell::kSleep, ESpell::kHold, ESpell::kVacuum,
+		ESpell::kHaemorrhage, ESpell::kBattle
+	};
+	if (num < kMaxFirstaidRemove) {
 		return spell[num];
-	} else {
-		return ESpell::kUndefined;
 	}
+	return ESpell::kUndefined;
 }
 inline const player_special_data::ignores_t &CharData::get_ignores() const {
 	const auto &ps = get_player_specials();

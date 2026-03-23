@@ -27,7 +27,7 @@ void tell_to_char(CharData *keeper, CharData *ch, const char *argument) {
 }
 
 bool tell_can_see(CharData *ch, CharData *vict) {
-	if (CAN_SEE_CHAR(vict, ch) || IS_IMMORTAL(ch) || GET_INVIS_LEV(ch)) {
+	if (CAN_SEE_CHAR(vict, ch) || ch->IsImmortal() || GET_INVIS_LEV(ch)) {
 		return true;
 	} else {
 		return false;
@@ -50,7 +50,7 @@ int is_tell_ok(CharData *ch, CharData *vict) {
 		return (false);
 	}
 
-	if (IS_GOD(ch) || ch->IsFlagged(EPrf::kCoderinfo))
+	if (ch->IsGod() || ch->IsFlagged(EPrf::kCoderinfo))
 		return (true);
 
 	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kSoundproof))

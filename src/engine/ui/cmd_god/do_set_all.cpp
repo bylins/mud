@@ -57,14 +57,15 @@ void setall_inspect() {
 		d_vict = DescriptorByUid(player_table[it->second->pos].uid());
 		if (d_vict)
 			is_online = 1;
-		if (player_table[it->second->pos].mail)
-			if (strstr(player_table[it->second->pos].mail, it->second->mail)) {
+		if (!player_table[it->second->pos].mail.empty())
+			if (player_table[it->second->pos].mail.find(it->second->mail) != std::string::npos) {
 				it->second->found++;
 				if (it->second->type_req == kSetallFreeze) {
 					if (is_online) {
 						if (GetRealLevel(d_vict->character) >= kLvlGod) {
 							sprintf(buf1, "Персонаж %s бессмертный!\r\n", player_table[it->second->pos].name().c_str());
 							it->second->out += buf1;
+							delete vict;
 							continue;
 						}
 						punishments::SetFreeze(imm_d->character.get(),
@@ -82,6 +83,7 @@ void setall_inspect() {
 							if (GetRealLevel(vict) >= kLvlGod) {
 								sprintf(buf1, "Персонаж %s бессмертный!\r\n", player_table[it->second->pos].name().c_str());
 								it->second->out += buf1;
+								delete vict;
 								continue;
 							}
 							punishments::SetFreeze(imm_d->character.get(),
@@ -96,6 +98,7 @@ void setall_inspect() {
 						if (GetRealLevel(d_vict->character) >= kLvlGod) {
 							sprintf(buf1, "Персонаж %s бессмертный!\r\n", player_table[it->second->pos].name().c_str());
 							it->second->out += buf1;
+							delete vict;
 							continue;
 						}
 						strncpy(GET_EMAIL(d_vict->character), it->second->newmail, 127);
@@ -103,7 +106,7 @@ void setall_inspect() {
 						sprintf(buf2,
 								"Смена e-mail адреса персонажа %s с %s на %s.\r\n",
 								player_table[it->second->pos].name().c_str(),
-								player_table[it->second->pos].mail,
+								player_table[it->second->pos].mail.c_str(),
 								it->second->newmail);
 						AddKarma(d_vict->character.get(), buf2, GET_NAME(imm_d->character));
 						it->second->out += buf2;
@@ -118,6 +121,7 @@ void setall_inspect() {
 						} else {
 							if (GetRealLevel(vict) >= kLvlGod) {
 								it->second->out += buf1;
+								delete vict;
 								continue;
 							}
 							strncpy(GET_EMAIL(vict), it->second->newmail, 127);
@@ -125,7 +129,7 @@ void setall_inspect() {
 							sprintf(buf2,
 									"Смена e-mail адреса персонажа %s с %s на %s.\r\n",
 									player_table[it->second->pos].name().c_str(),
-									player_table[it->second->pos].mail,
+									player_table[it->second->pos].mail.c_str(),
 									it->second->newmail);
 							it->second->out += buf2;
 							AddKarma(vict, buf2, GET_NAME(imm_d->character));
@@ -137,6 +141,7 @@ void setall_inspect() {
 						if (GetRealLevel(d_vict->character) >= kLvlGod) {
 							sprintf(buf1, "Персонаж %s бессмертный!\r\n", player_table[it->second->pos].name().c_str());
 							it->second->out += buf1;
+							delete vict;
 							continue;
 						}
 						Password::set_password(d_vict->character.get(), std::string(it->second->pwd));
@@ -156,6 +161,7 @@ void setall_inspect() {
 						if (GetRealLevel(vict) >= kLvlGod) {
 							sprintf(buf1, "Персонаж %s бессмертный!\r\n", player_table[it->second->pos].name().c_str());
 							it->second->out += buf1;
+							delete vict;
 							continue;
 						}
 						Password::set_password(vict, std::string(it->second->pwd));
@@ -173,6 +179,7 @@ void setall_inspect() {
 						if (GetRealLevel(d_vict->character) >= kLvlGod) {
 							sprintf(buf1, "Персонаж %s бессмертный!\r\n", player_table[it->second->pos].name().c_str());
 							it->second->out += buf1;
+							delete vict;
 							continue;
 						}
 						punishments::SetHell(imm_d->character.get(),
@@ -190,6 +197,7 @@ void setall_inspect() {
 							if (GetRealLevel(vict) >= kLvlGod) {
 								sprintf(buf1, "Персонаж %s бессмертный!\r\n", player_table[it->second->pos].name().c_str());
 								it->second->out += buf1;
+								delete vict;
 								continue;
 							}
 							punishments::SetHell(imm_d->character.get(),
@@ -205,15 +213,6 @@ void setall_inspect() {
 	}
 	if (it->second->mail && it->second->pwd)
 		Password::send_password(it->second->mail, it->second->pwd);
-	// освобождение памяти
-	if (it->second->pwd)
-		free(it->second->pwd);
-	if (it->second->reason)
-		free(it->second->reason);
-	if (it->second->newmail)
-		free(it->second->newmail);
-	if (it->second->mail)
-		free(it->second->mail);
 	gettimeofday(&stop, nullptr);
 	timediff(&result, &stop, &it->second->start);
 	sprintf(buf1, "Всего найдено: %d.\r\n", it->second->found);

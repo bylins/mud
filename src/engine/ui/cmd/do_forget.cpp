@@ -48,7 +48,7 @@ void do_forget(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 		return;
 	}
-	if (IS_IMMORTAL(ch)) {
+	if (ch->IsImmortal()) {
 		SendMsgToChar("Господи, тебе лень набрать skillset?\r\n", ch);
 		return;
 	}

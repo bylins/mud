@@ -69,7 +69,7 @@ void do_create(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		return;
 	}
 	// Caster is don't know this recipe
-	if (!IS_SET(GET_SPELL_TYPE(ch, spell_id), itemnum) && !IS_IMMORTAL(ch)) {
+	if (!IS_SET(GET_SPELL_TYPE(ch, spell_id), itemnum) && !ch->IsImmortal()) {
 		SendMsgToChar("Было бы неплохо прежде всего выучить этот состав.\r\n", ch);
 		return;
 	}

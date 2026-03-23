@@ -17,7 +17,7 @@ int CalcLeadership(CharData *ch) {
 	if (ch->IsNpc()
 		|| !AFF_FLAGGED(ch, EAffect::kGroup)
 		|| (!ch->has_master()
-			&& !ch->followers)) {
+			&& ch->followers.empty())) {
 		return false;
 	}
 

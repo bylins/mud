@@ -393,7 +393,7 @@ void RoomDataCopy(ZoneRnum zrn_from, ZoneRnum zrn_to, std::vector<ZrnComplexList
 		new_room->sector_type = world[i]->sector_type;
 		new_room->people.clear();
 		new_room->func = nullptr;
-		new_room->contents = nullptr;
+		new_room->contents.clear();
 		new_room->track = nullptr;
 		new_room->light = 0;
 		new_room->fires = 0;
@@ -838,7 +838,7 @@ void ClearRoom(RoomData *room) {
 					continue;
 			}
 			if (vict->IsNpc()) {
-				if (vict->followers
+				if (!vict->followers.empty()
 					|| vict->has_master()) {
 					die_follower(vict);
 				}
@@ -862,15 +862,13 @@ void ClearRoom(RoomData *room) {
 				act("$n появил$u, окутанн$w розовым туманом.", false, vict, nullptr, nullptr, kToRoom);
 			}
 		}
-		ObjData *obj, *next_o;
-
-		for (obj = room->contents; obj; obj = next_o) {
-			next_o = obj->get_next_content();
+		while (!room->contents.empty()) {
+			auto obj = room->contents.front();
 			ExtractObjFromWorld(obj);
 		}
 // вдруг лежала сумка с вещами игрока, пройдемся еще раз
-		for (obj = room->contents; obj; obj = next_o) {
-			next_o = obj->get_next_content();
+		while (!room->contents.empty()) {
+			auto obj = room->contents.front();
 			ExtractObjFromWorld(obj);
 		}
 }

@@ -621,15 +621,15 @@ void ProcessLoadCelebrate(CelebrateDataPtr &celebrate, int vnum) {
 				}
 			}
 			for (load = (*room)->objects.begin(); load != (*room)->objects.end(); ++load) {
-				ObjData *obj_room;
 				ObjRnum rnum = GetObjRnum((*load)->vnum);
+
 				if (rnum == -1) {
 					log("{Error] Processing celebrate %s while loading obj %d", celebrate->name.c_str(), (*load)->vnum);
 					return;
 				}
 				int obj_in_room = 0;
 
-				for (obj_room = world[rn]->contents; obj_room; obj_room = obj_room->get_next_content()) {
+				for (auto obj_room : world[rn]->contents) {
 					if (rnum == obj_room->get_rnum()) {
 						obj_in_room++;
 					}

@@ -24,6 +24,7 @@
 #include "utils/utils.h"
 #include "gameplay/mechanics/bonus.h"
 #include "gameplay/mechanics/mob_races.h"
+#include "gameplay/ai/spec_assign.h"
 
 #include "../subprojects/fmt/include/fmt/format.h"
 #include "administration/proxy.h"
@@ -60,6 +61,7 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		GoBootSocials();
 		initIngredientsMagic();
 		InitZoneTypes();
+		ReloadSpecProcs();
 		MUD::Runestones().LoadRunestones();
 		LoadSheduledReboot();
 		oload_table.init();
@@ -128,6 +130,8 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		HelpSystem::reload_all();
 	} else if (!str_cmp(arg, "socials"))
 		GoBootSocials();
+	else if (!str_cmp(arg, "specials"))
+		ReloadSpecProcs();
 	else if (!str_cmp(arg, "schedule"))
 		LoadSheduledReboot();
 	else if (!str_cmp(arg, "clan")) {

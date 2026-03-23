@@ -57,7 +57,7 @@ void do_bash(CharData *ch, CharData *vict) {
 		return;
 	}
 
-	if (IS_IMPL(ch) || !ch->GetEnemy()) {
+	if (ch->IsImpl() || !ch->GetEnemy()) {
 		go_bash(ch, vict);
 	} else if (IsHaveNoExtraAttack(ch)) {
 		if (!ch->IsNpc())
@@ -86,7 +86,7 @@ void go_bash(CharData *ch, CharData *vict) {
 		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
 		return;
 	}
-	if (!(ch->IsNpc() || GET_EQ(ch, kShield) || IS_IMMORTAL(ch) || AFF_FLAGGED(vict, EAffect::kHold)
+	if (!(ch->IsNpc() || GET_EQ(ch, kShield) || ch->IsImmortal() || AFF_FLAGGED(vict, EAffect::kHold)
 		|| GET_GOD_FLAG(vict, EGf::kGodscurse))) {
 		SendMsgToChar("Вы не можете сделать этого без щита.\r\n", ch);
 		return;
@@ -207,7 +207,7 @@ void go_bash(CharData *ch, CharData *vict) {
 			&& !AFF_FLAGGED(vict, EAffect::kStopLeft)
 			&& vict->get_wait() <= 0
 			&& AFF_FLAGGED(vict, EAffect::kHold) == 0) {
-			if (!(GET_EQ(vict, kShield) || vict->IsNpc() || IS_IMMORTAL(vict) || GET_GOD_FLAG(vict, EGf::kGodsLike)))
+			if (!(GET_EQ(vict, kShield) || vict->IsNpc() || vict->IsImmortal() || GET_GOD_FLAG(vict, EGf::kGodsLike)))
 				SendMsgToChar("У вас нечем отразить атаку противника.\r\n", vict);
 			else {
 				int range, prob2;
@@ -244,7 +244,7 @@ void go_bash(CharData *ch, CharData *vict) {
 		dmg.flags.set(fight::kIgnoreBlink);
 		damage = dmg.Process(ch, vict);
 		// Сам баш:
-		if (!IS_IMPL(vict)) {
+		if (!vict->IsImpl()) {
 			if (vict->GetPosition() > EPosition::kSit) {
 				vict->SetPosition(EPosition::kSit);
 				vict->DropFromHorse();
@@ -267,7 +267,7 @@ void go_bash(CharData *ch, CharData *vict) {
 
 	//разные типы лагов в зависимости от того, есть ли "удар щитом", а так же при фейле/успехе и т.д.
 	switch (lag) {
-		case 0: SetWait(ch, 0, true);
+		case 0: ch->zero_wait();
 			break;
 		case 1: SetSkillCooldownInFight(ch, ESkill::kBash, 1);
 			break;

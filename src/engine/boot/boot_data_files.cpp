@@ -329,6 +329,12 @@ void TriggersFile::parse_trigger(int vnum) {
 			indent_trigger(line, &indlev);
 			(*ptr)->cmd = line;
 			(*ptr)->line_num = num++;
+
+			// lowercase the command (first word) for faster comparison at runtime
+			for (auto &c : (*ptr)->cmd) {
+				if (c == ' ') break;
+				c = LOWER(c);
+			}
 			ptr = &(*ptr)->next;
 
 			std::smatch match;
@@ -439,7 +445,7 @@ void WorldFile::parse_room(int virtual_nr) {
 
 	CheckRoomForIncompatibleFlags(room_realnum);
 	world[room_realnum]->func = nullptr;
-	world[room_realnum]->contents = nullptr;
+	world[room_realnum]->contents.clear();
 	world[room_realnum]->track = nullptr;
 	world[room_realnum]->light = 0;    // Zero light sources
 	world[room_realnum]->fires = 0;

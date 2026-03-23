@@ -362,7 +362,7 @@ void do_opurge(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Trigge
 		return;
 	}
 
-	if (ch->followers
+	if (!ch->followers.empty()
 		|| ch->has_master()) {
 		die_follower(ch);
 	}
@@ -585,7 +585,7 @@ void do_odamage(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Trigg
 		return;
 	}
 
-	if (IS_IMMORTAL(ch)) {
+	if (ch->IsImmortal()) {
 		SendMsgToChar("Being the cool immortal you are, you sidestep a trap, obviously placed to kill you.", ch);
 		return;
 	}

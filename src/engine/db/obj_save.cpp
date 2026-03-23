@@ -469,7 +469,7 @@ ObjData::shared_ptr read_one_object_new(char **data, int *error) {
 				if (object->get_custom_label()->author > 0) {
 					for (std::size_t i = 0; i < player_table.size(); i++) {
 						if (player_table[i].uid() == object->get_custom_label()->author) {
-							object->get_custom_label()->author_mail = str_dup(player_table[i].mail);
+							object->get_custom_label()->author_mail = str_dup(player_table[i].mail.c_str());
 							break;
 						}
 					}
@@ -1389,7 +1389,7 @@ int Crash_load(CharData *ch) {
 	cost = MAX(0, cost);
 	// added by WorM (Видолюб) 2010.06.04 сумма потраченная на найм(возвращается при креше)
 	if (RENTCODE(index) == RENT_CRASH) {
-		if (!IS_IMMORTAL(ch) && CanUseFeat(ch, EFeat::kEmployer) && ch->player_specials->saved.HiredCost != 0) {
+		if (!ch->IsImmortal() && CanUseFeat(ch, EFeat::kEmployer) && ch->player_specials->saved.HiredCost != 0) {
 			if (ch->player_specials->saved.HiredCost < 0)
 				ch->add_bank(abs(ch->player_specials->saved.HiredCost), false);
 			else
@@ -1721,24 +1721,24 @@ void Crash_extract_norent_eq(CharData *ch) {
 }
 
 void Crash_extract_norent_charmee(CharData *ch) {
-	if (ch->followers) {
-		for (struct FollowerType *k = ch->followers; k; k = k->next) {
-			if (!IS_CHARMICE(k->follower)
-				|| !k->follower->has_master()) {
+	if (!ch->followers.empty()) {
+		for (auto *k : ch->followers) {
+			if (!IS_CHARMICE(k)
+				|| !k->has_master()) {
 				continue;
 			}
 			for (int j = 0; j < EEquipPos::kNumEquipPos; ++j) {
-				if (!GET_EQ(k->follower, j)) {
+				if (!GET_EQ(k, j)) {
 					continue;
 				}
 
-				if (Crash_is_unrentable(k->follower, GET_EQ(k->follower, j))) {
-					PlaceObjToInventory(UnequipChar(k->follower, j, CharEquipFlags()), k->follower);
+				if (Crash_is_unrentable(k, GET_EQ(k, j))) {
+					PlaceObjToInventory(UnequipChar(k, j, CharEquipFlags()), k);
 				} else {
-					Crash_extract_norents(k->follower, GET_EQ(k->follower, j));
+					Crash_extract_norents(k, GET_EQ(k, j));
 				}
 			}
-			Crash_extract_norents(k->follower, k->follower->carrying);
+			Crash_extract_norents(k, k->carrying);
 		}
 	}
 }
@@ -1763,16 +1763,16 @@ int Crash_calculate_rent_eq(ObjData *obj) {
 
 int Crash_calculate_charmee_rent(CharData *ch) {
 	int cost = 0;
-	if (ch->followers) {
-		for (struct FollowerType *k = ch->followers; k; k = k->next) {
-			if (!IS_CHARMICE(k->follower)
-				|| !k->follower->has_master()) {
+	if (!ch->followers.empty()) {
+		for (auto *k : ch->followers) {
+			if (!IS_CHARMICE(k)
+				|| !k->has_master()) {
 				continue;
 			}
 
-			cost = Crash_calculate_rent(k->follower->carrying);
+			cost = Crash_calculate_rent(k->carrying);
 			for (int j = 0; j < EEquipPos::kNumEquipPos; ++j) {
-				cost += Crash_calculate_rent_eq(GET_EQ(k->follower, j));
+				cost += Crash_calculate_rent_eq(GET_EQ(k, j));
 			}
 		}
 	}
@@ -1789,14 +1789,14 @@ int Crash_calcitems(ObjData *obj) {
 
 int Crash_calc_charmee_items(CharData *ch) {
 	int num = 0;
-	if (ch->followers) {
-		for (struct FollowerType *k = ch->followers; k; k = k->next) {
-			if (!IS_CHARMICE(k->follower)
-				|| !k->follower->has_master())
+	if (!ch->followers.empty()) {
+		for (auto *k : ch->followers) {
+			if (!IS_CHARMICE(k)
+				|| !k->has_master())
 				continue;
 			for (int j = 0; j < EEquipPos::kNumEquipPos; j++)
-				num += Crash_calcitems(GET_EQ(k->follower, j));
-			num += Crash_calcitems(k->follower->carrying);
+				num += Crash_calcitems(GET_EQ(k, j));
+			num += Crash_calcitems(k->carrying);
 		}
 	}
 	return num;
@@ -1933,22 +1933,22 @@ int save_char_objects(CharData *ch, int savetype, int rentcost) {
 
 	crash_save_and_restore_weight(write_buffer, iplayer, ch->carrying, 0, savetype);
 
-	if (ch->followers
+	if (!ch->followers.empty()
 		&& (savetype == RENT_CRASH
 			|| savetype == RENT_FORCED)) {
-		for (struct FollowerType *k = ch->followers; k; k = k->next) {
-			if (!IS_CHARMICE(k->follower)
-				|| !k->follower->has_master()) {
+		for (auto *k : ch->followers) {
+			if (!IS_CHARMICE(k)
+				|| !k->has_master()) {
 				continue;
 			}
 
 			for (j = 0; j < EEquipPos::kNumEquipPos; j++) {
-				if (GET_EQ(k->follower, j)) {
-					crash_save_and_restore_weight(write_buffer, iplayer, GET_EQ(k->follower, j), 0, savetype);
+				if (GET_EQ(k, j)) {
+					crash_save_and_restore_weight(write_buffer, iplayer, GET_EQ(k, j), 0, savetype);
 				}
 			}
 
-			crash_save_and_restore_weight(write_buffer, iplayer, k->follower->carrying, 0, savetype);
+			crash_save_and_restore_weight(write_buffer, iplayer, k->carrying, 0, savetype);
 		}
 	}
 

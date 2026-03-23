@@ -80,15 +80,15 @@ void process_mobmax(CharData *ch, CharData *killer) {
 				}
 			}
 
-			for (struct FollowerType *f = master->followers; f; f = f->next) {
-				if (AFF_FLAGGED(f->follower, EAffect::kGroup)) ++total_group_members;
-				if (AFF_FLAGGED(f->follower, EAffect::kGroup)
-					&& f->follower->in_room == killer->in_room) {
+			for (auto *f : master->followers) {
+				if (AFF_FLAGGED(f, EAffect::kGroup)) ++total_group_members;
+				if (AFF_FLAGGED(f, EAffect::kGroup)
+					&& f->in_room == killer->in_room) {
 					++cnt;
 					if (leader_partner) {
-						if (!f->follower->IsNpc()) {
+						if (!f->IsNpc()) {
 							partner_feat++;
-							partner = f->follower;
+							partner = f;
 						}
 					}
 				}
@@ -113,10 +113,10 @@ void process_mobmax(CharData *ch, CharData *killer) {
 			if (master->in_room == killer->in_room) {
 				members_to_mobmax.push_back(master);
 			}
-			for (struct FollowerType *f = master->followers; f; f = f->next) {
-				if (AFF_FLAGGED(f->follower, EAffect::kGroup)
-					&& f->follower->in_room == killer->in_room) {
-					members_to_mobmax.push_back(f->follower);
+			for (auto *f : master->followers) {
+				if (AFF_FLAGGED(f, EAffect::kGroup)
+					&& f->in_room == killer->in_room) {
+					members_to_mobmax.push_back(f);
 				}
 			}
 
@@ -132,11 +132,12 @@ void process_mobmax(CharData *ch, CharData *killer) {
 			// выберем случайным образом мембера группы для замакса
 			auto n = number(0, cnt);
 			int i = 0;
-			for (struct FollowerType *f = master->followers; f && i < n; f = f->next) {
-				if (AFF_FLAGGED(f->follower, EAffect::kGroup)
-					&& f->follower->in_room == killer->in_room) {
+			for (auto *f : master->followers) {
+				if (i >= n) break;
+				if (AFF_FLAGGED(f, EAffect::kGroup)
+					&& f->in_room == killer->in_room) {
 					++i;
-					master = f->follower;
+					master = f;
 				}
 			}
 			master->mobmax_add(master, GET_MOB_VNUM(ch), 1, GetRealLevel(ch));
@@ -155,8 +156,8 @@ bool stone_rebirth(CharData *ch, CharData *killer) {
 	GetZoneRooms(world[ch->in_room]->zone_rn, &rnum_start, &rnum_stop);
 	for (; rnum_start <= rnum_stop; rnum_start++) {
 		RoomData *rm = world[rnum_start];
-		if (rm->contents) {
-			for (ObjData *j = rm->contents; j; j = j->get_next_content()) {
+		if (!rm->contents.empty()) {
+			for (auto j : rm->contents) {
 				if (j->get_vnum() == 1000) { // камень возрождения
 					act("$n погиб$q смертью храбрых.", false, ch, nullptr, nullptr, kToRoom);
 					if (ch->IsNpc()) {
@@ -263,7 +264,7 @@ void die(CharData *ch, CharData *killer) {
 		|| !ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena)
 		|| NORENTABLE(ch)) {
 		if (!(ch->IsNpc()
-			|| IS_IMMORTAL(ch)
+			|| ch->IsImmortal()
 			|| GET_GOD_FLAG(ch, EGf::kGodsLike)
 			|| (killer && killer->IsFlagged(EPrf::kExecutor))))//если убил не палач
 		{
@@ -358,13 +359,13 @@ void arena_kill(CharData *ch, CharData *killer) {
 		HELL_DURATION(ch) = time(nullptr) + 6;
 		to_room = r_helled_start_room;
 	}
-	for (FollowerType *f = ch->followers; f; f = f->next) {
-		if (IS_CHARMICE(f->follower)) {
-			RemoveCharFromRoom(f->follower);
-			PlaceCharToRoom(f->follower, to_room);
+	for (auto *f : ch->followers) {
+		if (IS_CHARMICE(f)) {
+			RemoveCharFromRoom(f);
+			PlaceCharToRoom(f, to_room);
 		}
 	}
-	for (int i=0; i < MAX_FIRSTAID_REMOVE; i++) {
+	for (int i=0; i < kMaxFirstaidRemove; i++) {
 		RemoveAffectFromChar(ch, GetRemovableSpellId(i));
 	}
 	// наемовские яды
@@ -555,7 +556,7 @@ void raw_kill(CharData *ch, CharData *killer) {
 		if (hitter.deleted)
 			continue;
 		if (hitter.ch->GetEnemy() == ch) {
-			SetWaitState(hitter.ch, 0);
+			hitter.ch->zero_wait();
 		}
 	}
 	if (!ch || ch->purged()) {
@@ -797,7 +798,7 @@ void perform_group_gain(CharData *ch, CharData *victim, int members, int koef) {
 		TopPlayer::Refresh(ch);
 		if (!EXTRA_FLAGGED(victim, EXTRA_GRP_KILL_COUNT)
 				&& !ch->IsNpc()
-				&& !IS_IMMORTAL(ch)
+				&& !ch->IsImmortal()
 				&& victim->IsNpc()
 				&& !IS_CHARMICE(victim)
 				&& !ROOM_FLAGGED(victim->in_room, ERoomFlag::kArena)) {
@@ -824,7 +825,6 @@ void perform_group_gain(CharData *ch, CharData *victim, int members, int koef) {
 --*/
 void group_gain(CharData *killer, CharData *victim) {
 	int inroom_members, koef = 100, maxlevel;
-	struct FollowerType *f;
 	int partner_count = 0;
 	int total_group_members = 1;
 	bool use_partner_exp = false;
@@ -854,21 +854,21 @@ void group_gain(CharData *killer, CharData *victim) {
 	}
 
 	// Вычисляем максимальный уровень в группе
-	for (f = leader->followers; f; f = f->next) {
-		if (AFF_FLAGGED(f->follower, EAffect::kGroup)) ++total_group_members;
-		if (AFF_FLAGGED(f->follower, EAffect::kGroup)
-			&& f->follower->in_room == killer->in_room) {
+	for (auto *f : leader->followers) {
+		if (AFF_FLAGGED(f, EAffect::kGroup)) ++total_group_members;
+		if (AFF_FLAGGED(f, EAffect::kGroup)
+			&& f->in_room == killer->in_room) {
 			// если в группе наем, то режим опыт всей группе
 			// дабы наема не выгодно было бы брать в группу
 			// ставим 300, чтобы вообще под ноль резало
-			if (CanUseFeat(f->follower, EFeat::kCynic)) {
+			if (CanUseFeat(f, EFeat::kCynic)) {
 				maxlevel = 300;
 			}
 			// просмотр членов группы в той же комнате
 			// член группы => PC автоматически
 			++inroom_members;
-			maxlevel = std::max(maxlevel, GetRealLevel(f->follower));
-			if (!f->follower->IsNpc()) {
+			maxlevel = std::max(maxlevel, GetRealLevel(f));
+			if (!f->IsNpc()) {
 				partner_count++;
 			}
 		}
@@ -909,10 +909,10 @@ void group_gain(CharData *killer, CharData *victim) {
 		perform_group_gain(leader, victim, inroom_members, koef);
 	}
 
-	for (f = leader->followers; f; f = f->next) {
-		if (AFF_FLAGGED(f->follower, EAffect::kGroup)
-				&& f->follower->in_room == killer->in_room) {
-			perform_group_gain(f->follower, victim, inroom_members, koef);
+	for (auto *f : leader->followers) {
+		if (AFF_FLAGGED(f, EAffect::kGroup)
+				&& f->in_room == killer->in_room) {
+			perform_group_gain(f, victim, inroom_members, koef);
 		}
 	}
 }

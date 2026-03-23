@@ -968,7 +968,7 @@ int command_otrigger(CharData *actor, char *cmd, const char *argument) {
 		}
 	}
 
-	for (ObjData *obj = world[actor->in_room]->contents; obj; obj = obj->get_next_content()) {
+	for (auto obj : world[actor->in_room]->contents) {
 		if (cmd_otrig(obj, actor, cmd, argument, OCMD_ROOM)) {
 			return 1;
 		}
@@ -1157,14 +1157,13 @@ int close_otrigger(ObjData *obj, CharData *actor, int lock) {
 
 void greet_otrigger(CharData *actor, int dir) {
 	char buf[kMaxInputLength];
-	ObjData *obj;
 	int rev_dir[] = {EDirection::kSouth, EDirection::kWest, EDirection::kNorth, EDirection::kEast, EDirection::kDown, EDirection::kUp};
 
 	if (actor->IsNpc() || GET_INVIS_LEV(actor)) {
 		return;
 	}
 
-	for (obj = world[actor->in_room]->contents; obj; obj = obj->get_next_content()) {
+	for (auto obj : world[actor->in_room]->contents) {
 		if (!CheckSript(obj, OTRIG_GREET_ALL_PC)) {
 			continue;
 		}

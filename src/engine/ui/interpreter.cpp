@@ -55,6 +55,7 @@
 #include "engine/ui/cmd_god/do_beep.h"
 #include "engine/ui/cmd_god/do_overstuff.h"
 #include "engine/ui/cmd_god/do_poof_msg.h"
+#include "engine/ui/cmd_god/do_profile.h"
 #include "engine/ui/cmd_god/do_print_armor.h"
 #include "engine/ui/cmd_god/do_purge.h"
 #include "engine/ui/cmd_god/do_godtest.h"
@@ -328,7 +329,6 @@ void redit_parse(DescriptorData *d, char *arg);
 void zedit_parse(DescriptorData *d, char *arg);
 void medit_parse(DescriptorData *d, char *arg);
 void trigedit_parse(DescriptorData *d, char *arg);
-extern int CheckProxy(DescriptorData *ch);
 extern void check_max_hp(CharData *ch);
 // local functions
 int perform_dupe_check(DescriptorData *d);
@@ -919,6 +919,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"pour", EPosition::kStand, do_pour, 0, kScmdPour, -1},
 		{"practice", EPosition::kStand, do_not_here, 0, 0, -1},
 		{"prompt", EPosition::kDead, do_display, 0, 0, 0},
+		{"profile", EPosition::kDead, do_profile, kLvlImmortal, 0, 0},
 		{"proxy", EPosition::kDead, do_proxy, kLvlGreatGod, 0, 0},
 		{"purge", EPosition::kDead, DoPurge, kLvlGod, 0, 0},
 		{"put", EPosition::kRest, do_put, 0, 0, 500},
@@ -1062,26 +1063,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"\n", EPosition::kDead, nullptr, 0, 0, 0}
 	};
 
-const char *dir_fill[] = {"in",
-						  "from",
-						  "with",
-						  "the",
-						  "on",
-						  "at",
-						  "to",
-						  "\n"
-};
-
-const char *reserved[] = {"a",
-						  "an",
-						  "self",
-						  "me",
-						  "all",
-						  "room",
-						  "someone",
-						  "something",
-						  "\n"
-};
+// dir_fill, reserved moved to mud_string.cpp
 
 void check_hiding_cmd(CharData *ch, int percent) {
 	int remove_hide = false;
@@ -1185,7 +1167,7 @@ void command_interpreter(CharData *ch, char *argument) {
 		&& !AFF_FLAGGED(ch, EAffect::kHold)
 		&& !AFF_FLAGGED(ch, EAffect::kStopFight)
 		&& !AFF_FLAGGED(ch, EAffect::kMagicStopFight)
-		&& !(IS_GOD(ch) && !strcmp(arg, "invis")))  // let immortals switch to wizinvis to avoid broken command triggers
+		&& !(ch->IsGod() && !strcmp(arg, "invis")))  // let immortals switch to wizinvis to avoid broken command triggers
 	{
 		int cont;    // continue the command checks
 		cont = command_wtrigger(ch, arg, line);
@@ -1341,138 +1323,9 @@ int search_block(const std::string &block, const char **list, int exact) {
 	return (-1);
 }
 
-int is_number(const char *str) {
-	while (*str) {
-		if (!a_isdigit(*(str++))) {
-			return 0;
-		}
-	}
+// is_number and delete_doubledollar moved to utils_string.cpp
 
-	return 1;
-}
-
-/*
- * Given a string, change all instances of double dollar signs ($$) to
- * single dollar signs ($).  When strings come in, all $'s are changed
- * to $$'s to avoid having users be able to crash the system if the
- * inputted string is eventually sent to act().  If you are using user
- * input to produce screen output AND YOU ARE SURE IT WILL NOT BE SENT
- * THROUGH THE act() FUNCTION (i.e., do_gecho, but NOT do_say),
- * you can call delete_doubledollar() to make the output look correct.
- *
- * Modifies the string in-place.
- */
-char *delete_doubledollar(char *string) {
-	char *read, *write;
-
-	// If the string has no dollar signs, return immediately //
-	if ((write = strchr(string, '$')) == nullptr)
-		return (string);
-
-	// Start from the location of the first dollar sign //
-	read = write;
-
-	while (*read)        // Until we reach the end of the string... //
-		if ((*(write++) = *(read++)) == '$')    // copy one char //
-			if (*read == '$')
-				read++;    // skip if we saw 2 $'s in a row //
-
-	*write = '\0';
-
-	return (string);
-}
-
-int fill_word(const char *argument) {
-	return (search_block(argument, dir_fill, true) >= 0);
-}
-
-int reserved_word(const char *argument) {
-	return (search_block(argument, reserved, true) >= 0);
-}
-
-template<typename T>
-T one_argument_template(T argument, char *first_arg) {
-	char *begin = first_arg;
-
-	if (!argument) {
-		log("SYSERR: one_argument received a NULL pointer!");
-		*first_arg = '\0';
-		return (nullptr);
-	}
-	do {
-		skip_spaces(&argument);
-		first_arg = begin;
-		while (*argument && !a_isspace(*argument)) {
-			*(first_arg++) = a_lcc(*argument);
-			argument++;
-		}
-		*first_arg = '\0';
-	} while (fill_word(begin));
-	skip_spaces(&argument);
-	return (argument);
-}
-
-template<typename T>
-T any_one_arg_template(T argument, char *first_arg) {
-	if (!argument) {
-		log("SYSERR: any_one_arg() passed a NULL pointer.");
-		return 0;
-	}
-	skip_spaces(&argument);
-
-	int num = 0;
-//	int len = strlen(argument);
-	while (*argument && !a_isspace(*argument) && num < kMaxStringLength - 1) {
-		*first_arg = a_lcc(*argument);
-		++first_arg;
-		++argument;
-		++num;
-	}
-	*first_arg = '\0';
-	skip_spaces(&argument);
-	return argument;
-}
-
-char *one_argument(char *argument, char *first_arg) { return one_argument_template(argument, first_arg); }
-const char *one_argument(const char *argument, char *first_arg) { return one_argument_template(argument, first_arg); }
-char *any_one_arg(char *argument, char *first_arg) { return any_one_arg_template(argument, first_arg); }
-const char *any_one_arg(const char *argument, char *first_arg) { return any_one_arg_template(argument, first_arg); }
-
-void SplitArgument(const char *arguments, std::vector<std::string> &out) {
-	char local_buf[kMaxTrglineLength];
-	const char *current_arg = arguments;
-	out.clear();
-	do {
-		current_arg = one_argument(current_arg, local_buf);
-		if (!*local_buf) {
-			break;
-		}
-		out.emplace_back(local_buf);
-	} while (*current_arg);
-}
-
-void SplitArgument(const char *arguments, std::vector<short> &out) {
-	std::vector<std::string> tmp;
-	SplitArgument(arguments, tmp);
-	for (const auto &value : tmp) {
-		out.push_back(atoi(value.c_str()));
-	}
-}
-
-void SplitArgument(const char *arguments, std::vector<int> &out) {
-	std::vector<std::string> tmp;
-	SplitArgument(arguments, tmp);
-	for (const auto &value : tmp) {
-		out.push_back(atoi(value.c_str()));
-	}
-}
-
-// return first space-delimited token in arg1; remainder of string in arg2 //
-void half_chop(const char *string, char *arg1, char *arg2) {
-	const char *temp = any_one_arg_template(string, arg1);
-	skip_spaces(&temp);
-	strl_cpy(arg2, temp, kMaxStringLength);
-}
+// fill_word, reserved_word, one_argument, any_one_arg, SplitArgument, half_chop moved to mud_string.cpp
 
 // Used in specprocs, mostly.  (Exactly) matches "command" to cmd number //
 int find_command(const char *command) {
@@ -1534,7 +1387,7 @@ int special(CharData *ch, int cmd, char *argument, int fnum) {
 	}
 
 	// special in object present? //
-	for (i = world[ch->in_room]->contents; i; i = i->get_next_content()) {
+	for (auto i : world[ch->in_room]->contents) {
 		auto spec = GET_OBJ_SPEC(i);
 		if (spec != nullptr && spec(ch, i, cmd, argument)) {
 			check_hiding_cmd(ch, -1);
@@ -1769,71 +1622,80 @@ int pre_help(CharData *ch, char *argument) {
 	return (0);
 }
 
-// вобщем флажок для зареганных ип, потому что при очередной автопроверке, если превышен
-// лимит коннектов с ип - сядут все сместе, что выглядит имхо странно, может там комп новый воткнули
-// и просто еще до иммов не достучались лимит поднять... вобщем сидит тот, кто не успел Ж)
+// Проверяет допустимость подключения с данного IP.
+// Возвращает 1 если подключение разрешено, 0 если нет.
+// Порядок проверок:
+//   1. Бессмертные - всегда OK
+//   2. Нет дубликатов IP - OK
+//   3. Есть proxy запись - проверяем лимит (даже для зарегистрированных)
+//   4. Нет proxy записи - проверяем регистрацию персонажа/email
+//   5. Не зарегистрирован - в комнату незарегов
 int check_dupes_host(DescriptorData *d, bool autocheck = false) {
-	if (!d->character || IS_IMMORTAL(d->character) || d->character->desc->original)
+	if (!d->character || d->character->IsImmortal() || d->character->desc->original) {
 		return 1;
+	}
 
-	// в случае авточекалки нужная проверка уже выполнена до входа в функцию
+	if (CountPlayersFromIp(d) == 0) {
+		return 1;
+	}
+
+	auto proxy_result = CheckProxy(d);
+
+	switch (proxy_result) {
+		case EProxyCheck::kLimitReached:
+			if (autocheck) {
+				return 1;
+			}
+			SendMsgToChar("&RС вашего IP адреса находится максимально допустимое количество игроков.\r\n"
+						  "Обратитесь к Богам для увеличения лимита игроков с вашего адреса.&n",
+						  d->character.get());
+			return 0;
+
+		case EProxyCheck::kAllowed:
+			return 1;
+
+		case EProxyCheck::kNotInList:
+			break;
+	}
+
 	if (!autocheck) {
 		if (RegisterSystem::IsRegistered(d->character.get())) {
 			return 1;
 		}
-
 		if (RegisterSystem::IsRegisteredEmail(GET_EMAIL(d->character))) {
 			d->registered_email = true;
 			return 1;
 		}
 	}
 
-	for (DescriptorData *i = descriptor_list; i; i = i->next) {
-		if (i != d
-			&& i->ip == d->ip
-			&& i->character
-			&& !IS_IMMORTAL(i->character)
-			&&  (i->state == EConState::kPlaying
-				||  i->state == EConState::kMenu)) {
-			switch (CheckProxy(d)) {
-				case 0:
-					// если уже сидим в проксе, то смысла спамить никакого
-					if (d->character->in_room == r_unreg_start_room
-						|| d->character->get_was_in_room() == r_unreg_start_room) {
-						return 0;
-					}
-					SendMsgToChar(d->character.get(),
-								  "&RВы вошли с игроком %s с одного IP(%s)!\r\n"
-								  "Вам необходимо обратиться к Богам для регистрации.\r\n"
-								  "Пока вы будете помещены в комнату для незарегистрированных игроков.&n\r\n",
-								  GET_PAD(i->character, 4), i->host);
-					sprintf(buf,
-							"! ВХОД С ОДНОГО IP ! незарегистрированного игрока.\r\n"
-							"Вошел - %s, в игре - %s, IP - %s.\r\n"
-							"Игрок помещен в комнату незарегистрированных игроков.",
-							GET_NAME(d->character), GET_NAME(i->character), d->host);
-					mudlog(buf, NRM, MAX(kLvlImmortal, GET_INVIS_LEV(d->character)), SYSLOG, true);
-					return 0;
+	if (d->character->in_room == r_unreg_start_room
+		|| d->character->get_was_in_room() == r_unreg_start_room) {
+		return 0;
+	}
 
-				case 1:
-					if (autocheck) {
-						return 1;
-					}
-					SendMsgToChar("&RС вашего IP адреса находится максимально допустимое количество игроков.\r\n"
-								  "Обратитесь к Богам для увеличения лимита игроков с вашего адреса.&n",
-								  d->character.get());
-					return 0;
-
-				default: return 1;
-			}
+	for (auto *i = descriptor_list; i; i = i->next) {
+		if (i != d && i->ip == d->ip && i->character && !i->character->IsImmortal()
+			&& (i->state == EConState::kPlaying || i->state == EConState::kMenu)) {
+			SendMsgToChar(d->character.get(),
+						  "&RВы вошли с игроком %s с одного IP(%s)!\r\n"
+						  "Вам необходимо обратиться к Богам для регистрации.\r\n"
+						  "Пока вы будете помещены в комнату для незарегистрированных игроков.&n\r\n",
+						  GET_PAD(i->character, 4), i->host);
+			sprintf(buf,
+					"! ВХОД С ОДНОГО IP ! незарегистрированного игрока.\r\n"
+					"Вошел - %s, в игре - %s, IP - %s.\r\n"
+					"Игрок помещен в комнату незарегистрированных игроков.",
+					GET_NAME(d->character), GET_NAME(i->character), d->host);
+			mudlog(buf, NRM, MAX(kLvlImmortal, GET_INVIS_LEV(d->character)), SYSLOG, true);
+			break;
 		}
 	}
-	return 1;
+	return 0;
 }
 
 int check_dupes_email(DescriptorData *d) {
 	if (!d->character
-		|| IS_IMMORTAL(d->character)) {
+		|| d->character->IsImmortal()) {
 		return (1);
 	}
 
@@ -1843,7 +1705,7 @@ int check_dupes_email(DescriptorData *d) {
 			continue;
 		}
 
-		if (!IS_IMMORTAL(ch)
+		if (!ch->IsImmortal()
 			&& (!str_cmp(GET_EMAIL(ch), GET_EMAIL(d->character)))) {
 			sprintf(buf, "Персонаж с таким email уже находится в игре, вы не можете войти одновременно с ним!");
 			SendMsgToChar(buf, d->character.get());
@@ -2060,7 +1922,7 @@ void do_entergame(DescriptorData *d) {
 	UnsetInaccessibleFeats(d->character.get());
 	SetInbornAndRaceFeats(d->character.get());
 
-	if (!IS_IMMORTAL(d->character)) {
+	if (!d->character->IsImmortal()) {
 		for (const auto &skill : MUD::Skills()) {
 			if (MUD::Class((d->character)->GetClass()).skills[skill.GetId()].IsInvalid()) {
 				d->character->set_skill(skill.GetId(), 0);
@@ -2239,7 +2101,7 @@ void DoAfterPassword(DescriptorData *d) {
 
 	const uint32_t MASK = 16777215;
 	for (const auto &logon : LOGON_LIST(d->character)) {
-		uint32_t current_subnet = inet_addr(logon.ip) & MASK;
+		uint32_t current_subnet = inet_addr(logon.ip.c_str()) & MASK;
 		subnets.insert(current_subnet);
 	}
 
@@ -2340,8 +2202,8 @@ void init_char(CharData *ch, PlayerIndexElement &element) {
 	element.level = 0;
 	element.remorts = 0;
 	element.last_logon = -1;
-	element.mail = nullptr;//added by WorM mail
-	element.last_ip = nullptr;//added by WorM последний айпи
+	element.mail.clear();
+	element.last_ip.clear();
 
 	if (GetRealLevel(ch) > kLvlGod) {
 		SetGodSkills(ch);
@@ -2675,7 +2537,7 @@ void nanny(DescriptorData *d, char *argument) {
 					} else if (!IsNameOffline(tmp_name)) {
 						player_i = LoadPlayerCharacter(tmp_name, d->character.get(), ELoadCharFlags::kFindId);
 						d->character->set_pfilepos(player_i);
-						if (IS_IMMORTAL(d->character) || d->character->IsFlagged(EPrf::kCoderinfo)) {
+						if (d->character->IsImmortal() || d->character->IsFlagged(EPrf::kCoderinfo)) {
 							iosystem::write_to_output("Игрок с подобным именем является БЕССМЕРТНЫМ в игре.\r\n", d);
 						} else {
 							iosystem::write_to_output("Игрок с подобным именем находится в игре.\r\n", d);
@@ -2714,7 +2576,7 @@ void nanny(DescriptorData *d, char *argument) {
 						d->state = EConState::kNameConfirm;
 					} else    // undo it just in case they are set
 					{
-						if (IS_IMMORTAL(d->character) || d->character->IsFlagged(EPrf::kCoderinfo)) {
+						if (d->character->IsImmortal() || d->character->IsFlagged(EPrf::kCoderinfo)) {
 							iosystem::write_to_output("Игрок с подобным именем является БЕССМЕРТНЫМ в игре.\r\n", d);
 							iosystem::write_to_output("Во избежание недоразумений введите пару ИМЯ ПАРОЛЬ.\r\n", d);
 							iosystem::write_to_output("Имя и пароль через пробел : ", d);
@@ -3316,7 +3178,7 @@ void nanny(DescriptorData *d, char *argument) {
 					break;
 
 				case '5':
-					if (IS_IMMORTAL(d->character)) {
+					if (d->character->IsImmortal()) {
 						iosystem::write_to_output("\r\nБоги бессмертны (с) Стрибог, просите чтоб пофризили :)))\r\n", d);
 						iosystem::write_to_output(MENU, d);
 						break;
@@ -3341,7 +3203,7 @@ void nanny(DescriptorData *d, char *argument) {
 					break;
 
 				case '6':
-					if (IS_IMMORTAL(d->character)) {
+					if (d->character->IsImmortal()) {
 						iosystem::write_to_output("\r\nВам это ни к чему...\r\n", d);
 						iosystem::write_to_output(MENU, d);
 						d->state = EConState::kMenu;
@@ -3891,12 +3753,8 @@ void DeletePcByHimself(const char *name) {
 		player_table[id].remorts = -1;
 		player_table[id].last_logon = -1;
 		player_table[id].activity = -1;
-		if (player_table[id].mail)
-			free(player_table[id].mail);
-		player_table[id].mail = nullptr;
-		if (player_table[id].last_ip)
-			free(player_table[id].last_ip);
-		player_table[id].last_ip = nullptr;
+		player_table[id].mail.clear();
+		player_table[id].last_ip.clear();
 	}
 }
 

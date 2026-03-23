@@ -54,6 +54,7 @@
 #include "gameplay/mechanics/mob_races.h"
 #include "gameplay/mechanics/treasure_cases.h"
 #include "gameplay/mechanics/cities.h"
+#include "gameplay/ai/mobact.h"
 #include "administration/proxy.h"
 #include "utils/utils_time.h"
 #include "gameplay/classes/pc_classes.h"
@@ -1450,7 +1451,7 @@ void AddVirtualRoomsToAllZones() {
 		new_room->sector_type = ESector::kSecret;
 
 		new_room->func = nullptr;
-		new_room->contents = nullptr;
+		new_room->contents.clear();
 		new_room->track = nullptr;
 		new_room->light = 0;
 		new_room->fires = 0;
@@ -1915,10 +1916,8 @@ void after_reset_zone(ZoneRnum nr_zone) {
 				zone_table[nr_zone].used = true;
 				return;
 			}
-			struct FollowerType *k, *k_next;
-			for (k = d->character->followers; k; k = k_next) {
-				k_next = k->next;
-				if (IS_CHARMICE(k->follower) && world[k->follower->in_room]->zone_rn == nr_zone) {
+			for (auto *k : d->character->followers) {
+				if (IS_CHARMICE(k) && world[k->in_room]->zone_rn == nr_zone) {
 					zone_table[nr_zone].used = true;
 					return;
 				}
@@ -1996,7 +1995,8 @@ void ZoneUpdate() {
 		}
 	}
 	UniqueList<ZoneRnum> zone_repop_list;
-	for (update_u = reset_q.head; update_u; update_u = update_u->next)
+	for (update_u = reset_q.head; update_u; ) {
+		auto *next_u = update_u->next;
 		if (zone_table[update_u->zone_to_reset].reset_mode == 2
 			|| (zone_table[update_u->zone_to_reset].reset_mode != 3 && IsZoneEmpty(update_u->zone_to_reset))
 			|| CanBeReset(update_u->zone_to_reset)) {
@@ -2006,7 +2006,6 @@ void ZoneUpdate() {
 				<< zone_table[update_u->zone_to_reset].vnum << ")";
 			if (zone_table[update_u->zone_to_reset].reset_mode == 3) {
 				for (auto i = 0; i < zone_table[update_u->zone_to_reset].typeA_count; i++) {
-					//Ищем ZoneRnum по vnum
 					for (ZoneRnum j = 0; j < static_cast<ZoneRnum>(zone_table.size()); j++) {
 						if (zone_table[j].vnum ==
 							zone_table[update_u->zone_to_reset].typeA_list[i]) {
@@ -2026,7 +2025,7 @@ void ZoneUpdate() {
 				if (zone_table[it].vnum < dungeons::kZoneStartDungeons) {
 					ResetZone(it);
 					zones_reset_count++;
-					
+
 					ZoneResetMetrics(it).RecordResetCount();
 				} else {
 					log("Закрываю брошенный dungeon %d", it);
@@ -2040,9 +2039,9 @@ void ZoneUpdate() {
 			mudlog(ss.str(), LGH, kLvlGod, SYSLOG, false);
 			out << " ]\r\n[ Time reset: " << timer_count.delta().count();
 			mudlog(out.str(), LGH, kLvlGod, SYSLOG, false);
-			if (update_u == reset_q.head)
+			if (update_u == reset_q.head) {
 				reset_q.head = reset_q.head->next;
-			else {
+			} else {
 				for (temp = reset_q.head; temp->next != update_u; temp = temp->next);
 				if (!update_u->next)
 					reset_q.tail = temp;
@@ -2053,6 +2052,8 @@ void ZoneUpdate() {
 			if (k >= kZonesReset)
 				break;
 		}
+		update_u = next_u;
+	}
 	
 	// OpenTelemetry: Record total zones reset
 	zone_span->SetAttribute("zones_reset_count", static_cast<int64_t>(zones_reset_count));
@@ -2109,6 +2110,13 @@ void paste_mob(CharData *ch, RoomRnum room) {
 	bool need_move = false;
 	bool no_month = true;
 	bool no_time = true;
+	const bool seasonal_mob =
+		ch->IsFlagged(EMobFlag::kAppearsWinter)
+		|| ch->IsFlagged(EMobFlag::kAppearsSpring)
+		|| ch->IsFlagged(EMobFlag::kAppearsSummer)
+		|| ch->IsFlagged(EMobFlag::kAppearsAutumn);
+
+
 
 	if (ch->IsFlagged(EMobFlag::kAppearsDay)) {
 		if (weather_info.sunlight == kSunRise || weather_info.sunlight == kSunLight)
@@ -2154,23 +2162,43 @@ void paste_mob(CharData *ch, RoomRnum room) {
 		need_move = true;
 		no_month = false;
 	}
-	if (need_move) {
+	if (need_move)
+	{
 		month_ok |= no_month;
 		time_ok |= no_time;
-		if (month_ok && time_ok) {
+		if (month_ok && time_ok)
+		{
 			if (world[room]->vnum != zone_table[world[room]->zone_rn].top)
+			{
 				return;
+			}
 
-			if (GET_LASTROOM(ch) == kNowhere) {
+			if (GET_LASTROOM(ch) == kNowhere)
+			{
 				ExtractCharFromWorld(ch, false, true);
 				return;
 			}
 
 			RemoveCharFromRoom(ch);
 			PlaceCharToRoom(ch, GET_LASTROOM(ch));
-		} else {
+		}
+		else
+		{
 			if (world[room]->vnum == zone_table[world[room]->zone_rn].top)
+			{
 				return;
+			}
+
+			if (seasonal_mob)
+			{
+				if (mob_ai::drop_mob_objects_to_box(ch))
+				{
+					char log_buf[kMaxInputLength];
+					snprintf(log_buf, sizeof(log_buf), "Сезонный моб %s [%d] сложил вещи в узелок в комнате %d перед уходом в виртуальную комнату.",
+						GET_NAME(ch), GET_MOB_VNUM(ch), world[room]->vnum);
+					mudlog(log_buf, NRM, kLvlGod, SYSLOG, true);
+				}
+			}
 
 			GET_LASTROOM(ch) = room;
 			RemoveCharFromRoom(ch);
@@ -2306,10 +2334,7 @@ void paste_on_reset(RoomData *to_room) {
 	for (const auto &ch : people_copy) {
 		paste_mob(ch, ch->in_room);
 	}
-	ObjData *obj_next;
-
-	for (ObjData *obj = to_room->contents; obj; obj = obj_next) {
-		obj_next = obj->get_next_content();
+	for (auto obj : to_room->contents) {
 		paste_obj(obj, obj->get_in_room());
 	}
 }
@@ -2385,7 +2410,7 @@ void ZoneReset::ResetZoneEssential() {
 	int cmd_no;
 	int cmd_tmp, obj_in_room_max, obj_in_room = 0;
 	CharData *mob = nullptr, *leader = nullptr;
-	ObjData *obj_to, *obj_room;
+	ObjData *obj_to;
 	CharData *tmob = nullptr;    // for trigger assignment
 	ObjData *tobj = nullptr;    // for trigger assignment
 	int last_state, curr_state;    // статус завершения последней и текущей команды
@@ -2459,7 +2484,7 @@ void ZoneReset::ResetZoneEssential() {
 					leader = nullptr;
 					if (reset_cmd.arg1 >= kFirstRoom && reset_cmd.arg1 <= top_of_world) {
 						for (const auto ch : world[reset_cmd.arg1]->people) {
-							if (ch->IsNpc() && GET_MOB_RNUM(ch) == reset_cmd.arg2) {
+							if (ch->IsNpc() && ch->get_rnum() == reset_cmd.arg2) {
 								leader = ch;
 							}
 						}
@@ -2467,9 +2492,12 @@ void ZoneReset::ResetZoneEssential() {
 						if (leader) {
 							for (const auto ch : world[reset_cmd.arg1]->people) {
 								if (ch->IsNpc()
-									&& GET_MOB_RNUM(ch) == reset_cmd.arg3
+									&& ch->get_rnum() == reset_cmd.arg3
 									&& leader != ch
 									&& !ch->makes_loop(leader)) {
+									if (IS_CHARMICE(ch)) {
+										continue;
+									}
 									if (ch->has_master()) {
 										stop_follower(ch, kSfEmpty);
 									}
@@ -2508,8 +2536,8 @@ void ZoneReset::ResetZoneEssential() {
 							&& (reset_cmd.arg3 == zone_data.cmd[cmd_tmp].arg3))
 							obj_in_room_max++;
 					// Теперь считаем склько их на текущей клетке
-					for (obj_room = world[reset_cmd.arg3]->contents, obj_in_room = 0; obj_room;
-						 obj_room = obj_room->get_next_content()) {
+					obj_in_room = 0;
+					for (auto obj_room : world[reset_cmd.arg3]->contents) {
 						if (reset_cmd.arg1 == obj_room->get_rnum()) {
 							obj_in_room++;
 						}
@@ -2726,20 +2754,26 @@ void ZoneReset::ResetZoneEssential() {
 					// 'T' <flag> <trigger_type> <trigger_vnum> <RoomVnum, для WLD_TRIGGER>
 					if (reset_cmd.arg1 == MOB_TRIGGER && tmob) {
 						auto trig = read_trigger(reset_cmd.arg2);
-						if (!add_trigger(SCRIPT(tmob).get(), trig, -1)) {
+						if (add_trigger(SCRIPT(tmob).get(), trig, -1)) {
+							add_trig_to_owner(-1, trig_index[reset_cmd.arg2]->vnum, GET_MOB_VNUM(tmob));
+						} else {
 							ExtractTrigger(trig);
 						}
 						curr_state = 1;
 					} else if (reset_cmd.arg1 == OBJ_TRIGGER && tobj) {
 						auto trig = read_trigger(reset_cmd.arg2);
-						if (!add_trigger(tobj->get_script().get(), trig, -1)) {
+						if (add_trigger(tobj->get_script().get(), trig, -1)) {
+							add_trig_to_owner(-1, trig_index[reset_cmd.arg2]->vnum, GET_OBJ_VNUM(tobj));
+						} else {
 							ExtractTrigger(trig);
 						}
 						curr_state = 1;
 					} else if (reset_cmd.arg1 == WLD_TRIGGER) {
 						if (reset_cmd.arg3 > kNowhere) {
 							auto trig = read_trigger(reset_cmd.arg2);
-							if (!add_trigger(world[reset_cmd.arg3]->script.get(), trig, -1)) {
+							if (add_trigger(world[reset_cmd.arg3]->script.get(), trig, -1)) {
+								add_trig_to_owner(-1, trig_index[reset_cmd.arg2]->vnum, world[reset_cmd.arg3]->vnum);
+							} else {
 								ExtractTrigger(trig);
 							}
 							curr_state = 1;
@@ -2909,7 +2943,7 @@ int CountMobsInRoom(int m_num, int r_num) {
 	int count = 0;
 
 	for (const auto &ch : world[r_num]->people) {
-		if (m_num == GET_MOB_RNUM(ch)
+		if (m_num == ch->get_rnum()
 			&& !ch->IsFlagged(EMobFlag::kResurrected)) {
 			count++;
 		}

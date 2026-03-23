@@ -21,7 +21,7 @@ bool IsCharIgnoresDeepWater(CharData *ch);
  * Return true if char can walk on water
  */
 bool HasBoat(CharData *ch) {
-	if (IS_IMMORTAL(ch)) {
+	if (ch->IsImmortal()) {
 		return true;
 	}
 
@@ -49,7 +49,7 @@ bool IsCharNeedBoatThere(CharData *ch, RoomRnum room_rnum) {
 }
 
 bool IsCharIgnoresDeepWater(CharData *ch) {
-	return (IS_GOD(ch) || ch->IsFlagged(EMobFlag::kSwimming) || AFF_FLAGGED(ch, EAffect::kWaterWalk) ||
+	return (ch->IsGod() || ch->IsFlagged(EMobFlag::kSwimming) || AFF_FLAGGED(ch, EAffect::kWaterWalk) ||
 		ch->IsFlagged(EMobFlag::kFlying) ||	AFF_FLAGGED(ch, EAffect::kFly));
 }
 

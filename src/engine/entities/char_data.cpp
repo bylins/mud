@@ -72,8 +72,7 @@ CharData::CharData() :
 	m_wait(~0u),
 	m_master(nullptr),
 	proto_script(new ObjData::triggers_list_t()),
-	script(new Script()),
-	followers(nullptr) {
+	script(new Script()) {
 	this->zero_init();
 	caching::character_cache.Add(this);
 	skills[ESkill::kGlobalCooldown].skillLevel = 0; //добавим позицию в map
@@ -108,7 +107,7 @@ int CharData::get_souls() {
 }
 
 bool CharData::in_used_zone() const {
-	if (IS_MOB(this)) {
+	if (this->IsNpc()) {
 		return 0 != zone_table[world[in_room]->zone_rn].used;
 	}
 	return false;
@@ -186,7 +185,7 @@ void CharData::reset() {
 	}
 	memset((void *) &add_abils, 0, sizeof(add_abils));
 
-	followers = nullptr;
+	followers.clear();
 	m_master = nullptr;
 	in_room = kNowhere;
 	carrying = nullptr;
@@ -340,7 +339,7 @@ void CharData::zero_init() {
 	player_specials = nullptr;
 	carrying = nullptr;
 	desc = nullptr;
-	followers = nullptr;
+	followers.clear();
 	m_master = nullptr;
 	caster_level = 0;
 	damage_level = 0;
@@ -416,12 +415,12 @@ void CharData::purge() {
 		}
 	}
 
-	if (!this->IsNpc() || (this->IsNpc() && GET_MOB_RNUM(this) == -1)) {
+	if (!this->IsNpc() || (this->IsNpc() && this->get_rnum() == -1)) {
 		if (this->IsNpc() && this->mob_specials.Questor)
 			free(this->mob_specials.Questor);
 		pk_free_list(this);
 		this->summon_helpers.clear();
-	} else if ((i = GET_MOB_RNUM(this))
+	} else if ((i = this->get_rnum())
 		>= 0) {    // otherwise, free strings only if the string is not pointing at proto
 
 		if (this->mob_specials.Questor && this->mob_specials.Questor != mob_proto[i].mob_specials.Questor)
@@ -461,6 +460,10 @@ void CharData::purge() {
 			free(FREEZE_REASON(this));
 		if (NAME_REASON(this))
 			free(NAME_REASON(this));
+		if (GCURSE_REASON(this))
+			free(GCURSE_REASON(this));
+		if (UNREG_REASON(this))
+			free(UNREG_REASON(this));
 // End reasons cleanup
 
 		if (KARMA(this))
@@ -490,12 +493,7 @@ void CharData::purge() {
 	name_.clear();
 	short_descr_.clear();
 
-	auto follower = followers;
-	while (follower) {
-		const auto next_one = follower->next;
-		free(follower);
-		follower = next_one;
-	}
+	followers.clear();
 }
 
 int CharData::GetSkillBonus(const ESkill skill_id) const {
@@ -797,8 +795,8 @@ bool CharData::IsLeader() {
 	if (this->get_master() != this) {
 		return false;
 	}
-	for (FollowerType *f = this->followers; f; f = f->next) {
-		if (!f->follower->IsNpc()) {
+	for (auto *f : this->followers) {
+		if (!f->IsNpc()) {
 			return true;
 		}
 	}
@@ -1653,7 +1651,7 @@ std::string CharData::GetTitleAndNameWithoutClan() const {
 }
 
 std::string CharData::GetClanTitleAddition() {
-	if (CLAN(this) && !IS_IMMORTAL(this)) {
+	if (CLAN(this) && !this->IsImmortal()) {
 		return fmt::format("({})", GET_CLAN_STATUS(this));
 	}
 
@@ -1722,6 +1720,13 @@ void CharData::add_follower(CharData *ch) {
 
 	if (ch->IsNpc() && ch->IsFlagged(EMobFlag::kNoGroup))
 		return;
+	if (this->in_room != ch->in_room) {
+		log(fmt::format("попытка загрупить игроков в разных комнатах, лидер {} #{} фолловер {} #{}",
+				this->get_name(), GET_MOB_VNUM(this), ch->get_name(), GET_MOB_VNUM(ch)));
+		mudlog(fmt::format("попытка загрупить игроков в разных комнатах, лидер {} #{} фолловер {} #{}",
+				this->get_name(), GET_MOB_VNUM(this), ch->get_name(), GET_MOB_VNUM(ch)));
+		return;
+	}
 	add_follower_silently(ch);
 
 	if (!IS_HORSE(ch)) {
@@ -1731,16 +1736,6 @@ void CharData::add_follower(CharData *ch) {
 	}
 }
 
-CharData::followers_list_t CharData::get_followers_list() const {
-	CharData::followers_list_t result;
-	auto pos = followers;
-	while (pos) {
-		const auto follower = pos->follower;
-		result.push_back(follower);
-		pos = pos->next;
-	}
-	return result;
-}
 
 bool CharData::low_charm() const {
 	for (const auto &aff : affected) {
@@ -1757,8 +1752,6 @@ void CharData::cleanup_script() {
 }
 
 void CharData::add_follower_silently(CharData *ch) {
-	struct FollowerType *k;
-
 	if (ch->has_master()) {
 		log("SYSERR: add_follower_implementation(%s->%s) when master existing(%s)...",
 			GET_NAME(ch), get_name().c_str(), GET_NAME(ch->get_master()));
@@ -1771,11 +1764,7 @@ void CharData::add_follower_silently(CharData *ch) {
 
 	ch->set_master(this);
 
-	CREATE(k, 1);
-
-	k->follower = ch;
-	k->next = followers;
-	followers = k;
+	followers.push_front(ch);
 }
 
 const CharData::role_t &CharData::get_role_bits() const {
@@ -1866,16 +1855,16 @@ void CharData::restore_mob() {
 	update_pos(this);
 
 	for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
-		GET_SPELL_MEM(this, spell_id) = GET_SPELL_MEM(&mob_proto[GET_MOB_RNUM(this)], spell_id);
+		GET_SPELL_MEM(this, spell_id) = GET_SPELL_MEM(&mob_proto[this->get_rnum()], spell_id);
 	}
-	this->caster_level = (&mob_proto[GET_MOB_RNUM(this)])->caster_level;
+	this->caster_level = (&mob_proto[this->get_rnum()])->caster_level;
 }
 //
 void CharData::restore_npc() {
 	if(!this->IsNpc()) return;
 	
 	attackers_.clear();
-	auto proto = (&mob_proto[GET_MOB_RNUM(this)]);
+	auto proto = (&mob_proto[this->get_rnum()]);
 	// ресторим хпшки / мувы
 		
 	this->set_hit(1 + proto->get_hit());
@@ -2049,7 +2038,7 @@ void CharData::send_to_TC(bool to_impl, bool to_tester, bool to_coder, const cha
 		return;
 
 	if (to_impl &&
-		(IS_IMPL(this) || (IS_CHARMICE(this) && IS_IMPL(this->get_master()))))
+		(this->IsImpl() || (IS_CHARMICE(this) && this->get_master()->IsImpl())))
 		needSend = true;
 	if (!needSend && to_coder &&
 		(this->IsFlagged(EPrf::kCoderinfo) || (IS_CHARMICE(this) && (this->get_master()->IsFlagged(EPrf::kCoderinfo)))))
@@ -2083,15 +2072,13 @@ bool CharData::have_mind() const {
 }
 
 bool CharData::has_horse(bool same_room) const {
-	struct FollowerType *f;
-
 	if (this->IsNpc()) {
 		return false;
 	}
 
-	for (f = this->followers; f; f = f->next) {
-		if (f->follower->IsNpc() && AFF_FLAGGED(f->follower, EAffect::kHorse)
-			&& (!same_room || this->in_room == f->follower->in_room)) {
+	for (auto *f : this->followers) {
+		if (f->IsNpc() && AFF_FLAGGED(f, EAffect::kHorse)
+			&& (!same_room || this->in_room == f->in_room)) {
 			return true;
 		}
 	}
@@ -2145,14 +2132,12 @@ void CharData::dismount() {
 }
 
 CharData *CharData::get_horse() {
-	struct FollowerType *f;
-
 	if (this->IsNpc())
 		return nullptr;
 
-	for (f = this->followers; f; f = f->next) {
-		if (f->follower->IsNpc() && AFF_FLAGGED(f->follower, EAffect::kHorse)) {
-			return (f->follower);
+	for (auto *f : this->followers) {
+		if (f->IsNpc() && AFF_FLAGGED(f, EAffect::kHorse)) {
+			return f;
 		}
 	}
 	return nullptr;
@@ -2213,7 +2198,7 @@ player_special_data_saved::player_special_data_saved() :
 player_special_data::shared_ptr player_special_data::s_for_mobiles = std::make_shared<player_special_data>();
 
 int ClampBaseStat(const CharData *ch, const EBaseStat stat_id, const int stat_value) {
-	if (ch->IsNpc() || IS_GOD(ch))
+	if (ch->IsNpc() || ch->IsGod())
 		return std::clamp(stat_value, kLeastBaseStat, kMobBaseStatCap);
 	else
 		return std::clamp(stat_value, kLeastBaseStat, MUD::Class(ch->GetClass()).GetBaseStatCap(stat_id));
@@ -2282,7 +2267,7 @@ int GetRealLevel(const CharData *ch) {
 		return std::clamp(ch->GetLevel() + ch->get_level_add(), 0, kMaxMobLevel);
 	}
 
-	if (IS_IMMORTAL(ch)) {
+	if (ch->IsImmortal()) {
 		return ch->GetLevel();
 	}
 

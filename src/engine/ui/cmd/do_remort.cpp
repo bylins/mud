@@ -23,7 +23,7 @@ void DoRemort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	int i;
 	const char *remort_msg2 = "$n вспыхнул$g ослепительным пламенем и пропал$g!\r\n";
 
-	if (ch->IsNpc() || IS_IMMORTAL(ch)) {
+	if (ch->IsNpc() || ch->IsImmortal()) {
 		SendMsgToChar("Вам это, похоже, совсем ни к чему.\r\n", ch);
 		return;
 	}
@@ -38,7 +38,7 @@ void DoRemort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		return;
 	}
 */
-	if (ch->get_remort() > kMaxRemort) {
+	if (ch->get_remort() >= kMaxRemort) {
 		SendMsgToChar("Достигнуто максимальное количество перевоплощений.\r\n", ch);
 		return;
 	}

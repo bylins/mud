@@ -708,14 +708,13 @@ int perform_best_mob_attack(CharData *ch, int extmode) {
 		}
 
 		if (!best->IsNpc()) {
-			struct FollowerType *f;
 			// поиск клонов и отработка атаки в клона персонажа
-			for (f = best->followers; f; f = f->next)
-				if (f->follower->IsFlagged(EMobFlag::kClone))
+			for (auto *f : best->followers)
+				if (f->IsFlagged(EMobFlag::kClone))
 					clone_number++;
-			for (f = best->followers; f; f = f->next)
-				if (f->follower->IsNpc() && f->follower->IsFlagged(EMobFlag::kClone)
-					&& f->follower->in_room == best->in_room) {
+			for (auto *f : best->followers)
+				if (f->IsNpc() && f->IsFlagged(EMobFlag::kClone)
+					&& f->in_room == best->in_room) {
 					if (number(0, clone_number) == 1)
 						break;
 					if ((GetRealInt(ch) < 20) && number(0, clone_number))
@@ -725,7 +724,7 @@ int perform_best_mob_attack(CharData *ch, int extmode) {
 					if ((GetRealInt(ch) >= 20)
 						&& number(1, 10 + VPOSI((35 - GetRealInt(ch)), 0, 15) * clone_number) <= 10)
 						break;
-					best = f->follower;
+					best = f;
 					break;
 				}
 		}
@@ -893,7 +892,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 	  int door, max, was_in = -1, activity_lev, i, ch_activity;
 	  auto std_lev = activity_level % kPulseMobile;
 
-	  if (ch->purged()  || !IS_MOB(ch) || !ch->in_used_zone()) {
+	  if (ch->purged()  || !ch->IsNpc() || !ch->in_used_zone()) {
 		continue;
 	  }
 	  UpdateAffectOnPulse(ch.get(), missed_pulses);
@@ -926,13 +925,13 @@ void mobile_activity(int activity_level, int missed_pulses) {
 
 	  // Examine call for special procedure
 	  if (ch->IsFlagged(EMobFlag::kSpec) && !no_specials) {
-		  if (mob_index[GET_MOB_RNUM(ch)].func == nullptr) {
+		  if (mob_index[ch->get_rnum()].func == nullptr) {
 			  log("SYSERR: %s (#%d): Attempting to call non-existing mob function.",
 				  GET_NAME(ch), GET_MOB_VNUM(ch));
 			  ch->UnsetFlag(EMobFlag::kSpec);
 		  } else {
 			  buf2[0] = '\0';
-			  if ((mob_index[GET_MOB_RNUM(ch)].func)(ch.get(), ch.get(), 0, buf2)) {
+			  if ((mob_index[ch->get_rnum()].func)(ch.get(), ch.get(), 0, buf2)) {
 				  continue;    // go to next char
 			  }
 		  }
@@ -1254,6 +1253,46 @@ ObjData *create_charmice_box(CharData *ch) {
 	obj->set_extra_flag(EObjFlag::kFlying);
 
 	return obj.get();
+}
+
+bool drop_mob_objects_to_box(CharData *ch)
+{
+	std::vector<ObjData *> objects;
+
+	for (int i = 0; i < EEquipPos::kNumEquipPos; ++i)
+	{
+		if (GET_EQ(ch, i))
+		{
+			ObjData *obj = UnequipChar(ch, i, CharEquipFlags());
+			if (obj)
+			{
+				remove_otrigger(obj, ch);
+				objects.push_back(obj);
+			}
+		}
+	}
+
+	while (ch->carrying)
+	{
+		ObjData *obj = ch->carrying;
+		RemoveObjFromChar(obj);
+		objects.push_back(obj);
+	}
+
+	if (objects.empty())
+	{
+		return false;
+	}
+
+	ObjData *charmice_box = create_charmice_box(ch);
+	for (auto &object : objects)
+	{
+		PlaceObjIntoObj(object, charmice_box);
+	}
+
+	DropObjOnZoneReset(ch, charmice_box, true, false);
+
+	return true;
 }
 
 void extract_charmice(CharData *ch, bool on_ground) {

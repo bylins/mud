@@ -20,11 +20,11 @@ void add_logon_record(DescriptorData *d) {
 
 	const auto logon = std::find_if(LOGON_LIST(d->character).begin(), LOGON_LIST(d->character).end(),
 									[&](const Logon &l) -> bool {
-									  return !strcmp(l.ip, d->host);
+									  return l.ip == d->host;
 									});
 
 	if (logon == LOGON_LIST(d->character).end()) {
-		const Logon cur_log = {str_dup(d->host), 1, time(nullptr), false};
+		const Logon cur_log = {d->host, 1, time(nullptr), false};
 		LOGON_LIST(d->character).push_back(cur_log);
 	} else {
 		++logon->count;
@@ -33,9 +33,7 @@ void add_logon_record(DescriptorData *d) {
 
 	int pos = d->character->get_pfilepos();
 	if (pos >= 0) {
-		if (player_table[pos].last_ip)
-			free(player_table[pos].last_ip);
-		player_table[pos].last_ip = str_dup(d->host);
+		player_table[pos].last_ip = d->host;
 		player_table[pos].last_logon = LAST_LOGON(d->character);
 	}
 }

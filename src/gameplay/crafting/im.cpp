@@ -876,14 +876,14 @@ void im_parse(int **ing_list, char *line) {
 }
 
 void im_reset_room(RoomData *room, int level, int type) {
-	ObjData *o, *next;
+	ObjData *o;
 	int i, indx;
 	im_memb *after, *before;
 	int pow, lev = level;
 	// 40 * level / MAX_ZONE_LEVEL;
 
-	for (o = room->contents; o; o = next) {
-		next = o->get_next_content();
+	for (auto it = room->contents.begin(); it != room->contents.end(); ) {
+		auto o = *it; ++it;
 		if (o->get_type() == EObjType::kMagicIngredient) {
 			ExtractObjFromWorld(o, false);
 		}
@@ -1179,7 +1179,7 @@ void im_improve_recipe(CharData *ch, im_rskill *rs, int success) {
 						kColorBoldCyn, imrecipes[rs->rid].name, kColorNrm);
 			SendMsgToChar(buf, ch);
 			rs->perc += number(1, 2);
-			if (!IS_IMMORTAL(ch))
+			if (!ch->IsImmortal())
 				rs->perc = MIN(kZeroRemortSkillCap + GetRealRemort(ch) * 5, rs->perc);
 		}
 	}

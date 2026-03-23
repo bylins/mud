@@ -27,12 +27,12 @@ void DoSwitch(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			SendMsgToChar("Вы и так им являетесь.\r\n", ch);
 		} else if (visible_character->desc) {
 			SendMsgToChar("Это тело уже под контролем.\r\n", ch);
-		} else if (!IS_IMPL(ch) && !visible_character->IsNpc()) {
+		} else if (!ch->IsImpl() && !visible_character->IsNpc()) {
 			SendMsgToChar("Вы не столь могущественны, чтобы контроолировать тело игрока.\r\n", ch);
 		} else if (GetRealLevel(ch) < kLvlGreatGod
 			&& ROOM_FLAGGED(visible_character->in_room, ERoomFlag::kGodsRoom)) {
 			SendMsgToChar("Вы не можете находиться в той комнате.\r\n", ch);
-		} else if (!IS_GRGOD(ch)
+		} else if (!ch->IsGrGod()
 			&& !Clan::MayEnter(ch, visible_character->in_room, kHousePortal)) {
 			SendMsgToChar("Вы не сможете проникнуть на частную территорию.\r\n", ch);
 		} else {

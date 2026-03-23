@@ -124,17 +124,6 @@ void CheckLight(CharData *ch, int was_equip, int was_single, int was_holylight, 
 	}
 }
 
-void DecreaseFeatTimer(CharData *ch, EFeat feat_id) {
-	auto it = ch->timed_feat.find(feat_id);
-	if (it !=  ch->timed_feat.end()) {
-		if (it->second >= 1) {
-			--(it->second);
-		} else {
-			ch->timed_feat.erase(it);
-		}
-	}
-}
-
 template <class TalentId>
 int GetTalentTimerMod(CharData *ch, TalentId id) {
 	// ABYRVALG Тут нужен цикл по способностям _персонажа_, но в настоящий момнет это невозможно из-за особенностей
@@ -164,9 +153,13 @@ void ExpireTimedFeat(CharData *ch, EFeat feat) {
 int IsTimedByFeat(CharData *ch, EFeat feat) {
 	auto it = ch->timed_feat.find(feat);
 	if (it != ch->timed_feat.end()) {
+		if (it->second <= time(0)) {
+			ch->timed_feat.erase(it);
+			return 0;
+		}
 		return (it->second - time(0) - 1) / 60 + 1;
 	}
-	return (0);
+	return 0;
 }
 
 /**
@@ -188,12 +181,15 @@ void ExpireTimedSkill(CharData *ch, ESkill skill) {
 }
 
 int IsTimedBySkill(CharData *ch, ESkill id) {
-	
 	auto it = ch->timed_skill.find(id);
 	if (it != ch->timed_skill.end()) {
+		if (it->second <= time(0)) {
+			ch->timed_skill.erase(it);
+			return 0;
+		}
 		return (it->second - time(0) - 1) / 60 + 1;
 	}
-	return (0);
+	return 0;
 }
 
 // move a player out of a room
@@ -233,7 +229,7 @@ void PlaceCharToRoom(CharData *ch, RoomRnum room) {
 	if (!ch->IsNpc() 
 			&& NORENTABLE(ch) 
 			&& ROOM_FLAGGED(room, ERoomFlag::kArena) 
-			&& !IS_IMMORTAL(ch)) {
+			&& !ch->IsImmortal()) {
 		SendMsgToChar("Вы не можете попасть на арену в состоянии боевых действий!\r\n", ch);
 		room = ch->get_from_room();
 	}
@@ -369,6 +365,17 @@ void ArrangeObjs(ObjData *obj, ObjData **list_start) {
 	before->set_next_content(p); // будет 0 если после перемещаемых ничего не лежало
 }
 
+void ArrangeObjInList(ObjData *obj, ObjData::obj_list_t &list) {
+	for (auto it = list.begin(); it != list.end(); ++it) {
+		if (IsObjsStackable(*it, obj)) {
+			list.insert(it, obj);
+			return;
+		}
+	}
+	list.push_front(obj);
+}
+
+
 } // no-name namespace
 
 // * Инициализация уида для нового объекта.
@@ -496,7 +503,7 @@ void RemoveObjFromChar(ObjData *object) {
 }
 
 bool HaveIncompatibleAlign(CharData *ch, ObjData *obj) {
-	if (ch->IsNpc() || IS_IMMORTAL(ch)) {
+	if (ch->IsNpc() || ch->IsImmortal()) {
 		return false;
 	}
 	if (obj->has_anti_flag(EAntiFlag::kMono) && GET_RELIGION(ch) == kReligionMono) {
@@ -794,7 +801,7 @@ void EquipObj(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip_f
 	if (!ch->IsNpc() || IS_CHARMICE(ch)) {
 		CharData *master = IS_CHARMICE(ch) && ch->has_master() ? ch->get_master() : ch;
 		if ((obj->get_auto_mort_req() >= 0) && (obj->get_auto_mort_req() > GetRealRemort(master))
-			&& !IS_IMMORTAL(master)) {
+			&& !master->IsImmortal()) {
 			SendMsgToChar(master, "Для использования %s требуется %d %s.\r\n",
 						  obj->get_PName(ECase::kGen).c_str(),
 						  obj->get_auto_mort_req(),
@@ -805,7 +812,7 @@ void EquipObj(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip_f
 			}
 			return;
 		} else if ((obj->get_auto_mort_req() < -1) && (abs(obj->get_auto_mort_req()) < GetRealRemort(master))
-			&& !IS_IMMORTAL(master)) {
+			&& !master->IsImmortal()) {
 			SendMsgToChar(master, "Максимально количество перевоплощений для использования %s равно %d.\r\n",
 						  obj->get_PName(ECase::kGen).c_str(),
 						  abs(obj->get_auto_mort_req()));
@@ -1109,7 +1116,7 @@ ObjData *UnequipChar(CharData *ch, int pos, const CharEquipFlags& equip_flags) {
 					continue;
 				}
 				if (ch->IsNpc()
-					&& AFF_FLAGGED(&mob_proto[GET_MOB_RNUM(ch)], static_cast<EAffect>(j.aff_bitvector))) {
+					&& AFF_FLAGGED(&mob_proto[ch->get_rnum()], static_cast<EAffect>(j.aff_bitvector))) {
 					continue;
 				}
 				affect_modify(ch, EApply::kNone, 0, static_cast<EAffect>(j.aff_bitvector), false);
@@ -1190,6 +1197,15 @@ ObjData *GetObjByRnumInContent(ObjRnum rnum, ObjData *list) {
 	return nullptr;
 }
 
+ObjData *GetObjByRnumInContent(ObjRnum rnum, const ObjData::obj_list_t &list) {
+	for (auto i : list) {
+		if (i->get_rnum() == rnum) {
+			return i;
+		}
+	}
+	return nullptr;
+}
+
 /**
  * Search an object in list by vnum.
  * @param vnum - object vnum.
@@ -1259,7 +1275,7 @@ bool PlaceObjToRoom(ObjData *object, RoomRnum room) {
 			room, top_of_world, object);
 		return false;
 	} 
-	ArrangeObjs(object, &world[room]->contents);
+	ArrangeObjInList(object, world[room]->contents);
 	if (world[room]->vnum % 100 == 99 && zone_table[world[room]->zone_rn].vnum < dungeons::kZoneStartDungeons) {
 		if (!(object->has_flag(EObjFlag::kAppearsDay)
 				|| object->has_flag(EObjFlag::kAppearsFullmoon)
@@ -1355,7 +1371,10 @@ void RemoveObjFromRoom(ObjData *object) {
 		return;
 	}
 
-	object->remove_me_from_contains_list(world[object->get_in_room()]->contents);
+	{
+		auto &list = world[object->get_in_room()]->contents;
+		list.remove(object);
+	}
 
 	object->set_in_room(kNowhere);
 	object->set_next_content(nullptr);
@@ -1585,11 +1604,11 @@ namespace {
 void change_npc_leader(CharData *ch) {
 	std::vector<CharData *> tmp_list;
 
-	for (FollowerType *i = ch->followers; i; i = i->next) {
-		if (i->follower->IsNpc()
-			&& !IS_CHARMICE(i->follower)
-			&& i->follower->get_master() == ch) {
-			tmp_list.push_back(i->follower);
+	for (auto *i : ch->followers) {
+		if (i->IsNpc()
+			&& !IS_CHARMICE(i)
+			&& i->get_master() == ch) {
+			tmp_list.push_back(i);
 		}
 	}
 	if (tmp_list.empty()) {
@@ -1687,23 +1706,21 @@ void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset) {
 
 	if (!ch->IsNpc()
 		&& !ch->has_master()
-		&& ch->followers
+		&& !ch->followers.empty()
 		&& AFF_FLAGGED(ch, EAffect::kGroup)) {
 //		log("[Extract char] Change group leader");
 		change_leader(ch, nullptr);
 	} else if (ch->IsNpc()
 		&& !IS_CHARMICE(ch)
 		&& !ch->has_master()
-		&& ch->followers) {
+		&& !ch->followers.empty()) {
 //		log("[Extract char] Changing NPC leader");
 		change_npc_leader(ch);
 	}
 
 //	log("[Extract char] Die followers");
-	if ((ch->followers || ch->has_master())
-		&& die_follower(ch)) {
-		// TODO: странно все это с пуржем в stop_follower
-		//закостылил чтоб экстракт тут не делался для ch->has_master()
+	if (!ch->followers.empty() || ch->has_master()) {
+		die_follower(ch);
 	}
 //	log("[Extract char] Stop all fight for opponee");
 	change_fighting(ch, true);
@@ -1729,8 +1746,8 @@ void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset) {
 		Crash_delete_crashfile(ch);
 	} else {
 //		log("[Extract char] All clear for NPC");
-		if ((GET_MOB_RNUM(ch) >= 0) && !ch->IsFlagged(EMobFlag::kSummoned)) {
-			mob_index[GET_MOB_RNUM(ch)].total_online--;
+		if ((ch->get_rnum() >= 0) && !ch->IsFlagged(EMobFlag::kSummoned)) {
+			mob_index[ch->get_rnum()].total_online--;
 		}
 	}
 	chardata_by_uid.erase(ch->get_uid());
@@ -1880,8 +1897,7 @@ CharData *get_char_vis(CharData *ch, const char *name, int where) {
 	return nullptr;
 }
 
-ObjData *get_obj_in_list_vis(CharData *ch, const char *name, ObjData *list, bool locate_item) {
-	ObjData *i;
+ObjData *get_obj_in_list_vis(CharData *ch, const char *name, const ObjData::obj_list_t &list, bool locate_item) {
 	int j = 0, number;
 	char tmpname[kMaxInputLength];
 	char *tmp = tmpname;
@@ -1894,7 +1910,8 @@ ObjData *get_obj_in_list_vis(CharData *ch, const char *name, ObjData *list, bool
 	if (number > 1 && locate_item)
 		return (nullptr);
 
-	for (i = list; i && (j <= number); i = i->get_next_content()) {
+	for (auto i : list) {
+		if (j > number) break;
 		if (i->get_extracted_list()) {
 			continue;
 		}
@@ -1919,7 +1936,14 @@ ObjData *get_obj_in_list_vis(CharData *ch, const char *name, ObjData *list, bool
 	return (nullptr);
 }
 
-class ExitLoopException : std::exception {};
+// Legacy overloads for ObjData* linked lists (carrying, equipment)
+ObjData *get_obj_in_list_vis(CharData *ch, const char *name, ObjData *list, bool locate_item) {
+	ObjData::obj_list_t tmp_list;
+	for (auto obj = list; obj; obj = obj->get_next_content()) {
+		tmp_list.push_back(obj);
+	}
+	return get_obj_in_list_vis(ch, name, tmp_list, locate_item);
+}
 
 ObjData *get_obj_vis_and_dec_num(CharData *ch,
 								 const char *name,
@@ -1927,6 +1951,27 @@ ObjData *get_obj_vis_and_dec_num(CharData *ch,
 								 std::unordered_set<unsigned int> &id_obj_set,
 								 int &number) {
 	for (auto item = list; item != nullptr; item = item->get_next_content()) {
+		if (CAN_SEE_OBJ(ch, item)) {
+			if (isname(name, item->get_aliases())
+				|| CHECK_CUSTOM_LABEL(name, item, ch)) {
+				if (--number == 0) {
+					return item;
+				}
+				id_obj_set.insert(item->get_id());
+			}
+		}
+	}
+	return nullptr;
+}
+
+class ExitLoopException : std::exception {};
+
+ObjData *get_obj_vis_and_dec_num(CharData *ch,
+								 const char *name,
+								 const ObjData::obj_list_t &list,
+								 std::unordered_set<unsigned int> &id_obj_set,
+								 int &number) {
+	for (auto item : list) {
 		if (CAN_SEE_OBJ(ch, item)) {
 			if (isname(name, item->get_aliases())
 				|| CHECK_CUSTOM_LABEL(name, item, ch)) {
@@ -2068,7 +2113,7 @@ ObjData *get_obj_vis_for_locate(CharData *ch, const char *name) {
 }
 
 bool try_locate_obj(CharData *ch, ObjData *i) {
-	if (IS_CORPSE(i) || IS_GOD(ch)) //имм может локейтить и можно локейтить трупы
+	if (IS_CORPSE(i) || ch->IsGod()) //имм может локейтить и можно локейтить трупы
 	{
 		return true;
 	} else if (i->has_flag(EObjFlag::kNolocate)) //если флаг !локейт и ее нет в комнате/инвентаре - пропустим ее
@@ -2236,8 +2281,8 @@ int generic_find(char *arg, Bitvector bitvector, CharData *ch, CharData **tar_ch
 		}
 	}
 	if (IS_SET(bitvector, EFind::kObjRoom)) {
-		for (i = world[ch->in_room]->contents;
-			 i && (j <= number); i = i->get_next_content()) {
+	for (auto i : world[ch->in_room]->contents) {
+		if (j > number) break;
 			if (isname(tmp, i->get_aliases())
 				|| CHECK_CUSTOM_LABEL(tmp, i, ch)
 				|| (IS_SET(bitvector, EFind::kObjExtraDesc)
@@ -2318,7 +2363,7 @@ RoomRnum FindRoomRnum(CharData *ch, char *rawroomstr, int trig) {
 	}
 
 	// a location has been found -- if you're < GRGOD, check restrictions.
-	if (!IS_GRGOD(ch) && !ch->IsFlagged(EPrf::kCoderinfo)) {
+	if (!ch->IsGrGod() && !ch->IsFlagged(EPrf::kCoderinfo)) {
 		if (ROOM_FLAGGED(location, ERoomFlag::kGodsRoom) && GetRealLevel(ch) < kLvlGreatGod) {
 			SendMsgToChar("Вы не столь божественны, чтобы получить доступ в эту комнату!\r\n", ch);
 			return (kNowhere);
@@ -2340,7 +2385,7 @@ int IsEquipInMetall(CharData *ch) {
 
 	if (ch->IsNpc() && !AFF_FLAGGED(ch, EAffect::kCharmed))
 		return (false);
-	if (IS_GOD(ch))
+	if (ch->IsGod())
 		return (false);
 
 	for (i = 0; i < EEquipPos::kNumEquipPos; i++) {
@@ -2394,7 +2439,7 @@ int num_pc_in_room(RoomData *room) {
 }
 
 int check_moves(CharData *ch, int how_moves) {
-	if (IS_IMMORTAL(ch) || ch->IsNpc())
+	if (ch->IsImmortal() || ch->IsNpc())
 		return (true);
 	if (ch->get_move() < how_moves) {
 		SendMsgToChar("Вы слишком устали.\r\n", ch);

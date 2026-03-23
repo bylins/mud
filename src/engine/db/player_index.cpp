@@ -248,11 +248,10 @@ void ActualizePlayersIndex(char *name) {
 
 				PlayerIndexElement element(GET_NAME(short_ch));
 
-				CREATE(element.mail, strlen(GET_EMAIL(short_ch)) + 1);
-				for (int i = 0; (element.mail[i] = LOWER(GET_EMAIL(short_ch)[i])); i++);
+				element.mail = GET_EMAIL(short_ch);
+				for (auto &c : element.mail) c = LOWER(c);
 
-				CREATE(element.last_ip, strlen(GET_LASTIP(short_ch)) + 1);
-				for (int i = 0; (element.last_ip[i] = GET_LASTIP(short_ch)[i]); i++);
+				element.last_ip = GET_LASTIP(short_ch);
 
 				element.set_uid(short_ch->get_uid());
 				element.level = GetRealLevel(short_ch);
@@ -268,7 +267,7 @@ void ActualizePlayersIndex(char *name) {
 				}
 
 #ifdef TEST_BUILD
-				log("entry: char:%s level:%d mail:%s ip:%s", element.name().c_str(), element.level, element.mail, element.last_ip);
+				log("entry: char:%s level:%d mail:%s ip:%s", element.name().c_str(), element.level, element.mail.c_str(), element.last_ip.c_str());
 #endif
 
 				top_idnum = std::max(top_idnum, short_ch->get_uid());

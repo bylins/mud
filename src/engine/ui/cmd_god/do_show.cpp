@@ -722,7 +722,7 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			SendMsgToChar(buf, ch);
 			i = 0;
 			for (const auto &character : character_list) {
-				if (IS_GOD(character) || character->IsNpc() ||
+				if (character->IsGod() || character->IsNpc() ||
 					character->desc != nullptr || character->in_room == kNowhere) {
 					continue;
 				}

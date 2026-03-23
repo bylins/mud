@@ -95,7 +95,7 @@ int bonus_antisaving[] ={
 
 int CalcAntiSavings(CharData *ch) {
 	int modi = 0;
-	if (IS_IMMORTAL(ch))
+	if (ch->IsImmortal())
 		modi = 1000;
 	else if (GET_GOD_FLAG(ch, EGf::kGodsLike))
 		modi = 250;
@@ -497,7 +497,7 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 				return (CastDamage(level, ch, ch, spell_id));
 			}
 		} else {
-			if (ch != victim && spell_id <= ESpell::kLast && IS_GOD(victim)
+			if (ch != victim && spell_id <= ESpell::kLast && victim->IsGod()
 				&& (ch->IsNpc() || GetRealLevel(victim) > GetRealLevel(ch))) {
 				act("Звуковой барьер $N1 отразил ваш крик!", false, ch, nullptr, victim, kToChar);
 				act("Звуковой барьер $N1 отразил крик $n1!", false, ch, nullptr, victim, kToNotVict);
@@ -584,7 +584,7 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			break;
 		}
 		case ESpell::kClod: {
-				if (victim->GetPosition() > EPosition::kSit && !IS_IMMORTAL(victim) && (number(1, 100) > GET_AR(victim)) &&
+				if (victim->GetPosition() > EPosition::kSit && !victim->IsImmortal() && (number(1, 100) > GET_AR(victim)) &&
 					(AFF_FLAGGED(victim, EAffect::kHold) || !CalcGeneralSaving(ch, victim, ESaving::kReflex, modi))) {
 				if (IS_HORSE(victim))
 					victim->DropFromHorse();
@@ -643,7 +643,7 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 					break;
 				}
 			}
-			if (victim->GetPosition() > EPosition::kSit && !IS_IMMORTAL(victim) && (number(1, 100) > GET_AR(victim)) &&
+			if (victim->GetPosition() > EPosition::kSit && !victim->IsImmortal() && (number(1, 100) > GET_AR(victim)) &&
 					(AFF_FLAGGED(victim, EAffect::kHold) || !CalcGeneralSaving(ch, victim, ESaving::kReflex, modi))) {
 				victim->SetPosition(EPosition::kSit);
 				victim->DropFromHorse();
@@ -655,7 +655,7 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 		}
 		case ESpell::kSonicWave: {
 			if (victim->GetPosition() > EPosition::kSit &&
-				!IS_IMMORTAL(victim) && (number(1, 100) > GET_AR(victim)) 
+				!victim->IsImmortal() && (number(1, 100) > GET_AR(victim)) 
 						&& (AFF_FLAGGED(victim, EAffect::kHold) || !CalcGeneralSaving(ch, victim, ESaving::kStability, modi))) {
 				victim->SetPosition(EPosition::kSit);
 				victim->DropFromHorse();
@@ -713,7 +713,7 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			break;
 		}
 		case ESpell::kDispelEvil: {
-			if (ch != victim && IS_EVIL(ch) && !IS_IMMORTAL(ch) && ch->get_hit() > 1) {
+			if (ch != victim && IS_EVIL(ch) && !ch->IsImmortal() && ch->get_hit() > 1) {
 				SendMsgToChar("Ваша магия обратилась против вас.", ch);
 				ch->set_hit(1);
 			}
@@ -725,7 +725,7 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			break;
 		}
 		case ESpell::kDispelGood: {
-			if (ch != victim && IS_GOOD(ch) && !IS_IMMORTAL(ch) && ch->get_hit() > 1) {
+			if (ch != victim && IS_GOOD(ch) && !ch->IsImmortal() && ch->get_hit() > 1) {
 				SendMsgToChar("Ваша магия обратилась против вас.", ch);
 				ch->set_hit(1);
 			}
@@ -737,13 +737,13 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			break;
 		}
 		case ESpell::kSacrifice: {
-			if (IS_IMMORTAL(victim))
+			if (victim->IsImmortal())
 				break;
 			break;
 		}
 		case ESpell::kDustStorm: {
 			if (victim->GetPosition() > EPosition::kSit &&
-				!IS_IMMORTAL(victim) && (number(1, 100) > GET_AR(victim)) &&
+				!victim->IsImmortal() && (number(1, 100) > GET_AR(victim)) &&
 				(!CalcGeneralSaving(ch, victim, ESaving::kReflex, modi))) {
 				victim->DropFromHorse();
 				victim->SetPosition(EPosition::kSit);
@@ -768,7 +768,7 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			break;
 		}
 		case ESpell::kWarcryOfThunder: {
-			if (victim->GetPosition() > EPosition::kSit && !IS_IMMORTAL(victim) && (AFF_FLAGGED(victim, EAffect::kHold) ||
+			if (victim->GetPosition() > EPosition::kSit && !victim->IsImmortal() && (AFF_FLAGGED(victim, EAffect::kHold) ||
 				!CalcGeneralSaving(ch, victim, ESaving::kStability, modi))) {
 				victim->DropFromHorse();
 				victim->SetPosition(EPosition::kSit);
@@ -947,11 +947,11 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 	if (!MUD::Spell(spell_id).IsFlagged(kMagWarcry)) {
 		if (ch != victim
 			&& MUD::Spell(spell_id).IsViolent()
-			&& ((!IS_GOD(ch)
+			&& ((!ch->IsGod()
 				&& AFF_FLAGGED(victim, EAffect::kMagicGlass)
 				&& (ch->in_room == victim->in_room)
 				&& number(1, 100) < (GetRealLevel(victim) / 3))
-				|| (IS_GOD(victim)
+				|| (victim->IsGod()
 					&& (ch->IsNpc()
 						|| GetRealLevel(victim) > (GetRealLevel(ch)))))) {
 			act("Магическое зеркало $N1 отразило вашу магию!", false, ch, nullptr, victim, kToChar);
@@ -961,7 +961,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			return 0;
 		}
 	} else {
-		if (ch != victim && MUD::Spell(spell_id).IsViolent() && IS_GOD(victim)
+		if (ch != victim && MUD::Spell(spell_id).IsViolent() && victim->IsGod()
 			&& (ch->IsNpc() || GetRealLevel(victim) > (GetRealLevel(ch) + GetRealRemort(ch) / 2))) {
 			act("Звуковой барьер $N1 отразил ваш крик!", false, ch, nullptr, victim, kToChar);
 			act("Звуковой барьер $N1 отразил крик $n1!", false, ch, nullptr, victim, kToNotVict);
@@ -1449,7 +1449,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 		case ESpell::kPowerBlindness:
 		case ESpell::kBlindness: savetype = ESaving::kStability;
 			if (victim->IsFlagged(EMobFlag::kNoBlind) ||
-				IS_IMMORTAL(victim) ||
+				victim->IsImmortal() ||
 				((ch != victim) &&
 					!GET_GOD_FLAG(victim, EGf::kGodscurse) && CalcGeneralSaving(ch, victim, savetype, modi))) {
 				SendMsgToChar(NOEFFECT, ch);
@@ -2120,7 +2120,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			if (spell_id==ESpell::kEarthfall){
 				modi += ch->GetSkill(GetMagicSkillId(spell_id))/5;
 			}
-			if (IS_IMMORTAL(victim) || (!IS_IMMORTAL(ch) && CalcGeneralSaving(ch, victim, savetype, modi))) {
+			if (victim->IsImmortal() || (!ch->IsImmortal() && CalcGeneralSaving(ch, victim, savetype, modi))) {
 				SendMsgToChar(NOEFFECT, ch);
 				success = false;
 				break;
@@ -2218,7 +2218,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			//Заклинания Забвение, Бремя времени. Далим.
 		case ESpell::kOblivion:
 		case ESpell::kBurdenOfTime: {
-			if (IS_IMMORTAL(victim) || CalcGeneralSaving(ch, victim, ESaving::kReflex, modi)) {
+			if (victim->IsImmortal() || CalcGeneralSaving(ch, victim, ESaving::kReflex, modi)) {
 				SendMsgToChar(NOEFFECT, ch);
 				success = false;
 				break;
@@ -2733,7 +2733,6 @@ const char *mag_summon_fail_msgs[] =
 int CastSummon(int level, CharData *ch, ObjData *obj, ESpell spell_id, bool need_fail) {
 	CharData *tmp_mob, *mob = nullptr;
 	ObjData *tobj, *next_obj;
-	struct FollowerType *k;
 	int pfail = 0, msg = 0, fmsg = 0, handle_corpse = false, keeper = false, cha_num = 0, modifier = 0;
 	MobVnum mob_num;
 
@@ -2856,7 +2855,7 @@ int CastSummon(int level, CharData *ch, ObjData *obj, ESpell spell_id, bool need
 		return 0;
 	}
 	// при перке помощь тьмы гораздо меньше шанс фейла
-	if (!IS_IMMORTAL(ch) && number(0, 101) < pfail && need_fail) {
+	if (!ch->IsImmortal() && number(0, 101) < pfail && need_fail) {
 		if (CanUseFeat(ch, EFeat::kFavorOfDarkness)) {
 			if (number(0, 3) == 0) {
 				SendMsgToChar(mag_summon_fail_msgs[fmsg], ch);
@@ -2909,19 +2908,19 @@ int CastSummon(int level, CharData *ch, ObjData *obj, ESpell spell_id, bool need
 		}
 	}
 
-	if (!IS_IMMORTAL(ch) && (AFF_FLAGGED(mob, EAffect::kSanctuary) || mob->IsFlagged(EMobFlag::kProtect))) {
+	if (!ch->IsImmortal() && (AFF_FLAGGED(mob, EAffect::kSanctuary) || mob->IsFlagged(EMobFlag::kProtect))) {
 		SendMsgToChar("Оживляемый был освящен Богами и противится этому!\r\n", ch);
 		ExtractCharFromWorld(mob, false);
 		return 0;
 	}
-	if (!IS_IMMORTAL(ch) &&
+	if (!ch->IsImmortal() &&
 		(GET_MOB_SPEC(mob) || mob->IsFlagged(EMobFlag::kNoResurrection) ||
 			mob->IsFlagged(EMobFlag::kAreaAttack))) {
 		SendMsgToChar("Вы не можете обрести власть над этим созданием!\r\n", ch);
 		ExtractCharFromWorld(mob, false);
 		return 0;
 	}
-	if (!IS_IMMORTAL(ch) && AFF_FLAGGED(mob, EAffect::kGodsShield)) {
+	if (!ch->IsImmortal() && AFF_FLAGGED(mob, EAffect::kGodsShield)) {
 		SendMsgToChar("Боги защищают это существо даже после смерти.\r\n", ch);
 		ExtractCharFromWorld(mob, false);
 		return 0;
@@ -3052,9 +3051,9 @@ int CastSummon(int level, CharData *ch, ObjData *obj, ESpell spell_id, bool need
 
 	if (spell_id == ESpell::kClone) {
 		// клоны теперь кастятся все вместе // ужасно некрасиво сделано
-		for (k = ch->followers; k; k = k->next) {
-			if (AFF_FLAGGED(k->follower, EAffect::kCharmed)
-				&& k->follower->get_master() == ch) {
+		for (auto *k : ch->followers) {
+			if (AFF_FLAGGED(k, EAffect::kCharmed)
+				&& k->get_master() == ch) {
 				cha_num++;
 			}
 		}
@@ -3715,7 +3714,7 @@ void ReactToCast(CharData *victim, CharData *caster, ESpell spell_id) {
 		return;
 
 	if (caster->IsNpc()
-		&& GET_MOB_RNUM(caster) == GetMobRnum(kDgCasterProxy))
+		&& caster->get_rnum() == GetMobRnum(kDgCasterProxy))
 		return;
 
 	if (CAN_SEE(victim, caster) && MAY_ATTACK(victim) && victim->in_room == caster->in_room) {
@@ -3746,7 +3745,7 @@ void ReactToCast(CharData *victim, CharData *caster, ESpell spell_id) {
 
 int CastToSingleTarget(int level, CharData *caster, CharData *cvict, ObjData *ovict, ESpell spell_id) {
 	if (cvict && (caster != cvict))
-		if (IS_GOD(cvict) || (((GetRealLevel(cvict) / 2) > (GetRealLevel(caster) + (GetRealRemort(caster) / 2))) &&
+		if (cvict->IsGod() || (((GetRealLevel(cvict) / 2) > (GetRealLevel(caster) + (GetRealRemort(caster) / 2))) &&
 				!caster->IsNpc())) {
 			SendMsgToChar(NOEFFECT, caster);
 			return (-1);

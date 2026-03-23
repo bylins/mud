@@ -41,6 +41,7 @@
 #include "gameplay/communication/parcel.h"
 #include "gameplay/mechanics/damage.h"
 #include "gameplay/mechanics/bonus.h"
+#include "gameplay/ai/mobact.h"
 
 #include "../subprojects/fmt/include/fmt/format.h"
 
@@ -52,11 +53,29 @@ extern int check_dupes_host(DescriptorData *d, bool autocheck = false);
 extern int idle_rent_time;
 extern int idle_max_level;
 extern int idle_void;
-extern int CheckProxy(DescriptorData *ch);
 void decrease_level(CharData *ch);
 int max_exp_gain_pc(CharData *ch);
 int max_exp_loss_pc(CharData *ch);
 int average_day_temp();
+
+namespace {
+
+void CollectCharmiceBoxesForIdleExtract(CharData *master) {
+	if (!master || master->IsNpc()) {
+		return;
+	}
+
+	const auto followers = master->get_followers_list();
+	for (const auto follower : followers) {
+		if (!follower || !IS_CHARMICE(follower) || follower->get_master() != master) {
+			continue;
+		}
+
+		mob_ai::extract_charmice(follower, false);
+	}
+}
+
+} // namespace
 
 // local functions
 int graf(int age, int p0, int p1, int p2, int p3, int p4, int p5, int p6);
@@ -599,7 +618,7 @@ void beat_punish(const CharData::shared_ptr &i) {
 
 				i->set_was_in_room(kNowhere);
 			};
-		} else if (restore == r_unreg_start_room && check_dupes_host(i->desc, true) && !IS_IMMORTAL(i)) {
+		} else if (restore == r_unreg_start_room && check_dupes_host(i->desc, true) && !i->IsImmortal()) {
 			SendMsgToChar("Неведомая вытолкнула вас из комнаты для незарегистрированных игроков.\r\n", i.get());
 			act("$n появил$u в центре комнаты, правда без штампика регистрации...\r\n",
 				false, i.get(), nullptr, nullptr, kToRoom);
@@ -956,7 +975,7 @@ void gain_condition(CharData *ch, unsigned condition, int value) {
 		return;
 	}
 
-	if (IS_GOD(ch) && condition != DRUNK) {
+	if (ch->IsGod() && condition != DRUNK) {
 		GET_COND(ch, condition) = -1;
 		return;
 	}
@@ -1028,7 +1047,7 @@ void underwater_check() {
 	for (d = descriptor_list; d; d = d->next) {
 		if (d->character
 			&& SECT(d->character->in_room) == ESector::kUnderwater
-			&& !IS_GOD(d->character)
+			&& !d->character->IsGod()
 			&& !AFF_FLAGGED(d->character, EAffect::kWaterBreath)) {
 			sprintf(buf, "Player %s died under water (room %d)",
 					GET_NAME(d->character), GET_ROOM_VNUM(d->character->in_room));
@@ -1068,6 +1087,7 @@ void check_idling(CharData *ch) {
 				if (ch->in_room != kNowhere)
 					RemoveCharFromRoom(ch);
 				PlaceCharToRoom(ch, kStrangeRoom);
+				CollectCharmiceBoxesForIdleExtract(ch);
 				Crash_idlesave(ch);
 				Depot::exit_char(ch);
 				Clan::clan_invoice(ch, false);

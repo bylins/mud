@@ -467,7 +467,7 @@ void do_wpurge(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Trig
 		return;
 	}
 
-	if (ch->followers
+	if (!ch->followers.empty()
 		|| ch->get_master()) {
 		die_follower(ch);
 	}
@@ -552,7 +552,7 @@ void do_wdamage(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 			return;
 		}
 
-		if (IS_IMMORTAL(ch) && dam > 0) {
+		if (ch->IsImmortal() && dam > 0) {
 			SendMsgToChar("Будучи бессмертным, вы избежали повреждения...\r\n", ch);
 			return;
 		}

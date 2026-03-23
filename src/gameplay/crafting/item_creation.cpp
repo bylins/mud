@@ -504,8 +504,7 @@ void mredit_disp_menu(DescriptorData *d) {
 }
 
 void do_list_make(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
-	std::string tmpstr, skill_name;
-	char *obj_name;
+	std::string tmpstr, skill_name, obj_name;
 	char tmpbuf[kMaxInputLength];
 	MakeRecept *trec;
 	if (make_recepts.size() == 0) {
@@ -519,12 +518,11 @@ void do_list_make(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 	for (size_t i = 0; i < make_recepts.size(); i++) {
 		int j = 0;
 		skill_name = "Нет";
-		obj_name = str_dup("Нет");
+		obj_name = "Нет";
 		trec = make_recepts[i];
 		auto obj = GetObjectPrototype(trec->obj_proto);
 		if (obj) {
-			obj_name = str_dup(obj->get_PName(ECase::kNom).substr(0, 39).c_str());
-			utils::RemoveColors(obj_name);
+			obj_name = utils::RemoveColors(obj->get_PName(ECase::kNom).substr(0, 39));
 		}
 		while (make_skills[j].num != ESkill::kUndefined) {
 			if (make_skills[j].num == trec->skill) {
@@ -534,18 +532,17 @@ void do_list_make(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 			j++;
 		}
 		sprintf(tmpbuf, "%3zd  %-1s  %-6s  %-40s(%5d) :",
-				i + 1, (trec->locked ? "*" : " "), skill_name.c_str(), obj_name, trec->obj_proto);
+				i + 1, (trec->locked ? "*" : " "), skill_name.c_str(), obj_name.c_str(), trec->obj_proto);
 		tmpstr += string(tmpbuf);
 		for (int j = 0; j < MAX_PARTS; j++) {
 			if (trec->parts[j].proto != 0) {
 				obj = GetObjectPrototype(trec->parts[j].proto);
 				if (obj) {
-					obj_name = str_dup(obj->get_PName(ECase::kNom).substr(0, 34).c_str());
-					utils::RemoveColors(obj_name);
+					obj_name = utils::RemoveColors(obj->get_PName(ECase::kNom).substr(0, 34));
 				} else {
-					obj_name = str_dup("Нет");
+					obj_name = "Нет";
 				}
-				sprintf(tmpbuf, " %-35s(%5d)", obj_name, trec->parts[j].proto);
+				sprintf(tmpbuf, " %-35s(%5d)", obj_name.c_str(), trec->parts[j].proto);
 				if (j > 0) {
 					if (j % 2 == 0) {
 						// разбиваем строчки если ингров больше 2;
@@ -932,7 +929,7 @@ void do_transform_weapon(CharData *ch, char *argument, int/* cmd*/, int subcmd) 
 				act("$o сделан$G из неподходящего материала.", false, ch, obj, 0, kToChar);
 				return;
 			}
-			if (!IS_IMMORTAL(ch)) {
+			if (!ch->IsImmortal()) {
 				if (!ROOM_FLAGGED(ch->in_room, ERoomFlag::kForge)) {
 					SendMsgToChar("Вам нужно попасть в кузницу для этого.\r\n", ch);
 					return;
@@ -1237,7 +1234,7 @@ int MakeRecept::can_make(CharData *ch) {
 		int ingr_lev = get_ingr_lev(ingrobj);
 		// Если чар ниже уровня ингридиента то он не может делать рецепты с его
 		// участием.
-		if (!IS_IMPL(ch) && (ingr_lev > (GetRealLevel(ch) + 2 * GetRealRemort(ch)))) {
+		if (!ch->IsImpl() && (ingr_lev > (GetRealLevel(ch) + 2 * GetRealRemort(ch)))) {
 			SendMsgToChar("Вы слишком малого уровня и вам что-то не подходит для шитья.\r\n", ch);
 			return (false);
 		}
@@ -1621,7 +1618,7 @@ int MakeRecept::make(CharData *ch) {
 		return 0;
 	}
 	// Проверяем возможность создания предмета
-	if (!IS_IMMORTAL(ch) && (skill == ESkill::kMakeStaff)) {
+	if (!ch->IsImmortal() && (skill == ESkill::kMakeStaff)) {
 		const ObjData obj(*tobj);
 		act("Вы не готовы к тому чтобы сделать $o3.", false, ch, &obj, 0, kToChar);
 		return (false);
@@ -1634,7 +1631,7 @@ int MakeRecept::make(CharData *ch) {
 			break;
 		ingrs[i] = get_obj_in_list_ingr(parts[i].proto, ch->carrying);
 		ingr_lev = get_ingr_lev(ingrs[i]);
-		if (!IS_IMPL(ch) && (ingr_lev > (GetRealLevel(ch) + 2 * GetRealRemort(ch)))) {
+		if (!ch->IsImpl() && (ingr_lev > (GetRealLevel(ch) + 2 * GetRealRemort(ch)))) {
 			tmpstr = "Вы побоялись испортить " + ingrs[i]->get_PName(ECase::kAcc)
 				+ "\r\n и прекратили работу над " + tobj->get_PName(ECase::kIns) + ".\r\n";
 			SendMsgToChar(tmpstr.c_str(), ch);
@@ -1654,7 +1651,7 @@ int MakeRecept::make(CharData *ch) {
 		case ESkill::kMakeWeapon:
 		case ESkill::kMakeArmor:
 			// Проверяем есть ли тут наковальня или комната кузня.
-			if ((!ROOM_FLAGGED(ch->in_room, ERoomFlag::kForge)) && (!IS_IMMORTAL(ch))) {
+			if ((!ROOM_FLAGGED(ch->in_room, ERoomFlag::kForge)) && (!ch->IsImmortal())) {
 				SendMsgToChar("Вам нужно попасть в кузницу для этого.\r\n", ch);
 				return (false);
 			}
@@ -1780,7 +1777,7 @@ int MakeRecept::make(CharData *ch) {
 			created_lev += ingr_lev;
 		}
 		// Шанс испортить не ингредиент всетаки есть.
-		if ((number(0, 30) < (5 + ingr_lev - GetRealLevel(ch) - 2 * GetRealRemort(ch))) && !IS_IMPL(ch)) {
+		if ((number(0, 30) < (5 + ingr_lev - GetRealLevel(ch) - 2 * GetRealRemort(ch))) && !ch->IsImpl()) {
 			tmpstr = "Вы испортили " + ingrs[i]->get_PName(ECase::kAcc) + ".\r\n";
 			SendMsgToChar(tmpstr.c_str(), ch);
 			//extract_obj(ingrs[i]); //заменим на обнуление веса
@@ -1801,7 +1798,7 @@ int MakeRecept::make(CharData *ch) {
 		SendMsgToChar(tmpstr.c_str(), ch);
 		make_fail = true;
 	} else {
-		if (!IS_IMPL(ch)) {
+		if (!ch->IsImpl()) {
 			ch->set_move(ch->get_move() - craft_move);
 		}
 	}

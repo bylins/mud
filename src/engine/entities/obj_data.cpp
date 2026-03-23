@@ -1432,8 +1432,7 @@ bool is_norent_set(int vnum, std::vector<int> objs) {
 // * Поиск в хране из списка vnum_list.
 bool house_find_set_item(CharData *ch, const std::set<int> &vnum_list) {
 	// храны у нас через задницу сделаны
-	for (ObjData *chest = world[GetRoomRnum(CLAN(ch)->get_chest_room())]->contents; chest;
-		 chest = chest->get_next_content()) {
+	for (auto chest : world[GetRoomRnum(CLAN(ch)->get_chest_room())]->contents) {
 		if (Clan::is_clan_chest(chest)) {
 			for (ObjData *temp = chest->get_contains(); temp; temp = temp->get_next_content()) {
 				if (vnum_list.find(obj_sets::normalize_vnum(temp->get_vnum())) != vnum_list.end()) {
@@ -1473,20 +1472,20 @@ bool is_norent_set(CharData *ch, ObjData *obj, bool clan_chest) {
 	}
 
 	// чармисы
-	if (ch->followers) {
-		for (struct FollowerType *k = ch->followers; k; k = k->next) {
-			if (!IS_CHARMICE(k->follower)
-				|| !k->follower->has_master()) {
+	if (!ch->followers.empty()) {
+		for (auto *k : ch->followers) {
+			if (!IS_CHARMICE(k)
+				|| !k->has_master()) {
 				continue;
 			}
 
 			for (int j = 0; j < EEquipPos::kNumEquipPos; j++) {
-				if (find_set_item(GET_EQ(k->follower, j))) {
+				if (find_set_item(GET_EQ(k, j))) {
 					return false;
 				}
 			}
 
-			if (find_set_item(k->follower->carrying)) {
+			if (find_set_item(k->carrying)) {
 				return false;
 			}
 		}

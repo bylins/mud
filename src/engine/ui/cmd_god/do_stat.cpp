@@ -81,7 +81,7 @@ void do_statip(CharData *ch, CharData *k) {
 		for (const auto &logon : LOGON_LIST(k)) {
 			sprintf(buf1,
 					"%16s %5ld %20s%s\r\n",
-					logon.ip,
+					logon.ip.c_str(),
 					logon.count,
 					rustime(localtime(&logon.lasttime)),
 					logon.is_first ? " (создание)" : "");
@@ -106,7 +106,6 @@ void DoStatKarma(CharData *ch, CharData *victim) {
 void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 	int i, i2, found = 0;
 	ObjData *j;
-	struct FollowerType *fol;
 	char tmpbuf[128];
 	buf[0] = 0;
 	int god_level = ch->IsFlagged(EPrf::kCoderinfo) ? kLvlImplementator : GetRealLevel(ch);
@@ -128,12 +127,12 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 			k->get_uid());
 	SendMsgToChar(strcat(buf, buf2), ch);
 	SendMsgToChar(ch, " ЛАГ: [%d]\r\n", k->get_wait());
-	if (IS_MOB(k)) {
+	if (k->IsNpc()) {
 		sprintf(buf,
 				"Синонимы: &S%s&s, VNum: [%5d], RNum: [%5d]\r\n",
 				k->GetCharAliases().c_str(),
 				GET_MOB_VNUM(k),
-				GET_MOB_RNUM(k));
+				k->get_rnum());
 		SendMsgToChar(buf, ch);
 	}
 
@@ -299,8 +298,8 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 		strcat(buf, "\r\n");
 		SendMsgToChar(buf, ch);
 	} else {
-		int mob_online = mob_index[GET_MOB_RNUM(k)].total_online - (virt ? 1 : 0);
-		sprintf(buf, "Сейчас в мире : %d, макс %d. ", mob_online, mob_index[GET_MOB_RNUM(k)].stored);
+		int mob_online = mob_index[k->get_rnum()].total_online - (virt ? 1 : 0);
+		sprintf(buf, "Сейчас в мире : %d, макс %d. ", mob_online, mob_index[k->get_rnum()].stored);
 		SendMsgToChar(buf, ch);
 		std::string stats;
 		mob_stat::GetLastMobKill(k, stats);
@@ -522,14 +521,14 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 		sprintf(buf, "PRF: %s%s%s\r\n", kColorGrn, smallBuf, kColorNrm);
 		SendMsgToChar(buf, ch);
 
-		if (IS_IMPL(ch)) {
+		if (ch->IsImpl()) {
 			sprintbitwd(k->player_specials->saved.GodsLike, godslike_bits, smallBuf, ",");
 			sprintf(buf, "GFL: %s%s%s\r\n", kColorCyn, smallBuf, kColorNrm);
 			SendMsgToChar(buf, ch);
 		}
 	}
 
-	if (IS_MOB(k)) {
+	if (k->IsNpc()) {
 
 		sprintf(buf, "Mob СпецПроц: &R%s&n, NPC сила удара: %dd%d\r\n",
 				print_special(k).c_str(),
@@ -559,11 +558,13 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 	if (god_level >= kLvlGreatGod) {
 		sprintf(buf, "Ведущий: %s, Ведомые:", (k->has_master() ? GET_NAME(k->get_master()) : "<нет>"));
 
-		for (fol = k->followers; fol; fol = fol->next) {
-			sprintf(buf2, "%s %s (%d)", found++ ? "," : "", PERS(fol->follower, ch, 0), GET_MOB_VNUM(fol->follower));
+		for (auto it = k->followers.begin(); it != k->followers.end(); ++it) {
+			auto *fol = *it;
+			auto next_it = std::next(it);
+			sprintf(buf2, "%s %s (%d)", found++ ? "," : "", PERS(fol, ch, 0), GET_MOB_VNUM(fol));
 			strcat(buf, buf2);
 			if (strlen(buf) >= 162) {
-				if (fol->next)
+				if (next_it != k->followers.end())
 					SendMsgToChar(strcat(buf, ",\r\n"), ch);
 				else
 					SendMsgToChar(strcat(buf, "\r\n"), ch);
@@ -675,7 +676,7 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 	ObjVnum rnum, vnum;
 	ObjData *j2;
 	long int li;
-	bool is_grgod = (IS_GRGOD(ch) || ch->IsFlagged(EPrf::kCoderinfo)) ? true : false;
+	bool is_grgod = (ch->IsGrGod() || ch->IsFlagged(EPrf::kCoderinfo)) ? true : false;
 
 	vnum = GET_OBJ_VNUM(j);
 	rnum = j->get_rnum();
@@ -1123,7 +1124,6 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 void do_stat_room(CharData *ch, const int rnum = 0) {
 	RoomData *rm = world[ch->in_room];
 	int i, found;
-	ObjData *j;
 	CharData *k;
 	char tmpBuf[255];
 
@@ -1167,7 +1167,7 @@ void do_stat_room(CharData *ch, const int rnum = 0) {
 			continue;
 		}
 		sprintf(buf2, "%s %s(%s)", found++ ? "," : "", GET_NAME(k),
-				(!k->IsNpc() ? "PC" : (!IS_MOB(k) ? "NPC" : "MOB")));
+				(!k->IsNpc() ? "PC" : (!k->IsNpc() ? "NPC" : "MOB")));
 		strcat(buf, buf2);
 		if (strlen(buf) >= 62) {
 			if (counter != rm->people.size()) {
@@ -1184,15 +1184,17 @@ void do_stat_room(CharData *ch, const int rnum = 0) {
 	}
 	SendMsgToChar(kColorNrm, ch);
 
-	if (rm->contents) {
+	if (!rm->contents.empty()) {
 		sprintf(buf, "Предметы:%s", kColorGrn);
-		for (found = 0, j = rm->contents; j; j = j->get_next_content()) {
+		found = 0;
+		for (auto it = rm->contents.begin(); it != rm->contents.end(); ++it) {
+			auto j = *it;
 			if (!CAN_SEE_OBJ(ch, j))
 				continue;
 			sprintf(buf2, "%s %s", found++ ? "," : "", j->get_short_description().c_str());
 			strcat(buf, buf2);
 			if (strlen(buf) >= 62) {
-				if (j->get_next_content()) {
+				if (std::next(it) != rm->contents.end()) {
 					SendMsgToChar(strcat(buf, ",\r\n"), ch);
 				} else {
 					SendMsgToChar(strcat(buf, "\r\n"), ch);
@@ -1261,7 +1263,7 @@ void do_stat(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 		SendMsgToChar("Состояние КОГО или ЧЕГО?\r\n", ch);
 		return;
 	}
-	if (*buf1 && IS_IMMORTAL(ch)) {
+	if (*buf1 && ch->IsImmortal()) {
 		if (utils::IsAbbr(buf1, "room") && level >= kLvlBuilder) {
 			int vnum, rnum = kNowhere;
 			if (*buf2 && (vnum = atoi(buf2))) {
@@ -1364,7 +1366,7 @@ void do_stat(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 			return;
 		}
 	}
-	if (IS_IMMORTAL(ch)) {
+	if (ch->IsImmortal()) {
 		if ((object = get_object_in_equip_vis(ch, buf1, ch->equipment, &tmp)) != nullptr) {
 			do_stat_object(ch, object);
 			return;

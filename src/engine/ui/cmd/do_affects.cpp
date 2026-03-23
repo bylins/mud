@@ -60,7 +60,7 @@ void do_affects(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					 *sp_name == '!' ? "Состояние  : " : "Заклинание : ",
 					 kColorBoldCyn, sp_name, buf2, kColorNrm);
 			*buf2 = '\0';
-			if (!IS_IMMORTAL(ch)) {
+			if (!ch->IsImmortal()) {
 				auto next_affect_i = affect_i;
 				++next_affect_i;
 				if (next_affect_i != ch->affected.end()) {

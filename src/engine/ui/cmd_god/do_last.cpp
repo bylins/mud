@@ -23,7 +23,7 @@ void DoPageLastLogins(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 		SendMsgToChar("Нет такого игрока.\r\n", ch);
 		return;
 	}
-	if (GetRealLevel(chdata) > GetRealLevel(ch) && !IS_IMPL(ch) && !ch->IsFlagged(EPrf::kCoderinfo)) {
+	if (GetRealLevel(chdata) > GetRealLevel(ch) && !ch->IsImpl() && !ch->IsFlagged(EPrf::kCoderinfo)) {
 		SendMsgToChar("Вы не столь уж и божественны для этого.\r\n", ch);
 	} else {
 		time_t tmp_time = LAST_LOGON(chdata);

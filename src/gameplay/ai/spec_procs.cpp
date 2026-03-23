@@ -190,7 +190,7 @@ void npc_dropunuse(CharData *ch) {
 
 int npc_scavenge(CharData *ch) {
 	int max = 1;
-	ObjData *obj, *best_obj, *cont, *best_cont, *cobj;
+	ObjData *best_obj, *cont, *best_cont, *cobj;
 
 	if (!ch->IsFlagged(EMobFlag::kScavenger)) {
 		return (false);
@@ -201,12 +201,12 @@ int npc_scavenge(CharData *ch) {
 	}
 
 	npc_dropunuse(ch);
-	if (world[ch->in_room]->contents && number(0, 25) <= GetRealInt(ch)) {
+	if (!world[ch->in_room]->contents.empty() && number(0, 25) <= GetRealInt(ch)) {
 		max = 1;
 		best_obj = nullptr;
 		cont = nullptr;
 		best_cont = nullptr;
-		for (obj = world[ch->in_room]->contents; obj; obj = obj->get_next_content()) {
+		for (auto obj : world[ch->in_room]->contents) {
 			if (obj->get_type() == EObjType::kMagicIngredient
 				|| Clan::is_clan_chest(obj)
 				|| ClanSystem::is_ingr_chest(obj)) {
@@ -285,15 +285,15 @@ int npc_scavenge(CharData *ch) {
 
 int npc_loot(CharData *ch) {
 	int max = false;
-	ObjData *obj, *loot_obj, *next_loot, *cobj, *cnext_obj;
+	ObjData *loot_obj, *next_loot, *cobj, *cnext_obj;
 
 	if (!ch->IsFlagged(EMobFlag::kLooter))
 		return (false);
 	if (IS_SHOPKEEPER(ch))
 		return (false);
 	npc_dropunuse(ch);
-	if (world[ch->in_room]->contents && number(0, GetRealInt(ch)) > 10) {
-		for (obj = world[ch->in_room]->contents; obj; obj = obj->get_next_content()) {
+	if (!world[ch->in_room]->contents.empty() && number(0, GetRealInt(ch)) > 10) {
+		for (auto obj : world[ch->in_room]->contents) {
 			if (CAN_SEE_OBJ(ch, obj) && IS_CORPSE(obj)) {
 				// Сначала лутим то, что не в контейнерах
 				for (loot_obj = obj->get_contains(); loot_obj; loot_obj = next_loot) {
@@ -747,7 +747,6 @@ void npc_light(CharData *ch) {
 
 int npc_battle_scavenge(CharData *ch) {
 	int max = false;
-	ObjData *obj, *next_obj = nullptr;
 
 	if (!ch->IsFlagged(EMobFlag::kScavenger))
 		return (false);
@@ -755,9 +754,9 @@ int npc_battle_scavenge(CharData *ch) {
 	if (IS_SHOPKEEPER(ch))
 		return (false);
 
-	if (world[ch->in_room]->contents && number(0, GetRealInt(ch)) > 10)
-		for (obj = world[ch->in_room]->contents; obj; obj = next_obj) {
-			next_obj = obj->get_next_content();
+	if (!world[ch->in_room]->contents.empty() && number(0, GetRealInt(ch)) > 10)
+		for (auto it = world[ch->in_room]->contents.begin(); it != world[ch->in_room]->contents.end(); ) {
+			auto obj = *it; ++it;
 			if (CAN_GET_OBJ(ch, obj)
 				&& !has_curse(obj)
 				&& (ObjSystem::is_armor_type(obj)
@@ -795,7 +794,7 @@ int npc_walk(CharData *ch) {
 			return (npc_walk(ch));
 	}
 
-	door = find_first_step(ch->in_room, GetRoomRnum(GET_DEST(ch)), ch);
+	door = find_first_step(ch->in_room, rnum, ch);
 
 	return (door);
 }
@@ -856,7 +855,7 @@ int npc_steal(CharData *ch) {
 
 	for (const auto cons : world[ch->in_room]->people) {
 		if (!cons->IsNpc()
-			&& !IS_IMMORTAL(cons)
+			&& !cons->IsImmortal()
 			&& (number(0, GetRealInt(ch)) > 10)) {
 			return (do_npc_steal(ch, cons));
 		}
@@ -958,22 +957,18 @@ void npc_group(CharData *ch) {
 }
 
 void npc_groupbattle(CharData *ch) {
-	struct FollowerType *k;
-	CharData *tch, *helper;
-
 	if (!ch->IsNpc()
 		|| !ch->GetEnemy()
 		|| AFF_FLAGGED(ch, EAffect::kCharmed)
 		|| !ch->has_master()
 		|| ch->in_room == kNowhere
-		|| !ch->followers) {
+		|| ch->followers.empty()) {
 		return;
 	}
 
-	k = ch->has_master() ? ch->get_master()->followers : ch->followers;
-	tch = ch->has_master() ? ch->get_master() : ch;
-	for (; k; (k = tch ? k : k->next), tch = nullptr) {
-		helper = tch ? tch : k->follower;
+	auto *leader = ch->has_master() ? ch->get_master() : ch;
+	// Check the leader first, then iterate through their followers
+	auto check_helper = [&](CharData *helper) {
 		if (ch->in_room == helper->in_room
 			&& !helper->GetEnemy()
 			&& !helper->IsNpc()
@@ -982,14 +977,18 @@ void npc_groupbattle(CharData *ch) {
 			SetFighting(helper, ch->GetEnemy());
 			act("$n вступил$u за $N3.", false, helper, 0, ch, kToRoom);
 		}
+	};
+	check_helper(leader);
+	for (auto *f : leader->followers) {
+		check_helper(f);
 	}
 }
 
 int dump(CharData *ch, void * /*me*/, int cmd, char *argument) {
-	ObjData *k;
 	int value = 0;
 
-	for (k = world[ch->in_room]->contents; k; k = world[ch->in_room]->contents) {
+	while (!world[ch->in_room]->contents.empty()) {
+		auto k = world[ch->in_room]->contents.front();
 		act("$p рассыпал$U в прах!", false, 0, k, 0, kToRoom);
 		ExtractObjFromWorld(k);
 	}
@@ -999,7 +998,8 @@ int dump(CharData *ch, void * /*me*/, int cmd, char *argument) {
 
 	DoDrop(ch, argument, cmd, 0);
 
-	for (k = world[ch->in_room]->contents; k; k = world[ch->in_room]->contents) {
+	while (!world[ch->in_room]->contents.empty()) {
+		auto k = world[ch->in_room]->contents.front();
 		act("$p рассыпал$U в прах!", false, 0, k, 0, kToRoom);
 		value += MAX(1, MIN(1, k->get_cost() / 10));
 		ExtractObjFromWorld(k);
@@ -1218,12 +1218,12 @@ int puff(CharData * /*ch*/, void * /*me*/, int/* cmd*/, char * /*argument*/) {
 }
 
 int fido(CharData *ch, void * /*me*/, int cmd, char * /*argument*/) {
-	ObjData *i, *temp, *next_obj;
+	ObjData *temp, *next_obj;
 
 	if (cmd || !AWAKE(ch))
 		return (false);
 
-	for (i = world[ch->in_room]->contents; i; i = i->get_next_content()) {
+	for (auto i : world[ch->in_room]->contents) {
 		if (IS_CORPSE(i)) {
 			act("$n savagely devours a corpse.", false, ch, 0, 0, kToRoom);
 			for (temp = i->get_contains(); temp; temp = next_obj) {
@@ -1239,12 +1239,10 @@ int fido(CharData *ch, void * /*me*/, int cmd, char * /*argument*/) {
 }
 
 int janitor(CharData *ch, void * /*me*/, int cmd, char * /*argument*/) {
-	ObjData *i;
-
 	if (cmd || !AWAKE(ch))
 		return (false);
 
-	for (i = world[ch->in_room]->contents; i; i = i->get_next_content()) {
+	for (auto i : world[ch->in_room]->contents) {
 		if (!CAN_WEAR(i, EWearFlag::kTake)) {
 			continue;
 		}
@@ -1345,7 +1343,7 @@ int pet_shops(CharData *ch, void * /*me*/, int cmd, char *argument) {
 		}
 		ch->remove_gold(PET_PRICE(pet));
 
-		pet = ReadMobile(GET_MOB_RNUM(pet), kReal);
+		pet = ReadMobile(pet->get_rnum(), kReal);
 		pet->set_exp(0);
 		AFF_FLAGS(pet).set(EAffect::kCharmed);
 
@@ -1426,7 +1424,7 @@ int bank(CharData *ch, void * /*me*/, int cmd, char *argument) {
 	} else if (CMD_IS("transfer") || CMD_IS("перевести")) {
 		argument = one_argument(argument, arg);
 		amount = atoi(argument);
-		if (IS_GOD(ch) && !IS_IMPL(ch)) {
+		if (ch->IsGod() && !ch->IsImpl()) {
 			SendMsgToChar("Почитить захотелось?\r\n", ch);
 			return (1);
 

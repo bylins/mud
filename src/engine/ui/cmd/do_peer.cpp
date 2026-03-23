@@ -26,7 +26,7 @@ void DoPeer(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 			SendMsgToChar("Вы напрягли зрение и начали присматриваться по сторонам.\r\n", ch);
 			for (i = 0; i < EDirection::kMaxDirNum; i++)
 				look_in_direction(ch, i, EXIT_SHOW_LOOKING);
-			if (!(IS_IMMORTAL(ch) || GET_GOD_FLAG(ch, EGf::kGodsLike)))
+			if (!(ch->IsImmortal() || GET_GOD_FLAG(ch, EGf::kGodsLike)))
 				SetWaitState(ch, 1 * kBattleRound);
 		}
 	} else

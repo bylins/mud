@@ -57,6 +57,7 @@ const char *ObjState[8][2] = {{"рассыпается", "рассыпается
 							  {"великолепно", "в великолепном состоянии"}
 };
 
+void list_obj_to_char(const ObjData::obj_list_t &list, CharData *ch, int mode, int show);
 void do_auto_exits(CharData *ch);
 void show_extend_room(const char *description, CharData *ch);
 void list_char_to_char_thing(const RoomData::people_t &list, CharData *ch);
@@ -75,6 +76,54 @@ bool put_delim(std::stringstream &out, bool delim);
 char *diag_uses_to_char(ObjData *obj, CharData *ch);
 char *diag_shot_to_char(ObjData *obj, CharData *ch);
 const char *diag_obj_timer(const ObjData *obj);
+
+namespace {
+
+std::string BuildBriefShieldSuffix(const CharData *viewer, const CharData *target) {
+	if (!viewer->IsFlagged(EPrf::kBriefShields)) {
+		return std::string();
+	}
+
+	std::string result;
+	auto append = [&result](const char *text) {
+		if (!result.empty()) {
+			result += " ";
+		}
+		result += text;
+	};
+
+	if (AFF_FLAGGED(target, EAffect::kFireShield)) {
+		append("&RОШ&n");
+	}
+	if (AFF_FLAGGED(target, EAffect::kAirShield)) {
+		append("&WВШ&n");
+	}
+	if (AFF_FLAGGED(target, EAffect::kIceShield)) {
+		append("&CЛШ&n");
+	}
+	if (AFF_FLAGGED(viewer, EAffect::kDetectMagic) && AFF_FLAGGED(target, EAffect::kMagicGlass)) {
+		append("&wМЗ&n");
+	}
+
+	return result.empty() ? std::string() : std::string(" (") + result + ")";
+}
+
+void AppendBriefShieldSuffix(std::string &text, const CharData *viewer, const CharData *target) {
+	const auto suffix = BuildBriefShieldSuffix(viewer, target);
+	if (suffix.empty()) {
+		return;
+	}
+
+	const std::string newline = "\r\n";
+	if (text.size() >= newline.size()
+		&& text.compare(text.size() - newline.size(), newline.size(), newline) == 0) {
+		text.insert(text.size() - newline.size(), suffix);
+	} else {
+		text += suffix;
+	}
+}
+
+} // namespace
 
 void look_at_room(CharData *ch, int ignore_brief, bool msdp_mode) {
 	if (!ch->desc)
@@ -143,7 +192,7 @@ void look_at_room(CharData *ch, int ignore_brief, bool msdp_mode) {
 	}
 
 	// Отображаем аффекты комнаты. После автовыходов чтобы не ломать популярный маппер.
-	if (AFF_FLAGGED(ch, EAffect::kDetectMagic) || IS_IMMORTAL(ch)) {
+	if (AFF_FLAGGED(ch, EAffect::kDetectMagic) || ch->IsImmortal()) {
 		show_room_affects(ch, room_aff_invis_bits, room_self_aff_invis_bits);
 	} else {
 		show_room_affects(ch, room_aff_visib_bits, room_aff_visib_bits);
@@ -157,7 +206,7 @@ void look_at_room(CharData *ch, int ignore_brief, bool msdp_mode) {
 	if (room_spells::IsRoomAffected(world[ch->in_room], ESpell::kPortalTimer)) {
 		for (const auto &aff : world[ch->in_room]->affected) {
 			if (aff->type == ESpell::kPortalTimer && aff->bitvector != room_spells::ERoomAffect::kNoPortalExit) {
-				if (IS_GOD(ch)) {
+				if (ch->IsGod()) {
 					sprintf(buf, "&BЛазурная пентаграмма ярко сверкает здесь. (время: %d, куда: %d)&n\r\n",
 							aff->duration,  world[aff->modifier]->vnum);
 				} else {
@@ -248,8 +297,7 @@ void look_at_room(CharData *ch, int ignore_brief, bool msdp_mode) {
 
 void show_glow_objs(CharData *ch) {
 	unsigned cnt = 0;
-	for (ObjData *obj = world[ch->in_room]->contents;
-		 obj; obj = obj->get_next_content()) {
+	for (auto obj : world[ch->in_room]->contents) {
 		if (obj->has_flag(EObjFlag::kGlow)) {
 			++cnt;
 			if (cnt > 1) {
@@ -375,9 +423,9 @@ bool look_at_target(CharData *ch, char *arg, int subcmd) {
 				fnum = number(1, MUD::Skill(ESkill::kPry).difficulty);
 				found = CalcCurrentSkill(ch, ESkill::kPry, found_char);
 				TrainSkill(ch, ESkill::kPry, found < fnum, found_char);
-				if (!IS_IMMORTAL(ch))
+				if (!ch->IsImmortal())
 					SetWaitState(ch, 1 * kBattleRound);
-				if (found >= fnum && (fnum < 100 || IS_IMMORTAL(ch)) && !IS_IMMORTAL(found_char))
+				if (found >= fnum && (fnum < 100 || ch->IsImmortal()) && !found_char->IsImmortal())
 					return false;
 			}
 			if (CAN_SEE(found_char, ch))
@@ -623,7 +671,7 @@ void look_at_char(CharData *i, CharData *ch) {
 		}
 	}
 
-	if (ch != i && (ch->GetSkill(ESkill::kPry) || IS_IMMORTAL(ch))) {
+	if (ch != i && (ch->GetSkill(ESkill::kPry) || ch->IsImmortal())) {
 		found = false;
 		act("\r\nВы попытались заглянуть в $s ношу:", false, i, nullptr, ch, kToVict);
 		for (tmp_obj = i->carrying; tmp_obj; tmp_obj = tmp_obj->get_next_content()) {
@@ -796,6 +844,7 @@ void do_auto_exits(CharData *ch) {
 	SendMsgToChar(buf2, ch);
 }
 
+
 void list_obj_to_char(ObjData *list, CharData *ch, int mode, int show) {
 	ObjData *i, *push = nullptr;
 	bool found = false;
@@ -848,6 +897,54 @@ void list_obj_to_char(ObjData *list, CharData *ch, int mode, int show) {
 	}
 	if (clan_chest)
 		page_string(ch->desc, buffer.str());
+}
+
+void list_obj_to_char(const ObjData::obj_list_t &list, CharData *ch, int mode, int show) {
+	ObjData *push = nullptr;
+	bool found = false;
+	int push_count = 0;
+	std::ostringstream buffer;
+	long cost = 0, count = 0;
+
+	bool clan_chest = false;
+	if (mode == 1 && (show == 3 || show == 4)) {
+		clan_chest = true;
+	}
+
+	for (auto i : list) {
+		if (CAN_SEE_OBJ(ch, i)) {
+			if (!push) {
+				push = i;
+				push_count = 1;
+			} else if ((!IsObjsStackable(i, push))
+				|| (quest_item(i))) {
+				if (clan_chest) {
+					buffer << show_obj_to_char(push, ch, mode, show, push_count);
+					count += push_count;
+					cost += push->get_rent_on() * push_count;
+				} else
+					show_obj_to_char(push, ch, mode, show, push_count);
+				push = i;
+				push_count = 1;
+			} else
+				push_count++;
+			found = true;
+		}
+	}
+	if (push && push_count) {
+		if (clan_chest) {
+			buffer << show_obj_to_char(push, ch, mode, show, push_count);
+			count += push_count;
+			cost += push->get_rent_on() * push_count;
+		} else
+			show_obj_to_char(push, ch, mode, show, push_count);
+	}
+	if (!found && show) {
+		SendMsgToChar(" \xce\xc9\xde\xc5\xc7\xd8.\r\n", ch);
+	}
+	if (clan_chest) {
+		SendMsgToChar(ch, "%s", buffer.str().c_str());
+	}
 }
 
 void list_char_to_char(const RoomData::people_t &list, CharData *ch) {
@@ -913,9 +1010,9 @@ void look_in_direction(CharData *ch, int dir, int info_is) {
 					probe = CalcCurrentSkill(ch, ESkill::kLooking, tch);
 					TrainSkill(ch, ESkill::kLooking, probe >= percent, tch);
 					if (HERE(tch) && INVIS_OK(ch, tch) && probe >= percent
-						&& (percent < 100 || IS_IMMORTAL(ch))) {
+						&& (percent < 100 || ch->IsImmortal())) {
 						// Если моб не вещь и смотрящий не им
-						if (GET_RACE(tch) != ENpcRace::kConstruct || IS_IMMORTAL(ch)) {
+						if (GET_RACE(tch) != ENpcRace::kConstruct || ch->IsImmortal()) {
 							ListOneChar(tch, ch, ESkill::kLooking);
 							count++;
 						}
@@ -1499,7 +1596,7 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 
 	if (mode == ESkill::kLooking) {
 		if (HERE(i) && INVIS_OK(ch, i) && GetRealLevel(ch) >= (i->IsNpc() ? 0 : GET_INVIS_LEV(i))) {
-			if (GET_RACE(i) == ENpcRace::kConstruct && IS_IMMORTAL(ch)) {
+			if (GET_RACE(i) == ENpcRace::kConstruct && ch->IsImmortal()) {
 				sprintf(buf, "Вы разглядели %s.(предмет)\r\n", GET_PAD(i, 3));
 			} else {
 				sprintf(buf, "Вы разглядели %s.\r\n", GET_PAD(i, 3));
@@ -1592,8 +1689,10 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 		if (AFF_FLAGGED(i, EAffect::kHorse))
 			strcat(buf, "(под седлом) ");
 
-		strcat(buf, i->player_data.long_descr.c_str());
-		SendMsgToChar(buf, ch);
+		std::string line = buf;
+		line += i->player_data.long_descr;
+		AppendBriefShieldSuffix(line, ch, i);
+		SendMsgToChar(line, ch);
 
 		*aura_txt = '\0';
 		if (AFF_FLAGGED(i, EAffect::kGodsShield)) {
@@ -1633,14 +1732,15 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 			strcat(aura_txt, " щитом ");
 		else if (n > 1)
 			strcat(aura_txt, " щитами ");
-		if (n > 0)
+		if (n > 0 && !ch->IsFlagged(EPrf::kBriefShields))
 			act(aura_txt, false, i, nullptr, ch, kToVict);
 
 		if (AFF_FLAGGED(ch, EAffect::kDetectMagic)) {
 			*aura_txt = '\0';
 			n = 0;
 			strcat(aura_txt, "...");
-			if (AFF_FLAGGED(i, EAffect::kMagicGlass)) {
+			if (AFF_FLAGGED(i, EAffect::kMagicGlass)
+				&& !ch->IsFlagged(EPrf::kBriefShields)) {
 				if (n > 0)
 					strcat(aura_txt, ", серебристая");
 				else
@@ -1796,8 +1896,10 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 			|| IsAffectedBySpell(i, ESpell::kBelenaPoison))
 			sprintf(buf + strlen(buf), "(отравлен%s) ", GET_CH_SUF_6(i));
 
-	strcat(buf, "\r\n");
-	SendMsgToChar(buf, ch);
+	std::string line = buf;
+	AppendBriefShieldSuffix(line, ch, i);
+	line += "\r\n";
+	SendMsgToChar(line, ch);
 
 	*aura_txt = '\0';
 	if (AFF_FLAGGED(i, EAffect::kGodsShield)) {
@@ -1837,13 +1939,14 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 		strcat(aura_txt, " щитом ");
 	else if (n > 1)
 		strcat(aura_txt, " щитами ");
-	if (n > 0)
+	if (n > 0 && !ch->IsFlagged(EPrf::kBriefShields))
 		act(aura_txt, false, i, nullptr, ch, kToVict);
 	if (AFF_FLAGGED(ch, EAffect::kDetectMagic)) {
 		*aura_txt = '\0';
 		n = 0;
 		strcat(aura_txt, " ..");
-		if (AFF_FLAGGED(i, EAffect::kMagicGlass)) {
+		if (AFF_FLAGGED(i, EAffect::kMagicGlass)
+			&& !ch->IsFlagged(EPrf::kBriefShields)) {
 			if (n > 0)
 				strcat(aura_txt, ", серебристая");
 			else

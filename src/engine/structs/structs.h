@@ -133,10 +133,6 @@ const int kMaxNpcResist = 100;
 constexpr int kMinResistance = -kMaxNpcResist;
 const int kStrongMobLevel = 30;
 
-struct FollowerType {
-	CharData *follower = nullptr;
-	struct FollowerType *next = nullptr;
-};
 
 #endif // STRUCTS_STRUCTS_H_
 

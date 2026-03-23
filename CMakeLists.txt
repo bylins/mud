@@ -147,6 +147,7 @@ set(SOURCES
 		src/gameplay/skills/skills_info.cpp
 		src/gameplay/communication/spam.cpp
 		src/gameplay/ai/spec_assign.cpp
+		src/gameplay/ai/spec_assign_reload.cpp
 		src/gameplay/ai/spec_procs.cpp
 		src/engine/network/admin_api.cpp
 		src/engine/network/admin_api/json_helpers.cpp
@@ -168,6 +169,7 @@ set(SOURCES
 		src/gameplay/mechanics/weather.cpp
 		src/engine/olc/zedit.cpp
 		src/utils/utils_string.cpp
+		src/utils/mud_string.cpp
 		src/engine/db/world_objects.cpp
 		src/engine/db/obj_prototypes.cpp
 		src/engine/db/world_checksum.cpp
@@ -231,6 +233,8 @@ set(SOURCES
 		src/engine/ui/cmd/do_order.cpp
 		src/engine/ui/cmd/do_mercenary.cpp
 		src/gameplay/affects/affect_data.cpp
+		src/gameplay/affects/mobile_affect_update_profiler.cpp
+		src/gameplay/affects/player_affect_update_profiler.cpp
 		src/gameplay/skills/track.cpp
 		src/engine/ui/cmd/do_flee.cpp
 		src/engine/ui/cmd/do_hire.cpp
@@ -433,6 +437,7 @@ set(SOURCES
 		src/engine/ui/cmd_god/do_restore.cpp
 		src/engine/ui/cmd_god/do_gecho.cpp
 		src/engine/ui/cmd_god/do_poof_msg.cpp
+		src/engine/ui/cmd_god/do_profile.cpp
 		src/engine/ui/cmd_god/do_wizlock.cpp
 		src/engine/ui/cmd_god/do_date.cpp
 		src/engine/ui/cmd_god/do_last.cpp
@@ -481,6 +486,7 @@ set(HEADERS
 		src/engine/ui/cmd_god/do_godtest.h
 		src/engine/ui/cmd/do_telegram.h
 		src/engine/ui/cmd/do_hire.h
+		src/engine/ui/cmd_god/do_profile.h
 		src/engine/ui/cmd/do_mixture.h
 		src/engine/ui/cmd/do_cast.h
 		src/engine/ui/cmd/do_employ.h
@@ -533,7 +539,10 @@ set(HEADERS
 		src/engine/db/world_objects.h
 		src/engine/db/world_checksum.h
 		src/utils/utils_string.h
+		src/utils/mud_string.h
 		src/gameplay/affects/affect_handler.h
+		src/gameplay/affects/mobile_affect_update_profiler.h
+		src/gameplay/affects/player_affect_update_profiler.h
 		src/gameplay/economics/auction.h
 		src/utils/backtrace.h
 		src/administration/ban.h
@@ -1513,51 +1522,5 @@ if (BUILD_TESTS)
 endif ()
 
 option(WITH_OTEL "Enable OpenTelemetry integration" OFF)
-
-# vim: set ts=4 sw=4 ai tw=0 noet syntax=cmake :
-
-# =============================================================================
-# Data directories setup for running server from build directory
-# =============================================================================
-
-option(FULL_WORLD_PATH "Path to full world data directory (e.g., /path/to/full.world/lib)" "")
-
-# Only set up data directories if building out-of-source
-if (NOT "${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
-    # Setup small world directory (lib + lib.template)
-    set(SMALL_WORLD_DIR "${CMAKE_BINARY_DIR}/small")
-    
-    # Create small world directory by copying lib and overlaying lib.template
-    # First copy lib (base configuration)
-    execute_process(COMMAND ${CMAKE_COMMAND} -E remove_directory "${SMALL_WORLD_DIR}")
-    execute_process(COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/lib" "${SMALL_WORLD_DIR}"
-        RESULT_VARIABLE copy_result)
-    if (NOT copy_result EQUAL 0)
-        message(FATAL_ERROR "Failed to copy lib directory")
-    endif()
-
-    # Overlay lib.template (no conflicts since duplicates were removed)
-    execute_process(COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/lib.template" "${SMALL_WORLD_DIR}"
-        RESULT_VARIABLE copy_result)
-    if (NOT copy_result EQUAL 0)
-        message(FATAL_ERROR "Failed to overlay lib.template directory")
-    endif()
-    message(STATUS "Copied lib and overlaid lib.template to ${SMALL_WORLD_DIR}")
-    
-    message(STATUS "Small world directory configured at: ${SMALL_WORLD_DIR}")
-
-    # Setup full world directory if path is specified
-    if (FULL_WORLD_PATH)
-        set(FULL_WORLD_DIR "${CMAKE_BINARY_DIR}/full")
-        if (EXISTS "${FULL_WORLD_PATH}" AND NOT EXISTS "${FULL_WORLD_DIR}")
-            execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink "${FULL_WORLD_PATH}" "${FULL_WORLD_DIR}")
-            message(STATUS "Full world directory configured at: ${FULL_WORLD_DIR} -> ${FULL_WORLD_PATH}")
-        elseif (NOT EXISTS "${FULL_WORLD_PATH}")
-            message(WARNING "FULL_WORLD_PATH specified but does not exist: ${FULL_WORLD_PATH}")
-        endif()
-    endif()
-else()
-    message(STATUS "In-source build detected, skipping data directory setup")
-endif()
 
 # vim: set ts=4 sw=4 ai tw=0 noet syntax=cmake :

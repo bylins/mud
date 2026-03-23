@@ -385,12 +385,12 @@ std::string PrintSpellLocateObject(CharData *ch, ObjData *obj) {
 	for (auto i : parcel_list) {
 		for (auto k : i.second) {
 			for (auto o : k.second) {
-				if (!IS_GOD(ch)) {
+				if (!ch->IsGod()) {
 					if (number(1, 100) > (40 + std::max((GetRealInt(ch) - 25) * 2, 0))) {
 						continue;
 					}
 				}
-				if (o.obj_->has_flag(EObjFlag::kNolocate) && !IS_GOD(ch)) {
+				if (o.obj_->has_flag(EObjFlag::kNolocate) && !ch->IsGod()) {
 					continue;
 				}
 				if (obj->get_id() == o.obj_->get_id()) {
