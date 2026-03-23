@@ -1,4 +1,6 @@
+option('linker', type: 'string', value: '', description: 'Linker to use: gold, mold, lld, bfd, or empty for system default')
 option('testbuild', type: 'boolean', value: false, description: 'Build in test mode.')
+option('build_tests', type: 'boolean', value: true, description: 'Build and run tests.')
 option('scripting', type: 'boolean', value: false, description: 'Enable scripting support (Python + Boost.Python)')
 option('boost', type: 'boolean', value: false, description: 'Enable Boost usage')
 option('zlib', type: 'boolean', value: true, description: 'Enable MCCP support via ZLib')
@@ -12,3 +14,16 @@ option('with_asan', type: 'boolean', value: false, description: 'Build with Addr
 option('fort_wchar', type: 'boolean', value: false, description: 'Enable wchar support in libfort')
 option('fort_utf8', type: 'boolean', value: false, description: 'Enable UTF-8 support in libfort')
 option('fort_test', type: 'boolean', value: false, description: 'Export internal symbols for testing')
+
+# Options for Admin API and Web features
+option('admin_api', type: 'boolean', value: false, description: 'Enable Admin API and JSON-related features')
+
+# Database backends
+option('sqlite', type: 'boolean', value: false, description: 'Enable SQLite world data source')
+option('yaml', type: 'boolean', value: false, description: 'Enable YAML world data source and dictionary loader')
+
+# Observability and Tracing
+option('otel', type: 'boolean', value: false, description: 'Enable OpenTelemetry support for tracing and metrics')
+
+# World Data Setup
+option('full_world_path', type: 'string', value: '', description: 'Absolute path to the full world data for symlinking')

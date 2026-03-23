@@ -35,3 +35,4 @@ syslog.CRASH
 syslog.CRASH.*
 syslog.bz2
 archive/
+.*DS_Store
