@@ -63,7 +63,7 @@ void InitMiningVars() {
 }
 
 int make_hole(CharData *ch) {
-	if (roundup(world[ch->in_room]->holes / kHolesTime) >= dig_vars.hole_max_deep) {
+	if (round_up(world[ch->in_room]->holes / kHolesTime) >= dig_vars.hole_max_deep) {
 		SendMsgToChar("Тут и так все перекопано.\r\n", ch);
 		return 0;
 	}

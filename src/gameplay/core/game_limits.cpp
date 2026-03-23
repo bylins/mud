@@ -1188,7 +1188,7 @@ void room_point_update() {
 */
 		if (world[count]->holes) {
 			world[count]->holes--;
-			if (!world[count]->holes || roundup(world[count]->holes) == world[count]->holes) {
+			if (!world[count]->holes || round_up(world[count]->holes) == world[count]->holes) {
 				act("Ямку присыпало землей...",
 					false, world[count]->first_character(), nullptr, nullptr, kToRoom);
 				act("Ямку присыпало землей...",
