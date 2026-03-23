@@ -343,7 +343,7 @@ void DoFindhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			helpee->UnsetFlag(EPrf::kPunctual);
 			helpee->SetFlag(EMobFlag::kNoSkillTrain);
 			helpee->set_skill(ESkill::kPunctual, 0);
-			if (!NPC_FLAGGED(ch, ENpcFlag::kNoMercList)) {
+			if (!NPC_FLAGGED(helpee, ENpcFlag::kNoMercList)) {
 				MobVnum mvn = GET_MOB_VNUM(helpee);
 
 				if (mvn / 100 >=  dungeons::kZoneStartDungeons) {
