@@ -63,7 +63,7 @@ void Crash_extract_norent_eq(CharData *ch);
 int auto_equip(CharData *ch, ObjData *obj, int location);
 int Crash_report_unrentables(CharData *ch, CharData *recep, ObjData *obj);
 void Crash_report_rent(CharData *ch, CharData *recep, ObjData *obj,
-					   int *cost, long *nitems, int rentshow, int factor, int equip, int recursive);
+					   int *cost, long *n_items, int rentshow, int factor, int equip, int recursive);
 int gen_receptionist(CharData *ch, CharData *recep, int cmd, char *arg, int mode);
 void Crash_save(std::stringstream &write_buffer, int iplayer, ObjData *obj, int location, int savetype);
 void Crash_rent_deadline(CharData *ch, CharData *recep, long cost);
@@ -1026,7 +1026,7 @@ void ClearCrashSavedObjects(std::size_t index) {
 	int i = 0, rnum;
 	Crash_delete_files(index);
 	if (SAVEINFO(index)) {
-		for (; i < SAVEINFO(index)->rent.nitems; i++) {
+		for (; i < SAVEINFO(index)->rent.n_items; i++) {
 			if (SAVEINFO(index)->time[i].timer >= 0 &&
 				(rnum = GetObjRnum(SAVEINFO(index)->time[i].vnum)) >= 0) {
 				obj_proto.dec_stored(rnum);
@@ -1092,9 +1092,9 @@ int ReadCrashTimerFile(std::size_t index, int temp) {
 	}
 	strcat(buf, "rent code.");
 	log("%s", buf);
-	Crash_create_timer(index, rent.nitems);
+	Crash_create_timer(index, rent.n_items);
 	player_table[index].timer->rent = rent;
-	for (; count < rent.nitems && !feof(fl); count++) {
+	for (; count < rent.n_items && !feof(fl); count++) {
 		dummy = fread(&info, sizeof(struct SaveTimeInfo), 1, fl);
 		if (ferror(fl)) {
 			log("SYSERR: I/O Error reading %s timer file.", name.c_str());
@@ -1119,7 +1119,7 @@ int ReadCrashTimerFile(std::size_t index, int temp) {
 	fclose(fl);
 	FileCRC::check_crc(fname, FileCRC::TIMEOBJS, player_table[index].uid());
 
-	if (rent.nitems != num) {
+	if (rent.n_items != num) {
 		log("[ReadTimer] Error reading %s timer file - file is corrupt.", fname);
 		ClearSaveinfo(index);
 		return false;
@@ -1130,7 +1130,7 @@ int ReadCrashTimerFile(std::size_t index, int temp) {
 void Crash_reload_timer(int index) {
 	int i = 0, rnum;
 	if (SAVEINFO(index)) {
-		for (; i < SAVEINFO(index)->rent.nitems; i++) {
+		for (; i < SAVEINFO(index)->rent.n_items; i++) {
 			if (SAVEINFO(index)->time[i].timer >= 0 &&
 				(rnum = GetObjRnum(SAVEINFO(index)->time[i].vnum)) >= 0) {
 				obj_proto.dec_stored(rnum);
@@ -1163,7 +1163,7 @@ int Crash_write_timer(const std::size_t index) {
 		return false;
 	}
 	fwrite(&(SAVEINFO(index)->rent), sizeof(SaveRentInfo), 1, fl);
-	for (int i = 0; i < SAVEINFO(index)->rent.nitems; ++i) {
+	for (int i = 0; i < SAVEINFO(index)->rent.n_items; ++i) {
 		fwrite(&(SAVEINFO(index)->time[i]), sizeof(SaveTimeInfo), 1, fl);
 	}
 	fclose(fl);
@@ -1179,7 +1179,7 @@ int Crash_write_timer(const std::size_t index) {
 }
 
 void Crash_timer_obj(const std::size_t index, long time) {
-	int nitems = 0, idelete = 0, ideleted = 0, rnum, timer, i;
+	int n_items = 0, idelete = 0, ideleted = 0, rnum, timer, i;
 	int rentcode, timer_dec;
 
 	auto name = player_table[index].name();
@@ -1214,12 +1214,12 @@ void Crash_timer_obj(const std::size_t index, long time) {
 	timer_dec = (timer_dec / kSecsPerMudHour) + (timer_dec % kSecsPerMudHour ? 1 : 0);
 
 	//уменьшаем таймеры
-	nitems = player_table[index].timer->rent.nitems;
+	n_items = player_table[index].timer->rent.n_items;
 //  log("[TO] Checking items for %s (%d items, rented time %dmin):",
-//      name, nitems, timer_dec);
-//	sprintf (buf,"[TO] Checking items for %s (%d items) :", name, nitems);
+//      name, n_items, timer_dec);
+//	sprintf (buf,"[TO] Checking items for %s (%d items) :", name, n_items);
 //	mudlog(buf, BRF, kLvlImmortal, SYSLOG, true);
-	for (i = 0; i < nitems; i++) {
+	for (i = 0; i < n_items; i++) {
 		if (player_table[index].timer->time[i].vnum < 0) //для шмоток без прототипа идем мимо
 			continue;
 		if (player_table[index].timer->time[i].timer >= 0) {
@@ -1241,7 +1241,7 @@ void Crash_timer_obj(const std::size_t index, long time) {
 		}
 	}
 
-//  log("Objects (%d), Deleted (%d)+(%d).", nitems, ideleted, idelete);
+//  log("Objects (%d), Deleted (%d)+(%d).", n_items, ideleted, idelete);
 
 	//если появились новые просроченные объекты, обновляем файл таймеров
 	if (idelete) {
@@ -1281,7 +1281,7 @@ void Crash_list_objects(CharData *ch, int index) {
 			break;
 	}
 	std::stringstream ss;
-	for (int i = 0; i < SAVEINFO(index)->rent.nitems; i++) {
+	for (int i = 0; i < SAVEINFO(index)->rent.n_items; i++) {
 		data = SAVEINFO(index)->time[i];
 		rnum = GetObjRnum(data.vnum);
 		if (data.vnum > 799 || data.vnum < 700) {
@@ -1298,7 +1298,7 @@ void Crash_list_objects(CharData *ch, int index) {
 	sprintf(buf, "Время в ренте: %ld тиков.\r\n", timer_dec);
 	SendMsgToChar(buf, ch);
 	sprintf(buf, "Предметов: %d. Стоимость: (%d в день) * (%1.2f дней) = %d. ИНГРИДИЕНТЫ НЕ ВЫВОДЯТСЯ.\r\n",
-			SAVEINFO(index)->rent.nitems,
+			SAVEINFO(index)->rent.n_items,
 			SAVEINFO(index)->rent.net_cost_per_diem, num_of_days,
 			(int) (num_of_days * SAVEINFO(index)->rent.net_cost_per_diem));
 	SendMsgToChar(buf, ch);
@@ -1487,7 +1487,7 @@ int Crash_load(CharData *ch) {
 	long timer_dec = time(0) - SAVEINFO(index)->rent.time;
 	timer_dec = (timer_dec / kSecsPerMudHour) + (timer_dec % kSecsPerMudHour ? 1 : 0);
 
-	for (fsize = 0, reccount = SAVEINFO(index)->rent.nitems;
+	for (fsize = 0, reccount = SAVEINFO(index)->rent.n_items;
 		 reccount > 0 && *data && *data != END_CHAR; reccount--, fsize++) {
 		i++;
 		ObjData::shared_ptr obj;
@@ -1915,7 +1915,7 @@ int save_char_objects(CharData *ch, int savetype, int rentcost) {
 
 	rent.rentcode = savetype;
 	rent.time = time(0);
-	rent.nitems = num;
+	rent.n_items = num;
 	rent.gold = ch->get_gold();
 	rent.account = ch->get_bank();
 
@@ -2110,17 +2110,17 @@ void Crash_report_rent_item(CharData *ch,
 // end by WorM
 
 void Crash_report_rent(CharData *ch, CharData *recep, ObjData *obj, int *cost,
-					   long *nitems, int rentshow, int factor, int equip, int recursive) {
+					   long *n_items, int rentshow, int factor, int equip, int recursive) {
 	ObjData *i, *push = nullptr;
 	int push_count = 0;
 
 	if (obj) {
 		if (!Crash_is_unrentable(ch, obj)) {
-			/*(*nitems)++;
+			/*(*n_items)++;
 			*cost += MAX(0, ((equip ? obj->get_rent_on() : obj->get_rent_off()) * factor));
 			if (rentshow)
 			{
-				if (*nitems == 1)
+				if (*n_items == 1)
 				{
 					if (!recursive)
 						act("$n сказал$g Вам : \"Одет$W спать будешь? Хм.. Ну смотри, тогда дешевле возьму\"", false, recep, 0, ch, TO_VICT);
@@ -2150,10 +2150,10 @@ void Crash_report_rent(CharData *ch, CharData *recep, ObjData *obj, int *cost,
 			//группирует вывод при ренте на подобии:
 			// - 2700 кун (900 если надеть) за красный пузырек [9]
 			for (i = obj; i; i = i->get_next_content()) {
-				(*nitems)++;
+				(*n_items)++;
 				*cost += MAX(0, ((equip ? i->get_rent_on() : i->get_rent_off()) * factor));
 				if (rentshow) {
-					if (*nitems == 1) {
+					if (*n_items == 1) {
 						if (!recursive) {
 							act("$n сказал$g вам : \"Одет$W спать будешь? Хм.. Ну смотри, тогда дешевле возьму\"",
 								false,
@@ -2176,7 +2176,7 @@ void Crash_report_rent(CharData *ch, CharData *recep, ObjData *obj, int *cost,
 											  recep,
 											  push->get_contains(),
 											  cost,
-											  nitems,
+											  n_items,
 											  rentshow,
 											  factor,
 											  false,
@@ -2192,7 +2192,7 @@ void Crash_report_rent(CharData *ch, CharData *recep, ObjData *obj, int *cost,
 			if (push) {
 				Crash_report_rent_item(ch, recep, push, push_count, factor, equip, recursive);
 				if (recursive) {
-					Crash_report_rent(ch, recep, push->get_contains(), cost, nitems, rentshow, factor, false, true);
+					Crash_report_rent(ch, recep, push->get_contains(), cost, n_items, rentshow, factor, false, true);
 				}
 			}
 			// end by WorM

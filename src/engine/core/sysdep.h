@@ -390,7 +390,7 @@ int fprintf(FILE * strm, const char *format, /* args */ ...);
 #endif
 
 #ifdef NEED_FREAD_PROTO
-size_t fread(void *ptr, size_t size, size_t nitems, FILE * stream);
+size_t fread(void *ptr, size_t size, size_t n_items, FILE * stream);
 #endif
 
 #ifdef NEED_FSCANF_PROTO
@@ -402,7 +402,7 @@ int fseek(FILE * stream, long offset, int ptrname);
 #endif
 
 #ifdef NEED_FWRITE_PROTO
-size_t fwrite(const void *ptr, size_t size, size_t nitems, FILE * stream);
+size_t fwrite(const void *ptr, size_t size, size_t n_items, FILE * stream);
 #endif
 
 #ifdef NEED_GETPID_PROTO
