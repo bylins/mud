@@ -926,12 +926,8 @@ void do_wportal(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 }
 // для команды wat
 void WldDgCast(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *trig) {
-	std::string dg_arg = "DgCast ";
-	dg_arg += argument;
-	char *tmp_str = str_dup(dg_arg.c_str());
-
-	do_dg_cast(room, trig, WLD_TRIGGER, tmp_str);
-	free(tmp_str);
+	std::string dg_arg = std::string("dgcast ") + argument;
+	do_dg_cast(room, trig, WLD_TRIGGER, dg_arg);
 }
 
 const struct wld_command_info wld_cmd_info[] =
