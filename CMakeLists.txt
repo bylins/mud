@@ -1377,6 +1377,7 @@ endif ()
 
 include_directories(src
 	system ${Boost_INCLUDE_DIRS}
+	system ${CURL_INCLUDE_DIRS}
 	system ${PYTHON_INCLUDE_DIRS})
 target_link_libraries(circle.library
 	${Boost_LIBRARIES}
