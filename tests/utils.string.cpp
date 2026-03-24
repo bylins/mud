@@ -452,6 +452,14 @@ TEST(Utils_String, ExtractFirstArgument_MultipleWords)
 	EXPECT_EQ("two three", remains);
 }
 
+TEST(Utils_String, ExtractFirstArgument_Aliasing)
+{
+	std::string s = "one two three";
+	std::string word = utils::ExtractFirstArgument(s, s);
+	EXPECT_EQ("one", word);
+	EXPECT_EQ("two three", s);
+}
+
 // ===== FirstWordOnString =====
 
 TEST(Utils_String, FirstWordOnString_ExtractsFirstWord)
