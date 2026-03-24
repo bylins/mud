@@ -27,6 +27,7 @@
 
 #include "gameplay/abilities/abilities_rollsystem.h"
 #include "engine/core/action_targeting.h"
+#include "engine/core/comm.h"
 #include "engine/observability/helpers.h"
 #include "engine/observability/metrics.h"
 #include "utils/tracing/trace_manager.h"
@@ -273,11 +274,13 @@ int check_room_tracks(const RoomRnum room, const long victim_id) {
 	return kBfsError;
 }
 
-int find_door(CharData *ch, const bool track_method) {
+int npc_track(CharData *ch) {
+	const bool track_method = GetRealInt(ch) < number(15, 20);
 	bool msg = false;
 
-	for (const auto &vict : character_list) {
-		if (CAN_SEE(ch, vict) && vict->in_room != kNowhere) {
+	for (auto *d = descriptor_list; d; d = d->next) {
+		const auto vict = d->character.get();
+		if (vict && d->state == EConState::kPlaying && CAN_SEE(ch, vict) && vict->in_room != kNowhere) {
 			for (auto names = MEMORY(ch); names; names = names->next) {
 				if (vict->get_uid() == names->id
 					&& (!ch->IsFlagged(EMobFlag::kStayZone)
@@ -290,7 +293,7 @@ int find_door(CharData *ch, const bool track_method) {
 
 					const auto door = track_method
 									  ? check_room_tracks(ch->in_room, vict->get_uid())
-									  : go_track(ch, vict.get(), ESkill::kTrack);
+									  : go_track(ch, vict, ESkill::kTrack);
 
 					if (kBfsError != door) {
 						return door;
@@ -301,12 +304,6 @@ int find_door(CharData *ch, const bool track_method) {
 	}
 
 	return kBfsError;
-}
-
-int npc_track(CharData *ch) {
-	const auto result = find_door(ch, GetRealInt(ch) < number(15, 20));
-
-	return result;
 }
 
 CharData *selectRandomSkirmisherFromGroup(CharData *leader) {
@@ -790,15 +787,18 @@ int perform_mob_switch(CharData *ch) {
 	return true;
 }
 
-void do_aggressive_mob(CharData *ch, int check_sneak) {
+void do_aggressive_mob(CharData *ch, int check_sneak, bool skip_hide_camouflage_checks) {
 	if (!ch || ch->in_room == kNowhere || !ch->IsNpc() || !MAY_ATTACK(ch) || AFF_FLAGGED(ch, EAffect::kBlind)) {
 		return;
 	}
 
 	int mode = check_sneak ? SKIP_SNEAKING : 0;
+	if (!skip_hide_camouflage_checks) {
+		mode |= SKIP_HIDING | SKIP_CAMOUFLAGE;
+	}
 	// ****************  Horde
 	if (ch->IsFlagged(EMobFlag::kHorde)) {
-		perform_best_horde_attack(ch, mode | SKIP_HIDING | SKIP_CAMOUFLAGE);
+		perform_best_horde_attack(ch, mode);
 		return;
 	}
 
@@ -817,17 +817,21 @@ void do_aggressive_mob(CharData *ch, int check_sneak) {
 				break;
 			}
 		}
-		perform_best_mob_attack(ch, mode | SKIP_HIDING | SKIP_CAMOUFLAGE | CHECK_HITS);
+		perform_best_mob_attack(ch, mode | CHECK_HITS);
 		return;
 	}
 
 	if (ch->IsFlagged(EMobFlag::kCityGuardian)) {
-		perform_best_mob_attack(ch, SKIP_HIDING | SKIP_CAMOUFLAGE | SKIP_SNEAKING | GUARD_ATTACK);
+		int guard_mode = GUARD_ATTACK | SKIP_SNEAKING;
+		if (!skip_hide_camouflage_checks) {
+			guard_mode |= SKIP_HIDING | SKIP_CAMOUFLAGE;
+		}
+		perform_best_mob_attack(ch, guard_mode);
 		return;
 	}
 
 	if (ch->IsFlagged(EMobFlag::kMemory)) {
-		auto victim = FimdRememberedEnemyInRoom(ch, check_sneak);
+		auto victim = FimdRememberedEnemyInRoom(ch, check_sneak, skip_hide_camouflage_checks);
 		AttackToRememberedVictim(ch, victim);
 		return;
 	}
@@ -854,7 +858,7 @@ void do_aggressive_room(CharData *ch, int check_sneak) {
 	for (const auto &vict : people) {
 		// здесь не надо преварително запоминать next_in_room, потому что как раз
 		// он то и может быть спуржен по ходу do_aggressive_mob, а вот атакующий нет
-		do_aggressive_mob(vict, check_sneak);
+		do_aggressive_mob(vict, check_sneak, vict == ch);
 	}
 }
 
@@ -1041,7 +1045,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 	  }
 
 	  // look at room before moving
-	  do_aggressive_mob(ch.get(), false);
+	  do_aggressive_mob(ch.get(), false, false);
 
 	  // if mob attack something
 	  if (ch->GetEnemy()
@@ -1164,7 +1168,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 		  door = npc_track(ch.get());
 
 	  if (door == kBfsAlreadyThere) {
-		  do_aggressive_mob(ch.get(), false);
+		  do_aggressive_mob(ch.get(), false, false);
 		  continue;
 	  }
 

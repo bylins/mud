@@ -206,15 +206,20 @@ std::string FirstWordOnString(std::string s, std::string mask) {
 }
 
 // аналог one_argument для string
+// пропускает ведущие пробелы, возвращает первое слово, в remains остаток после пробела
 std::string ExtractFirstArgument(const std::string &s, std::string &remains) {
-	std::string word;
-
-	size_t space_pos = s.find(" ");
-		if (space_pos != std::string::npos) {
-			word = s.substr(0, space_pos);
-			remains = s.substr(space_pos + 1);
-		}
-	return word;
+	auto start = s.find_first_not_of(' ');
+	if (start == std::string::npos) {
+		remains.clear();
+		return {};
+	}
+	auto space_pos = s.find(' ', start);
+	if (space_pos != std::string::npos) {
+		remains = s.substr(space_pos + 1);
+		return s.substr(start, space_pos - start);
+	}
+	remains.clear();
+	return s.substr(start);
 }
 
 std::string SubstToLow(std::string s) {

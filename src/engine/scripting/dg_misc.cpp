@@ -117,10 +117,9 @@ int find_dg_cast_target(ESpell spell_id, const char *t, CharData *ch, CharData *
 // LIMITATION: a target MUST exist for the spell unless the spell is
 // set to TAR_IGNORE. Also, group spells are not permitted
 // code borrowed from do_cast()
-void do_dg_cast(void *go, Trigger *trig, int type, char *cmd) {
+void do_dg_cast(void *go, Trigger *trig, int type, std::string cmd) {
 	CharData *caster = nullptr;
 	RoomData *caster_room = nullptr;
-	char *s, *t;
 	int target = 0;
 	bool dummy_mob = false;
 	std::string argument = cmd;
@@ -142,23 +141,25 @@ void do_dg_cast(void *go, Trigger *trig, int type, char *cmd) {
 		default: trig_log(trig, "dg_do_cast: unknown trigger type!");
 			return;
 	}
-	// get: blank, spell name, target name
-	s = strtok(cmd, "'!");
-//ошибка сравнения с nullptr но так уже привыкли
-	if (s == nullptr) {
-		sprintf(buf2, "dg_cast: needs spell name.");
-		trig_log(trig, buf2);
+	// parse: "DgCast 'spell name' target"
+	auto quote1 = cmd.find_first_of("'!");
+	if (quote1 == std::string::npos) {
+		trig_log(trig, "dg_cast: needs spell name.");
 		return;
 	}
-	s = strtok(nullptr, "'!");
-	if (s == nullptr) {
-		sprintf(buf2, "dg_cast: needs spell name in `'s.");
-		trig_log(trig, buf2);
+	auto quote2 = cmd.find_first_of("'!", quote1 + 1);
+	if (quote2 == std::string::npos) {
+		trig_log(trig, "dg_cast: needs spell name in `'s.");
 		return;
 	}
-	t = strtok(nullptr, "\0");
+	std::string spell_name = cmd.substr(quote1 + 1, quote2 - quote1 - 1);
+	std::string target_name;
+	if (quote2 + 1 < cmd.size()) {
+		target_name = cmd.substr(quote2 + 1);
+		utils::TrimLeft(target_name);
+	}
 
-	auto spell_id = FixNameAndFindSpellId(s);
+	auto spell_id = FixNameAndFindSpellId(spell_name.data());
 	if (spell_id == ESpell::kUndefined) {
 		sprintf(buf2, "dg_cast: invalid spell name, аргумент: (%s)", argument.c_str());
 		trig_log(trig, buf2);
@@ -202,37 +203,31 @@ void do_dg_cast(void *go, Trigger *trig, int type, char *cmd) {
 		caster->in_room = GetRoomRnum(caster_room->vnum);
 	}
 
-	// Find the target
-	if (t != nullptr)
-		one_argument(t, arg);
-	else
-		*arg = '\0';
-
 	// в find_dg_cast_target можем и не попасть для инита нулями и в CallMagic пойдет мусор
 	CharData *tch = nullptr;
 	ObjData *tobj = nullptr;
 	RoomData *troom = nullptr;
 
-	if (*arg == UID_CHAR) {
-		tch = get_char(arg);
+	if (!target_name.empty() && target_name[0] == UID_CHAR) {
+		tch = get_char(target_name.c_str());
 		if (tch == nullptr) {
-			snprintf(buf2, kMaxStringLength, "dg_cast: victim (%s) not found, аргумент: %s", arg + 1, argument.c_str());
+			snprintf(buf2, kMaxStringLength, "dg_cast: victim (%s) not found, аргумент: %s", target_name.c_str() + 1, argument.c_str());
 			trig_log(trig, buf2);
 		} else if (kNowhere == caster->in_room) {
-			sprintf(buf2, "dg_cast: caster (%s) in kNowhere", GET_NAME(caster));
+			sprintf(buf2, "dg_cast: caster (%s) in kNowhere", caster->get_name().c_str());
 			trig_log(trig, buf2);
 		} else if (tch->in_room != caster->in_room) {
 			sprintf(buf2,
 					"dg_cast: caster (%s) and victim (%s) в разных клетках комнат",
-					GET_NAME(caster),
-					GET_NAME(tch));
+					caster->get_name().c_str(),
+					tch->get_name().c_str());
 			trig_log(trig, buf2);
 		} else {
 			target = 1;
 			troom = world[caster->in_room];
 		}
 	} else {
-		target = find_dg_cast_target(spell_id, arg, caster, &tch, &tobj, &troom);
+		target = find_dg_cast_target(spell_id, target_name.c_str(), caster, &tch, &tobj, &troom);
 	}
 	if (target) {
 		CallMagic(caster, tch, tobj, troom, spell_id, GetRealLevel(caster));
@@ -252,72 +247,63 @@ void do_dg_cast(void *go, Trigger *trig, int type, char *cmd) {
    if duration < 1 - function removes affect */
 #define APPLY_TYPE    1
 #define AFFECT_TYPE    2
-void do_dg_affect(void * /*go*/, Script * /*sc*/, Trigger *trig, int/* script_type*/, char *cmd) {
+void do_dg_affect(void * /*go*/, Script * /*sc*/, Trigger *trig, int/* script_type*/, std::string cmd) {
 	CharData *ch = nullptr;
 	int value = 0, duration = 0, battle = 0;
-	char junk[kMaxInputLength];    // will be set to "dg_affect"
-	char charname[kMaxInputLength], property[kMaxInputLength];
-	char value_p[kMaxInputLength], duration_p[kMaxInputLength];
-	char battle_p[kMaxInputLength];
-	char spell[kMaxInputLength];
-	int index = 0, type = 0, i;
+	int index = 0, type = 0;
 
-	half_chop(cmd, junk, cmd);
-	half_chop(cmd, charname, cmd);
-	half_chop(cmd, property, cmd);
-	half_chop(cmd, spell, cmd);
-	half_chop(cmd, value_p, cmd);
-	half_chop(cmd, duration_p, battle_p);
+	// parse: "dgaffect <target> <property> <spell> <value> <duration> [battlepos]"
+	std::string remains = cmd;
+	std::string junk = utils::ExtractFirstArgument(remains, remains);       // "dgaffect"
+	std::string charname = utils::ExtractFirstArgument(remains, remains);   // target
+	std::string property = utils::ExtractFirstArgument(remains, remains);   // property
+	std::string spell_name = utils::ExtractFirstArgument(remains, remains); // spell
+	std::string value_p = utils::ExtractFirstArgument(remains, remains);    // value
+	std::string duration_p = utils::ExtractFirstArgument(remains, remains); // duration
+	std::string battle_p = remains;                                          // battlepos (optional)
+	utils::Trim(battle_p);
 
 	// make sure all parameters are present
-	if (!*charname || !*property || !*spell || !*value_p || !*duration_p) {
-		sprintf(buf2, "dg_affect usage: <target> <property> <spell> <value> <duration> *<battleposition>");
-		trig_log(trig, buf2);
+	if (charname.empty() || property.empty() || spell_name.empty() || value_p.empty() || duration_p.empty()) {
+		trig_log(trig, "dg affect usage: <target> <property> <spell> <value> <duration> *<battleposition>");
 		return;
 	}
 
-	// заменяем '_' на ' ' в названии заклинания и аффекта
-	for (i = 0; spell[i]; i++)
-		if (spell[i] == '_')
-			spell[i] = ' ';
-	for (i = 0; property[i]; i++)
-		if (property[i] == '_')
-			property[i] = ' ';
+	std::replace(spell_name.begin(), spell_name.end(), '_', ' ');
+	std::replace(property.begin(), property.end(), '_', ' ');
 
-	value = atoi(value_p);
-	duration = atoi(duration_p);
-	battle = atoi(battle_p);
-// Если длительность 0 снимаем аффект ниже
+	value = atoi(value_p.c_str());
+	duration = atoi(duration_p.c_str());
+	battle = atoi(battle_p.c_str());
+
 	if (duration < 0) {
-		sprintf(buf2, "dg_affect: need positive duration!");
-		trig_log(trig, buf2);
+		trig_log(trig, "dg_affect: need positive duration!");
 		return;
 	}
 	// find the property -- first search apply_types
-	if ((index = search_block(property, apply_types, false)) != -1) {
+	if ((index = search_block(property.c_str(), apply_types, false)) != -1) {
 		type = APPLY_TYPE;
 	} else {
-		//search affect_types now
-		if ((index = ext_search_block(property, affected_bits, false)) != 0)
+		if ((index = ext_search_block(property.c_str(), affected_bits, false)) != 0)
 			type = AFFECT_TYPE;
 	}
 
 	if (!type)        // property not found
 	{
-		sprintf(buf2, "dg_affect: unknown property '%s'!", property);
+		sprintf(buf2, "dg_affect: unknown property '%s'!", property.c_str());
 		trig_log(trig, buf2);
 		return;
 	}
 
-	auto index_s = FixNameAndFindSpellId(spell);
+	auto index_s = FixNameAndFindSpellId(spell_name.data());
 	if (index_s == ESpell::kUndefined) {
-		sprintf(buf2, "dg_affect: unknown spell '%s' ставим 'чары'!", spell);
+		sprintf(buf2, "dg_affect: unknown spell '%s' ставим 'чары'!", spell_name.c_str());
 		trig_log(trig, buf2);
 		return;
 	}
 
 	// locate the target
-	ch = get_char(charname);
+	ch = get_char(charname.c_str());
 	if (!ch) {
 		sprintf(buf2, "dg_affect: cannot locate target!");
 		trig_log(trig, buf2);
