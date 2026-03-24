@@ -787,15 +787,18 @@ int perform_mob_switch(CharData *ch) {
 	return true;
 }
 
-void do_aggressive_mob(CharData *ch, int check_sneak) {
+void do_aggressive_mob(CharData *ch, int check_sneak, bool skip_hide_camouflage_checks) {
 	if (!ch || ch->in_room == kNowhere || !ch->IsNpc() || !MAY_ATTACK(ch) || AFF_FLAGGED(ch, EAffect::kBlind)) {
 		return;
 	}
 
 	int mode = check_sneak ? SKIP_SNEAKING : 0;
+	if (!skip_hide_camouflage_checks) {
+		mode |= SKIP_HIDING | SKIP_CAMOUFLAGE;
+	}
 	// ****************  Horde
 	if (ch->IsFlagged(EMobFlag::kHorde)) {
-		perform_best_horde_attack(ch, mode | SKIP_HIDING | SKIP_CAMOUFLAGE);
+		perform_best_horde_attack(ch, mode);
 		return;
 	}
 
@@ -814,17 +817,21 @@ void do_aggressive_mob(CharData *ch, int check_sneak) {
 				break;
 			}
 		}
-		perform_best_mob_attack(ch, mode | SKIP_HIDING | SKIP_CAMOUFLAGE | CHECK_HITS);
+		perform_best_mob_attack(ch, mode | CHECK_HITS);
 		return;
 	}
 
 	if (ch->IsFlagged(EMobFlag::kCityGuardian)) {
-		perform_best_mob_attack(ch, SKIP_HIDING | SKIP_CAMOUFLAGE | SKIP_SNEAKING | GUARD_ATTACK);
+		int guard_mode = GUARD_ATTACK | SKIP_SNEAKING;
+		if (!skip_hide_camouflage_checks) {
+			guard_mode |= SKIP_HIDING | SKIP_CAMOUFLAGE;
+		}
+		perform_best_mob_attack(ch, guard_mode);
 		return;
 	}
 
 	if (ch->IsFlagged(EMobFlag::kMemory)) {
-		auto victim = FimdRememberedEnemyInRoom(ch, check_sneak);
+		auto victim = FimdRememberedEnemyInRoom(ch, check_sneak, skip_hide_camouflage_checks);
 		AttackToRememberedVictim(ch, victim);
 		return;
 	}
@@ -851,7 +858,7 @@ void do_aggressive_room(CharData *ch, int check_sneak) {
 	for (const auto &vict : people) {
 		// здесь не надо преварително запоминать next_in_room, потому что как раз
 		// он то и может быть спуржен по ходу do_aggressive_mob, а вот атакующий нет
-		do_aggressive_mob(vict, check_sneak);
+		do_aggressive_mob(vict, check_sneak, vict == ch);
 	}
 }
 
@@ -1038,7 +1045,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 	  }
 
 	  // look at room before moving
-	  do_aggressive_mob(ch.get(), false);
+	  do_aggressive_mob(ch.get(), false, false);
 
 	  // if mob attack something
 	  if (ch->GetEnemy()
@@ -1161,7 +1168,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 		  door = npc_track(ch.get());
 
 	  if (door == kBfsAlreadyThere) {
-		  do_aggressive_mob(ch.get(), false);
+		  do_aggressive_mob(ch.get(), false, false);
 		  continue;
 	  }
 
