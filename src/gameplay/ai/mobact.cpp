@@ -27,6 +27,7 @@
 
 #include "gameplay/abilities/abilities_rollsystem.h"
 #include "engine/core/action_targeting.h"
+#include "engine/core/comm.h"
 #include "engine/observability/helpers.h"
 #include "engine/observability/metrics.h"
 #include "utils/tracing/trace_manager.h"
@@ -273,11 +274,13 @@ int check_room_tracks(const RoomRnum room, const long victim_id) {
 	return kBfsError;
 }
 
-int find_door(CharData *ch, const bool track_method) {
+int npc_track(CharData *ch) {
+	const bool track_method = GetRealInt(ch) < number(15, 20);
 	bool msg = false;
 
-	for (const auto &vict : character_list) {
-		if (CAN_SEE(ch, vict) && vict->in_room != kNowhere) {
+	for (auto *d = descriptor_list; d; d = d->next) {
+		const auto vict = d->character.get();
+		if (vict && d->state == EConState::kPlaying && CAN_SEE(ch, vict) && vict->in_room != kNowhere) {
 			for (auto names = MEMORY(ch); names; names = names->next) {
 				if (vict->get_uid() == names->id
 					&& (!ch->IsFlagged(EMobFlag::kStayZone)
@@ -290,7 +293,7 @@ int find_door(CharData *ch, const bool track_method) {
 
 					const auto door = track_method
 									  ? check_room_tracks(ch->in_room, vict->get_uid())
-									  : go_track(ch, vict.get(), ESkill::kTrack);
+									  : go_track(ch, vict, ESkill::kTrack);
 
 					if (kBfsError != door) {
 						return door;
@@ -301,12 +304,6 @@ int find_door(CharData *ch, const bool track_method) {
 	}
 
 	return kBfsError;
-}
-
-int npc_track(CharData *ch) {
-	const auto result = find_door(ch, GetRealInt(ch) < number(15, 20));
-
-	return result;
 }
 
 CharData *selectRandomSkirmisherFromGroup(CharData *leader) {
