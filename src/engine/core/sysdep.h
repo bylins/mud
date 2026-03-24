@@ -166,7 +166,11 @@ extern void abort(), exit();
 #endif
 
 #ifdef HAVE_CRYPT_H
+#ifdef __FreeBSD__
+#include <unistd.h>
+#else
 #include <crypt.h>
+#endif
 #endif
 
 #ifdef TIME_WITH_SYS_TIME
