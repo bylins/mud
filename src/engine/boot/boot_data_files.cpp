@@ -331,10 +331,9 @@ void TriggersFile::parse_trigger(int vnum) {
 			(*ptr)->line_num = num++;
 
 			// lowercase the command (first word) for faster comparison at runtime
-			for (auto &c : (*ptr)->cmd) {
-				if (c == ' ') break;
-				c = LOWER(c);
-			}
+				auto it = (*ptr)->cmd.begin();
+				while (it != (*ptr)->cmd.end() && (*it == ' ' || *it == '\t')) ++it;
+				while (it != (*ptr)->cmd.end() && *it != ' ') { *it = LOWER(*it); ++it; }
 			ptr = &(*ptr)->next;
 
 			std::smatch match;
