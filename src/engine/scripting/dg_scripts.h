@@ -430,7 +430,7 @@ Trigger *read_trigger(int nr);
 CharData *dg_caster_owner_obj(ObjData *obj);
 RoomData *dg_room_of_obj(ObjData *obj);
 void do_dg_cast(void *go, Trigger *trig, int type, char *cmd);
-void do_dg_affect(void *go, Script *sc, Trigger *trig, int type, char *cmd);
+void do_dg_affect(void *go, Script *sc, Trigger *trig, int type, std::string cmd);
 
 void add_var_cntx(std::list<TriggerVar> &var_list, std::string name, std::string value, long id);
 TriggerVar find_var_cntx(std::list<TriggerVar>, std::string name, long id);
