@@ -65,6 +65,9 @@ else
     endif
 endif
 
+threads_dep = dependency('threads')
+dependencies += threads_dep
+
 # Admin API
 if get_option('admin_api')
     project_args += '-DENABLE_ADMIN_API'

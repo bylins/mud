@@ -1,6 +1,5 @@
 message('Seting up tests...')
 gtest_dep = dependency('gtest', main: false, required: true)
-threads_dep = dependency('threads')
 
 test_sources = files(
     'main.cpp',
