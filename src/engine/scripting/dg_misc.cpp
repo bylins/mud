@@ -203,19 +203,15 @@ void do_dg_cast(void *go, Trigger *trig, int type, std::string cmd) {
 		caster->in_room = GetRoomRnum(caster_room->vnum);
 	}
 
-	// Find the target
-	std::string remains;
-	std::string target_arg = target_name.empty() ? "" : utils::ExtractFirstArgument(target_name, remains);
-
 	// в find_dg_cast_target можем и не попасть для инита нулями и в CallMagic пойдет мусор
 	CharData *tch = nullptr;
 	ObjData *tobj = nullptr;
 	RoomData *troom = nullptr;
 
-	if (!target_arg.empty() && target_arg[0] == UID_CHAR) {
-		tch = get_char(target_arg.c_str());
+	if (!target_name.empty() && target_name[0] == UID_CHAR) {
+		tch = get_char(target_name.c_str());
 		if (tch == nullptr) {
-			snprintf(buf2, kMaxStringLength, "dg_cast: victim (%s) not found, аргумент: %s", target_arg.c_str() + 1, argument.c_str());
+			snprintf(buf2, kMaxStringLength, "dg_cast: victim (%s) not found, аргумент: %s", target_name.c_str() + 1, argument.c_str());
 			trig_log(trig, buf2);
 		} else if (kNowhere == caster->in_room) {
 			sprintf(buf2, "dg_cast: caster (%s) in kNowhere", caster->get_name().c_str());
@@ -231,7 +227,7 @@ void do_dg_cast(void *go, Trigger *trig, int type, std::string cmd) {
 			troom = world[caster->in_room];
 		}
 	} else {
-		target = find_dg_cast_target(spell_id, target_arg.c_str(), caster, &tch, &tobj, &troom);
+		target = find_dg_cast_target(spell_id, target_name.c_str(), caster, &tch, &tobj, &troom);
 	}
 	if (target) {
 		CallMagic(caster, tch, tobj, troom, spell_id, GetRealLevel(caster));
