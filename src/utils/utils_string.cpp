@@ -206,15 +206,15 @@ std::string FirstWordOnString(std::string s, std::string mask) {
 }
 
 // аналог one_argument для string
+// возвращает первое слово, в remains остаток строки после пробела
 std::string ExtractFirstArgument(const std::string &s, std::string &remains) {
-	std::string word;
-
-	size_t space_pos = s.find(" ");
-		if (space_pos != std::string::npos) {
-			word = s.substr(0, space_pos);
-			remains = s.substr(space_pos + 1);
-		}
-	return word;
+	size_t space_pos = s.find(' ');
+	if (space_pos != std::string::npos) {
+		remains = s.substr(space_pos + 1);
+		return s.substr(0, space_pos);
+	}
+	remains.clear();
+	return s;
 }
 
 std::string SubstToLow(std::string s) {
