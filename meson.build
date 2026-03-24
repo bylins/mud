@@ -104,7 +104,27 @@ if get_option('otel')
     dependencies += otel_dep
 endif
 
-if get_option('has_epoll') and host_system == 'linux'
+has_epoll_opt = get_option('has_epoll')
+epoll_enabled = false
+
+if has_epoll_opt
+    if host_system == 'linux'
+        epoll_enabled = true
+    elif host_system == 'freebsd'
+        epoll_shim_dep = dependency('epoll-shim', required: false)
+        if epoll_shim_dep.found()
+            epoll_enabled = true
+            dependencies += epoll_shim_dep
+            message('Using epoll via libepoll-shim')
+        else
+            warning('has_epoll enabled but libepoll-shim not found. Install it with: pkg install libepoll-shim')
+        endif
+    else
+        epoll_enabled = false
+    endif
+endif
+
+if epoll_enabled
     project_args += '-DHAS_EPOLL'
 endif
 
@@ -725,5 +745,6 @@ summary({
     'SQLite Support': get_option('sqlite'),
     'Telegram Support': get_option('telegram'),
     'Scripting': get_option('scripting'),
+    'Epoll': get_option('has_epoll'),
     'Linker': linker_choice != '' ? linker_choice : 'default'
 }, section: 'Configuration')

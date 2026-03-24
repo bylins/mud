@@ -7,7 +7,7 @@ option('zlib', type: 'boolean', value: true, description: 'Enable MCCP support v
 option('iconv', type: 'boolean', value: false, description: 'Detect and use iconv')
 option('telegram', type: 'boolean', value: true, description: 'Enable Telegram integration (requires CURL + OpenSSL)')
 option('nocrypt', type: 'boolean', value: false, description: 'Disable use of crypt()')
-option('has_epoll', type: 'boolean', value: true, description: 'Use epoll (Linux only)')
+option('has_epoll', type: 'boolean', value: true, description: 'Use epoll (Linux or freebsd)')
 option('with_asan', type: 'boolean', value: false, description: 'Build with Address Sanitizer')
 
 # Options for libfort
