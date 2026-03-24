@@ -117,7 +117,7 @@ void koi_to_win(char *str, int len);
 void koi_to_utf8(char *str_i, char *str_o);
 void utf8_to_koi(char *str_i, char *str_o);
 // \todo Заменить на фунции из STD
-int roundup(float fl);
+int round_up(float fl);
 // IsValidEmail, skip_dots, str_str, kill_ems, cut_one_word moved to utils_string.h
 // strl_cpy moved to utils_string.h
 bool is_head(std::string name);

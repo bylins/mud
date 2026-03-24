@@ -223,7 +223,7 @@ void look_at_room(CharData *ch, int ignore_brief, bool msdp_mode) {
 	}
 
 	if (world[ch->in_room]->holes) {
-		const int ar = roundup(world[ch->in_room]->holes / kHolesTime);
+		const int ar = round_up(world[ch->in_room]->holes / kHolesTime);
 		sprintf(buf, "%sЗдесь выкопана ямка глубиной примерно в %i аршин%s.%s\r\n",
 				kColorYel, ar, (ar == 1 ? "" : (ar < 5 ? "а" : "ов")), (kColorNrm));
 		SendMsgToChar(buf, ch);

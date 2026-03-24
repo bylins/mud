@@ -1377,6 +1377,7 @@ endif ()
 
 include_directories(src
 	system ${Boost_INCLUDE_DIRS}
+	system ${CURL_INCLUDE_DIRS}
 	system ${PYTHON_INCLUDE_DIRS})
 target_link_libraries(circle.library
 	${Boost_LIBRARIES}
@@ -1430,12 +1431,29 @@ if (CMAKE_HOST_UNIX)
 
 	# Suppose that UNIX hosts support epoll by default EPOLL>>>
 	if (NOT CYGWIN AND NOT APPLE)
-		option(HAS_EPOLL "Does system support epoll call?" ON)
+	    if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+	        option(HAS_EPOLL "Does system support epoll call?" ON)
+	    else()
+	        find_library(EPOLL_SHIM_LIBRARY NAMES epoll-shim libepoll-shim
+					PATHS /usr/local/lib /usr/lib)
+
+	        find_path(EPOLL_SHIM_INCLUDE_DIR NAMES sys/epoll.h
+					PATHS /usr/local/include/libepoll-shim)
+
+	        if (EPOLL_SHIM_LIBRARY AND EPOLL_SHIM_INCLUDE_DIR)
+	            option(HAS_EPOLL "Does system support epoll call?" ON)
+	            include_directories(${EPOLL_SHIM_INCLUDE_DIR})
+	            set(EPOLL_SHIM_LIBS ${EPOLL_SHIM_LIBRARY} CACHE INTERNAL "epoll-shim library")
+	        else()
+	            option(HAS_EPOLL "Does system support epoll call?" OFF)
+	        endif()
+	    endif()
 	else ()
-		# EPOLL>>> ... if it is not Cygwin ... EPOLL>>>
-		option(HAS_EPOLL "Does system support epoll call?" OFF)
+	    # EPOLL>>> ... if it is not Cygwin ... EPOLL>>>
+	    option(HAS_EPOLL "Does system support epoll call?" OFF)
 	endif ()
-	target_link_libraries(circle.library pthread)
+
+		target_link_libraries(circle.library pthread)
 elseif (CMAKE_HOST_WIN32)
 	add_definitions("-D_SCL_SECURE_NO_WARNINGS")
 	set(CMAKE_CXX_FLAGS_RELEASE  "")
@@ -1492,6 +1510,9 @@ endif ()
 if (HAS_EPOLL)
 	message(STATUS "Turning ON epoll")
 	add_definitions("-DHAS_EPOLL")
+	if (EPOLL_SHIM_LIBS)
+	    target_link_libraries(circle.library ${EPOLL_SHIM_LIBS})
+	endif()
 else ()
 	message(STATUS "Turning OFF epoll")
 endif ()

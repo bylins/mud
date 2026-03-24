@@ -19,7 +19,7 @@ const int CRYO_FACTOR = 4;
 
 struct SaveRentInfo {
 	SaveRentInfo() : time(0), rentcode(0), net_cost_per_diem(0), gold(0),
-					 account(0), nitems(0), oitems(0), spare1(0), spare2(0), spare3(0),
+					 account(0), n_items(0), oitems(0), spare1(0), spare2(0), spare3(0),
 					 spare4(0), spare5(0), spare6(0), spare7(0) {};
 
 	int32_t time;
@@ -27,7 +27,7 @@ struct SaveRentInfo {
 	int32_t net_cost_per_diem;
 	int32_t gold;
 	int32_t account;
-	int32_t nitems;
+	int32_t n_items;
 	int32_t oitems;
 	int32_t spare1;
 	int32_t spare2;
