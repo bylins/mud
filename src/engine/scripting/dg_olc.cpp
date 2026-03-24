@@ -375,10 +375,9 @@ void trigedit_save(DescriptorData *d) {
 	const auto cmd_token = strtok(s, "\n\r");
 	// lowercase the command (first word) for faster comparison at runtime
 	auto lowercase_first_word = [](std::string &str) {
-		for (auto &c : str) {
-			if (c == ' ') break;
-			c = LOWER(c);
-		}
+		auto it = str.begin();
+		while (it != str.end() && (*it == ' ' || *it == '\t')) ++it;
+		while (it != str.end() && *it != ' ') { *it = LOWER(*it); ++it; }
 	};
 
 	if (cmd_token) { //тут штатная ошибка циркуля, если strok не нашел подстроку то он возвращает не nullptr а строку полностью т.е. надо str_cmp(cmd_token, s)
