@@ -51,10 +51,9 @@ void WorldDataSourceBase::ParseTriggerScript(Trigger *trig, const std::string &s
 			cmd->next = nullptr;
 
 			// lowercase the command (first word) for faster comparison at runtime
-			for (auto &c : cmd->cmd) {
-				if (c == ' ') break;
-				c = LOWER(c);
-			}
+			auto it = cmd->cmd.begin();
+			while (it != cmd->cmd.end() && (*it == ' ' || *it == '\t')) ++it;
+			while (it != cmd->cmd.end() && *it != ' ') { *it = LOWER(*it); ++it; }
 
 			if (!head)
 			{

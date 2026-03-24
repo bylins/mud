@@ -1444,10 +1444,8 @@ void do_mzoneecho(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 }
 // для команды mat
 void MobDgCast(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *trig) {
-	char *dg_arg = str_dup("DgCast ");
-	strcat(dg_arg, argument);
-	do_dg_cast(ch, trig, MOB_TRIGGER, dg_arg);
-	free(dg_arg);
+	std::string dg_arg = std::string("DgCast ") + argument;
+	do_dg_cast(ch, trig, MOB_TRIGGER, dg_arg.data());
 }
 
 const struct mob_command_info mob_cmd_info[] =
