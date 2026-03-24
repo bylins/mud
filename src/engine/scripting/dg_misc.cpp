@@ -117,10 +117,9 @@ int find_dg_cast_target(ESpell spell_id, const char *t, CharData *ch, CharData *
 // LIMITATION: a target MUST exist for the spell unless the spell is
 // set to TAR_IGNORE. Also, group spells are not permitted
 // code borrowed from do_cast()
-void do_dg_cast(void *go, Trigger *trig, int type, char *cmd) {
+void do_dg_cast(void *go, Trigger *trig, int type, std::string cmd) {
 	CharData *caster = nullptr;
 	RoomData *caster_room = nullptr;
-	char *s, *t;
 	int target = 0;
 	bool dummy_mob = false;
 	std::string argument = cmd;
@@ -142,23 +141,25 @@ void do_dg_cast(void *go, Trigger *trig, int type, char *cmd) {
 		default: trig_log(trig, "dg_do_cast: unknown trigger type!");
 			return;
 	}
-	// get: blank, spell name, target name
-	s = strtok(cmd, "'!");
-//ошибка сравнения с nullptr но так уже привыкли
-	if (s == nullptr) {
-		sprintf(buf2, "dg_cast: needs spell name.");
-		trig_log(trig, buf2);
+	// parse: "DgCast 'spell name' target"
+	auto quote1 = cmd.find_first_of("'!");
+	if (quote1 == std::string::npos) {
+		trig_log(trig, "dg_cast: needs spell name.");
 		return;
 	}
-	s = strtok(nullptr, "'!");
-	if (s == nullptr) {
-		sprintf(buf2, "dg_cast: needs spell name in `'s.");
-		trig_log(trig, buf2);
+	auto quote2 = cmd.find_first_of("'!", quote1 + 1);
+	if (quote2 == std::string::npos) {
+		trig_log(trig, "dg_cast: needs spell name in `'s.");
 		return;
 	}
-	t = strtok(nullptr, "\0");
+	std::string spell_name = cmd.substr(quote1 + 1, quote2 - quote1 - 1);
+	std::string target_name;
+	if (quote2 + 1 < cmd.size()) {
+		target_name = cmd.substr(quote2 + 1);
+		utils::TrimLeft(target_name);
+	}
 
-	auto spell_id = FixNameAndFindSpellId(s);
+	auto spell_id = FixNameAndFindSpellId(spell_name.data());
 	if (spell_id == ESpell::kUndefined) {
 		sprintf(buf2, "dg_cast: invalid spell name, аргумент: (%s)", argument.c_str());
 		trig_log(trig, buf2);
@@ -203,36 +204,34 @@ void do_dg_cast(void *go, Trigger *trig, int type, char *cmd) {
 	}
 
 	// Find the target
-	if (t != nullptr)
-		one_argument(t, arg);
-	else
-		*arg = '\0';
+	std::string remains;
+	std::string target_arg = target_name.empty() ? "" : utils::ExtractFirstArgument(target_name, remains);
 
 	// в find_dg_cast_target можем и не попасть для инита нулями и в CallMagic пойдет мусор
 	CharData *tch = nullptr;
 	ObjData *tobj = nullptr;
 	RoomData *troom = nullptr;
 
-	if (*arg == UID_CHAR) {
-		tch = get_char(arg);
+	if (!target_arg.empty() && target_arg[0] == UID_CHAR) {
+		tch = get_char(target_arg.c_str());
 		if (tch == nullptr) {
-			snprintf(buf2, kMaxStringLength, "dg_cast: victim (%s) not found, аргумент: %s", arg + 1, argument.c_str());
+			snprintf(buf2, kMaxStringLength, "dg_cast: victim (%s) not found, аргумент: %s", target_arg.c_str() + 1, argument.c_str());
 			trig_log(trig, buf2);
 		} else if (kNowhere == caster->in_room) {
-			sprintf(buf2, "dg_cast: caster (%s) in kNowhere", GET_NAME(caster));
+			sprintf(buf2, "dg_cast: caster (%s) in kNowhere", caster->get_name().c_str());
 			trig_log(trig, buf2);
 		} else if (tch->in_room != caster->in_room) {
 			sprintf(buf2,
 					"dg_cast: caster (%s) and victim (%s) в разных клетках комнат",
-					GET_NAME(caster),
-					GET_NAME(tch));
+					caster->get_name().c_str(),
+					tch->get_name().c_str());
 			trig_log(trig, buf2);
 		} else {
 			target = 1;
 			troom = world[caster->in_room];
 		}
 	} else {
-		target = find_dg_cast_target(spell_id, arg, caster, &tch, &tobj, &troom);
+		target = find_dg_cast_target(spell_id, target_arg.c_str(), caster, &tch, &tobj, &troom);
 	}
 	if (target) {
 		CallMagic(caster, tch, tobj, troom, spell_id, GetRealLevel(caster));
