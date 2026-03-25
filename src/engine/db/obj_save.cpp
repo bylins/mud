@@ -1821,7 +1821,7 @@ void Crash_save(std::stringstream &write_buffer, int iplayer, ObjData *obj, int 
 
 			if (savetype != RENT_CRASH) {
 //				log("%s save_char_obj %d %ld %u", player_table[iplayer].name().c_str(),
-					GET_OBJ_VNUM(obj), obj->get_unique_id(), obj->get_timer());
+//					GET_OBJ_VNUM(obj), obj->get_unique_id(), obj->get_timer());
 			}
 		}
 	}
