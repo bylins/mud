@@ -669,6 +669,7 @@ void Player::save_char() {
 	*buf = '\0';
 	this->player_specials->saved.pref.tascii(FlagData::kPlanesNumber, buf);
 	fprintf(saved, "Pref: %s\n", buf);
+	fprintf(saved, "MgSh: %d\n", static_cast<int>(GetBriefShieldsMode()));
 
 	if (MUTE_DURATION(this) > 0 && this->IsFlagged(EPlrFlag::kMuted))
 		fprintf(saved,
@@ -1224,6 +1225,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 	CREATE(GET_LOGS(this), 1 + LAST_LOG);
 	NOTIFY_EXCH_PRICE(this) = 0;
 	this->player_specials->saved.HiredCost = 0;
+	this->player_specials->saved.brief_shields_mode = EBriefShieldsMode::kBrief;
 	this->set_who_mana(kWhoManaMax);
 	this->set_who_last(time(0));
 
@@ -1532,6 +1534,13 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 					sscanf(line, "%d/%d", &num, &num2);
 					this->set_move(num);
 					this->set_max_move(num2);
+				} else if (!strcmp(tag, "MgSh")) {
+					if (num >= static_cast<int>(EBriefShieldsMode::kOff)
+						&& num <= static_cast<int>(EBriefShieldsMode::kCompressed)) {
+						this->player_specials->saved.brief_shields_mode = static_cast<EBriefShieldsMode>(num);
+					} else {
+						this->player_specials->saved.brief_shields_mode = EBriefShieldsMode::kBrief;
+					}
 				} else if (!strcmp(tag, "Mobs")) {
 					do {
 						if (!fbgetline(fl, line))

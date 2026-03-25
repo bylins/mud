@@ -18,6 +18,33 @@ void SetNotifyEchange(CharData *ch, char *argument);
 void SetAutolootMode(CharData *ch, char *argument);
 bool TogglePrfFlag(CharData *ch, EPrf flag);
 
+const char *GetBriefShieldsModeMessage(const CharData *ch) {
+	switch (ch->GetBriefShieldsMode()) {
+		case EBriefShieldsMode::kBrief: return "Показ сообщений при срабатывании магических щитов: краткий.";
+		case EBriefShieldsMode::kCompact: return "Показ сообщений при срабатывании магических щитов: компактный.";
+		case EBriefShieldsMode::kCompressed: return "Показ сообщений при срабатывании магических щитов: сжатый.";
+		case EBriefShieldsMode::kOff:
+		default: return "Показ сообщений при срабатывании магических щитов: полный.";
+	}
+}
+
+void CycleBriefShieldsMode(CharData *ch) {
+	EBriefShieldsMode next_mode = EBriefShieldsMode::kBrief;
+	switch (ch->GetBriefShieldsMode()) {
+		case EBriefShieldsMode::kOff: next_mode = EBriefShieldsMode::kBrief;
+			break;
+		case EBriefShieldsMode::kBrief: next_mode = EBriefShieldsMode::kCompact;
+			break;
+		case EBriefShieldsMode::kCompact: next_mode = EBriefShieldsMode::kCompressed;
+			break;
+		case EBriefShieldsMode::kCompressed: next_mode = EBriefShieldsMode::kOff;
+			break;
+	}
+
+	ch->SetBriefShieldsMode(next_mode);
+	SendMsgToChar(GetBriefShieldsModeMessage(ch), ch);
+}
+
 enum EScmd {
   kScmdNosummon,
   kScmdNohassle,
@@ -508,8 +535,9 @@ void do_gen_tog(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			break;
 		case kScmdMisprint: result = TogglePrfFlag(ch, EPrf::kShowUnread);
 			break;
-		case kScmdBriefShields: result = TogglePrfFlag(ch, EPrf::kBriefShields);
-			break;
+		case kScmdBriefShields:
+			CycleBriefShieldsMode(ch);
+			return;
 		case kScmdAutoNosummon: result = TogglePrfFlag(ch, EPrf::kAutonosummon);
 			break;
 		default: SendMsgToChar(ch, "Введите параметр режима полностью.\r\n");
