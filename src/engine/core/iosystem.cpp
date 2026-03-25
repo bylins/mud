@@ -892,8 +892,8 @@ ssize_t perform_socket_write(socket_t desc, const char *txt, size_t length)
 #define write	socketwrite
 #endif
 
-#if defined(__APPLE__) || defined(__MACH__) || defined(__CYGWIN__)
 #include <sys/socket.h>
+#if defined(__APPLE__) || defined(__MACH__) || defined(__CYGWIN__)
 # ifndef MSG_NOSIGNAL
 #   define MSG_NOSIGNAL SO_NOSIGPIPE
 # endif
