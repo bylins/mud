@@ -8,6 +8,7 @@
 
 #include "engine/core/iosystem.h"
 
+#include <sys/socket.h>
 #include "engine/entities/char_data.h"
 #include "engine/core/handler.h"
 #include "engine/network/descriptor_data.h"
