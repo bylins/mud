@@ -2,8 +2,6 @@
 // Copyright (c) 2013 Krodo
 // Part of Bylins http://www.mud.ru
 
-#include <queue>
-#include <set>
 #include <third_party_libs/fmt/include/fmt/format.h>
 
 #include "engine/core/char_movement.h"
@@ -48,6 +46,11 @@ const size_t MAX_LENGTH_BIG = MAX_DEPTH_ROOM_BIG * 8 + 1;
 // поле для отрисовки
 //int screen[MAX_LINES][MAX_LENGHT];
 int screen[MAX_LINES_BIG][MAX_LENGTH_BIG];
+// копия поля для хранения глубины текущей отрисовки по нужным координатам
+// используется для случаев наезжания комнат друг на друга, в этом случае
+// ближняя затирает более дальнюю и все остальные после нее
+//int depths[MAX_LINES][MAX_LENGHT]
+int depths[MAX_LINES_BIG][MAX_LENGTH_BIG];
 
 enum {
 	// свободный проход
@@ -212,18 +215,45 @@ const char *signs[] =
 		"&R`&n"
 	};
 
+std::map<int /* room vnum */, int /* min depth */> check_dupe;
+
 // отрисовка символа на поле по координатам
-// при обходе в ширину первый записанный символ - самый близкий к игроку
-void put_on_screen(unsigned y, unsigned x, int num, int /*depth*/) {
+void put_on_screen(unsigned y, unsigned x, int num, int depth) {
 	if (y >= MAX_LINES || x >= MAX_LENGTH) {
+		log("SYSERROR: %d;%d (%s %s %d)", y, x, __FILE__, __func__, __LINE__);
 		return;
 	}
-	if (screen[y][x] == -1) {
+	if (depths[y][x] == -1) {
+		// поле было чистое
 		screen[y][x] = num;
+		depths[y][x] = depth;
+	} else if (depths[y][x] > depth) {
+		// уже что-то было отрисовано
+		if (screen[y][x] == num) {
+			// если тот же самый символ,
+			// то надо обновить глубину на случай последующих затираний
+			depths[y][x] = depth;
+		} else {
+			// другой символ и меньшая глубина
+			// затираем все символы этой и далее глубины
+			// и поверх рисуем текущий символ
+			const int hide_num = depths[y][x];
+			for (unsigned i = 0; i < MAX_LINES; ++i) {
+				for (unsigned k = 0; k < MAX_LENGTH; ++k) {
+					if (depths[i][k] >= hide_num) {
+						screen[i][k] = -1;
+						depths[i][k] = -1;
+					}
+				}
+			}
+			screen[y][x] = num;
+			depths[y][x] = depth;
+		}
 	} else if ((screen[y][x] >= SCREEN_UP_OPEN && screen[y][x] <= SCREEN_UP_WALL)
 		|| (screen[y][x] >= SCREEN_DOWN_OPEN && screen[y][x] <= SCREEN_DOWN_WALL)) {
 		// выходы ^ и v затираются, если есть чем
 		screen[y][x] = num;
+		depths[y][x] = depth;
 	}
 }
 
@@ -373,193 +403,167 @@ bool mode_allow(const CharData *ch, int cur_depth) {
 	return true;
 }
 
-// обход в ширину - каждая комната обрабатывается ровно один раз
-// с минимальной глубиной и правильными координатами
-void draw_map_bfs(CharData *ch) {
-	struct BfsEntry {
-		const RoomData *room;
-		int depth;
-		int y;
-		int x;
-	};
-
-	std::queue<BfsEntry> bfs_queue;
-	std::set<int> visited; // vnum комнат, которые уже в очереди
-
-	const RoomData *start_room = world[ch->in_room];
-	int center_y = static_cast<int>(MAX_LINES / 2);
-	int center_x = static_cast<int>(MAX_LENGTH / 2);
-
-	bfs_queue.push({start_room, 1, center_y, center_x});
-	visited.insert(start_room->vnum);
-
-	// предвычисляем видимость дт один раз
-	bool view_dt = false;
-	for (const auto &aff : ch->affected) {
-		if (aff->location == EApply::kViewDeathTraps) {
-			view_dt = true;
+void draw_room(CharData *ch, const RoomData *room, int cur_depth, int y, int x) {
+	// чтобы не ходить по комнатам вторично, но с проверкой на глубину
+	auto i = check_dupe.find(room->vnum);
+	if (i != check_dupe.end()) {
+		if (i->second <= cur_depth) {
+			return;
+		} else {
+			i->second = cur_depth;
 		}
+	} else {
+		check_dupe.insert(std::make_pair(room->vnum, cur_depth));
 	}
 
-	while (!bfs_queue.empty()) {
-		auto [room, cur_depth, y, x] = bfs_queue.front();
-		bfs_queue.pop();
+	if (world[ch->in_room] == room) {
+		put_on_screen(y, x, SCREEN_CHAR, cur_depth);
+		if (ch->map_check_option(MAP_MODE_MOBS_CURR_ROOM)) {
+			draw_mobs(ch, ch->in_room, y, x);
+		}
+		if (ch->map_check_option(MAP_MODE_OBJS_CURR_ROOM)) {
+			draw_objs(ch, ch->in_room, y, x);
+		}
+	} else if (room->get_flag(ERoomFlag::kPeaceful)) {
+		put_on_screen(y, x, SCREEN_PEACE, cur_depth);
+	}
 
-		// отрисовка центра комнаты
-		if (world[ch->in_room] == room) {
-			put_on_screen(y, x, SCREEN_CHAR, cur_depth);
-			if (ch->map_check_option(MAP_MODE_MOBS_CURR_ROOM)) {
-				draw_mobs(ch, ch->in_room, y, x);
-			}
-			if (ch->map_check_option(MAP_MODE_OBJS_CURR_ROOM)) {
-				draw_objs(ch, ch->in_room, y, x);
-			}
-		} else if (room->get_flag(ERoomFlag::kPeaceful)) {
-			put_on_screen(y, x, SCREEN_PEACE, cur_depth);
+	for (int i = 0; i < EDirection::kMaxDirNum; ++i) {
+		int cur_y = y, cur_x = x, cur_sign = -1, next_y = y, next_x = x;
+		switch (i) {
+			case EDirection::kNorth: cur_y -= 1;
+				next_y -= 2;
+				cur_sign = SCREEN_Y_OPEN;
+				break;
+			case EDirection::kEast: cur_x += 2;
+				next_x += 4;
+				cur_sign = SCREEN_X_OPEN;
+				break;
+			case EDirection::kSouth: cur_y += 1;
+				next_y += 2;
+				cur_sign = SCREEN_Y_OPEN;
+				break;
+			case EDirection::kWest: cur_x -= 2;
+				next_x -= 4;
+				cur_sign = SCREEN_X_OPEN;
+				break;
+			case EDirection::kUp: cur_y -= 1;
+				cur_x += 1;
+				cur_sign = SCREEN_UP_OPEN;
+				break;
+			case EDirection::kDown: cur_y += 1;
+				cur_x -= 1;
+				cur_sign = SCREEN_DOWN_OPEN;
+				break;
+			default: log("SYSERROR: i=%d (%s %s %d)", i, __FILE__, __func__, __LINE__);
+				return;
 		}
 
-		// отладка: логируем обработку комнат 49905 и 49906
-		if (room->vnum == 49905 || room->vnum == 49906) {
-			mudlog(fmt::format("MAP_DEBUG bfs room={} depth={} y={} x={}", room->vnum, cur_depth, y, x),
-				CMP, kLvlGreatGod, SYSLOG, true);
-		}
-
-		// обработка выходов
-		for (int i = 0; i < EDirection::kMaxDirNum; ++i) {
-			int cur_y = y, cur_x = x, cur_sign = -1, next_y = y, next_x = x;
-			switch (i) {
-				case EDirection::kNorth: cur_y -= 1;
-					next_y -= 2;
-					cur_sign = SCREEN_Y_OPEN;
-					break;
-				case EDirection::kEast: cur_x += 2;
-					next_x += 4;
-					cur_sign = SCREEN_X_OPEN;
-					break;
-				case EDirection::kSouth: cur_y += 1;
-					next_y += 2;
-					cur_sign = SCREEN_Y_OPEN;
-					break;
-				case EDirection::kWest: cur_x -= 2;
-					next_x -= 4;
-					cur_sign = SCREEN_X_OPEN;
-					break;
-				case EDirection::kUp: cur_y -= 1;
-					cur_x += 1;
-					cur_sign = SCREEN_UP_OPEN;
-					break;
-				case EDirection::kDown: cur_y += 1;
-					cur_x -= 1;
-					cur_sign = SCREEN_DOWN_OPEN;
-					break;
-				default: log("SYSERROR: i=%d (%s %s %d)", i, __FILE__, __func__, __LINE__);
-					return;
-			}
-
-			if (room->dir_option[i]
-				&& room->dir_option[i]->to_room() != kNowhere
-				&& (!EXIT_FLAGGED(room->dir_option[i], EExitFlag::kHidden) || ch->IsImmortal())) {
-				// отрисовка выхода
-				if (room->vnum == 49905 || room->vnum == 49906) {
-					mudlog(fmt::format("MAP_DEBUG exit room={} dir={} cur_y={} cur_x={} sign={} to_room={}",
-						room->vnum, i, cur_y, cur_x, cur_sign,
-						world[room->dir_option[i]->to_room()]->vnum),
-						CMP, kLvlGreatGod, SYSLOG, true);
-				}
-				if (EXIT_FLAGGED(room->dir_option[i], EExitFlag::kClosed)) {
-					put_on_screen(cur_y, cur_x, cur_sign + 1, cur_depth);
-				} else if (EXIT_FLAGGED(room->dir_option[i], EExitFlag::kHidden)) {
-					put_on_screen(cur_y, cur_x, cur_sign + 2, cur_depth);
-				} else {
-					put_on_screen(cur_y, cur_x, cur_sign, cur_depth);
-				}
-				// за закрытые двери смотрят только иммы
-				if (EXIT_FLAGGED(room->dir_option[i], EExitFlag::kClosed) && !ch->IsImmortal()) {
-					continue;
-				}
-				const RoomData *next_room = world[room->dir_option[i]->to_room()];
-				// дт иммам и нубам с 0 мортов
-				if (next_room->get_flag(ERoomFlag::kDeathTrap)
-					&& (GetRealRemort(ch) <= 5
-						|| view_dt || ch->IsImmortal())) {
-					check_position_and_put_on_screen(next_y, next_x, SCREEN_DEATH_TRAP, cur_depth, i);
-				}
-				// можно утонуть
-				if (IsCharNeedBoatThere(ch, next_room->sector_type)) {
-					if (!HasBoat(ch)) {
-						check_position_and_put_on_screen(next_y, next_x, SCREEN_WATER_RED, cur_depth, i);
-					} else {
-						check_position_and_put_on_screen(next_y, next_x, SCREEN_WATER, cur_depth, i);
-					}
-				}
-				// можно задохнуться
-				if (next_room->sector_type == ESector::kUnderwater) {
-					if (!AFF_FLAGGED(ch, EAffect::kWaterBreath)) {
-						check_position_and_put_on_screen(next_y, next_x, SCREEN_WATER_RED, cur_depth, i);
-					} else {
-						check_position_and_put_on_screen(next_y, next_x, SCREEN_WATER, cur_depth, i);
-					}
-				}
-				// флай-дт
-				if (next_room->sector_type == ESector::kOnlyFlying) {
-					if (!AFF_FLAGGED(ch, EAffect::kFly)) {
-						check_position_and_put_on_screen(next_y, next_x, SCREEN_FLYING_RED, cur_depth, i);
-					} else {
-						check_position_and_put_on_screen(next_y, next_x, SCREEN_FLYING, cur_depth, i);
-					}
-				}
-				// знаки в центре клетки, не рисующиеся для выходов вверх/вниз
-				if (i != EDirection::kUp && i != EDirection::kDown) {
-					if (next_room->zone_rn != world[ch->in_room]->zone_rn) {
-						put_on_screen(next_y, next_x, SCREEN_NEW_ZONE, cur_depth);
-					}
-					draw_spec_mobs(ch, room->dir_option[i]->to_room(), next_y, next_x, cur_depth);
-				}
-				// существа рядом с игроком (depth == 1)
-				if (cur_depth == 1
-					&& (!EXIT_FLAGGED(room->dir_option[i], EExitFlag::kClosed) || ch->IsImmortal())
-					&& (ch->map_check_option(MAP_MODE_MOBS) || ch->map_check_option(MAP_MODE_PLAYERS))) {
-					if (cur_sign == SCREEN_UP_OPEN) {
-						draw_mobs(ch, room->dir_option[i]->to_room(), next_y - 1, next_x + 3);
-					} else if (cur_sign == SCREEN_DOWN_OPEN) {
-						draw_mobs(ch, room->dir_option[i]->to_room(), next_y + 1, next_x - 1);
-					} else {
-						draw_mobs(ch, room->dir_option[i]->to_room(), next_y, next_x);
-					}
-				}
-				// предметы рядом с игроком (depth == 1)
-				if (cur_depth == 1
-					&& (!EXIT_FLAGGED(room->dir_option[i], EExitFlag::kClosed) || ch->IsImmortal())
-					&& (ch->map_check_option(MAP_MODE_MOBS_CORPSES)
-						|| ch->map_check_option(MAP_MODE_PLAYER_CORPSES)
-						|| ch->map_check_option(MAP_MODE_INGREDIENTS)
-						|| ch->map_check_option(MAP_MODE_OTHER_OBJECTS))) {
-					if (cur_sign == SCREEN_UP_OPEN) {
-						draw_objs(ch, room->dir_option[i]->to_room(), next_y - 1, next_x);
-					} else if (cur_sign == SCREEN_DOWN_OPEN) {
-						draw_objs(ch, room->dir_option[i]->to_room(), next_y + 1, next_x - 2);
-					} else {
-						draw_objs(ch, room->dir_option[i]->to_room(), next_y, next_x);
-					}
-				}
-				// добавляем соседнюю комнату в очередь
-				if (i != EDirection::kUp && i != EDirection::kDown
-					&& cur_depth < MAX_DEPTH_ROOMS
-					&& (!EXIT_FLAGGED(room->dir_option[i], EExitFlag::kClosed) || ch->IsImmortal())
-					&& next_room->zone_rn == world[ch->in_room]->zone_rn
-					&& mode_allow(ch, cur_depth)
-					&& visited.find(next_room->vnum) == visited.end()) {
-					visited.insert(next_room->vnum);
-					bfs_queue.push({next_room, cur_depth + 1, next_y, next_x});
-				}
+		if (room->dir_option[i]
+			&& room->dir_option[i]->to_room() != kNowhere
+			&& (!EXIT_FLAGGED(room->dir_option[i], EExitFlag::kHidden) || ch->IsImmortal())) {
+			// отрисовка выхода
+			if (EXIT_FLAGGED(room->dir_option[i], EExitFlag::kClosed)) {
+				put_on_screen(cur_y, cur_x, cur_sign + 1, cur_depth);
+			} else if (EXIT_FLAGGED(room->dir_option[i], EExitFlag::kHidden)) {
+				put_on_screen(cur_y, cur_x, cur_sign + 2, cur_depth);
 			} else {
-				if (room->vnum == 49905 || room->vnum == 49906) {
-					mudlog(fmt::format("MAP_DEBUG wall room={} dir={} cur_y={} cur_x={} sign={}",
-						room->vnum, i, cur_y, cur_x, cur_sign + 3),
-						CMP, kLvlGreatGod, SYSLOG, true);
-				}
-				put_on_screen(cur_y, cur_x, cur_sign + 3, cur_depth);
+				put_on_screen(cur_y, cur_x, cur_sign, cur_depth);
 			}
+			// за двери закрытые смотрят только иммы
+			if (EXIT_FLAGGED(room->dir_option[i], EExitFlag::kClosed) && !ch->IsImmortal()) {
+				continue;
+			}
+			// здесь важна очередность, что первое отрисовалось - то и будет
+			const RoomData *next_room = world[room->dir_option[i]->to_room()];
+			bool view_dt = false;
+			for (const auto &aff : ch->affected) {
+				if (aff->location == EApply::kViewDeathTraps) // скушал свиток с эксп бонусом
+				{
+					view_dt = true;
+				}
+			}
+			// дт иммам и нубам с 0 мортов
+			if (next_room->get_flag(ERoomFlag::kDeathTrap)
+				&& (GetRealRemort(ch) <= 5
+					|| view_dt || ch->IsImmortal())) {
+				check_position_and_put_on_screen(next_y, next_x, SCREEN_DEATH_TRAP, cur_depth, i);
+			}
+			// можно утонуть
+			if (IsCharNeedBoatThere(ch, next_room->sector_type)) {
+				if (!HasBoat(ch)) {
+					check_position_and_put_on_screen(next_y, next_x, SCREEN_WATER_RED, cur_depth, i);
+				} else {
+					check_position_and_put_on_screen(next_y, next_x, SCREEN_WATER, cur_depth, i);
+				}
+			}
+			// можно задохнуться
+			if (next_room->sector_type == ESector::kUnderwater) {
+				if (!AFF_FLAGGED(ch, EAffect::kWaterBreath)) {
+					check_position_and_put_on_screen(next_y, next_x, SCREEN_WATER_RED, cur_depth, i);
+				} else {
+					check_position_and_put_on_screen(next_y, next_x, SCREEN_WATER, cur_depth, i);
+				}
+			}
+			// Флай-дт
+			if (next_room->sector_type == ESector::kOnlyFlying) {
+				if (!AFF_FLAGGED(ch, EAffect::kFly)) {
+					check_position_and_put_on_screen(next_y, next_x, SCREEN_FLYING_RED, cur_depth, i);
+				} else {
+					check_position_and_put_on_screen(next_y, next_x, SCREEN_FLYING, cur_depth, i);
+				}
+			}
+			// знаки в центре клетки, не рисующиеся для выходов вверх/вниз
+			if (i != EDirection::kUp && i != EDirection::kDown) {
+				// переход в другую зону
+				if (next_room->zone_rn != world[ch->in_room]->zone_rn) {
+					put_on_screen(next_y, next_x, SCREEN_NEW_ZONE, cur_depth);
+				}
+				// моб со спешиалом
+				draw_spec_mobs(ch, room->dir_option[i]->to_room(), next_y, next_x, cur_depth);
+			}
+			// существа
+			if (cur_depth == 1
+				&& (!EXIT_FLAGGED(room->dir_option[i], EExitFlag::kClosed) || ch->IsImmortal())
+				&& (ch->map_check_option(MAP_MODE_MOBS) || ch->map_check_option(MAP_MODE_PLAYERS))) {
+				// в случае вверх/вниз next_y/x = y/x, рисуется относительно
+				// координат чара, со смещением, чтобы писать около полей v и ^
+				// внутри draw_mobs происходит еще одно смещение на x-1
+				if (cur_sign == SCREEN_UP_OPEN) {
+					draw_mobs(ch, room->dir_option[i]->to_room(), next_y - 1, next_x + 3);
+				} else if (cur_sign == SCREEN_DOWN_OPEN) {
+					draw_mobs(ch, room->dir_option[i]->to_room(), next_y + 1, next_x - 1);
+				} else {
+					// остальные выходы вокруг пишутся как обычно, со смещением
+					// относительно центра следующей за выходом клетки
+					draw_mobs(ch, room->dir_option[i]->to_room(), next_y, next_x);
+				}
+			}
+			// предметы
+			if (cur_depth == 1
+				&& (!EXIT_FLAGGED(room->dir_option[i], EExitFlag::kClosed) || ch->IsImmortal())
+				&& (ch->map_check_option(MAP_MODE_MOBS_CORPSES)
+					|| ch->map_check_option(MAP_MODE_PLAYER_CORPSES)
+					|| ch->map_check_option(MAP_MODE_INGREDIENTS)
+					|| ch->map_check_option(MAP_MODE_OTHER_OBJECTS))) {
+				if (cur_sign == SCREEN_UP_OPEN) {
+					draw_objs(ch, room->dir_option[i]->to_room(), next_y - 1, next_x);
+				} else if (cur_sign == SCREEN_DOWN_OPEN) {
+					draw_objs(ch, room->dir_option[i]->to_room(), next_y + 1, next_x - 2);
+				} else {
+					draw_objs(ch, room->dir_option[i]->to_room(), next_y, next_x);
+				}
+			}
+			// проход по следующей в глубину комнате
+			if (i != EDirection::kUp && i != EDirection::kDown
+				&& cur_depth < MAX_DEPTH_ROOMS
+				&& (!EXIT_FLAGGED(room->dir_option[i], EExitFlag::kClosed) || ch->IsImmortal())
+				&& next_room->zone_rn == world[ch->in_room]->zone_rn
+				&& mode_allow(ch, cur_depth)) {
+				draw_room(ch, next_room, cur_depth + 1, next_y, next_x);
+			}
+		} else {
+			put_on_screen(cur_y, cur_x, cur_sign + 3, cur_depth);
 		}
 	}
 }
@@ -579,9 +583,12 @@ void print_map(CharData *ch, CharData *imm) {
 	for (unsigned i = 0; i < MAX_LINES; ++i) {
 		for (unsigned k = 0; k < MAX_LENGTH; ++k) {
 			screen[i][k] = -1;
+			depths[i][k] = -1;
 		}
 	}
-	draw_map_bfs(ch);
+	check_dupe.clear();
+
+	draw_room(ch, world[ch->in_room], 1, static_cast<int>(MAX_LINES / 2), static_cast<int>(MAX_LENGTH / 2));
 
 	int start_line = -1, end_line = static_cast<int>(MAX_LINES), char_line = -1;
 	// для облегчения кода - делаем проход по экрану
@@ -605,19 +612,13 @@ void print_map(CharData *ch, CharData *imm) {
 					&& k + 1 < MAX_LENGTH && k >= 1) {
 					if (screen[i][k + 1] > -1
 						&& screen[i][k + 1] != SCREEN_UP_WALL) {
-						mudlog(fmt::format("MAP_DEBUG postproc Y_UP: y={} k={} sym={} k+1_sym={} k-1_sym={}",
-							i, k, screen[i][k], screen[i][k + 1], screen[i][k - 1]), CMP, kLvlGreatGod, SYSLOG, true);
 						screen[i][k - 1] = screen[i][k] + SCREEN_Y_UP_OPEN;
 						screen[i][k] = SCREEN_EMPTY;
 					} else if (screen[i][k - 1] > -1
 						&& screen[i][k - 1] != SCREEN_DOWN_WALL) {
-						mudlog(fmt::format("MAP_DEBUG postproc Y_DOWN: y={} k={} sym={} k-1_sym={} k+1_sym={}",
-							i, k, screen[i][k], screen[i][k - 1], screen[i][k + 1]), CMP, kLvlGreatGod, SYSLOG, true);
 						screen[i][k] += SCREEN_Y_DOWN_OPEN;
 						screen[i][k + 1] = SCREEN_EMPTY;
 					} else {
-						mudlog(fmt::format("MAP_DEBUG postproc Y_PLAIN: y={} k={} sym={} k-1_sym={} k+1_sym={}",
-							i, k, screen[i][k], screen[i][k - 1], screen[i][k + 1]), CMP, kLvlGreatGod, SYSLOG, true);
 						screen[i][k - 1] = screen[i][k];
 						screen[i][k] = SCREEN_EMPTY;
 						screen[i][k + 1] = SCREEN_EMPTY;
