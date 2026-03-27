@@ -762,7 +762,7 @@ void beat_points_update(int pulse) {
 				handle_recall_spells(d->character.get());
 			}
 
-			while (d->character->mem_queue.stored > GET_MEM_CURRENT(d->character.get()) && !d->character->mem_queue.Empty()) {
+			while (d->character->mem_queue.stored > (d->character->mem_queue.Empty() ? 0 : CalcSpellManacost(d->character.get(), d->character->mem_queue.queue->spell_id)) && !d->character->mem_queue.Empty()) {
 				auto spell_id = MemQ_learn(d->character.get());
 				++GET_SPELL_MEM(d->character, spell_id);
 				d->character->caster_level += MUD::Spell(spell_id).GetDanger();

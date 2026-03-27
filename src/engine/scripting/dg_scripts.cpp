@@ -2407,7 +2407,7 @@ void find_replacement(void *go,
 				sprintf(str, "%d", GET_CAST_SUCCESS(mob));
 		} else if (!str_cmp(field, "age")) {
 			if (!mob->IsNpc())
-				sprintf(str, "%d", GET_REAL_AGE(mob));
+				sprintf(str, "%d", CalcCharAge(mob)->year + GET_AGE_ADD(mob));
 		} else if (!str_cmp(field, "hrbase")) {
 			sprintf(str, "%d", GET_HR(mob));
 		} else if (!str_cmp(field, "hradd")) {

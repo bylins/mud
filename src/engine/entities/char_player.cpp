@@ -454,7 +454,7 @@ void Player::save_char() {
 	}
 	fprintf(saved, "Levl: %d\n", this->GetLevel());
 	fprintf(saved, "Clas: %d\n", to_underlying(this->GetClass()));
-	fprintf(saved, "LstL: %ld\n", static_cast<long int>(LAST_LOGON(this)));
+	fprintf(saved, "LstL: %ld\n", static_cast<long int>(this->get_last_logon()));
 	// сохраняем last_ip, который должен содержать айпишник с последнего удачного входа
 	if (player_table[this->get_pfilepos()].last_ip.empty()) {
 		player_table[this->get_pfilepos()].last_ip = "Unknown";
@@ -642,7 +642,7 @@ void Player::save_char() {
 	fprintf(saved, "Room: %d\n", GET_LOADROOM(this));
 //	li = this->player_data.time.birth;
 //	fprintf(saved, "Brth: %ld %s\n", static_cast<long int>(li), ctime(&li));
-	fprintf(saved, "Lexc: %ld\n", static_cast<long>(LAST_EXCHANGE(this)));
+	fprintf(saved, "Lexc: %ld\n", static_cast<long>(this->get_last_exchange()));
 	fprintf(saved, "Badp: %d\n", GET_BAD_PWS(this));
 
 	for (unsigned i = 0; i < board_date_.size(); ++i) {
@@ -923,7 +923,7 @@ void Player::save_char() {
 
 	i = GetPlayerTablePosByName(GET_NAME(this));
 	if (i >= 0) {
-		player_table[i].last_logon = LAST_LOGON(this);
+		player_table[i].last_logon = this->get_last_logon();
 		player_table[i].level = GetRealLevel(this);
 		player_table[i].remorts = GetRealRemort(this);
 		player_table[i].mail = GET_EMAIL(this);
@@ -1915,7 +1915,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 	 * If you're not poisioned and you've been away for more than an hour of
 	 * real time, we'll set your HMV back to full
 	 */
-	if (!AFF_FLAGGED(this, EAffect::kPoisoned) && (((long) (time(0) - LAST_LOGON(this))) >= kSecsPerRealHour)) {
+	if (!AFF_FLAGGED(this, EAffect::kPoisoned) && (((long) (time(0) - this->get_last_logon())) >= kSecsPerRealHour)) {
 		this->set_hit(this->get_real_max_hit());
 		this->set_move(this->get_real_max_move());
 	} else

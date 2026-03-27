@@ -199,7 +199,7 @@ ESpell MemQ_learn(CharData *ch) {
 	if (ch->mem_queue.Empty()) {
 		return ESpell::kUndefined;
 	}
-	auto num = GET_MEM_CURRENT(ch);
+	auto num = ch->mem_queue.Empty() ? 0 : CalcSpellManacost(ch, ch->mem_queue.queue->spell_id);
 	ch->mem_queue.stored -= num;
 	ch->mem_queue.total -= num;
 	auto spell_id = ch->mem_queue.queue->spell_id;

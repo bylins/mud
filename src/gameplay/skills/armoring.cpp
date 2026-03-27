@@ -41,7 +41,7 @@ void DoArmoring(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			return;
 		}
 
-	if (!OBJWEAR_FLAGGED(obj, (to_underlying(EWearFlag::kBody)
+	if (!obj->get_wear_mask((to_underlying(EWearFlag::kBody)
 		| to_underlying(EWearFlag::kShoulders)
 		| to_underlying(EWearFlag::kHead)
 		| to_underlying(EWearFlag::kArms)

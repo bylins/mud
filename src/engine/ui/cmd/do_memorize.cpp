@@ -106,7 +106,7 @@ void show_wizdom(CharData *ch, int bitset) {
 				int div, min, sec;
 				div = CalcManaGain(ch);
 				if (div > 0) {
-					sec = std::max(0, 1 + GET_MEM_CURRENT(ch) - ch->mem_queue.stored);    // sec/div -- время мема в мин
+					sec = std::max(0, 1 + (ch->mem_queue.Empty() ? 0 : CalcSpellManacost(ch, ch->mem_queue.queue->spell_id)) - ch->mem_queue.stored);    // sec/div -- время мема в мин
 					sec = sec * 60 / div;    // время мема в сек
 					min = sec / 60;
 					sec %= 60;

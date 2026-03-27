@@ -182,10 +182,10 @@ constexpr int kSecsPerRealDay = 24*kSecsPerRealHour;
 // IS_IMMORTAL/IS_GOD/IS_GRGOD/IS_IMPL заменены на методы CharData:
 // ch->IsImmortal(), ch->IsGod(), ch->IsGrGod(), ch->IsImpl()
 
-#define IS_SHOPKEEPER(ch) (IS_MOB(ch) && mob_index[(ch)->get_rnum()].func == shop_ext)
-#define IS_RENTKEEPER(ch) (IS_MOB(ch) && mob_index[(ch)->get_rnum()].func == receptionist)
-#define IS_POSTKEEPER(ch) (IS_MOB(ch) && mob_index[(ch)->get_rnum()].func == postmaster)
-#define IS_BANKKEEPER(ch) (IS_MOB(ch) && mob_index[(ch)->get_rnum()].func == bank)
+#define IS_SHOPKEEPER(ch) ((ch)->IsNpc() && mob_index[(ch)->get_rnum()].func == shop_ext)
+#define IS_RENTKEEPER(ch) ((ch)->IsNpc() && mob_index[(ch)->get_rnum()].func == receptionist)
+#define IS_POSTKEEPER(ch) ((ch)->IsNpc() && mob_index[(ch)->get_rnum()].func == postmaster)
+#define IS_BANKKEEPER(ch) ((ch)->IsNpc() && mob_index[(ch)->get_rnum()].func == bank)
 
 // string utils *********************************************************
 
@@ -325,14 +325,12 @@ inline void TOGGLE_BIT(T &var, const Bitvector bit) {
 #define NPC_FLAGS(ch)  ((ch)->mob_specials.npc_flags)
 #define EXTRA_FLAGS(ch) ((ch)->Temporary)
 
-#define IS_MOB(ch)          ((ch)->IsNpc() && (ch)->get_rnum() >= 0)
 
 #define NPC_FLAGGED(ch, flag)   (NPC_FLAGS(ch).get(flag))
 #define EXTRA_FLAGGED(ch, flag) (EXTRA_FLAGS(ch).get(flag))
 #define ROOM_FLAGGED(loc, flag) (world[(loc)]->get_flag(flag))
 #define EXIT_FLAGGED(exit, flag)     (IS_SET((exit)->exit_info, (flag)))
 #define OBJVAL_FLAGGED(obj, flag)    (IS_SET(GET_OBJ_VAL((obj), 1), (flag)))
-#define OBJWEAR_FLAGGED(obj, mask)   ((obj)->get_wear_mask(mask))
 
 // room utils ***********************************************************
 #define SECT(room)   (world[(room)]->sector_type)
@@ -340,23 +338,18 @@ inline void TOGGLE_BIT(T &var, const Bitvector bit) {
 
 #define VALID_RNUM(rnum)   ((rnum) > 0 && (rnum) <= top_of_world)
 #define GET_ROOM_VNUM(rnum) ((RoomVnum)(VALID_RNUM(rnum) ? world[(rnum)]->vnum : kNowhere))
-#define GET_ROOM_SPEC(room) (VALID_RNUM(room) ? world[(room)]->func : nullptr)
 
 // char utils ***********************************************************
 #define IS_MANA_CASTER(ch) ((ch)->GetClass() == ECharClass::kMagus)
-#define GET_REAL_AGE(ch) (CalcCharAge((ch))->year + GET_AGE_ADD(ch))
 #define GET_PC_NAME(ch) ((ch)->GetCharAliases().c_str())
 #define GET_NAME(ch)    ((ch)->get_name().c_str())
 #define GET_MAX_MANA(ch)      (mana[MIN(50, GetRealWis(ch))])
-#define GET_MEM_CURRENT(ch)   ((ch)->mem_queue.Empty() ? 0 : CalcSpellManacost(ch, (ch)->mem_queue.queue->spell_id))
 
 #define GET_EMAIL(ch)          ((ch)->player_specials->saved.EMail)
 #define GET_LASTIP(ch)         ((ch)->player_specials->saved.LastIP)
 #define GET_GOD_FLAG(ch, flag)  (IS_SET((ch)->player_specials->saved.GodsLike, flag))
 #define SET_GOD_FLAG(ch, flag)  (SET_BIT((ch)->player_specials->saved.GodsLike, flag))
 #define CLR_GOD_FLAG(ch, flag)  (REMOVE_BIT((ch)->player_specials->saved.GodsLike, flag))
-#define LAST_LOGON(ch)         ((ch)->get_last_logon())
-#define LAST_EXCHANGE(ch)         ((ch)->get_last_exchange())
 #define NAME_GOD(ch)  ((ch)->player_specials->saved.NameGod)
 #define NAME_ID_GOD(ch)  ((ch)->player_specials->saved.NameIDGod)
 
@@ -364,7 +357,7 @@ inline void TOGGLE_BIT(T &var, const Bitvector bit) {
 #define STRING_WIDTH(ch)  ((ch)->player_specials->saved.stringWidth)
 #define NOTIFY_EXCH_PRICE(ch)  ((ch)->player_specials->saved.ntfyExchangePrice)
 
-#define POSI(val)      (((val) < 50) ? (((val) > 0) ? (val) : 1) : 50)
+inline int Posi(int val) { return std::clamp(val, 1, 50); }
 
 template<typename T>
 inline T VPOSI(const T val, const T min, const T max) {
@@ -392,7 +385,7 @@ inline T VPOSI(const T val, const T min, const T max) {
 #define GET_SIZE(ch)    ((ch)->real_abils.size)
 #define GET_SIZE_ADD(ch)  ((ch)->add_abils.size_add)
 #define GET_REAL_SIZE(ch) (VPOSI(GET_SIZE(ch) + GET_SIZE_ADD(ch), 1, 100))
-#define GET_POS_SIZE(ch)  (POSI(GET_REAL_SIZE(ch) >> 1))
+#define GET_POS_SIZE(ch)  (Posi(GET_REAL_SIZE(ch) >> 1))
 #define GET_HR(ch)         ((ch)->real_abils.hitroll)
 #define GET_HR_ADD(ch)    ((ch)->add_abils.hr_add)
 #define GET_REAL_HR(ch)   (VPOSI(GET_HR(ch)+GET_HR_ADD(ch), -50, (IS_MORTIFIER(ch) ? 100 : 50)))
@@ -496,9 +489,9 @@ const int kNameLevel = 5;
 
 #define GET_EQ(ch, i)      ((ch)->equipment[i])
 
-#define GET_MOB_SPEC(ch)   (IS_MOB(ch) ? mob_index[(ch)->get_rnum()].func : nullptr)
+#define GET_MOB_SPEC(ch)   ((ch)->IsNpc() ? mob_index[(ch)->get_rnum()].func : nullptr)
 #define GET_MOB_RNUM(mob)  (mob)->get_rnum()
-#define GET_MOB_VNUM(mob)  (IS_MOB(mob) ? mob_index[(mob)->get_rnum()].vnum : -1)
+#define GET_MOB_VNUM(mob)  ((mob)->IsNpc() ? mob_index[(mob)->get_rnum()].vnum : -1)
 
 #define GET_DEFAULT_POS(ch)   ((ch)->mob_specials.default_pos)
 #define MEMORY(ch)          ((ch)->mob_specials.memory)
