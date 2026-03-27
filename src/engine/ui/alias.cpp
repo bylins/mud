@@ -123,11 +123,11 @@ void FreeAlias(struct alias_data *a) {
  * is "$*", which stands for the entire original line after the alias.
  * ";" is used to delimit commands.
  */
-constexpr int kNumTokens{0};
+constexpr int kNumTokens{9};
 
 void perform_complex_alias(struct iosystem::TextBlocksQueue *input_q, char *orig, struct alias_data *a) {
 	struct iosystem::TextBlocksQueue temp_queue;
-	char *tokens[1], *temp, *write_point;
+	char *tokens[kNumTokens], *temp, *write_point;
 	int num_of_tokens = 0, num;
 
 	// First, parse the original string
