@@ -132,8 +132,9 @@ static void HandleUpdateMobCommand(DescriptorData* d, const nlohmann::json& requ
 
 static void HandleCreateMobCommand(DescriptorData* d, const nlohmann::json& request)
 {
+	int zone = request.value("zone", -1);
 	std::string data_str = request.dump();
-	HandleCreateMob(d, data_str.c_str());
+	HandleCreateMob(d, zone, data_str.c_str());
 }
 
 static void HandleDeleteMobCommand(DescriptorData* d, const nlohmann::json& request)
@@ -164,8 +165,9 @@ static void HandleUpdateObjectCommand(DescriptorData* d, const nlohmann::json& r
 
 static void HandleCreateObjectCommand(DescriptorData* d, const nlohmann::json& request)
 {
+	int zone = request.value("zone", -1);
 	std::string data_str = request.dump();
-	HandleCreateObject(d, data_str.c_str());
+	HandleCreateObject(d, zone, data_str.c_str());
 }
 
 static void HandleDeleteObjectCommand(DescriptorData* d, const nlohmann::json& request)
@@ -196,8 +198,9 @@ static void HandleUpdateRoomCommand(DescriptorData* d, const nlohmann::json& req
 
 static void HandleCreateRoomCommand(DescriptorData* d, const nlohmann::json& request)
 {
+	int zone = request.value("zone", -1);
 	std::string data_str = request.dump();
-	HandleCreateRoom(d, data_str.c_str());
+	HandleCreateRoom(d, zone, data_str.c_str());
 }
 
 static void HandleDeleteRoomCommand(DescriptorData* d, const nlohmann::json& request)
@@ -237,6 +240,33 @@ static void HandleDeleteTriggerCommand(DescriptorData* d, const nlohmann::json& 
 {
 	int vnum = request.value("vnum", -1);
 	HandleDeleteTrigger(d, vnum);
+}
+
+// Zone reset commands
+static void HandleListZoneCommandsCommand(DescriptorData* d, const nlohmann::json& request)
+{
+	int zone = request.value("zone", -1);
+	HandleListZoneCommands(d, zone);
+}
+
+static void HandleAddZoneCommandCommand(DescriptorData* d, const nlohmann::json& request)
+{
+	int zone = request.value("zone", -1);
+	std::string data_str = request.dump();
+	HandleAddZoneCommand(d, zone, data_str.c_str());
+}
+
+static void HandleDeleteZoneCommandCommand(DescriptorData* d, const nlohmann::json& request)
+{
+	int zone = request.value("zone", -1);
+	int index = request.value("index", -1);
+	HandleDeleteZoneCommand(d, zone, index);
+}
+
+static void HandleResetZoneCommand(DescriptorData* d, const nlohmann::json& request)
+{
+	int zone = request.value("zone", -1);
+	HandleResetZone(d, zone);
 }
 
 // Statistics and players
@@ -295,6 +325,13 @@ void InitializeCommandRegistry()
 	registry.Register("update_trigger", HandleUpdateTriggerCommand);
 	registry.Register("create_trigger", HandleCreateTriggerCommand);
 	registry.Register("delete_trigger", HandleDeleteTriggerCommand);
+
+	// Zone reset commands
+	registry.Register("list_zone_commands", HandleListZoneCommandsCommand);
+	registry.Register("add_zone_command", HandleAddZoneCommandCommand);
+	registry.Register("delete_zone_command", HandleDeleteZoneCommandCommand);
+
+	registry.Register("reset_zone", HandleResetZoneCommand);
 
 	// Statistics and players
 	registry.Register("get_stats", HandleGetStatsCommand);
