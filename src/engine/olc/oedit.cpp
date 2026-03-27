@@ -450,8 +450,8 @@ void oedit_disp_extradesc_menu(DescriptorData *d) {
 			 "%s3%s) Следующий дескриптор: %s\r\n"
 			 "%s0%s) Выход\r\n"
 			 "Ваш выбор : ",
-			 grn, nrm, yel, not_null(extra_desc->keyword, "<NONE>"),
-			 grn, nrm, yel, not_null(extra_desc->description, "<NONE>"),
+			 grn, nrm, yel, (extra_desc->keyword && *extra_desc->keyword) ? extra_desc->keyword : "<NONE>",
+			 grn, nrm, yel, (extra_desc->description && *extra_desc->description) ? extra_desc->description : "<NONE>",
 			 grn, nrm, buf1, grn, nrm);
 	SendMsgToChar(buf, d->character.get());
 	OLC_MODE(d) = OEDIT_EXTRADESC_MENU;
@@ -1576,29 +1576,29 @@ void oedit_parse(DescriptorData *d, char *arg) {
 			}
 			break;
 
-		case OEDIT_EDIT_NAMELIST: OLC_OBJ(d)->set_aliases(not_null(arg, nullptr));
+		case OEDIT_EDIT_NAMELIST: OLC_OBJ(d)->set_aliases((arg && *arg) ? arg : "undefined");
 			break;
 
-		case OEDIT_PAD0: OLC_OBJ(d)->set_short_description(not_null(arg, "что-то"));
-			OLC_OBJ(d)->set_PName(ECase::kNom, not_null(arg, "что-то"));
+		case OEDIT_PAD0: OLC_OBJ(d)->set_short_description((arg && *arg) ? arg : "что-то");
+			OLC_OBJ(d)->set_PName(ECase::kNom, (arg && *arg) ? arg : "что-то");
 			break;
 
-		case OEDIT_PAD1: OLC_OBJ(d)->set_PName(ECase::kGen, not_null(arg, "-чего-то"));
+		case OEDIT_PAD1: OLC_OBJ(d)->set_PName(ECase::kGen, (arg && *arg) ? arg : "-чего-то");
 			break;
 
-		case OEDIT_PAD2: OLC_OBJ(d)->set_PName(ECase::kDat, not_null(arg, "-чему-то"));
+		case OEDIT_PAD2: OLC_OBJ(d)->set_PName(ECase::kDat, (arg && *arg) ? arg : "-чему-то");
 			break;
 
-		case OEDIT_PAD3: OLC_OBJ(d)->set_PName(ECase::kAcc, not_null(arg, "-что-то"));
+		case OEDIT_PAD3: OLC_OBJ(d)->set_PName(ECase::kAcc, (arg && *arg) ? arg : "-что-то");
 			break;
 
-		case OEDIT_PAD4: OLC_OBJ(d)->set_PName(ECase::kIns, not_null(arg, "-чем-то"));
+		case OEDIT_PAD4: OLC_OBJ(d)->set_PName(ECase::kIns, (arg && *arg) ? arg : "-чем-то");
 			break;
 
-		case OEDIT_PAD5: OLC_OBJ(d)->set_PName(ECase::kPre, not_null(arg, "-чем-то"));
+		case OEDIT_PAD5: OLC_OBJ(d)->set_PName(ECase::kPre, (arg && *arg) ? arg : "-чем-то");
 			break;
 
-		case OEDIT_LONGDESC: OLC_OBJ(d)->set_description(not_null(arg, "неопределено"));
+		case OEDIT_LONGDESC: OLC_OBJ(d)->set_description((arg && *arg) ? arg : "неопределено");
 			break;
 
 		case OEDIT_TYPE: number = atoi(arg);
@@ -1998,7 +1998,7 @@ void oedit_parse(DescriptorData *d, char *arg) {
 		case OEDIT_EXTRADESC_KEY:
 			if (OLC_DESC(d)->keyword)
 				free(OLC_DESC(d)->keyword);
-			OLC_DESC(d)->keyword = str_dup(not_null(arg, nullptr));
+			OLC_DESC(d)->keyword = str_dup((arg && *arg) ? arg : "undefined");
 			oedit_disp_extradesc_menu(d);
 			return;
 

@@ -79,9 +79,6 @@ struct DescriptorData;
 //	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false
 //};
 
-inline const char *not_null(const char *ptr, const char *str) {
-	return (ptr && *ptr) ? ptr : (str ? str : "undefined");
-}
 
 inline const char *not_empty(const std::string &s) {
 	return s.empty() ? "undefined" : s.c_str();
