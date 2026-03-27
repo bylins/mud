@@ -395,8 +395,7 @@ void SpellRelocate(CharData *ch, CharData *victim) {
 			ROOM_FLAGGED(fnd_room, ERoomFlag::kSlowDeathTrap) ||
 			ROOM_FLAGGED(fnd_room, ERoomFlag::kTunnel) ||
 			ROOM_FLAGGED(fnd_room, ERoomFlag::kNoRelocateIn) ||
-			ROOM_FLAGGED(fnd_room, ERoomFlag::kIceTrap) || (ROOM_FLAGGED(fnd_room, ERoomFlag::kGodsRoom) && !IS_IMMORTAL(
-			ch)))) {
+			ROOM_FLAGGED(fnd_room, ERoomFlag::kIceTrap) || (ROOM_FLAGGED(fnd_room, ERoomFlag::kGodsRoom) && !ch->IsImmortal()))) {
 		SendMsgToChar(SUMMON_FAIL, ch);
 		return;
 	}

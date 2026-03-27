@@ -1643,7 +1643,7 @@ std::string CharData::GetTitleAndNameWithoutClan() const {
 	}
 
 	auto title = GetTitle();
-	if (!title.empty() && GetLevel() >= MIN_TITLE_LEV) {
+	if (!title.empty() && GetLevel() >= kMinTitleLev) {
 		return fmt::format("{}, {}", result, title);
 	}
 
