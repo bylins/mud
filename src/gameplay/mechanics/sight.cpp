@@ -79,8 +79,9 @@ const char *diag_obj_timer(const ObjData *obj);
 
 namespace {
 
-std::string BuildBriefShieldSuffix(const CharData *viewer, const CharData *target) {
-	if (!viewer->IsFlagged(EPrf::kBriefShields)) {
+std::string BuildCompactShieldSuffix(const CharData *viewer, const CharData *target) {
+	const auto mode = viewer->GetBriefShieldsMode();
+	if (mode != EBriefShieldsMode::kCompact && mode != EBriefShieldsMode::kCompressed) {
 		return std::string();
 	}
 
@@ -93,23 +94,33 @@ std::string BuildBriefShieldSuffix(const CharData *viewer, const CharData *targe
 	};
 
 	if (AFF_FLAGGED(target, EAffect::kFireShield)) {
-		append("&RОШ&n");
+		append("&RОЩ&R");
 	}
 	if (AFF_FLAGGED(target, EAffect::kAirShield)) {
-		append("&WВШ&n");
+		append("&WВЩ&R");
 	}
 	if (AFF_FLAGGED(target, EAffect::kIceShield)) {
-		append("&CЛШ&n");
+		append("&CЛЩ&R");
 	}
 	if (AFF_FLAGGED(viewer, EAffect::kDetectMagic) && AFF_FLAGGED(target, EAffect::kMagicGlass)) {
-		append("&wМЗ&n");
+		append("&wМЗ&R");
+	}
+	if (mode == EBriefShieldsMode::kCompressed) {
+		if (AFF_FLAGGED(target, EAffect::kSanctuary)) {
+			append("&YО&R");
+		} else if (AFF_FLAGGED(target, EAffect::kPrismaticAura)) {
+			append("&MП&R");
+		}
+		if (AFF_FLAGGED(viewer, EAffect::kDetectMagic) && AFF_FLAGGED(target, EAffect::kBrokenChains)) {
+			append("&CРО&R");
+		}
 	}
 
 	return result.empty() ? std::string() : std::string(" (") + result + ")";
 }
 
-void AppendBriefShieldSuffix(std::string &text, const CharData *viewer, const CharData *target) {
-	const auto suffix = BuildBriefShieldSuffix(viewer, target);
+void AppendCompactShieldSuffix(std::string &text, const CharData *viewer, const CharData *target) {
+	const auto suffix = BuildCompactShieldSuffix(viewer, target);
 	if (suffix.empty()) {
 		return;
 	}
@@ -1691,7 +1702,7 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 
 		std::string line = buf;
 		line += i->player_data.long_descr;
-		AppendBriefShieldSuffix(line, ch, i);
+		AppendCompactShieldSuffix(line, ch, i);
 		SendMsgToChar(line, ch);
 
 		*aura_txt = '\0';
@@ -1704,7 +1715,8 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 			strcat(aura_txt, IS_POLY(i) ? "...светятся ярким сиянием " : "...светится ярким сиянием ");
 		else if (AFF_FLAGGED(i, EAffect::kPrismaticAura))
 			strcat(aura_txt, IS_POLY(i) ? "...переливаются всеми цветами " : "...переливается всеми цветами ");
-		act(aura_txt, false, i, nullptr, ch, kToVict);
+		if (ch->GetBriefShieldsMode() != EBriefShieldsMode::kCompressed)
+			act(aura_txt, false, i, nullptr, ch, kToVict);
 
 		*aura_txt = '\0';
 		n = 0;
@@ -1732,7 +1744,8 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 			strcat(aura_txt, " щитом ");
 		else if (n > 1)
 			strcat(aura_txt, " щитами ");
-		if (n > 0 && !ch->IsFlagged(EPrf::kBriefShields))
+		if (n > 0 && ch->GetBriefShieldsMode() != EBriefShieldsMode::kCompact
+			&& ch->GetBriefShieldsMode() != EBriefShieldsMode::kCompressed)
 			act(aura_txt, false, i, nullptr, ch, kToVict);
 
 		if (AFF_FLAGGED(ch, EAffect::kDetectMagic)) {
@@ -1740,7 +1753,8 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 			n = 0;
 			strcat(aura_txt, "...");
 			if (AFF_FLAGGED(i, EAffect::kMagicGlass)
-				&& !ch->IsFlagged(EPrf::kBriefShields)) {
+				&& ch->GetBriefShieldsMode() != EBriefShieldsMode::kCompact
+				&& ch->GetBriefShieldsMode() != EBriefShieldsMode::kCompressed) {
 				if (n > 0)
 					strcat(aura_txt, ", серебристая");
 				else
@@ -1766,7 +1780,7 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 			else if (n > 1)
 				strcat(aura_txt, " ауры ");
 
-			if (n > 0)
+			if (n > 0 && ch->GetBriefShieldsMode() != EBriefShieldsMode::kCompressed)
 				act(aura_txt, false, i, nullptr, ch, kToVict);
 		}
 		*aura_txt = '\0';
@@ -1897,7 +1911,7 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 			sprintf(buf + strlen(buf), "(отравлен%s) ", GET_CH_SUF_6(i));
 
 	std::string line = buf;
-	AppendBriefShieldSuffix(line, ch, i);
+	AppendCompactShieldSuffix(line, ch, i);
 	line += "\r\n";
 	SendMsgToChar(line, ch);
 
@@ -1911,7 +1925,8 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 		strcat(aura_txt, IS_POLY(i) ? "...светятся ярким сиянием " : "...светится ярким сиянием ");
 	else if (AFF_FLAGGED(i, EAffect::kPrismaticAura))
 		strcat(aura_txt, IS_POLY(i) ? "...переливаются всеми цветами " : "...переливается всеми цветами ");
-	act(aura_txt, false, i, nullptr, ch, kToVict);
+	if (ch->GetBriefShieldsMode() != EBriefShieldsMode::kCompressed)
+		act(aura_txt, false, i, nullptr, ch, kToVict);
 
 	*aura_txt = '\0';
 	n = 0;
@@ -1939,14 +1954,16 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 		strcat(aura_txt, " щитом ");
 	else if (n > 1)
 		strcat(aura_txt, " щитами ");
-	if (n > 0 && !ch->IsFlagged(EPrf::kBriefShields))
+	if (n > 0 && ch->GetBriefShieldsMode() != EBriefShieldsMode::kCompact
+		&& ch->GetBriefShieldsMode() != EBriefShieldsMode::kCompressed)
 		act(aura_txt, false, i, nullptr, ch, kToVict);
 	if (AFF_FLAGGED(ch, EAffect::kDetectMagic)) {
 		*aura_txt = '\0';
 		n = 0;
 		strcat(aura_txt, " ..");
 		if (AFF_FLAGGED(i, EAffect::kMagicGlass)
-			&& !ch->IsFlagged(EPrf::kBriefShields)) {
+			&& ch->GetBriefShieldsMode() != EBriefShieldsMode::kCompact
+			&& ch->GetBriefShieldsMode() != EBriefShieldsMode::kCompressed) {
 			if (n > 0)
 				strcat(aura_txt, ", серебристая");
 			else
@@ -1965,7 +1982,7 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 		else if (n > 1)
 			strcat(aura_txt, " ауры ");
 
-		if (n > 0)
+		if (n > 0 && ch->GetBriefShieldsMode() != EBriefShieldsMode::kCompressed)
 			act(aura_txt, false, i, nullptr, ch, kToVict);
 	}
 	*aura_txt = '\0';
