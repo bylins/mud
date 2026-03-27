@@ -418,6 +418,12 @@ void draw_map_bfs(CharData *ch) {
 			put_on_screen(y, x, SCREEN_PEACE, cur_depth);
 		}
 
+		// отладка: логируем обработку комнат 49905 и 49906
+		if (room->vnum == 49905 || room->vnum == 49906) {
+			mudlog(fmt::format("MAP_DEBUG bfs room={} depth={} y={} x={}", room->vnum, cur_depth, y, x),
+				CMP, kLvlGreatGod, SYSLOG, true);
+		}
+
 		// обработка выходов
 		for (int i = 0; i < EDirection::kMaxDirNum; ++i) {
 			int cur_y = y, cur_x = x, cur_sign = -1, next_y = y, next_x = x;
@@ -454,6 +460,12 @@ void draw_map_bfs(CharData *ch) {
 				&& room->dir_option[i]->to_room() != kNowhere
 				&& (!EXIT_FLAGGED(room->dir_option[i], EExitFlag::kHidden) || ch->IsImmortal())) {
 				// отрисовка выхода
+				if (room->vnum == 49905 || room->vnum == 49906) {
+					mudlog(fmt::format("MAP_DEBUG exit room={} dir={} cur_y={} cur_x={} sign={} to_room={}",
+						room->vnum, i, cur_y, cur_x, cur_sign,
+						world[room->dir_option[i]->to_room()]->vnum),
+						CMP, kLvlGreatGod, SYSLOG, true);
+				}
 				if (EXIT_FLAGGED(room->dir_option[i], EExitFlag::kClosed)) {
 					put_on_screen(cur_y, cur_x, cur_sign + 1, cur_depth);
 				} else if (EXIT_FLAGGED(room->dir_option[i], EExitFlag::kHidden)) {
@@ -541,6 +553,11 @@ void draw_map_bfs(CharData *ch) {
 					bfs_queue.push({next_room, cur_depth + 1, next_y, next_x});
 				}
 			} else {
+				if (room->vnum == 49905 || room->vnum == 49906) {
+					mudlog(fmt::format("MAP_DEBUG wall room={} dir={} cur_y={} cur_x={} sign={}",
+						room->vnum, i, cur_y, cur_x, cur_sign + 3),
+						CMP, kLvlGreatGod, SYSLOG, true);
+				}
 				put_on_screen(cur_y, cur_x, cur_sign + 3, cur_depth);
 			}
 		}
@@ -588,13 +605,19 @@ void print_map(CharData *ch, CharData *imm) {
 					&& k + 1 < MAX_LENGTH && k >= 1) {
 					if (screen[i][k + 1] > -1
 						&& screen[i][k + 1] != SCREEN_UP_WALL) {
+						mudlog(fmt::format("MAP_DEBUG postproc Y_UP: y={} k={} sym={} k+1_sym={} k-1_sym={}",
+							i, k, screen[i][k], screen[i][k + 1], screen[i][k - 1]), CMP, kLvlGreatGod, SYSLOG, true);
 						screen[i][k - 1] = screen[i][k] + SCREEN_Y_UP_OPEN;
 						screen[i][k] = SCREEN_EMPTY;
 					} else if (screen[i][k - 1] > -1
 						&& screen[i][k - 1] != SCREEN_DOWN_WALL) {
+						mudlog(fmt::format("MAP_DEBUG postproc Y_DOWN: y={} k={} sym={} k-1_sym={} k+1_sym={}",
+							i, k, screen[i][k], screen[i][k - 1], screen[i][k + 1]), CMP, kLvlGreatGod, SYSLOG, true);
 						screen[i][k] += SCREEN_Y_DOWN_OPEN;
 						screen[i][k + 1] = SCREEN_EMPTY;
 					} else {
+						mudlog(fmt::format("MAP_DEBUG postproc Y_PLAIN: y={} k={} sym={} k-1_sym={} k+1_sym={}",
+							i, k, screen[i][k], screen[i][k - 1], screen[i][k + 1]), CMP, kLvlGreatGod, SYSLOG, true);
 						screen[i][k - 1] = screen[i][k];
 						screen[i][k] = SCREEN_EMPTY;
 						screen[i][k + 1] = SCREEN_EMPTY;
