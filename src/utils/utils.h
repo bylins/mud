@@ -79,7 +79,9 @@ struct DescriptorData;
 //	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false
 //};
 
-#define not_null(ptr, str) ((ptr) && *(ptr)) ? (ptr) : (str) ? (str) : "undefined"
+inline const char *not_null(const char *ptr, const char *str) {
+	return (ptr && *ptr) ? ptr : (str ? str : "undefined");
+}
 
 inline const char *not_empty(const std::string &s) {
 	return s.empty() ? "undefined" : s.c_str();
@@ -133,7 +135,7 @@ extern const char *ACTNULL;
 #define CHECK_NULL(pointer, expression) \
   if ((pointer) == nullptr) i = ACTNULL; else i = (expression);
 
-#define MIN_TITLE_LEV   25
+constexpr int kMinTitleLev = 25;
 
 // undefine MAX and MIN so that our functions are used instead
 #ifdef MAX
@@ -152,12 +154,12 @@ constexpr int kSfSilence = 1 << 4;
 int MAX(int a, int b);
 int MIN(int a, int b);
 
-#define KtoW(c) ((ubyte)(c) < 128 ? (c) : KoiToWin[(ubyte)(c)-128])
-#define KtoW2(c) ((ubyte)(c) < 128 ? (c) : KoiToWin2[(ubyte)(c)-128])
-#define KtoA(c) ((ubyte)(c) < 128 ? (c) : KoiToAlt[(ubyte)(c)-128])
-#define WtoK(c) ((ubyte)(c) < 128 ? (c) : WinToKoi[(ubyte)(c)-128])
-#define AtoK(c) ((ubyte)(c) < 128 ? (c) : AltToKoi[(ubyte)(c)-128])
-#define AtoL(c) ((ubyte)(c) < 128 ? (c) : AltToLat[(ubyte)(c)-128])
+inline char KtoW(char c) { return (ubyte)(c) < 128 ? c : KoiToWin[(ubyte)(c) - 128]; }
+inline char KtoW2(char c) { return (ubyte)(c) < 128 ? c : KoiToWin2[(ubyte)(c) - 128]; }
+inline char KtoA(char c) { return (ubyte)(c) < 128 ? c : KoiToAlt[(ubyte)(c) - 128]; }
+inline char WtoK(char c) { return (ubyte)(c) < 128 ? c : WinToKoi[(ubyte)(c) - 128]; }
+inline char AtoK(char c) { return (ubyte)(c) < 128 ? c : AltToKoi[(ubyte)(c) - 128]; }
+inline char AtoL(char c) { return (ubyte)(c) < 128 ? c : AltToLat[(ubyte)(c) - 128]; }
 
 // various constants ****************************************************
 // get_filename() //
@@ -180,21 +182,19 @@ const int kSecsPerRealMin = 60;
 constexpr int kSecsPerRealHour = 60*kSecsPerRealMin;
 constexpr int kSecsPerRealDay = 24*kSecsPerRealHour;
 
-#define IS_IMMORTAL(ch)     (!(ch)->IsNpc() && (ch)->GetLevel() >= kLvlImmortal)
-#define IS_GOD(ch)          (!(ch)->IsNpc() && (ch)->GetLevel() >= kLvlGod)
-#define IS_GRGOD(ch)        (!(ch)->IsNpc() && (ch)->GetLevel() >= kLvlGreatGod)
-#define IS_IMPL(ch)         (!(ch)->IsNpc() && (ch)->GetLevel() >= kLvlImplementator)
+// IS_IMMORTAL/IS_GOD/IS_GRGOD/IS_IMPL заменены на методы CharData:
+// ch->IsImmortal(), ch->IsGod(), ch->IsGrGod(), ch->IsImpl()
 
-#define IS_SHOPKEEPER(ch) (IS_MOB(ch) && mob_index[GET_MOB_RNUM(ch)].func == shop_ext)
-#define IS_RENTKEEPER(ch) (IS_MOB(ch) && mob_index[GET_MOB_RNUM(ch)].func == receptionist)
-#define IS_POSTKEEPER(ch) (IS_MOB(ch) && mob_index[GET_MOB_RNUM(ch)].func == postmaster)
-#define IS_BANKKEEPER(ch) (IS_MOB(ch) && mob_index[GET_MOB_RNUM(ch)].func == bank)
+#define IS_SHOPKEEPER(ch) (IS_MOB(ch) && mob_index[(ch)->get_rnum()].func == shop_ext)
+#define IS_RENTKEEPER(ch) (IS_MOB(ch) && mob_index[(ch)->get_rnum()].func == receptionist)
+#define IS_POSTKEEPER(ch) (IS_MOB(ch) && mob_index[(ch)->get_rnum()].func == postmaster)
+#define IS_BANKKEEPER(ch) (IS_MOB(ch) && mob_index[(ch)->get_rnum()].func == bank)
 
 // string utils *********************************************************
 
 #define LOWER(c)   (a_lcc(c))
 #define UPPER(c)   (a_ucc(c))
-#define ISNEWL(ch) ((ch) == '\n' || (ch) == '\r')
+inline bool ISNEWL(char ch) { return ch == '\n' || ch == '\r'; }
 
 // memory utils *********************************************************
 
