@@ -262,7 +262,7 @@ void ActualizePlayersIndex(char *name) {
 					element.last_logon = -1;
 					element.activity = -1;
 				} else {
-					element.last_logon = LAST_LOGON(short_ch);
+					element.last_logon = short_ch->get_last_logon();
 					element.activity = number(0, kObjectSaveActivity - 1);
 				}
 
@@ -384,7 +384,7 @@ bool MustBeDeleted(CharData *short_ch) {
 	}
 	if (timeout >= 0) {
 		timeout *= kSecsPerRealDay;
-		if ((time(nullptr) - LAST_LOGON(short_ch)) > timeout) {
+		if ((time(nullptr) - short_ch->get_last_logon()) > timeout) {
 			return true;
 		}
 	}

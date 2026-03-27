@@ -1351,8 +1351,8 @@ int special(CharData *ch, int cmd, char *argument, int fnum) {
 	int j;
 
 	// special in room? //
-	if (GET_ROOM_SPEC(ch->in_room) != nullptr) {
-		if (GET_ROOM_SPEC(ch->in_room)(ch, world[ch->in_room], cmd, argument)) {
+	if ((VALID_RNUM(ch->in_room) ? world[ch->in_room]->func : nullptr) != nullptr) {
+		if ((VALID_RNUM(ch->in_room) ? world[ch->in_room]->func : nullptr)(ch, world[ch->in_room], cmd, argument)) {
 			check_hiding_cmd(ch, -1);
 			return (1);
 		}
@@ -1950,8 +1950,8 @@ void do_entergame(DescriptorData *d) {
 	chardata_by_uid[d->character->get_uid()] = d->character.get();
 	GET_ACTIVITY(d->character) = number(0, kPlayerSaveActivity - 1);
 	d->character->set_last_logon(time(nullptr));
-//	player_table[GetPtableByUnique(d->character->get_uid())].last_logon = LAST_LOGON(d->character);
-	player_table[d->character->get_pfilepos()].last_logon = LAST_LOGON(d->character);
+//	player_table[GetPtableByUnique(d->character->get_uid())].last_logon = d->character->get_last_logon();
+	player_table[d->character->get_pfilepos()].last_logon = d->character->get_last_logon();
 	network::add_logon_record(d);
 	// чтобы восстановление маны спам-контроля "кто" не шло, когда чар заходит после
 	// того, как повисел на менюшке; важно, чтобы этот вызов шел раньше save_char()
@@ -2140,7 +2140,7 @@ void DoAfterPassword(DescriptorData *d) {
 		iosystem::write_to_output(buf, d);
 		GET_BAD_PWS(d->character) = 0;
 	}
-	time_t tmp_time = LAST_LOGON(d->character);
+	time_t tmp_time = d->character->get_last_logon();
 	sprintf(buf, "\r\nПоследний раз вы заходили к нам в %s с адреса (%s).\r\n",
 			rustime(localtime(&tmp_time)), GET_LASTIP(d->character));
 	iosystem::write_to_output(buf, d);

@@ -26,7 +26,7 @@ void DoPageLastLogins(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/)
 	if (GetRealLevel(chdata) > GetRealLevel(ch) && !ch->IsImpl() && !ch->IsFlagged(EPrf::kCoderinfo)) {
 		SendMsgToChar("Вы не столь уж и божественны для этого.\r\n", ch);
 	} else {
-		time_t tmp_time = LAST_LOGON(chdata);
+		time_t tmp_time = chdata->get_last_logon();
 		sprintf(buf, "[%5ld] [%2d %s] %-12s : %-18s : %-20s\r\n",
 				chdata->get_uid(), GetRealLevel(chdata),
 				MUD::Class(chdata->GetClass()).GetAbbr().c_str(), GET_NAME(chdata),
