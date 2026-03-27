@@ -34,7 +34,6 @@ int Account::zero_hryvn(CharData *ch, int val) {
 		if (name.empty()) {
 			continue;
 		}
-
 		const auto &player = player_table[GetPtableByUnique(plr)];
 		if (zone_lvl <= 12 && (player.level + player.remorts / 5 >= 20)) {
 			if (ch->IsFlagged(EPrf::kTester)) {
