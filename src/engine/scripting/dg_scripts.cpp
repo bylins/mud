@@ -784,8 +784,8 @@ void script_timechange_trigger_check(const int time, const int time_day) {
 	utils::CExecutionTimer timercheck;
 
 	for (auto *ch : timechange_mobs) {
-		if (!ch->IsNpc() || ch->IsNpc() && ch->in_room != kNowhere
-			&& !IsZoneEmpty(world[ch->in_room]->zone_rn)) {
+		if (!ch->IsNpc() || (ch->IsNpc() && ch->in_room != kNowhere
+			&& !IsZoneEmpty(world[ch->in_room]->zone_rn))) {
 			timechange_mtrigger(ch, time, time_day);
 		}
 	}
