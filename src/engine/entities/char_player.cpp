@@ -25,6 +25,7 @@
 #include "gameplay/core/base_stats.h"
 #include "gameplay/mechanics/dungeons.h"
 #include "engine/ui/cmd/do_who.h"
+#include "engine/ui/mapsystem.h"
 #include "engine/db/player_index.h"
 
 #ifdef _WIN32
