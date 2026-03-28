@@ -2,6 +2,8 @@
 // Copyright (c) 2013 Krodo
 // Part of Bylins http://www.mud.ru
 
+#include "engine/ui/mapsystem.h"
+
 #include <queue>
 #include <unordered_set>
 #include <third_party_libs/fmt/include/fmt/format.h>
