@@ -3,7 +3,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include <queue>
-#include <set>
+#include <unordered_set>
 #include <third_party_libs/fmt/include/fmt/format.h>
 
 #include "engine/core/char_movement.h"
@@ -373,26 +373,26 @@ bool mode_allow(const CharData *ch, int cur_depth) {
 	return true;
 }
 
-// двухпроходный алгоритм миникарты:
-// 1-й проход (BFS) - раскладка координат всех видимых комнат
-// 2-й проход - отрисовка выходов с проверкой петель по полной карте координат
+// однопроходный BFS: каждая комната обрабатывается один раз,
+// put_on_screen работает по принципу "первый пришёл - тот и рисует"
 void draw_map_bfs(CharData *ch) {
-	struct RoomEntry {
+	struct BfsEntry {
 		const RoomData *room;
 		int depth;
 		int y;
 		int x;
 	};
 
-	std::queue<RoomEntry> bfs_queue;
-	std::map<int, RoomEntry> placed; // vnum -> запись комнаты с координатами
-	std::vector<RoomEntry> draw_order; // порядок отрисовки (BFS-порядок)
+	std::queue<BfsEntry> bfs_queue;
+	std::unordered_set<int> visited;
 
 	const RoomData *start_room = world[ch->in_room];
 	int center_y = static_cast<int>(MAX_LINES / 2);
 	int center_x = static_cast<int>(MAX_LENGTH / 2);
 
-	// предвычисляем видимость дт один раз
+	bfs_queue.push({start_room, 1, center_y, center_x});
+	visited.insert(start_room->vnum);
+
 	bool view_dt = false;
 	for (const auto &aff : ch->affected) {
 		if (aff->location == EApply::kViewDeathTraps) {
@@ -400,62 +400,9 @@ void draw_map_bfs(CharData *ch) {
 		}
 	}
 
-	// === ПРОХОД 1: раскладка координат (BFS без отрисовки) ===
-	RoomEntry start = {start_room, 1, center_y, center_x};
-	bfs_queue.push(start);
-	placed[start_room->vnum] = start;
-
 	while (!bfs_queue.empty()) {
-		auto entry = bfs_queue.front();
+		auto [room, cur_depth, y, x] = bfs_queue.front();
 		bfs_queue.pop();
-		draw_order.push_back(entry);
-
-		const auto *room = entry.room;
-		int cur_depth = entry.depth;
-		int y = entry.y;
-		int x = entry.x;
-
-		for (int i = 0; i < EDirection::kMaxDirNum; ++i) {
-			if (i == EDirection::kUp || i == EDirection::kDown) {
-				continue;
-			}
-			if (!room->dir_option[i]
-				|| room->dir_option[i]->to_room() == kNowhere) {
-				continue;
-			}
-			if (EXIT_FLAGGED(room->dir_option[i], EExitFlag::kHidden) && !ch->IsImmortal()) {
-				continue;
-			}
-			if (EXIT_FLAGGED(room->dir_option[i], EExitFlag::kClosed) && !ch->IsImmortal()) {
-				continue;
-			}
-
-			int next_y = y, next_x = x;
-			switch (i) {
-				case EDirection::kNorth: next_y -= 2; break;
-				case EDirection::kEast: next_x += 4; break;
-				case EDirection::kSouth: next_y += 2; break;
-				case EDirection::kWest: next_x -= 4; break;
-			}
-
-			const RoomData *next_room = world[room->dir_option[i]->to_room()];
-			if (cur_depth < MAX_DEPTH_ROOMS
-				&& next_room->zone_rn == world[ch->in_room]->zone_rn
-				&& mode_allow(ch, cur_depth)
-				&& placed.find(next_room->vnum) == placed.end()) {
-				RoomEntry next_entry = {next_room, cur_depth + 1, next_y, next_x};
-				placed[next_room->vnum] = next_entry;
-				bfs_queue.push(next_entry);
-			}
-		}
-	}
-
-	// === ПРОХОД 2: отрисовка по полной карте координат ===
-	for (const auto &entry : draw_order) {
-		const auto *room = entry.room;
-		int cur_depth = entry.depth;
-		int y = entry.y;
-		int x = entry.x;
 
 		// центр комнаты
 		if (world[ch->in_room] == room) {
@@ -470,51 +417,21 @@ void draw_map_bfs(CharData *ch) {
 			put_on_screen(y, x, SCREEN_PEACE, cur_depth);
 		}
 
-		// выходы
 		for (int i = 0; i < EDirection::kMaxDirNum; ++i) {
 			int cur_y = y, cur_x = x, cur_sign = -1, next_y = y, next_x = x;
 			switch (i) {
-				case EDirection::kNorth: cur_y -= 1;
-					next_y -= 2;
-					cur_sign = SCREEN_Y_OPEN;
-					break;
-				case EDirection::kEast: cur_x += 2;
-					next_x += 4;
-					cur_sign = SCREEN_X_OPEN;
-					break;
-				case EDirection::kSouth: cur_y += 1;
-					next_y += 2;
-					cur_sign = SCREEN_Y_OPEN;
-					break;
-				case EDirection::kWest: cur_x -= 2;
-					next_x -= 4;
-					cur_sign = SCREEN_X_OPEN;
-					break;
-				case EDirection::kUp: cur_y -= 1;
-					cur_x += 1;
-					cur_sign = SCREEN_UP_OPEN;
-					break;
-				case EDirection::kDown: cur_y += 1;
-					cur_x -= 1;
-					cur_sign = SCREEN_DOWN_OPEN;
-					break;
-				default: log("SYSERROR: i=%d (%s %s %d)", i, __FILE__, __func__, __LINE__);
-					return;
+				case EDirection::kNorth: cur_y -= 1; next_y -= 2; cur_sign = SCREEN_Y_OPEN; break;
+				case EDirection::kEast: cur_x += 2; next_x += 4; cur_sign = SCREEN_X_OPEN; break;
+				case EDirection::kSouth: cur_y += 1; next_y += 2; cur_sign = SCREEN_Y_OPEN; break;
+				case EDirection::kWest: cur_x -= 2; next_x -= 4; cur_sign = SCREEN_X_OPEN; break;
+				case EDirection::kUp: cur_y -= 1; cur_x += 1; cur_sign = SCREEN_UP_OPEN; break;
+				case EDirection::kDown: cur_y += 1; cur_x -= 1; cur_sign = SCREEN_DOWN_OPEN; break;
+				default: log("SYSERROR: i=%d (%s %s %d)", i, __FILE__, __func__, __LINE__); return;
 			}
 
 			if (room->dir_option[i]
 				&& room->dir_option[i]->to_room() != kNowhere
 				&& (!EXIT_FLAGGED(room->dir_option[i], EExitFlag::kHidden) || ch->IsImmortal())) {
-				// проверка петель: если сосед на карте но координаты не совпадают - пропускаем
-				if (i != EDirection::kUp && i != EDirection::kDown) {
-					const int neighbor_vnum = world[room->dir_option[i]->to_room()]->vnum;
-					auto it = placed.find(neighbor_vnum);
-					if (it != placed.end()
-						&& (it->second.y != next_y || it->second.x != next_x)) {
-						continue;
-					}
-				}
-				// отрисовка выхода
 				if (EXIT_FLAGGED(room->dir_option[i], EExitFlag::kClosed)) {
 					put_on_screen(cur_y, cur_x, cur_sign + 1, cur_depth);
 				} else if (EXIT_FLAGGED(room->dir_option[i], EExitFlag::kHidden)) {
@@ -522,18 +439,14 @@ void draw_map_bfs(CharData *ch) {
 				} else {
 					put_on_screen(cur_y, cur_x, cur_sign, cur_depth);
 				}
-				// за закрытые двери смотрят только иммы
 				if (EXIT_FLAGGED(room->dir_option[i], EExitFlag::kClosed) && !ch->IsImmortal()) {
 					continue;
 				}
 				const RoomData *next_room = world[room->dir_option[i]->to_room()];
-				// дт иммам и нубам с 0 мортов
 				if (next_room->get_flag(ERoomFlag::kDeathTrap)
-					&& (GetRealRemort(ch) <= 5
-						|| view_dt || ch->IsImmortal())) {
+					&& (GetRealRemort(ch) <= 5 || view_dt || ch->IsImmortal())) {
 					check_position_and_put_on_screen(next_y, next_x, SCREEN_DEATH_TRAP, cur_depth, i);
 				}
-				// можно утонуть
 				if (IsCharNeedBoatThere(ch, next_room->sector_type)) {
 					if (!HasBoat(ch)) {
 						check_position_and_put_on_screen(next_y, next_x, SCREEN_WATER_RED, cur_depth, i);
@@ -541,7 +454,6 @@ void draw_map_bfs(CharData *ch) {
 						check_position_and_put_on_screen(next_y, next_x, SCREEN_WATER, cur_depth, i);
 					}
 				}
-				// можно задохнуться
 				if (next_room->sector_type == ESector::kUnderwater) {
 					if (!AFF_FLAGGED(ch, EAffect::kWaterBreath)) {
 						check_position_and_put_on_screen(next_y, next_x, SCREEN_WATER_RED, cur_depth, i);
@@ -549,7 +461,6 @@ void draw_map_bfs(CharData *ch) {
 						check_position_and_put_on_screen(next_y, next_x, SCREEN_WATER, cur_depth, i);
 					}
 				}
-				// флай-дт
 				if (next_room->sector_type == ESector::kOnlyFlying) {
 					if (!AFF_FLAGGED(ch, EAffect::kFly)) {
 						check_position_and_put_on_screen(next_y, next_x, SCREEN_FLYING_RED, cur_depth, i);
@@ -557,14 +468,12 @@ void draw_map_bfs(CharData *ch) {
 						check_position_and_put_on_screen(next_y, next_x, SCREEN_FLYING, cur_depth, i);
 					}
 				}
-				// знаки в центре клетки, не рисующиеся для выходов вверх/вниз
 				if (i != EDirection::kUp && i != EDirection::kDown) {
 					if (next_room->zone_rn != world[ch->in_room]->zone_rn) {
 						put_on_screen(next_y, next_x, SCREEN_NEW_ZONE, cur_depth);
 					}
 					draw_spec_mobs(ch, room->dir_option[i]->to_room(), next_y, next_x, cur_depth);
 				}
-				// существа рядом с игроком (depth == 1)
 				if (cur_depth == 1
 					&& (!EXIT_FLAGGED(room->dir_option[i], EExitFlag::kClosed) || ch->IsImmortal())
 					&& (ch->map_check_option(MAP_MODE_MOBS) || ch->map_check_option(MAP_MODE_PLAYERS))) {
@@ -576,7 +485,6 @@ void draw_map_bfs(CharData *ch) {
 						draw_mobs(ch, room->dir_option[i]->to_room(), next_y, next_x);
 					}
 				}
-				// предметы рядом с игроком (depth == 1)
 				if (cur_depth == 1
 					&& (!EXIT_FLAGGED(room->dir_option[i], EExitFlag::kClosed) || ch->IsImmortal())
 					&& (ch->map_check_option(MAP_MODE_MOBS_CORPSES)
@@ -590,6 +498,15 @@ void draw_map_bfs(CharData *ch) {
 					} else {
 						draw_objs(ch, room->dir_option[i]->to_room(), next_y, next_x);
 					}
+				}
+				if (i != EDirection::kUp && i != EDirection::kDown
+					&& cur_depth < MAX_DEPTH_ROOMS
+					&& (!EXIT_FLAGGED(room->dir_option[i], EExitFlag::kClosed) || ch->IsImmortal())
+					&& next_room->zone_rn == world[ch->in_room]->zone_rn
+					&& mode_allow(ch, cur_depth)
+					&& visited.find(next_room->vnum) == visited.end()) {
+					visited.insert(next_room->vnum);
+					bfs_queue.push({next_room, cur_depth + 1, next_y, next_x});
 				}
 			} else {
 				put_on_screen(cur_y, cur_x, cur_sign + 3, cur_depth);
