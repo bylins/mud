@@ -782,7 +782,8 @@ void Options::olc_menu(CharData *ch) {
 			case MAP_MODE_BIG:
 				out << fmt::format(fmt::runtime(menu1), kColorGrn, ++cnt, kColorNrm,
 								   (bit_list_[MAP_MODE_BIG] ? "[x]" : "[ ]"),
-								   "увеличенный размер карты\r\n");
+								   "увеличенный размер карты");
+				out << "\r\n";
 				break;
 			case MAP_MODE_GOD_BIG:
 				if (ch->IsImmortal()) {
