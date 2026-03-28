@@ -1091,7 +1091,7 @@ char *next_page(char *str, CharData *ch) {
 			return (nullptr);
 
 			// If we're at the start of the next page, return this fact. //
-		else if (STRING_WIDTH(ch) && line > STRING_WIDTH(ch))
+		else if ((ch)->player_specials->saved.stringWidth && line > (ch)->player_specials->saved.stringWidth)
 			return (str);
 
 			// Check for the begining of an ANSI color code block. //
@@ -1154,7 +1154,7 @@ char *next_page(char *str, CharData *ch) {
 
 				// * We need to check here and see if we are over the page width,
 				// * and if so, compensate by going to the begining of the next line.
-			else if (STRING_LENGTH(ch) && ++col > STRING_LENGTH(ch)) {
+			else if ((ch)->player_specials->saved.stringLength && ++col > (ch)->player_specials->saved.stringLength) {
 				col = 1;
 				line++;
 			}

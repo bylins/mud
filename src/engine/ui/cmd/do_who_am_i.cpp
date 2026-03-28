@@ -22,19 +22,19 @@ void DoWhoAmI(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	sprintf(buf + strlen(buf), "Дата вашего рождения : %s\r\n", rustime(localtime(&birt)));
 	sprintf(buf + strlen(buf), "Ваш IP-адрес : %s\r\n", ch->desc ? ch->desc->host : "Unknown");
 	SendMsgToChar(buf, ch);
-	if (!NAME_GOD(ch)) {
+	if (!(ch)->player_specials->saved.NameGod) {
 		sprintf(buf, "Имя никем не одобрено!\r\n");
 		SendMsgToChar(buf, ch);
 	} else {
-		const int god_level = NAME_GOD(ch) > 1000 ? NAME_GOD(ch) - 1000 : NAME_GOD(ch);
-		sprintf(buf1, "%s", GetNameById(NAME_ID_GOD(ch)).c_str());
+		const int god_level = (ch)->player_specials->saved.NameGod > 1000 ? (ch)->player_specials->saved.NameGod - 1000 : (ch)->player_specials->saved.NameGod;
+		sprintf(buf1, "%s", GetNameById((ch)->player_specials->saved.NameIDGod).c_str());
 		*buf1 = UPPER(*buf1);
 
 		static const char *by_rank_god = "Богом";
 		static const char *by_rank_privileged = "привилегированным игроком";
 		const char *by_rank = god_level < kLvlImmortal ? by_rank_privileged : by_rank_god;
 
-		if (NAME_GOD(ch) < 1000)
+		if ((ch)->player_specials->saved.NameGod < 1000)
 			snprintf(buf, kMaxStringLength, "&RИмя запрещено %s %s&n\r\n", by_rank, buf1);
 		else
 			snprintf(buf, kMaxStringLength, "&WИмя одобрено %s %s&n\r\n", by_rank, buf1);

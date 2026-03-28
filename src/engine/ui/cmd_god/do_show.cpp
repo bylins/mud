@@ -580,14 +580,14 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			sprintf(buf + strlen(buf), "Падежи : %s/%s/%s/%s/%s/%s\r\n",
 					GET_PAD(vict, 0), GET_PAD(vict, 1), GET_PAD(vict, 2),
 					GET_PAD(vict, 3), GET_PAD(vict, 4), GET_PAD(vict, 5));
-			if (!NAME_GOD(vict)) {
+			if (!(vict)->player_specials->saved.NameGod) {
 				sprintf(buf + strlen(buf), "Имя никем не одобрено!\r\n");
-			} else if (NAME_GOD(vict) < 1000) {
-				sprintf(buf1, "%s", GetNameById(NAME_ID_GOD(vict)).c_str());
+			} else if ((vict)->player_specials->saved.NameGod < 1000) {
+				sprintf(buf1, "%s", GetNameById((vict)->player_specials->saved.NameIDGod).c_str());
 				*buf1 = UPPER(*buf1);
 				snprintf(buf + strlen(buf), kMaxStringLength, "Имя запрещено богом %s\r\n", buf1);
 			} else {
-				sprintf(buf1, "%s", GetNameById(NAME_ID_GOD(vict)).c_str());
+				sprintf(buf1, "%s", GetNameById((vict)->player_specials->saved.NameIDGod).c_str());
 				*buf1 = UPPER(*buf1);
 				snprintf(buf + strlen(buf), kMaxStringLength, "Имя одобрено богом %s\r\n", buf1);
 			}

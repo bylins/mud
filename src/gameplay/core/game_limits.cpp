@@ -786,16 +786,16 @@ void beat_points_update(int pulse) {
 		}
 
 		// Гейн маны у волхвов
-		if (IS_MANA_CASTER(d->character.get()) && d->character->mem_queue.stored < GET_MAX_MANA(d->character.get())) {
+		if (IS_MANA_CASTER(d->character.get()) && d->character->mem_queue.stored < mana[MIN(50, GetRealWis(d->character.get()))]) {
 			d->character->mem_queue.stored += CalcManaGain(d->character.get());
-			if (d->character->mem_queue.stored >= GET_MAX_MANA(d->character.get())) {
-				d->character->mem_queue.stored = GET_MAX_MANA(d->character.get());
+			if (d->character->mem_queue.stored >= mana[MIN(50, GetRealWis(d->character.get()))]) {
+				d->character->mem_queue.stored = mana[MIN(50, GetRealWis(d->character.get()))];
 				SendMsgToChar("Ваша магическая энергия полностью восстановилась\r\n", d->character.get());
 			}
 		}
 
-		if (IS_MANA_CASTER(d->character.get()) && d->character->mem_queue.stored > GET_MAX_MANA(d->character.get())) {
-			d->character->mem_queue.stored = GET_MAX_MANA(d->character.get());
+		if (IS_MANA_CASTER(d->character.get()) && d->character->mem_queue.stored > mana[MIN(50, GetRealWis(d->character.get()))]) {
+			d->character->mem_queue.stored = mana[MIN(50, GetRealWis(d->character.get()))];
 		}
 
 		// Restore moves

@@ -136,7 +136,7 @@ void MaxMoveReporter::get(Variable::shared_ptr &response) {
 }
 
 void MaxManaReporter::get(Variable::shared_ptr &response) {
-	const auto max_mana = std::to_string(GET_MAX_MANA((descriptor()->character).get()));
+	const auto max_mana = std::to_string(mana[MIN(50, GetRealWis((descriptor()->character).get()))]);
 	response = std::make_shared<Variable>("MAX_MANA",
 										  std::make_shared<StringValue>(max_mana));
 }
@@ -252,14 +252,14 @@ int GroupReporter::get_mem(const CharData *character) const {
 	int result = 0;
 	if (!character->IsNpc()
 		&& ((!IS_MANA_CASTER(character) && !character->mem_queue.Empty())
-			|| (IS_MANA_CASTER(character) && character->mem_queue.stored < GET_MAX_MANA(character)))) {
+			|| (IS_MANA_CASTER(character) && character->mem_queue.stored < mana[MIN(50, GetRealWis(character))]))) {
 		auto div = CalcManaGain(character);
 		if (div > 0) {
 			if (!IS_MANA_CASTER(character)) {
 				result = std::max(0, 1 + character->mem_queue.total - character->mem_queue.stored);
 				result = result * 60 / div;
 			} else {
-				result = std::max(0, 1 + GET_MAX_MANA(character) - character->mem_queue.stored);
+				result = std::max(0, 1 + mana[MIN(50, GetRealWis(character))] - character->mem_queue.stored);
 				result = result / div;
 			}
 		} else {

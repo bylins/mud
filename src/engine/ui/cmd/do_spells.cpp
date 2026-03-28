@@ -81,7 +81,7 @@ void DisplaySpells(CharData *ch, CharData *vict, bool all) {
 		if (IS_MANA_CASTER(ch)) {
 			if (!spell_create.contains(spell_id))
 				continue;
-			if (CalcSpellManacost(ch, spell_id) > GET_MAX_MANA(ch))
+			if (CalcSpellManacost(ch, spell_id) > mana[MIN(50, GetRealWis(ch))])
 				continue;
 			if (CheckRecipeItems(ch, spell_id, ESpellType::kRunes, false)) {
 				slots[slot_num] += sprintf(names[slot_num] + slots[slot_num],

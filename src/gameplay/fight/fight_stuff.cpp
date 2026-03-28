@@ -796,7 +796,7 @@ void perform_group_gain(CharData *ch, CharData *victim, int members, int koef) {
 		EndowExpToChar(ch, exp);
 		change_alignment(ch, victim);
 		TopPlayer::Refresh(ch);
-		if (!EXTRA_FLAGGED(victim, EXTRA_GRP_KILL_COUNT)
+		if (!(victim)->Temporary.get(EXTRA_GRP_KILL_COUNT)
 				&& !ch->IsNpc()
 				&& !ch->IsImmortal()
 				&& victim->IsNpc()

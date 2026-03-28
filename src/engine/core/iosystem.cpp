@@ -1118,7 +1118,7 @@ std::string MakePrompt(DescriptorData *d) {
 		if (ch->IsFlagged(EPrf::kDispMana) && IS_MANA_CASTER(ch)) {
 			int current_mana = 100 * ch->mem_queue.stored;
 			fmt::format_to(std::back_inserter(out), "{}э{}{} ",
-					  GetColdValueColor(current_mana, GET_MAX_MANA((ch).get())), ch->mem_queue.stored, kColorNrm);
+					  GetColdValueColor(current_mana, mana[MIN(50, GetRealWis((ch).get()))]), ch->mem_queue.stored, kColorNrm);
 		}
 
 		if (ch->IsFlagged(EPrf::kDispExp)) {
