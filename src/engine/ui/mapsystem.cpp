@@ -2,8 +2,10 @@
 // Copyright (c) 2013 Krodo
 // Part of Bylins http://www.mud.ru
 
+#include "engine/ui/mapsystem.h"
+
 #include <queue>
-#include <set>
+#include <unordered_set>
 #include <third_party_libs/fmt/include/fmt/format.h>
 
 #include "engine/core/char_movement.h"
@@ -40,14 +42,18 @@ const int MAX_DEPTH_ROOM_STANDART = 5;
 const size_t MAX_LINES_STANDART = MAX_DEPTH_ROOM_STANDART * 4 + 1;
 const size_t MAX_LENGTH_STANDART = MAX_DEPTH_ROOM_STANDART * 8 + 1;
 
-// Все тоже самое, но для увеличенной карты
+// увеличенная карта
 const int MAX_DEPTH_ROOM_BIG = 10;
 const size_t MAX_LINES_BIG = MAX_DEPTH_ROOM_BIG * 4 + 1;
 const size_t MAX_LENGTH_BIG = MAX_DEPTH_ROOM_BIG * 8 + 1;
 
-// поле для отрисовки
-//int screen[MAX_LINES][MAX_LENGHT];
-int screen[MAX_LINES_BIG][MAX_LENGTH_BIG];
+// карта для богов (глубина 25)
+const int MAX_DEPTH_ROOM_GOD = 25;
+const size_t MAX_LINES_GOD = MAX_DEPTH_ROOM_GOD * 4 + 1;
+const size_t MAX_LENGTH_GOD = MAX_DEPTH_ROOM_GOD * 8 + 1;
+
+// поле для отрисовки (размер под максимальный режим)
+int screen[MAX_LINES_GOD][MAX_LENGTH_GOD];
 
 enum {
 	// свободный проход
@@ -373,8 +379,8 @@ bool mode_allow(const CharData *ch, int cur_depth) {
 	return true;
 }
 
-// обход в ширину - каждая комната обрабатывается ровно один раз
-// с минимальной глубиной и правильными координатами
+// однопроходный BFS: каждая комната обрабатывается один раз,
+// put_on_screen работает по принципу "первый пришёл - тот и рисует"
 void draw_map_bfs(CharData *ch) {
 	struct BfsEntry {
 		const RoomData *room;
@@ -384,7 +390,7 @@ void draw_map_bfs(CharData *ch) {
 	};
 
 	std::queue<BfsEntry> bfs_queue;
-	std::set<int> visited; // vnum комнат, которые уже в очереди
+	std::unordered_set<int> visited;
 
 	const RoomData *start_room = world[ch->in_room];
 	int center_y = static_cast<int>(MAX_LINES / 2);
@@ -393,7 +399,6 @@ void draw_map_bfs(CharData *ch) {
 	bfs_queue.push({start_room, 1, center_y, center_x});
 	visited.insert(start_room->vnum);
 
-	// предвычисляем видимость дт один раз
 	bool view_dt = false;
 	for (const auto &aff : ch->affected) {
 		if (aff->location == EApply::kViewDeathTraps) {
@@ -405,7 +410,7 @@ void draw_map_bfs(CharData *ch) {
 		auto [room, cur_depth, y, x] = bfs_queue.front();
 		bfs_queue.pop();
 
-		// отрисовка центра комнаты
+		// центр комнаты
 		if (world[ch->in_room] == room) {
 			put_on_screen(y, x, SCREEN_CHAR, cur_depth);
 			if (ch->map_check_option(MAP_MODE_MOBS_CURR_ROOM)) {
@@ -418,42 +423,21 @@ void draw_map_bfs(CharData *ch) {
 			put_on_screen(y, x, SCREEN_PEACE, cur_depth);
 		}
 
-		// обработка выходов
 		for (int i = 0; i < EDirection::kMaxDirNum; ++i) {
 			int cur_y = y, cur_x = x, cur_sign = -1, next_y = y, next_x = x;
 			switch (i) {
-				case EDirection::kNorth: cur_y -= 1;
-					next_y -= 2;
-					cur_sign = SCREEN_Y_OPEN;
-					break;
-				case EDirection::kEast: cur_x += 2;
-					next_x += 4;
-					cur_sign = SCREEN_X_OPEN;
-					break;
-				case EDirection::kSouth: cur_y += 1;
-					next_y += 2;
-					cur_sign = SCREEN_Y_OPEN;
-					break;
-				case EDirection::kWest: cur_x -= 2;
-					next_x -= 4;
-					cur_sign = SCREEN_X_OPEN;
-					break;
-				case EDirection::kUp: cur_y -= 1;
-					cur_x += 1;
-					cur_sign = SCREEN_UP_OPEN;
-					break;
-				case EDirection::kDown: cur_y += 1;
-					cur_x -= 1;
-					cur_sign = SCREEN_DOWN_OPEN;
-					break;
-				default: log("SYSERROR: i=%d (%s %s %d)", i, __FILE__, __func__, __LINE__);
-					return;
+				case EDirection::kNorth: cur_y -= 1; next_y -= 2; cur_sign = SCREEN_Y_OPEN; break;
+				case EDirection::kEast: cur_x += 2; next_x += 4; cur_sign = SCREEN_X_OPEN; break;
+				case EDirection::kSouth: cur_y += 1; next_y += 2; cur_sign = SCREEN_Y_OPEN; break;
+				case EDirection::kWest: cur_x -= 2; next_x -= 4; cur_sign = SCREEN_X_OPEN; break;
+				case EDirection::kUp: cur_y -= 1; cur_x += 1; cur_sign = SCREEN_UP_OPEN; break;
+				case EDirection::kDown: cur_y += 1; cur_x -= 1; cur_sign = SCREEN_DOWN_OPEN; break;
+				default: log("SYSERROR: i=%d (%s %s %d)", i, __FILE__, __func__, __LINE__); return;
 			}
 
 			if (room->dir_option[i]
 				&& room->dir_option[i]->to_room() != kNowhere
 				&& (!EXIT_FLAGGED(room->dir_option[i], EExitFlag::kHidden) || ch->IsImmortal())) {
-				// отрисовка выхода
 				if (EXIT_FLAGGED(room->dir_option[i], EExitFlag::kClosed)) {
 					put_on_screen(cur_y, cur_x, cur_sign + 1, cur_depth);
 				} else if (EXIT_FLAGGED(room->dir_option[i], EExitFlag::kHidden)) {
@@ -461,18 +445,14 @@ void draw_map_bfs(CharData *ch) {
 				} else {
 					put_on_screen(cur_y, cur_x, cur_sign, cur_depth);
 				}
-				// за закрытые двери смотрят только иммы
 				if (EXIT_FLAGGED(room->dir_option[i], EExitFlag::kClosed) && !ch->IsImmortal()) {
 					continue;
 				}
 				const RoomData *next_room = world[room->dir_option[i]->to_room()];
-				// дт иммам и нубам с 0 мортов
 				if (next_room->get_flag(ERoomFlag::kDeathTrap)
-					&& (GetRealRemort(ch) <= 5
-						|| view_dt || ch->IsImmortal())) {
+					&& (GetRealRemort(ch) <= 5 || view_dt || ch->IsImmortal())) {
 					check_position_and_put_on_screen(next_y, next_x, SCREEN_DEATH_TRAP, cur_depth, i);
 				}
-				// можно утонуть
 				if (IsCharNeedBoatThere(ch, next_room->sector_type)) {
 					if (!HasBoat(ch)) {
 						check_position_and_put_on_screen(next_y, next_x, SCREEN_WATER_RED, cur_depth, i);
@@ -480,7 +460,6 @@ void draw_map_bfs(CharData *ch) {
 						check_position_and_put_on_screen(next_y, next_x, SCREEN_WATER, cur_depth, i);
 					}
 				}
-				// можно задохнуться
 				if (next_room->sector_type == ESector::kUnderwater) {
 					if (!AFF_FLAGGED(ch, EAffect::kWaterBreath)) {
 						check_position_and_put_on_screen(next_y, next_x, SCREEN_WATER_RED, cur_depth, i);
@@ -488,7 +467,6 @@ void draw_map_bfs(CharData *ch) {
 						check_position_and_put_on_screen(next_y, next_x, SCREEN_WATER, cur_depth, i);
 					}
 				}
-				// флай-дт
 				if (next_room->sector_type == ESector::kOnlyFlying) {
 					if (!AFF_FLAGGED(ch, EAffect::kFly)) {
 						check_position_and_put_on_screen(next_y, next_x, SCREEN_FLYING_RED, cur_depth, i);
@@ -496,14 +474,12 @@ void draw_map_bfs(CharData *ch) {
 						check_position_and_put_on_screen(next_y, next_x, SCREEN_FLYING, cur_depth, i);
 					}
 				}
-				// знаки в центре клетки, не рисующиеся для выходов вверх/вниз
 				if (i != EDirection::kUp && i != EDirection::kDown) {
 					if (next_room->zone_rn != world[ch->in_room]->zone_rn) {
 						put_on_screen(next_y, next_x, SCREEN_NEW_ZONE, cur_depth);
 					}
 					draw_spec_mobs(ch, room->dir_option[i]->to_room(), next_y, next_x, cur_depth);
 				}
-				// существа рядом с игроком (depth == 1)
 				if (cur_depth == 1
 					&& (!EXIT_FLAGGED(room->dir_option[i], EExitFlag::kClosed) || ch->IsImmortal())
 					&& (ch->map_check_option(MAP_MODE_MOBS) || ch->map_check_option(MAP_MODE_PLAYERS))) {
@@ -515,7 +491,6 @@ void draw_map_bfs(CharData *ch) {
 						draw_mobs(ch, room->dir_option[i]->to_room(), next_y, next_x);
 					}
 				}
-				// предметы рядом с игроком (depth == 1)
 				if (cur_depth == 1
 					&& (!EXIT_FLAGGED(room->dir_option[i], EExitFlag::kClosed) || ch->IsImmortal())
 					&& (ch->map_check_option(MAP_MODE_MOBS_CORPSES)
@@ -530,7 +505,6 @@ void draw_map_bfs(CharData *ch) {
 						draw_objs(ch, room->dir_option[i]->to_room(), next_y, next_x);
 					}
 				}
-				// добавляем соседнюю комнату в очередь
 				if (i != EDirection::kUp && i != EDirection::kDown
 					&& cur_depth < MAX_DEPTH_ROOMS
 					&& (!EXIT_FLAGGED(room->dir_option[i], EExitFlag::kClosed) || ch->IsImmortal())
@@ -554,7 +528,11 @@ void print_map(CharData *ch, CharData *imm) {
 	MAX_LINES = MAX_LINES_STANDART;
 	MAX_LENGTH = MAX_LENGTH_STANDART;
 	MAX_DEPTH_ROOMS = MAX_DEPTH_ROOM_STANDART;
-	if (ch->map_check_option(MAP_MODE_BIG) && cities::IsCharInCity(ch)) {
+	if (ch->map_check_option(MAP_MODE_GOD_BIG) && ch->IsImmortal()) {
+		MAX_LINES = MAX_LINES_GOD;
+		MAX_LENGTH = MAX_LENGTH_GOD;
+		MAX_DEPTH_ROOMS = MAX_DEPTH_ROOM_GOD;
+	} else if (ch->map_check_option(MAP_MODE_BIG) && cities::IsCharInCity(ch)) {
 		MAX_LINES = MAX_LINES_BIG;
 		MAX_LENGTH = MAX_LENGTH_BIG;
 		MAX_DEPTH_ROOMS = MAX_DEPTH_ROOM_BIG;
@@ -646,11 +624,23 @@ void print_map(CharData *ch, CharData *imm) {
 		}
 	}
 
+	// для режима богов прижимаем карту влево
+	unsigned left_margin = 0;
+	if (ch->map_check_option(MAP_MODE_GOD_BIG) && ch->IsImmortal()) {
+		left_margin = MAX_LENGTH;
+		for (int i = start_line; i < end_line; ++i) {
+			for (unsigned k = 0; k < MAX_LENGTH; ++k) {
+				if (screen[i][k] != -1 && k < left_margin) {
+					left_margin = k;
+					break;
+				}
+			}
+		}
+	}
+
 	for (int i = start_line; i < end_line; ++i) {
 		out += ": ";
-		//if (ch->map_check_option(MAP_MODE_BIG))
-		//	k = 10;
-		for (unsigned k = 0; k < MAX_LENGTH; ++k) {
+		for (unsigned k = left_margin; k < MAX_LENGTH; ++k) {
 			if (screen[i][k] <= -1) {
 				out += " ";
 			} else if (screen[i][k] < SCREEN_TOTAL
@@ -792,7 +782,16 @@ void Options::olc_menu(CharData *ch) {
 			case MAP_MODE_BIG:
 				out << fmt::format(fmt::runtime(menu1), kColorGrn, ++cnt, kColorNrm,
 								   (bit_list_[MAP_MODE_BIG] ? "[x]" : "[ ]"),
-								   "увеличенный размер карты\r\n\r\n");
+								   "увеличенный размер карты");
+				out << "\r\n";
+				break;
+			case MAP_MODE_GOD_BIG:
+				if (ch->IsImmortal()) {
+					++cnt;
+					out << kColorGrn << cnt << kColorNrm
+						<< ") " << (bit_list_[MAP_MODE_GOD_BIG] ? "[x]" : "[ ]")
+						<< " карта богов (глубина 25)\r\n\r\n";
+				}
 				break;
 		}
 	}
@@ -921,6 +920,8 @@ bool parse_text_olc(CharData *ch, const std::string &str, std::bitset<TOTAL_MAP_
 			bits[MAP_MODE_MOBS_CURR_ROOM] = flag;
 		} else if (isname(*k, "предметы в комнате")) {
 			bits[MAP_MODE_OBJS_CURR_ROOM] = flag;
+		} else if (isname(*k, "карта богов") && ch->IsImmortal()) {
+			bits[MAP_MODE_GOD_BIG] = flag;
 		} else {
 			error = true;
 			SendMsgToChar(ch, "Неверный параметр: %s\r\n", k->c_str());
@@ -967,6 +968,9 @@ void Options::text_olc(CharData *ch, const char *arg) {
 		bit_list_ = tmp_bits;
 		print_map(ch);
 		bit_list_ = saved_ch_bits;
+	} else if (isname(first_arg, "богов") && ch->IsImmortal()) {
+		bit_list_[MAP_MODE_GOD_BIG].flip();
+		SendMsgToChar(ch, "Карта богов: %s\r\n", bit_list_[MAP_MODE_GOD_BIG] ? "включена" : "выключена");
 	} else {
 		SendMsgToChar(message, ch);
 	}

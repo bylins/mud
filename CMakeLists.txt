@@ -629,6 +629,7 @@ set(HEADERS
 		src/gameplay/magic/spells_info.h
 		src/gameplay/magic/magic_temp_spells.h
 		src/gameplay/communication/mail.h
+		src/engine/ui/map_options.h
 		src/engine/ui/mapsystem.h
 		src/gameplay/mechanics/meat_maker.h
 		src/gameplay/ai/mobact.h

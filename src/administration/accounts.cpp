@@ -8,8 +8,6 @@
 #include <sstream>
 #include "engine/db/player_index.h"
 
-std::unordered_map<std::string, std::shared_ptr<Account>> accounts;
-
 #if defined(NOCRYPT)
 #define CRYPT(a,b) ((char *) (a))
 #else
@@ -21,6 +19,7 @@ std::unordered_map<std::string, std::shared_ptr<Account>> accounts;
 #define CRYPT(a, b) ((char *) crypt((a),(b)))
 #endif
 
+std::unordered_map<std::string, std::shared_ptr<Account>> accounts;
 std::shared_ptr<Account> Account::get_account(const std::string &email) {
 	if (accounts.contains(email)) {
 		return accounts[email];
@@ -34,7 +33,6 @@ int Account::zero_hryvn(CharData *ch, int val) {
 		if (name.empty()) {
 			continue;
 		}
-
 		const auto &player = player_table[GetPtableByUnique(plr)];
 		if (zone_lvl <= 12 && (player.level + player.remorts / 5 >= 20)) {
 			if (ch->IsFlagged(EPrf::kTester)) {
