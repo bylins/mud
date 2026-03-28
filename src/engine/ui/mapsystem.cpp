@@ -40,14 +40,18 @@ const int MAX_DEPTH_ROOM_STANDART = 5;
 const size_t MAX_LINES_STANDART = MAX_DEPTH_ROOM_STANDART * 4 + 1;
 const size_t MAX_LENGTH_STANDART = MAX_DEPTH_ROOM_STANDART * 8 + 1;
 
-// Все тоже самое, но для увеличенной карты
+// увеличенная карта
 const int MAX_DEPTH_ROOM_BIG = 10;
 const size_t MAX_LINES_BIG = MAX_DEPTH_ROOM_BIG * 4 + 1;
 const size_t MAX_LENGTH_BIG = MAX_DEPTH_ROOM_BIG * 8 + 1;
 
-// поле для отрисовки
-//int screen[MAX_LINES][MAX_LENGHT];
-int screen[MAX_LINES_BIG][MAX_LENGTH_BIG];
+// карта для богов (глубина 25)
+const int MAX_DEPTH_ROOM_GOD = 25;
+const size_t MAX_LINES_GOD = MAX_DEPTH_ROOM_GOD * 4 + 1;
+const size_t MAX_LENGTH_GOD = MAX_DEPTH_ROOM_GOD * 8 + 1;
+
+// поле для отрисовки (размер под максимальный режим)
+int screen[MAX_LINES_GOD][MAX_LENGTH_GOD];
 
 enum {
 	// свободный проход
@@ -522,7 +526,11 @@ void print_map(CharData *ch, CharData *imm) {
 	MAX_LINES = MAX_LINES_STANDART;
 	MAX_LENGTH = MAX_LENGTH_STANDART;
 	MAX_DEPTH_ROOMS = MAX_DEPTH_ROOM_STANDART;
-	if (ch->map_check_option(MAP_MODE_BIG) && cities::IsCharInCity(ch)) {
+	if (ch->map_check_option(MAP_MODE_GOD_BIG) && ch->IsImmortal()) {
+		MAX_LINES = MAX_LINES_GOD;
+		MAX_LENGTH = MAX_LENGTH_GOD;
+		MAX_DEPTH_ROOMS = MAX_DEPTH_ROOM_GOD;
+	} else if (ch->map_check_option(MAP_MODE_BIG) && cities::IsCharInCity(ch)) {
 		MAX_LINES = MAX_LINES_BIG;
 		MAX_LENGTH = MAX_LENGTH_BIG;
 		MAX_DEPTH_ROOMS = MAX_DEPTH_ROOM_BIG;
@@ -614,11 +622,23 @@ void print_map(CharData *ch, CharData *imm) {
 		}
 	}
 
+	// для режима богов прижимаем карту влево
+	unsigned left_margin = 0;
+	if (ch->map_check_option(MAP_MODE_GOD_BIG) && ch->IsImmortal()) {
+		left_margin = MAX_LENGTH;
+		for (int i = start_line; i < end_line; ++i) {
+			for (unsigned k = 0; k < MAX_LENGTH; ++k) {
+				if (screen[i][k] != -1 && k < left_margin) {
+					left_margin = k;
+					break;
+				}
+			}
+		}
+	}
+
 	for (int i = start_line; i < end_line; ++i) {
 		out += ": ";
-		//if (ch->map_check_option(MAP_MODE_BIG))
-		//	k = 10;
-		for (unsigned k = 0; k < MAX_LENGTH; ++k) {
+		for (unsigned k = left_margin; k < MAX_LENGTH; ++k) {
 			if (screen[i][k] <= -1) {
 				out += " ";
 			} else if (screen[i][k] < SCREEN_TOTAL
@@ -760,7 +780,14 @@ void Options::olc_menu(CharData *ch) {
 			case MAP_MODE_BIG:
 				out << fmt::format(fmt::runtime(menu1), kColorGrn, ++cnt, kColorNrm,
 								   (bit_list_[MAP_MODE_BIG] ? "[x]" : "[ ]"),
-								   "увеличенный размер карты\r\n\r\n");
+								   "увеличенный размер карты\r\n");
+				break;
+			case MAP_MODE_GOD_BIG:
+				if (ch->IsImmortal()) {
+					out << fmt::format(fmt::runtime(menu1), kColorGrn, ++cnt, kColorNrm,
+									   (bit_list_[MAP_MODE_GOD_BIG] ? "[x]" : "[ ]"),
+									   "карта богов (глубина 25)\r\n\r\n");
+				}
 				break;
 		}
 	}
@@ -889,6 +916,8 @@ bool parse_text_olc(CharData *ch, const std::string &str, std::bitset<TOTAL_MAP_
 			bits[MAP_MODE_MOBS_CURR_ROOM] = flag;
 		} else if (isname(*k, "предметы в комнате")) {
 			bits[MAP_MODE_OBJS_CURR_ROOM] = flag;
+		} else if (isname(*k, "карта богов") && ch->IsImmortal()) {
+			bits[MAP_MODE_GOD_BIG] = flag;
 		} else {
 			error = true;
 			SendMsgToChar(ch, "Неверный параметр: %s\r\n", k->c_str());
