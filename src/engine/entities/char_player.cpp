@@ -985,7 +985,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 	set_last_logon(time(nullptr));
 	set_exp(0);
 	set_remort(0);
-	GET_LASTIP(this)[0] = 0;
+	this->player_specials->saved.LastIP[0] = 0;
 	GET_EMAIL(this)[0] = 0;
 	char_specials.saved.act.from_string("");    // suspicious line: we should clear flags. Loading from "" does not clear flags.
 
@@ -1031,7 +1031,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 				break;
 			case 'H':
 				if (!strcmp(tag, "Host")) {
-					strcpy(GET_LASTIP(this), line);
+					strcpy(this->player_specials->saved.LastIP, line);
 				}
 				break;
 			case 'I':
@@ -1063,7 +1063,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 	} while (!skip_file);
 
 	bool reboot = (load_flags & ELoadCharFlags::kReboot);
-	while ((reboot) && (!*GET_EMAIL(this) || !*GET_LASTIP(this))) {
+	while ((reboot) && (!*GET_EMAIL(this) || !*this->player_specials->saved.LastIP)) {
 		if (!fbgetline(fl, line)) {
 			log("SYSERROR: Wrong file ascii %d %s", id, filename);
 			return (-1);
@@ -1074,7 +1074,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 		if (!strcmp(tag, "EMal"))
 			strcpy(GET_EMAIL(this), line);
 		else if (!strcmp(tag, "Host"))
-			strcpy(GET_LASTIP(this), line);
+			strcpy(this->player_specials->saved.LastIP, line);
 	}
 
 	// если с загруженными выше полями что-то хочется делать после лоада - делайте это здесь
@@ -1470,7 +1470,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 						num = cap_hryvn;
 					this->set_hryvn(num);
 				} else if (!strcmp(tag, "Host"))
-					strcpy(GET_LASTIP(this), line);
+					strcpy(this->player_specials->saved.LastIP, line);
 				break;
 
 			case 'I':

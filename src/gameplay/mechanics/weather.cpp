@@ -865,7 +865,7 @@ int CalcWeatherSpellMod(CharData *ch, ESpell spell_id, int type, int value) {
 		return (modi);
 		}
 
-	sky = GET_ROOM_SKY(ch->in_room);
+	sky = (world[ch->in_room]->weather.duration > 0 ? world[ch->in_room]->weather.sky : weather_info.sky);
 	auto element = MUD::Spell(spell_id).GetElement();
 	switch (type) {
 		case GAPPLY_SPELL_SUCCESS:
@@ -999,7 +999,7 @@ int weather_skill_modifier(CharData *ch, ESkill skillnum, int type, int value) {
 		ROOM_FLAGGED(ch->in_room, ERoomFlag::kIndoors) || ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoWeather))
 		return (modi);
 
-	sky = GET_ROOM_SKY(ch->in_room);
+	sky = (world[ch->in_room]->weather.duration > 0 ? world[ch->in_room]->weather.sky : weather_info.sky);
 
 	switch (type) {
 		case GAPPLY_SKILL_SUCCESS:
@@ -1040,7 +1040,7 @@ int GetComplexSkillMod(CharData *ch, ESkill skillnum, int type, int value) {
 }
 
 int get_room_sky(int rnum) {
-	return GET_ROOM_SKY(rnum);
+	return (world[rnum]->weather.duration > 0 ? world[rnum]->weather.sky : weather_info.sky);
 }
 
 // Calculate the MUD time passed over the last time_to-time_from centuries (secs) //

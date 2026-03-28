@@ -26,7 +26,7 @@ void do_sneak(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	}
 	RemoveAffectFromChar(ch, ESpell::kSneak);
 	SendMsgToChar("Хорошо, вы попытаетесь двигаться бесшумно.\r\n", ch);
-	EXTRA_FLAGS(ch).unset(EXTRA_FAILSNEAK);
+	ch->Temporary.unset(EXTRA_FAILSNEAK);
 	percent = number(1, MUD::Skill(ESkill::kSneak).difficulty);
 	prob = CalcCurrentSkill(ch, ESkill::kSneak, nullptr);
 
