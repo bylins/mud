@@ -4,6 +4,7 @@
 
 #include "engine/ui/mapsystem.h"
 
+#include <chrono>
 #include <queue>
 #include <unordered_set>
 #include <third_party_libs/fmt/include/fmt/format.h>
@@ -542,7 +543,14 @@ void print_map(CharData *ch, CharData *imm) {
 			screen[i][k] = -1;
 		}
 	}
+	auto map_start = std::chrono::steady_clock::now();
 	draw_map_bfs(ch);
+	auto map_end = std::chrono::steady_clock::now();
+	auto map_us = std::chrono::duration_cast<std::chrono::microseconds>(map_end - map_start).count();
+	if (ch->IsImmortal()) {
+		mudlog(fmt::format("MAP_PERF: depth={} {}x{} bfs={}us", MAX_DEPTH_ROOMS, MAX_LINES, MAX_LENGTH, map_us),
+			CMP, kLvlGreatGod, SYSLOG, true);
+	}
 
 	int start_line = -1, end_line = static_cast<int>(MAX_LINES), char_line = -1;
 	// для облегчения кода - делаем проход по экрану
