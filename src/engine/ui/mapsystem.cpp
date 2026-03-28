@@ -375,6 +375,14 @@ bool mode_allow(const CharData *ch, int cur_depth) {
 
 // обход в ширину - каждая комната обрабатывается ровно один раз
 // с минимальной глубиной и правильными координатами
+//
+// Варианты решения проблемы петель (циклических путей в городе):
+// 1. Не рисовать выход, если соседняя комната уже размещена на
+//    несовпадающих координатах (текущая реализация)
+// 2. Перемещать комнату к соседу, если она ещё не нарисована
+//    но сосед уже есть на карте - сложнее, требует пересчёта координат
+// 3. Двухпроходный алгоритм - сначала раскладка координат всех комнат
+//    с учётом петель, потом отрисовка - самый точный, но самый сложный
 void draw_map_bfs(CharData *ch) {
 	struct BfsEntry {
 		const RoomData *room;
@@ -383,15 +391,20 @@ void draw_map_bfs(CharData *ch) {
 		int x;
 	};
 
+	struct RoomPos {
+		int y;
+		int x;
+	};
+
 	std::queue<BfsEntry> bfs_queue;
-	std::set<int> visited; // vnum комнат, которые уже в очереди
+	std::map<int, RoomPos> placed; // vnum -> координаты на карте
 
 	const RoomData *start_room = world[ch->in_room];
 	int center_y = static_cast<int>(MAX_LINES / 2);
 	int center_x = static_cast<int>(MAX_LENGTH / 2);
 
 	bfs_queue.push({start_room, 1, center_y, center_x});
-	visited.insert(start_room->vnum);
+	placed[start_room->vnum] = {center_y, center_x};
 
 	// предвычисляем видимость дт один раз
 	bool view_dt = false;
@@ -416,12 +429,6 @@ void draw_map_bfs(CharData *ch) {
 			}
 		} else if (room->get_flag(ERoomFlag::kPeaceful)) {
 			put_on_screen(y, x, SCREEN_PEACE, cur_depth);
-		}
-
-		// отладка: логируем обработку комнат 49905 и 49906
-		if (room->vnum == 49905 || room->vnum == 49906) {
-			mudlog(fmt::format("MAP_DEBUG bfs room={} depth={} y={} x={}", room->vnum, cur_depth, y, x),
-				CMP, kLvlGreatGod, SYSLOG, true);
 		}
 
 		// обработка выходов
@@ -459,13 +466,17 @@ void draw_map_bfs(CharData *ch) {
 			if (room->dir_option[i]
 				&& room->dir_option[i]->to_room() != kNowhere
 				&& (!EXIT_FLAGGED(room->dir_option[i], EExitFlag::kHidden) || ch->IsImmortal())) {
-				// отрисовка выхода
-				if (room->vnum == 49905 || room->vnum == 49906) {
-					mudlog(fmt::format("MAP_DEBUG exit room={} dir={} cur_y={} cur_x={} sign={} to_room={}",
-						room->vnum, i, cur_y, cur_x, cur_sign,
-						world[room->dir_option[i]->to_room()]->vnum),
-						CMP, kLvlGreatGod, SYSLOG, true);
+				// проверка петель: если соседняя комната уже размещена на карте
+				// но на других координатах - не рисуем выход, он будет ложным
+				const int neighbor_vnum = world[room->dir_option[i]->to_room()]->vnum;
+				auto it = placed.find(neighbor_vnum);
+				if (it != placed.end()
+					&& i != EDirection::kUp && i != EDirection::kDown
+					&& (it->second.y != next_y || it->second.x != next_x)) {
+					// сосед уже на карте, но координаты не совпадают - петля
+					continue;
 				}
+				// отрисовка выхода
 				if (EXIT_FLAGGED(room->dir_option[i], EExitFlag::kClosed)) {
 					put_on_screen(cur_y, cur_x, cur_sign + 1, cur_depth);
 				} else if (EXIT_FLAGGED(room->dir_option[i], EExitFlag::kHidden)) {
@@ -548,16 +559,11 @@ void draw_map_bfs(CharData *ch) {
 					&& (!EXIT_FLAGGED(room->dir_option[i], EExitFlag::kClosed) || ch->IsImmortal())
 					&& next_room->zone_rn == world[ch->in_room]->zone_rn
 					&& mode_allow(ch, cur_depth)
-					&& visited.find(next_room->vnum) == visited.end()) {
-					visited.insert(next_room->vnum);
+					&& placed.find(next_room->vnum) == placed.end()) {
+					placed[next_room->vnum] = {next_y, next_x};
 					bfs_queue.push({next_room, cur_depth + 1, next_y, next_x});
 				}
 			} else {
-				if (room->vnum == 49905 || room->vnum == 49906) {
-					mudlog(fmt::format("MAP_DEBUG wall room={} dir={} cur_y={} cur_x={} sign={}",
-						room->vnum, i, cur_y, cur_x, cur_sign + 3),
-						CMP, kLvlGreatGod, SYSLOG, true);
-				}
 				put_on_screen(cur_y, cur_x, cur_sign + 3, cur_depth);
 			}
 		}
@@ -605,19 +611,13 @@ void print_map(CharData *ch, CharData *imm) {
 					&& k + 1 < MAX_LENGTH && k >= 1) {
 					if (screen[i][k + 1] > -1
 						&& screen[i][k + 1] != SCREEN_UP_WALL) {
-						mudlog(fmt::format("MAP_DEBUG postproc Y_UP: y={} k={} sym={} k+1_sym={} k-1_sym={}",
-							i, k, screen[i][k], screen[i][k + 1], screen[i][k - 1]), CMP, kLvlGreatGod, SYSLOG, true);
 						screen[i][k - 1] = screen[i][k] + SCREEN_Y_UP_OPEN;
 						screen[i][k] = SCREEN_EMPTY;
 					} else if (screen[i][k - 1] > -1
 						&& screen[i][k - 1] != SCREEN_DOWN_WALL) {
-						mudlog(fmt::format("MAP_DEBUG postproc Y_DOWN: y={} k={} sym={} k-1_sym={} k+1_sym={}",
-							i, k, screen[i][k], screen[i][k - 1], screen[i][k + 1]), CMP, kLvlGreatGod, SYSLOG, true);
 						screen[i][k] += SCREEN_Y_DOWN_OPEN;
 						screen[i][k + 1] = SCREEN_EMPTY;
 					} else {
-						mudlog(fmt::format("MAP_DEBUG postproc Y_PLAIN: y={} k={} sym={} k-1_sym={} k+1_sym={}",
-							i, k, screen[i][k], screen[i][k - 1], screen[i][k + 1]), CMP, kLvlGreatGod, SYSLOG, true);
 						screen[i][k - 1] = screen[i][k];
 						screen[i][k] = SCREEN_EMPTY;
 						screen[i][k + 1] = SCREEN_EMPTY;
