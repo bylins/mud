@@ -756,7 +756,7 @@ void SpellLocateObject(int level, CharData *ch, CharData* /*victim*/, ObjData *o
 				return false;
 			}
 
-			if (!VALID_RNUM(carried_by->in_room)) {
+			if (!ValidRnum(carried_by->in_room)) {
 				sprintf(buf,
 						"SYSERR: Illegal room %d, char %s. Создана кора для исследований",
 						carried_by->in_room,

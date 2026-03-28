@@ -73,7 +73,7 @@ void DoRemort(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	ch->remort();
 	act(remort_msg2, false, ch, nullptr, nullptr, kToRoom);
 	ch->set_remort(ch->get_remort() + 1);
-	CLR_GOD_FLAG(ch, EGf::kRemort);
+	REMOVE_BIT(ch->player_specials->saved.GodsLike, EGf::kRemort);
 	ch->inc_str(1);
 	ch->inc_dex(1);
 	ch->inc_con(1);

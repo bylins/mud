@@ -803,7 +803,7 @@ void perform_group_gain(CharData *ch, CharData *victim, int members, int koef) {
 				&& !IS_CHARMICE(victim)
 				&& !ROOM_FLAGGED(victim->in_room, ERoomFlag::kArena)) {
 				mob_stat::AddMob(victim, members);
-				EXTRA_FLAGS(victim).set(EXTRA_GRP_KILL_COUNT);
+				victim->Temporary.set(EXTRA_GRP_KILL_COUNT);
 		} else if (ch->IsNpc() && !victim->IsNpc()
 			&& !ROOM_FLAGGED(victim->in_room, ERoomFlag::kArena)) {
 			mob_stat::AddMob(ch, 0);

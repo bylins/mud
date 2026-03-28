@@ -322,22 +322,17 @@ inline void TOGGLE_BIT(T &var, const Bitvector bit) {
 }
 
 
-#define NPC_FLAGS(ch)  ((ch)->mob_specials.npc_flags)
-#define EXTRA_FLAGS(ch) ((ch)->Temporary)
-
-
-#define NPC_FLAGGED(ch, flag)   (NPC_FLAGS(ch).get(flag))
-#define EXTRA_FLAGGED(ch, flag) (EXTRA_FLAGS(ch).get(flag))
+#define NPC_FLAGGED(ch, flag)   ((ch)->mob_specials.npc_flags.get(flag))
+#define EXTRA_FLAGGED(ch, flag) ((ch)->Temporary.get(flag))
 #define ROOM_FLAGGED(loc, flag) (world[(loc)]->get_flag(flag))
 #define EXIT_FLAGGED(exit, flag)     (IS_SET((exit)->exit_info, (flag)))
 #define OBJVAL_FLAGGED(obj, flag)    (IS_SET(GET_OBJ_VAL((obj), 1), (flag)))
 
 // room utils ***********************************************************
 #define SECT(room)   (world[(room)]->sector_type)
-#define GET_ROOM_SKY(room) (world[room]->weather.duration > 0 ? world[room]->weather.sky : weather_info.sky)
-
-#define VALID_RNUM(rnum)   ((rnum) > 0 && (rnum) <= top_of_world)
-#define GET_ROOM_VNUM(rnum) ((RoomVnum)(VALID_RNUM(rnum) ? world[(rnum)]->vnum : kNowhere))
+extern int top_of_world;
+inline bool ValidRnum(int rnum) { return rnum > 0 && rnum <= top_of_world; }
+#define GET_ROOM_VNUM(rnum) ((RoomVnum)(ValidRnum(rnum) ? world[(rnum)]->vnum : kNowhere))
 
 // char utils ***********************************************************
 #define IS_MANA_CASTER(ch) ((ch)->GetClass() == ECharClass::kMagus)
@@ -346,10 +341,7 @@ inline void TOGGLE_BIT(T &var, const Bitvector bit) {
 #define GET_MAX_MANA(ch)      (mana[MIN(50, GetRealWis(ch))])
 
 #define GET_EMAIL(ch)          ((ch)->player_specials->saved.EMail)
-#define GET_LASTIP(ch)         ((ch)->player_specials->saved.LastIP)
 #define GET_GOD_FLAG(ch, flag)  (IS_SET((ch)->player_specials->saved.GodsLike, flag))
-#define SET_GOD_FLAG(ch, flag)  (SET_BIT((ch)->player_specials->saved.GodsLike, flag))
-#define CLR_GOD_FLAG(ch, flag)  (REMOVE_BIT((ch)->player_specials->saved.GodsLike, flag))
 #define NAME_GOD(ch)  ((ch)->player_specials->saved.NameGod)
 #define NAME_ID_GOD(ch)  ((ch)->player_specials->saved.NameIDGod)
 

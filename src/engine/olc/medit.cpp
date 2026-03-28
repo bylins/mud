@@ -649,7 +649,7 @@ void medit_save_to_disk(ZoneRnum zone_num) {
 		if (GET_WEIGHT(mob))
 			fprintf(mob_file, "Weight: %d\n", GET_WEIGHT(mob));
 		strcpy(buf1, "Special_Bitvector: ");
-		NPC_FLAGS(mob).tascii(FlagData::kPlanesNumber, buf1);
+		mob->mob_specials.npc_flags.tascii(FlagData::kPlanesNumber, buf1);
 		fprintf(mob_file, "%s\n", buf1);
 		for (const auto &feat : MUD::Feats()) {
 			if (mob->HaveFeat(feat.GetId())) {

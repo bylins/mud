@@ -251,7 +251,7 @@ void ActualizePlayersIndex(char *name) {
 				element.mail = GET_EMAIL(short_ch);
 				for (auto &c : element.mail) c = LOWER(c);
 
-				element.last_ip = GET_LASTIP(short_ch);
+				element.last_ip = short_ch->player_specials->saved.LastIP;
 
 				element.set_uid(short_ch->get_uid());
 				element.level = GetRealLevel(short_ch);

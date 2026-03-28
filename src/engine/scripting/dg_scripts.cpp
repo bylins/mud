@@ -1876,7 +1876,7 @@ void find_replacement(void *go,
 				if ((num = atoi(subfield)) > 0)
 					num = GetRoomRnum(num);
 				if (num != kNowhere)
-					sprintf(str, "%d", GET_ROOM_SKY(num));
+					sprintf(str, "%d", (world[num]->weather.duration > 0 ? world[num]->weather.sky : weather_info.sky));
 				else
 					sprintf(str, "%d", weather_info.sky);
 			} else if (!str_cmp(field, "type")) {
