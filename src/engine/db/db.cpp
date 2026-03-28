@@ -2437,7 +2437,6 @@ void ZoneReset::ResetZoneEssential() {
 		if (reset_cmd.command == 'S') {
 			break;
 		}
-д
 		curr_state = 0;    // по умолчанию - неудачно
 		if (!(reset_cmd.if_flag & CHECK_SUCCESS) || last_state) {
 			// Выполняем команду, если предыдущая успешна или не нужно проверять
