@@ -373,38 +373,24 @@ bool mode_allow(const CharData *ch, int cur_depth) {
 	return true;
 }
 
-// обход в ширину - каждая комната обрабатывается ровно один раз
-// с минимальной глубиной и правильными координатами
-//
-// Варианты решения проблемы петель (циклических путей в городе):
-// 1. Не рисовать выход, если соседняя комната уже размещена на
-//    несовпадающих координатах (текущая реализация)
-// 2. Перемещать комнату к соседу, если она ещё не нарисована
-//    но сосед уже есть на карте - сложнее, требует пересчёта координат
-// 3. Двухпроходный алгоритм - сначала раскладка координат всех комнат
-//    с учётом петель, потом отрисовка - самый точный, но самый сложный
+// двухпроходный алгоритм миникарты:
+// 1-й проход (BFS) - раскладка координат всех видимых комнат
+// 2-й проход - отрисовка выходов с проверкой петель по полной карте координат
 void draw_map_bfs(CharData *ch) {
-	struct BfsEntry {
+	struct RoomEntry {
 		const RoomData *room;
 		int depth;
 		int y;
 		int x;
 	};
 
-	struct RoomPos {
-		int y;
-		int x;
-	};
-
-	std::queue<BfsEntry> bfs_queue;
-	std::map<int, RoomPos> placed; // vnum -> координаты на карте
+	std::queue<RoomEntry> bfs_queue;
+	std::map<int, RoomEntry> placed; // vnum -> запись комнаты с координатами
+	std::vector<RoomEntry> draw_order; // порядок отрисовки (BFS-порядок)
 
 	const RoomData *start_room = world[ch->in_room];
 	int center_y = static_cast<int>(MAX_LINES / 2);
 	int center_x = static_cast<int>(MAX_LENGTH / 2);
-
-	bfs_queue.push({start_room, 1, center_y, center_x});
-	placed[start_room->vnum] = {center_y, center_x};
 
 	// предвычисляем видимость дт один раз
 	bool view_dt = false;
@@ -414,11 +400,64 @@ void draw_map_bfs(CharData *ch) {
 		}
 	}
 
-	while (!bfs_queue.empty()) {
-		auto [room, cur_depth, y, x] = bfs_queue.front();
-		bfs_queue.pop();
+	// === ПРОХОД 1: раскладка координат (BFS без отрисовки) ===
+	RoomEntry start = {start_room, 1, center_y, center_x};
+	bfs_queue.push(start);
+	placed[start_room->vnum] = start;
 
-		// отрисовка центра комнаты
+	while (!bfs_queue.empty()) {
+		auto entry = bfs_queue.front();
+		bfs_queue.pop();
+		draw_order.push_back(entry);
+
+		const auto *room = entry.room;
+		int cur_depth = entry.depth;
+		int y = entry.y;
+		int x = entry.x;
+
+		for (int i = 0; i < EDirection::kMaxDirNum; ++i) {
+			if (i == EDirection::kUp || i == EDirection::kDown) {
+				continue;
+			}
+			if (!room->dir_option[i]
+				|| room->dir_option[i]->to_room() == kNowhere) {
+				continue;
+			}
+			if (EXIT_FLAGGED(room->dir_option[i], EExitFlag::kHidden) && !ch->IsImmortal()) {
+				continue;
+			}
+			if (EXIT_FLAGGED(room->dir_option[i], EExitFlag::kClosed) && !ch->IsImmortal()) {
+				continue;
+			}
+
+			int next_y = y, next_x = x;
+			switch (i) {
+				case EDirection::kNorth: next_y -= 2; break;
+				case EDirection::kEast: next_x += 4; break;
+				case EDirection::kSouth: next_y += 2; break;
+				case EDirection::kWest: next_x -= 4; break;
+			}
+
+			const RoomData *next_room = world[room->dir_option[i]->to_room()];
+			if (cur_depth < MAX_DEPTH_ROOMS
+				&& next_room->zone_rn == world[ch->in_room]->zone_rn
+				&& mode_allow(ch, cur_depth)
+				&& placed.find(next_room->vnum) == placed.end()) {
+				RoomEntry next_entry = {next_room, cur_depth + 1, next_y, next_x};
+				placed[next_room->vnum] = next_entry;
+				bfs_queue.push(next_entry);
+			}
+		}
+	}
+
+	// === ПРОХОД 2: отрисовка по полной карте координат ===
+	for (const auto &entry : draw_order) {
+		const auto *room = entry.room;
+		int cur_depth = entry.depth;
+		int y = entry.y;
+		int x = entry.x;
+
+		// центр комнаты
 		if (world[ch->in_room] == room) {
 			put_on_screen(y, x, SCREEN_CHAR, cur_depth);
 			if (ch->map_check_option(MAP_MODE_MOBS_CURR_ROOM)) {
@@ -431,7 +470,7 @@ void draw_map_bfs(CharData *ch) {
 			put_on_screen(y, x, SCREEN_PEACE, cur_depth);
 		}
 
-		// обработка выходов
+		// выходы
 		for (int i = 0; i < EDirection::kMaxDirNum; ++i) {
 			int cur_y = y, cur_x = x, cur_sign = -1, next_y = y, next_x = x;
 			switch (i) {
@@ -466,15 +505,14 @@ void draw_map_bfs(CharData *ch) {
 			if (room->dir_option[i]
 				&& room->dir_option[i]->to_room() != kNowhere
 				&& (!EXIT_FLAGGED(room->dir_option[i], EExitFlag::kHidden) || ch->IsImmortal())) {
-				// проверка петель: если соседняя комната уже размещена на карте
-				// но на других координатах - не рисуем выход, он будет ложным
-				const int neighbor_vnum = world[room->dir_option[i]->to_room()]->vnum;
-				auto it = placed.find(neighbor_vnum);
-				if (it != placed.end()
-					&& i != EDirection::kUp && i != EDirection::kDown
-					&& (it->second.y != next_y || it->second.x != next_x)) {
-					// сосед уже на карте, но координаты не совпадают - петля
-					continue;
+				// проверка петель: если сосед на карте но координаты не совпадают - пропускаем
+				if (i != EDirection::kUp && i != EDirection::kDown) {
+					const int neighbor_vnum = world[room->dir_option[i]->to_room()]->vnum;
+					auto it = placed.find(neighbor_vnum);
+					if (it != placed.end()
+						&& (it->second.y != next_y || it->second.x != next_x)) {
+						continue;
+					}
 				}
 				// отрисовка выхода
 				if (EXIT_FLAGGED(room->dir_option[i], EExitFlag::kClosed)) {
@@ -552,16 +590,6 @@ void draw_map_bfs(CharData *ch) {
 					} else {
 						draw_objs(ch, room->dir_option[i]->to_room(), next_y, next_x);
 					}
-				}
-				// добавляем соседнюю комнату в очередь
-				if (i != EDirection::kUp && i != EDirection::kDown
-					&& cur_depth < MAX_DEPTH_ROOMS
-					&& (!EXIT_FLAGGED(room->dir_option[i], EExitFlag::kClosed) || ch->IsImmortal())
-					&& next_room->zone_rn == world[ch->in_room]->zone_rn
-					&& mode_allow(ch, cur_depth)
-					&& placed.find(next_room->vnum) == placed.end()) {
-					placed[next_room->vnum] = {next_y, next_x};
-					bfs_queue.push({next_room, cur_depth + 1, next_y, next_x});
 				}
 			} else {
 				put_on_screen(cur_y, cur_x, cur_sign + 3, cur_depth);
