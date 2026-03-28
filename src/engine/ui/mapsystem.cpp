@@ -964,6 +964,9 @@ void Options::text_olc(CharData *ch, const char *arg) {
 		bit_list_ = tmp_bits;
 		print_map(ch);
 		bit_list_ = saved_ch_bits;
+	} else if (isname(first_arg, "богов") && ch->IsImmortal()) {
+		bit_list_[MAP_MODE_GOD_BIG].flip();
+		SendMsgToChar(ch, "Карта богов: %s\r\n", bit_list_[MAP_MODE_GOD_BIG] ? "включена" : "выключена");
 	} else {
 		SendMsgToChar(message, ch);
 	}
