@@ -12,6 +12,7 @@
 #ifndef DG_SCRIPTS_H_
 #define DG_SCRIPTS_H_
 
+#include <unordered_set>
 #include "gameplay/skills/skills.h"
 #include "engine/structs/structs.h"
 #include "utils/logger.h"
@@ -495,6 +496,20 @@ extern int last_trig_vnum;//последний триг в котором про
 extern int last_trig_line_num;
 
 void save_char_vars(CharData *ch);
+
+// списки сущностей с триггерами смены времени - для быстрой итерации
+// вместо перебора всего мира
+extern std::unordered_set<CharData *> timechange_mobs;
+extern std::unordered_set<ObjData *> timechange_objs;
+extern std::unordered_set<RoomData *> timechange_rooms;
+
+// регистрация/снятие при attach/detach триггера
+void timechange_register_mob(CharData *ch);
+void timechange_unregister_mob(CharData *ch);
+void timechange_register_obj(ObjData *obj);
+void timechange_unregister_obj(ObjData *obj);
+void timechange_register_room(RoomData *room);
+void timechange_unregister_room(RoomData *room);
 
 #endif
 
