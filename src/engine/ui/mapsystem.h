@@ -5,14 +5,10 @@
 #ifndef MAP_HPP_INCLUDED
 #define MAP_HPP_INCLUDED
 
-#include "engine/core/conf.h"
 #include <string>
 #include <bitset>
 
-#include "engine/core/sysdep.h"
-#include "engine/structs/structs.h"
-#include "engine/entities/char_data.h"
-#include "interpreter.h"
+class CharData;
 
 void do_map(CharData *ch, char *argument, int cmd, int subcmd);
 
