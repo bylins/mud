@@ -786,7 +786,8 @@ void Options::olc_menu(CharData *ch) {
 				break;
 			case MAP_MODE_GOD_BIG:
 				if (ch->IsImmortal()) {
-					out << kColorGrn << std::setw(2) << ++cnt << kColorNrm
+					++cnt;
+					out << kColorGrn << cnt << kColorNrm
 						<< ") " << (bit_list_[MAP_MODE_GOD_BIG] ? "[x]" : "[ ]")
 						<< " карта богов (глубина 25)\r\n\r\n";
 				}
