@@ -1098,17 +1098,17 @@ void look_in_obj(CharData *ch, char *arg) {
 		}
 
 		if (obj->get_type() == EObjType::kContainer) {
-			if (OBJVAL_FLAGGED(obj, EContainerFlag::kShutted)) {
+			if (IS_SET(GET_OBJ_VAL((obj), 1), (EContainerFlag::kShutted))) {
 				act("Закрыт$A.", false, ch, obj, nullptr, kToChar);
 				const int skill_pick = ch->GetSkill(ESkill::kPickLock);
 				int count = sprintf(buf, "Заперт%s.", GET_OBJ_SUF_6(obj));
-				if (OBJVAL_FLAGGED(obj, EContainerFlag::kLockedUp) && skill_pick) {
-					if (OBJVAL_FLAGGED(obj, EContainerFlag::kUncrackable))
+				if (IS_SET(GET_OBJ_VAL((obj), 1), (EContainerFlag::kLockedUp)) && skill_pick) {
+					if (IS_SET(GET_OBJ_VAL((obj), 1), (EContainerFlag::kUncrackable)))
 						count += sprintf(buf + count,
 										 "%s Вы никогда не сможете ЭТО взломать!%s\r\n",
 										 kColorBoldCyn,
 										 kColorNrm);
-					else if (OBJVAL_FLAGGED(obj, EContainerFlag::kLockIsBroken))
+					else if (IS_SET(GET_OBJ_VAL((obj), 1), (EContainerFlag::kLockIsBroken)))
 						count += sprintf(buf + count, "%s Замок сломан... %s\r\n", kColorRed, kColorNrm);
 					else {
 						const PickProbabilityInformation &pbi = get_pick_probability(ch, GET_OBJ_VAL(obj, 3));
@@ -1227,7 +1227,7 @@ const char *show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_s
 				}
 			}
 			if ((object->get_type() == EObjType::kContainer)
-				&& !OBJVAL_FLAGGED(object, EContainerFlag::kShutted)) // если закрыто, содержимое не показываем
+				&& !IS_SET(GET_OBJ_VAL((object), 1), (EContainerFlag::kShutted))) // если закрыто, содержимое не показываем
 			{
 				if (object->get_contains()) {
 					strcat(buf2, " (есть содержимое)");

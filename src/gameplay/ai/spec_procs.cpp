@@ -220,27 +220,27 @@ int npc_scavenge(CharData *ch) {
 				}
 
 				// Заперто, открываем, если есть ключ
-				if (OBJVAL_FLAGGED(obj, EContainerFlag::kLockedUp)
+				if (IS_SET(GET_OBJ_VAL((obj), 1), (EContainerFlag::kLockedUp))
 					&& HasKey(ch, GET_OBJ_VAL(obj, 2))) {
 					do_doorcmd(ch, obj, 0, kScmdUnlock);
 				}
 
 				// Заперто, взламываем, если умеем
-				if (OBJVAL_FLAGGED(obj, EContainerFlag::kLockedUp)
+				if (IS_SET(GET_OBJ_VAL((obj), 1), (EContainerFlag::kLockedUp))
 					&& ch->GetSkill(ESkill::kPickLock)
 					&& IsPickLockSucessdul(ch, 0, obj, EDirection::kUndefinedDir, kScmdPick)) {
 					do_doorcmd(ch, obj, EDirection::kUndefinedDir, kScmdPick);
 				}
 				// Все равно заперто, ну тогда фиг с ним
-				if (OBJVAL_FLAGGED(obj, EContainerFlag::kLockedUp)) {
+				if (IS_SET(GET_OBJ_VAL((obj), 1), (EContainerFlag::kLockedUp))) {
 					continue;
 				}
 
-				if (OBJVAL_FLAGGED(obj, EContainerFlag::kShutted)) {
+				if (IS_SET(GET_OBJ_VAL((obj), 1), (EContainerFlag::kShutted))) {
 					do_doorcmd(ch, obj, 0, kScmdOpen);
 				}
 
-				if (OBJVAL_FLAGGED(obj, EContainerFlag::kShutted)) {
+				if (IS_SET(GET_OBJ_VAL((obj), 1), (EContainerFlag::kShutted))) {
 					continue;
 				}
 
@@ -319,7 +319,7 @@ int npc_loot(CharData *ch) {
 					next_loot = loot_obj->get_next_content();
 					if (loot_obj->get_type() == EObjType::kContainer) {
 						if (IS_CORPSE(loot_obj)
-							|| OBJVAL_FLAGGED(loot_obj, EContainerFlag::kLockedUp)
+							|| IS_SET(GET_OBJ_VAL((loot_obj), 1), (EContainerFlag::kLockedUp))
 							|| system_obj::is_purse(loot_obj)) {
 							continue;
 						}
@@ -348,26 +348,26 @@ int npc_loot(CharData *ch) {
 					next_loot = loot_obj->get_next_content();
 					if (loot_obj->get_type() == EObjType::kContainer) {
 						if (IS_CORPSE(loot_obj)
-							|| !OBJVAL_FLAGGED(loot_obj, EContainerFlag::kLockedUp)
+							|| !IS_SET(GET_OBJ_VAL((loot_obj), 1), (EContainerFlag::kLockedUp))
 							|| system_obj::is_purse(loot_obj)) {
 							continue;
 						}
 
 						// Есть ключ?
-						if (OBJVAL_FLAGGED(loot_obj, EContainerFlag::kLockedUp)
+						if (IS_SET(GET_OBJ_VAL((loot_obj), 1), (EContainerFlag::kLockedUp))
 							&& HasKey(ch, GET_OBJ_VAL(loot_obj, 2))) {
 							loot_obj->toggle_val_bit(1, EContainerFlag::kLockedUp);
 						}
 
 						// ...или взломаем?
-						if (OBJVAL_FLAGGED(loot_obj, EContainerFlag::kLockedUp)
+						if (IS_SET(GET_OBJ_VAL((loot_obj), 1), (EContainerFlag::kLockedUp))
 							&& ch->GetSkill(ESkill::kPickLock)
 							&& IsPickLockSucessdul(ch, 0, loot_obj, EDirection::kUndefinedDir, kScmdPick)) {
 							loot_obj->toggle_val_bit(1, EContainerFlag::kLockedUp);
 						}
 
 						// Эх, не открыть. Ну ладно.
-						if (OBJVAL_FLAGGED(loot_obj, EContainerFlag::kLockedUp)) {
+						if (IS_SET(GET_OBJ_VAL((loot_obj), 1), (EContainerFlag::kLockedUp))) {
 							continue;
 						}
 

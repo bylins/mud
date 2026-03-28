@@ -148,14 +148,14 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 
 	if (!k->IsNpc()) {
 
-		if (!NAME_GOD(k)) {
+		if (!(k)->player_specials->saved.NameGod) {
 			sprintf(buf, "Имя никем не одобрено!\r\n");
 			SendMsgToChar(buf, ch);
-		} else if (NAME_GOD(k) < 1000) {
-			sprintf(buf, "Имя запрещено! - %s\r\n", GetNameById(NAME_ID_GOD(k)).c_str());
+		} else if ((k)->player_specials->saved.NameGod < 1000) {
+			sprintf(buf, "Имя запрещено! - %s\r\n", GetNameById((k)->player_specials->saved.NameIDGod).c_str());
 			SendMsgToChar(buf, ch);
 		} else {
-			sprintf(buf, "Имя одобрено! - %s\r\n", GetNameById(NAME_ID_GOD(k)).c_str());
+			sprintf(buf, "Имя одобрено! - %s\r\n", GetNameById((k)->player_specials->saved.NameIDGod).c_str());
 			SendMsgToChar(buf, ch);
 		}
 
@@ -324,7 +324,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 	SendMsgToChar(buf, ch);
 	if (IS_MANA_CASTER(k)) {
 		sprintf(buf, " Мана :[%s%d/%d+%d%s]\r\n",
-				kColorGrn, k->mem_queue.stored, GET_MAX_MANA(k), CalcManaGain(k), kColorNrm);
+				kColorGrn, k->mem_queue.stored, mana[MIN(50, GetRealWis(k))], CalcManaGain(k), kColorNrm);
 	} else {
 		sprintf(buf, "\r\n");
 	}

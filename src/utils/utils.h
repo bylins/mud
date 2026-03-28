@@ -323,10 +323,8 @@ inline void TOGGLE_BIT(T &var, const Bitvector bit) {
 
 
 #define NPC_FLAGGED(ch, flag)   ((ch)->mob_specials.npc_flags.get(flag))
-#define EXTRA_FLAGGED(ch, flag) ((ch)->Temporary.get(flag))
 #define ROOM_FLAGGED(loc, flag) (world[(loc)]->get_flag(flag))
 #define EXIT_FLAGGED(exit, flag)     (IS_SET((exit)->exit_info, (flag)))
-#define OBJVAL_FLAGGED(obj, flag)    (IS_SET(GET_OBJ_VAL((obj), 1), (flag)))
 
 // room utils ***********************************************************
 #define SECT(room)   (world[(room)]->sector_type)
@@ -338,16 +336,8 @@ inline bool ValidRnum(int rnum) { return rnum > 0 && rnum <= top_of_world; }
 #define IS_MANA_CASTER(ch) ((ch)->GetClass() == ECharClass::kMagus)
 #define GET_PC_NAME(ch) ((ch)->GetCharAliases().c_str())
 #define GET_NAME(ch)    ((ch)->get_name().c_str())
-#define GET_MAX_MANA(ch)      (mana[MIN(50, GetRealWis(ch))])
-
 #define GET_EMAIL(ch)          ((ch)->player_specials->saved.EMail)
 #define GET_GOD_FLAG(ch, flag)  (IS_SET((ch)->player_specials->saved.GodsLike, flag))
-#define NAME_GOD(ch)  ((ch)->player_specials->saved.NameGod)
-#define NAME_ID_GOD(ch)  ((ch)->player_specials->saved.NameIDGod)
-
-#define STRING_LENGTH(ch)  ((ch)->player_specials->saved.stringLength)
-#define STRING_WIDTH(ch)  ((ch)->player_specials->saved.stringWidth)
-#define NOTIFY_EXCH_PRICE(ch)  ((ch)->player_specials->saved.ntfyExchangePrice)
 
 inline int Posi(int val) { return std::clamp(val, 1, 50); }
 
@@ -414,8 +404,8 @@ const int kAligGoodMore = 300;
 #define GET_ALIGNMENT(ch)     ((ch)->char_specials.saved.alignment)
 
 const int kNameLevel = 5;
-#define NAME_FINE(ch)          (NAME_GOD(ch)>1000)
-#define NAME_BAD(ch)           (NAME_GOD(ch)<1000 && NAME_GOD(ch))
+#define NAME_FINE(ch)          ((ch)->player_specials->saved.NameGod>1000)
+#define NAME_BAD(ch)           ((ch)->player_specials->saved.NameGod<1000 && (ch)->player_specials->saved.NameGod)
 
 #define GET_COND(ch, i)        ((ch)->player_specials->saved.conditions[(i)])
 #define GET_LOADROOM(ch)    ((ch)->player_specials->saved.load_room)

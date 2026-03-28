@@ -243,14 +243,14 @@ void group::print_one_line(CharData *ch, CharData *k, int leader, int header) {
 	auto generate_mem_string = [](CharData *k) -> std::string {
 	  int ok, ok2, div;
 	  if ((!IS_MANA_CASTER(k) && !k->mem_queue.Empty()) ||
-		  (IS_MANA_CASTER(k) && k->mem_queue.stored < GET_MAX_MANA(k))) {
+		  (IS_MANA_CASTER(k) && k->mem_queue.stored < mana[MIN(50, GetRealWis(k))])) {
 		  div = CalcManaGain(k);
 		  if (div > 0) {
 			  if (!IS_MANA_CASTER(k)) {
 				  ok2 = std::max(0, 1 + k->mem_queue.total - k->mem_queue.stored);
 				  ok2 = ok2 * 60 / div;    // время мема в сек
 			  } else {
-				  ok2 = std::max(0, 1 + GET_MAX_MANA(k) - k->mem_queue.stored);
+				  ok2 = std::max(0, 1 + mana[MIN(50, GetRealWis(k))] - k->mem_queue.stored);
 				  ok2 = ok2 / div;    // время восстановления в секундах
 			  }
 			  ok = ok2 / 60;
@@ -571,7 +571,7 @@ void do_report(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					GET_NAME(ch), GET_CH_SUF_1(ch),
 					ch->get_hit(), ch->get_real_max_hit(),
 					ch->get_move(), ch->get_real_max_move(),
-					ch->mem_queue.stored, GET_MAX_MANA(ch));
+					ch->mem_queue.stored, mana[MIN(50, GetRealWis(ch))]);
 		} else if (AFF_FLAGGED(ch, EAffect::kCharmed)) {
 			int loyalty = 0;
 

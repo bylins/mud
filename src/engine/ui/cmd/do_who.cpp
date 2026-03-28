@@ -146,7 +146,7 @@ void DoWho(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (showclass != ECharClass::kUndefined && showclass != tch->GetClass()) {
 			continue;
 		}
-		if (showname && !(!NAME_GOD(tch) && GetRealLevel(tch) <= kNameLevel)) {
+		if (showname && !(!(tch)->player_specials->saved.NameGod && GetRealLevel(tch) <= kNameLevel)) {
 			continue;
 		}
 		if (tch->IsFlagged(EPlrFlag::kNameDenied) && NAME_DURATION(tch)
@@ -211,7 +211,7 @@ void DoWho(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				sprintf(buf + strlen(buf), " (нем%s)", GET_CH_SUF_6(tch));
 			if (tch->IsFlagged(EPlrFlag::kKiller) == EPlrFlag::kKiller)
 				sprintf(buf + strlen(buf), "&R (ДУШЕГУБ)&n");
-			if ((ch->IsImmortal() || GET_GOD_FLAG(ch, EGf::kDemigod)) && !NAME_GOD(tch)
+			if ((ch->IsImmortal() || GET_GOD_FLAG(ch, EGf::kDemigod)) && !(tch)->player_specials->saved.NameGod
 				&& GetRealLevel(tch) <= kNameLevel) {
 				sprintf(buf + strlen(buf), " &W!НЕ ОДОБРЕНО!&n");
 				if (showname) {
@@ -226,7 +226,7 @@ void DoWho(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			if ((GetRealLevel(ch) == kLvlImplementator) && (NORENTABLE(tch)))
 				sprintf(buf + strlen(buf), " &R(В КРОВИ)&n");
 			else if ((ch->IsImmortal() || ch->IsFlagged(EPrf::kCoderinfo)) && NAME_BAD(tch)) {
-				sprintf(buf + strlen(buf), " &Wзапрет %s!&n", GetNameById(NAME_ID_GOD(tch)).c_str());
+				sprintf(buf + strlen(buf), " &Wзапрет %s!&n", GetNameById((tch)->player_specials->saved.NameIDGod).c_str());
 			}
 			if (ch->IsGod() && (GET_GOD_FLAG(tch, EGf::kAllowTesterMode)))
 				sprintf(buf + strlen(buf), " &G(ТЕСТЕР!)&n");

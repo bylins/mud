@@ -736,11 +736,11 @@ void Player::save_char() {
 		fprintf(saved, "LogL:\n%s~\n", buffer.str().c_str());
 	}
 	fprintf(saved, "GdFl: %ld\n", this->player_specials->saved.GodsLike);
-	fprintf(saved, "NamG: %d\n", NAME_GOD(this));
-	fprintf(saved, "NaID: %ld\n", NAME_ID_GOD(this));
-	fprintf(saved, "StrL: %d\n", STRING_LENGTH(this));
-	fprintf(saved, "StrW: %d\n", STRING_WIDTH(this));
-	fprintf(saved, "NtfE: %ld\n", NOTIFY_EXCH_PRICE(this));
+	fprintf(saved, "NamG: %d\n", (this)->player_specials->saved.NameGod);
+	fprintf(saved, "NaID: %ld\n", (this)->player_specials->saved.NameIDGod);
+	fprintf(saved, "StrL: %d\n", (this)->player_specials->saved.stringLength);
+	fprintf(saved, "StrW: %d\n", (this)->player_specials->saved.stringWidth);
+	fprintf(saved, "NtfE: %ld\n", (this)->player_specials->saved.ntfyExchangePrice);
 
 	if (this->remember_get_num() != Remember::DEF_REMEMBER_NUM) {
 		fprintf(saved, "Rmbr: %u\n", this->remember_get_num());
@@ -1205,10 +1205,10 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 	this->set_max_move(44);
 	KARMA(this) = 0;
 	LOGON_LIST(this).clear();
-	NAME_GOD(this) = 0;
-	STRING_LENGTH(this) = 80;
-	STRING_WIDTH(this) = 30;
-	NAME_ID_GOD(this) = 0;
+	(this)->player_specials->saved.NameGod = 0;
+	(this)->player_specials->saved.stringLength = 80;
+	(this)->player_specials->saved.stringWidth = 30;
+	(this)->player_specials->saved.NameIDGod = 0;
 	GET_OLC_ZONE(this) = -1;
 	this->player_data.time.played = 0;
 	GET_LOADROOM(this) = kNowhere;
@@ -1224,7 +1224,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 	EXCHANGE_FILTER(this) = nullptr;
 	clear_ignores();
 	CREATE(GET_LOGS(this), 1 + LAST_LOG);
-	NOTIFY_EXCH_PRICE(this) = 0;
+	(this)->player_specials->saved.ntfyExchangePrice = 0;
 	this->player_specials->saved.HiredCost = 0;
 	this->player_specials->saved.brief_shields_mode = EBriefShieldsMode::kBrief;
 	this->set_who_mana(kWhoManaMax);
@@ -1569,11 +1569,11 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 				else if (!strcmp(tag, "NamD"))
 					NAME_DURATION(this) = lnum;
 				else if (!strcmp(tag, "NamG"))
-					NAME_GOD(this) = num;
+					(this)->player_specials->saved.NameGod = num;
 				else if (!strcmp(tag, "NaID"))
-					NAME_ID_GOD(this) = lnum;
+					(this)->player_specials->saved.NameIDGod = lnum;
 				else if (!strcmp(tag, "NtfE"))
-					NOTIFY_EXCH_PRICE(this) = lnum;
+					(this)->player_specials->saved.ntfyExchangePrice = lnum;
 				break;
 
 			case 'O':
@@ -1809,9 +1809,9 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 				} else if (!strcmp(tag, "Str "))
 					this->set_str(num);
 				else if (!strcmp(tag, "StrL"))
-					STRING_LENGTH(this) = num;
+					(this)->player_specials->saved.stringLength = num;
 				else if (!strcmp(tag, "StrW"))
-					STRING_WIDTH(this) = num;
+					(this)->player_specials->saved.stringWidth = num;
 				else if (!strcmp(tag, "St00"))
 					this->set_start_stat(G_STR, lnum);
 				else if (!strcmp(tag, "St01"))

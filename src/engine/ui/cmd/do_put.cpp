@@ -178,7 +178,7 @@ void do_put(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			SendMsgToChar(buf, ch);
 		} else if (cont->get_type() != EObjType::kContainer) {
 			act("В $o3 нельзя ничего положить.", false, ch, cont, nullptr, kToChar);
-		} else if (OBJVAL_FLAGGED(cont, EContainerFlag::kShutted)) {
+		} else if (IS_SET(GET_OBJ_VAL((cont), 1), (EContainerFlag::kShutted))) {
 			act("$o0 закрыт$A!", false, ch, cont, nullptr, kToChar);
 		} else {
 			if (obj_dotmode == kFindIndiv)    // put <obj> <container>

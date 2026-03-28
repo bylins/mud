@@ -75,7 +75,7 @@ ObjVnum GetDoorKeyVnum(CharData *ch, ObjData *obj, EDirection dir) {
 
 bool IsdoorOpenable(CharData *ch, ObjData *obj, EDirection dir) {
 	if (obj) {
-		return (obj->get_type() == EObjType::kContainer) && OBJVAL_FLAGGED(obj, EContainerFlag::kCloseable);
+		return (obj->get_type() == EObjType::kContainer) && IS_SET(GET_OBJ_VAL((obj), 1), (EContainerFlag::kCloseable));
 	} else {
 		return EXIT_FLAGGED(EXIT(ch, dir), EExitFlag::kHasDoor);
 	}
@@ -83,7 +83,7 @@ bool IsdoorOpenable(CharData *ch, ObjData *obj, EDirection dir) {
 
 bool IsDoorBroken(CharData *ch, ObjData *obj, EDirection dir) {
 	if (obj) {
-		return OBJVAL_FLAGGED(obj, EContainerFlag::kLockIsBroken);
+		return IS_SET(GET_OBJ_VAL((obj), 1), (EContainerFlag::kLockIsBroken));
 	} else {
 		return EXIT_FLAGGED(EXIT(ch, dir), EExitFlag::kBrokenLock);
 	}
@@ -95,7 +95,7 @@ bool IdDoorExist(CharData *ch, EDirection dir) {
 
 bool IsDoorPickroof(CharData *ch, ObjData *obj, EDirection dir) {
 	if (obj) {
-		return OBJVAL_FLAGGED(obj, EContainerFlag::kUncrackable) || OBJVAL_FLAGGED(obj, EContainerFlag::kLockIsBroken);
+		return IS_SET(GET_OBJ_VAL((obj), 1), (EContainerFlag::kUncrackable)) || IS_SET(GET_OBJ_VAL((obj), 1), (EContainerFlag::kLockIsBroken));
 	} else {
 		return EXIT_FLAGGED(EXIT(ch, dir), EExitFlag::kPickroof)
 			|| EXIT_FLAGGED(EXIT(ch, dir), EExitFlag::kBrokenLock);
@@ -112,7 +112,7 @@ ubyte GetLockComplexity(CharData *ch, ObjData *obj, EDirection dir) {
 
 bool IsDoorOpen(CharData *ch, ObjData *obj, EDirection dir) {
 	if (obj) {
-		return !OBJVAL_FLAGGED(obj, EContainerFlag::kShutted);
+		return !IS_SET(GET_OBJ_VAL((obj), 1), (EContainerFlag::kShutted));
 	} else {
             return !EXIT_FLAGGED(EXIT(ch, dir), EExitFlag::kClosed);
 	}
@@ -120,7 +120,7 @@ bool IsDoorOpen(CharData *ch, ObjData *obj, EDirection dir) {
 
 bool IsDoorUnlocked(CharData *ch, ObjData *obj, EDirection dir) {
 	if (obj) {
-		return !OBJVAL_FLAGGED(obj, EContainerFlag::kLockedUp);
+		return !IS_SET(GET_OBJ_VAL((obj), 1), (EContainerFlag::kLockedUp));
 	} else {
 		return !EXIT_FLAGGED(EXIT(ch, dir), EExitFlag::kLocked);
 	}

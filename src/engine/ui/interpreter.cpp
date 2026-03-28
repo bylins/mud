@@ -2248,9 +2248,9 @@ void init_char(CharData *ch, PlayerIndexElement &element) {
 	ch->SetFlag(EPrf::kDispFight);
 	ch->UnsetFlag(EPrf::KSummonable);
 	ch->SetFlag(EPrf::kColor2);
-	STRING_LENGTH(ch) = 80;
-	STRING_WIDTH(ch) = 30;
-	NOTIFY_EXCH_PRICE(ch) = 0;
+	(ch)->player_specials->saved.stringLength = 80;
+	(ch)->player_specials->saved.stringWidth = 30;
+	(ch)->player_specials->saved.ntfyExchangePrice = 0;
 
 	ch->save_char();
 }
