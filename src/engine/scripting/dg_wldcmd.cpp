@@ -129,10 +129,8 @@ void do_wsend(RoomData *room, char *argument, int/* cmd*/, int subcmd, Trigger *
 
 	if ((ch = get_char_by_room(room, buf))) {
 		if (reloc_target != -1 && reloc_target != ch->in_room) {
-			sprintf(buf,
-					"&YВНИМАНИЕ&G Неверное использование команды wat в триггере %s (VNUM=%d).",
-					GET_TRIG_NAME(cur_trig), GET_TRIG_VNUM(cur_trig));
-			mudlog(buf, BRF, kLvlBuilder, ERRLOG, true);
+			sprintf(buf, "&YВНИМАНИЕ&G Неверное использование команды wat, reloc_target %d vict room  %d", world[reloc_target]->vnum, world[ch->in_room]->vnum);
+			wld_log(room, trig, buf);
 		}
 		if (subcmd == SCMD_WSEND)
 			sub_write(msg, ch, true, kToChar);
