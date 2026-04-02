@@ -68,25 +68,13 @@ std::unordered_set<CharData *> timechange_mobs;
 std::unordered_set<ObjData *> timechange_objs;
 std::unordered_set<RoomData *> timechange_rooms;
 
-void timechange_register_mob(CharData *ch) {
-	if (SCRIPT(ch)->has_triggers() && IS_SET(SCRIPT_TYPES(SCRIPT(ch).get()), MTRIG_TIMECHANGE)) {
-		timechange_mobs.insert(ch);
-	}
-}
+void timechange_register_mob(CharData *ch) { timechange_mobs.insert(ch); }
 void timechange_unregister_mob(CharData *ch) { timechange_mobs.erase(ch); }
 
-void timechange_register_obj(ObjData *obj) {
-	if (obj->get_script()->has_triggers() && IS_SET(SCRIPT_TYPES(obj->get_script().get()), OTRIG_TIMECHANGE)) {
-		timechange_objs.insert(obj);
-	}
-}
+void timechange_register_obj(ObjData *obj) { timechange_objs.insert(obj); }
 void timechange_unregister_obj(ObjData *obj) { timechange_objs.erase(obj); }
 
-void timechange_register_room(RoomData *room) {
-	if (SCRIPT(room)->has_triggers() && IS_SET(SCRIPT_TYPES(SCRIPT(room).get()), WTRIG_TIMECHANGE)) {
-		timechange_rooms.insert(room);
-	}
-}
+void timechange_register_room(RoomData *room) { timechange_rooms.insert(room); }
 void timechange_unregister_room(RoomData *room) { timechange_rooms.erase(room); }
 
 // other external vars
