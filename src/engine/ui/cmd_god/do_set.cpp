@@ -482,9 +482,9 @@ int PerformSet(CharData *ch, CharData *vict, int mode, char *val_arg) {
 				return 0;
 			}
 			if (on_off_mode) {
-				SET_GOD_FLAG(vict, EGf::kDemigod);
+				SET_BIT(vict->player_specials->saved.GodsLike, EGf::kDemigod);
 			} else {
-				CLR_GOD_FLAG(vict, EGf::kDemigod);
+				REMOVE_BIT(vict->player_specials->saved.GodsLike, EGf::kDemigod);
 			}
 			break;
 		case 33:
@@ -567,7 +567,7 @@ int PerformSet(CharData *ch, CharData *vict, int mode, char *val_arg) {
 
 		case 42:
 			if (on_off_mode) {
-				SET_GOD_FLAG(vict, EGf::kGodsLike);
+				SET_BIT(vict->player_specials->saved.GodsLike, EGf::kGodsLike);
 				if (sscanf(val_arg, "%s %d", npad[0], &i) != 0)
 					GCURSE_DURATION(vict) = (i > 0) ? time(nullptr) + i * 60 * 60 : MAX_TIME;
 				else
@@ -576,19 +576,19 @@ int PerformSet(CharData *ch, CharData *vict, int mode, char *val_arg) {
 				mudlog(buf, BRF, kLvlImplementator, SYSLOG, 0);
 
 			} else {
-				CLR_GOD_FLAG(vict, EGf::kGodsLike);
+				REMOVE_BIT(vict->player_specials->saved.GodsLike, EGf::kGodsLike);
 			}
 			break;
 		case 43:
 			if (on_off_mode) {
-				SET_GOD_FLAG(vict, EGf::kGodscurse);
+				SET_BIT(vict->player_specials->saved.GodsLike, EGf::kGodscurse);
 				if (sscanf(val_arg, "%s %d", npad[0], &i) != 0) {
 					GCURSE_DURATION(vict) = (i > 0) ? time(nullptr) + i * 60 * 60 : MAX_TIME;
 				} else {
 					GCURSE_DURATION(vict) = 0;
 				}
 			} else {
-				CLR_GOD_FLAG(vict, EGf::kGodscurse);
+				REMOVE_BIT(vict->player_specials->saved.GodsLike, EGf::kGodscurse);
 			}
 			break;
 		case 44:
@@ -769,9 +769,9 @@ int PerformSet(CharData *ch, CharData *vict, int mode, char *val_arg) {
 		case 52:
 			// Отдельный лог команд персонажа
 			if (on_off_mode) {
-				SET_GOD_FLAG(vict, EGf::kPerslog);
+				SET_BIT(vict->player_specials->saved.GodsLike, EGf::kPerslog);
 			} else {
-				CLR_GOD_FLAG(vict, EGf::kPerslog);
+				REMOVE_BIT(vict->player_specials->saved.GodsLike, EGf::kPerslog);
 			}
 			break;
 
@@ -873,12 +873,12 @@ int PerformSet(CharData *ch, CharData *vict, int mode, char *val_arg) {
 			break;
 		case 60: // флаг тестера
 			if (!str_cmp(val_arg, "off") || !str_cmp(val_arg, "выкл")) {
-				CLR_GOD_FLAG(vict, EGf::kAllowTesterMode);
+				REMOVE_BIT(vict->player_specials->saved.GodsLike, EGf::kAllowTesterMode);
 				vict->UnsetFlag(EPrf::kTester); // обнулим реж тестер
 				sprintf(buf, "%s убрал флаг тестера для игрока %s", GET_NAME(ch), GET_NAME(vict));
 				mudlog(buf, BRF, kLvlImmortal, SYSLOG, true);
 			} else {
-				SET_GOD_FLAG(vict, EGf::kAllowTesterMode);
+				SET_BIT(vict->player_specials->saved.GodsLike, EGf::kAllowTesterMode);
 				sprintf(buf, "%s установил флаг тестера для игрока %s", GET_NAME(ch), GET_NAME(vict));
 				mudlog(buf, BRF, kLvlImmortal, SYSLOG, true);
 				//			send_to_gods(buf);
@@ -947,11 +947,11 @@ int PerformSet(CharData *ch, CharData *vict, int mode, char *val_arg) {
 		}
 		case 69: // флаг скилл тестера
 			if (!str_cmp(val_arg, "off") || !str_cmp(val_arg, "выкл")) {
-				CLR_GOD_FLAG(vict, EGf::kSkillTester);
+				REMOVE_BIT(vict->player_specials->saved.GodsLike, EGf::kSkillTester);
 				sprintf(buf, "%s убрал флаг &Rскилл тестера&n для игрока %s", GET_NAME(ch), GET_NAME(vict));
 				mudlog(buf, BRF, kLvlImmortal, SYSLOG, true);
 			} else {
-				SET_GOD_FLAG(vict, EGf::kSkillTester);
+				SET_BIT(vict->player_specials->saved.GodsLike, EGf::kSkillTester);
 				sprintf(buf, "%s установил флаг &Rскилл тестера&n для игрока %s", GET_NAME(ch), GET_NAME(vict));
 				mudlog(buf, BRF, kLvlImmortal, SYSLOG, true);
 			}

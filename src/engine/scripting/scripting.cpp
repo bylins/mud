@@ -577,7 +577,7 @@ class CharacterWrapper : public Wrapper<CharacterData> {
 		vict->set_hit(vict->get_real_max_hit());
 		vict->set_move(vict->get_real_max_move());
 		if (IS_MANA_CASTER(vict)) {
-			vict->mem_queue.stored = GET_MAX_MANA(vict);
+			vict->mem_queue.stored = mana[MIN(50, GetRealWis(vict))];
 		} else {
 			vict->mem_queue.stored = vict->mem_queue.total;
 		}

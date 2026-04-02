@@ -79,7 +79,6 @@ struct DescriptorData;
 //	false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false
 //};
 
-#define not_null(ptr, str) ((ptr) && *(ptr)) ? (ptr) : (str) ? (str) : "undefined"
 
 inline const char *not_empty(const std::string &s) {
 	return s.empty() ? "undefined" : s.c_str();
@@ -133,7 +132,7 @@ extern const char *ACTNULL;
 #define CHECK_NULL(pointer, expression) \
   if ((pointer) == nullptr) i = ACTNULL; else i = (expression);
 
-#define MIN_TITLE_LEV   25
+constexpr int kMinTitleLev = 25;
 
 // undefine MAX and MIN so that our functions are used instead
 #ifdef MAX
@@ -152,12 +151,12 @@ constexpr int kSfSilence = 1 << 4;
 int MAX(int a, int b);
 int MIN(int a, int b);
 
-#define KtoW(c) ((ubyte)(c) < 128 ? (c) : KoiToWin[(ubyte)(c)-128])
-#define KtoW2(c) ((ubyte)(c) < 128 ? (c) : KoiToWin2[(ubyte)(c)-128])
-#define KtoA(c) ((ubyte)(c) < 128 ? (c) : KoiToAlt[(ubyte)(c)-128])
-#define WtoK(c) ((ubyte)(c) < 128 ? (c) : WinToKoi[(ubyte)(c)-128])
-#define AtoK(c) ((ubyte)(c) < 128 ? (c) : AltToKoi[(ubyte)(c)-128])
-#define AtoL(c) ((ubyte)(c) < 128 ? (c) : AltToLat[(ubyte)(c)-128])
+inline char KtoW(char c) { return (ubyte)(c) < 128 ? c : KoiToWin[(ubyte)(c) - 128]; }
+inline char KtoW2(char c) { return (ubyte)(c) < 128 ? c : KoiToWin2[(ubyte)(c) - 128]; }
+inline char KtoA(char c) { return (ubyte)(c) < 128 ? c : KoiToAlt[(ubyte)(c) - 128]; }
+inline char WtoK(char c) { return (ubyte)(c) < 128 ? c : WinToKoi[(ubyte)(c) - 128]; }
+inline char AtoK(char c) { return (ubyte)(c) < 128 ? c : AltToKoi[(ubyte)(c) - 128]; }
+inline char AtoL(char c) { return (ubyte)(c) < 128 ? c : AltToLat[(ubyte)(c) - 128]; }
 
 // various constants ****************************************************
 // get_filename() //
@@ -180,21 +179,19 @@ const int kSecsPerRealMin = 60;
 constexpr int kSecsPerRealHour = 60*kSecsPerRealMin;
 constexpr int kSecsPerRealDay = 24*kSecsPerRealHour;
 
-#define IS_IMMORTAL(ch)     (!(ch)->IsNpc() && (ch)->GetLevel() >= kLvlImmortal)
-#define IS_GOD(ch)          (!(ch)->IsNpc() && (ch)->GetLevel() >= kLvlGod)
-#define IS_GRGOD(ch)        (!(ch)->IsNpc() && (ch)->GetLevel() >= kLvlGreatGod)
-#define IS_IMPL(ch)         (!(ch)->IsNpc() && (ch)->GetLevel() >= kLvlImplementator)
+// IS_IMMORTAL/IS_GOD/IS_GRGOD/IS_IMPL заменены на методы CharData:
+// ch->IsImmortal(), ch->IsGod(), ch->IsGrGod(), ch->IsImpl()
 
-#define IS_SHOPKEEPER(ch) (IS_MOB(ch) && mob_index[GET_MOB_RNUM(ch)].func == shop_ext)
-#define IS_RENTKEEPER(ch) (IS_MOB(ch) && mob_index[GET_MOB_RNUM(ch)].func == receptionist)
-#define IS_POSTKEEPER(ch) (IS_MOB(ch) && mob_index[GET_MOB_RNUM(ch)].func == postmaster)
-#define IS_BANKKEEPER(ch) (IS_MOB(ch) && mob_index[GET_MOB_RNUM(ch)].func == bank)
+#define IS_SHOPKEEPER(ch) ((ch)->IsNpc() && mob_index[(ch)->get_rnum()].func == shop_ext)
+#define IS_RENTKEEPER(ch) ((ch)->IsNpc() && mob_index[(ch)->get_rnum()].func == receptionist)
+#define IS_POSTKEEPER(ch) ((ch)->IsNpc() && mob_index[(ch)->get_rnum()].func == postmaster)
+#define IS_BANKKEEPER(ch) ((ch)->IsNpc() && mob_index[(ch)->get_rnum()].func == bank)
 
 // string utils *********************************************************
 
 #define LOWER(c)   (a_lcc(c))
 #define UPPER(c)   (a_ucc(c))
-#define ISNEWL(ch) ((ch) == '\n' || (ch) == '\r')
+inline bool ISNEWL(char ch) { return ch == '\n' || ch == '\r'; }
 
 // memory utils *********************************************************
 
@@ -325,49 +322,24 @@ inline void TOGGLE_BIT(T &var, const Bitvector bit) {
 }
 
 
-#define NPC_FLAGS(ch)  ((ch)->mob_specials.npc_flags)
-#define EXTRA_FLAGS(ch) ((ch)->Temporary)
-
-#define IS_MOB(ch)          ((ch)->IsNpc() && (ch)->get_rnum() >= 0)
-
-#define NPC_FLAGGED(ch, flag)   (NPC_FLAGS(ch).get(flag))
-#define EXTRA_FLAGGED(ch, flag) (EXTRA_FLAGS(ch).get(flag))
+#define NPC_FLAGGED(ch, flag)   ((ch)->mob_specials.npc_flags.get(flag))
 #define ROOM_FLAGGED(loc, flag) (world[(loc)]->get_flag(flag))
 #define EXIT_FLAGGED(exit, flag)     (IS_SET((exit)->exit_info, (flag)))
-#define OBJVAL_FLAGGED(obj, flag)    (IS_SET(GET_OBJ_VAL((obj), 1), (flag)))
-#define OBJWEAR_FLAGGED(obj, mask)   ((obj)->get_wear_mask(mask))
 
 // room utils ***********************************************************
 #define SECT(room)   (world[(room)]->sector_type)
-#define GET_ROOM_SKY(room) (world[room]->weather.duration > 0 ? world[room]->weather.sky : weather_info.sky)
-
-#define VALID_RNUM(rnum)   ((rnum) > 0 && (rnum) <= top_of_world)
-#define GET_ROOM_VNUM(rnum) ((RoomVnum)(VALID_RNUM(rnum) ? world[(rnum)]->vnum : kNowhere))
-#define GET_ROOM_SPEC(room) (VALID_RNUM(room) ? world[(room)]->func : nullptr)
+extern int top_of_world;
+inline bool ValidRnum(int rnum) { return rnum > 0 && rnum <= top_of_world; }
+#define GET_ROOM_VNUM(rnum) ((RoomVnum)(ValidRnum(rnum) ? world[(rnum)]->vnum : kNowhere))
 
 // char utils ***********************************************************
 #define IS_MANA_CASTER(ch) ((ch)->GetClass() == ECharClass::kMagus)
-#define GET_REAL_AGE(ch) (CalcCharAge((ch))->year + GET_AGE_ADD(ch))
 #define GET_PC_NAME(ch) ((ch)->GetCharAliases().c_str())
 #define GET_NAME(ch)    ((ch)->get_name().c_str())
-#define GET_MAX_MANA(ch)      (mana[MIN(50, GetRealWis(ch))])
-#define GET_MEM_CURRENT(ch)   ((ch)->mem_queue.Empty() ? 0 : CalcSpellManacost(ch, (ch)->mem_queue.queue->spell_id))
-
 #define GET_EMAIL(ch)          ((ch)->player_specials->saved.EMail)
-#define GET_LASTIP(ch)         ((ch)->player_specials->saved.LastIP)
 #define GET_GOD_FLAG(ch, flag)  (IS_SET((ch)->player_specials->saved.GodsLike, flag))
-#define SET_GOD_FLAG(ch, flag)  (SET_BIT((ch)->player_specials->saved.GodsLike, flag))
-#define CLR_GOD_FLAG(ch, flag)  (REMOVE_BIT((ch)->player_specials->saved.GodsLike, flag))
-#define LAST_LOGON(ch)         ((ch)->get_last_logon())
-#define LAST_EXCHANGE(ch)         ((ch)->get_last_exchange())
-#define NAME_GOD(ch)  ((ch)->player_specials->saved.NameGod)
-#define NAME_ID_GOD(ch)  ((ch)->player_specials->saved.NameIDGod)
 
-#define STRING_LENGTH(ch)  ((ch)->player_specials->saved.stringLength)
-#define STRING_WIDTH(ch)  ((ch)->player_specials->saved.stringWidth)
-#define NOTIFY_EXCH_PRICE(ch)  ((ch)->player_specials->saved.ntfyExchangePrice)
-
-#define POSI(val)      (((val) < 50) ? (((val) > 0) ? (val) : 1) : 50)
+inline int Posi(int val) { return std::clamp(val, 1, 50); }
 
 template<typename T>
 inline T VPOSI(const T val, const T min, const T max) {
@@ -395,7 +367,7 @@ inline T VPOSI(const T val, const T min, const T max) {
 #define GET_SIZE(ch)    ((ch)->real_abils.size)
 #define GET_SIZE_ADD(ch)  ((ch)->add_abils.size_add)
 #define GET_REAL_SIZE(ch) (VPOSI(GET_SIZE(ch) + GET_SIZE_ADD(ch), 1, 100))
-#define GET_POS_SIZE(ch)  (POSI(GET_REAL_SIZE(ch) >> 1))
+#define GET_POS_SIZE(ch)  (Posi(GET_REAL_SIZE(ch) >> 1))
 #define GET_HR(ch)         ((ch)->real_abils.hitroll)
 #define GET_HR_ADD(ch)    ((ch)->add_abils.hr_add)
 #define GET_REAL_HR(ch)   (VPOSI(GET_HR(ch)+GET_HR_ADD(ch), -50, (IS_MORTIFIER(ch) ? 100 : 50)))
@@ -432,8 +404,8 @@ const int kAligGoodMore = 300;
 #define GET_ALIGNMENT(ch)     ((ch)->char_specials.saved.alignment)
 
 const int kNameLevel = 5;
-#define NAME_FINE(ch)          (NAME_GOD(ch)>1000)
-#define NAME_BAD(ch)           (NAME_GOD(ch)<1000 && NAME_GOD(ch))
+#define NAME_FINE(ch)          ((ch)->player_specials->saved.NameGod>1000)
+#define NAME_BAD(ch)           ((ch)->player_specials->saved.NameGod<1000 && (ch)->player_specials->saved.NameGod)
 
 #define GET_COND(ch, i)        ((ch)->player_specials->saved.conditions[(i)])
 #define GET_LOADROOM(ch)    ((ch)->player_specials->saved.load_room)
@@ -499,9 +471,9 @@ const int kNameLevel = 5;
 
 #define GET_EQ(ch, i)      ((ch)->equipment[i])
 
-#define GET_MOB_SPEC(ch)   (IS_MOB(ch) ? mob_index[(ch)->get_rnum()].func : nullptr)
+#define GET_MOB_SPEC(ch)   ((ch)->IsNpc() ? mob_index[(ch)->get_rnum()].func : nullptr)
 #define GET_MOB_RNUM(mob)  (mob)->get_rnum()
-#define GET_MOB_VNUM(mob)  (IS_MOB(mob) ? mob_index[(mob)->get_rnum()].vnum : -1)
+#define GET_MOB_VNUM(mob)  ((mob)->IsNpc() ? mob_index[(mob)->get_rnum()].vnum : -1)
 
 #define GET_DEFAULT_POS(ch)   ((ch)->mob_specials.default_pos)
 #define MEMORY(ch)          ((ch)->mob_specials.memory)

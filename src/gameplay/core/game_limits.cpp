@@ -522,14 +522,14 @@ void beat_punish(const CharData::shared_ptr &i) {
 	if (GET_GOD_FLAG(i, EGf::kGodsLike)
 		&& GCURSE_DURATION(i) != 0
 		&& GCURSE_DURATION(i) <= time(nullptr)) {
-		CLR_GOD_FLAG(i, EGf::kGodsLike);
+		REMOVE_BIT(i->player_specials->saved.GodsLike, EGf::kGodsLike);
 		SendMsgToChar("Вы более не под защитой Богов.\r\n", i.get());
 	}
 
 	if (GET_GOD_FLAG(i, EGf::kGodscurse)
 		&& GCURSE_DURATION(i) != 0
 		&& GCURSE_DURATION(i) <= time(nullptr)) {
-		CLR_GOD_FLAG(i, EGf::kGodscurse);
+		REMOVE_BIT(i->player_specials->saved.GodsLike, EGf::kGodscurse);
 		SendMsgToChar("Боги более не в обиде на вас.\r\n", i.get());
 	}
 
@@ -762,7 +762,7 @@ void beat_points_update(int pulse) {
 				handle_recall_spells(d->character.get());
 			}
 
-			while (d->character->mem_queue.stored > GET_MEM_CURRENT(d->character.get()) && !d->character->mem_queue.Empty()) {
+			while (d->character->mem_queue.stored > (d->character->mem_queue.Empty() ? 0 : CalcSpellManacost(d->character.get(), d->character->mem_queue.queue->spell_id)) && !d->character->mem_queue.Empty()) {
 				auto spell_id = MemQ_learn(d->character.get());
 				++GET_SPELL_MEM(d->character, spell_id);
 				d->character->caster_level += MUD::Spell(spell_id).GetDanger();
@@ -786,16 +786,16 @@ void beat_points_update(int pulse) {
 		}
 
 		// Гейн маны у волхвов
-		if (IS_MANA_CASTER(d->character.get()) && d->character->mem_queue.stored < GET_MAX_MANA(d->character.get())) {
+		if (IS_MANA_CASTER(d->character.get()) && d->character->mem_queue.stored < mana[MIN(50, GetRealWis(d->character.get()))]) {
 			d->character->mem_queue.stored += CalcManaGain(d->character.get());
-			if (d->character->mem_queue.stored >= GET_MAX_MANA(d->character.get())) {
-				d->character->mem_queue.stored = GET_MAX_MANA(d->character.get());
+			if (d->character->mem_queue.stored >= mana[MIN(50, GetRealWis(d->character.get()))]) {
+				d->character->mem_queue.stored = mana[MIN(50, GetRealWis(d->character.get()))];
 				SendMsgToChar("Ваша магическая энергия полностью восстановилась\r\n", d->character.get());
 			}
 		}
 
-		if (IS_MANA_CASTER(d->character.get()) && d->character->mem_queue.stored > GET_MAX_MANA(d->character.get())) {
-			d->character->mem_queue.stored = GET_MAX_MANA(d->character.get());
+		if (IS_MANA_CASTER(d->character.get()) && d->character->mem_queue.stored > mana[MIN(50, GetRealWis(d->character.get()))]) {
+			d->character->mem_queue.stored = mana[MIN(50, GetRealWis(d->character.get()))];
 		}
 
 		// Restore moves
@@ -860,7 +860,7 @@ void EndowExpToChar(CharData *ch, int gain) {
 								  "%sПоздравляем, вы набрали максимальное количество опыта!\r\n"
 								  "%s%s\r\n", kColorBoldGrn, Remort::WHERE_TO_REMORT_STR.c_str(), kColorNrm);
 				}
-				SET_GOD_FLAG(ch, EGf::kRemort);
+				SET_BIT(ch->player_specials->saved.GodsLike, EGf::kRemort);
 			}
 		}
 		ch->set_exp(std::min(ch->get_exp(), GetExpUntilNextLvl(ch, kLvlImmortal) - 1));
@@ -905,7 +905,7 @@ void EndowExpToChar(CharData *ch, int gain) {
 			SendMsgToChar(ch, "%sВы потеряли право на перевоплощение!%s\r\n",
 						  kColorBoldRed, kColorNrm);
 		}
-		CLR_GOD_FLAG(ch, EGf::kRemort);
+		REMOVE_BIT(ch->player_specials->saved.GodsLike, EGf::kRemort);
 	}
 
 	char_stat::AddClassExp(ch->GetClass(), gain);

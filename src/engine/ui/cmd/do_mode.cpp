@@ -18,6 +18,33 @@ void SetNotifyEchange(CharData *ch, char *argument);
 void SetAutolootMode(CharData *ch, char *argument);
 bool TogglePrfFlag(CharData *ch, EPrf flag);
 
+const char *GetBriefShieldsModeMessage(const CharData *ch) {
+	switch (ch->GetBriefShieldsMode()) {
+		case EBriefShieldsMode::kBrief: return "Показ сообщений при срабатывании магических щитов: краткий.";
+		case EBriefShieldsMode::kCompact: return "Показ сообщений при срабатывании магических щитов: компактный.";
+		case EBriefShieldsMode::kCompressed: return "Показ сообщений при срабатывании магических щитов: сжатый.";
+		case EBriefShieldsMode::kOff:
+		default: return "Показ сообщений при срабатывании магических щитов: полный.";
+	}
+}
+
+void CycleBriefShieldsMode(CharData *ch) {
+	EBriefShieldsMode next_mode = EBriefShieldsMode::kBrief;
+	switch (ch->GetBriefShieldsMode()) {
+		case EBriefShieldsMode::kOff: next_mode = EBriefShieldsMode::kBrief;
+			break;
+		case EBriefShieldsMode::kBrief: next_mode = EBriefShieldsMode::kCompact;
+			break;
+		case EBriefShieldsMode::kCompact: next_mode = EBriefShieldsMode::kCompressed;
+			break;
+		case EBriefShieldsMode::kCompressed: next_mode = EBriefShieldsMode::kOff;
+			break;
+	}
+
+	ch->SetBriefShieldsMode(next_mode);
+	SendMsgToChar(GetBriefShieldsModeMessage(ch), ch);
+}
+
 enum EScmd {
   kScmdNosummon,
   kScmdNohassle,
@@ -508,8 +535,9 @@ void do_gen_tog(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			break;
 		case kScmdMisprint: result = TogglePrfFlag(ch, EPrf::kShowUnread);
 			break;
-		case kScmdBriefShields: result = TogglePrfFlag(ch, EPrf::kBriefShields);
-			break;
+		case kScmdBriefShields:
+			CycleBriefShieldsMode(ch);
+			return;
 		case kScmdAutoNosummon: result = TogglePrfFlag(ch, EPrf::kAutonosummon);
 			break;
 		default: SendMsgToChar(ch, "Введите параметр режима полностью.\r\n");
@@ -534,11 +562,11 @@ void SetScreen(CharData *ch, char *argument, int flag) {
 	else if (flag == 1 && (size < 10 || size > 100))
 		SendMsgToChar("Высота экрана должна быть в пределах 10 - 100 строк.\r\n", ch);
 	else if (!flag) {
-		STRING_LENGTH(ch) = size;
+		(ch)->player_specials->saved.stringLength = size;
 		SendMsgToChar("Ладушки.\r\n", ch);
 		ch->save_char();
 	} else if (flag == 1) {
-		STRING_WIDTH(ch) = size;
+		(ch)->player_specials->saved.stringWidth = size;
 		SendMsgToChar("Ладушки.\r\n", ch);
 		ch->save_char();
 	} else {
@@ -561,12 +589,12 @@ void SetNotifyEchange(CharData *ch, char *argument) {
 					  "Вам будут приходить уведомления о продаже с базара ваших лотов стоимостью не менее чем %ld %s.\r\n",
 					  size,
 					  GetDeclensionInNumber(size, EWhat::kMoneyA));
-		NOTIFY_EXCH_PRICE(ch) = size;
+		(ch)->player_specials->saved.ntfyExchangePrice = size;
 		ch->save_char();
 	} else if (size >= 0 && size < 100) {
 		SendMsgToChar(ch,
 					  "Вам не будут приходить уведомления о продаже с базара ваших лотов, так как указана цена меньше 100 кун.\r\n");
-		NOTIFY_EXCH_PRICE(ch) = 0;
+		(ch)->player_specials->saved.ntfyExchangePrice = 0;
 		ch->save_char();
 	} else {
 		SendMsgToChar(ch, "Укажите стоимость лота от 0 до %d\r\n", 0x7fffffff);

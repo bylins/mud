@@ -1351,8 +1351,8 @@ int special(CharData *ch, int cmd, char *argument, int fnum) {
 	int j;
 
 	// special in room? //
-	if (GET_ROOM_SPEC(ch->in_room) != nullptr) {
-		if (GET_ROOM_SPEC(ch->in_room)(ch, world[ch->in_room], cmd, argument)) {
+	if ((ValidRnum(ch->in_room) ? world[ch->in_room]->func : nullptr) != nullptr) {
+		if ((ValidRnum(ch->in_room) ? world[ch->in_room]->func : nullptr)(ch, world[ch->in_room], cmd, argument)) {
 			check_hiding_cmd(ch, -1);
 			return (1);
 		}
@@ -1950,8 +1950,8 @@ void do_entergame(DescriptorData *d) {
 	chardata_by_uid[d->character->get_uid()] = d->character.get();
 	GET_ACTIVITY(d->character) = number(0, kPlayerSaveActivity - 1);
 	d->character->set_last_logon(time(nullptr));
-//	player_table[GetPtableByUnique(d->character->get_uid())].last_logon = LAST_LOGON(d->character);
-	player_table[d->character->get_pfilepos()].last_logon = LAST_LOGON(d->character);
+//	player_table[GetPtableByUnique(d->character->get_uid())].last_logon = d->character->get_last_logon();
+	player_table[d->character->get_pfilepos()].last_logon = d->character->get_last_logon();
 	network::add_logon_record(d);
 	// чтобы восстановление маны спам-контроля "кто" не шло, когда чар заходит после
 	// того, как повисел на менюшке; важно, чтобы этот вызов шел раньше save_char()
@@ -1992,11 +1992,11 @@ void do_entergame(DescriptorData *d) {
 	// На входе в игру вешаем флаг (странно, что он до этого нигде не вешался
 	if (privilege::IsContainedInGodsList(GET_NAME(d->character), d->character->get_uid())
 		&& (GetRealLevel(d->character) < kLvlGod)) {
-		SET_GOD_FLAG(d->character, EGf::kDemigod);
+		SET_BIT(d->character->player_specials->saved.GodsLike, EGf::kDemigod);
 	}
 	// Насильственно забираем этот флаг у иммов (если он, конечно же, есть
 	if ((GET_GOD_FLAG(d->character, EGf::kDemigod) && GetRealLevel(d->character) >= kLvlGod)) {
-		CLR_GOD_FLAG(d->character, EGf::kDemigod);
+		REMOVE_BIT(d->character->player_specials->saved.GodsLike, EGf::kDemigod);
 	}
 
 	switch (d->character->get_sex()) {
@@ -2140,9 +2140,9 @@ void DoAfterPassword(DescriptorData *d) {
 		iosystem::write_to_output(buf, d);
 		GET_BAD_PWS(d->character) = 0;
 	}
-	time_t tmp_time = LAST_LOGON(d->character);
+	time_t tmp_time = d->character->get_last_logon();
 	sprintf(buf, "\r\nПоследний раз вы заходили к нам в %s с адреса (%s).\r\n",
-			rustime(localtime(&tmp_time)), GET_LASTIP(d->character));
+			rustime(localtime(&tmp_time)), d->character->player_specials->saved.LastIP);
 	iosystem::write_to_output(buf, d);
 
 	//if (!GloryMisc::check_stats(d->character))
@@ -2238,7 +2238,7 @@ void init_char(CharData *ch, PlayerIndexElement &element) {
 	for (i = 0; i < 3; i++) {
 		GET_COND(ch, i) = (GetRealLevel(ch) == kLvlImplementator ? -1 : i == DRUNK ? 0 : 24);
 	}
-	GET_LASTIP(ch)[0] = 0;
+	ch->player_specials->saved.LastIP[0] = 0;
 	//	GET_LOADROOM(ch) = start_room;
 	ch->SetFlag(EPrf::kDispHp);
 	ch->SetFlag(EPrf::kDispMana);
@@ -2248,9 +2248,9 @@ void init_char(CharData *ch, PlayerIndexElement &element) {
 	ch->SetFlag(EPrf::kDispFight);
 	ch->UnsetFlag(EPrf::KSummonable);
 	ch->SetFlag(EPrf::kColor2);
-	STRING_LENGTH(ch) = 80;
-	STRING_WIDTH(ch) = 30;
-	NOTIFY_EXCH_PRICE(ch) = 0;
+	(ch)->player_specials->saved.stringLength = 80;
+	(ch)->player_specials->saved.stringWidth = 30;
+	(ch)->player_specials->saved.ntfyExchangePrice = 0;
 
 	ch->save_char();
 }

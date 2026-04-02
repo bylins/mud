@@ -92,8 +92,8 @@ void do_toggle(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 			 BoolToOnOffStr(ch->IsFlagged(EPrf::kAutomoney)),
 			 BoolToOnOffStr(!ch->IsFlagged(EPrf::kNoArena)),
 			 buf2,
-			 STRING_LENGTH(ch),
-			 STRING_WIDTH(ch),
+			 (ch)->player_specials->saved.stringLength,
+			 (ch)->player_specials->saved.stringWidth,
 #if defined(HAVE_ZLIB)
 			 ch->desc->deflate == nullptr ? "нет" : (ch->desc->mccp_version == 2 ? "MCCPv2" : "MCCPv1"),
 #else
@@ -111,8 +111,8 @@ void do_toggle(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 			 BoolToOnOffStr(ch->IsFlagged(EPrf::kNoIngrMode)),
 			 ch->remember_get_num());
 	SendMsgToChar(buf, ch);
-	if (NOTIFY_EXCH_PRICE(ch) > 0) {
-		sprintf(buf, " Уведомления   : %-7ld ", NOTIFY_EXCH_PRICE(ch));
+	if ((ch)->player_specials->saved.ntfyExchangePrice > 0) {
+		sprintf(buf, " Уведомления   : %-7ld ", (ch)->player_specials->saved.ntfyExchangePrice);
 	} else {
 		sprintf(buf, " Уведомления   : %-7s ", "Нет");
 	}

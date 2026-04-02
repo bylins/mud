@@ -1643,7 +1643,7 @@ std::string CharData::GetTitleAndNameWithoutClan() const {
 	}
 
 	auto title = GetTitle();
-	if (!title.empty() && GetLevel() >= MIN_TITLE_LEV) {
+	if (!title.empty() && GetLevel() >= kMinTitleLev) {
 		return fmt::format("{}, {}", result, title);
 	}
 
@@ -2187,6 +2187,7 @@ player_special_data_saved::player_special_data_saved() :
 	stringWidth(0),
 	ntfyExchangePrice(0),
 	HiredCost(0),
+	brief_shields_mode(EBriefShieldsMode::kBrief),
 	who_mana(0),
 	telegram_id(0),
 	lastGloryRespecTime(0) {

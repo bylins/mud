@@ -1023,8 +1023,8 @@ void do_ozoneecho(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 }
 // для команды oat
 void ObjDgCast(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *trig) {
-	std::string dg_arg = std::string("DgCast ") + argument;
-	do_dg_cast(obj, trig, OBJ_TRIGGER, dg_arg.data());
+	std::string dg_arg = std::string("dgcast ") + argument;
+	do_dg_cast(obj, trig, OBJ_TRIGGER, dg_arg);
 }
 
 const struct obj_command_info obj_cmd_info[] =

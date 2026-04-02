@@ -1614,7 +1614,7 @@ int Crash_load(CharData *ch) {
 			obj->set_worn_on(0);
 
 			auto_equip(ch, obj, location);
-			log("%s load_char_obj %d %ld %u", GET_NAME(ch), GET_OBJ_VNUM(obj), obj->get_unique_id(), obj->get_timer());
+//			log("%s load_char_obj %d %ld %u", GET_NAME(ch), GET_OBJ_VNUM(obj), obj->get_unique_id(), obj->get_timer());
 		} else {
 			if (obj2
 				&& obj2->get_worn_on() < obj->get_worn_on()
@@ -1644,7 +1644,7 @@ int Crash_load(CharData *ch) {
 			} else {
 				PlaceObjToInventory(obj, ch);
 			}
-			log("%s load_char_obj %d %ld %u", GET_NAME(ch), GET_OBJ_VNUM(obj), obj->get_unique_id(), obj->get_timer());
+//			log("%s load_char_obj %d %ld %u", GET_NAME(ch), GET_OBJ_VNUM(obj), obj->get_unique_id(), obj->get_timer());
 		}
 	}
 
@@ -1820,8 +1820,8 @@ void Crash_save(std::stringstream &write_buffer, int iplayer, ObjData *obj, int 
 			SAVEINFO(iplayer)->time.push_back(tmp_node);
 
 			if (savetype != RENT_CRASH) {
-				log("%s save_char_obj %d %ld %u", player_table[iplayer].name().c_str(),
-					GET_OBJ_VNUM(obj), obj->get_unique_id(), obj->get_timer());
+//				log("%s save_char_obj %d %ld %u", player_table[iplayer].name().c_str(),
+//					GET_OBJ_VNUM(obj), obj->get_unique_id(), obj->get_timer());
 			}
 		}
 	}

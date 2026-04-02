@@ -63,6 +63,32 @@ int last_trig_vnum = 0;
 int curr_trig_vnum = 0;
 int last_trig_line_num = 0;
 
+// списки сущностей с триггерами смены времени
+std::unordered_set<CharData *> timechange_mobs;
+std::unordered_set<ObjData *> timechange_objs;
+std::unordered_set<RoomData *> timechange_rooms;
+
+void timechange_register_mob(CharData *ch) {
+	if (SCRIPT(ch)->has_triggers() && IS_SET(SCRIPT_TYPES(SCRIPT(ch).get()), MTRIG_TIMECHANGE)) {
+		timechange_mobs.insert(ch);
+	}
+}
+void timechange_unregister_mob(CharData *ch) { timechange_mobs.erase(ch); }
+
+void timechange_register_obj(ObjData *obj) {
+	if (obj->get_script()->has_triggers() && IS_SET(SCRIPT_TYPES(obj->get_script().get()), OTRIG_TIMECHANGE)) {
+		timechange_objs.insert(obj);
+	}
+}
+void timechange_unregister_obj(ObjData *obj) { timechange_objs.erase(obj); }
+
+void timechange_register_room(RoomData *room) {
+	if (SCRIPT(room)->has_triggers() && IS_SET(SCRIPT_TYPES(SCRIPT(room).get()), WTRIG_TIMECHANGE)) {
+		timechange_rooms.insert(room);
+	}
+}
+void timechange_unregister_room(RoomData *room) { timechange_rooms.erase(room); }
+
 // other external vars
 
 extern void add_trig_to_owner(int vnum_owner, int vnum_trig, int vnum);
@@ -753,41 +779,30 @@ void script_trigger_check(int mode) {
 }
 
 // проверка каждый час на триги изменении времени
+// итерация по спискам зарегистрированных сущностей вместо перебора всего мира
 void script_timechange_trigger_check(const int time, const int time_day) {
 	utils::CExecutionTimer timercheck;
-	std::stringstream buffer;
 
-	for (const auto &ch : character_list) {
-		if (SCRIPT(ch)->has_triggers()) {
-			auto sc = SCRIPT(ch).get();
-			if (IS_SET(SCRIPT_TYPES(sc), MTRIG_TIMECHANGE)
-					&& (!IsZoneEmpty(world[ch->in_room]->zone_rn))) {
-				timechange_mtrigger(ch.get(), time, time_day);
-			}
+	for (auto *ch : timechange_mobs) {
+		if (!ch->IsNpc() || ch->IsNpc() && ch->in_room != kNowhere
+			&& !IsZoneEmpty(world[ch->in_room]->zone_rn)) {
+			timechange_mtrigger(ch, time, time_day);
 		}
 	}
 
-	world_objects.foreach_on_copy([&](const ObjData::shared_ptr &obj) {
-		if (obj->get_script()->has_triggers()) {
-			auto sc = obj->get_script().get();
-			if (IS_SET(SCRIPT_TYPES(sc), OTRIG_TIMECHANGE)) {
-				timechange_otrigger(obj.get(), time, time_day);
-			}
-		}
-	});
+	for (auto *obj : timechange_objs) {
+		timechange_otrigger(obj, time, time_day);
+	}
 
-	for (std::size_t nr = kFirstRoom; nr <= static_cast<std::size_t>(top_of_world); nr++) {
-		if (SCRIPT(world[nr])->has_triggers()) {
-			auto room = world[nr];
-			auto sc = SCRIPT(room).get();
-			if (IS_SET(SCRIPT_TYPES(sc), WTRIG_TIMECHANGE)
-					&& (!IsZoneEmpty(room->zone_rn))) {
-				timechange_wtrigger(room, time, time_day);
-			}
+	for (auto *room : timechange_rooms) {
+		if (!IsZoneEmpty(room->zone_rn)) {
+			timechange_wtrigger(room, time, time_day);
 		}
 	}
-	buffer << "script_timechange_check() всего: " << timercheck.delta().count() <<" ms.";
-	log("%s", buffer.str().c_str());
+
+	log("script_timechange_check() mobs=%zu objs=%zu rooms=%zu time: %f ms.",
+		timechange_mobs.size(), timechange_objs.size(), timechange_rooms.size(),
+		timercheck.delta().count());
 }
 
 EVENT(trig_wait_event) {
@@ -1104,6 +1119,7 @@ void do_attach(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					SendMsgToChar(buf, ch);
 					if (add_trigger(SCRIPT(victim).get(), trig, loc)) {
 						add_trig_to_owner(-1, tn, GET_MOB_VNUM(victim));
+						timechange_register_mob(victim);
 					} else {
 						ExtractTrigger(trig);
 					}
@@ -1127,6 +1143,7 @@ void do_attach(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				SendMsgToChar(buf, ch);
 				if (add_trigger(object->get_script().get(), trig, loc)) {
 					add_trig_to_owner(-1, tn, GET_OBJ_VNUM(object));
+						timechange_register_obj(object);
 				} else {
 					ExtractTrigger(trig);
 				}
@@ -1145,6 +1162,7 @@ void do_attach(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					SendMsgToChar(buf, ch);
 					if (add_trigger(world[room]->script.get(), trig, loc)) {
 						add_trig_to_owner(-1, tn, world[room]->vnum);
+						timechange_register_room(world[room]);
 					} else {
 						ExtractTrigger(trig);
 					}
@@ -1876,7 +1894,7 @@ void find_replacement(void *go,
 				if ((num = atoi(subfield)) > 0)
 					num = GetRoomRnum(num);
 				if (num != kNowhere)
-					sprintf(str, "%d", GET_ROOM_SKY(num));
+					sprintf(str, "%d", (world[num]->weather.duration > 0 ? world[num]->weather.sky : weather_info.sky));
 				else
 					sprintf(str, "%d", weather_info.sky);
 			} else if (!str_cmp(field, "type")) {
@@ -2365,7 +2383,7 @@ void find_replacement(void *go,
 				sprintf(str, "%d", mob->mem_queue.stored);
 			}
 		} else if (!str_cmp(field, "maxmana")) {
-			sprintf(str, "%d", GET_MAX_MANA(mob));
+			sprintf(str, "%d", mana[MIN(50, GetRealWis(mob))]);
 		} else if (!str_cmp(field, "getstat")) {
 			if (*subfield)  {
 				sprintf(str, "%lld", mob->GetStatistic(static_cast<CharStat::ECategory>(atoi(subfield))));
@@ -2407,7 +2425,7 @@ void find_replacement(void *go,
 				sprintf(str, "%d", GET_CAST_SUCCESS(mob));
 		} else if (!str_cmp(field, "age")) {
 			if (!mob->IsNpc())
-				sprintf(str, "%d", GET_REAL_AGE(mob));
+				sprintf(str, "%d", CalcCharAge(mob)->year + GET_AGE_ADD(mob));
 		} else if (!str_cmp(field, "hrbase")) {
 			sprintf(str, "%d", GET_HR(mob));
 		} else if (!str_cmp(field, "hradd")) {

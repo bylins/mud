@@ -560,13 +560,13 @@ void medit_save_to_disk(ZoneRnum zone_num) {
 		strcpy(buf2, mob->player_data.description.c_str());
 		strip_string(buf2);
 		fprintf(mob_file, "%s~\n" "%s~\n" "%s~\n" "%s~\n" "%s~\n" "%s~\n" "%s~\n" "%s~\n" "%s~\n",
-				not_null(GET_ALIAS(mob), "неопределен"),
-				not_null(GET_PAD(mob, 0), "кто"),
-				not_null(GET_PAD(mob, 1), "кого"),
-				not_null(GET_PAD(mob, 2), "кому"),
-				not_null(GET_PAD(mob, 3), "кого"),
-				not_null(GET_PAD(mob, 4), "кем"),
-				not_null(GET_PAD(mob, 5), "о ком"), buf1, buf2);
+				(GET_ALIAS(mob) && *GET_ALIAS(mob)) ? GET_ALIAS(mob) : "неопределен",
+				not_empty(mob->player_data.PNames[ECase::kNom], "кто"),
+				not_empty(mob->player_data.PNames[ECase::kGen], "кого"),
+				not_empty(mob->player_data.PNames[ECase::kDat], "кому"),
+				not_empty(mob->player_data.PNames[ECase::kAcc], "кого"),
+				not_empty(mob->player_data.PNames[ECase::kIns], "кем"),
+				not_empty(mob->player_data.PNames[ECase::kPre], "о ком"), buf1, buf2);
 		if (mob->mob_specials.Questor)
 			strcpy(buf1, mob->mob_specials.Questor);
 		else
@@ -649,7 +649,7 @@ void medit_save_to_disk(ZoneRnum zone_num) {
 		if (GET_WEIGHT(mob))
 			fprintf(mob_file, "Weight: %d\n", GET_WEIGHT(mob));
 		strcpy(buf1, "Special_Bitvector: ");
-		NPC_FLAGS(mob).tascii(FlagData::kPlanesNumber, buf1);
+		mob->mob_specials.npc_flags.tascii(FlagData::kPlanesNumber, buf1);
 		fprintf(mob_file, "%s\n", buf1);
 		for (const auto &feat : MUD::Feats()) {
 			if (mob->HaveFeat(feat.GetId())) {
@@ -1767,26 +1767,26 @@ void medit_parse(DescriptorData *d, char *arg) {
 			medit_disp_saves(d);
 			return;
 		}
-		case MEDIT_ALIAS: OLC_MOB(d)->SetCharAliases(not_null(arg, "неопределен"));
+		case MEDIT_ALIAS: OLC_MOB(d)->SetCharAliases((arg && *arg) ? arg : "неопределен");
 			break;
 
-		case MEDIT_PAD0: OLC_MOB(d)->player_data.PNames[ECase::kNom] = std::string(not_null(arg, "кто-то"));
-			OLC_MOB(d)->set_npc_name(not_null(arg, "кто-то"));
+		case MEDIT_PAD0: OLC_MOB(d)->player_data.PNames[ECase::kNom] = std::string((arg && *arg) ? arg : "кто-то");
+			OLC_MOB(d)->set_npc_name((arg && *arg) ? arg : "кто-то");
 			break;
 
-		case MEDIT_PAD1: OLC_MOB(d)->player_data.PNames[ECase::kGen] = std::string(not_null(arg, "кого-то"));
+		case MEDIT_PAD1: OLC_MOB(d)->player_data.PNames[ECase::kGen] = std::string((arg && *arg) ? arg : "кого-то");
 			break;
 
-		case MEDIT_PAD2: OLC_MOB(d)->player_data.PNames[ECase::kDat] = std::string(not_null(arg, "кому-то"));
+		case MEDIT_PAD2: OLC_MOB(d)->player_data.PNames[ECase::kDat] = std::string((arg && *arg) ? arg : "кому-то");
 			break;
 
-		case MEDIT_PAD3: OLC_MOB(d)->player_data.PNames[ECase::kAcc] = std::string(not_null(arg, "кого-то"));
+		case MEDIT_PAD3: OLC_MOB(d)->player_data.PNames[ECase::kAcc] = std::string((arg && *arg) ? arg : "кого-то");
 			break;
 
-		case MEDIT_PAD4: OLC_MOB(d)->player_data.PNames[ECase::kIns] = std::string(not_null(arg, "кем-то"));
+		case MEDIT_PAD4: OLC_MOB(d)->player_data.PNames[ECase::kIns] = std::string((arg && *arg) ? arg : "кем-то");
 			break;
 
-		case MEDIT_PAD5: OLC_MOB(d)->player_data.PNames[ECase::kPre] = std::string(not_null(arg, "о ком-то"));
+		case MEDIT_PAD5: OLC_MOB(d)->player_data.PNames[ECase::kPre] = std::string((arg && *arg) ? arg : "о ком-то");
 			break;
 			//-------------------------------------------------------------------
 		case MEDIT_L_DESC:

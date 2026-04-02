@@ -52,8 +52,8 @@ int was_agree_name(DescriptorData *d) {
 			}
 			d->character->set_sex(static_cast<EGender>(sex));
 			// Auto-Agree char ...
-			NAME_GOD(d->character) = immlev + 1000;
-			NAME_ID_GOD(d->character) = GetPlayerIdByName(immname);
+			(d->character)->player_specials->saved.NameGod = immlev + 1000;
+			(d->character)->player_specials->saved.NameIDGod = GetPlayerIdByName(immname);
 			sprintf(buf, "\r\nВаше имя одобрено!\r\n");
 			iosystem::write_to_output(buf, d);
 			sprintf(buf, "AUTOAGREE: %s was agreed by %s", GET_PC_NAME(d->character), immname);
@@ -363,7 +363,7 @@ static void go_name(CharData *ch, CharData *vict, int action) {
 	}
 
 	// одобряем или нет
-	int lev = NAME_GOD(vict);
+	int lev = (vict)->player_specials->saved.NameGod;
 	if (lev > 1000)
 		lev = lev - 1000;
 	if (lev > god_level) {
@@ -372,12 +372,12 @@ static void go_name(CharData *ch, CharData *vict, int action) {
 	}
 
 	if (lev == god_level)
-		if (NAME_ID_GOD(vict) != ch->get_uid())
+		if ((vict)->player_specials->saved.NameIDGod != ch->get_uid())
 			SendMsgToChar("Об этом имени уже позаботился другой бог вашего уровня.\r\n", ch);
 
 	if (action == NAME_AGREE) {
-		NAME_GOD(vict) = god_level + 1000;
-		NAME_ID_GOD(vict) = ch->get_uid();
+		(vict)->player_specials->saved.NameGod = god_level + 1000;
+		(vict)->player_specials->saved.NameIDGod = ch->get_uid();
 		//SendMsgToChar("Имя одобрено!\r\n", ch);
 		SendMsgToChar(vict, "&GВаше имя одобрено!&n\r\n");
 		agree_name(vict, GET_NAME(ch), god_level);
@@ -387,8 +387,8 @@ static void go_name(CharData *ch, CharData *vict, int action) {
 		//mudlog(buf, CMP, kLevelGod, SYSLOG, true);
 
 	} else {
-		NAME_GOD(vict) = god_level;
-		NAME_ID_GOD(vict) = ch->get_uid();
+		(vict)->player_specials->saved.NameGod = god_level;
+		(vict)->player_specials->saved.NameIDGod = ch->get_uid();
 		//SendMsgToChar("Имя запрещено!\r\n", ch);
 		SendMsgToChar(vict, "&RВаше имя запрещено!&n\r\n");
 		disagree_name(vict, GET_NAME(ch), god_level);

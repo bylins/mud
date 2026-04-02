@@ -2167,6 +2167,7 @@ void Clan::DestroyClan(Clan::shared_ptr clan, char *reason) {
 
 	}
 	clan->m_members.clear();                    // remove all members from clan
+	clan->owner.clear();
 
 }
 

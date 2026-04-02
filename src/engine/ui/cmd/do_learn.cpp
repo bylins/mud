@@ -24,7 +24,7 @@ bool IsLearningFailed(CharData *ch, ObjData *obj) {
 	addchance += (GET_OBJ_VAL(obj, 0) == EBook::kSpell) ? 0 : 10;
 
 	if (!obj->has_flag(EObjFlag::KNofail)
-		&& number(1, 100) > int_app[POSI(GetRealInt(ch))].spell_aknowlege + addchance) {
+		&& number(1, 100) > int_app[Posi(GetRealInt(ch))].spell_aknowlege + addchance) {
 		return true;
 	}
 	return false;

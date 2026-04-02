@@ -25,6 +25,7 @@
 #include "gameplay/core/base_stats.h"
 #include "gameplay/mechanics/dungeons.h"
 #include "engine/ui/cmd/do_who.h"
+#include "engine/ui/mapsystem.h"
 #include "engine/db/player_index.h"
 
 #ifdef _WIN32
@@ -454,7 +455,7 @@ void Player::save_char() {
 	}
 	fprintf(saved, "Levl: %d\n", this->GetLevel());
 	fprintf(saved, "Clas: %d\n", to_underlying(this->GetClass()));
-	fprintf(saved, "LstL: %ld\n", static_cast<long int>(LAST_LOGON(this)));
+	fprintf(saved, "LstL: %ld\n", static_cast<long int>(this->get_last_logon()));
 	// сохраняем last_ip, который должен содержать айпишник с последнего удачного входа
 	if (player_table[this->get_pfilepos()].last_ip.empty()) {
 		player_table[this->get_pfilepos()].last_ip = "Unknown";
@@ -642,7 +643,7 @@ void Player::save_char() {
 	fprintf(saved, "Room: %d\n", GET_LOADROOM(this));
 //	li = this->player_data.time.birth;
 //	fprintf(saved, "Brth: %ld %s\n", static_cast<long int>(li), ctime(&li));
-	fprintf(saved, "Lexc: %ld\n", static_cast<long>(LAST_EXCHANGE(this)));
+	fprintf(saved, "Lexc: %ld\n", static_cast<long>(this->get_last_exchange()));
 	fprintf(saved, "Badp: %d\n", GET_BAD_PWS(this));
 
 	for (unsigned i = 0; i < board_date_.size(); ++i) {
@@ -669,6 +670,7 @@ void Player::save_char() {
 	*buf = '\0';
 	this->player_specials->saved.pref.tascii(FlagData::kPlanesNumber, buf);
 	fprintf(saved, "Pref: %s\n", buf);
+	fprintf(saved, "MgSh: %d\n", static_cast<int>(GetBriefShieldsMode()));
 
 	if (MUTE_DURATION(this) > 0 && this->IsFlagged(EPlrFlag::kMuted))
 		fprintf(saved,
@@ -734,11 +736,11 @@ void Player::save_char() {
 		fprintf(saved, "LogL:\n%s~\n", buffer.str().c_str());
 	}
 	fprintf(saved, "GdFl: %ld\n", this->player_specials->saved.GodsLike);
-	fprintf(saved, "NamG: %d\n", NAME_GOD(this));
-	fprintf(saved, "NaID: %ld\n", NAME_ID_GOD(this));
-	fprintf(saved, "StrL: %d\n", STRING_LENGTH(this));
-	fprintf(saved, "StrW: %d\n", STRING_WIDTH(this));
-	fprintf(saved, "NtfE: %ld\n", NOTIFY_EXCH_PRICE(this));
+	fprintf(saved, "NamG: %d\n", (this)->player_specials->saved.NameGod);
+	fprintf(saved, "NaID: %ld\n", (this)->player_specials->saved.NameIDGod);
+	fprintf(saved, "StrL: %d\n", (this)->player_specials->saved.stringLength);
+	fprintf(saved, "StrW: %d\n", (this)->player_specials->saved.stringWidth);
+	fprintf(saved, "NtfE: %ld\n", (this)->player_specials->saved.ntfyExchangePrice);
 
 	if (this->remember_get_num() != Remember::DEF_REMEMBER_NUM) {
 		fprintf(saved, "Rmbr: %u\n", this->remember_get_num());
@@ -922,7 +924,7 @@ void Player::save_char() {
 
 	i = GetPlayerTablePosByName(GET_NAME(this));
 	if (i >= 0) {
-		player_table[i].last_logon = LAST_LOGON(this);
+		player_table[i].last_logon = this->get_last_logon();
 		player_table[i].level = GetRealLevel(this);
 		player_table[i].remorts = GetRealRemort(this);
 		player_table[i].mail = GET_EMAIL(this);
@@ -983,7 +985,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 	set_last_logon(time(nullptr));
 	set_exp(0);
 	set_remort(0);
-	GET_LASTIP(this)[0] = 0;
+	this->player_specials->saved.LastIP[0] = 0;
 	GET_EMAIL(this)[0] = 0;
 	char_specials.saved.act.from_string("");    // suspicious line: we should clear flags. Loading from "" does not clear flags.
 
@@ -1029,7 +1031,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 				break;
 			case 'H':
 				if (!strcmp(tag, "Host")) {
-					strcpy(GET_LASTIP(this), line);
+					strcpy(this->player_specials->saved.LastIP, line);
 				}
 				break;
 			case 'I':
@@ -1061,7 +1063,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 	} while (!skip_file);
 
 	bool reboot = (load_flags & ELoadCharFlags::kReboot);
-	while ((reboot) && (!*GET_EMAIL(this) || !*GET_LASTIP(this))) {
+	while ((reboot) && (!*GET_EMAIL(this) || !*this->player_specials->saved.LastIP)) {
 		if (!fbgetline(fl, line)) {
 			log("SYSERROR: Wrong file ascii %d %s", id, filename);
 			return (-1);
@@ -1072,7 +1074,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 		if (!strcmp(tag, "EMal"))
 			strcpy(GET_EMAIL(this), line);
 		else if (!strcmp(tag, "Host"))
-			strcpy(GET_LASTIP(this), line);
+			strcpy(this->player_specials->saved.LastIP, line);
 	}
 
 	// если с загруженными выше полями что-то хочется делать после лоада - делайте это здесь
@@ -1203,10 +1205,10 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 	this->set_max_move(44);
 	KARMA(this) = 0;
 	LOGON_LIST(this).clear();
-	NAME_GOD(this) = 0;
-	STRING_LENGTH(this) = 80;
-	STRING_WIDTH(this) = 30;
-	NAME_ID_GOD(this) = 0;
+	(this)->player_specials->saved.NameGod = 0;
+	(this)->player_specials->saved.stringLength = 80;
+	(this)->player_specials->saved.stringWidth = 30;
+	(this)->player_specials->saved.NameIDGod = 0;
 	GET_OLC_ZONE(this) = -1;
 	this->player_data.time.played = 0;
 	GET_LOADROOM(this) = kNowhere;
@@ -1222,8 +1224,9 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 	EXCHANGE_FILTER(this) = nullptr;
 	clear_ignores();
 	CREATE(GET_LOGS(this), 1 + LAST_LOG);
-	NOTIFY_EXCH_PRICE(this) = 0;
+	(this)->player_specials->saved.ntfyExchangePrice = 0;
 	this->player_specials->saved.HiredCost = 0;
+	this->player_specials->saved.brief_shields_mode = EBriefShieldsMode::kBrief;
 	this->set_who_mana(kWhoManaMax);
 	this->set_who_last(time(0));
 
@@ -1467,7 +1470,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 						num = cap_hryvn;
 					this->set_hryvn(num);
 				} else if (!strcmp(tag, "Host"))
-					strcpy(GET_LASTIP(this), line);
+					strcpy(this->player_specials->saved.LastIP, line);
 				break;
 
 			case 'I':
@@ -1532,6 +1535,13 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 					sscanf(line, "%d/%d", &num, &num2);
 					this->set_move(num);
 					this->set_max_move(num2);
+				} else if (!strcmp(tag, "MgSh")) {
+					if (num >= static_cast<int>(EBriefShieldsMode::kOff)
+						&& num <= static_cast<int>(EBriefShieldsMode::kCompressed)) {
+						this->player_specials->saved.brief_shields_mode = static_cast<EBriefShieldsMode>(num);
+					} else {
+						this->player_specials->saved.brief_shields_mode = EBriefShieldsMode::kBrief;
+					}
 				} else if (!strcmp(tag, "Mobs")) {
 					do {
 						if (!fbgetline(fl, line))
@@ -1559,11 +1569,11 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 				else if (!strcmp(tag, "NamD"))
 					NAME_DURATION(this) = lnum;
 				else if (!strcmp(tag, "NamG"))
-					NAME_GOD(this) = num;
+					(this)->player_specials->saved.NameGod = num;
 				else if (!strcmp(tag, "NaID"))
-					NAME_ID_GOD(this) = lnum;
+					(this)->player_specials->saved.NameIDGod = lnum;
 				else if (!strcmp(tag, "NtfE"))
-					NOTIFY_EXCH_PRICE(this) = lnum;
+					(this)->player_specials->saved.ntfyExchangePrice = lnum;
 				break;
 
 			case 'O':
@@ -1799,9 +1809,9 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 				} else if (!strcmp(tag, "Str "))
 					this->set_str(num);
 				else if (!strcmp(tag, "StrL"))
-					STRING_LENGTH(this) = num;
+					(this)->player_specials->saved.stringLength = num;
 				else if (!strcmp(tag, "StrW"))
-					STRING_WIDTH(this) = num;
+					(this)->player_specials->saved.stringWidth = num;
 				else if (!strcmp(tag, "St00"))
 					this->set_start_stat(G_STR, lnum);
 				else if (!strcmp(tag, "St01"))
@@ -1906,7 +1916,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 	 * If you're not poisioned and you've been away for more than an hour of
 	 * real time, we'll set your HMV back to full
 	 */
-	if (!AFF_FLAGGED(this, EAffect::kPoisoned) && (((long) (time(0) - LAST_LOGON(this))) >= kSecsPerRealHour)) {
+	if (!AFF_FLAGGED(this, EAffect::kPoisoned) && (((long) (time(0) - this->get_last_logon())) >= kSecsPerRealHour)) {
 		this->set_hit(this->get_real_max_hit());
 		this->set_move(this->get_real_max_move());
 	} else

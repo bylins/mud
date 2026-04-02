@@ -61,6 +61,13 @@ struct TemporarySpell {
 	time_t set_time{0};
 	time_t duration{0};
 };
+
+enum class EBriefShieldsMode : int {
+	kOff = 0,
+	kBrief = 1,
+	kCompact = 2,
+	kCompressed = 3
+};
 // кол-во +слотов со шмоток
 const int MAX_ADD_SLOTS = 10;
 
@@ -215,6 +222,7 @@ struct player_special_data_saved {
 	CharStat personal_statistics_;
 	long ntfyExchangePrice;
 	int HiredCost;
+	EBriefShieldsMode brief_shields_mode;
 	unsigned int who_mana; // количество энергии для использования команды кто
 	unsigned long int telegram_id;// идентификатор телеграма
 	time_t lastGloryRespecTime; // дата последнего респека славой
@@ -774,6 +782,25 @@ class CharData : public ProtectedCharData {
   	void SetFlag(const EPrf flag) { if (!IsNpc()) { player_specials->saved.pref.set(flag); }; };
   	void UnsetFlag(const EPrf flag) { if (!IsNpc()) { player_specials->saved.pref.unset(flag); }; };
   	[[nodiscard]] bool IsFlagged(const EPrf flag) const { return (!IsNpc() && player_specials->saved.pref.get(flag)); };
+	[[nodiscard]] EBriefShieldsMode GetBriefShieldsMode() const {
+		if (IsNpc() || !IsFlagged(EPrf::kBriefShields)) {
+			return EBriefShieldsMode::kOff;
+		}
+
+		return player_specials->saved.brief_shields_mode;
+	};
+	void SetBriefShieldsMode(const EBriefShieldsMode mode) {
+		if (IsNpc()) {
+			return;
+		}
+
+		player_specials->saved.brief_shields_mode = mode;
+		if (mode == EBriefShieldsMode::kOff) {
+			UnsetFlag(EPrf::kBriefShields);
+		} else {
+			SetFlag(EPrf::kBriefShields);
+		}
+	};
 
 	int GetCarryingWeight() const { return char_specials.carry_weight; };
   	int GetCarryingQuantity() const { return char_specials.carry_items; };

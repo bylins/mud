@@ -171,7 +171,7 @@ void get_from_container(CharData *ch, ObjData *cont, char *local_arg, int mode, 
 	int obj_dotmode, found = 0;
 
 	obj_dotmode = find_all_dots(local_arg);
-	if (OBJVAL_FLAGGED(cont, EContainerFlag::kShutted))
+	if (IS_SET(GET_OBJ_VAL((cont), 1), (EContainerFlag::kShutted)))
 		act("$o закрыт$A.", false, ch, cont, nullptr, kToChar);
 	else if (obj_dotmode == kFindIndiv) {
 		if (!(obj = get_obj_in_list_vis(ch, local_arg, cont->get_contains()))) {

@@ -252,10 +252,8 @@ void do_mechoaround(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, T
 	}
 
 	if (reloc_target != -1 && reloc_target != victim->in_room) {
-		sprintf(buf,
-				"&YВНИМАНИЕ&G Неверное использование команды wat в триггере %s (VNUM=%d).",
-				GET_TRIG_NAME(cur_trig), GET_TRIG_VNUM(cur_trig));
-		mudlog(buf, BRF, kLvlBuilder, ERRLOG, true);
+		sprintf(buf, "&YВНИМАНИЕ&G Неверное использование команды mat, target room %d. vict room  %d", world[reloc_target]->vnum, world[victim->in_room]->vnum);
+		mob_log(ch, trig, buf);
 	}
 
 	sub_write(p, victim, true, kToRoom);
@@ -291,10 +289,8 @@ void do_msend(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger
 	}
 
 	if (reloc_target != -1 && reloc_target != victim->in_room) {
-		sprintf(buf,
-				"&YВНИМАНИЕ&G Неверное использование команды wat в триггере %s (VNUM=%d).",
-				GET_TRIG_NAME(cur_trig), GET_TRIG_VNUM(cur_trig));
-		mudlog(buf, BRF, kLvlBuilder, ERRLOG, true);
+		sprintf(buf, "&YВНИМАНИЕ&G Неверное использование команды mat, target room %d, vict room  %d", world[reloc_target]->vnum, world[victim->in_room]->vnum);
+		mob_log(ch, trig, buf);
 	}
 
 	sub_write(p, victim, true, kToChar);
@@ -315,10 +311,8 @@ void do_mecho(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger
 	skip_spaces(&p);
 
 	if (reloc_target != -1 && reloc_target != ch->in_room) {
-		sprintf(buf,
-				"&YВНИМАНИЕ&G Неверное использование команды wat в триггере %s (VNUM=%d).",
-				GET_TRIG_NAME(cur_trig), GET_TRIG_VNUM(cur_trig));
-		mudlog(buf, BRF, kLvlBuilder, ERRLOG, true);
+		sprintf(buf, "&YВНИМАНИЕ&G Неверное использование команды mat, target room %d, vict room  %d", world[reloc_target]->vnum, world[ch->in_room]->vnum);
+		mob_log(ch, trig, buf);
 	}
 
 	sub_write(p, ch, true, kToRoom);
@@ -1444,8 +1438,8 @@ void do_mzoneecho(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 }
 // для команды mat
 void MobDgCast(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger *trig) {
-	std::string dg_arg = std::string("DgCast ") + argument;
-	do_dg_cast(ch, trig, MOB_TRIGGER, dg_arg.data());
+	std::string dg_arg = std::string("dgcast ") + argument;
+	do_dg_cast(ch, trig, MOB_TRIGGER, dg_arg);
 }
 
 const struct mob_command_info mob_cmd_info[] =

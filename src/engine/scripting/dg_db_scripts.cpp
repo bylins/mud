@@ -211,6 +211,7 @@ void assign_triggers(void *i, int type) {
 					}
 				}
 			}
+			timechange_register_mob(mob);
 			break;
 
 		case OBJ_TRIGGER: obj = (ObjData *) i;
@@ -241,6 +242,7 @@ void assign_triggers(void *i, int type) {
 					}
 				}
 			}
+			timechange_register_obj(obj);
 			break;
 
 		case WLD_TRIGGER: room = (RoomData *) i;
@@ -270,6 +272,7 @@ void assign_triggers(void *i, int type) {
 					}
 				}
 			}
+			timechange_register_room(room);
 			break;
 
 		default: log("SYSERR: unknown type for assign_triggers()");

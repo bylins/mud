@@ -892,8 +892,8 @@ ssize_t perform_socket_write(socket_t desc, const char *txt, size_t length)
 #define write	socketwrite
 #endif
 
-#if defined(__APPLE__) || defined(__MACH__) || defined(__CYGWIN__)
 #include <sys/socket.h>
+#if defined(__APPLE__) || defined(__MACH__) || defined(__CYGWIN__)
 # ifndef MSG_NOSIGNAL
 #   define MSG_NOSIGNAL SO_NOSIGPIPE
 # endif
@@ -1118,7 +1118,7 @@ std::string MakePrompt(DescriptorData *d) {
 		if (ch->IsFlagged(EPrf::kDispMana) && IS_MANA_CASTER(ch)) {
 			int current_mana = 100 * ch->mem_queue.stored;
 			fmt::format_to(std::back_inserter(out), "{}э{}{} ",
-					  GetColdValueColor(current_mana, GET_MAX_MANA((ch).get())), ch->mem_queue.stored, kColorNrm);
+					  GetColdValueColor(current_mana, mana[MIN(50, GetRealWis((ch).get()))]), ch->mem_queue.stored, kColorNrm);
 		}
 
 		if (ch->IsFlagged(EPrf::kDispExp)) {
