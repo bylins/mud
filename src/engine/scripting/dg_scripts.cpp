@@ -1189,9 +1189,11 @@ void do_detach(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			room->cleanup_script();
 
 			SendMsgToChar("All triggers removed from room.\r\n", ch);
+			timechange_unregister_room(room);
 		} else if (SCRIPT(room)->remove_trigger(atoi(arg2))) {
 				owner_trig[atoi(arg2)][-1].erase(world[ch->in_room]->vnum);
 			SendMsgToChar("Trigger removed.\r\n", ch);
+				timechange_unregister_room(room);
 		} else {
 			SendMsgToChar("That trigger was not found.\r\n", ch);
 		}
@@ -1230,11 +1232,13 @@ void do_detach(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			} else if (!str_cmp(arg2, "all") || !str_cmp(arg2, "все")) {
 				victim->cleanup_script();
 				sprintf(buf, "All triggers removed from %s.\r\n", GET_SHORT(victim));
+				timechange_unregister_mob(victim);
 				SendMsgToChar(buf, ch);
 			} else if (trigger
 				&& SCRIPT(victim)->remove_trigger(atoi(trigger))) {
 				owner_trig[atoi(trigger)][-1].erase(GET_MOB_VNUM(victim));
 				SendMsgToChar("Trigger removed.\r\n", ch);
+				timechange_unregister_mob(victim);
 			} else {
 				SendMsgToChar("That trigger was not found.\r\n", ch);
 			}
@@ -1247,10 +1251,12 @@ void do_detach(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 						!object->get_short_description().empty() ? object->get_short_description().c_str()
 																 : object->get_aliases().c_str());
 				SendMsgToChar(buf, ch);
+				timechange_unregister_obj(object);
 			} else if (trigger &&  object->get_script()->remove_trigger(atoi(trigger))) {
 				owner_trig[atoi(trigger)][-1].erase(GET_OBJ_VNUM(object));
 				SendMsgToChar("Trigger removed.\r\n", ch);
 			} else {
+				timechange_unregister_obj(object);
 				SendMsgToChar("That trigger was not found.\r\n", ch);
 			}
 		}
@@ -4713,6 +4719,7 @@ Trigger *process_detach(void *go, Script *sc, Trigger *trig, int type, char *cmd
 	}
 	if (c && SCRIPT(c)->has_triggers()) {
 		SCRIPT(c)->remove_trigger(tvnum, retval);
+		timechange_unregister_mob(c);
 		for (auto it = owner_trig[tvnum].begin(); it != owner_trig[tvnum].end(); ++it) {
 			if (it->second.contains(GET_MOB_VNUM(c))) {
 				owner_trig[tvnum][it->first].erase(GET_MOB_VNUM(c));
@@ -4727,6 +4734,7 @@ Trigger *process_detach(void *go, Script *sc, Trigger *trig, int type, char *cmd
 	if (o && o->get_script()->has_triggers()) {
 		o->get_script()->remove_trigger(tvnum, retval);
 		for (auto it = owner_trig[tvnum].begin(); it != owner_trig[tvnum].end(); ++it) {
+		timechange_unregister_obj(o);
 			if (it->second.contains(GET_OBJ_VNUM(o))) {
 				owner_trig[tvnum][it->first].erase(GET_OBJ_VNUM(o));
 				if (owner_trig[tvnum][it->first].empty()) {
@@ -4739,6 +4747,7 @@ Trigger *process_detach(void *go, Script *sc, Trigger *trig, int type, char *cmd
 	}
 	if (r && SCRIPT(r)->has_triggers()) {
 		SCRIPT(r)->remove_trigger(tvnum, retval);
+		timechange_unregister_room(r);
 		for (auto it = owner_trig[tvnum].begin(); it != owner_trig[tvnum].end(); ++it) {
 			if (it->second.contains(r->vnum)) {
 				owner_trig[tvnum][it->first].erase(r->vnum);
