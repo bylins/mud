@@ -136,6 +136,10 @@ if host_system == 'windows'
     endif
 endif
 
+if cpp.get_id() == 'clang'
+    project_args += '-Wno-invalid-source-encoding'
+endif
+
 if get_option('with_asan')
     project_args += ['-fsanitize=address']
     add_project_link_arguments('-fsanitize=address', language: 'cpp')
@@ -745,6 +749,6 @@ summary({
     'SQLite Support': get_option('sqlite'),
     'Telegram Support': get_option('telegram'),
     'Scripting': get_option('scripting'),
-    'Epoll': get_option('has_epoll'),
+    'Epoll': epoll_enabled,
     'Linker': linker_choice != '' ? linker_choice : 'default'
 }, section: 'Configuration')
