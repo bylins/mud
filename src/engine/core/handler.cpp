@@ -1349,9 +1349,7 @@ bool CheckObjDecay(ObjData *object,  bool need_extract) {
 		return true;
 	}
 
-	if (object->has_flag(EObjFlag::kDecay) ||
-		(object->has_flag(EObjFlag::kZonedecay) &&
-		object->get_vnum_zone_from() != zone_table[world[room]->zone_rn].vnum)) {
+	if (object->has_flag(EObjFlag::kDecay) || (object->has_flag(EObjFlag::kZonedecay) && object->get_vnum_zone_from() != zone_table[world[room]->zone_rn].vnum)) {
 		act("$o0 рассыпал$U в мелкую пыль, которую развеял ветер.", false,
 			world[room]->first_character(), object, nullptr, kToRoom);
 		act("$o0 рассыпал$U в мелкую пыль, которую развеял ветер.", false,
@@ -1363,6 +1361,8 @@ bool CheckObjDecay(ObjData *object,  bool need_extract) {
 		return true;
 	}
 	if (ROOM_FLAGGED(object->get_in_room(), ERoomFlag::kDeathTrap)) {
+		act("$o0 исчез$Q в яркой вспышке.", false,
+			world[room]->first_character(), object, nullptr, kToChar);
 		log("[Obj decay] extract in DT #%d for: %s vnum == %d", world[object->get_in_room()]->vnum, object->get_PName(ECase::kNom).c_str(), GET_OBJ_VNUM(object));
 		ExtractObjFromWorld(object);
 		return true;

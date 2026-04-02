@@ -223,7 +223,6 @@ void get_from_container(CharData *ch, ObjData *cont, char *local_arg, int mode, 
 int perform_get_from_room(CharData *ch, ObjData *obj) {
 	if (CanTakeObj(ch, obj) && get_otrigger(obj, ch) && bloody::handle_transfer(nullptr, ch, obj)) {
 		RemoveObjFromRoom(obj);
-// а надо ли? все равно не тикает в инве таймеры
 		if (ch->IsNpc() && !obj->has_flag(EObjFlag::kTicktimer)) { 
 			obj_update_list.erase(obj);
 		}
@@ -247,7 +246,8 @@ int perform_get_from_room(CharData *ch, ObjData *obj) {
 
 void get_from_room(CharData *ch, char *local_arg, int howmany) {
 	ObjData *obj;
-	int dotmode, found = 0;
+	int dotmode;
+	bool found = false;
 
 	// Are they trying to take something in a room extra description?
 	if (find_exdesc(local_arg, world[ch->in_room]->ex_description) != nullptr) {
@@ -280,8 +280,9 @@ void get_from_room(CharData *ch, char *local_arg, int howmany) {
 				&& (dotmode == kFindAll
 					|| isname(local_arg, obj->get_aliases())
 					|| CHECK_CUSTOM_LABEL(local_arg, obj, ch))) {
-				found = 1;
-				perform_get_from_room(ch, obj);
+				if (perform_get_from_room(ch, obj) == 1) {
+					found = true;
+				}
 			}
 		}
 		if (!found) {
