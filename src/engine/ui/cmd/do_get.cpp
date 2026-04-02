@@ -223,6 +223,10 @@ void get_from_container(CharData *ch, ObjData *cont, char *local_arg, int mode, 
 int perform_get_from_room(CharData *ch, ObjData *obj) {
 	if (CanTakeObj(ch, obj) && get_otrigger(obj, ch) && bloody::handle_transfer(nullptr, ch, obj)) {
 		RemoveObjFromRoom(obj);
+// а надо ли? все равно не тикает в инве таймеры
+		if (ch->IsNpc() && !obj->has_flag(EObjFlag::kTicktimer)) { 
+			obj_update_list.erase(obj);
+		}
 		PlaceObjToInventory(obj, ch);
 		if (obj->get_carried_by() == ch) {
 			if (bloody::is_bloody(obj)) {
