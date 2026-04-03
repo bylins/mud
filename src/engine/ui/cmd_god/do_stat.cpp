@@ -560,7 +560,11 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 
 		SendMsgToChar(ch, "Ведущий: %s, Ведомые: ", (k->has_master() ? GET_NAME(k->get_master()) : "<нет>"));
 		for (auto &it : k->followers) {
-			fl_str += " " + it->get_name(); 
+			if (!it->IsNpc()) { 
+				fl_str += " " + it->get_name();
+			} else {
+				fl_str += " " + it->get_name() + "_#" + std::to_string(GET_MOB_VNUM(it)); 
+			}
 		}
 		SendMsgToChar(ch, "%s\r\n", utils::OutWordsList(fl_str, ch->player_specials->saved.stringLength - 30).c_str());
 		SendMsgToChar(ch, "Помогают: ");
