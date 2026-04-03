@@ -1118,8 +1118,7 @@ bool NO_DESTROY(const ObjData *obj) {
 //		|| (obj->get_script()->has_triggers())
 		|| obj->get_type() == EObjType::kFountain
 		|| obj->get_in_room() == kNowhere
-		|| (obj->has_flag(EObjFlag::kNodecay)
-			&& !ROOM_FLAGGED(obj->get_in_room(), ERoomFlag::kDeathTrap)));
+		|| obj->has_flag(EObjFlag::kNodecay));
 }
 
 bool NO_TIMER(const ObjData *obj) {
@@ -1374,29 +1373,29 @@ void charmee_obj_decay_tell(CharData *charmee, ObjData *obj, ECharmeeObjPos obj_
 void obj_point_update() {
 	std::list<ObjData *> obj_destroy;
 	std::list<ObjData *> obj_decay_timer;
+	utils::CExecutionTimer timer;
 
-	log("!!!obj_point_update!!!");
-	world_objects.foreach([&obj_destroy, &obj_decay_timer](const ObjData::shared_ptr &j) {
-		if (j->get_where_obj() == EWhereObj::kSeller) {
+	for (auto obj : obj_update_list) {
+		if (obj->get_where_obj() == EWhereObj::kSeller) {
 			return;
 		}
-		if (CheckObjDecay(j.get(), false)) {
-			obj_destroy.push_back(j.get());
+		if (CheckObjDecay(obj, false)) {
+			obj_destroy.push_back(obj);
 			return;
 		}
-		if (j->get_destroyer() > 0 && !NO_DESTROY(j.get())) {
-			j->dec_destroyer();
+		if (obj->get_destroyer() > 0 && !NO_DESTROY(obj)) {
+			obj->dec_destroyer();
 		}
-		if (j->get_timer() > 0 && !NO_TIMER(j.get())) {
-			j->dec_timer();
+		if (obj->get_timer() > 0 && !NO_TIMER(obj)) {
+			obj->dec_timer();
 		}
-		if (j->get_destroyer() == 0
-				|| j->get_timer() == 0
-				|| (j->has_flag(EObjFlag::kZonedecay)
-						&& j->get_vnum_zone_from()
-						&& up_obj_where(j.get()) != kNowhere
-						&& j->get_vnum_zone_from() != zone_table[world[up_obj_where(j.get())]->zone_rn].vnum)) {
-			obj_decay_timer.push_back(j.get());
+		if (obj->get_destroyer() == 0
+				|| obj->get_timer() == 0
+				|| (obj->has_flag(EObjFlag::kZonedecay)
+						&& obj->get_vnum_zone_from()
+						&& up_obj_where(obj) != kNowhere
+						&& obj->get_vnum_zone_from() != zone_table[world[up_obj_where(obj)]->zone_rn].vnum)) {
+			obj_decay_timer.push_back(obj);
 		}
 // а с каких пор у нас на шмотку EApply::kPoison вешается?
 /*		else {
@@ -1410,7 +1409,7 @@ void obj_point_update() {
 			}
 		}
 */
-	});
+	}
 	for (auto it : obj_destroy) {
 		ExtractObjFromWorld(it);
 	}
@@ -1549,6 +1548,8 @@ void obj_point_update() {
 			ExtractObjFromWorld(j);
 		}
 	}
+	log("obj_point_update stop, size %ld,  delta %f", obj_update_list.size(), timer.delta().count());
+
 }
 
 void point_update() {
