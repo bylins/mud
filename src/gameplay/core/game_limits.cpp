@@ -1555,23 +1555,27 @@ void obj_point_update() {
 void point_update() {
 	std::vector<ESpell> real_spell(to_underlying(ESpell::kLast) + 1);
 	auto count{0};
+	mob_ai::MemoryRecord *mem, *nmem, *pmem;
+
 	for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
 		real_spell[count] = spell_id;
 		++count;
 	}
 	std::shuffle(real_spell.begin(), real_spell.end(), std::mt19937(std::random_device()()));
 
-	character_list.foreach([&real_spell](const auto &character) {
-	mob_ai::MemoryRecord *mem, *nmem, *pmem;
-		const auto i = character.get();
+	for (auto &ch : character_list) {
+		const auto i = ch.get();
+
+		if (i->purged() || (i->IsNpc() && !i->in_used_zone())) {
+			break;
+	  	}
 
 		if (i->IsNpc()) {
 			i->inc_restore_timer(kSecsPerMudHour);
 		}
 		/* Если чар или моб попытался проснуться а на нем аффект сон,
 		то он снова должен валиться в сон */
-		if (AFF_FLAGGED(i, EAffect::kSleep)
-			&& i->GetPosition() > EPosition::kSleep) {
+		if (AFF_FLAGGED(i, EAffect::kSleep) && i->GetPosition() > EPosition::kSleep) {
 			i->SetPosition(EPosition::kSleep);
 			SendMsgToChar("Вы попытались очнуться, но снова заснули и упали наземь.\r\n", i);
 			act("$n попытал$u очнуться, но снова заснул$a и упал$a наземь.",
@@ -1597,16 +1601,15 @@ void point_update() {
 		}
 		if (i->GetPosition() >= EPosition::kStun)    // Restore hit points
 		{
-			if (i->IsNpc()
-				|| !UPDATE_PC_ON_BEAT) {
+			if (i->IsNpc() || !UPDATE_PC_ON_BEAT) {
 				const int count = hit_gain(i);
+
 				if (i->get_hit() < i->get_real_max_hit()) {
 					i->set_hit(std::min(i->get_hit() + count, i->get_real_max_hit()));
 				}
 			}
 			// Restore mobs
-			if (i->IsNpc()
-				&& !i->GetEnemy())    // Restore horse
+			if (i->IsNpc() && !i->GetEnemy())    // Restore horse
 			{
 				if (IS_HORSE(i)) {
 					int mana = 0;
@@ -1703,7 +1706,7 @@ void point_update() {
 			&& !i->IsFlagged(EPrf::kCoderinfo)) {
 			check_idling(i);
 		}
-	});
+	}
 }
 void ExtractRepopDecayObject(ObjData *obj) {
 	if (obj->get_worn_by()) {
