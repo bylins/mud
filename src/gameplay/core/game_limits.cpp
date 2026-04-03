@@ -1567,7 +1567,7 @@ void point_update() {
 		const auto i = ch.get();
 
 		if (i->purged() || (i->IsNpc() && !i->in_used_zone())) {
-			break;
+			continue;
 	  	}
 
 		if (i->IsNpc()) {
