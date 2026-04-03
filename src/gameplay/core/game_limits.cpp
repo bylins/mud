@@ -1377,11 +1377,11 @@ void obj_point_update() {
 
 	for (auto &obj : obj_update_list) {
 		if (obj->get_where_obj() == EWhereObj::kSeller) {
-			return;
+			continue;
 		}
 		if (CheckObjDecay(obj, false)) {
 			obj_destroy.push_back(obj);
-			return;
+			continue;
 		}
 		if (obj->get_destroyer() > 0 && !NO_DESTROY(obj)) {
 			obj->dec_destroyer();
