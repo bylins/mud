@@ -1067,4 +1067,14 @@ std::string utils::OutWordsList(const std::list<std::string> &words, size_t max_
 	return result;
 }
 
+std::string utils::OutWordsList(const std::string &words_str, size_t max_length) {
+	std::list<std::string> words;
+	std::istringstream stream(words_str);
+	std::string word;
+	while (stream >> word) {
+		words.push_back(word);
+	}
+	return OutWordsList(words, max_length);
+}
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
