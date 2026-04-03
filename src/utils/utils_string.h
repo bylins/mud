@@ -3,6 +3,7 @@
 
 #include <cstring>
 #include <fstream>
+#include <list>
 #include <memory>
 #include <string>
 #include <vector>
@@ -294,6 +295,12 @@ std::string &colorCAP(std::string &&txt);
 // апперкейс первой букв
 char *CAP(char *txt);
 std::string CAP(const std::string txt);
+
+// формирует строку из списка слов, разделенных ", "
+// при превышении max_length переносит на новую строку
+std::string OutWordsList(const std::list<std::string> &words, size_t max_length);
+// то же, но на вход строка со словами через пробелы
+std::string OutWordsList(const std::string &words_str, size_t max_length);
 
 } // namespace utils
 

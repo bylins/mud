@@ -1044,4 +1044,37 @@ void kill_ems(std::string &str) {
 	str.erase(std::remove(str.begin(), str.end(), '\r'), str.end());
 }
 
+std::string utils::OutWordsList(const std::list<std::string> &words, size_t max_length) {
+	std::string result;
+	size_t line_length = 0;
+	bool first = true;
+
+	for (const auto &word : words) {
+		if (!first) {
+			if (line_length + 2 + word.size() > max_length) {
+				result += ",\r\n";
+				line_length = 0;
+			} else {
+				result += ", ";
+				line_length += 2;
+			}
+		}
+		result += word;
+		line_length += word.size();
+		first = false;
+	}
+
+	return result;
+}
+
+std::string utils::OutWordsList(const std::string &words_str, size_t max_length) {
+	std::list<std::string> words;
+	std::istringstream stream(words_str);
+	std::string word;
+	while (stream >> word) {
+		words.push_back(word);
+	}
+	return OutWordsList(words, max_length);
+}
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
