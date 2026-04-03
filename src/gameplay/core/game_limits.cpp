@@ -1375,7 +1375,7 @@ void obj_point_update() {
 	std::list<ObjData *> obj_decay_timer;
 	utils::CExecutionTimer timer;
 
-	for (auto obj : obj_update_list) {
+	for (auto &obj : obj_update_list) {
 		if (obj->get_where_obj() == EWhereObj::kSeller) {
 			return;
 		}
