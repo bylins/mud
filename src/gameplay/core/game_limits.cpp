@@ -1460,7 +1460,7 @@ void obj_point_update() {
 		} else {
 			if (j->get_timer() == 0 && CheckSript(j, OTRIG_TIMER)) {
 					timer_otrigger(j);
-					return;
+					contunue;
 			}
 			// *** рассыпание объекта
 			ObjData *jj, *next_thing2;
