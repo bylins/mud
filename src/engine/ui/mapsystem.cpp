@@ -817,28 +817,44 @@ void Options::parse_menu(CharData *ch, const char *arg) {
 		return;
 	}
 
-	int num = atoi(arg);
-	--num;
+	int choice = atoi(arg);
 
-	if (num >= 0 && num < TOTAL_MAP_OPTIONS) {
-		bit_list_.flip(num);
+	// считаем видимые опции и маппим номер в индекс enum
+	int cnt = 0;
+	int mapped = -1;
+	for (int i = 0; i < TOTAL_MAP_OPTIONS; ++i) {
+		if (i == MAP_MODE_GOD_BIG && !ch->IsImmortal()) {
+			continue;
+		}
+		++cnt;
+		if (cnt == choice && mapped < 0) {
+			mapped = i;
+		}
+	}
+	// cnt = общее количество видимых опций
+
+	if (mapped >= 0) {
+		bit_list_.flip(mapped);
 		olc_menu(ch);
-	} else if (num == TOTAL_MAP_OPTIONS) {
+	} else if (choice == cnt + 1) {
 		bit_list_.reset();
 		bit_list_.flip();
 		bit_list_.reset(MAP_MODE_1_DEPTH);
 		bit_list_.reset(MAP_MODE_2_DEPTH);
 		bit_list_.reset(MAP_MODE_DEPTH_FIXED);
+		if (!ch->IsImmortal()) {
+			bit_list_.reset(MAP_MODE_GOD_BIG);
+		}
 		olc_menu(ch);
-	} else if (num == TOTAL_MAP_OPTIONS + 1) {
+	} else if (choice == cnt + 2) {
 		bit_list_.reset();
 		olc_menu(ch);
-	} else if (num == TOTAL_MAP_OPTIONS + 2) {
+	} else if (choice == cnt + 3) {
 		ch->desc->map_options.reset();
 		ch->desc->state = EConState::kPlaying;
 		SendMsgToChar("Редактирование отменено.\r\n", ch);
 		return;
-	} else if (num == TOTAL_MAP_OPTIONS + 3) {
+	} else if (choice == cnt + 4) {
 		ch->map_olc_save();
 		ch->desc->map_options.reset();
 		ch->desc->state = EConState::kPlaying;
