@@ -1,6 +1,9 @@
 #include "do_mixture.h"
 
+#include <string>
+
 #include "gameplay/magic/spells.h"
+#include "utils/utils_string.h"
 #include "gameplay/magic/magic_utils.h"
 #include "engine/core/handler.h"
 #include "administration/privilege.h"
@@ -19,7 +22,6 @@ void do_mixture(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	CharData *tch;
 	ObjData *tobj;
 	RoomData *troom;
-	char *s, *t;
 	int target = 0;
 
 	if (!*argument) {
@@ -29,17 +31,29 @@ void do_mixture(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			SendMsgToChar("Что вы хотите смешать?\r\n", ch);
 		return;
 	}
-	s = strtok(argument, "'*!");
-	if (!str_cmp(s, argument)) {
+	std::string arg_str(argument);
+	auto quote1 = arg_str.find_first_of("'*!");
+	if (quote1 == std::string::npos) {
 		if (subcmd == SCMD_RUNES)
 			SendMsgToChar("Название вызываемой магии должно быть заключено в символы : * или !\r\n", ch);
 		else if (subcmd == SCMD_ITEMS)
 			SendMsgToChar("Название вызываемой смеси должно быть заключено в символы : * или !\r\n", ch);
 		return;
 	}
-	t = strtok(nullptr, "\0");
+	auto quote2 = arg_str.find_first_of("'*!", quote1 + 1);
+	std::string spell_name_str;
+	if (quote2 != std::string::npos) {
+		spell_name_str = arg_str.substr(quote1 + 1, quote2 - quote1 - 1);
+	} else {
+		spell_name_str = arg_str.substr(quote1 + 1);
+	}
+	std::string target_str;
+	if (quote2 != std::string::npos && quote2 + 1 < arg_str.size()) {
+		target_str = arg_str.substr(quote2 + 1);
+		utils::TrimLeft(target_str);
+	}
 
-	auto spell_id = FixNameAndFindSpellId(s);
+	auto spell_id = FixNameAndFindSpellId(spell_name_str);
 	if (spell_id == ESpell::kUndefined) {
 			if (subcmd == SCMD_RUNES)
 				SendMsgToChar("Вы бы еще сложить !абырвалг! попробовали!\r\n", ch);
@@ -71,8 +85,8 @@ void do_mixture(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	}
 
 	// Find the target
-	if (t != nullptr)
-		one_argument(t, arg);
+	if (!target_str.empty())
+		one_argument(target_str.data(), arg);
 	else
 		*arg = '\0';
 

@@ -15,6 +15,10 @@
 **************************************************************************/
 
 #include "dg_olc.h"
+
+#include <string>
+#include <vector>
+
 #include "engine/entities/obj_data.h"
 #include "engine/olc/olc.h"
 #include "dg_event.h"
@@ -359,7 +363,6 @@ void TriggerDistribution(DescriptorData *d) {
 void trigedit_save(DescriptorData *d) {
 	int trig_rnum, i;
 	int found = 0;
-	char *s;
 	Trigger *proto;
 	Trigger *trig = OLC_TRIG(d);
 	IndexData **new_index;
@@ -367,12 +370,11 @@ void trigedit_save(DescriptorData *d) {
 	DescriptorData *dsc;
 
 	// Recompile the command list from the new script
-	s = OLC_STORAGE(d);
+	std::string storage_str(OLC_STORAGE(d));
 	olc_log("%s start trig %d:\n%s", GET_NAME(d->character), OLC_NUM(d), OLC_STORAGE(d));
 
 	trig->cmdlist->reset(new cmdlist_element());
 	const auto &cmdlist = *trig->cmdlist;
-	const auto cmd_token = strtok(s, "\n\r");
 	// lowercase the command (first word) for faster comparison at runtime
 	auto lowercase_first_word = [](std::string &str) {
 		auto it = str.begin();
@@ -380,8 +382,25 @@ void trigedit_save(DescriptorData *d) {
 		while (it != str.end() && *it != ' ') { *it = LOWER(*it); ++it; }
 	};
 
-	if (cmd_token) { //тут штатная ошибка циркуля, если strok не нашел подстроку то он возвращает не nullptr а строку полностью т.е. надо str_cmp(cmd_token, s)
-		cmdlist->cmd = cmd_token;
+	// Split storage into lines by \n and \r
+	std::vector<std::string> script_lines;
+	{
+		std::string::size_type start = 0;
+		while (start < storage_str.size()) {
+			auto pos = storage_str.find_first_of("\n\r", start);
+			if (pos == std::string::npos) {
+				script_lines.push_back(storage_str.substr(start));
+				break;
+			}
+			if (pos > start) {
+				script_lines.push_back(storage_str.substr(start, pos - start));
+			}
+			start = pos + 1;
+		}
+	}
+
+	if (!script_lines.empty()) {
+		cmdlist->cmd = script_lines[0];
 		cmdlist->line_num = 1;
 		lowercase_first_word(cmdlist->cmd);
 	} else {
@@ -390,14 +409,13 @@ void trigedit_save(DescriptorData *d) {
 	}
 	auto cmd = cmdlist;
 	int line_num = 2;
-	while ((s = strtok(nullptr, "\n\r"))) {
+	for (size_t li = 1; li < script_lines.size(); ++li) {
 		cmd->next.reset(new cmdlist_element());
 		cmd = cmd->next;
-		cmd->cmd = s;
+		cmd->cmd = script_lines[li];
 		cmd->line_num = line_num++;
 		lowercase_first_word(cmd->cmd);
 	}
-	cmd->next.reset();
 //	log("Триггер зона1 %d внум %d ласт %d", OLC_ZNUM(d), zone_table[OLC_ZNUM(d)].vnum, trig_index[zone_table[OLC_ZNUM(d)].RnumTrigsLocation.second]->vnum);
 
 	if ((trig_rnum = GetTriggerRnum(OLC_NUM(d))) != -1) {
@@ -569,13 +587,17 @@ bool trigedit_save_to_disk(int zone_rnum, int notify_level) {
 				strcpy(buf, "* Empty script~\n");
 				fprintf(trig_file, "%s", buf);
 			} else {
-				char *p;
 				// замена одиночного '~' на '~~'
-				p = strtok(buf, "~");
-				fprintf(trig_file, "%s", p);
-				while ((p = strtok(nullptr, "~")) != nullptr) {
-					fprintf(trig_file, "~~%s", p);
+				std::string buf_str(buf);
+				std::string::size_type pos = 0;
+				std::string::size_type prev = 0;
+				bool first = true;
+				while ((pos = buf_str.find('~', prev)) != std::string::npos) {
+					fprintf(trig_file, "%s%s", first ? "" : "~~", buf_str.substr(prev, pos - prev).c_str());
+					first = false;
+					prev = pos + 1;
 				}
+				fprintf(trig_file, "%s%s", first ? "" : "~~", buf_str.substr(prev).c_str());
 				fprintf(trig_file, "~\n");
 			}
 

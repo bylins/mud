@@ -12,7 +12,10 @@
 
 #include "im.h"
 
+#include <string>
+
 #include "engine/db/world_characters.h"
+#include "utils/utils_string.h"
 #include "engine/db/world_objects.h"
 #include "gameplay/mechanics/mob_races.h"
 #include "engine/db/obj_prototypes.h"
@@ -505,17 +508,17 @@ void initIngredientsMagic(void) {
 			imlog(NRM, text);
 		} else if (!strn_cmp(tmp, "МЕТАТИП", 7)) {
 			if (sscanf(tmp, "%s %d %s %s", dummy, &id, name, tlist) == 4) {
-				char *p;
 				++top_imtypes;
 				imtypes[top_imtypes].id = id;
 				imtypes[top_imtypes].name = str_dup(name);
 				imtypes[top_imtypes].proto_vnum = -1;
 				imtypes[top_imtypes].head = nullptr;
 				imtypes[top_imtypes].tlst.size = 0;
-				for (p = strtok(tlist, ","); p; p = strtok(nullptr, ",")) {
-					int i = im_get_type_by_name(p, 1);    // поиск любого типа
+				auto parts = utils::Split(std::string(tlist), ',');
+				for (const auto &part : parts) {
+					int i = im_get_type_by_name(const_cast<char *>(part.c_str()), 1);    // поиск любого типа
 					if (i == -1) {
-						snprintf(text, sizeof(text), "[IM] Invalid type name : '%s'", p);
+						snprintf(text, sizeof(text), "[IM] Invalid type name : '%s'", part.c_str());
 						imlog(NRM, text);
 						continue;
 					}

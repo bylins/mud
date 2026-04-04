@@ -13,6 +13,9 @@
 *  $Revision$                                                      *
 *********************************************************************** */
 
+#include <sstream>
+#include <string>
+
 #include "engine/entities/char_data.h"
 #include "engine/ui/alias.h"
 
@@ -127,14 +130,17 @@ constexpr int kNumTokens{9};
 
 void perform_complex_alias(struct iosystem::TextBlocksQueue *input_q, char *orig, struct alias_data *a) {
 	struct iosystem::TextBlocksQueue temp_queue;
-	char *tokens[kNumTokens], *temp, *write_point;
+	std::string str_tokens[kNumTokens];
+	char *temp, *write_point;
 	int num_of_tokens = 0, num;
 
 	// First, parse the original string
-	temp = strtok(strcpy(buf2, orig), " ");
-	while (temp != nullptr && num_of_tokens < kNumTokens) {
-		tokens[num_of_tokens++] = temp;
-		temp = strtok(nullptr, " ");
+	{
+		std::istringstream stream(orig);
+		std::string token;
+		while (stream >> token && num_of_tokens < kNumTokens) {
+			str_tokens[num_of_tokens++] = token;
+		}
 	}
 
 	// initialize
@@ -151,8 +157,8 @@ void perform_complex_alias(struct iosystem::TextBlocksQueue *input_q, char *orig
 		} else if (*temp == kAliasVarChar) {
 			temp++;
 			if ((num = *temp - '1') < num_of_tokens && num >= 0) {
-				strcpy(write_point, tokens[num]);
-				write_point += strlen(tokens[num]);
+				strcpy(write_point, str_tokens[num].c_str());
+				write_point += str_tokens[num].size();
 			} else if (*temp == kAliasGlobChar) {
 				strcpy(write_point, orig);
 				write_point += strlen(orig);
