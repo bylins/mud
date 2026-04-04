@@ -132,12 +132,16 @@ void perform_complex_alias(struct iosystem::TextBlocksQueue *input_q, char *orig
 	struct iosystem::TextBlocksQueue temp_queue;
 	temp_queue.head = temp_queue.tail = nullptr;
 
-	// разбиваем аргументы (пропуская первое слово - имя алиаса)
+	// разбиваем аргументы (пропуская первое слово если это имя алиаса)
 	std::vector<std::string> tokens;
 	std::string orig_str(orig);
 	std::istringstream stream(orig_str);
 	std::string word;
-	if (stream >> word) { // пропускаем имя алиаса
+	if (stream >> word) {
+		// первое слово может быть именем алиаса - пропускаем его
+		if (str_cmp(word.c_str(), a->alias) != 0) {
+			tokens.push_back(word);
+		}
 		while (stream >> word && tokens.size() < static_cast<size_t>(kNumTokens)) {
 			tokens.push_back(word);
 		}
