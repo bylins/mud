@@ -1118,8 +1118,7 @@ bool NO_DESTROY(const ObjData *obj) {
 //		|| (obj->get_script()->has_triggers())
 		|| obj->get_type() == EObjType::kFountain
 		|| obj->get_in_room() == kNowhere
-		|| (obj->has_flag(EObjFlag::kNodecay)
-			&& !ROOM_FLAGGED(obj->get_in_room(), ERoomFlag::kDeathTrap)));
+		|| obj->has_flag(EObjFlag::kNodecay));
 }
 
 bool NO_TIMER(const ObjData *obj) {
@@ -1374,31 +1373,37 @@ void charmee_obj_decay_tell(CharData *charmee, ObjData *obj, ECharmeeObjPos obj_
 void obj_point_update() {
 	std::list<ObjData *> obj_destroy;
 	std::list<ObjData *> obj_decay_timer;
+	utils::CExecutionTimer timer;
 
-	log("!!!obj_point_update!!!");
-	world_objects.foreach([&obj_destroy, &obj_decay_timer](const ObjData::shared_ptr &j) {
-		if (j->get_where_obj() == EWhereObj::kSeller) {
-			return;
+	// итерация по копии - объект может быть удален из obj_update_list
+	// во время обработки (ExtractObjFromWorld вызывает erase)
+	auto obj_update_copy = obj_update_list;
+	for (auto *obj : obj_update_copy) {
+		if (obj_update_list.find(obj) == obj_update_list.end()) {
+			continue;
 		}
-		if (CheckObjDecay(j.get(), false)) {
-			obj_destroy.push_back(j.get());
-			return;
+		if (obj->get_where_obj() == EWhereObj::kSeller) {
+			continue;
 		}
-		if (j->get_destroyer() > 0 && !NO_DESTROY(j.get())) {
-			j->dec_destroyer();
+		if (CheckObjDecay(obj, false)) {
+			obj_destroy.push_back(obj);
+			continue;
 		}
-		if (j->get_timer() > 0 && !NO_TIMER(j.get())) {
-			j->dec_timer();
+		if (obj->get_destroyer() > 0 && !NO_DESTROY(obj)) {
+			obj->dec_destroyer();
 		}
-		if (j->get_destroyer() == 0
-				|| j->get_timer() == 0
-				|| (j->has_flag(EObjFlag::kZonedecay)
-						&& j->get_vnum_zone_from()
-						&& up_obj_where(j.get()) != kNowhere
-						&& j->get_vnum_zone_from() != zone_table[world[up_obj_where(j.get())]->zone_rn].vnum)) {
-			obj_decay_timer.push_back(j.get());
+		if (obj->get_timer() > 0 && !NO_TIMER(obj)) {
+			obj->dec_timer();
 		}
-// п╟ я│ п╨п╟п╨п╦я┘ п©п╬я─ я┐ п╫п╟я│ п╫п╟ я┬п╪п╬я┌п╨я┐ EApply::kPoison п╡п╣я┬п╟п╣я┌я│я▐?
+		if (obj->get_destroyer() == 0
+				|| obj->get_timer() == 0
+				|| (obj->has_flag(EObjFlag::kZonedecay)
+						&& obj->get_vnum_zone_from()
+						&& up_obj_where(obj) != kNowhere
+						&& obj->get_vnum_zone_from() != zone_table[world[up_obj_where(obj)]->zone_rn].vnum)) {
+			obj_decay_timer.push_back(obj);
+		}
+// а с каких пор у нас на шмотку EApply::kPoison вешается?
 /*		else {
 			for (int count = 0; count < kMaxObjAffect; count++) {
 				if (j->get_affected(count).location == EApply::kPoison) {
@@ -1410,7 +1415,7 @@ void obj_point_update() {
 			}
 		}
 */
-	});
+	}
 	for (auto it : obj_destroy) {
 		ExtractObjFromWorld(it);
 	}
@@ -1418,6 +1423,10 @@ void obj_point_update() {
 	Depot::update_timers();
 	exchange_point_update();
 	for (auto j : obj_decay_timer) {
+		if (obj_update_list.find(j) == obj_update_list.end()) {
+			continue;
+		}
+
 		if (j->get_in_obj() && Clan::is_clan_chest(j->get_in_obj())) {
 			clan_chest_invoice(j);
 		}
@@ -1440,14 +1449,14 @@ void obj_point_update() {
 					}
 				}
 				if (j->get_carried_by()) {
-					act("$p я─п╟я│я│я▀п©п╟п╩$U п╡ п╡п╟я┬п╦я┘ я─я┐п╨п╟я┘.",
+					act("$p рассыпал$U в ваших руках.",
 						false, j->get_carried_by(), j, nullptr, kToChar);
 					RemoveObjFromChar(j);
 				} else if (j->get_in_room() != kNowhere) {
 					if (!world[j->get_in_room()]->people.empty()) {
-						act("п╖п╣я─п╡п╦ п©п╬п╩п╫п╬я│я┌я▄я▌ я│п╬п╤я─п╟п╩п╦ $o3.",
+						act("Черви полностью сожрали $o3.",
 							true, world[j->get_in_room()]->first_character(), j, nullptr, kToRoom);
-						act("п╖п╣я─п╡п╦ п╫п╣ п╬я│я┌п╟п╡п╦п╩п╦ п╬я┌ $o1 п╦ я│п╩п╣п╢п╟.",
+						act("Черви не оставили от $o1 и следа.",
 							true, world[j->get_in_room()]->first_character(), j, nullptr, kToChar);
 					}
 					RemoveObjFromRoom(j);
@@ -1458,9 +1467,9 @@ void obj_point_update() {
 		} else {
 			if (j->get_timer() == 0 && CheckSript(j, OTRIG_TIMER)) {
 					timer_otrigger(j);
-					return;
+					continue;
 			}
-			// *** я─п╟я│я│я▀п©п╟п╫п╦п╣ п╬п╠я┼п╣п╨я┌п╟
+			// *** рассыпание объекта
 			ObjData *jj, *next_thing2;
 			for (jj = j->get_contains(); jj; jj = next_thing2) {
 				next_thing2 = jj->get_next_content();
@@ -1481,7 +1490,7 @@ void obj_point_update() {
 					ExtractObjFromWorld(jj);
 				}
 			}
-			// п п╬п╫п╣я├ п⌡п╟п╢п╫п╦п╨
+			// Конец Ладник
 			if (j->get_worn_by()) {
 				switch (j->get_worn_on()) {
 					case EEquipPos::kLight:
@@ -1492,7 +1501,7 @@ void obj_point_update() {
 						if (IS_CHARMICE(j->get_worn_by())) {
 							charmee_obj_decay_tell(j->get_worn_by(), j, ECharmeeObjPos::kHandsOrEquip);
 						} else {
-							snprintf(buf, kMaxStringLength, "$o%s я─п╟я│я│я▀п©п╟п╩$U п╡ п╡п╟я┬п╦я┘ я─я┐п╨п╟я┘...",
+							snprintf(buf, kMaxStringLength, "$o%s рассыпал$U в ваших руках...",
 									 char_get_custom_label(j, j->get_worn_by()).c_str());
 							act(buf, false, j->get_worn_by(), j, nullptr, kToChar);
 						}
@@ -1501,7 +1510,7 @@ void obj_point_update() {
 						if (IS_CHARMICE(j->get_worn_by())) {
 							charmee_obj_decay_tell(j->get_worn_by(), j, ECharmeeObjPos::kInventory);
 						} else {
-							snprintf(buf, kMaxStringLength, "$o%s я─п╟я│я│я▀п©п╟п╩$U п©я─я▐п╪п╬ п╫п╟ п╡п╟я│...",
+							snprintf(buf, kMaxStringLength, "$o%s рассыпал$U прямо на вас...",
 									 char_get_custom_label(j, j->get_worn_by()).c_str());
 							act(buf, false, j->get_worn_by(), j, nullptr, kToChar);
 						}
@@ -1512,20 +1521,20 @@ void obj_point_update() {
 				if (IS_CHARMICE(j->get_carried_by())) {
 					charmee_obj_decay_tell(j->get_carried_by(), j, ECharmeeObjPos::kHandsOrEquip);
 				} else {
-					snprintf(buf, kMaxStringLength, "$o%s я─п╟я│я│я▀п©п╟п╩$U п╡ п╡п╟я┬п╦я┘ я─я┐п╨п╟я┘...",
+					snprintf(buf, kMaxStringLength, "$o%s рассыпал$U в ваших руках...",
 							 char_get_custom_label(j, j->get_carried_by()).c_str());
 					act(buf, false, j->get_carried_by(), j, nullptr, kToChar);
 				}
 				RemoveObjFromChar(j);
 			} else if (j->get_in_room() != kNowhere) {
 				if (!world[j->get_in_room()]->people.empty()) {
-					act("$o я─п╟я│я│я▀п©п╟п╩$U п╡ п©я─п╟я┘, п╨п╬я┌п╬я─я▀п╧ п╠я▀п╩ я─п╟п╥п╡п╣я▐п╫ п╡п╣я┌я─п╬п╪...",
+					act("$o рассыпал$U в прах, который был развеян ветром...",
 						false, world[j->get_in_room()]->first_character(), j, nullptr, kToChar);
-					act("$o я─п╟я│я│я▀п©п╟п╩$U п╡ п©я─п╟я┘, п╨п╬я┌п╬я─я▀п╧ п╠я▀п╩ я─п╟п╥п╡п╣я▐п╫ п╡п╣я┌я─п╬п╪...",
+					act("$o рассыпал$U в прах, который был развеян ветром...",
 						false, world[j->get_in_room()]->first_character(), j, nullptr, kToRoom);
 				}
 			} else if (j->get_in_obj()) {
-				// п╣я│п╩п╦ я│я▀п©п╣я┌я│я▐ п╡ п╫п╟я┘п╬п╢я▐я┴п╣п╪я│я▐ я┐ я┤п╟я─п╟ п╦п╩п╦ я┤п╟я─п╪п╦я│п╟ п╨п╬п╫я┌п╣п╧п╫п╣я─п╣, я┌п╬ п╬п╠ я█я┌п╬п╪ я┌п╬п╤п╣ я│п╬п╬п╠я┴п╟п╣п╪
+				// если сыпется в находящемся у чара или чармиса контейнере, то об этом тоже сообщаем
 				CharData *cont_owner = nullptr;
 				if (j->get_in_obj()->get_carried_by()) {
 					cont_owner = j->get_in_obj()->get_carried_by();
@@ -1537,7 +1546,7 @@ void obj_point_update() {
 						charmee_obj_decay_tell(cont_owner, j, ECharmeeObjPos::kContainer);
 					} else {
 							char buf[kMaxStringLength];
-							snprintf(buf, kMaxStringLength, "$o%s я─п╟я│я│я▀п©п╟п╩$U п╡ %s%s...",
+							snprintf(buf, kMaxStringLength, "$o%s рассыпал$U в %s%s...",
 									 char_get_custom_label(j, cont_owner).c_str(),
 									 j->get_in_obj()->get_PName(ECase::kPre).c_str(),
 									 char_get_custom_label(j->get_in_obj(), cont_owner).c_str());
@@ -1549,6 +1558,8 @@ void obj_point_update() {
 			ExtractObjFromWorld(j);
 		}
 	}
+	log("obj_point_update stop, size %ld,  delta %f", obj_update_list.size(), timer.delta().count());
+
 }
 
 void point_update() {
