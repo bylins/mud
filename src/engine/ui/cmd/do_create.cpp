@@ -1,12 +1,12 @@
 #include "do_create.h"
 
+#include <string>
+
 #include "gameplay/crafting/im.h"
 #include "gameplay/magic/magic_utils.h"
 #include "engine/core/handler.h"
 
 void do_create(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
-	char *s;
-
 	if (ch->IsNpc())
 		return;
 
@@ -58,12 +58,20 @@ void do_create(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		SendMsgToChar(buf, ch);
 		return;
 	}
-	s = strtok(argument, "'*!");
-	if (!str_cmp(s, argument)) {
+	std::string arg_str(argument);
+	auto quote1 = arg_str.find_first_of("'*!");
+	if (quote1 == std::string::npos) {
 		SendMsgToChar("Название состава должно быть заключено в символы : ' или * или !\r\n", ch);
 		return;
 	}
-	auto spell_id = FixNameAndFindSpellId(s);
+	auto quote2 = arg_str.find_first_of("'*!", quote1 + 1);
+	std::string spell_name_str;
+	if (quote2 != std::string::npos) {
+		spell_name_str = arg_str.substr(quote1 + 1, quote2 - quote1 - 1);
+	} else {
+		spell_name_str = arg_str.substr(quote1 + 1);
+	}
+	auto spell_id = FixNameAndFindSpellId(spell_name_str);
 	if (spell_id == ESpell::kUndefined) {
 		SendMsgToChar("И откуда вы набрались рецептов?\r\n", ch);
 		return;

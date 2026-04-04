@@ -14,6 +14,7 @@
 *********************************************************************** */
 
 #include <sstream>
+#include <string>
 #include <vector>
 
 #include "engine/entities/char_data.h"

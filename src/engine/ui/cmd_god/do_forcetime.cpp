@@ -6,16 +6,20 @@
 \detail Detail description.
 */
 
+#include <sstream>
+#include <string>
+
 #include "engine/entities/char_data.h"
 #include "engine/db/global_objects.h"
 
 void DoForcetime(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int m, t = 0;
-	char *ca;
 
 	// Parse command line
-	for (ca = strtok(argument, " "); ca; ca = strtok(nullptr, " ")) {
-		m = LOWER(ca[strlen(ca) - 1]);
+	std::istringstream stream(argument);
+	std::string token;
+	while (stream >> token) {
+		m = LOWER(token[token.size() - 1]);
 		if (m == 'h')    // hours
 			m = 60 * 60;
 		else if (m == 'm')    // minutes
@@ -25,7 +29,7 @@ void DoForcetime(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		else
 			m = 0;
 
-		if ((m *= atoi(ca)) > 0)
+		if ((m *= atoi(token.c_str())) > 0)
 			t += m;
 		else {
 			// no time shift with undefined arguments

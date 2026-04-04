@@ -1,6 +1,10 @@
 #include "do_forget.h"
 
+#include <string>
+
 #include "gameplay/magic/spells_info.h"
+#include "gameplay/magic/magic_utils.h"
+#include "utils/utils_string.h"
 #include "gameplay/mechanics/mem_queue.h"
 #include "engine/core/handler.h"
 #include "engine/ui/color.h"
@@ -13,7 +17,6 @@ inline bool in_mem(char *arg) {
 }
 
 void do_forget(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	char *s = nullptr, *t = nullptr;
 	int is_in_mem;
 
 	// проверка на аргумент рецепт|отвар
@@ -56,12 +59,20 @@ void do_forget(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Какое заклинание вы хотите забыть?\r\n", ch);
 		return;
 	}
-	s = strtok(argument, "'*!");
-	if (!str_cmp(s, argument)) {
+	std::string arg_str(argument);
+	auto quote1 = arg_str.find_first_of("'*!");
+	if (quote1 == std::string::npos) {
 		SendMsgToChar("Название заклинания должно быть заключено в символы : * или !\r\n", ch);
 		return;
 	}
-	auto spell_id = FixNameAndFindSpellId(s);
+	auto quote2 = arg_str.find_first_of("'*!", quote1 + 1);
+	std::string spell_name_str;
+	if (quote2 != std::string::npos) {
+		spell_name_str = arg_str.substr(quote1 + 1, quote2 - quote1 - 1);
+	} else {
+		spell_name_str = arg_str.substr(quote1 + 1);
+	}
+	auto spell_id = FixNameAndFindSpellId(spell_name_str);
 	if (spell_id == ESpell::kUndefined) {
 		SendMsgToChar("И откуда вы набрались таких выражений?\r\n", ch);
 		return;
@@ -70,10 +81,11 @@ void do_forget(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Трудно забыть то, чего не знаешь...\r\n", ch);
 		return;
 	}
-	t = strtok(nullptr, "\0");
 	is_in_mem = 0;
-	if (t != nullptr) {
-		one_argument(t, arg);
+	if (quote2 != std::string::npos && quote2 + 1 < arg_str.size()) {
+		std::string rest_str = arg_str.substr(quote2 + 1);
+		utils::TrimLeft(rest_str);
+		one_argument(rest_str.data(), arg);
 		is_in_mem = in_mem(arg);
 	}
 	if (!is_in_mem)
