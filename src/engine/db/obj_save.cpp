@@ -532,7 +532,7 @@ ObjData::shared_ptr read_one_object_new(char **data, int *error) {
 	}
 	ConvertDrinkconSkillField(object.get(), false);
 	object->remove_incorrect_values_keys(object->get_type());
-	obj_update_list.insert(object.get());
+
 	return (object);
 }
 

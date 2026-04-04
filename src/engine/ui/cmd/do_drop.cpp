@@ -85,6 +85,7 @@ void PerformDrop(CharData *ch, ObjData *obj) {
 	sprintf(buf, "$n %s$g $o3.", drop_op[2]);
 	act(buf, true, ch, obj, nullptr, kToRoom | kToArenaListen);
 	RemoveObjFromChar(obj);
+
 	PlaceObjToRoom(obj, ch->in_room);
 	CheckObjDecay(obj);
 }
