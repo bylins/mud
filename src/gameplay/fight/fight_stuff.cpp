@@ -243,22 +243,6 @@ void die(CharData *ch, CharData *killer) {
 	if (stone_rebirth(ch, killer)) {
 		return;
 	}
-	if (!ch->IsNpc() && (GetZoneVnumByCharPlace(ch) == 759)
-		&& (GetRealLevel(ch) < 15)) //нуб помер в мадшколе
-	{
-		act("$n глупо погиб$q не закончив обучение.", false, ch, nullptr, nullptr, kToRoom);
-		RemoveCharFromRoom(ch);
-		PlaceCharToRoom(ch, GetRoomRnum(75989));
-		ch->dismount();
-		ch->set_hit(1);
-		update_pos(ch);
-		act("$n медленно появил$u откуда-то.", false, ch, nullptr, nullptr, kToRoom);
-		look_at_room(ch, 0);
-		greet_mtrigger(ch, -1);
-		greet_otrigger(ch, -1);
-//		WAIT_STATE(ch, 10 * kBattleRound); лаг лучше ставить триггерами
-		return;
-	}
 
 	if (ch->IsNpc()
 		|| !ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena)

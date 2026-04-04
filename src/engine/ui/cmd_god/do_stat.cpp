@@ -104,7 +104,7 @@ void DoStatKarma(CharData *ch, CharData *victim) {
 }
 
 void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
-	int i, i2, found = 0;
+	int i, i2;
 	ObjData *j;
 	char tmpbuf[128];
 	buf[0] = 0;
@@ -539,7 +539,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 	}
 	snprintf(buf, sizeof(buf), "Несет - вес %d, предметов %d; ", k->GetCarryingWeight(), k->GetCarryingQuantity());
 
-	for (i = 0, j = k->carrying; j; j = j->get_next_content(), i++) { ; }
+	for (i = 0, j = k->carrying; j; j = j->get_next_content(), i++);
 	size_t buf_len = strlen(buf);
 	snprintf(buf + buf_len, sizeof(buf) - buf_len, "(в инвентаре) : %d, ", i);
 
@@ -559,36 +559,24 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 	}
 
 	if (god_level >= kLvlGreatGod) {
-		snprintf(buf, sizeof(buf), "Ведущий: %s, Ведомые:", (k->has_master() ? GET_NAME(k->get_master()) : "<нет>"));
+		std::string fl_str;
 
-		for (auto it = k->followers.begin(); it != k->followers.end(); ++it) {
-			auto *fol = *it;
-			auto next_it = std::next(it);
-			snprintf(buf2, sizeof(buf2), "%s %s (%d)", found++ ? "," : "", PERS(fol, ch, 0), GET_MOB_VNUM(fol));
-			strncat(buf, buf2, sizeof(buf) - strlen(buf) - 1);
-			if (strlen(buf) >= 162) {
-				if (next_it != k->followers.end())
-					strncat(buf, ",\r\n", sizeof(buf) - strlen(buf) - 1);
-				else
-					strncat(buf, "\r\n", sizeof(buf) - strlen(buf) - 1);
-				SendMsgToChar(buf, ch);
-				*buf = found = 0;
+		SendMsgToChar(ch, "Ведущий: %s, Ведомые: ", (k->has_master() ? GET_NAME(k->get_master()) : "<нет>"));
+		for (auto &it : k->followers) {
+			if (!it->IsNpc()) { 
+				fl_str += " " + it->get_name();
+			} else {
+				fl_str += " " + it->get_name() + "_#" + std::to_string(GET_MOB_VNUM(it)); 
 			}
 		}
-
-		if (*buf) {
-			strncat(buf, "\r\n", sizeof(buf) - strlen(buf) - 1);
-			SendMsgToChar(buf, ch);
-		}
-
+		SendMsgToChar(ch, "%s\r\n", utils::OutWordsList(fl_str, ch->player_specials->saved.stringLength - 30).c_str());
 		SendMsgToChar(ch, "Помогают: ");
 		if (!k->summon_helpers.empty()) {
-			for (auto helper : k->summon_helpers) {
-				SendMsgToChar(ch, "%d ", helper);
+			fl_str.clear();
+			for (auto &helper : k->summon_helpers) {
+				fl_str += " " +  std::to_string(helper);
 			}
-			SendMsgToChar(ch, "\r\n");
-		} else {
-			SendMsgToChar(ch, "нет.\r\n");
+			SendMsgToChar(ch, "%s\r\n", utils::OutWordsList(fl_str, ch->player_specials->saved.stringLength - 30).c_str());
 		}
 	}
 	// Showing the bitvector
