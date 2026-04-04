@@ -1118,8 +1118,7 @@ bool NO_DESTROY(const ObjData *obj) {
 //		|| (obj->get_script()->has_triggers())
 		|| obj->get_type() == EObjType::kFountain
 		|| obj->get_in_room() == kNowhere
-		|| (obj->has_flag(EObjFlag::kNodecay)
-			&& !ROOM_FLAGGED(obj->get_in_room(), ERoomFlag::kDeathTrap)));
+		|| obj->has_flag(EObjFlag::kNodecay));
 }
 
 bool NO_TIMER(const ObjData *obj) {
@@ -1374,29 +1373,35 @@ void charmee_obj_decay_tell(CharData *charmee, ObjData *obj, ECharmeeObjPos obj_
 void obj_point_update() {
 	std::list<ObjData *> obj_destroy;
 	std::list<ObjData *> obj_decay_timer;
+	utils::CExecutionTimer timer;
 
-	log("!!!obj_point_update!!!");
-	world_objects.foreach([&obj_destroy, &obj_decay_timer](const ObjData::shared_ptr &j) {
-		if (j->get_where_obj() == EWhereObj::kSeller) {
-			return;
+	// итерация по копии - объект может быть удален из obj_update_list
+	// во время обработки (ExtractObjFromWorld вызывает erase)
+	auto obj_update_copy = obj_update_list;
+	for (auto *obj : obj_update_copy) {
+		if (obj_update_list.find(obj) == obj_update_list.end()) {
+			continue;
 		}
-		if (CheckObjDecay(j.get(), false)) {
-			obj_destroy.push_back(j.get());
-			return;
+		if (obj->get_where_obj() == EWhereObj::kSeller) {
+			continue;
 		}
-		if (j->get_destroyer() > 0 && !NO_DESTROY(j.get())) {
-			j->dec_destroyer();
+		if (CheckObjDecay(obj, false)) {
+			obj_destroy.push_back(obj);
+			continue;
 		}
-		if (j->get_timer() > 0 && !NO_TIMER(j.get())) {
-			j->dec_timer();
+		if (obj->get_destroyer() > 0 && !NO_DESTROY(obj)) {
+			obj->dec_destroyer();
 		}
-		if (j->get_destroyer() == 0
-				|| j->get_timer() == 0
-				|| (j->has_flag(EObjFlag::kZonedecay)
-						&& j->get_vnum_zone_from()
-						&& up_obj_where(j.get()) != kNowhere
-						&& j->get_vnum_zone_from() != zone_table[world[up_obj_where(j.get())]->zone_rn].vnum)) {
-			obj_decay_timer.push_back(j.get());
+		if (obj->get_timer() > 0 && !NO_TIMER(obj)) {
+			obj->dec_timer();
+		}
+		if (obj->get_destroyer() == 0
+				|| obj->get_timer() == 0
+				|| (obj->has_flag(EObjFlag::kZonedecay)
+						&& obj->get_vnum_zone_from()
+						&& up_obj_where(obj) != kNowhere
+						&& obj->get_vnum_zone_from() != zone_table[world[up_obj_where(obj)]->zone_rn].vnum)) {
+			obj_decay_timer.push_back(obj);
 		}
 // а с каких пор у нас на шмотку EApply::kPoison вешается?
 /*		else {
@@ -1410,7 +1415,7 @@ void obj_point_update() {
 			}
 		}
 */
-	});
+	}
 	for (auto it : obj_destroy) {
 		ExtractObjFromWorld(it);
 	}
@@ -1458,7 +1463,7 @@ void obj_point_update() {
 		} else {
 			if (j->get_timer() == 0 && CheckSript(j, OTRIG_TIMER)) {
 					timer_otrigger(j);
-					return;
+					continue;
 			}
 			// *** рассыпание объекта
 			ObjData *jj, *next_thing2;
@@ -1549,28 +1554,34 @@ void obj_point_update() {
 			ExtractObjFromWorld(j);
 		}
 	}
+	log("obj_point_update stop, size %ld,  delta %f", obj_update_list.size(), timer.delta().count());
+
 }
 
 void point_update() {
 	std::vector<ESpell> real_spell(to_underlying(ESpell::kLast) + 1);
 	auto count{0};
+	mob_ai::MemoryRecord *mem, *nmem, *pmem;
+
 	for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {
 		real_spell[count] = spell_id;
 		++count;
 	}
 	std::shuffle(real_spell.begin(), real_spell.end(), std::mt19937(std::random_device()()));
 
-	character_list.foreach([&real_spell](const auto &character) {
-	mob_ai::MemoryRecord *mem, *nmem, *pmem;
-		const auto i = character.get();
+	for (auto &ch : character_list) {
+		const auto i = ch.get();
+
+		if (i->purged() || (i->IsNpc() && !i->in_used_zone())) {
+			continue;
+	  	}
 
 		if (i->IsNpc()) {
 			i->inc_restore_timer(kSecsPerMudHour);
 		}
 		/* Если чар или моб попытался проснуться а на нем аффект сон,
 		то он снова должен валиться в сон */
-		if (AFF_FLAGGED(i, EAffect::kSleep)
-			&& i->GetPosition() > EPosition::kSleep) {
+		if (AFF_FLAGGED(i, EAffect::kSleep) && i->GetPosition() > EPosition::kSleep) {
 			i->SetPosition(EPosition::kSleep);
 			SendMsgToChar("Вы попытались очнуться, но снова заснули и упали наземь.\r\n", i);
 			act("$n попытал$u очнуться, но снова заснул$a и упал$a наземь.",
@@ -1596,16 +1607,15 @@ void point_update() {
 		}
 		if (i->GetPosition() >= EPosition::kStun)    // Restore hit points
 		{
-			if (i->IsNpc()
-				|| !UPDATE_PC_ON_BEAT) {
+			if (i->IsNpc() || !UPDATE_PC_ON_BEAT) {
 				const int count = hit_gain(i);
+
 				if (i->get_hit() < i->get_real_max_hit()) {
 					i->set_hit(std::min(i->get_hit() + count, i->get_real_max_hit()));
 				}
 			}
 			// Restore mobs
-			if (i->IsNpc()
-				&& !i->GetEnemy())    // Restore horse
+			if (i->IsNpc() && !i->GetEnemy())    // Restore horse
 			{
 				if (IS_HORSE(i)) {
 					int mana = 0;
@@ -1702,7 +1712,7 @@ void point_update() {
 			&& !i->IsFlagged(EPrf::kCoderinfo)) {
 			check_idling(i);
 		}
-	});
+	}
 }
 void ExtractRepopDecayObject(ObjData *obj) {
 	if (obj->get_worn_by()) {

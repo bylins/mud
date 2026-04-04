@@ -13,6 +13,7 @@
 ************************************************************************ */
 
 #include "../subprojects/fmt/include/fmt/format.h"
+#include <string>
 
 #include "modify.h"
 #include "interpreter.h"
@@ -184,27 +185,39 @@ void parse_action(int command, char *string, DescriptorData *d) {
 				}
 				j++;
 			}
-			if ((s = strtok(string, "'")) == nullptr) {
-				iosystem::write_to_output("Неверный формат.\r\n", d);
-				return;
-			} else if ((s = strtok(nullptr, "'")) == nullptr) {
-				iosystem::write_to_output("Шаблон должен быть заключен в апострофы.\r\n", d);
-				return;
-			} else if ((t = strtok(nullptr, "'")) == nullptr) {
-				iosystem::write_to_output("No replacement string.\r\n", d);
-				return;
-			} else if ((t = strtok(nullptr, "'")) == nullptr) {
-				iosystem::write_to_output("Замещающая строка должна быть заключена в апострофы.\r\n", d);
-				return;
-			} else {
-				size_t total_len = strlen(t) + strlen(d->writer->get_string()) - strlen(s);
+			{
+				// Parse 'old_text' 'new_text' pattern
+				std::string str_buf(string);
+				auto q1 = str_buf.find('\'');
+				if (q1 == std::string::npos) {
+					iosystem::write_to_output("Неверный формат.\r\n", d);
+					return;
+				}
+				auto q2 = str_buf.find('\'', q1 + 1);
+				if (q2 == std::string::npos) {
+					iosystem::write_to_output("Шаблон должен быть заключен в апострофы.\r\n", d);
+					return;
+				}
+				auto q3 = str_buf.find('\'', q2 + 1);
+				if (q3 == std::string::npos) {
+					iosystem::write_to_output("No replacement string.\r\n", d);
+					return;
+				}
+				auto q4 = str_buf.find('\'', q3 + 1);
+				if (q4 == std::string::npos) {
+					iosystem::write_to_output("Замещающая строка должна быть заключена в апострофы.\r\n", d);
+					return;
+				}
+				std::string old_text = str_buf.substr(q1 + 1, q2 - q1 - 1);
+				std::string new_text = str_buf.substr(q3 + 1, q4 - q3 - 1);
+				size_t total_len = new_text.size() + strlen(d->writer->get_string()) - old_text.size();
 				if (total_len <= d->max_str) {
-					replaced = replace_str(d->writer, s, t, rep_all, static_cast<int>(d->max_str));
+					replaced = replace_str(d->writer, old_text.c_str(), new_text.c_str(), rep_all, static_cast<int>(d->max_str));
 					if (replaced > 0) {
-						sprintf(buf, "Заменено вхождений '%s' на '%s' - %d.\r\n", s, t, replaced);
+						sprintf(buf, "Заменено вхождений '%s' на '%s' - %d.\r\n", old_text.c_str(), new_text.c_str(), replaced);
 						iosystem::write_to_output(buf, d);
 					} else if (replaced == 0) {
-						sprintf(buf, "Шаблон '%s' не найден.\r\n", s);
+						sprintf(buf, "Шаблон '%s' не найден.\r\n", old_text.c_str());
 						iosystem::write_to_output(buf, d);
 					} else {
 						iosystem::write_to_output("ОШИБКА: При попытке замены буфер переполнен - прервано.\r\n", d);

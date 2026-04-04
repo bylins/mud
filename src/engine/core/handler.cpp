@@ -456,10 +456,9 @@ void PlaceObjToInventory(ObjData *object, CharData *ch) {
 			}
 		}
 
-		if (!ch->IsNpc()
-			|| (ch->has_master()
-				&& !ch->get_master()->IsNpc())) {
+		if (!ch->IsNpc() || (ch->has_master() && !ch->get_master()->IsNpc())) {
 			object->set_extra_flag(EObjFlag::kTicktimer);    // start timer unconditionally when character picks item up.
+			obj_update_list.insert(object);
 			ArrangeObjs(object, &ch->carrying);
 		} else {
 			// Вот эта муть, чтобы временно обойти завязку магазинов на порядке предметов в инве моба // Krodo
@@ -1302,6 +1301,9 @@ bool PlaceObjToRoom(ObjData *object, RoomRnum room) {
 	} else if (!IS_CORPSE(object)) {
 		object->set_destroyer(kRoomDestroyTimer);
 	}
+	if (object->get_type() != EObjType::kFountain && !object->has_flag(EObjFlag::kNodecay)) {
+		obj_update_list.insert(object);
+	}
 	return true;
 }
 
@@ -1315,6 +1317,11 @@ bool CheckObjDecay(ObjData *object,  bool need_extract) {
 	room = object->get_in_room();
 
 	if (room == kNowhere) {
+		return false;
+	}
+	if (room < 0 || room > top_of_world) {
+		log("SYSERR: CheckObjDecay: object '%s' vnum %d has invalid room %d",
+			object->get_PName(ECase::kNom).c_str(), GET_OBJ_VNUM(object), room);
 		return false;
 	}
 	sect = real_sector(room);
@@ -1347,9 +1354,7 @@ bool CheckObjDecay(ObjData *object,  bool need_extract) {
 		return true;
 	}
 
-	if (object->has_flag(EObjFlag::kDecay) ||
-		(object->has_flag(EObjFlag::kZonedecay) &&
-		object->get_vnum_zone_from() != zone_table[world[room]->zone_rn].vnum)) {
+	if (object->has_flag(EObjFlag::kDecay) || (object->has_flag(EObjFlag::kZonedecay) && object->get_vnum_zone_from() != zone_table[world[room]->zone_rn].vnum)) {
 		act("$o0 рассыпал$U в мелкую пыль, которую развеял ветер.", false,
 			world[room]->first_character(), object, nullptr, kToRoom);
 		act("$o0 рассыпал$U в мелкую пыль, которую развеял ветер.", false,
@@ -1360,7 +1365,15 @@ bool CheckObjDecay(ObjData *object,  bool need_extract) {
 		}
 		return true;
 	}
-
+	if (ROOM_FLAGGED(object->get_in_room(), ERoomFlag::kDeathTrap)) {
+		act("$o0 исчез$Q в яркой вспышке.", false,
+			world[room]->first_character(), object, nullptr, kToChar);
+		if (need_extract) {
+			log("[Obj decay] extract in DT #%d for: %s vnum == %d", world[object->get_in_room()]->vnum, object->get_PName(ECase::kNom).c_str(), GET_OBJ_VNUM(object));
+			ExtractObjFromWorld(object);
+		}
+		return true;
+	}
 	return false;
 }
 
@@ -1527,6 +1540,7 @@ void ExtractObjFromWorld(ObjData *obj, bool showlog) {
 
 	check_auction(nullptr, obj);
 	check_exchange(obj);
+	obj_update_list.erase(obj);
 	obj->get_script()->set_purged();
 	world_objects.remove(obj);
 //	if (showlog);

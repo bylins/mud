@@ -1,5 +1,7 @@
 #include "do_memorize.h"
 
+#include <string>
+
 #include "gameplay/magic/spells_info.h"
 #include "engine/core/handler.h"
 #include "engine/ui/color.h"
@@ -15,8 +17,6 @@ using classes::CalcCircleSlotsAmount;
 void show_wizdom(CharData *ch, int bitset);
 
 void do_memorize(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
-	char *s;
-
 	if (!argument || !(*argument)) {
 		show_wizdom(ch, 0x07);
 		return;
@@ -29,12 +29,20 @@ void do_memorize(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Какое заклинание вы хотите заучить?\r\n", ch);
 		return;
 	}
-	s = strtok(argument, "'*!");
-	if (!str_cmp(s, argument)) {
+	std::string arg_str(argument);
+	auto quote1 = arg_str.find_first_of("'*!");
+	if (quote1 == std::string::npos) {
 		SendMsgToChar("Название заклинания должно быть заключено в символы : * или !\r\n", ch);
 		return;
 	}
-	auto spell_id = FixNameAndFindSpellId(s);
+	auto quote2 = arg_str.find_first_of("'*!", quote1 + 1);
+	std::string spell_name_str;
+	if (quote2 != std::string::npos) {
+		spell_name_str = arg_str.substr(quote1 + 1, quote2 - quote1 - 1);
+	} else {
+		spell_name_str = arg_str.substr(quote1 + 1);
+	}
+	auto spell_id = FixNameAndFindSpellId(spell_name_str);
 	if (spell_id == ESpell::kUndefined) {
 		SendMsgToChar("И откуда вы набрались таких выражений?\r\n", ch);
 		return;

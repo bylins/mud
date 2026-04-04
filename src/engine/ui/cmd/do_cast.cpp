@@ -1,6 +1,9 @@
 #include "do_cast.h"
 
+#include <string>
+
 #include "engine/entities/char_data.h"
+#include "utils/utils_string.h"
 #include "gameplay/magic/magic_utils.h"
 #include "gameplay/classes/classes_spell_slots.h"
 #include "gameplay/magic/spells_info.h"
@@ -65,12 +68,20 @@ void DoCast(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 		SendMsgToChar("ЧТО вы хотите колдовать?\r\n", ch);
 		return;
 	}
-	auto spell_name = strtok(argument, "'*!");
-	if (!str_cmp(spell_name, argument)) {
+	std::string arg_str(argument);
+	auto quote1 = arg_str.find_first_of("'*!");
+	if (quote1 == std::string::npos) {
 		SendMsgToChar("Название заклинания должно быть заключено в символы : * или !\r\n", ch);
 		return;
 	}
-	const auto spell_id = FixNameAndFindSpellId(spell_name);
+	auto quote2 = arg_str.find_first_of("'*!", quote1 + 1);
+	std::string spell_name_str;
+	if (quote2 != std::string::npos) {
+		spell_name_str = arg_str.substr(quote1 + 1, quote2 - quote1 - 1);
+	} else {
+		spell_name_str = arg_str.substr(quote1 + 1);
+	}
+	const auto spell_id = FixNameAndFindSpellId(spell_name_str);
 	if (spell_id == ESpell::kUndefined) {
 		SendMsgToChar("И откуда вы набрались таких выражений?\r\n", ch);
 		return;
@@ -101,8 +112,10 @@ void DoCast(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	}
 
 
-	if (auto target_name = strtok(nullptr, "\0"); target_name != nullptr) {
-		one_argument(target_name, arg);
+	if (quote2 != std::string::npos && quote2 + 1 < arg_str.size()) {
+		std::string target_str = arg_str.substr(quote2 + 1);
+		utils::TrimLeft(target_str);
+		one_argument(target_str.data(), arg);
 	} else {
 		*arg = '\0';
 	}

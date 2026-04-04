@@ -205,13 +205,15 @@ void assign_triggers(void *i, int type) {
 								owner_trig.emplace(trigger_vnum, tmp_map);
 							}
 							add_trig_to_owner(-1, trigger_vnum, GET_MOB_VNUM(mob));
+							if (IS_SET(GET_TRIG_TYPE(trig), MTRIG_TIMECHANGE)) {
+								timechange_register_mob(mob);
+							}
 						} else {
 							ExtractTrigger(trig);
 						}
 					}
 				}
 			}
-			timechange_register_mob(mob);
 			break;
 
 		case OBJ_TRIGGER: obj = (ObjData *) i;
@@ -236,13 +238,15 @@ void assign_triggers(void *i, int type) {
 								owner_trig.emplace(trigger_vnum, tmp_map);
 							}
 							add_trig_to_owner(-1, trigger_vnum, GET_OBJ_VNUM(obj));
+							if (IS_SET(GET_TRIG_TYPE(trig), OTRIG_TIMECHANGE)) {
+								timechange_register_obj(obj);
+							}
 						} else {
 							ExtractTrigger(trig);
 						}
 					}
 				}
 			}
-			timechange_register_obj(obj);
 			break;
 
 		case WLD_TRIGGER: room = (RoomData *) i;
@@ -266,13 +270,15 @@ void assign_triggers(void *i, int type) {
 								owner_trig.emplace(trigger_vnum, tmp_map);
 							}
 							add_trig_to_owner(-1, trigger_vnum, room->vnum);
+							if (IS_SET(GET_TRIG_TYPE(trig), WTRIG_TIMECHANGE)) {
+								timechange_register_room(room);
+							}
 						} else {
 							ExtractTrigger(trig);
 						}
 					}
 				}
 			}
-			timechange_register_room(room);
 			break;
 
 		default: log("SYSERR: unknown type for assign_triggers()");

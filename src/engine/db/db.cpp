@@ -111,8 +111,9 @@ int top_of_trigt = 0;        // top of trigger index table
 IndexData *mob_index;        // index table for mobile file
 MobRnum top_of_mobt = 0;    // top of mobile index table
 std::map<long, CharData *> chardata_by_uid;
-std::set<CharData *> chardata_wait_list;
-std::set<CharData *> chardata_cooldown_list;
+std::unordered_set<CharData *> chardata_wait_list;
+std::unordered_set<CharData *> chardata_cooldown_list;
+std::unordered_set<ObjData *> obj_update_list;
 int global_uid = 0;
 long top_idnum = 0;        // highest idnum in use
 
