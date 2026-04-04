@@ -1319,6 +1319,11 @@ bool CheckObjDecay(ObjData *object,  bool need_extract) {
 	if (room == kNowhere) {
 		return false;
 	}
+	if (room < 0 || room > top_of_world) {
+		log("SYSERR: CheckObjDecay: object '%s' vnum %d has invalid room %d",
+			object->get_PName(ECase::kNom).c_str(), GET_OBJ_VNUM(object), room);
+		return false;
+	}
 	sect = real_sector(room);
 
 	if (((sect == ESector::kWaterSwim || sect == ESector::kWaterNoswim) &&
@@ -1363,8 +1368,10 @@ bool CheckObjDecay(ObjData *object,  bool need_extract) {
 	if (ROOM_FLAGGED(object->get_in_room(), ERoomFlag::kDeathTrap)) {
 		act("$o0 исчез$Q в яркой вспышке.", false,
 			world[room]->first_character(), object, nullptr, kToChar);
-		log("[Obj decay] extract in DT #%d for: %s vnum == %d", world[object->get_in_room()]->vnum, object->get_PName(ECase::kNom).c_str(), GET_OBJ_VNUM(object));
-		ExtractObjFromWorld(object);
+		if (need_extract) {
+			log("[Obj decay] extract in DT #%d for: %s vnum == %d", world[object->get_in_room()]->vnum, object->get_PName(ECase::kNom).c_str(), GET_OBJ_VNUM(object));
+			ExtractObjFromWorld(object);
+		}
 		return true;
 	}
 	return false;
