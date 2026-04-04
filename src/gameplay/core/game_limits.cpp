@@ -1375,8 +1375,11 @@ void obj_point_update() {
 	std::list<ObjData *> obj_decay_timer;
 	utils::CExecutionTimer timer;
 
-	for (auto &obj : obj_update_list) {
-		if (obj->get_script()->is_purged()) {
+	// итерация по копии - объект может быть удален из obj_update_list
+	// во время обработки (ExtractObjFromWorld вызывает erase)
+	auto obj_update_copy = obj_update_list;
+	for (auto *obj : obj_update_copy) {
+		if (obj_update_list.find(obj) == obj_update_list.end()) {
 			continue;
 		}
 		if (obj->get_where_obj() == EWhereObj::kSeller) {
