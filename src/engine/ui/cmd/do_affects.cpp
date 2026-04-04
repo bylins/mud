@@ -29,7 +29,7 @@ void do_affects(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		aff_copy.unset(j);
 	}
 
-	aff_copy.sprintbits(affected_bits, buf2, ",");
+	aff_copy.sprintbits(affected_bits, buf2, sizeof(buf2), ",");
 	snprintf(buf, kMaxStringLength, "Аффекты: %s%s%s\r\n", kColorBoldYel, buf2, kColorNrm);
 	SendMsgToChar(buf, ch);
 
@@ -43,7 +43,7 @@ void do_affects(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 
 			*buf2 = '\0';
-			strcpy(sp_name, MUD::Spell(aff->type).GetCName());
+			snprintf(sp_name, sizeof(sp_name), "%s", MUD::Spell(aff->type).GetCName());
 			int mod = 0;
 			if (aff->battleflag == kAfPulsedec) {
 				mod = aff->duration / 51; //если в пульсах приводим к тикам 25.5 в сек 2 минуты
@@ -72,18 +72,18 @@ void do_affects(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			} else {
 				if (aff->modifier) {
 					sprintf(buf2, "%-3d к параметру: %s", aff->modifier, apply_types[(int) aff->location]);
-					strcat(buf, buf2);
+					strncat(buf, buf2, sizeof(buf) - strlen(buf) - 1);
 				}
 				if (aff->bitvector) {
 					if (*buf2) {
-						strcat(buf, ", устанавливает ");
+						strncat(buf, ", устанавливает ", sizeof(buf) - strlen(buf) - 1);
 					} else {
-						strcat(buf, "устанавливает ");
+						strncat(buf, "устанавливает ", sizeof(buf) - strlen(buf) - 1);
 					}
-					strcat(buf, kColorBoldRed);
-					sprintbit(aff->bitvector, affected_bits, buf2);
-					strcat(buf, buf2);
-					strcat(buf, kColorNrm);
+					strncat(buf, kColorBoldRed, sizeof(buf) - strlen(buf) - 1);
+					sprintbit(aff->bitvector, affected_bits, buf2, sizeof(buf2));
+					strncat(buf, buf2, sizeof(buf) - strlen(buf) - 1);
+					strncat(buf, kColorNrm, sizeof(buf) - strlen(buf) - 1);
 				}
 			}
 			SendMsgToChar(strcat(buf, "\r\n"), ch);
@@ -114,9 +114,10 @@ void do_affects(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				if (aff->modifier) {
 					sprintf(buf2, "%s%-3d к параметру: %s%s%s", (aff->modifier > 0) ? "+" : "",
 							aff->modifier, kColorBoldRed, apply_types[(int) aff->location], kColorNrm);
-					strcat(buf, buf2);
+					strncat(buf, buf2, sizeof(buf) - strlen(buf) - 1);
 				}
-				SendMsgToChar(strcat(buf, "\r\n"), ch);
+				strncat(buf, "\r\n", sizeof(buf) - strlen(buf) - 1);
+				SendMsgToChar(buf, ch);
 			}
 		}
 	}

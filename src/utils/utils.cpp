@@ -418,11 +418,11 @@ char *rustime(const struct tm *timeptr) {
 	static char result[100];
 
 	if (timeptr) {
-		sprintf(result, "%.2d:%.2d:%.2d %2d %s %d года",
+		snprintf(result, sizeof(result), "%.2d:%.2d:%.2d %2d %s %d года",
 				timeptr->tm_hour,
 				timeptr->tm_min, timeptr->tm_sec, timeptr->tm_mday, mon_name[timeptr->tm_mon], 1900 + timeptr->tm_year);
 	} else {
-		sprintf(result, "Время последнего входа неизвестно");
+		snprintf(result, sizeof(result), "Время последнего входа неизвестно");
 	}
 
 	return result;
@@ -453,7 +453,7 @@ std::string FormatTimeToStr(long in_timer, bool flag) {
 	if (timer < 60)
 		out << timer << " " << GetDeclensionInNumber(in_timer, flag ? EWhat::kMinU : EWhat::kMinA);
 	else if (timer < 1440) {
-		sprintf(buffer, "%.1f", timer / 60);
+		snprintf(buffer, sizeof(buffer), "%.1f", timer / 60);
 		sscanf(buffer, "%d.%d", &one, &two);
 		out << one;
 		if (two)
@@ -461,7 +461,7 @@ std::string FormatTimeToStr(long in_timer, bool flag) {
 		else
 			out << " " << GetDeclensionInNumber(one, EWhat::kHour);
 	} else if (timer < 10080) {
-		sprintf(buffer, "%.1f", timer / 1440);
+		snprintf(buffer, sizeof(buffer), "%.1f", timer / 1440);
 		sscanf(buffer, "%d.%d", &one, &two);
 		out << one;
 		if (two)
@@ -469,7 +469,7 @@ std::string FormatTimeToStr(long in_timer, bool flag) {
 		else
 			out << " " << GetDeclensionInNumber(one, EWhat::kDay);
 	} else if (timer < 44640) {
-		sprintf(buffer, "%.1f", timer / 10080);
+		snprintf(buffer, sizeof(buffer), "%.1f", timer / 10080);
 		sscanf(buffer, "%d.%d", &one, &two);
 		out << one;
 		if (two)
@@ -477,7 +477,7 @@ std::string FormatTimeToStr(long in_timer, bool flag) {
 		else
 			out << " " << GetDeclensionInNumber(one, flag ? EWhat::kWeekU : EWhat::kWeek);
 	} else {
-		sprintf(buffer, "%.1f", timer / 44640);
+		snprintf(buffer, sizeof(buffer), "%.1f", timer / 44640);
 		sscanf(buffer, "%d.%d", &one, &two);
 		out << one;
 		if (two)
@@ -1124,7 +1124,7 @@ void koi_to_utf8(char *str_i, char *str_o) {
 
 #endif // HAVE_ICONV
 
-bool sprintbitwd(Bitvector bitvector, const char *names[], char *result, const char *div, const int print_flag) {
+bool sprintbitwd(Bitvector bitvector, const char *names[], char *result, size_t result_size, const char *div, const int print_flag) {
 
 	long nr = 0;
 	Bitvector fail;
@@ -1149,24 +1149,28 @@ bool sprintbitwd(Bitvector bitvector, const char *names[], char *result, const c
 			can_show = ((*names[nr] != '*') || (print_flag & 4));
 
 			if (*result != '\0' && can_show)
-				strcat(result, div);
+				strncat(result, div, result_size - strlen(result) - 1);
 
 			if (*names[nr] != '\n') {
 				if (print_flag & 1) {
-					sprintf(result + strlen(result), "%c%d:", c, plane);
+					size_t result_len = strlen(result);
+					snprintf(result + result_len, result_size - result_len, "%c%d:", c, plane);
 				}
 				if ((print_flag & 2) && (!strcmp(names[nr], "UNUSED"))) {
-					sprintf(result + strlen(result), "%ld:", nr + 1);
+					size_t result_len = strlen(result);
+					snprintf(result + result_len, result_size - result_len, "%ld:", nr + 1);
 				}
 				if (can_show)
-					strcat(result, (*names[nr] != '*' ? names[nr] : names[nr] + 1));
+					strncat(result, (*names[nr] != '*' ? names[nr] : names[nr] + 1), result_size - strlen(result) - 1);
 			} else {
 				if (print_flag & 2) {
-					sprintf(result + strlen(result), "%ld:", nr + 1);
+					size_t result_len = strlen(result);
+					snprintf(result + result_len, result_size - result_len, "%ld:", nr + 1);
 				} else if (print_flag & 1) {
-					sprintf(result + strlen(result), "%c%d:", c, plane);
+					size_t result_len = strlen(result);
+					snprintf(result + result_len, result_size - result_len, "%c%d:", c, plane);
 				}
-				strcat(result, "UNDEF");
+				strncat(result, "UNDEF", result_size - strlen(result) - 1);
 			}
 		}
 
@@ -1182,7 +1186,7 @@ bool sprintbitwd(Bitvector bitvector, const char *names[], char *result, const c
 	}
 
 	if ('\0' == *result) {
-		strcat(result, nothing_string);
+		strncat(result, nothing_string, result_size - 1);
 		return false;
 	}
 
@@ -1199,7 +1203,7 @@ void MemLeakInfo() {
 	if (pmem_used != last_pmem_used) {
 		debug::backtrace(runtime_config.logs(SYSLOG).handle());
 		last_pmem_used = pmem_used;
-		sprintf(buf, "Memory size mismatch, last: phys (%d kb), current: virt (%d kB) phys (%d kB)", last_pmem_used, vmem_used, pmem_used);
+		snprintf(buf, sizeof(buf), "Memory size mismatch, last: phys (%d kb), current: virt (%d kB) phys (%d kB)", last_pmem_used, vmem_used, pmem_used);
 		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 		last_pmem_used = pmem_used;
 	}

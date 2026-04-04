@@ -110,13 +110,13 @@ struct RoomData {
 	void clear_flags() { m_room_flags.clear(); }
 
 	void flags_from_string(const char *flag) { m_room_flags.from_string(flag); };
-	bool flags_sprint(char *result, const char *div, const int print_flag = 0) const {
+	bool flags_sprint(char *result, size_t result_size, const char *div, const int print_flag = 0) const {
 		return m_room_flags.sprintbits(room_bits,
-									   result,
+									   result, result_size,
 									   div,
 									   print_flag);
 	}
-	void flags_tascii(int num_planes, char *ascii) { m_room_flags.tascii(num_planes, ascii); }
+	void flags_tascii(int num_planes, char *ascii, size_t ascii_size) { m_room_flags.tascii(num_planes, ascii, ascii_size); }
 
 	void gm_flag(char *subfield, const char *const *const list, char *res) {
 		m_room_flags.gm_flag(subfield,

@@ -694,7 +694,7 @@ std::string get_location_str(const AFFECT_DATA<EApplyLocation> &af) {
 
 std::string get_bitvector_str(const AFFECT_DATA<EApplyLocation> &af) {
 	char buf[MAX_STRING_LENGTH];
-	sprintbitwd(af.bitvector, affected_bits, buf, ", ");
+	sprintbitwd(af.bitvector, affected_bits, buf, sizeof(buf), ", ");
 	return buf;
 }
 
@@ -1124,7 +1124,7 @@ void flag_toggle(FLAG_DATA &flag, const unsigned f) {
 str flag_str(const FLAG_DATA &flag) {
 	char buf[MAX_STRING_LENGTH];
 	*buf = '\0';
-	flag.tascii(FlagData::kPlanesNumber, buf);
+	flag.tascii(FlagData::kPlanesNumber, buf, sizeof(buf));
 	return str(buf);
 }
 

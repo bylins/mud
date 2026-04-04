@@ -752,7 +752,7 @@ class CharData : public ProtectedCharData {
 	/* Character's flags actions */
 	// Костыльная функция, которая пока нужна, потому что загрузчик файлов не часть чардаты и не friend class.
 	void SetFlagsFromString(const std::string &string) { char_specials.saved.act.from_string(string.c_str()); };
-  	void PrintFlagsToAscii(char *sink) const { char_specials.saved.act.tascii(FlagData::kPlanesNumber, sink); };
+  	void PrintFlagsToAscii(char *sink, size_t sink_size) const { char_specials.saved.act.tascii(FlagData::kPlanesNumber, sink, sink_size); };
   	void CopyFlagsFrom(CharData *source) { char_specials.saved.act = source->char_specials.saved.act ; };
 	void SetFlag(const EMobFlag flag) { if (IsNpc()) { char_specials.saved.act.set(flag); }; };
   	void UnsetFlag(const EMobFlag flag) { if (IsNpc()) { char_specials.saved.act.unset(flag); }; };

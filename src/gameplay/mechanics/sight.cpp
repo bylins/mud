@@ -167,7 +167,7 @@ void look_at_room(CharData *ch, int ignore_brief, bool msdp_mode) {
 		const bool has_flag = ROOM_FLAGGED(ch->in_room, ERoomFlag::kBfsMark) ? true : false;
 		world[ch->in_room]->unset_flag(ERoomFlag::kBfsMark);
 
-		world[ch->in_room]->flags_sprint(buf, ";");
+		world[ch->in_room]->flags_sprint(buf, sizeof(buf), ";");
 		snprintf(buf2, kMaxStringLength, "[%5d] %s [%s]", GET_ROOM_VNUM(ch->in_room), world[ch->in_room]->name, buf);
 		SendMsgToChar(buf2, ch);
 

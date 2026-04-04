@@ -671,7 +671,7 @@ bool ParseFilter::check(ExchangeItem *exch_obj) {
 	return false;
 }
 
-bool ParseFilter::parse_filter(CharData *ch, ParseFilter &filter, char *argument) {
+bool ParseFilter::parse_filter(const CharData *ch, ParseFilter &filter, const char *argument) {
 	char buf_tmp[kMaxInputLength];
 
 	if (!*argument && ch) {

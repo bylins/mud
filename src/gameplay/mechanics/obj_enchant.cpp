@@ -43,17 +43,17 @@ void enchant::print(CharData *ch) const {
 		print_obj_affects(ch, *i);
 	}
 
-	if (affects_flags_.sprintbits(weapon_affects, buf2, ",")) {
+	if (affects_flags_.sprintbits(weapon_affects, buf2, sizeof(buf2), ",")) {
 		SendMsgToChar(ch, "%s   аффекты: %s%s\r\n",
 					  kColorCyn, buf2, kColorNrm);
 	}
 
-	if (extra_flags_.sprintbits(extra_bits, buf2, ",")) {
+	if (extra_flags_.sprintbits(extra_bits, buf2, sizeof(buf2), ",")) {
 		SendMsgToChar(ch, "%s   экстрафлаги: %s%s\r\n",
 					  kColorCyn, buf2, kColorNrm);
 	}
 
-	if (no_flags_.sprintbits(no_bits, buf2, ",")) {
+	if (no_flags_.sprintbits(no_bits, buf2, sizeof(buf2), ",")) {
 		SendMsgToChar(ch, "%s   неудобен: %s%s\r\n",
 					  kColorCyn, buf2, kColorNrm);
 	}
@@ -88,15 +88,15 @@ std::string enchant::print_to_file() const {
 	}
 
 	*buf = '\0';
-	affects_flags_.tascii(FlagData::kPlanesNumber, buf);
+	affects_flags_.tascii(FlagData::kPlanesNumber, buf, sizeof(buf));
 	out << " F " << buf << "\n";
 
 	*buf = '\0';
-	extra_flags_.tascii(FlagData::kPlanesNumber, buf);
+	extra_flags_.tascii(FlagData::kPlanesNumber, buf, sizeof(buf));
 	out << " E " << buf << "\n";
 
 	*buf = '\0';
-	no_flags_.tascii(FlagData::kPlanesNumber, buf);
+	no_flags_.tascii(FlagData::kPlanesNumber, buf, sizeof(buf));
 	out << " N " << buf << "\n";
 
 	out << " W " << weight_ << "\n";
