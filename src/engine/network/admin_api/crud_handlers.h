@@ -93,9 +93,10 @@ void HandleUpdateMob(DescriptorData* d, int mob_vnum, const char* json_data);
 /**
  * \brief Create new mob
  * \param d Descriptor to send response to
+ * \param zone_vnum Zone virtual number
  * \param json_data JSON mob data
  */
-void HandleCreateMob(DescriptorData* d, const char* json_data);
+void HandleCreateMob(DescriptorData* d, int zone_vnum, const char* json_data);
 
 /**
  * \brief Delete mob
@@ -133,9 +134,10 @@ void HandleUpdateObject(DescriptorData* d, int obj_vnum, const char* json_data);
 /**
  * \brief Create new object
  * \param d Descriptor to send response to
+ * \param zone_vnum Zone virtual number
  * \param json_data JSON object data
  */
-void HandleCreateObject(DescriptorData* d, const char* json_data);
+void HandleCreateObject(DescriptorData* d, int zone_vnum, const char* json_data);
 
 /**
  * \brief Delete object
@@ -173,9 +175,10 @@ void HandleUpdateRoom(DescriptorData* d, int room_vnum, const char* json_data);
 /**
  * \brief Create new room
  * \param d Descriptor to send response to
+ * \param zone_vnum Zone virtual number
  * \param json_data JSON room data
  */
-void HandleCreateRoom(DescriptorData* d, const char* json_data);
+void HandleCreateRoom(DescriptorData* d, int zone_vnum, const char* json_data);
 
 /**
  * \brief Delete room
@@ -224,6 +227,40 @@ void HandleCreateTrigger(DescriptorData* d, int zone_vnum, const char* json_data
  * \param trig_vnum Trigger virtual number
  */
 void HandleDeleteTrigger(DescriptorData* d, int trig_vnum);
+
+// ============================================================================
+// Zone Reset Commands
+// ============================================================================
+
+/**
+ * \brief List zone reset commands
+ * \param d Descriptor to send response to
+ * \param zone_vnum Zone virtual number
+ */
+void HandleListZoneCommands(DescriptorData* d, int zone_vnum);
+
+/**
+ * \brief Add zone reset command
+ * \param d Descriptor to send response to
+ * \param zone_vnum Zone virtual number
+ * \param json_data JSON command data
+ */
+void HandleAddZoneCommand(DescriptorData* d, int zone_vnum, const char* json_data);
+
+/**
+ * \brief Delete zone reset command
+ * \param d Descriptor to send response to
+ * \param zone_vnum Zone virtual number
+ * \param cmd_index Command index to delete
+ */
+void HandleDeleteZoneCommand(DescriptorData* d, int zone_vnum, int cmd_index);
+
+/**
+ * \brief Reset a zone (reload mobs/objects)
+ * \param d Descriptor to send response to
+ * \param zone_vnum Zone virtual number
+ */
+void HandleResetZone(DescriptorData* d, int zone_vnum);
 
 // ============================================================================
 // Statistics and Players
