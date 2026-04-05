@@ -3,6 +3,7 @@
 
 #include "id.h"
 #include "engine/entities/obj_data.h"
+#include "gameplay/core/obj_decay_manager.h"
 
 #include <list>
 #include <functional>
@@ -80,6 +81,7 @@ class WorldObjects {
 	void foreach_random_trigger_obj(const std::function<void(ObjData *)> &function) const;
 	void foreach_named_obj(const std::function<void(ObjData *)> &function) const;
 	void update_obj_indices(ObjData *obj);
+	ObjDecayManager &decay_manager() { return m_decay_manager; }
 	ObjData::shared_ptr find_if(const predicate_f &predicate) const;
 	ObjData::shared_ptr find_if(const predicate_f &predicate, int number) const;
 	ObjData::shared_ptr find_if_and_dec_number(const predicate_f &predicate, int &number) const;
@@ -119,6 +121,7 @@ class WorldObjects {
 	zone_to_object_ptr_t m_zone_to_object_ptr;
 	std::unordered_set<ObjData *> m_random_trigger_objs;
 	std::unordered_set<ObjData *> m_named_objs;
+	ObjDecayManager m_decay_manager;
 
 	WO_IDChangeObserver::shared_ptr m_id_change_observer;
 	WO_RNumChangeObserver::shared_ptr m_rnum_change_observer;

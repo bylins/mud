@@ -6,7 +6,7 @@
 #include "engine/core/utils_char_obj.inl"
 #include "gameplay/economics/currencies.h"
 #include "gameplay/mechanics/groups.h"
-#include "gameplay/core/obj_decay_manager.h"
+#include "engine/db/world_objects.h"
 
 #include <third_party_libs/fmt/include/fmt/format.h>
 
@@ -225,7 +225,7 @@ int perform_get_from_room(CharData *ch, ObjData *obj) {
 	if (CanTakeObj(ch, obj) && get_otrigger(obj, ch) && bloody::handle_transfer(nullptr, ch, obj)) {
 		RemoveObjFromRoom(obj);
 		if (ch->IsNpc() && !obj->has_flag(EObjFlag::kTicktimer)) { 
-			obj_decay_manager.remove(obj);
+			world_objects.decay_manager().remove(obj);
 		}
 		PlaceObjToInventory(obj, ch);
 		if (obj->get_carried_by() == ch) {

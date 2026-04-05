@@ -42,7 +42,6 @@
 #include "gameplay/mechanics/damage.h"
 #include "gameplay/mechanics/bonus.h"
 #include "gameplay/ai/mobact.h"
-#include "gameplay/core/obj_decay_manager.h"
 
 #include <third_party_libs/fmt/include/fmt/format.h>
 
@@ -1374,7 +1373,7 @@ void charmee_obj_decay_tell(CharData *charmee, ObjData *obj, ECharmeeObjPos obj_
 void obj_point_update() {
 	utils::CExecutionTimer timer;
 
-	auto tick_result = obj_decay_manager.process_tick();
+	auto tick_result = world_objects.decay_manager().process_tick();
 
 	for (auto it : tick_result.env_destroy) {
 		ExtractObjFromWorld(it);
@@ -1515,7 +1514,7 @@ void obj_point_update() {
 			ExtractObjFromWorld(j);
 		}
 	}
-	log("obj_point_update stop, size %ld,  delta %f", obj_decay_manager.size(), timer.delta().count());
+	log("obj_point_update stop, size %ld,  delta %f", world_objects.decay_manager().size(), timer.delta().count());
 
 }
 

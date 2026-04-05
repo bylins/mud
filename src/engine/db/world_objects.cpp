@@ -189,6 +189,7 @@ void WorldObjects::remove(ObjData *object) {
 	m_zone_to_object_ptr[object_ptr->get_vnum() / 100].erase(object_ptr);
 	m_random_trigger_objs.erase(object);
 	m_named_objs.erase(object);
+	m_decay_manager.remove(object);
 	m_objects_list.erase(object_i->second);
 	m_object_raw_ptr_to_object_ptr.erase(object);
 
