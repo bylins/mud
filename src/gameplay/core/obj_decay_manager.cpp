@@ -17,7 +17,9 @@ void ObjDecayManager::insert(ObjData *obj) {
 		return;
 	}
 
-	const auto timer = obj->get_timer();
+	// Use CObjectPrototype::get_timer() to read raw m_timer value,
+	// bypassing ObjData::get_timer() which computes from deadline.
+	const auto timer = obj->CObjectPrototype::get_timer();
 	if (timer <= 0) {
 		m_obj_to_deadline[obj] = m_counter;
 		m_queue.insert({m_counter, obj});
@@ -51,7 +53,7 @@ void ObjDecayManager::on_timer_changed(ObjData *obj) {
 
 	remove_queue_entry(obj);
 
-	const auto timer = obj->get_timer();
+	const auto timer = obj->CObjectPrototype::get_timer();
 	if (timer <= 0) {
 		m_obj_to_deadline[obj] = m_counter;
 		m_queue.insert({m_counter, obj});
@@ -123,6 +125,10 @@ TickResult ObjDecayManager::process_tick() {
 				continue;
 			}
 			if (CheckObjDecay(obj, false)) {
+				m_env_check_objs.erase(obj);
+				remove_queue_entry(obj);
+				m_obj_to_deadline.erase(obj);
+				m_timed_spell_objs.erase(obj);
 				result.env_destroy.push_back(obj);
 				continue;
 			}
