@@ -603,6 +603,7 @@ void ProcessLoadCelebrate(CelebrateDataPtr &celebrate, int vnum) {
 											ExtractTrigger(trig);
 										}
 									}
+									world_objects.update_obj_indices(obj.get());
 
 									load_otrigger(obj.get());
 									AddObjToLoadList(obj->get_unique_id(), obj.get());
@@ -645,6 +646,7 @@ void ProcessLoadCelebrate(CelebrateDataPtr &celebrate, int vnum) {
 								ExtractTrigger(trig);
 							}
 						}
+						world_objects.update_obj_indices(obj.get());
 						load_otrigger(obj.get());
 						AddObjToLoadList(obj->get_unique_id(), obj.get());
 
@@ -667,6 +669,7 @@ void ProcessLoadCelebrate(CelebrateDataPtr &celebrate, int vnum) {
 											ExtractTrigger(trig);
 										}
 									}
+									world_objects.update_obj_indices(obj_in.get());
 
 									load_otrigger(obj_in.get());
 									AddObjToLoadList(obj->get_unique_id(), obj.get());
@@ -722,6 +725,7 @@ void ProcessAttachCelebrate(CelebrateDataPtr &celebrate, int zone_vnum) {
 					  ExtractTrigger(trig);
 				  }
 			  }
+			  world_objects.update_obj_indices(o.get());
 
 			  AddObjToAttachList(o->get_unique_id(), o.get());
 		  }

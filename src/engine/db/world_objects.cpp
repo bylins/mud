@@ -31,6 +31,17 @@ void WorldObjects::WO_VNumChangeObserver::notify(CObjectPrototype &object, const
 		// insert new entry to the index
 		const auto vnum = object_ptr->get_vnum();
 		m_parent.m_vnum_to_object_ptr[vnum].insert(object_ptr);
+
+		// update zone index
+		const auto old_zone = old_vnum / 100;
+		const auto new_zone = vnum / 100;
+		if (old_zone != new_zone) {
+			auto zone_i = m_parent.m_zone_to_object_ptr.find(old_zone);
+			if (zone_i != m_parent.m_zone_to_object_ptr.end()) {
+				zone_i->second.erase(object_ptr);
+			}
+			m_parent.m_zone_to_object_ptr[new_zone].insert(object_ptr);
+		}
 	}
 }
 
@@ -124,6 +135,7 @@ ObjData::shared_ptr WorldObjects::create_from_prototype_by_rnum(ObjRnum rnum) {
 		}
 
 		assign_triggers(new_object.get(), OBJ_TRIGGER);
+		update_obj_indices(new_object.get());
 	}
 
 	return new_object;
@@ -174,6 +186,9 @@ void WorldObjects::remove(ObjData *object) {
 	m_id_to_object_ptr.erase(object_ptr->get_id());
 	m_vnum_to_object_ptr[object_ptr->get_vnum()].erase(object_ptr);
 	m_rnum_to_object_ptr[object_ptr->get_rnum()].erase(object_ptr);
+	m_zone_to_object_ptr[object_ptr->get_vnum() / 100].erase(object_ptr);
+	m_random_trigger_objs.erase(object);
+	m_named_objs.erase(object);
 	m_objects_list.erase(object_i->second);
 	m_object_raw_ptr_to_object_ptr.erase(object);
 
@@ -211,6 +226,42 @@ void WorldObjects::foreach_with_rnum(const ObjRnum rnum, const foreach_f &functi
 	if (set_i != m_rnum_to_object_ptr.end()) {
 		std::for_each(set_i->second.begin(), set_i->second.end(), function);
 	}
+}
+
+void WorldObjects::foreach_in_zone(const ZoneVnum zone_vnum, const foreach_f &function) const {
+	const auto set_i = m_zone_to_object_ptr.find(zone_vnum);
+	if (set_i != m_zone_to_object_ptr.end()) {
+		std::for_each(set_i->second.begin(), set_i->second.end(), function);
+	}
+}
+
+void WorldObjects::foreach_random_trigger_obj(const std::function<void(ObjData *)> &function) const {
+	for (auto *obj : m_random_trigger_objs) {
+		function(obj);
+	}
+}
+
+void WorldObjects::foreach_named_obj(const std::function<void(ObjData *)> &function) const {
+	for (auto *obj : m_named_objs) {
+		function(obj);
+	}
+}
+
+void WorldObjects::update_obj_indices(ObjData *obj) {
+	if (obj->has_flag(EObjFlag::kNamed)) {
+		m_named_objs.insert(obj);
+	} else {
+		m_named_objs.erase(obj);
+	}
+
+	if (obj->get_script()->has_triggers()) {
+		auto sc = obj->get_script().get();
+		if (IS_SET(SCRIPT_TYPES(sc), OTRIG_RANDOM_GLOBAL) || IS_SET(SCRIPT_TYPES(sc), OTRIG_RANDOM)) {
+			m_random_trigger_objs.insert(obj);
+			return;
+		}
+	}
+	m_random_trigger_objs.erase(obj);
 }
 
 ObjData::shared_ptr WorldObjects::find_if(const predicate_f &predicate) const {
@@ -353,6 +404,7 @@ void WorldObjects::add_to_index(const list_t::iterator &object_i) {
 	m_vnum_to_object_ptr[vnum].insert(object);
 	m_id_to_object_ptr[object->get_id()] = object;
 	m_rnum_to_object_ptr[object->get_rnum()].insert(object);
+	m_zone_to_object_ptr[vnum / 100].insert(object);
 	m_object_raw_ptr_to_object_ptr.emplace(object.get(), object_i);
 }
 

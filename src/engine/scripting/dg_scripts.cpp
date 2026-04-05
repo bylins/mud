@@ -733,18 +733,14 @@ void script_trigger_check(int mode) {
 			}
 		break;
 		case OBJ_TRIGGER:
-			world_objects.foreach([](const ObjData::shared_ptr &obj) {
+			world_objects.foreach_named_obj([](ObjData *obj) {
+				if (!obj->get_in_obj() && obj->get_worn_by() && number(1, 100) <= 5) {
+					NamedStuff::wear_msg(obj->get_worn_by(), obj);
+				}
+			});
+			world_objects.foreach_random_trigger_obj([](ObjData *obj) {
 				if (!obj->get_in_obj()) {
-					if (obj.get()->has_flag(EObjFlag::kNamed)) {
-						if (obj->get_worn_by() && number(1, 100) <= 5) {
-							NamedStuff::wear_msg(obj->get_worn_by(), obj.get());
-						}
-					} else if (obj->get_script()->has_triggers()) {
-						auto sc = obj->get_script().get();
-						if (IS_SET(SCRIPT_TYPES(sc), OTRIG_RANDOM_GLOBAL) || IS_SET(SCRIPT_TYPES(sc), OTRIG_RANDOM)) {
-							random_otrigger(obj.get());
-						}
-					}
+					random_otrigger(obj);
 				}
 			});
 		break;
@@ -1132,6 +1128,7 @@ void do_attach(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				if (add_trigger(object->get_script().get(), trig, loc)) {
 					add_trig_to_owner(-1, tn, GET_OBJ_VNUM(object));
 						timechange_register_obj(object);
+					world_objects.update_obj_indices(object);
 				} else {
 					ExtractTrigger(trig);
 				}
@@ -4655,6 +4652,7 @@ void process_attach(void *go, Script *sc, Trigger *trig, int type, char *cmd) {
 	if (o) {
 		if (add_trigger(o->get_script().get(), newtrig, -1)) {
 			add_trig_to_owner(trig_index[trig->get_rnum()]->vnum, trig_index[trignum]->vnum, GET_OBJ_VNUM(o));
+			world_objects.update_obj_indices(o);
 		} else {
 			ExtractTrigger(newtrig);
 		}
