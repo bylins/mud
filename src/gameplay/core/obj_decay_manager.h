@@ -53,8 +53,6 @@ class ObjDecayManager {
 	std::unordered_set<ObjData *> m_timed_spell_objs;
 };
 
-extern ObjDecayManager obj_decay_manager;
-
 #endif // OBJ_DECAY_MANAGER_H_
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

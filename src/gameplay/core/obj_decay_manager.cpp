@@ -6,8 +6,6 @@
 #include "gameplay/core/game_limits.h"
 #include "gameplay/mechanics/stable_objs.h"
 
-ObjDecayManager obj_decay_manager;
-
 void ObjDecayManager::insert(ObjData *obj) {
 	if (!obj) {
 		return;
