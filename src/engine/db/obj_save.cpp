@@ -22,6 +22,7 @@
 #include "gameplay/mechanics/named_stuff.h"
 #include "engine/core/utils_char_obj.inl"
 #include "gameplay/mechanics/stable_objs.h"
+#include "gameplay/core/obj_decay_manager.h"
 #include "gameplay/mechanics/weather.h"
 #include "utils/utils_time.h"
 #include "player_index.h"
@@ -532,7 +533,7 @@ ObjData::shared_ptr read_one_object_new(char **data, int *error) {
 	}
 	ConvertDrinkconSkillField(object.get(), false);
 	object->remove_incorrect_values_keys(object->get_type());
-	obj_update_list.insert(object.get());
+	obj_decay_manager.insert(object.get());
 	return (object);
 }
 

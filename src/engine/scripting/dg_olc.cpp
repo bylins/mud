@@ -350,6 +350,7 @@ void TriggerDistribution(DescriptorData *d) {
 						if (!add_trigger(obj_ptr->get_script().get(), trig, -1)) {
 							ExtractTrigger(trig);
 						}
+						world_objects.update_obj_indices(obj_ptr.get());
 					}
 				}
 			});

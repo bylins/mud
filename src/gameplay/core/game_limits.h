@@ -4,6 +4,10 @@
 extern const int kRecallSpellsInterval;
 
 class CharData;
+class ObjData;
+bool NO_TIMER(const ObjData *obj);
+bool NO_DESTROY(const ObjData *obj);
+int up_obj_where(ObjData *obj);
 void underwater_check();
 void beat_points_update(int pulse);
 void hour_update();

@@ -933,16 +933,12 @@ void ObjDataFree(ZoneRnum zrn) {
 	ObjRnum orn;
 	std::list<ObjData *> repop_list, swap_list;
 
-	world_objects.foreach([&zrn, &repop_list, &swap_list](const ObjData::shared_ptr &j) {
+	world_objects.foreach_in_zone(zone_table[zrn].vnum, [&repop_list, &swap_list](const ObjData::shared_ptr &j) {
 		if (j->get_parent_rnum() > -1) {
-			auto ovn = j->get_vnum();
-
-			if (ovn / 100 == zone_table[zrn].vnum) {
-				if (j->has_flag(EObjFlag::kRepopDecay)) {
-					repop_list.push_back(j.get());
-				} else {
-					swap_list.push_back(j.get());
-				}
+			if (j->has_flag(EObjFlag::kRepopDecay)) {
+				repop_list.push_back(j.get());
+			} else {
+				swap_list.push_back(j.get());
 			}
 		}
 	});

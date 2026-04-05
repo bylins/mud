@@ -76,6 +76,10 @@ class WorldObjects {
 	void foreach_on_copy_while(const foreach_while_f &function) const;
 	void foreach_with_vnum(const ObjVnum vnum, const foreach_f &function) const;
 	void foreach_with_rnum(const ObjRnum rnum, const foreach_f &function) const;
+	void foreach_in_zone(const ZoneVnum zone_vnum, const foreach_f &function) const;
+	void foreach_random_trigger_obj(const std::function<void(ObjData *)> &function) const;
+	void foreach_named_obj(const std::function<void(ObjData *)> &function) const;
+	void update_obj_indices(ObjData *obj);
 	ObjData::shared_ptr find_if(const predicate_f &predicate) const;
 	ObjData::shared_ptr find_if(const predicate_f &predicate, int number) const;
 	ObjData::shared_ptr find_if_and_dec_number(const predicate_f &predicate, int &number) const;
@@ -102,6 +106,7 @@ class WorldObjects {
 	using vnum_to_object_ptr_t = std::unordered_map<ObjVnum, objects_set_t>;
 	using rnum_to_object_ptr_t = std::unordered_map<ObjRnum, objects_set_t>;
 	using id_to_object_ptr_t = std::unordered_map<object_id_t, ObjData::shared_ptr>;
+	using zone_to_object_ptr_t = std::unordered_map<ZoneVnum, objects_set_t>;
 
 	void add_to_index(const list_t::iterator &object_i);
 
@@ -111,6 +116,9 @@ class WorldObjects {
 	object_raw_ptr_to_object_ptr_t m_object_raw_ptr_to_object_ptr;
 	id_to_object_ptr_t m_id_to_object_ptr;
 	rnum_to_object_ptr_t m_rnum_to_object_ptr;
+	zone_to_object_ptr_t m_zone_to_object_ptr;
+	std::unordered_set<ObjData *> m_random_trigger_objs;
+	std::unordered_set<ObjData *> m_named_objs;
 
 	WO_IDChangeObserver::shared_ptr m_id_change_observer;
 	WO_RNumChangeObserver::shared_ptr m_rnum_change_observer;

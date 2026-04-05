@@ -6,6 +6,7 @@
 
 #include "engine/db/obj_save.h"
 #include "engine/db/world_objects.h"
+#include "gameplay/core/obj_decay_manager.h"
 #include "utils/parse.h"
 #include "engine/core/handler.h"
 #include "engine/ui/color.h"
@@ -629,6 +630,36 @@ void ObjData::set_tag(const char *tag) {
 	}
 }
 
+void ObjData::set_timer(int timer) {
+	CObjectPrototype::set_timer(timer);
+	obj_decay_manager.on_timer_changed(this);
+}
+
+int ObjData::get_timer() const {
+	if (!obj_decay_manager.contains(this)) {
+		return CObjectPrototype::get_timer();
+	}
+	auto deadline = obj_decay_manager.get_deadline(this);
+	if (deadline == UINT64_MAX) {
+		return CObjectPrototype::UNLIMITED_TIMER;
+	}
+	auto now = obj_decay_manager.current_mud_hour();
+	if (deadline <= now) {
+		return 0;
+	}
+	return static_cast<int>(deadline - now);
+}
+
+void ObjData::process_periodic_effects() {
+	if (!m_timed_spell.empty()) {
+		m_timed_spell.dec_timer(this, 1);
+	}
+	if ((get_type() == EObjType::kLiquidContainer || get_type() == EObjType::kFood)
+		&& GET_OBJ_VAL(this, 3) > 1) {
+		dec_val(3);
+	}
+}
+
 void ObjData::attach_triggers(const triggers_list_t &trigs) {
 	for (auto it = trigs.begin(); it != trigs.end(); ++it) {
 		int rnum = GetTriggerRnum(*it);
@@ -639,6 +670,7 @@ void ObjData::attach_triggers(const triggers_list_t &trigs) {
 			}
 		}
 	}
+	world_objects.update_obj_indices(this);
 }
 
 /**
@@ -799,6 +831,9 @@ void ObjData::add_timed_spell(const ESpell spell_id, const int time) {
 		return;
 	}
 	m_timed_spell.add(this, spell_id, time);
+	if (time > 0) {
+		obj_decay_manager.add_timed_spell_obj(this);
+	}
 }
 
 void ObjData::del_timed_spell(const ESpell spell_id, const bool message) {
