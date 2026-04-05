@@ -74,7 +74,7 @@ std::string print_skill(const CObjectPrototype::skills_t::value_type &skill, boo
 	if (skill.second != 0) {
 		char buf[128];
 
-		sprintf(buf, "%s%s%s%s%d%s\r\n",
+		snprintf(buf, sizeof(buf), "%s%s%s%s%d%s\r\n",
 				(activ ? " +    " : "   "),
 				kColorCyn,
 				MUD::Skill(skill.first).GetName(),
@@ -108,7 +108,7 @@ std::string print_obj_affects(const CObjectPrototype *const obj) {
 
 	out << obj->get_PName(ECase::kNom) << "\r\n";
 
-	if (obj->get_no_flags().sprintbits(no_bits, buf2, ",")) {
+	if (obj->get_no_flags().sprintbits(no_bits, buf2, sizeof(buf2), ",")) {
 		out << "Неудобства : " << buf2 << "\r\n";
 	}
 
@@ -125,7 +125,7 @@ std::string print_obj_affects(const CObjectPrototype *const obj) {
 		out << "Вес : " << obj->get_weight() << "\r\n";
 	}
 
-	if (obj->get_affect_flags().sprintbits(weapon_affects, buf2, ",")) {
+	if (obj->get_affect_flags().sprintbits(weapon_affects, buf2, sizeof(buf2), ",")) {
 		out << "Аффекты : " << buf2 << "\r\n";
 	}
 
@@ -177,7 +177,7 @@ std::string print_activator(class_to_act_map::const_iterator &activ, const CObje
 	out << "\r\n";
 
 	FlagData affects = activ->second.get_affects();
-	if (affects.sprintbits(weapon_affects, buf2, ",")) {
+	if (affects.sprintbits(weapon_affects, buf2, sizeof(buf2), ",")) {
 		out << " + Аффекты : " << buf2 << "\r\n";
 	}
 
@@ -297,7 +297,7 @@ std::string activators_obj::print() {
 
 		// affects
 		cls_it.second.total_affects += native_affects;
-		if (cls_it.second.total_affects.sprintbits(weapon_affects, buf2, ",")) {
+		if (cls_it.second.total_affects.sprintbits(weapon_affects, buf2, sizeof(buf2), ",")) {
 			node.afct += " + Аффекты : " + std::string(buf2) + "\r\n";
 		}
 		// affected
@@ -369,7 +369,7 @@ std::string print_fullset_stats(const set_info &set) {
 	// печатаем все, что получилось
 	out << "Суммарные свойства набора: \r\n";
 
-	if (activ.native_no_flag.sprintbits(no_bits, buf2, ",")) {
+	if (activ.native_no_flag.sprintbits(no_bits, buf2, sizeof(buf2), ",")) {
 		out << "Неудобства : " << buf2 << "\r\n";
 	}
 
@@ -1345,7 +1345,7 @@ bool help_compare(const std::string &arg, const std::string &text, bool strong) 
 
 	if (strong) {
 
-		sprintf(buf, "strong arg=%s| text=%s|",arg.c_str(), text.c_str());
+		snprintf(buf, sizeof(buf), "strong arg=%s| text=%s|",arg.c_str(), text.c_str());
 		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 		return arg == text;
 	}

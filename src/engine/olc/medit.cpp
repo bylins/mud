@@ -530,11 +530,11 @@ void medit_save_to_disk(ZoneRnum zone_num) {
 	ZoneVnum zone = zone_table[zone_num].vnum;
 	MobVnum top = zone_table[zone_num].top;
 	if (zone >= dungeons::kZoneStartDungeons) {
-			sprintf(buf, "Отказ сохранения зоны %d на диск.", zone);
+			snprintf(buf, sizeof(buf), "Отказ сохранения зоны %d на диск.", zone);
 			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 			return;
 	}
-	sprintf(fname, "%s/%d.new", MOB_PREFIX, zone);
+	snprintf(fname, sizeof(fname), "%s/%d.new", MOB_PREFIX, zone);
 	if (!(mob_file = fopen(fname, "w"))) {
 		mudlog("SYSERR: OLC: Cannot open mob file!", BRF, kLvlBuilder, SYSLOG, true);
 		return;
@@ -553,11 +553,11 @@ void medit_save_to_disk(ZoneRnum zone_num) {
 			// * Clean up strings.
 		if (mob->player_data.long_descr.empty())
 			mob->player_data.long_descr = "неопределен";
-		strcpy(buf1, mob->player_data.long_descr.c_str());
+		snprintf(buf1, sizeof(buf1), "%s", mob->player_data.long_descr.c_str());
 		strip_string(buf1);
 		if (mob->player_data.description.empty())
 			mob->player_data.description = "неопределен";
-		strcpy(buf2, mob->player_data.description.c_str());
+		snprintf(buf2, sizeof(buf2), "%s", mob->player_data.description.c_str());
 		strip_string(buf2);
 		fprintf(mob_file, "%s~\n" "%s~\n" "%s~\n" "%s~\n" "%s~\n" "%s~\n" "%s~\n" "%s~\n" "%s~\n",
 				(GET_ALIAS(mob) && *GET_ALIAS(mob)) ? GET_ALIAS(mob) : "неопределен",
@@ -568,13 +568,13 @@ void medit_save_to_disk(ZoneRnum zone_num) {
 				not_empty(mob->player_data.PNames[ECase::kIns], "кем"),
 				not_empty(mob->player_data.PNames[ECase::kPre], "о ком"), buf1, buf2);
 		if (mob->mob_specials.Questor)
-			strcpy(buf1, mob->mob_specials.Questor);
+			snprintf(buf1, sizeof(buf1), "%s", mob->mob_specials.Questor);
 		else
-			strcpy(buf1, "");
+			snprintf(buf1, sizeof(buf1), "");
 		strip_string(buf1);
 		*buf2 = 0;
-		mob->PrintFlagsToAscii(buf2);
-		AFF_FLAGS(mob).tascii(FlagData::kPlanesNumber, buf2);
+		mob->PrintFlagsToAscii(buf2, sizeof(buf2));
+		AFF_FLAGS(mob).tascii(FlagData::kPlanesNumber, buf2, sizeof(buf2));
 		fprintf(mob_file, "%s%d E\n" "%d %d %d %dd%d+%d %dd%d+%d\n" "%dd%d+%ld %ld\n" "%d %d %d\n",
 				buf2, GET_ALIGNMENT(mob),
 				GetRealLevel(mob), 20 - GET_HR(mob), GET_AC(mob) / 10, mob->mem_queue.total,
@@ -648,8 +648,8 @@ void medit_save_to_disk(ZoneRnum zone_num) {
 			fprintf(mob_file, "Height: %d\n", GET_HEIGHT(mob));
 		if (GET_WEIGHT(mob))
 			fprintf(mob_file, "Weight: %d\n", GET_WEIGHT(mob));
-		strcpy(buf1, "Special_Bitvector: ");
-		mob->mob_specials.npc_flags.tascii(FlagData::kPlanesNumber, buf1);
+		snprintf(buf1, sizeof(buf1), "Special_Bitvector: ");
+		mob->mob_specials.npc_flags.tascii(FlagData::kPlanesNumber, buf1, sizeof(buf1));
 		fprintf(mob_file, "%s\n", buf1);
 		for (const auto &feat : MUD::Feats()) {
 			if (mob->HaveFeat(feat.GetId())) {
@@ -683,7 +683,7 @@ void medit_save_to_disk(ZoneRnum zone_num) {
 	}
 	fprintf(mob_file, "$\n");
 	fclose(mob_file);
-	sprintf(buf2, "%s/%d.mob", MOB_PREFIX, zone);
+	snprintf(buf2, sizeof(buf2), "%s/%d.mob", MOB_PREFIX, zone);
 	// * We're fubar'd if we crash between the two lines below.
 	remove(buf2);
 	rename(fname, buf2);
@@ -708,7 +708,7 @@ void medit_disp_positions(DescriptorData *d) {
 	SendMsgToChar("[H[J", d->character);
 #endif
 	for (i = 0; *position_types[i] != '\n'; i++) {
-		sprintf(buf, "%s%2d%s) %s\r\n", grn, i, nrm, position_types[i]);
+		snprintf(buf, sizeof(buf), "%s%2d%s) %s\r\n", grn, i, nrm, position_types[i]);
 		SendMsgToChar(buf, d->character.get());
 	}
 	SendMsgToChar("Выберите положение : ", d->character.get());
@@ -718,7 +718,7 @@ void medit_disp_add_parameters(DescriptorData *d) {
 #if defined(CLEAR_SCREEN)
 	SendMsgToChar("[H[J", d->character);
 #endif
-	sprintf(buf,
+	snprintf(buf, sizeof(buf),
 			"%s1%s ) Регенерация : %s%d%s\r\n"
 			"%s2%s ) Броня : %s%d%s\r\n"
 			"%s3%s ) Запоминание : %s%d%s\r\n"
@@ -750,7 +750,7 @@ void medit_disp_resistances(DescriptorData *d) {
 	SendMsgToChar("[H[J", d->character);
 #endif
 	for (i = 0; *resistance_types[i] != '\n'; i++) {
-		sprintf(buf, "%s%2d%s) %s : %s%d%s\r\n",
+		snprintf(buf, sizeof(buf), "%s%2d%s) %s : %s%d%s\r\n",
 				grn, i + 1, nrm, resistance_types[i], cyn, GET_RESIST(OLC_MOB(d), i), nrm);
 		SendMsgToChar(buf, d->character.get());
 	}
@@ -765,7 +765,7 @@ void medit_disp_saves(DescriptorData *d) {
 #endif
 	for (auto i: apply_negative) {
 		if (i.savetype != ESaving::kNone) {
-			sprintf(buf, "%s%2d%s) %s : %s%d%s\r\n",
+			snprintf(buf, sizeof(buf), "%s%2d%s) %s : %s%d%s\r\n",
 					grn, num++, nrm, i.name.c_str(), cyn, GetSave(OLC_MOB(d), i.savetype), nrm);
 			SendMsgToChar(buf, d->character.get());
 		}
@@ -819,13 +819,13 @@ void medit_disp_mprog(DescriptorData * d)
 #endif
 	while (mprog)
 	{
-		sprintf(buf, "%d) %s %s\r\n", OLC_MTOTAL(d),
+		snprintf(buf, sizeof(buf), "%d) %s %s\r\n", OLC_MTOTAL(d),
 			medit_get_mprog_type(mprog), (mprog->arglist ? mprog->arglist : "NONE"));
 		SendMsgToChar(buf, d->character);
 		OLC_MTOTAL(d)++;
 		mprog = mprog->next;
 	}
-	sprintf(buf,
+	snprintf(buf, sizeof(buf),
 		"%d) Создать новую Mob Prog\r\n"
 		"%d) Очистить Mob Prog\r\n"
 		"Введите номер для редактирования [0 - выход]:  ", OLC_MTOTAL(d), OLC_MTOTAL(d) + 1);
@@ -841,7 +841,7 @@ void medit_change_mprog(DescriptorData * d)
 #if defined(CLEAR_SCREEN)
 	SendMsgToChar("^[[H^[[J", d->character);
 #endif
-	sprintf(buf,
+	snprintf(buf, sizeof(buf),
 		"1) Type: %s\r\n"
 		"2) Args: %s\r\n"
 		"3) Commands:\r\n%s\r\n\r\n"
@@ -867,7 +867,7 @@ void medit_disp_mprog_types(DescriptorData * d)
 
 	for (i = 0; i < NUM_PROGS - 1; i++)
 	{
-		sprintf(buf, "%s%2d%s) %s\r\n", grn, i, nrm, mobprog_types[i]);
+		snprintf(buf, sizeof(buf), "%s%2d%s) %s\r\n", grn, i, nrm, mobprog_types[i]);
 		SendMsgToChar(buf, d->character);
 	}
 	SendMsgToChar("Введите тип mob prog : ", d->character);
@@ -884,7 +884,7 @@ void medit_disp_sex(DescriptorData *d) {
 	SendMsgToChar("[H[J", d->character);
 #endif
 	for (i = 0; i <= NUM_GENDERS; i++) {
-		sprintf(buf, "%s%2d%s) %s\r\n", grn, i, nrm, genders[i]);
+		snprintf(buf, sizeof(buf), "%s%2d%s) %s\r\n", grn, i, nrm, genders[i]);
 		SendMsgToChar(buf, d->character.get());
 	}
 	SendMsgToChar("Выберите пол : ", d->character.get());
@@ -929,9 +929,9 @@ void medit_disp_features(DescriptorData *d) {
 		}
 
 		if (OLC_MOB(d)->HaveFeat(feat.GetId())) {
-			sprintf(buf1, " %s[%s*%s]%s ", cyn, grn, cyn, nrm);
+			snprintf(buf1, sizeof(buf1), " %s[%s*%s]%s ", cyn, grn, cyn, nrm);
 		} else {
-			strcpy(buf1, "     ");
+			snprintf(buf1, sizeof(buf1), "     ");
 		}
 
 		snprintf(buf, kMaxStringLength, "%s%3d%s) %25s%s%s", grn, to_underlying(feat.GetId()), nrm,
@@ -948,7 +948,7 @@ void medit_disp_race(DescriptorData *d) {
 	SendMsgToChar("[H[J", d->character);
 #endif
 	for (i = 0; i < ENpcRace::kLastNpcRace - ENpcRace::kBasic + 1; i++) {
-		sprintf(buf, "%s%2d%s) %s\r\n", grn, i, nrm, npc_race_types[i]);
+		snprintf(buf, sizeof(buf), "%s%2d%s) %s\r\n", grn, i, nrm, npc_race_types[i]);
 		SendMsgToChar(buf, d->character.get());
 	}
 	SendMsgToChar("Выберите расу моба : ", d->character.get());
@@ -961,7 +961,7 @@ void medit_disp_attack_types(DescriptorData *d) {
 	SendMsgToChar("[H[J", d->character);
 #endif
 	for (i = 0; i < NUM_ATTACK_TYPES; i++) {
-		sprintf(buf, "%s%2d%s) %s\r\n", grn, i, nrm, attack_hit_text[i].singular);
+		snprintf(buf, sizeof(buf), "%s%2d%s) %s\r\n", grn, i, nrm, attack_hit_text[i].singular);
 		SendMsgToChar(buf, d->character.get());
 	}
 	SendMsgToChar("Выберите тип удара : ", d->character.get());
@@ -975,11 +975,11 @@ void medit_disp_helpers(DescriptorData *d) {
 #endif
 	SendMsgToChar("Установлены мобы-помощники :\r\n", d->character.get());
 	for (auto helper : OLC_MOB(d)->summon_helpers) {
-		sprintf(buf, "%s%6d%s %s", grn, helper, nrm, !(++columns % 6) ? "\r\n" : "");
+		snprintf(buf, sizeof(buf), "%s%6d%s %s", grn, helper, nrm, !(++columns % 6) ? "\r\n" : "");
 		SendMsgToChar(buf, d->character.get());
 	}
 	if (!columns) {
-		sprintf(buf, "%sНЕТ%s", cyn, nrm);
+		snprintf(buf, sizeof(buf), "%sНЕТ%s", cyn, nrm);
 		SendMsgToChar(buf, d->character.get());
 	}
 	SendMsgToChar("\r\nУкажите vnum моба-помощника (0 - конец) : ", d->character.get());
@@ -996,9 +996,9 @@ void medit_disp_skills(DescriptorData *d) {
 		}
 
 		if (OLC_MOB(d)->GetSkill(skill.GetId())) {
-			sprintf(buf1, "%s[%3d]%s", cyn, OLC_MOB(d)->GetSkill(skill.GetId()), nrm);
+			snprintf(buf1, sizeof(buf1), "%s[%3d]%s", cyn, OLC_MOB(d)->GetSkill(skill.GetId()), nrm);
 		} else {
-			strcpy(buf1, "     ");
+			snprintf(buf1, sizeof(buf1), "     ");
 		}
 
 		snprintf(buf, kMaxStringLength, "%s%3d%s) %25s%s%s", grn, to_underlying(skill.GetId()), nrm,
@@ -1018,9 +1018,9 @@ void medit_disp_spells(DescriptorData *d) {
 			continue;
 		}
 		if (GET_SPELL_MEM(OLC_MOB(d), spell_id)) {
-			sprintf(buf1, "%s[%3d]%s", cyn, GET_SPELL_MEM(OLC_MOB(d), spell_id), nrm);
+			snprintf(buf1, sizeof(buf1), "%s[%3d]%s", cyn, GET_SPELL_MEM(OLC_MOB(d), spell_id), nrm);
 		} else {
-			strcpy(buf1, "     ");
+			snprintf(buf1, sizeof(buf1), "     ");
 		}
 		snprintf(buf, kMaxStringLength, "%s%3d%s) %25s%s%s", grn, to_underlying(spell_id), nrm,
 				 MUD::Spell(spell_id).GetCName(), buf1, !(++columns % 2) ? "\r\n" : "");
@@ -1032,14 +1032,14 @@ void medit_disp_spells(DescriptorData *d) {
 // * Display mob-flags menu.
 void medit_disp_mob_flags(DescriptorData *d) {
 	disp_planes_values(d, action_bits, 2);
-	OLC_MOB(d)->char_specials.saved.act.sprintbits(action_bits, buf1, ",", 5);
+	OLC_MOB(d)->char_specials.saved.act.sprintbits(action_bits, buf1, sizeof(buf1), ",", 5);
 	snprintf(buf, kMaxStringLength, "\r\nТекущие флаги : %s%s%s\r\nВыберите флаг (0 - выход) : ", cyn, buf1, nrm);
 	SendMsgToChar(buf, d->character.get());
 }
 
 void medit_disp_npc_flags(DescriptorData *d) {
 	disp_planes_values(d, function_bits, 2);
-	OLC_MOB(d)->mob_specials.npc_flags.sprintbits(function_bits, buf1, ",", 5);
+	OLC_MOB(d)->mob_specials.npc_flags.sprintbits(function_bits, buf1, sizeof(buf1), ",", 5);
 	snprintf(buf, kMaxStringLength, "\r\nТекущие флаги : %s%s%s\r\nВыберите флаг (0 - выход) : ", cyn, buf1, nrm);
 	SendMsgToChar(buf, d->character.get());
 }
@@ -1047,7 +1047,7 @@ void medit_disp_npc_flags(DescriptorData *d) {
 // * Display affection flags menu.
 void medit_disp_aff_flags(DescriptorData *d) {
 	disp_planes_values(d, affected_bits, 2);
-	OLC_MOB(d)->char_specials.saved.affected_by.sprintbits(affected_bits, buf1, ",", 5);
+	OLC_MOB(d)->char_specials.saved.affected_by.sprintbits(affected_bits, buf1, sizeof(buf1), ",", 5);
 	snprintf(buf, kMaxStringLength, "\r\nCurrent flags   : %s%s%s\r\nEnter aff flags (0 to quit) : ", cyn, buf1, nrm);
 	SendMsgToChar(buf, d->character.get());
 }
@@ -1058,7 +1058,7 @@ void medit_disp_menu(DescriptorData *d) {
 	CharData *mob;
 
 	mob = OLC_MOB(d);
-	sprintf(buf,
+	snprintf(buf, sizeof(buf),
 #if defined(CLEAR_SCREEN)
 		"[H[J"
 #endif
@@ -1105,8 +1105,8 @@ void medit_disp_menu(DescriptorData *d) {
 			grn, nrm, cyn, GET_GOLD_NoDs(mob), nrm, grn, nrm, cyn, GET_GOLD_SiDs(mob), nrm);
 	SendMsgToChar(buf, d->character.get());
 
-	mob->char_specials.saved.act.sprintbits(action_bits, buf1, ",", 4);
-	mob->char_specials.saved.affected_by.sprintbits(affected_bits, buf2, ",", 4);
+	mob->char_specials.saved.act.sprintbits(action_bits, buf1, sizeof(buf1), ",", 4);
+	mob->char_specials.saved.affected_by.sprintbits(affected_bits, buf2, sizeof(buf2), ",", 4);
 	snprintf(buf, kMaxStringLength,
 			 "%sP%s) Положение     : %s%s\r\n"
 			 "%sR%s) По умолчанию  : %s%s\r\n"
@@ -1118,13 +1118,14 @@ void medit_disp_menu(DescriptorData *d) {
 			 grn, nrm, yel, attack_hit_text[GET_ATTACK(mob)].singular, grn, nrm, cyn, buf1, grn, nrm, cyn, buf2);
 	SendMsgToChar(buf, d->character.get());
 
-	mob->mob_specials.npc_flags.sprintbits(function_bits, buf1, ",", 4);
+	mob->mob_specials.npc_flags.sprintbits(function_bits, buf1, sizeof(buf1), ",", 4);
 	*buf2 = '\0';
 	if (GET_DEST(mob) == kNowhere) {
-		strcpy(buf2, "-1,");
+		snprintf(buf2, sizeof(buf2), "-1,");
 	} else {
 		for (i = 0; i < mob->mob_specials.dest_count; i++) {
-			sprintf(buf2 + strlen(buf2), "%d,", mob->mob_specials.dest[i]);
+			size_t buf2_len = strlen(buf2);
+			snprintf(buf2 + buf2_len, sizeof(buf2) - buf2_len, "%d,", mob->mob_specials.dest[i]);
 		}
 	}
 	*(buf2 + strlen(buf2) - 1) = '\0';
@@ -1202,7 +1203,7 @@ void disp_dl_list(DescriptorData *d) {
 	CharData *mob;
 
 	mob = OLC_MOB(d);
-	sprintf(buf,
+	snprintf(buf, sizeof(buf),
 #if defined(CLEAR_SCREEN)
 		"[H[J"
 #endif
@@ -1225,7 +1226,7 @@ void disp_dl_list(DescriptorData *d) {
 				objname = "Нет";
 			}
 
-			sprintf(buf, "%d. %s (%d,%d,%d,%d)\r\n",
+			snprintf(buf, sizeof(buf), "%d. %s (%d,%d,%d,%d)\r\n",
 					i, objname, p->obj_vnum, p->load_prob, p->load_type, p->spec_param);
 
 			SendMsgToChar(buf, d->character.get());
@@ -1239,7 +1240,7 @@ void disp_dl_list(DescriptorData *d) {
 	// B) Удалить.
 	// C) Изменить.
 	// Q) Выход.
-	sprintf(buf,
+	snprintf(buf, sizeof(buf),
 			"\r\n"
 			"%sА%s) Добавить\r\n"
 			"%sБ%s) Удалить\r\n" "%sQ%s) Выход\r\n" "Ваш выбор:", grn, nrm, grn, nrm, grn, nrm);
@@ -1248,7 +1249,7 @@ void disp_dl_list(DescriptorData *d) {
 }
 
 void medit_disp_clone_menu(DescriptorData *d) {
-	sprintf(buf,
+	snprintf(buf, sizeof(buf),
 #if defined(CLEAR_SCREEN)
 		"[H[J"
 #endif
@@ -1291,7 +1292,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 					// * Save the mob in memory and to disk.
 //					SendMsgToChar("Saving mobile to memory a.\r\n", d->character.get());
 					medit_save_internally(d);
-					sprintf(buf, "OLC: %s edits mob %d", GET_NAME(d->character), OLC_NUM(d));
+					snprintf(buf, sizeof(buf), "OLC: %s edits mob %d", GET_NAME(d->character), OLC_NUM(d));
 					olc_log("%s edit mob %d", GET_NAME(d->character), OLC_NUM(d));
 					mudlog(buf, NRM, std::max(kLvlBuilder, GET_INVIS_LEV(d->character)), SYSLOG, true);
 					// * Do NOT free strings! Just the mob structure.
@@ -1791,8 +1792,7 @@ void medit_parse(DescriptorData *d, char *arg) {
 			//-------------------------------------------------------------------
 		case MEDIT_L_DESC:
 			if (arg && *arg) {
-				strcpy(buf, arg);
-				strcat(buf, "\r\n");
+				snprintf(buf, sizeof(buf), "%s\r\n", arg);
 				OLC_MOB(d)->player_data.long_descr = std::string(buf);
 			} else {
 				OLC_MOB(d)->player_data.long_descr = std::string("неопределен\r\n");

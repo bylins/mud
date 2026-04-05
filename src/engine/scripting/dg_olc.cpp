@@ -115,13 +115,13 @@ void trigedit_disp_menu(DescriptorData *d) {
 
 	if (trig->get_attach_type() == MOB_TRIGGER) {
 		attach_type = "Mobiles";
-		sprintbit(GET_TRIG_TYPE(trig), trig_types, trgtypes);
+		sprintbit(GET_TRIG_TYPE(trig), trig_types, trgtypes, sizeof(trgtypes));
 	} else if (trig->get_attach_type() == OBJ_TRIGGER) {
 		attach_type = "Objects";
-		sprintbit(GET_TRIG_TYPE(trig), otrig_types, trgtypes);
+		sprintbit(GET_TRIG_TYPE(trig), otrig_types, trgtypes, sizeof(trgtypes));
 	} else if (trig->get_attach_type() == WLD_TRIGGER) {
 		attach_type = "Rooms";
-		sprintbit(GET_TRIG_TYPE(trig), wtrig_types, trgtypes);
+		sprintbit(GET_TRIG_TYPE(trig), wtrig_types, trgtypes, sizeof(trgtypes));
 	} else {
 		attach_type = "undefined";
 		trgtypes[0] = '\0';
@@ -162,11 +162,11 @@ void trigedit_disp_types(DescriptorData *d) {
 #endif
 
 	for (i = 0; i < NUM_TRIG_TYPE_FLAGS; i++) {
-		sprintf(buf, "%s%2d%s) %-20.20s  %s", grn, i + 1, nrm, types[i], !(++columns % 2) ? "\r\n" : "");
+		snprintf(buf, sizeof(buf), "%s%2d%s) %-20.20s  %s", grn, i + 1, nrm, types[i], !(++columns % 2) ? "\r\n" : "");
 		SendMsgToChar(buf, d->character.get());
 	}
 
-	sprintbit(GET_TRIG_TYPE(OLC_TRIG(d)), types, buf1, 2);
+	sprintbit(GET_TRIG_TYPE(OLC_TRIG(d)), types, buf1, sizeof(buf1), 2);
 	snprintf(buf, kMaxStringLength, "\r\nCurrent types : %s%s%s\r\nEnter type (0 to quit) : ", cyn, buf1, nrm);
 	SendMsgToChar(buf, d->character.get());
 }
@@ -236,7 +236,7 @@ void trigedit_parse(DescriptorData *d, char *arg) {
 		case TRIGEDIT_CONFIRM_SAVESTRING:
 			switch (tolower(*arg)) {
 				case 'y': trigedit_save(d);
-					sprintf(buf, "OLC: %s edits trigger %d", GET_NAME(d->character), OLC_NUM(d));
+					snprintf(buf, sizeof(buf), "OLC: %s edits trigger %d", GET_NAME(d->character), OLC_NUM(d));
 					olc_log("%s end trig %d", GET_NAME(d->character), OLC_NUM(d));
 					mudlog(buf, NRM, MAX(kLvlBuilder, GET_INVIS_LEV(d->character)), SYSLOG, true);
 					// fall through
@@ -543,12 +543,12 @@ bool trigedit_save_to_disk(int zone_rnum, int notify_level) {
 	top = zone_table[zone_rnum].top;
 
 	if (zone >= dungeons::kZoneStartDungeons) {
-		sprintf(buf, "Отказ сохранения зоны %d на диск.", zone);
+		snprintf(buf, sizeof(buf), "Отказ сохранения зоны %d на диск.", zone);
 		mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 		return false;
 	}
 
-	sprintf(fname, "%s/%i.new", TRG_PREFIX, zone);
+	snprintf(fname, sizeof(fname), "%s/%i.new", TRG_PREFIX, zone);
 	if (!(trig_file = fopen(fname, "w"))) {
 		snprintf(logbuf, kMaxInputLength, "SYSERR: OLC: Can't open trig file \"%s\"", fname);
 		mudlog(logbuf, BRF, notify_level, SYSLOG, true);
@@ -560,7 +560,7 @@ bool trigedit_save_to_disk(int zone_rnum, int notify_level) {
 			trig = trig_index[trig_rnum]->proto;
 
 			if (fprintf(trig_file, "#%d\n", i) < 0) {
-				sprintf(logbuf, "SYSERR: OLC: Can't write trig file!");
+				snprintf(logbuf, sizeof(logbuf), "SYSERR: OLC: Can't write trig file!");
 				mudlog(logbuf, BRF, notify_level, SYSLOG, true);
 				fclose(trig_file);
 				return false;
@@ -608,7 +608,7 @@ bool trigedit_save_to_disk(int zone_rnum, int notify_level) {
 	fprintf(trig_file, "$\n$\n");
 	fclose(trig_file);
 
-	sprintf(buf, "%s/%d.trg", TRG_PREFIX, zone);
+	snprintf(buf, sizeof(buf), "%s/%d.trg", TRG_PREFIX, zone);
 	remove(buf);
 	rename(fname, buf);
 #ifndef _WIN32
@@ -630,8 +630,8 @@ void trigedit_create_index(int znum, const char *type) {
 
 	const char *prefix = TRG_PREFIX;
 
-	sprintf(old_name, "%s/index", prefix);
-	sprintf(new_name, "%s/newindex", prefix);
+	snprintf(old_name, sizeof(old_name), "%s/index", prefix);
+	snprintf(new_name, sizeof(new_name), "%s/newindex", prefix);
 
 	if (!(oldfile = fopen(old_name, "r"))) {
 		snprintf(buf1, kMaxStringLength, "SYSERR: TRIGEDIT: Failed to open %s", buf);
@@ -645,7 +645,7 @@ void trigedit_create_index(int znum, const char *type) {
 
 	// Index contents must be in order: search through the old file for the
 	// right place, insert the new file, then copy the rest over.
-	sprintf(buf1, "%d.%s", znum, type);
+	snprintf(buf1, sizeof(buf1), "%d.%s", znum, type);
 	while (get_line(oldfile, buf)) {
 		if (*buf == '$') {
 			fprintf(newfile, "%s\n$\n", (!found ? buf1 : "$"));
@@ -717,13 +717,13 @@ void dg_script_menu(DescriptorData *d) {
 #undef FMT
 
 	for (const auto trigger_vnum : OLC_SCRIPT(d)) {
-		sprintf(buf, "     %2d) [%s%d%s] %s%s%s", ++i, cyn,
+		snprintf(buf, sizeof(buf), "     %2d) [%s%d%s] %s%s%s", ++i, cyn,
 				trigger_vnum, nrm, cyn, trig_index[GetTriggerRnum(trigger_vnum)]->proto->get_name().c_str(), nrm);
 		SendMsgToChar(buf, d->character.get());
 		if (trig_index[GetTriggerRnum(trigger_vnum)]->proto->get_attach_type() != OLC_ITEM_TYPE(d)) {
-			sprintf(buf, "   %s** Mis-matched Trigger Type **%s\r\n", grn, nrm);
+			snprintf(buf, sizeof(buf), "   %s** Mis-matched Trigger Type **%s\r\n", grn, nrm);
 		} else {
-			sprintf(buf, "\r\n");
+			snprintf(buf, sizeof(buf), "\r\n");
 		}
 		SendMsgToChar(buf, d->character.get());
 	}
@@ -732,7 +732,7 @@ void dg_script_menu(DescriptorData *d) {
 		SendMsgToChar("     <none>\r\n", d->character.get());
 	}
 
-	sprintf(buf, "\r\n"
+	snprintf(buf, sizeof(buf), "\r\n"
 				 " %sN%s)  Новый триггер для этого скрипта\r\n"
 				 " %sD%s)  Удалить триггер в этом скрипте\r\n"
 				 " %sX%s)  Выйти из редактора скрипта\r\n"

@@ -211,7 +211,7 @@ void DiscreteFile::dg_read_trigger(void *proto, int type, int proto_vnum) {
 
 	rnum = GetTriggerRnum(vnum);
 	if (rnum < 0) {
-		sprintf(line, "SYSERR: Trigger vnum #%d asked for but non-existant!", vnum);
+		snprintf(line, sizeof(line), "SYSERR: Trigger vnum #%d asked for but non-existant!", vnum);
 		log("%s", line);
 		return;
 	}
@@ -231,11 +231,11 @@ void DiscreteFile::dg_read_trigger(void *proto, int type, int proto_vnum) {
 					ExtractTrigger(trigger_instance);
 				}
 			} else {
-				sprintf(line, "SYSERR: non-existant trigger #%d assigned to room #%d", vnum, room->vnum);
+				snprintf(line, sizeof(line), "SYSERR: non-existant trigger #%d assigned to room #%d", vnum, room->vnum);
 				log("%s", line);
 			}
 			break;
-		default: sprintf(line, "SYSERR: Trigger vnum #%d assigned to non-mob/obj/room", vnum);
+		default: snprintf(line, sizeof(line), "SYSERR: Trigger vnum #%d assigned to non-mob/obj/room", vnum);
 			log("%s", line);
 			break;
 	}
@@ -289,7 +289,7 @@ void TriggersFile::parse_trigger(int vnum) {
 	}
 	zone_table[zrn].RnumTrigsLocation.second = top_of_trigt;
 
-	sprintf(buf2, "trig vnum %d", vnum);
+	snprintf(buf2, sizeof(buf2), "trig vnum %d", vnum);
 	std::string name(fread_string());
 	get_line(file(), line);
 
@@ -458,7 +458,7 @@ void WorldFile::parse_room(int virtual_nr) {
 
 	world[room_realnum]->ex_description = nullptr;
 
-	sprintf(buf, "SYSERR: Format error in room #%d (expecting D/E/S)", virtual_nr);
+	snprintf(buf, sizeof(buf), "SYSERR: Format error in room #%d (expecting D/E/S)", virtual_nr);
 
 	for (;;) {
 		if (!get_line(file(), line)) {
@@ -477,7 +477,7 @@ void WorldFile::parse_room(int virtual_nr) {
 					new_descr->next = world[room_realnum]->ex_description;
 					world[room_realnum]->ex_description = new_descr;
 				} else {
-					sprintf(buf, "SYSERR: Format error in room #%d (Corrupt extradesc)", virtual_nr);
+					snprintf(buf, sizeof(buf), "SYSERR: Format error in room #%d (Corrupt extradesc)", virtual_nr);
 					log("%s", buf);
 				}
 			}
@@ -517,7 +517,7 @@ void WorldFile::setup_dir(int room, unsigned dir) {
 	int t[5];
 	char line[256];
 
-	sprintf(buf2, "room #%d, direction D%u", GET_ROOM_VNUM(room), dir);
+	snprintf(buf2, sizeof(buf2), "room #%d, direction D%u", GET_ROOM_VNUM(room), dir);
 
 	world[room]->dir_option_proto[dir] = std::make_shared<ExitData>();
 	world[room]->dir_option_proto[dir]->general_description = fread_string();
@@ -609,7 +609,7 @@ void ObjectFile::parse_object(const int nr) {
 	tobj->set_level(1);
 	tobj->set_destroyer(ObjData::DEFAULT_DESTROYER);
 
-	sprintf(m_buffer, "object #%d", nr);
+	snprintf(m_buffer, sizeof(m_buffer), "object #%d", nr);
 
 	// *** string data ***
 	std::string aliases(fread_string());
@@ -620,7 +620,7 @@ void ObjectFile::parse_object(const int nr) {
 	tobj->set_aliases(aliases);
 	tobj->set_short_description(utils::colorLOW(fread_string()));
 
-	strcpy(buf, tobj->get_short_description().c_str());
+	snprintf(buf, sizeof(buf), "%s", tobj->get_short_description().c_str());
 	tobj->set_PName(ECase::kNom, utils::colorLOW(buf)); //именительный падеж равен короткому описанию
 
 	for (j = ECase::kGen; j <= ECase::kLastCase; j++) {
@@ -753,7 +753,7 @@ void ObjectFile::parse_object(const int nr) {
 	tobj->unset_extraflag(EObjFlag::kTicktimer);
 
 	// *** extra descriptions and affect fields ***
-	strcat(m_buffer, ", after numeric constants\n" "...expecting 'E', 'A', '$', or next object number");
+	strncat(m_buffer, ", after numeric constants\n" "...expecting 'E', 'A', '$', or next object number", sizeof(m_buffer) - strlen(m_buffer) - 1);
 	j = 0;
 
 	for (;;) {
@@ -862,13 +862,13 @@ bool ObjectFile::check_object(ObjData *obj) {
 			GET_OBJ_VNUM(obj), obj->get_short_description().c_str(), obj->get_rent_off());
 	}
 */
-	sprintbit(obj->get_wear_flags(), wear_bits, buf);
+	sprintbit(obj->get_wear_flags(), wear_bits, buf, sizeof(buf));
 	if (strstr(buf, "UNDEFINED")) {
 		error = true;
 		log("SYSERR: Object #%d (%s) has unknown wear flags.", GET_OBJ_VNUM(obj), obj->get_short_description().c_str());
 	}
 
-	obj->get_extra_flags().sprintbits(extra_bits, buf, ",", 4);
+	obj->get_extra_flags().sprintbits(extra_bits, buf, sizeof(buf), ",", 4);
 	if (strstr(buf, "UNDEFINED")) {
 		error = true;
 		log("SYSERR: Object #%d (%s) has unknown extra flags.",
@@ -876,7 +876,7 @@ bool ObjectFile::check_object(ObjData *obj) {
 			obj->get_short_description().c_str());
 	}
 
-	obj->get_affect_flags().sprintbits(affected_bits, buf, ",", 4);
+	obj->get_affect_flags().sprintbits(affected_bits, buf, sizeof(buf), ",", 4);
 
 	if (strstr(buf, "UNDEFINED")) {
 		error = true;
@@ -1537,7 +1537,7 @@ bool ZoneFile::load_zone() {
 bool ZoneFile::load_regular_zone() {
 	auto &zone = zone_table[s_zone_number];
 
-	sprintf(buf2, "beginning of zone #%d", zone.vnum);
+	snprintf(buf2, sizeof(buf2), "beginning of zone #%d", zone.vnum);
 
 	rewind(file());
 	char *ptr;
@@ -1759,7 +1759,7 @@ bool ZoneFile::load_regular_zone() {
 bool ZoneFile::load_generated_zone() const {
 	auto &zone = zone_table[s_zone_number];
 
-	sprintf(buf2, "beginning of generated zone #%d", zone.vnum);
+	snprintf(buf2, sizeof(buf2), "beginning of generated zone #%d", zone.vnum);
 
 	return true;
 }
@@ -1790,7 +1790,7 @@ bool HelpFile::load_help() {
 	get_one_line(key);
 	while (*key != '$')    // read in the corresponding help entry
 	{
-		strcpy(entry, strcat(key, "\r\n"));
+		snprintf(entry, sizeof(entry), "%s\r\n", key);
 		get_one_line(line);
 		while (*line != '#') {
 			// если вдруг файл внезапно закончился и '#' так и не встретился
@@ -1801,7 +1801,8 @@ bool HelpFile::load_help() {
 				mudlog(str_log.str().c_str(), DEF, kLvlImmortal, SYSLOG, true);
 				break;
 			}
-			strcat(entry, strcat(line, "\r\n"));
+			size_t entry_len = strlen(entry);
+			snprintf(entry + entry_len, sizeof(entry) - entry_len, "%s\r\n", line);
 			get_one_line(line);
 		}
 		// Assign read level
@@ -1909,9 +1910,8 @@ char *SocialsFile::str_dup_bl(const char *source) {
 
 	line[0] = 0;
 	if (source[0]) {
-		strcat(line, "&K");
-		strcat(line, source);
-		strcat(line, "&n");
+		size_t line_len = strlen(line);
+		snprintf(line + line_len, sizeof(line) - line_len, "&K%s&n", source);
 	}
 
 	return (str_dup(line));

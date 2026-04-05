@@ -30,6 +30,7 @@ class ICfgLoader {
  public:
 	virtual void Load(parser_wrapper::DataNode data) = 0;
 	virtual void Reload(parser_wrapper::DataNode data) = 0;
+	virtual ~ICfgLoader() = default;
 };
 
 using LoaderPtr = std::unique_ptr<ICfgLoader>;

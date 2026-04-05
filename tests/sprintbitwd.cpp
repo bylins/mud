@@ -141,7 +141,7 @@ TEST(sprintbitwd, PrintZero_SimpleBitNames_NoPrintFlags)
 	Bitvector bitvector = 0;
 	constexpr std::size_t BUFFER_SIZE = 1024;
 	char result[BUFFER_SIZE];
-	sprintbitwd(bitvector, BIT_NAMES, result, SPLITTER);
+	sprintbitwd(bitvector, BIT_NAMES, result, sizeof(result), SPLITTER);
 
 	EXPECT_EQ(0, strcmp(result, "ничего"));  // "ничего" (KOI8-R)
 }
@@ -159,7 +159,7 @@ TEST(sprintbitwd, SingleBit_SimpleBitNames_NoPrintFlags)
 		{
 			bitvector = plane << (8*sizeof(Bitvector) - PLANE_BITS)
 				| Bitvector(1) << i;
-			sprintbitwd(bitvector, BIT_NAMES, result, SPLITTER);
+			sprintbitwd(bitvector, BIT_NAMES, result, sizeof(result), SPLITTER);
 			const int result_index = i + plane*(VALUES_IN_PLANE + 1);
 			EXPECT_EQ(std::string(BIT_NAMES[result_index]), result);
 		}
@@ -177,7 +177,7 @@ TEST(sprintbitwd, AllBits_NoPrintFlags)
 	constexpr std::size_t BUFFER_SIZE = 1024;
 	char result[BUFFER_SIZE];
 
-	sprintbitwd(bitvector, BIT_NAMES, result, SPLITTER);
+	sprintbitwd(bitvector, BIT_NAMES, result, sizeof(result), SPLITTER);
 
 	EXPECT_EQ(EXPECTED, result);
 }
@@ -194,7 +194,7 @@ TEST(sprintbitwd, AllBits_PrintFlag_0x01)
 	constexpr std::size_t BUFFER_SIZE = 1024;
 	char result[BUFFER_SIZE];
 
-	sprintbitwd(bitvector, BIT_NAMES, result, SPLITTER, 0x1);
+	sprintbitwd(bitvector, BIT_NAMES, result, sizeof(result), SPLITTER, 0x1);
 
 	EXPECT_EQ(EXPECTED, result);
 }
@@ -211,7 +211,7 @@ TEST(sprintbitwd, AllBits_PrintFlag_0x02)
 	constexpr std::size_t BUFFER_SIZE = 1024;
 	char result[BUFFER_SIZE];
 
-	sprintbitwd(bitvector, BIT_NAMES, result, SPLITTER, 0x2);
+	sprintbitwd(bitvector, BIT_NAMES, result, sizeof(result), SPLITTER, 0x2);
 
 	EXPECT_EQ(EXPECTED, result);
 }
@@ -228,7 +228,7 @@ TEST(sprintbitwd, AllBits_PrintFlag_0x03)
 	constexpr std::size_t BUFFER_SIZE = 1024;
 	char result[BUFFER_SIZE];
 
-	sprintbitwd(bitvector, BIT_NAMES, result, SPLITTER, 0x3);
+	sprintbitwd(bitvector, BIT_NAMES, result, sizeof(result), SPLITTER, 0x3);
 
 	EXPECT_EQ(EXPECTED, result);
 }
@@ -244,7 +244,7 @@ TEST(sprintbitwd, AllBits_PrintFlag_0x04)	// corresponds to NoPrintFlags result 
 	constexpr std::size_t BUFFER_SIZE = 1024;
 	char result[BUFFER_SIZE];
 
-	sprintbitwd(bitvector, BIT_NAMES, result, SPLITTER, 0x04);
+	sprintbitwd(bitvector, BIT_NAMES, result, sizeof(result), SPLITTER, 0x04);
 
 	EXPECT_EQ(EXPECTED, result);
 }
@@ -261,7 +261,7 @@ TEST(sprintbitwd, AllBits_PrintFlag_0x05)	// corresponds to PrintFlag_0x01 if th
 	constexpr std::size_t BUFFER_SIZE = 1024;
 	char result[BUFFER_SIZE];
 
-	sprintbitwd(bitvector, BIT_NAMES, result, SPLITTER, 0x05);
+	sprintbitwd(bitvector, BIT_NAMES, result, sizeof(result), SPLITTER, 0x05);
 
 	EXPECT_EQ(EXPECTED, result);
 }
@@ -275,7 +275,7 @@ TEST(sprintbitwd, StarBitName_NoPrintFlags)
 	constexpr std::size_t BUFFER_SIZE = 1024;
 	char result[BUFFER_SIZE];
 
-	sprintbitwd(bitvector, BIT_NAMES, result, SPLITTER);
+	sprintbitwd(bitvector, BIT_NAMES, result, sizeof(result), SPLITTER);
 
 	EXPECT_EQ(EXPECTED, result);
 }
@@ -289,7 +289,7 @@ TEST(sprintbitwd, StarBitName_PrintFlag_0x04)
 	constexpr std::size_t BUFFER_SIZE = 1024;
 	char result[BUFFER_SIZE];
 
-	sprintbitwd(bitvector, BIT_NAMES, result, SPLITTER, 0x04);
+	sprintbitwd(bitvector, BIT_NAMES, result, sizeof(result), SPLITTER, 0x04);
 
 	EXPECT_EQ(EXPECTED, result);
 }
@@ -303,7 +303,7 @@ TEST(sprintbitwd, UNUSED_bit_NoPrintFlags)
 	constexpr std::size_t BUFFER_SIZE = 1024;
 	char result[BUFFER_SIZE];
 
-	sprintbitwd(bitvector, BIT_NAMES, result, SPLITTER);
+	sprintbitwd(bitvector, BIT_NAMES, result, sizeof(result), SPLITTER);
 
 	EXPECT_EQ(EXPECTED, result);
 }
@@ -317,7 +317,7 @@ TEST(sprintbitwd, UNUSED_bit_PrintFlag_0x02)
 	constexpr std::size_t BUFFER_SIZE = 1024;
 	char result[BUFFER_SIZE];
 
-	sprintbitwd(bitvector, BIT_NAMES, result, SPLITTER, 0x02);
+	sprintbitwd(bitvector, BIT_NAMES, result, sizeof(result), SPLITTER, 0x02);
 
 	EXPECT_EQ(EXPECTED, result);
 }
@@ -331,7 +331,7 @@ TEST(sprintbitwd, UNUSED_bit_PrintFlag_0x03)
 	constexpr std::size_t BUFFER_SIZE = 1024;
 	char result[BUFFER_SIZE];
 
-	sprintbitwd(bitvector, BIT_NAMES, result, SPLITTER, 0x03);
+	sprintbitwd(bitvector, BIT_NAMES, result, sizeof(result), SPLITTER, 0x03);
 
 	EXPECT_EQ(EXPECTED, result);
 }

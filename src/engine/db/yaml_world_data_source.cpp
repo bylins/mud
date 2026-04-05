@@ -3480,7 +3480,7 @@ void YamlWorldDataSource::SaveMobs(int zone_rnum, int specific_vnum)
 
 			// Check special_bitvector
 			char special_buf[kMaxStringLength];
-			mob.mob_specials.npc_flags.tascii(FlagData::kPlanesNumber, special_buf);
+			mob.mob_specials.npc_flags.tascii(FlagData::kPlanesNumber, special_buf, sizeof(special_buf));
 			if (special_buf[0] != '0' || special_buf[1] != 'a')
 			{
 				has_enhanced = true;
