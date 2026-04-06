@@ -12,7 +12,7 @@ void do_employ(CharData *ch, char *argument, int cmd, int subcmd) {
 	two_arguments(argument, arg, buf);
 	char *buf_temp = str_dup(buf);
 	if (!*arg) {
-		sprintf(buf2, "Что вы хотите %s?\r\n", cmd_info[cmd].command);
+		snprintf(buf2, sizeof(buf2), "Что вы хотите %s?\r\n", cmd_info[cmd].command);
 		SendMsgToChar(buf2, ch);
 		return;
 	}
@@ -148,7 +148,7 @@ void apply_enchant(CharData *ch, ObjData *obj, std::string text) {
 	} else {
 		int slots = obj->get_wear_flags();
 		REMOVE_BIT(slots, EWearFlag::kTake);
-		if (sprintbit(slots, wear_bits, buf2)) {
+		if (sprintbit(slots, wear_bits, buf2, sizeof(buf2))) {
 			SendMsgToChar(ch, "Это зачарование применяется к предметам со слотами надевания: %s\r\n", buf2);
 		} else {
 			SendMsgToChar(ch, "Некорретное зачарование, не проставлены слоты надевания.\r\n");

@@ -1122,10 +1122,10 @@ reversion_wrapper<T> reverse (T&& iterable) { return { iterable }; }
 
 // PruneCrlf moved to utils_string.h
 
-bool sprintbitwd(Bitvector bitvector, const char *names[], char *result, const char *div, int print_flag = 0);
+bool sprintbitwd(Bitvector bitvector, const char *names[], char *result, size_t result_size, const char *div, int print_flag = 0);
 
-inline bool sprintbit(Bitvector bitvector, const char *names[], char *result, const int print_flag = 0) {
-	return sprintbitwd(bitvector, names, result, ",", print_flag);
+inline bool sprintbit(Bitvector bitvector, const char *names[], char *result, size_t result_size, const int print_flag = 0) {
+	return sprintbitwd(bitvector, names, result, result_size, ",", print_flag);
 }
 
 #endif // UTILS_H_

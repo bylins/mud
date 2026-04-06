@@ -93,7 +93,8 @@ set(TESTS
 		trigger_indenter.cpp
 		dg_string_matching.cpp
 		dg_var_context.cpp
-		mob_classes.loader.cpp)
+		mob_classes.loader.cpp
+		obj_decay_manager.cpp)
 set(UTILITIES
 		char.utilities.hpp
 		char.utilities.cpp)

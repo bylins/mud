@@ -508,7 +508,7 @@ void save() {
 			if (!k.second.affects.empty()) {
 				pugi::xml_node xml_affects = xml_activ.append_child("affects");
 				*buf_ = '\0';
-				k.second.affects.tascii(FlagData::kPlanesNumber, buf_);
+				k.second.affects.tascii(FlagData::kPlanesNumber, buf_, sizeof(buf_));
 				xml_affects.append_child(pugi::node_pcdata).set_value(buf_);
 			}
 			// set/activ/apply
@@ -794,7 +794,7 @@ void do_slist(CharData *ch) {
 /// распечатка аффектов активатора для справки с форматирование по 80 символов
 std::string print_activ_affects(const FlagData &aff) {
 	char buf_[2048];
-	if (aff.sprintbits(weapon_affects, buf_, ",")) {
+	if (aff.sprintbits(weapon_affects, buf_, sizeof(buf_), ",")) {
 		// весь этот изврат, чтобы вывести аффекты с разбивкой на строки
 		// по 80 символов (не разбивая слова), при этом подписать впереди
 		// каждой строки " + " и выделить сами аффекты цветом

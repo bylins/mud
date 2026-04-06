@@ -629,6 +629,36 @@ void ObjData::set_tag(const char *tag) {
 	}
 }
 
+void ObjData::set_timer(int timer) {
+	CObjectPrototype::set_timer(timer);
+	world_objects.decay_manager().on_timer_changed(this);
+}
+
+int ObjData::get_timer() const {
+	if (!world_objects.decay_manager().contains(this)) {
+		return CObjectPrototype::get_timer();
+	}
+	auto deadline = world_objects.decay_manager().get_deadline(this);
+	if (deadline == UINT64_MAX) {
+		return CObjectPrototype::UNLIMITED_TIMER;
+	}
+	auto now = world_objects.decay_manager().current_mud_hour();
+	if (deadline <= now) {
+		return 0;
+	}
+	return static_cast<int>(deadline - now);
+}
+
+void ObjData::process_periodic_effects() {
+	if (!m_timed_spell.empty()) {
+		m_timed_spell.dec_timer(this, 1);
+	}
+	if ((get_type() == EObjType::kLiquidContainer || get_type() == EObjType::kFood)
+		&& GET_OBJ_VAL(this, 3) > 1) {
+		dec_val(3);
+	}
+}
+
 void ObjData::attach_triggers(const triggers_list_t &trigs) {
 	for (auto it = trigs.begin(); it != trigs.end(); ++it) {
 		int rnum = GetTriggerRnum(*it);
@@ -639,6 +669,7 @@ void ObjData::attach_triggers(const triggers_list_t &trigs) {
 			}
 		}
 	}
+	world_objects.update_obj_indices(this);
 }
 
 /**
@@ -799,6 +830,9 @@ void ObjData::add_timed_spell(const ESpell spell_id, const int time) {
 		return;
 	}
 	m_timed_spell.add(this, spell_id, time);
+	if (time > 0) {
+		world_objects.decay_manager().add_timed_spell_obj(this);
+	}
 }
 
 void ObjData::del_timed_spell(const ESpell spell_id, const bool message) {

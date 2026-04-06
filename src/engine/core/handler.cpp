@@ -458,7 +458,7 @@ void PlaceObjToInventory(ObjData *object, CharData *ch) {
 
 		if (!ch->IsNpc() || (ch->has_master() && !ch->get_master()->IsNpc())) {
 			object->set_extra_flag(EObjFlag::kTicktimer);    // start timer unconditionally when character picks item up.
-			obj_update_list.insert(object);
+			world_objects.decay_manager().insert(object);
 			ArrangeObjs(object, &ch->carrying);
 		} else {
 			// Вот эта муть, чтобы временно обойти завязку магазинов на порядке предметов в инве моба // Krodo
@@ -1302,7 +1302,8 @@ bool PlaceObjToRoom(ObjData *object, RoomRnum room) {
 		object->set_destroyer(kRoomDestroyTimer);
 	}
 	if (object->get_type() != EObjType::kFountain && !object->has_flag(EObjFlag::kNodecay)) {
-		obj_update_list.insert(object);
+		world_objects.decay_manager().insert(object);
+		world_objects.decay_manager().add_env_check(object);
 	}
 	return true;
 }
@@ -1392,6 +1393,7 @@ void RemoveObjFromRoom(ObjData *object) {
 
 	object->set_in_room(kNowhere);
 	object->set_next_content(nullptr);
+	world_objects.decay_manager().remove_env_check(object);
 }
 
 void PlaceObjIntoObj(ObjData *obj, ObjData *obj_to) {
@@ -1540,7 +1542,6 @@ void ExtractObjFromWorld(ObjData *obj, bool showlog) {
 
 	check_auction(nullptr, obj);
 	check_exchange(obj);
-	obj_update_list.erase(obj);
 	obj->get_script()->set_purged();
 	world_objects.remove(obj);
 //	if (showlog);

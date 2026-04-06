@@ -32,7 +32,9 @@ void ParseMobUpdate(CharData* mob, const nlohmann::json& data)
 		const auto& names = data["names"];
 		if (HasString(names, "aliases"))
 		{
-			mob->set_npc_name(Utf8ToKoi8r(names["aliases"].get<std::string>()));
+			auto aliases = Utf8ToKoi8r(names["aliases"].get<std::string>());
+			mob->set_npc_name(aliases);
+			mob->SetCharAliases(aliases);
 		}
 		if (HasString(names, "nominative"))
 		{

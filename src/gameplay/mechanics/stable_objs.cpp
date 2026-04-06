@@ -153,7 +153,7 @@ double CountUnlimitedTimerBonus(const CObjectPrototype *obj, int item_wear) {
 			}
 		}
 	}
-	obj->get_affect_flags().sprintbits(weapon_affects, buf_temp1, ",");
+	obj->get_affect_flags().sprintbits(weapon_affects, buf_temp1, sizeof(buf_temp1), ",");
 
 	for (auto &affect : undecayable_criterions[item_wear].affects) {
 		if (strstr(buf_temp1, affect.first.c_str()) != nullptr) {
@@ -307,7 +307,7 @@ bool IsTimerUnlimited(const CObjectPrototype *obj) {
 			}
 		}
 	}
-	obj->get_affect_flags().sprintbits(weapon_affects, buf_temp1, ",");
+	obj->get_affect_flags().sprintbits(weapon_affects, buf_temp1, sizeof(buf_temp1), ",");
 
 	// проходим по всем аффектам в нашей таблице
 	for (auto &affect : undecayable_criterions[item_wear].affects) {

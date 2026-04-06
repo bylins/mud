@@ -113,7 +113,6 @@ MobRnum top_of_mobt = 0;    // top of mobile index table
 std::map<long, CharData *> chardata_by_uid;
 std::unordered_set<CharData *> chardata_wait_list;
 std::unordered_set<CharData *> chardata_cooldown_list;
-std::unordered_set<ObjData *> obj_update_list;
 int global_uid = 0;
 long top_idnum = 0;        // highest idnum in use
 
@@ -2764,6 +2763,7 @@ void ZoneReset::ResetZoneEssential() {
 						auto trig = read_trigger(reset_cmd.arg2);
 						if (add_trigger(tobj->get_script().get(), trig, -1)) {
 							add_trig_to_owner(-1, trig_index[reset_cmd.arg2]->vnum, GET_OBJ_VNUM(tobj));
+							world_objects.update_obj_indices(tobj);
 						} else {
 							ExtractTrigger(trig);
 						}

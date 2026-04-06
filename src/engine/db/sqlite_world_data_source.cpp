@@ -2891,7 +2891,7 @@ void SqliteWorldDataSource::SaveMobRecord(int mob_vnum, CharData &mob)
 	
 	// special_bitvector (FlagData as TEXT)
 	char special_buf[kMaxStringLength];
-	mob.mob_specials.npc_flags.tascii(FlagData::kPlanesNumber, special_buf);
+	mob.mob_specials.npc_flags.tascii(FlagData::kPlanesNumber, special_buf, sizeof(special_buf));
 	if (special_buf[0] != '0' || special_buf[1] != 'a')
 	{
 		sqlite3_bind_text(stmt, col++, special_buf, -1, SQLITE_TRANSIENT);

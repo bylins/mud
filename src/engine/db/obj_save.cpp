@@ -532,7 +532,7 @@ ObjData::shared_ptr read_one_object_new(char **data, int *error) {
 	}
 	ConvertDrinkconSkillField(object.get(), false);
 	object->remove_incorrect_values_keys(object->get_type());
-	obj_update_list.insert(object.get());
+	world_objects.decay_manager().insert(object.get());
 	return (object);
 }
 
@@ -660,24 +660,24 @@ void write_one_object(std::stringstream &out, ObjData *object, int location) {
 		// Наводимые аффекты
 		*buf = '\0';
 		*buf2 = '\0';
-		object->get_affect_flags().tascii(FlagData::kPlanesNumber, buf);
-		proto->get_affect_flags().tascii(FlagData::kPlanesNumber, buf2);
+		object->get_affect_flags().tascii(FlagData::kPlanesNumber, buf, sizeof(buf));
+		proto->get_affect_flags().tascii(FlagData::kPlanesNumber, buf2, sizeof(buf2));
 		if (strcmp(buf, buf2)) {
 			out << "Affs: " << buf << "~\n";
 		}
 		// Анти флаги
 		*buf = '\0';
 		*buf2 = '\0';
-		object->get_anti_flags().tascii(FlagData::kPlanesNumber, buf);
-		proto->get_anti_flags().tascii(FlagData::kPlanesNumber, buf2);
+		object->get_anti_flags().tascii(FlagData::kPlanesNumber, buf, sizeof(buf));
+		proto->get_anti_flags().tascii(FlagData::kPlanesNumber, buf2, sizeof(buf2));
 		if (strcmp(buf, buf2)) {
 			out << "Anti: " << buf << "~\n";
 		}
 		// Запрещающие флаги
 		*buf = '\0';
 		*buf2 = '\0';
-		object->get_no_flags().tascii(FlagData::kPlanesNumber, buf);
-		proto->get_no_flags().tascii(FlagData::kPlanesNumber, buf2);
+		object->get_no_flags().tascii(FlagData::kPlanesNumber, buf, sizeof(buf));
+		proto->get_no_flags().tascii(FlagData::kPlanesNumber, buf2, sizeof(buf2));
 		if (strcmp(buf, buf2)) {
 			out << "Nofl: " << buf << "~\n";
 		}
@@ -695,8 +695,8 @@ void write_one_object(std::stringstream &out, ObjData *object, int location) {
 			object->unset_extraflag(EObjFlag::kNosell);
 		}
 		
-		object->get_extra_flags().tascii(FlagData::kPlanesNumber, buf);
-		proto->get_extra_flags().tascii(FlagData::kPlanesNumber, buf2);
+		object->get_extra_flags().tascii(FlagData::kPlanesNumber, buf, sizeof(buf));
+		proto->get_extra_flags().tascii(FlagData::kPlanesNumber, buf2, sizeof(buf2));
 		if (blooded) //Возвращаем флаг назад
 		{
 			object->set_extra_flag(EObjFlag::kBloody);
@@ -713,10 +713,10 @@ void write_one_object(std::stringstream &out, ObjData *object, int location) {
 		*buf2 = '\0';
 
 		auto wear = object->get_wear_flags();
-		tascii(&wear, 1, buf);
+		tascii(&wear, 1, buf, sizeof(buf));
 
 		wear = proto->get_wear_flags();
-		tascii(&wear, 1, buf2);
+		tascii(&wear, 1, buf2, sizeof(buf2));
 
 		if (strcmp(buf, buf2)) {
 			out << "Wear: " << buf << "~\n";
@@ -1071,18 +1071,18 @@ int ReadCrashTimerFile(std::size_t index, int temp) {
 	sprintf(buf, "[ReadTimer] Reading timer file %s for %s :", fname, name.c_str());
 	size_t dummy = fread(&rent, sizeof(struct SaveRentInfo), 1, fl);
 	switch (rent.rentcode) {
-		case RENT_RENTED: strcat(buf, " Rent ");
+		case RENT_RENTED: strncat(buf, " Rent ", sizeof(buf) - strlen(buf) - 1);
 			break;
 		case RENT_CRASH:
 			//           if (rent.time<1001651000L) //креш-сейв до Sep 28 00:26:20 2001
 			rent.net_cost_per_diem = 0;    //бесплатно!
-			strcat(buf, " Crash ");
+			strncat(buf, " Crash ", sizeof(buf) - strlen(buf) - 1);
 			break;
-		case RENT_CRYO: strcat(buf, " Cryo ");
+		case RENT_CRYO: strncat(buf, " Cryo ", sizeof(buf) - strlen(buf) - 1);
 			break;
-		case RENT_TIMEDOUT: strcat(buf, " TimedOut ");
+		case RENT_TIMEDOUT: strncat(buf, " TimedOut ", sizeof(buf) - strlen(buf) - 1);
 			break;
-		case RENT_FORCED: strcat(buf, " Forced ");
+		case RENT_FORCED: strncat(buf, " Forced ", sizeof(buf) - strlen(buf) - 1);
 			break;
 		default: log("[ReadTimer] Error reading %s timer file - undefined rent code.", name.c_str());
 			return false;
@@ -1090,7 +1090,7 @@ int ReadCrashTimerFile(std::size_t index, int temp) {
 			//rent.rentcode = RENT_CRASH;
 			break;
 	}
-	strcat(buf, "rent code.");
+	strncat(buf, "rent code.", sizeof(buf) - strlen(buf) - 1);
 	log("%s", buf);
 	Crash_create_timer(index, rent.n_items);
 	player_table[index].timer->rent = rent;
@@ -1197,7 +1197,7 @@ void Crash_timer_obj(const std::size_t index, long time) {
 		return;
 	} else if (rentcode != RENT_CRYO && timer_dec > crash_file_timeout * kSecsPerRealDay) {
 		ClearCrashSavedObjects(index);
-		strcpy(buf, "");
+		buf[0] = '\0';
 		switch (rentcode) {
 			case RENT_CRASH: log("[TO] Deleting crash rent info for %s  - time outed.", name.c_str());
 				break;
@@ -1265,19 +1265,19 @@ void Crash_list_objects(CharData *ch, int index) {
 	num_of_days = (float) timer_dec / kSecsPerRealDay;
 	timer_dec = (timer_dec / kSecsPerMudHour) + (timer_dec % kSecsPerMudHour ? 1 : 0);
 
-	strcpy(buf, "Код ренты - ");
+	snprintf(buf, sizeof(buf), "Код ренты - ");
 	switch (SAVEINFO(index)->rent.rentcode) {
-		case RENT_RENTED: strcat(buf, "Rented.\r\n");
+		case RENT_RENTED: strncat(buf, "Rented.\r\n", sizeof(buf) - strlen(buf) - 1);
 			break;
-		case RENT_CRASH: strcat(buf, "Crash.\r\n");
+		case RENT_CRASH: strncat(buf, "Crash.\r\n", sizeof(buf) - strlen(buf) - 1);
 			break;
-		case RENT_CRYO: strcat(buf, "Cryo.\r\n");
+		case RENT_CRYO: strncat(buf, "Cryo.\r\n", sizeof(buf) - strlen(buf) - 1);
 			break;
-		case RENT_TIMEDOUT: strcat(buf, "TimedOut.\r\n");
+		case RENT_TIMEDOUT: strncat(buf, "TimedOut.\r\n", sizeof(buf) - strlen(buf) - 1);
 			break;
-		case RENT_FORCED: strcat(buf, "Forced.\r\n");
+		case RENT_FORCED: strncat(buf, "Forced.\r\n", sizeof(buf) - strlen(buf) - 1);
 			break;
-		default: strcat(buf, "UNDEF!\r\n");
+		default: strncat(buf, "UNDEF!\r\n", sizeof(buf) - strlen(buf) - 1);
 			break;
 	}
 	std::stringstream ss;

@@ -94,6 +94,7 @@ set(SOURCES
 		src/engine/ui/interpreter.cpp
 		src/gameplay/crafting/item_creation.cpp
 		src/gameplay/core/game_limits.cpp
+		src/gameplay/core/obj_decay_manager.cpp
 		src/utils/levenshtein.cpp
 		src/gameplay/mechanics/liquid.cpp
 		src/utils/logger.cpp
@@ -525,6 +526,7 @@ set(HEADERS
 		src/engine/core/heartbeat_commands.h
 		src/gameplay/mechanics/weather.h
 		src/gameplay/core/game_limits.h
+		src/gameplay/core/obj_decay_manager.h
 		src/engine/core/heartbeat.h
 		src/engine/db/world_characters.h
 		src/gameplay/economics/shops_implementation.h

@@ -276,7 +276,7 @@ void redit_save_to_disk(ZoneRnum zone_num) {
 	RoomData *room;
 
 	if (zone_table[zone_num].vnum >= dungeons::kZoneStartDungeons) {
-			sprintf(buf, "Отказ сохранения зоны %d на диск.", zone_table[zone_num].vnum);
+			snprintf(buf, sizeof(buf), "Отказ сохранения зоны %d на диск.", zone_table[zone_num].vnum);
 			mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
 			return;
 	}
@@ -285,7 +285,7 @@ void redit_save_to_disk(ZoneRnum zone_num) {
 		return;
 	}
 
-	sprintf(buf, "%s/%d.new", WLD_PREFIX, zone_table[zone_num].vnum);
+	snprintf(buf, sizeof(buf), "%s/%d.new", WLD_PREFIX, zone_table[zone_num].vnum);
 	if (!(fp = fopen(buf, "w+"))) {
 		mudlog("SYSERR: OLC: Cannot open room file!", BRF, kLvlBuilder, SYSLOG, true);
 		return;
@@ -297,17 +297,17 @@ void redit_save_to_disk(ZoneRnum zone_num) {
 			room = world[realcounter];
 
 #if defined(REDIT_LIST)
-			sprintf(buf1, "OLC: Saving room %d.", room->number);
+			snprintf(buf1, sizeof(buf1), "OLC: Saving room %d.", room->number);
 			log(buf1);
 #endif
 
 			// * Remove the '\r\n' sequences from description.
-			strcpy(buf1, GlobalObjects::descriptions().get(room->description_num).c_str());
+			snprintf(buf1, sizeof(buf1), "%s", GlobalObjects::descriptions().get(room->description_num).c_str());
 			strip_string(buf1);
 
 			// * Forget making a buffer, lets just write the thing now.
 			*buf2 = '\0';
-			room->flags_tascii(FlagData::kPlanesNumber, buf2);
+			room->flags_tascii(FlagData::kPlanesNumber, buf2, sizeof(buf2));
 			fprintf(fp, "#%d\n%s~\n%s~\n%d %s %d\n", counter,
 					room->name ? room->name : "неопределено", buf1,
 					zone_table[room->zone_rn].vnum, buf2, room->sector_type);
@@ -318,7 +318,7 @@ void redit_save_to_disk(ZoneRnum zone_num) {
 					// * Again, strip out the garbage.
 					if (!room->dir_option_proto[counter2]->general_description.empty()) {
 						const std::string &description = room->dir_option_proto[counter2]->general_description;
-						strcpy(buf1, description.c_str());
+						snprintf(buf1, sizeof(buf1), "%s", description.c_str());
 						strip_string(buf1);
 					} else {
 						*buf1 = 0;
@@ -326,13 +326,13 @@ void redit_save_to_disk(ZoneRnum zone_num) {
 
 					// * Check for keywords.
 					if (room->dir_option_proto[counter2]->keyword) {
-						strcpy(buf2, room->dir_option_proto[counter2]->keyword);
+						snprintf(buf2, sizeof(buf2), "%s", room->dir_option_proto[counter2]->keyword);
 					}
 
 					// алиас в винительном падеже пишется сюда же через ;
 					if (room->dir_option_proto[counter2]->vkeyword) {
-						strcpy(buf2 + strlen(buf2), "|");
-						strcpy(buf2 + strlen(buf2), room->dir_option_proto[counter2]->vkeyword);
+						size_t buf2_len = strlen(buf2);
+						snprintf(buf2 + buf2_len, sizeof(buf2) - buf2_len, "|%s", room->dir_option_proto[counter2]->vkeyword);
 					} else
 						*buf2 = '\0';
 					REMOVE_BIT(room->dir_option_proto[counter2]->exit_info, EExitFlag::kBrokenLock);
@@ -348,7 +348,7 @@ void redit_save_to_disk(ZoneRnum zone_num) {
 			if (room->ex_description) {
 				for (auto ex_desc = room->ex_description; ex_desc; ex_desc = ex_desc->next) {
 					if (ex_desc->keyword && ex_desc->description) {
-						strcpy(buf1, ex_desc->description);
+						snprintf(buf1, sizeof(buf1), "%s", ex_desc->description);
 						strip_string(buf1);
 						fprintf(fp, "E\n%s~\n%s~\n", ex_desc->keyword, buf1);
 					}
@@ -361,7 +361,7 @@ void redit_save_to_disk(ZoneRnum zone_num) {
 	// * Write final line and close.
 	fprintf(fp, "$\n$\n");
 	fclose(fp);
-	sprintf(buf2, "%s/%d.wld", WLD_PREFIX, zone_table[zone_num].vnum);
+	snprintf(buf2, sizeof(buf2), "%s/%d.wld", WLD_PREFIX, zone_table[zone_num].vnum);
 	// * We're fubar'd if we crash between the two lines below.
 	remove(buf2);
 	rename(buf, buf2);
@@ -385,15 +385,15 @@ void redit_save_to_disk(ZoneRnum zone_num) {
 void redit_disp_extradesc_menu(DescriptorData *d) {
 	auto extra_desc = OLC_DESC(d);
 
-	sprintf(buf,
+	snprintf(buf, sizeof(buf),
 			"&g1&n) Ключ: &y%s\r\n"
 			"&g2&n) Описание:\r\n&y%s\r\n"
 			"&g3&n) Следующее описание: ",
 			extra_desc->keyword ? extra_desc->keyword : "<NONE>",
 			extra_desc->description ? extra_desc->description : "<NONE>");
 
-	strcat(buf, !extra_desc->next ? "<NOT SET>\r\n" : "Set.\r\n");
-	strcat(buf, "Enter choice (0 to quit) : ");
+	strncat(buf, !extra_desc->next ? "<NOT SET>\r\n" : "Set.\r\n", sizeof(buf) - strlen(buf) - 1);
+	strncat(buf, "Enter choice (0 to quit) : ", sizeof(buf) - strlen(buf) - 1);
 	SendMsgToChar(buf, d->character.get());
 	OLC_MODE(d) = REDIT_EXTRADESC_MENU;
 }
@@ -408,17 +408,18 @@ void redit_disp_exit_menu(DescriptorData *d) {
 
 	// * Weird door handling!
 	if (IS_SET(OLC_EXIT(d)->exit_info, EExitFlag::kHasDoor)) {
-		strcpy(buf2, "Дверь ");
+		snprintf(buf2, sizeof(buf2), "Дверь ");
 		if (IS_SET(OLC_EXIT(d)->exit_info, EExitFlag::kPickroof)) {
-			strcat(buf2, "Невзламываемая ");
+			strncat(buf2, "Невзламываемая ", sizeof(buf2) - strlen(buf2) - 1);
 		}
-		sprintf(buf2 + strlen(buf2), " (Сложность замка [%d])", OLC_EXIT(d)->lock_complexity);
+		size_t buf2_len = strlen(buf2);
+		snprintf(buf2 + buf2_len, sizeof(buf2) - buf2_len, " (Сложность замка [%d])", OLC_EXIT(d)->lock_complexity);
 	} else {
-		strcpy(buf2, "Нет двери");
+		snprintf(buf2, sizeof(buf2), "Нет двери");
 	}
 
 	if (IS_SET(OLC_EXIT(d)->exit_info, EExitFlag::kHidden)) {
-		strcat(buf2, " (Выход скрыт)");
+		strncat(buf2, " (Выход скрыт)", sizeof(buf2) - strlen(buf2) - 1);
 	}
 
 	snprintf(buf, kMaxStringLength,
@@ -448,7 +449,7 @@ void redit_disp_exit_menu(DescriptorData *d) {
 
 // * For exit flags.
 void redit_disp_exit_flag_menu(DescriptorData *d) {
-	sprintf(buf,
+	snprintf(buf, sizeof(buf),
 			"%s1%s) [%c]Дверь\r\n"
 			"%s2%s) [%c]Невзламываемая\r\n"
 			"%s3%s) [%c]Скрытый выход\r\n"
@@ -468,7 +469,7 @@ void redit_disp_exit_flag_menu(DescriptorData *d) {
 // * For room flags.
 void redit_disp_flag_menu(DescriptorData *d) {
 	disp_planes_values(d, room_bits, 2);
-	OLC_ROOM(d)->flags_sprint(buf1, ",", true);
+	OLC_ROOM(d)->flags_sprint(buf1, sizeof(buf1), ",", true);
 	snprintf(buf,
 			 kMaxStringLength,
 			 "\r\nФлаги комнаты: %s%s%s\r\n" "Введите флаг комнаты (0 - выход) : ",
@@ -487,7 +488,7 @@ void redit_disp_sector_menu(DescriptorData *d) {
 	SendMsgToChar("[H[J", d->character);
 #endif
 	for (counter = 0; counter < NUM_ROOM_SECTORS; counter++) {
-		sprintf(buf, "%s%2d%s) %-20.20s %s", grn, counter, nrm,
+		snprintf(buf, sizeof(buf), "%s%2d%s) %-20.20s %s", grn, counter, nrm,
 				sector_types[counter], !(++columns % 2) ? "\r\n" : "");
 		SendMsgToChar(buf, d->character.get());
 	}
@@ -499,7 +500,7 @@ void redit_disp_sector_menu(DescriptorData *d) {
 void redit_disp_menu(DescriptorData *d) {
 	RoomData *room;
 	room = OLC_ROOM(d);
-	room->flags_sprint(buf1, ",");
+	room->flags_sprint(buf1, sizeof(buf1), ",");
 	sprinttype(room->sector_type, sector_types, buf2);
 	snprintf(buf, kMaxStringLength,
 #if defined(CLEAR_SCREEN)
@@ -564,7 +565,7 @@ void redit_parse(DescriptorData *d, char *arg) {
 				case 'Y':
 				case 'д':
 				case 'Д': redit_save_internally(d);
-					sprintf(buf, "OLC: %s edits room %d.", GET_NAME(d->character), OLC_NUM(d));
+					snprintf(buf, sizeof(buf), "OLC: %s edits room %d.", GET_NAME(d->character), OLC_NUM(d));
 					olc_log("%s edit room %d", GET_NAME(d->character), OLC_NUM(d));
 					mudlog(buf, NRM, std::max(kLvlBuilder, GET_INVIS_LEV(d->character)), SYSLOG, true);
 					// * Do NOT free strings! Just the room structure.

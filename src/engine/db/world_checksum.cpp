@@ -144,7 +144,7 @@ std::string SerializeRoom(const RoomData *room)
 	// Serialize room flags using safe dynamic buffer
 	std::vector<char> flag_buf(8192);
 	flag_buf[0] = '\0';
-	if (room->flags_sprint(flag_buf.data(), ","))
+	if (room->flags_sprint(flag_buf.data(), flag_buf.size(), ","))
 	{
 		// Filter out UNDEF flags for consistent checksums
 		// (UNDEF flags are undefined bits that Legacy loads but SQLite does not preserve)

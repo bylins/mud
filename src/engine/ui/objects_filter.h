@@ -42,7 +42,7 @@ struct ParseFilter {
 	size_t affects_cnt() const;
 	bool check(ObjData *obj, CharData *ch);
 	bool check(ExchangeItem *exch_obj);
-	bool parse_filter(CharData *ch, ParseFilter &filter, char *argument);
+	bool parse_filter(const CharData *ch, ParseFilter &filter, const char *argument);
 	bool init_skill(char*);
 
 	std::string print() const;

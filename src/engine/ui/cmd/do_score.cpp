@@ -788,7 +788,7 @@ void PrintScoreBase(CharData *ch) {
 		sprintf(buf + strlen(buf), " (и еще %ld %s припрятано в лежне).\r\n",
 				ch->get_bank(), GetDeclensionInNumber(ch->get_bank(), EWhat::kMoneyA));
 	else
-		strcat(buf, ".\r\n");
+		strncat(buf, ".\r\n", sizeof(buf) - strlen(buf) - 1);
 
 	if (GetRealLevel(ch) < kLvlImmortal) {
 		sprintf(buf + strlen(buf),
@@ -825,57 +825,58 @@ void PrintScoreBase(CharData *ch) {
 	if (!ch->IsOnHorse())
 		SendMsgToChar(ch, "%s", GetPositionStr(ch));
 
-	strcpy(buf, kColorBoldGrn);
+	snprintf(buf, sizeof(buf), "%s", kColorBoldGrn);
 	const auto value_drunked = GET_COND(ch, DRUNK);
 	if (value_drunked >= kDrunked) {
 		if (IsAffectedBySpell(ch, ESpell::kAbstinent))
-			strcat(buf, "Привет с большого бодуна!\r\n");
+			strncat(buf, "Привет с большого бодуна!\r\n", sizeof(buf) - strlen(buf) - 1);
 		else {
 			if (value_drunked >= kMortallyDrunked)
-				strcat(buf, "Вы так пьяны, что ваши ноги не хотят слушаться вас...\r\n");
+				strncat(buf, "Вы так пьяны, что ваши ноги не хотят слушаться вас...\r\n", sizeof(buf) - strlen(buf) - 1);
 			else if (value_drunked >= 10)
-				strcat(buf, "Вы так пьяны, что вам хочется петь песни.\r\n");
+				strncat(buf, "Вы так пьяны, что вам хочется петь песни.\r\n", sizeof(buf) - strlen(buf) - 1);
 			else if (value_drunked >= 5)
-				strcat(buf, "Вы пьяны.\r\n");
+				strncat(buf, "Вы пьяны.\r\n", sizeof(buf) - strlen(buf) - 1);
 			else
-				strcat(buf, "Вы немного пьяны.\r\n");
+				strncat(buf, "Вы немного пьяны.\r\n", sizeof(buf) - strlen(buf) - 1);
 		}
 
 	}
 	if (GET_COND_M(ch, FULL))
-		strcat(buf, "Вы голодны.\r\n");
+		strncat(buf, "Вы голодны.\r\n", sizeof(buf) - strlen(buf) - 1);
 	if (GET_COND_M(ch, THIRST))
-		strcat(buf, "Вас мучает жажда.\r\n");
+		strncat(buf, "Вас мучает жажда.\r\n", sizeof(buf) - strlen(buf) - 1);
 	/*
 	   strcat(buf, KICYN);
 	   strcat(buf,"Аффекты :\r\n");
-	   (ch)->char_specials.saved.affected_by.sprintbits(affected_bits, buf2, "\r\n");
+	   (ch)->char_specials.saved.affected_by.sprintbits(affected_bits, buf2, sizeof(buf2), "\r\n");
 	   strcat(buf,buf2);
 	 */
 	if (ch->IsFlagged(EPrf::KSummonable))
-		strcat(buf, "Вы можете быть призваны.\r\n");
+		strncat(buf, "Вы можете быть призваны.\r\n", sizeof(buf) - strlen(buf) - 1);
 
 	if (ch->has_horse(false)) {
+		size_t buf_len = strlen(buf);
 		if (ch->IsOnHorse())
-			sprintf(buf + strlen(buf), "Вы верхом на %s.\r\n", GET_PAD(ch->get_horse(), 5));
+			snprintf(buf + buf_len, sizeof(buf) - buf_len, "Вы верхом на %s.\r\n", GET_PAD(ch->get_horse(), 5));
 		else
-			sprintf(buf + strlen(buf), "У вас есть %s.\r\n", GET_NAME(ch->get_horse()));
+			snprintf(buf + buf_len, sizeof(buf) - buf_len, "У вас есть %s.\r\n", GET_NAME(ch->get_horse()));
 	}
-	strcat(buf, kColorNrm);
+	strncat(buf, kColorNrm, sizeof(buf) - strlen(buf) - 1);
 	SendMsgToChar(buf, ch);
 	if (NORENTABLE(ch)) {
-		sprintf(buf,
+		snprintf(buf, sizeof(buf),
 				"%sВ связи с боевыми действиями вы не можете уйти на постой.%s\r\n",
 				kColorBoldRed, kColorNrm);
 		SendMsgToChar(buf, ch);
 	} else if ((ch->in_room != kNowhere) && ROOM_FLAGGED(ch->in_room, ERoomFlag::kPeaceful) && !ch->IsFlagged(EPlrFlag::kKiller)) {
-		sprintf(buf, "%sТут вы чувствуете себя в безопасности.%s\r\n", kColorBoldGrn, kColorNrm);
+		snprintf(buf, sizeof(buf), "%sТут вы чувствуете себя в безопасности.%s\r\n", kColorBoldGrn, kColorNrm);
 		SendMsgToChar(buf, ch);
 	}
 
 	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kForge)
 		&& (ch->GetSkill(ESkill::kJewelry) || ch->GetSkill(ESkill::kRepair) || ch->GetSkill(ESkill::kReforging))) {
-		sprintf(buf,
+		snprintf(buf, sizeof(buf),
 				"%sЭто место отлично подходит для занятий кузнечным делом.%s\r\n",
 				kColorBoldGrn,
 				kColorNrm);
@@ -883,19 +884,19 @@ void PrintScoreBase(CharData *ch) {
 	}
 
 	if (mail::has_mail(ch->get_uid())) {
-		sprintf(buf, "%sВас ожидает новое письмо, зайдите на почту!%s\r\n", kColorBoldGrn, kColorNrm);
+		snprintf(buf, sizeof(buf), "%sВас ожидает новое письмо, зайдите на почту!%s\r\n", kColorBoldGrn, kColorNrm);
 		SendMsgToChar(buf, ch);
 	}
 
 	if (Parcel::has_parcel(ch)) {
-		sprintf(buf, "%sВас ожидает посылка, зайдите на почту!%s\r\n", kColorBoldGrn, kColorNrm);
+		snprintf(buf, sizeof(buf), "%sВас ожидает посылка, зайдите на почту!%s\r\n", kColorBoldGrn, kColorNrm);
 		SendMsgToChar(buf, ch);
 	}
 
 	if (ch->IsFlagged(EPlrFlag::kHelled) && HELL_DURATION(ch) && HELL_DURATION(ch) > time(nullptr)) {
 		const int hrs = (HELL_DURATION(ch) - time(nullptr)) / 3600;
 		const int mins = ((HELL_DURATION(ch) - time(nullptr)) % 3600 + 59) / 60;
-		sprintf(buf,
+		snprintf(buf, sizeof(buf),
 				"Вам предстоит провести в темнице еще %d %s %d %s [%s].\r\n",
 				hrs, GetDeclensionInNumber(hrs, EWhat::kHour), mins, GetDeclensionInNumber(mins,
 																						   EWhat::kMinU),
@@ -905,7 +906,7 @@ void PrintScoreBase(CharData *ch) {
 	if (ch->IsFlagged(EPlrFlag::kMuted) && MUTE_DURATION(ch) != 0 && MUTE_DURATION(ch) > time(nullptr)) {
 		const int hrs = (MUTE_DURATION(ch) - time(nullptr)) / 3600;
 		const int mins = ((MUTE_DURATION(ch) - time(nullptr)) % 3600 + 59) / 60;
-		sprintf(buf, "Вы не сможете кричать еще %d %s %d %s [%s].\r\n",
+		snprintf(buf, sizeof(buf), "Вы не сможете кричать еще %d %s %d %s [%s].\r\n",
 				hrs, GetDeclensionInNumber(hrs, EWhat::kHour),
 				mins, GetDeclensionInNumber(mins, EWhat::kMinU), MUTE_REASON(ch) ? MUTE_REASON(ch) : "-");
 		SendMsgToChar(buf, ch);
@@ -913,7 +914,7 @@ void PrintScoreBase(CharData *ch) {
 	if (ch->IsFlagged(EPlrFlag::kDumbed) && DUMB_DURATION(ch) != 0 && DUMB_DURATION(ch) > time(nullptr)) {
 		const int hrs = (DUMB_DURATION(ch) - time(nullptr)) / 3600;
 		const int mins = ((DUMB_DURATION(ch) - time(nullptr)) % 3600 + 59) / 60;
-		sprintf(buf, "Вы будете молчать еще %d %s %d %s [%s].\r\n",
+		snprintf(buf, sizeof(buf), "Вы будете молчать еще %d %s %d %s [%s].\r\n",
 				hrs, GetDeclensionInNumber(hrs, EWhat::kHour),
 				mins, GetDeclensionInNumber(mins, EWhat::kMinU), DUMB_REASON(ch) ? DUMB_REASON(ch) : "-");
 		SendMsgToChar(buf, ch);
@@ -921,7 +922,7 @@ void PrintScoreBase(CharData *ch) {
 	if (ch->IsFlagged(EPlrFlag::kFrozen) && FREEZE_DURATION(ch) != 0 && FREEZE_DURATION(ch) > time(nullptr)) {
 		const int hrs = (FREEZE_DURATION(ch) - time(nullptr)) / 3600;
 		const int mins = ((FREEZE_DURATION(ch) - time(nullptr)) % 3600 + 59) / 60;
-		sprintf(buf, "Вы будете заморожены еще %d %s %d %s [%s].\r\n",
+		snprintf(buf, sizeof(buf), "Вы будете заморожены еще %d %s %d %s [%s].\r\n",
 				hrs, GetDeclensionInNumber(hrs, EWhat::kHour),
 				mins, GetDeclensionInNumber(mins, EWhat::kMinU), FREEZE_REASON(ch) ? FREEZE_REASON(ch) : "-");
 		SendMsgToChar(buf, ch);
@@ -930,7 +931,7 @@ void PrintScoreBase(CharData *ch) {
 	if (!ch->IsFlagged(EPlrFlag::kRegistred) && UNREG_DURATION(ch) != 0 && UNREG_DURATION(ch) > time(nullptr)) {
 		const int hrs = (UNREG_DURATION(ch) - time(nullptr)) / 3600;
 		const int mins = ((UNREG_DURATION(ch) - time(nullptr)) % 3600 + 59) / 60;
-		sprintf(buf, "Вы не сможете заходить с одного IP еще %d %s %d %s [%s].\r\n",
+		snprintf(buf, sizeof(buf), "Вы не сможете заходить с одного IP еще %d %s %d %s [%s].\r\n",
 				hrs, GetDeclensionInNumber(hrs, EWhat::kHour),
 				mins, GetDeclensionInNumber(mins, EWhat::kMinU), UNREG_REASON(ch) ? UNREG_REASON(ch) : "-");
 		SendMsgToChar(buf, ch);
@@ -939,7 +940,7 @@ void PrintScoreBase(CharData *ch) {
 	if (GET_GOD_FLAG(ch, EGf::kGodscurse) && GCURSE_DURATION(ch)) {
 		const int hrs = (GCURSE_DURATION(ch) - time(nullptr)) / 3600;
 		const int mins = ((GCURSE_DURATION(ch) - time(nullptr)) % 3600 + 59) / 60;
-		sprintf(buf, "Вы прокляты Богами на %d %s %d %s.\r\n",
+		snprintf(buf, sizeof(buf), "Вы прокляты Богами на %d %s %d %s.\r\n",
 				hrs, GetDeclensionInNumber(hrs, EWhat::kHour), mins, GetDeclensionInNumber(mins, EWhat::kMinU));
 		SendMsgToChar(buf, ch);
 	}
@@ -947,42 +948,42 @@ void PrintScoreBase(CharData *ch) {
 	if (CanUseFeat(ch, EFeat::kSoulsCollector)) {
 		const int souls = ch->get_souls();
 		if (souls == 0) {
-			sprintf(buf, "Вы не имеете чужих душ.\r\n");
+			snprintf(buf, sizeof(buf), "Вы не имеете чужих душ.\r\n");
 			SendMsgToChar(buf, ch);
 		} else {
 			if (souls == 1) {
-				sprintf(buf, "Вы имеете всего одну душу в запасе.\r\n");
+				snprintf(buf, sizeof(buf), "Вы имеете всего одну душу в запасе.\r\n");
 				SendMsgToChar(buf, ch);
 			}
 			if (souls > 1 && souls < 5) {
-				sprintf(buf, "Вы имеете %d души в запасе.\r\n", souls);
+				snprintf(buf, sizeof(buf), "Вы имеете %d души в запасе.\r\n", souls);
 				SendMsgToChar(buf, ch);
 			}
 			if (souls >= 5) {
-				sprintf(buf, "Вы имеете %d чужих душ в запасе.\r\n", souls);
+				snprintf(buf, sizeof(buf), "Вы имеете %d чужих душ в запасе.\r\n", souls);
 				SendMsgToChar(buf, ch);
 			}
 		}
 	}
 	if (ch->get_ice_currency() > 0) {
 		if (ch->get_ice_currency() == 1) {
-			sprintf(buf, "У вас в наличии есть одна жалкая искристая снежинка.\r\n");
+			snprintf(buf, sizeof(buf), "У вас в наличии есть одна жалкая искристая снежинка.\r\n");
 			SendMsgToChar(buf, ch);
 		} else if (ch->get_ice_currency() < 5) {
-			sprintf(buf, "У вас в наличии есть жалкие %d искристые снежинки.\r\n", ch->get_ice_currency());
+			snprintf(buf, sizeof(buf), "У вас в наличии есть жалкие %d искристые снежинки.\r\n", ch->get_ice_currency());
 			SendMsgToChar(buf, ch);
 		} else {
-			sprintf(buf, "У вас в наличии есть %d искристых снежинок.\r\n", ch->get_ice_currency());
+			snprintf(buf, sizeof(buf), "У вас в наличии есть %d искристых снежинок.\r\n", ch->get_ice_currency());
 			SendMsgToChar(buf, ch);
 		}
 	}
 	if (ch->get_nogata() > 0 && ROOM_FLAGGED(ch->in_room, ERoomFlag::kDominationArena)) {
 		int value = ch->get_nogata();
 		if (ch->get_nogata() == 1) {
-			sprintf(buf, "У вас в наличии есть одна жалкая ногата.\r\n");
+			snprintf(buf, sizeof(buf), "У вас в наличии есть одна жалкая ногата.\r\n");
 		}
 		else {
-			sprintf(buf, "У вас в наличии есть %d %s.\r\n", value, GetDeclensionInNumber(value, EWhat::kNogataU));
+			snprintf(buf, sizeof(buf), "У вас в наличии есть %d %s.\r\n", value, GetDeclensionInNumber(value, EWhat::kNogataU));
 		}
 		SendMsgToChar(buf, ch);
 	}

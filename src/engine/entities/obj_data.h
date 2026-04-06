@@ -319,8 +319,8 @@ class CObjectPrototype {
 	int get_skill(ESkill skill_num) const;
 	void get_skills(skills_t &out_skills) const;
 	bool has_skills() const;
-	void set_timer(int timer);
-	int get_timer() const;
+	virtual void set_timer(int timer);
+	virtual int get_timer() const;
 	void set_skills(const skills_t &_) { m_skills = _; }
 	auto get_minimum_remorts() const { return m_minimum_remorts; }
 	auto get_dgscript_field() const { return m_dgscript_field; }
@@ -681,7 +681,10 @@ class ObjData : public CObjectPrototype {
 	int get_serial_num();
 	void set_serial_num(int num);
 
+	void set_timer(int timer) override;
+	int get_timer() const override;
 	void dec_timer(int time = 1, bool ingore_utimer = false, bool exchange = false);
+	void process_periodic_effects();
 
 	static id_to_set_info_map set_table;
 	static void InitSetTable() {};

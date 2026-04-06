@@ -466,7 +466,7 @@ void Player::save_char() {
 	fprintf(saved, "Rmrt: %d\n", this->get_remort());
 	// флаги
 	*buf = '\0';
-	char_specials.saved.act.tascii(FlagData::kPlanesNumber, buf);
+	char_specials.saved.act.tascii(FlagData::kPlanesNumber, buf, sizeof(buf));
 	fprintf(saved, "Act : %s\n", buf);
 	if (GET_EMAIL(this))//edited WorM 2010.08.27 перенесено чтоб грузилось для сохранения в индексе игроков
 	{
@@ -487,7 +487,7 @@ void Player::save_char() {
 	if (!this->player_data.title.empty())
 		fprintf(saved, "Titl: %s\n", this->player_data.title.c_str());
 	if (!this->player_data.description.empty()) {
-		strcpy(buf, this->player_data.description.c_str());
+		snprintf(buf, sizeof(buf), "%s", this->player_data.description.c_str());
 		kill_ems(buf);
 		fprintf(saved, "Desc:\n%s~\n", buf);
 	}
@@ -511,7 +511,7 @@ void Player::save_char() {
 	// структуры
 	fprintf(saved, "Alin: %d\n", GET_ALIGNMENT(this));
 	*buf = '\0';
-	AFF_FLAGS(this).tascii(FlagData::kPlanesNumber, buf);
+	AFF_FLAGS(this).tascii(FlagData::kPlanesNumber, buf, sizeof(buf));
 	fprintf(saved, "Aff : %s\n", buf);
 
 	// дальше не по порядку
@@ -668,7 +668,7 @@ void Player::save_char() {
 	fprintf(saved, "DrSt: %d\n", GET_DRUNK_STATE(this));
 	fprintf(saved, "Olc : %d\n", GET_OLC_ZONE(this));
 	*buf = '\0';
-	this->player_specials->saved.pref.tascii(FlagData::kPlanesNumber, buf);
+	this->player_specials->saved.pref.tascii(FlagData::kPlanesNumber, buf, sizeof(buf));
 	fprintf(saved, "Pref: %s\n", buf);
 	fprintf(saved, "MgSh: %d\n", static_cast<int>(GetBriefShieldsMode()));
 
@@ -723,7 +723,7 @@ void Player::save_char() {
 				UNREG_REASON(this));
 
 	if (KARMA(this)) {
-		strcpy(buf, KARMA(this));
+		snprintf(buf, sizeof(buf), "%s", KARMA(this));
 		kill_ems(buf);
 		fprintf(saved, "Karm:\n%s~\n", buf);
 	}

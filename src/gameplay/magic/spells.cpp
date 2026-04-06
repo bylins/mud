@@ -1533,8 +1533,8 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness) {
 
 	SendMsgToChar("Неудобен : ", ch);
 	SendMsgToChar(kColorCyn, ch);
-	obj->get_no_flags().sprintbits(no_bits, buf, ",", ch->IsImmortal() ? 4 : 0);
-	strcat(buf, "\r\n");
+	obj->get_no_flags().sprintbits(no_bits, buf, sizeof(buf), ",", ch->IsImmortal() ? 4 : 0);
+	strncat(buf, "\r\n", sizeof(buf) - strlen(buf) - 1);
 	SendMsgToChar(buf, ch);
 	SendMsgToChar(kColorNrm, ch);
 
@@ -1543,8 +1543,8 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness) {
 
 	SendMsgToChar("Недоступен : ", ch);
 	SendMsgToChar(kColorCyn, ch);
-	obj->get_anti_flags().sprintbits(anti_bits, buf, ",", ch->IsImmortal() ? 4 : 0);
-	strcat(buf, "\r\n");
+	obj->get_anti_flags().sprintbits(anti_bits, buf, sizeof(buf), ",", ch->IsImmortal() ? 4 : 0);
+	strncat(buf, "\r\n", sizeof(buf) - strlen(buf) - 1);
 	SendMsgToChar(buf, ch);
 	SendMsgToChar(kColorNrm, ch);
 
@@ -1561,8 +1561,8 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness) {
 
 	SendMsgToChar("Имеет экстрафлаги: ", ch);
 	SendMsgToChar(kColorCyn, ch);
-	obj->get_extra_flags().sprintbits(extra_bits, buf, ",", ch->IsImmortal() ? 4 : 0);
-	strcat(buf, "\r\n");
+	obj->get_extra_flags().sprintbits(extra_bits, buf, sizeof(buf), ",", ch->IsImmortal() ? 4 : 0);
+	strncat(buf, "\r\n", sizeof(buf) - strlen(buf) - 1);
 	SendMsgToChar(buf, ch);
 	SendMsgToChar(kColorNrm, ch);
 //enhansed_scroll = true; //для теста
@@ -1711,7 +1711,7 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness) {
 			}
 			break;
 
-		case EObjType::kIngredient: sprintbit(obj->get_spec_param(), ingradient_bits, buf2);
+		case EObjType::kIngredient: sprintbit(obj->get_spec_param(), ingradient_bits, buf2, sizeof(buf2));
 			snprintf(buf, kMaxStringLength, "%s\r\n", buf2);
 			SendMsgToChar(buf, ch);
 
@@ -1801,8 +1801,8 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness) {
 
 	SendMsgToChar("Накладывает на вас аффекты: ", ch);
 	SendMsgToChar(kColorCyn, ch);
-	obj->get_affect_flags().sprintbits(weapon_affects, buf, ",", ch->IsImmortal() ? 4 : 0);
-	strcat(buf, "\r\n");
+	obj->get_affect_flags().sprintbits(weapon_affects, buf, sizeof(buf), ",", ch->IsImmortal() ? 4 : 0);
+	strncat(buf, "\r\n", sizeof(buf) - strlen(buf) - 1);
 	SendMsgToChar(buf, ch);
 	SendMsgToChar(kColorNrm, ch);
 
@@ -1974,7 +1974,7 @@ void mort_show_char_values(CharData *victim, CharData *ch, int fullness) {
 
 	SendMsgToChar("Аффекты :\r\n", ch);
 	SendMsgToChar(kColorBoldCyn, ch);
-	victim->char_specials.saved.affected_by.sprintbits(affected_bits, buf2, "\r\n", ch->IsImmortal() ? 4 : 0);
+	victim->char_specials.saved.affected_by.sprintbits(affected_bits, buf2, sizeof(buf2), "\r\n", ch->IsImmortal() ? 4 : 0);
 	snprintf(buf, kMaxStringLength, "%s\r\n", buf2);
 	SendMsgToChar(buf, ch);
 	SendMsgToChar(kColorNrm, ch);

@@ -173,7 +173,7 @@ TEST(FlagData, FromString_SingleLower_Plane0) {
 	EXPECT_TRUE(flags.get(flag_data_by_num(0)));
 
 	char buf[64] = "";
-	flags.tascii(FlagData::kPlanesNumber, buf);
+	flags.tascii(FlagData::kPlanesNumber, buf, sizeof(buf));
 	EXPECT_STREQ("a0 ", buf);
 }
 
@@ -185,7 +185,7 @@ TEST(FlagData, FromString_ExplicitPlane1) {
 	EXPECT_TRUE(flags.get(flag_data_by_num(30)));   // plane 1, bit 0
 
 	char buf[64] = "";
-	flags.tascii(FlagData::kPlanesNumber, buf);
+	flags.tascii(FlagData::kPlanesNumber, buf, sizeof(buf));
 	EXPECT_STREQ("a1 ", buf);
 }
 
@@ -201,7 +201,7 @@ TEST(FlagData, FromString_MultipleFlags) {
 TEST(FlagData, Tascii_EmptyFlags_OutputsZero) {
 	FlagData flags;
 	char buf[64] = "";
-	flags.tascii(FlagData::kPlanesNumber, buf);
+	flags.tascii(FlagData::kPlanesNumber, buf, sizeof(buf));
 	EXPECT_STREQ("0 ", buf);
 }
 

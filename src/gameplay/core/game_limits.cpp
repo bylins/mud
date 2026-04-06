@@ -1371,58 +1371,18 @@ void charmee_obj_decay_tell(CharData *charmee, ObjData *obj, ECharmeeObjPos obj_
 }
 
 void obj_point_update() {
-	std::list<ObjData *> obj_destroy;
-	std::list<ObjData *> obj_decay_timer;
 	utils::CExecutionTimer timer;
 
-	// итерация по копии - объект может быть удален из obj_update_list
-	// во время обработки (ExtractObjFromWorld вызывает erase)
-	auto obj_update_copy = obj_update_list;
-	for (auto *obj : obj_update_copy) {
-		if (obj_update_list.find(obj) == obj_update_list.end()) {
-			continue;
-		}
-		if (obj->get_where_obj() == EWhereObj::kSeller) {
-			continue;
-		}
-		if (CheckObjDecay(obj, false)) {
-			obj_destroy.push_back(obj);
-			continue;
-		}
-		if (obj->get_destroyer() > 0 && !NO_DESTROY(obj)) {
-			obj->dec_destroyer();
-		}
-		if (obj->get_timer() > 0 && !NO_TIMER(obj)) {
-			obj->dec_timer();
-		}
-		if (obj->get_destroyer() == 0
-				|| obj->get_timer() == 0
-				|| (obj->has_flag(EObjFlag::kZonedecay)
-						&& obj->get_vnum_zone_from()
-						&& up_obj_where(obj) != kNowhere
-						&& obj->get_vnum_zone_from() != zone_table[world[up_obj_where(obj)]->zone_rn].vnum)) {
-			obj_decay_timer.push_back(obj);
-		}
-// а с каких пор у нас на шмотку EApply::kPoison вешается?
-/*		else {
-			for (int count = 0; count < kMaxObjAffect; count++) {
-				if (j->get_affected(count).location == EApply::kPoison) {
-					j->dec_affected_value(count);
-					if (j->get_affected(count).modifier <= 0) {
-						j->set_affected(count, EApply::kNone, 0);
-					}
-				}
-			}
-		}
-*/
-	}
-	for (auto it : obj_destroy) {
+	auto tick_result = world_objects.decay_manager().process_tick();
+
+	for (auto it : tick_result.env_destroy) {
 		ExtractObjFromWorld(it);
 	}
+
 	Parcel::update_timers();
 	Depot::update_timers();
 	exchange_point_update();
-	for (auto j : obj_decay_timer) {
+	for (auto j : tick_result.decay_timer) {
 		if (j->get_in_obj() && Clan::is_clan_chest(j->get_in_obj())) {
 			clan_chest_invoice(j);
 		}
@@ -1554,7 +1514,7 @@ void obj_point_update() {
 			ExtractObjFromWorld(j);
 		}
 	}
-	log("obj_point_update stop, size %ld,  delta %f", obj_update_list.size(), timer.delta().count());
+	log("obj_point_update stop, size %ld,  delta %f", world_objects.decay_manager().size(), timer.delta().count());
 
 }
 
@@ -1747,15 +1707,13 @@ void ExtractRepopDecayObject(ObjData *obj) {
 void DecayObjectsOnRepop(UniqueList<ZoneRnum> &zone_list) {
 	std::list<ObjData *> extract_list;
 
-	for (auto j : world_objects) {
-		if (j->has_flag(EObjFlag::kRepopDecay)) {
-			const ZoneVnum obj_zone_num = j->get_vnum() / 100;
-			for (auto &it : zone_list) {
-				if (obj_zone_num == zone_table[it].vnum) {
-					extract_list.push_back(j.get());
-				}
+	for (auto &zrn : zone_list) {
+		const auto zone_vnum = zone_table[zrn].vnum;
+		world_objects.foreach_in_zone(zone_vnum, [&extract_list](const ObjData::shared_ptr &j) {
+			if (j->has_flag(EObjFlag::kRepopDecay)) {
+				extract_list.push_back(j.get());
 			}
-		}
+		});
 	}
 	for (auto it : extract_list) {
 		ExtractRepopDecayObject(it);
