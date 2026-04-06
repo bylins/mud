@@ -341,7 +341,7 @@ ObjData *get_object_in_equip(CharData *ch, const char *name) {
 				if (id == obj->get_id())
 					return (obj);
 	} else {
-		snprintf(tmp, sizeof(tmp), "%s", name);
+		snprintf(tmp, sizeof(tmpname), "%s", name);
 		if (!(number = get_number(&tmp)))
 			return nullptr;
 
@@ -1455,7 +1455,7 @@ int text_processed(char *field, char *subfield, TriggerVar vd, char *str, size_t
 		}
 
 		if (*cmd_info[cmd].command == '\n')
-			snprintf(str, str_size, "");
+			*str = '\0';
 		else
 			snprintf(str, str_size, "%s", cmd_info[cmd].command);
 		return true;
@@ -2936,10 +2936,10 @@ void find_replacement(void *go,
 				else if (*subfield)
 					pos = find_eq_pos(mob, nullptr, subfield);
 				if (!*subfield || pos < 0 || pos >= EEquipPos::kNumEquipPos)
-					snprintf(str, str_size, "");
+					*str = '\0';
 				else {
 					if (!GET_EQ(mob, pos))
-						snprintf(str, str_size, "");
+						*str = '\0';
 					else
 						snprintf(str, str_size, "%c%ld", UID_OBJ, GET_EQ(mob, pos)->get_id());
 				}
@@ -2986,7 +2986,7 @@ void find_replacement(void *go,
 				if (next) {
 					snprintf(str, str_size, "%c%ld", UID_CHAR, next->get_uid());
 				} else {
-					snprintf(str, str_size, "");
+					*str = '\0';
 				}
 			} else if (!str_cmp(field, "position")) {
 				if (!*subfield) {
@@ -3160,7 +3160,7 @@ void find_replacement(void *go,
 				if (first_char != room.end()) {
 					snprintf(str, str_size, "%c%ld", UID_CHAR, (*first_char)->get_uid());
 				} else {
-					snprintf(str, str_size, "");
+					*str = '\0';
 				}
 			}
 			else if (!str_cmp(field, "objs")) {
@@ -3501,13 +3501,13 @@ void find_replacement(void *go,
 			if (obj->get_carried_by()) {
 				snprintf(str, str_size, "%c%ld", UID_CHAR, (obj->get_carried_by())->get_uid());
 			} else {
-				snprintf(str, str_size, "");
+				*str = '\0';
 			}
 		} else if (!str_cmp(field, "wornby")) {
 			if (obj->get_worn_by()) {
 				snprintf(str, str_size, "%c%ld", UID_CHAR, (obj->get_worn_by())->get_uid());
 			} else {
-				snprintf(str, str_size, "");
+				*str = '\0';
 			}
 		} else if (!str_cmp(field, "g"))
 			snprintf(str, str_size, "%s", GET_OBJ_SUF_1(obj));
@@ -3531,7 +3531,7 @@ void find_replacement(void *go,
 			} else if (obj->get_in_room() != kNowhere) {
 				snprintf(str, str_size, "%d", world[obj->get_in_room()]->vnum);
 			} else {
-				snprintf(str, str_size, "");
+				*str = '\0';
 			}
 		}
 		else if (!str_cmp(field, "put")) {
@@ -3885,7 +3885,7 @@ void var_subst(void *go, Script *sc, Trigger *trig, int type, const char *line, 
 	int paren_count = 0;
 
 	if (!strchr(line, '%')) {
-		snprintf(buf, buf_size, line);
+		snprintf(buf, buf_size, "%s", line);
 		return;
 	}
 

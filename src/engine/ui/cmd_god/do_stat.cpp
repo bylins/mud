@@ -986,7 +986,7 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 		case EObjType::kNote:snprintf(buf, sizeof(buf), "Tongue: %d", GET_OBJ_VAL(j, 0));
 			break;
 
-		case EObjType::kKey:snprintf(buf, sizeof(buf), "");
+		case EObjType::kKey:*buf = '\0';
 			break;
 
 		case EObjType::kFood:
