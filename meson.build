@@ -306,6 +306,7 @@ main_sources = files(
   'src/engine/ui/interpreter.cpp',
   'src/gameplay/crafting/item_creation.cpp',
   'src/gameplay/core/game_limits.cpp',
+  'src/gameplay/core/obj_decay_manager.cpp',
   'src/utils/levenshtein.cpp',
   'src/gameplay/mechanics/liquid.cpp',
   'src/utils/logger.cpp',
