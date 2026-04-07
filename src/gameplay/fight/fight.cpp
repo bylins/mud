@@ -1851,6 +1851,8 @@ void process_npc_attack(CharData *ch) {
 }
 
 void process_player_attack(CharData *ch, int min_init) {
+	utils::CSteppedProfiler atk_profiler("PlayerAttack", 0.001);
+
 	if (ch->GetPosition() > EPosition::kStun
 		&& ch->GetPosition() < EPosition::kFight
 		&& ch->battle_affects.get(kEafStand)) {
@@ -1860,9 +1862,11 @@ void process_player_attack(CharData *ch, int min_init) {
 	}
 
 	// Срабатывание батл-триггеров амуниции
+	atk_profiler.next_step("fight_otrigger");
 	Bitvector trigger_code = fight_otrigger(ch);
 
 	//* каст заклинания
+	atk_profiler.next_step("cast_spell");
 	if (ch->GetCastSpell() != ESpell::kUndefined && ch->get_wait() <= 0 && !IS_SET(trigger_code, kNoCastMagic)) {
 		if (AFF_FLAGGED(ch, EAffect::kSilence)) {
 			SendMsgToChar("Вы не смогли вымолвить и слова.\r\n", ch);
@@ -1882,6 +1886,7 @@ void process_player_attack(CharData *ch, int min_init) {
 	if (ch->battle_affects.get(kEafMultyparry))
 		return;
 	//* применение экстра скилл-атак (пнуть, оглушить и прочая)
+	atk_profiler.next_step("extra_attack");
 	if (!IS_SET(trigger_code, kNoExtraAttack) 
 			&& ch->GetExtraVictim()
 			&& ch->in_room == ch->GetExtraVictim()->in_room
@@ -1897,6 +1902,7 @@ void process_player_attack(CharData *ch, int min_init) {
 		return;
 	}
 	//**** удар основным оружием или рукой
+	atk_profiler.next_step("main_hand");
 	if (ch->battle_affects.get(kEafFirst)) {
 		if (!IS_SET(trigger_code, kNoRightHandAttack) && !AFF_FLAGGED(ch, EAffect::kStopRight)
 			&& (ch->IsImmortal() || GET_GOD_FLAG(ch, EGf::kGodsLike) || !ch->battle_affects.get(kEafUsedright))) {
@@ -1929,6 +1935,7 @@ void process_player_attack(CharData *ch, int min_init) {
 		}
 	}
 	//**** удар вторым оружием если оно есть и умение позволяет
+	atk_profiler.next_step("off_hand");
 	if (!IS_SET(trigger_code, kNoLeftHandAttack) && GET_EQ(ch, EEquipPos::kHold)
 		&& GET_EQ(ch, EEquipPos::kHold)->get_type() == EObjType::kWeapon
 		&& ch->battle_affects.get(kEafSecond)
@@ -1955,6 +1962,7 @@ void process_player_attack(CharData *ch, int min_init) {
 	}
 	// немного коряво, т.к. зависит от инициативы кастера
 	// check if angel is in fight, and go_rescue if it is not
+	atk_profiler.next_step("tutelar_rescue");
 	TryToRescueWithTutelar(ch);
 }
 
@@ -2073,43 +2081,40 @@ void perform_violence() {
 		max_init = MAX(max_init, initiative);
 		min_init = MIN(min_init, initiative);
 	}
-	int size = 0;
 	//* обработка раунда по очередности инициативы
+	// сортируем по убыванию инициативы - один проход вместо O(N*M)
 	round_profiler.next_step("Round check");
-	for (int initiative = max_init; initiative >= min_init; initiative--) {
-		size = 0;
-		for (auto &it : combat_list) {
-			if (it.deleted) 
-				continue;
-			size++;
-			if (it.ch->initiative != initiative || it.ch->in_room == kNowhere) {
-				continue;
-			}
-			// If mob cast 'hold' when initiative setted
-			if (AFF_FLAGGED(it.ch, EAffect::kHold)
-				|| AFF_FLAGGED(it.ch, EAffect::kMagicStopFight)
-				|| AFF_FLAGGED(it.ch, EAffect::kStopFight)
-				|| !AWAKE(it.ch)) {
-				continue;
-			}
-			// If mob cast 'fear', 'teleport', 'recall', etc when initiative setted
-			if (!it.ch->GetEnemy() || it.ch->in_room != it.ch->GetEnemy()->in_room) {
-				continue;
-			}
-			//везде в стоп-файтах ставится инициатива равная 0, убираем двойную атаку
-			if (initiative == 0) {
-				continue;
-			}
-			utils::CExecutionTimer violence_timer;
-			//* выполнение атак в раунде
-			if (it.ch->IsNpc()) {
-				process_npc_attack(it.ch);
-			} else {
-				process_player_attack(it.ch, min_init);
-			}
-			if (violence_timer.delta().count() > 0.001) {
-				log("Process player attack, name %s, time %f", it.ch->get_name().c_str(), violence_timer.delta().count());
-			}
+	combat_list.sort([](const auto &a, const auto &b) {
+		return a.ch->initiative > b.ch->initiative;
+	});
+	for (auto &it : combat_list) {
+		if (it.deleted) {
+			continue;
+		}
+		if (it.ch->in_room == kNowhere) {
+			continue;
+		}
+		// инициатива 0 или -100 (выпал 0 на кубике) - пропуск раунда
+		if (it.ch->initiative <= 0) {
+			continue;
+		}
+		if (AFF_FLAGGED(it.ch, EAffect::kHold)
+			|| AFF_FLAGGED(it.ch, EAffect::kMagicStopFight)
+			|| AFF_FLAGGED(it.ch, EAffect::kStopFight)
+			|| !AWAKE(it.ch)) {
+			continue;
+		}
+		if (!it.ch->GetEnemy() || it.ch->in_room != it.ch->GetEnemy()->in_room) {
+			continue;
+		}
+		utils::CExecutionTimer violence_timer;
+		if (it.ch->IsNpc()) {
+			process_npc_attack(it.ch);
+		} else {
+			process_player_attack(it.ch, min_init);
+		}
+		if (violence_timer.delta().count() > 0.001) {
+			log("Process player attack, name %s, time %f", it.ch->get_name().c_str(), violence_timer.delta().count());
 		}
 	}
 	// удалим помеченные (убитые)
