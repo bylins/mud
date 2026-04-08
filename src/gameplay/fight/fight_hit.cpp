@@ -1075,8 +1075,12 @@ void ProcessExtrahits(CharData *ch, CharData *victim, ESkill type, fight::Attack
 		log("SYSERROR: ch = %s (%s:%d)", ch ? (ch->purged() ? "purged" : "true") : "false", __FILE__, __LINE__);
 		return;
 	}
+	utils::CSteppedProfiler extra_profiler("ProcessExtrahits", 0.005);
+	extra_profiler.next_step("IronWind");
 	ProcessIronWindHits(ch, weapon);
+	extra_profiler.next_step("MultyShot");
 	ProcessMultyShotHits(ch, victim, type, weapon);
+	extra_profiler.next_step("main_hit");
 	hit(ch, victim, type, weapon);
 }
 
