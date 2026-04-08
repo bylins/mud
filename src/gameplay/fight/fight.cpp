@@ -1851,7 +1851,7 @@ void process_npc_attack(CharData *ch) {
 }
 
 void process_player_attack(CharData *ch, int min_init) {
-	utils::CSteppedProfiler atk_profiler("PlayerAttack", 0.001);
+	utils::CSteppedProfiler atk_profiler("PlayerAttack", 0.005);
 
 	if (ch->GetPosition() > EPosition::kStun
 		&& ch->GetPosition() < EPosition::kFight
