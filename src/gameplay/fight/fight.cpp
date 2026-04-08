@@ -2081,40 +2081,43 @@ void perform_violence() {
 		max_init = MAX(max_init, initiative);
 		min_init = MIN(min_init, initiative);
 	}
+	int size = 0;
 	//* обработка раунда по очередности инициативы
-	// сортируем по убыванию инициативы - один проход вместо O(N*M)
 	round_profiler.next_step("Round check");
-	combat_list.sort([](const auto &a, const auto &b) {
-		return a.ch->initiative > b.ch->initiative;
-	});
-	for (auto &it : combat_list) {
-		if (it.deleted) {
-			continue;
-		}
-		if (it.ch->in_room == kNowhere) {
-			continue;
-		}
-		// инициатива 0 или -100 (выпал 0 на кубике) - пропуск раунда
-		if (it.ch->initiative <= 0) {
-			continue;
-		}
-		if (AFF_FLAGGED(it.ch, EAffect::kHold)
-			|| AFF_FLAGGED(it.ch, EAffect::kMagicStopFight)
-			|| AFF_FLAGGED(it.ch, EAffect::kStopFight)
-			|| !AWAKE(it.ch)) {
-			continue;
-		}
-		if (!it.ch->GetEnemy() || it.ch->in_room != it.ch->GetEnemy()->in_room) {
-			continue;
-		}
-		utils::CExecutionTimer violence_timer;
-		if (it.ch->IsNpc()) {
-			process_npc_attack(it.ch);
-		} else {
-			process_player_attack(it.ch, min_init);
-		}
-		if (violence_timer.delta().count() > 0.001) {
-			log("Process player attack, name %s, time %f", it.ch->get_name().c_str(), violence_timer.delta().count());
+	for (int initiative = max_init; initiative >= min_init; initiative--) {
+		size = 0;
+		for (auto &it : combat_list) {
+			if (it.deleted)
+				continue;
+			size++;
+			if (it.ch->initiative != initiative || it.ch->in_room == kNowhere) {
+				continue;
+			}
+			// If mob cast 'hold' when initiative setted
+			if (AFF_FLAGGED(it.ch, EAffect::kHold)
+				|| AFF_FLAGGED(it.ch, EAffect::kMagicStopFight)
+				|| AFF_FLAGGED(it.ch, EAffect::kStopFight)
+				|| !AWAKE(it.ch)) {
+				continue;
+			}
+			// If mob cast 'fear', 'teleport', 'recall', etc when initiative setted
+			if (!it.ch->GetEnemy() || it.ch->in_room != it.ch->GetEnemy()->in_room) {
+				continue;
+			}
+			//везде в стоп-файтах ставится инициатива равная 0, убираем двойную атаку
+			if (initiative == 0) {
+				continue;
+			}
+			utils::CExecutionTimer violence_timer;
+			//* выполнение атак в раунде
+			if (it.ch->IsNpc()) {
+				process_npc_attack(it.ch);
+			} else {
+				process_player_attack(it.ch, min_init);
+			}
+			if (violence_timer.delta().count() > 0.001) {
+				log("Process player attack, name %s, time %f", it.ch->get_name().c_str(), violence_timer.delta().count());
+			}
 		}
 	}
 	// удалим помеченные (убитые)
