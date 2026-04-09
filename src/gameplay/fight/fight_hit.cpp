@@ -865,6 +865,7 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 		return;
 	}
 
+	utils::CSteppedProfiler hit_profiler("hit", 0.005);
 
 	// OpenTelemetry: Measure hit duration
 	observability::ScopedMetric hit_metric("combat.hit.duration");
@@ -885,6 +886,7 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 		set_battle_pos(victim);
 	}
 
+	hit_profiler.next_step("breath_attack");
 	// дышащий моб может оглушить, и нанесёт физ.дамаг!!
 	if (type == ESkill::kUndefined) {
 		ESpell spell_id;
@@ -915,6 +917,7 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 
 	//go_autoassist(ch);
 
+	hit_profiler.next_step("HitData_Init");
 	// старт инициализации полей для удара
 	HitData hit_params;
 	//конвертация скиллов, которые предполагают вызов hit()
@@ -922,6 +925,7 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 	hit_params.skill_num = type != ESkill::kOverwhelm && type != ESkill::kHammer ? type : ESkill::kUndefined;
 	hit_params.weapon = weapon;
 	hit_params.Init(ch, victim);
+	hit_profiler.next_step("CloudOfArrows");
 	//  дополнительный маг. дамаг независимо от попадания физ. атаки
 	if (AFF_FLAGGED(ch, EAffect::kCloudOfArrows)
 		&& hit_params.skill_num == ESkill::kUndefined
@@ -943,6 +947,7 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 		auto skillnum = GetMagicSkillId(ESpell::kCloudOfArrows);
 		TrainSkill(ch, skillnum, true, victim);
 	}
+	hit_profiler.next_step("CalcHitroll_AC_Dmg");
 	// вычисление хитролов/ац
 	hit_params.CalcBaseHitroll(ch);
 	hit_params.CalcCircumstantialHitroll(ch, victim);
@@ -954,6 +959,7 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 		int max_rnd = hit_params.dam + hit_params.dam / 4;
 		hit_params.dam = std::max(1, number(min_rnd, max_rnd));
 	}
+	hit_profiler.next_step("miss_check");
 	if (hit_params.skill_num  == ESkill::kUndefined && !hit_params.GetFlags()[fight::kCritLuck]) { //автоатака
 		const int victim_lvl_miss = GetRealLevel(victim) + GetRealRemort(victim);
 		const int ch_lvl_miss = GetRealLevel(ch) + GetRealRemort(ch);
@@ -986,6 +992,7 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 			return;
 		}
 	}
+	hit_profiler.next_step("CritHit_DamageEq");
 	// расчет критических ударов
 	hit_params.CalcCritHitChance(ch);
 	// зовется до DamageEquipment, чтобы не абузить повреждение пушек
@@ -993,6 +1000,7 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 		DamageEquipment(ch, hit_params.weapon_pos, hit_params.dam, 10);
 	}
 
+	hit_profiler.next_step("Backstab");
 	if (ProcessBackstab(ch, victim, hit_params)) {
 		return;
 	}
@@ -1007,6 +1015,7 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 		hit_params.ProcessExtradamage(ch, victim);
 		return;
 	}
+	hit_profiler.next_step("Punctual");
 	//Рассчёт шанса точного стиля:
 	if (!IS_CHARMICE(ch) && ch->battle_affects.get(kEafPunctual) && ch->punctual_wait <= 0 && ch->get_wait() <= 0
 		&& (hit_params.diceroll >= 18 - AFF_FLAGGED(victim, EAffect::kHold))) {
@@ -1035,9 +1044,11 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 		ch->battle_affects.unset(kEafHammer);
 	}
 
+	hit_profiler.next_step("DefensiveAbilities");
 	// обработка защитных скилов (захват, уклон, парир, веер, блок)
 	hit_params.ProcessDefensiveAbilities(ch, victim);
 
+	hit_profiler.next_step("ProcessExtradamage");
 	// итоговый дамаг
 	ch->send_to_TC(false, true, true, "&CНанёс: Регуляр дамаг = %d&n\r\n", hit_params.dam);
 	victim->send_to_TC(false, true, true, "&CПолучил: Регуляр дамаг = %d&n\r\n", hit_params.dam);
