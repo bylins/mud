@@ -523,7 +523,7 @@ void draw_map_bfs(CharData *ch) {
 
 // imm по дефолту = 0, если нет, то распечатанная карта засылается ему
 void print_map(CharData *ch, CharData *imm) {
-	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kMoMapper))
+	if (!ch->IsImpl() && ROOM_FLAGGED(ch->in_room, ERoomFlag::kMoMapper))
 		return;
 	MAX_LINES = MAX_LINES_STANDART;
 	MAX_LENGTH = MAX_LENGTH_STANDART;
