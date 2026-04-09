@@ -322,6 +322,18 @@ void HitData::Init(CharData *ch, CharData *victim) {
 		TrainSkill(ch, ESkill::kNoParryHit, success, victim);
 		if (success) {
 			hit_no_parry = true;
+			//только для неписей
+			if (victim->IsNpc()){
+				//если ещё и крит удача, то игнорируем всю броню
+				if (GetFlags()[fight::kCritLuck]) {
+					ResetFlag(fight::kHalfIgnoreArmor);
+					SetFlag(fight::kIgnoreArmor);
+				} else {
+					SetFlag(fight::kHalfIgnoreArmor);
+				}
+				SetFlag(fight::kIgnoreBlink);
+				SetFlag(fight::kIgnoreAbsorbe);
+			}
 		}
 	}
 
@@ -768,7 +780,7 @@ int HitData::CalcDmg(CharData *ch, bool need_dice) {
 		// скрытый удар
 		int tmp_dam = CalcNoparryhitDmg(ch, wielded);
 		if (tmp_dam > 0) {
-			// 0 раунд и стаб = 70% скрытого, дальше раунд * 0.4 (до 5 раунда)
+			// 0 раунд и стаб = 70% скрытого, дальше раунд * 0.4 (максимум - 1 + кол-во мортов / 16). Абсолютный максимум - 6 (96 мортов) + 1
 			int round_dam = tmp_dam * 7 / 10;
 			if (CanUseFeat(ch, EFeat::kSnakeRage)) {
 				if (ch->round_counter >= 1 && ch->round_counter <= 3) {
@@ -778,7 +790,7 @@ int HitData::CalcDmg(CharData *ch, bool need_dice) {
 			if (skill_num == ESkill::kBackstab || ch->round_counter <= 0) {
 				dam += round_dam;
 			} else {
-				dam += round_dam*std::min(3, ch->round_counter);
+				dam += round_dam*std::min(2 + (int)(ch->GetSkill(ESkill::kNoParryHit)*0.0125) , ch->round_counter);
 			}
 			if (ch->IsFlagged(EPrf::kExecutor))
 				SendMsgToChar(ch, "&YДамага от скрытого удара == %d&n\r\n", dam);
