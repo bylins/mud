@@ -82,6 +82,8 @@ bool IsAffectedBySpell(CharData *ch, ESpell type);
 bool IsAffectedBySpellWithCasterId(CharData *ch, CharData *vict, ESpell type);
 void ImposeAffect(CharData *ch, const Affect<EApply> &af);
 void ImposeAffect(CharData *ch, Affect<EApply> &af, bool add_dur, bool max_dur, bool add_mod, bool max_mod);
+void ImposeAffectNoRecalc(CharData *ch, const Affect<EApply> &af);
+void ImposeAffectNoRecalc(CharData *ch, Affect<EApply> &af, bool add_dur, bool max_dur, bool add_mod, bool max_mod);
 void reset_affects(CharData *ch);
 bool no_bad_affects(ObjData *obj);
 bool IsNegativeApply(EApply location);

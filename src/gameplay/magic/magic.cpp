@@ -2666,13 +2666,14 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			af[i].duration = CalcComplexSpellMod(ch, spell_id, GAPPLY_SPELL_EFFECT, af[i].duration);
 
 			if (update_spell)
-				ImposeAffect(victim, af[i]);
+				ImposeAffectNoRecalc(victim, af[i]);
 			else
-				ImposeAffect(victim, af[i], accum_duration, false, accum_affect, false);
+				ImposeAffectNoRecalc(victim, af[i], accum_duration, false, accum_affect, false);
 		}
 		// тут мы ездим по циклу 16 раз, хотя аффектов 1-3...
 //		ch->send_to_TC(true, true, true, "Applied affect type %i\r\n", af[i].type);
 	}
+	affect_total(victim);
 
 	if (success) {
 		// вот некрасиво же тут это делать...
