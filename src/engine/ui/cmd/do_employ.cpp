@@ -132,6 +132,11 @@ void apply_enchant(CharData *ch, ObjData *obj, std::string text) {
 		return;
 	}
 
+	if (target->has_flag(EObjFlag::kNoalter)) {
+		act("$o устойчив$A к вашей магии.", true, ch, target, nullptr, kToChar);
+		return;
+	}
+
 	if (target->get_enchants().check(ObjectEnchant::ENCHANT_FROM_OBJ)) {
 		SendMsgToChar(ch, "На %s уже наложено зачарование.\r\n",
 					  target->get_PName(ECase::kAcc).c_str());
