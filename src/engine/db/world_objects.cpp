@@ -390,8 +390,8 @@ void WorldObjects::AddToExtractedList(ObjData *obj) {
 }
 
 void WorldObjects::PurgeExtractedList() {
+	log("Start obj PurgeExtractedList");
 	if (!m_extracted_list.empty()) {
-		log("Start obj PurgeExtractedList");
 		for (auto it : m_extracted_list) {
 			ExtractObjFromWorld(it, false);
 		}

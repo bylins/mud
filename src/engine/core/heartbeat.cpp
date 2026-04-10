@@ -639,8 +639,14 @@ void Heartbeat::pulse(const int missed_pulses, pulse_label_t &label) {
 	label.clear();
 	advance_pulse_numbers();
 	log("Heartbeat pulse");
-	character_list.PurgeExtractedList();
-	world_objects.PurgeExtractedList();
+	{
+		auto span = tracing::TraceManager::Instance().StartSpan("Characters::PurgeExtractedList");
+		character_list.PurgeExtractedList();
+	}
+	{
+		auto span = tracing::TraceManager::Instance().StartSpan("WorldObjects::PurgeExtractedList");
+		world_objects.PurgeExtractedList();
+	}
 	for (std::size_t i = 0; i != m_steps.size(); ++i) {
 		auto &step = m_steps[i];
 		auto get_mem = TotalMemUse();

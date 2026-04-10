@@ -439,6 +439,7 @@ void battle_affect_update(CharData *ch) {
 
 // раз в минуту
 void mobile_affect_update() {
+	log("mobile_affect_update() start, affected_mobs size=%zu", affected_mobs.size());
 	using mobile_affect_update_profiler::Counter;
 	using mobile_affect_update_profiler::RunStats;
 	using mobile_affect_update_profiler::Section;
