@@ -179,6 +179,7 @@ void Characters::remove(CharData *character) {
 }
 
 void Characters::purge() {
+	log("Characters::purge() start, purge_list size=%zu", m_purge_list.size());
 	m_purge_set.clear();
 	for (const auto &character : m_purge_list) {
 		if (character->IsNpc()) {
