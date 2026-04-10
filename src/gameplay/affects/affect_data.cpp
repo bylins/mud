@@ -957,6 +957,71 @@ void affect_to_char(CharData *ch, const Affect<EApply> &af) {
 	affect_total(ch);
 }
 
+// Same as affect_to_char but without affect_total() recalculation.
+// Caller MUST call affect_total(ch) after all affects are applied.
+void affect_to_char_no_recalc(CharData *ch, const Affect<EApply> &af) {
+	Affect<EApply>::shared_ptr affected_alloc(new Affect<EApply>(af));
+
+	if (ch->IsNpc()) {
+		affected_mobs.insert(ch);
+	}
+	ch->affected.push_front(affected_alloc);
+
+	AFF_FLAGS(ch) += af.aff;
+	if (af.bitvector)
+		affect_modify(ch, af.location, af.modifier, static_cast<EAffect>(af.bitvector), true);
+}
+
+// Same as ImposeAffect but without affect_total() recalculation.
+// Caller MUST call affect_total(ch) after all affects are applied.
+void ImposeAffectNoRecalc(CharData *ch, const Affect<EApply> &af) {
+	for (const auto &affect : ch->affected) {
+		const bool same_affect = (af.location == EApply::kNone) && (affect->bitvector == af.bitvector);
+		const bool same_type = (af.location != EApply::kNone) && (affect->type == af.type) && (affect->location == af.location);
+		if (same_affect || same_type) {
+			if (affect->modifier < af.modifier) {
+				affect->modifier = af.modifier;
+			}
+			if (affect->duration < af.duration) {
+				affect->duration = af.duration;
+			}
+			return;
+		}
+	}
+	affect_to_char_no_recalc(ch, af);
+}
+
+// Same as ImposeAffect (with accumulation) but without affect_total() recalculation.
+// Caller MUST call affect_total(ch) after all affects are applied.
+void ImposeAffectNoRecalc(CharData *ch, Affect<EApply> &af, bool add_dur, bool max_dur, bool add_mod, bool max_mod) {
+	if (af.location) {
+		auto it = ch->affected.begin();
+
+		while (it != ch->affected.end()) {
+			const auto &affect = *it;
+			if (affect->type == af.type
+				&& affect->location == af.location) {
+				if (add_dur) {
+					af.duration += affect->duration;
+				} else if (max_dur) {
+					af.duration = std::max(af.duration, affect->duration);
+				}
+				if (add_mod) {
+					af.modifier += affect->modifier;
+				} else if (max_mod) {
+					af.modifier = std::max(af.modifier, affect->modifier);
+				}
+				ch->AffectRemove(it);
+				affect_to_char_no_recalc(ch, af);
+				return;
+			} else {
+				++it;
+			}
+		}
+	}
+	affect_to_char_no_recalc(ch, af);
+}
+
 void affect_modify(CharData *ch, EApply loc, int mod, const EAffect bitv, bool add) {
 	if (add) {
 		AFF_FLAGS(ch).set(bitv);
