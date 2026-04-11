@@ -447,6 +447,8 @@ void Damage::ProcessBlink(CharData *ch, CharData *victim) {
 
 void Damage::ProcessDeath(CharData *ch, CharData *victim) const {
 	CharData *killer = nullptr;
+	utils::CSteppedProfiler death_profiler("ProcessDeath", 0.001);
+	death_profiler.next_step("FindKiller");
 
 	if (victim->IsNpc() || victim->desc) {
 		if (victim == ch && victim->in_room != kNowhere) {
@@ -470,6 +472,7 @@ void Damage::ProcessDeath(CharData *ch, CharData *victim) const {
 			killer = ch;
 		}
 	}
+	death_profiler.next_step("GroupGain");
 	if (killer) {
 		if (AFF_FLAGGED(killer, EAffect::kGroup)) {
 			// т.к. помечен флагом AFF_GROUP - точно PC
@@ -523,6 +526,7 @@ void Damage::ProcessDeath(CharData *ch, CharData *victim) const {
 	if (killer) {
 		ch = killer;
 	}
+	death_profiler.next_step("die");
 	die(victim, ch);
 }
 

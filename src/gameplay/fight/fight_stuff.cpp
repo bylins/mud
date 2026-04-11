@@ -532,10 +532,13 @@ void real_kill(CharData *ch, CharData *killer) {
 }
 
 void raw_kill(CharData *ch, CharData *killer) {
+	utils::CSteppedProfiler rk_profiler("raw_kill", 0.001);
+	rk_profiler.next_step("SpellCapable");
 	check_spell_capable(ch, killer);
 	if (ch->GetEnemy()) {
 		stop_fighting(ch, true);
 	}
+	rk_profiler.next_step("CombatList");
 	for (auto &hitter : combat_list) {
 		if (hitter.deleted)
 			continue;
@@ -565,10 +568,12 @@ void raw_kill(CharData *ch, CharData *killer) {
 
 	if (!ROOM_FLAGGED(ch->in_room, ERoomFlag::kDominationArena)) {
 		if (!ch->IsNpc()) {
+			rk_profiler.next_step("ResetAffects");
 			reset_affects_no_recalc(ch);
 		}
 	}
 	// для начала проверяем, активны ли евенты
+	rk_profiler.next_step("DeathTrigger");
 	if ((!killer || death_mtrigger(ch, killer)) && ch->in_room != kNowhere) {
 		death_cry(ch, killer);
 	}
@@ -595,6 +600,7 @@ void raw_kill(CharData *ch, CharData *killer) {
 	}
 	if (ch->in_room != kNowhere) {
 		if (killer && (!killer->IsNpc() || IS_CHARMICE(killer)) && !ch->IsNpc())
+	rk_profiler.next_step("RealKill");
  			kill_pc_wtrigger(killer, ch);
 		if (!ch->IsNpc() && (!NORENTABLE(ch) && ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena))) {
 			//Если убили на арене
