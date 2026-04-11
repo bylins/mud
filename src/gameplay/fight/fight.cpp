@@ -2032,15 +2032,12 @@ bool stuff_before_round(CharData *ch) {
 // * Обработка текущих боев, дергается каждые 2 секунды.
 void perform_violence() {
 	int max_init = -100, min_init = 100;
-	utils::CSteppedProfiler round_profiler("Perform violence", 0.1);
 	std::unordered_set<CharData *> msdp_report_chars;
 
 	//* суммон хелперов
 	sprintf(buf, "Check mob helpers");
-	round_profiler.next_step(buf);
 	check_mob_helpers();
 	//* действия до раунда и расчет инициативы
-	round_profiler.next_step("Calc initiative");
 	// почистим удаленных между раундами боя
 	std::erase_if(combat_list, [](auto flag) {return flag.deleted;});
 	observability::OtelMetrics::RecordGauge("combat.active.count", static_cast<double>(combat_list.size()));
@@ -2083,7 +2080,6 @@ void perform_violence() {
 	}
 	int size = 0;
 	//* обработка раунда по очередности инициативы
-	round_profiler.next_step("Round check");
 	for (int initiative = max_init; initiative >= min_init; initiative--) {
 		size = 0;
 		for (auto &it : combat_list) {
@@ -2123,10 +2119,8 @@ void perform_violence() {
 	// удалим помеченные (убитые)
 	std::erase_if(combat_list, [](auto flag) {return flag.deleted;});
 	//* обновление аффектов и лагов после раунда
-	round_profiler.next_step("Update round affs");
 	update_round_affs();
 
-	round_profiler.next_step("MSDP reports");
 	for (auto d = descriptor_list; d; d = d->next) {
 		if (d->state == EConState::kPlaying && d->character) {
 			for (const auto &ch : msdp_report_chars) {
