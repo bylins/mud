@@ -962,8 +962,6 @@ int Damage::Process(CharData *ch, CharData *victim) {
 	{
 		stop_fighting(victim, victim->GetPosition() <= EPosition::kDead);
 	} */
-	utils::CSteppedProfiler round_profiler(fmt::format("process death"), 0.01);
-	round_profiler.next_step("Start");
 
 	// жертва умирает //
 	dmg_profiler.next_step("DeathCheck");
