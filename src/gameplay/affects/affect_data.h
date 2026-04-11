@@ -85,6 +85,7 @@ void ImposeAffect(CharData *ch, Affect<EApply> &af, bool add_dur, bool max_dur, 
 void ImposeAffectNoRecalc(CharData *ch, const Affect<EApply> &af);
 void ImposeAffectNoRecalc(CharData *ch, Affect<EApply> &af, bool add_dur, bool max_dur, bool add_mod, bool max_mod);
 void reset_affects(CharData *ch);
+void reset_affects_no_recalc(CharData *ch);
 bool no_bad_affects(ObjData *obj);
 bool IsNegativeApply(EApply location);
 bool GetAffectNumByName(const std::string &affName, EAffect &result);

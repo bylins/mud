@@ -1173,6 +1173,23 @@ void reset_affects(CharData *ch) {
 	affect_total(ch);
 }
 
+
+// Same as reset_affects but without affect_total() recalculation.
+// Used in raw_kill for PCs Б─■ mob is about to be deleted, PC will recalc on re-enter.
+void reset_affects_no_recalc(CharData *ch) {
+	auto af = ch->affected.begin();
+
+	while (af != ch->affected.end()) {
+		const auto &affect = *af;
+
+		if (!IS_SET(affect->battleflag, kAfDeadkeep)) {
+			af = ch->AffectRemove(af);
+		} else {
+			++af;
+		}
+	}
+	GET_COND(ch, DRUNK) = 0;
+}
 bool IsAffectedBySpell(CharData *ch, ESpell type) {
 	if (type == ESpell::kPowerHold) {
 		type = ESpell::kHold;
