@@ -61,7 +61,7 @@ void do_iron_wind(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	};
 	if (ch->battle_affects.get(kEafOverwhelm) || ch->battle_affects.get(kEafHammer)) {
-		SendMsgToChar("Невозможно! Вы слишкм заняты боем!\r\n", ch);
+		SendMsgToChar("Невозможно! Вы слишком заняты боем!\r\n", ch);
 		return;
 	};
 	int moves = ch->get_max_move() / (2 + std::max(15, ch->GetSkill(ESkill::kIronwind)) / 15);
