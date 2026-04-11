@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <fstream>
 #include <sstream>
+#include <thread>
 #include <cmath>
 #include <iomanip>
 #include <limits>
@@ -4244,40 +4245,57 @@ void Clan::init_ingr_chest() {
 
 // сохраняем храны ингров всех кланов в файлы
 void ClanSystem::save_ingr_chests() {
-	for (const auto &i : Clan::ClanList) {
+	struct ChestTask {
+		std::string filename;
+		std::vector<ObjData *> items;
+	};
 
+	std::vector<ChestTask> tasks;
+
+	// Main thread: fast snapshot of object pointers
+	for (const auto &i : Clan::ClanList) {
 		if (!i->ingr_chest_active()) {
 			continue;
 		}
-		utils::CExecutionTimer timer;
 
 		std::string file_abbrev = i->get_file_abbrev();
 		std::string filename = LIB_HOUSE + file_abbrev + "/" + file_abbrev + ".ing";
 
 		for (auto chest : world[i->get_ingr_chest_room_rnum()]->contents) {
-
 			if (!is_ingr_chest(chest)) {
 				continue;
 			}
-			utils::CExecutionTimer timer;
 
-			std::stringstream out;
-			out << "* Items file\n";
+			ChestTask task;
+			task.filename = std::move(filename);
 			for (ObjData *temp = chest->get_contains(); temp; temp = temp->get_next_content()) {
-				write_one_object(out, temp, 0);
+				task.items.push_back(temp);
 			}
-			out << "\n$\n$\n";
-			std::ofstream file(filename.c_str());
-			if (!file.is_open()) {
-				log("Error open file: %s! (%s %s %d)", filename.c_str(), __FILE__, __func__, __LINE__);
-				return;
-			}
-			file << out.rdbuf();
-			file.close();
+			tasks.push_back(std::move(task));
 			break;
 		}
-		log(fmt::format("saving clan chest {} done, timer {:.10f}", i->GetAbbrev(), timer.delta().count()));
 	}
+
+	if (tasks.empty()) {
+		return;
+	}
+
+	// Serialize and write in background thread
+	std::thread([t = std::move(tasks)]() {
+		for (const auto &task : t) {
+			std::stringstream out;
+			out << "* Items file\n";
+			for (auto *item : task.items) {
+				write_one_object(out, item, 0);
+			}
+			out << "\n$\n$\n";
+			std::ofstream file(task.filename.c_str());
+			if (file.is_open()) {
+				file << out.rdbuf();
+				file.close();
+			}
+		}
+	}).detach();
 }
 
 bool Clan::put_ingr_chest(CharData *ch, ObjData *obj, ObjData *chest) {
