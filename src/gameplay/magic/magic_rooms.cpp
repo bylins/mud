@@ -175,12 +175,12 @@ void HandleRoomAffect(RoomData *room, CharData *ch, const Affect<ERoomApply>::sh
 					break;
 				case 6:
 					SendMsgToChar("Вы осознали, что хотите вызвать ужасные мучения у врагов...\r\nТуман тут же исполнил вашу прихоть...\r\n", ch);
-					act("$n захрипел$g, завыл$g, и враги, вдыхающее и выдыхающее туман, стали корчиться от силы черной магии!\r\n",
+					act("$n захрипел$g, завыл$g, и враги, вдыхающие и выдыхающие туман, стали корчиться от силы черной магии!\r\n",
 						false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 					CallMagicToArea(ch, nullptr, world[ch->in_room], ESpell::kFever, GetRealLevel(ch));
 					break;
 				case 5:
-					SendMsgToChar("Что может быть лутше, чем слабый враг?!\r\nТолько мертвый!\r\n", ch);
+					SendMsgToChar("Что может быть лучше, чем слабый враг?!\r\nТолько мертвый!\r\n", ch);
 					act("$n что-то проревел$g страшным голосом, и враги, окутанные туманом, стали быстро слабеть!\r\n",
 						false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 					CallMagicToArea(ch, nullptr, world[ch->in_room], ESpell::kWeaknes, GetRealLevel(ch));

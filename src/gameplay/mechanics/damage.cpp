@@ -447,6 +447,8 @@ void Damage::ProcessBlink(CharData *ch, CharData *victim) {
 
 void Damage::ProcessDeath(CharData *ch, CharData *victim) const {
 	CharData *killer = nullptr;
+	utils::CSteppedProfiler death_profiler("ProcessDeath", 0.001);
+	death_profiler.next_step("FindKiller");
 
 	if (victim->IsNpc() || victim->desc) {
 		if (victim == ch && victim->in_room != kNowhere) {
@@ -470,6 +472,7 @@ void Damage::ProcessDeath(CharData *ch, CharData *victim) const {
 			killer = ch;
 		}
 	}
+	death_profiler.next_step("GroupGain");
 	if (killer) {
 		if (AFF_FLAGGED(killer, EAffect::kGroup)) {
 			// т.к. помечен флагом AFF_GROUP - точно PC
@@ -523,6 +526,7 @@ void Damage::ProcessDeath(CharData *ch, CharData *victim) const {
 	if (killer) {
 		ch = killer;
 	}
+	death_profiler.next_step("die");
 	die(victim, ch);
 }
 
@@ -604,6 +608,8 @@ void Damage::PerformPostInit(CharData *ch, CharData *victim) {
 // возвращает сделанный дамаг
 int Damage::Process(CharData *ch, CharData *victim) {
 	PerformPostInit(ch, victim);
+	utils::CSteppedProfiler dmg_profiler("Damage::Process", 0.003);
+	dmg_profiler.next_step("Validation");
 	if (victim->in_room == kNowhere || ch->in_room == kNowhere || ch->in_room != victim->in_room) {
 		log("SYSERR: Attempt to damage '%s' in room kNowhere by '%s'.",
 			GET_NAME(victim), GET_NAME(ch));
@@ -642,6 +648,7 @@ int Damage::Process(CharData *ch, CharData *victim) {
 		}
 	}
 
+	dmg_profiler.next_step("SetFighting");
 	mob_ai::update_mob_memory(ch, victim);
 
 	// If you attack a pet, it hates your guts
@@ -773,6 +780,7 @@ int Damage::Process(CharData *ch, CharData *victim) {
 	}
 	// щиты, броня, поглощение
 	if (victim != ch) {
+	dmg_profiler.next_step("Shields");
 		bool shield_full_absorb = CalcMagisShieldsDmgAbsoption(ch, victim);
 		CalcArmorDmgAbsorption(victim);
 		bool armor_full_absorb = CalcDmgAbsorption(ch, victim);
@@ -804,6 +812,7 @@ int Damage::Process(CharData *ch, CharData *victim) {
 		return 0;
 	}
 	// внутри есть !боевое везение!, для какого типа дамага - не знаю
+	dmg_profiler.next_step("HandleAffects");
 	DamageActorParameters params(ch, victim, dam);
 	handle_affects(params);
 	dam = params.damage;
@@ -819,6 +828,7 @@ int Damage::Process(CharData *ch, CharData *victim) {
 		dam = std::min(dam, victim->get_hit() - 1);
 	}
 
+	dmg_profiler.next_step("DamageTrigger");
 	dam = std::clamp(dam, 0, kMaxHits);
 	if (dam >= 0) {
 		if (dmg_type == fight::kPhysDmg) {
@@ -833,6 +843,7 @@ int Damage::Process(CharData *ch, CharData *victim) {
 		}
 	}
 	if (!InTestZone(ch)) {
+	dmg_profiler.next_step("GainExp");
 		gain_battle_exp(ch, victim, dam);
 	}
 
@@ -845,6 +856,7 @@ int Damage::Process(CharData *ch, CharData *victim) {
 		over_dam = dam - real_dam;
 	}
 	// собственно нанесение дамага
+	dmg_profiler.next_step("ApplyDamage");
 	victim->set_hit(victim->get_hit() - dam);
 	victim->send_to_TC(false, true, true, "&MПолучен урон = %d&n\r\n", dam);
 	ch->send_to_TC(false, true, true, "&MПрименен урон = %d&n\r\n", dam);
@@ -873,6 +885,7 @@ int Damage::Process(CharData *ch, CharData *victim) {
 		victim->add_attacker(ch, ATTACKER_DAMAGE, real_dam);
 	}
 	// попытка спасти жертву через ангела
+	dmg_profiler.next_step("PostDamage");
 	CheckTutelarSelfSacrfice(ch, victim);
 
 	// обновление позиции после удара и ангела
@@ -919,6 +932,7 @@ int Damage::Process(CharData *ch, CharData *victim) {
 	// сообщения об ударах //
 	if (MUD::Skills().IsValid(skill_id) || spell_id > ESpell::kUndefined || hit_type < 0) {
 		// скилл, спелл, необычный дамаг
+	dmg_profiler.next_step("Messages");
 		SendSkillMessages(dam, ch, victim, msg_num, brief_shields_);
 	} else {
 		// простой удар рукой/оружием
@@ -948,10 +962,9 @@ int Damage::Process(CharData *ch, CharData *victim) {
 	{
 		stop_fighting(victim, victim->GetPosition() <= EPosition::kDead);
 	} */
-	utils::CSteppedProfiler round_profiler(fmt::format("process death"), 0.01);
-	round_profiler.next_step("Start");
 
 	// жертва умирает //
+	dmg_profiler.next_step("DeathCheck");
 	if (victim->GetPosition() == EPosition::kDead) {
 		ProcessDeath(ch, victim);
 		return -1;

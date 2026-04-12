@@ -4,6 +4,7 @@
 
 #include "help.h"
 
+#include <algorithm>
 #include "../subprojects/fmt/include/fmt/format.h"
 
 #include "obj_prototypes.h"
@@ -1502,6 +1503,7 @@ void do_help(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			arg_str = arg_str.substr(dot_pos + 1);
 		} catch (...) {
 			user_search.topic_num = 0;
+			arg_str.erase(std::remove(arg_str.begin(), arg_str.end(), '.'), arg_str.end());
 		}
 	}
 	// если последний символ аргумента '!' -- включаем строгий поиск

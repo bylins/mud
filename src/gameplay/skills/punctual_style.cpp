@@ -654,7 +654,7 @@ void PerformPunctualHit(CharData *ch, CharData *victim, HitData &hit_data) {
 	hit_data.dam = ApplyResist(victim, EResist::kVitality, hit_data.dam);
 	for (auto & i : af) {
 		if (i.type > ESpell::kUndefined) {
-			ImposeAffect(victim, i, true, false, true, false);
+			ImposeAffectNoRecalc(victim, i, true, false, true, false);
 		}
 	}
 }
@@ -683,7 +683,7 @@ void ImposeHaemorrhage(CharData *ch, int percent) {
 	af[2].battleflag = 0;
 
 	for (auto &i : af) {
-		ImposeAffect(ch, i, true, false, true, false);
+		ImposeAffectNoRecalc(ch, i, true, false, true, false);
 	}
 }
 

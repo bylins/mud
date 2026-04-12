@@ -80,7 +80,7 @@ bool stop_follower(CharData *ch, int mode) {
 		}
 	}
 	if (ch->IsNpc() && ch->IsFlagged(EMobFlag::kSummoned)) {
-		act("Магия подпитующая $n3 развеялась, и $n0 вернул$u в норму.", true, ch, 0, 0, kToRoom | kToArenaListen);
+		act("Магия подпитывающая $n3 развеялась, и $n0 вернул$u в норму.", true, ch, 0, 0, kToRoom | kToArenaListen);
 		ch->restore_npc();
 			// сначало бросаем лишнее
 				while (ch->carrying) {

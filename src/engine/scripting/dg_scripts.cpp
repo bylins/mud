@@ -1766,7 +1766,7 @@ void find_replacement(void *go,
 			} else if ((!str_cmp(field, "curmob") || !str_cmp(field, "curmobs")) && num > 0) {
 				num = count_char_vnum(num);
 				if (num >= 0)
-					snprintf(str, str_size," %d", num);
+					snprintf(str, str_size,"%d", num);
 		} else if (!str_cmp(field, "recalczone")) {
 			auto param = utils::Split(subfield, ',');
 			if (param.size() != 4) {

@@ -12,6 +12,7 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 #include "mobact.h"
+#include "utils/utils_time.h"
 
 #include "gameplay/skills/backstab.h"
 #include "gameplay/skills/bash.h"
@@ -889,6 +890,9 @@ void mobile_activity(int activity_level, int missed_pulses) {
 		{"activity_level", std::to_string(activity_level)}
 	});
 
+	utils::CExecutionTimer mobact_timer;
+	int processed_mobs = 0;
+
 //	int door, max, was_in = -1, activity_lev, i, ch_activity;
 //	int std_lev = activity_level % kPulseMobile;
 
@@ -926,6 +930,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 		  || GET_ROOM_VNUM(ch->in_room) % 100 == 99) {
 		  continue;
 	  }
+	  ++processed_mobs;
 
 	  // Examine call for special procedure
 	  if (ch->IsFlagged(EMobFlag::kSpec) && !no_specials) {
@@ -1225,6 +1230,10 @@ void mobile_activity(int activity_level, int missed_pulses) {
 	  if (was_in != ch->in_room) {
 		  do_aggressive_room(ch.get(), false);
 	  }
+	}
+	double mobact_time = mobact_timer.delta().count();
+	if (mobact_time > 0.005) {
+		log("mobile_activity: processed=%d time=%f", processed_mobs, mobact_time);
 	}
 }
 ObjData *create_charmice_box(CharData *ch) {

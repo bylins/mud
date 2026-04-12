@@ -1851,6 +1851,8 @@ void process_npc_attack(CharData *ch) {
 }
 
 void process_player_attack(CharData *ch, int min_init) {
+	utils::CSteppedProfiler atk_profiler("PlayerAttack", 0.005);
+
 	if (ch->GetPosition() > EPosition::kStun
 		&& ch->GetPosition() < EPosition::kFight
 		&& ch->battle_affects.get(kEafStand)) {
@@ -1860,9 +1862,11 @@ void process_player_attack(CharData *ch, int min_init) {
 	}
 
 	// Срабатывание батл-триггеров амуниции
+	atk_profiler.next_step("fight_otrigger");
 	Bitvector trigger_code = fight_otrigger(ch);
 
 	//* каст заклинания
+	atk_profiler.next_step("cast_spell");
 	if (ch->GetCastSpell() != ESpell::kUndefined && ch->get_wait() <= 0 && !IS_SET(trigger_code, kNoCastMagic)) {
 		if (AFF_FLAGGED(ch, EAffect::kSilence)) {
 			SendMsgToChar("Вы не смогли вымолвить и слова.\r\n", ch);
@@ -1882,6 +1886,7 @@ void process_player_attack(CharData *ch, int min_init) {
 	if (ch->battle_affects.get(kEafMultyparry))
 		return;
 	//* применение экстра скилл-атак (пнуть, оглушить и прочая)
+	atk_profiler.next_step("extra_attack");
 	if (!IS_SET(trigger_code, kNoExtraAttack) 
 			&& ch->GetExtraVictim()
 			&& ch->in_room == ch->GetExtraVictim()->in_room
@@ -1897,6 +1902,7 @@ void process_player_attack(CharData *ch, int min_init) {
 		return;
 	}
 	//**** удар основным оружием или рукой
+	atk_profiler.next_step("main_hand");
 	if (ch->battle_affects.get(kEafFirst)) {
 		if (!IS_SET(trigger_code, kNoRightHandAttack) && !AFF_FLAGGED(ch, EAffect::kStopRight)
 			&& (ch->IsImmortal() || GET_GOD_FLAG(ch, EGf::kGodsLike) || !ch->battle_affects.get(kEafUsedright))) {
@@ -1929,6 +1935,7 @@ void process_player_attack(CharData *ch, int min_init) {
 		}
 	}
 	//**** удар вторым оружием если оно есть и умение позволяет
+	atk_profiler.next_step("off_hand");
 	if (!IS_SET(trigger_code, kNoLeftHandAttack) && GET_EQ(ch, EEquipPos::kHold)
 		&& GET_EQ(ch, EEquipPos::kHold)->get_type() == EObjType::kWeapon
 		&& ch->battle_affects.get(kEafSecond)
@@ -1955,6 +1962,7 @@ void process_player_attack(CharData *ch, int min_init) {
 	}
 	// немного коряво, т.к. зависит от инициативы кастера
 	// check if angel is in fight, and go_rescue if it is not
+	atk_profiler.next_step("tutelar_rescue");
 	TryToRescueWithTutelar(ch);
 }
 
@@ -2024,15 +2032,12 @@ bool stuff_before_round(CharData *ch) {
 // * Обработка текущих боев, дергается каждые 2 секунды.
 void perform_violence() {
 	int max_init = -100, min_init = 100;
-	utils::CSteppedProfiler round_profiler("Perform violence", 0.1);
 	std::unordered_set<CharData *> msdp_report_chars;
 
 	//* суммон хелперов
 	sprintf(buf, "Check mob helpers");
-	round_profiler.next_step(buf);
 	check_mob_helpers();
 	//* действия до раунда и расчет инициативы
-	round_profiler.next_step("Calc initiative");
 	// почистим удаленных между раундами боя
 	std::erase_if(combat_list, [](auto flag) {return flag.deleted;});
 	observability::OtelMetrics::RecordGauge("combat.active.count", static_cast<double>(combat_list.size()));
@@ -2075,11 +2080,10 @@ void perform_violence() {
 	}
 	int size = 0;
 	//* обработка раунда по очередности инициативы
-	round_profiler.next_step("Round check");
 	for (int initiative = max_init; initiative >= min_init; initiative--) {
 		size = 0;
 		for (auto &it : combat_list) {
-			if (it.deleted) 
+			if (it.deleted)
 				continue;
 			size++;
 			if (it.ch->initiative != initiative || it.ch->in_room == kNowhere) {
@@ -2115,10 +2119,8 @@ void perform_violence() {
 	// удалим помеченные (убитые)
 	std::erase_if(combat_list, [](auto flag) {return flag.deleted;});
 	//* обновление аффектов и лагов после раунда
-	round_profiler.next_step("Update round affs");
 	update_round_affs();
 
-	round_profiler.next_step("MSDP reports");
 	for (auto d = descriptor_list; d; d = d->next) {
 		if (d->state == EConState::kPlaying && d->character) {
 			for (const auto &ch : msdp_report_chars) {

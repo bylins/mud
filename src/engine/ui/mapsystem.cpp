@@ -217,6 +217,10 @@ const char *signs[] =
 		"&R`&n"
 	};
 
+
+inline bool GodBigMode(CharData *ch) { 
+	return ch->map_check_option(MAP_MODE_GOD_BIG) && ch->IsImmortal();
+}
 // отрисовка символа на поле по координатам
 // при обходе в ширину первый записанный символ - самый близкий к игроку
 void put_on_screen(unsigned y, unsigned x, int num, int /*depth*/) {
@@ -479,7 +483,7 @@ void draw_map_bfs(CharData *ch) {
 					}
 					draw_spec_mobs(ch, room->dir_option[i]->to_room(), next_y, next_x, cur_depth);
 				}
-				if (cur_depth == 1
+				if ((GodBigMode(ch) || cur_depth == 1)
 					&& (!EXIT_FLAGGED(room->dir_option[i], EExitFlag::kClosed) || ch->IsImmortal())
 					&& (ch->map_check_option(MAP_MODE_MOBS) || ch->map_check_option(MAP_MODE_PLAYERS))) {
 					if (cur_sign == SCREEN_UP_OPEN) {
@@ -490,7 +494,7 @@ void draw_map_bfs(CharData *ch) {
 						draw_mobs(ch, room->dir_option[i]->to_room(), next_y, next_x);
 					}
 				}
-				if (cur_depth == 1
+				if ((GodBigMode(ch) || cur_depth == 1)
 					&& (!EXIT_FLAGGED(room->dir_option[i], EExitFlag::kClosed) || ch->IsImmortal())
 					&& (ch->map_check_option(MAP_MODE_MOBS_CORPSES)
 						|| ch->map_check_option(MAP_MODE_PLAYER_CORPSES)
@@ -522,12 +526,12 @@ void draw_map_bfs(CharData *ch) {
 
 // imm по дефолту = 0, если нет, то распечатанная карта засылается ему
 void print_map(CharData *ch, CharData *imm) {
-	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kMoMapper))
+	if (!ch->IsImpl() && ROOM_FLAGGED(ch->in_room, ERoomFlag::kMoMapper))
 		return;
 	MAX_LINES = MAX_LINES_STANDART;
 	MAX_LENGTH = MAX_LENGTH_STANDART;
 	MAX_DEPTH_ROOMS = MAX_DEPTH_ROOM_STANDART;
-	if (ch->map_check_option(MAP_MODE_GOD_BIG) && ch->IsImmortal()) {
+	if (GodBigMode(ch)) {
 		MAX_LINES = MAX_LINES_GOD;
 		MAX_LENGTH = MAX_LENGTH_GOD;
 		MAX_DEPTH_ROOMS = MAX_DEPTH_ROOM_GOD;
