@@ -856,9 +856,7 @@ void EndowExpToChar(CharData *ch, int gain) {
 					SendMsgToChar(ch, "%sПоздравляем, вы получили право на перевоплощение!%s\r\n",
 								  kColorBoldGrn, kColorNrm);
 				} else {
-					SendMsgToChar(ch,
-								  "%sПоздравляем, вы набрали максимальное количество опыта!\r\n"
-								  "%s%s\r\n", kColorBoldGrn, Remort::WHERE_TO_REMORT_STR.c_str(), kColorNrm);
+					SendMsgToChar(ch, "&GПоздравляем, вы набрали максимальное количество опыта!\r\n&n");
 				}
 				SET_BIT(ch->player_specials->saved.GodsLike, EGf::kRemort);
 			}
