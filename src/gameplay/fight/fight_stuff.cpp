@@ -567,11 +567,12 @@ void raw_kill(CharData *ch, CharData *killer) {
 		}
 	}
 	// для начала проверяем, активны ли евенты
-	rk_profiler.next_step("DeathTrigger");
+	rk_profiler.next_step("DeathMtrigger");
 	if ((!killer || death_mtrigger(ch, killer)) && ch->in_room != kNowhere) {
 		death_cry(ch, killer);
 	}
 
+	rk_profiler.next_step("KillMtrigger");
 	if (killer && killer->IsNpc() && !ch->IsNpc() && kill_mtrigger(killer, ch)) {
 		const auto it = std::find(killer->kill_list.begin(), killer->kill_list.end(), ch->get_uid());
 		if (it != killer->kill_list.end()) {
@@ -603,6 +604,7 @@ void raw_kill(CharData *ch, CharData *killer) {
 			// клановые не теряют вещи
 			arena_kill(ch, killer);
 		} else {
+			rk_profiler.next_step("RealKill");
 			real_kill(ch, killer);
 			character_list.AddToExtractedList(ch);
 //			ExtractCharFromWorld(ch, true);
