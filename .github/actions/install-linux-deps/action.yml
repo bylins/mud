@@ -1,0 +1,33 @@
+name: Install Linux build dependencies
+description: Installs common apt packages for building the project
+
+inputs:
+  extra-packages:
+    description: Additional packages to install (space-separated)
+    default: ''
+  use-sudo:
+    description: Use sudo (set to false inside root containers)
+    default: 'true'
+  add-universe:
+    description: Add apt universe repository first
+    default: 'false'
+
+runs:
+  using: composite
+  steps:
+    - name: Add universe repository
+      if: inputs.add-universe == 'true'
+      shell: bash
+      run: sudo add-apt-repository universe -y
+
+    - name: Install packages
+      shell: bash
+      run: |
+        SUDO=${{ inputs.use-sudo == 'true' && 'sudo' || '' }}
+        $SUDO apt-get update
+        $SUDO apt-get install -y \
+          build-essential make \
+          libssl-dev libcurl4-gnutls-dev libexpat1-dev \
+          gettext unzip cmake gdb \
+          libgtest-dev zlib1g-dev libcrypt-dev \
+          ${{ inputs.extra-packages }}
