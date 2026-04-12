@@ -1,0 +1,30 @@
+name: macOS
+
+on:
+  workflow_call:
+
+jobs:
+  clang:
+    name: Clang / Base
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install dependencies
+        run: brew install openssl curl expat googletest cmake
+
+      - name: Configure CMake
+        run: |
+          mkdir -p build && cd build
+          cmake -DCMAKE_BUILD_TYPE=Release \
+                -DOPENSSL_ROOT_DIR=$(brew --prefix openssl) \
+                -DCURL_ROOT=$(brew --prefix curl) ..
+
+      - name: Build
+        run: cd build && make tests -j$(sysctl -n hw.ncpu)
+
+      - name: Run tests
+        run: cd build && ./tests/tests
