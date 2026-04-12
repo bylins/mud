@@ -1,0 +1,186 @@
+name: Linux
+
+on:
+  workflow_call:
+
+jobs:
+  matrix:
+    name: GCC / ${{ matrix.config.name }}
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - name: "Base"
+            cmake_flags: "-DCMAKE_BUILD_TYPE=Release"
+            packages: ""
+
+          - name: "YAML"
+            cmake_flags: "-DCMAKE_BUILD_TYPE=Release -DHAVE_YAML=ON"
+            packages: "libyaml-cpp-dev"
+
+          - name: "SQLite"
+            cmake_flags: "-DCMAKE_BUILD_TYPE=Release -DHAVE_SQLITE=ON"
+            packages: "libsqlite3-dev"
+
+          - name: "Base + Admin API + OTEL"
+            cmake_flags: "-DCMAKE_BUILD_TYPE=Release -DENABLE_ADMIN_API=ON -DWITH_OTEL=ON -DCMAKE_PREFIX_PATH=/opt/opentelemetry-cpp"
+            packages: ""
+            with_otel: true
+
+          - name: "YAML + Admin API + OTEL"
+            cmake_flags: "-DCMAKE_BUILD_TYPE=Release -DHAVE_YAML=ON -DENABLE_ADMIN_API=ON -DWITH_OTEL=ON -DCMAKE_PREFIX_PATH=/opt/opentelemetry-cpp"
+            packages: "libyaml-cpp-dev"
+            with_otel: true
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install base dependencies
+        uses: ./.github/actions/install-linux-deps
+        with:
+          add-universe: 'true'
+          extra-packages: ${{ matrix.config.packages }}
+
+      - name: Install opentelemetry-cpp runtime dependencies
+        if: matrix.config.with_otel
+        run: sudo apt-get install -y libprotobuf-dev
+
+      - name: Cache opentelemetry-cpp
+        if: matrix.config.with_otel
+        id: cache-otel
+        uses: actions/cache@v4
+        with:
+          path: /opt/opentelemetry-cpp
+          key: otel-cpp-1.24.0-ubuntu-x64
+
+      - name: Build opentelemetry-cpp
+        if: matrix.config.with_otel && steps.cache-otel.outputs.cache-hit != 'true'
+        run: |
+          sudo apt-get install -y libgrpc++-dev protobuf-compiler-grpc || true
+          wget -q https://github.com/open-telemetry/opentelemetry-cpp/archive/refs/tags/v1.24.0.tar.gz
+          tar xzf v1.24.0.tar.gz
+          cmake -S opentelemetry-cpp-1.24.0 -B otel-build \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_INSTALL_PREFIX=/opt/opentelemetry-cpp \
+            -DWITH_OTLP_HTTP=ON \
+            -DWITH_OTLP_GRPC=OFF \
+            -DBUILD_TESTING=OFF \
+            -DWITH_BENCHMARK=OFF \
+            -DWITH_EXAMPLES=OFF
+          cmake --build otel-build -j$(nproc)
+          sudo cmake --install otel-build
+
+      - name: Configure CMake
+        run: |
+          mkdir -p build && cd build
+          cmake ${{ matrix.config.cmake_flags }} ..
+
+      - name: Build
+        run: cd build && make tests -j$(nproc)
+
+      - name: Run tests
+        run: cd build && ./tests/tests
+
+  gcc15:
+    name: GCC 15 / Base
+    runs-on: ubuntu-latest
+    container:
+      image: debian:sid
+      options: --user root
+
+    steps:
+      - name: Install Git
+        run: |
+          apt-get update && apt-get install -y git ca-certificates
+          git config --global --add safe.directory '*'
+
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install GCC 15 and build dependencies
+        uses: ./.github/actions/install-linux-deps
+        with:
+          use-sudo: 'false'
+          extra-packages: "gcc-15 g++-15 binutils binutils-gold"
+
+      - name: Show GCC 15 version
+        run: gcc-15 --version && g++-15 --version
+
+      - name: Configure CMake
+        run: |
+          mkdir -p build && cd build
+          CC=gcc-15 CXX=g++-15 cmake -DCMAKE_BUILD_TYPE=Release ..
+
+      - name: Build
+        run: cd build && make tests -j$(nproc)
+
+      - name: Run tests
+        run: cd build && ./tests/tests
+
+  coverage:
+    name: GCC / Coverage
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/world-load-refactoring' || github.ref == 'refs/heads/master' || github.event_name == 'pull_request'
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libssl-dev libcurl4-gnutls-dev libexpat1-dev \
+            gettext libgtest-dev lcov
+
+      - name: Configure CMake
+        run: |
+          mkdir build && cd build
+          cmake -DCMAKE_BUILD_TYPE=Debug -DENABLE_COVERAGE=ON -DWITH_ASAN=OFF ..
+
+      - name: Build tests
+        run: make tests -j$(($(nproc)/2))
+        working-directory: build
+
+      - name: Run tests
+        run: ./tests/tests
+        working-directory: build
+
+      - name: Generate lcov report
+        run: |
+          lcov --capture --ignore-errors mismatch,negative \
+            --directory . --output-file coverage.info
+          lcov --remove coverage.info --ignore-errors unused \
+            '/usr/*' '*/third_party_libs/*' '*/tests/*' \
+            --output-file coverage_filtered.info
+        working-directory: build
+
+      - name: Post coverage summary
+        run: |
+          echo "## Coverage Report" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          lcov --summary build/coverage_filtered.info 2>&1 >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+      - name: Generate HTML report
+        run: genhtml build/coverage_filtered.info --output-directory build/coverage_html
+
+      - name: Upload to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          files: build/coverage_filtered.info
+          fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Upload HTML report as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-html
+          path: build/coverage_html/
+          retention-days: 30
