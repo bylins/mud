@@ -1,5 +1,9 @@
+option('build_profile', type: 'combo',
+choices: ['release', 'debug', 'test', 'fasttest', 'custom'],
+value: 'release',
+description: 'Build profile: release/debug - ggdb3 O0, debug adds ASAN; test - O3 + TEST_BUILD; fasttest - Ofast + TEST_BUILD; custom - no specific flags')
+
 option('linker', type: 'string', value: '', description: 'Linker to use: gold, mold, lld, bfd, or empty for system default')
-option('testbuild', type: 'boolean', value: false, description: 'Build in test mode.')
 option('build_tests', type: 'boolean', value: true, description: 'Build and run tests.')
 option('scripting', type: 'boolean', value: false, description: 'Enable scripting support (Python + Boost.Python)')
 option('boost', type: 'boolean', value: false, description: 'Enable Boost usage')
@@ -9,11 +13,6 @@ option('telegram', type: 'boolean', value: false, description: 'Enable Telegram 
 option('nocrypt', type: 'boolean', value: false, description: 'Disable use of crypt()')
 option('has_epoll', type: 'boolean', value: true, description: 'Use epoll (Linux or freebsd)')
 option('with_asan', type: 'boolean', value: false, description: 'Build with Address Sanitizer')
-
-# Options for libfort
-option('fort_wchar', type: 'boolean', value: false, description: 'Enable wchar support in libfort')
-option('fort_utf8', type: 'boolean', value: false, description: 'Enable UTF-8 support in libfort')
-option('fort_test', type: 'boolean', value: false, description: 'Export internal symbols for testing')
 
 # Options for Admin API and Web features
 option('admin_api', type: 'boolean', value: false, description: 'Enable Admin API and JSON-related features')
@@ -27,3 +26,8 @@ option('otel', type: 'boolean', value: false, description: 'Enable OpenTelemetry
 
 # World Data Setup
 option('full_world_path', type: 'string', value: '', description: 'Absolute path to the full world data for symlinking')
+
+# Options for libfort
+option('fort_wchar', type: 'boolean', value: false, description: 'Enable wchar support in libfort')
+option('fort_utf8', type: 'boolean', value: false, description: 'Enable UTF-8 support in libfort')
+option('fort_test', type: 'boolean', value: false, description: 'Export internal symbols for testing')

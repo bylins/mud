@@ -1,6 +1,6 @@
 project('bylins', 'cpp',
-    version: '0.1',
-    default_options: ['cpp_std=c++20', 'buildtype=release', 'b_coverage=true']
+    version: run_command('git', 'rev-parse', '--short', 'HEAD', check: false).stdout().strip(),
+    default_options: ['cpp_std=c++20', 'buildtype=plain', 'warning_level=2', 'b_coverage=true']
 )
 
 cpp = meson.get_compiler('cpp')
@@ -8,6 +8,81 @@ host_system = host_machine.system()
 py3 = import('python').find_installation()
 project_args = []
 dependencies = []
+
+build_profile = get_option('build_profile')
+buildtype = {'release': 'Release', 'debug': 'Debug', 'test': 'Test', 'fasttest': 'FastTest', 'custom': 'Custom'}[build_profile]
+
+if build_profile in ['test', 'fasttest']
+    project_args += ['-DTEST_BUILD']
+endif
+if build_profile == 'test'
+    project_args += ['-DLOG_AUTOFLUSH']
+endif
+
+profile_target_opts = {
+    'release': ['optimization=0', 'debug=true'],
+    'debug': ['optimization=0', 'debug=true'],
+    'test': ['optimization=3', 'debug=false'],
+    'fasttest': ['debug=false'],
+    'custom': [],
+}[build_profile]
+
+if cpp.get_argument_syntax() == 'gcc'
+    if build_profile in ['release', 'debug']
+        project_args += ['-ggdb3']
+    elif build_profile == 'fasttest'
+        project_args += ['-Ofast']
+    endif
+    project_args += ['-Wno-format-truncation']
+    if host_system != 'windows' and build_profile != 'fasttest'
+        add_project_link_arguments('-rdynamic', language: 'cpp')
+    endif
+endif
+
+if build_profile == 'debug' or get_option('with_asan')
+  profile_target_opts += 'b_sanitize=address'
+  add_project_link_arguments('-fsanitize=address', language: 'cpp')
+endif
+
+if cpp.get_argument_syntax() == 'msvc' and build_profile in ['debug', 'test']
+    add_project_link_arguments('/DEBUG', language: 'cpp')
+endif
+
+if host_system == 'windows'
+    project_args += '-D_SCL_SECURE_NO_WARNINGS'
+    dependencies += cpp.find_library('dbghelp')
+    if cpp.get_id() != 'msvc'
+        dependencies += cpp.find_library('ws2_32')
+    endif
+endif
+
+if cpp.get_id() == 'clang'
+    project_args += '-Wno-invalid-source-encoding'
+endif
+
+cpu = host_machine.cpu_family()
+if cpp.get_id() != 'msvc'
+    if cpu == 'x86_64'
+        project_args += '-m64'
+    elif cpu == 'x86'
+        project_args += '-m32'
+    endif
+endif
+
+if host_system == 'windows'
+    if cpp.get_id() == 'msvc' or (cpp.get_id() == 'clang' and cpp.get_argument_syntax() == 'msvc')
+        project_args += [
+            '/source-charset:koi8-r',
+            '/execution-charset:koi8-r',
+            '/MP',
+            '-DFMT_UNICODE=0',
+            '/external:anglebrackets',
+            '/external:W0'
+        ]
+    elif cpp.get_id() == 'gcc' or cpp.get_id() == 'clang'
+        project_args += '-D__USE_MINGW_ANSI_STDIO=1'
+    endif
+endif
 
 linker_choice = get_option('linker')
 if linker_choice != ''
@@ -56,7 +131,7 @@ if get_option('boost')
     endif
 endif
 
-if get_option('nocrypt') or get_option('testbuild') or host_system == 'darwin'
+if get_option('nocrypt') or build_profile in ['test', 'fasttest'] or host_system == 'darwin'
     project_args += '-DNOCRYPT'
 else
     libcrypt = cpp.find_library('crypt', required: false)
@@ -126,58 +201,6 @@ endif
 
 if epoll_enabled
     project_args += '-DHAS_EPOLL'
-endif
-
-if host_system == 'windows'
-    project_args += '-D_SCL_SECURE_NO_WARNINGS'
-    dependencies += cpp.find_library('dbghelp')
-    if cpp.get_id() != 'msvc'
-        dependencies += cpp.find_library('ws2_32')
-    endif
-endif
-
-if cpp.get_id() == 'clang'
-    project_args += '-Wno-invalid-source-encoding'
-endif
-
-if get_option('with_asan')
-    project_args += ['-fsanitize=address']
-    add_project_link_arguments('-fsanitize=address', language: 'cpp')
-endif
-
-cpu = host_machine.cpu_family()
-if cpp.get_id() != 'msvc'
-    if cpu == 'x86_64'
-        project_args += '-m64'
-    elif cpu == 'x86'
-        project_args += '-m32'
-    endif
-endif
-
-if host_system == 'windows'
-    if cpp.get_id() == 'msvc' or (cpp.get_id() == 'clang' and cpp.get_argument_syntax() == 'msvc')
-        project_args += [
-            '/source-charset:koi8-r',
-            '/execution-charset:koi8-r',
-            '/MP',
-            '-DFMT_UNICODE=0',
-            '/external:anglebrackets', 
-            '/external:W0'
-        ]
-    elif cpp.get_id() == 'gcc' or cpp.get_id() == 'clang' # MinGW
-        project_args += '-D__USE_MINGW_ANSI_STDIO=1'
-    endif
-endif
-
-buildtype = ''
-if get_option('testbuild')
-    project_args += ['-DTEST_BUILD', '-DLOG_AUTOFLUSH']
-    buildtype = 'Test'
-    message('Test build turning on')
-elif get_option('buildtype') == 'debug'
-    buildtype = 'Debug'
-else
-    buildtype = 'Release'
 endif
 
 add_project_arguments(project_args, language: 'cpp')
@@ -721,7 +744,8 @@ endif
 circle_lib = static_library('circle',
     [main_sources, msdp_sources, version_cpp],
     include_directories: include_directories('src'),
-    dependencies: dependencies
+    dependencies: dependencies,
+    override_options: profile_target_opts
 )
 
 circle_dep = declare_dependency(
@@ -738,7 +762,8 @@ circle_ex = executable('circle',
     dependencies: [dependencies, circle_dep],
     link_with: circle_lib,
     install: true,
-    export_dynamic: true
+    export_dynamic: true,
+    override_options: profile_target_opts
 )
 
 summary({
