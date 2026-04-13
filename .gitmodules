@@ -4,3 +4,6 @@
 [submodule "subprojects/fmt"]
 	path = subprojects/fmt
 	url = https://github.com/fmtlib/fmt.git
+[submodule "subprojects/yaml-cpp"]
+	path = subprojects/yaml-cpp
+	url = https://github.com/jbeder/yaml-cpp

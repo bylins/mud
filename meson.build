@@ -156,7 +156,10 @@ endif
 
 # YAML
 if get_option('yaml')
-    yaml_dep = dependency('yaml-cpp', required: true)
+    yaml_sub = subproject('yaml-cpp', default_options: [
+        'default_library=static',
+    ])
+    yaml_dep = yaml_sub.get_variable('yaml_cpp_dep')
     project_args += '-DHAVE_YAML'
     dependencies += yaml_dep
 endif
