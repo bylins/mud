@@ -41,7 +41,6 @@ endif
 
 if build_profile == 'debug' or get_option('with_asan')
   profile_target_opts += 'b_sanitize=address'
-  add_project_link_arguments('-fsanitize=address', language: 'cpp')
 endif
 
 if cpp.get_argument_syntax() == 'msvc' and build_profile in ['debug', 'test']

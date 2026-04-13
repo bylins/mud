@@ -88,7 +88,8 @@ test_exe = executable(
     test_sources,
     include_directories: include_directories('.'),
     dependencies: [circle_dep, gtest_dep, threads_dep],
-    cpp_args: test_compile_args + (host_machine.system() != 'windows' ? ['-Wno-conversion-null', '-Wno-sign-compare'] : [])
+    cpp_args: test_compile_args + (host_machine.system() != 'windows' ? ['-Wno-conversion-null', '-Wno-sign-compare'] : []),
+    override_options: profile_target_opts
 )
 
 alias_target('tests', [test_exe] + copied_targets)
