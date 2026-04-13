@@ -35,3 +35,22 @@ syslog.CRASH
 syslog.CRASH.*
 syslog.bz2
 archive/
+
+# In-source build artifacts (when cmake run from project root by mistake)
+/CMakeCache.txt
+/CMakeFiles/
+/Makefile
+/cmake_install.cmake
+/circle
+/changelog
+/profiler.log
+/install-otel-sdk.sh
+src/third_party_libs/libfort/CMakeFiles/
+src/third_party_libs/libfort/Makefile
+src/third_party_libs/libfort/libfort.a
+
+# Claude Code worktrees and state
+.claude/
+
+# Backup files from patch/sed
+*.orig
