@@ -158,6 +158,7 @@ endif
 if get_option('yaml')
     yaml_sub = subproject('yaml-cpp', default_options: [
         'default_library=static',
+        'tests=disabled'
     ])
     yaml_dep = yaml_sub.get_variable('yaml_cpp_dep')
     project_args += '-DHAVE_YAML'
@@ -167,14 +168,15 @@ endif
 # OpenTelemetry
 if get_option('otel')
     otel_dep = dependency('opentelemetry-cpp', 
-        required: true, 
+        required: true,
         modules: [
             'opentelemetry-cpp::api',
             'opentelemetry-cpp::sdk',
-            'opentelemetry-cpp::common',
+            'opentelemetry-cpp::ext',
             'opentelemetry-cpp::otlp_http_exporter', 
             'opentelemetry-cpp::otlp_http_metric_exporter',
-            'opentelemetry-cpp::otlp_http_log_record_exporter'
+            'opentelemetry-cpp::otlp_http_log_record_exporter',
+            'opentelemetry-cpp::resources'
         ]
     )
     project_args += '-DWITH_OTEL'
