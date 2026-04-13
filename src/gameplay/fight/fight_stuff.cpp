@@ -470,12 +470,16 @@ bool change_rep(CharData *ch, CharData *killer) {
 
 void real_kill(CharData *ch, CharData *killer) {
 	const long local_gold = ch->get_gold();
+	utils::CSteppedProfiler rp("real_kill", 0.001);
+	rp.next_step("make_corpse");
 	ObjData *corpse = make_corpse(ch, killer);
 
+	rp.next_step("handle_corpse");
 	bloody::handle_corpse(corpse, ch, killer);
 	// Перенес вызов pk_revenge_action из die, чтобы на момент создания
 	// трупа месть на убийцу была еще жива
 	if (ch->IsNpc() || !ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena) || NORENTABLE(ch)) {
+		rp.next_step("pk_revenge");
 		pk_revenge_action(killer, ch);
 	}
 	if (!ch->IsNpc()) {
@@ -492,12 +496,14 @@ void real_kill(CharData *ch, CharData *killer) {
 	} else {
 		if (killer && (!killer->IsNpc() || IS_CHARMICE(killer))) {
 			log("Killed: %d %d %ld", GetRealLevel(ch), ch->get_max_hit(), ch->get_exp());
+			rp.next_step("obj_load_on_death");
 			obj_load_on_death(corpse, ch);
 		}
 		if (ch->IsFlagged(EMobFlag::kCorpse)) {
 			PerformDropGold(ch, local_gold);
 			ch->set_gold(0);
 		}
+		rp.next_step("LoadObjFromDeadLoad");
 		dead_load::LoadObjFromDeadLoad(corpse, ch, nullptr, dead_load::kOrdinary);
 #if defined WITH_SCRIPTING
 		//scripting::on_npc_dead(ch, killer, corpse);
@@ -521,6 +527,7 @@ void real_kill(CharData *ch, CharData *killer) {
 	// а здесь, после создания соответствующего трупа. Кроме того,
 	// если убил чармис и хозяин в комнате, то автолут происходит хозяину
 	if ((ch != nullptr) && (killer != nullptr)) {
+		rp.next_step("auto_loot");
 		auto_loot(ch, killer, corpse, local_gold);
 	}
 }
