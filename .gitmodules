@@ -7,3 +7,6 @@
 [submodule "subprojects/yaml-cpp"]
 	path = subprojects/yaml-cpp
 	url = https://github.com/jbeder/yaml-cpp
+[submodule "subprojects/zlib"]
+	path = subprojects/zlib
+	url = https://github.com/madler/zlib

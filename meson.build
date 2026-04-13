@@ -89,7 +89,11 @@ if linker_choice != ''
 endif
 
 if get_option('zlib')
-    zlib_dep = dependency('zlib', required: true)
+    zlib_sub = subproject('zlib', default_options: [
+        'default_library=static',
+        'tests=disabled'
+    ])
+    zlib_dep = zlib_sub.get_variable('zlib_dep')
     project_args += '-DHAVE_ZLIB'
     dependencies += zlib_dep
 endif
