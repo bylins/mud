@@ -758,7 +758,8 @@ circle_lib = static_library('circle',
 
 circle_dep = declare_dependency(
     link_with: circle_lib,
-    include_directories: include_directories('src')
+    include_directories: include_directories('src'),
+    dependencies: dependencies
 )
 
 if get_option('build_tests')
