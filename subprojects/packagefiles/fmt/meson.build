@@ -1,7 +1,7 @@
 project(
   'fmt',
   'cpp',
-  version: 'head',
+  version: '12.1.0',
   meson_version: '>=0.50.0',
   license: 'MIT WITH fmt-exception',
 )

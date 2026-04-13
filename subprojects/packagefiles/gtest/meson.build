@@ -1,7 +1,7 @@
 project(
   'gtest',
   'cpp',
-  version: 'latest',
+  version: '1.17.0',
   meson_version: '>=0.49.0',
   license: 'BSD-3-Clause',
 )
