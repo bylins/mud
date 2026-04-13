@@ -282,6 +282,24 @@ void err_log(const char *format, ...) {
 	mudlog(buf_, LGH, kLvlImmortal, SYSLOG, true);
 }
 
+
+void fatal_log(const char *format, ...) {
+	char buf_[kMaxRawInputLength];
+
+	va_list args;
+	va_start(args, format);
+	vsnprintf(buf_, sizeof(buf_), format, args);
+	va_end(args);
+
+	// Print to stderr so the user sees the error when running from terminal
+	fprintf(stderr, "FATAL: %s\n", buf_);
+
+	// Also write to syslog for post-mortem analysis
+	log("FATAL: %s", buf_);
+
+	exit(1);
+}
+
 void ip_log(const char *ip) {
 	FILE *iplog;
 
