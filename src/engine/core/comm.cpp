@@ -764,8 +764,7 @@ void stop_game(ush_int port) {
 	mother_desc = init_socket(port);
 	if (mother_desc < 0) {
 		log("SYSERR: Failed to bind to port %d. Server cannot start.", port);
-		log("Please check if another instance is running or if you have permission to use this port.");
-		exit(1);
+		fatal_log("Please check if another instance is running or if you have permission to use this port.");
 	}
 
 #ifdef ENABLE_ADMIN_API
@@ -953,8 +952,7 @@ socket_t init_socket(ush_int port) {
 
 		if (WSAStartup(wVersionRequested, &wsaData) != 0)
 		{
-			log("SYSERR: WinSock not available!");
-			exit(1);
+			fatal_log("SYSERR: WinSock not available!");
 		}
 		if ((wsaData.iMaxSockets - 4) < max_players)
 		{
@@ -964,8 +962,7 @@ socket_t init_socket(ush_int port) {
 
 		if ((s = socket(PF_INET, SOCK_STREAM, 0)) == static_cast<socket_t>(SOCKET_ERROR))
 		{
-			log("SYSERR: Error opening network connection: Winsock error #%d", WSAGetLastError());
-			exit(1);
+			fatal_log("SYSERR: Error opening network connection: Winsock error #%d", WSAGetLastError());
 		}
 	}
 #else
@@ -1036,8 +1033,7 @@ socket_t init_unix_socket(const char *path) {
 
 	s = socket(AF_UNIX, SOCK_STREAM, 0);
 	if (s < 0) {
-		log("SYSERR: Error creating Unix domain socket: %s", strerror(errno));
-		exit(1);
+		fatal_log("SYSERR: Error creating Unix domain socket: %s", strerror(errno));
 	}
 
 	memset(&sa, 0, sizeof(sa));
@@ -1047,6 +1043,7 @@ socket_t init_unix_socket(const char *path) {
 	unlink(path);
 
 	if (bind(s, (struct sockaddr *)&sa, sizeof(sa)) < 0) {
+		fprintf(stderr, "FATAL: Cannot bind Unix socket to %s: %s\n", path, strerror(errno));
 		log("SYSERR: Cannot bind Unix socket to %s: %s", path, strerror(errno));
 		CLOSE_SOCKET(s);
 		exit(1);
@@ -1056,6 +1053,7 @@ socket_t init_unix_socket(const char *path) {
 	nonblock(s);
 
 	if (listen(s, 1) < 0) {
+		fprintf(stderr, "FATAL: Cannot listen on Unix socket: %s\n", strerror(errno));
 		log("SYSERR: Cannot listen on Unix socket: %s", strerror(errno));
 		CLOSE_SOCKET(s);
 		exit(1);

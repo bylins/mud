@@ -451,8 +451,7 @@ std::vector<int> YamlWorldDataSource::GetMobList()
 		}
 		catch (const YAML::Exception &e)
 		{
-			log("SYSERR: Failed to load mobs index for zone %d ('%s'): %s", zone_vnum, index_path.c_str(), e.what());
-			exit(1);
+			fatal_log("SYSERR: Failed to load mobs index for zone %d ('%s'): %s", zone_vnum, index_path.c_str(), e.what());
 		}
 	}
 
@@ -481,8 +480,7 @@ std::vector<int> YamlWorldDataSource::GetObjectList()
 		}
 		catch (const YAML::Exception &e)
 		{
-			log("SYSERR: Failed to load objects index for zone %d ('%s'): %s", zone_vnum, index_path.c_str(), e.what());
-			exit(1);
+			fatal_log("SYSERR: Failed to load objects index for zone %d ('%s'): %s", zone_vnum, index_path.c_str(), e.what());
 		}
 	}
 
@@ -511,8 +509,7 @@ std::vector<int> YamlWorldDataSource::GetTriggerList()
 		}
 		catch (const YAML::Exception &e)
 		{
-			log("SYSERR: Failed to load triggers index for zone %d ('%s'): %s", zone_vnum, index_path.c_str(), e.what());
-			exit(1);
+			fatal_log("SYSERR: Failed to load triggers index for zone %d ('%s'): %s", zone_vnum, index_path.c_str(), e.what());
 		}
 	}
 
@@ -791,8 +788,7 @@ void YamlWorldDataSource::LoadZonesParallel()
 
 	if (error_count > 0)
 	{
-		log("FATAL: %d zone(s) failed to load. Aborting.", error_count.load());
-		exit(1);
+		fatal_log("FATAL: %d zone(s) failed to load. Aborting.", error_count.load());
 	}
 
 	log("Loaded %d zones from YAML (parallel).", zone_count);
@@ -805,8 +801,7 @@ void YamlWorldDataSource::LoadZones()
 	// Load dictionaries first (sequential, writes to singleton)
 	if (!LoadDictionaries())
 	{
-		log("FATAL: Cannot continue without dictionaries. Aborting.");
-		exit(1);
+		fatal_log("FATAL: Cannot continue without dictionaries. Aborting.");
 	}
 
 	// Get thread count and create thread pool
@@ -1137,8 +1132,7 @@ void YamlWorldDataSource::LoadTriggersParallel()
 
 	if (error_count > 0)
 	{
-		log("FATAL: %d trigger(s) failed to load. Aborting.", error_count.load());
-		exit(1);
+		fatal_log("FATAL: %d trigger(s) failed to load. Aborting.", error_count.load());
 	}
 
 	// Merge results into trig_index (sequential, sorted by vnum)
@@ -1306,8 +1300,7 @@ void YamlWorldDataSource::LoadRoomsParallel()
 		}
 		catch (const YAML::Exception &e)
 		{
-			log("SYSERR: Failed to load rooms index for zone %d: %s", zone_vnum, e.what());
-			exit(1);
+			fatal_log("SYSERR: Failed to load rooms index for zone %d: %s", zone_vnum, e.what());
 		}
 	}
 
@@ -1396,8 +1389,7 @@ void YamlWorldDataSource::LoadRoomsParallel()
 
 	if (error_count > 0)
 	{
-		log("FATAL: %d room(s) failed to load. Aborting.", error_count.load());
-		exit(1);
+		fatal_log("FATAL: %d room(s) failed to load. Aborting.", error_count.load());
 	}
 
 	// Merge descriptions from all batches
@@ -1912,8 +1904,7 @@ void YamlWorldDataSource::LoadMobsParallel()
 
 	if (error_count > 0)
 	{
-		log("FATAL: %d mob(s) failed to load. Aborting.", error_count.load());
-		exit(1);
+		fatal_log("FATAL: %d mob(s) failed to load. Aborting.", error_count.load());
 	}
 
 	// Sequential post-processing: setup mob_index and zone locations
@@ -2277,8 +2268,7 @@ void YamlWorldDataSource::LoadObjectsParallel()
 
 	if (error_count > 0)
 	{
-		log("FATAL: %d object(s) failed to load. Aborting.", error_count.load());
-		exit(1);
+		fatal_log("FATAL: %d object(s) failed to load. Aborting.", error_count.load());
 	}
 
 	// Merge results into obj_proto (sequential, sorted by vnum)
