@@ -1,5 +1,8 @@
 message('Seting up tests...')
-gtest_dep = dependency('gtest', main: false, required: true)
+gtest_sub = subproject('gtest', default_options: [
+    'default_library=static',
+])
+gtest_dep = gtest_sub.get_variable('gtest_dep')
 
 test_sources = files(
     'main.cpp',
