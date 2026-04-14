@@ -34,28 +34,55 @@ void TopPlayer::Refresh(CharData *short_ch, bool reboot) {
 		|| short_ch->IsImmortal()) {
 		return;
 	}
+	if (short_ch->get_name().empty()) {
+		return;
+	}
+
+	auto &chart = TopPlayer::chart_[short_ch->GetClass()];
+	const int ch_remort = GetRealRemort(short_ch);
+	const long ch_exp = short_ch->get_exp();
+	const long ch_uid = short_ch->get_uid();
+
+	// Fast path: if chart is full and player can't get into top, skip entirely.
+	// Check against the last (weakest) entry in the sorted chart.
+	if (!reboot && chart.size() >= kPlayerChartSize) {
+		const auto &last = chart.back();
+		const bool can_enter = ch_remort > last.remort_
+			|| (ch_remort == last.remort_ && ch_exp > last.exp_);
+		if (!can_enter) {
+			// Still need to remove if player is in chart (e.g., lost exp)
+			auto it = std::find_if(chart.begin(), chart.end(),
+				[ch_uid](const TopPlayer &p) { return p.unique_ == ch_uid; });
+			if (it != chart.end()) {
+				chart.erase(it);
+			}
+			return;
+		}
+	}
+
 	if (!reboot) {
 		TopPlayer::Remove(short_ch);
 	}
 
 	std::list<TopPlayer>::iterator it_exp;
-	for (it_exp = TopPlayer::chart_[short_ch->GetClass()].begin();
-		 it_exp != TopPlayer::chart_[short_ch->GetClass()].end(); ++it_exp) {
-		if (it_exp->remort_ < GetRealRemort(short_ch)
-			|| (it_exp->remort_ == GetRealRemort(short_ch) && it_exp->exp_ < short_ch->get_exp())) {
+	for (it_exp = chart.begin(); it_exp != chart.end(); ++it_exp) {
+		if (it_exp->remort_ < ch_remort
+			|| (it_exp->remort_ == ch_remort && it_exp->exp_ < ch_exp)) {
 			break;
 		}
 	}
 
-	if (short_ch->get_name().empty()) {
-		return; // у нас все может быть
-	}
-	TopPlayer temp_player(short_ch->get_uid(), GET_NAME(short_ch), short_ch->get_exp(), GetRealRemort(short_ch), 0);
+	TopPlayer temp_player(ch_uid, GET_NAME(short_ch), ch_exp, ch_remort, 0);
 
-	if (it_exp != TopPlayer::chart_[short_ch->GetClass()].end()) {
-		TopPlayer::chart_[short_ch->GetClass()].insert(it_exp, temp_player);
+	if (it_exp != chart.end()) {
+		chart.insert(it_exp, temp_player);
 	} else {
-		TopPlayer::chart_[short_ch->GetClass()].push_back(temp_player);
+		chart.push_back(temp_player);
+	}
+
+	// Trim chart to max size
+	while (chart.size() > kPlayerChartSize) {
+		chart.pop_back();
 	}
 }
 
