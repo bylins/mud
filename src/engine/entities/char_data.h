@@ -341,8 +341,8 @@ class CharData : public ProtectedCharData {
 	friend void do_mtransform(CharData *ch, char *argument, int cmd, int subcmd);
 	friend void medit_mobile_copy(CharData *dst, CharData *src);
 
-	void SetFeat(EFeat feat_id) { real_abils.Feats.set(to_underlying(feat_id)); };
-	void UnsetFeat(EFeat feat_id) { real_abils.Feats.reset(to_underlying(feat_id)); };
+	void SetFeat(EFeat feat_id) { real_abils.Feats.set(to_underlying(feat_id)); affect_total(this); };
+	void UnsetFeat(EFeat feat_id) { real_abils.Feats.reset(to_underlying(feat_id)); affect_total(this); };
 	bool HaveFeat(EFeat feat_id) const { return real_abils.Feats.test(to_underlying(feat_id)); };
 
 	void set_skill(ESkill skill_id, int percent);
