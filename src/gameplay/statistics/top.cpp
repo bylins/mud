@@ -97,8 +97,9 @@ const PlayerChart &TopPlayer::Chart() {
 }
 
 void TopPlayer::PrintPlayersChart(CharData *ch) {
-	SendMsgToChar(" Лучшие персонажи игроков:\r\n", ch);
+	std::string out;
 
+	SendMsgToChar("&W Лучшие персонажи игроков:&n\r\n", ch);
 	table_wrapper::Table table;
 	for (const auto &it: TopPlayer::Chart()) {
 		table
@@ -110,12 +111,25 @@ void TopPlayer::PrintPlayersChart(CharData *ch) {
 	table_wrapper::DecorateNoBorderTable(ch, table);
 	table_wrapper::PrintTableToChar(ch, table);
 
+	SendMsgToChar(ch, "\r\n &WДостигшие максимум перевоплощений:&n\r\n");
+	for (int i = to_underlying(ECharClass::kFirst); i <= to_underlying(ECharClass::kLast); i++) {
+		auto id = static_cast<ECharClass>(i);
+		SendMsgToChar(ch, "  %s: ", MUD::Class(id).GetName().c_str());
+		if (top_remort_[id].size() > 0) {
+			for (const auto &it: top_remort_[id]) {
+				out += it.name_ + " ";
+			}
+			SendMsgToChar(ch, "%s", utils::OutWordsList(out, ch->player_specials->saved.stringLength).c_str());
+			out.clear();
+		}
+		SendMsgToChar(ch, "\r\n");
+	}
 }
 
 void TopPlayer::PrintClassChart(CharData *ch, ECharClass id) {
 	int count = 1;
-
 	std::ostringstream out;
+
 	out << kColorWht << " Лучшие " << MUD::Class(id).GetPluralName() << ":" << kColorNrm << "\r\n";
 
 	for (auto &it: TopPlayer::chart_[id]) {
