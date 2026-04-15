@@ -24,9 +24,8 @@ const int MAX_LOAD_PROB = 1000;
 struct obj_load_info {
 	int obj_qty;
 	int load_prob;
-	ObjRnum rnum;
-	obj_load_info() : obj_qty(0), load_prob(0), rnum(-1) {}
-	obj_load_info(int __i, int __j, ObjRnum __r) : obj_qty(__i), load_prob(__j), rnum(__r) {}
+	obj_load_info() : obj_qty(0), load_prob(0) {}
+	obj_load_info(int __i, int __j) : obj_qty(__i), load_prob(__j) {}
 };
 
 typedef double_map<ObjVnum, MobVnum, obj_load_info> oload_map;
