@@ -93,6 +93,7 @@ void oload_class::init() {
 	std::istringstream isstream;
 	bool in_block = false;
 	ObjVnum ovnum;
+	ObjRnum orn = -1;
 	MobVnum mvnum;
 	int oqty, lprob;
 
@@ -124,7 +125,8 @@ void oload_class::init() {
 			isstream.str(cppstr);
 			isstream >> std::noskipws >> ovnum;
 
-			if (!isstream.eof() || GetObjRnum(ovnum) < 0) {
+			orn = GetObjRnum(ovnum);
+			if (!isstream.eof() || orn < 0) {
 				isstream.clear();
 				cppstr = "oload_class:: Error in line '#" + cppstr + "' expected '#<RIGHT_obj_vnum>' !!!";
 				mudlog(cppstr.c_str(), LGH, kLvlImmortal, SYSLOG, true);
@@ -153,7 +155,7 @@ void oload_class::init() {
 
 			isstream.clear();
 
-			add_elem(mvnum, ovnum, obj_load_info(oqty, lprob));
+			add_elem(mvnum, orn, obj_load_info(oqty, lprob));
 		} else {
 			cppstr = "oload_class:: Error in line '" + cppstr + "' expected '#<RIGHT_obj_vnum>' !!!";
 			mudlog(cppstr.c_str(), LGH, kLvlImmortal, SYSLOG, true);
@@ -164,7 +166,7 @@ void oload_class::init() {
 oload_class oload_table;
 
 ObjRnum ornum_by_info(const std::pair<ObjVnum, obj_load_info> &it) {
-	ObjRnum i = GetObjRnum(it.first);
+	ObjRnum i = it.first;
 	ObjRnum resutl_obj = number(1, MAX_LOAD_PROB) <= it.second.load_prob
 						  ? (it.first >= 0 && i >= 0
 							 ? (obj_proto.actual_count(i) < it.second.obj_qty
