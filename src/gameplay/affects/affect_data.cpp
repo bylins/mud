@@ -660,7 +660,12 @@ void affect_total(CharData *ch) {
 		return;
 	}
 	bool domination = false;
-
+/*
+	if (!ch->IsNpc()) {
+		mudlog("Enter in affect_total");
+		debug::backtrace(runtime_config.logs(SYSLOG).handle());
+*/
+	}
 	if (!ch->IsNpc() && ch->in_room != kNowhere && ch->in_room >= 0
 			&& static_cast<size_t>(ch->in_room) < world.size()
 			&& ROOM_FLAGGED(ch->in_room, ERoomFlag::kDominationArena)) {

@@ -1856,8 +1856,6 @@ void do_entergame(DescriptorData *d) {
 		character->UnsetFlag(EMobFlag::kMobFreed);
 	}
 
-	log("Player %s enter at room %d", GET_NAME(d->character), GET_ROOM_VNUM(load_room));
-	char_to_room(d->character, load_room);
 	// а потом уже вычитаем за ренту
 	if (GetRealLevel(d->character) != 0) {
 		Crash_load(d->character.get());
@@ -1957,7 +1955,6 @@ void do_entergame(DescriptorData *d) {
 	// того, как повисел на менюшке; важно, чтобы этот вызов шел раньше save_char()
 	d->character->set_who_last(time(nullptr));
 	d->character->save_char();
-	act("$n вступил$g в игру.", true, d->character.get(), nullptr, nullptr, kToRoom);
 	// with the copyover patch, this next line goes in enter_player_game()
 	read_saved_vars(d->character.get());
 	enter_wtrigger(world[d->character->in_room], d->character.get(), -1);
@@ -2010,10 +2007,12 @@ void do_entergame(DescriptorData *d) {
 		case EGender::kPoly: sprintf(buf, "%s вошли в игру.", GET_NAME(d->character));
 			break;
 	}
-
 	mudlog(buf, NRM, std::max(kLvlImmortal, GET_INVIS_LEV(d->character)), SYSLOG, true);
 	d->has_prompt = 0;
 	login_change_invoice(d->character.get());
+	log("Player %s enter at room %d", GET_NAME(d->character), GET_ROOM_VNUM(load_room));
+	char_to_room(d->character, load_room);
+	act("$n вступил$g в игру.", true, d->character.get(), nullptr, nullptr, kToRoom);
 	affect_total(d->character.get());
 	CheckLight(d->character.get(), kLightNo, kLightNo, kLightNo, kLightNo, 0);
 	look_at_room(d->character.get(), false);
