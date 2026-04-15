@@ -10,6 +10,7 @@
 
 
 PlayerChart TopPlayer::chart_(kNumPlayerClasses);
+PlayerChart TopPlayer::top_remort_(kNumPlayerClasses);
 
 // отдельное удаление из списка (для ренеймов, делетов и т.п.)
 // данная функция работает в том числе и с неполностью загруженным персонажем
@@ -28,6 +29,10 @@ void TopPlayer::Remove(CharData *short_ch) {
 // данная функция работает в том числе и с неполностью загруженным персонажем
 // подробности в комментарии к load_char_ascii
 void TopPlayer::Refresh(CharData *short_ch, bool reboot) {
+	const int ch_remort = GetRealRemort(short_ch);
+	const long ch_exp = short_ch->get_exp();
+	const long ch_uid = short_ch->get_uid();
+
 	if (short_ch->IsNpc()
 		|| short_ch->IsFlagged(EPlrFlag::kFrozen)
 		|| short_ch->IsFlagged(EPlrFlag::kDeleted)
@@ -37,11 +42,12 @@ void TopPlayer::Refresh(CharData *short_ch, bool reboot) {
 	if (short_ch->get_name().empty()) {
 		return;
 	}
-
+	if (GetRealRemort(short_ch) == kMaxRemort) {
+		TopPlayer temp_player(ch_uid, GET_NAME(short_ch), ch_exp, ch_remort, 0);
+		top_remort_[short_ch->GetClass()].push_back(temp_player);
+		return;
+	}
 	auto &chart = TopPlayer::chart_[short_ch->GetClass()];
-	const int ch_remort = GetRealRemort(short_ch);
-	const long ch_exp = short_ch->get_exp();
-	const long ch_uid = short_ch->get_uid();
 
 	// Fast path: if chart is full and player can't get into top, skip entirely.
 	// Check against the last (weakest) entry in the sorted chart.
@@ -91,8 +97,9 @@ const PlayerChart &TopPlayer::Chart() {
 }
 
 void TopPlayer::PrintPlayersChart(CharData *ch) {
-	SendMsgToChar(" Лучшие персонажи игроков:\r\n", ch);
+	std::string out;
 
+	SendMsgToChar("&W Лучшие персонажи игроков:&n\r\n", ch);
 	table_wrapper::Table table;
 	for (const auto &it: TopPlayer::Chart()) {
 		table
@@ -104,23 +111,32 @@ void TopPlayer::PrintPlayersChart(CharData *ch) {
 	table_wrapper::DecorateNoBorderTable(ch, table);
 	table_wrapper::PrintTableToChar(ch, table);
 
+	SendMsgToChar(ch, "\r\n &WДостигшие максимум перевоплощений:&n\r\n");
+	for (int i = to_underlying(ECharClass::kFirst); i <= to_underlying(ECharClass::kLast); i++) {
+		auto id = static_cast<ECharClass>(i);
+		SendMsgToChar(ch, "  %s: ", MUD::Class(id).GetName().c_str());
+		if (top_remort_[id].size() > 0) {
+			for (const auto &it: top_remort_[id]) {
+				out += it.name_ + " ";
+			}
+			SendMsgToChar(ch, "%s", utils::OutWordsList(out, ch->player_specials->saved.stringLength).c_str());
+			out.clear();
+		}
+		SendMsgToChar(ch, "\r\n");
+	}
 }
 
 void TopPlayer::PrintClassChart(CharData *ch, ECharClass id) {
 	int count = 1;
-
 	std::ostringstream out;
+
 	out << kColorWht << " Лучшие " << MUD::Class(id).GetPluralName() << ":" << kColorNrm << "\r\n";
 
 	for (auto &it: TopPlayer::chart_[id]) {
-		if (it.remort_ == kMaxRemort)
-			continue;
 		it.number_ = count++;
 	}
 	table_wrapper::Table table;
 	for (const auto &it: TopPlayer::chart_[id]) {
-		if (it.remort_ == kMaxRemort)
-			continue;
 		table << it.number_
 			<< it.name_
 			<< it.remort_
@@ -175,15 +191,9 @@ void TopPlayer::PrintClassChart(CharData *ch, ECharClass id) {
 	table_wrapper::DecorateNoBorderTable(ch, table4);
 	table_wrapper::PrintTableToStream(out, table4);
 	table_wrapper::Table table2;
-	upper.clear();
-	for (const auto &it: TopPlayer::chart_[id]) {
-		if (it.remort_ != kMaxRemort) 
-			continue;
-		upper.push_back(it);
-	}
-	if (upper.size() > 0) {
+	if (top_remort_[id].size() > 0) {
 		out << kColorWht << "\r\n Достигшие максимум перевоплощений: " << kColorNrm << "\r\n";
-		for (auto &it : upper) {
+		for (const auto &it: top_remort_[id]) {
 			table2 << it.name_
 				<< it.remort_
 				<< GetDeclensionInNumber(it.remort_, EWhat::kRemort) << table_wrapper::kEndRow;

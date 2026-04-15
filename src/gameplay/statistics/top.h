@@ -43,7 +43,7 @@ class TopPlayer {
 	int number_;
 
 	static PlayerChart chart_;
-
+	static PlayerChart top_remort_;
 	static void PrintHelp(CharData *ch);
 	static void PrintPlayersChart(CharData *ch);
 	static void PrintClassChart(CharData *ch, ECharClass id);
