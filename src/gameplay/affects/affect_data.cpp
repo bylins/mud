@@ -656,6 +656,9 @@ void affect_total(CharData *ch) {
 	if (ch->purged()) {
 		return;
 	}
+	if (ch->in_room == kNowhere) {
+		return;
+	}
 	bool domination = false;
 
 	if (!ch->IsNpc() && ch->in_room != kNowhere && ch->in_room >= 0
