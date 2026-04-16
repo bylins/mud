@@ -1892,7 +1892,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 		GET_LOADROOM(this) = kNowhere;
 	}
 
-	SetInbornAndRaceFeats(this);
+//	SetInbornAndRaceFeats(this); ставим в do_entergame
 
 	if (this->IsGrGod()) {
 		for (auto spell_id = ESpell::kFirst; spell_id <= ESpell::kLast; ++spell_id) {

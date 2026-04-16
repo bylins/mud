@@ -304,7 +304,6 @@ void UnsetInaccessibleFeats(CharData *ch) {
 	for (const auto &feat : MUD::Feats()) {
 		if (ch->HaveFeat(feat.GetId())) {
 			if (MUD::Class(ch->GetClass()).feats.IsUnavailable(feat.GetId())) {
-				log("unset feat %s" , MUD::Feat(feat.GetId()).GetCName());
 				ch->UnsetFeat(feat.GetId());
 			}
 		}

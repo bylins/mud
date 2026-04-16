@@ -215,7 +215,14 @@ void DisplayFeats(CharData *ch, CharData *vict, bool all_feats) {
 
 	if (j)
 		SendMsgToChar(buf2, vict);
-
+	auto race_features = PlayerRace::GetRaceFeatures((int) GET_KIN(ch), (int) GET_RACE(ch));
+	if (race_features.size() > 0) {
+		SendMsgToChar(vict,  "Родовые способности :\r\n");
+		for (int i : race_features) {
+			auto feat_id = static_cast<EFeat>(i);
+			SendMsgToChar(vict, "          %s\r\n", MUD::Feat(feat_id).GetCName());
+		}
+	}
 	for (int k = 0; k < max_slot; k++)
 		delete[] names[k];
 

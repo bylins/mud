@@ -1919,7 +1919,6 @@ void do_entergame(DescriptorData *d) {
 	// Check & remove/add natural, race & unavailable features
 	UnsetInaccessibleFeats(d->character.get());
 	SetInbornAndRaceFeats(d->character.get());
-
 	if (!d->character->IsImmortal()) {
 		for (const auto &skill : MUD::Skills()) {
 			if (MUD::Class((d->character)->GetClass()).skills[skill.GetId()].IsInvalid()) {
