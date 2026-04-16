@@ -1105,7 +1105,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 		  } else {
 			  ch->remove_affect(EAffect::kSneak);
 		  }
-		  affect_total(ch.get());
+		  //affect_total(ch.get());
 	  }
 
 	  if (ch->GetPosition() == EPosition::kStand && NPC_FLAGGED(ch, ENpcFlag::kDisguising)) {
@@ -1115,7 +1115,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 			  ch->remove_affect(EAffect::kDisguise);
 		  }
 
-		  affect_total(ch.get());
+		  //affect_total(ch.get());
 	  }
 
 	  door = kBfsError;
