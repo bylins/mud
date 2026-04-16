@@ -920,7 +920,7 @@ void Player::save_char() {
 #endif
 		}
 	}
-//	affect_total(this); пересчитается в do_entergame
+	affect_total(this);
 
 	i = GetPlayerTablePosByName(GET_NAME(this));
 	if (i >= 0) {
