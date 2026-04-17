@@ -2312,7 +2312,8 @@ void paste_obj(ObjData *obj, RoomRnum room) {
 void PasteMobiles() {
 	utils::CExecutionTimer time;
 
-	for (auto &it : character_list) {
+	const auto chars_copy = character_list.get_list();
+	for (const auto &it : chars_copy) {
 	  paste_mob(it.get(), it->in_room);
 	}
 	log("Paste Mobiles() finished, time %f", time.delta().count());
