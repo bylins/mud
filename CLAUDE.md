@@ -44,7 +44,7 @@ make tests -j$(($(nproc)/2))
 
 **Important:** Always use `-j$(($(nproc)/2))` for parallel builds to avoid overloading the system.
 
-**Important:** Always use `-DCMAKE_BUILD_TYPE=Release` for development builds. Never build without tests first and then rebuild with tests — use `-DBUILD_TESTS=ON` from the start to avoid double compilation.
+**Important:** Always use `-DCMAKE_BUILD_TYPE=Release` for development builds. The `Test` and `FastTest` build types are legacy — do not use them. Never build without tests first and then rebuild with tests — use `-DBUILD_TESTS=ON` from the start to avoid double compilation.
 
 ### Build Types
 - **Release** - Optimized production build (-O0 with debug symbols, -rdynamic, -Wall)
