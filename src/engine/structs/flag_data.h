@@ -15,6 +15,7 @@
 
 #include <array>
 #include <cstdint>
+#include <string>
 
 void asciiflag_conv(const char *flag, void *to);
 
@@ -68,6 +69,7 @@ class FlagData {
 	bool toggle_flag(const size_t plane, const Bitvector flag) { return 0 != ((m_flags[plane] ^= flag) & flag); }
 
 	void from_string(const char *flag);
+	std::string to_numeric_string() const;
 	void tascii(int num_planes, char *ascii, size_t ascii_size) const;
 	bool sprintbits(const char *names[], char *result, size_t result_size, const char *div, const int print_flag) const;
 	bool sprintbits(const char *names[], char *result, size_t result_size, const char *div) const {

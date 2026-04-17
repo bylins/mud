@@ -550,8 +550,6 @@ inline bool proto_has_descr(const ExtraDescription::shared_ptr &odesc, const Ext
 // Данная процедура помещает предмет в буфер
 // [ ИСПОЛЬЗУЕТСЯ В НОВОМ ФОРМАТЕ ВЕЩЕЙ ПЕРСОНАЖА ОТ 10.12.04 ]
 void write_one_object(std::stringstream &out, ObjData *object, int location) {
-	char buf[kMaxStringLength];
-	char buf2[kMaxStringLength];
 	int i, j;
 	ObjRnum orn = object->get_rnum();
 	CObjectPrototype::shared_ptr proto;
@@ -658,45 +656,28 @@ void write_one_object(std::stringstream &out, ObjData *object, int location) {
 			out << "Ozne: " << object->get_vnum_zone_from() << "~\n";
 		}
 		// Наводимые аффекты
-		*buf = '\0';
-		*buf2 = '\0';
-		object->get_affect_flags().tascii(FlagData::kPlanesNumber, buf, sizeof(buf));
-		proto->get_affect_flags().tascii(FlagData::kPlanesNumber, buf2, sizeof(buf2));
-		if (strcmp(buf, buf2)) {
-			out << "Affs: " << buf << "~\n";
+		if (object->get_affect_flags() != proto->get_affect_flags()) {
+			out << "Affs: " << object->get_affect_flags().to_numeric_string() << "~\n";
 		}
 		// Анти флаги
-		*buf = '\0';
-		*buf2 = '\0';
-		object->get_anti_flags().tascii(FlagData::kPlanesNumber, buf, sizeof(buf));
-		proto->get_anti_flags().tascii(FlagData::kPlanesNumber, buf2, sizeof(buf2));
-		if (strcmp(buf, buf2)) {
-			out << "Anti: " << buf << "~\n";
+		if (object->get_anti_flags() != proto->get_anti_flags()) {
+			out << "Anti: " << object->get_anti_flags().to_numeric_string() << "~\n";
 		}
 		// Запрещающие флаги
-		*buf = '\0';
-		*buf2 = '\0';
-		object->get_no_flags().tascii(FlagData::kPlanesNumber, buf, sizeof(buf));
-		proto->get_no_flags().tascii(FlagData::kPlanesNumber, buf2, sizeof(buf2));
-		if (strcmp(buf, buf2)) {
-			out << "Nofl: " << buf << "~\n";
+		if (object->get_no_flags() != proto->get_no_flags()) {
+			out << "Nofl: " << object->get_no_flags().to_numeric_string() << "~\n";
 		}
 		// Экстра флаги
-		*buf = '\0';
-		*buf2 = '\0';
 		//Временно убираем флаг !окровавлен! с вещи, чтобы он не сохранялся
 		bool blooded = object->has_flag(EObjFlag::kBloody);
 		if (blooded) {
 			object->unset_extraflag(EObjFlag::kBloody);
 		}
 		auto nosell = object->has_flag(EObjFlag::kNosell) && !proto->has_flag(EObjFlag::kNosell);
-
 		if (nosell) {
 			object->unset_extraflag(EObjFlag::kNosell);
 		}
-		
-		object->get_extra_flags().tascii(FlagData::kPlanesNumber, buf, sizeof(buf));
-		proto->get_extra_flags().tascii(FlagData::kPlanesNumber, buf2, sizeof(buf2));
+		const FlagData extra_flags_to_save = object->get_extra_flags();
 		if (blooded) //Возвращаем флаг назад
 		{
 			object->set_extra_flag(EObjFlag::kBloody);
@@ -705,21 +686,12 @@ void write_one_object(std::stringstream &out, ObjData *object, int location) {
 		{
 			object->set_extra_flag(EObjFlag::kNosell);
 		}
-		if (strcmp(buf, buf2)) {
-			out << "Extr: " << buf << "~\n";
+		if (extra_flags_to_save != proto->get_extra_flags()) {
+			out << "Extr: " << extra_flags_to_save.to_numeric_string() << "~\n";
 		}
 		// Флаги слотов экипировки
-		*buf = '\0';
-		*buf2 = '\0';
-
-		auto wear = object->get_wear_flags();
-		tascii(&wear, 1, buf, sizeof(buf));
-
-		wear = proto->get_wear_flags();
-		tascii(&wear, 1, buf2, sizeof(buf2));
-
-		if (strcmp(buf, buf2)) {
-			out << "Wear: " << buf << "~\n";
+		if (object->get_wear_flags() != proto->get_wear_flags()) {
+			out << "Wear: " << object->get_wear_flags() << "~\n";
 		}
 		// Тип предмета
 		if (object->get_type() != proto->get_type()) {

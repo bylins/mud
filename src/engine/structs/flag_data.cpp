@@ -96,6 +96,47 @@ void asciiflag_conv(const char *flag, void *to) {
 }
 
 void FlagData::from_string(const char *flag) {
+	// Detect new numeric format: exactly kPlanesNumber space-separated unsigned integers,
+	// e.g. "0 12345 0 67890".  Written by to_numeric_string().
+	{
+		Bitvector values[kPlanesNumber] = {};
+		size_t count = 0;
+		const char *p = flag;
+		bool valid = true;
+
+		while (count < kPlanesNumber && valid) {
+			while (*p == ' ') {
+				++p;
+			}
+			if (*p == '\0') {
+				break;
+			}
+			if (!isdigit(static_cast<unsigned char>(*p))) {
+				valid = false;
+				break;
+			}
+			char *end;
+			unsigned long v = strtoul(p, &end, 10);
+			if (end == p) {
+				valid = false;
+				break;
+			}
+			values[count++] = static_cast<Bitvector>(v);
+			p = end;
+		}
+		while (*p == ' ') {
+			++p;
+		}
+
+		if (valid && count == kPlanesNumber && *p == '\0') {
+			for (size_t i = 0; i < kPlanesNumber; ++i) {
+				m_flags[i] = values[i];
+			}
+			return;
+		}
+	}
+
+	// Legacy ASCII format: letter+digit encoding or single packed number.
 	Bitvector is_number = 1;
 	int i;
 
@@ -127,6 +168,18 @@ void FlagData::from_string(const char *flag) {
 		const size_t block = is_number >> 30;
 		m_flags[block] = is_number & 0x3FFFFFFF;
 	}
+}
+
+std::string FlagData::to_numeric_string() const {
+	std::string result;
+	result.reserve(40);
+	for (size_t i = 0; i < kPlanesNumber; ++i) {
+		if (i > 0) {
+			result += ' ';
+		}
+		result += std::to_string(m_flags[i]);
+	}
+	return result;
 }
 
 void FlagData::tascii(int num_planes, char *ascii, size_t ascii_size) const {
