@@ -1609,21 +1609,14 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 							}
 							num2 = 0;
 						}
-						struct PK_Memory_type *pk_one = nullptr;
-						for (pk_one = this->pk_list; pk_one; pk_one = pk_one->next)
-							if (pk_one->unique == lnum)
-								break;
-						if (pk_one) {
+						if (this->pk_map.count(lnum)) {
 							log("SYSERROR: duplicate entry pkillers data for %d %s", id, filename);
 							continue;
 						}
-
-						CREATE(pk_one, 1);
-						pk_one->unique = lnum;
-						pk_one->kill_num = num;
-						pk_one->revenge_num = num2;
-						pk_one->next = this->pk_list;
-						this->pk_list = pk_one;
+						auto &pk_one = this->pk_map[lnum];
+						pk_one.unique = lnum;
+						pk_one.kill_num = num;
+						pk_one.revenge_num = num2;
 					} while (true);
 				} else if (!strcmp(tag, "Prtl")) {
 					if (num > 0) {
