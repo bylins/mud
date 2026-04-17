@@ -42,9 +42,15 @@ void TopPlayer::Refresh(CharData *short_ch, bool reboot) {
 	if (short_ch->get_name().empty()) {
 		return;
 	}
+
 	if (GetRealRemort(short_ch) == kMaxRemort) {
-		TopPlayer temp_player(ch_uid, GET_NAME(short_ch), ch_exp, ch_remort, 0);
-		top_remort_[short_ch->GetClass()].push_back(temp_player);
+		auto &top_remort = TopPlayer::top_remort_[short_ch->GetClass()];
+		auto it = std::find_if(top_remort.begin(), top_remort.end(), [ch_uid](const TopPlayer &p) { return p.unique_ == ch_uid; });
+
+		if (it == top_remort.end()) {
+			TopPlayer temp_player(ch_uid, GET_NAME(short_ch), ch_exp, ch_remort, 0);
+			top_remort_[short_ch->GetClass()].push_back(temp_player);
+		}
 		return;
 	}
 	auto &chart = TopPlayer::chart_[short_ch->GetClass()];
@@ -57,8 +63,7 @@ void TopPlayer::Refresh(CharData *short_ch, bool reboot) {
 			|| (ch_remort == last.remort_ && ch_exp > last.exp_);
 		if (!can_enter) {
 			// Still need to remove if player is in chart (e.g., lost exp)
-			auto it = std::find_if(chart.begin(), chart.end(),
-				[ch_uid](const TopPlayer &p) { return p.unique_ == ch_uid; });
+			auto it = std::find_if(chart.begin(), chart.end(), [ch_uid](const TopPlayer &p) { return p.unique_ == ch_uid; });
 			if (it != chart.end()) {
 				chart.erase(it);
 			}
