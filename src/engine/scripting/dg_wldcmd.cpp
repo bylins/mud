@@ -573,8 +573,8 @@ void do_wdamage(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 			char_dam_message(dam, ch, ch, 0);
 			if (ch->GetPosition() == EPosition::kDead) {
 				if (!ch->IsNpc()) {
-					sprintf(buf2, "%s killed by wdamage at %s [%d]", GET_NAME(ch),
-							ch->in_room == kNowhere ? "kNowhere" : world[ch->in_room]->name, GET_ROOM_VNUM(ch->in_room));
+					sprintf(buf2, "%s killed by wdamage at %s [%d], trigger [%d]", GET_NAME(ch),
+							ch->in_room == kNowhere ? "kNowhere" : world[ch->in_room]->name, GET_ROOM_VNUM(ch->in_room), GET_TRIG_VNUM(trig));
 					mudlog(buf2, BRF, kLvlBuilder, SYSLOG, true);
 				}
 				die(ch, nullptr);

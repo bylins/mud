@@ -550,14 +550,14 @@ void do_dgoload(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Trigg
 	add_var_cntx(trig->var_list, varname, uid, 0);
 }
 
-void ApplyDamage(CharData* target, int damage) {
+void ApplyDamage(CharData* target, int damage, Trigger *trig) {
 	target->set_hit(target->get_hit() - damage);
 	update_pos(target);
 	char_dam_message(damage, target, target, 0);
 	if (target->GetPosition() == EPosition::kDead) {
 		if (!target->IsNpc()) {
-			sprintf(buf2, "%s killed by odamage at %s [%d]", GET_NAME(target),
-					target->in_room == kNowhere ? "NOWHERE" : world[target->in_room]->name, GET_ROOM_VNUM(target->in_room));
+			sprintf(buf2, "%s killed by odamage at %s [%d], trigger [%d]", GET_NAME(target),
+					target->in_room == kNowhere ? "NOWHERE" : world[target->in_room]->name, GET_ROOM_VNUM(target->in_room), GET_TRIG_VNUM(trig));
 			mudlog(buf2, BRF, kLvlBuilder, SYSLOG, true);
 		}
 		die(target, nullptr);
@@ -592,7 +592,7 @@ void do_odamage(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Trigg
 
 	CharData *damager = dg_caster_owner_obj(obj);
 	if (!damager || damager == ch) {
-		ApplyDamage(ch, dam);
+		ApplyDamage(ch, dam, trig);
 	} else {
 		const std::map<std::string, fight::DmgType> kDamageTypes = {
 			{"physic", fight::kPhysDmg},
