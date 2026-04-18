@@ -216,4 +216,111 @@ TEST(FlagData, SetPlane_GetPlane_RoundTrip) {
 	EXPECT_EQ(0u, flags.get_plane(3));
 }
 
+// --- to_numeric_string ---
+
+TEST(FlagData, ToNumericString_Empty_AllZeros) {
+	FlagData flags;
+	EXPECT_EQ("0 0 0 0", flags.to_numeric_string());
+}
+
+TEST(FlagData, ToNumericString_SingleBit_Plane0) {
+	FlagData flags;
+	flags.set_plane(0, 1u);
+	EXPECT_EQ("1 0 0 0", flags.to_numeric_string());
+}
+
+TEST(FlagData, ToNumericString_MultiPlane) {
+	FlagData flags;
+	flags.set_plane(0, 42u);
+	flags.set_plane(2, 999u);
+	EXPECT_EQ("42 0 999 0", flags.to_numeric_string());
+}
+
+TEST(FlagData, ToNumericString_AllPlanesNonZero) {
+	FlagData flags;
+	flags.set_plane(0, 1u);
+	flags.set_plane(1, 2u);
+	flags.set_plane(2, 3u);
+	flags.set_plane(3, 4u);
+	EXPECT_EQ("1 2 3 4", flags.to_numeric_string());
+}
+
+// --- from_string: new numeric format ---
+
+TEST(FlagData, FromString_NumericFormat_AllZeros) {
+	FlagData flags;
+	flags.from_string("0 0 0 0");
+	EXPECT_TRUE(flags.empty());
+}
+
+TEST(FlagData, FromString_NumericFormat_Plane0) {
+	FlagData flags;
+	flags.from_string("1 0 0 0");
+	EXPECT_EQ(1u, flags.get_plane(0));
+	EXPECT_EQ(0u, flags.get_plane(1));
+	EXPECT_EQ(0u, flags.get_plane(2));
+	EXPECT_EQ(0u, flags.get_plane(3));
+}
+
+TEST(FlagData, FromString_NumericFormat_MultiPlane) {
+	FlagData flags;
+	flags.from_string("42 0 999 0");
+	EXPECT_EQ(42u,  flags.get_plane(0));
+	EXPECT_EQ(0u,   flags.get_plane(1));
+	EXPECT_EQ(999u, flags.get_plane(2));
+	EXPECT_EQ(0u,   flags.get_plane(3));
+}
+
+TEST(FlagData, FromString_NumericFormat_AllPlanes) {
+	FlagData flags;
+	flags.from_string("1 2 3 4");
+	EXPECT_EQ(1u, flags.get_plane(0));
+	EXPECT_EQ(2u, flags.get_plane(1));
+	EXPECT_EQ(3u, flags.get_plane(2));
+	EXPECT_EQ(4u, flags.get_plane(3));
+}
+
+// --- to_numeric_string / from_string round-trip ---
+
+TEST(FlagData, NumericRoundTrip_Empty) {
+	FlagData original;
+	FlagData restored;
+	restored.from_string(original.to_numeric_string().c_str());
+	EXPECT_EQ(original, restored);
+}
+
+TEST(FlagData, NumericRoundTrip_AllBitsSet) {
+	FlagData original;
+	original.set_all();
+	FlagData restored;
+	restored.from_string(original.to_numeric_string().c_str());
+	EXPECT_EQ(original, restored);
+}
+
+TEST(FlagData, NumericRoundTrip_ArbitraryFlags) {
+	FlagData original;
+	original.set(flag_data_by_num(0));
+	original.set(flag_data_by_num(15));
+	original.set(flag_data_by_num(30));
+	original.set(flag_data_by_num(60));
+	FlagData restored;
+	restored.from_string(original.to_numeric_string().c_str());
+	EXPECT_EQ(original, restored);
+}
+
+// --- from_string: legacy ASCII format still works after the new detection ---
+
+TEST(FlagData, FromString_LegacyAscii_StillParsed) {
+	FlagData flags;
+	flags.from_string("a0");
+	EXPECT_TRUE(flags.get(flag_data_by_num(0)));
+}
+
+TEST(FlagData, FromString_LegacyEmpty_StillParsed) {
+	// "0 " is the old tascii output for empty flags; from_string must not crash.
+	FlagData flags;
+	flags.from_string("0 ");
+	EXPECT_TRUE(flags.empty());
+}
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
