@@ -19,6 +19,11 @@ void ObjDecayManager::insert(ObjData *obj) {
 	// bypassing ObjData::get_timer() which computes from deadline.
 	const auto timer = obj->CObjectPrototype::get_timer();
 	if (timer <= 0) {
+		if (obj->has_flag(EObjFlag::kZonedecay)) {
+			// kZonedecay без явного таймера живёт бесконечно и рассыпается только вне зоны
+			m_obj_to_deadline[obj] = UINT64_MAX;
+			return;
+		}
 		m_obj_to_deadline[obj] = m_counter;
 		m_queue.insert({m_counter, obj});
 		return;
@@ -53,6 +58,10 @@ void ObjDecayManager::on_timer_changed(ObjData *obj) {
 
 	const auto timer = obj->CObjectPrototype::get_timer();
 	if (timer <= 0) {
+		if (obj->has_flag(EObjFlag::kZonedecay)) {
+			m_obj_to_deadline[obj] = UINT64_MAX;
+			return;
+		}
 		m_obj_to_deadline[obj] = m_counter;
 		m_queue.insert({m_counter, obj});
 		return;
