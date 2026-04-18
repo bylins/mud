@@ -15,23 +15,11 @@ void ObjDecayManager::insert(ObjData *obj) {
 		return;
 	}
 
-	// Use CObjectPrototype::get_timer() to read raw m_timer value,
-	// bypassing ObjData::get_timer() which computes from deadline.
-	const auto timer = obj->CObjectPrototype::get_timer();
-	if (timer <= 0) {
-		m_obj_to_deadline[obj] = m_counter;
-		m_queue.insert({m_counter, obj});
-		return;
-	}
-	if (timer >= CObjectPrototype::UNLIMITED_TIMER
-		|| stable_objs::IsTimerUnlimited(obj)) {
-		m_obj_to_deadline[obj] = UINT64_MAX;
-		return;
+	if (obj->has_flag(EObjFlag::kZonedecay)) {
+		m_zonedecay_objs.insert(obj);
 	}
 
-	const uint64_t deadline = m_counter + static_cast<uint64_t>(timer);
-	m_queue.insert({deadline, obj});
-	m_obj_to_deadline[obj] = deadline;
+	compute_and_store_deadline(obj);
 }
 
 void ObjDecayManager::remove(ObjData *obj) {
@@ -42,6 +30,7 @@ void ObjDecayManager::remove(ObjData *obj) {
 	m_obj_to_deadline.erase(obj);
 	m_env_check_objs.erase(obj);
 	m_timed_spell_objs.erase(obj);
+	m_zonedecay_objs.erase(obj);
 }
 
 void ObjDecayManager::on_timer_changed(ObjData *obj) {
@@ -51,15 +40,44 @@ void ObjDecayManager::on_timer_changed(ObjData *obj) {
 
 	remove_queue_entry(obj);
 
+	if (obj->has_flag(EObjFlag::kZonedecay)) {
+		m_zonedecay_objs.insert(obj);
+	}
+
+	compute_and_store_deadline(obj);
+}
+
+void ObjDecayManager::compute_and_store_deadline(ObjData *obj) {
+	// Use CObjectPrototype::get_timer() to read raw m_timer value, bypassing
+	// ObjData::get_timer() which is computed from the deadline we are about
+	// to set.
 	const auto timer = obj->CObjectPrototype::get_timer();
-	if (timer <= 0) {
-		m_obj_to_deadline[obj] = m_counter;
-		m_queue.insert({m_counter, obj});
+
+	// kZonedecay без явного таймера живёт бесконечно и рассыпается только
+	// вне родной зоны (проверяется в section 4).
+	if (timer <= 0 && obj->has_flag(EObjFlag::kZonedecay)) {
+		m_obj_to_deadline[obj] = UINT64_MAX;
 		return;
 	}
+
 	if (timer >= CObjectPrototype::UNLIMITED_TIMER
 		|| stable_objs::IsTimerUnlimited(obj)) {
 		m_obj_to_deadline[obj] = UINT64_MAX;
+		return;
+	}
+
+	// Таймер "заморожен" до тех пор, пока с предметом не повзаимодействовал
+	// игрок (флаг kTicktimer выставляется в PlaceObjToInventory). Лежащий в
+	// комнате предмет должен убираться через destroyer/zone-reset, а не
+	// через истечение собственного таймера.
+	if (!obj->has_flag(EObjFlag::kTicktimer)) {
+		m_obj_to_deadline[obj] = UINT64_MAX;
+		return;
+	}
+
+	if (timer <= 0) {
+		m_obj_to_deadline[obj] = m_counter;
+		m_queue.insert({m_counter, obj});
 		return;
 	}
 
@@ -88,6 +106,29 @@ void ObjDecayManager::remove_timed_spell_obj(ObjData *obj) {
 	m_timed_spell_objs.erase(obj);
 }
 
+void ObjDecayManager::drop_obj_from_indices(ObjData *obj) {
+	m_env_check_objs.erase(obj);
+	m_timed_spell_objs.erase(obj);
+	m_zonedecay_objs.erase(obj);
+	remove_queue_entry(obj);
+	m_obj_to_deadline.erase(obj);
+}
+
+bool ObjDecayManager::is_outside_home_zone(ObjData *obj) const {
+	if (!obj->has_flag(EObjFlag::kZonedecay)) {
+		return false;
+	}
+	if (!obj->get_vnum_zone_from()) {
+		return false;
+	}
+	const int room = up_obj_where(obj);
+	if (room == kNowhere) {
+		return false;
+	}
+	return obj->get_vnum_zone_from()
+		!= zone_table[world[room]->zone_rn].vnum;
+}
+
 TickResult ObjDecayManager::process_tick() {
 	++m_counter;
 	TickResult result;
@@ -108,10 +149,14 @@ TickResult ObjDecayManager::process_tick() {
 
 		m_env_check_objs.erase(obj);
 		m_timed_spell_objs.erase(obj);
+		m_zonedecay_objs.erase(obj);
 		result.decay_timer.push_back(obj);
 	}
 
-	// 2. Environmental checks + destroyer for room objects
+	// 2. Environmental checks + destroyer for room objects.
+	// Зональная проверка для kZonedecay вынесена в section 4 - она работает
+	// для предметов в любом месте (комната/инвентарь/контейнер), а не только
+	// для лежащих в комнате.
 	{
 		auto env_copy = m_env_check_objs;
 		for (auto *obj : env_copy) {
@@ -123,34 +168,16 @@ TickResult ObjDecayManager::process_tick() {
 				continue;
 			}
 			if (CheckObjDecay(obj, false)) {
-				m_env_check_objs.erase(obj);
-				remove_queue_entry(obj);
-				m_obj_to_deadline.erase(obj);
-				m_timed_spell_objs.erase(obj);
+				drop_obj_from_indices(obj);
 				result.env_destroy.push_back(obj);
 				continue;
 			}
 			if (obj->get_destroyer() > 0 && !NO_DESTROY(obj)) {
 				obj->dec_destroyer();
 				if (obj->get_destroyer() == 0) {
-					m_env_check_objs.erase(obj);
-					remove_queue_entry(obj);
-					m_obj_to_deadline.erase(obj);
-					m_timed_spell_objs.erase(obj);
+					drop_obj_from_indices(obj);
 					result.decay_timer.push_back(obj);
 				}
-			}
-			// Check zone decay condition
-			if (m_obj_to_deadline.count(obj)
-				&& obj->has_flag(EObjFlag::kZonedecay)
-				&& obj->get_vnum_zone_from()
-				&& up_obj_where(obj) != kNowhere
-				&& obj->get_vnum_zone_from() != zone_table[world[up_obj_where(obj)]->zone_rn].vnum) {
-				m_env_check_objs.erase(obj);
-				remove_queue_entry(obj);
-				m_obj_to_deadline.erase(obj);
-				m_timed_spell_objs.erase(obj);
-				result.decay_timer.push_back(obj);
 			}
 		}
 	}
@@ -167,6 +194,27 @@ TickResult ObjDecayManager::process_tick() {
 			if (!obj->has_timed_spell()) {
 				m_timed_spell_objs.erase(obj);
 			}
+		}
+	}
+
+	// 4. kZonedecay: предмет рассыпается, если оказался вне родной зоны.
+	// Работает по up_obj_where, поэтому ловит и комнатные, и носимые,
+	// и надетые, и вложенные в контейнер предметы.
+	{
+		auto zd_copy = m_zonedecay_objs;
+		for (auto *obj : zd_copy) {
+			if (!m_obj_to_deadline.count(obj)) {
+				m_zonedecay_objs.erase(obj);
+				continue;
+			}
+			if (obj->get_where_obj() == EWhereObj::kSeller) {
+				continue;
+			}
+			if (!is_outside_home_zone(obj)) {
+				continue;
+			}
+			drop_obj_from_indices(obj);
+			result.decay_timer.push_back(obj);
 		}
 	}
 
