@@ -386,7 +386,7 @@ TEST_F(ZonedecayTest, NoTimer_CarriedInHomeZone_Survives) {
 // ---------------------------------------------------------------------------
 
 // Object with positive timer placed in a room without kTicktimer flag must
-// not expire Б─■ its timer is frozen until a player interacts with it.
+// not expire -- its timer is frozen until a player interacts with it.
 TEST_F(ZonedecayTest, NoTicktimer_RoomObject_TimerFrozen) {
 	auto obj = make_obj(/*timer=*/5, kHomeZoneVnum, /*zonedecay=*/false);
 	obj->set_in_room(home_room_rn_);
@@ -410,7 +410,7 @@ TEST_F(ZonedecayTest, TicktimerSet_TimerStartsCountingDown) {
 
 	decay_mgr.insert(obj.get());
 
-	// Two ticks in the frozen state Б─■ must not expire yet.
+	// Two ticks in the frozen state -- must not expire yet.
 	for (int i = 0; i < 2; ++i) {
 		auto r = decay_mgr.process_tick();
 		ASSERT_TRUE(r.decay_timer.empty());
@@ -422,7 +422,7 @@ TEST_F(ZonedecayTest, TicktimerSet_TimerStartsCountingDown) {
 	obj->set_extra_flag(EObjFlag::kTicktimer);
 	decay_mgr.on_timer_changed(obj.get());
 
-	// Three more ticks Б─■ at most three are needed to drain the timer.
+	// Three more ticks -- at most three are needed to drain the timer.
 	bool expired = false;
 	for (int i = 0; i < 4; ++i) {
 		auto r = decay_mgr.process_tick();
