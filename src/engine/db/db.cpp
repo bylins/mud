@@ -2170,7 +2170,7 @@ void paste_mob(CharData *ch, RoomRnum room) {
 
 			if (GET_LASTROOM(ch) == kNowhere)
 			{
-				ExtractCharFromWorld(ch, false, true);
+				character_list.AddToExtractedList(ch);
 				return;
 			}
 
@@ -2312,8 +2312,7 @@ void paste_obj(ObjData *obj, RoomRnum room) {
 void PasteMobiles() {
 	utils::CExecutionTimer time;
 
-	const auto chars_copy = character_list.get_list();
-	for (const auto &it : chars_copy) {
+	for (auto &it : character_list) {
 	  paste_mob(it.get(), it->in_room);
 	}
 	log("Paste Mobiles() finished, time %f", time.delta().count());
