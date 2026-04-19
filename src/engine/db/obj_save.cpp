@@ -550,235 +550,186 @@ inline bool proto_has_descr(const ExtraDescription::shared_ptr &odesc, const Ext
 // Данная процедура помещает предмет в буфер
 // [ ИСПОЛЬЗУЕТСЯ В НОВОМ ФОРМАТЕ ВЕЩЕЙ ПЕРСОНАЖА ОТ 10.12.04 ]
 void write_one_object(std::stringstream &out, ObjData *object, int location) {
-	int i, j;
 	ObjRnum orn = object->get_rnum();
-	CObjectPrototype::shared_ptr proto;
+	CObjectPrototype::shared_ptr proto_sp;
 
 	if (object->get_parent_rnum() > -1) {
-		proto = obj_proto[object->get_parent_rnum()];
+		proto_sp = obj_proto[object->get_parent_rnum()];
 		out << "#" << object->get_parent_vnum();
 	} else {
-		proto = obj_proto[orn];
+		proto_sp = obj_proto[orn];
 		out << "#" << GET_OBJ_VNUM(object);
 	}
+	// Кешируем сырой указатель: shared_ptr::operator-> в горячем цикле
+	// добавляет заметный overhead (atomic-ссылки, обёртки).
+	const CObjectPrototype* const p = proto_sp.get();
 	out << "\n";
 	// Положение в экипировке (сохраняем только если > 0)
 	if (location) {
 		out << "Lctn: " << location << "~\n";
 	}
-//	log("Write one object: %s", object->get_PName(ECase::kNom).c_str());
 	if (GET_OBJ_VNUM(object) >= 0) {
-		// Сохраняем UID
 		out << "Ouid: " << object->get_unique_id() << "~\n";
-		// Алиасы
-		if (object->get_aliases() != proto->get_aliases()) {
+		if (object->get_aliases() != p->get_aliases()) {
 			out << "Alia: " << object->get_aliases() << "~\n";
 		}
 		// Падежи
-		for (i = ECase::kFirstCase; i <= ECase::kLastCase; i++) {
-			auto name_case = static_cast<ECase>(i);
-			if (object->get_PName(name_case) != proto->get_PName(name_case)) {
-				out << "Pad" << i << ": " << object->get_PName(name_case) << "~\n";
+		for (int i = ECase::kFirstCase; i <= ECase::kLastCase; ++i) {
+			const auto name_case = static_cast<ECase>(i);
+			const auto& obj_pname = object->get_PName(name_case);
+			const auto& proto_pname = p->get_PName(name_case);
+			if (obj_pname != proto_pname) {
+				out << "Pad" << i << ": " << obj_pname << "~\n";
 			}
 		}
-		// Описание когда на земле
-		if (!proto->get_description().empty()
-			&& object->get_description() != proto->get_description()) {
+		if (!p->get_description().empty()
+			&& object->get_description() != p->get_description()) {
 			out << "Desc: " << object->get_description() << "~\n";
 		}
-
-		// Описание при действии
-		if (!object->get_action_description().empty()) {
-//			&& !proto->get_action_description().empty()) {
-			if (object->get_action_description() != proto->get_action_description()) {
-				out << "ADsc: " << object->get_action_description() << "~\n";
-			}
+		if (!object->get_action_description().empty()
+			&& object->get_action_description() != p->get_action_description()) {
+			out << "ADsc: " << object->get_action_description() << "~\n";
 		}
-
 		if (object->has_skills()) {
-			CObjectPrototype::skills_t tmp_skills_object_;
-			CObjectPrototype::skills_t tmp_skills_proto_;
-			object->get_skills(tmp_skills_object_);
-			proto->get_skills(tmp_skills_proto_);
-			// Тренируемый скилл
-			if (tmp_skills_object_ != tmp_skills_proto_) {
-				for (const auto &it : tmp_skills_object_) {
-					out << "Skil: " << to_underlying(it.first) << " " << it.second << "~\n";
+			// get_skills() без аргументов возвращает const ref на m_skills;
+			// избегаем копии всей std::map<ESkill,int>.
+			const auto& obj_skills = object->get_skills();
+			const auto& proto_skills = p->get_skills();
+			if (obj_skills != proto_skills) {
+				for (const auto &sk : obj_skills) {
+					out << "Skil: " << to_underlying(sk.first) << " " << sk.second << "~\n";
 				}
-
 			}
 		}
-		// Макс. прочность
-		if (object->get_maximum_durability() != proto->get_maximum_durability()) {
+		if (object->get_maximum_durability() != p->get_maximum_durability()) {
 			out << "Maxx: " << object->get_maximum_durability() << "~\n";
 		}
-		// Текущая прочность
-		if (object->get_current_durability() != proto->get_current_durability()) {
+		if (object->get_current_durability() != p->get_current_durability()) {
 			out << "Curr: " << object->get_current_durability() << "~\n";
 		}
-		// Материал
-		if (object->get_material() != proto->get_material()) {
+		if (object->get_material() != p->get_material()) {
 			out << "Mter: " << object->get_material() << "~\n";
 		}
-		// Пол
-		if (GET_OBJ_SEX(object) != GET_OBJ_SEX(proto)) {
+		if (GET_OBJ_SEX(object) != GET_OBJ_SEX(p)) {
 			out << "Sexx: " << static_cast<int>(GET_OBJ_SEX(object)) << "~\n";
 		}
-		// Таймер
-		if (object->get_timer() != proto->get_timer()) {
-			out << "Tmer: " << object->get_timer() << "~\n";
-			if (!stable_objs::IsObjFromSystemZone(GET_OBJ_VNUM(object))) //если шмот в служебной зоне, то таймер не трогаем
-			{
-				// на тот случай, если есть объекты с таймером, больше таймера прототипа
-				int temp_timer = obj_proto[object->get_rnum()]->get_timer();
-				if (object->get_timer() > temp_timer)
-					object->set_timer(temp_timer);
-			}
+		// Таймер. ObjData::get_timer() дёргает глобальный
+		// world_objects.decay_manager() (not thread-safe), здесь это и
+		// избыточно, и препятствует параллельному сохранению. Берём
+		// сырое значение m_timer напрямую. Ранее здесь был clamp
+		// "object->set_timer(proto_timer)" -- он удалён как говнокод:
+		// та же коррекция применяется в read_one_object_new при загрузке.
+		const int obj_timer = object->CObjectPrototype::get_timer();
+		const int proto_timer = p->get_timer();
+		if (obj_timer != proto_timer) {
+			out << "Tmer: " << obj_timer << "~\n";
 		}
-		// Сложность замкА
-		if (object->get_spell() != proto->get_spell()) {
+		if (object->get_spell() != p->get_spell()) {
 			out << "Spll: " << object->get_spell() << "~\n";
 		}
-		// Уровень заклинания
-		if (object->get_level() != proto->get_level()) {
+		if (object->get_level() != p->get_level()) {
 			out << "Levl: " << object->get_level() << "~\n";
 		}
-		// была ли шмотка ренейм
-		if (object->get_is_rename() != false) {
+		if (object->get_is_rename()) {
 			out << "Rnme: 1~\n";
 		}
-		// скрафчено с таймером
-		if ((object->get_craft_timer() > 0)) {
+		if (object->get_craft_timer() > 0) {
 			out << "Ctmr: " << object->get_craft_timer() << "~\n";
 		}
-		// в какой зоне было загружено в мир
 		if (object->get_vnum_zone_from()) {
 			out << "Ozne: " << object->get_vnum_zone_from() << "~\n";
 		}
-		// Наводимые аффекты
-		if (object->get_affect_flags() != proto->get_affect_flags()) {
-			out << "Affs: " << object->get_affect_flags().to_numeric_string() << "~\n";
+		const auto& obj_aff = object->get_affect_flags();
+		const auto& proto_aff = p->get_affect_flags();
+		if (obj_aff != proto_aff) {
+			out << "Affs: " << obj_aff.to_numeric_string() << "~\n";
 		}
-		// Анти флаги
-		if (object->get_anti_flags() != proto->get_anti_flags()) {
-			out << "Anti: " << object->get_anti_flags().to_numeric_string() << "~\n";
+		const auto& obj_anti = object->get_anti_flags();
+		const auto& proto_anti = p->get_anti_flags();
+		if (obj_anti != proto_anti) {
+			out << "Anti: " << obj_anti.to_numeric_string() << "~\n";
 		}
-		// Запрещающие флаги
-		if (object->get_no_flags() != proto->get_no_flags()) {
-			out << "Nofl: " << object->get_no_flags().to_numeric_string() << "~\n";
+		const auto& obj_nofl = object->get_no_flags();
+		const auto& proto_nofl = p->get_no_flags();
+		if (obj_nofl != proto_nofl) {
+			out << "Nofl: " << obj_nofl.to_numeric_string() << "~\n";
 		}
-		// Экстра флаги
-		//Временно убираем флаг !окровавлен! с вещи, чтобы он не сохранялся
-		bool blooded = object->has_flag(EObjFlag::kBloody);
-		if (blooded) {
-			object->unset_extraflag(EObjFlag::kBloody);
+		// Экстра флаги. Временные флаги (kBloody, рантайм-выставленный kNosell)
+		// в файл не пишем. Снимаем их на копии FlagData без мутации самого
+		// объекта -- иначе save-путь был бы не thread-safe и менял видимое
+		// состояние предмета для игроков на момент сериализации.
+		FlagData extra_to_save = object->get_extra_flags();
+		extra_to_save.unset(EObjFlag::kBloody);
+		if (object->has_flag(EObjFlag::kNosell)
+			&& !p->has_flag(EObjFlag::kNosell)) {
+			extra_to_save.unset(EObjFlag::kNosell);
 		}
-		auto nosell = object->has_flag(EObjFlag::kNosell) && !proto->has_flag(EObjFlag::kNosell);
-		if (nosell) {
-			object->unset_extraflag(EObjFlag::kNosell);
+		if (extra_to_save != p->get_extra_flags()) {
+			out << "Extr: " << extra_to_save.to_numeric_string() << "~\n";
 		}
-		const FlagData extra_flags_to_save = object->get_extra_flags();
-		if (blooded) //Возвращаем флаг назад
-		{
-			object->set_extra_flag(EObjFlag::kBloody);
-		}
-		if (nosell) //Возвращаем флаг назад
-		{
-			object->set_extra_flag(EObjFlag::kNosell);
-		}
-		if (extra_flags_to_save != proto->get_extra_flags()) {
-			out << "Extr: " << extra_flags_to_save.to_numeric_string() << "~\n";
-		}
-		// Флаги слотов экипировки
-		if (object->get_wear_flags() != proto->get_wear_flags()) {
+		if (object->get_wear_flags() != p->get_wear_flags()) {
 			out << "Wear: " << object->get_wear_flags() << "~\n";
 		}
-		// Тип предмета
-		if (object->get_type() != proto->get_type()) {
+		if (object->get_type() != p->get_type()) {
 			out << "Type: " << object->get_type() << "~\n";
 		}
-		// Значение 0, Значение 1, Значение 2, Значение 3.
-		for (i = 0; i < 4; i++) {
-			if (GET_OBJ_VAL(object, i) != GET_OBJ_VAL(proto, i)) {
+		for (int i = 0; i < 4; ++i) {
+			if (GET_OBJ_VAL(object, i) != GET_OBJ_VAL(p, i)) {
 				out << "Val" << i << ": " << GET_OBJ_VAL(object, i) << "~\n";
 			}
 		}
-		// Вес
-		if (object->get_weight() != proto->get_weight()) {
+		if (object->get_weight() != p->get_weight()) {
 			out << "Weig: " << object->get_weight() << "~\n";
 		}
-		// Цена
-		if (object->get_cost() != proto->get_cost()) {
+		if (object->get_cost() != p->get_cost()) {
 			out << "Cost: " << object->get_cost() << "~\n";
 		}
-		// Рента (снято)
-		if (object->get_rent_off() != proto->get_rent_off()) {
+		if (object->get_rent_off() != p->get_rent_off()) {
 			out << "Rent: " << object->get_rent_off() << "~\n";
 		}
-		// Рента (одето)
-		if (object->get_rent_on() != proto->get_rent_on()) {
+		if (object->get_rent_on() != p->get_rent_on()) {
 			out << "RntQ: " << object->get_rent_on() << "~\n";
 		}
-		// Владелец
 		if (object->get_owner() != ObjData::DEFAULT_OWNER) {
 			out << "Ownr: " << object->get_owner() << "~\n";
 		}
-		// Создатель
 		if (object->get_crafter_uid() != ObjData::DEFAULT_MAKER) {
 			out << "Mker: " << object->get_crafter_uid() << "~\n";
 		}
-
-		// Аффекты
-		for (j = 0; j < kMaxObjAffect; j++) {
+		for (int j = 0; j < kMaxObjAffect; ++j) {
 			const auto &oaff = object->get_affected(j);
-			const auto &paff = proto->get_affected(j);
+			const auto &paff = p->get_affected(j);
 			if (oaff.location != paff.location
 				|| oaff.modifier != paff.modifier) {
 				out << "Afc" << j << ": " << oaff.location << " " << oaff.modifier << "~\n";
 			}
 		}
-
 		for (auto descr = object->get_ex_description(); descr; descr = descr->next) {
-			if (proto_has_descr(descr, proto->get_ex_description())) {
+			if (proto_has_descr(descr, p->get_ex_description())) {
 				continue;
 			}
 			out << "Edes: " << (descr->keyword ? descr->keyword : "") << "~\n"
 				<< (descr->description ? descr->description : "") << "~\n";
 		}
-
-		// Если у прототипа есть описание, а у сохраняемой вещи - нет, сохраняем None
-		if (!object->get_ex_description()
-			&& proto->get_ex_description()) {
+		if (!object->get_ex_description() && p->get_ex_description()) {
 			out << "Edes: None~\n";
 		}
-
-		// требования по мортам
-		if (object->get_auto_mort_req() > 0)
-//			&& object->get_manual_mort_req() != proto->get_manual_mort_req())
-		{
+		if (object->get_auto_mort_req() > 0) {
 			out << "Mort: " << object->get_auto_mort_req() << "~\n";
 		}
-		if (!object->get_dgscript_field().empty())
-		{
+		if (!object->get_dgscript_field().empty()) {
 			out << "DGsc: " << object->get_dgscript_field() << "~\n";
 		}
-
-		// ObjectValue предмета, если есть что сохранять
-		if (object->get_all_values() != proto->get_all_values()) {
+		if (object->get_all_values() != p->get_all_values()) {
 			out << object->serialize_values();
 		}
 	}
-	// обкаст (если он есть) сохраняется в любом случае независимо от прототипа
 	if (object->has_timed_spell()) {
 		out << object->timed_spell().print();
 	}
-
-	// накладываемые энчанты
 	if (!object->get_enchants().empty()) {
 		out << object->serialize_enchants();
 	}
-
-	// кастомная метка
 	if (object->get_custom_label()) {
 		out << "Clbl: " << object->get_custom_label()->text_label << "~\n";
 		out << "ClID: " << object->get_custom_label()->author << "~\n";
