@@ -75,6 +75,7 @@ void mobile_affect_update();
 
 void affect_total(CharData *ch);
 void affect_modify(CharData *ch, EApply loc, int mod, EAffect bitv, bool add);
+std::pair<EApply, int> GetApplyByWeaponAffect(EWeaponAffect element, CharData *ch);
 void affect_to_char(CharData *ch, const Affect<EApply> &af);
 void RemoveAffectFromChar(CharData *ch, ESpell spell_id);
 void RemoveAffectFromCharAndRecalculate(CharData *ch, ESpell spell_id);
