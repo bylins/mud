@@ -140,7 +140,7 @@ void do_eat(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	}
 
 	if (!ch->IsGod()) {
-		if (food->get_type() == EObjType::kMagicIngredient) //Сообщение на случай попытки проглотить ингры
+		if (food->get_type() == EObjType::kMagicComponent) //Сообщение на случай попытки проглотить ингры
 		{
 			SendMsgToChar("Не можешь приготовить - покупай готовое!\r\n", ch);
 			return;

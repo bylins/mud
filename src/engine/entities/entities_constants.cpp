@@ -485,8 +485,8 @@ void init_EObjectType_ITEM_NAMES() {
 	EObjectType_name_by_value[EObjType::kBoat] = "kBoat";
 	EObjectType_name_by_value[EObjType::kFountain] = "kFounrain";
 	EObjectType_name_by_value[EObjType::kBook] = "kBook";
-	EObjectType_name_by_value[EObjType::kIngredient] = "kIngredient";
 	EObjectType_name_by_value[EObjType::kMagicIngredient] = "kMagicIngredient";
+	EObjectType_name_by_value[EObjType::kMagicComponent] = "kMagicComponent";
 	EObjectType_name_by_value[EObjType::kCraftMaterial] = "kCraftMaterial";
 	EObjectType_name_by_value[EObjType::kBandage] = "kBandage";
 	EObjectType_name_by_value[EObjType::kLightArmor] = "kLightArmor";

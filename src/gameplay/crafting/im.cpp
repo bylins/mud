@@ -887,7 +887,7 @@ void im_reset_room(RoomData *room, int level, int type) {
 
 	for (auto it = room->contents.begin(); it != room->contents.end(); ) {
 		auto o = *it; ++it;
-		if (o->get_type() == EObjType::kMagicIngredient) {
+		if (o->get_type() == EObjType::kMagicComponent) {
 			ExtractObjFromWorld(o, false);
 		}
 	}
@@ -1208,7 +1208,7 @@ ObjData **im_obtain_ingredients(CharData *ch, char *argument, int *count) {
 			snprintf(buf, kMaxInputLength, "У вас нет %s.\r\n", name);
 			break;
 		}
-		if (o->get_type() != EObjType::kMagicIngredient) {
+		if (o->get_type() != EObjType::kMagicComponent) {
 			sprintf(buf, "Вы должны использовать только магические ингредиенты.\r\n");
 			break;
 		}

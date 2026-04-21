@@ -232,7 +232,7 @@ int exchange_exhibit(CharData *ch, char *arg) {
 		item_cost = std::max(1, obj->get_cost());
 	}
 
-	tax = (obj->get_type() != EObjType::kMagicIngredient)
+	tax = (obj->get_type() != EObjType::kMagicComponent)
 		  ? EXCHANGE_EXHIBIT_PAY + (int) (item_cost * EXCHANGE_EXHIBIT_PAY_COEFF)
 		  : (int) (item_cost * EXCHANGE_EXHIBIT_PAY_COEFF / 2);
 	if ((ch->get_total_gold() < tax)
@@ -245,8 +245,8 @@ int exchange_exhibit(CharData *ch, char *arg) {
 		 j = next_thing) {
 		next_thing = j->next;
 		if (GET_EXCHANGE_ITEM_SELLERID(j) == ch->get_uid()) {
-			if (GET_EXCHANGE_ITEM(j)->get_type() != EObjType::kMagicIngredient
-				&& GET_EXCHANGE_ITEM(j)->get_type() != EObjType::kIngredient) {
+			if (GET_EXCHANGE_ITEM(j)->get_type() != EObjType::kMagicComponent
+				&& GET_EXCHANGE_ITEM(j)->get_type() != EObjType::kMagicIngredient) {
 				counter++;
 			} else {
 				counter_ming++;
@@ -1096,8 +1096,8 @@ void message_exchange(char *message, CharData *ch, ExchangeItem *j) {
 			&& !ROOM_FLAGGED(i->character->in_room, ERoomFlag::kSoundproof)
 			&& i->character->GetPosition() > EPosition::kSleep) {
 			if (!i->character->IsFlagged(EPrf::kNoIngrMode)
-				&& (GET_EXCHANGE_ITEM(j)->get_type() == EObjType::kIngredient
-					|| GET_EXCHANGE_ITEM(j)->get_type() == EObjType::kMagicIngredient)) {
+				&& (GET_EXCHANGE_ITEM(j)->get_type() == EObjType::kMagicIngredient
+					|| GET_EXCHANGE_ITEM(j)->get_type() == EObjType::kMagicComponent)) {
 				continue;
 			}
 			ParseFilter params(ParseFilter::EXCHANGE);

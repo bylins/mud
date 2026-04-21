@@ -2153,8 +2153,8 @@ BOOST_PYTHON_MODULE (constants) {
 	DEFINE_ENUM_CONSTANT(EObjType::kBoat);
 	DEFINE_ENUM_CONSTANT(EObjType::kFounrain);
 	DEFINE_ENUM_CONSTANT(EObjType::kBook);
-	DEFINE_ENUM_CONSTANT(EObjType::kIngredient);
 	DEFINE_ENUM_CONSTANT(EObjType::kMagicIngredient);
+	DEFINE_ENUM_CONSTANT(EObjType::kMagicComponent);
 	DEFINE_ENUM_CONSTANT(EObjType::kCraftMaterial);
 	DEFINE_ENUM_CONSTANT(EObjType::kBandage);
 	DEFINE_ENUM_CONSTANT(EObjType::kLightArmor);

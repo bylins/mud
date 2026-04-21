@@ -893,7 +893,7 @@ void do_transform_weapon(CharData *ch, char *argument, int/* cmd*/, int subcmd) 
 		act("В $o5 что-то лежит.", false, ch, obj, 0, kToChar);
 		return;
 	}
-	if (obj->get_type() == EObjType::kIngredient) {
+	if (obj->get_type() == EObjType::kMagicIngredient) {
 		for (i = 0, found = false; i < MAX_PROTO; i++) {
 			if (GET_OBJ_VAL(obj, 1) == created_item[obj_type].proto[i]) {
 				if (proto[i]) {
@@ -935,7 +935,7 @@ void do_transform_weapon(CharData *ch, char *argument, int/* cmd*/, int subcmd) 
 					return;
 				}
 				for (coal = ch->carrying; coal; coal = coal->get_next_content()) {
-					if (coal->get_type() == EObjType::kIngredient) {
+					if (coal->get_type() == EObjType::kMagicIngredient) {
 						for (i = 0; i < MAX_PROTO; i++) {
 							if (proto[i] == coal) {
 								break;
@@ -974,7 +974,7 @@ void do_transform_weapon(CharData *ch, char *argument, int/* cmd*/, int subcmd) 
 			break;
 		case ESkill::kCreateBow:
 			for (coal = ch->carrying; coal; coal = coal->get_next_content()) {
-				if (coal->get_type() == EObjType::kIngredient) {
+				if (coal->get_type() == EObjType::kMagicIngredient) {
 					for (i = 0; i < MAX_PROTO; i++) {
 						if (proto[i] == coal) {
 							break;
@@ -1185,8 +1185,8 @@ ObjData *get_obj_in_list_ingr(int num,
 			return i;
 		}
 		if ((GET_OBJ_VAL(i, 1) == num)
-			&& (i->get_type() == EObjType::kIngredient
-				|| i->get_type() == EObjType::kMagicIngredient
+			&& (i->get_type() == EObjType::kMagicIngredient
+				|| i->get_type() == EObjType::kMagicComponent
 				|| i->get_type() == EObjType::kCraftMaterial)) {
 			return i;
 		}
@@ -1244,10 +1244,10 @@ int MakeRecept::can_make(CharData *ch) {
 
 int MakeRecept::get_ingr_lev(ObjData *ingrobj) {
 	// Получаем уровень ингредиента ...
-	if (ingrobj->get_type() == EObjType::kIngredient) {
+	if (ingrobj->get_type() == EObjType::kMagicIngredient) {
 		// Получаем уровень игредиента до 128
 		return (GET_OBJ_VAL(ingrobj, 0) >> 8);
-	} else if (ingrobj->get_type() == EObjType::kMagicIngredient) {
+	} else if (ingrobj->get_type() == EObjType::kMagicComponent) {
 		// У ингров типа 26 совпадает уровень и сила.
 		return GET_OBJ_VAL(ingrobj, IM_POWER_SLOT);
 	} else if (ingrobj->get_type() == EObjType::kCraftMaterial) {
@@ -1259,10 +1259,10 @@ int MakeRecept::get_ingr_lev(ObjData *ingrobj) {
 
 int MakeRecept::get_ingr_pow(ObjData *ingrobj) {
 	// Получаем силу ингредиента ...
-	if (ingrobj->get_type() == EObjType::kIngredient
+	if (ingrobj->get_type() == EObjType::kMagicIngredient
 		|| ingrobj->get_type() == EObjType::kCraftMaterial) {
 		return GET_OBJ_VAL(ingrobj, 2);
-	} else if (ingrobj->get_type() == EObjType::kMagicIngredient) {
+	} else if (ingrobj->get_type() == EObjType::kMagicComponent) {
 		return GET_OBJ_VAL(ingrobj, IM_POWER_SLOT);
 	} else {
 		return -1;
@@ -1938,7 +1938,7 @@ int MakeRecept::make(CharData *ch) {
 	}
 	int sign = -1;
 	if (obj->get_type() == EObjType::kWeapon
-		|| obj->get_type() == EObjType::kIngredient) {
+		|| obj->get_type() == EObjType::kMagicIngredient) {
 		sign = 1;
 	}
 	obj->set_weight(stat_modify(ch, obj->get_weight(), 20 * sign));
@@ -1992,7 +1992,7 @@ int MakeRecept::make(CharData *ch) {
 			// Считаем объем контейнера.
 			obj->set_val(0, stat_modify(ch, GET_OBJ_VAL(obj, 0), 1));
 			break;
-		case EObjType::kIngredient:
+		case EObjType::kMagicIngredient:
 			// Для ингров ничего не трогаем ... ибо опасно. :)
 			break;
 		default: break;
@@ -2040,8 +2040,8 @@ int MakeRecept::make(CharData *ch) {
 	// число шмоток в мире то шмотки по хуже будут вытеснять
 	// шмотки по лучше (в целом это не так страшно).
 	// Ставим метку если все хорошо.
-	if ((obj->get_type() != EObjType::kIngredient
-		&& obj->get_type() != EObjType::kMagicIngredient)
+	if ((obj->get_type() != EObjType::kMagicIngredient
+		&& obj->get_type() != EObjType::kMagicComponent)
 		&& (number(1, 100) - CalcCurrentSkill(ch, skill, 0) < 0)) {
 		act(tagging.c_str(), false, ch, obj.get(), 0, kToChar);
 		// Прибавляем в экстра описание строчку.

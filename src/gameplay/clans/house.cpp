@@ -4369,7 +4369,7 @@ bool Clan::put_ingr_chest(CharData *ch, ObjData *obj, ObjData *chest) {
 		return false;
 	}
 
-	if (obj->get_type() != EObjType::kMagicIngredient
+	if (obj->get_type() != EObjType::kMagicComponent
 		&& obj->get_type() != EObjType::kCraftMaterial) {
 		SendMsgToChar(ch, "%s - Хранилище ингредиентов не предназначено для предметов данного типа.\r\n",
 					  obj->get_PName(ECase::kNom).c_str());

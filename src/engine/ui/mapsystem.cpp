@@ -310,13 +310,13 @@ void draw_objs(const CharData *ch, int room_rnum, int next_y, int next_x) {
 				continue;
 			}
 			if (!ch->map_check_option(MAP_MODE_INGREDIENTS)
-				&& (obj->get_type() == EObjType::kIngredient
-					|| obj->get_type() == EObjType::kMagicIngredient)) {
+				&& (obj->get_type() == EObjType::kMagicIngredient
+					|| obj->get_type() == EObjType::kMagicComponent)) {
 				continue;
 			}
 			if (!IS_CORPSE(obj)
-				&& obj->get_type() != EObjType::kIngredient
 				&& obj->get_type() != EObjType::kMagicIngredient
+				&& obj->get_type() != EObjType::kMagicComponent
 				&& !ch->map_check_option(MAP_MODE_OTHER_OBJECTS)) {
 				continue;
 			}

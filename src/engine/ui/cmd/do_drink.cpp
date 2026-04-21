@@ -131,7 +131,7 @@ int CanDrink(CharData *ch, ObjData *jar) {
 		return 0;
 	}
 
-	if (jar->get_type() == EObjType::kMagicIngredient) {
+	if (jar->get_type() == EObjType::kMagicComponent) {
 		SendMsgToChar("Не можешь приготовить - покупай готовое!\r\n", ch);
 		return 0;
 	}
