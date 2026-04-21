@@ -1004,7 +1004,7 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 			);
 			break;
 
-		case EObjType::kIngredient:sprintbit(j->get_spec_param(), ingradient_bits, smallBuf, sizeof(smallBuf));
+		case EObjType::kMagicIngredient:sprintbit(j->get_spec_param(), ingradient_bits, smallBuf, sizeof(smallBuf));
 			snprintf(buf, sizeof(buf), "ingr bits %s", smallBuf);
 
 			if (IS_SET(j->get_spec_param(), kItemCheckUses)) {

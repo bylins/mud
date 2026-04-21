@@ -219,7 +219,7 @@ void olc_update_object(int robj_num, ObjData *obj, ObjData *olc_obj) {
 		obj->get_custom_label()->author_mail = str_dup(tmp.get_custom_label()->author_mail);
 	}
 	// восстановим силу ингров
-	if (tmp.get_type() == EObjType::kMagicIngredient) {
+	if (tmp.get_type() == EObjType::kMagicComponent) {
 		obj->set_val(0, tmp.get_val(0));
 		obj->set_val(1, tmp.get_val(1));
 		obj->set_val(2, tmp.get_val(2));
@@ -694,12 +694,12 @@ void oedit_disp_val1_menu(DescriptorData *d) {
 			SendMsgToChar(buf, d->character.get());
 			break;
 
-		case EObjType::kIngredient:
+		case EObjType::kMagicIngredient:
 			SendMsgToChar("Первый байт - лаг после применения в сек, 6 бит - уровень : ",
 						 d->character.get());
 			break;
 
-		case EObjType::kMagicIngredient: oedit_disp_val4_menu(d);
+		case EObjType::kMagicComponent: oedit_disp_val4_menu(d);
 			break;
 
 		case EObjType::kCraftMaterial: SendMsgToChar("Уровень игрока для использования + морт * 2: ", d->character.get());
@@ -787,7 +787,7 @@ void oedit_disp_val2_menu(DescriptorData *d) {
 			}
 			break;
 
-		case EObjType::kIngredient: SendMsgToChar("Виртуальный номер прототипа  : ", d->character.get());
+		case EObjType::kMagicIngredient: SendMsgToChar("Виртуальный номер прототипа  : ", d->character.get());
 			break;
 
 		case EObjType::kCraftMaterial: SendMsgToChar("Введите VNUM прототипа: ", d->character.get());
@@ -843,7 +843,7 @@ void oedit_disp_val3_menu(DescriptorData *d) {
 			}
 			break;
 
-		case EObjType::kIngredient: SendMsgToChar("Сколько раз можно использовать : ", d->character.get());
+		case EObjType::kMagicIngredient: SendMsgToChar("Сколько раз можно использовать : ", d->character.get());
 			break;
 
 		case EObjType::kCraftMaterial: SendMsgToChar("Введите силу ингридиента: ", d->character.get());
@@ -891,7 +891,7 @@ void oedit_disp_val4_menu(DescriptorData *d) {
 			}
 			break;
 
-		case EObjType::kMagicIngredient: SendMsgToChar("Класс ингредиента (0-РОСЛЬ,1-ЖИВЬ,2-ТВЕРДЬ): ", d->character.get());
+		case EObjType::kMagicComponent: SendMsgToChar("Класс ингредиента (0-РОСЛЬ,1-ЖИВЬ,2-ТВЕРДЬ): ", d->character.get());
 			break;
 
 		case EObjType::kCraftMaterial: SendMsgToChar("Введите условный уровень: ", d->character.get());
@@ -1084,7 +1084,7 @@ std::array<const char *, 9> wskill_bits =
 	 }};
 
 void oedit_disp_skills_menu(DescriptorData *d) {
-	if (OLC_OBJ(d)->get_type() == EObjType::kIngredient) {
+	if (OLC_OBJ(d)->get_type() == EObjType::kMagicIngredient) {
 		oedit_disp_ingradient_menu(d);
 		return;
 	}
@@ -1489,7 +1489,7 @@ void oedit_parse(DescriptorData *d, char *arg) {
 				case 'n':
 				case 'N':
 					if (OLC_OBJ(d)->get_type() == EObjType::kWeapon
-						|| OLC_OBJ(d)->get_type() == EObjType::kIngredient) {
+						|| OLC_OBJ(d)->get_type() == EObjType::kMagicIngredient) {
 						oedit_disp_skills_menu(d);
 						OLC_MODE(d) = OEDIT_SKILL;
 					} else if (OLC_OBJ(d)->get_type() == EObjType::kLiquidContainer
@@ -1610,7 +1610,7 @@ void oedit_parse(DescriptorData *d, char *arg) {
 				OLC_OBJ(d)->set_type(static_cast<EObjType>(number));
 				snprintf(buf, sizeof(buf), "%s  меняет тип предмета для %d!!!", GET_NAME(d->character), OLC_NUM(d));
 				mudlog(buf, BRF, kLvlGod, SYSLOG, true);
-				if (number != EObjType::kWeapon && number != EObjType::kIngredient) {
+				if (number != EObjType::kWeapon && number != EObjType::kMagicIngredient) {
 					OLC_OBJ(d)->set_spec_param(0);
 				}
 			}
@@ -1723,7 +1723,7 @@ void oedit_parse(DescriptorData *d, char *arg) {
 			if (number == 0) {
 				break;
 			}
-			if (OLC_OBJ(d)->get_type() == EObjType::kIngredient) {
+			if (OLC_OBJ(d)->get_type() == EObjType::kMagicIngredient) {
 				OLC_OBJ(d)->toggle_skill(1 << (number - 1));
 				oedit_disp_skills_menu(d);
 				return;
@@ -1936,7 +1936,7 @@ void oedit_parse(DescriptorData *d, char *arg) {
 					min_val = 0;
 					max_val = NUM_ATTACK_TYPES - 1;
 					break;
-				case EObjType::kMagicIngredient: 
+				case EObjType::kMagicComponent: 
 					min_val = 0;
 					max_val = 2;
 					break;

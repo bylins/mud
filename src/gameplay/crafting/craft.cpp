@@ -606,7 +606,7 @@ bool CObject::save_to_node(pugi::xml_node *node) const {
 			// unpack item_parameters
 			std::list<std::string> item_parameters;
 			switch (get_type()) {
-				case EObjType::kIngredient: {
+				case EObjType::kMagicIngredient: {
 					int flag = 1;
 					while (flag <= get_spec_param()) {
 						if (IS_SET(get_spec_param(), flag)) {
@@ -723,7 +723,7 @@ ObjData *CObject::build_object() const {
 
 bool CObject::load_item_parameters(const pugi::xml_node *node) {
 	switch (get_type()) {
-		case EObjType::kIngredient:
+		case EObjType::kMagicIngredient:
 			for (const auto flags : node->children("parameter")) {
 				const char *flag = flags.child_value();
 				try {

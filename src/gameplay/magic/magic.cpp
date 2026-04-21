@@ -843,7 +843,7 @@ bool ProcessMatComponents(CharData *caster, CharData *victim, ESpell spell_id) {
 	switch (spell_id) {
 		case ESpell::kFascination:
 			for (auto i = caster->carrying; i; i = i->get_next_content()) {
-				if (i->get_type() == EObjType::kIngredient && i->get_val(1) == 3000) {
+				if (i->get_type() == EObjType::kMagicIngredient && i->get_val(1) == 3000) {
 					vnum = GET_OBJ_VNUM(i);
 					break;
 				}
@@ -854,7 +854,7 @@ bool ProcessMatComponents(CharData *caster, CharData *victim, ESpell spell_id) {
 			break;
 		case ESpell::kHypnoticPattern:
 			for (auto i = caster->carrying; i; i = i->get_next_content()) {
-				if (i->get_type() == EObjType::kIngredient && i->get_val(1) == 3006) {
+				if (i->get_type() == EObjType::kMagicIngredient && i->get_val(1) == 3006) {
 					vnum = GET_OBJ_VNUM(i);
 					break;
 				}
@@ -865,7 +865,7 @@ bool ProcessMatComponents(CharData *caster, CharData *victim, ESpell spell_id) {
 			break;
 		case ESpell::kEnchantWeapon:
 			for (auto i = caster->carrying; i; i = i->get_next_content()) {
-				if (i->get_type() == EObjType::kIngredient && i->get_val(1) == 1930) {
+				if (i->get_type() == EObjType::kMagicIngredient && i->get_val(1) == 1930) {
 					vnum = GET_OBJ_VNUM(i);
 					break;
 				}

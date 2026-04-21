@@ -60,10 +60,10 @@ bool ParseFilter::init_type(const char *str) {
 		type = EObjType::kBook;
 	} else if (utils::IsAbbr(str, "руна")
 		|| utils::IsAbbr(str, "rune")) {
-		type = EObjType::kIngredient;
+		type = EObjType::kMagicIngredient;
 	} else if (utils::IsAbbr(str, "ингредиент")
 		|| utils::IsAbbr(str, "ingradient")) {
-		type = EObjType::kMagicIngredient;
+		type = EObjType::kMagicComponent;
 	} else if (utils::IsAbbr(str, "легкие")
 		|| utils::IsAbbr(str, "легкая")) {
 		type = EObjType::kLightArmor;
@@ -406,8 +406,8 @@ bool ParseFilter::check_name(ObjData *obj, CharData *ch) const {
 	if (name.empty()
 		|| isname(name, name_obj)) {
 		result = true;
-	} else if ((obj->get_type() == EObjType::kMagicIngredient
-		|| obj->get_type() == EObjType::kIngredient)
+	} else if ((obj->get_type() == EObjType::kMagicComponent
+		|| obj->get_type() == EObjType::kMagicIngredient)
 		&& obj->get_rnum() >= 0
 		&& isname(name, obj_proto[obj->get_rnum()]->get_aliases().c_str())) {
 		result = true;

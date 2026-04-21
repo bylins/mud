@@ -1711,7 +1711,7 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness) {
 			}
 			break;
 
-		case EObjType::kIngredient: sprintbit(obj->get_spec_param(), ingradient_bits, buf2, sizeof(buf2));
+		case EObjType::kMagicIngredient: sprintbit(obj->get_spec_param(), ingradient_bits, buf2, sizeof(buf2));
 			snprintf(buf, kMaxStringLength, "%s\r\n", buf2);
 			SendMsgToChar(buf, ch);
 
@@ -1743,7 +1743,7 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness) {
 			}
 			break;
 
-		case EObjType::kMagicIngredient:
+		case EObjType::kMagicComponent:
 			for (j = 0; imtypes[j].id != GET_OBJ_VAL(obj, IM_TYPE_SLOT) && j <= top_imtypes;) {
 				j++;
 			}
@@ -2408,11 +2408,11 @@ bool mag_item_ok(CharData *ch, ObjData *obj, int spelltype) {
 	int num = 0;
 
 	if (spelltype == ESpellType::kRunes
-		&& obj->get_type() != EObjType::kIngredient) {
+		&& obj->get_type() != EObjType::kMagicIngredient) {
 		return false;
 	}
 
-	if (obj->get_type() == EObjType::kIngredient) {
+	if (obj->get_type() == EObjType::kMagicIngredient) {
 		if ((!IS_SET(obj->get_spec_param(), kItemRunes) && spelltype == ESpellType::kRunes)
 			|| (IS_SET(obj->get_spec_param(), kItemRunes) && spelltype != ESpellType::kRunes)) {
 			return false;

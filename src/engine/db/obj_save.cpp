@@ -520,7 +520,7 @@ ObjData::shared_ptr read_one_object_new(char **data, int *error) {
 		}
 	}
 	// Проверка на ингры
-	if (object->get_type() == EObjType::kMagicIngredient) {
+	if (object->get_type() == EObjType::kMagicComponent) {
 		int err = im_assign_power(object.get());
 		if (err) {
 			*error = 100 + err;

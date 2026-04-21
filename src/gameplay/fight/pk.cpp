@@ -1008,7 +1008,7 @@ void set_bloody_flag(ObjData *list, const CharData *ch) {
 			|| t == EObjType::kLightArmor
 			|| t == EObjType::kMediumArmor
 			|| t == EObjType::kHeavyArmor
-			|| t == EObjType::kIngredient
+			|| t == EObjType::kMagicIngredient
 			|| t == EObjType::kWorm)) {
 		list->set_extra_flag(EObjFlag::kBloody);
 		bloody_map[list].owner_unique = ch->get_uid();

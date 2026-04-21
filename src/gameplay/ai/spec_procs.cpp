@@ -168,7 +168,7 @@ bool item_nouse(ObjData *obj) {
 		case EObjType::kPen:
 		case EObjType::kBoat:
 		case EObjType::kFountain:
-		case EObjType::kMagicIngredient: return true;
+		case EObjType::kMagicComponent: return true;
 
 		default: break;
 	}
@@ -207,7 +207,7 @@ int npc_scavenge(CharData *ch) {
 		cont = nullptr;
 		best_cont = nullptr;
 		for (auto obj : world[ch->in_room]->contents) {
-			if (obj->get_type() == EObjType::kMagicIngredient
+			if (obj->get_type() == EObjType::kMagicComponent
 				|| Clan::is_clan_chest(obj)
 				|| ClanSystem::is_ingr_chest(obj)) {
 				continue;

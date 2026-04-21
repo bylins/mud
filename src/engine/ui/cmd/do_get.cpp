@@ -199,8 +199,8 @@ void get_from_container(CharData *ch, ObjData *cont, char *local_arg, int mode, 
 					|| isname(local_arg, obj->get_aliases())
 					|| CHECK_CUSTOM_LABEL(local_arg, obj, ch))) {
 				if (autoloot
-					&& (obj->get_type() == EObjType::kIngredient
-						|| obj->get_type() == EObjType::kMagicIngredient)
+					&& (obj->get_type() == EObjType::kMagicIngredient
+						|| obj->get_type() == EObjType::kMagicComponent)
 					&& ch->IsFlagged(EPrf::kNoIngrLoot)) {
 					continue;
 				}
