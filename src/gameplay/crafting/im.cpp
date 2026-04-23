@@ -288,8 +288,9 @@ int im_assign_power(ObjData *obj)
 		if (GET_OBJ_VAL(obj, IM_INDEX_SLOT) == -1)
 			return 3;
 		rnum = GetMobRnum(GET_OBJ_VAL(obj, IM_INDEX_SLOT));
-		if (rnum < 0)
-			return 3;    // неверный VNUM базового моба
+		if (rnum < 0) {
+			return 4;    // неверный VNUM базового моба
+		}
 		obj->set_val(IM_POWER_SLOT, (GetRealLevel(mob_proto + rnum) + 3) * 3 / 4);
 	}
 	// Попробовать найти описатель ВИДА
