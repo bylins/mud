@@ -88,6 +88,7 @@ set(SOURCES
 		src/engine/db/help.cpp
 		src/gameplay/clans/house.cpp
 		src/gameplay/clans/house_exp.cpp
+		src/gameplay/clans/ingr_chest_saver.cpp
 		src/gameplay/communication/ignores.cpp
 		src/gameplay/communication/ignores_loader.cpp
 		src/gameplay/crafting/im.cpp
@@ -612,6 +613,7 @@ set(HEADERS
 		src/engine/db/help.h
 		src/gameplay/clans/house_exp.h
 		src/gameplay/clans/house.h
+		src/gameplay/clans/ingr_chest_saver.h
 		src/gameplay/communication/ignores.h
 		src/gameplay/communication/ignores_loader.h
 		src/gameplay/crafting/im.h
