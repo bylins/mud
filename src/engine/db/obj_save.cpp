@@ -613,13 +613,15 @@ void write_one_object(std::stringstream &out, ObjData *object, int location) {
 		if (GET_OBJ_SEX(object) != GET_OBJ_SEX(p)) {
 			out << "Sexx: " << static_cast<int>(GET_OBJ_SEX(object)) << "~\n";
 		}
-		// Таймер. ObjData::get_timer() дёргает глобальный
-		// world_objects.decay_manager() (not thread-safe), здесь это и
-		// избыточно, и препятствует параллельному сохранению. Берём
-		// сырое значение m_timer напрямую. Ранее здесь был clamp
-		// "object->set_timer(proto_timer)" -- он удалён как говнокод:
-		// та же коррекция применяется в read_one_object_new при загрузке.
-		const int obj_timer = object->CObjectPrototype::get_timer();
+		// Таймер. Сохраняем актуальный остаток: ObjData::get_timer()
+		// учитывает deadline в decay_manager, поэтому для свежезагруженного
+		// объекта с m_timer == proto_timer уже после пары игровых часов мы
+		// увидим правильное оставшееся время. Без этого Tmer не писался в
+		// файл игрока (m_timer сам по себе не тикает), и прогресс распада
+		// терялся на save/reload (issue #3189).
+		// Сохранение идёт из главного цикла (heartbeat, shutdown), обращение
+		// к decay_manager здесь безопасно.
+		const int obj_timer = object->get_timer();
 		const int proto_timer = p->get_timer();
 		if (obj_timer != proto_timer) {
 			out << "Tmer: " << obj_timer << "~\n";
