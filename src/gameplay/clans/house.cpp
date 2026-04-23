@@ -4236,6 +4236,7 @@ void Clan::init_ingr_chest() {
 			}
 			continue;
 		}
+		obj->set_extra_flag(EObjFlag::kTicktimer);
 		obj_list.push_front(obj.get());
 	}
 	for (auto it : obj_list) {
