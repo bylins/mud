@@ -6,6 +6,7 @@
 #include "gameplay/fight/pk.h"
 #include "gameplay/economics/currencies.h"
 #include "gameplay/magic/spells_info.h"
+#include "gameplay/clans/ingr_chest_saver.h"
 #include "gameplay/mechanics/celebrates.h"
 #include "gameplay/mechanics/guilds.h"
 #include "gameplay/abilities/feats.h"
@@ -95,6 +96,7 @@ class GlobalObjects {
 	static Strengthening &strengthening();
 	static obj2triggers_t &obj_triggers();
 	static RoomDescriptions &descriptions();
+	static ClanSystem::IngrChestSaver &ingr_chest_saver();
 };
 
 using MUD = GlobalObjects;
