@@ -224,6 +224,13 @@ void olc_update_object(int robj_num, ObjData *obj, ObjData *olc_obj) {
 		obj->set_val(1, tmp.get_val(1));
 		obj->set_val(2, tmp.get_val(2));
 	}
+	// Пересчитываем deadline в ObjDecayManager на основании актуальных полей:
+	// *obj = *olc_obj выше затирает extra_flags значениями из прототипа
+	// (в частности kTicktimer, снятый при загрузке прототипа), и deadline в
+	// decay_manager становится рассогласованным с m_timer. Без этого вызова
+	// get_timer() у живого экземпляра начинает возвращать UNLIMITED_TIMER
+	// (2147483647), см. issue #3186.
+	world_objects.decay_manager().on_timer_changed(obj);
 }
 
 // * Обновление полей объектов при изменении их прототипа через олц.

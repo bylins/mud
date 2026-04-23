@@ -193,6 +193,38 @@ TEST_F(ObjDecayManagerTest, GetDeadline_Untracked) {
 	EXPECT_EQ(dl, UINT64_MAX);
 }
 
+// Regression for bylins/mud#3186: redactor (oedit) wiped extra_flags from a
+// living object via `*obj = *olc_obj`, temporarily clearing kTicktimer. If
+// on_timer_changed is called in that window the deadline is pinned to
+// UINT64_MAX (ObjData::get_timer() would then return UNLIMITED_TIMER =
+// 2147483647 even after the flag is restored). olc_update_object must
+// re-refresh the deadline after restoring kTicktimer so the live object keeps
+// a real countdown.
+TEST_F(ObjDecayManagerTest, OnTimerChanged_RefreshAfterTicktimerRestore) {
+	auto obj = make_obj(100);
+	decay_mgr.insert(obj.get());
+
+	auto now = decay_mgr.current_mud_hour();
+	EXPECT_EQ(decay_mgr.get_deadline(obj.get()), now + 100);
+
+	// Simulate `*obj = *olc_obj`: the prototype has kTicktimer cleared,
+	// so the assignment wipes it on the live object.
+	obj->unset_extraflag(EObjFlag::kTicktimer);
+	decay_mgr.on_timer_changed(obj.get());
+	EXPECT_EQ(decay_mgr.get_deadline(obj.get()), UINT64_MAX);
+	EXPECT_EQ(obj->get_timer(), CObjectPrototype::UNLIMITED_TIMER);
+
+	// Restoration path in olc_update_object: the flag is put back and
+	// the deadline must be recomputed. Without the explicit refresh at
+	// the end of olc_update_object the deadline would stay at UINT64_MAX.
+	obj->set_extra_flag(EObjFlag::kTicktimer);
+	decay_mgr.on_timer_changed(obj.get());
+
+	now = decay_mgr.current_mud_hour();
+	EXPECT_EQ(decay_mgr.get_deadline(obj.get()), now + 100);
+	EXPECT_EQ(obj->get_timer(), 100);
+}
+
 // ---------------------------------------------------------------------------
 // Regression tests for GitHub issue #3178:
 //   - kZonedecay objects must "crumble" only when located outside their
