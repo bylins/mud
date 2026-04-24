@@ -891,19 +891,27 @@ void mobile_activity(int activity_level, int missed_pulses) {
 	});
 
 	utils::CExecutionTimer mobact_timer;
-	int processed_mobs = 0;
-
-//	int door, max, was_in = -1, activity_lev, i, ch_activity;
-//	int std_lev = activity_level % kPulseMobile;
+	int total_mobs = 0, processed_mobs = 0, skipped_purged = 0, skipped_inactive = 0;
+	int spec_proc_calls = 0, charmice_extracted = 0, movements = 0, helper_moves = 0;
+	double sec_update_affect = 0, sec_spec_proc = 0, sec_aggressive_mob = 0;
+	double sec_scavenger = 0, sec_loot_steal = 0, sec_npc_equip = 0;
+	double sec_helper_search = 0, sec_npc_walk = 0, sec_movement = 0;
+	double sec_npc_light = 0, sec_mob_memory = 0, sec_aggressive_room = 0;
 
 	for (auto &ch : character_list) {
 	  int door, max, was_in = -1, activity_lev, i, ch_activity;
 	  auto std_lev = activity_level % kPulseMobile;
 
+	  ++total_mobs;
 	  if (ch->purged()  || !ch->IsNpc() || !ch->in_used_zone()) {
+		++skipped_purged;
 		continue;
 	  }
-	  UpdateAffectOnPulse(ch.get(), missed_pulses);
+	  {
+		  utils::CExecutionTimer t;
+		  UpdateAffectOnPulse(ch.get(), missed_pulses);
+		  sec_update_affect += t.delta().count();
+	  }
 	  if (ch->punctual_wait > 0)
 		  ch->punctual_wait -= missed_pulses;
 	  else
@@ -928,6 +936,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 	  if (ch_activity != activity_lev
 		  || (was_in = ch->in_room) == kNowhere
 		  || GET_ROOM_VNUM(ch->in_room) % 100 == 99) {
+		  ++skipped_inactive;
 		  continue;
 	  }
 	  ++processed_mobs;
@@ -940,7 +949,11 @@ void mobile_activity(int activity_level, int missed_pulses) {
 			  ch->UnsetFlag(EMobFlag::kSpec);
 		  } else {
 			  buf2[0] = '\0';
-			  if ((mob_index[ch->get_rnum()].func)(ch.get(), ch.get(), 0, buf2)) {
+			  ++spec_proc_calls;
+			  utils::CExecutionTimer t;
+			  const bool handled = (mob_index[ch->get_rnum()].func)(ch.get(), ch.get(), 0, buf2);
+			  sec_spec_proc += t.delta().count();
+			  if (handled) {
 				  continue;    // go to next char
 			  }
 		  }
@@ -959,6 +972,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 		  } else {
 			  --(ch->extract_timer);
 			  if (!(ch->extract_timer)) {
+				  ++charmice_extracted;
 				  extract_charmice(ch.get(), true);
 				  continue;
 			  }
@@ -1050,7 +1064,11 @@ void mobile_activity(int activity_level, int missed_pulses) {
 	  }
 
 	  // look at room before moving
-	  do_aggressive_mob(ch.get(), false, false);
+	  {
+		  utils::CExecutionTimer t;
+		  do_aggressive_mob(ch.get(), false, false);
+		  sec_aggressive_mob += t.delta().count();
+	  }
 
 	  // if mob attack something
 	  if (ch->GetEnemy()
@@ -1060,10 +1078,14 @@ void mobile_activity(int activity_level, int missed_pulses) {
 
 	  // Scavenger (picking up objects)
 	  // От одного до трех предметов за раз
-	  i = number(1, 3);
-	  while (i) {
-		  npc_scavenge(ch.get());
-		  i--;
+	  {
+		  utils::CExecutionTimer t;
+		  i = number(1, 3);
+		  while (i) {
+			  npc_scavenge(ch.get());
+			  i--;
+		  }
+		  sec_scavenger += t.delta().count();
 	  }
 
 	  if (ch->extract_timer == 0) {
@@ -1074,8 +1096,12 @@ void mobile_activity(int activity_level, int missed_pulses) {
 		  int grab_stuff = false;
 		  // Looting the corpses
 
-		  grab_stuff += npc_loot(ch.get());
-		  grab_stuff += npc_steal(ch.get());
+		  {
+			  utils::CExecutionTimer t;
+			  grab_stuff += npc_loot(ch.get());
+			  grab_stuff += npc_steal(ch.get());
+			  sec_loot_steal += t.delta().count();
+		  }
 
 		  if (grab_stuff) {
 			  ch->UnsetFlag(EMobFlag::kAppearsDay);    //Взял из make_horse
@@ -1088,8 +1114,12 @@ void mobile_activity(int activity_level, int missed_pulses) {
 		  }
 		  //Niker: LootCR// End
 	  }
-	  npc_wield(ch.get());
-	  npc_armor(ch.get());
+	  {
+		  utils::CExecutionTimer t;
+		  npc_wield(ch.get());
+		  npc_armor(ch.get());
+		  sec_npc_equip += t.delta().count();
+	  }
 
 	  if (ch->GetPosition() == EPosition::kStand && NPC_FLAGGED(ch, ENpcFlag::kInvis)) {
 		  ch->set_affect(EAffect::kInvisible);
@@ -1126,6 +1156,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 		  && !AFF_FLAGGED(ch, EAffect::kBlind)
 		  && !ch->has_master()
 		  && ch->GetPosition() == EPosition::kStand) {
+		  utils::CExecutionTimer t;
 		  for (found = false, door = 0; door < EDirection::kMaxDirNum; door++) {
 			  RoomData::exit_data_ptr rdata = EXIT(ch, door);
 			  if (!rdata
@@ -1159,21 +1190,31 @@ void mobile_activity(int activity_level, int missed_pulses) {
 
 		  if (!found) {
 			  door = kBfsError;
+		  } else {
+			  ++helper_moves;
 		  }
+		  sec_helper_search += t.delta().count();
 	  }
 
 	  if (GET_DEST(ch) != kNowhere
 		  && ch->GetPosition() > EPosition::kFight
 		  && door == kBfsError) {
+		  utils::CExecutionTimer t;
 		  npc_group(ch.get());
 		  door = npc_walk(ch.get());
+		  sec_npc_walk += t.delta().count();
 	  }
 
-	  if (MEMORY(ch) && door == kBfsError && ch->GetPosition() > EPosition::kFight && ch->GetSkill(ESkill::kTrack))
+	  if (MEMORY(ch) && door == kBfsError && ch->GetPosition() > EPosition::kFight && ch->GetSkill(ESkill::kTrack)) {
+		  utils::CExecutionTimer t;
 		  door = npc_track(ch.get());
+		  sec_npc_walk += t.delta().count();
+	  }
 
 	  if (door == kBfsAlreadyThere) {
+		  utils::CExecutionTimer t;
 		  do_aggressive_mob(ch.get(), false, false);
+		  sec_aggressive_mob += t.delta().count();
 		  continue;
 	  }
 
@@ -1195,20 +1236,30 @@ void mobile_activity(int activity_level, int missed_pulses) {
 		  // После хода нпц уже может не быть, т.к. ушел в дт, я не знаю почему
 		  // оно не валится на муд.ру, но на цигвине у меня падало стабильно,
 		  // т.к. в ch уже местами мусор после фри-чара // Krodo
-		  if (npc_move(ch.get(), door, 1)) {
+		  utils::CExecutionTimer t;
+		  const bool moved = npc_move(ch.get(), door, 1);
+		  if (moved) {
 			  npc_group(ch.get());
 			  npc_groupbattle(ch.get());
-		  } else {
+			  ++movements;
+		  }
+		  sec_movement += t.delta().count();
+		  if (!moved) {
 			  continue;
 		  }
 	  }
-	  npc_light(ch.get());
+	  {
+		  utils::CExecutionTimer t;
+		  npc_light(ch.get());
+		  sec_npc_light += t.delta().count();
+	  }
 	  // *****************  Mob Memory
 	  if (ch->IsFlagged(EMobFlag::kMemory)
 		  && MEMORY(ch)
 		  && ch->GetPosition() > EPosition::kSleep
 		  && !AFF_FLAGGED(ch, EAffect::kBlind)
 		  && !ch->GetEnemy()) {
+		  utils::CExecutionTimer t;
 		  // Find memory in world
 		  for (auto names = MEMORY(ch); names && (GET_SPELL_MEM(ch, ESpell::kSummon) > 0
 			  || GET_SPELL_MEM(ch, ESpell::kRelocate) > 0); names = names->next) {
@@ -1225,15 +1276,26 @@ void mobile_activity(int activity_level, int missed_pulses) {
 				  }
 			  }
 		  }
+		  sec_mob_memory += t.delta().count();
 	  }
 	  // Add new mobile actions here
 	  if (was_in != ch->in_room) {
+		  utils::CExecutionTimer t;
 		  do_aggressive_room(ch.get(), false);
+		  sec_aggressive_room += t.delta().count();
 	  }
 	}
-	double mobact_time = mobact_timer.delta().count();
+	const double mobact_time = mobact_timer.delta().count();
 	if (mobact_time > 0.005) {
-		log("mobile_activity: processed=%d time=%f", processed_mobs, mobact_time);
+		log("mobile_activity: total=%.6fs mobs=%d processed=%d inactive=%d purged=%d "
+			"| update_affect=%.6f spec=%.6f aggr_mob=%.6f scav=%.6f loot=%.6f "
+			"equip=%.6f helper=%.6f walk=%.6f move=%.6f light=%.6f memory=%.6f "
+			"aggr_room=%.6f | specproc=%d extracted=%d moves=%d helper_moves=%d",
+			mobact_time, total_mobs, processed_mobs, skipped_inactive, skipped_purged,
+			sec_update_affect, sec_spec_proc, sec_aggressive_mob, sec_scavenger,
+			sec_loot_steal, sec_npc_equip, sec_helper_search, sec_npc_walk,
+			sec_movement, sec_npc_light, sec_mob_memory, sec_aggressive_room,
+			spec_proc_calls, charmice_extracted, movements, helper_moves);
 	}
 }
 ObjData *create_charmice_box(CharData *ch) {
