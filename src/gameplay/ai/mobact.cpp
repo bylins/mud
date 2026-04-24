@@ -932,14 +932,14 @@ void mobile_activity(int activity_level, int missed_pulses) {
 	  }
 	  ++processed_mobs;
 
-	  // Профилирование фаз для одного моба. Срабатывает только если обработка
-	  // этого моба заняла > 2 мс, тогда в profiler.log пишется разбивка по
-	  // фазам, отсортированная по длительности. Имя скоупа включает vnum и
+	  // Профилирование фаз для одного моба. Срабатывает если обработка заняла
+	  // больше порога (0.0001с = 100мкс), тогда в profiler.log пишется разбивка
+	  // по фазам, отсортированная по длительности. Имя скоупа включает vnum и
 	  // комнату, чтобы можно было найти конкретного виновника спайка (#3197).
 	  char prof_scope[128];
 	  snprintf(prof_scope, sizeof(prof_scope),
 			   "mob_activity vnum=%d room=%d", GET_MOB_VNUM(ch), GET_ROOM_VNUM(ch->in_room));
-	  utils::CSteppedProfiler mob_prof(prof_scope, 0.002);
+	  utils::CSteppedProfiler mob_prof(prof_scope, 0.0001);
 
 	  // Examine call for special procedure
 	  mob_prof.next_step("spec_proc");
