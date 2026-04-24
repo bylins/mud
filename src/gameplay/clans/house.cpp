@@ -4387,10 +4387,13 @@ int Clan::calculate_clan_tax() const {
 }
 
 bool Clan::ingr_chest_active() const {
-	if (ingr_chest_room_rnum_ > 0) {
-		return true;
+	// Распущенная дружина (без членов) не должна считаться владельцем
+	// сундука для ингров: платить налог, отображать его в olc, etc.
+	// См. issue #3191.
+	if (m_members.empty()) {
+		return false;
 	}
-	return false;
+	return ingr_chest_room_rnum_ > 0;
 }
 
 void Clan::set_ingr_chest(CharData *ch) {
