@@ -169,7 +169,7 @@ Clan::Clan() :
 	exp(0), clan_exp(0), exp_buf(0), clan_level(0), rent(0),
 	pk(true),
 	chest_room(0), storehouse(true), exp_info(true), test_clan(false),
-	ingr_chest_room_rnum_(-1), gold_tax_pct_(0), reputation(10),
+	ingr_chest_room_rnum_(0), gold_tax_pct_(0), reputation(10),
 	chest_objcount(0), chest_discount(0), chest_weight(0),
 	ingr_chest_objcount_(0) {
 }
@@ -4445,7 +4445,7 @@ void Clan::disable_ingr_chest(CharData *ch) {
 			break;
 		}
 	}
-	ingr_chest_room_rnum_ = -1;
+	ingr_chest_room_rnum_ = 0;
 	SendMsgToChar("Хранилище отключено.\r\n", ch);
 }
 
