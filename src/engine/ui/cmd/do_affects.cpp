@@ -29,7 +29,7 @@ void do_affects(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		aff_copy.unset(j);
 	}
 
-	aff_copy.sprintbits(affected_bits, buf2, sizeof(buf2), ",");
+	aff_copy.sprintbits(affected_bits, buf2, sizeof(buf2), ", ");
 	snprintf(buf, kMaxStringLength, "Аффекты: %s%s%s\r\n", kColorBoldYel, buf2, kColorNrm);
 	SendMsgToChar(buf, ch);
 

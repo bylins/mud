@@ -532,6 +532,7 @@ ObjData::shared_ptr read_one_object_new(char **data, int *error) {
 	}
 	ConvertDrinkconSkillField(object.get(), false);
 	object->remove_incorrect_values_keys(object->get_type());
+	object->set_extra_flag(EObjFlag::kTicktimer);
 	world_objects.decay_manager().insert(object.get());
 	return (object);
 }
@@ -547,9 +548,29 @@ inline bool proto_has_descr(const ExtraDescription::shared_ptr &odesc, const Ext
 	return false;
 }
 
+void WriteMagicComponentItem(std::stringstream &out, ObjData *object) {
+	out << "#" << object->get_vnum() << "\n";
+	out << "Ouid: " << object->get_unique_id() << "~\n";
+	out << "Tmer: " << object->CObjectPrototype::get_timer() << "~\n";
+	out << "Val1: " << GET_OBJ_VAL(object, 1) << "~\n";
+	out << "Val2: " << GET_OBJ_VAL(object, 2) << "~\n";
+	out << "Val3: " << GET_OBJ_VAL(object, 3) << "~\n";
+	if (object->get_custom_label()) {
+		out << "Clbl: " << object->get_custom_label()->text_label << "~\n";
+		out << "ClID: " << object->get_custom_label()->author << "~\n";
+		if (object->get_custom_label()->clan_abbrev) {
+			out << "ClCl: " << object->get_custom_label()->clan_abbrev << "~\n";
+		}
+	}
+}
+
 // Данная процедура помещает предмет в буфер
 // [ ИСПОЛЬЗУЕТСЯ В НОВОМ ФОРМАТЕ ВЕЩЕЙ ПЕРСОНАЖА ОТ 10.12.04 ]
 void write_one_object(std::stringstream &out, ObjData *object, int location) {
+	if (object->get_type() == EObjType::kMagicComponent) {
+		WriteMagicComponentItem(out, object);
+		return;
+	}
 	ObjRnum orn = object->get_rnum();
 	CObjectPrototype::shared_ptr proto_sp;
 
