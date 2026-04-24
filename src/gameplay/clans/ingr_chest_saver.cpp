@@ -28,22 +28,6 @@ namespace ClanSystem {
 
 namespace {
 
-void write_one_item(std::stringstream &out, ObjData *object) {
-	out << "#" << object->get_vnum() << "\n";
-	out << "Ouid: " << object->get_unique_id() << "~\n";
-	out << "Tmer: " << object->CObjectPrototype::get_timer() << "~\n";
-	out << "Val1: " << GET_OBJ_VAL(object, 1) << "~\n";
-	out << "Val2: " << GET_OBJ_VAL(object, 2) << "~\n";
-	out << "Val3: " << GET_OBJ_VAL(object, 3) << "~\n";
-	if (object->get_custom_label()) {
-		out << "Clbl: " << object->get_custom_label()->text_label << "~\n";
-		out << "ClID: " << object->get_custom_label()->author << "~\n";
-		if (object->get_custom_label()->clan_abbrev) {
-			out << "ClCl: " << object->get_custom_label()->clan_abbrev << "~\n";
-		}
-	}
-}
-
 // Сериализация одного сундука. Читает ObjData, не мутирует. Размер
 // буфера заранее резервируется под предыдущий размер файла +10%, чтобы
 // не было серии realloc в stringbuf при росте.
@@ -60,8 +44,7 @@ bool save_one_chest(ObjData *chest, const std::string &filename) {
 	out.seekp(0);
 	out << "* Items file\n";
 	for (ObjData *temp = chest->get_contains(); temp; temp = temp->get_next_content()) {
-		write_one_item(out, temp);
-//		write_one_object(out, temp, 0); старый метод пишем все
+		write_one_object(out, temp, 0);
 	}
 	out << "\n$\n$\n";
 
