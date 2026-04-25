@@ -1970,11 +1970,17 @@ void do_entergame(DescriptorData *d) {
 		d->character->SetFlag(EPrf::kAutoloot);
 		d->character->SetFlag(EPrf::kPklMode);
 		d->character->SetFlag(EPrf::kClanmembersMode); // соклан
-		d->character->map_set_option(MapSystem::MAP_MODE_MOB_SPEC_SHOP);
-		d->character->map_set_option(MapSystem::MAP_MODE_MOB_SPEC_RENT);
-		d->character->map_set_option(MapSystem::MAP_MODE_MOB_SPEC_BANK);
-		d->character->map_set_option(MapSystem::MAP_MODE_MOB_SPEC_TEACH);
-		d->character->map_set_option(MapSystem::MAP_MODE_BIG);
+		// По умолчанию для нового игрока включаем всё, кроме depth-флагов
+		// и godmode, аналогично пункту "включить все" в OLC карты (#3202).
+		for (int i = 0; i < MapSystem::TOTAL_MAP_OPTIONS; ++i) {
+			if (i == MapSystem::MAP_MODE_1_DEPTH
+				|| i == MapSystem::MAP_MODE_2_DEPTH
+				|| i == MapSystem::MAP_MODE_DEPTH_FIXED
+				|| i == MapSystem::MAP_MODE_GOD_BIG) {
+				continue;
+			}
+			d->character->map_set_option(i);
+		}
 		d->character->SetFlag(EPrf::kShowZoneNameOnEnter);
 		d->character->SetFlag(EPrf::kBoardMode);
 		d->character->set_last_exchange(time(nullptr));
