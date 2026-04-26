@@ -84,8 +84,11 @@ int horse_keeper(CharData *ch, void *me, int cmd, char *argument) {
 				false, ch, 0, victim, kToChar);
 			return (true);
 		}
-		make_horse(horse, ch);
+		// Сначала поместить коня в комнату, иначе add_follower внутри
+		// make_horse видит лошадь в kNowhere и логирует "попытка
+		// загрупить игроков в разных комнатах" (#3207).
 		PlaceCharToRoom(horse, ch->in_room);
+		make_horse(horse, ch);
 		sprintf(buf, "$N оседлал$G %s и отдал$G %s вам.", GET_PAD(horse, 3), HSHR(horse));
 		act(buf, false, ch, 0, victim, kToChar);
 		sprintf(buf, "$N оседлал$G %s и отдал$G %s $n2.", GET_PAD(horse, 3), HSHR(horse));
