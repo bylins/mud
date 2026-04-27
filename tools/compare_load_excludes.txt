@@ -1,52 +1,12 @@
-# Known Legacy vs YAML checksum diffs that we deliberately ignore in
-# tools/compare_load_checksums.sh. These are NOT YAML-loader bugs — they are
-# legacy-loader / world-data quirks that round-trip correctly through YAML
-# but get dropped or reshuffled by the Legacy loader.
+# Empty by design.
 #
-# Format: <TYPE> <VNUM>   # short note
-# TYPE is one of: MOB, OBJ, ROOM, TRIG, MOB_SCRIPTS, OBJ_SCRIPTS, ROOM_SCRIPTS
+# tools/compare_load_checksums.sh reads this file as an allowlist of known
+# Legacy-vs-YAML divergences (per-line `<TYPE> <VNUM>`, e.g. `MOB 11605`
+# or just `MOB_SCRIPTS`). When the world data is clean it stays empty;
+# whenever a *known* legacy quirk creeps back (T-line after `$`, unsorted
+# trig_index breaking GetTriggerRnum's binary search, etc.) add the
+# affected vnum here with a one-line `# why` comment.
 #
-# Remove an entry once the underlying world data is fixed. We track
-# everything explicitly so a NEW divergence will still trip the tooling.
-# ----------------------------------------------------------------------------
-# Group 1: T <vnum> appears after the `$` end-of-file marker in the .mob.
-# Legacy loader's parse_mobile() do/while loop reads the next letter, sees `$`
-# and stops — the trailing T line is silently ignored. The Python converter
-# splits mob blocks on `\n#` boundaries and happily picks up the trailing T,
-# so YAML attaches an extra trigger that legacy does not.
-MOB 11605     # world/mob/116.mob: trailing `T 11602` after `$`
-MOB 28909     # world/mob/289.mob: trailing `T 28901` after `$`
-
-# Group 2: Legacy GetTriggerRnum() uses a binary search over trig_index, but
-# legacy parse_trigger() inserts triggers in file order — and zone .trg files
-# below have triggers out of vnum order. binary_search returns -1 for the
-# "displaced" trigger, so AttachTriggerToMob silently drops it. YAML loader
-# explicitly sorts trig_index by vnum (yaml_world_data_source.cpp:1145),
-# so the trigger is found and attached.
-MOB 14505     # world/mob/145.mob `T 14506`; world/trg/145.trg has 14510 before 14506
-MOB 15705     # world/mob/157.mob `T 15712`; world/trg/157.trg has 15750/15751/15752 reordered
-MOB 38523     # world/mob/385.mob `T 38509`; world/trg/385.trg out-of-order
-
-# Group 3: T <vnum> with vnum that doesn't exist anywhere in the loaded world.
-# Both loaders log SYSERR and skip — but the YAML converter still records the
-# vnum in mob['triggers'], so the YAML *file* lists it and the loader emits a
-# "non-existent trigger" SYSERR. Final attached set is the same as legacy
-# (empty), but this single mob slips into the diff because the converter
-# baked the bad vnum into the YAML file itself.
-MOB 33800     # world/mob/338.mob `T 80809` (vnum 80809 not in world)
-
-# Group 4: trigger ROW order (not content) shifts because legacy doesn't
-# sort trig_index. Same vnum/CRC pair appears at a different rnum-position
-# in checksums_detailed.txt. Sorted diff is empty.
-TRIG 14506    # zone 145
-TRIG 14510    # zone 145
-TRIG 15712    # zone 157
-TRIG 15750    # zone 157
-TRIG 15751    # zone 157
-TRIG 15752    # zone 157
-TRIG 33830    # zone 338
-TRIG 38509    # zone 385
-
-# Group 5: aggregate XOR over per-mob proto_script hashes. Will drift as long
-# as any MOB above attaches a different trigger set than legacy.
-MOB_SCRIPTS   # follows from MOB exclusions above
+# Goal: tools/compare_load_checksums.sh should report `OK: no unexpected
+# differences` with this file empty. Any non-empty entry is a temporary
+# crutch that the next world refresh should let us delete.
