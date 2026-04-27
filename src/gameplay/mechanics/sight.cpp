@@ -496,6 +496,24 @@ bool look_at_target(CharData *ch, char *arg, int subcmd) {
 		return false;
 	}
 
+	// Совпадает ли аргумент с ключевыми словами какой-нибудь двери в комнате?
+	// Тогда покажем описание этого направления (#3209).
+	for (int d = 0; d < EDirection::kMaxDirNum; ++d) {
+		const auto &exit = world[ch->in_room]->dir_option[d];
+		if (!exit || !exit->keyword || !*exit->keyword) {
+			continue;
+		}
+		if (!isname(what, exit->keyword)) {
+			continue;
+		}
+		if (!exit->general_description.empty()) {
+			SendMsgToChar(exit->general_description.c_str(), ch);
+		} else {
+			SendMsgToChar("Вы не видите ничего особенного.\r\n", ch);
+		}
+		return false;
+	}
+
 	// If an object was found back in generic_find
 	if (bits && (found_obj != nullptr)) {
 
