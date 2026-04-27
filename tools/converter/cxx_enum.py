@@ -150,3 +150,57 @@ def parse_value_enum_as_list(header_path: str | Path, enum_name: str,
     if max_value <= 0:
         max_value = max(table) + 1
     return [table.get(i, f"UNUSED_{i}") for i in range(max_value)]
+
+
+# Letters used by the legacy `bits[]` UI tables. Each table is a flat
+# `const char *foo[] = { "name0", "name1", ..., "\n", "name30", ..., "\n" };`
+# where the literal "\n" entries split the array into 30-bit planes (matching
+# the planar packing used by FlagData / EMobFlag / EAffect / etc.).
+def parse_str_array(header_path: str | Path, array_name: str) -> list[str]:
+    """Return raw list of string literals from a C-style const-char-array.
+
+    "\\n" entries are kept verbatim — caller is responsible for translating
+    them into plane boundaries.
+    """
+    text = Path(header_path).read_text(encoding="koi8-r", errors="replace")
+    pat = re.compile(
+        rf"\bconst\s+char\s*\*\s*{re.escape(array_name)}\s*\[\s*\]\s*=\s*\{{(?P<body>.*?)\}}",
+        re.DOTALL,
+    )
+    m = pat.search(text)
+    if not m:
+        raise ValueError(f"array {array_name} not found in {header_path}")
+    body = _strip_comments(m.group("body"))
+    out: list[str] = []
+    for raw in re.findall(r'"((?:[^"\\]|\\.)*)"', body):
+        # Only literally-typed "\n" entries act as plane separators in the
+        # bits[] arrays — they are written in source as the two-character
+        # escape sequence \n, which Python's raw-finditer captures as the
+        # backslash-n digraph.
+        out.append(raw)
+    return out
+
+
+def parse_ui_bits_table(header_path: str | Path, array_name: str,
+                         plane_size: int = 30) -> dict[int, str]:
+    """Map bit_index -> UI label from a `const char *foo[]` bits table.
+
+    The legacy convention is:
+        - 30 entries per plane (positions 0..29 within the plane).
+        - "\\n" entries separate planes.
+        - bit_index = plane_no * 30 + position_in_plane.
+
+    Sentinels and gaps are skipped (returned dict only contains real names).
+    """
+    items = parse_str_array(header_path, array_name)
+    out: dict[int, str] = {}
+    plane = 0
+    pos = 0
+    for s in items:
+        if s == "\\n" or s == "\n":
+            plane += 1
+            pos = 0
+            continue
+        out[plane * plane_size + pos] = s
+        pos += 1
+    return out
