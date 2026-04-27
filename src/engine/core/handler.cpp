@@ -604,7 +604,7 @@ unsigned int ActivateStuff(CharData *ch, ObjData *obj, id_to_set_info_map::const
 	if (pos < EEquipPos::kNumEquipPos) {
 		set_info::const_iterator set_obj_info;
 
-		if (GET_EQ(ch, pos) && GET_EQ(ch, pos)->has_flag(EObjFlag::KSetItem) &&
+		if (GET_EQ(ch, pos) && GET_EQ(ch, pos)->has_flag(EObjFlag::kSetItem) &&
 			(set_obj_info = it->second.find(GET_OBJ_VNUM(GET_EQ(ch, pos)))) != it->second.end()) {
 			unsigned int oqty = ActivateStuff(ch, obj, it, pos + 1,
 											  (show_msg ? CharEquipFlag::show_msg : CharEquipFlags())
@@ -857,7 +857,7 @@ void EquipObj(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip_f
 	}
 
 	auto it = ObjData::set_table.begin();
-	if (obj->has_flag(EObjFlag::KSetItem)) {
+	if (obj->has_flag(EObjFlag::kSetItem)) {
 		for (; it != ObjData::set_table.end(); it++) {
 			if (it->second.find(GET_OBJ_VNUM(obj)) != it->second.end()) {
 				ActivateStuff(ch, obj, it, 0,
@@ -868,7 +868,7 @@ void EquipObj(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip_f
 		}
 	}
 
-	if (!obj->has_flag(EObjFlag::KSetItem) || it == ObjData::set_table.end()) {
+	if (!obj->has_flag(EObjFlag::kSetItem) || it == ObjData::set_table.end()) {
 		for (int j = 0; j < kMaxObjAffect; j++) {
 			affect_modify(ch,
 						  obj->get_affected(j).location,
@@ -924,7 +924,7 @@ unsigned int DeactivateStuff(CharData *ch, ObjData *obj, id_to_set_info_map::con
 		set_info::const_iterator set_obj_info;
 
 		if (GET_EQ(ch, pos)
-			&& GET_EQ(ch, pos)->has_flag(EObjFlag::KSetItem)
+			&& GET_EQ(ch, pos)->has_flag(EObjFlag::kSetItem)
 			&& (set_obj_info = it->second.find(GET_OBJ_VNUM(GET_EQ(ch, pos)))) != it->second.end()) {
 			unsigned int oqty =
 				DeactivateStuff(ch, obj, it, pos + 1, (show_msg ? CharEquipFlag::show_msg : CharEquipFlags()),
@@ -1106,14 +1106,14 @@ ObjData *UnequipChar(CharData *ch, int pos, const CharEquipFlags& equip_flags) {
 		log("SYSERR: ch->in_room = kNowhere when unequipping char %s.", GET_NAME(ch));
 
 	auto it = ObjData::set_table.begin();
-	if (obj->has_flag(EObjFlag::KSetItem))
+	if (obj->has_flag(EObjFlag::kSetItem))
 		for (; it != ObjData::set_table.end(); it++)
 			if (it->second.find(GET_OBJ_VNUM(obj)) != it->second.end()) {
 				DeactivateStuff(ch, obj, it, 0, (show_msg ? CharEquipFlag::show_msg : CharEquipFlags()), 0);
 				break;
 			}
 
-	if (!obj->has_flag(EObjFlag::KSetItem) || it == ObjData::set_table.end()) {
+	if (!obj->has_flag(EObjFlag::kSetItem) || it == ObjData::set_table.end()) {
 		for (int j = 0; j < kMaxObjAffect; j++) {
 			affect_modify(ch,
 						  obj->get_affected(j).location,
@@ -1135,7 +1135,7 @@ ObjData *UnequipChar(CharData *ch, int pos, const CharEquipFlags& equip_flags) {
 			}
 		}
 
-		if ((obj->has_flag(EObjFlag::KSetItem)) && (SetSystem::is_big_set(obj)))
+		if ((obj->has_flag(EObjFlag::kSetItem)) && (SetSystem::is_big_set(obj)))
 			obj->deactivate_obj(activation());
 	}
 

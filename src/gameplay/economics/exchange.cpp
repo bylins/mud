@@ -197,7 +197,7 @@ int exchange_exhibit(CharData *ch, char *arg) {
 	}
 	if (!bloody::handle_transfer(ch, nullptr, obj))
 		return false;
-	if (item_cost > 400000 && obj->has_flag(EObjFlag::KSetItem)) {
+	if (item_cost > 400000 && obj->has_flag(EObjFlag::kSetItem)) {
 		SendMsgToChar("Никто не купит ЭТО за такую сумму.\r\n", ch);
 		return false;
 	}

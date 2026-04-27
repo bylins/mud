@@ -1932,7 +1932,7 @@ int MakeRecept::make(CharData *ch) {
 	switch (skill) {
 		case ESkill::kMakeBow:;
 		case ESkill::kMakeWear: obj->set_extra_flag(EObjFlag::kTransformed);
-			obj->set_extra_flag(EObjFlag::KLimitedTimer);
+			obj->set_extra_flag(EObjFlag::kLimitedTimer);
 			break;
 		default: break;
 	}

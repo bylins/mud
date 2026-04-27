@@ -6,7 +6,6 @@
 
 #include "world_data_source.h"
 #include "world_data_source_base.h"
-#include "world_data_source_base.h"
 
 #ifdef HAVE_YAML
 
@@ -61,6 +60,11 @@ public:
 	void SaveMobs(int zone_rnum, int specific_vnum = -1) override;
 	void SaveObjects(int zone_rnum, int specific_vnum = -1) override;
 
+	// Exposed for unit tests: parses a single mob YAML file into a CharData.
+	// Stateless aside from reading the global DictionaryManager singleton --
+	// callers are responsible for loading dictionaries beforehand.
+	CharData ParseMobFile(const std::string &file_path);
+
 private:
 	// Initialize dictionaries
 	bool LoadDictionaries();
@@ -112,7 +116,7 @@ private:
 	ZoneData ParseZoneFile(const std::string &file_path);
 	Trigger* ParseTriggerFile(const std::string &file_path);
 	RoomData* ParseRoomFile(const std::string &file_path, int zone_rnum, LocalDescriptionIndex &local_index, size_t &local_desc_idx);
-	CharData ParseMobFile(const std::string &file_path);
+	// ParseMobFile lives in the public section above (exposed for tests).
 	CObjectPrototype* ParseObjectFile(const std::string &file_path, int vnum);
 
 	// Helper: get configured thread count from runtime config

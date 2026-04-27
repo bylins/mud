@@ -262,11 +262,11 @@ bool IsTimerUnlimited(const CObjectPrototype *obj) {
 		return false;
 	}
 	// если это сетовый предмет
-	if (obj->has_flag(EObjFlag::KSetItem)) {
+	if (obj->has_flag(EObjFlag::kSetItem)) {
 		return false;
 	}
 	// !нерушима
-	if (obj->has_flag(EObjFlag::KLimitedTimer)) {
+	if (obj->has_flag(EObjFlag::kLimitedTimer)) {
 		return false;
 	}
 	// рассыпется вне зоны
