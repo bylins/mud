@@ -496,6 +496,24 @@ bool look_at_target(CharData *ch, char *arg, int subcmd) {
 		return false;
 	}
 
+	// Совпадает ли аргумент с ключевыми словами какой-нибудь двери в комнате?
+	// Тогда покажем описание этого направления (#3209).
+	for (int d = 0; d < EDirection::kMaxDirNum; ++d) {
+		const auto &exit = world[ch->in_room]->dir_option[d];
+		if (!exit || !exit->keyword || !*exit->keyword) {
+			continue;
+		}
+		if (!isname(what, exit->keyword)) {
+			continue;
+		}
+		if (!exit->general_description.empty()) {
+			SendMsgToChar(exit->general_description.c_str(), ch);
+		} else {
+			SendMsgToChar("Вы не видите ничего особенного.\r\n", ch);
+		}
+		return false;
+	}
+
 	// If an object was found back in generic_find
 	if (bits && (found_obj != nullptr)) {
 
@@ -1499,7 +1517,7 @@ void obj_info(CharData *ch, ObjData *obj, char buf[kMaxStringLength]) {
 		sprintf(buf + strlen(buf), "\r\n%s", kColorNrm);
 	}
 
-	if (obj->get_type() == EObjType::kMagicIngredient
+	if (obj->get_type() == EObjType::kMagicComponent
 		&& (CanUseFeat(ch, EFeat::kHerbalist)
 			|| ch->IsFlagged(EPrf::kHolylight))) {
 		for (j = 0; imtypes[j].id != GET_OBJ_VAL(obj, IM_TYPE_SLOT) && j <= top_imtypes;) {
@@ -2161,7 +2179,7 @@ char *diag_uses_to_char(ObjData *obj, CharData *ch) {
 	static char out_str[kMaxStringLength];
 
 	*out_str = 0;
-	if (obj->get_type() == EObjType::kIngredient
+	if (obj->get_type() == EObjType::kMagicIngredient
 		&& IS_SET(obj->get_spec_param(), kItemCheckUses)
 		&& IS_MANA_CASTER(ch)) {
 		int i = -1;

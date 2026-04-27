@@ -21,6 +21,7 @@
 #include "engine/db/world_characters.h"
 #include "engine/db/obj_prototypes.h"
 #include "utils/logger.h"
+#include "utils/thread_pool.h"
 #include "utils/utils.h"
 #include "engine/entities/obj_data.h"
 #include "engine/core/comm.h"
@@ -41,6 +42,7 @@
 #include "engine/db/help.h"
 #include "engine/core/conf.h"
 #include "engine/db/global_objects.h"
+#include "ingr_chest_saver.h"
 #include "engine/ui/objects_filter.h"
 #include "engine/ui/table_wrapper.h"
 #include "gameplay/mechanics/sight.h"
@@ -167,7 +169,7 @@ Clan::Clan() :
 	exp(0), clan_exp(0), exp_buf(0), clan_level(0), rent(0),
 	pk(true),
 	chest_room(0), storehouse(true), exp_info(true), test_clan(false),
-	ingr_chest_room_rnum_(-1), gold_tax_pct_(0), reputation(10),
+	ingr_chest_room_rnum_(0), gold_tax_pct_(0), reputation(10),
 	chest_objcount(0), chest_discount(0), chest_weight(0),
 	ingr_chest_objcount_(0) {
 }
@@ -4242,42 +4244,8 @@ void Clan::init_ingr_chest() {
 	delete[] databuf;
 }
 
-// сохраняем храны ингров всех кланов в файлы
 void ClanSystem::save_ingr_chests() {
-	for (const auto &i : Clan::ClanList) {
-
-		if (!i->ingr_chest_active()) {
-			continue;
-		}
-		utils::CExecutionTimer timer;
-
-		std::string file_abbrev = i->get_file_abbrev();
-		std::string filename = LIB_HOUSE + file_abbrev + "/" + file_abbrev + ".ing";
-
-		for (auto chest : world[i->get_ingr_chest_room_rnum()]->contents) {
-
-			if (!is_ingr_chest(chest)) {
-				continue;
-			}
-			utils::CExecutionTimer timer;
-
-			std::stringstream out;
-			out << "* Items file\n";
-			for (ObjData *temp = chest->get_contains(); temp; temp = temp->get_next_content()) {
-				write_one_object(out, temp, 0);
-			}
-			out << "\n$\n$\n";
-			std::ofstream file(filename.c_str());
-			if (!file.is_open()) {
-				log("Error open file: %s! (%s %s %d)", filename.c_str(), __FILE__, __func__, __LINE__);
-				return;
-			}
-			file << out.rdbuf();
-			file.close();
-			break;
-		}
-		log(fmt::format("saving clan chest {} done, timer {:.10f}", i->GetAbbrev(), timer.delta().count()));
-	}
+	GlobalObjects::ingr_chest_saver().run();
 }
 
 bool Clan::put_ingr_chest(CharData *ch, ObjData *obj, ObjData *chest) {
@@ -4288,7 +4256,7 @@ bool Clan::put_ingr_chest(CharData *ch, ObjData *obj, ObjData *chest) {
 		return false;
 	}
 
-	if (obj->get_type() != EObjType::kMagicIngredient
+	if (obj->get_type() != EObjType::kMagicComponent
 		&& obj->get_type() != EObjType::kCraftMaterial) {
 		SendMsgToChar(ch, "%s - Хранилище ингредиентов не предназначено для предметов данного типа.\r\n",
 					  obj->get_PName(ECase::kNom).c_str());
@@ -4322,6 +4290,7 @@ bool Clan::put_ingr_chest(CharData *ch, ObjData *obj, ObjData *chest) {
 		PlaceObjIntoObj(obj, chest);
 		act("Вы положили $o3 в $O3.", false, ch, obj, chest, kToChar);
 		CLAN(ch)->ingr_chest_objcount_++;
+		GlobalObjects::ingr_chest_saver().mark_dirty(CLAN(ch).get());
 	}
 	return true;
 }
@@ -4338,6 +4307,7 @@ bool Clan::take_ingr_chest(CharData *ch, ObjData *obj, ObjData *chest) {
 	if (obj->get_carried_by() == ch) {
 		act("Вы взяли $o3 из $O1.", false, ch, obj, chest, kToChar);
 		CLAN(ch)->ingr_chest_objcount_--;
+		GlobalObjects::ingr_chest_saver().mark_dirty(CLAN(ch).get());
 	}
 	return true;
 }
@@ -4402,6 +4372,7 @@ void Clan::purge_ingr_chest() {
 			break;
 		}
 	}
+	GlobalObjects::ingr_chest_saver().mark_dirty(this);
 }
 
 int Clan::calculate_clan_tax() const {
@@ -4415,10 +4386,13 @@ int Clan::calculate_clan_tax() const {
 }
 
 bool Clan::ingr_chest_active() const {
-	if (ingr_chest_room_rnum_ > 0) {
-		return true;
+	// Распущенная дружина (без членов) не должна считаться владельцем
+	// сундука для ингров: платить налог, отображать его в olc, etc.
+	// См. issue #3191.
+	if (m_members.empty()) {
+		return false;
 	}
-	return false;
+	return ingr_chest_room_rnum_ > 0;
 }
 
 void Clan::set_ingr_chest(CharData *ch) {
@@ -4470,7 +4444,7 @@ void Clan::disable_ingr_chest(CharData *ch) {
 			break;
 		}
 	}
-	ingr_chest_room_rnum_ = -1;
+	ingr_chest_room_rnum_ = 0;
 	SendMsgToChar("Хранилище отключено.\r\n", ch);
 }
 

@@ -47,7 +47,7 @@ constexpr Bitvector kEafPoisoned = 1 << 20;		// отравление с пуше
 constexpr Bitvector kEafFirstPoison = 1 << 21;	// отравление цели первый раз за бой
 constexpr Bitvector kEafInvisible = 1 << 22;	// одет автоинвиз
 
-/// Flags for ingredient items (kIngredient)
+/// Flags for ingredient items (kMagicIngredient)
 enum EIngredientFlag {
 	kItemRunes = 1 << 0,
 	kItemCheckUses = 1 << 1,

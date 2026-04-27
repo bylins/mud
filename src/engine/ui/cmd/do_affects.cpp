@@ -29,7 +29,7 @@ void do_affects(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		aff_copy.unset(j);
 	}
 
-	aff_copy.sprintbits(affected_bits, buf2, sizeof(buf2), ",");
+	aff_copy.sprintbits(affected_bits, buf2, sizeof(buf2), ", ");
 	snprintf(buf, kMaxStringLength, "Аффекты: %s%s%s\r\n", kColorBoldYel, buf2, kColorNrm);
 	SendMsgToChar(buf, ch);
 
@@ -72,7 +72,7 @@ void do_affects(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			} else {
 				if (aff->modifier) {
 					sprintf(buf2, "%-3d к параметру: %s", aff->modifier, apply_types[(int) aff->location]);
-					strncat(buf, buf2, sizeof(buf) - strlen(buf) - 1);
+					snprintf(buf + strlen(buf), sizeof(buf) - strlen(buf), "%s", buf2);
 				}
 				if (aff->bitvector) {
 					if (*buf2) {
@@ -82,7 +82,7 @@ void do_affects(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					}
 					strncat(buf, kColorBoldRed, sizeof(buf) - strlen(buf) - 1);
 					sprintbit(aff->bitvector, affected_bits, buf2, sizeof(buf2));
-					strncat(buf, buf2, sizeof(buf) - strlen(buf) - 1);
+					snprintf(buf + strlen(buf), sizeof(buf) - strlen(buf), "%s", buf2);
 					strncat(buf, kColorNrm, sizeof(buf) - strlen(buf) - 1);
 				}
 			}
@@ -114,7 +114,7 @@ void do_affects(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				if (aff->modifier) {
 					sprintf(buf2, "%s%-3d к параметру: %s%s%s", (aff->modifier > 0) ? "+" : "",
 							aff->modifier, kColorBoldRed, apply_types[(int) aff->location], kColorNrm);
-					strncat(buf, buf2, sizeof(buf) - strlen(buf) - 1);
+					snprintf(buf + strlen(buf), sizeof(buf) - strlen(buf), "%s", buf2);
 				}
 				strncat(buf, "\r\n", sizeof(buf) - strlen(buf) - 1);
 				SendMsgToChar(buf, ch);

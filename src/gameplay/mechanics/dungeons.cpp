@@ -924,6 +924,7 @@ void MobDataFree(ZoneRnum zrn) {
 		mob_proto[mrn_start + mrn].proto_script->clear();
 		mob_proto[mrn_start + mrn].set_npc_name("пустой моб");
 		mob_index[mrn_start + mrn].vnum = mrn + zvn * 100;
+		mob_proto[mrn_start + mrn].SetCharAliases("моб");
 	}
 // мобы удаляются в RoomDataFree
 }

@@ -570,7 +570,7 @@ void medit_save_to_disk(ZoneRnum zone_num) {
 		if (mob->mob_specials.Questor)
 			snprintf(buf1, sizeof(buf1), "%s", mob->mob_specials.Questor);
 		else
-			snprintf(buf1, sizeof(buf1), "");
+			buf1[0] = '\0';
 		strip_string(buf1);
 		*buf2 = 0;
 		mob->PrintFlagsToAscii(buf2, sizeof(buf2));

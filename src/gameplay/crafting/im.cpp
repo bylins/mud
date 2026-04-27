@@ -288,8 +288,9 @@ int im_assign_power(ObjData *obj)
 		if (GET_OBJ_VAL(obj, IM_INDEX_SLOT) == -1)
 			return 3;
 		rnum = GetMobRnum(GET_OBJ_VAL(obj, IM_INDEX_SLOT));
-		if (rnum < 0)
-			return 3;    // неверный VNUM базового моба
+		if (rnum < 0) {
+			return 4;    // неверный VNUM базового моба
+		}
 		obj->set_val(IM_POWER_SLOT, (GetRealLevel(mob_proto + rnum) + 3) * 3 / 4);
 	}
 	// Попробовать найти описатель ВИДА
@@ -887,7 +888,7 @@ void im_reset_room(RoomData *room, int level, int type) {
 
 	for (auto it = room->contents.begin(); it != room->contents.end(); ) {
 		auto o = *it; ++it;
-		if (o->get_type() == EObjType::kMagicIngredient) {
+		if (o->get_type() == EObjType::kMagicComponent) {
 			ExtractObjFromWorld(o, false);
 		}
 	}
@@ -1208,7 +1209,7 @@ ObjData **im_obtain_ingredients(CharData *ch, char *argument, int *count) {
 			snprintf(buf, kMaxInputLength, "У вас нет %s.\r\n", name);
 			break;
 		}
-		if (o->get_type() != EObjType::kMagicIngredient) {
+		if (o->get_type() != EObjType::kMagicComponent) {
 			sprintf(buf, "Вы должны использовать только магические ингредиенты.\r\n");
 			break;
 		}

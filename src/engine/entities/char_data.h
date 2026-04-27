@@ -56,6 +56,16 @@ struct char_player_data {
 	ubyte Race;        // PC / NPC's race
 };
 
+struct PK_Memory_type {
+	long unique{0};
+	long kill_num{0};
+	long kill_at{0};
+	long revenge_num{0};
+	long battle_exp{0};
+	long thief_exp{0};
+	long clan_exp{0};
+};
+
 struct TemporarySpell {
 	ESpell spell{ESpell::kUndefined};
 	time_t set_time{0};
@@ -341,8 +351,8 @@ class CharData : public ProtectedCharData {
 	friend void do_mtransform(CharData *ch, char *argument, int cmd, int subcmd);
 	friend void medit_mobile_copy(CharData *dst, CharData *src);
 
-	void SetFeat(EFeat feat_id) { real_abils.Feats.set(to_underlying(feat_id)); };
-	void UnsetFeat(EFeat feat_id) { real_abils.Feats.reset(to_underlying(feat_id)); };
+	void SetFeat(EFeat feat_id) { real_abils.Feats.set(to_underlying(feat_id)); affect_total(this); };
+	void UnsetFeat(EFeat feat_id) { real_abils.Feats.reset(to_underlying(feat_id)); affect_total(this); };
 	bool HaveFeat(EFeat feat_id) const { return real_abils.Feats.test(to_underlying(feat_id)); };
 
 	void set_skill(ESkill skill_id, int percent);
@@ -823,7 +833,7 @@ class CharData : public ProtectedCharData {
 
 	int caster_level;
 	int damage_level;
-	struct PK_Memory_type *pk_list;
+	std::unordered_map<long, PK_Memory_type> pk_map;
 
 	int track_dirs;
 	bool check_aggressive;

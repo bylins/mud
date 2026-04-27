@@ -33,18 +33,6 @@ class ObjData;    // forward declaration to avoid inclusion of obj.hpp and any d
 //   4. Вызов функции pk_thiefs_action() при воровстве
 //   5. Вызов функции pk_revenge_action() в случае убийства
 
-// Структуры для сохранения ПК информаци
-struct PK_Memory_type {
-	long unique;        // unique игрока
-	long kill_num;        // количество флагов носителя структуры на unique
-	long kill_at;        // время получения последнего флага (для spamm)
-	long revenge_num;    // количетсво попыток реализации мести со стороны unique
-	long battle_exp;    // время истечения поединка
-	long thief_exp;        // время истечения флага воровства
-	long clan_exp;        // время истечения клан-флага
-	struct PK_Memory_type *next;
-};
-
 const short MAX_REVENGE = 2;    // Максимальное количество попыток реализации мести
 
 #define        PK_ACTION_NO        1    // никаких конфликтов

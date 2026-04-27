@@ -36,3 +36,18 @@ syslog.CRASH.*
 syslog.bz2
 archive/
 .*DS_Store
+
+# In-source build artifacts (when cmake run from project root by mistake)
+/CMakeCache.txt
+/CMakeFiles/
+/Makefile
+/cmake_install.cmake
+/circle
+/changelog
+/profiler.log
+
+# Claude Code worktrees and state
+.claude/
+
+# Backup files from patch/sed
+*.orig

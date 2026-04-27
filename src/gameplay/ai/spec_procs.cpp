@@ -84,8 +84,11 @@ int horse_keeper(CharData *ch, void *me, int cmd, char *argument) {
 				false, ch, 0, victim, kToChar);
 			return (true);
 		}
-		make_horse(horse, ch);
+		// Сначала поместить коня в комнату, иначе add_follower внутри
+		// make_horse видит лошадь в kNowhere и логирует "попытка
+		// загрупить игроков в разных комнатах" (#3207).
 		PlaceCharToRoom(horse, ch->in_room);
+		make_horse(horse, ch);
 		sprintf(buf, "$N оседлал$G %s и отдал$G %s вам.", GET_PAD(horse, 3), HSHR(horse));
 		act(buf, false, ch, 0, victim, kToChar);
 		sprintf(buf, "$N оседлал$G %s и отдал$G %s $n2.", GET_PAD(horse, 3), HSHR(horse));
@@ -168,7 +171,7 @@ bool item_nouse(ObjData *obj) {
 		case EObjType::kPen:
 		case EObjType::kBoat:
 		case EObjType::kFountain:
-		case EObjType::kMagicIngredient: return true;
+		case EObjType::kMagicComponent: return true;
 
 		default: break;
 	}
@@ -207,7 +210,7 @@ int npc_scavenge(CharData *ch) {
 		cont = nullptr;
 		best_cont = nullptr;
 		for (auto obj : world[ch->in_room]->contents) {
-			if (obj->get_type() == EObjType::kMagicIngredient
+			if (obj->get_type() == EObjType::kMagicComponent
 				|| Clan::is_clan_chest(obj)
 				|| ClanSystem::is_ingr_chest(obj)) {
 				continue;

@@ -580,7 +580,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
 		}
 	}
 	// Showing the bitvector
-	k->char_specials.saved.affected_by.sprintbits(affected_bits, smallBuf, sizeof(smallBuf), ",", 4);
+	k->char_specials.saved.affected_by.sprintbits(affected_bits, smallBuf, sizeof(smallBuf), ", ", 4);
 	snprintf(buf, sizeof(buf), "Аффекты: %s%s%s\r\n", kColorYel, smallBuf, kColorNrm);
 	SendMsgToChar(buf, ch);
 	snprintf(buf, sizeof(buf), "&GПеревоплощений: %d\r\n&n", GetRealRemort(k));
@@ -1004,7 +1004,7 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 			);
 			break;
 
-		case EObjType::kIngredient:sprintbit(j->get_spec_param(), ingradient_bits, smallBuf, sizeof(smallBuf));
+		case EObjType::kMagicIngredient:sprintbit(j->get_spec_param(), ingradient_bits, smallBuf, sizeof(smallBuf));
 			snprintf(buf, sizeof(buf), "ingr bits %s", smallBuf);
 
 			if (IS_SET(j->get_spec_param(), kItemCheckUses)) {

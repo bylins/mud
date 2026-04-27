@@ -153,6 +153,7 @@ class ClanMembersList : private std::unordered_map<long, ClanMember::shared_ptr>
   using base_t::end;
   using base_t::find;
   using base_t::size;
+  using base_t::empty;
   using base_t::clear;
 
   void set(const key_type &key, const mapped_type &value) { (*this)[key] = value; }

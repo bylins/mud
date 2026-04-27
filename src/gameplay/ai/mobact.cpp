@@ -932,7 +932,17 @@ void mobile_activity(int activity_level, int missed_pulses) {
 	  }
 	  ++processed_mobs;
 
+	  // Профилирование фаз для одного моба. Срабатывает если обработка заняла
+	  // больше порога (0.0001с = 100мкс), тогда в profiler.log пишется разбивка
+	  // по фазам, отсортированная по длительности. Имя скоупа включает vnum и
+	  // комнату, чтобы можно было найти конкретного виновника спайка (#3197).
+	  char prof_scope[128];
+	  snprintf(prof_scope, sizeof(prof_scope),
+			   "mob_activity vnum=%d room=%d", GET_MOB_VNUM(ch), GET_ROOM_VNUM(ch->in_room));
+	  utils::CSteppedProfiler mob_prof(prof_scope, 0.0001);
+
 	  // Examine call for special procedure
+	  mob_prof.next_step("spec_proc");
 	  if (ch->IsFlagged(EMobFlag::kSpec) && !no_specials) {
 		  if (mob_index[ch->get_rnum()].func == nullptr) {
 			  log("SYSERR: %s (#%d): Attempting to call non-existing mob function.",
@@ -1050,6 +1060,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 	  }
 
 	  // look at room before moving
+	  mob_prof.next_step("aggressive_mob_pre");
 	  do_aggressive_mob(ch.get(), false, false);
 
 	  // if mob attack something
@@ -1060,6 +1071,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 
 	  // Scavenger (picking up objects)
 	  // От одного до трех предметов за раз
+	  mob_prof.next_step("scavenger");
 	  i = number(1, 3);
 	  while (i) {
 		  npc_scavenge(ch.get());
@@ -1071,6 +1083,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 		  //Niker: LootCR// Start
 		  //Не уверен, что рассмотрены все случаи, когда нужно снимать флаги с моба
 		  //Реализация для лута и воровства
+		  mob_prof.next_step("loot_steal");
 		  int grab_stuff = false;
 		  // Looting the corpses
 
@@ -1088,6 +1101,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 		  }
 		  //Niker: LootCR// End
 	  }
+	  mob_prof.next_step("npc_equip");
 	  npc_wield(ch.get());
 	  npc_armor(ch.get());
 
@@ -1105,7 +1119,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 		  } else {
 			  ch->remove_affect(EAffect::kSneak);
 		  }
-		  affect_total(ch.get());
+		  //affect_total(ch.get());
 	  }
 
 	  if (ch->GetPosition() == EPosition::kStand && NPC_FLAGGED(ch, ENpcFlag::kDisguising)) {
@@ -1115,7 +1129,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 			  ch->remove_affect(EAffect::kDisguise);
 		  }
 
-		  affect_total(ch.get());
+		  //affect_total(ch.get());
 	  }
 
 	  door = kBfsError;
@@ -1126,6 +1140,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 		  && !AFF_FLAGGED(ch, EAffect::kBlind)
 		  && !ch->has_master()
 		  && ch->GetPosition() == EPosition::kStand) {
+		  mob_prof.next_step("helper_search");
 		  for (found = false, door = 0; door < EDirection::kMaxDirNum; door++) {
 			  RoomData::exit_data_ptr rdata = EXIT(ch, door);
 			  if (!rdata
@@ -1165,14 +1180,18 @@ void mobile_activity(int activity_level, int missed_pulses) {
 	  if (GET_DEST(ch) != kNowhere
 		  && ch->GetPosition() > EPosition::kFight
 		  && door == kBfsError) {
+		  mob_prof.next_step("npc_walk");
 		  npc_group(ch.get());
 		  door = npc_walk(ch.get());
 	  }
 
-	  if (MEMORY(ch) && door == kBfsError && ch->GetPosition() > EPosition::kFight && ch->GetSkill(ESkill::kTrack))
+	  if (MEMORY(ch) && door == kBfsError && ch->GetPosition() > EPosition::kFight && ch->GetSkill(ESkill::kTrack)) {
+		  mob_prof.next_step("npc_track");
 		  door = npc_track(ch.get());
+	  }
 
 	  if (door == kBfsAlreadyThere) {
+		  mob_prof.next_step("aggressive_mob_post");
 		  do_aggressive_mob(ch.get(), false, false);
 		  continue;
 	  }
@@ -1195,6 +1214,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 		  // После хода нпц уже может не быть, т.к. ушел в дт, я не знаю почему
 		  // оно не валится на муд.ру, но на цигвине у меня падало стабильно,
 		  // т.к. в ch уже местами мусор после фри-чара // Krodo
+		  mob_prof.next_step("movement");
 		  if (npc_move(ch.get(), door, 1)) {
 			  npc_group(ch.get());
 			  npc_groupbattle(ch.get());
@@ -1202,6 +1222,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 			  continue;
 		  }
 	  }
+	  mob_prof.next_step("npc_light");
 	  npc_light(ch.get());
 	  // *****************  Mob Memory
 	  if (ch->IsFlagged(EMobFlag::kMemory)
@@ -1209,6 +1230,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 		  && ch->GetPosition() > EPosition::kSleep
 		  && !AFF_FLAGGED(ch, EAffect::kBlind)
 		  && !ch->GetEnemy()) {
+		  mob_prof.next_step("mob_memory");
 		  // Find memory in world
 		  for (auto names = MEMORY(ch); names && (GET_SPELL_MEM(ch, ESpell::kSummon) > 0
 			  || GET_SPELL_MEM(ch, ESpell::kRelocate) > 0); names = names->next) {
@@ -1228,6 +1250,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 	  }
 	  // Add new mobile actions here
 	  if (was_in != ch->in_room) {
+		  mob_prof.next_step("aggressive_room");
 		  do_aggressive_room(ch.get(), false);
 	  }
 	}

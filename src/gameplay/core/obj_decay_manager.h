@@ -45,12 +45,16 @@ class ObjDecayManager {
  private:
 	void update_queue_entry(ObjData *obj, uint64_t new_deadline);
 	void remove_queue_entry(ObjData *obj);
+	void compute_and_store_deadline(ObjData *obj);
+	void drop_obj_from_indices(ObjData *obj);
+	bool is_outside_home_zone(ObjData *obj) const;
 
 	uint64_t m_counter = 0;
 	std::set<DecayEntry> m_queue;
 	std::unordered_map<ObjData *, uint64_t> m_obj_to_deadline;
 	std::unordered_set<ObjData *> m_env_check_objs;
 	std::unordered_set<ObjData *> m_timed_spell_objs;
+	std::unordered_set<ObjData *> m_zonedecay_objs;
 };
 
 #endif // OBJ_DECAY_MANAGER_H_

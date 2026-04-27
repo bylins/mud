@@ -1402,9 +1402,9 @@ void do_mdamage(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigg
 			char_dam_message(dam, victim, victim, 0);
 			if (victim->GetPosition() == EPosition::kDead) {
 				if (!victim->IsNpc()) {
-					sprintf(buf2, "%s killed by mobdamage at %s [%d]",GET_NAME(victim),
+					sprintf(buf2, "%s killed by mobdamage at %s [%d], trigger [%d]",GET_NAME(victim),
 						victim->in_room == kNowhere ? "kNowhere" : world[victim->in_room]->name,
-						GET_ROOM_VNUM(victim->in_room));
+						GET_ROOM_VNUM(victim->in_room), GET_TRIG_VNUM(trig));
 				mudlog(buf2, BRF, 0, SYSLOG, true);
 				}
 				die(victim, ch);

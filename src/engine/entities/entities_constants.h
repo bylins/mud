@@ -642,8 +642,8 @@ enum EObjType {
 	kBoat = 22,				// Item is a boat    //
 	kFountain = 23,			// Item is a fountain      //
 	kBook = 24,				// Item is book //
-	kIngredient = 25,		// Item is magical ingradient //
-	kMagicIngredient = 26,	// Магический ингредиент //
+	kMagicIngredient = 25,		// Item is magical ingradient //
+	kMagicComponent = 26,	// Магический ингредиент //
 	kCraftMaterial = 27,	// Материал для крафтовых умений //
 	kBandage = 28,			// бинты для перевязки
 	kLightArmor = 29,		// легкий тип брони

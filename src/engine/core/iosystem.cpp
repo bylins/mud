@@ -1100,7 +1100,7 @@ std::string MakePrompt(DescriptorData *d) {
 				  d->showstr_page, d->showstr_count);
 	} else if (d->writer) {
 		fmt::format_to(std::back_inserter(out), "] ");
-	} else if (d->state == EConState::kPlaying && !ch->IsNpc()) {
+	} else if (d->state == EConState::kPlaying && ch && ch->in_room != kNowhere && !ch->IsNpc()) {
 		if (GET_INVIS_LEV(ch)) {
 			fmt::format_to(std::back_inserter(out), "i{} ", GET_INVIS_LEV(ch));
 		}

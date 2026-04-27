@@ -776,7 +776,7 @@ bool is_depot(ObjData *obj) {
 // * Распечатка отдельного предмета при осмотре хранилища.
 void print_obj(std::stringstream &i_out, std::stringstream &s_out,
 			   ObjData *obj, int count, CharData *ch) {
-	const bool output_to_i = obj->get_type() == EObjType::kMagicIngredient
+	const bool output_to_i = obj->get_type() == EObjType::kMagicComponent
 		|| obj->get_type() == EObjType::kCraftMaterial;
 	std::stringstream &out = output_to_i ? i_out : s_out;
 
@@ -814,7 +814,7 @@ std::string print_obj_list(CharData *ch, ObjListType &cont) {
 
 	auto prev_obj_it = cont.cend();
 	for (auto obj_it = cont.cbegin(); obj_it != cont.cend(); ++obj_it) {
-		if ((*obj_it)->get_type() == EObjType::kMagicIngredient
+		if ((*obj_it)->get_type() == EObjType::kMagicComponent
 			|| (*obj_it)->get_type() == EObjType::kCraftMaterial) {
 			++i_cnt;
 		} else {
@@ -959,7 +959,7 @@ bool can_put_chest(CharData *ch, ObjData *obj) {
 unsigned count_inrg(const ObjListType &cont) {
 	unsigned ingr_cnt = 0;
 	for (auto obj_it = cont.cbegin(); obj_it != cont.cend(); ++obj_it) {
-		if ((*obj_it)->get_type() == EObjType::kMagicIngredient
+		if ((*obj_it)->get_type() == EObjType::kMagicComponent
 			|| (*obj_it)->get_type() == EObjType::kCraftMaterial) {
 			++ingr_cnt;
 		}
@@ -1004,7 +1004,7 @@ bool put_depot(CharData *ch, ObjData::shared_ptr &obj) {
 
 	const size_t ingr_cnt = count_inrg(it->second.pers_online);
 	const size_t staff_cnt = it->second.pers_online.size() - ingr_cnt;
-	const bool is_ingr = obj->get_type() == EObjType::kMagicIngredient
+	const bool is_ingr = obj->get_type() == EObjType::kMagicComponent
 		|| obj->get_type() == EObjType::kCraftMaterial;
 
 	if (is_ingr && ingr_cnt >= (MAX_PERS_SLOTS(ch) * 2)) {

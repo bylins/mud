@@ -672,6 +672,10 @@ unsigned int ActivateStuff(CharData *ch, ObjData *obj, id_to_set_info_map::const
 								} else {
 									CastAffect(GetRealLevel(ch), ch, ch, i.aff_spell);
 								}
+							} else {
+								affect_modify(ch, GetApplyByWeaponAffect(i.aff_pos, ch).first,
+											  GetApplyByWeaponAffect(i.aff_pos, ch).second,
+											  static_cast<EAffect>(i.aff_bitvector), true);
 							}
 						}
 					}
@@ -703,6 +707,10 @@ unsigned int ActivateStuff(CharData *ch, ObjData *obj, id_to_set_info_map::const
 							} else {
 								CastAffect(GetRealLevel(ch), ch, ch, i.aff_spell);
 							}
+						} else {
+							affect_modify(ch, GetApplyByWeaponAffect(i.aff_pos, ch).first,
+										  GetApplyByWeaponAffect(i.aff_pos, ch).second,
+										  static_cast<EAffect>(i.aff_bitvector), true);
 						}
 					}
 				}
@@ -883,6 +891,10 @@ void EquipObj(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip_f
 					} else {
 						CastAffect(GetRealLevel(ch), ch, ch, j.aff_spell);
 					}
+				} else {
+					affect_modify(ch, GetApplyByWeaponAffect(j.aff_pos, ch).first,
+								  GetApplyByWeaponAffect(j.aff_pos, ch).second,
+								  static_cast<EAffect>(j.aff_bitvector), true);
 				}
 			}
 		}

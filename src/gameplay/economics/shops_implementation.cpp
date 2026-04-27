@@ -915,7 +915,7 @@ void shop_node::put_item_to_shop(ObjData *obj) {
 					continue;
 				}
 
-				if (obj->get_type() != EObjType::kMagicIngredient //а у них всех один рнум
+				if (obj->get_type() != EObjType::kMagicComponent //а у них всех один рнум
 					|| obj->get_short_description() == tmp_obj->get_short_description()) {
 					item->add_uid(obj->get_unique_id());
 					put_to_storage(obj);

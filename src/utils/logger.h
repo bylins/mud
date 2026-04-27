@@ -22,6 +22,7 @@ void shop_log(const char *format, ...) __attribute__((format(printf, 1, 2)));
 void olc_log(const char *format, ...) __attribute__((format(printf, 1, 2)));
 void imm_log(const char *format, ...) __attribute__((format(printf, 1, 2)));
 void err_log(const char *format, ...) __attribute__((format(printf, 1, 2)));
+[[noreturn]] void fatal_log(const char *format, ...) __attribute__((format(printf, 1, 2)));
 void ip_log(const char *ip);
 
 // defines for mudlog() //

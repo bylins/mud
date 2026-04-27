@@ -1856,8 +1856,6 @@ void do_entergame(DescriptorData *d) {
 		character->UnsetFlag(EMobFlag::kMobFreed);
 	}
 
-	log("Player %s enter at room %d", GET_NAME(d->character), GET_ROOM_VNUM(load_room));
-	char_to_room(d->character, load_room);
 	// а потом уже вычитаем за ренту
 	if (GetRealLevel(d->character) != 0) {
 		Crash_load(d->character.get());
@@ -1921,7 +1919,6 @@ void do_entergame(DescriptorData *d) {
 	// Check & remove/add natural, race & unavailable features
 	UnsetInaccessibleFeats(d->character.get());
 	SetInbornAndRaceFeats(d->character.get());
-
 	if (!d->character->IsImmortal()) {
 		for (const auto &skill : MUD::Skills()) {
 			if (MUD::Class((d->character)->GetClass()).skills[skill.GetId()].IsInvalid()) {
@@ -1957,7 +1954,6 @@ void do_entergame(DescriptorData *d) {
 	// того, как повисел на менюшке; важно, чтобы этот вызов шел раньше save_char()
 	d->character->set_who_last(time(nullptr));
 	d->character->save_char();
-	act("$n вступил$g в игру.", true, d->character.get(), nullptr, nullptr, kToRoom);
 	// with the copyover patch, this next line goes in enter_player_game()
 	read_saved_vars(d->character.get());
 	enter_wtrigger(world[d->character->in_room], d->character.get(), -1);
@@ -1974,11 +1970,17 @@ void do_entergame(DescriptorData *d) {
 		d->character->SetFlag(EPrf::kAutoloot);
 		d->character->SetFlag(EPrf::kPklMode);
 		d->character->SetFlag(EPrf::kClanmembersMode); // соклан
-		d->character->map_set_option(MapSystem::MAP_MODE_MOB_SPEC_SHOP);
-		d->character->map_set_option(MapSystem::MAP_MODE_MOB_SPEC_RENT);
-		d->character->map_set_option(MapSystem::MAP_MODE_MOB_SPEC_BANK);
-		d->character->map_set_option(MapSystem::MAP_MODE_MOB_SPEC_TEACH);
-		d->character->map_set_option(MapSystem::MAP_MODE_BIG);
+		// По умолчанию для нового игрока включаем всё, кроме depth-флагов
+		// и godmode, аналогично пункту "включить все" в OLC карты (#3202).
+		for (int i = 0; i < MapSystem::TOTAL_MAP_OPTIONS; ++i) {
+			if (i == MapSystem::MAP_MODE_1_DEPTH
+				|| i == MapSystem::MAP_MODE_2_DEPTH
+				|| i == MapSystem::MAP_MODE_DEPTH_FIXED
+				|| i == MapSystem::MAP_MODE_GOD_BIG) {
+				continue;
+			}
+			d->character->map_set_option(i);
+		}
 		d->character->SetFlag(EPrf::kShowZoneNameOnEnter);
 		d->character->SetFlag(EPrf::kBoardMode);
 		d->character->set_last_exchange(time(nullptr));
@@ -2010,10 +2012,12 @@ void do_entergame(DescriptorData *d) {
 		case EGender::kPoly: sprintf(buf, "%s вошли в игру.", GET_NAME(d->character));
 			break;
 	}
-
 	mudlog(buf, NRM, std::max(kLvlImmortal, GET_INVIS_LEV(d->character)), SYSLOG, true);
 	d->has_prompt = 0;
 	login_change_invoice(d->character.get());
+	log("Player %s enter at room %d", GET_NAME(d->character), GET_ROOM_VNUM(load_room));
+	char_to_room(d->character, load_room);
+	act("$n вступил$g в игру.", true, d->character.get(), nullptr, nullptr, kToRoom);
 	affect_total(d->character.get());
 	CheckLight(d->character.get(), kLightNo, kLightNo, kLightNo, kLightNo, 0);
 	look_at_room(d->character.get(), false);

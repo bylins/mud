@@ -27,7 +27,7 @@ git submodule update --init --recurse-submodules
 ```bash
 mkdir build
 cd build
-cmake -DBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Test ..
+cmake -DBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Release ..
 make -j$(($(nproc)/2))
 cd ..
 ./build/circle 4000  # Start server on port 4000
@@ -37,12 +37,14 @@ cd ..
 ```bash
 mkdir build
 cd build
-cmake -DCMAKE_BUILD_TYPE=Test ..
+cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=ON ..
 make tests -j$(($(nproc)/2))
 ./tests/tests  # Run all tests
 ```
 
 **Important:** Always use `-j$(($(nproc)/2))` for parallel builds to avoid overloading the system.
+
+**Important:** Always use `-DCMAKE_BUILD_TYPE=Release` for development builds. The `Test` and `FastTest` build types are legacy — do not use them. Never build without tests first and then rebuild with tests — use `-DBUILD_TESTS=ON` from the start to avoid double compilation.
 
 ### Build Types
 - **Release** - Optimized production build (-O0 with debug symbols, -rdynamic, -Wall)

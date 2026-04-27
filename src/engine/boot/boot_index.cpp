@@ -77,8 +77,7 @@ int IndexFileImplementation::load() {
 
 	// Exit if 0 records, unless this is shops
 	if (!rec_count) {
-		log("SYSERR: boot error - 0 records counted in %s/%s.", prefix.c_str(), INDEX_FILE);
-		exit(1);
+		fatal_log("SYSERR: boot error - 0 records counted in %s/%s.", prefix.c_str(), INDEX_FILE);
 	}
 
 	return rec_count;
@@ -161,8 +160,7 @@ int HelpIndexFile::process_file() {
 int HelpIndexFile::count_social_records() {
 	while (read_entry()) {
 		if (m_unexpected_eof) {
-			log("SYSERR: Unexpected end of help file.");
-			exit(1);
+			fatal_log("SYSERR: Unexpected end of help file.");
 		}
 	}
 

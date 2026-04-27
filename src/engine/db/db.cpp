@@ -196,8 +196,7 @@ char *ReadActionMsgFromFile(FILE *fl, int nr) {
 	UNUSED_ARG(result);
 
 	if (feof(fl)) {
-		log("SYSERR: ReadActionMsgFromFile: unexpected EOF near action #%d", nr);
-		exit(1);
+		fatal_log("SYSERR: ReadActionMsgFromFile: unexpected EOF near action #%d", nr);
 	}
 	if (*local_buf == '#')
 		return (nullptr);
@@ -662,8 +661,7 @@ void LoadMessages() {
 	char chk[128];
 
 	if (!(fl = fopen(MESS_FILE, "r"))) {
-		log("SYSERR: Error reading combat message file %s: %s", MESS_FILE, strerror(errno));
-		exit(1);
+		fatal_log("SYSERR: Error reading combat message file %s: %s", MESS_FILE, strerror(errno));
 	}
 	for (i = 0; i < kMaxMessages; i++) {
 		fight_messages[i].attack_type = 0;
@@ -685,8 +683,7 @@ void LoadMessages() {
 		for (i = 0; (i < kMaxMessages) &&
 			(fight_messages[i].attack_type != type) && (fight_messages[i].attack_type); i++);
 		if (i >= kMaxMessages) {
-			log("SYSERR: Too many combat messages.  Increase kMaxMessages and recompile.");
-			exit(1);
+			fatal_log("SYSERR: Too many combat messages.  Increase kMaxMessages and recompile.");
 		}
 		//log("BATTLE MESSAGE %d(%d)", i, type); Лишний спам
 		CREATE(messages, 1);
@@ -968,7 +965,7 @@ void BootMudDataBase() {
 	boot_profiler.next_step("Loading grouping parameters");
 	log("Booting grouping parameters");
 	if (grouping.init()) {
-		exit(1);
+		fatal_log("Failed to load grouping parameters");
 	}
 
 	boot_profiler.next_step("Loading special assignments");
@@ -1239,7 +1236,7 @@ void GameLoader::BootIndex(const EBootType mode) {
 
 	auto index = IndexFileFactory::get_index(mode);
 	if (!index->open()) {
-		exit(1);
+		fatal_log("Failed to open index file (mode=%d)", static_cast<int>(mode));
 	}
 	const int rec_count = index->load();
 
@@ -1333,8 +1330,7 @@ void CheckRoomForIncompatibleFlags(int rnum) {
 // make sure the start rooms exist & resolve their vnums to rnums
 void CheckStartRooms() {
 	if ((r_mortal_start_room = GetRoomRnum(mortal_start_room)) == kNowhere) {
-		log("SYSERR:  Mortal start room does not exist.  Change in config.c. %d", mortal_start_room);
-		exit(1);
+		fatal_log("SYSERR:  Mortal start room does not exist.  Change in config.c. %d", mortal_start_room);
 	}
 
 	if ((r_immort_start_room = GetRoomRnum(immort_start_room)) == kNowhere) {
@@ -1506,8 +1502,7 @@ void SetZoneRnumForTriggers() {
 			log("FATAL: Trigger %d belongs to non-existent zone %d (zone_table has %zu zones)",
 				trig_vnum, zone_vnum, zone_table.size());
 			log("FATAL: This indicates broken world data or initialization order bug.");
-			log("FATAL: Boot aborted. Triggers cannot function without valid zone assignment.");
-			exit(1);
+			fatal_log("FATAL: Boot aborted. Triggers cannot function without valid zone assignment.");
 		}
 
 		// Set first trigger for this zone (if not set yet)
@@ -2093,7 +2088,7 @@ bool CanBeReset(ZoneRnum zone) {
 }
 
 void paste_mob(CharData *ch, RoomRnum room) {
-	if (!ch->IsNpc() || ch->GetEnemy() || ch->GetPosition() < EPosition::kStun || !ch->in_used_zone())
+	if (!ch->IsNpc() || ch->GetEnemy() || ch->GetPosition() < EPosition::kStun)
 		return;
 	if (IS_CHARMICE(ch)
 		|| AFF_FLAGGED(ch, EAffect::kHorse)
@@ -2175,7 +2170,7 @@ void paste_mob(CharData *ch, RoomRnum room) {
 
 			if (GET_LASTROOM(ch) == kNowhere)
 			{
-				ExtractCharFromWorld(ch, false, true);
+				character_list.AddToExtractedList(ch);
 				return;
 			}
 
