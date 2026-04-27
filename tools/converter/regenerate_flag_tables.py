@@ -11,24 +11,192 @@ never drift. Run after editing any of those enums.
 Usage:
     python3 tools/converter/regenerate_flag_tables.py            # rewrite
     python3 tools/converter/regenerate_flag_tables.py --check    # CI mode
+
+The C++ parsing helpers below understand the Bylins planar packing:
+
+    kFoo  = 1u << N            -> plane 0
+    kBar  = kIntOne   | (1<<N) -> plane 1
+    kBaz  = kIntTwo   | (1<<N) -> plane 2
+    kQux  = kIntThree | (1<<N) -> plane 3
+
+bit_index = plane * 30 + N
 """
 from __future__ import annotations
 
 import argparse
+import re
 import sys
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(REPO_ROOT))
-
-from tools.converter.cxx_enum import (parse_flag_enum_as_list, parse_value_enum,  # noqa: E402
-                                       parse_ui_bits_table, parse_str_array)
 
 ENT = REPO_ROOT / 'src/engine/entities/entities_constants.h'
 AFF = REPO_ROOT / 'src/gameplay/affects/affect_contants.h'
 CST = REPO_ROOT / 'src/gameplay/core/constants.cpp'
 AFC = REPO_ROOT / 'src/gameplay/affects/affect_contants.cpp'
 TARGET = REPO_ROOT / 'tools/converter/convert_to_yaml.py'
+
+# ---------------------------------------------------------------------------
+# C++ parsing primitives
+# ---------------------------------------------------------------------------
+
+PLANE_MARKER = {
+    "kIntOne":   1 << 30,
+    "kIntTwo":   2 << 30,
+    "kIntThree": 3 << 30,
+}
+
+
+def _strip_comments(text: str) -> str:
+    """Remove /* ... */ and // ... \\n comments from C++ source.
+
+    Done before tokenization, because line comments often contain commas
+    (Russian descriptions) which would otherwise corrupt the comma-split
+    entry parser.
+    """
+    text = re.sub(r"/\*.*?\*/", "", text, flags=re.DOTALL)
+    text = re.sub(r"//[^\n]*", "", text)
+    return text
+
+
+def _evaluate(expr: str) -> int:
+    """Evaluate a C++ literal/operator expression on integers."""
+    expr = expr.strip().rstrip(",")
+    expr = expr.replace("u<<", "<<").replace("U<<", "<<")
+    expr = re.sub(r"\b(\d+)[uU]\b", r"\1", expr)  # 1u<<5 -> 1<<5
+    return int(eval(expr, {"__builtins__": None}, dict(PLANE_MARKER)))
+
+
+def _extract_body(text: str, enum_name: str) -> str:
+    pat = re.compile(
+        rf"enum\s+(?:class\s+)?{re.escape(enum_name)}\b[^{{]*\{{(?P<body>.*?)\}}",
+        re.DOTALL,
+    )
+    m = pat.search(text)
+    if not m:
+        raise ValueError(f"enum {enum_name} not found")
+    return m.group("body")
+
+
+def parse_flag_enum(header_path, enum_name):
+    """Return {bit_index: enum_name} for a Bylins flag enum.
+
+    Entries without ``= <expr>`` are skipped (we only handle explicit
+    bit-index assignments — that's how every flag enum in the project is
+    written).
+    """
+    text = Path(header_path).read_text(encoding="koi8-r", errors="replace")
+    body = _strip_comments(_extract_body(text, enum_name))
+
+    out = {}
+    for raw in body.split(","):
+        line = raw.strip()
+        if not line:
+            continue
+        m = re.match(r"\s*([A-Za-z_]\w*)\s*=\s*(.+)$", line, re.DOTALL)
+        if not m:
+            continue
+        name, expr = m.group(1), m.group(2)
+        try:
+            value = _evaluate(expr)
+        except Exception:
+            continue
+        if value <= 0:
+            continue
+        plane = value >> 30
+        bit_in_plane_mask = value & ((1 << 30) - 1)
+        if bit_in_plane_mask == 0 or (bit_in_plane_mask & (bit_in_plane_mask - 1)) != 0:
+            continue
+        bit_in_plane = bit_in_plane_mask.bit_length() - 1
+        bit_index = plane * 30 + bit_in_plane
+        out.setdefault(bit_index, name)
+    return out
+
+
+def parse_flag_enum_as_list(header_path, enum_name, max_bit_index=120):
+    """Return a dense list[bit_index] -> enum name.
+
+    Gaps in the enum become ``UNUSED_<idx>`` so the result feeds straight
+    into convert_to_yaml.py's helpers.
+    """
+    table = parse_flag_enum(header_path, enum_name)
+    if not table:
+        return []
+    if max_bit_index <= 0:
+        max_bit_index = max(table) + 1
+    return [table.get(i, f"UNUSED_{i}") for i in range(max_bit_index)]
+
+
+def parse_value_enum(header_path, enum_name):
+    """Return {value: name} for an ordinary (non-bitfield) C++ enum.
+
+    Entries without ``= <expr>`` get previous-value+1, matching C++.
+    """
+    text = Path(header_path).read_text(encoding="koi8-r", errors="replace")
+    body = _strip_comments(_extract_body(text, enum_name))
+
+    out = {}
+    next_value = 0
+    for raw in body.split(","):
+        line = raw.strip()
+        if not line:
+            continue
+        m = re.match(r"\s*([A-Za-z_]\w*)\s*(?:=\s*(.+))?$", line, re.DOTALL)
+        if not m:
+            continue
+        name, expr = m.group(1), m.group(2)
+        if expr is not None:
+            try:
+                value = _evaluate(expr)
+            except Exception:
+                continue
+        else:
+            value = next_value
+        out.setdefault(value, name)
+        next_value = value + 1
+    return out
+
+
+def parse_str_array(header_path, array_name):
+    """Return raw list of string literals from a const-char array."""
+    text = Path(header_path).read_text(encoding="koi8-r", errors="replace")
+    pat = re.compile(
+        rf"\bconst\s+char\s*\*\s*{re.escape(array_name)}\s*\[\s*\]\s*=\s*\{{(?P<body>.*?)\}}",
+        re.DOTALL,
+    )
+    m = pat.search(text)
+    if not m:
+        raise ValueError(f"array {array_name} not found in {header_path}")
+    body = _strip_comments(m.group("body"))
+    return list(re.findall(r'"((?:[^"\\]|\\.)*)"', body))
+
+
+def parse_ui_bits_table(header_path, array_name, plane_size=30):
+    """Map bit_index -> UI label from a ``const char *foo[]`` bits table.
+
+    The Bylins convention is:
+        - 30 entries per plane (positions 0..29 within the plane).
+        - ``"\\n"`` entries separate planes.
+        - bit_index = plane_no * 30 + position_in_plane.
+
+    Sentinels and gaps are skipped (returned dict only contains real names).
+    """
+    out = {}
+    plane = 0
+    pos = 0
+    for s in parse_str_array(header_path, array_name):
+        if s == "\\n" or s == "\n":
+            plane += 1
+            pos = 0
+            continue
+        out[plane * plane_size + pos] = s
+        pos += 1
+    return out
+
+
+# ---------------------------------------------------------------------------
+# Block generator
+# ---------------------------------------------------------------------------
 
 BEGIN = '# === BEGIN AUTOGENERATED FLAG TABLES ==='
 END = '# === END AUTOGENERATED FLAG TABLES ==='
