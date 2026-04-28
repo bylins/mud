@@ -268,7 +268,7 @@ void do_insertgem(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	if (!itemobj->has_flag(EObjFlag::kTransformed)) {
 		itemobj->set_extra_flag(EObjFlag::kTransformed);
 	}
-	itemobj->set_extra_flag(EObjFlag::KLimitedTimer);
+	itemobj->set_extra_flag(EObjFlag::kLimitedTimer);
 	ExtractObjFromWorld(gemobj);
 }
 

@@ -768,8 +768,8 @@ enum class EObjFlag : Bitvector {
 	kHasOneSlot = kIntOne | (1 << 3),
 	kHasTwoSlots = kIntOne | (1 << 4),
 	kHasThreeSlots = kIntOne | (1 << 5),
-	KSetItem = kIntOne | (1 << 6),
-	KNofail = kIntOne | (1 << 7),						//< не фейлится при изучении (в случае книги)
+	kSetItem = kIntOne | (1 << 6),
+	kNofail = kIntOne | (1 << 7),						//< не фейлится при изучении (в случае книги)
 	kNamed = kIntOne | (1 << 8),
 	kBloody = kIntOne | (1 << 9),
 	kQuestItem = kIntOne | (1 << 10),						//< TODO: не используется, см ConvertObjValues()
@@ -779,7 +779,7 @@ enum class EObjFlag : Bitvector {
 	kUnique = kIntOne | (1 << 14),						// объект уникальный, т.е. только один в экипировке
 	kTransformed = kIntOne | (1 << 15),					// Наложено заклинание заколдовать оружие
 	kNoRentTimer = kIntOne | (1 << 16),					// пока свободно, можно использовать
-	KLimitedTimer = kIntOne | (1 << 17),				// Не может быть нерушимой
+	kLimitedTimer = kIntOne | (1 << 17),				// Не может быть нерушимой
 	kBindOnPurchase = kIntOne | (1 << 18),				// станет именной при покупке в магазе
 	kNotOneInClanChest = kIntOne | (1 << 19)			//1 штука из набора не лезет в хран
 };
@@ -809,7 +809,7 @@ enum class ENoFlag : Bitvector {
 	kMagus = 1 << 13,
 	kConjurer = 1 << 14,
 	kCharmer = 1 << 15,
-	kWIzard = 1 << 16,
+	kWizard = 1 << 16,
 	kNecromancer = 1 << 17,
 	kFighter = 1 << 18,
 	kKiller = kIntOne | 1 << 0,

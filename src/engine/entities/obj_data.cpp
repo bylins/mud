@@ -960,7 +960,7 @@ bool is_mob_item(const CObjectPrototype *obj) {
 		&& obj->has_no_flag(ENoFlag::kMagus)
 		&& obj->has_no_flag(ENoFlag::kConjurer)
 		&& obj->has_no_flag(ENoFlag::kCharmer)
-		&& obj->has_no_flag(ENoFlag::kWIzard)
+		&& obj->has_no_flag(ENoFlag::kWizard)
 		&& obj->has_no_flag(ENoFlag::kNecromancer)
 		&& obj->has_no_flag(ENoFlag::kCharmice)) {
 		return true;
@@ -1002,7 +1002,7 @@ bool is_mob_item(const CObjectPrototype *obj) {
 
 void init_ilvl(CObjectPrototype *obj) {
 	if (is_mob_item(obj)
-		|| obj->has_flag(EObjFlag::KSetItem)
+		|| obj->has_flag(EObjFlag::kSetItem)
 		|| obj->get_minimum_remorts() > 0) {
 		obj->set_ilevel(0);
 		return;
@@ -1397,7 +1397,7 @@ void check_rented() {
 */
 bool is_big_set(const CObjectPrototype *obj, bool is_mini) {
 	unsigned int sets_items = is_mini ? MINI_SET_ITEMS : BIG_SET_ITEMS;
-	if (!obj->has_flag(EObjFlag::KSetItem)) {
+	if (!obj->has_flag(EObjFlag::kSetItem)) {
 		return false;
 	}
 	for (id_to_set_info_map::const_iterator i = ObjData::set_table.begin(),
@@ -1484,7 +1484,7 @@ bool house_find_set_item(CharData *ch, const std::set<int> &vnum_list) {
 * Перс. хран, рента.
 */
 bool is_norent_set(CharData *ch, ObjData *obj, bool clan_chest) {
-	if (!obj->has_flag(EObjFlag::KSetItem)) {
+	if (!obj->has_flag(EObjFlag::kSetItem)) {
 		return false;
 	}
 
@@ -1554,7 +1554,7 @@ double CalcRemortRequirements(const CObjectPrototype *obj) {
 	const int AFF_CLOUDLY_MOD = 10;
 
 	double result{0.0};
-	if (ObjSystem::is_mob_item(obj) || obj->has_flag(EObjFlag::KSetItem)) {
+	if (ObjSystem::is_mob_item(obj) || obj->has_flag(EObjFlag::kSetItem)) {
 		return result;
 	}
 

@@ -9,8 +9,18 @@
 #include <string>
 #include <map>
 
+class CharData;
+class RoomData;
+
 namespace WorldChecksum
 {
+
+// Pure value-based serialization helpers -- exposed for unit tests and
+// for any caller that wants to checksum a single entity without going
+// through the global mob_proto[] / world[] arrays.
+std::string SerializeMob(int vnum, const CharData &mob);
+std::string SerializeRoom(const RoomData *room);
+
 
 struct ChecksumResult
 {

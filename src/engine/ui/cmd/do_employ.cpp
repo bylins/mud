@@ -123,7 +123,7 @@ void apply_enchant(CharData *ch, ObjData *obj, std::string text) {
 		return;
 	}
 
-	if (target->has_flag(EObjFlag::KSetItem)) {
+	if (target->has_flag(EObjFlag::kSetItem)) {
 		SendMsgToChar(ch, "Сетовый предмет не может быть зачарован.\r\n");
 		return;
 	}
