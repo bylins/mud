@@ -1037,6 +1037,17 @@ void BootMudDataBase() {
 	log("Load Celebrates.");
 	celebrates::Load();
 
+	// Триггера комнат должны быть подключены ДО первого ResetZone, иначе
+	// reset_wtrigger / random_wtrigger не найдут их в SCRIPT(room) и не
+	// сработают на boot-ресете - и зоны с WTRIG_RESET (например 974, где
+	// мобы лоадятся через триггер 97433) выходят из бута пустыми. Для
+	// legacy-загрузчика двойной аттач не случится: TriggersList::add
+	// дедуп по rnum, dg_read_trigger уже подключил инстансы при чтении
+	// wld-файла. Для YAML/SQLite это единственное место, где триггеры
+	// комнат попадают в SCRIPT(room).
+	boot_profiler.next_step("Assigning triggers to rooms");
+	world_loader::WorldDataSourceBase::AssignTriggersToLoadedRooms();
+
 	// резет должен идти после лоада всех шмоток вне зон (хранилища и т.п.)
 	boot_profiler.next_step("Resetting zones");
 	for (ZoneRnum i = 0; i < static_cast<ZoneRnum>(zone_table.size()); i++) {
@@ -1045,11 +1056,6 @@ void BootMudDataBase() {
 		ResetZone(i);
 	}
 	reset_q.head = reset_q.tail = nullptr;
-
-
-	// Assign room triggers AFTER zone reset completes
-	boot_profiler.next_step("Assigning triggers to rooms");
-	world_loader::WorldDataSourceBase::AssignTriggersToLoadedRooms();
 
 
 	// делается после резета зон, см камент к функции
