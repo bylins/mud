@@ -9,6 +9,7 @@
 #include "engine/entities/zone.h"
 #include "engine/entities/room_data.h"
 #include "engine/scripting/dg_scripts.h"
+#include "engine/scripting/dg_db_scripts.h"
 #include "engine/scripting/dg_olc.h"
 
 #include <sstream>
@@ -18,6 +19,7 @@
 extern IndexData **trig_index;
 extern int top_of_trigt;
 extern CharData *mob_proto;
+extern void ExtractTrigger(Trigger *trig);
 
 namespace world_loader
 
@@ -125,13 +127,28 @@ void WorldDataSourceBase::AttachTriggerToRoom(RoomRnum room_rnum, int trigger_vn
 		world[room_rnum]->proto_script = std::make_shared<ObjData::triggers_list_t>();
 	}
 
-	if (GetTriggerRnum(trigger_vnum) >= 0)
+	const auto trigger_rnum = GetTriggerRnum(trigger_vnum);
+	if (trigger_rnum < 0)
 	{
-		world[room_rnum]->proto_script->push_back(trigger_vnum);
+		log("SYSERR: Room %d references non-existent trigger %d, skipping.", room_vnum, trigger_vnum);
+		return;
+	}
+	world[room_rnum]->proto_script->push_back(trigger_vnum);
+
+	// п■п╩я▐ п╨п╬п╪п╫п╟я┌, п╡ п╬я┌п╩п╦я┤п╦п╣ п╬я┌ п╪п╬п╠п╬п╡ п╦ п╬п╠я┼п╣п╨я┌п╬п╡, п╫п╣я┌ "п╪п╬п╪п╣п╫я┌п╟ п╦п╫я│я┌п╟п╫я├п╦п╟я├п╦п╦" -
+	// я│п╟п╪п╟ RoomData п╦ п╣я│я┌я▄ я─п╟п╫я┌п╟п╧п╪-я│я┐я┴п╫п╬я│я┌я▄. п÷п╬я█я┌п╬п╪я┐ п©п╬п╪п╦п╪п╬ proto_script п╫п╟п╢п╬
+	// я│я─п╟п╥я┐ я│п╬п╥п╢п╟я┌я▄ я─п╟п╫я┌п╟п╧п╪-п╦п╫я│я┌п╟п╫я│ я┌я─п╦пЁпЁп╣я─п╟ п╦ п©п╬п╩п╬п╤п╦я┌я▄ п╡ SCRIPT(room),
+	// п╦п╫п╟я┤п╣ reset_wtrigger / random_wtrigger п╫п╦п╨п╬пЁп╢п╟ п╫п╣ п╫п╟п╧п╢я┐я┌ п╣пЁп╬ п╡
+	// script_trig_list. п╜я┌п╬ я│п╬п╡п©п╟п╢п╟п╣я┌ я│ я┌п╣п╪, я┤я┌п╬ п╢п╣п╩п╟п╣я┌ п╩п╣пЁп╟я│п╫я▀п╧
+	// dg_read_trigger п╡ boot_data_files.cpp:221.
+	auto *trigger_instance = read_trigger(trigger_rnum);
+	if (add_trigger(SCRIPT(world[room_rnum]).get(), trigger_instance, -1))
+	{
+		add_trig_to_owner(-1, trigger_vnum, room_vnum);
 	}
 	else
 	{
-		log("SYSERR: Room %d references non-existent trigger %d, skipping.", room_vnum, trigger_vnum);
+		ExtractTrigger(trigger_instance);
 	}
 }
 
