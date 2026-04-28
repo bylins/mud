@@ -325,6 +325,12 @@ void do_otransform(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 		if (o->has_flag(EObjFlag::kTicktimer)) {
 			obj->set_extra_flag(EObjFlag::kTicktimer);
 		}
+		// После swap obj получил extra_flags новой формы (без kTicktimer),
+		// и set_timer внутри swap уже посчитал deadline по этим неполным
+		// флагам - получался UINT64_MAX и get_timer() начинал возвращать
+		// UNLIMITED_TIMER (2147483647). Восстановили kTicktimer выше -
+		// теперь надо пересчитать deadline по актуальному состоянию (#3213).
+		world_objects.decay_manager().on_timer_changed(obj);
 
 		if (wearer) {
 			EquipObj(wearer, obj, pos, CharEquipFlags());
