@@ -2037,9 +2037,9 @@ void ZoneUpdate() {
 					zone_table[it].first_enter.clear();
 				}
 			}
-			mudlog(ss.str(), LGH, kLvlGod, SYSLOG, false);
+			mudlog(ss.str(), LGH, kLvlGod, SYSLOG, true);
 			out << " ]\r\n[ Time reset: " << timer_count.delta().count();
-			mudlog(out.str(), LGH, kLvlGod, SYSLOG, false);
+			mudlog(out.str(), LGH, kLvlGod, SYSLOG, true);
 			if (update_u == reset_q.head) {
 				reset_q.head = reset_q.head->next;
 			} else {
