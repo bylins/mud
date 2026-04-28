@@ -239,7 +239,18 @@ ObjData::shared_ptr read_one_object_new(char **data, int *error) {
 				object->set_sex(static_cast<EGender>(atoi(buffer)));
 			} else if (!strcmp(read_line, "Tmer")) {
 				*error = 20;
-				object->set_timer(atoi(buffer));
+				const int saved_timer = atoi(buffer);
+				// Защита от мусорных таймеров (UNLIMITED_TIMER, INT_MAX и
+				// прочие следы старых багов decay_manager в otransform/
+				// oedit/обмена шмотками - см. #3213). При парсинге мира
+				// таймеры > 99999 уже клампятся, тут делаем то же для
+				// сохранений игроков. Если в пфайле плохое значение,
+				// оставляем то, что пришло из прототипа в
+				// create_from_prototype_by_vnum выше. Отрицательные значения
+				// валидны (например, -1 означает "таймер не уменьшается").
+				if (saved_timer <= 99999) {
+					object->set_timer(saved_timer);
+				}
 			} else if (!strcmp(read_line, "Spll")) {
 				*error = 21;
 				object->set_spell(atoi(buffer));
