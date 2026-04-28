@@ -88,47 +88,73 @@ if linker_choice != ''
     add_project_link_arguments('-fuse-ld=' + linker_choice, language: 'cpp')
 endif
 
-if get_option('zlib')
-    zlib_sub = subproject('zlib', default_options: [
-        'default_library=static',
-        'tests=disabled'
-    ])
-    zlib_dep = zlib_sub.get_variable('zlib_dep')
+zlib_opt = get_option('zlib')
+if zlib_opt != 'disabled'
+    if zlib_opt == 'builtin'
+        zlib_sub = subproject('zlib', default_options: ['default_library=static', 'tests=disabled'])
+        zlib_dep = zlib_sub.get_variable('zlib_dep')
+    elif zlib_opt == 'system'
+        zlib_dep = dependency('zlib', required: true, allow_fallback: false)
+    else
+        zlib_dep = dependency('zlib', required: true, fallback: ['zlib', 'zlib_dep'], default_options: ['default_library=static', 'tests=disabled'])
+    endif
     project_args += '-DHAVE_ZLIB'
     dependencies += zlib_dep
 endif
 
-if get_option('iconv')
-    iconv_dep = cpp.find_library('iconv', required: false)
-    if iconv_dep.found()
-        project_args += '-DHAVE_ICONV'
-        dependencies += iconv_dep
+iconv_opt = get_option('iconv')
+if iconv_opt != 'disabled'
+    if iconv_opt == 'builtin'
+        iconv_sub = subproject('iconv')
+        iconv_dep = iconv_sub.get_variable('iconv_dep')
+    elif iconv_opt == 'system'
+        iconv_dep = dependency('iconv', required: true, allow_fallback: false)
+    else
+        iconv_dep = dependency('iconv', required: true, fallback: ['iconv', 'iconv_dep'])
     endif
+    project_args += '-DHAVE_ICONV'
+    dependencies += iconv_dep
 endif
 
-if get_option('telegram')
-    curl_dep = dependency('libcurl', required: false)
-    ssl_dep = dependency('openssl', required: false)
-    if curl_dep.found() and ssl_dep.found()
-        project_args += '-DHAVE_TG'
-        dependencies += [curl_dep, ssl_dep]
+telegram_opt = get_option('telegram')
+if telegram_opt != 'disabled'
+    if telegram_opt == 'builtin'
+        curl_sub = subproject('curl')
+        curl_dep = curl_sub.get_variable('curl_dep')
+        ssl_sub = subproject('openssl')
+        ssl_dep = ssl_sub.get_variable('openssl_dep')
+    elif telegram_opt == 'system'
+        curl_dep = dependency('libcurl', required: true, allow_fallback: false)
+        ssl_dep = dependency('openssl', required: true, allow_fallback: false)
+    else
+        curl_dep = dependency('libcurl', required: true, fallback: ['curl', 'curl_dep'])
+        ssl_dep = dependency('openssl', required: true, fallback: ['openssl', 'openssl_dep'])
     endif
+    project_args += '-DHAVE_TG'
+    dependencies += [curl_dep, ssl_dep]
 endif
 
-boost_modules = ['system', 'filesystem']
-if host_system == 'windows'
-    boost_modules += 'locale'
-endif
-
-if get_option('scripting')
-    python_dep = dependency('python3', version: '>=3.4')
-    project_args += '-DWITH_SCRIPTING'
-    dependencies += python_dep
-    boost_modules += 'python3'
-endif
-
-if get_option('boost')
-    dependencies += dependency('boost', modules: boost_modules)
+boost_opt = get_option('boost')
+if boost_opt != 'disabled'
+    boost_modules = ['system', 'filesystem']
+    if host_system == 'windows'
+        boost_modules += 'locale'
+    endif
+    if get_option('scripting')
+        python_dep = dependency('python3', version: '>=3.4')
+        project_args += '-DWITH_SCRIPTING'
+        dependencies += python_dep
+        boost_modules += 'python3'
+    endif
+    if boost_opt == 'builtin'
+        boost_sub = subproject('boost')
+        boost_dep = boost_sub.get_variable('boost_dep')
+    elif boost_opt == 'system'
+        boost_dep = dependency('boost', modules: boost_modules, required: true, allow_fallback: false)
+    else
+        boost_dep = dependency('boost', modules: boost_modules, required: true, fallback: ['boost', 'boost_dep'])
+    endif
+    dependencies += boost_dep
     if host_system != 'cygwin'
         project_args += '-DBOOST_PYTHON_STATIC_LIB'
     endif
@@ -151,45 +177,55 @@ if get_option('admin_api')
     project_args += '-DENABLE_ADMIN_API'
 endif
 
-# SQLite
-if get_option('sqlite')
-    sqlite_dep = dependency('sqlite3', required: true)
+sqlite_opt = get_option('sqlite')
+if sqlite_opt != 'disabled'
+    if sqlite_opt == 'builtin'
+        sqlite_sub = subproject('sqlite3')
+        sqlite_dep = sqlite_sub.get_variable('sqlite3_dep')
+    elif sqlite_opt == 'system'
+        sqlite_dep = dependency('sqlite3', required: true, allow_fallback: false)
+    else
+        sqlite_dep = dependency('sqlite3', required: true, fallback: ['sqlite3', 'sqlite3_dep'])
+    endif
     project_args += '-DHAVE_SQLITE'
     dependencies += sqlite_dep
 endif
 
-# YAML
-if get_option('yaml')
-    yaml_sub = subproject('yaml-cpp', default_options: [
-        'default_library=static',
-        'tests=disabled'
-    ])
-    yaml_dep = yaml_sub.get_variable('yaml_cpp_dep')
+yaml_opt = get_option('yaml')
+if yaml_opt != 'disabled'
+    if yaml_opt == 'builtin'
+        yaml_sub = subproject('yaml-cpp', default_options: ['default_library=static', 'tests=disabled'])
+        yaml_dep = yaml_sub.get_variable('yaml_cpp_dep')
+    elif yaml_opt == 'system'
+        yaml_dep = dependency('yaml-cpp', required: true, allow_fallback: false)
+    else
+        yaml_dep = dependency('yaml-cpp', required: true, fallback: ['yaml-cpp', 'yaml_cpp_dep'], default_options: ['default_library=static', 'tests=disabled'])
+    endif
     project_args += '-DHAVE_YAML'
     dependencies += yaml_dep
 endif
 
-# OpenTelemetry
-if get_option('otel')
-    otel_dep = dependency('opentelemetry-cpp', 
-        required: true,
-        modules: [
-            'opentelemetry-cpp::api',
-            'opentelemetry-cpp::sdk',
-            'opentelemetry-cpp::ext',
-            'opentelemetry-cpp::otlp_http_exporter', 
-            'opentelemetry-cpp::otlp_http_metric_exporter',
-            'opentelemetry-cpp::otlp_http_log_record_exporter',
-            'opentelemetry-cpp::resources'
-        ]
-    )
+otel_opt = get_option('otel')
+if otel_opt != 'disabled'
+    otel_modules = [
+        'opentelemetry-cpp::api', 'opentelemetry-cpp::sdk', 'opentelemetry-cpp::ext',
+        'opentelemetry-cpp::otlp_http_exporter', 'opentelemetry-cpp::otlp_http_metric_exporter',
+        'opentelemetry-cpp::otlp_http_log_record_exporter', 'opentelemetry-cpp::resources'
+    ]
+    if otel_opt == 'builtin'
+        otel_sub = subproject('opentelemetry-cpp')
+        otel_dep = otel_sub.get_variable('opentelemetry_cpp_dep')
+    elif otel_opt == 'system'
+        otel_dep = dependency('opentelemetry-cpp', modules: otel_modules, required: true, allow_fallback: false)
+    else
+        otel_dep = dependency('opentelemetry-cpp', modules: otel_modules, required: true, fallback: ['opentelemetry-cpp', 'opentelemetry_cpp_dep'])
+    endif
     project_args += '-DWITH_OTEL'
     dependencies += otel_dep
 endif
 
 has_epoll_opt = get_option('has_epoll')
 epoll_enabled = false
-
 if has_epoll_opt
     if host_system == 'linux'
         epoll_enabled = true
@@ -206,21 +242,22 @@ if has_epoll_opt
         epoll_enabled = false
     endif
 endif
-
 if epoll_enabled
     project_args += '-DHAS_EPOLL'
 endif
 
-add_project_arguments(project_args, language: 'cpp')
-
-fmt_sub = subproject('fmt', default_options: [
-    'default_library=static',
-])
-fmt_dep = fmt_sub.get_variable('fmt_dep')
+fmt_opt = get_option('fmt')
+if fmt_opt == 'builtin'
+    fmt_sub = subproject('fmt', default_options: ['default_library=static'])
+    fmt_dep = fmt_sub.get_variable('fmt_dep')
+elif fmt_opt == 'system'
+    fmt_dep = dependency('fmt', required: true, allow_fallback: false)
+else
+    fmt_dep = dependency('fmt', required: true, fallback: ['fmt', 'fmt_dep'], default_options: ['default_library=static'])
+endif
 
 subdir('src/third_party_libs/libfort')
 project_args += '-DFORT_HAVE_UTF8=1'
-
 dependencies += [fmt_dep, fort_dep]
 
 git = find_program('git', required: false)
@@ -731,18 +768,18 @@ main_sources += files(
     'src/gameplay/crafting/craft_static.cpp'
 )
 
-if get_option('sqlite')
+if sqlite_opt != 'disabled'
     main_sources += files('src/engine/db/sqlite_world_data_source.cpp')
 endif
 
-if get_option('yaml')
+if yaml_opt != 'disabled'
     main_sources += files(
         'src/engine/db/yaml_world_data_source.cpp',
         'src/engine/db/dictionary_loader.cpp'
     )
 endif
 
-if get_option('otel')
+if otel_opt != 'disabled'
     main_sources += files(
         'src/engine/observability/trace_sender.cpp',
         'src/engine/observability/traces.cpp',
@@ -754,13 +791,15 @@ circle_lib = static_library('circle',
     [main_sources, msdp_sources, version_cpp],
     include_directories: include_directories('src'),
     dependencies: dependencies,
+    cpp_args: project_args,
     override_options: profile_target_opts
 )
 
 circle_dep = declare_dependency(
     link_with: circle_lib,
     include_directories: include_directories('src'),
-    dependencies: dependencies
+    dependencies: dependencies,
+    compile_args: project_args,
 )
 
 if get_option('build_tests')
