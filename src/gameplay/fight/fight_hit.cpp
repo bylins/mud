@@ -1,5 +1,6 @@
 #include "fight_hit.h"
 
+#include "engine/observability/event_sink.h"
 #include "engine/ui/color.h"
 #include "gameplay/magic/magic.h"
 #include "pk.h"
@@ -29,6 +30,8 @@
 #include "gameplay/skills/ironwind.h"
 #include "engine/observability/helpers.h"
 #include "engine/observability/metrics.h"
+
+#include <chrono>
 #include "gameplay/mechanics/armor.h"
 #include "gameplay/skills/addshot.h"
 
@@ -854,6 +857,24 @@ ESpell GetSpellIdByBreathflag(CharData *ch) {
 /**
 * обработка ударов оружием, санка, призма, стили, итд.
 */
+namespace {
+
+// Эмиссия события 'miss' для автономного симулятора баланса (issue #2967).
+// reason: 'auto_5pct' / 'level_diff' / 'thac0_roll' -- какая ветка hit()
+// привела к промаху. В проде GlobalEventSink == NoOp.
+void EmitMissEvent(CharData *ch, CharData *victim, const char *reason) {
+	observability::Event ev;
+	ev.name = "miss";
+	ev.ts_unix_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+		std::chrono::system_clock::now().time_since_epoch()).count();
+	ev.attrs["attacker_name"] = observability::EngineStringToUtf8(GET_NAME(ch) ? GET_NAME(ch) : "");
+	ev.attrs["victim_name"] = observability::EngineStringToUtf8(GET_NAME(victim) ? GET_NAME(victim) : "");
+	ev.attrs["reason"] = std::string(reason);
+	observability::GlobalEventSink().Emit(ev);
+}
+
+}  // namespace
+
 void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) {
 	if (!victim) {
 		return;
@@ -965,6 +986,7 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 				hit_params.dam = 0;
 				hit_params.ProcessExtradamage(ch, victim);
 				hitprcnt_mtrigger(victim);
+				EmitMissEvent(ch, victim, "auto_5pct");
 				return;
 			}
 		} else {
@@ -974,6 +996,7 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 				hit_params.dam = 0;
 				hit_params.ProcessExtradamage(ch, victim);
 				hitprcnt_mtrigger(victim);
+				EmitMissEvent(ch, victim, "level_diff");
 				return;
 			}
 		}
@@ -983,6 +1006,7 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 			hit_params.dam = 0;
 			hit_params.ProcessExtradamage(ch, victim);
 			hitprcnt_mtrigger(victim);
+			EmitMissEvent(ch, victim, "thac0_roll");
 			return;
 		}
 	}
