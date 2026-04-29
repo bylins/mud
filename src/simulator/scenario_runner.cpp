@@ -9,6 +9,7 @@
 #include "engine/entities/room_data.h"
 #include "engine/structs/structs.h"
 #include "engine/ui/cmd/do_cast.h"
+#include "gameplay/affects/affect_data.h"
 #include "gameplay/classes/pc_classes.h"
 #include "gameplay/fight/fight.h"
 #include "gameplay/magic/magic_utils.h"
@@ -265,6 +266,21 @@ void EmitCharState(observability::EventSink& sink, const char* role,
 	e.attrs["max_move"] = static_cast<std::int64_t>(ch->get_max_move());
 	e.attrs["position"] = static_cast<std::int64_t>(ch->GetPosition());
 	e.attrs["in_room"] = static_cast<std::int64_t>(ch->in_room);
+	// Доп. поля для верификации применения feat-апплаев (kPowerMagic +50%
+	// percent_spellpower_add для колдуна и т.п.). Полезно когда сравниваешь
+	// dpr классов и подозреваешь, что какой-то inborn feat не применился.
+	e.attrs["spellpower_add_pct"] = static_cast<std::int64_t>(
+		ch->add_abils.percent_spellpower_add);
+	e.attrs["physdam_add_pct"] = static_cast<std::int64_t>(
+		ch->add_abils.percent_physdam_add);
+	// Сводка активных аффектов: считаем общее число + помечаем 'опасные'
+	// флаги, которые могут блокировать каст / атаку.
+	int aff_count = 0;
+	for (const auto& a : ch->affected) { (void)a; ++aff_count; }
+	e.attrs["affects_count"] = static_cast<std::int64_t>(aff_count);
+	e.attrs["aff_silence"] = AFF_FLAGGED(ch, EAffect::kSilence) ? true : false;
+	e.attrs["aff_charmed"] = AFF_FLAGGED(ch, EAffect::kCharmed) ? true : false;
+	e.attrs["aff_sleep"] = AFF_FLAGGED(ch, EAffect::kSleep) ? true : false;
 	sink.Emit(e);
 }
 
@@ -284,6 +300,18 @@ void RunScenario(const Scenario& scenario, observability::EventSink& sink) {
 	CharData* victim = SpawnParticipant(scenario.victim);
 	PlaceCharToRoom(attacker, kArenaRoom);
 	PlaceCharToRoom(victim, kArenaRoom);
+	// affect_total() рано возвращается, если in_room == kNowhere. Поскольку
+	// CharacterBuilder.SetFeat вызывает affect_total ДО того, как PC попал
+	// в комнату, feat-апплаи (kPowerMagic +50% spellpower и т.п.) не
+	// пересчитывались. Перевызываем после PlaceCharToRoom.
+	affect_total(attacker);
+	affect_total(victim);
+	// affect_total для синтетического PC заодно сбрасывает position в
+	// какое-то непригодное к бою состояние (kStop/kSleep, position=3).
+	// Вернём в kStand явно, иначе движок откажется кастовать
+	// (do_cast/CastSpell проверяют MIN_POS).
+	attacker->SetPosition(EPosition::kStand);
+	victim->SetPosition(EPosition::kStand);
 
 	// Pets / charmies / raised undead, declared as part of a participant in
 	// the YAML scenario. We do NOT cast kCharm to subdue them -- they join
@@ -292,11 +320,15 @@ void RunScenario(const Scenario& scenario, observability::EventSink& sink) {
 	// (charmer) and necromancer where the player walks in with their pets.
 	std::vector<CharData*> attacker_pets;
 	for (const auto& pet : GetPetSpecs(scenario.attacker)) {
-		attacker_pets.push_back(SpawnPet(attacker, pet, kArenaRoom));
+		auto* p = SpawnPet(attacker, pet, kArenaRoom);
+		affect_total(p);
+		attacker_pets.push_back(p);
 	}
 	std::vector<CharData*> victim_pets;
 	for (const auto& pet : GetPetSpecs(scenario.victim)) {
-		victim_pets.push_back(SpawnPet(victim, pet, kArenaRoom));
+		auto* p = SpawnPet(victim, pet, kArenaRoom);
+		affect_total(p);
+		victim_pets.push_back(p);
 	}
 
 	// By default both get massive HP so the duel survives all rounds. If a
