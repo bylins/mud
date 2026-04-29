@@ -6,6 +6,7 @@
 #include "engine/db/world_characters.h"
 #include "engine/entities/character_builder.h"
 #include "engine/entities/char_data.h"
+#include "engine/entities/room_data.h"
 #include "engine/structs/structs.h"
 #include "engine/ui/cmd/do_cast.h"
 #include "gameplay/classes/pc_classes.h"
@@ -30,6 +31,43 @@ namespace {
 // Room rnum used to place participants. rnum 1 is what the in-engine `vstat`
 // command uses for the same temp-spawn pattern, so we follow suit.
 constexpr RoomRnum kArenaRoom = 1;
+
+// Some real-world rooms have flags that restrict combat or magic
+// (kNoMagic, kPeaceful, etc.). For a balance arena we want the cleanest
+// possible environment, so we strip such flags from kArenaRoom before each
+// run. The flags are restored on cleanup so we do not corrupt the loaded
+// world for subsequent runs.
+struct ArenaFlagSweep {
+	RoomData* room = nullptr;
+	bool had_no_magic = false;
+	bool had_peaceful = false;
+
+	explicit ArenaFlagSweep(RoomData* r) : room(r) {
+		if (!room) {
+			return;
+		}
+		had_no_magic = room->get_flag(ERoomFlag::kNoMagic);
+		had_peaceful = room->get_flag(ERoomFlag::kPeaceful);
+		if (had_no_magic) {
+			room->unset_flag(ERoomFlag::kNoMagic);
+		}
+		if (had_peaceful) {
+			room->unset_flag(ERoomFlag::kPeaceful);
+		}
+	}
+
+	~ArenaFlagSweep() {
+		if (!room) {
+			return;
+		}
+		if (had_no_magic) {
+			room->set_flag(ERoomFlag::kNoMagic);
+		}
+		if (had_peaceful) {
+			room->set_flag(ERoomFlag::kPeaceful);
+		}
+	}
+};
 
 // Huge HP pool: both participants must survive `scenario.rounds` battle rounds
 // so we can observe the full duel. Headroom away from INT_MAX avoids
@@ -97,6 +135,10 @@ void RunScenario(const Scenario& scenario, observability::EventSink& sink) {
 	if (scenario.rounds <= 0) {
 		throw ScenarioRunError("scenario.rounds must be positive");
 	}
+
+	// Strip room-level combat/magic restrictions for the arena; restored on
+	// scope exit.
+	ArenaFlagSweep arena_flags(world[kArenaRoom]);
 
 	// Spawn once. The duel runs continuously; we observe each battle round.
 	CharData* attacker = SpawnParticipant(scenario.attacker);
