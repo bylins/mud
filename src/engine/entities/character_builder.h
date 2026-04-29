@@ -22,6 +22,23 @@ public:
 	void add_detect_align();
 	void set_level(const int level);
 	void set_class(const short player_class);
+	void set_str(const int value);
+	void set_dex(const int value);
+	void set_con(const int value);
+	void set_int(const int value);
+	void set_wis(const int value);
+	void set_cha(const int value);
+	void set_hit(const int value);
+	void set_max_hit(const int value);
+
+	// Convenience preset for the headless balance simulator: creates a fresh
+	// character of the given class and level with all six stats at 25 (mid of
+	// the 0..90 range). HP is left at the constructor default; callers that
+	// care should follow up with set_max_hit()/set_hit().
+	void make_basic_player(const short player_class, const int level);
+
+	// Requires a booted world (calls PlaceCharToRoom).
+	void place_in_room(const RoomRnum room);
 
 	void make_group(CharacterBuilder& character_builder);
 

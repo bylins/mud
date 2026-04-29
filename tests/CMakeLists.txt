@@ -99,7 +99,8 @@ set(TESTS
 		mob_classes.loader.cpp
 		obj_decay_manager.cpp
 		random.seed.cpp
-		file_event_sink.cpp)
+		file_event_sink.cpp
+		character_builder.cpp)
 set(UTILITIES
 		char.utilities.hpp)
 set(ADDITIONAL_FILES

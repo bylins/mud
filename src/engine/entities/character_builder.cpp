@@ -113,6 +113,73 @@ void CharacterBuilder::set_class(const short player_class)
 	m_result->set_class(static_cast<ECharClass>(player_class));
 }
 
+void CharacterBuilder::set_str(const int value)
+{
+	check_character_existance();
+	m_result->set_str(value);
+}
+
+void CharacterBuilder::set_dex(const int value)
+{
+	check_character_existance();
+	m_result->set_dex(value);
+}
+
+void CharacterBuilder::set_con(const int value)
+{
+	check_character_existance();
+	m_result->set_con(value);
+}
+
+void CharacterBuilder::set_int(const int value)
+{
+	check_character_existance();
+	m_result->set_int(value);
+}
+
+void CharacterBuilder::set_wis(const int value)
+{
+	check_character_existance();
+	m_result->set_wis(value);
+}
+
+void CharacterBuilder::set_cha(const int value)
+{
+	check_character_existance();
+	m_result->set_cha(value);
+}
+
+void CharacterBuilder::set_hit(const int value)
+{
+	check_character_existance();
+	m_result->set_hit(value);
+}
+
+void CharacterBuilder::set_max_hit(const int value)
+{
+	check_character_existance();
+	m_result->set_max_hit(value);
+}
+
+void CharacterBuilder::make_basic_player(const short player_class, const int level)
+{
+	create_new();
+	set_class(player_class);
+	set_level(level);
+	set_str(25);
+	set_dex(25);
+	set_con(25);
+	set_int(25);
+	set_wis(25);
+	set_cha(25);
+}
+
+void CharacterBuilder::place_in_room(const RoomRnum room)
+{
+	check_character_existance();
+	PlaceCharToRoom(m_result.get(), room);
+}
+
 void CharacterBuilder::make_group(CharacterBuilder& character_builder)
 {
 	check_character_existance();
