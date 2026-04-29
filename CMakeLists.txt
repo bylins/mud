@@ -1548,6 +1548,15 @@ if (NOT UNIX)
 endif ()
 target_link_libraries(circle circle.library)
 
+# Headless balance simulator (issue #2967). Reuses the engine via circle.library
+# without the network layer. See src/simulator/README for the design.
+set(SIMULATOR_SOURCES src/simulator/main.cpp)
+add_executable(mud-sim ${SIMULATOR_SOURCES})
+if (NOT UNIX)
+	set_target_properties(mud-sim PROPERTIES CXX_STANDARD 20)
+endif ()
+target_link_libraries(mud-sim circle.library)
+
 # Testing part
 option(BUILD_TESTS "Build and run tests." YES)
 if (BUILD_TESTS)
