@@ -1,4 +1,4 @@
-#include "char.utilities.hpp"
+#include "character_builder.h"
 
 #include "utils/utils.h"
 #include "engine/entities/char_data.h"
@@ -7,8 +7,8 @@
 #include "gameplay/affects/affect_contants.h"
 #include "gameplay/mechanics/groups.h"
 
-namespace test_utils
-{
+namespace entities {
+
 void CharacterBuilder::create_new()
 {
 	const auto result = std::make_shared<character_t>();
@@ -139,6 +139,6 @@ void CharacterBuilder::check_character_existance(result_t character)
 	}
 }
 
-}
+}  // namespace entities
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

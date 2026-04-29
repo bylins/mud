@@ -101,8 +101,7 @@ set(TESTS
 		random.seed.cpp
 		file_event_sink.cpp)
 set(UTILITIES
-		char.utilities.hpp
-		char.utilities.cpp)
+		char.utilities.hpp)
 set(ADDITIONAL_FILES
 		data/boards/changelog.sample
 		data/boards/news.sample
