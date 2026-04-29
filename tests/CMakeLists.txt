@@ -97,7 +97,8 @@ set(TESTS
 		dg_string_matching.cpp
 		dg_var_context.cpp
 		mob_classes.loader.cpp
-		obj_decay_manager.cpp)
+		obj_decay_manager.cpp
+		random.seed.cpp)
 set(UTILITIES
 		char.utilities.hpp
 		char.utilities.cpp)
