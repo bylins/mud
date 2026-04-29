@@ -91,7 +91,7 @@ TEST(FileEventSink, EscapesSpecialCharsInStrings) {
 	}
 	const auto lines = SplitLines(ReadFile(path));
 	ASSERT_EQ(lines.size(), 1u);
-	EXPECT_NE(lines[0].find(R"("s":"line1\nline2\t\"quoted\"\\back")"), std::string::npos);
+	EXPECT_NE(lines[0].find("\"s\":\"line1\\nline2\\t\\\"quoted\\\"\\\\back\""), std::string::npos);
 	std::remove(path.c_str());
 }
 
