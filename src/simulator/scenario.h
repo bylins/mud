@@ -8,16 +8,31 @@
 
 namespace simulator {
 
+// Optional stat overrides for a participant. Default (-1) means "leave whatever
+// the engine assigned" - for player it's set by CharacterBuilder, for mob it's
+// the prototype value.
+struct StatOverrides {
+	int str = -1;
+	int dex = -1;
+	int con = -1;
+	int intel = -1;  // 'int' is a keyword
+	int wis = -1;
+	int cha = -1;
+	int max_hit = -1;  // base max HP
+};
+
 // Class name is kept as a string (not resolved to ECharClass) at scenario load
 // time, because class resolution requires the world to be booted. The runner
 // resolves it when creating the participant.
 struct PlayerSpec {
 	std::string class_name;
 	int level = 1;
+	StatOverrides overrides;
 };
 
 struct MobSpec {
 	MobVnum vnum = 0;
+	StatOverrides overrides;
 };
 
 using ParticipantSpec = std::variant<PlayerSpec, MobSpec>;

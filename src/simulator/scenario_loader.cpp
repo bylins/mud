@@ -11,6 +11,21 @@ namespace simulator {
 
 namespace {
 
+StatOverrides ParseStatOverrides(const YAML::Node& node) {
+	StatOverrides o;
+	if (!node) {
+		return o;
+	}
+	if (node["str"]) o.str = node["str"].as<int>();
+	if (node["dex"]) o.dex = node["dex"].as<int>();
+	if (node["con"]) o.con = node["con"].as<int>();
+	if (node["int"]) o.intel = node["int"].as<int>();
+	if (node["wis"]) o.wis = node["wis"].as<int>();
+	if (node["cha"]) o.cha = node["cha"].as<int>();
+	if (node["max_hit"]) o.max_hit = node["max_hit"].as<int>();
+	return o;
+}
+
 ParticipantSpec ParseParticipant(const YAML::Node& node, const char* role) {
 	if (!node || !node.IsMap()) {
 		throw ScenarioLoadError(fmt::format("scenario.{}: must be a map", role));
@@ -32,6 +47,7 @@ ParticipantSpec ParseParticipant(const YAML::Node& node, const char* role) {
 		}
 		p.class_name = cls.as<std::string>();
 		p.level = level.as<int>();
+		p.overrides = ParseStatOverrides(node["stats"]);
 		return p;
 	}
 	if (type_str == "mob") {
@@ -41,6 +57,7 @@ ParticipantSpec ParseParticipant(const YAML::Node& node, const char* role) {
 			throw ScenarioLoadError(fmt::format("scenario.{}.vnum: required for mob", role));
 		}
 		m.vnum = vnum.as<int>();
+		m.overrides = ParseStatOverrides(node["stats"]);
 		return m;
 	}
 	throw ScenarioLoadError(fmt::format(

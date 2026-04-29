@@ -82,6 +82,64 @@ action:
 	EXPECT_EQ(std::get<simulator::CastAction>(s.action).spell_name, "lightning");
 }
 
+TEST(ScenarioLoader, StatOverridesApplied) {
+	const auto s = simulator::LoadScenarioFromString(R"(
+output: /tmp/x.jsonl
+attacker:
+  type: player
+  class: koldun
+  level: 30
+  stats:
+    str: 30
+    dex: 35
+    con: 40
+    int: 50
+    wis: 60
+    cha: 25
+    max_hit: 1500
+victim: { type: mob, vnum: 7 }
+)");
+	const auto& a = std::get<simulator::PlayerSpec>(s.attacker);
+	EXPECT_EQ(a.overrides.str, 30);
+	EXPECT_EQ(a.overrides.dex, 35);
+	EXPECT_EQ(a.overrides.con, 40);
+	EXPECT_EQ(a.overrides.intel, 50);
+	EXPECT_EQ(a.overrides.wis, 60);
+	EXPECT_EQ(a.overrides.cha, 25);
+	EXPECT_EQ(a.overrides.max_hit, 1500);
+}
+
+TEST(ScenarioLoader, StatOverridesPartial) {
+	const auto s = simulator::LoadScenarioFromString(R"(
+output: /tmp/x.jsonl
+attacker:
+  type: player
+  class: koldun
+  level: 30
+  stats:
+    wis: 50
+victim: { type: mob, vnum: 7 }
+)");
+	const auto& a = std::get<simulator::PlayerSpec>(s.attacker);
+	EXPECT_EQ(a.overrides.wis, 50);
+	EXPECT_EQ(a.overrides.str, -1);
+	EXPECT_EQ(a.overrides.max_hit, -1);
+}
+
+TEST(ScenarioLoader, MobMaxHitOverride) {
+	const auto s = simulator::LoadScenarioFromString(R"(
+output: /tmp/x.jsonl
+attacker: { type: mob, vnum: 1 }
+victim:
+  type: mob
+  vnum: 102
+  stats:
+    max_hit: 5000
+)");
+	const auto& v = std::get<simulator::MobSpec>(s.victim);
+	EXPECT_EQ(v.overrides.max_hit, 5000);
+}
+
 TEST(ScenarioLoader, MeleeActionDefault) {
 	const auto s = simulator::LoadScenarioFromString(R"(
 output: /tmp/x.jsonl

@@ -84,6 +84,26 @@ std::int64_t NowUnixMs() {
 // shared_ptr is owned globally for the duration of the run. Returns the raw
 // pointer; ownership stays with character_list until ExtractCharFromWorld is
 // called.
+// Returns the max_hit override if set in the spec, -1 otherwise.
+int GetMaxHitOverride(const ParticipantSpec& spec) {
+	return std::visit([](auto&& s) { return s.overrides.max_hit; }, spec);
+}
+
+// Apply YAML stat overrides to a freshly-spawned character. Each negative
+// override is left alone (engine default kept).
+void ApplyStatOverrides(CharData* ch, const StatOverrides& o) {
+	if (o.str >= 0) ch->set_str(o.str);
+	if (o.dex >= 0) ch->set_dex(o.dex);
+	if (o.con >= 0) ch->set_con(o.con);
+	if (o.intel >= 0) ch->set_int(o.intel);
+	if (o.wis >= 0) ch->set_wis(o.wis);
+	if (o.cha >= 0) ch->set_cha(o.cha);
+	if (o.max_hit >= 0) {
+		ch->set_max_hit(o.max_hit);
+		ch->set_hit(o.max_hit);
+	}
+}
+
 CharData* SpawnParticipant(const ParticipantSpec& spec) {
 	return std::visit([](auto&& s) -> CharData* {
 		using T = std::decay_t<decltype(s)>;
@@ -96,7 +116,8 @@ CharData* SpawnParticipant(const ParticipantSpec& spec) {
 			entities::CharacterBuilder b;
 			b.make_basic_player(static_cast<short>(cls), s.level);
 			auto sp = b.get();
-			character_list.push_front(sp);  // global ownership for the duel
+			character_list.push_front(sp);
+			ApplyStatOverrides(sp.get(), s.overrides);
 			return sp.get();
 		} else if constexpr (std::is_same_v<T, MobSpec>) {
 			const auto rnum = GetMobRnum(s.vnum);
@@ -104,11 +125,12 @@ CharData* SpawnParticipant(const ParticipantSpec& spec) {
 				throw ScenarioRunError(fmt::format(
 					"mob vnum {} not found in world", s.vnum));
 			}
-			CharData* mob = ReadMobile(rnum, kReal);  // already added to character_list
+			CharData* mob = ReadMobile(rnum, kReal);
 			if (!mob) {
 				throw ScenarioRunError(fmt::format(
 					"ReadMobile({}) returned null", s.vnum));
 			}
+			ApplyStatOverrides(mob, s.overrides);
 			return mob;
 		}
 		return static_cast<CharData*>(nullptr);
@@ -167,12 +189,18 @@ void RunScenario(const Scenario& scenario, observability::EventSink& sink) {
 	PlaceCharToRoom(attacker, kArenaRoom);
 	PlaceCharToRoom(victim, kArenaRoom);
 
-	// Both get massive HP so the duel survives all `rounds` battle rounds and
-	// we observe per-round damage rather than just kill timing.
-	attacker->set_max_hit(kHugeHp);
-	attacker->set_hit(kHugeHp);
-	victim->set_max_hit(kHugeHp);
-	victim->set_hit(kHugeHp);
+	// By default both get massive HP so the duel survives all rounds. If a
+	// participant has an explicit max_hit override in the YAML scenario, that
+	// override wins (it was already applied inside SpawnParticipant and we
+	// must not overwrite it here).
+	if (GetMaxHitOverride(scenario.attacker) < 0) {
+		attacker->set_max_hit(kHugeHp);
+		attacker->set_hit(kHugeHp);
+	}
+	if (GetMaxHitOverride(scenario.victim) < 0) {
+		victim->set_max_hit(kHugeHp);
+		victim->set_hit(kHugeHp);
+	}
 
 	const auto* cast = std::get_if<CastAction>(&scenario.action);
 	// In both melee and cast scenarios we engage once at the start. Cast spells
