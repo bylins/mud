@@ -64,7 +64,7 @@ attacker:
 
 victim:
   type: mob             # for mob: vnum
-  vnum: 1234
+  vnum: 102
 ```
 
 Class names are resolved through the engine's existing
