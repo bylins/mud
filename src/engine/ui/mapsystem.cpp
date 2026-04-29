@@ -629,13 +629,20 @@ void print_map(CharData *ch, CharData *imm) {
 	}
 
 	// для режима богов прижимаем карту влево
-	unsigned left_margin = 0;
+	unsigned left_margin =  MAX_LENGTH;
+	unsigned right_margin = 0;
+
 	if (ch->map_check_option(MAP_MODE_GOD_BIG) && ch->IsImmortal()) {
-		left_margin = MAX_LENGTH;
 		for (int i = start_line; i < end_line; ++i) {
 			for (unsigned k = 0; k < MAX_LENGTH; ++k) {
 				if (screen[i][k] != -1 && k < left_margin) {
 					left_margin = k;
+					break;
+				}
+			}
+			for (unsigned k = left_margin; k < MAX_LENGTH; ++k) {
+				if (screen[i][k] != -1 && k > right_margin) {
+					right_margin = k;
 					break;
 				}
 			}
@@ -644,11 +651,10 @@ void print_map(CharData *ch, CharData *imm) {
 
 	for (int i = start_line; i < end_line; ++i) {
 		out += ": ";
-		for (unsigned k = left_margin; k < MAX_LENGTH; ++k) {
+		for (unsigned k = left_margin; k <= right_margin; ++k) {
 			if (screen[i][k] <= -1) {
 				out += " ";
-			} else if (screen[i][k] < SCREEN_TOTAL
-				&& screen[i][k] != SCREEN_EMPTY) {
+			} else if (screen[i][k] < SCREEN_TOTAL && screen[i][k] != SCREEN_EMPTY) {
 				out += signs[screen[i][k]];
 			}
 		}
