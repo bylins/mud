@@ -2142,8 +2142,10 @@ def parse_mob_file(filepath):
                     idx += 1
                     continue
 
-                if line.startswith('E'):
-                    # Enhanced mob marker - continue parsing
+                if line == 'E':
+                    # Enhanced mob marker - continue parsing.
+                    # Точное равенство, иначе перехватываем ExtraAttack: и
+                    # другие поля, начинающиеся с 'E' (issue #3223).
                     idx += 1
                     continue
                 elif line.startswith('Str:'):
