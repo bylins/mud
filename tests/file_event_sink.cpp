@@ -72,7 +72,8 @@ TEST(FileEventSink, EncodesAttributeTypes) {
 	}
 	const auto lines = SplitLines(ReadFile(path));
 	ASSERT_EQ(lines.size(), 1u);
-	// Map keys are sorted alphabetically: b, d, i, s.
+	// Order is enforced by FileEventSink: ts, name, then attributes sorted
+	// alphabetically (b, d, i, s).
 	EXPECT_EQ(lines[0], R"({"ts":1,"name":"hit","b":true,"d":3.5,"i":42,"s":"sorcerer"})");
 	std::remove(path.c_str());
 }

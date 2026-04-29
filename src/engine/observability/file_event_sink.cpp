@@ -1,47 +1,29 @@
 #include "file_event_sink.h"
 
+#include "../../third_party_libs/nlohmann/json.hpp"
+
 #include <fmt/format.h>
 
+#include <algorithm>
 #include <stdexcept>
 #include <string>
+#include <vector>
 
 namespace observability {
 
 namespace {
 
-void AppendJsonString(std::string& out, const std::string& s) {
-	out.push_back('"');
-	for (char c : s) {
-		switch (c) {
-			case '"':  out += "\\\""; break;
-			case '\\': out += "\\\\"; break;
-			case '\b': out += "\\b"; break;
-			case '\f': out += "\\f"; break;
-			case '\n': out += "\\n"; break;
-			case '\r': out += "\\r"; break;
-			case '\t': out += "\\t"; break;
-			default:
-				if (static_cast<unsigned char>(c) < 0x20) {
-					out += fmt::format("\\u{:04x}", static_cast<unsigned char>(c));
-				} else {
-					out.push_back(c);
-				}
-		}
-	}
-	out.push_back('"');
-}
-
-void AppendAttrValue(std::string& out, const EventAttrValue& v) {
-	std::visit([&out](auto&& arg) {
+nlohmann::ordered_json AttrValueToJson(const EventAttrValue& v) {
+	return std::visit([](auto&& arg) -> nlohmann::ordered_json {
 		using T = std::decay_t<decltype(arg)>;
 		if constexpr (std::is_same_v<T, std::int64_t>) {
-			out += fmt::format("{}", arg);
+			return arg;
 		} else if constexpr (std::is_same_v<T, double>) {
-			out += fmt::format("{}", arg);
+			return arg;
 		} else if constexpr (std::is_same_v<T, bool>) {
-			out += arg ? "true" : "false";
+			return arg;
 		} else if constexpr (std::is_same_v<T, std::string>) {
-			AppendJsonString(out, arg);
+			return arg;
 		}
 	}, v);
 }
@@ -64,20 +46,23 @@ FileEventSink::~FileEventSink() {
 }
 
 void FileEventSink::Emit(const Event& event) {
-	std::string line;
-	line.reserve(128 + event.attrs.size() * 32);
-	line.push_back('{');
-	line += "\"ts\":";
-	line += fmt::format("{}", event.ts_unix_ms);
-	line += ",\"name\":";
-	AppendJsonString(line, event.name);
-	for (const auto& [k, v] : event.attrs) {
-		line.push_back(',');
-		AppendJsonString(line, k);
-		line.push_back(':');
-		AppendAttrValue(line, v);
+	// Use ordered_json so the key sequence is fully determined by us, not by
+	// the JSON library's hash/map ordering. Order: ts, name, then attributes
+	// sorted by key alphabetically. Stable output is critical for the
+	// reproducibility check (diff between two runs with the same seed).
+	nlohmann::ordered_json j;
+	j["ts"] = event.ts_unix_ms;
+	j["name"] = event.name;
+	std::vector<std::string> keys;
+	keys.reserve(event.attrs.size());
+	for (const auto& kv : event.attrs) {
+		keys.push_back(kv.first);
 	}
-	line += "}\n";
+	std::sort(keys.begin(), keys.end());
+	for (const auto& k : keys) {
+		j[k] = AttrValueToJson(event.attrs.at(k));
+	}
+	const std::string line = j.dump() + "\n";
 	std::fwrite(line.data(), 1, line.size(), m_file);
 }
 
