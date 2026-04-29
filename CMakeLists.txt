@@ -243,6 +243,7 @@ set(SOURCES
 		src/engine/ui/cmd/do_telegram.cpp
 		src/engine/ui/cmd_god/do_stat.cpp
 		src/engine/ui/cmd_god/do_godtest.cpp
+		src/engine/ui/cmd_god/do_luatest.cpp
 		src/engine/ui/cmd/do_learn.cpp
 		src/engine/ui/cmd/do_forget.cpp
 		src/engine/ui/cmd/do_memorize.cpp
@@ -717,6 +718,7 @@ set(HEADERS
 		src/utils/parser_wrapper.h
 		src/engine/boot/cfg_manager.h
 		src/engine/structs/iterators.h
+		src/engine/ui/cmd_god/do_luatest.h
 		src/engine/ui/cmd_god/do_users.h
 		src/engine/ui/table_wrapper.h
 		src/engine/ui/cmd/do_score.h
@@ -974,6 +976,7 @@ endif ()
 
 set(SCRIPTING_HEADERS src/engine/scripting/scripting.h)
 set(SCRIPTING_SOURCES src/engine/scripting/scripting.cpp)
+set(LUA_PROTOTYPE_HEADERS src/engine/scripting/lua_prototype.h)
 
 option(TIMED_SCRIPT "Turns on/off definition TIMED_SCRIPT" NO)
 set(TIMED_SCRIPT_DEFINITION "")
@@ -1027,6 +1030,33 @@ else()
 	message(STATUS "Turning scripting OFF")
 	set(BOOST_PYTHON_MODULE)
 	set(PYTHON_LIBRARIES)
+endif ()
+
+option(LUAJIT_PROTOTYPE "Build optional sol2 + LuaJIT prototype executable" OFF)
+if (LUAJIT_PROTOTYPE)
+	message(STATUS "Turning LuaJIT prototype ON")
+	list(APPEND HEADERS ${LUA_PROTOTYPE_HEADERS})
+	list(APPEND SOURCES src/engine/scripting/lua_prototype.cpp)
+	source_group("Lua Prototype\\Headers" FILES ${LUA_PROTOTYPE_HEADERS})
+	source_group("Lua Prototype\\Sources" FILES src/engine/scripting/lua_prototype.cpp)
+	add_definitions(-DWITH_LUAJIT_PROTOTYPE)
+	find_package(PkgConfig REQUIRED)
+	pkg_check_modules(LUAJIT REQUIRED luajit)
+
+	set(SOL2_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/src/third_party_libs/sol2" CACHE PATH "Path to vendored sol2")
+	find_path(SOL2_INCLUDE_DIR sol/sol.hpp
+		PATHS "${SOL2_ROOT}/include"
+		NO_DEFAULT_PATH)
+
+	if (NOT SOL2_INCLUDE_DIR)
+		message(FATAL_ERROR "sol2 headers not found. Clone sol2 into src/third_party_libs/sol2 or set SOL2_ROOT.")
+	endif ()
+
+	message(STATUS "LuaJIT include dirs: ${LUAJIT_INCLUDE_DIRS}")
+	message(STATUS "LuaJIT libraries: ${LUAJIT_LIBRARIES}")
+	message(STATUS "sol2 include dir: ${SOL2_INCLUDE_DIR}")
+else ()
+	message(STATUS "Turning LuaJIT prototype OFF")
 endif ()
 
 # MSDP
@@ -1118,6 +1148,7 @@ list(SORT CIRCLE_FILES)
 # Create changelog file
 add_custom_target(changelog ALL
 	COMMAND ${GIT} log --date=local --reverse > changelog
+	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 	COMMENT "Writing changelog...")
 set_target_properties(changelog PROPERTIES FOLDER "Utility targets")
 
@@ -1131,6 +1162,13 @@ else ()
 	set_target_properties(circle.library PROPERTIES CXX_STANDARD 20)
 endif ()
 add_dependencies(circle.library versioning changelog)
+
+if (LUAJIT_PROTOTYPE)
+	target_include_directories(circle.library PRIVATE
+		system ${LUAJIT_INCLUDE_DIRS}
+		system ${SOL2_INCLUDE_DIR})
+	target_link_libraries(circle.library ${LUAJIT_LIBRARIES})
+endif ()
 
 # Linfort integration
 # Disable building tests and examples in libfort project
