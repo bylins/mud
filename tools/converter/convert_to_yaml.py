@@ -2693,6 +2693,15 @@ def parse_obj_file(filepath):
                     obj['minimum_remorts'] = int(line[2:].strip())
                 elif line.startswith('T '):
                     obj['triggers'].append(int(line[2:].strip()))
+                elif line.startswith('V '):
+                    # Extra values (V-lines): potion/drink container metadata.
+                    # Format: "V <KEY_NAME> <int_value>" (issue #3218).
+                    parts = line[2:].split()
+                    if len(parts) >= 2:
+                        try:
+                            obj.setdefault('extra_values', {})[parts[0]] = int(parts[1])
+                        except ValueError:
+                            log_error(f"Bad V-line value: {line}", vnum=obj.get('vnum'))
 
                 idx += 1
 
@@ -2809,6 +2818,13 @@ def obj_to_yaml(obj):
             e['description'] = to_literal_block(ed['description'])
             eds.append(e)
         data['extra_descriptions'] = eds
+
+    # Extra values (V-lines): potion / drink container metadata (issue #3218).
+    if obj.get('extra_values'):
+        ev = CommentedMap()
+        for key in sorted(obj['extra_values'].keys()):
+            ev[key] = obj['extra_values'][key]
+        data['extra_values'] = ev
 
     # Max in world
     if 'max_in_world' in obj:

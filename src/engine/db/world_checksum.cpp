@@ -13,7 +13,9 @@
 #include "utils/utils_string.h"
 #include "engine/structs/extra_description.h"
 
+#include <algorithm>
 #include <sstream>
+#include <utility>
 #include <vector>
 #include <filesystem>
 
@@ -333,6 +335,24 @@ std::string SerializeObject(const CObjectPrototype::shared_ptr &obj)
 	for (int i = 0; i < CObjectPrototype::VALS_COUNT; ++i)
 	{
 		oss << obj->get_val(i) << ",";
+	}
+	oss << "|";
+
+	// Extra values (V-lines: potion spells/levels, refilled-potion proto vnum,
+	// etc.). Without this the round-trip fix for issue #3218 would not be
+	// observable in checksums and a converter regression could slip through
+	// run_load_tests.sh again.
+	{
+		std::vector<std::pair<int, int>> sorted_extra;
+		for (const auto &kv : obj->get_all_values())
+		{
+			sorted_extra.emplace_back(static_cast<int>(kv.first), kv.second);
+		}
+		std::sort(sorted_extra.begin(), sorted_extra.end());
+		for (const auto &kv : sorted_extra)
+		{
+			oss << kv.first << ":" << kv.second << ",";
+		}
 	}
 	oss << "|";
 

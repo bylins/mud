@@ -13,10 +13,12 @@
 #include "engine/db/world_checksum.h"
 #include "engine/entities/char_data.h"
 #include "engine/entities/entities_constants.h"
+#include "engine/entities/obj_data.h"
 #include "engine/entities/room_data.h"
 #include "engine/structs/flag_data.h"
 
 #include <gtest/gtest.h>
+#include <memory>
 #include <sstream>
 #include <string>
 
@@ -121,6 +123,43 @@ TEST(SerializeRoom, UndefFlagsAreNotMaskedFromChecksum) {
 	const std::string sb = WorldChecksum::SerializeRoom(&b);
 	EXPECT_NE(sa, sb)
 		<< "Rooms with different UNDEF high-plane flags must hash differently";
+}
+
+// Issue #3218: V-lines on objects (potion spells, refilled-potion proto vnum,
+// etc.) live in CObjectPrototype::get_all_values() rather than the four-slot
+// values array. Until this commit SerializeObject did not include them, so
+// a converter or loader regression that dropped the V-block could pass
+// run_load_tests.sh unnoticed. These tests pin the new behaviour down.
+//
+// Note: we set values via SetPotionValueKey() instead of
+// init_values_from_zone() because the latter goes through the text_id
+// dictionary, which only gets populated during full-server boot.
+TEST(SerializeObject, IncludesExtraValuesFromObjVal) {
+	auto obj = std::make_shared<CObjectPrototype>(42);
+	obj->set_type(EObjType::kPotion);
+	obj->SetPotionValueKey(ObjVal::EValueKey::POTION_SPELL1_NUM, 17);
+	obj->SetPotionValueKey(ObjVal::EValueKey::POTION_SPELL1_LVL, 23);
+
+	const std::string out = WorldChecksum::SerializeObject(obj);
+	EXPECT_NE(std::string::npos, out.find("0:17"))
+		<< "POTION_SPELL1_NUM (key 0) must appear in checksum input; got: " << out;
+	EXPECT_NE(std::string::npos, out.find("1:23"))
+		<< "POTION_SPELL1_LVL (key 1) must appear in checksum input; got: " << out;
+}
+
+TEST(SerializeObject, ObjectsDifferingOnlyByExtraValuesSerializeDifferently) {
+	auto a = std::make_shared<CObjectPrototype>(42);
+	auto b = std::make_shared<CObjectPrototype>(42);
+	a->set_type(EObjType::kPotion);
+	b->set_type(EObjType::kPotion);
+
+	// Same base values, same flags, same descriptions -- only ObjVal map differs.
+	a->SetPotionValueKey(ObjVal::EValueKey::POTION_SPELL1_NUM, 17);
+
+	const std::string sa = WorldChecksum::SerializeObject(a);
+	const std::string sb = WorldChecksum::SerializeObject(b);
+	EXPECT_NE(sa, sb)
+		<< "Potions with different POTION_SPELL* must hash differently";
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

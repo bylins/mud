@@ -11,6 +11,7 @@
 #include "utils/logger.h"
 #include "utils/utils.h"
 #include "utils/utils_string.h"
+#include "utils/parse.h"
 #include "engine/entities/zone.h"
 #include "engine/entities/room_data.h"
 #include "engine/entities/char_data.h"
@@ -2215,6 +2216,19 @@ CObjectPrototype* YamlWorldDataSource::ParseObjectFile(const std::string &file_p
 				}
 			}
 
+			// Extra values (V-строки): данные зелий и контейнеров с жидкостью.
+			// Без чтения этой секции зелья в YAML-мире выходят без заклинаний (issue #3218).
+			if (root["extra_values"] && root["extra_values"].IsMap())
+			{
+				for (const auto &kv : root["extra_values"])
+				{
+					std::string key = kv.first.as<std::string>();
+					int value = kv.second.as<int>(0);
+					std::string line = key + " " + std::to_string(value);
+					obj_ptr->init_values_from_zone(line.c_str());
+				}
+			}
+
 			// Extra descriptions
 			if (root["extra_descriptions"] && root["extra_descriptions"].IsSequence())
 			{
@@ -4097,10 +4111,10 @@ void YamlWorldDataSource::SaveObjects(int zone_rnum, int specific_vnum)
 					if (exdesc->description)
 					{
 						out << yaml.GetIndent() << "  description: |" << std::endl;
-						
+
 						std::string desc = exdesc->description;
 						desc.erase(std::remove(desc.begin(), desc.end(), '\r'), desc.end());
-						
+
 						std::istringstream iss(desc);
 						std::string line;
 						while (std::getline(iss, line))
@@ -4112,6 +4126,38 @@ void YamlWorldDataSource::SaveObjects(int zone_rnum, int specific_vnum)
 			}
 
 			yaml.DecreaseIndent();
+		}
+
+		// Extra values (V-строки): данные зелий и прочих контейнеров с жидкостью.
+		// Без сохранения этой секции данные о заклинаниях зелий пропадут (issue #3218).
+		if (!obj->get_all_values().empty())
+		{
+			std::vector<std::pair<std::string, int>> sorted_vals;
+			for (const auto &kv : obj->get_all_values())
+			{
+				std::string key_str = text_id::ToStr(text_id::kObjVals, to_underlying(kv.first));
+				if (!key_str.empty())
+				{
+					sorted_vals.emplace_back(std::move(key_str), kv.second);
+				}
+			}
+
+			if (!sorted_vals.empty())
+			{
+				std::sort(sorted_vals.begin(), sorted_vals.end(),
+					[](const std::pair<std::string, int> &a, const std::pair<std::string, int> &b) {
+						return a.first < b.first;
+					});
+
+				yaml.Key("extra_values");
+				yaml.BeginBlock();
+				for (const auto &kv : sorted_vals)
+				{
+					yaml.Key(kv.first);
+					yaml.Value(kv.second);
+				}
+				yaml.EndBlock();
+			}
 		}
 
 		// Triggers (with comments)
