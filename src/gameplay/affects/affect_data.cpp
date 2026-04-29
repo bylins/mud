@@ -1,4 +1,5 @@
 #include "affect_data.h"
+#include "engine/observability/event_sink.h"
 #include "gameplay/affects/mobile_affect_update_profiler.h"
 #include "gameplay/affects/player_affect_update_profiler.h"
 #include "engine/entities/char_player.h"
@@ -20,7 +21,31 @@
 #include "gameplay/fight/fight.h"
 #include "utils/backtrace.h"
 
+#include <chrono>
+
 std::unordered_set<CharData *> affected_mobs;
+
+namespace {
+
+// Эмиссия 'affect_added'/'affect_removed' для replay-режима симулятора
+// баланса (issue #2967). В проде GlobalEventSink == NoOp, накладные нулевые.
+void EmitAffectEvent(const char *kind, const CharData *ch,
+		const Affect<EApply> &af) {
+	observability::Event ev;
+	ev.name = kind;
+	ev.ts_unix_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+		std::chrono::system_clock::now().time_since_epoch()).count();
+	ev.attrs["target_name"] = observability::EngineStringToUtf8(
+		GET_NAME(ch) ? GET_NAME(ch) : "");
+	ev.attrs["spell_id"] = static_cast<std::int64_t>(af.type);
+	ev.attrs["duration"] = static_cast<std::int64_t>(af.duration);
+	ev.attrs["modifier"] = static_cast<std::int64_t>(af.modifier);
+	ev.attrs["location"] = static_cast<std::int64_t>(af.location);
+	ev.attrs["bitvector"] = static_cast<std::int64_t>(af.bitvector);
+	observability::GlobalEventSink().Emit(ev);
+}
+
+}  // namespace
 
 int apply_ac(CharData *ch, int eq_pos);
 int apply_armour(CharData *ch, int eq_pos);
@@ -607,6 +632,7 @@ void RemoveAffectFromChar(CharData *ch, ESpell spell_id) {
 	while (it != ch->affected.end()) {
 		Affect<EApply>::shared_ptr affect = *it;
 		if (affect->type == spell_id) {
+			EmitAffectEvent("affect_removed", ch, *affect);
 			it = ch->AffectRemove(it);
 		}
 		else {
@@ -963,6 +989,7 @@ void affect_to_char(CharData *ch, const Affect<EApply> &af) {
 		affect_modify(ch, af.location, af.modifier, static_cast<EAffect>(af.bitvector), true);
 	//log("[AFFECT_TO_CHAR->AFFECT_TOTAL] Start");
 	affect_total(ch);
+	EmitAffectEvent("affect_added", ch, af);
 }
 
 // Same as affect_to_char but without affect_total() recalculation.
