@@ -559,8 +559,13 @@ inline bool proto_has_descr(const ExtraDescription::shared_ptr &odesc, const Ext
 	return false;
 }
 
-void WriteMagicComponentItem(std::stringstream &out, ObjData *object) {
+void WriteMagicComponentItem(std::stringstream &out, ObjData *object, int location) {
 	out << "#" << object->get_vnum() << "\n";
+	// Положение в экипировке/контейнере: без него ингредиент из сумки
+	// при загрузке оказывается в инвентаре (issue #3221).
+	if (location) {
+		out << "Lctn: " << location << "~\n";
+	}
 	out << "Ouid: " << object->get_unique_id() << "~\n";
 	out << "Tmer: " << object->CObjectPrototype::get_timer() << "~\n";
 	out << "Val1: " << GET_OBJ_VAL(object, 1) << "~\n";
@@ -579,7 +584,7 @@ void WriteMagicComponentItem(std::stringstream &out, ObjData *object) {
 // [ ИСПОЛЬЗУЕТСЯ В НОВОМ ФОРМАТЕ ВЕЩЕЙ ПЕРСОНАЖА ОТ 10.12.04 ]
 void write_one_object(std::stringstream &out, ObjData *object, int location) {
 	if (object->get_type() == EObjType::kMagicComponent) {
-		WriteMagicComponentItem(out, object);
+		WriteMagicComponentItem(out, object, location);
 		return;
 	}
 	ObjRnum orn = object->get_rnum();
