@@ -1555,7 +1555,8 @@ target_link_libraries(circle circle.library)
 if (HAVE_YAML)
 	set(SIMULATOR_SOURCES
 		src/simulator/main.cpp
-		src/simulator/scenario_loader.cpp)
+		src/simulator/scenario_loader.cpp
+		src/simulator/scenario_runner.cpp)
 	add_executable(mud-sim ${SIMULATOR_SOURCES})
 	if (NOT UNIX)
 		set_target_properties(mud-sim PROPERTIES CXX_STANDARD 20)

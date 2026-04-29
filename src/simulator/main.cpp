@@ -1,10 +1,10 @@
 // Headless balance simulator entry point (issue #2967).
 //
-// MVP step 5: CLI now takes a YAML scenario file plus a world directory.
-// All run parameters (seed, rounds, output, attacker, victim) live in the
-// scenario file. The scenario itself is not yet executed (that lands in
-// step 6, RunAutoAttack). This step only proves: load scenario -> seed RNG
-// -> boot world -> tick the requested number of pulses -> exit.
+// MVP step 6: full pipeline. CLI takes a YAML scenario file plus a world
+// directory; the scenario describes attacker, victim, seed, rounds and
+// output path. Each round both participants are recreated, the attacker
+// engages in melee, heartbeat ticks one battle round, and the resulting
+// HP delta is emitted as one JSON line into the output file.
 //
 // CLI:
 //   mud-sim --config PATH -d DIR
@@ -16,8 +16,10 @@
 #include "engine/core/config.h"
 #include "engine/db/db.h"
 #include "engine/db/global_objects.h"
+#include "engine/observability/file_event_sink.h"
 #include "simulator/scenario.h"
 #include "simulator/scenario_loader.h"
+#include "simulator/scenario_runner.h"
 #include "utils/logger.h"
 #include "utils/random.h"
 
@@ -101,14 +103,19 @@ int main(int argc, char** argv) {
 		opts.config_path.c_str(), scenario.seed, scenario.rounds);
 
 	BootMudDataBase();
-	log("mud-sim: world booted, ticking %d pulses (scenario runner: step 6)",
-		scenario.rounds);
+	log("mud-sim: world booted, running %d rounds, output=%s",
+		scenario.rounds, scenario.output.c_str());
 
-	for (int i = 0; i < scenario.rounds; ++i) {
-		MUD::heartbeat()(0);
+	try {
+		observability::FileEventSink sink(scenario.output);
+		simulator::RunScenario(scenario, sink);
+	} catch (const std::exception& e) {
+		std::fprintf(stderr, "mud-sim: scenario run failed: %s\n", e.what());
+		return 1;
 	}
 
-	log("mud-sim: done");
+	log("mud-sim: done, %d rounds emitted to %s",
+		scenario.rounds, scenario.output.c_str());
 	return 0;
 }
 

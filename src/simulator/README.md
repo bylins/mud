@@ -84,13 +84,24 @@ seeds the RNG, boots the world, and ticks the requested number of pulses.
 
 ## Reproducibility
 
-Two runs with the same scenario produce byte-identical JSONL files. Verify:
+Two runs with the same scenario produce semantically identical events: the
+same HP-before/after, the same damage, the same victim_alive flag. The `ts`
+attribute is wall-clock time and naturally differs between runs, so verify
+reproducibility by ignoring it:
 
 ```bash
 ./mud-sim --config scenario.yaml -d small  # produces /tmp/sim.jsonl
 cp /tmp/sim.jsonl /tmp/sim_first.jsonl
 ./mud-sim --config scenario.yaml -d small
-diff /tmp/sim_first.jsonl /tmp/sim.jsonl   # should be empty
+diff -I '"ts":' /tmp/sim_first.jsonl /tmp/sim.jsonl   # should be empty
+```
+
+A different seed produces different numbers:
+
+```bash
+sed -i 's/seed: 42/seed: 99/' scenario.yaml
+./mud-sim --config scenario.yaml -d small
+diff -I '"ts":' /tmp/sim_first.jsonl /tmp/sim.jsonl   # should be non-empty
 ```
 
 ## Status / backlog
@@ -101,5 +112,16 @@ participant customization through YAML, precise combat instrumentation,
 OtlpLogsSink, cast scenarios, custom synthetic world loader, visualization
 scripts) is listed in the PR description and in the design plan linked from
 the issue.
+
+Known limitations of the MVP:
+- Player class names in YAML scenarios are resolved through the engine's
+  Russian-language class table (`pc_classes.xml`), so `class: колдун` works
+  but `class: sorcerer` does not. A class-name alias table for English names
+  is in the backlog.
+- Mob-vs-mob runs may show zero damage on most rounds because spawned mobs
+  do not aggress each other without `set_fighting`. The simulator forces
+  `SetFighting(attacker, victim)` once per round, but spec_procs and triggers
+  may interfere. PC-vs-mob and PvP scenarios (after the alias table lands)
+  give cleaner numbers.
 
 <!-- vim: set ts=4 sw=4 ai tw=0 et syntax=markdown : -->
