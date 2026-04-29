@@ -129,6 +129,27 @@ void AddParticipantAttrs(observability::Event& e, const char* role, const Partic
 	}, spec);
 }
 
+// Periodic snapshot of a participant's state for replay-mode reconstruction.
+// Emits hp/move/position; the full per-affect timeline is already covered by
+// affect_added/removed events from src/gameplay/affects/affect_data.cpp.
+void EmitCharState(observability::EventSink& sink, const char* role,
+		const CharData* ch, int round_no) {
+	observability::Event e;
+	e.name = "char_state";
+	e.ts_unix_ms = NowUnixMs();
+	e.attrs["round"] = static_cast<std::int64_t>(round_no);
+	e.attrs["role"] = std::string(role);
+	e.attrs["target_name"] = observability::EngineStringToUtf8(
+		GET_NAME(ch) ? GET_NAME(ch) : "");
+	e.attrs["hp"] = static_cast<std::int64_t>(ch->get_hit());
+	e.attrs["max_hp"] = static_cast<std::int64_t>(ch->get_max_hit());
+	e.attrs["move"] = static_cast<std::int64_t>(ch->get_move());
+	e.attrs["max_move"] = static_cast<std::int64_t>(ch->get_max_move());
+	e.attrs["position"] = static_cast<std::int64_t>(ch->GetPosition());
+	e.attrs["in_room"] = static_cast<std::int64_t>(ch->in_room);
+	sink.Emit(e);
+}
+
 }  // namespace
 
 void RunScenario(const Scenario& scenario, observability::EventSink& sink) {
@@ -159,6 +180,11 @@ void RunScenario(const Scenario& scenario, observability::EventSink& sink) {
 	// also makes get_char_vis() find the mob reliably even with multi-word
 	// keywords like "kostyanaya gonchaya".
 	SetFighting(attacker, victim);
+
+	// Initial snapshot before the first round, so replay can reconstruct
+	// starting state.
+	EmitCharState(sink, "attacker", attacker, -1);
+	EmitCharState(sink, "victim", victim, -1);
 
 	int prev_hp = victim->get_hit();
 
@@ -225,6 +251,14 @@ void RunScenario(const Scenario& scenario, observability::EventSink& sink) {
 		e.attrs["damage_observed"] = static_cast<std::int64_t>(damage);
 		e.attrs["victim_alive"] = alive;
 		sink.Emit(e);
+
+		// Per-round snapshot for both participants. Replay tooling consumes
+		// these to reconstruct any participant's state at any round without
+		// having to fold all damage/affect events.
+		if (alive) {
+			EmitCharState(sink, "attacker", attacker, r);
+			EmitCharState(sink, "victim", victim, r);
+		}
 
 		if (!alive) {
 			break;
