@@ -20,6 +20,7 @@
 
 #include <chrono>
 #include <climits>
+#include <map>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -89,6 +90,63 @@ int GetMaxHitOverride(const ParticipantSpec& spec) {
 	return std::visit([](auto&& s) { return s.overrides.max_hit; }, spec);
 }
 
+// Latin/English aliases for class names so YAML can stay ASCII-friendly.
+// FindAvailableCharClassId compares against the Russian name from pc_*.xml
+// (KOI8-R bytes); for an alias we look it up here and feed the Russian name
+// into the engine resolver. Map values are KOI8-R byte sequences hardcoded
+// as escape sequences to keep this file ASCII-clean.
+std::string ResolveClassAlias(const std::string& input) {
+	static const std::map<std::string, std::string> kAliases = {
+		// kWarrior -- bogatyr (богатырь)
+		{"bogatyr",       "\xC2\xCF\xC7\xC1\xD4\xD9\xD2\xD8"},
+		{"warrior",       "\xC2\xCF\xC7\xC1\xD4\xD9\xD2\xD8"},
+		// kAssasine -- naemnik (наемник)
+		{"naemnik",       "\xCE\xC1\xC5\xCD\xCE\xC9\xCB"},
+		{"assassin",      "\xCE\xC1\xC5\xCD\xCE\xC9\xCB"},
+		// kCharmer -- kudesnik (кудесник)
+		{"kudesnik",      "\xCB\xD5\xC4\xC5\xD3\xCE\xC9\xCB"},
+		{"charmer",       "\xCB\xD5\xC4\xC5\xD3\xCE\xC9\xCB"},
+		// kConjurer -- koldun (колдун)
+		{"koldun",        "\xCB\xCF\xCC\xC4\xD5\xCE"},
+		{"conjurer",      "\xCB\xCF\xCC\xC4\xD5\xCE"},
+		// kSorcerer -- lekar (лекарь)
+		{"lekar",         "\xCC\xC5\xCB\xC1\xD2\xD8"},
+		{"sorcerer",      "\xCC\xC5\xCB\xC1\xD2\xD8"},
+		{"healer",        "\xCC\xC5\xCB\xC1\xD2\xD8"},
+		// kRanger -- ohotnik (охотник)
+		{"ohotnik",       "\xCF\xC8\xCF\xD4\xCE\xC9\xCB"},
+		{"ranger",        "\xCF\xC8\xCF\xD4\xCE\xC9\xCB"},
+		// kMagus -- volkhv (волхв)
+		{"volkhv",        "\xD7\xCF\xCC\xC8\xD7"},
+		{"magus",         "\xD7\xCF\xCC\xC8\xD7"},
+		// kGuard -- druzhinnik (дружинник)
+		{"druzhinnik",    "\xC4\xD2\xD5\xD6\xC9\xCE\xCE\xC9\xCB"},
+		{"guard",         "\xC4\xD2\xD5\xD6\xC9\xCE\xCE\xC9\xCB"},
+		// kMerchant -- kupets (купец)
+		{"kupets",        "\xCB\xD5\xD0\xC5\xC3"},
+		{"merchant",      "\xCB\xD5\xD0\xC5\xC3"},
+		// kNecromancer -- chernoknizhnik (чернокнижник)
+		{"chernoknizhnik","\xDE\xC5\xD2\xCE\xCF\xCB\xCE\xC9\xD6\xCE\xC9\xCB"},
+		{"necromancer",   "\xDE\xC5\xD2\xCE\xCF\xCB\xCE\xC9\xD6\xCE\xC9\xCB"},
+		// kPaladine -- vityaz (витязь)
+		{"vityaz",        "\xD7\xC9\xD4\xD1\xDA\xD8"},
+		{"paladine",      "\xD7\xC9\xD4\xD1\xDA\xD8"},
+		{"paladin",       "\xD7\xC9\xD4\xD1\xDA\xD8"},
+		// kThief -- tat (тать)
+		{"tat",           "\xD4\xC1\xD4\xD8"},
+		{"thief",         "\xD4\xC1\xD4\xD8"},
+		// kVigilant -- kuznets (кузнец)
+		{"kuznets",       "\xCB\xD5\xDA\xCE\xC5\xC3"},
+		{"vigilant",      "\xCB\xD5\xDA\xCE\xC5\xC3"},
+		{"smith",         "\xCB\xD5\xDA\xCE\xC5\xC3"},
+		// kWizard -- volshebnik (волшебник)
+		{"volshebnik",    "\xD7\xCF\xCC\xDB\xC5\xC2\xCE\xC9\xCB"},
+		{"wizard",        "\xD7\xCF\xCC\xDB\xC5\xC2\xCE\xC9\xCB"},
+	};
+	const auto it = kAliases.find(input);
+	return it != kAliases.end() ? it->second : input;
+}
+
 // Apply YAML stat overrides to a freshly-spawned character. Each negative
 // override is left alone (engine default kept).
 void ApplyStatOverrides(CharData* ch, const StatOverrides& o) {
@@ -108,7 +166,8 @@ CharData* SpawnParticipant(const ParticipantSpec& spec) {
 	return std::visit([](auto&& s) -> CharData* {
 		using T = std::decay_t<decltype(s)>;
 		if constexpr (std::is_same_v<T, PlayerSpec>) {
-			const auto cls = FindAvailableCharClassId(s.class_name);
+			const auto resolved_name = ResolveClassAlias(s.class_name);
+			const auto cls = FindAvailableCharClassId(resolved_name);
 			if (cls == ECharClass::kUndefined) {
 				throw ScenarioRunError(fmt::format(
 					"unknown player class: '{}'", s.class_name));
