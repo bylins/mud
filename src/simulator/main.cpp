@@ -1,43 +1,45 @@
 // Headless balance simulator entry point (issue #2967).
 //
-// MVP step 4: just prove that the engine boots without the network layer and
-// that we can drive the heartbeat manually. No scenario, no event sink yet
-// (those land in steps 5/6).
+// MVP step 5: CLI now takes a YAML scenario file plus a world directory.
+// All run parameters (seed, rounds, output, attacker, victim) live in the
+// scenario file. The scenario itself is not yet executed (that lands in
+// step 6, RunAutoAttack). This step only proves: load scenario -> seed RNG
+// -> boot world -> tick the requested number of pulses -> exit.
 //
-// CLI (will be replaced with a YAML scenario file in step 5):
-//   mud-sim [-d DIR] [--seed UINT] [--rounds N]
+// CLI:
+//   mud-sim --config PATH -d DIR
 //
-//   -d DIR        World data directory (default: "lib"). Same semantics as
-//                 the corresponding flag of the main `circle` binary.
-//   --seed UINT   RNG seed for reproducibility (default: 0).
-//   --rounds N    Number of heartbeat pulses to tick before exit (default: 25).
+//   --config PATH   Path to the YAML scenario file (required).
+//   -d DIR          World data directory (required, same semantics as for
+//                   the main `circle` binary).
 
 #include "engine/core/config.h"
 #include "engine/db/db.h"
 #include "engine/db/global_objects.h"
+#include "simulator/scenario.h"
+#include "simulator/scenario_loader.h"
 #include "utils/logger.h"
 #include "utils/random.h"
 
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <stdexcept>
 #include <string>
 #include <unistd.h>
 
 namespace {
 
 struct CliOptions {
-	std::string data_dir = "lib";
-	unsigned seed = 0;
-	int rounds = 25;
+	std::string data_dir;
+	std::string config_path;
 };
 
 void PrintUsage(const char* argv0) {
 	std::fprintf(stderr,
-		"Usage: %s [-d DIR] [--seed UINT] [--rounds N]\n"
-		"  -d DIR        World data directory (default: lib)\n"
-		"  --seed UINT   RNG seed for reproducibility (default: 0)\n"
-		"  --rounds N    Heartbeat pulses to tick before exit (default: 25)\n",
+		"Usage: %s --config PATH -d DIR\n"
+		"  --config PATH   YAML scenario file (required)\n"
+		"  -d DIR          World data directory (required)\n",
 		argv0);
 }
 
@@ -47,12 +49,9 @@ bool ParseCli(int argc, char** argv, CliOptions& opts) {
 		if (a == "-d") {
 			if (++i >= argc) { PrintUsage(argv[0]); return false; }
 			opts.data_dir = argv[i];
-		} else if (a == "--seed") {
+		} else if (a == "--config") {
 			if (++i >= argc) { PrintUsage(argv[0]); return false; }
-			opts.seed = static_cast<unsigned>(std::strtoul(argv[i], nullptr, 10));
-		} else if (a == "--rounds") {
-			if (++i >= argc) { PrintUsage(argv[0]); return false; }
-			opts.rounds = std::atoi(argv[i]);
+			opts.config_path = argv[i];
 		} else if (a == "-h" || a == "--help") {
 			PrintUsage(argv[0]);
 			std::exit(0);
@@ -62,6 +61,11 @@ bool ParseCli(int argc, char** argv, CliOptions& opts) {
 			return false;
 		}
 	}
+	if (opts.data_dir.empty() || opts.config_path.empty()) {
+		std::fprintf(stderr, "Both --config and -d are required.\n");
+		PrintUsage(argv[0]);
+		return false;
+	}
 	return true;
 }
 
@@ -70,6 +74,15 @@ bool ParseCli(int argc, char** argv, CliOptions& opts) {
 int main(int argc, char** argv) {
 	CliOptions opts;
 	if (!ParseCli(argc, argv, opts)) {
+		return 1;
+	}
+
+	simulator::Scenario scenario;
+	try {
+		scenario = simulator::LoadScenario(opts.config_path);
+	} catch (const std::exception& e) {
+		std::fprintf(stderr, "mud-sim: failed to load scenario %s: %s\n",
+			opts.config_path.c_str(), e.what());
 		return 1;
 	}
 
@@ -83,13 +96,15 @@ int main(int argc, char** argv) {
 		return 1;
 	}
 
-	SetRandomSeed(opts.seed);
-	log("mud-sim: RNG seed = %u", opts.seed);
+	SetRandomSeed(scenario.seed);
+	log("mud-sim: scenario loaded from %s, seed = %u, rounds = %d",
+		opts.config_path.c_str(), scenario.seed, scenario.rounds);
 
 	BootMudDataBase();
-	log("mud-sim: world booted, ticking %d pulses", opts.rounds);
+	log("mud-sim: world booted, ticking %d pulses (scenario runner: step 6)",
+		scenario.rounds);
 
-	for (int i = 0; i < opts.rounds; ++i) {
+	for (int i = 0; i < scenario.rounds; ++i) {
 		MUD::heartbeat()(0);
 	}
 

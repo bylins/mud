@@ -1,0 +1,98 @@
+#include "scenario_loader.h"
+
+#include <yaml-cpp/yaml.h>
+
+#include <fmt/format.h>
+
+#include <fstream>
+#include <sstream>
+
+namespace simulator {
+
+namespace {
+
+ParticipantSpec ParseParticipant(const YAML::Node& node, const char* role) {
+	if (!node || !node.IsMap()) {
+		throw ScenarioLoadError(fmt::format("scenario.{}: must be a map", role));
+	}
+	const auto type = node["type"];
+	if (!type) {
+		throw ScenarioLoadError(fmt::format("scenario.{}.type: required field is missing", role));
+	}
+	const auto type_str = type.as<std::string>();
+	if (type_str == "player") {
+		PlayerSpec p;
+		const auto cls = node["class"];
+		const auto level = node["level"];
+		if (!cls) {
+			throw ScenarioLoadError(fmt::format("scenario.{}.class: required for player", role));
+		}
+		if (!level) {
+			throw ScenarioLoadError(fmt::format("scenario.{}.level: required for player", role));
+		}
+		p.class_name = cls.as<std::string>();
+		p.level = level.as<int>();
+		return p;
+	}
+	if (type_str == "mob") {
+		MobSpec m;
+		const auto vnum = node["vnum"];
+		if (!vnum) {
+			throw ScenarioLoadError(fmt::format("scenario.{}.vnum: required for mob", role));
+		}
+		m.vnum = vnum.as<int>();
+		return m;
+	}
+	throw ScenarioLoadError(fmt::format(
+		"scenario.{}.type: must be 'player' or 'mob' (got '{}')", role, type_str));
+}
+
+Scenario ParseScenario(const YAML::Node& root) {
+	if (!root || !root.IsMap()) {
+		throw ScenarioLoadError("scenario: top-level node must be a map");
+	}
+	Scenario s;
+	if (root["seed"]) {
+		s.seed = root["seed"].as<unsigned>();
+	}
+	if (root["rounds"]) {
+		s.rounds = root["rounds"].as<int>();
+	}
+	if (root["output"]) {
+		s.output = root["output"].as<std::string>();
+	} else {
+		throw ScenarioLoadError("scenario.output: required field is missing");
+	}
+	s.attacker = ParseParticipant(root["attacker"], "attacker");
+	s.victim = ParseParticipant(root["victim"], "victim");
+	if (s.rounds <= 0) {
+		throw ScenarioLoadError(fmt::format("scenario.rounds: must be positive (got {})", s.rounds));
+	}
+	return s;
+}
+
+}  // namespace
+
+Scenario LoadScenario(const std::string& path) {
+	std::ifstream in(path);
+	if (!in) {
+		throw ScenarioLoadError(fmt::format("cannot open scenario file: {}", path));
+	}
+	std::ostringstream ss;
+	ss << in.rdbuf();
+	return LoadScenarioFromString(ss.str());
+}
+
+Scenario LoadScenarioFromString(const std::string& yaml_text) {
+	YAML::Node root;
+	try {
+		root = YAML::Load(yaml_text);
+	} catch (const YAML::Exception& e) {
+		throw ScenarioLoadError(fmt::format("YAML parse error: {}", e.what()));
+	}
+	return ParseScenario(root);
+}
+
+}  // namespace simulator
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :

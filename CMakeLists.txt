@@ -1550,12 +1550,21 @@ target_link_libraries(circle circle.library)
 
 # Headless balance simulator (issue #2967). Reuses the engine via circle.library
 # without the network layer. See src/simulator/README for the design.
-set(SIMULATOR_SOURCES src/simulator/main.cpp)
-add_executable(mud-sim ${SIMULATOR_SOURCES})
-if (NOT UNIX)
-	set_target_properties(mud-sim PROPERTIES CXX_STANDARD 20)
+# Requires -DHAVE_YAML=ON: the simulator parses YAML scenarios, and the project
+# is migrating away from the legacy world format toward YAML anyway.
+if (HAVE_YAML)
+	set(SIMULATOR_SOURCES
+		src/simulator/main.cpp
+		src/simulator/scenario_loader.cpp)
+	add_executable(mud-sim ${SIMULATOR_SOURCES})
+	if (NOT UNIX)
+		set_target_properties(mud-sim PROPERTIES CXX_STANDARD 20)
+	endif ()
+	target_include_directories(mud-sim PRIVATE ${YAML_CPP_INCLUDE_DIRS})
+	target_link_libraries(mud-sim circle.library ${YAML_CPP_LIBRARIES})
+else ()
+	message(STATUS "Headless balance simulator (mud-sim) skipped: requires -DHAVE_YAML=ON")
 endif ()
-target_link_libraries(mud-sim circle.library)
 
 # Testing part
 option(BUILD_TESTS "Build and run tests." YES)
