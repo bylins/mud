@@ -109,10 +109,11 @@ void RunScenario(const Scenario& scenario, observability::EventSink& sink) {
 	victim->set_hit(kHugeHp);
 
 	const auto* cast = std::get_if<CastAction>(&scenario.action);
-	if (!cast) {
-		// Default: melee. Engage once and let perform_violence drive the duel.
-		SetFighting(attacker, victim);
-	}
+	// In both melee and cast scenarios we engage once at the start. Cast spells
+	// like kCallLighting need kTarFightVict to resolve a target; SetFighting
+	// also makes get_char_vis() find the mob reliably even with multi-word
+	// keywords like "kostyanaya gonchaya".
+	SetFighting(attacker, victim);
 
 	int prev_hp = victim->get_hit();
 

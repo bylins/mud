@@ -865,6 +865,11 @@ int Damage::Process(CharData *ch, CharData *victim) {
 		ev.attrs["victim_hp_after"] = static_cast<std::int64_t>(victim->get_hit());
 		ev.attrs["dmg_type"] = static_cast<std::int64_t>(dmg_type);
 		ev.attrs["crit"] = flags[fight::kCritHit];
+		// spell_id/skill_id выставлены если урон пришёл из заклинания/умения
+		// (kUndefined для обычной автоатаки). В виз позволяет отличить
+		// melee от cast.
+		ev.attrs["spell_id"] = static_cast<std::int64_t>(spell_id);
+		ev.attrs["skill_id"] = static_cast<std::int64_t>(skill_id);
 		observability::GlobalEventSink().Emit(ev);
 	}
 	victim->send_to_TC(false, true, true, "&MПолучен урон = %d&n\r\n", dam);
