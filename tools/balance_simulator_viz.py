@@ -31,6 +31,7 @@ def load(path: Path):
     label = path.stem
     rounds_total = 0
     swings = []  # list[int]: dam per damage event
+    misses = 0
     fallback_per_round = []  # list[int]: damage_observed per round event
     first_round = None  # first 'round' event carries attacker_class/_vnum
     with path.open() as fh:
@@ -39,6 +40,8 @@ def load(path: Path):
             name = ev.get("name")
             if name == "damage":
                 swings.append(int(ev["dam"]))
+            elif name == "miss":
+                misses += 1
             elif name == "round":
                 rounds_total += 1
                 fallback_per_round.append(int(ev["damage_observed"]))
@@ -49,9 +52,9 @@ def load(path: Path):
             label = f"{first_round['attacker_class']} (lvl {first_round['attacker_level']})"
         else:
             label = f"mob#{first_round['attacker_vnum']}"
-    if swings:
-        return label, "damage", swings, rounds_total
-    return label, "round", fallback_per_round, rounds_total
+    if swings or misses:
+        return label, "damage", swings, rounds_total, misses
+    return label, "round", fallback_per_round, rounds_total, 0
 
 
 def main():
@@ -67,33 +70,53 @@ def main():
     runs = [load(p) for p in args.files]
     runs.sort(key=lambda r: -sum(r[2]))
 
-    fig, (ax_bar, ax_line) = plt.subplots(1, 2, figsize=(13.5, 4.8))
+    fig, (ax_dpr, ax_hit, ax_line) = plt.subplots(1, 3, figsize=(17, 4.8))
     fig.suptitle(args.title, fontsize=12)
 
     labels = [r[0] for r in runs]
     cmap = plt.colormaps.get_cmap("tab10")
     colors = [cmap(i % 10) for i in range(len(runs))]
 
+    # 1. dpr (avg damage per round)
     means = []
-    for label, kind, vals, rounds_total in runs:
+    for label, kind, vals, rounds_total, misses in runs:
         denom = rounds_total if rounds_total else max(len(vals), 1)
         means.append(sum(vals) / denom)
-    bars = ax_bar.bar(labels, means, color=colors, edgecolor="black", linewidth=0.5)
+    bars = ax_dpr.bar(labels, means, color=colors, edgecolor="black", linewidth=0.5)
     for bar, m in zip(bars, means):
-        ax_bar.text(
+        ax_dpr.text(
             bar.get_x() + bar.get_width() / 2,
             bar.get_height() + max(means + [0.01]) * 0.01,
             f"{m:.2f}",
-            ha="center",
-            va="bottom",
-            fontsize=9,
+            ha="center", va="bottom", fontsize=9,
         )
-    ax_bar.set_title("Средний нанесённый урон за раунд")
-    ax_bar.set_ylabel("HP жертвы за один pulse_violence")
-    ax_bar.tick_params(axis="x", rotation=20)
-    ax_bar.grid(axis="y", alpha=0.25, linestyle="--")
+    ax_dpr.set_title("Средний нанесённый урон за раунд")
+    ax_dpr.set_ylabel("HP жертвы за один pulse_violence")
+    ax_dpr.tick_params(axis="x", rotation=20)
+    ax_dpr.grid(axis="y", alpha=0.25, linestyle="--")
 
-    for (label, kind, vals, _), color in zip(runs, colors):
+    # 2. hit rate (% попаданий)
+    rates = []
+    for label, kind, vals, rounds_total, misses in runs:
+        hits = len(vals) if kind == "damage" else 0
+        total = hits + misses
+        rates.append(100.0 * hits / total if total else 0.0)
+    bars2 = ax_hit.bar(labels, rates, color=colors, edgecolor="black", linewidth=0.5)
+    for bar, r in zip(bars2, rates):
+        ax_hit.text(
+            bar.get_x() + bar.get_width() / 2,
+            bar.get_height() + 1.0,
+            f"{r:.1f}%",
+            ha="center", va="bottom", fontsize=9,
+        )
+    ax_hit.set_title("Hit rate")
+    ax_hit.set_ylabel("% попаданий от всех swing")
+    ax_hit.set_ylim(0, max(rates + [10]) * 1.15)
+    ax_hit.tick_params(axis="x", rotation=20)
+    ax_hit.grid(axis="y", alpha=0.25, linestyle="--")
+
+    # 3. cumulative damage
+    for (label, kind, vals, _, _), color in zip(runs, colors):
         cum = []
         s = 0
         for x in vals:
@@ -106,8 +129,8 @@ def main():
             label=f"{label}" + ("" if kind == "damage" else " [round-fallback]"),
             linewidth=1.6,
         )
-    ax_line.set_title("Кумулятивный нанесённый урон (по точным событиям damage)")
-    ax_line.set_xlabel("номер события")
+    ax_line.set_title("Кумулятивный нанесённый урон")
+    ax_line.set_xlabel("номер damage-события")
     ax_line.set_ylabel("сумма dam")
     ax_line.legend(loc="upper left", fontsize=8)
     ax_line.grid(alpha=0.25, linestyle="--")
