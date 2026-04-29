@@ -168,11 +168,16 @@ void RunScenario(const Scenario& scenario, observability::EventSink& sink) {
 	// kGlobalCooldown if it is still active) and record cast_attempt events.
 	for (int r = 0; r < scenario.rounds; ++r) {
 		if (cast) {
-			// Wait out any leftover global cooldown, then cast. The argument
-			// to DoCast is "'spell_name' victim_keyword" (single quotes
-			// around the spell name, then the target keyword).
-			while (attacker->HasCooldown(ESkill::kGlobalCooldown)) {
+			// Wait out any leftover global cooldown AND wait_state (cast time
+			// for the previous spell). Cap the wait so a misconfigured spell
+			// can't hang the run.
+			constexpr long long kMaxWaitPulses = kBattleRound * 4;
+			long long waited = 0;
+			while ((attacker->HasCooldown(ESkill::kGlobalCooldown) ||
+					attacker->get_wait() > 0) &&
+					waited < kMaxWaitPulses) {
 				MUD::heartbeat()(0);
+				++waited;
 				if (attacker->in_room == kNowhere || victim->in_room == kNowhere) {
 					break;
 				}
@@ -191,6 +196,11 @@ void RunScenario(const Scenario& scenario, observability::EventSink& sink) {
 					if (GET_SPELL_MEM(attacker, sid) > 0) {
 						GET_SPELL_MEM(attacker, sid)--;
 					}
+					// DoCast выставил бы wait_state на kBattleRound при
+					// нормальном пути; для прямого CastSpell (минуем DoCast,
+					// см. комментарий выше) делаем то же руками, иначе
+					// spell-каст в каждом раунде = переоценённый dpr.
+					SetWaitState(attacker, kBattleRound);
 				}
 			}
 		}
