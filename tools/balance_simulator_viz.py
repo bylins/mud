@@ -30,25 +30,29 @@ import matplotlib.pyplot as plt
 def load(path: Path):
     """Returns (label, kind, damage_events, rounds_total, misses).
 
-    `damage_events` is a list of (ts, dam, is_spell) tuples in **emit order**
-    (which is chronological because EventSink writes synchronously). Caller
-    can split by `is_spell` for stacked bars or keep order for the cumulative
-    timeline.
+    `damage_events` is a list of (ts, dam, kind) tuples in emit order.
+    `kind` is one of: 'master_melee', 'master_spell', 'pet'.
+    Pets are detected by attacker_is_charmie=True in the damage event;
+    spells are spell_id != 0; everything else is master melee.
     """
     label = path.stem
     rounds_total = 0
-    damage_events = []  # list[(ts, dam, is_spell)]
+    damage_events = []
     misses = 0
-    fallback_per_round = []  # list[int]: damage_observed per round event
+    fallback_per_round = []
     first_round = None
     with path.open() as fh:
         for line in fh:
             ev = json.loads(line)
             name = ev.get("name")
             if name == "damage":
-                damage_events.append(
-                    (int(ev["ts"]), int(ev["dam"]), ev.get("spell_id", 0) != 0)
-                )
+                if ev.get("attacker_is_charmie"):
+                    kind = "pet"
+                elif ev.get("spell_id", 0) != 0:
+                    kind = "master_spell"
+                else:
+                    kind = "master_melee"
+                damage_events.append((int(ev["ts"]), int(ev["dam"]), kind))
             elif name == "miss":
                 misses += 1
             elif name == "round":
@@ -63,7 +67,7 @@ def load(path: Path):
             label = f"mob#{first_round['attacker_vnum']}"
     if damage_events or misses:
         return label, "damage", damage_events, rounds_total, misses
-    return label, "round", [(0, d, False) for d in fallback_per_round], rounds_total, 0
+    return label, "round", [(0, d, "master_melee") for d in fallback_per_round], rounds_total, 0
 
 
 def main():
@@ -76,27 +80,48 @@ def main():
     )
     args = ap.parse_args()
 
-    runs = [load(p) for p in args.files]
+    runs = [(p, load(p)) for p in args.files]
+    # Disambiguate labels by suffixing the file stem when two runs share a label
+    # (two kudesnik runs with different YAML scenarios but same class+level).
+    label_counts = {}
+    for _, r in runs:
+        label_counts[r[0]] = label_counts.get(r[0], 0) + 1
+    runs = [
+        (
+            (f"{r[0]} [{p.stem}]" if label_counts[r[0]] > 1 else r[0]),
+            r[1],
+            r[2],
+            r[3],
+            r[4],
+        )
+        for p, r in runs
+    ]
     runs.sort(key=lambda r: -sum(d for _, d, _ in r[2]))
 
-    fig, (ax_dpr, ax_hit, ax_line) = plt.subplots(1, 3, figsize=(18, 4.8))
+    # Wider figure when labels are long (file-stem disambiguation appended).
+    long_labels = any(len(r[0]) > 25 for r in runs)
+    fig_w = 22 if long_labels else 18
+    fig, (ax_dpr, ax_hit, ax_line) = plt.subplots(1, 3, figsize=(fig_w, 5.6))
     fig.suptitle(args.title, fontsize=12)
 
     labels = [r[0] for r in runs]
 
-    # 1. stacked dpr (melee + spell)
-    melee_means = []
-    spell_means = []
+    # 1. stacked dpr: melee хозяина + spell хозяина + pets
+    melee_means, spell_means, pet_means = [], [], []
     for label, kind, events, rounds_total, misses in runs:
         denom = rounds_total if rounds_total else max(len(events), 1)
-        melee_means.append(sum(d for _, d, sp in events if not sp) / denom)
-        spell_means.append(sum(d for _, d, sp in events if sp) / denom)
-    ax_dpr.bar(labels, melee_means, color="#4878d0", edgecolor="black", linewidth=0.5, label="melee")
-    ax_dpr.bar(labels, spell_means, bottom=melee_means, color="#ee854a", edgecolor="black", linewidth=0.5, label="spell")
-    for i, (m, s) in enumerate(zip(melee_means, spell_means)):
-        ax_dpr.text(i, m + s + max(map(sum, zip(melee_means, spell_means))) * 0.01,
-                    f"{m + s:.1f}", ha="center", va="bottom", fontsize=9)
-    ax_dpr.set_title("Средний нанесённый урон за раунд (melee + spell)")
+        melee_means.append(sum(d for _, d, k in events if k == "master_melee") / denom)
+        spell_means.append(sum(d for _, d, k in events if k == "master_spell") / denom)
+        pet_means.append(sum(d for _, d, k in events if k == "pet") / denom)
+    bottom2 = [a + b for a, b in zip(melee_means, spell_means)]
+    ax_dpr.bar(labels, melee_means, color="#4878d0", edgecolor="black", linewidth=0.5, label="master melee")
+    ax_dpr.bar(labels, spell_means, bottom=melee_means, color="#ee854a", edgecolor="black", linewidth=0.5, label="master spell")
+    ax_dpr.bar(labels, pet_means, bottom=bottom2, color="#6acc64", edgecolor="black", linewidth=0.5, label="pets")
+    totals = [m + s + p for m, s, p in zip(melee_means, spell_means, pet_means)]
+    for i, t in enumerate(totals):
+        ax_dpr.text(i, t + max(totals + [0.01]) * 0.01,
+                    f"{t:.1f}", ha="center", va="bottom", fontsize=9)
+    ax_dpr.set_title("Средний урон за раунд (master / pets)")
     ax_dpr.set_ylabel("HP жертвы за один pulse_violence")
     ax_dpr.tick_params(axis="x", rotation=20)
     ax_dpr.grid(axis="y", alpha=0.25, linestyle="--")
@@ -120,8 +145,7 @@ def main():
     ax_hit.tick_params(axis="x", rotation=20)
     ax_hit.grid(axis="y", alpha=0.25, linestyle="--")
 
-    # 3. cumulative damage по реальному таймлайну (ts), нормализованному в
-    # секунды от первого события сценария.
+    # 3. cumulative damage по реальному таймлайну (включает вклад pets)
     for (label, kind, events, _, _), color in zip(runs, colors):
         if not events:
             continue
