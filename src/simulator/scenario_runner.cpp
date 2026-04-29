@@ -10,11 +10,9 @@
 #include "gameplay/classes/pc_classes.h"
 #include "gameplay/fight/fight.h"
 #include "utils/logger.h"
-#include "utils/utils.h"
 
 #include <fmt/format.h>
 
-#include <array>
 #include <chrono>
 #include <climits>
 #include <stdexcept>
@@ -38,17 +36,6 @@ std::int64_t NowUnixMs() {
 	return duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
 }
 
-// Engine strings (class names, mob descriptions) live in KOI8-R; nlohmann::json
-// validates UTF-8 on serialization and rejects KOI8-R bytes. Convert before
-// emission. Buffer sized generously: KOI8-R -> UTF-8 expands to 2 bytes per
-// non-ASCII char.
-std::string Koi8rToUtf8(const std::string& src) {
-	std::array<char, 2048> buf{};
-	std::string mut = src;  // koi_to_utf8 takes char*, not const
-	mut.push_back('\0');
-	koi_to_utf8(mut.data(), buf.data());
-	return std::string(buf.data());
-}
 
 // Spawn a participant and register it with the global character_list so its
 // shared_ptr is owned globally for the duration of the run. Returns the raw
@@ -90,7 +77,7 @@ void AddParticipantAttrs(observability::Event& e, const char* role, const Partic
 		using T = std::decay_t<decltype(s)>;
 		if constexpr (std::is_same_v<T, PlayerSpec>) {
 			e.attrs[std::string(role) + "_type"] = std::string("player");
-			e.attrs[std::string(role) + "_class"] = Koi8rToUtf8(s.class_name);
+			e.attrs[std::string(role) + "_class"] = observability::EngineStringToUtf8(s.class_name);
 			e.attrs[std::string(role) + "_level"] = static_cast<std::int64_t>(s.level);
 		} else if constexpr (std::is_same_v<T, MobSpec>) {
 			e.attrs[std::string(role) + "_type"] = std::string("mob");

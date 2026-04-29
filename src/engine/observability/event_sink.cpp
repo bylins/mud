@@ -1,5 +1,9 @@
 #include "event_sink.h"
 
+#include "utils/utils.h"
+
+#include <array>
+
 namespace observability {
 
 namespace {
@@ -25,6 +29,14 @@ EventSink& GlobalEventSink() {
 
 void SetGlobalEventSink(EventSink* sink) {
 	g_sink = sink;
+}
+
+std::string EngineStringToUtf8(const std::string& koi8r) {
+	std::array<char, 4096> buf{};
+	std::string mut = koi8r;  // koi_to_utf8 takes char*, not const
+	mut.push_back('\0');
+	koi_to_utf8(mut.data(), buf.data());
+	return std::string(buf.data());
 }
 
 }  // namespace observability
