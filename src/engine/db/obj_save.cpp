@@ -1494,8 +1494,18 @@ int Crash_load(CharData *ch) {
 		// вычтем таймер оффлайна
 		if (!(stable_objs::IsTimerUnlimited(obj.get()) || obj->has_flag(EObjFlag::kNoRentTimer))) {
 			const SaveInfo *si = SAVEINFO(index);
-			obj->set_timer(si->time[fsize].timer);
-			obj->dec_timer(timer_dec);
+			const int saved_timer = si->time[fsize].timer;
+			// Защита от мусорных значений в бинарном таймер-файле
+			// (UNLIMITED_TIMER и близкие следы старых багов decay_manager
+			// в otransform/oedit - см. #3213, #3225). Текстовый Tmer уже
+			// клампится в read_one_object_new по тому же порогу 99999.
+			// Если значение бракованное, не переписываем m_timer, иначе
+			// dec_timer ниже разгонит UNLIMITED-N*timer_dec в дрейфующий
+			// таймер, который медленно сходит к нулю.
+			if (saved_timer <= 99999) {
+				obj->set_timer(saved_timer);
+				obj->dec_timer(timer_dec);
+			}
 		}
 
 		std::string cap = obj->get_PName(ECase::kNom);
