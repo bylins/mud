@@ -16,7 +16,7 @@
 #include "engine/core/config.h"
 #include "engine/db/db.h"
 #include "engine/db/global_objects.h"
-#include "engine/observability/file_event_sink.h"
+#include "engine/observability/event_sink.h"
 #include "simulator/scenario.h"
 #include "simulator/scenario_loader.h"
 #include "simulator/scenario_runner.h"
@@ -107,8 +107,8 @@ int main(int argc, char** argv) {
 		scenario.rounds, scenario.output.c_str());
 
 	try {
-		observability::FileEventSink sink(scenario.output);
-		simulator::RunScenario(scenario, sink);
+		auto sink = observability::MakeFileEventSink(scenario.output);
+		simulator::RunScenario(scenario, *sink);
 	} catch (const std::exception& e) {
 		std::fprintf(stderr, "mud-sim: scenario run failed: %s\n", e.what());
 		return 1;

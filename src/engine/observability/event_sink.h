@@ -3,6 +3,7 @@
 
 #include <cstdint>
 #include <map>
+#include <memory>
 #include <string>
 #include <variant>
 
@@ -16,16 +17,23 @@ struct Event {
 	std::map<std::string, EventAttrValue> attrs;
 };
 
-// Generic raw-event sink. Two implementations are planned:
-// - FileEventSink: appends one JSON line per event (used by the headless balance simulator
-//   and as a fallback on non-OTLP servers).
-// - OtlpLogsSink (backlog): forwards events as OTLP log records to a collector / Loki.
+// Generic raw-event sink. Implementations are hidden behind factories below;
+// callers only depend on this interface.
 class EventSink {
 public:
 	virtual ~EventSink() = default;
 	virtual void Emit(const Event& event) = 0;
 	virtual void Flush() = 0;
 };
+
+// Creates a sink that appends one JSON object per line to the given file
+// (JSONL). Layout matches the OTLP log record schema. Used by the headless
+// balance simulator and as a fallback on non-OTLP servers. Throws on open
+// failure.
+//
+// An OtlpLogsSink factory (forwarding to a collector / Loki) is on the
+// backlog and will sit next to this one.
+std::unique_ptr<EventSink> MakeFileEventSink(const std::string& path);
 
 }  // namespace observability
 

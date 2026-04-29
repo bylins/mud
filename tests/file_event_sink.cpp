@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "engine/observability/file_event_sink.h"
+#include "engine/observability/event_sink.h"
 
 #include <cstdio>
 #include <fstream>
@@ -44,11 +44,11 @@ TEST(FileEventSink, WritesBaseFieldsAsJsonLine) {
 	const auto path = TempPath("base");
 	std::remove(path.c_str());
 	{
-		observability::FileEventSink sink(path);
+		auto sink = observability::MakeFileEventSink(path);
 		observability::Event e;
 		e.name = "hit";
 		e.ts_unix_ms = 1714400000000;
-		sink.Emit(e);
+		sink->Emit(e);
 	}
 	const auto lines = SplitLines(ReadFile(path));
 	ASSERT_EQ(lines.size(), 1u);
@@ -60,7 +60,7 @@ TEST(FileEventSink, EncodesAttributeTypes) {
 	const auto path = TempPath("attrs");
 	std::remove(path.c_str());
 	{
-		observability::FileEventSink sink(path);
+		auto sink = observability::MakeFileEventSink(path);
 		observability::Event e;
 		e.name = "hit";
 		e.ts_unix_ms = 1;
@@ -68,7 +68,7 @@ TEST(FileEventSink, EncodesAttributeTypes) {
 		e.attrs["b"] = true;
 		e.attrs["s"] = std::string("sorcerer");
 		e.attrs["d"] = 3.5;
-		sink.Emit(e);
+		sink->Emit(e);
 	}
 	const auto lines = SplitLines(ReadFile(path));
 	ASSERT_EQ(lines.size(), 1u);
@@ -82,12 +82,12 @@ TEST(FileEventSink, EscapesSpecialCharsInStrings) {
 	const auto path = TempPath("escape");
 	std::remove(path.c_str());
 	{
-		observability::FileEventSink sink(path);
+		auto sink = observability::MakeFileEventSink(path);
 		observability::Event e;
 		e.name = "test";
 		e.ts_unix_ms = 0;
 		e.attrs["s"] = std::string("line1\nline2\t\"quoted\"\\back");
-		sink.Emit(e);
+		sink->Emit(e);
 	}
 	const auto lines = SplitLines(ReadFile(path));
 	ASSERT_EQ(lines.size(), 1u);
@@ -99,13 +99,13 @@ TEST(FileEventSink, AppendsManyEventsAsSeparateLines) {
 	const auto path = TempPath("many");
 	std::remove(path.c_str());
 	{
-		observability::FileEventSink sink(path);
+		auto sink = observability::MakeFileEventSink(path);
 		for (int i = 0; i < 10; ++i) {
 			observability::Event e;
 			e.name = "hit";
 			e.ts_unix_ms = i;
 			e.attrs["round"] = static_cast<std::int64_t>(i);
-			sink.Emit(e);
+			sink->Emit(e);
 		}
 	}
 	const auto lines = SplitLines(ReadFile(path));

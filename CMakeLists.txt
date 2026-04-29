@@ -931,7 +931,6 @@ set(HEADERS
 		src/engine/observability/helpers.h
 		src/engine/observability/log_sender.h
 		src/engine/observability/event_sink.h
-		src/engine/observability/file_event_sink.h
 		src/utils/logging/log_sender.h
 		src/gameplay/classes/recalc_mob_params_by_vnum.h)
 
