@@ -7,6 +7,7 @@
 #include "gameplay/affects/affect_data.h"
 #include "gameplay/affects/affect_contants.h"
 #include "gameplay/classes/pc_classes_info.h"
+#include "gameplay/magic/spells.h"
 #include "gameplay/mechanics/groups.h"
 
 namespace entities {
@@ -201,6 +202,17 @@ void CharacterBuilder::grant_class_skills_and_feats()
 	for (const auto &feat : class_info.feats) {
 		if (level >= feat.GetMinLevel() && remort >= feat.GetMinRemort()) {
 			m_result->SetFeat(feat.GetId());
+		}
+	}
+
+	// Все class-заклинания, доступные на этом уровне, помечаем как известные
+	// (SPELL_TYPE |= kKnow) и заливаем большой запас в память. Иначе DoCast
+	// упрётся в проверку "не помню заклинания" / "нет слотов круга" и
+	// просто откажется кастовать.
+	for (const auto &spell : class_info.spells) {
+		if (level >= spell.GetMinLevel() && remort >= spell.GetMinRemort()) {
+			SET_BIT(GET_SPELL_TYPE(m_result, spell.GetId()), ESpellType::kKnow);
+			SET_SPELL_MEM(m_result, spell.GetId(), 1000);
 		}
 	}
 }

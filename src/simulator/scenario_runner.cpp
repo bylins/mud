@@ -7,6 +7,7 @@
 #include "engine/entities/character_builder.h"
 #include "engine/entities/char_data.h"
 #include "engine/structs/structs.h"
+#include "engine/ui/cmd/do_cast.h"
 #include "gameplay/classes/pc_classes.h"
 #include "gameplay/fight/fight.h"
 #include "utils/logger.h"
@@ -17,6 +18,7 @@
 #include <climits>
 #include <stdexcept>
 #include <string>
+#include <vector>
 
 namespace simulator {
 
@@ -106,15 +108,37 @@ void RunScenario(const Scenario& scenario, observability::EventSink& sink) {
 	victim->set_max_hit(kHugeHp);
 	victim->set_hit(kHugeHp);
 
-	SetFighting(attacker, victim);
+	const auto* cast = std::get_if<CastAction>(&scenario.action);
+	if (!cast) {
+		// Default: melee. Engage once and let perform_violence drive the duel.
+		SetFighting(attacker, victim);
+	}
 
 	int prev_hp = victim->get_hit();
 
-	// Per-round event: tick exactly one battle round (kBattleRound pulses ==
-	// one perform_violence step), measure HP delta, emit the event. Per-pulse
-	// instrumentation (per-swing roll/hit/miss) is a backlog item; for now
-	// the HP delta is the observable.
+	// Per-round event: tick one battle round (kBattleRound pulses == one
+	// perform_violence step), measure HP delta, emit. For 'cast' scenarios
+	// we additionally invoke DoCast at the start of each round (waiting out
+	// kGlobalCooldown if it is still active) and record cast_attempt events.
 	for (int r = 0; r < scenario.rounds; ++r) {
+		if (cast) {
+			// Wait out any leftover global cooldown, then cast. The argument
+			// to DoCast is "'spell_name' victim_keyword" (single quotes
+			// around the spell name, then the target keyword).
+			while (attacker->HasCooldown(ESkill::kGlobalCooldown)) {
+				MUD::heartbeat()(0);
+				if (attacker->in_room == kNowhere || victim->in_room == kNowhere) {
+					break;
+				}
+			}
+			if (attacker->in_room != kNowhere && victim->in_room != kNowhere) {
+				// CharAliases gives keywords used by player commands (cast, look, etc.)
+				std::string arg = "'" + cast->spell_name + "' " + victim->GetCharAliases();
+				std::vector<char> arg_buf(arg.begin(), arg.end());
+				arg_buf.push_back('\0');
+				DoCast(attacker, arg_buf.data(), 0, 0);
+			}
+		}
 		for (long long p = 0; p < kBattleRound; ++p) {
 			MUD::heartbeat()(0);
 			if (attacker->in_room == kNowhere || victim->in_room == kNowhere) {

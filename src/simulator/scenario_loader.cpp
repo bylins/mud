@@ -65,6 +65,29 @@ Scenario ParseScenario(const YAML::Node& root) {
 	}
 	s.attacker = ParseParticipant(root["attacker"], "attacker");
 	s.victim = ParseParticipant(root["victim"], "victim");
+	if (root["action"]) {
+		const auto action_node = root["action"];
+		if (!action_node.IsMap()) {
+			throw ScenarioLoadError("scenario.action: must be a map");
+		}
+		const auto type = action_node["type"];
+		if (!type) {
+			throw ScenarioLoadError("scenario.action.type: required field is missing");
+		}
+		const auto type_str = type.as<std::string>();
+		if (type_str == "melee") {
+			s.action = MeleeAction{};
+		} else if (type_str == "cast") {
+			const auto spell_node = action_node["spell"];
+			if (!spell_node) {
+				throw ScenarioLoadError("scenario.action.spell: required for cast");
+			}
+			s.action = CastAction{spell_node.as<std::string>()};
+		} else {
+			throw ScenarioLoadError(fmt::format(
+				"scenario.action.type: must be 'melee' or 'cast' (got '{}')", type_str));
+		}
+	}
 	if (s.rounds <= 0) {
 		throw ScenarioLoadError(fmt::format("scenario.rounds: must be positive (got {})", s.rounds));
 	}

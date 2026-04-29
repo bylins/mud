@@ -22,12 +22,23 @@ struct MobSpec {
 
 using ParticipantSpec = std::variant<PlayerSpec, MobSpec>;
 
+// What the attacker does each battle round. Default is plain melee
+// (auto-attack via SetFighting + heartbeat). Cast invokes DoCast with the
+// given Russian spell name on the victim each time the global cooldown
+// allows.
+struct MeleeAction {};
+struct CastAction {
+	std::string spell_name;
+};
+using AttackerAction = std::variant<MeleeAction, CastAction>;
+
 struct Scenario {
 	unsigned seed = 0;
 	int rounds = 100;
 	std::string output;
 	ParticipantSpec attacker;
 	ParticipantSpec victim;
+	AttackerAction action;  // default: MeleeAction
 };
 
 }  // namespace simulator
