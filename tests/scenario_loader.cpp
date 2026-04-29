@@ -55,6 +55,70 @@ victim:
 	EXPECT_EQ(v.level, 12);
 }
 
+TEST(ScenarioLoader, PlayerVsPlayerWithCastAction) {
+	const auto s = simulator::LoadScenarioFromString(R"(
+seed: 7
+rounds: 20
+output: /tmp/pvp.jsonl
+attacker:
+  type: player
+  class: koldun
+  level: 30
+victim:
+  type: player
+  class: bogatyr
+  level: 30
+action:
+  type: cast
+  spell: lightning
+)");
+	ASSERT_TRUE(std::holds_alternative<simulator::PlayerSpec>(s.attacker));
+	ASSERT_TRUE(std::holds_alternative<simulator::PlayerSpec>(s.victim));
+	const auto& a = std::get<simulator::PlayerSpec>(s.attacker);
+	const auto& v = std::get<simulator::PlayerSpec>(s.victim);
+	EXPECT_EQ(a.class_name, "koldun");
+	EXPECT_EQ(v.class_name, "bogatyr");
+	ASSERT_TRUE(std::holds_alternative<simulator::CastAction>(s.action));
+	EXPECT_EQ(std::get<simulator::CastAction>(s.action).spell_name, "lightning");
+}
+
+TEST(ScenarioLoader, MeleeActionDefault) {
+	const auto s = simulator::LoadScenarioFromString(R"(
+output: /tmp/x.jsonl
+attacker: { type: mob, vnum: 1 }
+victim:   { type: mob, vnum: 2 }
+)");
+	EXPECT_TRUE(std::holds_alternative<simulator::MeleeAction>(s.action));
+}
+
+TEST(ScenarioLoader, ExplicitMeleeAction) {
+	const auto s = simulator::LoadScenarioFromString(R"(
+output: /tmp/x.jsonl
+attacker: { type: mob, vnum: 1 }
+victim:   { type: mob, vnum: 2 }
+action:   { type: melee }
+)");
+	EXPECT_TRUE(std::holds_alternative<simulator::MeleeAction>(s.action));
+}
+
+TEST(ScenarioLoader, CastActionWithoutSpellIsFatal) {
+	EXPECT_THROW(simulator::LoadScenarioFromString(R"(
+output: /tmp/x.jsonl
+attacker: { type: mob, vnum: 1 }
+victim:   { type: mob, vnum: 2 }
+action:   { type: cast }
+)"), simulator::ScenarioLoadError);
+}
+
+TEST(ScenarioLoader, UnknownActionTypeIsFatal) {
+	EXPECT_THROW(simulator::LoadScenarioFromString(R"(
+output: /tmp/x.jsonl
+attacker: { type: mob, vnum: 1 }
+victim:   { type: mob, vnum: 2 }
+action:   { type: dance }
+)"), simulator::ScenarioLoadError);
+}
+
 TEST(ScenarioLoader, DefaultsSeedAndRounds) {
 	const auto s = simulator::LoadScenarioFromString(R"(
 output: /tmp/x.jsonl
