@@ -35,6 +35,15 @@ public:
 // backlog and will sit next to this one.
 std::unique_ptr<EventSink> MakeFileEventSink(const std::string& path);
 
+// Global event sink, used by engine code (combat, magic, etc.) that wants to
+// emit events without taking a sink through every function signature.
+//
+// Default is a NoOp sink: production builds without a configured exporter
+// see no overhead beyond a virtual call into a no-op. The simulator (and
+// later the OTLP exporter) installs a real sink with SetGlobalEventSink().
+EventSink& GlobalEventSink();
+void SetGlobalEventSink(EventSink* sink);
+
 }  // namespace observability
 
 #endif  // BYLINS_EVENT_SINK_H

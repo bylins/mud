@@ -108,8 +108,14 @@ int main(int argc, char** argv) {
 
 	try {
 		auto sink = observability::MakeFileEventSink(scenario.output);
+		// Install as the global sink so engine-side instrumentation (combat,
+		// magic, etc.) can emit events without the sink threaded through the
+		// call signature.
+		observability::SetGlobalEventSink(sink.get());
 		simulator::RunScenario(scenario, *sink);
+		observability::SetGlobalEventSink(nullptr);
 	} catch (const std::exception& e) {
+		observability::SetGlobalEventSink(nullptr);
 		std::fprintf(stderr, "mud-sim: scenario run failed: %s\n", e.what());
 		return 1;
 	}

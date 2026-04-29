@@ -100,6 +100,7 @@ set(TESTS
 		obj_decay_manager.cpp
 		random.seed.cpp
 		file_event_sink.cpp
+		event_sink_global.cpp
 		character_builder.cpp)
 if (HAVE_YAML)
 	list(APPEND TESTS scenario_loader.cpp)

@@ -475,6 +475,7 @@ set(SOURCES
 		src/engine/observability/provider.cpp
 		src/engine/observability/metrics.cpp
 		src/engine/observability/helpers.cpp
+		src/engine/observability/event_sink.cpp
 		src/engine/observability/file_event_sink.cpp)
 
 
