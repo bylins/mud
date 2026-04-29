@@ -870,6 +870,12 @@ int Damage::Process(CharData *ch, CharData *victim) {
 		// melee от cast.
 		ev.attrs["spell_id"] = static_cast<std::int64_t>(spell_id);
 		ev.attrs["skill_id"] = static_cast<std::int64_t>(skill_id);
+		// Чармис/поднятая нежить -- атаковал не сам PC, а его подчинённый.
+		// Визуализатору это нужно, чтобы отделить вклад хозяина и слуг.
+		ev.attrs["attacker_is_charmie"] = IS_CHARMICE(ch);
+		ev.attrs["attacker_master_name"] = observability::EngineStringToUtf8(
+			(IS_CHARMICE(ch) && ch->has_master() && GET_NAME(ch->get_master()))
+				? GET_NAME(ch->get_master()) : "");
 		observability::GlobalEventSink().Emit(ev);
 	}
 	victim->send_to_TC(false, true, true, "&MПолучен урон = %d&n\r\n", dam);

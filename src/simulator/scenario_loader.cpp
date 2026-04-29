@@ -11,6 +11,8 @@ namespace simulator {
 
 namespace {
 
+std::vector<PetSpec> ParsePets(const YAML::Node& node, const char* role);
+
 StatOverrides ParseStatOverrides(const YAML::Node& node) {
 	StatOverrides o;
 	if (!node) {
@@ -48,6 +50,7 @@ ParticipantSpec ParseParticipant(const YAML::Node& node, const char* role) {
 		p.class_name = cls.as<std::string>();
 		p.level = level.as<int>();
 		p.overrides = ParseStatOverrides(node["stats"]);
+		p.pets = ParsePets(node["pets"], role);
 		return p;
 	}
 	if (type_str == "mob") {
@@ -58,10 +61,39 @@ ParticipantSpec ParseParticipant(const YAML::Node& node, const char* role) {
 		}
 		m.vnum = vnum.as<int>();
 		m.overrides = ParseStatOverrides(node["stats"]);
+		m.pets = ParsePets(node["pets"], role);
 		return m;
 	}
 	throw ScenarioLoadError(fmt::format(
 		"scenario.{}.type: must be 'player' or 'mob' (got '{}')", role, type_str));
+}
+
+std::vector<PetSpec> ParsePets(const YAML::Node& node, const char* role) {
+	std::vector<PetSpec> out;
+	if (!node) {
+		return out;
+	}
+	if (!node.IsSequence()) {
+		throw ScenarioLoadError(fmt::format(
+			"scenario.{}.pets: must be a sequence", role));
+	}
+	for (std::size_t i = 0; i < node.size(); ++i) {
+		const auto pet_node = node[i];
+		if (!pet_node.IsMap()) {
+			throw ScenarioLoadError(fmt::format(
+				"scenario.{}.pets[{}]: must be a map", role, i));
+		}
+		PetSpec p;
+		const auto vnum = pet_node["vnum"];
+		if (!vnum) {
+			throw ScenarioLoadError(fmt::format(
+				"scenario.{}.pets[{}].vnum: required", role, i));
+		}
+		p.vnum = vnum.as<int>();
+		p.overrides = ParseStatOverrides(pet_node["stats"]);
+		out.push_back(p);
+	}
+	return out;
 }
 
 Scenario ParseScenario(const YAML::Node& root) {

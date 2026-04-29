@@ -5,6 +5,7 @@
 
 #include <string>
 #include <variant>
+#include <vector>
 
 namespace simulator {
 
@@ -24,15 +25,25 @@ struct StatOverrides {
 // Class name is kept as a string (not resolved to ECharClass) at scenario load
 // time, because class resolution requires the world to be booted. The runner
 // resolves it when creating the participant.
+// Charmies / raised undead / pets owned by the participant from the start of
+// the scenario (no charm spell is cast -- they are already loyal). Each pet
+// is a mob from the world by vnum, with optional stat overrides.
+struct PetSpec {
+	MobVnum vnum = 0;
+	StatOverrides overrides;
+};
+
 struct PlayerSpec {
 	std::string class_name;
 	int level = 1;
 	StatOverrides overrides;
+	std::vector<PetSpec> pets;
 };
 
 struct MobSpec {
 	MobVnum vnum = 0;
 	StatOverrides overrides;
+	std::vector<PetSpec> pets;  // even mob attackers can in principle have pets
 };
 
 using ParticipantSpec = std::variant<PlayerSpec, MobSpec>;

@@ -140,6 +140,48 @@ victim:
 	EXPECT_EQ(v.overrides.max_hit, 5000);
 }
 
+TEST(ScenarioLoader, PlayerWithPetsParsed) {
+	const auto s = simulator::LoadScenarioFromString(R"(
+output: /tmp/x.jsonl
+attacker:
+  type: player
+  class: kudesnik
+  level: 30
+  pets:
+    - { vnum: 4001 }
+    - { vnum: 4002, stats: { max_hit: 800 } }
+victim: { type: mob, vnum: 102 }
+)");
+	const auto& a = std::get<simulator::PlayerSpec>(s.attacker);
+	ASSERT_EQ(a.pets.size(), 2u);
+	EXPECT_EQ(a.pets[0].vnum, 4001);
+	EXPECT_EQ(a.pets[0].overrides.max_hit, -1);
+	EXPECT_EQ(a.pets[1].vnum, 4002);
+	EXPECT_EQ(a.pets[1].overrides.max_hit, 800);
+}
+
+TEST(ScenarioLoader, NoPetsByDefault) {
+	const auto s = simulator::LoadScenarioFromString(R"(
+output: /tmp/x.jsonl
+attacker: { type: player, class: koldun, level: 30 }
+victim: { type: mob, vnum: 102 }
+)");
+	EXPECT_TRUE(std::get<simulator::PlayerSpec>(s.attacker).pets.empty());
+}
+
+TEST(ScenarioLoader, PetWithoutVnumIsFatal) {
+	EXPECT_THROW(simulator::LoadScenarioFromString(R"(
+output: /tmp/x.jsonl
+attacker:
+  type: player
+  class: kudesnik
+  level: 30
+  pets:
+    - { stats: { max_hit: 100 } }
+victim: { type: mob, vnum: 102 }
+)"), simulator::ScenarioLoadError);
+}
+
 TEST(ScenarioLoader, MeleeActionDefault) {
 	const auto s = simulator::LoadScenarioFromString(R"(
 output: /tmp/x.jsonl

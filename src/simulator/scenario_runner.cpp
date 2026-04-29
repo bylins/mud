@@ -147,6 +147,12 @@ std::string ResolveClassAlias(const std::string& input) {
 	return it != kAliases.end() ? it->second : input;
 }
 
+const std::vector<PetSpec>& GetPetSpecs(const ParticipantSpec& spec) {
+	return std::visit([](auto&& s) -> const std::vector<PetSpec>& {
+		return s.pets;
+	}, spec);
+}
+
 // Apply YAML stat overrides to a freshly-spawned character. Each negative
 // override is left alone (engine default kept).
 void ApplyStatOverrides(CharData* ch, const StatOverrides& o) {
@@ -160,6 +166,37 @@ void ApplyStatOverrides(CharData* ch, const StatOverrides& o) {
 		ch->set_max_hit(o.max_hit);
 		ch->set_hit(o.max_hit);
 	}
+}
+
+// Spawn one pet (charmie) of a given vnum, attach it as a follower of `owner`,
+// place into the arena room. Same recipe the engine performs at the end of
+// the kCharm spell -- but we skip the cast itself, so the scenario stays
+// declarative (the pet is already loyal from the start).
+CharData* SpawnPet(CharData* owner, const PetSpec& spec, RoomRnum room) {
+	const auto rnum = GetMobRnum(spec.vnum);
+	if (rnum < 0) {
+		throw ScenarioRunError(fmt::format(
+			"pet vnum {} not found in world", spec.vnum));
+	}
+	CharData* pet = ReadMobile(rnum, kReal);
+	if (!pet) {
+		throw ScenarioRunError(fmt::format(
+			"ReadMobile({}) returned null for pet", spec.vnum));
+	}
+	ApplyStatOverrides(pet, spec.overrides);
+	PlaceCharToRoom(pet, room);
+
+	Affect<EApply> af;
+	af.modifier = 0;
+	af.location = EApply::kNone;
+	af.battleflag = 0;
+	af.type = ESpell::kCharm;
+	af.duration = 999;  // long enough that no scenario will outlive it
+	af.bitvector = to_underlying(EAffect::kCharmed);
+	affect_to_char(pet, af);
+	owner->add_follower(pet);
+
+	return pet;
 }
 
 CharData* SpawnParticipant(const ParticipantSpec& spec) {
@@ -248,6 +285,20 @@ void RunScenario(const Scenario& scenario, observability::EventSink& sink) {
 	PlaceCharToRoom(attacker, kArenaRoom);
 	PlaceCharToRoom(victim, kArenaRoom);
 
+	// Pets / charmies / raised undead, declared as part of a participant in
+	// the YAML scenario. We do NOT cast kCharm to subdue them -- they join
+	// already loyal, with an EAffect::kCharmed marker and the master pointer
+	// set to the owner. This matches typical balance scenarios for kudesnik
+	// (charmer) and necromancer where the player walks in with their pets.
+	std::vector<CharData*> attacker_pets;
+	for (const auto& pet : GetPetSpecs(scenario.attacker)) {
+		attacker_pets.push_back(SpawnPet(attacker, pet, kArenaRoom));
+	}
+	std::vector<CharData*> victim_pets;
+	for (const auto& pet : GetPetSpecs(scenario.victim)) {
+		victim_pets.push_back(SpawnPet(victim, pet, kArenaRoom));
+	}
+
 	// By default both get massive HP so the duel survives all rounds. If a
 	// participant has an explicit max_hit override in the YAML scenario, that
 	// override wins (it was already applied inside SpawnParticipant and we
@@ -267,11 +318,25 @@ void RunScenario(const Scenario& scenario, observability::EventSink& sink) {
 	// also makes get_char_vis() find the mob reliably even with multi-word
 	// keywords like "kostyanaya gonchaya".
 	SetFighting(attacker, victim);
+	for (auto* pet : attacker_pets) {
+		SetFighting(pet, victim);
+	}
+	for (auto* pet : victim_pets) {
+		SetFighting(pet, attacker);
+	}
 
 	// Initial snapshot before the first round, so replay can reconstruct
 	// starting state.
 	EmitCharState(sink, "attacker", attacker, -1);
 	EmitCharState(sink, "victim", victim, -1);
+	for (std::size_t i = 0; i < attacker_pets.size(); ++i) {
+		EmitCharState(sink, fmt::format("attacker_pet_{}", i).c_str(),
+			attacker_pets[i], -1);
+	}
+	for (std::size_t i = 0; i < victim_pets.size(); ++i) {
+		EmitCharState(sink, fmt::format("victim_pet_{}", i).c_str(),
+			victim_pets[i], -1);
+	}
 
 	int prev_hp = victim->get_hit();
 
@@ -339,12 +404,24 @@ void RunScenario(const Scenario& scenario, observability::EventSink& sink) {
 		e.attrs["victim_alive"] = alive;
 		sink.Emit(e);
 
-		// Per-round snapshot for both participants. Replay tooling consumes
-		// these to reconstruct any participant's state at any round without
-		// having to fold all damage/affect events.
+		// Per-round snapshot for both participants and their pets. Replay
+		// tooling consumes these to reconstruct any participant's state at
+		// any round without having to fold all damage/affect events.
 		if (alive) {
 			EmitCharState(sink, "attacker", attacker, r);
 			EmitCharState(sink, "victim", victim, r);
+			for (std::size_t i = 0; i < attacker_pets.size(); ++i) {
+				if (attacker_pets[i]->in_room != kNowhere) {
+					EmitCharState(sink, fmt::format("attacker_pet_{}", i).c_str(),
+						attacker_pets[i], r);
+				}
+			}
+			for (std::size_t i = 0; i < victim_pets.size(); ++i) {
+				if (victim_pets[i]->in_room != kNowhere) {
+					EmitCharState(sink, fmt::format("victim_pet_{}", i).c_str(),
+						victim_pets[i], r);
+				}
+			}
 		}
 
 		if (!alive) {
@@ -353,8 +430,18 @@ void RunScenario(const Scenario& scenario, observability::EventSink& sink) {
 		prev_hp = hp_now;
 	}
 
-	// Cleanup. ExtractCharFromWorld removes from character_list and frees the
-	// underlying object.
+	// Cleanup pets first so their follower lists do not point to extracted
+	// owners; then the owners themselves.
+	for (auto* pet : attacker_pets) {
+		if (pet->in_room != kNowhere) {
+			ExtractCharFromWorld(pet, false);
+		}
+	}
+	for (auto* pet : victim_pets) {
+		if (pet->in_room != kNowhere) {
+			ExtractCharFromWorld(pet, false);
+		}
+	}
 	if (attacker->in_room != kNowhere) {
 		ExtractCharFromWorld(attacker, false);
 	}
