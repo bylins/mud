@@ -33,9 +33,17 @@ public:
 
 	// Convenience preset for the headless balance simulator: creates a fresh
 	// character of the given class and level with all six stats at 25 (mid of
-	// the 0..90 range). HP is left at the constructor default; callers that
-	// care should follow up with set_max_hit()/set_hit().
+	// the 0..90 range), and grants all class skills (at 200 / max) and
+	// inborn-eligible class feats available at that level. HP is left at the
+	// constructor default; callers that care should follow up with
+	// set_max_hit()/set_hit().
 	void make_basic_player(const short player_class, const int level);
+
+	// Grants every class skill of m_result's current class at value 200 and
+	// every class feat for which m_result meets the level/remort requirements.
+	// Called by make_basic_player(); exposed separately so a caller can build
+	// a character manually (set_class+set_level+stats) and then unlock skills.
+	void grant_class_skills_and_feats();
 
 	// Requires a booted world (calls PlaceCharToRoom).
 	void place_in_room(const RoomRnum room);

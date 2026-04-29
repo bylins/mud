@@ -3,8 +3,10 @@
 #include "utils/utils.h"
 #include "engine/entities/char_data.h"
 #include "engine/core/handler.h"
+#include "engine/db/global_objects.h"
 #include "gameplay/affects/affect_data.h"
 #include "gameplay/affects/affect_contants.h"
+#include "gameplay/classes/pc_classes_info.h"
 #include "gameplay/mechanics/groups.h"
 
 namespace entities {
@@ -172,6 +174,35 @@ void CharacterBuilder::make_basic_player(const short player_class, const int lev
 	set_int(25);
 	set_wis(25);
 	set_cha(25);
+	grant_class_skills_and_feats();
+}
+
+void CharacterBuilder::grant_class_skills_and_feats()
+{
+	check_character_existance();
+	const auto cls = m_result->GetClass();
+	const auto level = m_result->GetLevel();
+	const int remort = m_result->get_remort();
+	const auto &class_info = MUD::Class(cls);
+
+	// Все скиллы класса, доступные на этом уровне/реморте, выставляем на 200
+	// (максимум). Это симулятор: имитируем "хорошо прокачанного" персонажа,
+	// чтобы баланс измерялся по самому классу, а не по тому что игрок его не
+	// докачал.
+	for (const auto &skill : class_info.skills) {
+		if (level >= skill.GetMinLevel() && remort >= skill.GetMinRemort()) {
+			m_result->set_skill(skill.GetId(), 200);
+		}
+	}
+
+	// То же для inborn-фитов: даём всё, что положено классу на этом уровне.
+	// Не-inborn фиты в реальной игре игрок выбирает вручную из слотов; для
+	// симулятора берём все доступные, чтобы покрыть лучший случай.
+	for (const auto &feat : class_info.feats) {
+		if (level >= feat.GetMinLevel() && remort >= feat.GetMinRemort()) {
+			m_result->SetFeat(feat.GetId());
+		}
+	}
 }
 
 void CharacterBuilder::place_in_room(const RoomRnum room)
