@@ -38,12 +38,17 @@ struct PlayerSpec {
 	int level = 1;
 	StatOverrides overrides;
 	std::vector<PetSpec> pets;
+	// Object vnums to give the participant at spawn. Each item is auto-equipped
+	// into the first slot its wear-flags allow (sword goes to wield, armor goes
+	// to body, etc.). Items that do not fit any slot remain in inventory.
+	std::vector<int> inventory;
 };
 
 struct MobSpec {
 	MobVnum vnum = 0;
 	StatOverrides overrides;
-	std::vector<PetSpec> pets;  // even mob attackers can in principle have pets
+	std::vector<PetSpec> pets;
+	std::vector<int> inventory;
 };
 
 using ParticipantSpec = std::variant<PlayerSpec, MobSpec>;

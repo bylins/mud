@@ -12,6 +12,7 @@ namespace simulator {
 namespace {
 
 std::vector<PetSpec> ParsePets(const YAML::Node& node, const char* role);
+std::vector<int> ParseInventory(const YAML::Node& node, const char* role);
 
 StatOverrides ParseStatOverrides(const YAML::Node& node) {
 	StatOverrides o;
@@ -51,6 +52,7 @@ ParticipantSpec ParseParticipant(const YAML::Node& node, const char* role) {
 		p.level = level.as<int>();
 		p.overrides = ParseStatOverrides(node["stats"]);
 		p.pets = ParsePets(node["pets"], role);
+		p.inventory = ParseInventory(node["inventory"], role);
 		return p;
 	}
 	if (type_str == "mob") {
@@ -62,10 +64,26 @@ ParticipantSpec ParseParticipant(const YAML::Node& node, const char* role) {
 		m.vnum = vnum.as<int>();
 		m.overrides = ParseStatOverrides(node["stats"]);
 		m.pets = ParsePets(node["pets"], role);
+		m.inventory = ParseInventory(node["inventory"], role);
 		return m;
 	}
 	throw ScenarioLoadError(fmt::format(
 		"scenario.{}.type: must be 'player' or 'mob' (got '{}')", role, type_str));
+}
+
+std::vector<int> ParseInventory(const YAML::Node& node, const char* role) {
+	std::vector<int> out;
+	if (!node) {
+		return out;
+	}
+	if (!node.IsSequence()) {
+		throw ScenarioLoadError(fmt::format(
+			"scenario.{}.inventory: must be a sequence of object vnums", role));
+	}
+	for (std::size_t i = 0; i < node.size(); ++i) {
+		out.push_back(node[i].as<int>());
+	}
+	return out;
 }
 
 std::vector<PetSpec> ParsePets(const YAML::Node& node, const char* role) {

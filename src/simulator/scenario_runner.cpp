@@ -9,6 +9,7 @@
 #include "engine/entities/room_data.h"
 #include "engine/structs/structs.h"
 #include "engine/ui/cmd/do_cast.h"
+#include "engine/ui/cmd/do_equip.h"
 #include "gameplay/affects/affect_data.h"
 #include "gameplay/classes/pc_classes.h"
 #include "gameplay/fight/fight.h"
@@ -152,6 +153,46 @@ const std::vector<PetSpec>& GetPetSpecs(const ParticipantSpec& spec) {
 	return std::visit([](auto&& s) -> const std::vector<PetSpec>& {
 		return s.pets;
 	}, spec);
+}
+
+const std::vector<int>& GetInventory(const ParticipantSpec& spec) {
+	return std::visit([](auto&& s) -> const std::vector<int>& {
+		return s.inventory;
+	}, spec);
+}
+
+// Equip every item from `vnums` on `ch`. Each item is created from prototype
+// via world_objects.create_from_prototype_by_vnum, then auto-fitted into the
+// first slot its wear-flags allow (same logic equip_start_outfit uses for
+// noob outfits). Items that do not fit any slot stay in inventory.
+void EquipFromVnums(CharData* ch, const std::vector<int>& vnums) {
+	for (int vnum : vnums) {
+		const auto obj = world_objects.create_from_prototype_by_vnum(vnum);
+		if (!obj) {
+			throw ScenarioRunError(fmt::format(
+				"inventory item vnum {} not found in world", vnum));
+		}
+		PlaceObjToInventory(obj.get(), ch);
+		// find_eq_pos handles armor/jewellery slots but does NOT handle
+		// weapon slots (wield/both/hold/light). For weapons we replicate
+		// the choice equip_start_outfit makes for noob outfits.
+		int where = -1;
+		if (obj->get_type() == EObjType::kWeapon) {
+			if (CAN_WEAR(obj.get(), EWearFlag::kWield) && !GET_EQ(ch, EEquipPos::kWield)) {
+				where = EEquipPos::kWield;
+			} else if (CAN_WEAR(obj.get(), EWearFlag::kBoth) && !GET_EQ(ch, EEquipPos::kBoths)) {
+				where = EEquipPos::kBoths;
+			} else if (CAN_WEAR(obj.get(), EWearFlag::kHold) && !GET_EQ(ch, EEquipPos::kHold)) {
+				where = EEquipPos::kHold;
+			}
+		} else {
+			where = find_eq_pos(ch, obj.get(), nullptr);
+		}
+		if (where >= 0 && !GET_EQ(ch, where)) {
+			RemoveObjFromChar(obj.get());
+			EquipObj(ch, obj.get(), where, CharEquipFlags());
+		}
+	}
 }
 
 // Apply YAML stat overrides to a freshly-spawned character. Each negative
@@ -306,10 +347,17 @@ void RunScenario(const Scenario& scenario, observability::EventSink& sink) {
 	// пересчитывались. Перевызываем после PlaceCharToRoom.
 	affect_total(attacker);
 	affect_total(victim);
-	// affect_total для синтетического PC заодно сбрасывает position в
-	// какое-то непригодное к бою состояние (kStop/kSleep, position=3).
-	// Вернём в kStand явно, иначе движок откажется кастовать
-	// (do_cast/CastSpell проверяют MIN_POS).
+	// Inventory / equipment from the YAML scenario. Run after the first
+	// affect_total so item-applied bonuses come on top of feat applies,
+	// and re-run affect_total so equipped items' applies actually take
+	// effect.
+	EquipFromVnums(attacker, GetInventory(scenario.attacker));
+	EquipFromVnums(victim, GetInventory(scenario.victim));
+	affect_total(attacker);
+	affect_total(victim);
+	// affect_total for a synthetic PC drops position to ~kSit (3); without
+	// kStand the engine refuses to cast or properly fight. Force kStand
+	// AFTER the very last affect_total call (otherwise it gets reset).
 	attacker->SetPosition(EPosition::kStand);
 	victim->SetPosition(EPosition::kStand);
 
