@@ -3,6 +3,7 @@
 #include "engine/observability/event_sink.h"
 
 #include <cstdio>
+#include <filesystem>
 #include <fstream>
 #include <sstream>
 #include <string>
@@ -35,7 +36,9 @@ std::vector<std::string> SplitLines(const std::string& blob) {
 }
 
 std::string TempPath(const char* suffix) {
-	return std::string("/tmp/file_event_sink_test_") + suffix + ".jsonl";
+	const auto p = std::filesystem::temp_directory_path()
+		/ (std::string("file_event_sink_test_") + suffix + ".jsonl");
+	return p.string();
 }
 
 }  // namespace
