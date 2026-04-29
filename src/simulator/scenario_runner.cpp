@@ -10,6 +10,9 @@
 #include "engine/ui/cmd/do_cast.h"
 #include "gameplay/classes/pc_classes.h"
 #include "gameplay/fight/fight.h"
+#include "gameplay/magic/magic_utils.h"
+#include "gameplay/magic/spells.h"
+#include "utils/utils.h"
 #include "utils/logger.h"
 
 #include <fmt/format.h>
@@ -133,11 +136,20 @@ void RunScenario(const Scenario& scenario, observability::EventSink& sink) {
 				}
 			}
 			if (attacker->in_room != kNowhere && victim->in_room != kNowhere) {
-				// CharAliases gives keywords used by player commands (cast, look, etc.)
-				std::string arg = "'" + cast->spell_name + "' " + victim->GetCharAliases();
-				std::vector<char> arg_buf(arg.begin(), arg.end());
-				arg_buf.push_back('\0');
-				DoCast(attacker, arg_buf.data(), 0, 0);
+				// We bypass DoCast and call CastSpell directly: DoCast routes
+				// to ch->SetCast() (deferred cast) when there is an enemy,
+				// which makes the magic damage land later through the
+				// mem_queue heartbeat step and not through Damage::Process
+				// (or at level 0). For simulator we want immediate, observable
+				// magic damage on every casting round.
+				std::string spell_name = cast->spell_name;
+				const auto sid = FixNameAndFindSpellId(spell_name);
+				if (sid != ESpell::kUndefined) {
+					CastSpell(attacker, victim, nullptr, nullptr, sid, sid);
+					if (GET_SPELL_MEM(attacker, sid) > 0) {
+						GET_SPELL_MEM(attacker, sid)--;
+					}
+				}
 			}
 		}
 		for (long long p = 0; p < kBattleRound; ++p) {
