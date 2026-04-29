@@ -473,7 +473,8 @@ set(SOURCES
 		src/gameplay/classes/recalc_mob_params_by_vnum.cpp
 		src/engine/observability/provider.cpp
 		src/engine/observability/metrics.cpp
-		src/engine/observability/helpers.cpp)
+		src/engine/observability/helpers.cpp
+		src/engine/observability/file_event_sink.cpp)
 
 
 
@@ -927,6 +928,8 @@ set(HEADERS
 		src/engine/observability/metrics.h
 		src/engine/observability/helpers.h
 		src/engine/observability/log_sender.h
+		src/engine/observability/event_sink.h
+		src/engine/observability/file_event_sink.h
 		src/utils/logging/log_sender.h
 		src/gameplay/classes/recalc_mob_params_by_vnum.h)
 

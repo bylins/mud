@@ -98,7 +98,8 @@ set(TESTS
 		dg_var_context.cpp
 		mob_classes.loader.cpp
 		obj_decay_manager.cpp
-		random.seed.cpp)
+		random.seed.cpp
+		file_event_sink.cpp)
 set(UTILITIES
 		char.utilities.hpp
 		char.utilities.cpp)
