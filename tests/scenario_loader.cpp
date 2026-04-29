@@ -182,6 +182,59 @@ victim: { type: mob, vnum: 102 }
 )"), simulator::ScenarioLoadError);
 }
 
+TEST(ScenarioLoader, InventoryParsed) {
+	const auto s = simulator::LoadScenarioFromString(R"(
+output: /tmp/x.jsonl
+attacker:
+  type: player
+  class: bogatyr
+  level: 30
+  inventory: [111, 207, 1234]
+victim: { type: mob, vnum: 102 }
+)");
+	const auto& a = std::get<simulator::PlayerSpec>(s.attacker);
+	ASSERT_EQ(a.inventory.size(), 3u);
+	EXPECT_EQ(a.inventory[0], 111);
+	EXPECT_EQ(a.inventory[1], 207);
+	EXPECT_EQ(a.inventory[2], 1234);
+}
+
+TEST(ScenarioLoader, NoInventoryByDefault) {
+	const auto s = simulator::LoadScenarioFromString(R"(
+output: /tmp/x.jsonl
+attacker: { type: player, class: bogatyr, level: 30 }
+victim: { type: mob, vnum: 102 }
+)");
+	EXPECT_TRUE(std::get<simulator::PlayerSpec>(s.attacker).inventory.empty());
+}
+
+TEST(ScenarioLoader, InventoryNonSequenceIsFatal) {
+	EXPECT_THROW(simulator::LoadScenarioFromString(R"(
+output: /tmp/x.jsonl
+attacker:
+  type: player
+  class: bogatyr
+  level: 30
+  inventory: { vnum: 111 }
+victim: { type: mob, vnum: 102 }
+)"), simulator::ScenarioLoadError);
+}
+
+TEST(ScenarioLoader, MobVsMob) {
+	const auto s = simulator::LoadScenarioFromString(R"(
+seed: 7
+rounds: 5
+output: /tmp/mvm.jsonl
+attacker: { type: mob, vnum: 100 }
+victim:   { type: mob, vnum: 200 }
+)");
+	ASSERT_TRUE(std::holds_alternative<simulator::MobSpec>(s.attacker));
+	ASSERT_TRUE(std::holds_alternative<simulator::MobSpec>(s.victim));
+	EXPECT_EQ(std::get<simulator::MobSpec>(s.attacker).vnum, 100);
+	EXPECT_EQ(std::get<simulator::MobSpec>(s.victim).vnum, 200);
+	EXPECT_TRUE(std::holds_alternative<simulator::MeleeAction>(s.action));
+}
+
 TEST(ScenarioLoader, MeleeActionDefault) {
 	const auto s = simulator::LoadScenarioFromString(R"(
 output: /tmp/x.jsonl
