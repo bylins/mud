@@ -80,6 +80,14 @@ if host_system == 'windows'
         ]
     elif cpp.get_id() == 'gcc' or cpp.get_id() == 'clang'
         project_args += '-D__USE_MINGW_ANSI_STDIO=1'
+        add_project_link_arguments(
+            '-static-libgcc',
+            '-static-libstdc++',
+            '-Wl,-Bstatic,--whole-archive',
+            '-lwinpthread',
+            '-Wl,--no-whole-archive,-Bdynamic',
+            language: 'cpp'
+        )
     endif
 endif
 
@@ -105,12 +113,12 @@ endif
 iconv_opt = get_option('iconv')
 if iconv_opt != 'disabled'
     if iconv_opt == 'builtin'
-        iconv_sub = subproject('iconv')
+        iconv_sub = subproject('iconv', default_options: ['default_library=static', 'tests=disabled'])
         iconv_dep = iconv_sub.get_variable('iconv_dep')
     elif iconv_opt == 'system'
         iconv_dep = dependency('iconv', required: true, allow_fallback: false)
     else
-        iconv_dep = dependency('iconv', required: true, fallback: ['iconv', 'iconv_dep'])
+        iconv_dep = dependency('iconv', required: true, fallback: ['iconv', 'iconv_dep'], default_options: ['default_library=static', 'tests=disabled'])
     endif
     project_args += '-DHAVE_ICONV'
     dependencies += iconv_dep
@@ -119,16 +127,16 @@ endif
 telegram_opt = get_option('telegram')
 if telegram_opt != 'disabled'
     if telegram_opt == 'builtin'
-        curl_sub = subproject('curl')
+        curl_sub = subproject('curl', default_options: ['default_library=static', 'tests=disabled'])
         curl_dep = curl_sub.get_variable('curl_dep')
-        ssl_sub = subproject('openssl')
+        ssl_sub = subproject('openssl', default_options: ['default_library=static', 'tests=disabled'])
         ssl_dep = ssl_sub.get_variable('openssl_dep')
     elif telegram_opt == 'system'
         curl_dep = dependency('libcurl', required: true, allow_fallback: false)
         ssl_dep = dependency('openssl', required: true, allow_fallback: false)
     else
-        curl_dep = dependency('libcurl', required: true, fallback: ['curl', 'curl_dep'])
-        ssl_dep = dependency('openssl', required: true, fallback: ['openssl', 'openssl_dep'])
+        curl_dep = dependency('libcurl', required: true, fallback: ['curl', 'curl_dep'], default_options: ['default_library=static', 'tests=disabled'])
+        ssl_dep = dependency('openssl', required: true, fallback: ['openssl', 'openssl_dep'], default_options: ['default_library=static', 'tests=disabled'])
     endif
     project_args += '-DHAVE_TG'
     dependencies += [curl_dep, ssl_dep]

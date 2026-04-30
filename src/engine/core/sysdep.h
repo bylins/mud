@@ -110,7 +110,7 @@ extern void abort(), exit();
 #endif
 
 #ifdef CIRCLE_WINDOWS
-# include <sys\types.h>
+# include <sys/types.h>
 #endif
 
 #ifdef HAVE_UNISTD_H
