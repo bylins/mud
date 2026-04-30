@@ -40,7 +40,7 @@ if cpp.get_argument_syntax() == 'gcc'
 endif
 
 if build_profile == 'debug' or get_option('with_asan')
-  profile_target_opts += 'b_sanitize=address'
+  profile_target_opts += ['b_sanitize=address']
 endif
 
 if cpp.get_argument_syntax() == 'msvc' and build_profile in ['debug', 'test']
@@ -800,6 +800,7 @@ circle_dep = declare_dependency(
     compile_args: project_args,
 )
 
+gtest_opt = get_option('gtest')
 if get_option('build_tests')
     subdir('tests')
 endif
