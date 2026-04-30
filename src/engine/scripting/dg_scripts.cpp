@@ -445,12 +445,37 @@ int find_room_uid(long n) {
  * generic searches based only on name
  ************************************************************/
 
+// Чисто-цифровая строка (без UID-префикса) -- это vnum, а не имя/UID.
+// В get_char/get_obj по таким строкам нечего искать через isname(), но они
+// проваливаются туда и устраивают O(N) скан по character_list / object_list.
+// Самый громкий случай -- триггер вида "detach 97137 %vnum%", где %vnum%
+// это число; см. issue #3232 (488мс на одну зону вместо 4мс).
+//
+// get_room такие строки трактует как vnum намеренно, поэтому он не
+// затронут -- продолжаем туда отдавать управление дальше по цепочке.
+static bool is_plain_vnum_string(const char *name) {
+	if (!name || !*name) {
+		return false;
+	}
+	for (const char *p = name; *p; ++p) {
+		if (*p < '0' || *p > '9') {
+			return false;
+		}
+	}
+	return true;
+}
+
 // search the entire world for a char, and return a pointer
 CharData *get_char(const char *name) {
 	CharData *i;
 
 	// Отсекаем поиск левых UID-ов.
 	if ((*name == UID_OBJ) || (*name == UID_ROOM))
+		return nullptr;
+
+	// Чистый vnum -- не char-id, не имя; искать его isname-ом по миру
+	// бессмысленно и стоит O(N). См. #3232.
+	if (is_plain_vnum_string(name))
 		return nullptr;
 
 	if (*name == UID_CHAR || *name == UID_CHAR_ALL) {
@@ -477,6 +502,10 @@ ObjData *get_obj(const char *name, int/* vnum*/) {
 	long id;
 
 	if ((*name == UID_CHAR) || (*name == UID_ROOM) || (*name == UID_CHAR_ALL))
+		return nullptr;
+
+	// Чистый vnum -- не obj-id, не алиас; isname-скан бессмыслен (#3232).
+	if (is_plain_vnum_string(name))
 		return nullptr;
 
 	if (*name == UID_OBJ) {
