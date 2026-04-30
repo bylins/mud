@@ -9,6 +9,7 @@
 #include "engine/observability/event_sink.h"
 #include "simulator/character_builder.h"
 #include "engine/entities/char_data.h"
+#include "engine/entities/obj_data.h"
 #include "engine/entities/room_data.h"
 #include "engine/structs/structs.h"
 #include "engine/ui/cmd/do_cast.h"
@@ -388,6 +389,21 @@ void EmitCharState(const char* role,
 	e.attrs["role"] = std::string(role);
 	e.attrs["target_name"] = observability::EngineStringToUtf8(
 		GET_NAME(ch) ? GET_NAME(ch) : "");
+	// Identity: PC vs NPC + display fields. У PC имя задано simulator'ом
+	// ('attacker' / 'victim'), уровень и класс полезны для контекста.
+	// У моба важен vnum + short_descr (полное имя из прототипа).
+	e.attrs["is_npc"] = ch->IsNpc();
+	if (ch->IsNpc()) {
+		e.attrs["vnum"] = static_cast<std::int64_t>(GET_MOB_VNUM(ch));
+		e.attrs["short_descr"] = observability::EngineStringToUtf8(
+			ch->get_npc_name());
+	} else {
+		e.attrs["vnum"] = static_cast<std::int64_t>(-1);
+		e.attrs["short_descr"] = std::string();
+	}
+	e.attrs["level"] = static_cast<std::int64_t>(ch->GetLevel());
+	e.attrs["class_name"] = observability::EngineStringToUtf8(
+		ch->IsNpc() ? std::string() : MUD::Class(ch->GetClass()).GetName());
 	e.attrs["hp"] = static_cast<std::int64_t>(ch->get_hit());
 	e.attrs["max_hp"] = static_cast<std::int64_t>(ch->get_max_hit());
 	e.attrs["move"] = static_cast<std::int64_t>(ch->get_move());
@@ -431,6 +447,25 @@ void EmitCharState(const char* role,
 	}
 	e.attrs["affects_count"] = static_cast<std::int64_t>(aff_count);
 	e.attrs["affects_list"] = observability::EngineStringToUtf8(aff_list);
+	// Список одетых предметов: 'slot:vnum:name', разделители '|'. Веб-UI
+	// рендерит их в state-панели чтобы было видно, чем именно бьётся /
+	// защищается персонаж.
+	static const char* kSlotNames[EEquipPos::kNumEquipPos] = {
+		"light", "fingerR", "fingerL", "neck", "chest", "body", "head",
+		"legs", "feet", "hands", "arms", "shield", "shoulders", "waist",
+		"wristR", "wristL", "wield", "hold", "both", "quiver",
+	};
+	std::string equip_list;
+	for (int slot = 0; slot < EEquipPos::kNumEquipPos; ++slot) {
+		const auto* obj = ch->equipment[slot];
+		if (!obj) continue;
+		if (!equip_list.empty()) equip_list += "|";
+		equip_list += fmt::format("{}:{}:{}",
+			kSlotNames[slot],
+			obj->get_vnum(),
+			obj->get_short_description());
+	}
+	e.attrs["equip_list"] = observability::EngineStringToUtf8(equip_list);
 	e.attrs["aff_silence"] = AFF_FLAGGED(ch, EAffect::kSilence) ? true : false;
 	e.attrs["aff_charmed"] = AFF_FLAGGED(ch, EAffect::kCharmed) ? true : false;
 	e.attrs["aff_sleep"] = AFF_FLAGGED(ch, EAffect::kSleep) ? true : false;
