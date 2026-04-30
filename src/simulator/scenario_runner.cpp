@@ -410,14 +410,32 @@ void EmitCharState(const char* role,
 	e.attrs["max_move"] = static_cast<std::int64_t>(ch->get_max_move());
 	e.attrs["position"] = static_cast<std::int64_t>(ch->GetPosition());
 	e.attrs["in_room"] = static_cast<std::int64_t>(ch->in_room);
-	// Базовые статы. Веб-UI рисует их в state-панели, плюс это нужно для
-	// верификации, что override'ы из YAML-сценария вообще применились.
-	e.attrs["str"] = static_cast<std::int64_t>(ch->get_str());
-	e.attrs["dex"] = static_cast<std::int64_t>(ch->get_dex());
-	e.attrs["con"] = static_cast<std::int64_t>(ch->get_con());
-	e.attrs["int"] = static_cast<std::int64_t>(ch->get_int());
-	e.attrs["wis"] = static_cast<std::int64_t>(ch->get_wis());
-	e.attrs["cha"] = static_cast<std::int64_t>(ch->get_cha());
+	// Эффективные статы (база + апплаи от шмота / аффектов), как их видит
+	// боевой код через GetRealStr/Dex/... Веб-UI рисует их в state-панели,
+	// иначе апплаи со шмота (+1 str у штанов воина) не были бы видны.
+	e.attrs["str"] = static_cast<std::int64_t>(GetRealStr(ch));
+	e.attrs["dex"] = static_cast<std::int64_t>(GetRealDex(ch));
+	e.attrs["con"] = static_cast<std::int64_t>(GetRealCon(ch));
+	e.attrs["int"] = static_cast<std::int64_t>(GetRealInt(ch));
+	e.attrs["wis"] = static_cast<std::int64_t>(GetRealWis(ch));
+	e.attrs["cha"] = static_cast<std::int64_t>(GetRealCha(ch));
+	// Базовые тоже эмитим -- иногда полезно видеть, что override из YAML
+	// применился до апплаев.
+	e.attrs["str_base"] = static_cast<std::int64_t>(ch->get_str());
+	e.attrs["dex_base"] = static_cast<std::int64_t>(ch->get_dex());
+	e.attrs["con_base"] = static_cast<std::int64_t>(ch->get_con());
+	e.attrs["int_base"] = static_cast<std::int64_t>(ch->get_int());
+	e.attrs["wis_base"] = static_cast<std::int64_t>(ch->get_wis());
+	e.attrs["cha_base"] = static_cast<std::int64_t>(ch->get_cha());
+	// Прибавки (hitroll/damroll) от шмота, важно для штанов воина (+2/+2).
+	e.attrs["hitroll"] = static_cast<std::int64_t>(ch->add_abils.hr_add);
+	e.attrs["damroll"] = static_cast<std::int64_t>(ch->add_abils.dr_add);
+	// Доп. прибавки от шмота: HP, AC, мораль, регены.
+	e.attrs["hit_add"]    = static_cast<std::int64_t>(ch->add_abils.hit_add);
+	e.attrs["ac_add"]     = static_cast<std::int64_t>(ch->add_abils.ac_add);
+	e.attrs["armour_add"] = static_cast<std::int64_t>(ch->add_abils.armour);
+	e.attrs["morale_add"] = static_cast<std::int64_t>(ch->add_abils.morale);
+	e.attrs["initiative_add"] = static_cast<std::int64_t>(ch->add_abils.initiative_add);
 	// Доп. поля для верификации применения feat-апплаев (kPowerMagic +50%
 	// percent_spellpower_add для колдуна и т.п.). Полезно когда сравниваешь
 	// dpr классов и подозреваешь, что какой-то inborn feat не применился.
@@ -469,6 +487,60 @@ void EmitCharState(const char* role,
 	e.attrs["aff_silence"] = AFF_FLAGGED(ch, EAffect::kSilence) ? true : false;
 	e.attrs["aff_charmed"] = AFF_FLAGGED(ch, EAffect::kCharmed) ? true : false;
 	e.attrs["aff_sleep"] = AFF_FLAGGED(ch, EAffect::kSleep) ? true : false;
+	// Affect-flags from items / passive sources do NOT show up in
+	// ch->affected[] (which only holds spell-Affect entries), but they're
+	// in AFF_FLAGS(ch). Walk a fixed list of "interesting" flags so the
+	// state-panel picks up "ускорение" / "каменные руки" / etc. that come
+	// from worn equipment.
+	struct AffEntry { EAffect flag; const char* name; };
+	static const AffEntry kAffectFlags[] = {
+		{EAffect::kHaste,           "ускорение"},
+		{EAffect::kStoneHands,      "каменные руки"},
+		{EAffect::kWaterBreath,     "дыхание под водой"},
+		{EAffect::kFly,             "полёт"},
+		{EAffect::kBless,           "доблесть"},
+		{EAffect::kBlink,           "мерцание"},
+		{EAffect::kSanctuary,       "святилище"},
+		{EAffect::kAirShield,       "воздушный щит"},
+		{EAffect::kFireShield,      "огненный щит"},
+		{EAffect::kIceShield,       "ледяной щит"},
+		{EAffect::kMagicGlass,      "зеркало магии"},
+		{EAffect::kPrismaticAura,   "призматическая аура"},
+		{EAffect::kHolyLight,       "святой свет"},
+		{EAffect::kHolyDark,        "святая тьма"},
+		{EAffect::kDetectAlign,     "видеть наклонности"},
+		{EAffect::kDetectInvisible, "видеть невидимость"},
+		{EAffect::kDetectMagic,     "видеть магию"},
+		{EAffect::kDetectLife,      "видеть живых"},
+		{EAffect::kInfravision,     "инфразрение"},
+		{EAffect::kWaterWalk,       "хождение по воде"},
+		{EAffect::kInvisible,       "невидимость"},
+		{EAffect::kSneak,           "подкрадывание"},
+		{EAffect::kHide,            "укрытие"},
+		{EAffect::kCloudOfArrows,   "облако стрел"},
+		{EAffect::kAirAura,         "воздушная аура"},
+		{EAffect::kFireAura,        "огненная аура"},
+		{EAffect::kIceAura,         "ледяная аура"},
+		{EAffect::kEarthAura,       "земляная аура"},
+		{EAffect::kCommander,       "полководец"},
+		{EAffect::kFrenzy,          "берсерк"},
+		{EAffect::kCombatLuck,      "удача в бою"},
+		{EAffect::kGodsShield,      "божий щит"},
+		{EAffect::kBerserk,         "ярость"},
+		{EAffect::kBrokenChains,    "разорванные цепи"},
+		{EAffect::kVampirism,       "вампиризм"},
+		{EAffect::kCurse,           "проклятие"},
+		{EAffect::kPoisoned,        "яд"},
+		{EAffect::kBlind,           "слепота"},
+	};
+	std::string flags_list;
+	for (const auto& f : kAffectFlags) {
+		if (AFF_FLAGGED(ch, f.flag)) {
+			if (!flags_list.empty()) flags_list += "|";
+			flags_list += f.name;
+		}
+	}
+	e.attrs["flags_list"] = observability::EngineStringToUtf8(flags_list);
 	observability::EmitToAllSinks(e);
 }
 
