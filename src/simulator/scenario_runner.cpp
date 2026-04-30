@@ -1,9 +1,11 @@
 #include "scenario_runner.h"
 
 #include "engine/core/handler.h"
+#include "engine/core/iosystem.h"
 #include "engine/db/db.h"
 #include "engine/db/global_objects.h"
 #include "engine/db/world_characters.h"
+#include "engine/network/descriptor_data.h"
 #include "engine/observability/event_sink.h"
 #include "simulator/character_builder.h"
 #include "engine/entities/char_data.h"
@@ -71,6 +73,88 @@ struct ArenaFlagSweep {
 			room->set_flag(ERoomFlag::kPeaceful);
 		}
 	}
+};
+
+std::int64_t NowUnixMs();  // forward decl, defined below
+
+// Headless DescriptorData attached to a synthetic PC so SendMsgToChar/act()
+// have somewhere to write. Without it ch->desc is nullptr and combat output
+// is silently dropped. Pattern follows admin_api/crud_handlers.cpp: just
+// allocate the struct, point output at small_outbuf, set state to kPlaying.
+// No socket fd is used (descriptor = -1); the buffered text is read out
+// after each round and emitted as a 'screen_output' event so the web-UI
+// replay viewer can show what each PC saw at each moment.
+class HeadlessDescriptor {
+public:
+	void Attach(CharData* ch) {
+		ch_ = ch;
+		d_ = new DescriptorData();
+		d_->descriptor = -1;
+		d_->state = EConState::kPlaying;
+		d_->output = d_->small_outbuf;
+		d_->bufptr = 0;
+		d_->bufspace = kSmallBufsize - 1;
+		d_->keytable = 0;  // raw KOI8-R; converted to UTF-8 at flush time
+		d_->small_outbuf[0] = '\0';
+		ch->desc = d_;
+	}
+
+	bool IsAttached() const { return d_ != nullptr; }
+
+	// Reads accumulated output, emits a 'screen_output' event (if non-empty
+	// and at least one sink is registered), returns large_outbuf to bufpool,
+	// resets the buffer for the next round.
+	void FlushAndEmit(const char* role, int round_no) {
+		if (!d_) return;
+		const bool has_text = (d_->bufptr > 0
+			&& d_->bufptr != static_cast<std::size_t>(~0ull));
+		if (has_text && observability::HasAnyEventSink()) {
+			std::string text(d_->output, d_->bufptr);
+			observability::Event e;
+			e.name = "screen_output";
+			e.ts_unix_ms = NowUnixMs();
+			e.attrs["round"] = static_cast<std::int64_t>(round_no);
+			e.attrs["role"] = std::string(role);
+			e.attrs["target_name"] = observability::EngineStringToUtf8(
+				GET_NAME(ch_) ? GET_NAME(ch_) : "");
+			e.attrs["text"] = observability::EngineStringToUtf8(text);
+			observability::EmitToAllSinks(e);
+		}
+		ResetBuffer();
+	}
+
+	// Discard buffered text without emitting (used to drop spawn/setup spam
+	// before the actual combat rounds start).
+	void Discard() { ResetBuffer(); }
+
+	void Detach() {
+		if (!d_) return;
+		if (ch_) ch_->desc = nullptr;
+		// Returns large_outbuf to bufpool, clears input queue.
+		iosystem::flush_queues(d_);
+		delete d_;
+		d_ = nullptr;
+		ch_ = nullptr;
+	}
+
+	~HeadlessDescriptor() { Detach(); }
+
+private:
+	void ResetBuffer() {
+		if (!d_) return;
+		if (d_->large_outbuf) {
+			// Returns the large buffer to bufpool and resets large_outbuf
+			// to nullptr; also clears input queue but we never had any.
+			iosystem::flush_queues(d_);
+		}
+		d_->output = d_->small_outbuf;
+		d_->bufptr = 0;
+		d_->bufspace = kSmallBufsize - 1;
+		d_->small_outbuf[0] = '\0';
+	}
+
+	DescriptorData* d_ = nullptr;
+	CharData* ch_ = nullptr;
 };
 
 // Huge HP pool: both participants must survive `scenario.rounds` battle rounds
@@ -407,6 +491,22 @@ void RunScenario(const Scenario& scenario) {
 		SetFighting(pet, attacker);
 	}
 
+	// Attach a headless descriptor to each PC participant so we can capture
+	// the exact text the player would have seen at a telnet client (act,
+	// SendMsgToChar, etc.). Mobs do not have descriptors -- skip them.
+	HeadlessDescriptor attacker_desc, victim_desc;
+	if (std::holds_alternative<PlayerSpec>(scenario.attacker)) {
+		attacker_desc.Attach(attacker);
+	}
+	if (std::holds_alternative<PlayerSpec>(scenario.victim)) {
+		victim_desc.Attach(victim);
+	}
+	// Drop everything that landed in the buffer during spawn/setup -- room
+	// description on entry, "you stop following X", etc. We only care about
+	// the combat timeline.
+	attacker_desc.Discard();
+	victim_desc.Discard();
+
 	// Initial snapshot before the first round, so replay can reconstruct
 	// starting state.
 	EmitCharState("attacker", attacker, -1);
@@ -506,11 +606,22 @@ void RunScenario(const Scenario& scenario) {
 			}
 		}
 
+		// Drain per-PC text accumulated during this pulse_violence -- one
+		// 'screen_output' event per PC per round, with whatever the engine
+		// printed via SendMsgToChar/act() this round.
+		attacker_desc.FlushAndEmit("attacker", r);
+		victim_desc.FlushAndEmit("victim", r);
+
 		if (!alive) {
 			break;
 		}
 		prev_hp = hp_now;
 	}
+
+	// Detach descriptors before ExtractCharFromWorld -- once the char is
+	// extracted, ch->desc would dangle if we still held the link.
+	attacker_desc.Detach();
+	victim_desc.Detach();
 
 	// Cleanup pets first so their follower lists do not point to extracted
 	// owners; then the owners themselves.
