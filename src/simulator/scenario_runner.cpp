@@ -4,7 +4,7 @@
 #include "engine/db/db.h"
 #include "engine/db/global_objects.h"
 #include "engine/db/world_characters.h"
-#include "engine/entities/character_builder.h"
+#include "simulator/character_builder.h"
 #include "engine/entities/char_data.h"
 #include "engine/entities/room_data.h"
 #include "engine/structs/structs.h"
@@ -251,7 +251,7 @@ CharData* SpawnParticipant(const ParticipantSpec& spec) {
 				throw ScenarioRunError(fmt::format(
 					"unknown player class: '{}'", s.class_name));
 			}
-			entities::CharacterBuilder b;
+			CharacterBuilder b;
 			b.make_basic_player(static_cast<short>(cls), s.level);
 			auto sp = b.get();
 			character_list.push_front(sp);

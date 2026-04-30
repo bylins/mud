@@ -37,7 +37,6 @@ set(SOURCES
 		src/utils/cache.cpp
 		src/gameplay/mechanics/celebrates.cpp
 		src/engine/entities/char_data.cpp
-		src/engine/entities/character_builder.cpp
 		src/engine/entities/char_player.cpp
 		src/gameplay/classes/pc_classes.cpp
 		src/gameplay/classes/classes_spell_slots.cpp
@@ -568,7 +567,6 @@ set(HEADERS
 		src/utils/cache.h
 		src/gameplay/mechanics/celebrates.h
 		src/engine/entities/char_data.h
-		src/engine/entities/character_builder.h
 		src/engine/core/utils_char_obj.inl
 		src/engine/entities/char_player.h
 		src/gameplay/classes/pc_classes.h
@@ -1554,6 +1552,7 @@ target_link_libraries(circle circle.library)
 # is migrating away from the legacy world format toward YAML anyway.
 if (HAVE_YAML)
 	set(SIMULATOR_SOURCES
+		src/simulator/character_builder.cpp
 		src/simulator/main.cpp
 		src/simulator/scenario_loader.cpp
 		src/simulator/scenario_runner.cpp)

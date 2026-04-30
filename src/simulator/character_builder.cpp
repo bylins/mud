@@ -10,7 +10,7 @@
 #include "gameplay/magic/spells.h"
 #include "gameplay/mechanics/groups.h"
 
-namespace entities {
+namespace simulator {
 
 void CharacterBuilder::create_new()
 {
@@ -249,6 +249,6 @@ void CharacterBuilder::check_character_existance(result_t character)
 	}
 }
 
-}  // namespace entities
+}  // namespace simulator
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

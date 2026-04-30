@@ -106,7 +106,8 @@ if (HAVE_YAML)
 	list(APPEND TESTS scenario_loader.cpp)
 endif ()
 set(UTILITIES
-		char.utilities.hpp)
+		char.utilities.hpp
+		${CMAKE_SOURCE_DIR}/src/simulator/character_builder.cpp)
 if (HAVE_YAML)
 	list(APPEND UTILITIES ${CMAKE_SOURCE_DIR}/src/simulator/scenario_loader.cpp)
 endif ()

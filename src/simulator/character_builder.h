@@ -1,9 +1,9 @@
-#ifndef BYLINS_CHARACTER_BUILDER_H
-#define BYLINS_CHARACTER_BUILDER_H
+#ifndef BYLINS_SIMULATOR_CHARACTER_BUILDER_H
+#define BYLINS_SIMULATOR_CHARACTER_BUILDER_H
 
-#include "char_data.h"
+#include "engine/entities/char_data.h"
 
-namespace entities {
+namespace simulator {
 
 class CharacterBuilder {
 public:
@@ -60,8 +60,8 @@ private:
 	result_t m_result;
 };
 
-}  // namespace entities
+}  // namespace simulator
 
-#endif  // BYLINS_CHARACTER_BUILDER_H
+#endif  // BYLINS_SIMULATOR_CHARACTER_BUILDER_H
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

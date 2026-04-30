@@ -1,10 +1,10 @@
 #include <gtest/gtest.h>
 
-#include "engine/entities/character_builder.h"
+#include "simulator/character_builder.h"
 #include "gameplay/core/constants.h"
 
 TEST(CharacterBuilder, MakeBasicPlayerSetsClassLevelAndStats) {
-	entities::CharacterBuilder b;
+	simulator::CharacterBuilder b;
 	b.make_basic_player(static_cast<short>(ECharClass::kSorcerer), 30);
 	const auto ch = b.get();
 	ASSERT_NE(ch, nullptr);
@@ -19,7 +19,7 @@ TEST(CharacterBuilder, MakeBasicPlayerSetsClassLevelAndStats) {
 }
 
 TEST(CharacterBuilder, IndividualStatSettersOverrideDefaults) {
-	entities::CharacterBuilder b;
+	simulator::CharacterBuilder b;
 	b.make_basic_player(static_cast<short>(ECharClass::kSorcerer), 30);
 	b.set_str(50);
 	b.set_wis(70);
@@ -30,7 +30,7 @@ TEST(CharacterBuilder, IndividualStatSettersOverrideDefaults) {
 }
 
 TEST(CharacterBuilder, HitSettersUpdateBothFields) {
-	entities::CharacterBuilder b;
+	simulator::CharacterBuilder b;
 	b.make_basic_player(static_cast<short>(ECharClass::kSorcerer), 30);
 	b.set_max_hit(1000);
 	b.set_hit(500);
