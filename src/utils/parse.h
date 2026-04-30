@@ -8,11 +8,15 @@
 #include <set>
 
 #include "engine/core/conf.h"
-#include "third_party_libs/pugixml/pugixml.h"
 #include "engine/core/sysdep.h"
 #include "engine/structs/structs.h"
 #include "engine/core/comm.h"
 #include "utils/logger.h"
+
+namespace pugi {
+class xml_node;
+class xml_document;
+}
 
 namespace text_id {
 

@@ -3,6 +3,8 @@
 
 #include "parse.h"
 
+#include "third_party_libs/pugixml/pugixml.h"
+
 #include "engine/db/obj_prototypes.h"
 #include "engine/db/db.h"
 

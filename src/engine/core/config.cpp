@@ -17,6 +17,8 @@
 #include "config.h"
 #include "utils/timestamp.h"
 
+#include "third_party_libs/pugixml/pugixml.h"
+
 #include "gameplay/mechanics/birthplaces.h"
 #include "gameplay/communication/boards/boards_changelog_loaders.h"
 #include "gameplay/communication/boards/boards_constants.h"

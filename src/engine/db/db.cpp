@@ -1,5 +1,7 @@
 #define DB_CPP_
 
+#include "third_party_libs/pugixml/pugixml.h"
+
 #include "administration/accounts.h"
 #include "administration/ban.h"
 #include "administration/karma.h"
