@@ -262,6 +262,28 @@ std::string SerializeMob(int vnum, const CharData &mob)
 	oss << npc.get_plane(0) << "," << npc.get_plane(1) << ","
 	    << npc.get_plane(2) << "," << npc.get_plane(3) << "|";
 
+	// Enhanced E-spec fields. Without these, the checksum is blind to
+	// loader/converter regressions on the "E"-section (see PR #3224 -
+	// ExtraAttack silently lost in YAML conversion).
+	oss << static_cast<int>(mob.mob_specials.extra_attack) << "|";
+	oss << mob.mob_specials.attack_type << "|";
+	oss << static_cast<int>(mob.mob_specials.like_work) << "|";
+	oss << mob.mob_specials.MaxFactor << "|";
+	oss << mob.get_remort() << "|";
+	oss << static_cast<int>(mob.mob_specials.damnodice) << "|";
+	oss << static_cast<int>(mob.mob_specials.damsizedice) << "|";
+	oss << mob.get_str_add() << "|";
+	oss << mob.add_abils.hitreg << "|";
+	oss << mob.add_abils.armour << "|";
+	oss << mob.add_abils.manareg << "|";
+	oss << mob.add_abils.cast_success << "|";
+	oss << mob.add_abils.morale << "|";
+	oss << mob.add_abils.initiative_add << "|";
+	oss << mob.add_abils.absorb << "|";
+	oss << mob.add_abils.aresist << "|";
+	oss << mob.add_abils.mresist << "|";
+	oss << mob.add_abils.presist << "|";
+
 	// Proto script
 	if (mob.proto_script)
 	{
