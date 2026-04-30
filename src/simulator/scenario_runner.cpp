@@ -13,6 +13,7 @@
 #include "engine/structs/structs.h"
 #include "engine/ui/cmd/do_cast.h"
 #include "engine/ui/cmd/do_equip.h"
+#include "gameplay/abilities/feats.h"
 #include "gameplay/affects/affect_data.h"
 #include "gameplay/classes/pc_classes.h"
 #include "gameplay/fight/fight.h"
@@ -393,6 +394,14 @@ void EmitCharState(const char* role,
 	e.attrs["max_move"] = static_cast<std::int64_t>(ch->get_max_move());
 	e.attrs["position"] = static_cast<std::int64_t>(ch->GetPosition());
 	e.attrs["in_room"] = static_cast<std::int64_t>(ch->in_room);
+	// Базовые статы. Веб-UI рисует их в state-панели, плюс это нужно для
+	// верификации, что override'ы из YAML-сценария вообще применились.
+	e.attrs["str"] = static_cast<std::int64_t>(ch->get_str());
+	e.attrs["dex"] = static_cast<std::int64_t>(ch->get_dex());
+	e.attrs["con"] = static_cast<std::int64_t>(ch->get_con());
+	e.attrs["int"] = static_cast<std::int64_t>(ch->get_int());
+	e.attrs["wis"] = static_cast<std::int64_t>(ch->get_wis());
+	e.attrs["cha"] = static_cast<std::int64_t>(ch->get_cha());
 	// Доп. поля для верификации применения feat-апплаев (kPowerMagic +50%
 	// percent_spellpower_add для колдуна и т.п.). Полезно когда сравниваешь
 	// dpr классов и подозреваешь, что какой-то inborn feat не применился.
@@ -400,11 +409,28 @@ void EmitCharState(const char* role,
 		ch->add_abils.percent_spellpower_add);
 	e.attrs["physdam_add_pct"] = static_cast<std::int64_t>(
 		ch->add_abils.percent_physdam_add);
-	// Сводка активных аффектов: считаем общее число + помечаем 'опасные'
-	// флаги, которые могут блокировать каст / атаку.
+	// Список выданных способностей -- веб-UI показывает их в state-панели
+	// чтобы было видно, чем класс отличается на этом уровне.
+	std::string feats_list;
+	for (const auto& feat : MUD::Feats()) {
+		if (ch->HaveFeat(feat.GetId())) {
+			if (!feats_list.empty()) feats_list += "|";
+			feats_list += feat.GetName();
+		}
+	}
+	e.attrs["feats_list"] = observability::EngineStringToUtf8(feats_list);
+	// Список активных аффектов с их типом (spell name) и оставшейся
+	// длительностью; '|'-разделитель -- web-UI парсит и рисует chip'ами.
+	std::string aff_list;
 	int aff_count = 0;
-	for (const auto& a : ch->affected) { (void)a; ++aff_count; }
+	for (const auto& a : ch->affected) {
+		++aff_count;
+		if (!aff_list.empty()) aff_list += "|";
+		aff_list += MUD::Spell(a->type).GetCName();
+		aff_list += fmt::format(" ({}t)", a->duration);
+	}
 	e.attrs["affects_count"] = static_cast<std::int64_t>(aff_count);
+	e.attrs["affects_list"] = observability::EngineStringToUtf8(aff_list);
 	e.attrs["aff_silence"] = AFF_FLAGGED(ch, EAffect::kSilence) ? true : false;
 	e.attrs["aff_charmed"] = AFF_FLAGGED(ch, EAffect::kCharmed) ? true : false;
 	e.attrs["aff_sleep"] = AFF_FLAGGED(ch, EAffect::kSleep) ? true : false;
