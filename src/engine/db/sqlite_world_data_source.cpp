@@ -22,6 +22,7 @@
 #include "gameplay/affects/affect_contants.h"
 #include "gameplay/skills/skills.h"
 
+#include <algorithm>
 #include <cstring>
 #include <sstream>
 #include <map>
@@ -1370,14 +1371,16 @@ void SqliteWorldDataSource::LoadMobs()
 		mob.set_sex(gender_it != gender_map.end() ?
 			static_cast<EGender>(gender_it->second) : EGender::kMale);
 
-		// Physical attributes
-		GET_SIZE(&mob) = sqlite3_column_int(stmt, 28);
-		GET_HEIGHT(&mob) = sqlite3_column_int(stmt, 29);
-		GET_WEIGHT(&mob) = sqlite3_column_int(stmt, 30);
+		// Physical attributes -- bounds mirror MobileFile::interpret_espec
+		// (boot_data_files.cpp). Без них старые данные расходятся с легаси.
+		GET_SIZE(&mob) = std::clamp<byte>(sqlite3_column_int(stmt, 28), 0, 100);
+		GET_HEIGHT(&mob) = std::clamp(sqlite3_column_int(stmt, 29), 0, 200);
+		GET_WEIGHT(&mob) = std::clamp(sqlite3_column_int(stmt, 30), 0, 200);
 
 		// Class and race
 		mob.set_class(static_cast<ECharClass>(sqlite3_column_int(stmt, 31)));
-		mob.player_data.Race = static_cast<ENpcRace>(sqlite3_column_int(stmt, 32));
+		mob.player_data.Race = std::clamp(static_cast<ENpcRace>(sqlite3_column_int(stmt, 32)),
+										  ENpcRace::kBasic, ENpcRace::kLastNpcRace);
 
 		// Attributes (E-spec)
 		mob.set_str(sqlite3_column_int(stmt, 33));
@@ -1387,23 +1390,24 @@ void SqliteWorldDataSource::LoadMobs()
 		mob.set_con(sqlite3_column_int(stmt, 37));
 		mob.set_cha(sqlite3_column_int(stmt, 38));
 
-		// Enhanced E-spec fields (scalar values)
+		// Enhanced E-spec fields (scalar values).
+		// Clamps mirror interpret_espec; см. PR #3224.
 		mob.set_str_add(sqlite3_column_int(stmt, 39));
-		mob.add_abils.hitreg = sqlite3_column_int(stmt, 40);
-		mob.add_abils.armour = sqlite3_column_int(stmt, 41);
-		mob.add_abils.manareg = sqlite3_column_int(stmt, 42);
-		mob.add_abils.cast_success = sqlite3_column_int(stmt, 43);
-		mob.add_abils.morale = sqlite3_column_int(stmt, 44);
-		mob.add_abils.initiative_add = sqlite3_column_int(stmt, 45);
-		mob.add_abils.absorb = sqlite3_column_int(stmt, 46);
-		mob.add_abils.aresist = sqlite3_column_int(stmt, 47);
-		mob.add_abils.mresist = sqlite3_column_int(stmt, 48);
-		mob.add_abils.presist = sqlite3_column_int(stmt, 49);
-		mob.mob_specials.attack_type = sqlite3_column_int(stmt, 50);
-		mob.mob_specials.like_work = sqlite3_column_int(stmt, 51);
-		mob.mob_specials.MaxFactor = sqlite3_column_int(stmt, 52);
-		mob.mob_specials.extra_attack = sqlite3_column_int(stmt, 53);
-		mob.set_remort(sqlite3_column_int(stmt, 54));
+		mob.add_abils.hitreg = std::clamp(sqlite3_column_int(stmt, 40), -200, 200);
+		mob.add_abils.armour = std::clamp(sqlite3_column_int(stmt, 41), 0, 100);
+		mob.add_abils.manareg = std::clamp(sqlite3_column_int(stmt, 42), -200, 200);
+		mob.add_abils.cast_success = std::clamp(sqlite3_column_int(stmt, 43), -200, 300);
+		mob.add_abils.morale = std::clamp(sqlite3_column_int(stmt, 44), 0, 100);
+		mob.add_abils.initiative_add = std::clamp(sqlite3_column_int(stmt, 45), -200, 200);
+		mob.add_abils.absorb = std::clamp(sqlite3_column_int(stmt, 46), -200, 200);
+		mob.add_abils.aresist = std::clamp(sqlite3_column_int(stmt, 47), 0, 100);
+		mob.add_abils.mresist = std::clamp(sqlite3_column_int(stmt, 48), 0, 100);
+		mob.add_abils.presist = std::clamp(sqlite3_column_int(stmt, 49), 0, 100);
+		mob.mob_specials.attack_type = std::clamp(sqlite3_column_int(stmt, 50), 0, 99);
+		mob.mob_specials.like_work = std::clamp<byte>(sqlite3_column_int(stmt, 51), 0, 100);
+		mob.mob_specials.MaxFactor = std::clamp<byte>(sqlite3_column_int(stmt, 52), 0, 127);
+		mob.mob_specials.extra_attack = std::clamp<byte>(sqlite3_column_int(stmt, 53), 0, 127);
+		mob.set_remort(std::clamp<byte>(sqlite3_column_int(stmt, 54), 0, 100));
 		
 		// special_bitvector (TEXT - FlagData)
 		std::string special_bv = GetText(stmt, 55);
@@ -1629,7 +1633,7 @@ void SqliteWorldDataSource::LoadMobResistances()
 		CharData &mob = mob_proto[it->second];
 		if (resist_type >= 0 && resist_type < static_cast<int>(mob.add_abils.apply_resistance.size()))
 		{
-			mob.add_abils.apply_resistance[resist_type] = value;
+			mob.add_abils.apply_resistance[resist_type] = std::clamp(value, kMinResistance, kMaxNpcResist);
 			resistances_set++;
 		}
 	}
@@ -1671,7 +1675,7 @@ void SqliteWorldDataSource::LoadMobSaves()
 		CharData &mob = mob_proto[it->second];
 		if (save_type >= 0 && save_type < static_cast<int>(mob.add_abils.apply_saving_throw.size()))
 		{
-			mob.add_abils.apply_saving_throw[save_type] = value;
+			mob.add_abils.apply_saving_throw[save_type] = std::clamp(value, kMinSaving, kMaxSaving);
 			saves_set++;
 		}
 	}
