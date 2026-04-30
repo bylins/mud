@@ -30,6 +30,7 @@ public:
 	void set_cha(const int value);
 	void set_hit(const int value);
 	void set_max_hit(const int value);
+	void set_name(const std::string& name);
 
 	// Convenience preset for the headless balance simulator: creates a fresh
 	// character of the given class and level with all six stats at 25 (mid of

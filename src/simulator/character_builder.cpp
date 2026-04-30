@@ -164,6 +164,13 @@ void CharacterBuilder::set_max_hit(const int value)
 	m_result->set_max_hit(value);
 }
 
+void CharacterBuilder::set_name(const std::string& name)
+{
+	check_character_existance();
+	// PC alias used by GET_NAME() in messages, combat events, JSONL.
+	m_result->set_name(name.c_str());
+}
+
 void CharacterBuilder::make_basic_player(const short player_class, const int level)
 {
 	create_new();

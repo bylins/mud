@@ -451,6 +451,14 @@ void RunScenario(const Scenario& scenario) {
 	// Spawn once. The duel runs continuously; we observe each battle round.
 	CharData* attacker = SpawnParticipant(scenario.attacker);
 	CharData* victim = SpawnParticipant(scenario.victim);
+	// Display names for synthetic PCs. Without this GET_NAME() returns ""
+	// and the JSONL events log "<empty> -> костяная гончая: 5 (удар)".
+	if (std::holds_alternative<PlayerSpec>(scenario.attacker)) {
+		attacker->set_name("attacker");
+	}
+	if (std::holds_alternative<PlayerSpec>(scenario.victim)) {
+		victim->set_name("victim");
+	}
 	PlaceCharToRoom(attacker, kArenaRoom);
 	PlaceCharToRoom(victim, kArenaRoom);
 	// affect_total() рано возвращается, если in_room == kNowhere. Поскольку
@@ -470,6 +478,27 @@ void RunScenario(const Scenario& scenario) {
 	// affect_total for a synthetic PC drops position to ~kSit (3); without
 	// kStand the engine refuses to cast or properly fight. Force kStand
 	// AFTER the very last affect_total call (otherwise it gets reset).
+	attacker->SetPosition(EPosition::kStand);
+	victim->SetPosition(EPosition::kStand);
+
+	// Pre-applied affects from the scenario. We model each affect as a
+	// self-cast (caster == victim) so we get the engine's CalcDuration /
+	// modifier / location wiring without re-implementing it here. Cast
+	// before the duel starts so the affect is in place at round 0.
+	auto apply_affects = [](CharData* ch, const std::vector<AffectSpec>& list) {
+		for (const auto& aff : list) {
+			std::string spell_name = aff.spell_name;
+			const auto sid = FixNameAndFindSpellId(spell_name);
+			if (sid == ESpell::kUndefined) {
+				throw ScenarioRunError(fmt::format(
+					"unknown affect spell: '{}'", aff.spell_name));
+			}
+			CastSpell(ch, ch, nullptr, nullptr, sid, sid);
+		}
+	};
+	std::visit([&](auto&& s) { apply_affects(attacker, s.affects); }, scenario.attacker);
+	std::visit([&](auto&& s) { apply_affects(victim, s.affects); }, scenario.victim);
+	// Casting may have dropped position again -- re-stand.
 	attacker->SetPosition(EPosition::kStand);
 	victim->SetPosition(EPosition::kStand);
 

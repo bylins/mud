@@ -33,6 +33,15 @@ struct PetSpec {
 	StatOverrides overrides;
 };
 
+// Pre-applied affect on a participant -- equivalent to the engine running
+// `cast <spell> self` before round 0. spell_name is the usual Russian alias
+// (e.g. "zashchita", "doblest"). duration in pulses; 0 means
+// "use engine default via CalcDuration".
+struct AffectSpec {
+	std::string spell_name;
+	int duration = 0;  // 0 = engine-default
+};
+
 struct PlayerSpec {
 	std::string class_name;
 	int level = 1;
@@ -42,6 +51,7 @@ struct PlayerSpec {
 	// into the first slot its wear-flags allow (sword goes to wield, armor goes
 	// to body, etc.). Items that do not fit any slot remain in inventory.
 	std::vector<int> inventory;
+	std::vector<AffectSpec> affects;
 };
 
 struct MobSpec {
@@ -49,6 +59,7 @@ struct MobSpec {
 	StatOverrides overrides;
 	std::vector<PetSpec> pets;
 	std::vector<int> inventory;
+	std::vector<AffectSpec> affects;
 };
 
 using ParticipantSpec = std::variant<PlayerSpec, MobSpec>;

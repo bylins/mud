@@ -13,6 +13,7 @@ namespace {
 
 std::vector<PetSpec> ParsePets(const YAML::Node& node, const char* role);
 std::vector<int> ParseInventory(const YAML::Node& node, const char* role);
+std::vector<AffectSpec> ParseAffects(const YAML::Node& node, const char* role);
 
 StatOverrides ParseStatOverrides(const YAML::Node& node) {
 	StatOverrides o;
@@ -53,6 +54,7 @@ ParticipantSpec ParseParticipant(const YAML::Node& node, const char* role) {
 		p.overrides = ParseStatOverrides(node["stats"]);
 		p.pets = ParsePets(node["pets"], role);
 		p.inventory = ParseInventory(node["inventory"], role);
+		p.affects = ParseAffects(node["affects"], role);
 		return p;
 	}
 	if (type_str == "mob") {
@@ -65,6 +67,7 @@ ParticipantSpec ParseParticipant(const YAML::Node& node, const char* role) {
 		m.overrides = ParseStatOverrides(node["stats"]);
 		m.pets = ParsePets(node["pets"], role);
 		m.inventory = ParseInventory(node["inventory"], role);
+		m.affects = ParseAffects(node["affects"], role);
 		return m;
 	}
 	throw ScenarioLoadError(fmt::format(
@@ -82,6 +85,36 @@ std::vector<int> ParseInventory(const YAML::Node& node, const char* role) {
 	}
 	for (std::size_t i = 0; i < node.size(); ++i) {
 		out.push_back(node[i].as<int>());
+	}
+	return out;
+}
+
+std::vector<AffectSpec> ParseAffects(const YAML::Node& node, const char* role) {
+	std::vector<AffectSpec> out;
+	if (!node) {
+		return out;
+	}
+	if (!node.IsSequence()) {
+		throw ScenarioLoadError(fmt::format(
+			"scenario.{}.affects: must be a sequence", role));
+	}
+	for (std::size_t i = 0; i < node.size(); ++i) {
+		const auto a = node[i];
+		if (!a.IsMap()) {
+			throw ScenarioLoadError(fmt::format(
+				"scenario.{}.affects[{}]: must be a map with 'spell'", role, i));
+		}
+		const auto spell = a["spell"];
+		if (!spell) {
+			throw ScenarioLoadError(fmt::format(
+				"scenario.{}.affects[{}].spell: required", role, i));
+		}
+		AffectSpec spec;
+		spec.spell_name = spell.as<std::string>();
+		if (a["duration"]) {
+			spec.duration = a["duration"].as<int>();
+		}
+		out.push_back(spec);
 	}
 	return out;
 }
