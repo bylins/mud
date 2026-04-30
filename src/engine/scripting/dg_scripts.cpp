@@ -1360,6 +1360,16 @@ long gm_char_field(CharData *ch, char *field, char *subfield, long val) {
 	return val;
 }
 
+bool IsUID(const char *name) {
+	if (*name == UID_CHAR
+			|| *name == UID_ROOM
+			|| *name == UID_OBJ
+			|| *name == UID_CHAR_ALL) {
+		return true;
+	}
+return false;
+}
+
 int text_processed(char *field, char *subfield, TriggerVar vd, char *str, size_t str_size) {
 	*str = '\0';
 	if (vd.name.empty() || vd.value.empty())
@@ -1409,6 +1419,8 @@ int text_processed(char *field, char *subfield, TriggerVar vd, char *str, size_t
 			*str++ = *car++;
 		*str = '\0';
 		return true;
+		} else if (!str_cmp(field, "isuid")) {
+		snprintf(str, str_size, "%s", IsUID(subfield)? "1" : "0");
 	} else if (!str_cmp(field, "cdr")) {
 		const char *cdr = vd.value.c_str();
 		while (*cdr && !isspace(*cdr))
@@ -1462,16 +1474,6 @@ int text_processed(char *field, char *subfield, TriggerVar vd, char *str, size_t
 	}
 
 	return false;
-}
-
-bool IsUID(const char *name) {
-	if (*name == UID_CHAR
-			|| *name == UID_ROOM
-			|| *name == UID_OBJ
-			|| *name == UID_CHAR_ALL) {
-		return true;
-	}
-return false;
 }
 
 void find_replacement(void *go,
