@@ -35,14 +35,21 @@ public:
 // backlog and will sit next to this one.
 std::unique_ptr<EventSink> MakeFileEventSink(const std::string& path);
 
-// Global event sink, used by engine code (combat, magic, etc.) that wants to
-// emit events without taking a sink through every function signature.
+// Engine-wide event sink registry. Engine code (combat, magic, affects, etc.)
+// emits events through EmitToAllSinks() without taking a sink through every
+// function signature; the headless simulator (and, eventually, an OTLP
+// exporter) Register a sink at startup and Unregister it at shutdown.
 //
-// Default is a NoOp sink: production builds without a configured exporter
-// see no overhead beyond a virtual call into a no-op. The simulator (and
-// later the OTLP exporter) installs a real sink with SetGlobalEventSink().
-EventSink& GlobalEventSink();
-void SetGlobalEventSink(EventSink* sink);
+// Production: the registry is empty, every emitter exits at the
+// HasAnyEventSink() guard before building an Event. Cost is one load + branch.
+//
+// Not thread-safe: register/unregister happens at process startup/shutdown
+// only; the hot path (EmitToAllSinks) iterates without a lock.
+void RegisterEventSink(EventSink* sink);
+void UnregisterEventSink(EventSink* sink);
+bool HasAnyEventSink();
+void EmitToAllSinks(const Event& ev);
+void FlushAllSinks();
 
 // Engine-side strings (character names, room descriptions, etc.) live in
 // KOI8-R; nlohmann::json validates UTF-8 on serialization and rejects KOI8-R

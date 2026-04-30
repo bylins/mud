@@ -28,9 +28,11 @@ std::unordered_set<CharData *> affected_mobs;
 namespace {
 
 // Эмиссия 'affect_added'/'affect_removed' для replay-режима симулятора
-// баланса (issue #2967). В проде GlobalEventSink == NoOp, накладные нулевые.
+// баланса (issue #2967). В проде список sink'ов пуст -- ранний выход до
+// построения Event.
 void EmitAffectEvent(const char *kind, const CharData *ch,
 		const Affect<EApply> &af) {
+	if (!observability::HasAnyEventSink()) return;
 	observability::Event ev;
 	ev.name = kind;
 	ev.ts_unix_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
@@ -42,7 +44,7 @@ void EmitAffectEvent(const char *kind, const CharData *ch,
 	ev.attrs["modifier"] = static_cast<std::int64_t>(af.modifier);
 	ev.attrs["location"] = static_cast<std::int64_t>(af.location);
 	ev.attrs["bitvector"] = static_cast<std::int64_t>(af.bitvector);
-	observability::GlobalEventSink().Emit(ev);
+	observability::EmitToAllSinks(ev);
 }
 
 }  // namespace

@@ -861,8 +861,10 @@ namespace {
 
 // Эмиссия события 'miss' для автономного симулятора баланса (issue #2967).
 // reason: 'auto_5pct' / 'level_diff' / 'thac0_roll' -- какая ветка hit()
-// привела к промаху. В проде GlobalEventSink == NoOp.
+// привела к промаху. В проде список sink'ов пуст -- ранний выход до
+// построения Event.
 void EmitMissEvent(CharData *ch, CharData *victim, const char *reason) {
+	if (!observability::HasAnyEventSink()) return;
 	observability::Event ev;
 	ev.name = "miss";
 	ev.ts_unix_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
@@ -870,7 +872,7 @@ void EmitMissEvent(CharData *ch, CharData *victim, const char *reason) {
 	ev.attrs["attacker_name"] = observability::EngineStringToUtf8(GET_NAME(ch) ? GET_NAME(ch) : "");
 	ev.attrs["victim_name"] = observability::EngineStringToUtf8(GET_NAME(victim) ? GET_NAME(victim) : "");
 	ev.attrs["reason"] = std::string(reason);
-	observability::GlobalEventSink().Emit(ev);
+	observability::EmitToAllSinks(ev);
 }
 
 }  // namespace

@@ -4,6 +4,7 @@
 #include "engine/db/db.h"
 #include "engine/db/global_objects.h"
 #include "engine/db/world_characters.h"
+#include "engine/observability/event_sink.h"
 #include "simulator/character_builder.h"
 #include "engine/entities/char_data.h"
 #include "engine/entities/room_data.h"
@@ -292,8 +293,9 @@ void AddParticipantAttrs(observability::Event& e, const char* role, const Partic
 // Periodic snapshot of a participant's state for replay-mode reconstruction.
 // Emits hp/move/position; the full per-affect timeline is already covered by
 // affect_added/removed events from src/gameplay/affects/affect_data.cpp.
-void EmitCharState(observability::EventSink& sink, const char* role,
+void EmitCharState(const char* role,
 		const CharData* ch, int round_no) {
+	if (!observability::HasAnyEventSink()) return;
 	observability::Event e;
 	e.name = "char_state";
 	e.ts_unix_ms = NowUnixMs();
@@ -322,12 +324,12 @@ void EmitCharState(observability::EventSink& sink, const char* role,
 	e.attrs["aff_silence"] = AFF_FLAGGED(ch, EAffect::kSilence) ? true : false;
 	e.attrs["aff_charmed"] = AFF_FLAGGED(ch, EAffect::kCharmed) ? true : false;
 	e.attrs["aff_sleep"] = AFF_FLAGGED(ch, EAffect::kSleep) ? true : false;
-	sink.Emit(e);
+	observability::EmitToAllSinks(e);
 }
 
 }  // namespace
 
-void RunScenario(const Scenario& scenario, observability::EventSink& sink) {
+void RunScenario(const Scenario& scenario) {
 	if (scenario.rounds <= 0) {
 		throw ScenarioRunError("scenario.rounds must be positive");
 	}
@@ -407,14 +409,14 @@ void RunScenario(const Scenario& scenario, observability::EventSink& sink) {
 
 	// Initial snapshot before the first round, so replay can reconstruct
 	// starting state.
-	EmitCharState(sink, "attacker", attacker, -1);
-	EmitCharState(sink, "victim", victim, -1);
+	EmitCharState("attacker", attacker, -1);
+	EmitCharState("victim", victim, -1);
 	for (std::size_t i = 0; i < attacker_pets.size(); ++i) {
-		EmitCharState(sink, fmt::format("attacker_pet_{}", i).c_str(),
+		EmitCharState(fmt::format("attacker_pet_{}", i).c_str(),
 			attacker_pets[i], -1);
 	}
 	for (std::size_t i = 0; i < victim_pets.size(); ++i) {
-		EmitCharState(sink, fmt::format("victim_pet_{}", i).c_str(),
+		EmitCharState(fmt::format("victim_pet_{}", i).c_str(),
 			victim_pets[i], -1);
 	}
 
@@ -482,23 +484,23 @@ void RunScenario(const Scenario& scenario, observability::EventSink& sink) {
 		e.attrs["hp_after"] = static_cast<std::int64_t>(hp_now);
 		e.attrs["damage_observed"] = static_cast<std::int64_t>(damage);
 		e.attrs["victim_alive"] = alive;
-		sink.Emit(e);
+		observability::EmitToAllSinks(e);
 
 		// Per-round snapshot for both participants and their pets. Replay
 		// tooling consumes these to reconstruct any participant's state at
 		// any round without having to fold all damage/affect events.
 		if (alive) {
-			EmitCharState(sink, "attacker", attacker, r);
-			EmitCharState(sink, "victim", victim, r);
+			EmitCharState("attacker", attacker, r);
+			EmitCharState("victim", victim, r);
 			for (std::size_t i = 0; i < attacker_pets.size(); ++i) {
 				if (attacker_pets[i]->in_room != kNowhere) {
-					EmitCharState(sink, fmt::format("attacker_pet_{}", i).c_str(),
+					EmitCharState(fmt::format("attacker_pet_{}", i).c_str(),
 						attacker_pets[i], r);
 				}
 			}
 			for (std::size_t i = 0; i < victim_pets.size(); ++i) {
 				if (victim_pets[i]->in_room != kNowhere) {
-					EmitCharState(sink, fmt::format("victim_pet_{}", i).c_str(),
+					EmitCharState(fmt::format("victim_pet_{}", i).c_str(),
 						victim_pets[i], r);
 				}
 			}
@@ -528,7 +530,7 @@ void RunScenario(const Scenario& scenario, observability::EventSink& sink) {
 	if (victim->in_room != kNowhere) {
 		ExtractCharFromWorld(victim, false);
 	}
-	sink.Flush();
+	observability::FlushAllSinks();
 }
 
 }  // namespace simulator

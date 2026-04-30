@@ -2,33 +2,53 @@
 
 #include "utils/utils.h"
 
+#include <algorithm>
 #include <array>
+#include <vector>
 
 namespace observability {
 
 namespace {
 
-class NoOpEventSink : public EventSink {
-public:
-	void Emit(const Event&) override {}
-	void Flush() override {}
-};
-
-NoOpEventSink& NoOpInstance() {
-	static NoOpEventSink instance;
+std::vector<EventSink*>& Sinks() {
+	static std::vector<EventSink*> instance;
 	return instance;
 }
 
-EventSink* g_sink = nullptr;
-
 }  // namespace
 
-EventSink& GlobalEventSink() {
-	return g_sink ? *g_sink : NoOpInstance();
+void RegisterEventSink(EventSink* sink) {
+	if (!sink) {
+		return;
+	}
+	auto& sinks = Sinks();
+	if (std::find(sinks.begin(), sinks.end(), sink) == sinks.end()) {
+		sinks.push_back(sink);
+	}
 }
 
-void SetGlobalEventSink(EventSink* sink) {
-	g_sink = sink;
+void UnregisterEventSink(EventSink* sink) {
+	auto& sinks = Sinks();
+	const auto it = std::find(sinks.begin(), sinks.end(), sink);
+	if (it != sinks.end()) {
+		sinks.erase(it);
+	}
+}
+
+bool HasAnyEventSink() {
+	return !Sinks().empty();
+}
+
+void EmitToAllSinks(const Event& ev) {
+	for (auto* sink : Sinks()) {
+		sink->Emit(ev);
+	}
+}
+
+void FlushAllSinks() {
+	for (auto* sink : Sinks()) {
+		sink->Flush();
+	}
 }
 
 std::string EngineStringToUtf8(const std::string& koi8r) {

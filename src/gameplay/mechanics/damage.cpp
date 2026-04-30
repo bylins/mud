@@ -850,9 +850,10 @@ int Damage::Process(CharData *ch, CharData *victim) {
 	// собственно нанесение дамага
 	victim->set_hit(victim->get_hit() - dam);
 	// Точка инструментации для автономного симулятора баланса (issue #2967):
-	// эмитим точные числа на каждый успешный удар. В проде GlobalEventSink
-	// возвращает NoOp -- стоимость один виртуальный вызов.
-	{
+	// эмитим точные числа на каждый успешный удар. В проде список sink'ов
+	// пуст -- HasAnyEventSink() возвращает false, ранний выход без построения
+	// Event и без аллокаций.
+	if (observability::HasAnyEventSink()) {
 		observability::Event ev;
 		ev.name = "damage";
 		ev.ts_unix_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
@@ -876,7 +877,7 @@ int Damage::Process(CharData *ch, CharData *victim) {
 		ev.attrs["attacker_master_name"] = observability::EngineStringToUtf8(
 			(IS_CHARMICE(ch) && ch->has_master() && GET_NAME(ch->get_master()))
 				? GET_NAME(ch->get_master()) : "");
-		observability::GlobalEventSink().Emit(ev);
+		observability::EmitToAllSinks(ev);
 	}
 	victim->send_to_TC(false, true, true, "&MПолучен урон = %d&n\r\n", dam);
 	ch->send_to_TC(false, true, true, "&MПрименен урон = %d&n\r\n", dam);

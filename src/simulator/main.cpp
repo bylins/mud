@@ -106,19 +106,21 @@ int main(int argc, char** argv) {
 	log("mud-sim: world booted, running %d rounds, output=%s",
 		scenario.rounds, scenario.output.c_str());
 
+	auto sink = observability::MakeFileEventSink(scenario.output);
+	// Register so engine-side instrumentation (combat, magic, affects, etc.)
+	// can emit events through EmitToAllSinks without threading the sink
+	// through every call signature.
+	observability::RegisterEventSink(sink.get());
 	try {
-		auto sink = observability::MakeFileEventSink(scenario.output);
-		// Install as the global sink so engine-side instrumentation (combat,
-		// magic, etc.) can emit events without the sink threaded through the
-		// call signature.
-		observability::SetGlobalEventSink(sink.get());
-		simulator::RunScenario(scenario, *sink);
-		observability::SetGlobalEventSink(nullptr);
+		simulator::RunScenario(scenario);
 	} catch (const std::exception& e) {
-		observability::SetGlobalEventSink(nullptr);
+		observability::FlushAllSinks();
+		observability::UnregisterEventSink(sink.get());
 		std::fprintf(stderr, "mud-sim: scenario run failed: %s\n", e.what());
 		return 1;
 	}
+	observability::FlushAllSinks();
+	observability::UnregisterEventSink(sink.get());
 
 	log("mud-sim: done, %d rounds emitted to %s",
 		scenario.rounds, scenario.output.c_str());
