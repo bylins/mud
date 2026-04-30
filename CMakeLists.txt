@@ -681,6 +681,7 @@ set(HEADERS
 		src/engine/structs/structs.h
 		src/gameplay/mechanics/stuff.h
 		src/engine/core/sysdep.h
+		src/engine/core/sysdep_net.h
 		src/engine/network/telnet.h
 		src/utils/utils_time.h
 		src/utils/tracing/trace_sender.h
