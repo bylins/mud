@@ -630,7 +630,7 @@ void print_map(CharData *ch, CharData *imm) {
 
 	// для режима богов прижимаем карту влево
 	unsigned left_margin = 0;
-	unsigned right_margin = MAX_LENGTH;
+	unsigned right_margin = MAX_LENGTH - 1;
 
 	if (ch->map_check_option(MAP_MODE_GOD_BIG) && ch->IsImmortal()) {
 		left_margin =  MAX_LENGTH;
