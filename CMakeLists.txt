@@ -550,6 +550,7 @@ set(HEADERS
 		src/utils/backtrace.h
 		src/administration/ban.h
 		src/gameplay/mechanics/birthplaces.h
+		src/gameplay/mechanics/birthplaces_constants.h
         src/gameplay/communication/boards/boards_changelog_loaders.h
         src/gameplay/communication/boards/boards_constants.h
         src/gameplay/communication/boards/boards_formatters.h

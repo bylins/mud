@@ -17,6 +17,7 @@
 #include "config.h"
 #include "utils/timestamp.h"
 
+#include "gameplay/mechanics/birthplaces.h"
 #include "gameplay/communication/boards/boards_changelog_loaders.h"
 #include "gameplay/communication/boards/boards_constants.h"
 #include "engine/entities/char_data.h"

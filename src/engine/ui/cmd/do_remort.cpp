@@ -5,6 +5,7 @@
 #include "administration/karma.h"
 #include "do_follow.h"
 #include "engine/entities/char_data.h"
+#include "gameplay/mechanics/birthplaces.h"
 #include "gameplay/mechanics/player_races.h"
 #include "gameplay/mechanics/sight.h"
 #include "engine/core/handler.h"
