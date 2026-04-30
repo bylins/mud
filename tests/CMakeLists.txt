@@ -91,6 +91,9 @@ set(TESTS
 		flag_data.cpp
 		extra_description.cpp
 		trigger_indenter.cpp
+		trigger_script_parser.cpp
+		yaml_loader_flag_packing.cpp
+		world_checksum_serialization.cpp
 		dg_string_matching.cpp
 		dg_var_context.cpp
 		mob_classes.loader.cpp

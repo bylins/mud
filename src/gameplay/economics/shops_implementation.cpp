@@ -367,7 +367,7 @@ void shop_node::process_buy(CharData *ch, CharData *keeper, char *argument) {
 			if (currency == "слава") {
 				// книги за славу не фейлим
 				if (EObjType::kBook == obj->get_type()) {
-					obj->set_extra_flag(EObjFlag::KNofail);
+					obj->set_extra_flag(EObjFlag::kNofail);
 				}
 				// снятие и логирование славы
 				GloryConst::add_total_spent(price);
@@ -377,18 +377,18 @@ void shop_node::process_buy(CharData *ch, CharData *keeper, char *argument) {
 			} else if (currency == "лед") {
 				// книги за лед, как и за славу, не фейлим
 				if (EObjType::kBook == obj->get_type()) {
-					obj->set_extra_flag(EObjFlag::KNofail);
+					obj->set_extra_flag(EObjFlag::kNofail);
 				}
 				ch->sub_ice_currency(price);
 			} else if (currency == "ногаты") {
 				// книги за лед, как и за славу, не фейлим
 				if (EObjType::kBook == obj->get_type()) {
-					obj->set_extra_flag(EObjFlag::KNofail);
+					obj->set_extra_flag(EObjFlag::kNofail);
 				}
 				ch->sub_nogata(price);
 			} else if (currency == "гривны") {
 				if (EObjType::kBook == obj->get_type()) {
-					obj->set_extra_flag(EObjFlag::KNofail);
+					obj->set_extra_flag(EObjFlag::kNofail);
 				}
 				ch->sub_hryvn(price);
 				ch->spent_hryvn_sub(price);

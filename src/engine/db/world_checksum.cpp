@@ -13,13 +13,15 @@
 #include "utils/utils_string.h"
 #include "engine/structs/extra_description.h"
 
+#include <algorithm>
 #include <sstream>
+#include <utility>
 #include <vector>
 #include <filesystem>
 
 #include <iomanip>
 
-namespace
+namespace WorldChecksum
 {
 
 // CRC32 calculation function (same as in file_crc.cpp)
@@ -141,22 +143,14 @@ std::string SerializeRoom(const RoomData *room)
 	}
 	oss << "|";
 
-	// Serialize room flags using safe dynamic buffer
-	std::vector<char> flag_buf(8192);
-	flag_buf[0] = '\0';
-	if (room->flags_sprint(flag_buf.data(), flag_buf.size(), ","))
+	// Serialize room flags as raw planes -- same form as object/mob flags below.
+	// Previously this used flags_sprint() and stripped "UNDEF" tokens, which
+	// silently masked loader regressions where extra/missing bits would only
+	// show up as UNDEF labels. Comparing raw plane bitmasks catches them.
 	{
-		// Filter out UNDEF flags for consistent checksums
-		// (UNDEF flags are undefined bits that Legacy loads but SQLite does not preserve)
-		std::string flags_str(flag_buf.data());
-		std::string filtered;
-		for (const auto& flag : utils::Split(flags_str, ',')) {
-			if (flag != "UNDEF") {
-				if (!filtered.empty()) filtered += ",";
-				filtered += flag;
-			}
-		}
-		oss << filtered;
+		FlagData room_flags = room->read_flags();
+		oss << room_flags.get_plane(0) << "," << room_flags.get_plane(1) << ","
+		    << room_flags.get_plane(2) << "," << room_flags.get_plane(3);
 	}
 	oss << "|";
 
@@ -202,18 +196,12 @@ std::string SerializeRoom(const RoomData *room)
 	return oss.str();
 }
 
-// Serialize mob prototype data to string for checksum calculation
-std::string SerializeMob(MobRnum rnum)
+// Value-based overload: testable without going through mob_proto[]/mob_index.
+std::string SerializeMob(int vnum, const CharData &mob)
 {
-	if (rnum < 0 || rnum > top_of_mobt)
-	{
-		return "";
-	}
-
-	const CharData &mob = mob_proto[rnum];
 	std::ostringstream oss;
 
-	oss << mob_index[rnum].vnum << "|";
+	oss << vnum << "|";
 	oss << mob.GetLevel() << "|";
 	oss << mob.get_str() << "|";
 	oss << mob.get_dex() << "|";
@@ -258,6 +246,44 @@ std::string SerializeMob(MobRnum rnum)
 	oss << mob.get_max_hit() << "|";
 	oss << mob.get_hit() << "|";
 
+	// Action flags (all 4 planes) -- required to detect loader regressions
+	// like wrong bit packing in YAML/SQLite paths.
+	const auto &act = mob.char_specials.saved.act;
+	oss << act.get_plane(0) << "," << act.get_plane(1) << ","
+	    << act.get_plane(2) << "," << act.get_plane(3) << "|";
+
+	// Affect flags (all 4 planes)
+	const auto &aff = mob.char_specials.saved.affected_by;
+	oss << aff.get_plane(0) << "," << aff.get_plane(1) << ","
+	    << aff.get_plane(2) << "," << aff.get_plane(3) << "|";
+
+	// NPC special-bit flags (all 4 planes)
+	const auto &npc = mob.mob_specials.npc_flags;
+	oss << npc.get_plane(0) << "," << npc.get_plane(1) << ","
+	    << npc.get_plane(2) << "," << npc.get_plane(3) << "|";
+
+	// Enhanced E-spec fields. Without these, the checksum is blind to
+	// loader/converter regressions on the "E"-section (see PR #3224 -
+	// ExtraAttack silently lost in YAML conversion).
+	oss << static_cast<int>(mob.mob_specials.extra_attack) << "|";
+	oss << mob.mob_specials.attack_type << "|";
+	oss << static_cast<int>(mob.mob_specials.like_work) << "|";
+	oss << mob.mob_specials.MaxFactor << "|";
+	oss << mob.get_remort() << "|";
+	oss << static_cast<int>(mob.mob_specials.damnodice) << "|";
+	oss << static_cast<int>(mob.mob_specials.damsizedice) << "|";
+	oss << mob.get_str_add() << "|";
+	oss << mob.add_abils.hitreg << "|";
+	oss << mob.add_abils.armour << "|";
+	oss << mob.add_abils.manareg << "|";
+	oss << mob.add_abils.cast_success << "|";
+	oss << mob.add_abils.morale << "|";
+	oss << mob.add_abils.initiative_add << "|";
+	oss << mob.add_abils.absorb << "|";
+	oss << mob.add_abils.aresist << "|";
+	oss << mob.add_abils.mresist << "|";
+	oss << mob.add_abils.presist << "|";
+
 	// Proto script
 	if (mob.proto_script)
 	{
@@ -268,6 +294,16 @@ std::string SerializeMob(MobRnum rnum)
 	}
 
 	return oss.str();
+}
+
+// rnum-based wrapper: looks up vnum/proto from globals, delegates to value form.
+std::string SerializeMob(MobRnum rnum)
+{
+	if (rnum < 0 || rnum > top_of_mobt)
+	{
+		return "";
+	}
+	return SerializeMob(mob_index[rnum].vnum, mob_proto[rnum]);
 }
 
 // Serialize object prototype data to string for checksum calculation
@@ -321,6 +357,24 @@ std::string SerializeObject(const CObjectPrototype::shared_ptr &obj)
 	for (int i = 0; i < CObjectPrototype::VALS_COUNT; ++i)
 	{
 		oss << obj->get_val(i) << ",";
+	}
+	oss << "|";
+
+	// Extra values (V-lines: potion spells/levels, refilled-potion proto vnum,
+	// etc.). Without this the round-trip fix for issue #3218 would not be
+	// observable in checksums and a converter regression could slip through
+	// run_load_tests.sh again.
+	{
+		std::vector<std::pair<int, int>> sorted_extra;
+		for (const auto &kv : obj->get_all_values())
+		{
+			sorted_extra.emplace_back(static_cast<int>(kv.first), kv.second);
+		}
+		std::sort(sorted_extra.begin(), sorted_extra.end());
+		for (const auto &kv : sorted_extra)
+		{
+			oss << kv.first << ":" << kv.second << ",";
+		}
 	}
 	oss << "|";
 
@@ -406,11 +460,6 @@ std::string SerializeTrigger(int rnum)
 
 	return oss.str();
 }
-
-} // anonymous namespace
-
-namespace WorldChecksum
-{
 
 ChecksumResult Calculate()
 {

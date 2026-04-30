@@ -1854,7 +1854,7 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness) {
 	}
 
 	auto it = ObjData::set_table.begin();
-	if (obj->has_flag(EObjFlag::KSetItem)) {
+	if (obj->has_flag(EObjFlag::kSetItem)) {
 		for (; it != ObjData::set_table.end(); it++) {
 			if (it->second.find(GET_OBJ_VNUM(obj)) != it->second.end()) {
 				sprintf(buf,

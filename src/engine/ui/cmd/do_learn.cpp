@@ -23,7 +23,7 @@ bool IsLearningFailed(CharData *ch, ObjData *obj) {
 	auto addchance = LIKE_ROOM(ch) ? 10 : 0;
 	addchance += (GET_OBJ_VAL(obj, 0) == EBook::kSpell) ? 0 : 10;
 
-	if (!obj->has_flag(EObjFlag::KNofail)
+	if (!obj->has_flag(EObjFlag::kNofail)
 		&& number(1, 100) > int_app[Posi(GetRealInt(ch))].spell_aknowlege + addchance) {
 		return true;
 	}

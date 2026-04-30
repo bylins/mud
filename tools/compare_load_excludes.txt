@@ -1,0 +1,12 @@
+# Empty by design.
+#
+# tools/compare_load_checksums.sh reads this file as an allowlist of known
+# Legacy-vs-YAML divergences (per-line `<TYPE> <VNUM>`, e.g. `MOB 11605`
+# or just `MOB_SCRIPTS`). When the world data is clean it stays empty;
+# whenever a *known* legacy quirk creeps back (T-line after `$`, unsorted
+# trig_index breaking GetTriggerRnum's binary search, etc.) add the
+# affected vnum here with a one-line `# why` comment.
+#
+# Goal: tools/compare_load_checksums.sh should report `OK: no unexpected
+# differences` with this file empty. Any non-empty entry is a temporary
+# crutch that the next world refresh should let us delete.

@@ -978,7 +978,7 @@ void do_stat_object(CharData *ch, ObjData *j, const int virt = 0) {
 			{
 				std::string spells = drinkcon::print_spells(j);
 				utils::Trim(spells);
-				snprintf(buf, sizeof(buf), "Обьем: %d, Содержит: %d, Таймер (если 1 отравлено): %d, Жидкость: %s\r\n%s",
+				snprintf(buf, sizeof(buf), "Объем: %d, Содержит: %d, Таймер (если 1 отравлено): %d, Жидкость: %s\r\n%s",
 						GET_OBJ_VAL(j, 0), GET_OBJ_VAL(j, 1), GET_OBJ_VAL(j, 3), smallBuf, spells.c_str());
 			}
 			break;

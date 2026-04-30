@@ -25,11 +25,12 @@ public:
 	// Call after all rooms are loaded - common post-processing step
 	static void AssignTriggersToLoadedRooms();
 
-protected:
 	// Parse trigger script from string into cmdlist
 	// Used by both YAML and SQLite loaders - 100% identical code
+	// Public so unit tests can verify parsing behavior (line numbering, etc.)
 	static void ParseTriggerScript(Trigger *trig, const std::string &script);
 
+protected:
 	// Initialize zone runtime fields to defaults
 	// Nearly identical between loaders (only under_construction differs)
 	static void InitializeZoneRuntimeFields(ZoneData &zone, int under_construction = 0);

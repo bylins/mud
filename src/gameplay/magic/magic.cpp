@@ -3474,7 +3474,7 @@ int CastToAlterObjs(int/* level*/, CharData *ch, ObjData *obj, ESpell spell_id) 
 				break;
 			}
 
-			if (obj->has_flag(EObjFlag::KSetItem)) {
+			if (obj->has_flag(EObjFlag::kSetItem)) {
 				SendMsgToChar(ch, "Сетовый предмет не может быть заколдован.\r\n");
 				break;
 			}

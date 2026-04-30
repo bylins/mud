@@ -31,6 +31,7 @@ void WorldDataSourceBase::ParseTriggerScript(Trigger *trig, const std::string &s
 	{
 		std::istringstream ss(script);
 		int indlev = 0;
+		int line_num = 1;
 		std::string line;
 		cmdlist_element::shared_ptr head = nullptr;
 		cmdlist_element::shared_ptr tail = nullptr;
@@ -48,6 +49,7 @@ void WorldDataSourceBase::ParseTriggerScript(Trigger *trig, const std::string &s
 			auto cmd = std::make_shared<cmdlist_element>();
 			indent_trigger(line, &indlev);
 			cmd->cmd = line;
+			cmd->line_num = line_num++;
 			cmd->next = nullptr;
 
 			// lowercase the command (first word) for faster comparison at runtime

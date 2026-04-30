@@ -1249,7 +1249,7 @@ int invalid_no_class(CharData *ch, const ObjData *obj) {
 		|| (obj->has_no_flag(ENoFlag::kMage) && IsMage(ch))
 		|| (obj->has_no_flag(ENoFlag::kConjurer) && IS_CONJURER(ch))
 		|| (obj->has_no_flag(ENoFlag::kCharmer) && IS_CHARMER(ch))
-		|| (obj->has_no_flag(ENoFlag::kWIzard) && IS_WIZARD(ch))
+		|| (obj->has_no_flag(ENoFlag::kWizard) && IS_WIZARD(ch))
 		|| (obj->has_no_flag(ENoFlag::kNecromancer) && IS_NECROMANCER(ch))
 		|| (obj->has_no_flag(ENoFlag::kFighter) && IsFighter(ch))
 		|| (obj->has_no_flag(ENoFlag::kMale) && IS_MALE(ch))

@@ -239,7 +239,18 @@ ObjData::shared_ptr read_one_object_new(char **data, int *error) {
 				object->set_sex(static_cast<EGender>(atoi(buffer)));
 			} else if (!strcmp(read_line, "Tmer")) {
 				*error = 20;
-				object->set_timer(atoi(buffer));
+				const int saved_timer = atoi(buffer);
+				// Защита от мусорных таймеров (UNLIMITED_TIMER, INT_MAX и
+				// прочие следы старых багов decay_manager в otransform/
+				// oedit/обмена шмотками - см. #3213). При парсинге мира
+				// таймеры > 99999 уже клампятся, тут делаем то же для
+				// сохранений игроков. Если в пфайле плохое значение,
+				// оставляем то, что пришло из прототипа в
+				// create_from_prototype_by_vnum выше. Отрицательные значения
+				// валидны (например, -1 означает "таймер не уменьшается").
+				if (saved_timer <= 99999) {
+					object->set_timer(saved_timer);
+				}
 			} else if (!strcmp(read_line, "Spll")) {
 				*error = 21;
 				object->set_spell(atoi(buffer));
@@ -548,8 +559,13 @@ inline bool proto_has_descr(const ExtraDescription::shared_ptr &odesc, const Ext
 	return false;
 }
 
-void WriteMagicComponentItem(std::stringstream &out, ObjData *object) {
+void WriteMagicComponentItem(std::stringstream &out, ObjData *object, int location) {
 	out << "#" << object->get_vnum() << "\n";
+	// Положение в экипировке/контейнере: без него ингредиент из сумки
+	// при загрузке оказывается в инвентаре (issue #3221).
+	if (location) {
+		out << "Lctn: " << location << "~\n";
+	}
 	out << "Ouid: " << object->get_unique_id() << "~\n";
 	out << "Tmer: " << object->CObjectPrototype::get_timer() << "~\n";
 	out << "Val1: " << GET_OBJ_VAL(object, 1) << "~\n";
@@ -568,7 +584,7 @@ void WriteMagicComponentItem(std::stringstream &out, ObjData *object) {
 // [ ИСПОЛЬЗУЕТСЯ В НОВОМ ФОРМАТЕ ВЕЩЕЙ ПЕРСОНАЖА ОТ 10.12.04 ]
 void write_one_object(std::stringstream &out, ObjData *object, int location) {
 	if (object->get_type() == EObjType::kMagicComponent) {
-		WriteMagicComponentItem(out, object);
+		WriteMagicComponentItem(out, object, location);
 		return;
 	}
 	ObjRnum orn = object->get_rnum();
@@ -1478,8 +1494,18 @@ int Crash_load(CharData *ch) {
 		// вычтем таймер оффлайна
 		if (!(stable_objs::IsTimerUnlimited(obj.get()) || obj->has_flag(EObjFlag::kNoRentTimer))) {
 			const SaveInfo *si = SAVEINFO(index);
-			obj->set_timer(si->time[fsize].timer);
-			obj->dec_timer(timer_dec);
+			const int saved_timer = si->time[fsize].timer;
+			// Защита от мусорных значений в бинарном таймер-файле
+			// (UNLIMITED_TIMER и близкие следы старых багов decay_manager
+			// в otransform/oedit - см. #3213, #3225). Текстовый Tmer уже
+			// клампится в read_one_object_new по тому же порогу 99999.
+			// Если значение бракованное, не переписываем m_timer, иначе
+			// dec_timer ниже разгонит UNLIMITED-N*timer_dec в дрейфующий
+			// таймер, который медленно сходит к нулю.
+			if (saved_timer <= 99999) {
+				obj->set_timer(saved_timer);
+				obj->dec_timer(timer_dec);
+			}
 		}
 
 		std::string cap = obj->get_PName(ECase::kNom);

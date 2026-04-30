@@ -11,6 +11,7 @@
 #include "utils/logger.h"
 #include "utils/utils.h"
 #include "utils/utils_string.h"
+#include "utils/parse.h"
 #include "engine/entities/zone.h"
 #include "engine/entities/room_data.h"
 #include "engine/entities/char_data.h"
@@ -18,6 +19,7 @@
 #include "engine/scripting/dg_scripts.h"
 #include "engine/db/description.h"
 #include "engine/structs/extra_description.h"
+#include "engine/structs/flag_data.h"
 #include "gameplay/mechanics/dungeons.h"
 #include "engine/scripting/dg_olc.h"
 #include "gameplay/affects/affect_contants.h"
@@ -46,19 +48,13 @@ extern CharData *mob_proto;
 namespace world_loader
 {
 
-// Convert dictionary index to bitvector flag value
-// Handles multi-plane flags (plane 0: bits 0-29, plane 1: bits 30-59, plane 2: bits 60-89)
+// Convert dictionary index to bitvector flag value.
+// Delegates to the canonical flag_data_by_num() in engine/structs/flag_data.h
+// to avoid drift (previous local copy mishandled plane 3: returned 1u<<idx
+// instead of kIntThree | (1u << (idx - 90))).
 inline Bitvector IndexToBitvector(long idx)
 {
-	if (idx < 0)
-		return 0;
-	if (idx < 30)
-		return 1u << idx;
-	if (idx < 60)
-		return kIntOne | (1u << (idx - 30));
-	if (idx < 90)
-		return kIntTwo | (1u << (idx - 60));
-	return 1u << idx;
+	return static_cast<Bitvector>(flag_data_by_num(static_cast<int>(idx)));
 }
 
 // ============================================================================
@@ -1548,7 +1544,9 @@ CharData YamlWorldDataSource::ParseMobFile(const std::string &file_path)
 	CharData mob;
 	mob.player_specials = player_special_data::s_for_mobiles;
 	mob.SetNpcAttribute(true);
-	mob.player_specials->saved.NameGod = 1001;
+	// NameGod=1001 is initialized once on the shared singleton in
+	// LoadMobsParallel before worker threads start -- see InitMobSharedDefaults().
+	// Writing it here would race across threads (same value, but technically UB).
 	mob.set_move(100);
 	mob.set_max_move(100);
 
@@ -1632,13 +1630,14 @@ CharData YamlWorldDataSource::ParseMobFile(const std::string &file_path)
 	// Sex
 	mob.set_sex(static_cast<EGender>(ParseGender(root["sex"])));
 
-	// Race
-	mob.player_data.Race = static_cast<ENpcRace>(GetInt(root, "race", ENpcRace::kBasic));
+	// Race -- legacy clamps to [kBasic, kLastNpcRace] (boot_data_files.cpp).
+	mob.player_data.Race = std::clamp(static_cast<ENpcRace>(GetInt(root, "race", ENpcRace::kBasic)),
+									  ENpcRace::kBasic, ENpcRace::kLastNpcRace);
 
-	// Physical attributes
-	GET_SIZE(&mob) = GetInt(root, "size", 0);
-	GET_HEIGHT(&mob) = GetInt(root, "height", 0);
-	GET_WEIGHT(&mob) = GetInt(root, "weight", 0);
+	// Physical attributes -- bounds mirror legacy interpret_espec.
+	GET_SIZE(&mob) = std::clamp<byte>(GetInt(root, "size", 0), 0, 100);
+	GET_HEIGHT(&mob) = std::clamp(GetInt(root, "height", 0), 0, 200);
+	GET_WEIGHT(&mob) = std::clamp(GetInt(root, "weight", 0), 0, 200);
 
 	// E-spec attributes - set defaults, then override
 	mob.set_str(11);
@@ -1659,6 +1658,10 @@ CharData YamlWorldDataSource::ParseMobFile(const std::string &file_path)
 	}
 
 	// Flags
+	// NOTE: dictionary returns the bit *index* (0..119); FlagData::set() expects a
+	// packed value: (plane << 30) | (1 << bit_in_plane). Use flag_data_by_num()
+	// to convert. Passing the raw index is the bug that corrupted action/affect
+	// flags on mobs (e.g. set(13) ORed bits 0,2,3 instead of bit 13).
 	auto &dm = DictionaryManager::Instance();
 	if (root["action_flags"] && root["action_flags"].IsSequence())
 	{
@@ -1668,7 +1671,7 @@ CharData YamlWorldDataSource::ParseMobFile(const std::string &file_path)
 			long flag_val = dm.Lookup("action_flags", flag_name, -1);
 			if (flag_val >= 0)
 			{
-				mob.SetFlag(static_cast<EMobFlag>(flag_val));
+				mob.SetFlag(static_cast<EMobFlag>(flag_data_by_num(flag_val)));
 			}
 		}
 	}
@@ -1681,7 +1684,7 @@ CharData YamlWorldDataSource::ParseMobFile(const std::string &file_path)
 			long flag_val = dm.Lookup("affect_flags", flag_name, -1);
 			if (flag_val >= 0)
 			{
-				AFF_FLAGS(&mob).set(static_cast<Bitvector>(flag_val));
+				AFF_FLAGS(&mob).set(static_cast<Bitvector>(flag_data_by_num(flag_val)));
 			}
 		}
 	}
@@ -1702,22 +1705,25 @@ CharData YamlWorldDataSource::ParseMobFile(const std::string &file_path)
 	{
 		YAML::Node enhanced = root["enhanced"];
 
+		// Clamps mirror MobileFile::interpret_espec in boot_data_files.cpp.
+		// Без них старые данные (например, MaxFactor: 1000 у моба 200300)
+		// попадали в YAML/SQLite как сырые значения и расходились с легаси.
 		mob.set_str_add(GetInt(enhanced, "str_add", 0));
-		mob.add_abils.hitreg = GetInt(enhanced, "hp_regen", 0);
-		mob.add_abils.armour = GetInt(enhanced, "armour_bonus", 0);
-		mob.add_abils.manareg = GetInt(enhanced, "mana_regen", 0);
-		mob.add_abils.cast_success = GetInt(enhanced, "cast_success", 0);
-		mob.add_abils.morale = GetInt(enhanced, "morale", 0);
-		mob.add_abils.initiative_add = GetInt(enhanced, "initiative_add", 0);
-		mob.add_abils.absorb = GetInt(enhanced, "absorb", 0);
-		mob.add_abils.aresist = GetInt(enhanced, "aresist", 0);
-		mob.add_abils.mresist = GetInt(enhanced, "mresist", 0);
-		mob.add_abils.presist = GetInt(enhanced, "presist", 0);
-		mob.mob_specials.attack_type = GetInt(enhanced, "bare_hand_attack", 0);
-		mob.mob_specials.like_work = GetInt(enhanced, "like_work", 0);
-		mob.mob_specials.MaxFactor = GetInt(enhanced, "max_factor", 0);
-		mob.mob_specials.extra_attack = GetInt(enhanced, "extra_attack", 0);
-		mob.set_remort(GetInt(enhanced, "mob_remort", 0));
+		mob.add_abils.hitreg = std::clamp(GetInt(enhanced, "hp_regen", 0), -200, 200);
+		mob.add_abils.armour = std::clamp(GetInt(enhanced, "armour_bonus", 0), 0, 100);
+		mob.add_abils.manareg = std::clamp(GetInt(enhanced, "mana_regen", 0), -200, 200);
+		mob.add_abils.cast_success = std::clamp(GetInt(enhanced, "cast_success", 0), -200, 300);
+		mob.add_abils.morale = std::clamp(GetInt(enhanced, "morale", 0), 0, 100);
+		mob.add_abils.initiative_add = std::clamp(GetInt(enhanced, "initiative_add", 0), -200, 200);
+		mob.add_abils.absorb = std::clamp(GetInt(enhanced, "absorb", 0), -200, 200);
+		mob.add_abils.aresist = std::clamp(GetInt(enhanced, "aresist", 0), 0, 100);
+		mob.add_abils.mresist = std::clamp(GetInt(enhanced, "mresist", 0), 0, 100);
+		mob.add_abils.presist = std::clamp(GetInt(enhanced, "presist", 0), 0, 100);
+		mob.mob_specials.attack_type = std::clamp(GetInt(enhanced, "bare_hand_attack", 0), 0, 99);
+		mob.mob_specials.like_work = std::clamp<byte>(GetInt(enhanced, "like_work", 0), 0, 100);
+		mob.mob_specials.MaxFactor = std::clamp<byte>(GetInt(enhanced, "max_factor", 0), 0, 127);
+		mob.mob_specials.extra_attack = std::clamp<byte>(GetInt(enhanced, "extra_attack", 0), 0, 127);
+		mob.set_remort(std::clamp<byte>(GetInt(enhanced, "mob_remort", 0), 0, 100));
 
 		if (enhanced["special_bitvector"])
 		{
@@ -1737,7 +1743,7 @@ CharData YamlWorldDataSource::ParseMobFile(const std::string &file_path)
 			int idx = 0;
 			for (const auto &val_node : enhanced["resistances"])
 			{
-				int value = val_node.as<int>();
+				int value = std::clamp(val_node.as<int>(), kMinResistance, kMaxNpcResist);
 				if (idx < static_cast<int>(mob.add_abils.apply_resistance.size()))
 				{
 					mob.add_abils.apply_resistance[idx] = value;
@@ -1751,7 +1757,7 @@ CharData YamlWorldDataSource::ParseMobFile(const std::string &file_path)
 			int idx = 0;
 			for (const auto &val_node : enhanced["saves"])
 			{
-				int value = val_node.as<int>();
+				int value = std::clamp(val_node.as<int>(), kMinSaving, kMaxSaving);
 				if (idx < static_cast<int>(mob.add_abils.apply_saving_throw.size()))
 				{
 					mob.add_abils.apply_saving_throw[idx] = value;
@@ -1848,15 +1854,28 @@ void YamlWorldDataSource::LoadMobsParallel()
 		vnum_to_idx[mob_vnums[i]] = i;
 	}
 
+	// One-time init for shared mob singleton state -- done in the main thread
+	// before workers start, so worker threads never write to globals.
+	player_special_data::s_for_mobiles->saved.NameGod = 1001;
+
 	// Distribute mobs into batches
 	auto batches = utils::DistributeBatches(mob_vnums, m_num_threads);
 	std::atomic<int> error_count{0};
 
-	// Launch parallel loading
+	// Two-phase loading: workers only parse into thread-local buffers; the
+	// merge below writes mob_proto[] and attaches triggers in a single thread.
+	// This prevents data races on (a) the shared player_specials singleton,
+	// (b) ProtectedCharData::operator= observer callbacks, and
+	// (c) caching::character_cache contention from CharData copy/destroy in
+	// CharData::operator= side-effects across threads.
+	std::vector<std::vector<std::pair<int, std::unique_ptr<CharData>>>> thread_results(batches.size());
+	std::vector<std::map<int, std::vector<int>>> thread_triggers(batches.size());
+
+	// Launch parallel parsing only -- no global writes from workers
 	std::vector<std::future<void>> futures;
 	for (size_t thread_id = 0; thread_id < batches.size(); ++thread_id)
 	{
-		futures.push_back(m_thread_pool->Enqueue([this, thread_id, &batches, &vnum_to_idx, &error_count]() {
+		futures.push_back(m_thread_pool->Enqueue([this, thread_id, &batches, &thread_results, &thread_triggers, &error_count]() {
 			for (int vnum : batches[thread_id])
 			{
 				int zone_vnum = vnum / 100;
@@ -1867,18 +1886,22 @@ void YamlWorldDataSource::LoadMobsParallel()
 				std::string filepath = filepath_ss.str();
 				try
 				{
-					size_t mob_idx = vnum_to_idx.at(vnum);
-					mob_proto[mob_idx] = ParseMobFile(filepath);
-					mob_proto[mob_idx].set_rnum(mob_idx);
+					auto mob_ptr = std::make_unique<CharData>(ParseMobFile(filepath));
+					thread_results[thread_id].emplace_back(vnum, std::move(mob_ptr));
 
-					// Attach triggers (thread-safe read from trig_index)
+					// Collect triggers for sequential attach in merge phase
 					YAML::Node root = YAML::LoadFile(filepath);
 					if (root["triggers"] && root["triggers"].IsSequence())
 					{
+						std::vector<int> trigger_list;
 						for (const auto &trig_node : root["triggers"])
 						{
 							int trigger_vnum = trig_node.as<int>();
-							AttachTriggerToMob(mob_idx, trigger_vnum, vnum);
+							trigger_list.push_back(trigger_vnum);
+						}
+						if (!trigger_list.empty())
+						{
+							thread_triggers[thread_id][vnum] = std::move(trigger_list);
 						}
 					}
 				}
@@ -1905,6 +1928,35 @@ void YamlWorldDataSource::LoadMobsParallel()
 	if (error_count > 0)
 	{
 		fatal_log("FATAL: %d mob(s) failed to load. Aborting.", error_count.load());
+	}
+
+	// Merge phase (single-threaded): place parsed mobs into mob_proto[] by
+	// pre-computed index, then attach triggers.
+	for (auto &results : thread_results)
+	{
+		for (auto &[vnum, mob_ptr] : results)
+		{
+			size_t mob_idx = vnum_to_idx.at(vnum);
+			mob_proto[mob_idx] = std::move(*mob_ptr);
+			mob_proto[mob_idx].set_rnum(mob_idx);
+		}
+	}
+
+	// Merge thread-local trigger maps into single map and attach
+	std::map<int, std::vector<int>> mob_triggers;
+	for (auto &triggers_map : thread_triggers)
+	{
+		mob_triggers.insert(triggers_map.begin(), triggers_map.end());
+	}
+	for (const auto &[mob_vnum, trigger_list] : mob_triggers)
+	{
+		auto idx_it = vnum_to_idx.find(mob_vnum);
+		if (idx_it == vnum_to_idx.end()) continue;
+		size_t mob_idx = idx_it->second;
+		for (int trigger_vnum : trigger_list)
+		{
+			AttachTriggerToMob(mob_idx, trigger_vnum, mob_vnum);
+		}
 	}
 
 	// Sequential post-processing: setup mob_index and zone locations
@@ -2165,6 +2217,19 @@ CObjectPrototype* YamlWorldDataSource::ParseObjectFile(const std::string &file_p
 					int location = GetInt(apply_node, "location", 0);
 					int modifier = GetInt(apply_node, "modifier", 0);
 					obj_ptr->set_affected(apply_idx++, static_cast<EApply>(location), modifier);
+				}
+			}
+
+			// Extra values (V-строки): данные зелий и контейнеров с жидкостью.
+			// Без чтения этой секции зелья в YAML-мире выходят без заклинаний (issue #3218).
+			if (root["extra_values"] && root["extra_values"].IsMap())
+			{
+				for (const auto &kv : root["extra_values"])
+				{
+					std::string key = kv.first.as<std::string>();
+					int value = kv.second.as<int>(0);
+					std::string line = key + " " + std::to_string(value);
+					obj_ptr->init_values_from_zone(line.c_str());
 				}
 			}
 
@@ -3271,10 +3336,10 @@ void YamlWorldDataSource::SaveMobs(int zone_rnum, int specific_vnum)
 		yaml.IncreaseIndent();
 
 		yaml.Key("dice_count");
-		yaml.Value(static_cast<int>(mob.mem_queue.total));  // byte Б├▓ int
+		yaml.Value(static_cast<int>(mob.mem_queue.total));  // byte -> int
 
 		yaml.Key("dice_size");
-		yaml.Value(static_cast<int>(mob.mem_queue.stored));  // byte Б├▓ int
+		yaml.Value(static_cast<int>(mob.mem_queue.stored));  // byte -> int
 
 		yaml.Key("bonus");
 		yaml.Value(mob.get_hit());
@@ -3287,10 +3352,10 @@ void YamlWorldDataSource::SaveMobs(int zone_rnum, int specific_vnum)
 		yaml.IncreaseIndent();
 
 		yaml.Key("dice_count");
-		yaml.Value(static_cast<int>(mob.mob_specials.damnodice));  // byte Б├▓ int
+		yaml.Value(static_cast<int>(mob.mob_specials.damnodice));  // byte -> int
 
 		yaml.Key("dice_size");
-		yaml.Value(static_cast<int>(mob.mob_specials.damsizedice));  // byte Б├▓ int
+		yaml.Value(static_cast<int>(mob.mob_specials.damsizedice));  // byte -> int
 
 		yaml.Key("bonus");
 		yaml.Value(mob.real_abils.damroll);
@@ -3304,10 +3369,10 @@ void YamlWorldDataSource::SaveMobs(int zone_rnum, int specific_vnum)
 		yaml.IncreaseIndent();
 
 		yaml.Key("dice_count");
-		yaml.Value(static_cast<int>(mob.mob_specials.GoldNoDs));  // byte Б├▓ int
+		yaml.Value(static_cast<int>(mob.mob_specials.GoldNoDs));  // byte -> int
 
 		yaml.Key("dice_size");
-		yaml.Value(static_cast<int>(mob.mob_specials.GoldSiDs));  // byte Б├▓ int
+		yaml.Value(static_cast<int>(mob.mob_specials.GoldSiDs));  // byte -> int
 
 		yaml.Key("bonus");
 		yaml.Value(mob.get_gold());
@@ -3340,10 +3405,10 @@ void YamlWorldDataSource::SaveMobs(int zone_rnum, int specific_vnum)
 		yaml.Value(GET_SIZE(&mob));
 
 		yaml.Key("height");
-		yaml.Value(static_cast<int>(GET_HEIGHT(&mob)));  // ubyte Б├▓ int
+		yaml.Value(static_cast<int>(GET_HEIGHT(&mob)));  // ubyte -> int
 
 		yaml.Key("weight");
-		yaml.Value(static_cast<int>(GET_WEIGHT(&mob)));  // ubyte Б├▓ int
+		yaml.Value(static_cast<int>(GET_WEIGHT(&mob)));  // ubyte -> int
 
 		// Attributes (only if set)
 		if (mob.get_str() > 0)
@@ -4050,10 +4115,10 @@ void YamlWorldDataSource::SaveObjects(int zone_rnum, int specific_vnum)
 					if (exdesc->description)
 					{
 						out << yaml.GetIndent() << "  description: |" << std::endl;
-						
+
 						std::string desc = exdesc->description;
 						desc.erase(std::remove(desc.begin(), desc.end(), '\r'), desc.end());
-						
+
 						std::istringstream iss(desc);
 						std::string line;
 						while (std::getline(iss, line))
@@ -4065,6 +4130,38 @@ void YamlWorldDataSource::SaveObjects(int zone_rnum, int specific_vnum)
 			}
 
 			yaml.DecreaseIndent();
+		}
+
+		// Extra values (V-строки): данные зелий и прочих контейнеров с жидкостью.
+		// Без сохранения этой секции данные о заклинаниях зелий пропадут (issue #3218).
+		if (!obj->get_all_values().empty())
+		{
+			std::vector<std::pair<std::string, int>> sorted_vals;
+			for (const auto &kv : obj->get_all_values())
+			{
+				std::string key_str = text_id::ToStr(text_id::kObjVals, to_underlying(kv.first));
+				if (!key_str.empty())
+				{
+					sorted_vals.emplace_back(std::move(key_str), kv.second);
+				}
+			}
+
+			if (!sorted_vals.empty())
+			{
+				std::sort(sorted_vals.begin(), sorted_vals.end(),
+					[](const std::pair<std::string, int> &a, const std::pair<std::string, int> &b) {
+						return a.first < b.first;
+					});
+
+				yaml.Key("extra_values");
+				yaml.BeginBlock();
+				for (const auto &kv : sorted_vals)
+				{
+					yaml.Key(kv.first);
+					yaml.Value(kv.second);
+				}
+				yaml.EndBlock();
+			}
 		}
 
 		// Triggers (with comments)

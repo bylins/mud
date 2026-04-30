@@ -165,8 +165,8 @@ void init_EObjFlag_ITEM_NAMES() {
 	EObjFlag_name_by_value[EObjFlag::kHasOneSlot] = "kHasOneSlot";
 	EObjFlag_name_by_value[EObjFlag::kHasTwoSlots] = "kHasTwoSlots";
 	EObjFlag_name_by_value[EObjFlag::kHasThreeSlots] = "kHasThreeSlots";
-	EObjFlag_name_by_value[EObjFlag::KSetItem] = "KSetItem";
-	EObjFlag_name_by_value[EObjFlag::KNofail] = "KNofail";
+	EObjFlag_name_by_value[EObjFlag::kSetItem] = "kSetItem";
+	EObjFlag_name_by_value[EObjFlag::kNofail] = "kNofail";
 	EObjFlag_name_by_value[EObjFlag::kNamed] = "kNamed";
 	EObjFlag_name_by_value[EObjFlag::kBloody] = "kBloody";
 	EObjFlag_name_by_value[EObjFlag::kQuestItem] = "kQuestItem";
@@ -176,7 +176,7 @@ void init_EObjFlag_ITEM_NAMES() {
 	EObjFlag_name_by_value[EObjFlag::kUnique] = "kUnique";
 	EObjFlag_name_by_value[EObjFlag::kTransformed] = "kTransformed";
 	EObjFlag_name_by_value[EObjFlag::kNoRentTimer] = "kNoRentTimer";
-	EObjFlag_name_by_value[EObjFlag::KLimitedTimer] = "KLimitedTimer";
+	EObjFlag_name_by_value[EObjFlag::kLimitedTimer] = "kLimitedTimer";
 	EObjFlag_name_by_value[EObjFlag::kBindOnPurchase] = "kBindOnPurchase";
 	EObjFlag_name_by_value[EObjFlag::kNotOneInClanChest] = "kNotOneInClanChest";
 
@@ -225,7 +225,7 @@ void init_ENoFlag_ITEM_NAMES() {
 	ENoFlag_name_by_value[ENoFlag::kMagus] = "kMagus";
 	ENoFlag_name_by_value[ENoFlag::kConjurer] = "kConjurer";
 	ENoFlag_name_by_value[ENoFlag::kCharmer] = "kCharmer";
-	ENoFlag_name_by_value[ENoFlag::kWIzard] = "kWIzard";
+	ENoFlag_name_by_value[ENoFlag::kWizard] = "kWizard";
 	ENoFlag_name_by_value[ENoFlag::kNecromancer] = "kNecromancer";
 	ENoFlag_name_by_value[ENoFlag::kFighter] = "kFighter";
 	ENoFlag_name_by_value[ENoFlag::kKiller] = "kKiller";

@@ -48,7 +48,7 @@ void DoZreset(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 	} else {
 		i = GetZoneRnum(atoi(arg));
 	}
-	if (i > 0 || *arg == '.' || *arg == '1') {
+	if (i >= 0 || *arg == '.') {
 		utils::CExecutionTimer timer;
 
 		sprintf(buf, "Перегружаю зону #%d: %s\r\n", zone_table[i].vnum, zone_table[i].name.c_str());
