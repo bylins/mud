@@ -1630,13 +1630,14 @@ CharData YamlWorldDataSource::ParseMobFile(const std::string &file_path)
 	// Sex
 	mob.set_sex(static_cast<EGender>(ParseGender(root["sex"])));
 
-	// Race
-	mob.player_data.Race = static_cast<ENpcRace>(GetInt(root, "race", ENpcRace::kBasic));
+	// Race -- legacy clamps to [kBasic, kLastNpcRace] (boot_data_files.cpp).
+	mob.player_data.Race = std::clamp(static_cast<ENpcRace>(GetInt(root, "race", ENpcRace::kBasic)),
+									  ENpcRace::kBasic, ENpcRace::kLastNpcRace);
 
-	// Physical attributes
-	GET_SIZE(&mob) = GetInt(root, "size", 0);
-	GET_HEIGHT(&mob) = GetInt(root, "height", 0);
-	GET_WEIGHT(&mob) = GetInt(root, "weight", 0);
+	// Physical attributes -- bounds mirror legacy interpret_espec.
+	GET_SIZE(&mob) = std::clamp<byte>(GetInt(root, "size", 0), 0, 100);
+	GET_HEIGHT(&mob) = std::clamp(GetInt(root, "height", 0), 0, 200);
+	GET_WEIGHT(&mob) = std::clamp(GetInt(root, "weight", 0), 0, 200);
 
 	// E-spec attributes - set defaults, then override
 	mob.set_str(11);
@@ -1704,22 +1705,25 @@ CharData YamlWorldDataSource::ParseMobFile(const std::string &file_path)
 	{
 		YAML::Node enhanced = root["enhanced"];
 
+		// Clamps mirror MobileFile::interpret_espec in boot_data_files.cpp.
+		// Без них старые данные (например, MaxFactor: 1000 у моба 200300)
+		// попадали в YAML/SQLite как сырые значения и расходились с легаси.
 		mob.set_str_add(GetInt(enhanced, "str_add", 0));
-		mob.add_abils.hitreg = GetInt(enhanced, "hp_regen", 0);
-		mob.add_abils.armour = GetInt(enhanced, "armour_bonus", 0);
-		mob.add_abils.manareg = GetInt(enhanced, "mana_regen", 0);
-		mob.add_abils.cast_success = GetInt(enhanced, "cast_success", 0);
-		mob.add_abils.morale = GetInt(enhanced, "morale", 0);
-		mob.add_abils.initiative_add = GetInt(enhanced, "initiative_add", 0);
-		mob.add_abils.absorb = GetInt(enhanced, "absorb", 0);
-		mob.add_abils.aresist = GetInt(enhanced, "aresist", 0);
-		mob.add_abils.mresist = GetInt(enhanced, "mresist", 0);
-		mob.add_abils.presist = GetInt(enhanced, "presist", 0);
-		mob.mob_specials.attack_type = GetInt(enhanced, "bare_hand_attack", 0);
-		mob.mob_specials.like_work = GetInt(enhanced, "like_work", 0);
-		mob.mob_specials.MaxFactor = GetInt(enhanced, "max_factor", 0);
-		mob.mob_specials.extra_attack = GetInt(enhanced, "extra_attack", 0);
-		mob.set_remort(GetInt(enhanced, "mob_remort", 0));
+		mob.add_abils.hitreg = std::clamp(GetInt(enhanced, "hp_regen", 0), -200, 200);
+		mob.add_abils.armour = std::clamp(GetInt(enhanced, "armour_bonus", 0), 0, 100);
+		mob.add_abils.manareg = std::clamp(GetInt(enhanced, "mana_regen", 0), -200, 200);
+		mob.add_abils.cast_success = std::clamp(GetInt(enhanced, "cast_success", 0), -200, 300);
+		mob.add_abils.morale = std::clamp(GetInt(enhanced, "morale", 0), 0, 100);
+		mob.add_abils.initiative_add = std::clamp(GetInt(enhanced, "initiative_add", 0), -200, 200);
+		mob.add_abils.absorb = std::clamp(GetInt(enhanced, "absorb", 0), -200, 200);
+		mob.add_abils.aresist = std::clamp(GetInt(enhanced, "aresist", 0), 0, 100);
+		mob.add_abils.mresist = std::clamp(GetInt(enhanced, "mresist", 0), 0, 100);
+		mob.add_abils.presist = std::clamp(GetInt(enhanced, "presist", 0), 0, 100);
+		mob.mob_specials.attack_type = std::clamp(GetInt(enhanced, "bare_hand_attack", 0), 0, 99);
+		mob.mob_specials.like_work = std::clamp<byte>(GetInt(enhanced, "like_work", 0), 0, 100);
+		mob.mob_specials.MaxFactor = std::clamp<byte>(GetInt(enhanced, "max_factor", 0), 0, 127);
+		mob.mob_specials.extra_attack = std::clamp<byte>(GetInt(enhanced, "extra_attack", 0), 0, 127);
+		mob.set_remort(std::clamp<byte>(GetInt(enhanced, "mob_remort", 0), 0, 100));
 
 		if (enhanced["special_bitvector"])
 		{
@@ -1739,7 +1743,7 @@ CharData YamlWorldDataSource::ParseMobFile(const std::string &file_path)
 			int idx = 0;
 			for (const auto &val_node : enhanced["resistances"])
 			{
-				int value = val_node.as<int>();
+				int value = std::clamp(val_node.as<int>(), kMinResistance, kMaxNpcResist);
 				if (idx < static_cast<int>(mob.add_abils.apply_resistance.size()))
 				{
 					mob.add_abils.apply_resistance[idx] = value;
@@ -1753,7 +1757,7 @@ CharData YamlWorldDataSource::ParseMobFile(const std::string &file_path)
 			int idx = 0;
 			for (const auto &val_node : enhanced["saves"])
 			{
-				int value = val_node.as<int>();
+				int value = std::clamp(val_node.as<int>(), kMinSaving, kMaxSaving);
 				if (idx < static_cast<int>(mob.add_abils.apply_saving_throw.size()))
 				{
 					mob.add_abils.apply_saving_throw[idx] = value;
