@@ -2084,7 +2084,7 @@ def parse_mob_file(filepath):
                         'armor': int(parts[2]) if parts[2].lstrip('-').isdigit() else 100
                     }
                     # Parse HP dice (format: XdY+Z)
-                    hp_match = re.match(r'(-?\d+)d(\d+)([+-]\d+)?', parts[3])
+                    hp_match = re.match(r'(-?\d+)d(-?\d+)([+-]\d+)?', parts[3])
                     if hp_match:
                         mob['stats']['hp'] = {
                             'dice_count': int(hp_match.group(1)),
@@ -2092,7 +2092,7 @@ def parse_mob_file(filepath):
                             'bonus': int(hp_match.group(3)) if hp_match.group(3) else 0
                         }
                     # Parse damage dice
-                    dmg_match = re.match(r'(-?\d+)d(\d+)([+-]\d+)?', parts[4])
+                    dmg_match = re.match(r'(-?\d+)d(-?\d+)([+-]\d+)?', parts[4])
                     if dmg_match:
                         mob['stats']['damage'] = {
                             'dice_count': int(dmg_match.group(1)),
@@ -2105,7 +2105,7 @@ def parse_mob_file(filepath):
             if idx < len(lines):
                 parts = lines[idx].split()
                 if parts:
-                    gold_match = re.match(r'(-?\d+)d(\d+)([+-]\d+)?', parts[0])
+                    gold_match = re.match(r'(-?\d+)d(-?\d+)([+-]\d+)?', parts[0])
                     if gold_match:
                         mob['gold'] = {
                             'dice_count': int(gold_match.group(1)),
