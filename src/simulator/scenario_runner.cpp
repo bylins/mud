@@ -732,6 +732,18 @@ void RunScenario(const Scenario& scenario) {
 				break;  // somebody died or got extracted
 			}
 		}
+		// check_idling() in game_limits.cpp вытащит синтетического PC в
+		// kStrangeRoom после idle_void пульсов, потому что у него нет
+		// input'а -- ch->char_specials.timer только растёт. На длинных
+		// сценариях (сотни раундов) PC внезапно "пропадал в пустоте этого
+		// мира". Сбрасываем idle-таймер каждый раунд для всех participants.
+		auto reset_idle = [](CharData* c) {
+			if (c) c->char_specials.timer = 0;
+		};
+		reset_idle(attacker);
+		reset_idle(victim);
+		for (auto* p : attacker_pets) reset_idle(p);
+		for (auto* p : victim_pets) reset_idle(p);
 		const bool alive = attacker->in_room != kNowhere && victim->in_room != kNowhere;
 		const int hp_now = alive ? victim->get_hit() : 0;
 		const int damage = alive ? (prev_hp - hp_now) : prev_hp;
