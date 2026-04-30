@@ -282,13 +282,8 @@ version_cpp = custom_target('version_gen',
   input: 'src/version.cpp.in',
   output: 'version.cpp',
   command: [
-    py3, '-c',
-    '''import sys
-content = open(sys.argv[1], encoding='koi8-r').read()
-content = content.replace('${REVISION}', sys.argv[3] + ' (' + sys.argv[5] + ')')
-content = content.replace('${CMAKE_BINARY_DIR}', sys.argv[4])
-open(sys.argv[2], 'w', encoding='koi8-r').write(content)
-    ''',
+    py3,
+    files('tools/meson/generate_version.py'),
     '@INPUT@', '@OUTPUT@', git_rev, meson.project_build_root(), buildtype
   ]
 )
@@ -439,7 +434,6 @@ main_sources = files(
   'src/gameplay/ai/spec_procs.cpp',
   'src/engine/network/descriptor_data.cpp',
   'src/gameplay/mechanics/stuff.cpp',
-  'src/engine/structs/flags.hpp',
   'src/utils/id_converter.cpp',
   'src/utils/utils_time.cpp',
   'src/gameplay/mechanics/title.cpp',
@@ -457,10 +451,8 @@ main_sources = files(
   'src/gameplay/economics/shops_implementation.cpp',
   'src/engine/db/world_characters.cpp',
   'src/utils/utils_debug.cpp',
-  'src/gameplay/economics/shops_implementation.cpp',
   'src/engine/structs/radix_trie.cpp',
   'src/engine/structs/compact_trie.cpp',
-  'src/engine/db/id.cpp',
   'src/engine/entities/zone.cpp',
   'src/gameplay/mechanics/strengthening.cpp',
   'src/gameplay/skills/backstab.cpp',
@@ -601,7 +593,6 @@ main_sources = files(
   'src/engine/ui/cmd/do_equipment.cpp',
   'src/engine/ui/cmd/do_listen.cpp',
   'src/engine/ui/cmd/do_zone.cpp',
-  'src/gameplay/skills/dazzle.cpp',
   'src/gameplay/ai/mob_memory.cpp',
   'src/engine/network/logon.cpp',
   'src/engine/ui/cmd_god/do_ban.cpp',
@@ -729,7 +720,6 @@ main_sources = files(
   'src/gameplay/mechanics/tutelar.cpp',
   'src/gameplay/skills/addshot.cpp',
   'src/engine/db/player_index.cpp',
-  'src/gameplay/skills/addshot.cpp',
   'src/gameplay/classes/mob_classes_info.cpp',
   'src/gameplay/classes/recalc_mob_params_by_vnum.cpp',
   'src/engine/scripting/trigger_indenter.cpp'
@@ -817,21 +807,34 @@ endif
 circle_ex = executable('circle',
     'src/main.cpp',
     dependencies: [dependencies, circle_dep],
-    link_with: circle_lib,
     install: true,
     export_dynamic: true,
     override_options: profile_target_opts
 )
 
 summary({
-    'Build Type': buildtype,
-    'Build Tests': get_option('build_tests'),
-    'Coverage Reports': get_option('b_coverage'),
-    'Admin API': get_option('admin_api'),
-    'YAML Support': get_option('yaml'),
-    'SQLite Support': get_option('sqlite'),
-    'Telegram Support': get_option('telegram'),
-    'Scripting': get_option('scripting'),
-    'Epoll': epoll_enabled,
-    'Linker': linker_choice != '' ? linker_choice : 'default'
-}, section: 'Configuration')
+    'Build Type':      buildtype,
+    'Git Revision':    git_rev,
+}, section: 'Project')
+
+summary({
+    'Build Tests':     get_option('build_tests'),
+    'Coverage':        get_option('b_coverage'),
+    'ASan':            get_option('with_asan'),
+    'Scripting':       get_option('scripting'),
+    'Admin API':       get_option('admin_api'),
+    'Epoll':           epoll_enabled,
+    'Linker':          linker_choice != '' ? linker_choice : 'default',
+}, section: 'Features')
+
+summary({
+    'zlib':            zlib_opt,
+    'iconv':           iconv_opt,
+    'Boost':           boost_opt,
+    'fmt':             fmt_opt,
+    'gtest':             gtest_opt,
+    'SQLite':          sqlite_opt,
+    'YAML':            yaml_opt,
+    'Telegram':        telegram_opt,
+    'OpenTelemetry':   otel_opt,
+}, section: 'Dependencies')
