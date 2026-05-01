@@ -51,6 +51,9 @@ ParticipantSpec ParseParticipant(const YAML::Node& node, const char* role) {
 		}
 		p.class_name = cls.as<std::string>();
 		p.level = level.as<int>();
+		if (node["remort"]) {
+			p.remort = node["remort"].as<int>();
+		}
 		p.overrides = ParseStatOverrides(node["stats"]);
 		p.pets = ParsePets(node["pets"], role);
 		p.inventory = ParseInventory(node["inventory"], role);

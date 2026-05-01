@@ -45,6 +45,7 @@ struct AffectSpec {
 struct PlayerSpec {
 	std::string class_name;
 	int level = 1;
+	int remort = 0;  // 0..kMaxRemort, влияет на auto_mort_req шмота
 	StatOverrides overrides;
 	std::vector<PetSpec> pets;
 	// Object vnums to give the participant at spawn. Each item is auto-equipped

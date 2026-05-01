@@ -340,6 +340,12 @@ CharData* SpawnParticipant(const ParticipantSpec& spec) {
 			}
 			CharacterBuilder b;
 			b.make_basic_player(static_cast<short>(cls), s.level);
+			b.set_remort(s.remort);
+			// grant_class_skills_and_feats читает уровень И реморт PC --
+			// зовём его после set_remort, иначе высоко-ремортные фиты,
+			// скиллы и спеллы выпали бы, и реморт из YAML ничего не
+			// поменял бы в бою.
+			b.grant_class_skills_and_feats();
 			auto sp = b.get();
 			character_list.push_front(sp);
 			ApplyStatOverrides(sp.get(), s.overrides);

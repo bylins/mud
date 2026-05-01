@@ -183,13 +183,15 @@ void CharacterBuilder::make_basic_player(const short player_class, const int lev
 	set_int(25);
 	set_wis(25);
 	set_cha(25);
-	// Максимальный реморт. Иначе EquipObj отказывается надевать предметы
-	// у которых ilevel > 20 (auto_mort_req >= 3) -- то есть почти весь
-	// эндгейм-шмот не одевается на синтетического PC. Балансный
-	// симулятор всегда играет "как имба-персонаж", лимиты по реморту
-	// не нужны.
-	m_result->set_remort(kMaxRemort);
-	grant_class_skills_and_feats();
+	// grant_class_skills_and_feats() намеренно НЕ зовётся здесь: сценарий
+	// потом ставит set_remort() и сам зовёт grant. Иначе скиллы/фиты/спеллы
+	// получались бы по реморту 0, и реморт из YAML ни на что не влиял.
+}
+
+void CharacterBuilder::set_remort(const int value)
+{
+	check_character_existance();
+	m_result->set_remort(std::clamp(value, 0, kMaxRemort));
 }
 
 void CharacterBuilder::grant_class_skills_and_feats()
