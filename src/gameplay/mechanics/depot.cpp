@@ -608,7 +608,17 @@ void save_char_by_uid(int uid) {
 // * Апдейт таймеров в онлайн списках с оповещением о пурже, если чар онлайн и расчетом общей ренты.
 void CharNode::update_online_item() {
 	for (ObjListType::iterator obj_it = pers_online.begin(); obj_it != pers_online.end();) {
-		if ((*obj_it)->get_timer() == 0) {
+		ObjData *obj = obj_it->get();
+		// После ObjDecayManager::process_tick объекты с истёкшим дедлайном
+		// удаляются из индексов decay_manager, но shared_ptr из pers_online
+		// держит их живыми. ObjData::get_timer() в этом случае откатывается
+		// к CObjectPrototype::get_timer() (прото-таймер, обычно > 0), и
+		// проверка timer == 0 такие объекты пропускает. Тогда дальше в
+		// obj_point_update ExtractObjFromWorld(j) удалит их из world_objects,
+		// а pers_online продолжит держать ссылку -- следующий get из сундука
+		// падает в SYSERR в PlaceObjToInventory (issue #3239).
+		const bool expired_by_decay = !world_objects.decay_manager().contains(obj);
+		if (expired_by_decay || obj->get_timer() == 0) {
 			if (ch) {
 				// если чар в лд или еще чего - лучше записать и выдать это ему при след
 				// входе в игру, чтобы уж точно увидел
