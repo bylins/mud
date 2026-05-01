@@ -6,6 +6,10 @@ if (NOT ${CMAKE_VERSION} VERSION_LESS "3.12.0")
 	cmake_policy(SET CMP0074 NEW)
 endif ()
 
+# Экспортируем compile_commands.json из коробки -- нужен clangd, IWYU,
+# include-graph-аудиту и любым внешним статическим анализаторам.
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 set(SOURCES
