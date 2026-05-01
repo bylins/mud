@@ -27,7 +27,7 @@
  * if it is a client or server problem.
  */
 
-#define __COMM_C__
+#include "engine/core/sysdep_net.h"
 
 #include "comm.h"
 
