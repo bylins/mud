@@ -2,6 +2,7 @@
 
 #include "utils/utils.h"
 #include "engine/entities/char_data.h"
+#include "engine/structs/structs.h"
 #include "engine/core/handler.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/affects/affect_data.h"
@@ -182,6 +183,12 @@ void CharacterBuilder::make_basic_player(const short player_class, const int lev
 	set_int(25);
 	set_wis(25);
 	set_cha(25);
+	// Максимальный реморт. Иначе EquipObj отказывается надевать предметы
+	// у которых ilevel > 20 (auto_mort_req >= 3) -- то есть почти весь
+	// эндгейм-шмот не одевается на синтетического PC. Балансный
+	// симулятор всегда играет "как имба-персонаж", лимиты по реморту
+	// не нужны.
+	m_result->set_remort(kMaxRemort);
 	grant_class_skills_and_feats();
 }
 
