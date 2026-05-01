@@ -408,6 +408,9 @@ void EmitCharState(const char* role,
 		e.attrs["short_descr"] = std::string();
 	}
 	e.attrs["level"] = static_cast<std::int64_t>(ch->GetLevel());
+	// Реморт PC -- часть "уровня прокачки", влияет на выданные скиллы
+	// и фиты. Веб-UI показывает рядом с уровнем.
+	e.attrs["remort"] = static_cast<std::int64_t>(ch->IsNpc() ? 0 : ch->get_remort());
 	e.attrs["class_name"] = observability::EngineStringToUtf8(
 		ch->IsNpc() ? std::string() : MUD::Class(ch->GetClass()).GetName());
 	e.attrs["hp"] = static_cast<std::int64_t>(ch->get_hit());
@@ -594,10 +597,14 @@ void RunScenario(const Scenario& scenario) {
 	attacker->SetPosition(EPosition::kStand);
 	victim->SetPosition(EPosition::kStand);
 
-	// Pre-applied affects from the scenario. We model each affect as a
-	// self-cast (caster == victim) so we get the engine's CalcDuration /
-	// modifier / location wiring without re-implementing it here. Cast
-	// before the duel starts so the affect is in place at round 0.
+	// Pre-applied affects from the scenario. Через CallMagic вместо CastSpell:
+	// CastSpell проверяет, что кастер знает заклинание (есть в class spells),
+	// помнит его, не лежит в коме и т. д. Для предзаклинаний из YAML это
+	// мешает -- пользователь хочет, чтобы дружинник вышел в бой с "защитой
+	// богов" (заклинание витязя), а не споткнулся на "вы не знаете такого
+	// заклинания". CallMagic -- внутренний слой ниже CastSpell, он напрямую
+	// применяет эффект на цели как если бы заклинание уже было успешно
+	// вычитано.
 	auto apply_affects = [](CharData* ch, const std::vector<AffectSpec>& list) {
 		for (const auto& aff : list) {
 			std::string spell_name = aff.spell_name;
@@ -606,7 +613,7 @@ void RunScenario(const Scenario& scenario) {
 				throw ScenarioRunError(fmt::format(
 					"unknown affect spell: '{}'", aff.spell_name));
 			}
-			CastSpell(ch, ch, nullptr, nullptr, sid, sid);
+			CallMagic(ch, ch, nullptr, nullptr, sid, GetRealLevel(ch));
 		}
 	};
 	std::visit([&](auto&& s) { apply_affects(attacker, s.affects); }, scenario.attacker);
