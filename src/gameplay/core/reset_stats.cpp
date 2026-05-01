@@ -7,6 +7,7 @@
 #include "engine/entities/char_data.h"
 
 #include "../subprojects/fmt/include/fmt/format.h"
+#include "third_party_libs/pugixml/pugixml.h"
 
 extern bool ValidateStats(DescriptorData *d);
 extern int check_dupes_email(DescriptorData *d);

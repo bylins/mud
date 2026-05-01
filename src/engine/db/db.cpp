@@ -1,5 +1,7 @@
 #define DB_CPP_
 
+#include "third_party_libs/pugixml/pugixml.h"
+
 #include "administration/accounts.h"
 #include "administration/ban.h"
 #include "administration/karma.h"
@@ -9,6 +11,7 @@
 #include "gameplay/communication/social.h"
 #include "gameplay/crafting/jewelry.h"
 #include "gameplay/crafting/mining.h"
+#include "gameplay/mechanics/birthplaces.h"
 #include "gameplay/mechanics/player_races.h"
 #include "gameplay/mechanics/corpse.h"
 #include "gameplay/mechanics/celebrates.h"

@@ -1,6 +1,8 @@
 // $RCSfile$     $Date$     $Revision$
 // Part of Bylins http://www.mud.ru
 
+#include "birthplaces.h"
+
 #include "utils/utils.h"
 #include "third_party_libs/pugixml/pugixml.h"
 

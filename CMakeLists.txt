@@ -6,6 +6,10 @@ if (NOT ${CMAKE_VERSION} VERSION_LESS "3.12.0")
 	cmake_policy(SET CMP0074 NEW)
 endif ()
 
+# Экспортируем compile_commands.json из коробки -- нужен clangd, IWYU,
+# include-graph-аудиту и любым внешним статическим анализаторам.
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 set(SOURCES
@@ -550,6 +554,7 @@ set(HEADERS
 		src/utils/backtrace.h
 		src/administration/ban.h
 		src/gameplay/mechanics/birthplaces.h
+		src/gameplay/mechanics/birthplaces_constants.h
         src/gameplay/communication/boards/boards_changelog_loaders.h
         src/gameplay/communication/boards/boards_constants.h
         src/gameplay/communication/boards/boards_formatters.h
@@ -681,6 +686,7 @@ set(HEADERS
 		src/engine/structs/structs.h
 		src/gameplay/mechanics/stuff.h
 		src/engine/core/sysdep.h
+		src/engine/core/sysdep_net.h
 		src/engine/network/telnet.h
 		src/utils/utils_time.h
 		src/utils/tracing/trace_sender.h
@@ -1142,6 +1148,45 @@ target_link_libraries(circle.library fort)
 #fmt inegration
 add_subdirectory(subprojects/fmt EXCLUDE_FROM_ALL)
 target_link_libraries(circle.library fmt::fmt)
+
+# Precompiled headers: ускоряем сборку, единожды парся "ядро" заголовков,
+# которое тащится в большинство TU. Включается опционально, чтобы не мешать
+# редким сборкам на машинах без поддержки PCH.
+option(USE_PCH "Use precompiled headers for circle.library" ON)
+# MinGW: -D__USE_MINGW_ANSI_STDIO=1 неправильно прокидывается в PCH-компиляцию,
+# и nlohmann/json.hpp ломается на std::snprintf (см. CI на PR #3230). На MSVC,
+# Cygwin, Linux/macOS PCH работает; на MinGW по умолчанию выключаем.
+if (USE_PCH AND MINGW)
+	message(STATUS "PCH disabled on MinGW (snprintf macro conflict with PCH)")
+	set(USE_PCH OFF)
+endif()
+if (USE_PCH)
+	# PCH-набор подобран эмпирически: только то, что есть почти в каждом TU.
+	# Расширение (atomic/thread/chrono/bitset/deque/...) делает PCH больше и
+	# фактически замедляет сборку, поэтому оставлено только ядро.
+	# Не подключаем sysdep.h: его блок под __COMM_C__ ломается в PCH (PCH
+	# компилируется без TU-локальных #define перед include).
+	target_precompile_headers(circle.library PRIVATE
+		<algorithm>
+		<array>
+		<cstddef>
+		<cstdint>
+		<functional>
+		<list>
+		<map>
+		<memory>
+		<set>
+		<sstream>
+		<string>
+		<type_traits>
+		<unordered_map>
+		<unordered_set>
+		<utility>
+		<vector>
+		<fmt/format.h>
+		"${CMAKE_SOURCE_DIR}/src/engine/core/conf.h"
+	)
+endif()
 
 # Boost
 option(BOOST "Turns on/off scripting engine" NO)

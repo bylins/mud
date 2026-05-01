@@ -4,6 +4,8 @@
 
 #include "shop_ext.h"
 
+#include "third_party_libs/pugixml/pugixml.h"
+
 #include "engine/db/global_objects.h"
 #include "engine/db/obj_prototypes.h"
 #include "engine/core/handler.h"

@@ -729,7 +729,14 @@ void update_timers() {
 			for (std::list<Node>::iterator it3 = it2->second.begin(); it3 != it2->second.end(); it3 = tmp_it) {
 				tmp_it = it3;
 				++tmp_it;
-				if (it3->obj_->get_timer() == 0) {
+				// После ObjDecayManager::process_tick объекты с истёкшим
+				// дедлайном удаляются из индексов decay_manager, но shared_ptr
+				// здесь продолжает их держать. ObjData::get_timer() в этом
+				// случае возвращает прото-таймер (обычно > 0), и проверка
+				// timer == 0 такие объекты пропускает -- симптоматика ровно
+				// как в #3239 для депо.
+				const bool expired_by_decay = !world_objects.decay_manager().contains(it3->obj_.get());
+				if (expired_by_decay || it3->obj_->get_timer() == 0) {
 					extract_parcel(it2->first, it->first, it3);
 					it2->second.erase(it3);
 				} else {
