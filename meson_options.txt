@@ -18,7 +18,7 @@ option('full_world_path', type: 'string', value: '', description: 'Absolute path
 
 # Options for libfort
 option('fort_wchar', type: 'boolean', value: false, description: 'Enable wchar support in libfort')
-option('fort_utf8', type: 'boolean', value: false, description: 'Enable UTF-8 support in libfort')
+option('fort_utf8', type: 'boolean', value: true, description: 'Enable UTF-8 support in libfort')
 option('fort_test', type: 'boolean', value: false, description: 'Export internal symbols for testing')
 
 option('fmt', type: 'combo', choices: ['auto', 'system', 'builtin'], value: 'builtin', description: 'fmt library source (mandatory)')

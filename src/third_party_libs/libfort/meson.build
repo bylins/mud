@@ -11,8 +11,6 @@ if get_option('fort_test')
     fort_args += '-DFT_TEST_BUILD=1'
 endif
 
-fort_args += '-DFORT_HAVE_UTF8=1'
-
 fort_lib = static_library('fort',
     'fort.cpp',
     cpp_args: fort_args,

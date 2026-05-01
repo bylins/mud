@@ -265,7 +265,6 @@ else
 endif
 
 subdir('src/third_party_libs/libfort')
-project_args += '-DFORT_HAVE_UTF8=1'
 dependencies += [fmt_dep, fort_dep]
 
 git = find_program('git', required: false)
