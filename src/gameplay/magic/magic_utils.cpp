@@ -32,7 +32,7 @@
 #include "engine/observability/metrics.h"
 #include "utils/tracing/trace_manager.h"
 
-char cast_argument[kMaxStringLength];
+char cast_argument[kMaxInputLength];
 
 extern int what_sky;
 

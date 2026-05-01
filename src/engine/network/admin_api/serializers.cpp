@@ -5,6 +5,8 @@
  \date 2026-02-13
 */
 
+#ifdef ENABLE_ADMIN_API
+
 #include "serializers.h"
 #include "json_helpers.h"
 #include "../../../engine/structs/structs.h"
@@ -471,5 +473,7 @@ json SerializeTrigger(const Trigger& trig, int vnum)
 }
 
 }  // namespace admin_api::serializers
+
+#endif // ENABLE_ADMIN_API
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

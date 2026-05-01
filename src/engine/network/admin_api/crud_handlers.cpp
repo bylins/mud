@@ -5,6 +5,8 @@
  \date 2026-02-13
 */
 
+#ifdef ENABLE_ADMIN_API
+
 #include "crud_handlers.h"
 #include "serializers.h"
 #include "parsers.h"
@@ -1702,4 +1704,5 @@ void HandleResetZone(DescriptorData* d, int zone_vnum)
 
 }  // namespace admin_api::handlers
 
+#endif // ENABLE_ADMIN_API
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

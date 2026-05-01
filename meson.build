@@ -181,7 +181,8 @@ threads_dep = dependency('threads')
 dependencies += threads_dep
 
 # Admin API
-if get_option('admin_api')
+admin_api_opt = get_option('admin_api')
+if admin_api_opt
     project_args += '-DENABLE_ADMIN_API'
 endif
 
@@ -736,17 +737,22 @@ if get_option('scripting')
     main_sources += files('src/engine/scripting/scripting.cpp')
 endif
 
+if admin_api_opt
+    main_sources += files(
+        'src/engine/network/admin_api.cpp',
+        'src/engine/network/admin_api/json_helpers.cpp',
+        'src/engine/network/admin_api/serializers.cpp',
+        'src/engine/network/admin_api/parsers.cpp',
+        'src/engine/network/admin_api/crud_handlers.cpp',
+        'src/engine/network/admin_api/command_registry.cpp',
+    )
+endif
+
+
 main_sources += files(
     # Logging
     'src/utils/logging/file_log_sender.cpp',
     'src/utils/logging/log_manager.cpp',
-    # Admin API
-    'src/engine/network/admin_api.cpp',
-    'src/engine/network/admin_api/json_helpers.cpp',
-    'src/engine/network/admin_api/serializers.cpp',
-    'src/engine/network/admin_api/parsers.cpp',
-    'src/engine/network/admin_api/crud_handlers.cpp',
-    'src/engine/network/admin_api/command_registry.cpp',
     # Tracing & Observability
     'src/utils/tracing/trace_manager.cpp',
     'src/utils/thread_pool.cpp',
