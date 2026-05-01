@@ -784,12 +784,24 @@ if otel_opt != 'disabled'
     )
 endif
 
+use_pch = get_option('use_pch')
+is_mingw = host_system == 'windows' and (cpp.get_id() == 'gcc' or cpp.get_id() == 'clang')
+if use_pch and is_mingw
+    use_pch = false
+endif
+
+pch_headers = []
+if use_pch
+    pch_headers = ['src/pch.h']
+endif
+
 circle_lib = static_library('circle',
     [main_sources, msdp_sources, version_cpp],
     include_directories: include_directories('src'),
     dependencies: dependencies,
     cpp_args: project_args,
-    override_options: profile_target_opts
+    override_options: profile_target_opts,
+    cpp_pch: pch_headers
 )
 
 circle_dep = declare_dependency(

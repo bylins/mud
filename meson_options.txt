@@ -9,6 +9,7 @@ option('nocrypt', type: 'boolean', value: false, description: 'Disable use of cr
 option('has_epoll', type: 'boolean', value: true, description: 'Use epoll (Linux or freebsd)')
 option('scripting', type: 'boolean', value: false, description: 'Enable scripting support (Python + Boost.Python)')
 option('with_asan', type: 'boolean', value: false, description: 'Build with Address Sanitizer')
+option('use_pch', type: 'boolean', value: true, description: 'Use precompiled headers for circle.library')
 
 # Options for Admin API and Web features
 option('admin_api', type: 'boolean', value: false, description: 'Enable Admin API and JSON-related features')
