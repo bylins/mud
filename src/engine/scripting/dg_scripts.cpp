@@ -4625,15 +4625,12 @@ void process_attach(void *go, Script *sc, Trigger *trig, int type, char *cmd) {
 	// parse and locate the id specified
 	eval_expr(id_p, result, sizeof(result), go, sc, trig, type);
 
-	// Сырой vnum как ID (без UID-обёртки) проваливается в O(N)-сканы по
-	// character_list и object_list прежде чем дойти до get_room. См. #3232.
-	// Чинится в .trg: использовать %world.room(<vnum>)% / %world.mob(<vnum>)%
-	// или calcuid <var> <vnum> room/mob/obj.
 	if (is_plain_vnum_string(id_p)) {
 		snprintf(buf2, sizeof(buf2),
-				 "attach: argument '%s' is plain vnum, use %%world.room/mob/obj(...)%% or calcuid (#3232). cmd: '%s'",
+				 "attach: 2-й аргумент '%s' -- голый vnum, используйте UID, строка отменена. Команда: '%s'",
 				 id_p, cmd);
 		trig_log(trig, buf2);
+		return;
 	}
 
 	c = get_char(id_p);
@@ -4731,12 +4728,12 @@ Trigger *process_detach(void *go, Script *sc, Trigger *trig, int type, char *cmd
 	// parse and locate the id specified
 	eval_expr(id_p, result, sizeof(result), go, sc, trig, type);
 
-	// Сырой vnum как ID (см. process_attach выше и #3232).
 	if (is_plain_vnum_string(id_p)) {
 		snprintf(buf2, sizeof(buf2),
-				 "detach: argument '%s' is plain vnum, use %%world.room/mob/obj(...)%% or calcuid (#3232). cmd: '%s'",
+				 "detach: 2-й аргумент '%s' -- голый vnum, используйте UID, строка отменена. Команда: '%s'",
 				 id_p, cmd);
 		trig_log(trig, buf2);
+		return retval;
 	}
 
 	c = get_char(id_p);
@@ -4867,12 +4864,12 @@ int process_run(void *go, Script **sc, Trigger **trig, int type, char *cmd, int 
 	// parse and locate the id specified
 	eval_expr(id_p, result, sizeof(result), go, *sc, *trig, type);
 
-	// Сырой vnum как ID (см. process_attach выше и #3232).
 	if (is_plain_vnum_string(id_p)) {
 		snprintf(buf2, sizeof(buf2),
-				 "run: argument '%s' is plain vnum, use %%world.room/mob/obj(...)%% or calcuid (#3232). cmd: '%s'",
+				 "run: 2-й аргумент '%s' -- голый vnum, используйте UID, строка отменена. Команда: '%s'",
 				 id_p, cmd);
 		trig_log(*trig, buf2);
+		return false;
 	}
 
 	c = get_char(id_p);
