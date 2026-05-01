@@ -1147,6 +1147,13 @@ target_link_libraries(circle.library fmt::fmt)
 # которое тащится в большинство TU. Включается опционально, чтобы не мешать
 # редким сборкам на машинах без поддержки PCH.
 option(USE_PCH "Use precompiled headers for circle.library" ON)
+# MinGW: -D__USE_MINGW_ANSI_STDIO=1 неправильно прокидывается в PCH-компиляцию,
+# и nlohmann/json.hpp ломается на std::snprintf (см. CI на PR #3230). На MSVC,
+# Cygwin, Linux/macOS PCH работает; на MinGW по умолчанию выключаем.
+if (USE_PCH AND MINGW)
+	message(STATUS "PCH disabled on MinGW (snprintf macro conflict with PCH)")
+	set(USE_PCH OFF)
+endif()
 if (USE_PCH)
 	# PCH-набор подобран эмпирически: только то, что есть почти в каждом TU.
 	# Расширение (atomic/thread/chrono/bitset/deque/...) делает PCH больше и
