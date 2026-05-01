@@ -446,14 +446,11 @@ int find_room_uid(long n) {
  ************************************************************/
 
 // Чисто-цифровая строка (без UID-префикса) -- это vnum, а не имя/UID.
-// В get_char/get_obj по таким строкам нечего искать через isname(), но они
-// проваливаются туда и устраивают O(N) скан по character_list / object_list.
-// Самый громкий случай -- триггер вида "detach 97137 %vnum%", где %vnum%
-// это число; см. issue #3232 (488мс на одну зону вместо 4мс).
-//
-// get_room такие строки трактует как vnum намеренно, поэтому он не
-// затронут -- продолжаем туда отдавать управление дальше по цепочке.
-static bool is_plain_vnum_string(const char *name) {
+// Используется в process_attach/detach/run для предупреждения билдеров
+// о паттернах вида "detach <trig> %vnum%" -- они проваливаются в O(N)
+// сканы по character_list / object_list, прежде чем дойти до get_room.
+// См. issue #3232 (488мс на одну зону вместо 4мс).
+bool is_plain_vnum_string(const char *name) {
 	if (!name || !*name) {
 		return false;
 	}
@@ -471,11 +468,6 @@ CharData *get_char(const char *name) {
 
 	// Отсекаем поиск левых UID-ов.
 	if ((*name == UID_OBJ) || (*name == UID_ROOM))
-		return nullptr;
-
-	// Чистый vnum -- не char-id, не имя; искать его isname-ом по миру
-	// бессмысленно и стоит O(N). См. #3232.
-	if (is_plain_vnum_string(name))
 		return nullptr;
 
 	if (*name == UID_CHAR || *name == UID_CHAR_ALL) {
@@ -502,10 +494,6 @@ ObjData *get_obj(const char *name, int/* vnum*/) {
 	long id;
 
 	if ((*name == UID_CHAR) || (*name == UID_ROOM) || (*name == UID_CHAR_ALL))
-		return nullptr;
-
-	// Чистый vnum -- не obj-id, не алиас; isname-скан бессмыслен (#3232).
-	if (is_plain_vnum_string(name))
 		return nullptr;
 
 	if (*name == UID_OBJ) {
@@ -4637,6 +4625,17 @@ void process_attach(void *go, Script *sc, Trigger *trig, int type, char *cmd) {
 	// parse and locate the id specified
 	eval_expr(id_p, result, sizeof(result), go, sc, trig, type);
 
+	// Сырой vnum как ID (без UID-обёртки) проваливается в O(N)-сканы по
+	// character_list и object_list прежде чем дойти до get_room. См. #3232.
+	// Чинится в .trg: использовать %world.room(<vnum>)% / %world.mob(<vnum>)%
+	// или calcuid <var> <vnum> room/mob/obj.
+	if (is_plain_vnum_string(id_p)) {
+		snprintf(buf2, sizeof(buf2),
+				 "attach: argument '%s' is plain vnum, use %%world.room/mob/obj(...)%% or calcuid (#3232). cmd: '%s'",
+				 id_p, cmd);
+		trig_log(trig, buf2);
+	}
+
 	c = get_char(id_p);
 	if (!c) {
 		o = get_obj(id_p);
@@ -4731,6 +4730,14 @@ Trigger *process_detach(void *go, Script *sc, Trigger *trig, int type, char *cmd
 
 	// parse and locate the id specified
 	eval_expr(id_p, result, sizeof(result), go, sc, trig, type);
+
+	// Сырой vnum как ID (см. process_attach выше и #3232).
+	if (is_plain_vnum_string(id_p)) {
+		snprintf(buf2, sizeof(buf2),
+				 "detach: argument '%s' is plain vnum, use %%world.room/mob/obj(...)%% or calcuid (#3232). cmd: '%s'",
+				 id_p, cmd);
+		trig_log(trig, buf2);
+	}
 
 	c = get_char(id_p);
 	if (!c) {
@@ -4859,6 +4866,14 @@ int process_run(void *go, Script **sc, Trigger **trig, int type, char *cmd, int 
 
 	// parse and locate the id specified
 	eval_expr(id_p, result, sizeof(result), go, *sc, *trig, type);
+
+	// Сырой vnum как ID (см. process_attach выше и #3232).
+	if (is_plain_vnum_string(id_p)) {
+		snprintf(buf2, sizeof(buf2),
+				 "run: argument '%s' is plain vnum, use %%world.room/mob/obj(...)%% or calcuid (#3232). cmd: '%s'",
+				 id_p, cmd);
+		trig_log(*trig, buf2);
+	}
 
 	c = get_char(id_p);
 	if (!c) {
