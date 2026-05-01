@@ -952,7 +952,7 @@ std::string ParseFilter::print() const {
 	}
 	if (profession != ECharClass::kUndefined) {
 		buffer += "П";
-		buffer += NAME_BY_ITEM<ECharClass>(profession);
+		buffer += MUD::Class(profession).GetName();
 		buffer += ", ";
 	}
 	if (remorts >= 0) {
