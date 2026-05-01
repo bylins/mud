@@ -2175,20 +2175,31 @@ CObjectPrototype* YamlWorldDataSource::ParseObjectFile(const std::string &file_p
 
 			if (root["affect_flags"] && root["affect_flags"].IsSequence())
 			{
+				// affect_flags на предмете -- бит EWeaponAffect (поле
+				// m_waffect_flags), а не EAffect. Раньше тут шёл lookup
+				// через dm "affect_flags", который умеет только EAffect-
+				// нумерацию (kDetectPoison: 32). Для предмета bit 32 в
+				// m_waffect_flags == EWeaponAffect::kDisguising, и
+				// weapon_affect[]-таблица отображает его в EAffect::
+				// kDisguise -- из-за этого носитель деревянной палицы
+				// получал маскировку вместо определения яда.
+				// ITEM_BY_NAME<EWeaponAffect>(name) даёт корректный
+				// enum-bit без посредника.
 				for (const auto &flag_node : root["affect_flags"])
 				{
 					std::string flag_name = flag_node.as<std::string>();
-					long flag_val = dm.Lookup("affect_flags", flag_name, -1);
-					if (flag_val >= 0)
-					{
-						obj_ptr->SetEWeaponAffectFlag(static_cast<EWeaponAffect>(IndexToBitvector(flag_val)));
-					}
-					else if (flag_name.rfind("UNUSED_", 0) == 0)
+					if (flag_name.rfind("UNUSED_", 0) == 0)
 					{
 						int bit = std::stoi(flag_name.substr(7));
 						size_t plane = bit / 30;
 						int bit_in_plane = bit % 30;
 						obj_ptr->toggle_affect_flag(plane, 1 << bit_in_plane);
+						continue;
+					}
+					const auto wa = ITEM_BY_NAME<EWeaponAffect>(flag_name);
+					if (wa != static_cast<EWeaponAffect>(0))
+					{
+						obj_ptr->SetEWeaponAffectFlag(wa);
 					}
 				}
 			}
