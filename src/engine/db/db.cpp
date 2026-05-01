@@ -1,5 +1,3 @@
-#define DB_CPP_
-
 #include "third_party_libs/pugixml/pugixml.h"
 
 #include "administration/accounts.h"
@@ -92,6 +90,12 @@ const long kBeginningOfTime = -1561789232;
 #else
 const long kBeginningOfTime = 650336715;
 #endif
+
+char buf[kMaxStringLength];
+char buf1[kMaxStringLength];
+char buf2[kMaxStringLength];
+char arg[kMaxInputLength];
+char smallBuf[kMaxRawInputLength];
 
 Rooms &world = GlobalObjects::world();
 
