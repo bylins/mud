@@ -3,6 +3,8 @@
 //
 #include "city_guards.h"
 
+#include "third_party_libs/pugixml/pugixml.h"
+
 #include "engine/boot/boot_constants.h"
 #include "engine/entities/char_data.h"
 #include "engine/entities/entities_constants.h"
