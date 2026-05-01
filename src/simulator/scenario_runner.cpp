@@ -16,6 +16,7 @@
 #include "engine/ui/cmd/do_equip.h"
 #include "gameplay/abilities/feats.h"
 #include "gameplay/affects/affect_data.h"
+#include "gameplay/affects/affect_contants.h"
 #include "gameplay/classes/pc_classes.h"
 #include "gameplay/fight/fight.h"
 #include "gameplay/magic/magic_utils.h"
@@ -497,59 +498,22 @@ void EmitCharState(const char* role,
 	e.attrs["aff_charmed"] = AFF_FLAGGED(ch, EAffect::kCharmed) ? true : false;
 	e.attrs["aff_sleep"] = AFF_FLAGGED(ch, EAffect::kSleep) ? true : false;
 	// Affect-flags from items / passive sources do NOT show up in
-	// ch->affected[] (which only holds spell-Affect entries), but they're
-	// in AFF_FLAGS(ch). Walk a fixed list of "interesting" flags so the
-	// state-panel picks up "ускорение" / "каменные руки" / etc. that come
-	// from worn equipment.
-	struct AffEntry { EAffect flag; const char* name; };
-	static const AffEntry kAffectFlags[] = {
-		{EAffect::kHaste,           "ускорение"},
-		{EAffect::kStoneHands,      "каменные руки"},
-		{EAffect::kWaterBreath,     "дыхание под водой"},
-		{EAffect::kFly,             "полёт"},
-		{EAffect::kBless,           "доблесть"},
-		{EAffect::kBlink,           "мерцание"},
-		{EAffect::kSanctuary,       "святилище"},
-		{EAffect::kAirShield,       "воздушный щит"},
-		{EAffect::kFireShield,      "огненный щит"},
-		{EAffect::kIceShield,       "ледяной щит"},
-		{EAffect::kMagicGlass,      "зеркало магии"},
-		{EAffect::kPrismaticAura,   "призматическая аура"},
-		{EAffect::kHolyLight,       "святой свет"},
-		{EAffect::kHolyDark,        "святая тьма"},
-		{EAffect::kDetectAlign,     "видеть наклонности"},
-		{EAffect::kDetectInvisible, "видеть невидимость"},
-		{EAffect::kDetectMagic,     "видеть магию"},
-		{EAffect::kDetectLife,      "видеть живых"},
-		{EAffect::kInfravision,     "инфразрение"},
-		{EAffect::kWaterWalk,       "хождение по воде"},
-		{EAffect::kInvisible,       "невидимость"},
-		{EAffect::kSneak,           "подкрадывание"},
-		{EAffect::kHide,            "укрытие"},
-		{EAffect::kCloudOfArrows,   "облако стрел"},
-		{EAffect::kAirAura,         "воздушная аура"},
-		{EAffect::kFireAura,        "огненная аура"},
-		{EAffect::kIceAura,         "ледяная аура"},
-		{EAffect::kEarthAura,       "земляная аура"},
-		{EAffect::kCommander,       "полководец"},
-		{EAffect::kFrenzy,          "берсерк"},
-		{EAffect::kCombatLuck,      "удача в бою"},
-		{EAffect::kGodsShield,      "божий щит"},
-		{EAffect::kBerserk,         "ярость"},
-		{EAffect::kBrokenChains,    "разорванные цепи"},
-		{EAffect::kVampirism,       "вампиризм"},
-		{EAffect::kCurse,           "проклятие"},
-		{EAffect::kPoisoned,        "яд"},
-		{EAffect::kBlind,           "слепота"},
-	};
-	std::string flags_list;
-	for (const auto& f : kAffectFlags) {
-		if (AFF_FLAGGED(ch, f.flag)) {
-			if (!flags_list.empty()) flags_list += "|";
-			flags_list += f.name;
-		}
+	// ch->affected[] (which only holds spell-Affect entries), but они в
+	// AFF_FLAGS(ch). Раньше тут был хардкод выбранных флагов -- забывался
+	// каждый раз, когда движок добавлял новый (kDetectPoison и т. п.).
+	// FlagData::sprintbits умеет пройти по всем 4 страницам флагов и
+	// собрать имена через каноническую таблицу affected_bits[]. Используем
+	// её, чтобы имена 1:1 совпадали с in-game ("аффекты", look) и
+	// автоматически подхватывали новые флаги движка.
+	{
+		char buf[kMaxStringLength];
+		AFF_FLAGS(ch).sprintbits(affected_bits, buf, sizeof(buf), "|", 0);
+		std::string s(buf);
+		// FlagData::sprintbits пишет nothing_string ("ничего") когда
+		// ни одного флага не выставлено -- для UI пустая строка лучше.
+		if (s == "ничего") s.clear();
+		e.attrs["flags_list"] = observability::EngineStringToUtf8(s);
 	}
-	e.attrs["flags_list"] = observability::EngineStringToUtf8(flags_list);
 	observability::EmitToAllSinks(e);
 }
 
