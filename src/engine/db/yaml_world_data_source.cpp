@@ -2179,20 +2179,40 @@ CObjectPrototype* YamlWorldDataSource::ParseObjectFile(const std::string &file_p
 
 			if (root["affect_flags"] && root["affect_flags"].IsSequence())
 			{
+				// affect_flags на предмете -- бит EWeaponAffect (хранится в
+				// m_waffect_flags), не EAffect. Раньше lookup шёл через dm
+				// "affect_flags" (EAffect-нумерация), и kDetectPoison из
+				// YAML попадал в бит 32, который в EWeaponAffect равен
+				// kDisguising -- носитель получал маскировку вместо
+				// определения яда. ITEM_BY_NAME<EWeaponAffect>(name) даёт
+				// корректный EWeaponAffect-бит без посредника.
+				//
+				// Старые YAML, конвертированные ранее через AFFECT_FLAGS-
+				// таблицу, могут содержать имена, которых нет в
+				// EWeaponAffect (kDetectInvisible вместо kDetectInvisibility).
+				// ITEM_BY_NAME .at() бросает out_of_range -- ловим, пишем
+				// syslog, продолжаем. Лучше потерять один сомнительный
+				// флаг, чем уронить boot всего мира.
 				for (const auto &flag_node : root["affect_flags"])
 				{
 					std::string flag_name = flag_node.as<std::string>();
-					long flag_val = dm.Lookup("affect_flags", flag_name, -1);
-					if (flag_val >= 0)
-					{
-						obj_ptr->SetEWeaponAffectFlag(static_cast<EWeaponAffect>(IndexToBitvector(flag_val)));
-					}
-					else if (flag_name.rfind("UNUSED_", 0) == 0)
+					if (flag_name.rfind("UNUSED_", 0) == 0)
 					{
 						int bit = std::stoi(flag_name.substr(7));
 						size_t plane = bit / 30;
 						int bit_in_plane = bit % 30;
 						obj_ptr->toggle_affect_flag(plane, 1 << bit_in_plane);
+						continue;
+					}
+					try
+					{
+						const auto wa = ITEM_BY_NAME<EWeaponAffect>(flag_name);
+						obj_ptr->SetEWeaponAffectFlag(wa);
+					}
+					catch (const std::out_of_range &)
+					{
+						log("SYSERR: unknown EWeaponAffect '%s' on obj vnum %d, skipped",
+							flag_name.c_str(), obj_ptr->get_vnum());
 					}
 				}
 			}
@@ -4051,8 +4071,38 @@ void YamlWorldDataSource::SaveObjects(int zone_rnum, int specific_vnum)
 			yaml.DecreaseIndent();
 		}
 
-		// Affect flags
-		auto affect_flags = ConvertFlagsToNames(obj->get_affect_flags(), "affect_flags");
+		// Affect flags. m_waffect_flags хранит биты EWeaponAffect, имена
+		// берём из EWeaponAffect-таблицы (не EAffect), иначе round-trip
+		// конвертера сломает item-affects: загружено как kDetectPoison,
+		// сохранено как kHorse (бит 27 в EAffect-словаре). Идём по битам
+		// сами и берём имена через NAME_BY_ITEM<EWeaponAffect>.
+		std::vector<std::string> affect_flags;
+		{
+			const auto &fld = obj->get_affect_flags();
+			for (size_t plane = 0; plane < FlagData::kPlanesNumber; ++plane)
+			{
+				Bitvector plane_bits = fld.get_plane(plane);
+				if (plane_bits == 0) continue;
+				for (int bit = 0; bit < 30; ++bit)
+				{
+					if (!(plane_bits & (1u << bit))) continue;
+					const Bitvector v = (plane == 0) ? (1u << bit) :
+						((plane == 1) ? (kIntOne | (1u << bit)) :
+						(plane == 2) ? (kIntTwo | (1u << bit)) :
+						(kIntThree | (1u << bit)));
+					try
+					{
+						const auto &name = NAME_BY_ITEM<EWeaponAffect>(static_cast<EWeaponAffect>(v));
+						if (!name.empty()) affect_flags.push_back(name);
+					}
+					catch (const std::out_of_range &)
+					{
+						const int idx = static_cast<int>(plane) * 30 + bit;
+						affect_flags.push_back("UNUSED_" + std::to_string(idx));
+					}
+				}
+			}
+		}
 		if (!affect_flags.empty())
 		{
 			yaml.Key("affect_flags");

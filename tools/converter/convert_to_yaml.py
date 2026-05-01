@@ -2592,10 +2592,15 @@ def parse_obj_file(filepath):
                 idx += 1
 
             # Line 3: affect_flags, anti_flags, no_flags
+            # Для предметов affect_flags -- бит EWeaponAffect (хранится в
+            # m_waffect_flags), а не EAffect. Раньше парсили через
+            # AFFECT_FLAGS -- получали неправильные имена ('kDetectInvisible'
+            # вместо 'kDetectInvisibility'), и носитель шмота получал
+            # совсем не тот эффект.
             if idx < len(lines):
                 parts = lines[idx].split()
                 if len(parts) >= 1:
-                    obj['affect_flags'] = parse_ascii_flags(parts[0], AFFECT_FLAGS) if len(parts) >= 1 else []
+                    obj['affect_flags'] = parse_ascii_flags(parts[0], WEAPON_AFFECT_FLAGS) if len(parts) >= 1 else []
                 if len(parts) >= 2:
                     obj['anti_flags'] = parse_ascii_flags(parts[1], ANTI_FLAGS) if len(parts) >= 2 else []
                 if len(parts) >= 2:
