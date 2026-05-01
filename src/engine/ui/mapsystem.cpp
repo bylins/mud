@@ -642,9 +642,14 @@ void print_map(CharData *ch, CharData *imm) {
 					break;
 				}
 			}
-			for (unsigned k = left_margin; k < MAX_LENGTH; ++k) {
-				if (screen[i][k] != -1 && k > right_margin) {
-					right_margin = k;
+			// Сканируем справа -- ищем именно самую правую непустую клетку
+			// строки, а не первую после текущего right_margin (иначе клетки
+			// дальше теряются).
+			for (unsigned k = MAX_LENGTH; k-- > 0; ) {
+				if (screen[i][k] != -1) {
+					if (k > right_margin) {
+						right_margin = k;
+					}
 					break;
 				}
 			}
