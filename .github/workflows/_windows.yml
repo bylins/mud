@@ -141,7 +141,7 @@ jobs:
           - name: "YAML"
             meson_flags: "-Dbuild_profile=release -Dgtest=system -Dyaml=system"
             with_yaml: true
-            cache_key: "cygwin-gtest-1.14.0-yaml-0.7.0"
+            cache_key: "cygwin-gtest-1.14.0-yaml"
 
     steps:
       - uses: actions/checkout@v4
@@ -152,9 +152,9 @@ jobs:
             gcc-g++ gcc-core make cmake ninja
             python3 python3-pip
             libssl-devel libcurl-devel libexpat1-devel
-            libcrypt-devel gettext-devel unzip git wget pkg-config
+            libcrypt-devel gettext-devel unzip git wget pkg-config libyaml-cpp-dev
 
-      - name: Install Meson and Ninja
+      - name: Install Meson
         shell: C:\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
         run: pip3 install meson
 
@@ -179,19 +179,10 @@ jobs:
           cd googletest-1.14.0 && mkdir build && cd build
           cmake -DCMAKE_BUILD_TYPE=Release .. && make -j$(nproc) && make install
 
-      - name: Build and install yaml-cpp
-        if: matrix.config.with_yaml && steps.cache-cygwin-libs.outputs.cache-hit != 'true'
+- name: Configure meson
         shell: C:\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
-        run: |
-          cd /tmp
-          wget https://github.com/jbeder/yaml-cpp/archive/refs/tags/yaml-cpp-0.7.0.tar.gz
-          tar xzf yaml-cpp-0.7.0.tar.gz
-          cd yaml-cpp-yaml-cpp-0.7.0 && mkdir build && cd build
-          cmake -DCMAKE_BUILD_TYPE=Release -DYAML_BUILD_SHARED_LIBS=ON -DCMAKE_POLICY_VERSION_MINIMUM=3.5 ..
-          make -j$(nproc) && make install
-
-      - name: Configure meson
-        shell: C:\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
+        env:
+          PKG_CONFIG_PATH: "/usr/local/lib/pkgconfig:/usr/local/lib64/pkgconfig:/usr/local/share/pkgconfig"
         run: |
           cd "$GITHUB_WORKSPACE"
           meson setup build --wipe ${{ matrix.config.meson_flags }} --unity=on -Dunity_size=45
