@@ -358,7 +358,6 @@ void our_terminate() {
 }
 
 // externs
-extern int num_invalid;
 extern char *greetings;
 extern const char *circlemud_version;
 extern int circle_restrict;
@@ -372,7 +371,6 @@ extern int max_playing;
 extern int nameserver_is_slow;    // see config.cpp
 extern int mana[];
 extern const char *save_info_msg[];    // In olc.cpp
-extern CharData *combat_list;
 extern void tact_auction();
 extern void log_code_date();
 

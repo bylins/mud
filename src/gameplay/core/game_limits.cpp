@@ -16,6 +16,7 @@
 
 #include "engine/core/handler.h"
 #include "engine/ui/color.h"
+#include "engine/ui/interpreter_utils.h"
 #include "gameplay/clans/house.h"
 #include "gameplay/economics/exchange.h"
 #include "gameplay/mechanics/deathtrap.h"
@@ -49,7 +50,6 @@
 
 const int kRecallSpellsInterval = 28;
 
-extern int check_dupes_host(DescriptorData *d, bool autocheck = false);
 extern int idle_rent_time;
 extern int idle_max_level;
 extern int idle_void;

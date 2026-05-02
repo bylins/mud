@@ -506,7 +506,7 @@ void sedit::save_olc(CharData *ch) {
 		std::shared_ptr<SetNode> set_ptr = std::make_shared<SetNode>(olc_set);
 		sets_list.push_back(set_ptr);
 		VerifySet(*set_ptr);
-		save();
+		obj_sets::save();
 		init_obj_index();
 		return;
 	}
@@ -515,7 +515,7 @@ void sedit::save_olc(CharData *ch) {
 	if (idx < sets_list.size()) {
 		*(sets_list.at(idx)) = olc_set;
 		VerifySet(*(sets_list.at(idx)));
-		save();
+		obj_sets::save();
 		init_obj_index();
 	} else {
 		SendMsgToChar("Ошибка сохранения: набор был удален.", ch);
@@ -558,7 +558,7 @@ void parse_set_remove(CharData *ch, const char *arg) {
 			for (auto i = sets_list.begin(); i != sets_list.end(); ++i) {
 				if ((*i)->uid == ch->desc->sedit->olc_set.uid) {
 					sets_list.erase(i);
-					save();
+					obj_sets::save();
 					init_obj_index();
 					SendMsgToChar("Набор удален.\r\n", ch);
 					break;
@@ -726,7 +726,7 @@ void parse_global_msg_exit(CharData *ch, const char *arg) {
 		case 'д':
 		case 'Д': ch->desc->state = EConState::kPlaying;
 			global_msg = ch->desc->sedit->msg_edit;
-			save();
+			obj_sets::save();
 			ch->desc->sedit.reset();
 			SendMsgToChar("Изменения сохранены.\r\n", ch);
 			break;

@@ -103,7 +103,7 @@ void DoStatKarma(CharData *ch, CharData *victim) {
 	SendMsgToChar(ss.str(), ch);
 }
 
-void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
+void do_stat_character(CharData *ch, CharData *k, const int virt) {
 	int i, i2;
 	ObjData *j;
 	char tmpbuf[128];

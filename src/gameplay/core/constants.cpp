@@ -991,15 +991,6 @@ struct IntApplies int_app[] =
 
 const size_t INT_APP_SIZE = sizeof(int_app) / sizeof(*int_app);
 
-#define s0 (0)
-#define s1 (1 << 0)
-#define s2 (1 << 1)
-#define s3 (1 << 2)
-#define s4 (1 << 3)
-#define s5 (1 << 4)
-#define s6 (1 << 5)
-#define s7 (1 << 6)
-
 struct SizeApplies size_app[] =
 	{
 // AC  BASH

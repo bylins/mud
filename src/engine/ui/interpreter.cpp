@@ -14,6 +14,7 @@
 #define INTERPRETER_CPP_
 
 #include "interpreter.h"
+#include "interpreter_utils.h"
 
 #include "engine/core/char_movement.h"
 #include "administration/ban.h"
@@ -1630,7 +1631,7 @@ int pre_help(CharData *ch, char *argument) {
 //   3. Есть proxy запись - проверяем лимит (даже для зарегистрированных)
 //   4. Нет proxy записи - проверяем регистрацию персонажа/email
 //   5. Не зарегистрирован - в комнату незарегов
-int check_dupes_host(DescriptorData *d, bool autocheck = false) {
+int check_dupes_host(DescriptorData *d, bool autocheck) {
 	if (!d->character || d->character->IsImmortal() || d->character->desc->original) {
 		return 1;
 	}
