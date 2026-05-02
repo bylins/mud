@@ -95,8 +95,6 @@ test_exe = executable(
     override_options: profile_target_opts
 )
 
-alias_target('tests', [test_exe] + copied_targets)
-
 test('bylins_tests_suite',
      test_exe,
      protocol: 'gtest',

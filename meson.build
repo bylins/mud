@@ -1,6 +1,6 @@
 project('bylins', 'cpp',
     version: run_command('git', 'rev-parse', '--short', 'HEAD', check: false).stdout().strip(),
-    default_options: ['cpp_std=c++20', 'buildtype=plain', 'warning_level=2', 'b_coverage=true']
+    default_options: ['cpp_std=c++20', 'buildtype=plain', 'warning_level=2']
 )
 
 cpp = meson.get_compiler('cpp')
@@ -39,7 +39,7 @@ if cpp.get_argument_syntax() == 'gcc'
     endif
 endif
 
-if build_profile == 'debug' or get_option('with_asan')
+if get_option('with_asan')
   profile_target_opts += ['b_sanitize=address']
 endif
 
