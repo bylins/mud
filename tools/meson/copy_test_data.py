@@ -3,9 +3,8 @@ import shutil
 import os
 
 def copy_data(src, dst, stamp_file):
-    dst_dir = os.path.dirname(dst)
-    if not os.path.exists(dst_dir):
-        os.makedirs(dst_dir)
+    dst_dir = os.path.dirname(dst)    
+    os.makedirs(dst_dir, exist_ok=True)
     
     if os.path.isdir(src):
         if os.path.exists(dst):
