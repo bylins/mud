@@ -37,6 +37,9 @@ if cpp.get_argument_syntax() == 'gcc'
     if host_system != 'windows' and build_profile != 'fasttest'
         add_project_link_arguments('-rdynamic', language: 'cpp')
     endif
+    if host_system == 'cygwin'
+        project_args += ['-D_GNU_SOURCE']
+    endif
 endif
 
 if get_option('with_asan')
