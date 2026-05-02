@@ -239,7 +239,7 @@ if has_epoll_opt
     if host_system == 'linux'
         epoll_enabled = true
     elif host_system == 'freebsd'
-        epoll_shim_dep = dependency('epoll-shim', required: false)
+        epoll_shim_dep = dependency('epoll-shim-interpose', required: false)
         if epoll_shim_dep.found()
             epoll_enabled = true
             dependencies += epoll_shim_dep
