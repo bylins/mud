@@ -445,6 +445,23 @@ int find_room_uid(long n) {
  * generic searches based only on name
  ************************************************************/
 
+// Чисто-цифровая строка (без UID-префикса) -- это vnum, а не имя/UID.
+// Используется в process_attach/detach/run для предупреждения билдеров
+// о паттернах вида "detach <trig> %vnum%" -- они проваливаются в O(N)
+// сканы по character_list / object_list, прежде чем дойти до get_room.
+// См. issue #3232 (488мс на одну зону вместо 4мс).
+bool is_plain_vnum_string(const char *name) {
+	if (!name || !*name) {
+		return false;
+	}
+	for (const char *p = name; *p; ++p) {
+		if (*p < '0' || *p > '9') {
+			return false;
+		}
+	}
+	return true;
+}
+
 // search the entire world for a char, and return a pointer
 CharData *get_char(const char *name) {
 	CharData *i;
@@ -4610,6 +4627,14 @@ void process_attach(void *go, Script *sc, Trigger *trig, int type, char *cmd) {
 	// parse and locate the id specified
 	eval_expr(id_p, result, sizeof(result), go, sc, trig, type);
 
+	if (is_plain_vnum_string(id_p)) {
+		snprintf(buf2, sizeof(buf2),
+				 "attach: 2-й аргумент '%s' -- голый vnum, используйте UID, строка отменена. Команда: '%s'",
+				 id_p, cmd);
+		trig_log(trig, buf2);
+		return;
+	}
+
 	c = get_char(id_p);
 	if (!c) {
 		o = get_obj(id_p);
@@ -4704,6 +4729,14 @@ Trigger *process_detach(void *go, Script *sc, Trigger *trig, int type, char *cmd
 
 	// parse and locate the id specified
 	eval_expr(id_p, result, sizeof(result), go, sc, trig, type);
+
+	if (is_plain_vnum_string(id_p)) {
+		snprintf(buf2, sizeof(buf2),
+				 "detach: 2-й аргумент '%s' -- голый vnum, используйте UID, строка отменена. Команда: '%s'",
+				 id_p, cmd);
+		trig_log(trig, buf2);
+		return retval;
+	}
 
 	c = get_char(id_p);
 	if (!c) {
@@ -4832,6 +4865,14 @@ int process_run(void *go, Script **sc, Trigger **trig, int type, char *cmd, int 
 
 	// parse and locate the id specified
 	eval_expr(id_p, result, sizeof(result), go, *sc, *trig, type);
+
+	if (is_plain_vnum_string(id_p)) {
+		snprintf(buf2, sizeof(buf2),
+				 "run: 2-й аргумент '%s' -- голый vnum, используйте UID, строка отменена. Команда: '%s'",
+				 id_p, cmd);
+		trig_log(*trig, buf2);
+		return false;
+	}
 
 	c = get_char(id_p);
 	if (!c) {

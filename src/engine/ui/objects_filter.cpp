@@ -13,9 +13,78 @@
 #include "engine/db/global_objects.h"
 #include "gameplay/mechanics/stable_objs.h"
 #include "engine/db/player_index.h"
+#include "gameplay/classes/pc_classes.h"
+
+#include <set>
 
 extern ESkill FixNameAndFindSkillId(char *name);
 extern const char *print_obj_state(int tm_pct);
+
+namespace {
+
+// Является ли класс магической группы (как в IsMage в pc_classes.cpp).
+// Используется для фильтра по профессии: если предмет имеет EAntiFlag::kMage,
+// он недоступен всему этому набору.
+bool is_magic_class(ECharClass c) {
+	static const std::set<ECharClass> magic_classes{
+		ECharClass::kConjurer,
+		ECharClass::kWizard,
+		ECharClass::kCharmer,
+		ECharClass::kNecromancer};
+	return magic_classes.contains(c);
+}
+
+// Является ли класс воинской группы (как в IsFighter в pc_classes.cpp).
+bool is_fight_class(ECharClass c) {
+	static const std::set<ECharClass> fight_classes{
+		ECharClass::kThief,
+		ECharClass::kWarrior,
+		ECharClass::kAssasine,
+		ECharClass::kGuard,
+		ECharClass::kPaladine,
+		ECharClass::kRanger,
+		ECharClass::kVigilant};
+	return fight_classes.contains(c);
+}
+
+// EAntiFlag, соответствующий конкретному классу персонажа.
+EAntiFlag class_specific_anti_flag(ECharClass c) {
+	switch (c) {
+		case ECharClass::kSorcerer:    return EAntiFlag::kSorcerer;
+		case ECharClass::kConjurer:    return EAntiFlag::kConjurer;
+		case ECharClass::kThief:       return EAntiFlag::kThief;
+		case ECharClass::kWarrior:     return EAntiFlag::kWarrior;
+		case ECharClass::kAssasine:    return EAntiFlag::kAssasine;
+		case ECharClass::kGuard:       return EAntiFlag::kGuard;
+		case ECharClass::kCharmer:     return EAntiFlag::kCharmer;
+		case ECharClass::kWizard:      return EAntiFlag::kWizard;
+		case ECharClass::kNecromancer: return EAntiFlag::kNecromancer;
+		case ECharClass::kPaladine:    return EAntiFlag::kPaladine;
+		case ECharClass::kRanger:      return EAntiFlag::kRanger;
+		case ECharClass::kVigilant:    return EAntiFlag::kVigilant;
+		case ECharClass::kMerchant:    return EAntiFlag::kMerchant;
+		case ECharClass::kMagus:       return EAntiFlag::kMagus;
+		default:                       return static_cast<EAntiFlag>(0);
+	}
+}
+
+// Заблокирован ли предмет анти-флагами для указанного класса
+// (по логике invalid_anti_class, без учёта специфики персонажа).
+bool obj_blocked_for_class(const ObjData *obj, ECharClass c) {
+	if (obj->has_anti_flag(EAntiFlag::kMage) && is_magic_class(c)) {
+		return true;
+	}
+	if (obj->has_anti_flag(EAntiFlag::kFighter) && is_fight_class(c)) {
+		return true;
+	}
+	const auto specific = class_specific_anti_flag(c);
+	if (specific != static_cast<EAntiFlag>(0) && obj->has_anti_flag(specific)) {
+		return true;
+	}
+	return false;
+}
+
+} // namespace
 
 bool ParseFilter::init_type(const char *str) {
 	if (utils::IsAbbr(str, "свет")
@@ -192,6 +261,18 @@ bool ParseFilter::init_skill(char *str) {
 	}
 	skill_id = ESkill::kUndefined;
 	return false;
+}
+
+bool ParseFilter::init_profession(const char *str) {
+	if (!str || !*str) {
+		return false;
+	}
+	const ECharClass class_id = FindAvailableCharClassId(str);
+	if (class_id == ECharClass::kUndefined) {
+		return false;
+	}
+	profession = class_id;
+	return true;
 }
 
 bool ParseFilter::init_weap_class(const char *str) {
@@ -472,6 +553,12 @@ bool ParseFilter::check_skill(ObjData *obj) const {
 	return false;
 }
 
+bool ParseFilter::check_profession(ObjData *obj) const {
+	if (profession == ECharClass::kUndefined)
+		return true;
+	return !obj_blocked_for_class(obj, profession);
+}
+
 bool ParseFilter::check_wear(ObjData *obj) const {
 	if (wear == EWearFlag::kUndefined
 		|| CAN_WEAR(obj, wear)) {
@@ -645,6 +732,7 @@ bool ParseFilter::check(ObjData *obj, CharData *ch) {
 		&& check_affect_weap(obj)
 		&& check_affect_extra(obj)
 		&& check_skill(obj)
+		&& check_profession(obj)
 		&& check_remorts(obj)) {
 		return true;
 	}
@@ -665,6 +753,7 @@ bool ParseFilter::check(ExchangeItem *exch_obj) {
 		&& check_affect_extra(obj)
 		&& check_realtime(exch_obj)
 		&& check_skill(obj)
+		&& check_profession(obj)
 		&& check_remorts(obj)) {
 		return true;
 	}
@@ -701,6 +790,7 @@ bool ParseFilter::parse_filter(const CharData *ch, ParseFilter &filter, const ch
 			  "       равное количество перевоплощений.  Знак '=' выведет предметы конкретного перевоплощения\r\n" <<
 			  "   У - Добавляемое умение\r\n" <<
 			  "   В - Продавец предмета на базаре.\r\n" <<
+			  "   П - Профессия (имя класса), отсекаются предметы запрещенные классу.\r\n" <<
 			  " Можно указать несколько фильтров, разделив их пробелом.\r\n";
 		SendMsgToChar(ss.str(), ch);
 		return false;
@@ -789,7 +879,14 @@ bool ParseFilter::parse_filter(const CharData *ch, ParseFilter &filter, const ch
 				}
 				owner = buf_tmp;
 				break;
-			default: 
+			case 'П':// профессия (отсечь предметы запрещенные данному классу)
+				argument = one_argument(++argument, buf_tmp);
+				if (!filter.init_profession(buf_tmp)) {
+					SendMsgToChar("Неверное название профессии.\r\n", ch);
+					return false;
+				}
+				break;
+			default:
 					SendMsgToChar("Ошибка в фильтре.\r\n", ch);
 					return false;
 				break;
@@ -851,6 +948,11 @@ std::string ParseFilter::print() const {
 	if (skill_id != ESkill::kUndefined) {
 		sprintf(buf, "К%s", MUD::Skill(skill_id).GetName());
 		buffer += buf;
+		buffer += ", ";
+	}
+	if (profession != ECharClass::kUndefined) {
+		buffer += "П";
+		buffer += MUD::Class(profession).GetName();
 		buffer += ", ";
 	}
 	if (remorts >= 0) {
