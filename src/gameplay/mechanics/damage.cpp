@@ -19,6 +19,9 @@
 #include "gameplay/mechanics/equipment.h"
 #include "gameplay/clans/house_exp.h"
 #include "gameplay/statistics/dps.h"
+#include "engine/observability/event_sink.h"
+
+#include <chrono>
 #include "engine/ui/color.h"
 #include "gameplay/core/game_limits.h"
 #include "engine/core/utils_char_obj.inl"
@@ -846,6 +849,36 @@ int Damage::Process(CharData *ch, CharData *victim) {
 	}
 	// собственно нанесение дамага
 	victim->set_hit(victim->get_hit() - dam);
+	// Точка инструментации для автономного симулятора баланса (issue #2967):
+	// эмитим точные числа на каждый успешный удар. В проде список sink'ов
+	// пуст -- HasAnyEventSink() возвращает false, ранний выход без построения
+	// Event и без аллокаций.
+	if (observability::HasAnyEventSink()) {
+		observability::Event ev;
+		ev.name = "damage";
+		ev.ts_unix_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+			std::chrono::system_clock::now().time_since_epoch()).count();
+		ev.attrs["attacker_name"] = observability::EngineStringToUtf8(GET_NAME(ch) ? GET_NAME(ch) : "");
+		ev.attrs["victim_name"] = observability::EngineStringToUtf8(GET_NAME(victim) ? GET_NAME(victim) : "");
+		ev.attrs["dam"] = static_cast<std::int64_t>(dam);
+		ev.attrs["real_dam"] = static_cast<std::int64_t>(real_dam);
+		ev.attrs["over_dam"] = static_cast<std::int64_t>(over_dam);
+		ev.attrs["victim_hp_after"] = static_cast<std::int64_t>(victim->get_hit());
+		ev.attrs["dmg_type"] = static_cast<std::int64_t>(dmg_type);
+		ev.attrs["crit"] = flags[fight::kCritHit];
+		// spell_id/skill_id выставлены если урон пришёл из заклинания/умения
+		// (kUndefined для обычной автоатаки). В виз позволяет отличить
+		// melee от cast.
+		ev.attrs["spell_id"] = static_cast<std::int64_t>(spell_id);
+		ev.attrs["skill_id"] = static_cast<std::int64_t>(skill_id);
+		// Чармис/поднятая нежить -- атаковал не сам PC, а его подчинённый.
+		// Визуализатору это нужно, чтобы отделить вклад хозяина и слуг.
+		ev.attrs["attacker_is_charmie"] = IS_CHARMICE(ch);
+		ev.attrs["attacker_master_name"] = observability::EngineStringToUtf8(
+			(IS_CHARMICE(ch) && ch->has_master() && GET_NAME(ch->get_master()))
+				? GET_NAME(ch->get_master()) : "");
+		observability::EmitToAllSinks(ev);
+	}
 	victim->send_to_TC(false, true, true, "&MПолучен урон = %d&n\r\n", dam);
 	ch->send_to_TC(false, true, true, "&MПрименен урон = %d&n\r\n", dam);
 	if (dmg_type == fight::kPhysDmg && GET_GOD_FLAG(ch, EGf::kSkillTester) && skill_id != ESkill::kUndefined) {

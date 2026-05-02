@@ -97,10 +97,20 @@ set(TESTS
 		dg_string_matching.cpp
 		dg_var_context.cpp
 		mob_classes.loader.cpp
-		obj_decay_manager.cpp)
+		obj_decay_manager.cpp
+		random.seed.cpp
+		file_event_sink.cpp
+		event_sink_global.cpp
+		character_builder.cpp)
+if (HAVE_YAML)
+	list(APPEND TESTS scenario_loader.cpp)
+endif ()
 set(UTILITIES
 		char.utilities.hpp
-		char.utilities.cpp)
+		${CMAKE_SOURCE_DIR}/src/simulator/character_builder.cpp)
+if (HAVE_YAML)
+	list(APPEND UTILITIES ${CMAKE_SOURCE_DIR}/src/simulator/scenario_loader.cpp)
+endif ()
 set(ADDITIONAL_FILES
 		data/boards/changelog.sample
 		data/boards/news.sample
@@ -115,6 +125,10 @@ set_target_properties(tests PROPERTIES CXX_STANDARD 20)
 target_link_libraries(tests circle.library ${GTEST_LIB})
 if (NOT WIN32)
 	target_link_libraries(tests pthread)
+endif ()
+if (HAVE_YAML)
+	target_include_directories(tests PRIVATE ${YAML_CPP_INCLUDE_DIRS})
+	target_link_libraries(tests ${YAML_CPP_LIBRARIES})
 endif ()
 
 # Disable fmt Unicode mode on Windows (KOI8-R source charset)

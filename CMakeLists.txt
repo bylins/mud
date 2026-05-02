@@ -477,7 +477,9 @@ set(SOURCES
 		src/gameplay/classes/recalc_mob_params_by_vnum.cpp
 		src/engine/observability/provider.cpp
 		src/engine/observability/metrics.cpp
-		src/engine/observability/helpers.cpp)
+		src/engine/observability/helpers.cpp
+		src/engine/observability/event_sink.cpp
+		src/engine/observability/file_event_sink.cpp)
 
 
 
@@ -933,6 +935,7 @@ set(HEADERS
 		src/engine/observability/metrics.h
 		src/engine/observability/helpers.h
 		src/engine/observability/log_sender.h
+		src/engine/observability/event_sink.h
 		src/utils/logging/log_sender.h
 		src/gameplay/classes/recalc_mob_params_by_vnum.h)
 
@@ -1587,6 +1590,26 @@ if (NOT UNIX)
 	set_target_properties(circle PROPERTIES CXX_STANDARD 20)
 endif ()
 target_link_libraries(circle circle.library)
+
+# Headless balance simulator (issue #2967). Reuses the engine via circle.library
+# without the network layer. See src/simulator/README for the design.
+# Requires -DHAVE_YAML=ON: the simulator parses YAML scenarios, and the project
+# is migrating away from the legacy world format toward YAML anyway.
+if (HAVE_YAML)
+	set(SIMULATOR_SOURCES
+		src/simulator/character_builder.cpp
+		src/simulator/main.cpp
+		src/simulator/scenario_loader.cpp
+		src/simulator/scenario_runner.cpp)
+	add_executable(mud-sim ${SIMULATOR_SOURCES})
+	if (NOT UNIX)
+		set_target_properties(mud-sim PROPERTIES CXX_STANDARD 20)
+	endif ()
+	target_include_directories(mud-sim PRIVATE ${YAML_CPP_INCLUDE_DIRS})
+	target_link_libraries(mud-sim circle.library ${YAML_CPP_LIBRARIES})
+else ()
+	message(STATUS "Headless balance simulator (mud-sim) skipped: requires -DHAVE_YAML=ON")
+endif ()
 
 # Testing part
 option(BUILD_TESTS "Build and run tests." YES)
