@@ -79,7 +79,7 @@ if host_system == 'windows'
             '/external:W0'
         ]
     elif cpp.get_id() == 'gcc' or cpp.get_id() == 'clang'
-        project_args += '-D__USE_MINGW_ANSI_STDIO=1'
+        project_args += ['-Wa,-mbig-obj', '-D__USE_MINGW_ANSI_STDIO=1']
         add_project_link_arguments(
             '-static-libgcc',
             '-static-libstdc++',
@@ -99,12 +99,12 @@ endif
 zlib_opt = get_option('zlib')
 if zlib_opt != 'disabled'
     if zlib_opt == 'builtin'
-        zlib_sub = subproject('zlib', default_options: ['default_library=static', 'tests=disabled'])
+        zlib_sub = subproject('zlib', default_options: ['default_library=static', 'tests=disabled', 'unity=off'])
         zlib_dep = zlib_sub.get_variable('zlib_dep')
     elif zlib_opt == 'system'
         zlib_dep = dependency('zlib', required: true, allow_fallback: false)
     else
-        zlib_dep = dependency('zlib', required: true, fallback: ['zlib', 'zlib_dep'], default_options: ['default_library=static', 'tests=disabled'])
+        zlib_dep = dependency('zlib', required: true, fallback: ['zlib', 'zlib_dep'], default_options: ['default_library=static', 'tests=disabled', 'unity=off'])
     endif
     project_args += '-DHAVE_ZLIB'
     dependencies += zlib_dep
@@ -791,10 +791,6 @@ if otel_opt != 'disabled'
 endif
 
 use_pch = get_option('use_pch')
-is_mingw = host_system == 'windows' and (cpp.get_id() == 'gcc' or cpp.get_id() == 'clang')
-if use_pch and is_mingw
-    use_pch = false
-endif
 
 pch_headers = []
 if use_pch
@@ -837,6 +833,7 @@ summary({
 
 summary({
     'Build Tests':     get_option('build_tests'),
+    'Precompiled headers':     use_pch,
     'Coverage':        get_option('b_coverage'),
     'ASan':            get_option('with_asan'),
     'Scripting':       get_option('scripting'),
