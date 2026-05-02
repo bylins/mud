@@ -36,7 +36,7 @@ jobs:
         run: echo "PKG_CONFIG_PATH=C:\vcpkg\installed\x64-windows\lib\pkgconfig" >> $env:GITHUB_ENV
 
       - name: Configure meson
-        run: meson setup build -Dbuild_profile=release --unity=on -Dunity_size=45
+        run: meson setup build --wipe -Dbuild_profile=release --unity=on -Dunity_size=45
 
       - name: Build
         run: meson compile -C build tests
@@ -77,9 +77,9 @@ jobs:
 
       - name: Configure meson
         env:
-          CC: clang
-          CXX: clang++
-        run: meson setup build -Dbuild_profile=release --unity=on -Dunity_size=45
+          CC: clang-cl
+          CXX: clang-cl
+        run: meson setup build --wipe -Dbuild_profile=release --unity=on -Dunity_size=45
 
       - name: Build
         run: meson compile -C build tests
@@ -115,7 +115,7 @@ jobs:
 
       - name: Configure meson
         shell: msys2 {0}
-        run: meson setup build -Dbuild_profile=release --unity=on -Dunity_size=45
+        run: meson setup build --wipe -Dbuild_profile=release --unity=on -Dunity_size=45
 
       - name: Build
         shell: msys2 {0}
@@ -149,14 +149,14 @@ jobs:
       - uses: cygwin/cygwin-install-action@v6
         with:
           packages: >-
-            gcc-g++ gcc-core make cmake
+            gcc-g++ gcc-core make cmake ninja
             python3 python3-pip
             libssl-devel libcurl-devel libexpat1-devel
             libcrypt-devel gettext-devel unzip git wget pkg-config
 
       - name: Install Meson and Ninja
         shell: C:\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
-        run: pip3 install meson ninja
+        run: pip3 install meson
 
       - name: Clean empty subproject dirs
         shell: C:\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
@@ -194,7 +194,7 @@ jobs:
         shell: C:\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
         run: |
           cd "$GITHUB_WORKSPACE"
-          meson setup build ${{ matrix.config.meson_flags }} --unity=on -Dunity_size=45
+          meson setup build --wipe ${{ matrix.config.meson_flags }} --unity=on -Dunity_size=45
 
       - name: Build
         shell: C:\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
@@ -244,7 +244,7 @@ jobs:
 
       - name: Configure meson
         shell: wsl-bash {0}
-        run: meson setup build ${{ matrix.config.meson_flags }} --unity=on -Dunity_size=45
+        run: meson setup build --wipe ${{ matrix.config.meson_flags }} --unity=on -Dunity_size=45
 
       - name: Build
         shell: wsl-bash {0}

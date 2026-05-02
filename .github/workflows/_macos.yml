@@ -18,7 +18,7 @@ jobs:
         run: find subprojects -type d -empty -delete
 
       - name: Configure meson
-        run: meson setup build -Dbuild_profile=release --unity=on -Dunity_size=45
+        run: meson setup build --wipe -Dbuild_profile=release --unity=on -Dunity_size=45
 
       - name: Build
         run: meson compile -C build tests

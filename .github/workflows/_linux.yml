@@ -81,7 +81,7 @@ jobs:
 
       - name: Configure meson
         run: |
-          meson setup build ${{ matrix.config.meson_flags }} --unity=on -Dunity_size=45
+          meson setup build --wipe ${{ matrix.config.meson_flags }} --unity=on -Dunity_size=45
 
       - name: Build
         run: meson compile -C build tests
@@ -120,7 +120,7 @@ jobs:
         env:
           CC: gcc-15
           CXX: g++-15
-        run: meson setup build -Dbuild_profile=release --unity=on -Dunity_size=45
+        run: meson setup build --wipe -Dbuild_profile=release --unity=on -Dunity_size=45
 
       - name: Build
         run: meson compile -C build tests
@@ -143,12 +143,12 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y \
-            build-ninja meson pkg-config \
+            ninja-build meson pkg-config \
             libssl-dev libcurl4-gnutls-dev libexpat1-dev \
             gettext libgtest-dev lcov
 
       - name: Configure meson
-        run: meson setup build -Dbuild_profile=debug -Db_coverage=true --unity=on -Dunity_size=45
+        run: meson setup build --wipe -Dbuild_profile=debug -Db_coverage=true --unity=on -Dunity_size=45
 
       - name: Build tests
         run: meson compile -C build tests

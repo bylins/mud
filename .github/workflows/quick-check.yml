@@ -37,7 +37,7 @@ jobs:
           extra-packages: ""
 
       - name: Configure meson
-        run: meson setup build -Dbuild_profile=test -Dbuild_tests=false --unity=on -Dunity_size=45
+        run: meson setup build --wipe -Dbuild_profile=test -Dbuild_tests=false --unity=on -Dunity_size=45
 
       - name: Build
         run: meson compile -C build
