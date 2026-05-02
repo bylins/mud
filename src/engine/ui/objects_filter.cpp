@@ -841,7 +841,7 @@ bool ParseFilter::parse_filter(const CharData *ch, ParseFilter &filter, const ch
 					SendMsgToChar("Укажите аффект предмета.\r\n", ch);
 					return false;
 				}
-				if (filter.affects_cnt() >= 3) {
+				if (filter.affects_cnt() >= 10) {
 					break;
 				}
 				if (!filter.init_affect(buf_tmp, len)) {
