@@ -61,28 +61,20 @@ files_to_copy = [
 ]
 
 copied_targets = []
-
 foreach pair : files_to_copy
     src_rel = pair[0]
-    dst_rel = pair[1]
-    src_file = files(src_rel)
-    dst_dir = fs.parent(dst_rel)
-    dst_name = fs.name(dst_rel)
-
-    full_dst_dir = join_paths(meson.project_build_root(), dst_dir)
+    dst_rel = pair[1]    
+    src_path = meson.current_source_dir() / src_rel
+    
     full_dst = join_paths(meson.project_build_root(), dst_rel)
-
-    target_name = 'copy_test_data_' + dst_name.replace('.', '_').replace('-', '_')
-
+    stamp_name = dst_rel.underscorify() + '.copy_stamp'
     copied = custom_target(
-        target_name,
-        input: src_file,
-        output: dst_name,
-        command: [py3, files('../tools/meson/copy_test_data.py'), '@INPUT@', full_dst],
-        build_by_default: true,
-        build_always_stale: true
+        'copy_test_data_' + dst_rel.underscorify(),
+        input: src_path,
+        output: stamp_name,
+        command: [py3, files('../tools/meson/copy_test_data.py'), '@INPUT@', full_dst, '@OUTPUT@'],
+        build_by_default: true
     )
-
     copied_targets += copied
 endforeach
 
