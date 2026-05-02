@@ -179,7 +179,7 @@ jobs:
           cd googletest-1.14.0 && mkdir build && cd build
           cmake -DCMAKE_BUILD_TYPE=Release .. && make -j$(nproc) && make install
 
-- name: Configure meson
+      - name: Configure meson
         shell: C:\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
         env:
           PKG_CONFIG_PATH: "/usr/local/lib/pkgconfig:/usr/local/lib64/pkgconfig:/usr/local/share/pkgconfig"
