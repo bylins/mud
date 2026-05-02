@@ -1264,7 +1264,8 @@ void GameLoader::BootIndex(const EBootType mode) {
 		if (!data_file->load()) {
 			// TODO: do something
 		}
-		data_file->close();
+		// brackets to suppress define
+		(data_file->close)();
 	}
 
 	// sort the social index
