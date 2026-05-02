@@ -218,9 +218,10 @@ otel_opt = get_option('otel')
 if otel_opt != 'disabled'
     otel_modules = [
         'opentelemetry-cpp::api', 'opentelemetry-cpp::sdk', 'opentelemetry-cpp::ext',
-        'opentelemetry-cpp::otlp_http_exporter', 'opentelemetry-cpp::otlp_http_metric_exporter',
-        'opentelemetry-cpp::otlp_http_log_record_exporter', 'opentelemetry-cpp::resources'
+        'opentelemetry-cpp::resources', 'opentelemetry-cpp::otlp_http_exporter', 'opentelemetry-cpp::otlp_http_metric_exporter',
+        'opentelemetry-cpp::otlp_http_log_record_exporter', 'opentelemetry-cpp::http_client_curl'
     ]
+    
     if otel_opt == 'builtin'
         otel_sub = subproject('opentelemetry-cpp')
         otel_dep = otel_sub.get_variable('opentelemetry_cpp_dep')
@@ -230,7 +231,7 @@ if otel_opt != 'disabled'
         otel_dep = dependency('opentelemetry-cpp', modules: otel_modules, required: true, fallback: ['opentelemetry-cpp', 'opentelemetry_cpp_dep'])
     endif
     project_args += '-DWITH_OTEL'
-    dependencies += otel_dep
+    dependencies += [otel_dep, dependency('libcurl', required: true, allow_fallback: false)]
 endif
 
 has_epoll_opt = get_option('has_epoll')
