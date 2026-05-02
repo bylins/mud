@@ -17,8 +17,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-        with:
-          submodules: recursive
+
+      - name: Clean empty subproject dirs
+        run: find subprojects -type d -empty -delete
 
       - name: Cache dependencies
         uses: actions/cache@v4
@@ -30,28 +31,16 @@ jobs:
             ${{ runner.os }}-apt-
 
       - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            build-essential \
-            make \
-            libssl-dev \
-            libcurl4-gnutls-dev \
-            libexpat1-dev \
-            gettext \
-            unzip \
-            cmake
+        uses: ./.github/actions/install-linux-deps
+        with:
+          add-universe: 'true'
+          extra-packages: ""
 
-      - name: Configure CMake
-        run: |
-          mkdir -p build
-          cd build
-          cmake -DBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Test ..
+      - name: Configure meson
+        run: meson setup build -Dbuild_profile=test -Dbuild_tests=false --unity=on -Dunity_size=45
 
       - name: Build
-        run: |
-          cd build
-          make -j$(nproc)
+        run: meson compile -C build
 
       - name: Check binary
         run: |
