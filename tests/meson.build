@@ -47,6 +47,7 @@ test_sources = files(
     'dg_var_context.cpp',
     'mob_classes.loader.cpp',
     'world_load_order.cpp',
+    'obj_decay_manager.cpp',
     'char.utilities.cpp'
 )
 
