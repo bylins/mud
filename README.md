@@ -82,6 +82,20 @@ meson compile -C build
 build/circle 4000
 ```
 
+Сборка для Mac на процессорах Intel:
+
+```bash
+meson setup build --native-file=toolchains/macos-x86_64-native.txt -Dbuild_profile=test
+meson compile -C build
+```
+
+Создание universal binary для двух архитектур одновременно:
+
+```bash
+meson setup build --native-file=toolchains/macos-universal-native.txt -Dbuild_profile=test
+meson compile -C build
+```
+
 ### Windows (MSVC / Clang)
 
 Установите зависимости через vcpkg:
@@ -123,7 +137,7 @@ meson compile -C build
 В репозитории есть готовый toolchain-файл:
 
 ```bash
-meson setup build --cross-file toolchains/windows-mingw64.txt -Dbuild_profile=test
+meson setup build --cross-file toolchains/windows-mingw64-cross.txt -Dbuild_profile=test
 meson compile -C build
 ```
 
