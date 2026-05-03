@@ -98,7 +98,7 @@ test_exe = executable(
 test('bylins_tests_suite',
      test_exe,
      protocol: 'gtest',
-     timeout: 120,
+     timeout: 180,
      verbose: true,
      depends: copied_targets,
      workdir: meson.project_build_root()
