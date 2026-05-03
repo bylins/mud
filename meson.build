@@ -1,6 +1,6 @@
 project('bylins', 'cpp',
     version: run_command('git', 'rev-parse', '--short', 'HEAD', check: false).stdout().strip(),
-    default_options: ['cpp_std=c++20', 'buildtype=plain', 'warning_level=2']
+    default_options: ['cpp_std=c++20', 'buildtype=plain', 'warning_level=2', 'unity=on']
 )
 
 cpp = meson.get_compiler('cpp')
