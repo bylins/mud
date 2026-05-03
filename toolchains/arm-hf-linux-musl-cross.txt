@@ -1,0 +1,25 @@
+[binaries]
+c = 'arm-linux-musleabihf-gcc'
+cpp = 'arm-linux-musleabihf-g++'
+ar = 'arm-linux-musleabihf-ar'
+nm = 'arm-linux-musleabihf-nm'
+ld = 'arm-linux-musleabihf-ld'
+strip = 'arm-linux-musleabihf-strip'
+objcopy = 'arm-linux-musleabihf-objcopy'
+objdump = 'arm-linux-musleabihf-objdump'
+readelf = 'arm-linux-musleabihf-readelf'
+pkg-config = 'pkg-config'
+
+[built-in options]
+c_link_args = ['-static']
+cpp_link_args = ['-static', '-static-libgcc', '-static-libstdc++']
+default_library = 'static'
+
+[properties]
+needs_exe_wrapper = true
+
+[host_machine]
+system = 'linux'
+cpu_family = 'arm'
+cpu = 'armv7l'
+endian = 'little'

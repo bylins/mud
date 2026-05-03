@@ -6,6 +6,9 @@ strip = 'x86_64-w64-mingw32-strip'
 windres = 'x86_64-w64-mingw32-windres'
 exe_wrapper = 'wine'
 
+[built-in options]
+cpp_link_args = ['-static-libgcc', '-static-libstdc++', '-Wl,-Bstatic', '-lwinpthread', '-Wl,-Bdynamic']
+
 [host_machine]
 system = 'windows'
 cpu_family = 'x86_64'

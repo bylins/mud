@@ -85,14 +85,6 @@ if host_system == 'windows'
         ]
     elif cpp.get_id() == 'gcc' or cpp.get_id() == 'clang'
         project_args += ['-Wa,-mbig-obj', '-D__USE_MINGW_ANSI_STDIO=1']
-        add_project_link_arguments(
-            '-static-libgcc',
-            '-static-libstdc++',
-            '-Wl,-Bstatic,--whole-archive',
-            '-lwinpthread',
-            '-Wl,--no-whole-archive,-Bdynamic',
-            language: 'cpp'
-        )
     endif
 endif
 
