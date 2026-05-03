@@ -5,7 +5,7 @@
 #include "help.h"
 
 #include <algorithm>
-#include "../subprojects/fmt/include/fmt/format.h"
+#include <fmt/format.h>
 
 #include "obj_prototypes.h"
 #include "engine/ui/modify.h"

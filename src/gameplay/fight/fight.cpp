@@ -43,7 +43,7 @@
 #include "gameplay/mechanics/tutelar.h"
 #include "common.h"
 
-#include "../subprojects/fmt/include/fmt/format.h"
+#include <fmt/format.h>
 #include "engine/observability/metrics.h"
 
 // Structures

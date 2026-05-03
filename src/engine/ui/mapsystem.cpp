@@ -5,7 +5,7 @@
 #include "engine/ui/mapsystem.h"
 #include <queue>
 #include <unordered_set>
-#include "../subprojects/fmt/include/fmt/format.h"
+#include <fmt/format.h>
 
 #include "engine/core/char_movement.h"
 #include "engine/ui/color.h"

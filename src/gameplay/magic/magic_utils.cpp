@@ -27,7 +27,7 @@
 #include "gameplay/statistics/spell_usage.h"
 #include "utils/backtrace.h"
 
-#include "../subprojects/fmt/include/fmt/format.h"
+#include <fmt/format.h>
 #include "engine/observability/helpers.h"
 #include "engine/observability/metrics.h"
 #include "utils/tracing/trace_manager.h"

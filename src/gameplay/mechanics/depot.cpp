@@ -19,7 +19,7 @@
 #include "weather.h"
 #include "gameplay/mechanics/dungeons.h"
 
-#include "../subprojects/fmt/include/fmt/format.h"
+#include <fmt/format.h>
 
 #include <cmath>
 #include "engine/db/global_objects.h"

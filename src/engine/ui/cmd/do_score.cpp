@@ -26,7 +26,7 @@
 #include "gameplay/mechanics/groups.h"
 
 #include <cmath>
-#include "../subprojects/fmt/include/fmt/format.h"
+#include <fmt/format.h>
 
 void PrintScoreBase(CharData *ch);
 void PrintScoreList(CharData *ch);

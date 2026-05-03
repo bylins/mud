@@ -16,7 +16,7 @@
 
 #include <algorithm>
 #include <iostream>
-#include "../subprojects/fmt/include/fmt/format.h"
+#include <fmt/format.h>
 
 #include "engine/core/sysdep.h"
 #include "engine/core/conf.h"

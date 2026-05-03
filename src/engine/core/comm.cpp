@@ -74,7 +74,7 @@
 #include "engine/core/iosystem.h"
 #include "engine/ui/alias.h"
 
-#include "../subprojects/fmt/include/fmt/format.h"
+#include <fmt/format.h>
 
 #if defined WITH_SCRIPTING
 #include "scripting.hpp"
@@ -131,7 +131,7 @@
 #define SOCKET_ERROR (-1)
 #endif
 
-//#include "../subprojects/fmt/include/fmt/format.h"
+//#include <fmt/format.h>
 //#include <sys/stat.h>
 
 #include <string>

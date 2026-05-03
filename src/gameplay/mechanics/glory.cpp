@@ -19,7 +19,7 @@
 #include "engine/ui/modify.h"
 #include "glory_misc.h"
 
-#include "../subprojects/fmt/include/fmt/format.h"
+#include <fmt/format.h>
 
 #include <sstream>
 

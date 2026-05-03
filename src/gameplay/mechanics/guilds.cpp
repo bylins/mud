@@ -6,7 +6,7 @@
 
 //#include "guilds.h"
 
-#include "../subprojects/fmt/include/fmt/format.h"
+#include <fmt/format.h>
 
 #include "engine/ui/color.h"
 #include "glory_const.h"

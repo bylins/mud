@@ -30,8 +30,8 @@
 #include "gameplay/fight/fight_hit.h"
 #include "engine/core/utils_char_obj.inl"
 #include "gameplay/mechanics/stable_objs.h"
-#include "../subprojects/fmt/include/fmt/format.h"
-#include "../subprojects/fmt/include/fmt/ranges.h"
+#include <fmt/format.h>
+#include <fmt/ranges.h>
 #include "gameplay/mechanics/weather.h"
 #include "utils/utils_time.h"
 #include "gameplay/statistics/money_drop.h"

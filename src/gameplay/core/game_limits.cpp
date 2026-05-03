@@ -44,7 +44,7 @@
 #include "gameplay/mechanics/bonus.h"
 #include "gameplay/ai/mobact.h"
 
-#include "../subprojects/fmt/include/fmt/format.h"
+#include <fmt/format.h>
 
 #include <random>
 

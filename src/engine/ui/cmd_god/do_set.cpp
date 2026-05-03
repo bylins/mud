@@ -22,7 +22,7 @@
 #include "gameplay/mechanics/weather.h"
 #include "engine/db/player_index.h"
 
-#include "../subprojects/fmt/include/fmt/format.h"
+#include <fmt/format.h>
 
 #include <memory>
 

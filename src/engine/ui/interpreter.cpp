@@ -291,7 +291,7 @@
 #include "scripting.hpp"
 #endif
 
-#include "../subprojects/fmt/include/fmt/format.h"
+#include <fmt/format.h>
 
 #include <memory>
 #include <stdexcept>

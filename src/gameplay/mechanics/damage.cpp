@@ -8,7 +8,7 @@
 
 #include "damage.h"
 
-#include "../subprojects/fmt/include/fmt/format.h"
+#include <fmt/format.h>
 
 #include "gameplay/mechanics/bonus.h"
 #include "engine/entities/char_data.h"

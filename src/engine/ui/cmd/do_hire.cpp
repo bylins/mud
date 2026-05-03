@@ -9,7 +9,7 @@
 #include "gameplay/mechanics/dungeons.h"
 #include "gameplay/mechanics/minions.h"
 
-#include "../subprojects/fmt/include/fmt/format.h"
+#include <fmt/format.h>
 
 #include <cmath>
 

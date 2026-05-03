@@ -12,7 +12,7 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 
-#include "../subprojects/fmt/include/fmt/format.h"
+#include <fmt/format.h>
 #include <string>
 
 #include "modify.h"

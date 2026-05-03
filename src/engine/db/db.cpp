@@ -74,7 +74,7 @@
 #include "world_data_source_manager.h"
 
 
-#include "../subprojects/fmt/include/fmt/format.h"
+#include <fmt/format.h>
 #include <sys/stat.h>
 #ifndef _WIN32
 #include <unistd.h>

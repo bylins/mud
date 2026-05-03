@@ -10,7 +10,7 @@
 #include "engine/scripting/dg_db_scripts.h"
 #include "engine/db/global_objects.h"
 
-#include "../subprojects/fmt/include/fmt/format.h"
+#include <fmt/format.h>
 
 #include <regex>
 

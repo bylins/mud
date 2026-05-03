@@ -11,7 +11,7 @@
 #include <iomanip>
 #include <vector>
 
-#include "../subprojects/fmt/include/fmt/format.h"
+#include <fmt/format.h>
 
 #include "administration/karma.h"
 #include "utils/logger.h"

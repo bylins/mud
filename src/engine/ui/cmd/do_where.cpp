@@ -13,7 +13,7 @@
 #include "gameplay/mechanics/dungeons.h"
 #include "engine/db/obj_prototypes.h"
 
-#include "../subprojects/fmt/include/fmt/format.h"
+#include <fmt/format.h>
 
 void PerformImmortWhere(CharData *ch, char *arg);
 void PerformMortalWhere(CharData *ch, char *arg);
