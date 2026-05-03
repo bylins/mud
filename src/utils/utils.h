@@ -30,7 +30,7 @@
 #include "logger.h"
 #include "utils/backtrace.h"
 
-#include <third_party_libs/fmt/include/fmt/format.h>
+#include "../subprojects/fmt/include/fmt/format.h"
 
 struct RoomData;    // forward declaration to avoid inclusion of room.hpp and any dependencies of that header.
 class CharData;    // forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
@@ -973,19 +973,11 @@ private:
 #endif
 
 // global buffering system
-#ifdef DB_CPP_
-char buf[kMaxStringLength];
-char buf1[kMaxStringLength];
-char buf2[kMaxStringLength];
-char arg[kMaxInputLength];
-char smallBuf[kMaxRawInputLength];
-#else
 extern char buf[kMaxStringLength];
 extern char buf1[kMaxStringLength];
 extern char buf2[kMaxStringLength];
 extern char arg[kMaxInputLength];
 extern char smallBuf[kMaxRawInputLength];
-#endif
 
 #define plant_magic(x)    do { (x)[sizeof(x) - 1] = kMagicNumber; } while (0)
 #define test_magic(x)    ((x)[sizeof(x) - 1])

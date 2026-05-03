@@ -27,10 +27,10 @@
 #include "player_index.h"
 
 #include <sys/stat.h>
+#include "../subprojects/fmt/include/fmt/format.h"
 #include "engine/observability/helpers.h"
 #include "engine/observability/metrics.h"
 #include "utils/tracing/trace_manager.h"
-#include <third_party_libs/fmt/include/fmt/format.h>
 
 const int LOC_INVENTORY = 0;
 //const int MAX_BAG_ROWS = 5;

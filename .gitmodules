@@ -1,3 +1,12 @@
-[submodule "src/third_party_libs/fmt"]
-	path = src/third_party_libs/fmt
+[submodule "subprojects/gtest"]
+	path = subprojects/gtest
+	url = https://github.com/google/googletest.git
+[submodule "subprojects/fmt"]
+	path = subprojects/fmt
 	url = https://github.com/fmtlib/fmt.git
+[submodule "subprojects/yaml-cpp"]
+	path = subprojects/yaml-cpp
+	url = https://github.com/jbeder/yaml-cpp
+[submodule "subprojects/zlib"]
+	path = subprojects/zlib
+	url = https://github.com/madler/zlib

@@ -1,6 +1,8 @@
 // by bodrich (2014)
 // http://mud.ru
 
+#pragma once
+
 #include <string>
 
 class Quest {

@@ -5,6 +5,8 @@
  \date 2026-02-13
 */
 
+#ifdef ENABLE_ADMIN_API
+
 #include "parsers.h"
 #include "json_helpers.h"
 #include "../../../engine/structs/structs.h"
@@ -874,5 +876,7 @@ void ParseTriggerUpdate(Trigger* trig, const nlohmann::json& data)
 }
 
 }  // namespace admin_api::parsers
+
+#endif // ENABLE_ADMIN_API
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

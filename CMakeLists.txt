@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-
+message(DEPRECATION "CMakeLists.txt is deprecated and no longer maintained. Please use Meson to build this project.")
 project(bylins CXX)
 
 if (NOT ${CMAKE_VERSION} VERSION_LESS "3.12.0")
@@ -1146,7 +1146,7 @@ add_subdirectory(src/third_party_libs/libfort)
 target_link_libraries(circle.library fort)
 
 #fmt inegration
-add_subdirectory(src/third_party_libs/fmt EXCLUDE_FROM_ALL)
+add_subdirectory(subprojects/fmt EXCLUDE_FROM_ALL)
 target_link_libraries(circle.library fmt::fmt)
 
 # Precompiled headers: ускоряем сборку, единожды парся "ядро" заголовков,

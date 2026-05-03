@@ -26,7 +26,7 @@
 #include "gameplay/mechanics/mob_races.h"
 #include "gameplay/ai/spec_assign.h"
 
-#include <third_party_libs/fmt/include/fmt/format.h>
+#include "../subprojects/fmt/include/fmt/format.h"
 #include "administration/proxy.h"
 
 extern char *credits;

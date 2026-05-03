@@ -19,7 +19,7 @@
 #include "engine/ui/cmd_god/do_echo.h"
 #include "gameplay/core/base_stats.h"
 
-#include <third_party_libs/fmt/include/fmt/format.h>
+#include "../subprojects/fmt/include/fmt/format.h"
 #include <sstream>
 
 extern int do_social(CharData *ch, char *argument);    // implemented in the act.social.cpp

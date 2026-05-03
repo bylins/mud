@@ -8,7 +8,7 @@
 #include "gameplay/mechanics/groups.h"
 #include "engine/db/world_objects.h"
 
-#include <third_party_libs/fmt/include/fmt/format.h>
+#include "../subprojects/fmt/include/fmt/format.h"
 
 extern bool CanTakeObj(CharData *ch, ObjData *obj);
 extern char *find_exdesc(const char *word, const ExtraDescription::shared_ptr &list);

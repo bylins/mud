@@ -19,7 +19,7 @@
 #include "gameplay/ai/spec_procs.h"
 #include "gameplay/mechanics/deathtrap.h"
 
-#include <third_party_libs/fmt/include/fmt/format.h>
+#include "../subprojects/fmt/include/fmt/format.h"
 
 
 extern void ExtractRepopDecayObject(ObjData *obj);

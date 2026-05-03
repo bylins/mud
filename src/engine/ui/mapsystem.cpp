@@ -3,10 +3,9 @@
 // Part of Bylins http://www.mud.ru
 
 #include "engine/ui/mapsystem.h"
-
 #include <queue>
 #include <unordered_set>
-#include <third_party_libs/fmt/include/fmt/format.h>
+#include "../subprojects/fmt/include/fmt/format.h"
 
 #include "engine/core/char_movement.h"
 #include "engine/ui/color.h"

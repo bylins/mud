@@ -13,31 +13,32 @@ jobs:
       matrix:
         config:
           - name: "Base"
-            cmake_flags: "-DCMAKE_BUILD_TYPE=Release"
+            meson_flags: "-Dbuild_profile=release"
             packages: ""
 
           - name: "YAML"
-            cmake_flags: "-DCMAKE_BUILD_TYPE=Release -DHAVE_YAML=ON"
+            meson_flags: "-Dbuild_profile=release -Dyaml=system"
             packages: "libyaml-cpp-dev"
 
           - name: "SQLite"
-            cmake_flags: "-DCMAKE_BUILD_TYPE=Release -DHAVE_SQLITE=ON"
+            meson_flags: "-Dbuild_profile=release -Dsqlite=system"
             packages: "libsqlite3-dev"
 
           - name: "Base + Admin API + OTEL"
-            cmake_flags: "-DCMAKE_BUILD_TYPE=Release -DENABLE_ADMIN_API=ON -DWITH_OTEL=ON -DCMAKE_PREFIX_PATH=/opt/opentelemetry-cpp"
+            meson_flags: "-Dbuild_profile=release -Dadmin_api=true -Dotel=system"
             packages: ""
             with_otel: true
 
           - name: "YAML + Admin API + OTEL"
-            cmake_flags: "-DCMAKE_BUILD_TYPE=Release -DHAVE_YAML=ON -DENABLE_ADMIN_API=ON -DWITH_OTEL=ON -DCMAKE_PREFIX_PATH=/opt/opentelemetry-cpp"
+            meson_flags: "-Dbuild_profile=release -Dyaml=system -Dadmin_api=true -Dotel=system"
             packages: "libyaml-cpp-dev"
             with_otel: true
 
     steps:
       - uses: actions/checkout@v4
-        with:
-          submodules: recursive
+
+      - name: Clean empty subproject dirs
+        run: find subprojects -type d -empty -delete
 
       - name: Install base dependencies
         uses: ./.github/actions/install-linux-deps
@@ -74,16 +75,19 @@ jobs:
           cmake --build otel-build -j$(nproc)
           sudo cmake --install otel-build
 
-      - name: Configure CMake
+      - name: Set otel cmake prefix
+        if: matrix.config.with_otel
+        run: echo "CMAKE_PREFIX_PATH=/opt/opentelemetry-cpp" >> $GITHUB_ENV
+
+      - name: Configure meson
         run: |
-          mkdir -p build && cd build
-          cmake ${{ matrix.config.cmake_flags }} ..
+          meson setup build --wipe ${{ matrix.config.meson_flags }} --unity=on -Dunity_size=45
 
       - name: Build
-        run: cd build && make tests -j$(nproc)
+        run: meson compile -C build tests
 
       - name: Run tests
-        run: cd build && ./tests/tests
+        run: meson test -C build
 
   gcc15:
     name: GCC 15 / Base
@@ -99,8 +103,9 @@ jobs:
           git config --global --add safe.directory '*'
 
       - uses: actions/checkout@v4
-        with:
-          submodules: recursive
+
+      - name: Clean empty subproject dirs
+        run: find subprojects -type d -empty -delete
 
       - name: Install GCC 15 and build dependencies
         uses: ./.github/actions/install-linux-deps
@@ -111,16 +116,17 @@ jobs:
       - name: Show GCC 15 version
         run: gcc-15 --version && g++-15 --version
 
-      - name: Configure CMake
-        run: |
-          mkdir -p build && cd build
-          CC=gcc-15 CXX=g++-15 cmake -DCMAKE_BUILD_TYPE=Release ..
+      - name: Configure meson
+        env:
+          CC: gcc-15
+          CXX: g++-15
+        run: meson setup build --wipe -Dbuild_profile=release --unity=on -Dunity_size=45
 
       - name: Build
-        run: cd build && make tests -j$(nproc)
+        run: meson compile -C build tests
 
       - name: Run tests
-        run: cd build && ./tests/tests
+        run: meson test -C build
 
   coverage:
     name: GCC / Coverage
@@ -129,28 +135,26 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-        with:
-          submodules: recursive
+
+      - name: Clean empty subproject dirs
+        run: find subprojects -type d -empty -delete
 
       - name: Install dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y \
+            ninja-build meson pkg-config \
             libssl-dev libcurl4-gnutls-dev libexpat1-dev \
             gettext libgtest-dev lcov
 
-      - name: Configure CMake
-        run: |
-          mkdir build && cd build
-          cmake -DCMAKE_BUILD_TYPE=Debug -DENABLE_COVERAGE=ON -DWITH_ASAN=OFF ..
+      - name: Configure meson
+        run: meson setup build --wipe -Dbuild_profile=debug -Db_coverage=true --unity=on -Dunity_size=45
 
       - name: Build tests
-        run: make tests -j$(($(nproc)/2))
-        working-directory: build
+        run: meson compile -C build tests
 
       - name: Run tests
-        run: ./tests/tests
-        working-directory: build
+        run: meson test -C build
 
       - name: Generate lcov report
         run: |

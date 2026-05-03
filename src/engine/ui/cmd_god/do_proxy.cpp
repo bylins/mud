@@ -10,7 +10,7 @@
 #include "engine/entities/char_data.h"
 #include "engine/ui/modify.h"
 
-#include <third_party_libs/fmt/include/fmt/format.h>
+#include "../subprojects/fmt/include/fmt/format.h"
 
 void do_proxy(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	std::string buffer = argument, buffer2;

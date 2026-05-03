@@ -14,7 +14,7 @@
 #include <iomanip>
 #include <limits>
 
-#include <third_party_libs/fmt/include/fmt/format.h>
+#include "../subprojects/fmt/include/fmt/format.h"
 
 #include "administration/karma.h"
 #include "engine/db/world_objects.h"

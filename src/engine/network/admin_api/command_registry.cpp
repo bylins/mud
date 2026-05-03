@@ -5,6 +5,8 @@
  \date 2026-02-13
 */
 
+#ifdef ENABLE_ADMIN_API
+
 #include "command_registry.h"
 #include "crud_handlers.h"
 #include "../../../engine/network/descriptor_data.h"
@@ -339,5 +341,7 @@ void InitializeCommandRegistry()
 }
 
 }  // namespace admin_api
+
+#endif // ENABLE_ADMIN_API
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

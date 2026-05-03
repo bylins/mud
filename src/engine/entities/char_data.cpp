@@ -19,7 +19,7 @@
 #include "gameplay/mechanics/illumination.h"
 #include "engine/ui/alias.h"
 
-#include <third_party_libs/fmt/include/fmt/format.h>
+#include "../subprojects/fmt/include/fmt/format.h"
 #include <random>
 
 std::string PlayerI::empty_const_str;

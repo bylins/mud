@@ -1,0 +1,33 @@
+option('build_profile', type: 'combo',
+choices: ['release', 'debug', 'test', 'fasttest', 'custom'],
+value: 'release',
+description: 'Build profile: release/debug - ggdb3 O0, debug adds ASAN; test - O3 + TEST_BUILD; fasttest - Ofast + TEST_BUILD; custom - no specific flags')
+
+option('linker', type: 'string', value: '', description: 'Linker to use: gold, mold, lld, bfd, or empty for system default')
+option('build_tests', type: 'boolean', value: true, description: 'Build and run tests.')
+option('nocrypt', type: 'boolean', value: false, description: 'Disable use of crypt()')
+option('has_epoll', type: 'boolean', value: true, description: 'Use epoll (Linux or freebsd)')
+option('scripting', type: 'boolean', value: false, description: 'Enable scripting support (Python + Boost.Python)')
+option('with_asan', type: 'boolean', value: false, description: 'Build with Address Sanitizer')
+option('use_pch', type: 'boolean', value: true, description: 'Use precompiled headers for circle.library')
+
+# Options for Admin API and Web features
+option('admin_api', type: 'boolean', value: false, description: 'Enable Admin API and JSON-related features')
+
+# World Data Setup
+option('full_world_path', type: 'string', value: '', description: 'Absolute path to the full world data for symlinking')
+
+# Options for libfort
+option('fort_wchar', type: 'boolean', value: false, description: 'Enable wchar support in libfort')
+option('fort_utf8', type: 'boolean', value: true, description: 'Enable UTF-8 support in libfort')
+option('fort_test', type: 'boolean', value: false, description: 'Export internal symbols for testing')
+
+option('fmt', type: 'combo', choices: ['auto', 'system', 'builtin'], value: 'builtin', description: 'fmt library source (mandatory)')
+option('gtest', type: 'combo', choices: ['auto', 'system', 'builtin'], value: 'builtin', description: 'GTest library source (used when build_tests is enabled)')
+option('zlib', type: 'combo', choices: ['auto', 'system', 'builtin', 'disabled'], value: 'auto', description: 'Enable MCCP support via ZLib')
+option('iconv', type: 'combo', choices: ['auto', 'system', 'builtin', 'disabled'], value: 'disabled', description: 'Detect and use iconv')
+option('telegram', type: 'combo', choices: ['auto', 'system', 'builtin', 'disabled'], value: 'disabled', description: 'Enable Telegram integration (requires CURL + OpenSSL)')
+option('boost', type: 'combo', choices: ['auto', 'system', 'builtin', 'disabled'], value: 'disabled', description: 'Enable Boost usage')
+option('sqlite', type: 'combo', choices: ['auto', 'system', 'builtin', 'disabled'], value: 'disabled', description: 'Enable SQLite world data source')
+option('yaml', type: 'combo', choices: ['auto', 'system', 'builtin', 'disabled'], value: 'disabled', description: 'Enable YAML world data source and dictionary loader')
+option('otel', type: 'combo', choices: ['auto', 'system', 'builtin', 'disabled'], value: 'disabled', description: 'Enable OpenTelemetry support for tracing and metrics')

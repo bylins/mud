@@ -11,7 +11,7 @@
 #include "engine/entities/char_data.h"
 #include "engine/ui/table_wrapper.h"
 
-#include <third_party_libs/fmt/include/fmt/format.h>
+#include "../subprojects/fmt/include/fmt/format.h"
 
 void CharStat::Increase(ECategory category, ullong increment) {
 	try {

@@ -17,7 +17,7 @@
 #include "engine/db/obj_prototypes.h"
 #include "gameplay/mechanics/stable_objs.h"
 
-#include <third_party_libs/fmt/include/fmt/format.h>
+#include "../subprojects/fmt/include/fmt/format.h"
 
 #include <cmath>
 #include <memory>

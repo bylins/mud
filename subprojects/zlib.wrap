@@ -1,0 +1,8 @@
+[wrap-git]
+directory = zlib
+url = https://github.com/madler/zlib.git
+revision = head
+patch_directory = zlib
+
+[provide]
+dependency_names = zlib

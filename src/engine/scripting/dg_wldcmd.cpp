@@ -23,7 +23,7 @@
 #include "gameplay/core/game_limits.h"
 #include "gameplay/mechanics/damage.h"
 
-#include <third_party_libs/fmt/include/fmt/format.h>
+#include "../subprojects/fmt/include/fmt/format.h"
 
 extern const char *dirs[];
 

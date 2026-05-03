@@ -12,7 +12,7 @@
 #include "utils/utils.h"
 #include "utils/utils_time.h"
 
-#include <third_party_libs/fmt/include/fmt/format.h>
+#include "../subprojects/fmt/include/fmt/format.h"
 
 #include <sys/stat.h>
 

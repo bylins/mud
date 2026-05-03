@@ -1,5 +1,5 @@
 /* ************************************************************************
-*   File: interpreter.h                                 Part of Bylins    *
+************************************************************************   File: interpreter.h                                 Part of Bylins    *
 *  Usage: header file: public procs, macro defs, subcommand defines       *
 *                                                                         *
 *  All rights reserved.  See license.doc for complete information.        *

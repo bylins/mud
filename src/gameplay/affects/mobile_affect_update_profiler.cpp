@@ -9,7 +9,7 @@
 #include <string>
 #include <vector>
 
-#include "third_party_libs/fmt/include/fmt/format.h"
+#include "../subprojects/fmt/include/fmt/format.h"
 #include "utils/logger.h"
 
 namespace mobile_affect_update_profiler {

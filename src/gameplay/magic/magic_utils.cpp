@@ -27,12 +27,12 @@
 #include "gameplay/statistics/spell_usage.h"
 #include "utils/backtrace.h"
 
+#include "../subprojects/fmt/include/fmt/format.h"
 #include "engine/observability/helpers.h"
 #include "engine/observability/metrics.h"
 #include "utils/tracing/trace_manager.h"
-#include <third_party_libs/fmt/include/fmt/format.h>
 
-char cast_argument[kMaxStringLength];
+char cast_argument[kMaxInputLength];
 
 extern int what_sky;
 

@@ -1,6 +1,6 @@
 //#include "celebrates.h"
 
-#include <third_party_libs/fmt/include/fmt/format.h>
+#include "../subprojects/fmt/include/fmt/format.h"
 #include "third_party_libs/pugixml/pugixml.h"
 
 #include "engine/db/global_objects.h"

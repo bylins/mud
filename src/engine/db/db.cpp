@@ -1,5 +1,3 @@
-#define DB_CPP_
-
 #include "third_party_libs/pugixml/pugixml.h"
 
 #include "administration/accounts.h"
@@ -76,7 +74,7 @@
 #include "world_data_source_manager.h"
 
 
-#include <third_party_libs/fmt/include/fmt/format.h>
+#include "../subprojects/fmt/include/fmt/format.h"
 #include <sys/stat.h>
 #ifndef _WIN32
 #include <unistd.h>
@@ -92,6 +90,12 @@ const long kBeginningOfTime = -1561789232;
 #else
 const long kBeginningOfTime = 650336715;
 #endif
+
+char buf[kMaxStringLength];
+char buf1[kMaxStringLength];
+char buf2[kMaxStringLength];
+char arg[kMaxInputLength];
+char smallBuf[kMaxRawInputLength];
 
 Rooms &world = GlobalObjects::world();
 
@@ -1260,6 +1264,7 @@ void GameLoader::BootIndex(const EBootType mode) {
 		if (!data_file->load()) {
 			// TODO: do something
 		}
+		// brackets to suppress define
 		data_file->close();
 	}
 

@@ -2,7 +2,7 @@
 #include "utils/logger.h"
 #include "utils/backtrace.h"
 
-#include <third_party_libs/fmt/include/fmt/format.h>
+#include "../subprojects/fmt/include/fmt/format.h"
 
 size_t CObjectPrototypes::add(CObjectPrototype *prototype, const ObjVnum vnum) {
 	return add(CObjectPrototype::shared_ptr(prototype, [](auto ptr) { delete (ObjData *) ptr; }), vnum);

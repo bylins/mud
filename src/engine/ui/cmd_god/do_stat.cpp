@@ -32,7 +32,7 @@
 #include "gameplay/mechanics/armor.h"
 #include "engine/db/player_index.h"
 
-#include <third_party_libs/fmt/include/fmt/format.h>
+#include "../subprojects/fmt/include/fmt/format.h"
 
 extern char *diag_weapon_to_char(const CObjectPrototype *obj, int show_wear);
 
@@ -103,7 +103,7 @@ void DoStatKarma(CharData *ch, CharData *victim) {
 	SendMsgToChar(ss.str(), ch);
 }
 
-void do_stat_character(CharData *ch, CharData *k, const int virt = 0) {
+void do_stat_character(CharData *ch, CharData *k, const int virt) {
 	int i, i2;
 	ObjData *j;
 	char tmpbuf[128];

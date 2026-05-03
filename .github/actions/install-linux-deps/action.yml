@@ -30,4 +30,5 @@ runs:
           libssl-dev libcurl4-gnutls-dev libexpat1-dev \
           gettext unzip cmake gdb \
           libgtest-dev zlib1g-dev libcrypt-dev \
+          ninja-build meson pkg-config \
           ${{ inputs.extra-packages }}

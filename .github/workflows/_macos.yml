@@ -10,21 +10,18 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-        with:
-          submodules: recursive
 
       - name: Install dependencies
-        run: brew install openssl curl expat googletest cmake
+        run: brew install openssl curl expat googletest meson ninja pkgconf
 
-      - name: Configure CMake
-        run: |
-          mkdir -p build && cd build
-          cmake -DCMAKE_BUILD_TYPE=Release \
-                -DOPENSSL_ROOT_DIR=$(brew --prefix openssl) \
-                -DCURL_ROOT=$(brew --prefix curl) ..
+      - name: Clean empty subproject dirs
+        run: find subprojects -type d -empty -delete
+
+      - name: Configure meson
+        run: meson setup build --wipe -Dbuild_profile=release --unity=on -Dunity_size=45
 
       - name: Build
-        run: cd build && make tests -j$(sysctl -n hw.ncpu)
+        run: meson compile -C build tests
 
       - name: Run tests
-        run: cd build && ./tests/tests
+        run: meson test -C build

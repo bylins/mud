@@ -14,7 +14,7 @@
 #include "engine/entities/zone.h"
 #include "engine/core/utils_char_obj.inl"
 
-#include "third_party_libs/fmt/include/fmt/format.h"
+#include "../subprojects/fmt/include/fmt/format.h"
 
 namespace Boards {
 // общий список досок

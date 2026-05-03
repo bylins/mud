@@ -4,7 +4,7 @@
 #include "sets_drop.h"
 
 #include "third_party_libs/pugixml/pugixml.h"
-#include <third_party_libs/fmt/include/fmt/format.h>
+#include "../subprojects/fmt/include/fmt/format.h"
 
 #include "engine/db/obj_prototypes.h"
 #include "gameplay/clans/house.h"
