@@ -37,8 +37,10 @@ if cpp.get_argument_syntax() == 'gcc'
     if host_system != 'windows' and build_profile != 'fasttest'
         add_project_link_arguments('-rdynamic', language: 'cpp')
     endif
+    
     if host_system == 'cygwin'
-        project_args += ['-D_GNU_SOURCE']
+        add_global_arguments('-D_GNU_SOURCE', language: 'cpp')
+        project_args += ['-Wa,-mbig-obj']
     endif
 endif
 
