@@ -131,7 +131,7 @@ jobs:
   coverage:
     name: GCC / Coverage
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/world-load-refactoring' || github.ref == 'refs/heads/master' || github.event_name == 'pull_request'
+    if: github.ref == 'refs/heads/world-load-refactoring' || github.ref == 'refs/heads/master' || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
     steps:
       - uses: actions/checkout@v4
 
