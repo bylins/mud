@@ -131,7 +131,7 @@ jobs:
   coverage:
     name: GCC / Coverage
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/world-load-refactoring' || github.ref == 'refs/heads/master' || github.event_name == 'pull_request'
+    if: github.ref == 'refs/heads/world-load-refactoring' || github.ref == 'refs/heads/master' || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
     steps:
       - uses: actions/checkout@v4
 
@@ -171,9 +171,20 @@ jobs:
           fail_ci_if_error: false
           token: ${{ secrets.CODECOV_TOKEN }}
 
+      - name: Generate ReportGenerator HTML
+        uses: danielpalme/ReportGenerator-GitHub-Action@5.5.9
+        with:
+          reports: build/meson-logs/coverage.xml
+          targetdir: build/meson-logs/coverage-html
+          reporttypes: 'Html;HtmlSummary;Badges'
+          sourcedirs: ${{ github.workspace }}
+          title: 'bylins-mud coverage'
+          tag: '${{ github.run_number }}_${{ github.run_id }}'
+          toolpath: 'reportgeneratortool'
+
       - name: Upload HTML report as artifact
         uses: actions/upload-artifact@v4
         with:
           name: coverage-html
-          path: build/meson-logs/coveragereport/
+          path: build/meson-logs/coverage-html/
           retention-days: 30
