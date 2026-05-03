@@ -71,19 +71,24 @@ void PlayersIndex::AddNameToIndex(const std::string &name, const std::size_t ind
 }
 
 std::size_t PlayersIndex::hasher::operator()(const std::string &value) const {
-	// FNV-1a implementation
-	static_assert(sizeof(size_t) == 8, "This code is for 64-bit size_t.");
+	// FNV-1a: 32 and 64 bit implementations
+	static_assert(sizeof(size_t) == 4 || sizeof(size_t) == 8,
+		"Only 32-bit and 64-bit size_t are supported.");
 
-	const std::size_t FNV_offset_basis = 14695981039346656037ULL;
-	const std::size_t FNV_prime = 1099511628211ULL;
-
-	const auto count = value.size();
-	std::size_t result = FNV_offset_basis;
-	for (std::size_t i = 0; i < count; ++i) {
-		result ^= (std::size_t) LOWER(value[i]);
-		result *= FNV_prime;
+	std::size_t result;
+	std::size_t prime;
+	if constexpr (sizeof(size_t) == 8) {
+		result = std::size_t{14695981039346656037ULL};
+		prime  = std::size_t{1099511628211ULL};
+	} else {
+		result = std::size_t{2166136261U};
+		prime  = std::size_t{16777619U};
 	}
 
+	for (unsigned char c : value) {
+		result ^= static_cast<std::size_t>(LOWER(c));
+		result *= prime;
+	}
 	return result;
 }
 
