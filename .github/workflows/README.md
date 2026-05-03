@@ -2,149 +2,132 @@
 
 ## Workflows
 
-### `build.yml` - Multi-Platform Build Matrix
+### `build.yml` — Multi-Platform Build Matrix
 
 Проверяет сборку проекта на всех поддерживаемых платформах с различными конфигурациями.
 
-#### Linux Configurations (Matrix)
+#### Linux (GCC, Ubuntu Latest)
 
-| Конфигурация | Тесты | YAML | SQLite | Admin API | Описание |
-|-------------|:-----:|:----:|:------:|:---------:|----------|
-| Base | ❌ | ❌ | ❌ | ❌ | Базовая сборка (legacy format) |
-| With Tests | ✅ | ❌ | ❌ | ❌ | Базовая сборка + unit tests |
-| YAML | ❌ | ✅ | ❌ | ❌ | Поддержка YAML без админки |
-| YAML + Admin API | ❌ | ✅ | ❌ | ✅ | YAML с Admin API |
-| YAML + Tests | ✅ | ✅ | ❌ | ❌ | YAML + unit tests |
-| SQLite | ❌ | ❌ | ✅ | ❌ | Поддержка SQLite |
-| SQLite + Tests | ✅ | ❌ | ✅ | ❌ | SQLite + unit tests |
+| Конфигурация | YAML | SQLite | Admin API | OpenTelemetry |
+|-------------|:----:|:------:|:---------:|:-------------:|
+| Base | | | | |
+| YAML | ✅ | | | |
+| SQLite | | ✅ | | |
+| Base + Admin API + OTEL | | | ✅ | ✅ |
+| YAML + Admin API + OTEL | ✅ | | ✅ | ✅ |
 
-**Важно:** YAML и SQLite - взаимоисключающие форматы данных мира.
+Все конфигурации собираются с `-Dbuild_profile=release --unity=on -Dunity_size=45`.
 
-**CMake флаги:**
-- `-DHAVE_YAML=ON` - включает поддержку YAML world format
-- `-DHAVE_SQLITE=ON` - включает поддержку SQLite world format
-- `-DENABLE_ADMIN_API=ON` - включает Admin API (требует YAML)
-- `-DBUILD_TESTS=OFF` - отключает сборку тестов (по умолчанию включены)
+Тесты запускаются во всех конфигурациях через `meson test`.
 
-**Зависимости:**
-- YAML: `libyaml-cpp-dev`
-- SQLite: `libsqlite3-dev`
-- Tests: `libgtest-dev`
+#### Linux (GCC 15, Debian Sid)
 
-#### Linux GCC 15
+Отдельный job в контейнере `debian:sid` с GCC 15. Базовая конфигурация, проверяет совместимость с актуальным компилятором.
 
-| Компилятор | Тесты | Описание |
-|-----------|:-----:|----------|
-| GCC 15 | ✅ | Сборка с GCC 15 в Debian Sid container |
+#### Windows
 
-#### Other Platforms
+| Компилятор | Способ |
+|-----------|--------|
+| MSVC | vcpkg + `meson setup` |
+| Clang (`clang-cl`) | vcpkg + `meson setup` |
+| MinGW (MSYS2 / MINGW64) | пакеты MSYS2 |
+| GCC (Cygwin) | Base и YAML |
+| GCC (WSL / Ubuntu 24.04) | Base и YAML |
 
-| Платформа | Компилятор | Статус |
-|-----------|------------|--------|
-| Windows | MSVC | Soft-failure |
-| Windows | MinGW (MSYS2) | Soft-failure |
-| Cygwin | GCC | Soft-failure |
-| WSL | GCC | Soft-failure |
+#### macOS
 
-**Режим работы:** Все jobs работают в режиме `continue-on-error: true` (soft-failure), то есть:
-- ❌ Падение сборки **НЕ блокирует** merge PR
-- ✅ Результаты видны в Summary и статусах PR
-- 📊 Позволяет отслеживать состояние кросс-платформенной совместимости
+Clang, базовая конфигурация. Зависимости устанавливаются через Homebrew.
 
-### `quick-check.yml` - Fast CI Check
+#### Кэширование в CI
 
-Быстрая проверка на каждый push/PR:
-- Только базовая Linux сборка (без опциональных feature flags)
-- Кэширование apt-пакетов для ускорения
-- Проверка базовых синтаксических ошибок
+- **OpenTelemetry**: кэшируется собранная библиотека в `/opt/opentelemetry-cpp` по ключу версии `otel-cpp-1.24.0-ubuntu-x64`.
+- **vcpkg** (Windows): кэшируются пакеты `C:\vcpkg\installed` и `C:\vcpkg\packages` по хэшу workflow-файла.
+- **Cygwin**: кэшируется собранный googletest в `C:\cygwin\usr\local`.
+
+---
+
+### `quick-check.yml` — Fast CI Check
+
+Запускается на каждый push в любую ветку. Собирает только базовую Linux-конфигурацию без тестов:
+
+```
+meson setup build -Dbuild_profile=test -Dbuild_tests=false --unity=on -Dunity_size=45
+meson compile -C build
+```
+
+После сборки проверяется наличие и тип бинарника `build/circle`.
+
+---
 
 ## Локальное тестирование
 
-Перед push можно проверить сборку локально:
+Перед push можно воспроизвести любую CI-конфигурацию локально.
+
+Базовая сборка:
 
 ```bash
-# Базовая сборка (legacy format)
-mkdir build && cd build
-cmake -DBUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Test ..
-make -j$(nproc)
-
-# С тестами
-mkdir build && cd build
-cmake -DCMAKE_BUILD_TYPE=Test ..
-make tests -j$(nproc)
-./tests/tests
-
-# С YAML support
-mkdir build_yaml && cd build_yaml
-cmake -DHAVE_YAML=ON -DCMAKE_BUILD_TYPE=Test ..
-make -j$(nproc)
-
-# С SQLite support
-mkdir build_sqlite && cd build_sqlite
-cmake -DHAVE_SQLITE=ON -DCMAKE_BUILD_TYPE=Test ..
-make -j$(nproc)
-
-# YAML + Admin API
-mkdir build_admin && cd build_admin
-cmake -DHAVE_YAML=ON -DENABLE_ADMIN_API=ON -DCMAKE_BUILD_TYPE=Test ..
-make -j$(nproc)
-
-# YAML + Tests
-mkdir build_yaml_tests && cd build_yaml_tests
-cmake -DHAVE_YAML=ON -DCMAKE_BUILD_TYPE=Test ..
-make tests -j$(nproc)
-./tests/tests
-
-# SQLite + Tests
-mkdir build_sqlite_tests && cd build_sqlite_tests
-cmake -DHAVE_SQLITE=ON -DCMAKE_BUILD_TYPE=Test ..
-make tests -j$(nproc)
-./tests/tests
+meson setup build -Dbuild_profile=release --unity=on -Dunity_size=45
+meson compile -C build
+meson test -C build
 ```
 
-## Известные проблемы
+С YAML:
+
+```bash
+meson setup build -Dbuild_profile=release -Dyaml=system --unity=on -Dunity_size=45
+meson compile -C build
+meson test -C build
+```
+
+С SQLite:
+
+```bash
+meson setup build -Dbuild_profile=release -Dsqlite=system --unity=on -Dunity_size=45
+meson compile -C build
+meson test -C build
+```
+
+С Admin API и OpenTelemetry:
+
+```bash
+meson setup build -Dbuild_profile=release -Dadmin_api=true -Dotel=system --unity=on -Dunity_size=45
+meson compile -C build
+meson test -C build
+```
+
+Запуск конкретного теста:
+
+```bash
+build/tests/tests --gtest_filter="TriggersList_F.*"
+```
+
+---
+
+## Известные особенности
 
 ### Admin API
-- ⚠️ Admin API работает **только с YAML** world format
-- Требует `-DHAVE_YAML=ON -DENABLE_ADMIN_API=ON`
-- Unix socket создается в world directory (напр. `small/admin_api.sock`)
 
-### Windows (MSVC)
-- Может требовать адаптации кода под Windows API
-- Некоторые POSIX-функции недоступны
-- vcpkg используется для управления зависимостями
+Admin API работает **только с YML** форматом мира. Unix-сокет создаётся в директории мира (например, `small/admin_api.sock`).
+
+### OpenTelemetry
+
+Библиотека `opentelemetry-cpp` не поставляется в стандартных пакетах Ubuntu, поэтому в CI она собирается из исходников и кэшируется. При локальной сборке с `-Dotel=system` потребуется установить её вручную.
+
+### Windows (MSVC / Clang)
+
+Зависимости управляются через vcpkg. Требуется установленный Developer Command Prompt или переменные окружения MSVC.
 
 ### Cygwin
-- Производительность ниже, чем у нативного Linux
-- Могут быть проблемы с путями (Windows vs POSIX)
+
+Googletest отсутствует в стандартных пакетах Cygwin и собирается из исходников. Результат кэшируется по версии (текущая: 1.14.0).
 
 ### WSL
-- Ограничения на доступ к некоторым системным функциям
-- Может отличаться от чистого Linux в edge cases
 
-## Переход на строгий режим
+Поведение идентично чистому Linux. Проверяется на Ubuntu 24.04.
 
-Когда все платформы будут стабильно собираться, можно убрать `continue-on-error: true` из jobs для включения строгого режима (блокировка PR при падении).
+---
 
-## Кэширование
-
-В `quick-check.yml` добавлено кэширование apt-пакетов для ускорения повторных сборок.
-
-В будущем можно добавить:
-- Кэширование vcpkg пакетов (Windows)
-- Кэширование CMake build cache
-- Кэширование submodules
-
-## Мониторинг
-
-Результаты CI доступны:
-- В разделе **Actions** на GitHub
-- В статусах Pull Request
-- В автоматическом **Summary** (markdown таблица с результатами)
-
-## Badge для README
-
-Для добавления статус-badge в основной README.md:
+## Badges
 
 ```markdown
 [![Multi-Platform Build](https://github.com/bylins/mud/actions/workflows/build.yml/badge.svg)](https://github.com/bylins/mud/actions/workflows/build.yml)

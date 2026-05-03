@@ -2,7 +2,7 @@
 
 ## Установка act
 
-**act** - инструмент для локального запуска GitHub Actions workflows.
+**act** — инструмент для локального запуска GitHub Actions workflows.
 
 ### Linux
 ```bash
@@ -18,7 +18,9 @@ act --version
 
 ### Требования
 - Docker должен быть установлен и запущен
-- ~2-3 GB места для Docker образов
+- ~2–3 GB места для Docker-образов
+
+---
 
 ## Использование
 
@@ -28,123 +30,116 @@ act --version
 act -l
 
 # Список jobs в конкретном workflow
-act -l -W .github/workflows/build.yml
+act -l -W .github/workflows/quick-check.yml
 ```
 
-### Запуск конкретного job
+### Запуск quick-check (самый быстрый способ проверить сборку)
 ```bash
-# Запустить Quick Check (самый быстрый)
-act -W .github/workflows/quick-check.yml
-
-# Запустить только Linux Base из build.yml
-act -j build-linux-matrix -W .github/workflows/build.yml
-
-# Запустить с определенной матричной конфигурацией
-act -j build-linux-matrix --matrix config.name:"Base"
+act -j quick-build -W .github/workflows/quick-check.yml
 ```
 
-### Запуск с событием push
-```bash
-# Эмулировать push в текущую ветку
-act push
+### Запуск Linux matrix из build.yml
 
-# Эмулировать push в конкретную ветку
-act push -e .github/workflows/test-event.json
+`build.yml` использует reusable workflows (`workflow_call`), которые act поддерживает ограниченно. Надёжнее запускать подчинённые workflow напрямую:
+
+```bash
+# Базовая конфигурация
+act -j matrix -W .github/workflows/_linux.yml
+
+# Конкретная матричная конфигурация
+act -j matrix -W .github/workflows/_linux.yml --matrix config.name:"Base"
+act -j matrix -W .github/workflows/_linux.yml --matrix config.name:"YAML"
+act -j matrix -W .github/workflows/_linux.yml --matrix config.name:"SQLite"
+act -j matrix -W .github/workflows/_linux.yml --matrix config.name:"Base + Admin API + OTEL"
+act -j matrix -W .github/workflows/_linux.yml --matrix config.name:"YAML + Admin API + OTEL"
+
+# GCC 15 (в контейнере debian:sid)
+act -j gcc15 -W .github/workflows/_linux.yml
+
+# Coverage
+act -j coverage -W .github/workflows/_linux.yml
 ```
 
 ### Dry-run (без реального выполнения)
 ```bash
-# Показать что будет выполнено
 act -n
-
-# Dry-run конкретного workflow
-act -n -W .github/workflows/build.yml
+act -n -W .github/workflows/_linux.yml
 ```
 
-###Debug mode
+### Debug mode
 ```bash
-# Подробный вывод
 act -v
-
-# Еще более подробный
-act -v -v
+act -v -W .github/workflows/_linux.yml
 ```
+
+---
 
 ## Ограничения
 
-⚠️ **act не может запустить все jobs:**
+act не может запустить все jobs:
 
-- ❌ Windows jobs (MSVC, MinGW) - требуют Windows runner
-- ❌ Cygwin - требует Windows
-- ❌ WSL - требует Windows
-- ✅ Linux jobs - работают отлично
-- ⚠️ GCC 15 - может требовать дополнительной настройки
+- Windows jobs (MSVC, Clang, MinGW) — требуют Windows runner
+- Cygwin — требует Windows
+- WSL — требует Windows
+- MacOS — требует MacOS runner
+- Linux jobs — работают полностью
+- GCC 15 (`debian:sid` контейнер) — работает, но образ скачивается отдельно
+- Coverage job — требует `lcov` внутри образа
 
-## Рекомендуемый workflow для тестирования
+---
 
-### 1. Быстрая проверка синтаксиса
+## Рекомендуемый порядок проверки
+
+**1. Быстрая проверка (dry-run, ~5 секунд)**
 ```bash
-# ~30 секунд, проверяет что workflow валидный
 act -n -W .github/workflows/quick-check.yml
 ```
 
-### 2. Тест базовой Linux сборки
+**2. Полная быстрая сборка (~2–5 минут)**
 ```bash
-# ~2-5 минут, полная сборка
 act -j quick-build -W .github/workflows/quick-check.yml
 ```
 
-### 3. Тест конкретной конфигурации
+**3. Конкретная Linux-конфигурация**
 ```bash
-# Тестировать YAML конфигурацию
-act -j build-linux-matrix --matrix config.name:"YAML"
-
-# Тестировать с тестами
-act -j build-linux-matrix --matrix config.name:"With Tests"
+act -j matrix -W .github/workflows/_linux.yml --matrix config.name:"YAML"
 ```
+
+---
 
 ## Ускорение
 
-### Кэширование Docker образов
-После первого запуска образы кэшируются:
-```bash
-# Первый запуск: ~5-10 минут (скачивание образа)
-# Последующие: ~2-3 минуты (используется кэш)
+После первого запуска Docker-образы кэшируются локально:
+- Первый запуск: ~5–10 минут (скачивание образа)
+- Последующие: ~2–3 минуты
+
+В `.actrc` можно зафиксировать образ:
+```
+-P ubuntu-latest=catthehacker/ubuntu:act-latest
 ```
 
-### Использование меньших образов
-В `.actrc` настроены оптимальные образы:
-- `catthehacker/ubuntu:act-latest` - полнофункциональный, ~1.5GB
-- Альтернатива: `node:16-buster-slim` - минимальный, ~500MB (может не хватать пакетов)
+---
 
-### Пропуск шагов
+## Примеры
+
+### Проверка изменений в workflow перед push
 ```bash
-# Пропустить установку зависимостей (если уже установлены в образе)
-act --skip-install-dependencies
-```
-
-## Примеры использования
-
-### Тестирование изменений в workflow перед push
-```bash
-# 1. Редактируем .github/workflows/build.yml
+# 1. Редактируем .github/workflows/_linux.yml
 # 2. Тестируем локально
-act -j quick-build -W .github/workflows/quick-check.yml
+act -j matrix -W .github/workflows/_linux.yml --matrix config.name:"Base"
 
-# 3. Если всё ОК - коммитим и пушим
+# 3. Если всё ОК — коммитим
 git add .github/workflows/
-git commit -m "ci: Update workflow"
+git commit -m "ci: update linux matrix"
 git push
 ```
 
 ### Отладка падающего job
 ```bash
-# Запустить с verbose и shell при ошибке
-act -j build-linux-matrix --matrix config.name:"YAML" -v
-
-# Интерактивный shell в контейнере
-act -j build-linux-matrix --matrix config.name:"YAML" --shell
+act -j matrix -W .github/workflows/_linux.yml --matrix config.name:"YAML" -v
 ```
+
+---
 
 ## Troubleshooting
 
@@ -156,31 +151,22 @@ newgrp docker
 
 ### Нехватка места
 ```bash
-# Очистить старые Docker образы
 docker system prune -a
 ```
 
 ### Job не запускается
 ```bash
 # Проверить синтаксис workflow
-act -n -W .github/workflows/build.yml
+act -n -W .github/workflows/_linux.yml
 
 # Проверить что Docker запущен
 docker ps
 ```
 
+---
+
 ## Полезные ссылки
 
-- 📖 act documentation: https://github.com/nektos/act
-- 🐳 Docker images: https://github.com/catthehacker/docker_images
-- 🔧 GitHub Actions docs: https://docs.github.com/en/actions
-
-## Сравнение времени выполнения
-
-| Метод | Время | Стоимость |
-|-------|-------|-----------|
-| `act` локально | 2-5 мин | Бесплатно |
-| GitHub Actions | 3-10 мин | Бесплатно (лимит 2000 мин/месяц) |
-| Push на каждую итерацию | 5-15 мин | Расход лимита |
-
-**Вывод:** Используйте `act` для быстрых итераций, GitHub Actions для финальной проверки на всех платформах.
+- act documentation: https://github.com/nektos/act
+- Docker images для act: https://github.com/catthehacker/docker_images
+- GitHub Actions docs: https://docs.github.com/en/actions

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-
+message(DEPRECATION "CMakeLists.txt is deprecated and no longer maintained. Please use Meson to build this project.")
 project(bylins CXX)
 
 if (NOT ${CMAKE_VERSION} VERSION_LESS "3.12.0")
