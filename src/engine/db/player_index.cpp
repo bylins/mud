@@ -85,6 +85,7 @@ struct fnv_params<4> {
 };
 }  // namespace
 std::size_t PlayersIndex::hasher::operator()(const std::string &value) const {
+	// FNV-1a implementation
 	using p = fnv_params<sizeof(std::size_t)>;
 	std::size_t result = p::offset_basis;
 	for (unsigned char c : value) {
