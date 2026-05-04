@@ -26,12 +26,12 @@ jobs:
 
           - name: "Base + Admin API + OTEL"
             meson_flags: "-Dbuild_profile=release -Dadmin_api=true -Dotel=system"
-            packages: ""
+            packages: "cmake"
             with_otel: true
 
           - name: "YAML + Admin API + OTEL"
             meson_flags: "-Dbuild_profile=release -Dyaml=system -Dadmin_api=true -Dotel=system"
-            packages: "libyaml-cpp-dev"
+            packages: "cmake libyaml-cpp-dev"
             with_otel: true
 
     steps:
