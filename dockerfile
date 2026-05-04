@@ -6,7 +6,7 @@
 FROM alpine:3.23 AS builder
 
 RUN apk add --no-cache \
-    build-base make cmake\
+    build-base make\
     meson ninja git \
     zlib-dev openssl-dev \
     curl-dev expat-dev \
@@ -29,13 +29,8 @@ RUN meson compile -C build
 FROM alpine:3.23
 
 RUN apk add --no-cache \
-    libstdc++ \
-    openssl \
-    curl \
-    zlib \
-    expat \
-    python3 \
-    gdb
+    libstdc++ openssl curl \
+    zlib expat python3 gdb
 
 WORKDIR /mud
 COPY --from=builder /mud/mud/build/circle /mud/circle
