@@ -11,10 +11,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Clean empty subproject dirs
-        shell: bash
-        run: find subprojects -type d -empty -delete
-
       - uses: ilammy/msvc-dev-cmd@v1
 
       - name: Cache vcpkg packages
@@ -50,10 +46,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-
-      - name: Clean empty subproject dirs
-        shell: bash
-        run: find subprojects -type d -empty -delete
 
       - uses: ilammy/msvc-dev-cmd@v1
 
@@ -109,10 +101,6 @@ jobs:
             mingw-w64-x86_64-expat
             mingw-w64-x86_64-gtest
 
-      - name: Clean empty subproject dirs
-        shell: msys2 {0}
-        run: find subprojects -type d -empty -delete
-
       - name: Configure meson
         shell: msys2 {0}
         run: meson setup build --wipe -Dbuild_profile=release -Dunity_size=45
@@ -157,10 +145,6 @@ jobs:
       - name: Install Meson
         shell: C:\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
         run: pip3 install meson
-
-      - name: Clean empty subproject dirs
-        shell: C:\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
-        run: cd "$GITHUB_WORKSPACE" && find subprojects -type d -empty -delete
 
       - name: Cache Cygwin libraries
         id: cache-cygwin-libs
@@ -217,10 +201,6 @@ jobs:
       - uses: Vampire/setup-wsl@v3
         with:
           distribution: Ubuntu-24.04
-
-      - name: Clean empty subproject dirs
-        shell: wsl-bash {0}
-        run: find subprojects -type d -empty -delete
 
       - name: Install dependencies
         shell: wsl-bash {0}

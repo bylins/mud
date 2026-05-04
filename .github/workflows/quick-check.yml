@@ -18,9 +18,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Clean empty subproject dirs
-        run: find subprojects -type d -empty -delete
-
       - name: Cache dependencies
         uses: actions/cache@v4
         with:

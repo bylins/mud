@@ -17,7 +17,6 @@ RUN git clone https://github.com/bylins/mud mud
 
 WORKDIR /mud/mud
 RUN cp -r lib.template/* lib
-RUN find subprojects -type d -empty -delete
 
 ARG BUILD_TYPE=dev
 ENV BUILD_TYPE=${BUILD_TYPE}

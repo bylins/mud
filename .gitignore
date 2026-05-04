@@ -35,7 +35,7 @@ syslog.CRASH
 syslog.CRASH.*
 syslog.bz2
 archive/
-.*DS_Store
+.DS_Store
 
 # In-source build artifacts (when cmake run from project root by mistake)
 /CMakeCache.txt
@@ -51,3 +51,10 @@ archive/
 
 # Backup files from patch/sed
 *.orig
+
+# downloadable dependencies
+subprojects/.wraplock
+subprojects/fmt
+subprojects/gtest
+subprojects/yaml-cpp
+subprojects/zlib

@@ -37,9 +37,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Clean empty subproject dirs
-        run: find subprojects -type d -empty -delete
-
       - name: Install base dependencies
         uses: ./.github/actions/install-linux-deps
         with:
@@ -104,9 +101,6 @@ jobs:
 
       - uses: actions/checkout@v4
 
-      - name: Clean empty subproject dirs
-        run: find subprojects -type d -empty -delete
-
       - name: Install GCC 15 and build dependencies
         uses: ./.github/actions/install-linux-deps
         with:
@@ -134,9 +128,6 @@ jobs:
     if: github.ref == 'refs/heads/world-load-refactoring' || github.ref == 'refs/heads/master' || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
     steps:
       - uses: actions/checkout@v4
-
-      - name: Clean empty subproject dirs
-        run: find subprojects -type d -empty -delete
 
       - name: Install dependencies
         run: |
