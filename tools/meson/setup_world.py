@@ -18,14 +18,14 @@ print(f"Setting up world data in {build_dir}...")
 lib_src = os.path.join(source_root, "lib")
 template_src = os.path.join(source_root, "lib.template")
 
-if os.path.exists(small_world_dir):
-    shutil.rmtree(small_world_dir)
-
-if os.path.exists(lib_src):
-    shutil.copytree(lib_src, small_world_dir)
-else:
+if not os.path.exists(lib_src):
     print(f"ERROR: Source 'lib' not found at {lib_src}")
     sys.exit(1)
+
+if not os.path.exists(small_world_dir):
+    shutil.copytree(lib_src, small_world_dir)
+else:
+    shutil.copytree(lib_src, small_world_dir, dirs_exist_ok=True)
 
 if os.path.exists(template_src):
     for item in os.listdir(template_src):
