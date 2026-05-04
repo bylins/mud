@@ -36,7 +36,7 @@ jobs:
         run: echo "PKG_CONFIG_PATH=C:\vcpkg\installed\x64-windows\lib\pkgconfig" >> $env:GITHUB_ENV
 
       - name: Configure meson
-        run: meson setup build --wipe -Dbuild_profile=release --unity=on -Dunity_size=45
+        run: meson setup build --wipe -Dbuild_profile=release -Dunity_size=45
 
       - name: Build
         run: meson compile -C build tests
@@ -79,7 +79,7 @@ jobs:
         env:
           CC: clang-cl
           CXX: clang-cl
-        run: meson setup build --wipe -Dbuild_profile=release --unity=on -Dunity_size=45
+        run: meson setup build --wipe -Dbuild_profile=release -Dunity_size=45
 
       - name: Build
         run: meson compile -C build tests
@@ -115,7 +115,7 @@ jobs:
 
       - name: Configure meson
         shell: msys2 {0}
-        run: meson setup build --wipe -Dbuild_profile=release --unity=on -Dunity_size=45
+        run: meson setup build --wipe -Dbuild_profile=release -Dunity_size=45
 
       - name: Build
         shell: msys2 {0}
@@ -185,7 +185,7 @@ jobs:
           PKG_CONFIG_PATH: "/usr/local/lib/pkgconfig:/usr/local/lib64/pkgconfig:/usr/local/share/pkgconfig"
         run: |
           cd "$GITHUB_WORKSPACE"
-          meson setup build --wipe ${{ matrix.config.meson_flags }} --unity=on -Dunity_size=45
+          meson setup build --wipe ${{ matrix.config.meson_flags }} -Dunity_size=45
 
       - name: Build
         shell: C:\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
@@ -235,7 +235,7 @@ jobs:
 
       - name: Configure meson
         shell: wsl-bash {0}
-        run: meson setup build --wipe ${{ matrix.config.meson_flags }} --unity=on -Dunity_size=45
+        run: meson setup build --wipe ${{ matrix.config.meson_flags }} -Dunity_size=45
 
       - name: Build
         shell: wsl-bash {0}

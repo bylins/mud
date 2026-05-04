@@ -1,5 +1,5 @@
 # использование:
-# docker build -t mud-server --build-arg BUILD_TYPE=test .
+# docker build -t mud-server --build-arg BUILD_TYPE=dev .
 # docker run -d -p 4000:4000 -e MUD_PORT=4000 -v ./lib:/mud/lib --name mud mud-server
 
 # Этап 1: Сборка проекта
@@ -19,7 +19,7 @@ WORKDIR /mud/mud
 RUN cp -r lib.template/* lib
 RUN find subprojects -type d -empty -delete
 
-ARG BUILD_TYPE=test
+ARG BUILD_TYPE=dev
 ENV BUILD_TYPE=${BUILD_TYPE}
 
 RUN meson setup build -Dbuild_tests=false -Dbuild_profile=${BUILD_TYPE} --unity=on -Dunity_size=45

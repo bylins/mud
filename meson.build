@@ -10,19 +10,19 @@ project_args = []
 dependencies = []
 
 build_profile = get_option('build_profile')
-buildtype = {'release': 'Release', 'debug': 'Debug', 'test': 'Test', 'fasttest': 'FastTest', 'custom': 'Custom'}[build_profile]
+buildtype = {'release': 'Release', 'debug': 'Debug', 'dev': 'Dev', 'fasttest': 'FastTest', 'custom': 'Custom'}[build_profile]
 
-if build_profile in ['test', 'fasttest']
+if build_profile in ['dev', 'fasttest']
     project_args += ['-DTEST_BUILD']
 endif
-if build_profile == 'test'
+if build_profile == 'dev'
     project_args += ['-DLOG_AUTOFLUSH']
 endif
 
 profile_target_opts = {
     'release': ['optimization=0', 'debug=true'],
     'debug': ['optimization=0', 'debug=true'],
-    'test': ['optimization=3', 'debug=false'],
+    'dev': ['optimization=3', 'debug=false'],
     'fasttest': ['debug=false'],
     'custom': [],
 }[build_profile]
@@ -48,7 +48,7 @@ if get_option('with_asan')
   profile_target_opts += ['b_sanitize=address']
 endif
 
-if cpp.get_argument_syntax() == 'msvc' and build_profile in ['debug', 'test']
+if cpp.get_argument_syntax() == 'msvc' and build_profile in ['debug', 'dev']
     add_project_link_arguments('/DEBUG', language: 'cpp')
 endif
 
