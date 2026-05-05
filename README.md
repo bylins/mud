@@ -18,6 +18,7 @@
   - [Windows (MinGW / MSYS2)](#windows-mingw--msys2)
   - [Cross-компиляция под Windows с Linux (MinGW)](#cross-компиляция-под-windows-с-linux-mingw)
 - [Unity-сборка](#unity-сборка)
+- [Пересборка](#пересборка)
 - [Тесты](#тесты)
 - [Docker](#docker)
 - [Опции сборки](#опции-сборки)
@@ -153,6 +154,26 @@ meson setup build -Dunity_size=45
 ```
 
 Рекомендуемые значения `unity_size`: 30–50. Чем больше ядер — тем большее значение имеет смысл пробовать. Флаг можно передать при первом `meson setup` или сбросить конфигурацию через `meson setup build --wipe`.
+
+## Пересборка
+Если не требуется менять конфигурацию сборки, пересборка осуществляется так:
+
+```bash
+meson compile -C build
+
+# также допустимо, если бэкендом выбран ninja
+ninja -C build
+```
+
+Пересборка с изменением параметров осуществляется так:
+
+```bash
+# первая сборка
+meson setup build -Dyaml=system -Dunity_size=45
+
+# теперь yaml соберется из кода, unity_size по-прежнему 45
+meson setup --reconfigure build -Dyaml=builtin
+```
 
 ---
 
