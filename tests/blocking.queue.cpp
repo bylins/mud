@@ -3,6 +3,7 @@
 #include <gtest/gtest.h>
 
 #include <thread>
+#include <future>
 
 class BlockingQueue_F: public ::testing::Test
 {
@@ -111,6 +112,22 @@ TEST_F(BlockingQueue_F, ConsumeDestroy)
 	m_queue.destroy();
 
 	consume.join();
+}
+
+TEST(BlockingQueue, DestroyDoesNotDeadlock)
+{
+	constexpr int kIterations = 10'000;
+	for (int i = 0; i < kIterations; ++i) {
+		BlockingQueue<int> queue(128);
+		auto future = std::async(std::launch::async, [&]() {
+			int result;
+			queue.pop(result);
+		});
+		queue.destroy();
+		auto status = future.wait_for(std::chrono::milliseconds(500));
+		ASSERT_EQ(status, std::future_status::ready)
+			<< "Deadlock on iteration " << i;
+	}
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
