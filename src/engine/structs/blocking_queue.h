@@ -58,10 +58,7 @@ bool BlockingQueue<MessageType>::full() const {
 
 template<typename MessageType>
 void BlockingQueue<MessageType>::destroy() {
-	{
-		std::unique_lock<std::mutex> lock(m_messages_mutex);
-		m_destroying = true;
-	}
+	m_destroying = true;
 
 	m_new_message.notify_all();
 	m_message_processed.notify_all();
