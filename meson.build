@@ -720,7 +720,26 @@ main_sources = files(
   'src/engine/db/player_index.cpp',
   'src/gameplay/classes/mob_classes_info.cpp',
   'src/gameplay/classes/recalc_mob_params_by_vnum.cpp',
-  'src/engine/scripting/trigger_indenter.cpp'
+  'src/engine/scripting/trigger_indenter.cpp',
+  # Logging
+  'src/utils/logging/file_log_sender.cpp',
+  'src/utils/logging/log_manager.cpp',
+  # Tracing & Observability
+  'src/utils/tracing/trace_manager.cpp',
+  'src/utils/thread_pool.cpp',
+  'src/engine/observability/provider.cpp',
+  'src/engine/observability/metrics.cpp',
+  'src/engine/observability/helpers.cpp',
+  # World Data Sources
+  'src/engine/db/world_checksum.cpp',
+  'src/engine/db/world_data_source_manager.cpp',
+  'src/engine/db/legacy_world_data_source.cpp',
+  'src/engine/db/world_data_source_base.cpp',
+  # Crafting
+  'src/gameplay/crafting/craft_commands.cpp',
+  'src/gameplay/crafting/craft.cpp',
+  'src/gameplay/crafting/craft_logger.cpp',
+  'src/gameplay/crafting/craft_static.cpp'
 )
 
 msdp_sources = files(
@@ -745,29 +764,6 @@ if admin_api_opt
         'src/engine/network/admin_api/command_registry.cpp',
     )
 endif
-
-
-main_sources += files(
-    # Logging
-    'src/utils/logging/file_log_sender.cpp',
-    'src/utils/logging/log_manager.cpp',
-    # Tracing & Observability
-    'src/utils/tracing/trace_manager.cpp',
-    'src/utils/thread_pool.cpp',
-    'src/engine/observability/provider.cpp',
-    'src/engine/observability/metrics.cpp',
-    'src/engine/observability/helpers.cpp',
-    # World Data Sources
-    'src/engine/db/world_checksum.cpp',
-    'src/engine/db/world_data_source_manager.cpp',
-    'src/engine/db/legacy_world_data_source.cpp',
-    'src/engine/db/world_data_source_base.cpp',
-    # Crafting
-    'src/gameplay/crafting/craft_commands.cpp',
-    'src/gameplay/crafting/craft.cpp',
-    'src/gameplay/crafting/craft_logger.cpp',
-    'src/gameplay/crafting/craft_static.cpp'
-)
 
 if sqlite_opt != 'disabled'
     main_sources += files('src/engine/db/sqlite_world_data_source.cpp')
@@ -832,6 +828,7 @@ summary({
 summary({
     'Build Tests':     get_option('build_tests'),
     'Precompiled headers':     use_pch,
+    'Unity build': get_option('unity'),
     'Coverage':        get_option('b_coverage'),
     'ASan':            get_option('with_asan'),
     'Scripting':       get_option('scripting'),

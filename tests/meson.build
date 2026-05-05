@@ -1,5 +1,4 @@
 message('Seting up tests...')
-gtest_opt = get_option('gtest')
 if gtest_opt == 'builtin'
     gtest_sub = subproject('gtest', default_options: ['default_library=static'])
     gtest_dep = gtest_sub.get_variable('gtest_dep')
