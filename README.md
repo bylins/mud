@@ -10,18 +10,22 @@
 
 ## Содержание
 
-- [Подготовка](#подготовка)
-- [Сборка](#сборка)
-  - [Linux / WSL](#linux--wsl)
-  - [macOS](#macos)
-  - [Windows (MSVC / Clang)](#windows-msvc--clang)
-  - [Windows (MinGW / MSYS2)](#windows-mingw--msys2)
-  - [Cross-компиляция под Windows с Linux (MinGW)](#cross-компиляция-под-windows-с-linux-mingw)
-- [Unity-сборка](#unity-сборка)
-- [Пересборка](#пересборка)
-- [Тесты](#тесты)
-- [Docker](#docker)
-- [Опции сборки](#опции-сборки)
+ * [Подготовка](#подготовка)
+ * [Сборка](#сборка)
+  * [Linux / WSL](#linux--wsl)
+  * [macOS](#macos)
+  * [Windows (MSVC / Clang)](#windows-msvc--clang)
+  * [Windows (MinGW / MSYS2)](#windows-mingw--msys2)
+  * [Cross-компиляция под Windows с Linux (MinGW)](#cross-компиляция-под-windows-с-linux-mingw)
+ * [Unity-сборка](#unity-сборка)
+ * [Пересборка](#пересборка)
+ * [Тесты](#тесты)
+  * [Покрытие кода](#покрытие-кода)
+ * [Docker](#docker)
+ * [Опции сборки](#опции-сборки)
+  * [Профиль сборки](#профиль-сборки)
+  * [Функциональность](#функциональность)
+  * [Зависимости](#зависимости)
 
 ---
 
