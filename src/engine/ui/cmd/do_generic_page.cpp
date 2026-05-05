@@ -28,7 +28,7 @@ extern char *immlist;
 extern char *policies;
 extern char *handbook;
 
-extern void show_code_date(CharData *ch);
+extern void ShowBuildInfo(CharData *ch);
 
 void DoGenericPage(CharData *ch, char * /*argument*/, int/* cmd*/, int subcmd) {
 	switch (subcmd) {
@@ -48,7 +48,7 @@ void DoGenericPage(CharData *ch, char * /*argument*/, int/* cmd*/, int subcmd) {
 			break;
 		case kScmdClear: SendMsgToChar("\033[H\033[J", ch);
 			break;
-		case kScmdVersion: show_code_date(ch);
+		case kScmdVersion: ShowBuildInfo(ch);
 			break;
 		default: log("SYSERR: Unhandled case in DoGenericPage. (%d)", subcmd);
 			return;

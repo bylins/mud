@@ -272,9 +272,40 @@ if git.found()
     git_rev = run_command(git, 'rev-parse', '--short', 'HEAD', check: false).stdout().strip()
 endif
 
-conf_data = configuration_data()
-conf_data.set('REVISION', git_rev)
-conf_data.set('CMAKE_BINARY_DIR', meson.project_build_root())
+feature_flags = []
+if admin_api_opt
+    feature_flags += 'admin_api'
+endif
+if yaml_opt != 'disabled'
+    feature_flags += 'yaml'
+endif
+if sqlite_opt != 'disabled'
+    feature_flags += 'sqlite'
+endif
+if telegram_opt != 'disabled'
+    feature_flags += 'telegram'
+endif
+if otel_opt != 'disabled'
+    feature_flags += 'otel'
+endif
+if get_option('with_asan')
+    feature_flags += 'asan'
+endif
+if get_option('b_coverage')
+    feature_flags += 'gcov'
+endif
+if get_option('unity') != 'off'
+    feature_flags += 'unity@' + get_option('unity_size').to_string()
+endif
+
+features = (feature_flags.length() > 0 ? ', '.join(feature_flags) : 'none')
+
+compiler_id = '@0@ @1@ (@2@-@3@)'.format(
+    cpp.get_id(),
+    cpp.version(),
+    host_machine.cpu_family(),
+    host_machine.system(),
+)
 
 version_cpp = custom_target('version_gen',
   input: 'src/version.cpp.in',
@@ -282,7 +313,7 @@ version_cpp = custom_target('version_gen',
   command: [
     py3,
     files('tools/meson/generate_version.py'),
-    '@INPUT@', '@OUTPUT@', git_rev, meson.project_build_root(), buildtype
+    '@INPUT@', '@OUTPUT@', git_rev, buildtype, features, compiler_id
   ]
 )
 

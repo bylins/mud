@@ -175,6 +175,8 @@ extern void log_zone_count_reset();
 //extern int perform_move(CharData *ch, int dir, int following, int checkmob, CharData *leader);
 extern const char* build_datetime;
 extern const char* revision;
+extern const char* build_compiler;
+extern const char* build_features;
 
 // flags for show_list_to_char
 
@@ -372,7 +374,7 @@ extern int nameserver_is_slow;    // see config.cpp
 extern int mana[];
 extern const char *save_info_msg[];    // In olc.cpp
 extern void tact_auction();
-extern void log_code_date();
+extern void LogBuildInfo();
 
 // local globals
 DescriptorData *descriptor_list = nullptr;    // master desc list
@@ -726,8 +728,8 @@ int main_function(int argc, char **argv) {
 		perror("\r\nSYSERR: Fatal error changing to data directory");
 		exit(1);
 	}
-	log_code_date();
-	printf("[%s] Code version %s, revision: %s\r\n", utils::NowTs().c_str(), build_datetime, revision);
+	LogBuildInfo();
+	printf("[%s] Code version %s, revision: %s\r\nCompiler: %s\r\nEnabled features: %s\r\n", utils::NowTs().c_str(), build_datetime, revision, build_compiler, build_features);
 	if (scheck) {
 		GameLoader::BootWorld();
 		printf("Done.");
