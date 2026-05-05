@@ -103,6 +103,8 @@ jobs:
 
       - name: Configure meson
         shell: msys2 {0}
+        env:
+          LDFLAGS: -static-libgcc -static-libstdc++ -Wl,-Bstatic -lwinpthread -Wl,-Bdynamic
         run: meson setup build --wipe -Dbuild_profile=release -Dunity_size=45
 
       - name: Build
@@ -141,6 +143,11 @@ jobs:
             python3 python3-pip
             libssl-devel libcurl-devel libexpat1-devel
             libcrypt-devel gettext-devel unzip git wget pkg-config libyaml-cpp-dev
+
+      - uses: cygwin/cygwin-install-action@v6
+        if: matrix.config.with_yaml
+        with:
+          packages: libyaml-cpp-dev
 
       - name: Install Meson
         shell: C:\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
