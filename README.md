@@ -159,6 +159,8 @@ meson setup build -Dunity_size=45
 
 Рекомендуемые значения `unity_size`: 30–50. Чем больше ядер — тем большее значение имеет смысл пробовать. Флаг можно передать при первом `meson setup` или сбросить конфигурацию через `meson setup build --wipe`.
 
+---
+
 ## Пересборка
 Если не требуется менять конфигурацию сборки, пересборка осуществляется так:
 
@@ -177,6 +179,9 @@ meson setup build -Dyaml=system -Dunity_size=45
 
 # теперь yaml соберется из кода, unity_size по-прежнему 45
 meson setup --reconfigure build -Dyaml=builtin
+
+# сброс всех ранее примененных настроек
+meson setup --wipe build
 ```
 
 ---
