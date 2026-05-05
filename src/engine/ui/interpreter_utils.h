@@ -1,4 +1,4 @@
 #pragma once
-#include "engine/network/descriptor_data.h"
 
+class DescriptorData;
 int check_dupes_host(DescriptorData *d, bool autocheck = false);
