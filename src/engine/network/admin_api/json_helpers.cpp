@@ -5,8 +5,6 @@
  \date 2026-02-13
 */
 
-#ifdef ENABLE_ADMIN_API
-
 #include "json_helpers.h"
 #include "../../../engine/structs/structs.h"
 #include "../../../utils/utils.h"
@@ -103,7 +101,5 @@ std::string Utf8ToKoi8r(const std::string& utf8)
 }
 
 }  // namespace admin_api::json
-
-#endif // ENABLE_ADMIN_API
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
