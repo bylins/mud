@@ -317,9 +317,11 @@ version_cpp = custom_target('version_gen',
   ]
 )
 
-message('Setting up world data directories...')
-setup_cmd = run_command(py3, files('tools/meson/setup_world.py'), meson.project_build_root(), meson.project_source_root(), get_option('full_world_path'), check: true)
-message(setup_cmd.stdout().strip())
+if get_option('small_world')
+    message('Setting up world data directories...')
+    setup_cmd = run_command(py3, files('tools/meson/setup_world.py'), meson.project_build_root(), meson.project_source_root(), get_option('full_world_path'), check: true)
+    message(setup_cmd.stdout().strip())
+endif
 
 main_sources = files(
   'src/engine/structs/blocking_queue.cpp', 

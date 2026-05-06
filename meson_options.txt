@@ -12,6 +12,7 @@ option('use_pch', type: 'boolean', value: true, description: 'Use precompiled he
 option('admin_api', type: 'boolean', value: false, description: 'Enable Admin API and JSON-related features')
 
 # World Data Setup
+option('small_world', type: 'boolean', value: false, description: 'Copy data in small world')
 option('full_world_path', type: 'string', value: '', description: 'Absolute path to the full world data for symlinking')
 
 # Options for libfort
