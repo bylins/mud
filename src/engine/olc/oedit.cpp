@@ -14,6 +14,7 @@
 #include "engine/core/sysdep.h"
 #include "engine/structs/structs.h"
 #include "engine/core/comm.h"
+#include "engine/core/handler.h"
 #include "gameplay/magic/spells.h"
 #include "utils/logger.h"
 #include "utils/utils.h"
@@ -60,7 +61,6 @@ extern const char *ingradient_bits[];
 extern const char *magic_container_bits[];*/
 extern DescriptorData *descriptor_list;
 extern int top_imrecipes;
-extern void ExtractObjFromWorld(ObjData *obj);
 
 void oedit_setup(DescriptorData *d, int real_num);
 void oedit_object_copy(ObjData *dst, CObjectPrototype *src);

@@ -75,12 +75,12 @@
  */
 
 // Standard C headers  *************************************************
-#include <stdio.h>
-#include <ctype.h>
-#include <stdarg.h>
+#include <cstdio>
+#include <cctype>
+#include <cstdarg>
 
 #ifdef HAVE_STRING_H
-#include <string.h>
+#include <cstring>
 #endif
 
 #ifdef HAVE_STRINGS_H
@@ -88,7 +88,7 @@
 #endif
 
 #if     (defined (STDC_HEADERS) || defined (__GNU_LIBRARY__))
-#include <stdlib.h>
+#include <cstdlib>
 
 #else				// No standard headers.
 
@@ -110,7 +110,7 @@ extern void abort(), exit();
 #endif
 
 #ifdef CIRCLE_WINDOWS
-# include <sys\types.h>
+# include <sys/types.h>
 #endif
 
 #ifdef HAVE_UNISTD_H

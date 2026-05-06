@@ -8,8 +8,6 @@
 #ifndef BYLINS_SRC_ENGINE_NETWORK_ADMIN_API_H_
 #define BYLINS_SRC_ENGINE_NETWORK_ADMIN_API_H_
 
-#ifdef ENABLE_ADMIN_API
-
 struct DescriptorData;
 
 // Обработчик команд Admin API
@@ -59,7 +57,6 @@ void admin_api_delete_trigger(DescriptorData *d, int trig_vnum);
 void admin_api_send_json(DescriptorData *d, const char *json);
 void admin_api_send_error(DescriptorData *d, const char *error_msg);
 
-#endif // ENABLE_ADMIN_API
 #endif // BYLINS_SRC_ENGINE_NETWORK_ADMIN_API_H_
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

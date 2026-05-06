@@ -28,6 +28,7 @@ runs:
         $SUDO apt-get install -y \
           build-essential make \
           libssl-dev libcurl4-gnutls-dev libexpat1-dev \
-          gettext unzip cmake gdb \
+          gettext unzip gdb \
           libgtest-dev zlib1g-dev libcrypt-dev \
+          ninja-build meson pkg-config \
           ${{ inputs.extra-packages }}

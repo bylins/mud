@@ -4,6 +4,8 @@
 #include "engine/network/telnet.h"
 #include "utils/logger.h"
 
+#include <cstdarg>
+
 namespace msdp {
 bool debug_flag = false;
 void debug(const bool on) {

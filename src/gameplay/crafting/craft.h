@@ -10,7 +10,7 @@
 #include "engine/entities/obj_data.h"
 #include "engine/structs/structs.h"
 
-#include <stdarg.h>
+#include <cstdarg>
 
 #include <set>
 #include <map>

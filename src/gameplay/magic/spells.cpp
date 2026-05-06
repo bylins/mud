@@ -27,6 +27,7 @@
 #include "administration/privilege.h"
 #include "engine/ui/color.h"
 #include "engine/ui/cmd/do_flee.h"
+#include "engine/ui/cmd_god/do_stat.h"
 #include "gameplay/mechanics/stuff.h"
 #include "engine/core/utils_char_obj.inl"
 #include "gameplay/mechanics/stable_objs.h"
@@ -2003,7 +2004,6 @@ void SpellFullIdentify(int/* level*/, CharData *ch, CharData *victim, ObjData *o
 	}
 }
 
-extern void do_stat_character(CharData *ch, CharData *k, const int virt = 0);
 void SpellIdentify(int/* level*/, CharData *ch, CharData *victim, ObjData *obj) {
 	if (obj)
 		mort_show_obj_values(obj, ch, 100);

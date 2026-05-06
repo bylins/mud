@@ -13,31 +13,29 @@ jobs:
       matrix:
         config:
           - name: "Base"
-            cmake_flags: "-DCMAKE_BUILD_TYPE=Release"
+            meson_flags: "-Dbuild_profile=release"
             packages: ""
 
           - name: "YAML"
-            cmake_flags: "-DCMAKE_BUILD_TYPE=Release -DHAVE_YAML=ON"
+            meson_flags: "-Dbuild_profile=release -Dyaml=system"
             packages: "libyaml-cpp-dev"
 
           - name: "SQLite"
-            cmake_flags: "-DCMAKE_BUILD_TYPE=Release -DHAVE_SQLITE=ON"
+            meson_flags: "-Dbuild_profile=release -Dsqlite=system"
             packages: "libsqlite3-dev"
 
           - name: "Base + Admin API + OTEL"
-            cmake_flags: "-DCMAKE_BUILD_TYPE=Release -DENABLE_ADMIN_API=ON -DWITH_OTEL=ON -DCMAKE_PREFIX_PATH=/opt/opentelemetry-cpp"
-            packages: ""
+            meson_flags: "-Dbuild_profile=release -Dadmin_api=true -Dotel=system"
+            packages: "cmake"
             with_otel: true
 
           - name: "YAML + Admin API + OTEL"
-            cmake_flags: "-DCMAKE_BUILD_TYPE=Release -DHAVE_YAML=ON -DENABLE_ADMIN_API=ON -DWITH_OTEL=ON -DCMAKE_PREFIX_PATH=/opt/opentelemetry-cpp"
-            packages: "libyaml-cpp-dev"
+            meson_flags: "-Dbuild_profile=release -Dyaml=system -Dadmin_api=true -Dotel=system"
+            packages: "cmake libyaml-cpp-dev"
             with_otel: true
 
     steps:
       - uses: actions/checkout@v4
-        with:
-          submodules: recursive
 
       - name: Install base dependencies
         uses: ./.github/actions/install-linux-deps
@@ -74,16 +72,19 @@ jobs:
           cmake --build otel-build -j$(nproc)
           sudo cmake --install otel-build
 
-      - name: Configure CMake
+      - name: Set otel cmake prefix
+        if: matrix.config.with_otel
+        run: echo "CMAKE_PREFIX_PATH=/opt/opentelemetry-cpp" >> $GITHUB_ENV
+
+      - name: Configure meson
         run: |
-          mkdir -p build && cd build
-          cmake ${{ matrix.config.cmake_flags }} ..
+          meson setup build --wipe ${{ matrix.config.meson_flags }} -Dunity_size=45
 
       - name: Build
-        run: cd build && make tests -j$(nproc)
+        run: meson compile -C build tests
 
       - name: Run tests
-        run: cd build && ./tests/tests
+        run: meson test -C build
 
   gcc15:
     name: GCC 15 / Base
@@ -99,8 +100,6 @@ jobs:
           git config --global --add safe.directory '*'
 
       - uses: actions/checkout@v4
-        with:
-          submodules: recursive
 
       - name: Install GCC 15 and build dependencies
         uses: ./.github/actions/install-linux-deps
@@ -111,76 +110,72 @@ jobs:
       - name: Show GCC 15 version
         run: gcc-15 --version && g++-15 --version
 
-      - name: Configure CMake
-        run: |
-          mkdir -p build && cd build
-          CC=gcc-15 CXX=g++-15 cmake -DCMAKE_BUILD_TYPE=Release ..
+      - name: Configure meson
+        env:
+          CC: gcc-15
+          CXX: g++-15
+        run: meson setup build --wipe -Dbuild_profile=release -Dunity_size=45
 
       - name: Build
-        run: cd build && make tests -j$(nproc)
+        run: meson compile -C build tests
 
       - name: Run tests
-        run: cd build && ./tests/tests
+        run: meson test -C build
 
   coverage:
     name: GCC / Coverage
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/world-load-refactoring' || github.ref == 'refs/heads/master' || github.event_name == 'pull_request'
-
+    if: github.ref == 'refs/heads/world-load-refactoring' || github.ref == 'refs/heads/master' || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
     steps:
       - uses: actions/checkout@v4
-        with:
-          submodules: recursive
 
       - name: Install dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y \
+            ninja-build meson pkg-config \
             libssl-dev libcurl4-gnutls-dev libexpat1-dev \
-            gettext libgtest-dev lcov
+            gettext libgtest-dev gcovr
 
-      - name: Configure CMake
+      - name: Configure meson
+        run: meson setup build --wipe -Dbuild_profile=debug -Db_coverage=true -Dunity_size=45
+
+      - name: Build and run tests
         run: |
-          mkdir build && cd build
-          cmake -DCMAKE_BUILD_TYPE=Debug -DENABLE_COVERAGE=ON -DWITH_ASAN=OFF ..
+          meson compile -C build tests
+          meson test -C build
 
-      - name: Build tests
-        run: make tests -j$(($(nproc)/2))
-        working-directory: build
-
-      - name: Run tests
-        run: ./tests/tests
-        working-directory: build
-
-      - name: Generate lcov report
-        run: |
-          lcov --capture --ignore-errors mismatch,negative \
-            --directory . --output-file coverage.info
-          lcov --remove coverage.info --ignore-errors unused \
-            '/usr/*' '*/third_party_libs/*' '*/tests/*' \
-            --output-file coverage_filtered.info
-        working-directory: build
+      - name: Generate coverage reports
+        run: ninja -C build coverage 2>&1 | tee /tmp/coverage_out.txt
 
       - name: Post coverage summary
         run: |
           echo "## Coverage Report" >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
-          lcov --summary build/coverage_filtered.info 2>&1 >> $GITHUB_STEP_SUMMARY
+          grep -E '^(lines|functions|branches):' /tmp/coverage_out.txt >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
-
-      - name: Generate HTML report
-        run: genhtml build/coverage_filtered.info --output-directory build/coverage_html
 
       - name: Upload to Codecov
         uses: codecov/codecov-action@v5
         with:
-          files: build/coverage_filtered.info
+          files: build/meson-logs/coverage.xml
           fail_ci_if_error: false
           token: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Generate ReportGenerator HTML
+        uses: danielpalme/ReportGenerator-GitHub-Action@5.5.9
+        with:
+          reports: build/meson-logs/coverage.xml
+          targetdir: build/meson-logs/coverage-html
+          reporttypes: 'Html;HtmlSummary;Badges'
+          sourcedirs: ${{ github.workspace }}
+          title: 'bylins-mud coverage'
+          tag: '${{ github.run_number }}_${{ github.run_id }}'
+          toolpath: 'reportgeneratortool'
 
       - name: Upload HTML report as artifact
         uses: actions/upload-artifact@v4
         with:
           name: coverage-html
-          path: build/coverage_html/
+          path: build/meson-logs/coverage-html/
           retention-days: 30

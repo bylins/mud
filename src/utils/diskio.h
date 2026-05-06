@@ -23,7 +23,7 @@
 #endif
 */
 
-#include <stdio.h>
+#include <cstdio>
 #include <string>
 #include "engine/core/sysdep.h"
 
