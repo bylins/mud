@@ -2198,6 +2198,13 @@ void Player::updateCharmee(int vnum, int gold) {
 		++it->second.CharmedCount;
 		it->second.spentGold += gold;
 		it->second.currRemortAvail = 1;
+		// Сброс isFavorite в 1 при повторном найме: после
+		// "наемник фаворит N" запись попадает в опалу
+		// (isFavorite=0) и пропадает из краткого списка.
+		// Повторный найм -- явный сигнал, что игрок снова с
+		// мобом работает, иначе моб теряется в кратком
+		// списке навсегда (#3263).
+		it->second.isFavorite = 1;
 	}
 }
 
