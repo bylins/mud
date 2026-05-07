@@ -20,7 +20,7 @@ if build_profile == 'dev'
 endif
 
 profile_target_opts = {
-    'release': ['optimization=0', 'debug=true'],
+    'release': ['optimization=g', 'debug=true'],
     'debug': ['optimization=0', 'debug=true'],
     'dev': ['optimization=3', 'debug=false'],
     'fasttest': ['debug=false'],
@@ -165,7 +165,7 @@ if boost_opt != 'disabled'
     endif
 endif
 
-if get_option('nocrypt') or build_profile in ['test', 'fasttest'] or host_system == 'darwin'
+if get_option('nocrypt') or build_profile in ['dev', 'fasttest'] or host_system == 'darwin'
     project_args += '-DNOCRYPT'
 else
     libcrypt = cpp.find_library('crypt', required: false)
