@@ -27,7 +27,7 @@ class ObjDecayManagerTest : public ::testing::Test {
 		auto obj = std::make_shared<ObjData>(*proto);
 		// Use base class set_timer to avoid virtual dispatch to ObjData::set_timer
 		// which would call on_timer_changed on the global manager
-		static_cast<CObjectPrototype &>(*obj).set_timer(timer);
+		obj->CObjectPrototype::set_timer(timer);
 		// kTicktimer enables timer countdown in ObjDecayManager. Without it
 		// the deadline is frozen at UINT64_MAX (room-object semantics).
 		// These low-level tests cover the timer-tick mechanism, so they need
@@ -125,7 +125,7 @@ TEST_F(ObjDecayManagerTest, OnTimerChanged_ShortenDeadline) {
 	auto obj = make_obj(100);
 	decay_mgr.insert(obj.get());
 
-	static_cast<CObjectPrototype &>(*obj).set_timer(2);
+	obj->CObjectPrototype::set_timer(2);
 	decay_mgr.on_timer_changed(obj.get());
 
 	decay_mgr.process_tick();
@@ -137,7 +137,7 @@ TEST_F(ObjDecayManagerTest, OnTimerChanged_ExtendDeadline) {
 	auto obj = make_obj(2);
 	decay_mgr.insert(obj.get());
 
-	static_cast<CObjectPrototype &>(*obj).set_timer(50);
+	obj->CObjectPrototype::set_timer(50);
 	decay_mgr.on_timer_changed(obj.get());
 
 	decay_mgr.process_tick();
@@ -153,18 +153,52 @@ TEST_F(ObjDecayManagerTest, OnTimerChanged_UntrackedIsNoop) {
 	EXPECT_EQ(decay_mgr.size(), before);
 }
 
-TEST_F(ObjDecayManagerTest, InsertDuplicate_UpdatesDeadline) {
+// Regression for #3260: re-insert of an already-tracked object must NOT
+// reset its deadline. m_timer is updated only at save/load time and
+// recomputing deadline = m_counter + m_timer would push the visible
+// timer back to its last-saved value on every give/drop/get.
+TEST_F(ObjDecayManagerTest, InsertDuplicate_PreservesDeadline) {
 	auto obj = make_obj(10);
 	decay_mgr.insert(obj.get());
-	auto size_after_first = decay_mgr.size();
+	const auto deadline_before = decay_mgr.get_deadline(obj.get());
+	const auto size_before = decay_mgr.size();
 
-	static_cast<CObjectPrototype &>(*obj).set_timer(2);
-	decay_mgr.insert(obj.get());  // second insert = update
-	EXPECT_EQ(decay_mgr.size(), size_after_first);
+	// Mutate raw m_timer (the way save/load would do) and re-insert.
+	// New contract: insert is idempotent for already-tracked objects.
+	obj->CObjectPrototype::set_timer(2);
+	decay_mgr.insert(obj.get());
 
-	decay_mgr.process_tick();
+	EXPECT_EQ(decay_mgr.size(), size_before);
+	EXPECT_EQ(decay_mgr.get_deadline(obj.get()), deadline_before);
+
+	// Original deadline still in queue: 10 ticks to expire, not 2.
+	for (int i = 0; i < 9; ++i) {
+		EXPECT_TRUE(decay_mgr.process_tick().decay_timer.empty()) << "tick " << i;
+	}
 	auto result = decay_mgr.process_tick();
 	EXPECT_EQ(result.decay_timer.size(), 1u);
+}
+
+// Pickup of an already-tracked floor item that just had kTicktimer set
+// must thaw it: deadline transitions from UINT64_MAX to m_counter +
+// m_timer.
+TEST_F(ObjDecayManagerTest, InsertThaws_FrozenWhenTicktimerActivated) {
+	auto proto = std::make_shared<CObjectPrototype>(static_cast<ObjVnum>(900099));
+	auto obj = std::make_shared<ObjData>(*proto);
+	obj->CObjectPrototype::set_timer(7);
+	objs_.push_back(obj);
+	protos_.push_back(proto);
+
+	// First insert without kTicktimer -> frozen.
+	decay_mgr.insert(obj.get());
+	EXPECT_EQ(decay_mgr.get_deadline(obj.get()), UINT64_MAX);
+
+	// Activate and re-insert -> thaw.
+	obj->set_extra_flag(EObjFlag::kTicktimer);
+	decay_mgr.insert(obj.get());
+
+	const auto now = decay_mgr.current_mud_hour();
+	EXPECT_EQ(decay_mgr.get_deadline(obj.get()), now + 7);
 }
 
 TEST_F(ObjDecayManagerTest, TimedSpellTracking) {
@@ -298,7 +332,7 @@ class ZonedecayTest : public ::testing::Test {
 		auto proto = std::make_shared<CObjectPrototype>(
 			static_cast<ObjVnum>(910000 + objs_.size()));
 		auto obj = std::make_shared<ObjData>(*proto);
-		static_cast<CObjectPrototype &>(*obj).set_timer(timer);
+		obj->CObjectPrototype::set_timer(timer);
 		obj->set_vnum_zone_from(zone_from);
 		if (zonedecay) {
 			obj->set_extra_flag(EObjFlag::kZonedecay);
