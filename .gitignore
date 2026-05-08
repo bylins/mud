@@ -56,5 +56,6 @@ archive/
 subprojects/.wraplock
 subprojects/fmt
 subprojects/gtest
+subprojects/sol2
 subprojects/yaml-cpp
 subprojects/zlib

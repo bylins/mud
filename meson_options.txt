@@ -5,6 +5,8 @@ option('build_tests', type: 'boolean', value: true, description: 'Build and run 
 option('nocrypt', type: 'boolean', value: false, description: 'Disable use of crypt()')
 option('has_epoll', type: 'boolean', value: true, description: 'Use epoll (Linux or freebsd)')
 option('scripting', type: 'boolean', value: false, description: 'Enable scripting support (Python + Boost.Python)')
+option('luajit_prototype', type: 'boolean', value: false, description: 'Enable optional sol2 + LuaJIT prototype')
+option('sol2_root', type: 'string', value: '', description: 'Optional path to sol2 root for luajit_prototype; empty uses Meson dependency/fallback')
 option('with_asan', type: 'boolean', value: false, description: 'Build with Address Sanitizer')
 option('use_pch', type: 'boolean', value: true, description: 'Use precompiled headers for circle.library')
 

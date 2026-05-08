@@ -6,6 +6,7 @@ project('bylins', 'cpp',
 cpp = meson.get_compiler('cpp')
 host_system = host_machine.system()
 py3 = import('python').find_installation()
+fs = import('fs')
 project_args = []
 dependencies = []
 
@@ -176,6 +177,23 @@ endif
 
 threads_dep = dependency('threads')
 dependencies += threads_dep
+
+luajit_prototype_opt = get_option('luajit_prototype')
+if luajit_prototype_opt
+    luajit_dep = dependency('luajit', required: true)
+    sol2_root = get_option('sol2_root')
+    if sol2_root != ''
+        sol2_header = sol2_root / 'include' / 'sol' / 'sol.hpp'
+        if not fs.exists(sol2_header)
+            error('sol2 headers not found at @0@. Set -Dsol2_root=/path/to/sol2 or disable -Dluajit_prototype.'.format(sol2_root))
+        endif
+        sol2_dep = declare_dependency(include_directories: include_directories(sol2_root / 'include', is_system: true))
+    else
+        sol2_dep = dependency('sol2', required: true, fallback: ['sol2', 'sol2_dep'])
+    endif
+    project_args += '-DWITH_LUAJIT_PROTOTYPE'
+    dependencies += [luajit_dep, sol2_dep]
+endif
 
 # Admin API
 admin_api_opt = get_option('admin_api')
@@ -380,6 +398,7 @@ main_sources = files(
   'src/engine/scripting/dg_scripts.cpp',
   'src/engine/scripting/dg_triggers.cpp',
   'src/engine/scripting/dg_wldcmd.cpp',
+  'src/engine/ui/cmd_god/do_luatest.cpp',
   'src/gameplay/economics/dictionary.cpp',
   'src/utils/diskio.cpp',
   'src/gameplay/statistics/dps.cpp',
@@ -787,6 +806,10 @@ if get_option('scripting')
     main_sources += files('src/engine/scripting/scripting.cpp')
 endif
 
+if luajit_prototype_opt
+    main_sources += files('src/engine/scripting/lua_prototype.cpp')
+endif
+
 if admin_api_opt
     main_sources += files(
         'src/engine/network/admin_api.cpp',
@@ -865,6 +888,7 @@ summary({
     'Coverage':        get_option('b_coverage'),
     'ASan':            get_option('with_asan'),
     'Scripting':       get_option('scripting'),
+    'LuaJIT prototype': luajit_prototype_opt,
     'Admin API':       get_option('admin_api'),
     'Epoll':           epoll_enabled,
     'Linker':          linker_choice != '' ? linker_choice : 'default',
@@ -876,6 +900,7 @@ summary({
     'Boost':           boost_opt,
     'fmt':             fmt_opt,
     'gtest':             gtest_opt,
+    'LuaJIT':          luajit_prototype_opt ? 'enabled' : 'disabled',
     'SQLite':          sqlite_opt,
     'YAML':            yaml_opt,
     'Telegram':        telegram_opt,
