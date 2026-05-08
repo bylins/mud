@@ -22,6 +22,7 @@
 #include "utils/logger.h"
 
 #include <compare>
+#include <utility>
 
 struct RoomData;    // forward declaration to avoid inclusion of room.hpp and any dependencies of that header.
 
@@ -181,6 +182,9 @@ class Trigger {
 	void set_trigger_type(const long _) { trigger_type = _; }
 	[[nodiscard]] auto get_script_language() const { return script_language; }
 	void set_script_language(const TriggerScriptLanguage _) { script_language = _; }
+	[[nodiscard]] const std::string &get_lua_script_source() const { return lua_script_source; }
+	void set_lua_script_source(std::string source) { lua_script_source = std::move(source); }
+	[[nodiscard]] bool has_lua_script_source() const { return !lua_script_source.empty(); }
 	void clear_var_list() {var_list.clear();}
 	cmdlist_ptr cmdlist;    // top of command list             //
 	cmdlist_element::shared_ptr wait_line;    // ptr to current line of trigger after wait  //
@@ -205,6 +209,7 @@ class Trigger {
 	std::string name;    // name of trigger
 	long trigger_type;    // type of trigger (for bitvector) //
 	TriggerScriptLanguage script_language = TriggerScriptLanguage::Dg;
+	std::string lua_script_source;
 	bool halted;
 };
 

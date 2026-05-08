@@ -6524,6 +6524,7 @@ Trigger::Trigger(const Trigger &from) :
 	name(from.name),
 	trigger_type(from.trigger_type),
 	script_language(from.script_language),
+	lua_script_source(from.lua_script_source),
 	halted(from.halted) {
 }
 
@@ -6533,6 +6534,7 @@ void Trigger::reset() {
 	name = DEFAULT_TRIGGER_NAME;
 	trigger_type = 0;
 	script_language = TriggerScriptLanguage::Dg;
+	lua_script_source.clear();
 	cmdlist.reset();
 	wait_line.reset();
 	curr_line.reset();
@@ -6555,6 +6557,7 @@ Trigger &Trigger::operator=(const Trigger &right) {
 	name = right.name;
 	trigger_type = right.trigger_type;
 	script_language = right.script_language;
+	lua_script_source = right.lua_script_source;
 	cmdlist = right.cmdlist;
 	narg = right.narg;
 	add_flag = right.add_flag;

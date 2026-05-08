@@ -380,7 +380,8 @@ void TriggersFile::LoadDgTriggerScript(Trigger *trig, const std::string &cmds, i
 	}
 }
 
-void TriggersFile::LoadLuaTriggerScript(Trigger *, const std::string &) {
+void TriggersFile::LoadLuaTriggerScript(Trigger *trig, const std::string &cmds) {
+	trig->set_lua_script_source(cmds);
 }
 
 class WorldFile : public DiscreteFile {
