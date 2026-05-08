@@ -6523,6 +6523,7 @@ Trigger::Trigger(const Trigger &from) :
 	attach_type(from.attach_type),
 	name(from.name),
 	trigger_type(from.trigger_type),
+	script_language(from.script_language),
 	halted(from.halted) {
 }
 
@@ -6531,6 +6532,7 @@ void Trigger::reset() {
 	attach_type = 0;
 	name = DEFAULT_TRIGGER_NAME;
 	trigger_type = 0;
+	script_language = TriggerScriptLanguage::Dg;
 	cmdlist.reset();
 	wait_line.reset();
 	curr_line.reset();
@@ -6552,6 +6554,7 @@ Trigger &Trigger::operator=(const Trigger &right) {
 	set_attach_type(right.get_attach_type());
 	name = right.name;
 	trigger_type = right.trigger_type;
+	script_language = right.script_language;
 	cmdlist = right.cmdlist;
 	narg = right.narg;
 	add_flag = right.add_flag;
