@@ -345,6 +345,19 @@ sol::table BuildMudNamespace(sol::state &lua, Trigger *trigger)
 	return mud;
 }
 
+void HardenLuaState(sol::state &lua)
+{
+	lua["ffi"] = sol::nil;
+	lua["jit"] = sol::nil;
+	lua["bit"] = sol::nil;
+	lua["package"] = sol::nil;
+	lua["require"] = sol::nil;
+	lua["module"] = sol::nil;
+	lua["dofile"] = sol::nil;
+	lua["loadfile"] = sol::nil;
+	lua["loadstring"] = sol::nil;
+}
+
 void LogLuaError(const Trigger *trigger, const sol::error &err)
 {
 	char buf[kMaxStringLength];
@@ -427,6 +440,7 @@ int LuaScriptEngine::RunTrigger(Trigger *trigger, const LuaTriggerContext &ctx)
 #if defined(WITH_LUAJIT_PROTOTYPE)
 	sol::state lua;
 	lua.open_libraries(sol::lib::base, sol::lib::math, sol::lib::string, sol::lib::table);
+	HardenLuaState(lua);
 
 	lua["mud"] = BuildMudNamespace(lua, trigger);
 	sol::table lua_ctx = BuildLuaContext(lua, trigger, ctx);
