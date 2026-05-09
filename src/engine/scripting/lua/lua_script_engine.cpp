@@ -1,6 +1,7 @@
 #include "engine/scripting/lua/lua_script_engine.h"
 
 #include "engine/db/db.h"
+#include "engine/entities/char_data.h"
 #include "engine/scripting/dg_scripts.h"
 #include "utils/logger.h"
 
@@ -12,6 +13,10 @@ namespace lua_scripting {
 
 #if defined(WITH_LUAJIT_PROTOTYPE)
 namespace {
+
+struct LuaCharView {
+	CharData *ch = nullptr;
+};
 
 int GetTriggerVnum(const Trigger *trigger)
 {
@@ -39,6 +44,129 @@ const char* GetTriggerName(const Trigger *trigger)
 	return GET_TRIG_NAME(trigger);
 }
 
+bool IsValidChar(const LuaCharView &view)
+{
+	return view.ch && !view.ch->purged();
+}
+
+std::string GetCharName(const LuaCharView &view)
+{
+	return IsValidChar(view) ? view.ch->get_name() : "";
+}
+
+long GetCharUid(const LuaCharView &view)
+{
+	return IsValidChar(view) ? view.ch->get_uid() : 0;
+}
+
+int GetCharVnum(const LuaCharView &view)
+{
+	if (!IsValidChar(view) || !view.ch->IsNpc())
+	{
+		return 0;
+	}
+
+	const auto rnum = view.ch->get_rnum();
+	if (rnum < 0 || rnum > top_of_mobt)
+	{
+		return 0;
+	}
+
+	return mob_index[rnum].vnum;
+}
+
+int GetCharHp(const LuaCharView &view)
+{
+	return IsValidChar(view) ? view.ch->get_hit() : 0;
+}
+
+int GetCharMaxHp(const LuaCharView &view)
+{
+	return IsValidChar(view) ? view.ch->get_max_hit() : 0;
+}
+
+int GetCharRoomVnum(const LuaCharView &view)
+{
+	if (!IsValidChar(view) || view.ch->in_room == kNowhere || view.ch->in_room < 0 || view.ch->in_room > top_of_world)
+	{
+		return 0;
+	}
+
+	return world[view.ch->in_room]->vnum;
+}
+
+bool IsCharNpc(const LuaCharView &view)
+{
+	return IsValidChar(view) && view.ch->IsNpc();
+}
+
+int GetCharLevel(const LuaCharView &view)
+{
+	return IsValidChar(view) ? GetRealLevel(view.ch) : 0;
+}
+
+sol::object BuildCharView(sol::state &lua, CharData *ch)
+{
+	if (!ch)
+	{
+		return sol::make_object(lua, sol::nil);
+	}
+
+	sol::table view = lua.create_table();
+	sol::table metatable = lua.create_table();
+	metatable[sol::meta_function::index] = [&lua, ch](sol::object, const std::string &key) -> sol::object {
+		LuaCharView view{ch};
+		if (key == "name")
+		{
+			return sol::make_object(lua, GetCharName(view));
+		}
+		if (key == "uid")
+		{
+			return sol::make_object(lua, GetCharUid(view));
+		}
+		if (key == "vnum")
+		{
+			return sol::make_object(lua, GetCharVnum(view));
+		}
+		if (key == "hp")
+		{
+			return sol::make_object(lua, GetCharHp(view));
+		}
+		if (key == "max_hp")
+		{
+			return sol::make_object(lua, GetCharMaxHp(view));
+		}
+		if (key == "room_vnum")
+		{
+			return sol::make_object(lua, GetCharRoomVnum(view));
+		}
+		if (key == "is_npc")
+		{
+			return sol::make_object(lua, IsCharNpc(view));
+		}
+		if (key == "level")
+		{
+			return sol::make_object(lua, sol::as_function([ch](sol::object) {
+				return GetCharLevel(LuaCharView{ch});
+			}));
+		}
+		if (key == "is_valid")
+		{
+			return sol::make_object(lua, sol::as_function([ch](sol::object) {
+				return IsValidChar(LuaCharView{ch});
+			}));
+		}
+
+		return sol::make_object(lua, sol::nil);
+	};
+	metatable[sol::meta_function::new_index] = [](sol::this_state state) {
+		return luaL_error(state, "CharData Lua view is read-only");
+	};
+	view[sol::metatable_key] = metatable;
+
+	return sol::make_object(lua, view);
+}
+
 void LogLuaError(const Trigger *trigger, const sol::error &err)
 {
 	char buf[kMaxStringLength];
@@ -47,7 +175,7 @@ void LogLuaError(const Trigger *trigger, const sol::error &err)
 	mudlog(buf, BRF, kLvlBuilder, ERRLOG, true);
 }
 
-sol::table BuildLuaContext(sol::state &lua, Trigger *trigger)
+sol::table BuildLuaContext(sol::state &lua, Trigger *trigger, const LuaTriggerContext &source)
 {
 	sol::table ctx = lua.create_table();
 	sol::table trigger_table = lua.create_table();
@@ -58,6 +186,8 @@ sol::table BuildLuaContext(sol::state &lua, Trigger *trigger)
 	trigger_table["attach_type"] = trigger ? static_cast<int>(trigger->get_attach_type()) : 0;
 	trigger_table["trigger_type"] = trigger ? trigger->get_trigger_type() : 0;
 	ctx["trigger"] = trigger_table;
+	ctx["owner"] = BuildCharView(lua, source.owner);
+	ctx["actor"] = BuildCharView(lua, source.actor);
 
 	return ctx;
 }
@@ -108,7 +238,7 @@ int ConvertLuaResult(const sol::protected_function_result &result, Trigger *trig
 } // namespace
 #endif
 
-int LuaScriptEngine::RunTrigger(Trigger *trigger, const LuaTriggerContext &)
+int LuaScriptEngine::RunTrigger(Trigger *trigger, const LuaTriggerContext &ctx)
 {
 	if (!trigger)
 	{
@@ -119,10 +249,11 @@ int LuaScriptEngine::RunTrigger(Trigger *trigger, const LuaTriggerContext &)
 	sol::state lua;
 	lua.open_libraries(sol::lib::base, sol::lib::math, sol::lib::string, sol::lib::table);
 
-	sol::table ctx = BuildLuaContext(lua, trigger);
+	sol::table lua_ctx = BuildLuaContext(lua, trigger, ctx);
 	const auto result = lua.safe_script(trigger->get_lua_script_source(), sol::script_pass_on_error);
-	return ConvertLuaResult(result, trigger, ctx, true);
+	return ConvertLuaResult(result, trigger, lua_ctx, true);
 #else
+	(void) ctx;
 	return 1;
 #endif
 }

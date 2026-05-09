@@ -653,6 +653,7 @@ int death_mtrigger(CharData *ch, CharData *actor) {
 				lua_scripting::LuaTriggerContext ctx;
 				ctx.trigger = t;
 				ctx.owner = ch;
+				ctx.actor = actor;
 				ctx.trigger_type = MOB_TRIGGER;
 
 				return lua_scripting::LuaScriptEngine::RunTrigger(t, ctx);

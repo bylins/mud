@@ -2,12 +2,14 @@
 #define BYLINS_SRC_ENGINE_SCRIPTING_LUA_LUA_SCRIPT_ENGINE_H_
 
 class Trigger;
+class CharData;
 
 namespace lua_scripting {
 
 struct LuaTriggerContext {
 	Trigger *trigger = nullptr;
-	void *owner = nullptr;
+	CharData *owner = nullptr;
+	CharData *actor = nullptr;
 	int trigger_type = 0;
 };
 
