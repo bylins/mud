@@ -1,10 +1,12 @@
 #include "engine/scripting/lua/lua_script_engine.h"
 
+#include "engine/db/obj_prototypes.h"
 #include "engine/db/db.h"
 #include "engine/core/comm.h"
 #include "engine/entities/char_data.h"
 #include "engine/scripting/dg_scripts.h"
 #include "utils/logger.h"
+#include "utils/random.h"
 
 #if defined(WITH_LUAJIT_PROTOTYPE)
 #include <sol/sol.hpp>
@@ -222,14 +224,8 @@ sol::object BuildCharView(sol::state &lua, CharData *ch)
 	return sol::make_object(lua, view);
 }
 
-sol::object BuildRoomView(sol::state &lua, CharData *owner)
+sol::object BuildRoomView(sol::state &lua, const LuaRoomView &room, bool allow_echo)
 {
-	if (!owner || owner->in_room == kNowhere)
-	{
-		return sol::make_object(lua, sol::nil);
-	}
-
-	const LuaRoomView room{owner->in_room};
 	if (!IsValidRoom(room))
 	{
 		return sol::make_object(lua, sol::nil);
@@ -237,12 +233,12 @@ sol::object BuildRoomView(sol::state &lua, CharData *owner)
 
 	sol::table view = lua.create_table();
 	sol::table metatable = lua.create_table();
-	metatable[sol::meta_function::index] = [&lua, room](sol::object, const std::string &key) -> sol::object {
+	metatable[sol::meta_function::index] = [&lua, room, allow_echo](sol::object, const std::string &key) -> sol::object {
 		if (key == "vnum")
 		{
 			return sol::make_object(lua, GetRoomVnum(room));
 		}
-		if (key == "echo")
+		if (allow_echo && key == "echo")
 		{
 			return sol::make_object(lua, sol::as_function([room](sol::object, sol::object message) {
 				return EchoToRoom(room, message);
@@ -257,6 +253,96 @@ sol::object BuildRoomView(sol::state &lua, CharData *owner)
 	view[sol::metatable_key] = metatable;
 
 	return sol::make_object(lua, view);
+}
+
+sol::object BuildRoomView(sol::state &lua, CharData *owner)
+{
+	if (!owner || owner->in_room == kNowhere)
+	{
+		return sol::make_object(lua, sol::nil);
+	}
+
+	return BuildRoomView(lua, LuaRoomView{owner->in_room}, true);
+}
+
+sol::object BuildRoomViewByVnum(sol::state &lua, const sol::object &vnum)
+{
+	if (!vnum.is<int>())
+	{
+		return sol::make_object(lua, sol::nil);
+	}
+
+	const auto room = GetRoomRnum(vnum.as<int>());
+	return BuildRoomView(lua, LuaRoomView{room}, false);
+}
+
+int GetCurrentObjectCount(const sol::object &vnum)
+{
+	if (!vnum.is<int>())
+	{
+		return 0;
+	}
+
+	const auto rnum = GetObjRnum(vnum.as<int>());
+	if (rnum == kNothing)
+	{
+		return 0;
+	}
+
+	return obj_proto.actual_count(rnum);
+}
+
+int MudRandom(const sol::object &limit)
+{
+	if (!limit.is<int>())
+	{
+		return 0;
+	}
+
+	const auto n = limit.as<int>();
+	return n > 0 ? number(1, n) : 0;
+}
+
+bool MudLog(Trigger *trigger, const sol::object &message)
+{
+	if (!message.is<std::string>())
+	{
+		return false;
+	}
+
+	const auto text = message.as<std::string>();
+	if (text.empty())
+	{
+		return false;
+	}
+
+	char buf[kMaxStringLength];
+	snprintf(buf, sizeof(buf), "(Lua trigger: %s, VNum: %d) : %s",
+		GetTriggerName(trigger), GetTriggerVnum(trigger), text.c_str());
+	script_log(buf, LogMode::OFF);
+	return true;
+}
+
+sol::table BuildMudNamespace(sol::state &lua, Trigger *trigger)
+{
+	sol::table mud = lua.create_table();
+	mud["log"] = [trigger](const sol::object &message) {
+		return MudLog(trigger, message);
+	};
+	mud["random"] = [](const sol::object &limit) {
+		return MudRandom(limit);
+	};
+	mud["room"] = [&lua](const sol::object &vnum) {
+		return BuildRoomViewByVnum(lua, vnum);
+	};
+
+	sol::table world_table = lua.create_table();
+	world_table["cur_obj_count"] = [](const sol::object &vnum) {
+		return GetCurrentObjectCount(vnum);
+	};
+	mud["world"] = world_table;
+
+	return mud;
 }
 
 void LogLuaError(const Trigger *trigger, const sol::error &err)
@@ -342,6 +428,7 @@ int LuaScriptEngine::RunTrigger(Trigger *trigger, const LuaTriggerContext &ctx)
 	sol::state lua;
 	lua.open_libraries(sol::lib::base, sol::lib::math, sol::lib::string, sol::lib::table);
 
+	lua["mud"] = BuildMudNamespace(lua, trigger);
 	sol::table lua_ctx = BuildLuaContext(lua, trigger, ctx);
 	const auto result = lua.safe_script(trigger->get_lua_script_source(), sol::script_pass_on_error);
 	return ConvertLuaResult(result, trigger, lua_ctx, true);
