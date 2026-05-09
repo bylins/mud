@@ -623,4 +623,33 @@ done
 say Извини, для тебя у меня нет сказки...
 взд
 ~
+#4021
+lua death test char binding~
+0 f 100 0 lua
+~
+return function(ctx)
+  if ctx.owner == nil then
+    return false
+  end
+
+  if not ctx.owner:is_valid() then
+    return false
+  end
+
+  if ctx.owner.name == "" then
+    return false
+  end
+
+  local checksum = ctx.owner.uid + ctx.owner.vnum + ctx.owner.hp + ctx.owner.max_hp + ctx.owner.room_vnum + ctx.owner:level()
+  if checksum < 0 then
+    return false
+  end
+
+  if not (ctx.actor == nil) and ctx.owner.is_npc then
+    return ctx.actor:is_valid()
+  end
+
+  return true
+end
+~
 $~
