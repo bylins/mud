@@ -12,11 +12,37 @@
 #include "engine/db/global_objects.h"
 #include "engine/entities/char_data.h"
 #include "engine/scripting/dg_scripts.h"
+#include "engine/scripting/lua/lua_script_engine.h"
 #include "engine/scripting/lua_prototype.h"
 #include "engine/ui/modify.h"
 #include "utils/utils.h"
 
 namespace {
+
+std::string RunSyntheticLuaTrigger(const char* argument)
+{
+	const std::string source = argument && *argument ? argument : "return 1";
+	Trigger trigger(kNothing, "luatest synthetic lua trigger", MOB_TRIGGER, MTRIG_RANDOM);
+	trigger.set_script_language(TriggerScriptLanguage::Lua);
+	trigger.set_lua_script_source(source);
+
+	lua_scripting::LuaTriggerContext ctx;
+	ctx.trigger = &trigger;
+	ctx.trigger_type = MOB_TRIGGER;
+	const auto result = lua_scripting::LuaScriptEngine::RunTrigger(&trigger, ctx);
+
+	std::ostringstream out;
+	out << "LuaScriptEngine::RunTrigger synthetic trigger.\n"
+		<< "script_language: Lua\n"
+		<< "script_source:\n"
+		<< source << "\n"
+		<< "result: " << result << "\n";
+#if !defined(WITH_LUAJIT_PROTOTYPE)
+	out << "note: LuaJIT prototype is not compiled in; LuaScriptEngine stub returned "
+		<< result << ".\n";
+#endif
+	return out.str();
+}
 
 #if defined(WITH_LUAJIT_PROTOTYPE)
 
@@ -25,6 +51,7 @@ void PrintUsage(CharData *ch) {
 		"Usage:\r\n"
 		"  luatest smoke\r\n"
 		"  luatest file <path>\r\n"
+		"  luatest trigger [lua script]\r\n"
 		"  luatest deathmtrigger [iterations]\r\n",
 		ch);
 }
@@ -265,7 +292,14 @@ std::string RunDeathMtriggerBenchmark(CharData* owner, int iterations)
 
 void DoLuatest(CharData *ch, char *argument, int /* cmd */, int /* subcmd */) {
 #if !defined(WITH_LUAJIT_PROTOTYPE)
-	(void) argument;
+	char mode[kMaxInputLength];
+	argument = one_argument(argument, mode);
+	if (*mode && !str_cmp(mode, "trigger"))
+	{
+		page_string(ch->desc, RunSyntheticLuaTrigger(argument));
+		return;
+	}
+
 	SendMsgToChar("Lua prototype is not compiled in.\r\n", ch);
 	return;
 #else
@@ -289,6 +323,9 @@ void DoLuatest(CharData *ch, char *argument, int /* cmd */, int /* subcmd */) {
 				return;
 			}
 			output = lua_prototype::RunFile(argument, actor);
+		} else if (!str_cmp(mode, "trigger"))
+		{
+			output = RunSyntheticLuaTrigger(argument);
 		} else if (!str_cmp(mode, "deathmtrigger"))
 		{
 			output = RunDeathMtriggerBenchmark(ch, ParseIterations(argument));
