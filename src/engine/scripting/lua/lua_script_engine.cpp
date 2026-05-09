@@ -347,15 +347,20 @@ sol::table BuildMudNamespace(sol::state &lua, Trigger *trigger)
 
 void HardenLuaState(sol::state &lua)
 {
+	lua["io"] = sol::nil;
+	lua["os"] = sol::nil;
+	lua["debug"] = sol::nil;
 	lua["ffi"] = sol::nil;
 	lua["jit"] = sol::nil;
 	lua["bit"] = sol::nil;
 	lua["package"] = sol::nil;
 	lua["require"] = sol::nil;
 	lua["module"] = sol::nil;
+	lua["load"] = sol::nil;
 	lua["dofile"] = sol::nil;
 	lua["loadfile"] = sol::nil;
 	lua["loadstring"] = sol::nil;
+	lua["collectgarbage"] = sol::nil;
 }
 
 void LogLuaError(const Trigger *trigger, const sol::error &err)
