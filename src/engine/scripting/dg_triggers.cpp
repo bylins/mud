@@ -19,6 +19,7 @@
 #include "gameplay/magic/spells_info.h"
 #include "engine/olc/olc.h"
 #include "engine/db/global_objects.h"
+#include "engine/scripting/lua/lua_script_engine.h"
 #include "utils/backtrace.h"
 
 extern const char *dirs[];
@@ -648,11 +649,20 @@ int death_mtrigger(CharData *ch, CharData *actor) {
 	
 	for (auto t : SCRIPT(ch)->script_trig_list) {
 		if (TRIGGER_CHECK(t, MTRIG_DEATH)) {
-			if (actor) {
-				ADD_UID_CHAR_VAR(buf, t, actor, "actor", 0);
-			}
+			if (t->get_script_language() == TriggerScriptLanguage::Lua) {
+				lua_scripting::LuaTriggerContext ctx;
+				ctx.trigger = t;
+				ctx.owner = ch;
+				ctx.trigger_type = MOB_TRIGGER;
 
-			return script_driver(ch, t, MOB_TRIGGER, TRIG_NEW);
+				return lua_scripting::LuaScriptEngine::RunTrigger(t, ctx);
+			} else {
+				if (actor) {
+					ADD_UID_CHAR_VAR(buf, t, actor, "actor", 0);
+				}
+
+				return script_driver(ch, t, MOB_TRIGGER, TRIG_NEW);
+			}
 		}
 	}
 
