@@ -1,6 +1,7 @@
 #include "engine/scripting/lua/lua_script_engine.h"
 
 #include "engine/db/db.h"
+#include "engine/core/comm.h"
 #include "engine/entities/char_data.h"
 #include "engine/scripting/dg_scripts.h"
 #include "utils/logger.h"
@@ -16,6 +17,10 @@ namespace {
 
 struct LuaCharView {
 	CharData *ch = nullptr;
+};
+
+struct LuaRoomView {
+	RoomRnum room = kNowhere;
 };
 
 int GetTriggerVnum(const Trigger *trigger)
@@ -47,6 +52,11 @@ const char* GetTriggerName(const Trigger *trigger)
 bool IsValidChar(const LuaCharView &view)
 {
 	return view.ch && !view.ch->purged();
+}
+
+bool IsValidRoom(const LuaRoomView &view)
+{
+	return view.room != kNowhere && view.room >= 0 && view.room <= top_of_world && world[view.room];
 }
 
 std::string GetCharName(const LuaCharView &view)
@@ -105,6 +115,45 @@ int GetCharLevel(const LuaCharView &view)
 	return IsValidChar(view) ? GetRealLevel(view.ch) : 0;
 }
 
+bool SendToChar(const LuaCharView &view, const sol::object &message)
+{
+	if (!IsValidChar(view) || !view.ch->desc || !message.is<std::string>())
+	{
+		return false;
+	}
+
+	const auto text = message.as<std::string>();
+	if (text.empty())
+	{
+		return false;
+	}
+
+	SendMsgToChar(text + "\r\n", view.ch);
+	return true;
+}
+
+int GetRoomVnum(const LuaRoomView &view)
+{
+	return IsValidRoom(view) ? world[view.room]->vnum : 0;
+}
+
+bool EchoToRoom(const LuaRoomView &view, const sol::object &message)
+{
+	if (!IsValidRoom(view) || !message.is<std::string>())
+	{
+		return false;
+	}
+
+	const auto text = message.as<std::string>();
+	if (text.empty())
+	{
+		return false;
+	}
+
+	SendMsgToRoom(text.c_str(), view.room, 0);
+	return true;
+}
+
 sol::object BuildCharView(sol::state &lua, CharData *ch)
 {
 	if (!ch)
@@ -156,11 +205,54 @@ sol::object BuildCharView(sol::state &lua, CharData *ch)
 				return IsValidChar(LuaCharView{ch});
 			}));
 		}
+		if (key == "send")
+		{
+			return sol::make_object(lua, sol::as_function([ch](sol::object, sol::object message) {
+				return SendToChar(LuaCharView{ch}, message);
+			}));
+		}
 
 		return sol::make_object(lua, sol::nil);
 	};
 	metatable[sol::meta_function::new_index] = [](sol::this_state state) {
 		return luaL_error(state, "CharData Lua view is read-only");
+	};
+	view[sol::metatable_key] = metatable;
+
+	return sol::make_object(lua, view);
+}
+
+sol::object BuildRoomView(sol::state &lua, CharData *owner)
+{
+	if (!owner || owner->in_room == kNowhere)
+	{
+		return sol::make_object(lua, sol::nil);
+	}
+
+	const LuaRoomView room{owner->in_room};
+	if (!IsValidRoom(room))
+	{
+		return sol::make_object(lua, sol::nil);
+	}
+
+	sol::table view = lua.create_table();
+	sol::table metatable = lua.create_table();
+	metatable[sol::meta_function::index] = [&lua, room](sol::object, const std::string &key) -> sol::object {
+		if (key == "vnum")
+		{
+			return sol::make_object(lua, GetRoomVnum(room));
+		}
+		if (key == "echo")
+		{
+			return sol::make_object(lua, sol::as_function([room](sol::object, sol::object message) {
+				return EchoToRoom(room, message);
+			}));
+		}
+
+		return sol::make_object(lua, sol::nil);
+	};
+	metatable[sol::meta_function::new_index] = [](sol::this_state state) {
+		return luaL_error(state, "RoomData Lua view is read-only");
 	};
 	view[sol::metatable_key] = metatable;
 
@@ -188,6 +280,7 @@ sol::table BuildLuaContext(sol::state &lua, Trigger *trigger, const LuaTriggerCo
 	ctx["trigger"] = trigger_table;
 	ctx["owner"] = BuildCharView(lua, source.owner);
 	ctx["actor"] = BuildCharView(lua, source.actor);
+	ctx["room"] = BuildRoomView(lua, source.owner);
 
 	return ctx;
 }

@@ -646,6 +646,7 @@ return function(ctx)
   end
 
   if not (ctx.actor == nil) and ctx.owner.is_npc then
+    ctx.actor:send("Actor::send from lua")
     return ctx.actor:is_valid()
   end
 
