@@ -1069,6 +1069,16 @@ void MobileFile::parse_mobile(const int nr) {
 		}
 	}
 
+	// Авто-выставление "магии жизни" мобам с заклинанием
+	// "исцеление"/"групповое исцеление" -- билдеры часто забывают
+	// прописать Skill: 189, и кастер заваливает каст из-за нулевого
+	// процента. На загрузке выставляем kLifeMagic = level * 10 для
+	// любого моба с одним из этих заклинаний в памяти (#3267).
+	if (GET_SPELL_MEM(mob_proto + i, ESpell::kHeal) > 0
+		|| GET_SPELL_MEM(mob_proto + i, ESpell::kGroupHeal) > 0) {
+		mob_proto[i].set_skill(ESkill::kLifeMagic, mob_proto[i].GetLevel() * 10);
+	}
+
 	top_of_mobt = i++;
 }
 
