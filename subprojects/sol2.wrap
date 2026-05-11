@@ -2,7 +2,6 @@
 directory = sol2
 url = https://github.com/ThePhD/sol2.git
 revision = v3.3.0
-patch_directory = sol2
 
 [provide]
 sol2 = sol2_dep
