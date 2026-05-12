@@ -68,8 +68,34 @@ EAntiFlag class_specific_anti_flag(ECharClass c) {
 	}
 }
 
-// Заблокирован ли предмет анти-флагами для указанного класса
-// (по логике invalid_anti_class, без учёта специфики персонажа).
+// ENoFlag, соответствующий конкретному классу персонажа.
+// Биты ENoFlag для классов совпадают с EAntiFlag по позиции, но это
+// разные битвекторы (anti_flags и no_flags), поэтому функции отдельные.
+ENoFlag class_specific_no_flag(ECharClass c) {
+	switch (c) {
+		case ECharClass::kSorcerer:    return ENoFlag::kSorcerer;
+		case ECharClass::kConjurer:    return ENoFlag::kConjurer;
+		case ECharClass::kThief:       return ENoFlag::kThief;
+		case ECharClass::kWarrior:     return ENoFlag::kWarrior;
+		case ECharClass::kAssasine:    return ENoFlag::kAssasine;
+		case ECharClass::kGuard:       return ENoFlag::kGuard;
+		case ECharClass::kCharmer:     return ENoFlag::kCharmer;
+		case ECharClass::kWizard:      return ENoFlag::kWizard;
+		case ECharClass::kNecromancer: return ENoFlag::kNecromancer;
+		case ECharClass::kPaladine:    return ENoFlag::kPaladine;
+		case ECharClass::kRanger:      return ENoFlag::kRanger;
+		case ECharClass::kVigilant:    return ENoFlag::kVigilant;
+		case ECharClass::kMerchant:    return ENoFlag::kMerchant;
+		case ECharClass::kMagus:       return ENoFlag::kMagus;
+		default:                       return static_cast<ENoFlag>(0);
+	}
+}
+
+// Заблокирован ли предмет для указанного класса. Проверяет и anti_flags
+// (invalid_anti_class), и no_flags (invalid_no_class): обе системы
+// независимо запрещают использование, и в display даже именованы
+// по-разному -- "Недоступен" / "Неудобен", -- но игроку оба запрещают
+// носить (#3269).
 bool obj_blocked_for_class(const ObjData *obj, ECharClass c) {
 	if (obj->has_anti_flag(EAntiFlag::kMage) && is_magic_class(c)) {
 		return true;
@@ -77,8 +103,19 @@ bool obj_blocked_for_class(const ObjData *obj, ECharClass c) {
 	if (obj->has_anti_flag(EAntiFlag::kFighter) && is_fight_class(c)) {
 		return true;
 	}
-	const auto specific = class_specific_anti_flag(c);
-	if (specific != static_cast<EAntiFlag>(0) && obj->has_anti_flag(specific)) {
+	const auto specific_anti = class_specific_anti_flag(c);
+	if (specific_anti != static_cast<EAntiFlag>(0) && obj->has_anti_flag(specific_anti)) {
+		return true;
+	}
+
+	if (obj->has_no_flag(ENoFlag::kMage) && is_magic_class(c)) {
+		return true;
+	}
+	if (obj->has_no_flag(ENoFlag::kFighter) && is_fight_class(c)) {
+		return true;
+	}
+	const auto specific_no = class_specific_no_flag(c);
+	if (specific_no != static_cast<ENoFlag>(0) && obj->has_no_flag(specific_no)) {
 		return true;
 	}
 	return false;
