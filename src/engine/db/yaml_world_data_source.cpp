@@ -2542,6 +2542,27 @@ void YamlWorldDataSource::SaveZone(int zone_rnum)
 		yaml.BeginSequence();
 		yaml.IncreaseIndent();
 
+		// ResolveZoneCmdVnumArgsToRnums (db.cpp:1626) rewrites cmd.argN from
+		// the on-disk vnums into in-memory rnums during boot. To round-trip
+		// the zonefile we must invert that conversion here.
+		auto mob_v = [](int rnum) -> int {
+			if (rnum < 0 || rnum >= top_of_mobt) return rnum;
+			return mob_index[rnum].vnum;
+		};
+		auto obj_v = [](int rnum) -> int {
+			if (rnum < 0) return rnum;
+			auto obj = obj_proto[rnum];
+			return obj ? obj->get_vnum() : rnum;
+		};
+		auto room_v = [](int rnum) -> int {
+			if (rnum < 0 || rnum > top_of_world || !world[rnum]) return rnum;
+			return world[rnum]->vnum;
+		};
+		auto trig_v = [](int rnum) -> int {
+			if (rnum < 0 || rnum >= top_of_trigt || !trig_index[rnum]) return rnum;
+			return trig_index[rnum]->vnum;
+		};
+
 		for (int i = 0; zone.cmd[i].command != 'S'; ++i)
 		{
 			const struct reset_com &cmd = zone.cmd[i];
@@ -2552,10 +2573,12 @@ void YamlWorldDataSource::SaveZone(int zone_rnum)
 			{
 			case 'M':
 			{
-				oss << "MOB " << cmd.if_flag << " " << cmd.arg1 << " " << cmd.arg2 << " " << cmd.arg3;
+				int mob_vnum = mob_v(cmd.arg1);
+				int room_vnum = room_v(cmd.arg3);
+				oss << "MOB " << cmd.if_flag << " " << mob_vnum << " " << cmd.arg2 << " " << room_vnum;
 				if (cmd.arg4 != -1) oss << " " << cmd.arg4;
-				std::string mob_name = GetMobNameComment(cmd.arg1);
-				std::string room_name = GetRoomNameByVnum(cmd.arg3);
+				std::string mob_name = GetMobNameComment(mob_vnum);
+				std::string room_name = GetRoomNameByVnum(room_vnum);
 				std::ostringstream coss;
 				if (!mob_name.empty()) coss << mob_name;
 				if (!room_name.empty())
@@ -2573,10 +2596,14 @@ void YamlWorldDataSource::SaveZone(int zone_rnum)
 			}
 			case 'O':
 			{
-				oss << "OBJECT " << cmd.if_flag << " " << cmd.arg1 << " " << cmd.arg2 << " " << cmd.arg3;
+				int obj_vnum = obj_v(cmd.arg1);
+				// arg3 may legitimately be kNowhere (== -1 in some builds);
+				// in that case ResolveZone... leaves it alone, so do the same.
+				int room_vnum = (cmd.arg3 == kNowhere) ? cmd.arg3 : room_v(cmd.arg3);
+				oss << "OBJECT " << cmd.if_flag << " " << obj_vnum << " " << cmd.arg2 << " " << room_vnum;
 				if (cmd.arg4 != -1) oss << " " << cmd.arg4;
-				std::string obj_name = GetObjNameComment(cmd.arg1);
-				std::string room_name = GetRoomNameByVnum(cmd.arg3);
+				std::string obj_name = GetObjNameComment(obj_vnum);
+				std::string room_name = GetRoomNameByVnum(room_vnum);
 				std::ostringstream coss;
 				if (!obj_name.empty()) coss << obj_name;
 				if (!room_name.empty())
@@ -2588,15 +2615,19 @@ void YamlWorldDataSource::SaveZone(int zone_rnum)
 				break;
 			}
 			case 'G':
-				oss << "GIVE " << cmd.if_flag << " " << cmd.arg1 << " " << cmd.arg2;
+			{
+				int obj_vnum = obj_v(cmd.arg1);
+				oss << "GIVE " << cmd.if_flag << " " << obj_vnum << " " << cmd.arg2;
 				if (cmd.arg4 != -1) oss << " " << cmd.arg4;
-				comment = GetObjNameComment(cmd.arg1);
+				comment = GetObjNameComment(obj_vnum);
 				break;
+			}
 			case 'E':
 			{
-				oss << "EQUIP " << cmd.if_flag << " " << cmd.arg1 << " " << cmd.arg2 << " " << cmd.arg3;
+				int obj_vnum = obj_v(cmd.arg1);
+				oss << "EQUIP " << cmd.if_flag << " " << obj_vnum << " " << cmd.arg2 << " " << cmd.arg3;
 				if (cmd.arg4 != -1) oss << " " << cmd.arg4;
-				std::string obj_name = GetObjNameComment(cmd.arg1);
+				std::string obj_name = GetObjNameComment(obj_vnum);
 				std::ostringstream coss;
 				if (!obj_name.empty()) coss << obj_name;
 				coss << ", wear: " << cmd.arg3;
@@ -2605,10 +2636,12 @@ void YamlWorldDataSource::SaveZone(int zone_rnum)
 			}
 			case 'P':
 			{
-				oss << "PUT " << cmd.if_flag << " " << cmd.arg1 << " " << cmd.arg2 << " " << cmd.arg3;
+				int obj_vnum = obj_v(cmd.arg1);
+				int container_vnum = obj_v(cmd.arg3);
+				oss << "PUT " << cmd.if_flag << " " << obj_vnum << " " << cmd.arg2 << " " << container_vnum;
 				if (cmd.arg4 != -1) oss << " " << cmd.arg4;
-				std::string obj_name = GetObjNameComment(cmd.arg1);
-				std::string cont_name = GetObjNameComment(cmd.arg3);
+				std::string obj_name = GetObjNameComment(obj_vnum);
+				std::string cont_name = GetObjNameComment(container_vnum);
 				std::ostringstream coss;
 				if (!obj_name.empty()) coss << obj_name;
 				if (!cont_name.empty())
@@ -2621,8 +2654,9 @@ void YamlWorldDataSource::SaveZone(int zone_rnum)
 			}
 			case 'D':
 			{
-				oss << "DOOR " << cmd.if_flag << " " << cmd.arg1 << " " << cmd.arg2 << " " << cmd.arg3;
-				std::string room_name = GetRoomNameByVnum(cmd.arg1);
+				int room_vnum = room_v(cmd.arg1);
+				oss << "DOOR " << cmd.if_flag << " " << room_vnum << " " << cmd.arg2 << " " << cmd.arg3;
+				std::string room_name = GetRoomNameByVnum(room_vnum);
 				std::ostringstream coss;
 				if (!room_name.empty()) coss << room_name;
 				coss << ", dir: " << cmd.arg2;
@@ -2631,17 +2665,32 @@ void YamlWorldDataSource::SaveZone(int zone_rnum)
 			}
 			case 'R':
 			{
-				oss << "REMOVE " << cmd.if_flag << " " << cmd.arg1 << " " << cmd.arg2;
-				comment = GetRoomNameByVnum(cmd.arg1);
+				int room_vnum = room_v(cmd.arg1);
+				int obj_vnum = obj_v(cmd.arg2);
+				oss << "REMOVE " << cmd.if_flag << " " << room_vnum << " " << obj_vnum;
+				comment = GetRoomNameByVnum(room_vnum);
 				break;
 			}
 			case 'T':
-				oss << "TRIGGER " << cmd.if_flag << " " << cmd.arg1 << " " << cmd.arg2;
-				if (cmd.arg3 != -1) oss << " " << cmd.arg3;
-				comment = GetTriggerNameComment(cmd.arg2);
+			{
+				int trig_vnum = trig_v(cmd.arg2);
+				// arg1 is the trigger-class enum (MOB/OBJ/WLD), not an rnum.
+				// arg3 is a room rnum only when arg1 == WLD_TRIGGER.
+				int third = cmd.arg3;
+				if (cmd.arg1 == WLD_TRIGGER && cmd.arg3 != -1)
+				{
+					third = room_v(cmd.arg3);
+				}
+				oss << "TRIGGER " << cmd.if_flag << " " << cmd.arg1 << " " << trig_vnum;
+				if (cmd.arg3 != -1) oss << " " << third;
+				comment = GetTriggerNameComment(trig_vnum);
 				break;
+			}
 			case 'V':
-				oss << "VAR " << cmd.if_flag << " " << cmd.arg1 << " " << cmd.arg2 << " " << cmd.arg3;
+			{
+				int second = cmd.arg2;
+				if (cmd.arg1 == WLD_TRIGGER) second = room_v(cmd.arg2);
+				oss << "VAR " << cmd.if_flag << " " << cmd.arg1 << " " << second << " " << cmd.arg3;
 				if (cmd.sarg1) oss << " " << cmd.sarg1;
 				if (cmd.sarg2) oss << " " << cmd.sarg2;
 				if (cmd.sarg1 && cmd.sarg2)
@@ -2649,16 +2698,23 @@ void YamlWorldDataSource::SaveZone(int zone_rnum)
 					comment = std::string(cmd.sarg1) + " = " + cmd.sarg2;
 				}
 				break;
+			}
 			case 'Q':
-				oss << "EXTRACT 0 " << cmd.arg1;
-				comment = GetMobNameComment(cmd.arg1);
+			{
+				int mob_vnum = mob_v(cmd.arg1);
+				oss << "EXTRACT 0 " << mob_vnum;
+				comment = GetMobNameComment(mob_vnum);
 				break;
+			}
 			case 'F':
 			{
-				oss << "FOLLOW " << cmd.if_flag << " " << cmd.arg1 << " " << cmd.arg2 << " " << cmd.arg3;
-				std::string leader_name = GetMobNameComment(cmd.arg2);
-				std::string follower_name = GetMobNameComment(cmd.arg3);
-				std::string room_name = GetRoomNameByVnum(cmd.arg1);
+				int room_vnum = room_v(cmd.arg1);
+				int leader_vnum = mob_v(cmd.arg2);
+				int follower_vnum = mob_v(cmd.arg3);
+				oss << "FOLLOW " << cmd.if_flag << " " << room_vnum << " " << leader_vnum << " " << follower_vnum;
+				std::string leader_name = GetMobNameComment(leader_vnum);
+				std::string follower_name = GetMobNameComment(follower_vnum);
+				std::string room_name = GetRoomNameByVnum(room_vnum);
 				std::ostringstream coss;
 				if (!leader_name.empty()) coss << leader_name;
 				if (!follower_name.empty())
