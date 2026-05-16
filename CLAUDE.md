@@ -94,12 +94,19 @@ build_debug/
 **NOTE**: Do NOT confuse with repository's `lib/` directory - that is completely separate and used only for production deployments.
 
 ### Running Tests
-```bash
-# Run all tests
-./build/tests/tests
+Тесты используют относительные пути к данным (`data/boards/...`, `misc/grouping`, `data/mob_classes/...`), которые meson копирует в `meson.project_build_root()`. Поэтому запускать тесты надо из самой `build_dir`, иначе `Boards_Changelog`, `FightPenalties` и `MobClassesLoaderTest` упадут с «file not found».
 
-# Run via meson
+```bash
+# Способ 1 — через meson (workdir выставляется автоматически)
 meson test -C build
+
+# Способ 2 — напрямую (cd в build, иначе пути к данным не найдутся)
+cd build && ./tests/tests
+```
+
+Фильтр по подмножеству:
+```bash
+cd build && ./tests/tests --gtest_filter="Boards_Changelog.*:FightPenalties.*"
 ```
 
 ## Code Architecture
