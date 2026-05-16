@@ -35,23 +35,29 @@ public:
 	{
 		if (literal && value.find('\n') != std::string::npos)
 		{
-			// Literal block with strip chomping ("|-"): no trailing newline.
-			// Use an explicit indent indicator ("|-2"): otherwise YAML auto-
-			// detects indent from the first non-empty content line, and any
-			// leading whitespace there (e.g. a description that begins with
-			// "   Вот это да!") gets folded into indent, then a later line
-			// with less leading whitespace looks like the block has ended,
-			// producing parse errors on reload.
-			out_ << " |-2" << std::endl;
-
+			// Literal block with explicit indent indicator ("2"): without
+			// it, YAML auto-detects indent from the first non-empty content
+			// line, and leading whitespace there (e.g. "   Вот это да!")
+			// gets folded into indent -- producing parse errors on reload.
+			//
+			// Chomping mode is picked by trailing newline in `value`:
+			//   - clip ("|2") if value ends with '\n', so the parser yields
+			//     the same trailing newline back -- the Python converter
+			//     uses this form for descriptions;
+			//   - strip ("|-2") if value has no trailing newline, matching
+			//     the converter's behaviour for trigger scripts.
 			std::string cleaned = value;
 			cleaned.erase(std::remove(cleaned.begin(), cleaned.end(), '\r'), cleaned.end());
 
-			// Strip a single trailing '\n' so the literal block's content
-			// matches `value` exactly when re-loaded.
-			if (!cleaned.empty() && cleaned.back() == '\n')
+			const bool clip = !cleaned.empty() && cleaned.back() == '\n';
+			if (clip)
 			{
-				cleaned.pop_back();
+				cleaned.pop_back();  // we'll add it back via the final std::endl
+				out_ << " |2" << std::endl;
+			}
+			else
+			{
+				out_ << " |-2" << std::endl;
 			}
 
 			std::istringstream iss(cleaned);
