@@ -1,8 +1,11 @@
 // Part of Bylins http://www.mud.ru
 // Koi8rYamlEmitter - Custom YAML emitter that preserves KOI8-R encoding.
 //
-// Extracted from yaml_world_data_source.cpp without behaviour changes, so the
-// emitter can be unit-tested standalone.
+// Scalars whose first character is a YAML indicator (&, *, !, ,, ...) are
+// single-quoted, otherwise yaml-cpp interprets the prefix as anchor / alias /
+// tag and the save -> reload round-trip breaks (issue #3273: MUD color codes
+// like "&Yfoo &Wbar&n" in object/mob names saved unquoted produce
+// "cannot assign multiple anchors to the same node" on next boot).
 
 #ifndef KOI8R_YAML_EMITTER_H_
 #define KOI8R_YAML_EMITTER_H_
@@ -63,7 +66,9 @@ public:
 				value.find('\'') != std::string::npos ||
 				value.find('%') != std::string::npos ||  // % is YAML directive indicator
 				value[0] == ' ' || value[0] == '-' || value[0] == '?' ||
-				value[0] == '@' || value[0] == '`')
+				value[0] == '@' || value[0] == '`' ||
+				value[0] == '&' || value[0] == '*' || value[0] == '!' ||
+				value[0] == ',')
 			{
 				needs_quoting = true;
 			}
