@@ -3319,8 +3319,15 @@ void YamlWorldDataSource::SaveMobs(int zone_rnum, int specific_vnum)
 		yaml.Key("weight");
 		yaml.Value(static_cast<int>(GET_WEIGHT(&mob)));  // ubyte -> int
 
-		// Attributes (only if set)
-		if (mob.get_str() > 0)
+		// Attributes (skip if all six are at default 11). LoadMobs sets every
+		// attribute to 11 unconditionally and then overrides from `attributes`
+		// if present; treating "all 11" as "not specified" matches the Python
+		// converter, which only emits this block when legacy data actually
+		// carried per-attribute values.
+		const bool attributes_set =
+			mob.get_str() != 11 || mob.get_dex() != 11 || mob.get_int() != 11 ||
+			mob.get_wis() != 11 || mob.get_con() != 11 || mob.get_cha() != 11;
+		if (attributes_set)
 		{
 			yaml.Key("attributes");
 			out << std::endl;
@@ -3426,48 +3433,13 @@ void YamlWorldDataSource::SaveMobs(int zone_rnum, int specific_vnum)
 			yaml.DecreaseIndent();
 		}
 
-		// Enhanced (optional mob stats)
-		if (mob.get_str() > 0)
+		// Enhanced E-spec block. Always emitted because mob_type is always
+		// "E" in this code path and the Python converter writes the block
+		// unconditionally (carrying at least resistances/saves as zero-arrays).
+		char special_buf[kMaxStringLength];
+		mob.mob_specials.npc_flags.tascii(FlagData::kPlanesNumber, special_buf, sizeof(special_buf));
+		std::string role_str = mob.get_role().to_string();
 		{
-			bool has_enhanced = false;
-			
-			// Check if we have any enhanced stats
-			if (mob.get_str_add() != 0 || mob.add_abils.hitreg != 0 || mob.add_abils.armour != 0 ||
-				mob.add_abils.manareg != 0 || mob.add_abils.cast_success != 0 || mob.add_abils.morale != 0 ||
-				mob.add_abils.initiative_add != 0 || mob.add_abils.absorb != 0 || mob.add_abils.aresist != 0 ||
-				mob.add_abils.mresist != 0 || mob.add_abils.presist != 0 || mob.mob_specials.attack_type != 0 ||
-				mob.mob_specials.like_work != 0 || mob.mob_specials.MaxFactor != 0 ||
-				mob.mob_specials.extra_attack != 0 || mob.get_remort() != 0)
-			{
-				has_enhanced = true;
-			}
-
-			// Check special_bitvector
-			char special_buf[kMaxStringLength];
-			mob.mob_specials.npc_flags.tascii(FlagData::kPlanesNumber, special_buf, sizeof(special_buf));
-			if (special_buf[0] != '0' || special_buf[1] != 'a')
-			{
-				has_enhanced = true;
-			}
-
-			// Check role
-			std::string role_str = mob.get_role().to_string();
-			if (!role_str.empty() && role_str != "000000000")
-			{
-				has_enhanced = true;
-			}
-
-			// Check resistances, saves, feats, spells, helpers, destinations
-			for (const auto &val : mob.add_abils.apply_resistance) { if (val != 0) { has_enhanced = true; break; } }
-			for (const auto &val : mob.add_abils.apply_saving_throw) { if (val != 0) { has_enhanced = true; break; } }
-			
-			for (size_t i = 0; i < mob.real_abils.Feats.size(); ++i) { if (mob.real_abils.Feats.test(i)) { has_enhanced = true; break; } }
-			for (size_t i = 0; i < mob.real_abils.SplMem.size(); ++i) { if (mob.real_abils.SplMem[i] > 0) { has_enhanced = true; break; } }
-			
-			if (!mob.summon_helpers.empty()) { has_enhanced = true; }
-			for (int dest : mob.mob_specials.dest) { if (dest != 0) { has_enhanced = true; break; } }
-
-			if (has_enhanced)
 			{
 				yaml.Key("enhanced");
 				out << std::endl;
@@ -3566,45 +3538,28 @@ void YamlWorldDataSource::SaveMobs(int zone_rnum, int specific_vnum)
 					yaml.Value(role_str);
 				}
 
-				// Resistances
-				bool has_resistances = false;
+				// Resistances. The Python converter always emits this block
+				// (even all-zero), so we mirror that for round-trip parity --
+				// otherwise the diff shows `/enhanced/resistances: missing in
+				// v2` for every mob with default resistances.
+				yaml.Key("resistances");
+				yaml.BeginSequence();
+				yaml.IncreaseIndent();
 				for (const auto &val : mob.add_abils.apply_resistance)
 				{
-					if (val != 0) { has_resistances = true; break; }
+					yaml.SequenceItem(val);
 				}
-				if (has_resistances)
-				{
-					yaml.Key("resistances");
-					yaml.BeginSequence();
-					yaml.IncreaseIndent();
+				yaml.DecreaseIndent();
 
-					for (const auto &val : mob.add_abils.apply_resistance)
-					{
-						yaml.SequenceItem(val);
-					}
-
-					yaml.DecreaseIndent();
-				}
-
-				// Saves
-				bool has_saves = false;
+				// Saves -- same rationale as resistances.
+				yaml.Key("saves");
+				yaml.BeginSequence();
+				yaml.IncreaseIndent();
 				for (const auto &val : mob.add_abils.apply_saving_throw)
 				{
-					if (val != 0) { has_saves = true; break; }
+					yaml.SequenceItem(val);
 				}
-				if (has_saves)
-				{
-					yaml.Key("saves");
-					yaml.BeginSequence();
-					yaml.IncreaseIndent();
-
-					for (const auto &val : mob.add_abils.apply_saving_throw)
-					{
-						yaml.SequenceItem(val);
-					}
-
-					yaml.DecreaseIndent();
-				}
+				yaml.DecreaseIndent();
 
 				// Feats
 				bool has_feats = false;
