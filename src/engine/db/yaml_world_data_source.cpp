@@ -3298,7 +3298,11 @@ void YamlWorldDataSource::SaveMobs(int zone_rnum, int specific_vnum)
 		out << std::endl;
 		yaml.IncreaseIndent();
 
-		const std::string &aliases = mob.get_npc_name();
+		// GetCharAliases() returns the full keyword list (name_), matching
+		// what LoadMobs reads via SetCharAliases(GetText(names, "aliases"))
+		// at line 1557. get_npc_name() returns short_descr_ (== nominative),
+		// which would truncate "костяк скелет" -> "скелет" on round-trip.
+		const std::string &aliases = mob.GetCharAliases();
 		if (!aliases.empty())
 		{
 			yaml.Key("aliases");
