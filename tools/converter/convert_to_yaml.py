@@ -3198,7 +3198,9 @@ def parse_trg_file(filepath):
                 last_line = lines[idx].rstrip('~')
                 if last_line:
                     script_parts.append(last_line)
-            trigger['script'] = '\r\n'.join(script_parts).replace('~~', '~')
+            trigger['script'] = _normalize_script(
+                '\r\n'.join(script_parts).replace('~~', '~')
+            )
 
             triggers.append(trigger)
 
@@ -3207,6 +3209,38 @@ def parse_trg_file(filepath):
             continue
 
     return triggers
+
+
+def _lowercase_first_token(line):
+    """Lowercase the first whitespace-delimited token of a script line.
+
+    Mirrors the load-time normalisation in
+    src/engine/db/world_data_source_base.cpp (ParseTriggerScript) and the
+    legacy loader in src/engine/boot/boot_data_files.cpp -- both rewrite the
+    first word of each command via LOWER() so the DG-script runtime can use
+    strncmp() for dispatch. Doing the same here keeps the YAML on disk in the
+    canonical form and removes a spurious round-trip diff
+    ("DgAffect" -> "dgaffect" after one save).
+    """
+    i = 0
+    while i < len(line) and line[i] in ' \t':
+        i += 1
+    j = i
+    while j < len(line) and line[j] not in ' \t':
+        j += 1
+    return line[:i] + line[i:j].lower() + line[j:]
+
+
+def _normalize_script(script):
+    """Apply _lowercase_first_token to every line of a multi-line script."""
+    if not script:
+        return script
+    # Preserve the original line separator (\r\n vs \n) by detecting first.
+    if '\r\n' in script:
+        sep = '\r\n'
+    else:
+        sep = '\n'
+    return sep.join(_lowercase_first_token(line) for line in script.split(sep))
 
 
 def trg_to_yaml(trigger):
