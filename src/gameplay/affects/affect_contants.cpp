@@ -242,7 +242,7 @@ void init_EWeaponAffectFlag_ITEM_NAMES() {
 	EWeaponAffectFlag_name_by_value[EWeaponAffect::kInfravision] = "kInfravision";
 	EWeaponAffectFlag_name_by_value[EWeaponAffect::kPoison] = "kPoison";
 	EWeaponAffectFlag_name_by_value[EWeaponAffect::kProtectFromDark] = "kProtectFromDark";
-	EWeaponAffectFlag_name_by_value[EWeaponAffect::kProtectFromMind] = "kProtectFromEvil";
+	EWeaponAffectFlag_name_by_value[EWeaponAffect::kProtectFromMind] = "kProtectFromMind";
 	EWeaponAffectFlag_name_by_value[EWeaponAffect::kSleep] = "kSleep";
 	EWeaponAffectFlag_name_by_value[EWeaponAffect::kNoTrack] = "kNoTrack";
 	EWeaponAffectFlag_name_by_value[EWeaponAffect::kBless] = "kBless";
