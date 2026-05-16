@@ -3232,12 +3232,15 @@ def _lowercase_first_token(line):
 
 
 def _normalize_script(script):
-    """Apply _lowercase_first_token + rstrip to every line of a multi-line script.
+    """Apply _lowercase_first_token to every line of a multi-line script.
 
-    rstrip mirrors utils::TrimRight(line) in the C++ loaders
-    (world_data_source_base.cpp:48 and boot_data_files.cpp:324); without it,
-    legacy files with trailing whitespace on a line produce a save-vs-load
-    round-trip diff ("set dmsg  " vs "set dmsg").
+    NOTE: rstrip()'ing each line *would* mirror utils::TrimRight(line) at the
+    line-content level in the C++ loaders, but it also drops lines that
+    consist of nothing but whitespace -- which ParseTriggerScript /
+    boot_data_files.cpp KEEP (their empty-line check runs *before* the trim).
+    Stripping changes the in-memory cmdlist (a different number of nodes),
+    so the world checksum shifts. We deliberately do NOT rstrip here -- it
+    is the loader's job to normalise per-line whitespace at load time.
     """
     if not script:
         return script
@@ -3246,7 +3249,7 @@ def _normalize_script(script):
         sep = '\r\n'
     else:
         sep = '\n'
-    return sep.join(_lowercase_first_token(line.rstrip()) for line in script.split(sep))
+    return sep.join(_lowercase_first_token(line) for line in script.split(sep))
 
 
 def trg_to_yaml(trigger):
