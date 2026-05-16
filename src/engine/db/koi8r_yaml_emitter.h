@@ -35,11 +35,22 @@ public:
 	{
 		if (literal && value.find('\n') != std::string::npos)
 		{
-			// Literal block
-			out_ << " |" << std::endl;
+			// Literal block with strip chomping ("|-"): no trailing newline.
+			// The Python converter writes "|-" too, so round-trip matches.
+			// With plain "|" yaml-cpp/ruamel parse "a\nb\n" -- with "|-" they
+			// parse "a\nb" -- and our scripts/descriptions don't carry an
+			// expected trailing newline.
+			out_ << " |-" << std::endl;
 
 			std::string cleaned = value;
 			cleaned.erase(std::remove(cleaned.begin(), cleaned.end(), '\r'), cleaned.end());
+
+			// Strip a single trailing '\n' so the literal block's content
+			// matches `value` exactly when re-loaded.
+			if (!cleaned.empty() && cleaned.back() == '\n')
+			{
+				cleaned.pop_back();
+			}
 
 			std::istringstream iss(cleaned);
 			std::string line;
