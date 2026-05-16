@@ -1286,7 +1286,16 @@ int GameLoader::ResaveWorld(const std::string &target_dir) {
 
 	log("ResaveWorld: target=%s, zones=%zu", target_dir.c_str(), zone_table.size());
 	int errors = 0;
+	int skipped = 0;
 	for (size_t z = 0; z < zone_table.size(); ++z) {
+		// Dungeon zones (CreateBlankZoneDungeon, vnum >= kZoneStartDungeons)
+		// exist only in memory and are regenerated per-instance at runtime.
+		// They aren't loaded from disk -- writing them to target_dir would
+		// produce phantom files that have no counterpart in the source tree.
+		if (zone_table[z].under_construction) {
+			++skipped;
+			continue;
+		}
 		try {
 			saver->SaveZone(static_cast<int>(z));
 			saver->SaveRooms(static_cast<int>(z));
@@ -1299,7 +1308,7 @@ int GameLoader::ResaveWorld(const std::string &target_dir) {
 			++errors;
 		}
 	}
-	log("ResaveWorld: done, errors=%d", errors);
+	log("ResaveWorld: done, errors=%d, skipped_under_construction=%d", errors, skipped);
 	return errors;
 }
 
