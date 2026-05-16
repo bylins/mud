@@ -36,11 +36,13 @@ public:
 		if (literal && value.find('\n') != std::string::npos)
 		{
 			// Literal block with strip chomping ("|-"): no trailing newline.
-			// The Python converter writes "|-" too, so round-trip matches.
-			// With plain "|" yaml-cpp/ruamel parse "a\nb\n" -- with "|-" they
-			// parse "a\nb" -- and our scripts/descriptions don't carry an
-			// expected trailing newline.
-			out_ << " |-" << std::endl;
+			// Use an explicit indent indicator ("|-2"): otherwise YAML auto-
+			// detects indent from the first non-empty content line, and any
+			// leading whitespace there (e.g. a description that begins with
+			// "   Вот это да!") gets folded into indent, then a later line
+			// with less leading whitespace looks like the block has ended,
+			// producing parse errors on reload.
+			out_ << " |-2" << std::endl;
 
 			std::string cleaned = value;
 			cleaned.erase(std::remove(cleaned.begin(), cleaned.end(), '\r'), cleaned.end());
