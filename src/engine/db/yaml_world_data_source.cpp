@@ -28,6 +28,7 @@
 
 #include <yaml-cpp/yaml.h>
 #include <algorithm>
+#include <cstring>
 #include <iomanip>
 #include <regex>
 #include <filesystem>
@@ -3436,7 +3437,13 @@ void YamlWorldDataSource::SaveMobs(int zone_rnum, int specific_vnum)
 		// Enhanced E-spec block. Always emitted because mob_type is always
 		// "E" in this code path and the Python converter writes the block
 		// unconditionally (carrying at least resistances/saves as zero-arrays).
+		// `tascii` appends into the buffer (uses strlen(ascii) + strncat) and
+		// does NOT clear it -- callers must zero-init or its output becomes
+		// the concatenation of whatever was in stack memory from prior mob
+		// iterations. That's the root cause of the "special_bitvector accretes
+		// across mobs" diff: 'f1 0' on mob 1, 'f1 0 0 0' on mob 2, etc.
 		char special_buf[kMaxStringLength];
+		special_buf[0] = '\0';
 		mob.mob_specials.npc_flags.tascii(FlagData::kPlanesNumber, special_buf, sizeof(special_buf));
 		std::string role_str = mob.get_role().to_string();
 		{
@@ -3526,10 +3533,19 @@ void YamlWorldDataSource::SaveMobs(int zone_rnum, int specific_vnum)
 					yaml.Value(mob.get_remort());
 				}
 
-				if (special_buf[0] != '0' || special_buf[1] != 'a')
+				// tascii leaves a trailing " " (or "0 " for empty) -- strip it
+				// to match the Python converter, which emits "f1" not "f1 ".
+				{
+					size_t len = std::strlen(special_buf);
+					while (len > 0 && special_buf[len - 1] == ' ')
+					{
+						special_buf[--len] = '\0';
+					}
+				}
+				if (special_buf[0] != '0' || special_buf[1] != '\0')
 				{
 					yaml.Key("special_bitvector");
-					yaml.Value(special_buf);
+					yaml.Value(std::string(special_buf));
 				}
 
 				if (!role_str.empty() && role_str != "000000000")
