@@ -3232,7 +3232,13 @@ def _lowercase_first_token(line):
 
 
 def _normalize_script(script):
-    """Apply _lowercase_first_token to every line of a multi-line script."""
+    """Apply _lowercase_first_token + rstrip to every line of a multi-line script.
+
+    rstrip mirrors utils::TrimRight(line) in the C++ loaders
+    (world_data_source_base.cpp:48 and boot_data_files.cpp:324); without it,
+    legacy files with trailing whitespace on a line produce a save-vs-load
+    round-trip diff ("set dmsg  " vs "set dmsg").
+    """
     if not script:
         return script
     # Preserve the original line separator (\r\n vs \n) by detecting first.
@@ -3240,7 +3246,7 @@ def _normalize_script(script):
         sep = '\r\n'
     else:
         sep = '\n'
-    return sep.join(_lowercase_first_token(line) for line in script.split(sep))
+    return sep.join(_lowercase_first_token(line.rstrip()) for line in script.split(sep))
 
 
 def trg_to_yaml(trigger):
@@ -3264,7 +3270,9 @@ def trg_to_yaml(trigger):
     if 'narg' in trigger:
         data['narg'] = trigger['narg']
 
-    if 'arglist' in trigger:
+    # Match C++ SaveTriggers: emit arglist only when non-empty. Otherwise
+    # converter writes `arglist: ''` and a round-trip save drops the key.
+    if trigger.get('arglist'):
         data['arglist'] = trigger['arglist']
 
     if 'script' in trigger:
