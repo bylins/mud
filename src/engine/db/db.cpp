@@ -1247,6 +1247,8 @@ void ResetGameWorldTime() {
 }
 
 int GameLoader::ResaveWorld(const std::string &target_dir) {
+#if defined(HAVE_YAML) || defined(HAVE_SQLITE)
+	std::unique_ptr<world_loader::IWorldDataSource> saver;
 #ifdef HAVE_YAML
 	// YamlWorldDataSource's constructor refuses to instantiate without a
 	// readable world_config.yaml under the data root. For a save-only
@@ -1275,13 +1277,9 @@ int GameLoader::ResaveWorld(const std::string &target_dir) {
 	// binary was compiled with. Reads global state (zone_table, world,
 	// obj_proto, ...) and writes paths relative to target_dir; m_world_dir on
 	// the fresh instance is the *write* root.
-	auto saver = world_loader::CreateYamlDataSource(target_dir);
-#elif defined(HAVE_SQLITE)
-	auto saver = world_loader::CreateSqliteDataSource(target_dir);
+	saver = world_loader::CreateYamlDataSource(target_dir);
 #else
-	(void) target_dir;
-	log("ResaveWorld: no save-capable backend compiled in");
-	return 1;
+	saver = world_loader::CreateSqliteDataSource(target_dir);
 #endif
 
 	log("ResaveWorld: target=%s, zones=%zu", target_dir.c_str(), zone_table.size());
@@ -1310,6 +1308,11 @@ int GameLoader::ResaveWorld(const std::string &target_dir) {
 	}
 	log("ResaveWorld: done, errors=%d, skipped_under_construction=%d", errors, skipped);
 	return errors;
+#else
+	(void) target_dir;
+	log("ResaveWorld: no save-capable backend compiled in");
+	return 1;
+#endif
 }
 
 void GameLoader::BootIndex(const EBootType mode) {

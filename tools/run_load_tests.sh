@@ -39,8 +39,8 @@
 #   --checksums       Run only tests WITH checksum calculation
 #   --no-checksums    Run only tests WITHOUT checksum calculation
 #   --quick           Run quick comparison: Small_Legacy_checksums vs Small_YAML_checksums
-#   --rebuild         Force full rebuild (make clean && make)
-#   --build-type=TYPE Set CMAKE_BUILD_TYPE (Release|Debug|Test|FastTest)
+#   --rebuild         Force full rebuild (ninja -t clean && ninja)
+#   --build-type=TYPE Set meson build_profile (release|debug|dev|fasttest|custom)
 #   --recreate-builds Delete and recreate all build directories (implies world recreation)
 #   --help            Show this help
 #
@@ -112,103 +112,126 @@ fi
 # Default location of full world archive
 FULL_WORLD_ARCHIVE="${FULL_WORLD_ARCHIVE:-$HOME/repos/world.tgz}"
 
-# Function to build a specific binary variant
+# Map a CMake-style build type ("Debug"/"Release"/"Test"/"FastTest") to the
+# corresponding meson profile. Pass through anything we don't recognise.
+map_build_type_to_meson_profile() {
+    case "$1" in
+        Debug|debug)        echo "debug" ;;
+        Release|release)    echo "release" ;;
+        Test|test|Dev|dev)  echo "dev" ;;
+        FastTest|fasttest)  echo "fasttest" ;;
+        Custom|custom)      echo "custom" ;;
+        "")                 echo "" ;;
+        *)                  echo "$1" ;;
+    esac
+}
+
+# Function to build a specific binary variant.
+# Uses meson + ninja (the project's current build system).
+#
+# Args:
+#   $1 = build_dir (out-of-source directory to set up)
+#   $2 = meson_opts (space-separated -Doption=value flags)
+#   $3 = binary_name (label for log files, e.g. "legacy"/"yaml")
 build_binary() {
     local build_dir="$1"
-    local cmake_opts="$2"
+    local meson_opts="$2"
     local binary_name="$3"
-    local needs_reconfigure=0
-    
+    local needs_setup=0
+
     echo ""
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     echo "Building: $binary_name"
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    
-    # Check if we need to recreate or reconfigure
-    if [ ! -d "$build_dir" ]; then
+
+    # Detect meson + ninja; allow ~/.local/bin fallback for pip --user installs.
+    local meson_bin
+    if command -v meson >/dev/null 2>&1; then
+        meson_bin=meson
+    elif [ -x "$HOME/.local/bin/meson" ]; then
+        meson_bin="$HOME/.local/bin/meson"
+    else
+        echo "X ERROR: meson not found. Install with: pip install --user meson ninja"
+        return 1
+    fi
+
+    local ninja_bin
+    if command -v ninja >/dev/null 2>&1; then
+        ninja_bin=ninja
+    elif [ -x "$HOME/.local/bin/ninja" ]; then
+        ninja_bin="$HOME/.local/bin/ninja"
+    else
+        echo "X ERROR: ninja not found. Install with: pip install --user meson ninja"
+        return 1
+    fi
+
+    # Decide if we need a fresh `meson setup`.
+    if [ ! -d "$build_dir" ] || [ ! -f "$build_dir/build.ninja" ]; then
         mkdir -p "$build_dir"
-        needs_reconfigure=1
+        needs_setup=1
     elif [ $RECREATE_BUILDS -eq 1 ]; then
         echo "Recreating build directory (--recreate-builds)..."
         rm -rf "$build_dir"
         mkdir -p "$build_dir"
-        needs_reconfigure=1
-    elif [ -n "$BUILD_TYPE" ] && [ -f "$build_dir/CMakeCache.txt" ]; then
-        # Check if BUILD_TYPE changed
-        local current_type=$(grep "CMAKE_BUILD_TYPE:" "$build_dir/CMakeCache.txt" 2>/dev/null | cut -d= -f2)
-        if [ "$current_type" != "$BUILD_TYPE" ]; then
-            echo "Build type changed ($current_type -> $BUILD_TYPE), reconfiguring..."
-            needs_reconfigure=1
-        fi
-    elif [ ! -f "$build_dir/CMakeCache.txt" ]; then
-        needs_reconfigure=1
+        needs_setup=1
     fi
-    
-    cd "$build_dir"
-    
-    # Apply BUILD_TYPE override if specified
-    local final_cmake_opts="$cmake_opts"
+
+    # Translate optional BUILD_TYPE into a meson profile flag.
+    local effective_opts="$meson_opts"
     if [ -n "$BUILD_TYPE" ]; then
-        # Replace existing -DCMAKE_BUILD_TYPE or add if missing
-        if echo "$cmake_opts" | grep -q "CMAKE_BUILD_TYPE"; then
-            final_cmake_opts=$(echo "$cmake_opts" | sed "s/-DCMAKE_BUILD_TYPE=[^ ]*/-DCMAKE_BUILD_TYPE=$BUILD_TYPE/")
-        else
-            final_cmake_opts="$cmake_opts -DCMAKE_BUILD_TYPE=$BUILD_TYPE"
-        fi
+        local profile
+        profile=$(map_build_type_to_meson_profile "$BUILD_TYPE")
+        # Strip any existing -Dbuild_profile=... so we don't end up with two.
+        effective_opts=$(echo "$effective_opts" | sed -E 's/-Dbuild_profile=[^ ]*//g')
+        effective_opts="$effective_opts -Dbuild_profile=$profile"
     fi
-    
-    # Run cmake if needed
-    if [ $needs_reconfigure -eq 1 ]; then
-        echo "[1/2] Configuring with CMake..."
-        echo "      Options: $final_cmake_opts"
-        cmake $final_cmake_opts .. > /tmp/build_${binary_name}_cmake.log 2>&1 || {
-            echo "X ERROR: CMake configuration failed"
-            echo "  Log: /tmp/build_${binary_name}_cmake.log"
-            cd "$MUD_DIR"
+
+    if [ $needs_setup -eq 1 ]; then
+        echo "[1/2] Configuring with meson..."
+        echo "      Options: $effective_opts"
+        "$meson_bin" setup "$build_dir" $effective_opts > /tmp/build_${binary_name}_meson.log 2>&1 || {
+            echo "X ERROR: meson setup failed"
+            echo "  Log: /tmp/build_${binary_name}_meson.log"
+            echo "  Last 20 lines:"
+            tail -20 /tmp/build_${binary_name}_meson.log
             return 1
         }
-        echo " CMake configuration complete"
+        echo " meson configuration complete"
     else
-        echo "[1/2] Using cached CMake configuration"
+        echo "[1/2] Using existing meson configuration"
+        # Allow `meson configure` to absorb an updated BUILD_TYPE override.
+        if [ -n "$BUILD_TYPE" ]; then
+            "$meson_bin" configure "$build_dir" -Dbuild_profile="$(map_build_type_to_meson_profile "$BUILD_TYPE")" \
+                >> /tmp/build_${binary_name}_meson.log 2>&1 || true
+        fi
     fi
-    
-    # Build
+
+    # Build (parallel; use half of cores to keep the box responsive).
     echo "[2/2] Compiling (this may take a while)..."
     echo "      Log: /tmp/build_${binary_name}.log"
     echo "      Tip: Run 'tail -f /tmp/build_${binary_name}.log' in another terminal to watch progress"
     echo ""
-    # Clean if rebuild requested
+
+    local nprocs=$(($(nproc)/2))
+    if [ "$nprocs" -lt 1 ]; then nprocs=1; fi
+
     if [ $REBUILD_MODE -eq 1 ]; then
-        echo "      Running make clean (rebuild mode)..."
-        make clean > /tmp/build_${binary_name}.log 2>&1
-        make circle -j$(nproc) >> /tmp/build_${binary_name}.log 2>&1 || {
-            echo "X ERROR: Build failed"
-            echo "  Log: /tmp/build_${binary_name}.log"
-            echo "  Last 20 lines:"
-            tail -20 /tmp/build_${binary_name}.log
-            cd "$MUD_DIR"
-            return 1
-        }
-    else
-        make circle -j$(nproc) > /tmp/build_${binary_name}.log 2>&1 || {
-            echo "X ERROR: Build failed"
-            echo "  Log: /tmp/build_${binary_name}.log"
-            echo "  Last 20 lines:"
-            tail -20 /tmp/build_${binary_name}.log
-            cd "$MUD_DIR"
-            return 1
-        }
+        echo "      Cleaning previous build..."
+        "$ninja_bin" -C "$build_dir" -t clean > /tmp/build_${binary_name}.log 2>&1 || true
     fi
-    
-    cd "$MUD_DIR"
-    
-    # Verify binary was created
-    if [ ! -x "$build_dir/circle" ]; then
-        echo "X ERROR: Binary not created despite successful make"
+
+    "$ninja_bin" -C "$build_dir" circle "-j$nprocs" >> /tmp/build_${binary_name}.log 2>&1 || {
+        echo "X ERROR: Build failed"
         echo "  Log: /tmp/build_${binary_name}.log"
         echo "  Last 20 lines:"
         tail -20 /tmp/build_${binary_name}.log
-        cd "$MUD_DIR"
+        return 1
+    }
+
+    if [ ! -x "$build_dir/circle" ]; then
+        echo "X ERROR: Binary not created despite successful build"
+        echo "  Log: /tmp/build_${binary_name}.log"
+        tail -20 /tmp/build_${binary_name}.log
         return 1
     fi
     echo " Successfully built $build_dir/circle"
@@ -240,34 +263,18 @@ setup_small_world() {
 
     rm -rf "$dest_dir"
 
-    # Reconfigure CMake to recreate small directory with symlinks
-    echo "Reconfiguring CMake to create small world structure..."
-
-    cd "$build_dir"
-    if [ "$loader" = "legacy" ]; then
-        cmake -DCMAKE_BUILD_TYPE=Debug .. > /tmp/cmake_small_legacy.log 2>&1 || {
-            echo "X ERROR: CMake reconfiguration failed"
-            echo "  Log: /tmp/cmake_small_legacy.log"
-            cd "$MUD_DIR"
-            return 1
-        }
-    elif [ "$loader" = "sqlite" ]; then
-        cmake -DHAVE_SQLITE=ON -DCMAKE_BUILD_TYPE=Debug .. > /tmp/cmake_small_sqlite.log 2>&1 || {
-            echo "X ERROR: CMake reconfiguration failed"
-            echo "  Log: /tmp/cmake_small_sqlite.log"
-            cd "$MUD_DIR"
-            return 1
-        }
-    elif [ "$loader" = "yaml" ]; then
-        cmake -DHAVE_YAML=ON -DCMAKE_BUILD_TYPE=Debug .. > /tmp/cmake_small_yaml.log 2>&1 || {
-            echo "X ERROR: CMake reconfiguration failed"
-            echo "  Log: /tmp/cmake_small_yaml.log"
-            cd "$MUD_DIR"
-            return 1
-        }
-    fi
-    cd "$MUD_DIR"
-    echo " CMake created $dest_dir (copied lib + lib.template)"
+    # Materialise the small world via the meson helper (the same one that
+    # `-Dsmall_world=true` triggers during configure). It copies lib/ -> small/
+    # and overlays lib.template/.
+    echo "Running tools/meson/setup_world.py to create small world structure..."
+    python3 "$MUD_DIR/tools/meson/setup_world.py" \
+        "$build_dir" "$MUD_DIR" "" > /tmp/setup_small_${loader}.log 2>&1 || {
+        echo "X ERROR: small world setup failed"
+        echo "  Log: /tmp/setup_small_${loader}.log"
+        cat /tmp/setup_small_${loader}.log
+        return 1
+    }
+    echo " Small world created at $dest_dir (lib + lib.template)"
 
     if [ "$loader" = "legacy" ]; then
         echo " Legacy world ready (using lib.template/world)"
@@ -442,17 +449,17 @@ fi
 # Build binaries if needed (with Admin API enabled for testing)
 if [ $NEED_LEGACY -eq 1 ]; then
 
-    build_binary "$MUD_DIR/build_test" "-DENABLE_ADMIN_API=ON -DCMAKE_BUILD_TYPE=Debug" "legacy" || exit 1
+    build_binary "$MUD_DIR/build_test" "-Dadmin_api=true -Dbuild_profile=debug" "legacy" || exit 1
 fi
 
 if [ $NEED_SQLITE -eq 1 ]; then
 
-    build_binary "$MUD_DIR/build_sqlite" "-DENABLE_ADMIN_API=ON -DHAVE_SQLITE=ON -DCMAKE_BUILD_TYPE=Debug" "sqlite" || exit 1
+    build_binary "$MUD_DIR/build_sqlite" "-Dadmin_api=true -Dsqlite=builtin -Dbuild_profile=debug" "sqlite" || exit 1
 fi
 if [ $NEED_YAML -eq 1 ]; then
 
 
-    build_binary "$MUD_DIR/build_yaml" "-DENABLE_ADMIN_API=ON -DHAVE_YAML=ON -DCMAKE_BUILD_TYPE=Debug" "yaml" || exit 1
+    build_binary "$MUD_DIR/build_yaml" "-Dadmin_api=true -Dyaml=builtin -Dbuild_profile=debug" "yaml" || exit 1
 fi
 # Setup worlds
 if [ $NEED_SMALL -eq 1 ]; then
