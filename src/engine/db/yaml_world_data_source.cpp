@@ -3370,6 +3370,10 @@ void YamlWorldDataSource::SaveMobs(int zone_rnum, int specific_vnum)
 		yaml.Key("size");
 		yaml.Value(GET_SIZE(&mob));
 
+		// NPC race, between `size` and `height` as the converter writes it.
+		yaml.Key("race");
+		yaml.Value(static_cast<int>(mob.player_data.Race));
+
 		yaml.Key("height");
 		yaml.Value(static_cast<int>(GET_HEIGHT(&mob)));  // ubyte -> int
 
