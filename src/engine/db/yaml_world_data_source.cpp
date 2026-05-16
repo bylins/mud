@@ -1780,13 +1780,25 @@ CharData YamlWorldDataSource::ParseMobFile(const std::string &file_path)
 
 		if (enhanced["spells"] && enhanced["spells"].IsSequence())
 		{
+			// Each occurrence of a spell id in the sequence increments SplMem
+			// (memorized slot count), mirroring the legacy `Spell: N` parser
+			// in boot_data_files.cpp:1393-1405. SplKnw was a yaml/sqlite-only
+			// shortcut that lost the multiplicity and didn't update
+			// caster_level / have_spell, leaving casters effectively spell-less
+			// after a yaml load.
 			for (const auto &spell_node : enhanced["spells"])
 			{
-				int spell_id = spell_node.as<int>();
-				if (spell_id >= 0 && spell_id < static_cast<int>(mob.real_abils.SplKnw.size()))
+				int spell_id_int = spell_node.as<int>();
+				if (spell_id_int < to_underlying(ESpell::kFirst)
+					|| spell_id_int > to_underlying(ESpell::kLast))
 				{
-					mob.real_abils.SplKnw[spell_id] = 1;
+					log("SYSERR: Unknown spell id %d in mob yaml", spell_id_int);
+					continue;
 				}
+				auto spell_id = static_cast<ESpell>(spell_id_int);
+				GET_SPELL_MEM(&mob, spell_id) += 1;
+				mob.caster_level += (MUD::Spell(spell_id).IsFlagged(NPC_CALCULATE) ? 1 : 0);
+				mob.mob_specials.have_spell = true;
 			}
 		}
 
@@ -3577,7 +3589,7 @@ void YamlWorldDataSource::SaveMobs(int zone_rnum, int specific_vnum)
 			for (const auto &val : mob.add_abils.apply_saving_throw) { if (val != 0) { has_enhanced = true; break; } }
 			
 			for (size_t i = 0; i < mob.real_abils.Feats.size(); ++i) { if (mob.real_abils.Feats.test(i)) { has_enhanced = true; break; } }
-			for (size_t i = 0; i < mob.real_abils.SplKnw.size(); ++i) { if (mob.real_abils.SplKnw[i] > 0) { has_enhanced = true; break; } }
+			for (size_t i = 0; i < mob.real_abils.SplMem.size(); ++i) { if (mob.real_abils.SplMem[i] > 0) { has_enhanced = true; break; } }
 			
 			if (!mob.summon_helpers.empty()) { has_enhanced = true; }
 			for (int dest : mob.mob_specials.dest) { if (dest != 0) { has_enhanced = true; break; } }
@@ -3744,11 +3756,13 @@ void YamlWorldDataSource::SaveMobs(int zone_rnum, int specific_vnum)
 					yaml.DecreaseIndent();
 				}
 
-				// Spells
+				// Spells (memorized slot counts). Mirror legacy: a spell with
+				// SplMem[id] == N is serialised as N copies of `id`, matching
+				// the load path which increments SplMem on each occurrence.
 				bool has_spells = false;
-				for (size_t i = 0; i < mob.real_abils.SplKnw.size(); ++i)
+				for (size_t i = 0; i < mob.real_abils.SplMem.size(); ++i)
 				{
-					if (mob.real_abils.SplKnw[i] > 0) { has_spells = true; break; }
+					if (mob.real_abils.SplMem[i] > 0) { has_spells = true; break; }
 				}
 				if (has_spells)
 				{
@@ -3756,9 +3770,10 @@ void YamlWorldDataSource::SaveMobs(int zone_rnum, int specific_vnum)
 					yaml.BeginSequence();
 					yaml.IncreaseIndent();
 
-					for (size_t i = 0; i < mob.real_abils.SplKnw.size(); ++i)
+					for (size_t i = 0; i < mob.real_abils.SplMem.size(); ++i)
 					{
-						if (mob.real_abils.SplKnw[i] > 0)
+						int mem = mob.real_abils.SplMem[i];
+						for (int n = 0; n < mem; ++n)
 						{
 							yaml.SequenceItem(static_cast<int>(i));
 						}
