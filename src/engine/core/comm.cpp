@@ -618,6 +618,7 @@ int main_function(int argc, char **argv) {
 	ush_int port;
 	int pos = 1;
 	const char *dir;
+	const char *save_target = nullptr;
 	char cwd[256];
 
 	// Initialize these to check for overruns later.
@@ -653,6 +654,17 @@ int main_function(int argc, char **argv) {
 			case 's': no_specials = 1;
 		puts("Suppressing assignment of special routines.");
 		break;
+	case 'S':
+		if (*(argv[pos] + 2))
+			save_target = argv[pos] + 2;
+		else if (++pos < argc)
+			save_target = argv[pos];
+		else {
+			puts("SYSERR: Output directory arg expected after option -S.");
+			exit(1);
+		}
+		printf("Resave-and-exit mode enabled, target='%s'.\n", save_target);
+		break;
 	case 'W':
 		enable_world_checksum = true;
 		puts("World checksum calculation enabled.");
@@ -675,7 +687,9 @@ int main_function(int argc, char **argv) {
 					   "  -h             Print this command line argument help.\n"
 					   "  -o <file>      Write log to <file> instead of stderr.\n"
 					   "  -r             Restrict MUD -- no new players allowed.\n"
-					   "  -s             Suppress special procedure assignments.\n", argv[0]);
+					   "  -s             Suppress special procedure assignments.\n"
+					   "  -S <out_dir>   Load world, re-emit it via the configured backend\n"
+					   "                 into <out_dir> and exit (round-trip diagnostic).\n", argv[0]);
 				exit(0);
 
 			default: printf("SYSERR: Unknown option -%c in argument string.\n", *(argv[pos] + 1));
@@ -685,7 +699,9 @@ int main_function(int argc, char **argv) {
 					   "  -h             Print this command line argument help.\n"
 					   "  -o <file>      Write log to <file> instead of stderr.\n"
 					   "  -r             Restrict MUD -- no new players allowed.\n"
-					   "  -s             Suppress special procedure assignments.\n", argv[0]);
+					   "  -s             Suppress special procedure assignments.\n"
+					   "  -S <out_dir>   Load world, re-emit it via the configured backend\n"
+					   "                 into <out_dir> and exit (round-trip diagnostic).\n", argv[0]);
 				exit(1);
 			break;
 		}
@@ -730,7 +746,14 @@ int main_function(int argc, char **argv) {
 	}
 	LogBuildInfo();
 	printf("[%s] Code version %s, revision: %s\r\nCompiler: %s\r\nEnabled features: %s\r\n", utils::NowTs().c_str(), build_datetime, revision, build_compiler, build_features);
-	if (scheck) {
+	if (save_target) {
+		GameLoader::BootWorld();
+		// target_dir is interpreted relative to the world data directory
+		// (we chdir'd there above), so callers see the path they passed.
+		int errors = GameLoader::ResaveWorld(save_target);
+		printf("Resave finished, errors=%d\n", errors);
+		return errors == 0 ? 0 : 2;
+	} else if (scheck) {
 		GameLoader::BootWorld();
 		printf("Done.");
 	} else {

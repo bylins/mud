@@ -1,3 +1,5 @@
+#include <filesystem>
+
 #include "third_party_libs/pugixml/pugixml.h"
 
 #include "administration/accounts.h"
@@ -1242,6 +1244,63 @@ void ResetGameWorldTime() {
 		weather_info.sky = kSkyCloudy;
 	else
 		weather_info.sky = kSkyCloudless;
+}
+
+int GameLoader::ResaveWorld(const std::string &target_dir) {
+#ifdef HAVE_YAML
+	// YamlWorldDataSource's constructor refuses to instantiate without a
+	// readable world_config.yaml under the data root. For a save-only
+	// instance, copy the original config (and dictionaries, for completeness)
+	// from the load location -- which BootWorld used at the compile-time
+	// default of "world" -- before constructing.
+	namespace fs = std::filesystem;
+	const std::string load_dir = "world";
+	try {
+		fs::create_directories(target_dir);
+		fs::copy_file(load_dir + "/world_config.yaml",
+					  target_dir + "/world_config.yaml",
+					  fs::copy_options::overwrite_existing);
+		if (fs::exists(load_dir + "/dictionaries")) {
+			fs::copy(load_dir + "/dictionaries",
+					 target_dir + "/dictionaries",
+					 fs::copy_options::recursive
+					 | fs::copy_options::overwrite_existing);
+		}
+	} catch (const std::exception &e) {
+		log("SYSERR: ResaveWorld bootstrap failed: %s", e.what());
+		return 1;
+	}
+
+	// Same backend as BootWorld -- we want round-trip in the same format the
+	// binary was compiled with. Reads global state (zone_table, world,
+	// obj_proto, ...) and writes paths relative to target_dir; m_world_dir on
+	// the fresh instance is the *write* root.
+	auto saver = world_loader::CreateYamlDataSource(target_dir);
+#elif defined(HAVE_SQLITE)
+	auto saver = world_loader::CreateSqliteDataSource(target_dir);
+#else
+	(void) target_dir;
+	log("ResaveWorld: no save-capable backend compiled in");
+	return 1;
+#endif
+
+	log("ResaveWorld: target=%s, zones=%zu", target_dir.c_str(), zone_table.size());
+	int errors = 0;
+	for (size_t z = 0; z < zone_table.size(); ++z) {
+		try {
+			saver->SaveZone(static_cast<int>(z));
+			saver->SaveRooms(static_cast<int>(z));
+			saver->SaveObjects(static_cast<int>(z));
+			saver->SaveMobs(static_cast<int>(z));
+			saver->SaveTriggers(static_cast<int>(z), -1, 0);
+		} catch (const std::exception &e) {
+			log("SYSERR: ResaveWorld failed on zone %d (vnum=%d): %s",
+				static_cast<int>(z), zone_table[z].vnum, e.what());
+			++errors;
+		}
+	}
+	log("ResaveWorld: done, errors=%d", errors);
+	return errors;
 }
 
 void GameLoader::BootIndex(const EBootType mode) {

@@ -220,6 +220,12 @@ class GameLoader {
 	static void BootWorld(std::unique_ptr<world_loader::IWorldDataSource> data_source = nullptr);
 	static void BootIndex(EBootType mode);
 
+	// Diagnostic: re-emit loaded world via the current backend's Save* APIs
+	// into a fresh directory. Used by `circle -S <out_dir>` for the
+	// load -> save -> diff round-trip test. Returns 0 on success or the
+	// number of save errors encountered.
+	static int ResaveWorld(const std::string &target_dir);
+
  private:
 	static void PrepareGlobalStructures(const EBootType mode, const int rec_count);
 };
