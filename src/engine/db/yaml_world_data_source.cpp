@@ -2765,6 +2765,10 @@ bool YamlWorldDataSource::SaveTriggers(int zone_rnum, int specific_vnum, int not
 		yaml.Comment("Trigger #" + std::to_string(trig_vnum));
 		yaml.EmptyLine();
 
+		// Vnum (matches Python converter output and SaveRooms convention).
+		yaml.Key("vnum");
+		yaml.Value(trig_vnum);
+
 		// Name
 		yaml.Key("name");
 		yaml.Value(GET_TRIG_NAME(trig));
@@ -3169,6 +3173,10 @@ void YamlWorldDataSource::SaveMobs(int zone_rnum, int specific_vnum)
 		// Header comment
 		yaml.Comment("Mob #" + std::to_string(mob_vnum));
 		yaml.EmptyLine();
+
+		// Vnum (matches Python converter output and SaveRooms convention).
+		yaml.Key("vnum");
+		yaml.Value(mob_vnum);
 
 		// Names
 		yaml.Key("names");
@@ -3760,6 +3768,10 @@ void YamlWorldDataSource::SaveObjects(int zone_rnum, int specific_vnum)
 		// Header comment
 		yaml.Comment("Object #" + std::to_string(obj_vnum));
 		yaml.EmptyLine();
+
+		// Vnum (matches Python converter output and SaveRooms convention).
+		yaml.Key("vnum");
+		yaml.Value(obj_vnum);
 
 		// Names
 		yaml.Key("names");
