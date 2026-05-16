@@ -3905,9 +3905,12 @@ void YamlWorldDataSource::SaveObjects(int zone_rnum, int specific_vnum)
 
 		yaml.DecreaseIndent();
 
-		// Short description
+		// Long description ("when in room"). Yaml convention: stored under
+		// `short_desc:` to mirror the legacy file's 8th string, which is the
+		// long-form description. m_short_description is the inventory name
+		// (== nominative) and is already serialised via names/nominative.
 		yaml.Key("short_desc");
-		yaml.Value(obj->get_short_description(), true);  // literal=true
+		yaml.Value(obj->get_description(), true);  // literal=true
 
 		// Action description (optional)
 		if (!obj->get_action_description().empty())
