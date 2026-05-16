@@ -1182,6 +1182,10 @@ void SqliteWorldDataSource::LoadRoomExits(const std::map<int, int> &vnum_to_rnum
 		// Set exit flags (stored as string in database, parse as integer)
 		exit_data->exit_info = exit_flags;
 
+		// Дропаем полностью пустые D-блоки (симметрично с legacy/yaml),
+		// см. issue #3272.
+		if (exit_data->is_empty()) continue;
+
 		room->dir_option_proto[dir] = exit_data;
 		exits_loaded++;
 	}

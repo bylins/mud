@@ -540,6 +540,13 @@ void WorldFile::setup_dir(int room, unsigned dir) {
 
 	world[room]->dir_option_proto[dir]->key = t[1];
 	world[room]->dir_option_proto[dir]->to_room(t[2]);
+
+	// Полностью пустые D-блоки - мусор из старых редакторов, на рантайм не
+	// влияют и без причины засоряют show errors. Дропаем их сразу при загрузке
+	// (симметрично в YAML- и SQLite-загрузчиках), см. issue #3272.
+	if (world[room]->dir_option_proto[dir]->is_empty()) {
+		world[room]->dir_option_proto[dir].reset();
+	}
 }
 
 bool WorldFile::load() {
