@@ -100,11 +100,16 @@ for arg in "$@"; do
     esac
 done
 
-# Quick mode: only Small_Legacy_checksums and Small_YAML_checksums
+# Quick mode: only Small_Legacy_checksums and Small_YAML_checksums.
+# Skip sqlite explicitly -- the project ships no sqlite3.wrap and the test box
+# may not have libsqlite3-dev installed, in which case `meson setup
+# -Dsqlite=auto` would error out.
+QUICK_SKIP_SQLITE=0
 if [ $QUICK_MODE -eq 1 ]; then
     FILTER_LOADER=""  # Will run both legacy and yaml
     FILTER_WORLD="small"
     FILTER_CHECKSUMS="yes"
+    QUICK_SKIP_SQLITE=1
     echo "Quick mode: Running Small_Legacy_checksums and Small_YAML_checksums"
     echo ""
 fi
@@ -435,6 +440,9 @@ fi
 if [ -z "$FILTER_LOADER" ] || [ "$FILTER_LOADER" = "sqlite" ]; then
     NEED_SQLITE=1
 fi
+if [ $QUICK_SKIP_SQLITE -eq 1 ]; then
+    NEED_SQLITE=0
+fi
 if [ -z "$FILTER_LOADER" ] || [ "$FILTER_LOADER" = "yaml" ]; then
     NEED_YAML=1
 fi
@@ -454,7 +462,10 @@ fi
 
 if [ $NEED_SQLITE -eq 1 ]; then
 
-    build_binary "$MUD_DIR/build_sqlite" "-Dadmin_api=true -Dsqlite=builtin -Dbuild_profile=debug" "sqlite" || exit 1
+    # sqlite=auto: prefer system libsqlite3, fall back to the meson subproject
+    # (which requires a checked-in subprojects/sqlite3.wrap that we currently
+    # don't ship).
+    build_binary "$MUD_DIR/build_sqlite" "-Dadmin_api=true -Dsqlite=auto -Dbuild_profile=debug" "sqlite" || exit 1
 fi
 if [ $NEED_YAML -eq 1 ]; then
 
