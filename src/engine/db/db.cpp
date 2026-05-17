@@ -1,3 +1,5 @@
+#include <filesystem>
+
 #include "third_party_libs/pugixml/pugixml.h"
 
 #include "administration/accounts.h"
@@ -1242,6 +1244,77 @@ void ResetGameWorldTime() {
 		weather_info.sky = kSkyCloudy;
 	else
 		weather_info.sky = kSkyCloudless;
+}
+
+int GameLoader::ResaveWorld(const std::string &target_dir) {
+#if defined(HAVE_YAML) || defined(HAVE_SQLITE)
+	std::unique_ptr<world_loader::IWorldDataSource> saver;
+#ifdef HAVE_YAML
+	// YamlWorldDataSource's constructor refuses to instantiate without a
+	// readable world_config.yaml under the data root. For a save-only
+	// instance, copy the original config (and dictionaries) from the load
+	// location -- which BootWorld used at the compile-time default of
+	// "world" -- before constructing. SaveZone/Save* rebuild their
+	// index.yaml files themselves now, so we don't mirror any indexes here.
+	namespace fs = std::filesystem;
+	const std::string load_dir = "world";
+	try {
+		fs::create_directories(target_dir);
+		fs::copy_file(load_dir + "/world_config.yaml",
+					  target_dir + "/world_config.yaml",
+					  fs::copy_options::overwrite_existing);
+		if (fs::exists(load_dir + "/dictionaries")) {
+			fs::copy(load_dir + "/dictionaries",
+					 target_dir + "/dictionaries",
+					 fs::copy_options::recursive
+					 | fs::copy_options::overwrite_existing);
+		}
+	} catch (const std::exception &e) {
+		log("SYSERR: ResaveWorld bootstrap failed: %s", e.what());
+		return 1;
+	}
+
+	// Same backend as BootWorld -- we want round-trip in the same format the
+	// binary was compiled with. Reads global state (zone_table, world,
+	// obj_proto, ...) and writes paths relative to target_dir; m_world_dir on
+	// the fresh instance is the *write* root.
+	saver = world_loader::CreateYamlDataSource(target_dir);
+#else
+	saver = world_loader::CreateSqliteDataSource(target_dir);
+#endif
+
+	log("ResaveWorld: target=%s, zones=%zu", target_dir.c_str(), zone_table.size());
+	int errors = 0;
+	int skipped = 0;
+	for (size_t z = 0; z < zone_table.size(); ++z) {
+		// Dungeon zones (CreateBlankZoneDungeon, vnum >= kZoneStartDungeons)
+		// are generated in-memory and never persisted -- matches legacy's
+		// medit_save_to_disk guard at olc/medit.cpp:532. `under_construction`
+		// alone is not the right filter: ordinary prod zones may carry it as
+		// a "work in progress" marker (zone 73 "Светлый лес" etc.).
+		if (zone_table[z].vnum >= dungeons::kZoneStartDungeons) {
+			++skipped;
+			continue;
+		}
+		try {
+			saver->SaveZone(static_cast<int>(z));
+			saver->SaveRooms(static_cast<int>(z));
+			saver->SaveObjects(static_cast<int>(z));
+			saver->SaveMobs(static_cast<int>(z));
+			saver->SaveTriggers(static_cast<int>(z), -1, 0);
+		} catch (const std::exception &e) {
+			log("SYSERR: ResaveWorld failed on zone %d (vnum=%d): %s",
+				static_cast<int>(z), zone_table[z].vnum, e.what());
+			++errors;
+		}
+	}
+	log("ResaveWorld: done, errors=%d, skipped_dungeon=%d", errors, skipped);
+	return errors;
+#else
+	(void) target_dir;
+	log("ResaveWorld: no save-capable backend compiled in");
+	return 1;
+#endif
 }
 
 void GameLoader::BootIndex(const EBootType mode) {

@@ -33,6 +33,7 @@ test_sources = files(
     'compact.trie.cpp',
     'compact.trie.iterators.cpp',
     'yaml.save.encoding.cpp',
+    'koi8r.yaml.emitter.cpp',
     'compact.trie.prefixes.cpp',
     'thread_pool.cpp',
     'world_data_source_manager.cpp',
