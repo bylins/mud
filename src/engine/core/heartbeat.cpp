@@ -36,6 +36,7 @@
 #include "gameplay/communication/check_invoice.h"
 #include "gameplay/mechanics/depot.h"
 #include "gameplay/statistics/spell_usage.h"
+#include "gameplay/statistics/top.h"
 #include "utils/tracing/trace_manager.h"
 
 #if defined WITH_SCRIPTING
@@ -366,6 +367,10 @@ Heartbeat::steps_t &pulse_steps() {
 							 60 * 60 * kPassesPerSec,
 							 47,
 							 std::make_shared<SimpleCall>(print_rune_log)),
+		Heartbeat::PulseStep("Top player chart refresh",
+							 60 * 60 * kPassesPerSec,
+							 43,
+							 std::make_shared<SimpleCall>(TopPlayer::RefreshAll)),
 		Heartbeat::PulseStep("Mob stats saving",
 							 60 * mob_stat::kSavePeriod * kPassesPerSec,
 							 57,

@@ -17,7 +17,6 @@
 #include "gameplay/clans/house.h"
 #include "pk.h"
 #include "gameplay/mechanics/stuff.h"
-#include "gameplay/statistics/top.h"
 #include "engine/ui/color.h"
 #include "gameplay/statistics/mob_stat.h"
 #include "gameplay/mechanics/bonus.h"
@@ -775,7 +774,6 @@ void perform_group_gain(CharData *ch, CharData *victim, int members, int koef) {
 	if (!InTestZone(ch)) {
 		EndowExpToChar(ch, exp);
 		change_alignment(ch, victim);
-		TopPlayer::Refresh(ch);
 		if (!(victim)->Temporary.get(EXTRA_GRP_KILL_COUNT)
 				&& !ch->IsNpc()
 				&& !ch->IsImmortal()
