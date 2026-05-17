@@ -4,6 +4,8 @@
 #include "engine/ui/color.h"
 #include "gameplay/mechanics/glory_const.h"
 #include "engine/entities/char_data.h"
+#include "engine/core/comm.h"
+#include "engine/network/descriptor_data.h"
 #include "engine/db/global_objects.h"
 #include "engine/ui/table_wrapper.h"
 #include "utils/utils_time.h"
@@ -59,12 +61,20 @@ void TopPlayer::Refresh(CharData *short_ch, bool reboot) {
 	}
 }
 
-// Periodic full refresh of all online characters. Cheaper than calling Refresh
-// on every mob kill (which was O(N) per group member per kill). Wired into the
-// heartbeat once per RL hour -- see heartbeat.cpp.
+// Periodic refresh of online players' chart entries. Replaces the per-kill
+// Refresh in perform_group_gain (which scaled badly with group size and
+// chart_ length). Wired into the heartbeat once per RL hour -- see
+// heartbeat.cpp.
+//
+// Walks descriptor_list and filters to descriptors in kPlaying state -- that
+// avoids touching mobs/charmices from character_list and skips connections
+// that are still in menus / character generation. Offline players keep their
+// chart_ entries from boot (state hasn't changed while they were offline).
 void TopPlayer::RefreshAll() {
-	for (const auto &ch : character_list) {
-		TopPlayer::Refresh(ch.get());
+	for (DescriptorData *d = descriptor_list; d; d = d->next) {
+		if (d->state == EConState::kPlaying && d->character) {
+			TopPlayer::Refresh(d->character.get());
+		}
 	}
 }
 
