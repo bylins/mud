@@ -378,6 +378,14 @@ void ConvertObjValues() {
 void GameLoader::BootWorld(std::unique_ptr<world_loader::IWorldDataSource> data_source) {
 	utils::CSteppedProfiler boot_profiler("World booting", 1.1);
 
+	// Initialise the int<->name table for ObjVal keys before anything that
+	// might serialise an object touches it. Normally BootMudDataBase()
+	// (comm.cpp:807) does this for the running-server path, but `-S` /
+	// `scheck` return early -- between BootWorld and ResaveWorld -- and
+	// never get there. `text_id::Init()` uses unordered_map::insert so it's
+	// idempotent if BootMudDataBase later runs.
+	text_id::Init();
+
 	// Create default data source if none provided
 	if (!data_source)
 	{
