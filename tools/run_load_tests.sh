@@ -906,39 +906,39 @@ echo ""
 if [ -z "$FILTER_WORLD" ] || [ "$FILTER_WORLD" = "small" ]; then
     echo "=== SMALL WORLD ==="
     echo ""
-    [ -n "$LEGACY_BIN" ] && run_test "Small_Legacy_checksums" "$LEGACY_BIN" "$MUD_DIR/build_test/small" "-W"
-    [ -n "$LEGACY_BIN" ] && run_test "Small_Legacy_no_checksums" "$LEGACY_BIN" "$MUD_DIR/build_test/small" ""
-    [ -n "$SQLITE_BIN" ] && run_test "Small_SQLite_checksums" "$SQLITE_BIN" "$MUD_DIR/build_sqlite/small" "-W"
-    [ -n "$SQLITE_BIN" ] && run_test "Small_SQLite_no_checksums" "$SQLITE_BIN" "$MUD_DIR/build_sqlite/small" ""
-    [ -n "$YAML_BIN" ] && [ -d "$MUD_DIR/build_yaml/small" ] && run_test "Small_YAML_checksums" "$YAML_BIN" "$MUD_DIR/build_yaml/small" "-W"
-    [ -n "$YAML_BIN" ] && [ -d "$MUD_DIR/build_yaml/small" ] && run_test "Small_YAML_no_checksums" "$YAML_BIN" "$MUD_DIR/build_yaml/small" ""
+    [ -x "$LEGACY_BIN" ] && run_test "Small_Legacy_checksums" "$LEGACY_BIN" "$MUD_DIR/build_test/small" "-W"
+    [ -x "$LEGACY_BIN" ] && run_test "Small_Legacy_no_checksums" "$LEGACY_BIN" "$MUD_DIR/build_test/small" ""
+    [ -x "$SQLITE_BIN" ] && run_test "Small_SQLite_checksums" "$SQLITE_BIN" "$MUD_DIR/build_sqlite/small" "-W"
+    [ -x "$SQLITE_BIN" ] && run_test "Small_SQLite_no_checksums" "$SQLITE_BIN" "$MUD_DIR/build_sqlite/small" ""
+    [ -x "$YAML_BIN" ] && [ -d "$MUD_DIR/build_yaml/small" ] && run_test "Small_YAML_checksums" "$YAML_BIN" "$MUD_DIR/build_yaml/small" "-W"
+    [ -x "$YAML_BIN" ] && [ -d "$MUD_DIR/build_yaml/small" ] && run_test "Small_YAML_no_checksums" "$YAML_BIN" "$MUD_DIR/build_yaml/small" ""
 
     # YAML round-trip on the small world (resave -> re-boot -> capture cs3).
     echo ""
     echo "=== SMALL WORLD - YAML ROUND-TRIP ==="
     echo ""
-    [ -n "$YAML_BIN" ] && [ -d "$MUD_DIR/build_yaml/small" ] && run_roundtrip_test "Small_YAML_RoundTrip" "$YAML_BIN" "$MUD_DIR/build_yaml/small"
+    [ -x "$YAML_BIN" ] && [ -d "$MUD_DIR/build_yaml/small" ] && run_roundtrip_test "Small_YAML_RoundTrip" "$YAML_BIN" "$MUD_DIR/build_yaml/small"
 
     # Admin API CRUD Tests last -- they recreate the world from scratch and
     # mutate it, so anything order-sensitive has to run before this stage.
     echo ""
     echo "=== SMALL WORLD - ADMIN API TESTS ==="
     echo ""
-    [ -n "$LEGACY_BIN" ] && run_admin_api_test "Small_Legacy_AdminAPI" "$LEGACY_BIN" "$MUD_DIR/build_test/small" "legacy"
-    [ -n "$SQLITE_BIN" ] && run_admin_api_test "Small_SQLite_AdminAPI" "$SQLITE_BIN" "$MUD_DIR/build_sqlite/small" "sqlite"
-    [ -n "$YAML_BIN" ] && [ -d "$MUD_DIR/build_yaml/small" ] && run_admin_api_test "Small_YAML_AdminAPI" "$YAML_BIN" "$MUD_DIR/build_yaml/small" "yaml"
+    [ -x "$LEGACY_BIN" ] && run_admin_api_test "Small_Legacy_AdminAPI" "$LEGACY_BIN" "$MUD_DIR/build_test/small" "legacy"
+    [ -x "$SQLITE_BIN" ] && run_admin_api_test "Small_SQLite_AdminAPI" "$SQLITE_BIN" "$MUD_DIR/build_sqlite/small" "sqlite"
+    [ -x "$YAML_BIN" ] && [ -d "$MUD_DIR/build_yaml/small" ] && run_admin_api_test "Small_YAML_AdminAPI" "$YAML_BIN" "$MUD_DIR/build_yaml/small" "yaml"
 fi
 
 # Full World Tests
 if [ -z "$FILTER_WORLD" ] || [ "$FILTER_WORLD" = "full" ]; then
     echo "=== FULL WORLD ==="
     echo ""
-    [ -n "$LEGACY_BIN" ] && run_test "Full_Legacy_checksums" "$LEGACY_BIN" "$MUD_DIR/build_test/full" "-W"
-    [ -n "$LEGACY_BIN" ] && run_test "Full_Legacy_no_checksums" "$LEGACY_BIN" "$MUD_DIR/build_test/full" ""
-    [ -n "$SQLITE_BIN" ] && run_test "Full_SQLite_checksums" "$SQLITE_BIN" "$MUD_DIR/build_sqlite/full" "-W"
-    [ -n "$SQLITE_BIN" ] && run_test "Full_SQLite_no_checksums" "$SQLITE_BIN" "$MUD_DIR/build_sqlite/full" ""
-    [ -n "$YAML_BIN" ] && [ -d "$MUD_DIR/build_yaml/full" ] && run_test "Full_YAML_checksums" "$YAML_BIN" "$MUD_DIR/build_yaml/full" "-W"
-    [ -n "$YAML_BIN" ] && [ -d "$MUD_DIR/build_yaml/full" ] && run_test "Full_YAML_no_checksums" "$YAML_BIN" "$MUD_DIR/build_yaml/full" ""
+    [ -x "$LEGACY_BIN" ] && run_test "Full_Legacy_checksums" "$LEGACY_BIN" "$MUD_DIR/build_test/full" "-W"
+    [ -x "$LEGACY_BIN" ] && run_test "Full_Legacy_no_checksums" "$LEGACY_BIN" "$MUD_DIR/build_test/full" ""
+    [ -x "$SQLITE_BIN" ] && run_test "Full_SQLite_checksums" "$SQLITE_BIN" "$MUD_DIR/build_sqlite/full" "-W"
+    [ -x "$SQLITE_BIN" ] && run_test "Full_SQLite_no_checksums" "$SQLITE_BIN" "$MUD_DIR/build_sqlite/full" ""
+    [ -x "$YAML_BIN" ] && [ -d "$MUD_DIR/build_yaml/full" ] && run_test "Full_YAML_checksums" "$YAML_BIN" "$MUD_DIR/build_yaml/full" "-W"
+    [ -x "$YAML_BIN" ] && [ -d "$MUD_DIR/build_yaml/full" ] && run_test "Full_YAML_no_checksums" "$YAML_BIN" "$MUD_DIR/build_yaml/full" ""
 
     # YAML round-trip: resave the YAML world via -S, reboot the re-emitted
     # copy, capture cs3, and compare with cs2 in the CHECKSUM COMPARISON
@@ -947,7 +947,7 @@ if [ -z "$FILTER_WORLD" ] || [ "$FILTER_WORLD" = "full" ]; then
     echo ""
     echo "=== FULL WORLD - YAML ROUND-TRIP ==="
     echo ""
-    [ -n "$YAML_BIN" ] && [ -d "$MUD_DIR/build_yaml/full" ] && run_roundtrip_test "Full_YAML_RoundTrip" "$YAML_BIN" "$MUD_DIR/build_yaml/full"
+    [ -x "$YAML_BIN" ] && [ -d "$MUD_DIR/build_yaml/full" ] && run_roundtrip_test "Full_YAML_RoundTrip" "$YAML_BIN" "$MUD_DIR/build_yaml/full"
 
     # Admin API CRUD Tests last -- they recreate the world from scratch and
     # mutate it (CRUD operations on running server), so anything order-sensitive
@@ -955,9 +955,9 @@ if [ -z "$FILTER_WORLD" ] || [ "$FILTER_WORLD" = "full" ]; then
     echo ""
     echo "=== FULL WORLD - ADMIN API TESTS ==="
     echo ""
-    [ -n "$LEGACY_BIN" ] && run_admin_api_test "Full_Legacy_AdminAPI" "$LEGACY_BIN" "$MUD_DIR/build_test/full" "legacy"
-    [ -n "$SQLITE_BIN" ] && run_admin_api_test "Full_SQLite_AdminAPI" "$SQLITE_BIN" "$MUD_DIR/build_sqlite/full" "sqlite"
-    [ -n "$YAML_BIN" ] && [ -d "$MUD_DIR/build_yaml/full" ] && run_admin_api_test "Full_YAML_AdminAPI" "$YAML_BIN" "$MUD_DIR/build_yaml/full" "yaml"
+    [ -x "$LEGACY_BIN" ] && run_admin_api_test "Full_Legacy_AdminAPI" "$LEGACY_BIN" "$MUD_DIR/build_test/full" "legacy"
+    [ -x "$SQLITE_BIN" ] && run_admin_api_test "Full_SQLite_AdminAPI" "$SQLITE_BIN" "$MUD_DIR/build_sqlite/full" "sqlite"
+    [ -x "$YAML_BIN" ] && [ -d "$MUD_DIR/build_yaml/full" ] && run_admin_api_test "Full_YAML_AdminAPI" "$YAML_BIN" "$MUD_DIR/build_yaml/full" "yaml"
 fi
 
 # Compare checksums (only if checksums were calculated)
