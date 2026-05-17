@@ -2998,17 +2998,20 @@ bool YamlWorldDataSource::SaveTriggers(int zone_rnum, int specific_vnum, int not
 			yaml.DecreaseIndent();
 		}
 
-		// Script (multiline literal block)
+		// Script (multiline literal block). ParseTriggerScript keeps
+		// whitespace-only lines from the source as cmd_list nodes whose
+		// cmd is "" after TrimRight; we must round-trip the node count or
+		// the world checksum shifts. The original whitespace text is no
+		// longer available, so we serialise empty cmds as a single space:
+		// on reload, ParseTriggerScript sees a non-empty line, TrimRights
+		// it back to "", and the node count is preserved.
 		std::string script;
 		for (auto cmd = *trig->cmdlist; cmd; cmd = cmd->next)
 		{
-			if (!cmd->cmd.empty())
+			script += cmd->cmd.empty() ? std::string(" ") : cmd->cmd;
+			if (cmd->next)
 			{
-				script += cmd->cmd;
-				if (cmd->next)
-				{
-					script += "\n";
-				}
+				script += "\n";
 			}
 		}
 
@@ -3209,7 +3212,13 @@ void YamlWorldDataSource::SaveRooms(int zone_rnum, int specific_vnum)
 						kws += vk;
 					}
 					out << yaml.GetIndent() << "  keywords:";
+					// IncreaseIndent so yaml.Value's literal-block branch emits
+					// content lines at parent_indent + 2 -- the indicator "2"
+					// matches actual column position. Without this content sits
+					// one indent shy of where "|+2"/"|2" promises it lives.
+					yaml.IncreaseIndent();
 					yaml.Value(kws);
+					yaml.DecreaseIndent();
 				}
 
 				// Exit flags (optional)
@@ -3244,16 +3253,32 @@ void YamlWorldDataSource::SaveRooms(int zone_rnum, int specific_vnum)
 			yaml.BeginSequence();
 			yaml.IncreaseIndent();
 
+			// LoadRoomExtraDescriptions prepends each yaml entry to the
+			// list, so the in-memory head->tail order is the reverse of the
+			// file order. To keep checksums stable through save->load, walk
+			// the list head->tail and write the entries in reverse: a fresh
+			// load will prepend them back to the same in-memory order.
+			std::vector<ExtraDescription *> exdescs;
 			for (auto exdesc = room->ex_description; exdesc; exdesc = exdesc->next)
 			{
+				exdescs.push_back(exdesc.get());
+			}
+			for (auto it = exdescs.rbegin(); it != exdescs.rend(); ++it)
+			{
+				const auto *exdesc = *it;
 				if (exdesc->keyword)
 				{
-					// keywords may start with '-' (legitimately a single dash), which
-					// the YAML parser would mistake for a sequence indicator unless
-					// quoted. Delegating to Koi8rYamlEmitter::Value applies the
-					// proper leading-indicator-aware quoting.
+					// keywords may start with '-' (legitimately a single dash);
+					// Koi8rYamlEmitter::Value handles leading-indicator quoting.
 					out << yaml.GetIndent() << "- keywords:";
+					// IncreaseIndent so yaml.Value's literal-block branch
+					// emits content lines at the correct column for indicator
+					// "2" (parent_indent + 2). The "  " before `-` already
+					// indented us; we need one more level so a multi-line
+					// keyword doesn't get content at the wrong column.
+					yaml.IncreaseIndent();
 					yaml.Value(std::string(exdesc->keyword));
+					yaml.DecreaseIndent();
 					if (exdesc->description)
 					{
 						out << yaml.GetIndent() << "  description:";
@@ -4222,14 +4247,31 @@ void YamlWorldDataSource::SaveObjects(int zone_rnum, int specific_vnum)
 			yaml.BeginSequence();
 			yaml.IncreaseIndent();
 
+			// Load prepends each yaml entry, so the in-memory list is
+			// reversed relative to the file. Emit in reverse so a fresh load
+			// rebuilds the same in-memory order -- otherwise the order flips
+			// on every round-trip.
+			std::vector<ExtraDescription *> exdescs;
 			for (auto exdesc = obj->get_ex_description(); exdesc; exdesc = exdesc->next)
 			{
+				exdescs.push_back(exdesc.get());
+			}
+			for (auto it = exdescs.rbegin(); it != exdescs.rend(); ++it)
+			{
+				const auto *exdesc = *it;
 				if (exdesc->keyword)
 				{
 					// keywords may start with '-' (legitimately a single dash);
 					// Koi8rYamlEmitter::Value handles leading-indicator quoting.
 					out << yaml.GetIndent() << "- keywords:";
+					// IncreaseIndent so yaml.Value's literal-block branch
+					// emits content lines at the correct column for indicator
+					// "2" (parent_indent + 2). The "  " before `-` already
+					// indented us; we need one more level so a multi-line
+					// keyword doesn't get content at the wrong column.
+					yaml.IncreaseIndent();
 					yaml.Value(std::string(exdesc->keyword));
+					yaml.DecreaseIndent();
 					if (exdesc->description)
 					{
 						out << yaml.GetIndent() << "  description:";
