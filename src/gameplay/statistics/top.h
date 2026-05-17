@@ -34,6 +34,7 @@ class TopPlayer {
 	static const PlayerChart &Chart();
 	static void Remove(CharData *ch);
 	static void Refresh(CharData *ch, bool reboot = false);
+	static void RefreshAll();
 
  private:
 	long unique_;			// уид

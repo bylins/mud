@@ -59,6 +59,15 @@ void TopPlayer::Refresh(CharData *short_ch, bool reboot) {
 	}
 }
 
+// Periodic full refresh of all online characters. Cheaper than calling Refresh
+// on every mob kill (which was O(N) per group member per kill). Wired into the
+// heartbeat once per RL hour -- see heartbeat.cpp.
+void TopPlayer::RefreshAll() {
+	for (const auto &ch : character_list) {
+		TopPlayer::Refresh(ch.get());
+	}
+}
+
 const PlayerChart &TopPlayer::Chart() {
 	return chart_;
 }
