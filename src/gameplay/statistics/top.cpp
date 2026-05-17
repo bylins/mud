@@ -85,6 +85,7 @@ void TopPlayer::Refresh(CharData *short_ch, bool reboot) {
 void TopPlayer::RefreshAll() {
 	utils::CExecutionTimer timer;
 
+	// Phase 1: snapshot online players.
 	std::unordered_map<long, std::pair<long, int>> online;
 	int considered = 0;
 	for (DescriptorData *d = descriptor_list; d; d = d->next) {
@@ -101,11 +102,24 @@ void TopPlayer::RefreshAll() {
 		online[ch->get_uid()] = {ch->get_exp(), GetRealRemort(ch)};
 		++considered;
 	}
+	const auto snapshot_ms = timer.delta().count() * 1000.0;
 
+	// Early exit: пустой snapshot значит обновлять нечего, нет смысла
+	// перебирать весь chart_ (десятки тысяч записей в std::list -- куча
+	// кэш-промахов).
+	if (online.empty()) {
+		log(fmt::format("TopPlayer::RefreshAll: онлайн 0, пропуск (snapshot {:.3f} мс)",
+			snapshot_ms));
+		return;
+	}
+
+	// Phase 2: walk chart_, update in place, mark dirty classes.
+	std::size_t chart_total = 0;
 	int updated = 0;
 	int dirty_classes = 0;
 	for (auto &class_entry : chart_) {
 		auto &list = class_entry.second;
+		chart_total += list.size();
 		bool dirty = false;
 		for (auto &entry : list) {
 			auto it = online.find(entry.unique_);
@@ -130,8 +144,10 @@ void TopPlayer::RefreshAll() {
 		}
 	}
 
-	log(fmt::format("TopPlayer::RefreshAll: онлайн {}, обновлено {} записей в {} классах за {:.3f} мс",
-		considered, updated, dirty_classes, timer.delta().count() * 1000.0));
+	log(fmt::format("TopPlayer::RefreshAll: онлайн {}, обновлено {} в {} классах, "
+			"chart={} записей, итого {:.3f} мс (snapshot {:.3f} мс)",
+		considered, updated, dirty_classes, chart_total,
+		timer.delta().count() * 1000.0, snapshot_ms));
 }
 
 const PlayerChart &TopPlayer::Chart() {
