@@ -33,34 +33,58 @@ public:
 
 	void Value(const std::string &value, bool literal = false)
 	{
-		if (literal && value.find('\n') != std::string::npos)
+		// Any value containing a newline has to go into a literal block --
+		// plain and single-quoted scalars don't survive embedded \n on
+		// reload (they get folded/truncated). Force literal regardless of
+		// the caller's `literal` flag.
+		const bool has_newline = value.find('\n') != std::string::npos;
+		if (has_newline)
 		{
-			// Literal block with explicit indent indicator ("2"): without
-			// it, YAML auto-detects indent from the first non-empty content
-			// line, and leading whitespace there (a description that begins
-			// with extra spaces) gets folded into indent -- producing parse
-			// errors on reload.
+			// Literal block with explicit indent indicator ("2") -- otherwise
+			// the parser auto-detects indent from the first non-empty content
+			// line, and leading whitespace there gets folded into indent and
+			// breaks the block.
 			//
-			// Chomping mode is picked by trailing newline in `value`:
-			//   - clip ("|2") if value ends with '\n', so the parser yields
-			//     the same trailing newline back -- the Python converter
-			//     uses this form for descriptions;
-			//   - strip ("|-2") if value has no trailing newline, matching
-			//     the converter's behaviour for trigger scripts.
+			// Chomping mode is picked so the round-trip preserves the original
+			// byte string exactly:
+			//   * content is empty (value is just N>=1 newlines) -> keep "|+2"
+			//     and emit N empty content lines; clip can't carry a newline
+			//     when there's no real content.
+			//   * content non-empty, 0 trailing \n   -> strip "|-2"
+			//   * content non-empty, exactly 1       -> clip  "|2"
+			//   * content non-empty, 2 or more       -> keep  "|+2"
 			std::string cleaned = value;
 			cleaned.erase(std::remove(cleaned.begin(), cleaned.end(), '\r'), cleaned.end());
 
-			const bool clip = !cleaned.empty() && cleaned.back() == '\n';
-			if (clip)
+			std::size_t trailing_nl = 0;
+			while (trailing_nl < cleaned.size()
+				   && cleaned[cleaned.size() - 1 - trailing_nl] == '\n')
 			{
-				cleaned.pop_back();  // we'll add it back via the final std::endl
+				++trailing_nl;
+			}
+			const bool content_only_newlines = (trailing_nl == cleaned.size());
+
+			if (content_only_newlines)
+			{
+				out_ << " |+2" << std::endl;
+			}
+			else if (trailing_nl == 0)
+			{
+				out_ << " |-2" << std::endl;
+			}
+			else if (trailing_nl == 1)
+			{
 				out_ << " |2" << std::endl;
 			}
 			else
 			{
-				out_ << " |-2" << std::endl;
+				out_ << " |+2" << std::endl;
 			}
 
+			// Iterate WITHOUT stripping any trailing \n: std::getline already
+			// consumes the terminator, so a value like "\n" becomes one empty
+			// line in the block, "text\n\n" becomes "text" + "" -- and the
+			// chomping indicator above keeps the count accurate on reload.
 			std::istringstream iss(cleaned);
 			std::string line;
 			while (std::getline(iss, line))
