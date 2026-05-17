@@ -48,7 +48,8 @@ test_sources = files(
     'mob_classes.loader.cpp',
     'world_load_order.cpp',
     'obj_decay_manager.cpp',
-    'char.utilities.cpp'
+    'char.utilities.cpp',
+    'exit_is_empty.cpp'
 )
 
 fs = import('fs')

@@ -25,6 +25,11 @@ class ExitData {
 	RoomRnum to_room() const;
 	void to_room(const RoomRnum _);
 
+	// Полностью пустой D-блок из .wld/yaml/sqlite (мусор из старых редакторов).
+	// На рантайм не влияет и фильтруется загрузчиком, чтобы не засорять
+	// отчёт show errors и зря не держать ExitData в памяти.
+	bool is_empty() const;
+
 	std::string general_description;    // When look DIR.         //
 
 	char *keyword;        // for open/close       //

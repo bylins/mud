@@ -1373,6 +1373,10 @@ void YamlWorldDataSource::LoadRoomExits(RoomData *room, const YAML::Node &exits_
 
 		exit_data->exit_info = GetInt(exit_node, "exit_flags", 0);
 
+		// Дропаем полностью пустые D-блоки (симметрично с legacy/sqlite),
+		// см. issue #3272.
+		if (exit_data->is_empty()) continue;
+
 		room->dir_option_proto[dir] = exit_data;
 	}
 }

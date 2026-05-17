@@ -65,6 +65,16 @@ void ExitData::to_room(const RoomRnum _) {
 	to_room_ = _;
 }
 
+bool ExitData::is_empty() const {
+	return to_room_ == kNowhere
+		&& general_description.empty()
+		&& keyword == nullptr
+		&& vkeyword == nullptr
+		&& exit_info == 0
+		&& key <= 0
+		&& lock_complexity == 0;
+}
+
 RoomData::RoomData() : vnum(0),
 					   zone_rn(0),
 					   sector_type(0),
