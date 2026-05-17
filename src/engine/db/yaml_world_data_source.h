@@ -105,6 +105,22 @@ private:
 	std::string ReverseLookupEnum(const std::string &dict_name, int value) const;
 	bool WriteYamlAtomic(const std::string &filepath, const YAML::Node &node) const;
 
+	// Rewrite an `index.yaml` file as a snapshot of the current in-memory
+	// state. `top_key` is the YAML root key ("zones"/"mobs"/"objects"/...);
+	// `values` is the sorted list of vnums or rel-numbers. Save* methods call
+	// these after writing entity files so the on-disk index stays consistent
+	// with what loader will see on next boot (no stale rnums, new entities
+	// from OLC visible, no leftover deletions).
+	bool WriteIndexYaml(const std::string &filepath,
+						const std::string &top_key,
+						const std::vector<int> &values) const;
+
+	// Rebuild the per-zone index for one of the entity sub-directories
+	// ("mobs"/"objects"/"rooms"/"triggers"). Iterates the corresponding
+	// global prototype table, collects entries whose vnum/100 == zone_vnum,
+	// writes the rel-numbers (vnum % 100) into <m_world_dir>/zones/<zone>/<sub>/index.yaml.
+	bool RebuildPerZoneIndex(int zone_vnum, const std::string &sub) const;
+
 	// Parallel loading methods (only used when m_num_threads > 1)
 	void LoadZonesParallel();
 	void LoadTriggersParallel();

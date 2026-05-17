@@ -2403,9 +2403,107 @@ bool YamlWorldDataSource::WriteYamlAtomic(const std::string &filepath, const YAM
 	catch (const std::exception &e)
 	{
 		log("SYSERR: Failed to write YAML file %s: %s", filepath.c_str(), e.what());
-	
+
 		return false;
 	}
+}
+
+bool YamlWorldDataSource::WriteIndexYaml(const std::string &filepath,
+										 const std::string &top_key,
+										 const std::vector<int> &values) const
+{
+	namespace fs = std::filesystem;
+	try
+	{
+		fs::create_directories(fs::path(filepath).parent_path());
+
+		std::string temp_filepath = filepath + ".tmp";
+		std::ofstream out(temp_filepath);
+		if (!out.is_open())
+		{
+			log("SYSERR: Failed to open temp file for index: %s", temp_filepath.c_str());
+			return false;
+		}
+		// Match the layout the Python converter emits and the loader expects:
+		//   <top_key>:
+		//   - <v>
+		// Or for an empty list, "<top_key>: []".
+		if (values.empty())
+		{
+			out << top_key << ": []\n";
+		}
+		else
+		{
+			out << top_key << ":\n";
+			for (int v : values)
+			{
+				out << "- " << v << "\n";
+			}
+		}
+		out.close();
+		std::rename(temp_filepath.c_str(), filepath.c_str());
+		return true;
+	}
+	catch (const std::exception &e)
+	{
+		log("SYSERR: Failed to write index %s: %s", filepath.c_str(), e.what());
+		return false;
+	}
+}
+
+bool YamlWorldDataSource::RebuildPerZoneIndex(int zone_vnum, const std::string &sub) const
+{
+	// Collect rel-numbers (vnum % 100) of all in-memory prototypes that belong
+	// to this zone. The set guarantees uniqueness + sorted order.
+	std::set<int> rel_nums;
+
+	if (sub == "mobs")
+	{
+		for (MobRnum rnum = 0; rnum < top_of_mobt; ++rnum)
+		{
+			const int v = mob_index[rnum].vnum;
+			if (v / 100 == zone_vnum) rel_nums.insert(v % 100);
+		}
+	}
+	else if (sub == "objects")
+	{
+		for (const auto &[v, rnum] : obj_proto.vnum2index())
+		{
+			if (v / 100 == zone_vnum) rel_nums.insert(v % 100);
+		}
+	}
+	else if (sub == "rooms")
+	{
+		for (RoomRnum rnum = 0; rnum <= top_of_world; ++rnum)
+		{
+			if (!world[rnum]) continue;
+			const int v = world[rnum]->vnum;
+			if (v / 100 != zone_vnum) continue;
+			// rel == 99 is reserved for the runtime-only "virtual room"
+			// (AddVirtualRoomsToAllZones / "неизвестная комната"). SaveRooms
+			// doesn't emit its file, so we mustn't list it in the index either.
+			if (v % 100 == 99) continue;
+			rel_nums.insert(v % 100);
+		}
+	}
+	else if (sub == "triggers")
+	{
+		for (int rnum = 0; rnum < top_of_trigt; ++rnum)
+		{
+			if (!trig_index[rnum]) continue;
+			const int v = trig_index[rnum]->vnum;
+			if (v / 100 == zone_vnum) rel_nums.insert(v % 100);
+		}
+	}
+	else
+	{
+		log("SYSERR: RebuildPerZoneIndex called with unknown sub '%s'", sub.c_str());
+		return false;
+	}
+
+	const std::string filepath = m_world_dir + "/zones/" + std::to_string(zone_vnum)
+		+ "/" + sub + "/index.yaml";
+	return WriteIndexYaml(filepath, sub, {rel_nums.begin(), rel_nums.end()});
 }
 // ============================================================================
 
@@ -2744,6 +2842,22 @@ void YamlWorldDataSource::SaveZone(int zone_rnum)
 	std::rename(temp_file.c_str(), zone_file.c_str());
 
 	log("Saved zone %d to YAML file", zone.vnum);
+
+	// Top-level zones/index.yaml snapshot. Skip dungeon zones (vnum >=
+	// kZoneStartDungeons) -- they are generated in-memory by
+	// CreateBlankZoneDungeon and never persisted, matching the legacy
+	// medit_save_to_disk guard at olc/medit.cpp:532.
+	std::vector<int> zone_vnums;
+	zone_vnums.reserve(zone_table.size());
+	for (const auto &z : zone_table)
+	{
+		if (z.vnum < dungeons::kZoneStartDungeons)
+		{
+			zone_vnums.push_back(z.vnum);
+		}
+	}
+	std::sort(zone_vnums.begin(), zone_vnums.end());
+	WriteIndexYaml(m_world_dir + "/zones/index.yaml", "zones", zone_vnums);
 }
 
 bool YamlWorldDataSource::SaveTriggers(int zone_rnum, int specific_vnum, int notify_level)
@@ -2764,7 +2878,10 @@ bool YamlWorldDataSource::SaveTriggers(int zone_rnum, int specific_vnum, int not
 	if (first_trig == -1 || last_trig == -1)
 	{
 		log("Zone %d has no triggers to save", zone.vnum);
-		return true; // Not an error - zone just has no triggers
+		// Still write the (empty) index so a subsequent boot sees the zone
+		// has nothing to load instead of failing on a missing file.
+		RebuildPerZoneIndex(zone.vnum, "triggers");
+		return true;
 	}
 
 	namespace fs = std::filesystem;
@@ -2909,6 +3026,8 @@ bool YamlWorldDataSource::SaveTriggers(int zone_rnum, int specific_vnum, int not
 	}
 
 	log("Saved %d triggers for zone %d", saved_count, zone.vnum);
+
+	RebuildPerZoneIndex(zone.vnum, "triggers");
 	return true;
 }
 
@@ -2927,6 +3046,7 @@ void YamlWorldDataSource::SaveRooms(int zone_rnum, int specific_vnum)
 	if (first_room == -1 || last_room == -1)
 	{
 		log("Zone %d has no rooms to save", zone.vnum);
+		RebuildPerZoneIndex(zone.vnum, "rooms");
 		return;
 	}
 
@@ -3058,26 +3178,34 @@ void YamlWorldDataSource::SaveRooms(int zone_rnum, int specific_vnum)
 				}
 				out << std::endl;
 
-				// Description (optional)
+				// Description (optional). Delegate to Koi8rYamlEmitter::Value
+				// for proper clip-vs-strip chomping based on trailing newline
+				// in the source string (otherwise round-trip silently appends
+				// a CR/LF that wasn't in memory).
 				if (!room->dir_option_proto[dir]->general_description.empty())
 				{
-					std::string exit_desc = room->dir_option_proto[dir]->general_description;
-					out << yaml.GetIndent() << "  description: |" << std::endl;
-					
-					exit_desc.erase(std::remove(exit_desc.begin(), exit_desc.end(), '\r'), exit_desc.end());
-					std::istringstream iss(exit_desc);
-					std::string line;
-					while (std::getline(iss, line))
-					{
-						out << yaml.GetIndent() << "    " << line << std::endl;
-					}
+					out << yaml.GetIndent() << "  description:";
+					yaml.IncreaseIndent();
+					yaml.Value(room->dir_option_proto[dir]->general_description, true);
+					yaml.DecreaseIndent();
 				}
 
-				// Keywords (optional)
+				// Keywords (optional). ExitData splits the load value on '|':
+				// keyword = nominative form, vkeyword = accusative. Recombine
+				// them on save with the same delimiter so the next load sees
+				// both forms (otherwise the accusative form is silently lost
+				// and "открыть решетку" no longer matches the door).
 				if (room->dir_option_proto[dir]->keyword)
 				{
-					out << yaml.GetIndent() << "  keywords: ";
-					out << room->dir_option_proto[dir]->keyword << std::endl;
+					std::string kws = room->dir_option_proto[dir]->keyword;
+					const char *vk = room->dir_option_proto[dir]->vkeyword;
+					if (vk && *vk && kws != vk)
+					{
+						kws += "|";
+						kws += vk;
+					}
+					out << yaml.GetIndent() << "  keywords:";
+					yaml.Value(kws);
 				}
 
 				// Exit flags (optional)
@@ -3116,20 +3244,18 @@ void YamlWorldDataSource::SaveRooms(int zone_rnum, int specific_vnum)
 			{
 				if (exdesc->keyword)
 				{
-					out << yaml.GetIndent() << "- keywords: " << exdesc->keyword << std::endl;
+					// keywords may start with '-' (legitimately a single dash), which
+					// the YAML parser would mistake for a sequence indicator unless
+					// quoted. Delegating to Koi8rYamlEmitter::Value applies the
+					// proper leading-indicator-aware quoting.
+					out << yaml.GetIndent() << "- keywords:";
+					yaml.Value(std::string(exdesc->keyword));
 					if (exdesc->description)
 					{
-						out << yaml.GetIndent() << "  description: |" << std::endl;
-						
-						std::string desc_text = exdesc->description;
-						desc_text.erase(std::remove(desc_text.begin(), desc_text.end(), '\r'), desc_text.end());
-						
-						std::istringstream iss(desc_text);
-						std::string line;
-						while (std::getline(iss, line))
-						{
-							out << yaml.GetIndent() << "    " << line << std::endl;
-						}
+						out << yaml.GetIndent() << "  description:";
+						yaml.IncreaseIndent();
+						yaml.Value(std::string(exdesc->description), true);
+						yaml.DecreaseIndent();
 					}
 				}
 			}
@@ -3165,6 +3291,8 @@ void YamlWorldDataSource::SaveRooms(int zone_rnum, int specific_vnum)
 	}
 
 	log("Saved %d rooms for zone %d", saved_count, zone.vnum);
+
+	RebuildPerZoneIndex(zone.vnum, "rooms");
 }
 
 void YamlWorldDataSource::SaveMobs(int zone_rnum, int specific_vnum)
@@ -3182,6 +3310,7 @@ void YamlWorldDataSource::SaveMobs(int zone_rnum, int specific_vnum)
 	if (first_mob == -1 || last_mob == -1)
 	{
 		log("Zone %d has no mobs to save", zone.vnum);
+		RebuildPerZoneIndex(zone.vnum, "mobs");
 		return;
 	}
 
@@ -3737,6 +3866,8 @@ void YamlWorldDataSource::SaveMobs(int zone_rnum, int specific_vnum)
 	}
 
 	log("Saved %d mobs for zone %d", saved_count, zone.vnum);
+
+	RebuildPerZoneIndex(zone.vnum, "mobs");
 }
 void YamlWorldDataSource::SaveObjects(int zone_rnum, int specific_vnum)
 {
@@ -4091,20 +4222,16 @@ void YamlWorldDataSource::SaveObjects(int zone_rnum, int specific_vnum)
 			{
 				if (exdesc->keyword)
 				{
-					out << yaml.GetIndent() << "- keywords: " << exdesc->keyword << std::endl;
+					// keywords may start with '-' (legitimately a single dash);
+					// Koi8rYamlEmitter::Value handles leading-indicator quoting.
+					out << yaml.GetIndent() << "- keywords:";
+					yaml.Value(std::string(exdesc->keyword));
 					if (exdesc->description)
 					{
-						out << yaml.GetIndent() << "  description: |" << std::endl;
-
-						std::string desc = exdesc->description;
-						desc.erase(std::remove(desc.begin(), desc.end(), '\r'), desc.end());
-
-						std::istringstream iss(desc);
-						std::string line;
-						while (std::getline(iss, line))
-						{
-							out << yaml.GetIndent() << "    " << line << std::endl;
-						}
+						out << yaml.GetIndent() << "  description:";
+						yaml.IncreaseIndent();
+						yaml.Value(std::string(exdesc->description), true);
+						yaml.DecreaseIndent();
 					}
 				}
 			}
@@ -4172,6 +4299,8 @@ void YamlWorldDataSource::SaveObjects(int zone_rnum, int specific_vnum)
 	}
 
 	log("Saved %d objects for zone %d", saved_count, zone.vnum);
+
+	RebuildPerZoneIndex(zone.vnum, "objects");
 }
 
 // ============================================================================

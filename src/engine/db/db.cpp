@@ -1252,9 +1252,10 @@ int GameLoader::ResaveWorld(const std::string &target_dir) {
 #ifdef HAVE_YAML
 	// YamlWorldDataSource's constructor refuses to instantiate without a
 	// readable world_config.yaml under the data root. For a save-only
-	// instance, copy the original config (and dictionaries, for completeness)
-	// from the load location -- which BootWorld used at the compile-time
-	// default of "world" -- before constructing.
+	// instance, copy the original config (and dictionaries) from the load
+	// location -- which BootWorld used at the compile-time default of
+	// "world" -- before constructing. SaveZone/Save* rebuild their
+	// index.yaml files themselves now, so we don't mirror any indexes here.
 	namespace fs = std::filesystem;
 	const std::string load_dir = "world";
 	try {
@@ -1287,10 +1288,11 @@ int GameLoader::ResaveWorld(const std::string &target_dir) {
 	int skipped = 0;
 	for (size_t z = 0; z < zone_table.size(); ++z) {
 		// Dungeon zones (CreateBlankZoneDungeon, vnum >= kZoneStartDungeons)
-		// exist only in memory and are regenerated per-instance at runtime.
-		// They aren't loaded from disk -- writing them to target_dir would
-		// produce phantom files that have no counterpart in the source tree.
-		if (zone_table[z].under_construction) {
+		// are generated in-memory and never persisted -- matches legacy's
+		// medit_save_to_disk guard at olc/medit.cpp:532. `under_construction`
+		// alone is not the right filter: ordinary prod zones may carry it as
+		// a "work in progress" marker (zone 73 "Светлый лес" etc.).
+		if (zone_table[z].vnum >= dungeons::kZoneStartDungeons) {
 			++skipped;
 			continue;
 		}
@@ -1306,7 +1308,7 @@ int GameLoader::ResaveWorld(const std::string &target_dir) {
 			++errors;
 		}
 	}
-	log("ResaveWorld: done, errors=%d, skipped_under_construction=%d", errors, skipped);
+	log("ResaveWorld: done, errors=%d, skipped_dungeon=%d", errors, skipped);
 	return errors;
 #else
 	(void) target_dir;

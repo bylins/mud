@@ -37,8 +37,9 @@ public:
 		{
 			// Literal block with explicit indent indicator ("2"): without
 			// it, YAML auto-detects indent from the first non-empty content
-			// line, and leading whitespace there (e.g. "   Вот это да!")
-			// gets folded into indent -- producing parse errors on reload.
+			// line, and leading whitespace there (a description that begins
+			// with extra spaces) gets folded into indent -- producing parse
+			// errors on reload.
 			//
 			// Chomping mode is picked by trailing newline in `value`:
 			//   - clip ("|2") if value ends with '\n', so the parser yields
@@ -87,7 +88,10 @@ public:
 				value[0] == ' ' || value[0] == '-' || value[0] == '?' ||
 				value[0] == '@' || value[0] == '`' ||
 				value[0] == '&' || value[0] == '*' || value[0] == '!' ||
-				value[0] == ',')
+				value[0] == ',' ||
+				// Trailing whitespace would be stripped by the YAML parser
+				// from a plain scalar; quoting preserves it bit-for-bit.
+				value.back() == ' ' || value.back() == '\t')
 			{
 				needs_quoting = true;
 			}
