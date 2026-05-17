@@ -8,6 +8,7 @@
 #include "engine/network/descriptor_data.h"
 #include "engine/db/global_objects.h"
 #include "engine/ui/table_wrapper.h"
+#include "utils/logger.h"
 #include "utils/utils_time.h"
 
 
@@ -71,11 +72,16 @@ void TopPlayer::Refresh(CharData *short_ch, bool reboot) {
 // that are still in menus / character generation. Offline players keep their
 // chart_ entries from boot (state hasn't changed while they were offline).
 void TopPlayer::RefreshAll() {
+	utils::CExecutionTimer timer;
+	int refreshed = 0;
 	for (DescriptorData *d = descriptor_list; d; d = d->next) {
 		if (d->state == EConState::kPlaying && d->character) {
 			TopPlayer::Refresh(d->character.get());
+			++refreshed;
 		}
 	}
+	log("TopPlayer::RefreshAll: %d игроков обновлено за %.3f мс",
+		refreshed, timer.delta().count() * 1000.0);
 }
 
 const PlayerChart &TopPlayer::Chart() {
