@@ -6,7 +6,7 @@
 #include <chrono>
 #include <cstdarg>
 #include <cstdio>
-#include <format>
+#include <fmt/chrono.h>
 
 #if defined(__clang__) || defined(__CYGWIN__)
 #define HAS_TIME_ZONE 0
@@ -70,7 +70,12 @@ static std::string make_timestamp() {
     }
     const auto utc_now = std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::system_clock::now());
     const auto now = std::chrono::zoned_time{time_zone, utc_now};
-    return std::format("{:%Y-%m-%d %T}", now);
+    // fmt v12 не имеет formatter'а для zoned_time / local_time напрямую,
+    // подсовываем локальное time_point под видом sys_time -- для
+    // спецификаторов %Y-%m-%d %T fmt смотрит только на time_since_epoch.
+    const auto local_as_sys = std::chrono::sys_time<std::chrono::milliseconds>{
+        now.get_local_time().time_since_epoch()};
+    return fmt::format("{:%Y-%m-%d %T}", local_as_sys);
 #else
     const auto now = std::chrono::time_point_cast<std::chrono::milliseconds>(std::chrono::system_clock::now());
     const auto time_t_now = std::chrono::system_clock::to_time_t(now);
