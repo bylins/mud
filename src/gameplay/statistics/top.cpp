@@ -1,5 +1,7 @@
 #include "top.h"
 
+#include <fmt/format.h>
+
 #include "gameplay/classes/pc_classes.h"
 #include "engine/ui/color.h"
 #include "gameplay/mechanics/glory_const.h"
@@ -62,26 +64,90 @@ void TopPlayer::Refresh(CharData *short_ch, bool reboot) {
 	}
 }
 
-// Periodic refresh of online players' chart entries. Replaces the per-kill
-// Refresh in perform_group_gain (which scaled badly with group size and
-// chart_ length). Wired into the heartbeat once per RL hour -- see
-// heartbeat.cpp.
+// Periodic batch refresh of online players' chart entries. Wired into the
+// heartbeat once per RL hour -- see heartbeat.cpp.
 //
-// Walks descriptor_list and filters to descriptors in kPlaying state -- that
-// avoids touching mobs/charmices from character_list and skips connections
-// that are still in menus / character generation. Offline players keep their
-// chart_ entries from boot (state hasn't changed while they were offline).
+// Наивный вариант (Refresh per player) делал O(N) скан chart_ для каждого
+// онлайн-игрока -- O(M*N), где M=онлайн, N=размер chart_. На проде 100
+// онлайн * ~1000 в chart_ заведомо вылазит из пульса.
+//
+// Сейчас:
+//   1) один проход по descriptor_list -- собираем snapshot {uid -> (exp,
+//      remort)} только по подключённым в kPlaying не-NPC/не-Frozen/
+//      не-Deleted/не-Immortal;
+//   2) один проход по chart_ -- для записей, чьи uid в snapshot, правим
+//      exp_/remort_ in-place и помечаем класс грязным;
+//   3) сортируем только дёртные классы один раз (list::sort, O(N log N)).
+//
+// Итоговая сложность O(M + N + S*N log N), где S -- число классов с
+// изменениями. Оффлайн-игроки остаются на боковых записях с буткового
+// прохода (их состояние всё равно не меняется, пока они не в игре).
 void TopPlayer::RefreshAll() {
 	utils::CExecutionTimer timer;
-	int refreshed = 0;
+
+	// Phase 1: snapshot online players.
+	std::unordered_map<long, std::pair<long, int>> online;
+	int considered = 0;
 	for (DescriptorData *d = descriptor_list; d; d = d->next) {
-		if (d->state == EConState::kPlaying && d->character) {
-			TopPlayer::Refresh(d->character.get());
-			++refreshed;
+		if (d->state != EConState::kPlaying || !d->character) {
+			continue;
+		}
+		CharData *ch = d->character.get();
+		if (ch->IsNpc()
+			|| ch->IsFlagged(EPlrFlag::kFrozen)
+			|| ch->IsFlagged(EPlrFlag::kDeleted)
+			|| ch->IsImmortal()) {
+			continue;
+		}
+		online[ch->get_uid()] = {ch->get_exp(), GetRealRemort(ch)};
+		++considered;
+	}
+	const auto snapshot_ms = timer.delta().count() * 1000.0;
+
+	// Early exit: пустой snapshot значит обновлять нечего, нет смысла
+	// перебирать весь chart_ (десятки тысяч записей в std::list -- куча
+	// кэш-промахов).
+	if (online.empty()) {
+		log(fmt::format("TopPlayer::RefreshAll: онлайн 0, пропуск (snapshot {:.3f} мс)",
+			snapshot_ms));
+		return;
+	}
+
+	// Phase 2: walk chart_, update in place, mark dirty classes.
+	std::size_t chart_total = 0;
+	int updated = 0;
+	int dirty_classes = 0;
+	for (auto &class_entry : chart_) {
+		auto &list = class_entry.second;
+		chart_total += list.size();
+		bool dirty = false;
+		for (auto &entry : list) {
+			auto it = online.find(entry.unique_);
+			if (it == online.end()) {
+				continue;
+			}
+			const auto new_exp = it->second.first;
+			const auto new_remort = it->second.second;
+			if (entry.exp_ != new_exp || entry.remort_ != new_remort) {
+				entry.exp_ = new_exp;
+				entry.remort_ = new_remort;
+				dirty = true;
+				++updated;
+			}
+		}
+		if (dirty) {
+			list.sort([](const TopPlayer &a, const TopPlayer &b) {
+				if (a.remort_ != b.remort_) return a.remort_ > b.remort_;
+				return a.exp_ > b.exp_;
+			});
+			++dirty_classes;
 		}
 	}
-	log("TopPlayer::RefreshAll: %d игроков обновлено за %.3f мс",
-		refreshed, timer.delta().count() * 1000.0);
+
+	log(fmt::format("TopPlayer::RefreshAll: онлайн {}, обновлено {} в {} классах, "
+			"chart={} записей, итого {:.3f} мс (snapshot {:.3f} мс)",
+		considered, updated, dirty_classes, chart_total,
+		timer.delta().count() * 1000.0, snapshot_ms));
 }
 
 const PlayerChart &TopPlayer::Chart() {
