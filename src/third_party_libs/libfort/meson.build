@@ -1,4 +1,4 @@
-fort_args = []
+fort_args = ['-Wno-missing-field-initializers']
 if not get_option('fort_wchar')
     fort_args += '-DFT_CONGIG_DISABLE_WCHAR'
 endif
