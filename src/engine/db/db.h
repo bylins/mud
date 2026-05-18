@@ -224,7 +224,15 @@ class GameLoader {
 	// into a fresh directory. Used by `circle -S <out_dir>` for the
 	// load -> save -> diff round-trip test. Returns 0 on success or the
 	// number of save errors encountered.
-	static int ResaveWorld(const std::string &target_dir);
+	//
+	// target_format selects the saver explicitly: "", "auto" or nullptr
+	// keeps the compile-time default (YAML when HAVE_YAML, SQLite when
+	// HAVE_SQLITE, otherwise legacy). Explicit values: "legacy", "yaml",
+	// "sqlite". Selecting a backend not compiled in returns a non-zero
+	// error count. The legacy target also regenerates per-subdir index
+	// files so the resulting tree is bootable.
+	static int ResaveWorld(const std::string &target_dir,
+		const std::string &target_format = std::string());
 
  private:
 	static void PrepareGlobalStructures(const EBootType mode, const int rec_count);

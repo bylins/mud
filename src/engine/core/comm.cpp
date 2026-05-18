@@ -619,6 +619,7 @@ int main_function(int argc, char **argv) {
 	int pos = 1;
 	const char *dir;
 	const char *save_target = nullptr;
+	const char *save_format = nullptr;
 	char cwd[256];
 
 	// Initialize these to check for overruns later.
@@ -665,6 +666,17 @@ int main_function(int argc, char **argv) {
 		}
 		printf("Resave-and-exit mode enabled, target='%s'.\n", save_target);
 		break;
+	case 'T':
+		if (*(argv[pos] + 2))
+			save_format = argv[pos] + 2;
+		else if (++pos < argc)
+			save_format = argv[pos];
+		else {
+			puts("SYSERR: Format arg expected after option -T (legacy|yaml|sqlite).");
+			exit(1);
+		}
+		printf("Resave target format: '%s'.\n", save_format);
+		break;
 	case 'W':
 		enable_world_checksum = true;
 		puts("World checksum calculation enabled.");
@@ -689,7 +701,9 @@ int main_function(int argc, char **argv) {
 					   "  -r             Restrict MUD -- no new players allowed.\n"
 					   "  -s             Suppress special procedure assignments.\n"
 					   "  -S <out_dir>   Load world, re-emit it via the configured backend\n"
-					   "                 into <out_dir> and exit (round-trip diagnostic).\n", argv[0]);
+					   "                 into <out_dir> and exit (round-trip diagnostic).\n"
+					   "  -T <format>   Override -S target format: legacy|yaml|sqlite\n"
+					   "                 (default = compile-time backend).\n", argv[0]);
 				exit(0);
 
 			default: printf("SYSERR: Unknown option -%c in argument string.\n", *(argv[pos] + 1));
@@ -701,7 +715,9 @@ int main_function(int argc, char **argv) {
 					   "  -r             Restrict MUD -- no new players allowed.\n"
 					   "  -s             Suppress special procedure assignments.\n"
 					   "  -S <out_dir>   Load world, re-emit it via the configured backend\n"
-					   "                 into <out_dir> and exit (round-trip diagnostic).\n", argv[0]);
+					   "                 into <out_dir> and exit (round-trip diagnostic).\n"
+					   "  -T <format>   Override -S target format: legacy|yaml|sqlite\n"
+					   "                 (default = compile-time backend).\n", argv[0]);
 				exit(1);
 			break;
 		}
@@ -750,7 +766,8 @@ int main_function(int argc, char **argv) {
 		GameLoader::BootWorld();
 		// target_dir is interpreted relative to the world data directory
 		// (we chdir'd there above), so callers see the path they passed.
-		int errors = GameLoader::ResaveWorld(save_target);
+		int errors = GameLoader::ResaveWorld(save_target,
+			save_format ? std::string(save_format) : std::string());
 		printf("Resave finished, errors=%d\n", errors);
 		return errors == 0 ? 0 : 2;
 	} else if (scheck) {
