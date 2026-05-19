@@ -2283,6 +2283,20 @@ def parse_mob_file(filepath):
                             'skill_id': int(parts[0]),
                             'value': int(parts[1])
                         })
+                elif line.startswith('L '):
+                    # Dead-load entry (issue #3291): `L obj_vnum prob type spec_param`.
+                    # Without this branch the loot list silently disappears in YAML,
+                    # then in SQLite, and finally on every player who kills the mob.
+                    dl_parts = line[2:].strip().split()
+                    if len(dl_parts) >= 4:
+                        if 'dead_load' not in mob:
+                            mob['dead_load'] = []
+                        mob['dead_load'].append({
+                            'obj_vnum': int(dl_parts[0]),
+                            'load_prob': int(dl_parts[1]),
+                            'load_type': int(dl_parts[2]),
+                            'spec_param': int(dl_parts[3]),
+                        })
                 elif line.startswith('T '):
                     trig_vnum = int(line[2:].strip())
                     mob['triggers'].append(trig_vnum)
@@ -2413,6 +2427,18 @@ def mob_to_yaml(mob):
             s['value'] = skill['value']
             skills.append(s)
         data['skills'] = skills
+
+    # Dead-load list (L lines in legacy mob file). Issue #3291.
+    if mob.get('dead_load'):
+        dl = CommentedSeq()
+        for entry in mob['dead_load']:
+            item = CommentedMap()
+            item['obj_vnum'] = entry['obj_vnum']
+            item['load_prob'] = entry['load_prob']
+            item['load_type'] = entry['load_type']
+            item['spec_param'] = entry['spec_param']
+            dl.append(item)
+        data['dead_load'] = dl
 
     # Triggers with name comments
     if mob.get('triggers'):
