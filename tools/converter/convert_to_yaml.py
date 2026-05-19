@@ -2116,12 +2116,18 @@ def parse_mob_file(filepath):
                         mob['experience'] = int(parts[1]) if parts[1].isdigit() else 0
                 idx += 1
 
-            # Position and sex line
+            # Position and sex line.
+            # Legacy file layout (parse_simple_mob:1156-1158): first field
+            # is the current/start position, second is default_pos. Earlier
+            # this code put parts[0] under 'default' and parts[1] under
+            # 'start', i.e. swapped relative to the C++ YAML loader's
+            # semantics (default_pos = pos["default"], current = pos["start"]),
+            # so every legacy<->yaml<->legacy hop oscillated the two values.
             if idx < len(lines):
                 parts = lines[idx].split()
                 if len(parts) >= 2:
-                    pos_default = int(parts[0]) if parts[0].isdigit() else 8
-                    pos_start = int(parts[1]) if parts[1].isdigit() else 8
+                    pos_start = int(parts[0]) if parts[0].isdigit() else 8
+                    pos_default = int(parts[1]) if parts[1].isdigit() else 8
                     sex = int(parts[2]) if parts[2].isdigit() else 0
 
                     mob['position'] = {
