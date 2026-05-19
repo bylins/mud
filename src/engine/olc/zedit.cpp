@@ -2111,4 +2111,6 @@ void zedit_parse(DescriptorData *d, char *arg) {
 
 // * End of parse_zedit()
 
+#undef ZCMD
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

@@ -1,4 +1,9 @@
 fort_args = []
+cpp = meson.get_compiler('cpp')
+if cpp.has_argument('-Wno-missing-field-initializers')
+    fort_args += '-Wno-missing-field-initializers'
+endif
+
 if not get_option('fort_wchar')
     fort_args += '-DFT_CONGIG_DISABLE_WCHAR'
 endif

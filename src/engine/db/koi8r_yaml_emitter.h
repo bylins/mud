@@ -31,7 +31,7 @@ public:
 
 	void Key(const std::string &key) { out_ << GetIndent() << key << ":"; }
 
-	void Value(const std::string &value, bool literal = false)
+	void Value(const std::string &value, [[maybe_unused]] bool literal = false)
 	{
 		// Any value containing a newline has to go into a literal block --
 		// plain and single-quoted scalars don't survive embedded \n on
