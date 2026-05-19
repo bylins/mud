@@ -1451,8 +1451,14 @@ CharData YamlWorldDataSource::ParseMobFile(const std::string &file_path)
 	if (stats)
 	{
 		mob.set_level(GetInt(stats, "level", 1));
-		GET_HR(&mob) = GetInt(stats, "hitroll_penalty", 20);
-		GET_AC(&mob) = GetInt(stats, "armor", 100);
+		// hitroll_penalty and armor are stored in the YAML in legacy file
+		// units (i.e. before parse_simple_mob's `20 - x` and `10 * x`
+		// transformations), matching what convert_to_yaml.py emits. Applying
+		// the same conversions here is required for round-trip: otherwise
+		// legacy -> yaml -> legacy oscillates the on-disk hitroll value
+		// (e.g. 5 -> 15 -> 5 -> 15) every pass.
+		GET_HR(&mob) = 20 - GetInt(stats, "hitroll_penalty", 20);
+		GET_AC(&mob) = 10 * GetInt(stats, "armor", 10);
 
 		YAML::Node hp = stats["hp"];
 		if (hp)
@@ -3465,11 +3471,14 @@ void YamlWorldDataSource::SaveMobs(int zone_rnum, int specific_vnum)
 		yaml.Key("level");
 		yaml.Value(mob.GetLevel());
 
+		// Write in legacy file units to stay symmetric with LoadMob() and
+		// matching convert_to_yaml.py output -- otherwise yaml -> legacy
+		// -> yaml round-trip flips the on-disk hitroll value every pass.
 		yaml.Key("hitroll_penalty");
-		yaml.Value(GET_HR(&mob));
+		yaml.Value(20 - GET_HR(&mob));
 
 		yaml.Key("armor");
-		yaml.Value(GET_AC(&mob));
+		yaml.Value(GET_AC(&mob) / 10);
 
 		// HP
 		yaml.Key("hp");
