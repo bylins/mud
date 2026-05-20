@@ -1323,12 +1323,22 @@ bool drop_mob_objects_to_box(CharData *ch)
 	ObjData *charmice_box = create_charmice_box(ch);
 	for (auto &object : objects)
 	{
-		PlaceObjIntoObj(object, charmice_box);
+		// kTicktimer выставляется в PlaceObjToInventory (handler.cpp), когда
+		// вещь поднял игрок или его чармис -- "таймер запущен" = вещь игрока.
+		// Такое сохраняем в узелок. Интринзик-экипировка моба (флага нет) --
+		// уничтожаем, незачем плодить дубли при каждом межсезонье.
+		if (object->has_flag(EObjFlag::kTicktimer))
+		{
+			PlaceObjIntoObj(object, charmice_box);
+		}
+		else
+		{
+			ExtractObjFromWorld(object);
+		}
 	}
 
-	// Вещи могли испариться при снятии (триггеры на remove, временные/
-	// декейные предметы) -- тогда узелок пустой. Пустышку не бросаем и не
-	// логируем, незачем плодить мусор на полу.
+	// Если игроцких вещей не было (только мобовский шмот) -- узелок пустой.
+	// Пустышку не бросаем и не логируем.
 	if (!charmice_box->get_contains())
 	{
 		ExtractObjFromWorld(charmice_box);
