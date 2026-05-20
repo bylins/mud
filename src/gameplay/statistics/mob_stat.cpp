@@ -5,11 +5,16 @@
 
 #include "third_party_libs/pugixml/pugixml.h"
 #include "utils/parse.h"
+#include "utils/thread_pool.h"
 #include "engine/entities/char_data.h"
 #include "engine/ui/color.h"
 #include "engine/db/global_objects.h"
 
 #include <cmath>
+#include <cstdint>
+#include <cstdio>
+#include <fstream>
+#include <string>
 
 namespace char_stat {
 
@@ -120,7 +125,10 @@ void LogClassesExpStat() {
 namespace mob_stat {
 
 //const char *kMobStatFile = LIB_PLRSTUFF"mob_stat.xml";
+/// legacy XML, оставлен только для разовой миграции на бинарь
 const char *kMobStatFileNew = LIB_PLRSTUFF"mob_stat_new.xml";
+/// текущий бинарный формат
+const char *kMobStatFileBin = LIB_PLRSTUFF"mob_stat.bin";
 /// за сколько месяцев хранится статистика (+ текущий месяц)
 const int kMobStatHistorySize = 6;
 /// выборка кол-ва мобов для show stats при старте мада <months, mob-count>
@@ -139,9 +147,114 @@ std::pair<int, int> GetDate() {
 	return std::make_pair(tmp_tm->tm_mon + 1, tmp_tm->tm_year + 1900);
 }
 
-void Load() {
-	mob_stat_register.clear();
+namespace {
 
+// Бинарный формат mob_stat. Файл машинный, руками не правится, поэтому
+// XML тут только тормозил и запись (построение DOM), и чтение при бутe.
+// Порядок байт нативный: файл не шарится между архитектурами.
+constexpr uint32_t kMobStatBinMagic = 0x4253544D;   // 'MSTB' в little-endian
+constexpr uint32_t kMobStatBinVersion = 1;
+
+template<typename T>
+void BinWrite(std::string &buf, T value) {
+	buf.append(reinterpret_cast<const char *>(&value), sizeof(value));
+}
+
+template<typename T>
+bool BinRead(std::istream &in, T &value) {
+	return static_cast<bool>(in.read(reinterpret_cast<char *>(&value), sizeof(value)));
+}
+
+}  // namespace
+
+// Валидация + накопление count_stats/kill_stats для одного разобранного
+// стата. Общая для бинарного и legacy-XML путей загрузки.
+static bool ApplyParsedStat(MobKillStat &tmp_time, MobMonthKillStat tmp_mob) {
+	if (tmp_mob.month <= 0 || tmp_mob.month > 12 || tmp_mob.year <= 0) {
+		return false;
+	}
+	const auto date = GetDate();
+	if ((date.first + date.second * 12)
+		- (tmp_mob.month + tmp_mob.year * 12) > kMobStatHistorySize + 1) {
+		return false;
+	}
+	count_stats[tmp_mob.month] += 1;
+	for (int k = 1; k <= kMaxGroupSize; ++k) {
+		if (tmp_mob.kills.at(k) > 0) {
+			kill_stats[tmp_mob.month] += tmp_mob.kills.at(k);
+		}
+	}
+	tmp_time.stats.push_back(std::move(tmp_mob));
+	return true;
+}
+
+// Чтение бинарного файла. true -- файл существует (даже если оказался
+// битым: тогда просто не падаем в XML), false -- файла нет (нужна миграция).
+static bool LoadBinary() {
+	std::ifstream in(kMobStatFileBin, std::ios::binary);
+	if (!in.is_open()) {
+		return false;
+	}
+
+	uint32_t magic = 0;
+	uint32_t version = 0;
+	uint32_t mob_count = 0;
+	if (!BinRead(in, magic) || magic != kMobStatBinMagic) {
+		mudlog("mob_stat.bin: bad magic, file ignored", CMP, kLvlImmortal, SYSLOG, true);
+		return true;
+	}
+	if (!BinRead(in, version) || version != kMobStatBinVersion) {
+		mudlog("mob_stat.bin: unsupported version, file ignored", CMP, kLvlImmortal, SYSLOG, true);
+		return true;
+	}
+	if (!BinRead(in, mob_count)) {
+		return true;
+	}
+
+	for (uint32_t m = 0; m < mob_count; ++m) {
+		int32_t vnum = 0;
+		int64_t date = 0;
+		uint32_t stat_count = 0;
+		if (!BinRead(in, vnum) || !BinRead(in, date) || !BinRead(in, stat_count)) {
+			break;
+		}
+		const bool known = GetMobRnum(vnum) >= 0;
+		MobKillStat tmp_time(static_cast<time_t>(date));
+		for (uint32_t s = 0; s < stat_count; ++s) {
+			MobMonthKillStat tmp_mob;
+			int32_t month = 0;
+			int32_t year = 0;
+			if (!BinRead(in, month) || !BinRead(in, year)) {
+				break;
+			}
+			tmp_mob.month = month;
+			tmp_mob.year = year;
+			bool ok = true;
+			for (int k = 0; k <= kMaxGroupSize; ++k) {
+				int32_t v = 0;
+				if (!BinRead(in, v)) {
+					ok = false;
+					break;
+				}
+				tmp_mob.kills.at(k) = v;
+			}
+			if (!ok) {
+				break;
+			}
+			if (known) {
+				ApplyParsedStat(tmp_time, std::move(tmp_mob));
+			}
+		}
+		if (known) {
+			mob_stat_register.emplace(vnum, std::move(tmp_time));
+		}
+	}
+	return true;
+}
+
+// Разовая миграция со старого XML (mob_stat_new.xml). После первого Save
+// данные уже в бинаре, и этот путь больше не используется.
+static void LoadXmlLegacy() {
 	char buf_[kMaxInputLength];
 
 	pugi::xml_document doc;
@@ -180,62 +293,63 @@ void Load() {
 			struct MobMonthKillStat tmp_mob;
 			tmp_mob.month = parse::ReadAttrAsInt(xml_time, "m");
 			tmp_mob.year = parse::ReadAttrAsInt(xml_time, "y");
-			if (tmp_mob.month <= 0 || tmp_mob.month > 12 || tmp_mob.year <= 0) {
-				snprintf(buf_, sizeof(buf_),
-						 "...bad mob attributes (month=%d, year=%d)",
-						 tmp_mob.month, tmp_mob.year);
-				mudlog(buf_, CMP, kLvlImmortal, SYSLOG, true);
-				continue;
-			}
-			auto date = GetDate();
-			if ((date.first + date.second * 12)
-				- (tmp_mob.month + tmp_mob.year * 12) > kMobStatHistorySize + 1) {
-				continue;
-			}
-			count_stats[tmp_mob.month] += 1;
 			for (int k = 0; k <= kMaxGroupSize; ++k) {
 				snprintf(buf_, sizeof(buf_), "n%d", k);
 				pugi::xml_attribute attr = xml_time.attribute(buf_);
 				if (attr && attr.as_int() > 0) {
 					tmp_mob.kills.at(k) = attr.as_int();
-
-					if (k > 0) {
-						kill_stats[tmp_mob.month] += attr.as_int();
-					}
 				}
 			}
-			tmp_time.stats.push_back(tmp_mob);
+			ApplyParsedStat(tmp_time, std::move(tmp_mob));
 		}
 		mob_stat_register.emplace(mob_vnum, tmp_time);
 	}
 }
 
-void Save() {
-	pugi::xml_document doc;
-	doc.append_child().set_name("mob_list");
-	pugi::xml_node xml_mob_list = doc.child("mob_list");
-	char buf_[kMaxInputLength];
+void Load() {
+	mob_stat_register.clear();
 
-	for (const auto & i : mob_stat_register) {
-		pugi::xml_node mob_node = xml_mob_list.append_child();
-		mob_node.set_name("mob");
-		mob_node.append_attribute("vnum") = i.first;
-		mob_node.append_attribute("date") = static_cast<unsigned long long>(i.second.date);
-		// стата по месяцам
-		for (const auto & stat : i.second.stats) {
-			pugi::xml_node time_node = mob_node.append_child();
-			time_node.set_name("t");
-			time_node.append_attribute("m") = stat.month;
-			time_node.append_attribute("y") = stat.year;
+	if (LoadBinary()) {
+		return;
+	}
+	LoadXmlLegacy();
+}
+
+void Save() {
+	std::string buf;
+	buf.reserve(4u * 1024 * 1024);
+	BinWrite(buf, kMobStatBinMagic);
+	BinWrite(buf, kMobStatBinVersion);
+	BinWrite(buf, static_cast<uint32_t>(mob_stat_register.size()));
+	for (const auto &i : mob_stat_register) {
+		BinWrite(buf, static_cast<int32_t>(i.first));
+		BinWrite(buf, static_cast<int64_t>(i.second.date));
+		BinWrite(buf, static_cast<uint32_t>(i.second.stats.size()));
+		for (const auto &stat : i.second.stats) {
+			BinWrite(buf, static_cast<int32_t>(stat.month));
+			BinWrite(buf, static_cast<int32_t>(stat.year));
 			for (int g = 0; g <= kMaxGroupSize; ++g) {
-				if (stat.kills.at(g) > 0) {
-					snprintf(buf_, sizeof(buf_), "n%d", g);
-					time_node.append_attribute(buf_) = stat.kills.at(g);
-				}
+				BinWrite(buf, static_cast<int32_t>(stat.kills.at(g)));
 			}
 		}
 	}
-	doc.save_file(kMobStatFileNew);
+
+	// Сериализация (чтение mob_stat_register) -- синхронно на главном потоке,
+	// без гонок. В фоновый воркер уходит уже готовый буфер: запись на диск не
+	// держит heartbeat-пульс. Пишем через .tmp + rename для атомарности.
+	static utils::ThreadPool save_pool(1);
+	const std::string filename = kMobStatFileBin;
+	save_pool.Enqueue([buf = std::move(buf), filename]() {
+		const std::string tmp = filename + ".tmp";
+		{
+			std::ofstream f(tmp, std::ios::binary | std::ios::trunc);
+			if (!f.is_open()) {
+				return;
+			}
+			f.write(buf.data(), static_cast<std::streamsize>(buf.size()));
+		}
+		std::rename(tmp.c_str(), filename.c_str());
+	});
 }
 
 void ClearZoneStat(ZoneVnum zone_vnum) {
