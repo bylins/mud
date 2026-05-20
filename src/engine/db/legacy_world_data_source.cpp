@@ -217,11 +217,6 @@ std::unique_ptr<IWorldDataSource> CreateLegacyDataSource()
 	return std::make_unique<LegacyWorldDataSource>();
 }
 
-std::unique_ptr<IWorldDataSource> CreateLegacyDataSource(std::string target_dir)
-{
-	return std::make_unique<LegacyWorldDataSource>(std::move(target_dir));
-}
-
 } // namespace world_loader
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

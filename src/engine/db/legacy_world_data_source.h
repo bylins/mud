@@ -14,12 +14,12 @@ namespace world_loader
 class LegacyWorldDataSource : public IWorldDataSource
 {
 public:
-	LegacyWorldDataSource() = default;
 	// target_dir, if non-empty, redirects Save* methods to write under
 	// <target_dir>/world/{wld,mob,obj,zon,trg}/ instead of the default
 	// "world/..." paths relative to cwd. Used by GameLoader::ResaveWorld
-	// for cross-format round-trip diagnostics.
-	explicit LegacyWorldDataSource(std::string target_dir);
+	// for cross-format round-trip diagnostics; empty (the default) keeps
+	// the in-place behaviour the running server relies on.
+	explicit LegacyWorldDataSource(std::string target_dir = "");
 	~LegacyWorldDataSource() override = default;
 
 	std::string GetName() const override { return "Legacy file-based loader"; }
@@ -47,9 +47,10 @@ private:
 	std::string m_target_dir;
 };
 
-// Factory function for creating legacy data source
+// Factory function for creating legacy data source (in-place, no redirect).
+// ResaveWorld constructs LegacyWorldDataSource directly because it needs the
+// concrete type for RebuildIndexes(), so no target_dir factory is needed.
 std::unique_ptr<IWorldDataSource> CreateLegacyDataSource();
-std::unique_ptr<IWorldDataSource> CreateLegacyDataSource(std::string target_dir);
 
 } // namespace world_loader
 
