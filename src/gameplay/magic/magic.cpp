@@ -3312,26 +3312,32 @@ int CastUnaffects(int/* level*/, CharData *ch, CharData *victim, ESpell spell_id
 			}
 
 			{
-				const auto affects_count = victim->affected.size();
-				if (0 == affects_count) {
+				// Снимаем случайный аффект из тех, что вообще можно снять.
+				// Раньше брали случайный из всех -- если попадали на
+				// неснимаемый (charm/quest/patronage/...), dispel фейлился,
+				// хотя рядом могли быть снимаемые.
+				int dispellable = 0;
+				for (const auto &aff : victim->affected) {
+					if (!CheckNodispel(aff)) {
+						++dispellable;
+					}
+				}
+				if (dispellable == 0) {
 					SendMsgToChar(NOEFFECT, ch);
 					return 0;
 				}
 
-				auto count = 1;
-				const auto rspell = number(1, static_cast<int>(affects_count));
-				auto affect_i = victim->affected.begin();
-				while (count < rspell) {
-					++affect_i;
-					++count;
+				const auto target = number(1, dispellable);
+				auto seen = 0;
+				for (const auto &aff : victim->affected) {
+					if (CheckNodispel(aff)) {
+						continue;
+					}
+					if (++seen == target) {
+						spell = aff->type;
+						break;
+					}
 				}
-
-				if (CheckNodispel(*affect_i)) {
-					SendMsgToChar(NOEFFECT, ch);
-					return 0;
-				}
-
-				spell = (*affect_i)->type;
 			}
 
 			remove = true;
