@@ -29,6 +29,7 @@
 		<message type="kCantCastNotSelf" val="Колдовать? ЭТО? На себя?! Да вы с ума сошли!" />
 		<message type="kTargetUnavailable" val="Цель заклинания недоступна." />
 		<message type="kCantCastPeaceful" val="Ваша душа полна смирения, и вы не желаете творить зло." />
+		<message type="kObjResist" val="$o устойчив$A к вашей магии." />
 	</msg_sheaf>
 
 	<msg_sheaf id="kCureLight">
@@ -241,5 +242,50 @@
 	<msg_sheaf id="kSnare">
 		<message type="kAreaToChar" val="Вы соткали магические тенета, опутавшие ваших врагов.&#13;&#10;" />
 		<message type="kAreaToVict" val="$n что-то прошептал$g, странно скрючив пальцы, и взлетевшие откуда ни возьмись ловчие сети опутали вас" />
+	</msg_sheaf>
+
+	<!-- CastToAlterObjs (issue #3304, stage 2.1) -->
+	<msg_sheaf id="kBless">
+		<message type="kAlterObjToChar" val="$o вспыхнул$G голубым светом и тут же погас$Q." />
+	</msg_sheaf>
+	<msg_sheaf id="kCurse">
+		<message type="kAlterObjToChar" val="$o вспыхнул$G красным светом и тут же погас$Q." />
+	</msg_sheaf>
+	<msg_sheaf id="kInvisible">
+		<message type="kAlterObjToChar" val="$o растворил$U в пустоте." />
+	</msg_sheaf>
+	<msg_sheaf id="kPoison">
+		<message type="kAlterObjToChar" val="$o отравлен$G." />
+	</msg_sheaf>
+	<msg_sheaf id="kRemoveCurse">
+		<message type="kAlterObjToChar" val="$o вспыхнул$G розовым светом и тут же погас$Q." />
+	</msg_sheaf>
+	<msg_sheaf id="kFly">
+		<message type="kAlterObjToChar" val="$o вспыхнул$G зеленоватым светом и тут же погас$Q." />
+	</msg_sheaf>
+	<msg_sheaf id="kRepair">
+		<message type="kAlterObjToChar" val="Вы полностью восстановили $o3." />
+	</msg_sheaf>
+	<msg_sheaf id="kTimerRestore">
+		<message type="kAlterObjToChar" val="Вы полностью восстановили $o3." />
+	</msg_sheaf>
+	<msg_sheaf id="kRestoration">
+		<message type="kAlterObjToChar" val="$o осветил$U на миг внутренним светом и тут же потух$Q." />
+	</msg_sheaf>
+	<msg_sheaf id="kLight">
+		<message type="kAlterObjToChar" val="$o засветил$U ровным зеленоватым светом." />
+	</msg_sheaf>
+	<msg_sheaf id="kRemovePoison">
+		<message type="kAlterObjToChar" val="$o стал$G вполне пригодным к применению." />
+		<message type="kRemovePoisonUnknown" val="Ничего не случилось." />
+		<message type="kRemovePoisonRotten" val="Содержимое $o1 протухло и не поддается магии." />
+	</msg_sheaf>
+	<msg_sheaf id="kEnchantWeapon">
+		<message type="kEnchantNotWeapon" val="Еще раз ударьтесь головой об стену, авось зрение вернется..." />
+		<message type="kEnchantMagic" val="Вам не под силу зачаровать магическую вещь." />
+		<message type="kEnchantSetItem" val="Сетовый предмет не может быть заколдован." />
+		<message type="kEnchantMono" val="$o вспыхнул$G на миг голубым светом и тут же потух$Q." />
+		<message type="kEnchantPoly" val="$o вспыхнул$G на миг красным светом и тут же потух$Q." />
+		<message type="kEnchantOther" val="$o вспыхнул$G на миг желтым светом и тут же потух$Q." />
 	</msg_sheaf>
 </msg_container>

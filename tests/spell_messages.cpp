@@ -33,7 +33,12 @@ TEST(SpellMessages, ESpellMsgNameRoundTrip) {
 							ESpellMsg::kCantCastSitting, ESpellMsg::kCantCastFighting,
 							ESpellMsg::kCantCastPosition, ESpellMsg::kCantCastMaster,
 							ESpellMsg::kCantCastSelfOnly, ESpellMsg::kCantCastNotSelf,
-							ESpellMsg::kTargetUnavailable, ESpellMsg::kCantCastPeaceful}) {
+							ESpellMsg::kTargetUnavailable, ESpellMsg::kCantCastPeaceful,
+							ESpellMsg::kObjResist, ESpellMsg::kAlterObjToChar,
+							ESpellMsg::kEnchantNotWeapon, ESpellMsg::kEnchantMagic,
+							ESpellMsg::kEnchantSetItem, ESpellMsg::kEnchantMono,
+							ESpellMsg::kEnchantPoly, ESpellMsg::kEnchantOther,
+							ESpellMsg::kRemovePoisonUnknown, ESpellMsg::kRemovePoisonRotten}) {
 		EXPECT_EQ(type, ITEM_BY_NAME<ESpellMsg>(NAME_BY_ITEM<ESpellMsg>(type)));
 	}
 }

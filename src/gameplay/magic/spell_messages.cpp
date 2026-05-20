@@ -28,6 +28,16 @@ const std::string &NAME_BY_ITEM<ESpellMsg>(const ESpellMsg item) {
 		{ESpellMsg::kCantCastNotSelf, "kCantCastNotSelf"},
 		{ESpellMsg::kTargetUnavailable, "kTargetUnavailable"},
 		{ESpellMsg::kCantCastPeaceful, "kCantCastPeaceful"},
+		{ESpellMsg::kObjResist, "kObjResist"},
+		{ESpellMsg::kAlterObjToChar, "kAlterObjToChar"},
+		{ESpellMsg::kEnchantNotWeapon, "kEnchantNotWeapon"},
+		{ESpellMsg::kEnchantMagic, "kEnchantMagic"},
+		{ESpellMsg::kEnchantSetItem, "kEnchantSetItem"},
+		{ESpellMsg::kEnchantMono, "kEnchantMono"},
+		{ESpellMsg::kEnchantPoly, "kEnchantPoly"},
+		{ESpellMsg::kEnchantOther, "kEnchantOther"},
+		{ESpellMsg::kRemovePoisonUnknown, "kRemovePoisonUnknown"},
+		{ESpellMsg::kRemovePoisonRotten, "kRemovePoisonRotten"},
 	};
 	return kMap.at(item);
 }
@@ -50,6 +60,16 @@ ESpellMsg ITEM_BY_NAME<ESpellMsg>(const std::string &name) {
 		{"kCantCastNotSelf", ESpellMsg::kCantCastNotSelf},
 		{"kTargetUnavailable", ESpellMsg::kTargetUnavailable},
 		{"kCantCastPeaceful", ESpellMsg::kCantCastPeaceful},
+		{"kObjResist", ESpellMsg::kObjResist},
+		{"kAlterObjToChar", ESpellMsg::kAlterObjToChar},
+		{"kEnchantNotWeapon", ESpellMsg::kEnchantNotWeapon},
+		{"kEnchantMagic", ESpellMsg::kEnchantMagic},
+		{"kEnchantSetItem", ESpellMsg::kEnchantSetItem},
+		{"kEnchantMono", ESpellMsg::kEnchantMono},
+		{"kEnchantPoly", ESpellMsg::kEnchantPoly},
+		{"kEnchantOther", ESpellMsg::kEnchantOther},
+		{"kRemovePoisonUnknown", ESpellMsg::kRemovePoisonUnknown},
+		{"kRemovePoisonRotten", ESpellMsg::kRemovePoisonRotten},
 	};
 	return kMap.at(name); // throws std::out_of_range on unknown name
 }

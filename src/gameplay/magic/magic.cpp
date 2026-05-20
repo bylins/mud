@@ -3394,7 +3394,7 @@ int CastToAlterObjs(int/* level*/, CharData *ch, ObjData *obj, ESpell spell_id) 
 	}
 
 	if (obj->has_flag(EObjFlag::kNoalter)) {
-		act("$o устойчив$A к вашей магии.", true, ch, obj, nullptr, kToChar);
+		act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kObjResist).c_str(), true, ch, obj, nullptr, kToChar);
 		return 0;
 	}
 
@@ -3411,7 +3411,7 @@ int CastToAlterObjs(int/* level*/, CharData *ch, ObjData *obj, ESpell spell_id) 
 				}
 				obj->add_maximum(std::max(obj->get_maximum_durability() >> 2, 1));
 				obj->set_current_durability(obj->get_maximum_durability());
-				to_char = "$o вспыхнул$G голубым светом и тут же погас$Q.";
+				to_char = MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kAlterObjToChar).c_str();
 				obj->add_timed_spell(ESpell::kBless, -1);
 			}
 			break;
@@ -3431,7 +3431,7 @@ int CastToAlterObjs(int/* level*/, CharData *ch, ObjData *obj, ESpell spell_id) 
 						obj->dec_val(1);
 					}
 				}
-				to_char = "$o вспыхнул$G красным светом и тут же погас$Q.";
+				to_char = MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kAlterObjToChar).c_str();
 			}
 			break;
 
@@ -3439,7 +3439,7 @@ int CastToAlterObjs(int/* level*/, CharData *ch, ObjData *obj, ESpell spell_id) 
 			if (!obj->has_flag(EObjFlag::kNoinvis)
 				&& !obj->has_flag(EObjFlag::kInvisible)) {
 				obj->set_extra_flag(EObjFlag::kInvisible);
-				to_char = "$o растворил$U в пустоте.";
+				to_char = MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kAlterObjToChar).c_str();
 			}
 			break;
 
@@ -3449,7 +3449,7 @@ int CastToAlterObjs(int/* level*/, CharData *ch, ObjData *obj, ESpell spell_id) 
 					|| obj->get_type() == EObjType::kFountain
 					|| obj->get_type() == EObjType::kFood)) {
 				obj->set_val(3, 1);
-				to_char = "$o отравлен$G.";
+				to_char = MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kAlterObjToChar).c_str();
 			}
 			break;
 
@@ -3459,7 +3459,7 @@ int CastToAlterObjs(int/* level*/, CharData *ch, ObjData *obj, ESpell spell_id) 
 				if (obj->get_type() == EObjType::kWeapon) {
 					obj->inc_val(2);
 				}
-				to_char = "$o вспыхнул$G розовым светом и тут же погас$Q.";
+				to_char = MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kAlterObjToChar).c_str();
 			}
 			break;
 
@@ -3470,15 +3470,15 @@ int CastToAlterObjs(int/* level*/, CharData *ch, ObjData *obj, ESpell spell_id) 
 
 			// Either already enchanted or not a weapon.
 			if (obj->get_type() != EObjType::kWeapon) {
-				to_char = "Еще раз ударьтесь головой об стену, авось зрение вернется...";
+				to_char = MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kEnchantNotWeapon).c_str();
 				break;
 			} else if (obj->has_flag(EObjFlag::kMagic)) {
-				to_char = "Вам не под силу зачаровать магическую вещь.";
+				to_char = MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kEnchantMagic).c_str();
 				break;
 			}
 
 			if (obj->has_flag(EObjFlag::kSetItem)) {
-				SendMsgToChar(ch, "Сетовый предмет не может быть заколдован.\r\n");
+				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kEnchantSetItem) + "\r\n", ch);
 				break;
 			}
 
@@ -3494,17 +3494,17 @@ int CastToAlterObjs(int/* level*/, CharData *ch, ObjData *obj, ESpell spell_id) 
 				obj->set_enchant(ch->GetSkill(ESkill::kLightMagic));
 			}
 			if (GET_RELIGION(ch) == kReligionMono) {
-				to_char = "$o вспыхнул$G на миг голубым светом и тут же потух$Q.";
+				to_char = MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kEnchantMono).c_str();
 			} else if (GET_RELIGION(ch) == kReligionPoly) {
-				to_char = "$o вспыхнул$G на миг красным светом и тут же потух$Q.";
+				to_char = MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kEnchantPoly).c_str();
 			} else {
-				to_char = "$o вспыхнул$G на миг желтым светом и тут же потух$Q.";
+				to_char = MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kEnchantOther).c_str();
 			}
 			break;
 		}
 		case ESpell::kRemovePoison:
 			if (obj->get_rnum() < 0) {
-				to_char = "Ничего не случилось.";
+				to_char = MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kRemovePoisonUnknown).c_str();
 				char message[100];
 				sprintf(message,
 						"неизвестный прототип объекта : %s (VNUM=%d)",
@@ -3514,7 +3514,7 @@ int CastToAlterObjs(int/* level*/, CharData *ch, ObjData *obj, ESpell spell_id) 
 				break;
 			}
 			if (obj_proto[obj->get_rnum()]->get_val(3) > 1 && GET_OBJ_VAL(obj, 3) == 1) {
-				to_char = "Содержимое $o1 протухло и не поддается магии.";
+				to_char = MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kRemovePoisonRotten).c_str();
 				break;
 			}
 			if ((GET_OBJ_VAL(obj, 3) == 1)
@@ -3522,27 +3522,27 @@ int CastToAlterObjs(int/* level*/, CharData *ch, ObjData *obj, ESpell spell_id) 
 					|| obj->get_type() == EObjType::kFountain
 					|| obj->get_type() == EObjType::kFood)) {
 				obj->set_val(3, 0);
-				to_char = "$o стал$G вполне пригодным к применению.";
+				to_char = MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kAlterObjToChar).c_str();
 			}
 			break;
 
 		case ESpell::kFly: obj->add_timed_spell(ESpell::kFly, -1);
 			obj->set_extra_flag(EObjFlag::kFlying);
-			to_char = "$o вспыхнул$G зеленоватым светом и тут же погас$Q.";
+			to_char = MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kAlterObjToChar).c_str();
 			break;
 
 		case ESpell::kAcid: DamageObj(obj, number(GetRealLevel(ch) * 2, GetRealLevel(ch) * 4), 100);
 			break;
 
 		case ESpell::kRepair: obj->set_current_durability(obj->get_maximum_durability());
-			to_char = "Вы полностью восстановили $o3.";
+			to_char = MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kAlterObjToChar).c_str();
 			break;
 
 		case ESpell::kTimerRestore:
 			if (obj->get_rnum() != kNothing) {
 				obj->set_current_durability(obj->get_maximum_durability());
 				obj->set_timer(obj_proto.at(obj->get_rnum())->get_timer());
-				to_char = "Вы полностью восстановили $o3.";
+				to_char = MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kAlterObjToChar).c_str();
 				log("%s used magic repair", GET_NAME(ch));
 			} else {
 				return 0;
@@ -3559,13 +3559,13 @@ int CastToAlterObjs(int/* level*/, CharData *ch, ObjData *obj, ESpell spell_id) 
 			} else {
 				return 0;
 			}
-			to_char = "$o осветил$U на миг внутренним светом и тут же потух$Q.";
+			to_char = MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kAlterObjToChar).c_str();
 		}
 			break;
 
 		case ESpell::kLight: obj->add_timed_spell(ESpell::kLight, -1);
 			obj->set_extra_flag(EObjFlag::kGlow);
-			to_char = "$o засветил$U ровным зеленоватым светом.";
+			to_char = MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kAlterObjToChar).c_str();
 			break;
 
 		case ESpell::kDarkness:

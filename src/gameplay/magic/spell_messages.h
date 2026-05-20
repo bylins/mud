@@ -46,6 +46,17 @@ enum class ESpellMsg {
 	kCantCastNotSelf,	// spell may not be cast on self.
 	kTargetUnavailable,	// spell target is unavailable.
 	kCantCastPeaceful,	// caster is peaceful and refuses to do harm.
+	// CastToAlterObjs messages (to the caster).
+	kObjResist,			// object is no-alter (common -> kDefault sheaf).
+	kAlterObjToChar,	// per-spell "object transformed" message.
+	kEnchantNotWeapon,	// kEnchantWeapon: target is not a weapon.
+	kEnchantMagic,		// kEnchantWeapon: target is already magical.
+	kEnchantSetItem,	// kEnchantWeapon: target is a set item.
+	kEnchantMono,		// kEnchantWeapon: success, mono religion.
+	kEnchantPoly,		// kEnchantWeapon: success, poly religion.
+	kEnchantOther,		// kEnchantWeapon: success, no religion.
+	kRemovePoisonUnknown,	// kRemovePoison: object has no prototype.
+	kRemovePoisonRotten,	// kRemovePoison: contents have rotted.
 };
 
 template<>
