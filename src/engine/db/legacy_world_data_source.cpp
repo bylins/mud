@@ -33,6 +33,12 @@ namespace
 // Used to redirect WLD_PREFIX-relative paths inside OLC save_to_disk
 // routines to a caller-supplied output directory without modifying the
 // macros or save routines themselves.
+//
+// TODO(#3301): this chdir dance exists only because the OLC *_save_to_disk
+// routines and the legacy loaders hardcode the "world/{wld,mob,...}/" paths
+// via compile-time *_PREFIX macros. Teaching them to take a base path would
+// let LegacyWorldDataSource carry m_world_dir as a plain path prefix (like
+// YAML/SQLite) and drop the global-cwd manipulation entirely.
 class ScopedChdir
 {
 public:
