@@ -1326,6 +1326,15 @@ bool drop_mob_objects_to_box(CharData *ch)
 		PlaceObjIntoObj(object, charmice_box);
 	}
 
+	// Вещи могли испариться при снятии (триггеры на remove, временные/
+	// декейные предметы) -- тогда узелок пустой. Пустышку не бросаем и не
+	// логируем, незачем плодить мусор на полу.
+	if (!charmice_box->get_contains())
+	{
+		ExtractObjFromWorld(charmice_box);
+		return false;
+	}
+
 	DropObjOnZoneReset(ch, charmice_box, true, false);
 
 	return true;
