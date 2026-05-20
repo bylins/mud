@@ -28,7 +28,12 @@ TEST(SpellMessages, ESpellMsgNameRoundTrip) {
 	EXPECT_EQ(ESpellMsg::kPointsToVict, parse::ReadAsConstant<ESpellMsg>("kPointsToVict"));
 	EXPECT_EQ("kPointsToVict", NAME_BY_ITEM<ESpellMsg>(ESpellMsg::kPointsToVict));
 
-	for (const auto type : {ESpellMsg::kAreaToChar, ESpellMsg::kAreaToRoom, ESpellMsg::kAreaToVict}) {
+	for (const auto type : {ESpellMsg::kAreaToChar, ESpellMsg::kAreaToRoom, ESpellMsg::kAreaToVict,
+							ESpellMsg::kCantCastSleeping, ESpellMsg::kCantCastResting,
+							ESpellMsg::kCantCastSitting, ESpellMsg::kCantCastFighting,
+							ESpellMsg::kCantCastPosition, ESpellMsg::kCantCastMaster,
+							ESpellMsg::kCantCastSelfOnly, ESpellMsg::kCantCastNotSelf,
+							ESpellMsg::kTargetUnavailable, ESpellMsg::kCantCastPeaceful}) {
 		EXPECT_EQ(type, ITEM_BY_NAME<ESpellMsg>(NAME_BY_ITEM<ESpellMsg>(type)));
 	}
 }

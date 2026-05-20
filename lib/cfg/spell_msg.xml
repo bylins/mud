@@ -19,6 +19,16 @@
 	<!-- Ветвь по умолчанию: сюда позже переедут сообщения, общие для всех
 	     заклинаний (проверки позиции каста и т.п. из magic_utils.cpp). -->
 	<msg_sheaf id="kDefault">
+		<message type="kCantCastSleeping" val="Вы спите и не могете думать больше ни о чем." />
+		<message type="kCantCastResting" val="Вы расслаблены и отдыхаете. И далась вам эта магия?" />
+		<message type="kCantCastSitting" val="Похоже, в этой позе Вы много не наколдуете." />
+		<message type="kCantCastFighting" val="Невозможно! Вы сражаетесь! Это вам не шухры-мухры." />
+		<message type="kCantCastPosition" val="Вам вряд ли это удастся." />
+		<message type="kCantCastMaster" val="Вы не посмеете поднять руку на вашего повелителя!" />
+		<message type="kCantCastSelfOnly" val="Вы можете колдовать это только на себя!" />
+		<message type="kCantCastNotSelf" val="Колдовать? ЭТО? На себя?! Да вы с ума сошли!" />
+		<message type="kTargetUnavailable" val="Цель заклинания недоступна." />
+		<message type="kCantCastPeaceful" val="Ваша душа полна смирения, и вы не желаете творить зло." />
 	</msg_sheaf>
 
 	<msg_sheaf id="kCureLight">

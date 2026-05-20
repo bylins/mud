@@ -18,6 +18,16 @@ const std::string &NAME_BY_ITEM<ESpellMsg>(const ESpellMsg item) {
 		{ESpellMsg::kAreaToChar, "kAreaToChar"},
 		{ESpellMsg::kAreaToRoom, "kAreaToRoom"},
 		{ESpellMsg::kAreaToVict, "kAreaToVict"},
+		{ESpellMsg::kCantCastSleeping, "kCantCastSleeping"},
+		{ESpellMsg::kCantCastResting, "kCantCastResting"},
+		{ESpellMsg::kCantCastSitting, "kCantCastSitting"},
+		{ESpellMsg::kCantCastFighting, "kCantCastFighting"},
+		{ESpellMsg::kCantCastPosition, "kCantCastPosition"},
+		{ESpellMsg::kCantCastMaster, "kCantCastMaster"},
+		{ESpellMsg::kCantCastSelfOnly, "kCantCastSelfOnly"},
+		{ESpellMsg::kCantCastNotSelf, "kCantCastNotSelf"},
+		{ESpellMsg::kTargetUnavailable, "kTargetUnavailable"},
+		{ESpellMsg::kCantCastPeaceful, "kCantCastPeaceful"},
 	};
 	return kMap.at(item);
 }
@@ -30,6 +40,16 @@ ESpellMsg ITEM_BY_NAME<ESpellMsg>(const std::string &name) {
 		{"kAreaToChar", ESpellMsg::kAreaToChar},
 		{"kAreaToRoom", ESpellMsg::kAreaToRoom},
 		{"kAreaToVict", ESpellMsg::kAreaToVict},
+		{"kCantCastSleeping", ESpellMsg::kCantCastSleeping},
+		{"kCantCastResting", ESpellMsg::kCantCastResting},
+		{"kCantCastSitting", ESpellMsg::kCantCastSitting},
+		{"kCantCastFighting", ESpellMsg::kCantCastFighting},
+		{"kCantCastPosition", ESpellMsg::kCantCastPosition},
+		{"kCantCastMaster", ESpellMsg::kCantCastMaster},
+		{"kCantCastSelfOnly", ESpellMsg::kCantCastSelfOnly},
+		{"kCantCastNotSelf", ESpellMsg::kCantCastNotSelf},
+		{"kTargetUnavailable", ESpellMsg::kTargetUnavailable},
+		{"kCantCastPeaceful", ESpellMsg::kCantCastPeaceful},
 	};
 	return kMap.at(name); // throws std::out_of_range on unknown name
 }

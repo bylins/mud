@@ -34,6 +34,18 @@ enum class ESpellMsg {
 	kAreaToChar,		// CallMagicToArea: cast message to the caster.
 	kAreaToRoom,		// CallMagicToArea: cast message to the room.
 	kAreaToVict,		// CallMagicToArea: message to each affected target.
+	// CastSpell cast-precondition messages (common to all spells -> kDefault sheaf,
+	// overridable per spell). All shown to the caster.
+	kCantCastSleeping,	// position: sleeping.
+	kCantCastResting,	// position: resting.
+	kCantCastSitting,	// position: sitting.
+	kCantCastFighting,	// position: fighting.
+	kCantCastPosition,	// position: other too-low position.
+	kCantCastMaster,	// target is the caster's charmer.
+	kCantCastSelfOnly,	// spell may only be cast on self.
+	kCantCastNotSelf,	// spell may not be cast on self.
+	kTargetUnavailable,	// spell target is unavailable.
+	kCantCastPeaceful,	// caster is peaceful and refuses to do harm.
 };
 
 template<>
