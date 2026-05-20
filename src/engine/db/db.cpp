@@ -850,6 +850,10 @@ void BootMudDataBase() {
 	log("Loading spells cfg.");
 	MUD::CfgManager().LoadCfg("spells");
 
+	boot_profiler.next_step("Loading spell messages cfg.");
+	log("Loading spell messages cfg.");
+	MUD::CfgManager().LoadCfg("spell_messages");
+
 	boot_profiler.next_step("Loading abilities definitions");
 	log("Loading abilities.");
 	MUD::CfgManager().LoadCfg("abilities");

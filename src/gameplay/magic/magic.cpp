@@ -3166,34 +3166,26 @@ int CastToPoints(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 	switch (spell_id) {
 		case ESpell::kCureLight:
 			hit = CalcHeal(ch, victim, ESpell::kCureLight, level);
-			SendMsgToChar("Вы почувствовали себя немножко лучше.\r\n", victim);
 			break;
 		case ESpell::kCureSerious:
 			hit = CalcHeal(ch, victim, ESpell::kCureSerious, level);
-			SendMsgToChar("Вы почувствовали себя лучше.\r\n", victim);
 			break;
 		case ESpell::kCureCritic:
 			hit = CalcHeal(ch, victim, ESpell::kCureCritic, level);
-			SendMsgToChar("Вы почувствовали себя значительно лучше.\r\n", victim);
 			break;
 		case ESpell::kHeal: hit = CalcHeal(ch, victim, ESpell::kHeal, level);
-			SendMsgToChar("Вы почувствовали себя намного лучше.\r\n", victim);
 			break;
 		case ESpell::kGroupHeal: hit = CalcHeal(ch, victim, ESpell::kGroupHeal, level);
-			SendMsgToChar("Вы почувствовали себя лучше.\r\n", victim);
 			break;
 		case ESpell::kGreatHeal:
 			hit = victim->get_real_max_hit() - victim->get_hit();
-			SendMsgToChar("Вы почувствовали себя полностью здоровым.\r\n", victim);
 			break;
 		case ESpell::kPatronage: hit = (GetRealLevel(victim) + GetRealRemort(victim)) * 2;
 			break;
 		case ESpell::kWarcryOfPower: hit = std::min(200, (4 * ch->get_con() + ch->GetSkill(ESkill::kWarcry)) / 2);
-			SendMsgToChar("По вашему телу начала струиться живительная сила.\r\n", victim);
 			break;
 		case ESpell::kExtraHits: extraHealing = true;
 			hit = RollDices(10, abs(level) / 3) + level;
-			SendMsgToChar("По вашему телу начала струиться живительная сила.\r\n", victim);
 			break;
 		case ESpell::kEviless:
 			//лечим только умертвия-чармисы
@@ -3207,7 +3199,6 @@ int CastToPoints(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			break;
 		case ESpell::kResfresh:
 		case ESpell::kGroupRefresh: move = victim->get_real_max_move() - victim->get_move();
-			SendMsgToChar("Вы почувствовали себя полным сил.\r\n", victim);
 			break;
 		case ESpell::kFullFeed:
 		case ESpell::kCommonMeal: {
@@ -3215,13 +3206,19 @@ int CastToPoints(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 				GET_COND(victim, THIRST) = 0;
 			if (GET_COND(victim, FULL) > 0)
 				GET_COND(victim, FULL) = 0;
-			SendMsgToChar("Вы полностью насытились.\r\n", victim);
 		}
 			break;
 		default: log("MAG_POINTS: Ошибка! Передан неопределенный лечащий спелл spell_id: %d!\r\n",
 					 to_underlying(spell_id));
 			return 0;
 			break;
+	}
+	// issue #3304: сообщение цели лечащего заклинания берётся из spell_msg.xml.
+	// Не у всех заклинаний есть такое сообщение (напр. kPatronage, kEviless) -
+	// выводим только если оно задано именно для данного заклинания.
+	const auto &points_sheaf = MUD::SpellMessages()[spell_id];
+	if (points_sheaf.HasMessage(ESpellMsg::kPointsToVict)) {
+		SendMsgToChar(points_sheaf.GetMessage(ESpellMsg::kPointsToVict) + "\r\n", victim);
 	}
 //	log("HEAL: до модификатора  Игрок: %s hit: %d GET_HIT: %d GET_REAL_MAX_HIT: %d", GET_NAME(victim), hit, GET_HIT(victim), GET_REAL_MAX_HIT(victim));
 	hit = CalcComplexSpellMod(ch, spell_id, GAPPLY_SPELL_EFFECT, hit);

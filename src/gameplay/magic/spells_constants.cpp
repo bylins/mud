@@ -840,6 +840,10 @@ void init_ESpell_ITEM_NAMES() {
 	for (const auto &i : ESpell_name_by_value) {
 		ESpell_value_by_name[i.second] = i.first;
 	}
+
+	// "kDefault" is an alias for kUndefined: the default sheaf id in spell_msg.xml
+	// (issue #3304). kUndefined keeps its canonical name "kUndefined" for NAME_BY_ITEM.
+	ESpell_value_by_name["kDefault"] = ESpell::kUndefined;
 }
 
 template<>

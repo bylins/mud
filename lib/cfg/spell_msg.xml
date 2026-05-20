@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="koi8-r"?>
+<!--
+	Контейнер игровых сообщений для заклинаний (issue #3304).
+	Загружается через cfg_manager (LoadCfg/ReloadCfg "spell_messages"),
+	доступен из кода как MUD::SpellMessages().
+
+	id ветви (msg_sheaf) - значение ESpell; "kDefault" соответствует ESpell::kUndefined
+	и хранит сообщения, общие для всех заклинаний.
+	type сообщения (message) - значение ESpellMsg; текст в атрибуте val.
+
+	ВАЖНО: текст хранится БЕЗ завершающего "\r\n". Сообщения, выводимые через
+	SendMsgToChar, добавляют "\r\n" в месте вывода; act() перевод строки не требует.
+
+	Этап 1 (issue #3304): перенесены сообщения функции CastToPoints
+	(тип kPointsToVict - что чувствует цель лечащего заклинания).
+-->
+<msg_container>
+	<!-- Ветвь по умолчанию: сюда позже переедут сообщения, общие для всех
+	     заклинаний (проверки позиции каста и т.п. из magic_utils.cpp). -->
+	<msg_sheaf id="kDefault">
+	</msg_sheaf>
+
+	<msg_sheaf id="kCureLight">
+		<message type="kPointsToVict" val="Вы почувствовали себя немножко лучше." />
+	</msg_sheaf>
+	<msg_sheaf id="kCureSerious">
+		<message type="kPointsToVict" val="Вы почувствовали себя лучше." />
+	</msg_sheaf>
+	<msg_sheaf id="kCureCritic">
+		<message type="kPointsToVict" val="Вы почувствовали себя значительно лучше." />
+	</msg_sheaf>
+	<msg_sheaf id="kHeal">
+		<message type="kPointsToVict" val="Вы почувствовали себя намного лучше." />
+	</msg_sheaf>
+	<msg_sheaf id="kGroupHeal">
+		<message type="kPointsToVict" val="Вы почувствовали себя лучше." />
+	</msg_sheaf>
+	<msg_sheaf id="kGreatHeal">
+		<message type="kPointsToVict" val="Вы почувствовали себя полностью здоровым." />
+	</msg_sheaf>
+	<msg_sheaf id="kWarcryOfPower">
+		<message type="kPointsToVict" val="По вашему телу начала струиться живительная сила." />
+	</msg_sheaf>
+	<msg_sheaf id="kExtraHits">
+		<message type="kPointsToVict" val="По вашему телу начала струиться живительная сила." />
+	</msg_sheaf>
+	<msg_sheaf id="kResfresh">
+		<message type="kPointsToVict" val="Вы почувствовали себя полным сил." />
+	</msg_sheaf>
+	<msg_sheaf id="kGroupRefresh">
+		<message type="kPointsToVict" val="Вы почувствовали себя полным сил." />
+	</msg_sheaf>
+	<msg_sheaf id="kFullFeed">
+		<message type="kPointsToVict" val="Вы полностью насытились." />
+	</msg_sheaf>
+	<msg_sheaf id="kCommonMeal">
+		<message type="kPointsToVict" val="Вы полностью насытились." />
+	</msg_sheaf>
+</msg_container>
