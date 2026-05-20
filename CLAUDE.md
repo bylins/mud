@@ -195,10 +195,9 @@ Access world state via `MUD::` namespace functions:
 ### Code Style
 - **Standard**: C++20 (C++17 minimum)
 - **Indentation**: Tabs (size 4), no spaces for indentation
-- **Braces**: Opening brace on new line, same indent as statement
+- **Braces**: An opening brace on the same line separated by a space
 ```cpp
-if (condition)
-{
+if (condition) {
     // code here
 }
 ```
