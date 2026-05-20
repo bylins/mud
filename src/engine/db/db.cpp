@@ -1270,7 +1270,6 @@ int GameLoader::ResaveWorld(const std::string &target_dir, const std::string &ta
 	}
 
 	std::unique_ptr<world_loader::IWorldDataSource> saver;
-	world_loader::LegacyWorldDataSource *legacy_saver = nullptr;
 
 	if (fmt == "yaml") {
 #ifdef HAVE_YAML
@@ -1309,19 +1308,12 @@ int GameLoader::ResaveWorld(const std::string &target_dir, const std::string &ta
 		return 1;
 #endif
 	} else if (fmt == "legacy") {
-		// Legacy save uses OLC functions that write to fixed WLD_PREFIX paths
-		// ("world/wld/<vnum>.wld", ...) relative to cwd. LegacyWorldDataSource
-		// chdir's into target_dir for each Save* call, so the saved tree
-		// mirrors the boot layout under <target_dir>/world/.
-		try {
-			fs::create_directories(target_dir);
-		} catch (const std::exception &e) {
-			log("SYSERR: ResaveWorld bootstrap failed: %s", e.what());
-			return 1;
-		}
-		auto legacy = std::make_unique<world_loader::LegacyWorldDataSource>(target_dir);
-		legacy_saver = legacy.get();
-		saver = std::move(legacy);
+		// Legacy save uses OLC functions that write to "world/{wld,mob,...}/"
+		// relative to cwd. LegacyWorldDataSource owns its world_dir and
+		// chdir's into it for each Save* call (creating the layout first), so
+		// the saved tree lands under <target_dir>/world/. Symmetric with the
+		// YAML/SQLite factories below.
+		saver = world_loader::CreateLegacyDataSource(target_dir);
 	} else {
 		log("SYSERR: ResaveWorld: unknown target format '%s'", fmt.c_str());
 		return 1;
@@ -1354,16 +1346,13 @@ int GameLoader::ResaveWorld(const std::string &target_dir, const std::string &ta
 		}
 	}
 
-	// OLC save_to_disk routines write individual <vnum>.<ext> files but do
-	// not maintain the boot indexes -- regenerate them so the resulting
-	// tree is bootable by a legacy build.
-	if (legacy_saver != nullptr) {
-		try {
-			legacy_saver->RebuildIndexes();
-		} catch (const std::exception &e) {
-			log("SYSERR: ResaveWorld: index rebuild failed: %s", e.what());
-			++errors;
-		}
+	// Let the backend finalize after the full resave: legacy rebuilds its
+	// boot indexes here (YAML/SQLite already maintain them inside Save*).
+	try {
+		saver->FinalizeResave();
+	} catch (const std::exception &e) {
+		log("SYSERR: ResaveWorld: finalize failed: %s", e.what());
+		++errors;
 	}
 
 	log("ResaveWorld: done, errors=%d, skipped_dungeon=%d", errors, skipped);

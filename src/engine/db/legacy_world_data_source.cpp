@@ -10,6 +10,7 @@
 #include <cstdlib>
 #include <filesystem>
 #include <fstream>
+#include <optional>
 #include <stdexcept>
 #include <system_error>
 #include <utility>
@@ -104,107 +105,120 @@ void WriteIndexFile(const std::filesystem::path &dir, const std::string &extensi
 	std::filesystem::rename(tmp, dir / "index");
 }
 
+// Enter m_world_dir for the duration of a load/save call so the OLC and
+// BootIndex routines, which use paths relative to cwd ("world/wld/" etc.),
+// operate on this source's world directory. An empty world_dir means "the
+// current working directory" -- the running server's mode (cwd is the data
+// dir after the main chdir(-d)) -- and yields no chdir at all.
+std::optional<ScopedChdir> EnterWorldDir(const std::string &world_dir)
+{
+	if (world_dir.empty()) {
+		return std::nullopt;
+	}
+	return std::optional<ScopedChdir>(std::in_place, world_dir);
+}
+
 } // namespace
 
-LegacyWorldDataSource::LegacyWorldDataSource(std::string target_dir)
-	: m_target_dir(std::move(target_dir))
+LegacyWorldDataSource::LegacyWorldDataSource(std::string world_dir)
+	: m_world_dir(std::move(world_dir))
 {
 }
 
 void LegacyWorldDataSource::LoadZones()
 {
 	log("Loading zone table.");
+	auto guard = EnterWorldDir(m_world_dir);
 	GameLoader::BootIndex(DB_BOOT_ZON);
 }
 
 void LegacyWorldDataSource::LoadTriggers()
 {
 	log("Loading triggers and generating index.");
+	auto guard = EnterWorldDir(m_world_dir);
 	GameLoader::BootIndex(DB_BOOT_TRG);
 }
 
 void LegacyWorldDataSource::LoadRooms()
 {
 	log("Loading rooms.");
+	auto guard = EnterWorldDir(m_world_dir);
 	GameLoader::BootIndex(DB_BOOT_WLD);
 }
 
 void LegacyWorldDataSource::LoadMobs()
 {
 	log("Loading mobs and generating index.");
+	auto guard = EnterWorldDir(m_world_dir);
 	GameLoader::BootIndex(DB_BOOT_MOB);
 }
 
 void LegacyWorldDataSource::LoadObjects()
 {
 	log("Loading objs and generating index.");
+	auto guard = EnterWorldDir(m_world_dir);
 	GameLoader::BootIndex(DB_BOOT_OBJ);
 }
 
 void LegacyWorldDataSource::SaveZone(int zone_rnum)
 {
-	if (m_target_dir.empty()) {
-		zedit_save_to_disk(zone_rnum);
-		return;
+	if (!m_world_dir.empty()) {
+		EnsureLegacyWorldLayout(m_world_dir);
 	}
-	EnsureLegacyWorldLayout(m_target_dir);
-	ScopedChdir guard(m_target_dir);
+	auto guard = EnterWorldDir(m_world_dir);
 	zedit_save_to_disk(zone_rnum);
 }
 
 bool LegacyWorldDataSource::SaveTriggers(int zone_rnum, int specific_vnum, int notify_level)
 {
 	(void)specific_vnum; // Legacy format always saves entire zone
-	if (m_target_dir.empty()) {
-		return trigedit_save_to_disk(zone_rnum, notify_level);
+	if (!m_world_dir.empty()) {
+		EnsureLegacyWorldLayout(m_world_dir);
 	}
-	EnsureLegacyWorldLayout(m_target_dir);
-	ScopedChdir guard(m_target_dir);
+	auto guard = EnterWorldDir(m_world_dir);
 	return trigedit_save_to_disk(zone_rnum, notify_level);
 }
 
 void LegacyWorldDataSource::SaveRooms(int zone_rnum, int specific_vnum)
 {
 	(void)specific_vnum; // Legacy format always saves entire zone
-	if (m_target_dir.empty()) {
-		redit_save_to_disk(zone_rnum);
-		return;
+	if (!m_world_dir.empty()) {
+		EnsureLegacyWorldLayout(m_world_dir);
 	}
-	EnsureLegacyWorldLayout(m_target_dir);
-	ScopedChdir guard(m_target_dir);
+	auto guard = EnterWorldDir(m_world_dir);
 	redit_save_to_disk(zone_rnum);
 }
 
 void LegacyWorldDataSource::SaveMobs(int zone_rnum, int specific_vnum)
 {
 	(void)specific_vnum; // Legacy format always saves entire zone
-	if (m_target_dir.empty()) {
-		medit_save_to_disk(zone_rnum);
-		return;
+	if (!m_world_dir.empty()) {
+		EnsureLegacyWorldLayout(m_world_dir);
 	}
-	EnsureLegacyWorldLayout(m_target_dir);
-	ScopedChdir guard(m_target_dir);
+	auto guard = EnterWorldDir(m_world_dir);
 	medit_save_to_disk(zone_rnum);
 }
 
 void LegacyWorldDataSource::SaveObjects(int zone_rnum, int specific_vnum)
 {
 	(void)specific_vnum; // Legacy format always saves entire zone
-	if (m_target_dir.empty()) {
-		oedit_save_to_disk(zone_rnum);
-		return;
+	if (!m_world_dir.empty()) {
+		EnsureLegacyWorldLayout(m_world_dir);
 	}
-	EnsureLegacyWorldLayout(m_target_dir);
-	ScopedChdir guard(m_target_dir);
+	auto guard = EnterWorldDir(m_world_dir);
 	oedit_save_to_disk(zone_rnum);
 }
 
-void LegacyWorldDataSource::RebuildIndexes()
+void LegacyWorldDataSource::FinalizeResave()
 {
-	if (m_target_dir.empty()) {
+	// The OLC save_to_disk routines write individual <vnum>.<ext> files but
+	// do not maintain the boot indexes. After a full resave regenerate them
+	// so the resulting tree is bootable. In-place (empty world_dir) server
+	// saves don't rebuild the whole index, so this is a no-op there.
+	if (m_world_dir.empty()) {
 		return;
 	}
-	const std::filesystem::path world_root = std::filesystem::path(m_target_dir) / "world";
+	const std::filesystem::path world_root = std::filesystem::path(m_world_dir) / "world";
 	WriteIndexFile(world_root / "wld", ".wld");
 	WriteIndexFile(world_root / "mob", ".mob");
 	WriteIndexFile(world_root / "obj", ".obj");
@@ -212,9 +226,9 @@ void LegacyWorldDataSource::RebuildIndexes()
 	WriteIndexFile(world_root / "trg", ".trg");
 }
 
-std::unique_ptr<IWorldDataSource> CreateLegacyDataSource()
+std::unique_ptr<IWorldDataSource> CreateLegacyDataSource(std::string world_dir)
 {
-	return std::make_unique<LegacyWorldDataSource>();
+	return std::make_unique<LegacyWorldDataSource>(std::move(world_dir));
 }
 
 } // namespace world_loader

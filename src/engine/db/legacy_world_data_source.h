@@ -14,12 +14,13 @@ namespace world_loader
 class LegacyWorldDataSource : public IWorldDataSource
 {
 public:
-	// target_dir, if non-empty, redirects Save* methods to write under
-	// <target_dir>/world/{wld,mob,obj,zon,trg}/ instead of the default
-	// "world/..." paths relative to cwd. Used by GameLoader::ResaveWorld
-	// for cross-format round-trip diagnostics; empty (the default) keeps
-	// the in-place behaviour the running server relies on.
-	explicit LegacyWorldDataSource(std::string target_dir = "");
+	// world_dir is the directory the world lives in: Load* read from it and
+	// Save* write to it (both via "world/{wld,mob,obj,zon,trg}/" relative to
+	// it). Empty (the default) means the current working directory -- the
+	// running server's mode, where cwd is the data dir after the main
+	// chdir(-d). A non-empty value is used by GameLoader::ResaveWorld to
+	// point a save-only instance at an export directory.
+	explicit LegacyWorldDataSource(std::string world_dir = "");
 	~LegacyWorldDataSource() override = default;
 
 	std::string GetName() const override { return "Legacy file-based loader"; }
@@ -36,21 +37,21 @@ public:
 	void SaveMobs(int zone_rnum, int specific_vnum = -1) override;
 	void SaveObjects(int zone_rnum, int specific_vnum = -1) override;
 
-	// Scan <target_dir>/world/{wld,mob,obj,zon,trg}/ and regenerate the
-	// per-subdir "index" files. The OLC save_to_disk routines write
-	// individual <vnum>.<ext> files but do not maintain the boot indexes,
-	// so a freshly resaved world is not bootable without this step.
-	// No-op when target_dir is empty (in-place edits keep existing indexes).
-	void RebuildIndexes();
+	// Regenerate the per-subdir "index" files under world_dir/world/*. The
+	// OLC save_to_disk routines write individual <vnum>.<ext> files but do
+	// not maintain the boot indexes, so a freshly resaved tree is not
+	// bootable without this step. No-op for the in-place (empty world_dir)
+	// server mode.
+	void FinalizeResave() override;
 
 private:
-	std::string m_target_dir;
+	std::string m_world_dir;
 };
 
-// Factory function for creating legacy data source (in-place, no redirect).
-// ResaveWorld constructs LegacyWorldDataSource directly because it needs the
-// concrete type for RebuildIndexes(), so no target_dir factory is needed.
-std::unique_ptr<IWorldDataSource> CreateLegacyDataSource();
+// Factory for the legacy data source. world_dir defaults to the current
+// working directory (the running server's mode); ResaveWorld passes an
+// explicit export directory, symmetric with the YAML/SQLite factories.
+std::unique_ptr<IWorldDataSource> CreateLegacyDataSource(std::string world_dir = "");
 
 } // namespace world_loader
 
