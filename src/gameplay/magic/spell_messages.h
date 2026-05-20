@@ -31,6 +31,9 @@
 enum class ESpellMsg {
 	kUndefined = 0,
 	kPointsToVict,		// CastToPoints: effect felt by the target of a points/heal spell.
+	kAreaToChar,		// CallMagicToArea: cast message to the caster.
+	kAreaToRoom,		// CallMagicToArea: cast message to the room.
+	kAreaToVict,		// CallMagicToArea: message to each affected target.
 };
 
 template<>

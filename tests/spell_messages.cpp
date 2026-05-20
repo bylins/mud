@@ -27,6 +27,10 @@ TEST(SpellMessages, ESpellMsgNameRoundTrip) {
 	EXPECT_EQ(ESpellMsg::kPointsToVict, ITEM_BY_NAME<ESpellMsg>("kPointsToVict"));
 	EXPECT_EQ(ESpellMsg::kPointsToVict, parse::ReadAsConstant<ESpellMsg>("kPointsToVict"));
 	EXPECT_EQ("kPointsToVict", NAME_BY_ITEM<ESpellMsg>(ESpellMsg::kPointsToVict));
+
+	for (const auto type : {ESpellMsg::kAreaToChar, ESpellMsg::kAreaToRoom, ESpellMsg::kAreaToVict}) {
+		EXPECT_EQ(type, ITEM_BY_NAME<ESpellMsg>(NAME_BY_ITEM<ESpellMsg>(type)));
+	}
 }
 
 TEST(SpellMessages, UnknownESpellMsgNameThrows) {

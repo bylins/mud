@@ -8,11 +8,12 @@
 	и хранит сообщения, общие для всех заклинаний.
 	type сообщения (message) - значение ESpellMsg; текст в атрибуте val.
 
-	ВАЖНО: текст хранится БЕЗ завершающего "\r\n". Сообщения, выводимые через
-	SendMsgToChar, добавляют "\r\n" в месте вывода; act() перевод строки не требует.
+	Сообщения, выводимые через SendMsgToChar (kPointsToVict), хранятся БЕЗ
+	завершающего перевода строки - его добавляет место вывода. Сообщения act()
+	(kArea*) хранятся дословно; переводы строк закодированы как &#13;&#10;.
 
-	Этап 1 (issue #3304): перенесены сообщения функции CastToPoints
-	(тип kPointsToVict - что чувствует цель лечащего заклинания).
+	Этап 1: CastToPoints (kPointsToVict). Этап 2.2: mag_messages[] -
+	массовые/площадные заклинания (kAreaToChar/kAreaToRoom/kAreaToVict).
 -->
 <msg_container>
 	<!-- Ветвь по умолчанию: сюда позже переедут сообщения, общие для всех
@@ -34,9 +35,11 @@
 	</msg_sheaf>
 	<msg_sheaf id="kGroupHeal">
 		<message type="kPointsToVict" val="Вы почувствовали себя лучше." />
+		<message type="kAreaToChar" val="Вы подняли голову вверх и ощутили яркий свет, ласково бегущий по вашему телу.&#13;&#10;" />
 	</msg_sheaf>
 	<msg_sheaf id="kGreatHeal">
 		<message type="kPointsToVict" val="Вы почувствовали себя полностью здоровым." />
+		<message type="kAreaToChar" val="Вы подняли голову вверх и ощутили яркий свет, ласково бегущий по вашему телу.&#13;&#10;" />
 	</msg_sheaf>
 	<msg_sheaf id="kWarcryOfPower">
 		<message type="kPointsToVict" val="По вашему телу начала струиться живительная сила." />
@@ -49,11 +52,184 @@
 	</msg_sheaf>
 	<msg_sheaf id="kGroupRefresh">
 		<message type="kPointsToVict" val="Вы почувствовали себя полным сил." />
+		<message type="kAreaToChar" val="Ваша магия наполнила воздух зеленоватым сиянием.&#13;&#10;" />
 	</msg_sheaf>
 	<msg_sheaf id="kFullFeed">
 		<message type="kPointsToVict" val="Вы полностью насытились." />
 	</msg_sheaf>
 	<msg_sheaf id="kCommonMeal">
 		<message type="kPointsToVict" val="Вы полностью насытились." />
+		<message type="kAreaToChar" val="Вы услышали гомон невидимых лакеев, готовящих трапезу.&#13;&#10;" />
+	</msg_sheaf>
+	<msg_sheaf id="kPaladineInspiration">
+		<message type="kAreaToChar" val="Ваш точный удар воодушевил и придал новых сил!" />
+		<message type="kAreaToRoom" val="Точный удар $n1 воодушевил и придал новых сил!" />
+	</msg_sheaf>
+	<msg_sheaf id="kEviless">
+		<message type="kAreaToChar" val="Вы запросили помощи у Чернобога. Долг перед темными силами стал чуточку больше.." />
+		<message type="kAreaToRoom" val="Внезапно появившееся чёрное облако скрыло $n3 на мгновение от вашего взгляда." />
+	</msg_sheaf>
+	<msg_sheaf id="kMassBlindness">
+		<message type="kAreaToChar" val="У вас над головой возникла яркая вспышка, которая ослепила все живое." />
+		<message type="kAreaToRoom" val="Вдруг над головой $n1 возникла яркая вспышка." />
+		<message type="kAreaToVict" val="Вы невольно взглянули на вспышку света, вызванную $n4, и ваши глаза заслезились." />
+	</msg_sheaf>
+	<msg_sheaf id="kMassHold">
+		<message type="kAreaToChar" val="Вы сжали зубы от боли, когда из вашего тела вырвалось множество невидимых каменных лучей." />
+		<message type="kAreaToVict" val="В вас попал каменный луч, исходящий от $n1." />
+	</msg_sheaf>
+	<msg_sheaf id="kMassCurse">
+		<message type="kAreaToChar" val="Медленно оглянувшись, вы прошептали древние слова." />
+		<message type="kAreaToVict" val="$n злобно посмотрел$g на вас и начал$g шептать древние слова." />
+	</msg_sheaf>
+	<msg_sheaf id="kMassSilence">
+		<message type="kAreaToChar" val="Поведя вокруг грозным взглядом, вы заставили всех замолчать." />
+		<message type="kAreaToVict" val="Вы встретились взглядом с $n4, и у вас появилось ощущение, что горлу чего-то не хватает." />
+	</msg_sheaf>
+	<msg_sheaf id="kMassDeafness">
+		<message type="kAreaToChar" val="Вы нахмурились, склонив голову, и громкий хлопок сотряс воздух." />
+		<message type="kAreaToRoom" val="Как только $n0 склонил$g голову, раздался оглушающий хлопок." />
+	</msg_sheaf>
+	<msg_sheaf id="kMassSlow">
+		<message type="kAreaToChar" val="Положив ладони на землю, вы вызвали цепкие корни,&#13;&#10;опутавшие существ, стоящих рядом с вами." />
+		<message type="kAreaToVict" val="$n вызвал$g цепкие корни, опутавшие ваши ноги." />
+	</msg_sheaf>
+	<msg_sheaf id="kArmageddon">
+		<message type="kAreaToChar" val="Вы сплели руки в замысловатом жесте, и все потускнело!" />
+		<message type="kAreaToRoom" val="$n сплел$g руки в замысловатом жесте, и все потускнело!" />
+	</msg_sheaf>
+	<msg_sheaf id="kEarthquake">
+		<message type="kAreaToChar" val="Вы опустили руки, и земля начала дрожать вокруг вас!" />
+		<message type="kAreaToRoom" val="$n опустил$g руки, и земля задрожала!" />
+	</msg_sheaf>
+	<msg_sheaf id="kFireBlast">
+		<message type="kAreaToChar" val="Вы вызвали потоки подземного пламени!" />
+		<message type="kAreaToRoom" val="$n0 вызвал$g потоки пламени из глубин земли!" />
+	</msg_sheaf>
+	<msg_sheaf id="kIceStorm">
+		<message type="kAreaToChar" val="Вы воздели руки к небу, и тысячи мелких льдинок хлынули вниз!" />
+		<message type="kAreaToRoom" val="$n воздел$g руки к небу, и тысячи мелких льдинок хлынули вниз!" />
+	</msg_sheaf>
+	<msg_sheaf id="kDustStorm">
+		<message type="kAreaToChar" val="Вы взмахнули руками и вызвали огромное пылевое облако,&#13;&#10;скрывшее все вокруг." />
+		<message type="kAreaToRoom" val="Вас поглотила пылевая буря, вызванная $n4." />
+	</msg_sheaf>
+	<msg_sheaf id="kMassFear">
+		<message type="kAreaToChar" val="Вы оглядели комнату устрашающим взглядом, заставив всех содрогнуться." />
+		<message type="kAreaToRoom" val="$n0 оглядел$g комнату устрашающим взглядом." />
+	</msg_sheaf>
+	<msg_sheaf id="kGlitterDust">
+		<message type="kAreaToChar" val="Вы слегка прищелкнули пальцами, и вокруг сгустилось облако блестящей пыли." />
+		<message type="kAreaToRoom" val="$n0 сотворил$g облако блестящей пыли, медленно осевшее на землю." />
+	</msg_sheaf>
+	<msg_sheaf id="kSonicWave">
+		<message type="kAreaToChar" val="Вы оттолкнули от себя воздух руками, и он плотным кольцом стремительно двинулся во все стороны!" />
+		<message type="kAreaToRoom" val="$n махнул$g руками, и огромное кольцо сжатого воздуха распостранилось во все стороны!" />
+	</msg_sheaf>
+	<msg_sheaf id="kChainLighting">
+		<message type="kAreaToChar" val="Вы подняли руки к небу и оно осветилось яркими вспышками!" />
+		<message type="kAreaToRoom" val="$n поднял$g руки к небу и оно осветилось яркими вспышками!" />
+	</msg_sheaf>
+	<msg_sheaf id="kEarthfall">
+		<message type="kAreaToChar" val="Вы высоко подбросили комок земли и он, увеличиваясь на глазах, обрушился вниз." />
+		<message type="kAreaToRoom" val="$n высоко подбросил$g комок земли, который, увеличиваясь на глазах, стал падать вниз." />
+	</msg_sheaf>
+	<msg_sheaf id="kShock">
+		<message type="kAreaToChar" val="Яркая вспышка слетела с кончиков ваших пальцев и с оглушительным грохотом взорвалась в воздухе." />
+		<message type="kAreaToRoom" val="Выпущенная $n1 яркая вспышка с оглушительным грохотом взорвалась в воздухе." />
+	</msg_sheaf>
+	<msg_sheaf id="kBurdenOfTime">
+		<message type="kAreaToChar" val="Вы скрестили руки на груди, вызвав яркую вспышку синего света." />
+		<message type="kAreaToRoom" val="$n0 скрестил$g руки на груди, вызвав яркую вспышку синего света." />
+	</msg_sheaf>
+	<msg_sheaf id="kFailure">
+		<message type="kAreaToChar" val="Вы простерли руки над головой, вызвав череду раскатов грома." />
+		<message type="kAreaToRoom" val="$n0 вызвал$g череду раскатов грома, заставивших все вокруг содрогнуться." />
+	</msg_sheaf>
+	<msg_sheaf id="kScream">
+		<message type="kAreaToChar" val="Вы испустили кошмарный вопль, едва не разорвавший вам горло." />
+		<message type="kAreaToRoom" val="$n0 испустил$g кошмарный вопль, отдавшийся в вашей душе замогильным холодом." />
+	</msg_sheaf>
+	<msg_sheaf id="kBurningHands">
+		<message type="kAreaToChar" val="С ваших ладоней сорвался поток жаркого пламени." />
+		<message type="kAreaToRoom" val="$n0 испустил$g поток жаркого багрового пламени!" />
+	</msg_sheaf>
+	<msg_sheaf id="kIceBolts">
+		<message type="kAreaToChar" val="Из ваших рук вылетел сноп ледяных стрел." />
+		<message type="kAreaToRoom" val="$n0 метнул$g во врагов сноп ледяных стрел." />
+	</msg_sheaf>
+	<msg_sheaf id="kWarcryOfChallenge">
+		<message type="kAreaToRoom" val="Вы не стерпели насмешки, и бросились на $n1!" />
+	</msg_sheaf>
+	<msg_sheaf id="kGroupArmor">
+		<message type="kAreaToChar" val="Вы создали защитную сферу, которая окутала вас и пространство рядом с вами.&#13;&#10;" />
+	</msg_sheaf>
+	<msg_sheaf id="kGroupRecall">
+		<message type="kAreaToChar" val="Вы выкрикнули заклинание и хлопнули в ладоши.&#13;&#10;" />
+	</msg_sheaf>
+	<msg_sheaf id="kGroupStrength">
+		<message type="kAreaToChar" val="Вы призвали мощь Вселенной.&#13;&#10;" />
+	</msg_sheaf>
+	<msg_sheaf id="kGroupBless">
+		<message type="kAreaToChar" val="Прикрыв глаза, вы прошептали таинственную молитву.&#13;&#10;" />
+	</msg_sheaf>
+	<msg_sheaf id="kGroupHaste">
+		<message type="kAreaToChar" val="Разведя руки в стороны, вы ощутили всю мощь стихии ветра.&#13;&#10;" />
+	</msg_sheaf>
+	<msg_sheaf id="kGroupFly">
+		<message type="kAreaToChar" val="Ваше заклинание вызвало белое облако, которое разделилось, подхватывая вас и товарищей.&#13;&#10;" />
+	</msg_sheaf>
+	<msg_sheaf id="kGroupInvisible">
+		<message type="kAreaToChar" val="Вы вызвали прозрачный туман, поглотивший все дружественное вам.&#13;&#10;" />
+	</msg_sheaf>
+	<msg_sheaf id="kGroupMagicGlass">
+		<message type="kAreaToChar" val="Вы произнесли несколько резких слов, и все вокруг засеребрилось.&#13;&#10;" />
+	</msg_sheaf>
+	<msg_sheaf id="kGroupSanctuary">
+		<message type="kAreaToChar" val="Вы подняли руки к небу и произнесли священную молитву.&#13;&#10;" />
+	</msg_sheaf>
+	<msg_sheaf id="kGroupPrismaticAura">
+		<message type="kAreaToChar" val="Силы духа, призванные вами, окутали вас и окружающих голубоватым сиянием.&#13;&#10;" />
+	</msg_sheaf>
+	<msg_sheaf id="kFireAura">
+		<message type="kAreaToChar" val="Силы огня пришли к вам на помощь и защитили вас.&#13;&#10;" />
+	</msg_sheaf>
+	<msg_sheaf id="kAirAura">
+		<message type="kAreaToChar" val="Силы воздуха пришли к вам на помощь и защитили вас.&#13;&#10;" />
+	</msg_sheaf>
+	<msg_sheaf id="kIceAura">
+		<message type="kAreaToChar" val="Силы холода пришли к вам на помощь и защитили вас.&#13;&#10;" />
+	</msg_sheaf>
+	<msg_sheaf id="kEarthAura">
+		<message type="kAreaToChar" val="Земля одарила вас своей защитой.&#13;&#10;" />
+	</msg_sheaf>
+	<msg_sheaf id="kGroupProtectFromEvil">
+		<message type="kAreaToChar" val="Сила света подавила в вас страх к тьме.&#13;&#10;" />
+	</msg_sheaf>
+	<msg_sheaf id="kGroupBlink">
+		<message type="kAreaToChar" val="Очертания вас и соратников замерцали в такт биения сердца, став прозрачней.&#13;&#10;" />
+	</msg_sheaf>
+	<msg_sheaf id="kGroupCloudly">
+		<message type="kAreaToChar" val="Пелена тумана окутала вас и окружающих, скрыв очертания.&#13;&#10;" />
+	</msg_sheaf>
+	<msg_sheaf id="kGroupAwareness">
+		<message type="kAreaToChar" val="Произнесенные слова обострили ваши чувства и внимательность ваших соратников.&#13;&#10;" />
+	</msg_sheaf>
+	<msg_sheaf id="kWarcryOfExperience">
+		<message type="kAreaToChar" val="Вы приготовились к обретению нового опыта." />
+	</msg_sheaf>
+	<msg_sheaf id="kWarcryOfLuck">
+		<message type="kAreaToChar" val="Вы ощутили, что вам улыбнулась удача." />
+	</msg_sheaf>
+	<msg_sheaf id="kWarcryOfPhysdamage">
+		<message type="kAreaToChar" val="Боевой клич придал вам сил!" />
+	</msg_sheaf>
+	<msg_sheaf id="kMassFailure">
+		<message type="kAreaToChar" val="Вняв вашему призыву, Змей Велес коснулся недобрым взглядом ваших супостатов.&#13;&#10;" />
+		<message type="kAreaToVict" val="$n провыл$g несколько странно звучащих слов и от тяжелого взгляда из-за края мира у вас подкосились ноги." />
+	</msg_sheaf>
+	<msg_sheaf id="kSnare">
+		<message type="kAreaToChar" val="Вы соткали магические тенета, опутавшие ваших врагов.&#13;&#10;" />
+		<message type="kAreaToVict" val="$n что-то прошептал$g, странно скрючив пальцы, и взлетевшие откуда ни возьмись ловчие сети опутали вас" />
 	</msg_sheaf>
 </msg_container>
