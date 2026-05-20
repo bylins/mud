@@ -2161,7 +2161,7 @@ void ZoneUpdate() {
 				}
 			}
 			mudlog(ss.str(), LGH, kLvlGod, SYSLOG, true);
-			out << " ]\r\n[ Time reset: " << timer_count.delta().count();
+			out << " ]\r\n[ Time reset: " << fmt::format("{:.3f} ms", timer_count.delta().count() * 1000.0);
 			mudlog(out.str(), LGH, kLvlGod, SYSLOG, true);
 			if (update_u == reset_q.head) {
 				reset_q.head = reset_q.head->next;
