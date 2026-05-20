@@ -1254,44 +1254,73 @@ void ResetGameWorldTime() {
 		weather_info.sky = kSkyCloudless;
 }
 
-int GameLoader::ResaveWorld(const std::string &target_dir) {
-#if defined(HAVE_YAML) || defined(HAVE_SQLITE)
-	std::unique_ptr<world_loader::IWorldDataSource> saver;
-#ifdef HAVE_YAML
-	// YamlWorldDataSource's constructor refuses to instantiate without a
-	// readable world_config.yaml under the data root. For a save-only
-	// instance, copy the original config (and dictionaries) from the load
-	// location -- which BootWorld used at the compile-time default of
-	// "world" -- before constructing. SaveZone/Save* rebuild their
-	// index.yaml files themselves now, so we don't mirror any indexes here.
+int GameLoader::ResaveWorld(const std::string &target_dir, const std::string &target_format) {
 	namespace fs = std::filesystem;
-	const std::string load_dir = "world";
-	try {
-		fs::create_directories(target_dir);
-		fs::copy_file(load_dir + "/world_config.yaml",
-					  target_dir + "/world_config.yaml",
-					  fs::copy_options::overwrite_existing);
-		if (fs::exists(load_dir + "/dictionaries")) {
-			fs::copy(load_dir + "/dictionaries",
-					 target_dir + "/dictionaries",
-					 fs::copy_options::recursive
-					 | fs::copy_options::overwrite_existing);
+
+	// Resolve target_format: empty / "auto" -> compile-time default.
+	std::string fmt = target_format;
+	if (fmt.empty() || fmt == "auto") {
+#if defined(HAVE_YAML)
+		fmt = "yaml";
+#elif defined(HAVE_SQLITE)
+		fmt = "sqlite";
+#else
+		fmt = "legacy";
+#endif
+	}
+
+	std::unique_ptr<world_loader::IWorldDataSource> saver;
+
+	if (fmt == "yaml") {
+#ifdef HAVE_YAML
+		// YamlWorldDataSource's constructor refuses to instantiate without a
+		// readable world_config.yaml under the data root. For a save-only
+		// instance, copy the original config (and dictionaries) from the load
+		// location -- which BootWorld used at the compile-time default of
+		// "world" -- before constructing. SaveZone/Save* rebuild their
+		// index.yaml files themselves now, so we don't mirror any indexes here.
+		const std::string load_dir = "world";
+		try {
+			fs::create_directories(target_dir);
+			fs::copy_file(load_dir + "/world_config.yaml",
+						  target_dir + "/world_config.yaml",
+						  fs::copy_options::overwrite_existing);
+			if (fs::exists(load_dir + "/dictionaries")) {
+				fs::copy(load_dir + "/dictionaries",
+						 target_dir + "/dictionaries",
+						 fs::copy_options::recursive
+						 | fs::copy_options::overwrite_existing);
+			}
+		} catch (const std::exception &e) {
+			log("SYSERR: ResaveWorld bootstrap failed: %s", e.what());
+			return 1;
 		}
-	} catch (const std::exception &e) {
-		log("SYSERR: ResaveWorld bootstrap failed: %s", e.what());
+		saver = world_loader::CreateYamlDataSource(target_dir);
+#else
+		log("SYSERR: ResaveWorld: yaml backend requested but not compiled in");
+		return 1;
+#endif
+	} else if (fmt == "sqlite") {
+#ifdef HAVE_SQLITE
+		saver = world_loader::CreateSqliteDataSource(target_dir);
+#else
+		log("SYSERR: ResaveWorld: sqlite backend requested but not compiled in");
+		return 1;
+#endif
+	} else if (fmt == "legacy") {
+		// Legacy save uses OLC functions that write to "world/{wld,mob,...}/"
+		// relative to cwd. LegacyWorldDataSource owns its world_dir and
+		// chdir's into it for each Save* call (creating the layout first), so
+		// the saved tree lands under <target_dir>/world/. Symmetric with the
+		// YAML/SQLite factories below.
+		saver = world_loader::CreateLegacyDataSource(target_dir);
+	} else {
+		log("SYSERR: ResaveWorld: unknown target format '%s'", fmt.c_str());
 		return 1;
 	}
 
-	// Same backend as BootWorld -- we want round-trip in the same format the
-	// binary was compiled with. Reads global state (zone_table, world,
-	// obj_proto, ...) and writes paths relative to target_dir; m_world_dir on
-	// the fresh instance is the *write* root.
-	saver = world_loader::CreateYamlDataSource(target_dir);
-#else
-	saver = world_loader::CreateSqliteDataSource(target_dir);
-#endif
-
-	log("ResaveWorld: target=%s, zones=%zu", target_dir.c_str(), zone_table.size());
+	log("ResaveWorld: target=%s, format=%s, zones=%zu",
+		target_dir.c_str(), fmt.c_str(), zone_table.size());
 	int errors = 0;
 	int skipped = 0;
 	for (size_t z = 0; z < zone_table.size(); ++z) {
@@ -1316,13 +1345,18 @@ int GameLoader::ResaveWorld(const std::string &target_dir) {
 			++errors;
 		}
 	}
+
+	// Let the backend finalize after the full resave: legacy rebuilds its
+	// boot indexes here (YAML/SQLite already maintain them inside Save*).
+	try {
+		saver->FinalizeResave();
+	} catch (const std::exception &e) {
+		log("SYSERR: ResaveWorld: finalize failed: %s", e.what());
+		++errors;
+	}
+
 	log("ResaveWorld: done, errors=%d, skipped_dungeon=%d", errors, skipped);
 	return errors;
-#else
-	(void) target_dir;
-	log("ResaveWorld: no save-capable backend compiled in");
-	return 1;
-#endif
 }
 
 void GameLoader::BootIndex(const EBootType mode) {

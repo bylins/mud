@@ -20,6 +20,7 @@
 #include "engine/db/description.h"
 #include "engine/structs/extra_description.h"
 #include "engine/structs/flag_data.h"
+#include "gameplay/mechanics/dead_load.h"
 #include "gameplay/mechanics/dungeons.h"
 #include "engine/scripting/dg_olc.h"
 #include "gameplay/affects/affect_contants.h"
@@ -1450,8 +1451,14 @@ CharData YamlWorldDataSource::ParseMobFile(const std::string &file_path)
 	if (stats)
 	{
 		mob.set_level(GetInt(stats, "level", 1));
-		GET_HR(&mob) = GetInt(stats, "hitroll_penalty", 20);
-		GET_AC(&mob) = GetInt(stats, "armor", 100);
+		// hitroll_penalty and armor are stored in the YAML in legacy file
+		// units (i.e. before parse_simple_mob's `20 - x` and `10 * x`
+		// transformations), matching what convert_to_yaml.py emits. Applying
+		// the same conversions here is required for round-trip: otherwise
+		// legacy -> yaml -> legacy oscillates the on-disk hitroll value
+		// (e.g. 5 -> 15 -> 5 -> 15) every pass.
+		GET_HR(&mob) = 20 - GetInt(stats, "hitroll_penalty", 20);
+		GET_AC(&mob) = 10 * GetInt(stats, "armor", 10);
 
 		YAML::Node hp = stats["hp"];
 		if (hp)
@@ -1693,6 +1700,22 @@ CharData YamlWorldDataSource::ParseMobFile(const std::string &file_path)
 				}
 				idx++;
 			}
+		}
+	}
+
+	// Dead-load entries (legacy `L` lines, issue #3291). At top level of the
+	// mob document, not under `enhanced`, so the YAML matches the legacy
+	// position-after-E-section semantics.
+	if (root["dead_load"] && root["dead_load"].IsSequence())
+	{
+		for (const auto &node : root["dead_load"])
+		{
+			dead_load::LoadingItem item;
+			item.obj_vnum = GetInt(node, "obj_vnum", 0);
+			item.load_prob = GetInt(node, "load_prob", 0);
+			item.load_type = GetInt(node, "load_type", 0);
+			item.spec_param = GetInt(node, "spec_param", 0);
+			mob.dl_list.push_back(item);
 		}
 	}
 
@@ -3448,11 +3471,14 @@ void YamlWorldDataSource::SaveMobs(int zone_rnum, int specific_vnum)
 		yaml.Key("level");
 		yaml.Value(mob.GetLevel());
 
+		// Write in legacy file units to stay symmetric with LoadMob() and
+		// matching convert_to_yaml.py output -- otherwise yaml -> legacy
+		// -> yaml round-trip flips the on-disk hitroll value every pass.
 		yaml.Key("hitroll_penalty");
-		yaml.Value(GET_HR(&mob));
+		yaml.Value(20 - GET_HR(&mob));
 
 		yaml.Key("armor");
-		yaml.Value(GET_AC(&mob));
+		yaml.Value(GET_AC(&mob) / 10);
 
 		// HP
 		yaml.Key("hp");
@@ -3881,6 +3907,26 @@ void YamlWorldDataSource::SaveMobs(int zone_rnum, int specific_vnum)
 
 				yaml.DecreaseIndent();  // enhanced
 			}
+		}
+
+		// Dead-load list (legacy L-lines, issue #3291). Top-level, after the
+		// enhanced block so the document layout matches the converter output.
+		// Emitted as raw "- key: value" sequence-of-maps because the
+		// Koi8rYamlEmitter has no Begin/EndMappingItem helpers (the same
+		// pattern is used by the skills block above).
+		if (!mob.dl_list.empty())
+		{
+			yaml.Key("dead_load");
+			yaml.BeginSequence();
+			yaml.IncreaseIndent();
+			for (const auto &dl : mob.dl_list)
+			{
+				out << yaml.GetIndent() << "- obj_vnum: " << dl.obj_vnum << std::endl;
+				out << yaml.GetIndent() << "  load_prob: " << dl.load_prob << std::endl;
+				out << yaml.GetIndent() << "  load_type: " << dl.load_type << std::endl;
+				out << yaml.GetIndent() << "  spec_param: " << dl.spec_param << std::endl;
+			}
+			yaml.DecreaseIndent();
 		}
 
 		// Close file and rename atomically
