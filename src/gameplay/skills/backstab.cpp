@@ -1,5 +1,6 @@
 #include "backstab.h"
 
+#include "skill_messages.h"
 #include "gameplay/fight/pk.h"
 #include "gameplay/fight/common.h"
 #include "gameplay/fight/fight_hit.h"
@@ -17,14 +18,14 @@ double CalcCritBackstabMultiplier(CharData *ch, CharData *victim);
 // делегат обработки команды заколоть
 void DoBackstab(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->GetSkill(ESkill::kBackstab) < 1) {
-		SendMsgToChar("Вы не знаете как.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kBackstab, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
 
 	one_argument(argument, arg);
 	CharData *vict = get_char_vis(ch, arg, EFind::kCharInRoom);
 	if (!vict) {
-		SendMsgToChar("Кого вы так сильно ненавидите, что хотите заколоть?\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kBackstab, ESkillMsg::kNoTarget) + "\r\n", ch);
 		return;
 	}
 
@@ -43,37 +44,37 @@ void do_backstab(CharData *ch, CharData *vict) {
 	}
 
 	if (ch->HasCooldown(ESkill::kBackstab)) {
-		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kBackstab, ESkillMsg::kOnCooldown) + "\r\n", ch);
 		return;
 	};
 
 	if (ch->IsOnHorse()) {
-		SendMsgToChar("Верхом это сделать затруднительно.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kBackstab, ESkillMsg::kCantWhileMounted) + "\r\n", ch);
 		return;
 	}
 
 	if (ch->GetPosition() < EPosition::kFight) {
-		SendMsgToChar("Вам стоит встать на ноги.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kBackstab, ESkillMsg::kGetOnFeet) + "\r\n", ch);
 		return;
 	}
 
 	if (vict == ch) {
-		SendMsgToChar("Вы, определенно, садомазохист!\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kBackstab, ESkillMsg::kCantTargetSelf) + "\r\n", ch);
 		return;
 	}
 
 	if (!GET_EQ(ch, EEquipPos::kWield) && (!ch->IsNpc() || IS_CHARMICE(ch))) {
-		SendMsgToChar("Требуется держать оружие в правой руке.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kBackstab, ESkillMsg::kNeedWeapon) + "\r\n", ch);
 		return;
 	}
 
 	if ((!ch->IsNpc() || IS_CHARMICE(ch)) && GET_OBJ_VAL(GET_EQ(ch, EEquipPos::kWield), 3) != fight::type_pierce) {
-		SendMsgToChar("ЗаКОЛоть можно только КОЛющим оружием!\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kBackstab, ESkillMsg::kWrongWeapon) + "\r\n", ch);
 		return;
 	}
 
 	if (AFF_FLAGGED(ch, EAffect::kStopRight) || IsUnableToAct(ch)) {
-		SendMsgToChar("Вы временно не в состоянии сражаться.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kBackstab, ESkillMsg::kCantFightNow) + "\r\n", ch);
 		return;
 	}
 

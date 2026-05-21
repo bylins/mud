@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="koi8-r"?>
+<!--
+	Сообщения игрокам для умений (issue #3310).
+	Загружается через cfg_manager (LoadCfg/ReloadCfg "skill_messages"),
+	доступ из кода как MUD::SkillMessages().
+
+	id связки (msg_sheaf) - значение ESkill; "kDefault" соответствует ESkill::kUndefined
+	и хранит сообщения, общие для всех умений.
+	type сообщения (message) - значение ESkillMsg; текст в атрибуте val.
+
+	Сообщение в связке умения переопределяет одноимённое сообщение из kDefault.
+	Stage 1 (issue #3310): инфраструктура + пилотное умение kBackstab.
+-->
+<msg_container>
+	<!-- Общие сообщения: помещаются сюда, если совпадают (или почти совпадают)
+	     у большинства умений. -->
+	<msg_sheaf id="kDefault">
+		<message type="kDontKnowSkill" val="Вы не знаете как." />
+		<message type="kCantWhileMounted" val="Верхом это сделать затруднительно." />
+		<message type="kGetOnFeet" val="Вам стоит встать на ноги." />
+		<message type="kCantFightNow" val="Вы временно не в состоянии сражаться." />
+	</msg_sheaf>
+
+	<!-- Заколоть (kBackstab): сообщения, специфичные для умения. -->
+	<msg_sheaf id="kBackstab">
+		<message type="kNoTarget" val="Кого вы так сильно ненавидите, что хотите заколоть?" />
+		<message type="kOnCooldown" val="Вам нужно набраться сил." />
+		<message type="kCantTargetSelf" val="Вы, определенно, садомазохист!" />
+		<message type="kNeedWeapon" val="Требуется держать оружие в правой руке." />
+		<message type="kWrongWeapon" val="ЗаКОЛоть можно только КОЛющим оружием!" />
+	</msg_sheaf>
+</msg_container>

@@ -528,6 +528,10 @@ void init_ESkill_ITEM_NAMES() {
 	for (const auto &i: ESkill_name_by_value) {
 		ESkill_value_by_name[i.second] = i.first;
 	}
+
+	// Alias used as the default sheaf id in lib/cfg/skill_msg.xml (issue #3310).
+	// "kDefault" resolves to ESkill::kUndefined; the reverse map keeps "kUndefined".
+	ESkill_value_by_name["kDefault"] = ESkill::kUndefined;
 }
 
 template<>

@@ -16,6 +16,7 @@
 #include "gameplay/economics/currencies.h"
 #include "gameplay/mechanics/guilds.h"
 #include "gameplay/skills/skills_info.h"
+#include "gameplay/skills/skill_messages.h"
 #include "gameplay/magic/spell_messages.h"
 
 namespace cfg_manager {
@@ -28,6 +29,8 @@ CfgManager::CfgManager() {
 										   std::make_unique<classes::ClassesLoader>(classes::ClassesLoader())));
 	loaders_.emplace("skills", LoaderInfo("cfg/skills.xml",
 										  std::make_unique<SkillsLoader>(SkillsLoader())));
+	loaders_.emplace("skill_messages", LoaderInfo("cfg/skill_msg.xml",
+										  std::make_unique<skills::SkillMessagesLoader>(skills::SkillMessagesLoader())));
 	loaders_.emplace("abilities", LoaderInfo("cfg/abilities.xml",
 										  std::make_unique<abilities::AbilitiesLoader>(abilities::AbilitiesLoader())));
 	loaders_.emplace("spells", LoaderInfo("cfg/spells.xml",
