@@ -997,6 +997,13 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="100" min="85" change="2"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagPoints|kNpcDummy"/>
+        <action>
+            <heal saving="kCritical" npc_coeff="3">
+                <dices ndice="2" sdice="3" adice="0"/>
+                <base_skill id="kMindMagic" low_skill_bonus="15" hi_skill_bonus="25"/>
+                <base_stat id="kInt" threshold="20" weight="20"/>
+            </heal>
+        </action>
     </spell>
     <spell id="kResurrection" element="kDark" mode="kEnabled">
         <name rus="оживить труп" eng="ressurection"/>
@@ -1563,6 +1570,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <flags val="kMagGroups|kMagAffects|kMagPoints"/>
         <talent_actions>
             <action>
+                <heal saving="kCritical" npc_coeff="3">
+                    <dices ndice="15" sdice="15" adice="15"/>
+                    <base_skill id="kDarkMagic" low_skill_bonus="20" hi_skill_bonus="100"/>
+                    <base_stat id="kInt" threshold="20" weight="50"/>
+                </heal>
                 <area>
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="1" max_targets="20"/>
@@ -2129,6 +2141,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <flags val="kMagWarcry|kMagGroups|kMagPoints|kMagAffects|kNpcDummy|kNpcAffectNpc"/>
         <talent_actions>
             <action>
+                <heal saving="kCritical" npc_coeff="3">
+                    <dices ndice="0" sdice="1" adice="1"/>
+                    <base_skill id="kWarcry" low_skill_bonus="40" hi_skill_bonus="60"/>
+                    <base_stat id="kCon" threshold="20" weight="200"/>
+                </heal>
                 <area>
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>

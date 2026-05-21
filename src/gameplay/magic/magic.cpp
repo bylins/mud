@@ -3091,25 +3091,22 @@ int CastToPoints(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 		case ESpell::kCureSerious:
 		case ESpell::kCureCritic:
 		case ESpell::kHeal:
-		case ESpell::kGroupHeal: [[fallthrough]];
+		case ESpell::kGroupHeal:
 		case ESpell::kGreatHeal:
-        case ESpell::kPatronage:
+        case ESpell::kPatronage: [[fallthrough]];
+        case ESpell::kWarcryOfPower:
             hit = CalcHeal(ch, victim, spell_id, level);
-//		hit = (GetRealLevel(victim) + GetRealRemort(victim)) * 2;
-			break;
-		case ESpell::kWarcryOfPower: hit = std::min(200, (4 * ch->get_con() + ch->GetSkill(ESkill::kWarcry)) / 2);
 			break;
 		case ESpell::kExtraHits: extraHealing = true;
-			hit = RollDices(10, abs(level) / 3) + level;
+			hit = CalcHeal(ch, victim, spell_id, level);
 			break;
 		case ESpell::kEviless:
-			//лечим только умертвия-чармисы
-			if (!victim->IsNpc() || victim->get_master() != ch || !victim->IsFlagged(EMobFlag::kCorpse))
-				return 1;
-			//при рекасте - не лечим
+			if (!victim->IsNpc() || victim->get_master() != ch || !victim->IsFlagged(EMobFlag::kCorpse)) {
+                return 1;
+            }
 			if (AFF_FLAGGED(ch, EAffect::kForcesOfEvil)) {
-				hit = victim->get_real_max_hit() - victim->get_hit();
-				RemoveAffectFromCharAndRecalculate(ch, ESpell::kEviless); //сбрасываем аффект с хозяина
+				hit = CalcHeal(ch, victim, spell_id, level);
+				RemoveAffectFromCharAndRecalculate(ch, ESpell::kEviless);
 			}
 			break;
 		case ESpell::kResfresh:
