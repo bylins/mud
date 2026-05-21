@@ -519,7 +519,7 @@ base_stat id - (например "kWis") какой берем параметр,
             <action>
                 <heal saving="kCritical" npc_coeff="3">
                     <dices ndice="0" sdice="0" adice="1"/>
-                    <base_skill id="kLifeMagic" low_skill_bonus="30" hi_skill_bonus="200"/>
+                    <base_skill id="kLightMagic" low_skill_bonus="30" hi_skill_bonus="200"/>
                     <base_stat id="kWis" threshold="20" weight="150"/>
                 </heal>
             </action>
