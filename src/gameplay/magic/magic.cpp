@@ -278,51 +278,6 @@ float CalcDurationCoef(ESpell spell_id, int skill_percent) {
 	}
 }
 
-// зависимость модификации спелла от скила магии
-float CalcModCoef(ESpell spell_id, int percent) {
-	switch (spell_id) {
-		case ESpell::kStrength:
-		case ESpell::kDexterity:
-			if (percent > 100)
-				return 1;
-			return 0;
-			break;
-		case ESpell::kMassSlow:
-		case ESpell::kSlowdown: {
-			if (percent >= 80) {
-				return (percent - 80) / 20.00 + 1.00;
-			}
-		}
-			break;
-		case ESpell::kSonicWave:
-			if (percent > 100) {
-				return (percent - 80) / 20.00; // после 100% идет прибавка
-			}
-			return 1;
-			break;
-		case ESpell::kFascination:
-		case ESpell::kHypnoticPattern:
-			if (percent >= 80) {
-				return (percent - 80) / 20.00 + 1.00;
-			}
-			return 1;
-			break;
-		case ESpell::kWhirlwind:
-			if (percent > 80) {
-				return (percent) / 80; // 160 -2 вихря, 240 - 3 вихря и т.д.
-			}
-			return 1;
-			break;
-		case ESpell::kLightingBolt:
-			if (percent > 100) {
-				return (percent - 70) / 30; // 130 - 2 молнии, 160 -3, 190 -4
-			}
-			return 1;
-			break;
-		default: return 1;
-	}
-	return 0;
-}
 bool IsBreath(ESpell spell_id) {
 	static const std::set<ESpell> magic_breath {
 	 	ESpell::kFireBreath,
@@ -400,9 +355,9 @@ int CalcHeal(CharData *ch, CharData *victim, ESpell spell_id, int level) {
 		skill_mod = base_heal * abs(level) / 0.25;
 	}
 //	mudlog(fmt::format("Хиляем level = {}, skill_mod = {}", level, skill_mod));
-	double wis_mod = base_heal * spell_heal.CalcBaseStatCoeff(ch);
+	double stat_mod = base_heal * spell_heal.CalcBaseStatCoeff(ch);
 	double bonus_mod = ch->add_abils.percent_spellpower_add / 100.0;
-	total_heal = static_cast<int>(base_heal + skill_mod + wis_mod);
+	total_heal = static_cast<int>(base_heal + skill_mod + stat_mod);
 	total_heal += static_cast<int>(total_heal * bonus_mod);
 	double npc_heal = spell_heal.GetNpcCoeff();
 	if (ch->IsNpc()) {
@@ -414,7 +369,7 @@ int CalcHeal(CharData *ch, CharData *victim, ESpell spell_id, int level) {
 		GET_NAME(victim),
 		base_heal,
 		skill_mod,
-		wis_mod,
+		stat_mod,
 		1 + bonus_mod,
 		npc_heal,
 		total_heal);
@@ -424,7 +379,7 @@ int CalcHeal(CharData *ch, CharData *victim, ESpell spell_id, int level) {
 			GET_NAME(ch),
 			base_heal,
 			skill_mod,
-			wis_mod,
+			stat_mod,
 			bonus_mod,
 			npc_heal,
 			total_heal);
@@ -557,14 +512,12 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			break;
 		}
 		case ESpell::kLightingBolt: {
-				count = CalcModCoef(spell_id, ch->GetSkill(GetMagicSkillId(spell_id)));
-				count += number(1, 5)==1?1:0;
+				count += ((number(1, 5) == 1) ? 1 : 0);
 				count = std::min(count, 4);
 			break;
 		}
 		case ESpell::kWhirlwind: {
-				count = CalcModCoef(spell_id, ch->GetSkill(GetMagicSkillId(spell_id)));
-				count += number(1, 7)==1?1:0;
+				count += ((number(1, 7) == 1) ? 1 : 0);
 				count = std::min(count, 4);
 			break;
 		}
@@ -1014,7 +967,6 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 	}
 
 	const auto koef_duration = CalcDurationCoef(spell_id, ch->GetSkill(GetMagicSkillId(spell_id)));
-	const auto koef_modifier = CalcModCoef(spell_id, ch->GetSkill(GetMagicSkillId(spell_id)));
 
 	auto savetype{ESaving::kStability};
 	switch (spell_id) {
@@ -1221,9 +1173,9 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			af[0].duration =
 				CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch), 1, 0, 0) * koef_duration;
 			if (ch == victim)
-				af[0].modifier = (level + 9) / 10 + 0.7 * koef_modifier;
+				af[0].modifier = (level + 9) / 10;
 			else
-				af[0].modifier = (level + 14) / 15 + 0.7 * koef_modifier;
+				af[0].modifier = (level + 14) / 15;
 			accum_duration = true;
 			accum_affect = true;
 			to_room =
@@ -1588,7 +1540,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 				ApplyResist(victim, GetResistType(spell_id), CalcDuration(victim, 9, 0, 0, 0, 0))
 					* koef_duration;
 			af[1].location = EApply::kDex;
-			af[1].modifier = -koef_modifier;
+			af[1].modifier = -1 - GetRealRemort(ch) / 5;
 			to_room = "Движения $n1 заметно замедлились.";
 			to_vict = "Ваши движения заметно замедлились.";
 			spell_id = ESpell::kSlowdown;
@@ -1813,9 +1765,9 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			af[0].location = EApply::kStr;
 			af[0].duration = CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch), 1, 0, 0) * koef_duration;
 			if (ch == victim)
-				af[0].modifier = (level + 9) / 10 + koef_modifier + GetRealRemort(ch) / 5;
+				af[0].modifier = (level + 9) / 10 + GetRealRemort(ch) / 5;
 			else
-				af[0].modifier = (level + 14) / 15 + koef_modifier + GetRealRemort(ch) / 5;
+				af[0].modifier = (level + 14) / 15 + GetRealRemort(ch) / 5;
 			accum_duration = true;
 			accum_affect = true;
 			to_vict = "Вы почувствовали себя сильнее.";
@@ -1833,9 +1785,9 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			af[0].duration =
 					CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch), 1, 0, 0) * koef_duration;
 			if (ch == victim)
-				af[0].modifier = (level + 9) / 10 + koef_modifier + GetRealRemort(ch) / 5;
+				af[0].modifier = (level + 9) / 10 + GetRealRemort(ch) / 5;
 			else
-				af[0].modifier = (level + 14) / 15 + koef_modifier + GetRealRemort(ch) / 5;
+				af[0].modifier = (level + 14) / 15 + GetRealRemort(ch) / 5;
 			accum_duration = true;
 			accum_affect = true;
 			to_vict = "Вы почувствовали себя более шустрым.";
@@ -3136,36 +3088,25 @@ int CastToPoints(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 
 	switch (spell_id) {
 		case ESpell::kCureLight:
-			hit = CalcHeal(ch, victim, ESpell::kCureLight, level);
-			break;
 		case ESpell::kCureSerious:
-			hit = CalcHeal(ch, victim, ESpell::kCureSerious, level);
-			break;
 		case ESpell::kCureCritic:
-			hit = CalcHeal(ch, victim, ESpell::kCureCritic, level);
-			break;
-		case ESpell::kHeal: hit = CalcHeal(ch, victim, ESpell::kHeal, level);
-			break;
-		case ESpell::kGroupHeal: hit = CalcHeal(ch, victim, ESpell::kGroupHeal, level);
-			break;
+		case ESpell::kHeal:
+		case ESpell::kGroupHeal:
 		case ESpell::kGreatHeal:
-			hit = victim->get_real_max_hit() - victim->get_hit();
-			break;
-		case ESpell::kPatronage: hit = (GetRealLevel(victim) + GetRealRemort(victim)) * 2;
-			break;
-		case ESpell::kWarcryOfPower: hit = std::min(200, (4 * ch->get_con() + ch->GetSkill(ESkill::kWarcry)) / 2);
+        case ESpell::kPatronage: [[fallthrough]];
+        case ESpell::kWarcryOfPower:
+            hit = CalcHeal(ch, victim, spell_id, level);
 			break;
 		case ESpell::kExtraHits: extraHealing = true;
-			hit = RollDices(10, abs(level) / 3) + level;
+			hit = CalcHeal(ch, victim, spell_id, level);
 			break;
 		case ESpell::kEviless:
-			//лечим только умертвия-чармисы
-			if (!victim->IsNpc() || victim->get_master() != ch || !victim->IsFlagged(EMobFlag::kCorpse))
-				return 1;
-			//при рекасте - не лечим
+			if (!victim->IsNpc() || victim->get_master() != ch || !victim->IsFlagged(EMobFlag::kCorpse)) {
+                return 1;
+            }
 			if (AFF_FLAGGED(ch, EAffect::kForcesOfEvil)) {
-				hit = victim->get_real_max_hit() - victim->get_hit();
-				RemoveAffectFromCharAndRecalculate(ch, ESpell::kEviless); //сбрасываем аффект с хозяина
+				hit = CalcHeal(ch, victim, spell_id, level);
+				RemoveAffectFromCharAndRecalculate(ch, ESpell::kEviless);
 			}
 			break;
 		case ESpell::kResfresh:
