@@ -57,6 +57,17 @@ enum class ESpellMsg {
 	kEnchantOther,		// kEnchantWeapon: success, no religion.
 	kRemovePoisonUnknown,	// kRemovePoison: object has no prototype.
 	kRemovePoisonRotten,	// kRemovePoison: contents have rotted.
+	// CastSummon messages.
+	kSummonToRoom,			// per-spell "summoned" message to the room (act).
+	kSummonFail,			// random summon failure (kDefault variants; kClone overrides).
+	kSummonNoCorpse,		// animate/resurrect with no suitable corpse (act).
+	kSummonCharmed,			// caster is charmed and cannot summon.
+	kSummonNoProto,			// summoned mob prototype is missing.
+	kSummonWarhorse,		// target corpse was a warhorse.
+	kResurrectBadCorpse,	// resurrection: corpse has no valid mob.
+	kResurrectConsecrated,	// resurrection: mob is consecrated/protected.
+	kResurrectNoPower,		// resurrection: mob cannot be controlled.
+	kResurrectProtected,	// resurrection: mob has gods' shield.
 };
 
 template<>

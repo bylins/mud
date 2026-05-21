@@ -2700,41 +2700,14 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id) {
  */
 
 // * These use act(), don't put the \r\n.
-const char *mag_summon_msgs[] =
-	{
-		"\r\n",
-		"$n сделал$g несколько изящних пассов - вы почувствовали странное дуновение!",
-		"$n поднял$g труп!",
-		"$N появил$U из клубов голубого дыма!",
-		"$N появил$U из клубов зеленого дыма!",
-		"$N появил$U из клубов красного дыма!",
-		"$n сделал$g несколько изящных пассов - вас обдало порывом холодного ветра.",
-		"$n сделал$g несколько изящных пассов, от чего ваши волосы встали дыбом.",
-		"$n сделал$g несколько изящных пассов, обдав вас нестерпимым жаром.",
-		"$n сделал$g несколько изящных пассов, вызвав у вас приступ тошноты.",
-		"$n раздвоил$u!",
-		"$n оживил$g труп!",
-		"$n призвал$g защитника!",
-		"Огненный хранитель появился из вихря пламени!"
-	};
-
-// * Keep the \r\n because these use SendMsgToChar.
-const char *mag_summon_fail_msgs[] =
-	{
-		"\r\n",
-		"Нет такого существа в мире.\r\n",
-		"Жаль, сорвалось...\r\n",
-		"Ничего.\r\n",
-		"Черт! Ничего не вышло.\r\n",
-		"Вы не смогли сделать этого!\r\n",
-		"Ваша магия провалилась.\r\n",
-		"У вас нет подходящего трупа!\r\n"
-	};
+// Сообщения призыва/оживления вынесены в lib/cfg/spell_msg.xml (issue #3304):
+// kSummonToRoom (по заклинанию), kSummonFail / kSummonNoCorpse и прочие
+// guard-сообщения в ветви kDefault. См. MUD::SpellMessages().
 
 int CastSummon(int level, CharData *ch, ObjData *obj, ESpell spell_id, bool need_fail) {
 	CharData *tmp_mob, *mob = nullptr;
 	ObjData *tobj, *next_obj;
-	int pfail = 0, msg = 0, fmsg = 0, handle_corpse = false, keeper = false, cha_num = 0, modifier = 0;
+	int pfail = 0, handle_corpse = false, keeper = false, cha_num = 0, modifier = 0;
 	MobVnum mob_num;
 
 	if (ch == nullptr) {
@@ -2750,8 +2723,7 @@ int CastSummon(int level, CharData *ch, ObjData *obj, ESpell spell_id, bool need
 	}
 
 	switch (spell_id) {
-		case ESpell::kClone: msg = 10;
-			fmsg = number(3, 5);    // Random fail message.
+		case ESpell::kClone:
 			mob_num = kMobDouble;
 			pfail =
 				50 - GET_CAST_SUCCESS(ch)
@@ -2759,8 +2731,7 @@ int CastSummon(int level, CharData *ch, ObjData *obj, ESpell spell_id, bool need
 			keeper = true;
 			break;
 
-		case ESpell::kSummonKeeper: msg = 12;
-			fmsg = number(2, 6);
+		case ESpell::kSummonKeeper:
 			mob_num = kMobKeeper;
 			if (ch->GetEnemy())
 				pfail = 50 - GET_CAST_SUCCESS(ch) - GetRealRemort(ch);
@@ -2769,8 +2740,7 @@ int CastSummon(int level, CharData *ch, ObjData *obj, ESpell spell_id, bool need
 			keeper = true;
 			break;
 
-		case ESpell::kSummonFirekeeper: msg = 13;
-			fmsg = number(2, 6);
+		case ESpell::kSummonFirekeeper:
 			mob_num = kMobFirekeeper;
 			if (ch->GetEnemy())
 				pfail = 50 - GET_CAST_SUCCESS(ch) - GetRealRemort(ch);
@@ -2781,7 +2751,7 @@ int CastSummon(int level, CharData *ch, ObjData *obj, ESpell spell_id, bool need
 
 		case ESpell::kAnimateDead:
 			if (obj == nullptr || !IS_CORPSE(obj)) {
-				act(mag_summon_fail_msgs[7], false, ch, nullptr, nullptr, kToChar);
+				act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kSummonNoCorpse).c_str(), false, ch, nullptr, nullptr, kToChar);
 				return 0;
 			}
 			mob_num = GET_OBJ_VAL(obj, 2);
@@ -2826,23 +2796,19 @@ int CastSummon(int level, CharData *ch, ObjData *obj, ESpell spell_id, bool need
 			}
 
 			handle_corpse = true;
-			msg = number(1, 9);
-			fmsg = number(2, 6);
 			break;
 
 		case ESpell::kResurrection:
 			if (obj == nullptr || !IS_CORPSE(obj)) {
-				act(mag_summon_fail_msgs[7], false, ch, nullptr, nullptr, kToChar);
+				act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kSummonNoCorpse).c_str(), false, ch, nullptr, nullptr, kToChar);
 				return 0;
 			}
 			if ((mob_num = GET_OBJ_VAL(obj, 2)) <= 0) {
-				SendMsgToChar("Вы не можете поднять труп этого монстра!\r\n", ch);
+				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kResurrectBadCorpse) + "\r\n", ch);
 				return 0;
 			}
 
 			handle_corpse = true;
-			msg = 11;
-			fmsg = number(2, 6);
 			tmp_mob = mob_proto + GetMobRnum(mob_num);
 			pfail = 10 + tmp_mob->get_con() * 2
 				- number(1, GetRealLevel(ch)) - GET_CAST_SUCCESS(ch) - GetRealRemort(ch) * 5;
@@ -2852,20 +2818,20 @@ int CastSummon(int level, CharData *ch, ObjData *obj, ESpell spell_id, bool need
 	}
 
 	if (AFF_FLAGGED(ch, EAffect::kCharmed)) {
-		SendMsgToChar("Вы слишком зависимы, чтобы искать себе последователей!\r\n", ch);
+		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kSummonCharmed) + "\r\n", ch);
 		return 0;
 	}
 	// при перке помощь тьмы гораздо меньше шанс фейла
 	if (!ch->IsImmortal() && number(0, 101) < pfail && need_fail) {
 		if (CanUseFeat(ch, EFeat::kFavorOfDarkness)) {
 			if (number(0, 3) == 0) {
-				SendMsgToChar(mag_summon_fail_msgs[fmsg], ch);
+				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kSummonFail) + "\r\n", ch);
 				if (handle_corpse)
 					ExtractObjFromWorld(obj);
 				return 0;
 			}
 		} else {
-			SendMsgToChar(mag_summon_fail_msgs[fmsg], ch);
+			SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kSummonFail) + "\r\n", ch);
 			if (handle_corpse)
 				ExtractObjFromWorld(obj);
 			return 0;
@@ -2873,7 +2839,7 @@ int CastSummon(int level, CharData *ch, ObjData *obj, ESpell spell_id, bool need
 	}
 
 	if (!(mob = ReadMobile(-mob_num, kVirtual))) {
-		SendMsgToChar("Вы точно не помните, как создать данного монстра.\r\n", ch);
+		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kSummonNoProto) + "\r\n", ch);
 		return 0;
 	}
 
@@ -2910,19 +2876,19 @@ int CastSummon(int level, CharData *ch, ObjData *obj, ESpell spell_id, bool need
 	}
 
 	if (!ch->IsImmortal() && (AFF_FLAGGED(mob, EAffect::kSanctuary) || mob->IsFlagged(EMobFlag::kProtect))) {
-		SendMsgToChar("Оживляемый был освящен Богами и противится этому!\r\n", ch);
+		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kResurrectConsecrated) + "\r\n", ch);
 		ExtractCharFromWorld(mob, false);
 		return 0;
 	}
 	if (!ch->IsImmortal() &&
 		(GET_MOB_SPEC(mob) || mob->IsFlagged(EMobFlag::kNoResurrection) ||
 			mob->IsFlagged(EMobFlag::kAreaAttack))) {
-		SendMsgToChar("Вы не можете обрести власть над этим созданием!\r\n", ch);
+		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kResurrectNoPower) + "\r\n", ch);
 		ExtractCharFromWorld(mob, false);
 		return 0;
 	}
 	if (!ch->IsImmortal() && AFF_FLAGGED(mob, EAffect::kGodsShield)) {
-		SendMsgToChar("Боги защищают это существо даже после смерти.\r\n", ch);
+		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kResurrectProtected) + "\r\n", ch);
 		ExtractCharFromWorld(mob, false);
 		return 0;
 	}
@@ -2930,7 +2896,7 @@ int CastSummon(int level, CharData *ch, ObjData *obj, ESpell spell_id, bool need
 		mob->UnsetFlag(EMobFlag::kMounting);
 	}
 	if (IS_HORSE(mob)) {
-		SendMsgToChar("Это был боевой скакун, а не хухры-мухры.\r\n", ch);
+		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kSummonWarhorse) + "\r\n", ch);
 		ExtractCharFromWorld(mob, false);
 		return 0;
 	}
@@ -3045,7 +3011,7 @@ int CastSummon(int level, CharData *ch, ObjData *obj, ESpell spell_id, bool need
 		mob->SetFlag(EMobFlag::kClone);
 		mob->UnsetFlag(EMobFlag::kMounting);
 	}
-	act(mag_summon_msgs[msg], false, ch, nullptr, mob, kToRoom | kToArenaListen);
+	act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kSummonToRoom).c_str(), false, ch, nullptr, mob, kToRoom | kToArenaListen);
 
 	PlaceCharToRoom(mob, ch->in_room);
 	ch->add_follower(mob);

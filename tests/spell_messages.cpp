@@ -38,7 +38,12 @@ TEST(SpellMessages, ESpellMsgNameRoundTrip) {
 							ESpellMsg::kEnchantNotWeapon, ESpellMsg::kEnchantMagic,
 							ESpellMsg::kEnchantSetItem, ESpellMsg::kEnchantMono,
 							ESpellMsg::kEnchantPoly, ESpellMsg::kEnchantOther,
-							ESpellMsg::kRemovePoisonUnknown, ESpellMsg::kRemovePoisonRotten}) {
+							ESpellMsg::kRemovePoisonUnknown, ESpellMsg::kRemovePoisonRotten,
+							ESpellMsg::kSummonToRoom, ESpellMsg::kSummonFail,
+							ESpellMsg::kSummonNoCorpse, ESpellMsg::kSummonCharmed,
+							ESpellMsg::kSummonNoProto, ESpellMsg::kSummonWarhorse,
+							ESpellMsg::kResurrectBadCorpse, ESpellMsg::kResurrectConsecrated,
+							ESpellMsg::kResurrectNoPower, ESpellMsg::kResurrectProtected}) {
 		EXPECT_EQ(type, ITEM_BY_NAME<ESpellMsg>(NAME_BY_ITEM<ESpellMsg>(type)));
 	}
 }

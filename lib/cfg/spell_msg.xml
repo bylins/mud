@@ -30,6 +30,19 @@
 		<message type="kTargetUnavailable" val="Цель заклинания недоступна." />
 		<message type="kCantCastPeaceful" val="Ваша душа полна смирения, и вы не желаете творить зло." />
 		<message type="kObjResist" val="$o устойчив$A к вашей магии." />
+		<message type="kSummonFail" val="п√п╟п╩я▄, я│п╬я─п╡п╟п╩п╬я│я▄..." />
+		<message type="kSummonFail" val="п²п╦я┤п╣пЁп╬." />
+		<message type="kSummonFail" val="п╖п╣я─я┌! п²п╦я┤п╣пЁп╬ п╫п╣ п╡я▀я┬п╩п╬." />
+		<message type="kSummonFail" val="п▓я▀ п╫п╣ я│п╪п╬пЁп╩п╦ я│п╢п╣п╩п╟я┌я▄ я█я┌п╬пЁп╬!" />
+		<message type="kSummonFail" val="п▓п╟я┬п╟ п╪п╟пЁп╦я▐ п©я─п╬п╡п╟п╩п╦п╩п╟я│я▄." />
+		<message type="kSummonNoCorpse" val="пё п╡п╟я│ п╫п╣я┌ п©п╬п╢я┘п╬п╢я▐я┴п╣пЁп╬ я┌я─я┐п©п╟!&#13;&#10;" />
+		<message type="kSummonCharmed" val="Вы слишком зависимы, чтобы искать себе последователей!" />
+		<message type="kSummonNoProto" val="Вы точно не помните, как создать данного монстра." />
+		<message type="kSummonWarhorse" val="Это был боевой скакун, а не хухры-мухры." />
+		<message type="kResurrectBadCorpse" val="Вы не можете поднять труп этого монстра!" />
+		<message type="kResurrectConsecrated" val="Оживляемый был освящен Богами и противится этому!" />
+		<message type="kResurrectNoPower" val="Вы не можете обрести власть над этим созданием!" />
+		<message type="kResurrectProtected" val="Боги защищают это существо даже после смерти." />
 	</msg_sheaf>
 
 	<msg_sheaf id="kCureLight">
@@ -287,5 +300,33 @@
 		<message type="kEnchantMono" val="$o вспыхнул$G на миг голубым светом и тут же потух$Q." />
 		<message type="kEnchantPoly" val="$o вспыхнул$G на миг красным светом и тут же потух$Q." />
 		<message type="kEnchantOther" val="$o вспыхнул$G на миг желтым светом и тут же потух$Q." />
+	</msg_sheaf>
+
+	<!-- CastSummon (issue #3304, stage 2.3) -->
+	<msg_sheaf id="kAnimateDead">
+		<message type="kSummonToRoom" val="$n я│п╢п╣п╩п╟п╩$g п╫п╣я│п╨п╬п╩я▄п╨п╬ п╦п╥я▐я┴п╫п╦я┘ п©п╟я│я│п╬п╡ - п╡я▀ п©п╬я┤я┐п╡я│я┌п╡п╬п╡п╟п╩п╦ я│я┌я─п╟п╫п╫п╬п╣ п╢я┐п╫п╬п╡п╣п╫п╦п╣!" />
+		<message type="kSummonToRoom" val="$n п©п╬п╢п╫я▐п╩$g я┌я─я┐п©!" />
+		<message type="kSummonToRoom" val="$N п©п╬я▐п╡п╦п╩$U п╦п╥ п╨п╩я┐п╠п╬п╡ пЁп╬п╩я┐п╠п╬пЁп╬ п╢я▀п╪п╟!" />
+		<message type="kSummonToRoom" val="$N п©п╬я▐п╡п╦п╩$U п╦п╥ п╨п╩я┐п╠п╬п╡ п╥п╣п╩п╣п╫п╬пЁп╬ п╢я▀п╪п╟!" />
+		<message type="kSummonToRoom" val="$N п©п╬я▐п╡п╦п╩$U п╦п╥ п╨п╩я┐п╠п╬п╡ п╨я─п╟я│п╫п╬пЁп╬ п╢я▀п╪п╟!" />
+		<message type="kSummonToRoom" val="$n я│п╢п╣п╩п╟п╩$g п╫п╣я│п╨п╬п╩я▄п╨п╬ п╦п╥я▐я┴п╫я▀я┘ п©п╟я│я│п╬п╡ - п╡п╟я│ п╬п╠п╢п╟п╩п╬ п©п╬я─я▀п╡п╬п╪ я┘п╬п╩п╬п╢п╫п╬пЁп╬ п╡п╣я┌я─п╟." />
+		<message type="kSummonToRoom" val="$n я│п╢п╣п╩п╟п╩$g п╫п╣я│п╨п╬п╩я▄п╨п╬ п╦п╥я▐я┴п╫я▀я┘ п©п╟я│я│п╬п╡, п╬я┌ я┤п╣пЁп╬ п╡п╟я┬п╦ п╡п╬п╩п╬я│я▀ п╡я│я┌п╟п╩п╦ п╢я▀п╠п╬п╪." />
+		<message type="kSummonToRoom" val="$n я│п╢п╣п╩п╟п╩$g п╫п╣я│п╨п╬п╩я▄п╨п╬ п╦п╥я▐я┴п╫я▀я┘ п©п╟я│я│п╬п╡, п╬п╠п╢п╟п╡ п╡п╟я│ п╫п╣я│я┌п╣я─п©п╦п╪я▀п╪ п╤п╟я─п╬п╪." />
+		<message type="kSummonToRoom" val="$n я│п╢п╣п╩п╟п╩$g п╫п╣я│п╨п╬п╩я▄п╨п╬ п╦п╥я▐я┴п╫я▀я┘ п©п╟я│я│п╬п╡, п╡я▀п╥п╡п╟п╡ я┐ п╡п╟я│ п©я─п╦я│я┌я┐п© я┌п╬я┬п╫п╬я┌я▀." />
+	</msg_sheaf>
+	<msg_sheaf id="kClone">
+		<message type="kSummonToRoom" val="$n я─п╟п╥п╢п╡п╬п╦п╩$u!" />
+		<message type="kSummonFail" val="п²п╦я┤п╣пЁп╬." />
+		<message type="kSummonFail" val="п╖п╣я─я┌! п²п╦я┤п╣пЁп╬ п╫п╣ п╡я▀я┬п╩п╬." />
+		<message type="kSummonFail" val="п▓я▀ п╫п╣ я│п╪п╬пЁп╩п╦ я│п╢п╣п╩п╟я┌я▄ я█я┌п╬пЁп╬!" />
+	</msg_sheaf>
+	<msg_sheaf id="kResurrection">
+		<message type="kSummonToRoom" val="$n п╬п╤п╦п╡п╦п╩$g я┌я─я┐п©!" />
+	</msg_sheaf>
+	<msg_sheaf id="kSummonKeeper">
+		<message type="kSummonToRoom" val="$n п©я─п╦п╥п╡п╟п╩$g п╥п╟я┴п╦я┌п╫п╦п╨п╟!" />
+	</msg_sheaf>
+	<msg_sheaf id="kSummonFirekeeper">
+		<message type="kSummonToRoom" val="п·пЁп╫п╣п╫п╫я▀п╧ я┘я─п╟п╫п╦я┌п╣п╩я▄ п©п╬я▐п╡п╦п╩я│я▐ п╦п╥ п╡п╦я┘я─я▐ п©п╩п╟п╪п╣п╫п╦!" />
 	</msg_sheaf>
 </msg_container>

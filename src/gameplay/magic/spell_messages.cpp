@@ -38,6 +38,16 @@ const std::string &NAME_BY_ITEM<ESpellMsg>(const ESpellMsg item) {
 		{ESpellMsg::kEnchantOther, "kEnchantOther"},
 		{ESpellMsg::kRemovePoisonUnknown, "kRemovePoisonUnknown"},
 		{ESpellMsg::kRemovePoisonRotten, "kRemovePoisonRotten"},
+		{ESpellMsg::kSummonToRoom, "kSummonToRoom"},
+		{ESpellMsg::kSummonFail, "kSummonFail"},
+		{ESpellMsg::kSummonNoCorpse, "kSummonNoCorpse"},
+		{ESpellMsg::kSummonCharmed, "kSummonCharmed"},
+		{ESpellMsg::kSummonNoProto, "kSummonNoProto"},
+		{ESpellMsg::kSummonWarhorse, "kSummonWarhorse"},
+		{ESpellMsg::kResurrectBadCorpse, "kResurrectBadCorpse"},
+		{ESpellMsg::kResurrectConsecrated, "kResurrectConsecrated"},
+		{ESpellMsg::kResurrectNoPower, "kResurrectNoPower"},
+		{ESpellMsg::kResurrectProtected, "kResurrectProtected"},
 	};
 	return kMap.at(item);
 }
@@ -70,6 +80,16 @@ ESpellMsg ITEM_BY_NAME<ESpellMsg>(const std::string &name) {
 		{"kEnchantOther", ESpellMsg::kEnchantOther},
 		{"kRemovePoisonUnknown", ESpellMsg::kRemovePoisonUnknown},
 		{"kRemovePoisonRotten", ESpellMsg::kRemovePoisonRotten},
+		{"kSummonToRoom", ESpellMsg::kSummonToRoom},
+		{"kSummonFail", ESpellMsg::kSummonFail},
+		{"kSummonNoCorpse", ESpellMsg::kSummonNoCorpse},
+		{"kSummonCharmed", ESpellMsg::kSummonCharmed},
+		{"kSummonNoProto", ESpellMsg::kSummonNoProto},
+		{"kSummonWarhorse", ESpellMsg::kSummonWarhorse},
+		{"kResurrectBadCorpse", ESpellMsg::kResurrectBadCorpse},
+		{"kResurrectConsecrated", ESpellMsg::kResurrectConsecrated},
+		{"kResurrectNoPower", ESpellMsg::kResurrectNoPower},
+		{"kResurrectProtected", ESpellMsg::kResurrectProtected},
 	};
 	return kMap.at(name); // throws std::out_of_range on unknown name
 }
