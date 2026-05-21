@@ -47,7 +47,13 @@ TEST(SpellMessages, ESpellMsgNameRoundTrip) {
 							ESpellMsg::kDamageToChar, ESpellMsg::kDamageToNotVict,
 							ESpellMsg::kDamageToVict, ESpellMsg::kClodToRoom, ESpellMsg::kClodToChar,
 							ESpellMsg::kKnockdownToRoom, ESpellMsg::kKnockdownToChar,
-							ESpellMsg::kAcidCorrodeObj}) {
+							ESpellMsg::kAcidCorrodeObj,
+							ESpellMsg::kFightDeathToChar, ESpellMsg::kFightDeathToVict,
+							ESpellMsg::kFightDeathToRoom, ESpellMsg::kFightMissToChar,
+							ESpellMsg::kFightMissToVict, ESpellMsg::kFightMissToRoom,
+							ESpellMsg::kFightHitToChar, ESpellMsg::kFightHitToVict,
+							ESpellMsg::kFightHitToRoom, ESpellMsg::kFightGodToChar,
+							ESpellMsg::kFightGodToVict, ESpellMsg::kFightGodToRoom}) {
 		EXPECT_EQ(type, ITEM_BY_NAME<ESpellMsg>(NAME_BY_ITEM<ESpellMsg>(type)));
 	}
 }

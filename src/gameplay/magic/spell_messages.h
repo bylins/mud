@@ -77,6 +77,13 @@ enum class ESpellMsg {
 	kKnockdownToRoom,		// shared knockdown -> kDefault (to the room).
 	kKnockdownToChar,		// shared knockdown -> kDefault (to the victim).
 	kAcidCorrodeObj,		// kAcid: corrodes the victim's object.
+	// Combat damage messages copied from MESS_FILE (lib/misc/messages, issue #3304).
+	// Stored only for now; still served from MESS_FILE by the fight system.
+	// Death/Miss/Hit/God x damager(ToChar)/damagee(ToVict)/onlookers(ToRoom).
+	kFightDeathToChar, kFightDeathToVict, kFightDeathToRoom,
+	kFightMissToChar, kFightMissToVict, kFightMissToRoom,
+	kFightHitToChar, kFightHitToVict, kFightHitToRoom,
+	kFightGodToChar, kFightGodToVict, kFightGodToRoom,
 };
 
 template<>

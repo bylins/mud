@@ -56,6 +56,18 @@ const std::string &NAME_BY_ITEM<ESpellMsg>(const ESpellMsg item) {
 		{ESpellMsg::kKnockdownToRoom, "kKnockdownToRoom"},
 		{ESpellMsg::kKnockdownToChar, "kKnockdownToChar"},
 		{ESpellMsg::kAcidCorrodeObj, "kAcidCorrodeObj"},
+		{ESpellMsg::kFightDeathToChar, "kFightDeathToChar"},
+		{ESpellMsg::kFightDeathToVict, "kFightDeathToVict"},
+		{ESpellMsg::kFightDeathToRoom, "kFightDeathToRoom"},
+		{ESpellMsg::kFightMissToChar, "kFightMissToChar"},
+		{ESpellMsg::kFightMissToVict, "kFightMissToVict"},
+		{ESpellMsg::kFightMissToRoom, "kFightMissToRoom"},
+		{ESpellMsg::kFightHitToChar, "kFightHitToChar"},
+		{ESpellMsg::kFightHitToVict, "kFightHitToVict"},
+		{ESpellMsg::kFightHitToRoom, "kFightHitToRoom"},
+		{ESpellMsg::kFightGodToChar, "kFightGodToChar"},
+		{ESpellMsg::kFightGodToVict, "kFightGodToVict"},
+		{ESpellMsg::kFightGodToRoom, "kFightGodToRoom"},
 	};
 	return kMap.at(item);
 }
@@ -106,6 +118,18 @@ ESpellMsg ITEM_BY_NAME<ESpellMsg>(const std::string &name) {
 		{"kKnockdownToRoom", ESpellMsg::kKnockdownToRoom},
 		{"kKnockdownToChar", ESpellMsg::kKnockdownToChar},
 		{"kAcidCorrodeObj", ESpellMsg::kAcidCorrodeObj},
+		{"kFightDeathToChar", ESpellMsg::kFightDeathToChar},
+		{"kFightDeathToVict", ESpellMsg::kFightDeathToVict},
+		{"kFightDeathToRoom", ESpellMsg::kFightDeathToRoom},
+		{"kFightMissToChar", ESpellMsg::kFightMissToChar},
+		{"kFightMissToVict", ESpellMsg::kFightMissToVict},
+		{"kFightMissToRoom", ESpellMsg::kFightMissToRoom},
+		{"kFightHitToChar", ESpellMsg::kFightHitToChar},
+		{"kFightHitToVict", ESpellMsg::kFightHitToVict},
+		{"kFightHitToRoom", ESpellMsg::kFightHitToRoom},
+		{"kFightGodToChar", ESpellMsg::kFightGodToChar},
+		{"kFightGodToVict", ESpellMsg::kFightGodToVict},
+		{"kFightGodToRoom", ESpellMsg::kFightGodToRoom},
 	};
 	return kMap.at(name); // throws std::out_of_range on unknown name
 }
