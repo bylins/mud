@@ -515,6 +515,15 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="85" min="70" change="2"/>
         <targets val="kTarSelfOnly|kTarCharRoom"/>
         <flags val="kMagPoints|kMagAffects"/>
+        <talent_actions>
+            <action>
+                <heal saving="kCritical" npc_coeff="3">
+                    <dices ndice="0" sdice="0" adice="1"/>
+                    <base_skill id="kLifeMagic" low_skill_bonus="30" hi_skill_bonus="200"/>
+                    <base_stat id="kWis" threshold="20" weight="150"/>
+                </heal>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kWorldOfRecall" element="kMind" mode="kEnabled">
         <name rus="слово возврата" eng="recall"/>

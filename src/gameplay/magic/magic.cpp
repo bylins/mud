@@ -355,9 +355,9 @@ int CalcHeal(CharData *ch, CharData *victim, ESpell spell_id, int level) {
 		skill_mod = base_heal * abs(level) / 0.25;
 	}
 //	mudlog(fmt::format("Хиляем level = {}, skill_mod = {}", level, skill_mod));
-	double wis_mod = base_heal * spell_heal.CalcBaseStatCoeff(ch);
+	double stat_mod = base_heal * spell_heal.CalcBaseStatCoeff(ch);
 	double bonus_mod = ch->add_abils.percent_spellpower_add / 100.0;
-	total_heal = static_cast<int>(base_heal + skill_mod + wis_mod);
+	total_heal = static_cast<int>(base_heal + skill_mod + stat_mod);
 	total_heal += static_cast<int>(total_heal * bonus_mod);
 	double npc_heal = spell_heal.GetNpcCoeff();
 	if (ch->IsNpc()) {
@@ -369,7 +369,7 @@ int CalcHeal(CharData *ch, CharData *victim, ESpell spell_id, int level) {
 		GET_NAME(victim),
 		base_heal,
 		skill_mod,
-		wis_mod,
+		stat_mod,
 		1 + bonus_mod,
 		npc_heal,
 		total_heal);
@@ -379,7 +379,7 @@ int CalcHeal(CharData *ch, CharData *victim, ESpell spell_id, int level) {
 			GET_NAME(ch),
 			base_heal,
 			skill_mod,
-			wis_mod,
+			stat_mod,
 			bonus_mod,
 			npc_heal,
 			total_heal);
@@ -3093,9 +3093,9 @@ int CastToPoints(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 		case ESpell::kHeal:
 		case ESpell::kGroupHeal: [[fallthrough]];
 		case ESpell::kGreatHeal:
+        case ESpell::kPatronage:
             hit = CalcHeal(ch, victim, spell_id, level);
-			break;
-		case ESpell::kPatronage: hit = (GetRealLevel(victim) + GetRealRemort(victim)) * 2;
+//		hit = (GetRealLevel(victim) + GetRealRemort(victim)) * 2;
 			break;
 		case ESpell::kWarcryOfPower: hit = std::min(200, (4 * ch->get_con() + ch->GetSkill(ESkill::kWarcry)) / 2);
 			break;
