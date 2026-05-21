@@ -43,7 +43,11 @@ TEST(SpellMessages, ESpellMsgNameRoundTrip) {
 							ESpellMsg::kSummonNoCorpse, ESpellMsg::kSummonCharmed,
 							ESpellMsg::kSummonNoProto, ESpellMsg::kSummonWarhorse,
 							ESpellMsg::kResurrectBadCorpse, ESpellMsg::kResurrectConsecrated,
-							ESpellMsg::kResurrectNoPower, ESpellMsg::kResurrectProtected}) {
+							ESpellMsg::kResurrectNoPower, ESpellMsg::kResurrectProtected,
+							ESpellMsg::kDamageToChar, ESpellMsg::kDamageToNotVict,
+							ESpellMsg::kDamageToVict, ESpellMsg::kClodToRoom, ESpellMsg::kClodToChar,
+							ESpellMsg::kKnockdownToRoom, ESpellMsg::kKnockdownToChar,
+							ESpellMsg::kAcidCorrodeObj}) {
 		EXPECT_EQ(type, ITEM_BY_NAME<ESpellMsg>(NAME_BY_ITEM<ESpellMsg>(type)));
 	}
 }

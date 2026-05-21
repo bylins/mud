@@ -48,6 +48,14 @@ const std::string &NAME_BY_ITEM<ESpellMsg>(const ESpellMsg item) {
 		{ESpellMsg::kResurrectConsecrated, "kResurrectConsecrated"},
 		{ESpellMsg::kResurrectNoPower, "kResurrectNoPower"},
 		{ESpellMsg::kResurrectProtected, "kResurrectProtected"},
+		{ESpellMsg::kDamageToChar, "kDamageToChar"},
+		{ESpellMsg::kDamageToNotVict, "kDamageToNotVict"},
+		{ESpellMsg::kDamageToVict, "kDamageToVict"},
+		{ESpellMsg::kClodToRoom, "kClodToRoom"},
+		{ESpellMsg::kClodToChar, "kClodToChar"},
+		{ESpellMsg::kKnockdownToRoom, "kKnockdownToRoom"},
+		{ESpellMsg::kKnockdownToChar, "kKnockdownToChar"},
+		{ESpellMsg::kAcidCorrodeObj, "kAcidCorrodeObj"},
 	};
 	return kMap.at(item);
 }
@@ -90,6 +98,14 @@ ESpellMsg ITEM_BY_NAME<ESpellMsg>(const std::string &name) {
 		{"kResurrectConsecrated", ESpellMsg::kResurrectConsecrated},
 		{"kResurrectNoPower", ESpellMsg::kResurrectNoPower},
 		{"kResurrectProtected", ESpellMsg::kResurrectProtected},
+		{"kDamageToChar", ESpellMsg::kDamageToChar},
+		{"kDamageToNotVict", ESpellMsg::kDamageToNotVict},
+		{"kDamageToVict", ESpellMsg::kDamageToVict},
+		{"kClodToRoom", ESpellMsg::kClodToRoom},
+		{"kClodToChar", ESpellMsg::kClodToChar},
+		{"kKnockdownToRoom", ESpellMsg::kKnockdownToRoom},
+		{"kKnockdownToChar", ESpellMsg::kKnockdownToChar},
+		{"kAcidCorrodeObj", ESpellMsg::kAcidCorrodeObj},
 	};
 	return kMap.at(name); // throws std::out_of_range on unknown name
 }

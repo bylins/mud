@@ -543,6 +543,11 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 //		modi += (GetRealLevel(ch) - 10);
 
 	auto instant_death{false};
+	// issue #3304: часть сообщений вынесена в lib/cfg/spell_msg.xml
+	// (kAcid/kClod/kStunning/kVacuum/kArrows*; общий kKnockdown* в kDefault).
+	// TODO: kAcidArrow (случайные эффекты), kDispelEvil/Good и kHolystrike
+	// остаются в коде - они завязаны на игровую логику; защитные реакции
+	// (зеркало/барьер/мантия/щит) тоже намеренно оставлены в коде.
 	switch (spell_id) {
 		case ESpell::kMagicMissile: {
 			if (CanUseFeat(ch, EFeat::kMagicArrows))
@@ -578,7 +583,7 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 				// уберем костыльное снижение урона за бессмысленностью - все ранво мало кто пользуктся
 				// лучше потом реалиховать нормальную механику модификацию урона от обстоятельств
 				// spell_dmg.value().dice_size = spell_dmg.value().dice_size * 2 / 3;
-				act("Кислота покрыла $o3.", false, victim, obj, nullptr, kToChar);
+				act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kAcidCorrodeObj).c_str(), false, victim, obj, nullptr, kToChar);
 				DamageObj(obj, number(level * 2, level * 4), 100);
 			}
 			break;
@@ -590,8 +595,8 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 					victim->DropFromHorse();
 				victim->SetPosition(EPosition::kSit);
 				victim->DropFromHorse();
-				act("$n3 придавило глыбой камня.", false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
-				act("Огромная глыба камня свалила вас на землю!", false, victim, nullptr, nullptr, kToChar);
+				act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kClodToRoom).c_str(), false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
+				act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kClodToChar).c_str(), false, victim, nullptr, nullptr, kToChar);
 				SetWaitState(victim, 2 * kBattleRound);
 			}
 			break;
@@ -647,8 +652,8 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 					(AFF_FLAGGED(victim, EAffect::kHold) || !CalcGeneralSaving(ch, victim, ESaving::kReflex, modi))) {
 				victim->SetPosition(EPosition::kSit);
 				victim->DropFromHorse();
-				act("$n3 повалило на землю.", false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
-				act("Вас повалило на землю.", false, victim, nullptr, nullptr, kToChar);
+				act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kKnockdownToRoom).c_str(), false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
+				act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kKnockdownToChar).c_str(), false, victim, nullptr, nullptr, kToChar);
 				SetWaitState(victim, 2 * kBattleRound);
 			}
 			break;
@@ -659,8 +664,8 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 						&& (AFF_FLAGGED(victim, EAffect::kHold) || !CalcGeneralSaving(ch, victim, ESaving::kStability, modi))) {
 				victim->SetPosition(EPosition::kSit);
 				victim->DropFromHorse();
-				act("$n3 повалило на землю.", false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
-				act("Вас повалило на землю.", false, victim, nullptr, nullptr, kToChar);
+				act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kKnockdownToRoom).c_str(), false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
+				act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kKnockdownToChar).c_str(), false, victim, nullptr, nullptr, kToChar);
 				SetWaitState(victim, 2 * kBattleRound);
 			}
 			break;
@@ -672,9 +677,9 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 				if (CanUseFeat(ch, EFeat::kDarkPact))
 					choice_stunning -= GetRealRemort(ch) * 15;
 				if (number(1, 999) > choice_stunning) {
-					act("Ваше каменное проклятие отшибло сознание у $N1.", false, ch, nullptr, victim, kToChar);
-					act("Каменное проклятие $n1 отшибло сознание у $N1.", false, ch, nullptr, victim, kToNotVict);
-					act("У вас отшибло сознание, вам очень плохо...", false, ch, nullptr, victim, kToVict);
+					act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kDamageToChar).c_str(), false, ch, nullptr, victim, kToChar);
+					act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kDamageToNotVict).c_str(), false, ch, nullptr, victim, kToNotVict);
+					act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kDamageToVict).c_str(), false, ch, nullptr, victim, kToVict);
 				if (victim->GetPosition() > EPosition::kStun) {
 					victim->SetPosition(EPosition::kStun);
 					victim->DropFromHorse();
@@ -689,10 +694,10 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 				if (ch == victim ||
 						((number(0, 100) <= 20) && (number(1, 100) > GET_AR(victim))
 								&& !CalcGeneralSaving(ch, victim, ESaving::kCritical, modi))) {
-					act("Круг пустоты отшиб сознание у $N1.", false, ch, nullptr, victim, kToChar);
+					act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kDamageToChar).c_str(), false, ch, nullptr, victim, kToChar);
 //					act("$n0 упал$q без сознания!", true, victim, nullptr, ch, kToRoom | kToArenaListen);
-					act("Круг пустоты $n1 отшиб сознание у $N1.", false, ch, nullptr, victim, kToNotVict);
-					act("У вас отшибло сознание, вам очень плохо...", false, ch, nullptr, victim, kToVict);
+					act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kDamageToNotVict).c_str(), false, ch, nullptr, victim, kToNotVict);
+					act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kDamageToVict).c_str(), false, ch, nullptr, victim, kToVict);
 					auto wait = 4 + std::max(1, GetRealLevel(ch) + (GetRealWis(ch) - 29)) / 7;
 					Affect<EApply> af;
 					af.type = spell_id;
@@ -747,8 +752,8 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 				(!CalcGeneralSaving(ch, victim, ESaving::kReflex, modi))) {
 				victim->DropFromHorse();
 				victim->SetPosition(EPosition::kSit);
-				act("$n3 повалило на землю.", false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
-				act("Вас повалило на землю.", false, victim, nullptr, nullptr, kToChar);
+				act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kKnockdownToRoom).c_str(), false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
+				act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kKnockdownToChar).c_str(), false, victim, nullptr, nullptr, kToChar);
 				SetWaitState(victim, 2 * kBattleRound);
 			}
 			break;
@@ -772,8 +777,8 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 				!CalcGeneralSaving(ch, victim, ESaving::kStability, modi))) {
 				victim->DropFromHorse();
 				victim->SetPosition(EPosition::kSit);
-				act("$n3 повалило на землю.", false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
-				act("Вас повалило на землю.", false, victim, nullptr, nullptr, kToChar);
+				act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kKnockdownToRoom).c_str(), false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
+				act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kKnockdownToChar).c_str(), false, victim, nullptr, nullptr, kToChar);
 				SetWaitState(victim, 2 * kBattleRound);
 			}
 			break;
@@ -784,9 +789,9 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 		case ESpell::kArrowsAir:
 		case ESpell::kArrowsDeath: {
 			if (!ch->IsNpc()) {
-				act("Ваша магическая стрела поразила $N1.", false, ch, nullptr, victim, kToChar);
-				act("Магическая стрела $n1 поразила $N1.", false, ch, nullptr, victim, kToNotVict);
-				act("Магическая стрела настигла вас.", false, ch, nullptr, victim, kToVict);
+				act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kDamageToChar).c_str(), false, ch, nullptr, victim, kToChar);
+				act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kDamageToNotVict).c_str(), false, ch, nullptr, victim, kToNotVict);
+				act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kDamageToVict).c_str(), false, ch, nullptr, victim, kToVict);
 			}
 			break;
 		}

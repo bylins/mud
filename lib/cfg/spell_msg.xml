@@ -43,6 +43,8 @@
 		<message type="kResurrectConsecrated" val="Оживляемый был освящен Богами и противится этому!" />
 		<message type="kResurrectNoPower" val="Вы не можете обрести власть над этим созданием!" />
 		<message type="kResurrectProtected" val="Боги защищают это существо даже после смерти." />
+		<message type="kKnockdownToRoom" val="$n3 повалило на землю." />
+		<message type="kKnockdownToChar" val="Вас повалило на землю." />
 	</msg_sheaf>
 
 	<msg_sheaf id="kCureLight">
@@ -328,5 +330,39 @@
 	</msg_sheaf>
 	<msg_sheaf id="kSummonFirekeeper">
 		<message type="kSummonToRoom" val="п·пЁп╫п╣п╫п╫я▀п╧ я┘я─п╟п╫п╦я┌п╣п╩я▄ п©п╬я▐п╡п╦п╩я│я▐ п╦п╥ п╡п╦я┘я─я▐ п©п╩п╟п╪п╣п╫п╦!" />
+	</msg_sheaf>
+
+	<!-- CastDamage spell-keyed flavour (issue #3304, stage 2.4) -->
+	<msg_sheaf id="kAcid">
+		<message type="kAcidCorrodeObj" val="Кислота покрыла $o3." />
+	</msg_sheaf>
+	<msg_sheaf id="kClod">
+		<message type="kClodToRoom" val="$n3 придавило глыбой камня." />
+		<message type="kClodToChar" val="Огромная глыба камня свалила вас на землю!" />
+	</msg_sheaf>
+	<msg_sheaf id="kStunning">
+		<message type="kDamageToChar" val="Ваше каменное проклятие отшибло сознание у $N1." />
+		<message type="kDamageToNotVict" val="Каменное проклятие $n1 отшибло сознание у $N1." />
+		<message type="kDamageToVict" val="У вас отшибло сознание, вам очень плохо..." />
+	</msg_sheaf>
+	<msg_sheaf id="kVacuum">
+		<message type="kDamageToChar" val="Круг пустоты отшиб сознание у $N1." />
+		<message type="kDamageToNotVict" val="Круг пустоты $n1 отшиб сознание у $N1." />
+		<message type="kDamageToVict" val="У вас отшибло сознание, вам очень плохо..." />
+	</msg_sheaf>
+	<msg_sheaf id="kArrowsEarth">
+		<message type="kDamageToChar" val="Ваша магическая стрела поразила $N1." />
+		<message type="kDamageToNotVict" val="Магическая стрела $n1 поразила $N1." />
+		<message type="kDamageToVict" val="Магическая стрела настигла вас." />
+	</msg_sheaf>
+	<msg_sheaf id="kArrowsAir">
+		<message type="kDamageToChar" val="Ваша магическая стрела поразила $N1." />
+		<message type="kDamageToNotVict" val="Магическая стрела $n1 поразила $N1." />
+		<message type="kDamageToVict" val="Магическая стрела настигла вас." />
+	</msg_sheaf>
+	<msg_sheaf id="kArrowsDeath">
+		<message type="kDamageToChar" val="Ваша магическая стрела поразила $N1." />
+		<message type="kDamageToNotVict" val="Магическая стрела $n1 поразила $N1." />
+		<message type="kDamageToVict" val="Магическая стрела настигла вас." />
 	</msg_sheaf>
 </msg_container>

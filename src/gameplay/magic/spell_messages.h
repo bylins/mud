@@ -68,6 +68,15 @@ enum class ESpellMsg {
 	kResurrectConsecrated,	// resurrection: mob is consecrated/protected.
 	kResurrectNoPower,		// resurrection: mob cannot be controlled.
 	kResurrectProtected,	// resurrection: mob has gods' shield.
+	// CastDamage spell-keyed flavour (caster-centric ToChar/ToNotVict/ToVict).
+	kDamageToChar,			// to the caster.
+	kDamageToNotVict,		// to onlookers (not the victim).
+	kDamageToVict,			// to the victim.
+	kClodToRoom,			// kClod: knockdown, to the room.
+	kClodToChar,			// kClod: knockdown, to the victim.
+	kKnockdownToRoom,		// shared knockdown -> kDefault (to the room).
+	kKnockdownToChar,		// shared knockdown -> kDefault (to the victim).
+	kAcidCorrodeObj,		// kAcid: corrodes the victim's object.
 };
 
 template<>
