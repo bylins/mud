@@ -31,7 +31,7 @@ TEST(SkillMessages, ESkillMsgNameRoundTrip) {
 	for (const auto type : {ESkillMsg::kDontKnowSkill, ESkillMsg::kOnCooldown,
 							ESkillMsg::kCantWhileMounted, ESkillMsg::kMustBeMounted,
 							ESkillMsg::kGetOnFeet, ESkillMsg::kCantFightNow,
-							ESkillMsg::kPeacefulRoom, ESkillMsg::kNoTarget,
+							ESkillMsg::kNotFighting, ESkillMsg::kPeacefulRoom, ESkillMsg::kNoTarget,
 							ESkillMsg::kCantTargetSelf, ESkillMsg::kNeedWeapon,
 							ESkillMsg::kWrongWeapon}) {
 		EXPECT_EQ(type, ITEM_BY_NAME<ESkillMsg>(NAME_BY_ITEM<ESkillMsg>(type)));

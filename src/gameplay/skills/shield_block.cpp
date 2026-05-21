@@ -1,4 +1,5 @@
 #include "shield_block.h"
+#include "skill_messages.h"
 
 #include "gameplay/fight/pk.h"
 #include "gameplay/fight/fight_hit.h"
@@ -18,15 +19,15 @@ void go_block(CharData *ch) {
 
 void do_block(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	if (ch->IsNpc() || !ch->GetSkill(ESkill::kShieldBlock)) {
-		SendMsgToChar("Вы не знаете как.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kShieldBlock, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
 	if (ch->HasCooldown(ESkill::kShieldBlock)) {
-		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kShieldBlock, ESkillMsg::kOnCooldown) + "\r\n", ch);
 		return;
 	};
 	if (!ch->GetEnemy()) {
-		SendMsgToChar("Но вы ни с кем не сражаетесь!\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kShieldBlock, ESkillMsg::kNotFighting) + "\r\n", ch);
 		return;
 	};
 	if (!(ch->IsNpc()

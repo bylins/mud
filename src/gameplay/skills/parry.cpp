@@ -1,4 +1,5 @@
 #include "parry.h"
+#include "skill_messages.h"
 
 #include "gameplay/fight/pk.h"
 #include "gameplay/fight/fight_hit.h"
@@ -10,7 +11,7 @@ bool CanPerformParry(CharData *victim, const HitData &hit_data);
 
 void GoParry(CharData *ch) {
 	if (AFF_FLAGGED(ch, EAffect::kStopRight) || AFF_FLAGGED(ch, EAffect::kStopLeft) || IsUnableToAct(ch)) {
-		SendMsgToChar("Вы временно не в состоянии сражаться.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kParry, ESkillMsg::kCantFightNow) + "\r\n", ch);
 		return;
 	}
 
@@ -20,16 +21,16 @@ void GoParry(CharData *ch) {
 
 void DoParry(CharData *ch, char */* argument*/, int /* cmd*/, int/* subcmd*/) {
 	if (ch->IsNpc() || !ch->GetSkill(ESkill::kParry)) {
-		SendMsgToChar("Вы не знаете как.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kParry, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
 	if (ch->HasCooldown(ESkill::kParry)) {
-		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kParry, ESkillMsg::kOnCooldown) + "\r\n", ch);
 		return;
 	};
 
 	if (!ch->GetEnemy()) {
-		SendMsgToChar("Но вы ни с кем не сражаетесь?\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kParry, ESkillMsg::kNotFighting) + "\r\n", ch);
 		return;
 	}
 

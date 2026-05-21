@@ -45,6 +45,7 @@ enum class ESkillMsg {
 	kMustBeMounted,		// the skill can only be used while mounted.
 	kGetOnFeet,			// position too low; the character must stand up first.
 	kCantFightNow,		// the character is temporarily unable to fight.
+	kNotFighting,		// the skill needs a fight, but the character is fighting no one.
 	kPeacefulRoom,		// the room is peaceful and forbids violence.
 	kNoTarget,			// no target was specified (!vict).
 	kCantTargetSelf,	// the character cannot target themselves.

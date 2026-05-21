@@ -20,6 +20,7 @@
 		<message type="kCantWhileMounted" val="Верхом это сделать затруднительно." />
 		<message type="kGetOnFeet" val="Вам стоит встать на ноги." />
 		<message type="kCantFightNow" val="Вы временно не в состоянии сражаться." />
+		<message type="kNotFighting" val="Но вы ни с кем не сражаетесь?" />
 	</msg_sheaf>
 
 	<!-- Заколоть (kBackstab): сообщения, специфичные для умения. -->
@@ -52,5 +53,31 @@
 	</msg_sheaf>
 	<msg_sheaf id="kIntercept">
 		<message type="kCantTargetSelf" val=", вы похожи на котенка, ловящего собственный хвост." />
+	</msg_sheaf>
+	<msg_sheaf id="kDazzle">
+		<message type="kNoTarget" val="Кого же вы так сильно желаете лишить зрения?" />
+		<message type="kCantTargetSelf" val="Лучше уж выколите себе глаза, чтобы не мучаться!" />
+	</msg_sheaf>
+	<msg_sheaf id="kOverwhelm">
+		<message type="kNoTarget" val="Кого вы хотите оглушить?" />
+		<message type="kCantTargetSelf" val="Вы громко заорали, заглушая свой собственный голос." />
+	</msg_sheaf>
+	<msg_sheaf id="kHammer">
+		<message type="kNoTarget" val="Кого вы хотите СИЛЬНО ударить?" />
+		<message type="kCantTargetSelf" val="Вы СИЛЬНО ударили себя. Но вы и не спали." />
+	</msg_sheaf>
+	<msg_sheaf id="kStun">
+		<message type="kMustBeMounted" val="Вы привстали на стременах и поняли: 'лошадь украли!!!'" />
+		<message type="kNeedWeapon" val="Вы должны держать оружие в основной руке." />
+		<message type="kNoTarget" val="Кто это так сильно путается у вас под руками?" />
+		<message type="kCantTargetSelf" val="Вы БОЛЬНО стукнули себя по голове! 'А еще я туда ем', - подумали вы..." />
+	</msg_sheaf>
+	<msg_sheaf id="kParry"></msg_sheaf>
+	<msg_sheaf id="kMultiparry"></msg_sheaf>
+	<msg_sheaf id="kShieldBlock">
+		<message type="kNotFighting" val="Но вы ни с кем не сражаетесь!" />
+	</msg_sheaf>
+	<msg_sheaf id="kDodge">
+		<message type="kNotFighting" val="Но вы ведь ни с кем не сражаетесь!" />
 	</msg_sheaf>
 </msg_container>
