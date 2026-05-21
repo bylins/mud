@@ -1,5 +1,7 @@
 #include "chopoff.h"
 
+#include "skill_messages.h"
+
 #include "gameplay/fight/pk.h"
 #include "gameplay/fight/common.h"
 #include "gameplay/fight/fight_hit.h"
@@ -12,7 +14,7 @@
 // ************************* CHOPOFF PROCEDURES
 void go_chopoff(CharData *ch, CharData *vict) {
 	if (IsUnableToAct(ch)) {
-		SendMsgToChar("Вы временно не в состоянии сражаться.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kChopoff, ESkillMsg::kCantFightNow) + "\r\n", ch);
 		return;
 	}
 
@@ -119,13 +121,13 @@ void go_chopoff(CharData *ch, CharData *vict) {
 
 void do_chopoff(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->GetSkill(ESkill::kChopoff) < 1) {
-		SendMsgToChar("Вы не знаете как.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kChopoff, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
 
 	CharData *vict = FindVictim(ch, argument);
 	if (!vict) {
-		SendMsgToChar("Кого вы собираетесь подсечь?\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kChopoff, ESkillMsg::kNoTarget) + "\r\n", ch);
 		return;
 	}
 
@@ -144,17 +146,17 @@ void do_chopoff(CharData *ch, CharData *vict) {
 	}
 
 	if (ch->HasCooldown(ESkill::kChopoff)) {
-		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kChopoff, ESkillMsg::kOnCooldown) + "\r\n", ch);
 		return;
 	};
 
 	if (ch->IsOnHorse()) {
-		SendMsgToChar("Верхом это сделать затруднительно.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kChopoff, ESkillMsg::kCantWhileMounted) + "\r\n", ch);
 		return;
 	}
 
 	if (vict == ch) {
-		SendMsgToChar("Вы можете воспользоваться командой <сесть>.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kChopoff, ESkillMsg::kCantTargetSelf) + "\r\n", ch);
 		return;
 	}
 

@@ -1,4 +1,6 @@
 #include "bash.h"
+
+#include "skill_messages.h"
 #include "gameplay/fight/pk.h"
 #include "gameplay/fight/common.h"
 #include "protect.h"
@@ -13,13 +15,13 @@
 // ************************* BASH PROCEDURES
 void do_bash(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!ch->GetSkill(ESkill::kBash)) {
-		SendMsgToChar("Вы не знаете как.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kBash, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
 
 	CharData *vict = FindVictim(ch, argument);
 	if (!vict) {
-		SendMsgToChar("Кого же вы так сильно желаете сбить?\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kBash, ESkillMsg::kNoTarget) + "\r\n", ch);
 		return;
 	}
 
@@ -38,22 +40,22 @@ void do_bash(CharData *ch, CharData *vict) {
 	}
 
 	if (ch->HasCooldown(ESkill::kBash)) {
-		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kBash, ESkillMsg::kOnCooldown) + "\r\n", ch);
 		return;
 	}
 
 	if (ch->HasCooldown(ESkill::kGlobalCooldown)) {
-		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kBash, ESkillMsg::kOnCooldown) + "\r\n", ch);
 		return;
 	}
 
 	if (ch->IsOnHorse()) {
-		SendMsgToChar("Верхом это сделать затруднительно.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kBash, ESkillMsg::kCantWhileMounted) + "\r\n", ch);
 		return;
 	}
 
 	if (vict == ch) {
-		SendMsgToChar("Ваш сокрушающий удар поверг вас наземь... Вы почувствовали себя глупо.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kBash, ESkillMsg::kCantTargetSelf) + "\r\n", ch);
 		return;
 	}
 
@@ -74,16 +76,16 @@ void go_bash(CharData *ch, CharData *vict) {
 		return;
 	}
 	if (IsUnableToAct(ch) || AFF_FLAGGED(ch, EAffect::kStopLeft)) {
-		SendMsgToChar("Вы временно не в состоянии сражаться.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kBash, ESkillMsg::kCantFightNow) + "\r\n", ch);
 		return;
 	}
 	if (ch->HasCooldown(ESkill::kBash)) {
-		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kBash, ESkillMsg::kOnCooldown) + "\r\n", ch);
 		return;
 	}
 
 	if (ch->HasCooldown(ESkill::kGlobalCooldown)) {
-		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kBash, ESkillMsg::kOnCooldown) + "\r\n", ch);
 		return;
 	}
 	if (!(ch->IsNpc() || GET_EQ(ch, kShield) || ch->IsImmortal() || AFF_FLAGGED(vict, EAffect::kHold)
@@ -96,15 +98,15 @@ void go_bash(CharData *ch, CharData *vict) {
 		return;
 	}
 	if (ch->IsHorsePrevents()) {
-		SendMsgToChar("Верхом это сделать затруднительно.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kBash, ESkillMsg::kCantWhileMounted) + "\r\n", ch);
 		return;
 	}
 	if (ch == vict) {
-		SendMsgToChar("Ваш сокрушающий удар поверг вас наземь... Вы почувствовали себя глупо.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kBash, ESkillMsg::kCantTargetSelf) + "\r\n", ch);
 		return;
 	}
 	if (ch->GetPosition() < EPosition::kFight) {
-		SendMsgToChar("Вам стоит встать на ноги.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kBash, ESkillMsg::kGetOnFeet) + "\r\n", ch);
 		return;
 	}
 //	if (vict->purged()) {

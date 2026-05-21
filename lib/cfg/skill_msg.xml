@@ -9,13 +9,14 @@
 	type сообщения (message) - значение ESkillMsg; текст в атрибуте val.
 
 	Сообщение в связке умения переопределяет одноимённое сообщение из kDefault.
-	Stage 1 (issue #3310): инфраструктура + пилотное умение kBackstab.
+	Текст сообщений хранится без завершающего "\r\n" (его добавляет вызывающий код).
 -->
 <msg_container>
 	<!-- Общие сообщения: помещаются сюда, если совпадают (или почти совпадают)
-	     у большинства умений. -->
+	     у большинства умений. Связка умения переопределяет их при отличии. -->
 	<msg_sheaf id="kDefault">
 		<message type="kDontKnowSkill" val="Вы не знаете как." />
+		<message type="kOnCooldown" val="Вам нужно набраться сил." />
 		<message type="kCantWhileMounted" val="Верхом это сделать затруднительно." />
 		<message type="kGetOnFeet" val="Вам стоит встать на ноги." />
 		<message type="kCantFightNow" val="Вы временно не в состоянии сражаться." />
@@ -24,9 +25,32 @@
 	<!-- Заколоть (kBackstab): сообщения, специфичные для умения. -->
 	<msg_sheaf id="kBackstab">
 		<message type="kNoTarget" val="Кого вы так сильно ненавидите, что хотите заколоть?" />
-		<message type="kOnCooldown" val="Вам нужно набраться сил." />
 		<message type="kCantTargetSelf" val="Вы, определенно, садомазохист!" />
 		<message type="kNeedWeapon" val="Требуется держать оружие в правой руке." />
 		<message type="kWrongWeapon" val="ЗаКОЛоть можно только КОЛющим оружием!" />
+	</msg_sheaf>
+	<msg_sheaf id="kBash">
+		<message type="kNoTarget" val="Кого же вы так сильно желаете сбить?" />
+		<message type="kCantTargetSelf" val="Ваш сокрушающий удар поверг вас наземь... Вы почувствовали себя глупо." />
+	</msg_sheaf>
+	<msg_sheaf id="kKick">
+		<message type="kNoTarget" val="Кто это так сильно путается под вашими ногами?" />
+		<message type="kCantTargetSelf" val="Вы БОЛЬНО пнули себя! Поздравляю, вы сошли с ума..." />
+	</msg_sheaf>
+	<msg_sheaf id="kDisarm">
+		<message type="kNoTarget" val="Кого обезоруживаем?" />
+		<message type="kCantTargetSelf" val="Попробуйте набрать &quot;снять &lt;название.оружия&gt;&quot;." />
+	</msg_sheaf>
+	<msg_sheaf id="kChopoff">
+		<message type="kNoTarget" val="Кого вы собираетесь подсечь?" />
+		<message type="kCantTargetSelf" val="Вы можете воспользоваться командой &lt;сесть&gt;." />
+	</msg_sheaf>
+	<msg_sheaf id="kCharge">
+		<message type="kCantFightNow" val="Вы временно не в состоянии это сделать." />
+		<message type="kGetOnFeet" val="Вы не можете ринуться в бой из этого положения!" />
+		<message type="kNoTarget" val="В каком направлении Вы желаете ринуться в бой?" />
+	</msg_sheaf>
+	<msg_sheaf id="kIntercept">
+		<message type="kCantTargetSelf" val=", вы похожи на котенка, ловящего собственный хвост." />
 	</msg_sheaf>
 </msg_container>
