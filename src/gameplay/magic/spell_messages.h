@@ -72,8 +72,8 @@ enum class ESpellMsg {
 	kDamageToChar,			// to the caster.
 	kDamageToNotVict,		// to onlookers (not the victim).
 	kDamageToVict,			// to the victim.
-	kClodToRoom,			// kClod: knockdown, to the room.
-	kClodToChar,			// kClod: knockdown, to the victim.
+	kLaggedToRoom,			// lagged, to the room.
+	kLaggedToChar,			// lagged, to the victim.
 	kKnockdownToRoom,		// shared knockdown -> kDefault (to the room).
 	kKnockdownToChar,		// shared knockdown -> kDefault (to the victim).
 	kAcidCorrodeObj,		// kAcid: corrodes the victim's object.

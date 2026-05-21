@@ -595,8 +595,8 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 					victim->DropFromHorse();
 				victim->SetPosition(EPosition::kSit);
 				victim->DropFromHorse();
-				act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kClodToRoom).c_str(), false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
-				act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kClodToChar).c_str(), false, victim, nullptr, nullptr, kToChar);
+				act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kLaggedToRoom).c_str(), false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
+				act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kLaggedToChar).c_str(), false, victim, nullptr, nullptr, kToChar);
 				SetWaitState(victim, 2 * kBattleRound);
 			}
 			break;

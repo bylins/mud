@@ -8,12 +8,6 @@
 	и хранит сообщения, общие для всех заклинаний.
 	type сообщения (message) - значение ESpellMsg; текст в атрибуте val.
 
-	Сообщения, выводимые через SendMsgToChar (kPointsToVict), хранятся БЕЗ
-	завершающего перевода строки - его добавляет место вывода. Сообщения act()
-	(kArea*) хранятся дословно; переводы строк закодированы как &#13;&#10;.
-
-	Этап 1: CastToPoints (kPointsToVict). Этап 2.2: mag_messages[] -
-	массовые/площадные заклинания (kAreaToChar/kAreaToRoom/kAreaToVict).
 -->
 <msg_container>
 	<!-- Ветвь по умолчанию: сюда позже переедут сообщения, общие для всех
@@ -45,6 +39,13 @@
 		<message type="kResurrectProtected" val="Боги защищают это существо даже после смерти." />
 		<message type="kKnockdownToRoom" val="$n3 повалило на землю." />
 		<message type="kKnockdownToChar" val="Вас повалило на землю." />
+		<message type="kLaggedToRoom" val="$n застыл$g на миг." />
+		<message type="kLaggedToRoom" val="$n споткнул$u о собственную тень и выпал$g из боя" />
+		<message type="kLaggedToRoom" val="$n растерянно замер$q, пропуская удар." />
+		<message type="kLaggedToChar" val="Ваши ноги вдруг стали ватными, а руки - чужими. Время замедлилось." />
+		<message type="kLaggedToChar" val="В глазах поплыло, и вы на миг потеряли нить происходящего." />
+		<message type="kLaggedToChar" val="Какая-то дурнота сковала движения - ни пошевелиться, ни выдохнуть." />
+		<message type="kAcidCorrodeObj" val="Кислота покрыла $o3." />
 	</msg_sheaf>
 
 	<msg_sheaf id="kCureLight">
@@ -663,7 +664,6 @@
 		<message type="kCastPhraseChristian" val="... Ангел Мой с вами, и он защитник душ ваших." />
 	</msg_sheaf>
 	<msg_sheaf id="kAcid">
-		<message type="kAcidCorrodeObj" val="Кислота покрыла $o3." />
 		<message type="kFightDeathToChar" val="$N, покрыт$W кислотой, обратил$U в однородную массу и умер$Q." />
 		<message type="kFightDeathToVict" val="Кислота, которой плеснул$g $n, обратила вас в однородную массу." />
 		<message type="kFightDeathToRoom" val="$n обдал$g кислотой $N3, обратив $S в однородную массу." />
@@ -680,8 +680,8 @@
 		<message type="kCastPhraseChristian" val="... подобно мучению от скорпиона." />
 	</msg_sheaf>
 	<msg_sheaf id="kClod">
-		<message type="kClodToRoom" val="$n3 придавило глыбой камня." />
-		<message type="kClodToChar" val="Огромная глыба камня свалила вас на землю!" />
+		<message type="kLaggedToRoom" val="$n3 придавило глыбой камня." />
+		<message type="kLaggedToChar" val="Огромная глыба камня свалила вас на землю!" />
 		<message type="kFightDeathToChar" val="$N умер$Q, раздавленн$W в лепешку вашей глыбой камня." />
 		<message type="kFightDeathToChar" val="От $N1 осталались лишь ошметки, торчащие из-под обрушившейся скалы." />
 		<message type="kFightDeathToVict" val="Обрушенная на вас глыба камня оказалась слишком тяжела. Покойтесь с миром." />

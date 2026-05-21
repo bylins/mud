@@ -45,7 +45,7 @@ TEST(SpellMessages, ESpellMsgNameRoundTrip) {
 							ESpellMsg::kResurrectBadCorpse, ESpellMsg::kResurrectConsecrated,
 							ESpellMsg::kResurrectNoPower, ESpellMsg::kResurrectProtected,
 							ESpellMsg::kDamageToChar, ESpellMsg::kDamageToNotVict,
-							ESpellMsg::kDamageToVict, ESpellMsg::kClodToRoom, ESpellMsg::kClodToChar,
+							ESpellMsg::kDamageToVict, ESpellMsg::kLaggedToRoom, ESpellMsg::kLaggedToChar,
 							ESpellMsg::kKnockdownToRoom, ESpellMsg::kKnockdownToChar,
 							ESpellMsg::kAcidCorrodeObj,
 							ESpellMsg::kCastPhraseHeathen, ESpellMsg::kCastPhraseChristian,
