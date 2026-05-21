@@ -1,9 +1,10 @@
 #include "engine/db/global_objects.h"
+#include "skill_messages.h"
 #include "engine/core/handler.h"
 
 void DoRepair(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!ch->GetSkill(ESkill::kRepair)) {
-		SendMsgToChar("Вы не умеете этого.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kRepair, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
 	if (IsTimedBySkill(ch, ESkill::kRepair)) {
@@ -19,7 +20,7 @@ void DoRepair(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	if (!*arg) {
-		SendMsgToChar("Что вы хотите ремонтировать?\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kRepair, ESkillMsg::kNoTarget) + "\r\n", ch);
 		return;
 	}
 

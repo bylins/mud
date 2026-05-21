@@ -1,4 +1,5 @@
 #include "identify.h"
+#include "skill_messages.h"
 
 #include "engine/entities/char_data.h"
 #include "engine/core/handler.h"
@@ -11,14 +12,14 @@ void do_identify(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int k, level = 0;
 
 	if (ch->IsNpc() || ch->GetSkill(ESkill::kIdentify) <= 0) {
-		SendMsgToChar("Вам стоит сначала этому научиться.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kIdentify, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
 
 	one_argument(argument, arg);
 
 	if (IsTimedBySkill(ch, ESkill::kIdentify)) {
-		SendMsgToChar("Вы же недавно опознавали - подождите чуток.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kIdentify, ESkillMsg::kOnCooldown) + "\r\n", ch);
 		return;
 	}
 

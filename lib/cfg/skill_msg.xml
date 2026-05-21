@@ -121,4 +121,53 @@
 		<message type="kNoTarget" val="И кто так сильно мил вашему сердцу?" />
 		<message type="kCantTargetSelf" val="Вы явно пацифист, или мазохист." />
 	</msg_sheaf>
+	<msg_sheaf id="kTurnUndead">
+		<message type="kDontKnowSkill" val="Вам это не по силам." />
+		<message type="kOnCooldown" val="Вам нужно набраться сил для применения этого навыка." />
+	</msg_sheaf>
+	<msg_sheaf id="kWarcry">
+		<message type="kDontKnowSkill" val="Но вы не знаете как." />
+	</msg_sheaf>
+	<msg_sheaf id="kJinx">
+		<message type="kNoTarget" val="Кого вы столь сильно ненавидите?" />
+		<message type="kCantTargetSelf" val="Вы укусили себя за левое ухо." />
+	</msg_sheaf>
+	<msg_sheaf id="kFirstAid">
+		<message type="kDontKnowSkill" val="Вам следует этому научиться." />
+		<message type="kNoTarget" val="Кого вы хотите подлечить?" />
+	</msg_sheaf>
+	<msg_sheaf id="kCampfire">
+		<message type="kDontKnowSkill" val="Но вы не знаете как." />
+		<message type="kCantWhileMounted" val="Верхом это будет затруднительно." />
+	</msg_sheaf>
+	<msg_sheaf id="kHideTrack">
+		<message type="kDontKnowSkill" val="Но вы не знаете как." />
+	</msg_sheaf>
+	<msg_sheaf id="kArmoring">
+		<message type="kDontKnowSkill" val="Вы не умеете этого." />
+		<message type="kNoTarget" val="Что вы хотите укрепить?" />
+	</msg_sheaf>
+	<msg_sheaf id="kSharpening">
+		<message type="kDontKnowSkill" val="Вы не умеете этого." />
+		<message type="kNoTarget" val="Что вы хотите заточить?" />
+	</msg_sheaf>
+	<msg_sheaf id="kRepair">
+		<message type="kDontKnowSkill" val="Вы не умеете этого." />
+		<message type="kNoTarget" val="Что вы хотите ремонтировать?" />
+	</msg_sheaf>
+	<msg_sheaf id="kPoisoning">
+		<message type="kDontKnowSkill" val="Вы не умеете этого." />
+		<message type="kNoTarget" val="Что вы хотите отравить?" />
+	</msg_sheaf>
+	<msg_sheaf id="kSkinning">
+		<message type="kDontKnowSkill" val="Вы не умеете этого." />
+		<message type="kNoTarget" val="Что вы хотите освежевать?" />
+	</msg_sheaf>
+	<msg_sheaf id="kIdentify">
+		<message type="kDontKnowSkill" val="Вам стоит сначала этому научиться." />
+		<message type="kOnCooldown" val="Вы же недавно опознавали - подождите чуток." />
+	</msg_sheaf>
+	<msg_sheaf id="kTownportal">
+		<message type="kDontKnowSkill" val="Прежде изучите секрет постановки врат." />
+	</msg_sheaf>
 </msg_container>

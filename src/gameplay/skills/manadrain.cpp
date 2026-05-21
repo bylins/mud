@@ -1,4 +1,5 @@
 #include "manadrain.h"
+#include "skill_messages.h"
 
 #include "engine/core/handler.h"
 #include "gameplay/fight/pk.h"
@@ -17,7 +18,7 @@ void do_manadrain(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	one_argument(argument, arg);
 
 	if (ch->IsNpc() || !ch->GetSkill(ESkill::kJinx)) {
-		SendMsgToChar("Вы не знаете как.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kJinx, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
 
@@ -28,7 +29,7 @@ void do_manadrain(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	CharData *vict = FindVictim(ch, argument);
 	if (!vict) {
-		SendMsgToChar("Кого вы столь сильно ненавидите?\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kJinx, ESkillMsg::kNoTarget) + "\r\n", ch);
 		return;
 	}
 //	if (vict->purged()) {
@@ -36,7 +37,7 @@ void do_manadrain(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 //	}
 
 	if (ch == vict) {
-		SendMsgToChar("Вы укусили себя за левое ухо.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kJinx, ESkillMsg::kCantTargetSelf) + "\r\n", ch);
 		return;
 	}
 

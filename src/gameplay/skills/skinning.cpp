@@ -1,4 +1,5 @@
 #include "gameplay/mechanics/dead_load.h"
+#include "skill_messages.h"
 #include "engine/entities/char_data.h"
 #include "engine/db/global_objects.h"
 #include "engine/core/handler.h"
@@ -300,13 +301,13 @@ ObjData *create_skin(CharData *mob, CharData *ch) {
 
 void DoSkinning(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!ch->GetSkill(ESkill::kSkinning)) {
-		SendMsgToChar("Вы не умеете этого.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kSkinning, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
 
 	one_argument(argument, arg);
 	if (!*arg) {
-		SendMsgToChar("Что вы хотите освежевать?\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kSkinning, ESkillMsg::kNoTarget) + "\r\n", ch);
 		return;
 	}
 
