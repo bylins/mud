@@ -599,6 +599,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <flags val="kMagGroups|kMagPoints|kNpcDummy"/>
         <talent_actions>
             <action>
+                <heal saving="kCritical" npc_coeff="3">
+                    <dices ndice="12" sdice="12" adice="12"/>
+                    <base_skill id="kPunctual" low_skill_bonus="10" hi_skill_bonus="5"/>
+                    <base_stat id="kInt" threshold="16" weight="6"/>
+                </heal>
                 <area>
                     <decay cast="0.01" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
