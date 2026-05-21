@@ -3088,19 +3088,12 @@ int CastToPoints(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 
 	switch (spell_id) {
 		case ESpell::kCureLight:
-			hit = CalcHeal(ch, victim, spell_id, level);
-			break;
 		case ESpell::kCureSerious:
-			hit = CalcHeal(ch, victim, spell_id, level);
-			break;
 		case ESpell::kCureCritic:
-			hit = CalcHeal(ch, victim, spell_id, level);
-			break;
-		case ESpell::kHeal: hit = CalcHeal(ch, victim, spell_id, level);
-			break;
-		case ESpell::kGroupHeal: hit = CalcHeal(ch, victim, spell_id, level);
-			break;
-		case ESpell::kGreatHeal: hit = CalcHeal(ch, victim, spell_id, level);
+		case ESpell::kHeal:
+		case ESpell::kGroupHeal: [[fallthrough]];
+		case ESpell::kGreatHeal:
+            hit = CalcHeal(ch, victim, spell_id, level);
 			break;
 		case ESpell::kPatronage: hit = (GetRealLevel(victim) + GetRealRemort(victim)) * 2;
 			break;
