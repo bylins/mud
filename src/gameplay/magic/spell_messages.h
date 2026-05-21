@@ -77,6 +77,9 @@ enum class ESpellMsg {
 	kKnockdownToRoom,		// shared knockdown -> kDefault (to the room).
 	kKnockdownToChar,		// shared knockdown -> kDefault (to the victim).
 	kAcidCorrodeObj,		// kAcid: corrodes the victim's object.
+	// Incantation phrase spoken when casting (SaySpell), chosen by religion.
+	kCastPhraseHeathen,		// phrase for a heathen (poly) caster.
+	kCastPhraseChristian,	// phrase for a Christian (mono) caster.
 	// Combat damage messages copied from MESS_FILE (lib/misc/messages, issue #3304).
 	// Stored only for now; still served from MESS_FILE by the fight system.
 	// Death/Miss/Hit/God x damager(ToChar)/damagee(ToVict)/onlookers(ToRoom).

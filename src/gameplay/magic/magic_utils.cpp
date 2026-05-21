@@ -61,8 +61,9 @@ void SaySpell(CharData *ch, ESpell spell_id, CharData *tch, ObjData *tobj) {
 	*buf = '\0';
 	strcpy(lbuf, MUD::Spell(spell_id).GetEngCName());
 	// Say phrase ?
-	const auto &cast_phrase_list = GetCastPhrase(spell_id);
-	if (!cast_phrase_list) {
+	const auto &cast_phrase_sheaf = MUD::SpellMessages()[spell_id];
+	if (!cast_phrase_sheaf.HasMessage(ESpellMsg::kCastPhraseHeathen)
+		&& !cast_phrase_sheaf.HasMessage(ESpellMsg::kCastPhraseChristian)) {
 		sprintf(buf, "[ERROR]: SaySpell: для спелла %d не объявлена cast_phrase", to_underlying(spell_id));
 		mudlog(buf, CMP, kLvlGod, SYSLOG, true);
 		return;
@@ -75,7 +76,7 @@ void SaySpell(CharData *ch, ESpell spell_id, CharData *tch, ObjData *tobj) {
 			case ENpcRace::kZombie:
 			case ENpcRace::kSpirit: {
 				const int religion = number(kReligionPoly, kReligionMono);
-				const std::string &cast_phrase = religion ? cast_phrase_list->text_for_christian : cast_phrase_list->text_for_heathen;
+				const std::string &cast_phrase = cast_phrase_sheaf.GetMessage(religion ? ESpellMsg::kCastPhraseChristian : ESpellMsg::kCastPhraseHeathen);
 				if (!cast_phrase.empty()) {
 					strcpy(buf, cast_phrase.c_str());
 				}
@@ -110,7 +111,7 @@ void SaySpell(CharData *ch, ESpell spell_id, CharData *tch, ObjData *tobj) {
 						MUD::Spell(spell_id).GetCName(), kColorNrm);
 			SendMsgToChar(buf, ch);
 		}
-		const std::string &cast_phrase = GET_RELIGION(ch) ? cast_phrase_list->text_for_christian : cast_phrase_list->text_for_heathen;
+		const std::string &cast_phrase = cast_phrase_sheaf.GetMessage(GET_RELIGION(ch) ? ESpellMsg::kCastPhraseChristian : ESpellMsg::kCastPhraseHeathen);
 		if (!cast_phrase.empty()) {
 			strcpy(buf, cast_phrase.c_str());
 		}

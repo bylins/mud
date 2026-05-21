@@ -48,6 +48,7 @@ TEST(SpellMessages, ESpellMsgNameRoundTrip) {
 							ESpellMsg::kDamageToVict, ESpellMsg::kClodToRoom, ESpellMsg::kClodToChar,
 							ESpellMsg::kKnockdownToRoom, ESpellMsg::kKnockdownToChar,
 							ESpellMsg::kAcidCorrodeObj,
+							ESpellMsg::kCastPhraseHeathen, ESpellMsg::kCastPhraseChristian,
 							ESpellMsg::kFightDeathToChar, ESpellMsg::kFightDeathToVict,
 							ESpellMsg::kFightDeathToRoom, ESpellMsg::kFightMissToChar,
 							ESpellMsg::kFightMissToVict, ESpellMsg::kFightMissToRoom,
