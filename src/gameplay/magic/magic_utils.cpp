@@ -61,8 +61,9 @@ void SaySpell(CharData *ch, ESpell spell_id, CharData *tch, ObjData *tobj) {
 	*buf = '\0';
 	strcpy(lbuf, MUD::Spell(spell_id).GetEngCName());
 	// Say phrase ?
-	const auto &cast_phrase_list = GetCastPhrase(spell_id);
-	if (!cast_phrase_list) {
+	const auto &cast_phrase_sheaf = MUD::SpellMessages()[spell_id];
+	if (!cast_phrase_sheaf.HasMessage(ESpellMsg::kCastPhraseHeathen)
+		&& !cast_phrase_sheaf.HasMessage(ESpellMsg::kCastPhraseChristian)) {
 		sprintf(buf, "[ERROR]: SaySpell: для спелла %d не объявлена cast_phrase", to_underlying(spell_id));
 		mudlog(buf, CMP, kLvlGod, SYSLOG, true);
 		return;
@@ -75,7 +76,7 @@ void SaySpell(CharData *ch, ESpell spell_id, CharData *tch, ObjData *tobj) {
 			case ENpcRace::kZombie:
 			case ENpcRace::kSpirit: {
 				const int religion = number(kReligionPoly, kReligionMono);
-				const std::string &cast_phrase = religion ? cast_phrase_list->text_for_christian : cast_phrase_list->text_for_heathen;
+				const std::string &cast_phrase = cast_phrase_sheaf.GetMessage(religion ? ESpellMsg::kCastPhraseChristian : ESpellMsg::kCastPhraseHeathen);
 				if (!cast_phrase.empty()) {
 					strcpy(buf, cast_phrase.c_str());
 				}
@@ -110,7 +111,7 @@ void SaySpell(CharData *ch, ESpell spell_id, CharData *tch, ObjData *tobj) {
 						MUD::Spell(spell_id).GetCName(), kColorNrm);
 			SendMsgToChar(buf, ch);
 		}
-		const std::string &cast_phrase = GET_RELIGION(ch) ? cast_phrase_list->text_for_christian : cast_phrase_list->text_for_heathen;
+		const std::string &cast_phrase = cast_phrase_sheaf.GetMessage(GET_RELIGION(ch) ? ESpellMsg::kCastPhraseChristian : ESpellMsg::kCastPhraseHeathen);
 		if (!cast_phrase.empty()) {
 			strcpy(buf, cast_phrase.c_str());
 		}
@@ -594,45 +595,45 @@ int CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, ESpel
 
 	if (ch->GetPosition() < MUD::Spell(spell_id).GetMinPos()) {
 		switch (ch->GetPosition()) {
-			case EPosition::kSleep: SendMsgToChar("Вы спите и не могете думать больше ни о чем.\r\n", ch);
+			case EPosition::kSleep: SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kCantCastSleeping) + "\r\n", ch);
 				break;
-			case EPosition::kRest: SendMsgToChar("Вы расслаблены и отдыхаете. И далась вам эта магия?\r\n", ch);
+			case EPosition::kRest: SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kCantCastResting) + "\r\n", ch);
 				break;
-			case EPosition::kSit: SendMsgToChar("Похоже, в этой позе Вы много не наколдуете.\r\n", ch);
+			case EPosition::kSit: SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kCantCastSitting) + "\r\n", ch);
 				break;
-			case EPosition::kFight: SendMsgToChar("Невозможно! Вы сражаетесь! Это вам не шухры-мухры.\r\n", ch);
+			case EPosition::kFight: SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kCantCastFighting) + "\r\n", ch);
 				break;
-			default: SendMsgToChar("Вам вряд ли это удастся.\r\n", ch);
+			default: SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kCantCastPosition) + "\r\n", ch);
 				break;
 		}
 		return 0;
 	}
 
 	if (AFF_FLAGGED(ch, EAffect::kCharmed) && ch->get_master() == tch) {
-		SendMsgToChar("Вы не посмеете поднять руку на вашего повелителя!\r\n", ch);
+		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kCantCastMaster) + "\r\n", ch);
 		return 0;
 	}
 
 	if (tch != ch && !ch->IsImmortal() && MUD::Spell(spell_id).AllowTarget(kTarSelfOnly)) {
-		SendMsgToChar("Вы можете колдовать это только на себя!\r\n", ch);
+		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kCantCastSelfOnly) + "\r\n", ch);
 		return 0;
 	}
 
 	if (tch == ch && MUD::Spell(spell_id).AllowTarget(kTarNotSelf)) {
-		SendMsgToChar("Колдовать? ЭТО? На себя?! Да вы с ума сошли!\r\n", ch);
+		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kCantCastNotSelf) + "\r\n", ch);
 		return 0;
 	}
 
 	if ((!tch || tch->in_room == kNowhere) && !tobj && !troom &&
 		MUD::Spell(spell_id).AllowTarget(kTarCharRoom | kTarCharWorld | kTarFightSelf | kTarFightVict |
 			kTarObjInv | kTarObjRoom | kTarObjWorld | kTarObjEquip | kTarRoomThis | kTarRoomDir)) {
-		SendMsgToChar("Цель заклинания недоступна.\r\n", ch);
+		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kTargetUnavailable) + "\r\n", ch);
 		return 0;
 	}
 
 	if (tch != nullptr && tch->in_room != ch->in_room) {
 		if (!MUD::Spell(spell_id).AllowTarget(kTarCharWorld)) {
-			SendMsgToChar("Цель заклинания недоступна.\r\n", ch);
+			SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kTargetUnavailable) + "\r\n", ch);
 			return 0;
 		}
 	}
@@ -643,19 +644,19 @@ int CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, ESpel
 			MUD::Spell(spell_id).IsFlagged(kMagGroups);
 		if (ignore) { // индивидуальная цель
 			if (MUD::Spell(spell_id).IsViolent()) {
-				SendMsgToChar("Ваша душа полна смирения, и вы не желаете творить зло.\r\n", ch);
+				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kCantCastPeaceful) + "\r\n", ch);
 				return false;    // нельзя злые кастовать
 			}
 		}
 		for (const auto ch_vict : world[ch->in_room]->people) {
 			if (MUD::Spell(spell_id).IsViolent()) {
 				if (ch_vict == tch) {
-					SendMsgToChar("Ваша душа полна смирения, и вы не желаете творить зло.\r\n", ch);
+					SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kCantCastPeaceful) + "\r\n", ch);
 					return false;
 				}
 			} else {
 				if (ch_vict == tch && !group::same_group(ch, ch_vict)) {
-					SendMsgToChar("Ваша душа полна смирения, и вы не желаете творить зло.\r\n", ch);
+					SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kCantCastPeaceful) + "\r\n", ch);
 					return false;
 				}
 			}

@@ -49,7 +49,9 @@ test_sources = files(
     'world_load_order.cpp',
     'obj_decay_manager.cpp',
     'char.utilities.cpp',
-    'exit_is_empty.cpp'
+    'exit_is_empty.cpp',
+    'msg_container.cpp',
+    'spell_messages.cpp'
 )
 
 fs = import('fs')
@@ -60,6 +62,7 @@ files_to_copy = [
     ['data/boards/news.sample',       'data/boards/news.sample'],
     ['data/mob_classes/test_initial.xml', 'data/mob_classes/test_initial.xml'],
     ['data/mob_classes/test_updated.xml', 'data/mob_classes/test_updated.xml'],
+    ['data/msg_container/test_messages.xml', 'data/msg_container/test_messages.xml'],
 ]
 
 copied_targets = []

@@ -165,12 +165,20 @@ if boost_opt != 'disabled'
     endif
 endif
 
-if get_option('nocrypt') or build_profile in ['dev', 'fasttest'] or host_system == 'darwin'
+has_crypt = false
+if get_option('nocrypt') or build_profile in ['dev', 'fasttest']
     project_args += '-DNOCRYPT'
 else
     libcrypt = cpp.find_library('crypt', required: false)
     if libcrypt.found()
         dependencies += libcrypt
+        has_crypt = true
+    elif cpp.has_function('crypt', prefix: '#include <unistd.h>')
+        message('crypt() found in system library, no libcrypt needed')
+        has_crypt = true
+    else
+        warning('crypt() not found, building without crypt support')
+        project_args += '-DNOCRYPT'
     endif
 endif
 
@@ -419,6 +427,7 @@ main_sources = files(
   'src/gameplay/magic/magic_utils.cpp',
   'src/gameplay/magic/spells.cpp',
   'src/gameplay/magic/spells_info.cpp',
+  'src/gameplay/magic/spell_messages.cpp',
   'src/gameplay/magic/magic_temp_spells.cpp',
   'src/gameplay/communication/mail.cpp',
   'src/engine/ui/mapsystem.cpp',
@@ -865,6 +874,7 @@ summary({
     'Coverage':        get_option('b_coverage'),
     'ASan':            get_option('with_asan'),
     'Scripting':       get_option('scripting'),
+    'Crypt': has_crypt,
     'Admin API':       get_option('admin_api'),
     'Epoll':           epoll_enabled,
     'Linker':          linker_choice != '' ? linker_choice : 'default',

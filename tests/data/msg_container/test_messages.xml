@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Minimal msg_container XML for unit tests (issue #3294).
+     ASCII placeholder values are used on purpose; the container stores strings
+     opaquely, so message content is irrelevant to the logic under test.
+     Real game data stores Russian player messages in KOI8-R. -->
+<msg_container>
+    <msg_sheaf id="kFireball">
+        <message type="kStart"   val="fireball-start" />
+        <message type="kSuccess" val="fireball-hit-a" />
+        <message type="kSuccess" val="fireball-hit-b" />
+        <message type="kFail"    val="fireball-fail" />
+    </msg_sheaf>
+
+    <!-- Default sheaf: its id maps to EMsgTestElem::kUndefined. -->
+    <msg_sheaf id="kDefault">
+        <message type="kFail" val="default-fail" />
+        <message type="kTick" val="default-tick" />
+    </msg_sheaf>
+</msg_container>

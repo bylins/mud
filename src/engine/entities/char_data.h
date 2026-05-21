@@ -361,6 +361,7 @@ class CharData : public ProtectedCharData {
 	int GetSkill(ESkill skill_id) const;
 	int GetSkillWithoutEquip(ESkill skill_id) const;
 	int get_skills_count() const;
+	const CharSkillsType &GetCharSkills() const { return skills; }
 	int GetEquippedSkill(ESkill skill_id) const;
 	int get_skill_bonus() const;
 	void set_skill_bonus(int);
