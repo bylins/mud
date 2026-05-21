@@ -166,7 +166,10 @@ extern void abort(), exit();
 #endif
 
 #ifdef HAVE_CRYPT_H
-#ifdef __FreeBSD__
+#if defined(__unix__) || defined(__unix) || defined(__APPLE__)
+#include <sys/param.h>
+#endif
+#ifdef BSD
 #include <unistd.h>
 #else
 #include <crypt.h>
