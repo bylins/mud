@@ -50,7 +50,8 @@ test_sources = files(
     'obj_decay_manager.cpp',
     'char.utilities.cpp',
     'exit_is_empty.cpp',
-    'msg_container.cpp'
+    'msg_container.cpp',
+    'spell_messages.cpp'
 )
 
 fs = import('fs')
