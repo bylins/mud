@@ -33,7 +33,13 @@ TEST(SkillMessages, ESkillMsgNameRoundTrip) {
 							ESkillMsg::kGetOnFeet, ESkillMsg::kCantFightNow,
 							ESkillMsg::kNotFighting, ESkillMsg::kPeacefulRoom, ESkillMsg::kNoTarget,
 							ESkillMsg::kCantTargetSelf, ESkillMsg::kNeedWeapon,
-							ESkillMsg::kWrongWeapon}) {
+							ESkillMsg::kWrongWeapon,
+							ESkillMsg::kFightDeathToChar, ESkillMsg::kFightDeathToVict,
+							ESkillMsg::kFightDeathToRoom, ESkillMsg::kFightMissToChar,
+							ESkillMsg::kFightMissToVict, ESkillMsg::kFightMissToRoom,
+							ESkillMsg::kFightHitToChar, ESkillMsg::kFightHitToVict,
+							ESkillMsg::kFightHitToRoom, ESkillMsg::kFightGodToChar,
+							ESkillMsg::kFightGodToVict, ESkillMsg::kFightGodToRoom}) {
 		EXPECT_EQ(type, ITEM_BY_NAME<ESkillMsg>(NAME_BY_ITEM<ESkillMsg>(type)));
 	}
 }
