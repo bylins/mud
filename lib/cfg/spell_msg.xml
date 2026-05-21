@@ -30,12 +30,12 @@
 		<message type="kTargetUnavailable" val="Цель заклинания недоступна." />
 		<message type="kCantCastPeaceful" val="Ваша душа полна смирения, и вы не желаете творить зло." />
 		<message type="kObjResist" val="$o устойчив$A к вашей магии." />
-		<message type="kSummonFail" val="п√п╟п╩я▄, я│п╬я─п╡п╟п╩п╬я│я▄..." />
-		<message type="kSummonFail" val="п²п╦я┤п╣пЁп╬." />
-		<message type="kSummonFail" val="п╖п╣я─я┌! п²п╦я┤п╣пЁп╬ п╫п╣ п╡я▀я┬п╩п╬." />
-		<message type="kSummonFail" val="п▓я▀ п╫п╣ я│п╪п╬пЁп╩п╦ я│п╢п╣п╩п╟я┌я▄ я█я┌п╬пЁп╬!" />
-		<message type="kSummonFail" val="п▓п╟я┬п╟ п╪п╟пЁп╦я▐ п©я─п╬п╡п╟п╩п╦п╩п╟я│я▄." />
-		<message type="kSummonNoCorpse" val="пё п╡п╟я│ п╫п╣я┌ п©п╬п╢я┘п╬п╢я▐я┴п╣пЁп╬ я┌я─я┐п©п╟!&#13;&#10;" />
+		<message type="kSummonFail" val="Жаль, сорвалось..." />
+		<message type="kSummonFail" val="Ничего." />
+		<message type="kSummonFail" val="Черт! Ничего не вышло." />
+		<message type="kSummonFail" val="Вы не смогли сделать этого!" />
+		<message type="kSummonFail" val="Ваша магия провалилась." />
+		<message type="kSummonNoCorpse" val="У вас нет подходящего трупа!" />
 		<message type="kSummonCharmed" val="Вы слишком зависимы, чтобы искать себе последователей!" />
 		<message type="kSummonNoProto" val="Вы точно не помните, как создать данного монстра." />
 		<message type="kSummonWarhorse" val="Это был боевой скакун, а не хухры-мухры." />
@@ -69,13 +69,13 @@
 	</msg_sheaf>
 	<msg_sheaf id="kGroupHeal">
 		<message type="kPointsToVict" val="Вы почувствовали себя лучше." />
-		<message type="kAreaToChar" val="Вы подняли голову вверх и ощутили яркий свет, ласково бегущий по вашему телу.&#13;&#10;" />
+		<message type="kAreaToChar" val="Вы подняли голову вверх и ощутили яркий свет, ласково бегущий по вашему телу." />
 		<message type="kCastPhraseHeathen" val="други, гой еси" />
 		<message type="kCastPhraseChristian" val="... вам говорю, встаньте." />
 	</msg_sheaf>
 	<msg_sheaf id="kGreatHeal">
 		<message type="kPointsToVict" val="Вы почувствовали себя полностью здоровым." />
-		<message type="kAreaToChar" val="Вы подняли голову вверх и ощутили яркий свет, ласково бегущий по вашему телу.&#13;&#10;" />
+		<message type="kAreaToChar" val="Вы подняли голову вверх и ощутили яркий свет, ласково бегущий по вашему телу." />
 		<message type="kCastPhraseHeathen" val="згола гой еси" />
 		<message type="kCastPhraseChristian" val="... тебе говорю, встань." />
 	</msg_sheaf>
@@ -96,7 +96,7 @@
 	</msg_sheaf>
 	<msg_sheaf id="kGroupRefresh">
 		<message type="kPointsToVict" val="Вы почувствовали себя полным сил." />
-		<message type="kAreaToChar" val="Ваша магия наполнила воздух зеленоватым сиянием.&#13;&#10;" />
+		<message type="kAreaToChar" val="Ваша магия наполнила воздух зеленоватым сиянием." />
 		<message type="kCastPhraseHeathen" val="Исполняше други силою!" />
 		<message type="kCastPhraseChristian" val="...да не останется ни обделенного, ни обессиленного." />
 	</msg_sheaf>
@@ -107,7 +107,7 @@
 	</msg_sheaf>
 	<msg_sheaf id="kCommonMeal">
 		<message type="kPointsToVict" val="Вы полностью насытились." />
-		<message type="kAreaToChar" val="Вы услышали гомон невидимых лакеев, готовящих трапезу.&#13;&#10;" />
+		<message type="kAreaToChar" val="Вы услышали гомон невидимых лакеев, готовящих трапезу." />
 		<message type="kCastPhraseHeathen" val="Благодарите богов за хлеб и соль!" />
 		<message type="kCastPhraseChristian" val="...дабы не осталось голодающих на свете белом" />
 	</msg_sheaf>
@@ -155,7 +155,7 @@
 		<message type="kCastPhraseChristian" val="... и не будут слышать уши ваши." />
 	</msg_sheaf>
 	<msg_sheaf id="kMassSlow">
-		<message type="kAreaToChar" val="Положив ладони на землю, вы вызвали цепкие корни,&#13;&#10;опутавшие существ, стоящих рядом с вами." />
+		<message type="kAreaToChar" val="Положив ладони на землю, вы вызвали цепкие корни, опутавшие существ, стоящих рядом с вами." />
 		<message type="kAreaToVict" val="$n вызвал$g цепкие корни, опутавшие ваши ноги." />
 		<message type="kCastPhraseHeathen" val="тернии им" />
 		<message type="kCastPhraseChristian" val="... загорожу путь их тернами." />
@@ -233,7 +233,7 @@
 		<message type="kCastPhraseChristian" val="... и град, величиною в талант, падет с неба." />
 	</msg_sheaf>
 	<msg_sheaf id="kDustStorm">
-		<message type="kAreaToChar" val="Вы взмахнули руками и вызвали огромное пылевое облако,&#13;&#10;скрывшее все вокруг." />
+		<message type="kAreaToChar" val="Вы взмахнули руками и вызвали огромное пылевое облако, скрывшее все вокруг." />
 		<message type="kAreaToRoom" val="Вас поглотила пылевая буря, вызванная $n4." />
 		<message type="kCastPhraseHeathen" val="пыль поднимется столбами" />
 		<message type="kCastPhraseChristian" val="... и пыль поглотит вас." />
@@ -418,92 +418,94 @@
 		<message type="kCastPhraseChristian" val="Эй, псы шелудивые, керасти плешивые, ослопы беспорточные, мшицы задочные!" />
 	</msg_sheaf>
 	<msg_sheaf id="kGroupArmor">
-		<message type="kAreaToChar" val="Вы создали защитную сферу, которая окутала вас и пространство рядом с вами.&#13;&#10;" />
+		<message type="kAreaToChar" val="Вы создали защитную сферу, которая окутала вас и пространство рядом с вами." />
 		<message type="kCastPhraseHeathen" val="прибежище други" />
 		<message type="kCastPhraseChristian" val="... ибо кто Бог, кроме Господа, и кто защита, кроме Бога нашего?" />
 	</msg_sheaf>
 	<msg_sheaf id="kGroupRecall">
-		<message type="kAreaToChar" val="Вы выкрикнули заклинание и хлопнули в ладоши.&#13;&#10;" />
+		<message type="kAreaToChar" val="Вы выкрикнули заклинание и хлопнули в ладоши." />
 		<message type="kCastPhraseHeathen" val="исчезните с глаз моих" />
 		<message type="kCastPhraseChristian" val="... вам говорю, ступайте с миром." />
 	</msg_sheaf>
 	<msg_sheaf id="kGroupStrength">
-		<message type="kAreaToChar" val="Вы призвали мощь Вселенной.&#13;&#10;" />
+		<message type="kAreaToChar" val="Серая дымка сплелась вокруг вашего отряда, даруя жилам железную твёрдость." />
+		<message type="kAreaToChar" val="Вас и ваших спутников окутал золотистый отсвет, разлившийся по мышцам." />
+		<message type="kAreaToChar" val="Лёгкий вихрь пробежал меж вами и товарищами, вливая в тела силу." />
 		<message type="kCastPhraseHeathen" val="други сильны" />
 		<message type="kCastPhraseChristian" val="... и даст нам Господь силу." />
 	</msg_sheaf>
 	<msg_sheaf id="kGroupBless">
-		<message type="kAreaToChar" val="Прикрыв глаза, вы прошептали таинственную молитву.&#13;&#10;" />
+		<message type="kAreaToChar" val="Прикрыв глаза, вы прошептали таинственную молитву." />
 		<message type="kCastPhraseHeathen" val="други, наполнися ратнаго духа" />
 		<message type="kCastPhraseChristian" val="... блажены те, слышащие слово Божие." />
 	</msg_sheaf>
 	<msg_sheaf id="kGroupHaste">
-		<message type="kAreaToChar" val="Разведя руки в стороны, вы ощутили всю мощь стихии ветра.&#13;&#10;" />
+		<message type="kAreaToChar" val="Разведя руки в стороны, вы ощутили всю мощь стихии ветра." />
 		<message type="kCastPhraseHeathen" val="быстры аки ястребов стая" />
 		<message type="kCastPhraseChristian" val="... и они быстры как серны на горах." />
 	</msg_sheaf>
 	<msg_sheaf id="kGroupFly">
-		<message type="kAreaToChar" val="Ваше заклинание вызвало белое облако, которое разделилось, подхватывая вас и товарищей.&#13;&#10;" />
+		<message type="kAreaToChar" val="Ваше заклинание вызвало белое облако, которое разделилось, подхватывая вас и товарищей." />
 		<message type="kCastPhraseHeathen" val="крыла им створисте" />
 		<message type="kCastPhraseChristian" val="... и все летающие по роду их." />
 	</msg_sheaf>
 	<msg_sheaf id="kGroupInvisible">
-		<message type="kAreaToChar" val="Вы вызвали прозрачный туман, поглотивший все дружественное вам.&#13;&#10;" />
+		<message type="kAreaToChar" val="Вы вызвали прозрачный туман, поглотивший все дружественное вам." />
 		<message type="kCastPhraseHeathen" val="други, низовати мечетны" />
 		<message type="kCastPhraseChristian" val="... возвещай всем великую силу Бога. И, сказав сие, они стали невидимы." />
 	</msg_sheaf>
 	<msg_sheaf id="kGroupMagicGlass">
-		<message type="kAreaToChar" val="Вы произнесли несколько резких слов, и все вокруг засеребрилось.&#13;&#10;" />
+		<message type="kAreaToChar" val="Вы произнесли несколько резких слов, и все вокруг засеребрилось." />
 		<message type="kCastPhraseHeathen" val="гладь воды отразит" />
 		<message type="kCastPhraseChristian" val="... воздай им по делам их, по злым поступкам их." />
 	</msg_sheaf>
 	<msg_sheaf id="kGroupSanctuary">
-		<message type="kAreaToChar" val="Вы подняли руки к небу и произнесли священную молитву.&#13;&#10;" />
+		<message type="kAreaToChar" val="Вы подняли руки к небу и произнесли священную молитву." />
 		<message type="kCastPhraseHeathen" val="иже во святых, други" />
 		<message type="kCastPhraseChristian" val="... будьте святы, аки Господь наш свят." />
 	</msg_sheaf>
 	<msg_sheaf id="kGroupPrismaticAura">
-		<message type="kAreaToChar" val="Силы духа, призванные вами, окутали вас и окружающих голубоватым сиянием.&#13;&#10;" />
+		<message type="kAreaToChar" val="Силы духа, призванные вами, окутали вас и окружающих голубоватым сиянием." />
 		<message type="kCastPhraseHeathen" val="други, буде окружены радугой" />
 		<message type="kCastPhraseChristian" val="... взгляни на радугу, и прославь Сотворившего ее." />
 	</msg_sheaf>
 	<msg_sheaf id="kFireAura">
-		<message type="kAreaToChar" val="Силы огня пришли к вам на помощь и защитили вас.&#13;&#10;" />
+		<message type="kAreaToChar" val="Силы огня пришли к вам на помощь и защитили вас." />
 		<message type="kCastPhraseHeathen" val="Сварог, даруй защиту." />
 		<message type="kCastPhraseChristian" val="... и огонь низводит с неба." />
 	</msg_sheaf>
 	<msg_sheaf id="kAirAura">
-		<message type="kAreaToChar" val="Силы воздуха пришли к вам на помощь и защитили вас.&#13;&#10;" />
+		<message type="kAreaToChar" val="Силы воздуха пришли к вам на помощь и защитили вас." />
 		<message type="kCastPhraseHeathen" val="Мать-земля, даруй защиту." />
 		<message type="kCastPhraseChristian" val="... поклон тебе матушка земля." />
 	</msg_sheaf>
 	<msg_sheaf id="kIceAura">
-		<message type="kAreaToChar" val="Силы холода пришли к вам на помощь и защитили вас.&#13;&#10;" />
+		<message type="kAreaToChar" val="Силы холода пришли к вам на помощь и защитили вас." />
 		<message type="kCastPhraseHeathen" val="Морена, даруй защиту." />
 		<message type="kCastPhraseChristian" val="... текущие холодные воды." />
 	</msg_sheaf>
 	<msg_sheaf id="kEarthAura">
-		<message type="kAreaToChar" val="Земля одарила вас своей защитой.&#13;&#10;" />
+		<message type="kAreaToChar" val="Земля одарила вас своей защитой." />
 		<message type="kCastPhraseHeathen" val="Велес, даруй защиту." />
 		<message type="kCastPhraseChristian" val="... земля благословенна твоя." />
 	</msg_sheaf>
 	<msg_sheaf id="kGroupProtectFromEvil">
-		<message type="kAreaToChar" val="Сила света подавила в вас страх к тьме.&#13;&#10;" />
+		<message type="kAreaToChar" val="Сила света подавила в вас страх к тьме." />
 		<message type="kCastPhraseHeathen" val="други, супостат нощи" />
 		<message type="kCastPhraseChristian" val="други, свет который в нас, да убоится тьма." />
 	</msg_sheaf>
 	<msg_sheaf id="kGroupBlink">
-		<message type="kAreaToChar" val="Очертания вас и соратников замерцали в такт биения сердца, став прозрачней.&#13;&#10;" />
+		<message type="kAreaToChar" val="Очертания вас и соратников замерцали в такт биения сердца, став прозрачней." />
 		<message type="kCastPhraseHeathen" val="защити нас от железа разящего" />
 		<message type="kCastPhraseChristian" val="... ни стрела, ни меч не пронзят печень вашу." />
 	</msg_sheaf>
 	<msg_sheaf id="kGroupCloudly">
-		<message type="kAreaToChar" val="Пелена тумана окутала вас и окружающих, скрыв очертания.&#13;&#10;" />
+		<message type="kAreaToChar" val="Пелена тумана окутала вас и окружающих, скрыв очертания." />
 		<message type="kCastPhraseHeathen" val="огрожу беззакония их туманом" />
 		<message type="kCastPhraseChristian" val="...да защитит и покроет рассветная пелена тела ваши." />
 	</msg_sheaf>
 	<msg_sheaf id="kGroupAwareness">
-		<message type="kAreaToChar" val="Произнесенные слова обострили ваши чувства и внимательность ваших соратников.&#13;&#10;" />
+		<message type="kAreaToChar" val="Произнесенные слова обострили ваши чувства и внимательность ваших соратников." />
 		<message type="kCastPhraseHeathen" val="буде вежды ваши открыты" />
 		<message type="kCastPhraseChristian" val="... и забота о ближнем отгоняет сон от очей их." />
 	</msg_sheaf>
@@ -523,19 +525,17 @@
 		<message type="kCastPhraseChristian" val="бей в глаз, не порти шкуру." />
 	</msg_sheaf>
 	<msg_sheaf id="kMassFailure">
-		<message type="kAreaToChar" val="Вняв вашему призыву, Змей Велес коснулся недобрым взглядом ваших супостатов.&#13;&#10;" />
+		<message type="kAreaToChar" val="Вняв вашему призыву, Змей Велес коснулся недобрым взглядом ваших супостатов." />
 		<message type="kAreaToVict" val="$n провыл$g несколько странно звучащих слов и от тяжелого взгляда из-за края мира у вас подкосились ноги." />
 		<message type="kCastPhraseHeathen" val="...отче Велес, очи отвержеши!" />
 		<message type="kCastPhraseChristian" val="...надежда тщетна: не упадешь ли от одного взгляда его?" />
 	</msg_sheaf>
 	<msg_sheaf id="kSnare">
-		<message type="kAreaToChar" val="Вы соткали магические тенета, опутавшие ваших врагов.&#13;&#10;" />
+		<message type="kAreaToChar" val="Вы соткали магические тенета, опутавшие ваших врагов." />
 		<message type="kAreaToVict" val="$n что-то прошептал$g, странно скрючив пальцы, и взлетевшие откуда ни возьмись ловчие сети опутали вас" />
 		<message type="kCastPhraseHeathen" val="Заклинати поврещение в сети заскопиены!" />
 		<message type="kCastPhraseChristian" val="...будет трапеза их сетью им, и мирное пиршество их - западнею." />
 	</msg_sheaf>
-
-	<!-- CastToAlterObjs (issue #3304, stage 2.1) -->
 	<msg_sheaf id="kBless">
 		<message type="kAlterObjToChar" val="$o вспыхнул$G голубым светом и тут же погас$Q." />
 		<message type="kCastPhraseHeathen" val="истягну умь крепостию" />
@@ -619,46 +619,49 @@
 		<message type="kCastPhraseHeathen" val="ницовати стружие" />
 		<message type="kCastPhraseChristian" val="... укрепи сталь Божьим перстом." />
 	</msg_sheaf>
-
-	<!-- CastSummon (issue #3304, stage 2.3) -->
 	<msg_sheaf id="kAnimateDead">
-		<message type="kSummonToRoom" val="$n я│п╢п╣п╩п╟п╩$g п╫п╣я│п╨п╬п╩я▄п╨п╬ п╦п╥я▐я┴п╫п╦я┘ п©п╟я│я│п╬п╡ - п╡я▀ п©п╬я┤я┐п╡я│я┌п╡п╬п╡п╟п╩п╦ я│я┌я─п╟п╫п╫п╬п╣ п╢я┐п╫п╬п╡п╣п╫п╦п╣!" />
-		<message type="kSummonToRoom" val="$n п©п╬п╢п╫я▐п╩$g я┌я─я┐п©!" />
-		<message type="kSummonToRoom" val="$N п©п╬я▐п╡п╦п╩$U п╦п╥ п╨п╩я┐п╠п╬п╡ пЁп╬п╩я┐п╠п╬пЁп╬ п╢я▀п╪п╟!" />
-		<message type="kSummonToRoom" val="$N п©п╬я▐п╡п╦п╩$U п╦п╥ п╨п╩я┐п╠п╬п╡ п╥п╣п╩п╣п╫п╬пЁп╬ п╢я▀п╪п╟!" />
-		<message type="kSummonToRoom" val="$N п©п╬я▐п╡п╦п╩$U п╦п╥ п╨п╩я┐п╠п╬п╡ п╨я─п╟я│п╫п╬пЁп╬ п╢я▀п╪п╟!" />
-		<message type="kSummonToRoom" val="$n я│п╢п╣п╩п╟п╩$g п╫п╣я│п╨п╬п╩я▄п╨п╬ п╦п╥я▐я┴п╫я▀я┘ п©п╟я│я│п╬п╡ - п╡п╟я│ п╬п╠п╢п╟п╩п╬ п©п╬я─я▀п╡п╬п╪ я┘п╬п╩п╬п╢п╫п╬пЁп╬ п╡п╣я┌я─п╟." />
-		<message type="kSummonToRoom" val="$n я│п╢п╣п╩п╟п╩$g п╫п╣я│п╨п╬п╩я▄п╨п╬ п╦п╥я▐я┴п╫я▀я┘ п©п╟я│я│п╬п╡, п╬я┌ я┤п╣пЁп╬ п╡п╟я┬п╦ п╡п╬п╩п╬я│я▀ п╡я│я┌п╟п╩п╦ п╢я▀п╠п╬п╪." />
-		<message type="kSummonToRoom" val="$n я│п╢п╣п╩п╟п╩$g п╫п╣я│п╨п╬п╩я▄п╨п╬ п╦п╥я▐я┴п╫я▀я┘ п©п╟я│я│п╬п╡, п╬п╠п╢п╟п╡ п╡п╟я│ п╫п╣я│я┌п╣я─п©п╦п╪я▀п╪ п╤п╟я─п╬п╪." />
-		<message type="kSummonToRoom" val="$n я│п╢п╣п╩п╟п╩$g п╫п╣я│п╨п╬п╩я▄п╨п╬ п╦п╥я▐я┴п╫я▀я┘ п©п╟я│я│п╬п╡, п╡я▀п╥п╡п╟п╡ я┐ п╡п╟я│ п©я─п╦я│я┌я┐п© я┌п╬я┬п╫п╬я┌я▀." />
+		<message type="kSummonToRoom" val="$n сделал$g несколько изящных пассов - вы почувствовали странное дуновение!" />
+		<message type="kSummonToRoom" val="$n поднял$g труп!" />
+		<message type="kSummonToRoom" val="$N появил$U из клубов голубого дыма!" />
+		<message type="kSummonToRoom" val="$N появил$U из клубов зелёного дыма!" />
+		<message type="kSummonToRoom" val="$N появил$U из клубов красного дыма!" />
+		<message type="kSummonToRoom" val="$n сделал$g несколько изящных пассов - вас обдало порывом холодного ветра." />
+		<message type="kSummonToRoom" val="$n сделал$g несколько изящных пассов, от чего ваши волосы встали дыбом." />
+		<message type="kSummonToRoom" val="$n сделал$g несколько изящных пассов, обдав вас нестерпимым жаром." />
+		<message type="kSummonToRoom" val="$n сделал$g несколько изящных пассов, вызвав у вас приступ тошноты." />
 		<message type="kCastPhraseHeathen" val="живот изо праха створисте" />
 		<message type="kCastPhraseChristian" val="... и земля извергнет мертвецов." />
 	</msg_sheaf>
 	<msg_sheaf id="kClone">
-		<message type="kSummonToRoom" val="$n я─п╟п╥п╢п╡п╬п╦п╩$u!" />
-		<message type="kSummonFail" val="п²п╦я┤п╣пЁп╬." />
-		<message type="kSummonFail" val="п╖п╣я─я┌! п²п╦я┤п╣пЁп╬ п╫п╣ п╡я▀я┬п╩п╬." />
-		<message type="kSummonFail" val="п▓я▀ п╫п╣ я│п╪п╬пЁп╩п╦ я│п╢п╣п╩п╟я┌я▄ я█я┌п╬пЁп╬!" />
+		<message type="kSummonToRoom" val="$n раздвоил$u!" />
+		<message type="kSummonToRoom" val="$n моргнул$g - из воздуха выпала тень $s	." />
+		<message type="kSummonToRoom" val="$n плечом повел$g, и народился $s двойник." />
+		<message type="kSummonFail" val="Разве что плюнуть с досады - ничего не вышло." />
+		<message type="kSummonFail" val="Морок бессильно рассеялся." />
+		<message type="kSummonFail" val="Не срослось у вас с двойником..." />
+		<message type="kSummonFail" val="Проклятье! Не получилось." />
+		<message type="kSummonFail" val="Вы нн смогли сделать этого!" />
 		<message type="kCastPhraseHeathen" val="пусть будет много меня" />
 		<message type="kCastPhraseChristian" val="... и плодились, и весьма умножились." />
 	</msg_sheaf>
 	<msg_sheaf id="kResurrection">
-		<message type="kSummonToRoom" val="$n п╬п╤п╦п╡п╦п╩$g я┌я─я┐п©!" />
+		<message type="kSummonToRoom" val="$n оживил труп!" />
+		<message type="kSummonToRoom" val="$n плюнул$g в тлен и ударил$g посохом. Мороз продрал по коже, когда лик мертвеца обратился к живому." />
+		<message type="kSummonToRoom" val="Чёрное слово сорвалось с уст $n - и мёртвая плоть поднялась, отряхая червей." />
+		<message type="kSummonToRoom" val="$n дыхнул гнильцой и мертвец восстал на костях своих, повинуясь хозяину." />
 		<message type="kCastPhraseHeathen" val="воскресе из мертвых" />
 		<message type="kCastPhraseChristian" val="... оживут мертвецы Твои, восстанут мертвые тела!" />
 	</msg_sheaf>
 	<msg_sheaf id="kSummonKeeper">
-		<message type="kSummonToRoom" val="$n п©я─п╦п╥п╡п╟п╩$g п╥п╟я┴п╦я┌п╫п╦п╨п╟!" />
+		<message type="kSummonToRoom" val="$n призвал$g защитника!" />
 		<message type="kCastPhraseHeathen" val="Сварог, даруй защитника" />
 		<message type="kCastPhraseChristian" val="... и благословен защитник мой!" />
 	</msg_sheaf>
 	<msg_sheaf id="kSummonFirekeeper">
-		<message type="kSummonToRoom" val="п·пЁп╫п╣п╫п╫я▀п╧ я┘я─п╟п╫п╦я┌п╣п╩я▄ п©п╬я▐п╡п╦п╩я│я▐ п╦п╥ п╡п╦я┘я─я▐ п©п╩п╟п╪п╣п╫п╦!" />
+		<message type="kSummonToRoom" val="Огненный хранитель появился из вихря пламени!" />
 		<message type="kCastPhraseHeathen" val="Дажьбог, даруй защитника" />
 		<message type="kCastPhraseChristian" val="... Ангел Мой с вами, и он защитник душ ваших." />
 	</msg_sheaf>
-
-	<!-- CastDamage spell-keyed flavour (issue #3304, stage 2.4) -->
 	<msg_sheaf id="kAcid">
 		<message type="kAcidCorrodeObj" val="Кислота покрыла $o3." />
 		<message type="kFightDeathToChar" val="$N, покрыт$W кислотой, обратил$U в однородную массу и умер$Q." />
@@ -777,8 +780,6 @@
 		<message type="kCastPhraseHeathen" val="!магический выстрел!" />
 		<message type="kCastPhraseChristian" val="!use battle expedient!" />
 	</msg_sheaf>
-
-	<!-- Combat damage messages copied from MESS_FILE (issue #3304, stage 2.6) -->
 	<msg_sheaf id="kLightingBolt">
 		<message type="kFightDeathToChar" val="Вызванная вами молния просто испепелила $N3." />
 		<message type="kFightDeathToVict" val="Вы не смогли оправиться после попадания молнии, посланной в вас $n4." />
@@ -1435,8 +1436,6 @@
 		<message type="kFightGodToVict" val="$n попытался ослепить вас своим дыханием." />
 		<message type="kFightGodToRoom" val="$n попытался ослепить $N3 своим дыханием." />
 	</msg_sheaf>
-
-	<!-- Cast incantation phrases moved from GetCastPhrase (issue #3304) -->
 	<msg_sheaf id="kArmor">
 		<message type="kCastPhraseHeathen" val="буде во прибежище" />
 		<message type="kCastPhraseChristian" val="... Он - помощь наша и защита наша." />
