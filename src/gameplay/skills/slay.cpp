@@ -3,6 +3,8 @@
 //
 
 #include "slay.h"
+#include "skill_messages.h"
+#include "engine/db/global_objects.h"
 #include "gameplay/fight/pk.h"
 #include "gameplay/fight/common.h"
 #include "gameplay/fight/fight_hit.h"
@@ -14,7 +16,7 @@
 
 void go_slay(CharData *ch, CharData *vict) {
 	if (IsUnableToAct(ch) || AFF_FLAGGED(ch, EAffect::kStopRight)) {
-		SendMsgToChar("Вы временно не в состоянии сражаться.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kSlay, ESkillMsg::kCantFightNow) + "\r\n", ch);
 		return;
 	}
 	if (ch->IsFlagged(EPrf::kIronWind)) {
@@ -22,7 +24,7 @@ void go_slay(CharData *ch, CharData *vict) {
 		return;
 	}
 	if (ch->GetPosition() < EPosition::kFight) {
-		SendMsgToChar("Вам стоит встать на ноги.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kSlay, ESkillMsg::kGetOnFeet) + "\r\n", ch);
 		return;
 	}
 //	if (vict->purged()) {
@@ -88,15 +90,15 @@ void do_slay(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *vict = FindVictim(ch, argument);
 
 	if (!ch->GetSkill(ESkill::kSlay)) {
-		SendMsgToChar("Вы не умеете сражать, только сра... В общем, не умеете.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kSlay, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
 	if (!vict) {
-		SendMsgToChar("Кого же вы хотите сразить?\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kSlay, ESkillMsg::kNoTarget) + "\r\n", ch);
 		return;
 	}
 	if (ch == vict) {
-		SendMsgToChar("Сразить себя?! Вы же дружинник, а не самурай!\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kSlay, ESkillMsg::kCantTargetSelf) + "\r\n", ch);
 		return;
 	}
 	if (ch->IsFlagged(EPrf::kAwake)) {
@@ -104,7 +106,7 @@ void do_slay(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 	if (!ch->IsImmortal() && !(GET_EQ(ch, EEquipPos::kWield) || GET_EQ(ch, EEquipPos::kBoths))) {
-		SendMsgToChar("Для этого Вам потребуется оружие!\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kSlay, ESkillMsg::kNeedWeapon) + "\r\n", ch);
 		return;
 	}
 	if (!(AFF_FLAGGED(vict, EAffect::kConfused) || ch->IsImmortal())) {
@@ -112,7 +114,7 @@ void do_slay(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 	if (ch->HasCooldown(ESkill::kSlay)) {
-		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kSlay, ESkillMsg::kOnCooldown) + "\r\n", ch);
 		return;
 	}
 	if (!may_kill_here(ch, vict, argument))

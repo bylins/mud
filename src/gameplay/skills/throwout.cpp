@@ -3,6 +3,8 @@
 //
 
 #include "throwout.h"
+#include "skill_messages.h"
+#include "engine/db/global_objects.h"
 
 #include "gameplay/fight/fight.h"
 #include "engine/core/char_movement.h"
@@ -13,18 +15,18 @@
 
 void DoThrowout(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->GetSkill(ESkill::kThrowout) < 1) {
-		SendMsgToChar("Вы не знаете как.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kThrowout, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
 	if (ch->HasCooldown(ESkill::kThrowout)) {
-		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kThrowout, ESkillMsg::kOnCooldown) + "\r\n", ch);
 		return;
 	}
 	one_argument(argument, arg);
 	CharData *vict = FindVictim(ch, argument);
 
 	if (!vict) {
-		SendMsgToChar("Кого вы так сильно ненавидите, что хотите вышвырнуть отсюда?\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kThrowout, ESkillMsg::kNoTarget) + "\r\n", ch);
 		return;
 	}
 	if (!IsAffectedBySpell(ch, ESpell::kFrenzy) && !ch->IsImmortal()) {
@@ -46,19 +48,19 @@ void DoThrowout(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 	if (!ch->IsImmortal() && ch->HasCooldown(ESkill::kThrowout)) {
-		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kThrowout, ESkillMsg::kOnCooldown) + "\r\n", ch);
 		return;
 	}
 	if (ch->GetPosition() < EPosition::kFight) {
-		SendMsgToChar("Вам стоит встать на ноги.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kThrowout, ESkillMsg::kGetOnFeet) + "\r\n", ch);
 		return;
 	}
 	if (vict == ch) {
-		SendMsgToChar("Вышвырнуть самого себя?!\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kThrowout, ESkillMsg::kCantTargetSelf) + "\r\n", ch);
 		return;
 	}
 	if (IsUnableToAct(ch)) {
-		SendMsgToChar("Вы временно не в состоянии сражаться.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kThrowout, ESkillMsg::kCantFightNow) + "\r\n", ch);
 		return;
 	}
 	GoThrowout(ch, vict);

@@ -80,4 +80,45 @@
 	<msg_sheaf id="kDodge">
 		<message type="kNotFighting" val="Но вы ведь ни с кем не сражаетесь!" />
 	</msg_sheaf>
+	<msg_sheaf id="kIronwind">
+		<message type="kNoTarget" val="Кого вам угодно изрубить в капусту?" />
+		<message type="kCantTargetSelf" val="Вы с чувством собственного достоинства мощно пустили ветры... Железные." />
+	</msg_sheaf>
+	<msg_sheaf id="kThrowout">
+		<message type="kNoTarget" val="Кого вы так сильно ненавидите, что хотите вышвырнуть отсюда?" />
+		<message type="kCantTargetSelf" val="Вышвырнуть самого себя?!" />
+	</msg_sheaf>
+	<msg_sheaf id="kStrangle">
+		<message type="kDontKnowSkill" val="Вы не умеете этого." />
+		<message type="kNoTarget" val="Кого вы жаждете удавить?" />
+		<message type="kCantTargetSelf" val="Воспользуйтесь услугами княжеского палача. Постоянным клиентам - скидки!" />
+	</msg_sheaf>
+	<msg_sheaf id="kSlay">
+		<message type="kDontKnowSkill" val="Вы не умеете сражать, только сра... В общем, не умеете." />
+		<message type="kNoTarget" val="Кого же вы хотите сразить?" />
+		<message type="kCantTargetSelf" val="Сразить себя?! Вы же дружинник, а не самурай!" />
+		<message type="kNeedWeapon" val="Для этого Вам потребуется оружие!" />
+	</msg_sheaf>
+	<msg_sheaf id="kCutting">
+		<message type="kDontKnowSkill" val="Вы не владеете таким приемом." />
+		<message type="kNoTarget" val="Кого вы хотите порезать?" />
+		<message type="kCantTargetSelf" val="Вы таки да? Ой-вей, но тут Древняя Русь, а не Палестина!" />
+	</msg_sheaf>
+	<msg_sheaf id="kFrenzy">
+		<message type="kDontKnowSkill" val="Вам это не по силам." />
+		<message type="kPeacefulRoom" val="Вы не можете впасть в &amp;Rисступление&amp;n находясь в тишине и покое!" />
+	</msg_sheaf>
+	<msg_sheaf id="kRescue">
+		<message type="kDontKnowSkill" val="Но вы не знаете как." />
+		<message type="kNoTarget" val="Кто это так сильно путается под вашими ногами?" />
+		<message type="kCantTargetSelf" val="Ваше спасение вы можете доверить только Богам." />
+	</msg_sheaf>
+	<msg_sheaf id="kThrow">
+		<message type="kNoTarget" val="В кого мечем?" />
+		<message type="kCantTargetSelf" val="Вы начали метаться как белка в колесе." />
+	</msg_sheaf>
+	<msg_sheaf id="kProtect">
+		<message type="kNoTarget" val="И кто так сильно мил вашему сердцу?" />
+		<message type="kCantTargetSelf" val="Вы явно пацифист, или мазохист." />
+	</msg_sheaf>
 </msg_container>
