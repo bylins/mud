@@ -152,8 +152,12 @@ namespace {
 // Бинарный формат mob_stat. Файл машинный, руками не правится, поэтому
 // XML тут только тормозил и запись (построение DOM), и чтение при бутe.
 // Порядок байт нативный: файл не шарится между архитектурами.
+//
+// Записи kills хранятся разреженно (индекс + значение, только ненулевые) --
+// иначе фикс-массив kills[kMaxGroupSize+1] на каждый стат раздувал файл
+// больше XML (там тоже писались только ненулевые n#).
 constexpr uint32_t kMobStatBinMagic = 0x4253544D;   // 'MSTB' в little-endian
-constexpr uint32_t kMobStatBinVersion = 1;
+constexpr uint32_t kMobStatBinVersion = 2;
 
 template<typename T>
 void BinWrite(std::string &buf, T value) {
@@ -200,12 +204,14 @@ static bool LoadBinary() {
 	uint32_t version = 0;
 	uint32_t mob_count = 0;
 	if (!BinRead(in, magic) || magic != kMobStatBinMagic) {
-		mudlog("mob_stat.bin: bad magic, file ignored", CMP, kLvlImmortal, SYSLOG, true);
-		return true;
+		mudlog("mob_stat.bin: bad magic, fall back to XML", CMP, kLvlImmortal, SYSLOG, true);
+		return false;
 	}
 	if (!BinRead(in, version) || version != kMobStatBinVersion) {
-		mudlog("mob_stat.bin: unsupported version, file ignored", CMP, kLvlImmortal, SYSLOG, true);
-		return true;
+		// Старый/чужой формат -- падаем в XML-миграцию, следующий Save
+		// перезапишет bin актуальной версией.
+		mudlog("mob_stat.bin: unsupported version, fall back to XML", CMP, kLvlImmortal, SYSLOG, true);
+		return false;
 	}
 	if (!BinRead(in, mob_count)) {
 		return true;
@@ -229,14 +235,22 @@ static bool LoadBinary() {
 			}
 			tmp_mob.month = month;
 			tmp_mob.year = year;
+			// Разреженные kills: nz пар (индекс, значение).
+			uint8_t nz = 0;
+			if (!BinRead(in, nz)) {
+				break;
+			}
 			bool ok = true;
-			for (int k = 0; k <= kMaxGroupSize; ++k) {
+			for (uint8_t j = 0; j < nz; ++j) {
+				uint8_t idx = 0;
 				int32_t v = 0;
-				if (!BinRead(in, v)) {
+				if (!BinRead(in, idx) || !BinRead(in, v)) {
 					ok = false;
 					break;
 				}
-				tmp_mob.kills.at(k) = v;
+				if (idx <= kMaxGroupSize) {
+					tmp_mob.kills.at(idx) = v;
+				}
 			}
 			if (!ok) {
 				break;
@@ -328,8 +342,19 @@ void Save() {
 		for (const auto &stat : i.second.stats) {
 			BinWrite(buf, static_cast<int32_t>(stat.month));
 			BinWrite(buf, static_cast<int32_t>(stat.year));
+			// Разреженно: только ненулевые kills как пары (индекс, значение).
+			uint8_t nz = 0;
 			for (int g = 0; g <= kMaxGroupSize; ++g) {
-				BinWrite(buf, static_cast<int32_t>(stat.kills.at(g)));
+				if (stat.kills.at(g) > 0) {
+					++nz;
+				}
+			}
+			BinWrite(buf, nz);
+			for (int g = 0; g <= kMaxGroupSize; ++g) {
+				if (stat.kills.at(g) > 0) {
+					BinWrite(buf, static_cast<uint8_t>(g));
+					BinWrite(buf, static_cast<int32_t>(stat.kills.at(g)));
+				}
 			}
 		}
 	}
