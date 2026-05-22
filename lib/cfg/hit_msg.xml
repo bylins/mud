@@ -12,6 +12,21 @@
 	вывод из этого хранилища пока не реализован (issue #3311).
 -->
 <msg_container>
+	<!-- Сообщения по умолчанию (kUndefined): общий удар, описание атаки "ударил". -->
+	<msg_sheaf id="kDefault">
+		<message type="kFightDeathToChar" val="Вы СМЕРТЕЛЬНО ударили $N3." />
+		<message type="kFightDeathToVict" val="$n СМЕРТЕЛЬНО ударил$g вас." />
+		<message type="kFightDeathToRoom" val="$n СМЕРТЕЛЬНО ударил$g $N3." />
+		<message type="kFightMissToChar" val="Вы попытались ударить $N3, но промахнулись." />
+		<message type="kFightMissToVict" val="$n попытал$u ударить вас, но промахнул$u." />
+		<message type="kFightMissToRoom" val="$n попытал$u ударить $N3, но промахнул$u." />
+		<message type="kFightHitToChar" val="Вы ударили $N3." />
+		<message type="kFightHitToVict" val="$n ударил$g вас." />
+		<message type="kFightHitToRoom" val="$n ударил$g $N3." />
+		<message type="kFightGodToChar" val="У вас руки опускаются при мысли ударить $N3." />
+		<message type="kFightGodToVict" val="$n безвольно опустил$g руку, пытавшуюся ударить вас." />
+		<message type="kFightGodToRoom" val="$n не осмелил$u ударить $N3." />
+	</msg_sheaf>
 	<msg_sheaf id="kHit">
 		<message type="kFightDeathToChar" val="Вы нанесли $N2 прекрасный удар - после этого $M уже не встать." />
 		<message type="kFightDeathToVict" val="$n ударил$g вас - и в глазах у вас померкло." />
