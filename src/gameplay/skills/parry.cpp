@@ -102,7 +102,7 @@ void ProcessParry(CharData *ch, CharData *victim, HitData &hit_data) {
 			prob = 0;
 		}
 		if (prob < 70
-			|| ((hit_data.weap_skill == ESkill::kBows || hit_data.hit_type == to_underlying(fight::EAttackType::kMaul))
+			|| ((hit_data.weap_skill == ESkill::kBows || hit_data.hit_type == to_underlying(fight::EDamageSource::kMaul))
 				&& !victim->IsImmortal()
 				&& (!CanUseFeat(victim, EFeat::kParryArrow)
 					|| number(1, 1000) >= 20 * std::min(GetRealDex(victim), 35)))) {

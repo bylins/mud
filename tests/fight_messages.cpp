@@ -1,7 +1,7 @@
 // Part of Bylins http://www.mud.ru
 // Unit tests for the fight (hit type) message registration added in issue #3311:
-//   * the "kDefault" -> EAttackType::kUndefined alias used by the default sheaf id;
-//   * the EAttackType <-> name and EFightMsg <-> name mappings consumed by MsgSheafBuilder.
+//   * the "kDefault" -> EDamageSource::kUndefined alias used by the default sheaf id;
+//   * the EDamageSource <-> name and EFightMsg <-> name mappings consumed by MsgSheafBuilder.
 // The MsgContainer/MsgSheaf parsing logic itself is covered by msg_container.cpp.
 
 #include "gameplay/fight/fight_messages.h"
@@ -12,28 +12,31 @@
 #include <stdexcept>
 
 // The default sheaf in hit_msg.xml uses id="kDefault"; MsgSheafBuilder resolves it
-// via ReadAsConstant<EAttackType>, so "kDefault" must map to EAttackType::kUndefined.
+// via ReadAsConstant<EDamageSource>, so "kDefault" must map to EDamageSource::kUndefined.
 TEST(FightMessages, DefaultSheafIdAliasesToUndefined) {
-	EXPECT_EQ(fight::EAttackType::kUndefined, ITEM_BY_NAME<fight::EAttackType>("kDefault"));
-	EXPECT_EQ(fight::EAttackType::kUndefined, parse::ReadAsConstant<fight::EAttackType>("kDefault"));
+	EXPECT_EQ(fight::EDamageSource::kUndefined, ITEM_BY_NAME<fight::EDamageSource>("kDefault"));
+	EXPECT_EQ(fight::EDamageSource::kUndefined, parse::ReadAsConstant<fight::EDamageSource>("kDefault"));
 }
 
 // Adding the alias must not change kUndefined's canonical (reverse) name.
 TEST(FightMessages, UndefinedKeepsCanonicalName) {
-	EXPECT_EQ("kUndefined", NAME_BY_ITEM<fight::EAttackType>(fight::EAttackType::kUndefined));
+	EXPECT_EQ("kUndefined", NAME_BY_ITEM<fight::EDamageSource>(fight::EDamageSource::kUndefined));
 }
 
-TEST(FightMessages, EAttackTypeNameRoundTrip) {
-	for (const auto type : {fight::EAttackType::kHit, fight::EAttackType::kSkin,
-							fight::EAttackType::kWhip, fight::EAttackType::kSlash,
-							fight::EAttackType::kBite, fight::EAttackType::kBludgeon,
-							fight::EAttackType::kCrush, fight::EAttackType::kPound,
-							fight::EAttackType::kClaw, fight::EAttackType::kMaul,
-							fight::EAttackType::kThrash, fight::EAttackType::kPierce,
-							fight::EAttackType::kBlast, fight::EAttackType::kPunch,
-							fight::EAttackType::kStab, fight::EAttackType::kPick,
-							fight::EAttackType::kSting}) {
-		EXPECT_EQ(type, ITEM_BY_NAME<fight::EAttackType>(NAME_BY_ITEM<fight::EAttackType>(type)));
+TEST(FightMessages, EDamageSourceNameRoundTrip) {
+	for (const auto type : {fight::EDamageSource::kHit, fight::EDamageSource::kSkin,
+							fight::EDamageSource::kWhip, fight::EDamageSource::kSlash,
+							fight::EDamageSource::kBite, fight::EDamageSource::kBludgeon,
+							fight::EDamageSource::kCrush, fight::EDamageSource::kPound,
+							fight::EDamageSource::kClaw, fight::EDamageSource::kMaul,
+							fight::EDamageSource::kThrash, fight::EDamageSource::kPierce,
+							fight::EDamageSource::kBlast, fight::EDamageSource::kPunch,
+							fight::EDamageSource::kStab, fight::EDamageSource::kPick,
+							fight::EDamageSource::kSting,
+							fight::EDamageSource::kTriggerDeath, fight::EDamageSource::kTunnelDeath,
+							fight::EDamageSource::kUnderwaterDeathTrap, fight::EDamageSource::kSlowDeathTrap,
+							fight::EDamageSource::kSuffering}) {
+		EXPECT_EQ(type, ITEM_BY_NAME<fight::EDamageSource>(NAME_BY_ITEM<fight::EDamageSource>(type)));
 	}
 }
 
@@ -50,7 +53,7 @@ TEST(FightMessages, EFightMsgNameRoundTrip) {
 }
 
 TEST(FightMessages, UnknownNamesThrow) {
-	EXPECT_THROW(ITEM_BY_NAME<fight::EAttackType>("kNopeNotAType"), std::out_of_range);
+	EXPECT_THROW(ITEM_BY_NAME<fight::EDamageSource>("kNopeNotAType"), std::out_of_range);
 	EXPECT_THROW(ITEM_BY_NAME<fight::EFightMsg>("kNopeNotAMsg"), std::out_of_range);
 }
 

@@ -11,52 +11,62 @@
 #include <map>
 
 template<>
-const std::string &NAME_BY_ITEM<fight::EAttackType>(const fight::EAttackType item) {
-	static const std::map<fight::EAttackType, std::string> kMap{
-		{fight::EAttackType::kUndefined, "kUndefined"},
-		{fight::EAttackType::kHit, "kHit"},
-		{fight::EAttackType::kSkin, "kSkin"},
-		{fight::EAttackType::kWhip, "kWhip"},
-		{fight::EAttackType::kSlash, "kSlash"},
-		{fight::EAttackType::kBite, "kBite"},
-		{fight::EAttackType::kBludgeon, "kBludgeon"},
-		{fight::EAttackType::kCrush, "kCrush"},
-		{fight::EAttackType::kPound, "kPound"},
-		{fight::EAttackType::kClaw, "kClaw"},
-		{fight::EAttackType::kMaul, "kMaul"},
-		{fight::EAttackType::kThrash, "kThrash"},
-		{fight::EAttackType::kPierce, "kPierce"},
-		{fight::EAttackType::kBlast, "kBlast"},
-		{fight::EAttackType::kPunch, "kPunch"},
-		{fight::EAttackType::kStab, "kStab"},
-		{fight::EAttackType::kPick, "kPick"},
-		{fight::EAttackType::kSting, "kSting"},
+const std::string &NAME_BY_ITEM<fight::EDamageSource>(const fight::EDamageSource item) {
+	static const std::map<fight::EDamageSource, std::string> kMap{
+		{fight::EDamageSource::kUndefined, "kUndefined"},
+		{fight::EDamageSource::kHit, "kHit"},
+		{fight::EDamageSource::kSkin, "kSkin"},
+		{fight::EDamageSource::kWhip, "kWhip"},
+		{fight::EDamageSource::kSlash, "kSlash"},
+		{fight::EDamageSource::kBite, "kBite"},
+		{fight::EDamageSource::kBludgeon, "kBludgeon"},
+		{fight::EDamageSource::kCrush, "kCrush"},
+		{fight::EDamageSource::kPound, "kPound"},
+		{fight::EDamageSource::kClaw, "kClaw"},
+		{fight::EDamageSource::kMaul, "kMaul"},
+		{fight::EDamageSource::kThrash, "kThrash"},
+		{fight::EDamageSource::kPierce, "kPierce"},
+		{fight::EDamageSource::kBlast, "kBlast"},
+		{fight::EDamageSource::kPunch, "kPunch"},
+		{fight::EDamageSource::kStab, "kStab"},
+		{fight::EDamageSource::kPick, "kPick"},
+		{fight::EDamageSource::kSting, "kSting"},
+		{fight::EDamageSource::kTriggerDeath, "kTriggerDeath"},
+		{fight::EDamageSource::kTunnelDeath, "kTunnelDeath"},
+		{fight::EDamageSource::kUnderwaterDeathTrap, "kUnderwaterDeathTrap"},
+		{fight::EDamageSource::kSlowDeathTrap, "kSlowDeathTrap"},
+		{fight::EDamageSource::kSuffering, "kSuffering"},
 	};
 	return kMap.at(item);
 }
 
 template<>
-fight::EAttackType ITEM_BY_NAME<fight::EAttackType>(const std::string &name) {
-	static const std::map<std::string, fight::EAttackType> kMap{
-		{"kUndefined", fight::EAttackType::kUndefined},
-		{"kDefault", fight::EAttackType::kUndefined}, // default sheaf id in hit_msg.xml
-		{"kHit", fight::EAttackType::kHit},
-		{"kSkin", fight::EAttackType::kSkin},
-		{"kWhip", fight::EAttackType::kWhip},
-		{"kSlash", fight::EAttackType::kSlash},
-		{"kBite", fight::EAttackType::kBite},
-		{"kBludgeon", fight::EAttackType::kBludgeon},
-		{"kCrush", fight::EAttackType::kCrush},
-		{"kPound", fight::EAttackType::kPound},
-		{"kClaw", fight::EAttackType::kClaw},
-		{"kMaul", fight::EAttackType::kMaul},
-		{"kThrash", fight::EAttackType::kThrash},
-		{"kPierce", fight::EAttackType::kPierce},
-		{"kBlast", fight::EAttackType::kBlast},
-		{"kPunch", fight::EAttackType::kPunch},
-		{"kStab", fight::EAttackType::kStab},
-		{"kPick", fight::EAttackType::kPick},
-		{"kSting", fight::EAttackType::kSting},
+fight::EDamageSource ITEM_BY_NAME<fight::EDamageSource>(const std::string &name) {
+	static const std::map<std::string, fight::EDamageSource> kMap{
+		{"kUndefined", fight::EDamageSource::kUndefined},
+		{"kDefault", fight::EDamageSource::kUndefined}, // default sheaf id in hit_msg.xml
+		{"kHit", fight::EDamageSource::kHit},
+		{"kSkin", fight::EDamageSource::kSkin},
+		{"kWhip", fight::EDamageSource::kWhip},
+		{"kSlash", fight::EDamageSource::kSlash},
+		{"kBite", fight::EDamageSource::kBite},
+		{"kBludgeon", fight::EDamageSource::kBludgeon},
+		{"kCrush", fight::EDamageSource::kCrush},
+		{"kPound", fight::EDamageSource::kPound},
+		{"kClaw", fight::EDamageSource::kClaw},
+		{"kMaul", fight::EDamageSource::kMaul},
+		{"kThrash", fight::EDamageSource::kThrash},
+		{"kPierce", fight::EDamageSource::kPierce},
+		{"kBlast", fight::EDamageSource::kBlast},
+		{"kPunch", fight::EDamageSource::kPunch},
+		{"kStab", fight::EDamageSource::kStab},
+		{"kPick", fight::EDamageSource::kPick},
+		{"kSting", fight::EDamageSource::kSting},
+		{"kTriggerDeath", fight::EDamageSource::kTriggerDeath},
+		{"kTunnelDeath", fight::EDamageSource::kTunnelDeath},
+		{"kUnderwaterDeathTrap", fight::EDamageSource::kUnderwaterDeathTrap},
+		{"kSlowDeathTrap", fight::EDamageSource::kSlowDeathTrap},
+		{"kSuffering", fight::EDamageSource::kSuffering},
 	};
 	return kMap.at(name); // throws std::out_of_range on unknown name
 }

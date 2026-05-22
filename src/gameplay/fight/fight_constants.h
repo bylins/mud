@@ -19,11 +19,14 @@ enum DmgType {
 	kPureDmg	// например, чистый урон SLOW DT
 };
 
-// Weapon attack types (issue #3311). Underlying values match the former
-// anonymous enum (type_hit==0 ... type_sting==16): used as the offset into
-// attack_hit_text[] and as the (kTypeHit-based) key of fight messages.
-enum class EAttackType {
+// Damage source for fight messages (issue #3311): the weapon attack type or, for
+// server-inflicted damage, the trap / bleeding kind. The underlying value plus
+// kTypeHit equals the record number in lib/misc/messages (kHit+kTypeHit==400 ...
+// kSting+kTypeHit==416; kDeathTrap+kTypeHit==495 ... kBleeding+kTypeHit==499). The
+// weapon values (0..16) also index attack_hit_text[].
+enum class EDamageSource {
 	kUndefined = -1,
+	// Weapon attack types (were the anonymous fight enum type_hit ... type_sting).
 	kHit,		// was type_hit
 	kSkin,		// was type_skin
 	kWhip,		// was type_whip
@@ -41,6 +44,13 @@ enum class EAttackType {
 	kStab,		// was type_stab
 	kPick,		// was type_pick
 	kSting,		// was type_sting
+	// Server-inflicted damage sources (lib/misc/messages 495..499; no damager,
+	// so only the to-victim / to-room messages are present).
+	kTriggerDeath = 95,		// kTypeTriggerdeath (495): DG mdamage/wdamage/odamage
+	kTunnelDeath,			// kTypeTunnerldeath (496): tunnel / van-room death
+	kUnderwaterDeathTrap,	// kTypeWaterdeath (497): underwater death trap (drowning)
+	kSlowDeathTrap,			// kTypeRoomdeath (498): slow death trap
+	kSuffering,				// kTypeSuffering (499): suffering / bleeding out
 };
 
 enum {

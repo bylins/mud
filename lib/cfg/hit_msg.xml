@@ -4,8 +4,8 @@
 	Загружается через cfg_manager (LoadCfg/ReloadCfg "fight_messages"),
 	доступ из кода как MUD::FightMessages().
 
-	id связки (msg_sheaf) - значение fight::EAttackType (kHit, kSlash, ...);
-	"kDefault" соответствует EAttackType::kUndefined (зарезервировано).
+	id связки (msg_sheaf) - значение fight::EDamageSource (kHit, kSlash, ..., kDeathTrap, ..., kBleeding);
+	"kDefault" соответствует EDamageSource::kUndefined (зарезервировано).
 	type сообщения (message) - значение fight::EFightMsg; текст в атрибуте val.
 
 	Сообщения скопированы из lib/misc/messages (раздел Weapon Attacks),
@@ -348,5 +348,54 @@
 		<message type="kFightGodToChar" val="Ужалить? $n3?! Да он$g вас за это!.." />
 		<message type="kFightGodToVict" val="$n попытал$u ужалить вас... Рехнул$u?" />
 		<message type="kFightGodToRoom" val="$n попытал$u ужалить $N3, но не смог$q дотянуться." />
+	</msg_sheaf>
+	<!-- Урон от сервера (ловушки, кровотечение): нет наносящего, есть только
+	     сообщения жертве и комнате. Скопировано из lib/misc/messages 495-499. -->
+	<msg_sheaf id="kTriggerDeath"></msg_sheaf>
+	<msg_sheaf id="kTunnelDeath">
+		<message type="kFightDeathToVict" val="Пущенная с небес молния оказалась для вас последней. Не стоило гневить Богов." />
+		<message type="kFightDeathToRoom" val="Пущенная с небес молния оказалась для $N1 последней. Не стоило гневить Богов." />
+		<message type="kFightMissToVict" val="Вы ловко увернулись от пущенной с небес молнии." />
+		<message type="kFightMissToRoom" val="$n ловко увернул$u от пущенной с небес молнии." />
+		<message type="kFightHitToVict" val="В голову угодила метко пущенная кем-то с небес молния! Вам здесь явно не рады." />
+		<message type="kFightHitToRoom" val="Метко пущенная с небес молния угодила прямо в $N3! \u$m здесь явно не рады." />
+	</msg_sheaf>
+	<msg_sheaf id="kUnderwaterDeathTrap">
+		<message type="kFightDeathToVict" val="Вам явно не стоило плавать так глубоко - вы просто утонули." />
+		<message type="kFightDeathToRoom" val="$N попытал$U что-то сказать, но только пустил$G пузыри и камнем уш$Y на дно." />
+		<message type="kFightMissToVict" val="Вам стало немного легче." />
+		<message type="kFightMissToRoom" val="$N2 стало немного легче." />
+		<message type="kFightHitToVict" val="Вы чувствуете как вода заливает вам горло, быстрей на поверхность!" />
+		<message type="kFightHitToRoom" val="$N2 нечем дышать, вода же кругом - помогите $M как-нибудь..." />
+		<message type="kFightGodToVict" val="Вода забирается к вам в горло, вы не можете дышать. На поверхность, быстрей!" />
+		<message type="kFightGodToRoom" val="$N громко булькает и пускет пузыри - похоже $M нечем дышать." />
+	</msg_sheaf>
+	<msg_sheaf id="kSlowDeathTrap">
+		<message type="kFightDeathToVict" val="Вам явно не стоило сюда заходить - и смерть распростерла вам свои объятья." />
+		<message type="kFightDeathToRoom" val="Громкий вскрик $N1 возвестил о $S безвременной кончине." />
+		<message type="kFightMissToVict" val="Вам стало немного легче." />
+		<message type="kFightMissToRoom" val="$N2 стало немного легче." />
+		<message type="kFightHitToVict" val="Вы чувствуете сильный упадок сил, еще чуть-чуть - и они покинут вас." />
+		<message type="kFightHitToRoom" val="$N быстро теряет силы - помогите же $M кто-нибудь..." />
+		<message type="kFightGodToVict" val="Вы быстро теряете силы - поскорее прочь отсюда." />
+		<message type="kFightGodToRoom" val="$N становится все бледнее и бледнее - похоже $M долго не протянуть." />
+	</msg_sheaf>
+	<msg_sheaf id="kSuffering">
+		<message type="kFightDeathToVict" val="Вы ранены - сильно ранены - и вы погибли..." />
+		<message type="kFightDeathToRoom" val="$N лежал$G, страдая, на земле, пока не осталось крови в $S бренном теле." />
+		<message type="kFightMissToVict" val="Вам стало немного легче." />
+		<message type="kFightMissToRoom" val="$N2 стало немного легче." />
+		<message type="kFightHitToVict" val="Вы лежите на земле, страдая от ужасных ран..." />
+		<message type="kFightHitToRoom" val="$N беспомощно лежит на земле и страдает..." />
+		<message type="kFightGodToVict" val="Раны причиняют вам боль." />
+		<message type="kFightGodToRoom" val="Раны причиняют боль $N2." />
+		<message type="kFightDeathToVict" val="С последним ударом сердца жизнь покинула вас..." />
+		<message type="kFightDeathToRoom" val="$N потерял$G много крови и погиб$Q.." />
+		<message type="kFightMissToVict" val="Вам немного полегчало." />
+		<message type="kFightMissToRoom" val="$N2 немного полегчало." />
+		<message type="kFightHitToVict" val="Вы лежите на земле и страдаете от кровоточащих ран..." />
+		<message type="kFightHitToRoom" val="$N беспомощно лежит на земле, страдая..." />
+		<message type="kFightGodToVict" val="Еще не затянувшиеся раны причиняют вам боль." />
+		<message type="kFightGodToRoom" val="Еще не затянувшиеся раны причиняют $N2 боль." />
 	</msg_sheaf>
 </msg_container>
