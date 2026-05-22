@@ -120,7 +120,6 @@ class Damage {
   bool CalcDmgAbsorption(CharData *ch, CharData *victim);
   void ProcessDeath(CharData *ch, CharData *victim) const;
   void SendCritHitMsg(CharData *ch, CharData *victim);
-  void SendDmgMsg(CharData *ch, CharData *victim) const;
   void ProcessBlink(CharData *ch, CharData *victim);
 
   // обратный дамаг от огненного щита
