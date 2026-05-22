@@ -8,6 +8,7 @@
 #include "gameplay/magic/spells_info.h"
 #include "gameplay/magic/spell_messages.h"
 #include "gameplay/skills/skill_messages.h"
+#include "gameplay/fight/fight_messages.h"
 #include "gameplay/clans/ingr_chest_saver.h"
 #include "gameplay/mechanics/celebrates.h"
 #include "gameplay/mechanics/guilds.h"
@@ -59,6 +60,7 @@ class GlobalObjects {
 	static const spells::SpellInfo &Spell(ESpell spell_id);
 	static spells::SpellMessages &SpellMessages();
 	static skills::SkillMessages &SkillMessages();
+    static fight::FightMessages &FightMessages();
 	static feats::FeatsInfo &Feats();
 	static const feats::FeatInfo &Feat(EFeat feat_id);
 	static classes::ClassesInfo &Classes();

@@ -36,6 +36,7 @@ struct GlobalObjectsStorage {
 	spells::SpellsInfo spells_info;
 	spells::SpellMessages spell_messages;
 	skills::SkillMessages skill_messages;
+    fight::FightMessages fight_messages;
 	feats::FeatsInfo feats_info;
 	cfg_manager::CfgManager cfg_mngr;
 	classes::ClassesInfo classes_info;
@@ -103,6 +104,10 @@ spells::SpellMessages &GlobalObjects::SpellMessages() {
 
 skills::SkillMessages &GlobalObjects::SkillMessages() {
 	return global_objects().skill_messages;
+}
+
+fight::FightMessages &GlobalObjects::FightMessages() {
+    return global_objects().fight_messages;
 }
 
 feats::FeatsInfo &GlobalObjects::Feats() {

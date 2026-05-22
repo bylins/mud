@@ -77,7 +77,7 @@ void ProcessMultyparry(CharData *ch, CharData *victim, HitData &hit_data) {
 		int prob = CalcCurrentSkill(victim, ESkill::kMultiparry, ch);
 		prob = prob * 100 / range;
 
-		if ((hit_data.weap_skill == ESkill::kBows || hit_data.hit_type == fight::type_maul)
+		if ((hit_data.weap_skill == ESkill::kBows || hit_data.hit_type == to_underlying(fight::EDamageSource::kMaul))
 			&& !victim->IsImmortal()
 			&& (!CanUseFeat(victim, EFeat::kParryArrow)
 				|| number(1, 1000) >= 20 * std::min(GetRealDex(victim), 35))) {

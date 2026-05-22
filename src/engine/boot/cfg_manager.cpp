@@ -18,6 +18,7 @@
 #include "gameplay/skills/skills_info.h"
 #include "gameplay/skills/skill_messages.h"
 #include "gameplay/magic/spell_messages.h"
+#include "gameplay/fight/fight_messages.h"
 
 namespace cfg_manager {
 
@@ -37,6 +38,8 @@ CfgManager::CfgManager() {
 										  std::make_unique<spells::SpellsLoader>(spells::SpellsLoader())));
 	loaders_.emplace("spell_messages", LoaderInfo("cfg/spell_msg.xml",
 										  std::make_unique<spells::SpellMessagesLoader>(spells::SpellMessagesLoader())));
+	loaders_.emplace("fight_messages", LoaderInfo("cfg/hit_msg.xml",
+										  std::make_unique<fight::FightMessagesLoader>(fight::FightMessagesLoader())));
 	loaders_.emplace("feats", LoaderInfo("cfg/feats.xml",
 										  std::make_unique<feats::FeatsLoader>(feats::FeatsLoader())));
 	loaders_.emplace("guilds", LoaderInfo("cfg/guilds.xml",

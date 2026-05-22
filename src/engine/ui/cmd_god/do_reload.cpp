@@ -88,6 +88,8 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		MUD::CfgManager().ReloadCfg("spell_messages");
 	} else if (!str_cmp(arg, "skill_messages")) {
 		MUD::CfgManager().ReloadCfg("skill_messages");
+    } else if (!str_cmp(arg, "fight_messages")) {
+        MUD::CfgManager().ReloadCfg("fight_messages");
 	} else if (!str_cmp(arg, "feats")) {
 		MUD::CfgManager().ReloadCfg("feats");
 	} else if (!str_cmp(arg, "classes")) {
