@@ -62,7 +62,7 @@ struct AttackMsg {
 	char *room_msg{nullptr};        // message to room     //
 };
 
-struct 1 {
+struct AttackMsgSet {
 	AttackMsg die_msg;        // messages when death        //
 	AttackMsg miss_msg;        // messages when miss         //
 	AttackMsg hit_msg;        // messages when hit       //
