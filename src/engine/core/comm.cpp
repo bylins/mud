@@ -1799,9 +1799,10 @@ int new_descriptor(socket_t s)
 		return (-2);
 	}
 
-	// make sure we have room for it
-	for (newd = descriptor_list; newd; newd = newd->next)
-		sockets_connected++;
+	std::string msg{"\r\nThe Bylins server has moved to a new address: 94.26.228.91:4000\r\nCEPBEP HA HOBOM MECTE: 94.26.228.91:4000\r\n\r\n"};
+	iosystem::write_to_descriptor(desc, msg.c_str(), strlen(msg.c_str()));
+	CLOSE_SOCKET(desc);
+	return (-3);
 
 	if (sockets_connected >= max_players) {
 		std::string msg{"Sorry, RUS MUD is full right now... please try again later!\r\n"};
