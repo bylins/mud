@@ -4,6 +4,9 @@
 
 #include "charge.h"
 
+#include "skill_messages.h"
+#include "engine/db/global_objects.h"
+
 #include "engine/core/char_movement.h"
 #include "engine/entities/char_data.h"
 #include "gameplay/fight/pk.h"
@@ -18,15 +21,15 @@ void DoCharge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int direction;
 
 	if (!ch->GetSkill(ESkill::kCharge)) {
-		SendMsgToChar("Вы не знаете как.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kCharge, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
 	if (AFF_FLAGGED(ch, EAffect::kHold) || ch->get_wait() > 0) {
-		SendMsgToChar("Вы временно не в состоянии это сделать.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kCharge, ESkillMsg::kCantFightNow) + "\r\n", ch);
 		return;
 	}
 	if (ch->IsOnHorse()) {
-		SendMsgToChar("Верхом это сделать затруднительно.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kCharge, ESkillMsg::kCantWhileMounted) + "\r\n", ch);
 		return;
 	}
 	if (ch->IsFlagged(EPrf::kIronWind)) {
@@ -34,7 +37,7 @@ void DoCharge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 	if (ch->GetPosition() != EPosition::kStand) {
-		SendMsgToChar("Вы не можете ринуться в бой из этого положения!\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kCharge, ESkillMsg::kGetOnFeet) + "\r\n", ch);
 		return;
 	}
 
@@ -43,7 +46,7 @@ void DoCharge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		(direction = search_block(arg, dirs_rus, false)) >= 0) {
 		GoCharge(ch, direction);
 	} else {
-		SendMsgToChar("В каком направлении Вы желаете ринуться в бой?\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kCharge, ESkillMsg::kNoTarget) + "\r\n", ch);
 	}
 }
 

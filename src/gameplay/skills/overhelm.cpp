@@ -1,4 +1,5 @@
 #include "overhelm.h"
+#include "skill_messages.h"
 
 #include "gameplay/fight/pk.h"
 #include "gameplay/fight/common.h"
@@ -13,7 +14,7 @@ void PerformOverhelm(CharData *ch, CharData *victim, HitData &hit_data);
 
 void GoOverhelm(CharData *ch, CharData *victim) {
 	if (IsUnableToAct(ch)) {
-		SendMsgToChar("Вы временно не в состоянии сражаться.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kOverwhelm, ESkillMsg::kCantFightNow) + "\r\n", ch);
 		return;
 	}
 
@@ -45,13 +46,13 @@ void GoOverhelm(CharData *ch, CharData *victim) {
 
 void DoOverhelm(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->GetSkill(ESkill::kOverwhelm) < 1) {
-		SendMsgToChar("Вы не знаете как.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kOverwhelm, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
 
 	CharData *vict = FindVictim(ch, argument);
 	if (!vict) {
-		SendMsgToChar("Кого вы хотите оглушить?\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kOverwhelm, ESkillMsg::kNoTarget) + "\r\n", ch);
 		return;
 	}
 
@@ -70,12 +71,12 @@ void DoOverhelm(CharData *ch, CharData *victim) {
 	}
 
 	if (ch->HasCooldown(ESkill::kOverwhelm)) {
-		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kOverwhelm, ESkillMsg::kOnCooldown) + "\r\n", ch);
 		return;
 	};
 
 	if (victim == ch) {
-		SendMsgToChar("Вы громко заорали, заглушая свой собственный голос.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kOverwhelm, ESkillMsg::kCantTargetSelf) + "\r\n", ch);
 		return;
 	}
 

@@ -1,4 +1,5 @@
 #include "resque.h"
+#include "skill_messages.h"
 
 #include "gameplay/fight/common.h"
 #include "gameplay/fight/pk.h"
@@ -23,7 +24,7 @@ void fighting_rescue(CharData *ch, CharData *vict, CharData *tmp_ch) {
 
 void go_rescue(CharData *ch, CharData *vict, CharData *tmp_ch) {
 	if (IsUnableToAct(ch)) {
-		SendMsgToChar("Вы временно не в состоянии сражаться.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kRescue, ESkillMsg::kCantFightNow) + "\r\n", ch);
 		return;
 	}
 	if (ch->IsOnHorse()) {
@@ -74,22 +75,22 @@ void go_rescue(CharData *ch, CharData *vict, CharData *tmp_ch) {
 
 void do_rescue(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!ch->GetSkill(ESkill::kRescue)) {
-		SendMsgToChar("Но вы не знаете как.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kRescue, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
 	if (ch->HasCooldown(ESkill::kRescue)) {
-		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kRescue, ESkillMsg::kOnCooldown) + "\r\n", ch);
 		return;
 	};
 
 	CharData *vict = FindVictim(ch, argument);
 	if (!vict) {
-		SendMsgToChar("Кто это так сильно путается под вашими ногами?\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kRescue, ESkillMsg::kNoTarget) + "\r\n", ch);
 		return;
 	}
 
 	if (vict == ch) {
-		SendMsgToChar("Ваше спасение вы можете доверить только Богам.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kRescue, ESkillMsg::kCantTargetSelf) + "\r\n", ch);
 		return;
 	}
 	if (ch->GetEnemy() == vict) {

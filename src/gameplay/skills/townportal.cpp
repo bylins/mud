@@ -1,4 +1,5 @@
 #include "townportal.h"
+#include "skill_messages.h"
 
 #include "engine/ui/modify.h"
 #include "engine/core/handler.h"
@@ -20,7 +21,7 @@ Runestone GetLabelPortal(CharData *ch);
 
 void DoTownportal(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->IsNpc() || !ch->GetSkill(ESkill::kTownportal)) {
-		SendMsgToChar("Прежде изучите секрет постановки врат.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kTownportal, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
 

@@ -1,4 +1,5 @@
 #include "engine/entities/char_data.h"
+#include "skill_messages.h"
 #include "engine/db/obj_prototypes.h"
 #include "engine/db/global_objects.h"
 #include "engine/core/utils_char_obj.inl"
@@ -9,14 +10,14 @@ void DoSharpening(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	int weight, add_hr, add_dr, prob, percent, min_mod, max_mod, i;
 	bool oldstate;
 	if (!ch->GetSkill(ESkill::kSharpening)) {
-		SendMsgToChar("Вы не умеете этого.", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kSharpening, ESkillMsg::kDontKnowSkill), ch);
 		return;
 	}
 
 	one_argument(argument, arg);
 
 	if (!*arg) {
-		SendMsgToChar("Что вы хотите заточить?\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kSharpening, ESkillMsg::kNoTarget) + "\r\n", ch);
 	}
 
 	if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying))) {

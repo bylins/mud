@@ -1,16 +1,17 @@
 #include "engine/entities/char_data.h"
+#include "skill_messages.h"
 #include "engine/db/global_objects.h"
 #include "engine/core/handler.h"
 
 void DoCampfire(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	int percent, prob;
 	if (!ch->GetSkill(ESkill::kCampfire)) {
-		SendMsgToChar("Но вы не знаете как.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kCampfire, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
 
 	if (ch->IsOnHorse()) {
-		SendMsgToChar("Верхом это будет затруднительно.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kCampfire, ESkillMsg::kCantWhileMounted) + "\r\n", ch);
 		return;
 	}
 

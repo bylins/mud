@@ -1,4 +1,5 @@
 #include "engine/entities/char_data.h"
+#include "skill_messages.h"
 #include "engine/db/global_objects.h"
 #include "engine/core/utils_char_obj.inl"
 
@@ -9,14 +10,14 @@ void DoArmoring(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	const auto &strengthening = GlobalObjects::strengthening();
 
 	if (!ch->GetSkill(ESkill::kArmoring)) {
-		SendMsgToChar("Вы не умеете этого.", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kArmoring, ESkillMsg::kDontKnowSkill), ch);
 		return;
 	}
 
 	two_arguments(argument, arg, arg2);
 
 	if (!*arg)
-		SendMsgToChar("Что вы хотите укрепить?\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kArmoring, ESkillMsg::kNoTarget) + "\r\n", ch);
 
 	if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying))) {
 		snprintf(buf, kMaxInputLength, "У вас нет \'%s\'.\r\n", arg);

@@ -1,4 +1,6 @@
 #include "expendientcut.h"
+#include "skill_messages.h"
+#include "engine/db/global_objects.h"
 
 #include "gameplay/abilities/abilities_rollsystem.h"
 #include "engine/ui/color.h"
@@ -62,12 +64,12 @@ void PerformCutFail(abilities_roll::TechniqueRoll &roll) {
 
 void GoExpedientCut(CharData *ch, CharData *vict) {
 	if (IsUnableToAct(ch)) {
-		SendMsgToChar("Вы временно не в состоянии сражаться.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kCutting, ESkillMsg::kCantFightNow) + "\r\n", ch);
 		return;
 	}
 
 	if (ch->HasCooldown(ESkill::kGlobalCooldown)) {
-		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kCutting, ESkillMsg::kOnCooldown) + "\r\n", ch);
 		return;
 	}
 //	if (vict->purged()) {
@@ -133,27 +135,27 @@ void SetExtraAttackCut(CharData *ch, CharData *victim) {
 
 void DoExpedientCut(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	if (ch->IsNpc() || (!CanUseFeat(ch, EFeat::kCutting) && !ch->IsImpl())) {
-		SendMsgToChar("Вы не владеете таким приемом.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kCutting, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
 	if (ch->IsHorsePrevents()) {
 		return;
 	}
 	if (ch->GetPosition() < EPosition::kFight) {
-		SendMsgToChar("Вам стоит встать на ноги.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kCutting, ESkillMsg::kGetOnFeet) + "\r\n", ch);
 		return;
 	}
 	if (AFF_FLAGGED(ch, EAffect::kStopRight) || IsUnableToAct(ch)) {
-		SendMsgToChar("Вы временно не в состоянии сражаться.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kCutting, ESkillMsg::kCantFightNow) + "\r\n", ch);
 		return;
 	}
 	CharData *vict = FindVictim(ch, argument);
 	if (!vict) {
-		SendMsgToChar("Кого вы хотите порезать?\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kCutting, ESkillMsg::kNoTarget) + "\r\n", ch);
 		return;
 	}
 	if (vict == ch) {
-		SendMsgToChar("Вы таки да? Ой-вей, но тут Древняя Русь, а не Палестина!\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kCutting, ESkillMsg::kCantTargetSelf) + "\r\n", ch);
 		return;
 	}
         if (ch->GetEnemy()) {

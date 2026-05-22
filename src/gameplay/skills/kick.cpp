@@ -1,5 +1,8 @@
 #include "kick.h"
 
+#include "skill_messages.h"
+#include "engine/db/global_objects.h"
+
 #include "gameplay/fight/pk.h"
 #include "gameplay/fight/fight_hit.h"
 #include "gameplay/fight/common.h"
@@ -12,7 +15,7 @@ void go_kick(CharData *ch, CharData *vict) {
 	const char *to_char = nullptr, *to_vict = nullptr, *to_room = nullptr;
 
 	if (IsUnableToAct(ch)) {
-		SendMsgToChar("Вы временно не в состоянии сражаться.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kKick, ESkillMsg::kCantFightNow) + "\r\n", ch);
 		return;
 	}
 	if (ch->HasCooldown(ESkill::kKick)) {
@@ -182,13 +185,13 @@ void go_kick(CharData *ch, CharData *vict) {
 
 void do_kick(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->GetSkill(ESkill::kKick) < 1) {
-		SendMsgToChar("Вы не знаете как.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kKick, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
 
 	CharData *vict = FindVictim(ch, argument);
 	if (!vict) {
-		SendMsgToChar("Кто это так сильно путается под вашими ногами?\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kKick, ESkillMsg::kNoTarget) + "\r\n", ch);
 		return;
 	}
 
@@ -207,12 +210,12 @@ void do_kick(CharData *ch, CharData *vict) {
 	}
 
 	if (ch->HasCooldown(ESkill::kKick)) {
-		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kKick, ESkillMsg::kOnCooldown) + "\r\n", ch);
 		return;
 	};
 
 	if (vict == ch) {
-		SendMsgToChar("Вы БОЛЬНО пнули себя! Поздравляю, вы сошли с ума...\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kKick, ESkillMsg::kCantTargetSelf) + "\r\n", ch);
 		return;
 	}
 

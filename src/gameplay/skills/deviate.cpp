@@ -7,6 +7,7 @@
 */
 
 #include "deviate.h"
+#include "skill_messages.h"
 
 #include "engine/entities/char_data.h"
 #include "gameplay/fight/common.h"
@@ -16,16 +17,16 @@ bool CanPerformDeviate(CharData *victim, const HitData &hit_data);
 
 void DoDeviate(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	if (ch->IsNpc() || !ch->GetSkill(ESkill::kDodge)) {
-		SendMsgToChar("Вы не знаете как.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kDodge, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
 	if (ch->HasCooldown(ESkill::kDodge)) {
-		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kDodge, ESkillMsg::kOnCooldown) + "\r\n", ch);
 		return;
 	};
 
 	if (!(ch->GetEnemy())) {
-		SendMsgToChar("Но вы ведь ни с кем не сражаетесь!\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kDodge, ESkillMsg::kNotFighting) + "\r\n", ch);
 		return;
 	}
 
@@ -42,7 +43,7 @@ void DoDeviate(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 
 void GoDeviate(CharData *ch) {
 	if (IsUnableToAct(ch)) {
-		SendMsgToChar("Вы временно не в состоянии сражаться.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kDodge, ESkillMsg::kCantFightNow) + "\r\n", ch);
 		return;
 	}
 	if (ch->IsHorsePrevents()) {
