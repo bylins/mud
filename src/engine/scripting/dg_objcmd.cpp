@@ -617,7 +617,7 @@ void do_odamage(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Trigg
 			}
 			die(ch, nullptr);
 		}
-		Damage odamage(SimpleDmg(kTypeTriggerdeath), dam, type);
+		Damage odamage(SimpleDmg(fight::EDamageSource::kTriggerDeath), dam, type);
 		odamage.Process(damager, ch);
 	}
 }

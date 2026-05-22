@@ -18,6 +18,7 @@
 #include <map>
 
 #include "gameplay/magic/spells_constants.h"
+#include "gameplay/fight/fight_constants.h"
 #include "engine/structs/structs.h"
 
 extern const int kZeroRemortSkillCap;
@@ -167,9 +168,9 @@ struct TimedSkill {
 	ubyte time{0};						// Time start use //
 };
 
-int SendSkillMessages(int dam, CharData *ch, CharData *vict, int attacktype, std::string add = "");
 int SendSkillMessages(int dam, CharData *ch, CharData *vict, ESkill skill_id, std::string add = "");
 int SendSkillMessages(int dam, CharData *ch, CharData *vict, ESpell spell_id, std::string add = "");
+int SendSkillMessages(int dam, CharData *ch, CharData *vict, fight::EDamageSource damage_source, std::string add = "");
 
 char *how_good(int skill_level, int skill_cap);
 int CalcCurrentSkill(CharData *ch, ESkill skill_id, CharData *vict, bool need_log = true);

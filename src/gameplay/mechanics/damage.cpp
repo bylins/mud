@@ -40,7 +40,6 @@ int max_exp_gain_pc(CharData *ch);
 // message for doing damage with a weapon
 void Damage::SendDmgMsg(CharData *ch, CharData *victim) const {
 	int dam_msgnum;
-	int w_type = msg_num;
 
 	static const struct dam_weapon_type {
 	  const char *to_room;
@@ -122,10 +121,10 @@ void Damage::SendDmgMsg(CharData *ch, CharData *victim) const {
 			}
 		};
 
-	if (w_type >= kTypeHit && w_type < kTypeMagic)
-		w_type -= kTypeHit;    // Change to base of table with text //
-	else
-		w_type = kTypeHit;
+	// Таблица обобщённых сообщений индексируется типом атаки оружием; для не-оружейных
+	// источников (скиллы/спеллы/сервер) используется глагол голого удара (kHit).
+	const int w_type = fight::IsWeaponDamage(damage_source)
+		? to_underlying(damage_source) : to_underlying(fight::EDamageSource::kHit);
 
 	if (dam == 0)
 		dam_msgnum = 0;
@@ -457,7 +456,7 @@ void Damage::ProcessDeath(CharData *ch, CharData *victim) const {
 						killer = poisoner;
 					}
 				}
-			} else if (msg_num == kTypeSuffering) {
+			} else if (damage_source == fight::EDamageSource::kSuffering) {
 				for (const auto attacker : world[victim->in_room]->people) {
 					if (attacker->GetEnemy() == victim) {
 						killer = attacker;
@@ -576,19 +575,6 @@ void Damage::SetPostInitShieldFlags(CharData *victim) {
 }
 
 void Damage::PerformPostInit(CharData *ch, CharData *victim) {
-	if (msg_num == -1) {
-		// ABYRVALG тут нужно переделать на взятие сообщения из структуры абилок
-		if (MUD::Skills().IsValid(skill_id)) {
-			msg_num = to_underlying(skill_id) + kTypeHit;
-		} else if (spell_id > ESpell::kUndefined) {
-			msg_num = to_underlying(spell_id);
-		} else if (hit_type >= 0) {
-			msg_num = hit_type + kTypeHit;
-		} else {
-			msg_num = kTypeHit;
-		}
-	}
-
 	if (ch_start_pos == EPosition::kUndefined) {
 		ch_start_pos = ch->GetPosition();
 	}
@@ -759,7 +745,7 @@ int Damage::Process(CharData *ch, CharData *victim) {
 	}
 	if (!ch->IsImmortal() && AFF_FLAGGED(victim, EAffect::kGodsShield)) {
 		if (skill_id == ESkill::kBash) {
-			SendSkillMessages(dam, ch, victim, msg_num);
+			SendSkillMessages(dam, ch, victim, skill_id);
 		}
 		if (ch != victim) {
 			act("Магический кокон полностью поглотил удар $N1.", false, victim, nullptr, ch, kToChar);
@@ -917,13 +903,17 @@ int Damage::Process(CharData *ch, CharData *victim) {
 		brief_shields_ = buf_;
 	}
 	// сообщения об ударах //
-	if (MUD::Skills().IsValid(skill_id) || spell_id > ESpell::kUndefined || hit_type < 0) {
-		// скилл, спелл, необычный дамаг
-		SendSkillMessages(dam, ch, victim, msg_num, brief_shields_);
+	if (MUD::Skills().IsValid(skill_id)) {
+		SendSkillMessages(dam, ch, victim, skill_id, brief_shields_);
+	} else if (spell_id > ESpell::kUndefined) {
+		SendSkillMessages(dam, ch, victim, spell_id, brief_shields_);
+	} else if (!fight::IsWeaponDamage(damage_source)) {
+		// серверный (ловушки/кровотечение) или неопределённый источник - всегда из контейнера
+		SendSkillMessages(dam, ch, victim, damage_source, brief_shields_);
 	} else {
 		// простой удар рукой/оружием
 		if (victim->GetPosition() == EPosition::kDead || dam == 0) {
-			if (!SendSkillMessages(dam, ch, victim, msg_num, brief_shields_)) {
+			if (!SendSkillMessages(dam, ch, victim, damage_source, brief_shields_)) {
 				SendDmgMsg(ch, victim);
 			}
 		} else {

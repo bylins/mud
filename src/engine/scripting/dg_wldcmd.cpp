@@ -561,7 +561,7 @@ void do_wdamage(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 				wld_log(room, trig, "wdamage: incorrect damage type.");
 				return;
 			}
-			Damage mdamage(SimpleDmg(kTypeTriggerdeath), dam, type);
+			Damage mdamage(SimpleDmg(fight::EDamageSource::kTriggerDeath), dam, type);
 			mdamage.Process(ch, ch);
 		} else {
 			ch->set_hit(ch->get_hit() - dam);
