@@ -67,7 +67,7 @@ void do_backstab(CharData *ch, CharData *vict) {
 		return;
 	}
 
-	if ((!ch->IsNpc() || IS_CHARMICE(ch)) && GET_OBJ_VAL(GET_EQ(ch, EEquipPos::kWield), 3) != fight::type_pierce) {
+	if ((!ch->IsNpc() || IS_CHARMICE(ch)) && GET_OBJ_VAL(GET_EQ(ch, EEquipPos::kWield), 3) != to_underlying(fight::EAttackType::kPierce)) {
 		SendMsgToChar("ЗаКОЛоть можно только КОЛющим оружием!\r\n", ch);
 		return;
 	}

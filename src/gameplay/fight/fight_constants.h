@@ -19,24 +19,28 @@ enum DmgType {
 	kPureDmg	// например, чистый урон SLOW DT
 };
 
-enum {
-	type_hit,
-	type_skin,
-	type_whip,
-	type_slash,
-	type_bite,
-	type_bludgeon,
-	type_crush,
-	type_pound,
-	type_claw,
-	type_maul,
-	type_thrash,
-	type_pierce,
-	type_blast,
-	type_punch,
-	type_stab,
-	type_pick,
-	type_sting
+// Weapon attack types (issue #3311). Underlying values match the former
+// anonymous enum (type_hit==0 ... type_sting==16): used as the offset into
+// attack_hit_text[] and as the (kTypeHit-based) key of fight messages.
+enum class EAttackType {
+	kUndefined = -1,
+	kHit,		// was type_hit
+	kSkin,		// was type_skin
+	kWhip,		// was type_whip
+	kSlash,		// was type_slash
+	kBite,		// was type_bite
+	kBludgeon,	// was type_bludgeon
+	kCrush,		// was type_crush
+	kPound,		// was type_pound
+	kClaw,		// was type_claw
+	kMaul,		// was type_maul
+	kThrash,	// was type_thrash
+	kPierce,	// was type_pierce
+	kBlast,		// was type_blast
+	kPunch,		// was type_punch
+	kStab,		// was type_stab
+	kPick,		// was type_pick
+	kSting,		// was type_sting
 };
 
 enum {
