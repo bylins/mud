@@ -21,6 +21,7 @@
 		<message type="kGetOnFeet" val="Вам стоит встать на ноги." />
 		<message type="kCantFightNow" val="Вы временно не в состоянии сражаться." />
 		<message type="kNotFighting" val="Но вы ни с кем не сражаетесь?" />
+		<message type="kWrongWeapon" val="У вас нет подходящего оружия." />
 	</msg_sheaf>
 
 	<!-- Заколоть (kBackstab): сообщения, специфичные для умения. -->
@@ -56,6 +57,7 @@
 	</msg_sheaf>
 	<msg_sheaf id="kBash">
 		<message type="kNoTarget" val="Кого же вы так сильно желаете сбить?" />
+		<message type="kWrongWeapon" val="Вы не можете сделать этого без щита." />
 		<message type="kCantTargetSelf" val="Ваш сокрушающий удар поверг вас наземь... Вы почувствовали себя глупо." />
 		<message type="kFightDeathToChar" val="$N пал$G ниц после вашего удара! Встать $M уже не суждено." />
 		<message type="kFightDeathToVict" val="Удар $n1 надолго отбил у вас охоту вставать." />

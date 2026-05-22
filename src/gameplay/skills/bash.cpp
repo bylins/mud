@@ -91,6 +91,7 @@ void go_bash(CharData *ch, CharData *vict) {
 	if (!(ch->IsNpc() || GET_EQ(ch, kShield) || ch->IsImmortal() || AFF_FLAGGED(vict, EAffect::kHold)
 		|| GET_GOD_FLAG(vict, EGf::kGodscurse))) {
 		SendMsgToChar("Вы не можете сделать этого без щита.\r\n", ch);
+      SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kBash, ESkillMsg::kWrongWeapon) + "\r\n", ch);
 		return;
 	}
 	if (ch->IsFlagged(EPrf::kIronWind)) {

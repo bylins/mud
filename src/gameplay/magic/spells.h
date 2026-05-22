@@ -81,7 +81,7 @@ const int kTypeMagic = 420;
 // new attack types can be added here - up to TYPE_SUFFERING
 const int kTypeTriggerdeath = 495;
 const int kTypeTunnerldeath = 496;
-const int kTypeWaterdeath = 497;
+const int 2 = 497;
 const int kTypeRoomdeath = 498;
 const int kTypeSuffering = 499;
 
