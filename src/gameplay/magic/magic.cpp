@@ -344,6 +344,16 @@ int CalcBaseDmg(CharData *ch, ESpell spell_id, const talents_actions::Damage &sp
 }
 
 int CalcHeal(CharData *ch, CharData *victim, ESpell spell_id, int level) {
+	// Не у каждого спелла из CastToPoints в данных описан heal-экшен
+	// (напр. свежедобавленные kPatronage/kWarcryOfPower). Без этой проверки
+	// GetHeal() кидает исключение и роняет сервер (#3312). Логируем, какой
+	// спелл недонастроен, и лечим на 0 вместо краша.
+	if (!MUD::Spell(spell_id).actions.Contains(talents_actions::EAction::kHeal)) {
+		mudlog(fmt::format("SYSERR: spell {} ({}) has no 'heal' action, heal skipped",
+				to_underlying(spell_id), MUD::Spell(spell_id).GetCName()),
+			CMP, kLvlImmortal, SYSLOG, true);
+		return 0;
+	}
 	auto spell_heal = MUD::Spell(spell_id).actions.GetHeal();
 	int total_heal{0};
 	double skill_mod;

@@ -151,6 +151,10 @@ void Actions::ParseHeal(ActionsRosterPtr &info, parser_wrapper::DataNode &node) 
  *  работы с арекастами, а даже, скорее, переносить ее внутрь эффекта (как сделано с Applies).
  */
 
+bool Actions::Contains(EAction action) const {
+	return actions_->contains(action);
+}
+
 const Damage &Actions::GetDmg() const {
 	if (actions_->contains(EAction::kDamage)) {
 		return *std::static_pointer_cast<Damage>(actions_->find(EAction::kDamage)->second);
