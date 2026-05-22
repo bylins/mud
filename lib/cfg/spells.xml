@@ -997,13 +997,15 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="100" min="85" change="2"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagPoints|kNpcDummy"/>
-        <action>
+        <talent_actions>
+            <action>
             <heal saving="kCritical" npc_coeff="3">
                 <dices ndice="2" sdice="3" adice="0"/>
                 <base_skill id="kMindMagic" low_skill_bonus="15" hi_skill_bonus="25"/>
                 <base_stat id="kInt" threshold="20" weight="20"/>
             </heal>
-        </action>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kResurrection" element="kDark" mode="kEnabled">
         <name rus="оживить труп" eng="ressurection"/>

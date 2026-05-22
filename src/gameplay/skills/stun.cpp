@@ -1,4 +1,5 @@
 #include "stun.h"
+#include "skill_messages.h"
 
 #include "gameplay/fight/pk.h"
 #include "gameplay/fight/common.h"
@@ -8,16 +9,16 @@
 
 void do_stun(CharData *ch, char *argument, int, int) {
 	if (ch->GetSkill(ESkill::kStun) < 1) {
-		SendMsgToChar("Вы не знаете как.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kStun, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
 	if (ch->HasCooldown(ESkill::kStun)) {
-		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kStun, ESkillMsg::kOnCooldown) + "\r\n", ch);
 		return;
 	};
 
 	if (!ch->IsOnHorse()) {
-		SendMsgToChar("Вы привстали на стременах и поняли: 'лошадь украли!!!'\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kStun, ESkillMsg::kMustBeMounted) + "\r\n", ch);
 		return;
 	}
 	if ((ch->GetSkill(ESkill::kRiding) < 151) && (!ch->IsNpc())) {
@@ -29,17 +30,17 @@ void do_stun(CharData *ch, char *argument, int, int) {
 		return;
 	}
 	if (!ch->IsNpc() && !(GET_EQ(ch, EEquipPos::kWield) || GET_EQ(ch, EEquipPos::kBoths))) {
-		SendMsgToChar("Вы должны держать оружие в основной руке.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kStun, ESkillMsg::kNeedWeapon) + "\r\n", ch);
 		return;
 	}
 	CharData *vict = FindVictim(ch, argument);
 	if (!vict) {
-		SendMsgToChar("Кто это так сильно путается у вас под руками?\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kStun, ESkillMsg::kNoTarget) + "\r\n", ch);
 		return;
 	}
 
 	if (vict == ch) {
-		SendMsgToChar("Вы БОЛЬНО стукнули себя по голове! 'А еще я туда ем', - подумали вы...\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kStun, ESkillMsg::kCantTargetSelf) + "\r\n", ch);
 		return;
 	}
 

@@ -52,6 +52,7 @@ test_sources = files(
     'exit_is_empty.cpp',
     'msg_container.cpp',
     'spell_messages.cpp',
+    'skill_messages.cpp',
     'fight_messages.cpp'
 )
 

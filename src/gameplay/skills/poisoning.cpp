@@ -1,4 +1,6 @@
 #include "engine/entities/char_data.h"
+#include "skill_messages.h"
+#include "engine/db/global_objects.h"
 #include "engine/core/handler.h"
 #include "gameplay/mechanics/liquid.h"
 #include "gameplay/mechanics/poison.h"
@@ -6,7 +8,7 @@
 
 void DoPoisoning(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!ch->GetSkill(ESkill::kPoisoning)) {
-		SendMsgToChar("Вы не умеете этого.", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kPoisoning, ESkillMsg::kDontKnowSkill), ch);
 		return;
 	}
 
@@ -14,7 +16,7 @@ void DoPoisoning(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	skip_spaces(&argument);
 
 	if (!*arg) {
-		SendMsgToChar("Что вы хотите отравить?\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kPoisoning, ESkillMsg::kNoTarget) + "\r\n", ch);
 		return;
 	} else if (!*argument) {
 		SendMsgToChar("Из чего вы собираете взять яд?\r\n", ch);

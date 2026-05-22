@@ -1,4 +1,6 @@
 #include "ironwind.h"
+#include "skill_messages.h"
+#include "engine/db/global_objects.h"
 
 #include "gameplay/fight/pk.h"
 #include "gameplay/fight/common.h"
@@ -8,11 +10,11 @@
 
 void go_iron_wind(CharData *ch, CharData *victim) {
 	if (IsUnableToAct(ch)) {
-		SendMsgToChar("Вы временно не в состоянии сражаться.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kIronwind, ESkillMsg::kCantFightNow) + "\r\n", ch);
 		return;
 	}
 	if (ch->GetPosition() < EPosition::kFight) {
-		SendMsgToChar("Вам стоит встать на ноги.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kIronwind, ESkillMsg::kGetOnFeet) + "\r\n", ch);
 		return;
 	}
 	if (ch->IsFlagged(EPrf::kIronWind)) {
@@ -53,11 +55,11 @@ void go_iron_wind(CharData *ch, CharData *victim) {
 
 void do_iron_wind(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->IsNpc() || !ch->GetSkill(ESkill::kIronwind)) {
-		SendMsgToChar("Вы не знаете как.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kIronwind, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	};
 	if (ch->HasCooldown(ESkill::kIronwind)) {
-		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kIronwind, ESkillMsg::kOnCooldown) + "\r\n", ch);
 		return;
 	};
 	if (ch->battle_affects.get(kEafOverwhelm) || ch->battle_affects.get(kEafHammer)) {
@@ -72,12 +74,12 @@ void do_iron_wind(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	CharData *vict = FindVictim(ch, argument);
 	if (!vict) {
-		SendMsgToChar("Кого вам угодно изрубить в капусту?\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kIronwind, ESkillMsg::kNoTarget) + "\r\n", ch);
 		return;
 	}
 
 	if (vict == ch) {
-		SendMsgToChar("Вы с чувством собственного достоинства мощно пустили ветры... Железные.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kIronwind, ESkillMsg::kCantTargetSelf) + "\r\n", ch);
 		return;
 	}
 

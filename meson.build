@@ -469,6 +469,7 @@ main_sources = files(
   'src/administration/shutdown_parameters.cpp',
   'src/gameplay/skills/skills.cpp',
   'src/gameplay/skills/skills_info.cpp',
+  'src/gameplay/skills/skill_messages.cpp',
   'src/gameplay/communication/spam.cpp',
   'src/gameplay/ai/spec_assign.cpp',
   'src/gameplay/ai/spec_assign_reload.cpp',

@@ -3,6 +3,7 @@
 *  ************************************************************************/
 
 #include "track.h"
+#include "skill_messages.h"
 
 #include "gameplay/ai/graph.h"
 #include "engine/core/handler.h"
@@ -79,7 +80,7 @@ void do_track(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	// The character must have the track skill.
 	if (ch->IsNpc() || !ch->GetSkill(ESkill::kTrack)) {
-		SendMsgToChar("Но вы не знаете как.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kHideTrack, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
 
@@ -196,7 +197,7 @@ void do_hidetrack(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 	int percent, prob, i, croom, found = false, dir, rdir;
 
 	if (ch->IsNpc() || !ch->GetSkill(ESkill::kHideTrack)) {
-		SendMsgToChar("Но вы не знаете как.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kHideTrack, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
 

@@ -1,4 +1,5 @@
 #include "gameplay/fight/pk.h"
+#include "skill_messages.h"
 #include "gameplay/fight/common.h"
 #include "gameplay/fight/fight.h"
 #include "protect.h"
@@ -12,23 +13,23 @@
 //
 void DoDazzle(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!ch->IsImmortal() && IsUnableToAct(ch)) {
-		SendMsgToChar("Вы временно не в состоянии сражаться.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kDazzle, ESkillMsg::kCantFightNow) + "\r\n", ch);
 		return;
 	}
 	if (!ch->GetSkill(ESkill::kDazzle)) {
-		SendMsgToChar("Вы не знаете как.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kDazzle, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
 	if (!ch->IsImmortal() && ch->HasCooldown(ESkill::kDazzle)) {
-		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kDazzle, ESkillMsg::kOnCooldown) + "\r\n", ch);
 		return;
 	}
 	if (ch->IsOnHorse()) {
-		SendMsgToChar("Верхом это сделать затруднительно.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kDazzle, ESkillMsg::kCantWhileMounted) + "\r\n", ch);
 		return;
 	}
 	if (ch->GetPosition() < EPosition::kFight) {
-		SendMsgToChar("Вам стоит встать на ноги.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kDazzle, ESkillMsg::kGetOnFeet) + "\r\n", ch);
 		return;
 	}
 	if (!ch->GetEnemy()) {
@@ -38,11 +39,11 @@ void DoDazzle(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *vict = FindVictim(ch, argument);
 
 	if (!vict) {
-		SendMsgToChar("Кого же вы так сильно желаете лишить зрения?\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kDazzle, ESkillMsg::kNoTarget) + "\r\n", ch);
 		return;
 	}
 	if (vict == ch) {
-		SendMsgToChar("Лучше уж выколите себе глаза, чтобы не мучаться!\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kDazzle, ESkillMsg::kCantTargetSelf) + "\r\n", ch);
 		return;
 	}
 	if (!ch->IsImmortal() && IsAffectedBySpellWithCasterId(vict, ch, ESpell::kDazzle)) {
@@ -55,17 +56,17 @@ void DoDazzle(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 void GoDazzle(CharData *ch, CharData *vict) {
 	if (IsUnableToAct(ch)) {
-		SendMsgToChar("Вы временно не в состоянии сражаться.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kDazzle, ESkillMsg::kCantFightNow) + "\r\n", ch);
 		return;
 	}
 
 	if (ch == vict) {
-		SendMsgToChar("Лучше уж выколите себе глаза, чтобы не мучаться!\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kDazzle, ESkillMsg::kCantTargetSelf) + "\r\n", ch);
 		return;
 	}
 
 	if (ch->GetPosition() < EPosition::kFight) {
-		SendMsgToChar("Вам стоит встать на ноги.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kDazzle, ESkillMsg::kGetOnFeet) + "\r\n", ch);
 		return;
 	}
 	bool has_pepper = false;

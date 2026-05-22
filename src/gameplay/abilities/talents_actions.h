@@ -97,6 +97,7 @@ class Actions {
 	void Build(parser_wrapper::DataNode &node);
 	void Print(CharData *ch, std::ostringstream &buffer) const;
 
+	[[nodiscard]] bool Contains(EAction action) const;
 	[[nodiscard]] const Damage &GetDmg() const;
 	[[nodiscard]] const Area &GetArea() const;
 	[[nodiscard]] const Heal &GetHeal() const;

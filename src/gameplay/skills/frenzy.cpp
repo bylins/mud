@@ -3,6 +3,7 @@
 //
 
 #include "engine/entities/char_data.h"
+#include "skill_messages.h"
 #include "engine/entities/obj_data.h"
 #include "engine/core/handler.h"
 #include "engine/db/global_objects.h"
@@ -10,7 +11,7 @@
 
 void do_frenzy(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	if (!ch->GetSkill(ESkill::kFrenzy)) {
-		SendMsgToChar("Вам это не по силам.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kFrenzy, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
 	if (ch->GetPosition() != EPosition::kFight
@@ -18,11 +19,11 @@ void do_frenzy(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		&& (!IsAffectedBySpell(ch, ESpell::kCourage)
 			|| !IsAffectedBySpell(ch, ESpell::kFrenzy)
 			|| !IsAffectedBySpell(ch, ESpell::kBerserk))) {
-		SendMsgToChar("Вы не можете впасть в &Rисступление&n находясь в тишине и покое!\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kFrenzy, ESkillMsg::kPeacefulRoom) + "\r\n", ch);
 		return;
 	}
 	if (ch->HasCooldown(ESkill::kFrenzy) && !ch->IsImmortal()) {
-		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kFrenzy, ESkillMsg::kOnCooldown) + "\r\n", ch);
 		return;
 	}
 	if (ch->get_move() < MUD::Spell(ESpell::kFrenzy).GetMaxMana()) {

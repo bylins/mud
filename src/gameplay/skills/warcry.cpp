@@ -1,4 +1,5 @@
 #include "warcry.h"
+#include "skill_messages.h"
 
 #include "engine/core/handler.h"
 #include "engine/ui/color.h"
@@ -12,7 +13,7 @@ void do_warcry(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 
 	if (!ch->GetSkill(ESkill::kWarcry)) {
-		SendMsgToChar("Но вы не знаете как.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kWarcry, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
 
