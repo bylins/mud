@@ -37,10 +37,10 @@ void DoLightwalk(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/)
 	af.location = EApply::kNone;
 	af.battleflag = 0;
 	if (number(1, 1000) > number(1, GetRealDex(ch) * 50)) {
-		af.bitvector = 0;
+		af.affect_type = EAffect::kUndefinded;
 		SendMsgToChar("Вам не хватает ловкости...\r\n", ch);
 	} else {
-		af.bitvector = to_underlying(EAffect::kLightWalk);
+		af.affect_type = EAffect::kLightWalk;
 		SendMsgToChar("Ваши шаги стали легче перышка.\r\n", ch);
 	}
 	affect_to_char(ch, af);

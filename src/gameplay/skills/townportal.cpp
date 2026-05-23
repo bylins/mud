@@ -144,7 +144,7 @@ void ReplacePortalTimer(CharData *ch, RoomRnum from_room, RoomRnum to_room, int 
 
 	Affect<room_spells::ERoomApply> af;
 	af.type = ESpell::kPortalTimer;
-	af.bitvector = 0;
+	af.affect_type = static_cast<room_spells::ERoomAffect>(0);
 	af.duration = time; //раз в 2 секунды
 	af.modifier = to_room;
 	af.battleflag = 0;
@@ -156,7 +156,7 @@ void ReplacePortalTimer(CharData *ch, RoomRnum from_room, RoomRnum to_room, int 
 	room_spells::affect_to_room(world[from_room], af);
 	room_spells::AddRoomToAffected(world[from_room]);
 	af.modifier = from_room;
-	af.bitvector = room_spells::ERoomAffect::kNoPortalExit;
+	af.affect_type = room_spells::ERoomAffect::kNoPortalExit;
 	room_spells::affect_to_room(world[to_room], af);
 //	room_spells::AffectRoomJoinReplace(world[to_room], af);
 	room_spells::AddRoomToAffected(world[to_room]);

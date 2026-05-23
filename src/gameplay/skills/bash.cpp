@@ -131,7 +131,7 @@ void go_bash(CharData *ch, CharData *vict) {
 			af.type = ESpell::kConfuse;
 			af.duration = 2;
 			af.battleflag = kAfSameTime;
-			af.bitvector = to_underlying(EAffect::kConfused);
+			af.affect_type = EAffect::kConfused;
 			if (!vict->IsNpc()) {
 				af.duration *= 30;
 			}

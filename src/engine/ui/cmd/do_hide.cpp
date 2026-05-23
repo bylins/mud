@@ -54,9 +54,9 @@ void do_hide(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	af.battleflag = 0;
 
 	if (percent > prob) {
-		af.bitvector = 0;
+		af.affect_type = EAffect::kUndefinded;
 	} else {
-		af.bitvector = to_underlying(EAffect::kHide);
+		af.affect_type = EAffect::kHide;
 	}
 
 	affect_to_char(ch, af);

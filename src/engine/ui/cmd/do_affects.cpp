@@ -74,14 +74,14 @@ void do_affects(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					sprintf(buf2, "%-3d к параметру: %s", aff->modifier, apply_types[(int) aff->location]);
 					snprintf(buf + strlen(buf), sizeof(buf) - strlen(buf), "%s", buf2);
 				}
-				if (aff->bitvector) {
+				if (aff->affect_type != EAffect::kUndefinded) {
 					if (*buf2) {
 						strncat(buf, ", устанавливает ", sizeof(buf) - strlen(buf) - 1);
 					} else {
 						strncat(buf, "устанавливает ", sizeof(buf) - strlen(buf) - 1);
 					}
 					strncat(buf, kColorBoldRed, sizeof(buf) - strlen(buf) - 1);
-					sprintbit(aff->bitvector, affected_bits, buf2, sizeof(buf2));
+					sprintbit(to_underlying(aff->affect_type), affected_bits, buf2, sizeof(buf2));
 					snprintf(buf + strlen(buf), sizeof(buf) - strlen(buf), "%s", buf2);
 					strncat(buf, kColorNrm, sizeof(buf) - strlen(buf) - 1);
 				}

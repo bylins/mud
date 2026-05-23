@@ -57,9 +57,9 @@ void do_camouflage(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*
 	af.battleflag = 0;
 
 	if (percent > prob) {
-		af.bitvector = 0;
+		af.affect_type = EAffect::kUndefinded;
 	} else {
-		af.bitvector = to_underlying(EAffect::kDisguise);
+		af.affect_type = EAffect::kDisguise;
 	}
 
 	affect_to_char(ch, af);

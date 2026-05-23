@@ -68,16 +68,16 @@ void SummonTutelar(CharData *ch) {
 	af.modifier = 0;
 	af.location = EApply::kNone;
 	af.battleflag = 0;
-	af.bitvector = to_underlying(EAffect::kHelper);
+	af.affect_type = EAffect::kHelper;
 	affect_to_char(mob, af);
 
-	af.bitvector = to_underlying(EAffect::kFly);
+	af.affect_type = EAffect::kFly;
 	affect_to_char(mob, af);
 
-	af.bitvector = to_underlying(EAffect::kInfravision);
+	af.affect_type = EAffect::kInfravision;
 	affect_to_char(mob, af);
 
-	af.bitvector = to_underlying(EAffect::kSanctuary);
+	af.affect_type = EAffect::kSanctuary;
 	affect_to_char(mob, af);
 
 	//Set shields
@@ -86,15 +86,15 @@ void SummonTutelar(CharData *ch) {
 	int count_shields = base_shields + floorf(eff_cha * additional_shields_for_charisma);
 	if (count_shields > 0) {
 		mob->SetFlag(EMobFlag::kNoHold);
-		af.bitvector = to_underlying(EAffect::kAirShield);
+		af.affect_type = EAffect::kAirShield;
 		affect_to_char(mob, af);
 	}
 	if (count_shields > 1) {
-		af.bitvector = to_underlying(EAffect::kIceShield);
+		af.affect_type = EAffect::kIceShield;
 		affect_to_char(mob, af);
 	}
 	if (count_shields > 2) {
-		af.bitvector = to_underlying(EAffect::kFireShield);
+		af.affect_type = EAffect::kFireShield;
 		affect_to_char(mob, af);
 	}
 

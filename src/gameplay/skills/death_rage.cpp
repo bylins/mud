@@ -28,12 +28,12 @@ void CheckDeathRage(CharData *ch) {
 
 		prob = ch->IsNpc() ? 601 : (751 - GetRealLevel(ch) * 5);
 		if (number(1, 1000) < prob) {
-			af.bitvector = to_underlying(EAffect::kBerserk);
+			af.affect_type = EAffect::kBerserk;
 			act("Вас обуяла предсмертная ярость!", false, ch, nullptr, nullptr, kToChar);
 			act("$n0 исступленно взвыл$g и бросил$u на противника!", false, ch, nullptr, vict, kToNotVict);
 			act("$n0 исступленно взвыл$g и бросил$u на вас!", false, ch, nullptr, vict, kToVict);
 		} else {
-			af.bitvector = 0;
+			af.affect_type = EAffect::kUndefinded;
 			act("Вы истошно завопили, пытаясь напугать противника. Без толку.", false, ch, nullptr, nullptr, kToChar);
 			act("$n0 истошно завопил$g, пытаясь напугать противника. Забавно...", false, ch, nullptr, vict, kToNotVict);
 			act("$n0 истошно завопил$g, пытаясь напугать вас. Забавно...", false, ch, nullptr, vict, kToVict);

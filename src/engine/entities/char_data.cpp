@@ -223,7 +223,7 @@ void CharData::set_abstinent() {
 
 	Affect<EApply> af;
 	af.type = ESpell::kAbstinent;
-	af.bitvector = to_underlying(EAffect::kAbstinent);
+	af.affect_type = EAffect::kAbstinent;
 	af.duration = duration;
 
 	af.location = EApply::kAc;

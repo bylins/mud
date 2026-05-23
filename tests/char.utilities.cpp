@@ -52,7 +52,7 @@ void CharacterBuilder::add_poison()
 	poison->modifier = 0;
 	poison->location = EApply::kStr;
 	poison->duration = CalcDuration(m_result.get(), 10 * 2, 0, 0, 0, 0);
-	poison->bitvector = to_underlying(EAffect::kPoisoned);
+	poison->affect_type = EAffect::kPoisoned;
 	poison->battleflag = kAfSameTime;
 	// Add directly to avoid affect_total() which requires global state
 	m_result->affected.push_front(poison);
@@ -67,7 +67,7 @@ void CharacterBuilder::add_sleep()
 	sleep->modifier = 0;
 	sleep->location = EApply::kAc;
 	sleep->duration = CalcDuration(m_result.get(), 10 * 2, 0, 0, 0, 0);
-	sleep->bitvector = to_underlying(EAffect::kSleep);
+	sleep->affect_type = EAffect::kSleep;
 	sleep->battleflag = kAfSameTime;
 	// Add directly to avoid affect_total() which requires global state
 	m_result->affected.push_front(sleep);
@@ -82,7 +82,7 @@ void CharacterBuilder::add_detect_invis()
 	detect_invis->modifier = 0;
 	detect_invis->location = EApply::kAc;
 	detect_invis->duration = CalcDuration(m_result.get(), 10 * 2, 0, 0, 0, 0);
-	detect_invis->bitvector = to_underlying(EAffect::kDetectInvisible);
+	detect_invis->affect_type = EAffect::kDetectInvisible;
 	detect_invis->battleflag = kAfSameTime;
 	// Add directly to avoid affect_total() which requires global state
 	m_result->affected.push_front(detect_invis);
@@ -97,7 +97,7 @@ void CharacterBuilder::add_detect_align()
 	detect_align->modifier = 0;
 	detect_align->location = EApply::kAc;
 	detect_align->duration = CalcDuration(m_result.get(), 10 * 2, 0, 0, 0, 0);
-	detect_align->bitvector = to_underlying(EAffect::kDetectAlign);
+	detect_align->affect_type = EAffect::kDetectAlign;
 	detect_align->battleflag = kAfSameTime;
 	// Add directly to avoid affect_total() which requires global state
 	m_result->affected.push_front(detect_align);

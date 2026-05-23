@@ -73,7 +73,7 @@ void feed_charmice(CharData *ch, char *local_arg) {
 	af.duration = std::min(max_charm_duration, (int) (mob_level * max_charm_duration / 30));
 	af.modifier = 0;
 	af.location = EApply::kNone;
-	af.bitvector = to_underlying(EAffect::kCharmed);
+	af.affect_type = EAffect::kCharmed;
 	af.battleflag = 0;
 
 	ImposeAffect(ch, af);
@@ -183,7 +183,7 @@ void do_eat(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			Affect<EApply> af;
 			af.location = food->get_affected(i).location;
 			af.modifier = food->get_affected(i).modifier;
-			af.bitvector = 0;
+			af.affect_type = EAffect::kUndefinded;
 			af.type = ESpell::kFullFeed;
 //			af.battleflag = 0;
 			af.duration = CalcDuration(ch, 10 * 2, 0, 0, 0, 0);
@@ -203,14 +203,14 @@ void do_eat(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		af.duration = CalcDuration(ch, amount == 1 ? amount : amount * 2, 0, 0, 0, 0);
 		af.modifier = 0;
 		af.location = EApply::kStr;
-		af.bitvector = to_underlying(EAffect::kPoisoned);
+		af.affect_type = EAffect::kPoisoned;
 		af.battleflag = kAfSameTime;
 		ImposeAffect(ch, af, false, false, false, false);
 		af.type = ESpell::kPoison;
 		af.duration = CalcDuration(ch, amount == 1 ? amount : amount * 2, 0, 0, 0, 0);
 		af.modifier = amount * 3;
 		af.location = EApply::kPoison;
-		af.bitvector = to_underlying(EAffect::kPoisoned);
+		af.affect_type = EAffect::kPoisoned;
 		af.battleflag = kAfSameTime;
 		ImposeAffect(ch, af, false, false, false, false);
 		ch->poisoner = 0;

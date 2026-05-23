@@ -40,7 +40,7 @@ void DoHidemove(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		af.duration = 1;
 		const int calculated_skill = CalcCurrentSkill(ch, ESkill::kSneak, nullptr);
 		const int chance = number(1, MUD::Skill(ESkill::kSneak).difficulty);
-		af.bitvector = (chance < calculated_skill) ? to_underlying(EAffect::kSneak) : 0;
+		af.affect_type = (chance < calculated_skill) ? EAffect::kSneak : EAffect::kUndefinded;
 		af.battleflag = 0;
 		ImposeAffect(ch, af, false, false, false, false);
 	}

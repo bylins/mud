@@ -23,6 +23,16 @@ enum ERoomApply {
 	kNone = 0
 };
 
+} // namespace room_spells
+
+// Room affects store an ERoomAffect flag in Affect::affect_type (see affect_data.h).
+template<>
+struct AffectFlagType<room_spells::ERoomApply> {
+	using type = room_spells::ERoomAffect;
+};
+
+namespace room_spells {
+
 using RoomAffects = std::list<Affect<ERoomApply>::shared_ptr>;
 using RoomAffectIt = RoomAffects::iterator;
 

@@ -312,14 +312,14 @@ void DoFindhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		af.type = ESpell::kCharm;
 		af.modifier = 0;
 		af.location = EApply::kNone;
-		af.bitvector = to_underlying(EAffect::kCharmed);
+		af.affect_type = EAffect::kCharmed;
 		af.battleflag = 0;
 		affect_to_char(helpee, af);
 
 		af.type = ESpell::kCharm;
 		af.modifier = 0;
 		af.location = EApply::kNone;
-		af.bitvector = to_underlying(EAffect::kHelper);
+		af.affect_type = EAffect::kHelper;
 		af.battleflag = 0;
 		affect_to_char(helpee, af);
 

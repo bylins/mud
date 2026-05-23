@@ -58,7 +58,7 @@ void PerformShadowThrowSideAbilities(abilities_roll::TechniqueRoll &technique) {
 			DoSideAction = ([](abilities_roll::TechniqueRoll &technique) {
 				Affect<EApply> af;
 				af.type = ESpell::kBattle;
-				af.bitvector = to_underlying(EAffect::kSilence);
+				af.affect_type = EAffect::kSilence;
 				af.duration = CalcDuration(technique.GetRival(), 2, GetRealLevel(technique.GetActor()), 9, 6, 2);
 				af.battleflag = kAfBattledec | kAfPulsedec;
 				ImposeAffect(technique.GetRival(), af, false, false, false, false);
@@ -73,7 +73,7 @@ void PerformShadowThrowSideAbilities(abilities_roll::TechniqueRoll &technique) {
 			DoSideAction = ([](abilities_roll::TechniqueRoll &technique) {
 				Affect<EApply> af;
 				af.type = ESpell::kBattle;
-				af.bitvector = to_underlying(EAffect::kStopFight);
+				af.affect_type = EAffect::kStopFight;
 				af.duration = CalcDuration(technique.GetRival(), 3, 0, 0, 0, 0);
 				af.battleflag = kAfBattledec | kAfPulsedec;
 				ImposeAffect(technique.GetRival(), af, false, false, false, false);

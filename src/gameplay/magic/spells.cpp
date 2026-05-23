@@ -421,7 +421,7 @@ void AddPortalTimer(CharData *ch, RoomData *from_room, RoomRnum to_room, int tim
 
 	Affect<room_spells::ERoomApply> af;
 	af.type = ESpell::kPortalTimer;
-	af.bitvector = 0;
+	af.affect_type = static_cast<room_spells::ERoomAffect>(0);
 	af.duration = time; //раз в 2 секунды
 	af.modifier = to_room;
 	af.battleflag = 0;
@@ -1186,36 +1186,36 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 
 			// простые аффекты
 			if (r_cha > 25)  {
-				af.bitvector = to_underlying(EAffect::kInfravision);
+				af.affect_type = EAffect::kInfravision;
 				affect_to_char(victim, af);
 			} 
 			 if (r_cha >= 30) {
-				af.bitvector = to_underlying(EAffect::kDetectInvisible);
+				af.affect_type = EAffect::kDetectInvisible;
 				affect_to_char(victim, af);
 			} 
 			if (r_cha >= 35) {
-				af.bitvector = to_underlying(EAffect::kFly);
+				af.affect_type = EAffect::kFly;
 				affect_to_char(victim, af);
 			} 
 			if (r_cha >= 39) {	
-				af.bitvector = to_underlying(EAffect::kStoneHands);
+				af.affect_type = EAffect::kStoneHands;
 				affect_to_char(victim, af);
 			}
 			
 			// расщет крутых маг аффектов
 			if (r_cha > 56) {
-				af.bitvector = to_underlying(EAffect::kShadowCloak);
+				af.affect_type = EAffect::kShadowCloak;
 				affect_to_char(victim, af);
 			} 
 			
 			if ((r_cha > 65) && (r_cha < 74)) {
-				af.bitvector = to_underlying(EAffect::kFireShield);
+				af.affect_type = EAffect::kFireShield;
 			} else if ((r_cha >= 74) && (r_cha < 82)){
-				af.bitvector = to_underlying(EAffect::kAirShield);
+				af.affect_type = EAffect::kAirShield;
 			} else if (r_cha >= 82) {
-				af.bitvector = to_underlying(EAffect::kIceShield);
+				af.affect_type = EAffect::kIceShield;
 				affect_to_char(victim, af);
-				af.bitvector = to_underlying(EAffect::kBrokenChains);
+				af.affect_type = EAffect::kBrokenChains;
 			}
 			affect_to_char(victim, af);
 			
@@ -1223,7 +1223,7 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 			RemoveAllSkills(victim);
 			victim->real_abils.Feats.reset();
 			// выбираем тип бойца - рандомно из 8 вариантов
-			af.bitvector = to_underlying(EAffect::kHelper);
+			af.affect_type = EAffect::kHelper;
 			affect_to_char(victim, af);
 			switch (type_mob)
 			{ // готовим наборы скиллов / способностей
@@ -1323,7 +1323,7 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 				victim->SetFeat(EFeat::kThieveStrike);
 				victim->SetFeat(EFeat::kBowsMaster);
 				if (floorf(r_cha*0.8 + perc/5.0) > number(1, 150)) {
-					af.bitvector = to_underlying(EAffect::kCloudOfArrows);
+					af.affect_type = EAffect::kCloudOfArrows;
 					act("&YВокруг когтей $N1 засияли яркие магические всполохи.&n\n",
 						false, ch, nullptr, victim, kToChar);
 					affect_to_char(victim, af);
@@ -1446,7 +1446,7 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 		af.location = EApply::kNone;
 		af.battleflag = 0;
 		af.type = ESpell::kCharm;
-		af.bitvector = to_underlying(EAffect::kCharmed);
+		af.affect_type = EAffect::kCharmed;
 		affect_to_char(victim, af);
 		ch->add_follower(victim);
 	}
@@ -2237,7 +2237,7 @@ void SpellMentalShadow(CharData *ch) {
 	af.duration = CalcDuration(mob, 5 + (int) VPOSI<float>((get_effective_int(ch) - 16.0) / 2, 0, 50), 0, 0, 0, 0);
 	af.modifier = 0;
 	af.location = EApply::kNone;
-	af.bitvector = to_underlying(EAffect::kHelper);
+	af.affect_type = EAffect::kHelper;
 	af.battleflag = 0;
 	affect_to_char(mob, af);
 	
@@ -2249,20 +2249,20 @@ void SpellMentalShadow(CharData *ch) {
      	SET_SPELL_MEM(mob, ESpell::kRemoveSilence, 1);
 	} else if (eff_int >= 32 && eff_int < 38) {
 		SET_SPELL_MEM(mob, ESpell::kRemoveSilence, 1);
-		af.bitvector = to_underlying(EAffect::kShadowCloak);
+		af.affect_type = EAffect::kShadowCloak;
 		affect_to_char(mob, af);
 		mob->mob_specials.have_spell = true;
 	} else if(eff_int >= 38 && eff_int < 44) {
 		SET_SPELL_MEM(mob, ESpell::kRemoveSilence, 2);
-		af.bitvector = to_underlying(EAffect::kShadowCloak);
+		af.affect_type = EAffect::kShadowCloak;
 		affect_to_char(mob, af);
 		mob->mob_specials.have_spell = true;
 	
 	} else if(eff_int >= 44) {
 		SET_SPELL_MEM(mob, ESpell::kRemoveSilence, 3);
-		af.bitvector = to_underlying(EAffect::kShadowCloak);
+		af.affect_type = EAffect::kShadowCloak;
 		affect_to_char(mob, af);
-		af.bitvector = to_underlying(EAffect::kBrokenChains);
+		af.affect_type = EAffect::kBrokenChains;
 		affect_to_char(mob, af);
 		mob->mob_specials.have_spell = true;
 	}

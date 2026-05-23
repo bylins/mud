@@ -150,7 +150,7 @@ void PerformMighthit(CharData *ch, CharData *victim, HitData &hit_data) {
 			SetWaitState(victim, kBattleRound);
 			Affect<EApply> af;
 			af.type = ESpell::kBattle;
-			af.bitvector = to_underlying(EAffect::kStopFight);
+			af.affect_type = EAffect::kStopFight;
 			af.location = EApply::kNone;
 			af.modifier = 0;
 			af.duration = CalcDuration(victim, 1, 0, 0, 0, 0);
@@ -170,7 +170,7 @@ void PerformMighthit(CharData *ch, CharData *victim, HitData &hit_data) {
 			SetWaitState(victim, 2 * kBattleRound);
 			Affect<EApply> af;
 			af.type = ESpell::kBattle;
-			af.bitvector = to_underlying(EAffect::kStopFight);
+			af.affect_type = EAffect::kStopFight;
 			af.location = EApply::kNone;
 			af.modifier = 0;
 			af.duration = CalcDuration(victim, 2, 0, 0, 0, 0);
@@ -190,7 +190,7 @@ void PerformMighthit(CharData *ch, CharData *victim, HitData &hit_data) {
 			SetWaitState(victim, 3 * kBattleRound);
 			Affect<EApply> af;
 			af.type = ESpell::kBattle;
-			af.bitvector = to_underlying(EAffect::kStopFight);
+			af.affect_type = EAffect::kStopFight;
 			af.location = EApply::kNone;
 			af.modifier = 0;
 			af.duration = CalcDuration(victim, 3, 0, 0, 0, 0);

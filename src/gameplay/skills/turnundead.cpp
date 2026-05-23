@@ -75,14 +75,14 @@ void do_turn_undead(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd
 			af1.duration = CalcDuration(target, 3, 0, 0, 0, 0);
 			af1.modifier = std::max(1, roll.GetSuccessDegree() * 2);
 			af1.location = EApply::kDamroll;
-			af1.bitvector = to_underlying(EAffect::kNoFlee);
+			af1.affect_type = EAffect::kNoFlee;
 			af1.battleflag = 0;
 			Affect<EApply> af2;
 			af2.type = ESpell::kCourage;
 			af2.duration = CalcDuration(target, 3, 0, 0, 0, 0);
 			af2.modifier = std::max(1, 25 + roll.GetSuccessDegree() * 5);
 			af2.location = EApply::kHpRegen;
-			af2.bitvector = to_underlying(EAffect::kNoFlee);
+			af2.affect_type = EAffect::kNoFlee;
 			af2.battleflag = 0;
 			ImposeAffect(target, af1, true, false, true, false);
 			ImposeAffect(target, af2, true, false, true, false);

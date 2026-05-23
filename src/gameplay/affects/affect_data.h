@@ -22,13 +22,21 @@ extern std::unordered_set<CharData *> affected_mobs;
 // An affect structure. //
 class IAffectHandler;
 
+// Maps an affect's location enum to the flag enum stored in Affect::affect_type.
+// Character affects (EApply) use EAffect by default; room affects specialize this
+// (see magic_rooms.h) to room_spells::ERoomAffect.
+template<typename TLocation>
+struct AffectFlagType {
+	using type = EAffect;
+};
+
 template<typename TLocation>
 class Affect {
  public:
 	using shared_ptr = std::shared_ptr<Affect<TLocation>>;
 
 	Affect() : type(ESpell::kUndefined), duration(0), modifier(0), location(static_cast<TLocation>(0)),
-			   battleflag(0), bitvector(0), caster_id(0), must_handled(false),
+			   battleflag(0), caster_id(0), must_handled(false),
 			   apply_time(0) {};
 	[[nodiscard]] bool removable() const;
 
@@ -37,7 +45,10 @@ class Affect {
 	int modifier;        // This is added to appropriate ability     //
 	TLocation location;        // Tells which ability to change(APPLY_XXX) //
 	Bitvector battleflag;       //*** SUCH AS HOLD,SIELENCE etc
-	Bitvector bitvector;        // Tells which bits to set (AFF_XXX) //
+	// The single flag this affect sets while active (AFF_XXX). Its enum type
+	// follows the affect's location kind via AffectFlagType (EAffect for chars,
+	// ERoomAffect for rooms). kUndefinded/0 means the affect sets no flag.
+	typename AffectFlagType<TLocation>::type affect_type{};
 	FlagData aff;
 	long caster_id; //Unique caster ID //
 	bool must_handled; // Указывает муду что для аффекта должен быть вызван обработчик (пока только для комнат) //

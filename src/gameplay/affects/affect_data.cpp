@@ -485,7 +485,7 @@ void mobile_affect_update() {
 
 			if (affect->duration == 0) {
 				if (affect->type >= ESpell::kFirst && affect->type <= ESpell::kLast) {
-					if (affect->type == ESpell::kCharm || affect->bitvector == to_underlying(EAffect::kCharmed)) {
+					if (affect->type == ESpell::kCharm || affect->affect_type == EAffect::kCharmed) {
 						was_charmed = true;
 					}
 					auto next_affect_i = affect_i;
@@ -751,7 +751,7 @@ void affect_total(CharData *ch) {
 
 	// move affect modifiers
 	for (const auto &af : ch->affected) {
-		affect_modify(ch, af->location, af->modifier, static_cast<EAffect>(af->bitvector), true);
+		affect_modify(ch, af->location, af->modifier, af->affect_type, true);
 	}
 
 	// move race and class modifiers
@@ -903,7 +903,7 @@ void affect_total(CharData *ch) {
 
 void ImposeAffect(CharData *ch, const Affect<EApply> &af) {
 	for (const auto &affect : ch->affected) {
-		const bool same_affect = (af.location == EApply::kNone) && (affect->bitvector == af.bitvector);
+		const bool same_affect = (af.location == EApply::kNone) && (affect->affect_type == af.affect_type);
 		const bool same_type = (af.location != EApply::kNone) && (affect->type == af.type) && (affect->location == af.location);
 		if (same_affect || same_type) {
 			if (affect->modifier < af.modifier) {
@@ -959,8 +959,8 @@ void affect_to_char(CharData *ch, const Affect<EApply> &af) {
 	ch->affected.push_front(affected_alloc);
 
 	AFF_FLAGS(ch) += af.aff;
-	if (af.bitvector)
-		affect_modify(ch, af.location, af.modifier, static_cast<EAffect>(af.bitvector), true);
+	if (af.affect_type != EAffect::kUndefinded)
+		affect_modify(ch, af.location, af.modifier, af.affect_type, true);
 	//log("[AFFECT_TO_CHAR->AFFECT_TOTAL] Start");
 	affect_total(ch);
 }
@@ -976,15 +976,15 @@ void affect_to_char_no_recalc(CharData *ch, const Affect<EApply> &af) {
 	ch->affected.push_front(affected_alloc);
 
 	AFF_FLAGS(ch) += af.aff;
-	if (af.bitvector)
-		affect_modify(ch, af.location, af.modifier, static_cast<EAffect>(af.bitvector), true);
+	if (af.affect_type != EAffect::kUndefinded)
+		affect_modify(ch, af.location, af.modifier, af.affect_type, true);
 }
 
 // Same as ImposeAffect but without affect_total() recalculation.
 // Caller MUST call affect_total(ch) after all affects are applied.
 void ImposeAffectNoRecalc(CharData *ch, const Affect<EApply> &af) {
 	for (const auto &affect : ch->affected) {
-		const bool same_affect = (af.location == EApply::kNone) && (affect->bitvector == af.bitvector);
+		const bool same_affect = (af.location == EApply::kNone) && (affect->affect_type == af.affect_type);
 		const bool same_type = (af.location != EApply::kNone) && (affect->type == af.type) && (affect->location == af.location);
 		if (same_affect || same_type) {
 			if (affect->modifier < af.modifier) {

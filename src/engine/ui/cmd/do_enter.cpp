@@ -34,7 +34,7 @@ void DoEnter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 			int i = 0;
 			for (const auto &aff : world[ch->in_room]->affected) {
-				if (aff->type == ESpell::kPortalTimer && aff->bitvector != room_spells::ERoomAffect::kNoPortalExit && ++i == fnum) {
+				if (aff->type == ESpell::kPortalTimer && aff->affect_type != room_spells::ERoomAffect::kNoPortalExit && ++i == fnum) {
 					door = aff->modifier;
 				}
 			}

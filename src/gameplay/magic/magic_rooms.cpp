@@ -383,7 +383,7 @@ int CallMagicToRoom(int/* level*/, CharData *ch, RoomData *room, ESpell spell_id
 	Affect<ERoomApply> af[kMaxSpellAffects];
 	for (i = 0; i < kMaxSpellAffects; i++) {
 		af[i].type = spell_id;
-		af[i].bitvector = 0;
+		af[i].affect_type = static_cast<ERoomAffect>(0);
 		af[i].modifier = 0;
 		af[i].battleflag = 0;
 		af[i].location = kNone;

@@ -761,7 +761,7 @@ void Player::save_char() {
 		for (auto &aff : tmp_aff) {
 			if (aff->type >= ESpell::kFirst) {
 				fprintf(saved, "%d %d %d %d %d %d %s\n", to_underlying(aff->type), aff->duration,
-						aff->modifier, aff->location, static_cast<int>(aff->bitvector),
+						aff->modifier, aff->location, static_cast<int>(aff->affect_type),
 						static_cast<int>(aff->battleflag), MUD::Spell(aff->type).GetCName());
 			}
 		}
@@ -1262,7 +1262,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 							af.duration = num2;
 							af.modifier = num3;
 							af.location = static_cast<EApply>(num4);
-							af.bitvector = num5;
+							af.affect_type = static_cast<EAffect>(num5);
 							af.battleflag = num6;
 							if (af.type == ESpell::kCombatLuck) {
 								af.handler.reset(new CombatLuckAffectHandler());

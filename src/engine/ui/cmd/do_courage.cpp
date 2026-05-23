@@ -36,25 +36,25 @@ void do_courage(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 	af[0].duration = CalcDuration(ch, dur, 0, 0, 0, 0);
 	af[0].modifier = 40;
 	af[0].location = EApply::kAc;
-	af[0].bitvector = to_underlying(EAffect::kNoFlee);
+	af[0].affect_type = EAffect::kNoFlee;
 	af[0].battleflag = 0;
 	af[1].type = ESpell::kCourage;
 	af[1].duration = CalcDuration(ch, dur, 0, 0, 0, 0);
 	af[1].modifier = std::max(1, prob);
 	af[1].location = EApply::kDamroll;
-	af[1].bitvector = to_underlying(EAffect::kCourage);
+	af[1].affect_type = EAffect::kCourage;
 	af[1].battleflag = 0;
 	af[2].type = ESpell::kCourage;
 	af[2].duration = CalcDuration(ch, dur, 0, 0, 0, 0);
 	af[2].modifier = std::max(1, prob * 7);
 	af[2].location = EApply::kAbsorbe;
-	af[2].bitvector = to_underlying(EAffect::kCourage);
+	af[2].affect_type = EAffect::kCourage;
 	af[2].battleflag = 0;
 	af[3].type = ESpell::kCourage;
 	af[3].duration = CalcDuration(ch, dur, 0, 0, 0, 0);
 	af[3].modifier = 50;
 	af[3].location = EApply::kHpRegen;
-	af[3].bitvector = to_underlying(EAffect::kCourage);
+	af[3].affect_type = EAffect::kCourage;
 	af[3].battleflag = 0;
 
 	for (auto & i : af) {

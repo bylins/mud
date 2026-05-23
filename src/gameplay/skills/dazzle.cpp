@@ -96,7 +96,7 @@ void GoDazzle(CharData *ch, CharData *vict) {
 	af.type = ESpell::kBlindness;
 	af.battleflag = kAfPulsedec;
 	af.duration = 150 + (ch->GetSkill(ESkill::kDazzle) * 1.25);
-	af.bitvector = to_underlying(EAffect::kBlind);
+	af.affect_type = EAffect::kBlind;
 
 	Affect<EApply> af2;
 	af2.type = ESpell::kDazzle;

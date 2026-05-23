@@ -108,7 +108,7 @@ CharData *TryToFindProtector(CharData *victim, CharData *ch) {
 				SetWaitState(vict, kBattleRound);
 				Affect<EApply> af;
 				af.type = ESpell::kBattle;
-				af.bitvector = to_underlying(EAffect::kStopFight);
+				af.affect_type = EAffect::kStopFight;
 				af.location = EApply::kNone;
 				af.modifier = 0;
 				af.duration = CalcDuration(vict, 1, 0, 0, 0, 0);
