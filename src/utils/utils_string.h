@@ -302,6 +302,9 @@ std::string OutWordsList(const std::list<std::string> &words, size_t max_length)
 // то же, но на вход строка со словами через пробелы
 std::string OutWordsList(const std::string &words_str, size_t max_length);
 
+/// Вернуть строку пола персонажа по числовому значению (to_underlying(ch->get_sex())).
+std::string sprintGender(int gender_value);
+
 } // namespace utils
 
 /// Сравнение строк без учета регистра (аналог strcmp).
