@@ -325,7 +325,7 @@ double CalcMagicElementCoeff(CharData *victim, ESpell spell_id) {
 	return element_coeff;
 }
 
-int CalcBaseDmg(CharData *ch, ESpell spell_id, const talents_actions::Damage &spell_dmg) {
+int CalcBaseDmg(CharData *ch, ESpell spell_id) {
 	auto base_dmg{0};
 	if (IsBreath(spell_id)) {
 		if (!ch->IsNpc()) {
@@ -334,7 +334,7 @@ int CalcBaseDmg(CharData *ch, ESpell spell_id, const talents_actions::Damage &sp
 		base_dmg = RollDices(ch->mob_specials.damnodice, ch->mob_specials.damsizedice) +
 			GetRealDamroll(ch) + str_bonus(GetRealStr(ch), STR_TO_DAM);
 	} else {
-		base_dmg = spell_dmg.RollSkillDices();
+		base_dmg = MUD::Spell(spell_id).GetPotencyRoll().RollSkillDices();
 	}
 
 	if (!ch->IsNpc()) {
@@ -355,17 +355,18 @@ int CalcHeal(CharData *ch, CharData *victim, ESpell spell_id, int level) {
 		return 0;
 	}
 	auto spell_heal = MUD::Spell(spell_id).actions.GetHeal();
+	const auto &potency_roll = MUD::Spell(spell_id).GetPotencyRoll();
 	int total_heal{0};
 	double skill_mod;
 
-	double base_heal = spell_heal.RollSkillDices();
+	double base_heal = potency_roll.RollSkillDices();
 	if (level >= 0) {
-		skill_mod = base_heal * spell_heal.CalcSkillCoeff(ch);
+		skill_mod = base_heal * potency_roll.CalcSkillCoeff(ch);
 	} else {
 		skill_mod = base_heal * abs(level) / 0.25;
 	}
 //	mudlog(fmt::format("Хиляем level = {}, skill_mod = {}", level, skill_mod));
-	double stat_mod = base_heal * spell_heal.CalcBaseStatCoeff(ch);
+	double stat_mod = base_heal * potency_roll.CalcBaseStatCoeff(ch);
 	double bonus_mod = ch->add_abils.percent_spellpower_add / 100.0;
 	total_heal = static_cast<int>(base_heal + skill_mod + stat_mod);
 	total_heal += static_cast<int>(total_heal * bonus_mod);
@@ -398,12 +399,12 @@ int CalcHeal(CharData *ch, CharData *victim, ESpell spell_id, int level) {
 }
 
 int CalcTotalSpellDmg(CharData *ch, CharData *victim, ESpell spell_id) {
-	auto spell_dmg = MUD::Spell(spell_id).actions.GetDmg();
+	const auto &potency_roll = MUD::Spell(spell_id).GetPotencyRoll();
 	int total_dmg{0};
 	if (number(1, 100) > std::min(ch->IsNpc() ? kMaxNpcResist : kMaxPcResist, GET_MR(victim))) {
-		float base_dmg = CalcBaseDmg(ch, spell_id, spell_dmg);
-		float skill_mod = base_dmg * spell_dmg.CalcSkillCoeff(ch);
-		float wis_mod = base_dmg * spell_dmg.CalcBaseStatCoeff(ch);
+		float base_dmg = CalcBaseDmg(ch, spell_id);
+		float skill_mod = base_dmg * potency_roll.CalcSkillCoeff(ch);
+		float wis_mod = base_dmg * potency_roll.CalcBaseStatCoeff(ch);
 		float bonus_mod = ch->add_abils.percent_spellpower_add / 100.0;
 //		auto complex_mod = CalcComplexSpellMod(ch, spell_id, GAPPLY_SPELL_EFFECT, base_dmg) - base_dmg;
 		float elem_coeff = CalcMagicElementCoeff(victim, spell_id);

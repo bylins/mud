@@ -39,6 +39,11 @@ class SpellInfo : public info_container::BaseItem<ESpell> {
 	int max_mana_{120};        // Max amount of mana used by a spell (lowest lev) //
 	int mana_change_{1};    // Change in mana used by spell from lev to lev //
 
+	// Potency roll parameters of the spell (dice + skill/stat bonuses), shared by
+	// all of the spell's effects (issue #3332). Filled from the <potency_roll>
+	// section; spells without one keep the default-constructed roll.
+	talents_actions::Roll potency_roll_;
+
 	//std::unordered_map<effects::EEffect, effects::EffectPtr> effects_;
 
  public:
@@ -72,6 +77,8 @@ class SpellInfo : public info_container::BaseItem<ESpell> {
 	[[nodiscard]] int GetMinMana() const { return min_mana_; };
 	[[nodiscard]] int GetMaxMana() const { return max_mana_; };
 	[[nodiscard]] int GetManaChange() const { return mana_change_; };
+
+	[[nodiscard]] const talents_actions::Roll &GetPotencyRoll() const { return potency_roll_; };
 
 	void Print(CharData *ch, std::ostringstream &buffer) const;
 };

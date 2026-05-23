@@ -40,6 +40,10 @@ ItemPtr SpellInfoBuilder::ParseSpell(DataNode node) {
 	ParseMana(info, node);
 	ParseTargets(info, node);
 	ParseFlags(info, node);
+	if (node.GoToChild("potency_roll")) {
+		info->potency_roll_ = talents_actions::Roll(node);
+		node.GoToParent();
+	}
 	ParseActions(info, node);
 
 	return info;

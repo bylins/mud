@@ -30,6 +30,34 @@ class IAction {
 	virtual void Print(CharData *ch, std::ostringstream &buffer) const = 0;
 };
 
+// Spell "potency roll" parameters (see issue #3332): dice plus a bonus from the
+// relevant skill and a bonus from a base stat. A single potency roll is made per
+// spell (stored in SpellInfo) and its result is fed to the individual effects
+// (damage/heal). The same type is meant to be reused later for a spell "success
+// roll", which takes a similar set of casting parameters.
+class Roll {
+	int dice_num_{1};
+	int dice_size_{1};
+	int dice_add_{1};
+
+	ESkill base_skill_{ESkill::kUndefined};
+	double low_skill_bonus_{0.0};
+	double hi_skill_bonus_{0.0};
+
+	EBaseStat base_stat_{EBaseStat::kFirst};
+	int base_stat_threshold_{10};
+	double base_stat_weight_{0.0};
+ public:
+	Roll() = default;
+	explicit Roll(parser_wrapper::DataNode &node);
+
+	[[nodiscard]] int RollSkillDices() const;
+	[[nodiscard]] double CalcSkillCoeff(const CharData *ch) const;
+	[[nodiscard]] double CalcBaseStatCoeff(const CharData *ch) const;
+
+	void Print(CharData *ch, std::ostringstream &buffer) const;
+};
+
 class Damage : public IAction {
 	int dice_num_{1};
 	int dice_size_{1};
