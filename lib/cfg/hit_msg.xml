@@ -20,9 +20,9 @@
 		<message type="kFightMissToChar" val="Вы попытались ударить $N3, но промахнулись." />
 		<message type="kFightMissToVict" val="$n попытал$u ударить вас, но промахнул$u." />
 		<message type="kFightMissToRoom" val="$n попытал$u ударить $N3, но промахнул$u." />
-		<message type="kFightHitToChar" val="Вы ударили $N3." />
-		<message type="kFightHitToVict" val="$n ударил$g вас." />
-		<message type="kFightHitToRoom" val="$n ударил$g $N3." />
+		<message type="kFightHitToChar" val="Вы {intensity}ударили $N3." />
+		<message type="kFightHitToVict" val="$n {intensity}ударил$g вас." />
+		<message type="kFightHitToRoom" val="$n {intensity}ударил$g $N3." />
 		<message type="kFightGodToChar" val="У вас руки опускаются при мысли ударить $N3." />
 		<message type="kFightGodToVict" val="$n безвольно опустил$g руку, пытавшуюся ударить вас." />
 		<message type="kFightGodToRoom" val="$n не осмелил$u ударить $N3." />
@@ -46,6 +46,9 @@
 		<message type="kFightGodToChar" val="У вас руки опускаются при мысли ударить $N3." />
 		<message type="kFightGodToVict" val="Взглядом вы заставили $n3 отказаться от мысли ударить вас." />
 		<message type="kFightGodToRoom" val="$n не осмелил$u ударить $N3." />
+		<message type="kFightHitToChar" val="Вы {intensity}ударили $N3." />
+		<message type="kFightHitToVict" val="$n {intensity}ударил$g вас." />
+		<message type="kFightHitToRoom" val="$n {intensity}ударил$g $N3." />
 	</msg_sheaf>
 	<msg_sheaf id="kSkin">
 		<message type="kFightDeathToChar" val="Вы разорвали $N3 на мелкие кусочки. Бедн$W $N!" />
@@ -66,6 +69,9 @@
 		<message type="kFightGodToChar" val="Ободрать $N3?! Да вы с ума сошли!!!" />
 		<message type="kFightGodToVict" val="Под вашим взглядом $n чуть сам$g себя не ободрал$g." />
 		<message type="kFightGodToRoom" val="$n не смог$q ободрать $N3. От этой мысли $m стало стыдно." />
+		<message type="kFightHitToChar" val="Вы {intensity}ободрали $N3." />
+		<message type="kFightHitToVict" val="$n {intensity}ободрал$g вас." />
+		<message type="kFightHitToRoom" val="$n {intensity}ободрал$g $N3." />
 	</msg_sheaf>
 	<msg_sheaf id="kWhip">
 		<message type="kFightDeathToChar" val="Вы, кажется, перехлестнули - $N помер$Q." />
@@ -86,6 +92,9 @@
 		<message type="kFightGodToChar" val="Вы не можете причинить вред $N2." />
 		<message type="kFightGodToVict" val="$n не смог$q хлестнуть вас. Руки не слушаются $s." />
 		<message type="kFightGodToRoom" val="$n будет жалеть о своей попытке хлестнуть $N3 всю жизнь." />
+		<message type="kFightHitToChar" val="Вы {intensity}хлестнули $N3." />
+		<message type="kFightHitToVict" val="$n {intensity}хлестнул$g вас." />
+		<message type="kFightHitToRoom" val="$n {intensity}хлестнул$g $N3." />
 	</msg_sheaf>
 	<msg_sheaf id="kSlash">
 		<message type="kFightDeathToChar" val="Вы изрубили $N3 в капусту. Хороший пирог получится." />
@@ -106,6 +115,9 @@
 		<message type="kFightGodToChar" val="Рубануть $N3?! Но вы не можете причинить $M вред." />
 		<message type="kFightGodToVict" val="$n смутил$u при мысли рубануть вас." />
 		<message type="kFightGodToRoom" val="$n2 лучше не напрашиваться - $N ведь может и ответить." />
+		<message type="kFightHitToChar" val="Вы {intensity}рубанули $N3." />
+		<message type="kFightHitToVict" val="$n {intensity}рубанул$g вас." />
+		<message type="kFightHitToRoom" val="$n {intensity}рубанул$g $N3." />
 	</msg_sheaf>
 	<msg_sheaf id="kBite">
 		<message type="kFightDeathToChar" val="Вы вцепились мертвой хваткой в шею $N1 и выпустили $M всю кровь." />
@@ -126,6 +138,9 @@
 		<message type="kFightGodToChar" val="При мысли укусить $N3 у вас свело челюсти." />
 		<message type="kFightGodToVict" val="Вы заставите пожалеть $n3 о попытке укусить вас." />
 		<message type="kFightGodToRoom" val="$n неумело попытал$u укусить $N3. Зря $e так." />
+		<message type="kFightHitToChar" val="Вы {intensity}укусили $N3." />
+		<message type="kFightHitToVict" val="$n {intensity}укусил$g вас." />
+		<message type="kFightHitToRoom" val="$n {intensity}укусил$g $N3." />
 	</msg_sheaf>
 	<msg_sheaf id="kBludgeon">
 		<message type="kFightDeathToChar" val="Вы огрели $N3, расколов $S жизнь в щепки." />
@@ -146,6 +161,9 @@
 		<message type="kFightGodToChar" val="Вам не стоит замахиваться на $N3 - целее будете." />
 		<message type="kFightGodToVict" val="$n рискнул$g замахнуться на вас. Глуп$a еще." />
 		<message type="kFightGodToRoom" val="$n ужаснул$u при мысли огреть $N3." />
+		<message type="kFightHitToChar" val="Вы {intensity}огрели $N3." />
+		<message type="kFightHitToVict" val="$n {intensity}огрел$g вас." />
+		<message type="kFightHitToRoom" val="$n {intensity}огрел$g $N3." />
 	</msg_sheaf>
 	<msg_sheaf id="kCrush">
 		<message type="kFightDeathToChar" val="Ваш сокрушающий удар отправил $N3 подальше из этого мира." />
@@ -166,6 +184,9 @@
 		<message type="kFightGodToChar" val="Вас бросает в дрожь при мысли сокрушить $N3." />
 		<message type="kFightGodToVict" val="$n не смог$q причинить вам вред." />
 		<message type="kFightGodToRoom" val="$n попытал$u сокрушить $N3. Зря $e так." />
+		<message type="kFightHitToChar" val="Вы {intensity}сокрушили $N3." />
+		<message type="kFightHitToVict" val="$n {intensity}сокрушил$g вас." />
+		<message type="kFightHitToRoom" val="$n {intensity}сокрушил$g $N3." />
 	</msg_sheaf>
 	<msg_sheaf id="kPound">
 		<message type="kFightDeathToChar" val="Вы резанули $N3 так, что от н$S остались рожки да ножки." />
@@ -186,6 +207,9 @@
 		<message type="kFightGodToChar" val="Вы хотите резануть $N3?! Да вы с ума сошли!!!" />
 		<message type="kFightGodToVict" val="$n попытал$u резануть вас. Какая наглость!!!" />
 		<message type="kFightGodToRoom" val="$n хотел$g резануть $N3, но $N заставил$G $s передумать." />
+		<message type="kFightHitToChar" val="Вы {intensity}резанули $N3." />
+		<message type="kFightHitToVict" val="$n {intensity}резанул$g вас." />
+		<message type="kFightHitToRoom" val="$n {intensity}резанул$g $N3." />
 	</msg_sheaf>
 	<msg_sheaf id="kClaw">
 		<message type="kFightDeathToChar" val="Вы оцарапали $N3 своими коготками. Не поняв произошедшего, $N помер$Q." />
@@ -206,6 +230,9 @@
 		<message type="kFightGodToChar" val="Вы не стали царапать $N3 - жизнь вам еще дорога." />
 		<message type="kFightGodToVict" val="$n решил$g поссориться с вами - $e попытал$u оцарапать вас." />
 		<message type="kFightGodToRoom" val="Не стоит $n2 пытаться оцарапать $N3." />
+		<message type="kFightHitToChar" val="Вы {intensity}оцарапали $N3." />
+		<message type="kFightHitToVict" val="$n {intensity}оцарапал$g вас." />
+		<message type="kFightHitToRoom" val="$n {intensity}оцарапал$g $N3." />
 	</msg_sheaf>
 	<msg_sheaf id="kMaul">
 		<message type="kFightDeathToChar" val="Ваша стрела, выпущенная в $N3, была для н$S последней." />
@@ -226,6 +253,9 @@
 		<message type="kFightGodToChar" val="Вы сошли с ума, если хотите подстрелить $N3!" />
 		<message type="kFightGodToVict" val="$n попытал$u подстрелить вас. Пустое это занятие." />
 		<message type="kFightGodToRoom" val="$n попытал$u подстрелить $N3. Зачем $m это?!" />
+		<message type="kFightHitToChar" val="Вы {intensity}подстрелили $N3." />
+		<message type="kFightHitToVict" val="$n {intensity}подстрелил$g вас." />
+		<message type="kFightHitToRoom" val="$n {intensity}подстрелил$g $N3." />
 	</msg_sheaf>
 	<msg_sheaf id="kThrash">
 		<message type="kFightDeathToChar" val="Вы распороли $N3 на несколько частей, убив $S." />
@@ -246,6 +276,9 @@
 		<message type="kFightGodToChar" val="Ваша попытка пырнуть $N3 выглядела очень глупо." />
 		<message type="kFightGodToVict" val="$n попытал$u пырнуть вас. Чёкнут$w!" />
 		<message type="kFightGodToRoom" val="$n попытал$u пырнуть $N3. \u$s глупость не знает предела!" />
+		<message type="kFightHitToChar" val="Вы {intensity}пырнули $N3." />
+		<message type="kFightHitToVict" val="$n {intensity}пырнул$g вас." />
+		<message type="kFightHitToRoom" val="$n {intensity}пырнул$g $N3." />
 	</msg_sheaf>
 	<msg_sheaf id="kPierce">
 		<message type="kFightDeathToChar" val="Вы пронзили тело $N1 и $E упал$G на землю замертво." />
@@ -266,6 +299,9 @@
 		<message type="kFightGodToChar" val="Проткнуть $N3?! Как вам не стыдно!!!" />
 		<message type="kFightGodToVict" val="$n хотел$g проткнуть вас, но своим взглядом вы подавили это желание." />
 		<message type="kFightGodToRoom" val="$n попытал$u проткнуть $N3. Влетит же $m от $N1." />
+		<message type="kFightHitToChar" val="Вы {intensity}укололи $N3." />
+		<message type="kFightHitToVict" val="$n {intensity}уколол$g вас." />
+		<message type="kFightHitToRoom" val="$n {intensity}уколол$g $N3." />
 	</msg_sheaf>
 	<msg_sheaf id="kBlast">
 		<message type="kFightDeathToChar" val="Вы сильно ткнули $N3 и $E с криком боли безжизненно упал$G на землю." />
@@ -286,6 +322,9 @@
 		<message type="kFightGodToChar" val="Вы попытались ткнуть $N3. Вас плохо этому научили." />
 		<message type="kFightGodToVict" val="$n попытал$u ткнуть вас. Глуп$w!" />
 		<message type="kFightGodToRoom" val="Напрасно $n попытал$u ткнуть $N3! Как бы $e не пожалел$g об этом." />
+		<message type="kFightHitToChar" val="Вы {intensity}ткнули $N3." />
+		<message type="kFightHitToVict" val="$n {intensity}ткнул$g вас." />
+		<message type="kFightHitToRoom" val="$n {intensity}ткнул$g $N3." />
 	</msg_sheaf>
 	<msg_sheaf id="kPunch">
 		<message type="kFightDeathToChar" val="Вы так сильно лягнули $N3, что $E мгновенно скончал$U." />
@@ -306,6 +345,9 @@
 		<message type="kFightGodToChar" val="Вы попытались лягнуть $N3. Ведите себя скромнее!" />
 		<message type="kFightGodToVict" val="$n хотел$g лягнуть вас. \u$n совсем обалдел$g!" />
 		<message type="kFightGodToRoom" val="$n2 стало плохо при мысли лягнуть $N3." />
+		<message type="kFightHitToChar" val="Вы {intensity}лягнули $N3." />
+		<message type="kFightHitToVict" val="$n {intensity}лягнул$g вас." />
+		<message type="kFightHitToRoom" val="$n {intensity}лягнул$g $N3." />
 	</msg_sheaf>
 	<msg_sheaf id="kStab">
 		<message type="kFightDeathToChar" val="Вы забодали $N3 насмерть! И так будет с каждым!" />
@@ -326,6 +368,9 @@
 		<message type="kFightGodToChar" val="Вам не стоит бодаться с $N4 - у н$S опыта больше." />
 		<message type="kFightGodToVict" val="$n попытал$u боднуть вас. Вы долго смеялись после этой попытки." />
 		<message type="kFightGodToRoom" val="Не стоило $n3 бодаться с $N4. Похоже, $n $S достал$g." />
+		<message type="kFightHitToChar" val="Вы {intensity}боднули $N3." />
+		<message type="kFightHitToVict" val="$n {intensity}боднул$g вас." />
+		<message type="kFightHitToRoom" val="$n {intensity}боднул$g $N3." />
 	</msg_sheaf>
 	<msg_sheaf id="kPick">
 		<message type="kFightDeathToChar" val="Вы досмерти заклевали $N3! Теперь $E вам не помеха." />
@@ -337,6 +382,9 @@
 		<message type="kFightGodToChar" val="Вам не стоит клевать $N3 - $E опытнее вас." />
 		<message type="kFightGodToVict" val="Стыд обуял $n3 после $s попытки клюнуть вас." />
 		<message type="kFightGodToRoom" val="$n попытал$u клюнуть $N3. \u$m стало стыдно за свой поступок." />
+		<message type="kFightHitToChar" val="Вы {intensity}клюнули $N3." />
+		<message type="kFightHitToVict" val="$n {intensity}клюнул$g вас." />
+		<message type="kFightHitToRoom" val="$n {intensity}клюнул$g $N3." />
 	</msg_sheaf>
 	<msg_sheaf id="kSting">
 		<message type="kFightDeathToChar" val="Вы ужалили $N3, от этого $E распух$Q и помер$Q." />
@@ -348,6 +396,9 @@
 		<message type="kFightGodToChar" val="Ужалить? $n3?! Да он$g вас за это!.." />
 		<message type="kFightGodToVict" val="$n попытал$u ужалить вас... Рехнул$u?" />
 		<message type="kFightGodToRoom" val="$n попытал$u ужалить $N3, но не смог$q дотянуться." />
+		<message type="kFightHitToChar" val="Вы {intensity}ужалили $N3." />
+		<message type="kFightHitToVict" val="$n {intensity}ужалил$g вас." />
+		<message type="kFightHitToRoom" val="$n {intensity}ужалил$g $N3." />
 	</msg_sheaf>
 	<!-- Урон от сервера (ловушки, кровотечение): нет наносящего, есть только
 	     сообщения жертве и комнате. Скопировано из lib/misc/messages 495-499. -->

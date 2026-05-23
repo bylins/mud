@@ -21,6 +21,8 @@
 
 #include <cmath>
 
+#include <fmt/format.h>
+
 const int kZeroRemortSkillCap = 80;
 const int kSkillCapBonusPerRemort = 5;;
 
@@ -547,11 +549,32 @@ const std::string &NAME_BY_ITEM<ESkill>(const ESkill item) {
 ///
 /// \param add = "", строка для добавления после основного сообщения (краткий режим щитов)
 ///
+// Intensity adverb (with trailing space) for a hit of the given damage, substituted into
+// the {intensity} placeholder of kFightHit* messages (issue #3322). Reproduces the legacy
+// dam_weapons[] tiers exactly; empty string for the mid-damage tiers.
+static const char *HitIntensity(int dam) {
+	if (dam <= 5) return "легонько ";
+	if (dam <= 11) return "слегка ";
+	if (dam <= 26) return "";
+	if (dam <= 35) return "сильно ";
+	if (dam <= 45) return "очень сильно ";
+	if (dam <= 56) return "чрезвычайно сильно ";
+	if (dam <= 96) return "БОЛЬНО ";
+	if (dam <= 136) return "ОЧЕНЬ БОЛЬНО ";
+	if (dam <= 176) return "ЧРЕЗВЫЧАЙНО БОЛЬНО ";
+	if (dam <= 216) return "НЕВЫНОСИМО БОЛЬНО ";
+	if (dam <= 256) return "ЖЕСТОКО ";
+	if (dam <= 296) return "УЖАСНО ";
+	if (dam <= 400) return "УБИЙСТВЕННО ";
+	if (dam <= 800) return "ИЗУВЕРСКИ ";
+	return "СМЕРТЕЛЬНО ";
+}
+
 // Renders one combat-message set (god/death/hit/miss x char/vict/room) for the given
 // damage source from its message container, reproducing the legacy colouring and
 // brief-shields handling. Returns false only when neither the source's own sheaf nor the
 // default sheaf has anything to say for this category - the caller may then fall back to a
-// generic message (Damage::SendDmgMsg).
+// generic message.
 template<typename IdEnum, typename MsgEnum>
 static bool SendCombatMessages(msg_container::MsgContainer<IdEnum, MsgEnum> &cont, IdEnum id,
 							   int dam, CharData *ch, CharData *vict,
@@ -600,22 +623,37 @@ static bool SendCombatMessages(msg_container::MsgContainer<IdEnum, MsgEnum> &con
 	brief_shields brief(ch, vict, weap, add);
 	brief.reflect = reflect;
 
+	// Substitute the {intensity} placeholder on weapon-hit messages (issue #3322).
+	// Messages without the placeholder (skills/spells, death/miss/god) are used as-is.
+	const char *const intensity = HitIntensity(dam);
+	auto resolve = [&](MsgEnum type, std::string &buf) -> const char * {
+		const std::string &raw = sheaf.GetMessage(type);
+		if (raw.find("{intensity}") == std::string::npos) {
+			return raw.c_str();
+		}
+		buf = fmt::format(fmt::runtime(raw), fmt::arg("intensity", intensity));
+		return buf.c_str();
+	};
+
 	if (sheaf.HasMessage(to_char)) {
+		std::string buf;
 		SendMsgToChar(char_color, ch);
-		brief.act_to_char(sheaf.GetMessage(to_char).c_str());
+		brief.act_to_char(resolve(to_char, buf));
 		SendMsgToChar("&Q&n", ch);
 	}
 	if (sheaf.HasMessage(to_vict)) {
+		std::string buf;
 		if (vict_color) {
 			SendMsgToChar(vict_color, vict);
 		}
-		brief.act_to_vict(sheaf.GetMessage(to_vict).c_str());
+		brief.act_to_vict(resolve(to_vict, buf));
 		if (vict_color) {
 			SendMsgToChar("&Q&n", vict);
 		}
 	}
 	if (sheaf.HasMessage(to_room)) {
-		brief.act_to_room(sheaf.GetMessage(to_room).c_str());
+		std::string buf;
+		brief.act_to_room(resolve(to_room, buf));
 	}
 	return true;
 }
