@@ -107,19 +107,17 @@ void DoStatKarma(CharData *ch, CharData *victim) {
 void do_stat_character(CharData *ch, CharData *k, const int virt) {
 	int i, i2;
 	ObjData *j;
-	char tmpbuf[128];
 	int god_level = ch->IsFlagged(EPrf::kCoderinfo) ? kLvlImplementator : GetRealLevel(ch);
 	int k_room = -1;
 	if (!virt && (god_level == kLvlImplementator || (god_level == kLvlGreatGod && !k->IsNpc()))) {
 		k_room = GET_ROOM_VNUM(k->in_room);
 	}
 
-	sprinttype(to_underlying(k->get_sex()), genders, tmpbuf);
 	{
 		std::string sline;
 		if (k->IsNpc()) {
 			sprinttype(GET_RACE(k) - ENpcRace::kBasic, npc_race_types, smallBuf);
-			sline = fmt::sprintf("%s %s ", tmpbuf, smallBuf);
+			sline = fmt::sprintf("%s %s ", utils::sprintGender(to_underlying(k->get_sex())).c_str(), smallBuf);
 		}
 		snprintf(buf2, sizeof(buf2),
 				"%s '%s' В комнате [%d] Текущий UID:[%ld]",

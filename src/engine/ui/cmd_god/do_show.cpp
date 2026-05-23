@@ -574,9 +574,9 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				SendMsgToChar("Нет такого игрока.\r\n", ch);
 				return;
 			}
-			sprintf(buf, "&WИнформация по игроку %s:&n (", vict->get_name().c_str());
-			sprinttype(to_underlying(vict->get_sex()), genders, buf + strlen(buf));
-			sprintf(buf + strlen(buf), ")&n\r\n");
+			sprintf(buf, "&WИнформация по игроку %s:&n (%s)&n\r\n",
+					vict->get_name().c_str(),
+					utils::sprintGender(to_underlying(vict->get_sex())).c_str());
 			sprintf(buf + strlen(buf), "Падежи : %s/%s/%s/%s/%s/%s\r\n",
 					GET_PAD(vict, 0), GET_PAD(vict, 1), GET_PAD(vict, 2),
 					GET_PAD(vict, 3), GET_PAD(vict, 4), GET_PAD(vict, 5));

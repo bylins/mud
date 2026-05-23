@@ -1,6 +1,7 @@
 //#include "utils_string.h"
 
 #include "utils.h"
+#include "gameplay/core/constants.h"
 
 namespace utils {
 template<typename T>
@@ -1076,5 +1077,16 @@ std::string utils::OutWordsList(const std::string &words_str, size_t max_length)
 	}
 	return OutWordsList(words, max_length);
 }
+
+namespace utils {
+std::string sprintGender(int gender_value) {
+	int nr = 0;
+	while (gender_value && *genders[nr] != '\n') {
+		gender_value--;
+		nr++;
+	}
+	return (*genders[nr] != '\n') ? genders[nr] : "UNDEF";
+}
+} // namespace utils
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
