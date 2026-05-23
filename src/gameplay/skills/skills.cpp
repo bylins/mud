@@ -300,7 +300,7 @@ void brief_shields::act_add(const char *msg, int type) {
 }
 
 // Picks the object shown as $o in combat messages, by the damage source.
-const WeapForAct init_weap(CharData *ch, int dam, ESkill skill_id, fight::EDamageSource damage_source) {
+const WeapForAct InitWeapForAct(CharData *ch, ESkill skill_id, fight::EDamageSource damage_source) {
 	WeapForAct weap;
 	int weap_i = 0;
 
@@ -583,14 +583,14 @@ static bool SendCombatMessages(msg_container::MsgContainer<IdEnum, MsgEnum> &con
 
 int SendSkillMessages(int dam, CharData *ch, CharData *vict, ESpell spell_id, const std::string add) {
 	const bool reflect = (spell_id == ESpell::kFireShield || spell_id == ESpell::kMagicGlass);
-	const auto weap = init_weap(ch, dam, ESkill::kUndefined, fight::EDamageSource::kUndefined);
+	const auto weap = InitWeapForAct(ch, ESkill::kUndefined, fight::EDamageSource::kUndefined);
 	return SendCombatMessages(MUD::SpellMessages(), spell_id, dam, ch, vict, false, reflect, weap, add);
 }
 
 int SendSkillMessages(int dam, CharData *ch, CharData *vict, ESkill skill_id, const std::string add) {
 	const bool white = (skill_id == ESkill::kBackstab || skill_id == ESkill::kThrow
 						|| skill_id == ESkill::kBash || skill_id == ESkill::kKick);
-	const auto weap = init_weap(ch, dam, skill_id, fight::EDamageSource::kUndefined);
+	const auto weap = InitWeapForAct(ch, skill_id, fight::EDamageSource::kUndefined);
 	return SendCombatMessages(MUD::SkillMessages(), skill_id, dam, ch, vict, white, false, weap, add);
 }
 
@@ -599,7 +599,7 @@ int SendSkillMessages(int dam, CharData *ch, CharData *vict, fight::EDamageSourc
 	if (damage_source == fight::EDamageSource::kTriggerDeath) {
 		return 1;
 	}
-	const auto weap = init_weap(ch, dam, ESkill::kUndefined, damage_source);
+	const auto weap = InitWeapForAct(ch, ESkill::kUndefined, damage_source);
 	return SendCombatMessages(MUD::FightMessages(), damage_source, dam, ch, vict, false, false, weap, add);
 }
  

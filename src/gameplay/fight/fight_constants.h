@@ -23,7 +23,6 @@ enum DmgType {
 // server-inflicted damage, the trap / bleeding kind. The underlying value plus
 // kTypeHit equals the record number in lib/misc/messages (kHit+kTypeHit==400 ...
 // kSting+kTypeHit==416; kDeathTrap+kTypeHit==495 ... kBleeding+kTypeHit==499). The
-// weapon values (0..16) also index attack_hit_text[].
 enum class EDamageSource {
 	kUndefined = -1,
 	// Weapon attack types (were the anonymous fight enum type_hit ... type_sting).
