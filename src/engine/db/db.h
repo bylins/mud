@@ -108,15 +108,12 @@ struct ExtraAffects {
 
 // for queueing zones for update
 struct reset_q_element {
-	ZoneRnum zone_to_reset;    // ref to zone_data
-	struct reset_q_element *next;
+	ZoneRnum zone_to_reset{0};
+	bool force_reset{false};
 };
 
-// structure for the update queue
-struct reset_q_type {
-	struct reset_q_element *head;
-	struct reset_q_element *tail;
-};
+using ResetQueue = std::list<reset_q_element>;
+extern ResetQueue reset_q;
 
 const int kObjectSaveActivity = 300;
 const int kPlayerSaveActivity = 305;

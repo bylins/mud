@@ -148,7 +148,7 @@ char *background{nullptr};    // background story
 char *name_rules{nullptr};        // rules of character's names
 
 TimeInfoData time_info;
-struct reset_q_type reset_q;    // queue of zones to be reset
+ResetQueue reset_q;
 
 const FlagData clear_flags;
 
@@ -1004,7 +1004,7 @@ void BootMudDataBase() {
 			(i ? (zone_table[i - 1].top + 1) : 0), zone_table[i].top);
 		ResetZone(i);
 	}
-	reset_q.head = reset_q.tail = nullptr;
+	reset_q.clear();
 
 
 	// делается после резета зон, см камент к функции
@@ -2012,7 +2012,6 @@ private:
 // update zone ages, queue for reset if necessary, and dequeue when possible
 void ZoneUpdate() {
 	int k = 0;
-	struct reset_q_element *update_u, *temp;
 	static int timer = 0;
 	utils::CExecutionTimer timer_count;
 	// OpenTelemetry: Track zone updates
@@ -2033,41 +2032,35 @@ void ZoneUpdate() {
 					&& (zone_table[i].reset_idle || zone_table[i].used)) {
 				zone_table[i].age++;
 			}
-			if (zone_table[i].age >= zone_table[i].lifespan 
-					&& zone_table[i].age < ZO_DEAD 
-					&& zone_table[i].reset_mode 
+			if (zone_table[i].age >= zone_table[i].lifespan
+					&& zone_table[i].age < ZO_DEAD
+					&& zone_table[i].reset_mode
 					&& (zone_table[i].reset_idle || zone_table[i].used)) {
-				CREATE(update_u, 1);
-				update_u->zone_to_reset = static_cast<ZoneRnum>(i);
-				update_u->next = nullptr;
-				if (!reset_q.head)
-					reset_q.head = reset_q.tail = update_u;
-				else {
-					reset_q.tail->next = update_u;
-					reset_q.tail = update_u;
-				}
+				reset_q.push_back({static_cast<ZoneRnum>(i)});
 				zone_table[i].age = ZO_DEAD;
 			}
 		}
 	}
-	UniqueList<ZoneRnum> zone_repop_list;
-	for (update_u = reset_q.head; update_u; ) {
-		auto *next_u = update_u->next;
-		if (zone_table[update_u->zone_to_reset].reset_mode == 2
-			|| (zone_table[update_u->zone_to_reset].reset_mode != 3 && IsZoneEmpty(update_u->zone_to_reset))
-			|| CanBeReset(update_u->zone_to_reset)) {
-			zone_repop_list.push_back(update_u->zone_to_reset);
+	for (auto it = reset_q.begin(); it != reset_q.end(); ) {
+		const ZoneRnum zone = it->zone_to_reset;
+		if (it->force_reset
+			|| zone_table[zone].reset_mode == 2
+			|| (zone_table[zone].reset_mode != 3 && IsZoneEmpty(zone))
+			|| CanBeReset(zone)) {
+			UniqueList<ZoneRnum> zone_repop_list;
+			zone_repop_list.push_back(zone);
 			std::stringstream out;
-			out << "Auto zone reset: " << zone_table[update_u->zone_to_reset].name << " ("
-				<< zone_table[update_u->zone_to_reset].vnum << ")";
-			if (zone_table[update_u->zone_to_reset].reset_mode == 3) {
-				for (auto i = 0; i < zone_table[update_u->zone_to_reset].typeA_count; i++) {
+			out << "Auto zone reset: " << zone_table[zone].name << " (" << zone_table[zone].vnum << ")";
+			// Collect typeA zones to queue individually (only for normal complex resets, not force_reset).
+			// Queuing one zone per tick instead of resetting all at once avoids heartbeat spikes.
+			std::vector<ZoneRnum> typeA_to_queue;
+			if (!it->force_reset && zone_table[zone].reset_mode == 3) {
+				for (auto i = 0; i < zone_table[zone].typeA_count; i++) {
 					for (ZoneRnum j = 0; j < static_cast<ZoneRnum>(zone_table.size()); j++) {
-						if (zone_table[j].vnum ==
-							zone_table[update_u->zone_to_reset].typeA_list[i]) {
-							zone_repop_list.push_back(j);
-							out << " ]\r\n[ Also resetting: " << zone_table[j].name << " ("
-								<< zone_table[j].vnum << ")";
+						if (zone_table[j].vnum == zone_table[zone].typeA_list[i]) {
+							typeA_to_queue.push_back(j);
+							out << " ]\r\n[ Queued for reset: " << zone_table[j].name
+								<< " (" << zone_table[j].vnum << ")";
 							break;
 						}
 					}
@@ -2075,40 +2068,40 @@ void ZoneUpdate() {
 			}
 			std::stringstream ss;
 			DecayObjectsOnRepop(zone_repop_list);
-			ss << "В списке репопа: ";
-			for (auto &it : zone_repop_list) {
-				ss << zone_table[it].vnum << " ";
-				if (zone_table[it].vnum < dungeons::kZoneStartDungeons) {
-					ResetZone(it);
-					zones_reset_count++;
-
-					ZoneResetMetrics(it).RecordResetCount();
-				} else {
-					log("Закрываю брошенный dungeon %d", it);
-					dungeons::DungeonReset(it);
-					zone_table[it].age = 0;
-					zone_table[it].used = false;
-					zone_table[it].time_awake = time(nullptr);
-					zone_table[it].first_enter.clear();
-				}
+			ss << "В списке репопа: " << zone_table[zone].vnum << " ";
+			if (zone_table[zone].vnum < dungeons::kZoneStartDungeons) {
+				ResetZone(zone);
+				zones_reset_count++;
+				ZoneResetMetrics(zone).RecordResetCount();
+			} else {
+				log("Закрываю брошенный dungeon %d", zone);
+				dungeons::DungeonReset(zone);
+				zone_table[zone].age = 0;
+				zone_table[zone].used = false;
+				zone_table[zone].time_awake = time(nullptr);
+				zone_table[zone].first_enter.clear();
 			}
 			mudlog(ss.str(), LGH, kLvlGod, SYSLOG, true);
 			out << " ]\r\n[ Time reset: " << fmt::format("{:.3f} ms", timer_count.delta().count() * 1000.0);
 			mudlog(out.str(), LGH, kLvlGod, SYSLOG, true);
-			if (update_u == reset_q.head) {
-				reset_q.head = reset_q.head->next;
-			} else {
-				for (temp = reset_q.head; temp->next != update_u; temp = temp->next);
-				if (!update_u->next)
-					reset_q.tail = temp;
-				temp->next = update_u->next;
+			it = reset_q.erase(it);
+			// Queue typeA zones at the front (in reverse so typeA[0] is processed first).
+			// Also remove any existing normal queue entry to prevent double resets.
+			for (auto rn = typeA_to_queue.rbegin(); rn != typeA_to_queue.rend(); ++rn) {
+				for (auto s = reset_q.begin(); s != reset_q.end(); ++s) {
+					if (s->zone_to_reset == *rn && !s->force_reset) {
+						reset_q.erase(s);
+						break;
+					}
+				}
+				reset_q.push_front({*rn, true});
 			}
-			free(update_u);
 			k++;
 			if (k >= kZonesReset)
 				break;
+		} else {
+			++it;
 		}
-		update_u = next_u;
 	}
 	
 	// OpenTelemetry: Record total zones reset
