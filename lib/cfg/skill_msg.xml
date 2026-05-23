@@ -93,9 +93,9 @@
 		<message type="kFightMissToChar" val="Ваш мощный пинок пропал втуне." />
 		<message type="kFightMissToVict" val="$n попытал$u пнуть вас, но промахнул$u." />
 		<message type="kFightMissToRoom" val="$n попытал$u пнуть $N3. Займите же $m ловкости." />
-		<message type="kFightHitToChar" val="Вы $tпнули $N3. Теперь $M наложат гипс." />
-		<message type="kFightHitToVict" val="$n $tпнул$g вас, $e просто изверг." />
-		<message type="kFightHitToRoom" val="$n $tпнул$g $N3. Морда $N1 искривилась в гримасе боли." />
+		<message type="kFightHitToChar" val="Вы {intensity}пнули $N3. Теперь $M наложат гипс." />
+		<message type="kFightHitToVict" val="$n {intensity}пнул$g вас, $e просто изверг." />
+		<message type="kFightHitToRoom" val="$n {intensity}пнул$g $N3. Морда $N1 искривилась в гримасе боли." />
 		<message type="kFightGodToChar" val="$N глянул$G на вас так, что вы покраснели." />
 		<message type="kFightGodToVict" val="Пинать $n3 учили плохо - $e промахнул$u." />
 		<message type="kFightGodToRoom" val="$n пнул$g огромный камень, созданный $N4." />
@@ -105,9 +105,9 @@
 		<message type="kFightMissToChar" val="Ваш пинок не достиг цели - вам остается лишь тренироваться." />
 		<message type="kFightMissToVict" val="$n промахнул$u, когда пытался пнуть вас." />
 		<message type="kFightMissToRoom" val="Мощный пинок $n1 не достиг $N1" />
-		<message type="kFightHitToChar" val="Вы $tпнули $N3, $S аж скрючило от боли." />
-		<message type="kFightHitToVict" val="$n $tпнул$g вас. Ваши глаза на лоб полезли от этой дикой боли." />
-		<message type="kFightHitToRoom" val="$n $tпнул$g $N3. Теперь $N дико вращает глазами от боли." />
+		<message type="kFightHitToChar" val="Вы {intensity}пнули $N3, $S аж скрючило от боли." />
+		<message type="kFightHitToVict" val="$n {intensity}пнул$g вас. Ваши глаза на лоб полезли от этой дикой боли." />
+		<message type="kFightHitToRoom" val="$n {intensity}пнул$g $N3. Теперь $N дико вращает глазами от боли." />
 		<message type="kFightGodToChar" val="Вы хотели отвесить пинка $N2, но запнулись." />
 		<message type="kFightGodToVict" val="Размах на рубль - удар на копейку. Это про $n3." />
 		<message type="kFightGodToRoom" val="$n2 стало плохо при мысли пнуть $N3." />
