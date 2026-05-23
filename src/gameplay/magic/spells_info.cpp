@@ -164,6 +164,7 @@ void SpellInfo::Print(CharData *ch, std::ostringstream &buffer) const {
 		   << " Flags: " << kColorGrn << parse::BitvectorToString<EMagic>(flags_) << kColorNrm << "\r\n"
 		   << " Targets: " << kColorGrn << parse::BitvectorToString<ETarget>(targets_) << kColorNrm << "\r\n\r\n";
 
+	potency_roll_.Print(ch, buffer);
 	actions.Print(ch, buffer);
 }
 

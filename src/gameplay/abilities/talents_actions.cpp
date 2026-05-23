@@ -56,60 +56,24 @@ Roll::Roll(parser_wrapper::DataNode &node) {
 
 void Damage::Print(CharData */*ch*/, std::ostringstream &buffer) const {
 	buffer << " Damage: " << "\r\n"
-		   << kColorGrn << "  " << dice_num_
-		   << "d" << dice_size_
-		   << "+" << dice_add_ << kColorNrm
-		   << " Low skill bonus: " << kColorGrn << low_skill_bonus_ << kColorNrm
-		   << " Hi skill bonus: " << kColorGrn << hi_skill_bonus_ << kColorNrm
 		   << " Saving: " << kColorGrn << NAME_BY_ITEM<ESaving>(saving_) << kColorNrm << "\r\n";
-}
-
-int Damage::RollSkillDices() const {
-	return RollDices(dice_num_, dice_size_) + dice_add_;
-}
-
-double Damage::CalcSkillCoeff(const CharData *const ch) const {
-	auto skill = ch->GetSkill(base_skill_);
-	auto low_skill = std::min(skill, abilities::kNoviceSkillThreshold);
-	auto hi_skill = std::max(0, skill - abilities::kNoviceSkillThreshold);
-	return (low_skill * low_skill_bonus_ + hi_skill * hi_skill_bonus_) / 100.0;
-}
-
-double Damage::CalcBaseStatCoeff(const CharData *const ch) const {
-	return std::max(0, GetRealBaseStat(ch, base_stat_) - base_stat_threshold_) * base_stat_weight_ / 100.0;
 }
 
 Damage::Damage(parser_wrapper::DataNode &node) {
 	saving_ = parse::ReadAsConstant<ESaving>(node.GetValue("saving"));
-
-	if (node.GoToChild("dices")) {
-		dice_num_ = std::max(1, parse::ReadAsInt(node.GetValue("ndice")));
-		dice_size_ = std::max(1, parse::ReadAsInt(node.GetValue("sdice")));
-		dice_add_ = parse::ReadAsInt(node.GetValue("adice"));
-		node.GoToParent();
-	}
-
-	if (node.GoToChild("base_skill")) {
-		base_skill_ = parse::ReadAsConstant<ESkill>(node.GetValue("id"));
-		low_skill_bonus_ = parse::ReadAsDouble(node.GetValue("low_skill_bonus"));
-		hi_skill_bonus_ = parse::ReadAsDouble(node.GetValue("hi_skill_bonus"));
-		node.GoToParent();
-	}
-
-	if (node.GoToChild("base_stat")) {
-		base_stat_ = parse::ReadAsConstant<EBaseStat>(node.GetValue("id"));
-		base_stat_threshold_ = parse::ReadAsInt(node.GetValue("threshold"));
-		base_stat_weight_ = parse::ReadAsDouble(node.GetValue("weight"));
-		node.GoToParent();
-	}
 }
 
-Heal::Heal(parser_wrapper::DataNode &node) : Damage(node) {
+Heal::Heal(parser_wrapper::DataNode &node) {
 	npc_coeff_ = parse::ReadAsDouble(node.GetValue("npc_coeff"));
 }
 
 double Heal::GetNpcCoeff() const {
 	return npc_coeff_;
+}
+
+void Heal::Print(CharData */*ch*/, std::ostringstream &buffer) const {
+	buffer << " Heal: " << "\r\n"
+		   << " NPC coeff: " << kColorGrn << npc_coeff_ << kColorNrm << "\r\n";
 }
 
 

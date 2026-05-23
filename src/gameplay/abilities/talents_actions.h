@@ -58,37 +58,27 @@ class Roll {
 	void Print(CharData *ch, std::ostringstream &buffer) const;
 };
 
+// The roll parameters (dice/skill/stat) used to live here; since issue #3332
+// they belong to the spell-level potency roll (talents_actions::Roll, stored in
+// SpellInfo). Damage now only carries its saving throw.
 class Damage : public IAction {
-	int dice_num_{1};
-	int dice_size_{1};
-	int dice_add_{1};
-
-	ESkill base_skill_{ESkill::kUndefined};
-	double low_skill_bonus_{0.0};
-	double hi_skill_bonus_{0.0};
-
-	EBaseStat base_stat_{EBaseStat::kFirst};
-	int base_stat_threshold_{10};
-	double base_stat_weight_{0.0};
-
 	ESaving saving_{ESaving::kReflex};
  public:
 	explicit Damage(parser_wrapper::DataNode &node);
 
-	[[nodiscard]] int RollSkillDices() const;
-	[[nodiscard]] double CalcSkillCoeff(const CharData *ch) const;
-	[[nodiscard]] double CalcBaseStatCoeff(const CharData *ch) const;
-
 	void Print(CharData *ch, std::ostringstream &buffer) const override;
 };
 
-class Heal : public	Damage {
-public:
+// Heal no longer derives from Damage: it shares no parameters with it (the roll
+// moved to the potency roll, and healing has no saving throw). It only keeps the
+// NPC healing coefficient.
+class Heal : public IAction {
+	double npc_coeff_{1};
+ public:
 	explicit Heal(parser_wrapper::DataNode &node);
 	[[nodiscard]] double GetNpcCoeff() const;
 
-private:
-  double npc_coeff_{1};
+	void Print(CharData *ch, std::ostringstream &buffer) const override;
 };
 
 struct Area : public IAction {
