@@ -30,7 +30,7 @@
 #include <fmt/format.h>
 #include "engine/observability/helpers.h"
 #include "engine/observability/metrics.h"
-#include "utils/tracing/trace_manager.h"
+#include "utils/utils_time.h"
 
 char cast_argument[kMaxInputLength];
 
@@ -342,18 +342,12 @@ public:
 	                 const CharData* cvict, const ObjData* ovict, const RoomData* rvict)
 		: m_spell_name(MUD::Spell(spell_id).GetCName())
 		, m_caster_class(MUD::Class(caster->GetClass()).GetName())
-		, m_span(tracing::TraceManager::Instance().StartSpan("Spell Cast"))
 		, m_duration("spell.cast.duration", {
 			{"spell_name",   m_spell_name},
 			{"caster_class", m_caster_class}
 		  })
 	{
-		const std::string target = cvict ? "char" : ovict ? "obj" : rvict ? "room" : "none";
-		m_span->SetAttribute("spell_id",     static_cast<int64_t>(to_underlying(spell_id)));
-		m_span->SetAttribute("spell_name",   m_spell_name);
-		m_span->SetAttribute("caster_class", m_caster_class);
-		m_span->SetAttribute("spell_level",  static_cast<int64_t>(level));
-		m_span->SetAttribute("target_type",  target);
+		(void)level; (void)cvict; (void)ovict; (void)rvict;
 	}
 
 	void send() {
@@ -366,7 +360,6 @@ public:
 private:
 	std::string m_spell_name;
 	std::string m_caster_class;
-	std::unique_ptr<tracing::ISpan> m_span;
 	observability::ScopedMetric m_duration;
 };
 
@@ -379,7 +372,7 @@ private:
  */
 int CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict, ESpell spell_id, int level) {
 	SpellCastMetrics metrics(spell_id, caster, level, cvict, ovict, rvict);
-
+	utils::CSteppedProfiler profiler("Spell Cast", 0.030);
 
 	if (spell_id < ESpell::kFirst || spell_id > ESpell::kLast)
 		return 0;
@@ -407,21 +400,25 @@ int CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict
 	if (SpellUsage::is_active) {
 		SpellUsage::AddSpellStat(caster->GetClass(), spell_id);
 	}
-	
+
 	metrics.send();
 
 	if (MUD::Spell(spell_id).IsFlagged(kMagAreas) || MUD::Spell(spell_id).IsFlagged(kMagMasses)) {
+		profiler.next_step("area");
 		return CallMagicToArea(caster, cvict, rvict, spell_id, abs(level));
 	}
 
 	if (MUD::Spell(spell_id).IsFlagged(kMagGroups)) {
+		profiler.next_step("group");
 		return CallMagicToGroup(level, caster, spell_id);
 	}
 
 	if (MUD::Spell(spell_id).IsFlagged(kMagRoom)) {
+		profiler.next_step("room");
 		return room_spells::CallMagicToRoom(abs(level), caster, rvict, spell_id);
 	}
 
+	profiler.next_step("single");
 	return CastToSingleTarget(level, caster, cvict, ovict, spell_id);
 }
 
