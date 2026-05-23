@@ -2013,7 +2013,6 @@ private:
 void ZoneUpdate() {
 	int k = 0;
 	static int timer = 0;
-	utils::CExecutionTimer timer_count;
 	// OpenTelemetry: Track zone updates
 	auto zone_span = tracing::TraceManager::Instance().StartSpan("Zone Update");
 	observability::ScopedMetric zone_metric("zone.update.duration");
@@ -2082,7 +2081,6 @@ void ZoneUpdate() {
 				zone_table[zone].first_enter.clear();
 			}
 			mudlog(ss.str(), LGH, kLvlGod, SYSLOG, true);
-			out << " ]\r\n[ Time reset: " << fmt::format("{:.3f} ms", timer_count.delta().count() * 1000.0);
 			mudlog(out.str(), LGH, kLvlGod, SYSLOG, true);
 			it = reset_q.erase(it);
 			// Queue typeA zones at the front (in reverse so typeA[0] is processed first).
