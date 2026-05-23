@@ -115,8 +115,7 @@ class WeapForAct {
 	enum WeapType {
 		EWT_UNDEFINED,
 		EWT_PROTOTYPE_SHARED_PTR,
-		EWT_OBJECT_RAW_PTR,    // Anton Gorev (09/28/2016): We need to get rid of raw pointers in the future
-		EWT_STRING
+		EWT_OBJECT_RAW_PTR    // Anton Gorev (09/28/2016): We need to get rid of raw pointers in the future
 	};
 
 	class WeaponTypeException : public std::exception {
@@ -131,7 +130,6 @@ class WeapForAct {
 
 	WeapForAct() : m_type(EWT_UNDEFINED), m_prototype_raw_ptr(nullptr) {}
 	WeapForAct(const WeapForAct &from);
-	void set_damage_string(const int damage);
 	WeapForAct &operator=(const CObjectPrototype::shared_ptr &prototype_shared_ptr);
 	WeapForAct &operator=(ObjData *prototype_raw_ptr);
 
@@ -139,11 +137,8 @@ class WeapForAct {
 	const auto &get_prototype_shared_ptr() const;
 	auto get_prototype_raw_ptr() const;
 	const auto get_object_ptr() const;
-	const auto &get_string() const;
 
  private:
-	using kick_type_t = std::vector<const char *>;
-
 	WeapForAct &operator=(const WeapForAct &);
 
 	bool check_type(const WeapType type) const { return check_type(type, true); }
@@ -152,52 +147,12 @@ class WeapForAct {
 	WeapType m_type;
 	ObjData::shared_ptr m_prototype_shared_ptr;
 	ObjData *m_prototype_raw_ptr;
-	std::string m_string;
-
-	static const kick_type_t
-		s_kick_type;    // Anton Gorev (09/28/2016): As I know, it is a duplicate. We need to reuse kick types from other place.
 };
 
 WeapForAct::WeapForAct(const WeapForAct &from) :
 	m_type(from.m_type),
 	m_prototype_shared_ptr(from.m_prototype_shared_ptr),
-	m_prototype_raw_ptr(from.m_prototype_raw_ptr),
-	m_string(from.m_string) {
-}
-
-void WeapForAct::set_damage_string(const int damage) {
-	m_type = EWT_STRING;
-	if (damage <= 5) {
-		m_string = s_kick_type[0];
-	} else if (damage <= 11) {
-		m_string = s_kick_type[1];
-	} else if (damage <= 26) {
-		m_string = s_kick_type[2];
-	} else if (damage <= 35) {
-		m_string = s_kick_type[3];
-	} else if (damage <= 45) {
-		m_string = s_kick_type[4];
-	} else if (damage <= 56) {
-		m_string = s_kick_type[5];
-	} else if (damage <= 96) {
-		m_string = s_kick_type[6];
-	} else if (damage <= 136) {
-		m_string = s_kick_type[7];
-	} else if (damage <= 176) {
-		m_string = s_kick_type[8];
-	} else if (damage <= 216) {
-		m_string = s_kick_type[9];
-	} else if (damage <= 256) {
-		m_string = s_kick_type[10];
-	} else if (damage <= 296) {
-		m_string = s_kick_type[11];
-	} else if (damage <= 400) {
-		m_string = s_kick_type[12];
-	} else if (damage <= 800) {
-		m_string = s_kick_type[13];
-	} else {
-		m_string = s_kick_type[14];
-	}
+	m_prototype_raw_ptr(from.m_prototype_raw_ptr) {
 }
 
 const auto &WeapForAct::get_prototype_shared_ptr() const {
@@ -222,10 +177,6 @@ const auto WeapForAct::get_object_ptr() const {
 	throw WeaponTypeException(ss.str().c_str());
 }
 
-const auto &WeapForAct::get_string() const {
-	check_type(EWT_STRING);
-	return m_string;
-}
 
 bool WeapForAct::check_type(const WeapType type, const bool raise_exception) const {
 	if (type != m_type) {
@@ -255,26 +206,6 @@ WeapForAct &WeapForAct::operator=(const CObjectPrototype::shared_ptr &prototype_
 	}
 	return *this;
 }
-
-const WeapForAct::kick_type_t WeapForAct::s_kick_type =
-// силы пинка. полностью соответствуют наносимым поврждениям обычного удара
-	{
-		"легонько ",        //  1..5
-		"слегка ",        // 6..11
-		"",            // 12..26
-		"сильно ",        // 27..35
-		"очень сильно ",    // 36..45
-		"чрезвычайно сильно ",    // 46..55
-		"БОЛЬНО ",        // 56..96
-		"ОЧЕНЬ БОЛЬНО ",    // 97..136
-		"ЧРЕЗВЫЧАЙНО БОЛЬНО ",    // 137..176
-		"НЕВЫНОСИМО БОЛЬНО ",    // 177..216
-		"ЖЕСТОКО ",    // 217..256
-		"УЖАСНО ",// 257..296
-		"УБИЙСТВЕННО ",     // 297..400
-		"ИЗУВЕРСКИ ", // 400+
-		"СМЕРТЕЛЬНО " // 800+
-	};
 
 struct brief_shields {
 	brief_shields(CharData *ch_, CharData *vict_, const WeapForAct &weap_, std::string add_);
@@ -346,9 +277,6 @@ void brief_shields::act_with_exception_handling(const char *msg, const int type)
 	try {
 		const auto weapon_type = weap.type();
 		switch (weapon_type) {
-			case WeapForAct::EWT_STRING: act(msg, false, ch, nullptr, vict, type, weap.get_string());
-				break;
-
 			case WeapForAct::EWT_OBJECT_RAW_PTR:
 			case WeapForAct::EWT_PROTOTYPE_SHARED_PTR: act(msg, false, ch, weap.get_object_ptr(), vict, type);
 				break;
@@ -394,11 +322,6 @@ const WeapForAct init_weap(CharData *ch, int dam, ESkill skill_id, fight::EDamag
 					weap = obj_proto[weap_i];
 				}
 			}
-			break;
-
-		case ESkill::kKick:
-			// weap - текст силы удара
-			weap.set_damage_string(dam);
 			break;
 
 		default:
