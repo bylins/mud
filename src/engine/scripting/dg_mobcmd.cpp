@@ -1390,7 +1390,7 @@ void do_mdamage(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigg
 				mob_log(ch, trig, "mdamage: incorrect damage type.");
 				return;
 			}
-			Damage mdamage(SimpleDmg(kTypeTriggerdeath), dam, type);
+			Damage mdamage(SimpleDmg(fight::EDamageSource::kTriggerDeath), dam, type);
 			mdamage.Process(ch, victim);
 		} else {
 			victim->set_hit(victim->get_hit() - dam);

@@ -51,8 +51,8 @@ enum class ESkillMsg {
 	kCantTargetSelf,	// the character cannot target themselves.
 	kNeedWeapon,		// the skill requires a weapon to be wielded.
 	kWrongWeapon,		// the wielded weapon is unsuitable for the skill.
-	// Combat damage messages copied from MESS_FILE (lib/misc/messages, issue #3310).
-	// Stored only for now; still served from MESS_FILE by the fight system.
+	// Combat damage messages (originally from lib/misc/messages, issue #3310); served
+	// to the fight system via MUD::SkillMessages() since issue #3316.
 	// Death/Miss/Hit/God x damager(ToChar)/damagee(ToVict)/onlookers(ToRoom).
 	kFightDeathToChar, kFightDeathToVict, kFightDeathToRoom,
 	kFightMissToChar, kFightMissToVict, kFightMissToRoom,

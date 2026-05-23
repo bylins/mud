@@ -76,14 +76,8 @@ constexpr Bitvector kMiLevel8 = 1 << 11;
 constexpr Bitvector kMiLevel16 = 1 << 12;
 constexpr Bitvector kMiLevel32 = 1 << 13;
 
-const int kTypeHit = 400;
-const int kTypeMagic = 420;
-// new attack types can be added here - up to TYPE_SUFFERING
-const int kTypeTriggerdeath = 495;
-const int kTypeTunnerldeath = 496;
-const int kTypeWaterdeath = 497;
-const int kTypeRoomdeath = 498;
-const int kTypeSuffering = 499;
+// Бывшие kTypeHit/kTypeMagic/kType*-константы удалены (issue #3316): источник боевого
+// урона теперь типизирован через fight::EDamageSource, выбор сообщения - по типу.
 
 struct AttackHitType {
 	const char *singular;

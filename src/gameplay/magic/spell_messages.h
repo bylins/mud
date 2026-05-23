@@ -80,8 +80,8 @@ enum class ESpellMsg {
 	// Incantation phrase spoken when casting (SaySpell), chosen by religion.
 	kCastPhraseHeathen,		// phrase for a heathen (poly) caster.
 	kCastPhraseChristian,	// phrase for a Christian (mono) caster.
-	// Combat damage messages copied from MESS_FILE (lib/misc/messages, issue #3304).
-	// Stored only for now; still served from MESS_FILE by the fight system.
+	// Combat damage messages (originally from lib/misc/messages, issue #3304); served
+	// to the fight system via MUD::SpellMessages() since issue #3316.
 	// Death/Miss/Hit/God x damager(ToChar)/damagee(ToVict)/onlookers(ToRoom).
 	kFightDeathToChar, kFightDeathToVict, kFightDeathToRoom,
 	kFightMissToChar, kFightMissToVict, kFightMissToRoom,

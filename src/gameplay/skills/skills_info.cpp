@@ -1,8 +1,6 @@
 #include "engine/ui/color.h"
 #include "engine/db/global_objects.h"
 
-struct AttackMessages fight_messages[kMaxMessages];
-
 using DataNode = parser_wrapper::DataNode;
 using ItemPtr = SkillInfoBuilder::ItemPtr;
 

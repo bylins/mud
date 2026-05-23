@@ -131,7 +131,6 @@ enum SetStuffMode {
 #define IDEA_FILE        LIB_MISC "ideas"    // for the 'idea'-command
 #define TYPO_FILE        LIB_MISC "typos"    //         'typo'
 #define BUG_FILE        LIB_MISC "bugs"    //         'bug'
-#define MESS_FILE       LIB_MISC "messages"    // damage messages
 #define SOCMESS_FILE    LIB_MISC "socials"    // messgs for social acts
 #define XNAME_FILE      LIB_MISC "xnames"    // invalid name substrings
 #define ANAME_FILE      LIB_MISC "apr_name" // одобренные имена

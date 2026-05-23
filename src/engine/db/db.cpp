@@ -177,7 +177,6 @@ void SetZoneRnumForObjects();
 void SetZoneRnumForMobiles();
 void SetZoneRnumForTriggers();
 void InitBasicValues();
-void LoadMessages();
 int CompareSocials(const void *a, const void *b);
 int ReadCrashTimerFile(std::size_t index, int temp);
 int LoadExchange();
@@ -197,22 +196,6 @@ extern struct MonthTemperature year_temp[];
 extern void ExtractTrigger(Trigger *trig);
 extern ESkill FixNameAndFindSkillId(char *name);
 extern void CopyMobilePrototypeForMedit(CharData *dst, CharData *src, bool partial_copy);
-
-char *ReadActionMsgFromFile(FILE *fl, int nr) {
-	char local_buf[kMaxStringLength];
-
-	const char *result = fgets(local_buf, kMaxStringLength, fl);
-	UNUSED_ARG(result);
-
-	if (feof(fl)) {
-		fatal_log("SYSERR: ReadActionMsgFromFile: unexpected EOF near action #%d", nr);
-	}
-	if (*local_buf == '#')
-		return (nullptr);
-
-	local_buf[strlen(local_buf) - 1] = '\0';
-	return (str_dup(local_buf));
-}
 
 // Separate a 4-character id tag from the data it precedes
 void ExtractTagFromArgument(char *argument, char *tag) {
@@ -671,65 +654,6 @@ void SetZonesTownFlags() {
 	}
 }
 
-void LoadMessages() {
-	FILE *fl;
-	int i, type;
-	struct AttackMsgSet *messages;
-	char chk[128];
-
-	if (!(fl = fopen(MESS_FILE, "r"))) {
-		fatal_log("SYSERR: Error reading combat message file %s: %s", MESS_FILE, strerror(errno));
-	}
-	for (i = 0; i < kMaxMessages; i++) {
-		fight_messages[i].attack_type = 0;
-		fight_messages[i].number_of_attacks = 0;
-		fight_messages[i].msg_set = nullptr;
-	}
-
-	const char *dummyc = fgets(chk, 128, fl);
-	while (!feof(fl) && (*chk == '\n' || *chk == '*')) {
-		dummyc = fgets(chk, 128, fl);
-	}
-
-	while (*chk == 'M') {
-		dummyc = fgets(chk, 128, fl);
-
-		int dummyi = sscanf(chk, " %d\n", &type);
-		UNUSED_ARG(dummyi);
-
-		for (i = 0; (i < kMaxMessages) &&
-			(fight_messages[i].attack_type != type) && (fight_messages[i].attack_type); i++);
-		if (i >= kMaxMessages) {
-			fatal_log("SYSERR: Too many combat messages.  Increase kMaxMessages and recompile.");
-		}
-		//log("BATTLE MESSAGE %d(%d)", i, type); Лишний спам
-		CREATE(messages, 1);
-		fight_messages[i].number_of_attacks++;
-		fight_messages[i].attack_type = type;
-		messages->next = fight_messages[i].msg_set;
-		fight_messages[i].msg_set = messages;
-
-		messages->die_msg.attacker_msg = ReadActionMsgFromFile(fl, i);
-		messages->die_msg.victim_msg = ReadActionMsgFromFile(fl, i);
-		messages->die_msg.room_msg = ReadActionMsgFromFile(fl, i);
-		messages->miss_msg.attacker_msg = ReadActionMsgFromFile(fl, i);
-		messages->miss_msg.victim_msg = ReadActionMsgFromFile(fl, i);
-		messages->miss_msg.room_msg = ReadActionMsgFromFile(fl, i);
-		messages->hit_msg.attacker_msg = ReadActionMsgFromFile(fl, i);
-		messages->hit_msg.victim_msg = ReadActionMsgFromFile(fl, i);
-		messages->hit_msg.room_msg = ReadActionMsgFromFile(fl, i);
-		messages->god_msg.attacker_msg = ReadActionMsgFromFile(fl, i);
-		messages->god_msg.victim_msg = ReadActionMsgFromFile(fl, i);
-		messages->god_msg.room_msg = ReadActionMsgFromFile(fl, i);
-		dummyc = fgets(chk, 128, fl);
-		while (!feof(fl) && (*chk == '\n' || *chk == '*')) {
-			dummyc = fgets(chk, 128, fl);
-		}
-	}
-	UNUSED_ARG(dummyc);
-
-	fclose(fl);
-}
 void ZoneTrafficSave() {
 	pugi::xml_document doc;
 	doc.append_child().set_name("zone_traffic");
@@ -936,10 +860,6 @@ void BootMudDataBase() {
 	boot_profiler.next_step("Loading CRC system");
 	log("Loading file crc system.");
 	FileCRC::load();
-
-	boot_profiler.next_step("Loading fight messages");
-	log("Loading fight messages.");
-	LoadMessages();
 
 	boot_profiler.next_step("Assigning function pointers");
 	log("Assigning function pointers:");

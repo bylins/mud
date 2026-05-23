@@ -53,6 +53,13 @@ enum class EDamageSource {
 	kSuffering,				// kTypeSuffering (499): suffering / bleeding out
 };
 
+// True for a weapon attack type (kHit..kSting), false for server-inflicted sources
+// (traps/bleeding) and kUndefined. Weapon hits use the generic tiered fallback message
+// (Damage::SendDmgMsg); everything else is rendered only from the message containers.
+inline bool IsWeaponDamage(EDamageSource source) {
+	return source >= EDamageSource::kHit && source <= EDamageSource::kSting;
+}
+
 enum {
 	kIgnoreSanct,			// игнор санки
 	kIgnorePrism,			// игнор призмы

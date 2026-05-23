@@ -12,8 +12,8 @@
 		 Mirrors the spell message system (gameplay/magic/spell_messages.*, issue #3304).
 		 The message kinds are named after the spell damage messages (ESpellMsg kFight*).
 
-		 Issue #3311 only stores these messages; the fight system still emits combat
-		 text from lib/misc/messages (the in-memory fight_messages[] table).
+		 Since issue #3316 the fight system renders combat text from this container
+		 (SendSkillMessages); the legacy lib/misc/messages table has been removed.
 */
 
 #ifndef BYLINS_SRC_GAMEPLAY_FIGHT_FIGHT_MESSAGES_H_
