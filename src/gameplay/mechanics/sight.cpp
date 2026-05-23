@@ -87,10 +87,10 @@ std::string BuildCompactShieldSuffix(const CharData *viewer, const CharData *tar
 
 	std::string result;
 	auto append = [&result](const char *text) {
-		if (!result.empty()) {
-			result += " ";
-		}
-		result += text;
+	  if (!result.empty()) {
+		  result += " ";
+	  }
+	  result += text;
 	};
 
 	if (AFF_FLAGGED(target, EAffect::kFireShield)) {
@@ -298,7 +298,7 @@ void look_at_room(CharData *ch, int ignore_brief, bool msdp_mode) {
 				zone_table[inroom].first_enter = ch->get_master() ? ch->get_master()->get_name() : ch->get_name();
 			}
 			if (zone_table[world[ch->get_from_room()]->zone_rn].vnum >= dungeons::kZoneStartDungeons
-					&& zone_table[inroom].vnum < dungeons::kZoneStartDungeons) {
+				&& zone_table[inroom].vnum < dungeons::kZoneStartDungeons) {
 				SendMsgToChar("&GВы покинули зазеркалье.\r\n&n", ch);
 //				dungeons::SwapObjectDungeon(ch); перенесено на закрытие данжа
 			}
@@ -530,8 +530,8 @@ bool look_at_target(CharData *ch, char *arg, int subcmd) {
 
 		// Собственно изменение. Вместо проверки "if (!found)" юзается проверка
 		// наличия описания у объекта, найденного функцией "generic_find"
-		if (!(desc = find_exdesc(what, found_obj->get_ex_description())) 
-				|| ((found_obj->get_type() == EObjType::kNote) && !found_obj->get_action_description().empty())) {
+		if (!(desc = find_exdesc(what, found_obj->get_ex_description()))
+			|| ((found_obj->get_type() == EObjType::kNote) && !found_obj->get_action_description().empty())) {
 			show_obj_to_char(found_obj, ch, 5, true, 1);    // Show no-description
 		} else {
 			SendMsgToChar(desc, ch);
@@ -737,7 +737,7 @@ void list_char_to_char_thing(const RoomData::people_t &list, CharData *ch) {
 
 void show_room_affects(CharData *ch, const char *name_affects[], const char *name_self_affects[]) {
 	std::ostringstream buffer;
-	
+
 	for (const auto &af : world[ch->in_room]->affected) {
 		switch (af->type) {
 			case ESpell::kLight:
@@ -793,13 +793,13 @@ void show_room_affects(CharData *ch, const char *name_affects[], const char *nam
 				if (af->caster_id == ch->get_uid() && *name_self_affects[7] != '\0') {
 					buffer << name_self_affects[7] << "\r\n";
 				} else if (*name_affects[7] != '\0') {
-						buffer << name_affects[7] << "\r\n";
+					buffer << name_affects[7] << "\r\n";
 				}
 				break;
 			case ESpell::kPortal:
 				//выводится в look_at_room
 				break;
-			default: 
+			default:
 				log("SYSERR: Unknown room (#%d) spell type: %d", world[ch->in_room]->vnum, to_underlying(af->type));
 				break;
 		}
@@ -1255,7 +1255,7 @@ const char *show_obj_to_char(ObjData *object, CharData *ch, int mode, int show_s
 				}
 			}
 			if ((object->get_type() == EObjType::kNote) && !object->get_action_description().empty()) {
-					strcat(buf2, " (что-то накарябано)");
+				strcat(buf2, " (что-то накарябано)");
 			}
 		} else if (mode >= 2 && how <= 1) {
 			std::string obj_name = OBJN(object, ch, ECase::kNom);
@@ -2040,35 +2040,15 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 
 char *diag_weapon_to_char(const CObjectPrototype *obj, int show_wear) {
 	static char out_str[kMaxStringLength];
-	int skill = 0;
 	int need_str = 0;
 
 	*out_str = '\0';
 	if (obj->get_type() == EObjType::kWeapon) {
-		switch (static_cast<ESkill>(obj->get_spec_param())) {
-			case ESkill::kBows: skill = 1;
-				break;
-			case ESkill::kShortBlades: skill = 2;
-				break;
-			case ESkill::kLongBlades: skill = 3;
-				break;
-			case ESkill::kAxes: skill = 4;
-				break;
-			case ESkill::kClubs: skill = 5;
-				break;
-			case ESkill::kNonstandart: skill = 6;
-				break;
-			case ESkill::kTwohands: skill = 7;
-				break;
-			case ESkill::kPicks: skill = 8;
-				break;
-			case ESkill::kSpades: skill = 9;
-				break;
-			default: sprintf(out_str, "!! Не принадлежит к известным типам оружия - сообщите Богам (skill=%d) !!\r\n", obj->get_spec_param());
-				break;
-		}
-		if (skill) {
-			sprintf(out_str, "Принадлежит к классу \"%s\".\r\n", weapon_class[skill - 1]);
+		const auto skill = static_cast<ESkill>(obj->get_spec_param());
+		if (skill != ESkill::kUndefined) {
+			sprintf(out_str, "Принадлежит к классу \"%s\".\r\n", MUD::Skill(skill).name.c_str());
+		} else {
+			sprintf(out_str, "!! Не принадлежит к известным типам оружия - сообщите Богам (skill=%d) !!\r\n", obj->get_spec_param());
 		}
 	}
 	if (show_wear) {

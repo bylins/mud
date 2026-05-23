@@ -27,7 +27,7 @@ struct ParseFilter {
 	enum { CLAN, EXCHANGE };
   
 	ParseFilter(int type) : remorts(-1),remorts_sign('\0'), type(-1), state(-1), wear(EWearFlag::kUndefined), wear_message(-1),
-			weap_class{}, weap_message(-1), cost(-1), cost_sign('\0'), rent(-1), rent_sign('\0'),
+			weap_class{}, cost(-1), cost_sign('\0'), rent(-1), rent_sign('\0'),
 			new_timesign('\0'), new_timedown(time(nullptr)), new_timeup(time(nullptr)),
 			filter_type(type), skill_id{ESkill::kUndefined},
 			profession{ECharClass::kUndefined} {};
@@ -65,7 +65,6 @@ struct ParseFilter {
 	EWearFlag wear;              // куда одевается
 	int wear_message;      // для названия куда одеть
 	ESkill weap_class;        // класс оружие
-	int weap_message;      // для названия оружия
 	int cost;              // для цены
 	char cost_sign;        // знак цены +/-
 	int rent;             // для стоимости ренты
