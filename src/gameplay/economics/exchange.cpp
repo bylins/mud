@@ -11,6 +11,7 @@
 #include "exchange.h"
 
 #include <fmt/format.h>
+#include <fmt/printf.h>
 
 #include <iterator>
 
@@ -427,7 +428,7 @@ int exchange_withdraw(CharData *ch, char *arg) {
 int exchange_information(CharData *ch, char *arg) {
 	ExchangeItem *item = nullptr, *j, *next_thing = nullptr;
 	int lot;
-	char buf[kMaxStringLength], buf2[kMaxInputLength];
+	char buf2[kMaxInputLength];
 
 	if (!*arg) {
 		SendMsgToChar(info_message, ch);
@@ -447,46 +448,43 @@ int exchange_information(CharData *ch, char *arg) {
 		return false;
 	}
 
-	sprintf(buf, "Лот %d. Цена %d\r\n", GET_EXCHANGE_ITEM_LOT(item), GET_EXCHANGE_ITEM_COST(item));
-
-	size_t buf_len = strlen(buf);
-	snprintf(buf + buf_len, sizeof(buf) - buf_len, "Предмет \"%s\", ", GET_EXCHANGE_ITEM(item)->get_short_description().c_str());
+	std::string out;
+	out = fmt::sprintf("Лот %d. Цена %d\r\n", GET_EXCHANGE_ITEM_LOT(item), GET_EXCHANGE_ITEM_COST(item));
+	out += fmt::sprintf("Предмет \"%s\", ", GET_EXCHANGE_ITEM(item)->get_short_description().c_str());
 	if (GET_EXCHANGE_ITEM(item)->get_type() == EObjType::kWand
 		|| GET_EXCHANGE_ITEM(item)->get_type() == EObjType::kStaff) {
 		if (GET_OBJ_VAL(GET_EXCHANGE_ITEM(item), 2) < GET_OBJ_VAL(GET_EXCHANGE_ITEM(item), 1)) {
-			strncat(buf, "(б/у), ", sizeof(buf) - strlen(buf) - 1);
+			out += "(б/у), ";
 		}
 	}
-	strncat(buf, " тип ", sizeof(buf) - strlen(buf) - 1);
+	out += " тип ";
 	sprinttype(GET_EXCHANGE_ITEM(item)->get_type(), item_types, buf2);
 	if (*buf2) {
-		size_t buf_len = strlen(buf);
-		snprintf(buf + buf_len, sizeof(buf) - buf_len, "%s\n", buf2);
-	};
-	buf_len = strlen(buf);
-	snprintf(buf + buf_len, sizeof(buf) - buf_len, "%s%s\r\n", diag_weapon_to_char(GET_EXCHANGE_ITEM(item), true), diag_timer_to_char(GET_EXCHANGE_ITEM(item)));
-	obj_info(ch, GET_EXCHANGE_ITEM(item), buf);
-	strncat(buf, "\n", sizeof(buf) - strlen(buf) - 1);
+		out += fmt::sprintf("%s\n", buf2);
+	}
+	out += fmt::sprintf("%s%s\r\n", diag_weapon_to_char(GET_EXCHANGE_ITEM(item), true), diag_timer_to_char(GET_EXCHANGE_ITEM(item)));
+	{
+		char obj_buf[kMaxStringLength];
+		snprintf(obj_buf, sizeof(obj_buf), "%s", out.c_str());
+		obj_info(ch, GET_EXCHANGE_ITEM(item), obj_buf);
+		out = obj_buf;
+	}
+	out += "\n";
 	if (invalid_anti_class(ch, GET_EXCHANGE_ITEM(item)) || invalid_unique(ch, GET_EXCHANGE_ITEM(item))
 		|| NamedStuff::check_named(ch, GET_EXCHANGE_ITEM(item), 0)) {
-		snprintf(buf2, sizeof(buf2), "Эта вещь вам недоступна!\n");
-		strncat(buf, buf2, sizeof(buf) - strlen(buf) - 1);
+		out += "Эта вещь вам недоступна!\n";
 	}
 	if (HaveIncompatibleAlign(ch, GET_EXCHANGE_ITEM(item)) || invalid_no_class(ch, GET_EXCHANGE_ITEM(item))) {
-		sprintf(buf2, "Вы не сможете пользоваться этой вещью.\n");
-		strncat(buf, buf2, sizeof(buf) - strlen(buf) - 1);
+		out += "Вы не сможете пользоваться этой вещью.\n";
 	}
 	auto seller_name = GetNameById(GET_EXCHANGE_ITEM_SELLERID(item));
 	snprintf(buf2, sizeof(buf2), "%s", seller_name.empty() ? "(сожран долгоносиком)" : seller_name.c_str());
 	*buf2 = UPPER(*buf2);
-	buf_len = strlen(buf);
-	snprintf(buf + buf_len, sizeof(buf) - buf_len, "Продавец %s\n", buf2);
-
+	out += fmt::sprintf("Продавец %s\n", buf2);
 	if (GET_EXCHANGE_ITEM_COMMENT(item)) {
-		snprintf(buf2, sizeof(buf2), "Берестовая наклейка на лоте гласит: '%s'.\n", GET_EXCHANGE_ITEM_COMMENT(item));
-		strncat(buf, buf2, sizeof(buf) - strlen(buf) - 1);
+		out += fmt::sprintf("Берестовая наклейка на лоте гласит: '%s'.\n", GET_EXCHANGE_ITEM_COMMENT(item));
 	}
-	SendMsgToChar(buf, ch);
+	SendMsgToChar(out, ch);
 	return true;
 }
 
@@ -842,8 +840,10 @@ ExchangeItem *exchange_read_one_object_new(char **data, int *error) {
 	*error = 9;
 	// Считаем comment предмета
 	char *str_last_symb = strchr(*data, '\n');
-	strncpy(buffer, *data, str_last_symb - *data);
-	buffer[str_last_symb - *data] = '\0';
+	size_t copy_len = static_cast<size_t>(str_last_symb - *data);
+	if (copy_len >= sizeof(buffer)) copy_len = sizeof(buffer) - 1;
+	memcpy(buffer, *data, copy_len);
+	buffer[copy_len] = '\0';
 	*data = str_last_symb;
 
 	if (strcmp(buffer, "EMPTY"))
