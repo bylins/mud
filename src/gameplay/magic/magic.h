@@ -22,6 +22,26 @@ class CharData;
 class ObjData;
 struct RoomData;
 
+// One evaluation of a talents_actions::Roll for a specific caster (issue #3333).
+struct RollResult {
+	int dices{0};              // talents_actions::Roll::RollSkillDices()
+	double skill_coeff{0.0};   // talents_actions::Roll::CalcSkillCoeff(caster)
+	double stat_coeff{0.0};    // talents_actions::Roll::CalcBaseStatCoeff(caster)
+};
+
+// The spell's success and potency rolls, computed once per cast in CallMagic and
+// threaded to the cast-dispatch functions in place of (level, spell_id). The roll
+// values do not depend on level; level is carried only to replace that parameter.
+struct CastRollResult {
+	ESpell spell_id{ESpell::kUndefined};
+	int level{0};
+	RollResult success;        // from SpellInfo::GetSuccessRoll()
+	RollResult potency;        // from SpellInfo::GetPotencyRoll()
+};
+
+// Evaluates both rolls of spell_id against caster. Defined in magic_utils.cpp.
+CastRollResult ComputeCastRoll(CharData *caster, ESpell spell_id, int level);
+
 // VNUM'ы мобов для заклинаний, создающих мобов
 const int kMobDouble = 3000; //внум прототипа для клона
 const int kMobSkeleton = 3001;
@@ -47,8 +67,8 @@ void player_affect_update();
 void print_rune_log();
 void ShowAffExpiredMsg(ESpell aff_type, CharData *ch);
 
-int CallMagicToGroup(int level, CharData *ch, ESpell spell_id);
-int CallMagicToArea(CharData *ch, CharData *victim, RoomData *room, ESpell spell_id, int level);
+int CallMagicToGroup(CharData *ch, CastRollResult roll);
+int CallMagicToArea(CharData *ch, CharData *victim, RoomData *room, CastRollResult roll);
 
 int CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict, ESpell spell_id, int level);
 int CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, ESpell spell_id, ESpell spell_subst);
@@ -60,7 +80,7 @@ int CastUnaffects(int, CharData *ch, CharData *victim, ESpell spell_id);
 int CastToAlterObjs(int, CharData *ch, ObjData *obj, ESpell spell_id);
 int CastCreation(int, CharData *ch, ESpell spell_id);
 int CastCharRelocate(CharData *caster, CharData *cvict, ESpell spell_id);
-int CastToSingleTarget(int level, CharData *caster, CharData *cvict, ObjData *ovict, ESpell spell_id);
+int CastToSingleTarget(CharData *caster, CharData *cvict, ObjData *ovict, CastRollResult roll);
 int CalcSaving(CharData *killer, CharData *victim, ESaving saving, bool need_log = false);
 int CalcGeneralSaving(CharData *killer, CharData *victim, ESaving type, int ext_apply);
 int GetBasicSave(CharData *ch, ESaving saving, bool log = false);

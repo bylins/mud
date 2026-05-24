@@ -43,6 +43,10 @@ class SpellInfo : public info_container::BaseItem<ESpell> {
 	// all of the spell's effects (issue #3332). Filled from the <potency_roll>
 	// section; spells without one keep the default-constructed roll.
 	talents_actions::Roll potency_roll_;
+	// Success roll parameters (same shape as the potency roll), filled from the
+	// <success_roll> section (issue #3333). Currently parsed and stored only;
+	// the value is evaluated in CallMagic but not yet interpreted.
+	talents_actions::Roll success_roll_;
 
 	//std::unordered_map<effects::EEffect, effects::EffectPtr> effects_;
 
@@ -79,6 +83,7 @@ class SpellInfo : public info_container::BaseItem<ESpell> {
 	[[nodiscard]] int GetManaChange() const { return mana_change_; };
 
 	[[nodiscard]] const talents_actions::Roll &GetPotencyRoll() const { return potency_roll_; };
+	[[nodiscard]] const talents_actions::Roll &GetSuccessRoll() const { return success_roll_; };
 
 	void Print(CharData *ch, std::ostringstream &buffer) const;
 };

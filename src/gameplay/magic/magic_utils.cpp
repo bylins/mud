@@ -370,6 +370,17 @@ private:
  * This is also the entry point for non-spoken or unrestricted spells.
  * Spellnum 0 is legal but silently ignored here, to make callers simpler.
  */
+// Evaluates the spell's success and potency rolls against the caster once, so the
+// result can be threaded to the cast-dispatch functions (issue #3333). The roll
+// values do not depend on level; level is carried only to replace that parameter.
+CastRollResult ComputeCastRoll(CharData *caster, ESpell spell_id, int level) {
+	const auto &spell = MUD::Spell(spell_id);
+	auto eval = [caster](const talents_actions::Roll &roll) {
+		return RollResult{roll.RollSkillDices(), roll.CalcSkillCoeff(caster), roll.CalcBaseStatCoeff(caster)};
+	};
+	return CastRollResult{spell_id, level, eval(spell.GetSuccessRoll()), eval(spell.GetPotencyRoll())};
+}
+
 int CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict, ESpell spell_id, int level) {
 	SpellCastMetrics metrics(spell_id, caster, level, cvict, ovict, rvict);
 	utils::CSteppedProfiler profiler("Spell Cast", 0.030);
@@ -403,23 +414,30 @@ int CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict
 
 	metrics.send();
 
+	// Compute both rolls once, now that we know the spell is actually being cast.
+	const auto roll = ComputeCastRoll(caster, spell_id, level);
+
 	if (MUD::Spell(spell_id).IsFlagged(kMagAreas) || MUD::Spell(spell_id).IsFlagged(kMagMasses)) {
 		profiler.next_step("area");
-		return CallMagicToArea(caster, cvict, rvict, spell_id, abs(level));
+		CastRollResult area_roll = roll;
+		area_roll.level = abs(level);
+		return CallMagicToArea(caster, cvict, rvict, area_roll);
 	}
 
 	if (MUD::Spell(spell_id).IsFlagged(kMagGroups)) {
 		profiler.next_step("group");
-		return CallMagicToGroup(level, caster, spell_id);
+		return CallMagicToGroup(caster, roll);
 	}
 
 	if (MUD::Spell(spell_id).IsFlagged(kMagRoom)) {
 		profiler.next_step("room");
-		return room_spells::CallMagicToRoom(abs(level), caster, rvict, spell_id);
+		CastRollResult room_roll = roll;
+		room_roll.level = abs(level);
+		return room_spells::CallMagicToRoom(caster, rvict, room_roll);
 	}
 
 	profiler.next_step("single");
-	return CastToSingleTarget(level, caster, cvict, ovict, spell_id);
+	return CastToSingleTarget(caster, cvict, ovict, roll);
 }
 
 const char *what_sky_type[] = {"пасмурно",

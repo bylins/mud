@@ -3675,7 +3675,9 @@ void ReactToCast(CharData *victim, CharData *caster, ESpell spell_id) {
 	}
 }
 
-int CastToSingleTarget(int level, CharData *caster, CharData *cvict, ObjData *ovict, ESpell spell_id) {
+int CastToSingleTarget(CharData *caster, CharData *cvict, ObjData *ovict, CastRollResult roll) {
+	const ESpell spell_id = roll.spell_id;
+	const int level = roll.level;
 	if (cvict && (caster != cvict))
 		if (cvict->IsGod() || (((GetRealLevel(cvict) / 2) > (GetRealLevel(caster) + (GetRealRemort(caster) / 2))) &&
 				!caster->IsNpc())) {
@@ -3739,7 +3741,9 @@ void TrySendCastMessages(CharData *ch, CharData *victim, RoomData *room, ESpell 
 	}
 };
 
-int CallMagicToArea(CharData *ch, CharData *victim, RoomData *room, ESpell spell_id, int level) {
+int CallMagicToArea(CharData *ch, CharData *victim, RoomData *room, CastRollResult roll) {
+	const ESpell spell_id = roll.spell_id;
+	int level = roll.level;     // mutated by the per-target level decay below
 	if (ch == nullptr || ch->in_room == kNowhere) {
 		return 0;
 	}
@@ -3770,7 +3774,8 @@ int CallMagicToArea(CharData *ch, CharData *victim, RoomData *room, ESpell spell
 			if (has_vict_msg && target->desc) {
 				act(vict_msg.c_str(), false, ch, nullptr, target, kToVict);
 			}
-			CastToSingleTarget(level, ch, target, nullptr, spell_id);
+			roll.level = level;
+			CastToSingleTarget(ch, target, nullptr, roll);
 			if (ch->purged()) {
 				return 1;
 			}
@@ -3803,7 +3808,8 @@ int CallMagicToArea(CharData *ch, CharData *victim, RoomData *room, ESpell spell
 
 // Применение заклинания к группе в комнате
 //---------------------------------------------------------
-int CallMagicToGroup(int level, CharData *ch, ESpell spell_id) {
+int CallMagicToGroup(CharData *ch, CastRollResult roll) {
+	const ESpell spell_id = roll.spell_id;
 	if (ch == nullptr) {
 		return 0;
 	}
@@ -3813,7 +3819,7 @@ int CallMagicToGroup(int level, CharData *ch, ESpell spell_id) {
 	ActionTargeting::FriendsRosterType roster{ch, ch};
 	roster.flip();
 	for (const auto target: roster) {
-		CastToSingleTarget(level, ch, target, nullptr, spell_id);
+		CastToSingleTarget(ch, target, nullptr, roll);
 	}
 	return 1;
 }

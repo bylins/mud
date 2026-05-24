@@ -154,6 +154,11 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kWaterMagic" low_skill_bonus="4" hi_skill_bonus="1.75"/>
             <base_stat id="kWis" threshold="32" weight="5"/>
         </potency_roll>
+        <success_roll>
+            <dices ndice="15" sdice="4" adice="30"/>
+            <base_skill id="kWaterMagic" low_skill_bonus="4" hi_skill_bonus="1.75"/>
+            <base_stat id="kWis" threshold="32" weight="5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <damage saving="kReflex" />
