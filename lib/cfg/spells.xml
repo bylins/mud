@@ -498,6 +498,17 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="50" min="40" change="3"/>
         <targets val="kTarCharRoom|kTarObjInv|kTarObjRoom"/>
         <flags val="kMagAffects|kMagAlterObjs"/>
+        <talent_actions>
+            <action>
+                <affects type="kInvisible" saving="kNone" resist="kMind">
+                    <duration cnst="20" level_divisor="1" min="0" max="0"/>
+                    <flags val="kAfUpdateDuration|kAfUpdateMod"/>
+                    <apply id="kInvisible" location="kAc">
+                        <modifier min="40.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                    </apply>
+                </affects>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kLightingBolt" element="kAir" mode="kEnabled">
         <name rus="молния" eng="lightning bolt"/>
@@ -565,6 +576,17 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="60" min="45" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
+        <talent_actions>
+            <action>
+                <affects type="kProtectFromEvil" saving="kNone" resist="kVitality">
+                    <duration cnst="20" level_divisor="1" min="0" max="0"/>
+                    <flags val="kAfUpdateDuration|kAfUpdateMod"/>
+                    <apply id="kProtectFromDark" location="kResistDark">
+                        <modifier min="5.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                    </apply>
+                </affects>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kRemoveCurse" element="kLight" mode="kEnabled">
         <name rus="снять проклятие" eng="remove curse"/>
@@ -579,6 +601,17 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="85" min="70" change="2"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
+        <talent_actions>
+            <action>
+                <affects type="kSanctuary" saving="kNone" resist="kVitality">
+                    <duration cnst="20" level_divisor="1" min="0" max="0"/>
+                    <flags val="kAfUpdateDuration|kAfUpdateMod"/>
+                    <apply id="kSanctuary" location="kNone">
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                    </apply>
+                </affects>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kShockingGasp" element="kFire" mode="kEnabled">
         <name rus="обжигающая хватка" eng="shocking grasp"/>
@@ -603,6 +636,17 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="70" min="55" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
         <flags val="kMagAffects|kNpcAffectPc"/>
+        <talent_actions>
+            <action>
+                <affects type="kSleep" saving="kNone" resist="kMind">
+                    <duration cnst="1" level_divisor="6" min="1" max="6"/>
+                    <flags val="kAfBattledec"/>
+                    <apply id="kSleep" location="kNone">
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                    </apply>
+                </affects>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kStrength" element="kLife" mode="kEnabled">
         <name rus="сила" eng="strength"/>
@@ -610,6 +654,17 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="40" min="30" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
+        <talent_actions>
+            <action>
+                <affects type="kStrength" saving="kNone" resist="kImmunity">
+                    <duration cnst="20" level_divisor="1" min="0" max="0"/>
+                    <flags val="kAfUpdateDuration|kAfUpdateMod"/>
+                    <apply id="kUndefinded" location="kStr">
+                        <modifier min="5.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                    </apply>
+                </affects>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kSummon" element="kMind" mode="kEnabled">
         <name rus="призвать" eng="summon"/>
@@ -837,6 +892,13 @@ base_stat id - (например "kWis") какой берем параметр,
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
+                <affects type="kStrength" saving="kNone" resist="kImmunity">
+                    <duration cnst="20" level_divisor="1" min="0" max="0"/>
+                    <flags val="kAfUpdateDuration|kAfUpdateMod"/>
+                    <apply id="kUndefinded" location="kStr">
+                        <modifier min="5.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                    </apply>
+                </affects>
             </action>
         </talent_actions>
     </spell>
@@ -1105,6 +1167,13 @@ base_stat id - (например "kWis") какой берем параметр,
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
+                <affects type="kInvisible" saving="kNone" resist="kMind">
+                    <duration cnst="20" level_divisor="1" min="0" max="0"/>
+                    <flags val="kAfUpdateDuration|kAfUpdateMod"/>
+                    <apply id="kInvisible" location="kAc">
+                        <modifier min="40.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                    </apply>
+                </affects>
             </action>
         </talent_actions>
     </spell>
@@ -1206,6 +1275,20 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="70" min="55" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
         <flags val="kMagAffects|kNpcAffectPc"/>
+        <talent_actions>
+            <action>
+                <affects type="kWeb" saving="kNone" resist="kMind">
+                    <duration cnst="3" level_divisor="6" min="0" max="0"/>
+                    <flags val="kAfBattledec"/>
+                    <apply id="kNoFlee" location="kHitroll">
+                        <modifier min="3.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                    </apply>
+                    <apply id="kNoFlee" location="kAc">
+                        <modifier min="20.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                    </apply>
+                </affects>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kBlink" element="kLight" mode="kEnabled">
         <name rus="мигание" eng="blink"/>
@@ -1633,6 +1716,19 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="55" min="40" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
         <flags val="kMagAffects|kNpcAffectPc"/>
+        <talent_actions>
+            <action>
+                <affects type="kSlowdown" saving="kNone" resist="kMind">
+                    <duration cnst="9" level_divisor="0" min="0" max="0"/>
+                    <apply id="kSlow" location="kNone">
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                    </apply>
+                    <apply id="kUndefinded" location="kDex">
+                        <modifier min="2.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                    </apply>
+                </affects>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kHaste" element="kMind" mode="kEnabled">
         <name rus="ускорение" eng="haste"/>
@@ -1664,6 +1760,15 @@ base_stat id - (например "kWis") какой берем параметр,
                     <decay cast="0.05" level="2" free_targets="3"/>
                     <victims skill_divisor="10" dice_size="3" min_targets="5" max_targets="20"/>
                 </area>
+                <affects type="kSlowdown" saving="kNone" resist="kMind">
+                    <duration cnst="9" level_divisor="0" min="0" max="0"/>
+                    <apply id="kSlow" location="kNone">
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                    </apply>
+                    <apply id="kUndefinded" location="kDex">
+                        <modifier min="2.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                    </apply>
+                </affects>
             </action>
         </talent_actions>
     </spell>
@@ -1914,6 +2019,17 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="55" min="40" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
+        <talent_actions>
+            <action>
+                <affects type="kLessening" saving="kNone" resist="kImmunity">
+                    <duration cnst="20" level_divisor="1" min="0" max="0"/>
+                    <flags val="kAfUpdateDuration|kAfUpdateMod"/>
+                    <apply id="kUndefinded" location="kSize">
+                        <modifier min="15.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                    </apply>
+                </affects>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kShineFlash" element="kFire" mode="kEnabled">
         <name rus="яркий блик" eng="shine flash"/>
@@ -2027,6 +2143,22 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="120" min="110" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
         <flags val="kMagAffects|kNpcAffectPc|kNpcAffectPcCaster"/>
+        <talent_actions>
+            <action>
+                <affects type="kMindless" saving="kNone" resist="kMind">
+                    <duration cnst="0" level_divisor="10" min="0" max="0"/>
+                    <apply id="kUndefinded" location="kManaRegen">
+                        <modifier min="50.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                    </apply>
+                    <apply id="kUndefinded" location="kCastSuccess">
+                        <modifier min="50.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                    </apply>
+                    <apply id="kUndefinded" location="kHitroll">
+                        <modifier min="5.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                    </apply>
+                </affects>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kPrismaticAura" element="kLight" mode="kEnabled">
         <name rus="призматическая аура" eng="prismatic aura"/>
@@ -2034,6 +2166,17 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="85" min="70" change="4"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
+        <talent_actions>
+            <action>
+                <affects type="kPrismaticAura" saving="kNone" resist="kVitality">
+                    <duration cnst="20" level_divisor="1" min="0" max="0"/>
+                    <flags val="kAfUpdateDuration|kAfUpdateMod"/>
+                    <apply id="kPrismaticAura" location="kNone">
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                    </apply>
+                </affects>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kEviless" element="kDark" mode="kEnabled">
         <name rus="силы зла" eng="eviless"/>
@@ -2173,6 +2316,13 @@ base_stat id - (например "kWis") какой берем параметр,
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
+                <affects type="kSanctuary" saving="kNone" resist="kVitality">
+                    <duration cnst="20" level_divisor="1" min="0" max="0"/>
+                    <flags val="kAfUpdateDuration|kAfUpdateMod"/>
+                    <apply id="kSanctuary" location="kNone">
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                    </apply>
+                </affects>
             </action>
         </talent_actions>
     </spell>
@@ -2188,6 +2338,13 @@ base_stat id - (например "kWis") какой берем параметр,
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
+                <affects type="kPrismaticAura" saving="kNone" resist="kVitality">
+                    <duration cnst="20" level_divisor="1" min="0" max="0"/>
+                    <flags val="kAfUpdateDuration|kAfUpdateMod"/>
+                    <apply id="kPrismaticAura" location="kNone">
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                    </apply>
+                </affects>
             </action>
         </talent_actions>
     </spell>
@@ -2532,6 +2689,17 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="50" min="40" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
+        <talent_actions>
+            <action>
+                <affects type="kCatGrace" saving="kNone" resist="kImmunity">
+                    <duration cnst="20" level_divisor="1" min="0" max="0"/>
+                    <flags val="kAfUpdateDuration|kAfUpdateMod"/>
+                    <apply id="kUndefinded" location="kDex">
+                        <modifier min="3.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                    </apply>
+                </affects>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kBullBody" element="kLife" mode="kEnabled">
         <name rus="бычье тело" eng="bull body"/>
@@ -2539,6 +2707,17 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="50" min="40" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
+        <talent_actions>
+            <action>
+                <affects type="kBullBody" saving="kNone" resist="kImmunity">
+                    <duration cnst="20" level_divisor="1" min="0" max="0"/>
+                    <flags val="kAfUpdateDuration|kAfUpdateMod"/>
+                    <apply id="kUndefinded" location="kCon">
+                        <modifier min="3.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                    </apply>
+                </affects>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kSnakeWisdom" element="kLife" mode="kEnabled">
         <name rus="мудрость змеи" eng="snake wisdom"/>
@@ -3286,6 +3465,13 @@ base_stat id - (например "kWis") какой берем параметр,
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
+                <affects type="kGroupProtectFromEvil" saving="kNone" resist="kVitality">
+                    <duration cnst="20" level_divisor="1" min="0" max="0"/>
+                    <flags val="kAfUpdateDuration|kAfUpdateMod"/>
+                    <apply id="kProtectFromDark" location="kResistDark">
+                        <modifier min="25.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                    </apply>
+                </affects>
             </action>
         </talent_actions>
     </spell>
@@ -3395,6 +3581,17 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="40" min="30" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
+        <talent_actions>
+            <action>
+                <affects type="kDexterity" saving="kNone" resist="kImmunity">
+                    <duration cnst="20" level_divisor="1" min="0" max="0"/>
+                    <flags val="kAfUpdateDuration|kAfUpdateMod"/>
+                    <apply id="kUndefinded" location="kDex">
+                        <modifier min="5.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                    </apply>
+                </affects>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kGroupBlink" element="kLife" mode="kEnabled">
         <name rus="групповое мигание" eng="group blink"/>
