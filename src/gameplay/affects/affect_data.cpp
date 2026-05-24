@@ -1272,9 +1272,9 @@ int CalcDuration(CharData *ch, int cnst, int level, int level_divisor, int min, 
 		else
 			level = 0;
 		if (min > 0)
-			level = std::min(level, min);
+			level = std::max(level, min);
 		if (max > 0)
-			level = std::max(level, max);
+			level = std::min(level, max);
 		return (level + result);
 	}
 	result = cnst * kSecsPerMudHour;
@@ -1283,9 +1283,9 @@ int CalcDuration(CharData *ch, int cnst, int level, int level_divisor, int min, 
 	else
 		level = 0;
 	if (min > 0)
-		level = std::min(level, min * kSecsPerMudHour);
+		level = std::max(level, min * kSecsPerMudHour);
 	if (max > 0)
-		level = std::max(level, max * kSecsPerMudHour);
+		level = std::min(level, max * kSecsPerMudHour);
 	result = (level + result) / kSecsPerPlayerAffect;
 	return (result);
 }
