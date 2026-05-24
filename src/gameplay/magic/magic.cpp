@@ -1184,29 +1184,17 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 			break;
 
 		case ESpell::kMagicGlass:
-		case ESpell::kGroupMagicGlass: af[0].affect_type = EAffect::kMagicGlass;
-			af[0].duration = CalcDuration(victim, 10, GetRealRemort(ch), 1, 0, 0);
-			accum_duration = true;
+		case ESpell::kGroupMagicGlass:
 			to_room = "$n3 покрыла зеркальная пелена.";
 			to_vict = "Вас покрыло зеркало магии.";
-			spell_id = ESpell::kMagicGlass;
 			break;
 
 		case ESpell::kCloudOfArrows:
-			af[0].duration =
-				CalcDuration(victim, 10, GetRealRemort(ch), 1, 0, 0);
-			af[0].affect_type = EAffect::kCloudOfArrows;
-			af[0].location = EApply::kHitroll;
-			af[0].modifier = level / 6;
-			accum_duration = true;
 			to_room = "$n3 окружило облако летающих огненных стрел.";
 			to_vict = "Вас окружило облако летающих огненных стрел.";
 			break;
 
-		case ESpell::kStoneHands: af[0].affect_type = EAffect::kStoneHands;
-			af[0].duration =
-				CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch), 1, 0, 0);
-			accum_duration = true;
+		case ESpell::kStoneHands:
 			to_room = "Руки $n1 задубели.";
 			to_vict = "Ваши руки задубели.";
 			break;
@@ -1648,22 +1636,13 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 			break;
 
 		case ESpell::kWaterwalk:
-			af[0].duration =
-					CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch), 1, 0, 0);
-			af[0].affect_type = EAffect::kWaterWalk;
-			accum_duration = true;
 			to_vict = "На рыбалку вы можете отправляться без лодки.";
 			break;
 
 		case ESpell::kBreathingAtDepth:
 		case ESpell::kWaterbreath:
-			af[0].duration =
-					CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch), 1, 0, 0);
-			af[0].affect_type = EAffect::kWaterBreath;
-			accum_duration = true;
 			to_vict = "У вас выросли жабры.";
 			to_room = "У $n1 выросли жабры.";
-			spell_id = ESpell::kWaterbreath;
 			break;
 
 		case ESpell::kHolystrike:
@@ -1759,49 +1738,28 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 
 		case ESpell::kGroupFly:
 		case ESpell::kFly:
-			af[0].duration =
-				CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch), 1, 0, 0);
-			af[0].affect_type = EAffect::kFly;
 			to_room = "$n0 медленно поднял$u в воздух.";
 			to_vict = "Вы медленно поднялись в воздух.";
-			spell_id = ESpell::kFly;
 			break;
 
 		case ESpell::kBrokenChains:
-			af[0].duration = CalcDuration(victim, 10, GetRealRemort(ch), 1, 0, 0);
-			af[0].affect_type = EAffect::kBrokenChains;
-			af[0].battleflag = kAfBattledec;
 			to_room = "Ярко-синий ореол вспыхнул вокруг $n1 и тут же угас.";
 			to_vict = "Волна ярко-синего света омыла вас с головы до ног.";
 			break;
 		case ESpell::kGroupBlink:
-		case ESpell::kBlink: af[0].location = EApply::kSpelledBlinkPhys;
-			af[0].modifier = 10 + GetRealRemort(ch);
-			af[0].duration =
-					CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch), 1, 0, 0);
+		case ESpell::kBlink:
 			to_room = "$n начал$g мигать.";
 			to_vict = "Вы начали мигать.";
-			spell_id = ESpell::kBlink;
 			break;
 
-		case ESpell::kMagicShield: af[0].location = EApply::kAc;
-			af[0].modifier = -GetRealLevel(ch) * 10 / 6;
-			af[0].duration =
-					CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch), 1, 0, 0);
-			af[1].location = EApply::kSavingReflex;
-			af[1].modifier = -GetRealLevel(ch) / 5;
-			af[1].duration = af[0].duration;
-			af[2].location = EApply::kSavingStability;
-			af[2].modifier = -GetRealLevel(ch) / 5;
-			af[2].duration = af[0].duration;
-			accum_duration = true;
+		case ESpell::kMagicShield:
 			to_room = "Сверкающий щит вспыхнул вокруг $n1 и угас.";
 			to_vict = "Сверкающий щит вспыхнул вокруг вас и угас.";
 			break;
 
 		case ESpell::kNoflee: // "приковать противника"
 		case ESpell::kIndriksTeeth:
-		case ESpell::kSnare: af[0].battleflag = kAfBattledec;
+		case ESpell::kSnare:
 			savetype = ESaving::kWill;
 			if (AFF_FLAGGED(victim, EAffect::kBrokenChains)
 				|| (ch != victim && CalcGeneralSaving(ch, victim, savetype, modi))) {
@@ -1809,9 +1767,6 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 				success = false;
 				break;
 			}
-			af[0].duration = ApplyResist(victim, GetResistType(spell_id),
-					CalcDuration(victim, 3, level, 4, 4, 0));
-			af[0].affect_type = EAffect::kNoTeleport;
 			to_room = "$n0 теперь прикован$a к $N2.";
 			to_vict = "Вы не сможете покинуть $N3.";
 			break;
@@ -1821,9 +1776,6 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 				SendMsgToChar("Только на себя или одногруппника!\r\n", ch);
 				return 0;
 			}
-			af[0].duration =
-					CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch), 1, 0, 0);
-			af[0].affect_type = EAffect::kHolyLight;
 			to_room = "$n0 начал$g светиться ярким светом.";
 			to_vict = "Вы засветились, освещая комнату.";
 			break;
@@ -1833,16 +1785,10 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 				SendMsgToChar("Только на себя или одногруппника!\r\n", ch);
 				return 0;
 			}
-			af[0].duration =
-					CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch), 1, 0, 0);
-			af[0].affect_type = EAffect::kHolyDark;
 			to_room = "$n0 погрузил$g комнату во мрак.";
 			to_vict = "Вы погрузили комнату в непроглядную тьму.";
 			break;
-		case ESpell::kVampirism: af[0].duration = CalcDuration(victim, 10, GetRealRemort(ch), 1, 0, 0);
-			af[0].location = EApply::kDamroll;
-			af[0].modifier = 0;
-			af[0].affect_type = EAffect::kVampirism;
+		case ESpell::kVampirism:
 			to_room = "Зрачки $n3 приобрели красный оттенок.";
 			to_vict = "Ваши зрачки приобрели красный оттенок.";
 			break;
@@ -2156,29 +2102,15 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 			break;
 		}
 
-		case ESpell::kSnakeWisdom: {
-			af[0].location = EApply::kWis;
-			af[0].duration =
-				CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch), 1, 0, 0);
-			af[0].modifier = (level + 6) / 15;
-			accum_duration = true;
-			accum_affect = true;
+		case ESpell::kSnakeWisdom:
 			to_vict = "Шелест змеиной чешуи коснулся вашего сознания, и вы стали мудрее.";
 			to_room = "$n спокойно и мудро посмотрел$g вокруг.";
 			break;
-		}
 
-		case ESpell::kGimmicry: {
-			af[0].location = EApply::kInt;
-			af[0].duration =
-				CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch), 1, 0, 0);
-			af[0].modifier = (level + 6) / 15;
-			accum_duration = true;
-			accum_affect = true;
+		case ESpell::kGimmicry:
 			to_vict = "Вы почувствовали, что для вашего ума более нет преград.";
 			to_room = "$n хитро прищурил$u и поглядел$g по сторонам.";
 			break;
-		}
 
 		case ESpell::kWarcryOfMenace: {
 			savetype = ESaving::kWill;
