@@ -525,4 +525,42 @@ const std::string &NAME_BY_ITEM(const EApply item) {
 	return EApplyLocation_name_by_value.at(item);
 }
 
+typedef std::map<EAffFlag, std::string> EAffFlag_name_by_value_t;
+typedef std::map<const std::string, EAffFlag> EAffFlag_value_by_name_t;
+EAffFlag_name_by_value_t EAffFlag_name_by_value;
+EAffFlag_value_by_name_t EAffFlag_value_by_name;
+
+void init_EAffFlag_ITEM_NAMES() {
+	EAffFlag_name_by_value.clear();
+	EAffFlag_value_by_name.clear();
+
+	EAffFlag_name_by_value[EAffFlag::kAfBattledec] = "kAfBattledec";
+	EAffFlag_name_by_value[EAffFlag::kAfDeadkeep] = "kAfDeadkeep";
+	EAffFlag_name_by_value[EAffFlag::kAfPulsedec] = "kAfPulsedec";
+	EAffFlag_name_by_value[EAffFlag::kAfSameTime] = "kAfSameTime";
+	EAffFlag_name_by_value[EAffFlag::kAfUpdateDuration] = "kAfUpdateDuration";
+	EAffFlag_name_by_value[EAffFlag::kAfAccumulateDuration] = "kAfAccumulateDuration";
+	EAffFlag_name_by_value[EAffFlag::kAfUpdateMod] = "kAfUpdateMod";
+
+	for (const auto &i : EAffFlag_name_by_value) {
+		EAffFlag_value_by_name[i.second] = i.first;
+	}
+}
+
+template<>
+EAffFlag ITEM_BY_NAME<EAffFlag>(const std::string &name) {
+	if (EAffFlag_name_by_value.empty()) {
+		init_EAffFlag_ITEM_NAMES();
+	}
+	return EAffFlag_value_by_name.at(name);
+}
+
+template<>
+const std::string &NAME_BY_ITEM<EAffFlag>(const EAffFlag item) {
+	if (EAffFlag_name_by_value.empty()) {
+		init_EAffFlag_ITEM_NAMES();
+	}
+	return EAffFlag_name_by_value.at(item);
+}
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

@@ -74,7 +74,7 @@ int CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict
 int CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, ESpell spell_id, ESpell spell_subst);
 
 int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id);
-int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id);
+int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const RollResult &potency = {});
 int CastToPoints(int level, CharData *ch, CharData *victim, ESpell spell_id);
 int CastUnaffects(int, CharData *ch, CharData *victim, ESpell spell_id);
 int CastToAlterObjs(int, CharData *ch, ObjData *obj, ESpell spell_id);

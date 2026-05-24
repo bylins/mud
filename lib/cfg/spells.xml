@@ -162,6 +162,13 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <damage saving="kReflex" />
+                <affects type="kChillTouch" saving="kStability" resist="kWater">
+                    <duration cnst="2" level_divisor="4" min="6" max="0"/>
+                    <flags val="kAfBattledec|kAfAccumulateDuration"/>
+                    <apply id="kUndefinded" location="kStr">
+                        <modifier min="1.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                    </apply>
+                </affects>
             </action>
         </talent_actions>
     </spell>

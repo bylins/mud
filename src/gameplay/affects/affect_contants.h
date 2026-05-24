@@ -275,6 +275,11 @@ const std::string &NAME_BY_ITEM<EApply>(EApply item);
 template<>
 EApply ITEM_BY_NAME<EApply>(const std::string &name);
 
+template<>
+const std::string &NAME_BY_ITEM<EAffFlag>(EAffFlag item);
+template<>
+EAffFlag ITEM_BY_NAME<EAffFlag>(const std::string &name);
+
 using WeaponAffectArray = std::array<WeaponAffect, kWeaponAffectCount>;
 extern WeaponAffectArray weapon_affect;
 extern const char *affected_bits[];

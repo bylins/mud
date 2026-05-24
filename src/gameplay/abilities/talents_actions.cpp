@@ -2,6 +2,7 @@
 
 #include "engine/ui/color.h"
 #include "engine/entities/char_data.h"
+#include "gameplay/magic/spells_constants.h"
 #include "fmt/format.h"
 #include "utils/random.h"
 
@@ -93,6 +94,56 @@ int Area::CalcTargetsQuantity(const int skill_level) const {
 	return min_targets + std::min(bonus, max_targets);
 }
 
+TalentAffect::TalentAffect(parser_wrapper::DataNode &node) {
+	spell_ = parse::ReadAsConstant<ESpell>(node.GetValue("type"));
+	saving_ = parse::ReadAsConstant<ESaving>(node.GetValue("saving"));
+	resist_ = parse::ReadAsConstant<EResist>(node.GetValue("resist"));
+
+	for (auto &child: node.Children()) {
+		const auto name = child.GetName();
+		if (strcmp(name, "duration") == 0) {
+			dur_min_ = parse::ReadAsInt(child.GetValue("min"));
+			dur_max_ = parse::ReadAsInt(child.GetValue("max"));
+			dur_const_ = parse::ReadAsInt(child.GetValue("cnst"));
+			dur_level_divisor_ = parse::ReadAsInt(child.GetValue("level_divisor"));
+		} else if (strcmp(name, "flags") == 0) {
+			flags_ = parse::ReadAsConstantsBitvector<EAffFlag>(child.GetValue("val"));
+		} else if (strcmp(name, "apply") == 0) {
+			Apply apply;
+			apply.id = parse::ReadAsConstant<EAffect>(child.GetValue("id"));
+			apply.location = parse::ReadAsConstant<EApply>(child.GetValue("location"));
+			if (child.GoToChild("modifier")) {
+				apply.min = parse::ReadAsDouble(child.GetValue("min"));
+				apply.dices_weight = parse::ReadAsDouble(child.GetValue("dices_weight"));
+				apply.competencies_weight = parse::ReadAsDouble(child.GetValue("competencies_weight"));
+				apply.factor = parse::ReadAsInt(child.GetValue("factor"));
+				apply.stack = parse::ReadAsInt(child.GetValue("stack"));
+				child.GoToParent();
+			}
+			applies_.push_back(apply);
+		}
+	}
+}
+
+void TalentAffect::Print(CharData */*ch*/, std::ostringstream &buffer) const {
+	buffer << " Affect:" << "\r\n"
+		   << "  Spell: " << kColorGrn << NAME_BY_ITEM<ESpell>(spell_) << kColorNrm
+		   << " Saving: " << kColorGrn << NAME_BY_ITEM<ESaving>(saving_) << kColorNrm
+		   << " Resist: " << kColorGrn << NAME_BY_ITEM<EResist>(resist_) << kColorNrm
+		   << " Flags: " << kColorGrn << flags_ << kColorNrm << "\r\n"
+		   << "  Duration: cnst=" << kColorGrn << dur_const_ << kColorNrm
+		   << " level_divisor=" << kColorGrn << dur_level_divisor_ << kColorNrm
+		   << " min=" << kColorGrn << dur_min_ << kColorNrm
+		   << " max=" << kColorGrn << dur_max_ << kColorNrm << "\r\n";
+	for (const auto &apply: applies_) {
+		buffer << "  Apply: " << kColorGrn << NAME_BY_ITEM<EAffect>(apply.id) << kColorNrm
+			   << " -> " << kColorGrn << NAME_BY_ITEM<EApply>(apply.location) << kColorNrm
+			   << " (min=" << apply.min << " dices_weight=" << apply.dices_weight
+			   << " competencies_weight=" << apply.competencies_weight
+			   << " factor=" << apply.factor << " stack=" << apply.stack << ")\r\n";
+	}
+}
+
 void Actions::Print(CharData *ch, std::ostringstream &buffer) const {
 	for (const auto &effect: *actions_) {
 		effect.second->Print(ch, buffer);
@@ -124,6 +175,8 @@ void Actions::ParseAction(ActionsRosterPtr &info, parser_wrapper::DataNode node)
 			ParseArea(info, manifestation);
 		} else if (strcmp(manifestation.GetName(), "heal") == 0) {
 			ParseHeal(info, manifestation);
+		} else if (strcmp(manifestation.GetName(), "affects") == 0) {
+			ParseAffect(info, manifestation);
 		}
 	}
 	node.GoToParent();
@@ -154,6 +207,10 @@ void Actions::ParseArea(ActionsRosterPtr &info, parser_wrapper::DataNode &node) 
 
 void Actions::ParseHeal(ActionsRosterPtr &info, parser_wrapper::DataNode &node) {
 	info->emplace(EAction::kHeal, std::make_shared<Heal>(node));
+}
+
+void Actions::ParseAffect(ActionsRosterPtr &info, parser_wrapper::DataNode &node) {
+	info->emplace(EAction::kAffect, std::make_shared<TalentAffect>(node));
 }
 
 /*
@@ -187,6 +244,14 @@ const Heal &Actions::GetHeal() const {
 		return *std::static_pointer_cast<Heal>(actions_->find(EAction::kHeal)->second);
 	} else {
 		throw std::runtime_error("Getting heal parameters from talent which has no 'heal' action.");
+	}
+}
+
+const TalentAffect &Actions::GetAffect() const {
+	if (actions_->contains(EAction::kAffect)) {
+		return *std::static_pointer_cast<TalentAffect>(actions_->find(EAction::kAffect)->second);
+	} else {
+		throw std::runtime_error("Getting affect parameters from talent which has no 'affects' action.");
 	}
 }
 

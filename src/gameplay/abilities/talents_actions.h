@@ -10,17 +10,22 @@
 #define BYLINS_SRC_STRUCTS_TALENTS_ACTIONS_H_
 
 #include "gameplay/skills/skills.h"
+#include "gameplay/affects/affect_contants.h"
 #include "engine/entities/entities_constants.h"
 #include "utils/parser_wrapper.h"
 
+#include <vector>
+
 class CharData;
+enum class ESpell;
 
 namespace talents_actions {
 
 enum class EAction {
 	kDamage,
 	kArea,
-	kHeal
+	kHeal,
+	kAffect
 };
 
 class IAction {
@@ -95,6 +100,50 @@ struct Area : public IAction {
 	void Print(CharData *ch, std::ostringstream &buffer) const override;
 };
 
+// A spell affect described in data (issue #3334): the <affects> talent action.
+// It stores the affect identity (spell)/saving/resist, the duration parameters
+// (one duration for all applies), the affect flags (EAffFlag, common to all
+// applies) and a list of applies. Each apply produces one Affect on the target,
+// its modifier derived from the cast's potency roll (see CalcModifier callers).
+class TalentAffect : public IAction {
+ public:
+	struct Apply {
+		EAffect id{EAffect::kUndefinded};
+		EApply location{EApply::kNone};
+		// Modifier = factor * min(min + ceil(competencies*competencies_weight
+		//                                      + dices*dices_weight), min*stack).
+		double min{0.0};
+		double dices_weight{0.0};
+		double competencies_weight{0.0};
+		int factor{1};
+		int stack{0};
+	};
+
+	explicit TalentAffect(parser_wrapper::DataNode &node);
+	void Print(CharData *ch, std::ostringstream &buffer) const override;
+
+	[[nodiscard]] ESpell GetSpell() const { return spell_; }
+	[[nodiscard]] ESaving GetSaving() const { return saving_; }
+	[[nodiscard]] EResist GetResist() const { return resist_; }
+	[[nodiscard]] Bitvector GetFlags() const { return flags_; }
+	[[nodiscard]] int GetDurationConst() const { return dur_const_; }
+	[[nodiscard]] int GetDurationLevelDivisor() const { return dur_level_divisor_; }
+	[[nodiscard]] int GetDurationMin() const { return dur_min_; }
+	[[nodiscard]] int GetDurationMax() const { return dur_max_; }
+	[[nodiscard]] const std::vector<Apply> &GetApplies() const { return applies_; }
+
+ private:
+	ESpell spell_{static_cast<ESpell>(0)};
+	ESaving saving_{ESaving::kReflex};
+	EResist resist_{EResist::kFire};
+	Bitvector flags_{0};
+	int dur_const_{0};
+	int dur_level_divisor_{0};
+	int dur_min_{0};
+	int dur_max_{0};
+	std::vector<Apply> applies_;
+};
+
 using ActionPtr = std::shared_ptr<IAction>;
 
 class Actions {
@@ -106,6 +155,7 @@ class Actions {
 	static void ParseDamage(ActionsRosterPtr &info, parser_wrapper::DataNode &node);
 	static void ParseArea(ActionsRosterPtr &info, parser_wrapper::DataNode &node);
 	static void ParseHeal(ActionsRosterPtr &info, parser_wrapper::DataNode &node);
+	static void ParseAffect(ActionsRosterPtr &info, parser_wrapper::DataNode &node);
 
  public:
 	Actions() {
@@ -119,6 +169,7 @@ class Actions {
 	[[nodiscard]] const Damage &GetDmg() const;
 	[[nodiscard]] const Area &GetArea() const;
 	[[nodiscard]] const Heal &GetHeal() const;
+	[[nodiscard]] const TalentAffect &GetAffect() const;
 };
 
 }
