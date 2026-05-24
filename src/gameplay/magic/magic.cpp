@@ -1022,20 +1022,17 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 			}
 			to_room = "$n стал$g немного слабее.";
 			to_vict = "Вы почувствовали себя слабее!";
-			spell_id = ESpell::kWeaknes;
 			break;
 		case ESpell::kStoneWall:
 		case ESpell::kStoneSkin:
 			to_room = "Кожа $n1 покрылась каменными пластинами.";
 			to_vict = "Вы стали менее чувствительны к ударам.";
-			spell_id = ESpell::kStoneSkin;
 			break;
 
 		case ESpell::kGeneralRecovery:
 		case ESpell::kFastRegeneration:
 			to_room = "$n расцвел$g на ваших глазах.";
 			to_vict = "Вас наполнила живительная сила.";
-			spell_id = ESpell::kFastRegeneration;
 			break;
 
 		case ESpell::kAirShield:
@@ -1091,13 +1088,11 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 		case ESpell::kCloudly:
 			to_room = "Очертания $n1 расплылись и стали менее отчетливыми.";
 			to_vict = "Ваше тело стало прозрачным, как туман.";
-			spell_id = ESpell::kCloudly;
 			break;
 		case ESpell::kGroupArmor:
 		case ESpell::kArmor:
 			to_room = "Вокруг $n1 вспыхнул белый щит и тут же погас.";
 			to_vict = "Вы почувствовали вокруг себя невидимую защиту.";
-			spell_id = ESpell::kArmor;
 			break;
 
 		case ESpell::kFascination:
@@ -1116,7 +1111,6 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 		case ESpell::kBless:
 			to_room = "$n осветил$u на миг неземным светом.";
 			to_vict = "Боги одарили вас своей улыбкой.";
-			spell_id = ESpell::kBless;
 			break;
 
 		case ESpell::kCallLighting:
@@ -1141,7 +1135,6 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 		case ESpell::kAwareness:
 			to_room = "$n начал$g внимательно осматриваться по сторонам.";
 			to_vict = "Вы стали более внимательны к окружающему.";
-			spell_id = ESpell::kAwareness;
 			break;
 
 		case ESpell::kGodsShield:
@@ -1158,7 +1151,6 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 			}
 			to_vict = "Вы начали двигаться быстрее.";
 			to_room = "$n начал$g двигаться заметно быстрее.";
-			spell_id = ESpell::kHaste;
 			break;
 
 		case ESpell::kShadowCloak:
@@ -1416,57 +1408,32 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 
 		case ESpell::kGroupSincerity:
 		case ESpell::kDetectAlign:
-			af[0].duration =
-				CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch), 1, 0, 0);
-			af[0].affect_type = EAffect::kDetectAlign;
-			accum_duration = true;
 			to_vict = "Ваши глаза приобрели зеленый оттенок.";
 			to_room = "Глаза $n1 приобрели зеленый оттенок.";
-			spell_id = ESpell::kDetectAlign;
 			break;
 
 		case ESpell::kAllSeeingEye:
 		case ESpell::kDetectInvis:
-			af[0].duration =
-				CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch), 1, 0, 0);
-			af[0].affect_type = EAffect::kDetectInvisible;
-			accum_duration = true;
 			to_vict = "Ваши глаза приобрели золотистый оттенок.";
 			to_room = "Глаза $n1 приобрели золотистый оттенок.";
-			spell_id = ESpell::kDetectInvis;
 			break;
 
 		case ESpell::kMagicalGaze:
 		case ESpell::kDetectMagic:
-			af[0].duration =
-				CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch), 1, 0, 0);
-			af[0].affect_type = EAffect::kDetectMagic;
-			accum_duration = true;
 			to_vict = "Ваши глаза приобрели желтый оттенок.";
 			to_room = "Глаза $n1 приобрели желтый оттенок.";
-			spell_id = ESpell::kDetectMagic;
 			break;
 
 		case ESpell::kSightOfDarkness:
 		case ESpell::kInfravision:
-			af[0].duration =
-				CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch), 1, 0, 0);
-			af[0].affect_type = EAffect::kInfravision;
-			accum_duration = true;
 			to_vict = "Ваши глаза приобрели красный оттенок.";
 			to_room = "Глаза $n1 приобрели красный оттенок.";
-			spell_id = ESpell::kInfravision;
 			break;
 
 		case ESpell::kSnakeEyes:
 		case ESpell::kDetectPoison:
-			af[0].duration =
-				CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch), 1, 0, 0);
-			af[0].affect_type = EAffect::kDetectPoison;
-			accum_duration = true;
 			to_vict = "Ваши глаза приобрели карий оттенок.";
 			to_room = "Глаза $n1 приобрели карий оттенок.";
-			spell_id = ESpell::kDetectPoison;
 			break;
 
 		case ESpell::kGroupInvisible:
@@ -1678,11 +1645,6 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 		case ESpell::kEyeOfGods:
 		case ESpell::kSenseLife: to_vict = "Вы способны разглядеть даже микроба.";
 			to_room = "$n0 начал$g замечать любые движения.";
-			af[0].duration =
-					CalcDuration(victim, 20, kSecsPerPlayerAffect * GetRealRemort(ch), 1, 0, 0);
-			af[0].affect_type = EAffect::kDetectLife;
-			accum_duration = true;
-			spell_id = ESpell::kSenseLife;
 			break;
 
 		case ESpell::kWaterwalk:
