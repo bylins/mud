@@ -486,7 +486,7 @@ int CallMagicToRoom(CharData *ch, RoomData *room, CastRollResult roll) {
 			break;
 
 		case ESpell::kHypnoticPattern:
-			if (ProcessMatComponents(ch, ch, spell_id)) {
+			if (ProcessMatComponents(ch, ch, spell_id) == EStageResult::kBreak) {
 				success = false;
 				break;
 			}

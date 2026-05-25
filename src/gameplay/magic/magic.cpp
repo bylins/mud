@@ -794,7 +794,7 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 	return rand;
 }
 
-bool ProcessMatComponents(CharData *caster, CharData *victim, ESpell spell_id) {
+EStageResult ProcessMatComponents(CharData *caster, CharData *victim, ESpell spell_id) {
 	int vnum = 0;
 	const char *missing = nullptr, *use = nullptr, *exhausted = nullptr;
 	switch (spell_id) {
@@ -832,13 +832,14 @@ bool ProcessMatComponents(CharData *caster, CharData *victim, ESpell spell_id) {
 			exhausted = "$o вспыхнул голубоватым светом, когда его вставили в предмет.\r\n";
 			break;
 
-		default: log("WARNING: wrong spell_id %d in %s:%d", to_underlying(spell_id), __FILE__, __LINE__);
-			return false;
+		// A spell with no material component: nothing to process, the cast proceeds.
+		// (The material component system is to be refined/expanded as a separate task.)
+		default: return EStageResult::kSuccess;
 	}
 	ObjData *tobj = GetObjByVnumInContent(vnum, caster->carrying);
 	if (!tobj) {
 		act(missing, false, victim, nullptr, caster, kToChar);
-		return (true);
+		return EStageResult::kBreak;	// required component missing -> stop the cast
 	}
 	tobj->dec_val(2);
 	act(use, false, caster, tobj, nullptr, kToChar);
@@ -847,7 +848,7 @@ bool ProcessMatComponents(CharData *caster, CharData *victim, ESpell spell_id) {
 		RemoveObjFromChar(tobj);
 		ExtractObjFromWorld(tobj);
 	}
-	return (false);
+	return EStageResult::kSuccess;
 }
 
 bool ProcessMatComponents(CharData *caster, int /*vnum*/, ESpell spell_id) {
@@ -1016,6 +1017,11 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 			}
 		}
 	}
+	// Material component: consume it if this spell has one (no-op for spells that don't);
+	// a missing component stops the cast. (Hook for the material-component system, TBD.)
+	if (ProcessMatComponents(ch, victim, spell_id) == EStageResult::kBreak) {
+		return EStageResult::kBreak;
+	}
 	switch (spell_id) {
 		// The affect itself now comes from the <affects> talent action (issue #3334) and
 		// the imposition messages from spell_msg.xml (issue #3335); the saving throw and
@@ -1060,13 +1066,6 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 				RemoveAffectFromChar(victim, ESpell::kFireShield);
 			if (IsAffectedBySpell(victim, ESpell::kAirShield))
 				RemoveAffectFromChar(victim, ESpell::kAirShield);
-			break;
-
-		case ESpell::kFascination:
-			if (ProcessMatComponents(ch, victim, spell_id)) {
-				success = false;
-				break;
-			}
 			break;
 
 		case ESpell::kCallLighting:

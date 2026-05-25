@@ -93,7 +93,7 @@ int CastToSingleTarget(CharData *caster, CharData *cvict, ObjData *ovict, CastRo
 int CalcSaving(CharData *killer, CharData *victim, ESaving saving, bool need_log = false);
 int CalcGeneralSaving(CharData *killer, CharData *victim, ESaving type, int ext_apply);
 int GetBasicSave(CharData *ch, ESaving saving, bool log = false);
-bool ProcessMatComponents(CharData *caster, CharData *victim, ESpell spell_id);
+EStageResult ProcessMatComponents(CharData *caster, CharData *victim, ESpell spell_id);
 int CalcClassAntiSavingsMod(CharData *ch, ESpell spell_id);
 
 #endif // MAGIC_H_
