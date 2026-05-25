@@ -3111,6 +3111,22 @@ base_stat id - (например "kWis") какой берем параметр,
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
+                <affects type="kWarcryOfDefence" saving="kNone" resist="kMind">
+                    <duration cnst="2" level_divisor="20" min="10" max="0"/>
+                    <flags val="kAfUpdateDuration|kAfUpdateMod"/>
+                    <apply id="kUndefinded" location="kSavingCritical">
+                        <modifier min="20.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                    </apply>
+                    <apply id="kUndefinded" location="kSavingReflex">
+                        <modifier min="20.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                    </apply>
+                    <apply id="kUndefinded" location="kSavingStability">
+                        <modifier min="20.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                    </apply>
+                    <apply id="kUndefinded" location="kSavingWill">
+                        <modifier min="20.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                    </apply>
+                </affects>
             </action>
         </talent_actions>
     </spell>
@@ -3126,6 +3142,13 @@ base_stat id - (например "kWis") какой берем параметр,
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
+                <affects type="kWarcryOfBattle" saving="kNone" resist="kMind">
+                    <duration cnst="2" level_divisor="20" min="10" max="0"/>
+                    <flags val="kAfUpdateDuration|kAfUpdateMod"/>
+                    <apply id="kUndefinded" location="kAc">
+                        <modifier min="20.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                    </apply>
+                </affects>
             </action>
         </talent_actions>
     </spell>
@@ -3147,6 +3170,13 @@ base_stat id - (например "kWis") какой берем параметр,
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
+                <affects type="kWarcryOfPower" saving="kNone" resist="kMind">
+                    <duration cnst="2" level_divisor="20" min="10" max="0"/>
+                    <flags val="kAfUpdateDuration|kAfUpdateMod"/>
+                    <apply id="kUndefinded" location="kHp">
+                        <modifier min="100.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                    </apply>
+                </affects>
             </action>
         </talent_actions>
     </spell>
@@ -3162,6 +3192,16 @@ base_stat id - (например "kWis") какой берем параметр,
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
+                <affects type="kWarcryOfBless" saving="kNone" resist="kMind">
+                    <duration cnst="2" level_divisor="20" min="10" max="0"/>
+                    <flags val="kAfUpdateDuration|kAfUpdateMod"/>
+                    <apply id="kUndefinded" location="kSavingStability">
+                        <modifier min="10.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                    </apply>
+                    <apply id="kUndefinded" location="kSavingWill">
+                        <modifier min="10.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                    </apply>
+                </affects>
             </action>
         </talent_actions>
     </spell>
@@ -3177,6 +3217,16 @@ base_stat id - (например "kWis") какой берем параметр,
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
+                <affects type="kWarcryOfCourage" saving="kNone" resist="kMind">
+                    <duration cnst="2" level_divisor="20" min="10" max="0"/>
+                    <flags val="kAfUpdateDuration|kAfUpdateMod"/>
+                    <apply id="kUndefinded" location="kHitroll">
+                        <modifier min="5.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                    </apply>
+                    <apply id="kUndefinded" location="kDamroll">
+                        <modifier min="7.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                    </apply>
+                </affects>
             </action>
         </talent_actions>
     </spell>
@@ -3934,6 +3984,13 @@ base_stat id - (например "kWis") какой берем параметр,
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
+                <affects type="kWarcryOfExperience" saving="kNone" resist="kMind">
+                    <duration cnst="2" level_divisor="20" min="10" max="0"/>
+                    <flags val="kAfUpdateDuration|kAfUpdateMod"/>
+                    <apply id="kUndefinded" location="kExpPercent">
+                        <modifier min="10.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                    </apply>
+                </affects>
             </action>
         </talent_actions>
     </spell>
@@ -3949,6 +4006,13 @@ base_stat id - (например "kWis") какой берем параметр,
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
+                <affects type="kWarcryOfLuck" saving="kNone" resist="kMind">
+                    <duration cnst="2" level_divisor="20" min="10" max="0"/>
+                    <flags val="kAfUpdateDuration|kAfUpdateMod"/>
+                    <apply id="kUndefinded" location="kMorale">
+                        <modifier min="10.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                    </apply>
+                </affects>
             </action>
         </talent_actions>
     </spell>
@@ -3964,6 +4028,13 @@ base_stat id - (например "kWis") какой берем параметр,
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
+                <affects type="kWarcryOfPhysdamage" saving="kNone" resist="kMind">
+                    <duration cnst="2" level_divisor="20" min="10" max="0"/>
+                    <flags val="kAfUpdateDuration|kAfUpdateMod"/>
+                    <apply id="kUndefinded" location="kPhysicDamagePercent">
+                        <modifier min="10.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                    </apply>
+                </affects>
             </action>
         </talent_actions>
     </spell>

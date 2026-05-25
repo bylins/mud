@@ -1941,88 +1941,17 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 			break;
 		}
 
-		case ESpell::kWarcryOfLuck: {
-			af[0].location = EApply::kMorale;
-			af[0].modifier = std::max(1, ch->GetSkill(ESkill::kWarcry) / 20);
-			af[0].duration = CalcDuration(victim, 2, ch->GetSkill(ESkill::kWarcry), 20, 10, 0);
-			to_room = nullptr;
-			break;
-		}
-
-		case ESpell::kWarcryOfExperience: {
-			af[0].location = EApply::kExpPercent;
-			af[0].modifier = std::max(1, ch->GetSkill(ESkill::kWarcry) / 20);
-			af[0].duration = CalcDuration(victim, 2, ch->GetSkill(ESkill::kWarcry), 20, 10, 0);
-			to_room = nullptr;
-			break;
-		}
-
-		case ESpell::kWarcryOfPhysdamage: {
-			af[0].location = EApply::kPhysicDamagePercent;
-			af[0].modifier = std::max(1, ch->GetSkill(ESkill::kWarcry) / 20);
-			af[0].duration = CalcDuration(victim, 2, ch->GetSkill(ESkill::kWarcry), 20, 10, 0);
-			to_room = nullptr;
-			break;
-		}
-
-		case ESpell::kWarcryOfBattle: {
-			af[0].location = EApply::kAc;
-			af[0].modifier = -(10 + std::min(20, 2 * GetRealRemort(ch)));
-			af[0].duration = CalcDuration(victim, 2, ch->GetSkill(ESkill::kWarcry), 20, 10, 0);
-			to_room = nullptr;
-			break;
-		}
-
-		case ESpell::kWarcryOfDefence: {
-			af[0].location = EApply::kSavingCritical;
-			af[0].modifier -= ch->GetSkill(ESkill::kWarcry) / 10.0;
-			af[0].duration = CalcDuration(victim, 2, ch->GetSkill(ESkill::kWarcry), 20, 10, 0);
-			af[1].location = EApply::kSavingReflex;
-			af[1].modifier -= ch->GetSkill(ESkill::kWarcry) / 10;
-			af[1].duration = CalcDuration(victim, 2, ch->GetSkill(ESkill::kWarcry), 20, 10, 0);
-			af[2].location = EApply::kSavingStability;
-			af[2].modifier -= ch->GetSkill(ESkill::kWarcry) / 10;
-			af[2].duration = CalcDuration(victim, 2, ch->GetSkill(ESkill::kWarcry), 20, 10, 0);
-			af[3].location = EApply::kSavingWill;
-			af[3].modifier -= ch->GetSkill(ESkill::kWarcry) / 10;
-			af[3].duration = CalcDuration(victim, 2, ch->GetSkill(ESkill::kWarcry), 20, 10, 0);
-			//to_vict = nullptr;
-			to_room = nullptr;
-			break;
-		}
-
-		case ESpell::kWarcryOfPower: {
-			af[0].location = EApply::kHp;
-			af[0].modifier = std::min(200, (4 * ch->get_con() + ch->GetSkill(ESkill::kWarcry)) / 2);
-			af[0].duration = CalcDuration(victim, 2, ch->GetSkill(ESkill::kWarcry), 20, 10, 0);
+		case ESpell::kWarcryOfLuck:
+		case ESpell::kWarcryOfExperience:
+		case ESpell::kWarcryOfPhysdamage:
+		case ESpell::kWarcryOfBattle:
+		case ESpell::kWarcryOfDefence:
+		case ESpell::kWarcryOfPower:
+		case ESpell::kWarcryOfBless:
+		case ESpell::kWarcryOfCourage:
 			to_vict = nullptr;
 			to_room = nullptr;
 			break;
-		}
-
-		case ESpell::kWarcryOfBless: {
-			af[0].location = EApply::kSavingStability;
-			af[0].modifier = -(4 * ch->get_con() + ch->GetSkill(ESkill::kWarcry)) / 24;
-			af[0].duration = CalcDuration(victim, 2, ch->GetSkill(ESkill::kWarcry), 20, 10, 0);
-			af[1].location = EApply::kSavingWill;
-			af[1].modifier = af[0].modifier;
-			af[1].duration = af[0].duration;
-			to_vict = nullptr;
-			to_room = nullptr;
-			break;
-		}
-
-		case ESpell::kWarcryOfCourage: {
-			af[0].location = EApply::kHitroll;
-			af[0].modifier = (44 + ch->GetSkill(ESkill::kWarcry)) / 45;
-			af[0].duration = CalcDuration(victim, 2, ch->GetSkill(ESkill::kWarcry), 20, 10, 0);
-			af[1].location = EApply::kDamroll;
-			af[1].modifier = (29 + ch->GetSkill(ESkill::kWarcry)) / 30;
-			af[1].duration = af[0].duration;
-			to_vict = nullptr;
-			to_room = nullptr;
-			break;
-		}
 
 		case ESpell::kAconitumPoison: af[0].location = EApply::kAconitumPoison;
 			af[0].duration = 7;
