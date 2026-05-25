@@ -23,12 +23,23 @@
 #include "utils/logger.h"
 #include "utils/random.h"
 
+#include <chrono>
+#include <cstdint>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #include <stdexcept>
 #include <string>
 #include <unistd.h>
+
+// Build identity, defined in the generated version.cpp (meson version_gen
+// custom_target подставляет git revision и фичи сборки). Объявляем здесь,
+// чтобы вынести их в JSONL build_info-событием -- так каждый прогон помнит,
+// на какой ревизии движка он считался.
+extern const char* revision;
+extern const char* build_datetime;
+extern const char* build_compiler;
+extern const char* build_features;
 
 namespace {
 
@@ -111,6 +122,23 @@ int main(int argc, char** argv) {
 	// can emit events through EmitToAllSinks without threading the sink
 	// through every call signature.
 	observability::RegisterEventSink(sink.get());
+
+	// Первое событие в JSONL -- идентификация сборки движка. Веб-UI
+	// поднимает это в meta.json, чтобы было видно, на какой ревизии
+	// движка прогон считался (важно при сравнении прогонов между
+	// версиями).
+	{
+		observability::Event e;
+		e.name = "build_info";
+		e.ts_unix_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+			std::chrono::system_clock::now().time_since_epoch()).count();
+		e.attrs["revision"] = std::string(revision ? revision : "unknown");
+		e.attrs["build_datetime"] = std::string(build_datetime ? build_datetime : "");
+		e.attrs["build_compiler"] = std::string(build_compiler ? build_compiler : "");
+		e.attrs["build_features"] = std::string(build_features ? build_features : "");
+		observability::EmitToAllSinks(e);
+	}
+
 	try {
 		simulator::RunScenario(scenario);
 	} catch (const std::exception& e) {
