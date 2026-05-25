@@ -73,13 +73,22 @@ int CallMagicToArea(CharData *ch, CharData *victim, RoomData *room, CastRollResu
 int CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict, ESpell spell_id, int level);
 int CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, ESpell spell_id, ESpell spell_subst);
 
+// Result of one cast stage (CastAffect/CastUnaffects/...). CastToSingleTarget runs the
+// stages in order and stops the chain on kBreak. Today every stage returns kSuccess
+// (behaviour unchanged); per-spell kBreak conditions are to be driven from spells.xml later.
+// The list may grow.
+enum class EStageResult {
+	kBreak,		// stop the cast: skip the remaining stages.
+	kSuccess	// stage handled; continue to the next stage.
+};
+
 int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id);
-int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const RollResult &potency = {});
-int CastToPoints(int level, CharData *ch, CharData *victim, ESpell spell_id);
-int CastUnaffects(int, CharData *ch, CharData *victim, ESpell spell_id);
-int CastToAlterObjs(int, CharData *ch, ObjData *obj, ESpell spell_id);
-int CastCreation(int, CharData *ch, ESpell spell_id);
-int CastCharRelocate(CharData *caster, CharData *cvict, ESpell spell_id);
+EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const RollResult &potency = {});
+EStageResult CastToPoints(int level, CharData *ch, CharData *victim, ESpell spell_id);
+EStageResult CastUnaffects(int, CharData *ch, CharData *victim, ESpell spell_id);
+EStageResult CastToAlterObjs(int, CharData *ch, ObjData *obj, ESpell spell_id);
+EStageResult CastCreation(int, CharData *ch, ESpell spell_id);
+EStageResult CastCharRelocate(CharData *caster, CharData *cvict, ESpell spell_id);
 int CastToSingleTarget(CharData *caster, CharData *cvict, ObjData *ovict, CastRollResult roll);
 int CalcSaving(CharData *killer, CharData *victim, ESaving saving, bool need_log = false);
 int CalcGeneralSaving(CharData *killer, CharData *victim, ESaving type, int ext_apply);

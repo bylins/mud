@@ -903,7 +903,7 @@ static void ApplyTalentAffect(CharData *victim, Affect<EApply> &af, Bitvector fl
 	affect_to_char(victim, af);
 }
 
-int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const RollResult &potency) {
+EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const RollResult &potency) {
 	bool accum_affect = false, accum_duration = false, success = true;
 	bool update_spell = false;
 	const char *to_vict = nullptr, *to_room = nullptr;
@@ -914,18 +914,18 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 	if (victim == nullptr
 		|| victim->in_room == kNowhere
 		|| ch == nullptr) {
-		return 0;
+		return EStageResult::kSuccess;
 	}
 
 	// Calculate PKILL's affects
 	if (ch != victim) {
 		if (MUD::Spell(spell_id).IsFlagged(kNpcAffectPc)) {
 			if (!pk_agro_action(ch, victim)) {
-				return 0;
+				return EStageResult::kSuccess;
 			}
 		} else if (MUD::Spell(spell_id).IsFlagged(kNpcAffectNpc) && victim->GetEnemy())	{
 			if (!pk_agro_action(ch, victim->GetEnemy()))
-				return 0;
+				return EStageResult::kSuccess;
 		}
 	}
 	// Magic glass
@@ -943,7 +943,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 			act("Магическое зеркало $N1 отразило магию $n1!", false, ch, nullptr, victim, kToNotVict);
 			act("Ваше магическое зеркало отразило поражение $n1!", false, ch, nullptr, victim, kToVict);
 			CastAffect(level, ch, ch, spell_id);
-			return 0;
+			return EStageResult::kSuccess;
 		}
 	} else {
 		if (ch != victim && MUD::Spell(spell_id).IsViolent() && victim->IsGod()
@@ -952,7 +952,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 			act("Звуковой барьер $N1 отразил крик $n1!", false, ch, nullptr, victim, kToNotVict);
 			act("Ваш звуковой барьер отразил крик $n1!", false, ch, nullptr, victim, kToVict);
 			CastAffect(level, ch, ch, spell_id);
-			return 0;
+			return EStageResult::kSuccess;
 		}
 	}
 	//  блочим директ аффекты вредных спелов для Витязей  шанс = (скил/20 + вес.щита/2)  ()
@@ -965,13 +965,13 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 		act("Ваши чары повисли на щите $N1, и затем развеялись.", false, ch, nullptr, victim, kToChar);
 		act("Щит $N1 поглотил злые чары $n1.", false, ch, nullptr, victim, kToNotVict);
 		act("Ваш щит уберег вас от злых чар $n1.", false, ch, nullptr, victim, kToVict);
-		return (0);
+		return EStageResult::kSuccess;
 	}
 
 	if (!MUD::Spell(spell_id).IsFlagged(kMagWarcry) && ch != victim && MUD::Spell(spell_id).IsViolent()
 		&& number(1, 999) <= GET_AR(victim) * 10) {
 		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
-		return 0;
+		return EStageResult::kSuccess;
 	}
 
 	Affect<EApply> af[kMaxSpellAffects];
@@ -1791,9 +1791,9 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 			act(to_vict, false, victim, nullptr, ch, kToChar);
 		if (to_room != nullptr && *to_room != '\0')
 			act(to_room, true, victim, nullptr, ch, kToRoom | kToArenaListen);
-		return 1;
+		return EStageResult::kSuccess;
 	}
-	return 0;
+	return EStageResult::kSuccess;
 }
 
 
@@ -1812,22 +1812,22 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 // kSummonToRoom (по заклинанию), kSummonFail / kSummonNoCorpse и прочие
 // guard-сообщения в ветви kDefault. См. MUD::SpellMessages().
 
-int CastSummon(int level, CharData *ch, ObjData *obj, ESpell spell_id, bool need_fail) {
+EStageResult CastSummon(int level, CharData *ch, ObjData *obj, ESpell spell_id, bool need_fail) {
 	CharData *tmp_mob, *mob = nullptr;
 	ObjData *tobj, *next_obj;
 	int pfail = 0, handle_corpse = false, keeper = false, cha_num = 0, modifier = 0;
 	MobVnum mob_num;
 
 	if (ch == nullptr) {
-		return 0;
+		return EStageResult::kSuccess;
 	}
 	if (spell_id == ESpell::kSumonAngel) {
 		SummonTutelar(ch);
-		return 1;
+		return EStageResult::kSuccess;
 	}
 	if (spell_id == ESpell::kMentalShadow) {
 		SpellMentalShadow(ch);
-		return 1;
+		return EStageResult::kSuccess;
 	}
 
 	switch (spell_id) {
@@ -1860,7 +1860,7 @@ int CastSummon(int level, CharData *ch, ObjData *obj, ESpell spell_id, bool need
 		case ESpell::kAnimateDead:
 			if (obj == nullptr || !IS_CORPSE(obj)) {
 				act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kSummonNoCorpse).c_str(), false, ch, nullptr, nullptr, kToChar);
-				return 0;
+				return EStageResult::kSuccess;
 			}
 			mob_num = GET_OBJ_VAL(obj, 2);
 			if (mob_num <= 0)
@@ -1909,11 +1909,11 @@ int CastSummon(int level, CharData *ch, ObjData *obj, ESpell spell_id, bool need
 		case ESpell::kResurrection:
 			if (obj == nullptr || !IS_CORPSE(obj)) {
 				act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kSummonNoCorpse).c_str(), false, ch, nullptr, nullptr, kToChar);
-				return 0;
+				return EStageResult::kSuccess;
 			}
 			if ((mob_num = GET_OBJ_VAL(obj, 2)) <= 0) {
 				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kResurrectBadCorpse) + "\r\n", ch);
-				return 0;
+				return EStageResult::kSuccess;
 			}
 
 			handle_corpse = true;
@@ -1922,12 +1922,12 @@ int CastSummon(int level, CharData *ch, ObjData *obj, ESpell spell_id, bool need
 				- number(1, GetRealLevel(ch)) - GET_CAST_SUCCESS(ch) - GetRealRemort(ch) * 5;
 			break;
 
-		default: return 0;
+		default: return EStageResult::kSuccess;
 	}
 
 	if (AFF_FLAGGED(ch, EAffect::kCharmed)) {
 		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kSummonCharmed) + "\r\n", ch);
-		return 0;
+		return EStageResult::kSuccess;
 	}
 	// при перке помощь тьмы гораздо меньше шанс фейла
 	if (!ch->IsImmortal() && number(0, 101) < pfail && need_fail) {
@@ -1936,19 +1936,19 @@ int CastSummon(int level, CharData *ch, ObjData *obj, ESpell spell_id, bool need
 				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kSummonFail) + "\r\n", ch);
 				if (handle_corpse)
 					ExtractObjFromWorld(obj);
-				return 0;
+				return EStageResult::kSuccess;
 			}
 		} else {
 			SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kSummonFail) + "\r\n", ch);
 			if (handle_corpse)
 				ExtractObjFromWorld(obj);
-			return 0;
+			return EStageResult::kSuccess;
 		}
 	}
 
 	if (!(mob = ReadMobile(-mob_num, kVirtual))) {
 		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kSummonNoProto) + "\r\n", ch);
-		return 0;
+		return EStageResult::kSuccess;
 	}
 
 	if (spell_id == ESpell::kResurrection) {
@@ -1986,19 +1986,19 @@ int CastSummon(int level, CharData *ch, ObjData *obj, ESpell spell_id, bool need
 	if (!ch->IsImmortal() && (AFF_FLAGGED(mob, EAffect::kSanctuary) || mob->IsFlagged(EMobFlag::kProtect))) {
 		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kResurrectConsecrated) + "\r\n", ch);
 		ExtractCharFromWorld(mob, false);
-		return 0;
+		return EStageResult::kSuccess;
 	}
 	if (!ch->IsImmortal() &&
 		(GET_MOB_SPEC(mob) || mob->IsFlagged(EMobFlag::kNoResurrection) ||
 			mob->IsFlagged(EMobFlag::kAreaAttack))) {
 		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kResurrectNoPower) + "\r\n", ch);
 		ExtractCharFromWorld(mob, false);
-		return 0;
+		return EStageResult::kSuccess;
 	}
 	if (!ch->IsImmortal() && AFF_FLAGGED(mob, EAffect::kGodsShield)) {
 		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kResurrectProtected) + "\r\n", ch);
 		ExtractCharFromWorld(mob, false);
-		return 0;
+		return EStageResult::kSuccess;
 	}
 	if (mob->IsFlagged(EMobFlag::kMounting)) {
 		mob->UnsetFlag(EMobFlag::kMounting);
@@ -2006,7 +2006,7 @@ int CastSummon(int level, CharData *ch, ObjData *obj, ESpell spell_id, bool need
 	if (IS_HORSE(mob)) {
 		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kSummonWarhorse) + "\r\n", ch);
 		ExtractCharFromWorld(mob, false);
-		return 0;
+		return EStageResult::kSuccess;
 	}
 
 	if (spell_id == ESpell::kAnimateDead && mob_num >= kMobNecrodamager && mob_num <= kLastNecroMob) {
@@ -2041,7 +2041,7 @@ int CastSummon(int level, CharData *ch, ObjData *obj, ESpell spell_id, bool need
 		ExtractCharFromWorld(mob, false);
 		if (handle_corpse)
 			ExtractObjFromWorld(obj);
-		return 0;
+		return EStageResult::kSuccess;
 	}
 
 	mob->set_exp(0);
@@ -2134,7 +2134,7 @@ int CastSummon(int level, CharData *ch, ObjData *obj, ESpell spell_id, bool need
 		}
 		cha_num = std::max(1, (GetRealLevel(ch) + 4) / 5 - 2) - cha_num;
 		if (cha_num < 1)
-			return 0;
+			return EStageResult::kSuccess;
 		CastSummon(level, ch, obj, spell_id, 0);
 	}
 	if (spell_id == ESpell::kAnimateDead) {
@@ -2224,17 +2224,17 @@ int CastSummon(int level, CharData *ch, ObjData *obj, ESpell spell_id, bool need
 		ExtractObjFromWorld(obj);
 	}
 	mob->char_specials.saved.alignment = ch->char_specials.saved.alignment; //выровняем алигмент чтоб не агрили вдруг
-	return 1;
+	return EStageResult::kSuccess;
 }
 
-int CastToPoints(int level, CharData *ch, CharData *victim, ESpell spell_id) {
+EStageResult CastToPoints(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 	int hit = 0; //если выставить больше нуля, то лечит
 	int move = 0; //если выставить больше нуля, то реген хп
 	bool extraHealing = false; //если true, то лечит сверх макс.хп
 
 	if (victim == nullptr) {
 		log("MAG_POINTS: Ошибка! Не указана цель, spell_id: %d!\r\n", to_underlying(spell_id));
-		return 0;
+		return EStageResult::kSuccess;
 	}
 
 	switch (spell_id) {
@@ -2253,7 +2253,7 @@ int CastToPoints(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			break;
 		case ESpell::kEviless:
 			if (!victim->IsNpc() || victim->get_master() != ch || !victim->IsFlagged(EMobFlag::kCorpse)) {
-                return 1;
+                return EStageResult::kSuccess;
             }
 			if (AFF_FLAGGED(ch, EAffect::kForcesOfEvil)) {
 				hit = CalcHeal(ch, victim, spell_id, level);
@@ -2273,7 +2273,7 @@ int CastToPoints(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			break;
 		default: log("MAG_POINTS: Ошибка! Передан неопределенный лечащий спелл spell_id: %d!\r\n",
 					 to_underlying(spell_id));
-			return 0;
+			return EStageResult::kSuccess;
 			break;
 	}
 	// issue #3304: сообщение цели лечащего заклинания берётся из spell_msg.xml.
@@ -2288,7 +2288,7 @@ int CastToPoints(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 
 	if (hit && victim->GetEnemy() && ch != victim) {
 		if (!pk_agro_action(ch, victim->GetEnemy()))
-			return 0;
+			return EStageResult::kSuccess;
 	}
 	// лечение
 	if (victim->get_hit() < kMaxHits && hit != 0) {
@@ -2316,7 +2316,7 @@ int CastToPoints(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 	}
 	update_pos(victim);
 
-	return 1;
+	return EStageResult::kSuccess;
 }
 
 bool CheckNodispel(const Affect<EApply>::shared_ptr &affect) {
@@ -2330,12 +2330,12 @@ bool CheckNodispel(const Affect<EApply>::shared_ptr &affect) {
 		|| affect->type == ESpell::kEviless;
 }
 
-int CastUnaffects(int/* level*/, CharData *ch, CharData *victim, ESpell spell_id) {
+EStageResult CastUnaffects(int/* level*/, CharData *ch, CharData *victim, ESpell spell_id) {
 	int remove = 0;
 	const ESpell cast_spell_id = spell_id;	// issue #3335: dispel messages keyed by the cast (curing) spell
 
 	if (victim == nullptr) {
-		return 0;
+		return EStageResult::kSuccess;
 	}
 
 	auto spell{ESpell::kUndefined};
@@ -2368,7 +2368,7 @@ int CastUnaffects(int/* level*/, CharData *ch, CharData *victim, ESpell spell_id
 				}
 				if (dispellable == 0) {
 					SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
-					return 0;
+					return EStageResult::kSuccess;
 				}
 
 				const auto target = number(1, dispellable);
@@ -2388,7 +2388,7 @@ int CastUnaffects(int/* level*/, CharData *ch, CharData *victim, ESpell spell_id
 			break;
 
 		default: log("SYSERR: unknown spell_id (%d) passed to CastUnaffects.", to_underlying(spell_id));
-			return 0;
+			return EStageResult::kSuccess;
 	}
 
 	if (spell_id == ESpell::kRemovePoison && !IsAffectedBySpell(victim, spell)) {
@@ -2405,16 +2405,16 @@ int CastUnaffects(int/* level*/, CharData *ch, CharData *victim, ESpell spell_id
 	if (!IsAffectedBySpell(victim, spell)) {
 		if (spell_id != ESpell::kHeal)    // 'cure blindness' message.
 			SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
-		return 0;
+		return EStageResult::kSuccess;
 	}
 	spell_id = spell;
 	if (ch != victim && !remove) {
 		if (MUD::Spell(spell_id).IsFlagged(kNpcAffectNpc)) {
 			if (!pk_agro_action(ch, victim))
-				return 0;
+				return EStageResult::kSuccess;
 		} else if (MUD::Spell(spell_id).IsFlagged(kNpcAffectPc) && victim->GetEnemy()) {
 			if (!pk_agro_action(ch, victim->GetEnemy()))
-				return 0;
+				return EStageResult::kSuccess;
 		}
 	}
 //Polud затычка для закла !удалить яд!. По хорошему нужно его переделать с параметром - тип удаляемого яда
@@ -2435,19 +2435,19 @@ int CastUnaffects(int/* level*/, CharData *ch, CharData *victim, ESpell spell_id
 	if (!dispelled_room.empty())
 		act(dispelled_room.c_str(), true, victim, nullptr, ch, kToRoom | kToArenaListen);
 
-	return 1;
+	return EStageResult::kSuccess;
 }
 
-int CastToAlterObjs(int/* level*/, CharData *ch, ObjData *obj, ESpell spell_id) {
+EStageResult CastToAlterObjs(int/* level*/, CharData *ch, ObjData *obj, ESpell spell_id) {
 	const char *to_char = nullptr;
 
 	if (obj == nullptr) {
-		return 0;
+		return EStageResult::kSuccess;
 	}
 
 	if (obj->has_flag(EObjFlag::kNoalter)) {
 		act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kObjResist).c_str(), true, ch, obj, nullptr, kToChar);
-		return 0;
+		return EStageResult::kSuccess;
 	}
 
 	switch (spell_id) {
@@ -2517,7 +2517,7 @@ int CastToAlterObjs(int/* level*/, CharData *ch, ObjData *obj, ESpell spell_id) 
 
 		case ESpell::kEnchantWeapon: {
 			if (ch == nullptr || obj == nullptr) {
-				return 0;
+				return EStageResult::kSuccess;
 			}
 
 			// Either already enchanted or not a weapon.
@@ -2597,7 +2597,7 @@ int CastToAlterObjs(int/* level*/, CharData *ch, ObjData *obj, ESpell spell_id) 
 				to_char = MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kAlterObjToChar).c_str();
 				log("%s used magic repair", GET_NAME(ch));
 			} else {
-				return 0;
+				return EStageResult::kSuccess;
 			}
 			break;
 
@@ -2605,11 +2605,11 @@ int CastToAlterObjs(int/* level*/, CharData *ch, ObjData *obj, ESpell spell_id) 
 			if (obj->has_flag(EObjFlag::kMagic)
 				&& (obj->get_rnum() != kNothing)) {
 				if (obj_proto.at(obj->get_rnum())->has_flag(EObjFlag::kMagic)) {
-					return 0;
+					return EStageResult::kSuccess;
 				}
 				obj->unset_enchant();
 			} else {
-				return 0;
+				return EStageResult::kSuccess;
 			}
 			to_char = MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kAlterObjToChar).c_str();
 		}
@@ -2623,7 +2623,7 @@ int CastToAlterObjs(int/* level*/, CharData *ch, ObjData *obj, ESpell spell_id) 
 		case ESpell::kDarkness:
 			if (obj->timed_spell().check_spell(ESpell::kLight)) {
 				obj->del_timed_spell(ESpell::kLight, true);
-				return 1;
+				return EStageResult::kSuccess;
 			}
 			break;
 		default: break;
@@ -2635,14 +2635,14 @@ int CastToAlterObjs(int/* level*/, CharData *ch, ObjData *obj, ESpell spell_id) 
 		act(to_char, true, ch, obj, nullptr, kToChar);
 	}
 
-	return 1;
+	return EStageResult::kSuccess;
 }
 
-int CastCreation(int/* level*/, CharData *ch, ESpell spell_id) {
+EStageResult CastCreation(int/* level*/, CharData *ch, ESpell spell_id) {
 	ObjVnum obj_vnum;
 
 	if (ch == nullptr) {
-		return 0;
+		return EStageResult::kSuccess;
 	}
 
 	switch (spell_id) {
@@ -2653,7 +2653,7 @@ int CastCreation(int/* level*/, CharData *ch, ESpell spell_id) {
 			break;
 
 		default: SendMsgToChar("Spell unimplemented, it would seem.\r\n", ch);
-			return 0;
+			return EStageResult::kSuccess;
 			break;
 	}
 
@@ -2661,7 +2661,7 @@ int CastCreation(int/* level*/, CharData *ch, ESpell spell_id) {
 	if (!tobj) {
 		SendMsgToChar("Что-то не видно образа для создания.\r\n", ch);
 		log("SYSERR: spell_creations, spell %d, obj %d: obj not found", to_underlying(spell_id), obj_vnum);
-		return 0;
+		return EStageResult::kSuccess;
 	}
 
 	act("$n создал$g $o3.", false, ch, tobj.get(), nullptr, kToRoom | kToArenaListen);
@@ -2680,10 +2680,10 @@ int CastCreation(int/* level*/, CharData *ch, ESpell spell_id) {
 		PlaceObjToInventory(tobj.get(), ch);
 	}
 
-	return 1;
+	return EStageResult::kSuccess;
 }
 
-int CastCharRelocate(CharData *caster, CharData *cvict, ESpell spell_id) {
+EStageResult CastCharRelocate(CharData *caster, CharData *cvict, ESpell spell_id) {
 	switch (spell_id) {
 		case ESpell::kGroupRecall:
 		case ESpell::kWorldOfRecall: 
@@ -2701,13 +2701,13 @@ int CastCharRelocate(CharData *caster, CharData *cvict, ESpell spell_id) {
 		case ESpell::kRelocate: 
 			SpellRelocate(caster, cvict);
 			break;
-		default: return 0;
+		default: return EStageResult::kSuccess;
 			break;
 	}
-	return 1;
+	return EStageResult::kSuccess;
 }
 
-int CastManual(int level, CharData *caster, CharData *cvict, ObjData *ovict, ESpell spell_id) {
+EStageResult CastManual(int level, CharData *caster, CharData *cvict, ObjData *ovict, ESpell spell_id) {
 	switch (spell_id) {
 		case ESpell::kControlWeather: SpellControlWeather(level, caster, cvict, ovict);
 			break;
@@ -2734,10 +2734,10 @@ int CastManual(int level, CharData *caster, CharData *cvict, ObjData *ovict, ESp
 			break;
 		case ESpell::kVampirism: SpellVampirism(level, caster, cvict, ovict);
 			break;
-		default: return 0;
+		default: return EStageResult::kSuccess;
 			break;
 	}
-	return 1;
+	return EStageResult::kSuccess;
 }
 
 //******************************************************************************
@@ -2819,29 +2819,45 @@ int CastToSingleTarget(CharData *caster, CharData *cvict, ObjData *ovict, CastRo
 		if (CastDamage(level, caster, cvict, spell_id) == -1)
 			return (-1);    // Successful and target died, don't cast again.
 
-	if (MUD::Spell(spell_id).IsFlagged(kMagAffects))
-		CastAffect(abs(level), caster, cvict, spell_id, roll.potency);
+	if (MUD::Spell(spell_id).IsFlagged(kMagAffects)
+			&& CastAffect(abs(level), caster, cvict, spell_id, roll.potency) == EStageResult::kBreak) {
+		return 1;
+	}
 
-	if (MUD::Spell(spell_id).IsFlagged(kMagUnaffects))
-		CastUnaffects(abs(level), caster, cvict, spell_id);
+	if (MUD::Spell(spell_id).IsFlagged(kMagUnaffects)
+			&& CastUnaffects(abs(level), caster, cvict, spell_id) == EStageResult::kBreak) {
+		return 1;
+	}
 
-	if (MUD::Spell(spell_id).IsFlagged(kMagPoints))
-		CastToPoints(level, caster, cvict, spell_id);
+	if (MUD::Spell(spell_id).IsFlagged(kMagPoints)
+			&& CastToPoints(level, caster, cvict, spell_id) == EStageResult::kBreak) {
+		return 1;
+	}
 
-	if (MUD::Spell(spell_id).IsFlagged(kMagAlterObjs))
-		CastToAlterObjs(abs(level), caster, ovict, spell_id);
+	if (MUD::Spell(spell_id).IsFlagged(kMagAlterObjs)
+			&& CastToAlterObjs(abs(level), caster, ovict, spell_id) == EStageResult::kBreak) {
+		return 1;
+	}
 
-	if (MUD::Spell(spell_id).IsFlagged(kMagSummons))
-		CastSummon(abs(level), caster, ovict, spell_id, true);
+	if (MUD::Spell(spell_id).IsFlagged(kMagSummons)
+			&& CastSummon(abs(level), caster, ovict, spell_id, true) == EStageResult::kBreak) {
+		return 1;
+	}
 
-	if (MUD::Spell(spell_id).IsFlagged(kMagCreations))
-		CastCreation(abs(level), caster, spell_id);
+	if (MUD::Spell(spell_id).IsFlagged(kMagCreations)
+			&& CastCreation(abs(level), caster, spell_id) == EStageResult::kBreak) {
+		return 1;
+	}
 
-	if (MUD::Spell(spell_id).IsFlagged(kMagManual))
-		CastManual(abs(level), caster, cvict, ovict, spell_id);
+	if (MUD::Spell(spell_id).IsFlagged(kMagManual)
+			&& CastManual(abs(level), caster, cvict, ovict, spell_id) == EStageResult::kBreak) {
+		return 1;
+	}
 
-	if (MUD::Spell(spell_id).IsFlagged(kMagCharRelocate))
-		CastCharRelocate(caster, cvict, spell_id);
+	if (MUD::Spell(spell_id).IsFlagged(kMagCharRelocate)
+			&& CastCharRelocate(caster, cvict, spell_id) == EStageResult::kBreak) {
+		return 1;
+	}
 
 	ReactToCast(cvict, caster, spell_id);
 	return 1;
