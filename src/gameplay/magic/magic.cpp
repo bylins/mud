@@ -1055,12 +1055,6 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 			}
 			break;
 
-		case ESpell::kColdWind:
-			if (ch != victim && CalcGeneralSaving(ch, victim, savetype, modi)) {
-				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
-				success = false;
-			}
-			break;
 		case ESpell::kGroupHaste:
 		case ESpell::kHaste:
 			if (IsAffectedBySpell(victim, ESpell::kSlowdown)) {
@@ -1099,15 +1093,6 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 			}
 			break;
 
-		case ESpell::kMindless:
-			if (ch != victim && CalcGeneralSaving(ch, victim, savetype, modi)) {
-				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
-				success = false;
-				break;
-			}
-
-			break;
-
 		case ESpell::kDustStorm:
 		case ESpell::kShineFlash:
 		case ESpell::kMassBlindness:
@@ -1121,15 +1106,6 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 				success = false;
 				break;
 			}
-			break;
-
-		case ESpell::kMadness: savetype = ESaving::kWill;
-			if (ch != victim && CalcGeneralSaving(ch, victim, savetype, modi)) {
-				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
-				success = false;
-				break;
-			}
-
 			break;
 
 		case ESpell::kWeb: savetype = ESaving::kReflex;
@@ -1203,15 +1179,6 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 				success = false;
 				break;
 			}
-			break;
-
-		case ESpell::kFever: savetype = ESaving::kStability;
-			if (ch != victim && CalcGeneralSaving(ch, victim, savetype, modi)) {
-				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
-				success = false;
-				break;
-			}
-
 			break;
 
 		case ESpell::kPoison: savetype = ESaving::kCritical;
@@ -1546,16 +1513,6 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 			}
 			if (IsAffectedBySpell(victim, ESpell::kHide)) {
 				RemoveAffectFromChar(victim, ESpell::kHide);
-			}
-			break;
-		}
-
-		case ESpell::kScream: {
-			savetype = ESaving::kStability;
-			if (ch != victim && CalcGeneralSaving(ch, victim, savetype, modi)) {
-				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
-				success = false;
-				break;
 			}
 			break;
 		}

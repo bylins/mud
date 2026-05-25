@@ -1766,7 +1766,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <decay cast="0.05" level="4" free_targets="5"/>
                     <victims skill_divisor="40" dice_size="2" min_targets="2" max_targets="5"/>
                 </area>
-                <affects type="kColdWind" saving="kNone" resist="kAir">
+                <affects type="kColdWind" saving="kStability" resist="kAir">
                     <duration cnst="9" level_divisor="0" min="0" max="0"/>
                     <apply id="kUndefinded" location="kDex">
                         <modifier min="4.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
@@ -1941,7 +1941,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <decay cast="0.05" level="7" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
-                <affects type="kFever" saving="kNone" resist="kImmunity">
+                <affects type="kFever" saving="kStability" resist="kImmunity">
                     <duration cnst="0" level_divisor="2" min="0" max="0"/>
                     <apply id="kUndefinded" location="kHpRegen">
                         <modifier min="95.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
@@ -2208,7 +2208,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <flags val="kMagAffects|kNpcAffectPc"/>
         <talent_actions>
             <action>
-                <affects type="kMadness" saving="kNone" resist="kMind">
+                <affects type="kMadness" saving="kWill" resist="kMind">
                     <duration cnst="3" level_divisor="0" min="0" max="0"/>
                     <apply id="kNoFlee" location="kNone">
                         <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
@@ -2310,7 +2310,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <flags val="kMagAffects|kNpcAffectPc|kNpcAffectPcCaster"/>
         <talent_actions>
             <action>
-                <affects type="kMindless" saving="kNone" resist="kMind">
+                <affects type="kMindless" saving="kStability" resist="kMind">
                     <duration cnst="0" level_divisor="10" min="0" max="0"/>
                     <apply id="kUndefinded" location="kManaRegen">
                         <modifier min="50.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
@@ -2942,7 +2942,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <decay cast="0.05" level="5" free_targets="3"/>
                     <victims skill_divisor="40" dice_size="3" min_targets="1" max_targets="8"/>
                 </area>
-                <affects type="kScream" saving="kNone" resist="kAir">
+                <affects type="kScream" saving="kStability" resist="kAir">
                     <duration cnst="2" level_divisor="2" min="0" max="0"/>
                     <apply id="kAffright" location="kSavingWill">
                         <modifier min="15.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
