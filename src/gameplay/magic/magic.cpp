@@ -1114,18 +1114,6 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 			}
 			break;
 
-		case ESpell::kDustStorm:
-		case ESpell::kShineFlash:
-		case ESpell::kMassBlindness:
-		case ESpell::kPowerBlindness:
-		case ESpell::kBlindness:
-			if ((ch != victim) && CalcGeneralSaving(ch, victim, savetype, modi)) {
-				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
-				success = false;
-				break;
-			}
-			break;
-
 		case ESpell::kWeb:
 			if (AFF_FLAGGED(victim, EAffect::kBrokenChains)
 				|| (ch != victim && CalcGeneralSaving(ch, victim, savetype, modi))) {

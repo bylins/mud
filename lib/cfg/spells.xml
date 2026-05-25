@@ -1456,7 +1456,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <decay cast="0.05" level="2" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
-                <affects type="kBlindness" saving="kNone" resist="kDark">
+                <affects type="kBlindness" saving="kStability" resist="kDark">
                     <blocking_flags val="kNoBlind"/>
                     <duration cnst="2" level_divisor="8" min="0" max="0"/>
                     <flags val="kAfBattledec"/>
