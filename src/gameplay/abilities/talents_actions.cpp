@@ -6,7 +6,25 @@
 #include "fmt/format.h"
 #include "utils/random.h"
 
+#include <map>
+
 namespace talents_actions {
+
+namespace {
+// Mob flags (EMobFlag) that can make an NPC wholly immune to a spell affect, addressable
+// from <blocking_flags val="..."/>. A focused table rather than a full EMobFlag name
+// registry, since only these "immunity" flags are meaningful for blocking an affect.
+const std::map<std::string, EMobFlag> kBlockingFlagByName{
+	{"kNoBlind", EMobFlag::kNoBlind},
+	{"kNoSleep", EMobFlag::kNoSleep},
+	{"kNoSilence", EMobFlag::kNoSilence},
+	{"kNoHold", EMobFlag::kNoHold},
+	{"kNoBash", EMobFlag::kNoBash},
+	{"kNoCharm", EMobFlag::kNoCharm},
+	{"kNoSummon", EMobFlag::kNoSummon},
+	{"kNoFear", EMobFlag::kNoFear},
+};
+}  // namespace
 
 void Roll::Print(CharData */*ch*/, std::ostringstream &buffer) const {
 	buffer << " Potency roll: " << "\r\n"
@@ -121,6 +139,15 @@ TalentAffect::TalentAffect(parser_wrapper::DataNode &node) {
 				child.GoToParent();
 			}
 			applies_.push_back(apply);
+		} else if (strcmp(name, "blocking_flags") == 0) {
+			for (const auto &flag_name : utils::Split(child.GetValue("val"), '|')) {
+				const auto it = kBlockingFlagByName.find(flag_name);
+				if (it != kBlockingFlagByName.end()) {
+					blocking_flags_.push_back(it->second);
+				} else {
+					err_log("TalentAffect: unknown EMobFlag '%s' in <blocking_flags>.", flag_name.c_str());
+				}
+			}
 		}
 	}
 }
@@ -141,6 +168,20 @@ void TalentAffect::Print(CharData */*ch*/, std::ostringstream &buffer) const {
 			   << " (min=" << apply.min << " dices_weight=" << apply.dices_weight
 			   << " competencies_weight=" << apply.competencies_weight
 			   << " factor=" << apply.factor << " stack=" << apply.stack << ")\r\n";
+	}
+	if (!blocking_flags_.empty()) {
+		buffer << "  Blocking flags:";
+		for (const auto flag : blocking_flags_) {
+			std::string flag_name = "?";
+			for (const auto &[name, value] : kBlockingFlagByName) {
+				if (value == flag) {
+					flag_name = name;
+					break;
+				}
+			}
+			buffer << " " << kColorGrn << flag_name << kColorNrm;
+		}
+		buffer << "\r\n";
 	}
 }
 

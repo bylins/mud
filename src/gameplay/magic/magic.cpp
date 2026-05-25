@@ -997,7 +997,18 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 	auto savetype{ESaving::kStability};
 	const bool has_affect_talent = MUD::Spell(spell_id).actions.Contains(talents_actions::EAction::kAffect);
 	if (has_affect_talent) {
-		savetype = MUD::Spell(spell_id).actions.GetAffect().GetSaving();
+		const auto &affect = MUD::Spell(spell_id).actions.GetAffect();
+		savetype = affect.GetSaving();
+		// NPC immunity (blocking_flags): if the target mob carries a flag that blocks this
+		// affect, there is nothing to build or save against -- stop before the switch.
+		if (victim->IsNpc()) {
+			for (const auto flag : affect.GetBlockingFlags()) {
+				if (victim->IsFlagged(flag)) {
+					SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
+					return EStageResult::kSuccess;
+				}
+			}
+		}
 	}
 	switch (spell_id) {
 		// The affect itself now comes from the <affects> talent action (issue #3334) and
@@ -1102,8 +1113,7 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 		case ESpell::kMassBlindness:
 		case ESpell::kPowerBlindness:
 		case ESpell::kBlindness:
-			if (victim->IsFlagged(EMobFlag::kNoBlind) ||
-				victim->IsImmortal() ||
+			if (victim->IsImmortal() ||
 				((ch != victim) && CalcGeneralSaving(ch, victim, savetype, modi))) {
 				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 				success = false;
@@ -1210,7 +1220,7 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 			break;
 
 		case ESpell::kSleep: savetype = ESaving::kWill;
-			if (AFF_FLAGGED(victim, EAffect::kHold) || victim->IsFlagged(EMobFlag::kNoSleep)
+			if (AFF_FLAGGED(victim, EAffect::kHold)
 				|| (ch != victim && CalcGeneralSaving(ch, victim, ESaving::kWill, modi))) {
 				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 				success = false;
@@ -1259,8 +1269,7 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 		case ESpell::kMassHold:
 		case ESpell::kPowerHold:
 		case ESpell::kHold:
-			if (victim->IsFlagged(EMobFlag::kNoHold)
-					|| AFF_FLAGGED(victim, EAffect::kBrokenChains)
+			if (AFF_FLAGGED(victim, EAffect::kBrokenChains)
 					|| AFF_FLAGGED(victim, EAffect::kSleep)
 					|| (ch != victim && CalcGeneralSaving(ch, victim, ESaving::kWill, modi))) {
 				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
@@ -1280,17 +1289,6 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 				break;
 			}
 
-			break;
-
-		case ESpell::kMassSilence:
-		case ESpell::kPowerSilence:
-		case ESpell::kSilence: savetype = ESaving::kWill;
-			if (victim->IsFlagged(EMobFlag::kNoSilence) ||
-				(ch != victim && CalcGeneralSaving(ch, victim, savetype, modi))) {
-				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
-				success = false;
-				break;
-			}
 			break;
 
 		case ESpell::kNoflee: // "приковать противника"

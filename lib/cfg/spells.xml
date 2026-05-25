@@ -131,6 +131,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <affects type="kBlindness" saving="kStability" resist="kDark">
+                    <blocking_flags val="kNoBlind"/>
                     <duration cnst="2" level_divisor="8" min="0" max="0"/>
                     <flags val="kAfBattledec"/>
                     <apply id="kBlind" location="kNone">
@@ -685,6 +686,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <affects type="kSleep" saving="kNone" resist="kMind">
+                    <blocking_flags val="kNoSleep"/>
                     <duration cnst="1" level_divisor="6" min="1" max="6"/>
                     <flags val="kAfBattledec"/>
                     <apply id="kSleep" location="kNone">
@@ -964,6 +966,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <affects type="kHold" saving="kNone" resist="kMind">
+                    <blocking_flags val="kNoHold"/>
                     <duration cnst="1" level_divisor="10" min="1" max="3"/>
                     <flags val="kAfBattledec"/>
                     <apply id="kHold" location="kNone">
@@ -982,6 +985,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <affects type="kHold" saving="kNone" resist="kMind">
+                    <blocking_flags val="kNoHold"/>
                     <duration cnst="2" level_divisor="8" min="2" max="5"/>
                     <flags val="kAfBattledec"/>
                     <apply id="kHold" location="kNone">
@@ -1004,6 +1008,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
                 <affects type="kHold" saving="kNone" resist="kMind">
+                    <blocking_flags val="kNoHold"/>
                     <duration cnst="1" level_divisor="10" min="1" max="3"/>
                     <flags val="kAfBattledec"/>
                     <apply id="kHold" location="kNone">
@@ -1140,6 +1145,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <affects type="kSilence" saving="kWill" resist="kMind">
+                    <blocking_flags val="kNoSilence"/>
                     <duration cnst="2" level_divisor="8" min="3" max="0"/>
                     <flags val="kAfBattledec"/>
                     <apply id="kSilence" location="kNone">
@@ -1428,6 +1434,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
                 <affects type="kBlindness" saving="kStability" resist="kDark">
+                    <blocking_flags val="kNoBlind"/>
                     <duration cnst="3" level_divisor="6" min="0" max="0"/>
                     <flags val="kAfBattledec"/>
                     <apply id="kBlind" location="kNone">
@@ -1450,6 +1457,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
                 <affects type="kBlindness" saving="kNone" resist="kDark">
+                    <blocking_flags val="kNoBlind"/>
                     <duration cnst="2" level_divisor="8" min="0" max="0"/>
                     <flags val="kAfBattledec"/>
                     <apply id="kBlind" location="kNone">
@@ -1468,6 +1476,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <affects type="kSilence" saving="kWill" resist="kMind">
+                    <blocking_flags val="kNoSilence"/>
                     <duration cnst="2" level_divisor="4" min="6" max="0"/>
                     <flags val="kAfBattledec"/>
                     <apply id="kSilence" location="kNone">
@@ -1545,6 +1554,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
                 <affects type="kSilence" saving="kWill" resist="kMind">
+                    <blocking_flags val="kNoSilence"/>
                     <duration cnst="2" level_divisor="8" min="3" max="0"/>
                     <flags val="kAfBattledec"/>
                     <apply id="kSilence" location="kNone">
@@ -2215,6 +2225,7 @@ base_stat id - (например "kWis") какой берем параметр,
             <action>
                 <damage saving="kReflex" />
                 <affects type="kBlindness" saving="kStability" resist="kFire">
+                    <blocking_flags val="kNoBlind"/>
                     <duration cnst="2" level_divisor="8" min="0" max="0"/>
                     <flags val="kAfBattledec"/>
                     <apply id="kBlind" location="kNone">
@@ -2621,6 +2632,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <victims skill_divisor="15" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
                 <affects type="kBlindness" saving="kStability" resist="kEarth">
+                    <blocking_flags val="kNoBlind"/>
                     <duration cnst="3" level_divisor="6" min="0" max="0"/>
                     <flags val="kAfBattledec"/>
                     <apply id="kBlind" location="kNone">
@@ -2701,6 +2713,7 @@ base_stat id - (например "kWis") какой берем параметр,
             <action>
                 <damage saving="kCritical" />
                 <affects type="kHold" saving="kNone" resist="kVitality">
+                    <blocking_flags val="kNoHold"/>
                     <duration cnst="1" level_divisor="10" min="1" max="3"/>
                     <flags val="kAfBattledec"/>
                     <apply id="kHold" location="kNone">
