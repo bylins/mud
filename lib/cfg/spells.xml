@@ -606,7 +606,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <name rus="защита от тьмы" eng="protect evil"/>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="60" min="45" change="1"/>
-        <targets val="kTarCharRoom|kTarFightSelf"/>
+        <targets val="kTarCharRoom|kTarFightSelf|kTarAllyOnly"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
         <talent_actions>
             <action>
@@ -631,7 +631,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <name rus="освящение" eng="sanctuary"/>
         <misc pos="kFight" violent="N" danger="1"/>
         <mana max="85" min="70" change="2"/>
-        <targets val="kTarCharRoom|kTarFightSelf"/>
+        <targets val="kTarCharRoom|kTarFightSelf|kTarAllyOnly"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
         <talent_actions>
             <action>
@@ -1064,7 +1064,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <name rus="тьма" eng="darkness"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="100" min="70" change="2"/>
-        <targets val="kTarCharRoom|kTarObjInv|kTarObjEquip"/>
+        <targets val="kTarCharRoom|kTarObjInv|kTarObjEquip|kTarAllyOnly"/>
         <flags val="kMagAffects|kMagAlterObjs"/>
         <talent_actions>
             <action>
@@ -1139,7 +1139,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <name rus="свет" eng="sun shine"/>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="100" min="70" change="2"/>
-        <targets val="kTarCharRoom|kTarObjInv|kTarObjEquip"/>
+        <targets val="kTarCharRoom|kTarObjInv|kTarObjEquip|kTarAllyOnly"/>
         <flags val="kMagAffects|kMagAlterObjs"/>
         <talent_actions>
             <action>
@@ -2042,7 +2042,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <name rus="развеять магию" eng="dispel magic"/>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="85" min="70" change="1"/>
-        <targets val="kTarCharRoom|kTarFightSelf"/>
+        <targets val="kTarCharRoom|kTarFightSelf|kTarAllyOnly"/>
         <flags val="kMagUnaffects"/>
     </spell>
     <spell id="kSummonKeeper" element="kLight" mode="kEnabled">
@@ -2329,7 +2329,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <name rus="призматическая аура" eng="prismatic aura"/>
         <misc pos="kFight" violent="N" danger="1"/>
         <mana max="85" min="70" change="4"/>
-        <targets val="kTarCharRoom|kTarFightSelf"/>
+        <targets val="kTarCharRoom|kTarFightSelf|kTarAllyOnly"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
         <talent_actions>
             <action>

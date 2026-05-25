@@ -373,7 +373,8 @@ enum ETarget : Bitvector {
 	kTarObjEquip = 1 << 10,
 	kTarRoomThis = 1 << 11,	// Цель комната в которой сидит чар//
 	kTarRoomDir = 1 << 12,	// Цель комната в каком-то направлении от чара//
-	kTarRoomWorld = 1 << 13	// Цель какая-то комната в мире//
+	kTarRoomWorld = 1 << 13,	// Цель какая-то комната в мире//
+	kTarAllyOnly = 1 << 14	// Only a check: PC may target only self or a groupmate. Use with kTarCharRoom //
 };
 
 template<>

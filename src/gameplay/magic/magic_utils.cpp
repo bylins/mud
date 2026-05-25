@@ -629,6 +629,15 @@ int CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, ESpel
 		return 0;
 	}
 
+	// kTarAllyOnly (issue cast-to-ally-only): a PC may cast such spells only on
+	// self or a groupmate. NPCs cast on each other without restriction. Replaces the
+	// per-spell !group::same_group checks formerly in CastAffect/CastUnaffects.
+	if (tch && !ch->IsNpc() && MUD::Spell(spell_id).AllowTarget(kTarAllyOnly)
+			&& !group::same_group(ch, tch)) {
+		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kCantCastNotAlly) + "\r\n", ch);
+		return 0;
+	}
+
 	if (tch != ch && !ch->IsImmortal() && MUD::Spell(spell_id).AllowTarget(kTarSelfOnly)) {
 		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kCantCastSelfOnly) + "\r\n", ch);
 		return 0;

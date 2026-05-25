@@ -1088,10 +1088,6 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 
 		case ESpell::kGroupPrismaticAura:
 		case ESpell::kPrismaticAura:
-			if (!ch->IsNpc() && !group::same_group(ch, victim)) {
-				SendMsgToChar("Только на себя или одногруппника!\r\n", ch);
-				return 0;
-			}
 			if (IsAffectedBySpell(victim, ESpell::kSanctuary)) {
 				RemoveAffectFromCharAndRecalculate(victim, ESpell::kSanctuary);
 				success = false;
@@ -1232,18 +1228,10 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 
 		case ESpell::kProtectFromEvil:
 		case ESpell::kGroupProtectFromEvil:
-			if (!ch->IsNpc() && !group::same_group(ch, victim)) {
-				SendMsgToChar("Только на себя или одногруппника!\r\n", ch);
-				return 0;
-			}
 			break;
 
 		case ESpell::kGroupSanctuary:
 		case ESpell::kSanctuary:
-			if (!ch->IsNpc() && !group::same_group(ch, victim)) {
-				SendMsgToChar("Только на себя или одногруппника!\r\n", ch);
-				return 0;
-			}
 			if (IsAffectedBySpell(victim, ESpell::kPrismaticAura)) {
 				RemoveAffectFromCharAndRecalculate(victim, ESpell::kPrismaticAura);
 				success = false;
@@ -1364,17 +1352,9 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 			break;
 
 		case ESpell::kLight:
-			if (!ch->IsNpc() && !group::same_group(ch, victim)) {
-				SendMsgToChar("Только на себя или одногруппника!\r\n", ch);
-				return 0;
-			}
 			break;
 
 		case ESpell::kDarkness:
-			if (!ch->IsNpc() && !group::same_group(ch, victim)) {
-				SendMsgToChar("Только на себя или одногруппника!\r\n", ch);
-				return 0;
-			}
 			break;
 		case ESpell::kEviless:
 			if (!victim->IsNpc() || victim->get_master() != ch || !victim->IsFlagged(EMobFlag::kCorpse)) {
@@ -2375,13 +2355,6 @@ int CastUnaffects(int/* level*/, CharData *ch, CharData *victim, ESpell spell_id
 		case ESpell::kRemoveDeafness: spell = ESpell::kDeafness;
 			break;
 		case ESpell::kDispellMagic:
-			if (!ch->IsNpc()
-				&& !group::same_group(ch, victim)) {
-				SendMsgToChar("Только на себя или одногруппника!\r\n", ch);
-
-				return 0;
-			}
-
 			{
 				// Снимаем случайный аффект из тех, что вообще можно снять.
 				// Раньше брали случайный из всех -- если попадали на

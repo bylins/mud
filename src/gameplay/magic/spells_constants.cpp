@@ -738,6 +738,7 @@ void init_ETarget_ITEM_NAMES() {
 	ETarget_name_by_value[ETarget::kTarRoomThis] = "kTarRoomThis";
 	ETarget_name_by_value[ETarget::kTarRoomDir] = "kTarRoomDir";
 	ETarget_name_by_value[ETarget::kTarRoomWorld] = "kTarRoomWorld";
+	ETarget_name_by_value[ETarget::kTarAllyOnly] = "kTarAllyOnly";
 
 	for (const auto &i : ETarget_name_by_value) {
 		ETarget_value_by_name[i.second] = i.first;

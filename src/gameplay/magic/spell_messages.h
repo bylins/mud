@@ -44,6 +44,7 @@ enum class ESpellMsg {
 	kCantCastMaster,	// target is the caster's charmer.
 	kCantCastSelfOnly,	// spell may only be cast on self.
 	kCantCastNotSelf,	// spell may not be cast on self.
+	kCantCastNotAlly,	// spell may only be cast on self or a groupmate (kTarAllyOnly).
 	kTargetUnavailable,	// spell target is unavailable.
 	kCantCastPeaceful,	// caster is peaceful and refuses to do harm.
 	// CastToAlterObjs messages (to the caster).
