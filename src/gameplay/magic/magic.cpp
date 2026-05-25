@@ -1372,7 +1372,8 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 
 				case ESpell::kShock:
 					SetWaitState(victim, 2 * kBattleRound);
-					CastAffect(level, ch, victim, ESpell::kBlindness);
+					// The blind is now a second <apply id="kBlind"> in kShock's <affects>;
+					// no need to recursively cast kBlindness here.
 					break;
 				default: break;
 			}

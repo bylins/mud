@@ -2483,10 +2483,13 @@ base_stat id - (например "kWis") какой берем параметр,
                     <decay cast="0.05" level="8" free_targets="2"/>
                     <victims skill_divisor="35" dice_size="2" min_targets="1" max_targets="4"/>
                 </area>
-                <affects type="kMagicBattle" saving="kNone" resist="kVitality">
+                <affects type="kMagicBattle" saving="kStability" resist="kVitality">
                     <duration cnst="2" level_divisor="0" min="0" max="0"/>
                     <flags val="kAfBattledec|kAfPulsedec"/>
                     <apply id="kMagicStopFight" location="kNone">
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                    </apply>
+                    <apply id="kBlind" location="kNone">
                         <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
                     </apply>
                 </affects>
