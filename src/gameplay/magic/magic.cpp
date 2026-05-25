@@ -1046,11 +1046,6 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 				success = false;
 				break;
 			}
-			to_room =
-				"$n0 достал$g из маленькой сумочки какие-то вонючие порошки и отвернул$u, бормоча под нос \r\n\"..так это на ресницы надо, кажется... Эх, только бы не перепутать...\" \r\n";
-			to_vict =
-				"Вы попытались вспомнить уроки старой цыганки, что учила вас людям головы морочить.\r\nХотя вы ее не очень то слушали.\r\n";
-			spell_id = ESpell::kFascination;
 			break;
 
 		case ESpell::kCallLighting:
@@ -1058,7 +1053,6 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 				SendMsgToChar(NOEFFECT, ch);
 				success = false;
 			}
-			spell_id = ESpell::kMagicBattle;
 			break;
 
 		case ESpell::kColdWind:
@@ -1242,11 +1236,6 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 				SendMsgToChar("Только на себя или одногруппника!\r\n", ch);
 				return 0;
 			}
-			if (spell_id == ESpell::kProtectFromEvil) {
-				RemoveAffectFromChar(ch, ESpell::kGroupProtectFromEvil);
-			} else {
-				RemoveAffectFromChar(ch, ESpell::kProtectFromEvil);
-			}
 			break;
 
 		case ESpell::kGroupSanctuary:
@@ -1423,21 +1412,6 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 		case ESpell::kIceStorm:
 		case ESpell::kEarthfall:
 		case ESpell::kShock: {
-/*			switch (spell_id) {
-				case ESpell::kWarcryOfThunder: savetype = ESaving::kWill;
-//					modi = GetRealCon(ch) * 3 / 2;
-					break;
-				case ESpell::kIceStorm: savetype = ESaving::kReflex;
-//					modi = CALC_SUCCESS(modi, 30);
-					break;
-				case ESpell::kEarthfall: savetype = ESaving::kReflex;
-//					modi = CALC_SUCCESS(modi, 95);
-					break;
-				case ESpell::kShock: savetype = ESaving::kReflex;
-					break;
-				default: break;
-			}
-*/
 			if (spell_id==ESpell::kEarthfall){
 				modi += ch->GetSkill(GetMagicSkillId(spell_id))/5;
 			}
@@ -1688,15 +1662,6 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 			af[0].modifier = 0;
 			break;
 
-		case ESpell::kArrowsFire:
-		case ESpell::kArrowsWater:
-		case ESpell::kArrowsEarth:
-		case ESpell::kArrowsAir:
-		case ESpell::kArrowsDeath: {
-			//Додати обработчик
-			break;
-		}
-		
 		case ESpell::kPaladineInspiration:
 			/*
          * групповой спелл, развешивающий рандомные аффекты, к сожалению
@@ -2831,8 +2796,7 @@ void ReactToCast(CharData *victim, CharData *caster, ESpell spell_id) {
 		|| IS_HORSE(victim))
 		return;
 
-	if (caster->IsNpc()
-		&& caster->get_rnum() == GetMobRnum(kDgCasterProxy))
+	if (caster->IsNpc() && caster->get_rnum() == GetMobRnum(kDgCasterProxy))
 		return;
 
 	if (CAN_SEE(victim, caster) && MAY_ATTACK(victim) && victim->in_room == caster->in_room) {

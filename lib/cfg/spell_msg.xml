@@ -46,6 +46,10 @@
 		<message type="kLaggedToChar" val="В глазах поплыло, и вы на миг потеряли нить происходящего." />
 		<message type="kLaggedToChar" val="Какая-то дурнота сковала движения - ни пошевелиться, ни выдохнуть." />
 		<message type="kAcidCorrodeObj" val="Кислота покрыла $o3." />
+		<message type="kAffImposedToRoom" val="Странный отблеск на мгновение озарил $n3." />
+		<message type="kAffImposedToChar" val="Вы почувствовали странный холодок в своей душе." />
+		<message type="kAffDispelledToRoom" val="Быстрые тени метнулись вокруг $n3." />
+		<message type="kAffDispelledToChar" val="Волна тепла прошла по вашему телу." />
 	</msg_sheaf>
 
 	<msg_sheaf id="kCureLight">
@@ -1953,6 +1957,8 @@
 	<msg_sheaf id="kFascination">
 		<message type="kCastPhraseHeathen" val="Да пребудет с тобой вся краса мира!" />
 		<message type="kCastPhraseChristian" val="... и омолодил он, и украсил их." />
+		<message type="kAffImposedToRoom" val="$n0 достал$g из сумчки какие-то склянки и отвернул$u, бормоча под нос." />
+		<message type="kAffImposedToChar" val="Вы попытались вспомнить полузабытые уроки старой цыганки, что учила вас головы морочить." />
 	</msg_sheaf>
 	<msg_sheaf id="kCrying">
 		<message type="kCastPhraseHeathen" val="Будут слезы твои, аки камень на сердце" />

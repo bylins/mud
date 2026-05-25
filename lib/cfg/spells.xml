@@ -3840,7 +3840,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
-                <affects type="kGroupProtectFromEvil" saving="kNone" resist="kVitality">
+                <affects type="kProtectFromEvil" saving="kNone" resist="kVitality">
                     <duration cnst="20" level_divisor="1" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kProtectFromDark" location="kResistDark">
