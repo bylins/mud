@@ -1193,10 +1193,6 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 
 			break;
 
-		case ESpell::kProtectFromEvil:
-		case ESpell::kGroupProtectFromEvil:
-			break;
-
 		case ESpell::kGroupSanctuary:
 		case ESpell::kSanctuary:
 			if (IsAffectedBySpell(victim, ESpell::kPrismaticAura)) {
@@ -1318,11 +1314,6 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 			}
 			break;
 
-		case ESpell::kLight:
-			break;
-
-		case ESpell::kDarkness:
-			break;
 		case ESpell::kEviless:
 			if (!victim->IsNpc() || victim->get_master() != ch || !victim->IsFlagged(EMobFlag::kCorpse)) {
 				//тихо уходим, т.к. заклинание массовое
@@ -1578,18 +1569,6 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 			update_spell = true;
 			break;
 		}
-
-		case ESpell::kWarcryOfLuck:
-		case ESpell::kWarcryOfExperience:
-		case ESpell::kWarcryOfPhysdamage:
-		case ESpell::kWarcryOfBattle:
-		case ESpell::kWarcryOfDefence:
-		case ESpell::kWarcryOfPower:
-		case ESpell::kWarcryOfBless:
-		case ESpell::kWarcryOfCourage:
-			to_vict = nullptr;
-			to_room = nullptr;
-			break;
 
 		case ESpell::kCombatLuck: af[0].duration = CalcDuration(victim, 6, 0, 0, 0, 0);
 			af[0].affect_type = EAffect::kCombatLuck;
