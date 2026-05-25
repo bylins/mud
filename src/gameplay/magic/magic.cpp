@@ -2250,112 +2250,153 @@ bool CheckNodispel(const Affect<EApply>::shared_ptr &affect) {
 		|| affect->type == ESpell::kEviless;
 }
 
-EStageResult CastUnaffects(int/* level*/, CharData *ch, CharData *victim, ESpell spell_id) {
-	int remove = 0;
-	const ESpell cast_spell_id = spell_id;	// issue #3335: dispel messages keyed by the cast (curing) spell
+namespace {
+// issue #3342: helpers for the data-driven CastUnaffects.
 
+// True if the victim carries a *dispellable* affect of the given spell type.
+bool HasDispellableAffect(CharData *victim, ESpell spell) {
+	for (const auto &aff : victim->affected) {
+		if (aff && aff->type == spell && !CheckNodispel(aff)) {
+			return true;
+		}
+	}
+	return false;
+}
+
+// Evaluate a <blocking>/<breaking> condition set (IsAffectedBySpell only, issue #3342):
+// true if any any_of affect is present, or every all_of affect is present.
+bool UnaffectConditionMet(CharData *victim, const talents_actions::TalentUnaffect::Set &set) {
+	for (const auto spell : set.any_of) {
+		if (IsAffectedBySpell(victim, spell)) {
+			return true;
+		}
+	}
+	if (!set.all_of.empty()) {
+		bool all = true;
+		for (const auto spell : set.all_of) {
+			if (!IsAffectedBySpell(victim, spell)) {
+				all = false;
+				break;
+			}
+		}
+		if (all) {
+			return true;
+		}
+	}
+	return false;
+}
+
+// Build the list of affects to dispel for a <remove>/<remove_anyway> set: any_of yields
+// the first listed affect that is present and dispellable; all_of yields every listed
+// affect that is present and dispellable.
+void CollectRemovals(CharData *victim, const talents_actions::TalentUnaffect::Set &set,
+					 std::vector<ESpell> &out) {
+	for (const auto spell : set.any_of) {
+		if (HasDispellableAffect(victim, spell)) {
+			out.push_back(spell);
+			break;
+		}
+	}
+	for (const auto spell : set.all_of) {
+		if (HasDispellableAffect(victim, spell)) {
+			out.push_back(spell);
+		}
+	}
+}
+
+// Remove one affect and show its own dispel message (keyed by the removed affect's spell,
+// issues #3335/#3342); an affect whose sheaf has no such message shows nothing.
+void RemoveAffectAndAnnounce(CharData *ch, CharData *victim, ESpell removed) {
+	RemoveAffectFromCharAndRecalculate(victim, removed);
+	const auto &sheaf = MUD::SpellMessages()[removed];
+	const auto &to_vict = sheaf.GetMessage(ESpellMsg::kAffDispelledToChar);
+	if (!to_vict.empty()) {
+		act(to_vict.c_str(), false, victim, nullptr, ch, kToChar);
+	}
+	const auto &to_room = sheaf.GetMessage(ESpellMsg::kAffDispelledToRoom);
+	if (!to_room.empty()) {
+		act(to_room.c_str(), true, victim, nullptr, ch, kToRoom | kToArenaListen);
+	}
+}
+}  // namespace
+
+EStageResult CastUnaffects(int/* level*/, CharData *ch, CharData *victim, ESpell spell_id) {
 	if (victim == nullptr) {
 		return EStageResult::kSuccess;
 	}
 
-	auto spell{ESpell::kUndefined};
-	switch (spell_id) {
-		case ESpell::kCureBlind: spell = ESpell::kBlindness;
-			break;
-		case ESpell::kRemovePoison: spell = ESpell::kPoison;
-			break;
-		case ESpell::kCureFever: spell = ESpell::kFever;
-			break;
-		case ESpell::kRemoveCurse: spell = ESpell::kCurse;
-			break;
-		case ESpell::kRemoveHold: spell = ESpell::kHold;
-			break;
-		case ESpell::kRemoveSilence: spell = ESpell::kSilence;
-			break;
-		case ESpell::kRemoveDeafness: spell = ESpell::kDeafness;
-			break;
-		case ESpell::kDispellMagic:
-			{
-				// Снимаем случайный аффект из тех, что вообще можно снять.
-				// Раньше брали случайный из всех -- если попадали на
-				// неснимаемый (charm/quest/patronage/...), dispel фейлился,
-				// хотя рядом могли быть снимаемые.
-				int dispellable = 0;
-				for (const auto &aff : victim->affected) {
-					if (!CheckNodispel(aff)) {
-						++dispellable;
-					}
-				}
-				if (dispellable == 0) {
-					SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
-					return EStageResult::kSuccess;
-				}
-
-				const auto target = number(1, dispellable);
-				auto seen = 0;
-				for (const auto &aff : victim->affected) {
-					if (CheckNodispel(aff)) {
-						continue;
-					}
-					if (++seen == target) {
-						spell = aff->type;
-						break;
-					}
-				}
+	// kDispellMagic strips a *random* dispellable affect, which cannot be expressed as an
+	// <unaffect> any_of/all_of list -- it keeps its dedicated code path (issue #3342).
+	if (spell_id == ESpell::kDispellMagic) {
+		int dispellable = 0;
+		for (const auto &aff : victim->affected) {
+			if (!CheckNodispel(aff)) {
+				++dispellable;
 			}
-
-			remove = true;
-			break;
-
-		default: log("SYSERR: unknown spell_id (%d) passed to CastUnaffects.", to_underlying(spell_id));
-			return EStageResult::kSuccess;
-	}
-
-	if (spell_id == ESpell::kRemovePoison && !IsAffectedBySpell(victim, spell)) {
-		if (IsAffectedBySpell(victim, ESpell::kAconitumPoison))
-			spell = ESpell::kAconitumPoison;
-		else if (IsAffectedBySpell(victim, ESpell::kScopolaPoison))
-			spell = ESpell::kScopolaPoison;
-		else if (IsAffectedBySpell(victim, ESpell::kBelenaPoison))
-			spell = ESpell::kBelenaPoison;
-		else if (IsAffectedBySpell(victim, ESpell::kDaturaPoison))
-			spell = ESpell::kDaturaPoison;
-	}
-
-	if (!IsAffectedBySpell(victim, spell)) {
-		if (spell_id != ESpell::kHeal)    // 'cure blindness' message.
+		}
+		if (dispellable == 0) {
 			SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
+			return EStageResult::kSuccess;
+		}
+		const auto target = number(1, dispellable);
+		auto seen = 0;
+		auto to_remove{ESpell::kUndefined};
+		for (const auto &aff : victim->affected) {
+			if (CheckNodispel(aff)) {
+				continue;
+			}
+			if (++seen == target) {
+				to_remove = aff->type;
+				break;
+			}
+		}
+		if (to_remove != ESpell::kUndefined) {
+			RemoveAffectAndAnnounce(ch, victim, to_remove);
+		}
 		return EStageResult::kSuccess;
 	}
-	spell_id = spell;
-	if (ch != victim && !remove) {
-		if (MUD::Spell(spell_id).IsFlagged(kNpcAffectNpc)) {
-			if (!pk_agro_action(ch, victim))
-				return EStageResult::kSuccess;
-		} else if (MUD::Spell(spell_id).IsFlagged(kNpcAffectPc) && victim->GetEnemy()) {
-			if (!pk_agro_action(ch, victim->GetEnemy()))
-				return EStageResult::kSuccess;
-		}
-	}
-//Polud затычка для закла !удалить яд!. По хорошему нужно его переделать с параметром - тип удаляемого яда
-	if (spell == ESpell::kPoison) {
-		RemoveAffectFromChar(victim, ESpell::kAconitumPoison);
-		RemoveAffectFromChar(victim, ESpell::kDaturaPoison);
-		RemoveAffectFromChar(victim, ESpell::kScopolaPoison);
-		RemoveAffectFromChar(victim, ESpell::kBelenaPoison);
-	}
-	RemoveAffectFromCharAndRecalculate(victim, spell);
-	// Dispel messages (issue #3335): keyed by the cast (curing) spell and emitted
-	// sheaf-directly, so a spell without a message shows nothing (no kDefault fallback).
-	const auto &dispelled = MUD::SpellMessages()[cast_spell_id];
-	const auto &dispelled_vict = dispelled.GetMessage(ESpellMsg::kAffDispelledToChar);
-	if (!dispelled_vict.empty())
-		act(dispelled_vict.c_str(), false, victim, nullptr, ch, kToChar);
-	const auto &dispelled_room = dispelled.GetMessage(ESpellMsg::kAffDispelledToRoom);
-	if (!dispelled_room.empty())
-		act(dispelled_room.c_str(), true, victim, nullptr, ch, kToRoom | kToArenaListen);
 
-	return EStageResult::kSuccess;
+	// Every other unaffect spell is fully data-driven (issue #3342): the <unaffect> block
+	// says which affects block/break the cast and which it removes.
+	if (!MUD::Spell(spell_id).actions.Contains(talents_actions::EAction::kUnaffect)) {
+		return EStageResult::kSuccess;
+	}
+	const auto &unaffect = MUD::Spell(spell_id).actions.GetUnaffect();
+
+	const bool blocking = UnaffectConditionMet(victim, unaffect.GetBlocking());
+	const bool breaking = UnaffectConditionMet(victim, unaffect.GetBreaking());
+
+	std::vector<ESpell> to_remove;
+	CollectRemovals(victim, unaffect.GetRemoveAnyway(), to_remove);  // dispelled even when blocked
+	if (!blocking) {
+		CollectRemovals(victim, unaffect.GetRemove(), to_remove);   // dispelled only when not blocked
+	}
+
+	if (!to_remove.empty()) {
+		// PK-action check (preserved from the old switch): keyed on the first dispelled
+		// affect's spell flags; a disallowed action aborts the removal entirely.
+		const auto primary = to_remove.front();
+		if (ch != victim) {
+			if (MUD::Spell(primary).IsFlagged(kNpcAffectNpc)) {
+				if (!pk_agro_action(ch, victim)) {
+					return EStageResult::kSuccess;
+				}
+			} else if (MUD::Spell(primary).IsFlagged(kNpcAffectPc) && victim->GetEnemy()) {
+				if (!pk_agro_action(ch, victim->GetEnemy())) {
+					return EStageResult::kSuccess;
+				}
+			}
+		}
+		for (const auto spell : to_remove) {
+			RemoveAffectAndAnnounce(ch, victim, spell);
+		}
+	} else if (breaking || !unaffect.GetRemove().empty() || !unaffect.GetRemoveAnyway().empty()) {
+		// A removal spell that found nothing to remove, or a break that stopped the cast:
+		// report "no effect" (keyed by the cast spell). A pure blocking spell stays silent.
+		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
+	}
+
+	return breaking ? EStageResult::kBreak : EStageResult::kSuccess;
 }
 
 EStageResult CastToAlterObjs(int/* level*/, CharData *ch, ObjData *obj, ESpell spell_id) {

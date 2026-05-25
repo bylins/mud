@@ -281,6 +281,13 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="110" min="90" change="2"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagUnaffects|kNpcUnaffectNpc"/>
+        <talent_actions>
+            <action>
+                <unaffect>
+                    <remove any_of="kBlindness"/>
+                </unaffect>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kCureCritic" element="kLife" mode="kEnabled">
         <name rus="критическое исцеление" eng="critical cure"/>
@@ -641,6 +648,13 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="50" min="40" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf|kTarObjInv|kTarObjEquip"/>
         <flags val="kMagUnaffects|kMagAlterObjs|kNpcUnaffectNpc"/>
+        <talent_actions>
+            <action>
+                <unaffect>
+                    <remove any_of="kCurse"/>
+                </unaffect>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kSanctuary" element="kLight" mode="kEnabled">
         <name rus="освящение" eng="sanctuary"/>
@@ -758,6 +772,13 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="60" min="45" change="2"/>
         <targets val="kTarCharRoom|kTarFightSelf|kTarObjInv|kTarObjRoom"/>
         <flags val="kMagUnaffects|kMagAlterObjs|kNpcUnaffectNpc"/>
+        <talent_actions>
+            <action>
+                <unaffect>
+                    <remove all_of="kPoison|kAconitumPoison|kScopolaPoison|kBelenaPoison|kDaturaPoison"/>
+                </unaffect>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kSenseLife" element="kLife" mode="kEnabled">
         <name rus="определение жизни" eng="sense life"/>
@@ -1413,6 +1434,13 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="110" min="90" change="2"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagUnaffects|kNpcUnaffectNpc"/>
+        <talent_actions>
+            <action>
+                <unaffect>
+                    <remove any_of="kHold"/>
+                </unaffect>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kCamouflage" element="kUndefined" mode="kService">
         <name rus="!маскировка!" eng="!set by skill!"/>
@@ -1570,6 +1598,13 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="70" min="55" change="2"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagUnaffects|kNpcUnaffectNpc|kNpcUnaffectNpcCaster"/>
+        <talent_actions>
+            <action>
+                <unaffect>
+                    <remove any_of="kSilence"/>
+                </unaffect>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kDamageLight" element="kDark" mode="kEnabled">
         <name rus="легкий вред" eng="light damage"/>
@@ -2011,6 +2046,13 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="85" min="70" change="4"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagUnaffects|kNpcUnaffectNpc"/>
+        <talent_actions>
+            <action>
+                <unaffect>
+                    <remove any_of="kFever"/>
+                </unaffect>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kAwareness" element="kMind" mode="kEnabled">
         <name rus="внимательность" eng="awarness"/>
@@ -2078,6 +2120,13 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="85" min="70" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf|kTarAllyOnly"/>
         <flags val="kMagUnaffects"/>
+        <talent_actions>
+            <action>
+                <!-- kDispellMagic strips a random dispellable affect; handled in code
+                     (CastUnaffects), so the lists stay empty. -->
+                <unaffect/>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kSummonKeeper" element="kLight" mode="kEnabled">
         <name rus="защитник" eng="keeper"/>
@@ -2593,6 +2642,13 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="90" min="80" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagUnaffects|kNpcUnaffectNpc|kNpcUnaffectNpcCaster"/>
+        <talent_actions>
+            <action>
+                <unaffect>
+                    <remove any_of="kDeafness"/>
+                </unaffect>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kMassDeafness" element="kMind" mode="kEnabled">
         <name rus="массовая глухота" eng="mass deafness"/>
