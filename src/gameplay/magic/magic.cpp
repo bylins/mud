@@ -1237,31 +1237,8 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 				success = false;
 				break;
 			}
-			switch (spell_id) {
-				case ESpell::kDustStorm:
-					af[0].duration = ApplyResist(victim, GetResistType(spell_id),
-												 CalcDuration(victim, 3, level, 6, 0, 0));
-					break;
-				case ESpell::kShineFlash:
-					af[0].duration = ApplyResist(victim, GetResistType(spell_id),
-												 CalcDuration(victim, 2, level + 7, 8, 0, 0));
-					break;
-				case ESpell::kMassBlindness:
-				case ESpell::kBlindness:
-					af[0].duration = ApplyResist(victim, GetResistType(spell_id),
-												 CalcDuration(victim, 2, level, 8, 0, 0));
-					break;
-				case ESpell::kPowerBlindness:
-					af[0].duration = ApplyResist(victim, GetResistType(spell_id),
-												 CalcDuration(victim, 3, level, 6, 0, 0));
-					break;
-				default: break;
-			}
-			af[0].affect_type = EAffect::kBlind;
-			af[0].battleflag = kAfBattledec;
 			to_room = "$n0 ослеп$q!";
 			to_vict = "Вы ослепли!";
-			spell_id = ESpell::kBlindness;
 			break;
 
 		case ESpell::kMadness: savetype = ESaving::kWill;
@@ -1271,12 +1248,6 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 				break;
 			}
 
-			af[0].duration = ApplyResist(victim, GetResistType(spell_id),
-										 CalcDuration(victim, 3, 0, 0, 0, 0));
-			af[0].affect_type = EAffect::kNoFlee;
-			af[1].location = EApply::kMadness;
-			af[1].duration = af[0].duration;
-			af[1].modifier = level;
 			to_room = "Теперь $n не сможет сбежать из боя!";
 			to_vict = "Вас обуяло безумие!";
 			break;
@@ -1399,31 +1370,6 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 				break;
 			}
 
-			af[0].location = EApply::kHpRegen;
-			af[0].duration = ApplyResist(victim, GetResistType(spell_id),
-										 CalcDuration(victim, 0, level, 2, 0, 0));
-			af[0].modifier = -95;
-			af[1].location = EApply::kManaRegen;
-			af[1].duration = af[0].duration;
-			af[1].modifier = -95;
-			af[2].location = EApply::kMoveRegen;
-			af[2].duration = af[0].duration;
-			af[2].modifier = -95;
-			af[3].location = EApply::kPlague;
-			af[3].duration = af[0].duration;
-			af[3].modifier = level;
-			af[4].location = EApply::kWis;
-			af[4].duration = af[0].duration;
-			af[4].modifier = -GetRealRemort(ch) / 5;
-			af[5].location = EApply::kInt;
-			af[5].duration = af[0].duration;
-			af[5].modifier = -GetRealRemort(ch) / 5;
-			af[6].location = EApply::kDex;
-			af[6].duration = af[0].duration;
-			af[6].modifier = -GetRealRemort(ch) / 5;
-			af[7].location = EApply::kStr;
-			af[7].duration = af[0].duration;
-			af[7].modifier = -GetRealRemort(ch) / 5;
 			to_vict = "Вас скрутило в жестокой лихорадке.";
 			to_room = "$n3 скрутило в жестокой лихорадке.";
 			break;
@@ -1437,18 +1383,6 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 				success = false;
 				break;
 			}
-			af[0].location = EApply::kStr;
-			af[0].duration = ApplyResist(victim, GetResistType(spell_id), CalcDuration(victim, 0, level, 1, 0, 0));
-			af[0].modifier = -2;
-			af[0].affect_type = EAffect::kPoisoned;
-			af[0].battleflag = kAfSameTime;
-
-			af[1].location = EApply::kPoison;
-			af[1].duration = af[0].duration;
-			af[1].modifier = level + GetRealRemort(ch) / 2;
-			af[1].affect_type = EAffect::kPoisoned;
-			af[1].battleflag = kAfSameTime;
-
 			to_vict = "Вы почувствовали себя отравленным.";
 			to_room = "$n позеленел$g от действия яда.";
 
@@ -1530,9 +1464,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 			to_room = "$n0 будет двигаться более шустро.";
 			break;
 
-		case ESpell::kPatronage: af[0].location = EApply::kHp;
-			af[0].duration = CalcDuration(victim, 3, level, 10, 0, 0);
-			af[0].modifier = GetRealLevel(ch) * 2 + GetRealRemort(ch);
+		case ESpell::kPatronage:
 			if (GET_ALIGNMENT(victim) >= 0) {
 				to_vict = "Исходящий с небес свет на мгновение озарил вас.";
 				to_room = "Исходящий с небес свет на мгновение озарил $n3.";

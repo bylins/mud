@@ -117,6 +117,17 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="70" min="40" change="2"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
         <flags val="kMagAffects|kNpcAffectPc"/>
+        <talent_actions>
+            <action>
+                <affects type="kBlindness" saving="kNone" resist="kDark">
+                    <duration cnst="2" level_divisor="8" min="0" max="0"/>
+                    <flags val="kAfBattledec"/>
+                    <apply id="kBlind" location="kNone">
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                    </apply>
+                </affects>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kDazzle" element="kDark" mode="kEnabled">
         <name rus="ослепить" eng="dazzle"/>
@@ -567,6 +578,16 @@ base_stat id - (например "kWis") какой берем параметр,
                     <decay cast="0.05" level="7" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
+                <affects type="kPoison" saving="kNone" resist="kDark">
+                    <duration cnst="0" level_divisor="1" min="0" max="0"/>
+                    <flags val="kAfSameTime"/>
+                    <apply id="kPoisoned" location="kStr">
+                        <modifier min="2.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                    </apply>
+                    <apply id="kPoisoned" location="kPoison">
+                        <modifier min="30.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                    </apply>
+                </affects>
             </action>
         </talent_actions>
     </spell>
@@ -687,6 +708,13 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <heal npc_coeff="3" />
+                <affects type="kPatronage" saving="kNone" resist="kVitality">
+                    <duration cnst="3" level_divisor="10" min="0" max="0"/>
+                    <flags val="kAfUpdateDuration|kAfUpdateMod"/>
+                    <apply id="kUndefinded" location="kHp">
+                        <modifier min="60.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                    </apply>
+                </affects>
             </action>
         </talent_actions>
     </spell>
@@ -1334,6 +1362,13 @@ base_stat id - (например "kWis") какой берем параметр,
                     <decay cast="0.05" level="7" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
+                <affects type="kBlindness" saving="kNone" resist="kDark">
+                    <duration cnst="3" level_divisor="6" min="0" max="0"/>
+                    <flags val="kAfBattledec"/>
+                    <apply id="kBlind" location="kNone">
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                    </apply>
+                </affects>
             </action>
         </talent_actions>
     </spell>
@@ -1349,6 +1384,13 @@ base_stat id - (например "kWis") какой берем параметр,
                     <decay cast="0.05" level="2" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
+                <affects type="kBlindness" saving="kNone" resist="kDark">
+                    <duration cnst="2" level_divisor="8" min="0" max="0"/>
+                    <flags val="kAfBattledec"/>
+                    <apply id="kBlind" location="kNone">
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                    </apply>
+                </affects>
             </action>
         </talent_actions>
     </spell>
@@ -1830,6 +1872,33 @@ base_stat id - (например "kWis") какой берем параметр,
                     <decay cast="0.05" level="7" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
+                <affects type="kFever" saving="kNone" resist="kImmunity">
+                    <duration cnst="0" level_divisor="2" min="0" max="0"/>
+                    <apply id="kUndefinded" location="kHpRegen">
+                        <modifier min="95.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                    </apply>
+                    <apply id="kUndefinded" location="kManaRegen">
+                        <modifier min="95.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                    </apply>
+                    <apply id="kUndefinded" location="kMoveRegen">
+                        <modifier min="95.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                    </apply>
+                    <apply id="kUndefinded" location="kPlague">
+                        <modifier min="30.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                    </apply>
+                    <apply id="kUndefinded" location="kWis">
+                        <modifier min="2.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                    </apply>
+                    <apply id="kUndefinded" location="kInt">
+                        <modifier min="2.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                    </apply>
+                    <apply id="kUndefinded" location="kDex">
+                        <modifier min="2.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                    </apply>
+                    <apply id="kUndefinded" location="kStr">
+                        <modifier min="2.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                    </apply>
+                </affects>
             </action>
         </talent_actions>
     </spell>
@@ -2045,6 +2114,13 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <damage saving="kReflex" />
+                <affects type="kBlindness" saving="kNone" resist="kFire">
+                    <duration cnst="2" level_divisor="8" min="0" max="0"/>
+                    <flags val="kAfBattledec"/>
+                    <apply id="kBlind" location="kNone">
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                    </apply>
+                </affects>
             </action>
         </talent_actions>
     </spell>
@@ -2054,6 +2130,19 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="130" min="110" change="2"/>
         <targets val="kTarCharRoom|kTarNotSelf|kTarFightVict"/>
         <flags val="kMagAffects|kNpcAffectPc"/>
+        <talent_actions>
+            <action>
+                <affects type="kMadness" saving="kNone" resist="kMind">
+                    <duration cnst="3" level_divisor="0" min="0" max="0"/>
+                    <apply id="kNoFlee" location="kNone">
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                    </apply>
+                    <apply id="kUndefinded" location="kMadness">
+                        <modifier min="30.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                    </apply>
+                </affects>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kGroupMagicGlass" element="kAir" mode="kEnabled">
         <name rus="магическое зеркало" eng="group magicglass"/>
@@ -2410,6 +2499,13 @@ base_stat id - (например "kWis") какой берем параметр,
                     <decay cast="0.05" level="2" free_targets="3"/>
                     <victims skill_divisor="15" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
+                <affects type="kBlindness" saving="kNone" resist="kEarth">
+                    <duration cnst="3" level_divisor="6" min="0" max="0"/>
+                    <flags val="kAfBattledec"/>
+                    <apply id="kBlind" location="kNone">
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                    </apply>
+                </affects>
             </action>
         </talent_actions>
     </spell>
