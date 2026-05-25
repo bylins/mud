@@ -1696,24 +1696,16 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 
 				case ESpell::kIceStorm:
 				case ESpell::kEarthfall: SetWaitState(victim, 2 * kBattleRound);
-					af[0].duration = ApplyResist(victim, GetResistType(spell_id),
-							CalcDuration(victim, 2, 0, 0, 0, 0));
-					af[0].affect_type = EAffect::kMagicStopFight;
-					af[0].battleflag = kAfBattledec | kAfPulsedec;
+					// The kMagicStopFight stun (owned by kMagicBattle) is applied by the
+					// <affects> talent block now; only the wait-state side-effect stays here.
 					to_room = "$n3 оглушило.";
 					to_vict = "Вас оглушило.";
-					spell_id = ESpell::kMagicBattle;
 					break;
 
 				case ESpell::kShock:
 					SetWaitState(victim, 2 * kBattleRound);
-					af[0].duration = ApplyResist(victim, GetResistType(spell_id),
-							CalcDuration(victim, 2, 0, 0, 0, 0));
-					af[0].affect_type = EAffect::kMagicStopFight;
-					af[0].battleflag = kAfBattledec | kAfPulsedec;
 					to_room = "$n3 оглушило.";
 					to_vict = "Вас оглушило.";
-					spell_id = ESpell::kMagicBattle;
 					CastAffect(level, ch, victim, ESpell::kBlindness);
 					break;
 				default: break;

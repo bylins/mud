@@ -2148,6 +2148,13 @@ base_stat id - (например "kWis") какой берем параметр,
                     <decay cast="0.05" level="4" free_targets="3"/>
                     <victims skill_divisor="30" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
+                <affects type="kMagicBattle" saving="kNone" resist="kWater">
+                    <duration cnst="2" level_divisor="0" min="0" max="0"/>
+                    <flags val="kAfBattledec|kAfPulsedec"/>
+                    <apply id="kMagicStopFight" location="kNone">
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                    </apply>
+                </affects>
             </action>
         </talent_actions>
     </spell>
@@ -2441,6 +2448,13 @@ base_stat id - (например "kWis") какой берем параметр,
                     <decay cast="0.05" level="8" free_targets="2"/>
                     <victims skill_divisor="35" dice_size="2" min_targets="1" max_targets="4"/>
                 </area>
+                <affects type="kMagicBattle" saving="kNone" resist="kVitality">
+                    <duration cnst="2" level_divisor="0" min="0" max="0"/>
+                    <flags val="kAfBattledec|kAfPulsedec"/>
+                    <apply id="kMagicStopFight" location="kNone">
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                    </apply>
+                </affects>
             </action>
         </talent_actions>
     </spell>
@@ -2610,6 +2624,13 @@ base_stat id - (например "kWis") какой берем параметр,
                     <decay cast="0.05" level="8" free_targets="1"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="1" max_targets="3"/>
                 </area>
+                <affects type="kMagicBattle" saving="kNone" resist="kEarth">
+                    <duration cnst="2" level_divisor="0" min="0" max="0"/>
+                    <flags val="kAfBattledec|kAfPulsedec"/>
+                    <apply id="kMagicStopFight" location="kNone">
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                    </apply>
+                </affects>
             </action>
         </talent_actions>
     </spell>
