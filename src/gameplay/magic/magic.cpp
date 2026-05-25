@@ -2780,13 +2780,15 @@ int CastToSingleTarget(CharData *caster, CharData *cvict, ObjData *ovict, CastRo
 		if (CastDamage(level, caster, cvict, spell_id) == -1)
 			return (-1);    // Successful and target died, don't cast again.
 
-	if (MUD::Spell(spell_id).IsFlagged(kMagAffects)
-			&& CastAffect(abs(level), caster, cvict, spell_id, roll.potency) == EStageResult::kBreak) {
+	// Unaffect runs before affect (issue #3342): a spell strips/blocks existing affects
+	// first and may break the chain, before applying any new affect of its own.
+	if (MUD::Spell(spell_id).IsFlagged(kMagUnaffects)
+			&& CastUnaffects(abs(level), caster, cvict, spell_id) == EStageResult::kBreak) {
 		return 1;
 	}
 
-	if (MUD::Spell(spell_id).IsFlagged(kMagUnaffects)
-			&& CastUnaffects(abs(level), caster, cvict, spell_id) == EStageResult::kBreak) {
+	if (MUD::Spell(spell_id).IsFlagged(kMagAffects)
+			&& CastAffect(abs(level), caster, cvict, spell_id, roll.potency) == EStageResult::kBreak) {
 		return 1;
 	}
 
