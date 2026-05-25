@@ -87,6 +87,15 @@ enum class ESpellMsg {
 	kFightMissToChar, kFightMissToVict, kFightMissToRoom,
 	kFightHitToChar, kFightHitToVict, kFightHitToRoom,
 	kFightGodToChar, kFightGodToVict, kFightGodToRoom,
+	// Affect imposition (CastAffect) and dispel (CastUnaffects) messages, issue #3335.
+	// Keyed by the cast spell id; perspective is in the name (ToChar = the affected
+	// char, ToRoom = onlookers). A spell with no such message omits the key (or stores
+	// an empty val), so nothing is shown -- these are looked up sheaf-directly with no
+	// kDefault fallback, so a missing key never leaks a default message.
+	kAffImposedToRoom,		// CastAffect: affect landed, to the room.
+	kAffImposedToChar,		// CastAffect: affect landed, to the affected char.
+	kAffDispelledToRoom,	// CastUnaffects: affect removed, to the room.
+	kAffDispelledToChar,	// CastUnaffects: affect removed, to the cured char.
 };
 
 template<>

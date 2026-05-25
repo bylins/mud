@@ -907,6 +907,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 	bool accum_affect = false, accum_duration = false, success = true;
 	bool update_spell = false;
 	const char *to_vict = nullptr, *to_room = nullptr;
+	const ESpell cast_spell_id = spell_id;	// issue #3335: stable key for affect messages
 	int i, modi = 0;
 	int rnd = 0;
 	int decline_mod = 0;
@@ -995,12 +996,11 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 
 	auto savetype{ESaving::kStability};
 	switch (spell_id) {
-		// The affect itself now comes from the <affects> talent action (issue #3334);
-		// only the cast messages remain here. The saving throw and application are
-		// done by the talent-affect block at the end of this function.
+		// The affect itself now comes from the <affects> talent action (issue #3334) and
+		// the imposition messages from spell_msg.xml (issue #3335); the saving throw and
+		// the application are done by the talent-affect block at the end of this function.
+		// Cases that linger here do so only for side effects (saving, removals, wait-state).
 		case ESpell::kChillTouch:
-			to_room = "Боевой пыл $n1 несколько остыл.";
-			to_vict = "Вы почувствовали себя слабее!";
 			break;
 
 		case ESpell::kEnergyDrain:
@@ -1020,19 +1020,13 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 				success = false;
 				break;
 			}
-			to_room = "$n стал$g немного слабее.";
-			to_vict = "Вы почувствовали себя слабее!";
 			break;
 		case ESpell::kStoneWall:
 		case ESpell::kStoneSkin:
-			to_room = "Кожа $n1 покрылась каменными пластинами.";
-			to_vict = "Вы стали менее чувствительны к ударам.";
 			break;
 
 		case ESpell::kGeneralRecovery:
 		case ESpell::kFastRegeneration:
-			to_room = "$n расцвел$g на ваших глазах.";
-			to_vict = "Вас наполнила живительная сила.";
 			break;
 
 		case ESpell::kAirShield:
@@ -1042,8 +1036,6 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 			if (IsAffectedBySpell(victim, ESpell::kFireShield)) {
 				RemoveAffectFromChar(victim, ESpell::kFireShield);
 			}
-			to_room = "$n3 окутал воздушный щит.";
-			to_vict = "Вас окутал воздушный щит.";
 			break;
 
 		case ESpell::kFireShield:
@@ -1051,8 +1043,6 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 				RemoveAffectFromChar(victim, ESpell::kIceShield);
 			if (IsAffectedBySpell(victim, ESpell::kAirShield))
 				RemoveAffectFromChar(victim, ESpell::kAirShield);
-			to_room = "$n3 окутал огненный щит.";
-			to_vict = "Вас окутал огненный щит.";
 			break;
 
 		case ESpell::kIceShield:
@@ -1060,39 +1050,25 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 				RemoveAffectFromChar(victim, ESpell::kFireShield);
 			if (IsAffectedBySpell(victim, ESpell::kAirShield))
 				RemoveAffectFromChar(victim, ESpell::kAirShield);
-			to_room = "$n3 окутал ледяной щит.";
-			to_vict = "Вас окутал ледяной щит.";
 			break;
 
 		case ESpell::kAirAura:
-			to_room = "$n3 окружила воздушная аура.";
-			to_vict = "Вас окружила воздушная аура.";
 			break;
 
 		case ESpell::kEarthAura:
-			to_room = "$n глубоко поклонил$u земле.";
-			to_vict = "Глубокий поклон тебе, матушка земля.";
 			break;
 
 		case ESpell::kFireAura:
-			to_room = "$n3 окружила огненная аура.";
-			to_vict = "Вас окружила огненная аура.";
 			break;
 
 		case ESpell::kIceAura:
-			to_room = "$n3 окружила ледяная аура.";
-			to_vict = "Вас окружила ледяная аура.";
 			break;
 
 		case ESpell::kGroupCloudly:
 		case ESpell::kCloudly:
-			to_room = "Очертания $n1 расплылись и стали менее отчетливыми.";
-			to_vict = "Ваше тело стало прозрачным, как туман.";
 			break;
 		case ESpell::kGroupArmor:
 		case ESpell::kArmor:
-			to_room = "Вокруг $n1 вспыхнул белый щит и тут же погас.";
-			to_vict = "Вы почувствовали вокруг себя невидимую защиту.";
 			break;
 
 		case ESpell::kFascination:
@@ -1109,8 +1085,6 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 
 		case ESpell::kGroupBless:
 		case ESpell::kBless:
-			to_room = "$n осветил$u на миг неземным светом.";
-			to_vict = "Боги одарили вас своей улыбкой.";
 			break;
 
 		case ESpell::kCallLighting:
@@ -1119,8 +1093,6 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 				success = false;
 			}
 			spell_id = ESpell::kMagicBattle;
-			to_room = "$n зашатал$u, пытаясь прийти в себя от взрыва шаровой молнии.";
-			to_vict = "Взрыв шаровой молнии $N1 отдался в вашей голове громким звоном.";
 			break;
 
 		case ESpell::kColdWind:
@@ -1128,18 +1100,12 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 				SendMsgToChar(NOEFFECT, ch);
 				success = false;
 			}
-			to_vict = "Вы покрылись серебристым инеем.";
-			to_room = "$n покрыл$u красивым серебристым инеем.";
 			break;
 		case ESpell::kGroupAwareness:
 		case ESpell::kAwareness:
-			to_room = "$n начал$g внимательно осматриваться по сторонам.";
-			to_vict = "Вы стали более внимательны к окружающему.";
 			break;
 
 		case ESpell::kGodsShield:
-			to_room = "$n покрыл$u сверкающим коконом.";
-			to_vict = "Вас покрыл голубой кокон.";
 			break;
 
 		case ESpell::kGroupHaste:
@@ -1149,13 +1115,9 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 				success = false;
 				break;
 			}
-			to_vict = "Вы начали двигаться быстрее.";
-			to_room = "$n начал$g двигаться заметно быстрее.";
 			break;
 
 		case ESpell::kShadowCloak:
-			to_room = "$n скрыл$u в густой тени.";
-			to_vict = "Густые тени окутали вас.";
 			break;
 
 		case ESpell::kEnlarge:
@@ -1164,8 +1126,6 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 				success = false;
 				break;
 			}
-			to_room = "$n начал$g расти, как на дрожжах.";
-			to_vict = "Вы стали крупнее.";
 			break;
 
 		case ESpell::kLessening:
@@ -1174,24 +1134,16 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 				success = false;
 				break;
 			}
-			to_room = "$n скукожил$u.";
-			to_vict = "Вы стали мельче.";
 			break;
 
 		case ESpell::kMagicGlass:
 		case ESpell::kGroupMagicGlass:
-			to_room = "$n3 покрыла зеркальная пелена.";
-			to_vict = "Вас покрыло зеркало магии.";
 			break;
 
 		case ESpell::kCloudOfArrows:
-			to_room = "$n3 окружило облако летающих огненных стрел.";
-			to_vict = "Вас окружило облако летающих огненных стрел.";
 			break;
 
 		case ESpell::kStoneHands:
-			to_room = "Руки $n1 задубели.";
-			to_vict = "Ваши руки задубели.";
 			break;
 
 		case ESpell::kGroupPrismaticAura:
@@ -1209,8 +1161,6 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 				success = false;
 				break;
 			}
-			to_room = "$n3 покрыла призматическая аура.";
-			to_vict = "Вас покрыла призматическая аура.";
 			break;
 
 		case ESpell::kMindless:
@@ -1220,8 +1170,6 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 				break;
 			}
 
-			to_room = "$n0 стал$g слаб$g на голову!";
-			to_vict = "Ваш разум помутился!";
 			break;
 
 		case ESpell::kDustStorm:
@@ -1237,8 +1185,6 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 				success = false;
 				break;
 			}
-			to_room = "$n0 ослеп$q!";
-			to_vict = "Вы ослепли!";
 			break;
 
 		case ESpell::kMadness: savetype = ESaving::kWill;
@@ -1248,8 +1194,6 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 				break;
 			}
 
-			to_room = "Теперь $n не сможет сбежать из боя!";
-			to_vict = "Вас обуяло безумие!";
 			break;
 
 		case ESpell::kWeb: savetype = ESaving::kReflex;
@@ -1260,8 +1204,6 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 				break;
 			}
 
-			to_room = "$n3 покрыла невидимая паутина, сковывая $s движения!";
-			to_vict = "Вас покрыла невидимая паутина!";
 			break;
 
 		case ESpell::kMassCurse:
@@ -1296,8 +1238,6 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 			}
 			accum_duration = true;
 			accum_affect = true;
-			to_room = "Красное сияние вспыхнуло над $n4 и тут же погасло!";
-			to_vict = "Боги сурово поглядели на вас.";
 			spell_id = ESpell::kCurse;
 			break;
 
@@ -1316,38 +1256,26 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 				break;
 			}
 
-			to_room = "Движения $n1 заметно замедлились.";
-			to_vict = "Ваши движения заметно замедлились.";
 			break;
 
 		case ESpell::kGroupSincerity:
 		case ESpell::kDetectAlign:
-			to_vict = "Ваши глаза приобрели зеленый оттенок.";
-			to_room = "Глаза $n1 приобрели зеленый оттенок.";
 			break;
 
 		case ESpell::kAllSeeingEye:
 		case ESpell::kDetectInvis:
-			to_vict = "Ваши глаза приобрели золотистый оттенок.";
-			to_room = "Глаза $n1 приобрели золотистый оттенок.";
 			break;
 
 		case ESpell::kMagicalGaze:
 		case ESpell::kDetectMagic:
-			to_vict = "Ваши глаза приобрели желтый оттенок.";
-			to_room = "Глаза $n1 приобрели желтый оттенок.";
 			break;
 
 		case ESpell::kSightOfDarkness:
 		case ESpell::kInfravision:
-			to_vict = "Ваши глаза приобрели красный оттенок.";
-			to_room = "Глаза $n1 приобрели красный оттенок.";
 			break;
 
 		case ESpell::kSnakeEyes:
 		case ESpell::kDetectPoison:
-			to_vict = "Ваши глаза приобрели карий оттенок.";
-			to_room = "Глаза $n1 приобрели карий оттенок.";
 			break;
 
 		case ESpell::kGroupInvisible:
@@ -1359,8 +1287,6 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 				success = false;
 				break;
 			}
-			to_vict = "Вы стали невидимы для окружающих.";
-			to_room = "$n медленно растворил$u в пустоте.";
 			break;
 
 		case ESpell::kFever: savetype = ESaving::kStability;
@@ -1370,8 +1296,6 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 				break;
 			}
 
-			to_vict = "Вас скрутило в жестокой лихорадке.";
-			to_room = "$n3 скрутило в жестокой лихорадке.";
 			break;
 
 		case ESpell::kPoison: savetype = ESaving::kCritical;
@@ -1383,8 +1307,6 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 				success = false;
 				break;
 			}
-			to_vict = "Вы почувствовали себя отравленным.";
-			to_room = "$n позеленел$g от действия яда.";
 
 			break;
 
@@ -1399,8 +1321,6 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 			} else {
 				RemoveAffectFromChar(ch, ESpell::kProtectFromEvil);
 			}
-			to_vict = "Вы подавили в себе страх к тьме.";
-			to_room = "$n подавил$g в себе страх к тьме.";
 			break;
 
 		case ESpell::kGroupSanctuary:
@@ -1418,8 +1338,6 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 				success = false;
 				break;
 			}
-			to_vict = "Белая аура мгновенно окружила вас.";
-			to_room = "Белая аура покрыла $n3 с головы до пят.";
 			break;
 
 		case ESpell::kSleep: savetype = ESaving::kWill;
@@ -1450,8 +1368,6 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 				success = false;
 				break;
 			}
-			to_vict = "Вы почувствовали себя сильнее.";
-			to_room = "Мышцы $n1 налились силой.";
 			break;
 
 		case ESpell::kDexterity:
@@ -1460,33 +1376,23 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 				success = false;
 				break;
 			}
-			to_vict = "Вы почувствовали себя более шустрым.";
-			to_room = "$n0 будет двигаться более шустро.";
 			break;
 
 		case ESpell::kPatronage:
-			if (GET_ALIGNMENT(victim) >= 0) {
-				to_vict = "Исходящий с небес свет на мгновение озарил вас.";
-				to_room = "Исходящий с небес свет на мгновение озарил $n3.";
-			} else {
-				to_vict = "Вас окутало клубящееся облако Тьмы.";
-				to_room = "Клубящееся темное облако на мгновение окутало $n3.";
-			}
+			// issue #3335: the cast messages moved to spell_msg.xml. The old code chose
+			// a light/dark variant by GET_ALIGNMENT(victim); per the issue the kPatronage
+			// sheaf keeps the GET_ALIGNMENT(victim) >= 0 (light) variant.
 			break;
 
 		case ESpell::kEyeOfGods:
-		case ESpell::kSenseLife: to_vict = "Вы способны разглядеть даже микроба.";
-			to_room = "$n0 начал$g замечать любые движения.";
+		case ESpell::kSenseLife:
 			break;
 
 		case ESpell::kWaterwalk:
-			to_vict = "На рыбалку вы можете отправляться без лодки.";
 			break;
 
 		case ESpell::kBreathingAtDepth:
 		case ESpell::kWaterbreath:
-			to_vict = "У вас выросли жабры.";
-			to_room = "У $n1 выросли жабры.";
 			break;
 
 		case ESpell::kHolystrike:
@@ -1509,8 +1415,6 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 				success = false;
 				break;
 			}
-			to_room = "$n0 замер$q на месте!";
-			to_vict = "Вы замерли на месте, не в силах пошевельнуться.";
 			break;
 
 		case ESpell::kWarcryOfRage:
@@ -1536,8 +1440,6 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 				break;
 			}
 
-			to_room = "$n0 оглох$q!";
-			to_vict = "Вы оглохли.";
 			break;
 
 		case ESpell::kMassSilence:
@@ -1549,29 +1451,19 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 				success = false;
 				break;
 			}
-			to_room = "$n0 прикусил$g язык!";
-			to_vict = "Вы не в состоянии вымолвить ни слова.";
 			break;
 
 		case ESpell::kGroupFly:
 		case ESpell::kFly:
-			to_room = "$n0 медленно поднял$u в воздух.";
-			to_vict = "Вы медленно поднялись в воздух.";
 			break;
 
 		case ESpell::kBrokenChains:
-			to_room = "Ярко-синий ореол вспыхнул вокруг $n1 и тут же угас.";
-			to_vict = "Волна ярко-синего света омыла вас с головы до ног.";
 			break;
 		case ESpell::kGroupBlink:
 		case ESpell::kBlink:
-			to_room = "$n начал$g мигать.";
-			to_vict = "Вы начали мигать.";
 			break;
 
 		case ESpell::kMagicShield:
-			to_room = "Сверкающий щит вспыхнул вокруг $n1 и угас.";
-			to_vict = "Сверкающий щит вспыхнул вокруг вас и угас.";
 			break;
 
 		case ESpell::kNoflee: // "приковать противника"
@@ -1584,8 +1476,6 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 				success = false;
 				break;
 			}
-			to_room = "$n0 теперь прикован$a к $N2.";
-			to_vict = "Вы не сможете покинуть $N3.";
 			break;
 
 		case ESpell::kLight:
@@ -1593,8 +1483,6 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 				SendMsgToChar("Только на себя или одногруппника!\r\n", ch);
 				return 0;
 			}
-			to_room = "$n0 начал$g светиться ярким светом.";
-			to_vict = "Вы засветились, освещая комнату.";
 			break;
 
 		case ESpell::kDarkness:
@@ -1602,12 +1490,8 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 				SendMsgToChar("Только на себя или одногруппника!\r\n", ch);
 				return 0;
 			}
-			to_room = "$n0 погрузил$g комнату во мрак.";
-			to_vict = "Вы погрузили комнату в непроглядную тьму.";
 			break;
 		case ESpell::kVampirism:
-			to_room = "Зрачки $n3 приобрели красный оттенок.";
-			to_vict = "Ваши зрачки приобрели красный оттенок.";
 			break;
 
 		case ESpell::kEviless:
@@ -1640,8 +1524,6 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 				tmpaf.affect_type = EAffect::kForcesOfEvil;
 				affect_to_char(ch, tmpaf);
 			}
-			to_vict = "Черное облако покрыло вас.";
-			to_room = "Черное облако покрыло $n3 с головы до пят.";
 			break;
 
 		case ESpell::kWarcryOfThunder:
@@ -1696,16 +1578,13 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 
 				case ESpell::kIceStorm:
 				case ESpell::kEarthfall: SetWaitState(victim, 2 * kBattleRound);
-					// The kMagicStopFight stun (owned by kMagicBattle) is applied by the
-					// <affects> talent block now; only the wait-state side-effect stays here.
-					to_room = "$n3 оглушило.";
-					to_vict = "Вас оглушило.";
+					// The kMagicStopFight stun (owned by kMagicBattle) and the "оглушило"
+					// messages now come from the <affects> block / spell_msg.xml (issues
+					// #3334, #3335); only the wait-state side-effect stays here.
 					break;
 
 				case ESpell::kShock:
 					SetWaitState(victim, 2 * kBattleRound);
-					to_room = "$n3 оглушило.";
-					to_vict = "Вас оглушило.";
 					CastAffect(level, ch, victim, ESpell::kBlindness);
 					break;
 				default: break;
@@ -1735,7 +1614,6 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 				af[1].modifier = -1 * std::max(1, ((level + 9) / 2 + 9 - GetRealLevel(victim) / 2));
 				af[1].affect_type = EAffect::kCrying;
 				af[1].battleflag = kAfBattledec;
-				to_room = "$n0 издал$g протяжный стон.";
 				break;
 			}
 			af[1].location = EApply::kCastSuccess;
@@ -1749,8 +1627,6 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 			af[2].modifier = -1 * std::max(1, (level / 3 + GetRealRemort(ch) / 5 - GetRealLevel(victim) / 5));
 			af[2].affect_type = EAffect::kCrying;
 			af[2].battleflag = kAfBattledec;
-			to_room = "$n0 издал$g протяжный стон.";
-			to_vict = "Вы впали в уныние.";
 			break;
 		}
 			//Заклинания Забвение, Бремя времени. Далим.
@@ -1762,8 +1638,6 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 				break;
 			}
 			SetWaitState(victim, (level / 10 + 1) * kBattleRound);
-			to_room = "Облако забвения окружило $n3.";
-			to_vict = "Ваш разум помутился.";
 			break;
 		}
 
@@ -1780,8 +1654,6 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 				change_fighting(victim, true);
 				SetWaitState(victim, 2 * kBattleRound);
 			}
-			to_room = "Взгляд $n1 потускнел, а сам он успокоился.";
-			to_vict = "Ваша душа очистилась от зла и странно успокоилась.";
 			break;
 		}
 
@@ -1790,8 +1662,6 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 				SendMsgToChar(NOEFFECT, ch);
 				success = false;
 			}
-			to_vict = " ";
-			to_room = "Кости $n1 обрели твердость кремня.";
 			break;
 		}
 
@@ -1810,8 +1680,6 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 			af[1].location = static_cast<EApply>(number(1, 6));
 			af[1].duration = af[0].duration;
 			af[1].modifier = -(GetRealLevel(ch) + GetRealRemort(ch) * 3) / 15;
-			to_room = "Тяжелое бурое облако сгустилось над $n4.";
-			to_vict = "Тяжелые тучи сгустились над вами, и вы почувствовали, что удача покинула вас.";
 			break;
 		}
 
@@ -1832,8 +1700,6 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 			if (IsAffectedBySpell(victim, ESpell::kHide)) {
 				RemoveAffectFromChar(victim, ESpell::kHide);
 			}
-			to_room = "Облако ярко блестящей пыли накрыло $n3.";
-			to_vict = "Липкая блестящая пыль покрыла вас с головы до пят.";
 			break;
 		}
 
@@ -1844,29 +1710,19 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 				success = false;
 				break;
 			}
-			to_room = "$n0 побледнел$g и задрожал$g от страха.";
-			to_vict = "Страх сжал ваше сердце ледяными когтями.";
 			break;
 		}
 
 		case ESpell::kCatGrace:
-			to_vict = "Ваши движения обрели невиданную ловкость.";
-			to_room = "Движения $n1 обрели невиданную ловкость.";
 			break;
 
 		case ESpell::kBullBody:
-			to_vict = "Ваше тело налилось звериной мощью.";
-			to_room = "Плечи $n1 раздались вширь, а тело налилось звериной мощью.";
 			break;
 
 		case ESpell::kSnakeWisdom:
-			to_vict = "Шелест змеиной чешуи коснулся вашего сознания, и вы стали мудрее.";
-			to_room = "$n спокойно и мудро посмотрел$g вокруг.";
 			break;
 
 		case ESpell::kGimmicry:
-			to_vict = "Вы почувствовали, что для вашего ума более нет преград.";
-			to_room = "$n хитро прищурил$u и поглядел$g по сторонам.";
 			break;
 
 		case ESpell::kWarcryOfMenace: {
@@ -1881,8 +1737,6 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 			af[0].duration = ApplyResist(victim, GetResistType(spell_id),
 										 CalcDuration(victim, 2, level + 3, 4, 6, 0));
 			af[0].modifier = -RollDices((7 + level) / 8, 3);
-			to_vict = "Похоже, сегодня не ваш день.";
-			to_room = "Удача покинула $n3.";
 			break;
 		}
 
@@ -1949,8 +1803,6 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 		case ESpell::kScopolaPoison:
 		case ESpell::kBelenaPoison:
 		case ESpell::kDaturaPoison:
-			to_vict = "Вы почувствовали себя отравленным.";
-			to_room = "$n позеленел$g от действия яда.";
 			break;
 
 		case ESpell::kCombatLuck: af[0].duration = CalcDuration(victim, 6, 0, 0, 0, 0);
@@ -1959,8 +1811,6 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 			af[0].type = ESpell::kCombatLuck;
 			af[0].location = EApply::kHitroll;
 			af[0].modifier = 0;
-			to_room = "$n вдохновенно выпятил$g грудь.";
-			to_vict = "Вы почувствовали вдохновение.";
 			break;
 
 		case ESpell::kArrowsFire:
@@ -2106,9 +1956,20 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 		// вот некрасиво же тут это делать...
 		if (spell_id == ESpell::kPoison)
 			victim->poisoner = ch->get_uid();
-		if (to_vict != nullptr)
+		// Affect imposition messages (issue #3335): looked up by the spell that was
+		// cast (cast_spell_id, before any in-switch reassignment) and emitted sheaf-
+		// directly, so a spell with no message shows nothing. The few spells whose
+		// message is conditional or multi-line still set to_vict/to_room; those win.
+		const auto &imposed = MUD::SpellMessages()[cast_spell_id];
+		if (to_vict == nullptr) {
+			to_vict = imposed.GetMessage(ESpellMsg::kAffImposedToChar).c_str();
+		}
+		if (to_room == nullptr) {
+			to_room = imposed.GetMessage(ESpellMsg::kAffImposedToRoom).c_str();
+		}
+		if (to_vict != nullptr && *to_vict != '\0')
 			act(to_vict, false, victim, nullptr, ch, kToChar);
-		if (to_room != nullptr)
+		if (to_room != nullptr && *to_room != '\0')
 			act(to_room, true, victim, nullptr, ch, kToRoom | kToArenaListen);
 		return 1;
 	}
@@ -2651,7 +2512,7 @@ bool CheckNodispel(const Affect<EApply>::shared_ptr &affect) {
 
 int CastUnaffects(int/* level*/, CharData *ch, CharData *victim, ESpell spell_id) {
 	int remove = 0;
-	const char *to_vict = nullptr, *to_room = nullptr;
+	const ESpell cast_spell_id = spell_id;	// issue #3335: dispel messages keyed by the cast (curing) spell
 
 	if (victim == nullptr) {
 		return 0;
@@ -2660,27 +2521,18 @@ int CastUnaffects(int/* level*/, CharData *ch, CharData *victim, ESpell spell_id
 	auto spell{ESpell::kUndefined};
 	switch (spell_id) {
 		case ESpell::kCureBlind: spell = ESpell::kBlindness;
-			to_vict = "К вам вернулась способность видеть.";
-			to_room = "$n прозрел$g.";
 			break;
 		case ESpell::kRemovePoison: spell = ESpell::kPoison;
-			to_vict = "Тепло заполнило ваше тело.";
-			to_room = "$n выглядит лучше.";
 			break;
 		case ESpell::kCureFever: spell = ESpell::kFever;
-			to_vict = "Лихорадка прекратилась.";
 			break;
 		case ESpell::kRemoveCurse: spell = ESpell::kCurse;
-			to_vict = "Боги вернули вам свое покровительство.";
 			break;
 		case ESpell::kRemoveHold: spell = ESpell::kHold;
-			to_vict = "К вам вернулась способность двигаться.";
 			break;
 		case ESpell::kRemoveSilence: spell = ESpell::kSilence;
-			to_vict = "К вам вернулась способность разговаривать.";
 			break;
 		case ESpell::kRemoveDeafness: spell = ESpell::kDeafness;
-			to_vict = "К вам вернулась способность слышать.";
 			break;
 		case ESpell::kDispellMagic:
 			if (!ch->IsNpc()
@@ -2760,10 +2612,15 @@ int CastUnaffects(int/* level*/, CharData *ch, CharData *victim, ESpell spell_id
 		RemoveAffectFromChar(victim, ESpell::kBelenaPoison);
 	}
 	RemoveAffectFromCharAndRecalculate(victim, spell);
-	if (to_vict != nullptr)
-		act(to_vict, false, victim, nullptr, ch, kToChar);
-	if (to_room != nullptr)
-		act(to_room, true, victim, nullptr, ch, kToRoom | kToArenaListen);
+	// Dispel messages (issue #3335): keyed by the cast (curing) spell and emitted
+	// sheaf-directly, so a spell without a message shows nothing (no kDefault fallback).
+	const auto &dispelled = MUD::SpellMessages()[cast_spell_id];
+	const auto &dispelled_vict = dispelled.GetMessage(ESpellMsg::kAffDispelledToChar);
+	if (!dispelled_vict.empty())
+		act(dispelled_vict.c_str(), false, victim, nullptr, ch, kToChar);
+	const auto &dispelled_room = dispelled.GetMessage(ESpellMsg::kAffDispelledToRoom);
+	if (!dispelled_room.empty())
+		act(dispelled_room.c_str(), true, victim, nullptr, ch, kToRoom | kToArenaListen);
 
 	return 1;
 }
