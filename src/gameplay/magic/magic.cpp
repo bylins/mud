@@ -1000,9 +1000,6 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 		// the imposition messages from spell_msg.xml (issue #3335); the saving throw and
 		// the application are done by the talent-affect block at the end of this function.
 		// Cases that linger here do so only for side effects (saving, removals, wait-state).
-		case ESpell::kChillTouch:
-			break;
-
 		case ESpell::kEnergyDrain:
 		case ESpell::kWeaknes: savetype = ESaving::kWill;
 			if (ch != victim && CalcGeneralSaving(ch, victim, savetype, modi)) {
@@ -1021,14 +1018,6 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 				break;
 			}
 			break;
-		case ESpell::kStoneWall:
-		case ESpell::kStoneSkin:
-			break;
-
-		case ESpell::kGeneralRecovery:
-		case ESpell::kFastRegeneration:
-			break;
-
 		case ESpell::kAirShield:
 			if (IsAffectedBySpell(victim, ESpell::kIceShield)) {
 				RemoveAffectFromChar(victim, ESpell::kIceShield);
@@ -1052,25 +1041,6 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 				RemoveAffectFromChar(victim, ESpell::kAirShield);
 			break;
 
-		case ESpell::kAirAura:
-			break;
-
-		case ESpell::kEarthAura:
-			break;
-
-		case ESpell::kFireAura:
-			break;
-
-		case ESpell::kIceAura:
-			break;
-
-		case ESpell::kGroupCloudly:
-		case ESpell::kCloudly:
-			break;
-		case ESpell::kGroupArmor:
-		case ESpell::kArmor:
-			break;
-
 		case ESpell::kFascination:
 			if (ProcessMatComponents(ch, victim, spell_id)) {
 				success = false;
@@ -1081,10 +1051,6 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 			to_vict =
 				"Вы попытались вспомнить уроки старой цыганки, что учила вас людям головы морочить.\r\nХотя вы ее не очень то слушали.\r\n";
 			spell_id = ESpell::kFascination;
-			break;
-
-		case ESpell::kGroupBless:
-		case ESpell::kBless:
 			break;
 
 		case ESpell::kCallLighting:
@@ -1101,13 +1067,6 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 				success = false;
 			}
 			break;
-		case ESpell::kGroupAwareness:
-		case ESpell::kAwareness:
-			break;
-
-		case ESpell::kGodsShield:
-			break;
-
 		case ESpell::kGroupHaste:
 		case ESpell::kHaste:
 			if (IsAffectedBySpell(victim, ESpell::kSlowdown)) {
@@ -1115,9 +1074,6 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 				success = false;
 				break;
 			}
-			break;
-
-		case ESpell::kShadowCloak:
 			break;
 
 		case ESpell::kEnlarge:
@@ -1134,16 +1090,6 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 				success = false;
 				break;
 			}
-			break;
-
-		case ESpell::kMagicGlass:
-		case ESpell::kGroupMagicGlass:
-			break;
-
-		case ESpell::kCloudOfArrows:
-			break;
-
-		case ESpell::kStoneHands:
 			break;
 
 		case ESpell::kGroupPrismaticAura:
@@ -1258,26 +1204,6 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 
 			break;
 
-		case ESpell::kGroupSincerity:
-		case ESpell::kDetectAlign:
-			break;
-
-		case ESpell::kAllSeeingEye:
-		case ESpell::kDetectInvis:
-			break;
-
-		case ESpell::kMagicalGaze:
-		case ESpell::kDetectMagic:
-			break;
-
-		case ESpell::kSightOfDarkness:
-		case ESpell::kInfravision:
-			break;
-
-		case ESpell::kSnakeEyes:
-		case ESpell::kDetectPoison:
-			break;
-
 		case ESpell::kGroupInvisible:
 		case ESpell::kInvisible:
 			if (!victim)
@@ -1378,23 +1304,6 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 			}
 			break;
 
-		case ESpell::kPatronage:
-			// issue #3335: the cast messages moved to spell_msg.xml. The old code chose
-			// a light/dark variant by GET_ALIGNMENT(victim); per the issue the kPatronage
-			// sheaf keeps the GET_ALIGNMENT(victim) >= 0 (light) variant.
-			break;
-
-		case ESpell::kEyeOfGods:
-		case ESpell::kSenseLife:
-			break;
-
-		case ESpell::kWaterwalk:
-			break;
-
-		case ESpell::kBreathingAtDepth:
-		case ESpell::kWaterbreath:
-			break;
-
 		case ESpell::kHolystrike:
 			if (AFF_FLAGGED(victim, EAffect::kForcesOfEvil)) {
 				// все решится в дамадже части спелла
@@ -1453,19 +1362,6 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 			}
 			break;
 
-		case ESpell::kGroupFly:
-		case ESpell::kFly:
-			break;
-
-		case ESpell::kBrokenChains:
-			break;
-		case ESpell::kGroupBlink:
-		case ESpell::kBlink:
-			break;
-
-		case ESpell::kMagicShield:
-			break;
-
 		case ESpell::kNoflee: // "приковать противника"
 		case ESpell::kIndriksTeeth:
 		case ESpell::kSnare:
@@ -1491,9 +1387,6 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 				return 0;
 			}
 			break;
-		case ESpell::kVampirism:
-			break;
-
 		case ESpell::kEviless:
 			if (!victim->IsNpc() || victim->get_master() != ch || !victim->IsFlagged(EMobFlag::kCorpse)) {
 				//тихо уходим, т.к. заклинание массовое
@@ -1713,18 +1606,6 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 			break;
 		}
 
-		case ESpell::kCatGrace:
-			break;
-
-		case ESpell::kBullBody:
-			break;
-
-		case ESpell::kSnakeWisdom:
-			break;
-
-		case ESpell::kGimmicry:
-			break;
-
 		case ESpell::kWarcryOfMenace: {
 			savetype = ESaving::kWill;
 			modi = GetRealCon(ch);
@@ -1797,12 +1678,6 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 		case ESpell::kWarcryOfCourage:
 			to_vict = nullptr;
 			to_room = nullptr;
-			break;
-
-		case ESpell::kAconitumPoison:
-		case ESpell::kScopolaPoison:
-		case ESpell::kBelenaPoison:
-		case ESpell::kDaturaPoison:
 			break;
 
 		case ESpell::kCombatLuck: af[0].duration = CalcDuration(victim, 6, 0, 0, 0, 0);
