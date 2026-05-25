@@ -995,6 +995,12 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 
 
 	auto savetype{ESaving::kStability};
+	// A violent spell can never touch an immortal target: there is nothing to build or
+	// roll, so stop here. This subsumes the per-case victim->IsImmortal() guards.
+	if (victim->IsImmortal() && MUD::Spell(spell_id).IsViolent()) {
+		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
+		return EStageResult::kSuccess;
+	}
 	const bool has_affect_talent = MUD::Spell(spell_id).actions.Contains(talents_actions::EAction::kAffect);
 	if (has_affect_talent) {
 		const auto &affect = MUD::Spell(spell_id).actions.GetAffect();
@@ -1113,8 +1119,7 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 		case ESpell::kMassBlindness:
 		case ESpell::kPowerBlindness:
 		case ESpell::kBlindness:
-			if (victim->IsImmortal() ||
-				((ch != victim) && CalcGeneralSaving(ch, victim, savetype, modi))) {
+			if ((ch != victim) && CalcGeneralSaving(ch, victim, savetype, modi)) {
 				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 				success = false;
 				break;
@@ -1342,7 +1347,7 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 			if (spell_id==ESpell::kEarthfall){
 				modi += ch->GetSkill(GetMagicSkillId(spell_id))/5;
 			}
-			if (victim->IsImmortal() || (!ch->IsImmortal() && CalcGeneralSaving(ch, victim, savetype, modi))) {
+			if (!ch->IsImmortal() && CalcGeneralSaving(ch, victim, savetype, modi)) {
 				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 				success = false;
 				break;
@@ -1426,7 +1431,7 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 			//Заклинания Забвение, Бремя времени. Далим.
 		case ESpell::kOblivion:
 		case ESpell::kBurdenOfTime: {
-			if (victim->IsImmortal() || CalcGeneralSaving(ch, victim, ESaving::kReflex, modi)) {
+			if (CalcGeneralSaving(ch, victim, ESaving::kReflex, modi)) {
 				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 				success = false;
 				break;
