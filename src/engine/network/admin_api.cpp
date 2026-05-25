@@ -3,7 +3,6 @@
  \brief Admin API implementation via Unix Domain Socket
 */
 
-#ifdef ENABLE_ADMIN_API
 #include <sys/socket.h>
 
 #include "admin_api.h"
@@ -418,7 +417,5 @@ void admin_api_parse(DescriptorData *d, char *argument) {
 		admin_api_send_error(d, (std::string("Error: ") + e.what()).c_str());
 	}
 }
-
-#endif // ENABLE_ADMIN_API
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

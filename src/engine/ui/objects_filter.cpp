@@ -13,9 +13,115 @@
 #include "engine/db/global_objects.h"
 #include "gameplay/mechanics/stable_objs.h"
 #include "engine/db/player_index.h"
+#include "gameplay/classes/pc_classes.h"
+
+#include <set>
 
 extern ESkill FixNameAndFindSkillId(char *name);
 extern const char *print_obj_state(int tm_pct);
+
+namespace {
+
+// Является ли класс магической группы (как в IsMage в pc_classes.cpp).
+// Используется для фильтра по профессии: если предмет имеет EAntiFlag::kMage,
+// он недоступен всему этому набору.
+bool is_magic_class(ECharClass c) {
+	static const std::set<ECharClass> magic_classes{
+		ECharClass::kConjurer,
+		ECharClass::kWizard,
+		ECharClass::kCharmer,
+		ECharClass::kNecromancer};
+	return magic_classes.contains(c);
+}
+
+// Является ли класс воинской группы (как в IsFighter в pc_classes.cpp).
+bool is_fight_class(ECharClass c) {
+	static const std::set<ECharClass> fight_classes{
+		ECharClass::kThief,
+		ECharClass::kWarrior,
+		ECharClass::kAssasine,
+		ECharClass::kGuard,
+		ECharClass::kPaladine,
+		ECharClass::kRanger,
+		ECharClass::kVigilant};
+	return fight_classes.contains(c);
+}
+
+// EAntiFlag, соответствующий конкретному классу персонажа.
+EAntiFlag class_specific_anti_flag(ECharClass c) {
+	switch (c) {
+		case ECharClass::kSorcerer:    return EAntiFlag::kSorcerer;
+		case ECharClass::kConjurer:    return EAntiFlag::kConjurer;
+		case ECharClass::kThief:       return EAntiFlag::kThief;
+		case ECharClass::kWarrior:     return EAntiFlag::kWarrior;
+		case ECharClass::kAssasine:    return EAntiFlag::kAssasine;
+		case ECharClass::kGuard:       return EAntiFlag::kGuard;
+		case ECharClass::kCharmer:     return EAntiFlag::kCharmer;
+		case ECharClass::kWizard:      return EAntiFlag::kWizard;
+		case ECharClass::kNecromancer: return EAntiFlag::kNecromancer;
+		case ECharClass::kPaladine:    return EAntiFlag::kPaladine;
+		case ECharClass::kRanger:      return EAntiFlag::kRanger;
+		case ECharClass::kVigilant:    return EAntiFlag::kVigilant;
+		case ECharClass::kMerchant:    return EAntiFlag::kMerchant;
+		case ECharClass::kMagus:       return EAntiFlag::kMagus;
+		default:                       return static_cast<EAntiFlag>(0);
+	}
+}
+
+// ENoFlag, соответствующий конкретному классу персонажа.
+// Биты ENoFlag для классов совпадают с EAntiFlag по позиции, но это
+// разные битвекторы (anti_flags и no_flags), поэтому функции отдельные.
+ENoFlag class_specific_no_flag(ECharClass c) {
+	switch (c) {
+		case ECharClass::kSorcerer:    return ENoFlag::kSorcerer;
+		case ECharClass::kConjurer:    return ENoFlag::kConjurer;
+		case ECharClass::kThief:       return ENoFlag::kThief;
+		case ECharClass::kWarrior:     return ENoFlag::kWarrior;
+		case ECharClass::kAssasine:    return ENoFlag::kAssasine;
+		case ECharClass::kGuard:       return ENoFlag::kGuard;
+		case ECharClass::kCharmer:     return ENoFlag::kCharmer;
+		case ECharClass::kWizard:      return ENoFlag::kWizard;
+		case ECharClass::kNecromancer: return ENoFlag::kNecromancer;
+		case ECharClass::kPaladine:    return ENoFlag::kPaladine;
+		case ECharClass::kRanger:      return ENoFlag::kRanger;
+		case ECharClass::kVigilant:    return ENoFlag::kVigilant;
+		case ECharClass::kMerchant:    return ENoFlag::kMerchant;
+		case ECharClass::kMagus:       return ENoFlag::kMagus;
+		default:                       return static_cast<ENoFlag>(0);
+	}
+}
+
+// Заблокирован ли предмет для указанного класса. Проверяет и anti_flags
+// (invalid_anti_class), и no_flags (invalid_no_class): обе системы
+// независимо запрещают использование, и в display даже именованы
+// по-разному -- "Недоступен" / "Неудобен", -- но игроку оба запрещают
+// носить (#3269).
+bool obj_blocked_for_class(const ObjData *obj, ECharClass c) {
+	if (obj->has_anti_flag(EAntiFlag::kMage) && is_magic_class(c)) {
+		return true;
+	}
+	if (obj->has_anti_flag(EAntiFlag::kFighter) && is_fight_class(c)) {
+		return true;
+	}
+	const auto specific_anti = class_specific_anti_flag(c);
+	if (specific_anti != static_cast<EAntiFlag>(0) && obj->has_anti_flag(specific_anti)) {
+		return true;
+	}
+
+	if (obj->has_no_flag(ENoFlag::kMage) && is_magic_class(c)) {
+		return true;
+	}
+	if (obj->has_no_flag(ENoFlag::kFighter) && is_fight_class(c)) {
+		return true;
+	}
+	const auto specific_no = class_specific_no_flag(c);
+	if (specific_no != static_cast<ENoFlag>(0) && obj->has_no_flag(specific_no)) {
+		return true;
+	}
+	return false;
+}
+
+} // namespace
 
 bool ParseFilter::init_type(const char *str) {
 	if (utils::IsAbbr(str, "свет")
@@ -194,34 +300,37 @@ bool ParseFilter::init_skill(char *str) {
 	return false;
 }
 
+bool ParseFilter::init_profession(const char *str) {
+	if (!str || !*str) {
+		return false;
+	}
+	const ECharClass class_id = FindAvailableCharClassId(str);
+	if (class_id == ECharClass::kUndefined) {
+		return false;
+	}
+	profession = class_id;
+	return true;
+}
+
 bool ParseFilter::init_weap_class(const char *str) {
 	if (utils::IsAbbr(str, "луки")) {
 		weap_class = ESkill::kBows;
-		weap_message = 0;
 	} else if (utils::IsAbbr(str, "короткие")) {
 		weap_class = ESkill::kShortBlades;
-		weap_message = 1;
 	} else if (utils::IsAbbr(str, "длинные")) {
 		weap_class = ESkill::kLongBlades;
-		weap_message = 2;
 	} else if (utils::IsAbbr(str, "секиры")) {
 		weap_class = ESkill::kAxes;
-		weap_message = 3;
 	} else if (utils::IsAbbr(str, "палицы")) {
 		weap_class = ESkill::kClubs;
-		weap_message = 4;
 	} else if (utils::IsAbbr(str, "иное")) {
 		weap_class = ESkill::kNonstandart;
-		weap_message = 5;
 	} else if (utils::IsAbbr(str, "двуручники")) {
 		weap_class = ESkill::kTwohands;
-		weap_message = 6;
 	} else if (utils::IsAbbr(str, "проникающее")) {
 		weap_class = ESkill::kPicks;
-		weap_message = 7;
 	} else if (utils::IsAbbr(str, "копья")) {
 		weap_class = ESkill::kSpades;
-		weap_message = 8;
 	} else {
 		return false;
 	}
@@ -472,6 +581,12 @@ bool ParseFilter::check_skill(ObjData *obj) const {
 	return false;
 }
 
+bool ParseFilter::check_profession(ObjData *obj) const {
+	if (profession == ECharClass::kUndefined)
+		return true;
+	return !obj_blocked_for_class(obj, profession);
+}
+
 bool ParseFilter::check_wear(ObjData *obj) const {
 	if (wear == EWearFlag::kUndefined
 		|| CAN_WEAR(obj, wear)) {
@@ -525,7 +640,7 @@ bool ParseFilter::check_remorts(ObjData *obj) const {
 		obj_remorts = 0;
 	}
 	if (remorts_sign == '\0')
-			return true;
+		return true;
 	if (remorts_sign == '=') {
 		if (abs(obj_remorts) == remorts)
 			return true;
@@ -536,12 +651,12 @@ bool ParseFilter::check_remorts(ObjData *obj) const {
 		if (remorts_sign == '+') {
 			if (remorts <= obj_remorts)
 				return true;
-			}
-			else if (remorts >= obj_remorts)
-				return true;
+		}
+		else if (remorts >= obj_remorts)
+			return true;
 	} else {
-			if (remorts <= abs(obj_remorts))
-				return true;
+		if (remorts <= abs(obj_remorts))
+			return true;
 	}
 	return false;
 }
@@ -645,6 +760,7 @@ bool ParseFilter::check(ObjData *obj, CharData *ch) {
 		&& check_affect_weap(obj)
 		&& check_affect_extra(obj)
 		&& check_skill(obj)
+		&& check_profession(obj)
 		&& check_remorts(obj)) {
 		return true;
 	}
@@ -665,6 +781,7 @@ bool ParseFilter::check(ExchangeItem *exch_obj) {
 		&& check_affect_extra(obj)
 		&& check_realtime(exch_obj)
 		&& check_skill(obj)
+		&& check_profession(obj)
 		&& check_remorts(obj)) {
 		return true;
 	}
@@ -677,31 +794,32 @@ bool ParseFilter::parse_filter(const CharData *ch, ParseFilter &filter, const ch
 	if (!*argument && ch) {
 		std::stringstream ss;
 		ss << "Возможные фильтры:\r\n" <<
-			  "   И - Имя (название) предмета\r\n" <<
-			  "   Т - Тип предмета (свет,свиток,палочка,посох,оружие,броня,напиток,прочее,\r\n" <<
-			  "       контейнер,книга,руна,ингредиент)\r\n" <<
-			  "   C - Состояние предмета (ужасно,скоро исп,плоховато,средне,идеально)\r\n" <<
-			  "   О - Куда можно одеть предмет (палец,шея,тело,голова,ноги,ступни,кисти,руки,\r\n" <<
-			  "       щит,плечи,пояс,запястья,левая,правая,обе)\r\n" <<
-			  "   К - Класс оружия (луки,короткие,длинные,секиры,палицы,иное,двуручники,\r\n" <<
-			  "       проникающее,копья)\r\n" <<
-			  "   А - название аффекта (длинное.имя.аффекта), до трех Аххх за один запрос,\r\n" <<
-			  "       для слотов под камни доступны короткие алиасы А1, А2, А3 - 1..3 слота.\r\n" <<
-			  "       допускается несколько слов через . и строгий поиск (! на конце слова)\r\n" <<
-			  "   Ц - цена предмета, знак '+' в конце указанной цены выведeт предметы,\r\n" <<
-			  "       которые равны или дороже указанной цены. Знак '-' выведет предметы,\r\n" <<
-			  "       которые равны или дешевле указанной цены.\r\n" <<
-			  "   Р - стоимость ренты предмета, знак '+' в конце указанной стоимости выведeт\r\n" <<
-			  "       предметы, содержание которых равно или дороже указанной цифры. Знак\r\n" <<
-			  "       '-' выведет  предметы, содержание которых равно или дешевле указанной\r\n" <<
-			  "       цифры.                                                                 \r\n" <<
-			  "   М - количество перевоплощений, знак '+' в конце указанного количества\r\n" <<
-			  "       выведет предметы, которые требует больше или равное количество        \r\n" <<
-			  "       перевоплощений. Знак '-' выведет предметы, которое требует меньше или\r\n" <<
-			  "       равное количество перевоплощений.  Знак '=' выведет предметы конкретного перевоплощения\r\n" <<
-			  "   У - Добавляемое умение\r\n" <<
-			  "   В - Продавец предмета на базаре.\r\n" <<
-			  " Можно указать несколько фильтров, разделив их пробелом.\r\n";
+		   "   И - Имя (название) предмета\r\n" <<
+		   "   Т - Тип предмета (свет,свиток,палочка,посох,оружие,броня,напиток,прочее,\r\n" <<
+		   "       контейнер,книга,руна,ингредиент)\r\n" <<
+		   "   C - Состояние предмета (ужасно,скоро исп,плоховато,средне,идеально)\r\n" <<
+		   "   О - Куда можно одеть предмет (палец,шея,тело,голова,ноги,ступни,кисти,руки,\r\n" <<
+		   "       щит,плечи,пояс,запястья,левая,правая,обе)\r\n" <<
+		   "   К - Класс оружия (луки,короткие,длинные,секиры,палицы,иное,двуручники,\r\n" <<
+		   "       проникающее,копья)\r\n" <<
+		   "   А - название аффекта (длинное.имя.аффекта), до трех Аххх за один запрос,\r\n" <<
+		   "       для слотов под камни доступны короткие алиасы А1, А2, А3 - 1..3 слота.\r\n" <<
+		   "       допускается несколько слов через . и строгий поиск (! на конце слова)\r\n" <<
+		   "   Ц - цена предмета, знак '+' в конце указанной цены выведeт предметы,\r\n" <<
+		   "       которые равны или дороже указанной цены. Знак '-' выведет предметы,\r\n" <<
+		   "       которые равны или дешевле указанной цены.\r\n" <<
+		   "   Р - стоимость ренты предмета, знак '+' в конце указанной стоимости выведeт\r\n" <<
+		   "       предметы, содержание которых равно или дороже указанной цифры. Знак\r\n" <<
+		   "       '-' выведет  предметы, содержание которых равно или дешевле указанной\r\n" <<
+		   "       цифры.                                                                 \r\n" <<
+		   "   М - количество перевоплощений, знак '+' в конце указанного количества\r\n" <<
+		   "       выведет предметы, которые требует больше или равное количество        \r\n" <<
+		   "       перевоплощений. Знак '-' выведет предметы, которое требует меньше или\r\n" <<
+		   "       равное количество перевоплощений.  Знак '=' выведет предметы конкретного перевоплощения\r\n" <<
+		   "   У - Добавляемое умение\r\n" <<
+		   "   В - Продавец предмета на базаре.\r\n" <<
+		   "   П - Профессия (имя класса), отсекаются предметы запрещенные классу.\r\n" <<
+		   " Можно указать несколько фильтров, разделив их пробелом.\r\n";
 		SendMsgToChar(ss.str(), ch);
 		return false;
 	}
@@ -789,9 +907,16 @@ bool ParseFilter::parse_filter(const CharData *ch, ParseFilter &filter, const ch
 				}
 				owner = buf_tmp;
 				break;
-			default: 
-					SendMsgToChar("Ошибка в фильтре.\r\n", ch);
+			case 'П':// профессия (отсечь предметы запрещенные данному классу)
+				argument = one_argument(++argument, buf_tmp);
+				if (!filter.init_profession(buf_tmp)) {
+					SendMsgToChar("Неверное название профессии.\r\n", ch);
 					return false;
+				}
+				break;
+			default:
+				SendMsgToChar("Ошибка в фильтре.\r\n", ch);
+				return false;
 				break;
 		}
 	}
@@ -835,7 +960,7 @@ std::string ParseFilter::print() const {
 	}
 	if (MUD::Skills().IsValid(weap_class)) {
 		buffer += "К";
-		buffer += weapon_class[weap_message];
+		buffer += MUD::Skill(weap_class).name;
 		buffer += ", ";
 	}
 	if (cost >= 0) {
@@ -851,6 +976,11 @@ std::string ParseFilter::print() const {
 	if (skill_id != ESkill::kUndefined) {
 		sprintf(buf, "К%s", MUD::Skill(skill_id).GetName());
 		buffer += buf;
+		buffer += ", ";
+	}
+	if (profession != ECharClass::kUndefined) {
+		buffer += "П";
+		buffer += MUD::Class(profession).GetName();
 		buffer += ", ";
 	}
 	if (remorts >= 0) {

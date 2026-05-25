@@ -1,5 +1,8 @@
 #include "disarm.h"
 
+#include "skill_messages.h"
+#include "engine/db/global_objects.h"
+
 #include "gameplay/fight/pk.h"
 #include "gameplay/fight/common.h"
 #include "gameplay/fight/fight_hit.h"
@@ -13,13 +16,13 @@
 // ************* DISARM PROCEDURES
 void do_disarm(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->IsNpc() || !ch->GetSkill(ESkill::kDisarm)) {
-		SendMsgToChar("Вы не знаете как.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kDisarm, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
 
 	CharData *vict = FindVictim(ch, argument);
 	if (!vict) {
-		SendMsgToChar("Кого обезоруживаем?\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kDisarm, ESkillMsg::kNoTarget) + "\r\n", ch);
 		return;
 	}
 
@@ -38,12 +41,12 @@ void do_disarm(CharData *ch, CharData *vict) {
 	}
 	
 	if (ch->HasCooldown(ESkill::kDisarm)) {
-		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kDisarm, ESkillMsg::kOnCooldown) + "\r\n", ch);
 		return;
 	};
 
 	if (ch == vict) {
-		SendMsgToChar("Попробуйте набрать \"снять <название.оружия>\".\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kDisarm, ESkillMsg::kCantTargetSelf) + "\r\n", ch);
 		return;
 	}
 //	if (vict->purged()) {
@@ -160,7 +163,7 @@ void go_disarm(CharData *ch, CharData *vict) {
 		*helded = GET_EQ(vict, EEquipPos::kHold);
 
 	if (IsUnableToAct(ch)) {
-		SendMsgToChar("Вы временно не в состоянии сражаться.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kDisarm, ESkillMsg::kCantFightNow) + "\r\n", ch);
 		return;
 	}
 

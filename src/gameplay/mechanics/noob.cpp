@@ -4,6 +4,7 @@
 #include "noob.h"
 
 #include "engine/entities/char_data.h"
+#include "gameplay/mechanics/birthplaces.h"
 #include "third_party_libs/pugixml/pugixml.h"
 #include "utils/parse.h"
 #include "engine/core/handler.h"

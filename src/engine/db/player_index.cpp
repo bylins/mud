@@ -70,20 +70,28 @@ void PlayersIndex::AddNameToIndex(const std::string &name, const std::size_t ind
 	m_name_to_index.emplace(name, index);
 }
 
+namespace {
+template <std::size_t N>
+struct fnv_params;
+template <>
+struct fnv_params<8> {
+	static constexpr std::size_t offset_basis = 14695981039346656037ULL;
+	static constexpr std::size_t prime        = 1099511628211ULL;
+};
+template <>
+struct fnv_params<4> {
+	static constexpr std::size_t offset_basis = 2166136261U;
+	static constexpr std::size_t prime        = 16777619U;
+};
+}  // namespace
 std::size_t PlayersIndex::hasher::operator()(const std::string &value) const {
 	// FNV-1a implementation
-	static_assert(sizeof(size_t) == 8, "This code is for 64-bit size_t.");
-
-	const std::size_t FNV_offset_basis = 14695981039346656037ULL;
-	const std::size_t FNV_prime = 1099511628211ULL;
-
-	const auto count = value.size();
-	std::size_t result = FNV_offset_basis;
-	for (std::size_t i = 0; i < count; ++i) {
-		result ^= (std::size_t) LOWER(value[i]);
-		result *= FNV_prime;
+	using p = fnv_params<sizeof(std::size_t)>;
+	std::size_t result = p::offset_basis;
+	for (unsigned char c : value) {
+		result ^= static_cast<std::size_t>(LOWER(c));
+		result *= p::prime;
 	}
-
 	return result;
 }
 

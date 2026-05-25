@@ -1,4 +1,6 @@
 #include "turnundead.h"
+#include "skill_messages.h"
+#include "engine/db/global_objects.h"
 
 #include "gameplay/fight/pk.h"
 #include "gameplay/fight/fight_hit.h"
@@ -16,11 +18,11 @@
 void do_turn_undead(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 
 	if (!ch->GetSkill(ESkill::kTurnUndead)) {
-		SendMsgToChar("Вам это не по силам.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kTurnUndead, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
 	if (ch->HasCooldown(ESkill::kTurnUndead)) {
-		SendMsgToChar("Вам нужно набраться сил для применения этого навыка.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kTurnUndead, ESkillMsg::kOnCooldown) + "\r\n", ch);
 		return;
 	};
 

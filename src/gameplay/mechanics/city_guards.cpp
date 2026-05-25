@@ -3,13 +3,15 @@
 //
 #include "city_guards.h"
 
+#include "third_party_libs/pugixml/pugixml.h"
+
 #include "engine/boot/boot_constants.h"
 #include "engine/entities/char_data.h"
 #include "engine/entities/entities_constants.h"
 #include "gameplay/clans/house.h"
 #include "utils/logger.h"
 
-#include <third_party_libs/fmt/include/fmt/format.h>
+#include <fmt/format.h>
 
 namespace city_guards {
 

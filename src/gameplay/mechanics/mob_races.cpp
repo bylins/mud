@@ -4,6 +4,8 @@
 
 #include "mob_races.h"
 
+#include "third_party_libs/pugixml/pugixml.h"
+
 #include "engine/boot/boot_constants.h"
 #include "engine/entities/char_data.h"
 

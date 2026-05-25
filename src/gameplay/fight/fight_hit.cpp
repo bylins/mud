@@ -264,7 +264,7 @@ Damage HitData::GenerateExtradamage(int initial_dmg) {
 	// Вызывается damage с отрицательным уроном
 	dam = (initial_dmg >= 0 ? dam : -1);
 	Damage dmg(SkillDmg(skill_num), dam, fight::kPhysDmg, wielded);
-	dmg.hit_type = hit_type;
+	dmg.damage_source = fight::EDamageSource(hit_type);
 	dmg.dam_critic = dam_critic;
 	dmg.flags = GetFlags();
 	dmg.ch_start_pos = ch_start_pos;

@@ -2084,7 +2084,7 @@ def parse_mob_file(filepath):
                         'armor': int(parts[2]) if parts[2].lstrip('-').isdigit() else 100
                     }
                     # Parse HP dice (format: XdY+Z)
-                    hp_match = re.match(r'(-?\d+)d(\d+)([+-]\d+)?', parts[3])
+                    hp_match = re.match(r'(-?\d+)d(-?\d+)([+-]\d+)?', parts[3])
                     if hp_match:
                         mob['stats']['hp'] = {
                             'dice_count': int(hp_match.group(1)),
@@ -2092,7 +2092,7 @@ def parse_mob_file(filepath):
                             'bonus': int(hp_match.group(3)) if hp_match.group(3) else 0
                         }
                     # Parse damage dice
-                    dmg_match = re.match(r'(-?\d+)d(\d+)([+-]\d+)?', parts[4])
+                    dmg_match = re.match(r'(-?\d+)d(-?\d+)([+-]\d+)?', parts[4])
                     if dmg_match:
                         mob['stats']['damage'] = {
                             'dice_count': int(dmg_match.group(1)),
@@ -2105,7 +2105,7 @@ def parse_mob_file(filepath):
             if idx < len(lines):
                 parts = lines[idx].split()
                 if parts:
-                    gold_match = re.match(r'(-?\d+)d(\d+)([+-]\d+)?', parts[0])
+                    gold_match = re.match(r'(-?\d+)d(-?\d+)([+-]\d+)?', parts[0])
                     if gold_match:
                         mob['gold'] = {
                             'dice_count': int(gold_match.group(1)),
@@ -2116,12 +2116,18 @@ def parse_mob_file(filepath):
                         mob['experience'] = int(parts[1]) if parts[1].isdigit() else 0
                 idx += 1
 
-            # Position and sex line
+            # Position and sex line.
+            # Legacy file layout (parse_simple_mob:1156-1158): first field
+            # is the current/start position, second is default_pos. Earlier
+            # this code put parts[0] under 'default' and parts[1] under
+            # 'start', i.e. swapped relative to the C++ YAML loader's
+            # semantics (default_pos = pos["default"], current = pos["start"]),
+            # so every legacy<->yaml<->legacy hop oscillated the two values.
             if idx < len(lines):
                 parts = lines[idx].split()
                 if len(parts) >= 2:
-                    pos_default = int(parts[0]) if parts[0].isdigit() else 8
-                    pos_start = int(parts[1]) if parts[1].isdigit() else 8
+                    pos_start = int(parts[0]) if parts[0].isdigit() else 8
+                    pos_default = int(parts[1]) if parts[1].isdigit() else 8
                     sex = int(parts[2]) if parts[2].isdigit() else 0
 
                     mob['position'] = {
@@ -2142,8 +2148,10 @@ def parse_mob_file(filepath):
                     idx += 1
                     continue
 
-                if line.startswith('E'):
-                    # Enhanced mob marker - continue parsing
+                if line == 'E':
+                    # Enhanced mob marker - continue parsing.
+                    # Точное равенство, иначе перехватываем ExtraAttack: и
+                    # другие поля, начинающиеся с 'E' (issue #3223).
                     idx += 1
                     continue
                 elif line.startswith('Str:'):
@@ -2281,6 +2289,20 @@ def parse_mob_file(filepath):
                             'skill_id': int(parts[0]),
                             'value': int(parts[1])
                         })
+                elif line.startswith('L '):
+                    # Dead-load entry (issue #3291): `L obj_vnum prob type spec_param`.
+                    # Without this branch the loot list silently disappears in YAML,
+                    # then in SQLite, and finally on every player who kills the mob.
+                    dl_parts = line[2:].strip().split()
+                    if len(dl_parts) >= 4:
+                        if 'dead_load' not in mob:
+                            mob['dead_load'] = []
+                        mob['dead_load'].append({
+                            'obj_vnum': int(dl_parts[0]),
+                            'load_prob': int(dl_parts[1]),
+                            'load_type': int(dl_parts[2]),
+                            'spec_param': int(dl_parts[3]),
+                        })
                 elif line.startswith('T '):
                     trig_vnum = int(line[2:].strip())
                     mob['triggers'].append(trig_vnum)
@@ -2411,6 +2433,18 @@ def mob_to_yaml(mob):
             s['value'] = skill['value']
             skills.append(s)
         data['skills'] = skills
+
+    # Dead-load list (L lines in legacy mob file). Issue #3291.
+    if mob.get('dead_load'):
+        dl = CommentedSeq()
+        for entry in mob['dead_load']:
+            item = CommentedMap()
+            item['obj_vnum'] = entry['obj_vnum']
+            item['load_prob'] = entry['load_prob']
+            item['load_type'] = entry['load_type']
+            item['spec_param'] = entry['spec_param']
+            dl.append(item)
+        data['dead_load'] = dl
 
     # Triggers with name comments
     if mob.get('triggers'):
@@ -3196,7 +3230,9 @@ def parse_trg_file(filepath):
                 last_line = lines[idx].rstrip('~')
                 if last_line:
                     script_parts.append(last_line)
-            trigger['script'] = '\r\n'.join(script_parts).replace('~~', '~')
+            trigger['script'] = _normalize_script(
+                '\r\n'.join(script_parts).replace('~~', '~')
+            )
 
             triggers.append(trigger)
 
@@ -3205,6 +3241,47 @@ def parse_trg_file(filepath):
             continue
 
     return triggers
+
+
+def _lowercase_first_token(line):
+    """Lowercase the first whitespace-delimited token of a script line.
+
+    Mirrors the load-time normalisation in
+    src/engine/db/world_data_source_base.cpp (ParseTriggerScript) and the
+    legacy loader in src/engine/boot/boot_data_files.cpp -- both rewrite the
+    first word of each command via LOWER() so the DG-script runtime can use
+    strncmp() for dispatch. Doing the same here keeps the YAML on disk in the
+    canonical form and removes a spurious round-trip diff
+    ("DgAffect" -> "dgaffect" after one save).
+    """
+    i = 0
+    while i < len(line) and line[i] in ' \t':
+        i += 1
+    j = i
+    while j < len(line) and line[j] not in ' \t':
+        j += 1
+    return line[:i] + line[i:j].lower() + line[j:]
+
+
+def _normalize_script(script):
+    """Apply _lowercase_first_token to every line of a multi-line script.
+
+    NOTE: rstrip()'ing each line *would* mirror utils::TrimRight(line) at the
+    line-content level in the C++ loaders, but it also drops lines that
+    consist of nothing but whitespace -- which ParseTriggerScript /
+    boot_data_files.cpp KEEP (their empty-line check runs *before* the trim).
+    Stripping changes the in-memory cmdlist (a different number of nodes),
+    so the world checksum shifts. We deliberately do NOT rstrip here -- it
+    is the loader's job to normalise per-line whitespace at load time.
+    """
+    if not script:
+        return script
+    # Preserve the original line separator (\r\n vs \n) by detecting first.
+    if '\r\n' in script:
+        sep = '\r\n'
+    else:
+        sep = '\n'
+    return sep.join(_lowercase_first_token(line) for line in script.split(sep))
 
 
 def trg_to_yaml(trigger):
@@ -3228,7 +3305,9 @@ def trg_to_yaml(trigger):
     if 'narg' in trigger:
         data['narg'] = trigger['narg']
 
-    if 'arglist' in trigger:
+    # Match C++ SaveTriggers: emit arglist only when non-empty. Otherwise
+    # converter writes `arglist: ''` and a round-trip save drops the key.
+    if trigger.get('arglist'):
         data['arglist'] = trigger['arglist']
 
     if 'script' in trigger:

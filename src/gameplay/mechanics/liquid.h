@@ -7,6 +7,8 @@
 *  $Revision$                                                     *
 ************************************************************************ */
 
+#pragma once
+
 #include "engine/core/conf.h"
 #include "engine/core/sysdep.h"
 #include "engine/structs/structs.h"

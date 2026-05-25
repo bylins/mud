@@ -10,6 +10,11 @@
 
 #include "exchange.h"
 
+#include <fmt/format.h>
+#include <fmt/printf.h>
+
+#include <iterator>
+
 #include "engine/db/obj_prototypes.h"
 #include "engine/db/world_characters.h"
 #include "engine/entities/obj_data.h"
@@ -423,7 +428,7 @@ int exchange_withdraw(CharData *ch, char *arg) {
 int exchange_information(CharData *ch, char *arg) {
 	ExchangeItem *item = nullptr, *j, *next_thing = nullptr;
 	int lot;
-	char buf[kMaxStringLength], buf2[kMaxInputLength];
+	char buf2[kMaxInputLength];
 
 	if (!*arg) {
 		SendMsgToChar(info_message, ch);
@@ -443,46 +448,43 @@ int exchange_information(CharData *ch, char *arg) {
 		return false;
 	}
 
-	sprintf(buf, "Лот %d. Цена %d\r\n", GET_EXCHANGE_ITEM_LOT(item), GET_EXCHANGE_ITEM_COST(item));
-
-	size_t buf_len = strlen(buf);
-	snprintf(buf + buf_len, sizeof(buf) - buf_len, "Предмет \"%s\", ", GET_EXCHANGE_ITEM(item)->get_short_description().c_str());
+	std::string out;
+	out = fmt::sprintf("Лот %d. Цена %d\r\n", GET_EXCHANGE_ITEM_LOT(item), GET_EXCHANGE_ITEM_COST(item));
+	out += fmt::sprintf("Предмет \"%s\", ", GET_EXCHANGE_ITEM(item)->get_short_description().c_str());
 	if (GET_EXCHANGE_ITEM(item)->get_type() == EObjType::kWand
 		|| GET_EXCHANGE_ITEM(item)->get_type() == EObjType::kStaff) {
 		if (GET_OBJ_VAL(GET_EXCHANGE_ITEM(item), 2) < GET_OBJ_VAL(GET_EXCHANGE_ITEM(item), 1)) {
-			strncat(buf, "(б/у), ", sizeof(buf) - strlen(buf) - 1);
+			out += "(б/у), ";
 		}
 	}
-	strncat(buf, " тип ", sizeof(buf) - strlen(buf) - 1);
+	out += " тип ";
 	sprinttype(GET_EXCHANGE_ITEM(item)->get_type(), item_types, buf2);
 	if (*buf2) {
-		size_t buf_len = strlen(buf);
-		snprintf(buf + buf_len, sizeof(buf) - buf_len, "%s\n", buf2);
-	};
-	buf_len = strlen(buf);
-	snprintf(buf + buf_len, sizeof(buf) - buf_len, "%s%s\r\n", diag_weapon_to_char(GET_EXCHANGE_ITEM(item), true), diag_timer_to_char(GET_EXCHANGE_ITEM(item)));
-	obj_info(ch, GET_EXCHANGE_ITEM(item), buf);
-	strncat(buf, "\n", sizeof(buf) - strlen(buf) - 1);
+		out += fmt::sprintf("%s\n", buf2);
+	}
+	out += fmt::sprintf("%s%s\r\n", diag_weapon_to_char(GET_EXCHANGE_ITEM(item), true), diag_timer_to_char(GET_EXCHANGE_ITEM(item)));
+	{
+		char obj_buf[kMaxStringLength];
+		snprintf(obj_buf, sizeof(obj_buf), "%s", out.c_str());
+		obj_info(ch, GET_EXCHANGE_ITEM(item), obj_buf);
+		out = obj_buf;
+	}
+	out += "\n";
 	if (invalid_anti_class(ch, GET_EXCHANGE_ITEM(item)) || invalid_unique(ch, GET_EXCHANGE_ITEM(item))
 		|| NamedStuff::check_named(ch, GET_EXCHANGE_ITEM(item), 0)) {
-		snprintf(buf2, sizeof(buf2), "Эта вещь вам недоступна!\n");
-		strncat(buf, buf2, sizeof(buf) - strlen(buf) - 1);
+		out += "Эта вещь вам недоступна!\n";
 	}
 	if (HaveIncompatibleAlign(ch, GET_EXCHANGE_ITEM(item)) || invalid_no_class(ch, GET_EXCHANGE_ITEM(item))) {
-		sprintf(buf2, "Вы не сможете пользоваться этой вещью.\n");
-		strncat(buf, buf2, sizeof(buf) - strlen(buf) - 1);
+		out += "Вы не сможете пользоваться этой вещью.\n";
 	}
 	auto seller_name = GetNameById(GET_EXCHANGE_ITEM_SELLERID(item));
 	snprintf(buf2, sizeof(buf2), "%s", seller_name.empty() ? "(сожран долгоносиком)" : seller_name.c_str());
 	*buf2 = UPPER(*buf2);
-	buf_len = strlen(buf);
-	snprintf(buf + buf_len, sizeof(buf) - buf_len, "Продавец %s\n", buf2);
-
+	out += fmt::sprintf("Продавец %s\n", buf2);
 	if (GET_EXCHANGE_ITEM_COMMENT(item)) {
-		snprintf(buf2, sizeof(buf2), "Берестовая наклейка на лоте гласит: '%s'.\n", GET_EXCHANGE_ITEM_COMMENT(item));
-		strncat(buf, buf2, sizeof(buf) - strlen(buf) - 1);
+		out += fmt::sprintf("Берестовая наклейка на лоте гласит: '%s'.\n", GET_EXCHANGE_ITEM_COMMENT(item));
 	}
-	SendMsgToChar(buf, ch);
+	SendMsgToChar(out, ch);
 	return true;
 }
 
@@ -671,35 +673,34 @@ bool correct_filter_length(const CharData *ch, const char *str) {
 
 int exchange_offers(const CharData *ch, const char *arg) {
 //влом байты считать. Если кто хочет оптимизировать, посчитайте точно.
-	char filter[kMaxInputLength] = "";
+	std::string filter;
+	filter.reserve(kMaxInputLength);
 	short int show_type = 0;
 
 	arg = one_argument(arg, arg1);
 	if (utils::IsAbbr(arg1, "все") || utils::IsAbbr(arg1, "all")) {
 		show_type = 2;
-		snprintf(filter, sizeof(filter), "М0+");
+		filter = "М0+";
 	} else if (utils::IsAbbr(arg1, "мои") || utils::IsAbbr(arg1, "mine")) {
 		show_type = 1;
-		snprintf(filter, sizeof(filter), "В%s", GET_NAME(ch));
+		filter = "В";
+		filter += GET_NAME(ch);
 	} else {
 		while (*arg1) {
 			arg1[0] = UPPER(arg1[0]);
-			snprintf(buf, sizeof(buf), "%s ", arg1);
-			strncat(filter, buf, sizeof(filter) - strlen(filter) - 1);
+			filter += arg1;
+			filter += ' ';
 			arg = one_argument(arg, arg1);
 		}
 	}
 	if (show_type == 0 && EXCHANGE_FILTER(ch)) {
-		snprintf(buf, sizeof(buf), "%s %s", EXCHANGE_FILTER(ch), filter);
-		strncpy(filter, buf, sizeof(filter) - strlen(filter) - 1);
+		filter = std::string(EXCHANGE_FILTER(ch)) + " " + filter;
 	}
-	if (!correct_filter_length(ch, filter)) {
+	if (!correct_filter_length(ch, filter.c_str())) {
 		return 0;
 	}
-//	sprintf(buf, "arg=%s, type=%d", filter, show_type);
-//	mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-					
-	show_lots(filter, show_type, ch);
+
+	show_lots(filter.c_str(), show_type, ch);
 	return 1;
 }
 
@@ -839,8 +840,10 @@ ExchangeItem *exchange_read_one_object_new(char **data, int *error) {
 	*error = 9;
 	// Считаем comment предмета
 	char *str_last_symb = strchr(*data, '\n');
-	strncpy(buffer, *data, str_last_symb - *data);
-	buffer[str_last_symb - *data] = '\0';
+	size_t copy_len = static_cast<size_t>(str_last_symb - *data);
+	if (copy_len >= sizeof(buffer)) copy_len = sizeof(buffer) - 1;
+	memcpy(buffer, *data, copy_len);
+	buffer[copy_len] = '\0';
 	*data = str_last_symb;
 
 	if (strcmp(buffer, "EMPTY"))
@@ -1132,19 +1135,29 @@ void show_lots(const char *filter, short int show_type, const CharData *ch) {
 			"Лот      Предмет                                                     Цена  Состояние\r\n"
 			"--------------------------------------------------------------------------------------------\r\n";
 	}
+	// Буферы заводим один раз и переиспользуем (clear сохраняет capacity),
+	// чтобы по совету Квирунда не реаллоцировать на каждой итерации, как
+	// вёл бы себя char[kMaxInputLength].
+	std::string item;
+	item.reserve(kMaxInputLength);
+	std::string aff;
+	aff.reserve(kMaxInputLength);
 	for (ExchangeItem *j = exchange_item_list; j; j = j->next) {
 		if (show_type == 1 && !isname(GET_NAME(ch), GetNameById(GET_EXCHANGE_ITEM_SELLERID(j))))
 			continue;
+		item.clear();
 		// ну идиотизм сидеть статить 5-10 страниц резных
 		// Идиотизм - это тупым хардком по названию предмета вот так проверять.
 		// Использовать флаг или добавить новый - лапки, да?
 		if (utils::IsAbbr("резное запястье", GET_EXCHANGE_ITEM(j)->get_PName(ECase::kNom).c_str())
 			|| utils::IsAbbr("широкое серебряное обручье", GET_EXCHANGE_ITEM(j)->get_PName(ECase::kNom).c_str())
 			|| utils::IsAbbr("медное запястье", GET_EXCHANGE_ITEM(j)->get_PName(ECase::kNom).c_str())) {
-			GET_EXCHANGE_ITEM(j)->get_affect_flags().sprintbits(weapon_affects, buf, sizeof(buf), ",");
+			char affbuf[kMaxStringLength];
+			GET_EXCHANGE_ITEM(j)->get_affect_flags().sprintbits(weapon_affects, affbuf, sizeof(affbuf), ",");
 			// небольшое дублирование кода, чтобы зря не гонять по аффектам всех шмоток
-			if (!strcmp(buf, "ничего")) {
-				bool found = false;
+			aff.assign(affbuf);
+			if (aff == "ничего") {
+				aff.clear();
 				for (int n = 0; n < kMaxObjAffect; n++) {
 					auto drndice = GET_EXCHANGE_ITEM(j)->get_affected(n).location;
 					int drsdice = GET_EXCHANGE_ITEM(j)->get_affected(n).modifier;
@@ -1153,56 +1166,45 @@ void show_lots(const char *filter, short int show_type, const CharData *ch) {
 						if (drsdice < 0)
 							negative = !negative;
 						sprinttype(drndice, apply_types, buf2);
-						snprintf(buf, kMaxStringLength, "%s %s%d", buf2, negative ? "-" : "+", abs(drsdice));
-						found = true;
+						fmt::format_to(std::back_inserter(aff), "{} {}{}", buf2, negative ? "-" : "+", abs(drsdice));
 						break;
 					}
 				}
-
-				if (!found) {
-					snprintf(tmpbuf, sizeof(tmpbuf),
-							"[%4d]   %s",
-							GET_EXCHANGE_ITEM_LOT(j),
-							GET_EXCHANGE_ITEM(j)->get_PName(ECase::kNom).c_str());
-				} else {
-					snprintf(tmpbuf,
-							 kMaxInputLength,
-							 "[%4d]   %s (%s)",
-							 GET_EXCHANGE_ITEM_LOT(j),
-							 GET_EXCHANGE_ITEM(j)->get_PName(ECase::kNom).c_str(),
-							 buf);
-				}
-			} else  // end by WorM
-			{
-				snprintf(tmpbuf, kMaxInputLength, "[%4d]   %s (%s)", GET_EXCHANGE_ITEM_LOT(j),
-						 GET_EXCHANGE_ITEM(j)->get_PName(ECase::kNom).c_str(), buf);
+			}
+			if (aff.empty()) {
+				fmt::format_to(std::back_inserter(item), "[{:4}]   {}",
+						GET_EXCHANGE_ITEM_LOT(j),
+						GET_EXCHANGE_ITEM(j)->get_PName(ECase::kNom).c_str());
+			} else {
+				fmt::format_to(std::back_inserter(item), "[{:4}]   {} ({})",
+						GET_EXCHANGE_ITEM_LOT(j),
+						GET_EXCHANGE_ITEM(j)->get_PName(ECase::kNom).c_str(),
+						aff);
 			}
 		} else if (is_dig_stone(GET_EXCHANGE_ITEM(j))
 			&& GET_EXCHANGE_ITEM(j)->get_material() == EObjMaterial::kGlass) {
-			snprintf(tmpbuf, sizeof(tmpbuf),
-					"[%4d]   %s (стекло)",
+			fmt::format_to(std::back_inserter(item), "[{:4}]   {} (стекло)",
 					GET_EXCHANGE_ITEM_LOT(j),
 					GET_EXCHANGE_ITEM(j)->get_PName(ECase::kNom).c_str());
 		} else {
-			snprintf(tmpbuf, sizeof(tmpbuf),
-					"[%4d]   %s%s",
+			fmt::format_to(std::back_inserter(item), "[{:4}]   {}{}",
 					GET_EXCHANGE_ITEM_LOT(j),
 					GET_EXCHANGE_ITEM(j)->get_PName(ECase::kNom).c_str(),
-					params.show_obj_aff(GET_EXCHANGE_ITEM(j)).c_str());
+					params.show_obj_aff(GET_EXCHANGE_ITEM(j)));
 		}
 		char *tmstr;
 		tmstr = (char *) asctime(localtime(&(j->time)));
 		if (ch->IsGod()) {//asctime добавляет перевод строки лишний
 			snprintf(tmpbuf, sizeof(tmpbuf),
 					"(%5d) %s %9d  %-s %s", GET_EXCHANGE_ITEM(j)->get_vnum(),
-					colored_name(tmpbuf, 63, true),
+					colored_name(item.c_str(), 63, true),
 					GET_EXCHANGE_ITEM_COST(j),
 					diag_obj_timer(GET_EXCHANGE_ITEM(j)),
 					tmstr);
 		} else {
 			snprintf(tmpbuf, sizeof(tmpbuf),
 					"%s %9d  %-s\r\n",
-					colored_name(tmpbuf, 63, true),
+					colored_name(item.c_str(), 63, true),
 					GET_EXCHANGE_ITEM_COST(j),
 					diag_obj_timer(GET_EXCHANGE_ITEM(j)));
 			}

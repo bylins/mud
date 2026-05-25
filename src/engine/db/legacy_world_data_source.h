@@ -14,7 +14,13 @@ namespace world_loader
 class LegacyWorldDataSource : public IWorldDataSource
 {
 public:
-	LegacyWorldDataSource() = default;
+	// world_dir is the directory the world lives in: Load* read from it and
+	// Save* write to it (both via "world/{wld,mob,obj,zon,trg}/" relative to
+	// it). Empty (the default) means the current working directory -- the
+	// running server's mode, where cwd is the data dir after the main
+	// chdir(-d). A non-empty value is used by GameLoader::ResaveWorld to
+	// point a save-only instance at an export directory.
+	explicit LegacyWorldDataSource(std::string world_dir = "");
 	~LegacyWorldDataSource() override = default;
 
 	std::string GetName() const override { return "Legacy file-based loader"; }
@@ -30,10 +36,22 @@ public:
 	void SaveRooms(int zone_rnum, int specific_vnum = -1) override;
 	void SaveMobs(int zone_rnum, int specific_vnum = -1) override;
 	void SaveObjects(int zone_rnum, int specific_vnum = -1) override;
+
+	// Regenerate the per-subdir "index" files under world_dir/world/*. The
+	// OLC save_to_disk routines write individual <vnum>.<ext> files but do
+	// not maintain the boot indexes, so a freshly resaved tree is not
+	// bootable without this step. No-op for the in-place (empty world_dir)
+	// server mode.
+	void FinalizeResave() override;
+
+private:
+	std::string m_world_dir;
 };
 
-// Factory function for creating legacy data source
-std::unique_ptr<IWorldDataSource> CreateLegacyDataSource();
+// Factory for the legacy data source. world_dir defaults to the current
+// working directory (the running server's mode); ResaveWorld passes an
+// explicit export directory, symmetric with the YAML/SQLite factories.
+std::unique_ptr<IWorldDataSource> CreateLegacyDataSource(std::string world_dir = "");
 
 } // namespace world_loader
 

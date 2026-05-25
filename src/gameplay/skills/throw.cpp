@@ -1,4 +1,6 @@
 #include "throw.h"
+#include "skill_messages.h"
+#include "engine/db/global_objects.h"
 
 #include "engine/core/action_targeting.h"
 #include "gameplay/abilities/abilities_rollsystem.h"
@@ -131,7 +133,7 @@ void PerformWeaponThrow(abilities_roll::TechniqueRoll &technique, Damage &damage
 void GoThrow(CharData *ch, CharData *victim) {
 
 	if (IsUnableToAct(ch)) {
-		SendMsgToChar("Вы временно не в состоянии сражаться.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kThrow, ESkillMsg::kCantFightNow) + "\r\n", ch);
 		return;
 	}
 	// TODO: Возможно, стоит добавить простой тест на добавление целей.
@@ -193,7 +195,7 @@ void DoThrow(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 
 	CharData *victim = FindVictim(ch, argument);
 	if (!victim) {
-		SendMsgToChar("В кого мечем?\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kThrow, ESkillMsg::kNoTarget) + "\r\n", ch);
 		return;
 	}
 
@@ -227,7 +229,7 @@ void DoThrow(CharData *ch, CharData *victim) {
 	};
 
 	if (ch == victim) {
-		SendMsgToChar("Вы начали метаться как белка в колесе.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kThrow, ESkillMsg::kCantTargetSelf) + "\r\n", ch);
 		return;
 	}
 

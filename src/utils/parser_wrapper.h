@@ -17,39 +17,34 @@
 
 #ifndef PARSER_WRAPPER
 #define PARSER_WRAPPER
-#include <sstream>
+
 #include <filesystem>
 #include <memory>
+#include <string>
 
-#include "third_party_libs/pugixml/pugixml.h"
 #include "engine/structs/iterators.h"
 
 namespace parser_wrapper {
 
 class DataNode {
-  using value_type        = DataNode;
-  using pointer           = DataNode*;
-  using reference         = DataNode&;
- protected:
-	using DocPtr = std::shared_ptr<pugi::xml_document>;
-
-	DocPtr xml_doc_;
-	// Получить указатель на ноду непосредственно штатными средстваим нельзя.
-	pugi::xml_node curren_xml_node_;
-	std::string filter_name_;
-
  public:
-	DataNode() :
-		xml_doc_{std::make_shared<pugi::xml_document>()},
-		curren_xml_node_{pugi::xml_node()} {};
+	using value_type        = DataNode;
+	using pointer           = DataNode*;
+	using reference         = DataNode&;
+
+	DataNode();
 
 	explicit DataNode(const std::filesystem::path &file_name);
 
 	DataNode(const DataNode &d);
 
-	~DataNode() = default;
+	DataNode(DataNode &&d) noexcept;
 
-	DataNode &operator=(const DataNode &d) = default;
+	~DataNode();
+
+	DataNode &operator=(const DataNode &d);
+
+	DataNode &operator=(DataNode &&d) noexcept;
 
 	explicit operator bool() const;
 
@@ -145,6 +140,9 @@ class DataNode {
 	 */
 	[[nodiscard]] iterators::Range<DataNode> Children(const std::string &key);
 
+ private:
+	struct Impl;
+	std::unique_ptr<Impl> impl_;
 };
 
 } //parcer_wrapper

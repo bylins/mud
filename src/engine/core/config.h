@@ -2,7 +2,7 @@
 #define __CONFIG_HPP__
 
 #include "engine/structs/blocking_queue.h"
-#include "gameplay/mechanics/birthplaces.h"
+#include "gameplay/mechanics/birthplaces_constants.h"
 #include "engine/structs/structs.h"
 #include "engine/structs/meta_enum.h"
 

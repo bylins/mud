@@ -16,6 +16,7 @@
 
 #include "engine/core/handler.h"
 #include "engine/ui/color.h"
+#include "engine/ui/interpreter_utils.h"
 #include "gameplay/clans/house.h"
 #include "gameplay/economics/exchange.h"
 #include "gameplay/mechanics/deathtrap.h"
@@ -43,13 +44,12 @@
 #include "gameplay/mechanics/bonus.h"
 #include "gameplay/ai/mobact.h"
 
-#include <third_party_libs/fmt/include/fmt/format.h>
+#include <fmt/format.h>
 
 #include <random>
 
 const int kRecallSpellsInterval = 28;
 
-extern int check_dupes_host(DescriptorData *d, bool autocheck = false);
 extern int idle_rent_time;
 extern int idle_max_level;
 extern int idle_void;
@@ -1050,7 +1050,7 @@ void underwater_check() {
 			sprintf(buf, "Player %s died under water (room %d)",
 					GET_NAME(d->character), GET_ROOM_VNUM(d->character->in_room));
 
-			Damage dmg(SimpleDmg(kTypeWaterdeath), std::max(1, d->character->get_real_max_hit() >> 2), fight::kUndefDmg);
+			Damage dmg(SimpleDmg(fight::EDamageSource::kUnderwaterDeathTrap), std::max(1, d->character->get_real_max_hit() >> 2), fight::kUndefDmg);
 			dmg.flags.set(fight::kNoFleeDmg);
 
 			if (dmg.Process(d->character.get(), d->character.get()) < 0) {

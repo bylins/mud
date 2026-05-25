@@ -76,6 +76,36 @@ TEST(SerializeMob, IncludesNpcFlagPlanes) {
 		<< "SerializeMob must embed npc_flags planes; got: " << out;
 }
 
+// Issue #3223 / PR #3224: the converter silently dropped `ExtraAttack:`
+// because the section-marker check matched the field name. The bug went
+// unnoticed because SerializeMob did not include any "E"-section fields,
+// so Legacy and YAML checksums still agreed despite the data divergence.
+// Pin the enhanced-section scalars into the checksum so this class of
+// regression cannot hide again.
+TEST(SerializeMob, MobsDifferingOnlyByExtraAttackSerializeDifferently) {
+	CharData a, b;
+	a.SetNpcAttribute(true);
+	b.SetNpcAttribute(true);
+	a.mob_specials.extra_attack = 1;
+
+	const std::string sa = WorldChecksum::SerializeMob(42, a);
+	const std::string sb = WorldChecksum::SerializeMob(42, b);
+	EXPECT_NE(sa, sb)
+		<< "Mobs with different extra_attack must hash differently";
+}
+
+TEST(SerializeMob, MobsDifferingOnlyByAddAbilSerializeDifferently) {
+	CharData a, b;
+	a.SetNpcAttribute(true);
+	b.SetNpcAttribute(true);
+	a.add_abils.morale = 7;
+
+	const std::string sa = WorldChecksum::SerializeMob(42, a);
+	const std::string sb = WorldChecksum::SerializeMob(42, b);
+	EXPECT_NE(sa, sb)
+		<< "Mobs with different add_abils.morale must hash differently";
+}
+
 // Distinct mobs whose ONLY difference is a high-plane action flag must produce
 // different checksum-input strings. Before the fix, missing flag-plane fields
 // made these collide.

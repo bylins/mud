@@ -14,12 +14,6 @@
 #include "gameplay/mechanics/weather.h"
 #include "gameplay/mechanics/sets_drop.h"
 
-// see http://stackoverflow.com/questions/20145488/cygwin-g-stdstoi-error-stoi-is-not-a-member-of-std
-#if defined __CYGWIN__
-#include <cstdlib>
-#define stoi(x) strtol(x.c_str(),0,10)
-#endif
-
 int get_virtual_race(CharData *mob);
 
 extern int max_npc_corpse_time, max_pc_corpse_time;

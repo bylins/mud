@@ -1,4 +1,6 @@
-#define DB_CPP_
+#include <filesystem>
+
+#include "third_party_libs/pugixml/pugixml.h"
 
 #include "administration/accounts.h"
 #include "administration/ban.h"
@@ -9,6 +11,7 @@
 #include "gameplay/communication/social.h"
 #include "gameplay/crafting/jewelry.h"
 #include "gameplay/crafting/mining.h"
+#include "gameplay/mechanics/birthplaces.h"
 #include "gameplay/mechanics/player_races.h"
 #include "gameplay/mechanics/corpse.h"
 #include "gameplay/mechanics/celebrates.h"
@@ -73,7 +76,7 @@
 #include "world_data_source_manager.h"
 
 
-#include <third_party_libs/fmt/include/fmt/format.h>
+#include <fmt/format.h>
 #include <sys/stat.h>
 #ifndef _WIN32
 #include <unistd.h>
@@ -89,6 +92,12 @@ const long kBeginningOfTime = -1561789232;
 #else
 const long kBeginningOfTime = 650336715;
 #endif
+
+char buf[kMaxStringLength];
+char buf1[kMaxStringLength];
+char buf2[kMaxStringLength];
+char arg[kMaxInputLength];
+char smallBuf[kMaxRawInputLength];
 
 Rooms &world = GlobalObjects::world();
 
@@ -139,7 +148,7 @@ char *background{nullptr};    // background story
 char *name_rules{nullptr};        // rules of character's names
 
 TimeInfoData time_info;
-struct reset_q_type reset_q;    // queue of zones to be reset
+ResetQueue reset_q;
 
 const FlagData clear_flags;
 
@@ -168,7 +177,6 @@ void SetZoneRnumForObjects();
 void SetZoneRnumForMobiles();
 void SetZoneRnumForTriggers();
 void InitBasicValues();
-void LoadMessages();
 int CompareSocials(const void *a, const void *b);
 int ReadCrashTimerFile(std::size_t index, int temp);
 int LoadExchange();
@@ -188,22 +196,6 @@ extern struct MonthTemperature year_temp[];
 extern void ExtractTrigger(Trigger *trig);
 extern ESkill FixNameAndFindSkillId(char *name);
 extern void CopyMobilePrototypeForMedit(CharData *dst, CharData *src, bool partial_copy);
-
-char *ReadActionMsgFromFile(FILE *fl, int nr) {
-	char local_buf[kMaxStringLength];
-
-	const char *result = fgets(local_buf, kMaxStringLength, fl);
-	UNUSED_ARG(result);
-
-	if (feof(fl)) {
-		fatal_log("SYSERR: ReadActionMsgFromFile: unexpected EOF near action #%d", nr);
-	}
-	if (*local_buf == '#')
-		return (nullptr);
-
-	local_buf[strlen(local_buf) - 1] = '\0';
-	return (str_dup(local_buf));
-}
 
 // Separate a 4-character id tag from the data it precedes
 void ExtractTagFromArgument(char *argument, char *tag) {
@@ -368,6 +360,14 @@ void ConvertObjValues() {
 
 void GameLoader::BootWorld(std::unique_ptr<world_loader::IWorldDataSource> data_source) {
 	utils::CSteppedProfiler boot_profiler("World booting", 1.1);
+
+	// Initialise the int<->name table for ObjVal keys before anything that
+	// might serialise an object touches it. Normally BootMudDataBase()
+	// (comm.cpp:807) does this for the running-server path, but `-S` /
+	// `scheck` return early -- between BootWorld and ResaveWorld -- and
+	// never get there. `text_id::Init()` uses unordered_map::insert so it's
+	// idempotent if BootMudDataBase later runs.
+	text_id::Init();
 
 	// Create default data source if none provided
 	if (!data_source)
@@ -654,65 +654,6 @@ void SetZonesTownFlags() {
 	}
 }
 
-void LoadMessages() {
-	FILE *fl;
-	int i, type;
-	struct AttackMsgSet *messages;
-	char chk[128];
-
-	if (!(fl = fopen(MESS_FILE, "r"))) {
-		fatal_log("SYSERR: Error reading combat message file %s: %s", MESS_FILE, strerror(errno));
-	}
-	for (i = 0; i < kMaxMessages; i++) {
-		fight_messages[i].attack_type = 0;
-		fight_messages[i].number_of_attacks = 0;
-		fight_messages[i].msg_set = nullptr;
-	}
-
-	const char *dummyc = fgets(chk, 128, fl);
-	while (!feof(fl) && (*chk == '\n' || *chk == '*')) {
-		dummyc = fgets(chk, 128, fl);
-	}
-
-	while (*chk == 'M') {
-		dummyc = fgets(chk, 128, fl);
-
-		int dummyi = sscanf(chk, " %d\n", &type);
-		UNUSED_ARG(dummyi);
-
-		for (i = 0; (i < kMaxMessages) &&
-			(fight_messages[i].attack_type != type) && (fight_messages[i].attack_type); i++);
-		if (i >= kMaxMessages) {
-			fatal_log("SYSERR: Too many combat messages.  Increase kMaxMessages and recompile.");
-		}
-		//log("BATTLE MESSAGE %d(%d)", i, type); Лишний спам
-		CREATE(messages, 1);
-		fight_messages[i].number_of_attacks++;
-		fight_messages[i].attack_type = type;
-		messages->next = fight_messages[i].msg_set;
-		fight_messages[i].msg_set = messages;
-
-		messages->die_msg.attacker_msg = ReadActionMsgFromFile(fl, i);
-		messages->die_msg.victim_msg = ReadActionMsgFromFile(fl, i);
-		messages->die_msg.room_msg = ReadActionMsgFromFile(fl, i);
-		messages->miss_msg.attacker_msg = ReadActionMsgFromFile(fl, i);
-		messages->miss_msg.victim_msg = ReadActionMsgFromFile(fl, i);
-		messages->miss_msg.room_msg = ReadActionMsgFromFile(fl, i);
-		messages->hit_msg.attacker_msg = ReadActionMsgFromFile(fl, i);
-		messages->hit_msg.victim_msg = ReadActionMsgFromFile(fl, i);
-		messages->hit_msg.room_msg = ReadActionMsgFromFile(fl, i);
-		messages->god_msg.attacker_msg = ReadActionMsgFromFile(fl, i);
-		messages->god_msg.victim_msg = ReadActionMsgFromFile(fl, i);
-		messages->god_msg.room_msg = ReadActionMsgFromFile(fl, i);
-		dummyc = fgets(chk, 128, fl);
-		while (!feof(fl) && (*chk == '\n' || *chk == '*')) {
-			dummyc = fgets(chk, 128, fl);
-		}
-	}
-	UNUSED_ARG(dummyc);
-
-	fclose(fl);
-}
 void ZoneTrafficSave() {
 	pugi::xml_document doc;
 	doc.append_child().set_name("zone_traffic");
@@ -833,6 +774,18 @@ void BootMudDataBase() {
 	log("Loading spells cfg.");
 	MUD::CfgManager().LoadCfg("spells");
 
+	boot_profiler.next_step("Loading spell messages cfg.");
+	log("Loading spell messages cfg.");
+	MUD::CfgManager().LoadCfg("spell_messages");
+
+	boot_profiler.next_step("Loading skill messages cfg.");
+	log("Loading skill messages cfg.");
+	MUD::CfgManager().LoadCfg("skill_messages");
+
+    boot_profiler.next_step("Loading hit type messages cfg.");
+    log("Loading hit type messages cfg.");
+    MUD::CfgManager().LoadCfg("fight_messages");
+
 	boot_profiler.next_step("Loading abilities definitions");
 	log("Loading abilities.");
 	MUD::CfgManager().LoadCfg("abilities");
@@ -907,10 +860,6 @@ void BootMudDataBase() {
 	boot_profiler.next_step("Loading CRC system");
 	log("Loading file crc system.");
 	FileCRC::load();
-
-	boot_profiler.next_step("Loading fight messages");
-	log("Loading fight messages.");
-	LoadMessages();
 
 	boot_profiler.next_step("Assigning function pointers");
 	log("Assigning function pointers:");
@@ -1055,7 +1004,7 @@ void BootMudDataBase() {
 			(i ? (zone_table[i - 1].top + 1) : 0), zone_table[i].top);
 		ResetZone(i);
 	}
-	reset_q.head = reset_q.tail = nullptr;
+	reset_q.clear();
 
 
 	// делается после резета зон, см камент к функции
@@ -1237,6 +1186,111 @@ void ResetGameWorldTime() {
 		weather_info.sky = kSkyCloudless;
 }
 
+int GameLoader::ResaveWorld(const std::string &target_dir, const std::string &target_format) {
+	namespace fs = std::filesystem;
+
+	// Resolve target_format: empty / "auto" -> compile-time default.
+	std::string fmt = target_format;
+	if (fmt.empty() || fmt == "auto") {
+#if defined(HAVE_YAML)
+		fmt = "yaml";
+#elif defined(HAVE_SQLITE)
+		fmt = "sqlite";
+#else
+		fmt = "legacy";
+#endif
+	}
+
+	std::unique_ptr<world_loader::IWorldDataSource> saver;
+
+	if (fmt == "yaml") {
+#ifdef HAVE_YAML
+		// YamlWorldDataSource's constructor refuses to instantiate without a
+		// readable world_config.yaml under the data root. For a save-only
+		// instance, copy the original config (and dictionaries) from the load
+		// location -- which BootWorld used at the compile-time default of
+		// "world" -- before constructing. SaveZone/Save* rebuild their
+		// index.yaml files themselves now, so we don't mirror any indexes here.
+		const std::string load_dir = "world";
+		try {
+			fs::create_directories(target_dir);
+			fs::copy_file(load_dir + "/world_config.yaml",
+						  target_dir + "/world_config.yaml",
+						  fs::copy_options::overwrite_existing);
+			if (fs::exists(load_dir + "/dictionaries")) {
+				fs::copy(load_dir + "/dictionaries",
+						 target_dir + "/dictionaries",
+						 fs::copy_options::recursive
+						 | fs::copy_options::overwrite_existing);
+			}
+		} catch (const std::exception &e) {
+			log("SYSERR: ResaveWorld bootstrap failed: %s", e.what());
+			return 1;
+		}
+		saver = world_loader::CreateYamlDataSource(target_dir);
+#else
+		log("SYSERR: ResaveWorld: yaml backend requested but not compiled in");
+		return 1;
+#endif
+	} else if (fmt == "sqlite") {
+#ifdef HAVE_SQLITE
+		saver = world_loader::CreateSqliteDataSource(target_dir);
+#else
+		log("SYSERR: ResaveWorld: sqlite backend requested but not compiled in");
+		return 1;
+#endif
+	} else if (fmt == "legacy") {
+		// Legacy save uses OLC functions that write to "world/{wld,mob,...}/"
+		// relative to cwd. LegacyWorldDataSource owns its world_dir and
+		// chdir's into it for each Save* call (creating the layout first), so
+		// the saved tree lands under <target_dir>/world/. Symmetric with the
+		// YAML/SQLite factories below.
+		saver = world_loader::CreateLegacyDataSource(target_dir);
+	} else {
+		log("SYSERR: ResaveWorld: unknown target format '%s'", fmt.c_str());
+		return 1;
+	}
+
+	log("ResaveWorld: target=%s, format=%s, zones=%zu",
+		target_dir.c_str(), fmt.c_str(), zone_table.size());
+	int errors = 0;
+	int skipped = 0;
+	for (size_t z = 0; z < zone_table.size(); ++z) {
+		// Dungeon zones (CreateBlankZoneDungeon, vnum >= kZoneStartDungeons)
+		// are generated in-memory and never persisted -- matches legacy's
+		// medit_save_to_disk guard at olc/medit.cpp:532. `under_construction`
+		// alone is not the right filter: ordinary prod zones may carry it as
+		// a "work in progress" marker (zone 73 "Светлый лес" etc.).
+		if (zone_table[z].vnum >= dungeons::kZoneStartDungeons) {
+			++skipped;
+			continue;
+		}
+		try {
+			saver->SaveZone(static_cast<int>(z));
+			saver->SaveRooms(static_cast<int>(z));
+			saver->SaveObjects(static_cast<int>(z));
+			saver->SaveMobs(static_cast<int>(z));
+			saver->SaveTriggers(static_cast<int>(z), -1, 0);
+		} catch (const std::exception &e) {
+			log("SYSERR: ResaveWorld failed on zone %d (vnum=%d): %s",
+				static_cast<int>(z), zone_table[z].vnum, e.what());
+			++errors;
+		}
+	}
+
+	// Let the backend finalize after the full resave: legacy rebuilds its
+	// boot indexes here (YAML/SQLite already maintain them inside Save*).
+	try {
+		saver->FinalizeResave();
+	} catch (const std::exception &e) {
+		log("SYSERR: ResaveWorld: finalize failed: %s", e.what());
+		++errors;
+	}
+
+	log("ResaveWorld: done, errors=%d, skipped_dungeon=%d", errors, skipped);
+	return errors;
+}
+
 void GameLoader::BootIndex(const EBootType mode) {
 	log("Index booting %d", mode);
 
@@ -1257,6 +1311,7 @@ void GameLoader::BootIndex(const EBootType mode) {
 		if (!data_file->load()) {
 			// TODO: do something
 		}
+		// brackets to suppress define
 		data_file->close();
 	}
 
@@ -1957,7 +2012,6 @@ private:
 // update zone ages, queue for reset if necessary, and dequeue when possible
 void ZoneUpdate() {
 	int k = 0;
-	struct reset_q_element *update_u, *temp;
 	static int timer = 0;
 	utils::CExecutionTimer timer_count;
 	// OpenTelemetry: Track zone updates
@@ -1978,41 +2032,35 @@ void ZoneUpdate() {
 					&& (zone_table[i].reset_idle || zone_table[i].used)) {
 				zone_table[i].age++;
 			}
-			if (zone_table[i].age >= zone_table[i].lifespan 
-					&& zone_table[i].age < ZO_DEAD 
-					&& zone_table[i].reset_mode 
+			if (zone_table[i].age >= zone_table[i].lifespan
+					&& zone_table[i].age < ZO_DEAD
+					&& zone_table[i].reset_mode
 					&& (zone_table[i].reset_idle || zone_table[i].used)) {
-				CREATE(update_u, 1);
-				update_u->zone_to_reset = static_cast<ZoneRnum>(i);
-				update_u->next = nullptr;
-				if (!reset_q.head)
-					reset_q.head = reset_q.tail = update_u;
-				else {
-					reset_q.tail->next = update_u;
-					reset_q.tail = update_u;
-				}
+				reset_q.push_back({static_cast<ZoneRnum>(i)});
 				zone_table[i].age = ZO_DEAD;
 			}
 		}
 	}
-	UniqueList<ZoneRnum> zone_repop_list;
-	for (update_u = reset_q.head; update_u; ) {
-		auto *next_u = update_u->next;
-		if (zone_table[update_u->zone_to_reset].reset_mode == 2
-			|| (zone_table[update_u->zone_to_reset].reset_mode != 3 && IsZoneEmpty(update_u->zone_to_reset))
-			|| CanBeReset(update_u->zone_to_reset)) {
-			zone_repop_list.push_back(update_u->zone_to_reset);
+	for (auto it = reset_q.begin(); it != reset_q.end(); ) {
+		const ZoneRnum zone = it->zone_to_reset;
+		if (it->force_reset
+			|| zone_table[zone].reset_mode == 2
+			|| (zone_table[zone].reset_mode != 3 && IsZoneEmpty(zone))
+			|| CanBeReset(zone)) {
+			UniqueList<ZoneRnum> zone_repop_list;
+			zone_repop_list.push_back(zone);
 			std::stringstream out;
-			out << "Auto zone reset: " << zone_table[update_u->zone_to_reset].name << " ("
-				<< zone_table[update_u->zone_to_reset].vnum << ")";
-			if (zone_table[update_u->zone_to_reset].reset_mode == 3) {
-				for (auto i = 0; i < zone_table[update_u->zone_to_reset].typeA_count; i++) {
+			out << "Auto zone reset: " << zone_table[zone].name << " (" << zone_table[zone].vnum << ")";
+			// Collect typeA zones to queue individually (only for normal complex resets, not force_reset).
+			// Queuing one zone per tick instead of resetting all at once avoids heartbeat spikes.
+			std::vector<ZoneRnum> typeA_to_queue;
+			if (!it->force_reset && zone_table[zone].reset_mode == 3) {
+				for (auto i = 0; i < zone_table[zone].typeA_count; i++) {
 					for (ZoneRnum j = 0; j < static_cast<ZoneRnum>(zone_table.size()); j++) {
-						if (zone_table[j].vnum ==
-							zone_table[update_u->zone_to_reset].typeA_list[i]) {
-							zone_repop_list.push_back(j);
-							out << " ]\r\n[ Also resetting: " << zone_table[j].name << " ("
-								<< zone_table[j].vnum << ")";
+						if (zone_table[j].vnum == zone_table[zone].typeA_list[i]) {
+							typeA_to_queue.push_back(j);
+							out << " ]\r\n[ Queued for reset: " << zone_table[j].name
+								<< " (" << zone_table[j].vnum << ")";
 							break;
 						}
 					}
@@ -2020,40 +2068,40 @@ void ZoneUpdate() {
 			}
 			std::stringstream ss;
 			DecayObjectsOnRepop(zone_repop_list);
-			ss << "В списке репопа: ";
-			for (auto &it : zone_repop_list) {
-				ss << zone_table[it].vnum << " ";
-				if (zone_table[it].vnum < dungeons::kZoneStartDungeons) {
-					ResetZone(it);
-					zones_reset_count++;
-
-					ZoneResetMetrics(it).RecordResetCount();
-				} else {
-					log("Закрываю брошенный dungeon %d", it);
-					dungeons::DungeonReset(it);
-					zone_table[it].age = 0;
-					zone_table[it].used = false;
-					zone_table[it].time_awake = time(nullptr);
-					zone_table[it].first_enter.clear();
-				}
+			ss << "В списке репопа: " << zone_table[zone].vnum << " ";
+			if (zone_table[zone].vnum < dungeons::kZoneStartDungeons) {
+				ResetZone(zone);
+				zones_reset_count++;
+				ZoneResetMetrics(zone).RecordResetCount();
+			} else {
+				log("Закрываю брошенный dungeon %d", zone);
+				dungeons::DungeonReset(zone);
+				zone_table[zone].age = 0;
+				zone_table[zone].used = false;
+				zone_table[zone].time_awake = time(nullptr);
+				zone_table[zone].first_enter.clear();
 			}
 			mudlog(ss.str(), LGH, kLvlGod, SYSLOG, true);
-			out << " ]\r\n[ Time reset: " << timer_count.delta().count();
+			out << " ]\r\n[ Time reset: " << fmt::format("{:.3f} ms", timer_count.delta().count() * 1000.0);
 			mudlog(out.str(), LGH, kLvlGod, SYSLOG, true);
-			if (update_u == reset_q.head) {
-				reset_q.head = reset_q.head->next;
-			} else {
-				for (temp = reset_q.head; temp->next != update_u; temp = temp->next);
-				if (!update_u->next)
-					reset_q.tail = temp;
-				temp->next = update_u->next;
+			it = reset_q.erase(it);
+			// Queue typeA zones at the front (in reverse so typeA[0] is processed first).
+			// Also remove any existing normal queue entry to prevent double resets.
+			for (auto rn = typeA_to_queue.rbegin(); rn != typeA_to_queue.rend(); ++rn) {
+				for (auto s = reset_q.begin(); s != reset_q.end(); ++s) {
+					if (s->zone_to_reset == *rn && !s->force_reset) {
+						reset_q.erase(s);
+						break;
+					}
+				}
+				reset_q.push_front({*rn, true});
 			}
-			free(update_u);
 			k++;
 			if (k >= kZonesReset)
 				break;
+		} else {
+			++it;
 		}
-		update_u = next_u;
 	}
 	
 	// OpenTelemetry: Record total zones reset

@@ -384,17 +384,8 @@ const std::string &NAME_BY_ITEM<ETarget>(const ETarget item);
 constexpr Bitvector kMtypeNeutral = 1 << 0;
 constexpr Bitvector kMtypeAggressive = 1 << 1;
 
-// текст заклинания для игроков, произнесенные заклинателями разных религий
-struct CastPhraseList {
-	std::string text_for_heathen;	// заклинание произнесенное язычником
-	std::string text_for_christian;	// заклинание произнесенное христианиным
-};
-
 // возращает текст выводимый при спадении скила
 std::string GetAffExpiredText(ESpell spell_id);
-// возвращает фразу для заклинания согласно религии
-// std::nullopt если соответсвующего заклинания в таблице нет
-std::optional<CastPhraseList> GetCastPhrase(ESpell spell_id);
 
 #endif //BYLINS_SRC_GAME_MAGIC_SPELLS_CONSTANTS_H_
 

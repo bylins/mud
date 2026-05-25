@@ -3,10 +3,9 @@
 // Part of Bylins http://www.mud.ru
 
 #include "engine/ui/mapsystem.h"
-
 #include <queue>
 #include <unordered_set>
-#include <third_party_libs/fmt/include/fmt/format.h>
+#include <fmt/format.h>
 
 #include "engine/core/char_movement.h"
 #include "engine/ui/color.h"
@@ -630,12 +629,26 @@ void print_map(CharData *ch, CharData *imm) {
 
 	// для режима богов прижимаем карту влево
 	unsigned left_margin = 0;
+	unsigned right_margin = MAX_LENGTH - 1;
+
 	if (ch->map_check_option(MAP_MODE_GOD_BIG) && ch->IsImmortal()) {
-		left_margin = MAX_LENGTH;
+		left_margin =  MAX_LENGTH;
+		right_margin = 0;
 		for (int i = start_line; i < end_line; ++i) {
 			for (unsigned k = 0; k < MAX_LENGTH; ++k) {
 				if (screen[i][k] != -1 && k < left_margin) {
 					left_margin = k;
+					break;
+				}
+			}
+			// Сканируем справа -- ищем именно самую правую непустую клетку
+			// строки, а не первую после текущего right_margin (иначе клетки
+			// дальше теряются).
+			for (unsigned k = MAX_LENGTH; k-- > 0; ) {
+				if (screen[i][k] != -1) {
+					if (k > right_margin) {
+						right_margin = k;
+					}
 					break;
 				}
 			}
@@ -644,11 +657,10 @@ void print_map(CharData *ch, CharData *imm) {
 
 	for (int i = start_line; i < end_line; ++i) {
 		out += ": ";
-		for (unsigned k = left_margin; k < MAX_LENGTH; ++k) {
+		for (unsigned k = left_margin; k <= right_margin; ++k) {
 			if (screen[i][k] <= -1) {
 				out += " ";
-			} else if (screen[i][k] < SCREEN_TOTAL
-				&& screen[i][k] != SCREEN_EMPTY) {
+			} else if (screen[i][k] < SCREEN_TOTAL && screen[i][k] != SCREEN_EMPTY) {
 				out += signs[screen[i][k]];
 			}
 		}

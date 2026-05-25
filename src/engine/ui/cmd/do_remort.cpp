@@ -5,6 +5,7 @@
 #include "administration/karma.h"
 #include "do_follow.h"
 #include "engine/entities/char_data.h"
+#include "gameplay/mechanics/birthplaces.h"
 #include "gameplay/mechanics/player_races.h"
 #include "gameplay/mechanics/sight.h"
 #include "engine/core/handler.h"
@@ -13,7 +14,7 @@
 #include "engine/db/global_objects.h"
 #include "gameplay/economics/ext_money.h"
 
-#include <third_party_libs/fmt/include/fmt/format.h>
+#include <fmt/format.h>
 
 extern RoomRnum r_frozen_start_room;
 const char *remort_msg =

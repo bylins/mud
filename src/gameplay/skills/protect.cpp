@@ -1,4 +1,5 @@
 #include "protect.h"
+#include "skill_messages.h"
 
 #include "gameplay/fight/pk.h"
 #include "gameplay/fight/fight.h"
@@ -10,7 +11,7 @@
 // ************** PROTECT PROCEDURES
 void go_protect(CharData *ch, CharData *vict) {
 	if (IsUnableToAct(ch)) {
-		SendMsgToChar("Вы временно не в состоянии сражаться.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kProtect, ESkillMsg::kCantFightNow) + "\r\n", ch);
 		return;
 	}
 	ch->set_protecting(vict);
@@ -30,17 +31,17 @@ void do_protect(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	if (ch->IsNpc() || !ch->GetSkill(ESkill::kProtect)) {
-		SendMsgToChar("Вы не знаете как.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kProtect, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
 	if (ch->HasCooldown(ESkill::kProtect)) {
-		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kProtect, ESkillMsg::kOnCooldown) + "\r\n", ch);
 		return;
 	};
 
 	CharData *vict = get_char_vis(ch, arg, EFind::kCharInRoom);
 	if (!vict) {
-		SendMsgToChar("И кто так сильно мил вашему сердцу?\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kProtect, ESkillMsg::kNoTarget) + "\r\n", ch);
 		return;
 	};
 
@@ -50,7 +51,7 @@ void do_protect(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	if (ch->GetEnemy() == vict) {
-		SendMsgToChar("Вы явно пацифист, или мазохист.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kProtect, ESkillMsg::kCantTargetSelf) + "\r\n", ch);
 		return;
 	}
 

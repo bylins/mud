@@ -10,8 +10,21 @@ void ObjDecayManager::insert(ObjData *obj) {
 	if (!obj) {
 		return;
 	}
-	if (m_obj_to_deadline.count(obj)) {
-		on_timer_changed(obj);
+	auto it = m_obj_to_deadline.find(obj);
+	if (it != m_obj_to_deadline.end()) {
+		// Уже трекается. Сохраняем существующий дедлайн, чтобы
+		// перекладывание уже отслеживаемого предмета между владельцами
+		// (give/drop/get) не сдвигало распад на время, прошедшее с
+		// последнего set_timer: m_timer обновляется только при
+		// сохранении/загрузке, а compute_and_store_deadline
+		// пересчитывает дедлайн как m_counter + m_timer и тем самым
+		// откатывает видимый таймер назад (#3260). Исключение --
+		// замороженный энтри (UINT64_MAX): пересчитать, чтобы
+		// поднятие со пола предмета с только что выставленным
+		// kTicktimer "разморозило" его.
+		if (it->second == UINT64_MAX) {
+			on_timer_changed(obj);
+		}
 		return;
 	}
 

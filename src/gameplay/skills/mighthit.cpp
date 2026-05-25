@@ -1,4 +1,5 @@
 #include "mighthit.h"
+#include "skill_messages.h"
 
 #include "gameplay/fight/pk.h"
 #include "gameplay/fight/fight.h"
@@ -13,7 +14,7 @@ void PerformMighthit(CharData *ch, CharData *victim, HitData &hit_data);
 
 void GoMighthit(CharData *ch, CharData *victim) {
 	if (IsUnableToAct(ch)) {
-		SendMsgToChar("Вы временно не в состоянии сражаться.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kHammer, ESkillMsg::kCantFightNow) + "\r\n", ch);
 		return;
 	}
 
@@ -50,13 +51,13 @@ void GoMighthit(CharData *ch, CharData *victim) {
 
 void DoMighthit(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->GetSkill(ESkill::kHammer) < 1) {
-		SendMsgToChar("Вы не знаете как.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kHammer, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
 
 	CharData *vict = FindVictim(ch, argument);
 	if (!vict) {
-		SendMsgToChar("Кого вы хотите СИЛЬНО ударить?\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kHammer, ESkillMsg::kNoTarget) + "\r\n", ch);
 		return;
 	}
 
@@ -75,12 +76,12 @@ void DoMighthit(CharData *ch, CharData *victim) {
 	}
 
 	if (ch->HasCooldown(ESkill::kHammer)) {
-		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kHammer, ESkillMsg::kOnCooldown) + "\r\n", ch);
 		return;
 	};
 
 	if (victim == ch) {
-		SendMsgToChar("Вы СИЛЬНО ударили себя. Но вы и не спали.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kHammer, ESkillMsg::kCantTargetSelf) + "\r\n", ch);
 		return;
 	}
 

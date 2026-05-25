@@ -960,4 +960,6 @@ void CleanupRoomData(RoomData *room)
 	room->affected.clear();
 }
 
+#undef ZCMD
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

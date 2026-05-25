@@ -1,6 +1,8 @@
 //Modified by Svetodar 14.09.2023
 
 #include "strangle.h"
+#include "skill_messages.h"
+#include "engine/db/global_objects.h"
 #include "chopoff.h"
 
 #include "gameplay/fight/pk.h"
@@ -13,13 +15,13 @@
 
 void do_strangle(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!ch->GetSkill(ESkill::kStrangle)) {
-		SendMsgToChar("Вы не умеете этого.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kStrangle, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
 
 	CharData *vict = FindVictim(ch, argument);
 	if (!vict) {
-		SendMsgToChar("Кого вы жаждете удавить?\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kStrangle, ESkillMsg::kNoTarget) + "\r\n", ch);
 		return;
 	}
 
@@ -40,7 +42,7 @@ void do_strangle(CharData *ch, CharData *vict) {
 	}
 
 	if (ch->HasCooldown(ESkill::kGlobalCooldown)) {
-		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kStrangle, ESkillMsg::kOnCooldown) + "\r\n", ch);
 		return;
 	}
 
@@ -56,7 +58,7 @@ void do_strangle(CharData *ch, CharData *vict) {
 	}
 
 	if (vict == ch) {
-		SendMsgToChar("Воспользуйтесь услугами княжеского палача. Постоянным клиентам - скидки!\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kStrangle, ESkillMsg::kCantTargetSelf) + "\r\n", ch);
 		return;
 	}
 
@@ -75,7 +77,7 @@ void go_strangle(CharData *ch, CharData *vict) {
 	}
 
 	if (ch->GetPosition() < EPosition::kFight) {
-		SendMsgToChar("Вам стоит встать на ноги.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kStrangle, ESkillMsg::kGetOnFeet) + "\r\n", ch);
 		return;
 	}
 //	if (vict->purged()) {

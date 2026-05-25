@@ -1,4 +1,5 @@
 #include "engine/entities/char_data.h"
+#include "skill_messages.h"
 #include "engine/core/handler.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/fight/fight.h"
@@ -7,7 +8,7 @@ void DoFirstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	struct TimedSkill timed;
 
 	if (!ch->GetSkill(ESkill::kFirstAid)) {
-		SendMsgToChar("Вам следует этому научиться.\r\n", ch);
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kFirstAid, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
 		return;
 	}
 	if (!ch->IsGod() && IsTimedBySkill(ch, ESkill::kFirstAid)) {
@@ -23,7 +24,7 @@ void DoFirstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	} else {
 		vict = get_char_vis(ch, arg, EFind::kCharInRoom);
 		if (!vict) {
-			SendMsgToChar("Кого вы хотите подлечить?\r\n", ch);
+			SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kFirstAid, ESkillMsg::kNoTarget) + "\r\n", ch);
 			return;
 		}
 	}

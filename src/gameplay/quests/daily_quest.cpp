@@ -1,5 +1,7 @@
 #include "daily_quest.h"
 
+#include "third_party_libs/pugixml/pugixml.h"
+
 #include "engine/entities/char_data.h"
 #include "engine/entities/char_player.h"
 #include "engine/db/global_objects.h"

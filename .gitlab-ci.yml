@@ -2,13 +2,13 @@ release:
         only:
                 - master
         script:
-                - if [ -d build ]; then echo "Build directory already exists"; else mkdir -p build; fi
-                - cd build
-                - cmake -DCMAKE_BUILD_TYPE=Release ..
-                - nice -n 12 cmake --build .
-                - nice -n 12 cmake --build . --target checks
-                - mv circle ..
-                - iconv -c -f utf8 -t koi8-r changelog > ../changelog
+                - find subprojects -type d -empty -delete
+                - meson setup build --reconfigure -Dbuild_profile=release --unity=on -Dunity_size=45
+                - nice -n 12 meson compile -C build
+                - nice -n 12 meson test -C build
+                - mv build/circle .
+                - iconv -c -f utf8 -t koi8-r changelog > changelog.koi8
+                - mv changelog.koi8 changelog
         cache:
                 key: "$CI_BUILD_REF_NAME/Release"
                 untracked: true
@@ -25,13 +25,13 @@ release:
 
 debug:
         script:
-                - if [ -d build ]; then echo "Build directory already exists"; else mkdir -p build; fi
-                - cd build
-                - cmake -DCMAKE_BUILD_TYPE=Debug ..
-                - nice -n 12 cmake --build .
-                - nice -n 12 cmake --build . --target checks
-                - mv circle ..
-                - iconv -c -f utf8 -t koi8-r changelog > ../changelog
+                - find subprojects -type d -empty -delete
+                - meson setup build --reconfigure -Dbuild_profile=debug --unity=on -Dunity_size=45
+                - nice -n 12 meson compile -C build
+                - nice -n 12 meson test -C build
+                - mv build/circle .
+                - iconv -c -f utf8 -t koi8-r changelog > changelog.koi8
+                - mv changelog.koi8 changelog
         cache:
                 key: "$CI_BUILD_REF_NAME/Debug"
                 untracked: true

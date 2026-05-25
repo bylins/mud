@@ -5,20 +5,20 @@
 #ifndef BIRTH_PLACES_HPP_INCLUDED
 #define BIRTH_PLACES_HPP_INCLUDED
 
-//Для тех, у кого нет нормального файла рас, и нет зон.
-const int kDefaultLoadroom = 4056;
-const int kBirthplaceUndefined = -1;
+#include "birthplaces_constants.h"
+
 #define BIRTH_PLACES_FILE "birthplaces.xml"
 #define BIRTH_PLACE_NAME_UNDEFINED "Undefined: у кодера какие-то проблемы"
 #define BIRTH_PLACE_MAIN_TAG "birthplaces"
 #define BIRTH_PLACE_ERROR_STR "...birth places reading fail"
 
-#include "engine/core/conf.h"
-#include "engine/core/sysdep.h"
-#include "engine/structs/structs.h"
-#include "third_party_libs/pugixml/pugixml.h"
-
+#include <memory>
+#include <string>
 #include <vector>
+
+namespace pugi {
+class xml_node;
+}
 
 class Birthplaces;
 

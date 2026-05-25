@@ -10,7 +10,7 @@
 #include "engine/scripting/dg_db_scripts.h"
 #include "engine/db/global_objects.h"
 
-#include "third_party_libs/fmt/include/fmt/format.h"
+#include <fmt/format.h>
 
 #include <regex>
 
@@ -540,6 +540,13 @@ void WorldFile::setup_dir(int room, unsigned dir) {
 
 	world[room]->dir_option_proto[dir]->key = t[1];
 	world[room]->dir_option_proto[dir]->to_room(t[2]);
+
+	// Полностью пустые D-блоки - мусор из старых редакторов, на рантайм не
+	// влияют и без причины засоряют show errors. Дропаем их сразу при загрузке
+	// (симметрично в YAML- и SQLite-загрузчиках), см. issue #3272.
+	if (world[room]->dir_option_proto[dir]->is_empty()) {
+		world[room]->dir_option_proto[dir].reset();
+	}
 }
 
 bool WorldFile::load() {
@@ -1068,7 +1075,18 @@ void MobileFile::parse_mobile(const int nr) {
 			}
 		}
 	}
-
+/*
+//сконвертированно в пфайлы
+	// Авто-выставление "магии жизни" мобам с заклинанием
+	// "исцеление"/"групповое исцеление" -- билдеры часто забывают
+	// прописать Skill: 189, и кастер заваливает каст из-за нулевого
+	// процента. На загрузке выставляем kLifeMagic = level * 10 для
+	// любого моба с одним из этих заклинаний в памяти (#3267).
+	if (GET_SPELL_MEM(mob_proto + i, ESpell::kHeal) > 0
+		|| GET_SPELL_MEM(mob_proto + i, ESpell::kGroupHeal) > 0) {
+		mob_proto[i].set_skill(ESkill::kLifeMagic, mob_proto[i].GetLevel() * 10);
+	}
+*/
 	top_of_mobt = i++;
 }
 

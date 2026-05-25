@@ -27,7 +27,7 @@
  * if it is a client or server problem.
  */
 
-#define __COMM_C__
+#include "engine/core/sysdep_net.h"
 
 #include "comm.h"
 
@@ -74,7 +74,7 @@
 #include "engine/core/iosystem.h"
 #include "engine/ui/alias.h"
 
-#include <third_party_libs/fmt/include/fmt/format.h>
+#include <fmt/format.h>
 
 #if defined WITH_SCRIPTING
 #include "scripting.hpp"
@@ -131,7 +131,7 @@
 #define SOCKET_ERROR (-1)
 #endif
 
-//#include <third_party_libs/fmt/include/fmt/format.h>
+//#include <fmt/format.h>
 //#include <sys/stat.h>
 
 #include <string>
@@ -175,6 +175,8 @@ extern void log_zone_count_reset();
 //extern int perform_move(CharData *ch, int dir, int following, int checkmob, CharData *leader);
 extern const char* build_datetime;
 extern const char* revision;
+extern const char* build_compiler;
+extern const char* build_features;
 
 // flags for show_list_to_char
 
@@ -358,7 +360,6 @@ void our_terminate() {
 }
 
 // externs
-extern int num_invalid;
 extern char *greetings;
 extern const char *circlemud_version;
 extern int circle_restrict;
@@ -372,9 +373,8 @@ extern int max_playing;
 extern int nameserver_is_slow;    // see config.cpp
 extern int mana[];
 extern const char *save_info_msg[];    // In olc.cpp
-extern CharData *combat_list;
 extern void tact_auction();
-extern void log_code_date();
+extern void LogBuildInfo();
 
 // local globals
 DescriptorData *descriptor_list = nullptr;    // master desc list
@@ -618,6 +618,8 @@ int main_function(int argc, char **argv) {
 	ush_int port;
 	int pos = 1;
 	const char *dir;
+	const char *save_target = nullptr;
+	const char *save_format = nullptr;
 	char cwd[256];
 
 	// Initialize these to check for overruns later.
@@ -653,6 +655,28 @@ int main_function(int argc, char **argv) {
 			case 's': no_specials = 1;
 		puts("Suppressing assignment of special routines.");
 		break;
+	case 'S':
+		if (*(argv[pos] + 2))
+			save_target = argv[pos] + 2;
+		else if (++pos < argc)
+			save_target = argv[pos];
+		else {
+			puts("SYSERR: Output directory arg expected after option -S.");
+			exit(1);
+		}
+		printf("Resave-and-exit mode enabled, target='%s'.\n", save_target);
+		break;
+	case 'T':
+		if (*(argv[pos] + 2))
+			save_format = argv[pos] + 2;
+		else if (++pos < argc)
+			save_format = argv[pos];
+		else {
+			puts("SYSERR: Format arg expected after option -T (legacy|yaml|sqlite).");
+			exit(1);
+		}
+		printf("Resave target format: '%s'.\n", save_format);
+		break;
 	case 'W':
 		enable_world_checksum = true;
 		puts("World checksum calculation enabled.");
@@ -675,7 +699,11 @@ int main_function(int argc, char **argv) {
 					   "  -h             Print this command line argument help.\n"
 					   "  -o <file>      Write log to <file> instead of stderr.\n"
 					   "  -r             Restrict MUD -- no new players allowed.\n"
-					   "  -s             Suppress special procedure assignments.\n", argv[0]);
+					   "  -s             Suppress special procedure assignments.\n"
+					   "  -S <out_dir>   Load world, re-emit it via the configured backend\n"
+					   "                 into <out_dir> and exit (round-trip diagnostic).\n"
+					   "  -T <format>   Override -S target format: legacy|yaml|sqlite\n"
+					   "                 (default = compile-time backend).\n", argv[0]);
 				exit(0);
 
 			default: printf("SYSERR: Unknown option -%c in argument string.\n", *(argv[pos] + 1));
@@ -685,7 +713,11 @@ int main_function(int argc, char **argv) {
 					   "  -h             Print this command line argument help.\n"
 					   "  -o <file>      Write log to <file> instead of stderr.\n"
 					   "  -r             Restrict MUD -- no new players allowed.\n"
-					   "  -s             Suppress special procedure assignments.\n", argv[0]);
+					   "  -s             Suppress special procedure assignments.\n"
+					   "  -S <out_dir>   Load world, re-emit it via the configured backend\n"
+					   "                 into <out_dir> and exit (round-trip diagnostic).\n"
+					   "  -T <format>   Override -S target format: legacy|yaml|sqlite\n"
+					   "                 (default = compile-time backend).\n", argv[0]);
 				exit(1);
 			break;
 		}
@@ -728,9 +760,17 @@ int main_function(int argc, char **argv) {
 		perror("\r\nSYSERR: Fatal error changing to data directory");
 		exit(1);
 	}
-	log_code_date();
-	printf("[%s] Code version %s, revision: %s\r\n", utils::NowTs().c_str(), build_datetime, revision);
-	if (scheck) {
+	LogBuildInfo();
+	printf("[%s] Code version %s, revision: %s\r\nCompiler: %s\r\nEnabled features: %s\r\n", utils::NowTs().c_str(), build_datetime, revision, build_compiler, build_features);
+	if (save_target) {
+		GameLoader::BootWorld();
+		// target_dir is interpreted relative to the world data directory
+		// (we chdir'd there above), so callers see the path they passed.
+		int errors = GameLoader::ResaveWorld(save_target,
+			save_format ? std::string(save_format) : std::string());
+		printf("Resave finished, errors=%d\n", errors);
+		return errors == 0 ? 0 : 2;
+	} else if (scheck) {
 		GameLoader::BootWorld();
 		printf("Done.");
 	} else {

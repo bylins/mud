@@ -11,6 +11,7 @@
 #define BYLINS_SRC_UTILS_OBJECTS_FILTER_H_
 
 #include "engine/entities/entities_constants.h"
+#include "gameplay/classes/classes_constants.h"
 #include "gameplay/skills/skills.h"
 
 #include <string>
@@ -26,9 +27,10 @@ struct ParseFilter {
 	enum { CLAN, EXCHANGE };
   
 	ParseFilter(int type) : remorts(-1),remorts_sign('\0'), type(-1), state(-1), wear(EWearFlag::kUndefined), wear_message(-1),
-			weap_class{}, weap_message(-1), cost(-1), cost_sign('\0'), rent(-1), rent_sign('\0'),
+			weap_class{}, cost(-1), cost_sign('\0'), rent(-1), rent_sign('\0'),
 			new_timesign('\0'), new_timedown(time(nullptr)), new_timeup(time(nullptr)),
-			filter_type(type), skill_id{ESkill::kUndefined} {};
+			filter_type(type), skill_id{ESkill::kUndefined},
+			profession{ECharClass::kUndefined} {};
 
 	bool init_type(const char *str);
 	bool init_state(const char *str);
@@ -39,6 +41,7 @@ struct ParseFilter {
 	bool init_weap_class(const char *str);
 	bool init_affect(char *str, size_t str_len);
 	bool init_realtime(const char *str);
+	bool init_profession(const char *str);
 	size_t affects_cnt() const;
 	bool check(ObjData *obj, CharData *ch);
 	bool check(ExchangeItem *exch_obj);
@@ -62,7 +65,6 @@ struct ParseFilter {
 	EWearFlag wear;              // куда одевается
 	int wear_message;      // для названия куда одеть
 	ESkill weap_class;        // класс оружие
-	int weap_message;      // для названия оружия
 	int cost;              // для цены
 	char cost_sign;        // знак цены +/-
 	int rent;             // для стоимости ренты
@@ -72,6 +74,7 @@ struct ParseFilter {
 	time_t new_timeup;       // верхняя граница времени
 	int filter_type;       // CLAN/EXCHANGE
 	ESkill skill_id;
+	ECharClass profession; // профессия (фильтр анти-классов на предмете)
 	bool check_name(ObjData *obj, CharData *ch = nullptr) const;
 	bool check_type(ObjData *obj) const;
 	bool check_state(ObjData *obj) const;
@@ -86,6 +89,7 @@ struct ParseFilter {
 	bool check_owner(ExchangeItem *exch_obj) const;
 	bool check_realtime(ExchangeItem *exch_obj) const;
 	bool check_skill(ObjData *obj) const;
+	bool check_profession(ObjData *obj) const;
 };
 
 #endif //BYLINS_SRC_UTILS_OBJECTS_FILTER_H_

@@ -30,8 +30,8 @@
 #include "gameplay/fight/fight_hit.h"
 #include "engine/core/utils_char_obj.inl"
 #include "gameplay/mechanics/stable_objs.h"
-#include <third_party_libs/fmt/include/fmt/format.h>
-#include "third_party_libs/fmt/include/fmt/ranges.h"
+#include <fmt/format.h>
+#include <fmt/ranges.h>
 #include "gameplay/mechanics/weather.h"
 #include "utils/utils_time.h"
 #include "gameplay/statistics/money_drop.h"
@@ -444,6 +444,23 @@ int find_room_uid(long n) {
 /************************************************************
  * generic searches based only on name
  ************************************************************/
+
+// Чисто-цифровая строка (без UID-префикса) -- это vnum, а не имя/UID.
+// Используется в process_attach/detach/run для предупреждения билдеров
+// о паттернах вида "detach <trig> %vnum%" -- они проваливаются в O(N)
+// сканы по character_list / object_list, прежде чем дойти до get_room.
+// См. issue #3232 (488мс на одну зону вместо 4мс).
+bool is_plain_vnum_string(const char *name) {
+	if (!name || !*name) {
+		return false;
+	}
+	for (const char *p = name; *p; ++p) {
+		if (*p < '0' || *p > '9') {
+			return false;
+		}
+	}
+	return true;
+}
 
 // search the entire world for a char, and return a pointer
 CharData *get_char(const char *name) {
@@ -1360,6 +1377,16 @@ long gm_char_field(CharData *ch, char *field, char *subfield, long val) {
 	return val;
 }
 
+bool IsUID(const char *name) {
+	if (*name == UID_CHAR
+			|| *name == UID_ROOM
+			|| *name == UID_OBJ
+			|| *name == UID_CHAR_ALL) {
+		return true;
+	}
+return false;
+}
+
 int text_processed(char *field, char *subfield, TriggerVar vd, char *str, size_t str_size) {
 	*str = '\0';
 	if (vd.name.empty() || vd.value.empty())
@@ -1409,6 +1436,8 @@ int text_processed(char *field, char *subfield, TriggerVar vd, char *str, size_t
 			*str++ = *car++;
 		*str = '\0';
 		return true;
+		} else if (!str_cmp(field, "isuid")) {
+		snprintf(str, str_size, "%s", IsUID(subfield)? "1" : "0");
 	} else if (!str_cmp(field, "cdr")) {
 		const char *cdr = vd.value.c_str();
 		while (*cdr && !isspace(*cdr))
@@ -1462,16 +1491,6 @@ int text_processed(char *field, char *subfield, TriggerVar vd, char *str, size_t
 	}
 
 	return false;
-}
-
-bool IsUID(const char *name) {
-	if (*name == UID_CHAR
-			|| *name == UID_ROOM
-			|| *name == UID_OBJ
-			|| *name == UID_CHAR_ALL) {
-		return true;
-	}
-return false;
 }
 
 void find_replacement(void *go,
@@ -4608,6 +4627,14 @@ void process_attach(void *go, Script *sc, Trigger *trig, int type, char *cmd) {
 	// parse and locate the id specified
 	eval_expr(id_p, result, sizeof(result), go, sc, trig, type);
 
+	if (is_plain_vnum_string(id_p)) {
+		snprintf(buf2, sizeof(buf2),
+				 "attach: 2-й аргумент '%s' -- голый vnum, используйте UID, строка отменена. Команда: '%s'",
+				 id_p, cmd);
+		trig_log(trig, buf2);
+		return;
+	}
+
 	c = get_char(id_p);
 	if (!c) {
 		o = get_obj(id_p);
@@ -4702,6 +4729,14 @@ Trigger *process_detach(void *go, Script *sc, Trigger *trig, int type, char *cmd
 
 	// parse and locate the id specified
 	eval_expr(id_p, result, sizeof(result), go, sc, trig, type);
+
+	if (is_plain_vnum_string(id_p)) {
+		snprintf(buf2, sizeof(buf2),
+				 "detach: 2-й аргумент '%s' -- голый vnum, используйте UID, строка отменена. Команда: '%s'",
+				 id_p, cmd);
+		trig_log(trig, buf2);
+		return retval;
+	}
 
 	c = get_char(id_p);
 	if (!c) {
@@ -4830,6 +4865,14 @@ int process_run(void *go, Script **sc, Trigger **trig, int type, char *cmd, int 
 
 	// parse and locate the id specified
 	eval_expr(id_p, result, sizeof(result), go, *sc, *trig, type);
+
+	if (is_plain_vnum_string(id_p)) {
+		snprintf(buf2, sizeof(buf2),
+				 "run: 2-й аргумент '%s' -- голый vnum, используйте UID, строка отменена. Команда: '%s'",
+				 id_p, cmd);
+		trig_log(*trig, buf2);
+		return false;
+	}
 
 	c = get_char(id_p);
 	if (!c) {

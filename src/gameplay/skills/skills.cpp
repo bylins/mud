@@ -21,6 +21,8 @@
 
 #include <cmath>
 
+#include <fmt/format.h>
+
 const int kZeroRemortSkillCap = 80;
 const int kSkillCapBonusPerRemort = 5;;
 
@@ -113,8 +115,7 @@ class WeapForAct {
 	enum WeapType {
 		EWT_UNDEFINED,
 		EWT_PROTOTYPE_SHARED_PTR,
-		EWT_OBJECT_RAW_PTR,    // Anton Gorev (09/28/2016): We need to get rid of raw pointers in the future
-		EWT_STRING
+		EWT_OBJECT_RAW_PTR    // Anton Gorev (09/28/2016): We need to get rid of raw pointers in the future
 	};
 
 	class WeaponTypeException : public std::exception {
@@ -129,7 +130,6 @@ class WeapForAct {
 
 	WeapForAct() : m_type(EWT_UNDEFINED), m_prototype_raw_ptr(nullptr) {}
 	WeapForAct(const WeapForAct &from);
-	void set_damage_string(const int damage);
 	WeapForAct &operator=(const CObjectPrototype::shared_ptr &prototype_shared_ptr);
 	WeapForAct &operator=(ObjData *prototype_raw_ptr);
 
@@ -137,11 +137,8 @@ class WeapForAct {
 	const auto &get_prototype_shared_ptr() const;
 	auto get_prototype_raw_ptr() const;
 	const auto get_object_ptr() const;
-	const auto &get_string() const;
 
  private:
-	using kick_type_t = std::vector<const char *>;
-
 	WeapForAct &operator=(const WeapForAct &);
 
 	bool check_type(const WeapType type) const { return check_type(type, true); }
@@ -150,52 +147,12 @@ class WeapForAct {
 	WeapType m_type;
 	ObjData::shared_ptr m_prototype_shared_ptr;
 	ObjData *m_prototype_raw_ptr;
-	std::string m_string;
-
-	static const kick_type_t
-		s_kick_type;    // Anton Gorev (09/28/2016): As I know, it is a duplicate. We need to reuse kick types from other place.
 };
 
 WeapForAct::WeapForAct(const WeapForAct &from) :
 	m_type(from.m_type),
 	m_prototype_shared_ptr(from.m_prototype_shared_ptr),
-	m_prototype_raw_ptr(from.m_prototype_raw_ptr),
-	m_string(from.m_string) {
-}
-
-void WeapForAct::set_damage_string(const int damage) {
-	m_type = EWT_STRING;
-	if (damage <= 5) {
-		m_string = s_kick_type[0];
-	} else if (damage <= 11) {
-		m_string = s_kick_type[1];
-	} else if (damage <= 26) {
-		m_string = s_kick_type[2];
-	} else if (damage <= 35) {
-		m_string = s_kick_type[3];
-	} else if (damage <= 45) {
-		m_string = s_kick_type[4];
-	} else if (damage <= 56) {
-		m_string = s_kick_type[5];
-	} else if (damage <= 96) {
-		m_string = s_kick_type[6];
-	} else if (damage <= 136) {
-		m_string = s_kick_type[7];
-	} else if (damage <= 176) {
-		m_string = s_kick_type[8];
-	} else if (damage <= 216) {
-		m_string = s_kick_type[9];
-	} else if (damage <= 256) {
-		m_string = s_kick_type[10];
-	} else if (damage <= 296) {
-		m_string = s_kick_type[11];
-	} else if (damage <= 400) {
-		m_string = s_kick_type[12];
-	} else if (damage <= 800) {
-		m_string = s_kick_type[13];
-	} else {
-		m_string = s_kick_type[14];
-	}
+	m_prototype_raw_ptr(from.m_prototype_raw_ptr) {
 }
 
 const auto &WeapForAct::get_prototype_shared_ptr() const {
@@ -220,10 +177,6 @@ const auto WeapForAct::get_object_ptr() const {
 	throw WeaponTypeException(ss.str().c_str());
 }
 
-const auto &WeapForAct::get_string() const {
-	check_type(EWT_STRING);
-	return m_string;
-}
 
 bool WeapForAct::check_type(const WeapType type, const bool raise_exception) const {
 	if (type != m_type) {
@@ -253,26 +206,6 @@ WeapForAct &WeapForAct::operator=(const CObjectPrototype::shared_ptr &prototype_
 	}
 	return *this;
 }
-
-const WeapForAct::kick_type_t WeapForAct::s_kick_type =
-// силы пинка. полностью соответствуют наносимым поврждениям обычного удара
-	{
-		"легонько ",        //  1..5
-		"слегка ",        // 6..11
-		"",            // 12..26
-		"сильно ",        // 27..35
-		"очень сильно ",    // 36..45
-		"чрезвычайно сильно ",    // 46..55
-		"БОЛЬНО ",        // 56..96
-		"ОЧЕНЬ БОЛЬНО ",    // 97..136
-		"ЧРЕЗВЫЧАЙНО БОЛЬНО ",    // 137..176
-		"НЕВЫНОСИМО БОЛЬНО ",    // 177..216
-		"ЖЕСТОКО ",    // 217..256
-		"УЖАСНО ",// 257..296
-		"УБИЙСТВЕННО ",     // 297..400
-		"ИЗУВЕРСКИ ", // 400+
-		"СМЕРТЕЛЬНО " // 800+
-	};
 
 struct brief_shields {
 	brief_shields(CharData *ch_, CharData *vict_, const WeapForAct &weap_, std::string add_);
@@ -344,9 +277,6 @@ void brief_shields::act_with_exception_handling(const char *msg, const int type)
 	try {
 		const auto weapon_type = weap.type();
 		switch (weapon_type) {
-			case WeapForAct::EWT_STRING: act(msg, false, ch, nullptr, vict, type, weap.get_string());
-				break;
-
 			case WeapForAct::EWT_OBJECT_RAW_PTR:
 			case WeapForAct::EWT_PROTOTYPE_SHARED_PTR: act(msg, false, ch, weap.get_object_ptr(), vict, type);
 				break;
@@ -369,14 +299,14 @@ void brief_shields::act_add(const char *msg, int type) {
 	act_with_exception_handling(buf_, type);
 }
 
-const WeapForAct init_weap(CharData *ch, int dam, int attacktype) {
-	// Нижеследующий код повергает в ужас
-	// ААА, ШОЭТО*ЛЯ?! Что ЭТО вообще делает?
+// Picks the object shown as $o in combat messages, by the damage source.
+const WeapForAct InitWeapForAct(CharData *ch, ESkill skill_id, fight::EDamageSource damage_source) {
 	WeapForAct weap;
 	int weap_i = 0;
 
-	switch (attacktype) {
-		case to_underlying(ESkill::kBackstab) + kTypeHit: weap = GET_EQ(ch, EEquipPos::kWield);
+	switch (skill_id) {
+		case ESkill::kBackstab:
+		case ESkill::kThrow: weap = GET_EQ(ch, EEquipPos::kWield);
 			if (!weap.get_prototype_raw_ptr()) {
 				weap_i = GetObjRnum(kDummyKnight);
 				if (0 <= weap_i) {
@@ -385,16 +315,7 @@ const WeapForAct init_weap(CharData *ch, int dam, int attacktype) {
 			}
 			break;
 
-		case to_underlying(ESkill::kThrow) + kTypeHit: weap = GET_EQ(ch, EEquipPos::kWield);
-			if (!weap.get_prototype_raw_ptr()) {
-				weap_i = GetObjRnum(kDummyKnight);
-				if (0 <= weap_i) {
-					weap = obj_proto[weap_i];
-				}
-			}
-			break;
-
-		case to_underlying(ESkill::kBash) + kTypeHit: weap = GET_EQ(ch, EEquipPos::kShield);
+		case ESkill::kBash: weap = GET_EQ(ch, EEquipPos::kShield);
 			if (!weap.get_prototype_raw_ptr()) {
 				weap_i = GetObjRnum(kDummyShield);
 				if (0 <= weap_i) {
@@ -403,16 +324,13 @@ const WeapForAct init_weap(CharData *ch, int dam, int attacktype) {
 			}
 			break;
 
-		case to_underlying(ESkill::kKick) + kTypeHit:
-			// weap - текст силы удара
-			weap.set_damage_string(dam);
-			break;
-
-		case kTypeHit: break;
-
-		default: weap_i = GetObjRnum(kDummyWeapon);
-			if (0 <= weap_i) {
-				weap = obj_proto[weap_i];
+		default:
+			// Голый удар рукой (kHit) - без предмета в сообщении; остальное - условное оружие.
+			if (damage_source != fight::EDamageSource::kHit) {
+				weap_i = GetObjRnum(kDummyWeapon);
+				if (0 <= weap_i) {
+					weap = obj_proto[weap_i];
+				}
 			}
 	}
 
@@ -528,6 +446,10 @@ void init_ESkill_ITEM_NAMES() {
 	for (const auto &i: ESkill_name_by_value) {
 		ESkill_value_by_name[i.second] = i.first;
 	}
+
+	// Alias used as the default sheaf id in lib/cfg/skill_msg.xml (issue #3310).
+	// "kDefault" resolves to ESkill::kUndefined; the reverse map keeps "kUndefined".
+	ESkill_value_by_name["kDefault"] = ESkill::kUndefined;
 }
 
 template<>
@@ -550,96 +472,135 @@ const std::string &NAME_BY_ITEM<ESkill>(const ESkill item) {
 ///
 /// \param add = "", строка для добавления после основного сообщения (краткий режим щитов)
 ///
-int SendSkillMessages(int dam, CharData *ch, CharData *vict, int attacktype, const std::string add) {
-	int i, j, nr;
-	struct AttackMsgSet *msg;
-
-	//log("[SKILL MESSAGE] Message for skill %d",attacktype);
-	for (i = 0; i < kMaxMessages; i++) {
-		if (fight_messages[i].attack_type == attacktype) {
-			nr = RollDices(1, fight_messages[i].number_of_attacks);
-			// log("[SKILL MESSAGE] %d(%d)",fight_messages[i].number_of_attacks,nr);
-			for (j = 1, msg = fight_messages[i].msg_set; (j < nr) && msg; j++) {
-				msg = msg->next;
-			}
-			if (msg == nullptr) {
-				char small_buf[128];
-				if (attacktype != kTypeTriggerdeath) {
-					sprintf(small_buf, "MESSAGES ERROR: Отсутствует сообщение номер %d в умении %d", j, attacktype);
-					mudlog(small_buf, CMP, kLvlGod, SYSLOG, true);
-				}
-				return 1;
-			}
-			const auto weap = init_weap(ch, dam, attacktype);
-			brief_shields brief(ch, vict, weap, add);
-			if (attacktype == to_underlying(ESpell::kFireShield) || attacktype == to_underlying(ESpell::kMagicGlass)) {
-				brief.reflect = true;
-			}
-
-			if (!vict->IsNpc() && (GetRealLevel(vict) >= kLvlImmortal) && !(ch)->IsFlagged(EPlrFlag::kWriting)) {
-				switch (attacktype) {
-					case to_underlying(ESkill::kBackstab) + kTypeHit:
-					case to_underlying(ESkill::kThrow) + kTypeHit:
-					case to_underlying(ESkill::kBash) + kTypeHit:
-					case to_underlying(ESkill::kKick) + kTypeHit: SendMsgToChar("&W&q", ch);
-						break;
-
-					default: SendMsgToChar("&y&q", ch);
-						break;
-				}
-				brief.act_to_char(msg->god_msg.attacker_msg);
-				SendMsgToChar("&Q&n", ch);
-				brief.act_to_vict(msg->god_msg.victim_msg);
-				brief.act_to_room(msg->god_msg.room_msg);
-			} else if (dam != 0) {
-				if (vict->GetPosition() == EPosition::kDead) {
-					SendMsgToChar("&Y&q", ch);
-					brief.act_to_char(msg->die_msg.attacker_msg);
-					SendMsgToChar("&Q&n", ch);
-					SendMsgToChar("&R&q", vict);
-					brief.act_to_vict(msg->die_msg.victim_msg);
-					SendMsgToChar("&Q&n", vict);
-					brief.act_to_room(msg->die_msg.room_msg);
-				} else {
-					SendMsgToChar("&Y&q", ch);
-					brief.act_to_char(msg->hit_msg.attacker_msg);
-					SendMsgToChar("&Q&n", ch);
-					SendMsgToChar("&R&q", vict);
-					brief.act_to_vict(msg->hit_msg.victim_msg);
-					SendMsgToChar("&Q&n", vict);
-					brief.act_to_room(msg->hit_msg.room_msg);
-				}
-			} else if (ch != vict)    // Dam == 0
-			{
-				switch (attacktype) {
-					case to_underlying(ESkill::kBackstab) + kTypeHit:
-					case to_underlying(ESkill::kThrow) + kTypeHit:
-					case to_underlying(ESkill::kBash) + kTypeHit:
-					case to_underlying(ESkill::kKick) + kTypeHit: SendMsgToChar("&W&q", ch);
-						break;
-
-					default: SendMsgToChar("&y&q", ch);
-						break;
-				}
-				brief.act_to_char(msg->miss_msg.attacker_msg);
-				SendMsgToChar("&Q&n", ch);
-				SendMsgToChar("&r&q", vict);
-				brief.act_to_vict(msg->miss_msg.victim_msg);
-				SendMsgToChar("&Q&n", vict);
-				brief.act_to_room(msg->miss_msg.room_msg);
-			}
-			return (1);
-		}
-	}
-	return (0);
+// Intensity adverb (with trailing space) for a hit of the given damage, substituted into
+// the {intensity} placeholder of kFightHit* messages (issue #3322). Reproduces the legacy
+// dam_weapons[] tiers exactly; empty string for the mid-damage tiers.
+static const char *HitIntensity(int dam) {
+	if (dam <= 5) return "легонько ";
+	if (dam <= 11) return "слегка ";
+	if (dam <= 26) return "";
+	if (dam <= 35) return "сильно ";
+	if (dam <= 45) return "очень сильно ";
+	if (dam <= 56) return "чрезвычайно сильно ";
+	if (dam <= 96) return "БОЛЬНО ";
+	if (dam <= 136) return "ОЧЕНЬ БОЛЬНО ";
+	if (dam <= 176) return "ЧРЕЗВЫЧАЙНО БОЛЬНО ";
+	if (dam <= 216) return "НЕВЫНОСИМО БОЛЬНО ";
+	if (dam <= 256) return "ЖЕСТОКО ";
+	if (dam <= 296) return "УЖАСНО ";
+	if (dam <= 400) return "УБИЙСТВЕННО ";
+	if (dam <= 800) return "ИЗУВЕРСКИ ";
+	return "СМЕРТЕЛЬНО ";
 }
 
-int SendSkillMessages(int dam, CharData *ch, CharData *vict, ESkill skill_id, const std::string add) {
-	return SendSkillMessages(dam, ch, vict, to_underlying(skill_id), add);
+// Renders one combat-message set (god/death/hit/miss x char/vict/room) for the given
+// damage source from its message container, reproducing the legacy colouring and
+// brief-shields handling. Returns false only when neither the source's own sheaf nor the
+// default sheaf has anything to say for this category - the caller may then fall back to a
+// generic message.
+template<typename IdEnum, typename MsgEnum>
+static bool SendCombatMessages(msg_container::MsgContainer<IdEnum, MsgEnum> &cont, IdEnum id,
+							   int dam, CharData *ch, CharData *vict,
+							   bool white_color, bool reflect, const WeapForAct &weap, const std::string &add) {
+	MsgEnum to_char{}, to_vict{}, to_room{};
+	const char *char_color = "&y&q";	// colour wrap for the attacker line
+	const char *vict_color = nullptr;	// colour wrap for the victim line (nullptr - no wrap)
+
+	if (!vict->IsNpc() && (GetRealLevel(vict) >= kLvlImmortal) && !ch->IsFlagged(EPlrFlag::kWriting)) {
+		to_char = MsgEnum::kFightGodToChar;
+		to_vict = MsgEnum::kFightGodToVict;
+		to_room = MsgEnum::kFightGodToRoom;
+		char_color = white_color ? "&W&q" : "&y&q";
+	} else if (dam != 0) {
+		if (vict->GetPosition() == EPosition::kDead) {
+			to_char = MsgEnum::kFightDeathToChar;
+			to_vict = MsgEnum::kFightDeathToVict;
+			to_room = MsgEnum::kFightDeathToRoom;
+		} else {
+			to_char = MsgEnum::kFightHitToChar;
+			to_vict = MsgEnum::kFightHitToVict;
+			to_room = MsgEnum::kFightHitToRoom;
+		}
+		char_color = "&Y&q";
+		vict_color = "&R&q";
+	} else if (ch != vict) {
+		to_char = MsgEnum::kFightMissToChar;
+		to_vict = MsgEnum::kFightMissToVict;
+		to_room = MsgEnum::kFightMissToRoom;
+		char_color = white_color ? "&W&q" : "&y&q";
+		vict_color = "&r&q";
+	} else {
+		return true;	// dam == 0 && ch == vict: ничего не выводим (как в старом коде)
+	}
+
+	// Берём связку самого источника урона, если в ней есть хоть одно сообщение этой
+	// категории (это сохраняет '#'-пропуски внутри категории, например отсутствие
+	// сообщения "наносящему" у серверного урона); иначе - связку по умолчанию.
+	const bool own = cont.IsKnown(id)
+		&& (cont[id].HasMessage(to_char) || cont[id].HasMessage(to_vict) || cont[id].HasMessage(to_room));
+	const auto &sheaf = own ? cont[id] : cont[IdEnum::kUndefined];
+	if (!sheaf.HasMessage(to_char) && !sheaf.HasMessage(to_vict) && !sheaf.HasMessage(to_room)) {
+		return false;
+	}
+
+	brief_shields brief(ch, vict, weap, add);
+	brief.reflect = reflect;
+
+	// Substitute the {intensity} placeholder on weapon-hit messages (issue #3322).
+	// Messages without the placeholder (skills/spells, death/miss/god) are used as-is.
+	const char *const intensity = HitIntensity(dam);
+	auto resolve = [&](MsgEnum type, std::string &buf) -> const char * {
+		const std::string &raw = sheaf.GetMessage(type);
+		if (raw.find("{intensity}") == std::string::npos) {
+			return raw.c_str();
+		}
+		buf = fmt::format(fmt::runtime(raw), fmt::arg("intensity", intensity));
+		return buf.c_str();
+	};
+
+	if (sheaf.HasMessage(to_char)) {
+		std::string buf;
+		SendMsgToChar(char_color, ch);
+		brief.act_to_char(resolve(to_char, buf));
+		SendMsgToChar("&Q&n", ch);
+	}
+	if (sheaf.HasMessage(to_vict)) {
+		std::string buf;
+		if (vict_color) {
+			SendMsgToChar(vict_color, vict);
+		}
+		brief.act_to_vict(resolve(to_vict, buf));
+		if (vict_color) {
+			SendMsgToChar("&Q&n", vict);
+		}
+	}
+	if (sheaf.HasMessage(to_room)) {
+		std::string buf;
+		brief.act_to_room(resolve(to_room, buf));
+	}
+	return true;
 }
 
 int SendSkillMessages(int dam, CharData *ch, CharData *vict, ESpell spell_id, const std::string add) {
-	return SendSkillMessages(dam, ch, vict, to_underlying(spell_id), add);
+	const bool reflect = (spell_id == ESpell::kFireShield || spell_id == ESpell::kMagicGlass);
+	const auto weap = InitWeapForAct(ch, ESkill::kUndefined, fight::EDamageSource::kUndefined);
+	return SendCombatMessages(MUD::SpellMessages(), spell_id, dam, ch, vict, false, reflect, weap, add);
+}
+
+int SendSkillMessages(int dam, CharData *ch, CharData *vict, ESkill skill_id, const std::string add) {
+	const bool white = (skill_id == ESkill::kBackstab || skill_id == ESkill::kThrow
+						|| skill_id == ESkill::kBash || skill_id == ESkill::kKick);
+	const auto weap = InitWeapForAct(ch, skill_id, fight::EDamageSource::kUndefined);
+	return SendCombatMessages(MUD::SkillMessages(), skill_id, dam, ch, vict, white, false, weap, add);
+}
+
+int SendSkillMessages(int dam, CharData *ch, CharData *vict, fight::EDamageSource damage_source, const std::string add) {
+	// Урон от триггеров (odamage и т.п.) озвучивает автор скрипта - сами ничего не выводим.
+	if (damage_source == fight::EDamageSource::kTriggerDeath) {
+		return 1;
+	}
+	const auto weap = InitWeapForAct(ch, ESkill::kUndefined, damage_source);
+	return SendCombatMessages(MUD::FightMessages(), damage_source, dam, ch, vict, false, false, weap, add);
 }
  
 /* неточный дубль CalcSaving

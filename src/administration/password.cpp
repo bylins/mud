@@ -15,7 +15,10 @@
 #if defined(NOCRYPT)
 #define CRYPT(a,b) ((char *) (a))
 #else
-#ifdef __FreeBSD__
+#if defined(__unix__) || defined(__unix) || defined(__APPLE__)
+#include <sys/param.h>
+#endif
+#ifdef BSD
 #include <unistd.h>
 #else
 #include <crypt.h>
