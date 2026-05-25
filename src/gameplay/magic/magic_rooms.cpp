@@ -568,7 +568,7 @@ int CallMagicToRoom(CharData *ch, RoomData *room, CastRollResult roll) {
 			act(to_char, true, ch, nullptr, nullptr, kToChar);
 		return 1;
 	} else
-		SendMsgToChar(NOEFFECT, ch);
+		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 
 	if (!ch->IsImmortal())
 		SetWaitState(ch, lag * kBattleRound);

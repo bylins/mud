@@ -970,7 +970,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 
 	if (!MUD::Spell(spell_id).IsFlagged(kMagWarcry) && ch != victim && MUD::Spell(spell_id).IsViolent()
 		&& number(1, 999) <= GET_AR(victim) * 10) {
-		SendMsgToChar(NOEFFECT, ch);
+		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 		return 0;
 	}
 
@@ -1003,7 +1003,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 		case ESpell::kEnergyDrain:
 		case ESpell::kWeaknes: savetype = ESaving::kWill;
 			if (ch != victim && CalcGeneralSaving(ch, victim, savetype, modi)) {
-				SendMsgToChar(NOEFFECT, ch);
+				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 				success = false;
 				break;
 			}
@@ -1050,14 +1050,14 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 
 		case ESpell::kCallLighting:
 			if (ch != victim && CalcGeneralSaving(ch, victim, savetype, modi)) {
-				SendMsgToChar(NOEFFECT, ch);
+				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 				success = false;
 			}
 			break;
 
 		case ESpell::kColdWind:
 			if (ch != victim && CalcGeneralSaving(ch, victim, savetype, modi)) {
-				SendMsgToChar(NOEFFECT, ch);
+				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 				success = false;
 			}
 			break;
@@ -1101,7 +1101,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 
 		case ESpell::kMindless:
 			if (ch != victim && CalcGeneralSaving(ch, victim, savetype, modi)) {
-				SendMsgToChar(NOEFFECT, ch);
+				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 				success = false;
 				break;
 			}
@@ -1117,7 +1117,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 				victim->IsImmortal() ||
 				((ch != victim) &&
 					!GET_GOD_FLAG(victim, EGf::kGodscurse) && CalcGeneralSaving(ch, victim, savetype, modi))) {
-				SendMsgToChar(NOEFFECT, ch);
+				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 				success = false;
 				break;
 			}
@@ -1125,7 +1125,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 
 		case ESpell::kMadness: savetype = ESaving::kWill;
 			if (ch != victim && CalcGeneralSaving(ch, victim, savetype, modi)) {
-				SendMsgToChar(NOEFFECT, ch);
+				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 				success = false;
 				break;
 			}
@@ -1135,7 +1135,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 		case ESpell::kWeb: savetype = ESaving::kReflex;
 			if (AFF_FLAGGED(victim, EAffect::kBrokenChains)
 				|| (ch != victim && CalcGeneralSaving(ch, victim, savetype, modi))) {
-				SendMsgToChar(NOEFFECT, ch);
+				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 				success = false;
 				break;
 			}
@@ -1145,7 +1145,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 		case ESpell::kMassCurse:
 		case ESpell::kCurse: savetype = ESaving::kWill;
 			if (ch != victim && CalcGeneralSaving(ch, victim, savetype, modi)) {
-				SendMsgToChar(NOEFFECT, ch);
+				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 				success = false;
 				break;
 			}
@@ -1181,7 +1181,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 		case ESpell::kSlowdown: savetype = ESaving::kStability;
 			if (AFF_FLAGGED(victim, EAffect::kBrokenChains)
 				|| (ch != victim && CalcGeneralSaving(ch, victim, savetype, modi))) {
-				SendMsgToChar(NOEFFECT, ch);
+				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 				success = false;
 				break;
 			}
@@ -1199,7 +1199,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 			if (!victim)
 				victim = ch;
 			if (IsAffectedBySpell(victim, ESpell::kGlitterDust)) {
-				SendMsgToChar(NOEFFECT, ch);
+				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 				success = false;
 				break;
 			}
@@ -1207,7 +1207,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 
 		case ESpell::kFever: savetype = ESaving::kStability;
 			if (ch != victim && CalcGeneralSaving(ch, victim, savetype, modi)) {
-				SendMsgToChar(NOEFFECT, ch);
+				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 				success = false;
 				break;
 			}
@@ -1218,7 +1218,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 			if (ch != victim && (AFF_FLAGGED(victim, EAffect::kGodsShield) ||
 				CalcGeneralSaving(ch, victim, savetype, modi))) {
 				if (ch->in_room == victim->in_room) {
-					SendMsgToChar(NOEFFECT, ch);
+					SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 				}
 				success = false;
 				break;
@@ -1246,7 +1246,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 		case ESpell::kSleep: savetype = ESaving::kWill;
 			if (AFF_FLAGGED(victim, EAffect::kHold) || victim->IsFlagged(EMobFlag::kNoSleep)
 				|| (ch != victim && CalcGeneralSaving(ch, victim, ESaving::kWill, modi))) {
-				SendMsgToChar(NOEFFECT, ch);
+				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 				success = false;
 				break;
 			};
@@ -1297,7 +1297,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 					|| AFF_FLAGGED(victim, EAffect::kBrokenChains)
 					|| AFF_FLAGGED(victim, EAffect::kSleep)
 					|| (ch != victim && CalcGeneralSaving(ch, victim, ESaving::kWill, modi))) {
-				SendMsgToChar(NOEFFECT, ch);
+				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 				success = false;
 				break;
 			}
@@ -1321,7 +1321,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 			}
 			if (  //victim->IsFlagged(MOB_NODEAFNESS) ||
 				(ch != victim && CalcGeneralSaving(ch, victim, savetype, modi))) {
-				SendMsgToChar(NOEFFECT, ch);
+				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 				success = false;
 				break;
 			}
@@ -1333,7 +1333,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 		case ESpell::kSilence: savetype = ESaving::kWill;
 			if (victim->IsFlagged(EMobFlag::kNoSilence) ||
 				(ch != victim && CalcGeneralSaving(ch, victim, savetype, modi))) {
-				SendMsgToChar(NOEFFECT, ch);
+				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 				success = false;
 				break;
 			}
@@ -1345,7 +1345,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 			savetype = ESaving::kWill;
 			if (AFF_FLAGGED(victim, EAffect::kBrokenChains)
 				|| (ch != victim && CalcGeneralSaving(ch, victim, savetype, modi))) {
-				SendMsgToChar(NOEFFECT, ch);
+				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 				success = false;
 				break;
 			}
@@ -1396,7 +1396,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 				modi += ch->GetSkill(GetMagicSkillId(spell_id))/5;
 			}
 			if (victim->IsImmortal() || (!ch->IsImmortal() && CalcGeneralSaving(ch, victim, savetype, modi))) {
-				SendMsgToChar(NOEFFECT, ch);
+				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 				success = false;
 				break;
 			}
@@ -1414,7 +1414,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 						|| (ch != victim
 							&& IsAffectedBySpell(victim, ESpell::kDeafness))) {
 						if (ch->in_room == victim->in_room) {
-							SendMsgToChar(NOEFFECT, ch);
+							SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 						}
 					} else {
 						ImposeAffect(victim, af[0], accum_duration, false, accum_affect, false);
@@ -1442,7 +1442,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 		case ESpell::kCrying: {
 			if (AFF_FLAGGED(victim, EAffect::kCrying)
 				|| (ch != victim && CalcGeneralSaving(ch, victim, savetype, modi))) {
-				SendMsgToChar(NOEFFECT, ch);
+				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 				success = false;
 				break;
 			}
@@ -1480,7 +1480,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 		case ESpell::kOblivion:
 		case ESpell::kBurdenOfTime: {
 			if (victim->IsImmortal() || CalcGeneralSaving(ch, victim, ESaving::kReflex, modi)) {
-				SendMsgToChar(NOEFFECT, ch);
+				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 				success = false;
 				break;
 			}
@@ -1492,7 +1492,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 			if (AFF_FLAGGED(victim, EAffect::kPeaceful)
 				|| (victim->IsNpc() && !AFF_FLAGGED(victim, EAffect::kCharmed)) ||
 				(ch != victim && CalcGeneralSaving(ch, victim, savetype, modi))) {
-				SendMsgToChar(NOEFFECT, ch);
+				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 				success = false;
 				break;
 			}
@@ -1506,7 +1506,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 
 		case ESpell::kStoneBones: {
 			if (GET_MOB_VNUM(victim) < kMobSkeleton || GET_MOB_VNUM(victim) > kLastNecroMob) {
-				SendMsgToChar(NOEFFECT, ch);
+				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 				success = false;
 			}
 			break;
@@ -1516,7 +1516,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 		case ESpell::kMassFailure: {
 			savetype = ESaving::kWill;
 			if (ch != victim && CalcGeneralSaving(ch, victim, savetype, modi)) {
-				SendMsgToChar(NOEFFECT, ch);
+				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 				success = false;
 				break;
 			}
@@ -1533,7 +1533,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 		case ESpell::kGlitterDust: {
 			savetype = ESaving::kReflex;
 			if (ch != victim && CalcGeneralSaving(ch, victim, savetype, modi + 50)) {
-				SendMsgToChar(NOEFFECT, ch);
+				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 				success = false;
 				break;
 			}
@@ -1553,7 +1553,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 		case ESpell::kScream: {
 			savetype = ESaving::kStability;
 			if (ch != victim && CalcGeneralSaving(ch, victim, savetype, modi)) {
-				SendMsgToChar(NOEFFECT, ch);
+				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 				success = false;
 				break;
 			}
@@ -1564,7 +1564,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 			savetype = ESaving::kWill;
 			modi = GetRealCon(ch);
 			if (ch != victim && CalcGeneralSaving(ch, victim, savetype, modi)) {
-				SendMsgToChar(NOEFFECT, ch);
+				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 				success = false;
 				break;
 			}
@@ -1614,7 +1614,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 					to_vict = "Вас охватила паника.";
 					to_room = "$n0 начал$g сеять панику.";
 				} else {
-					SendMsgToChar(NOEFFECT, ch);
+					SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 					success = false;
 				}
 			}
@@ -1688,7 +1688,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 		for (i = 0; i < kMaxSpellAffects && success; ++i) {
 			if (AFF_FLAGGED(&mob_proto[victim->get_rnum()], af[i].affect_type)) {
 				if (ch->in_room == victim->in_room) {
-					SendMsgToChar(NOEFFECT, ch);
+					SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 				}
 				success = false;
 			}
@@ -1705,7 +1705,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 		// вот такой оригинальный способ запретить рекасты негативных аффектов - через флаг апдейта
 		if ((ch != victim) && IsAffectedBySpell(victim, spell_id) && success && (!update_spell)) {
 			if (ch->in_room == victim->in_room) {
-				SendMsgToChar(NOEFFECT, ch);
+				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 			}
 			success = false;
 		}
@@ -1733,7 +1733,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 		const auto &talent = MUD::Spell(spell_id).actions.GetAffect();
 		if (ch != victim && talent.GetSaving() != ESaving::kNone
 				&& CalcGeneralSaving(ch, victim, talent.GetSaving(), modi)) {
-			SendMsgToChar(NOEFFECT, ch);
+			SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 			success = false;
 		} else {
 			const Bitvector flags = talent.GetFlags();
@@ -1741,7 +1741,7 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 				|| IS_SET(flags, to_underlying(EAffFlag::kAfUpdateDuration));
 			if (ch != victim && IsAffectedBySpell(victim, talent.GetSpell()) && !can_reapply) {
 				if (ch->in_room == victim->in_room) {
-					SendMsgToChar(NOEFFECT, ch);
+					SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 				}
 				success = false;
 			} else {
@@ -2367,7 +2367,7 @@ int CastUnaffects(int/* level*/, CharData *ch, CharData *victim, ESpell spell_id
 					}
 				}
 				if (dispellable == 0) {
-					SendMsgToChar(NOEFFECT, ch);
+					SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 					return 0;
 				}
 
@@ -2404,7 +2404,7 @@ int CastUnaffects(int/* level*/, CharData *ch, CharData *victim, ESpell spell_id
 
 	if (!IsAffectedBySpell(victim, spell)) {
 		if (spell_id != ESpell::kHeal)    // 'cure blindness' message.
-			SendMsgToChar(NOEFFECT, ch);
+			SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 		return 0;
 	}
 	spell_id = spell;
@@ -2630,7 +2630,7 @@ int CastToAlterObjs(int/* level*/, CharData *ch, ObjData *obj, ESpell spell_id) 
 	} // switch
 
 	if (to_char == nullptr) {
-		SendMsgToChar(NOEFFECT, ch);
+		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 	} else {
 		act(to_char, true, ch, obj, nullptr, kToChar);
 	}
@@ -2804,7 +2804,7 @@ int CastToSingleTarget(CharData *caster, CharData *cvict, ObjData *ovict, CastRo
 	if (cvict && (caster != cvict))
 		if (cvict->IsGod() || (((GetRealLevel(cvict) / 2) > (GetRealLevel(caster) + (GetRealRemort(caster) / 2))) &&
 				!caster->IsNpc())) {
-			SendMsgToChar(NOEFFECT, caster);
+			SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", caster);
 			return (-1);
 		}
 

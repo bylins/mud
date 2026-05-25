@@ -2115,7 +2115,7 @@ void SpellEnergydrain(int/* level*/, CharData *ch, CharData *victim, ObjData* /*
 		victim->caster_level = 0;
 		SendMsgToChar("Внезапно вы осознали, что у вас напрочь отшибло память.\r\n", victim);
 	} else
-		SendMsgToChar(NOEFFECT, ch);
+		SendMsgToChar(MUD::SpellMessages().GetMessage(ESpell::kEnergyDrain, ESpellMsg::kNoeffect) + "\r\n", ch);
 }
 
 void do_sacrifice(CharData *ch, int dam) {
@@ -2131,7 +2131,7 @@ void SpellSacrifice(int/* level*/, CharData *ch, CharData *victim, ObjData* /*ob
 	// *** мин 54 макс 66 (330)
 
 	if (victim->IsImmortal() || victim == ch || IS_CHARMICE(victim)) {
-		SendMsgToChar(NOEFFECT, ch);
+		SendMsgToChar(MUD::SpellMessages().GetMessage(ESpell::kSacrifice, ESpellMsg::kNoeffect) + "\r\n", ch);
 		return;
 	}
 

@@ -259,7 +259,6 @@ int calc_loadroom(const CharData *ch, int bplace_mode = kBirthplaceUndefined);
 
 extern char const *OK;
 extern char const *NOPERSON;
-extern char const *NOEFFECT;
 extern const char *nothing_string;
 
 #endif // __CONFIG_HPP__

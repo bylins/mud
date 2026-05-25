@@ -47,6 +47,10 @@ enum class ESpellMsg {
 	kCantCastNotAlly,	// spell may only be cast on self or a groupmate (kTarAllyOnly).
 	kTargetUnavailable,	// spell target is unavailable.
 	kCantCastPeaceful,	// caster is peaceful and refuses to do harm.
+	// Generic "the spell had no effect" outcome, shown across CastAffect/CastUnaffects/
+	// etc. (issue no-effect-msg). Lives in the kDefault sheaf; replaced the old global
+	// NOEFFECT literal.
+	kNoeffect,
 	// CastToAlterObjs messages (to the caster).
 	kObjResist,			// object is no-alter (common -> kDefault sheaf).
 	kAlterObjToChar,	// per-spell "object transformed" message.
