@@ -466,7 +466,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <misc pos="kFight" violent="N" danger="1"/>
         <mana max="150" min="140" change="2"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
-        <flags val="kMagManual|kMagAffects|kNpcDamagePc"/>
+        <flags val="kMagManual|kMagAffects|kMagUnaffects|kNpcDamagePc"/>
         <potency_roll>
             <dices ndice="2" sdice="4" adice="2"/>
             <base_skill id="kDarkMagic" low_skill_bonus="0.3" hi_skill_bonus="0.5"/>
@@ -482,6 +482,10 @@ base_stat id - (например "kWis") какой берем параметр,
                         <modifier min="10.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
                     </apply>
                 </affects>
+                <unaffect>
+                    <breaking any_of="kStrength|kDexterity"/>
+                    <remove any_of="kStrength|kDexterity"/>
+                </unaffect>
             </action>
         </talent_actions>
     </spell>
@@ -661,7 +665,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <misc pos="kFight" violent="N" danger="1"/>
         <mana max="85" min="70" change="2"/>
         <targets val="kTarCharRoom|kTarFightSelf|kTarAllyOnly"/>
-        <flags val="kMagAffects|kNpcAffectNpc"/>
+        <flags val="kMagAffects|kMagUnaffects|kNpcAffectNpc"/>
         <talent_actions>
             <action>
                 <affects type="kSanctuary" saving="kNone" resist="kVitality">
@@ -671,6 +675,10 @@ base_stat id - (например "kWis") какой берем параметр,
                         <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
                     </apply>
                 </affects>
+                <unaffect>
+                    <breaking any_of="kPrismaticAura"/>
+                    <remove any_of="kPrismaticAura"/>
+                </unaffect>
             </action>
         </talent_actions>
     </spell>
@@ -696,7 +704,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <misc pos="kFight" violent="Y" danger="0"/>
         <mana max="70" min="55" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
-        <flags val="kMagAffects|kNpcAffectPc"/>
+        <flags val="kMagAffects|kMagUnaffects|kNpcAffectPc"/>
         <talent_actions>
             <action>
                 <affects type="kSleep" saving="kNone" resist="kMind">
@@ -707,6 +715,9 @@ base_stat id - (например "kWis") какой берем параметр,
                         <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
                     </apply>
                 </affects>
+                <unaffect>
+                    <breaking any_of="kHold"/>
+                </unaffect>
             </action>
         </talent_actions>
     </spell>
@@ -715,7 +726,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="40" min="30" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
-        <flags val="kMagAffects|kNpcAffectNpc"/>
+        <flags val="kMagAffects|kMagUnaffects|kNpcAffectNpc"/>
         <talent_actions>
             <action>
                 <affects type="kStrength" saving="kNone" resist="kImmunity">
@@ -725,6 +736,10 @@ base_stat id - (например "kWis") какой берем параметр,
                         <modifier min="5.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
                     </apply>
                 </affects>
+                <unaffect>
+                    <breaking any_of="kWeaknes"/>
+                    <remove any_of="kWeaknes"/>
+                </unaffect>
             </action>
         </talent_actions>
     </spell>
@@ -961,7 +976,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="140" min="120" change="2"/>
         <targets val="kTarIgnore"/>
-        <flags val="kMagGroups|kMagAffects|kNpcAffectNpc"/>
+        <flags val="kMagGroups|kMagAffects|kMagUnaffects|kNpcAffectNpc"/>
         <talent_actions>
             <action>
                 <area>
@@ -975,6 +990,10 @@ base_stat id - (например "kWis") какой берем параметр,
                         <modifier min="5.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
                     </apply>
                 </affects>
+                <unaffect>
+                    <breaking any_of="kWeaknes"/>
+                    <remove any_of="kWeaknes"/>
+                </unaffect>
             </action>
         </talent_actions>
     </spell>
@@ -983,10 +1002,10 @@ base_stat id - (например "kWis") какой берем параметр,
         <misc pos="kFight" violent="Y" danger="3"/>
         <mana max="100" min="40" change="2"/>
         <targets val="kTarCharRoom|kTarNotSelf|kTarFightVict"/>
-        <flags val="kMagAffects|kNpcAffectPc"/>
+        <flags val="kMagAffects|kMagUnaffects|kNpcAffectPc"/>
         <talent_actions>
             <action>
-                <affects type="kHold" saving="kNone" resist="kMind">
+                <affects type="kHold" saving="kWill" resist="kMind">
                     <blocking_flags val="kNoHold"/>
                     <duration cnst="1" level_divisor="10" min="1" max="3"/>
                     <flags val="kAfBattledec"/>
@@ -994,6 +1013,9 @@ base_stat id - (например "kWis") какой берем параметр,
                         <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
                     </apply>
                 </affects>
+                <unaffect>
+                    <breaking any_of="kBrokenChains|kSleep"/>
+                </unaffect>
             </action>
         </talent_actions>
     </spell>
@@ -1002,10 +1024,10 @@ base_stat id - (например "kWis") какой берем параметр,
         <misc pos="kFight" violent="Y" danger="4"/>
         <mana max="140" min="90" change="4"/>
         <targets val="kTarCharRoom|kTarNotSelf|kTarFightVict"/>
-        <flags val="kMagAffects|kNpcAffectPc"/>
+        <flags val="kMagAffects|kMagUnaffects|kNpcAffectPc"/>
         <talent_actions>
             <action>
-                <affects type="kHold" saving="kNone" resist="kMind">
+                <affects type="kHold" saving="kWill" resist="kMind">
                     <blocking_flags val="kNoHold"/>
                     <duration cnst="2" level_divisor="8" min="2" max="5"/>
                     <flags val="kAfBattledec"/>
@@ -1013,6 +1035,9 @@ base_stat id - (например "kWis") какой берем параметр,
                         <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
                     </apply>
                 </affects>
+                <unaffect>
+                    <breaking any_of="kBrokenChains|kSleep"/>
+                </unaffect>
             </action>
         </talent_actions>
     </spell>
@@ -1021,14 +1046,14 @@ base_stat id - (например "kWis") какой берем параметр,
         <misc pos="kFight" violent="Y" danger="5"/>
         <mana max="150" min="130" change="5"/>
         <targets val="kTarIgnore"/>
-        <flags val="kMagMasses|kMagAffects|kNpcAffectPc"/>
+        <flags val="kMagMasses|kMagAffects|kMagUnaffects|kNpcAffectPc"/>
         <talent_actions>
             <action>
                 <area>
                     <decay cast="0.05" level="2" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
-                <affects type="kHold" saving="kNone" resist="kMind">
+                <affects type="kHold" saving="kWill" resist="kMind">
                     <blocking_flags val="kNoHold"/>
                     <duration cnst="1" level_divisor="10" min="1" max="3"/>
                     <flags val="kAfBattledec"/>
@@ -1036,6 +1061,9 @@ base_stat id - (например "kWis") какой берем параметр,
                         <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
                     </apply>
                 </affects>
+                <unaffect>
+                    <breaking any_of="kBrokenChains|kSleep"/>
+                </unaffect>
             </action>
         </talent_actions>
     </spell>
@@ -1080,16 +1108,19 @@ base_stat id - (например "kWis") какой берем параметр,
         <misc pos="kFight" violent="Y" danger="0"/>
         <mana max="100" min="90" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
-        <flags val="kMagAffects|kNpcAffectPc"/>
+        <flags val="kMagAffects|kMagUnaffects|kNpcAffectPc"/>
         <talent_actions>
             <action>
-                <affects type="kNoflee" saving="kNone" resist="kMind">
+                <affects type="kNoflee" saving="kWill" resist="kMind">
                     <duration cnst="3" level_divisor="4" min="4" max="0"/>
                     <flags val="kAfBattledec"/>
                     <apply id="kNoTeleport" location="kNone">
                         <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
                     </apply>
                 </affects>
+                <unaffect>
+                    <breaking any_of="kBrokenChains"/>
+                </unaffect>
             </action>
         </talent_actions>
     </spell>
@@ -1258,7 +1289,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <misc pos="kFight" violent="Y" danger="0"/>
         <mana max="70" min="55" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
-        <flags val="kMagAffects|kNpcAffectPc"/>
+        <flags val="kMagAffects|kMagUnaffects|kNpcAffectPc"/>
         <talent_actions>
             <action>
                 <area>
@@ -1272,6 +1303,10 @@ base_stat id - (например "kWis") какой берем параметр,
                         <modifier min="5.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
                     </apply>
                 </affects>
+                <unaffect>
+                    <breaking any_of="kStrength|kDexterity"/>
+                    <remove any_of="kStrength|kDexterity"/>
+                </unaffect>
             </action>
         </talent_actions>
     </spell>
@@ -1348,7 +1383,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="55" min="40" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
-        <flags val="kMagAffects|kNpcAffectNpc"/>
+        <flags val="kMagAffects|kMagUnaffects|kNpcAffectNpc"/>
         <talent_actions>
             <action>
                 <affects type="kEnlarge" saving="kNone" resist="kImmunity">
@@ -1358,6 +1393,10 @@ base_stat id - (например "kWis") какой берем параметр,
                         <modifier min="18.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
                     </apply>
                 </affects>
+                <unaffect>
+                    <breaking any_of="kLessening"/>
+                    <remove any_of="kLessening"/>
+                </unaffect>
             </action>
         </talent_actions>
     </spell>
@@ -1394,7 +1433,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <misc pos="kFight" violent="Y" danger="1"/>
         <mana max="70" min="55" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
-        <flags val="kMagAffects|kNpcAffectPc"/>
+        <flags val="kMagAffects|kMagUnaffects|kNpcAffectPc"/>
         <talent_actions>
             <action>
                 <affects type="kWeb" saving="kReflex" resist="kMind">
@@ -1407,6 +1446,9 @@ base_stat id - (например "kWis") какой берем параметр,
                         <modifier min="20.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
                     </apply>
                 </affects>
+                <unaffect>
+                    <breaking any_of="kBrokenChains"/>
+                </unaffect>
             </action>
         </talent_actions>
     </spell>
@@ -1895,10 +1937,10 @@ base_stat id - (например "kWis") какой берем параметр,
         <misc pos="kFight" violent="Y" danger="1"/>
         <mana max="55" min="40" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
-        <flags val="kMagAffects|kNpcAffectPc"/>
+        <flags val="kMagAffects|kMagUnaffects|kNpcAffectPc"/>
         <talent_actions>
             <action>
-                <affects type="kSlowdown" saving="kNone" resist="kMind">
+                <affects type="kSlowdown" saving="kStability" resist="kMind">
                     <duration cnst="9" level_divisor="0" min="0" max="0"/>
                     <apply id="kSlow" location="kNone">
                         <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
@@ -1907,6 +1949,10 @@ base_stat id - (например "kWis") какой берем параметр,
                         <modifier min="2.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
                     </apply>
                 </affects>
+                <unaffect>
+                    <breaking any_of="kBrokenChains|kHaste"/>
+                    <remove any_of="kHaste"/>
+                </unaffect>
             </action>
         </talent_actions>
     </spell>
@@ -1915,7 +1961,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="55" min="40" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
-        <flags val="kMagAffects|kNpcAffectNpc"/>
+        <flags val="kMagAffects|kMagUnaffects|kNpcAffectNpc"/>
         <talent_actions>
             <action>
                 <affects type="kHaste" saving="kNone" resist="kMind">
@@ -1925,6 +1971,10 @@ base_stat id - (например "kWis") какой берем параметр,
                         <modifier min="1.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
                     </apply>
                 </affects>
+                <unaffect>
+                    <breaking any_of="kSlowdown"/>
+                    <remove any_of="kSlowdown"/>
+                </unaffect>
             </action>
         </talent_actions>
     </spell>
@@ -1933,14 +1983,14 @@ base_stat id - (например "kWis") какой берем параметр,
         <misc pos="kFight" violent="Y" danger="2"/>
         <mana max="140" min="120" change="2"/>
         <targets val="kTarIgnore"/>
-        <flags val="kMagMasses|kMagAffects|kNpcAffectPc"/>
+        <flags val="kMagMasses|kMagAffects|kMagUnaffects|kNpcAffectPc"/>
         <talent_actions>
             <action>
                 <area>
                     <decay cast="0.05" level="2" free_targets="3"/>
                     <victims skill_divisor="10" dice_size="3" min_targets="5" max_targets="20"/>
                 </area>
-                <affects type="kSlowdown" saving="kNone" resist="kMind">
+                <affects type="kSlowdown" saving="kStability" resist="kMind">
                     <duration cnst="9" level_divisor="0" min="0" max="0"/>
                     <apply id="kSlow" location="kNone">
                         <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
@@ -1949,6 +1999,10 @@ base_stat id - (например "kWis") какой берем параметр,
                         <modifier min="2.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
                     </apply>
                 </affects>
+                <unaffect>
+                    <breaking any_of="kBrokenChains|kHaste"/>
+                    <remove any_of="kHaste"/>
+                </unaffect>
             </action>
         </talent_actions>
     </spell>
@@ -1957,7 +2011,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <misc pos="kFight" violent="N" danger="1"/>
         <mana max="110" min="100" change="1"/>
         <targets val="kTarIgnore"/>
-        <flags val="kMagGroups|kMagAffects|kNpcAffectNpc"/>
+        <flags val="kMagGroups|kMagAffects|kMagUnaffects|kNpcAffectNpc"/>
         <talent_actions>
             <action>
                 <area>
@@ -1971,6 +2025,10 @@ base_stat id - (например "kWis") какой берем параметр,
                         <modifier min="1.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
                     </apply>
                 </affects>
+                <unaffect>
+                    <breaking any_of="kSlowdown"/>
+                    <remove any_of="kSlowdown"/>
+                </unaffect>
             </action>
         </talent_actions>
     </spell>
@@ -2087,7 +2145,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="140" min="120" change="2"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
-        <flags val="kMagAffects|kNpcAffectNpc"/>
+        <flags val="kMagAffects|kMagUnaffects|kNpcAffectNpc"/>
         <talent_actions>
             <action>
                 <affects type="kAirShield" saving="kNone" resist="kAir">
@@ -2097,6 +2155,9 @@ base_stat id - (например "kWis") какой берем параметр,
                         <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
                     </apply>
                 </affects>
+                <unaffect>
+                    <remove all_of="kIceShield|kFireShield"/>
+                </unaffect>
             </action>
         </talent_actions>
     </spell>
@@ -2168,7 +2229,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="140" min="120" change="2"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
-        <flags val="kMagAffects|kNpcAffectNpc"/>
+        <flags val="kMagAffects|kMagUnaffects|kNpcAffectNpc"/>
         <talent_actions>
             <action>
                 <affects type="kFireShield" saving="kNone" resist="kFire">
@@ -2178,6 +2239,9 @@ base_stat id - (например "kWis") какой берем параметр,
                         <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
                     </apply>
                 </affects>
+                <unaffect>
+                    <remove all_of="kIceShield|kAirShield"/>
+                </unaffect>
             </action>
         </talent_actions>
     </spell>
@@ -2200,7 +2264,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="140" min="120" change="2"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
-        <flags val="kMagAffects|kNpcAffectNpc"/>
+        <flags val="kMagAffects|kMagUnaffects|kNpcAffectNpc"/>
         <talent_actions>
             <action>
                 <affects type="kIceShield" saving="kNone" resist="kWater">
@@ -2210,6 +2274,9 @@ base_stat id - (например "kWis") какой берем параметр,
                         <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
                     </apply>
                 </affects>
+                <unaffect>
+                    <remove all_of="kFireShield|kAirShield"/>
+                </unaffect>
             </action>
         </talent_actions>
     </spell>
@@ -2246,7 +2313,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="55" min="40" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
-        <flags val="kMagAffects|kNpcAffectNpc"/>
+        <flags val="kMagAffects|kMagUnaffects|kNpcAffectNpc"/>
         <talent_actions>
             <action>
                 <affects type="kLessening" saving="kNone" resist="kImmunity">
@@ -2256,6 +2323,10 @@ base_stat id - (например "kWis") какой берем параметр,
                         <modifier min="15.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
                     </apply>
                 </affects>
+                <unaffect>
+                    <breaking any_of="kEnlarge"/>
+                    <remove any_of="kEnlarge"/>
+                </unaffect>
             </action>
         </talent_actions>
     </spell>
@@ -2414,7 +2485,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <misc pos="kFight" violent="N" danger="1"/>
         <mana max="85" min="70" change="4"/>
         <targets val="kTarCharRoom|kTarFightSelf|kTarAllyOnly"/>
-        <flags val="kMagAffects|kNpcAffectNpc"/>
+        <flags val="kMagAffects|kMagUnaffects|kNpcAffectNpc"/>
         <talent_actions>
             <action>
                 <affects type="kPrismaticAura" saving="kNone" resist="kVitality">
@@ -2424,6 +2495,10 @@ base_stat id - (например "kWis") какой берем параметр,
                         <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
                     </apply>
                 </affects>
+                <unaffect>
+                    <breaking any_of="kSanctuary"/>
+                    <remove any_of="kSanctuary"/>
+                </unaffect>
             </action>
         </talent_actions>
     </spell>
@@ -2568,7 +2643,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <misc pos="kFight" violent="N" danger="1"/>
         <mana max="110" min="100" change="1"/>
         <targets val="kTarIgnore"/>
-        <flags val="kMagGroups|kMagAffects|kNpcAffectNpc"/>
+        <flags val="kMagGroups|kMagAffects|kMagUnaffects|kNpcAffectNpc"/>
         <talent_actions>
             <action>
                 <area>
@@ -2582,6 +2657,10 @@ base_stat id - (например "kWis") какой берем параметр,
                         <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
                     </apply>
                 </affects>
+                <unaffect>
+                    <breaking any_of="kPrismaticAura"/>
+                    <remove any_of="kPrismaticAura"/>
+                </unaffect>
             </action>
         </talent_actions>
     </spell>
@@ -2590,7 +2669,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <misc pos="kFight" violent="N" danger="1"/>
         <mana max="110" min="100" change="1"/>
         <targets val="kTarIgnore"/>
-        <flags val="kMagGroups|kMagAffects|kNpcAffectNpc"/>
+        <flags val="kMagGroups|kMagAffects|kMagUnaffects|kNpcAffectNpc"/>
         <talent_actions>
             <action>
                 <area>
@@ -2604,6 +2683,10 @@ base_stat id - (например "kWis") какой берем параметр,
                         <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
                     </apply>
                 </affects>
+                <unaffect>
+                    <breaking any_of="kSanctuary"/>
+                    <remove any_of="kSanctuary"/>
+                </unaffect>
             </action>
         </talent_actions>
     </spell>
@@ -3601,7 +3684,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <misc pos="kFight" violent="Y" danger="2"/>
         <mana max="60" min="45" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
-        <flags val="kMagDamage|kNpcAffectPc|kMagAffects|kNpcDamagePc|kNpcDamagePcMinhp"/>
+        <flags val="kMagDamage|kNpcAffectPc|kMagAffects|kMagUnaffects|kNpcDamagePc|kNpcDamagePcMinhp"/>
         <potency_roll>
             <dices ndice="5" sdice="9" adice="12"/>
             <base_skill id="kEarthMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
@@ -3610,13 +3693,16 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <damage saving="kReflex" />
-                <affects type="kIndriksTeeth" saving="kNone" resist="kEarth">
+                <affects type="kIndriksTeeth" saving="kWill" resist="kEarth">
                     <duration cnst="3" level_divisor="4" min="4" max="0"/>
                     <flags val="kAfBattledec"/>
                     <apply id="kNoTeleport" location="kNone">
                         <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
                     </apply>
                 </affects>
+                <unaffect>
+                    <breaking any_of="kBrokenChains"/>
+                </unaffect>
             </action>
         </talent_actions>
     </spell>
@@ -4051,7 +4137,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="40" min="30" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
-        <flags val="kMagAffects|kNpcAffectNpc"/>
+        <flags val="kMagAffects|kMagUnaffects|kNpcAffectNpc"/>
         <talent_actions>
             <action>
                 <affects type="kDexterity" saving="kNone" resist="kImmunity">
@@ -4061,6 +4147,10 @@ base_stat id - (например "kWis") какой берем параметр,
                         <modifier min="5.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
                     </apply>
                 </affects>
+                <unaffect>
+                    <breaking any_of="kWeaknes"/>
+                    <remove any_of="kWeaknes"/>
+                </unaffect>
             </action>
         </talent_actions>
     </spell>
@@ -4222,20 +4312,23 @@ base_stat id - (например "kWis") какой берем параметр,
         <misc pos="kFight" violent="Y" danger="2"/>
         <mana max="140" min="120" change="2"/>
         <targets val="kTarIgnore"/>
-        <flags val="kMagMasses|kMagAffects|kNpcAffectPc"/>
+        <flags val="kMagMasses|kMagAffects|kMagUnaffects|kNpcAffectPc"/>
         <talent_actions>
             <action>
                 <area>
                     <decay cast="0.03" level="6" free_targets="5"/>
                     <victims skill_divisor="25" dice_size="2" min_targets="3" max_targets="15"/>
                 </area>
-                <affects type="kSnare" saving="kNone" resist="kMind">
+                <affects type="kSnare" saving="kWill" resist="kMind">
                     <duration cnst="3" level_divisor="4" min="4" max="0"/>
                     <flags val="kAfBattledec"/>
                     <apply id="kNoTeleport" location="kNone">
                         <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
                     </apply>
                 </affects>
+                <unaffect>
+                    <breaking any_of="kBrokenChains"/>
+                </unaffect>
             </action>
         </talent_actions>
     </spell>

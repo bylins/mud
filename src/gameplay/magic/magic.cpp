@@ -1031,45 +1031,17 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 		// the imposition messages from spell_msg.xml (issue #3335); the saving throw and
 		// the application are done by the talent-affect block at the end of this function.
 		// Cases that linger here do so only for side effects (saving, removals, wait-state).
+
+		// issue #3342: the opposing-buff removal (and break) of these spells moved to their
+		// <unaffect> block. Their removal used to be gated by the saving throw rolled here
+		// first; CastUnaffect has no saving check yet, so for now the buff is stripped
+		// regardless of the save. Once CastUnaffect grows a success/saving check the gating
+		// is restored and these stubs can go. (kEnergyDrain is also manual: its <unaffect>
+		// break stops the chain, so the spell-memory wipe is skipped when a buff is drained.)
 		case ESpell::kEnergyDrain:
 		case ESpell::kWeaknes:
-			if (CalcGeneralSaving(ch, victim, savetype, modi)) {
-				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
-				success = false;
-				break;
-			}
-			if (IsAffectedBySpell(victim, ESpell::kStrength)) {
-				RemoveAffectFromCharAndRecalculate(victim, ESpell::kStrength);
-				success = false;
-				break;
-			}
-			if (IsAffectedBySpell(victim, ESpell::kDexterity)) {
-				RemoveAffectFromCharAndRecalculate(victim, ESpell::kDexterity);
-				success = false;
-				break;
-			}
-			break;
-		case ESpell::kAirShield:
-			if (IsAffectedBySpell(victim, ESpell::kIceShield)) {
-				RemoveAffectFromChar(victim, ESpell::kIceShield);
-			}
-			if (IsAffectedBySpell(victim, ESpell::kFireShield)) {
-				RemoveAffectFromChar(victim, ESpell::kFireShield);
-			}
-			break;
-
-		case ESpell::kFireShield:
-			if (IsAffectedBySpell(victim, ESpell::kIceShield))
-				RemoveAffectFromChar(victim, ESpell::kIceShield);
-			if (IsAffectedBySpell(victim, ESpell::kAirShield))
-				RemoveAffectFromChar(victim, ESpell::kAirShield);
-			break;
-
-		case ESpell::kIceShield:
-			if (IsAffectedBySpell(victim, ESpell::kFireShield))
-				RemoveAffectFromChar(victim, ESpell::kFireShield);
-			if (IsAffectedBySpell(victim, ESpell::kAirShield))
-				RemoveAffectFromChar(victim, ESpell::kAirShield);
+		case ESpell::kMassSlow:
+		case ESpell::kSlowdown:
 			break;
 
 		case ESpell::kCallLighting:
@@ -1079,53 +1051,6 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 			}
 			break;
 
-		case ESpell::kGroupHaste:
-		case ESpell::kHaste:
-			if (IsAffectedBySpell(victim, ESpell::kSlowdown)) {
-				RemoveAffectFromCharAndRecalculate(victim, ESpell::kSlowdown);
-				success = false;
-				break;
-			}
-			break;
-
-		case ESpell::kEnlarge:
-			if (IsAffectedBySpell(victim, ESpell::kLessening)) {
-				RemoveAffectFromCharAndRecalculate(victim, ESpell::kLessening);
-				success = false;
-				break;
-			}
-			break;
-
-		case ESpell::kLessening:
-			if (IsAffectedBySpell(victim, ESpell::kEnlarge)) {
-				RemoveAffectFromCharAndRecalculate(victim, ESpell::kEnlarge);
-				success = false;
-				break;
-			}
-			break;
-
-		case ESpell::kGroupPrismaticAura:
-		case ESpell::kPrismaticAura:
-			if (IsAffectedBySpell(victim, ESpell::kSanctuary)) {
-				RemoveAffectFromCharAndRecalculate(victim, ESpell::kSanctuary);
-				success = false;
-				break;
-			}
-			if (AFF_FLAGGED(victim, EAffect::kSanctuary)) {
-				success = false;
-				break;
-			}
-			break;
-
-		case ESpell::kWeb:
-			if (AFF_FLAGGED(victim, EAffect::kBrokenChains)
-				|| (CalcGeneralSaving(ch, victim, savetype, modi))) {
-				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
-				success = false;
-				break;
-			}
-
-			break;
 
 		case ESpell::kMassCurse:
 		case ESpell::kCurse: savetype = ESaving::kWill;
@@ -1162,23 +1087,6 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 			spell_id = ESpell::kCurse;
 			break;
 
-		case ESpell::kMassSlow:
-		case ESpell::kSlowdown: savetype = ESaving::kStability;
-			if (AFF_FLAGGED(victim, EAffect::kBrokenChains)
-				|| (CalcGeneralSaving(ch, victim, savetype, modi))) {
-				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
-				success = false;
-				break;
-			}
-
-			if (IsAffectedBySpell(victim, ESpell::kHaste)) {
-				RemoveAffectFromCharAndRecalculate(victim, ESpell::kHaste);
-				success = false;
-				break;
-			}
-
-			break;
-
 		case ESpell::kGroupInvisible:
 		case ESpell::kInvisible:
 			if (!victim)
@@ -1202,22 +1110,10 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 
 			break;
 
-		case ESpell::kGroupSanctuary:
-		case ESpell::kSanctuary:
-			if (IsAffectedBySpell(victim, ESpell::kPrismaticAura)) {
-				RemoveAffectFromCharAndRecalculate(victim, ESpell::kPrismaticAura);
-				success = false;
-				break;
-			}
-			if (AFF_FLAGGED(victim, EAffect::kPrismaticAura)) {
-				success = false;
-				break;
-			}
-			break;
-
 		case ESpell::kSleep: savetype = ESaving::kWill;
-			if (AFF_FLAGGED(victim, EAffect::kHold)
-				|| (CalcGeneralSaving(ch, victim, ESaving::kWill, modi))) {
+			// The kHold guard moved to the <unaffect> breaking set (issue #3342); the kWill
+			// save stays here because it gates the sleep *position* change below.
+			if (CalcGeneralSaving(ch, victim, ESaving::kWill, modi)) {
 				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 				success = false;
 				break;
@@ -1236,35 +1132,15 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 			}
 			break;
 
-		case ESpell::kGroupStrength:
-		case ESpell::kStrength:
-			if (IsAffectedBySpell(victim, ESpell::kWeaknes)) {
-				RemoveAffectFromCharAndRecalculate(victim, ESpell::kWeaknes);
-				success = false;
-				break;
-			}
-			break;
-
-		case ESpell::kDexterity:
-			if (IsAffectedBySpell(victim, ESpell::kWeaknes)) {
-				RemoveAffectFromCharAndRecalculate(victim, ESpell::kWeaknes);
-				success = false;
-				break;
-			}
-			break;
-
 		case ESpell::kHolystrike:
 			if (AFF_FLAGGED(victim, EAffect::kForcesOfEvil)) {
 				// все решится в дамадже части спелла
 				success = false;
 				break;
 			}
-			// тут break не нужен
-
-			// fall through
-		case ESpell::kMassHold:
-		case ESpell::kPowerHold:
-		case ESpell::kHold:
+			// kHolystrike is a manual spell (kMagManual), so it does not pass through the
+			// unaffect stage; it keeps the hold's own brokenchains/sleep guard and kWill
+			// save here (kHold/kMassHold/kPowerHold moved both to data, issue #3342).
 			if (AFF_FLAGGED(victim, EAffect::kBrokenChains)
 					|| AFF_FLAGGED(victim, EAffect::kSleep)
 					|| (CalcGeneralSaving(ch, victim, ESaving::kWill, modi))) {
@@ -1285,18 +1161,6 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 				break;
 			}
 
-			break;
-
-		case ESpell::kNoflee: // "приковать противника"
-		case ESpell::kIndriksTeeth:
-		case ESpell::kSnare:
-			savetype = ESaving::kWill;
-			if (AFF_FLAGGED(victim, EAffect::kBrokenChains)
-				|| (CalcGeneralSaving(ch, victim, savetype, modi))) {
-				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
-				success = false;
-				break;
-			}
 			break;
 
 		case ESpell::kEviless:
@@ -2363,6 +2227,10 @@ EStageResult CastUnaffects(int/* level*/, CharData *ch, CharData *victim, ESpell
 	}
 	const auto &unaffect = MUD::Spell(spell_id).actions.GetUnaffect();
 
+	// TODO(#3342): CastUnaffect has no saving (success) check yet. For affect spells whose
+	// removal used to be gated by a save in their old CastAffect case (kEnergyDrain/kWeaknes,
+	// kSlowdown/kMassSlow), the buff is now stripped regardless of the save until that check
+	// is added here. See the commented stub cases in CastAffect.
 	const bool blocking = UnaffectConditionMet(victim, unaffect.GetBlocking());
 	const bool breaking = UnaffectConditionMet(victim, unaffect.GetBreaking());
 
@@ -2390,9 +2258,12 @@ EStageResult CastUnaffects(int/* level*/, CharData *ch, CharData *victim, ESpell
 		for (const auto spell : to_remove) {
 			RemoveAffectAndAnnounce(ch, victim, spell);
 		}
-	} else if (breaking || !unaffect.GetRemove().empty() || !unaffect.GetRemoveAnyway().empty()) {
-		// A removal spell that found nothing to remove, or a break that stopped the cast:
-		// report "no effect" (keyed by the cast spell). A pure blocking spell stays silent.
+	} else if (breaking
+			|| (!MUD::Spell(spell_id).IsFlagged(kMagAffects)
+				&& (!unaffect.GetRemove().empty() || !unaffect.GetRemoveAnyway().empty()))) {
+		// "No effect" when a break stopped the cast, or when a *pure* dispel spell found
+		// nothing to remove. An affect-applying spell (kMagAffects) whose removal simply
+		// found nothing stays silent and goes on to apply its own affect.
 		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 	}
 
