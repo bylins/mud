@@ -1509,13 +1509,8 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 				success = false;
 				break;
 			}
-			af[0].duration = ApplyResist(victim, GetResistType(spell_id), spell_id == ESpell::kPowerHold ?
-					CalcDuration(victim, 2, level + 7, 8, 2, 5) : CalcDuration(victim, 1, level + 9, 10, 1, 3));
-			af[0].affect_type = EAffect::kHold;
-			af[0].battleflag = kAfBattledec;
 			to_room = "$n0 замер$q на месте!";
 			to_vict = "Вы замерли на месте, не в силах пошевельнуться.";
-			spell_id = ESpell::kHold;
 			break;
 
 		case ESpell::kWarcryOfRage:
@@ -1541,25 +1536,8 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 				break;
 			}
 
-			switch (spell_id) {
-				case ESpell::kWarcryOfRage:
-				case ESpell::kPowerDeafness:
-				case ESpell::kSonicWave:
-					af[0].duration = ApplyResist(victim, GetResistType(spell_id),
-							CalcDuration(victim, 2, level + 3, 4, 6, 0));
-					break;
-				case ESpell::kMassDeafness:
-				case ESpell::kDeafness:
-					af[0].duration = ApplyResist(victim, GetResistType(spell_id),
-							CalcDuration(victim, 2, level + 7, 8, 3, 0));
-					break;
-				default: break;
-			}
-			af[0].affect_type = EAffect::kDeafness;
-			af[0].battleflag = kAfBattledec;
 			to_room = "$n0 оглох$q!";
 			to_vict = "Вы оглохли.";
-			spell_id = ESpell::kDeafness;
 			break;
 
 		case ESpell::kMassSilence:
@@ -1571,13 +1549,8 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 				success = false;
 				break;
 			}
-			af[0].duration = ApplyResist(victim, GetResistType(spell_id), spell_id == ESpell::kPowerSilence ?
-					CalcDuration(victim, 2, level + 3, 4, 6, 0) : CalcDuration(victim, 2, level + 7, 8, 3, 0));
-			af[0].affect_type = EAffect::kSilence;
-			af[0].battleflag = kAfBattledec;
 			to_room = "$n0 прикусил$g язык!";
 			to_vict = "Вы не в состоянии вымолвить ни слова.";
-			spell_id = ESpell::kSilence;
 			break;
 
 		case ESpell::kGroupFly:
@@ -1797,13 +1770,8 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 				break;
 			}
 			SetWaitState(victim, (level / 10 + 1) * kBattleRound);
-			af[0].duration = ApplyResist(victim, GetResistType(spell_id),
-										 CalcDuration(victim, 3, 0, 0, 0, 0));
-			af[0].affect_type = EAffect::kSlow;
-			af[0].battleflag = kAfBattledec;
 			to_room = "Облако забвения окружило $n3.";
 			to_vict = "Ваш разум помутился.";
-			spell_id = ESpell::kOblivion;
 			break;
 		}
 
@@ -1820,9 +1788,6 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 				change_fighting(victim, true);
 				SetWaitState(victim, 2 * kBattleRound);
 			}
-			af[0].duration = ApplyResist(victim, GetResistType(spell_id),
-										 CalcDuration(victim, 2, 0, 0, 0, 0));
-			af[0].affect_type = EAffect::kPeaceful;
 			to_room = "Взгляд $n1 потускнел, а сам он успокоился.";
 			to_vict = "Ваша душа очистилась от зла и странно успокоилась.";
 			break;
@@ -1833,13 +1798,6 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 				SendMsgToChar(NOEFFECT, ch);
 				success = false;
 			}
-			af[0].location = EApply::kArmour;
-			af[0].duration = CalcDuration(victim, 100, level, 1, 0, 0);
-			af[0].modifier = level + 10 + GetRealRemort(ch) / 2;
-			af[1].location = EApply::kSavingStability;
-			af[1].duration = af[0].duration;
-			af[1].modifier = level + 10 + GetRealRemort(ch) / 2;
-			accum_duration = true;
 			to_vict = " ";
 			to_room = "Кости $n1 обрели твердость кремня.";
 			break;
@@ -1882,13 +1840,6 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 			if (IsAffectedBySpell(victim, ESpell::kHide)) {
 				RemoveAffectFromChar(victim, ESpell::kHide);
 			}
-			af[0].location = EApply::kSavingReflex;
-			af[0].duration = ApplyResist(victim, GetResistType(spell_id),
-										 CalcDuration(victim, 4, 0, 0, 0, 0));
-			af[0].modifier = (GetRealLevel(ch) + GetRealRemort(ch)) / 3;
-			af[0].affect_type = EAffect::kGlitterDust;
-			accum_duration = true;
-			accum_affect = true;
 			to_room = "Облако ярко блестящей пыли накрыло $n3.";
 			to_vict = "Липкая блестящая пыль покрыла вас с головы до пят.";
 			break;
@@ -1901,17 +1852,6 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 				success = false;
 				break;
 			}
-			af[0].affect_type = EAffect::kAffright;
-			af[0].location = EApply::kSavingWill;
-			af[0].duration = ApplyResist(victim, GetResistType(spell_id),
-										 CalcDuration(victim, 2, level, 2, 0, 0));
-			af[0].modifier = (2 * GetRealLevel(ch) + GetRealRemort(ch)) / 4;
-
-			af[1].affect_type = EAffect::kAffright;
-			af[1].location = EApply::kMorale;
-			af[1].duration = af[0].duration;
-			af[1].modifier = -(GetRealLevel(ch) + GetRealRemort(ch)) / 6;
-
 			to_room = "$n0 побледнел$g и задрожал$g от страха.";
 			to_vict = "Страх сжал ваше сердце ледяными когтями.";
 			break;
