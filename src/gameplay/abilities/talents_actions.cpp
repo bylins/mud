@@ -24,6 +24,23 @@ const std::map<std::string, EMobFlag> kBlockingFlagByName{
 	{"kNoSummon", EMobFlag::kNoSummon},
 	{"kNoFear", EMobFlag::kNoFear},
 };
+
+// Parse a `|`-separated list of ESpell names (an any_of/all_of attribute of an
+// <unaffect> sub-tag, issue #3342). Empty/absent attribute -> empty list.
+std::vector<ESpell> ParseSpellList(const char *value) {
+	std::vector<ESpell> out;
+	if (!value || !*value) {
+		return out;
+	}
+	for (const auto &name : utils::Split(value, '|')) {
+		try {
+			out.push_back(parse::ReadAsConstant<ESpell>(name.c_str()));
+		} catch (...) {
+			err_log("TalentUnaffect: unknown ESpell '%s' in <unaffect>.", name.c_str());
+		}
+	}
+	return out;
+}
 }  // namespace
 
 void Roll::Print(CharData */*ch*/, std::ostringstream &buffer) const {
@@ -185,6 +202,51 @@ void TalentAffect::Print(CharData */*ch*/, std::ostringstream &buffer) const {
 	}
 }
 
+TalentUnaffect::TalentUnaffect(parser_wrapper::DataNode &node) {
+	for (auto &child: node.Children()) {
+		const auto name = child.GetName();
+		Set *set = nullptr;
+		if (strcmp(name, "blocking") == 0) {
+			set = &blocking_;
+		} else if (strcmp(name, "breaking") == 0) {
+			set = &breaking_;
+		} else if (strcmp(name, "remove_anyway") == 0) {
+			set = &remove_anyway_;
+		} else if (strcmp(name, "remove") == 0) {
+			set = &remove_;
+		}
+		if (set) {
+			set->any_of = ParseSpellList(child.GetValue("any_of"));
+			set->all_of = ParseSpellList(child.GetValue("all_of"));
+		}
+	}
+}
+
+void TalentUnaffect::Print(CharData */*ch*/, std::ostringstream &buffer) const {
+	auto print_set = [&buffer](const char *label, const Set &set) {
+		if (set.empty()) {
+			return;
+		}
+		buffer << "  " << label << ":";
+		if (!set.any_of.empty()) {
+			buffer << " any_of=" << kColorGrn;
+			for (const auto s: set.any_of) buffer << NAME_BY_ITEM<ESpell>(s) << " ";
+			buffer << kColorNrm;
+		}
+		if (!set.all_of.empty()) {
+			buffer << " all_of=" << kColorGrn;
+			for (const auto s: set.all_of) buffer << NAME_BY_ITEM<ESpell>(s) << " ";
+			buffer << kColorNrm;
+		}
+		buffer << "\r\n";
+	};
+	buffer << " Unaffect:" << "\r\n";
+	print_set("blocking", blocking_);
+	print_set("breaking", breaking_);
+	print_set("remove_anyway", remove_anyway_);
+	print_set("remove", remove_);
+}
+
 void Actions::Print(CharData *ch, std::ostringstream &buffer) const {
 	for (const auto &effect: *actions_) {
 		effect.second->Print(ch, buffer);
@@ -218,6 +280,8 @@ void Actions::ParseAction(ActionsRosterPtr &info, parser_wrapper::DataNode node)
 			ParseHeal(info, manifestation);
 		} else if (strcmp(manifestation.GetName(), "affects") == 0) {
 			ParseAffect(info, manifestation);
+		} else if (strcmp(manifestation.GetName(), "unaffect") == 0) {
+			ParseUnaffect(info, manifestation);
 		}
 	}
 	node.GoToParent();
@@ -252,6 +316,10 @@ void Actions::ParseHeal(ActionsRosterPtr &info, parser_wrapper::DataNode &node) 
 
 void Actions::ParseAffect(ActionsRosterPtr &info, parser_wrapper::DataNode &node) {
 	info->emplace(EAction::kAffect, std::make_shared<TalentAffect>(node));
+}
+
+void Actions::ParseUnaffect(ActionsRosterPtr &info, parser_wrapper::DataNode &node) {
+	info->emplace(EAction::kUnaffect, std::make_shared<TalentUnaffect>(node));
 }
 
 /*
@@ -293,6 +361,14 @@ const TalentAffect &Actions::GetAffect() const {
 		return *std::static_pointer_cast<TalentAffect>(actions_->find(EAction::kAffect)->second);
 	} else {
 		throw std::runtime_error("Getting affect parameters from talent which has no 'affects' action.");
+	}
+}
+
+const TalentUnaffect &Actions::GetUnaffect() const {
+	if (actions_->contains(EAction::kUnaffect)) {
+		return *std::static_pointer_cast<TalentUnaffect>(actions_->find(EAction::kUnaffect)->second);
+	} else {
+		throw std::runtime_error("Getting unaffect parameters from talent which has no 'unaffect' action.");
 	}
 }
 

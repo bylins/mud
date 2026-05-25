@@ -25,7 +25,8 @@ enum class EAction {
 	kDamage,
 	kArea,
 	kHeal,
-	kAffect
+	kAffect,
+	kUnaffect
 };
 
 class IAction {
@@ -148,6 +149,34 @@ class TalentAffect : public IAction {
 	std::vector<EMobFlag> blocking_flags_;
 };
 
+// The "unaffect" talent action (issue #3342): removes affects from the target and/or
+// breaks the cast chain depending on which affects are present. Each of the four blocks
+// holds two ESpell lists (affect types): any_of ("any one present") and all_of ("all
+// present together"). See CastUnaffects for the processing order.
+class TalentUnaffect : public IAction {
+ public:
+	// One <blocking>/<breaking>/<remove_anyway>/<remove> entry: its any_of/all_of lists.
+	struct Set {
+		std::vector<ESpell> any_of;
+		std::vector<ESpell> all_of;
+		[[nodiscard]] bool empty() const { return any_of.empty() && all_of.empty(); }
+	};
+
+	explicit TalentUnaffect(parser_wrapper::DataNode &node);
+	void Print(CharData *ch, std::ostringstream &buffer) const override;
+
+	[[nodiscard]] const Set &GetBlocking() const { return blocking_; }
+	[[nodiscard]] const Set &GetBreaking() const { return breaking_; }
+	[[nodiscard]] const Set &GetRemoveAnyway() const { return remove_anyway_; }
+	[[nodiscard]] const Set &GetRemove() const { return remove_; }
+
+ private:
+	Set blocking_;       // present -> removal is blocked (chain not affected)
+	Set breaking_;       // present -> the cast chain breaks (EStageResult::kBreak)
+	Set remove_anyway_;  // dispelled even when blocking is true
+	Set remove_;         // dispelled only when blocking is false
+};
+
 using ActionPtr = std::shared_ptr<IAction>;
 
 class Actions {
@@ -160,6 +189,7 @@ class Actions {
 	static void ParseArea(ActionsRosterPtr &info, parser_wrapper::DataNode &node);
 	static void ParseHeal(ActionsRosterPtr &info, parser_wrapper::DataNode &node);
 	static void ParseAffect(ActionsRosterPtr &info, parser_wrapper::DataNode &node);
+	static void ParseUnaffect(ActionsRosterPtr &info, parser_wrapper::DataNode &node);
 
  public:
 	Actions() {
@@ -174,6 +204,7 @@ class Actions {
 	[[nodiscard]] const Area &GetArea() const;
 	[[nodiscard]] const Heal &GetHeal() const;
 	[[nodiscard]] const TalentAffect &GetAffect() const;
+	[[nodiscard]] const TalentUnaffect &GetUnaffect() const;
 };
 
 }
