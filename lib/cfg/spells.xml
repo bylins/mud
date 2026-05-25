@@ -3243,6 +3243,17 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="0" min="0" change="0"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagAffects"/>
+        <talent_actions>
+            <action>
+                <affects type="kAconitumPoison" saving="kNone" resist="kImmunity">
+                    <duration cnst="7" level_divisor="0" min="0" max="0"/>
+                    <flags val="kAfSameTime"/>
+                    <apply id="kPoisoned" location="kAconitumPoison">
+                        <modifier min="30.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                    </apply>
+                </affects>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kScopolaPoison" element="kLife" mode="kEnabled">
         <name rus="яд скополии" eng="scopolia poison"/>
@@ -3250,6 +3261,20 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="0" min="0" change="0"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagAffects"/>
+        <talent_actions>
+            <action>
+                <affects type="kScopolaPoison" saving="kNone" resist="kImmunity">
+                    <duration cnst="7" level_divisor="0" min="0" max="0"/>
+                    <flags val="kAfSameTime"/>
+                    <apply id="kPoisoned" location="kScopolaPoison">
+                        <modifier min="5.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                    </apply>
+                    <apply id="kScopolaPoison" location="kNone">
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                    </apply>
+                </affects>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kBelenaPoison" element="kLife" mode="kEnabled">
         <name rus="яд белены" eng="belena poison"/>
@@ -3257,6 +3282,17 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="0" min="0" change="0"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagAffects"/>
+        <talent_actions>
+            <action>
+                <affects type="kBelenaPoison" saving="kNone" resist="kImmunity">
+                    <duration cnst="7" level_divisor="0" min="0" max="0"/>
+                    <flags val="kAfSameTime"/>
+                    <apply id="kPoisoned" location="kBelenaPoison">
+                        <modifier min="5.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                    </apply>
+                </affects>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kDaturaPoison" element="kLife" mode="kEnabled">
         <name rus="яд дурмана" eng="datura poison"/>
@@ -3264,6 +3300,17 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="0" min="0" change="0"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagAffects"/>
+        <talent_actions>
+            <action>
+                <affects type="kDaturaPoison" saving="kNone" resist="kImmunity">
+                    <duration cnst="7" level_divisor="0" min="0" max="0"/>
+                    <flags val="kAfSameTime"/>
+                    <apply id="kPoisoned" location="kDaturaPoison">
+                        <modifier min="5.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                    </apply>
+                </affects>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kTimerRestore" element="kLight" mode="kEnabled">
         <name rus="обновление таймера" eng=" timer repair"/>

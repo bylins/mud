@@ -1953,43 +1953,10 @@ int CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const
 			to_room = nullptr;
 			break;
 
-		case ESpell::kAconitumPoison: af[0].location = EApply::kAconitumPoison;
-			af[0].duration = 7;
-			af[0].modifier = level;
-			af[0].affect_type = EAffect::kPoisoned;
-			af[0].battleflag = kAfSameTime;
-			to_vict = "Вы почувствовали себя отравленным.";
-			to_room = "$n позеленел$g от действия яда.";
-			break;
-
-		case ESpell::kScopolaPoison: af[0].location = EApply::kScopolaPoison;
-			af[0].duration = 7;
-			af[0].modifier = 5;
-			af[0].affect_type = EAffect::kPoisoned;
-			af[0].battleflag = kAfSameTime;
-			// kScopolaPoison rides on a separate flag-only affect (one EAffect per
-			// affect now). Same type/duration => removed together with af[0].
-			af[1].duration = 7;
-			af[1].affect_type = EAffect::kScopolaPoison;
-			af[1].battleflag = kAfSameTime;
-			to_vict = "Вы почувствовали себя отравленным.";
-			to_room = "$n позеленел$g от действия яда.";
-			break;
-
-		case ESpell::kBelenaPoison: af[0].location = EApply::kBelenaPoison;
-			af[0].duration = 7;
-			af[0].modifier = 5;
-			af[0].affect_type = EAffect::kPoisoned;
-			af[0].battleflag = kAfSameTime;
-			to_vict = "Вы почувствовали себя отравленным.";
-			to_room = "$n позеленел$g от действия яда.";
-			break;
-
-		case ESpell::kDaturaPoison: af[0].location = EApply::kDaturaPoison;
-			af[0].duration = 7;
-			af[0].modifier = 5;
-			af[0].affect_type = EAffect::kPoisoned;
-			af[0].battleflag = kAfSameTime;
+		case ESpell::kAconitumPoison:
+		case ESpell::kScopolaPoison:
+		case ESpell::kBelenaPoison:
+		case ESpell::kDaturaPoison:
 			to_vict = "Вы почувствовали себя отравленным.";
 			to_room = "$n позеленел$g от действия яда.";
 			break;
