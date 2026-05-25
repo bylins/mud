@@ -207,6 +207,10 @@ int CalcSaving(CharData *killer, CharData *victim, ESaving saving, bool need_log
 }
 
 int CalcGeneralSaving(CharData *killer, CharData *victim, ESaving type, int ext_apply) {
+	// A char never saves against its own (e.g. mirror-reflected) spell -- the effect lands.
+	if (killer == victim) {
+		return false;
+	}
 	int save = CalcSaving(killer, victim, type, true);
 	int rnd = number(-200, 200);
 	char smallbuf[256];
@@ -1029,7 +1033,7 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 		// Cases that linger here do so only for side effects (saving, removals, wait-state).
 		case ESpell::kEnergyDrain:
 		case ESpell::kWeaknes:
-			if (ch != victim && CalcGeneralSaving(ch, victim, savetype, modi)) {
+			if (CalcGeneralSaving(ch, victim, savetype, modi)) {
 				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 				success = false;
 				break;
@@ -1069,7 +1073,7 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 			break;
 
 		case ESpell::kCallLighting:
-			if (ch != victim && CalcGeneralSaving(ch, victim, savetype, modi)) {
+			if (CalcGeneralSaving(ch, victim, savetype, modi)) {
 				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 				success = false;
 			}
@@ -1115,7 +1119,7 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 
 		case ESpell::kWeb:
 			if (AFF_FLAGGED(victim, EAffect::kBrokenChains)
-				|| (ch != victim && CalcGeneralSaving(ch, victim, savetype, modi))) {
+				|| (CalcGeneralSaving(ch, victim, savetype, modi))) {
 				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 				success = false;
 				break;
@@ -1125,7 +1129,7 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 
 		case ESpell::kMassCurse:
 		case ESpell::kCurse: savetype = ESaving::kWill;
-			if (ch != victim && CalcGeneralSaving(ch, victim, savetype, modi)) {
+			if (CalcGeneralSaving(ch, victim, savetype, modi)) {
 				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 				success = false;
 				break;
@@ -1161,7 +1165,7 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 		case ESpell::kMassSlow:
 		case ESpell::kSlowdown: savetype = ESaving::kStability;
 			if (AFF_FLAGGED(victim, EAffect::kBrokenChains)
-				|| (ch != victim && CalcGeneralSaving(ch, victim, savetype, modi))) {
+				|| (CalcGeneralSaving(ch, victim, savetype, modi))) {
 				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 				success = false;
 				break;
@@ -1213,7 +1217,7 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 
 		case ESpell::kSleep: savetype = ESaving::kWill;
 			if (AFF_FLAGGED(victim, EAffect::kHold)
-				|| (ch != victim && CalcGeneralSaving(ch, victim, ESaving::kWill, modi))) {
+				|| (CalcGeneralSaving(ch, victim, ESaving::kWill, modi))) {
 				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 				success = false;
 				break;
@@ -1263,7 +1267,7 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 		case ESpell::kHold:
 			if (AFF_FLAGGED(victim, EAffect::kBrokenChains)
 					|| AFF_FLAGGED(victim, EAffect::kSleep)
-					|| (ch != victim && CalcGeneralSaving(ch, victim, ESaving::kWill, modi))) {
+					|| (CalcGeneralSaving(ch, victim, ESaving::kWill, modi))) {
 				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 				success = false;
 				break;
@@ -1275,7 +1279,7 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 		case ESpell::kMassDeafness:
 		case ESpell::kPowerDeafness:
 		case ESpell::kDeafness: //victim->IsFlagged(MOB_NODEAFNESS) ||
-			if (ch != victim && CalcGeneralSaving(ch, victim, savetype, modi)) {
+			if (CalcGeneralSaving(ch, victim, savetype, modi)) {
 				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 				success = false;
 				break;
@@ -1288,7 +1292,7 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 		case ESpell::kSnare:
 			savetype = ESaving::kWill;
 			if (AFF_FLAGGED(victim, EAffect::kBrokenChains)
-				|| (ch != victim && CalcGeneralSaving(ch, victim, savetype, modi))) {
+				|| (CalcGeneralSaving(ch, victim, savetype, modi))) {
 				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 				success = false;
 				break;
@@ -1381,7 +1385,7 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 
 		case ESpell::kCrying: {
 			if (AFF_FLAGGED(victim, EAffect::kCrying)
-				|| (ch != victim && CalcGeneralSaving(ch, victim, savetype, modi))) {
+				|| (CalcGeneralSaving(ch, victim, savetype, modi))) {
 				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 				success = false;
 				break;
@@ -1431,7 +1435,7 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 		case ESpell::kPeaceful: {
 			if (AFF_FLAGGED(victim, EAffect::kPeaceful)
 				|| (victim->IsNpc() && !AFF_FLAGGED(victim, EAffect::kCharmed)) ||
-				(ch != victim && CalcGeneralSaving(ch, victim, savetype, modi))) {
+				(CalcGeneralSaving(ch, victim, savetype, modi))) {
 				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 				success = false;
 				break;
@@ -1455,7 +1459,7 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 		case ESpell::kFailure:
 		case ESpell::kMassFailure: {
 			savetype = ESaving::kWill;
-			if (ch != victim && CalcGeneralSaving(ch, victim, savetype, modi)) {
+			if (CalcGeneralSaving(ch, victim, savetype, modi)) {
 				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 				success = false;
 				break;
@@ -1472,7 +1476,7 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 
 		case ESpell::kGlitterDust: {
 			savetype = ESaving::kReflex;
-			if (ch != victim && CalcGeneralSaving(ch, victim, savetype, modi + 50)) {
+			if (CalcGeneralSaving(ch, victim, savetype, modi + 50)) {
 				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 				success = false;
 				break;
@@ -1493,7 +1497,7 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 		case ESpell::kWarcryOfMenace: {
 			savetype = ESaving::kWill;
 			modi = GetRealCon(ch);
-			if (ch != victim && CalcGeneralSaving(ch, victim, savetype, modi)) {
+			if (CalcGeneralSaving(ch, victim, savetype, modi)) {
 				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 				success = false;
 				break;
