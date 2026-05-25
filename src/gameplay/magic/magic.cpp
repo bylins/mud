@@ -995,13 +995,17 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 
 
 	auto savetype{ESaving::kStability};
+	const bool has_affect_talent = MUD::Spell(spell_id).actions.Contains(talents_actions::EAction::kAffect);
+	if (has_affect_talent) {
+		savetype = MUD::Spell(spell_id).actions.GetAffect().GetSaving();
+	}
 	switch (spell_id) {
 		// The affect itself now comes from the <affects> talent action (issue #3334) and
 		// the imposition messages from spell_msg.xml (issue #3335); the saving throw and
 		// the application are done by the talent-affect block at the end of this function.
 		// Cases that linger here do so only for side effects (saving, removals, wait-state).
 		case ESpell::kEnergyDrain:
-		case ESpell::kWeaknes: savetype = ESaving::kWill;
+		case ESpell::kWeaknes:
 			if (ch != victim && CalcGeneralSaving(ch, victim, savetype, modi)) {
 				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 				success = false;
@@ -1097,18 +1101,17 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 		case ESpell::kShineFlash:
 		case ESpell::kMassBlindness:
 		case ESpell::kPowerBlindness:
-		case ESpell::kBlindness: savetype = ESaving::kStability;
+		case ESpell::kBlindness:
 			if (victim->IsFlagged(EMobFlag::kNoBlind) ||
 				victim->IsImmortal() ||
-				((ch != victim) &&
-					!GET_GOD_FLAG(victim, EGf::kGodscurse) && CalcGeneralSaving(ch, victim, savetype, modi))) {
+				((ch != victim) && CalcGeneralSaving(ch, victim, savetype, modi))) {
 				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 				success = false;
 				break;
 			}
 			break;
 
-		case ESpell::kWeb: savetype = ESaving::kReflex;
+		case ESpell::kWeb:
 			if (AFF_FLAGGED(victim, EAffect::kBrokenChains)
 				|| (ch != victim && CalcGeneralSaving(ch, victim, savetype, modi))) {
 				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
@@ -1270,20 +1273,8 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 		case ESpell::kSonicWave:
 		case ESpell::kMassDeafness:
 		case ESpell::kPowerDeafness:
-		case ESpell::kDeafness:
-			switch (spell_id) {
-				case ESpell::kWarcryOfRage: savetype = ESaving::kWill;
-					modi = GetRealCon(ch);
-					break;
-				case ESpell::kSonicWave:
-				case ESpell::kMassDeafness:
-				case ESpell::kPowerDeafness:
-				case ESpell::kDeafness: savetype = ESaving::kStability;
-					break;
-				default: break;
-			}
-			if (  //victim->IsFlagged(MOB_NODEAFNESS) ||
-				(ch != victim && CalcGeneralSaving(ch, victim, savetype, modi))) {
+		case ESpell::kDeafness: //victim->IsFlagged(MOB_NODEAFNESS) ||
+			if (ch != victim && CalcGeneralSaving(ch, victim, savetype, modi)) {
 				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 				success = false;
 				break;
@@ -1614,9 +1605,7 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 			}
 		default: break;
 	}
-	// Resolved after the switch so fallthrough cases that reassign spell_id route to
-	// the correct spell's <affects> talent (issue #3334).
-	const bool has_affect_talent = MUD::Spell(spell_id).actions.Contains(talents_actions::EAction::kAffect);
+
 	ch->send_to_TC(false, true, false, "Кастуем спелл %s по цели %s длительносить %d\r\n", MUD::Spell(af[0].type).GetCName(), GET_PAD(victim, 2), af[0].duration);
 	//проверка на обкаст мобов, имеющих от рождения встроенный аффкект
 	//чтобы этот аффект не очистился, при спадении спелла
