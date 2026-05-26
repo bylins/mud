@@ -1032,16 +1032,71 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 		// the application are done by the talent-affect block at the end of this function.
 		// Cases that linger here do so only for side effects (saving, removals, wait-state).
 
-		// issue #3342: the opposing-buff removal (and break) of these spells moved to their
-		// <unaffect> block. Their removal used to be gated by the saving throw rolled here
-		// first; CastUnaffect has no saving check yet, so for now the buff is stripped
+		// issue #3342: the kStrength/kDexterity removal (and break) of these spells moved to
+		// their <unaffect> block. The removal used to be gated by the saving throw rolled
+		// here first; CastUnaffect has no saving check yet, so for now the buff is stripped
 		// regardless of the save. Once CastUnaffect grows a success/saving check the gating
 		// is restored and these stubs can go. (kEnergyDrain is also manual: its <unaffect>
 		// break stops the chain, so the spell-memory wipe is skipped when a buff is drained.)
 		case ESpell::kEnergyDrain:
 		case ESpell::kWeaknes:
+			break;
+
+		// kWeb/kMassSlow/kSlowdown/kSanctuary/kPrismaticAura test the affect *flag*
+		// (AFF_FLAGGED), which can be granted by gear or a mob -- not just by a spell. The
+		// data-driven <unaffect> can only match spell-applied affects (IsAffectedBySpell), so
+		// these guards stay here until the flag-based case is handled (issue #3342).
+		case ESpell::kWeb:
+			if (AFF_FLAGGED(victim, EAffect::kBrokenChains)
+				|| (CalcGeneralSaving(ch, victim, savetype, modi))) {
+				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
+				success = false;
+				break;
+			}
+
+			break;
+
 		case ESpell::kMassSlow:
-		case ESpell::kSlowdown:
+		case ESpell::kSlowdown: savetype = ESaving::kStability;
+			if (AFF_FLAGGED(victim, EAffect::kBrokenChains)
+				|| (CalcGeneralSaving(ch, victim, savetype, modi))) {
+				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
+				success = false;
+				break;
+			}
+
+			if (IsAffectedBySpell(victim, ESpell::kHaste)) {
+				RemoveAffectFromCharAndRecalculate(victim, ESpell::kHaste);
+				success = false;
+				break;
+			}
+
+			break;
+
+		case ESpell::kGroupSanctuary:
+		case ESpell::kSanctuary:
+			if (IsAffectedBySpell(victim, ESpell::kPrismaticAura)) {
+				RemoveAffectFromCharAndRecalculate(victim, ESpell::kPrismaticAura);
+				success = false;
+				break;
+			}
+			if (AFF_FLAGGED(victim, EAffect::kPrismaticAura)) {
+				success = false;
+				break;
+			}
+			break;
+
+		case ESpell::kGroupPrismaticAura:
+		case ESpell::kPrismaticAura:
+			if (IsAffectedBySpell(victim, ESpell::kSanctuary)) {
+				RemoveAffectFromCharAndRecalculate(victim, ESpell::kSanctuary);
+				success = false;
+				break;
+			}
+			if (AFF_FLAGGED(victim, EAffect::kSanctuary)) {
+				success = false;
+				break;
+			}
 			break;
 
 		case ESpell::kCallLighting:
@@ -1111,9 +1166,10 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 			break;
 
 		case ESpell::kSleep: savetype = ESaving::kWill;
-			// The kHold guard moved to the <unaffect> breaking set (issue #3342); the kWill
-			// save stays here because it gates the sleep *position* change below.
-			if (CalcGeneralSaving(ch, victim, ESaving::kWill, modi)) {
+			// kHold is tested by flag (AFF_FLAGGED): it may also come from gear/a mob, which
+			// the data-driven <unaffect> cannot match, so the guard stays here (issue #3342).
+			if (AFF_FLAGGED(victim, EAffect::kHold)
+				|| (CalcGeneralSaving(ch, victim, ESaving::kWill, modi))) {
 				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 				success = false;
 				break;
@@ -1138,9 +1194,15 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 				success = false;
 				break;
 			}
-			// kHolystrike is a manual spell (kMagManual), so it does not pass through the
-			// unaffect stage; it keeps the hold's own brokenchains/sleep guard and kWill
-			// save here (kHold/kMassHold/kPowerHold moved both to data, issue #3342).
+			// тут break не нужен
+
+			// fall through
+		// kHold/kMassHold/kPowerHold test the kBrokenChains/kSleep affect *flags*, which can
+		// come from gear/a mob; the data-driven <unaffect> only matches spell-applied affects,
+		// so the guard stays here until the flag-based case is handled (issue #3342).
+		case ESpell::kMassHold:
+		case ESpell::kPowerHold:
+		case ESpell::kHold:
 			if (AFF_FLAGGED(victim, EAffect::kBrokenChains)
 					|| AFF_FLAGGED(victim, EAffect::kSleep)
 					|| (CalcGeneralSaving(ch, victim, ESaving::kWill, modi))) {
@@ -1161,6 +1223,20 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 				break;
 			}
 
+			break;
+
+		// kBrokenChains is tested by flag (AFF_FLAGGED), which gear/a mob may grant, so the
+		// guard stays here -- the data-driven <unaffect> only matches spells (issue #3342).
+		case ESpell::kNoflee: // "приковать противника"
+		case ESpell::kIndriksTeeth:
+		case ESpell::kSnare:
+			savetype = ESaving::kWill;
+			if (AFF_FLAGGED(victim, EAffect::kBrokenChains)
+				|| (CalcGeneralSaving(ch, victim, savetype, modi))) {
+				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
+				success = false;
+				break;
+			}
 			break;
 
 		case ESpell::kEviless:
@@ -2227,10 +2303,10 @@ EStageResult CastUnaffects(int/* level*/, CharData *ch, CharData *victim, ESpell
 	}
 	const auto &unaffect = MUD::Spell(spell_id).actions.GetUnaffect();
 
-	// TODO(#3342): CastUnaffect has no saving (success) check yet. For affect spells whose
-	// removal used to be gated by a save in their old CastAffect case (kEnergyDrain/kWeaknes,
-	// kSlowdown/kMassSlow), the buff is now stripped regardless of the save until that check
-	// is added here. See the commented stub cases in CastAffect.
+	// TODO(#3342): CastUnaffect has no saving (success) check yet. kEnergyDrain/kWeaknes
+	// used to gate their kStrength/kDexterity removal behind a save in CastAffect; until
+	// that check is added here the buff is stripped regardless of the save. See their
+	// commented stub case in CastAffect.
 	const bool blocking = UnaffectConditionMet(victim, unaffect.GetBlocking());
 	const bool breaking = UnaffectConditionMet(victim, unaffect.GetBreaking());
 
