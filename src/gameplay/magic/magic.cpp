@@ -1010,14 +1010,23 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 	if (has_affect_talent) {
 		const auto &affect = MUD::Spell(spell_id).actions.GetAffect();
 		savetype = affect.GetSaving();
-		// NPC immunity (blocking_flags): if the target mob carries a flag that blocks this
-		// affect, there is nothing to build or save against -- stop before the switch.
+		// Immunity (the <blocking> tag): if the target carries a flag that blocks this affect,
+		// there is nothing to build or save against -- stop before the switch.
+		// Mob flags come from an NPC prototype, so they are checked for NPCs only.
 		if (victim->IsNpc()) {
-			for (const auto flag : affect.GetBlockingFlags()) {
+			for (const auto flag : affect.GetBlockingMobFlags()) {
 				if (victim->IsFlagged(flag)) {
 					SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 					return EStageResult::kSuccess;
 				}
+			}
+		}
+		// Affect flags may also come from equipment (issue.aff-flagged-check), so they are
+		// checked for any target -- the flag persists even after the affect is dispelled.
+		for (const auto aff : affect.GetBlockingAffectFlags()) {
+			if (AFF_FLAGGED(victim, aff)) {
+				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
+				return EStageResult::kSuccess;
 			}
 		}
 	}
@@ -1042,24 +1051,14 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 		case ESpell::kWeaknes:
 			break;
 
-		// kWeb/kMassSlow/kSlowdown/kSanctuary/kPrismaticAura test the affect *flag*
-		// (AFF_FLAGGED), which can be granted by gear or a mob -- not just by a spell. The
-		// data-driven <unaffect> can only match spell-applied affects (IsAffectedBySpell), so
-		// these guards stay here until the flag-based case is handled (issue #3342).
-		case ESpell::kWeb:
-			if (AFF_FLAGGED(victim, EAffect::kBrokenChains)
-				|| (CalcGeneralSaving(ch, victim, savetype, modi))) {
-				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
-				success = false;
-				break;
-			}
-
-			break;
+		// kWeb's kBrokenChains guard moved to <blocking affect_flags> (issue.aff-flagged-check);
+		// its only remaining check duplicated the talent's kReflex save, so the case is gone.
 
 		case ESpell::kMassSlow:
 		case ESpell::kSlowdown: savetype = ESaving::kStability;
-			if (AFF_FLAGGED(victim, EAffect::kBrokenChains)
-				|| (CalcGeneralSaving(ch, victim, savetype, modi))) {
+			// kBrokenChains guard moved to <blocking affect_flags>; the kStability save and the
+			// kHaste removal stay (the latter still tests a spell via IsAffectedBySpell).
+			if (CalcGeneralSaving(ch, victim, savetype, modi)) {
 				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 				success = false;
 				break;
@@ -1073,6 +1072,9 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 
 			break;
 
+		// kSanctuary/kPrismaticAura: the AFF_FLAGGED guard is a *fallback* after the spell-based
+		// removal of the rival aura, so it can't move to the pre-switch <blocking> check -- that
+		// would fire on the spell-sourced flag and pre-empt the swap. Left here intentionally.
 		case ESpell::kGroupSanctuary:
 		case ESpell::kSanctuary:
 			if (IsAffectedBySpell(victim, ESpell::kPrismaticAura)) {
@@ -1166,10 +1168,9 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 			break;
 
 		case ESpell::kSleep: savetype = ESaving::kWill;
-			// kHold is tested by flag (AFF_FLAGGED): it may also come from gear/a mob, which
-			// the data-driven <unaffect> cannot match, so the guard stays here (issue #3342).
-			if (AFF_FLAGGED(victim, EAffect::kHold)
-				|| (CalcGeneralSaving(ch, victim, ESaving::kWill, modi))) {
+			// The kHold guard moved to <blocking affect_flags> (issue.aff-flagged-check); the
+			// kWill save stays here because it gates the sleep *position* change below.
+			if (CalcGeneralSaving(ch, victim, ESaving::kWill, modi)) {
 				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 				success = false;
 				break;
@@ -1189,23 +1190,29 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 			break;
 
 		case ESpell::kHolystrike:
+			// kHolystrike is a manual spell (kMagManual): it is not routed through the pre-switch
+			// <blocking> check, so it keeps its kForcesOfEvil guard and -- no longer sharing
+			// kHold's body -- its own brokenchains/sleep guard and kWill save here.
 			if (AFF_FLAGGED(victim, EAffect::kForcesOfEvil)) {
 				// все решится в дамадже части спелла
 				success = false;
 				break;
 			}
-			// тут break не нужен
-
-			// fall through
-		// kHold/kMassHold/kPowerHold test the kBrokenChains/kSleep affect *flags*, which can
-		// come from gear/a mob; the data-driven <unaffect> only matches spell-applied affects,
-		// so the guard stays here until the flag-based case is handled (issue #3342).
-		case ESpell::kMassHold:
-		case ESpell::kPowerHold:
-		case ESpell::kHold:
 			if (AFF_FLAGGED(victim, EAffect::kBrokenChains)
 					|| AFF_FLAGGED(victim, EAffect::kSleep)
 					|| (CalcGeneralSaving(ch, victim, ESaving::kWill, modi))) {
+				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
+				success = false;
+				break;
+			}
+			break;
+
+		// kHold/kMassHold/kPowerHold: the kBrokenChains/kSleep guard moved to <blocking
+		// affect_flags> (issue.aff-flagged-check); the kWill save stays (talent saving is kNone).
+		case ESpell::kMassHold:
+		case ESpell::kPowerHold:
+		case ESpell::kHold:
+			if (CalcGeneralSaving(ch, victim, ESaving::kWill, modi)) {
 				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 				success = false;
 				break;
@@ -1225,14 +1232,13 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 
 			break;
 
-		// kBrokenChains is tested by flag (AFF_FLAGGED), which gear/a mob may grant, so the
-		// guard stays here -- the data-driven <unaffect> only matches spells (issue #3342).
+		// kNoflee/kIndriksTeeth/kSnare: the kBrokenChains guard moved to <blocking affect_flags>
+		// (issue.aff-flagged-check); the kWill save stays (talent saving is kNone).
 		case ESpell::kNoflee: // "приковать противника"
 		case ESpell::kIndriksTeeth:
 		case ESpell::kSnare:
 			savetype = ESaving::kWill;
-			if (AFF_FLAGGED(victim, EAffect::kBrokenChains)
-				|| (CalcGeneralSaving(ch, victim, savetype, modi))) {
+			if (CalcGeneralSaving(ch, victim, savetype, modi)) {
 				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 				success = false;
 				break;

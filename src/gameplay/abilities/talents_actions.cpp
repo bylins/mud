@@ -12,8 +12,8 @@ namespace talents_actions {
 
 namespace {
 // Mob flags (EMobFlag) that can make an NPC wholly immune to a spell affect, addressable
-// from <blocking_flags val="..."/>. A focused table rather than a full EMobFlag name
-// registry, since only these "immunity" flags are meaningful for blocking an affect.
+// from the <blocking mob_flags="..."/> tag. A focused table rather than a full EMobFlag
+// name registry, since only these "immunity" flags are meaningful for blocking an affect.
 const std::map<std::string, EMobFlag> kBlockingFlagByName{
 	{"kNoBlind", EMobFlag::kNoBlind},
 	{"kNoSleep", EMobFlag::kNoSleep},
@@ -156,13 +156,24 @@ TalentAffect::TalentAffect(parser_wrapper::DataNode &node) {
 				child.GoToParent();
 			}
 			applies_.push_back(apply);
-		} else if (strcmp(name, "blocking_flags") == 0) {
-			for (const auto &flag_name : utils::Split(child.GetValue("val"), '|')) {
-				const auto it = kBlockingFlagByName.find(flag_name);
-				if (it != kBlockingFlagByName.end()) {
-					blocking_flags_.push_back(it->second);
-				} else {
-					err_log("TalentAffect: unknown EMobFlag '%s' in <blocking_flags>.", flag_name.c_str());
+		} else if (strcmp(name, "blocking") == 0) {
+			// Mob flags (EMobFlag, NPC-prototype immunity) -- from a focused name table.
+			const char *mob = child.GetValue("mob_flags");
+			if (mob && *mob) {
+				for (const auto &flag_name : utils::Split(mob, '|')) {
+					const auto it = kBlockingFlagByName.find(flag_name);
+					if (it != kBlockingFlagByName.end()) {
+						blocking_mob_flags_.push_back(it->second);
+					} else {
+						err_log("TalentAffect: unknown EMobFlag '%s' in <blocking mob_flags>.", flag_name.c_str());
+					}
+				}
+			}
+			// Affect flags (EAffect) -- a present affect (spell- or equipment-sourced) blocks the cast.
+			const char *aff = child.GetValue("affect_flags");
+			if (aff && *aff) {
+				for (const auto &flag_name : utils::Split(aff, '|')) {
+					blocking_affect_flags_.push_back(parse::ReadAsConstant<EAffect>(flag_name.c_str()));
 				}
 			}
 		}
@@ -186,9 +197,9 @@ void TalentAffect::Print(CharData */*ch*/, std::ostringstream &buffer) const {
 			   << " competencies_weight=" << apply.competencies_weight
 			   << " factor=" << apply.factor << " stack=" << apply.stack << ")\r\n";
 	}
-	if (!blocking_flags_.empty()) {
-		buffer << "  Blocking flags:";
-		for (const auto flag : blocking_flags_) {
+	if (!blocking_mob_flags_.empty()) {
+		buffer << "  Blocking mob flags:";
+		for (const auto flag : blocking_mob_flags_) {
 			std::string flag_name = "?";
 			for (const auto &[name, value] : kBlockingFlagByName) {
 				if (value == flag) {
@@ -197,6 +208,13 @@ void TalentAffect::Print(CharData */*ch*/, std::ostringstream &buffer) const {
 				}
 			}
 			buffer << " " << kColorGrn << flag_name << kColorNrm;
+		}
+		buffer << "\r\n";
+	}
+	if (!blocking_affect_flags_.empty()) {
+		buffer << "  Blocking affect flags:";
+		for (const auto flag : blocking_affect_flags_) {
+			buffer << " " << kColorGrn << NAME_BY_ITEM<EAffect>(flag) << kColorNrm;
 		}
 		buffer << "\r\n";
 	}

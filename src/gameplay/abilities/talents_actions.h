@@ -132,7 +132,8 @@ class TalentAffect : public IAction {
 	[[nodiscard]] int GetDurationMin() const { return dur_min_; }
 	[[nodiscard]] int GetDurationMax() const { return dur_max_; }
 	[[nodiscard]] const std::vector<Apply> &GetApplies() const { return applies_; }
-	[[nodiscard]] const std::vector<EMobFlag> &GetBlockingFlags() const { return blocking_flags_; }
+	[[nodiscard]] const std::vector<EMobFlag> &GetBlockingMobFlags() const { return blocking_mob_flags_; }
+	[[nodiscard]] const std::vector<EAffect> &GetBlockingAffectFlags() const { return blocking_affect_flags_; }
 
  private:
 	ESpell spell_{static_cast<ESpell>(0)};
@@ -144,9 +145,13 @@ class TalentAffect : public IAction {
 	int dur_min_{0};
 	int dur_max_{0};
 	std::vector<Apply> applies_;
-	// NPC mob flags (EMobFlag) that make the target wholly immune to this affect.
-	// Checked before the cast even tries to build affects / roll saves.
-	std::vector<EMobFlag> blocking_flags_;
+	// Flags that make the target wholly immune to this affect, checked before the cast
+	// even tries to build affects / roll saves (the <blocking> tag, issue.aff-flagged-check).
+	// Mob flags (EMobFlag) come from an NPC prototype, so they are tested for NPCs only;
+	// affect flags (EAffect) may also be granted by equipment, so they are tested for any
+	// target via AFF_FLAGGED.
+	std::vector<EMobFlag> blocking_mob_flags_;
+	std::vector<EAffect> blocking_affect_flags_;
 };
 
 // The "unaffect" talent action (issue #3342): removes affects from the target and/or
