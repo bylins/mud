@@ -407,6 +407,19 @@ int CalcHeal(CharData *ch, CharData *victim, ESpell spell_id, int level) {
 	return total_heal;
 }
 
+/**
+ * Вычисляет количество дополнительных попаданий для заклинаний (магические стрелы, молнии и т.п.)
+ */
+int CalcExtraHits(CharData *ch, ESkill skill_id, int skill_divisor = 25, int max = 4, int prob = 20) {
+	if (ch == nullptr || skill_id == ESkill::kUndefined) {
+		return (number(1, 100) <= prob) ? max : 0;
+	}
+	int extra = CalcNoviceSkillBonus(ch, skill_id, skill_divisor);
+	if (extra > max) extra = max;
+	if (prob == 0) return number(1, extra);
+	return ((number(1, 100) <= prob) ? extra : 0);
+}
+
 int CalcTotalSpellDmg(CharData *ch, CharData *victim, ESpell spell_id) {
 	const auto &potency_roll = MUD::Spell(spell_id).GetPotencyRoll();
 	int total_dmg{0};
