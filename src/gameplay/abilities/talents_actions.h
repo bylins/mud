@@ -59,6 +59,9 @@ class Roll {
 
 	[[nodiscard]] int RollSkillDices() const;
 	[[nodiscard]] double CalcSkillCoeff(const CharData *ch) const;
+	// The low-skill part of the skill coefficient only (no hi-skill term, no /100): used
+	// as the skill bonus for the battle-lag formula (issue.cast-spell-lag).
+	[[nodiscard]] double CalcLowSkillCoeff(const CharData *ch) const;
 	[[nodiscard]] double CalcBaseStatCoeff(const CharData *ch) const;
 
 	void Print(CharData *ch, std::ostringstream &buffer) const;
@@ -134,6 +137,9 @@ class TalentAffect : public IAction {
 	[[nodiscard]] const std::vector<Apply> &GetApplies() const { return applies_; }
 	[[nodiscard]] const std::vector<EMobFlag> &GetBlockingMobFlags() const { return blocking_mob_flags_; }
 	[[nodiscard]] const std::vector<EAffect> &GetBlockingAffectFlags() const { return blocking_affect_flags_; }
+	[[nodiscard]] bool HasLag() const { return has_lag_; }
+	[[nodiscard]] unsigned GetLagBase() const { return lag_base_; }
+	[[nodiscard]] double GetLagBonusDivisor() const { return lag_bonus_divisor_; }
 
  private:
 	ESpell spell_{static_cast<ESpell>(0)};
@@ -152,6 +158,12 @@ class TalentAffect : public IAction {
 	// target via AFF_FLAGGED.
 	std::vector<EMobFlag> blocking_mob_flags_;
 	std::vector<EAffect> blocking_affect_flags_;
+	// Battle lag applied to the victim when the affect lands (the <lag> tag,
+	// issue.cast-spell-lag): lag = base + skill_bonus/bonus_divisor battle rounds, or just
+	// base when bonus_divisor <= 0 (constant lag). has_lag_ marks that the tag was present.
+	bool has_lag_{false};
+	unsigned lag_base_{0};
+	double lag_bonus_divisor_{0.0};
 };
 
 // The "unaffect" talent action (issue #3342): removes affects from the target and/or

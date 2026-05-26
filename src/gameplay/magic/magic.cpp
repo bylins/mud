@@ -294,9 +294,9 @@ void SetBattleLag(CharData *victim, const unsigned lag) {
  * and after implementing the rating functions, the spells will have to be rebalanced.
  * Therefore, it is easier to use a temporary function with transparent logic.
  */
-void SetBattleLag(CharData *ch, CharData *victim, ESkill skill_id, unsigned base_lag, unsigned skill_divisor) {
-	if (skill_divisor > 0) {
-		auto lag = base_lag + CalcNoviceSkillBonus(ch, skill_id, skill_divisor);
+void SetBattleLag(CharData *victim, double skill_bonus, unsigned base_lag, double bonus_divisor) {
+	if (bonus_divisor > 0) {
+		auto lag = base_lag + static_cast<int>(skill_bonus / bonus_divisor);
 		SetWaitState(victim, lag * kBattleRound);
 	} else {
 		SetWaitState(victim, base_lag * kBattleRound);
@@ -1178,18 +1178,10 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 					}
 					break;
 
-				case ESpell::kIceStorm:
-				case ESpell::kEarthfall: SetBattleLag(victim, 2);
-					// The kMagicStopFight stun (owned by kMagicBattle) and the "оглушило"
-					// messages now come from the <affects> block / spell_msg.xml (issues
-					// #3334, #3335); only the wait-state side-effect stays here.
-					break;
-
-				case ESpell::kShock:
-					SetBattleLag(victim, 2);
-					// The blind is now a second <apply id="kBlind"> in kShock's <affects>;
-					// no need to recursively cast kBlindness here.
-					break;
+				// kIceStorm/kEarthfall/kShock: the wait-state lag moved to <lag> in their <affects>
+				// (issue.cast-spell-lag). The kMagicStopFight stun (kIceStorm/kEarthfall) and the
+				// kShock blind already come from <affects>/spell_msg.xml, so nothing spell-specific
+				// is left here -- they fall through to the default.
 				default: break;
 			}
 			break;
@@ -1235,12 +1227,12 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 			//Заклинания Забвение, Бремя времени. Далим.
 		case ESpell::kOblivion:
 		case ESpell::kBurdenOfTime: {
+			// kReflex save stays (talent saving is kNone); the lag moved to <lag> (issue.cast-spell-lag).
 			if (CalcGeneralSaving(ch, victim, ESaving::kReflex, modi)) {
 				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 				success = false;
 				break;
 			}
-			SetBattleLag(victim, 3);
 			break;
 		}
 
@@ -1505,6 +1497,15 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 	affect_total(victim);
 
 	if (success) {
+		// Battle lag (issue.cast-spell-lag): a spell whose <affects> declares <lag> delays the
+		// victim once the affect lands. Constant-lag spells use a non-positive bonus_divisor;
+		// skill-scaling ones add potency.low_skill_coeff / bonus_divisor.
+		if (has_affect_talent) {
+			const auto &lag_talent = MUD::Spell(spell_id).actions.GetAffect();
+			if (lag_talent.HasLag()) {
+				SetBattleLag(victim, potency.low_skill_coeff, lag_talent.GetLagBase(), lag_talent.GetLagBonusDivisor());
+			}
+		}
 		// вот некрасиво же тут это делать...
 		if (spell_id == ESpell::kPoison)
 			victim->poisoner = ch->get_uid();

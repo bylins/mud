@@ -2296,6 +2296,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <victims skill_divisor="30" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
                 <affects type="kMagicBattle" saving="kNone" resist="kWater">
+                    <lag base="2" bonus_divisor="-1"/>
                     <duration cnst="2" level_divisor="0" min="0" max="0"/>
                     <flags val="kAfBattledec|kAfPulsedec"/>
                     <apply id="kMagicStopFight" location="kNone">
@@ -2606,6 +2607,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <victims skill_divisor="35" dice_size="2" min_targets="1" max_targets="4"/>
                 </area>
                 <affects type="kMagicBattle" saving="kStability" resist="kVitality">
+                    <lag base="2" bonus_divisor="-1"/>
                     <duration cnst="2" level_divisor="0" min="0" max="0"/>
                     <flags val="kAfBattledec|kAfPulsedec"/>
                     <apply id="kMagicStopFight" location="kNone">
@@ -2810,6 +2812,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <victims skill_divisor="20" dice_size="2" min_targets="1" max_targets="3"/>
                 </area>
                 <affects type="kMagicBattle" saving="kNone" resist="kEarth">
+                    <lag base="2" bonus_divisor="-1"/>
                     <duration cnst="2" level_divisor="0" min="0" max="0"/>
                     <flags val="kAfBattledec|kAfPulsedec"/>
                     <apply id="kMagicStopFight" location="kNone">
@@ -2928,6 +2931,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <affects type="kOblivion" saving="kNone" resist="kDark">
+                    <lag base="3" bonus_divisor="-1"/>
                     <duration cnst="3" level_divisor="0" min="0" max="0"/>
                     <flags val="kAfBattledec"/>
                     <apply id="kSlow" location="kNone">
@@ -2950,6 +2954,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
                 <affects type="kOblivion" saving="kNone" resist="kDark">
+                    <lag base="3" bonus_divisor="-1"/>
                     <duration cnst="3" level_divisor="0" min="0" max="0"/>
                     <flags val="kAfBattledec"/>
                     <apply id="kSlow" location="kNone">

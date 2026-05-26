@@ -27,6 +27,8 @@ struct RollResult {
 	int dices{0};              // talents_actions::Roll::RollSkillDices()
 	double skill_coeff{0.0};   // talents_actions::Roll::CalcSkillCoeff(caster)
 	double stat_coeff{0.0};    // talents_actions::Roll::CalcBaseStatCoeff(caster)
+	double low_skill_coeff{0.0};  // talents_actions::Roll::CalcLowSkillCoeff(caster): the
+	                              // low-skill bonus only, fed to SetBattleLag as skill_bonus.
 };
 
 // The spell's success and potency rolls, computed once per cast in CallMagic and

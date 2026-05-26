@@ -376,7 +376,8 @@ private:
 CastRollResult ComputeCastRoll(CharData *caster, ESpell spell_id, int level) {
 	const auto &spell = MUD::Spell(spell_id);
 	auto eval = [caster](const talents_actions::Roll &roll) {
-		return RollResult{roll.RollSkillDices(), roll.CalcSkillCoeff(caster), roll.CalcBaseStatCoeff(caster)};
+		return RollResult{roll.RollSkillDices(), roll.CalcSkillCoeff(caster),
+						  roll.CalcBaseStatCoeff(caster), roll.CalcLowSkillCoeff(caster)};
 	};
 	return CastRollResult{spell_id, level, eval(spell.GetSuccessRoll()), eval(spell.GetPotencyRoll())};
 }

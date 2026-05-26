@@ -63,6 +63,11 @@ double Roll::CalcSkillCoeff(const CharData *const ch) const {
 	return (low_skill * low_skill_bonus_ + hi_skill * hi_skill_bonus_) / 100.0;
 }
 
+double Roll::CalcLowSkillCoeff(const CharData *const ch) const {
+	auto low_skill = std::min(ch->GetSkill(base_skill_), abilities::kNoviceSkillThreshold);
+	return low_skill * low_skill_bonus_;
+}
+
 double Roll::CalcBaseStatCoeff(const CharData *const ch) const {
 	return std::max(0, GetRealBaseStat(ch, base_stat_) - base_stat_threshold_) * base_stat_weight_ / 100.0;
 }
@@ -176,6 +181,10 @@ TalentAffect::TalentAffect(parser_wrapper::DataNode &node) {
 					blocking_affect_flags_.push_back(parse::ReadAsConstant<EAffect>(flag_name.c_str()));
 				}
 			}
+		} else if (strcmp(name, "lag") == 0) {
+			has_lag_ = true;
+			lag_base_ = parse::ReadAsInt(child.GetValue("base"));
+			lag_bonus_divisor_ = parse::ReadAsDouble(child.GetValue("bonus_divisor"));
 		}
 	}
 }
@@ -217,6 +226,10 @@ void TalentAffect::Print(CharData */*ch*/, std::ostringstream &buffer) const {
 			buffer << " " << kColorGrn << NAME_BY_ITEM<EAffect>(flag) << kColorNrm;
 		}
 		buffer << "\r\n";
+	}
+	if (has_lag_) {
+		buffer << "  Lag: base=" << kColorGrn << lag_base_ << kColorNrm
+			   << " bonus_divisor=" << kColorGrn << lag_bonus_divisor_ << kColorNrm << "\r\n";
 	}
 }
 
