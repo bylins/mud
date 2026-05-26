@@ -294,14 +294,6 @@ void SetBattleLag(CharData *victim, const unsigned lag) {
  * and after implementing the rating functions, the spells will have to be rebalanced.
  * Therefore, it is easier to use a temporary function with transparent logic.
  */
-int CalcNoviceSkillBonus(CharData *ch, ESkill skill_id, unsigned skill_divisor) {
-	if (skill_divisor <= 0) {
-		return 0;
-	}
-	auto low_skill = std::min(ch->GetSkill(skill_id), abilities::kNoviceSkillThreshold);
-	return low_skill/skill_divisor;
-}
-
 void SetBattleLag(CharData *ch, CharData *victim, ESkill skill_id, unsigned base_lag, unsigned skill_divisor) {
 	auto lag = base_lag + CalcNoviceSkillBonus(ch, skill_id, skill_divisor);
 	SetWaitState(victim, lag * kBattleRound);

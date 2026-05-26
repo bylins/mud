@@ -2,6 +2,7 @@
 #define BYLINS_AFFECT_DATA_H
 
 #include "affect_contants.h"
+#include "gameplay/skills/skills.h"
 #include "engine/structs/flag_data.h"
 #include "engine/structs/structs.h"
 
@@ -102,5 +103,6 @@ bool no_bad_affects(ObjData *obj);
 bool IsNegativeApply(EApply location);
 bool GetAffectNumByName(const std::string &affName, EAffect &result);
 int CalcDuration(CharData *ch, int cnst, int level, int level_divisor, int min, int max);
+int CalcDuration(CharData *ch, ESkill skill_id, unsigned base, unsigned skill_divisor, int min, int max);
 
 #endif //BYLINS_AFFECT_DATA_H

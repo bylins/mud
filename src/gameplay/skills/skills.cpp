@@ -2084,6 +2084,14 @@ int CalcSkillMinCap(const CharData *ch, const ESkill skill) {
 	return std::min(CalcSkillWisdomCap(ch), MUD::Skill(skill).cap);
 }
 
+int CalcNoviceSkillBonus(CharData *ch, ESkill skill_id, unsigned skill_divisor) {
+	if (skill_divisor <= 0) {
+		return 0;
+	}
+	auto low_skill = std::min(ch->GetSkill(skill_id), abilities::kNoviceSkillThreshold);
+	return low_skill/skill_divisor;
+}
+
 const ESkill &operator++(ESkill &s) {
 	s = static_cast<ESkill>(to_underlying(s) + 1);
 	return s;

@@ -1262,6 +1262,20 @@ bool GetAffectNumByName(const std::string &affName, EAffect &result) {
 	return false;
 }
 
+int CalcDuration(CharData *ch, ESkill skill_id, unsigned base, unsigned skill_divisor, int min, int max) {
+	if (skill_divisor == 0 && min == 0 && max == 0) {
+		return (ch->IsNpc() ? base : (base * kSecsPerMudHour / kSecsPerPlayerAffect));
+	}
+	if (min > max) {
+		std::swap(min, max);
+	}
+	auto skill_bonus = CalcNoviceSkillBonus(ch, skill_id, skill_divisor);
+	skill_bonus = std::min(std::max(skill_bonus, min), max);
+	auto duration = base + skill_bonus;
+	return (ch->IsNpc() ? duration : (duration * kSecsPerMudHour / kSecsPerPlayerAffect));
+}
+
+
 int CalcDuration(CharData *ch, int cnst, int level, int level_divisor, int min, int max) {
 	if (level_divisor == 0 && min == 0 && max == 0) {
 		return (ch->IsNpc() ? cnst : (cnst * kSecsPerMudHour / kSecsPerPlayerAffect));
