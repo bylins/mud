@@ -329,6 +329,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="55" min="40" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict|kTarObjInv"/>
         <flags val="kMagAffects|kMagAlterObjs|kNpcAffectPc"/>
+        <potency_roll>
+            <dices ndice="4" sdice="4" adice="4"/>
+            <base_skill id="kDarkMagic" low_skill_bonus="5" hi_skill_bonus="15"/>
+            <base_stat id="kInt" threshold="12" weight="20"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <affects type="kCurse" saving="kWill" resist="kDark">
@@ -337,8 +342,11 @@ base_stat id - (например "kWis") какой берем параметр,
                     <apply id="kCurse" location="kHitroll">
                         <modifier min="1.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
                     </apply>
-                    <apply id="kCurse" location="kDamroll">
-                        <modifier min="1.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                    <apply id="kCurse" location="kInitiative">
+                        <modifier min="5.0" dices_weight="0.0" competencies_weight="30.0" factor="-1" stack="0"/>
+                    </apply>
+                    <apply id="kCurse" location="kCastSuccess">
+                        <modifier min="1.0" dices_weight="0.0" competencies_weight="100.0" factor="-1" stack="0"/>
                     </apply>
                 </affects>
             </action>
@@ -549,6 +557,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <affects type="kInvisible" saving="kNone" resist="kMind">
+                    <blocking affect_flags="kGlitterDust"/>
                     <duration cnst="20" level_divisor="1" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kInvisible" location="kAc">
@@ -615,7 +624,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <decay cast="0.05" level="7" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
-                <affects type="kPoison" saving="kNone" resist="kDark">
+                <affects type="kPoison" saving="kCritical" resist="kDark">
                     <duration cnst="0" level_divisor="1" min="0" max="0"/>
                     <flags val="kAfSameTime"/>
                     <apply id="kPoisoned" location="kStr">
@@ -669,12 +678,17 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <affects type="kSanctuary" saving="kNone" resist="kVitality">
+                    <blocking affect_flags="kPrismaticAura"/>
                     <duration cnst="20" level_divisor="1" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kSanctuary" location="kNone">
                         <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
                     </apply>
                 </affects>
+                <unaffect>
+                    <breaking any_of="kPrismaticAura"/>
+                    <remove any_of="kPrismaticAura"/>
+                </unaffect>
             </action>
         </talent_actions>
     </spell>
@@ -703,7 +717,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <flags val="kMagAffects|kNpcAffectPc"/>
         <talent_actions>
             <action>
-                <affects type="kSleep" saving="kNone" resist="kMind">
+                <affects type="kSleep" saving="kWill" resist="kMind">
                     <blocking mob_flags="kNoSleep" affect_flags="kHold"/>
                     <duration cnst="1" level_divisor="6" min="1" max="6"/>
                     <flags val="kAfBattledec"/>
@@ -998,7 +1012,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <flags val="kMagAffects|kNpcAffectPc"/>
         <talent_actions>
             <action>
-                <affects type="kHold" saving="kNone" resist="kMind">
+                <affects type="kHold" saving="kWill" resist="kMind">
                     <blocking mob_flags="kNoHold" affect_flags="kBrokenChains|kSleep"/>
                     <duration cnst="1" level_divisor="10" min="1" max="3"/>
                     <flags val="kAfBattledec"/>
@@ -1017,7 +1031,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <flags val="kMagAffects|kNpcAffectPc"/>
         <talent_actions>
             <action>
-                <affects type="kHold" saving="kNone" resist="kMind">
+                <affects type="kHold" saving="kWill" resist="kMind">
                     <blocking mob_flags="kNoHold" affect_flags="kBrokenChains|kSleep"/>
                     <duration cnst="2" level_divisor="8" min="2" max="5"/>
                     <flags val="kAfBattledec"/>
@@ -1040,7 +1054,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <decay cast="0.05" level="2" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
-                <affects type="kHold" saving="kNone" resist="kMind">
+                <affects type="kHold" saving="kWill" resist="kMind">
                     <blocking mob_flags="kNoHold" affect_flags="kBrokenChains|kSleep"/>
                     <duration cnst="1" level_divisor="10" min="1" max="3"/>
                     <flags val="kAfBattledec"/>
@@ -1095,7 +1109,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <flags val="kMagAffects|kNpcAffectPc"/>
         <talent_actions>
             <action>
-                <affects type="kNoflee" saving="kNone" resist="kMind">
+                <affects type="kNoflee" saving="kWill" resist="kMind">
                     <blocking affect_flags="kBrokenChains"/>
                     <duration cnst="3" level_divisor="4" min="4" max="0"/>
                     <flags val="kAfBattledec"/>
@@ -1305,6 +1319,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
                 <affects type="kInvisible" saving="kNone" resist="kMind">
+                    <blocking affect_flags="kGlitterDust"/>
                     <duration cnst="20" level_divisor="1" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kInvisible" location="kAc">
@@ -1920,8 +1935,8 @@ base_stat id - (например "kWis") какой берем параметр,
         <flags val="kMagAffects|kNpcAffectPc"/>
         <talent_actions>
             <action>
-                <affects type="kSlowdown" saving="kNone" resist="kMind">
-                    <blocking affect_flags="kBrokenChains"/>
+                <affects type="kSlowdown" saving="kStability" resist="kMind">
+                    <blocking affect_flags="kBrokenChains|kHaste"/>
                     <duration cnst="9" level_divisor="0" min="0" max="0"/>
                     <apply id="kSlow" location="kNone">
                         <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
@@ -1930,6 +1945,10 @@ base_stat id - (например "kWis") какой берем параметр,
                         <modifier min="2.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
                     </apply>
                 </affects>
+                <unaffect>
+                    <breaking any_of="kHaste"/>
+                    <remove any_of="kHaste"/>
+                </unaffect>
             </action>
         </talent_actions>
     </spell>
@@ -1967,8 +1986,8 @@ base_stat id - (например "kWis") какой берем параметр,
                     <decay cast="0.05" level="2" free_targets="3"/>
                     <victims skill_divisor="10" dice_size="3" min_targets="5" max_targets="20"/>
                 </area>
-                <affects type="kSlowdown" saving="kNone" resist="kMind">
-                    <blocking affect_flags="kBrokenChains"/>
+                <affects type="kSlowdown" saving="kStability" resist="kMind">
+                    <blocking affect_flags="kBrokenChains|kHaste"/>
                     <duration cnst="9" level_divisor="0" min="0" max="0"/>
                     <apply id="kSlow" location="kNone">
                         <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
@@ -1977,6 +1996,10 @@ base_stat id - (например "kWis") какой берем параметр,
                         <modifier min="2.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
                     </apply>
                 </affects>
+                <unaffect>
+                    <breaking any_of="kHaste"/>
+                    <remove any_of="kHaste"/>
+                </unaffect>
             </action>
         </talent_actions>
     </spell>
@@ -2463,12 +2486,17 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <affects type="kPrismaticAura" saving="kNone" resist="kVitality">
+                    <blocking affect_flags="kSanctuary"/>
                     <duration cnst="20" level_divisor="1" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kPrismaticAura" location="kNone">
                         <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
                     </apply>
                 </affects>
+                <unaffect>
+                    <breaking any_of="kSanctuary"/>
+                    <remove any_of="kSanctuary"/>
+                </unaffect>
             </action>
         </talent_actions>
     </spell>
@@ -2621,12 +2649,17 @@ base_stat id - (например "kWis") какой берем параметр,
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
                 <affects type="kSanctuary" saving="kNone" resist="kVitality">
+                    <blocking affect_flags="kPrismaticAura"/>
                     <duration cnst="20" level_divisor="1" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kSanctuary" location="kNone">
                         <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
                     </apply>
                 </affects>
+                <unaffect>
+                    <breaking any_of="kPrismaticAura"/>
+                    <remove any_of="kPrismaticAura"/>
+                </unaffect>
             </action>
         </talent_actions>
     </spell>
@@ -2643,12 +2676,17 @@ base_stat id - (например "kWis") какой берем параметр,
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
                 <affects type="kPrismaticAura" saving="kNone" resist="kVitality">
+                    <blocking affect_flags="kSanctuary"/>
                     <duration cnst="20" level_divisor="1" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kPrismaticAura" location="kNone">
                         <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
                     </apply>
                 </affects>
+                <unaffect>
+                    <breaking any_of="kSanctuary"/>
+                    <remove any_of="kSanctuary"/>
+                </unaffect>
             </action>
         </talent_actions>
     </spell>
@@ -2660,10 +2698,6 @@ base_stat id - (например "kWis") какой берем параметр,
         <flags val="kMagAffects|kNpcAffectPc|kNpcAffectPcCaster"/>
         <talent_actions>
             <action>
-                <area>
-                    <decay cast="0.05" level="2" free_targets="3"/>
-                    <victims skill_divisor="10" dice_size="3" min_targets="5" max_targets="20"/>
-                </area>
                 <affects type="kDeafness" saving="kStability" resist="kMind">
                     <duration cnst="2" level_divisor="8" min="3" max="0"/>
                     <flags val="kAfBattledec"/>
@@ -2680,6 +2714,17 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="120" min="90" change="4"/>
         <targets val="kTarCharRoom|kTarNotSelf|kTarFightVict"/>
         <flags val="kMagAffects|kNpcAffectPc|kNpcAffectPcCaster"/>
+        <talent_actions>
+            <action>
+                <affects type="kDeafness" saving="kStability" resist="kMind">
+                    <duration cnst="4" level_divisor="4" min="3" max="0"/>
+                    <flags val="kAfBattledec"/>
+                    <apply id="kDeafness" location="kNone">
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                    </apply>
+                </affects>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kRemoveDeafness" element="kLife" mode="kEnabled">
         <name rus="снять глухоту" eng="remove deafness"/>
@@ -2707,7 +2752,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <decay cast="0.05" level="2" free_targets="3"/>
                     <victims skill_divisor="10" dice_size="3" min_targets="5" max_targets="20"/>
                 </area>
-                <affects type="kDeafness" saving="kStability" resist="kMind">
+                <affects type="kDeafness" saving="kCritical" resist="kMind">
                     <duration cnst="2" level_divisor="8" min="3" max="0"/>
                     <flags val="kAfBattledec"/>
                     <apply id="kDeafness" location="kNone">
@@ -2792,7 +2837,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <decay cast="0.05" level="3" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
-                <affects type="kDeafness" saving="kNone" resist="kAir">
+                <affects type="kDeafness" saving="kCritical" resist="kAir">
                     <duration cnst="2" level_divisor="4" min="6" max="0"/>
                     <flags val="kAfBattledec"/>
                     <apply id="kDeafness" location="kNone">
@@ -2816,8 +2861,8 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <damage saving="kCritical" />
-                <affects type="kHold" saving="kNone" resist="kVitality">
-                    <blocking mob_flags="kNoHold"/>
+                <affects type="kHold" saving="kWill" resist="kVitality">
+                    <blocking mob_flags="kNoHold"  affect_flags="kForcesOfEvil|kBrokenChains|kSleep"/>
                     <duration cnst="1" level_divisor="10" min="1" max="3"/>
                     <flags val="kAfBattledec"/>
                     <apply id="kHold" location="kNone">
@@ -3258,6 +3303,14 @@ base_stat id - (например "kWis") какой берем параметр,
                     <decay cast="0.01" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
+                <affects type="kWarcryOfThunder" saving="kStability" resist="kVitality">
+                    <blocking affect_flags="kDeafness"/>
+                    <duration cnst="2" level_divisor="4" min="0" max="6"/>
+                    <flags val="kAfBattledec"/>
+                    <apply id="kDeafness" location="kSavingCritical">
+                        <modifier min="20.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                    </apply>
+                </affects>
             </action>
         </talent_actions>
     </spell>
@@ -3655,7 +3708,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <damage saving="kReflex" />
-                <affects type="kIndriksTeeth" saving="kNone" resist="kEarth">
+                <affects type="kIndriksTeeth" saving="kWill" resist="kEarth">
                     <blocking affect_flags="kBrokenChains"/>
                     <duration cnst="3" level_divisor="4" min="4" max="0"/>
                     <flags val="kAfBattledec"/>
@@ -4279,7 +4332,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <decay cast="0.03" level="6" free_targets="5"/>
                     <victims skill_divisor="25" dice_size="2" min_targets="3" max_targets="15"/>
                 </area>
-                <affects type="kSnare" saving="kNone" resist="kMind">
+                <affects type="kSnare" saving="kWill" resist="kMind">
                     <blocking affect_flags="kBrokenChains"/>
                     <duration cnst="3" level_divisor="4" min="4" max="0"/>
                     <flags val="kAfBattledec"/>

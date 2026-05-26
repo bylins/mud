@@ -1263,15 +1263,11 @@ bool GetAffectNumByName(const std::string &affName, EAffect &result) {
 }
 
 int CalcDuration(CharData *ch, int cnst, int level, int level_divisor, int min, int max) {
-	int result = 0;
-
-	// A raw, unscaled duration: with no level divisor and no bounds there is nothing
-	// to compute, so cnst is returned as-is (no mud-hour/player scaling). Lets the data
-	// express a fixed tick count, e.g. the poison <affects> blocks (issue #3334).
 	if (level_divisor == 0 && min == 0 && max == 0) {
-		return cnst;
+		return (ch->IsNpc() ? cnst : (cnst * kSecsPerMudHour / kSecsPerPlayerAffect));
 	}
 
+	int result = 0;
 	if (ch->IsNpc()) {
 		result = cnst;
 		if (level > 0 && level_divisor > 0)

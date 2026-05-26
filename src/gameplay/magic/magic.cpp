@@ -915,10 +915,8 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 	const ESpell cast_spell_id = spell_id;	// issue #3335: stable key for affect messages
 	int i, modi = 0;
 	int rnd = 0;
-	int decline_mod = 0;
-	if (victim == nullptr
-		|| victim->in_room == kNowhere
-		|| ch == nullptr) {
+
+	if (victim == nullptr || victim->in_room == kNowhere || ch == nullptr) {
 		return EStageResult::kSuccess;
 	}
 
@@ -1047,115 +1045,8 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 		// regardless of the save. Once CastUnaffect grows a success/saving check the gating
 		// is restored and these stubs can go. (kEnergyDrain is also manual: its <unaffect>
 		// break stops the chain, so the spell-memory wipe is skipped when a buff is drained.)
-		case ESpell::kEnergyDrain:
-		case ESpell::kWeaknes:
-			break;
 
-		// kWeb's kBrokenChains guard moved to <blocking affect_flags> (issue.aff-flagged-check);
-		// its only remaining check duplicated the talent's kReflex save, so the case is gone.
-
-		case ESpell::kMassSlow:
-		case ESpell::kSlowdown: savetype = ESaving::kStability;
-			// kBrokenChains guard moved to <blocking affect_flags>; the kStability save and the
-			// kHaste removal stay (the latter still tests a spell via IsAffectedBySpell).
-			if (CalcGeneralSaving(ch, victim, savetype, modi)) {
-				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
-				success = false;
-				break;
-			}
-
-			if (IsAffectedBySpell(victim, ESpell::kHaste)) {
-				RemoveAffectFromCharAndRecalculate(victim, ESpell::kHaste);
-				success = false;
-				break;
-			}
-
-			break;
-
-		// kSanctuary/kPrismaticAura: the AFF_FLAGGED guard is a *fallback* after the spell-based
-		// removal of the rival aura, so it can't move to the pre-switch <blocking> check -- that
-		// would fire on the spell-sourced flag and pre-empt the swap. Left here intentionally.
-		case ESpell::kGroupSanctuary:
-		case ESpell::kSanctuary:
-			if (IsAffectedBySpell(victim, ESpell::kPrismaticAura)) {
-				RemoveAffectFromCharAndRecalculate(victim, ESpell::kPrismaticAura);
-				success = false;
-				break;
-			}
-			if (AFF_FLAGGED(victim, EAffect::kPrismaticAura)) {
-				success = false;
-				break;
-			}
-			break;
-
-		case ESpell::kGroupPrismaticAura:
-		case ESpell::kPrismaticAura:
-			if (IsAffectedBySpell(victim, ESpell::kSanctuary)) {
-				RemoveAffectFromCharAndRecalculate(victim, ESpell::kSanctuary);
-				success = false;
-				break;
-			}
-			if (AFF_FLAGGED(victim, EAffect::kSanctuary)) {
-				success = false;
-				break;
-			}
-			break;
-
-		case ESpell::kCallLighting:
-			if (CalcGeneralSaving(ch, victim, savetype, modi)) {
-				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
-				success = false;
-			}
-			break;
-
-
-		case ESpell::kMassCurse:
-		case ESpell::kCurse: savetype = ESaving::kWill;
-			if (CalcGeneralSaving(ch, victim, savetype, modi)) {
-				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
-				success = false;
-				break;
-			}
-
-			// если есть фит порча
-			if (CanUseFeat(ch, EFeat::kCorruption))
-				decline_mod += GetRealRemort(ch);
-			af[0].location = EApply::kInitiative;
-			af[0].duration = ApplyResist(victim, GetResistType(spell_id),
-										 CalcDuration(victim, 1, level, 2, 0, 0));
-			af[0].modifier = -(5 + decline_mod);
-			af[0].affect_type = EAffect::kCurse;
-
-			af[1].location = EApply::kHitroll;
-			af[1].duration = af[0].duration;
-			af[1].modifier = -(level / 6 + decline_mod + GetRealRemort(ch) / 5);
-			af[1].affect_type = EAffect::kCurse;
-
-			if (level >= 20) {
-				af[2].location = EApply::kCastSuccess;
-				af[2].duration = af[0].duration;
-				af[2].modifier = -(level / 3 + GetRealRemort(ch));
-				if (ch->IsNpc() && level >= (kLvlImmortal))
-					af[2].modifier += (kLvlImmortal - level - 1);    //1 cast per mob level above 30
-				af[2].affect_type = EAffect::kCurse;
-			}
-			accum_duration = true;
-			accum_affect = true;
-			spell_id = ESpell::kCurse;
-			break;
-
-		case ESpell::kGroupInvisible:
-		case ESpell::kInvisible:
-			if (!victim)
-				victim = ch;
-			if (IsAffectedBySpell(victim, ESpell::kGlitterDust)) {
-				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
-				success = false;
-				break;
-			}
-			break;
-
-		case ESpell::kPoison: savetype = ESaving::kCritical;
+		case ESpell::kPoison:
 			if (ch != victim && (AFF_FLAGGED(victim, EAffect::kGodsShield) ||
 				CalcGeneralSaving(ch, victim, savetype, modi))) {
 				if (ch->in_room == victim->in_room) {
@@ -1167,7 +1058,7 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 
 			break;
 
-		case ESpell::kSleep: savetype = ESaving::kWill;
+		case ESpell::kSleep:
 			// The kHold guard moved to <blocking affect_flags> (issue.aff-flagged-check); the
 			// kWill save stays here because it gates the sleep *position* change below.
 			if (CalcGeneralSaving(ch, victim, ESaving::kWill, modi)) {
@@ -1186,62 +1077,6 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 				act("$n прилег$q подремать.", true, victim, nullptr, nullptr, kToRoom | kToArenaListen);
 
 				victim->SetPosition(EPosition::kSleep);
-			}
-			break;
-
-		case ESpell::kHolystrike:
-			// kHolystrike is a manual spell (kMagManual): it is not routed through the pre-switch
-			// <blocking> check, so it keeps its kForcesOfEvil guard and -- no longer sharing
-			// kHold's body -- its own brokenchains/sleep guard and kWill save here.
-			if (AFF_FLAGGED(victim, EAffect::kForcesOfEvil)) {
-				// все решится в дамадже части спелла
-				success = false;
-				break;
-			}
-			if (AFF_FLAGGED(victim, EAffect::kBrokenChains)
-					|| AFF_FLAGGED(victim, EAffect::kSleep)
-					|| (CalcGeneralSaving(ch, victim, ESaving::kWill, modi))) {
-				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
-				success = false;
-				break;
-			}
-			break;
-
-		// kHold/kMassHold/kPowerHold: the kBrokenChains/kSleep guard moved to <blocking
-		// affect_flags> (issue.aff-flagged-check); the kWill save stays (talent saving is kNone).
-		case ESpell::kMassHold:
-		case ESpell::kPowerHold:
-		case ESpell::kHold:
-			if (CalcGeneralSaving(ch, victim, ESaving::kWill, modi)) {
-				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
-				success = false;
-				break;
-			}
-			break;
-
-		case ESpell::kWarcryOfRage:
-		case ESpell::kSonicWave:
-		case ESpell::kMassDeafness:
-		case ESpell::kPowerDeafness:
-		case ESpell::kDeafness: //victim->IsFlagged(MOB_NODEAFNESS) ||
-			if (CalcGeneralSaving(ch, victim, savetype, modi)) {
-				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
-				success = false;
-				break;
-			}
-
-			break;
-
-		// kNoflee/kIndriksTeeth/kSnare: the kBrokenChains guard moved to <blocking affect_flags>
-		// (issue.aff-flagged-check); the kWill save stays (talent saving is kNone).
-		case ESpell::kNoflee: // "приковать противника"
-		case ESpell::kIndriksTeeth:
-		case ESpell::kSnare:
-			savetype = ESaving::kWill;
-			if (CalcGeneralSaving(ch, victim, savetype, modi)) {
-				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
-				success = false;
-				break;
 			}
 			break;
 
@@ -1281,9 +1116,6 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 		case ESpell::kIceStorm:
 		case ESpell::kEarthfall:
 		case ESpell::kShock: {
-			if (spell_id==ESpell::kEarthfall){
-				modi += ch->GetSkill(GetMagicSkillId(spell_id))/5;
-			}
 			if (!ch->IsImmortal() && CalcGeneralSaving(ch, victim, savetype, modi)) {
 				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 				success = false;
