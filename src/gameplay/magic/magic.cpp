@@ -295,8 +295,12 @@ void SetBattleLag(CharData *victim, const unsigned lag) {
  * Therefore, it is easier to use a temporary function with transparent logic.
  */
 void SetBattleLag(CharData *ch, CharData *victim, ESkill skill_id, unsigned base_lag, unsigned skill_divisor) {
-	auto lag = base_lag + CalcNoviceSkillBonus(ch, skill_id, skill_divisor);
-	SetWaitState(victim, lag * kBattleRound);
+	if (skill_divisor > 0) {
+		auto lag = base_lag + CalcNoviceSkillBonus(ch, skill_id, skill_divisor);
+		SetWaitState(victim, lag * kBattleRound);
+	} else {
+		SetWaitState(victim, base_lag * kBattleRound);
+	}
 }
 
 double CalcMagicElementCoeff(CharData *victim, ESpell spell_id) {
