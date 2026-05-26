@@ -31,7 +31,6 @@
 #include "utils/random.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/ai/mob_memory.h"
-#include "gameplay/mechanics/groups.h"
 #include "gameplay/core/base_stats.h"
 #include "gameplay/mechanics/weather.h"
 #include "utils/utils_time.h"
@@ -280,6 +279,32 @@ bool IsBreath(ESpell spell_id) {
 	};
 
 	return magic_breath.contains(spell_id);
+}
+
+void SetBattleLag(CharData *victim, const unsigned lag) {
+	SetWaitState(victim, lag * kBattleRound);
+}
+
+/*
+ * This is a temporary function. It's better to tie the lag value to the success rate of the cast
+ * rather than directly to the pure skill. But to calculate the success rate, we need a function
+ * for calculating the attack rating and a function for calculating the defense rating.
+ * These don't exist and can't be written quickly. Replacing them with placeholders defeats the purpose.
+ * The placeholders will still return values different from those ultimately used in the system,
+ * and after implementing the rating functions, the spells will have to be rebalanced.
+ * Therefore, it is easier to use a temporary function with transparent logic.
+ */
+int CalcNoviceSkillBonus(CharData *ch, ESkill skill_id, unsigned skill_divisor) {
+	if (skill_divisor <= 0) {
+		return 0;
+	}
+	auto low_skill = std::min(ch->GetSkill(skill_id), abilities::kNoviceSkillThreshold);
+	return low_skill/skill_divisor;
+}
+
+void SetBattleLag(CharData *ch, CharData *victim, ESkill skill_id, unsigned base_lag, unsigned skill_divisor) {
+	auto lag = base_lag + CalcNoviceSkillBonus(ch, skill_id, skill_divisor);
+	SetWaitState(victim, lag * kBattleRound);
 }
 
 double CalcMagicElementCoeff(CharData *victim, ESpell spell_id) {
@@ -553,7 +578,7 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 				victim->DropFromHorse();
 				act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kLaggedToRoom).c_str(), false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
 				act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kLaggedToChar).c_str(), false, victim, nullptr, nullptr, kToChar);
-				SetWaitState(victim, 2 * kBattleRound);
+				SetBattleLag(victim, 2);
 			}
 			break;
 		}
@@ -610,7 +635,7 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 				victim->DropFromHorse();
 				act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kKnockdownToRoom).c_str(), false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
 				act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kKnockdownToChar).c_str(), false, victim, nullptr, nullptr, kToChar);
-				SetWaitState(victim, 2 * kBattleRound);
+				SetBattleLag(victim, 2);
 			}
 			break;
 		}
@@ -622,7 +647,7 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 				victim->DropFromHorse();
 				act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kKnockdownToRoom).c_str(), false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
 				act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kKnockdownToChar).c_str(), false, victim, nullptr, nullptr, kToChar);
-				SetWaitState(victim, 2 * kBattleRound);
+				SetBattleLag(victim, 2);
 			}
 			break;
 		}
@@ -640,7 +665,7 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 					victim->SetPosition(EPosition::kStun);
 					victim->DropFromHorse();
 				}
-					SetWaitState(victim, (5 + (GetRealWis(ch) - 20) / 6) * kBattleRound);
+					SetBattleLag(victim, (5 + (GetRealWis(ch) - 20) / 6));
 				}
 			}
 			break;
@@ -710,7 +735,7 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 				victim->SetPosition(EPosition::kSit);
 				act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kKnockdownToRoom).c_str(), false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
 				act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kKnockdownToChar).c_str(), false, victim, nullptr, nullptr, kToChar);
-				SetWaitState(victim, 2 * kBattleRound);
+				SetBattleLag(victim, 2);
 			}
 			break;
 		}
@@ -735,7 +760,7 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 				victim->SetPosition(EPosition::kSit);
 				act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kKnockdownToRoom).c_str(), false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
 				act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kKnockdownToChar).c_str(), false, victim, nullptr, nullptr, kToChar);
-				SetWaitState(victim, 2 * kBattleRound);
+				SetBattleLag(victim, 2);
 			}
 			break;
 		}
@@ -1145,14 +1170,14 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 					break;
 
 				case ESpell::kIceStorm:
-				case ESpell::kEarthfall: SetWaitState(victim, 2 * kBattleRound);
+				case ESpell::kEarthfall: SetBattleLag(victim, 2);
 					// The kMagicStopFight stun (owned by kMagicBattle) and the "оглушило"
 					// messages now come from the <affects> block / spell_msg.xml (issues
 					// #3334, #3335); only the wait-state side-effect stays here.
 					break;
 
 				case ESpell::kShock:
-					SetWaitState(victim, 2 * kBattleRound);
+					SetBattleLag(victim, 2);
 					// The blind is now a second <apply id="kBlind"> in kShock's <affects>;
 					// no need to recursively cast kBlindness here.
 					break;
@@ -1206,7 +1231,7 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 				success = false;
 				break;
 			}
-			SetWaitState(victim, (level / 10 + 1) * kBattleRound);
+			SetBattleLag(victim, 3);
 			break;
 		}
 
@@ -1221,7 +1246,7 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 			if (victim->GetEnemy()) {
 				stop_fighting(victim, true);
 				change_fighting(victim, true);
-				SetWaitState(victim, 2 * kBattleRound);
+				SetBattleLag(victim, 2);
 			}
 			break;
 		}
