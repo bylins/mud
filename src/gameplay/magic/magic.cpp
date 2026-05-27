@@ -971,11 +971,10 @@ static void ApplyTalentAffect(CharData *victim, Affect<EApply> &af, Bitvector fl
 }
 
 EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const RollResult &potency) {
-	bool accum_affect = false, accum_duration = false, success = true;
-	bool update_spell = false;
+	bool success = true;
 	const char *to_vict = nullptr, *to_room = nullptr;
 	const ESpell cast_spell_id = spell_id;	// issue #3335: stable key for affect messages
-	int i, modi = 0;
+	int modi = 0;
 
 	if (victim == nullptr || victim->in_room == kNowhere || ch == nullptr) {
 		return EStageResult::kSuccess;
@@ -1038,15 +1037,6 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 		return EStageResult::kSuccess;
 	}
 
-	Affect<EApply> af[kMaxSpellAffects];
-	for (i = 0; i < kMaxSpellAffects; i++) {
-		af[i].type = spell_id;
-		af[i].affect_type = EAffect::kUndefinded;
-		af[i].modifier = 0;
-		af[i].battleflag = 0;
-		af[i].location = EApply::kNone;
-	}
-
 	// decrease modi for failing, increese fo success
 	if (ch != victim) {
 		modi = CalcAntiSavings(ch);
@@ -1080,139 +1070,12 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 	if (ProcessMatComponents(ch, victim, spell_id) == EStageResult::kBreak) {
 		return EStageResult::kBreak;
 	}
-	switch (spell_id) {
-		// The affect itself now comes from the <affects> talent action (issue #3334) and
-		// the imposition messages from spell_msg.xml (issue #3335); the saving throw and
-		// the application are done by the talent-affect block at the end of this function.
-		// Cases that linger here do so only for side effects (saving, removals, wait-state).
-
-		// issue #3342: the kStrength/kDexterity removal (and break) of these spells moved to
-		// their <unaffect> block. The removal used to be gated by the saving throw rolled
-		// here first; CastUnaffect has no saving check yet, so for now the buff is stripped
-		// regardless of the save. Once CastUnaffect grows a success/saving check the gating
-		// is restored and these stubs can go. (kEnergyDrain is also manual: its <unaffect>
-		// break stops the chain, so the spell-memory wipe is skipped when a buff is drained.)
-
-//		case ESpell::kPoison:
-//			if (ch != victim && (AFF_FLAGGED(victim, EAffect::kGodsShield) ||
-//				CalcGeneralSaving(ch, victim, savetype, modi))) {
-//				if (ch->in_room == victim->in_room) {
-//					SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
-//				}
-//				success = false;
-//				break;
-//			}
-//
-//			break;
-
-		// kSleep is fully data-driven (issue.cast-affect): the kWill save + affect-resist gate
-		// the sleep affect in the talent block; <reposition pos="kSleep"> then drops the victim
-		// to the sleeping position (with the kKnockdown* messages) and stops it fighting. The
-		// kHold/kNoSleep guards live in <blocking>. No case needed.
-
-		// kEviless is data-driven now (issue.cast-affect): <required mob_flags="kCorpse"> gates
-		// the target, the kForcesOfEvil damroll/hitroll buffs come from <affects>, and the
-		// follower heal from <heal>. The old max-HP affect + mag_points signal hack is gone.
-
-			// kCrying: data-driven via <affects> (issue.cast-affect). All four effects
-			// (kHp/kLikes/kCastSuccess/kMorale, affect_type kCrying) moved to spells.xml; the
-			// old IsNpc branch dropped (kLikes is a harmless no-op on PCs); the re-cast guard is
-			// <blocking affect_flags="kCrying">. Modifiers are now skill-scaled (potency_roll) in
-			// place of the old level/remort/victim-HP terms.
-
-			// kPeaceful is fully data-driven now (issue.cast-affect): the <affects> (saving/
-			// affect-resist), <reposition stop_fight="true">, <lag>, and <blocking kNoHold/kPeaceful>.
-			// The old "no effect on an uncharmed NPC" guard was dropped (kvirund): the spell is
-			// rarely used and may now affect uncharmed NPCs; that can be fixed later if it matters.
-
-			// kStoneBones: the old "target must be a raised undead in vnum range
-			// [kMobSkeleton, kLastNecroMob]" guard is data-driven now (issue.cast-affect) --
-			// kTarMinionsOnly + <required mob_flags="kCorpse"> + <blocking mob_flags=
-			// "kResurrected|kMounting|kHelper|kClone">, gated in CastToSingleTarget. No case needed.
-
-		// kFailure/kMassFailure are now fully data-driven (issue: random apply attribute):
-		// the mandatory kMorale penalty + a single random one of the six basic-stat penalties
-		// come from <affects> (the stat applies carry random="true"); the kWill save is the
-		// talent saving. No case needed.
-
-			// kGlitterDust is data-driven now (issue.cast-affect): the reveal (stripping
-			// kInvisible/kCamouflage/kHide) is an <unaffect> <remove breaking_by_failure="true">
-			// that runs before the affect, so a resisted strip breaks the cast (no affect); the
-			// kSavingReflex affect carries saving="kReflex" (the old modi+50 bonus is dropped).
-			// The dispel uses the potency check, which deliberately differs from that kReflex save.
-
-		// kWarcryOfMadness is now data-driven (issue: random apply attribute): its <affects>
-		// imposes one randomly-chosen debuff of kInt / kCastSuccess / kManaRegen (all
-		// random="true"). The old cascade of Con-modified saves is replaced by the single
-		// kStability talent saving, and the Con influence is folded into the potency roll
-		// (base_stat kCon) and the modifier weights instead of the save modifier.
-
-//		case ESpell::kCombatLuck: af[0].duration = CalcDuration(victim, 6, 0, 0, 0, 0);
-//			af[0].affect_type = EAffect::kCombatLuck;
-//			af[0].handler.reset(new CombatLuckAffectHandler());
-//			af[0].type = ESpell::kCombatLuck;
-//			af[0].location = EApply::kHitroll;
-//			af[0].modifier = 0;
-//			break;
-
-			// kPaladineInspiration: data-driven (issue.cast-affect). Its random group buffs -- one of
-			// kPhysicDamagePercent/kCastSuccess/kManaRegen/kMagicDamagePercent -- are an <affects> with
-			// random="true" applies; the chance to also heal the target is a <heal prob="15"> (a
-			// kGreatHeal-sized heal). The old arena-only roll-range tweak is dropped. No case needed.
-		default: break;
-	}
-
-	ch->send_to_TC(false, true, false, "Кастуем спелл %s по цели %s длительносить %d\r\n", MUD::Spell(af[0].type).GetCName(), GET_PAD(victim, 2), af[0].duration);
-	//проверка на обкаст мобов, имеющих от рождения встроенный аффкект
-	//чтобы этот аффект не очистился, при спадении спелла
-	if (victim->IsNpc() && success) {
-		for (i = 0; i < kMaxSpellAffects && success; ++i) {
-			if (AFF_FLAGGED(&mob_proto[victim->get_rnum()], af[i].affect_type)) {
-				if (ch->in_room == victim->in_room) {
-					SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
-				}
-				success = false;
-			}
-		}
-	}
-	// Affect talents drive their own re-cast/update policy through EAffFlag flags
-	// (issue #3334), so the legacy IsViolent-based update/recast rules are skipped
-	// for spells that use them.
-	if (!has_affect_talent) {
-		// позитивные аффекты - продлеваем, если они уже на цели
-		if (!MUD::Spell(spell_id).IsViolent() && IsAffectedBySpell(victim, spell_id) && success) {
-			update_spell = true;
-		}
-		// вот такой оригинальный способ запретить рекасты негативных аффектов - через флаг апдейта
-		if ((ch != victim) && IsAffectedBySpell(victim, spell_id) && success && (!update_spell)) {
-			if (ch->in_room == victim->in_room) {
-				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
-			}
-			success = false;
-		}
-	}
 
 	// issue: every affect this cast lands records the cast's potency (strength) and whether it is a
 	// debuff, so a later dispel can be gated by strength (see CastUnaffects/DispelSucceeds). The
 	// potency is the cast roll (dice + skill + stat coefficients); the nature follows the violent flag.
 	const float cast_potency = static_cast<float>(potency.dices + potency.skill_coeff + potency.stat_coeff);
 	const bool cast_debuff = MUD::Spell(spell_id).IsViolent();
-
-	for (i = 0; success && i < kMaxSpellAffects; i++) {
-		af[i].type = spell_id;
-		if (af[i].affect_type != EAffect::kUndefinded || af[i].location != EApply::kNone) {
-			af[i].duration = CalcComplexSpellMod(ch, spell_id, GAPPLY_SPELL_EFFECT, af[i].duration);
-			af[i].potency = cast_potency;
-			af[i].debuff = cast_debuff;
-
-			if (update_spell)
-				ImposeAffectNoRecalc(victim, af[i]);
-			else
-				ImposeAffectNoRecalc(victim, af[i], accum_duration, false, accum_affect, false);
-		}
-		// тут мы ездим по циклу 16 раз, хотя аффектов 1-3...
-//		ch->send_to_TC(true, true, true, "Applied affect type %i\r\n", af[i].type);
-	}
 
 	// Affect talent actions (issue #3334): spells that declare <affects> apply them
 	// here. The saving throw uses the talent's own saving; the duration is computed
