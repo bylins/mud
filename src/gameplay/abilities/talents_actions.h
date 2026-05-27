@@ -80,10 +80,23 @@ class Roll {
 // The roll parameters (dice/skill/stat) used to live here; since issue #3332
 // they belong to the spell-level potency roll (talents_actions::Roll, stored in
 // SpellInfo). Damage now only carries its saving throw.
+// Damage mirrors Heal's model (issue.damage-tag-improve): besides the saving throw it carries a
+// completion probability and an <amount min= dices_weight= competencies_weight=> block, so the
+// damage amount is the roll's dice and competencies weighted by the damage's own factors. The
+// <amount> is optional; its defaults are min=0 and BOTH weights 1.0 (so an omitted tag means
+// amount = dice + competencies).
 class Damage : public IAction {
 	ESaving saving_{ESaving::kReflex};
+	int prob_{100};                          // percent chance the damage actually happens
+	double amount_min_{0};                   // flat minimum damage
+	double amount_dices_weight_{1.0};        // weight applied to the potency roll's dice
+	double amount_competencies_weight_{1.0}; // weight applied to the caster's skill+stat competencies
  public:
 	explicit Damage(parser_wrapper::DataNode &node);
+	[[nodiscard]] int GetProb() const { return prob_; }
+	[[nodiscard]] double GetAmountMin() const { return amount_min_; }
+	[[nodiscard]] double GetAmountDicesWeight() const { return amount_dices_weight_; }
+	[[nodiscard]] double GetAmountCompetenciesWeight() const { return amount_competencies_weight_; }
 
 	void Print(CharData *ch, std::ostringstream &buffer) const override;
 };

@@ -102,11 +102,28 @@ Roll::Roll(parser_wrapper::DataNode &node) {
 
 void Damage::Print(CharData */*ch*/, std::ostringstream &buffer) const {
 	buffer << " Damage: " << "\r\n"
-		   << " Saving: " << kColorGrn << NAME_BY_ITEM<ESaving>(saving_) << kColorNrm << "\r\n";
+		   << " Saving: " << kColorGrn << NAME_BY_ITEM<ESaving>(saving_) << kColorNrm
+		   << " Prob: " << kColorGrn << prob_ << kColorNrm << "\r\n"
+		   << " Amount min: " << kColorGrn << amount_min_ << kColorNrm
+		   << " dices_weight: " << kColorGrn << amount_dices_weight_ << kColorNrm
+		   << " competencies_weight: " << kColorGrn << amount_competencies_weight_ << kColorNrm << "\r\n";
 }
 
 Damage::Damage(parser_wrapper::DataNode &node) {
 	saving_ = parse::ReadAsConstant<ESaving>(node.GetValue("saving"));
+	const char *prob = node.GetValue("prob");
+	prob_ = (prob && *prob) ? parse::ReadAsInt(prob) : 100;
+	// <amount> is optional; absent -> keep the defaults (min 0, both weights 1.0). A present tag
+	// may still omit individual attributes, which fall back to those same defaults.
+	if (node.GoToChild("amount")) {
+		const char *amin = node.GetValue("min");
+		amount_min_ = (amin && *amin) ? parse::ReadAsDouble(amin) : 0.0;
+		const char *adw = node.GetValue("dices_weight");
+		amount_dices_weight_ = (adw && *adw) ? parse::ReadAsDouble(adw) : 1.0;
+		const char *acw = node.GetValue("competencies_weight");
+		amount_competencies_weight_ = (acw && *acw) ? parse::ReadAsDouble(acw) : 1.0;
+		node.GoToParent();
+	}
 }
 
 Heal::Heal(parser_wrapper::DataNode &node) {

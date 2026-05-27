@@ -454,41 +454,47 @@ void ForceReposition(CharData *victim, ESpell spell_id, EPosition pos, bool forc
 
 int CalcTotalSpellDmg(CharData *ch, CharData *victim, ESpell spell_id) {
 	const auto &potency_roll = MUD::Spell(spell_id).GetPotencyRoll();
+	const bool has_dmg = MUD::Spell(spell_id).actions.Contains(talents_actions::EAction::kDamage);
+	// prob (issue.damage-tag-improve): a <damage prob=> spell may simply not fire (default 100).
+	// A miss returns 0 -- which, like a full magic-resist, is still processed downstream (no aggro
+	// change was requested), so behaviour matches today's zero-damage handling.
+	if (has_dmg && number(1, 100) > MUD::Spell(spell_id).actions.GetDmg().GetProb()) {
+		return 0;
+	}
 	int total_dmg{0};
 	if (number(1, 100) > std::min(ch->IsNpc() ? kMaxNpcResist : kMaxPcResist, GET_MR(victim))) {
-		float base_dmg = CalcBaseDmg(ch, spell_id);
-		float skill_mod = base_dmg * potency_roll.CalcSkillCoeff(ch);
-		float wis_mod = base_dmg * potency_roll.CalcBaseStatCoeff(ch);
-		float bonus_mod = ch->add_abils.percent_spellpower_add / 100.0;
-//		auto complex_mod = CalcComplexSpellMod(ch, spell_id, GAPPLY_SPELL_EFFECT, base_dmg) - base_dmg;
-		float elem_coeff = CalcMagicElementCoeff(victim, spell_id);
+		const float base_dmg = CalcBaseDmg(ch, spell_id);
+		const float skill_coeff = potency_roll.CalcSkillCoeff(ch);
+		const float stat_coeff = potency_roll.CalcBaseStatCoeff(ch);
+		const float bonus_mod = ch->add_abils.percent_spellpower_add / 100.0;
+		const float elem_coeff = CalcMagicElementCoeff(victim, spell_id);
 
-		total_dmg = static_cast<int>((base_dmg + skill_mod + wis_mod) * elem_coeff);
+		float dmg;
+		if (has_dmg) {
+			// Additive model, mirroring heal (issue.damage-tag-improve): the <amount> weights scale
+			// the roll's dice and competencies (skill+stat); an absent <amount> defaults to min 0
+			// and both weights 1.0.
+			const auto &dmg_act = MUD::Spell(spell_id).actions.GetDmg();
+			dmg = dmg_act.GetAmountMin() + std::ceil(base_dmg * dmg_act.GetAmountDicesWeight()
+					+ (skill_coeff + stat_coeff) * dmg_act.GetAmountCompetenciesWeight());
+		} else {
+			// Legacy multiplicative model dice * (1 + skill + stat), for spells with no <damage>
+			// action (e.g. kWarcryOfChallenge).
+			dmg = base_dmg * (1.0f + skill_coeff + stat_coeff);
+		}
+
+		total_dmg = static_cast<int>(dmg * elem_coeff);
 		total_dmg += static_cast<int>(total_dmg * bonus_mod);
 		int complex_mod = total_dmg;
 		total_dmg = CalcComplexSpellMod(ch, spell_id, GAPPLY_SPELL_EFFECT, total_dmg);
 		complex_mod = total_dmg - complex_mod;
 		ch->send_to_TC(false, true, true,
-				"&CMag.dmg (%s). Base: %2.2f, Skill: %2.2f, Wis: %2.2f, Bonus: %1.2f, Cmplx: %d, Poison: %1.2f, Elem.coeff: %1.2f, Total: %d &n\r\n",
-				GET_NAME(victim),
-				base_dmg,
-				skill_mod,
-				wis_mod,
-				1 + bonus_mod,
-				complex_mod,
-				elem_coeff,
-				total_dmg);
+				"&CMag.dmg (%s). Base: %2.2f, Skill: %2.2f, Stat: %2.2f, Amount: %2.2f, Bonus: %1.2f, Cmplx: %d, Elem.coeff: %1.2f, Total: %d &n\r\n",
+				GET_NAME(victim), base_dmg, skill_coeff, stat_coeff, dmg, 1 + bonus_mod, complex_mod, elem_coeff, total_dmg);
 
 		victim->send_to_TC(false, true, true,
-				"&CMag.dmg (%s). Base: %2.2f, Skill: %2.2f, Wis: %2.2f, Bonus: %1.2f, Cmplx: %d, Poison: %1.2f, Elem.coeff: %1.2f, Total: %d &n\r\n",
-				GET_NAME(ch),
-				base_dmg,
-				skill_mod,
-				wis_mod,
-				bonus_mod,
-				complex_mod,
-				elem_coeff,
-				total_dmg);
+				"&CMag.dmg (%s). Base: %2.2f, Skill: %2.2f, Stat: %2.2f, Amount: %2.2f, Bonus: %1.2f, Cmplx: %d, Elem.coeff: %1.2f, Total: %d &n\r\n",
+				GET_NAME(ch), base_dmg, skill_coeff, stat_coeff, dmg, bonus_mod, complex_mod, elem_coeff, total_dmg);
 	}
 
 	return total_dmg;

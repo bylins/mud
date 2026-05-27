@@ -176,7 +176,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
-                <damage saving="kReflex" />
+                <damage saving="kReflex">
+                    <amount min="0" dices_weight="1.0" competencies_weight="30"/>
+                </damage>
                 <area>
                     <decay cast="0.05" level="7" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
@@ -197,7 +199,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
-                <damage saving="kReflex" />
+                <damage saving="kReflex">
+                    <amount min="0" dices_weight="1.0" competencies_weight="75"/>
+                </damage>
                 <area>
                     <decay cast="0.05" level="7" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
@@ -235,7 +239,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
-                <damage saving="kReflex" />
+                <damage saving="kReflex">
+                    <amount min="0" dices_weight="1.0" competencies_weight="37"/>
+                </damage>
                 <affects type="kChillTouch" saving="kStability" resist="kWater">
                     <duration cnst="2" level_divisor="4" min="6" max="0"/>
                     <flags val="kAfBattledec|kAfAccumulateDuration"/>
@@ -266,7 +272,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
-                <damage saving="kStability" />
+                <damage saving="kStability">
+                    <amount min="0" dices_weight="1.0" competencies_weight="241"/>
+                </damage>
                 <area>
                     <decay cast="0.05" level="7" free_targets="2"/>
                     <victims skill_divisor="30" dice_size="2" min_targets="1" max_targets="4"/>
@@ -486,7 +494,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
-                <damage saving="kStability" />
+                <damage saving="kStability">
+                    <amount min="0" dices_weight="1.0" competencies_weight="122"/>
+                </damage>
             </action>
         </talent_actions>
     </spell>
@@ -503,7 +513,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
-                <damage saving="kStability" />
+                <damage saving="kStability">
+                    <amount min="0" dices_weight="1.0" competencies_weight="110"/>
+                </damage>
                 <area>
                     <decay cast="0.05" level="2" free_targets="5"/>
                     <victims skill_divisor="25" dice_size="2" min_targets="5" max_targets="20"/>
@@ -531,7 +543,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
-                <damage saving="kReflex" />
+                <damage saving="kReflex">
+                    <amount min="0" dices_weight="1.0" competencies_weight="7"/>
+                </damage>
                 <affects type="kWeaknes" saving="kWill" resist="kImmunity">
                     <duration cnst="4" level_divisor="5" min="4" max="0"/>
                     <flags val="kAfBattledec"/>
@@ -559,7 +573,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
-                <damage saving="kReflex" />
+                <damage saving="kReflex">
+                    <amount min="0" dices_weight="1.0" competencies_weight="195.5"/>
+                </damage>
             </action>
         </talent_actions>
     </spell>
@@ -576,7 +592,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
-                <damage saving="kCritical" />
+                <damage saving="kCritical">
+                    <amount min="0" dices_weight="1.0" competencies_weight="184"/>
+                </damage>
             </action>
         </talent_actions>
     </spell>
@@ -636,7 +654,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
-                <damage saving="kReflex" />
+                <damage saving="kReflex">
+                    <amount min="0" dices_weight="1.0" competencies_weight="43"/>
+                </damage>
                 <area>
                     <decay cast="0.05" level="7" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
@@ -664,7 +684,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
-                <damage saving="kReflex" />
+                <damage saving="kReflex">
+                    <amount min="0" dices_weight="1.0" competencies_weight="25"/>
+                </damage>
             </action>
         </talent_actions>
     </spell>
@@ -782,7 +804,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
-                <damage saving="kReflex" />
+                <damage saving="kReflex">
+                    <amount min="0" dices_weight="1.0" competencies_weight="50"/>
+                </damage>
             </action>
         </talent_actions>
     </spell>
@@ -940,7 +964,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
-                <damage saving="kStability" />
+                <damage saving="kStability">
+                    <amount min="0" dices_weight="1.0" competencies_weight="102"/>
+                </damage>
             </action>
         </talent_actions>
     </spell>
@@ -1415,7 +1441,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
-                <damage saving="kStability" />
+                <damage saving="kStability">
+                    <amount min="0" dices_weight="1.0" competencies_weight="160"/>
+                </damage>
                 <area>
                     <decay cast="0.05" level="5" free_targets="1"/>
                     <victims skill_divisor="10" dice_size="3" min_targets="1" max_targets="8"/>
@@ -1436,7 +1464,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
-                <damage saving="kReflex" />
+                <damage saving="kReflex">
+                    <amount min="0" dices_weight="1.0" competencies_weight="120"/>
+                </damage>
                 <area>
                     <decay cast="0.05" level="3" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
@@ -1457,7 +1487,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
-                <damage saving="kWill" />
+                <damage saving="kWill">
+                    <amount min="0" dices_weight="1.0" competencies_weight="371"/>
+                </damage>
             </action>
         </talent_actions>
     </spell>
@@ -1556,7 +1588,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
-                <damage saving="kReflex" />
+                <damage saving="kReflex">
+                    <amount min="0" dices_weight="1.0" competencies_weight="86"/>
+                </damage>
                 <area>
                     <decay cast="0.05" level="2" free_targets="3"/>
                     <victims skill_divisor="10" dice_size="3" min_targets="5" max_targets="20"/>
@@ -1618,7 +1652,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
-                <damage saving="kWill" />
+                <damage saving="kWill">
+                    <amount min="0" dices_weight="1.0" competencies_weight="124"/>
+                </damage>
                 <area>
                     <decay cast="0.05" level="5" free_targets="20"/>
                     <victims skill_divisor="15" dice_size="2" min_targets="5" max_targets="20"/>
@@ -1904,7 +1940,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
-                <damage saving="kCritical" />
+                <damage saving="kCritical">
+                    <amount min="0" dices_weight="1.0" competencies_weight="44"/>
+                </damage>
             </action>
         </talent_actions>
     </spell>
@@ -1921,7 +1959,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
-                <damage saving="kCritical" />
+                <damage saving="kCritical">
+                    <amount min="0" dices_weight="1.0" competencies_weight="70"/>
+                </damage>
                 <area>
                     <decay cast="0.05" level="0" free_targets="20"/>
                     <victims skill_divisor="15" dice_size="2" min_targets="5" max_targets="20"/>
@@ -1942,7 +1982,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
-                <damage saving="kCritical" />
+                <damage saving="kCritical">
+                    <amount min="0" dices_weight="1.0" competencies_weight="100"/>
+                </damage>
                 <area>
                     <decay cast="0.05" level="5" free_targets="20"/>
                     <victims skill_divisor="15" dice_size="2" min_targets="5" max_targets="20"/>
@@ -1993,7 +2035,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
-                <damage saving="kWill" />
+                <damage saving="kWill">
+                    <amount min="0" dices_weight="1.0" competencies_weight="255"/>
+                </damage>
                 <area>
                     <decay cast="0.05" level="2" free_targets="3"/>
                     <victims skill_divisor="25" dice_size="2" min_targets="5" max_targets="20"/>
@@ -2078,7 +2122,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
-                <damage saving="kStability" />
+                <damage saving="kStability">
+                    <amount min="0" dices_weight="1.0" competencies_weight="835"/>
+                </damage>
             </action>
         </talent_actions>
     </spell>
@@ -2130,7 +2176,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
-                <damage saving="kStability" />
+                <damage saving="kStability">
+                    <amount min="0" dices_weight="1.0" competencies_weight="99"/>
+                </damage>
                 <area>
                     <decay cast="0.05" level="4" free_targets="5"/>
                     <victims skill_divisor="40" dice_size="2" min_targets="2" max_targets="5"/>
@@ -2623,7 +2671,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
-                <damage saving="kStability" />
+                <damage saving="kStability">
+                    <amount min="0" dices_weight="1.0" competencies_weight="110"/>
+                </damage>
                 <area>
                     <decay cast="0.05" level="4" free_targets="3"/>
                     <victims skill_divisor="30" dice_size="2" min_targets="5" max_targets="20"/>
@@ -2679,7 +2729,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
-                <damage saving="kReflex" />
+                <damage saving="kReflex">
+                    <amount min="0" dices_weight="1.0" competencies_weight="40"/>
+                </damage>
                 <blocking mob_flags="kNoBlind"/>
                 <affects type="kBlindness" saving="kStability" resist="kFire">
                     <duration cnst="2" level_divisor="8" min="0" max="0"/>
@@ -2779,7 +2831,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
-                <damage saving="kStability" />
+                <damage saving="kStability">
+                    <amount min="0" dices_weight="1.0" competencies_weight="582"/>
+                </damage>
             </action>
         </talent_actions>
     </spell>
@@ -2997,7 +3051,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
-                <damage saving="kStability" />
+                <damage saving="kStability">
+                    <amount min="0" dices_weight="1.0" competencies_weight="124"/>
+                </damage>
                 <area>
                     <decay cast="0.05" level="8" free_targets="2"/>
                     <victims skill_divisor="35" dice_size="2" min_targets="1" max_targets="4"/>
@@ -3208,7 +3264,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
-                <damage saving="kStability" />
+                <damage saving="kStability">
+                    <amount min="0" dices_weight="1.0" competencies_weight="117"/>
+                </damage>
                 <area>
                     <decay cast="0.05" level="2" free_targets="3"/>
                     <victims skill_divisor="15" dice_size="2" min_targets="5" max_targets="20"/>
@@ -3237,7 +3295,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
-                <damage saving="kStability" />
+                <damage saving="kStability">
+                    <amount min="0" dices_weight="1.0" competencies_weight="168"/>
+                </damage>
                 <area>
                     <decay cast="0.05" level="8" free_targets="1"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="1" max_targets="3"/>
@@ -3266,7 +3326,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
-                <damage saving="kStability" />
+                <damage saving="kStability">
+                    <amount min="0" dices_weight="1.0" competencies_weight="95"/>
+                </damage>
                 <area>
                     <decay cast="0.05" level="3" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
@@ -3294,7 +3356,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
-                <damage saving="kCritical" />
+                <damage saving="kCritical">
+                    <amount min="0" dices_weight="1.0" competencies_weight="195"/>
+                </damage>
                 <blocking mob_flags="kNoHold"  affect_flags="kForcesOfEvil|kBrokenChains|kSleep"/>
                 <affects type="kHold" saving="kWill" resist="kVitality">
                     <duration cnst="1" level_divisor="10" min="1" max="3"/>
@@ -3660,7 +3724,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
-                <damage saving="kStability" />
+                <damage saving="kStability">
+                    <amount min="0" dices_weight="1.0" competencies_weight="336"/>
+                </damage>
                 <area>
                     <decay cast="0.05" level="5" free_targets="3"/>
                     <victims skill_divisor="40" dice_size="3" min_targets="1" max_targets="8"/>
@@ -3834,7 +3900,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
-                <damage saving="kStability" />
+                <damage saving="kStability">
+                    <amount min="0" dices_weight="1.0" competencies_weight="46.5"/>
+                </damage>
                 <area>
                     <decay cast="0.01" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
@@ -3895,7 +3963,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
-                <damage saving="kStability" />
+                <damage saving="kStability">
+                    <amount min="0" dices_weight="1.0" competencies_weight="120"/>
+                </damage>
                 <area>
                     <decay cast="0.01" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
@@ -4334,7 +4404,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
-                <damage saving="kStability" />
+                <damage saving="kStability">
+                    <amount min="0" dices_weight="1.0" competencies_weight="102"/>
+                </damage>
                 <area>
                     <decay cast="0.05" level="2" free_targets="3"/>
                     <victims skill_divisor="10" dice_size="3" min_targets="5" max_targets="20"/>
@@ -4355,7 +4427,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
-                <damage saving="kReflex" />
+                <damage saving="kReflex">
+                    <amount min="0" dices_weight="1.0" competencies_weight="37"/>
+                </damage>
                 <blocking affect_flags="kBrokenChains"/>
                 <affects type="kIndriksTeeth" saving="kWill" resist="kEarth">
                     <duration cnst="3" level_divisor="4" min="4" max="0"/>
@@ -4380,7 +4454,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
-                <damage saving="kReflex" />
+                <damage saving="kReflex">
+                    <amount min="0" dices_weight="1.0" competencies_weight="335"/>
+                </damage>
                 <area>
                     <decay cast="0.05" level="2" free_targets="3"/>
                     <victims skill_divisor="10" dice_size="3" min_targets="5" max_targets="20"/>
@@ -4401,7 +4477,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
-                <damage saving="kReflex" />
+                <damage saving="kReflex">
+                    <amount min="0" dices_weight="1.0" competencies_weight="82.5"/>
+                </damage>
                 <area>
                     <decay cast="0.05" level="2" free_targets="3"/>
                     <victims skill_divisor="25" dice_size="2" min_targets="5" max_targets="10"/>
@@ -4422,7 +4500,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
-                <damage saving="kReflex" />
+                <damage saving="kReflex">
+                    <amount min="0" dices_weight="1.0" competencies_weight="144.5"/>
+                </damage>
             </action>
         </talent_actions>
     </spell>
@@ -4761,7 +4841,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
-                <damage saving="kReflex" />
+                <damage saving="kReflex">
+                    <amount min="0" dices_weight="1.0" competencies_weight="120"/>
+                </damage>
             </action>
         </talent_actions>
     </spell>
@@ -4778,7 +4860,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
-                <damage saving="kReflex" />
+                <damage saving="kReflex">
+                    <amount min="0" dices_weight="1.0" competencies_weight="120"/>
+                </damage>
             </action>
         </talent_actions>
     </spell>
@@ -4795,7 +4879,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
-                <damage saving="kReflex" />
+                <damage saving="kReflex">
+                    <amount min="0" dices_weight="1.0" competencies_weight="120"/>
+                </damage>
             </action>
         </talent_actions>
     </spell>
@@ -4812,7 +4898,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
-                <damage saving="kReflex" />
+                <damage saving="kReflex">
+                    <amount min="0" dices_weight="1.0" competencies_weight="120"/>
+                </damage>
             </action>
         </talent_actions>
     </spell>
@@ -4829,7 +4917,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
-                <damage saving="kReflex" />
+                <damage saving="kReflex">
+                    <amount min="0" dices_weight="1.0" competencies_weight="120"/>
+                </damage>
             </action>
         </talent_actions>
     </spell>
@@ -5156,7 +5246,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <damage saving="kReflex">
-                    <amount ndice="1" sdice="1" adice="1.0"/>
+                    <amount min="0" dices_weight="1.0" competencies_weight="2"/>
                 </damage>
             </action>
         </talent_actions>
@@ -5174,7 +5264,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <damage saving="kReflex">
-                    <amount ndice="1" sdice="1" adice="1.0"/>
+                    <amount min="0" dices_weight="1.0" competencies_weight="2"/>
                 </damage>
             </action>
         </talent_actions>
@@ -5192,7 +5282,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <damage saving="kReflex">
-                    <amount ndice="1" sdice="1" adice="1.0"/>
+                    <amount min="0" dices_weight="1.0" competencies_weight="2"/>
                 </damage>
             </action>
         </talent_actions>
@@ -5210,7 +5300,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <damage saving="kReflex">
-                    <amount ndice="1" sdice="1" adice="1.0"/>
+                    <amount min="0" dices_weight="1.0" competencies_weight="2"/>
                 </damage>
             </action>
         </talent_actions>
@@ -5228,7 +5318,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <damage saving="kReflex">
-                    <amount ndice="1" sdice="1" adice="1.0"/>
+                    <amount min="0" dices_weight="1.0" competencies_weight="2"/>
                 </damage>
             </action>
         </talent_actions>
