@@ -976,7 +976,6 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 	const char *to_vict = nullptr, *to_room = nullptr;
 	const ESpell cast_spell_id = spell_id;	// issue #3335: stable key for affect messages
 	int i, modi = 0;
-	int rnd = 0;
 
 	if (victim == nullptr || victim->in_room == kNowhere || ch == nullptr) {
 		return EStageResult::kSuccess;
@@ -1178,40 +1177,10 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 //			af[0].modifier = 0;
 //			break;
 
-		case ESpell::kPaladineInspiration:
-			/*
-         * групповой спелл, развешивающий рандомные аффекты, к сожалению
-         * не может быть применен по принципа "сгенерили рандом - и применили"
-         * поэтому на каждого члена группы применяется свой аффект, а кастер еще и полечить может
-         * */
-
-			if (ch == victim && !ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena))
-				rnd = number(1, 5);
-			else
-				rnd = number(1, 4);
-			af[0].type = ESpell::kPaladineInspiration;
-			af[0].battleflag = kAfBattledec | kAfPulsedec;
-			switch (rnd) {
-				case 1:af[0].location = EApply::kPhysicDamagePercent;
-					af[0].duration = CalcDuration(victim, 5, 0, 0, 0, 0);
-					af[0].modifier = GetRealRemort(ch) / 5 * 2 + GetRealRemort(ch);
-					break;
-				case 2:af[0].location = EApply::kCastSuccess;
-					af[0].duration = CalcDuration(victim, 3, 0, 0, 0, 0);
-					af[0].modifier = GetRealRemort(ch) / 5 * 2 + GetRealRemort(ch);
-					break;
-				case 3:af[0].location = EApply::kManaRegen;
-					af[0].duration = CalcDuration(victim, 10, 0, 0, 0, 0);
-					af[0].modifier = GetRealRemort(ch) / 5 * 2 + GetRealRemort(ch) * 5;
-					break;
-				case 4:af[0].location = EApply::kMagicDamagePercent;
-					af[0].duration = CalcDuration(victim, 5, 0, 0, 0, 0);
-					af[0].modifier = GetRealRemort(ch) / 5 * 2 + GetRealRemort(ch);
-					break;
-				case 5:CallMagic(ch, ch, nullptr, nullptr, ESpell::kGreatHeal, GetRealLevel(ch));
-					break;
-				default:break;
-			}
+			// kPaladineInspiration: data-driven (issue.cast-affect). Its random group buffs -- one of
+			// kPhysicDamagePercent/kCastSuccess/kManaRegen/kMagicDamagePercent -- are an <affects> with
+			// random="true" applies; the chance to also heal the target is a <heal prob="15"> (a
+			// kGreatHeal-sized heal). The old arena-only roll-range tweak is dropped. No case needed.
 		default: break;
 	}
 
@@ -1819,6 +1788,7 @@ EStageResult CastToPoints(int level, CharData *ch, CharData *victim, ESpell spel
 		case ESpell::kPatronage:
 		case ESpell::kWarcryOfPower:
 		case ESpell::kEviless:
+		case ESpell::kPaladineInspiration:
 			hit = CalcHeal(ch, victim, spell_id, level);
 			break;
 		case ESpell::kResfresh:
@@ -1844,9 +1814,12 @@ EStageResult CastToPoints(int level, CharData *ch, CharData *victim, ESpell spel
 	}
 	// issue #3304: сообщение цели лечащего заклинания берётся из spell_msg.xml.
 	// Не у всех заклинаний есть такое сообщение (напр. kPatronage, kEviless) -
-	// выводим только если оно задано именно для данного заклинания.
+	// выводим только если оно задано именно для данного заклинания. Для лечащих
+	// заклинаний (есть heal-экшен) сообщение показываем лишь когда лечение реально
+	// произошло (hit != 0), иначе <heal prob=...> "лечил бы" текстом без эффекта.
+	const bool is_heal = MUD::Spell(spell_id).actions.Contains(talents_actions::EAction::kHeal);
 	const auto &points_sheaf = MUD::SpellMessages()[spell_id];
-	if (points_sheaf.HasMessage(ESpellMsg::kPointsToVict)) {
+	if (points_sheaf.HasMessage(ESpellMsg::kPointsToVict) && (!is_heal || hit != 0)) {
 		SendMsgToChar(points_sheaf.GetMessage(ESpellMsg::kPointsToVict) + "\r\n", victim);
 	}
 //	log("HEAL: до модификатора  Игрок: %s hit: %d GET_HIT: %d GET_REAL_MAX_HIT: %d", GET_NAME(victim), hit, GET_HIT(victim), GET_REAL_MAX_HIT(victim));

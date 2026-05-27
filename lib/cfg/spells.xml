@@ -4831,13 +4831,42 @@ base_stat id - (например "kWis") какой берем параметр,
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
-        <flags val="kMagGroups|kMagAffects"/>
+        <flags val="kMagGroups|kMagAffects|kMagPoints"/>
+        <!-- Same potency roll as kGreatHeal, so the <heal> below is identical in magnitude. -->
+        <potency_roll>
+            <dices ndice="12" sdice="12" adice="12"/>
+            <base_skill id="kPunctual" low_skill_bonus="10" hi_skill_bonus="5"/>
+            <base_stat id="kInt" threshold="16" weight="6"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <area>
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="1" max_targets="20"/>
                 </area>
+                <!-- 15% chance to heal each group member, kGreatHeal-sized. -->
+                <heal npc_coeff="3" prob="15">
+                    <amount min="0" dices_weight="1.0" competencies_weight="90"/>
+                </heal>
+                <!-- One random group buff per member (the old switch(rnd) cases 1-4). Modifiers were
+                     remort-based; here they are competencies(skill+stat)-scaled approximations, and
+                     the four different durations collapse to one (random apply shares a duration). -->
+                <affects type="kPaladineInspiration" saving="kNone" resist="kImmunity">
+                    <duration cnst="5" level_divisor="0" min="0" max="0"/>
+                    <flags val="kAfBattledec|kAfPulsedec"/>
+                    <apply id="kUndefinded" location="kPhysicDamagePercent" random="true">
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="2.0" factor="1" stack="0"/>
+                    </apply>
+                    <apply id="kUndefinded" location="kCastSuccess" random="true">
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="2.0" factor="1" stack="0"/>
+                    </apply>
+                    <apply id="kUndefinded" location="kManaRegen" random="true">
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="7.0" factor="1" stack="0"/>
+                    </apply>
+                    <apply id="kUndefinded" location="kMagicDamagePercent" random="true">
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="2.0" factor="1" stack="0"/>
+                    </apply>
+                </affects>
             </action>
         </talent_actions>
     </spell>

@@ -122,6 +122,7 @@
 	<msg_sheaf id="kPaladineInspiration">
 		<message type="kAreaToChar" val="Ваш точный удар воодушевил и придал новых сил!" />
 		<message type="kAreaToRoom" val="Точный удар $n1 воодушевил и придал новых сил!" />
+		<message type="kPointsToVict" val="Вы почувствовали себя полностью здоровым." />
 		<message type="kCastPhraseHeathen" val="" />
 		<message type="kCastPhraseChristian" val="" />
 	</msg_sheaf>
