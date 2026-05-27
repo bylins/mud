@@ -612,19 +612,8 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			}
 			break;
 		}
-		case ESpell::kClod: {
-				if (victim->GetPosition() > EPosition::kSit && !victim->IsImmortal() && (number(1, 100) > GET_AR(victim)) &&
-					!CalcGeneralSaving(ch, victim, ESaving::kReflex, modi)) {
-				if (IS_HORSE(victim))
-					victim->DropFromHorse();
-				victim->SetPosition(EPosition::kSit);
-				victim->DropFromHorse();
-				act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kLaggedToRoom).c_str(), false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
-				act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kLaggedToChar).c_str(), false, victim, nullptr, nullptr, kToChar);
-				SetBattleLag(victim, 2);
-			}
-			break;
-		}
+		// kClod knockdown+lag is data-driven now (issue.cast-damage-affects): <affects saving="kReflex">
+		// with <reposition pos="kSit"/> + <lag base="2" bonus_divisor="-1"/>. No case needed.
 		case ESpell::kAcidArrow: {
 	      // шанс доп аффекта 25% при 100% магии, 45 - 200, 85 -400..
 			if (number(1, 100)>(5 + (ch->GetSkill(GetMagicSkillId(spell_id))/5))) { 
@@ -672,75 +661,19 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 					break;
 				}
 			}
-			if (victim->GetPosition() > EPosition::kSit && !victim->IsImmortal() && (number(1, 100) > GET_AR(victim)) &&
-					!CalcGeneralSaving(ch, victim, ESaving::kReflex, modi)) {
-				victim->SetPosition(EPosition::kSit);
-				victim->DropFromHorse();
-				act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kKnockdownToRoom).c_str(), false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
-				act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kKnockdownToChar).c_str(), false, victim, nullptr, nullptr, kToChar);
-				SetBattleLag(victim, 2);
-			}
+			// kEarthquake's victim knockdown+lag is data-driven now (issue.cast-damage-affects):
+			// <affects saving="kReflex"> with <reposition pos="kSit"/> + <lag>. The caster-falls-
+			// off-horse check above stays in code (it is not a victim affect).
 			break;
 		}
-		case ESpell::kSonicWave: {
-			if (victim->GetPosition() > EPosition::kSit &&
-				!victim->IsImmortal() && (number(1, 100) > GET_AR(victim)) 
-						&& !CalcGeneralSaving(ch, victim, ESaving::kStability, modi)) {
-				victim->SetPosition(EPosition::kSit);
-				victim->DropFromHorse();
-				act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kKnockdownToRoom).c_str(), false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
-				act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kKnockdownToChar).c_str(), false, victim, nullptr, nullptr, kToChar);
-				SetBattleLag(victim, 2);
-			}
-			break;
-		}
-		case ESpell::kStunning: {
-			if (ch == victim ||
-					((number(1, 100) > GET_AR(victim)) && !CalcGeneralSaving(ch, victim, ESaving::kCritical, modi))) {
-				int choice_stunning = 750;
-				if (CanUseFeat(ch, EFeat::kDarkPact))
-					choice_stunning -= GetRealRemort(ch) * 15;
-				if (number(1, 999) > choice_stunning) {
-					act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kDamageToChar).c_str(), false, ch, nullptr, victim, kToChar);
-					act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kDamageToNotVict).c_str(), false, ch, nullptr, victim, kToNotVict);
-					act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kDamageToVict).c_str(), false, ch, nullptr, victim, kToVict);
-				if (victim->GetPosition() > EPosition::kStun) {
-					victim->SetPosition(EPosition::kStun);
-					victim->DropFromHorse();
-				}
-					SetBattleLag(victim, (5 + (GetRealWis(ch) - 20) / 6));
-				}
-			}
-			break;
-		}
-		case ESpell::kVacuum: {
-			if (!IsAffectedBySpell(victim, spell_id)) {
-				if (ch == victim ||
-						((number(0, 100) <= 20) && (number(1, 100) > GET_AR(victim))
-								&& !CalcGeneralSaving(ch, victim, ESaving::kCritical, modi))) {
-					act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kDamageToChar).c_str(), false, ch, nullptr, victim, kToChar);
-//					act("$n0 упал$q без сознания!", true, victim, nullptr, ch, kToRoom | kToArenaListen);
-					act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kDamageToNotVict).c_str(), false, ch, nullptr, victim, kToNotVict);
-					act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kDamageToVict).c_str(), false, ch, nullptr, victim, kToVict);
-					auto wait = 4 + std::max(1, GetRealLevel(ch) + (GetRealWis(ch) - 29)) / 7;
-					Affect<EApply> af;
-					af.type = spell_id;
-					af.affect_type = EAffect::kMagicStopFight;
-					af.modifier = 0;
-					af.duration = wait * kBattleRound;
-					ch->send_to_TC(false, true, true, "Круг пустоты длительность = %d пульсов.\r\n", af.duration);
-					af.battleflag = kAfPulsedec;
-					af.location = EApply::kNone;
-					ImposeAffect(victim, af);
-					if (victim->GetPosition() > EPosition::kStun) {
-						victim->SetPosition(EPosition::kStun);
-						victim->DropFromHorse();
-					}
-//			SetWaitState(victim, wait * kBattleRound);
-				}
-			}
-			break;
-		}
+		// kSonicWave knockdown+lag merged into its <affects type="kDeafness"> (issue.cast-damage-
+		// affects): reposition+lag now ride the deafness saving (kCritical). No case needed.
+		// kStunning is data-driven now (issue.cast-damage-affects): <affects saving="kCritical"> with
+		// <reposition pos="kStun"/> + a fixed <lag base="6">. The old 750/999 chance and the Dark Pact
+		// bonus to it are dropped (the stun lands on a failed save); the wisdom-based lag is now fixed.
+		// kVacuum likewise: <affects saving="kCritical"> with <reposition pos="kStun"/> + a skill-scaled
+		// <lag> (low_skill_coeff, capped ~12 rounds) replacing the kMagicStopFight affect; its 20% roll
+		// and wisdom term are dropped.
 		case ESpell::kDispelEvil: {
 			if (ch != victim && IS_EVIL(ch) && !ch->IsImmortal() && ch->get_hit() > 1) {
 				SendMsgToChar("Ваша магия обратилась против вас.", ch);
@@ -770,18 +703,8 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 				break;
 			break;
 		}
-		case ESpell::kDustStorm: {
-			if (victim->GetPosition() > EPosition::kSit &&
-				!victim->IsImmortal() && (number(1, 100) > GET_AR(victim)) &&
-				!CalcGeneralSaving(ch, victim, ESaving::kReflex, modi)) {
-				victim->DropFromHorse();
-				victim->SetPosition(EPosition::kSit);
-				act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kKnockdownToRoom).c_str(), false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
-				act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kKnockdownToChar).c_str(), false, victim, nullptr, nullptr, kToChar);
-				SetBattleLag(victim, 2);
-			}
-			break;
-		}
+		// kDustStorm knockdown+lag merged into its <affects type="kBlindness"> (issue.cast-damage-
+		// affects): reposition+lag now ride the blindness saving (kStability). No case needed.
 		case ESpell::kHolystrike: {
 			if (AFF_FLAGGED(victim, EAffect::kForcesOfEvil)) {
 				if (CalcGeneralSaving(ch, victim, ESaving::kWill, modi)) {
@@ -796,17 +719,8 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			}
 			break;
 		}
-		case ESpell::kWarcryOfThunder: {
-			if (victim->GetPosition() > EPosition::kSit && !victim->IsImmortal() &&
-				!CalcGeneralSaving(ch, victim, ESaving::kStability, modi)) {
-				victim->DropFromHorse();
-				victim->SetPosition(EPosition::kSit);
-				act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kKnockdownToRoom).c_str(), false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
-				act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kKnockdownToChar).c_str(), false, victim, nullptr, nullptr, kToChar);
-				SetBattleLag(victim, 2);
-			}
-			break;
-		}
+		// kWarcryOfThunder knockdown+lag merged into its <affects type="kWarcryOfThunder"> (issue.cast-
+		// damage-affects), riding its kStability saving; it now also passes the GET_AR gate. No case needed.
 		case ESpell::kArrowsFire:
 		case ESpell::kArrowsWater:
 		case ESpell::kArrowsEarth:

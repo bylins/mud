@@ -775,6 +775,10 @@
 	<msg_sheaf id="kClod">
 		<message type="kLaggedToRoom" val="$n3 придавило глыбой камня." />
 		<message type="kLaggedToChar" val="Огромная глыба камня свалила вас на землю!" />
+		<!-- issue.cast-damage-affects: the knockdown is now the <reposition> in spells.xml, which
+		     emits kKnockdown*; keep kClod's own text (was shown via kLagged*) here. -->
+		<message type="kKnockdownToRoom" val="$n3 придавило глыбой камня." />
+		<message type="kKnockdownToChar" val="Огромная глыба камня свалила вас на землю!" />
 		<message type="kFightDeathToChar" val="$N умер$Q, раздавленн$W в лепешку вашей глыбой камня." />
 		<message type="kFightDeathToChar" val="От $N1 осталались лишь ошметки, торчащие из-под обрушившейся скалы." />
 		<message type="kFightDeathToVict" val="Обрушенная на вас глыба камня оказалась слишком тяжела. Покойтесь с миром." />

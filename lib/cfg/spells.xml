@@ -505,7 +505,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <misc pos="kFight" violent="Y" danger="2"/>
         <mana max="110" min="90" change="2"/>
         <targets val="kTarIgnore"/>
-        <flags val="kMagMasses|kMagDamage|kNpcDamagePc"/>
+        <flags val="kMagMasses|kMagDamage|kNpcDamagePc|kMagAffects"/>
         <potency_roll>
             <dices ndice="40" sdice="3" adice="30"/>
             <base_skill id="kEarthMagic" low_skill_bonus="3" hi_skill_bonus="0.3"/>
@@ -520,6 +520,11 @@ base_stat id - (например "kWis") какой берем параметр,
                     <decay cast="0.05" level="2" free_targets="5"/>
                     <victims skill_divisor="25" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
+                <!-- issue.cast-damage-affects: knockdown/lag moved out of CastDamage -->
+                <affects type="kEarthquake" saving="kReflex" resist="kEarth">
+                    <reposition pos="kSit"/>
+                    <lag base="2" bonus_divisor="-1"/>
+                </affects>
             </action>
         </talent_actions>
     </spell>
@@ -2114,7 +2119,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <misc pos="kFight" violent="Y" danger="15"/>
         <mana max="150" min="140" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
-        <flags val="kMagDamage"/>
+        <flags val="kMagDamage|kMagAffects"/>
         <potency_roll>
             <dices ndice="18" sdice="90" adice="16"/>
             <base_skill id="kEarthMagic" low_skill_bonus="1" hi_skill_bonus="2.75"/>
@@ -2125,6 +2130,11 @@ base_stat id - (например "kWis") какой берем параметр,
                 <damage saving="kStability">
                     <amount min="0" dices_weight="1.0" competencies_weight="835"/>
                 </damage>
+                <!-- issue.cast-damage-affects: knockdown/lag moved out of CastDamage -->
+                <affects type="kStunning" saving="kCritical" resist="kEarth">
+                    <reposition pos="kStun"/>
+                    <lag base="6" bonus_divisor="-1"/>
+                </affects>
             </action>
         </talent_actions>
     </spell>
@@ -2823,7 +2833,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <misc pos="kFight" violent="Y" danger="15"/>
         <mana max="150" min="140" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
-        <flags val="kMagDamage|kNpcDamagePc"/>
+        <flags val="kMagDamage|kNpcDamagePc|kMagAffects"/>
         <potency_roll>
             <dices ndice="4" sdice="90" adice="400"/>
             <base_skill id="kDarkMagic" low_skill_bonus="2" hi_skill_bonus="1.25"/>
@@ -2834,6 +2844,11 @@ base_stat id - (например "kWis") какой берем параметр,
                 <damage saving="kStability">
                     <amount min="0" dices_weight="1.0" competencies_weight="582"/>
                 </damage>
+                <!-- issue.cast-damage-affects: knockdown/lag moved out of CastDamage -->
+                <affects type="kVacuum" saving="kCritical" resist="kDark">
+                    <reposition pos="kStun"/>
+                    <lag base="2" bonus_divisor="15"/>
+                </affects>
             </action>
         </talent_actions>
     </spell>
@@ -3273,6 +3288,8 @@ base_stat id - (например "kWis") какой берем параметр,
                 </area>
                 <blocking mob_flags="kNoBlind"/>
                 <affects type="kBlindness" saving="kStability" resist="kEarth">
+                    <reposition pos="kSit"/>
+                    <lag base="2" bonus_divisor="-1"/>
                     <duration cnst="3" level_divisor="6" min="0" max="0"/>
                     <flags val="kAfBattledec"/>
                     <apply id="kBlind" location="kNone">
@@ -3334,6 +3351,8 @@ base_stat id - (например "kWis") какой берем параметр,
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
                 <affects type="kDeafness" saving="kCritical" resist="kAir">
+                    <reposition pos="kSit"/>
+                    <lag base="2" bonus_divisor="-1"/>
                     <duration cnst="2" level_divisor="4" min="6" max="0"/>
                     <flags val="kAfBattledec"/>
                     <apply id="kDeafness" location="kNone">
@@ -3972,6 +3991,8 @@ base_stat id - (например "kWis") какой берем параметр,
                 </area>
                 <blocking affect_flags="kDeafness"/>
                 <affects type="kWarcryOfThunder" saving="kStability" resist="kVitality">
+                    <reposition pos="kSit"/>
+                    <lag base="2" bonus_divisor="-1"/>
                     <duration cnst="2" level_divisor="4" min="0" max="6"/>
                     <flags val="kAfBattledec"/>
                     <apply id="kDeafness" location="kSavingCritical">
@@ -4503,6 +4524,11 @@ base_stat id - (например "kWis") какой берем параметр,
                 <damage saving="kReflex">
                     <amount min="0" dices_weight="1.0" competencies_weight="144.5"/>
                 </damage>
+                <!-- issue.cast-damage-affects: knockdown/lag moved out of CastDamage -->
+                <affects type="kClod" saving="kReflex" resist="kEarth">
+                    <reposition pos="kSit"/>
+                    <lag base="2" bonus_divisor="-1"/>
+                </affects>
             </action>
         </talent_actions>
     </spell>
