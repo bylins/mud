@@ -993,6 +993,12 @@ void ImposeAffectNoRecalc(CharData *ch, const Affect<EApply> &af) {
 			if (affect->duration < af.duration) {
 				affect->duration = af.duration;
 			}
+			// Refresh the dispel potency/nature too (issue): a stronger re-cast raises the
+			// recorded potency; the nature follows the (re-)casting spell.
+			if (affect->potency < af.potency) {
+				affect->potency = af.potency;
+			}
+			affect->debuff = af.debuff;
 			return;
 		}
 	}
