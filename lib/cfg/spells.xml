@@ -76,6 +76,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="40" min="30" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <affects type="kArmor" saving="kNone" resist="kVitality">
@@ -107,6 +112,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="55" min="40" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf|kTarObjInv|kTarObjEquip"/>
         <flags val="kMagAffects|kMagAlterObjs|kNpcAffectNpc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kCha" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <affects type="kBless" saving="kNone" resist="kVitality">
@@ -128,6 +138,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="70" min="40" change="2"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
         <flags val="kMagAffects|kNpcAffectPc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kDarkMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <affects type="kBlindness" saving="kStability" resist="kDark">
@@ -213,6 +228,11 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kWaterMagic" low_skill_bonus="4" hi_skill_bonus="1.75"/>
             <base_stat id="kWis" threshold="32" weight="5"/>
         </success_roll>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kWaterMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <damage saving="kReflex" />
@@ -281,6 +301,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="110" min="90" change="2"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagUnaffects|kNpcUnaffectNpc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <unaffect>
@@ -358,6 +383,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="40" min="30" change="1"/>
         <targets val="kTarCharRoom"/>
         <flags val="kMagAffects"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kCha" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <affects type="kDetectAlign" saving="kNone" resist="kMind">
@@ -376,6 +406,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="100" min="55" change="3"/>
         <targets val="kTarCharRoom"/>
         <flags val="kMagAffects"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <affects type="kDetectInvis" saving="kNone" resist="kMind">
@@ -394,6 +429,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="100" min="55" change="3"/>
         <targets val="kTarCharRoom"/>
         <flags val="kMagAffects"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <affects type="kDetectMagic" saving="kNone" resist="kMind">
@@ -412,6 +452,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="40" min="30" change="1"/>
         <targets val="kTarCharRoom"/>
         <flags val="kMagAffects"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <affects type="kDetectPoison" saving="kNone" resist="kMind">
@@ -554,6 +599,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="50" min="40" change="3"/>
         <targets val="kTarCharRoom|kTarObjInv|kTarObjRoom"/>
         <flags val="kMagAffects|kMagAlterObjs"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <affects type="kInvisible" saving="kNone" resist="kMind">
@@ -618,6 +668,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="70" min="55" change="1"/>
         <targets val="kTarCharRoom|kTarNotSelf|kTarObjInv|kTarFightVict"/>
         <flags val="kMagAffects|kMagAlterObjs|kNpcAffectPc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kDarkMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <area>
@@ -643,6 +698,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="60" min="45" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf|kTarAllyOnly"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kCha" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <affects type="kProtectFromEvil" saving="kNone" resist="kVitality">
@@ -661,6 +721,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="50" min="40" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf|kTarObjInv|kTarObjEquip"/>
         <flags val="kMagUnaffects|kMagAlterObjs|kNpcUnaffectNpc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <unaffect>
@@ -675,6 +740,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="85" min="70" change="2"/>
         <targets val="kTarCharRoom|kTarFightSelf|kTarAllyOnly"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kCha" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <affects type="kSanctuary" saving="kNone" resist="kVitality">
@@ -715,6 +785,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="70" min="55" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
         <flags val="kMagAffects|kNpcAffectPc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <affects type="kSleep" saving="kWill" resist="kMind">
@@ -734,6 +809,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="40" min="30" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagAffects|kMagUnaffects|kNpcAffectNpc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kLifeMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <affects type="kStrength" saving="kNone" resist="kImmunity">
@@ -794,6 +874,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="60" min="45" change="2"/>
         <targets val="kTarCharRoom|kTarFightSelf|kTarObjInv|kTarObjRoom"/>
         <flags val="kMagUnaffects|kMagAlterObjs|kNpcUnaffectNpc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kLifeMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <unaffect>
@@ -808,6 +893,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="85" min="70" change="1"/>
         <targets val="kTarCharRoom"/>
         <flags val="kMagAffects"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kLifeMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <affects type="kSenseLife" saving="kNone" resist="kImmunity">
@@ -850,6 +940,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="110" min="100" change="2"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagGroups|kMagAffects|kNpcAffectNpc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <area>
@@ -931,6 +1026,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="50" min="40" change="2"/>
         <targets val="kTarCharRoom"/>
         <flags val="kMagAffects"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <affects type="kInfravision" saving="kNone" resist="kVitality">
@@ -949,6 +1049,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="70" min="55" change="1"/>
         <targets val="kTarCharRoom"/>
         <flags val="kMagAffects"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kWaterMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <affects type="kWaterwalk" saving="kNone" resist="kWater">
@@ -984,6 +1089,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="140" min="120" change="2"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagGroups|kMagAffects|kMagUnaffects|kNpcAffectNpc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kLifeMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <area>
@@ -1010,6 +1120,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="100" min="40" change="2"/>
         <targets val="kTarCharRoom|kTarNotSelf|kTarFightVict"/>
         <flags val="kMagAffects|kNpcAffectPc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <affects type="kHold" saving="kWill" resist="kMind">
@@ -1029,6 +1144,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="140" min="90" change="4"/>
         <targets val="kTarCharRoom|kTarNotSelf|kTarFightVict"/>
         <flags val="kMagAffects|kNpcAffectPc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <affects type="kHold" saving="kWill" resist="kMind">
@@ -1048,6 +1168,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="150" min="130" change="5"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagMasses|kMagAffects|kNpcAffectPc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <area>
@@ -1071,6 +1196,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="50" min="35" change="1"/>
         <targets val="kTarCharRoom|kTarObjInv|kTarObjEquip"/>
         <flags val="kMagAffects|kMagAlterObjs"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kAirMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <affects type="kFly" saving="kNone" resist="kAir">
@@ -1089,6 +1219,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="125" min="110" change="2"/>
         <targets val="kTarSelfOnly|kTarCharRoom"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <affects type="kBrokenChains" saving="kNone" resist="kMind">
@@ -1107,6 +1242,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="100" min="90" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
         <flags val="kMagAffects|kNpcAffectPc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <affects type="kNoflee" saving="kWill" resist="kMind">
@@ -1133,6 +1273,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="100" min="70" change="2"/>
         <targets val="kTarCharRoom|kTarObjInv|kTarObjEquip|kTarAllyOnly"/>
         <flags val="kMagAffects|kMagAlterObjs"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kDarkMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <affects type="kDarkness" saving="kNone" resist="kDark">
@@ -1151,6 +1296,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="55" min="40" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kEarthMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <affects type="kStoneSkin" saving="kNone" resist="kEarth">
@@ -1169,6 +1319,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="55" min="40" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kWaterMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <affects type="kCloudly" saving="kNone" resist="kWater">
@@ -1190,6 +1345,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="100" min="40" change="2"/>
         <targets val="kTarCharRoom|kTarNotSelf|kTarFightVict"/>
         <flags val="kMagAffects|kNpcAffectPc|kNpcAffectPcCaster"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <affects type="kSilence" saving="kWill" resist="kMind">
@@ -1209,6 +1369,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="100" min="70" change="2"/>
         <targets val="kTarCharRoom|kTarObjInv|kTarObjEquip|kTarAllyOnly"/>
         <flags val="kMagAffects|kMagAlterObjs"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <affects type="kLight" saving="kNone" resist="kVitality">
@@ -1286,6 +1451,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="70" min="55" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
         <flags val="kMagAffects|kMagUnaffects|kNpcAffectPc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kLifeMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <area>
@@ -1312,6 +1482,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="150" min="130" change="5"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagGroups|kMagAffects"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <area>
@@ -1335,6 +1510,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="100" min="70" change="3"/>
         <targets val="kTarSelfOnly|kTarCharRoom"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kDarkMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <affects type="kShadowCloak" saving="kNone" resist="kDark">
@@ -1381,6 +1561,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="55" min="40" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagAffects|kMagUnaffects|kNpcAffectNpc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kLifeMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <affects type="kEnlarge" saving="kNone" resist="kImmunity">
@@ -1431,6 +1616,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="70" min="55" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
         <flags val="kMagAffects|kNpcAffectPc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <affects type="kWeb" saving="kReflex" resist="kMind">
@@ -1453,6 +1643,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="70" min="55" change="2"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <affects type="kBlink" saving="kNone" resist="kVitality">
@@ -1471,6 +1666,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="110" min="90" change="2"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagUnaffects|kNpcUnaffectNpc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <unaffect>
@@ -1492,6 +1692,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="110" min="100" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
         <flags val="kMagAffects|kNpcAffectPc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kDarkMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <area>
@@ -1515,6 +1720,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="140" min="120" change="2"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagMasses|kMagAffects|kNpcAffectPc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kDarkMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <area>
@@ -1538,6 +1748,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="120" min="90" change="4"/>
         <targets val="kTarCharRoom|kTarNotSelf|kTarFightVict"/>
         <flags val="kMagAffects|kNpcAffectPc|kNpcAffectPcCaster"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <affects type="kSilence" saving="kWill" resist="kMind">
@@ -1559,7 +1774,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <flags val="kMagPoints|kNpcDummy"/>
         <potency_roll>
             <dices ndice="2" sdice="3" adice="0"/>
-            <base_skill id="kMindMagic" low_skill_bonus="15" hi_skill_bonus="25"/>
+            <base_skill id="kLifeMagic" low_skill_bonus="15" hi_skill_bonus="25"/>
             <base_stat id="kInt" threshold="20" weight="20"/>
         </potency_roll>
         <talent_actions>
@@ -1581,6 +1796,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="50" min="30" change="2"/>
         <targets val="kTarSelfOnly|kTarCharRoom"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <affects type="kMagicShield" saving="kNone" resist="kVitality">
@@ -1612,6 +1832,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="140" min="120" change="2"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagMasses|kMagAffects|kNpcAffectPc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <area>
@@ -1635,6 +1860,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="70" min="55" change="2"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagUnaffects|kNpcUnaffectNpc|kNpcUnaffectNpcCaster"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <unaffect>
@@ -1708,6 +1938,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="140" min="120" change="2"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagMasses|kMagAffects|kNpcAffectPc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kDarkMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <affects type="kCurse" saving="kWill" resist="kDark">
@@ -1754,6 +1989,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="140" min="120" change="2"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagGroups|kMagAffects"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kAirMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <area>
@@ -1776,6 +2016,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="110" min="100" change="1"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagGroups|kMagAffects|kNpcAffectNpc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <area>
@@ -1915,6 +2160,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="85" min="70" change="4"/>
         <targets val="kTarCharRoom"/>
         <flags val="kMagAffects"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kWaterMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <affects type="kWaterbreath" saving="kNone" resist="kWater">
@@ -1933,6 +2183,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="55" min="40" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
         <flags val="kMagAffects|kNpcAffectPc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <affects type="kSlowdown" saving="kStability" resist="kMind">
@@ -1958,6 +2213,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="55" min="40" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagAffects|kMagUnaffects|kNpcAffectNpc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <affects type="kHaste" saving="kNone" resist="kMind">
@@ -1980,6 +2240,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="140" min="120" change="2"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagMasses|kMagAffects|kNpcAffectPc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <area>
@@ -2009,6 +2274,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="110" min="100" change="1"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagGroups|kMagAffects|kMagUnaffects|kNpcAffectNpc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <area>
@@ -2035,6 +2305,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="150" min="140" change="1"/>
         <targets val="kTarCharRoom|kTarSelfOnly"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kCha" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <affects type="kGodsShield" saving="kNone" resist="kVitality">
@@ -2059,6 +2334,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="70" min="55" change="1"/>
         <targets val="kTarCharRoom|kTarNotSelf|kTarFightVict"/>
         <flags val="kMagAffects|kNpcAffectPc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kLifeMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <area>
@@ -2101,6 +2381,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="85" min="70" change="4"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagUnaffects|kNpcUnaffectNpc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kLifeMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <unaffect>
@@ -2115,6 +2400,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="100" min="90" change="1"/>
         <targets val="kTarCharRoom|kTarSelfOnly"/>
         <flags val="kMagAffects"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <affects type="kAwareness" saving="kNone" resist="kMind">
@@ -2143,6 +2433,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="140" min="120" change="2"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagAffects|kMagUnaffects|kNpcAffectNpc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kAirMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <affects type="kAirShield" saving="kNone" resist="kAir">
@@ -2178,6 +2473,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="85" min="70" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf|kTarAllyOnly"/>
         <flags val="kMagUnaffects"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <!-- kDispellMagic strips a random dispellable affect; handled in code
@@ -2199,6 +2499,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="100" min="90" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kLifeMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <affects type="kFastRegeneration" saving="kNone" resist="kImmunity">
@@ -2227,6 +2532,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="140" min="120" change="2"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagAffects|kMagUnaffects|kNpcAffectNpc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kFireMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <affects type="kFireShield" saving="kNone" resist="kFire">
@@ -2262,6 +2572,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="140" min="120" change="2"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagAffects|kMagUnaffects|kNpcAffectNpc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kWaterMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <affects type="kIceShield" saving="kNone" resist="kWater">
@@ -2312,6 +2627,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="55" min="40" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagAffects|kMagUnaffects|kNpcAffectNpc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kLifeMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <affects type="kLessening" saving="kNone" resist="kImmunity">
@@ -2359,6 +2679,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="130" min="110" change="2"/>
         <targets val="kTarCharRoom|kTarNotSelf|kTarFightVict"/>
         <flags val="kMagAffects|kNpcAffectPc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <affects type="kMadness" saving="kWill" resist="kMind">
@@ -2379,6 +2704,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="140" min="120" change="2"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagGroups|kMagAffects|kNpcAffectNpc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kAirMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <area>
@@ -2401,6 +2731,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="95" min="80" change="2"/>
         <targets val="kTarSelfOnly|kTarCharRoom"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kFireMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <affects type="kCloudOfArrows" saving="kNone" resist="kFire">
@@ -2443,6 +2778,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="40" min="30" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kEarthMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <affects type="kStoneHands" saving="kNone" resist="kEarth">
@@ -2461,6 +2801,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="120" min="110" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
         <flags val="kMagAffects|kNpcAffectPc|kNpcAffectPcCaster"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <affects type="kMindless" saving="kStability" resist="kMind">
@@ -2484,6 +2829,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="85" min="70" change="4"/>
         <targets val="kTarCharRoom|kTarFightSelf|kTarAllyOnly"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <affects type="kPrismaticAura" saving="kNone" resist="kVitality">
@@ -2528,6 +2878,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="140" min="120" change="2"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagGroups|kMagAffects|kNpcAffectNpc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kAirMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <area>
@@ -2550,6 +2905,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="140" min="120" change="2"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagGroups|kMagAffects|kNpcAffectNpc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kFireMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <area>
@@ -2572,6 +2932,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="140" min="120" change="2"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagGroups|kMagAffects|kNpcAffectNpc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kWaterMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <area>
@@ -2626,6 +2991,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="120" min="110" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <affects type="kMagicGlass" saving="kNone" resist="kVitality">
@@ -2644,6 +3014,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="110" min="100" change="1"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagGroups|kMagAffects|kNpcAffectNpc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <area>
@@ -2671,6 +3046,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="110" min="100" change="1"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagGroups|kMagAffects|kNpcAffectNpc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <area>
@@ -2698,6 +3078,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="100" min="40" change="2"/>
         <targets val="kTarCharRoom|kTarNotSelf|kTarFightVict"/>
         <flags val="kMagAffects|kNpcAffectPc|kNpcAffectPcCaster"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <affects type="kDeafness" saving="kStability" resist="kMind">
@@ -2716,6 +3101,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="120" min="90" change="4"/>
         <targets val="kTarCharRoom|kTarNotSelf|kTarFightVict"/>
         <flags val="kMagAffects|kNpcAffectPc|kNpcAffectPcCaster"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <affects type="kDeafness" saving="kStability" resist="kMind">
@@ -2734,6 +3124,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="90" min="80" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagUnaffects|kNpcUnaffectNpc|kNpcUnaffectNpcCaster"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kLifeMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <unaffect>
@@ -2748,6 +3143,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="140" min="120" change="2"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagMasses|kMagAffects|kNpcAffectPc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <area>
@@ -2903,6 +3303,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="480" min="440" change="20"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kCha" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <affects type="kFascination" saving="kNone" resist="kMind">
@@ -2928,6 +3333,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="70" min="55" change="1"/>
         <targets val="kTarCharRoom|kTarNotSelf|kTarFightVict"/>
         <flags val="kMagAffects|kNpcAffectPc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kDarkMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <affects type="kOblivion" saving="kNone" resist="kDark">
@@ -2947,6 +3357,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="140" min="120" change="2"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagAreas|kMagAffects|kNpcAffectPc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kDarkMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <area>
@@ -2985,6 +3400,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="55" min="40" change="1"/>
         <targets val="kTarCharRoom|kTarNotSelf|kTarFightVict"/>
         <flags val="kMagAffects|kNpcAffectPc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <affects type="kPeaceful" saving="kNone" resist="kMind">
@@ -3029,6 +3449,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="80" min="40" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kEarthMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <affects type="kStoneBones" saving="kNone" resist="kEarth">
@@ -3128,6 +3553,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="120" min="100" change="3"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagMasses|kMagAffects|kNpcAffectPc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kEarthMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <area>
@@ -3179,6 +3609,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="50" min="40" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kLifeMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <affects type="kCatGrace" saving="kNone" resist="kImmunity">
@@ -3197,6 +3632,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="50" min="40" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kLifeMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <affects type="kBullBody" saving="kNone" resist="kImmunity">
@@ -3215,6 +3655,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="60" min="50" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kLifeMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <affects type="kSnakeWisdom" saving="kNone" resist="kImmunity">
@@ -3233,6 +3678,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="60" min="50" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kLifeMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <affects type="kGimmicry" saving="kNone" resist="kImmunity">
@@ -3251,6 +3701,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="60" min="50" change="1"/>
         <targets val="kTarFightVict"/>
         <flags val="kMagWarcry|kMagAreas|kMagDamage|kNpcDamagePc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kWarcry" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kCon" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <area>
@@ -3266,6 +3721,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="30" min="30" change="40"/>
         <targets val="kTarFightVict"/>
         <flags val="kMagWarcry|kMagAreas|kMagAffects|kNpcAffectPc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kWarcry" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kCon" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <area>
@@ -3281,6 +3741,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="30" min="30" change="50"/>
         <targets val="kTarFightVict"/>
         <flags val="kMagWarcry|kMagAreas|kMagDamage|kMagAffects|kNpcDamagePc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kWarcry" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kCon" threshold="22" weight="0.5"/>
+        </potency_roll>
         <potency_roll>
             <dices ndice="11" sdice="6" adice="8"/>
             <base_skill id="kWarcry" low_skill_bonus="2" hi_skill_bonus="2"/>
@@ -3371,6 +3836,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="10" min="10" change="10"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagWarcry|kMagGroups|kMagAffects|kNpcAffectNpc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kWarcry" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kCon" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <area>
@@ -3402,6 +3872,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="20" min="20" change="50"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagWarcry|kMagGroups|kMagAffects|kNpcAffectNpc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kWarcry" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kCon" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <area>
@@ -3452,6 +3927,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="15" min="15" change="30"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagWarcry|kMagGroups|kMagAffects|kNpcAffectNpc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kWarcry" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kCon" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <area>
@@ -3477,6 +3957,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="10" min="10" change="10"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagWarcry|kMagGroups|kMagAffects|kNpcAffectNpc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kWarcry" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kCon" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <area>
@@ -3509,6 +3994,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="0" min="0" change="0"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagAffects"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kPoisoning" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <affects type="kAconitumPoison" saving="kNone" resist="kImmunity">
@@ -3527,6 +4017,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="0" min="0" change="0"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagAffects"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kPoisoning" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <affects type="kScopolaPoison" saving="kNone" resist="kImmunity">
@@ -3548,6 +4043,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="0" min="0" change="0"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagAffects"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kPoisoning" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <affects type="kBelenaPoison" saving="kNone" resist="kImmunity">
@@ -3566,6 +4066,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="0" min="0" change="0"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagAffects"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kPoisoning" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <affects type="kDaturaPoison" saving="kNone" resist="kImmunity">
@@ -3647,6 +4152,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="150" min="130" change="5"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagManual"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kDarkMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <affects type="kVampirism" saving="kNone" resist="kDark">
@@ -3842,6 +4352,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="110" min="100" change="1"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagGroups|kMagAffects|kNpcAffectNpc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <area>
@@ -3864,6 +4379,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="110" min="100" change="1"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagGroups|kMagAffects|kNpcAffectNpc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <area>
@@ -3886,6 +4406,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="110" min="100" change="1"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagGroups|kMagAffects|kNpcAffectNpc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <area>
@@ -3908,6 +4433,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="110" min="100" change="1"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagGroups|kMagAffects|kNpcAffectNpc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <area>
@@ -3930,6 +4460,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="110" min="100" change="1"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagGroups|kMagAffects|kNpcAffectNpc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kLifeMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kCha" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <area>
@@ -3952,6 +4487,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="110" min="100" change="1"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagGroups|kMagAffects|kNpcAffectNpc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kWaterMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <area>
@@ -3974,6 +4514,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="110" min="100" change="1"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagGroups|kMagAffects|kNpcAffectNpc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kLifeMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <area>
@@ -4014,6 +4559,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="110" min="100" change="1"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagGroups|kMagAffects|kNpcAffectNpc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kEartMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <area>
@@ -4036,6 +4586,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="110" min="100" change="1"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagGroups|kMagAffects|kNpcAffectNpc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <area>
@@ -4058,6 +4613,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="140" min="120" change="2"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagGroups|kMagAffects|kNpcAffectNpc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kearthMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <area>
@@ -4080,6 +4640,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="110" min="100" change="1"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagGroups|kMagAffects|kNpcAffectNpc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <area>
@@ -4202,6 +4767,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="40" min="30" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagAffects|kMagUnaffects|kNpcAffectNpc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kLifeMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <affects type="kDexterity" saving="kNone" resist="kImmunity">
@@ -4224,6 +4794,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="110" min="100" change="2"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagGroups|kMagAffects|kNpcAffectNpc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kLifeMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <area>
@@ -4246,6 +4821,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="110" min="100" change="2"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagGroups|kMagAffects|kNpcAffectNpc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kWaterkMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <area>
@@ -4271,6 +4851,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="110" min="100" change="2"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagGroups|kMagAffects|kNpcAffectNpc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <area>
@@ -4296,6 +4881,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="10" min="10" change="10"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagWarcry|kMagGroups|kMagAffects|kNpcAffectNpc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kWarcry" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kCon" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <area>
@@ -4318,6 +4908,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="10" min="10" change="10"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagWarcry|kMagGroups|kMagAffects|kNpcAffectNpc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kWarcry" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kCon" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <area>
@@ -4340,6 +4935,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="10" min="10" change="10"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagWarcry|kMagGroups|kMagAffects|kNpcAffectNpc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kWarcry" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kCon" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <area>
@@ -4405,6 +5005,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="140" min="120" change="2"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagMasses|kMagAffects|kNpcAffectPc"/>
+        <potency_roll>
+            <dices ndice="5" sdice="9" adice="12"/>
+            <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kCha" threshold="22" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <area>
