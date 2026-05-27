@@ -20,7 +20,7 @@ void GoFlee(CharData *ch) {
 	}
 
 	if (AFF_FLAGGED(ch, EAffect::kNoFlee) ||
-		AFF_FLAGGED(ch, EAffect::kCombatLuck) ||
+//		AFF_FLAGGED(ch, EAffect::kCombatLuck) ||
 		ch->IsFlagged(EPrf::kIronWind)) {
 		SendMsgToChar("Невидимые оковы мешают вам сбежать.\r\n", ch);
 		return;
@@ -74,7 +74,7 @@ void GoDirectFlee(CharData *ch, int direction) {
 	}
 
 	if (AFF_FLAGGED(ch, EAffect::kNoFlee) ||
-		AFF_FLAGGED(ch, EAffect::kCombatLuck) ||
+//		AFF_FLAGGED(ch, EAffect::kCombatLuck) ||
 		ch->IsFlagged(EPrf::kIronWind)) {
 		SendMsgToChar("Невидимые оковы мешают вам сбежать.\r\n", ch);
 		return;

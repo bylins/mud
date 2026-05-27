@@ -680,6 +680,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
                 <affects type="kPoison" saving="kCritical" resist="kDark">
+                    <blocking affect_flags="kGodsShield"/>
                     <duration cnst="0" level_divisor="1" min="0" max="0"/>
                     <flags val="kAfSameTime"/>
                     <apply id="kPoisoned" location="kStr">
@@ -3340,7 +3341,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
-                <affects type="kOblivion" saving="kNone" resist="kDark">
+                <affects type="kOblivion" saving="kWill" resist="kDark">
                     <lag base="3" bonus_divisor="-1"/>
                     <duration cnst="3" level_divisor="0" min="0" max="0"/>
                     <flags val="kAfBattledec"/>
@@ -3368,7 +3369,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <decay cast="0.05" level="8" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
-                <affects type="kOblivion" saving="kNone" resist="kDark">
+                <affects type="kOblivion" saving="kCritical" resist="kDark">
                     <lag base="3" bonus_divisor="-1"/>
                     <duration cnst="3" level_divisor="0" min="0" max="0"/>
                     <flags val="kAfBattledec"/>
@@ -3408,6 +3409,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <affects type="kPeaceful" saving="kNone" resist="kMind">
+                    <blocking mob_flags="kNoHold"  affect_flags="kPeaceful"/>
                     <duration cnst="2" level_divisor="0" min="0" max="0"/>
                     <apply id="kPeaceful" location="kNone">
                         <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
@@ -3447,7 +3449,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <name rus="каменные кости" eng="stone bones"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="80" min="40" change="1"/>
-        <targets val="kTarCharRoom|kTarFightSelf"/>
+        <targets val="kTarCharRoom|kTarFightSelf|kTarAllyOnly"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
         <potency_roll>
             <dices ndice="5" sdice="9" adice="12"/>
@@ -3728,6 +3730,13 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <affects type="kWarcryOfMenace" saving="kWill" resist="kMind">
+                    <duration cnst="2" level_divisor="4" min="6" max="0"/>
+                    <flags val="kAfBattledec"/>
+                    <apply id="kWarcryOfMenace" location="kMorale">
+                        <modifier min="1.0" dices_weight="20.0" competencies_weight="30.0" factor="-1" stack="0"/>
+                    </apply>
+                </affects>
                 <area>
                     <decay cast="0.01" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
@@ -4002,6 +4011,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <affects type="kAconitumPoison" saving="kNone" resist="kImmunity">
+                    <blocking affect_flags="kGodsShield"/>
                     <duration cnst="7" level_divisor="0" min="0" max="0"/>
                     <flags val="kAfSameTime"/>
                     <apply id="kPoisoned" location="kAconitumPoison">
@@ -4025,6 +4035,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <affects type="kScopolaPoison" saving="kNone" resist="kImmunity">
+                    <blocking affect_flags="kGodsShield"/>
                     <duration cnst="7" level_divisor="0" min="0" max="0"/>
                     <flags val="kAfSameTime"/>
                     <apply id="kPoisoned" location="kScopolaPoison">
@@ -4051,6 +4062,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <affects type="kBelenaPoison" saving="kNone" resist="kImmunity">
+                    <blocking affect_flags="kGodsShield"/>
                     <duration cnst="7" level_divisor="0" min="0" max="0"/>
                     <flags val="kAfSameTime"/>
                     <apply id="kPoisoned" location="kBelenaPoison">
@@ -4074,6 +4086,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <affects type="kDaturaPoison" saving="kNone" resist="kImmunity">
+                    <blocking affect_flags="kGodsShield"/>
                     <duration cnst="7" level_divisor="0" min="0" max="0"/>
                     <flags val="kAfSameTime"/>
                     <apply id="kPoisoned" location="kDaturaPoison">

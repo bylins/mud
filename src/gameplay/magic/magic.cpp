@@ -15,7 +15,7 @@
 #include "magic.h"
 
 #include "engine/core/action_targeting.h"
-#include "gameplay/affects/affect_handler.h"
+//#include "gameplay/affects/affect_handler.h"
 #include "gameplay/affects/affect_data.h"
 #include "engine/db/world_characters.h"
 #include "engine/ui/cmd/do_hire.h"
@@ -210,10 +210,13 @@ int CalcGeneralSaving(CharData *killer, CharData *victim, ESaving type, int ext_
 	if (killer == victim) {
 		return false;
 	}
+	if (victim == nullptr || type == ESaving::kNone) {
+		return true;
+	}
 	int save = CalcSaving(killer, victim, type, true);
 	int rnd = number(-200, 200);
 	char smallbuf[256];
-	if (number(1, 100) <=5) { //абсолютный фейл
+	if (number(1, 100) <= 5 || (AFF_FLAGGED(victim, EAffect::kHold) && type == ESaving::kReflex)) { //абсолютный фейл
 		save /= 2;
 		sprintf(smallbuf, "Тестовое сообщение: &RПротивник %s (%d), ваш бонус: %d, спас '%s' противника: %d, random -200..200: %d, критудача: ДА, шанс успеха: %2.2f%%.\r\n&n", 
 				GET_NAME(victim), GetRealLevel(victim), ext_apply, saving_name.find(type)->second.c_str(), save, rnd, ((std::clamp(save +ext_apply, -200, 200) + 200) / 400.) * 100.);
@@ -412,7 +415,7 @@ int CalcHeal(CharData *ch, CharData *victim, ESpell spell_id, int level) {
 }
 
 /**
- * Вычисляет количество дополнительных попаданий для заклинаний (магические стрелы, молнии и т.п.)
+ * Calculates the number of additional hits for spells (magic arrows, lightning, etc.)
  */
 int CalcExtraHits(CharData *ch, ESkill skill_id, int skill_divisor = 25, int max = 4, int prob = 20) {
 	if (ch == nullptr || skill_id == ESkill::kUndefined) {
@@ -422,6 +425,33 @@ int CalcExtraHits(CharData *ch, ESkill skill_id, int skill_divisor = 25, int max
 	if (extra > max) extra = max;
 	if (prob == 0) return number(1, extra);
 	return ((number(1, 100) <= prob) ? extra : 0);
+}
+
+/**
+ * Forces a character to assume a certain position (knocked down, asleep, stunned, etc.)
+ * Knocks off horse, checks for afflictions.
+ */
+void ForceReposition(CharData *victim, ESpell spell_id, EPosition pos, bool force_stopfight = false) {
+	if (victim->IsImmortal() || victim->GetPosition() < pos) {
+		return;
+	}
+	if (number(1, 100) <= GET_AR(victim)) {
+		return;
+	}
+	if ((pos < EPosition::kSit || force_stopfight) && victim->GetEnemy()) {
+		stop_fighting(victim, force_stopfight);
+	}
+	if (force_stopfight) {
+		change_fighting(victim, force_stopfight);
+	}
+	victim->DropFromHorse();
+	if (pos < victim->GetPosition()) {
+		act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kKnockdownToRoom).c_str(),
+			false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
+		act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kKnockdownToChar).c_str(),
+			false, victim, nullptr, nullptr, kToChar);
+		victim->SetPosition(pos);
+	}
 }
 
 int CalcTotalSpellDmg(CharData *ch, CharData *victim, ESpell spell_id) {
@@ -580,7 +610,7 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 		}
 		case ESpell::kClod: {
 				if (victim->GetPosition() > EPosition::kSit && !victim->IsImmortal() && (number(1, 100) > GET_AR(victim)) &&
-					(AFF_FLAGGED(victim, EAffect::kHold) || !CalcGeneralSaving(ch, victim, ESaving::kReflex, modi))) {
+					!CalcGeneralSaving(ch, victim, ESaving::kReflex, modi)) {
 				if (IS_HORSE(victim))
 					victim->DropFromHorse();
 				victim->SetPosition(EPosition::kSit);
@@ -639,7 +669,7 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 				}
 			}
 			if (victim->GetPosition() > EPosition::kSit && !victim->IsImmortal() && (number(1, 100) > GET_AR(victim)) &&
-					(AFF_FLAGGED(victim, EAffect::kHold) || !CalcGeneralSaving(ch, victim, ESaving::kReflex, modi))) {
+					!CalcGeneralSaving(ch, victim, ESaving::kReflex, modi)) {
 				victim->SetPosition(EPosition::kSit);
 				victim->DropFromHorse();
 				act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kKnockdownToRoom).c_str(), false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
@@ -651,7 +681,7 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 		case ESpell::kSonicWave: {
 			if (victim->GetPosition() > EPosition::kSit &&
 				!victim->IsImmortal() && (number(1, 100) > GET_AR(victim)) 
-						&& (AFF_FLAGGED(victim, EAffect::kHold) || !CalcGeneralSaving(ch, victim, ESaving::kStability, modi))) {
+						&& !CalcGeneralSaving(ch, victim, ESaving::kStability, modi)) {
 				victim->SetPosition(EPosition::kSit);
 				victim->DropFromHorse();
 				act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kKnockdownToRoom).c_str(), false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
@@ -739,7 +769,7 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 		case ESpell::kDustStorm: {
 			if (victim->GetPosition() > EPosition::kSit &&
 				!victim->IsImmortal() && (number(1, 100) > GET_AR(victim)) &&
-				(!CalcGeneralSaving(ch, victim, ESaving::kReflex, modi))) {
+				!CalcGeneralSaving(ch, victim, ESaving::kReflex, modi)) {
 				victim->DropFromHorse();
 				victim->SetPosition(EPosition::kSit);
 				act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kKnockdownToRoom).c_str(), false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
@@ -763,8 +793,8 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			break;
 		}
 		case ESpell::kWarcryOfThunder: {
-			if (victim->GetPosition() > EPosition::kSit && !victim->IsImmortal() && (AFF_FLAGGED(victim, EAffect::kHold) ||
-				!CalcGeneralSaving(ch, victim, ESaving::kStability, modi))) {
+			if (victim->GetPosition() > EPosition::kSit && !victim->IsImmortal() &&
+				!CalcGeneralSaving(ch, victim, ESaving::kStability, modi)) {
 				victim->DropFromHorse();
 				victim->SetPosition(EPosition::kSit);
 				act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kKnockdownToRoom).c_str(), false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
@@ -1080,17 +1110,17 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 		// is restored and these stubs can go. (kEnergyDrain is also manual: its <unaffect>
 		// break stops the chain, so the spell-memory wipe is skipped when a buff is drained.)
 
-		case ESpell::kPoison:
-			if (ch != victim && (AFF_FLAGGED(victim, EAffect::kGodsShield) ||
-				CalcGeneralSaving(ch, victim, savetype, modi))) {
-				if (ch->in_room == victim->in_room) {
-					SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
-				}
-				success = false;
-				break;
-			}
-
-			break;
+//		case ESpell::kPoison:
+//			if (ch != victim && (AFF_FLAGGED(victim, EAffect::kGodsShield) ||
+//				CalcGeneralSaving(ch, victim, savetype, modi))) {
+//				if (ch->in_room == victim->in_room) {
+//					SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
+//				}
+//				success = false;
+//				break;
+//			}
+//
+//			break;
 
 		case ESpell::kSleep:
 			// The kHold guard moved to <blocking affect_flags> (issue.aff-flagged-check); the
@@ -1131,10 +1161,10 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 			af[2].location = EApply::kHp;
 			af[2].affect_type = EAffect::kForcesOfEvil;
 
-			// иначе, при рекасте, модификатор суммируется с текущим аффектом.
+			// Otherwise, when recasting, the modifier is added to the current effect.
 			if (!AFF_FLAGGED(victim, EAffect::kForcesOfEvil)) {
 				af[2].modifier = victim->get_real_max_hit();
-				// не очень красивый способ передать сигнал на лечение в mag_points
+				// This is a very nice way to transmit a signal for treatment in mag_points.
 				Affect<EApply> tmpaf;
 				tmpaf.type = ESpell::kEviless;
 				tmpaf.duration = 1;
@@ -1145,47 +1175,6 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 				affect_to_char(ch, tmpaf);
 			}
 			break;
-
-		case ESpell::kWarcryOfThunder:
-		case ESpell::kIceStorm:
-		case ESpell::kEarthfall:
-		case ESpell::kShock: {
-			if (!ch->IsImmortal() && CalcGeneralSaving(ch, victim, savetype, modi)) {
-				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
-				success = false;
-				break;
-			}
-			switch (spell_id) {
-				case ESpell::kWarcryOfThunder: af[0].type = ESpell::kDeafness;
-					af[0].duration = ApplyResist(victim, GetResistType(spell_id),
-							 CalcDuration(victim, 2, level + 3, 4, 6, 0));
-					af[0].duration = CalcComplexSpellMod(ch, ESpell::kDeafness, GAPPLY_SPELL_EFFECT, af[0].duration);
-					af[0].affect_type = EAffect::kDeafness;
-					af[0].battleflag = kAfBattledec;
-					to_room = "$n0 оглох$q!";
-					to_vict = "Вы оглохли.";
-					if ((victim->IsNpc()
-						&& AFF_FLAGGED(victim, af[0].affect_type))
-						|| (ch != victim
-							&& IsAffectedBySpell(victim, ESpell::kDeafness))) {
-						if (ch->in_room == victim->in_room) {
-							SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
-						}
-					} else {
-						ImposeAffect(victim, af[0], accum_duration, false, accum_affect, false);
-						act(to_vict, false, victim, nullptr, ch, kToChar);
-						act(to_room, true, victim, nullptr, ch, kToRoom | kToArenaListen);
-					}
-					break;
-
-				// kIceStorm/kEarthfall/kShock: the wait-state lag moved to <lag> in their <affects>
-				// (issue.cast-spell-lag). The kMagicStopFight stun (kIceStorm/kEarthfall) and the
-				// kShock blind already come from <affects>/spell_msg.xml, so nothing spell-specific
-				// is left here -- they fall through to the default.
-				default: break;
-			}
-			break;
-		}
 
 		case ESpell::kCrying: {
 			if (AFF_FLAGGED(victim, EAffect::kCrying)
@@ -1224,21 +1213,9 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 			af[2].battleflag = kAfBattledec;
 			break;
 		}
-			//Заклинания Забвение, Бремя времени. Далим.
-		case ESpell::kOblivion:
-		case ESpell::kBurdenOfTime: {
-			// kReflex save stays (talent saving is kNone); the lag moved to <lag> (issue.cast-spell-lag).
-			if (CalcGeneralSaving(ch, victim, ESaving::kReflex, modi)) {
-				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
-				success = false;
-				break;
-			}
-			break;
-		}
 
 		case ESpell::kPeaceful: {
-			if (AFF_FLAGGED(victim, EAffect::kPeaceful)
-				|| (victim->IsNpc() && !AFF_FLAGGED(victim, EAffect::kCharmed)) ||
+			if ((victim->IsNpc() && !AFF_FLAGGED(victim, EAffect::kCharmed)) ||
 				(CalcGeneralSaving(ch, victim, savetype, modi))) {
 				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 				success = false;
@@ -1285,34 +1262,19 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 			break;
 		}
 
-		case ESpell::kWarcryOfMenace: {
-			savetype = ESaving::kWill;
-			modi = GetRealCon(ch);
-			if (CalcGeneralSaving(ch, victim, savetype, modi)) {
-				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
-				success = false;
-				break;
-			}
-			af[0].location = EApply::kMorale;
-			af[0].duration = ApplyResist(victim, GetResistType(spell_id),
-										 CalcDuration(victim, 2, level + 3, 4, 6, 0));
-			af[0].modifier = -RollDices((7 + level) / 8, 3);
-			break;
-		}
-
 		// kWarcryOfMadness is now data-driven (issue: random apply attribute): its <affects>
 		// imposes one randomly-chosen debuff of kInt / kCastSuccess / kManaRegen (all
 		// random="true"). The old cascade of Con-modified saves is replaced by the single
 		// kStability talent saving, and the Con influence is folded into the potency roll
 		// (base_stat kCon) and the modifier weights instead of the save modifier.
 
-		case ESpell::kCombatLuck: af[0].duration = CalcDuration(victim, 6, 0, 0, 0, 0);
-			af[0].affect_type = EAffect::kCombatLuck;
-			af[0].handler.reset(new CombatLuckAffectHandler());
-			af[0].type = ESpell::kCombatLuck;
-			af[0].location = EApply::kHitroll;
-			af[0].modifier = 0;
-			break;
+//		case ESpell::kCombatLuck: af[0].duration = CalcDuration(victim, 6, 0, 0, 0, 0);
+//			af[0].affect_type = EAffect::kCombatLuck;
+//			af[0].handler.reset(new CombatLuckAffectHandler());
+//			af[0].type = ESpell::kCombatLuck;
+//			af[0].location = EApply::kHitroll;
+//			af[0].modifier = 0;
+//			break;
 
 		case ESpell::kPaladineInspiration:
 			/*

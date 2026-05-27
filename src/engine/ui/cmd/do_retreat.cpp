@@ -13,7 +13,7 @@ void do_retreat(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 		return;
 	}
 
-	if (ch->IsFlagged(EPrf::kIronWind) || AFF_FLAGGED(ch, EAffect::kCombatLuck)) {
+	if (ch->IsFlagged(EPrf::kIronWind) /* || AFF_FLAGGED(ch, EAffect::kCombatLuck) */) {
 		SendMsgToChar("Вы не желаете отступать, не расправившись со всеми врагами!\r\n", ch);
 		return;
 	}

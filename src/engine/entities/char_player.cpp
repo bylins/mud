@@ -1264,9 +1264,9 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 							af.location = static_cast<EApply>(num4);
 							af.affect_type = static_cast<EAffect>(num5);
 							af.battleflag = num6;
-							if (af.type == ESpell::kCombatLuck) {
-								af.handler.reset(new CombatLuckAffectHandler());
-							}
+//							if (af.type == ESpell::kCombatLuck) {
+//								af.handler.reset(new CombatLuckAffectHandler());
+//							}
 							affect_to_char(this, af);
 							i++;
 						}
