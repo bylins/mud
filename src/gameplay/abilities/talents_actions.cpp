@@ -152,6 +152,7 @@ TalentAffect::TalentAffect(parser_wrapper::DataNode &node) {
 			Apply apply;
 			apply.id = parse::ReadAsConstant<EAffect>(child.GetValue("id"));
 			apply.location = parse::ReadAsConstant<EApply>(child.GetValue("location"));
+			apply.random = parse::ReadAsBool(child.GetValue("random"));
 			if (child.GoToChild("modifier")) {
 				apply.min = parse::ReadAsDouble(child.GetValue("min"));
 				apply.dices_weight = parse::ReadAsDouble(child.GetValue("dices_weight"));
@@ -202,6 +203,7 @@ void TalentAffect::Print(CharData */*ch*/, std::ostringstream &buffer) const {
 	for (const auto &apply: applies_) {
 		buffer << "  Apply: " << kColorGrn << NAME_BY_ITEM<EAffect>(apply.id) << kColorNrm
 			   << " -> " << kColorGrn << NAME_BY_ITEM<EApply>(apply.location) << kColorNrm
+			   << (apply.random ? " [random]" : "")
 			   << " (min=" << apply.min << " dices_weight=" << apply.dices_weight
 			   << " competencies_weight=" << apply.competencies_weight
 			   << " factor=" << apply.factor << " stack=" << apply.stack << ")\r\n";

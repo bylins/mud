@@ -3084,6 +3084,30 @@ base_stat id - (например "kWis") какой берем параметр,
                     <decay cast="0.05" level="8" free_targets="3"/>
                     <victims skill_divisor="15" dice_size="2" min_targets="1" max_targets="5"/>
                 </area>
+                <affects type="kFailure" saving="kWill" resist="kDark">
+                    <duration cnst="2" level_divisor="2" min="0" max="0"/>
+                    <apply id="kUndefinded" location="kMorale">
+                        <modifier min="20.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                    </apply>
+                    <apply id="kUndefinded" location="kStr" random="true">
+                        <modifier min="2.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                    </apply>
+                    <apply id="kUndefinded" location="kDex" random="true">
+                        <modifier min="2.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                    </apply>
+                    <apply id="kUndefinded" location="kInt" random="true">
+                        <modifier min="2.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                    </apply>
+                    <apply id="kUndefinded" location="kWis" random="true">
+                        <modifier min="2.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                    </apply>
+                    <apply id="kUndefinded" location="kCon" random="true">
+                        <modifier min="2.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                    </apply>
+                    <apply id="kUndefinded" location="kCha" random="true">
+                        <modifier min="2.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                    </apply>
+                </affects>
             </action>
         </talent_actions>
     </spell>
@@ -4322,6 +4346,30 @@ base_stat id - (например "kWis") какой берем параметр,
                     <decay cast="0.03" level="6" free_targets="4"/>
                     <victims skill_divisor="25" dice_size="2" min_targets="3" max_targets="15"/>
                 </area>
+                <affects type="kMassFailure" saving="kWill" resist="kDark">
+                    <duration cnst="2" level_divisor="2" min="0" max="0"/>
+                    <apply id="kUndefinded" location="kMorale">
+                        <modifier min="20.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                    </apply>
+                    <apply id="kUndefinded" location="kStr" random="true">
+                        <modifier min="2.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                    </apply>
+                    <apply id="kUndefinded" location="kDex" random="true">
+                        <modifier min="2.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                    </apply>
+                    <apply id="kUndefinded" location="kInt" random="true">
+                        <modifier min="2.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                    </apply>
+                    <apply id="kUndefinded" location="kWis" random="true">
+                        <modifier min="2.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                    </apply>
+                    <apply id="kUndefinded" location="kCon" random="true">
+                        <modifier min="2.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                    </apply>
+                    <apply id="kUndefinded" location="kCha" random="true">
+                        <modifier min="2.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                    </apply>
+                </affects>
             </action>
         </talent_actions>
     </spell>

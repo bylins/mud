@@ -1260,23 +1260,10 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 			break;
 		}
 
-		case ESpell::kFailure:
-		case ESpell::kMassFailure: {
-			savetype = ESaving::kWill;
-			if (CalcGeneralSaving(ch, victim, savetype, modi)) {
-				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
-				success = false;
-				break;
-			}
-			af[0].location = EApply::kMorale;
-			af[0].duration = ApplyResist(victim, GetResistType(spell_id),
-										 CalcDuration(victim, 2, level, 2, 0, 0));
-			af[0].modifier = -5 - (GetRealLevel(ch) + GetRealRemort(ch)) / 2;
-			af[1].location = static_cast<EApply>(number(1, 6));
-			af[1].duration = af[0].duration;
-			af[1].modifier = -(GetRealLevel(ch) + GetRealRemort(ch) * 3) / 15;
-			break;
-		}
+		// kFailure/kMassFailure are now fully data-driven (issue: random apply attribute):
+		// the mandatory kMorale penalty + a single random one of the six basic-stat penalties
+		// come from <affects> (the stat applies carry random="true"); the kWill save is the
+		// talent saving. No case needed.
 
 		case ESpell::kGlitterDust: {
 			savetype = ESaving::kReflex;
@@ -1474,7 +1461,7 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 								 talent.GetDurationLevelDivisor(), talent.GetDurationMin(), talent.GetDurationMax()));
 				duration = CalcComplexSpellMod(ch, spell_id, GAPPLY_SPELL_EFFECT, duration);
 				const double competencies = potency.skill_coeff + potency.stat_coeff;
-				for (const auto &apply: talent.GetApplies()) {
+				auto apply_one = [&](const talents_actions::TalentAffect::Apply &apply) {
 					double raw = competencies * apply.competencies_weight + potency.dices * apply.dices_weight;
 					double modifier = apply.min + std::ceil(raw);
 					if (apply.stack > 0) {
@@ -1489,6 +1476,22 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 					taf.battleflag = flags;
 					taf.caster_id = ch->get_uid();
 					ApplyTalentAffect(victim, taf, flags);
+				};
+				// Apply every ordinary apply; among the random-flagged ones (the "random"
+				// attribute) impose a single uniformly-chosen winner (reservoir sampling).
+				const talents_actions::TalentAffect::Apply *random_choice = nullptr;
+				int random_seen = 0;
+				for (const auto &apply: talent.GetApplies()) {
+					if (apply.random) {
+						if (number(1, ++random_seen) == 1) {
+							random_choice = &apply;
+						}
+					} else {
+						apply_one(apply);
+					}
+				}
+				if (random_choice) {
+					apply_one(*random_choice);
 				}
 			}
 		}

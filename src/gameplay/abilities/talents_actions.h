@@ -121,6 +121,9 @@ class TalentAffect : public IAction {
 		double competencies_weight{0.0};
 		int factor{1};
 		int stack{0};
+		// When true this apply is not imposed unconditionally: all random-flagged applies of
+		// the affect form one pool from which a single one is chosen at random per cast.
+		bool random{false};
 	};
 
 	explicit TalentAffect(parser_wrapper::DataNode &node);
