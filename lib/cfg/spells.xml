@@ -3619,7 +3619,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <misc pos="kFight" violent="Y" danger="5"/>
         <mana max="120" min="100" change="3"/>
         <targets val="kTarIgnore"/>
-        <flags val="kMagMasses|kMagAffects|kNpcAffectPc"/>
+        <flags val="kMagMasses|kMagAffects|kMagUnaffects|kNpcAffectPc"/>
         <potency_roll>
             <dices ndice="5" sdice="9" adice="12"/>
             <base_skill id="kEarthMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
@@ -3631,7 +3631,14 @@ base_stat id - (например "kWis") какой берем параметр,
                     <decay cast="0.05" level="3" free_targets="5"/>
                     <victims skill_divisor="15" dice_size="3" min_targets="5" max_targets="20"/>
                 </area>
-                <affects type="kGlitterDust" saving="kNone" resist="kEarth">
+                <!-- Reveal: strip hiding affects first. breaking_by_failure -> if a target resists
+                     having any present one stripped (the potency check, which differs from the
+                     kReflex save below -- that is intentional), the cast breaks for it and the
+                     glitterdust affect is not applied. -->
+                <unaffect>
+                    <remove all_of="kInvisible|kCamouflage|kHide" breaking_by_failure="true"/>
+                </unaffect>
+                <affects type="kGlitterDust" saving="kReflex" resist="kEarth">
                     <duration cnst="4" level_divisor="0" min="0" max="0"/>
                     <apply id="kGlitterDust" location="kSavingReflex">
                         <modifier min="12.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>

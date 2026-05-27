@@ -1058,7 +1058,6 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 	}
 
 
-	auto savetype{ESaving::kStability};
 	// A violent spell can never touch an immortal target: there is nothing to build or
 	// roll, so stop here. This subsumes the per-case victim->IsImmortal() guards.
 	if (victim->IsImmortal() && MUD::Spell(spell_id).IsViolent()) {
@@ -1072,12 +1071,10 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 		return EStageResult::kSuccess;
 	}
+	// The affect's saving throw is read straight from the talent (GetAffect().GetSaving()) in the
+	// talent-affect block below; the <blocking>/<required> immunity checks moved up to
+	// CastToSingleTarget (action-level, gating the whole cast, issue.cast-affect).
 	const bool has_affect_talent = MUD::Spell(spell_id).actions.Contains(talents_actions::EAction::kAffect);
-	if (has_affect_talent) {
-		// The <blocking>/<required> immunity checks moved up to CastToSingleTarget (they are
-		// action-level now and gate the whole cast, not just the affect, issue.cast-affect).
-		savetype = MUD::Spell(spell_id).actions.GetAffect().GetSaving();
-	}
 	// Material component: consume it if this spell has one (no-op for spells that don't);
 	// a missing component stops the cast. (Hook for the material-component system, TBD.)
 	if (ProcessMatComponents(ch, victim, spell_id) == EStageResult::kBreak) {
@@ -1123,15 +1120,10 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 			// <blocking affect_flags="kCrying">. Modifiers are now skill-scaled (potency_roll) in
 			// place of the old level/remort/victim-HP terms.
 
-		case ESpell::kPeaceful:
-			// kPeaceful only keeps its "no effect on an uncharmed NPC" guard here; the affect
-			// (saving/affect-resist), the fight-stop (<reposition stop_fight="true"> -> both
-			// sides stop), and the lag (<lag>) are all data-driven now (issue.cast-affect).
-			if (victim->IsNpc() && !AFF_FLAGGED(victim, EAffect::kCharmed)) {
-				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
-				success = false;
-			}
-			break;
+			// kPeaceful is fully data-driven now (issue.cast-affect): the <affects> (saving/
+			// affect-resist), <reposition stop_fight="true">, <lag>, and <blocking kNoHold/kPeaceful>.
+			// The old "no effect on an uncharmed NPC" guard was dropped (kvirund): the spell is
+			// rarely used and may now affect uncharmed NPCs; that can be fixed later if it matters.
 
 			// kStoneBones: the old "target must be a raised undead in vnum range
 			// [kMobSkeleton, kLastNecroMob]" guard is data-driven now (issue.cast-affect) --
@@ -1143,25 +1135,11 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 		// come from <affects> (the stat applies carry random="true"); the kWill save is the
 		// talent saving. No case needed.
 
-		case ESpell::kGlitterDust: {
-			savetype = ESaving::kReflex;
-			if (CalcGeneralSaving(ch, victim, savetype, modi + 50)) {
-				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
-				success = false;
-				break;
-			}
-
-			if (IsAffectedBySpell(victim, ESpell::kInvisible)) {
-				RemoveAffectFromChar(victim, ESpell::kInvisible);
-			}
-			if (IsAffectedBySpell(victim, ESpell::kCamouflage)) {
-				RemoveAffectFromChar(victim, ESpell::kCamouflage);
-			}
-			if (IsAffectedBySpell(victim, ESpell::kHide)) {
-				RemoveAffectFromChar(victim, ESpell::kHide);
-			}
-			break;
-		}
+			// kGlitterDust is data-driven now (issue.cast-affect): the reveal (stripping
+			// kInvisible/kCamouflage/kHide) is an <unaffect> <remove breaking_by_failure="true">
+			// that runs before the affect, so a resisted strip breaks the cast (no affect); the
+			// kSavingReflex affect carries saving="kReflex" (the old modi+50 bonus is dropped).
+			// The dispel uses the potency check, which deliberately differs from that kReflex save.
 
 		// kWarcryOfMadness is now data-driven (issue: random apply attribute): its <affects>
 		// imposes one randomly-chosen debuff of kInt / kCastSuccess / kManaRegen (all
