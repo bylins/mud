@@ -2866,11 +2866,22 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <required mob_flags="kCorpse"/>
                 <heal npc_coeff="3" />
                 <area>
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="1" max_targets="20"/>
                 </area>
+                <affects type="kEviless" saving="kNone" resist="kDark">
+                    <duration cnst="10" level_divisor="0" min="0" max="0"/>
+                    <flags val="kAfUpdateDuration|kAfUpdateMod"/>
+                    <apply id="kForcesOfEvil" location="kDamroll">
+                        <modifier min="15.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                    </apply>
+                    <apply id="kForcesOfEvil" location="kHitroll">
+                        <modifier min="7.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                    </apply>
+                </affects>
             </action>
         </talent_actions>
     </spell>

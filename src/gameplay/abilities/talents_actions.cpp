@@ -11,9 +11,9 @@
 namespace talents_actions {
 
 namespace {
-// Mob flags (EMobFlag) that can make an NPC wholly immune to a spell affect, addressable
-// from the <blocking mob_flags="..."/> tag. A focused table rather than a full EMobFlag
-// name registry, since only these "immunity" flags are meaningful for blocking an affect.
+// Mob flags (EMobFlag) addressable from the <blocking>/<required> mob_flags="..." tags. A
+// focused table rather than a full EMobFlag name registry: only flags meaningful as a cast
+// gate (immunities for <blocking>, target requirements like kCorpse for <required>) live here.
 const std::map<std::string, EMobFlag> kBlockingFlagByName{
 	{"kNoBlind", EMobFlag::kNoBlind},
 	{"kNoSleep", EMobFlag::kNoSleep},
@@ -23,6 +23,7 @@ const std::map<std::string, EMobFlag> kBlockingFlagByName{
 	{"kNoCharm", EMobFlag::kNoCharm},
 	{"kNoSummon", EMobFlag::kNoSummon},
 	{"kNoFear", EMobFlag::kNoFear},
+	{"kCorpse", EMobFlag::kCorpse},
 };
 
 // Parse a `|`-separated list of ESpell names (an any_of/all_of attribute of an

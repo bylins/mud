@@ -1127,38 +1127,9 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 		// to the sleeping position (with the kKnockdown* messages) and stops it fighting. The
 		// kHold/kNoSleep guards live in <blocking>. No case needed.
 
-		case ESpell::kEviless:
-			// kTarMinionsOnly already guaranteed an NPC follower of the caster; only the
-			// corpse-type restriction is left (silently skip non-corpse minions -- mass spell).
-			if (!victim->IsFlagged(EMobFlag::kCorpse)) {
-				break;
-			}
-			af[0].duration = CalcDuration(victim, 10, GetRealRemort(ch), 1, 0, 0);
-			af[0].location = EApply::kDamroll;
-			af[0].modifier = 15 + (GetRealRemort(ch) > 8 ? (GetRealRemort(ch) - 8) : 0);
-			af[0].affect_type = EAffect::kForcesOfEvil;
-			af[1].duration = af[0].duration;
-			af[1].location = EApply::kHitroll;
-			af[1].modifier = 7 + (GetRealRemort(ch) > 8 ? (GetRealRemort(ch) - 8) : 0);;
-			af[1].affect_type = EAffect::kForcesOfEvil;
-			af[2].duration = af[0].duration;
-			af[2].location = EApply::kHp;
-			af[2].affect_type = EAffect::kForcesOfEvil;
-
-			// Otherwise, when recasting, the modifier is added to the current effect.
-			if (!AFF_FLAGGED(victim, EAffect::kForcesOfEvil)) {
-				af[2].modifier = victim->get_real_max_hit();
-				// This is a very nice way to transmit a signal for treatment in mag_points.
-				Affect<EApply> tmpaf;
-				tmpaf.type = ESpell::kEviless;
-				tmpaf.duration = 1;
-				tmpaf.modifier = 0;
-				tmpaf.location = EApply::kNone;
-				tmpaf.battleflag = 0;
-				tmpaf.affect_type = EAffect::kForcesOfEvil;
-				affect_to_char(ch, tmpaf);
-			}
-			break;
+		// kEviless is data-driven now (issue.cast-affect): <required mob_flags="kCorpse"> gates
+		// the target, the kForcesOfEvil damroll/hitroll buffs come from <affects>, and the
+		// follower heal from <heal>. The old max-HP affect + mag_points signal hack is gone.
 
 		case ESpell::kCrying: {
 			if (AFF_FLAGGED(victim, EAffect::kCrying)
@@ -1896,15 +1867,10 @@ EStageResult CastToPoints(int level, CharData *ch, CharData *victim, ESpell spel
 			hit = CalcHeal(ch, victim, spell_id, level);
 			break;
 		case ESpell::kEviless:
-			// kTarMinionsOnly already guaranteed an NPC follower of the caster; only the
-			// corpse-type restriction is left.
-			if (!victim->IsFlagged(EMobFlag::kCorpse)) {
-                return EStageResult::kSuccess;
-            }
-			if (AFF_FLAGGED(ch, EAffect::kForcesOfEvil)) {
-				hit = CalcHeal(ch, victim, spell_id, level);
-				RemoveAffectFromCharAndRecalculate(ch, ESpell::kEviless);
-			}
+			// Target already gated by <required mob_flags="kCorpse"> + kTarMinionsOnly; just heal
+			// the follower from its <heal> action. The old caster-side kForcesOfEvil signal that
+			// coordinated a one-time max-HP fill is gone (issue.cast-affect).
+			hit = CalcHeal(ch, victim, spell_id, level);
 			break;
 		case ESpell::kResfresh:
 		case ESpell::kGroupRefresh: move = victim->get_real_max_move() - victim->get_move();
