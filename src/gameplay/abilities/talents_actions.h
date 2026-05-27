@@ -212,12 +212,16 @@ class TalentUnaffect : public IAction {
 	[[nodiscard]] const Set &GetBreaking() const { return breaking_; }
 	[[nodiscard]] const Set &GetRemoveAnyway() const { return remove_anyway_; }
 	[[nodiscard]] const Set &GetRemove() const { return remove_; }
+	// Weight applied to this dispel's potency roll when checked against an affect's recorded
+	// potency (issue: potency-gated dispel). Default 1.0 (the <unaffect potency_weight=> attr).
+	[[nodiscard]] float GetPotencyWeight() const { return potency_weight_; }
 
  private:
 	Set blocking_;       // present -> removal is blocked (chain not affected)
 	Set breaking_;       // present -> the cast chain breaks (EStageResult::kBreak)
 	Set remove_anyway_;  // dispelled even when blocking is true
 	Set remove_;         // dispelled only when blocking is false
+	float potency_weight_{1.0f};
 };
 
 using ActionPtr = std::shared_ptr<IAction>;

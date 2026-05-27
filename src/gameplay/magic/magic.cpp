@@ -1214,10 +1214,18 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 		}
 	}
 
+	// issue: every affect this cast lands records the cast's potency (strength) and whether it is a
+	// debuff, so a later dispel can be gated by strength (see CastUnaffects/DispelSucceeds). The
+	// potency is the cast roll (dice + skill + stat coefficients); the nature follows the violent flag.
+	const float cast_potency = static_cast<float>(potency.dices + potency.skill_coeff + potency.stat_coeff);
+	const bool cast_debuff = MUD::Spell(spell_id).IsViolent();
+
 	for (i = 0; success && i < kMaxSpellAffects; i++) {
 		af[i].type = spell_id;
 		if (af[i].affect_type != EAffect::kUndefinded || af[i].location != EApply::kNone) {
 			af[i].duration = CalcComplexSpellMod(ch, spell_id, GAPPLY_SPELL_EFFECT, af[i].duration);
+			af[i].potency = cast_potency;
+			af[i].debuff = cast_debuff;
 
 			if (update_spell)
 				ImposeAffectNoRecalc(victim, af[i]);
@@ -1269,6 +1277,8 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 					taf.modifier = static_cast<int>(apply.factor * modifier);
 					taf.battleflag = flags;
 					taf.caster_id = ch->get_uid();
+					taf.potency = cast_potency;
+					taf.debuff = cast_debuff;
 					ApplyTalentAffect(victim, taf, flags);
 				};
 				// Apply every ordinary apply; among the random-flagged ones (the "random"
@@ -1937,6 +1947,39 @@ void RemoveAffectAndAnnounce(CharData *ch, CharData *victim, ESpell removed) {
 		act(to_room.c_str(), true, victim, nullptr, ch, kToRoom | kToArenaListen);
 	}
 }
+
+// issue: potency-gated dispel. True if `dispel_spell` should remove `affect_spell` from victim.
+// Three cases drive whether a strength check is even rolled:
+//   1. a violent dispel -> always check (any affect);
+//   2. a non-violent dispel of a debuff -> check;
+//   3. a non-violent dispel of a buff -> no check, always removed.
+// The check itself: a flat 5% chance to remove regardless of strength, otherwise the dispel's
+// potency -- (RollSkillDices + skill_coeff + stat_coeff) * potency_weight -- must exceed the
+// affect's recorded potency (the strength of the cast that imposed it).
+bool DispelSucceeds(CharData *ch, CharData *victim, ESpell dispel_spell, ESpell affect_spell,
+					float potency_weight) {
+	float affect_potency = 0.0f;
+	bool affect_is_debuff = false;
+	for (const auto &aff : victim->affected) {
+		if (aff && aff->type == affect_spell) {
+			affect_potency = aff->potency;
+			affect_is_debuff = aff->debuff;
+			break;
+		}
+	}
+	// Case 3: a non-violent spell removing a buff needs no check.
+	if (!MUD::Spell(dispel_spell).IsViolent() && !affect_is_debuff) {
+		return true;
+	}
+	// Always a 5% chance to remove regardless of potency.
+	if (number(1, 100) <= 5) {
+		return true;
+	}
+	const auto &roll = MUD::Spell(dispel_spell).GetPotencyRoll();
+	const float spell_potency = static_cast<float>(
+			roll.RollSkillDices() + roll.CalcSkillCoeff(ch) + roll.CalcBaseStatCoeff(ch)) * potency_weight;
+	return spell_potency > affect_potency;
+}
 }  // namespace
 
 EStageResult CastUnaffects(int/* level*/, CharData *ch, CharData *victim, ESpell spell_id) {
@@ -1970,7 +2013,13 @@ EStageResult CastUnaffects(int/* level*/, CharData *ch, CharData *victim, ESpell
 			}
 		}
 		if (to_remove != ESpell::kUndefined) {
-			RemoveAffectAndAnnounce(ch, victim, to_remove);
+			const float pw = MUD::Spell(spell_id).actions.Contains(talents_actions::EAction::kUnaffect)
+				? MUD::Spell(spell_id).actions.GetUnaffect().GetPotencyWeight() : 1.0f;
+			if (DispelSucceeds(ch, victim, spell_id, to_remove, pw)) {
+				RemoveAffectAndAnnounce(ch, victim, to_remove);
+			} else {
+				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
+			}
 		}
 		return EStageResult::kSuccess;
 	}
@@ -2010,8 +2059,20 @@ EStageResult CastUnaffects(int/* level*/, CharData *ch, CharData *victim, ESpell
 				}
 			}
 		}
+		bool removed_any = false;
+		bool resisted_any = false;
 		for (const auto spell : to_remove) {
-			RemoveAffectAndAnnounce(ch, victim, spell);
+			if (DispelSucceeds(ch, victim, spell_id, spell, unaffect.GetPotencyWeight())) {
+				RemoveAffectAndAnnounce(ch, victim, spell);
+				removed_any = true;
+			} else {
+				resisted_any = true;
+			}
+		}
+		// Everything that could be removed resisted the potency check -> "no effect" to the caster.
+		// Only for a pure dispel: a kMagAffects spell stays silent and still applies its own affect.
+		if (!removed_any && resisted_any && !MUD::Spell(spell_id).IsFlagged(kMagAffects)) {
+			SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 		}
 	} else if (breaking
 			|| (!MUD::Spell(spell_id).IsFlagged(kMagAffects)
