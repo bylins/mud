@@ -1300,52 +1300,11 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 			break;
 		}
 
-		case ESpell::kWarcryOfMadness: {
-			savetype = ESaving::kStability;
-			modi = GetRealCon(ch) * 3 / 2;
-			if (ch == victim || !CalcGeneralSaving(ch, victim, savetype, modi)) {
-				af[0].location = EApply::kInt;
-				af[0].duration = ApplyResist(victim, GetResistType(spell_id),
-											 CalcDuration(victim, 2, level + 3, 4, 6, 0));
-				af[0].modifier = -RollDices((7 + level) / 8, 2);
-				to_vict = "Вы потеряли рассудок.";
-				to_room = "$n0 потерял$g рассудок.";
-
-				savetype = ESaving::kStability;
-				modi = GetRealCon(ch) * 2;
-				if (ch == victim || !CalcGeneralSaving(ch, victim, savetype, modi)) {
-					af[1].location = EApply::kCastSuccess;
-					af[1].duration = af[0].duration;
-					af[1].modifier = -(RollDices((2 + level) / 3, 4) + RollDices(GetRealRemort(ch) / 2, 5));
-
-					af[2].location = EApply::kManaRegen;
-					af[2].duration = af[1].duration;
-					af[2].modifier = af[1].modifier;
-					to_vict = "Вы обезумели.";
-					to_room = "$n0 обезумел$g.";
-				}
-			} else {
-				savetype = ESaving::kStability;
-				modi = GetRealCon(ch) * 2;
-				if (!CalcGeneralSaving(ch, victim, savetype, modi)) {
-					af[0].location = EApply::kCastSuccess;
-					af[0].duration = ApplyResist(victim, GetResistType(spell_id),
-												 CalcDuration(victim, 2, level + 3, 4, 6, 0));
-					af[0].modifier = -(RollDices((2 + level) / 3, 4) + RollDices(GetRealRemort(ch) / 2, 5));
-
-					af[1].location = EApply::kManaRegen;
-					af[1].duration = af[0].duration;
-					af[1].modifier = af[0].modifier;
-					to_vict = "Вас охватила паника.";
-					to_room = "$n0 начал$g сеять панику.";
-				} else {
-					SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
-					success = false;
-				}
-			}
-			update_spell = true;
-			break;
-		}
+		// kWarcryOfMadness is now data-driven (issue: random apply attribute): its <affects>
+		// imposes one randomly-chosen debuff of kInt / kCastSuccess / kManaRegen (all
+		// random="true"). The old cascade of Con-modified saves is replaced by the single
+		// kStability talent saving, and the Con influence is folded into the potency roll
+		// (base_stat kCon) and the modifier weights instead of the save modifier.
 
 		case ESpell::kCombatLuck: af[0].duration = CalcDuration(victim, 6, 0, 0, 0, 0);
 			af[0].affect_type = EAffect::kCombatLuck;

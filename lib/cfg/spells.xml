@@ -3309,12 +3309,30 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="50" min="50" change="91"/>
         <targets val="kTarFightVict"/>
         <flags val="kMagWarcry|kMagAreas|kMagAffects|kNpcAffectPc"/>
+        <potency_roll>
+            <dices ndice="3" sdice="4" adice="0"/>
+            <base_skill id="kWarcry" low_skill_bonus="10" hi_skill_bonus="10"/>
+            <base_stat id="kCon" threshold="20" weight="15"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <area>
                     <decay cast="0.01" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
+                <affects type="kWarcryOfMadness" saving="kStability" resist="kMind">
+                    <duration cnst="2" level_divisor="4" min="6" max="0"/>
+                    <flags val="kAfUpdateDuration|kAfUpdateMod"/>
+                    <apply id="kUndefinded" location="kInt" random="true">
+                        <modifier min="0.0" dices_weight="0.6" competencies_weight="0.1" factor="-1" stack="0"/>
+                    </apply>
+                    <apply id="kUndefinded" location="kCastSuccess" random="true">
+                        <modifier min="0.0" dices_weight="2.0" competencies_weight="1.5" factor="-1" stack="0"/>
+                    </apply>
+                    <apply id="kUndefinded" location="kManaRegen" random="true">
+                        <modifier min="0.0" dices_weight="2.0" competencies_weight="1.5" factor="-1" stack="0"/>
+                    </apply>
+                </affects>
             </action>
         </talent_actions>
     </spell>

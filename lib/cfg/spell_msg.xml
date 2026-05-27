@@ -2046,6 +2046,8 @@
 	<msg_sheaf id="kWarcryOfMadness">
 		<message type="kCastPhraseHeathen" val="Всех убью, а сам$g останусь!" />
 		<message type="kCastPhraseChristian" val="Всех убью, а сам$g останусь!" />
+		<message type="kAffImposedToChar" val="Вы обезумели." />
+		<message type="kAffImposedToRoom" val="$n0 обезумел$g." />
 	</msg_sheaf>
 	<msg_sheaf id="kWarcryOfThunder">
 		<message type="kCastPhraseHeathen" val="Шоб вас приподняло, да шлепнуло!!!" />
