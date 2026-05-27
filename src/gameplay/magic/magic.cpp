@@ -948,7 +948,7 @@ bool ProcessMatComponents(CharData *caster, int /*vnum*/, ESpell spell_id) {
 // affect's duration, kAfUpdateDuration refreshes it to the longer value, and
 // kAfUpdateMod replaces the modifier only when the new magnitude is larger. The
 // caller runs affect_total() afterwards.
-static void ApplyTalentAffect(CharData *victim, Affect<EApply> &af, Bitvector flags) {
+static void ApplyTalentAffect(CharData *victim, Affect<EApply> &af, Bitvector flags, int max_stacks) {
 	const bool accum_dur = IS_SET(flags, to_underlying(EAffFlag::kAfAccumulateDuration));
 	const bool update_dur = IS_SET(flags, to_underlying(EAffFlag::kAfUpdateDuration));
 	const bool update_mod = IS_SET(flags, to_underlying(EAffFlag::kAfUpdateMod));
@@ -960,8 +960,24 @@ static void ApplyTalentAffect(CharData *victim, Affect<EApply> &af, Bitvector fl
 			} else if (update_dur) {
 				af.duration = std::max(af.duration, existing->duration);
 			}
-			if (update_mod && std::abs(existing->modifier) > std::abs(af.modifier)) {
+			if (max_stacks > 1 && existing->stacks < max_stacks) {
+				// Add a stack (issue.affect-stacks): bump the count and accumulate the modifier.
+				// kAfUpdateMod is ignored here; the sum is clamped to int to avoid overflow.
+				af.stacks = existing->stacks + 1;
+				const int64_t sum = static_cast<int64_t>(existing->modifier) + af.modifier;
+				af.modifier = static_cast<int>(std::clamp<int64_t>(sum,
+						std::numeric_limits<int>::min(), std::numeric_limits<int>::max()));
+			} else if (max_stacks > 1) {
+				// Already at the cap: keep the accumulated modifier and stack count, only the
+				// duration (above) is refreshed.
+				af.stacks = existing->stacks;
 				af.modifier = existing->modifier;
+			} else {
+				// Non-stacking affect (max_stacks == 1): legacy kAfUpdateMod behaviour.
+				af.stacks = existing->stacks;
+				if (update_mod && std::abs(existing->modifier) > std::abs(af.modifier)) {
+					af.modifier = existing->modifier;
+				}
 			}
 			victim->AffectRemove(it);
 			break;
@@ -1106,9 +1122,6 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, const ESpell 
 				auto apply_one = [&](const talents_actions::TalentAffect::Apply &apply) {
 					double raw = competencies * apply.competencies_weight + potency.dices * apply.dices_weight;
 					double modifier = apply.min + std::ceil(raw);
-					if (apply.stack > 0) {
-						modifier = std::min(modifier, modifier * apply.stack);
-					}
 					Affect<EApply> taf;
 					taf.type = talent.GetSpell();
 					taf.affect_type = apply.id;
@@ -1119,7 +1132,9 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, const ESpell 
 					taf.caster_id = ch->get_uid();
 					taf.potency = cast_potency;
 					taf.debuff = cast_debuff;
-					ApplyTalentAffect(victim, taf, flags);
+					// apply.stack is the max stack count (issue.affect-stacks): re-applying up to the
+					// cap adds a stack and accumulates the modifier (see ApplyTalentAffect).
+					ApplyTalentAffect(victim, taf, flags, apply.stack);
 				};
 				// Apply every ordinary apply; among the random-flagged ones (the "random"
 				// attribute) impose a single uniformly-chosen winner (reservoir sampling).
@@ -1774,10 +1789,44 @@ void CollectRemovals(CharData *victim, const talents_actions::TalentUnaffect::Se
 	}
 }
 
-// Remove one affect and show its own dispel message (keyed by the removed affect's spell,
-// issues #3335/#3342); an affect whose sheaf has no such message shows nothing.
+// A successful dispel of a stacked affect peels one stack instead of removing it
+// (issue.affect-stacks): for every affect of `spell` with stacks > 1, reduce the stack count by 1
+// and the accumulated modifier proportionally (~modifier/stacks), re-applying so the character's
+// stats update. If no affect of the spell has more than one stack, remove it outright.
+void ReduceStackOrRemove(CharData *victim, ESpell spell) {
+	bool any_multi = false;
+	for (const auto &aff : victim->affected) {
+		if (aff && aff->type == spell && aff->stacks > 1) {
+			any_multi = true;
+			break;
+		}
+	}
+	if (!any_multi) {
+		RemoveAffectFromCharAndRecalculate(victim, spell);
+		return;
+	}
+	std::vector<Affect<EApply>> rebuilt;
+	for (const auto &aff : victim->affected) {
+		if (aff && aff->type == spell) {
+			Affect<EApply> peeled = *aff;
+			if (peeled.stacks > 1) {
+				peeled.modifier = static_cast<int>(
+						static_cast<int64_t>(peeled.modifier) * (peeled.stacks - 1) / peeled.stacks);
+				peeled.stacks -= 1;
+			}
+			rebuilt.push_back(peeled);
+		}
+	}
+	RemoveAffectFromChar(victim, spell);          // strip all of the spell's affects (deltas undone)
+	for (auto &peeled : rebuilt) {
+		affect_to_char(victim, peeled);           // re-add with the reduced modifier (stats recalced)
+	}
+}
+
+// Remove one affect (or peel a stack of it) and show its own dispel message (keyed by the removed
+// affect's spell, issues #3335/#3342); an affect whose sheaf has no such message shows nothing.
 void RemoveAffectAndAnnounce(CharData *ch, CharData *victim, ESpell removed) {
-	RemoveAffectFromCharAndRecalculate(victim, removed);
+	ReduceStackOrRemove(victim, removed);
 	const auto &sheaf = MUD::SpellMessages()[removed];
 	const auto &to_vict = sheaf.GetMessage(ESpellMsg::kAffDispelledToChar);
 	if (!to_vict.empty()) {

@@ -178,7 +178,9 @@ TalentAffect::TalentAffect(parser_wrapper::DataNode &node) {
 				apply.dices_weight = parse::ReadAsDouble(child.GetValue("dices_weight"));
 				apply.competencies_weight = parse::ReadAsDouble(child.GetValue("competencies_weight"));
 				apply.factor = parse::ReadAsInt(child.GetValue("factor"));
-				apply.stack = parse::ReadAsInt(child.GetValue("stack"));
+				// stack: optional max stack count, default 1, clamped to a minimum of 1.
+				const char *stack = child.GetValue("stack");
+				apply.stack = (stack && *stack) ? std::max(1, parse::ReadAsInt(stack)) : 1;
 				child.GoToParent();
 			}
 			applies_.push_back(apply);

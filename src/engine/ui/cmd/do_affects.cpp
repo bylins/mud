@@ -86,6 +86,10 @@ void do_affects(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					strncat(buf, kColorNrm, sizeof(buf) - strlen(buf) - 1);
 				}
 			}
+			// Stack count (issue.affect-stacks): show [xN] for a multi-stack affect.
+			if (aff->stacks > 1) {
+				snprintf(buf + strlen(buf), sizeof(buf) - strlen(buf), " [x%d]", aff->stacks);
+			}
 			SendMsgToChar(strcat(buf, "\r\n"), ch);
 		}
 // отображение наград

@@ -137,13 +137,15 @@ class TalentAffect : public IAction {
 	struct Apply {
 		EAffect id{EAffect::kUndefinded};
 		EApply location{EApply::kNone};
-		// Modifier = factor * min(min + ceil(competencies*competencies_weight
-		//                                      + dices*dices_weight), min*stack).
+		// Modifier = factor * (min + ceil(competencies*competencies_weight + dices*dices_weight)).
 		double min{0.0};
 		double dices_weight{0.0};
 		double competencies_weight{0.0};
 		int factor{1};
-		int stack{0};
+		// Maximum number of stacks this affect may build up on a target (issue.affect-stacks).
+		// Optional; defaults to 1 (no stacking). Values below 1 are clamped to 1. With stack > 1
+		// re-applying adds a stack (accumulating the modifier) until the cap is reached.
+		int stack{1};
 		// When true this apply is not imposed unconditionally: all random-flagged applies of
 		// the affect form one pool from which a single one is chosen at random per cast.
 		bool random{false};

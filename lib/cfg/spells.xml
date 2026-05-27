@@ -26,7 +26,7 @@
                     <duration cnst="2" level_divisor="4" min="6" max="0"/>
                     <flags val="kAfBattledec"/>
                     <apply id="kDeafness" location="kNone">
-                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
             </action>
@@ -87,13 +87,13 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="20" level_divisor="1" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kUndefinded" location="kAc">
-                        <modifier min="20.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                        <modifier min="20.0" dices_weight="0.0" competencies_weight="0.0" factor="-1"/>
                     </apply>
                     <apply id="kUndefinded" location="kSavingReflex">
-                        <modifier min="5.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                        <modifier min="5.0" dices_weight="0.0" competencies_weight="0.0" factor="-1"/>
                     </apply>
                     <apply id="kUndefinded" location="kSavingStability">
-                        <modifier min="5.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                        <modifier min="5.0" dices_weight="0.0" competencies_weight="0.0" factor="-1"/>
                     </apply>
                 </affects>
             </action>
@@ -123,10 +123,10 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="20" level_divisor="1" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kBless" location="kSavingStability">
-                        <modifier min="5.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                        <modifier min="5.0" dices_weight="0.0" competencies_weight="0.0" factor="-1"/>
                     </apply>
                     <apply id="kBless" location="kSavingWill">
-                        <modifier min="5.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                        <modifier min="5.0" dices_weight="0.0" competencies_weight="0.0" factor="-1"/>
                     </apply>
                 </affects>
             </action>
@@ -150,7 +150,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="2" level_divisor="8" min="0" max="0"/>
                     <flags val="kAfBattledec"/>
                     <apply id="kBlind" location="kNone">
-                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
             </action>
@@ -240,7 +240,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="2" level_divisor="4" min="6" max="0"/>
                     <flags val="kAfBattledec|kAfAccumulateDuration"/>
                     <apply id="kUndefinded" location="kStr">
-                        <modifier min="1.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                        <modifier min="1.0" dices_weight="0.0" competencies_weight="0.0" factor="-1"/>
                     </apply>
                 </affects>
             </action>
@@ -369,13 +369,13 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="20" level_divisor="1" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kCurse" location="kHitroll">
-                        <modifier min="1.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="1.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                     <apply id="kCurse" location="kInitiative">
-                        <modifier min="5.0" dices_weight="0.0" competencies_weight="30.0" factor="-1" stack="0"/>
+                        <modifier min="5.0" dices_weight="0.0" competencies_weight="30.0" factor="-1"/>
                     </apply>
                     <apply id="kCurse" location="kCastSuccess">
-                        <modifier min="1.0" dices_weight="0.0" competencies_weight="100.0" factor="-1" stack="0"/>
+                        <modifier min="1.0" dices_weight="0.0" competencies_weight="100.0" factor="-1"/>
                     </apply>
                 </affects>
             </action>
@@ -398,7 +398,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="20" level_divisor="1" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kDetectAlign" location="kNone">
-                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
             </action>
@@ -421,7 +421,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="20" level_divisor="1" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kDetectInvisible" location="kNone">
-                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
             </action>
@@ -444,7 +444,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="20" level_divisor="1" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kDetectMagic" location="kNone">
-                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
             </action>
@@ -467,7 +467,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="20" level_divisor="1" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kDetectPoison" location="kNone">
-                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
             </action>
@@ -536,7 +536,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="4" level_divisor="5" min="4" max="0"/>
                     <flags val="kAfBattledec"/>
                     <apply id="kUndefinded" location="kStr">
-                        <modifier min="10.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                        <modifier min="10.0" dices_weight="0.0" competencies_weight="0.0" factor="-1"/>
                     </apply>
                 </affects>
                 <unaffect>
@@ -617,7 +617,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="20" level_divisor="1" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kInvisible" location="kAc">
-                        <modifier min="40.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                        <modifier min="40.0" dices_weight="0.0" competencies_weight="0.0" factor="-1"/>
                     </apply>
                 </affects>
             </action>
@@ -690,10 +690,10 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="0" level_divisor="1" min="0" max="0"/>
                     <flags val="kAfSameTime"/>
                     <apply id="kPoisoned" location="kStr">
-                        <modifier min="2.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                        <modifier min="2.0" dices_weight="0.0" competencies_weight="0.0" factor="-1"/>
                     </apply>
                     <apply id="kPoisoned" location="kPoison">
-                        <modifier min="30.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="30.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
             </action>
@@ -716,7 +716,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="20" level_divisor="1" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kProtectFromDark" location="kResistDark">
-                        <modifier min="5.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="5.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
             </action>
@@ -759,7 +759,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="20" level_divisor="1" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kSanctuary" location="kNone">
-                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
                 <unaffect>
@@ -805,7 +805,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="1" level_divisor="6" min="1" max="6"/>
                     <flags val="kAfBattledec"/>
                     <apply id="kSleep" location="kNone">
-                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
             </action>
@@ -828,7 +828,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="20" level_divisor="1" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kUndefinded" location="kStr">
-                        <modifier min="5.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="5.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
                 <unaffect>
@@ -865,7 +865,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="3" level_divisor="10" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kUndefinded" location="kHp">
-                        <modifier min="60.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="60.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
             </action>
@@ -914,7 +914,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="20" level_divisor="1" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kDetectLife" location="kNone">
-                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
             </action>
@@ -965,13 +965,13 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="20" level_divisor="1" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kUndefinded" location="kAc">
-                        <modifier min="20.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                        <modifier min="20.0" dices_weight="0.0" competencies_weight="0.0" factor="-1"/>
                     </apply>
                     <apply id="kUndefinded" location="kSavingReflex">
-                        <modifier min="5.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                        <modifier min="5.0" dices_weight="0.0" competencies_weight="0.0" factor="-1"/>
                     </apply>
                     <apply id="kUndefinded" location="kSavingStability">
-                        <modifier min="5.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                        <modifier min="5.0" dices_weight="0.0" competencies_weight="0.0" factor="-1"/>
                     </apply>
                 </affects>
             </action>
@@ -1051,7 +1051,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="20" level_divisor="1" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kInfravision" location="kNone">
-                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
             </action>
@@ -1074,7 +1074,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="20" level_divisor="1" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kWaterWalk" location="kNone">
-                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
             </action>
@@ -1120,7 +1120,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="20" level_divisor="1" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kUndefinded" location="kStr">
-                        <modifier min="5.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="5.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
                 <unaffect>
@@ -1148,7 +1148,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="1" level_divisor="10" min="1" max="3"/>
                     <flags val="kAfBattledec"/>
                     <apply id="kHold" location="kNone">
-                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
             </action>
@@ -1172,7 +1172,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="2" level_divisor="8" min="2" max="5"/>
                     <flags val="kAfBattledec"/>
                     <apply id="kHold" location="kNone">
-                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
             </action>
@@ -1200,7 +1200,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="1" level_divisor="10" min="1" max="3"/>
                     <flags val="kAfBattledec"/>
                     <apply id="kHold" location="kNone">
-                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
             </action>
@@ -1223,7 +1223,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="20" level_divisor="1" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kFly" location="kNone">
-                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
             </action>
@@ -1246,7 +1246,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="10" level_divisor="1" min="0" max="0"/>
                     <flags val="kAfBattledec|kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kBrokenChains" location="kNone">
-                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
             </action>
@@ -1270,7 +1270,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="3" level_divisor="4" min="4" max="0"/>
                     <flags val="kAfBattledec"/>
                     <apply id="kNoTeleport" location="kNone">
-                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
             </action>
@@ -1300,7 +1300,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="20" level_divisor="1" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kHolyDark" location="kNone">
-                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
             </action>
@@ -1323,7 +1323,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="20" level_divisor="1" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kUndefinded" location="kAbsorbe">
-                        <modifier min="18.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="18.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
             </action>
@@ -1346,10 +1346,10 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="20" level_divisor="1" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kUndefinded" location="kSpelledBlinkMag">
-                        <modifier min="10.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="10.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                     <apply id="kUndefinded" location="kAc">
-                        <modifier min="20.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                        <modifier min="20.0" dices_weight="0.0" competencies_weight="0.0" factor="-1"/>
                     </apply>
                 </affects>
             </action>
@@ -1373,7 +1373,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="2" level_divisor="8" min="3" max="0"/>
                     <flags val="kAfBattledec"/>
                     <apply id="kSilence" location="kNone">
-                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
             </action>
@@ -1396,7 +1396,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="20" level_divisor="1" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kHolyLight" location="kNone">
-                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
             </action>
@@ -1482,7 +1482,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="4" level_divisor="5" min="4" max="0"/>
                     <flags val="kAfBattledec"/>
                     <apply id="kUndefinded" location="kStr">
-                        <modifier min="5.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                        <modifier min="5.0" dices_weight="0.0" competencies_weight="0.0" factor="-1"/>
                     </apply>
                 </affects>
                 <unaffect>
@@ -1514,7 +1514,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="20" level_divisor="1" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kInvisible" location="kAc">
-                        <modifier min="40.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                        <modifier min="40.0" dices_weight="0.0" competencies_weight="0.0" factor="-1"/>
                     </apply>
                 </affects>
             </action>
@@ -1537,7 +1537,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="20" level_divisor="1" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kShadowCloak" location="kSavingStability">
-                        <modifier min="3.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                        <modifier min="3.0" dices_weight="0.0" competencies_weight="0.0" factor="-1"/>
                     </apply>
                 </affects>
             </action>
@@ -1588,7 +1588,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="20" level_divisor="1" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kUndefinded" location="kSize">
-                        <modifier min="18.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="18.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
                 <unaffect>
@@ -1644,10 +1644,10 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="3" level_divisor="6" min="0" max="0"/>
                     <flags val="kAfBattledec"/>
                     <apply id="kNoFlee" location="kHitroll">
-                        <modifier min="3.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                        <modifier min="3.0" dices_weight="0.0" competencies_weight="0.0" factor="-1"/>
                     </apply>
                     <apply id="kNoFlee" location="kAc">
-                        <modifier min="20.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="20.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
             </action>
@@ -1670,7 +1670,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="20" level_divisor="1" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kUndefinded" location="kSpelledBlinkPhys">
-                        <modifier min="12.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="12.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
             </action>
@@ -1724,7 +1724,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="3" level_divisor="6" min="0" max="0"/>
                     <flags val="kAfBattledec"/>
                     <apply id="kBlind" location="kNone">
-                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
             </action>
@@ -1752,7 +1752,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="2" level_divisor="8" min="0" max="0"/>
                     <flags val="kAfBattledec"/>
                     <apply id="kBlind" location="kNone">
-                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
             </action>
@@ -1776,7 +1776,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="2" level_divisor="4" min="6" max="0"/>
                     <flags val="kAfBattledec"/>
                     <apply id="kSilence" location="kNone">
-                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
             </action>
@@ -1825,13 +1825,13 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="20" level_divisor="1" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kUndefinded" location="kAc">
-                        <modifier min="50.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                        <modifier min="50.0" dices_weight="0.0" competencies_weight="0.0" factor="-1"/>
                     </apply>
                     <apply id="kUndefinded" location="kSavingReflex">
-                        <modifier min="6.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                        <modifier min="6.0" dices_weight="0.0" competencies_weight="0.0" factor="-1"/>
                     </apply>
                     <apply id="kUndefinded" location="kSavingStability">
-                        <modifier min="6.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                        <modifier min="6.0" dices_weight="0.0" competencies_weight="0.0" factor="-1"/>
                     </apply>
                 </affects>
             </action>
@@ -1866,7 +1866,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="2" level_divisor="8" min="3" max="0"/>
                     <flags val="kAfBattledec"/>
                     <apply id="kSilence" location="kNone">
-                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
             </action>
@@ -1967,10 +1967,10 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="20" level_divisor="1" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kCurse" location="kHitroll">
-                        <modifier min="1.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="1.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                     <apply id="kCurse" location="kDamroll">
-                        <modifier min="1.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                        <modifier min="1.0" dices_weight="0.0" competencies_weight="0.0" factor="-1"/>
                     </apply>
                 </affects>
                 <area>
@@ -2022,7 +2022,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="20" level_divisor="1" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kFly" location="kNone">
-                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
             </action>
@@ -2049,10 +2049,10 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="20" level_divisor="1" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kBless" location="kSavingStability">
-                        <modifier min="5.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                        <modifier min="5.0" dices_weight="0.0" competencies_weight="0.0" factor="-1"/>
                     </apply>
                     <apply id="kBless" location="kSavingWill">
-                        <modifier min="5.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                        <modifier min="5.0" dices_weight="0.0" competencies_weight="0.0" factor="-1"/>
                     </apply>
                 </affects>
             </action>
@@ -2138,7 +2138,7 @@ base_stat id - (например "kWis") какой берем параметр,
                 <affects type="kColdWind" saving="kStability" resist="kAir">
                     <duration cnst="9" level_divisor="0" min="0" max="0"/>
                     <apply id="kUndefinded" location="kDex">
-                        <modifier min="4.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                        <modifier min="4.0" dices_weight="0.0" competencies_weight="0.0" factor="-1"/>
                     </apply>
                 </affects>
             </action>
@@ -2189,7 +2189,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="20" level_divisor="1" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kWaterBreath" location="kNone">
-                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
             </action>
@@ -2212,10 +2212,10 @@ base_stat id - (например "kWis") какой берем параметр,
                 <affects type="kSlowdown" saving="kStability" resist="kMind">
                     <duration cnst="9" level_divisor="0" min="0" max="0"/>
                     <apply id="kSlow" location="kNone">
-                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                     <apply id="kUndefinded" location="kDex">
-                        <modifier min="2.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                        <modifier min="2.0" dices_weight="0.0" competencies_weight="0.0" factor="-1"/>
                     </apply>
                 </affects>
                 <unaffect>
@@ -2242,7 +2242,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="20" level_divisor="1" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kHaste" location="kSavingReflex">
-                        <modifier min="1.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                        <modifier min="1.0" dices_weight="0.0" competencies_weight="0.0" factor="-1"/>
                     </apply>
                 </affects>
                 <unaffect>
@@ -2273,10 +2273,10 @@ base_stat id - (например "kWis") какой берем параметр,
                 <affects type="kSlowdown" saving="kStability" resist="kMind">
                     <duration cnst="9" level_divisor="0" min="0" max="0"/>
                     <apply id="kSlow" location="kNone">
-                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                     <apply id="kUndefinded" location="kDex">
-                        <modifier min="2.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                        <modifier min="2.0" dices_weight="0.0" competencies_weight="0.0" factor="-1"/>
                     </apply>
                 </affects>
                 <unaffect>
@@ -2307,7 +2307,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="20" level_divisor="1" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kHaste" location="kSavingReflex">
-                        <modifier min="1.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                        <modifier min="1.0" dices_weight="0.0" competencies_weight="0.0" factor="-1"/>
                     </apply>
                 </affects>
                 <unaffect>
@@ -2334,13 +2334,13 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="4" level_divisor="0" min="0" max="0"/>
                     <flags val="kAfBattledec|kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kGodsShield" location="kSavingStability">
-                        <modifier min="10.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                        <modifier min="10.0" dices_weight="0.0" competencies_weight="0.0" factor="-1"/>
                     </apply>
                     <apply id="kGodsShield" location="kSavingWill">
-                        <modifier min="10.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                        <modifier min="10.0" dices_weight="0.0" competencies_weight="0.0" factor="-1"/>
                     </apply>
                     <apply id="kGodsShield" location="kSavingReflex">
-                        <modifier min="10.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                        <modifier min="10.0" dices_weight="0.0" competencies_weight="0.0" factor="-1"/>
                     </apply>
                 </affects>
             </action>
@@ -2366,28 +2366,28 @@ base_stat id - (например "kWis") какой берем параметр,
                 <affects type="kFever" saving="kStability" resist="kImmunity">
                     <duration cnst="0" level_divisor="2" min="0" max="0"/>
                     <apply id="kUndefinded" location="kHpRegen">
-                        <modifier min="95.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                        <modifier min="95.0" dices_weight="0.0" competencies_weight="0.0" factor="-1"/>
                     </apply>
                     <apply id="kUndefinded" location="kManaRegen">
-                        <modifier min="95.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                        <modifier min="95.0" dices_weight="0.0" competencies_weight="0.0" factor="-1"/>
                     </apply>
                     <apply id="kUndefinded" location="kMoveRegen">
-                        <modifier min="95.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                        <modifier min="95.0" dices_weight="0.0" competencies_weight="0.0" factor="-1"/>
                     </apply>
                     <apply id="kUndefinded" location="kPlague">
-                        <modifier min="30.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="30.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                     <apply id="kUndefinded" location="kWis">
-                        <modifier min="2.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                        <modifier min="2.0" dices_weight="0.0" competencies_weight="0.0" factor="-1"/>
                     </apply>
                     <apply id="kUndefinded" location="kInt">
-                        <modifier min="2.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                        <modifier min="2.0" dices_weight="0.0" competencies_weight="0.0" factor="-1"/>
                     </apply>
                     <apply id="kUndefinded" location="kDex">
-                        <modifier min="2.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                        <modifier min="2.0" dices_weight="0.0" competencies_weight="0.0" factor="-1"/>
                     </apply>
                     <apply id="kUndefinded" location="kStr">
-                        <modifier min="2.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                        <modifier min="2.0" dices_weight="0.0" competencies_weight="0.0" factor="-1"/>
                     </apply>
                 </affects>
             </action>
@@ -2429,10 +2429,10 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="20" level_divisor="1" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kAwarness" location="kNone">
-                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                     <apply id="kAwarness" location="kSavingReflex">
-                        <modifier min="1.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                        <modifier min="1.0" dices_weight="0.0" competencies_weight="0.0" factor="-1"/>
                     </apply>
                 </affects>
             </action>
@@ -2462,7 +2462,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="10" level_divisor="0" min="0" max="0"/>
                     <flags val="kAfBattledec|kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kAirShield" location="kNone">
-                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
                 <unaffect>
@@ -2528,10 +2528,10 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="20" level_divisor="1" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kUndefinded" location="kHpRegen">
-                        <modifier min="50.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="50.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                     <apply id="kUndefinded" location="kMoveRegen">
-                        <modifier min="50.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="50.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
             </action>
@@ -2561,7 +2561,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="10" level_divisor="0" min="0" max="0"/>
                     <flags val="kAfBattledec|kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kFireShield" location="kNone">
-                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
                 <unaffect>
@@ -2601,7 +2601,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="10" level_divisor="0" min="0" max="0"/>
                     <flags val="kAfBattledec|kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kIceShield" location="kNone">
-                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
                 <unaffect>
@@ -2633,7 +2633,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="2" level_divisor="0" min="0" max="0"/>
                     <flags val="kAfBattledec|kAfPulsedec"/>
                     <apply id="kMagicStopFight" location="kNone">
-                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
             </action>
@@ -2656,7 +2656,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="20" level_divisor="1" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kUndefinded" location="kSize">
-                        <modifier min="15.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                        <modifier min="15.0" dices_weight="0.0" competencies_weight="0.0" factor="-1"/>
                     </apply>
                 </affects>
                 <unaffect>
@@ -2685,7 +2685,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="2" level_divisor="8" min="0" max="0"/>
                     <flags val="kAfBattledec"/>
                     <apply id="kBlind" location="kNone">
-                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
             </action>
@@ -2707,10 +2707,10 @@ base_stat id - (например "kWis") какой берем параметр,
                 <affects type="kMadness" saving="kWill" resist="kMind">
                     <duration cnst="3" level_divisor="0" min="0" max="0"/>
                     <apply id="kNoFlee" location="kNone">
-                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                     <apply id="kUndefinded" location="kMadness">
-                        <modifier min="30.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="30.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
             </action>
@@ -2737,7 +2737,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="10" level_divisor="1" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kMagicGlass" location="kNone">
-                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
             </action>
@@ -2760,7 +2760,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="10" level_divisor="1" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kCloudOfArrows" location="kHitroll">
-                        <modifier min="5.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="5.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
             </action>
@@ -2807,7 +2807,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="20" level_divisor="1" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kStoneHands" location="kNone">
-                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
             </action>
@@ -2829,13 +2829,13 @@ base_stat id - (например "kWis") какой берем параметр,
                 <affects type="kMindless" saving="kStability" resist="kMind">
                     <duration cnst="0" level_divisor="10" min="0" max="0"/>
                     <apply id="kUndefinded" location="kManaRegen">
-                        <modifier min="50.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                        <modifier min="50.0" dices_weight="0.0" competencies_weight="0.0" factor="-1"/>
                     </apply>
                     <apply id="kUndefinded" location="kCastSuccess">
-                        <modifier min="50.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                        <modifier min="50.0" dices_weight="0.0" competencies_weight="0.0" factor="-1"/>
                     </apply>
                     <apply id="kUndefinded" location="kHitroll">
-                        <modifier min="5.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                        <modifier min="5.0" dices_weight="0.0" competencies_weight="0.0" factor="-1"/>
                     </apply>
                 </affects>
             </action>
@@ -2859,7 +2859,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="20" level_divisor="1" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kPrismaticAura" location="kNone">
-                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
                 <unaffect>
@@ -2894,10 +2894,10 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="10" level_divisor="0" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kForcesOfEvil" location="kDamroll">
-                        <modifier min="15.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="15.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                     <apply id="kForcesOfEvil" location="kHitroll">
-                        <modifier min="7.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="7.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
             </action>
@@ -2924,7 +2924,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="20" level_divisor="1" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kAirAura" location="kResistAir">
-                        <modifier min="25.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="25.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
             </action>
@@ -2951,7 +2951,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="20" level_divisor="1" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kFireAura" location="kResistWater">
-                        <modifier min="25.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="25.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
             </action>
@@ -2978,7 +2978,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="20" level_divisor="1" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kIceAura" location="kResistFire">
-                        <modifier min="25.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="25.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
             </action>
@@ -3007,10 +3007,10 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="2" level_divisor="0" min="0" max="0"/>
                     <flags val="kAfBattledec|kAfPulsedec"/>
                     <apply id="kMagicStopFight" location="kNone">
-                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                     <apply id="kBlind" location="kNone">
-                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
             </action>
@@ -3033,7 +3033,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="10" level_divisor="1" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kMagicGlass" location="kNone">
-                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
             </action>
@@ -3061,7 +3061,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="20" level_divisor="1" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kSanctuary" location="kNone">
-                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
                 <unaffect>
@@ -3093,7 +3093,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="20" level_divisor="1" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kPrismaticAura" location="kNone">
-                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
                 <unaffect>
@@ -3120,7 +3120,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="2" level_divisor="8" min="3" max="0"/>
                     <flags val="kAfBattledec"/>
                     <apply id="kDeafness" location="kNone">
-                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
             </action>
@@ -3143,7 +3143,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="4" level_divisor="4" min="3" max="0"/>
                     <flags val="kAfBattledec"/>
                     <apply id="kDeafness" location="kNone">
-                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
             </action>
@@ -3189,7 +3189,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="2" level_divisor="8" min="3" max="0"/>
                     <flags val="kAfBattledec"/>
                     <apply id="kDeafness" location="kNone">
-                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
             </action>
@@ -3218,7 +3218,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="3" level_divisor="6" min="0" max="0"/>
                     <flags val="kAfBattledec"/>
                     <apply id="kBlind" location="kNone">
-                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
             </action>
@@ -3247,7 +3247,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="2" level_divisor="0" min="0" max="0"/>
                     <flags val="kAfBattledec|kAfPulsedec"/>
                     <apply id="kMagicStopFight" location="kNone">
-                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
             </action>
@@ -3275,7 +3275,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="2" level_divisor="4" min="6" max="0"/>
                     <flags val="kAfBattledec"/>
                     <apply id="kDeafness" location="kNone">
-                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
             </action>
@@ -3300,7 +3300,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="1" level_divisor="10" min="1" max="3"/>
                     <flags val="kAfBattledec"/>
                     <apply id="kHold" location="kNone">
-                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
             </action>
@@ -3345,7 +3345,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="20" level_divisor="1" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kUndefinded" location="kCha">
-                        <modifier min="3.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="3.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
             </action>
@@ -3370,16 +3370,16 @@ base_stat id - (например "kWis") какой берем параметр,
                 <affects type="kCrying" saving="kStability" resist="kMind">
                     <duration cnst="5" level_divisor="0" min="0" max="0"/>
                     <apply id="kCrying" location="kHp">
-                        <modifier min="0.0" dices_weight="0.0" competencies_weight="1.0" factor="-1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="1.0" factor="-1"/>
                     </apply>
                     <apply id="kCrying" location="kLikes">
-                        <modifier min="3.0" dices_weight="0.0" competencies_weight="0.05" factor="-1" stack="0"/>
+                        <modifier min="3.0" dices_weight="0.0" competencies_weight="0.05" factor="-1"/>
                     </apply>
                     <apply id="kCrying" location="kCastSuccess">
-                        <modifier min="3.0" dices_weight="0.0" competencies_weight="0.02" factor="-1" stack="0"/>
+                        <modifier min="3.0" dices_weight="0.0" competencies_weight="0.02" factor="-1"/>
                     </apply>
                     <apply id="kCrying" location="kMorale">
-                        <modifier min="2.0" dices_weight="0.0" competencies_weight="0.01" factor="-1" stack="0"/>
+                        <modifier min="2.0" dices_weight="0.0" competencies_weight="0.01" factor="-1"/>
                     </apply>
                 </affects>
             </action>
@@ -3403,7 +3403,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="3" level_divisor="0" min="0" max="0"/>
                     <flags val="kAfBattledec"/>
                     <apply id="kSlow" location="kNone">
-                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
             </action>
@@ -3431,7 +3431,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="3" level_divisor="0" min="0" max="0"/>
                     <flags val="kAfBattledec"/>
                     <apply id="kSlow" location="kNone">
-                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
             </action>
@@ -3471,7 +3471,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <lag base="2" bonus_divisor="-1"/>
                     <duration cnst="2" level_divisor="0" min="0" max="0"/>
                     <apply id="kPeaceful" location="kNone">
-                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
             </action>
@@ -3488,10 +3488,10 @@ base_stat id - (например "kWis") какой берем параметр,
                 <affects type="kMagicBattle" saving="kNone" resist="kVitality">
                     <duration cnst="2" level_divisor="8" min="0" max="0"/>
                     <apply id="kUndefinded" location="kHitroll">
-                        <modifier min="4.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                        <modifier min="4.0" dices_weight="0.0" competencies_weight="0.0" factor="-1"/>
                     </apply>
                     <apply id="kUndefinded" location="kCastSuccess">
-                        <modifier min="8.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                        <modifier min="8.0" dices_weight="0.0" competencies_weight="0.0" factor="-1"/>
                     </apply>
                 </affects>
             </action>
@@ -3527,10 +3527,10 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="100" level_divisor="1" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kUndefinded" location="kArmour">
-                        <modifier min="45.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="45.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                     <apply id="kUndefinded" location="kSavingStability">
-                        <modifier min="45.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="45.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
             </action>
@@ -3583,25 +3583,25 @@ base_stat id - (например "kWis") какой берем параметр,
                 <affects type="kFailure" saving="kWill" resist="kDark">
                     <duration cnst="2" level_divisor="2" min="0" max="0"/>
                     <apply id="kUndefinded" location="kMorale">
-                        <modifier min="5.0" dices_weight="0.0" competencies_weight="1.0" factor="-1" stack="0"/>
+                        <modifier min="5.0" dices_weight="0.0" competencies_weight="1.0" factor="-1"/>
                     </apply>
                     <apply id="kUndefinded" location="kStr" random="true">
-                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.11" factor="-1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.11" factor="-1"/>
                     </apply>
                     <apply id="kUndefinded" location="kDex" random="true">
-                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.11" factor="-1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.11" factor="-1"/>
                     </apply>
                     <apply id="kUndefinded" location="kInt" random="true">
-                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.11" factor="-1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.11" factor="-1"/>
                     </apply>
                     <apply id="kUndefinded" location="kWis" random="true">
-                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.11" factor="-1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.11" factor="-1"/>
                     </apply>
                     <apply id="kUndefinded" location="kCon" random="true">
-                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.11" factor="-1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.11" factor="-1"/>
                     </apply>
                     <apply id="kUndefinded" location="kCha" random="true">
-                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.11" factor="-1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.11" factor="-1"/>
                     </apply>
                 </affects>
             </action>
@@ -3641,7 +3641,7 @@ base_stat id - (например "kWis") какой берем параметр,
                 <affects type="kGlitterDust" saving="kReflex" resist="kEarth">
                     <duration cnst="4" level_divisor="0" min="0" max="0"/>
                     <apply id="kGlitterDust" location="kSavingReflex">
-                        <modifier min="12.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="12.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
             </action>
@@ -3668,10 +3668,10 @@ base_stat id - (например "kWis") какой берем параметр,
                 <affects type="kScream" saving="kStability" resist="kAir">
                     <duration cnst="2" level_divisor="2" min="0" max="0"/>
                     <apply id="kAffright" location="kSavingWill">
-                        <modifier min="15.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="15.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                     <apply id="kAffright" location="kMorale">
-                        <modifier min="6.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                        <modifier min="6.0" dices_weight="0.0" competencies_weight="0.0" factor="-1"/>
                     </apply>
                 </affects>
             </action>
@@ -3694,7 +3694,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="20" level_divisor="1" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kUndefinded" location="kDex">
-                        <modifier min="3.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="3.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
             </action>
@@ -3717,7 +3717,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="20" level_divisor="1" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kUndefinded" location="kCon">
-                        <modifier min="3.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="3.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
             </action>
@@ -3740,7 +3740,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="20" level_divisor="1" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kUndefinded" location="kWis">
-                        <modifier min="2.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="2.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
             </action>
@@ -3763,7 +3763,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="20" level_divisor="1" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kUndefinded" location="kInt">
-                        <modifier min="2.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="2.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
             </action>
@@ -3806,7 +3806,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="2" level_divisor="4" min="6" max="0"/>
                     <flags val="kAfBattledec"/>
                     <apply id="kWarcryOfMenace" location="kMorale">
-                        <modifier min="1.0" dices_weight="20.0" competencies_weight="30.0" factor="-1" stack="0"/>
+                        <modifier min="1.0" dices_weight="20.0" competencies_weight="30.0" factor="-1"/>
                     </apply>
                 </affects>
                 <area>
@@ -3843,7 +3843,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="2" level_divisor="4" min="6" max="0"/>
                     <flags val="kAfBattledec"/>
                     <apply id="kDeafness" location="kNone">
-                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
             </action>
@@ -3870,13 +3870,13 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="2" level_divisor="4" min="6" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kUndefinded" location="kInt" random="true">
-                        <modifier min="0.0" dices_weight="0.6" competencies_weight="0.1" factor="-1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.6" competencies_weight="0.1" factor="-1"/>
                     </apply>
                     <apply id="kUndefinded" location="kCastSuccess" random="true">
-                        <modifier min="0.0" dices_weight="2.0" competencies_weight="1.5" factor="-1" stack="0"/>
+                        <modifier min="0.0" dices_weight="2.0" competencies_weight="1.5" factor="-1"/>
                     </apply>
                     <apply id="kUndefinded" location="kManaRegen" random="true">
-                        <modifier min="0.0" dices_weight="2.0" competencies_weight="1.5" factor="-1" stack="0"/>
+                        <modifier min="0.0" dices_weight="2.0" competencies_weight="1.5" factor="-1"/>
                     </apply>
                 </affects>
             </action>
@@ -3905,7 +3905,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="2" level_divisor="4" min="0" max="6"/>
                     <flags val="kAfBattledec"/>
                     <apply id="kDeafness" location="kSavingCritical">
-                        <modifier min="20.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                        <modifier min="20.0" dices_weight="0.0" competencies_weight="0.0" factor="-1"/>
                     </apply>
                 </affects>
             </action>
@@ -3932,16 +3932,16 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="2" level_divisor="20" min="10" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kUndefinded" location="kSavingCritical">
-                        <modifier min="20.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                        <modifier min="20.0" dices_weight="0.0" competencies_weight="0.0" factor="-1"/>
                     </apply>
                     <apply id="kUndefinded" location="kSavingReflex">
-                        <modifier min="20.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                        <modifier min="20.0" dices_weight="0.0" competencies_weight="0.0" factor="-1"/>
                     </apply>
                     <apply id="kUndefinded" location="kSavingStability">
-                        <modifier min="20.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                        <modifier min="20.0" dices_weight="0.0" competencies_weight="0.0" factor="-1"/>
                     </apply>
                     <apply id="kUndefinded" location="kSavingWill">
-                        <modifier min="20.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                        <modifier min="20.0" dices_weight="0.0" competencies_weight="0.0" factor="-1"/>
                     </apply>
                 </affects>
             </action>
@@ -3968,7 +3968,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="2" level_divisor="20" min="10" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kUndefinded" location="kAc">
-                        <modifier min="20.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                        <modifier min="20.0" dices_weight="0.0" competencies_weight="0.0" factor="-1"/>
                     </apply>
                 </affects>
             </action>
@@ -3998,7 +3998,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="2" level_divisor="20" min="10" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kUndefinded" location="kHp">
-                        <modifier min="100.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="100.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
             </action>
@@ -4025,10 +4025,10 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="2" level_divisor="20" min="10" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kUndefinded" location="kSavingStability">
-                        <modifier min="10.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                        <modifier min="10.0" dices_weight="0.0" competencies_weight="0.0" factor="-1"/>
                     </apply>
                     <apply id="kUndefinded" location="kSavingWill">
-                        <modifier min="10.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                        <modifier min="10.0" dices_weight="0.0" competencies_weight="0.0" factor="-1"/>
                     </apply>
                 </affects>
             </action>
@@ -4055,10 +4055,10 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="2" level_divisor="20" min="10" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kUndefinded" location="kHitroll">
-                        <modifier min="5.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="5.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                     <apply id="kUndefinded" location="kDamroll">
-                        <modifier min="7.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="7.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
             </action>
@@ -4089,7 +4089,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="7" level_divisor="0" min="0" max="0"/>
                     <flags val="kAfSameTime"/>
                     <apply id="kPoisoned" location="kAconitumPoison">
-                        <modifier min="30.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="30.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
             </action>
@@ -4113,10 +4113,10 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="7" level_divisor="0" min="0" max="0"/>
                     <flags val="kAfSameTime"/>
                     <apply id="kPoisoned" location="kScopolaPoison">
-                        <modifier min="5.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="5.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                     <apply id="kScopolaPoison" location="kNone">
-                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
             </action>
@@ -4140,7 +4140,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="7" level_divisor="0" min="0" max="0"/>
                     <flags val="kAfSameTime"/>
                     <apply id="kPoisoned" location="kBelenaPoison">
-                        <modifier min="5.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="5.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
             </action>
@@ -4164,7 +4164,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="7" level_divisor="0" min="0" max="0"/>
                     <flags val="kAfSameTime"/>
                     <apply id="kPoisoned" location="kDaturaPoison">
-                        <modifier min="5.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="5.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
             </action>
@@ -4250,7 +4250,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="10" level_divisor="1" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kVampirism" location="kDamroll">
-                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
             </action>
@@ -4361,7 +4361,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="3" level_divisor="4" min="4" max="0"/>
                     <flags val="kAfBattledec"/>
                     <apply id="kNoTeleport" location="kNone">
-                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
             </action>
@@ -4454,7 +4454,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="20" level_divisor="1" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kInfravision" location="kNone">
-                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
             </action>
@@ -4481,7 +4481,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="20" level_divisor="1" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kDetectAlign" location="kNone">
-                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
             </action>
@@ -4508,7 +4508,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="20" level_divisor="1" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kDetectMagic" location="kNone">
-                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
             </action>
@@ -4535,7 +4535,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="20" level_divisor="1" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kDetectInvisible" location="kNone">
-                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
             </action>
@@ -4562,7 +4562,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="20" level_divisor="1" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kDetectLife" location="kNone">
-                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
             </action>
@@ -4589,7 +4589,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="20" level_divisor="1" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kWaterBreath" location="kNone">
-                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
             </action>
@@ -4616,10 +4616,10 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="20" level_divisor="1" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kUndefinded" location="kHpRegen">
-                        <modifier min="50.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="50.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                     <apply id="kUndefinded" location="kMoveRegen">
-                        <modifier min="50.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="50.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
             </action>
@@ -4661,7 +4661,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="20" level_divisor="1" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kUndefinded" location="kAbsorbe">
-                        <modifier min="18.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="18.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
             </action>
@@ -4688,7 +4688,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="20" level_divisor="1" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kDetectPoison" location="kNone">
-                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
             </action>
@@ -4715,7 +4715,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="20" level_divisor="1" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kEarthAura" location="kResistEarth">
-                        <modifier min="25.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="25.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
             </action>
@@ -4742,7 +4742,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="20" level_divisor="1" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kProtectFromDark" location="kResistDark">
-                        <modifier min="25.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="25.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
             </action>
@@ -4862,16 +4862,16 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="5" level_divisor="0" min="0" max="0"/>
                     <flags val="kAfBattledec|kAfPulsedec"/>
                     <apply id="kUndefinded" location="kPhysicDamagePercent" random="true">
-                        <modifier min="0.0" dices_weight="0.0" competencies_weight="2.0" factor="1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="2.0" factor="1"/>
                     </apply>
                     <apply id="kUndefinded" location="kCastSuccess" random="true">
-                        <modifier min="0.0" dices_weight="0.0" competencies_weight="2.0" factor="1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="2.0" factor="1"/>
                     </apply>
                     <apply id="kUndefinded" location="kManaRegen" random="true">
-                        <modifier min="0.0" dices_weight="0.0" competencies_weight="7.0" factor="1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="7.0" factor="1"/>
                     </apply>
                     <apply id="kUndefinded" location="kMagicDamagePercent" random="true">
-                        <modifier min="0.0" dices_weight="0.0" competencies_weight="2.0" factor="1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="2.0" factor="1"/>
                     </apply>
                 </affects>
             </action>
@@ -4894,7 +4894,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="20" level_divisor="1" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kUndefinded" location="kDex">
-                        <modifier min="5.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="5.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
                 <unaffect>
@@ -4925,7 +4925,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="20" level_divisor="1" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kUndefinded" location="kSpelledBlinkPhys">
-                        <modifier min="12.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="12.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
             </action>
@@ -4952,10 +4952,10 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="20" level_divisor="1" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kUndefinded" location="kSpelledBlinkMag">
-                        <modifier min="10.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="10.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                     <apply id="kUndefinded" location="kAc">
-                        <modifier min="20.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                        <modifier min="20.0" dices_weight="0.0" competencies_weight="0.0" factor="-1"/>
                     </apply>
                 </affects>
             </action>
@@ -4982,10 +4982,10 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="20" level_divisor="1" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kAwarness" location="kNone">
-                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                     <apply id="kAwarness" location="kSavingReflex">
-                        <modifier min="1.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                        <modifier min="1.0" dices_weight="0.0" competencies_weight="0.0" factor="-1"/>
                     </apply>
                 </affects>
             </action>
@@ -5012,7 +5012,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="2" level_divisor="20" min="10" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kUndefinded" location="kExpPercent">
-                        <modifier min="10.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="10.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
             </action>
@@ -5039,7 +5039,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="2" level_divisor="20" min="10" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kUndefinded" location="kMorale">
-                        <modifier min="10.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="10.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
             </action>
@@ -5066,7 +5066,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="2" level_divisor="20" min="10" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kUndefinded" location="kPhysicDamagePercent">
-                        <modifier min="10.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="10.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
             </action>
@@ -5091,25 +5091,25 @@ base_stat id - (например "kWis") какой берем параметр,
                 <affects type="kMassFailure" saving="kWill" resist="kDark">
                     <duration cnst="2" level_divisor="2" min="0" max="0"/>
                     <apply id="kUndefinded" location="kMorale">
-                        <modifier min="5.0" dices_weight="0.0" competencies_weight="1.0" factor="-1" stack="0"/>
+                        <modifier min="5.0" dices_weight="0.0" competencies_weight="1.0" factor="-1"/>
                     </apply>
                     <apply id="kUndefinded" location="kStr" random="true">
-                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.11" factor="-1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.11" factor="-1"/>
                     </apply>
                     <apply id="kUndefinded" location="kDex" random="true">
-                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.11" factor="-1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.11" factor="-1"/>
                     </apply>
                     <apply id="kUndefinded" location="kInt" random="true">
-                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.11" factor="-1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.11" factor="-1"/>
                     </apply>
                     <apply id="kUndefinded" location="kWis" random="true">
-                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.11" factor="-1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.11" factor="-1"/>
                     </apply>
                     <apply id="kUndefinded" location="kCon" random="true">
-                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.11" factor="-1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.11" factor="-1"/>
                     </apply>
                     <apply id="kUndefinded" location="kCha" random="true">
-                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.11" factor="-1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.11" factor="-1"/>
                     </apply>
                 </affects>
             </action>
@@ -5137,7 +5137,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration cnst="3" level_divisor="4" min="4" max="0"/>
                     <flags val="kAfBattledec"/>
                     <apply id="kNoTeleport" location="kNone">
-                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
                 </affects>
             </action>
