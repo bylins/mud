@@ -110,16 +110,31 @@ Damage::Damage(parser_wrapper::DataNode &node) {
 }
 
 Heal::Heal(parser_wrapper::DataNode &node) {
-	npc_coeff_ = parse::ReadAsDouble(node.GetValue("npc_coeff"));
-}
-
-double Heal::GetNpcCoeff() const {
-	return npc_coeff_;
+	const char *npc = node.GetValue("npc_coeff");
+	npc_coeff_ = (npc && *npc) ? parse::ReadAsDouble(npc) : 1.0;
+	const char *extra = node.GetValue("extra");
+	extra_ = (extra && *extra) && parse::ReadAsBool(extra);
+	const char *prob = node.GetValue("prob");
+	prob_ = (prob && *prob) ? parse::ReadAsInt(prob) : 100;
+	if (node.GoToChild("amount")) {
+		const char *amin = node.GetValue("min");
+		amount_min_ = (amin && *amin) ? parse::ReadAsDouble(amin) : 0.0;
+		const char *adw = node.GetValue("dices_weight");
+		amount_dices_weight_ = (adw && *adw) ? parse::ReadAsDouble(adw) : 0.0;
+		const char *acw = node.GetValue("competencies_weight");
+		amount_competencies_weight_ = (acw && *acw) ? parse::ReadAsDouble(acw) : 0.0;
+		node.GoToParent();
+	}
 }
 
 void Heal::Print(CharData */*ch*/, std::ostringstream &buffer) const {
 	buffer << " Heal: " << "\r\n"
-		   << " NPC coeff: " << kColorGrn << npc_coeff_ << kColorNrm << "\r\n";
+		   << " NPC coeff: " << kColorGrn << npc_coeff_ << kColorNrm
+		   << " Extra: " << kColorGrn << (extra_ ? "yes" : "no") << kColorNrm
+		   << " Prob: " << kColorGrn << prob_ << kColorNrm << "\r\n"
+		   << " Amount min: " << kColorGrn << amount_min_ << kColorNrm
+		   << " dices_weight: " << kColorGrn << amount_dices_weight_ << kColorNrm
+		   << " competencies_weight: " << kColorGrn << amount_competencies_weight_ << kColorNrm << "\r\n";
 }
 
 

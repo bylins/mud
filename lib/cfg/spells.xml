@@ -327,7 +327,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
-                <heal npc_coeff="3" />
+                <heal npc_coeff="3">
+                    <amount min="0" dices_weight="1.0" competencies_weight="27"/>
+                </heal>
             </action>
         </talent_actions>
     </spell>
@@ -344,7 +346,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
-                <heal npc_coeff="3" />
+                <heal npc_coeff="3">
+                    <amount min="0" dices_weight="1.0" competencies_weight="14"/>
+                </heal>
             </action>
         </talent_actions>
     </spell>
@@ -589,7 +593,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
-                <heal npc_coeff="3" />
+                <heal npc_coeff="3">
+                    <amount min="0" dices_weight="1.0" competencies_weight="90"/>
+                </heal>
             </action>
             </talent_actions>
         </spell>
@@ -852,7 +858,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
-                <heal npc_coeff="3" />
+                <heal npc_coeff="3">
+                    <amount min="0" dices_weight="1.0" competencies_weight="2"/>
+                </heal>
                 <affects type="kPatronage" saving="kNone" resist="kVitality">
                     <duration cnst="3" level_divisor="10" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
@@ -982,7 +990,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
-                <heal npc_coeff="3" />
+                <heal npc_coeff="3">
+                    <amount min="0" dices_weight="1.0" competencies_weight="44"/>
+                </heal>
             </action>
         </talent_actions>
     </spell>
@@ -999,7 +1009,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
-                <heal npc_coeff="3" />
+                <heal npc_coeff="3">
+                    <amount min="0" dices_weight="1.0" competencies_weight="90"/>
+                </heal>
                 <area>
                     <decay cast="0.01" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
@@ -1081,7 +1093,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
-                <heal npc_coeff="3" />
+                <heal npc_coeff="3">
+                    <amount min="0" dices_weight="1.0" competencies_weight="15"/>
+                </heal>
             </action>
         </talent_actions>
     </spell>
@@ -1781,7 +1795,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
-            <heal npc_coeff="3" />
+            <heal npc_coeff="3" extra="Y">
+                <amount min="0" dices_weight="1.0" competencies_weight="4"/>
+            </heal>
             </action>
         </talent_actions>
     </spell>
@@ -2867,7 +2883,9 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <required mob_flags="kCorpse"/>
-                <heal npc_coeff="3" />
+                <heal npc_coeff="3">
+                    <amount min="0" dices_weight="1.0" competencies_weight="135"/>
+                </heal>
                 <area>
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="1" max_targets="20"/>
@@ -3962,7 +3980,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
-                <heal npc_coeff="3" />
+                <heal npc_coeff="3">
+                    <amount min="0" dices_weight="1.0" competencies_weight="2"/>
+                </heal>
                 <area>
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>

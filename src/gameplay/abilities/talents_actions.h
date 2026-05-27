@@ -88,14 +88,27 @@ class Damage : public IAction {
 	void Print(CharData *ch, std::ostringstream &buffer) const override;
 };
 
-// Heal no longer derives from Damage: it shares no parameters with it (the roll
-// moved to the potency roll, and healing has no saving throw). It only keeps the
-// NPC healing coefficient.
+// Heal no longer derives from Damage: it shares no parameters with it (healing has no saving
+// throw). The heal amount is decoupled from the global potency roll: the roll only supplies the
+// raw dice and competencies, while the <amount min= dices_weight= competencies_weight=> weights
+// are the heal's own, so tuning a heal does not disturb the spell's other effects (which share
+// the roll). Also carries an NPC coefficient, an "extra" overheal-above-max flag, and a
+// completion probability.
 class Heal : public IAction {
 	double npc_coeff_{1};
+	bool extra_{false};                    // may the heal raise hit points above the maximum?
+	int prob_{100};                        // percent chance the healing actually happens
+	double amount_min_{0};                 // minimum hit points restored
+	double amount_dices_weight_{0};        // weight applied to the potency roll's dice
+	double amount_competencies_weight_{0}; // weight applied to the caster's skill+stat competencies
  public:
 	explicit Heal(parser_wrapper::DataNode &node);
-	[[nodiscard]] double GetNpcCoeff() const;
+	[[nodiscard]] double GetNpcCoeff() const { return npc_coeff_; }
+	[[nodiscard]] bool IsExtra() const { return extra_; }
+	[[nodiscard]] int GetProb() const { return prob_; }
+	[[nodiscard]] double GetAmountMin() const { return amount_min_; }
+	[[nodiscard]] double GetAmountDicesWeight() const { return amount_dices_weight_; }
+	[[nodiscard]] double GetAmountCompetenciesWeight() const { return amount_competencies_weight_; }
 
 	void Print(CharData *ch, std::ostringstream &buffer) const override;
 };

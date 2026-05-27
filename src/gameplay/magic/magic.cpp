@@ -361,7 +361,7 @@ int CalcBaseDmg(CharData *ch, ESpell spell_id) {
 	return base_dmg;
 }
 
-int CalcHeal(CharData *ch, CharData *victim, ESpell spell_id, int level) {
+int CalcHeal(CharData *ch, CharData *victim, ESpell spell_id, [[maybe_unused]] int level) {
 	// Не у каждого спелла из CastToPoints в данных описан heal-экшен
 	// (напр. свежедобавленные kPatronage/kWarcryOfPower). Без этой проверки
 	// GetHeal() кидает исключение и роняет сервер (#3312). Логируем, какой
@@ -372,46 +372,33 @@ int CalcHeal(CharData *ch, CharData *victim, ESpell spell_id, int level) {
 			CMP, kLvlImmortal, SYSLOG, true);
 		return 0;
 	}
-	auto spell_heal = MUD::Spell(spell_id).actions.GetHeal();
-	const auto &potency_roll = MUD::Spell(spell_id).GetPotencyRoll();
-	int total_heal{0};
-	double skill_mod;
-
-	double base_heal = potency_roll.RollSkillDices();
-	if (level >= 0) {
-		skill_mod = base_heal * potency_roll.CalcSkillCoeff(ch);
-	} else {
-		skill_mod = base_heal * abs(level) / 0.25;
+	const auto &heal = MUD::Spell(spell_id).actions.GetHeal();
+	// prob: percent chance the healing actually happens (default 100). A failed roll heals 0.
+	if (number(1, 100) > heal.GetProb()) {
+		return 0;
 	}
-//	mudlog(fmt::format("Хиляем level = {}, skill_mod = {}", level, skill_mod));
-	double stat_mod = base_heal * potency_roll.CalcBaseStatCoeff(ch);
-	double bonus_mod = ch->add_abils.percent_spellpower_add / 100.0;
-	total_heal = static_cast<int>(base_heal + skill_mod + stat_mod);
+	const auto &potency_roll = MUD::Spell(spell_id).GetPotencyRoll();
+	// The heal amount is decoupled from the global potency roll's coefficients: the roll only
+	// supplies the raw dice and competencies (skill+stat), while the <amount> weights belong to
+	// the heal, so it can be tuned without disturbing the spell's other roll-driven effects.
+	const double dice = potency_roll.RollSkillDices();
+	const double competencies = potency_roll.CalcSkillCoeff(ch) + potency_roll.CalcBaseStatCoeff(ch);
+	int total_heal = static_cast<int>(heal.GetAmountMin()
+		+ std::ceil(dice * heal.GetAmountDicesWeight() + competencies * heal.GetAmountCompetenciesWeight()));
+	const double bonus_mod = ch->add_abils.percent_spellpower_add / 100.0;
 	total_heal += static_cast<int>(total_heal * bonus_mod);
-	double npc_heal = spell_heal.GetNpcCoeff();
+	const double npc_heal = heal.GetNpcCoeff();
 	if (ch->IsNpc()) {
 		total_heal += static_cast<int>(total_heal * npc_heal);
 	}
 
 	ch->send_to_TC(false, true, true,
-		"&CMag.dmg (%s). Base: %2.2f, Skill: %2.2f, Wis: %2.2f, Bonus: %1.2f, NPC coeff: %f, Total: %d &n\r\n",
-		GET_NAME(victim),
-		base_heal,
-		skill_mod,
-		stat_mod,
-		1 + bonus_mod,
-		npc_heal,
-		total_heal);
+		"&CMag.heal (%s). Dice: %2.2f, Compet.: %2.2f, Min: %2.2f, Bonus: %1.2f, NPC coeff: %f, Total: %d &n\r\n",
+		GET_NAME(victim), dice, competencies, heal.GetAmountMin(), 1 + bonus_mod, npc_heal, total_heal);
 
 	victim->send_to_TC(false, true, true,
-			"&CMag.dmg (%s). Base: %2.2f, Skill: %2.2f, Wis: %2.2f, Bonus: %1.2f, NPC coeff: %f, Total: %d &n\r\n",
-			GET_NAME(ch),
-			base_heal,
-			skill_mod,
-			stat_mod,
-			bonus_mod,
-			npc_heal,
-			total_heal);
+		"&CMag.heal (%s). Dice: %2.2f, Compet.: %2.2f, Min: %2.2f, Bonus: %1.2f, NPC coeff: %f, Total: %d &n\r\n",
+		GET_NAME(ch), dice, competencies, heal.GetAmountMin(), 1 + bonus_mod, npc_heal, total_heal);
 
 	return total_heal;
 }
@@ -1824,12 +1811,10 @@ EStageResult CastToPoints(int level, CharData *ch, CharData *victim, ESpell spel
 		case ESpell::kHeal:
 		case ESpell::kGroupHeal:
 		case ESpell::kGreatHeal:
+		case ESpell::kExtraHits:
         case ESpell::kPatronage: [[fallthrough]];
         case ESpell::kWarcryOfPower:
             hit = CalcHeal(ch, victim, spell_id, level);
-			break;
-		case ESpell::kExtraHits: extraHealing = true;
-			hit = CalcHeal(ch, victim, spell_id, level);
 			break;
 		case ESpell::kEviless:
 			// Target already gated by <required mob_flags="kCorpse"> + kTarMinionsOnly; just heal
@@ -1852,6 +1837,11 @@ EStageResult CastToPoints(int level, CharData *ch, CharData *victim, ESpell spel
 					 to_underlying(spell_id));
 			return EStageResult::kSuccess;
 			break;
+	}
+	// Overheal above the maximum hit points is data-driven: a <heal extra="Y"> lets the heal push
+	// hit points beyond the cap (e.g. kExtraHits). Off by default for every other heal.
+	if (MUD::Spell(spell_id).actions.Contains(talents_actions::EAction::kHeal)) {
+		extraHealing = MUD::Spell(spell_id).actions.GetHeal().IsExtra();
 	}
 	// issue #3304: сообщение цели лечащего заклинания берётся из spell_msg.xml.
 	// Не у всех заклинаний есть такое сообщение (напр. kPatronage, kEviless) -
