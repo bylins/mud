@@ -3078,6 +3078,10 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="100" min="85" change="2"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagMasses|kMagAffects|kNpcAffectPc"/>
+        <potency_roll>
+            <base_skill id="kAirMagic" low_skill_bonus="12" hi_skill_bonus="8"/>
+            <base_stat id="kCha" threshold="12" weight="10"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <area>
@@ -3087,25 +3091,25 @@ base_stat id - (например "kWis") какой берем параметр,
                 <affects type="kFailure" saving="kWill" resist="kDark">
                     <duration cnst="2" level_divisor="2" min="0" max="0"/>
                     <apply id="kUndefinded" location="kMorale">
-                        <modifier min="20.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                        <modifier min="5.0" dices_weight="0.0" competencies_weight="1.0" factor="-1" stack="0"/>
                     </apply>
                     <apply id="kUndefinded" location="kStr" random="true">
-                        <modifier min="2.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.11" factor="-1" stack="0"/>
                     </apply>
                     <apply id="kUndefinded" location="kDex" random="true">
-                        <modifier min="2.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.11" factor="-1" stack="0"/>
                     </apply>
                     <apply id="kUndefinded" location="kInt" random="true">
-                        <modifier min="2.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.11" factor="-1" stack="0"/>
                     </apply>
                     <apply id="kUndefinded" location="kWis" random="true">
-                        <modifier min="2.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.11" factor="-1" stack="0"/>
                     </apply>
                     <apply id="kUndefinded" location="kCon" random="true">
-                        <modifier min="2.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.11" factor="-1" stack="0"/>
                     </apply>
                     <apply id="kUndefinded" location="kCha" random="true">
-                        <modifier min="2.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.11" factor="-1" stack="0"/>
                     </apply>
                 </affects>
             </action>
@@ -4340,6 +4344,10 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="140" min="120" change="2"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagMasses|kMagAffects|kNpcAffectPc"/>
+        <potency_roll>
+            <base_skill id="kAirMagic" low_skill_bonus="12" hi_skill_bonus="8"/>
+            <base_stat id="kCha" threshold="12" weight="10"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <area>
@@ -4349,25 +4357,25 @@ base_stat id - (например "kWis") какой берем параметр,
                 <affects type="kMassFailure" saving="kWill" resist="kDark">
                     <duration cnst="2" level_divisor="2" min="0" max="0"/>
                     <apply id="kUndefinded" location="kMorale">
-                        <modifier min="20.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                        <modifier min="5.0" dices_weight="0.0" competencies_weight="1.0" factor="-1" stack="0"/>
                     </apply>
                     <apply id="kUndefinded" location="kStr" random="true">
-                        <modifier min="2.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.11" factor="-1" stack="0"/>
                     </apply>
                     <apply id="kUndefinded" location="kDex" random="true">
-                        <modifier min="2.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.11" factor="-1" stack="0"/>
                     </apply>
                     <apply id="kUndefinded" location="kInt" random="true">
-                        <modifier min="2.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.11" factor="-1" stack="0"/>
                     </apply>
                     <apply id="kUndefinded" location="kWis" random="true">
-                        <modifier min="2.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.11" factor="-1" stack="0"/>
                     </apply>
                     <apply id="kUndefinded" location="kCon" random="true">
-                        <modifier min="2.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.11" factor="-1" stack="0"/>
                     </apply>
                     <apply id="kUndefinded" location="kCha" random="true">
-                        <modifier min="2.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="0"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.11" factor="-1" stack="0"/>
                     </apply>
                 </affects>
             </action>
