@@ -237,6 +237,15 @@ if otel_opt != 'disabled'
     endif
     project_args += '-DWITH_OTEL'
     dependencies += [otel_dep, dependency('libcurl', required: true, allow_fallback: false)]
+    # protobuf >= 22 splits utf8_range into a separate library; add it when present.
+    utf8_range_dep = cc.find_library('utf8_range', required: false)
+    if utf8_range_dep.found()
+        dependencies += utf8_range_dep
+    endif
+    utf8_validity_dep = cc.find_library('utf8_validity', required: false)
+    if utf8_validity_dep.found()
+        dependencies += utf8_validity_dep
+    endif
 endif
 
 has_epoll_opt = get_option('has_epoll')
