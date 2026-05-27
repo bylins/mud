@@ -145,8 +145,8 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking mob_flags="kNoBlind"/>
                 <affects type="kBlindness" saving="kStability" resist="kDark">
-                    <blocking mob_flags="kNoBlind"/>
                     <duration cnst="2" level_divisor="8" min="0" max="0"/>
                     <flags val="kAfBattledec"/>
                     <apply id="kBlind" location="kNone">
@@ -606,8 +606,8 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking affect_flags="kGlitterDust"/>
                 <affects type="kInvisible" saving="kNone" resist="kMind">
-                    <blocking affect_flags="kGlitterDust"/>
                     <duration cnst="20" level_divisor="1" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kInvisible" location="kAc">
@@ -679,8 +679,8 @@ base_stat id - (например "kWis") какой берем параметр,
                     <decay cast="0.05" level="7" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
+                <blocking affect_flags="kGodsShield"/>
                 <affects type="kPoison" saving="kCritical" resist="kDark">
-                    <blocking affect_flags="kGodsShield"/>
                     <duration cnst="0" level_divisor="1" min="0" max="0"/>
                     <flags val="kAfSameTime"/>
                     <apply id="kPoisoned" location="kStr">
@@ -748,8 +748,8 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking affect_flags="kPrismaticAura"/>
                 <affects type="kSanctuary" saving="kNone" resist="kVitality">
-                    <blocking affect_flags="kPrismaticAura"/>
                     <duration cnst="20" level_divisor="1" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kSanctuary" location="kNone">
@@ -793,8 +793,8 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking mob_flags="kNoSleep" affect_flags="kHold"/>
                 <affects type="kSleep" saving="kWill" resist="kMind">
-                    <blocking mob_flags="kNoSleep" affect_flags="kHold"/>
                     <reposition pos="kSleep"/>
                     <duration cnst="1" level_divisor="6" min="1" max="6"/>
                     <flags val="kAfBattledec"/>
@@ -1129,8 +1129,8 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking mob_flags="kNoHold" affect_flags="kBrokenChains|kSleep"/>
                 <affects type="kHold" saving="kWill" resist="kMind">
-                    <blocking mob_flags="kNoHold" affect_flags="kBrokenChains|kSleep"/>
                     <duration cnst="1" level_divisor="10" min="1" max="3"/>
                     <flags val="kAfBattledec"/>
                     <apply id="kHold" location="kNone">
@@ -1153,8 +1153,8 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking mob_flags="kNoHold" affect_flags="kBrokenChains|kSleep"/>
                 <affects type="kHold" saving="kWill" resist="kMind">
-                    <blocking mob_flags="kNoHold" affect_flags="kBrokenChains|kSleep"/>
                     <duration cnst="2" level_divisor="8" min="2" max="5"/>
                     <flags val="kAfBattledec"/>
                     <apply id="kHold" location="kNone">
@@ -1181,8 +1181,8 @@ base_stat id - (например "kWis") какой берем параметр,
                     <decay cast="0.05" level="2" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
+                <blocking mob_flags="kNoHold" affect_flags="kBrokenChains|kSleep"/>
                 <affects type="kHold" saving="kWill" resist="kMind">
-                    <blocking mob_flags="kNoHold" affect_flags="kBrokenChains|kSleep"/>
                     <duration cnst="1" level_divisor="10" min="1" max="3"/>
                     <flags val="kAfBattledec"/>
                     <apply id="kHold" location="kNone">
@@ -1251,8 +1251,8 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking affect_flags="kBrokenChains"/>
                 <affects type="kNoflee" saving="kWill" resist="kMind">
-                    <blocking affect_flags="kBrokenChains"/>
                     <duration cnst="3" level_divisor="4" min="4" max="0"/>
                     <flags val="kAfBattledec"/>
                     <apply id="kNoTeleport" location="kNone">
@@ -1354,8 +1354,8 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking mob_flags="kNoSilence"/>
                 <affects type="kSilence" saving="kWill" resist="kMind">
-                    <blocking mob_flags="kNoSilence"/>
                     <duration cnst="2" level_divisor="8" min="3" max="0"/>
                     <flags val="kAfBattledec"/>
                     <apply id="kSilence" location="kNone">
@@ -1495,8 +1495,8 @@ base_stat id - (например "kWis") какой берем параметр,
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
+                <blocking affect_flags="kGlitterDust"/>
                 <affects type="kInvisible" saving="kNone" resist="kMind">
-                    <blocking affect_flags="kGlitterDust"/>
                     <duration cnst="20" level_divisor="1" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kInvisible" location="kAc">
@@ -1625,8 +1625,8 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking affect_flags="kBrokenChains"/>
                 <affects type="kWeb" saving="kReflex" resist="kMind">
-                    <blocking affect_flags="kBrokenChains"/>
                     <duration cnst="3" level_divisor="6" min="0" max="0"/>
                     <flags val="kAfBattledec"/>
                     <apply id="kNoFlee" location="kHitroll">
@@ -1705,8 +1705,8 @@ base_stat id - (например "kWis") какой берем параметр,
                     <decay cast="0.05" level="7" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
+                <blocking mob_flags="kNoBlind"/>
                 <affects type="kBlindness" saving="kStability" resist="kDark">
-                    <blocking mob_flags="kNoBlind"/>
                     <duration cnst="3" level_divisor="6" min="0" max="0"/>
                     <flags val="kAfBattledec"/>
                     <apply id="kBlind" location="kNone">
@@ -1733,8 +1733,8 @@ base_stat id - (например "kWis") какой берем параметр,
                     <decay cast="0.05" level="2" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
+                <blocking mob_flags="kNoBlind"/>
                 <affects type="kBlindness" saving="kStability" resist="kDark">
-                    <blocking mob_flags="kNoBlind"/>
                     <duration cnst="2" level_divisor="8" min="0" max="0"/>
                     <flags val="kAfBattledec"/>
                     <apply id="kBlind" location="kNone">
@@ -1757,8 +1757,8 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking mob_flags="kNoSilence"/>
                 <affects type="kSilence" saving="kWill" resist="kMind">
-                    <blocking mob_flags="kNoSilence"/>
                     <duration cnst="2" level_divisor="4" min="6" max="0"/>
                     <flags val="kAfBattledec"/>
                     <apply id="kSilence" location="kNone">
@@ -1845,8 +1845,8 @@ base_stat id - (например "kWis") какой берем параметр,
                     <decay cast="0.05" level="2" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
+                <blocking mob_flags="kNoSilence"/>
                 <affects type="kSilence" saving="kWill" resist="kMind">
-                    <blocking mob_flags="kNoSilence"/>
                     <duration cnst="2" level_divisor="8" min="3" max="0"/>
                     <flags val="kAfBattledec"/>
                     <apply id="kSilence" location="kNone">
@@ -2192,8 +2192,8 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking affect_flags="kBrokenChains|kHaste"/>
                 <affects type="kSlowdown" saving="kStability" resist="kMind">
-                    <blocking affect_flags="kBrokenChains|kHaste"/>
                     <duration cnst="9" level_divisor="0" min="0" max="0"/>
                     <apply id="kSlow" location="kNone">
                         <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
@@ -2253,8 +2253,8 @@ base_stat id - (например "kWis") какой берем параметр,
                     <decay cast="0.05" level="2" free_targets="3"/>
                     <victims skill_divisor="10" dice_size="3" min_targets="5" max_targets="20"/>
                 </area>
+                <blocking affect_flags="kBrokenChains|kHaste"/>
                 <affects type="kSlowdown" saving="kStability" resist="kMind">
-                    <blocking affect_flags="kBrokenChains|kHaste"/>
                     <duration cnst="9" level_divisor="0" min="0" max="0"/>
                     <apply id="kSlow" location="kNone">
                         <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>
@@ -2664,8 +2664,8 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <damage saving="kReflex" />
+                <blocking mob_flags="kNoBlind"/>
                 <affects type="kBlindness" saving="kStability" resist="kFire">
-                    <blocking mob_flags="kNoBlind"/>
                     <duration cnst="2" level_divisor="8" min="0" max="0"/>
                     <flags val="kAfBattledec"/>
                     <apply id="kBlind" location="kNone">
@@ -2838,8 +2838,8 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking affect_flags="kSanctuary"/>
                 <affects type="kPrismaticAura" saving="kNone" resist="kVitality">
-                    <blocking affect_flags="kSanctuary"/>
                     <duration cnst="20" level_divisor="1" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kPrismaticAura" location="kNone">
@@ -3027,8 +3027,8 @@ base_stat id - (например "kWis") какой берем параметр,
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
+                <blocking affect_flags="kPrismaticAura"/>
                 <affects type="kSanctuary" saving="kNone" resist="kVitality">
-                    <blocking affect_flags="kPrismaticAura"/>
                     <duration cnst="20" level_divisor="1" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kSanctuary" location="kNone">
@@ -3059,8 +3059,8 @@ base_stat id - (например "kWis") какой берем параметр,
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
+                <blocking affect_flags="kSanctuary"/>
                 <affects type="kPrismaticAura" saving="kNone" resist="kVitality">
-                    <blocking affect_flags="kSanctuary"/>
                     <duration cnst="20" level_divisor="1" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
                     <apply id="kPrismaticAura" location="kNone">
@@ -3184,8 +3184,8 @@ base_stat id - (например "kWis") какой берем параметр,
                     <decay cast="0.05" level="2" free_targets="3"/>
                     <victims skill_divisor="15" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
+                <blocking mob_flags="kNoBlind"/>
                 <affects type="kBlindness" saving="kStability" resist="kEarth">
-                    <blocking mob_flags="kNoBlind"/>
                     <duration cnst="3" level_divisor="6" min="0" max="0"/>
                     <flags val="kAfBattledec"/>
                     <apply id="kBlind" location="kNone">
@@ -3266,8 +3266,8 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <damage saving="kCritical" />
+                <blocking mob_flags="kNoHold"  affect_flags="kForcesOfEvil|kBrokenChains|kSleep"/>
                 <affects type="kHold" saving="kWill" resist="kVitality">
-                    <blocking mob_flags="kNoHold"  affect_flags="kForcesOfEvil|kBrokenChains|kSleep"/>
                     <duration cnst="1" level_divisor="10" min="1" max="3"/>
                     <flags val="kAfBattledec"/>
                     <apply id="kHold" location="kNone">
@@ -3409,8 +3409,8 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking mob_flags="kNoHold"  affect_flags="kPeaceful"/>
                 <affects type="kPeaceful" saving="kNone" resist="kMind">
-                    <blocking mob_flags="kNoHold"  affect_flags="kPeaceful"/>
                     <reposition stop_fight="true"/>
                     <lag base="2" bonus_divisor="-1"/>
                     <duration cnst="2" level_divisor="0" min="0" max="0"/>
@@ -3831,8 +3831,8 @@ base_stat id - (например "kWis") какой берем параметр,
                     <decay cast="0.01" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
+                <blocking affect_flags="kDeafness"/>
                 <affects type="kWarcryOfThunder" saving="kStability" resist="kVitality">
-                    <blocking affect_flags="kDeafness"/>
                     <duration cnst="2" level_divisor="4" min="0" max="6"/>
                     <flags val="kAfBattledec"/>
                     <apply id="kDeafness" location="kSavingCritical">
@@ -4013,8 +4013,8 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking affect_flags="kGodsShield"/>
                 <affects type="kAconitumPoison" saving="kNone" resist="kImmunity">
-                    <blocking affect_flags="kGodsShield"/>
                     <duration cnst="7" level_divisor="0" min="0" max="0"/>
                     <flags val="kAfSameTime"/>
                     <apply id="kPoisoned" location="kAconitumPoison">
@@ -4037,8 +4037,8 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking affect_flags="kGodsShield"/>
                 <affects type="kScopolaPoison" saving="kNone" resist="kImmunity">
-                    <blocking affect_flags="kGodsShield"/>
                     <duration cnst="7" level_divisor="0" min="0" max="0"/>
                     <flags val="kAfSameTime"/>
                     <apply id="kPoisoned" location="kScopolaPoison">
@@ -4064,8 +4064,8 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking affect_flags="kGodsShield"/>
                 <affects type="kBelenaPoison" saving="kNone" resist="kImmunity">
-                    <blocking affect_flags="kGodsShield"/>
                     <duration cnst="7" level_divisor="0" min="0" max="0"/>
                     <flags val="kAfSameTime"/>
                     <apply id="kPoisoned" location="kBelenaPoison">
@@ -4088,8 +4088,8 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking affect_flags="kGodsShield"/>
                 <affects type="kDaturaPoison" saving="kNone" resist="kImmunity">
-                    <blocking affect_flags="kGodsShield"/>
                     <duration cnst="7" level_divisor="0" min="0" max="0"/>
                     <flags val="kAfSameTime"/>
                     <apply id="kPoisoned" location="kDaturaPoison">
@@ -4285,8 +4285,8 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <damage saving="kReflex" />
+                <blocking affect_flags="kBrokenChains"/>
                 <affects type="kIndriksTeeth" saving="kWill" resist="kEarth">
-                    <blocking affect_flags="kBrokenChains"/>
                     <duration cnst="3" level_divisor="4" min="4" max="0"/>
                     <flags val="kAfBattledec"/>
                     <apply id="kNoTeleport" location="kNone">
@@ -5032,8 +5032,8 @@ base_stat id - (например "kWis") какой берем параметр,
                     <decay cast="0.03" level="6" free_targets="5"/>
                     <victims skill_divisor="25" dice_size="2" min_targets="3" max_targets="15"/>
                 </area>
+                <blocking affect_flags="kBrokenChains"/>
                 <affects type="kSnare" saving="kWill" resist="kMind">
-                    <blocking affect_flags="kBrokenChains"/>
                     <duration cnst="3" level_divisor="4" min="4" max="0"/>
                     <flags val="kAfBattledec"/>
                     <apply id="kNoTeleport" location="kNone">

@@ -29,6 +29,16 @@ enum class EAction {
 	kUnaffect
 };
 
+// A set of mob flags (EMobFlag, from an NPC prototype) and affect flags (EAffect) used by the
+// action-level <blocking>/<required> tags (issue.cast-affect). For <blocking> the target must
+// have NONE of them (any present blocks the cast); for <required> the target must have ALL of
+// them (any missing blocks). Mob flags are meaningful only on NPCs.
+struct FlagCondition {
+	std::vector<EMobFlag> mob_flags;
+	std::vector<EAffect> affect_flags;
+	[[nodiscard]] bool empty() const { return mob_flags.empty() && affect_flags.empty(); }
+};
+
 class IAction {
  public:
 	virtual ~IAction() = default;
@@ -138,8 +148,6 @@ class TalentAffect : public IAction {
 	[[nodiscard]] int GetDurationMin() const { return dur_min_; }
 	[[nodiscard]] int GetDurationMax() const { return dur_max_; }
 	[[nodiscard]] const std::vector<Apply> &GetApplies() const { return applies_; }
-	[[nodiscard]] const std::vector<EMobFlag> &GetBlockingMobFlags() const { return blocking_mob_flags_; }
-	[[nodiscard]] const std::vector<EAffect> &GetBlockingAffectFlags() const { return blocking_affect_flags_; }
 	[[nodiscard]] bool HasLag() const { return has_lag_; }
 	[[nodiscard]] unsigned GetLagBase() const { return lag_base_; }
 	[[nodiscard]] double GetLagBonusDivisor() const { return lag_bonus_divisor_; }
@@ -157,13 +165,6 @@ class TalentAffect : public IAction {
 	int dur_min_{0};
 	int dur_max_{0};
 	std::vector<Apply> applies_;
-	// Flags that make the target wholly immune to this affect, checked before the cast
-	// even tries to build affects / roll saves (the <blocking> tag, issue.aff-flagged-check).
-	// Mob flags (EMobFlag) come from an NPC prototype, so they are tested for NPCs only;
-	// affect flags (EAffect) may also be granted by equipment, so they are tested for any
-	// target via AFF_FLAGGED.
-	std::vector<EMobFlag> blocking_mob_flags_;
-	std::vector<EAffect> blocking_affect_flags_;
 	// Battle lag applied to the victim when the affect lands (the <lag> tag,
 	// issue.cast-spell-lag): lag = base + skill_bonus/bonus_divisor battle rounds, or just
 	// base when bonus_divisor <= 0 (constant lag). has_lag_ marks that the tag was present.
@@ -212,13 +213,19 @@ class Actions {
 	using ActionsRoster = std::unordered_multimap<EAction, ActionPtr>;
 	using ActionsRosterPtr = std::unique_ptr<ActionsRoster>;
 	ActionsRosterPtr actions_;
+	// Action-level target gates (issue.cast-affect): the cast is refused unless the target has
+	// none of blocking_ and all of required_. They apply to the whole action (damage, affects,
+	// ...), so they are checked in CastToSingleTarget, not inside a single stage.
+	FlagCondition blocking_;
+	FlagCondition required_;
 
-	static void ParseAction(ActionsRosterPtr &info, parser_wrapper::DataNode node);
+	void ParseAction(ActionsRosterPtr &info, parser_wrapper::DataNode node);
 	static void ParseDamage(ActionsRosterPtr &info, parser_wrapper::DataNode &node);
 	static void ParseArea(ActionsRosterPtr &info, parser_wrapper::DataNode &node);
 	static void ParseHeal(ActionsRosterPtr &info, parser_wrapper::DataNode &node);
 	static void ParseAffect(ActionsRosterPtr &info, parser_wrapper::DataNode &node);
 	static void ParseUnaffect(ActionsRosterPtr &info, parser_wrapper::DataNode &node);
+	static void ParseFlagCondition(FlagCondition &cond, parser_wrapper::DataNode &node);
 
  public:
 	Actions() {
@@ -234,6 +241,8 @@ class Actions {
 	[[nodiscard]] const Heal &GetHeal() const;
 	[[nodiscard]] const TalentAffect &GetAffect() const;
 	[[nodiscard]] const TalentUnaffect &GetUnaffect() const;
+	[[nodiscard]] const FlagCondition &GetBlocking() const { return blocking_; }
+	[[nodiscard]] const FlagCondition &GetRequired() const { return required_; }
 };
 
 }

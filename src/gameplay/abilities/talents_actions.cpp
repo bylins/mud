@@ -162,26 +162,6 @@ TalentAffect::TalentAffect(parser_wrapper::DataNode &node) {
 				child.GoToParent();
 			}
 			applies_.push_back(apply);
-		} else if (strcmp(name, "blocking") == 0) {
-			// Mob flags (EMobFlag, NPC-prototype immunity) -- from a focused name table.
-			const char *mob = child.GetValue("mob_flags");
-			if (mob && *mob) {
-				for (const auto &flag_name : utils::Split(mob, '|')) {
-					const auto it = kBlockingFlagByName.find(flag_name);
-					if (it != kBlockingFlagByName.end()) {
-						blocking_mob_flags_.push_back(it->second);
-					} else {
-						err_log("TalentAffect: unknown EMobFlag '%s' in <blocking mob_flags>.", flag_name.c_str());
-					}
-				}
-			}
-			// Affect flags (EAffect) -- a present affect (spell- or equipment-sourced) blocks the cast.
-			const char *aff = child.GetValue("affect_flags");
-			if (aff && *aff) {
-				for (const auto &flag_name : utils::Split(aff, '|')) {
-					blocking_affect_flags_.push_back(parse::ReadAsConstant<EAffect>(flag_name.c_str()));
-				}
-			}
 		} else if (strcmp(name, "lag") == 0) {
 			has_lag_ = true;
 			lag_base_ = parse::ReadAsInt(child.GetValue("base"));
@@ -214,27 +194,6 @@ void TalentAffect::Print(CharData */*ch*/, std::ostringstream &buffer) const {
 			   << " (min=" << apply.min << " dices_weight=" << apply.dices_weight
 			   << " competencies_weight=" << apply.competencies_weight
 			   << " factor=" << apply.factor << " stack=" << apply.stack << ")\r\n";
-	}
-	if (!blocking_mob_flags_.empty()) {
-		buffer << "  Blocking mob flags:";
-		for (const auto flag : blocking_mob_flags_) {
-			std::string flag_name = "?";
-			for (const auto &[name, value] : kBlockingFlagByName) {
-				if (value == flag) {
-					flag_name = name;
-					break;
-				}
-			}
-			buffer << " " << kColorGrn << flag_name << kColorNrm;
-		}
-		buffer << "\r\n";
-	}
-	if (!blocking_affect_flags_.empty()) {
-		buffer << "  Blocking affect flags:";
-		for (const auto flag : blocking_affect_flags_) {
-			buffer << " " << kColorGrn << NAME_BY_ITEM<EAffect>(flag) << kColorNrm;
-		}
-		buffer << "\r\n";
 	}
 	if (has_lag_) {
 		buffer << "  Lag: base=" << kColorGrn << lag_base_ << kColorNrm
@@ -291,7 +250,33 @@ void TalentUnaffect::Print(CharData */*ch*/, std::ostringstream &buffer) const {
 	print_set("remove", remove_);
 }
 
+namespace {
+// Print one FlagCondition (mob flags by their kBlockingFlagByName name, affect flags by NAME_BY_ITEM).
+void PrintFlagCondition(const char *label, const FlagCondition &cond, std::ostringstream &buffer) {
+	if (cond.empty()) {
+		return;
+	}
+	buffer << "  " << label << ":";
+	for (const auto flag : cond.mob_flags) {
+		std::string flag_name = "?";
+		for (const auto &[name, value] : kBlockingFlagByName) {
+			if (value == flag) {
+				flag_name = name;
+				break;
+			}
+		}
+		buffer << " " << kColorGrn << flag_name << kColorNrm;
+	}
+	for (const auto flag : cond.affect_flags) {
+		buffer << " " << kColorGrn << NAME_BY_ITEM<EAffect>(flag) << kColorNrm;
+	}
+	buffer << "\r\n";
+}
+}  // namespace
+
 void Actions::Print(CharData *ch, std::ostringstream &buffer) const {
+	PrintFlagCondition("Blocking", blocking_, buffer);
+	PrintFlagCondition("Required", required_, buffer);
 	for (const auto &effect: *actions_) {
 		effect.second->Print(ch, buffer);
 	}
@@ -299,6 +284,8 @@ void Actions::Print(CharData *ch, std::ostringstream &buffer) const {
 
 void Actions::Build(parser_wrapper::DataNode &node) {
 	auto roster = std::make_unique<ActionsRoster>();
+	blocking_ = {};
+	required_ = {};
 	for (auto &action: node.Children()) {
 		try {
 			ParseAction(roster, action);
@@ -314,6 +301,28 @@ void Actions::Build(parser_wrapper::DataNode &node) {
  *  Парсеры воздействий
  */
 
+// Parse a <blocking>/<required> tag: mob_flags (EMobFlag, from the focused name table) and
+// affect_flags (EAffect) -- both `|`-separated lists. Accumulates into the given condition.
+void Actions::ParseFlagCondition(FlagCondition &cond, parser_wrapper::DataNode &node) {
+	const char *mob = node.GetValue("mob_flags");
+	if (mob && *mob) {
+		for (const auto &flag_name : utils::Split(mob, '|')) {
+			const auto it = kBlockingFlagByName.find(flag_name);
+			if (it != kBlockingFlagByName.end()) {
+				cond.mob_flags.push_back(it->second);
+			} else {
+				err_log("Actions: unknown EMobFlag '%s' in <blocking/required mob_flags>.", flag_name.c_str());
+			}
+		}
+	}
+	const char *aff = node.GetValue("affect_flags");
+	if (aff && *aff) {
+		for (const auto &flag_name : utils::Split(aff, '|')) {
+			cond.affect_flags.push_back(parse::ReadAsConstant<EAffect>(flag_name.c_str()));
+		}
+	}
+}
+
 void Actions::ParseAction(ActionsRosterPtr &info, parser_wrapper::DataNode node) {
 	for (auto &manifestation: node.Children()) {
 		if (strcmp(manifestation.GetName(), "damage") == 0) {
@@ -326,6 +335,10 @@ void Actions::ParseAction(ActionsRosterPtr &info, parser_wrapper::DataNode node)
 			ParseAffect(info, manifestation);
 		} else if (strcmp(manifestation.GetName(), "unaffect") == 0) {
 			ParseUnaffect(info, manifestation);
+		} else if (strcmp(manifestation.GetName(), "blocking") == 0) {
+			ParseFlagCondition(blocking_, manifestation);
+		} else if (strcmp(manifestation.GetName(), "required") == 0) {
+			ParseFlagCondition(required_, manifestation);
 		}
 	}
 	node.GoToParent();

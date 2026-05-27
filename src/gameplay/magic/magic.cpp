@@ -1088,27 +1088,9 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 	}
 	const bool has_affect_talent = MUD::Spell(spell_id).actions.Contains(talents_actions::EAction::kAffect);
 	if (has_affect_talent) {
-		const auto &affect = MUD::Spell(spell_id).actions.GetAffect();
-		savetype = affect.GetSaving();
-		// Immunity (the <blocking> tag): if the target carries a flag that blocks this affect,
-		// there is nothing to build or save against -- stop before the switch.
-		// Mob flags come from an NPC prototype, so they are checked for NPCs only.
-		if (victim->IsNpc()) {
-			for (const auto flag : affect.GetBlockingMobFlags()) {
-				if (victim->IsFlagged(flag)) {
-					SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
-					return EStageResult::kSuccess;
-				}
-			}
-		}
-		// Affect flags may also come from equipment (issue.aff-flagged-check), so they are
-		// checked for any target -- the flag persists even after the affect is dispelled.
-		for (const auto aff : affect.GetBlockingAffectFlags()) {
-			if (AFF_FLAGGED(victim, aff)) {
-				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
-				return EStageResult::kSuccess;
-			}
-		}
+		// The <blocking>/<required> immunity checks moved up to CastToSingleTarget (they are
+		// action-level now and gate the whole cast, not just the affect, issue.cast-affect).
+		savetype = MUD::Spell(spell_id).actions.GetAffect().GetSaving();
 	}
 	// Material component: consume it if this spell has one (no-op for spells that don't);
 	// a missing component stops the cast. (Hook for the material-component system, TBD.)
@@ -2510,6 +2492,40 @@ void ReactToCast(CharData *victim, CharData *caster, ESpell spell_id) {
 	}
 }
 
+// <blocking> (issue.cast-affect): true if the target carries ANY of the listed flags/affects
+// (NPC mob flags matter only for NPCs; affect flags via AFF_FLAGGED for any target).
+static bool TargetIsBlocked(CharData *victim, const talents_actions::FlagCondition &cond) {
+	if (victim->IsNpc()) {
+		for (const auto flag : cond.mob_flags) {
+			if (victim->IsFlagged(flag)) {
+				return true;
+			}
+		}
+	}
+	for (const auto aff : cond.affect_flags) {
+		if (AFF_FLAGGED(victim, aff)) {
+			return true;
+		}
+	}
+	return false;
+}
+
+// <required> (issue.cast-affect): true only if the target has ALL the listed flags/affects
+// (a required mob flag implies the target is an NPC carrying it).
+static bool TargetMeetsRequired(CharData *victim, const talents_actions::FlagCondition &cond) {
+	for (const auto flag : cond.mob_flags) {
+		if (!victim->IsNpc() || !victim->IsFlagged(flag)) {
+			return false;
+		}
+	}
+	for (const auto aff : cond.affect_flags) {
+		if (!AFF_FLAGGED(victim, aff)) {
+			return false;
+		}
+	}
+	return true;
+}
+
 int CastToSingleTarget(CharData *caster, CharData *cvict, ObjData *ovict, CastRollResult roll) {
 	const ESpell spell_id = roll.spell_id;
 	const int level = roll.level;
@@ -2523,9 +2539,24 @@ int CastToSingleTarget(CharData *caster, CharData *cvict, ObjData *ovict, CastRo
 		}
 		return 0;
 	}
+	// Action-level <blocking>/<required> gates (issue.cast-affect): the cast is refused on a target
+	// that carries a blocking flag/affect or lacks a required one. This sits here (not inside a
+	// stage) so it gates the whole cast -- damage, affects, etc. Per target, so it covers group/
+	// mass casts; for those a refusal stays silent (no per-target spam).
+	if (cvict && (TargetIsBlocked(cvict, MUD::Spell(spell_id).actions.GetBlocking())
+			|| !TargetMeetsRequired(cvict, MUD::Spell(spell_id).actions.GetRequired()))) {
+		if (!MUD::Spell(spell_id).IsFlagged(kMagGroups | kMagMasses | kMagAreas)) {
+			SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", caster);
+		}
+		return 0;
+	}
 	if (cvict && (caster != cvict))
-		if (cvict->IsGod() || (((GetRealLevel(cvict) / 2) > (GetRealLevel(caster) + (GetRealRemort(caster) / 2))) &&
-				!caster->IsNpc())) {
+		// The level-difference half of this guard is commented out (issue.cast-affect): after
+		// proper balancing it should be moot -- a low-level mage can't land a strong buff,
+		// can't penetrate a debuff's saving throw, and damage now scales with (low) skill.
+		// Kept for quick reactivation if some unforeseen case needs it:
+		//     || (((GetRealLevel(cvict) / 2) > (GetRealLevel(caster) + (GetRealRemort(caster) / 2))) && !caster->IsNpc())
+		if (cvict->IsGod() /* level-diff condition disabled, see above */) {
 			SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", caster);
 			return (-1);
 		}

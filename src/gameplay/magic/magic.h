@@ -85,6 +85,10 @@ enum class EStageResult {
 };
 
 int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id);
+// NB (issue.cast-affect): the <blocking>/<required> target gates now live in CastToSingleTarget,
+// so prefer it over calling CastAffect directly. CastAffect stays declared here because
+// SpellHolystrike (kHolystrike's manual room-dispatcher) must call it per target and cannot go
+// through CastToSingleTarget (that would re-enter the manual stage -> infinite recursion).
 EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const RollResult &potency = {});
 EStageResult CastToPoints(int level, CharData *ch, CharData *victim, ESpell spell_id);
 EStageResult CastUnaffects(int, CharData *ch, CharData *victim, ESpell spell_id);
