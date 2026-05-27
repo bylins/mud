@@ -3339,6 +3339,33 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="120" min="55" change="2"/>
         <targets val="kTarCharRoom|kTarNotSelf|kTarFightVict"/>
         <flags val="kMagAffects|kNpcAffectPc"/>
+        <!-- Skill-scaled potency: kMindMagic capped at 80+5*remort. The kHp apply (weight 1.0)
+             reads competencies (=skill_coeff) directly, calibrated so skill 80 -> 200, +20/remort.
+             Dice are unused here (all dices_weight=0); base_stat omitted (stat_coeff=0). -->
+        <potency_roll>
+            <dices ndice="1" sdice="1" adice="0"/>
+            <base_skill id="kMindMagic" low_skill_bonus="240" hi_skill_bonus="400"/>
+        </potency_roll>
+        <talent_actions>
+            <action>
+                <blocking affect_flags="kCrying"/>
+                <affects type="kCrying" saving="kStability" resist="kMind">
+                    <duration cnst="5" level_divisor="0" min="0" max="0"/>
+                    <apply id="kCrying" location="kHp">
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="1.0" factor="-1" stack="0"/>
+                    </apply>
+                    <apply id="kCrying" location="kLikes">
+                        <modifier min="3.0" dices_weight="0.0" competencies_weight="0.05" factor="-1" stack="0"/>
+                    </apply>
+                    <apply id="kCrying" location="kCastSuccess">
+                        <modifier min="3.0" dices_weight="0.0" competencies_weight="0.02" factor="-1" stack="0"/>
+                    </apply>
+                    <apply id="kCrying" location="kMorale">
+                        <modifier min="2.0" dices_weight="0.0" competencies_weight="0.01" factor="-1" stack="0"/>
+                    </apply>
+                </affects>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kOblivion" element="kDark" mode="kEnabled">
         <name rus="забвение" eng="oblivion"/>

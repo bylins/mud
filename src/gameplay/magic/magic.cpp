@@ -1131,43 +1131,11 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 		// the target, the kForcesOfEvil damroll/hitroll buffs come from <affects>, and the
 		// follower heal from <heal>. The old max-HP affect + mag_points signal hack is gone.
 
-		case ESpell::kCrying: {
-			if (AFF_FLAGGED(victim, EAffect::kCrying)
-				|| (CalcGeneralSaving(ch, victim, savetype, modi))) {
-				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
-				success = false;
-				break;
-			}
-			af[0].location = EApply::kHp;
-			af[0].duration = ApplyResist(victim, GetResistType(spell_id),
-					CalcDuration(victim, 4, 0, 0, 0, 0));
-			af[0].modifier =
-				-1 * std::max(1,
-						 (std::min(29, GetRealLevel(ch)) - std::min(24, GetRealLevel(victim)) +
-							 GetRealRemort(ch) / 3) * victim->get_max_hit() / 100);
-			af[0].affect_type = EAffect::kCrying;
-			if (victim->IsNpc()) {
-				af[1].location = EApply::kLikes;
-				af[1].duration = ApplyResist(victim, GetResistType(spell_id),
-						CalcDuration(victim, 5, 0, 0, 0, 0));
-				af[1].modifier = -1 * std::max(1, ((level + 9) / 2 + 9 - GetRealLevel(victim) / 2));
-				af[1].affect_type = EAffect::kCrying;
-				af[1].battleflag = kAfBattledec;
-				break;
-			}
-			af[1].location = EApply::kCastSuccess;
-			af[1].duration = ApplyResist(victim, GetResistType(spell_id),
-					CalcDuration(victim, 5, 0, 0, 0, 0));
-			af[1].modifier = -1 * std::max(1, (level / 3 + GetRealRemort(ch) / 3 - GetRealLevel(victim) / 10));
-			af[1].affect_type = EAffect::kCrying;
-			af[1].battleflag = kAfBattledec;
-			af[2].location = EApply::kMorale;
-			af[2].duration = af[1].duration;
-			af[2].modifier = -1 * std::max(1, (level / 3 + GetRealRemort(ch) / 5 - GetRealLevel(victim) / 5));
-			af[2].affect_type = EAffect::kCrying;
-			af[2].battleflag = kAfBattledec;
-			break;
-		}
+			// kCrying: data-driven via <affects> (issue.cast-affect). All four effects
+			// (kHp/kLikes/kCastSuccess/kMorale, affect_type kCrying) moved to spells.xml; the
+			// old IsNpc branch dropped (kLikes is a harmless no-op on PCs); the re-cast guard is
+			// <blocking affect_flags="kCrying">. Modifiers are now skill-scaled (potency_roll) in
+			// place of the old level/remort/victim-HP terms.
 
 		case ESpell::kPeaceful:
 			// kPeaceful only keeps its "no effect on an uncharmed NPC" guard here; the affect
