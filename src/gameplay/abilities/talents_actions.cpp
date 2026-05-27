@@ -24,6 +24,10 @@ const std::map<std::string, EMobFlag> kBlockingFlagByName{
 	{"kNoSummon", EMobFlag::kNoSummon},
 	{"kNoFear", EMobFlag::kNoFear},
 	{"kCorpse", EMobFlag::kCorpse},
+	{"kResurrected", EMobFlag::kResurrected},
+	{"kMounting", EMobFlag::kMounting},
+	{"kHelper", EMobFlag::kHelper},
+	{"kClone", EMobFlag::kClone},
 };
 
 // Parse a `|`-separated list of ESpell names (an any_of/all_of attribute of an

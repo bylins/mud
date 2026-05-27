@@ -1147,13 +1147,10 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 			}
 			break;
 
-		case ESpell::kStoneBones: {
-			if (GET_MOB_VNUM(victim) < kMobSkeleton || GET_MOB_VNUM(victim) > kLastNecroMob) {
-				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
-				success = false;
-			}
-			break;
-		}
+			// kStoneBones: the old "target must be a raised undead in vnum range
+			// [kMobSkeleton, kLastNecroMob]" guard is data-driven now (issue.cast-affect) --
+			// kTarMinionsOnly + <required mob_flags="kCorpse"> + <blocking mob_flags=
+			// "kResurrected|kMounting|kHelper|kClone">, gated in CastToSingleTarget. No case needed.
 
 		// kFailure/kMassFailure are now fully data-driven (issue: random apply attribute):
 		// the mandatory kMorale penalty + a single random one of the six basic-stat penalties

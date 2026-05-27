@@ -3499,6 +3499,12 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <!-- Restrict the target to a necromancer's own raised undead (the old
+                     vnum range [kMobSkeleton, kLastNecroMob]): a caster's minion
+                     (kTarMinionsOnly) that is a corpse-born mob (required kCorpse) and not a
+                     resurrected/mounting/helper/clone NPC (blocking). -->
+                <blocking mob_flags="kResurrected|kMounting|kHelper|kClone"/>
+                <required mob_flags="kCorpse"/>
                 <affects type="kStoneBones" saving="kNone" resist="kEarth">
                     <duration cnst="100" level_divisor="1" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
