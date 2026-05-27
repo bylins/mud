@@ -45,6 +45,7 @@ enum class ESpellMsg {
 	kCantCastSelfOnly,	// spell may only be cast on self.
 	kCantCastNotSelf,	// spell may not be cast on self.
 	kCantCastNotAlly,	// spell may only be cast on self or a groupmate (kTarAllyOnly).
+	kCantCastNotMinion,	// spell may only be cast on the caster's own NPC follower (kTarMinionsOnly).
 	kTargetUnavailable,	// spell target is unavailable.
 	kCantCastPeaceful,	// caster is peaceful and refuses to do harm.
 	// Generic "the spell had no effect" outcome, shown across CastAffect/CastUnaffects/

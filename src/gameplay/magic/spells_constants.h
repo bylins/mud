@@ -374,7 +374,8 @@ enum ETarget : Bitvector {
 	kTarRoomThis = 1 << 11,	// Цель комната в которой сидит чар//
 	kTarRoomDir = 1 << 12,	// Цель комната в каком-то направлении от чара//
 	kTarRoomWorld = 1 << 13,	// Цель какая-то комната в мире//
-	kTarAllyOnly = 1 << 14	// Only a check: PC may target only self or a groupmate. Use with kTarCharRoom //
+	kTarAllyOnly = 1 << 14,	// Only a check: PC may target only self or a groupmate. Use with kTarCharRoom //
+	kTarMinionsOnly = 1 << 15	// Only a check: target must be one of the caster's own NPC followers (master == caster) //
 };
 
 template<>

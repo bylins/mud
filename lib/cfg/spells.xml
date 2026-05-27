@@ -2857,7 +2857,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <name rus="силы зла" eng="eviless"/>
         <misc pos="kStand" violent="N" danger="3"/>
         <mana max="150" min="130" change="5"/>
-        <targets val="kTarIgnore"/>
+        <targets val="kTarIgnore|kTarMinionsOnly"/>
         <flags val="kMagGroups|kMagAffects|kMagPoints"/>
         <potency_roll>
             <dices ndice="15" sdice="15" adice="15"/>
@@ -3452,7 +3452,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <name rus="каменные кости" eng="stone bones"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="80" min="40" change="1"/>
-        <targets val="kTarCharRoom|kTarFightSelf|kTarAllyOnly"/>
+        <targets val="kTarCharRoom|kTarFightSelf|kTarMinionsOnly"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
         <potency_roll>
             <dices ndice="5" sdice="9" adice="12"/>

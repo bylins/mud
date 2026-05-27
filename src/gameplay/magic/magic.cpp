@@ -1146,8 +1146,9 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 		// kHold/kNoSleep guards live in <blocking>. No case needed.
 
 		case ESpell::kEviless:
-			if (!victim->IsNpc() || victim->get_master() != ch || !victim->IsFlagged(EMobFlag::kCorpse)) {
-				//тихо уходим, т.к. заклинание массовое
+			// kTarMinionsOnly already guaranteed an NPC follower of the caster; only the
+			// corpse-type restriction is left (silently skip non-corpse minions -- mass spell).
+			if (!victim->IsFlagged(EMobFlag::kCorpse)) {
 				break;
 			}
 			af[0].duration = CalcDuration(victim, 10, GetRealRemort(ch), 1, 0, 0);
@@ -1913,7 +1914,9 @@ EStageResult CastToPoints(int level, CharData *ch, CharData *victim, ESpell spel
 			hit = CalcHeal(ch, victim, spell_id, level);
 			break;
 		case ESpell::kEviless:
-			if (!victim->IsNpc() || victim->get_master() != ch || !victim->IsFlagged(EMobFlag::kCorpse)) {
+			// kTarMinionsOnly already guaranteed an NPC follower of the caster; only the
+			// corpse-type restriction is left.
+			if (!victim->IsFlagged(EMobFlag::kCorpse)) {
                 return EStageResult::kSuccess;
             }
 			if (AFF_FLAGGED(ch, EAffect::kForcesOfEvil)) {
@@ -2510,6 +2513,16 @@ void ReactToCast(CharData *victim, CharData *caster, ESpell spell_id) {
 int CastToSingleTarget(CharData *caster, CharData *cvict, ObjData *ovict, CastRollResult roll) {
 	const ESpell spell_id = roll.spell_id;
 	const int level = roll.level;
+	// kTarMinionsOnly: castable only on one of the caster's own NPC followers (master == caster).
+	// Checked per target so it covers group/mass casts too. A single-target cast on the wrong
+	// target is refused with a message; group/mass casts just skip non-followers silently.
+	if (MUD::Spell(spell_id).AllowTarget(kTarMinionsOnly)
+			&& !(cvict && cvict->IsNpc() && cvict->get_master() == caster)) {
+		if (!MUD::Spell(spell_id).IsFlagged(kMagGroups | kMagMasses | kMagAreas)) {
+			SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kCantCastNotMinion) + "\r\n", caster);
+		}
+		return 0;
+	}
 	if (cvict && (caster != cvict))
 		if (cvict->IsGod() || (((GetRealLevel(cvict) / 2) > (GetRealLevel(caster) + (GetRealRemort(caster) / 2))) &&
 				!caster->IsNpc())) {
