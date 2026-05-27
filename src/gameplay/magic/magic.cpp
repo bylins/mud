@@ -1805,6 +1805,10 @@ EStageResult CastToPoints(int level, CharData *ch, CharData *victim, ESpell spel
 	}
 
 	switch (spell_id) {
+		// All hit-point heals share one block: the amount comes from each spell's <heal>/<amount>
+		// and overheal-above-max is the data-driven <heal extra=> flag (applied after the switch),
+		// so no spell needs its own case anymore. (kEviless is already gated upstream by
+		// <required mob_flags="kCorpse"> + kTarMinionsOnly, then just heals its follower.)
 		case ESpell::kCureLight:
 		case ESpell::kCureSerious:
 		case ESpell::kCureCritic:
@@ -1812,14 +1816,9 @@ EStageResult CastToPoints(int level, CharData *ch, CharData *victim, ESpell spel
 		case ESpell::kGroupHeal:
 		case ESpell::kGreatHeal:
 		case ESpell::kExtraHits:
-        case ESpell::kPatronage: [[fallthrough]];
-        case ESpell::kWarcryOfPower:
-            hit = CalcHeal(ch, victim, spell_id, level);
-			break;
+		case ESpell::kPatronage:
+		case ESpell::kWarcryOfPower:
 		case ESpell::kEviless:
-			// Target already gated by <required mob_flags="kCorpse"> + kTarMinionsOnly; just heal
-			// the follower from its <heal> action. The old caster-side kForcesOfEvil signal that
-			// coordinated a one-time max-HP fill is gone (issue.cast-affect).
 			hit = CalcHeal(ch, victim, spell_id, level);
 			break;
 		case ESpell::kResfresh:
