@@ -243,6 +243,8 @@ TalentUnaffect::TalentUnaffect(parser_wrapper::DataNode &node) {
 		if (set) {
 			set->any_of = ParseSpellList(child.GetValue("any_of"));
 			set->all_of = ParseSpellList(child.GetValue("all_of"));
+			const char *bf = child.GetValue("breaking_by_failure");
+			set->breaking_by_failure = (bf && *bf) && parse::ReadAsBool(bf);
 		}
 	}
 }
@@ -262,6 +264,9 @@ void TalentUnaffect::Print(CharData */*ch*/, std::ostringstream &buffer) const {
 			buffer << " all_of=" << kColorGrn;
 			for (const auto s: set.all_of) buffer << NAME_BY_ITEM<ESpell>(s) << " ";
 			buffer << kColorNrm;
+		}
+		if (set.breaking_by_failure) {
+			buffer << " breaking_by_failure=" << kColorGrn << "yes" << kColorNrm;
 		}
 		buffer << "\r\n";
 	};

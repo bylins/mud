@@ -199,9 +199,12 @@ class TalentAffect : public IAction {
 class TalentUnaffect : public IAction {
  public:
 	// One <blocking>/<breaking>/<remove_anyway>/<remove> entry: its any_of/all_of lists.
+	// breaking_by_failure (remove/remove_anyway only): if a dispel of any affect in this block
+	// fails the potency check, the cast chain breaks (CastUnaffects returns kBreak).
 	struct Set {
 		std::vector<ESpell> any_of;
 		std::vector<ESpell> all_of;
+		bool breaking_by_failure{false};
 		[[nodiscard]] bool empty() const { return any_of.empty() && all_of.empty(); }
 	};
 

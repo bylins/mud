@@ -1915,20 +1915,27 @@ bool UnaffectConditionMet(CharData *victim, const talents_actions::TalentUnaffec
 	return false;
 }
 
+// One affect queued for dispel, tagged with its source block's breaking_by_failure flag: if the
+// dispel of a candidate with break_on_fail set is resisted, the whole cast chain breaks.
+struct RemovalCandidate {
+	ESpell spell;
+	bool break_on_fail;
+};
+
 // Build the list of affects to dispel for a <remove>/<remove_anyway> set: any_of yields
 // the first listed affect that is present and dispellable; all_of yields every listed
-// affect that is present and dispellable.
+// affect that is present and dispellable. Each candidate carries the set's breaking_by_failure.
 void CollectRemovals(CharData *victim, const talents_actions::TalentUnaffect::Set &set,
-					 std::vector<ESpell> &out) {
+					 std::vector<RemovalCandidate> &out) {
 	for (const auto spell : set.any_of) {
 		if (HasDispellableAffect(victim, spell)) {
-			out.push_back(spell);
+			out.push_back({spell, set.breaking_by_failure});
 			break;
 		}
 	}
 	for (const auto spell : set.all_of) {
 		if (HasDispellableAffect(victim, spell)) {
-			out.push_back(spell);
+			out.push_back({spell, set.breaking_by_failure});
 		}
 	}
 }
@@ -2038,7 +2045,11 @@ EStageResult CastUnaffects(int/* level*/, CharData *ch, CharData *victim, ESpell
 	const bool blocking = UnaffectConditionMet(victim, unaffect.GetBlocking());
 	const bool breaking = UnaffectConditionMet(victim, unaffect.GetBreaking());
 
-	std::vector<ESpell> to_remove;
+	// breaking_by_failure (issue): a resisted dispel of a candidate from a remove/remove_anyway
+	// block so flagged breaks the cast chain, in addition to the present-affect <breaking> set.
+	bool break_chain = breaking;
+
+	std::vector<RemovalCandidate> to_remove;
 	CollectRemovals(victim, unaffect.GetRemoveAnyway(), to_remove);  // dispelled even when blocked
 	if (!blocking) {
 		CollectRemovals(victim, unaffect.GetRemove(), to_remove);   // dispelled only when not blocked
@@ -2047,7 +2058,7 @@ EStageResult CastUnaffects(int/* level*/, CharData *ch, CharData *victim, ESpell
 	if (!to_remove.empty()) {
 		// PK-action check (preserved from the old switch): keyed on the first dispelled
 		// affect's spell flags; a disallowed action aborts the removal entirely.
-		const auto primary = to_remove.front();
+		const auto primary = to_remove.front().spell;
 		if (ch != victim) {
 			if (MUD::Spell(primary).IsFlagged(kNpcAffectNpc)) {
 				if (!pk_agro_action(ch, victim)) {
@@ -2061,12 +2072,15 @@ EStageResult CastUnaffects(int/* level*/, CharData *ch, CharData *victim, ESpell
 		}
 		bool removed_any = false;
 		bool resisted_any = false;
-		for (const auto spell : to_remove) {
-			if (DispelSucceeds(ch, victim, spell_id, spell, unaffect.GetPotencyWeight())) {
-				RemoveAffectAndAnnounce(ch, victim, spell);
+		for (const auto &cand : to_remove) {
+			if (DispelSucceeds(ch, victim, spell_id, cand.spell, unaffect.GetPotencyWeight())) {
+				RemoveAffectAndAnnounce(ch, victim, cand.spell);
 				removed_any = true;
 			} else {
 				resisted_any = true;
+				if (cand.break_on_fail) {
+					break_chain = true;
+				}
 			}
 		}
 		// Everything that could be removed resisted the potency check -> "no effect" to the caster.
@@ -2083,7 +2097,7 @@ EStageResult CastUnaffects(int/* level*/, CharData *ch, CharData *victim, ESpell
 		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 	}
 
-	return breaking ? EStageResult::kBreak : EStageResult::kSuccess;
+	return break_chain ? EStageResult::kBreak : EStageResult::kSuccess;
 }
 
 EStageResult CastToAlterObjs(int/* level*/, CharData *ch, ObjData *obj, ESpell spell_id) {
