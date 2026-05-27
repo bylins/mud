@@ -795,6 +795,7 @@ base_stat id - (например "kWis") какой берем параметр,
             <action>
                 <affects type="kSleep" saving="kWill" resist="kMind">
                     <blocking mob_flags="kNoSleep" affect_flags="kHold"/>
+                    <reposition pos="kSleep"/>
                     <duration cnst="1" level_divisor="6" min="1" max="6"/>
                     <flags val="kAfBattledec"/>
                     <apply id="kSleep" location="kNone">
@@ -3410,6 +3411,8 @@ base_stat id - (например "kWis") какой берем параметр,
             <action>
                 <affects type="kPeaceful" saving="kNone" resist="kMind">
                     <blocking mob_flags="kNoHold"  affect_flags="kPeaceful"/>
+                    <reposition stop_fight="true"/>
+                    <lag base="2" bonus_divisor="-1"/>
                     <duration cnst="2" level_divisor="0" min="0" max="0"/>
                     <apply id="kPeaceful" location="kNone">
                         <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="0"/>

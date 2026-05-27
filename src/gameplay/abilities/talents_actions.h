@@ -143,6 +143,9 @@ class TalentAffect : public IAction {
 	[[nodiscard]] bool HasLag() const { return has_lag_; }
 	[[nodiscard]] unsigned GetLagBase() const { return lag_base_; }
 	[[nodiscard]] double GetLagBonusDivisor() const { return lag_bonus_divisor_; }
+	[[nodiscard]] bool HasReposition() const { return has_reposition_; }
+	[[nodiscard]] EPosition GetRepositionPos() const { return reposition_pos_; }
+	[[nodiscard]] bool GetRepositionStopFight() const { return reposition_stop_fight_; }
 
  private:
 	ESpell spell_{static_cast<ESpell>(0)};
@@ -167,6 +170,12 @@ class TalentAffect : public IAction {
 	bool has_lag_{false};
 	unsigned lag_base_{0};
 	double lag_bonus_divisor_{0.0};
+	// Forced reposition applied when the affect lands (the <reposition> tag, issue.cast-affect):
+	// knock the victim to reposition_pos_ (kUndefined = no position change, only stop the fight)
+	// and, if reposition_stop_fight_, stop everyone fighting the victim (the "peaceful" effect).
+	bool has_reposition_{false};
+	EPosition reposition_pos_{EPosition::kUndefined};
+	bool reposition_stop_fight_{false};
 };
 
 // The "unaffect" talent action (issue #3342): removes affects from the target and/or

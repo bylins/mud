@@ -186,6 +186,13 @@ TalentAffect::TalentAffect(parser_wrapper::DataNode &node) {
 			has_lag_ = true;
 			lag_base_ = parse::ReadAsInt(child.GetValue("base"));
 			lag_bonus_divisor_ = parse::ReadAsDouble(child.GetValue("bonus_divisor"));
+		} else if (strcmp(name, "reposition") == 0) {
+			has_reposition_ = true;
+			const char *p = child.GetValue("pos");
+			if (p && *p) {
+				reposition_pos_ = parse::ReadAsConstant<EPosition>(p);
+			}
+			reposition_stop_fight_ = parse::ReadAsBool(child.GetValue("stop_fight"));
 		}
 	}
 }
@@ -232,6 +239,10 @@ void TalentAffect::Print(CharData */*ch*/, std::ostringstream &buffer) const {
 	if (has_lag_) {
 		buffer << "  Lag: base=" << kColorGrn << lag_base_ << kColorNrm
 			   << " bonus_divisor=" << kColorGrn << lag_bonus_divisor_ << kColorNrm << "\r\n";
+	}
+	if (has_reposition_) {
+		buffer << "  Reposition: pos=" << kColorGrn << NAME_BY_ITEM<EPosition>(reposition_pos_) << kColorNrm
+			   << " stop_fight=" << kColorGrn << (reposition_stop_fight_ ? "yes" : "no") << kColorNrm << "\r\n";
 	}
 }
 

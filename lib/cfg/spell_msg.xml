@@ -1624,6 +1624,8 @@
 	<msg_sheaf id="kSleep">
 		<message type="kCastPhraseHeathen" val="иже дремлет" />
 		<message type="kCastPhraseChristian" val="... на веки твои тяжесть покладет." />
+		<message type="kKnockdownToChar" val="Вы слишком устали... Спать... Спа..." />
+		<message type="kKnockdownToRoom" val="$n прилег$q подремать." />
 	</msg_sheaf>
 	<msg_sheaf id="kStrength">
 		<message type="kCastPhraseHeathen" val="будет силен" />

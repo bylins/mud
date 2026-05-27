@@ -210,8 +210,10 @@ int CalcGeneralSaving(CharData *killer, CharData *victim, ESaving type, int ext_
 	if (killer == victim) {
 		return false;
 	}
+	// No victim or no saving throw specified -> the save is simply not taken: it "fails"
+	// (returns false), so the effect lands. This lets callers drop their type==kNone guards.
 	if (victim == nullptr || type == ESaving::kNone) {
-		return true;
+		return false;
 	}
 	int save = CalcSaving(killer, victim, type, true);
 	int rnd = number(-200, 200);
@@ -431,26 +433,35 @@ int CalcExtraHits(CharData *ch, ESkill skill_id, int skill_divisor = 25, int max
  * Forces a character to assume a certain position (knocked down, asleep, stunned, etc.)
  * Knocks off horse, checks for afflictions.
  */
+// Knock the victim down to position `pos` (with the spell's kKnockdown* messages) and/or
+// force the fight to stop. Passing EPosition::kUndefined as `pos` changes no position at all
+// -- only the force_stopfight branch runs (in the engine, the "fighting" state is itself part
+// of the position system, so stopping a fight is a position change in that sense). The
+// affect-resist (GET_AR) check that used to gate this moved to the CastAffect saving block,
+// where it blocks the whole debuff (issue.cast-affect).
 void ForceReposition(CharData *victim, ESpell spell_id, EPosition pos, bool force_stopfight = false) {
-	if (victim->IsImmortal() || victim->GetPosition() < pos) {
+	if (victim->IsImmortal()) {
 		return;
 	}
-	if (number(1, 100) <= GET_AR(victim)) {
+	const bool reposition = (pos != EPosition::kUndefined);
+	if (reposition && victim->GetPosition() < pos) {
 		return;
 	}
-	if ((pos < EPosition::kSit || force_stopfight) && victim->GetEnemy()) {
+	if (((reposition && pos < EPosition::kSit) || force_stopfight) && victim->GetEnemy()) {
 		stop_fighting(victim, force_stopfight);
 	}
 	if (force_stopfight) {
 		change_fighting(victim, force_stopfight);
 	}
-	victim->DropFromHorse();
-	if (pos < victim->GetPosition()) {
-		act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kKnockdownToRoom).c_str(),
-			false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
-		act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kKnockdownToChar).c_str(),
-			false, victim, nullptr, nullptr, kToChar);
-		victim->SetPosition(pos);
+	if (reposition) {
+		victim->DropFromHorse();
+		if (pos < victim->GetPosition()) {
+			act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kKnockdownToRoom).c_str(),
+				false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
+			act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kKnockdownToChar).c_str(),
+				false, victim, nullptr, nullptr, kToChar);
+			victim->SetPosition(pos);
+		}
 	}
 }
 
@@ -1068,6 +1079,13 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 		return EStageResult::kSuccess;
 	}
+	// Affect-resist (GET_AR): a blanket block on any debuff (a violent spell with an effect),
+	// a historical mechanic -- checked up front, before any saving throw or affect is built,
+	// so it stops the debuff regardless of circumstances (issue.cast-affect).
+	if (ch != victim && MUD::Spell(spell_id).IsViolent() && number(1, 100) <= GET_AR(victim)) {
+		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
+		return EStageResult::kSuccess;
+	}
 	const bool has_affect_talent = MUD::Spell(spell_id).actions.Contains(talents_actions::EAction::kAffect);
 	if (has_affect_talent) {
 		const auto &affect = MUD::Spell(spell_id).actions.GetAffect();
@@ -1122,27 +1140,10 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 //
 //			break;
 
-		case ESpell::kSleep:
-			// The kHold guard moved to <blocking affect_flags> (issue.aff-flagged-check); the
-			// kWill save stays here because it gates the sleep *position* change below.
-			if (CalcGeneralSaving(ch, victim, ESaving::kWill, modi)) {
-				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
-				success = false;
-				break;
-			};
-
-			if (victim->GetEnemy())
-				stop_fighting(victim, false);
-			if (victim->GetPosition() > EPosition::kSleep && success) {
-				if (victim->IsOnHorse()) {
-					victim->DropFromHorse();
-				}
-				SendMsgToChar("Вы слишком устали... Спать... Спа...\r\n", victim);
-				act("$n прилег$q подремать.", true, victim, nullptr, nullptr, kToRoom | kToArenaListen);
-
-				victim->SetPosition(EPosition::kSleep);
-			}
-			break;
+		// kSleep is fully data-driven (issue.cast-affect): the kWill save + affect-resist gate
+		// the sleep affect in the talent block; <reposition pos="kSleep"> then drops the victim
+		// to the sleeping position (with the kKnockdown* messages) and stops it fighting. The
+		// kHold/kNoSleep guards live in <blocking>. No case needed.
 
 		case ESpell::kEviless:
 			if (!victim->IsNpc() || victim->get_master() != ch || !victim->IsFlagged(EMobFlag::kCorpse)) {
@@ -1214,20 +1215,15 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 			break;
 		}
 
-		case ESpell::kPeaceful: {
-			if ((victim->IsNpc() && !AFF_FLAGGED(victim, EAffect::kCharmed)) ||
-				(CalcGeneralSaving(ch, victim, savetype, modi))) {
+		case ESpell::kPeaceful:
+			// kPeaceful only keeps its "no effect on an uncharmed NPC" guard here; the affect
+			// (saving/affect-resist), the fight-stop (<reposition stop_fight="true"> -> both
+			// sides stop), and the lag (<lag>) are all data-driven now (issue.cast-affect).
+			if (victim->IsNpc() && !AFF_FLAGGED(victim, EAffect::kCharmed)) {
 				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 				success = false;
-				break;
-			}
-			if (victim->GetEnemy()) {
-				stop_fighting(victim, true);
-				change_fighting(victim, true);
-				SetBattleLag(victim, 2);
 			}
 			break;
-		}
 
 		case ESpell::kStoneBones: {
 			if (GET_MOB_VNUM(victim) < kMobSkeleton || GET_MOB_VNUM(victim) > kLastNecroMob) {
@@ -1363,8 +1359,10 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 	// roll; and the EAffFlag flags drive the per-apply update/accumulate behavior.
 	if (success && has_affect_talent) {
 		const auto &talent = MUD::Spell(spell_id).actions.GetAffect();
-		if (ch != victim && talent.GetSaving() != ESaving::kNone
-				&& CalcGeneralSaving(ch, victim, talent.GetSaving(), modi)) {
+		// The affect-resist (GET_AR) debuff block is handled up front (see top of CastAffect);
+		// here only the saving throw can still avert the affect (kNone saving -> CalcGeneralSaving
+		// returns false, so no save is taken).
+		if (ch != victim && CalcGeneralSaving(ch, victim, talent.GetSaving(), modi)) {
 			SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 			success = false;
 		} else {
@@ -1425,9 +1423,15 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 		// victim once the affect lands. Constant-lag spells use a non-positive bonus_divisor;
 		// skill-scaling ones add potency.low_skill_coeff / bonus_divisor.
 		if (has_affect_talent) {
-			const auto &lag_talent = MUD::Spell(spell_id).actions.GetAffect();
-			if (lag_talent.HasLag()) {
-				SetBattleLag(victim, potency.low_skill_coeff, lag_talent.GetLagBase(), lag_talent.GetLagBonusDivisor());
+			const auto &side = MUD::Spell(spell_id).actions.GetAffect();
+			if (side.HasLag()) {
+				SetBattleLag(victim, potency.low_skill_coeff, side.GetLagBase(), side.GetLagBonusDivisor());
+			}
+			// Forced reposition / fight-stop (issue.cast-affect): e.g. kSleep knocks to kSleep,
+			// kPeaceful stops the fight (pos kUndefined). Runs after the saving/affect-resist
+			// gate, so the position only changes when the debuff actually lands.
+			if (side.HasReposition()) {
+				ForceReposition(victim, spell_id, side.GetRepositionPos(), side.GetRepositionStopFight());
 			}
 		}
 		// вот некрасиво же тут это делать...
