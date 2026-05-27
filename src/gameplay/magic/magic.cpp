@@ -970,12 +970,7 @@ static void ApplyTalentAffect(CharData *victim, Affect<EApply> &af, Bitvector fl
 	affect_to_char(victim, af);
 }
 
-EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const RollResult &potency) {
-	bool success = true;
-	const char *to_vict = nullptr, *to_room = nullptr;
-	const ESpell cast_spell_id = spell_id;	// issue #3335: stable key for affect messages
-	int modi = 0;
-
+EStageResult CastAffect(int level, CharData *ch, CharData *victim, const ESpell spell_id, const RollResult &potency) {
 	if (victim == nullptr || victim->in_room == kNowhere || ch == nullptr) {
 		return EStageResult::kSuccess;
 	}
@@ -1038,6 +1033,7 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 	}
 
 	// decrease modi for failing, increese fo success
+	int modi = 0;
 	if (ch != victim) {
 		modi = CalcAntiSavings(ch);
 		modi += CalcClassAntiSavingsMod(ch, spell_id);
@@ -1081,7 +1077,10 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 	// here. The saving throw uses the talent's own saving; the duration is computed
 	// once for all applies; each apply's modifier is derived from the cast's potency
 	// roll; and the EAffFlag flags drive the per-apply update/accumulate behavior.
-	if (success && has_affect_talent) {
+	// `success` tracks whether the affect actually landed: a save or re-cast guard clears
+	// it inside the block, which then suppresses the imposition messages/lag below.
+	bool success = true;
+	if (has_affect_talent) {
 		const auto &talent = MUD::Spell(spell_id).actions.GetAffect();
 		// The affect-resist (GET_AR) debuff block is handled up front (see top of CastAffect);
 		// here only the saving throw can still avert the affect (kNone saving -> CalcGeneralSaving
@@ -1163,21 +1162,15 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_
 		// вот некрасиво же тут это делать...
 		if (spell_id == ESpell::kPoison)
 			victim->poisoner = ch->get_uid();
-		// Affect imposition messages (issue #3335): looked up by the spell that was
-		// cast (cast_spell_id, before any in-switch reassignment) and emitted sheaf-
-		// directly, so a spell with no message shows nothing. The few spells whose
-		// message is conditional or multi-line still set to_vict/to_room; those win.
-		const auto &imposed = MUD::SpellMessages()[cast_spell_id];
-		if (to_vict == nullptr) {
-			to_vict = imposed.GetMessage(ESpellMsg::kAffImposedToChar).c_str();
-		}
-		if (to_room == nullptr) {
-			to_room = imposed.GetMessage(ESpellMsg::kAffImposedToRoom).c_str();
-		}
-		if (to_vict != nullptr && *to_vict != '\0')
-			act(to_vict, false, victim, nullptr, ch, kToChar);
-		if (to_room != nullptr && *to_room != '\0')
-			act(to_room, true, victim, nullptr, ch, kToRoom | kToArenaListen);
+		// Affect imposition messages (issue #3335): looked up by the cast spell and emitted
+		// sheaf-directly, so a spell with no such message shows nothing.
+		const auto &imposed = MUD::SpellMessages()[spell_id];
+		const auto &to_vict = imposed.GetMessage(ESpellMsg::kAffImposedToChar);
+		const auto &to_room = imposed.GetMessage(ESpellMsg::kAffImposedToRoom);
+		if (!to_vict.empty())
+			act(to_vict.c_str(), false, victim, nullptr, ch, kToChar);
+		if (!to_room.empty())
+			act(to_room.c_str(), true, victim, nullptr, ch, kToRoom | kToArenaListen);
 		return EStageResult::kSuccess;
 	}
 	return EStageResult::kSuccess;
