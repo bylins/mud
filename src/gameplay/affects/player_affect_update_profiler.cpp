@@ -10,13 +10,11 @@
 #include <vector>
 
 #include <fmt/format.h>
-#include "utils/logger.h"
 
 namespace player_affect_update_profiler {
 namespace {
 
 constexpr std::size_t kWindowSize = 256;
-constexpr std::size_t kReportEveryNRuns = 10;
 
 constexpr std::array<const char *, static_cast<std::size_t>(Section::kNumSections)> kSectionNames{
 	"total",
@@ -104,10 +102,6 @@ class Profiler {
 		for (std::size_t i = 0; i < m_counters.size(); ++i) {
 			m_counters[i].add(static_cast<double>(stats.counters[i]));
 		}
-
-		if (m_runs % kReportEveryNRuns == 0) {
-			report();
-		}
 	}
 
 	std::string render() const {
@@ -155,36 +149,6 @@ class Profiler {
 	}
 
  private:
-	void report() const {
-		log("%s", fmt::format("player_affect_update profile: runs={} window={}", m_runs, kWindowSize).c_str());
-		for (std::size_t i = 0; i < m_sections.size(); ++i) {
-			log("%s",
-				fmt::format(
-					"player_affect_update profile section={} avg={:.6f}s min={:.6f}s p50={:.6f}s p95={:.6f}s p99={:.6f}s max={:.6f}s n={}",
-					kSectionNames[i],
-					m_sections[i].avg(),
-					m_sections[i].min(),
-					m_sections[i].percentile(0.50),
-					m_sections[i].percentile(0.95),
-					m_sections[i].percentile(0.99),
-					m_sections[i].max(),
-					m_sections[i].count()).c_str());
-		}
-		for (std::size_t i = 0; i < m_counters.size(); ++i) {
-			log("%s",
-				fmt::format(
-					"player_affect_update profile counter={} avg={:.2f} min={:.0f} p50={:.0f} p95={:.0f} p99={:.0f} max={:.0f} n={}",
-					kCounterNames[i],
-					m_counters[i].avg(),
-					m_counters[i].min(),
-					m_counters[i].percentile(0.50),
-					m_counters[i].percentile(0.95),
-					m_counters[i].percentile(0.99),
-					m_counters[i].max(),
-					m_counters[i].count()).c_str());
-		}
-	}
-
 	std::size_t m_runs = 0;
 	std::array<Distribution, static_cast<std::size_t>(Section::kNumSections)> m_sections;
 	std::array<Distribution, static_cast<std::size_t>(Counter::kNumCounters)> m_counters;
