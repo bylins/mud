@@ -79,8 +79,13 @@ double Roll::CalcBaseStatCoeff(const CharData *const ch) const {
 
 Roll::Roll(parser_wrapper::DataNode &node) {
 	if (node.GoToChild("dices")) {
-		dice_num_ = std::max(1, parse::ReadAsInt(node.GetValue("ndice")));
-		dice_size_ = std::max(1, parse::ReadAsInt(node.GetValue("sdice")));
+		// issue.dicerolls: no clamp-to-1. ndice=0 or sdice=0 means "no dice rolled", so
+		// <dices ndice="0" sdice="0" adice="N"/> reliably returns N. The previous std::max(1, ...)
+		// silently added one to every all-zero spec, which violated the principle of least
+		// surprise. RollDices(0, *) and RollDices(*, 0) already short-circuit to 0, so the
+		// arithmetic stays correct without any extra guard here.
+		dice_num_ = parse::ReadAsInt(node.GetValue("ndice"));
+		dice_size_ = parse::ReadAsInt(node.GetValue("sdice"));
 		dice_add_ = parse::ReadAsInt(node.GetValue("adice"));
 		node.GoToParent();
 	}
@@ -211,7 +216,14 @@ TalentAffect::TalentAffect(parser_wrapper::DataNode &node) {
 			Apply apply;
 			apply.id = parse::ReadAsConstant<EAffect>(child.GetValue("id"));
 			apply.location = parse::ReadAsConstant<EApply>(child.GetValue("location"));
-			apply.random = parse::ReadAsBool(child.GetValue("random"));
+			// random is optional (default false). parse::ReadAsBool throws on empty input, so
+			// guard with the (p && *p) pattern that the other optional attrs use. Without this
+			// guard, ANY <apply> tag missing the random= attribute aborts parsing of the whole
+			// <affects> block via the exception caught in Actions::Build -- which silently leaves
+			// the spell's actions_ empty, so the affect never lands at runtime even though
+			// CastAffect's imposition messages still fire (issue.no-affects-bug).
+			const char *r = child.GetValue("random");
+			apply.random = (r && *r) && parse::ReadAsBool(r);
 			if (child.GoToChild("modifier")) {
 				apply.min = parse::ReadAsDouble(child.GetValue("min"));
 				apply.dices_weight = parse::ReadAsDouble(child.GetValue("dices_weight"));
@@ -233,7 +245,10 @@ TalentAffect::TalentAffect(parser_wrapper::DataNode &node) {
 			if (p && *p) {
 				reposition_pos_ = parse::ReadAsConstant<EPosition>(p);
 			}
-			reposition_stop_fight_ = parse::ReadAsBool(child.GetValue("stop_fight"));
+			// stop_fight is optional (default false). Same guard as random above; without it,
+			// any <reposition pos=...> tag that omits stop_fight= aborts the affect parse.
+			const char *sf = child.GetValue("stop_fight");
+			reposition_stop_fight_ = (sf && *sf) && parse::ReadAsBool(sf);
 		}
 	}
 }

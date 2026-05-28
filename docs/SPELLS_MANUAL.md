@@ -218,9 +218,9 @@ duration bonus, extra-hits bonus, dispel strength).
 
 | Child / attr | Description |
 |---|---|
-| `<dices ndice= sdice= adice=>` | The dice expression: `ndice` dice of `sdice` sides plus `adice` flat. Minimum 1 for both `ndice` and `sdice`. |
-| `<base_skill id= low_skill_bonus= hi_skill_bonus=>` | Adds a skill-based coefficient. Below the novice threshold (skill 75), each point grants `low_skill_bonus`; above 75, each point grants `hi_skill_bonus`. Final coefficient = `(low_skill·low_bonus + hi_skill·hi_bonus) / 100`. |
-| `<base_stat id= threshold= weight=>` | Adds a stat-based coefficient. Contribution = `max(0, stat − threshold) · weight / 100`. |
+| `<dices ndice= sdice= adice=>` | The dice expression: `ndice` dice of `sdice` sides plus `adice` flat. Any zero attribute means "no contribution from that part" — `ndice="0" sdice="0" adice="N"` reliably returns `N`, and an absent `<dices>` block is equivalent to `0,0,0` (returns 0). Negative values are also treated as zero. |
+| `<base_skill id= low_skill_bonus= hi_skill_bonus=>` | Adds a skill-based coefficient. Below the novice threshold (skill 75), each point grants `low_skill_bonus`; above 75, each point grants `hi_skill_bonus`. Final coefficient = `(low_skill·low_bonus + hi_skill·hi_bonus) / 100`. Omit the child to skip skill contribution. |
+| `<base_stat id= threshold= weight=>` | Adds a stat-based coefficient. Contribution = `max(0, stat − threshold) · weight / 100`. Omit the child to skip stat contribution. |
 
 `<success_roll>` is parsed and evaluated but **not yet consumed** by any game
 mechanic — it's a forward-looking hook. Use the same shape when you want a
@@ -575,6 +575,83 @@ penalty out of six.
 </affects>
 ```
 
+### 8.9 Scaling modifiers with caster competence
+
+The new system's design philosophy is that **modifier magnitude grows with
+caster competence (skill + stat), not with caster level or remort
+directly**. The OLD per-spell formulas like `-1 - R/2` or `(L+R)/3` are
+re-expressed via `competencies_weight`.
+
+The conversion rule used when translating from OLD formulas:
+
+> **1 remort = +5 skill cap + +1 base stat**
+>
+> (Newly-created character has skill cap 80 and base stat = class
+> default; each transformation/remort raises the cap by 5 and the
+> base stat by 1.)
+
+For the cookie-cutter potency_roll (`low=3 hi=1.25`,
+`threshold=22 weight=0.5`), per-remort competencies grow by
+`(5·1.25 + 1·0.5)/100 = 0.0675`. So a modifier that should grow by
+`k` per remort needs `competencies_weight ≈ k / 0.0675`.
+
+**The min ≥ 0 rule.** Choose `min` and `competencies_weight` so an
+untrained caster (competencies = 0) gets `min·factor` = 0 modifier
+(or a small clean baseline). This avoids untrained casters
+accidentally getting an inverted-sign buff from a debuff spell.
+
+**Recommended algorithm** (used for the bulk of the `<modifier>`
+scaling in `spells.xml`):
+
+```
+cw_exact   = |target at R=12 max-skill| / competencies_at_R12_max
+cw         = floor(cw_exact * 10) / 10        # round down to keep min ≥ 0
+min        = |target at R=12| - ceil(competencies_at_R12 * cw)
+```
+
+This anchors the R=12 typical caster (skill cap 140, key stat
+threshold+12) exactly, lets the modifier scale monotonically with
+competence in either direction, and gives untrained casters a clean
+zero baseline.
+
+**Example.** `kBless`'s old formula was `-5 - R/3` on
+`kSavingStability`. With cookie-cutter potency_roll
+(competencies ≈ 3.12 at R=12 max-skill), `cw_exact = 9/3.12 ≈ 2.88`,
+so `cw = 2.8` and `min = 9 - ceil(3.12·2.8) = 9 - 9 = 0`. The current
+XML reads:
+
+```xml
+<apply id="kBless" location="kSavingStability">
+    <modifier min="0.0" dices_weight="0.0"
+              competencies_weight="2.8" factor="-1"/>
+</apply>
+```
+
+Verification:
+- Untrained caster (competencies = 0): modifier = `-1·(0 + 0)` = 0.
+- R=0 max-skill (competencies ≈ 2.31): modifier = `-1·ceil(6.47)` = −7.
+- R=12 typical (competencies ≈ 3.12): modifier = `-1·ceil(8.74)` = **−9** ✓
+- R=24 max (competencies ≈ 3.93): modifier = `-1·ceil(11.0)` = −11.
+
+The slope is slightly gentler than OLD's `-1/3` per remort, but R=12
+matches exactly and competence drives the value end-to-end.
+
+**When `min` ends up negative.** With aggressive potency_rolls (large
+`low_skill_bonus`/`hi_skill_bonus` or large stat `weight`), the
+algorithm above can produce `min < 0`. *Avoid this.* A negative `min`
+means an untrained caster's modifier becomes `-1·(negative)` = positive
+— inverting the spell's sign. For example, a debuff with `min=-7
+factor=-1` gives an untrained mage a `+7` *buff* on enemy saves. Fix by:
+
+- reducing `competencies_weight` until `min ≥ 0` (gentler scaling), or
+- normalising the spell's potency_roll to cookie-cutter shape so the
+  arithmetic works out without overshoot.
+
+A handful of spells in the codebase have unusually aggressive
+potency_rolls (`kPatronage`, `kEviless`, `kCurse`) and currently use
+flat-`min` modifiers without `competencies_weight`. They're left that
+way until their potency_rolls are normalised.
+
 ---
 
 ## 9. `<unaffect>` — dispels / cures *(new mechanics)*
@@ -881,8 +958,8 @@ missing key just stays silent rather than leaking a wrong default.
                 <flags val="kAfDispellable|kAfCurable"/>
                 <duration base="4" skill_divisor="0" min="0" max="0"/>
                 <apply id="kGlitterDust" location="kSavingReflex">
-                    <modifier min="12.0" dices_weight="0.0"
-                              competencies_weight="0.0" factor="1"/>
+                    <modifier min="0.0" dices_weight="0.0"
+                              competencies_weight="4.4" factor="1"/>
                 </apply>
             </affects>
         </action>
@@ -897,6 +974,10 @@ missing key just stays silent rather than leaking a wrong default.
   target** — the glitterdust debuff doesn't land.
 * If the dispels succeed (or the affects weren't present), the debuff
   applies normally — a saving-throw penalty for 4 hours.
+* The penalty scales with caster competence: at competencies ≈ 3.12
+  (skill 140 / wis 34, the R=12 typical caster) the saving-throw
+  modifier is `+ceil(3.12·4.4) = +14`; an untrained caster (skill 0,
+  stat at threshold) gets `+ceil(0·4.4) = 0` — see §8.9.
 
 ### 13.5 Alignment-restricted spell
 
@@ -955,7 +1036,12 @@ ready). Here's how a fire-shielded creature might reflect cold spells:
 * Alignments: add `align="kEvil"` to the same tag to make undead innately
   reflect holy spells, etc.
 
-### 13.7 Stacking poison
+### 13.7 Stacking poison (hypothetical)
+
+The real `kPoison` doesn't stack today — this example illustrates the
+mechanic. The actual `kPoison` uses `competencies_weight` to scale the
+poison-damage tick (no stacking); here we re-add `stack="3"` to show
+how a stacking variant would be authored.
 
 ```xml
 <spell id="kPoison" element="kDark" mode="kEnabled">
@@ -967,10 +1053,14 @@ ready). Here's how a fire-shielded creature might reflect cold spells:
                 <duration base="0" skill_divisor="3" min="0" max="0"/>
                 <flags val="kAfSameTime|kAfAccumulateDuration|kAfCurable"/>
                 <apply id="kPoisoned" location="kStr">
-                    <modifier min="2.0" factor="-1" stack="3"/>
+                    <modifier min="2.0" dices_weight="0.0"
+                              competencies_weight="0.0"
+                              factor="-1" stack="3"/>
                 </apply>
                 <apply id="kPoisoned" location="kPoison">
-                    <modifier min="30.0" factor="1" stack="3"/>
+                    <modifier min="0.0" dices_weight="0.0"
+                              competencies_weight="11.5"
+                              factor="1" stack="3"/>
                 </apply>
             </affects>
         </action>
@@ -979,8 +1069,10 @@ ready). Here's how a fire-shielded creature might reflect cold spells:
 ```
 
 * Re-casting on the same victim **stacks up to 3 times**: the strength
-  penalty scales `-2`, `-4`, `-6` and the poison-damage tick grows
-  `+30`, `+60`, `+90`.
+  penalty scales `-2`, `-4`, `-6` (flat per stack) and the
+  poison-damage tick scales as `1×`, `2×`, `3×` the per-cast value
+  (where the per-cast value is `ceil(competencies·11.5)` — at the R=12
+  typical caster ≈ 36 per stack).
 * Duration accumulates (`kAfAccumulateDuration`).
 * `kAfCurable` (without `kAfDispellable`) — `kRemovePoison` works, plain
   `kDispellMagic` does not.
@@ -1096,4 +1188,8 @@ If you need any of these, open an issue and the work can be scoped.
 
 ---
 
-*Last updated to match the `sventovit.work` head as of the post-`magic-code-cleaning` merge.*
+*Last updated to match the `sventovit.work` head as of the
+`issue.spells-rebalance` work: dice parser treats `0` as "no
+contribution" (absent `<dices>` block is equivalent to `0,0,0`),
+and the modifier-scaling pattern of §8.9 is now used by ~20 spells
+in `spells.xml`.*

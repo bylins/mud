@@ -74,9 +74,13 @@ class IAction {
 // (damage/heal). The same type is meant to be reused later for a spell "success
 // roll", which takes a similar set of casting parameters.
 class Roll {
-	int dice_num_{1};
-	int dice_size_{1};
-	int dice_add_{1};
+	// Defaults are all zero (issue.dicerolls): an absent or all-zero <dices> block means "no
+	// dice contribution". The previous defaults of 1/1/1 silently added a constant +2 to every
+	// spell missing a <dices> block, which broke the principle of least surprise. See the
+	// parser (Roll::Roll) for the matching change to drop the std::max(1, ...) clamps.
+	int dice_num_{0};
+	int dice_size_{0};
+	int dice_add_{0};
 
 	ESkill base_skill_{ESkill::kUndefined};
 	double low_skill_bonus_{0.0};
