@@ -2252,6 +2252,43 @@ static bool TargetMeetsRequired(CharData *victim, const talents_actions::FlagCon
 	return true;
 }
 
+// True if `victim` matches any of the reflection's affect flags or its alignment.
+// Bare flag/alignment match -- potency-gated reflection isn't possible today (mob/object
+// affects carry no potency value), so flag presence + prob is the best we can do.
+static bool VictimMatchesReflection(CharData *victim, const talents_actions::Reflection &refl) {
+	for (const auto aff : refl.affect_flags) {
+		if (AFF_FLAGGED(victim, aff)) return true;
+	}
+	if (refl.align == EAlign::kGood && IsGood(victim)) return true;
+	if (refl.align == EAlign::kEvil && IsEvil(victim)) return true;
+	if (refl.align == EAlign::kNeutral && IsNeutral(victim)) return true;
+	return false;
+}
+
+// If the spell's <reflection> matches `cvict` and the prob roll succeeds, emit the three
+// reflection messages and return `caster` -- the spell will now hit the caster instead.
+// Otherwise return `cvict` unchanged. The redirection happens once for the whole cast (damage +
+// affects + ...), not per stage. Self-casts never bounce.
+static CharData *MaybeReflectToCaster(CharData *caster, CharData *cvict, ESpell spell_id) {
+	if (!cvict || cvict == caster) {
+		return cvict;
+	}
+	const auto &refl = MUD::Spell(spell_id).actions.GetReflection();
+	if (refl.empty() || !VictimMatchesReflection(cvict, refl)) {
+		return cvict;
+	}
+	if (number(1, 100) > refl.prob) {
+		return cvict;
+	}
+	act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kReflectedToChar).c_str(),
+		false, caster, nullptr, cvict, kToChar);
+	act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kReflectedToVict).c_str(),
+		false, caster, nullptr, cvict, kToVict);
+	act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kReflectedToRoom).c_str(),
+		false, caster, nullptr, cvict, kToNotVict | kToArenaListen);
+	return caster;
+}
+
 int CastToSingleTarget(CharData *caster, CharData *cvict, ObjData *ovict, CastRollResult roll) {
 	const ESpell spell_id = roll.spell_id;
 	const int level = roll.level;
@@ -2285,35 +2322,7 @@ int CastToSingleTarget(CharData *caster, CharData *cvict, ObjData *ovict, CastRo
 		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", caster);
 		return 0;
 	}
-	// Reflection: if the original target carries a reflecting flag or
-	// matches the reflecting alignment, the spell may bounce back at the caster (single percentile
-	// roll against the configured prob, default 20). Self-casts can't bounce. Placed here so the
-	// redirection happens once for the whole cast (damage + affects + ...), not per stage. Potency-
-	// gated reflection isn't possible today: mob/object affects are bare flags without a potency
-	// value, so flag presence + prob is the best we can do until that gap closes.
-	if (cvict && cvict != caster) {
-		const auto &refl = MUD::Spell(spell_id).actions.GetReflection();
-		if (!refl.empty()) {
-			bool match = false;
-			for (const auto aff : refl.affect_flags) {
-				if (AFF_FLAGGED(cvict, aff)) { match = true; break; }
-			}
-			if (!match) {
-				if (refl.align == EAlign::kGood && IsGood(cvict)) match = true;
-				else if (refl.align == EAlign::kEvil && IsEvil(cvict)) match = true;
-				else if (refl.align == EAlign::kNeutral && IsNeutral(cvict)) match = true;
-			}
-			if (match && number(1, 100) <= refl.prob) {
-				act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kReflectedToChar).c_str(),
-					false, caster, nullptr, cvict, kToChar);
-				act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kReflectedToVict).c_str(),
-					false, caster, nullptr, cvict, kToVict);
-				act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kReflectedToRoom).c_str(),
-					false, caster, nullptr, cvict, kToNotVict | kToArenaListen);
-				cvict = caster;
-			}
-		}
-	}
+	cvict = MaybeReflectToCaster(caster, cvict, spell_id);
 	if (cvict && (caster != cvict))
 		// The level-difference half of this guard is commented out: after
 		// proper balancing it should be moot -- a low-level mage can't land a strong buff,
