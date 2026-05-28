@@ -867,8 +867,14 @@ bool Clan::MayEnter(CharData *ch, RoomRnum room, bool mode) {
 		// вход через дверь - контролирует охранник
 		case kHouseAtrium:
 			for (const auto mobs : world[ch->in_room]->people) {
-				if (clan->guard == GET_MOB_VNUM(mobs)
-					&& !isMember) {
+				if (clan->guard != GET_MOB_VNUM(mobs)) {
+					continue;
+				}
+				if (!isMember) {
+					return false;
+				}
+				if (NORENTABLE(ch)) {
+					SendMsgToChar("Пускай сначала кровь с тебя стечет, а потом входи сколько угодно.\r\n", ch);
 					return false;
 				}
 			}
@@ -885,9 +891,7 @@ bool Clan::MayEnter(CharData *ch, RoomRnum room, bool mode) {
 
 			// с временным флагом тоже курят
 			if (NORENTABLE(ch)) {
-				if (mode == kHouseAtrium) {
-					SendMsgToChar("Пускай сначала кровь с тебя стечет, а потом входи сколько угодно.\r\n", ch);
-				}
+				SendMsgToChar("Пускай сначала кровь с тебя стечет, а потом входи сколько угодно.\r\n", ch);
 				return false;
 			}
 
