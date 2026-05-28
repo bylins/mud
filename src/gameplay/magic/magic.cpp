@@ -374,7 +374,9 @@ int CalcHeal(CharData *ch, CharData *victim, ESpell spell_id, [[maybe_unused]] i
 	}
 	const auto &heal = MUD::Spell(spell_id).actions.GetHeal();
 	// prob: percent chance the healing actually happens (default 100). A failed roll heals 0.
-	if (number(1, 100) > heal.GetProb()) {
+	// Skip the RNG when prob is the always-fires default (short-circuit: number() not called).
+	const int heal_prob = heal.GetProb();
+	if (heal_prob < 100 && number(1, 100) > heal_prob) {
 		return 0;
 	}
 	const auto &potency_roll = MUD::Spell(spell_id).GetPotencyRoll();
@@ -469,9 +471,13 @@ int CalcTotalSpellDmg(CharData *ch, CharData *victim, ESpell spell_id) {
 	const bool has_dmg = MUD::Spell(spell_id).actions.Contains(talents_actions::EAction::kDamage);
 	// prob (issue.damage-tag-improve): a <damage prob=> spell may simply not fire (default 100).
 	// A miss returns 0 -- which, like a full magic-resist, is still processed downstream (no aggro
-	// change was requested), so behaviour matches today's zero-damage handling.
-	if (has_dmg && number(1, 100) > MUD::Spell(spell_id).actions.GetDmg().GetProb()) {
-		return 0;
+	// change was requested), so behaviour matches today's zero-damage handling. The prob<100 guard
+	// short-circuits the RNG when the result is fixed at "always fires".
+	if (has_dmg) {
+		const int dmg_prob = MUD::Spell(spell_id).actions.GetDmg().GetProb();
+		if (dmg_prob < 100 && number(1, 100) > dmg_prob) {
+			return 0;
+		}
 	}
 	int total_dmg{0};
 	if (number(1, 100) > std::min(ch->IsNpc() ? kMaxNpcResist : kMaxPcResist, GET_MR(victim))) {
@@ -1026,10 +1032,16 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, const ESpell 
 	bool success = true;
 	if (has_affect_talent) {
 		const auto &talent = MUD::Spell(spell_id).actions.GetAffect();
+		// prob: percent chance the <affects> block fires at all (default 100, silent miss on fail).
+		// Skipping it suppresses the affect, its lag and its reposition (gated by `success`).
+		// The prob<100 guard short-circuits the RNG when the spell always fires.
+		const int aff_prob = talent.GetProb();
 		// The affect-resist (GET_AR) debuff block is handled up front (see top of CastAffect);
 		// here only the saving throw can still avert the affect (kNone saving -> CalcGeneralSaving
 		// returns false, so no save is taken).
-		if (ch != victim && CalcGeneralSaving(ch, victim, talent.GetSaving(), modi)) {
+		if (aff_prob < 100 && number(1, 100) > aff_prob) {
+			success = false;
+		} else if (ch != victim && CalcGeneralSaving(ch, victim, talent.GetSaving(), modi)) {
 			SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 			success = false;
 		} else {
@@ -1801,6 +1813,16 @@ bool DispelSucceeds(CharData *ch, CharData *victim, ESpell dispel_spell, ESpell 
 EStageResult CastUnaffects(int/* level*/, CharData *ch, CharData *victim, ESpell spell_id) {
 	if (victim == nullptr) {
 		return EStageResult::kSuccess;
+	}
+
+	// prob: percent chance the <unaffect> block fires at all (default 100). Applies to both the
+	// kDispellMagic random strip and the data-driven path below. The prob<100 guard short-circuits
+	// the RNG when the unaffect always fires.
+	if (MUD::Spell(spell_id).actions.Contains(talents_actions::EAction::kUnaffect)) {
+		const int unaff_prob = MUD::Spell(spell_id).actions.GetUnaffect().GetProb();
+		if (unaff_prob < 100 && number(1, 100) > unaff_prob) {
+			return EStageResult::kSuccess;
+		}
 	}
 
 	// kDispellMagic strips a *random* dispellable affect, which cannot be expressed as an

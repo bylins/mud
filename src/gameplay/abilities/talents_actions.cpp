@@ -192,6 +192,8 @@ TalentAffect::TalentAffect(parser_wrapper::DataNode &node) {
 	spell_ = parse::ReadAsConstant<ESpell>(node.GetValue("type"));
 	saving_ = parse::ReadAsConstant<ESaving>(node.GetValue("saving"));
 	resist_ = parse::ReadAsConstant<EResist>(node.GetValue("resist"));
+	const char *prob = node.GetValue("prob");
+	prob_ = (prob && *prob) ? parse::ReadAsInt(prob) : 100;
 
 	for (auto &child: node.Children()) {
 		const auto name = child.GetName();
@@ -238,6 +240,7 @@ void TalentAffect::Print(CharData */*ch*/, std::ostringstream &buffer) const {
 		   << "  Spell: " << kColorGrn << NAME_BY_ITEM<ESpell>(spell_) << kColorNrm
 		   << " Saving: " << kColorGrn << NAME_BY_ITEM<ESaving>(saving_) << kColorNrm
 		   << " Resist: " << kColorGrn << NAME_BY_ITEM<EResist>(resist_) << kColorNrm
+		   << " Prob: " << kColorGrn << prob_ << kColorNrm
 		   << " Flags: " << kColorGrn << flags_ << kColorNrm << "\r\n"
 		   << "  Duration: cnst=" << kColorGrn << dur_const_ << kColorNrm
 		   << " level_divisor=" << kColorGrn << dur_level_divisor_ << kColorNrm
@@ -267,6 +270,8 @@ TalentUnaffect::TalentUnaffect(parser_wrapper::DataNode &node) {
 	const char *af = node.GetValue("affect_flags");
 	affect_flags_ = (af && *af) ? parse::ReadAsConstantsBitvector<EAffFlag>(af)
 								 : (kAfCurable | kAfDispellable);
+	const char *prob = node.GetValue("prob");
+	prob_ = (prob && *prob) ? parse::ReadAsInt(prob) : 100;
 	for (auto &child: node.Children()) {
 		const auto name = child.GetName();
 		Set *set = nullptr;
@@ -310,7 +315,8 @@ void TalentUnaffect::Print(CharData */*ch*/, std::ostringstream &buffer) const {
 		buffer << "\r\n";
 	};
 	buffer << " Unaffect:" << " potency_weight=" << kColorGrn << potency_weight_ << kColorNrm
-		   << " affect_flags=" << kColorGrn << affect_flags_ << kColorNrm << "\r\n";
+		   << " affect_flags=" << kColorGrn << affect_flags_ << kColorNrm
+		   << " prob=" << kColorGrn << prob_ << kColorNrm << "\r\n";
 	print_set("blocking", blocking_);
 	print_set("breaking", breaking_);
 	print_set("remove_anyway", remove_anyway_);

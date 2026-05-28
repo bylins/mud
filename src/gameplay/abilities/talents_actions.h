@@ -183,6 +183,7 @@ class TalentAffect : public IAction {
 	[[nodiscard]] ESpell GetSpell() const { return spell_; }
 	[[nodiscard]] ESaving GetSaving() const { return saving_; }
 	[[nodiscard]] EResist GetResist() const { return resist_; }
+	[[nodiscard]] int GetProb() const { return prob_; }
 	[[nodiscard]] Bitvector GetFlags() const { return flags_; }
 	[[nodiscard]] int GetDurationConst() const { return dur_const_; }
 	[[nodiscard]] int GetDurationLevelDivisor() const { return dur_level_divisor_; }
@@ -200,6 +201,7 @@ class TalentAffect : public IAction {
 	ESpell spell_{static_cast<ESpell>(0)};
 	ESaving saving_{ESaving::kReflex};
 	EResist resist_{EResist::kFire};
+	int prob_{100};                         // percent chance the affect block fires (default always)
 	Bitvector flags_{0};
 	int dur_const_{0};
 	int dur_level_divisor_{0};
@@ -251,6 +253,7 @@ class TalentUnaffect : public IAction {
 	// generic unaffect removes anything curable or dispellable. kRemovePoison narrows it to
 	// kAfCurable (cures, doesn't dispel); kDispellMagic to kAfDispellable (dispels, doesn't cure).
 	[[nodiscard]] Bitvector GetAffectFlags() const { return affect_flags_; }
+	[[nodiscard]] int GetProb() const { return prob_; }
 
  private:
 	Set blocking_;       // present -> removal is blocked (chain not affected)
@@ -259,6 +262,7 @@ class TalentUnaffect : public IAction {
 	Set remove_;         // dispelled only when blocking is false
 	float potency_weight_{1.0f};
 	Bitvector affect_flags_{kAfCurable | kAfDispellable};
+	int prob_{100};      // percent chance the unaffect block fires at all (default always)
 };
 
 using ActionPtr = std::shared_ptr<IAction>;
