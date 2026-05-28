@@ -591,7 +591,8 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 //	if (!ch->IsNpc() && (GetRealLevel(ch) > 10))
 //		modi += (GetRealLevel(ch) - 10);
 
-	auto instant_death{false};
+	// (the `instant_death` local was removed with the kHolystrike case migration, issue.cast-dmg-
+	//  migration; high damage now lives in the spell's data-driven <damage>.)
 	// issue #3304: часть сообщений вынесена в lib/cfg/spell_msg.xml
 	// (kAcid/kClod/kStunning/kVacuum/kArrows*; общий kKnockdown* в kDefault).
 	// TODO: kAcidArrow (случайные эффекты), kDispelEvil/Good и kHolystrike
@@ -667,20 +668,12 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 		// at damage.cpp:454, so the case was triply redundant.
 		// kDustStorm knockdown+lag merged into its <affects type="kBlindness"> (issue.cast-damage-
 		// affects): reposition+lag now ride the blindness saving (kStability). No case needed.
-		case ESpell::kHolystrike: {
-			if (AFF_FLAGGED(victim, EAffect::kForcesOfEvil)) {
-				if (CalcGeneralSaving(ch, victim, ESaving::kWill, modi)) {
-					act("Черное облако вокруг вас нейтрализовало действие тумана, растворившись в нем.",
-						false, victim, nullptr, nullptr, kToChar);
-					act("Черное облако вокруг $n1 нейтрализовало действие тумана.",
-						false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
-					RemoveAffectFromChar(victim, ESpell::kEviless);
-				} else {
-					instant_death = true;
-				}
-			}
-			break;
-		}
+		// kHolystrike's kEviless handling moved to a data-driven <unaffect> on the spell
+		// (issue.cast-dmg-migration): when a kForcesOfEvil-flagged target is hit, the unaffect
+		// block dispels kEviless and breaks the chain so SpellHolystrike's per-target loop skips
+		// the kHold imposition for that target. The instant_death-on-failed-save mechanic was
+		// dropped; the spell's data-driven <damage> was bumped instead (competencies_weight 195
+		// -> 500). kEviless is an NPC-only affect, so PCs never trigger this branch.
 		// kWarcryOfThunder knockdown+lag merged into its <affects type="kWarcryOfThunder"> (issue.cast-
 		// damage-affects), riding its kStability saving; it now also passes the GET_AR gate. No case needed.
 		// kArrows{Fire,Water,Earth,Air,Death} cast-flavour was re-keyed from kDamageTo* to kFightHitTo*
@@ -690,17 +683,10 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 	}
 	int total_dmg{0};
 
-	if (instant_death) {
-		total_dmg = std::max(1, victim->get_hit() + 1);
-		if (victim->IsNpc()) {
-			total_dmg += 99;
-		}
-	} else {
-		try {
-			total_dmg = CalcTotalSpellDmg(ch, victim, spell_id);
-		} catch (std::exception &e) {
-			err_log("%s", e.what());
-		}
+	try {
+		total_dmg = CalcTotalSpellDmg(ch, victim, spell_id);
+	} catch (std::exception &e) {
+		err_log("%s", e.what());
 	}
 	total_dmg = std::clamp(total_dmg, 0, kMaxHits);
 

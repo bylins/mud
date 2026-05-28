@@ -2181,8 +2181,16 @@ void SpellHolystrike(int/* level*/, CharData *ch, CharData* /*victim*/, ObjData*
 			}
 		}
 
-		CastAffect(GetRealLevel(ch), ch, tch, ESpell::kHolystrike);
+		// issue.cast-dmg-migration: per-target order is Damage -> Unaffect -> Affect (matches
+		// CallMagic's stage order). kHolystrike's <unaffect> dispels kEviless on the target and
+		// returns kBreak, which skips the hold imposition for that just-dispelled minion. Damage
+		// always lands first, so the high-damage replacement for the old instant_death still
+		// bites kEviless minions on the way through.
 		CastDamage(GetRealLevel(ch), ch, tch, ESpell::kHolystrike);
+		if (CastUnaffects(GetRealLevel(ch), ch, tch, ESpell::kHolystrike) == EStageResult::kBreak) {
+			continue;
+		}
+		CastAffect(GetRealLevel(ch), ch, tch, ESpell::kHolystrike);
 	}
 
 	act(msg2, false, ch, nullptr, nullptr, kToChar);
