@@ -1288,35 +1288,4 @@ int CalcDuration(CharData *caster, CharData *victim, ESkill skill_id,
 }
 
 
-int CalcDuration(CharData *ch, int cnst, int level, int level_divisor, int min, int max) {
-	if (level_divisor == 0 && min == 0 && max == 0) {
-		return (ch->IsNpc() ? cnst : (cnst * kSecsPerMudHour / kSecsPerPlayerAffect));
-	}
-
-	int result = 0;
-	if (ch->IsNpc()) {
-		result = cnst;
-		if (level > 0 && level_divisor > 0)
-			level = level / level_divisor;
-		else
-			level = 0;
-		if (min > 0)
-			level = std::max(level, min);
-		if (max > 0)
-			level = std::min(level, max);
-		return (level + result);
-	}
-	result = cnst * kSecsPerMudHour;
-	if (level > 0 && level_divisor > 0)
-		level = level * kSecsPerMudHour / level_divisor;
-	else
-		level = 0;
-	if (min > 0)
-		level = std::max(level, min * kSecsPerMudHour);
-	if (max > 0)
-		level = std::min(level, max * kSecsPerMudHour);
-	result = (level + result) / kSecsPerPlayerAffect;
-	return (result);
-}
-
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

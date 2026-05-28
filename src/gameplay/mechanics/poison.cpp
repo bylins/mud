@@ -321,7 +321,7 @@ void PerformToxicate(CharData *ch, CharData *vict, int modifier) {
 	// change strength
 	af[0].type = ESpell::kPoison;
 	af[0].location = EApply::kStr;
-	af[0].duration = CalcDuration(vict, 0, std::max(2, GetRealLevel(ch) - GetRealLevel(vict)), 2, 0, 1);
+	af[0].duration = CalcDuration(ch, vict, ESkill::kUndefined, 1, 0, 0, 0);
 	af[0].modifier = -std::min(2, (modifier + 29) / 40);
 	af[0].affect_type = EAffect::kPoisoned;
 	af[0].battleflag = kAfSameTime;
@@ -493,7 +493,7 @@ void TryDrinkPoison(CharData *ch, ObjData *jar, int amount) {
 		Affect<EApply> af;
 		af.type = ESpell::kPoison;
 		//если объем 0 -
-		af.duration = CalcDuration(ch, amount == 0 ? 3 : amount == 1 ? amount : amount * 3, 0, 0, 0, 0);
+		af.duration = CalcDuration(ch, ch, ESkill::kUndefined, amount == 0 ? 3 : amount == 1 ? amount : amount * 3, 0, 0, 0);
 		af.modifier = -2;
 		af.location = EApply::kStr;
 		af.affect_type = EAffect::kPoisoned;

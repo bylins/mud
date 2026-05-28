@@ -1010,9 +1010,9 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 			victim->UnsetFlag(EMobFlag::kNoGroup);
 		RemoveAffectFromChar(victim, ESpell::kCharm);
 		if (GetRealInt(victim) > GetRealInt(ch)) {
-			af.duration = CalcDuration(victim, GetRealCha(ch), 0, 0, 0, 0);
+			af.duration = CalcDuration(victim, victim, ESkill::kUndefined, GetRealCha(ch), 0, 0, 0);
 		} else {
-			af.duration = CalcDuration(victim, GetRealCha(ch) + number(1, 10) + GetRealRemort(ch) * 2, 0, 0, 0, 0);
+			af.duration = CalcDuration(victim, victim, ESkill::kUndefined, GetRealCha(ch) + number(1, 10) + GetRealRemort(ch) * 2, 0, 0, 0);
 		}
 		af.modifier = 0;
 		af.location = EApply::kNone;
@@ -2234,7 +2234,7 @@ void SpellMentalShadow(CharData *ch) {
 	}
 	Affect<EApply> af;
 	af.type = ESpell::kCharm;
-	af.duration = CalcDuration(mob, 5 + (int) VPOSI<float>((get_effective_int(ch) - 16.0) / 2, 0, 50), 0, 0, 0, 0);
+	af.duration = CalcDuration(mob, mob, ESkill::kUndefined, 5 + (int) VPOSI<float>((get_effective_int(ch) - 16.0) / 2, 0, 50), 0, 0, 0);
 	af.modifier = 0;
 	af.location = EApply::kNone;
 	af.affect_type = EAffect::kHelper;

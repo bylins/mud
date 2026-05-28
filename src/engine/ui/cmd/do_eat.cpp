@@ -60,12 +60,10 @@ void feed_charmice(CharData *ch, char *local_arg) {
 	}
 	if (weather_info.moon_day < 14) {
 		max_charm_duration =
-			CalcDuration(ch, GetRealWis(ch->get_master()) - 6 + number(0, weather_info.moon_day % 14), 0, 0, 0, 0);
+			CalcDuration(ch, ch, ESkill::kUndefined, GetRealWis(ch->get_master()) - 6 + number(0, weather_info.moon_day % 14), 0, 0, 0);
 	} else {
 		max_charm_duration =
-			CalcDuration(ch,
-						 GetRealWis(ch->get_master()) - 6 + number(0, 14 - weather_info.moon_day % 14),
-						 0, 0, 0, 0);
+			CalcDuration(ch, ch, ESkill::kUndefined, GetRealWis(ch->get_master()) - 6 + number(0, 14 - weather_info.moon_day % 14), 0, 0, 0);
 	}
 
 	Affect<EApply> af;
@@ -186,7 +184,7 @@ void do_eat(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			af.affect_type = EAffect::kUndefinded;
 			af.type = ESpell::kFullFeed;
 //			af.battleflag = 0;
-			af.duration = CalcDuration(ch, 10 * 2, 0, 0, 0, 0);
+			af.duration = CalcDuration(ch, ch, ESkill::kUndefined, 10 * 2, 0, 0, 0);
 			ImposeAffect(ch, af);
 		}
 
@@ -200,14 +198,14 @@ void do_eat(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 
 		Affect<EApply> af;
 		af.type = ESpell::kPoison;
-		af.duration = CalcDuration(ch, amount == 1 ? amount : amount * 2, 0, 0, 0, 0);
+		af.duration = CalcDuration(ch, ch, ESkill::kUndefined, amount == 1 ? amount : amount * 2, 0, 0, 0);
 		af.modifier = 0;
 		af.location = EApply::kStr;
 		af.affect_type = EAffect::kPoisoned;
 		af.battleflag = kAfSameTime;
 		ImposeAffect(ch, af, false, false, false, false);
 		af.type = ESpell::kPoison;
-		af.duration = CalcDuration(ch, amount == 1 ? amount : amount * 2, 0, 0, 0, 0);
+		af.duration = CalcDuration(ch, ch, ESkill::kUndefined, amount == 1 ? amount : amount * 2, 0, 0, 0);
 		af.modifier = amount * 3;
 		af.location = EApply::kPoison;
 		af.affect_type = EAffect::kPoisoned;

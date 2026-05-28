@@ -111,7 +111,7 @@ CharData *TryToFindProtector(CharData *victim, CharData *ch) {
 				af.affect_type = EAffect::kStopFight;
 				af.location = EApply::kNone;
 				af.modifier = 0;
-				af.duration = CalcDuration(vict, 1, 0, 0, 0, 0);
+				af.duration = CalcDuration(vict, vict, ESkill::kUndefined, 1, 0, 0, 0);
 				af.battleflag = kAfBattledec | kAfPulsedec;
 				ImposeAffect(vict, af, true, false, true, false);
 				return victim;

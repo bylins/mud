@@ -64,7 +64,7 @@ void SummonTutelar(CharData *ch) {
 	ClearMinionTalents(mob);
 	Affect<EApply> af;
 	af.type = ESpell::kCharm;
-	af.duration = CalcDuration(mob, floorf(base_ttl + additional_ttl_for_charisma * eff_cha), 0, 0, 0, 0);
+	af.duration = CalcDuration(mob, mob, ESkill::kUndefined, floorf(base_ttl + additional_ttl_for_charisma * eff_cha), 0, 0, 0);
 	af.modifier = 0;
 	af.location = EApply::kNone;
 	af.battleflag = 0;

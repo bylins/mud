@@ -276,7 +276,7 @@ void DoFindhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		Affect<EApply> af;
 		if (!(hired && hired == helpee)) {
 			ch->add_follower(helpee);
-			af.duration = CalcDuration(helpee, times * kTimeKoeff, 0, 0, 0, 0);
+			af.duration = CalcDuration(helpee, helpee, ESkill::kUndefined, times * kTimeKoeff, 0, 0, 0);
 		} else {
 			auto aff = hired->affected.begin();
 			for (; aff != hired->affected.end(); ++aff) {
@@ -295,7 +295,7 @@ void DoFindhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					SendMsgToChar(ch, "Вам вернули нерастраченный задаток в %ld %s.\r\n",
 								  oldcost, GetDeclensionInNumber(cost, EWhat::kMoneyA));
 				}
-				af.duration = CalcDuration(helpee, times * kTimeKoeff, 0, 0, 0, 0);
+				af.duration = CalcDuration(helpee, helpee, ESkill::kUndefined, times * kTimeKoeff, 0, 0, 0);
 			}
 		}
 		RemoveAffectFromChar(helpee, ESpell::kCharm);

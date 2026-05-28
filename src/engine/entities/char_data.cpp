@@ -215,7 +215,7 @@ void CharData::reset() {
 }
 
 void CharData::set_abstinent() {
-	int duration = CalcDuration(this, 2, std::max(0, GET_DRUNK_STATE(this) - kDrunked), 4, 2, 5);
+	int duration = CalcDuration(this, this, ESkill::kHangovering, 2, 10, 2, 5);
 
 	if (CanUseFeat(this, EFeat::kDrunkard)) {
 		duration /= 2;

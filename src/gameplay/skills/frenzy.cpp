@@ -35,7 +35,7 @@ void do_frenzy(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	const int duration = CalcDuration(ch, 23, 0, 0, 0, 0);;
+	const int duration = CalcDuration(ch, ch, ESkill::kUndefined, 23, 0, 0, 0);;
 	const int hp_regen = ch->GetSkill(ESkill::kFrenzy) / 12.5;
 	const int dmg_multiplier = ch->GetSkill(ESkill::kFrenzy) / 12.5;
 

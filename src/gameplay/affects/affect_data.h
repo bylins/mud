@@ -113,12 +113,12 @@ void reset_affects_no_recalc(CharData *ch);
 bool no_bad_affects(ObjData *obj);
 bool IsNegativeApply(EApply location);
 bool GetAffectNumByName(const std::string &affName, EAffect &result);
-int CalcDuration(CharData *ch, int cnst, int level, int level_divisor, int min, int max);
 // Skill-based duration (issue.calc-duration): `caster` provides the skill (via CalcNoviceSkillBonus,
 // capped at kNoviceSkillThreshold so the bonus can't grow without bound on high-level monsters);
 // `victim` decides the unit (PC -> hour-to-tick conversion, NPC -> raw). skill_id == kUndefined
 // skips the skill bonus entirely (flat duration). min/max keep OLD-style semantics: a 0 means
-// "no clamp on that side", a positive value clamps the bonus accordingly.
+// "no clamp on that side", a positive value clamps the bonus accordingly. The previous level-based
+// overload was removed once every caller migrated to this one.
 int CalcDuration(CharData *caster, CharData *victim, ESkill skill_id,
 				 unsigned base, unsigned skill_divisor, int min, int max);
 

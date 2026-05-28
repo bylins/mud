@@ -319,7 +319,7 @@ void do_dg_affect(void * /*go*/, Script * /*sc*/, Trigger *trig, int/* script_ty
 		if (battle == kAfPulsedec) {
 			af.duration = duration;
 		} else {
-			af.duration = CalcDuration(ch, duration * 2, 0, 0, 0, 0);
+			af.duration = CalcDuration(ch, ch, ESkill::kUndefined, duration * 2, 0, 0, 0);
 		}
 		if (type == AFFECT_TYPE) {
 			af.location = EApply::kNone;

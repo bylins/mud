@@ -51,7 +51,7 @@ void do_camouflage(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*
 
 	Affect<EApply> af;
 	af.type = ESpell::kCamouflage;
-	af.duration = CalcDuration(ch, 0, GetRealLevel(ch), 6, 0, 2);
+	af.duration = CalcDuration(ch, ch, ESkill::kDisguise, 0, 15, 0, 2);
 	af.modifier = world[ch->in_room]->zone_rn;
 	af.location = EApply::kNone;
 	af.battleflag = 0;

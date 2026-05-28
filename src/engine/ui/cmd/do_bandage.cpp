@@ -49,14 +49,14 @@ void DoBandage(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	af.type = ESpell::kBandage;
 	af.location = EApply::kNone;
 	af.modifier = GET_OBJ_VAL(bandage, 0);
-	af.duration = CalcDuration(ch, 10, 0, 0, 0, 0);
+	af.duration = CalcDuration(ch, ch, ESkill::kUndefined, 10, 0, 0, 0);
 	af.affect_type = EAffect::kBandage;
 	af.battleflag = kAfPulsedec;
 	ImposeAffect(ch, af, false, false, false, false);
 
 	af.type = ESpell::kNoBandage;
 	af.location = EApply::kNone;
-	af.duration = CalcDuration(ch, 60, 0, 0, 0, 0);
+	af.duration = CalcDuration(ch, ch, ESkill::kUndefined, 60, 0, 0, 0);
 	af.affect_type = EAffect::kCannotBeBandaged;
 	af.battleflag = kAfPulsedec;
 	ImposeAffect(ch, af, false, false, false, false);

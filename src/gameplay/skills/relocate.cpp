@@ -106,7 +106,7 @@ void do_relocate(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		timed.time = 18 - MIN(GetRealRemort(ch), 15);
 		SetWaitState(ch, 3 * kBattleRound);
 		Affect<EApply> af;
-		af.duration = CalcDuration(ch, 3, 0, 0, 0, 0);
+		af.duration = CalcDuration(ch, ch, ESkill::kUndefined, 3, 0, 0, 0);
 		af.affect_type = EAffect::kNoTeleport;
 		af.battleflag = kAfPulsedec;
 		affect_to_char(ch, af);
