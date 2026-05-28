@@ -2271,10 +2271,10 @@ static bool TargetIsBlocked(CharData *victim, const talents_actions::FlagConditi
 	}
 	// align (issue.cast-dmg-migration): blocks the cast when the target carries the matching
 	// alignment (IS_GOOD / IS_EVIL). kAny means no alignment block.
-	if (cond.align == talents_actions::EAlign::kGood && IS_GOOD(victim)) {
+	if (cond.align == EAlign::kGood && IS_GOOD(victim)) {
 		return true;
 	}
-	if (cond.align == talents_actions::EAlign::kEvil && IS_EVIL(victim)) {
+	if (cond.align == EAlign::kEvil && IS_EVIL(victim)) {
 		return true;
 	}
 	return false;
@@ -2295,10 +2295,10 @@ static bool TargetMeetsRequired(CharData *victim, const talents_actions::FlagCon
 	}
 	// align (issue.cast-dmg-migration): require the target to carry the matching alignment
 	// (IS_GOOD / IS_EVIL). kAny means no alignment requirement.
-	if (cond.align == talents_actions::EAlign::kGood && !IS_GOOD(victim)) {
+	if (cond.align == EAlign::kGood && !IS_GOOD(victim)) {
 		return false;
 	}
-	if (cond.align == talents_actions::EAlign::kEvil && !IS_EVIL(victim)) {
+	if (cond.align == EAlign::kEvil && !IS_EVIL(victim)) {
 		return false;
 	}
 	return true;
@@ -2327,6 +2327,34 @@ int CastToSingleTarget(CharData *caster, CharData *cvict, ObjData *ovict, CastRo
 			SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", caster);
 		}
 		return 0;
+	}
+	// Reflection (issue.cast-dmg-migration): if the original target carries a reflecting flag or
+	// matches the reflecting alignment, the spell may bounce back at the caster (single percentile
+	// roll against the configured prob, default 20). Self-casts can't bounce. Placed here so the
+	// redirection happens once for the whole cast (damage + affects + ...), not per stage. Potency-
+	// gated reflection isn't possible today: mob/object affects are bare flags without a potency
+	// value, so flag presence + prob is the best we can do until that gap closes.
+	if (cvict && cvict != caster) {
+		const auto &refl = MUD::Spell(spell_id).actions.GetReflection();
+		if (!refl.empty()) {
+			bool match = false;
+			for (const auto aff : refl.affect_flags) {
+				if (AFF_FLAGGED(cvict, aff)) { match = true; break; }
+			}
+			if (!match) {
+				if (refl.align == EAlign::kGood && IS_GOOD(cvict)) match = true;
+				else if (refl.align == EAlign::kEvil && IS_EVIL(cvict)) match = true;
+			}
+			if (match && number(1, 100) <= refl.prob) {
+				act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kReflectedToChar).c_str(),
+					false, caster, nullptr, cvict, kToChar);
+				act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kReflectedToVict).c_str(),
+					false, caster, nullptr, cvict, kToVict);
+				act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kReflectedToRoom).c_str(),
+					false, caster, nullptr, cvict, kToNotVict | kToArenaListen);
+				cvict = caster;
+			}
+		}
 	}
 	if (cvict && (caster != cvict))
 		// The level-difference half of this guard is commented out (issue.cast-affect): after

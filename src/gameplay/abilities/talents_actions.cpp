@@ -358,6 +358,18 @@ void PrintFlagCondition(const char *label, const FlagCondition &cond, std::ostri
 void Actions::Print(CharData *ch, std::ostringstream &buffer) const {
 	PrintFlagCondition("Blocking", blocking_, buffer);
 	PrintFlagCondition("Required", required_, buffer);
+	if (!reflection_.empty()) {
+		buffer << "  Reflection: prob=" << kColorGrn << reflection_.prob << kColorNrm;
+		for (const auto aff : reflection_.affect_flags) {
+			buffer << " " << kColorGrn << NAME_BY_ITEM<EAffect>(aff) << kColorNrm;
+		}
+		if (reflection_.align == EAlign::kGood) {
+			buffer << " align=" << kColorGrn << "kGood" << kColorNrm;
+		} else if (reflection_.align == EAlign::kEvil) {
+			buffer << " align=" << kColorGrn << "kEvil" << kColorNrm;
+		}
+		buffer << "\r\n";
+	}
 	for (const auto &effect: *actions_) {
 		effect.second->Print(ch, buffer);
 	}
@@ -367,6 +379,7 @@ void Actions::Build(parser_wrapper::DataNode &node) {
 	auto roster = std::make_unique<ActionsRoster>();
 	blocking_ = {};
 	required_ = {};
+	reflection_ = {};
 	for (auto &action: node.Children()) {
 		try {
 			ParseAction(roster, action);
@@ -433,9 +446,36 @@ void Actions::ParseAction(ActionsRosterPtr &info, parser_wrapper::DataNode node)
 			ParseFlagCondition(blocking_, manifestation);
 		} else if (strcmp(manifestation.GetName(), "required") == 0) {
 			ParseFlagCondition(required_, manifestation);
+		} else if (strcmp(manifestation.GetName(), "reflection") == 0) {
+			ParseReflection(reflection_, manifestation);
 		}
 	}
 	node.GoToParent();
+}
+
+// <reflection affect_flags="..."  align="kGood|kEvil"  prob="N"/> (issue.cast-dmg-migration).
+// prob defaults to 20 if the attribute is absent; align defaults to kAny (no alignment check).
+void Actions::ParseReflection(Reflection &refl, parser_wrapper::DataNode &node) {
+	const char *aff = node.GetValue("affect_flags");
+	if (aff && *aff) {
+		for (const auto &flag_name : utils::Split(aff, '|')) {
+			refl.affect_flags.push_back(parse::ReadAsConstant<EAffect>(flag_name.c_str()));
+		}
+	}
+	const char *align = node.GetValue("align");
+	if (align && *align) {
+		if (strcmp(align, "kGood") == 0) {
+			refl.align = EAlign::kGood;
+		} else if (strcmp(align, "kEvil") == 0) {
+			refl.align = EAlign::kEvil;
+		} else {
+			err_log("Actions: unknown EAlign '%s' in <reflection align>.", align);
+		}
+	}
+	const char *prob = node.GetValue("prob");
+	if (prob && *prob) {
+		refl.prob = parse::ReadAsInt(prob);
+	}
 }
 
 void Actions::ParseDamage(ActionsRosterPtr &info, parser_wrapper::DataNode &node) {

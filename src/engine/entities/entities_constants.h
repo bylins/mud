@@ -109,6 +109,15 @@ template<>
 ESaving ITEM_BY_NAME<ESaving>(const std::string &name);
 
 /**
+ * Strong alignment selector for the action-level <blocking align=> / <required align=> /
+ * <reflection align=> tags (issue.cast-dmg-migration). kAny means no alignment check (the
+ * attribute is absent). kGood and kEvil map to the IS_GOOD / IS_EVIL macros (the +/-300
+ * alignment thresholds in utils.h). The neutral band is intentionally unaddressable here --
+ * only the two strong alignments are.
+ */
+enum class EAlign { kAny, kGood, kEvil };
+
+/**
  * Magic damage resistance types.
  */
 enum EResist {

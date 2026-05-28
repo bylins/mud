@@ -29,11 +29,8 @@ enum class EAction {
 	kUnaffect
 };
 
-// Alignment selector for the action-level <blocking align=>/<required align=> attribute
-// (issue.cast-dmg-migration). kAny = no alignment check (the attribute is absent). kGood/kEvil
-// map to the IS_GOOD / IS_EVIL macros (i.e. the +/-300 alignment thresholds in utils.h). The
-// neutral band is intentionally not addressable here; only the two strong alignments are.
-enum class EAlign { kAny, kGood, kEvil };
+// (EAlign moved to engine/entities/entities_constants.h, issue.cast-dmg-migration: it's a
+//  general alignment concept, not a talents-specific one. Used by <blocking>/<required>/<reflection>.)
 
 // A set of mob flags (EMobFlag, from an NPC prototype), affect flags (EAffect) and an optional
 // alignment selector used by the action-level <blocking>/<required> tags (issue.cast-affect +
@@ -46,6 +43,21 @@ struct FlagCondition {
 	EAlign align{EAlign::kAny};
 	[[nodiscard]] bool empty() const {
 		return mob_flags.empty() && affect_flags.empty() && align == EAlign::kAny;
+	}
+};
+
+// Action-level reflection (issue.cast-dmg-migration): when ch != cvict and the original target
+// carries any of `affect_flags` OR matches the `align` selector, the spell may bounce back at
+// the caster (a single percentile roll vs `prob`, default 20). The check lives in
+// CastToSingleTarget so it runs once for the whole cast, not per stage. Reflection can't fire on
+// self-casts. Potency/strength comparisons aren't checked here: mob/object affects are bare flags
+// without a potency value, so a simple flag match + prob is the most we can do today.
+struct Reflection {
+	std::vector<EAffect> affect_flags;
+	EAlign align{EAlign::kAny};
+	int prob{20};
+	[[nodiscard]] bool empty() const {
+		return affect_flags.empty() && align == EAlign::kAny;
 	}
 };
 
@@ -291,6 +303,9 @@ class Actions {
 	// ...), so they are checked in CastToSingleTarget, not inside a single stage.
 	FlagCondition blocking_;
 	FlagCondition required_;
+	// Reflection (issue.cast-dmg-migration): also checked in CastToSingleTarget; redirects the
+	// cast back at the caster on a successful prob roll (see Reflection comment above).
+	Reflection reflection_;
 
 	void ParseAction(ActionsRosterPtr &info, parser_wrapper::DataNode node);
 	static void ParseDamage(ActionsRosterPtr &info, parser_wrapper::DataNode &node);
@@ -299,6 +314,7 @@ class Actions {
 	static void ParseAffect(ActionsRosterPtr &info, parser_wrapper::DataNode &node);
 	static void ParseUnaffect(ActionsRosterPtr &info, parser_wrapper::DataNode &node);
 	static void ParseFlagCondition(FlagCondition &cond, parser_wrapper::DataNode &node);
+	static void ParseReflection(Reflection &refl, parser_wrapper::DataNode &node);
 
  public:
 	Actions() {
@@ -316,6 +332,7 @@ class Actions {
 	[[nodiscard]] const TalentUnaffect &GetUnaffect() const;
 	[[nodiscard]] const FlagCondition &GetBlocking() const { return blocking_; }
 	[[nodiscard]] const FlagCondition &GetRequired() const { return required_; }
+	[[nodiscard]] const Reflection &GetReflection() const { return reflection_; }
 };
 
 }
