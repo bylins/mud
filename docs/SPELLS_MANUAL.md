@@ -218,9 +218,9 @@ duration bonus, extra-hits bonus, dispel strength).
 
 | Child / attr | Description |
 |---|---|
-| `<dices ndice= sdice= adice=>` | The dice expression: `ndice` dice of `sdice` sides plus `adice` flat. Minimum 1 for both `ndice` and `sdice`. |
-| `<base_skill id= low_skill_bonus= hi_skill_bonus=>` | Adds a skill-based coefficient. Below the novice threshold (skill 75), each point grants `low_skill_bonus`; above 75, each point grants `hi_skill_bonus`. Final coefficient = `(low_skill·low_bonus + hi_skill·hi_bonus) / 100`. |
-| `<base_stat id= threshold= weight=>` | Adds a stat-based coefficient. Contribution = `max(0, stat − threshold) · weight / 100`. |
+| `<dices ndice= sdice= adice=>` | The dice expression: `ndice` dice of `sdice` sides plus `adice` flat. Any zero attribute means "no contribution from that part" — `ndice="0" sdice="0" adice="N"` reliably returns `N`, and an absent `<dices>` block is equivalent to `0,0,0` (returns 0). Negative values are also treated as zero. |
+| `<base_skill id= low_skill_bonus= hi_skill_bonus=>` | Adds a skill-based coefficient. Below the novice threshold (skill 75), each point grants `low_skill_bonus`; above 75, each point grants `hi_skill_bonus`. Final coefficient = `(low_skill·low_bonus + hi_skill·hi_bonus) / 100`. Omit the child to skip skill contribution. |
+| `<base_stat id= threshold= weight=>` | Adds a stat-based coefficient. Contribution = `max(0, stat − threshold) · weight / 100`. Omit the child to skip stat contribution. |
 
 `<success_roll>` is parsed and evaluated but **not yet consumed** by any game
 mechanic — it's a forward-looking hook. Use the same shape when you want a
@@ -1096,4 +1096,6 @@ If you need any of these, open an issue and the work can be scoped.
 
 ---
 
-*Last updated to match the `sventovit.work` head as of the post-`magic-code-cleaning` merge.*
+*Last updated to match the `sventovit.work` head as of the `issue.dicerolls` fix
+(dice parser now treats `0` as "no contribution"; absent `<dices>` block is
+equivalent to `0,0,0`).*

@@ -79,8 +79,13 @@ double Roll::CalcBaseStatCoeff(const CharData *const ch) const {
 
 Roll::Roll(parser_wrapper::DataNode &node) {
 	if (node.GoToChild("dices")) {
-		dice_num_ = std::max(1, parse::ReadAsInt(node.GetValue("ndice")));
-		dice_size_ = std::max(1, parse::ReadAsInt(node.GetValue("sdice")));
+		// issue.dicerolls: no clamp-to-1. ndice=0 or sdice=0 means "no dice rolled", so
+		// <dices ndice="0" sdice="0" adice="N"/> reliably returns N. The previous std::max(1, ...)
+		// silently added one to every all-zero spec, which violated the principle of least
+		// surprise. RollDices(0, *) and RollDices(*, 0) already short-circuit to 0, so the
+		// arithmetic stays correct without any extra guard here.
+		dice_num_ = parse::ReadAsInt(node.GetValue("ndice"));
+		dice_size_ = parse::ReadAsInt(node.GetValue("sdice"));
 		dice_add_ = parse::ReadAsInt(node.GetValue("adice"));
 		node.GoToParent();
 	}

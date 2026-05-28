@@ -893,7 +893,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <heal npc_coeff="3">
-                    <amount min="0" dices_weight="1.0" competencies_weight="2"/>
+                    <amount min="1" dices_weight="1.0" competencies_weight="2"/>
                 </heal>
                 <affects type="kPatronage" saving="kNone" resist="kVitality">
                     <duration base="3" skill_divisor="25" min="0" max="0"/>
@@ -4109,7 +4109,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <heal npc_coeff="3">
-                    <amount min="0" dices_weight="1.0" competencies_weight="2"/>
+                    <amount min="1" dices_weight="1.0" competencies_weight="2"/>
                 </heal>
                 <area>
                     <decay cast="0.0" level="0" free_targets="3"/>
@@ -5321,7 +5321,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <damage saving="kReflex">
-                    <amount min="0" dices_weight="1.0" competencies_weight="2"/>
+                    <amount min="2" dices_weight="1.0" competencies_weight="2"/>
                 </damage>
             </action>
         </talent_actions>
@@ -5339,7 +5339,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <damage saving="kReflex">
-                    <amount min="0" dices_weight="1.0" competencies_weight="2"/>
+                    <amount min="2" dices_weight="1.0" competencies_weight="2"/>
                 </damage>
             </action>
         </talent_actions>
@@ -5357,7 +5357,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <damage saving="kReflex">
-                    <amount min="0" dices_weight="1.0" competencies_weight="2"/>
+                    <amount min="2" dices_weight="1.0" competencies_weight="2"/>
                 </damage>
             </action>
         </talent_actions>
@@ -5375,7 +5375,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <damage saving="kReflex">
-                    <amount min="0" dices_weight="1.0" competencies_weight="2"/>
+                    <amount min="2" dices_weight="1.0" competencies_weight="2"/>
                 </damage>
             </action>
         </talent_actions>
@@ -5393,7 +5393,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <damage saving="kReflex">
-                    <amount min="0" dices_weight="1.0" competencies_weight="2"/>
+                    <amount min="2" dices_weight="1.0" competencies_weight="2"/>
                 </damage>
             </action>
         </talent_actions>
