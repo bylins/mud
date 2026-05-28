@@ -2140,6 +2140,28 @@ int CheckMobList(CharData *ch) {
 	return (false);
 }
 
+// A reasonably-bright victim who can't see its invisible caster spends one of its own
+// prepared spells trying to remedy that (detect invis -> sense life -> light, first
+// available wins). The intellect check is "above 25, or a soft number(10,25) roll".
+void MaybeAutoCastDetection(CharData *victim, CharData *caster) {
+	if (CAN_SEE(victim, caster)) {
+		return;
+	}
+	if (GetRealInt(victim) <= 25 && GetRealInt(victim) <= number(10, 25)) {
+		return;
+	}
+	if (!AFF_FLAGGED(victim, EAffect::kDetectInvisible)
+		&& GET_SPELL_MEM(victim, ESpell::kDetectInvis) > 0) {
+		CastSpell(victim, victim, nullptr, nullptr, ESpell::kDetectInvis, ESpell::kDetectInvis);
+	} else if (!AFF_FLAGGED(victim, EAffect::kDetectLife)
+		&& GET_SPELL_MEM(victim, ESpell::kSenseLife) > 0) {
+		CastSpell(victim, victim, nullptr, nullptr, ESpell::kSenseLife, ESpell::kSenseLife);
+	} else if (!AFF_FLAGGED(victim, EAffect::kInfravision)
+		&& GET_SPELL_MEM(victim, ESpell::kLight) > 0) {
+		CastSpell(victim, victim, nullptr, nullptr, ESpell::kLight, ESpell::kLight);
+	}
+}
+
 void ReactToCast(CharData *victim, CharData *caster, ESpell spell_id) {
 	if (caster == victim)
 		return;
@@ -2171,17 +2193,7 @@ void ReactToCast(CharData *victim, CharData *caster, ESpell spell_id) {
 	if (caster->purged()) {
 		return;
 	}
-	if (!CAN_SEE(victim, caster) && (GetRealInt(victim) > 25 || GetRealInt(victim) > number(10, 25))) {
-		if (!AFF_FLAGGED(victim, EAffect::kDetectInvisible)
-			&& GET_SPELL_MEM(victim, ESpell::kDetectInvis) > 0)
-			CastSpell(victim, victim, nullptr, nullptr, ESpell::kDetectInvis, ESpell::kDetectInvis);
-		else if (!AFF_FLAGGED(victim, EAffect::kDetectLife)
-			&& GET_SPELL_MEM(victim, ESpell::kSenseLife) > 0)
-			CastSpell(victim, victim, nullptr, nullptr, ESpell::kSenseLife, ESpell::kSenseLife);
-		else if (!AFF_FLAGGED(victim, EAffect::kInfravision)
-			&& GET_SPELL_MEM(victim, ESpell::kLight) > 0)
-			CastSpell(victim, victim, nullptr, nullptr, ESpell::kLight, ESpell::kLight);
-	}
+	MaybeAutoCastDetection(victim, caster);
 }
 
 // <blocking>: true if the target carries ANY of the listed flags/affects
