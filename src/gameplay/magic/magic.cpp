@@ -637,14 +637,12 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 		// kVacuum likewise: <affects saving="kCritical"> with <reposition pos="kStun"/> + a skill-scaled
 		// <lag> (low_skill_coeff, capped ~12 rounds) replacing the kMagicStopFight affect; its 20% roll
 		// and wisdom term are dropped.
-		// kDispelEvil / kDispelGood target filter is data-driven now (issue.cast-dmg-migration):
-		// <required align="kEvil"/> on kDispelEvil and <required align="kGood"/> on kDispelGood,
-		// dispatched by CastToSingleTarget's required-check before this switch even runs. The
-		// "caster wrath" branch (HP=1 when an evil caster wields kDispelEvil, or a good caster
-		// wields kDispelGood) was dropped: blocking / required / reflection all examine the
-		// *victim*, not the caster, so a caster-side incompatibility check doesn't fit those
-		// mechanisms. A future caster-side requirement (e.g. <caster_required align=>) could
-		// re-introduce it cleanly.
+		// kDispelEvil / kDispelGood are fully data-driven now (issue.cast-dmg-migration):
+		//   <required align="kEvil|kGood"/> -- target filter (victim must match the alignment).
+		//   <caster_blocking align="kEvil|kGood"/> -- the caster-side incompatibility gate, the
+		//   data-driven replacement for the old in-code "wrath" branch. Now an evil caster
+		//   simply can't fire kDispelEvil (kNoeffect, no cast); the old HP=1 punishment doesn't
+		//   land. Both gates run in CastToSingleTarget before this switch sees the spell id.
 		// kSacrifice's CastDamage case was a no-op (`if (IsImmortal()) break; break;` -- the second
 		// break is unreachable, the first does the same thing as the fallthrough). Removed in
 		// issue.cast-dmg-migration: violent spells against immortals are blocked upstream in
@@ -2316,6 +2314,15 @@ int CastToSingleTarget(CharData *caster, CharData *cvict, ObjData *ovict, CastRo
 		if (!MUD::Spell(spell_id).IsFlagged(kMagGroups | kMagMasses | kMagAreas)) {
 			SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", caster);
 		}
+		return 0;
+	}
+	// Action-level caster gate (issue.cast-dmg-migration): mirrors the victim-side <blocking>,
+	// but examines the CASTER. Used to refuse casts the caster cannot wield -- e.g. kDispelEvil
+	// gets <caster_blocking align="kEvil"/> so an evil caster simply can't fire it. Always emits
+	// kNoeffect (no group/mass silent skip: a caster-side block concerns the one caster, not the
+	// per-target loop).
+	if (TargetIsBlocked(caster, MUD::Spell(spell_id).actions.GetCasterBlocking())) {
+		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", caster);
 		return 0;
 	}
 	// Reflection (issue.cast-dmg-migration): if the original target carries a reflecting flag or

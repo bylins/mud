@@ -498,6 +498,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <amount min="0" dices_weight="1.0" competencies_weight="122"/>
                 </damage>
                 <required align="kEvil"/>
+                <caster_blocking align="kEvil"/>
             </action>
         </talent_actions>
     </spell>
@@ -977,6 +978,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <amount min="0" dices_weight="1.0" competencies_weight="102"/>
                 </damage>
                 <required align="kGood"/>
+                <caster_blocking align="kGood"/>
             </action>
         </talent_actions>
     </spell>

@@ -360,6 +360,7 @@ void PrintFlagCondition(const char *label, const FlagCondition &cond, std::ostri
 void Actions::Print(CharData *ch, std::ostringstream &buffer) const {
 	PrintFlagCondition("Blocking", blocking_, buffer);
 	PrintFlagCondition("Required", required_, buffer);
+	PrintFlagCondition("CasterBlocking", caster_blocking_, buffer);
 	if (!reflection_.empty()) {
 		buffer << "  Reflection: prob=" << kColorGrn << reflection_.prob << kColorNrm;
 		for (const auto aff : reflection_.affect_flags) {
@@ -383,6 +384,7 @@ void Actions::Build(parser_wrapper::DataNode &node) {
 	auto roster = std::make_unique<ActionsRoster>();
 	blocking_ = {};
 	required_ = {};
+	caster_blocking_ = {};
 	reflection_ = {};
 	for (auto &action: node.Children()) {
 		try {
@@ -452,6 +454,8 @@ void Actions::ParseAction(ActionsRosterPtr &info, parser_wrapper::DataNode node)
 			ParseFlagCondition(blocking_, manifestation);
 		} else if (strcmp(manifestation.GetName(), "required") == 0) {
 			ParseFlagCondition(required_, manifestation);
+		} else if (strcmp(manifestation.GetName(), "caster_blocking") == 0) {
+			ParseFlagCondition(caster_blocking_, manifestation);
 		} else if (strcmp(manifestation.GetName(), "reflection") == 0) {
 			ParseReflection(reflection_, manifestation);
 		}

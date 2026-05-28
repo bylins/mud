@@ -303,6 +303,11 @@ class Actions {
 	// ...), so they are checked in CastToSingleTarget, not inside a single stage.
 	FlagCondition blocking_;
 	FlagCondition required_;
+	// Action-level caster gate (issue.cast-dmg-migration): mirrors blocking_, but examines the
+	// CASTER instead of the victim. Used by kDispelEvil / kDispelGood to refuse the cast when
+	// the caster carries the incompatible alignment (replaces their old in-code "wrath" branch).
+	// A future caster_required_ could be added by the same pattern.
+	FlagCondition caster_blocking_;
 	// Reflection (issue.cast-dmg-migration): also checked in CastToSingleTarget; redirects the
 	// cast back at the caster on a successful prob roll (see Reflection comment above).
 	Reflection reflection_;
@@ -332,6 +337,7 @@ class Actions {
 	[[nodiscard]] const TalentUnaffect &GetUnaffect() const;
 	[[nodiscard]] const FlagCondition &GetBlocking() const { return blocking_; }
 	[[nodiscard]] const FlagCondition &GetRequired() const { return required_; }
+	[[nodiscard]] const FlagCondition &GetCasterBlocking() const { return caster_blocking_; }
 	[[nodiscard]] const Reflection &GetReflection() const { return reflection_; }
 };
 
