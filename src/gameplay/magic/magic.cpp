@@ -518,6 +518,65 @@ int CalcTotalSpellDmg(CharData *ch, CharData *victim, ESpell spell_id) {
 	return total_dmg;
 }
 
+// Three defensive checks shared between CastDamage and CastAffect. Each returns true (and emits
+// the standard 3-line ToChar/ToNotVict/ToVict message trio) when the defense fires; the caller
+// decides what to do next (recursive self-cast for reflection, early return for absorption).
+//
+// Conditions match the stricter set that CastAffect used (IsViolent / !ch->IsGod / same-room
+// for the magic mirror; +remort/2 bias on the sonic barrier; IsViolent on the shield block).
+// CastDamage previously had slightly looser conditions for some of these; in practice the diffs
+// don't bite (damage spells are violent, same-room, etc.), but the unified version is what runs
+// for both call sites now.
+namespace {
+
+bool TryReflectByMagicGlass(CharData *ch, CharData *victim, ESpell spell_id) {
+	if (ch == victim) return false;
+	if (MUD::Spell(spell_id).IsFlagged(kMagWarcry)) return false;
+	if (!MUD::Spell(spell_id).IsViolent()) return false;
+	if (ch->IsGod()) return false;
+	if (ch->in_room != victim->in_room) return false;
+	if (!AFF_FLAGGED(victim, EAffect::kMagicGlass)) return false;
+	if (number(1, 100) >= (GetRealLevel(victim) / 3)) return false;
+	act("Магическое зеркало $N1 отразило вашу магию!", false, ch, nullptr, victim, kToChar);
+	act("Магическое зеркало $N1 отразило магию $n1!", false, ch, nullptr, victim, kToNotVict);
+	act("Ваше магическое зеркало отразило поражение $n1!", false, ch, nullptr, victim, kToVict);
+	return true;
+}
+
+bool TryReflectBySonicBarrier(CharData *ch, CharData *victim, ESpell spell_id) {
+	if (ch == victim) return false;
+	if (!MUD::Spell(spell_id).IsFlagged(kMagWarcry)) return false;
+	if (!MUD::Spell(spell_id).IsViolent()) return false;
+	if (!victim->IsGod()) return false;
+	if (!ch->IsNpc() && GetRealLevel(victim) <= (GetRealLevel(ch) + GetRealRemort(ch) / 2)) return false;
+	act("Звуковой барьер $N1 отразил ваш крик!", false, ch, nullptr, victim, kToChar);
+	act("Звуковой барьер $N1 отразил крик $n1!", false, ch, nullptr, victim, kToNotVict);
+	act("Ваш звуковой барьер отразил крик $n1!", false, ch, nullptr, victim, kToVict);
+	return true;
+}
+
+// The Vityaz magical-shield block: a skill+feat+worn-shield absorption. The chance is
+// (kShieldBlock / 20 + shield_weight / 2) percent. Mass/area/warcry casts bypass the shield.
+bool TryBlockByMagicalShield(CharData *ch, CharData *victim, ESpell spell_id) {
+	if (ch == victim) return false;
+	if (!MUD::Spell(spell_id).IsViolent()) return false;
+	if (MUD::Spell(spell_id).IsFlagged(kMagWarcry)) return false;
+	if (MUD::Spell(spell_id).IsFlagged(kMagMasses)) return false;
+	if (MUD::Spell(spell_id).IsFlagged(kMagAreas)) return false;
+	if (victim->GetSkill(ESkill::kShieldBlock) <= 100) return false;
+	if (!GET_EQ(victim, EEquipPos::kShield)) return false;
+	if (!CanUseFeat(victim, EFeat::kMagicalShield)) return false;
+	const int chance = victim->GetSkill(ESkill::kShieldBlock) / 20
+		+ GET_EQ(victim, EEquipPos::kShield)->get_weight() / 2;
+	if (number(1, 100) >= chance) return false;
+	act("Ваши чары повисли на щите $N1, и затем развеялись.", false, ch, nullptr, victim, kToChar);
+	act("Щит $N1 поглотил злые чары $n1.", false, ch, nullptr, victim, kToNotVict);
+	act("Ваш щит уберег вас от злых чар $n1.", false, ch, nullptr, victim, kToVict);
+	return true;
+}
+
+}  // namespace
+
 int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 	int rand = 0, count = 1, modi = 0;
 
@@ -527,30 +586,22 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 	if (!pk_agro_action(ch, victim))
 		return (0);
 	log("[MAG DAMAGE] %s damage %s (%d)", GET_NAME(ch), GET_NAME(victim), to_underlying(spell_id));
-	// Magic glass
+	// Breath spells skip the defensive layer (the magic mirror / sonic barrier / shield block
+	// were never intended for them); self-casts also bypass it so the caster doesn't deflect
+	// their own spell off their own kMagicGlass.
 	if (!IsBreath(spell_id) || ch == victim) {
-		if (!MUD::Spell(spell_id).IsFlagged(kMagWarcry)) {
-			if (ch != victim && spell_id <= ESpell::kLast &&
-				((AFF_FLAGGED(victim, EAffect::kMagicGlass) && number(1, 100) < (GetRealLevel(victim) / 3)))) {
-				act("Магическое зеркало $N1 отразило вашу магию!", false, ch, nullptr, victim, kToChar);
-				act("Магическое зеркало $N1 отразило магию $n1!", false, ch, nullptr, victim, kToNotVict);
-				act("Ваше магическое зеркало отразило поражение $n1!", false, ch, nullptr, victim, kToVict);
-				log("[MAG DAMAGE] Зеркало - полное отражение: %s damage %s (%d)",
-					GET_NAME(ch), GET_NAME(victim), to_underlying(spell_id));
-				return (CastDamage(level, ch, ch, spell_id));
-			}
-		} else {
-			if (ch != victim && spell_id <= ESpell::kLast && victim->IsGod()
-				&& (ch->IsNpc() || GetRealLevel(victim) > GetRealLevel(ch))) {
-				act("Звуковой барьер $N1 отразил ваш крик!", false, ch, nullptr, victim, kToChar);
-				act("Звуковой барьер $N1 отразил крик $n1!", false, ch, nullptr, victim, kToNotVict);
-				act("Ваш звуковой барьер отразил крик $n1!", false, ch, nullptr, victim, kToVict);
-				return (CastDamage(level, ch, ch, spell_id));
-			}
+		if (TryReflectByMagicGlass(ch, victim, spell_id)) {
+			log("[MAG DAMAGE] Зеркало - полное отражение: %s damage %s (%d)",
+				GET_NAME(ch), GET_NAME(victim), to_underlying(spell_id));
+			return CastDamage(level, ch, ch, spell_id);
 		}
-
+		if (TryReflectBySonicBarrier(ch, victim, spell_id)) {
+			return CastDamage(level, ch, ch, spell_id);
+		}
+		// kShadowCloak absorption: 21% chance for the victim's cloak to swallow the cast outright.
+		// Only damage spells get this defense (no parallel in CastAffect), so it stays inline.
 		if (!MUD::Spell(spell_id).IsFlagged(kMagWarcry) && AFF_FLAGGED(victim, EAffect::kShadowCloak)
-			&& spell_id <= ESpell::kLast && number(1, 100) < 21) {
+			&& number(1, 100) < 21) {
 			act("Густая тень вокруг $N1 жадно поглотила вашу магию.", false, ch, nullptr, victim, kToChar);
 			act("Густая тень вокруг $N1 жадно поглотила магию $n1.", false, ch, nullptr, victim, kToNotVict);
 			act("Густая тень вокруг вас поглотила магию $n1.", false, ch, nullptr, victim, kToVict);
@@ -558,17 +609,7 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 				GET_NAME(ch), GET_NAME(victim), to_underlying(spell_id));
 			return 0;
 		}
-		// Блочим маг дамагу от директ спелов для Витязей : шанс (скил/20 + вес.щита/2) ~ 30% при 200 скила и 40вес щита
-		if (!MUD::Spell(spell_id).IsFlagged(kMagWarcry) &&
-			!MUD::Spell(spell_id).IsFlagged(kMagMasses) &&
-			!MUD::Spell(spell_id).IsFlagged(kMagAreas) &&
-			(victim->GetSkill(ESkill::kShieldBlock) > 100) && GET_EQ(victim, kShield) &&
-			CanUseFeat(victim, EFeat::kMagicalShield) &&
-			(number(1, 100)	<
-			((victim->GetSkill(ESkill::kShieldBlock)) / 20 + GET_EQ(victim, kShield)->get_weight() / 2))) {
-			act("Ловким движением щита $N отразил вашу магию.", false, ch, nullptr, victim, kToChar);
-			act("Ловким движением щита $N отразил магию $n1.", false, ch, nullptr, victim, kToNotVict);
-			act("Вы отразили своим щитом магию $n1.", false, ch, nullptr, victim, kToVict);
+		if (TryBlockByMagicalShield(ch, victim, spell_id)) {
 			return 0;
 		}
 	}
@@ -778,43 +819,17 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, const ESpell 
 				return EStageResult::kSuccess;
 		}
 	}
-	// Magic glass
-	if (!MUD::Spell(spell_id).IsFlagged(kMagWarcry)) {
-		if (ch != victim
-			&& MUD::Spell(spell_id).IsViolent()
-			&& ((!ch->IsGod()
-				&& AFF_FLAGGED(victim, EAffect::kMagicGlass)
-				&& (ch->in_room == victim->in_room)
-				&& number(1, 100) < (GetRealLevel(victim) / 3))
-				|| (victim->IsGod()
-					&& (ch->IsNpc()
-						|| GetRealLevel(victim) > (GetRealLevel(ch)))))) {
-			act("Магическое зеркало $N1 отразило вашу магию!", false, ch, nullptr, victim, kToChar);
-			act("Магическое зеркало $N1 отразило магию $n1!", false, ch, nullptr, victim, kToNotVict);
-			act("Ваше магическое зеркало отразило поражение $n1!", false, ch, nullptr, victim, kToVict);
-			CastAffect(level, ch, ch, spell_id);
-			return EStageResult::kSuccess;
-		}
-	} else {
-		if (ch != victim && MUD::Spell(spell_id).IsViolent() && victim->IsGod()
-			&& (ch->IsNpc() || GetRealLevel(victim) > (GetRealLevel(ch) + GetRealRemort(ch) / 2))) {
-			act("Звуковой барьер $N1 отразил ваш крик!", false, ch, nullptr, victim, kToChar);
-			act("Звуковой барьер $N1 отразил крик $n1!", false, ch, nullptr, victim, kToNotVict);
-			act("Ваш звуковой барьер отразил крик $n1!", false, ch, nullptr, victim, kToVict);
-			CastAffect(level, ch, ch, spell_id);
-			return EStageResult::kSuccess;
-		}
+	// Shared defensive layer with CastDamage: magic mirror, sonic barrier, magical shield. The
+	// kShadowCloak absorption is damage-only and stays in CastDamage.
+	if (TryReflectByMagicGlass(ch, victim, spell_id)) {
+		CastAffect(level, ch, ch, spell_id);
+		return EStageResult::kSuccess;
 	}
-	//  блочим директ аффекты вредных спелов для Витязей  шанс = (скил/20 + вес.щита/2)  ()
-	if (ch != victim && MUD::Spell(spell_id).IsViolent() && !MUD::Spell(spell_id).IsFlagged(kMagWarcry)
-		&& !MUD::Spell(spell_id).IsFlagged(kMagMasses) && !MUD::Spell(spell_id).IsFlagged(kMagAreas)
-		&& (victim->GetSkill(ESkill::kShieldBlock) > 100) && GET_EQ(victim, EEquipPos::kShield)
-		&& CanUseFeat(victim, EFeat::kMagicalShield)
-		&& (number(1, 100) < ((victim->GetSkill(ESkill::kShieldBlock)) / 20
-			+ GET_EQ(victim, EEquipPos::kShield)->get_weight() / 2))) {
-		act("Ваши чары повисли на щите $N1, и затем развеялись.", false, ch, nullptr, victim, kToChar);
-		act("Щит $N1 поглотил злые чары $n1.", false, ch, nullptr, victim, kToNotVict);
-		act("Ваш щит уберег вас от злых чар $n1.", false, ch, nullptr, victim, kToVict);
+	if (TryReflectBySonicBarrier(ch, victim, spell_id)) {
+		CastAffect(level, ch, ch, spell_id);
+		return EStageResult::kSuccess;
+	}
+	if (TryBlockByMagicalShield(ch, victim, spell_id)) {
 		return EStageResult::kSuccess;
 	}
 
