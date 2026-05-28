@@ -722,7 +722,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration base="0" skill_divisor="3" min="0" max="0"/>
                     <flags val="kAfSameTime|kAfCurable"/>
                     <apply id="kPoisoned" location="kStr">
-                        <modifier min="2.0" dices_weight="0.0" competencies_weight="0.0" factor="-1"/>
+                        <modifier min="2.0" dices_weight="0.0" competencies_weight="0.0" factor="-1" stack="5"/>
                     </apply>
                     <apply id="kPoisoned" location="kPoison">
                         <modifier min="30.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
@@ -3750,7 +3750,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <remove all_of="kInvisible|kCamouflage|kHide" breaking_by_failure="true"/>
                 </unaffect>
                 <affects type="kGlitterDust" saving="kReflex" resist="kEarth">
-                    <flags val="kAfDispellable|kAfCurable"/>
+                    <!--<flags val="kAfDispellable|kAfCurable"/>-->
                     <duration base="4" skill_divisor="0" min="0" max="0"/>
                     <apply id="kGlitterDust" location="kSavingReflex">
                         <modifier min="12.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
@@ -4210,7 +4210,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration base="7" skill_divisor="0" min="0" max="0"/>
                     <flags val="kAfSameTime|kAfCurable"/>
                     <apply id="kPoisoned" location="kAconitumPoison">
-                        <modifier min="30.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
+                        <modifier min="30.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="3"/>
                     </apply>
                 </affects>
             </action>
@@ -4234,10 +4234,10 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration base="7" skill_divisor="0" min="0" max="0"/>
                     <flags val="kAfSameTime|kAfCurable"/>
                     <apply id="kPoisoned" location="kScopolaPoison">
-                        <modifier min="5.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
+                        <modifier min="5.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="3"/>
                     </apply>
                     <apply id="kScopolaPoison" location="kNone">
-                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="3"/>
                     </apply>
                 </affects>
             </action>
@@ -4261,7 +4261,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration base="7" skill_divisor="0" min="0" max="0"/>
                     <flags val="kAfSameTime|kAfCurable"/>
                     <apply id="kPoisoned" location="kBelenaPoison">
-                        <modifier min="5.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
+                        <modifier min="5.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="3"/>
                     </apply>
                 </affects>
             </action>
@@ -4285,7 +4285,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration base="7" skill_divisor="0" min="0" max="0"/>
                     <flags val="kAfSameTime|kAfCurable"/>
                     <apply id="kPoisoned" location="kDaturaPoison">
-                        <modifier min="5.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
+                        <modifier min="5.0" dices_weight="0.0" competencies_weight="0.0" factor="1" stack="3"/>
                     </apply>
                 </affects>
             </action>
@@ -4802,7 +4802,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <flags val="kMagGroups|kMagAffects|kNpcAffectNpc"/>
         <potency_roll>
             <dices ndice="5" sdice="9" adice="12"/>
-            <base_skill id="kEartMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_skill id="kEarthMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kWis" threshold="22" weight="0.5"/>
         </potency_roll>
         <talent_actions>
