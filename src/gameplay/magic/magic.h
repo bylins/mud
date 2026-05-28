@@ -122,18 +122,17 @@ enum class EStageResult {
 	kSuccess	// stage handled; continue to the next stage.
 };
 
+// Stage functions called from outside the magic module. Prefer CallMagic / CastSpell when
+// possible -- direct calls bypass CastToSingleTarget's blocking/required/reflection/
+// caster_blocking gates, which is rarely what callers want. fight_hit.cpp and spells.cpp
+// (SpellHolystrike etc.) call CastDamage/CastAffect/CastUnaffects directly because they run a
+// per-target loop outside the normal cast pipeline; handler.cpp calls CastAffect to re-apply
+// gear-borne effects. The remaining stage functions (CastToPoints / CastToAlterObjs /
+// CastCreation / CastSummon / CastManual / CastToSingleTarget) live in magic_internal.h --
+// they're only called from CallMagic and the dispatcher in magic.cpp.
 int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id);
-// NB (issue.cast-affect): the <blocking>/<required> target gates now live in CastToSingleTarget,
-// so prefer it over calling CastAffect directly. CastAffect stays declared here because
-// SpellHolystrike (kHolystrike's manual room-dispatcher) must call it per target and cannot go
-// through CastToSingleTarget (that would re-enter the manual stage -> infinite recursion).
 EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const RollResult &potency = {});
-EStageResult CastToPoints(int level, CharData *ch, CharData *victim, ESpell spell_id);
 EStageResult CastUnaffects(int, CharData *ch, CharData *victim, ESpell spell_id);
-EStageResult CastToAlterObjs(CharData *ch, CharData *victim, ObjData *obj, ESpell spell_id);
-EStageResult CastCreation(int, CharData *ch, ESpell spell_id);
-EStageResult CastCharRelocate(CharData *caster, CharData *cvict, ESpell spell_id);
-int CastToSingleTarget(CharData *caster, CharData *cvict, ObjData *ovict, CastRollResult roll);
 int CalcSaving(CharData *killer, CharData *victim, ESaving saving, bool need_log = false);
 int CalcGeneralSaving(CharData *killer, CharData *victim, ESaving type, int ext_apply);
 int GetBasicSave(CharData *ch, ESaving saving, bool log = false);

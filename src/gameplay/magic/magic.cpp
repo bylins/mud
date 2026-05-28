@@ -13,6 +13,7 @@
 ************************************************************************ */
 
 #include "magic.h"
+#include "magic_internal.h"
 
 #include "engine/core/action_targeting.h"
 //#include "gameplay/affects/affect_handler.h"
@@ -276,7 +277,7 @@ void ShowAffExpiredMsg(ESpell aff_type, CharData *ch) {
 }
 
 
-bool IsBreath(ESpell spell_id) {
+static bool IsBreath(ESpell spell_id) {
 	static const std::set<ESpell> magic_breath {
 	 	ESpell::kFireBreath,
 	 	ESpell::kGasBreath,
@@ -363,7 +364,7 @@ int CalcBaseDmg(CharData *ch, ESpell spell_id) {
 	return base_dmg;
 }
 
-int CalcHeal(CharData *ch, CharData *victim, ESpell spell_id, [[maybe_unused]] int level) {
+static int CalcHeal(CharData *ch, CharData *victim, ESpell spell_id, [[maybe_unused]] int level) {
 	// Не у каждого спелла из CastToPoints в данных описан heal-экшен
 	// (напр. свежедобавленные kPatronage/kWarcryOfPower). Без этой проверки
 	// GetHeal() кидает исключение и роняет сервер (#3312). Логируем, какой
@@ -417,7 +418,7 @@ int CalcHeal(CharData *ch, CharData *victim, ESpell spell_id, [[maybe_unused]] i
  * on kMagicMissile with the feat we halve the divisor and triple the max, which reproduces
  * yesterday's (level+9)/5-vs-(level+9)/10 ratio at the skill cap.
  */
-int CalcExtraHits(CharData *ch, ESpell spell_id, ESkill skill_id,
+static int CalcExtraHits(CharData *ch, ESpell spell_id, ESkill skill_id,
 				  int skill_divisor = 25, int max = 1, int prob = 20) {
 	if (spell_id == ESpell::kMagicMissile && ch && CanUseFeat(ch, EFeat::kMagicArrows)) {
 		skill_divisor = std::max(1, skill_divisor / 2);
@@ -440,7 +441,7 @@ int CalcExtraHits(CharData *ch, ESpell spell_id, ESkill skill_id,
 // force the fight to stop. Passing EPosition::kUndefined as `pos` changes no position at all
 // -- only the force_stopfight branch runs (in the engine, the "fighting" state is itself part
 // of the position system, so stopping a fight is a position change in that sense).
-void ForceReposition(CharData *victim, ESpell spell_id, EPosition pos, bool force_stopfight = false) {
+static void ForceReposition(CharData *victim, ESpell spell_id, EPosition pos, bool force_stopfight = false) {
 	if (victim->IsImmortal()) {
 		return;
 	}
@@ -466,7 +467,7 @@ void ForceReposition(CharData *victim, ESpell spell_id, EPosition pos, bool forc
 	}
 }
 
-int CalcTotalSpellDmg(CharData *ch, CharData *victim, ESpell spell_id) {
+static int CalcTotalSpellDmg(CharData *ch, CharData *victim, ESpell spell_id) {
 	const auto &potency_roll = MUD::Spell(spell_id).GetPotencyRoll();
 	const bool has_dmg = MUD::Spell(spell_id).actions.Contains(talents_actions::EAction::kDamage);
 	// prob: a <damage prob=> spell may simply not fire (default 100).
@@ -2070,30 +2071,10 @@ EStageResult CastCreation(int/* level*/, CharData *ch, ESpell spell_id) {
 	return EStageResult::kSuccess;
 }
 
-EStageResult CastCharRelocate(CharData *caster, CharData *cvict, ESpell spell_id) {
-	switch (spell_id) {
-		case ESpell::kGroupRecall:
-		case ESpell::kWorldOfRecall: 
-			SpellRecall(caster, cvict);
-			break;
-		case ESpell::kTeleport: 
-			SpellTeleport(caster, cvict);
-			break;
-		case ESpell::kSummon: 
-			SpellSummon(caster, cvict);
-			break;
-		case ESpell::kPortal: 
-			SpellPortal(caster, cvict);
-			break;
-		case ESpell::kRelocate: 
-			SpellRelocate(caster, cvict);
-			break;
-		default: return EStageResult::kSuccess;
-			break;
-	}
-	return EStageResult::kSuccess;
-}
-
+// Dispatch for spells that have hand-coded handlers in spells.cpp. Both the kMagManual flag
+// (general-purpose handlers) and the kMagCharRelocate flag (movement-style handlers that take
+// only caster + victim) route here -- the recall/teleport/portal cases just ignore the unused
+// `level` / `ovict` arguments. CallMagic dispatches both flags to this function.
 EStageResult CastManual(int level, CharData *caster, CharData *cvict, ObjData *ovict, ESpell spell_id) {
 	switch (spell_id) {
 		case ESpell::kControlWeather: SpellControlWeather(level, caster, cvict, ovict);
@@ -2121,8 +2102,20 @@ EStageResult CastManual(int level, CharData *caster, CharData *cvict, ObjData *o
 			break;
 		case ESpell::kVampirism: SpellVampirism(level, caster, cvict, ovict);
 			break;
-		default: return EStageResult::kSuccess;
+		// Char-relocate spells (previously a separate CastCharRelocate stage). Their handlers take
+		// only (caster, cvict); `level` and `ovict` are ignored.
+		case ESpell::kGroupRecall:
+		case ESpell::kWorldOfRecall: SpellRecall(caster, cvict);
 			break;
+		case ESpell::kTeleport: SpellTeleport(caster, cvict);
+			break;
+		case ESpell::kSummon: SpellSummon(caster, cvict);
+			break;
+		case ESpell::kPortal: SpellPortal(caster, cvict);
+			break;
+		case ESpell::kRelocate: SpellRelocate(caster, cvict);
+			break;
+		default: return EStageResult::kSuccess;
 	}
 	return EStageResult::kSuccess;
 }
@@ -2357,13 +2350,10 @@ int CastToSingleTarget(CharData *caster, CharData *cvict, ObjData *ovict, CastRo
 		return 1;
 	}
 
-	if (MUD::Spell(spell_id).IsFlagged(kMagManual)
+	// CastManual now handles both kMagManual (general-purpose handlers) and kMagCharRelocate
+	// (movement handlers); the former CastCharRelocate stage was folded into it.
+	if ((MUD::Spell(spell_id).IsFlagged(kMagManual) || MUD::Spell(spell_id).IsFlagged(kMagCharRelocate))
 			&& CastManual(abs(level), caster, cvict, ovict, spell_id) == EStageResult::kBreak) {
-		return 1;
-	}
-
-	if (MUD::Spell(spell_id).IsFlagged(kMagCharRelocate)
-			&& CastCharRelocate(caster, cvict, spell_id) == EStageResult::kBreak) {
 		return 1;
 	}
 
