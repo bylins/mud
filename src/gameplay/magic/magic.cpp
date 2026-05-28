@@ -637,30 +637,14 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 		// kVacuum likewise: <affects saving="kCritical"> with <reposition pos="kStun"/> + a skill-scaled
 		// <lag> (low_skill_coeff, capped ~12 rounds) replacing the kMagicStopFight affect; its 20% roll
 		// and wisdom term are dropped.
-		case ESpell::kDispelEvil: {
-			if (ch != victim && IsEvil(ch) && !ch->IsImmortal() && ch->get_hit() > 1) {
-				SendMsgToChar("Ваша магия обратилась против вас.", ch);
-				ch->set_hit(1);
-			}
-			if (!IsEvil(victim)) {
-				if (victim != ch)
-					act("Боги защитили $N3 от вашей магии.", false, ch, nullptr, victim, kToChar);
-				return 0;
-			};
-			break;
-		}
-		case ESpell::kDispelGood: {
-			if (ch != victim && IsGood(ch) && !ch->IsImmortal() && ch->get_hit() > 1) {
-				SendMsgToChar("Ваша магия обратилась против вас.", ch);
-				ch->set_hit(1);
-			}
-			if (!IsGood(victim)) {
-				if (victim != ch)
-					act("Боги защитили $N3 от вашей магии.", false, ch, nullptr, victim, kToChar);
-				return 0;
-			};
-			break;
-		}
+		// kDispelEvil / kDispelGood target filter is data-driven now (issue.cast-dmg-migration):
+		// <required align="kEvil"/> on kDispelEvil and <required align="kGood"/> on kDispelGood,
+		// dispatched by CastToSingleTarget's required-check before this switch even runs. The
+		// "caster wrath" branch (HP=1 when an evil caster wields kDispelEvil, or a good caster
+		// wields kDispelGood) was dropped: blocking / required / reflection all examine the
+		// *victim*, not the caster, so a caster-side incompatibility check doesn't fit those
+		// mechanisms. A future caster-side requirement (e.g. <caster_required align=>) could
+		// re-introduce it cleanly.
 		// kSacrifice's CastDamage case was a no-op (`if (IsImmortal()) break; break;` -- the second
 		// break is unreachable, the first does the same thing as the fallthrough). Removed in
 		// issue.cast-dmg-migration: violent spells against immortals are blocked upstream in
