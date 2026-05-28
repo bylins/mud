@@ -133,20 +133,11 @@ void ConversationHandler::handle_list_command(const Variable::shared_ptr &reques
 
 	const auto string = std::dynamic_pointer_cast<StringValue>(request->value());
 	if ("COMMANDS" == string->value()) {
-		log("INFO: '%s' asked for MSDP \"COMMANDS\" list.",
-			(m_descriptor && m_descriptor->character) ? m_descriptor->character->get_name().c_str() : "<unknown>");
-
 		response.reset(new Variable("COMMANDS", SUPPORTED_COMMANDS_ARRAY));
 	} else if ("REPORTABLE_VARIABLES" == string->value()) {
-		log("INFO: Client asked for MSDP \"REPORTABLE_VARIABLES\" list.");
-
 		response = ReporterFactory::reportable_variables();
 	} else if ("CONFIGURABLE_VARIABLES" == string->value()) {
-		log("INFO: Client asked for MSDP \"CONFIGURABLE_VARIABLES\" list.");
-
 		response = std::make_shared<Variable>("CONFIGURABLE_VARIABLES", std::make_shared<ArrayValue>());
-	} else {
-		log("INFO: Client asked for unknown MSDP list \"%s\".", string->value().c_str());
 	}
 }
 
@@ -156,8 +147,6 @@ void ConversationHandler::handle_report_command(const Variable::shared_ptr &requ
 	}
 
 	const auto string = std::dynamic_pointer_cast<StringValue>(request->value());
-	log("INFO: Client asked for report of changing the variable \"%s\".", string->value().c_str());
-
 	m_descriptor->msdp_add_report_variable(string->value());
 }
 
@@ -167,8 +156,6 @@ void ConversationHandler::handle_unreport_command(const Variable::shared_ptr &re
 	}
 
 	const auto string = std::dynamic_pointer_cast<StringValue>(request->value());
-	log("INFO: Client asked for unreport of changing the variable \"%s\".", string->value().c_str());
-
 	m_descriptor->msdp_remove_report_variable(string->value());
 }
 
@@ -182,8 +169,6 @@ void ConversationHandler::handle_send_command(const Variable::shared_ptr &reques
 }
 
 bool ConversationHandler::handle_request(const Variable::shared_ptr &request) {
-	log("INFO: MSDP request %s.", request->name().c_str());
-
 	Variable::shared_ptr response;
 	if ("LIST" == request->name()) {
 		handle_list_command(request, response);
