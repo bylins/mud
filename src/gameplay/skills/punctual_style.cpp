@@ -59,7 +59,7 @@ void PerformPunctualHit(CharData *ch, CharData *victim, HitData &hit_data) {
 						victim->SetPosition(EPosition::kSit);
 					}
 					victim->DropFromHorse();
-					SetWaitState(victim, 2 * kBattleRound);
+					SetBattleLag(victim, 2);
 					to_char = "повалило $N3 на землю";
 					to_vict = "повредило вам колено, повалив на землю";
 					break;
@@ -68,7 +68,7 @@ void PerformPunctualHit(CharData *ch, CharData *victim, HitData &hit_data) {
 						victim->SetPosition(EPosition::kSit);
 					}
 					victim->DropFromHorse();
-					SetWaitState(victim, 2 * kBattleRound);
+					SetBattleLag(victim, 2);
 					to_char = "повалило $N3 на землю";
 					to_vict = "повредило вам колено, повалив на землю";
 					break;
@@ -149,20 +149,20 @@ void PerformPunctualHit(CharData *ch, CharData *victim, HitData &hit_data) {
 					// nothing
 					return;
 				case 4:    // waits 1d6
-					SetWaitState(victim, number(2, 6) * kBattleRound);
+					SetBattleLag(victim, number(2, 6));
 					to_char = "сбило $N2 дыхание";
 					to_vict = "сбило вам дыхание";
 					break;
 
 		case 5:    // abdomin damaged, waits 1, speed/2
 					hit_data.dam *= std::min(ch->GetSkill(ESkill::kPunctual) / 8, 25);
-					SetWaitState(victim, 2 * kBattleRound);
+					SetBattleLag(victim, 2);
 					to_char = "ранило $N3 в живот";
 					to_vict = "ранило вас в живот";
 					victim->battle_affects.set(kEafSlow);
 					break;
 				case 6:    // armor damaged else dam*3, waits 1d6
-					SetWaitState(victim, number(2, 6) * kBattleRound);
+					SetBattleLag(victim, number(2, 6));
 					if (GET_EQ(victim, EEquipPos::kWaist))
 						DamageEquipment(victim, EEquipPos::kWaist, 100, 100);
 					else
@@ -237,7 +237,7 @@ void PerformPunctualHit(CharData *ch, CharData *victim, HitData &hit_data) {
 					// nothing
 					return;
 				case 4:    // waits 1d4, bashed
-					SetWaitState(victim, number(2, 5) * kBattleRound);
+					SetBattleLag(victim, number(2, 5));
 					if (victim->GetPosition() > EPosition::kSit)
 						victim->SetPosition(EPosition::kSit);
 					victim->DropFromHorse();
@@ -246,7 +246,7 @@ void PerformPunctualHit(CharData *ch, CharData *victim, HitData &hit_data) {
 					break;
 				case 5:    // chest damaged, waits 1, speed/2
 					hit_data.dam *= std::min(ch->GetSkill(ESkill::kPunctual) / 5, 40);
-					SetWaitState(victim, 2 * kBattleRound);
+					SetBattleLag(victim, 2);
 					to_char = "повредило $N2 туловище";
 					to_vict = "повредило вам туловище";
 					af[0].type = ESpell::kBattle;
@@ -385,13 +385,13 @@ void PerformPunctualHit(CharData *ch, CharData *victim, HitData &hit_data) {
 					break;
 				case 8:    // shield damaged, hands damaged, waits 1
 					DamageEquipment(victim, EEquipPos::kShield, 100, 100);
-					SetWaitState(victim, 2 * kBattleRound);
+					SetBattleLag(victim, 2);
 					hit_data.dam *= std::min((ch->GetSkill(ESkill::kPunctual)) / 7, 29);
 					to_char = "придержало $N3";
 					to_vict = "повредило вам руку";
 					break;
 				case 9:    // weapon putdown, hands damaged, waits 1d4
-					SetWaitState(victim, number(2, 4) * kBattleRound);
+					SetBattleLag(victim, number(2, 4));
 					if (GET_EQ(victim, EEquipPos::kBoths))
 						unequip_pos = EEquipPos::kBoths;
 					else if (GET_EQ(victim, EEquipPos::kWield))
@@ -467,13 +467,13 @@ void PerformPunctualHit(CharData *ch, CharData *victim, HitData &hit_data) {
 					// nothing
 					return;
 				case 4:    // waits 1d6
-					SetWaitState(victim, number(2, 6) * kBattleRound);
+					SetBattleLag(victim, number(2, 6));
 					to_char = "помутило $N2 сознание";
 					to_vict = "помутило ваше сознание";
 					break;
 
 				case 5:    // head damaged, cap putdown, waits 1, HR-2 if no cap
-					SetWaitState(victim, 2 * kBattleRound);
+					SetBattleLag(victim, 2);
 					if (GET_EQ(victim, EEquipPos::kHead))
 						unequip_pos = EEquipPos::kHead;
 					else {
@@ -494,7 +494,7 @@ void PerformPunctualHit(CharData *ch, CharData *victim, HitData &hit_data) {
 					to_vict = "повредило вам голову";
 					break;
 				case 7:    // cap damaged, waits 1d6, speed/2, HR-4
-					SetWaitState(victim, 2 * kBattleRound);
+					SetBattleLag(victim, 2);
 					DamageEquipment(victim, EEquipPos::kHead, 100, 100);
 					af[0].type = ESpell::kBattle;
 					af[0].location = EApply::kHitroll;
@@ -504,7 +504,7 @@ void PerformPunctualHit(CharData *ch, CharData *victim, HitData &hit_data) {
 					to_vict = "ранило вас в голову";
 					break;
 				case 8:    // cap damaged, hits 0
-					SetWaitState(victim, 4 * kBattleRound);
+					SetBattleLag(victim, 4);
 					DamageEquipment(victim, EEquipPos::kHead, 100, 100);
 					//dam = GET_HIT(victim);
 					hit_data.dam *= std::min(ch->GetSkill(ESkill::kPunctual) / 2, 100);

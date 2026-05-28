@@ -410,7 +410,7 @@ void SpellRelocate(CharData *ch, CharData *victim) {
 	ch->dismount();
 	look_at_room(ch, 0);
 	act("$n медленно появил$u откуда-то.", true, ch, nullptr, nullptr, kToRoom);
-	SetWaitState(ch, 2 * kBattleRound);
+	SetBattleLag(ch, 2);
 	greet_mtrigger(ch, -1);
 	greet_otrigger(ch, -1);
 }

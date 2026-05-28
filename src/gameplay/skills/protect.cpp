@@ -105,7 +105,7 @@ CharData *TryToFindProtector(CharData *victim, CharData *ch) {
 					false, vict, 0, victim, kToChar);
 				act("$N пытается напасть на вас! Лучше бы вам отойти.", false, victim, 0, vict, kToChar);
 				vict->remove_protecting();
-				SetWaitState(vict, kBattleRound);
+				SetBattleLag(vict, 1);
 				Affect<EApply> af;
 				af.type = ESpell::kBattle;
 				af.affect_type = EAffect::kStopFight;

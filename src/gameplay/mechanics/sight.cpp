@@ -435,7 +435,7 @@ bool look_at_target(CharData *ch, char *arg, int subcmd) {
 				found = CalcCurrentSkill(ch, ESkill::kPry, found_char);
 				TrainSkill(ch, ESkill::kPry, found < fnum, found_char);
 				if (!ch->IsImmortal())
-					SetWaitState(ch, 1 * kBattleRound);
+					SetBattleLag(ch, 1);
 				if (found >= fnum && (fnum < 100 || ch->IsImmortal()) && !found_char->IsImmortal())
 					return false;
 			}

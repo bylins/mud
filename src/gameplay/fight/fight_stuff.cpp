@@ -179,7 +179,7 @@ bool stone_rebirth(CharData *ch, CharData *killer) {
 					greet_mtrigger(ch, -1);
 					greet_otrigger(ch, -1);
 					act("$n медленно появил$u откуда-то.", false, ch, nullptr, nullptr, kToRoom);
-					SetWaitState(ch, 10 * kBattleRound);
+					SetBattleLag(ch, 10);
 					return true;
 				}
 			}

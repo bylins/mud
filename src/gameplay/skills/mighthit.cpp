@@ -147,7 +147,7 @@ void PerformMighthit(CharData *ch, CharData *victim, HitData &hit_data) {
 			sprintf(buf, "&b&qВаш богатырский удар задел %s.&Q&n\r\n", PERS(victim, ch, 3));
 			SendMsgToChar(buf, ch);
 			lag = 1;
-			SetWaitState(victim, kBattleRound);
+			SetBattleLag(victim, 1);
 			Affect<EApply> af;
 			af.type = ESpell::kBattle;
 			af.affect_type = EAffect::kStopFight;
@@ -167,7 +167,7 @@ void PerformMighthit(CharData *ch, CharData *victim, HitData &hit_data) {
 			SendMsgToChar(buf, ch);
 			lag = 2;
 			hit_data.dam += (hit_data.dam / 1);
-			SetWaitState(victim, 2 * kBattleRound);
+			SetBattleLag(victim, 2);
 			Affect<EApply> af;
 			af.type = ESpell::kBattle;
 			af.affect_type = EAffect::kStopFight;
@@ -187,7 +187,7 @@ void PerformMighthit(CharData *ch, CharData *victim, HitData &hit_data) {
 			SendMsgToChar(buf, ch);
 			lag = 2;
 			hit_data.dam *= 4;
-			SetWaitState(victim, 3 * kBattleRound);
+			SetBattleLag(victim, 3);
 			Affect<EApply> af;
 			af.type = ESpell::kBattle;
 			af.affect_type = EAffect::kStopFight;
@@ -214,7 +214,7 @@ void ProcessMighthitBash(CharData *ch, CharData *victim) {
 	}
 
 	act("$n обреченно повалил$u на землю.", true, victim, nullptr, nullptr, kToRoom | kToArenaListen);
-	SetWaitState(victim, 3 * kBattleRound);
+	SetBattleLag(victim, 3);
 
 	if (victim->GetPosition() > EPosition::kSit) {
 		victim->SetPosition(EPosition::kSit);

@@ -919,6 +919,13 @@ inline void SetWaitState(CharData *ch, const unsigned cycle) {
 	}
 }
 
+// Lag the character by `lag` battle rounds. Thin wrapper over SetWaitState that spells the
+// "rounds, not raw pulses" intent at the call site -- preferred over the ubiquitous
+// SetWaitState(ch, N * kBattleRound) idiom that previously dotted the codebase.
+inline void SetBattleLag(CharData *ch, const unsigned lag) {
+	SetWaitState(ch, lag * kBattleRound);
+}
+
 inline FlagData &AFF_FLAGS(CharData *ch) { return ch->char_specials.saved.affected_by; }
 inline const FlagData &AFF_FLAGS(const CharData *ch) { return ch->char_specials.saved.affected_by; }
 inline const FlagData &AFF_FLAGS(const CharData::shared_ptr &ch) { return ch->char_specials.saved.affected_by; }

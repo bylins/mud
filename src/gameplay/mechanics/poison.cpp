@@ -249,7 +249,7 @@ namespace {
 								true, ch, nullptr, vict, kToNotVict);
 							vict->SetPosition(EPosition::kSit);
 							vict->DropFromHorse();
-							SetWaitState(vict, 3 * kBattleRound);
+							SetBattleLag(vict, 3);
 						}
 						break;
 					}

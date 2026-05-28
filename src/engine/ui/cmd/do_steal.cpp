@@ -190,7 +190,7 @@ void go_steal(CharData *ch, CharData *vict, char *obj_name) {
 			ImproveSkill(ch, ESkill::kSteal, 0, vict);
 	}
 	if (!ch->IsImmortal() && ohoh)
-		SetWaitState(ch, 3 * kBattleRound);
+		SetBattleLag(ch, 3);
 	pk_thiefs_action(ch, vict);
 	if (ohoh && vict->IsNpc() && AWAKE(vict) && CAN_SEE(vict, ch) && MAY_ATTACK(vict))
 		hit(vict, ch, ESkill::kUndefined, fight::kMainHand);

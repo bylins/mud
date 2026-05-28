@@ -141,7 +141,7 @@ void DoCast(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	ch->SetCast(ESpell::kUndefined, ESpell::kUndefined, nullptr, nullptr, nullptr);
 	if (!CalcCastSuccess(ch, tch, ESaving::kStability, spell_id)) {
 		if (!(ch->IsImmortal() || GET_GOD_FLAG(ch, EGf::kGodsLike)))
-			SetWaitState(ch, kBattleRound);
+			SetBattleLag(ch, 1);
 		if (GET_SPELL_MEM(ch, substitute_spell_id)) {
 			GET_SPELL_MEM(ch, substitute_spell_id)--;
 		}
@@ -161,7 +161,7 @@ void DoCast(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 			act(buf, false, ch, tobj, tch, kToChar);
 		} else if (CastSpell(ch, tch, tobj, troom, spell_id, substitute_spell_id) >= 0) {
 			if (!(ch->IsImmortal() || ch->get_wait() > 0))
-				SetWaitState(ch, kBattleRound);
+				SetBattleLag(ch, 1);
 		} else if (ch->get_wait() == 0)
 			SetWaitState(ch, 1);
 	}

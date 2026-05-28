@@ -289,9 +289,8 @@ static bool IsBreath(ESpell spell_id) {
 	return magic_breath.contains(spell_id);
 }
 
-void SetBattleLag(CharData *victim, const unsigned lag) {
-	SetWaitState(victim, lag * kBattleRound);
-}
+// SetBattleLag(victim, lag) lives inline next to SetWaitState in char_data.h -- it isn't
+// magic-specific. This file keeps only the magic-pipeline-specific skill-scaled overload below.
 
 /*
  * This is a temporary function. It's better to tie the lag value to the success rate of the cast
@@ -304,10 +303,10 @@ void SetBattleLag(CharData *victim, const unsigned lag) {
  */
 void SetBattleLag(CharData *victim, double skill_bonus, unsigned base_lag, double bonus_divisor) {
 	if (bonus_divisor > 0) {
-		auto lag = base_lag + static_cast<int>(skill_bonus / bonus_divisor);
-		SetWaitState(victim, lag * kBattleRound);
+		const auto lag = base_lag + static_cast<int>(skill_bonus / bonus_divisor);
+		SetBattleLag(victim, lag);
 	} else {
-		SetWaitState(victim, base_lag * kBattleRound);
+		SetBattleLag(victim, base_lag);
 	}
 }
 

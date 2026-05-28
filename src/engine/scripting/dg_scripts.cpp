@@ -3032,7 +3032,7 @@ void find_replacement(void *go,
 						}
 					}
 					else {
-						SetWaitState(mob, pos * kBattleRound);
+						SetBattleLag(mob, pos);
 					}
 				}
 			} else if (!str_cmp(field, "applyvalue")) {

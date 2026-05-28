@@ -113,7 +113,7 @@ void go_kick(CharData *ch, CharData *vict) {
 						break;
 					default:
 						if (!vict->IsFlagged(EMobFlag::kNoBash)) {
-							SetWaitState(vict, number(2, 5) * kBattleRound);
+							SetBattleLag(vict, number(2, 5));
 							if (vict->GetPosition() > EPosition::kSit) {
 								vict->SetPosition(EPosition::kSit);
 								vict->DropFromHorse();
@@ -157,7 +157,7 @@ void go_kick(CharData *ch, CharData *vict) {
 				if (vict->GetPosition() > EPosition::kSit) {
 					vict->SetPosition(EPosition::kSit);
 					vict->DropFromHorse();
-					SetWaitState(vict, 2 * kBattleRound);
+					SetBattleLag(vict, 2);
 					to_char = "$N упал$A на землю!";
 					to_vict = "Мощный удар $n1 свалил вас с ног.";
 					to_room = "Мощный пинок $n1 усадил $N1 на землю!";

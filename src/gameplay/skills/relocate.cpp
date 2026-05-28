@@ -104,7 +104,7 @@ void do_relocate(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					  kColorBoldRed, kColorBoldBlk);
 		pkPortal(ch);
 		timed.time = 18 - MIN(GetRealRemort(ch), 15);
-		SetWaitState(ch, 3 * kBattleRound);
+		SetBattleLag(ch, 3);
 		Affect<EApply> af;
 		af.duration = CalcDuration(ch, ch, ESkill::kUndefined, 3, 0, 0, 0);
 		af.affect_type = EAffect::kNoTeleport;
@@ -112,7 +112,7 @@ void do_relocate(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		affect_to_char(ch, af);
 	} else {
 		timed.time = 2;
-		SetWaitState(ch, kBattleRound);
+		SetBattleLag(ch, 1);
 	}
 	ImposeTimedFeat(ch, &timed);
 	look_at_room(ch, 0);

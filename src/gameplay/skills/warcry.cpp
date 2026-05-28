@@ -93,7 +93,7 @@ void do_warcry(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (CallMagic(ch, nullptr, nullptr, nullptr, spell_id, GetRealLevel(ch)) >= 0) {
 		if (!ch->IsImmortal()) {
 			if (ch->get_wait() <= 0) {
-				SetWaitState(ch, kBattleRound);
+				SetBattleLag(ch, 1);
 			}
 			ImposeTimedSkill(ch, &timed);
 			ch->set_move(ch->get_move() - MUD::Spell(spell_id).GetMaxMana());

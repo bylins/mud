@@ -32,7 +32,7 @@ void do_retreat(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 	} else {
 		stop_fighting(ch, true);
 		if (!(ch->IsImmortal() || GET_GOD_FLAG(ch, EGf::kGodsLike)))
-			SetWaitState(ch, kBattleRound);
+			SetBattleLag(ch, 1);
 		SendMsgToChar("Вы отступили из битвы.\r\n", ch);
 		act("$n выбыл$g из битвы.", false, ch, 0, 0, kToRoom | kToArenaListen);
 	}

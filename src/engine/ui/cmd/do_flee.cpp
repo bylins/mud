@@ -32,7 +32,7 @@ void GoFlee(CharData *ch) {
 	}
 
 	if (!ch->IsImmortal()) {
-		SetWaitState(ch, kBattleRound);
+		SetBattleLag(ch, 1);
 	}
 
 	if (ch->IsOnHorse() && (ch->get_horse()->GetPosition() < EPosition::kFight ||
@@ -99,7 +99,7 @@ void GoDirectFlee(CharData *ch, int direction) {
 			}
 
 			if (!ch->IsImmortal()) {
-				SetWaitState(ch, 1 * kBattleRound);
+				SetBattleLag(ch, 1);
 			}
 			return;
 		}

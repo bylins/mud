@@ -258,7 +258,7 @@ int TryCastSpellsFromLiquid(CharData *ch, ObjData *jar) {
 			if (cast_potion_spell(ch, jar, i) <= 0)
 				break;
 
-		SetWaitState(ch, kBattleRound);
+		SetBattleLag(ch, 1);
 		jar->dec_weight();
 		// все выпито
 		jar->dec_val(1);
