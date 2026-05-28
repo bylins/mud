@@ -128,10 +128,14 @@ int GetBasicSave(CharData *ch, ESaving saving, bool log) {
 			if (ch->IsOnHorse())
 				save += 20;
 			break;
-		case ESaving::kStability: 
+		case ESaving::kStability:
 			save -= bonus_saving[GetRealCon(ch) - 1];
-			if (ch->IsOnHorse())
+			if (ch->IsOnHorse()) {
 				save -= 20;
+				// issue.cast-dmg-migration: kRiding boosts on-horse stability save (replaces the
+				// kEarthquake-specific dismount check that used to live in CastDamage).
+				save -= ch->GetSkill(ESkill::kRiding) / 25;
+			}
 			break;
 		case ESaving::kWill: 
 			save -= bonus_saving[GetRealWis(ch) - 1];
@@ -618,22 +622,12 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 		// live in an <affects> block with prob=15 + four <apply random="true">; the old
 		// CalcCurrentSkill gate and the per-case act() messages are dropped (the standard affect
 		// messages communicate what happened).
-		case ESpell::kEarthquake: {
-			if (ch->IsOnHorse()) {
-				rand = number(1, 100);
-				if (rand > 95)
-					break;
-				if (rand < 5 || (CalcCurrentSkill(victim, ESkill::kRiding, nullptr) * number(1, 6))
-					< ch->GetSkill(ESkill::kEarthMagic) * number(1, 6)) {//фейл
-					ch->DropFromHorse();
-					break;
-				}
-			}
-			// kEarthquake's victim knockdown+lag is data-driven now (issue.cast-damage-affects):
-			// <affects saving="kReflex"> with <reposition pos="kSit"/> + <lag>. The caster-falls-
-			// off-horse check above stays in code (it is not a victim affect).
-			break;
-		}
+		// kEarthquake's victim knockdown+lag is data-driven (issue.cast-damage-affects): <affects
+		// saving="kReflex"> with <reposition pos="kSit"/> + <lag>. The caster-falls-off-horse
+		// special case was removed (issue.cast-dmg-migration): horse-resistance is now generic --
+		// GetBasicSave gives a kRiding-based bonus to kStability when mounted, which is what the
+		// damage saving uses; if the rider's stability save fails badly enough, the engine handles
+		// the dismount via the existing knockdown reposition path.
 		// kSonicWave knockdown+lag merged into its <affects type="kDeafness"> (issue.cast-damage-
 		// affects): reposition+lag now ride the deafness saving (kCritical). No case needed.
 		// kStunning is data-driven now (issue.cast-damage-affects): <affects saving="kCritical"> with
