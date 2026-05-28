@@ -660,11 +660,11 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			};
 			break;
 		}
-		case ESpell::kSacrifice: {
-			if (victim->IsImmortal())
-				break;
-			break;
-		}
+		// kSacrifice's CastDamage case was a no-op (`if (IsImmortal()) break; break;` -- the second
+		// break is unreachable, the first does the same thing as the fallthrough). Removed in
+		// issue.cast-dmg-migration: violent spells against immortals are blocked upstream in
+		// magic_utils.cpp's target-validation pass, and Damage::Process clamps damage to immortals
+		// at damage.cpp:454, so the case was triply redundant.
 		// kDustStorm knockdown+lag merged into its <affects type="kBlindness"> (issue.cast-damage-
 		// affects): reposition+lag now ride the blindness saving (kStability). No case needed.
 		case ESpell::kHolystrike: {
