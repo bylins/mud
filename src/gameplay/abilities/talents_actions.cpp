@@ -107,6 +107,11 @@ void Damage::Print(CharData */*ch*/, std::ostringstream &buffer) const {
 		   << " Amount min: " << kColorGrn << amount_min_ << kColorNrm
 		   << " dices_weight: " << kColorGrn << amount_dices_weight_ << kColorNrm
 		   << " competencies_weight: " << kColorGrn << amount_competencies_weight_ << kColorNrm << "\r\n";
+	if (has_hits_) {
+		buffer << " Hits: skill_divisor=" << kColorGrn << hits_skill_divisor_ << kColorNrm
+			   << " max=" << kColorGrn << hits_max_ << kColorNrm
+			   << " prob=" << kColorGrn << hits_prob_ << kColorNrm << "\r\n";
+	}
 }
 
 Damage::Damage(parser_wrapper::DataNode &node) {
@@ -122,6 +127,18 @@ Damage::Damage(parser_wrapper::DataNode &node) {
 		amount_dices_weight_ = (adw && *adw) ? parse::ReadAsDouble(adw) : 1.0;
 		const char *acw = node.GetValue("competencies_weight");
 		amount_competencies_weight_ = (acw && *acw) ? parse::ReadAsDouble(acw) : 1.0;
+		node.GoToParent();
+	}
+	// <hits> is optional (issue.extra-hits); absent -> the spell deals one hit. Individual attrs
+	// also fall back to their member defaults (skill_divisor=25, max=1, prob=20).
+	if (node.GoToChild("hits")) {
+		has_hits_ = true;
+		const char *hsd = node.GetValue("skill_divisor");
+		hits_skill_divisor_ = (hsd && *hsd) ? parse::ReadAsInt(hsd) : hits_skill_divisor_;
+		const char *hmx = node.GetValue("max");
+		hits_max_ = (hmx && *hmx) ? parse::ReadAsInt(hmx) : hits_max_;
+		const char *hpr = node.GetValue("prob");
+		hits_prob_ = (hpr && *hpr) ? parse::ReadAsInt(hpr) : hits_prob_;
 		node.GoToParent();
 	}
 }

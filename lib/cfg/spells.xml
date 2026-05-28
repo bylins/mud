@@ -662,6 +662,7 @@ base_stat id - (например "kWis") какой берем параметр,
             <action>
                 <damage saving="kReflex">
                     <amount min="0" dices_weight="1.0" competencies_weight="43"/>
+                    <hits max="1" prob="20"/>
                 </damage>
                 <area>
                     <decay cast="0.05" level="7" free_targets="3"/>
@@ -692,6 +693,7 @@ base_stat id - (например "kWis") какой берем параметр,
             <action>
                 <damage saving="kReflex">
                     <amount min="0" dices_weight="1.0" competencies_weight="25"/>
+                    <hits skill_divisor="12" max="2" prob="100"/>
                 </damage>
             </action>
         </talent_actions>
@@ -4442,6 +4444,7 @@ base_stat id - (например "kWis") какой берем параметр,
             <action>
                 <damage saving="kStability">
                     <amount min="0" dices_weight="1.0" competencies_weight="102"/>
+                    <hits max="1" prob="14"/>
                 </damage>
                 <area>
                     <decay cast="0.05" level="2" free_targets="3"/>

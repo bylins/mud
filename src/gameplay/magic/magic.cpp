@@ -404,15 +404,27 @@ int CalcHeal(CharData *ch, CharData *victim, ESpell spell_id, [[maybe_unused]] i
 }
 
 /**
- * Calculates the number of additional hits for spells (magic arrows, lightning, etc.)
+ * Number of *extra* hits a multi-hit damage spell deals beyond its single mandatory hit
+ * (issue.extra-hits). The caller adds 1 for the base hit. Three modes:
+ *   - no skill / kUndefined: prob% chance of `max`, else 0;
+ *   - skill + prob > 0:      prob% chance of `extra` (= min(skill,75)/divisor, capped at max), else 0;
+ *   - skill + prob == 0:     random 0..extra (uniform spread of attack count).
+ * The kMagicArrows feat handling lives here as a workaround until skill-interference is unified:
+ * on kMagicMissile with the feat we halve the divisor and triple the max, which reproduces
+ * yesterday's (level+9)/5-vs-(level+9)/10 ratio at the skill cap.
  */
-int CalcExtraHits(CharData *ch, ESkill skill_id, int skill_divisor = 25, int max = 4, int prob = 20) {
+int CalcExtraHits(CharData *ch, ESpell spell_id, ESkill skill_id,
+				  int skill_divisor = 25, int max = 1, int prob = 20) {
+	if (spell_id == ESpell::kMagicMissile && ch && CanUseFeat(ch, EFeat::kMagicArrows)) {
+		skill_divisor = std::max(1, skill_divisor / 2);
+		max = max * 3;
+	}
 	if (ch == nullptr || skill_id == ESkill::kUndefined) {
 		return (number(1, 100) <= prob) ? max : 0;
 	}
 	int extra = CalcNoviceSkillBonus(ch, skill_id, skill_divisor);
 	if (extra > max) extra = max;
-	if (prob == 0) return number(1, extra);
+	if (prob == 0) return number(0, extra);
 	return ((number(1, 100) <= prob) ? extra : 0);
 }
 
@@ -574,24 +586,20 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 	// TODO: kAcidArrow (случайные эффекты), kDispelEvil/Good и kHolystrike
 	// остаются в коде - они завязаны на игровую логику; защитные реакции
 	// (зеркало/барьер/мантия/щит) тоже намеренно оставлены в коде.
+	// Multi-hit count (issue.extra-hits): a damage spell with a <hits> child gets its extra-hit
+	// number from CalcExtraHits; the kMagicArrows feat for kMagicMissile is handled inside it.
+	// Absent <hits> -> count stays at the file-top default of 1 (single hit), which matches the
+	// current behaviour of every non-multi-hit damage spell.
+	if (MUD::Spell(spell_id).actions.Contains(talents_actions::EAction::kDamage)) {
+		const auto &dmg = MUD::Spell(spell_id).actions.GetDmg();
+		if (dmg.HasHits()) {
+			const ESkill hits_skill = MUD::Spell(spell_id).GetPotencyRoll().GetBaseSkill();
+			count = 1 + CalcExtraHits(ch, spell_id, hits_skill,
+									  dmg.GetHitsSkillDivisor(), dmg.GetHitsMax(), dmg.GetHitsProb());
+		}
+	}
+
 	switch (spell_id) {
-		case ESpell::kMagicMissile: {
-			if (CanUseFeat(ch, EFeat::kMagicArrows))
-				count = (level + 9) / 5;
-			else
-				count = (level + 9) / 10;
-			break;
-		}
-		case ESpell::kLightingBolt: {
-				count += ((number(1, 5) == 1) ? 1 : 0);
-				count = std::min(count, 4);
-			break;
-		}
-		case ESpell::kWhirlwind: {
-				count += ((number(1, 7) == 1) ? 1 : 0);
-				count = std::min(count, 4);
-			break;
-		}
 		case ESpell::kAcid: {
 			obj = nullptr;
 			if (victim->IsNpc()) {

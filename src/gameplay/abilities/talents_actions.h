@@ -73,6 +73,8 @@ class Roll {
 	// as the skill bonus for the battle-lag formula (issue.cast-spell-lag).
 	[[nodiscard]] double CalcLowSkillCoeff(const CharData *ch) const;
 	[[nodiscard]] double CalcBaseStatCoeff(const CharData *ch) const;
+	// The roll's key skill (issue.extra-hits: also used as the extra-hits scaling skill).
+	[[nodiscard]] ESkill GetBaseSkill() const { return base_skill_; }
 
 	void Print(CharData *ch, std::ostringstream &buffer) const;
 };
@@ -91,12 +93,23 @@ class Damage : public IAction {
 	double amount_min_{0};                   // flat minimum damage
 	double amount_dices_weight_{1.0};        // weight applied to the potency roll's dice
 	double amount_competencies_weight_{1.0}; // weight applied to the caster's skill+stat competencies
+	// Multi-hit support (issue.extra-hits): a <hits ...> child enables extra-hits computation via
+	// CalcExtraHits. Absent tag -> has_hits_=false -> the spell deals exactly one hit (count=1).
+	// When present, count = 1 + CalcExtraHits(caster, spell_id, base_skill, divisor, max, prob).
+	bool has_hits_{false};
+	int hits_skill_divisor_{25};             // CalcNoviceSkillBonus divisor for the extra-hits bonus
+	int hits_max_{1};                        // upper bound on extra hits
+	int hits_prob_{20};                      // percent chance the bonus fires (0 = random 0..extra)
  public:
 	explicit Damage(parser_wrapper::DataNode &node);
 	[[nodiscard]] int GetProb() const { return prob_; }
 	[[nodiscard]] double GetAmountMin() const { return amount_min_; }
 	[[nodiscard]] double GetAmountDicesWeight() const { return amount_dices_weight_; }
 	[[nodiscard]] double GetAmountCompetenciesWeight() const { return amount_competencies_weight_; }
+	[[nodiscard]] bool HasHits() const { return has_hits_; }
+	[[nodiscard]] int GetHitsSkillDivisor() const { return hits_skill_divisor_; }
+	[[nodiscard]] int GetHitsMax() const { return hits_max_; }
+	[[nodiscard]] int GetHitsProb() const { return hits_prob_; }
 
 	void Print(CharData *ch, std::ostringstream &buffer) const override;
 };
