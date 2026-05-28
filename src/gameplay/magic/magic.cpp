@@ -1838,6 +1838,44 @@ EStageResult CastUnaffects(int/* level*/, CharData *ch, CharData *victim, ESpell
 	return break_chain ? EStageResult::kBreak : EStageResult::kSuccess;
 }
 
+// Try to enchant a weapon. Returns the to_char message to relay to the caster, or nullptr when
+// the caller should fall through to the kNoeffect fallback. Side effects: may consume a reagent
+// (a held magical symbol in MAGIC1/2/3_ENCHANT_VNUM containers), set the obj's enchant, and
+// silently emit kEnchantSetItem when the item is part of a set. Caller is responsible for the
+// (ch, obj) null guard.
+static const char *EnchantWeapon(CharData *ch, ObjData *obj, ESpell spell_id) {
+	// Either already enchanted or not a weapon.
+	if (obj->get_type() != EObjType::kWeapon) {
+		return MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kEnchantNotWeapon).c_str();
+	}
+	if (obj->has_flag(EObjFlag::kMagic)) {
+		return MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kEnchantMagic).c_str();
+	}
+	if (obj->has_flag(EObjFlag::kSetItem)) {
+		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kEnchantSetItem) + "\r\n", ch);
+		return nullptr;
+	}
+
+	auto reagobj = GET_EQ(ch, EEquipPos::kHold);
+	if (reagobj
+		&& (GetObjByVnumInContent(GlobalDrop::MAGIC1_ENCHANT_VNUM, reagobj)
+			|| GetObjByVnumInContent(GlobalDrop::MAGIC2_ENCHANT_VNUM, reagobj)
+			|| GetObjByVnumInContent(GlobalDrop::MAGIC3_ENCHANT_VNUM, reagobj))) {
+		// у нас имеется доп символ для зачарования
+		obj->set_enchant(ch->GetSkill(ESkill::kLightMagic), reagobj);
+		ProcessMatComponents(ch, reagobj->get_rnum(), spell_id); //может неправильный вызов
+	} else {
+		obj->set_enchant(ch->GetSkill(ESkill::kLightMagic));
+	}
+	if (GET_RELIGION(ch) == kReligionMono) {
+		return MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kEnchantMono).c_str();
+	}
+	if (GET_RELIGION(ch) == kReligionPoly) {
+		return MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kEnchantPoly).c_str();
+	}
+	return MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kEnchantOther).c_str();
+}
+
 // When `obj` is null but `victim` isn't, pick a random item from the victim's equipment/
 // inventory. If neither obj nor victim is given there is nothing to act on -- the function
 // exits without effect.
@@ -1928,45 +1966,13 @@ EStageResult CastToAlterObjs(CharData *ch, CharData *victim, ObjData *obj, ESpel
 			}
 			break;
 
-		case ESpell::kEnchantWeapon: {
-			if (ch == nullptr || obj == nullptr) {
+		case ESpell::kEnchantWeapon:
+			// obj is already non-null (guarded above); ch is hypothetically nullable.
+			if (ch == nullptr) {
 				return EStageResult::kSuccess;
 			}
-
-			// Either already enchanted or not a weapon.
-			if (obj->get_type() != EObjType::kWeapon) {
-				to_char = MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kEnchantNotWeapon).c_str();
-				break;
-			} else if (obj->has_flag(EObjFlag::kMagic)) {
-				to_char = MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kEnchantMagic).c_str();
-				break;
-			}
-
-			if (obj->has_flag(EObjFlag::kSetItem)) {
-				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kEnchantSetItem) + "\r\n", ch);
-				break;
-			}
-
-			auto reagobj = GET_EQ(ch, EEquipPos::kHold);
-			if (reagobj
-				&& (GetObjByVnumInContent(GlobalDrop::MAGIC1_ENCHANT_VNUM, reagobj)
-					|| GetObjByVnumInContent(GlobalDrop::MAGIC2_ENCHANT_VNUM, reagobj)
-					|| GetObjByVnumInContent(GlobalDrop::MAGIC3_ENCHANT_VNUM, reagobj))) {
-				// у нас имеется доп символ для зачарования
-				obj->set_enchant(ch->GetSkill(ESkill::kLightMagic), reagobj);
-				ProcessMatComponents(ch, reagobj->get_rnum(), spell_id); //может неправильный вызов
-			} else {
-				obj->set_enchant(ch->GetSkill(ESkill::kLightMagic));
-			}
-			if (GET_RELIGION(ch) == kReligionMono) {
-				to_char = MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kEnchantMono).c_str();
-			} else if (GET_RELIGION(ch) == kReligionPoly) {
-				to_char = MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kEnchantPoly).c_str();
-			} else {
-				to_char = MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kEnchantOther).c_str();
-			}
+			to_char = EnchantWeapon(ch, obj, spell_id);
 			break;
-		}
 		case ESpell::kRemovePoison:
 			if (obj->get_rnum() < 0) {
 				to_char = MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kRemovePoisonUnknown).c_str();
