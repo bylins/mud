@@ -104,7 +104,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <misc pos="kStand" violent="N" danger="1"/>
         <mana max="140" min="120" change="2"/>
         <targets val="kTarCharRoom"/>
-        <flags val="kMagCharRelocate|kNpcDamagePc"/>
+        <flags val="kMagManual|kNpcDamagePc"/>
     </spell>
     <spell id="kBless" element="kLight" mode="kEnabled">
         <name rus="доблесть" eng="bless"/>
@@ -877,7 +877,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="110" min="100" change="2"/>
         <targets val="kTarCharWorld|kTarNotSelf"/>
-        <flags val="kMagCharRelocate"/>
+        <flags val="kMagManual"/>
     </spell>
     <spell id="kPatronage" element="kLight" mode="kEnabled">
         <name rus="покровительство" eng="patronage"/>
@@ -910,7 +910,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="140" min="100" change="4"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
-        <flags val="kMagCharRelocate|kNpcDamagePc"/>
+        <flags val="kMagManual|kNpcDamagePc"/>
     </spell>
     <spell id="kRemovePoison" element="kLife" mode="kEnabled">
         <name rus="удалить яд" eng="remove poison"/>
@@ -1062,7 +1062,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="125" min="120" change="2"/>
         <targets val="kTarIgnore"/>
-        <flags val="kMagGroups|kMagCharRelocate"/>
+        <flags val="kMagGroups|kMagManual"/>
         <talent_actions>
             <action>
                 <area>
@@ -2546,7 +2546,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="200" min="180" change="4"/>
         <targets val="kTarCharWorld"/>
-        <flags val="kMagCharRelocate"/>
+        <flags val="kMagManual"/>
     </spell>
     <spell id="kPortalTimer" element="kLight" mode="kEnabled">
         <name rus="врата" eng="portal"/>
@@ -2645,7 +2645,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="140" min="120" change="2"/>
         <targets val="kTarCharWorld"/>
-        <flags val="kMagCharRelocate"/>
+        <flags val="kMagManual"/>
     </spell>
     <spell id="kSummonFirekeeper" element="kFire" mode="kEnabled">
         <name rus="огненный защитник" eng="fire keeper"/>

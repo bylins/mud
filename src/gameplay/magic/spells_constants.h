@@ -336,7 +336,7 @@ enum EMagic : Bitvector {
 	kMagManual = 1 << 10,
 	kMagWarcry = 1 << 11,
 	kMagNeedControl = 1 << 12,
-	kMagCharRelocate = 1 << 13,
+	// Bit 13 used to be kMagCharRelocate; folded into kMagManual.
 // А чего это тут дырка Ж)
 	kNpcDamagePc = 1 << 16,
 	kNpcDamagePcMinhp = 1 << 17,

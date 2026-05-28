@@ -2071,10 +2071,8 @@ EStageResult CastCreation(int/* level*/, CharData *ch, ESpell spell_id) {
 	return EStageResult::kSuccess;
 }
 
-// Dispatch for spells that have hand-coded handlers in spells.cpp. Both the kMagManual flag
-// (general-purpose handlers) and the kMagCharRelocate flag (movement-style handlers that take
-// only caster + victim) route here -- the recall/teleport/portal cases just ignore the unused
-// `level` / `ovict` arguments. CallMagic dispatches both flags to this function.
+// Dispatch for spells whose effect is a hand-coded handler in spells.cpp (the kMagManual flag).
+// Some handlers take only (caster, cvict) and ignore the unused `level` / `ovict` arguments.
 EStageResult CastManual(int level, CharData *caster, CharData *cvict, ObjData *ovict, ESpell spell_id) {
 	switch (spell_id) {
 		case ESpell::kControlWeather: SpellControlWeather(level, caster, cvict, ovict);
@@ -2102,8 +2100,7 @@ EStageResult CastManual(int level, CharData *caster, CharData *cvict, ObjData *o
 			break;
 		case ESpell::kVampirism: SpellVampirism(level, caster, cvict, ovict);
 			break;
-		// Char-relocate spells (previously a separate CastCharRelocate stage). Their handlers take
-		// only (caster, cvict); `level` and `ovict` are ignored.
+		// Movement-style spells whose handlers take only (caster, cvict).
 		case ESpell::kGroupRecall:
 		case ESpell::kWorldOfRecall: SpellRecall(caster, cvict);
 			break;
@@ -2350,9 +2347,7 @@ int CastToSingleTarget(CharData *caster, CharData *cvict, ObjData *ovict, CastRo
 		return 1;
 	}
 
-	// CastManual now handles both kMagManual (general-purpose handlers) and kMagCharRelocate
-	// (movement handlers); the former CastCharRelocate stage was folded into it.
-	if ((MUD::Spell(spell_id).IsFlagged(kMagManual) || MUD::Spell(spell_id).IsFlagged(kMagCharRelocate))
+	if (MUD::Spell(spell_id).IsFlagged(kMagManual)
 			&& CastManual(abs(level), caster, cvict, ovict, spell_id) == EStageResult::kBreak) {
 		return 1;
 	}
