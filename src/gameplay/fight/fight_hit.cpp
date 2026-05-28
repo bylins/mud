@@ -1008,6 +1008,7 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 		return;
 	}
 	//Рассчёт шанса точного стиля:
+	bool paladine_inspiration = false;
 	if (!IS_CHARMICE(ch) && ch->battle_affects.get(kEafPunctual) && ch->punctual_wait <= 0 && ch->get_wait() <= 0
 		&& (hit_params.diceroll >= 18 - AFF_FLAGGED(victim, EAffect::kHold))) {
 		SkillRollResult result = MakeSkillTest(ch, ESkill::kPunctual, victim);
@@ -1025,7 +1026,7 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 			if (!ch->IsImmortal()) {
 				PUNCTUAL_WAIT_STATE(ch, 2 * kBattleRound);
 			}
-			CallMagic(ch, victim, nullptr, nullptr, ESpell::kPaladineInspiration, GetRealLevel(ch));
+			paladine_inspiration = true;
 		}
 	}
 
@@ -1037,6 +1038,11 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 
 	// обработка защитных скилов (захват, уклон, парир, веер, блок)
 	hit_params.ProcessDefensiveAbilities(ch, victim);
+
+	// kPaladineInspiration - только если удар не заблокирован полностью
+	if (paladine_inspiration && hit_params.dam > 0) {
+		CallMagic(ch, victim, nullptr, nullptr, ESpell::kPaladineInspiration, GetRealLevel(ch));
+	}
 
 	// итоговый дамаг
 	ch->send_to_TC(false, true, true, "&CНанёс: Регуляр дамаг = %d&n\r\n", hit_params.dam);
