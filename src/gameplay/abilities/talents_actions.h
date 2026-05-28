@@ -29,14 +29,24 @@ enum class EAction {
 	kUnaffect
 };
 
-// A set of mob flags (EMobFlag, from an NPC prototype) and affect flags (EAffect) used by the
-// action-level <blocking>/<required> tags (issue.cast-affect). For <blocking> the target must
-// have NONE of them (any present blocks the cast); for <required> the target must have ALL of
-// them (any missing blocks). Mob flags are meaningful only on NPCs.
+// Alignment selector for the action-level <blocking align=>/<required align=> attribute
+// (issue.cast-dmg-migration). kAny = no alignment check (the attribute is absent). kGood/kEvil
+// map to the IS_GOOD / IS_EVIL macros (i.e. the +/-300 alignment thresholds in utils.h). The
+// neutral band is intentionally not addressable here; only the two strong alignments are.
+enum class EAlign { kAny, kGood, kEvil };
+
+// A set of mob flags (EMobFlag, from an NPC prototype), affect flags (EAffect) and an optional
+// alignment selector used by the action-level <blocking>/<required> tags (issue.cast-affect +
+// issue.cast-dmg-migration). For <blocking> the target must have NONE of them (any present
+// blocks the cast); for <required> the target must have ALL of them (any missing blocks).
+// Mob flags are meaningful only on NPCs. align kAny means "no alignment check on this side".
 struct FlagCondition {
 	std::vector<EMobFlag> mob_flags;
 	std::vector<EAffect> affect_flags;
-	[[nodiscard]] bool empty() const { return mob_flags.empty() && affect_flags.empty(); }
+	EAlign align{EAlign::kAny};
+	[[nodiscard]] bool empty() const {
+		return mob_flags.empty() && affect_flags.empty() && align == EAlign::kAny;
+	}
 };
 
 class IAction {

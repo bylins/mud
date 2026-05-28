@@ -346,6 +346,11 @@ void PrintFlagCondition(const char *label, const FlagCondition &cond, std::ostri
 	for (const auto flag : cond.affect_flags) {
 		buffer << " " << kColorGrn << NAME_BY_ITEM<EAffect>(flag) << kColorNrm;
 	}
+	if (cond.align == EAlign::kGood) {
+		buffer << " align=" << kColorGrn << "kGood" << kColorNrm;
+	} else if (cond.align == EAlign::kEvil) {
+		buffer << " align=" << kColorGrn << "kEvil" << kColorNrm;
+	}
 	buffer << "\r\n";
 }
 }  // namespace
@@ -395,6 +400,19 @@ void Actions::ParseFlagCondition(FlagCondition &cond, parser_wrapper::DataNode &
 	if (aff && *aff) {
 		for (const auto &flag_name : utils::Split(aff, '|')) {
 			cond.affect_flags.push_back(parse::ReadAsConstant<EAffect>(flag_name.c_str()));
+		}
+	}
+	// align (issue.cast-dmg-migration): blocking/required tied to the target's alignment via
+	// the IS_GOOD / IS_EVIL macros. Absent = no alignment check; "kGood" / "kEvil" are the
+	// only valid values (the neutral band is unaddressable).
+	const char *align = node.GetValue("align");
+	if (align && *align) {
+		if (strcmp(align, "kGood") == 0) {
+			cond.align = EAlign::kGood;
+		} else if (strcmp(align, "kEvil") == 0) {
+			cond.align = EAlign::kEvil;
+		} else {
+			err_log("Actions: unknown EAlign '%s' in <blocking/required align>.", align);
 		}
 	}
 }

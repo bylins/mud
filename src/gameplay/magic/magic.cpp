@@ -2269,6 +2269,14 @@ static bool TargetIsBlocked(CharData *victim, const talents_actions::FlagConditi
 			return true;
 		}
 	}
+	// align (issue.cast-dmg-migration): blocks the cast when the target carries the matching
+	// alignment (IS_GOOD / IS_EVIL). kAny means no alignment block.
+	if (cond.align == talents_actions::EAlign::kGood && IS_GOOD(victim)) {
+		return true;
+	}
+	if (cond.align == talents_actions::EAlign::kEvil && IS_EVIL(victim)) {
+		return true;
+	}
 	return false;
 }
 
@@ -2284,6 +2292,14 @@ static bool TargetMeetsRequired(CharData *victim, const talents_actions::FlagCon
 		if (!AFF_FLAGGED(victim, aff)) {
 			return false;
 		}
+	}
+	// align (issue.cast-dmg-migration): require the target to carry the matching alignment
+	// (IS_GOOD / IS_EVIL). kAny means no alignment requirement.
+	if (cond.align == talents_actions::EAlign::kGood && !IS_GOOD(victim)) {
+		return false;
+	}
+	if (cond.align == talents_actions::EAlign::kEvil && !IS_EVIL(victim)) {
+		return false;
 	}
 	return true;
 }
