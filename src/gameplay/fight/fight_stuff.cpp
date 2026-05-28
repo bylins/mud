@@ -3,6 +3,7 @@
 #include <random>
 
 #include "gameplay/affects/affect_data.h"
+#include "gameplay/magic/magic.h"
 #include "gameplay/mechanics/dead_load.h"
 #include "gameplay/mechanics/dungeons.h"
 #include "gameplay/ai/mobact.h"

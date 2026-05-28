@@ -1,4 +1,5 @@
 #include "engine/entities/char_data.h"
+#include "gameplay/magic/magic.h"
 #include "skill_messages.h"
 #include "engine/core/handler.h"
 #include "engine/db/global_objects.h"

@@ -20,7 +20,9 @@ enum EAffFlag : Bitvector {
   kAfSameTime			= 1u << 3,	// тикает раз в две секунды для PC, раз в минуту для NPC, или во время раунда в бою (чтобы не между раундами)
   kAfUpdateDuration		= 1u << 4,
   kAfAccumulateDuration	= 1u << 5,
-  kAfUpdateMod			= 1u << 6
+  kAfUpdateMod			= 1u << 6,
+  kAfDispellable		= 1u << 7,	// аффект можно снять магией (источник истины для CheckNodispel)
+  kAfCurable			= 1u << 8	// аффект можно вылечить (первая помощь и будущая механика лечения)
 };
 
 /**

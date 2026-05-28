@@ -1638,14 +1638,11 @@ EStageResult CastToPoints(int level, CharData *ch, CharData *victim, ESpell spel
 }
 
 bool CheckNodispel(const Affect<EApply>::shared_ptr &affect) {
-	return !affect
-		|| MUD::Spell(affect->type).IsInvalid()
-		|| affect->affect_type == EAffect::kCharmed
-		|| affect->type == ESpell::kCharm
-		|| affect->type == ESpell::kQUest
-		|| affect->type == ESpell::kPatronage
-		|| affect->type == ESpell::kSolobonus
-		|| affect->type == ESpell::kEviless;
+	// issue.affect-dispell-flags: an affect is dispellable iff it carries the kAfDispellable flag
+	// (set in spells.xml on every affect except the charm/quest/patronage/solobonus/eviless ones).
+	// The flag is the single source of truth -- anything unflagged (those effects, or any affect
+	// applied outside <affects> in code) is irremovable by design.
+	return !affect || !IS_SET(affect->battleflag, kAfDispellable);
 }
 
 namespace {
