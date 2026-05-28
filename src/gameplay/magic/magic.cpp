@@ -813,6 +813,122 @@ static void ApplyTalentAffect(CharData *victim, Affect<EApply> &af, Bitvector fl
 	affect_to_char(victim, af);
 }
 
+// Apply the spell's <affects> talent block to `victim`, returning whether the affect actually
+// landed. Three exit paths return false:
+//   - the prob roll missed -> silent miss (no message),
+//   - a saving throw averted the affect -> "no effect" to the caster,
+//   - the affect was already present and the spell doesn't accumulate/update -> "no effect".
+// On success, every ordinary apply is imposed; among the random-flagged ones a single uniformly-
+// chosen winner (reservoir sampling) is also imposed. The duration is computed once for all
+// applies, then each apply's modifier is derived from the cast's potency roll. Every imposed
+// affect records the cast's potency and debuff nature so a later dispel can be strength-gated.
+static bool TryApplyAffectTalent(CharData *ch, CharData *victim, ESpell spell_id, int modi,
+								 const RollResult &potency, float cast_potency, bool cast_debuff) {
+	const auto &talent = MUD::Spell(spell_id).actions.GetAffect();
+	// prob: percent chance the <affects> block fires at all (default 100, silent miss on fail).
+	// Skipping it suppresses the affect, its lag and its reposition (gated by the caller).
+	// The prob<100 guard short-circuits the RNG when the spell always fires.
+	const int aff_prob = talent.GetProb();
+	if (aff_prob < 100 && number(1, 100) > aff_prob) {
+		return false;
+	}
+	// The affect-resist (GET_AR) debuff block is handled up front (see top of CastAffect);
+	// here only the saving throw can still avert the affect (kNone saving -> CalcGeneralSaving
+	// returns false, so no save is taken).
+	if (ch != victim && CalcGeneralSaving(ch, victim, talent.GetSaving(), modi)) {
+		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
+		return false;
+	}
+	const Bitvector flags = talent.GetFlags();
+	const bool can_reapply = IS_SET(flags, to_underlying(EAffFlag::kAfAccumulateDuration))
+		|| IS_SET(flags, to_underlying(EAffFlag::kAfUpdateDuration));
+	if (ch != victim && IsAffectedBySpell(victim, talent.GetSpell()) && !can_reapply) {
+		if (ch->in_room == victim->in_room) {
+			SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
+		}
+		return false;
+	}
+	// skill-based duration. The bonus uses the caster's potency-roll base_skill (kUndefined for
+	// spells without a <potency_roll> -> flat duration). `victim` decides the unit (PC: hours ->
+	// ticks; NPC: raw), preserving today's tick-unit semantics.
+	const ESkill duration_skill = MUD::Spell(spell_id).GetPotencyRoll().GetBaseSkill();
+	int duration = ApplyResist(victim, talent.GetResist(),
+		CalcDuration(ch, victim, duration_skill,
+					 talent.GetDurationBase(), talent.GetDurationSkillDivisor(),
+					 talent.GetDurationMin(), talent.GetDurationMax()));
+	duration = CalcComplexSpellMod(ch, spell_id, GAPPLY_SPELL_EFFECT, duration);
+	const double competencies = potency.skill_coeff + potency.stat_coeff;
+	auto apply_one = [&](const talents_actions::TalentAffect::Apply &apply) {
+		double raw = competencies * apply.competencies_weight + potency.dices * apply.dices_weight;
+		double modifier = apply.min + std::ceil(raw);
+		Affect<EApply> taf;
+		taf.type = talent.GetSpell();
+		taf.affect_type = apply.id;
+		taf.location = apply.location;
+		taf.duration = duration;
+		taf.modifier = static_cast<int>(apply.factor * modifier);
+		taf.battleflag = flags;
+		taf.caster_id = ch->get_uid();
+		taf.potency = cast_potency;
+		taf.debuff = cast_debuff;
+		// apply.stack is the max stack count: re-applying up to the cap adds a stack and
+		// accumulates the modifier (see ApplyTalentAffect).
+		ApplyTalentAffect(victim, taf, flags, apply.stack);
+	};
+	// Apply every ordinary apply; among the random-flagged ones (the "random" attribute) impose
+	// a single uniformly-chosen winner (reservoir sampling).
+	const talents_actions::TalentAffect::Apply *random_choice = nullptr;
+	int random_seen = 0;
+	for (const auto &apply: talent.GetApplies()) {
+		if (apply.random) {
+			if (number(1, ++random_seen) == 1) {
+				random_choice = &apply;
+			}
+		} else {
+			apply_one(apply);
+		}
+	}
+	if (random_choice) {
+		apply_one(*random_choice);
+	}
+	return true;
+}
+
+// On a successfully-landed affect, emit the side effects: battle lag, forced reposition, poison
+// owner tag, and the imposition messages. The lag/reposition pair is gated on the spell having an
+// <affects> talent (where they live); the poison tag and messages apply to any successful cast.
+static void EmitImpositionEffects(CharData *ch, CharData *victim, ESpell spell_id,
+								  const RollResult &potency) {
+	if (MUD::Spell(spell_id).actions.Contains(talents_actions::EAction::kAffect)) {
+		const auto &side = MUD::Spell(spell_id).actions.GetAffect();
+		// Battle lag: <affects> with <lag> delays the victim once the affect lands. Constant-lag
+		// spells use a non-positive bonus_divisor; skill-scaling ones add
+		// potency.low_skill_coeff / bonus_divisor.
+		if (side.HasLag()) {
+			SetBattleLag(victim, potency.low_skill_coeff, side.GetLagBase(), side.GetLagBonusDivisor());
+		}
+		// Forced reposition / fight-stop: e.g. kSleep knocks to kSleep, kPeaceful stops the fight
+		// (pos kUndefined). Runs after the saving/affect-resist gate, so the position only changes
+		// when the debuff actually lands.
+		if (side.HasReposition()) {
+			ForceReposition(victim, spell_id, side.GetRepositionPos(), side.GetRepositionStopFight());
+		}
+	}
+	// вот некрасиво же тут это делать...
+	if (spell_id == ESpell::kPoison) {
+		victim->poisoner = ch->get_uid();
+	}
+	// Affect imposition messages: looked up by the cast spell and emitted sheaf-directly, so a
+	// spell with no such message shows nothing.
+	const auto &imposed = MUD::SpellMessages()[spell_id];
+	const auto &to_vict = imposed.GetMessage(ESpellMsg::kAffImposedToChar);
+	const auto &to_room = imposed.GetMessage(ESpellMsg::kAffImposedToRoom);
+	if (!to_vict.empty())
+		act(to_vict.c_str(), false, victim, nullptr, ch, kToChar);
+	if (!to_room.empty())
+		act(to_room.c_str(), true, victim, nullptr, ch, kToRoom | kToArenaListen);
+}
+
 EStageResult CastAffect(int level, CharData *ch, CharData *victim, const ESpell spell_id, const RollResult &potency) {
 	if (victim == nullptr || victim->in_room == kNowhere || ch == nullptr) {
 		return EStageResult::kSuccess;
@@ -890,116 +1006,17 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, const ESpell 
 	const float cast_potency = static_cast<float>(potency.dices + potency.skill_coeff + potency.stat_coeff);
 	const bool cast_debuff = MUD::Spell(spell_id).IsViolent();
 
-	// Affect talent actions: spells that declare <affects> apply them
-	// here. The saving throw uses the talent's own saving; the duration is computed
-	// once for all applies; each apply's modifier is derived from the cast's potency
-	// roll; and the EAffFlag flags drive the per-apply update/accumulate behavior.
-	// `success` tracks whether the affect actually landed: a save or re-cast guard clears
-	// it inside the block, which then suppresses the imposition messages/lag below.
+	// A spell without an <affects> block has no affect to apply -- `success` stays true so the
+	// poison/message side-effects still fire for any non-affect-talent path.
 	bool success = true;
 	if (has_affect_talent) {
-		const auto &talent = MUD::Spell(spell_id).actions.GetAffect();
-		// prob: percent chance the <affects> block fires at all (default 100, silent miss on fail).
-		// Skipping it suppresses the affect, its lag and its reposition (gated by `success`).
-		// The prob<100 guard short-circuits the RNG when the spell always fires.
-		const int aff_prob = talent.GetProb();
-		// The affect-resist (GET_AR) debuff block is handled up front (see top of CastAffect);
-		// here only the saving throw can still avert the affect (kNone saving -> CalcGeneralSaving
-		// returns false, so no save is taken).
-		if (aff_prob < 100 && number(1, 100) > aff_prob) {
-			success = false;
-		} else if (ch != victim && CalcGeneralSaving(ch, victim, talent.GetSaving(), modi)) {
-			SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
-			success = false;
-		} else {
-			const Bitvector flags = talent.GetFlags();
-			const bool can_reapply = IS_SET(flags, to_underlying(EAffFlag::kAfAccumulateDuration))
-				|| IS_SET(flags, to_underlying(EAffFlag::kAfUpdateDuration));
-			if (ch != victim && IsAffectedBySpell(victim, talent.GetSpell()) && !can_reapply) {
-				if (ch->in_room == victim->in_room) {
-					SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
-				}
-				success = false;
-			} else {
-				// skill-based duration. The bonus uses the caster's
-				// potency-roll base_skill (kUndefined for spells without a <potency_roll> -> flat
-				// duration). `victim` decides the unit (PC: hours -> ticks; NPC: raw), preserving
-				// today's tick-unit semantics.
-				const ESkill duration_skill = MUD::Spell(spell_id).GetPotencyRoll().GetBaseSkill();
-				int duration = ApplyResist(victim, talent.GetResist(),
-					CalcDuration(ch, victim, duration_skill,
-								 talent.GetDurationBase(), talent.GetDurationSkillDivisor(),
-								 talent.GetDurationMin(), talent.GetDurationMax()));
-				duration = CalcComplexSpellMod(ch, spell_id, GAPPLY_SPELL_EFFECT, duration);
-				const double competencies = potency.skill_coeff + potency.stat_coeff;
-				auto apply_one = [&](const talents_actions::TalentAffect::Apply &apply) {
-					double raw = competencies * apply.competencies_weight + potency.dices * apply.dices_weight;
-					double modifier = apply.min + std::ceil(raw);
-					Affect<EApply> taf;
-					taf.type = talent.GetSpell();
-					taf.affect_type = apply.id;
-					taf.location = apply.location;
-					taf.duration = duration;
-					taf.modifier = static_cast<int>(apply.factor * modifier);
-					taf.battleflag = flags;
-					taf.caster_id = ch->get_uid();
-					taf.potency = cast_potency;
-					taf.debuff = cast_debuff;
-					// apply.stack is the max stack count: re-applying up to the
-					// cap adds a stack and accumulates the modifier (see ApplyTalentAffect).
-					ApplyTalentAffect(victim, taf, flags, apply.stack);
-				};
-				// Apply every ordinary apply; among the random-flagged ones (the "random"
-				// attribute) impose a single uniformly-chosen winner (reservoir sampling).
-				const talents_actions::TalentAffect::Apply *random_choice = nullptr;
-				int random_seen = 0;
-				for (const auto &apply: talent.GetApplies()) {
-					if (apply.random) {
-						if (number(1, ++random_seen) == 1) {
-							random_choice = &apply;
-						}
-					} else {
-						apply_one(apply);
-					}
-				}
-				if (random_choice) {
-					apply_one(*random_choice);
-				}
-			}
-		}
+		success = TryApplyAffectTalent(ch, victim, spell_id, modi, potency, cast_potency, cast_debuff);
 	}
 
 	affect_total(victim);
 
 	if (success) {
-		// Battle lag: a spell whose <affects> declares <lag> delays the
-		// victim once the affect lands. Constant-lag spells use a non-positive bonus_divisor;
-		// skill-scaling ones add potency.low_skill_coeff / bonus_divisor.
-		if (has_affect_talent) {
-			const auto &side = MUD::Spell(spell_id).actions.GetAffect();
-			if (side.HasLag()) {
-				SetBattleLag(victim, potency.low_skill_coeff, side.GetLagBase(), side.GetLagBonusDivisor());
-			}
-			// Forced reposition / fight-stop: e.g. kSleep knocks to kSleep,
-			// kPeaceful stops the fight (pos kUndefined). Runs after the saving/affect-resist
-			// gate, so the position only changes when the debuff actually lands.
-			if (side.HasReposition()) {
-				ForceReposition(victim, spell_id, side.GetRepositionPos(), side.GetRepositionStopFight());
-			}
-		}
-		// вот некрасиво же тут это делать...
-		if (spell_id == ESpell::kPoison)
-			victim->poisoner = ch->get_uid();
-		// Affect imposition messages: looked up by the cast spell and emitted
-		// sheaf-directly, so a spell with no such message shows nothing.
-		const auto &imposed = MUD::SpellMessages()[spell_id];
-		const auto &to_vict = imposed.GetMessage(ESpellMsg::kAffImposedToChar);
-		const auto &to_room = imposed.GetMessage(ESpellMsg::kAffImposedToRoom);
-		if (!to_vict.empty())
-			act(to_vict.c_str(), false, victim, nullptr, ch, kToChar);
-		if (!to_room.empty())
-			act(to_room.c_str(), true, victim, nullptr, ch, kToRoom | kToArenaListen);
-		return EStageResult::kSuccess;
+		EmitImpositionEffects(ch, victim, spell_id, potency);
 	}
 	return EStageResult::kSuccess;
 }
