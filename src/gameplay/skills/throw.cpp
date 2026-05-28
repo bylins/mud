@@ -59,7 +59,7 @@ void PerformShadowThrowSideAbilities(abilities_roll::TechniqueRoll &technique) {
 				Affect<EApply> af;
 				af.type = ESpell::kBattle;
 				af.affect_type = EAffect::kSilence;
-				af.duration = CalcDuration(technique.GetActor(), technique.GetRival(), ESkill::kDarkMagic, 2, 23, 6, 2);
+				af.duration = CalcDuration(technique.GetActor(), technique.GetRival(), ESkill::kDarkMagic, 2, 23, 2, 6);
 				af.battleflag = kAfBattledec | kAfPulsedec;
 				ImposeAffect(technique.GetRival(), af, false, false, false, false);
 			});
