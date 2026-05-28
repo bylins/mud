@@ -628,42 +628,11 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 		}
 		// kClod knockdown+lag is data-driven now (issue.cast-damage-affects): <affects saving="kReflex">
 		// with <reposition pos="kSit"/> + <lag base="2" bonus_divisor="-1"/>. No case needed.
-		case ESpell::kAcidArrow: {
-	      // шанс доп аффекта 25% при 100% магии, 45 - 200, 85 -400..
-			if (number(1, 100)>(5 + (ch->GetSkill(GetMagicSkillId(spell_id))/5))) { 
-			 	break;
-			 }
-			int rnd = number(1, 5);
-			switch (rnd) {
-				case 1: // обожгло глотку - молча
-				act("Кислота плеснула на горло $n1", false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
-				act("Жуткая кислота опалила ваше горло!", false, victim, nullptr, nullptr, kToChar);
-				CastAffect(level, ch, victim, ESpell::kSilence); 
-					break;
-				case 2: // телесный ожог - лихорадка
-				act("$n покрылся язвами по всему телу.", false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
-				act("Кислота причинила вам жуткие ожоги кожи!", false, victim, nullptr, nullptr, kToChar);
-				CastAffect(level, ch, victim, ESpell::kFever); 
-					break;
-				case 3: // ядовитые испарения - яд
-				act("$n позеленел от действия кислотной стрелы.", false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
-				act("Кислота обожгла вам все тело!", false, victim, nullptr, nullptr, kToChar);
-				CastAffect(level, ch, victim, ESpell::kPoison); 
-					break;
-				case 4: // обожгло глаза - слепота
-				act("Часть кислоты попала в глаза $n3.", false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
-				act("Кислотные испарения выедают вам глаза!", false, victim, nullptr, nullptr, kToChar);
-				CastAffect(level, ch, victim, ESpell::kBlindness); 
-					break;
-				case 5: // обожгот экип - кислотой
-				act("Кислота покрыла доспехи $n3.", false, victim, nullptr, nullptr, kToRoom | kToArenaListen);
-				act("Кислота покрыла ваши доспехи.", false, victim, nullptr, nullptr, kToChar);
-				CastDamage(level, ch, victim, ESpell::kAcid); 
-					break;
-				default:break;
-			}	
-			break;
-		}
+		// kAcidArrow is fully data-driven now (issue.cast-dmg-migration): its damage uses kAcid's
+		// <amount> weights scaled by 1.4, its four random debuffs (silence/fever/poison/blindness)
+		// live in an <affects> block with prob=15 + four <apply random="true">; the old
+		// CalcCurrentSkill gate and the per-case act() messages are dropped (the standard affect
+		// messages communicate what happened).
 		case ESpell::kEarthquake: {
 			if (ch->IsOnHorse()) {
 				rand = number(1, 100);

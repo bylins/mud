@@ -4494,8 +4494,24 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <damage saving="kReflex">
-                    <amount min="0" dices_weight="1.0" competencies_weight="335"/>
+                    <amount min="0" dices_weight="1.4" competencies_weight="120"/>
                 </damage>
+                <affects type="kAcidArrow" saving="kStability" resist="kImmunity" prob="15">
+                    <duration base="2" skill_divisor="20" min="3" max="0"/>
+                    <flags val="kAfBattledec|kAfDispellable|kAfCurable"/>
+                    <apply random="true" id="kSilence" location="kNone">
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
+                    </apply>
+                    <apply random="true" id="kUndefinded" location="kPlague">
+                        <modifier min="30.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
+                    </apply>
+                    <apply random="true" id="kPoisoned" location="kPoison">
+                        <modifier min="30.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
+                    </apply>
+                    <apply random="true" id="kBlind" location="kNone">
+                        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
+                    </apply>
+                </affects>
                 <area>
                     <decay cast="0.05" level="2" free_targets="3"/>
                     <victims skill_divisor="10" dice_size="3" min_targets="5" max_targets="20"/>
