@@ -1684,6 +1684,50 @@ bool DispelSucceeds(CharData *ch, CharData *victim, ESpell dispel_spell, ESpell 
 			roll.RollSkillDices() + roll.CalcSkillCoeff(ch) + roll.CalcBaseStatCoeff(ch)) * potency_weight;
 	return spell_potency > affect_potency;
 }
+
+// kDispellMagic strips a *single random* dispellable affect from the victim. The set of eligible
+// affects is filtered by the spell's <unaffect affect_flags=> (default kAfCurable|kAfDispellable);
+// of those, one is picked uniformly and removed iff the potency check passes. Nothing to remove,
+// or a resisted potency check, prints "no effect" to the caster. Kept as a dedicated path because
+// "pick one at random" cannot be expressed as an <unaffect> any_of/all_of list.
+EStageResult DispelRandomAffect(CharData *ch, CharData *victim, ESpell spell_id) {
+	// poisons carry kAfCurable but not kAfDispellable, so "dispel magic" won't clear them.
+	const Bitvector flags = MUD::Spell(spell_id).actions.Contains(talents_actions::EAction::kUnaffect)
+		? MUD::Spell(spell_id).actions.GetUnaffect().GetAffectFlags()
+		: static_cast<Bitvector>(kAfCurable | kAfDispellable);
+	int dispellable = 0;
+	for (const auto &aff : victim->affected) {
+		if (AffectMatchesFlags(aff, flags)) {
+			++dispellable;
+		}
+	}
+	if (dispellable == 0) {
+		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
+		return EStageResult::kSuccess;
+	}
+	const auto target = number(1, dispellable);
+	auto seen = 0;
+	auto to_remove{ESpell::kUndefined};
+	for (const auto &aff : victim->affected) {
+		if (!AffectMatchesFlags(aff, flags)) {
+			continue;
+		}
+		if (++seen == target) {
+			to_remove = aff->type;
+			break;
+		}
+	}
+	if (to_remove != ESpell::kUndefined) {
+		const float pw = MUD::Spell(spell_id).actions.Contains(talents_actions::EAction::kUnaffect)
+			? MUD::Spell(spell_id).actions.GetUnaffect().GetPotencyWeight() : 1.0f;
+		if (DispelSucceeds(ch, victim, spell_id, to_remove, pw)) {
+			RemoveAffectAndAnnounce(ch, victim, to_remove);
+		} else {
+			SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
+		}
+	}
+	return EStageResult::kSuccess;
+}
 }  // namespace
 
 EStageResult CastUnaffects(int/* level*/, CharData *ch, CharData *victim, ESpell spell_id) {
@@ -1704,43 +1748,7 @@ EStageResult CastUnaffects(int/* level*/, CharData *ch, CharData *victim, ESpell
 	// kDispellMagic strips a *random* dispellable affect, which cannot be expressed as an
 	// <unaffect> any_of/all_of list -- it keeps its dedicated code path.
 	if (spell_id == ESpell::kDispellMagic) {
-		// kDispellMagic dispels only what its <unaffect affect_flags=> allows (kAfDispellable):
-		// poisons carry kAfCurable but not kAfDispellable, so "dispel magic" won't clear them.
-		const Bitvector flags = MUD::Spell(spell_id).actions.Contains(talents_actions::EAction::kUnaffect)
-			? MUD::Spell(spell_id).actions.GetUnaffect().GetAffectFlags()
-			: static_cast<Bitvector>(kAfCurable | kAfDispellable);
-		int dispellable = 0;
-		for (const auto &aff : victim->affected) {
-			if (AffectMatchesFlags(aff, flags)) {
-				++dispellable;
-			}
-		}
-		if (dispellable == 0) {
-			SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
-			return EStageResult::kSuccess;
-		}
-		const auto target = number(1, dispellable);
-		auto seen = 0;
-		auto to_remove{ESpell::kUndefined};
-		for (const auto &aff : victim->affected) {
-			if (!AffectMatchesFlags(aff, flags)) {
-				continue;
-			}
-			if (++seen == target) {
-				to_remove = aff->type;
-				break;
-			}
-		}
-		if (to_remove != ESpell::kUndefined) {
-			const float pw = MUD::Spell(spell_id).actions.Contains(talents_actions::EAction::kUnaffect)
-				? MUD::Spell(spell_id).actions.GetUnaffect().GetPotencyWeight() : 1.0f;
-			if (DispelSucceeds(ch, victim, spell_id, to_remove, pw)) {
-				RemoveAffectAndAnnounce(ch, victim, to_remove);
-			} else {
-				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
-			}
-		}
-		return EStageResult::kSuccess;
+		return DispelRandomAffect(ch, victim, spell_id);
 	}
 
 	// Every other unaffect spell is fully data-driven: the <unaffect> block
