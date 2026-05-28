@@ -132,12 +132,10 @@ int GetBasicSave(CharData *ch, ESaving saving, bool log) {
 			save -= bonus_saving[GetRealCon(ch) - 1];
 			if (ch->IsOnHorse()) {
 				save -= 20;
-				// issue.cast-dmg-migration: kRiding boosts on-horse stability save (replaces the
-				// kEarthquake-specific dismount check that used to live in CastDamage).
 				save -= ch->GetSkill(ESkill::kRiding) / 25;
 			}
 			break;
-		case ESaving::kWill: 
+		case ESaving::kWill:
 			save -= bonus_saving[GetRealWis(ch) - 1];
 			break;
 		case ESaving::kCritical: 
@@ -410,8 +408,8 @@ int CalcHeal(CharData *ch, CharData *victim, ESpell spell_id, [[maybe_unused]] i
 }
 
 /**
- * Number of *extra* hits a multi-hit damage spell deals beyond its single mandatory hit
- * (issue.extra-hits). The caller adds 1 for the base hit. Three modes:
+ * Number of *extra* hits a multi-hit damage spell deals beyond its single mandatory hit.
+ * The caller adds 1 for the base hit. Three modes:
  *   - no skill / kUndefined: prob% chance of `max`, else 0;
  *   - skill + prob > 0:      prob% chance of `extra` (= min(skill,75)/divisor, capped at max), else 0;
  *   - skill + prob == 0:     random 0..extra (uniform spread of attack count).
@@ -441,9 +439,7 @@ int CalcExtraHits(CharData *ch, ESpell spell_id, ESkill skill_id,
 // Knock the victim down to position `pos` (with the spell's kKnockdown* messages) and/or
 // force the fight to stop. Passing EPosition::kUndefined as `pos` changes no position at all
 // -- only the force_stopfight branch runs (in the engine, the "fighting" state is itself part
-// of the position system, so stopping a fight is a position change in that sense). The
-// affect-resist (GET_AR) check that used to gate this moved to the CastAffect saving block,
-// where it blocks the whole debuff (issue.cast-affect).
+// of the position system, so stopping a fight is a position change in that sense).
 void ForceReposition(CharData *victim, ESpell spell_id, EPosition pos, bool force_stopfight = false) {
 	if (victim->IsImmortal()) {
 		return;
@@ -473,7 +469,7 @@ void ForceReposition(CharData *victim, ESpell spell_id, EPosition pos, bool forc
 int CalcTotalSpellDmg(CharData *ch, CharData *victim, ESpell spell_id) {
 	const auto &potency_roll = MUD::Spell(spell_id).GetPotencyRoll();
 	const bool has_dmg = MUD::Spell(spell_id).actions.Contains(talents_actions::EAction::kDamage);
-	// prob (issue.damage-tag-improve): a <damage prob=> spell may simply not fire (default 100).
+	// prob: a <damage prob=> spell may simply not fire (default 100).
 	// A miss returns 0 -- which, like a full magic-resist, is still processed downstream (no aggro
 	// change was requested), so behaviour matches today's zero-damage handling. The prob<100 guard
 	// short-circuits the RNG when the result is fixed at "always fires".
@@ -493,7 +489,7 @@ int CalcTotalSpellDmg(CharData *ch, CharData *victim, ESpell spell_id) {
 
 		float dmg;
 		if (has_dmg) {
-			// Additive model, mirroring heal (issue.damage-tag-improve): the <amount> weights scale
+			// Additive model, mirroring heal: the <amount> weights scale
 			// the roll's dice and competencies (skill+stat); an absent <amount> defaults to min 0
 			// and both weights 1.0.
 			const auto &dmg_act = MUD::Spell(spell_id).actions.GetDmg();
@@ -524,8 +520,6 @@ int CalcTotalSpellDmg(CharData *ch, CharData *victim, ESpell spell_id) {
 
 int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 	int rand = 0, count = 1, modi = 0;
-	// (CastDamage's local `obj` was removed with the kAcid case migration; CastToAlterObjs now
-	// picks the item to corrode itself, via the kMagAlterObjs flag dispatch in CallMagic.)
 
 	if (victim == nullptr || victim->in_room == kNowhere || ch == nullptr)
 		return (0);
@@ -591,14 +585,7 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 //	if (!ch->IsNpc() && (GetRealLevel(ch) > 10))
 //		modi += (GetRealLevel(ch) - 10);
 
-	// (the `instant_death` local was removed with the kHolystrike case migration, issue.cast-dmg-
-	//  migration; high damage now lives in the spell's data-driven <damage>.)
-	// issue #3304: часть сообщений вынесена в lib/cfg/spell_msg.xml
-	// (kAcid/kClod/kStunning/kVacuum/kArrows*; общий kKnockdown* в kDefault).
-	// TODO: kAcidArrow (случайные эффекты), kDispelEvil/Good и kHolystrike
-	// остаются в коде - они завязаны на игровую логику; защитные реакции
-	// (зеркало/барьер/мантия/щит) тоже намеренно оставлены в коде.
-	// Multi-hit count (issue.extra-hits): a damage spell with a <hits> child gets its extra-hit
+	// Multi-hit count: a damage spell with a <hits> child gets its extra-hit
 	// number from CalcExtraHits; the kMagicArrows feat for kMagicMissile is handled inside it.
 	// Absent <hits> -> count stays at the file-top default of 1 (single hit), which matches the
 	// current behaviour of every non-multi-hit damage spell.
@@ -611,58 +598,6 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 		}
 	}
 
-	switch (spell_id) {
-		// kAcid obj-corrosion was migrated to CastToAlterObjs (issue.cast-dmg-migration). The case
-		// now lives there next to kAcidArrow: CastToAlterObjs picks the random item from the
-		// victim's equipment itself (its IsNpc gate dropped per kvirund). kAcid still has the
-		// kMagAlterObjs flag so CallMagic routes here; kAcidArrow got the same flag.
-		// kClod knockdown+lag is data-driven now (issue.cast-damage-affects): <affects saving="kReflex">
-		// with <reposition pos="kSit"/> + <lag base="2" bonus_divisor="-1"/>. No case needed.
-		// kAcidArrow is fully data-driven now (issue.cast-dmg-migration): its damage uses kAcid's
-		// <amount> weights scaled by 1.4, its four random debuffs (silence/fever/poison/blindness)
-		// live in an <affects> block with prob=15 + four <apply random="true">; the old
-		// CalcCurrentSkill gate and the per-case act() messages are dropped (the standard affect
-		// messages communicate what happened).
-		// kEarthquake's victim knockdown+lag is data-driven (issue.cast-damage-affects): <affects
-		// saving="kReflex"> with <reposition pos="kSit"/> + <lag>. The caster-falls-off-horse
-		// special case was removed (issue.cast-dmg-migration): horse-resistance is now generic --
-		// GetBasicSave gives a kRiding-based bonus to kStability when mounted, which is what the
-		// damage saving uses; if the rider's stability save fails badly enough, the engine handles
-		// the dismount via the existing knockdown reposition path.
-		// kSonicWave knockdown+lag merged into its <affects type="kDeafness"> (issue.cast-damage-
-		// affects): reposition+lag now ride the deafness saving (kCritical). No case needed.
-		// kStunning is data-driven now (issue.cast-damage-affects): <affects saving="kCritical"> with
-		// <reposition pos="kStun"/> + a fixed <lag base="6">. The old 750/999 chance and the Dark Pact
-		// bonus to it are dropped (the stun lands on a failed save); the wisdom-based lag is now fixed.
-		// kVacuum likewise: <affects saving="kCritical"> with <reposition pos="kStun"/> + a skill-scaled
-		// <lag> (low_skill_coeff, capped ~12 rounds) replacing the kMagicStopFight affect; its 20% roll
-		// and wisdom term are dropped.
-		// kDispelEvil / kDispelGood are fully data-driven now (issue.cast-dmg-migration):
-		//   <required align="kEvil|kGood"/> -- target filter (victim must match the alignment).
-		//   <caster_blocking align="kEvil|kGood"/> -- the caster-side incompatibility gate, the
-		//   data-driven replacement for the old in-code "wrath" branch. Now an evil caster
-		//   simply can't fire kDispelEvil (kNoeffect, no cast); the old HP=1 punishment doesn't
-		//   land. Both gates run in CastToSingleTarget before this switch sees the spell id.
-		// kSacrifice's CastDamage case was a no-op (`if (IsImmortal()) break; break;` -- the second
-		// break is unreachable, the first does the same thing as the fallthrough). Removed in
-		// issue.cast-dmg-migration: violent spells against immortals are blocked upstream in
-		// magic_utils.cpp's target-validation pass, and Damage::Process clamps damage to immortals
-		// at damage.cpp:454, so the case was triply redundant.
-		// kDustStorm knockdown+lag merged into its <affects type="kBlindness"> (issue.cast-damage-
-		// affects): reposition+lag now ride the blindness saving (kStability). No case needed.
-		// kHolystrike's kEviless handling moved to a data-driven <unaffect> on the spell
-		// (issue.cast-dmg-migration): when a kForcesOfEvil-flagged target is hit, the unaffect
-		// block dispels kEviless and breaks the chain so SpellHolystrike's per-target loop skips
-		// the kHold imposition for that target. The instant_death-on-failed-save mechanic was
-		// dropped; the spell's data-driven <damage> was bumped instead (competencies_weight 195
-		// -> 500). kEviless is an NPC-only affect, so PCs never trigger this branch.
-		// kWarcryOfThunder knockdown+lag merged into its <affects type="kWarcryOfThunder"> (issue.cast-
-		// damage-affects), riding its kStability saving; it now also passes the GET_AR gate. No case needed.
-		// kArrows{Fire,Water,Earth,Air,Death} cast-flavour was re-keyed from kDamageTo* to kFightHitTo*
-		// (issue.cast-dmg-migration): Damage::Process already emits kFightHit*/Death*/Miss*/God* for every
-		// spell with damage via SendSkillMessages, so the explicit per-case act() block was redundant.
-		default: break;
-	}
 	int total_dmg{0};
 
 	try {
@@ -785,7 +720,7 @@ bool ProcessMatComponents(CharData *caster, int /*vnum*/, ESpell spell_id) {
 }
 
 // Applies one affect produced by a TalentAffect apply to the victim, honoring the
-// EAffFlag update flags (issue #3334): kAfAccumulateDuration adds to an existing
+// EAffFlag update flags: kAfAccumulateDuration adds to an existing
 // affect's duration, kAfUpdateDuration refreshes it to the longer value, and
 // kAfUpdateMod replaces the modifier only when the new magnitude is larger. The
 // caller runs affect_total() afterwards.
@@ -802,7 +737,7 @@ static void ApplyTalentAffect(CharData *victim, Affect<EApply> &af, Bitvector fl
 				af.duration = std::max(af.duration, existing->duration);
 			}
 			if (max_stacks > 1 && existing->stacks < max_stacks) {
-				// Add a stack (issue.affect-stacks): bump the count and accumulate the modifier.
+				// Add a stack: bump the count and accumulate the modifier.
 				// kAfUpdateMod is ignored here; the sum is clamped to int to avoid overflow.
 				af.stacks = existing->stacks + 1;
 				const int64_t sum = static_cast<int64_t>(existing->modifier) + af.modifier;
@@ -909,14 +844,14 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, const ESpell 
 	}
 	// Affect-resist (GET_AR): a blanket block on any debuff (a violent spell with an effect),
 	// a historical mechanic -- checked up front, before any saving throw or affect is built,
-	// so it stops the debuff regardless of circumstances (issue.cast-affect).
+	// so it stops the debuff regardless of circumstances.
 	if (ch != victim && MUD::Spell(spell_id).IsViolent() && number(1, 100) <= GET_AR(victim)) {
 		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 		return EStageResult::kSuccess;
 	}
 	// The affect's saving throw is read straight from the talent (GetAffect().GetSaving()) in the
 	// talent-affect block below; the <blocking>/<required> immunity checks moved up to
-	// CastToSingleTarget (action-level, gating the whole cast, issue.cast-affect).
+	// CastToSingleTarget (action-level, gating the whole cast).
 	const bool has_affect_talent = MUD::Spell(spell_id).actions.Contains(talents_actions::EAction::kAffect);
 	// Material component: consume it if this spell has one (no-op for spells that don't);
 	// a missing component stops the cast. (Hook for the material-component system, TBD.)
@@ -930,7 +865,7 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, const ESpell 
 	const float cast_potency = static_cast<float>(potency.dices + potency.skill_coeff + potency.stat_coeff);
 	const bool cast_debuff = MUD::Spell(spell_id).IsViolent();
 
-	// Affect talent actions (issue #3334): spells that declare <affects> apply them
+	// Affect talent actions: spells that declare <affects> apply them
 	// here. The saving throw uses the talent's own saving; the duration is computed
 	// once for all applies; each apply's modifier is derived from the cast's potency
 	// roll; and the EAffFlag flags drive the per-apply update/accumulate behavior.
@@ -961,7 +896,7 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, const ESpell 
 				}
 				success = false;
 			} else {
-				// issue.calc-duration: skill-based duration. The bonus uses the caster's
+				// skill-based duration. The bonus uses the caster's
 				// potency-roll base_skill (kUndefined for spells without a <potency_roll> -> flat
 				// duration). `victim` decides the unit (PC: hours -> ticks; NPC: raw), preserving
 				// today's tick-unit semantics.
@@ -985,7 +920,7 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, const ESpell 
 					taf.caster_id = ch->get_uid();
 					taf.potency = cast_potency;
 					taf.debuff = cast_debuff;
-					// apply.stack is the max stack count (issue.affect-stacks): re-applying up to the
+					// apply.stack is the max stack count: re-applying up to the
 					// cap adds a stack and accumulates the modifier (see ApplyTalentAffect).
 					ApplyTalentAffect(victim, taf, flags, apply.stack);
 				};
@@ -1012,7 +947,7 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, const ESpell 
 	affect_total(victim);
 
 	if (success) {
-		// Battle lag (issue.cast-spell-lag): a spell whose <affects> declares <lag> delays the
+		// Battle lag: a spell whose <affects> declares <lag> delays the
 		// victim once the affect lands. Constant-lag spells use a non-positive bonus_divisor;
 		// skill-scaling ones add potency.low_skill_coeff / bonus_divisor.
 		if (has_affect_talent) {
@@ -1020,7 +955,7 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, const ESpell 
 			if (side.HasLag()) {
 				SetBattleLag(victim, potency.low_skill_coeff, side.GetLagBase(), side.GetLagBonusDivisor());
 			}
-			// Forced reposition / fight-stop (issue.cast-affect): e.g. kSleep knocks to kSleep,
+			// Forced reposition / fight-stop: e.g. kSleep knocks to kSleep,
 			// kPeaceful stops the fight (pos kUndefined). Runs after the saving/affect-resist
 			// gate, so the position only changes when the debuff actually lands.
 			if (side.HasReposition()) {
@@ -1030,7 +965,7 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, const ESpell 
 		// вот некрасиво же тут это делать...
 		if (spell_id == ESpell::kPoison)
 			victim->poisoner = ch->get_uid();
-		// Affect imposition messages (issue #3335): looked up by the cast spell and emitted
+		// Affect imposition messages: looked up by the cast spell and emitted
 		// sheaf-directly, so a spell with no such message shows nothing.
 		const auto &imposed = MUD::SpellMessages()[spell_id];
 		const auto &to_vict = imposed.GetMessage(ESpellMsg::kAffImposedToChar);
@@ -1056,7 +991,7 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, const ESpell 
  */
 
 // * These use act(), don't put the \r\n.
-// Сообщения призыва/оживления вынесены в lib/cfg/spell_msg.xml (issue #3304):
+// Сообщения призыва/оживления вынесены в lib/cfg/spell_msg.xml:
 // kSummonToRoom (по заклинанию), kSummonFail / kSummonNoCorpse и прочие
 // guard-сообщения в ветви kDefault. См. MUD::SpellMessages().
 
@@ -1300,7 +1235,7 @@ EStageResult CastSummon(int level, CharData *ch, ObjData *obj, ESpell spell_id, 
 	GET_GOLD_SiDs(mob) = 0;
 	const auto days_from_full_moon =
 		(weather_info.moon_day < 14) ? (14 - weather_info.moon_day) : (weather_info.moon_day - 14);
-	// issue.calc-duration: familiar duration is a flat number tied to caster wisdom + the moon
+	// familiar duration is a flat number tied to caster wisdom + the moon
 	// phase; no skill scaling, so skill_id=kUndefined. `mob` (the familiar) sets the NPC-raw unit.
 	const auto duration = CalcDuration(ch, mob, ESkill::kUndefined,
 		GetRealWis(ch) + number(0, days_from_full_moon), 0, 0, 0);
@@ -1574,7 +1509,7 @@ EStageResult CastToPoints(int level, CharData *ch, CharData *victim, ESpell spel
 }
 
 namespace {
-// issue #3342 / issue.affect-dispell-flags: helpers for the data-driven CastUnaffects.
+// Helpers for the data-driven CastUnaffects.
 
 // True if `affect` carries at least one of `flags`. The <unaffect affect_flags=> set lists the
 // EAffFlag bits (kAfCurable / kAfDispellable) an affect must have to be eligible for removal by
@@ -1644,7 +1579,7 @@ void CollectRemovals(CharData *victim, const talents_actions::TalentUnaffect::Se
 }
 
 // A successful dispel of a stacked affect peels one stack instead of removing it
-// (issue.affect-stacks): for every affect of `spell` with stacks > 1, reduce the stack count by 1
+//: for every affect of `spell` with stacks > 1, reduce the stack count by 1
 // and the accumulated modifier proportionally (~modifier/stacks), re-applying so the character's
 // stats update. If no affect of the spell has more than one stack, remove it outright.
 void ReduceStackOrRemove(CharData *victim, ESpell spell) {
@@ -1742,7 +1677,7 @@ EStageResult CastUnaffects(int/* level*/, CharData *ch, CharData *victim, ESpell
 	}
 
 	// kDispellMagic strips a *random* dispellable affect, which cannot be expressed as an
-	// <unaffect> any_of/all_of list -- it keeps its dedicated code path (issue #3342).
+	// <unaffect> any_of/all_of list -- it keeps its dedicated code path.
 	if (spell_id == ESpell::kDispellMagic) {
 		// kDispellMagic dispels only what its <unaffect affect_flags=> allows (kAfDispellable):
 		// poisons carry kAfCurable but not kAfDispellable, so "dispel magic" won't clear them.
@@ -1783,7 +1718,7 @@ EStageResult CastUnaffects(int/* level*/, CharData *ch, CharData *victim, ESpell
 		return EStageResult::kSuccess;
 	}
 
-	// Every other unaffect spell is fully data-driven (issue #3342): the <unaffect> block
+	// Every other unaffect spell is fully data-driven: the <unaffect> block
 	// says which affects block/break the cast and which it removes.
 	if (!MUD::Spell(spell_id).actions.Contains(talents_actions::EAction::kUnaffect)) {
 		return EStageResult::kSuccess;
@@ -1853,10 +1788,9 @@ EStageResult CastUnaffects(int/* level*/, CharData *ch, CharData *victim, ESpell
 	return break_chain ? EStageResult::kBreak : EStageResult::kSuccess;
 }
 
-// issue.cast-dmg-migration: when `obj` is null but `victim` isn't, pick a random item from the
-// victim's equipment/inventory (the algorithm taken from the old kAcid case in CastDamage, with
-// its IsNpc gate dropped per kvirund). If neither obj nor victim is given there is nothing to act
-// on -- the function exits without effect.
+// When `obj` is null but `victim` isn't, pick a random item from the victim's equipment/
+// inventory. If neither obj nor victim is given there is nothing to act on -- the function
+// exits without effect.
 EStageResult CastToAlterObjs(CharData *ch, CharData *victim, ObjData *obj, ESpell spell_id) {
 	const char *to_char = nullptr;
 
@@ -2014,9 +1948,9 @@ EStageResult CastToAlterObjs(CharData *ch, CharData *victim, ObjData *obj, ESpel
 
 		case ESpell::kAcid:
 		case ESpell::kAcidArrow: {
-			// issue.cast-dmg-migration: the corrode message is keyed on the cast spell and shown to
-			// the victim whose item is being damaged (or the caster if there's no separate victim).
-			// Returning here skips the standard caster-side to_char fallback (kNoeffect / kAlterObj).
+			// The corrode message is keyed on the cast spell and shown to the victim whose item is
+			// being damaged (or the caster if there's no separate victim). Returning here skips the
+			// standard caster-side to_char fallback (kNoeffect / kAlterObj).
 			CharData *recipient = victim ? victim : ch;
 			act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kAcidCorrodeObj).c_str(),
 				false, recipient, obj, nullptr, kToChar);
@@ -2236,7 +2170,7 @@ void ReactToCast(CharData *victim, CharData *caster, ESpell spell_id) {
 	}
 }
 
-// <blocking> (issue.cast-affect): true if the target carries ANY of the listed flags/affects
+// <blocking>: true if the target carries ANY of the listed flags/affects
 // (NPC mob flags matter only for NPCs; affect flags via AFF_FLAGGED for any target).
 static bool TargetIsBlocked(CharData *victim, const talents_actions::FlagCondition &cond) {
 	if (victim->IsNpc()) {
@@ -2251,7 +2185,7 @@ static bool TargetIsBlocked(CharData *victim, const talents_actions::FlagConditi
 			return true;
 		}
 	}
-	// align (issue.cast-dmg-migration): blocks the cast when the target carries the matching
+	// align: blocks the cast when the target carries the matching
 	// alignment (IsGood / IsEvil / IsNeutral). kAny means no alignment block.
 	if (cond.align == EAlign::kGood && IsGood(victim)) {
 		return true;
@@ -2265,7 +2199,7 @@ static bool TargetIsBlocked(CharData *victim, const talents_actions::FlagConditi
 	return false;
 }
 
-// <required> (issue.cast-affect): true only if the target has ALL the listed flags/affects
+// <required>: true only if the target has ALL the listed flags/affects
 // (a required mob flag implies the target is an NPC carrying it).
 static bool TargetMeetsRequired(CharData *victim, const talents_actions::FlagCondition &cond) {
 	for (const auto flag : cond.mob_flags) {
@@ -2278,7 +2212,7 @@ static bool TargetMeetsRequired(CharData *victim, const talents_actions::FlagCon
 			return false;
 		}
 	}
-	// align (issue.cast-dmg-migration): require the target to carry the matching alignment
+	// align: require the target to carry the matching alignment
 	// (IsGood / IsEvil / IsNeutral). kAny means no alignment requirement.
 	if (cond.align == EAlign::kGood && !IsGood(victim)) {
 		return false;
@@ -2305,7 +2239,7 @@ int CastToSingleTarget(CharData *caster, CharData *cvict, ObjData *ovict, CastRo
 		}
 		return 0;
 	}
-	// Action-level <blocking>/<required> gates (issue.cast-affect): the cast is refused on a target
+	// Action-level <blocking>/<required> gates: the cast is refused on a target
 	// that carries a blocking flag/affect or lacks a required one. This sits here (not inside a
 	// stage) so it gates the whole cast -- damage, affects, etc. Per target, so it covers group/
 	// mass casts; for those a refusal stays silent (no per-target spam).
@@ -2316,7 +2250,7 @@ int CastToSingleTarget(CharData *caster, CharData *cvict, ObjData *ovict, CastRo
 		}
 		return 0;
 	}
-	// Action-level caster gate (issue.cast-dmg-migration): mirrors the victim-side <blocking>,
+	// Action-level caster gate: mirrors the victim-side <blocking>,
 	// but examines the CASTER. Used to refuse casts the caster cannot wield -- e.g. kDispelEvil
 	// gets <caster_blocking align="kEvil"/> so an evil caster simply can't fire it. Always emits
 	// kNoeffect (no group/mass silent skip: a caster-side block concerns the one caster, not the
@@ -2325,7 +2259,7 @@ int CastToSingleTarget(CharData *caster, CharData *cvict, ObjData *ovict, CastRo
 		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", caster);
 		return 0;
 	}
-	// Reflection (issue.cast-dmg-migration): if the original target carries a reflecting flag or
+	// Reflection: if the original target carries a reflecting flag or
 	// matches the reflecting alignment, the spell may bounce back at the caster (single percentile
 	// roll against the configured prob, default 20). Self-casts can't bounce. Placed here so the
 	// redirection happens once for the whole cast (damage + affects + ...), not per stage. Potency-
@@ -2355,7 +2289,7 @@ int CastToSingleTarget(CharData *caster, CharData *cvict, ObjData *ovict, CastRo
 		}
 	}
 	if (cvict && (caster != cvict))
-		// The level-difference half of this guard is commented out (issue.cast-affect): after
+		// The level-difference half of this guard is commented out: after
 		// proper balancing it should be moot -- a low-level mage can't land a strong buff,
 		// can't penetrate a debuff's saving throw, and damage now scales with (low) skill.
 		// Kept for quick reactivation if some unforeseen case needs it:
@@ -2376,7 +2310,7 @@ int CastToSingleTarget(CharData *caster, CharData *cvict, ObjData *ovict, CastRo
 		if (CastDamage(level, caster, cvict, spell_id) == -1)
 			return (-1);    // Successful and target died, don't cast again.
 
-	// Unaffect runs before affect (issue #3342): a spell strips/blocks existing affects
+	// Unaffect runs before affect: a spell strips/blocks existing affects
 	// first and may break the chain, before applying any new affect of its own.
 	if (MUD::Spell(spell_id).IsFlagged(kMagUnaffects)
 			&& CastUnaffects(abs(level), caster, cvict, spell_id) == EStageResult::kBreak) {
@@ -2423,7 +2357,7 @@ int CastToSingleTarget(CharData *caster, CharData *cvict, ObjData *ovict, CastRo
 }
 
 // Сообщения массовых/площадных заклинаний вынесены в lib/cfg/spell_msg.xml
-// (issue #3304): kAreaToChar / kAreaToRoom / kAreaToVict, доступны через
+//: kAreaToChar / kAreaToRoom / kAreaToVict, доступны через
 // MUD::SpellMessages(). См. CallMagicToArea / CallMagicToGroup.
 
 void TrySendCastMessages(CharData *ch, CharData *victim, RoomData *room, ESpell spell_id) {
