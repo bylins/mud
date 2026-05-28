@@ -1037,12 +1037,367 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, const ESpell 
 // kSummonToRoom (по заклинанию), kSummonFail / kSummonNoCorpse и прочие
 // guard-сообщения в ветви kDefault. См. MUD::SpellMessages().
 
-EStageResult CastSummon(int level, CharData *ch, ObjData *obj, ESpell spell_id, bool need_fail) {
-	CharData *tmp_mob, *mob = nullptr;
-	ObjData *tobj, *next_obj;
-	int pfail = 0, handle_corpse = false, keeper = false, cha_num = 0, modifier = 0;
-	MobVnum mob_num;
+// Per-spell summon parameters produced by PrepareSummonParams. mob_num is the negated VNUM
+// passed to ReadMobile; pfail is the failure-chance percent (0 = never fail); keeper marks
+// the spawned mob as a charm-keeper helper; handle_corpse means the source object is a corpse
+// to be spilled+extracted after a successful spawn.
+struct SummonParams {
+	MobVnum mob_num = 0;
+	int pfail = 0;
+	bool keeper = false;
+	bool handle_corpse = false;
+};
 
+// Pick the necro-mob VNUM to spawn for kAnimateDead, given the source corpse's mob level. The
+// upper tier (>34) is a 50/50 between damager/breather. The caster's own (level + remort + 4)
+// then caps the result: very low-level necromancers can never spawn higher-tier undead.
+static MobVnum PickNecroMobForCorpse(CharData *ch, int corpse_mob_level) {
+	MobVnum mob_num;
+	if (corpse_mob_level <= 5) {
+		mob_num = kMobSkeleton;
+	} else if (corpse_mob_level <= 10) {
+		mob_num = kMobZombie;
+	} else if (corpse_mob_level <= 15) {
+		mob_num = kMobBonedog;
+	} else if (corpse_mob_level <= 20) {
+		mob_num = kMobBonedragon;
+	} else if (corpse_mob_level <= 25) {
+		mob_num = kMobBonespirit;
+	} else if (corpse_mob_level <= 34) {
+		mob_num = kMobNecrotank;
+	} else {
+		mob_num = (number(1, 100) > 50) ? kMobNecrobreather : kMobNecrodamager;
+	}
+	// kMobNecrocaster disabled, cant cast
+	const int cap = GetRealLevel(ch) + GetRealRemort(ch) + 4;
+	if (cap < 15 && mob_num > kMobZombie) {
+		mob_num = kMobZombie;
+	} else if (cap < 25 && mob_num > kMobBonedog) {
+		mob_num = kMobBonedog;
+	} else if (cap < 32 && mob_num > kMobBonedragon) {
+		mob_num = kMobBonedragon;
+	}
+	return mob_num;
+}
+
+// Compute the per-spell summon parameters into `p`. Returns false (no further action by caller)
+// when the spell short-circuits with its own diagnostic message (e.g. kAnimateDead/kResurrection
+// when obj isn't a corpse, kResurrection on a corpse missing its mob VNUM, or an unsummonable
+// spell_id reaching the default case).
+static bool PrepareSummonParams(CharData *ch, ObjData *obj, ESpell spell_id, SummonParams &p) {
+	switch (spell_id) {
+		case ESpell::kClone:
+			p.mob_num = kMobDouble;
+			// 50% failure, should be based on something later.
+			p.pfail = 50 - GET_CAST_SUCCESS(ch) - GetRealRemort(ch) * 5;
+			p.keeper = true;
+			return true;
+
+		case ESpell::kSummonKeeper:
+			p.mob_num = kMobKeeper;
+			p.pfail = ch->GetEnemy() ? 50 - GET_CAST_SUCCESS(ch) - GetRealRemort(ch) : 0;
+			p.keeper = true;
+			return true;
+
+		case ESpell::kSummonFirekeeper:
+			p.mob_num = kMobFirekeeper;
+			p.pfail = ch->GetEnemy() ? 50 - GET_CAST_SUCCESS(ch) - GetRealRemort(ch) : 0;
+			p.keeper = true;
+			return true;
+
+		case ESpell::kAnimateDead:
+			if (obj == nullptr || !IS_CORPSE(obj)) {
+				act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kSummonNoCorpse).c_str(),
+					false, ch, nullptr, nullptr, kToChar);
+				return false;
+			}
+			p.mob_num = GET_OBJ_VAL(obj, 2);
+			if (p.mob_num <= 0) {
+				p.mob_num = kMobSkeleton;
+			} else {
+				const int real_mob_num = GetMobRnum(p.mob_num);
+				CharData *tmp_mob = mob_proto + real_mob_num;
+				p.pfail = 10 + tmp_mob->get_con() * 2
+					- number(1, GetRealLevel(ch)) - GET_CAST_SUCCESS(ch) - GetRealRemort(ch) * 5;
+				p.mob_num = PickNecroMobForCorpse(ch, GetRealLevel(tmp_mob));
+			}
+			p.handle_corpse = true;
+			return true;
+
+		case ESpell::kResurrection:
+			if (obj == nullptr || !IS_CORPSE(obj)) {
+				act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kSummonNoCorpse).c_str(),
+					false, ch, nullptr, nullptr, kToChar);
+				return false;
+			}
+			p.mob_num = GET_OBJ_VAL(obj, 2);
+			if (p.mob_num <= 0) {
+				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kResurrectBadCorpse) + "\r\n", ch);
+				return false;
+			}
+			p.handle_corpse = true;
+			{
+				CharData *tmp_mob = mob_proto + GetMobRnum(p.mob_num);
+				p.pfail = 10 + tmp_mob->get_con() * 2
+					- number(1, GetRealLevel(ch)) - GET_CAST_SUCCESS(ch) - GetRealRemort(ch) * 5;
+			}
+			return true;
+
+		default:
+			return false;
+	}
+}
+
+// Rename a freshly-spawned resurrection mob as "умертвие <его_имя>" across all six grammatical
+// cases. Also clears the long-description, sets neutral gender, marks it kResurrected, and
+// optionally boosts dam/hit/HR by 20% for the kFuryOfDarkness feat.
+static void RenameAsUndead(CharData *ch, CharData *mob) {
+	ClearMinionTalents(mob);
+	if (mob->IsFlagged(EMobFlag::kNoGroup)) {
+		mob->UnsetFlag(EMobFlag::kNoGroup);
+	}
+
+	sprintf(buf2, "умертвие %s %s", GET_PAD(mob, 1), GET_NAME(mob));
+	mob->SetCharAliases(buf2);
+	sprintf(buf2, "умертвие %s", GET_PAD(mob, 1));
+	mob->set_npc_name(buf2);
+	mob->player_data.long_descr = "";
+	sprintf(buf2, "умертвие %s", GET_PAD(mob, 1));
+	mob->player_data.PNames[ECase::kNom] = std::string(buf2);
+	sprintf(buf2, "умертвию %s", GET_PAD(mob, 1));
+	mob->player_data.PNames[ECase::kDat] = std::string(buf2);
+	sprintf(buf2, "умертвие %s", GET_PAD(mob, 1));
+	mob->player_data.PNames[ECase::kAcc] = std::string(buf2);
+	sprintf(buf2, "умертвием %s", GET_PAD(mob, 1));
+	mob->player_data.PNames[ECase::kIns] = std::string(buf2);
+	sprintf(buf2, "умертвии %s", GET_PAD(mob, 1));
+	mob->player_data.PNames[ECase::kPre] = std::string(buf2);
+	sprintf(buf2, "умертвия %s", GET_PAD(mob, 1));
+	mob->player_data.PNames[ECase::kGen] = std::string(buf2);
+	mob->set_sex(EGender::kNeutral);
+	mob->SetFlag(EMobFlag::kResurrected);
+	if (CanUseFeat(ch, EFeat::kFuryOfDarkness)) {
+		GET_DR(mob) = GET_DR(mob) + GET_DR(mob) * 0.20;
+		mob->set_max_hit(mob->get_max_hit() + mob->get_max_hit() * 0.20);
+		mob->set_hit(mob->get_max_hit());
+		GET_HR(mob) = GET_HR(mob) + GET_HR(mob) * 0.20;
+	}
+}
+
+// True if the freshly-loaded `mob` can't be summoned by `ch` (sanctuary / mob spec / world flag /
+// god's shield / horse). On true, sends the appropriate kResurrect*/kSummonWarhorse message and
+// extracts `mob` from the world; caller must `return kSuccess` without further action. Immortals
+// bypass every guard except the horse check (which is universal).
+static bool IsSummonTargetProtected(CharData *ch, CharData *mob, ESpell spell_id) {
+	if (!ch->IsImmortal() && (AFF_FLAGGED(mob, EAffect::kSanctuary) || mob->IsFlagged(EMobFlag::kProtect))) {
+		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kResurrectConsecrated) + "\r\n", ch);
+		ExtractCharFromWorld(mob, false);
+		return true;
+	}
+	if (!ch->IsImmortal()
+		&& (GET_MOB_SPEC(mob) || mob->IsFlagged(EMobFlag::kNoResurrection) || mob->IsFlagged(EMobFlag::kAreaAttack))) {
+		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kResurrectNoPower) + "\r\n", ch);
+		ExtractCharFromWorld(mob, false);
+		return true;
+	}
+	if (!ch->IsImmortal() && AFF_FLAGGED(mob, EAffect::kGodsShield)) {
+		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kResurrectProtected) + "\r\n", ch);
+		ExtractCharFromWorld(mob, false);
+		return true;
+	}
+	if (mob->IsFlagged(EMobFlag::kMounting)) {
+		mob->UnsetFlag(EMobFlag::kMounting);
+	}
+	if (IS_HORSE(mob)) {
+		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kSummonWarhorse) + "\r\n", ch);
+		ExtractCharFromWorld(mob, false);
+		return true;
+	}
+	return false;
+}
+
+// For the top-tier kAnimateDead spawns (kMobNecrodamager..kLastNecroMob): bump max HP by 10% per
+// remort, then crank up damnodice until the mob's reformed-charm value matches the caster's
+// charm-points budget (or hits the 255 cap, which means damsize is too small for this caster).
+static void BoostNecroDamage(CharData *ch, CharData *mob, ESpell spell_id) {
+	// add 10% mob health by remort
+	mob->set_max_hit(mob->get_max_hit() * (1.0 + GetRealRemort(ch) / 10.0));
+	mob->set_hit(mob->get_max_hit());
+	int player_charms_value = CalcCharmPoint(ch, spell_id);
+	int mob_cahrms_value = GetReformedCharmiceHp(ch, mob, spell_id);
+	int damnodice = 1;
+	mob->mob_specials.damnodice = damnodice;
+	// look for count dice to maximize damage on player_charms_value. max 255.
+	while (player_charms_value > mob_cahrms_value && damnodice <= 255) {
+		damnodice++;
+		mob->mob_specials.damnodice = damnodice;
+		mob_cahrms_value = GetReformedCharmiceHp(ch, mob, spell_id);
+	}
+	damnodice--;
+
+	mob->mob_specials.damnodice = damnodice; // get prew damnodice for match with player_charms_value
+	if (damnodice == 255) {
+		// if damnodice == 255 mob damage not maximized. damsize too small
+		SendMsgToRoom("Темные искры пробежали по земле... И исчезли...", ch->in_room, 0);
+	} else {
+		// mob damage maximazed.
+		SendMsgToRoom("Темные искры пробежали по земле. Кажется сама СМЕРТЬ наполняет это тело силой!",
+					  ch->in_room, 0);
+	}
+}
+
+// Copy caster cosmetics + stats onto the kClone double: PNames in all six cases, every stat, the
+// hp/ac/dr/hr/class/build, position, gender, flags.
+static void ApplyCloneCosmetics(CharData *ch, CharData *mob) {
+	sprintf(buf2, "двойник %s %s", GET_PAD(ch, 1), GET_NAME(ch));
+	mob->SetCharAliases(buf2);
+	sprintf(buf2, "двойник %s", GET_PAD(ch, 1));
+	mob->set_npc_name(buf2);
+	mob->player_data.long_descr = "";
+	sprintf(buf2, "двойник %s", GET_PAD(ch, 1));
+	mob->player_data.PNames[ECase::kNom] = std::string(buf2);
+	sprintf(buf2, "двойника %s", GET_PAD(ch, 1));
+	mob->player_data.PNames[ECase::kGen] = std::string(buf2);
+	sprintf(buf2, "двойнику %s", GET_PAD(ch, 1));
+	mob->player_data.PNames[ECase::kDat] = std::string(buf2);
+	sprintf(buf2, "двойника %s", GET_PAD(ch, 1));
+	mob->player_data.PNames[ECase::kAcc] = std::string(buf2);
+	sprintf(buf2, "двойником %s", GET_PAD(ch, 1));
+	mob->player_data.PNames[ECase::kIns] = std::string(buf2);
+	sprintf(buf2, "двойнике %s", GET_PAD(ch, 1));
+	mob->player_data.PNames[ECase::kPre] = std::string(buf2);
+
+	mob->set_str(ch->get_str());
+	mob->set_dex(ch->get_dex());
+	mob->set_con(ch->get_con());
+	mob->set_wis(ch->get_wis());
+	mob->set_int(ch->get_int());
+	mob->set_cha(ch->get_cha());
+
+	mob->set_level(GetRealLevel(ch));
+	GET_HR(mob) = -20;
+	GET_AC(mob) = GET_AC(ch);
+	GET_DR(mob) = GET_DR(ch);
+
+	mob->set_max_hit(ch->get_max_hit());
+	mob->set_hit(ch->get_max_hit());
+	mob->mob_specials.damnodice = 0;
+	mob->mob_specials.damsizedice = 0;
+	mob->set_gold(0);
+	GET_GOLD_NoDs(mob) = 0;
+	GET_GOLD_SiDs(mob) = 0;
+	mob->set_exp(0);
+
+	mob->SetPosition(EPosition::kStand);
+	GET_DEFAULT_POS(mob) = EPosition::kStand;
+	mob->set_sex(EGender::kMale);
+
+	mob->set_class(ch->GetClass());
+	GET_WEIGHT(mob) = GET_WEIGHT(ch);
+	GET_HEIGHT(mob) = GET_HEIGHT(ch);
+	GET_SIZE(mob) = GET_SIZE(ch);
+	mob->SetFlag(EMobFlag::kClone);
+	mob->UnsetFlag(EMobFlag::kMounting);
+}
+
+// Recurse into CastSummon to fill the caster's clone quota: cap is max(1, (level+4)/5 - 2), minus
+// the clones already in the follower list. Returns false (caller must stop) when the quota is
+// already met; the recursive call passes need_fail=0 so subsequent clones don't re-roll failure.
+static bool MaybeSpawnAdditionalClones(int level, CharData *ch, ObjData *obj, ESpell spell_id);
+
+// kAnimateDead post-spawn: kResurrected flag + per-tier rescue grants for the kLoyalAssist /
+// kHauntingSpirit feats; high-wisdom (75+) casters also gift an ice shield. The wis>=65 magic-
+// glass grant is left commented out as a "if we ever want it back" hook.
+static void EnhanceAnimateDead(CharData *ch, CharData *mob, MobVnum mob_num,
+							   ESpell spell_id, int charm_duration) {
+	mob->SetFlag(EMobFlag::kResurrected);
+	if (mob_num == kMobSkeleton && CanUseFeat(ch, EFeat::kLoyalAssist)) {
+		mob->set_skill(ESkill::kRescue, 100);
+	}
+	if (mob_num == kMobBonespirit && CanUseFeat(ch, EFeat::kHauntingSpirit)) {
+		mob->set_skill(ESkill::kRescue, 120);
+	}
+
+	// даем всем поднятым, ну наверное не будет чернок 75+ мудры вызывать зомби в щите.
+	const float eff_wis = CalcEffectiveWis(ch, spell_id);
+	if (eff_wis >= 65) {
+		// пока не даем, если надо включите
+		//af.affect_type = to_underlying(EAffectFlag::AFF_MAGICGLASS);
+		//affect_to_char(mob, af);
+	}
+	if (eff_wis >= 75) {
+		Affect<EApply> af;
+		af.type = ESpell::kUndefined;
+		af.duration = charm_duration * (1 + GetRealRemort(ch));
+		af.modifier = 0;
+		af.location = EApply::kNone;
+		af.affect_type = EAffect::kIceShield;
+		af.battleflag = 0;
+		affect_to_char(mob, af);
+	}
+}
+
+// kSummonKeeper post-spawn: tie keeper level to caster, then derive a "rating" from
+// light-magic + cha and project that onto hit/skills/stats/HR/AC.
+// Svent TODO: не забыть перенести это в ability
+static void SetupKeeperStats(CharData *ch, CharData *mob) {
+	mob->set_level(GetRealLevel(ch));
+	int rating = (ch->GetSkill(ESkill::kLightMagic) + GetRealCha(ch)) / 2;
+	int v = 50 + RollDices(10, 10) + rating * 6;
+	mob->set_hit(v);
+	mob->set_max_hit(v);
+	mob->set_skill(ESkill::kPunch, 10 + rating * 1.5);
+	mob->set_skill(ESkill::kRescue, 50 + rating);
+	mob->set_str(3 + rating / 5);
+	mob->set_dex(10 + rating / 5);
+	mob->set_con(10 + rating / 5);
+	GET_HR(mob) = rating / 2 - 4;
+	GET_AC(mob) = 100 - rating * 2.65;
+}
+
+// kSummonFirekeeper post-spawn: a fire-aura (or fire-shield at 30+ effective cha) charm affect,
+// dr/hp/skills scaled by a 0..30 modifier derived from caster cha. Awakens on spawn.
+static void SetupFirekeeperStats(CharData *ch, CharData *mob, int charm_duration) {
+	Affect<EApply> af;
+	af.type = ESpell::kCharm;
+	af.duration = charm_duration;
+	af.modifier = 0;
+	af.location = EApply::kNone;
+	af.battleflag = 0;
+	af.affect_type = (get_effective_cha(ch) >= 30) ? EAffect::kFireShield : EAffect::kFireAura;
+	affect_to_char(mob, af);
+
+	const int modifier = VPOSI((int) get_effective_cha(ch) - 20, 0, 30);
+
+	GET_DR(mob) = 10 + modifier * 3 / 2;
+	GET_NDD(mob) = 1;
+	GET_SDD(mob) = modifier / 5 + 1;
+	mob->mob_specials.extra_attack = 0;
+
+	const int m = 300 + number(modifier * 12, modifier * 16);
+	mob->set_hit(m);
+	mob->set_max_hit(m);
+	mob->set_skill(ESkill::kAwake, 50 + modifier * 2);
+	mob->SetFlag(EPrf::kAwake);
+}
+
+// Spill the source corpse's contents into the caster's room (decay-checking each item) and
+// extract the corpse itself. Used post-spawn whenever SummonParams::handle_corpse is set.
+// А надо ли это вообще делать???
+static void SpillCorpseContents(CharData *ch, ObjData *obj) {
+	for (ObjData *tobj = obj->get_contains(); tobj; ) {
+		ObjData *next_obj = tobj->get_next_content();
+		RemoveObjFromObj(tobj);
+		PlaceObjToRoom(tobj, ch->in_room);
+		if (!CheckObjDecay(tobj) && tobj->get_in_room() != kNowhere) {
+			act("На земле остал$U лежать $o.", false, ch, tobj, nullptr, kToRoom | kToArenaListen);
+		}
+		tobj = next_obj;
+	}
+	ExtractObjFromWorld(obj);
+}
+
+EStageResult CastSummon(int level, CharData *ch, ObjData *obj, ESpell spell_id, bool need_fail) {
 	if (ch == nullptr) {
 		return EStageResult::kSuccess;
 	}
@@ -1055,217 +1410,51 @@ EStageResult CastSummon(int level, CharData *ch, ObjData *obj, ESpell spell_id, 
 		return EStageResult::kSuccess;
 	}
 
-	switch (spell_id) {
-		case ESpell::kClone:
-			mob_num = kMobDouble;
-			pfail =
-				50 - GET_CAST_SUCCESS(ch)
-					- GetRealRemort(ch) * 5;    // 50% failure, should be based on something later.
-			keeper = true;
-			break;
-
-		case ESpell::kSummonKeeper:
-			mob_num = kMobKeeper;
-			if (ch->GetEnemy())
-				pfail = 50 - GET_CAST_SUCCESS(ch) - GetRealRemort(ch);
-			else
-				pfail = 0;
-			keeper = true;
-			break;
-
-		case ESpell::kSummonFirekeeper:
-			mob_num = kMobFirekeeper;
-			if (ch->GetEnemy())
-				pfail = 50 - GET_CAST_SUCCESS(ch) - GetRealRemort(ch);
-			else
-				pfail = 0;
-			keeper = true;
-			break;
-
-		case ESpell::kAnimateDead:
-			if (obj == nullptr || !IS_CORPSE(obj)) {
-				act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kSummonNoCorpse).c_str(), false, ch, nullptr, nullptr, kToChar);
-				return EStageResult::kSuccess;
-			}
-			mob_num = GET_OBJ_VAL(obj, 2);
-			if (mob_num <= 0)
-				mob_num = kMobSkeleton;
-			else {
-				const int real_mob_num = GetMobRnum(mob_num);
-				tmp_mob = (mob_proto + real_mob_num);
-				pfail = 10 + tmp_mob->get_con() * 2
-					- number(1, GetRealLevel(ch)) - GET_CAST_SUCCESS(ch) - GetRealRemort(ch) * 5;
-
-				int corpse_mob_level = GetRealLevel(mob_proto + real_mob_num);
-				if (corpse_mob_level <= 5) {
-					mob_num = kMobSkeleton;
-				} else if (corpse_mob_level <= 10) {
-					mob_num = kMobZombie;
-				} else if (corpse_mob_level <= 15) {
-					mob_num = kMobBonedog;
-				} else if (corpse_mob_level <= 20) {
-					mob_num = kMobBonedragon;
-				} else if (corpse_mob_level <= 25) {
-					mob_num = kMobBonespirit;
-				} else if (corpse_mob_level <= 34) {
-					mob_num = kMobNecrotank;
-				} else {
-					int rnd = number(1, 100);
-					mob_num = kMobNecrodamager;
-					if (rnd > 50) {
-						mob_num = kMobNecrobreather;
-					}
-				}
-
-				// kMobNecrocaster disabled, cant cast
-
-				if (GetRealLevel(ch) + GetRealRemort(ch) + 4 < 15 && mob_num > kMobZombie) {
-					mob_num = kMobZombie;
-				} else if (GetRealLevel(ch) + GetRealRemort(ch) + 4 < 25 && mob_num > kMobBonedog) {
-					mob_num = kMobBonedog;
-				} else if (GetRealLevel(ch) + GetRealRemort(ch) + 4 < 32 && mob_num > kMobBonedragon) {
-					mob_num = kMobBonedragon;
-				}
-			}
-
-			handle_corpse = true;
-			break;
-
-		case ESpell::kResurrection:
-			if (obj == nullptr || !IS_CORPSE(obj)) {
-				act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kSummonNoCorpse).c_str(), false, ch, nullptr, nullptr, kToChar);
-				return EStageResult::kSuccess;
-			}
-			if ((mob_num = GET_OBJ_VAL(obj, 2)) <= 0) {
-				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kResurrectBadCorpse) + "\r\n", ch);
-				return EStageResult::kSuccess;
-			}
-
-			handle_corpse = true;
-			tmp_mob = mob_proto + GetMobRnum(mob_num);
-			pfail = 10 + tmp_mob->get_con() * 2
-				- number(1, GetRealLevel(ch)) - GET_CAST_SUCCESS(ch) - GetRealRemort(ch) * 5;
-			break;
-
-		default: return EStageResult::kSuccess;
+	SummonParams p;
+	if (!PrepareSummonParams(ch, obj, spell_id, p)) {
+		return EStageResult::kSuccess;
 	}
 
 	if (AFF_FLAGGED(ch, EAffect::kCharmed)) {
 		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kSummonCharmed) + "\r\n", ch);
 		return EStageResult::kSuccess;
 	}
-	// при перке помощь тьмы гораздо меньше шанс фейла
-	if (!ch->IsImmortal() && number(0, 101) < pfail && need_fail) {
-		if (CanUseFeat(ch, EFeat::kFavorOfDarkness)) {
-			if (number(0, 3) == 0) {
-				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kSummonFail) + "\r\n", ch);
-				if (handle_corpse)
-					ExtractObjFromWorld(obj);
-				return EStageResult::kSuccess;
-			}
-		} else {
+	// при перке помощь тьмы гораздо меньше шанс фейла -- kFavorOfDarkness rerolls the fail at
+	// 1/4 (i.e. only 1 in 4 fails actually sticks); without the feat the fail always sticks.
+	if (!ch->IsImmortal() && number(0, 101) < p.pfail && need_fail) {
+		const bool fail_sticks = !CanUseFeat(ch, EFeat::kFavorOfDarkness) || number(0, 3) == 0;
+		if (fail_sticks) {
 			SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kSummonFail) + "\r\n", ch);
-			if (handle_corpse)
+			if (p.handle_corpse) {
 				ExtractObjFromWorld(obj);
+			}
 			return EStageResult::kSuccess;
 		}
 	}
 
-	if (!(mob = ReadMobile(-mob_num, kVirtual))) {
+	CharData *mob = ReadMobile(-p.mob_num, kVirtual);
+	if (!mob) {
 		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kSummonNoProto) + "\r\n", ch);
 		return EStageResult::kSuccess;
 	}
 
 	if (spell_id == ESpell::kResurrection) {
-		ClearMinionTalents(mob);
-		if (mob->IsFlagged(EMobFlag::kNoGroup))
-			mob->UnsetFlag(EMobFlag::kNoGroup);
-
-		sprintf(buf2, "умертвие %s %s", GET_PAD(mob, 1), GET_NAME(mob));
-		mob->SetCharAliases(buf2);
-		sprintf(buf2, "умертвие %s", GET_PAD(mob, 1));
-		mob->set_npc_name(buf2);
-		mob->player_data.long_descr = "";
-		sprintf(buf2, "умертвие %s", GET_PAD(mob, 1));
-		mob->player_data.PNames[ECase::kNom] = std::string(buf2);
-		sprintf(buf2, "умертвию %s", GET_PAD(mob, 1));
-		mob->player_data.PNames[ECase::kDat] = std::string(buf2);
-		sprintf(buf2, "умертвие %s", GET_PAD(mob, 1));
-		mob->player_data.PNames[ECase::kAcc] = std::string(buf2);
-		sprintf(buf2, "умертвием %s", GET_PAD(mob, 1));
-		mob->player_data.PNames[ECase::kIns] = std::string(buf2);
-		sprintf(buf2, "умертвии %s", GET_PAD(mob, 1));
-		mob->player_data.PNames[ECase::kPre] = std::string(buf2);
-		sprintf(buf2, "умертвия %s", GET_PAD(mob, 1));
-		mob->player_data.PNames[ECase::kGen] = std::string(buf2);
-		mob->set_sex(EGender::kNeutral);
-		mob->SetFlag(EMobFlag::kResurrected);
-		if (CanUseFeat(ch, EFeat::kFuryOfDarkness)) {
-			GET_DR(mob) = GET_DR(mob) + GET_DR(mob) * 0.20;
-			mob->set_max_hit(mob->get_max_hit() + mob->get_max_hit() * 0.20);
-			mob->set_hit(mob->get_max_hit());
-			GET_HR(mob) = GET_HR(mob) + GET_HR(mob) * 0.20;
-		}
+		RenameAsUndead(ch, mob);
 	}
 
-	if (!ch->IsImmortal() && (AFF_FLAGGED(mob, EAffect::kSanctuary) || mob->IsFlagged(EMobFlag::kProtect))) {
-		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kResurrectConsecrated) + "\r\n", ch);
-		ExtractCharFromWorld(mob, false);
-		return EStageResult::kSuccess;
-	}
-	if (!ch->IsImmortal() &&
-		(GET_MOB_SPEC(mob) || mob->IsFlagged(EMobFlag::kNoResurrection) ||
-			mob->IsFlagged(EMobFlag::kAreaAttack))) {
-		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kResurrectNoPower) + "\r\n", ch);
-		ExtractCharFromWorld(mob, false);
-		return EStageResult::kSuccess;
-	}
-	if (!ch->IsImmortal() && AFF_FLAGGED(mob, EAffect::kGodsShield)) {
-		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kResurrectProtected) + "\r\n", ch);
-		ExtractCharFromWorld(mob, false);
-		return EStageResult::kSuccess;
-	}
-	if (mob->IsFlagged(EMobFlag::kMounting)) {
-		mob->UnsetFlag(EMobFlag::kMounting);
-	}
-	if (IS_HORSE(mob)) {
-		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kSummonWarhorse) + "\r\n", ch);
-		ExtractCharFromWorld(mob, false);
+	if (IsSummonTargetProtected(ch, mob, spell_id)) {
 		return EStageResult::kSuccess;
 	}
 
-	if (spell_id == ESpell::kAnimateDead && mob_num >= kMobNecrodamager && mob_num <= kLastNecroMob) {
-		// add 10% mob health by remort
-		mob->set_max_hit(mob->get_max_hit() * (1.0 + GetRealRemort(ch) / 10.0));
-		mob->set_hit(mob->get_max_hit());
-		int player_charms_value = CalcCharmPoint(ch, spell_id);
-		int mob_cahrms_value = GetReformedCharmiceHp(ch, mob, spell_id);
-		int damnodice = 1;
-		mob->mob_specials.damnodice = damnodice;
-		// look for count dice to maximize damage on player_charms_value. max 255.
-		while (player_charms_value > mob_cahrms_value && damnodice <= 255) {
-			damnodice++;
-			mob->mob_specials.damnodice = damnodice;
-			mob_cahrms_value = GetReformedCharmiceHp(ch, mob, spell_id);
-		}
-		damnodice--;
-
-		mob->mob_specials.damnodice = damnodice; // get prew damnodice for match with player_charms_value
-		if (damnodice == 255) {
-			// if damnodice == 255 mob damage not maximized. damsize too small
-			SendMsgToRoom("Темные искры пробежали по земле... И исчезли...", ch->in_room, 0);
-		} else {
-			// mob damage maximazed.
-			SendMsgToRoom("Темные искры пробежали по земле. Кажется сама СМЕРТЬ наполняет это тело силой!",
-						  ch->in_room,
-						  0);
-		}
+	if (spell_id == ESpell::kAnimateDead && p.mob_num >= kMobNecrodamager && p.mob_num <= kLastNecroMob) {
+		BoostNecroDamage(ch, mob, spell_id);
 	}
 
 	if (!CheckCharmices(ch, mob, spell_id)) {
 		ExtractCharFromWorld(mob, false);
-		if (handle_corpse)
+		if (p.handle_corpse) {
 			ExtractObjFromWorld(obj);
+		}
 		return EStageResult::kSuccess;
 	}
 
@@ -1277,8 +1466,8 @@ EStageResult CastSummon(int level, CharData *ch, ObjData *obj, ESpell spell_id, 
 	GET_GOLD_SiDs(mob) = 0;
 	const auto days_from_full_moon =
 		(weather_info.moon_day < 14) ? (14 - weather_info.moon_day) : (weather_info.moon_day - 14);
-	// familiar duration is a flat number tied to caster wisdom + the moon
-	// phase; no skill scaling, so skill_id=kUndefined. `mob` (the familiar) sets the NPC-raw unit.
+	// familiar duration is a flat number tied to caster wisdom + the moon phase; no skill scaling,
+	// so skill_id=kUndefined. `mob` (the familiar) sets the NPC-raw unit.
 	const auto duration = CalcDuration(ch, mob, ESkill::kUndefined,
 		GetRealWis(ch) + number(0, days_from_full_moon), 0, 0, 0);
 	Affect<EApply> af;
@@ -1289,7 +1478,7 @@ EStageResult CastSummon(int level, CharData *ch, ObjData *obj, ESpell spell_id, 
 	af.affect_type = EAffect::kCharmed;
 	af.battleflag = 0;
 	affect_to_char(mob, af);
-	if (keeper) {
+	if (p.keeper) {
 		af.affect_type = EAffect::kHelper;
 		affect_to_char(mob, af);
 		mob->set_skill(ESkill::kRescue, 100);
@@ -1297,162 +1486,51 @@ EStageResult CastSummon(int level, CharData *ch, ObjData *obj, ESpell spell_id, 
 
 	mob->SetFlag(EMobFlag::kCorpse);
 	if (spell_id == ESpell::kClone) {
-		sprintf(buf2, "двойник %s %s", GET_PAD(ch, 1), GET_NAME(ch));
-		mob->SetCharAliases(buf2);
-		sprintf(buf2, "двойник %s", GET_PAD(ch, 1));
-		mob->set_npc_name(buf2);
-		mob->player_data.long_descr = "";
-		sprintf(buf2, "двойник %s", GET_PAD(ch, 1));
-		mob->player_data.PNames[ECase::kNom] = std::string(buf2);
-		sprintf(buf2, "двойника %s", GET_PAD(ch, 1));
-		mob->player_data.PNames[ECase::kGen] = std::string(buf2);
-		sprintf(buf2, "двойнику %s", GET_PAD(ch, 1));
-		mob->player_data.PNames[ECase::kDat] = std::string(buf2);
-		sprintf(buf2, "двойника %s", GET_PAD(ch, 1));
-		mob->player_data.PNames[ECase::kAcc] = std::string(buf2);
-		sprintf(buf2, "двойником %s", GET_PAD(ch, 1));
-		mob->player_data.PNames[ECase::kIns] = std::string(buf2);
-		sprintf(buf2, "двойнике %s", GET_PAD(ch, 1));
-		mob->player_data.PNames[ECase::kPre] = std::string(buf2);
-
-		mob->set_str(ch->get_str());
-		mob->set_dex(ch->get_dex());
-		mob->set_con(ch->get_con());
-		mob->set_wis(ch->get_wis());
-		mob->set_int(ch->get_int());
-		mob->set_cha(ch->get_cha());
-
-		mob->set_level(GetRealLevel(ch));
-		GET_HR(mob) = -20;
-		GET_AC(mob) = GET_AC(ch);
-		GET_DR(mob) = GET_DR(ch);
-
-		mob->set_max_hit(ch->get_max_hit());
-		mob->set_hit(ch->get_max_hit());
-		mob->mob_specials.damnodice = 0;
-		mob->mob_specials.damsizedice = 0;
-		mob->set_gold(0);
-		GET_GOLD_NoDs(mob) = 0;
-		GET_GOLD_SiDs(mob) = 0;
-		mob->set_exp(0);
-
-		mob->SetPosition(EPosition::kStand);
-		GET_DEFAULT_POS(mob) = EPosition::kStand;
-		mob->set_sex(EGender::kMale);
-
-		mob->set_class(ch->GetClass());
-		GET_WEIGHT(mob) = GET_WEIGHT(ch);
-		GET_HEIGHT(mob) = GET_HEIGHT(ch);
-		GET_SIZE(mob) = GET_SIZE(ch);
-		mob->SetFlag(EMobFlag::kClone);
-		mob->UnsetFlag(EMobFlag::kMounting);
+		ApplyCloneCosmetics(ch, mob);
 	}
-	act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kSummonToRoom).c_str(), false, ch, nullptr, mob, kToRoom | kToArenaListen);
+	act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kSummonToRoom).c_str(),
+		false, ch, nullptr, mob, kToRoom | kToArenaListen);
 
 	PlaceCharToRoom(mob, ch->in_room);
 	ch->add_follower(mob);
 
 	if (spell_id == ESpell::kClone) {
 		// клоны теперь кастятся все вместе // ужасно некрасиво сделано
-		for (auto *k : ch->followers) {
-			if (AFF_FLAGGED(k, EAffect::kCharmed)
-				&& k->get_master() == ch) {
-				cha_num++;
-			}
-		}
-		cha_num = std::max(1, (GetRealLevel(ch) + 4) / 5 - 2) - cha_num;
-		if (cha_num < 1)
+		if (!MaybeSpawnAdditionalClones(level, ch, obj, spell_id)) {
 			return EStageResult::kSuccess;
-		CastSummon(level, ch, obj, spell_id, 0);
+		}
 	}
 	if (spell_id == ESpell::kAnimateDead) {
-		mob->SetFlag(EMobFlag::kResurrected);
-		if (mob_num == kMobSkeleton && CanUseFeat(ch, EFeat::kLoyalAssist))
-			mob->set_skill(ESkill::kRescue, 100);
-
-		if (mob_num == kMobBonespirit && CanUseFeat(ch, EFeat::kHauntingSpirit))
-			mob->set_skill(ESkill::kRescue, 120);
-
-		// даем всем поднятым, ну наверное не будет чернок 75+ мудры вызывать зомби в щите.
-		float eff_wis = CalcEffectiveWis(ch, spell_id);
-		if (eff_wis >= 65) {
-			// пока не даем, если надо включите
-			//af.affect_type = to_underlying(EAffectFlag::AFF_MAGICGLASS);
-			//affect_to_char(mob, af);
-		}
-		if (eff_wis >= 75) {
-			Affect<EApply> af;
-			af.type = ESpell::kUndefined;
-			af.duration = duration * (1 + GetRealRemort(ch));
-			af.modifier = 0;
-			af.location = EApply::kNone;
-			af.affect_type = EAffect::kIceShield;
-			af.battleflag = 0;
-			affect_to_char(mob, af);
-		}
-
+		EnhanceAnimateDead(ch, mob, p.mob_num, spell_id, duration);
 	}
-
 	if (spell_id == ESpell::kSummonKeeper) {
-		// Svent TODO: не забыть перенести это в ability
-		mob->set_level(GetRealLevel(ch));
-		int rating = (ch->GetSkill(ESkill::kLightMagic) + GetRealCha(ch)) / 2;
-		int v = 50 + RollDices(10, 10) + rating * 6;
-		mob->set_hit(v);
-		mob->set_max_hit(v);
-		mob->set_skill(ESkill::kPunch, 10 + rating * 1.5);
-		mob->set_skill(ESkill::kRescue, 50 + rating);
-		mob->set_str(3 + rating / 5);
-		mob->set_dex(10 + rating / 5);
-		mob->set_con(10 + rating / 5);
-		GET_HR(mob) = rating / 2 - 4;
-		GET_AC(mob) = 100 - rating * 2.65;
+		SetupKeeperStats(ch, mob);
 	}
-
 	if (spell_id == ESpell::kSummonFirekeeper) {
-		Affect<EApply> af;
-		af.type = ESpell::kCharm;
-		af.duration = duration;
-		af.modifier = 0;
-		af.location = EApply::kNone;
-		af.battleflag = 0;
-		if (get_effective_cha(ch) >= 30) {
-			af.affect_type = EAffect::kFireShield;
-			affect_to_char(mob, af);
-		} else {
-			af.affect_type = EAffect::kFireAura;
-			affect_to_char(mob, af);
-		}
-
-		modifier = VPOSI((int) get_effective_cha(ch) - 20, 0, 30);
-
-		GET_DR(mob) = 10 + modifier * 3 / 2;
-		GET_NDD(mob) = 1;
-		GET_SDD(mob) = modifier / 5 + 1;
-		mob->mob_specials.extra_attack = 0;
-
-		int m = 300 + number(modifier * 12, modifier * 16);
-		mob->set_hit(m);
-		mob->set_max_hit(m);
-		mob->set_skill(ESkill::kAwake, 50 + modifier * 2);
-		mob->SetFlag(EPrf::kAwake);
+		SetupFirekeeperStats(ch, mob, duration);
 	}
 	mob->SetFlag(EMobFlag::kNoSkillTrain);
-	// А надо ли это вообще делать???
-	if (handle_corpse) {
-		for (tobj = obj->get_contains(); tobj;) {
-			next_obj = tobj->get_next_content();
-			RemoveObjFromObj(tobj);
-			PlaceObjToRoom(tobj, ch->in_room);
-			if (!CheckObjDecay(tobj) && tobj->get_in_room() != kNowhere) {
-				act("На земле остал$U лежать $o.", false, ch, tobj, nullptr, kToRoom | kToArenaListen);
-			}
-			tobj = next_obj;
-		}
-		ExtractObjFromWorld(obj);
+	if (p.handle_corpse) {
+		SpillCorpseContents(ch, obj);
 	}
 	mob->char_specials.saved.alignment = ch->char_specials.saved.alignment; //выровняем алигмент чтоб не агрили вдруг
 	return EStageResult::kSuccess;
+}
+
+// Defined after CastSummon (forward-declared above) because it recurses into it.
+static bool MaybeSpawnAdditionalClones(int level, CharData *ch, ObjData *obj, ESpell spell_id) {
+	int already = 0;
+	for (auto *k : ch->followers) {
+		if (AFF_FLAGGED(k, EAffect::kCharmed) && k->get_master() == ch) {
+			++already;
+		}
+	}
+	const int remaining = std::max(1, (GetRealLevel(ch) + 4) / 5 - 2) - already;
+	if (remaining < 1) {
+		return false;
+	}
+	CastSummon(level, ch, obj, spell_id, 0);
+	return true;
 }
 
 EStageResult CastToPoints(int level, CharData *ch, CharData *victim, ESpell spell_id) {
