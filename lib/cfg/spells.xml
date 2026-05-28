@@ -3915,7 +3915,7 @@ base_stat id - (например "kWis") какой берем параметр,
                 <affects type="kWarcryOfMenace" saving="kWill" resist="kMind">
                     <duration base="2" skill_divisor="10" min="6" max="0"/>
                     <flags val="kAfBattledec|kAfDispellable|kAfCurable"/>
-                    <apply id="kWarcryOfMenace" location="kMorale">
+                    <apply id="kUndefinded" location="kMorale">
                         <modifier min="8.0" dices_weight="0.0" competencies_weight="0.0" factor="-1"/>
                     </apply>
                 </affects>
@@ -4792,7 +4792,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <flags val="kMagGroups|kMagAffects|kNpcAffectNpc"/>
         <potency_roll>
             <dices ndice="5" sdice="9" adice="12"/>
-            <base_skill id="kEartMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_skill id="kEarthMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kWis" threshold="22" weight="0.5"/>
         </potency_roll>
         <talent_actions>
@@ -4846,7 +4846,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <flags val="kMagGroups|kMagAffects|kNpcAffectNpc"/>
         <potency_roll>
             <dices ndice="5" sdice="9" adice="12"/>
-            <base_skill id="kearthMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_skill id="kEarthMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kWis" threshold="22" weight="0.5"/>
         </potency_roll>
         <talent_actions>
@@ -5093,7 +5093,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <flags val="kMagGroups|kMagAffects|kNpcAffectNpc"/>
         <potency_roll>
             <dices ndice="5" sdice="9" adice="12"/>
-            <base_skill id="kWaterkMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_skill id="kWaterMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kWis" threshold="22" weight="0.5"/>
         </potency_roll>
         <talent_actions>
