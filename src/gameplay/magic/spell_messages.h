@@ -98,6 +98,7 @@ enum class ESpellMsg {
 	kAffImposedToChar,		// CastAffect: affect landed, to the affected char.
 	kAffDispelledToRoom,	// CastUnaffects: affect removed, to the room.
 	kAffDispelledToChar,	// CastUnaffects: affect removed, to the cured char.
+	kAffExpired,			// Affect timed out / wore off naturally on the affected char.
 	// Reflection (issue.cast-dmg-migration): emitted by CastToSingleTarget when the original
 	// target reflects the spell back at the caster ($n = caster, $N = original victim).
 	kReflectedToChar,		// reflection: to the caster (whose spell bounced back).
