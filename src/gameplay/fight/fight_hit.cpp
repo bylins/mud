@@ -1039,6 +1039,11 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 	// обработка защитных скилов (захват, уклон, парир, веер, блок)
 	hit_params.ProcessDefensiveAbilities(ch, victim);
 
+	// точный стиль: если точка сработала, дамаг не может быть нулевым
+	if (hit_params.GetFlags()[fight::kCritHit] && hit_params.dam_critic && hit_params.dam <= 0) {
+		hit_params.dam = 1;
+	}
+
 	// kPaladineInspiration - только если удар не заблокирован полностью
 	if (paladine_inspiration && hit_params.dam > 0) {
 		CallMagic(ch, victim, nullptr, nullptr, ESpell::kPaladineInspiration, GetRealLevel(ch));
