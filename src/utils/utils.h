@@ -489,8 +489,8 @@ const int kNameLevel = 5;
 #define CAN_SEE_IN_DARK(ch) \
    (AFF_FLAGGED(ch, EAffect::kInfravision) || (!(ch)->IsNpc() && (ch)->IsFlagged(EPrf::kHolylight)))
 
-#define IS_GOOD(ch)          (GET_ALIGNMENT(ch) >= kAligGoodMore)
-#define IS_EVIL(ch)          (GET_ALIGNMENT(ch) <= kAligEvilLess)
+// IS_GOOD / IS_EVIL replaced by IsGood/IsEvil/IsNeutral inline functions in char_data.h
+// (issue.cast-dmg-migration: macros -> Google-style inline functions, plus the new IsNeutral).
 #define ALIGN_DELTA  10
 #define SAME_ALIGN(ch, vict)  (GET_ALIGNMENT(ch)>GET_ALIGNMENT(vict)?\
                               (GET_ALIGNMENT(ch)-GET_ALIGNMENT(vict))<=ALIGN_DELTA:\

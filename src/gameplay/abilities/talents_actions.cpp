@@ -350,6 +350,8 @@ void PrintFlagCondition(const char *label, const FlagCondition &cond, std::ostri
 		buffer << " align=" << kColorGrn << "kGood" << kColorNrm;
 	} else if (cond.align == EAlign::kEvil) {
 		buffer << " align=" << kColorGrn << "kEvil" << kColorNrm;
+	} else if (cond.align == EAlign::kNeutral) {
+		buffer << " align=" << kColorGrn << "kNeutral" << kColorNrm;
 	}
 	buffer << "\r\n";
 }
@@ -367,6 +369,8 @@ void Actions::Print(CharData *ch, std::ostringstream &buffer) const {
 			buffer << " align=" << kColorGrn << "kGood" << kColorNrm;
 		} else if (reflection_.align == EAlign::kEvil) {
 			buffer << " align=" << kColorGrn << "kEvil" << kColorNrm;
+		} else if (reflection_.align == EAlign::kNeutral) {
+			buffer << " align=" << kColorGrn << "kNeutral" << kColorNrm;
 		}
 		buffer << "\r\n";
 	}
@@ -416,14 +420,16 @@ void Actions::ParseFlagCondition(FlagCondition &cond, parser_wrapper::DataNode &
 		}
 	}
 	// align (issue.cast-dmg-migration): blocking/required tied to the target's alignment via
-	// the IS_GOOD / IS_EVIL macros. Absent = no alignment check; "kGood" / "kEvil" are the
-	// only valid values (the neutral band is unaddressable).
+	// the IsGood / IsEvil / IsNeutral inline functions. Absent = no alignment check; valid
+	// values are "kGood" / "kEvil" / "kNeutral".
 	const char *align = node.GetValue("align");
 	if (align && *align) {
 		if (strcmp(align, "kGood") == 0) {
 			cond.align = EAlign::kGood;
 		} else if (strcmp(align, "kEvil") == 0) {
 			cond.align = EAlign::kEvil;
+		} else if (strcmp(align, "kNeutral") == 0) {
+			cond.align = EAlign::kNeutral;
 		} else {
 			err_log("Actions: unknown EAlign '%s' in <blocking/required align>.", align);
 		}
@@ -468,6 +474,8 @@ void Actions::ParseReflection(Reflection &refl, parser_wrapper::DataNode &node) 
 			refl.align = EAlign::kGood;
 		} else if (strcmp(align, "kEvil") == 0) {
 			refl.align = EAlign::kEvil;
+		} else if (strcmp(align, "kNeutral") == 0) {
+			refl.align = EAlign::kNeutral;
 		} else {
 			err_log("Actions: unknown EAlign '%s' in <reflection align>.", align);
 		}

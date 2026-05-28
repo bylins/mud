@@ -1897,13 +1897,13 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 	}
 	if (AFF_FLAGGED(ch, EAffect::kDetectAlign)) {
 		if (i->IsNpc()) {
-			if (IS_EVIL(i)) {
+			if (IsEvil(i)) {
 				if (AFF_FLAGGED(ch, EAffect::kDetectMagic)
 					&& AFF_FLAGGED(i, EAffect::kForcesOfEvil))
 					strcat(buf, "(иссиня-черная аура) ");
 				else
 					strcat(buf, "(темная аура) ");
-			} else if (IS_GOOD(i)) {
+			} else if (IsGood(i)) {
 				if (AFF_FLAGGED(ch, EAffect::kDetectMagic)
 					&& AFF_FLAGGED(i, EAffect::kForcesOfEvil))
 					strcat(buf, "(серая аура) ");

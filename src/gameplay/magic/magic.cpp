@@ -638,11 +638,11 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 		// <lag> (low_skill_coeff, capped ~12 rounds) replacing the kMagicStopFight affect; its 20% roll
 		// and wisdom term are dropped.
 		case ESpell::kDispelEvil: {
-			if (ch != victim && IS_EVIL(ch) && !ch->IsImmortal() && ch->get_hit() > 1) {
+			if (ch != victim && IsEvil(ch) && !ch->IsImmortal() && ch->get_hit() > 1) {
 				SendMsgToChar("Ваша магия обратилась против вас.", ch);
 				ch->set_hit(1);
 			}
-			if (!IS_EVIL(victim)) {
+			if (!IsEvil(victim)) {
 				if (victim != ch)
 					act("Боги защитили $N3 от вашей магии.", false, ch, nullptr, victim, kToChar);
 				return 0;
@@ -650,11 +650,11 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			break;
 		}
 		case ESpell::kDispelGood: {
-			if (ch != victim && IS_GOOD(ch) && !ch->IsImmortal() && ch->get_hit() > 1) {
+			if (ch != victim && IsGood(ch) && !ch->IsImmortal() && ch->get_hit() > 1) {
 				SendMsgToChar("Ваша магия обратилась против вас.", ch);
 				ch->set_hit(1);
 			}
-			if (!IS_GOOD(victim)) {
+			if (!IsGood(victim)) {
 				if (victim != ch)
 					act("Боги защитили $N3 от вашей магии.", false, ch, nullptr, victim, kToChar);
 				return 0;
@@ -2270,11 +2270,14 @@ static bool TargetIsBlocked(CharData *victim, const talents_actions::FlagConditi
 		}
 	}
 	// align (issue.cast-dmg-migration): blocks the cast when the target carries the matching
-	// alignment (IS_GOOD / IS_EVIL). kAny means no alignment block.
-	if (cond.align == EAlign::kGood && IS_GOOD(victim)) {
+	// alignment (IsGood / IsEvil / IsNeutral). kAny means no alignment block.
+	if (cond.align == EAlign::kGood && IsGood(victim)) {
 		return true;
 	}
-	if (cond.align == EAlign::kEvil && IS_EVIL(victim)) {
+	if (cond.align == EAlign::kEvil && IsEvil(victim)) {
+		return true;
+	}
+	if (cond.align == EAlign::kNeutral && IsNeutral(victim)) {
 		return true;
 	}
 	return false;
@@ -2294,11 +2297,14 @@ static bool TargetMeetsRequired(CharData *victim, const talents_actions::FlagCon
 		}
 	}
 	// align (issue.cast-dmg-migration): require the target to carry the matching alignment
-	// (IS_GOOD / IS_EVIL). kAny means no alignment requirement.
-	if (cond.align == EAlign::kGood && !IS_GOOD(victim)) {
+	// (IsGood / IsEvil / IsNeutral). kAny means no alignment requirement.
+	if (cond.align == EAlign::kGood && !IsGood(victim)) {
 		return false;
 	}
-	if (cond.align == EAlign::kEvil && !IS_EVIL(victim)) {
+	if (cond.align == EAlign::kEvil && !IsEvil(victim)) {
+		return false;
+	}
+	if (cond.align == EAlign::kNeutral && !IsNeutral(victim)) {
 		return false;
 	}
 	return true;
@@ -2342,8 +2348,9 @@ int CastToSingleTarget(CharData *caster, CharData *cvict, ObjData *ovict, CastRo
 				if (AFF_FLAGGED(cvict, aff)) { match = true; break; }
 			}
 			if (!match) {
-				if (refl.align == EAlign::kGood && IS_GOOD(cvict)) match = true;
-				else if (refl.align == EAlign::kEvil && IS_EVIL(cvict)) match = true;
+				if (refl.align == EAlign::kGood && IsGood(cvict)) match = true;
+				else if (refl.align == EAlign::kEvil && IsEvil(cvict)) match = true;
+				else if (refl.align == EAlign::kNeutral && IsNeutral(cvict)) match = true;
 			}
 			if (match && number(1, 100) <= refl.prob) {
 				act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kReflectedToChar).c_str(),

@@ -903,6 +903,16 @@ inline void SET_INVIS_LEV(const CharData *ch, const int level) {
 }
 inline void SET_INVIS_LEV(const CharData::shared_ptr &ch, const int level) { SET_INVIS_LEV(ch.get(), level); }
 
+// Alignment predicates (issue.cast-dmg-migration). Replace the IS_GOOD / IS_EVIL macros that used
+// to live in utils.h; IsNeutral covers the third band (between -300 and +300, exclusive). Named
+// per Google C++ style. Thresholds come from kAligGoodMore / kAligEvilLess in utils.h.
+inline bool IsGood(const CharData *ch) { return ch->char_specials.saved.alignment >= kAligGoodMore; }
+inline bool IsGood(const CharData::shared_ptr &ch) { return IsGood(ch.get()); }
+inline bool IsEvil(const CharData *ch) { return ch->char_specials.saved.alignment <= kAligEvilLess; }
+inline bool IsEvil(const CharData::shared_ptr &ch) { return IsEvil(ch.get()); }
+inline bool IsNeutral(const CharData *ch) { return !IsGood(ch) && !IsEvil(ch); }
+inline bool IsNeutral(const CharData::shared_ptr &ch) { return IsNeutral(ch.get()); }
+
 inline void SetWaitState(CharData *ch, const unsigned cycle) {
 	if (ch->get_wait() < cycle) {
 		ch->set_wait(cycle);
