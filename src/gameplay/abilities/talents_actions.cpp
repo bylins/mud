@@ -198,10 +198,13 @@ TalentAffect::TalentAffect(parser_wrapper::DataNode &node) {
 	for (auto &child: node.Children()) {
 		const auto name = child.GetName();
 		if (strcmp(name, "duration") == 0) {
+			// issue.calc-duration: `cnst`/`level_divisor` renamed to `base`/`skill_divisor`.
+			// The bonus is now `min(skill, 75) / skill_divisor` (capped, so monsters can't grow
+			// affects unbounded), where `skill` is the spell's potency-roll `base_skill`.
 			dur_min_ = parse::ReadAsInt(child.GetValue("min"));
 			dur_max_ = parse::ReadAsInt(child.GetValue("max"));
-			dur_const_ = parse::ReadAsInt(child.GetValue("cnst"));
-			dur_level_divisor_ = parse::ReadAsInt(child.GetValue("level_divisor"));
+			dur_base_ = parse::ReadAsInt(child.GetValue("base"));
+			dur_skill_divisor_ = parse::ReadAsInt(child.GetValue("skill_divisor"));
 		} else if (strcmp(name, "flags") == 0) {
 			flags_ = parse::ReadAsConstantsBitvector<EAffFlag>(child.GetValue("val"));
 		} else if (strcmp(name, "apply") == 0) {
@@ -242,8 +245,8 @@ void TalentAffect::Print(CharData */*ch*/, std::ostringstream &buffer) const {
 		   << " Resist: " << kColorGrn << NAME_BY_ITEM<EResist>(resist_) << kColorNrm
 		   << " Prob: " << kColorGrn << prob_ << kColorNrm
 		   << " Flags: " << kColorGrn << flags_ << kColorNrm << "\r\n"
-		   << "  Duration: cnst=" << kColorGrn << dur_const_ << kColorNrm
-		   << " level_divisor=" << kColorGrn << dur_level_divisor_ << kColorNrm
+		   << "  Duration: base=" << kColorGrn << dur_base_ << kColorNrm
+		   << " skill_divisor=" << kColorGrn << dur_skill_divisor_ << kColorNrm
 		   << " min=" << kColorGrn << dur_min_ << kColorNrm
 		   << " max=" << kColorGrn << dur_max_ << kColorNrm << "\r\n";
 	for (const auto &apply: applies_) {

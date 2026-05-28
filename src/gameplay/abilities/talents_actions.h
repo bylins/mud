@@ -73,7 +73,8 @@ class Roll {
 	// as the skill bonus for the battle-lag formula (issue.cast-spell-lag).
 	[[nodiscard]] double CalcLowSkillCoeff(const CharData *ch) const;
 	[[nodiscard]] double CalcBaseStatCoeff(const CharData *ch) const;
-	// The roll's key skill (issue.extra-hits: also used as the extra-hits scaling skill).
+	// The roll's key skill: also used as the affect's duration scaling skill (issue.calc-duration)
+	// and the multi-hit count scaling skill (issue.extra-hits).
 	[[nodiscard]] ESkill GetBaseSkill() const { return base_skill_; }
 
 	void Print(CharData *ch, std::ostringstream &buffer) const;
@@ -185,8 +186,12 @@ class TalentAffect : public IAction {
 	[[nodiscard]] EResist GetResist() const { return resist_; }
 	[[nodiscard]] int GetProb() const { return prob_; }
 	[[nodiscard]] Bitvector GetFlags() const { return flags_; }
-	[[nodiscard]] int GetDurationConst() const { return dur_const_; }
-	[[nodiscard]] int GetDurationLevelDivisor() const { return dur_level_divisor_; }
+	// Duration parameters (issue.calc-duration): base (flat duration in hours, PC unit-converted to
+	// ticks) plus a skill-scaled bonus = min(skill, kNoviceSkillThreshold)/skill_divisor, optionally
+	// clamped to [dur_min_, dur_max_] (0 means no clamp on that side, OLD-style). The "skill" is
+	// the spell's potency-roll base_skill -- pulled at the call site from MUD::Spell(...).GetPotencyRoll().
+	[[nodiscard]] int GetDurationBase() const { return dur_base_; }
+	[[nodiscard]] int GetDurationSkillDivisor() const { return dur_skill_divisor_; }
 	[[nodiscard]] int GetDurationMin() const { return dur_min_; }
 	[[nodiscard]] int GetDurationMax() const { return dur_max_; }
 	[[nodiscard]] const std::vector<Apply> &GetApplies() const { return applies_; }
@@ -203,8 +208,8 @@ class TalentAffect : public IAction {
 	EResist resist_{EResist::kFire};
 	int prob_{100};                         // percent chance the affect block fires (default always)
 	Bitvector flags_{0};
-	int dur_const_{0};
-	int dur_level_divisor_{0};
+	int dur_base_{0};
+	int dur_skill_divisor_{0};
 	int dur_min_{0};
 	int dur_max_{0};
 	std::vector<Apply> applies_;

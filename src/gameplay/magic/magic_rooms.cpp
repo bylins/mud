@@ -421,7 +421,10 @@ int CallMagicToRoom(CharData *ch, RoomData *room, CastRollResult roll) {
 		case ESpell::kRoomLight: af[0].type = spell_id;
 			af[0].location = kNone;
 			af[0].modifier = 0;
-			af[0].duration = CalcDuration(ch, 0, GetRealLevel(ch) + 5, 6, 0, 0);
+			// issue.calc-duration: bind to the caster's kLightMagic skill instead of raw level.
+			// At skill 75 (cap), 75/15 = 5h, matching the old level-30 ceiling. There's no separate
+			// "victim" for a room affect, so the caster (ch) sets the unit.
+			af[0].duration = CalcDuration(ch, ch, ESkill::kLightMagic, 0, 15, 0, 0);
 			af[0].caster_id = ch->get_uid();
 			af[0].must_handled = false;
 			accum_duration = true;

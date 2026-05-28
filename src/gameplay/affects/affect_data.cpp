@@ -1268,17 +1268,23 @@ bool GetAffectNumByName(const std::string &affName, EAffect &result) {
 	return false;
 }
 
-int CalcDuration(CharData *ch, ESkill skill_id, unsigned base, unsigned skill_divisor, int min, int max) {
+// issue.calc-duration: skill-based duration. `caster` provides the skill (bounded by
+// CalcNoviceSkillBonus's kNoviceSkillThreshold cap, so monster durations no longer grow with
+// raw mob level), `victim` decides the unit (PC: convert hours to player-affect ticks; NPC: raw).
+// skill_id == kUndefined skips the skill bonus -- used for flat durations and for spells without
+// a <potency_roll>. min/max keep the OLD-style "0 means no clamp on that side" semantics.
+int CalcDuration(CharData *caster, CharData *victim, ESkill skill_id,
+				 unsigned base, unsigned skill_divisor, int min, int max) {
 	if (skill_divisor == 0 && min == 0 && max == 0) {
-		return (ch->IsNpc() ? base : (base * kSecsPerMudHour / kSecsPerPlayerAffect));
+		return (victim->IsNpc() ? base : (base * kSecsPerMudHour / kSecsPerPlayerAffect));
 	}
-	if (min > max) {
-		std::swap(min, max);
-	}
-	auto skill_bonus = CalcNoviceSkillBonus(ch, skill_id, skill_divisor);
-	skill_bonus = std::min(std::max(skill_bonus, min), max);
-	auto duration = base + skill_bonus;
-	return (ch->IsNpc() ? duration : (duration * kSecsPerMudHour / kSecsPerPlayerAffect));
+	int skill_bonus = (skill_id == ESkill::kUndefined)
+		? 0
+		: CalcNoviceSkillBonus(caster, skill_id, skill_divisor);
+	if (min > 0) skill_bonus = std::max(skill_bonus, min);
+	if (max > 0) skill_bonus = std::min(skill_bonus, max);
+	const auto duration = base + static_cast<unsigned>(skill_bonus);
+	return (victim->IsNpc() ? duration : (duration * kSecsPerMudHour / kSecsPerPlayerAffect));
 }
 
 

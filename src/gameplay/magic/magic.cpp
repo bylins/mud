@@ -1054,9 +1054,15 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, const ESpell 
 				}
 				success = false;
 			} else {
+				// issue.calc-duration: skill-based duration. The bonus uses the caster's
+				// potency-roll base_skill (kUndefined for spells without a <potency_roll> -> flat
+				// duration). `victim` decides the unit (PC: hours -> ticks; NPC: raw), preserving
+				// today's tick-unit semantics.
+				const ESkill duration_skill = MUD::Spell(spell_id).GetPotencyRoll().GetBaseSkill();
 				int duration = ApplyResist(victim, talent.GetResist(),
-					CalcDuration(victim, talent.GetDurationConst(), level,
-								 talent.GetDurationLevelDivisor(), talent.GetDurationMin(), talent.GetDurationMax()));
+					CalcDuration(ch, victim, duration_skill,
+								 talent.GetDurationBase(), talent.GetDurationSkillDivisor(),
+								 talent.GetDurationMin(), talent.GetDurationMax()));
 				duration = CalcComplexSpellMod(ch, spell_id, GAPPLY_SPELL_EFFECT, duration);
 				const double competencies = potency.skill_coeff + potency.stat_coeff;
 				auto apply_one = [&](const talents_actions::TalentAffect::Apply &apply) {
@@ -1387,7 +1393,10 @@ EStageResult CastSummon(int level, CharData *ch, ObjData *obj, ESpell spell_id, 
 	GET_GOLD_SiDs(mob) = 0;
 	const auto days_from_full_moon =
 		(weather_info.moon_day < 14) ? (14 - weather_info.moon_day) : (weather_info.moon_day - 14);
-	const auto duration = CalcDuration(mob, GetRealWis(ch) + number(0, days_from_full_moon), 0, 0, 0, 0);
+	// issue.calc-duration: familiar duration is a flat number tied to caster wisdom + the moon
+	// phase; no skill scaling, so skill_id=kUndefined. `mob` (the familiar) sets the NPC-raw unit.
+	const auto duration = CalcDuration(ch, mob, ESkill::kUndefined,
+		GetRealWis(ch) + number(0, days_from_full_moon), 0, 0, 0);
 	Affect<EApply> af;
 	af.type = ESpell::kCharm;
 	af.duration = duration;
