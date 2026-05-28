@@ -59,7 +59,12 @@
 #endif
 #define socklen_t int
 
-#if (_MSC_VER < 1900)
+// _MSC_VER ne opredelyon na MinGW -- usloviye (_MSC_VER < 1900) dayet true,
+// i define snprintf _snprintf lomayet <cstdio>: using std::snprintf
+// prevrashchayetsya v using std::_snprintf (ne sushchestvuyet). Guard
+// defined(_MSC_VER) -- macro nuzhen tolko dlya drevnego MSVC < 2015,
+// MinGW yego ne kasayetsya.
+#if defined(_MSC_VER) && (_MSC_VER < 1900)
 #define snprintf _snprintf
 #endif
 #if _MSC_VER
