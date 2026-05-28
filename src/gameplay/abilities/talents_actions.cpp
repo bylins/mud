@@ -247,6 +247,9 @@ void TalentAffect::Print(CharData */*ch*/, std::ostringstream &buffer) const {
 TalentUnaffect::TalentUnaffect(parser_wrapper::DataNode &node) {
 	const char *pw = node.GetValue("potency_weight");
 	potency_weight_ = (pw && *pw) ? static_cast<float>(parse::ReadAsDouble(pw)) : 1.0f;
+	const char *af = node.GetValue("affect_flags");
+	affect_flags_ = (af && *af) ? parse::ReadAsConstantsBitvector<EAffFlag>(af)
+								 : (kAfCurable | kAfDispellable);
 	for (auto &child: node.Children()) {
 		const auto name = child.GetName();
 		Set *set = nullptr;
@@ -289,7 +292,8 @@ void TalentUnaffect::Print(CharData */*ch*/, std::ostringstream &buffer) const {
 		}
 		buffer << "\r\n";
 	};
-	buffer << " Unaffect:" << " potency_weight=" << kColorGrn << potency_weight_ << kColorNrm << "\r\n";
+	buffer << " Unaffect:" << " potency_weight=" << kColorGrn << potency_weight_ << kColorNrm
+		   << " affect_flags=" << kColorGrn << affect_flags_ << kColorNrm << "\r\n";
 	print_set("blocking", blocking_);
 	print_set("breaking", breaking_);
 	print_set("remove_anyway", remove_anyway_);

@@ -716,7 +716,7 @@ base_stat id - (например "kWis") какой берем параметр,
                 <blocking affect_flags="kGodsShield"/>
                 <affects type="kPoison" saving="kCritical" resist="kDark">
                     <duration cnst="0" level_divisor="1" min="0" max="0"/>
-                    <flags val="kAfSameTime|kAfDispellable|kAfCurable"/>
+                    <flags val="kAfSameTime|kAfCurable"/>
                     <apply id="kPoisoned" location="kStr">
                         <modifier min="2.0" dices_weight="0.0" competencies_weight="0.0" factor="-1"/>
                     </apply>
@@ -921,7 +921,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
-                <unaffect>
+                <unaffect affect_flags="kAfCurable">
                     <remove all_of="kPoison|kAconitumPoison|kScopolaPoison|kBelenaPoison|kDaturaPoison"/>
                 </unaffect>
             </action>
@@ -2564,7 +2564,7 @@ base_stat id - (например "kWis") какой берем параметр,
             <action>
                 <!-- kDispellMagic strips a random dispellable affect; handled in code
                      (CastUnaffects), so the lists stay empty. -->
-                <unaffect/>
+                <unaffect affect_flags="kAfDispellable"/>
             </action>
         </talent_actions>
     </spell>
@@ -4193,7 +4193,7 @@ base_stat id - (например "kWis") какой берем параметр,
                 <blocking affect_flags="kGodsShield"/>
                 <affects type="kAconitumPoison" saving="kNone" resist="kImmunity">
                     <duration cnst="7" level_divisor="0" min="0" max="0"/>
-                    <flags val="kAfSameTime|kAfDispellable|kAfCurable"/>
+                    <flags val="kAfSameTime|kAfCurable"/>
                     <apply id="kPoisoned" location="kAconitumPoison">
                         <modifier min="30.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
@@ -4217,7 +4217,7 @@ base_stat id - (например "kWis") какой берем параметр,
                 <blocking affect_flags="kGodsShield"/>
                 <affects type="kScopolaPoison" saving="kNone" resist="kImmunity">
                     <duration cnst="7" level_divisor="0" min="0" max="0"/>
-                    <flags val="kAfSameTime|kAfDispellable|kAfCurable"/>
+                    <flags val="kAfSameTime|kAfCurable"/>
                     <apply id="kPoisoned" location="kScopolaPoison">
                         <modifier min="5.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
@@ -4244,7 +4244,7 @@ base_stat id - (например "kWis") какой берем параметр,
                 <blocking affect_flags="kGodsShield"/>
                 <affects type="kBelenaPoison" saving="kNone" resist="kImmunity">
                     <duration cnst="7" level_divisor="0" min="0" max="0"/>
-                    <flags val="kAfSameTime|kAfDispellable|kAfCurable"/>
+                    <flags val="kAfSameTime|kAfCurable"/>
                     <apply id="kPoisoned" location="kBelenaPoison">
                         <modifier min="5.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>
@@ -4268,7 +4268,7 @@ base_stat id - (например "kWis") какой берем параметр,
                 <blocking affect_flags="kGodsShield"/>
                 <affects type="kDaturaPoison" saving="kNone" resist="kImmunity">
                     <duration cnst="7" level_divisor="0" min="0" max="0"/>
-                    <flags val="kAfSameTime|kAfDispellable|kAfCurable"/>
+                    <flags val="kAfSameTime|kAfCurable"/>
                     <apply id="kPoisoned" location="kDaturaPoison">
                         <modifier min="5.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
                     </apply>

@@ -1637,21 +1637,22 @@ EStageResult CastToPoints(int level, CharData *ch, CharData *victim, ESpell spel
 	return EStageResult::kSuccess;
 }
 
-bool CheckNodispel(const Affect<EApply>::shared_ptr &affect) {
-	// issue.affect-dispell-flags: an affect is dispellable iff it carries the kAfDispellable flag
-	// (set in spells.xml on every affect except the charm/quest/patronage/solobonus/eviless ones).
-	// The flag is the single source of truth -- anything unflagged (those effects, or any affect
-	// applied outside <affects> in code) is irremovable by design.
-	return !affect || !IS_SET(affect->battleflag, kAfDispellable);
+namespace {
+// issue #3342 / issue.affect-dispell-flags: helpers for the data-driven CastUnaffects.
+
+// True if `affect` carries at least one of `flags`. The <unaffect affect_flags=> set lists the
+// EAffFlag bits (kAfCurable / kAfDispellable) an affect must have to be eligible for removal by
+// that unaffect; this is the single source of truth for "can this be removed" (it replaced the old
+// CheckNodispel blacklist). An affect with no matching flag -- charm/quest effects, or anything
+// applied outside <affects> in code -- is irremovable.
+bool AffectMatchesFlags(const Affect<EApply>::shared_ptr &affect, Bitvector flags) {
+	return affect && IS_SET(affect->battleflag, flags);
 }
 
-namespace {
-// issue #3342: helpers for the data-driven CastUnaffects.
-
-// True if the victim carries a *dispellable* affect of the given spell type.
-bool HasDispellableAffect(CharData *victim, ESpell spell) {
+// True if the victim carries a removable affect of the given spell type (one matching `flags`).
+bool HasDispellableAffect(CharData *victim, ESpell spell, Bitvector flags) {
 	for (const auto &aff : victim->affected) {
-		if (aff && aff->type == spell && !CheckNodispel(aff)) {
+		if (aff && aff->type == spell && AffectMatchesFlags(aff, flags)) {
 			return true;
 		}
 	}
@@ -1692,15 +1693,15 @@ struct RemovalCandidate {
 // the first listed affect that is present and dispellable; all_of yields every listed
 // affect that is present and dispellable. Each candidate carries the set's breaking_by_failure.
 void CollectRemovals(CharData *victim, const talents_actions::TalentUnaffect::Set &set,
-					 std::vector<RemovalCandidate> &out) {
+					 std::vector<RemovalCandidate> &out, Bitvector flags) {
 	for (const auto spell : set.any_of) {
-		if (HasDispellableAffect(victim, spell)) {
+		if (HasDispellableAffect(victim, spell, flags)) {
 			out.push_back({spell, set.breaking_by_failure});
 			break;
 		}
 	}
 	for (const auto spell : set.all_of) {
-		if (HasDispellableAffect(victim, spell)) {
+		if (HasDispellableAffect(victim, spell, flags)) {
 			out.push_back({spell, set.breaking_by_failure});
 		}
 	}
@@ -1797,9 +1798,14 @@ EStageResult CastUnaffects(int/* level*/, CharData *ch, CharData *victim, ESpell
 	// kDispellMagic strips a *random* dispellable affect, which cannot be expressed as an
 	// <unaffect> any_of/all_of list -- it keeps its dedicated code path (issue #3342).
 	if (spell_id == ESpell::kDispellMagic) {
+		// kDispellMagic dispels only what its <unaffect affect_flags=> allows (kAfDispellable):
+		// poisons carry kAfCurable but not kAfDispellable, so "dispel magic" won't clear them.
+		const Bitvector flags = MUD::Spell(spell_id).actions.Contains(talents_actions::EAction::kUnaffect)
+			? MUD::Spell(spell_id).actions.GetUnaffect().GetAffectFlags()
+			: static_cast<Bitvector>(kAfCurable | kAfDispellable);
 		int dispellable = 0;
 		for (const auto &aff : victim->affected) {
-			if (!CheckNodispel(aff)) {
+			if (AffectMatchesFlags(aff, flags)) {
 				++dispellable;
 			}
 		}
@@ -1811,7 +1817,7 @@ EStageResult CastUnaffects(int/* level*/, CharData *ch, CharData *victim, ESpell
 		auto seen = 0;
 		auto to_remove{ESpell::kUndefined};
 		for (const auto &aff : victim->affected) {
-			if (CheckNodispel(aff)) {
+			if (!AffectMatchesFlags(aff, flags)) {
 				continue;
 			}
 			if (++seen == target) {
@@ -1849,10 +1855,11 @@ EStageResult CastUnaffects(int/* level*/, CharData *ch, CharData *victim, ESpell
 	// block so flagged breaks the cast chain, in addition to the present-affect <breaking> set.
 	bool break_chain = breaking;
 
+	const Bitvector flags = unaffect.GetAffectFlags();
 	std::vector<RemovalCandidate> to_remove;
-	CollectRemovals(victim, unaffect.GetRemoveAnyway(), to_remove);  // dispelled even when blocked
+	CollectRemovals(victim, unaffect.GetRemoveAnyway(), to_remove, flags);  // dispelled even when blocked
 	if (!blocking) {
-		CollectRemovals(victim, unaffect.GetRemove(), to_remove);   // dispelled only when not blocked
+		CollectRemovals(victim, unaffect.GetRemove(), to_remove, flags);   // dispelled only when not blocked
 	}
 
 	if (!to_remove.empty()) {

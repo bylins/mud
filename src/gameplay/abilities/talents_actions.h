@@ -233,6 +233,11 @@ class TalentUnaffect : public IAction {
 	// Weight applied to this dispel's potency roll when checked against an affect's recorded
 	// potency (issue: potency-gated dispel). Default 1.0 (the <unaffect potency_weight=> attr).
 	[[nodiscard]] float GetPotencyWeight() const { return potency_weight_; }
+	// Which affects this unaffect may remove: an affect is eligible only if it carries at least one
+	// of these EAffFlag bits (issue.affect-dispell-flags). Default kAfCurable|kAfDispellable -- a
+	// generic unaffect removes anything curable or dispellable. kRemovePoison narrows it to
+	// kAfCurable (cures, doesn't dispel); kDispellMagic to kAfDispellable (dispels, doesn't cure).
+	[[nodiscard]] Bitvector GetAffectFlags() const { return affect_flags_; }
 
  private:
 	Set blocking_;       // present -> removal is blocked (chain not affected)
@@ -240,6 +245,7 @@ class TalentUnaffect : public IAction {
 	Set remove_anyway_;  // dispelled even when blocking is true
 	Set remove_;         // dispelled only when blocking is false
 	float potency_weight_{1.0f};
+	Bitvector affect_flags_{kAfCurable | kAfDispellable};
 };
 
 using ActionPtr = std::shared_ptr<IAction>;
