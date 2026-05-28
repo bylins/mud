@@ -530,6 +530,31 @@ static int CalcTotalSpellDmg(CharData *ch, CharData *victim, ESpell spell_id) {
 // for both call sites now.
 namespace {
 
+// Build and process one Damage object for a multi-hit damage spell. `count` is the
+// remaining-hit counter (1 == last hit) so the no-flee flag is cleared on the final hit only.
+// Returns the result of Damage::Process(), reused by the loop's `rand` to decide whether to
+// continue (a non-negative value means the victim is still alive).
+int LandOneDamageHit(CharData *ch, CharData *victim, ESpell spell_id, int total_dmg,
+					 EPosition ch_start_pos, EPosition victim_start_pos, int count) {
+	Damage dmg(SpellDmg(spell_id), total_dmg, fight::kMagicDmg);
+	dmg.ch_start_pos = ch_start_pos;
+	dmg.victim_start_pos = victim_start_pos;
+
+	if (CanUseFeat(ch, EFeat::kPowerMagic) && victim->IsNpc()) {
+		dmg.flags.set(fight::kIgnoreAbsorbe);
+	}
+	// отражение магии в кастующего
+	if (ch == victim) {
+		dmg.flags.set(fight::kMagicReflect);
+	}
+	if (count <= 1) {
+		dmg.flags.reset(fight::kNoFleeDmg);
+	} else {
+		dmg.flags.set(fight::kNoFleeDmg);
+	}
+	return dmg.Process(ch, victim);
+}
+
 bool TryReflectByMagicGlass(CharData *ch, CharData *victim, ESpell spell_id) {
 	if (ch == victim) return false;
 	if (MUD::Spell(spell_id).IsFlagged(kMagWarcry)) return false;
@@ -655,24 +680,8 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 			&& victim->in_room == ch->in_room
 			&& ch->GetPosition() > EPosition::kStun
 			&& victim->GetPosition() > EPosition::kDead) {
-			// инит полей для дамага
-			Damage dmg(SpellDmg(spell_id), total_dmg, fight::kMagicDmg);
-			dmg.ch_start_pos = ch_start_pos;
-			dmg.victim_start_pos = victim_start_pos;
-
-			if (CanUseFeat(ch, EFeat::kPowerMagic) && victim->IsNpc()) {
-				dmg.flags.set(fight::kIgnoreAbsorbe);
-			}
-			// отражение магии в кастующего
-			if (ch == victim) {
-				dmg.flags.set(fight::kMagicReflect);
-			}
-			if (count <= 1) {
-				dmg.flags.reset(fight::kNoFleeDmg);
-			} else {
-				dmg.flags.set(fight::kNoFleeDmg);
-			}
-			rand = dmg.Process(ch, victim);
+			rand = LandOneDamageHit(ch, victim, spell_id, total_dmg,
+									ch_start_pos, victim_start_pos, count);
 		}
 	}
 	return rand;
