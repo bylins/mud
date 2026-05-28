@@ -4485,7 +4485,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <misc pos="kFight" violent="Y" danger="2"/>
         <mana max="130" min="100" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
-        <flags val="kMagDamage|kMagAffects|kNpcDamagePc|kNpcDamagePcMinhp"/>
+        <flags val="kMagDamage|kMagAffects|kMagAlterObjs|kNpcDamagePc|kNpcDamagePcMinhp"/>
         <potency_roll>
             <dices ndice="20" sdice="25" adice="75"/>
             <base_skill id="kWaterMagic" low_skill_bonus="2" hi_skill_bonus="1.75"/>

@@ -130,7 +130,7 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id);
 EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const RollResult &potency = {});
 EStageResult CastToPoints(int level, CharData *ch, CharData *victim, ESpell spell_id);
 EStageResult CastUnaffects(int, CharData *ch, CharData *victim, ESpell spell_id);
-EStageResult CastToAlterObjs(int, CharData *ch, ObjData *obj, ESpell spell_id);
+EStageResult CastToAlterObjs(CharData *ch, CharData *victim, ObjData *obj, ESpell spell_id);
 EStageResult CastCreation(int, CharData *ch, ESpell spell_id);
 EStageResult CastCharRelocate(CharData *caster, CharData *cvict, ESpell spell_id);
 int CastToSingleTarget(CharData *caster, CharData *cvict, ObjData *ovict, CastRollResult roll);

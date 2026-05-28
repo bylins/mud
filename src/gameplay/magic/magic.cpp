@@ -520,7 +520,8 @@ int CalcTotalSpellDmg(CharData *ch, CharData *victim, ESpell spell_id) {
 
 int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 	int rand = 0, count = 1, modi = 0;
-	ObjData *obj = nullptr;
+	// (CastDamage's local `obj` was removed with the kAcid case migration; CastToAlterObjs now
+	// picks the item to corrode itself, via the kMagAlterObjs flag dispatch in CallMagic.)
 
 	if (victim == nullptr || victim->in_room == kNowhere || ch == nullptr)
 		return (0);
@@ -606,26 +607,10 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 	}
 
 	switch (spell_id) {
-		case ESpell::kAcid: {
-			obj = nullptr;
-			if (victim->IsNpc()) {
-				rand = number(1, 50);
-				if (rand <= EEquipPos::kBoths) {
-					obj = GET_EQ(victim, rand);
-				} else {
-					for (rand -= EEquipPos::kBoths, obj = victim->carrying; rand && obj;
-						 rand--, obj = obj->get_next_content());
-				}
-			}
-			if (obj) {
-				// уберем костыльное снижение урона за бессмысленностью - все ранво мало кто пользуктся
-				// лучше потом реалиховать нормальную механику модификацию урона от обстоятельств
-				// spell_dmg.value().dice_size = spell_dmg.value().dice_size * 2 / 3;
-				act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kAcidCorrodeObj).c_str(), false, victim, obj, nullptr, kToChar);
-				DamageObj(obj, number(level * 2, level * 4), 100);
-			}
-			break;
-		}
+		// kAcid obj-corrosion was migrated to CastToAlterObjs (issue.cast-dmg-migration). The case
+		// now lives there next to kAcidArrow: CastToAlterObjs picks the random item from the
+		// victim's equipment itself (its IsNpc gate dropped per kvirund). kAcid still has the
+		// kMagAlterObjs flag so CallMagic routes here; kAcidArrow got the same flag.
 		// kClod knockdown+lag is data-driven now (issue.cast-damage-affects): <affects saving="kReflex">
 		// with <reposition pos="kSit"/> + <lag base="2" bonus_divisor="-1"/>. No case needed.
 		// kAcidArrow is fully data-driven now (issue.cast-dmg-migration): its damage uses kAcid's
@@ -1915,8 +1900,22 @@ EStageResult CastUnaffects(int/* level*/, CharData *ch, CharData *victim, ESpell
 	return break_chain ? EStageResult::kBreak : EStageResult::kSuccess;
 }
 
-EStageResult CastToAlterObjs(int/* level*/, CharData *ch, ObjData *obj, ESpell spell_id) {
+// issue.cast-dmg-migration: when `obj` is null but `victim` isn't, pick a random item from the
+// victim's equipment/inventory (the algorithm taken from the old kAcid case in CastDamage, with
+// its IsNpc gate dropped per kvirund). If neither obj nor victim is given there is nothing to act
+// on -- the function exits without effect.
+EStageResult CastToAlterObjs(CharData *ch, CharData *victim, ObjData *obj, ESpell spell_id) {
 	const char *to_char = nullptr;
+
+	if (obj == nullptr && victim != nullptr) {
+		int rand = number(1, 50);
+		if (rand <= EEquipPos::kBoths) {
+			obj = GET_EQ(victim, rand);
+		} else {
+			for (rand -= EEquipPos::kBoths, obj = victim->carrying; rand && obj;
+				 rand--, obj = obj->get_next_content());
+		}
+	}
 
 	if (obj == nullptr) {
 		return EStageResult::kSuccess;
@@ -2060,8 +2059,17 @@ EStageResult CastToAlterObjs(int/* level*/, CharData *ch, ObjData *obj, ESpell s
 			to_char = MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kAlterObjToChar).c_str();
 			break;
 
-		case ESpell::kAcid: DamageObj(obj, number(GetRealLevel(ch) * 2, GetRealLevel(ch) * 4), 100);
-			break;
+		case ESpell::kAcid:
+		case ESpell::kAcidArrow: {
+			// issue.cast-dmg-migration: the corrode message is keyed on the cast spell and shown to
+			// the victim whose item is being damaged (or the caster if there's no separate victim).
+			// Returning here skips the standard caster-side to_char fallback (kNoeffect / kAlterObj).
+			CharData *recipient = victim ? victim : ch;
+			act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kAcidCorrodeObj).c_str(),
+				false, recipient, obj, nullptr, kToChar);
+			DamageObj(obj, number(GetRealLevel(ch) * 2, GetRealLevel(ch) * 4), 100);
+			return EStageResult::kSuccess;
+		}
 
 		case ESpell::kRepair: obj->set_current_durability(obj->get_maximum_durability());
 			to_char = MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kAlterObjToChar).c_str();
@@ -2373,7 +2381,7 @@ int CastToSingleTarget(CharData *caster, CharData *cvict, ObjData *ovict, CastRo
 	}
 
 	if (MUD::Spell(spell_id).IsFlagged(kMagAlterObjs)
-			&& CastToAlterObjs(abs(level), caster, ovict, spell_id) == EStageResult::kBreak) {
+			&& CastToAlterObjs(caster, cvict, ovict, spell_id) == EStageResult::kBreak) {
 		return 1;
 	}
 
