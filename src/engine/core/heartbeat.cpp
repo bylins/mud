@@ -628,7 +628,6 @@ void Heartbeat::advance_pulse_numbers() {
 void Heartbeat::pulse(const int missed_pulses, pulse_label_t &label) {
 	label.clear();
 	advance_pulse_numbers();
-	log("Heartbeat pulse");
 	{
 		auto span = tracing::TraceManager::Instance().StartSpan("Characters::PurgeExtractedList");
 		character_list.PurgeExtractedList();
