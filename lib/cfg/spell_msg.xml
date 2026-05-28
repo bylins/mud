@@ -807,9 +807,8 @@
 		<message type="kCastPhraseChristian" val="...доколе камень не оторвался от горы без содействия рук." />
 	</msg_sheaf>
 	<msg_sheaf id="kStunning">
-		<message type="kDamageToChar" val="Ваше каменное проклятие отшибло сознание у $N1." />
-		<message type="kDamageToNotVict" val="Каменное проклятие $n1 отшибло сознание у $N1." />
-		<message type="kDamageToVict" val="У вас отшибло сознание, вам очень плохо..." />
+		<message type="kKnockdownToChar" val="У вас отшибло сознание, вам очень плохо..." />
+		<message type="kKnockdownToRoom" val="Каменное проклятие отшибло сознание у $n2." />
 		<message type="kFightDeathToChar" val="Ваше каменное проклятие оглушило $N3, после чего $E умер$Q." />
 		<message type="kFightDeathToVict" val="$n проклял$g вас своим каменным проклятием. Вы умираете." />
 		<message type="kFightDeathToRoom" val="$n превратил$g $N3 в камень. Пусть земля будет $M пухом." />
@@ -826,9 +825,8 @@
 		<message type="kCastPhraseChristian" val="... и проклял его именем Господним." />
 	</msg_sheaf>
 	<msg_sheaf id="kVacuum">
-		<message type="kDamageToChar" val="Круг пустоты отшиб сознание у $N1." />
-		<message type="kDamageToNotVict" val="Круг пустоты $n1 отшиб сознание у $N1." />
-		<message type="kDamageToVict" val="У вас отшибло сознание, вам очень плохо..." />
+		<message type="kKnockdownToChar" val="У вас отшибло сознание, вам очень плохо..." />
+		<message type="kKnockdownToRoom" val="Круг пустоты отшиб сознание у $n2." />
 		<message type="kFightDeathToChar" val="Ваш круг пустоты покрыл $N3, котор$W так и не смог$Q из него выбраться." />
 		<message type="kFightDeathToChar" val="$N задохнул$U, когда не смог$Q выбраться из вашего круга пустоты." />
 		<message type="kFightDeathToVict" val="$n наложил$g на вас круг пустоты. В глазах стало темно..." />
@@ -857,23 +855,23 @@
 		<message type="kCastPhraseChristian" val="... и услышав слова сии - пал бездыханен." />
 	</msg_sheaf>
 	<msg_sheaf id="kArrowsEarth">
-		<message type="kDamageToChar" val="Ваша магическая стрела поразила $N1." />
-		<message type="kDamageToNotVict" val="Магическая стрела $n1 поразила $N1." />
-		<message type="kDamageToVict" val="Магическая стрела настигла вас." />
+		<message type="kFightHitToChar" val="Ваша каменная стрела поразила $N1." />
+		<message type="kFightHitToVict" val="Каменная стрела $n1 настигла вас." />
+		<message type="kFightHitToRoom" val="Каменная стрела $n1 поразила $N1." />
 		<message type="kCastPhraseHeathen" val="!магический выстрел!" />
 		<message type="kCastPhraseChristian" val="!use battle expedient!" />
 	</msg_sheaf>
 	<msg_sheaf id="kArrowsAir">
-		<message type="kDamageToChar" val="Ваша магическая стрела поразила $N1." />
-		<message type="kDamageToNotVict" val="Магическая стрела $n1 поразила $N1." />
-		<message type="kDamageToVict" val="Магическая стрела настигла вас." />
+		<message type="kFightHitToChar" val="Ваша воздушная стрела поразила $N1." />
+		<message type="kFightHitToVict" val="Воздушная стрела $n1 настигла вас." />
+		<message type="kFightHitToRoom" val="Воздушная стрела $n1 поразила $N1." />
 		<message type="kCastPhraseHeathen" val="!магический выстрел!" />
 		<message type="kCastPhraseChristian" val="!use battle expedient!" />
 	</msg_sheaf>
 	<msg_sheaf id="kArrowsDeath">
-		<message type="kDamageToChar" val="Ваша магическая стрела поразила $N1." />
-		<message type="kDamageToNotVict" val="Магическая стрела $n1 поразила $N1." />
-		<message type="kDamageToVict" val="Магическая стрела настигла вас." />
+		<message type="kFightHitToChar" val="Ваша смертоносная стрела поразила $N1." />
+		<message type="kFightHitToVict" val="Смертоносная стрела $n1 настигла вас." />
+		<message type="kFightHitToRoom" val="Смертоносная стрела $n1 поразила $N1." />
 		<message type="kCastPhraseHeathen" val="!магический выстрел!" />
 		<message type="kCastPhraseChristian" val="!use battle expedient!" />
 	</msg_sheaf>
@@ -2236,10 +2234,16 @@
 		<message type="kAffImposedToChar" val="Ваши глаза приобрели карий оттенок." />
 	</msg_sheaf>
 	<msg_sheaf id="kArrowsFire">
+		<message type="kFightHitToChar" val="Ваша огненная стрела поразила $N1." />
+		<message type="kFightHitToVict" val="Огненная стрела $n1 настигла вас." />
+		<message type="kFightHitToRoom" val="Огненная стрела $n1 поразила $N1." />
 		<message type="kCastPhraseHeathen" val="!магический выстрел!" />
 		<message type="kCastPhraseChristian" val="!use battle expedient!" />
 	</msg_sheaf>
 	<msg_sheaf id="kArrowsWater">
+		<message type="kFightHitToChar" val="Ваша ледяная стрела поразила $N1." />
+		<message type="kFightHitToVict" val="Ледяная стрела $n1 настигла вас." />
+		<message type="kFightHitToRoom" val="Ледяная стрела $n1 поразила $N1." />
 		<message type="kCastPhraseHeathen" val="!магический выстрел!" />
 		<message type="kCastPhraseChristian" val="!use battle expedient!" />
 	</msg_sheaf>

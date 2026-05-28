@@ -689,18 +689,9 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 		}
 		// kWarcryOfThunder knockdown+lag merged into its <affects type="kWarcryOfThunder"> (issue.cast-
 		// damage-affects), riding its kStability saving; it now also passes the GET_AR gate. No case needed.
-		case ESpell::kArrowsFire:
-		case ESpell::kArrowsWater:
-		case ESpell::kArrowsEarth:
-		case ESpell::kArrowsAir:
-		case ESpell::kArrowsDeath: {
-			if (!ch->IsNpc()) {
-				act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kDamageToChar).c_str(), false, ch, nullptr, victim, kToChar);
-				act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kDamageToNotVict).c_str(), false, ch, nullptr, victim, kToNotVict);
-				act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kDamageToVict).c_str(), false, ch, nullptr, victim, kToVict);
-			}
-			break;
-		}
+		// kArrows{Fire,Water,Earth,Air,Death} cast-flavour was re-keyed from kDamageTo* to kFightHitTo*
+		// (issue.cast-dmg-migration): Damage::Process already emits kFightHit*/Death*/Miss*/God* for every
+		// spell with damage via SendSkillMessages, so the explicit per-case act() block was redundant.
 		default: break;
 	}
 	int total_dmg{0};
