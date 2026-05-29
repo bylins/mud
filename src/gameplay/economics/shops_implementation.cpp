@@ -297,6 +297,12 @@ void shop_node::process_buy(CharData *ch, CharData *keeper, char *argument) {
 		return;
 	}
 
+	if (invalid_anti_class(ch, static_cast<const ObjData *>(proto))
+		|| invalid_no_class(ch, static_cast<const ObjData *>(proto))) {
+		tell_to_char(keeper, ch, "Мне жаль, но эта вещь тебе не подходит.");
+		return;
+	}
+
 	const long price = item->get_price();
 	if (!check_money(ch, price, currency)) {
 		snprintf(buf, kMaxStringLength,
