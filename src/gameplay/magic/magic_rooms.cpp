@@ -383,6 +383,16 @@ int CallMagicToRoom(CharData *ch, RoomData *room, CastRollResult roll) {
 		return 0;
 	}
 
+	// Material-component check: any room spell can carry one (ProcessMatComponents
+	// returns kSuccess for spells without a configured component, so this is safe to
+	// run universally). A missing component aborts the cast before any affect data
+	// is computed or messages emitted. Mirrors the position of this check in
+	// CastAffect (issue.matcomponents) and replaces the kHypnoticPattern-only check
+	// that used to live in this switch.
+	if (ProcessMatComponents(ch, ch, spell_id) == EStageResult::kBreak) {
+		return 0;
+	}
+
 	Affect<ERoomApply> af[kMaxSpellAffects];
 	for (i = 0; i < kMaxSpellAffects; i++) {
 		af[i].type = spell_id;
@@ -466,12 +476,6 @@ int CallMagicToRoom(CharData *ch, RoomData *room, CastRollResult roll) {
 			lag = 2;
 			break;
 
-		case ESpell::kHypnoticPattern:
-			if (ProcessMatComponents(ch, ch, spell_id) == EStageResult::kBreak) {
-				success = false;
-			}
-			break;
-
 		case ESpell::kBlackTentacles:
 			if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kForMono)
 				|| ROOM_FLAGGED(ch->in_room, ERoomFlag::kForPoly)) {
@@ -479,8 +483,10 @@ int CallMagicToRoom(CharData *ch, RoomData *room, CastRollResult roll) {
 			}
 			break;
 
-		// All other room spells (kRoomLight, kDeadlyFog, kMeteorStorm, kThunderstorm) get
-		// their entire affect data from the XML talent block above -- no per-case override.
+		// All other room spells (kRoomLight, kDeadlyFog, kMeteorStorm, kThunderstorm,
+		// kHypnoticPattern) get their entire affect data from the XML talent block above
+		// -- no per-case override. (kHypnoticPattern's material-component check moved
+		// into the universal ProcessMatComponents call at the top of the function.)
 		default: break;
 	}
 	if (success) {

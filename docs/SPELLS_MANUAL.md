@@ -886,6 +886,15 @@ are two differences from char-affect semantics:
 | `kAfMustBeHandled` | The affect has a per-tick code handler in `HandleRoomAffect` (e.g. kDeadlyFog's poison tick, kMeteorStorm's meteor drops, kBlackTentacles' grab attempts). The room-affect loop calls the handler each pulse when this bit is set. |
 | `kAfUnique` | Before imposing, remove any prior cast of this same spell by this same caster (room-affect "only one in the world per caster", used by kRuneLabel). |
 
+**Material-component check is universal.** Any room spell that has a
+configured component in `ProcessMatComponents` (currently
+`kHypnoticPattern`, `kFascination`, `kEnchantWeapon`) aborts the cast
+if the component is missing. The check runs at the top of
+`CallMagicToRoom` before any affect data is read — same position as
+the equivalent check in `CastAffect`. Spells without a configured
+component fall through to the default branch in
+`ProcessMatComponents` and the cast proceeds.
+
 **Code-side overrides** still required (these are mechanics the XML
 schema can't express):
 
@@ -895,7 +904,6 @@ schema can't express):
 | Modifier cap | `kForbidden` case | `min(100, ...)` cap (the XML modifier formula can over-shoot). |
 | Modifier-tier message | `kForbidden` case | The 3-tier seal-quality narration (>99 / >79 / else) depends on the runtime modifier. |
 | Fizzle path | `kRuneLabel` case | Room-flag check (`kPeaceful`/`kTunnel`/`kNoTeleportIn`) cancels the affect and emits failure-specific narration. |
-| Material-component check | `kHypnoticPattern` case | `ProcessMatComponents` failure aborts the cast. |
 | Incompatible-room block | `kBlackTentacles` case | `kForMono` / `kForPoly` room flags abort the cast. |
 
 **Authoring a new room spell:**
