@@ -636,7 +636,7 @@ base_stat id - (например "kWis") какой берем параметр,
     <spell id="kEnchantWeapon" element="kLight" mode="kEnabled">
         <name rus="заколдовать оружие" eng="enchant weapon"/>
         <components>
-            <material any_of="1930" where="kObjInventory"/>
+            <material any_of="1930"/>
         </components>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="140" min="110" change="2"/>
@@ -4113,7 +4113,7 @@ base_stat id - (например "kWis") какой берем параметр,
     <spell id="kFascination" element="kMind" mode="kEnabled">
         <name rus="обаяние" eng="fascination"/>
         <components>
-            <material any_of="3000" where="kObjInventory"/>
+            <material any_of="3000"/>
         </components>
         <misc pos="kFight" violent="N" danger="2"/>
         <mana max="480" min="440" change="20"/>
@@ -5204,7 +5204,7 @@ base_stat id - (например "kWis") какой берем параметр,
     <spell id="kHypnoticPattern" element="kMind" mode="kEnabled">
         <name rus="чарующий узор" eng="hypnotic pattern"/>
         <components>
-            <material any_of="3006" where="kObjInventory"/>
+            <material any_of="3006"/>
         </components>
         <misc pos="kStand" violent="Y" danger="0"/>
         <mana max="120" min="100" change="2"/>
