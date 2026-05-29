@@ -753,6 +753,15 @@ void list_char_to_char_thing(const RoomData::people_t &list, CharData *ch) {
 // (kLight, kHypnoticPattern, ...) sets only kRoomAffectVisible and the
 // detect-magic lookups fall through to it. kPortal still has no row and
 // is rendered by look_at_room itself.
+//
+// After each visible description, detect-magic viewers (and immortals) get a
+// one-line star-rating banner [*..*****] showing how close the room-affect's
+// recorded modifier is to its <modifier cap="N"/> ceiling (5/4/3/2/1 stars at
+// >99/>80/>60/>40/>20 percent). Spells whose first <apply> has no cap (cap == 0)
+// or whose affect carries no modifier value emit no banner -- the rating only
+// makes sense relative to a known ceiling. Stars rather than prose because the
+// description hooks (which file, which sheaf, which key) would have to be
+// invented per spell, and the indicator only matters for testers / debuggers.
 void show_room_affects(CharData *ch) {
 	std::ostringstream buffer;
 
@@ -779,6 +788,24 @@ void show_room_affects(CharData *ch) {
 		}
 		if (text) {
 			buffer << *text << "\r\n";
+			// Star-rating banner, detect-magic / immortal only.
+			if (has_detect_magic
+					&& MUD::Spell(af->type).actions.Contains(talents_actions::EAction::kAffect)) {
+				const auto &applies = MUD::Spell(af->type).actions.GetAffect().GetApplies();
+				if (!applies.empty() && applies[0].cap > 0) {
+					const int pct = (af->modifier * 100) / applies[0].cap;
+					const char *stars =
+							pct > 99 ? "*****"
+							: pct > 80 ? "****"
+							: pct > 60 ? "***"
+							: pct > 40 ? "**"
+							: pct > 20 ? "*"
+							: nullptr;
+					if (stars) {
+						buffer << "[" << stars << "]\r\n";
+					}
+				}
+			}
 		}
 	}
 
