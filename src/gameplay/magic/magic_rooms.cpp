@@ -349,7 +349,7 @@ void UpdateRoomsAffects() {
 
 			// Учитываем что время выдается в пульсах а не в секундах  т.е. надо умножать на 2
 			affect->apply_time++;
-			if (affect->must_handled) {
+			if (IS_SET(affect->battleflag, kAfMustBeHandled)) {
 				HandleRoomAffect(*room, ch, affect);
 			}
 		}
@@ -370,12 +370,11 @@ void UpdateRoomsAffects() {
 int CallMagicToRoom(CharData *ch, RoomData *room, CastRollResult roll) {
 	const ESpell spell_id = roll.spell_id;   // level is unused by room casts
 	bool success = true;
-	// Должен ли данный спелл быть только 1 в мире от этого кастера?
-	// (issue.room-affects: the old accum_duration / update_spell local bools migrated to
-	// per-affect battleflag bits -- kAfAccumulateDuration / kAfUpdateDuration -- read by
-	// the impose loop below. `only_one` stays a per-call local because it isn't an affect
-	// property but a "remove this caster's prior cast of this spell" flag.)
-	bool only_one = false;
+	// (issue.affect-flags / issue.room-affects: the old local bools accum_duration,
+	// update_spell, only_one, and the per-affect bool must_handled all migrated into
+	// the EAffFlag battleflag bits -- kAfAccumulateDuration, kAfUpdateDuration,
+	// kAfUnique, kAfMustBeHandled. The impose loop and the dedup check below read the
+	// per-affect battleflag directly.)
 	const char *to_char = nullptr;
 	const char *to_room = nullptr;
 	int i = 0, lag = 0;
@@ -392,7 +391,6 @@ int CallMagicToRoom(CharData *ch, RoomData *room, CastRollResult roll) {
 		af[i].battleflag = 0;
 		af[i].location = kNone;
 		af[i].caster_id = 0;
-		af[i].must_handled = false;
 		af[i].apply_time = 0;
 		af[i].duration = 0;
 	}
@@ -403,7 +401,6 @@ int CallMagicToRoom(CharData *ch, RoomData *room, CastRollResult roll) {
 			af[0].location = kNone;
 			af[0].duration = (1 + (GetRealLevel(ch) + 14) / 15) * 30;
 			af[0].caster_id = ch->get_uid();
-			af[0].must_handled = false;
 			af[0].battleflag = kAfUpdateDuration;        // was: update_spell = true
 			// Modifier (issue.no-affects-bug / room kForbidden migration): approximate the
 			// OLD MIN(100, Int + MAX((Int-30)*4, 0)) formula via the spell's <potency_roll>.
@@ -439,7 +436,6 @@ int CallMagicToRoom(CharData *ch, RoomData *room, CastRollResult roll) {
 			// "victim" for a room affect, so the caster (ch) sets the unit.
 			af[0].duration = CalcDuration(ch, ch, ESkill::kLightMagic, 0, 15, 0, 0);
 			af[0].caster_id = ch->get_uid();
-			af[0].must_handled = false;
 			af[0].battleflag = kAfAccumulateDuration | kAfUpdateDuration;
 			// to_char / to_room messages now come from spell_msg.xml under the kAffImposed*
 			// keys (issue.room-affects).
@@ -450,8 +446,7 @@ int CallMagicToRoom(CharData *ch, RoomData *room, CastRollResult roll) {
 			af[0].modifier = 0;
 			af[0].duration = 8;
 			af[0].caster_id = ch->get_uid();
-			af[0].must_handled = true;
-			// battleflag stays 0: no accumulation, no refresh.
+			af[0].battleflag = kAfMustBeHandled;        // periodic poison tick handled in HandleRoomAffect
 			break;
 
 		case ESpell::kMeteorStorm: af[0].type = spell_id;
@@ -459,13 +454,13 @@ int CallMagicToRoom(CharData *ch, RoomData *room, CastRollResult roll) {
 			af[0].modifier = 0;
 			af[0].duration = 3;
 			af[0].caster_id = ch->get_uid();
-			af[0].must_handled = true;
+			af[0].battleflag = kAfMustBeHandled;        // meteor drops handled per tick
 			break;
 
 		case ESpell::kThunderstorm: af[0].type = spell_id;
 			af[0].duration = 7;
-			af[0].must_handled = true;
 			af[0].caster_id = ch->get_uid();
+			af[0].battleflag = kAfMustBeHandled;        // lightning strikes handled per tick
 			break;
 
 		case ESpell::kRuneLabel:
@@ -485,9 +480,8 @@ int CallMagicToRoom(CharData *ch, RoomData *room, CastRollResult roll) {
 			af[0].modifier = 0;
 			af[0].duration = (kRuneLabelDuration + (GetRealRemort(ch) * 10)) * 3;
 			af[0].caster_id = ch->get_uid();
-			af[0].must_handled = false;
-			af[0].battleflag = kAfUpdateDuration;
-			only_one = true;
+			// kAfUnique: prior cast by the same caster is removed before this one is imposed.
+			af[0].battleflag = kAfUpdateDuration | kAfUnique;
 			lag = 2;
 			break;
 
@@ -501,7 +495,6 @@ int CallMagicToRoom(CharData *ch, RoomData *room, CastRollResult roll) {
 			af[0].modifier = 0;
 			af[0].duration = 30 + (GetRealLevel(ch) + GetRealRemort(ch)) * RollDices(1, 3);
 			af[0].caster_id = ch->get_uid();
-			af[0].must_handled = false;
 			break;
 
 		case ESpell::kBlackTentacles:
@@ -514,7 +507,7 @@ int CallMagicToRoom(CharData *ch, RoomData *room, CastRollResult roll) {
 			af[0].modifier = 0;
 			af[0].duration = 1 + GetRealLevel(ch) / 7;
 			af[0].caster_id = ch->get_uid();
-			af[0].must_handled = true;
+			af[0].battleflag = kAfMustBeHandled;        // grab-attempts handled per tick
 			break;
 		default: break;
 	}
@@ -534,7 +527,7 @@ int CallMagicToRoom(CharData *ch, RoomData *room, CastRollResult roll) {
 			const bool refresh_allowed = IS_SET(af[0].battleflag, kAfUpdateDuration);
 			if (RoomAffect && RoomAffect->caster_id == ch->get_uid() && !refresh_allowed) {
 				success = false;
-			} else if (only_one) {
+			} else if (IS_SET(af[0].battleflag, kAfUnique)) {
 				RemoveSingleRoomAffect(ch->get_uid(), spell_id);
 			}
 		}
@@ -547,7 +540,7 @@ int CallMagicToRoom(CharData *ch, RoomData *room, CastRollResult roll) {
 		af[i].type = spell_id;
 		if (af[i].duration
 			|| af[i].location != kNone
-			|| af[i].must_handled) {
+			|| IS_SET(af[i].battleflag, kAfMustBeHandled)) {
 			af[i].duration = CalcComplexSpellMod(ch, spell_id, GAPPLY_SPELL_EFFECT, af[i].duration);
 			if (IS_SET(af[i].battleflag, kAfUpdateDuration)) {
 				affect_room_join_fspell(room, af[i]);

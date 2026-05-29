@@ -22,7 +22,9 @@ enum EAffFlag : Bitvector {
   kAfAccumulateDuration	= 1u << 5,
   kAfUpdateMod			= 1u << 6,
   kAfDispellable		= 1u << 7,	// аффект можно снять магией (источник истины для CheckNodispel)
-  kAfCurable			= 1u << 8	// аффект можно вылечить (первая помощь и будущая механика лечения)
+  kAfCurable			= 1u << 8,	// аффект можно вылечить (первая помощь и будущая механика лечения)
+  kAfMustBeHandled		= 1u << 9,	// у аффекта есть периодический обработчик в коде (room-affect tick, см. HandleRoomAffect) -- бывший Affect::must_handled
+  kAfUnique				= 1u << 10	// перед наложением снять предыдущий аффект этого же типа от того же кастера (room-affect "только один в мире") -- бывший локальный only_one в CallMagicToRoom
 };
 
 /**

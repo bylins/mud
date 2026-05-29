@@ -425,10 +425,17 @@ This is the workhorse for buffs and debuffs.
 | `kAfUpdateMod` | Re-casting overwrites the modifier. |
 | `kAfDispellable` | **Eligible for dispel** (e.g. `kDispellMagic`). |
 | `kAfCurable` | **Eligible for cure** (e.g. `kRemovePoison`). |
+| `kAfMustBeHandled` | Room affects only: this affect has a periodic-tick handler in code (e.g. kDeadlyFog's poison tick, kMeteorStorm's meteor drops, kBlackTentacles' grab attempts). The room-affect loop calls `HandleRoomAffect` each tick when this bit is set. Char affects don't currently use this flag. |
+| `kAfUnique` | Room affects only: before imposing, remove any prior cast of this same spell by this same caster. Used by kRuneLabel ("one rune label in the world per caster"). |
 
-The last two are the **single source of truth** for whether an affect can
-be removed by a given dispel/cure. Drop both and the affect is permanent
-until natural expiry.
+`kAfDispellable` / `kAfCurable` are the **single source of truth** for
+whether an affect can be removed by a given dispel/cure. Drop both and
+the affect is permanent until natural expiry.
+
+`kAfMustBeHandled` and `kAfUnique` are properties of room affects only;
+char affects do not currently use them. They replaced the per-affect
+`must_handled` member and the per-call `only_one` local bool that used
+to live in `CallMagicToRoom`.
 
 ### 8.3 `<duration>` (skill-scaled)
 
@@ -1264,9 +1271,12 @@ If you need any of these, open an issue and the work can be scoped.
 
 ---
 
-*Last updated to match the `sventovit.work` head as of `issue.dispell`:
-dice parser treats `0` as "no contribution" (absent `<dices>` block is
-equivalent to `0,0,0`); the modifier-scaling pattern of §8.9 is now
-used by ~20 spells in `spells.xml`; `<remove any_of="*">` and
-`<remove all_of="*">` wildcards replace the dedicated kDispellMagic
-code path (§9.5).*
+*Last updated to match the `sventovit.work` head as of
+`issue.affect-flags`: dice parser treats `0` as "no contribution"
+(absent `<dices>` block is equivalent to `0,0,0`); the
+modifier-scaling pattern of §8.9 is now used by ~20 spells in
+`spells.xml`; `<remove any_of="*">` and `<remove all_of="*">`
+wildcards replace the dedicated kDispellMagic code path (§9.5);
+`kAfMustBeHandled` and `kAfUnique` EAffFlag bits replaced the
+per-affect `must_handled` member and the per-call `only_one` local
+bool in `CallMagicToRoom`.*

@@ -427,7 +427,6 @@ void AddPortalTimer(CharData *ch, RoomData *from_room, RoomRnum to_room, int tim
 	af.battleflag = 0;
 	af.location = room_spells::ERoomApply::kNone;
 	af.caster_id = ch? ch->get_uid() : 0;
-	af.must_handled = false;
 	af.apply_time = 0;
 	room_spells::affect_to_room(from_room, af);
 	room_spells::AddRoomToAffected(from_room);

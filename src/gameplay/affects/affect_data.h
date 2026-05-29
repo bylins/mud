@@ -37,7 +37,7 @@ class Affect {
 	using shared_ptr = std::shared_ptr<Affect<TLocation>>;
 
 	Affect() : type(ESpell::kUndefined), duration(0), modifier(0), location(static_cast<TLocation>(0)),
-			   battleflag(0), caster_id(0), must_handled(false),
+			   battleflag(0), caster_id(0),
 			   apply_time(0) {};
 	[[nodiscard]] bool removable() const;
 
@@ -52,7 +52,8 @@ class Affect {
 	typename AffectFlagType<TLocation>::type affect_type{};
 	FlagData aff;
 	long caster_id; //Unique caster ID //
-	bool must_handled; // Указывает муду что для аффекта должен быть вызван обработчик (пока только для комнат) //
+	// (Бывшее поле `must_handled` мигрировало в `battleflag & kAfMustBeHandled`; занимало
+	// одно и то же место в семантике и теперь не дублирует battleflag. См. EAffFlag.)
 	sh_int apply_time; // Указывает сколько аффект висит (пока используется только в комнатах) //
 	std::shared_ptr<IAffectHandler> handler; //обработчик аффектов
 	// Сила наложенного заклинания (потенция) на момент наложения: dice + skill_coeff +
