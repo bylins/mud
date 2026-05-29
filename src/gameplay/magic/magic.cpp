@@ -15,6 +15,7 @@
 #include "magic.h"
 #include "magic_internal.h"
 
+#include "gameplay/core/game_limits.h"  // gain_condition (issue.mag-points)
 #include "engine/core/action_targeting.h"
 //#include "gameplay/affects/affect_handler.h"
 #include "gameplay/affects/affect_data.h"
@@ -361,49 +362,9 @@ int CalcBaseDmg(CharData *ch, ESpell spell_id) {
 	return base_dmg;
 }
 
-static int CalcHeal(CharData *ch, CharData *victim, ESpell spell_id, [[maybe_unused]] int level) {
-	// Не у каждого спелла из CastToPoints в данных описан heal-экшен
-	// (напр. свежедобавленные kPatronage/kWarcryOfPower). Без этой проверки
-	// GetHeal() кидает исключение и роняет сервер (#3312). Логируем, какой
-	// спелл недонастроен, и лечим на 0 вместо краша.
-	if (!MUD::Spell(spell_id).actions.Contains(talents_actions::EAction::kHeal)) {
-		mudlog(fmt::format("SYSERR: spell {} ({}) has no 'heal' action, heal skipped",
-				to_underlying(spell_id), MUD::Spell(spell_id).GetCName()),
-			CMP, kLvlImmortal, SYSLOG, true);
-		return 0;
-	}
-	const auto &heal = MUD::Spell(spell_id).actions.GetHeal();
-	// prob: percent chance the healing actually happens (default 100). A failed roll heals 0.
-	// Skip the RNG when prob is the always-fires default (short-circuit: number() not called).
-	const int heal_prob = heal.GetProb();
-	if (heal_prob < 100 && number(1, 100) > heal_prob) {
-		return 0;
-	}
-	const auto &potency_roll = MUD::Spell(spell_id).GetPotencyRoll();
-	// The heal amount is decoupled from the global potency roll's coefficients: the roll only
-	// supplies the raw dice and competencies (skill+stat), while the <amount> weights belong to
-	// the heal, so it can be tuned without disturbing the spell's other roll-driven effects.
-	const double dice = potency_roll.RollSkillDices();
-	const double competencies = potency_roll.CalcSkillCoeff(ch) + potency_roll.CalcBaseStatCoeff(ch);
-	int total_heal = static_cast<int>(heal.GetAmountMin()
-		+ std::ceil(dice * heal.GetAmountDicesWeight() + competencies * heal.GetAmountCompetenciesWeight()));
-	const double bonus_mod = ch->add_abils.percent_spellpower_add / 100.0;
-	total_heal += static_cast<int>(total_heal * bonus_mod);
-	const double npc_heal = heal.GetNpcCoeff();
-	if (ch->IsNpc()) {
-		total_heal += static_cast<int>(total_heal * npc_heal);
-	}
-
-	ch->send_to_TC(false, true, true,
-		"&CMag.heal (%s). Dice: %2.2f, Compet.: %2.2f, Min: %2.2f, Bonus: %1.2f, NPC coeff: %f, Total: %d &n\r\n",
-		GET_NAME(victim), dice, competencies, heal.GetAmountMin(), 1 + bonus_mod, npc_heal, total_heal);
-
-	victim->send_to_TC(false, true, true,
-		"&CMag.heal (%s). Dice: %2.2f, Compet.: %2.2f, Min: %2.2f, Bonus: %1.2f, NPC coeff: %f, Total: %d &n\r\n",
-		GET_NAME(ch), dice, competencies, heal.GetAmountMin(), 1 + bonus_mod, npc_heal, total_heal);
-
-	return total_heal;
-}
+// CalcHeal retired in issue.mag-points -- its body folded into CastToPoints
+// as a local lambda that handles every category (heal / moves / thirst /
+// cond) uniformly.
 
 /**
  * Number of *extra* hits a multi-hit damage spell deals beyond its single mandatory hit.
@@ -1656,85 +1617,91 @@ static bool MaybeSpawnAdditionalClones(int level, CharData *ch, ObjData *obj, ES
 	return true;
 }
 
-EStageResult CastToPoints(int level, CharData *ch, CharData *victim, ESpell spell_id) {
-	int hit = 0; //если выставить больше нуля, то лечит
-	int move = 0; //если выставить больше нуля, то реген хп
-	bool extraHealing = false; //если true, то лечит сверх макс.хп
-
+EStageResult CastToPoints([[maybe_unused]] int level, CharData *ch, CharData *victim, ESpell spell_id) {
 	if (victim == nullptr) {
 		log("MAG_POINTS: Ошибка! Не указана цель, spell_id: %d!\r\n", to_underlying(spell_id));
 		return EStageResult::kSuccess;
 	}
+	// Fully data-driven (issue.mag-points): every category (heal / moves /
+	// thirst / cond) lives in the spell's <points> block. Spells without one
+	// are misconfigured -- log and skip rather than crash.
+	if (!MUD::Spell(spell_id).actions.Contains(talents_actions::EAction::kPoints)) {
+		mudlog(fmt::format("SYSERR: spell {} ({}) has no <points> block, CastToPoints skipped",
+				to_underlying(spell_id), MUD::Spell(spell_id).GetCName()),
+			CMP, kLvlImmortal, SYSLOG, true);
+		return EStageResult::kSuccess;
+	}
+	const auto &points = MUD::Spell(spell_id).actions.GetPoints();
 
-	switch (spell_id) {
-		// All hit-point heals share one block: the amount comes from each spell's <heal>/<amount>
-		// and overheal-above-max is the data-driven <heal extra=> flag (applied after the switch),
-		// so no spell needs its own case anymore. (kEviless is already gated upstream by
-		// <required mob_flags="kCorpse"> + kTarMinionsOnly, then just heals its follower.)
-		case ESpell::kCureLight:
-		case ESpell::kCureSerious:
-		case ESpell::kCureCritic:
-		case ESpell::kHeal:
-		case ESpell::kGroupHeal:
-		case ESpell::kGreatHeal:
-		case ESpell::kExtraHits:
-		case ESpell::kPatronage:
-		case ESpell::kWarcryOfPower:
-		case ESpell::kEviless:
-		case ESpell::kPaladineInspiration:
-			hit = CalcHeal(ch, victim, spell_id, level);
-			break;
-		case ESpell::kResfresh:
-		case ESpell::kGroupRefresh: move = victim->get_real_max_move() - victim->get_move();
-			break;
-		case ESpell::kFullFeed:
-		case ESpell::kCommonMeal: {
-			if (GET_COND(victim, THIRST) > 0)
-				GET_COND(victim, THIRST) = 0;
-			if (GET_COND(victim, FULL) > 0)
-				GET_COND(victim, FULL) = 0;
+	// Single prob roll for the whole action: a failed roll restores nothing.
+	const int prob = points.GetProb();
+	if (prob < 100 && number(1, 100) > prob) {
+		return EStageResult::kSuccess;
+	}
+
+	const auto &potency_roll = MUD::Spell(spell_id).GetPotencyRoll();
+	// Shared roll: dice + competencies are rolled once per cast (not per
+	// category), so heal and moves restored on the same cast scale together
+	// with the same skill check.
+	const double dice = potency_roll.RollSkillDices();
+	const double competencies = potency_roll.CalcSkillCoeff(ch) + potency_roll.CalcBaseStatCoeff(ch);
+	const double bonus_mod = ch->add_abils.percent_spellpower_add / 100.0;
+
+	// One amount in "XML-natural" units: positive = restore (HP / moves) or
+	// positive = "feels better" for thirst/cond (the engine fields are
+	// inverted -- 0 = sated -- so CastToPoints negates the result before
+	// calling gain_condition). Negative XML = drain / make worse.
+	auto calc_amount = [&](const talents_actions::Points::Amount &a) -> int {
+		if (!a.present) return 0;
+		int v = static_cast<int>(a.min + std::ceil(dice * a.dices_weight
+												  + competencies * a.competencies_weight));
+		v += static_cast<int>(v * bonus_mod);
+		if (ch->IsNpc()) {
+			// npc_coeff defaults to 0 for non-heal amounts (no boost) and to
+			// 1.0 for heal (the legacy default; *2 effective).
+			v += static_cast<int>(v * a.npc_coeff);
 		}
-			break;
-		default: log("MAG_POINTS: Ошибка! Передан неопределенный лечащий спелл spell_id: %d!\r\n",
-					 to_underlying(spell_id));
-			return EStageResult::kSuccess;
-			break;
-	}
-	// Overheal above the maximum hit points is data-driven: a <heal extra="Y"> lets the heal push
-	// hit points beyond the cap (e.g. kExtraHits). Off by default for every other heal.
-	if (MUD::Spell(spell_id).actions.Contains(talents_actions::EAction::kHeal)) {
-		extraHealing = MUD::Spell(spell_id).actions.GetHeal().IsExtra();
-	}
-	// issue #3304: сообщение цели лечащего заклинания берётся из spell_msg.xml.
-	// Не у всех заклинаний есть такое сообщение (напр. kPatronage, kEviless) -
-	// выводим только если оно задано именно для данного заклинания. Для лечащих
-	// заклинаний (есть heal-экшен) сообщение показываем лишь когда лечение реально
-	// произошло (hit != 0), иначе <heal prob=...> "лечил бы" текстом без эффекта.
-	const bool is_heal = MUD::Spell(spell_id).actions.Contains(talents_actions::EAction::kHeal);
-	const auto &points_sheaf = MUD::SpellMessages()[spell_id];
-	if (points_sheaf.HasMessage(ESpellMsg::kPointsToVict) && (!is_heal || hit != 0)) {
-		SendMsgToChar(points_sheaf.GetMessage(ESpellMsg::kPointsToVict) + "\r\n", victim);
-	}
-//	log("HEAL: до модификатора  Игрок: %s hit: %d GET_HIT: %d GET_REAL_MAX_HIT: %d", GET_NAME(victim), hit, GET_HIT(victim), GET_REAL_MAX_HIT(victim));
+		return v;
+	};
+
+	int hit    = calc_amount(points.GetHeal());
+	int move   = calc_amount(points.GetMoves());
+	int thirst = calc_amount(points.GetThirst());
+	int cond   = calc_amount(points.GetCond());
+
+	// Legacy spell-modifier hook only applied to heal historically; keep that
+	// scoped to hit so existing /gear effects don't suddenly scale moves etc.
 	hit = CalcComplexSpellMod(ch, spell_id, GAPPLY_SPELL_EFFECT, hit);
 
-	if (hit && victim->GetEnemy() && ch != victim) {
+	// kPointsToVict: shown only when at least one category produced a
+	// non-zero amount. (Clamps below may still zero the actual delta if
+	// already at cap, but the cast did try to do something -- consistent
+	// with the legacy "show on hit != 0" semantics, generalised.)
+	const auto &points_sheaf = MUD::SpellMessages()[spell_id];
+	if (points_sheaf.HasMessage(ESpellMsg::kPointsToVict)
+			&& (hit != 0 || move != 0 || thirst != 0 || cond != 0)) {
+		SendMsgToChar(points_sheaf.GetMessage(ESpellMsg::kPointsToVict) + "\r\n", victim);
+	}
+
+	// Aggro consequence: buffing your fighting buddy is still PK-relevant.
+	// Generalised from "hit only" to "any non-zero amount".
+	if ((hit != 0 || move != 0 || thirst != 0 || cond != 0)
+			&& victim->GetEnemy() && ch != victim) {
 		if (!pk_agro_action(ch, victim->GetEnemy()))
 			return EStageResult::kSuccess;
 	}
-	// лечение
-	if (victim->get_hit() < kMaxHits && hit != 0) {
-		if (!extraHealing && victim->get_hit() < victim->get_real_max_hit()) {
+
+	// --- HEAL --------------------------------------------------------------
+	if (hit != 0 && victim->get_hit() < kMaxHits) {
+		const bool extra = points.IsExtra();
+		if (!extra && victim->get_hit() < victim->get_real_max_hit()) {
 			if (AFF_FLAGGED(victim, EAffect::kLacerations)) {
-//				log("HEAL: порез Игрок: %s hit: %d GET_HIT: %d GET_REAL_MAX_HIT: %d", GET_NAME(victim), hit, GET_HIT(victim), GET_REAL_MAX_HIT(victim));
 				victim->set_hit(std::min(victim->get_hit() + hit / 2, victim->get_real_max_hit()));
 			} else {
-//				log("HEAL: Игрок: %s hit: %d GET_HIT: %d GET_REAL_MAX_HIT: %d", GET_NAME(victim), hit, GET_HIT(victim), GET_REAL_MAX_HIT(victim));
 				victim->set_hit(std::min(victim->get_hit() + hit, victim->get_real_max_hit()));
 			}
 		}
-		if (extraHealing) {
-//			log("HEAL: наддув Игрок: %s hit: %d GET_HIT: %d GET_REAL_MAX_HIT: %d", GET_NAME(victim), hit, GET_HIT(victim), GET_REAL_MAX_HIT(victim));
+		if (extra) {
 			if (victim->get_real_max_hit() <= 0) {
 				victim->set_hit(std::max(victim->get_hit(), std::min(victim->get_hit() + hit, 1)));
 			} else {
@@ -1743,11 +1710,23 @@ EStageResult CastToPoints(int level, CharData *ch, CharData *victim, ESpell spel
 			}
 		}
 	}
-	if (move != 0 && victim->get_move() < victim->get_real_max_move()) {
-		victim->set_move(std::min(victim->get_move() + move, victim->get_real_max_move()));
-	}
-	update_pos(victim);
 
+	// --- MOVES -------------------------------------------------------------
+	if (move != 0) {
+		// Positive: restore (clamped at max). Negative: drain (clamped at 0).
+		const int target = std::clamp(victim->get_move() + move, 0, victim->get_real_max_move());
+		victim->set_move(target);
+	}
+
+	// --- THIRST / COND -----------------------------------------------------
+	// XML positive = "make less thirsty/hungry"; engine field is inverted
+	// (0 = sated, higher = thirstier/hungrier). gain_condition handles the
+	// [0, kMaxCondition] clamp + the kDrunked threshold for DRUNK (irrelevant
+	// here since we only touch THIRST/FULL).
+	if (thirst != 0) gain_condition(victim, THIRST, -thirst);
+	if (cond   != 0) gain_condition(victim, FULL,   -cond);
+
+	update_pos(victim);
 	return EStageResult::kSuccess;
 }
 

@@ -24,7 +24,7 @@ namespace talents_actions {
 enum class EAction {
 	kDamage,
 	kArea,
-	kHeal,
+	kPoints,   // hit / moves / thirst / cond restoration (was kHeal; issue.mag-points)
 	kAffect,
 	kUnaffect
 };
@@ -197,27 +197,57 @@ class Damage : public IAction {
 	void Print(CharData *ch, std::ostringstream &buffer) const override;
 };
 
-// Heal no longer derives from Damage: it shares no parameters with it (healing has no saving
-// throw). The heal amount is decoupled from the global potency roll: the roll only supplies the
-// raw dice and competencies, while the <amount min= dices_weight= competencies_weight=> weights
-// are the heal's own, so tuning a heal does not disturb the spell's other effects (which share
-// the roll). Also carries an NPC coefficient, an "extra" overheal-above-max flag, and a
-// completion probability.
-class Heal : public IAction {
-	double npc_coeff_{1};
-	bool extra_{false};                    // may the heal raise hit points above the maximum?
-	int prob_{100};                        // percent chance the healing actually happens
-	double amount_min_{0};                 // minimum hit points restored
-	double amount_dices_weight_{0};        // weight applied to the potency roll's dice
-	double amount_competencies_weight_{0}; // weight applied to the caster's skill+stat competencies
+// Points (issue.mag-points): the data-driven home for hit-point heals, move
+// restores and thirst/cond adjustments. Each of the four categories lives in
+// its own optional inner tag (<heal>, <moves>, <thirst>, <cond>); all four
+// share the (min, dices_weight, competencies_weight) shape, only <heal>
+// carries the NPC coefficient. The outer <points> tag carries the overheal-
+// above-max flag (still heal-specific in semantics) and the per-cast
+// probability that the whole points action fires.
+//
+// Sign convention for the four amounts (per issue.mag-points step 5):
+//   heal:   positive = restore HP; negative is currently a no-op (the cast-
+//           to-points path has no "damage" branch -- damage spells use
+//           CastDamage). Reserved as 0 for safety.
+//   moves:  positive = restore movement points; negative = drain them.
+//   thirst: positive = restore (sate thirst); negative = make thirstier.
+//           XML sign is the gameplay-natural one; the engine field stores
+//           the opposite (0 = sated, higher = thirstier), so CastToPoints
+//           negates the value before calling gain_condition().
+//   cond:   same inversion as thirst, FULL slot.
+//
+// Heal class retired; the old <heal><amount/></heal> nesting collapsed into
+// <points><heal/></points> and the inner Amount struct below is shared by
+// every category.
+class Points : public IAction {
  public:
-	explicit Heal(parser_wrapper::DataNode &node);
-	[[nodiscard]] double GetNpcCoeff() const { return npc_coeff_; }
+	// One restoration / drain amount. For heal_, npc_coeff is parsed from
+	// the XML (default 1.0 -- preserves the old <heal npc_coeff/> default);
+	// for the other categories the parser leaves it at 0.0, which makes the
+	// NPC-boost line in CastToPoints a no-op (v += v * 0 = v). present_ is
+	// set by the parser when the corresponding inner tag is found.
+	struct Amount {
+		bool present{false};
+		double min{0};
+		double dices_weight{0};
+		double competencies_weight{0};
+		double npc_coeff{0};
+	};
+ private:
+	bool extra_{false};   // may the heal raise hit points above the maximum?
+	int prob_{100};       // percent chance the whole points action fires
+	Amount heal_;
+	Amount moves_;
+	Amount thirst_;
+	Amount cond_;
+ public:
+	explicit Points(parser_wrapper::DataNode &node);
 	[[nodiscard]] bool IsExtra() const { return extra_; }
 	[[nodiscard]] int GetProb() const { return prob_; }
-	[[nodiscard]] double GetAmountMin() const { return amount_min_; }
-	[[nodiscard]] double GetAmountDicesWeight() const { return amount_dices_weight_; }
-	[[nodiscard]] double GetAmountCompetenciesWeight() const { return amount_competencies_weight_; }
+	[[nodiscard]] const Amount &GetHeal()   const { return heal_; }
+	[[nodiscard]] const Amount &GetMoves()  const { return moves_; }
+	[[nodiscard]] const Amount &GetThirst() const { return thirst_; }
+	[[nodiscard]] const Amount &GetCond()   const { return cond_; }
 
 	void Print(CharData *ch, std::ostringstream &buffer) const override;
 };
@@ -392,7 +422,7 @@ class Actions {
 	void ParseAction(ActionsRosterPtr &info, parser_wrapper::DataNode node);
 	static void ParseDamage(ActionsRosterPtr &info, parser_wrapper::DataNode &node);
 	static void ParseArea(ActionsRosterPtr &info, parser_wrapper::DataNode &node);
-	static void ParseHeal(ActionsRosterPtr &info, parser_wrapper::DataNode &node);
+	static void ParsePoints(ActionsRosterPtr &info, parser_wrapper::DataNode &node);
 	static void ParseAffect(ActionsRosterPtr &info, parser_wrapper::DataNode &node);
 	static void ParseUnaffect(ActionsRosterPtr &info, parser_wrapper::DataNode &node);
 	static void ParseFlagCondition(FlagCondition &cond, parser_wrapper::DataNode &node);
@@ -409,7 +439,7 @@ class Actions {
 	[[nodiscard]] bool Contains(EAction action) const;
 	[[nodiscard]] const Damage &GetDmg() const;
 	[[nodiscard]] const Area &GetArea() const;
-	[[nodiscard]] const Heal &GetHeal() const;
+	[[nodiscard]] const Points &GetPoints() const;
 	[[nodiscard]] const TalentAffect &GetAffect() const;
 	[[nodiscard]] const TalentUnaffect &GetUnaffect() const;
 	[[nodiscard]] const FlagCondition &GetBlocking() const { return blocking_; }

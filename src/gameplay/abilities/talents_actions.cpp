@@ -305,32 +305,60 @@ Damage::Damage(parser_wrapper::DataNode &node) {
 	}
 }
 
-Heal::Heal(parser_wrapper::DataNode &node) {
-	const char *npc = node.GetValue("npc_coeff");
-	npc_coeff_ = (npc && *npc) ? parse::ReadAsDouble(npc) : 1.0;
+// Parse one child amount tag (heal/moves/thirst/cond) into `a`. The shared
+// schema is (min, dices_weight, competencies_weight); npc_coeff is parsed only
+// when `with_npc` is set (heal only). issue.mag-points.
+static void ParsePointsAmount(parser_wrapper::DataNode &node, const char *tag,
+							  Points::Amount &a, bool with_npc) {
+	if (!node.GoToChild(tag)) {
+		return;
+	}
+	a.present = true;
+	const char *amin = node.GetValue("min");
+	a.min = (amin && *amin) ? parse::ReadAsDouble(amin) : 0.0;
+	const char *adw = node.GetValue("dices_weight");
+	a.dices_weight = (adw && *adw) ? parse::ReadAsDouble(adw) : 0.0;
+	const char *acw = node.GetValue("competencies_weight");
+	a.competencies_weight = (acw && *acw) ? parse::ReadAsDouble(acw) : 0.0;
+	if (with_npc) {
+		// 1.0 default mirrors the legacy <heal npc_coeff/> default: NPC casters
+		// get a *2 boost on heal points unless the tag overrides it.
+		const char *npc = node.GetValue("npc_coeff");
+		a.npc_coeff = (npc && *npc) ? parse::ReadAsDouble(npc) : 1.0;
+	}
+	node.GoToParent();
+}
+
+Points::Points(parser_wrapper::DataNode &node) {
 	const char *extra = node.GetValue("extra");
 	extra_ = (extra && *extra) && parse::ReadAsBool(extra);
 	const char *prob = node.GetValue("prob");
 	prob_ = (prob && *prob) ? parse::ReadAsInt(prob) : 100;
-	if (node.GoToChild("amount")) {
-		const char *amin = node.GetValue("min");
-		amount_min_ = (amin && *amin) ? parse::ReadAsDouble(amin) : 0.0;
-		const char *adw = node.GetValue("dices_weight");
-		amount_dices_weight_ = (adw && *adw) ? parse::ReadAsDouble(adw) : 0.0;
-		const char *acw = node.GetValue("competencies_weight");
-		amount_competencies_weight_ = (acw && *acw) ? parse::ReadAsDouble(acw) : 0.0;
-		node.GoToParent();
-	}
+	ParsePointsAmount(node, "heal",   heal_,   /*with_npc=*/true);
+	ParsePointsAmount(node, "moves",  moves_,  false);
+	ParsePointsAmount(node, "thirst", thirst_, false);
+	ParsePointsAmount(node, "cond",   cond_,   false);
 }
 
-void Heal::Print(CharData */*ch*/, std::ostringstream &buffer) const {
-	buffer << " Heal: " << "\r\n"
-		   << " NPC coeff: " << kColorGrn << npc_coeff_ << kColorNrm
-		   << " Extra: " << kColorGrn << (extra_ ? "yes" : "no") << kColorNrm
-		   << " Prob: " << kColorGrn << prob_ << kColorNrm << "\r\n"
-		   << " Amount min: " << kColorGrn << amount_min_ << kColorNrm
-		   << " dices_weight: " << kColorGrn << amount_dices_weight_ << kColorNrm
-		   << " competencies_weight: " << kColorGrn << amount_competencies_weight_ << kColorNrm << "\r\n";
+static void PrintAmount(std::ostringstream &buffer, const char *label,
+						const Points::Amount &a, bool with_npc) {
+	if (!a.present) return;
+	buffer << "  " << label << ": min=" << kColorGrn << a.min << kColorNrm
+		   << " dices_weight=" << kColorGrn << a.dices_weight << kColorNrm
+		   << " competencies_weight=" << kColorGrn << a.competencies_weight << kColorNrm;
+	if (with_npc) {
+		buffer << " npc_coeff=" << kColorGrn << a.npc_coeff << kColorNrm;
+	}
+	buffer << "\r\n";
+}
+
+void Points::Print(CharData */*ch*/, std::ostringstream &buffer) const {
+	buffer << " Points: extra=" << kColorGrn << (extra_ ? "yes" : "no") << kColorNrm
+		   << " prob=" << kColorGrn << prob_ << kColorNrm << "\r\n";
+	PrintAmount(buffer, "Heal",   heal_,   /*with_npc=*/true);
+	PrintAmount(buffer, "Moves",  moves_,  false);
+	PrintAmount(buffer, "Thirst", thirst_, false);
+	PrintAmount(buffer, "Cond",   cond_,   false);
 }
 
 
@@ -650,8 +678,8 @@ void Actions::ParseAction(ActionsRosterPtr &info, parser_wrapper::DataNode node)
 			ParseDamage(info, manifestation);
 		} else if (strcmp(manifestation.GetName(), "area") == 0) {
 			ParseArea(info, manifestation);
-		} else if (strcmp(manifestation.GetName(), "heal") == 0) {
-			ParseHeal(info, manifestation);
+		} else if (strcmp(manifestation.GetName(), "points") == 0) {
+			ParsePoints(info, manifestation);
 		} else if (strcmp(manifestation.GetName(), "affects") == 0) {
 			ParseAffect(info, manifestation);
 		} else if (strcmp(manifestation.GetName(), "unaffect") == 0) {
@@ -719,8 +747,8 @@ void Actions::ParseArea(ActionsRosterPtr &info, parser_wrapper::DataNode &node) 
 	info->insert({EAction::kArea, std::move(ptr)});
 }
 
-void Actions::ParseHeal(ActionsRosterPtr &info, parser_wrapper::DataNode &node) {
-	info->emplace(EAction::kHeal, std::make_shared<Heal>(node));
+void Actions::ParsePoints(ActionsRosterPtr &info, parser_wrapper::DataNode &node) {
+	info->emplace(EAction::kPoints, std::make_shared<Points>(node));
 }
 
 void Actions::ParseAffect(ActionsRosterPtr &info, parser_wrapper::DataNode &node) {
@@ -757,11 +785,11 @@ const Area &Actions::GetArea() const {
 	}
 }
 
-const Heal &Actions::GetHeal() const {
-	if (actions_->contains(EAction::kHeal)) {
-		return *std::static_pointer_cast<Heal>(actions_->find(EAction::kHeal)->second);
+const Points &Actions::GetPoints() const {
+	if (actions_->contains(EAction::kPoints)) {
+		return *std::static_pointer_cast<Points>(actions_->find(EAction::kPoints)->second);
 	} else {
-		throw std::runtime_error("Getting heal parameters from talent which has no 'heal' action.");
+		throw std::runtime_error("Getting points parameters from talent which has no 'points' action.");
 	}
 }
 

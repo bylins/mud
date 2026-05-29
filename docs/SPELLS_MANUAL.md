@@ -235,7 +235,7 @@ Container for one or more `<action>` blocks. Each `<action>` can declare any
 mix of:
 
 * Gates: `<blocking>`, `<required>`, `<caster_blocking>`, `<reflection>`
-* Effects: `<damage>`, `<heal>`, `<area>`, `<affects>`, `<unaffect>`
+* Effects: `<damage>`, `<points>`, `<area>`, `<affects>`, `<unaffect>`
 
 Most spells use a single `<action>`. Multiple actions are technically allowed
 but the framework processes only one of each effect type, so the common
@@ -360,24 +360,69 @@ reflection rates per spell.
 
 ---
 
-## 6. `<heal>` — restorative
+## 6. `<points>` — restoration: HP / moves / thirst / cond
 
 ```xml
-<heal npc_coeff="0.5" extra="N" prob="100">
-    <amount min="0" dices_weight="0.0" competencies_weight="100"/>
-</heal>
+<points extra="N" prob="100">
+    <heal   npc_coeff="3" min="0" dices_weight="1.0" competencies_weight="90"/>
+    <moves                min="0" dices_weight="0.0" competencies_weight="20"/>
+    <thirst               min="0" dices_weight="0.0" competencies_weight="0"/>
+    <cond                 min="0" dices_weight="0.0" competencies_weight="0"/>
+</points>
 ```
 
-| Attr / child | Default | Description |
-|---|---|---|
-| `npc_coeff` | `1.0` | Multiplier when the target is an NPC (typical use: dampen heal cheese on minions). |
-| `extra` | `N` | `Y` allows the heal to push HP above the maximum cap (overheal). |
-| `prob` | `100` | Percent chance the heal lands. |
-| `<amount min= dices_weight= competencies_weight=>` | min=0, both weights=0.0 | Heal-side weights. Note these *default to 0*, so you must set at least one to get a non-zero heal. |
+The `<points>` tag (formerly `<heal>`, renamed in issue.mag-points)
+carries up to four optional inner amount tags. Each amount independently
+restores (or drains) one category from the same potency roll:
 
-The heal-side `<amount>` weights are independent of the spell's other
-effects, so a designer can rebalance a heal without disturbing damage/affect
-on the same spell.
+* **`<heal>`** — hit points. `extra="Y"` on the outer `<points>` lets
+  the restoration push HP above the cap (overheal). Has the optional
+  `npc_coeff` attribute (default `1.0`) that boosts the amount when the
+  caster is an NPC — legacy behaviour, designed to keep mob-cast heals
+  punchy on minions.
+* **`<moves>`** — movement points. Same attribute shape as `<heal>`
+  minus `npc_coeff`.
+* **`<thirst>`** — thirst (engine slot `THIRST`).
+* **`<cond>`** — hunger (engine slot `FULL`).
+
+| Outer `<points>` attr | Default | Description |
+|---|---|---|
+| `extra` | `N` | `Y` allows the **heal** amount to push HP above the maximum cap. Affects only `<heal>`; the other categories already saturate at their natural caps. |
+| `prob` | `100` | Percent chance the whole points action fires. A failed roll restores zero across all four categories. |
+
+| Inner amount attr | Default | Description |
+|---|---|---|
+| `min` | `0` | Flat amount. May be **negative** — negative numbers drain instead of restore (`<moves min="-30">` drains 30 movement points). |
+| `dices_weight` | `0` | Weight on the potency roll's dice. |
+| `competencies_weight` | `0` | Weight on `(skill_coeff + stat_coeff)`. |
+| `npc_coeff` (`<heal>` only) | `1.0` | Extra multiplicative boost when the caster is an NPC. Default `1.0` reproduces the legacy `*2` effective heal for mob casters; set to `0` to disable. |
+
+### Sign convention for thirst / cond
+
+In the engine the thirst/full fields are inverted — `0` is fully sated,
+`kMaxCondition` is "starving". The XML uses the gameplay-natural sign:
+
+* **Positive XML value** = restore (less thirsty / less hungry).
+* **Negative XML value** = make worse (more thirsty / more hungry).
+
+`CastToPoints` negates the computed amount before calling
+`gain_condition`, so designers can read `<thirst min="50"/>` as
+"restore 50 thirst points" without keeping the inverted engine field in
+mind.
+
+### Formula
+
+Each amount, before clamps:
+
+```
+amount = ceil(min + dice · dices_weight + competencies · competencies_weight)
+amount += amount · (caster's spellpower bonus / 100)
+if caster is NPC: amount += amount · npc_coeff   // 0 for non-heal categories
+```
+
+The dice / competencies are rolled **once per cast** from the spell's
+`<potency_roll>` and shared across all four amounts — a single skill
+check drives every category on the same cast.
 
 ---
 
@@ -860,7 +905,7 @@ For each cast that runs `<unaffect>`:
 
 ---
 
-## 10. `<heal>` and `<area>` see §6 and §7 above.
+## 10. `<points>` and `<area>` see §6 and §7 above.
 
 ---
 
@@ -869,10 +914,11 @@ For each cast that runs `<unaffect>`:
 These stages are gated by their `kMag…` flag and run dedicated logic in
 `magic.cpp`. They are **partly data-driven**:
 
-* `CastToPoints` (HP / MV restore) reads `<heal>` from the talent actions
-  and the `kPointsToVict` message from `spell_msg.xml`. Spells with the
-  `kMagPoints` flag and no `<heal>` are valid (move-restore, food/thirst
-  reset) and use built-in logic.
+* `CastToPoints` (HP / MV / thirst / cond restore) is fully data-driven
+  via the spell's `<points>` block (issue.mag-points). All four inner
+  amounts (`<heal>`, `<moves>`, `<thirst>`, `<cond>`) share a single
+  potency roll and a single `prob` gate. The `kPointsToVict` message
+  from `spell_msg.xml` fires when any amount produced a non-zero value.
 * `CastToAlterObjs` runs a per-spell handler in code (bless, curse,
   invisible, poison, enchant, repair, etc.) and reads its messages from
   `spell_msg.xml` (`kAlterObjToChar`, `kEnchantNotWeapon`, …).

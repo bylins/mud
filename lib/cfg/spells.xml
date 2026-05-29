@@ -454,9 +454,9 @@ base_stat id - (например "kWis") какой берем параметр,
                 <blocking>
                     <room_flags val="kNoMagic"/>
                 </blocking>
-                <heal npc_coeff="3">
-                    <amount min="0" dices_weight="1.0" competencies_weight="27"/>
-                </heal>
+                <points>
+                    <heal npc_coeff="3" min="0" dices_weight="1.0" competencies_weight="27"/>
+                </points>
             </action>
         </talent_actions>
     </spell>
@@ -479,9 +479,9 @@ base_stat id - (например "kWis") какой берем параметр,
                 <blocking>
                     <room_flags val="kNoMagic"/>
                 </blocking>
-                <heal npc_coeff="3">
-                    <amount min="0" dices_weight="1.0" competencies_weight="14"/>
-                </heal>
+                <points>
+                    <heal npc_coeff="3" min="0" dices_weight="1.0" competencies_weight="14"/>
+                </points>
             </action>
         </talent_actions>
     </spell>
@@ -825,9 +825,9 @@ base_stat id - (например "kWis") какой берем параметр,
                 <blocking>
                     <room_flags val="kNoMagic"/>
                 </blocking>
-                <heal npc_coeff="3">
-                    <amount min="0" dices_weight="1.0" competencies_weight="90"/>
-                </heal>
+                <points>
+                    <heal npc_coeff="3" min="0" dices_weight="1.0" competencies_weight="90"/>
+                </points>
             </action>
             </talent_actions>
         </spell>
@@ -1182,9 +1182,9 @@ base_stat id - (например "kWis") какой берем параметр,
                 <blocking>
                     <room_flags val="kNoMagic"/>
                 </blocking>
-                <heal npc_coeff="3">
-                    <amount min="1" dices_weight="1.0" competencies_weight="2"/>
-                </heal>
+                <points>
+                    <heal npc_coeff="3" min="1" dices_weight="1.0" competencies_weight="2"/>
+                </points>
                 <affects type="kPatronage" saving="kNone" resist="kVitality">
                     <duration base="3" skill_divisor="25" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod"/>
@@ -1372,9 +1372,9 @@ base_stat id - (например "kWis") какой берем параметр,
                 <blocking>
                     <room_flags val="kNoMagic"/>
                 </blocking>
-                <heal npc_coeff="3">
-                    <amount min="0" dices_weight="1.0" competencies_weight="44"/>
-                </heal>
+                <points>
+                    <heal npc_coeff="3" min="0" dices_weight="1.0" competencies_weight="44"/>
+                </points>
             </action>
         </talent_actions>
     </spell>
@@ -1397,9 +1397,9 @@ base_stat id - (например "kWis") какой берем параметр,
                 <blocking>
                     <room_flags val="kNoMagic"/>
                 </blocking>
-                <heal npc_coeff="3">
-                    <amount min="0" dices_weight="1.0" competencies_weight="90"/>
-                </heal>
+                <points>
+                    <heal npc_coeff="3" min="0" dices_weight="1.0" competencies_weight="90"/>
+                </points>
                 <area>
                     <decay cast="0.01" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
@@ -1505,9 +1505,9 @@ base_stat id - (например "kWis") какой берем параметр,
                 <blocking>
                     <room_flags val="kNoMagic"/>
                 </blocking>
-                <heal npc_coeff="3">
-                    <amount min="0" dices_weight="1.0" competencies_weight="15"/>
-                </heal>
+                <points>
+                    <heal npc_coeff="3" min="0" dices_weight="1.0" competencies_weight="15"/>
+                </points>
             </action>
         </talent_actions>
     </spell>
@@ -2425,9 +2425,9 @@ base_stat id - (например "kWis") какой берем параметр,
                 <blocking>
                     <room_flags val="kNoMagic"/>
                 </blocking>
-            <heal npc_coeff="3" extra="Y">
-                <amount min="0" dices_weight="1.0" competencies_weight="4"/>
-            </heal>
+            <points extra="Y">
+                    <heal npc_coeff="3" min="0" dices_weight="1.0" competencies_weight="4"/>
+                </points>
             </action>
         </talent_actions>
     </spell>
@@ -2810,6 +2810,9 @@ base_stat id - (например "kWis") какой берем параметр,
         <flags val="kMagPoints"/>
         <talent_actions>
             <action>
+                <points>
+                    <moves min="9999" dices_weight="0" competencies_weight="0"/>
+                </points>
                 <blocking>
                     <room_flags val="kNoMagic"/>
                 </blocking>
@@ -2914,6 +2917,10 @@ base_stat id - (например "kWis") какой берем параметр,
         <flags val="kMagPoints"/>
         <talent_actions>
             <action>
+                <points>
+                    <thirst min="9999" dices_weight="0" competencies_weight="0"/>
+                    <cond min="9999" dices_weight="0" competencies_weight="0"/>
+                </points>
                 <blocking>
                     <room_flags val="kNoMagic"/>
                 </blocking>
@@ -3977,9 +3984,9 @@ base_stat id - (например "kWis") какой берем параметр,
                 <required>
                     <mob_flags val="kCorpse"/>
                 </required>
-                <heal npc_coeff="3">
-                    <amount min="0" dices_weight="1.0" competencies_weight="135"/>
-                </heal>
+                <points>
+                    <heal npc_coeff="3" min="0" dices_weight="1.0" competencies_weight="135"/>
+                </points>
                 <area>
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="1" max_targets="20"/>
@@ -4695,6 +4702,9 @@ base_stat id - (например "kWis") какой берем параметр,
         <flags val="kMagGroups|kMagPoints|kNpcDummy"/>
         <talent_actions>
             <action>
+                <points>
+                    <moves min="9999" dices_weight="0" competencies_weight="0"/>
+                </points>
                 <blocking>
                     <room_flags val="kNoMagic"/>
                 </blocking>
@@ -5395,9 +5405,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
-                <heal npc_coeff="3">
-                    <amount min="1" dices_weight="1.0" competencies_weight="2"/>
-                </heal>
+                <points>
+                    <heal npc_coeff="3" min="1" dices_weight="1.0" competencies_weight="2"/>
+                </points>
                 <area>
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
@@ -6343,6 +6353,10 @@ base_stat id - (например "kWis") какой берем параметр,
         <flags val="kMagGroups|kMagPoints|kNpcDummy"/>
         <talent_actions>
             <action>
+                <points>
+                    <thirst min="9999" dices_weight="0" competencies_weight="0"/>
+                    <cond min="9999" dices_weight="0" competencies_weight="0"/>
+                </points>
                 <blocking>
                     <room_flags val="kNoMagic"/>
                 </blocking>
@@ -6617,9 +6631,9 @@ base_stat id - (например "kWis") какой берем параметр,
                     <victims skill_divisor="20" dice_size="2" min_targets="1" max_targets="20"/>
                 </area>
                 <!-- 15% chance to heal each group member, kGreatHeal-sized. -->
-                <heal npc_coeff="3" prob="15">
-                    <amount min="0" dices_weight="1.0" competencies_weight="90"/>
-                </heal>
+                <points prob="15">
+                    <heal npc_coeff="3" min="0" dices_weight="1.0" competencies_weight="90"/>
+                </points>
                 <!-- One random group buff per member (the old switch(rnd) cases 1-4). Modifiers were
                      remort-based; here they are competencies(skill+stat)-scaled approximations, and
                      the four different durations collapse to one (random apply shares a duration). -->
