@@ -5358,11 +5358,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <blocking>
-                    <room_flags val="kNoMagic"/>
+                    <room_flags val="kNoMagic|kForMono|kForPoly"/>
                 </blocking>
                 <!-- Duration approximates OLD 1+L/7 via novice-cap skill_bonus (=4 at
-                     skill 75 with divisor 18 + base 1 = 5, matching L=30). The
-                     incompatible-room check stays code-side. -->
+                     skill 75 with divisor 18 + base 1 = 5, matching L=30).
+                     Incompatible-room (kForMono/kForPoly) now in <blocking>. -->
                 <affects type="kBlackTentacles" saving="kNone" resist="kVitality">
                     <duration base="1" skill_divisor="18" min="0" max="0"/>
                     <flags val="kAfMustBeHandled"/>

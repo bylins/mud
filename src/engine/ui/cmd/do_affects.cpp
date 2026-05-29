@@ -90,6 +90,13 @@ void do_affects(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			if (aff->stacks > 1) {
 				snprintf(buf + strlen(buf), sizeof(buf) - strlen(buf), " [x%d]", aff->stacks);
 			}
+			// Potency for immortals / testers: the cast-roll strength (dice+skill+stat)
+			// recorded on the affect at impose time; drives the dispel comparison in
+			// CastUnaffects::DispelSucceeds. 0 means "not recorded" (charms, name-tied
+			// affects, etc.).
+			if (ch->IsImmortal() || ch->IsFlagged(EPrf::kTester)) {
+				snprintf(buf + strlen(buf), sizeof(buf) - strlen(buf), " [p: %.1f]", aff->potency);
+			}
 			SendMsgToChar(strcat(buf, "\r\n"), ch);
 		}
 // отображение наград

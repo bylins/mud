@@ -423,8 +423,8 @@ int CallMagicToRoom(CharData *ch, RoomData *room, CastRollResult roll) {
 
 	// Data-driven defaults from the spell's <talent_actions>/<affects> block, if present
 	// (issue.room-affects). Fills af[0] with duration, battleflag, and modifier. Per-case
-	// special overrides (mana-caster, kBlackTentacles' kForMono/kForPoly skip) follow in
-	// the switch below; room-flag fizzles and material components were lifted out and now
+	// special overrides (kForbidden's mana-caster cap + tier narration) follow in the
+	// switch below; room-flag fizzles and material components were lifted out and now
 	// run universally above.
 	//
 	// NOTE on duration units: room-affect durations are in RAW ROOM-TICK PULSES (not in
@@ -479,18 +479,12 @@ int CallMagicToRoom(CharData *ch, RoomData *room, CastRollResult roll) {
 			}
 			break;
 
-		case ESpell::kBlackTentacles:
-			if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kForMono)
-				|| ROOM_FLAGGED(ch->in_room, ERoomFlag::kForPoly)) {
-				success = false;
-			}
-			break;
-
 		// All other room spells (kRoomLight, kDeadlyFog, kMeteorStorm, kThunderstorm,
-		// kHypnoticPattern, kRuneLabel) get their entire affect data from the XML talent
-		// block above -- no per-case override. (kHypnoticPattern's material-component
-		// check moved into the universal ProcessMatComponents call at the top of the
-		// function; kRuneLabel's room-flag fizzle migrated to <blocking><room_flags/>.)
+		// kHypnoticPattern, kRuneLabel, kBlackTentacles) get their entire affect data
+		// from the XML talent block above -- no per-case override. (kHypnoticPattern's
+		// material-component check moved into the universal ProcessMatComponents call
+		// at the top of the function; kRuneLabel's and kBlackTentacles' room-flag
+		// fizzles migrated to <blocking><room_flags/>.)
 		default: break;
 	}
 	if (success) {

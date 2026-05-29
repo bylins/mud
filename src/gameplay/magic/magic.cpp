@@ -1795,18 +1795,37 @@ bool DispelSucceeds(CharData *ch, CharData *victim, ESpell dispel_spell, ESpell 
 			break;
 		}
 	}
+	// Tester / immortal debug line: trace the dispel-potency contest one line per
+	// affect-vs-dispel pair. Reason codes for the spell-potency value:
+	//   buff  -- a non-violent dispel of a buff auto-passes (no contest rolled).
+	//   luck  -- the flat 5% auto-success bypassed the contest.
+	//   roll  -- a normal weighted potency contest was rolled.
+	const bool show_debug = ch->IsImmortal() || ch->IsFlagged(EPrf::kTester);
+	auto emit_debug = [&](float spell_pot, const char *kind, bool ok) {
+		char dbuf[256];
+		snprintf(dbuf, sizeof(dbuf),
+				 "Unaffect: %s [p: %.1f %s]. Target: %s [p: %.1f]. %s.\r\n",
+				 MUD::Spell(dispel_spell).GetCName(), spell_pot, kind,
+				 MUD::Spell(affect_spell).GetCName(), affect_potency,
+				 ok ? "Success" : "Fail");
+		SendMsgToChar(dbuf, ch);
+	};
 	// Case 3: a non-violent spell removing a buff needs no check.
 	if (!MUD::Spell(dispel_spell).IsViolent() && !affect_is_debuff) {
+		if (show_debug) emit_debug(0.0f, "buff", true);
 		return true;
 	}
 	// Always a 5% chance to remove regardless of potency.
 	if (number(1, 100) <= 5) {
+		if (show_debug) emit_debug(0.0f, "luck", true);
 		return true;
 	}
 	const auto &roll = MUD::Spell(dispel_spell).GetPotencyRoll();
 	const float spell_potency = static_cast<float>(
 			roll.RollSkillDices() + roll.CalcSkillCoeff(ch) + roll.CalcBaseStatCoeff(ch)) * potency_weight;
-	return spell_potency > affect_potency;
+	const bool ok = spell_potency > affect_potency;
+	if (show_debug) emit_debug(spell_potency, "roll", ok);
+	return ok;
 }
 
 }  // namespace
