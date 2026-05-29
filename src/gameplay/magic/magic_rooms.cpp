@@ -429,8 +429,8 @@ int CallMagicToRoom(CharData *ch, RoomData *room, CastRollResult roll) {
 			af[0].must_handled = false;
 			accum_duration = true;
 			update_spell = true;
-			to_char = "Вы прищелкнули пальцами и в воздухе разлился свет.";
-			to_room = "$n вызвал$g разлившееся в воздухе свечение.";
+			// to_char / to_room messages now come from spell_msg.xml under the kAffImposed*
+			// keys (issue.room-affects).
 			break;
 
 		case ESpell::kDeadlyFog: af[0].type = spell_id;
@@ -440,8 +440,7 @@ int CallMagicToRoom(CharData *ch, RoomData *room, CastRollResult roll) {
 			af[0].caster_id = ch->get_uid();
 			af[0].must_handled = true;
 			update_spell = false;
-			to_char = "Пробормотав злобные проклятия, вы вызвали смертельный ядовитый туман, покрывший все вокруг тёмным саваном.";
-			to_room = "Пробормотав злобные проклятия, $n вызвал$g смертельный ядовитый туман, покрывший все вокруг тёмным саваном.";
+			// to_char / to_room via spell_msg.xml (issue.room-affects).
 			break;
 
 		case ESpell::kMeteorStorm: af[0].type = spell_id;
@@ -452,8 +451,7 @@ int CallMagicToRoom(CharData *ch, RoomData *room, CastRollResult roll) {
 			af[0].must_handled = true;
 			accum_duration = false;
 			update_spell = false;
-			to_char = "Повинуясь вашей воле, несшиеся в неизмеримой дали громовые камни обрушились на землю.";
-			to_room = "$n воздел$g руки и с небес посыпался град раскаленных громовых камней.";
+			// to_char / to_room via spell_msg.xml (issue.room-affects).
 			break;
 
 		case ESpell::kThunderstorm: af[0].type = spell_id;
@@ -461,14 +459,16 @@ int CallMagicToRoom(CharData *ch, RoomData *room, CastRollResult roll) {
 			af[0].must_handled = true;
 			af[0].caster_id = ch->get_uid();
 			update_spell = false;
-			to_char = "Вы ощутили в небесах силу бури и призвали ее к себе.";
-			to_room = "$n проревел$g заклинание. Вы услышали раскаты далекой грозы.";
+			// to_char / to_room via spell_msg.xml (issue.room-affects).
 			break;
 
 		case ESpell::kRuneLabel:
 			if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kPeaceful)
 				|| ROOM_FLAGGED(ch->in_room, ERoomFlag::kTunnel)
 				|| ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoTeleportIn)) {
+				// "Fizzled" variant stays code-set (room-flag-specific narration; the
+				// affect is not imposed and the XML kAffImposed* messages are for the
+				// success path only).
 				to_char = "Вы начертали свое имя рунами на земле, знаки вспыхнули, но ничего не произошло.";
 				to_room = "$n начертил$g на земле несколько рун, знаки вспыхнули, но ничего не произошло.";
 				lag = 2;
@@ -483,8 +483,7 @@ int CallMagicToRoom(CharData *ch, RoomData *room, CastRollResult roll) {
 			accum_duration = false;
 			update_spell = true;
 			only_one = true;
-			to_char = "Вы начертали свое имя рунами на земле и произнесли заклинание.";
-			to_room = "$n начертил$g на земле несколько рун и произнес$q заклинание.";
+			// Success-variant to_char / to_room via spell_msg.xml (issue.room-affects).
 			lag = 2;
 			break;
 
@@ -502,8 +501,7 @@ int CallMagicToRoom(CharData *ch, RoomData *room, CastRollResult roll) {
 			accum_duration = false;
 			update_spell = false;
 			only_one = false;
-			to_char = "Вы воскурили благовония и пропели заклинание. В воздухе поплыл чарующий глаз огненный узор.";
-			to_room = "$n воскурил$g благовония и пропел$g заклинание. В воздухе поплыл чарующий глаз огненный узор.";
+			// to_char / to_room via spell_msg.xml (issue.room-affects).
 			break;
 
 		case ESpell::kBlackTentacles:
@@ -519,10 +517,7 @@ int CallMagicToRoom(CharData *ch, RoomData *room, CastRollResult roll) {
 			af[0].must_handled = true;
 			accum_duration = false;
 			update_spell = false;
-			to_char =
-				"Вы выкрикнули несколько мерзко звучащих слов и притопнули. Из земли полезли скрюченные мертвые руки.";
-			to_room =
-				"$n выкрикнул$g несколько мерзко звучащих слов и притопнул$g. Из земли полезли скрюченные мертвые руки.";
+			// to_char / to_room via spell_msg.xml (issue.room-affects).
 			break;
 		default: break;
 	}
@@ -563,10 +558,27 @@ int CallMagicToRoom(CharData *ch, RoomData *room, CastRollResult roll) {
 	}
 
 	if (success) {
-		if (to_room != nullptr)
+		// Code-set messages win (kForbidden's modifier-tier text, kRuneLabel's "fizzled"
+		// variant); spell_msg.xml supplies the fallback for the data-driven success path
+		// (issue.room-affects). A sheaf with no kAffImposed* key shows nothing -- same
+		// silent-skip behaviour as the per-spell handler in CastAffect (issue #3335).
+		const auto &sheaf = MUD::SpellMessages()[spell_id];
+		if (to_room != nullptr) {
 			act(to_room, true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-		if (to_char != nullptr)
+		} else {
+			const auto &xml_to_room = sheaf.GetMessage(ESpellMsg::kAffImposedToRoom);
+			if (!xml_to_room.empty()) {
+				act(xml_to_room.c_str(), true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
+			}
+		}
+		if (to_char != nullptr) {
 			act(to_char, true, ch, nullptr, nullptr, kToChar);
+		} else {
+			const auto &xml_to_char = sheaf.GetMessage(ESpellMsg::kAffImposedToChar);
+			if (!xml_to_char.empty()) {
+				act(xml_to_char.c_str(), true, ch, nullptr, nullptr, kToChar);
+			}
+		}
 		return 1;
 	} else
 		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);

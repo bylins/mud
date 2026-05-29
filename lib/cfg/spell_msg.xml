@@ -1365,6 +1365,8 @@
 		<message type="kCastPhraseHeathen" val="идти дождю стрелами" />
 		<message type="kCastPhraseChristian" val="... и камни, величиною в талант, падут с неба." />
 		<message type="kAffExpired" val="Последний громовой камень грянул в землю и все стихло." />
+		<message type="kAffImposedToChar" val="Повинуясь вашей воле, несшиеся в неизмеримой дали громовые камни обрушились на землю." />
+		<message type="kAffImposedToRoom" val="$n воздел$g руки и с небес посыпался град раскаленных громовых камней." />
 	</msg_sheaf>
 	<msg_sheaf id="kMagicGlass">
 		<message type="kFightDeathToChar" val="Магическое зеркало спасло вам жизнь, чего не скажешь о $N5." />
@@ -2089,16 +2091,22 @@
 		<message type="kCastPhraseHeathen" val="Да буде СВЕТ !!!" />
 		<message type="kCastPhraseChristian" val="...ибо сказал МОНТЕР !!!" />
 		<message type="kAffExpired" val="Колдовской свет угас." />
+		<message type="kAffImposedToChar" val="Вы прищелкнули пальцами и в воздухе разлился свет." />
+		<message type="kAffImposedToRoom" val="$n вызвал$g разлившееся в воздухе свечение." />
 	</msg_sheaf>
 	<msg_sheaf id="kDeadlyFog">
 		<message type="kCastPhraseHeathen" val="Порча великая туманом обернись!" />
 		<message type="kCastPhraseChristian" val="...и смерть явись в тумане его." />
 		<message type="kAffExpired" val="Порыв ветра развеял туман смерти." />
+		<message type="kAffImposedToChar" val="Пробормотав злобные проклятия, вы вызвали смертельный ядовитый туман, покрывший все вокруг тёмным саваном." />
+		<message type="kAffImposedToRoom" val="Пробормотав злобные проклятия, $n вызвал$g смертельный ядовитый туман, покрывший все вокруг тёмным саваном." />
 	</msg_sheaf>
 	<msg_sheaf id="kThunderstorm">
 		<message type="kCastPhraseHeathen" val="Абие велий вихрь деяти!" />
 		<message type="kCastPhraseChristian" val="...творит молнии при дожде, изводит ветер из хранилищ Своих." />
 		<message type="kAffExpired" val="Ветер прогнал грозовые тучи." />
+		<message type="kAffImposedToChar" val="Вы ощутили в небесах силу бури и призвали ее к себе." />
+		<message type="kAffImposedToRoom" val="$n проревел$g заклинание. Вы услышали раскаты далекой грозы." />
 	</msg_sheaf>
 	<msg_sheaf id="kLightWalk">
 		<message type="kCastPhraseHeathen" val="" />
@@ -2184,6 +2192,8 @@
 		<message type="kCastPhraseHeathen" val="...пьсати черты и резы." />
 		<message type="kCastPhraseChristian" val="...и Сам отошел от них на вержение камня." />
 		<message type="kAffExpired" val="Магические письмена на земле угасли." />
+		<message type="kAffImposedToChar" val="Вы начертали свое имя рунами на земле и произнесли заклинание." />
+		<message type="kAffImposedToRoom" val="$n начертил$g на земле несколько рун и произнес$q заклинание." />
 	</msg_sheaf>
 	<msg_sheaf id="kAconitumPoison">
 		<message type="kAffDispelledToRoom" val="$n выглядит лучше." />
@@ -2255,6 +2265,8 @@
 		<message type="kCastPhraseHeathen" val="ажбо супостаты блазнити да клюковати" />
 		<message type="kCastPhraseChristian" val="...и утроба его приготовляет обман." />
 		<message type="kAffExpired" val="Плывший в воздухе огненный узор потускнел и растаял струйками дыма." />
+		<message type="kAffImposedToChar" val="Вы воскурили благовония и пропели заклинание. В воздухе поплыл чарующий глаз огненный узор." />
+		<message type="kAffImposedToRoom" val="$n воскурил$g благовония и пропел$g заклинание. В воздухе поплыл чарующий глаз огненный узор." />
 	</msg_sheaf>
 	<msg_sheaf id="kSolobonus">
 		<message type="kCastPhraseHeathen" val="" />
@@ -2293,6 +2305,8 @@
 		<message type="kCastPhraseHeathen" val="Ато егоже руци попасти." />
 		<message type="kCastPhraseChristian" val="И он не знает, что мертвецы там и что в глубине..." />
 		<message type="kAffExpired" val="Жуткие черные руки побледнели и расплылись зловонной дымкой." />
+		<message type="kAffImposedToChar" val="Вы выкрикнули несколько мерзко звучащих слов и притопнули. Из земли полезли скрюченные мертвые руки." />
+		<message type="kAffImposedToRoom" val="$n выкрикнул$g несколько мерзко звучащих слов и притопнул$g. Из земли полезли скрюченные мертвые руки." />
 	</msg_sheaf>
 	<msg_sheaf id="kExpedient">
 		<message type="kCastPhraseHeathen" val="!Применил боевой прием!" />
