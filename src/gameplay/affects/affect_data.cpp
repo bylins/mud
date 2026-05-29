@@ -231,8 +231,6 @@ void player_affect_update() {
 
 	RunStats profile;
 	utils::CExecutionTimer total_timer;
-	int count = 0, c_all = 0, recalc = 0;
-//	character_list.foreach_on_copy([&count](const CharData::shared_ptr &i) {
 	for (auto d = descriptor_list; d; d = d->next) {
 		if (d->state != EConState::kPlaying)
 			continue;
@@ -259,10 +257,8 @@ void player_affect_update() {
 		}
 
 		if (!i->affected.empty()) {
-			++count;
 			++profile.counters[static_cast<std::size_t>(Counter::kAffectedPlayers)];
 		}
-		++c_all;
 		bool was_purged = false;
 		bool set_abstinent = false;
 		bool need_recalc = false;
@@ -363,15 +359,12 @@ void player_affect_update() {
 				affect_total(i.get());
 				profile.sections[static_cast<std::size_t>(Section::kRecalc)] += recalc_timer.delta().count();
 			}
-			++recalc;
 			++profile.counters[static_cast<std::size_t>(Counter::kRecalcPlayers)];
 		}
 		profile.sections[static_cast<std::size_t>(Section::kDescriptorLoop)] += descriptor_timer.delta().count();
 	}
-	const auto total_elapsed = total_timer.delta().count();
-	profile.sections[static_cast<std::size_t>(Section::kTotal)] = total_elapsed;
+	profile.sections[static_cast<std::size_t>(Section::kTotal)] = total_timer.delta().count();
 	player_affect_update_profiler::record_run(profile);
-	log("player affect update: timer %f, num affected players %d, all %d recalc %d", total_elapsed, count, c_all, recalc);
 }
 
 // This file update battle affects only
@@ -439,15 +432,12 @@ void battle_affect_update(CharData *ch) {
 
 // раз в минуту
 void mobile_affect_update() {
-	log("mobile_affect_update() start, affected_mobs size=%zu", affected_mobs.size());
 	using mobile_affect_update_profiler::Counter;
 	using mobile_affect_update_profiler::RunStats;
 	using mobile_affect_update_profiler::Section;
 
 	RunStats profile;
 	utils::CExecutionTimer total_timer;
-	int count = 0;
-	int recalc = 0;
 
 	utils::CExecutionTimer copy_timer;
 	auto copy = affected_mobs;
@@ -459,7 +449,6 @@ void mobile_affect_update() {
 		int was_charmed = false, charmed_msg = false;
 		bool was_purged = false;
 		bool need_recalc = false;
-		++count;
 		++profile.counters[static_cast<std::size_t>(Counter::kMobs)];
 //		if (!ch->in_used_zone()) {
 //			return;
@@ -530,7 +519,6 @@ void mobile_affect_update() {
 				utils::CExecutionTimer recalc_timer;
 				affect_total(ch);
 				profile.sections[static_cast<std::size_t>(Section::kRecalc)] += recalc_timer.delta().count();
-				++recalc;
 				++profile.counters[static_cast<std::size_t>(Counter::kRecalcMobs)];
 			}
 			{
@@ -589,10 +577,8 @@ void mobile_affect_update() {
 		profile.sections[static_cast<std::size_t>(Section::kMobLoop)] += mob_timer.delta().count();
 	}
 
-	const auto total_elapsed = total_timer.delta().count();
-	profile.sections[static_cast<std::size_t>(Section::kTotal)] = total_elapsed;
+	profile.sections[static_cast<std::size_t>(Section::kTotal)] = total_timer.delta().count();
 	mobile_affect_update_profiler::record_run(profile);
-	log("mobile affect update: timer %f, num mobs %d recalc %d", total_elapsed, count, recalc);
 }
 
 void RemoveAffectFromCharAndRecalculate(CharData *ch, ESpell spell_id) {
