@@ -7,6 +7,8 @@
 #include "gameplay/skills/skills.h"
 #include "gameplay/abilities/talents_actions.h"
 
+#include "magic.h"  // RollResult -- used by CalcCastPotency / ComputeApplyModifier
+
 class CharData;
 struct RoomData;
 class ObjData;
@@ -46,6 +48,24 @@ bool MayCastInForbiddenRoom(CharData *caster);
 // <blocking><room_flags val="..."/></blocking>. Used in CallMagic and
 // CallMagicToRoom to fizzle casts whose XML config forbids the room.
 bool IsRoomBlocked(RoomData *room, const talents_actions::FlagCondition &cond);
+
+// Cast-recorded potency: the scalar strength stored on every imposed affect
+// (Affect::potency) for later dispel comparisons (DispelSucceeds). It is the
+// straight sum of the cast's potency-roll components -- dice + skill + stat --
+// captured at the moment of imposition. Shared by CastAffect and
+// CallMagicToRoom so both record the same value for the same cast.
+float CalcCastPotency(const RollResult &potency);
+
+// Apply-side modifier value used by every affect imposition path:
+//     raw = min + ceil(skill_coeff + stat_coeff)·competencies_weight
+//                    + dices·dices_weight
+//     raw = min(raw, cap)        if cap > 0
+//     return static_cast<int>(factor · raw)
+// Shared by CastAffect's per-target apply_one lambda and CallMagicToRoom's
+// first-apply default. cap == 0 disables the clamp; factor is allowed to be
+// negative (debuffs), with the clamp acting on the pre-factor magnitude.
+int ComputeApplyModifier(const talents_actions::TalentAffect::Apply &apply,
+						 const RollResult &potency);
 
 int CalcCastSuccess(CharData *ch, CharData *victim, ESaving saving, ESpell spell_id);
 int MagusCastRequiredLevel(const CharData *ch, ESpell spell_id);

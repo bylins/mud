@@ -367,50 +367,57 @@ void UpdateRoomsAffects() {
 
 // =============================================================== //
 
-// Применение заклинания к комнате //
+// Apply a room-targeted spell to ch's current room. Pure data-driven: every
+// affect parameter -- duration, modifier, potency, debuff flag, refresh /
+// dedup policy, imposition narration -- comes from the spell's XML
+// <talent_actions>/<affects> block and spell_msg.xml. No per-spell switch or
+// code-set messages remain. New room spells need only their XML rows; this
+// function is unchanged.
+//
+// Three universal gates run before any affect data is computed:
+//   1. Material component (ProcessMatComponents). Missing -> abort silently.
+//   2. <blocking><room_flags val>. Room carries a blocking flag and the caster
+//      is not exempt (MayCastInForbiddenRoom) -> emit kCastForbidden* and
+//      abort. This is the kRuneLabel/kForbidden/kNoMagic fizzle path.
+//   3. (no third gate -- everything else is data-driven inside the impose loop)
+//
+// Duration unit: room-affect durations are in RAW ROOM-TICK PULSES, NOT the
+// hours used by char affects. The reader uses base + skill_bonus directly,
+// without the kSecsPerMudHour multiplier that CalcDuration applies for PCs.
+// This preserves the OLD pulse-direct semantics of kDeadlyFog (8 pulses),
+// kMeteorStorm (3 pulses), etc. -- sub-hour values that hours-based duration
+// can't express in integers.
 int CallMagicToRoom(CharData *ch, RoomData *room, CastRollResult roll) {
-	const ESpell spell_id = roll.spell_id;   // level is unused by room casts
-	bool success = true;
-	// (issue.affect-flags / issue.room-affects: the old local bools accum_duration,
-	// update_spell, only_one, and the per-affect bool must_handled all migrated into
-	// the EAffFlag battleflag bits -- kAfAccumulateDuration, kAfUpdateDuration,
-	// kAfUnique, kAfMustBeHandled. The impose loop and the dedup check below read the
-	// per-affect battleflag directly.)
-	const char *to_char = nullptr;
-	const char *to_room = nullptr;
-	int i = 0, lag = 0;
-	// Sanity check
+	const ESpell spell_id = roll.spell_id;   // roll.level is unused for room casts
+
 	if (room == nullptr || ch == nullptr || ch->in_room == kNowhere) {
 		return 0;
 	}
 
-	// Material-component check: any room spell can carry one (ProcessMatComponents
-	// returns kSuccess for spells without a configured component, so this is safe to
-	// run universally). A missing component aborts the cast before any affect data
-	// is computed or messages emitted. Mirrors the position of this check in
-	// CastAffect (issue.matcomponents) and replaces the kHypnoticPattern-only check
-	// that used to live in this switch.
+	// Material component: silently abort if the cast requires one and ch
+	// can't provide it. No-op for spells without a configured component.
 	if (ProcessMatComponents(ch, ch, spell_id) == EStageResult::kBreak) {
 		return 0;
 	}
 
-	// Data-driven room block (issue.room-affects): mirrors the check at the top of
-	// CallMagic. The spell's <blocking><room_flags val=".."/></blocking> matches the
-	// caster's room (kRuneLabel: kPeaceful/kTunnel/kNoTeleportIn fizzle). Fizzle
-	// narration lives in spell_msg.xml; the default sheaf covers the generic case,
-	// the kRuneLabel sheaf overrides with its rune-specific phrasing.
+	// Data-driven room block (issue.room-affects): same mechanism as in
+	// CallMagic. Fizzle narration lives in spell_msg.xml; the kDefault
+	// sheaf covers the generic case, per-spell sheaves override.
 	if (IsRoomBlocked(world[ch->in_room], MUD::Spell(spell_id).actions.GetBlocking())
 			&& !MayCastInForbiddenRoom(ch)) {
 		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kCastForbiddenToChar) + "\r\n", ch);
-		const auto &to_room = MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kCastForbiddenToRoom);
-		if (!to_room.empty()) {
-			act(to_room.c_str(), false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
+		const auto &fizzle_room = MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kCastForbiddenToRoom);
+		if (!fizzle_room.empty()) {
+			act(fizzle_room.c_str(), false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 		}
 		return 0;
 	}
 
+	// Default-init the affect array. kMaxSpellAffects slots; only slot 0 is
+	// populated from the XML today, but the impose loop still walks them all
+	// so multi-apply room spells stay forward-compatible.
 	Affect<ERoomApply> af[kMaxSpellAffects];
-	for (i = 0; i < kMaxSpellAffects; i++) {
+	for (int i = 0; i < kMaxSpellAffects; i++) {
 		af[i].type = spell_id;
 		af[i].affect_type = static_cast<ERoomAffect>(0);
 		af[i].modifier = 0;
@@ -421,20 +428,11 @@ int CallMagicToRoom(CharData *ch, RoomData *room, CastRollResult roll) {
 		af[i].duration = 0;
 	}
 
-	// Data-driven defaults from the spell's <talent_actions>/<affects> block, if present
-	// (issue.room-affects). Fills af[0] with duration, battleflag, modifier, and the cast
-	// potency / debuff flag that drive the dispel-strength contest in CastUnaffects'
-	// DispelSucceeds. Room-flag fizzles and material components were lifted out and now
-	// run universally above. The only per-spell override left is kForbidden's mana-caster
-	// short-circuit + the two lesser-tier narration variants, handled in the if-block
-	// below the data-driven defaults.
-	//
-	// NOTE on duration units: room-affect durations are in RAW ROOM-TICK PULSES (not in
-	// hours-then-converted like char affects). The reader uses base + skill_bonus directly,
-	// without the kSecsPerMudHour/kSecsPerPlayerAffect multiplier that CalcDuration applies
-	// for PCs. This preserves the OLD pulse-direct semantics of kDeadlyFog (8 pulses),
-	// kMeteorStorm (3 pulses), etc. -- which are sub-hour values that hours-based duration
-	// can't express in integers.
+	// Data-driven defaults from the spell's <talent_actions>/<affects> block.
+	// Fills af[0] with duration, battleflag, modifier, potency, debuff -- the
+	// same fields CastAffect populates on a per-target affect (the helpers
+	// CalcCastPotency / ComputeApplyModifier are shared with CastAffect's
+	// apply_one path so both record the same values for the same cast roll).
 	if (MUD::Spell(spell_id).actions.Contains(talents_actions::EAction::kAffect)) {
 		const auto &talent = MUD::Spell(spell_id).actions.GetAffect();
 		af[0].type = spell_id;
@@ -446,40 +444,17 @@ int CallMagicToRoom(CharData *ch, RoomData *room, CastRollResult roll) {
 		if (talent.GetDurationMin() > 0) skill_bonus = std::max(skill_bonus, talent.GetDurationMin());
 		if (talent.GetDurationMax() > 0) skill_bonus = std::min(skill_bonus, talent.GetDurationMax());
 		af[0].duration = talent.GetDurationBase() + static_cast<unsigned>(skill_bonus);
-		// Cast potency + buff/debuff flag for DispelSucceeds (mirrors CastAffect's
-		// TryApplyAffectTalent path). potency = dice + skill_coeff + stat_coeff; debuff is
-		// the spell's <misc violent> flag. Computed once and shared with the modifier
-		// formula below so dice are rolled exactly once per cast.
-		const auto &potency = MUD::Spell(spell_id).GetPotencyRoll();
-		const double dice = potency.RollSkillDices();
-		const double comp = potency.CalcSkillCoeff(ch) + potency.CalcBaseStatCoeff(ch);
-		af[0].potency = static_cast<float>(dice + comp);
+		af[0].potency = CalcCastPotency(roll.potency);
 		af[0].debuff = MUD::Spell(spell_id).IsViolent();
-		// Modifier from the first apply (if any). Same formula as TalentAffect::apply_one:
-		// raw = min + ceil(competencies*cw + dice*dw); cap clamps raw before factor.
 		if (!talent.GetApplies().empty()) {
-			const auto &apply = talent.GetApplies()[0];
-			double raw = apply.min + std::ceil(comp * apply.competencies_weight
-											   + dice * apply.dices_weight);
-			if (apply.cap > 0) {
-				raw = std::min(raw, static_cast<double>(apply.cap));
-			}
-			af[0].modifier = static_cast<int>(apply.factor * raw);
+			af[0].modifier = ComputeApplyModifier(talent.GetApplies()[0], roll.potency);
 		}
 	}
 
-	// kForbidden: mana-caster modifier short-circuit + lesser-tier code-set narration.
-	// The top-tier "Вы запечатали магией все входы." moved to spell_msg.xml under the
-	// kForbidden sheaf's kAffImposedToChar/Room (so we leave to_char/to_room nullptr in
-	// the top branch and the success block below falls back to the XML lookup). The two
-	// lesser tiers stay code-side because they branch on a runtime modifier value and the
-	// sheaf can carry only one kAffImposed* per audience. The hard 100 cap is now data-
-	// driven via <modifier cap="100"/> in spells.xml. All other room spells get their
-	// entire affect data from the XML talent block above -- no per-case override.
+	/*
+	// The hack for displaying the sealing level has been removed. The code is
+	// left in case we need to quickly revert it.
 	if (spell_id == ESpell::kForbidden) {
-		if (IS_MANA_CASTER(ch)) {
-			af[0].modifier = 95;
-		}
 		if (af[0].modifier > 99) {
 			// top tier -> spell_msg.xml kForbidden/kAffImposed*
 		} else if (af[0].modifier > 79) {
@@ -490,32 +465,36 @@ int CallMagicToRoom(CharData *ch, RoomData *room, CastRollResult roll) {
 			to_room = "$n очень плохо запечатал$g магией все входы.";
 		}
 	}
-	if (success) {
-		if (MUD::Spell(spell_id).IsFlagged(kMagNeedControl)) {
-			auto found_spell = RemoveControlledRoomAffect(ch);
-			if (found_spell != ESpell::kUndefined) {
-				SendMsgToChar(ch, "Вы прервали заклинание !%s! и приготовились применить !%s!\r\n",
-							  MUD::Spell(found_spell).GetCName(), MUD::Spell(spell_id).GetCName());
-			}
-		} else {
-			auto RoomAffect_i = FindAffect(room, spell_id);
-			const auto RoomAffect = RoomAffect_i != room->affected.end() ? *RoomAffect_i : nullptr;
-			// Refresh allowed iff this spell's first affect carries kAfUpdateDuration; otherwise
-			// re-casting your own affect is a no-op (preserves OLD update_spell semantics now
-			// that the bool was migrated to a per-affect battleflag bit).
-			const bool refresh_allowed = IS_SET(af[0].battleflag, kAfUpdateDuration);
-			if (RoomAffect && RoomAffect->caster_id == ch->get_uid() && !refresh_allowed) {
-				success = false;
-			} else if (IS_SET(af[0].battleflag, kAfUnique)) {
-				RemoveSingleRoomAffect(ch->get_uid(), spell_id);
-			}
+	*/
+
+	// Refresh / dedup policy. kMagNeedControl spells cancel any other
+	// controlled affect; otherwise a duplicate cast is allowed iff the
+	// affect's first slot carries kAfUpdateDuration. kAfUnique drops any
+	// prior copy from this caster.
+	bool success = true;
+	if (MUD::Spell(spell_id).IsFlagged(kMagNeedControl)) {
+		auto found_spell = RemoveControlledRoomAffect(ch);
+		if (found_spell != ESpell::kUndefined) {
+			SendMsgToChar(ch, "Вы прервали заклинание !%s! и приготовились применить !%s!\r\n",
+						  MUD::Spell(found_spell).GetCName(), MUD::Spell(spell_id).GetCName());
+		}
+	} else {
+		auto RoomAffect_i = FindAffect(room, spell_id);
+		const auto RoomAffect = RoomAffect_i != room->affected.end() ? *RoomAffect_i : nullptr;
+		const bool refresh_allowed = IS_SET(af[0].battleflag, kAfUpdateDuration);
+		if (RoomAffect && RoomAffect->caster_id == ch->get_uid() && !refresh_allowed) {
+			success = false;
+		} else if (IS_SET(af[0].battleflag, kAfUnique)) {
+			RemoveSingleRoomAffect(ch->get_uid(), spell_id);
 		}
 	}
 
-	// Перебираем заклы чтобы понять не производиться ли рефрешь закла. Each affect's
-	// battleflag drives the join policy (issue.room-affects: was local update_spell /
-	// accum_duration bools shared across all kMaxSpellAffects entries; now per-affect).
-	for (i = 0; success && i < kMaxSpellAffects; i++) {
+	// Impose loop. Each affect's battleflag drives the join policy: kAfUpdate
+	// Duration -> affect_room_join_fspell (replace by spell id); otherwise
+	// affect_room_join with kAfAccumulateDuration deciding whether durations
+	// stack. Empty slots (no duration, no location, no kAfMustBeHandled flag)
+	// are skipped.
+	for (int i = 0; success && i < kMaxSpellAffects; i++) {
 		af[i].type = spell_id;
 		if (af[i].duration
 			|| af[i].location != kNone
@@ -527,43 +506,28 @@ int CallMagicToRoom(CharData *ch, RoomData *room, CastRollResult roll) {
 				const bool accum_duration = IS_SET(af[i].battleflag, kAfAccumulateDuration);
 				affect_room_join(room, af[i], accum_duration, false, false, false);
 			}
-			//Вставляем указатель на комнату в список обкастованных, с проверкой на наличие
-			//Здесь - потому что все равно надо проверять, может это не первый спелл такого типа на руме
 			AddRoomToAffected(room);
 		}
 	}
 
 	if (success) {
-		// Code-set messages win (kForbidden's modifier-tier text); spell_msg.xml supplies
-		// the fallback for the data-driven success path (issue.room-affects). A sheaf with
-		// no kAffImposed* key shows nothing -- same silent-skip behaviour as the per-spell
-		// handler in CastAffect (issue #3335).
+		// Imposition narration: pure spell_msg.xml lookup, sheaf-direct so a
+		// missing key stays silent (same convention as CastAffect's
+		// EmitImpositionEffects).
 		const auto &sheaf = MUD::SpellMessages()[spell_id];
-		if (to_room != nullptr) {
-			act(to_room, true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-		} else {
-			const auto &xml_to_room = sheaf.GetMessage(ESpellMsg::kAffImposedToRoom);
-			if (!xml_to_room.empty()) {
-				act(xml_to_room.c_str(), true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-			}
+		const auto &xml_to_room = sheaf.GetMessage(ESpellMsg::kAffImposedToRoom);
+		if (!xml_to_room.empty()) {
+			act(xml_to_room.c_str(), true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 		}
-		if (to_char != nullptr) {
-			act(to_char, true, ch, nullptr, nullptr, kToChar);
-		} else {
-			const auto &xml_to_char = sheaf.GetMessage(ESpellMsg::kAffImposedToChar);
-			if (!xml_to_char.empty()) {
-				act(xml_to_char.c_str(), true, ch, nullptr, nullptr, kToChar);
-			}
+		const auto &xml_to_char = sheaf.GetMessage(ESpellMsg::kAffImposedToChar);
+		if (!xml_to_char.empty()) {
+			act(xml_to_char.c_str(), true, ch, nullptr, nullptr, kToChar);
 		}
 		return 1;
-	} else
-		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
+	}
 
-	if (!ch->IsImmortal())
-		SetBattleLag(ch, lag);
-
+	SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 	return 0;
-
 }
 
 int GetUniqueAffectDuration(long caster_id, ESpell spell_id) {

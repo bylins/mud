@@ -301,6 +301,23 @@ bool IsRoomBlocked(RoomData *room, const talents_actions::FlagCondition &cond) {
 	return false;
 }
 
+float CalcCastPotency(const RollResult &potency) {
+	return static_cast<float>(potency.dices + potency.skill_coeff + potency.stat_coeff);
+}
+
+int ComputeApplyModifier(const talents_actions::TalentAffect::Apply &apply,
+						 const RollResult &potency) {
+	const double competencies = potency.skill_coeff + potency.stat_coeff;
+	double raw = apply.min + std::ceil(competencies * apply.competencies_weight
+									   + potency.dices * apply.dices_weight);
+	// Optional cap on raw magnitude before factor (issue.modifier-cap). 0 = no cap.
+	// Clamps the buff/debuff magnitude regardless of factor sign.
+	if (apply.cap > 0) {
+		raw = std::min(raw, static_cast<double>(apply.cap));
+	}
+	return static_cast<int>(apply.factor * raw);
+}
+
 bool MayCastHere(CharData *caster, CharData *victim, ESpell spell_id) {
 	int ignore;
 
