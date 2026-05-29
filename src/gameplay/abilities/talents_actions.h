@@ -127,6 +127,16 @@ struct Material {
 	// parser when the attribute is absent; 0 here means "explicitly empty" and
 	// triggers a kBreak at consume time.
 	Bitvector where{0};
+	// Charge cost per cast, applied to each matched item's m_vals[2] (the
+	// "charges remaining" field used by magic ingredients):
+	//   cost  > 0 : val[2] -= cost; destroy the item when val[2] < 1.
+	//   cost == 0 : presence required, but no charge spent (focus/catalyst).
+	//   cost == -1: destroy the matched item in this single cast regardless
+	//               of val[2] ("consumed whole" semantics).
+	// Default 1 preserves the legacy dec_val(2) behaviour (one charge per
+	// cast, destroy at zero). Game designers opt in to other behaviours via
+	// the cost="N" attribute on <material>.
+	int cost{1};
 };
 
 // The set of material requirements for a spell (issue.spellcomponents). Lives at

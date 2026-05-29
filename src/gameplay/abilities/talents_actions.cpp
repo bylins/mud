@@ -202,6 +202,14 @@ Components::Components(parser_wrapper::DataNode &node) {
 		} else {
 			mat.where = kDefaultComponentWhere;
 		}
+		// cost: optional, default 1 (single-charge consumption, matching the
+		// legacy dec_val(2) behaviour). 0 = presence-only focus; -1 = consumed
+		// whole in one cast. Parsed via ReadAsInt -- any other integer is a
+		// charge cost. (issue.spellcomponents.)
+		const char *cost = child.GetValue("cost");
+		if (cost && *cost) {
+			mat.cost = parse::ReadAsInt(cost);
+		}
 		if (mat.any_of.empty() && mat.all_of.empty()) {
 			err_log("Components: <material> has neither any_of nor all_of -- "
 					"the requirement is meaningless and will be skipped.");
@@ -239,7 +247,7 @@ void Components::Print(std::ostringstream &buffer) const {
 				first = false;
 			}
 		}
-		buffer << kColorNrm << "\r\n";
+		buffer << kColorNrm << " cost=" << kColorGrn << mat.cost << kColorNrm << "\r\n";
 	}
 }
 

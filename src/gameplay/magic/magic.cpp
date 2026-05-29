@@ -751,25 +751,45 @@ static ObjData *FindMatInLocations(CharData *caster, int vnum, Bitvector where) 
 	return nullptr;
 }
 
-// Spend one charge of a matched material item. If the charge counter (val(2))
-// reaches zero, emit the spell's `exhausted` narration and destroy the item.
-// The unlink dispatches on where the item lives so destruction works whether
-// the component was found in equipment, inventory, or room.
-static void ConsumeMatComponent(CharData *caster, ObjData *obj,
+// Spend the configured charge cost of a matched material item. The `cost`
+// parameter mirrors Material::cost (see talents_actions.h):
+//   cost  > 0 : subtract `cost` from val[2]; emit `use`; destroy + emit
+//               `exhausted` when val[2] < 1.
+//   cost == 0 : focus/catalyst -- the requirement is checked elsewhere, here
+//               we do nothing (no narration, no charge spent).
+//   cost == -1: destroy the item in this single cast regardless of val[2];
+//               emit `use` then `exhausted`.
+// Unlinking dispatches on where the item actually lives (worn / carried /
+// room) so destruction works in any of the three component locations.
+static void ConsumeMatComponent(CharData *caster, ObjData *obj, int cost,
 								const char *use, const char *exhausted) {
-	obj->dec_val(2);
+	if (cost == 0) {
+		// Presence-only requirement: nothing to spend, nothing to narrate.
+		return;
+	}
 	if (use) {
 		act(use, false, caster, obj, nullptr, kToChar);
 	}
-	if (GET_OBJ_VAL(obj, 2) < 1) {
+	bool destroy = false;
+	if (cost == -1) {
+		// Consumed whole in one cast, regardless of remaining charges.
+		destroy = true;
+	} else {
+		// Subtract `cost` from m_vals[2] and destroy when no charges remain.
+		obj->set_val(2, GET_OBJ_VAL(obj, 2) - cost);
+		if (GET_OBJ_VAL(obj, 2) < 1) {
+			destroy = true;
+		}
+	}
+	if (destroy) {
 		if (exhausted) {
 			act(exhausted, false, caster, obj, nullptr, kToChar);
 		}
-		// Unlink the item from wherever it lived before extracting it from the
-		// world. ExtractObjFromWorld also unlinks defensively, but matching the
-		// concrete container first matches the existing inventory-only path
-		// (RemoveObjFromChar+ExtractObjFromWorld) and avoids dangling
-		// equipment / room references in the meantime.
+		// Unlink the item from wherever it lived before extracting it from
+		// the world. ExtractObjFromWorld also unlinks defensively, but
+		// matching the concrete container first matches the existing
+		// inventory-only path (RemoveObjFromChar+ExtractObjFromWorld) and
+		// avoids dangling equipment / room references in the meantime.
 		if (obj->get_worn_by()) {
 			for (int i = 0; i < EEquipPos::kNumEquipPos; ++i) {
 				if (GET_EQ(obj->get_worn_by(), i) == obj) {
@@ -863,9 +883,11 @@ EStageResult ProcessMatComponents(CharData *caster, CharData *victim, ESpell spe
 			consume.push_back(found);
 		}
 
-		// Requirement satisfied; spend one charge of each matched item.
+		// Requirement satisfied; spend mat.cost charges from each matched item.
+		// The same cost applies to every item in this material -- they all
+		// belong to one <material> tag, with one cost attribute.
 		for (ObjData *o : consume) {
-			ConsumeMatComponent(caster, o, use, exhausted);
+			ConsumeMatComponent(caster, o, mat.cost, use, exhausted);
 		}
 	}
 	return EStageResult::kSuccess;
