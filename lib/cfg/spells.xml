@@ -1886,6 +1886,16 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="125" min="110" change="2"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagRoom"/>
+        <potency_roll>
+            <!-- Approximates the OLD raw-Int formula MIN(100, Int + MAX((Int-30)*4, 0)):
+                 stat (kInt) provides the linear "1 per Int" contribution; kMindMagic skill
+                 above the novice cap (75) provides the +4-per-Int kicker indirectly, since
+                 skill cap and Int grow together with remort (1R = +5 skill, +1 stat). The
+                 caller in CallMagicToRoom reads CalcSkillCoeff + CalcBaseStatCoeff directly,
+                 caps the sum at 100, and overrides with 95 for mana-casters (per OLD). -->
+            <base_skill id="kMindMagic" low_skill_bonus="0" hi_skill_bonus="40"/>
+            <base_stat id="kInt" threshold="0" weight="100"/>
+        </potency_roll>
     </spell>
     <spell id="kMassSilence" element="kMind" mode="kEnabled">
         <name rus="массовое молчание" eng="mass sielence"/>

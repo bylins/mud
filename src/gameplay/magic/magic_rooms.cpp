@@ -369,9 +369,12 @@ void UpdateRoomsAffects() {
 // Применение заклинания к комнате //
 int CallMagicToRoom(CharData *ch, RoomData *room, CastRollResult roll) {
 	const ESpell spell_id = roll.spell_id;   // level is unused by room casts
-	bool accum_affect = false, accum_duration = false, success = true;
-	bool update_spell = false;
+	bool success = true;
 	// Должен ли данный спелл быть только 1 в мире от этого кастера?
+	// (issue.room-affects: the old accum_duration / update_spell local bools migrated to
+	// per-affect battleflag bits -- kAfAccumulateDuration / kAfUpdateDuration -- read by
+	// the impose loop below. `only_one` stays a per-call local because it isn't an affect
+	// property but a "remove this caster's prior cast of this spell" flag.)
 	bool only_one = false;
 	const char *to_char = nullptr;
 	const char *to_room = nullptr;
@@ -395,18 +398,27 @@ int CallMagicToRoom(CharData *ch, RoomData *room, CastRollResult roll) {
 	}
 
 	switch (spell_id) {
-		case ESpell::kForbidden: af[0].type = spell_id;
+		case ESpell::kForbidden: {
+			af[0].type = spell_id;
 			af[0].location = kNone;
 			af[0].duration = (1 + (GetRealLevel(ch) + 14) / 15) * 30;
 			af[0].caster_id = ch->get_uid();
 			af[0].must_handled = false;
-			accum_duration = false;
-			update_spell = true;
+			af[0].battleflag = kAfUpdateDuration;        // was: update_spell = true
+			// Modifier (issue.no-affects-bug / room kForbidden migration): approximate the
+			// OLD MIN(100, Int + MAX((Int-30)*4, 0)) formula via the spell's <potency_roll>.
+			// CalcBaseStatCoeff with kInt threshold=0 weight=100 yields the linear "Int" part;
+			// CalcSkillCoeff with kMindMagic hi_skill_bonus=40 approximates the +4-per-Int
+			// kicker (since skill cap and Int grow together with remort). Mana-casters stay at
+			// the OLD constant 95.
 			if (IS_MANA_CASTER(ch)) {
 				af[0].modifier = 95;
 			} else {
-				af[0].modifier = MIN(100, GetRealInt(ch) + MAX((GetRealInt(ch) - 30) * 4, 0));
+				const auto &potency = MUD::Spell(spell_id).GetPotencyRoll();
+				const double sum = potency.CalcSkillCoeff(ch) + potency.CalcBaseStatCoeff(ch);
+				af[0].modifier = std::min(100, static_cast<int>(std::ceil(sum)));
 			}
+			// Three-tier seal-quality message stays code-set (modifier-dependent narration).
 			if (af[0].modifier > 99) {
 				to_char = "Вы запечатали магией все входы.";
 				to_room = "$n запечатал$g магией все входы.";
@@ -418,6 +430,7 @@ int CallMagicToRoom(CharData *ch, RoomData *room, CastRollResult roll) {
 				to_room = "$n очень плохо запечатал$g магией все входы.";
 			}
 			break;
+		}
 		case ESpell::kRoomLight: af[0].type = spell_id;
 			af[0].location = kNone;
 			af[0].modifier = 0;
@@ -427,8 +440,7 @@ int CallMagicToRoom(CharData *ch, RoomData *room, CastRollResult roll) {
 			af[0].duration = CalcDuration(ch, ch, ESkill::kLightMagic, 0, 15, 0, 0);
 			af[0].caster_id = ch->get_uid();
 			af[0].must_handled = false;
-			accum_duration = true;
-			update_spell = true;
+			af[0].battleflag = kAfAccumulateDuration | kAfUpdateDuration;
 			// to_char / to_room messages now come from spell_msg.xml under the kAffImposed*
 			// keys (issue.room-affects).
 			break;
@@ -439,8 +451,7 @@ int CallMagicToRoom(CharData *ch, RoomData *room, CastRollResult roll) {
 			af[0].duration = 8;
 			af[0].caster_id = ch->get_uid();
 			af[0].must_handled = true;
-			update_spell = false;
-			// to_char / to_room via spell_msg.xml (issue.room-affects).
+			// battleflag stays 0: no accumulation, no refresh.
 			break;
 
 		case ESpell::kMeteorStorm: af[0].type = spell_id;
@@ -449,17 +460,12 @@ int CallMagicToRoom(CharData *ch, RoomData *room, CastRollResult roll) {
 			af[0].duration = 3;
 			af[0].caster_id = ch->get_uid();
 			af[0].must_handled = true;
-			accum_duration = false;
-			update_spell = false;
-			// to_char / to_room via spell_msg.xml (issue.room-affects).
 			break;
 
 		case ESpell::kThunderstorm: af[0].type = spell_id;
 			af[0].duration = 7;
 			af[0].must_handled = true;
 			af[0].caster_id = ch->get_uid();
-			update_spell = false;
-			// to_char / to_room via spell_msg.xml (issue.room-affects).
 			break;
 
 		case ESpell::kRuneLabel:
@@ -480,10 +486,8 @@ int CallMagicToRoom(CharData *ch, RoomData *room, CastRollResult roll) {
 			af[0].duration = (kRuneLabelDuration + (GetRealRemort(ch) * 10)) * 3;
 			af[0].caster_id = ch->get_uid();
 			af[0].must_handled = false;
-			accum_duration = false;
-			update_spell = true;
+			af[0].battleflag = kAfUpdateDuration;
 			only_one = true;
-			// Success-variant to_char / to_room via spell_msg.xml (issue.room-affects).
 			lag = 2;
 			break;
 
@@ -498,10 +502,6 @@ int CallMagicToRoom(CharData *ch, RoomData *room, CastRollResult roll) {
 			af[0].duration = 30 + (GetRealLevel(ch) + GetRealRemort(ch)) * RollDices(1, 3);
 			af[0].caster_id = ch->get_uid();
 			af[0].must_handled = false;
-			accum_duration = false;
-			update_spell = false;
-			only_one = false;
-			// to_char / to_room via spell_msg.xml (issue.room-affects).
 			break;
 
 		case ESpell::kBlackTentacles:
@@ -515,9 +515,6 @@ int CallMagicToRoom(CharData *ch, RoomData *room, CastRollResult roll) {
 			af[0].duration = 1 + GetRealLevel(ch) / 7;
 			af[0].caster_id = ch->get_uid();
 			af[0].must_handled = true;
-			accum_duration = false;
-			update_spell = false;
-			// to_char / to_room via spell_msg.xml (issue.room-affects).
 			break;
 		default: break;
 	}
@@ -531,7 +528,11 @@ int CallMagicToRoom(CharData *ch, RoomData *room, CastRollResult roll) {
 		} else {
 			auto RoomAffect_i = FindAffect(room, spell_id);
 			const auto RoomAffect = RoomAffect_i != room->affected.end() ? *RoomAffect_i : nullptr;
-			if (RoomAffect && RoomAffect->caster_id == ch->get_uid() && !update_spell) {
+			// Refresh allowed iff this spell's first affect carries kAfUpdateDuration; otherwise
+			// re-casting your own affect is a no-op (preserves OLD update_spell semantics now
+			// that the bool was migrated to a per-affect battleflag bit).
+			const bool refresh_allowed = IS_SET(af[0].battleflag, kAfUpdateDuration);
+			if (RoomAffect && RoomAffect->caster_id == ch->get_uid() && !refresh_allowed) {
 				success = false;
 			} else if (only_one) {
 				RemoveSingleRoomAffect(ch->get_uid(), spell_id);
@@ -539,17 +540,20 @@ int CallMagicToRoom(CharData *ch, RoomData *room, CastRollResult roll) {
 		}
 	}
 
-	// Перебираем заклы чтобы понять не производиться ли рефрешь закла
+	// Перебираем заклы чтобы понять не производиться ли рефрешь закла. Each affect's
+	// battleflag drives the join policy (issue.room-affects: was local update_spell /
+	// accum_duration bools shared across all kMaxSpellAffects entries; now per-affect).
 	for (i = 0; success && i < kMaxSpellAffects; i++) {
 		af[i].type = spell_id;
 		if (af[i].duration
 			|| af[i].location != kNone
 			|| af[i].must_handled) {
 			af[i].duration = CalcComplexSpellMod(ch, spell_id, GAPPLY_SPELL_EFFECT, af[i].duration);
-			if (update_spell) {
+			if (IS_SET(af[i].battleflag, kAfUpdateDuration)) {
 				affect_room_join_fspell(room, af[i]);
 			} else {
-				affect_room_join(room, af[i], accum_duration, false, accum_affect, false);
+				const bool accum_duration = IS_SET(af[i].battleflag, kAfAccumulateDuration);
+				affect_room_join(room, af[i], accum_duration, false, false, false);
 			}
 			//Вставляем указатель на комнату в список обкастованных, с проверкой на наличие
 			//Здесь - потому что все равно надо проверять, может это не первый спелл такого типа на руме
