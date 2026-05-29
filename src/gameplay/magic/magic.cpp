@@ -856,21 +856,15 @@ static bool TryApplyAffectTalent(CharData *ch, CharData *victim, ESpell spell_id
 					 talent.GetDurationBase(), talent.GetDurationSkillDivisor(),
 					 talent.GetDurationMin(), talent.GetDurationMax()));
 	duration = CalcComplexSpellMod(ch, spell_id, GAPPLY_SPELL_EFFECT, duration);
-	const double competencies = potency.skill_coeff + potency.stat_coeff;
 	auto apply_one = [&](const talents_actions::TalentAffect::Apply &apply) {
-		double raw = competencies * apply.competencies_weight + potency.dices * apply.dices_weight;
-		double modifier = apply.min + std::ceil(raw);
-		// Optional cap on raw magnitude before factor (issue.modifier-cap). 0 = no cap.
-		// Clamps the buff/debuff magnitude regardless of factor sign.
-		if (apply.cap > 0) {
-			modifier = std::min(modifier, static_cast<double>(apply.cap));
-		}
 		Affect<EApply> taf;
 		taf.type = talent.GetSpell();
 		taf.affect_type = apply.id;
 		taf.location = apply.location;
 		taf.duration = duration;
-		taf.modifier = static_cast<int>(apply.factor * modifier);
+		// Modifier formula (cap-clamped, factor-applied) lives in magic_utils so
+		// CallMagicToRoom computes the room-affect modifier the exact same way.
+		taf.modifier = ComputeApplyModifier(apply, potency);
 		taf.battleflag = flags;
 		taf.caster_id = ch->get_uid();
 		taf.potency = cast_potency;
@@ -1004,10 +998,11 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, const ESpell 
 		return EStageResult::kBreak;
 	}
 
-	// issue: every affect this cast lands records the cast's potency (strength) and whether it is a
-	// debuff, so a later dispel can be gated by strength (see CastUnaffects/DispelSucceeds). The
-	// potency is the cast roll (dice + skill + stat coefficients); the nature follows the violent flag.
-	const float cast_potency = static_cast<float>(potency.dices + potency.skill_coeff + potency.stat_coeff);
+	// Every affect this cast lands records the cast's potency (strength) and whether it is a
+	// debuff, so a later dispel can be gated by strength (see CastUnaffects/DispelSucceeds).
+	// CalcCastPotency lives in magic_utils so CallMagicToRoom records the same scalar for its
+	// room affects; the debuff flag follows <misc violent="Y">.
+	const float cast_potency = CalcCastPotency(potency);
 	const bool cast_debuff = MUD::Spell(spell_id).IsViolent();
 
 	// A spell without an <affects> block has no affect to apply -- `success` stays true so the
