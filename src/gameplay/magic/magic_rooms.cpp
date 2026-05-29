@@ -395,26 +395,50 @@ int CallMagicToRoom(CharData *ch, RoomData *room, CastRollResult roll) {
 		af[i].duration = 0;
 	}
 
+	// Data-driven defaults from the spell's <talent_actions>/<affects> block, if present
+	// (issue.room-affects). Fills af[0] with duration, battleflag, and modifier. Per-case
+	// special overrides (fizzles, mana-caster, mat-component, room-flag blockers) follow
+	// in the switch below.
+	//
+	// NOTE on duration units: room-affect durations are in RAW ROOM-TICK PULSES (not in
+	// hours-then-converted like char affects). The reader uses base + skill_bonus directly,
+	// without the kSecsPerMudHour/kSecsPerPlayerAffect multiplier that CalcDuration applies
+	// for PCs. This preserves the OLD pulse-direct semantics of kDeadlyFog (8 pulses),
+	// kMeteorStorm (3 pulses), etc. -- which are sub-hour values that hours-based duration
+	// can't express in integers.
+	if (MUD::Spell(spell_id).actions.Contains(talents_actions::EAction::kAffect)) {
+		const auto &talent = MUD::Spell(spell_id).actions.GetAffect();
+		af[0].type = spell_id;
+		af[0].caster_id = ch->get_uid();
+		af[0].battleflag = talent.GetFlags();
+		const ESkill dur_skill = MUD::Spell(spell_id).GetPotencyRoll().GetBaseSkill();
+		int skill_bonus = (talent.GetDurationSkillDivisor() > 0 && dur_skill != ESkill::kUndefined)
+			? CalcNoviceSkillBonus(ch, dur_skill, talent.GetDurationSkillDivisor()) : 0;
+		if (talent.GetDurationMin() > 0) skill_bonus = std::max(skill_bonus, talent.GetDurationMin());
+		if (talent.GetDurationMax() > 0) skill_bonus = std::min(skill_bonus, talent.GetDurationMax());
+		af[0].duration = talent.GetDurationBase() + static_cast<unsigned>(skill_bonus);
+		// Modifier from the first apply (if any). Same formula as TalentAffect::apply_one:
+		// raw = min + ceil(competencies*cw + dice*dw); modifier = factor * raw.
+		if (!talent.GetApplies().empty()) {
+			const auto &apply = talent.GetApplies()[0];
+			const auto &potency = MUD::Spell(spell_id).GetPotencyRoll();
+			const double dice = potency.RollSkillDices();
+			const double comp = potency.CalcSkillCoeff(ch) + potency.CalcBaseStatCoeff(ch);
+			const double raw = apply.min + std::ceil(comp * apply.competencies_weight
+													+ dice * apply.dices_weight);
+			af[0].modifier = static_cast<int>(apply.factor * raw);
+		}
+	}
+
 	switch (spell_id) {
-		case ESpell::kForbidden: {
-			af[0].type = spell_id;
-			af[0].location = kNone;
-			af[0].duration = (1 + (GetRealLevel(ch) + 14) / 15) * 30;
-			af[0].caster_id = ch->get_uid();
-			af[0].battleflag = kAfUpdateDuration;        // was: update_spell = true
-			// Modifier (issue.no-affects-bug / room kForbidden migration): approximate the
-			// OLD MIN(100, Int + MAX((Int-30)*4, 0)) formula via the spell's <potency_roll>.
-			// CalcBaseStatCoeff with kInt threshold=0 weight=100 yields the linear "Int" part;
-			// CalcSkillCoeff with kMindMagic hi_skill_bonus=40 approximates the +4-per-Int
-			// kicker (since skill cap and Int grow together with remort). Mana-casters stay at
-			// the OLD constant 95.
+		case ESpell::kForbidden:
+			// Mana-caster override (OLD: IS_MANA_CASTER -> modifier = 95, ignoring the
+			// Int-based formula).
 			if (IS_MANA_CASTER(ch)) {
 				af[0].modifier = 95;
-			} else {
-				const auto &potency = MUD::Spell(spell_id).GetPotencyRoll();
-				const double sum = potency.CalcSkillCoeff(ch) + potency.CalcBaseStatCoeff(ch);
-				af[0].modifier = std::min(100, static_cast<int>(std::ceil(sum)));
 			}
+			// Cap at 100 (OLD MIN(100, ...)).
+			af[0].modifier = std::min(100, af[0].modifier);
 			// Three-tier seal-quality message stays code-set (modifier-dependent narration).
 			if (af[0].modifier > 99) {
 				to_char = "Вы запечатали магией все входы.";
@@ -427,88 +451,36 @@ int CallMagicToRoom(CharData *ch, RoomData *room, CastRollResult roll) {
 				to_room = "$n очень плохо запечатал$g магией все входы.";
 			}
 			break;
-		}
-		case ESpell::kRoomLight: af[0].type = spell_id;
-			af[0].location = kNone;
-			af[0].modifier = 0;
-			// issue.calc-duration: bind to the caster's kLightMagic skill instead of raw level.
-			// At skill 75 (cap), 75/15 = 5h, matching the old level-30 ceiling. There's no separate
-			// "victim" for a room affect, so the caster (ch) sets the unit.
-			af[0].duration = CalcDuration(ch, ch, ESkill::kLightMagic, 0, 15, 0, 0);
-			af[0].caster_id = ch->get_uid();
-			af[0].battleflag = kAfAccumulateDuration | kAfUpdateDuration;
-			// to_char / to_room messages now come from spell_msg.xml under the kAffImposed*
-			// keys (issue.room-affects).
-			break;
-
-		case ESpell::kDeadlyFog: af[0].type = spell_id;
-			af[0].location = kNone;
-			af[0].modifier = 0;
-			af[0].duration = 8;
-			af[0].caster_id = ch->get_uid();
-			af[0].battleflag = kAfMustBeHandled;        // periodic poison tick handled in HandleRoomAffect
-			break;
-
-		case ESpell::kMeteorStorm: af[0].type = spell_id;
-			af[0].location = kNone;
-			af[0].modifier = 0;
-			af[0].duration = 3;
-			af[0].caster_id = ch->get_uid();
-			af[0].battleflag = kAfMustBeHandled;        // meteor drops handled per tick
-			break;
-
-		case ESpell::kThunderstorm: af[0].type = spell_id;
-			af[0].duration = 7;
-			af[0].caster_id = ch->get_uid();
-			af[0].battleflag = kAfMustBeHandled;        // lightning strikes handled per tick
-			break;
 
 		case ESpell::kRuneLabel:
 			if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kPeaceful)
 				|| ROOM_FLAGGED(ch->in_room, ERoomFlag::kTunnel)
 				|| ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoTeleportIn)) {
-				// "Fizzled" variant stays code-set (room-flag-specific narration; the
-				// affect is not imposed and the XML kAffImposed* messages are for the
-				// success path only).
+				// Fizzle: cancel the talent-set affect (the XML kAffImposed* path is for
+				// the success case only) and emit the room-flag-specific narration.
+				af[0].duration = 0;
+				af[0].battleflag = 0;
 				to_char = "Вы начертали свое имя рунами на земле, знаки вспыхнули, но ничего не произошло.";
 				to_room = "$n начертил$g на земле несколько рун, знаки вспыхнули, но ничего не произошло.";
-				lag = 2;
-				break;
 			}
-			af[0].type = spell_id;
-			af[0].location = kNone;
-			af[0].modifier = 0;
-			af[0].duration = (kRuneLabelDuration + (GetRealRemort(ch) * 10)) * 3;
-			af[0].caster_id = ch->get_uid();
-			// kAfUnique: prior cast by the same caster is removed before this one is imposed.
-			af[0].battleflag = kAfUpdateDuration | kAfUnique;
 			lag = 2;
 			break;
 
 		case ESpell::kHypnoticPattern:
 			if (ProcessMatComponents(ch, ch, spell_id) == EStageResult::kBreak) {
 				success = false;
-				break;
 			}
-			af[0].type = spell_id;
-			af[0].location = kNone;
-			af[0].modifier = 0;
-			af[0].duration = 30 + (GetRealLevel(ch) + GetRealRemort(ch)) * RollDices(1, 3);
-			af[0].caster_id = ch->get_uid();
 			break;
 
 		case ESpell::kBlackTentacles:
-			if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kForMono) || ROOM_FLAGGED(ch->in_room, ERoomFlag::kForPoly)) {
+			if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kForMono)
+				|| ROOM_FLAGGED(ch->in_room, ERoomFlag::kForPoly)) {
 				success = false;
-				break;
 			}
-			af[0].type = spell_id;
-			af[0].location = kNone;
-			af[0].modifier = 0;
-			af[0].duration = 1 + GetRealLevel(ch) / 7;
-			af[0].caster_id = ch->get_uid();
-			af[0].battleflag = kAfMustBeHandled;        // grab-attempts handled per tick
 			break;
+
+		// All other room spells (kRoomLight, kDeadlyFog, kMeteorStorm, kThunderstorm) get
+		// their entire affect data from the XML talent block above -- no per-case override.
 		default: break;
 	}
 	if (success) {

@@ -543,6 +543,8 @@ void init_EAffFlag_ITEM_NAMES() {
 	EAffFlag_name_by_value[EAffFlag::kAfUpdateMod] = "kAfUpdateMod";
 	EAffFlag_name_by_value[EAffFlag::kAfDispellable] = "kAfDispellable";
 	EAffFlag_name_by_value[EAffFlag::kAfCurable] = "kAfCurable";
+	EAffFlag_name_by_value[EAffFlag::kAfMustBeHandled] = "kAfMustBeHandled";
+	EAffFlag_name_by_value[EAffFlag::kAfUnique] = "kAfUnique";
 
 	for (const auto &i : EAffFlag_name_by_value) {
 		EAffFlag_value_by_name[i.second] = i.first;
