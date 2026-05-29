@@ -62,7 +62,7 @@ void do_auto_exits(CharData *ch);
 void show_extend_room(const char *description, CharData *ch);
 void list_char_to_char_thing(const RoomData::people_t &list, CharData *ch);
 int paste_description(char *string, const char *tag, int need);
-void show_room_affects(CharData *ch, const char *name_affects[], const char *name_self_affects[]);
+void show_room_affects(CharData *ch);
 bool quest_item(ObjData *obj);
 void look_at_char(CharData *i, CharData *ch);
 std::string AddLeadingStringSpace(const std::string& text);
@@ -203,11 +203,9 @@ void look_at_room(CharData *ch, int ignore_brief, bool msdp_mode) {
 	}
 
 	// Отображаем аффекты комнаты. После автовыходов чтобы не ломать популярный маппер.
-	if (AFF_FLAGGED(ch, EAffect::kDetectMagic) || ch->IsImmortal()) {
-		show_room_affects(ch, room_aff_invis_bits, room_self_aff_invis_bits);
-	} else {
-		show_room_affects(ch, room_aff_visib_bits, room_aff_visib_bits);
-	}
+	// Описания живут в spell_msg.xml под ключами kRoomAffect{Visible,Invisible,SelfInvisible}
+	// (issue.sight-fmt); show_room_affects выбирает нужный по флагам ch.
+	show_room_affects(ch);
 
 	// now list characters & objects
 	if (world[ch->in_room]->fires) {
@@ -735,73 +733,52 @@ void list_char_to_char_thing(const RoomData::people_t &list, CharData *ch) {
 	}
 }
 
-void show_room_affects(CharData *ch, const char *name_affects[], const char *name_self_affects[]) {
+// Emits a description line for every room-affect on ch's room that has a
+// kRoomAffect{Visible,Invisible,SelfInvisible} message in spell_msg.xml
+// (issue.sight-fmt). Replaces the per-spell switch + 3 static arrays that
+// previously lived in constants.cpp; new room-affects only need their XML
+// rows added, not a code change.
+//
+// Lookup priority per affect (sheaf-direct, no kDefault fallback):
+//   detect_magic && caster:  kRoomAffectSelfInvisible
+//                            -> kRoomAffectInvisible
+//                            -> kRoomAffectVisible
+//   detect_magic && !caster: kRoomAffectInvisible
+//                            -> kRoomAffectVisible
+//   !detect_magic:           kRoomAffectVisible (no fallback)
+//
+// Each step falls through only on empty results, so a spell that wants to
+// stay silent to non-detect-magic viewers (kRuneLabel, kForbidden) simply
+// omits kRoomAffectVisible; a spell with one universal description
+// (kLight, kHypnoticPattern, ...) sets only kRoomAffectVisible and the
+// detect-magic lookups fall through to it. kPortal still has no row and
+// is rendered by look_at_room itself.
+void show_room_affects(CharData *ch) {
 	std::ostringstream buffer;
 
+	const bool has_detect_magic =
+			AFF_FLAGGED(ch, EAffect::kDetectMagic) || ch->IsImmortal();
+	const auto viewer_uid = ch->get_uid();
+
 	for (const auto &af : world[ch->in_room]->affected) {
-		switch (af->type) {
-			case ESpell::kLight:
-				if (af->caster_id == ch->get_uid() && *name_self_affects[0] != '\0') {
-					buffer << name_self_affects[0] << "\r\n";
-				} else if (*name_affects[0] != '\0') {
-					buffer << name_affects[0] << "\r\n";
-				}
-				break;
-			case ESpell::kDeadlyFog:
-				if (af->caster_id == ch->get_uid() && *name_self_affects[1] != '\0') {
-					buffer << name_self_affects[1] << "\r\n";
-				} else if (*name_affects[1] != '\0') {
-					buffer << name_affects[1] << "\r\n";
-				}
-				break;
-			case ESpell::kRuneLabel:                // 1 << 2
-				if (af->caster_id == ch->get_uid() && *name_self_affects[2] != '\0') {
-					buffer << name_self_affects[2] << "\r\n";
-				} else if (*name_affects[2] != '\0') {
-					buffer << name_affects[2] << "\r\n";
-				}
-				break;
-			case ESpell::kForbidden:
-				if (af->caster_id == ch->get_uid() && *name_self_affects[3] != '\0') {
-					buffer << name_self_affects[3] << "\r\n";
-				} else if (*name_affects[3] != '\0') {
-					buffer << name_affects[3] << "\r\n";
-				}
-				break;
-			case ESpell::kHypnoticPattern:
-				if (af->caster_id == ch->get_uid() && *name_self_affects[4] != '\0') {
-					buffer << name_self_affects[4] << "\r\n";
-				} else if (*name_affects[4] != '\0') {
-					buffer << name_affects[4] << "\r\n";
-				}
-				break;
-			case ESpell::kBlackTentacles:
-				if (af->caster_id == ch->get_uid() && *name_self_affects[5] != '\0') {
-					buffer << name_self_affects[5] << "\r\n";
-				} else if (*name_affects[5] != '\0') {
-					buffer << name_affects[5] << "\r\n";
-				}
-				break;
-			case ESpell::kMeteorStorm:
-				if (af->caster_id == ch->get_uid() && *name_self_affects[6] != '\0') {
-					buffer << name_self_affects[6] << "\r\n";
-				} else if (*name_affects[6] != '\0') {
-					buffer << name_affects[6] << "\r\n";
-				}
-				break;
-			case ESpell::kThunderstorm:
-				if (af->caster_id == ch->get_uid() && *name_self_affects[7] != '\0') {
-					buffer << name_self_affects[7] << "\r\n";
-				} else if (*name_affects[7] != '\0') {
-					buffer << name_affects[7] << "\r\n";
-				}
-				break;
-			case ESpell::kPortal:
-				//выводится в look_at_room
-				break;
-			default:
-				log("SYSERR: Unknown room (#%d) spell type: %d", world[ch->in_room]->vnum, to_underlying(af->type));
-				break;
+		const auto &sheaf = MUD::SpellMessages()[af->type];
+		const bool is_caster = (af->caster_id == viewer_uid);
+
+		const std::string *text = nullptr;
+		if (has_detect_magic && is_caster) {
+			const auto &m = sheaf.GetMessage(ESpellMsg::kRoomAffectSelfInvisible);
+			if (!m.empty()) text = &m;
+		}
+		if (!text && has_detect_magic) {
+			const auto &m = sheaf.GetMessage(ESpellMsg::kRoomAffectInvisible);
+			if (!m.empty()) text = &m;
+		}
+		if (!text) {
+			const auto &m = sheaf.GetMessage(ESpellMsg::kRoomAffectVisible);
+			if (!m.empty()) text = &m;
+		}
+		if (text) {
+			buffer << *text << "\r\n";
 		}
 	}
 

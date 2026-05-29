@@ -109,6 +109,13 @@ enum class ESpellMsg {
 	// for kRuneLabel). Looked up in the cast spell's sheaf with kDefault fallback.
 	kCastForbiddenToChar,	// fizzle: to the caster.
 	kCastForbiddenToRoom,	// fizzle: to onlookers.
+	// Room-affect description (issue.sight-fmt): per-spell room-aura text emitted by
+	// show_room_affects when listing a room's active room-affects to a viewer. Three
+	// variants per spell, picked by viewer state. Lookup is sheaf-direct with a chained
+	// fallback Self->Invisible->Visible; missing keys stay silent (no kDefault fallback).
+	kRoomAffectVisible,			// shown when the viewer lacks kDetectMagic; the "physical" trace.
+	kRoomAffectInvisible,		// shown when the viewer has kDetectMagic and is NOT the caster.
+	kRoomAffectSelfInvisible,	// shown when the viewer has kDetectMagic and IS the caster.
 };
 
 template<>
