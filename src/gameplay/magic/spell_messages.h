@@ -122,6 +122,14 @@ enum class ESpellMsg {
 	// Used today by kPortalTimer to surface its blood-tinge variant.
 	kRoomAffectPkVisible,		// pk variant: viewer lacks kDetectMagic.
 	kRoomAffectPkInvisible,		// pk variant: viewer has kDetectMagic.
+	// Material-component narration (issue.spellcomponents): emitted by
+	// ProcessMatComponents around the <components>/<material> requirement
+	// check. Looked up sheaf-directly on the cast spell -- a missing key
+	// stays silent (no kDefault fallback), matching the kAffImposed*/
+	// kAffDispelled* convention.
+	kComponentUse,				// per matched item, when the requirement is satisfied (act $o).
+	kComponentMissing,			// when no item matches; the cast aborts.
+	kComponentExhausted,		// when val(2)-- drops the item to 0 and it's destroyed.
 };
 
 template<>

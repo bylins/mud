@@ -765,53 +765,29 @@ static void ConsumeMatComponent(CharData *caster, ObjData *obj,
 	}
 }
 
-// Per-spell narration kept in code for the three spells migrated in
-// issue.spellcomponents. The migration moved the search to data
-// (<components><material>) but kept the prose here; a follow-up will move
-// these strings into spell_msg.xml under per-spell keys.
-struct ComponentNarration {
-	const char *use;
-	const char *missing;
-	const char *exhausted;
-};
-static const ComponentNarration *GetComponentNarration(ESpell spell_id) {
-	static const ComponentNarration kFascination = {
-		"Вы взяли череп летучей мыши в левую руку.\r\n",
-		"Батюшки светы! А помаду-то я дома забыл$g.\r\n",
-		"$o рассыпался в ваших руках от неловкого движения.\r\n",
-	};
-	static const ComponentNarration kHypnotic = {
-		"Вы разожгли палочку заморских благовоний.\r\n",
-		"Вы начали суматошно искать свои благовония, но тщетно.\r\n",
-		"$o дотлели и рассыпались пеплом.\r\n",
-	};
-	static const ComponentNarration kEnchant = {
-		"Вы подготовили дополнительные компоненты для зачарования.\r\n",
-		"Вы были уверены что положили его в этот карман.\r\n",
-		"$o вспыхнул голубоватым светом, когда его вставили в предмет.\r\n",
-	};
-	switch (spell_id) {
-		case ESpell::kFascination:     return &kFascination;
-		case ESpell::kHypnoticPattern: return &kHypnotic;
-		case ESpell::kEnchantWeapon:   return &kEnchant;
-		default:                       return nullptr;
-	}
-}
-
 // Walk the spell's <components>/<material> entries and verify each requirement
 // (issue.spellcomponents). Returns kBreak if any material's all_of/any_of
 // cannot be satisfied; kSuccess otherwise. Matched items are consumed
 // (val(2)-- and possibly destroyed). Spells with no <components> block
 // return kSuccess immediately -- no requirement, no work.
+//
+// Narration (the use / missing / exhausted prose) is looked up sheaf-directly
+// in spell_msg.xml on the cast spell -- a missing key stays silent, matching
+// the kAffImposed* convention. The kSheaf reference and the message strings
+// stay live for the duration of this call (the SpellMessages container is not
+// mutated mid-cast), so the c_str() pointers can safely be passed downstream.
 EStageResult ProcessMatComponents(CharData *caster, CharData *victim, ESpell spell_id) {
 	const auto &components = MUD::Spell(spell_id).GetComponents();
 	if (components.empty()) {
 		return EStageResult::kSuccess;
 	}
-	const ComponentNarration *narr = GetComponentNarration(spell_id);
-	const char *use       = narr ? narr->use       : nullptr;
-	const char *missing   = narr ? narr->missing   : nullptr;
-	const char *exhausted = narr ? narr->exhausted : nullptr;
+	const auto &sheaf = MUD::SpellMessages()[spell_id];
+	const std::string &use_str       = sheaf.GetMessage(ESpellMsg::kComponentUse);
+	const std::string &missing_str   = sheaf.GetMessage(ESpellMsg::kComponentMissing);
+	const std::string &exhausted_str = sheaf.GetMessage(ESpellMsg::kComponentExhausted);
+	const char *use       = use_str.empty()       ? nullptr : use_str.c_str();
+	const char *missing   = missing_str.empty()   ? nullptr : missing_str.c_str();
+	const char *exhausted = exhausted_str.empty() ? nullptr : exhausted_str.c_str();
 
 	for (const auto &mat : components.GetMaterials()) {
 		// Mask `where` down to the three search locations honoured here. If the

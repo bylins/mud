@@ -59,7 +59,9 @@ TEST(SpellMessages, ESpellMsgNameRoundTrip) {
 							ESpellMsg::kCastForbiddenToChar, ESpellMsg::kCastForbiddenToRoom,
 							ESpellMsg::kRoomAffectVisible, ESpellMsg::kRoomAffectInvisible,
 							ESpellMsg::kRoomAffectSelfInvisible,
-							ESpellMsg::kRoomAffectPkVisible, ESpellMsg::kRoomAffectPkInvisible}) {
+							ESpellMsg::kRoomAffectPkVisible, ESpellMsg::kRoomAffectPkInvisible,
+							ESpellMsg::kComponentUse, ESpellMsg::kComponentMissing,
+							ESpellMsg::kComponentExhausted}) {
 		EXPECT_EQ(type, ITEM_BY_NAME<ESpellMsg>(NAME_BY_ITEM<ESpellMsg>(type)));
 	}
 }

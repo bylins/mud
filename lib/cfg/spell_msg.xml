@@ -743,6 +743,10 @@
 		<message type="kEnchantOther" val="$o вспыхнул$G на миг желтым светом и тут же потух$Q." />
 		<message type="kCastPhraseHeathen" val="ницовати стружие" />
 		<message type="kCastPhraseChristian" val="... укрепи сталь Божьим перстом." />
+		<!-- Material-component narration (issue.spellcomponents). -->
+		<message type="kComponentUse" val="Вы подготовили дополнительные компоненты для зачарования." />
+		<message type="kComponentMissing" val="Вы были уверены что положили его в этот карман." />
+		<message type="kComponentExhausted" val="$o вспыхнул голубоватым светом, когда его вставили в предмет." />
 	</msg_sheaf>
 	<msg_sheaf id="kAnimateDead">
 		<message type="kSummonToRoom" val="$n сделал$g несколько изящных пассов - вы почувствовали странное дуновение!" />
@@ -2063,6 +2067,10 @@
 		<message type="kAffImposedToRoom" val="$n0 достал$g из сумчки какие-то склянки и отвернул$u, бормоча под нос." />
 		<message type="kAffImposedToChar" val="Вы попытались вспомнить полузабытые уроки старой цыганки, что учила вас головы морочить." />
 		<message type="kAffExpired" val="Ваша красота куда-то пропала." />
+		<!-- Material-component narration (issue.spellcomponents). -->
+		<message type="kComponentUse" val="Вы взяли череп летучей мыши в левую руку." />
+		<message type="kComponentMissing" val="Батюшки светы! А помаду-то я дома забыл$g." />
+		<message type="kComponentExhausted" val="$o рассыпался в ваших руках от неловкого движения." />
 	</msg_sheaf>
 	<msg_sheaf id="kCrying">
 		<message type="kCastPhraseHeathen" val="Будут слезы твои, аки камень на сердце" />
@@ -2294,6 +2302,10 @@
 		<message type="kAffImposedToRoom" val="$n воскурил$g благовония и пропел$g заклинание. В воздухе поплыл чарующий глаз огненный узор." />
 		<!-- Room-affect aura (issue.sight-fmt). Visible to anyone. -->
 		<message type="kRoomAffectVisible" val="&amp;Y... чарующий огненный узор плывет в воздухе ...&amp;n" />
+		<!-- Material-component narration (issue.spellcomponents). -->
+		<message type="kComponentUse" val="Вы разожгли палочку заморских благовоний." />
+		<message type="kComponentMissing" val="Вы начали суматошно искать свои благовония, но тщетно." />
+		<message type="kComponentExhausted" val="$o дотлели и рассыпались пеплом." />
 	</msg_sheaf>
 	<msg_sheaf id="kSolobonus">
 		<message type="kCastPhraseHeathen" val="" />
