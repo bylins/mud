@@ -47,8 +47,6 @@ byte GetExtendSavingThrows(ECharClass class_id, ESaving save, int level);
 int CheckCharmices(CharData *ch, CharData *victim, ESpell spell_id);
 void ReactToCast(CharData *victim, CharData *caster, ESpell spell_id);
 
-bool ProcessMatComponents(CharData *caster, int, ESpell spell_id);
-
 bool is_room_forbidden(RoomData *room) {
 	for (const auto &af: room->affected) {
 		if (af->type == ESpell::kForbidden && (number(1, 100) <= af->modifier)) {
@@ -686,43 +684,66 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 	return rand;
 }
 
-// Search caster's equipment for an object with the given vnum. Returns the
-// first match (slots scanned 0..kNumEquipPos-1) or nullptr.
+// Material-item match: an object qualifies as a component for `vnum` if it is
+// of type kMagicIngredient and its get_val(1) -- the prototype-vnum field of
+// magic ingredients -- equals the listed vnum. This is the "match by val(1),
+// not by object's own vnum" rule the user laid out in issue.spellcomponents
+// follow-up: a single material requirement can be satisfied by multiple
+// concrete ingredient prototypes, as long as each carries the right val(1).
+static inline bool IsMaterialFor(const ObjData *o, int vnum) {
+	return o != nullptr
+		&& o->get_type() == EObjType::kMagicIngredient
+		&& o->get_val(1) == vnum;
+}
+
+// Search caster's equipment for a material ingredient matching `vnum` (see
+// IsMaterialFor for the predicate). Returns the first match (slots scanned
+// 0..kNumEquipPos-1) or nullptr.
 static ObjData *FindMatInEquip(CharData *caster, int vnum) {
 	for (int i = 0; i < EEquipPos::kNumEquipPos; ++i) {
 		ObjData *o = GET_EQ(caster, i);
-		if (o && o->get_vnum() == vnum) {
+		if (IsMaterialFor(o, vnum)) {
 			return o;
 		}
 	}
 	return nullptr;
 }
 
-// Search the caster's room contents for an object with the given vnum. Returns
-// the first match or nullptr (also nullptr if the caster is roomless).
+// Search caster's inventory list (->carrying) for a material ingredient.
+static ObjData *FindMatInInventory(CharData *caster, int vnum) {
+	for (ObjData *o = caster->carrying; o; o = o->get_next_content()) {
+		if (IsMaterialFor(o, vnum)) {
+			return o;
+		}
+	}
+	return nullptr;
+}
+
+// Search the caster's room contents for a material ingredient. Returns nullptr
+// if the caster is roomless.
 static ObjData *FindMatInRoom(CharData *caster, int vnum) {
 	if (caster->in_room == kNowhere) {
 		return nullptr;
 	}
 	for (ObjData *o : world[caster->in_room]->contents) {
-		if (o && o->get_vnum() == vnum) {
+		if (IsMaterialFor(o, vnum)) {
 			return o;
 		}
 	}
 	return nullptr;
 }
 
-// Look for a component item by vnum across the locations enabled in `where`,
-// in the fixed order equipment -> inventory -> room. Returns the first match
-// from the highest-priority enabled location, or nullptr if none match. The
-// caller is responsible for ensuring `where` carries at least one location bit
-// (we treat 0 as a hard failure in ProcessMatComponents below).
+// Look for a material ingredient by val(1)-vnum across the locations enabled
+// in `where`, in the fixed order equipment -> inventory -> room. Returns the
+// first match from the highest-priority enabled location, or nullptr if none
+// match. The caller is responsible for ensuring `where` carries at least one
+// location bit (we treat 0 as a hard failure in ProcessMatComponents below).
 static ObjData *FindMatInLocations(CharData *caster, int vnum, Bitvector where) {
 	if ((where & EFind::kObjEquip) != 0) {
 		if (ObjData *o = FindMatInEquip(caster, vnum)) return o;
 	}
 	if ((where & EFind::kObjInventory) != 0) {
-		if (ObjData *o = GetObjByVnumInContent(vnum, caster->carrying)) return o;
+		if (ObjData *o = FindMatInInventory(caster, vnum)) return o;
 	}
 	if ((where & EFind::kObjRoom) != 0) {
 		if (ObjData *o = FindMatInRoom(caster, vnum)) return o;
@@ -848,32 +869,6 @@ EStageResult ProcessMatComponents(CharData *caster, CharData *victim, ESpell spe
 		}
 	}
 	return EStageResult::kSuccess;
-}
-
-bool ProcessMatComponents(CharData *caster, int /*vnum*/, ESpell spell_id) {
-	const char *missing = nullptr, *use = nullptr, *exhausted = nullptr;
-	switch (spell_id) {
-		case ESpell::kEnchantWeapon: use = "Вы подготовили дополнительные компоненты для зачарования.\r\n";
-			missing = "Вы были уверены что положили его в этот карман.\r\n";
-			exhausted = "$o вспыхнул голубоватым светом, когда его вставили в предмет.\r\n";
-			break;
-
-		default: log("WARNING: wrong spell_id %d in %s:%d", to_underlying(spell_id), __FILE__, __LINE__);
-			return false;
-	}
-	ObjData *tobj = GET_EQ(caster, EEquipPos::kHold);
-	if (!tobj) {
-		act(missing, false, caster, nullptr, caster, kToChar);
-		return (true);
-	}
-	tobj->dec_val(2);
-	act(use, false, caster, tobj, nullptr, kToChar);
-	if (GET_OBJ_VAL(tobj, 2) < 1) {
-		act(exhausted, false, caster, tobj, nullptr, kToChar);
-		RemoveObjFromChar(tobj);
-		ExtractObjFromWorld(tobj);
-	}
-	return (false);
 }
 
 // Applies one affect produced by a TalentAffect apply to the victim, honoring the
@@ -2039,7 +2034,18 @@ static const char *EnchantWeapon(CharData *ch, ObjData *obj, ESpell spell_id) {
 			|| GetObjByVnumInContent(GlobalDrop::MAGIC3_ENCHANT_VNUM, reagobj))) {
 		// у нас имеется доп символ для зачарования
 		obj->set_enchant(ch->GetSkill(ESkill::kLightMagic), reagobj);
-		ProcessMatComponents(ch, reagobj->get_rnum(), spell_id); //может неправильный вызов
+		// issue.spellcomponents follow-up: the legacy
+		//   bool ProcessMatComponents(caster, vnum_unused, spell_id)
+		// overload (held-slot consumption) was retired; the data-driven
+		// EStageResult overload now handles the kEnchantWeapon material
+		// requirement via <components><material vnum="..." where="kObjInventory"/>
+		// declared on kEnchantWeapon in spells.xml. Return value (kBreak when
+		// the inventory ingredient is absent) is intentionally ignored at this
+		// point: the enchant has already landed via set_enchant above, so the
+		// "missing" message simply reports the post-hoc shortage to the player
+		// without rolling back -- same UX as the bool overload's old branch
+		// where the held slot was empty.
+		ProcessMatComponents(ch, ch, spell_id);
 	} else {
 		obj->set_enchant(ch->GetSkill(ESkill::kLightMagic));
 	}
