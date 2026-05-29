@@ -429,8 +429,8 @@ int CallMagicToRoom(CharData *ch, RoomData *room, CastRollResult roll) {
 			af[0].must_handled = false;
 			accum_duration = true;
 			update_spell = true;
-			to_char = "Вы облили комнату бензином и бросили окурок.";
-			to_room = "Пространство вокруг начало светиться.";
+			to_char = "Вы прищелкнули пальцами и в воздухе разлился свет.";
+			to_room = "$n вызвал$g разлившееся в воздухе свечение.";
 			break;
 
 		case ESpell::kDeadlyFog: af[0].type = spell_id;
@@ -520,11 +520,9 @@ int CallMagicToRoom(CharData *ch, RoomData *room, CastRollResult roll) {
 			accum_duration = false;
 			update_spell = false;
 			to_char =
-				"Вы выкрикнули несколько мерзко звучащих слов и притопнули.\r\n"
-				"Из-под ваших ног полезли скрюченные мертвые руки.";
+				"Вы выкрикнули несколько мерзко звучащих слов и притопнули. Из земли полезли скрюченные мертвые руки.";
 			to_room =
-				"$n выкрикнул$g несколько мерзко звучащих слов и притопнул$g.\r\n"
-				"Из-под ваших ног полезли скрюченные мертвые руки.";
+				"$n выкрикнул$g несколько мерзко звучащих слов и притопнул$g. Из земли полезли скрюченные мертвые руки.";
 			break;
 		default: break;
 	}
