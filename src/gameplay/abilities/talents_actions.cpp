@@ -6,6 +6,7 @@
 #include "fmt/format.h"
 #include "utils/random.h"
 
+#include <algorithm>
 #include <map>
 
 namespace talents_actions {
@@ -31,7 +32,8 @@ const std::map<std::string, EMobFlag> kBlockingFlagByName{
 };
 
 // Parse a `|`-separated list of ESpell names (an any_of/all_of attribute of an
-// <unaffect> sub-tag, issue #3342). Empty/absent attribute -> empty list.
+// <unaffect> sub-tag, issue #3342). Empty/absent attribute -> empty list. The
+// single-token "*" is the wildcard (handled by the caller, not this helper).
 std::vector<ESpell> ParseSpellList(const char *value) {
 	std::vector<ESpell> out;
 	if (!value || !*value) {
@@ -45,6 +47,29 @@ std::vector<ESpell> ParseSpellList(const char *value) {
 		}
 	}
 	return out;
+}
+
+// Parse one any_of/all_of attribute, recognising the "*" wildcard token. On a wildcard,
+// out_wildcard is set true and the explicit list stays empty. Mixing wildcard with explicit
+// names (e.g. "*|kPoison") is rejected with an error: the semantic is ambiguous and the
+// explicit names are redundant if "*" is present.
+void ParseRemovalAttr(const char *value, std::vector<ESpell> &out_list, bool &out_wildcard,
+					  const char *tag_name, const char *attr_name) {
+	if (!value || !*value) {
+		return;
+	}
+	const auto parts = utils::Split(value, '|');
+	const bool has_wild = std::any_of(parts.begin(), parts.end(),
+		[](const std::string &s) { return s == "*"; });
+	if (has_wild) {
+		if (parts.size() > 1) {
+			err_log("TalentUnaffect: \"*\" wildcard cannot be combined with explicit names in "
+					"<%s %s=\"%s\">; treating as wildcard alone.", tag_name, attr_name, value);
+		}
+		out_wildcard = true;
+		return;
+	}
+	out_list = ParseSpellList(value);
 }
 }  // namespace
 
@@ -303,8 +328,8 @@ TalentUnaffect::TalentUnaffect(parser_wrapper::DataNode &node) {
 			set = &remove_;
 		}
 		if (set) {
-			set->any_of = ParseSpellList(child.GetValue("any_of"));
-			set->all_of = ParseSpellList(child.GetValue("all_of"));
+			ParseRemovalAttr(child.GetValue("any_of"), set->any_of, set->wildcard_any, name, "any_of");
+			ParseRemovalAttr(child.GetValue("all_of"), set->all_of, set->wildcard_all, name, "all_of");
 			const char *bf = child.GetValue("breaking_by_failure");
 			set->breaking_by_failure = (bf && *bf) && parse::ReadAsBool(bf);
 		}
@@ -317,12 +342,16 @@ void TalentUnaffect::Print(CharData */*ch*/, std::ostringstream &buffer) const {
 			return;
 		}
 		buffer << "  " << label << ":";
-		if (!set.any_of.empty()) {
+		if (set.wildcard_any) {
+			buffer << " any_of=" << kColorGrn << "*" << kColorNrm;
+		} else if (!set.any_of.empty()) {
 			buffer << " any_of=" << kColorGrn;
 			for (const auto s: set.any_of) buffer << NAME_BY_ITEM<ESpell>(s) << " ";
 			buffer << kColorNrm;
 		}
-		if (!set.all_of.empty()) {
+		if (set.wildcard_all) {
+			buffer << " all_of=" << kColorGrn << "*" << kColorNrm;
+		} else if (!set.all_of.empty()) {
 			buffer << " all_of=" << kColorGrn;
 			for (const auto s: set.all_of) buffer << NAME_BY_ITEM<ESpell>(s) << " ";
 			buffer << kColorNrm;

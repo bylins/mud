@@ -690,9 +690,13 @@ Within each block:
 
 | Attribute | Meaning |
 |---|---|
-| `any_of` | `\|`-separated `ESpell` list. The block fires if **any one** is present (for blocking/breaking) or dispels the **first one present** (for remove blocks). |
-| `all_of` | `\|`-separated `ESpell` list. For blocking/breaking, fires only when **all** are simultaneously present. For remove blocks, dispels **every** listed affect that is present. |
+| `any_of` | `\|`-separated `ESpell` list. The block fires if **any one** is present (for blocking/breaking) or dispels the **first one present** (for remove blocks). The single-token value `"*"` is the **wildcard** — see §9.5. |
+| `all_of` | `\|`-separated `ESpell` list. For blocking/breaking, fires only when **all** are simultaneously present. For remove blocks, dispels **every** listed affect that is present. The single-token value `"*"` is the **wildcard** — see §9.5. |
 | `breaking_by_failure` *(remove / remove_anyway only)* | If `true`, a **failed potency check** on any dispel from this block breaks the cast chain (no later stages run). The default is `false` (a failed check is silent). |
+
+Mixing `"*"` with explicit names (e.g. `any_of="*\|kPoison"`) is rejected
+at parse time with a warning — the explicit names are redundant when the
+wildcard is present, and the semantic is ambiguous. Use one or the other.
 
 ### 9.3 Potency-gated dispel *(new mechanic)*
 
@@ -732,17 +736,89 @@ A broken chain means later stages — affect, damage, points, alter, etc. —
 victim resists having their invisibility stripped, the follow-up debuff
 should also miss.
 
-### 9.5 `kDispellMagic` (random strip)
+### 9.5 The `"*"` wildcard *(new mechanic)*
 
-`kDispellMagic` is special-cased: it picks **one** eligible affect at random
-from the victim's affect list (filtered by the spell's `affect_flags`) and
-runs the potency check against it. The `<blocking>`/`<breaking>`/`<remove>`
-sub-blocks are not used. Its `<unaffect>` therefore has no children — just
-the attributes:
+`any_of="*"` and `all_of="*"` extend `<remove>` / `<remove_anyway>` from
+"fixed list of spell names" to "everything matching the unaffect's
+`affect_flags` filter". The two wildcards have different semantics —
+matching the explicit-list semantics extended:
+
+| Wildcard | Selection |
+|---|---|
+| `any_of="*"` | Pick **one** eligible affect, uniformly at random. (Reservoir-sampled across the victim's affect list.) |
+| `all_of="*"` | Queue **every** eligible affect on the victim for removal. |
+
+"Eligible" means `affect_matches(victim->aff, unaffect.affect_flags)` —
+i.e. the affect carries at least one of the `EAffFlag` bits listed in
+the surrounding `<unaffect affect_flags=…>` attribute. Each candidate
+the wildcard selects then goes through the same potency-gated
+`DispelSucceeds` rule (§9.3), and `breaking_by_failure` works the same
+way as for explicit lists.
+
+**Use this for:**
+- generic "dispel one random magic" / "cure all poisons" spells
+  (`kDispellMagic` itself is now expressed this way — see below),
+- future sphere-specific dispels: tag affects with a new `EAffFlag`
+  bit (e.g. `kAfSorcerySphere`, `kAfHazeSphere`) and write a dispel
+  with `<unaffect affect_flags="kAfHazeSphere"><remove all_of="*"/>`
+  to strip every haze-sphere affect.
+
+**`kDispellMagic` migrated example:**
 
 ```xml
-<unaffect affect_flags="kAfDispellable"/>
+<spell id="kDispellMagic" element="kLight" mode="kEnabled">
+    <!-- … usual fields … -->
+    <flags val="kMagUnaffects"/>
+    <talent_actions>
+        <action>
+            <unaffect affect_flags="kAfDispellable">
+                <remove any_of="*"/>
+            </unaffect>
+        </action>
+    </talent_actions>
+</spell>
 ```
+
+This replaced a dedicated `DispelRandomAffect()` helper in `magic.cpp`
+(now deleted) — the runtime path is now identical to every other
+dispel, just with wildcard-collected candidates instead of an explicit
+spell list.
+
+**A hypothetical "cure all poisons" (using a wildcard plus a narrower
+`affect_flags` filter):**
+
+```xml
+<spell id="kCureAllPoisons" element="kLife" mode="kEnabled">
+    <!-- … usual fields … -->
+    <flags val="kMagUnaffects"/>
+    <talent_actions>
+        <action>
+            <unaffect affect_flags="kAfCurable">
+                <remove all_of="*"/>
+            </unaffect>
+        </action>
+    </talent_actions>
+</spell>
+```
+
+Every affect carrying `kAfCurable` (poisons currently, plus any future
+"curable" affect) gets a potency check; each is stripped or resisted
+independently.
+
+### 9.6 Cross-reference: the dispel pipeline at a glance
+
+For each cast that runs `<unaffect>`:
+
+1. Apply the `prob` gate (silent skip if missed).
+2. Evaluate `<blocking>` and `<breaking>` (with wildcard support).
+3. Collect candidates from `<remove_anyway>` (always) and `<remove>`
+   (only when not blocked) — explicit lists or wildcards.
+4. If candidates exist, run the optional PK-action check, then per
+   candidate: `DispelSucceeds` → `RemoveAffectAndAnnounce` or
+   record a resisted attempt.
+5. If a `breaking_by_failure` candidate resisted, or a `<breaking>`
+   condition was present, return `kBreak` to stop the cast chain.
+6. Otherwise return `kSuccess` and the cast continues to the next stage.
 
 ---
 
@@ -1188,8 +1264,9 @@ If you need any of these, open an issue and the work can be scoped.
 
 ---
 
-*Last updated to match the `sventovit.work` head as of the
-`issue.spells-rebalance` work: dice parser treats `0` as "no
-contribution" (absent `<dices>` block is equivalent to `0,0,0`),
-and the modifier-scaling pattern of §8.9 is now used by ~20 spells
-in `spells.xml`.*
+*Last updated to match the `sventovit.work` head as of `issue.dispell`:
+dice parser treats `0` as "no contribution" (absent `<dices>` block is
+equivalent to `0,0,0`); the modifier-scaling pattern of §8.9 is now
+used by ~20 spells in `spells.xml`; `<remove any_of="*">` and
+`<remove all_of="*">` wildcards replace the dedicated kDispellMagic
+code path (§9.5).*
