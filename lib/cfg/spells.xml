@@ -3,6 +3,9 @@
 Формат (пример):
     <spell id="kPowerDeafness" element="kTypeMind" mode="kEnabled">
         <name rus="длительная глухота" eng="power deafness"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="Y" danger="2"/>
         <mana max="120" min="90" change="4"/>
         <targets val="kTarCharRoom|kTarNotSelf|kTarFightVict"/>
@@ -75,6 +78,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kArmor" element="kLight" mode="kEnabled">
         <name rus="защита" eng="armor"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="40" min="30" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
@@ -107,6 +113,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kTeleport" element="kAir" mode="kEnabled">
         <name rus="прыжок" eng="teleport"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kStand" violent="N" danger="1"/>
         <mana max="140" min="120" change="2"/>
         <targets val="kTarCharRoom"/>
@@ -121,6 +130,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kBless" element="kLight" mode="kEnabled">
         <name rus="доблесть" eng="bless"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="55" min="40" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf|kTarObjInv|kTarObjEquip"/>
@@ -150,6 +162,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kBlindness" element="kDark" mode="kEnabled">
         <name rus="слепота" eng="blind"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="Y" danger="1"/>
         <mana max="70" min="40" change="2"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
@@ -191,6 +206,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kBurningHands" element="kFire" mode="kEnabled">
         <name rus="горящие руки" eng="burning hands"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="Y" danger="1"/>
         <mana max="40" min="30" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
@@ -217,6 +235,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kCallLighting" element="kAir" mode="kEnabled">
         <name rus="шаровая молния" eng="call lightning"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="Y" danger="2"/>
         <mana max="85" min="50" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
@@ -243,6 +264,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kCharm" element="kMind" mode="kEnabled">
         <name rus="подчинить разум" eng="mind control"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="Y" danger="1"/>
         <mana max="55" min="40" change="1"/>
         <targets val="kTarCharRoom|kTarNotSelf"/>
@@ -291,6 +315,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kClone" element="kDark" mode="kEnabled">
         <name rus="клонирование" eng="clone"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="150" min="130" change="5"/>
         <targets val="kTarCharRoom|kTarSelfOnly"/>
@@ -305,6 +332,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kIceBolts" element="kWater" mode="kEnabled">
         <name rus="ледяные стрелы" eng="ice bolts"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="Y" danger="3"/>
         <mana max="90" min="55" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
@@ -331,6 +361,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kControlWeather" element="kAir" mode="kEnabled">
         <name rus="контроль погоды" eng="weather control"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="100" min="90" change="1"/>
         <targets val="kTarIgnore"/>
@@ -345,6 +378,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kCreateFood" element="kLife" mode="kEnabled">
         <name rus="создать пищу" eng="create food"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="40" min="30" change="1"/>
         <targets val="kTarIgnore"/>
@@ -359,6 +395,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kCreateWater" element="kWater" mode="kEnabled">
         <name rus="создать воду" eng="create water"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="40" min="30" change="1"/>
         <targets val="kTarObjInv|kTarObjEquip|kTarCharRoom"/>
@@ -373,6 +412,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kCureBlind" element="kLight" mode="kEnabled">
         <name rus="вылечить слепоту" eng="cure blind"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="110" min="90" change="2"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
@@ -395,6 +437,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kCureCritic" element="kLife" mode="kEnabled">
         <name rus="критическое исцеление" eng="critical cure"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="N" danger="3"/>
         <mana max="100" min="90" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
@@ -417,6 +462,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kCureLight" element="kLife" mode="kEnabled">
         <name rus="легкое исцеление" eng="light cure"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="N" danger="1"/>
         <mana max="40" min="30" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
@@ -439,6 +487,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kCurse" element="kDark" mode="kEnabled">
         <name rus="проклятие" eng="curse"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="N" danger="1"/>
         <mana max="55" min="40" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict|kTarObjInv"/>
@@ -471,6 +522,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kDetectAlign" element="kMind" mode="kEnabled">
         <name rus="определение наклонностей" eng="detect alignment"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="40" min="30" change="1"/>
         <targets val="kTarCharRoom"/>
@@ -497,6 +551,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kDetectInvis" element="kMind" mode="kEnabled">
         <name rus="видеть невидимое" eng="detect invisible"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="100" min="55" change="3"/>
         <targets val="kTarCharRoom"/>
@@ -523,6 +580,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kDetectMagic" element="kMind" mode="kEnabled">
         <name rus="определение магии" eng="detect magic"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="100" min="55" change="3"/>
         <targets val="kTarCharRoom"/>
@@ -549,6 +609,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kDetectPoison" element="kMind" mode="kEnabled">
         <name rus="определение яда" eng="detect poison"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="40" min="30" change="1"/>
         <targets val="kTarCharRoom"/>
@@ -575,6 +638,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kDispelEvil" element="kLight" mode="kEnabled">
         <name rus="изгнать зло" eng="dispel evil"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="N" danger="1"/>
         <mana max="100" min="90" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
@@ -603,6 +669,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kEarthquake" element="kEarth" mode="kEnabled">
         <name rus="землетрясение" eng="earthquake"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="Y" danger="2"/>
         <mana max="110" min="90" change="2"/>
         <targets val="kTarIgnore"/>
@@ -636,6 +705,7 @@ base_stat id - (например "kWis") какой берем параметр,
     <spell id="kEnchantWeapon" element="kLight" mode="kEnabled">
         <name rus="заколдовать оружие" eng="enchant weapon"/>
         <components>
+            <verbal/>
             <material any_of="1930"/>
         </components>
         <misc pos="kStand" violent="N" danger="0"/>
@@ -652,6 +722,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kEnergyDrain" element="kDark" mode="kEnabled">
         <name rus="истощить энергию" eng="energy drain"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="N" danger="1"/>
         <mana max="150" min="140" change="2"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
@@ -685,6 +758,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kFireball" element="kFire" mode="kEnabled">
         <name rus="огненный шар" eng="fireball"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="Y" danger="2"/>
         <mana max="110" min="100" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
@@ -707,6 +783,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kHarm" element="kDark" mode="kEnabled">
         <name rus="вред" eng="harm"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="Y" danger="5"/>
         <mana max="110" min="100" change="2"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
@@ -729,6 +808,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kHeal" element="kLife" mode="kEnabled">
         <name rus="исцеление" eng="heal"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="N" danger="10"/>
         <mana max="110" min="100" change="2"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
@@ -751,6 +833,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </spell>
     <spell id="kInvisible" element="kMind" mode="kEnabled">
         <name rus="невидимость" eng="invisible"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="50" min="40" change="3"/>
         <targets val="kTarCharRoom|kTarObjInv|kTarObjRoom"/>
@@ -778,6 +863,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kLightingBolt" element="kAir" mode="kEnabled">
         <name rus="молния" eng="lightning bolt"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="Y" danger="1"/>
         <mana max="55" min="40" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
@@ -805,6 +893,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kLocateObject" element="kMind" mode="kEnabled">
         <name rus="разыскать предмет" eng="locate object"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="140" min="110" change="2"/>
         <targets val="kTarObjWorld"/>
@@ -819,6 +910,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kMagicMissile" element="kAir" mode="kEnabled">
         <name rus="магическая стрела" eng="magic missle"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="Y" danger="1"/>
         <mana max="40" min="30" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
@@ -842,6 +936,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kPoison" element="kDark" mode="kEnabled">
         <name rus="яд" eng="poison"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="Y" danger="2"/>
         <mana max="70" min="55" change="1"/>
         <targets val="kTarCharRoom|kTarNotSelf|kTarObjInv|kTarFightVict"/>
@@ -876,6 +973,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kProtectFromEvil" element="kLight" mode="kEnabled">
         <name rus="защита от тьмы" eng="protect evil"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="60" min="45" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf|kTarAllyOnly"/>
@@ -902,6 +1002,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kRemoveCurse" element="kLight" mode="kEnabled">
         <name rus="снять проклятие" eng="remove curse"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="50" min="40" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf|kTarObjInv|kTarObjEquip"/>
@@ -924,6 +1027,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kSanctuary" element="kLight" mode="kEnabled">
         <name rus="освящение" eng="sanctuary"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="N" danger="1"/>
         <mana max="85" min="70" change="2"/>
         <targets val="kTarCharRoom|kTarFightSelf|kTarAllyOnly"/>
@@ -977,6 +1083,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kSleep" element="kMind" mode="kEnabled">
         <name rus="сон" eng="sleep"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="Y" danger="0"/>
         <mana max="70" min="55" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
@@ -1006,6 +1115,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kStrength" element="kLife" mode="kEnabled">
         <name rus="сила" eng="strength"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="40" min="30" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
@@ -1036,6 +1148,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kSummon" element="kMind" mode="kEnabled">
         <name rus="призвать" eng="summon"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="110" min="100" change="2"/>
         <targets val="kTarCharWorld|kTarNotSelf"/>
@@ -1050,6 +1165,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kPatronage" element="kLight" mode="kEnabled">
         <name rus="покровительство" eng="patronage"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="N" danger="1"/>
         <mana max="85" min="70" change="2"/>
         <targets val="kTarSelfOnly|kTarCharRoom"/>
@@ -1079,6 +1197,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kWorldOfRecall" element="kMind" mode="kEnabled">
         <name rus="слово возврата" eng="recall"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="140" min="100" change="4"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
@@ -1093,6 +1214,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kRemovePoison" element="kLife" mode="kEnabled">
         <name rus="удалить яд" eng="remove poison"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="60" min="45" change="2"/>
         <targets val="kTarCharRoom|kTarFightSelf|kTarObjInv|kTarObjRoom"/>
@@ -1115,6 +1239,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kSenseLife" element="kLife" mode="kEnabled">
         <name rus="определение жизни" eng="sense life"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="85" min="70" change="1"/>
         <targets val="kTarCharRoom"/>
@@ -1141,6 +1268,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kAnimateDead" element="kDark" mode="kEnabled">
         <name rus="поднять труп" eng="animate dead"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="50" min="35" change="3"/>
         <targets val="kTarObjRoom"/>
@@ -1155,6 +1285,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kDispelGood" element="kDark" mode="kEnabled">
         <name rus="рассеять свет" eng="dispel good"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="Y" danger="1"/>
         <mana max="100" min="90" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
@@ -1183,6 +1316,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kGroupArmor" element="kLight" mode="kEnabled">
         <name rus="групповая защита" eng="group armor"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="110" min="100" change="2"/>
         <targets val="kTarIgnore"/>
@@ -1219,6 +1355,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kGroupHeal" element="kLife" mode="kEnabled">
         <name rus="групповое исцеление" eng="group heal"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="N" danger="30"/>
         <mana max="110" min="100" change="2"/>
         <targets val="kTarIgnore"/>
@@ -1241,6 +1380,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kGreatHeal" element="kLife" mode="kEnabled">
         <name rus="великое исцеление" eng="great heal"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="N" danger="30"/>
         <mana max="110" min="100" change="2"/>
         <targets val="kTarIgnore"/>
@@ -1267,6 +1409,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kGroupRecall" element="kMind" mode="kEnabled">
         <name rus="групповой возврат" eng="group recall"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="125" min="120" change="2"/>
         <targets val="kTarIgnore"/>
@@ -1285,6 +1430,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kInfravision" element="kLight" mode="kEnabled">
         <name rus="видение ночью" eng="infravision"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="50" min="40" change="2"/>
         <targets val="kTarCharRoom"/>
@@ -1311,6 +1459,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kWaterwalk" element="kWater" mode="kEnabled">
         <name rus="водохождение" eng="waterwalk"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="70" min="55" change="1"/>
         <targets val="kTarCharRoom"/>
@@ -1337,6 +1488,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kCureSerious" element="kLife" mode="kEnabled">
         <name rus="серьезное исцеление" eng="serious cure"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="N" danger="2"/>
         <mana max="85" min="70" change="4"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
@@ -1359,6 +1513,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kGroupStrength" element="kLife" mode="kEnabled">
         <name rus="групповая сила" eng="group strength"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="140" min="120" change="2"/>
         <targets val="kTarIgnore"/>
@@ -1393,6 +1550,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kHold" element="kMind" mode="kEnabled">
         <name rus="оцепенение" eng="hold"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="Y" danger="3"/>
         <mana max="100" min="40" change="2"/>
         <targets val="kTarCharRoom|kTarNotSelf|kTarFightVict"/>
@@ -1421,6 +1581,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kPowerHold" element="kMind" mode="kEnabled">
         <name rus="длительное оцепенение" eng="power hold"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="Y" danger="4"/>
         <mana max="140" min="90" change="4"/>
         <targets val="kTarCharRoom|kTarNotSelf|kTarFightVict"/>
@@ -1449,6 +1612,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kMassHold" element="kMind" mode="kEnabled">
         <name rus="массовое оцепенение" eng="mass hold"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="Y" danger="5"/>
         <mana max="150" min="130" change="5"/>
         <targets val="kTarIgnore"/>
@@ -1481,6 +1647,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kFly" element="kAir" mode="kEnabled">
         <name rus="полет" eng="fly"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="50" min="35" change="1"/>
         <targets val="kTarCharRoom|kTarObjInv|kTarObjEquip"/>
@@ -1507,6 +1676,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kBrokenChains" element="kMind" mode="kEnabled">
         <name rus="разбитые оковы" eng="broken chains"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="N" danger="5"/>
         <mana max="125" min="110" change="2"/>
         <targets val="kTarSelfOnly|kTarCharRoom"/>
@@ -1533,6 +1705,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kNoflee" element="kMind" mode="kEnabled">
         <name rus="приковать противника" eng="noflee"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="Y" danger="0"/>
         <mana max="100" min="90" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
@@ -1560,6 +1735,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kCreateLight" element="kLight" mode="kEnabled">
         <name rus="создать свет" eng="create light"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="40" min="30" change="1"/>
         <targets val="kTarIgnore"/>
@@ -1574,6 +1752,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kDarkness" element="kDark" mode="kEnabled">
         <name rus="тьма" eng="darkness"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="100" min="70" change="2"/>
         <targets val="kTarCharRoom|kTarObjInv|kTarObjEquip|kTarAllyOnly"/>
@@ -1600,6 +1781,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kStoneSkin" element="kEarth" mode="kEnabled">
         <name rus="каменная кожа" eng="stoneskin"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="55" min="40" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
@@ -1626,6 +1810,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kCloudly" element="kWater" mode="kEnabled">
         <name rus="затуманивание" eng="cloudly"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="55" min="40" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
@@ -1655,6 +1842,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kSilence" element="kMind" mode="kEnabled">
         <name rus="молчание" eng="sielence"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="Y" danger="1"/>
         <mana max="100" min="40" change="2"/>
         <targets val="kTarCharRoom|kTarNotSelf|kTarFightVict"/>
@@ -1682,6 +1872,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kLight" element="kLight" mode="kEnabled">
         <name rus="свет" eng="sun shine"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="100" min="70" change="2"/>
         <targets val="kTarCharRoom|kTarObjInv|kTarObjEquip|kTarAllyOnly"/>
@@ -1708,6 +1901,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kChainLighting" element="kAir" mode="kEnabled">
         <name rus="цепь молний" eng="chain lightning"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="Y" danger="1"/>
         <mana max="120" min="110" change="2"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
@@ -1734,6 +1930,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kFireBlast" element="kFire" mode="kStability">
         <name rus="огненный поток" eng="fireblast"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="Y" danger="5"/>
         <mana max="110" min="90" change="2"/>
         <targets val="kTarIgnore"/>
@@ -1760,6 +1959,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kGodsWrath" element="kFire" mode="kEnabled">
         <name rus="гнев богов" eng="gods wrath"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="Y" danger="15"/>
         <mana max="140" min="120" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
@@ -1782,6 +1984,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kWeaknes" element="kLife" mode="kEnabled">
         <name rus="слабость" eng="weakness"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="Y" danger="0"/>
         <mana max="70" min="55" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
@@ -1816,6 +2021,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kGroupInvisible" element="kMind" mode="kEnabled">
         <name rus="групповая невидимость" eng="group invisible"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="150" min="130" change="5"/>
         <targets val="kTarIgnore"/>
@@ -1847,6 +2055,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kShadowCloak" element="kDark" mode="kEnabled">
         <name rus="мантия теней" eng="shadow cloak"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="100" min="70" change="3"/>
         <targets val="kTarSelfOnly|kTarCharRoom"/>
@@ -1873,6 +2084,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kAcid" element="kWater" mode="kEnabled">
         <name rus="кислота" eng="acid"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="Y" danger="2"/>
         <mana max="90" min="65" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
@@ -1899,6 +2113,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kRepair" element="kLight" mode="kEnabled">
         <name rus="починка" eng="repair"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="110" min="100" change="1"/>
         <targets val="kTarObjInv|kTarObjEquip"/>
@@ -1913,6 +2130,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kEnlarge" element="kLife" mode="kEnabled">
         <name rus="увеличение" eng="enlarge"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="55" min="40" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
@@ -1943,6 +2163,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kFear" element="kDark" mode="kEnabled">
         <name rus="страх" eng="fear"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="Y" danger="1"/>
         <mana max="70" min="55" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
@@ -1957,6 +2180,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kSacrifice" element="kDark" mode="kEnabled">
         <name rus="высосать жизнь" eng="sacrifice"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="Y" danger="10"/>
         <mana max="140" min="75" change="3"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
@@ -1983,6 +2209,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kWeb" element="kMind" mode="kEnabled">
         <name rus="сеть" eng="web"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="Y" danger="1"/>
         <mana max="70" min="55" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
@@ -2013,6 +2242,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kBlink" element="kLight" mode="kEnabled">
         <name rus="мигание" eng="blink"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="70" min="55" change="2"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
@@ -2039,6 +2271,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kRemoveHold" element="kLight" mode="kEnabled">
         <name rus="снять оцепенение" eng="remove hold"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="N" danger="1"/>
         <mana max="110" min="90" change="2"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
@@ -2075,6 +2310,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kPowerBlindness" element="kDark" mode="kEnabled">
         <name rus="полная слепота" eng="power blind"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="Y" danger="2"/>
         <mana max="110" min="100" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
@@ -2106,6 +2344,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kMassBlindness" element="kDark" mode="kEnabled">
         <name rus="массовая слепота" eng="mass blind"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="Y" danger="4"/>
         <mana max="140" min="120" change="2"/>
         <targets val="kTarIgnore"/>
@@ -2137,6 +2378,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kPowerSilence" element="kMind" mode="kEnabled">
         <name rus="длительное молчание" eng="power sielence"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="Y" danger="2"/>
         <mana max="120" min="90" change="4"/>
         <targets val="kTarCharRoom|kTarNotSelf|kTarFightVict"/>
@@ -2164,6 +2408,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kExtraHits" element="kLife" mode="kEnabled">
         <name rus="увеличить жизнь" eng="extra hits"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="N" danger="1"/>
         <mana max="100" min="85" change="2"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
@@ -2186,6 +2433,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kResurrection" element="kDark" mode="kEnabled">
         <name rus="оживить труп" eng="ressurection"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="120" min="100" change="2"/>
         <targets val="kTarObjRoom"/>
@@ -2200,6 +2450,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kMagicShield" element="kLight" mode="kEnabled">
         <name rus="волшебный щит" eng="magic shield"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="50" min="30" change="2"/>
         <targets val="kTarSelfOnly|kTarCharRoom"/>
@@ -2232,6 +2485,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kForbidden" element="kMind" mode="kEnabled">
         <name rus="запечатать комнату" eng="forbidden"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="125" min="110" change="2"/>
         <targets val="kTarIgnore"/>
@@ -2269,6 +2525,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kMassSilence" element="kMind" mode="kEnabled">
         <name rus="массовое молчание" eng="mass sielence"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="Y" danger="3"/>
         <mana max="140" min="120" change="2"/>
         <targets val="kTarIgnore"/>
@@ -2300,6 +2559,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kRemoveSilence" element="kLight" mode="kEnabled">
         <name rus="снять молчание" eng="remove sielence"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="N" danger="1"/>
         <mana max="70" min="55" change="2"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
@@ -2322,6 +2584,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kDamageLight" element="kDark" mode="kEnabled">
         <name rus="легкий вред" eng="light damage"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="Y" danger="1"/>
         <mana max="40" min="30" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
@@ -2344,6 +2609,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kDamageSerious" element="kDark" mode="kEnabled">
         <name rus="серьезный вред" eng="serious damage"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="Y" danger="2"/>
         <mana max="85" min="55" change="4"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
@@ -2370,6 +2638,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kDamageCritic" element="kDark" mode="kEnabled">
         <name rus="критический вред" eng="critical damage"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="Y" danger="3"/>
         <mana max="100" min="90" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
@@ -2396,6 +2667,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kMassCurse" element="kDark" mode="kEnabled">
         <name rus="массовое проклятие" eng="mass curse"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="Y" danger="2"/>
         <mana max="140" min="120" change="2"/>
         <targets val="kTarIgnore"/>
@@ -2429,6 +2703,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kArmageddon" element="kAir" mode="kEnabled">
         <name rus="суд богов" eng="armageddon"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="Y" danger="10"/>
         <mana max="150" min="130" change="5"/>
         <targets val="kTarIgnore"/>
@@ -2455,6 +2732,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kGroupFly" element="kAir" mode="kEnabled">
         <name rus="групповой полет" eng="group fly"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="140" min="120" change="2"/>
         <targets val="kTarIgnore"/>
@@ -2485,6 +2765,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kGroupBless" element="kLight" mode="kEnabled">
         <name rus="групповая доблесть" eng="group bless"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="N" danger="1"/>
         <mana max="110" min="100" change="1"/>
         <targets val="kTarIgnore"/>
@@ -2518,6 +2801,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kResfresh" element="kLife" mode="kEnabled">
         <name rus="восстановление" eng="refresh"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="80" min="60" change="1"/>
         <targets val="kTarCharRoom"/>
@@ -2532,6 +2818,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kStunning" element="kEarth" mode="kEnabled">
         <name rus="каменное проклятие" eng="stunning"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="Y" danger="15"/>
         <mana max="150" min="140" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
@@ -2616,6 +2905,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kFullFeed" element="kLife" mode="kEnabled">
         <name rus="насыщение" eng="full"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kStand" violent="N" danger="10"/>
         <mana max="70" min="55" change="1"/>
         <targets val="kTarCharRoom"/>
@@ -2630,6 +2922,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kColdWind" element="kAir" mode="kEnabled">
         <name rus="ледяной ветер" eng="cold wind"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="Y" danger="15"/>
         <mana max="100" min="90" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
@@ -2719,6 +3014,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kWaterbreath" element="kWater" mode="kEnabled">
         <name rus="дышать водой" eng="waterbreath"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="85" min="70" change="4"/>
         <targets val="kTarCharRoom"/>
@@ -2745,6 +3043,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kSlowdown" element="kMind" mode="kEnabled">
         <name rus="медлительность" eng="slow"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="Y" danger="1"/>
         <mana max="55" min="40" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
@@ -2779,6 +3080,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kHaste" element="kMind" mode="kEnabled">
         <name rus="ускорение" eng="haste"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="55" min="40" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
@@ -2809,6 +3113,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kMassSlow" element="kMind" mode="kEnabled">
         <name rus="массовая медлительность" eng="mass slow"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="Y" danger="2"/>
         <mana max="140" min="120" change="2"/>
         <targets val="kTarIgnore"/>
@@ -2847,6 +3154,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kGroupHaste" element="kMind" mode="kEnabled">
         <name rus="групповое ускорение" eng="group haste"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="N" danger="1"/>
         <mana max="110" min="100" change="1"/>
         <targets val="kTarIgnore"/>
@@ -2881,6 +3191,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kGodsShield" element="kLight" mode="kEnabled">
         <name rus="защита богов" eng="gods shield"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="N" danger="2"/>
         <mana max="150" min="140" change="1"/>
         <targets val="kTarCharRoom|kTarSelfOnly"/>
@@ -2913,6 +3226,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kFever" element="kLife" mode="kEnabled">
         <name rus="лихорадка" eng="plaque"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="Y" danger="2"/>
         <mana max="70" min="55" change="1"/>
         <targets val="kTarCharRoom|kTarNotSelf|kTarFightVict"/>
@@ -2964,6 +3280,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kCureFever" element="kLife" mode="kEnabled">
         <name rus="вылечить лихорадку" eng="cure plaque"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="85" min="70" change="4"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
@@ -2986,6 +3305,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kAwareness" element="kMind" mode="kEnabled">
         <name rus="внимательность" eng="awarness"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="100" min="90" change="1"/>
         <targets val="kTarCharRoom|kTarSelfOnly"/>
@@ -3029,6 +3351,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kAirShield" element="kAir" mode="kEnabled">
         <name rus="воздушный щит" eng="air shield"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="140" min="120" change="2"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
@@ -3058,6 +3383,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kPortal" element="kLight" mode="kEnabled">
         <name rus="переход" eng="portal"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="200" min="180" change="4"/>
         <targets val="kTarCharWorld"/>
@@ -3072,6 +3400,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kPortalTimer" element="kLight" mode="kEnabled">
         <name rus="врата" eng="portal"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="200" min="180" change="4"/>
         <targets val="kTarNone"/>
@@ -3086,6 +3417,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kDispellMagic" element="kLight" mode="kEnabled">
         <name rus="развеять магию" eng="dispel magic"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="85" min="70" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf|kTarAllyOnly"/>
@@ -3112,6 +3446,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kSummonKeeper" element="kLight" mode="kEnabled">
         <name rus="защитник" eng="keeper"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="100" min="80" change="2"/>
         <targets val="kTarIgnore"/>
@@ -3126,6 +3463,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kFastRegeneration" element="kLife" mode="kEnabled">
         <name rus="быстрое восстановление" eng="fast regeneration"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="100" min="90" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
@@ -3155,6 +3495,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kCreateWeapon" element="kLight" mode="kEnabled">
         <name rus="создать оружие" eng="create weapon"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="130" min="110" change="2"/>
         <targets val="kTarIgnore"/>
@@ -3169,6 +3512,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kFireShield" element="kFire" mode="kEnabled">
         <name rus="огненный щит" eng="fire shield"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="140" min="120" change="2"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
@@ -3198,6 +3544,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kRelocate" element="kAir" mode="kEnabled">
         <name rus="переместиться" eng="relocate"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="140" min="120" change="2"/>
         <targets val="kTarCharWorld"/>
@@ -3212,6 +3561,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kSummonFirekeeper" element="kFire" mode="kEnabled">
         <name rus="огненный защитник" eng="fire keeper"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="150" min="140" change="1"/>
         <targets val="kTarIgnore"/>
@@ -3226,6 +3578,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kIceShield" element="kWater" mode="kEnabled">
         <name rus="ледяной щит" eng="ice protect"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="140" min="120" change="2"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
@@ -3255,6 +3610,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kIceStorm" element="kWater" mode="kEnabled">
         <name rus="ледяной шторм" eng="ice storm"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="Y" danger="5"/>
         <mana max="135" min="100" change="3"/>
         <targets val="kTarIgnore"/>
@@ -3289,6 +3647,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kLessening" element="kLife" mode="kEnabled">
         <name rus="уменьшение" eng="enless"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="55" min="40" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
@@ -3319,6 +3680,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kShineFlash" element="kFire" mode="kEnabled">
         <name rus="яркий блик" eng="shine flash"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="Y" danger="2"/>
         <mana max="60" min="45" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
@@ -3349,6 +3713,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kMadness" element="kMind" mode="kEnabled">
         <name rus="безумие" eng="madness"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="Y" danger="1"/>
         <mana max="130" min="110" change="2"/>
         <targets val="kTarCharRoom|kTarNotSelf|kTarFightVict"/>
@@ -3378,6 +3745,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kGroupMagicGlass" element="kAir" mode="kEnabled">
         <name rus="магическое зеркало" eng="group magicglass"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="N" danger="4"/>
         <mana max="140" min="120" change="2"/>
         <targets val="kTarIgnore"/>
@@ -3408,6 +3778,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kCloudOfArrows" element="kFire" mode="kEnabled">
         <name rus="облако стрел" eng="cloud of arrous"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="N" danger="4"/>
         <mana max="95" min="80" change="2"/>
         <targets val="kTarSelfOnly|kTarCharRoom"/>
@@ -3434,6 +3807,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kVacuum" element="kDark" mode="kEnabled">
         <name rus="круг пустоты" eng="vacuum sphere"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="Y" danger="15"/>
         <mana max="150" min="140" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
@@ -3462,6 +3838,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kMeteorStorm" element="kEarth" mode="kEnabled">
         <name rus="метеоритный дождь" eng="meteor storm"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="Y" danger="0"/>
         <mana max="125" min="110" change="2"/>
         <targets val="kTarRoomThis"/>
@@ -3480,6 +3859,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kStoneHands" element="kEarth" mode="kEnabled">
         <name rus="каменные руки" eng="stonehand"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="40" min="30" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
@@ -3506,6 +3888,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kMindless" element="kMind" mode="kEnabled">
         <name rus="повреждение разума" eng="mindness"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="Y" danger="0"/>
         <mana max="120" min="110" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
@@ -3538,6 +3923,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kPrismaticAura" element="kLight" mode="kEnabled">
         <name rus="призматическая аура" eng="prismatic aura"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="N" danger="1"/>
         <mana max="85" min="70" change="4"/>
         <targets val="kTarCharRoom|kTarFightSelf|kTarAllyOnly"/>
@@ -3569,6 +3957,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kEviless" element="kDark" mode="kEnabled">
         <name rus="силы зла" eng="eviless"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kStand" violent="N" danger="3"/>
         <mana max="150" min="130" change="5"/>
         <targets val="kTarIgnore|kTarMinionsOnly"/>
@@ -3608,6 +3999,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kAirAura" element="kAir" mode="kEnabled">
         <name rus="воздушная аура" eng="air aura"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="140" min="120" change="2"/>
         <targets val="kTarIgnore"/>
@@ -3638,6 +4032,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kFireAura" element="kFire" mode="kEnabled">
         <name rus="огненная аура" eng="fire aura"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="140" min="120" change="2"/>
         <targets val="kTarIgnore"/>
@@ -3668,6 +4065,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kIceAura" element="kWater" mode="kEnabled">
         <name rus="ледяная аура" eng="ice aura"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="140" min="120" change="2"/>
         <targets val="kTarIgnore"/>
@@ -3698,6 +4098,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kShock" element="kLight" mode="kEnabled">
         <name rus="шок" eng="shock"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="Y" danger="1"/>
         <mana max="100" min="90" change="2"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
@@ -3735,6 +4138,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kMagicGlass" element="kLight" mode="kEnabled">
         <name rus="зеркало магии" eng="magic glassie"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="N" danger="2"/>
         <mana max="120" min="110" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
@@ -3761,6 +4167,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kGroupSanctuary" element="kLight" mode="kEnabled">
         <name rus="групповое освящение" eng="group sanctuary"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="N" danger="1"/>
         <mana max="110" min="100" change="1"/>
         <targets val="kTarIgnore"/>
@@ -3796,6 +4205,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kGroupPrismaticAura" element="kLight" mode="kEnabled">
         <name rus="групповая призматическая аура" eng="group prismatic aura"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="N" danger="1"/>
         <mana max="110" min="100" change="1"/>
         <targets val="kTarIgnore"/>
@@ -3831,6 +4243,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kDeafness" element="kMind" mode="kEnabled">
         <name rus="глухота" eng="deafness"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="Y" danger="1"/>
         <mana max="100" min="40" change="2"/>
         <targets val="kTarCharRoom|kTarNotSelf|kTarFightVict"/>
@@ -3857,6 +4272,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kPowerDeafness" element="kMind" mode="kEnabled">
         <name rus="длительная глухота" eng="power deafness"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="Y" danger="2"/>
         <mana max="120" min="90" change="4"/>
         <targets val="kTarCharRoom|kTarNotSelf|kTarFightVict"/>
@@ -3883,6 +4301,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kRemoveDeafness" element="kLife" mode="kEnabled">
         <name rus="снять глухоту" eng="remove deafness"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="N" danger="1"/>
         <mana max="90" min="80" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
@@ -3905,6 +4326,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kMassDeafness" element="kMind" mode="kEnabled">
         <name rus="массовая глухота" eng="mass deafness"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="Y" danger="2"/>
         <mana max="140" min="120" change="2"/>
         <targets val="kTarIgnore"/>
@@ -3935,6 +4359,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kDustStorm" element="kEarth" mode="kEnabled">
         <name rus="пылевая буря" eng="dust storm"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="Y" danger="5"/>
         <mana max="125" min="110" change="2"/>
         <targets val="kTarIgnore"/>
@@ -3971,6 +4398,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kEarthfall" element="kEarth" mode="kEnabled">
         <name rus="камнепад" eng="earth fall"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="Y" danger="1"/>
         <mana max="120" min="100" change="2"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
@@ -4040,6 +4470,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kHolystrike" element="kLight" mode="kEnabled">
         <name rus="силы света" eng="holystrike"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="Y" danger="10"/>
         <mana max="150" min="130" change="5"/>
         <targets val="kTarIgnore"/>
@@ -4080,6 +4513,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kSumonAngel" element="kLight" mode="kEnabled">
         <name rus="ангел-хранитель" eng="angel"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kStand" violent="N" danger="1"/>
         <mana max="150" min="130" change="5"/>
         <targets val="kTarIgnore"/>
@@ -4094,6 +4530,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kMassFear" element="kDark" mode="kEnabled">
         <name rus="массовый страх" eng="mass fear"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="Y" danger="4"/>
         <mana max="140" min="120" change="2"/>
         <targets val="kTarIgnore"/>
@@ -4113,6 +4552,7 @@ base_stat id - (например "kWis") какой берем параметр,
     <spell id="kFascination" element="kMind" mode="kEnabled">
         <name rus="обаяние" eng="fascination"/>
         <components>
+            <verbal/>
             <material any_of="3000"/>
         </components>
         <misc pos="kFight" violent="N" danger="2"/>
@@ -4141,6 +4581,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kCrying" element="kMind" mode="kEnabled">
         <name rus="плач" eng="crying"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="Y" danger="1"/>
         <mana max="120" min="55" change="2"/>
         <targets val="kTarCharRoom|kTarNotSelf|kTarFightVict"/>
@@ -4179,6 +4622,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kOblivion" element="kDark" mode="kEnabled">
         <name rus="забвение" eng="oblivion"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="Y" danger="1"/>
         <mana max="70" min="55" change="1"/>
         <targets val="kTarCharRoom|kTarNotSelf|kTarFightVict"/>
@@ -4206,6 +4652,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kBurdenOfTime" element="kDark" mode="kTesting">
         <name rus="бремя времени" eng="burden time"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="Y" danger="4"/>
         <mana max="140" min="120" change="2"/>
         <targets val="kTarIgnore"/>
@@ -4237,6 +4686,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kGroupRefresh" element="kLife" mode="kEnabled">
         <name rus="групповое восстановление" eng="group refresh"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kStand" violent="N" danger="30"/>
         <mana max="160" min="140" change="1"/>
         <targets val="kTarIgnore"/>
@@ -4255,6 +4707,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kPeaceful" element="kMind" mode="kEnabled">
         <name rus="смирение" eng="peaceful"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="Y" danger="1"/>
         <mana max="55" min="40" change="1"/>
         <targets val="kTarCharRoom|kTarNotSelf|kTarFightVict"/>
@@ -4323,6 +4778,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kStoneBones" element="kEarth" mode="kEnabled">
         <name rus="каменные кости" eng="stone bones"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="80" min="40" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf|kTarMinionsOnly"/>
@@ -4382,6 +4840,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kDeadlyFog" element="kDark" mode="kEnabled">
         <name rus="туман смерти" eng="deadly fog"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="Y" danger="2"/>
         <mana max="140" min="110" change="1"/>
         <targets val="kTarRoomThis"/>
@@ -4400,6 +4861,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kThunderstorm" element="kAir" mode="kEnabled">
         <name rus="буря отмщения" eng="storm of vengeance"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="Y" danger="7"/>
         <mana max="140" min="110" change="1"/>
         <targets val="kTarRoomThis"/>
@@ -4432,6 +4896,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kFailure" element="kDark" mode="kEnabled">
         <name rus="недоля" eng="failure"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="Y" danger="5"/>
         <mana max="100" min="85" change="2"/>
         <targets val="kTarIgnore"/>
@@ -4530,6 +4997,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kScream" element="kAir" mode="kEnabled">
         <name rus="вопль" eng="scream"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="Y" danger="2"/>
         <mana max="100" min="85" change="3"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
@@ -4566,6 +5036,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kCatGrace" element="kLife" mode="kEnabled">
         <name rus="кошачья ловкость" eng="cats grace"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="50" min="40" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
@@ -4592,6 +5065,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kBullBody" element="kLife" mode="kEnabled">
         <name rus="бычье тело" eng="bull body"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="50" min="40" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
@@ -4618,6 +5094,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kSnakeWisdom" element="kLife" mode="kEnabled">
         <name rus="мудрость змеи" eng="snake wisdom"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="60" min="50" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
@@ -4644,6 +5123,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kGimmicry" element="kLife" mode="kEnabled">
         <name rus="хитроумие" eng="gimmickry"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="60" min="50" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
@@ -4670,6 +5152,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kWarcryOfChallenge" element="kMind" mode="kTesting">
         <name rus="клич вызова" eng="warcry of challenge"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="Y" danger="0"/>
         <mana max="60" min="50" change="1"/>
         <targets val="kTarFightVict"/>
@@ -4690,6 +5175,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kWarcryOfMenace" element="kMind" mode="kTesting">
         <name rus="клич угрозы" eng="warcry of menace"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="Y" danger="0"/>
         <mana max="30" min="30" change="40"/>
         <targets val="kTarFightVict"/>
@@ -4717,6 +5205,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kWarcryOfRage" element="kMind" mode="kTesting">
         <name rus="клич ярости" eng="warcry of rage"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="Y" danger="0"/>
         <mana max="30" min="30" change="50"/>
         <targets val="kTarFightVict"/>
@@ -4747,6 +5238,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kWarcryOfMadness" element="kMind" mode="kTesting">
         <name rus="клич безумия" eng="warcry of madness"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="Y" danger="0"/>
         <mana max="50" min="50" change="91"/>
         <targets val="kTarFightVict"/>
@@ -4780,6 +5274,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kWarcryOfThunder" element="kMind" mode="kTesting">
         <name rus="клич грома" eng="warcry of thunder"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="Y" danger="0"/>
         <mana max="140" min="140" change="141"/>
         <targets val="kTarFightVict"/>
@@ -4815,6 +5312,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kWarcryOfDefence" element="kMind" mode="kEnabled">
         <name rus="клич обороны" eng="warcry of defense"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="10" min="10" change="10"/>
         <targets val="kTarIgnore"/>
@@ -4851,6 +5351,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kWarcryOfBattle" element="kMind" mode="kEnabled">
         <name rus="клич битвы" eng="warcry of battle"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="20" min="20" change="50"/>
         <targets val="kTarIgnore"/>
@@ -4878,6 +5381,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kWarcryOfPower" element="kMind" mode="kEnabled">
         <name rus="клич мощи" eng="warcry of power"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="25" min="25" change="70"/>
         <targets val="kTarIgnore"/>
@@ -4908,6 +5414,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kWarcryOfBless" element="kMind" mode="kEnabled">
         <name rus="клич доблести" eng="warcry of bless"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="15" min="15" change="30"/>
         <targets val="kTarIgnore"/>
@@ -4938,6 +5447,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kWarcryOfCourage" element="kMind" mode="kEnabled">
         <name rus="клич отваги" eng="warcry of courage"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="10" min="10" change="10"/>
         <targets val="kTarIgnore"/>
@@ -5240,6 +5752,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kVampirism" element="kDark" mode="kEnabled">
         <name rus="вампиризм" eng="vampire"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kStand" violent="N" danger="3"/>
         <mana max="150" min="130" change="5"/>
         <targets val="kTarIgnore"/>
@@ -5266,6 +5781,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kRestoration" element="kLight" mode="kEnabled">
         <name rus="реконструкция" eng="reconstruction"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="110" min="100" change="1"/>
         <targets val="kTarObjInv|kTarObjEquip"/>
@@ -5280,6 +5798,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kDeathAura" element="kDark" mode="kEnabled">
         <name rus="аура смерти" eng="aura death"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="140" min="120" change="2"/>
         <targets val="kTarIgnore"/>
@@ -5298,6 +5819,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kRecovery" element="kDark" mode="kEnabled">
         <name rus="темное прикосновение" eng="recovery"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="110" min="100" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
@@ -5312,6 +5836,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kMassRecovery" element="kDark" mode="kEnabled">
         <name rus="прикосновение смерти" eng="mass recovery"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="110" min="100" change="1"/>
         <targets val="kTarIgnore"/>
@@ -5330,6 +5857,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kAuraOfEvil" element="kDark" mode="kEnabled">
         <name rus="аура зла" eng="aura evil"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kStand" violent="N" danger="3"/>
         <mana max="150" min="130" change="5"/>
         <targets val="kTarIgnore"/>
@@ -5344,6 +5874,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kMentalShadow" element="kMind" mode="kEnabled">
         <name rus="ментальная тень" eng="mental shadow"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kStand" violent="N" danger="1"/>
         <mana max="150" min="130" change="5"/>
         <targets val="kTarIgnore"/>
@@ -5358,6 +5891,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kBlackTentacles" element="kDark" mode="kEnabled">
         <name rus="навьи руки" eng="evards black tentacles"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="Y" danger="0"/>
         <mana max="120" min="110" change="2"/>
         <targets val="kTarRoomThis"/>
@@ -5382,6 +5918,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kWhirlwind" element="kAir" mode="kEnabled">
         <name rus="вихрь" eng="whirlwind"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="Y" danger="2"/>
         <mana max="100" min="80" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
@@ -5409,6 +5948,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kIndriksTeeth" element="kEarth" mode="kEnabled">
         <name rus="зубы индрика" eng="indriks teeth"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="Y" danger="2"/>
         <mana max="60" min="45" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
@@ -5439,6 +5981,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kAcidArrow" element="kWater" mode="kEnabled">
         <name rus="кислотная стрела" eng="acid arrow"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="Y" danger="2"/>
         <mana max="130" min="100" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
@@ -5481,6 +6026,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kThunderStone" element="kEarth" mode="kEnabled">
         <name rus="громовой камень" eng="thunderstone"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="Y" danger="2"/>
         <mana max="110" min="100" change="2"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
@@ -5507,6 +6055,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kClod" element="kEarth" mode="kEnabled">
         <name rus="глыба" eng="clod"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="Y" danger="2"/>
         <mana max="130" min="110" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
@@ -5549,6 +6100,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kSightOfDarkness" element="kLight" mode="kEnabled">
         <name rus="зрение тьмы" eng="sight darkness"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="N" danger="1"/>
         <mana max="110" min="100" change="1"/>
         <targets val="kTarIgnore"/>
@@ -5579,6 +6133,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kGroupSincerity" element="kMind" mode="kEnabled">
         <name rus="общая искренность" eng="general sincerity"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="N" danger="1"/>
         <mana max="110" min="100" change="1"/>
         <targets val="kTarIgnore"/>
@@ -5609,6 +6166,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kMagicalGaze" element="kMind" mode="kEnabled">
         <name rus="магический взор" eng="magical gaze"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="N" danger="1"/>
         <mana max="110" min="100" change="1"/>
         <targets val="kTarIgnore"/>
@@ -5639,6 +6199,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kAllSeeingEye" element="kMind" mode="kEnabled">
         <name rus="всевидящее око" eng="allseeing eye"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="N" danger="1"/>
         <mana max="110" min="100" change="1"/>
         <targets val="kTarIgnore"/>
@@ -5669,6 +6232,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kEyeOfGods" element="kLife" mode="kEnabled">
         <name rus="око богов" eng="eye gods"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="N" danger="1"/>
         <mana max="110" min="100" change="1"/>
         <targets val="kTarIgnore"/>
@@ -5699,6 +6265,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kBreathingAtDepth" element="kWater" mode="kEnabled">
         <name rus="дыхание глубин" eng="breathing at depth"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="N" danger="1"/>
         <mana max="110" min="100" change="1"/>
         <targets val="kTarIgnore"/>
@@ -5729,6 +6298,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kGeneralRecovery" element="kLife" mode="kEnabled">
         <name rus="общее восстановление" eng="general recovery"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="N" danger="1"/>
         <mana max="110" min="100" change="1"/>
         <targets val="kTarIgnore"/>
@@ -5762,6 +6334,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kCommonMeal" element="kLife" mode="kEnabled">
         <name rus="общая трапеза" eng="common meal"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="N" danger="1"/>
         <mana max="110" min="100" change="1"/>
         <targets val="kTarIgnore"/>
@@ -5780,6 +6355,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kStoneWall" element="kEarth" mode="kEnabled">
         <name rus="каменная стена" eng="stone wall"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="N" danger="1"/>
         <mana max="110" min="100" change="1"/>
         <targets val="kTarIgnore"/>
@@ -5810,6 +6388,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kSnakeEyes" element="kMind" mode="kEnabled">
         <name rus="глаза змея" eng="snake eyes"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="N" danger="1"/>
         <mana max="110" min="100" change="1"/>
         <targets val="kTarIgnore"/>
@@ -5840,6 +6421,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kEarthAura" element="kEarth" mode="kEnabled">
         <name rus="земной поклон" eng="earth aura"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="140" min="120" change="2"/>
         <targets val="kTarIgnore"/>
@@ -5870,6 +6454,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kGroupProtectFromEvil" element="kLight" mode="kEnabled">
         <name rus="групповая защита от тьмы" eng="group protect evil"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="N" danger="1"/>
         <mana max="110" min="100" change="1"/>
         <targets val="kTarIgnore"/>
@@ -6057,6 +6644,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kDexterity" element="kLife" mode="kEnabled">
         <name rus="ловкость" eng="dexterity"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="40" min="30" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
@@ -6087,6 +6677,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kGroupBlink" element="kLife" mode="kEnabled">
         <name rus="групповое мигание" eng="group blink"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="N" danger="30"/>
         <mana max="110" min="100" change="2"/>
         <targets val="kTarIgnore"/>
@@ -6117,6 +6710,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kGroupCloudly" element="kWater" mode="kEnabled">
         <name rus="групповое затуманивание" eng="group cloudly"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="N" danger="30"/>
         <mana max="110" min="100" change="2"/>
         <targets val="kTarIgnore"/>
@@ -6150,6 +6746,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kGroupAwareness" element="kMind" mode="kEnabled">
         <name rus="групповая внимательность" eng="group awarness"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="N" danger="30"/>
         <mana max="110" min="100" change="2"/>
         <targets val="kTarIgnore"/>
@@ -6183,6 +6782,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kWarcryOfExperience" element="kMind" mode="kEnabled">
         <name rus="клич обучения" eng="warcry of training"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="10" min="10" change="10"/>
         <targets val="kTarIgnore"/>
@@ -6210,6 +6812,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kWarcryOfLuck" element="kMind" mode="kEnabled">
         <name rus="клич везения" eng="warcry of luck"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="10" min="10" change="10"/>
         <targets val="kTarIgnore"/>
@@ -6237,6 +6842,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kWarcryOfPhysdamage" element="kMind" mode="kEnabled">
         <name rus="клич точности" eng="warcry of accuracy"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="10" min="10" change="10"/>
         <targets val="kTarIgnore"/>
@@ -6264,6 +6872,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kMassFailure" element="kDark" mode="kEnabled">
         <name rus="взор Велеса" eng="gaze of Veles"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="Y" danger="2"/>
         <mana max="140" min="120" change="2"/>
         <targets val="kTarIgnore"/>
@@ -6311,6 +6922,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kSnare" element="kMind" mode="kEnabled">
         <name rus="западня" eng="snare"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kFight" violent="Y" danger="2"/>
         <mana max="140" min="120" change="2"/>
         <targets val="kTarIgnore"/>
@@ -6517,6 +7131,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kIdentify" element="kMind" mode="kEnabled">
         <name rus="идентификация" eng="identify"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kSit" violent="N" danger="0"/>
         <mana max="0" min="0" change="0"/>
         <targets val="kTarCharRoom|kTarObjInv|kTarObjRoom|kTarObjEquip"/>
@@ -6531,6 +7148,9 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kFullIdentify" element="kMind" mode="kEnabled">
         <name rus="полная идентификация" eng="identify"/>
+        <components>
+            <verbal/>
+        </components>
         <misc pos="kSit" violent="N" danger="0"/>
         <mana max="0" min="0" change="0"/>
         <targets val="kTarCharRoom|kTarObjInv|kTarObjRoom|kTarObjEquip"/>

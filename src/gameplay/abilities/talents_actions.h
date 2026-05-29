@@ -139,19 +139,26 @@ struct Material {
 	int cost{1};
 };
 
-// The set of material requirements for a spell (issue.spellcomponents). Lives at
+// The set of casting requirements for a spell (issue.spellcomponents). Lives at
 // the <spell> level in spells.xml (sibling of <name>/<misc>/<potency_roll>),
 // parsed by SpellInfoBuilder::ParseComponents and stored on SpellInfo.
-// Currently only Material entries are recognised; the container is forward-shaped
-// to grow other component kinds (mana boosters, foci, sacrificial items, ...)
+// Today recognises <material> entries (the consumable / focus requirement) and
+// <verbal/> (the spell needs a spoken phrase to fire -- silenced casters can't
+// cast it). Forward-shaped for somatic / divine focus / sacrificial entries
 // without further callsite churn.
 class Components {
 	std::vector<Material> materials_;
+	// True if the spell has a <verbal/> child of <components>. A verbal spell
+	// requires speech; kSilence on the caster blocks it (see do_cast,
+	// CastSpell, process_player_attack, SaySpell). A non-verbal spell can be
+	// cast under kSilence and SaySpell stays silent for it too.
+	bool has_verbal_{false};
  public:
 	Components() = default;
 	explicit Components(parser_wrapper::DataNode &node);
 	[[nodiscard]] const std::vector<Material> &GetMaterials() const { return materials_; }
-	[[nodiscard]] bool empty() const { return materials_.empty(); }
+	[[nodiscard]] bool HasVerbal() const { return has_verbal_; }
+	[[nodiscard]] bool empty() const { return materials_.empty() && !has_verbal_; }
 	void Print(std::ostringstream &buffer) const;
 };
 

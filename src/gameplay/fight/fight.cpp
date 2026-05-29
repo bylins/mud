@@ -1865,11 +1865,14 @@ void process_player_attack(CharData *ch, int min_init) {
 
 	//* каст заклинания
 	if (ch->GetCastSpell() != ESpell::kUndefined && ch->get_wait() <= 0 && !IS_SET(trigger_code, kNoCastMagic)) {
-		if (AFF_FLAGGED(ch, EAffect::kSilence)) {
-			SendMsgToChar("Вы не смогли вымолвить и слова.\r\n", ch);
+		const auto queued_spell = ch->GetCastSpell();
+		// Verbal-component gate (issue.spellcomponents): only verbal spells
+		// fizzle under kSilence. The queued non-verbal spell goes through.
+		if (MUD::Spell(queued_spell).IsVerbal() && AFF_FLAGGED(ch, EAffect::kSilence)) {
+			SendMsgToChar(MUD::SpellMessages().GetMessage(queued_spell, ESpellMsg::kCantCastSilenced) + "\r\n", ch);
 			ch->SetCast(ESpell::kUndefined, ESpell::kUndefined, 0, 0, 0);
 		} else {
-			CastSpell(ch, ch->GetCastChar(), ch->GetCastObj(), 0, ch->GetCastSpell(), ch->GetCastSubst());
+			CastSpell(ch, ch->GetCastChar(), ch->GetCastObj(), 0, queued_spell, ch->GetCastSubst());
 			if (!(ch->IsImmortal() || GET_GOD_FLAG(ch, EGf::kGodsLike) || ch->get_wait() > 0)) {
 				SetBattleLag(ch, 1);
 			}

@@ -61,7 +61,8 @@ TEST(SpellMessages, ESpellMsgNameRoundTrip) {
 							ESpellMsg::kRoomAffectSelfInvisible,
 							ESpellMsg::kRoomAffectPkVisible, ESpellMsg::kRoomAffectPkInvisible,
 							ESpellMsg::kComponentUse, ESpellMsg::kComponentMissing,
-							ESpellMsg::kComponentExhausted}) {
+							ESpellMsg::kComponentExhausted,
+							ESpellMsg::kCantCastSilenced}) {
 		EXPECT_EQ(type, ITEM_BY_NAME<ESpellMsg>(NAME_BY_ITEM<ESpellMsg>(type)));
 	}
 }

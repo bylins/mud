@@ -130,6 +130,10 @@ enum class ESpellMsg {
 	kComponentUse,				// per matched item, when the requirement is satisfied (act $o).
 	kComponentMissing,			// when no item matches; the cast aborts.
 	kComponentExhausted,		// when val(2)-- drops the item to 0 and it's destroyed.
+	// Verbal-component fizzle (issue.spellcomponents): caster is under kSilence
+	// AND the spell carries <verbal/>. Looked up sheaf-direct on the cast spell
+	// with kDefault fallback; default sheaf supplies the generic line.
+	kCantCastSilenced,
 };
 
 template<>

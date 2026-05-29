@@ -59,12 +59,29 @@ void SaySpell(CharData *ch, ESpell spell_id, CharData *tch, ObjData *tobj) {
 	const char *say_to_self, *say_to_other, *say_to_obj_vis, *say_to_something,
 		*helpee_vict, *damagee_vict, *format;
 
+	// Non-verbal spell: there's no spoken phrase to announce. Return silently
+	// regardless of whether kCastPhraseHeathen/Christian happen to be defined;
+	// the missing-phrase mudlog below only applies to verbal spells.
+	// (issue.spellcomponents: verbal-component refactor.)
+	if (!MUD::Spell(spell_id).IsVerbal()) {
+		return;
+	}
+	// Verbal spell + silenced caster: the cast itself still went through (the
+	// kSilence gate that aborts the cast lives in do_cast / CastSpell /
+	// process_player_attack), but the caster physically cannot speak, so
+	// suppress the phrase + room narration.
+	if (AFF_FLAGGED(ch, EAffect::kSilence)) {
+		return;
+	}
+
 	*buf = '\0';
 	strcpy(lbuf, MUD::Spell(spell_id).GetEngCName());
 	// Say phrase ?
 	const auto &cast_phrase_sheaf = MUD::SpellMessages()[spell_id];
 	if (!cast_phrase_sheaf.HasMessage(ESpellMsg::kCastPhraseHeathen)
 		&& !cast_phrase_sheaf.HasMessage(ESpellMsg::kCastPhraseChristian)) {
+		// A verbal spell with no cast phrase declared in spell_msg.xml is a
+		// content gap -- worth a CMP-level mudlog so designers notice.
 		sprintf(buf, "[ERROR]: SaySpell: для спелла %d не объявлена cast_phrase", to_underlying(spell_id));
 		mudlog(buf, CMP, kLvlGod, SYSLOG, true);
 		return;
@@ -682,6 +699,15 @@ int CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, ESpel
 
 	if (AFF_FLAGGED(ch, EAffect::kCharmed) && ch->get_master() == tch) {
 		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kCantCastMaster) + "\r\n", ch);
+		return 0;
+	}
+
+	// Verbal-component gate (issue.spellcomponents): CastSpell is the
+	// universal entry point for "spoken" casts (PC do_cast, NPC specprocs,
+	// queued combat casts via process_player_attack, ...). Refuse only
+	// verbal spells under kSilence; non-verbal spells fall through.
+	if (MUD::Spell(spell_id).IsVerbal() && AFF_FLAGGED(ch, EAffect::kSilence)) {
+		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kCantCastSilenced) + "\r\n", ch);
 		return 0;
 	}
 

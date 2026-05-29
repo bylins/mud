@@ -43,10 +43,9 @@ auto FindSubstituteSpellId(CharData *ch, ESpell spell_id) {
 void DoCast(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	if (ch->IsNpc() && AFF_FLAGGED(ch, EAffect::kCharmed))
 		return;
-	if (AFF_FLAGGED(ch, EAffect::kSilence)) {
-		SendMsgToChar("Вы не смогли вымолвить и слова.\r\n", ch);
-		return;
-	}
+	// The kSilence gate moved below FixNameAndFindSpellId so that we can
+	// consult the resolved spell's verbal component (issue.spellcomponents):
+	// non-verbal spells are castable under kSilence, verbal ones still fizzle.
 	if (ch->HasCooldown(ESkill::kGlobalCooldown)) {
 		SendMsgToChar("Вам нужно набраться сил.\r\n", ch);
 		return;
@@ -84,6 +83,14 @@ void DoCast(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	const auto spell_id = FixNameAndFindSpellId(spell_name_str);
 	if (spell_id == ESpell::kUndefined) {
 		SendMsgToChar("И откуда вы набрались таких выражений?\r\n", ch);
+		return;
+	}
+	// Verbal-component gate (issue.spellcomponents): spell_id is now known,
+	// so we can refuse only verbal spells while leaving non-verbal ones
+	// castable under kSilence. Message comes from the spell's sheaf (with
+	// kDefault fallback supplying the generic "Вы не смогли вымолвить...").
+	if (MUD::Spell(spell_id).IsVerbal() && AFF_FLAGGED(ch, EAffect::kSilence)) {
+		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kCantCastSilenced) + "\r\n", ch);
 		return;
 	}
 	if (const auto spell = MUD::Class(ch->GetClass()).spells[spell_id];

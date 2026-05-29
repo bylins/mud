@@ -171,7 +171,15 @@ static constexpr Bitvector kDefaultComponentWhere =
 // catches Roll/Actions errors today.
 Components::Components(parser_wrapper::DataNode &node) {
 	for (auto &child : node.Children()) {
-		if (strcmp(child.GetName(), "material") != 0) {
+		const auto name = child.GetName();
+		// <verbal/>: presence-only marker -- no attributes today. Spells with
+		// this child require speech; the kSilence-aware guards in do_cast,
+		// CastSpell, process_player_attack and SaySpell consult HasVerbal().
+		if (strcmp(name, "verbal") == 0) {
+			has_verbal_ = true;
+			continue;
+		}
+		if (strcmp(name, "material") != 0) {
 			continue;
 		}
 		Material mat;
@@ -219,10 +227,13 @@ Components::Components(parser_wrapper::DataNode &node) {
 }
 
 void Components::Print(std::ostringstream &buffer) const {
-	if (materials_.empty()) {
+	if (materials_.empty() && !has_verbal_) {
 		return;
 	}
 	buffer << "Components:\r\n";
+	if (has_verbal_) {
+		buffer << "  Verbal" << "\r\n";
+	}
 	for (const auto &mat : materials_) {
 		buffer << "  Material:";
 		if (!mat.any_of.empty()) {

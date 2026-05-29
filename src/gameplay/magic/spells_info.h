@@ -90,6 +90,11 @@ class SpellInfo : public info_container::BaseItem<ESpell> {
 	[[nodiscard]] const talents_actions::Roll &GetPotencyRoll() const { return potency_roll_; };
 	[[nodiscard]] const talents_actions::Roll &GetSuccessRoll() const { return success_roll_; };
 	[[nodiscard]] const talents_actions::Components &GetComponents() const { return components_; };
+	// Convenience: spell has a <verbal/> child in its <components> block.
+	// Speech-blocking effects (kSilence) only stop verbal spells; non-verbal
+	// spells can be cast under kSilence. See do_cast / CastSpell /
+	// process_player_attack / SaySpell guards.
+	[[nodiscard]] bool IsVerbal() const { return components_.HasVerbal(); };
 
 	void Print(CharData *ch, std::ostringstream &buffer) const;
 };

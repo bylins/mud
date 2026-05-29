@@ -23,6 +23,7 @@
 		<message type="kCantCastNotSelf" val="Колдовать? ЭТО? На себя?! Да вы с ума сошли!" />
 		<message type="kCantCastNotAlly" val="Только на себя или одногруппника!" />
 		<message type="kCantCastNotMinion" val="Только на ваших последователей!" />
+		<message type="kCantCastSilenced" val="Вы не смогли вымолвить и слова." />
 		<message type="kNoeffect" val="Ваши потуги оказались напрасными." />
 		<message type="kTargetUnavailable" val="Цель заклинания недоступна." />
 		<message type="kCantCastPeaceful" val="Ваша душа полна смирения, и вы не желаете творить зло." />
