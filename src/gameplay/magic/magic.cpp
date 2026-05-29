@@ -860,6 +860,11 @@ static bool TryApplyAffectTalent(CharData *ch, CharData *victim, ESpell spell_id
 	auto apply_one = [&](const talents_actions::TalentAffect::Apply &apply) {
 		double raw = competencies * apply.competencies_weight + potency.dices * apply.dices_weight;
 		double modifier = apply.min + std::ceil(raw);
+		// Optional cap on raw magnitude before factor (issue.modifier-cap). 0 = no cap.
+		// Clamps the buff/debuff magnitude regardless of factor sign.
+		if (apply.cap > 0) {
+			modifier = std::min(modifier, static_cast<double>(apply.cap));
+		}
 		Affect<EApply> taf;
 		taf.type = talent.GetSpell();
 		taf.affect_type = apply.id;

@@ -1853,6 +1853,10 @@
 		<message type="kCastPhraseHeathen" val="вороги не войдут" />
 		<message type="kCastPhraseChristian" val="... ибо положена печать, и никто не возвращается." />
 		<message type="kAffExpired" val="Магия, запечатывающая входы, пропала." />
+		<!-- Top-tier seal narration (modifier > 99). The two lesser tiers stay code-side
+		     in magic_rooms.cpp because they branch on a runtime modifier value (issue.room-affects). -->
+		<message type="kAffImposedToChar" val="Вы запечатали магией все входы." />
+		<message type="kAffImposedToRoom" val="$n запечатал$g магией все входы." />
 	</msg_sheaf>
 	<msg_sheaf id="kRemoveSilence">
 		<message type="kCastPhraseHeathen" val="глаголите" />

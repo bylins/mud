@@ -2249,15 +2249,16 @@ base_stat id - (например "kWis") какой берем параметр,
                     <room_flags val="kNoMagic"/>
                 </blocking>
                 <!-- Migrated from CallMagicToRoom (issue.room-affects). Duration is in
-                     raw room-tick pulses, NOT hours. Modifier formula uses the spell's
-                     <potency_roll>: ceil(Int + 0.4*max(0,skill-75)) capped at 100. The
-                     code-side override sets 95 for mana-casters and emits the 3-tier
-                     seal-quality message. -->
+                 raw room-tick pulses, NOT hours. Modifier formula uses the spell's
+                 <potency_roll>: ceil(Int + 0.4*max(0,skill-75)); the cap="100" on
+                 <modifier> below enforces the old MIN(100,...) data-driven (issue
+                 .modifier-cap). The mana-caster short-circuit (modifier=95) and
+                 the 3-tier seal-quality narration remain code-side. -->
                 <affects type="kForbidden" saving="kNone" resist="kVitality">
                     <duration base="60" skill_divisor="3" min="0" max="0"/>
                     <flags val="kAfUpdateDuration"/>
                     <apply id="kUndefinded" location="kNone">
-                        <modifier min="0" dices_weight="0" competencies_weight="1" factor="1"/>
+                        <modifier min="0" dices_weight="0" competencies_weight="1" factor="1" cap="100"/>
                     </apply>
                 </affects>
             </action>
@@ -3626,7 +3627,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration base="20" skill_divisor="3" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfCurable"/>
                     <apply id="kAirAura" location="kResistAir">
-                        <modifier min="30.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
+                        <modifier min="1" dices_weight="0" competencies_weight="9" factor="1" cap="30"/>
                     </apply>
                 </affects>
             </action>
@@ -3656,7 +3657,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration base="20" skill_divisor="3" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfCurable"/>
                     <apply id="kFireAura" location="kResistWater">
-                        <modifier min="30.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
+                        <modifier min="1" dices_weight="0" competencies_weight="9" factor="1" cap="30"/>
                     </apply>
                 </affects>
             </action>
@@ -3686,7 +3687,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration base="20" skill_divisor="3" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfCurable"/>
                     <apply id="kIceAura" location="kResistFire">
-                        <modifier min="30.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
+                        <modifier min="1" dices_weight="0" competencies_weight="9" factor="1" cap="30"/>
                     </apply>
                 </affects>
             </action>
@@ -5852,7 +5853,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <duration base="20" skill_divisor="3" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfCurable"/>
                     <apply id="kEarthAura" location="kResistEarth">
-                        <modifier min="30.0" dices_weight="0.0" competencies_weight="0.0" factor="1"/>
+                        <modifier min="1" dices_weight="0" competencies_weight="9" factor="1" cap="30"/>
                     </apply>
                 </affects>
             </action>

@@ -498,14 +498,20 @@ The skill bonus is capped at the novice threshold (75) divided by
 | `dices_weight` | `0.0` | Weight on the potency-roll dice contribution. |
 | `competencies_weight` | `0.0` | Weight on `(skill_coeff + stat_coeff)`. |
 | `factor` | `1` | Final sign/scale multiplier. Use `-1` for debuffs (str penalty, save penalty, etc.). |
+| `cap` | `0` | Optional upper bound on the raw magnitude **before** factor. `0` (default) = no cap. Used by `kForbidden` (cap=100, mirroring the OLD `MIN(100, …)`) and by the elemental auras (cap=30, saturating around R15). |
 | `stack` | `1` | **Stacking cap** — see §8.5. |
 
 Formula:
 
 ```
-raw      = competencies · competencies_weight + dices · dices_weight
-modifier = factor · (min + ceil(raw))
+raw      = min + ceil(competencies · competencies_weight + dices · dices_weight)
+if cap > 0: raw = min(raw, cap)            # optional clamp before factor
+modifier = factor · raw
 ```
+
+The cap clamps **raw magnitude**, so a debuff with `factor="-1" cap="30"` is
+bounded between `-30` and `-min`. Use `cap` for "hard ceiling" effects whose
+balance was previously enforced by `std::min(…)` calls in code.
 
 ### 8.5 Stacking *(new mechanic)*
 

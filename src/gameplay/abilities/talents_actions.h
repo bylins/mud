@@ -194,11 +194,18 @@ class TalentAffect : public IAction {
 	struct Apply {
 		EAffect id{EAffect::kUndefinded};
 		EApply location{EApply::kNone};
-		// Modifier = factor * (min + ceil(competencies*competencies_weight + dices*dices_weight)).
+		// Modifier = factor * cap(min + ceil(competencies*competencies_weight + dices*dices_weight)).
+		// The cap (see below) is applied to the raw magnitude BEFORE the factor, so factor=-1
+		// debuffs are bounded by [-cap, -min] when cap > 0.
 		double min{0.0};
 		double dices_weight{0.0};
 		double competencies_weight{0.0};
 		int factor{1};
+		// Optional upper bound on the raw magnitude (i.e. on (min + ceil(comp*cw + dice*dw)))
+		// before factor is applied. 0 (default) means "no cap" -- the modifier scales without
+		// limit. Used by kForbidden (cap=100, mirroring OLD MIN(100, ...)) and by the elemental
+		// auras (cap=30, recalibrated for ~R15 saturation). issue.modifier-cap.
+		int cap{0};
 		// Maximum number of stacks this affect may build up on a target (issue.affect-stacks).
 		// Optional; defaults to 1 (no stacking). Values below 1 are clamped to 1. With stack > 1
 		// re-applying adds a stack (accumulating the modifier) until the cap is reached.

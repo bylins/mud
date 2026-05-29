@@ -273,6 +273,10 @@ TalentAffect::TalentAffect(parser_wrapper::DataNode &node) {
 				// stack: optional max stack count, default 1, clamped to a minimum of 1.
 				const char *stack = child.GetValue("stack");
 				apply.stack = (stack && *stack) ? std::max(1, parse::ReadAsInt(stack)) : 1;
+				// cap: optional upper bound on raw magnitude (issue.modifier-cap). 0 = no cap.
+				// Same (p && *p) guard as random/stack so missing attribute keeps the default.
+				const char *cap = child.GetValue("cap");
+				apply.cap = (cap && *cap) ? std::max(0, parse::ReadAsInt(cap)) : 0;
 				child.GoToParent();
 			}
 			applies_.push_back(apply);
@@ -311,7 +315,8 @@ void TalentAffect::Print(CharData */*ch*/, std::ostringstream &buffer) const {
 			   << (apply.random ? " [random]" : "")
 			   << " (min=" << apply.min << " dices_weight=" << apply.dices_weight
 			   << " competencies_weight=" << apply.competencies_weight
-			   << " factor=" << apply.factor << " stack=" << apply.stack << ")\r\n";
+			   << " factor=" << apply.factor << " stack=" << apply.stack
+			   << " cap=" << apply.cap << ")\r\n";
 	}
 	if (has_lag_) {
 		buffer << "  Lag: base=" << kColorGrn << lag_base_ << kColorNrm

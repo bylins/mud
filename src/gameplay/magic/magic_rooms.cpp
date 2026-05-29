@@ -422,10 +422,12 @@ int CallMagicToRoom(CharData *ch, RoomData *room, CastRollResult roll) {
 	}
 
 	// Data-driven defaults from the spell's <talent_actions>/<affects> block, if present
-	// (issue.room-affects). Fills af[0] with duration, battleflag, and modifier. Per-case
-	// special overrides (kForbidden's mana-caster cap + tier narration) follow in the
-	// switch below; room-flag fizzles and material components were lifted out and now
-	// run universally above.
+	// (issue.room-affects). Fills af[0] with duration, battleflag, modifier, and the cast
+	// potency / debuff flag that drive the dispel-strength contest in CastUnaffects'
+	// DispelSucceeds. Room-flag fizzles and material components were lifted out and now
+	// run universally above. The only per-spell override left is kForbidden's mana-caster
+	// short-circuit + the two lesser-tier narration variants, handled in the if-block
+	// below the data-driven defaults.
 	//
 	// NOTE on duration units: room-affect durations are in RAW ROOM-TICK PULSES (not in
 	// hours-then-converted like char affects). The reader uses base + skill_bonus directly,
@@ -444,48 +446,49 @@ int CallMagicToRoom(CharData *ch, RoomData *room, CastRollResult roll) {
 		if (talent.GetDurationMin() > 0) skill_bonus = std::max(skill_bonus, talent.GetDurationMin());
 		if (talent.GetDurationMax() > 0) skill_bonus = std::min(skill_bonus, talent.GetDurationMax());
 		af[0].duration = talent.GetDurationBase() + static_cast<unsigned>(skill_bonus);
+		// Cast potency + buff/debuff flag for DispelSucceeds (mirrors CastAffect's
+		// TryApplyAffectTalent path). potency = dice + skill_coeff + stat_coeff; debuff is
+		// the spell's <misc violent> flag. Computed once and shared with the modifier
+		// formula below so dice are rolled exactly once per cast.
+		const auto &potency = MUD::Spell(spell_id).GetPotencyRoll();
+		const double dice = potency.RollSkillDices();
+		const double comp = potency.CalcSkillCoeff(ch) + potency.CalcBaseStatCoeff(ch);
+		af[0].potency = static_cast<float>(dice + comp);
+		af[0].debuff = MUD::Spell(spell_id).IsViolent();
 		// Modifier from the first apply (if any). Same formula as TalentAffect::apply_one:
-		// raw = min + ceil(competencies*cw + dice*dw); modifier = factor * raw.
+		// raw = min + ceil(competencies*cw + dice*dw); cap clamps raw before factor.
 		if (!talent.GetApplies().empty()) {
 			const auto &apply = talent.GetApplies()[0];
-			const auto &potency = MUD::Spell(spell_id).GetPotencyRoll();
-			const double dice = potency.RollSkillDices();
-			const double comp = potency.CalcSkillCoeff(ch) + potency.CalcBaseStatCoeff(ch);
-			const double raw = apply.min + std::ceil(comp * apply.competencies_weight
-													+ dice * apply.dices_weight);
+			double raw = apply.min + std::ceil(comp * apply.competencies_weight
+											   + dice * apply.dices_weight);
+			if (apply.cap > 0) {
+				raw = std::min(raw, static_cast<double>(apply.cap));
+			}
 			af[0].modifier = static_cast<int>(apply.factor * raw);
 		}
 	}
 
-	switch (spell_id) {
-		case ESpell::kForbidden:
-			// Mana-caster override (OLD: IS_MANA_CASTER -> modifier = 95, ignoring the
-			// Int-based formula).
-			if (IS_MANA_CASTER(ch)) {
-				af[0].modifier = 95;
-			}
-			// Cap at 100 (OLD MIN(100, ...)).
-			af[0].modifier = std::min(100, af[0].modifier);
-			// Three-tier seal-quality message stays code-set (modifier-dependent narration).
-			if (af[0].modifier > 99) {
-				to_char = "Вы запечатали магией все входы.";
-				to_room = "$n запечатал$g магией все входы.";
-			} else if (af[0].modifier > 79) {
-				to_char = "Вы почти полностью запечатали магией все входы.";
-				to_room = "$n почти полностью запечатал$g магией все входы.";
-			} else {
-				to_char = "Вы очень плохо запечатали магией все входы.";
-				to_room = "$n очень плохо запечатал$g магией все входы.";
-			}
-			break;
-
-		// All other room spells (kRoomLight, kDeadlyFog, kMeteorStorm, kThunderstorm,
-		// kHypnoticPattern, kRuneLabel, kBlackTentacles) get their entire affect data
-		// from the XML talent block above -- no per-case override. (kHypnoticPattern's
-		// material-component check moved into the universal ProcessMatComponents call
-		// at the top of the function; kRuneLabel's and kBlackTentacles' room-flag
-		// fizzles migrated to <blocking><room_flags/>.)
-		default: break;
+	// kForbidden: mana-caster modifier short-circuit + lesser-tier code-set narration.
+	// The top-tier "Вы запечатали магией все входы." moved to spell_msg.xml under the
+	// kForbidden sheaf's kAffImposedToChar/Room (so we leave to_char/to_room nullptr in
+	// the top branch and the success block below falls back to the XML lookup). The two
+	// lesser tiers stay code-side because they branch on a runtime modifier value and the
+	// sheaf can carry only one kAffImposed* per audience. The hard 100 cap is now data-
+	// driven via <modifier cap="100"/> in spells.xml. All other room spells get their
+	// entire affect data from the XML talent block above -- no per-case override.
+	if (spell_id == ESpell::kForbidden) {
+		if (IS_MANA_CASTER(ch)) {
+			af[0].modifier = 95;
+		}
+		if (af[0].modifier > 99) {
+			// top tier -> spell_msg.xml kForbidden/kAffImposed*
+		} else if (af[0].modifier > 79) {
+			to_char = "Вы почти полностью запечатали магией все входы.";
+			to_room = "$n почти полностью запечатал$g магией все входы.";
+		} else {
+			to_char = "Вы очень плохо запечатали магией все входы.";
+			to_room = "$n очень плохо запечатал$g магией все входы.";
+		}
 	}
 	if (success) {
 		if (MUD::Spell(spell_id).IsFlagged(kMagNeedControl)) {
