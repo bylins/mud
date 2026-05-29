@@ -776,8 +776,7 @@ void affect_total(CharData *ch) {
 				message_str_need(ch, obj, STR_BOTH_W);
 			}
 			act("$n прекратил$g использовать $o3.", false, ch, obj, nullptr, kToRoom);
-			PlaceObjToInventory(UnequipChar(ch, EEquipPos::kBoths, CharEquipFlags()), ch);
-			return;
+			PlaceObjToInventory(UnequipChar(ch, EEquipPos::kBoths, CharEquipFlag::skip_total), ch);
 		}
 		if ((obj = GET_EQ(ch, EEquipPos::kWield)) && !CanBeTakenInMajorHand(ch, obj)) {
 			if (!ch->IsNpc()) {
@@ -785,7 +784,7 @@ void affect_total(CharData *ch) {
 				message_str_need(ch, obj, STR_WIELD_W);
 			}
 			act("$n прекратил$g использовать $o3.", false, ch, obj, nullptr, kToRoom);
-			PlaceObjToInventory(UnequipChar(ch, EEquipPos::kWield, CharEquipFlags()), ch);
+			PlaceObjToInventory(UnequipChar(ch, EEquipPos::kWield, CharEquipFlag::skip_total), ch);
 			// если пушку можно вооружить в обе руки и эти руки свободны
 			if (CAN_WEAR(obj, EWearFlag::kBoth)
 				&& CanBeTakenInBothHands(ch, obj)
@@ -794,9 +793,8 @@ void affect_total(CharData *ch) {
 				&& !GET_EQ(ch, EEquipPos::kShield)
 				&& !GET_EQ(ch, EEquipPos::kWield)
 				&& !GET_EQ(ch, EEquipPos::kBoths)) {
-				EquipObj(ch, obj, EEquipPos::kBoths, CharEquipFlag::show_msg);
+				EquipObj(ch, obj, EEquipPos::kBoths, CharEquipFlag::skip_total);
 			}
-			return;
 		}
 		if ((obj = GET_EQ(ch, EEquipPos::kHold)) && !CanBeTakenInMinorHand(ch, obj)) {
 			if (!ch->IsNpc()) {
@@ -804,8 +802,7 @@ void affect_total(CharData *ch) {
 				message_str_need(ch, obj, STR_HOLD_W);
 			}
 			act("$n прекратил$g использовать $o3.", false, ch, obj, nullptr, kToRoom);
-			PlaceObjToInventory(UnequipChar(ch, EEquipPos::kHold, CharEquipFlags()), ch);
-			return;
+			PlaceObjToInventory(UnequipChar(ch, EEquipPos::kHold, CharEquipFlag::skip_total), ch);
 		}
 		if ((obj = GET_EQ(ch, EEquipPos::kShield)) && !CanBeWearedAsShield(ch, obj)) {
 			if (!ch->IsNpc()) {
@@ -813,14 +810,12 @@ void affect_total(CharData *ch) {
 				message_str_need(ch, obj, STR_SHIELD_W);
 			}
 			act("$n прекратил$g использовать $o3.", false, ch, obj, nullptr, kToRoom);
-			PlaceObjToInventory(UnequipChar(ch, EEquipPos::kShield, CharEquipFlags()), ch);
-			return;
+			PlaceObjToInventory(UnequipChar(ch, EEquipPos::kShield, CharEquipFlag::skip_total), ch);
 		}
 		if (!ch->IsNpc() && (obj = GET_EQ(ch, EEquipPos::kQuiver)) && !GET_EQ(ch, EEquipPos::kBoths)) {
 			SendMsgToChar("Нет лука, нет и стрел.\r\n", ch);
 			act("$n прекратил$g использовать $o3.", false, ch, obj, nullptr, kToRoom);
-			PlaceObjToInventory(UnequipChar(ch, EEquipPos::kQuiver, CharEquipFlags()), ch);
-			return;
+			PlaceObjToInventory(UnequipChar(ch, EEquipPos::kQuiver, CharEquipFlag::skip_total), ch);
 		}
 	}
 
