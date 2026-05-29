@@ -2563,9 +2563,13 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
-                <!-- kDispellMagic strips a random dispellable affect; handled in code
-                     (CastUnaffects), so the lists stay empty. -->
-                <unaffect affect_flags="kAfDispellable"/>
+                <!-- kDispellMagic strips one random affect matching the affect_flags
+                     filter (issue.dispell): the any_of="*" wildcard picks any eligible
+                     affect uniformly. The potency-gated DispelSucceeds rule still
+                     applies per candidate. -->
+                <unaffect affect_flags="kAfDispellable">
+                    <remove any_of="*"/>
+                </unaffect>
             </action>
         </talent_actions>
     </spell>

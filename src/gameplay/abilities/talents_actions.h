@@ -256,17 +256,27 @@ class TalentAffect : public IAction {
 // The "unaffect" talent action (issue #3342): removes affects from the target and/or
 // breaks the cast chain depending on which affects are present. Each of the four blocks
 // holds two ESpell lists (affect types): any_of ("any one present") and all_of ("all
-// present together"). See CastUnaffects for the processing order.
+// present together"). Either list may instead be the wildcard "*", meaning "any/all
+// affects matching the unaffect's affect_flags filter" -- see CastUnaffects for the
+// processing order. With wildcard_any, one random eligible affect is picked; with
+// wildcard_all, every eligible affect is queued for removal.
 class TalentUnaffect : public IAction {
  public:
 	// One <blocking>/<breaking>/<remove_anyway>/<remove> entry: its any_of/all_of lists.
 	// breaking_by_failure (remove/remove_anyway only): if a dispel of any affect in this block
 	// fails the potency check, the cast chain breaks (CastUnaffects returns kBreak).
+	// wildcard_any/wildcard_all (set by any_of="*"/all_of="*"): match the unaffect's
+	// affect_flags filter rather than a fixed spell list. Mutually exclusive with their
+	// respective list; "*|kPoison" is rejected at parse time.
 	struct Set {
 		std::vector<ESpell> any_of;
 		std::vector<ESpell> all_of;
+		bool wildcard_any{false};
+		bool wildcard_all{false};
 		bool breaking_by_failure{false};
-		[[nodiscard]] bool empty() const { return any_of.empty() && all_of.empty(); }
+		[[nodiscard]] bool empty() const {
+			return any_of.empty() && all_of.empty() && !wildcard_any && !wildcard_all;
+		}
 	};
 
 	explicit TalentUnaffect(parser_wrapper::DataNode &node);

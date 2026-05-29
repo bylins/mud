@@ -1679,20 +1679,50 @@ struct RemovalCandidate {
 	bool break_on_fail;
 };
 
-// Build the list of affects to dispel for a <remove>/<remove_anyway> set: any_of yields
-// the first listed affect that is present and dispellable; all_of yields every listed
-// affect that is present and dispellable. Each candidate carries the set's breaking_by_failure.
+// Build the list of affects to dispel for a <remove>/<remove_anyway> set:
+//   - any_of (explicit list)   -> the first listed affect that is present and matches `flags`
+//   - all_of (explicit list)   -> every listed affect that is present and matches `flags`
+//   - wildcard_any (any_of="*")-> ONE eligible affect picked uniformly at random
+//   - wildcard_all (all_of="*")-> EVERY eligible affect on the victim
+// Each candidate carries the set's breaking_by_failure. The wildcards replaced the dedicated
+// kDispellMagic code path (issue.dispell) and enable generic "strip-by-flag" dispels (e.g.
+// future sphere-specific dispels added by tagging affects with kAfXSphere flags).
 void CollectRemovals(CharData *victim, const talents_actions::TalentUnaffect::Set &set,
 					 std::vector<RemovalCandidate> &out, Bitvector flags) {
-	for (const auto spell : set.any_of) {
-		if (HasDispellableAffect(victim, spell, flags)) {
-			out.push_back({spell, set.breaking_by_failure});
-			break;
+	if (set.wildcard_any) {
+		// Reservoir sample one eligible affect uniformly.
+		ESpell pick = ESpell::kUndefined;
+		int seen = 0;
+		for (const auto &aff : victim->affected) {
+			if (AffectMatchesFlags(aff, flags) && number(1, ++seen) == 1) {
+				pick = aff->type;
+			}
+		}
+		if (pick != ESpell::kUndefined) {
+			out.push_back({pick, set.breaking_by_failure});
+		}
+	} else {
+		for (const auto spell : set.any_of) {
+			if (HasDispellableAffect(victim, spell, flags)) {
+				out.push_back({spell, set.breaking_by_failure});
+				break;
+			}
 		}
 	}
-	for (const auto spell : set.all_of) {
-		if (HasDispellableAffect(victim, spell, flags)) {
-			out.push_back({spell, set.breaking_by_failure});
+	if (set.wildcard_all) {
+		// Sweep every eligible affect once. Note: a victim may carry multiple affects of the
+		// same spell type (different locations); each is queued so the per-candidate dispel
+		// pipeline removes them all -- consistent with explicit all_of repeating spell names.
+		for (const auto &aff : victim->affected) {
+			if (AffectMatchesFlags(aff, flags)) {
+				out.push_back({aff->type, set.breaking_by_failure});
+			}
+		}
+	} else {
+		for (const auto spell : set.all_of) {
+			if (HasDispellableAffect(victim, spell, flags)) {
+				out.push_back({spell, set.breaking_by_failure});
+			}
 		}
 	}
 }
@@ -1779,49 +1809,6 @@ bool DispelSucceeds(CharData *ch, CharData *victim, ESpell dispel_spell, ESpell 
 	return spell_potency > affect_potency;
 }
 
-// kDispellMagic strips a *single random* dispellable affect from the victim. The set of eligible
-// affects is filtered by the spell's <unaffect affect_flags=> (default kAfCurable|kAfDispellable);
-// of those, one is picked uniformly and removed iff the potency check passes. Nothing to remove,
-// or a resisted potency check, prints "no effect" to the caster. Kept as a dedicated path because
-// "pick one at random" cannot be expressed as an <unaffect> any_of/all_of list.
-EStageResult DispelRandomAffect(CharData *ch, CharData *victim, ESpell spell_id) {
-	// poisons carry kAfCurable but not kAfDispellable, so "dispel magic" won't clear them.
-	const Bitvector flags = MUD::Spell(spell_id).actions.Contains(talents_actions::EAction::kUnaffect)
-		? MUD::Spell(spell_id).actions.GetUnaffect().GetAffectFlags()
-		: static_cast<Bitvector>(kAfCurable | kAfDispellable);
-	int dispellable = 0;
-	for (const auto &aff : victim->affected) {
-		if (AffectMatchesFlags(aff, flags)) {
-			++dispellable;
-		}
-	}
-	if (dispellable == 0) {
-		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
-		return EStageResult::kSuccess;
-	}
-	const auto target = number(1, dispellable);
-	auto seen = 0;
-	auto to_remove{ESpell::kUndefined};
-	for (const auto &aff : victim->affected) {
-		if (!AffectMatchesFlags(aff, flags)) {
-			continue;
-		}
-		if (++seen == target) {
-			to_remove = aff->type;
-			break;
-		}
-	}
-	if (to_remove != ESpell::kUndefined) {
-		const float pw = MUD::Spell(spell_id).actions.Contains(talents_actions::EAction::kUnaffect)
-			? MUD::Spell(spell_id).actions.GetUnaffect().GetPotencyWeight() : 1.0f;
-		if (DispelSucceeds(ch, victim, spell_id, to_remove, pw)) {
-			RemoveAffectAndAnnounce(ch, victim, to_remove);
-		} else {
-			SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
-		}
-	}
-	return EStageResult::kSuccess;
-}
 }  // namespace
 
 EStageResult CastUnaffects(int/* level*/, CharData *ch, CharData *victim, ESpell spell_id) {
@@ -1829,9 +1816,8 @@ EStageResult CastUnaffects(int/* level*/, CharData *ch, CharData *victim, ESpell
 		return EStageResult::kSuccess;
 	}
 
-	// prob: percent chance the <unaffect> block fires at all (default 100). Applies to both the
-	// kDispellMagic random strip and the data-driven path below. The prob<100 guard short-circuits
-	// the RNG when the unaffect always fires.
+	// prob: percent chance the <unaffect> block fires at all (default 100). The prob<100 guard
+	// short-circuits the RNG when the unaffect always fires.
 	if (MUD::Spell(spell_id).actions.Contains(talents_actions::EAction::kUnaffect)) {
 		const int unaff_prob = MUD::Spell(spell_id).actions.GetUnaffect().GetProb();
 		if (unaff_prob < 100 && number(1, 100) > unaff_prob) {
@@ -1839,14 +1825,9 @@ EStageResult CastUnaffects(int/* level*/, CharData *ch, CharData *victim, ESpell
 		}
 	}
 
-	// kDispellMagic strips a *random* dispellable affect, which cannot be expressed as an
-	// <unaffect> any_of/all_of list -- it keeps its dedicated code path.
-	if (spell_id == ESpell::kDispellMagic) {
-		return DispelRandomAffect(ch, victim, spell_id);
-	}
-
-	// Every other unaffect spell is fully data-driven: the <unaffect> block
-	// says which affects block/break the cast and which it removes.
+	// Fully data-driven path: the <unaffect> block says which affects block/break the cast and
+	// which it removes. The any_of="*"/all_of="*" wildcards cover the kDispellMagic "pick one
+	// random eligible affect" case (issue.dispell) and any future generic flag-filtered dispels.
 	if (!MUD::Spell(spell_id).actions.Contains(talents_actions::EAction::kUnaffect)) {
 		return EStageResult::kSuccess;
 	}
