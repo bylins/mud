@@ -853,6 +853,83 @@ These stages are gated by their `kMag…` flag and run dedicated logic in
 The data-driven parts you can tune for these stages are: `<flags>`,
 `<targets>`, `<misc>`, `<mana>`, and the spell's messages.
 
+### 11.5 Room affects (`kMagRoom`) — same `<affects>` block, **raw-pulse durations**
+
+Room spells (the `kMagRoom` flag, dispatched through `CallMagicToRoom` in
+`magic_rooms.cpp`) reuse the **same `<affects>` schema** as char affects
+(§8). The reader pulls duration, battleflag, and modifier from
+`talent.GetAffect()` and assembles an `Affect<ERoomApply>` from it. There
+are two differences from char-affect semantics:
+
+1. **Duration unit is RAW PULSES, not hours.** For room affects, the
+   value `talent.GetDurationBase() + CalcNoviceSkillBonus(...)` is used
+   directly with no `kSecsPerMudHour / kSecsPerPlayerAffect` multiplier
+   for PC casters. Why: room-affect ticks fire per pulse, and several
+   long-standing room durations (kDeadlyFog=8, kMeteorStorm=3,
+   kThunderstorm=7) are sub-hour values that hours-based duration
+   couldn't express in integers. The room reader matches the existing
+   pulse-direct convention.
+2. **The affect-flag enum is `ERoomAffect`, not `EAffect`.** Most room
+   affects today don't set a flag (kNone). The reader populates
+   `af[0].affect_type` from the apply's `id=` attribute, but the
+   `<apply id=...>` parser is currently typed against `EAffect`, so
+   room-affect flag emission via XML isn't fully wired yet — set the
+   apply's `id="kUndefinded"` for room affects unless you're certain
+   you want a char-affect-typed flag.
+
+**Battleflag bits that matter for room affects:**
+
+| Flag | Effect |
+|---|---|
+| `kAfUpdateDuration` | Re-casting your own room affect refreshes its duration (`max(old, new)`). Without this, a self-recast is a no-op. |
+| `kAfAccumulateDuration` | Re-casting adds durations instead of refreshing. |
+| `kAfMustBeHandled` | The affect has a per-tick code handler in `HandleRoomAffect` (e.g. kDeadlyFog's poison tick, kMeteorStorm's meteor drops, kBlackTentacles' grab attempts). The room-affect loop calls the handler each pulse when this bit is set. |
+| `kAfUnique` | Before imposing, remove any prior cast of this same spell by this same caster (room-affect "only one in the world per caster", used by kRuneLabel). |
+
+**Code-side overrides** still required (these are mechanics the XML
+schema can't express):
+
+| Override | Where | What it does |
+|---|---|---|
+| Mana-caster modifier | `kForbidden` case | `IS_MANA_CASTER(ch)` → modifier = 95 (constant), overriding the formula. |
+| Modifier cap | `kForbidden` case | `min(100, ...)` cap (the XML modifier formula can over-shoot). |
+| Modifier-tier message | `kForbidden` case | The 3-tier seal-quality narration (>99 / >79 / else) depends on the runtime modifier. |
+| Fizzle path | `kRuneLabel` case | Room-flag check (`kPeaceful`/`kTunnel`/`kNoTeleportIn`) cancels the affect and emits failure-specific narration. |
+| Material-component check | `kHypnoticPattern` case | `ProcessMatComponents` failure aborts the cast. |
+| Incompatible-room block | `kBlackTentacles` case | `kForMono` / `kForPoly` room flags abort the cast. |
+
+**Authoring a new room spell:**
+
+```xml
+<spell id="kMyRoomSpell" element="kEarth" mode="kEnabled">
+    <name rus="..." eng="..."/>
+    <misc pos="kStand" violent="N" danger="1"/>
+    <mana .../>
+    <targets val="kTarIgnore"/>
+    <flags val="kMagRoom"/>          <!-- this is what routes through CallMagicToRoom -->
+    <potency_roll>
+        <!-- Only needed if duration or modifier scales with a skill. -->
+        <base_skill id="kEarthMagic" low_skill_bonus="0" hi_skill_bonus="0"/>
+    </potency_roll>
+    <talent_actions>
+        <action>
+            <affects type="kMyRoomSpell" saving="kNone" resist="kVitality">
+                <!-- Duration in RAW PULSES. -->
+                <duration base="20" skill_divisor="5" min="0" max="0"/>
+                <flags val="kAfMustBeHandled"/>
+                <!-- Optional <apply> for a modifier; omit for flag-only affects. -->
+            </affects>
+        </action>
+    </talent_actions>
+</spell>
+```
+
+If the spell needs per-tick logic (`kAfMustBeHandled`), add a case in
+`HandleRoomAffect`. If it needs any of the code-side overrides above,
+add a minimal case in `CallMagicToRoom`'s switch — but keep all the
+plain parameters (duration / battleflag / modifier formula) in the
+XML.
+
 ---
 
 ## 12. Messages (`lib/cfg/spell_msg.xml`)
@@ -1271,12 +1348,16 @@ If you need any of these, open an issue and the work can be scoped.
 
 ---
 
-*Last updated to match the `sventovit.work` head as of
-`issue.affect-flags`: dice parser treats `0` as "no contribution"
-(absent `<dices>` block is equivalent to `0,0,0`); the
-modifier-scaling pattern of §8.9 is now used by ~20 spells in
-`spells.xml`; `<remove any_of="*">` and `<remove all_of="*">`
-wildcards replace the dedicated kDispellMagic code path (§9.5);
-`kAfMustBeHandled` and `kAfUnique` EAffFlag bits replaced the
-per-affect `must_handled` member and the per-call `only_one` local
-bool in `CallMagicToRoom`.*
+*Last updated to match the `sventovit.work` head as of the
+`issue.affect-flags` room-affect-migration sequence: dice parser
+treats `0` as "no contribution" (absent `<dices>` block is
+equivalent to `0,0,0`); the modifier-scaling pattern of §8.9 is now
+used by ~20 spells in `spells.xml`; `<remove any_of="*">` and
+`<remove all_of="*">` wildcards replace the dedicated kDispellMagic
+code path (§9.5); `kAfMustBeHandled` and `kAfUnique` EAffFlag bits
+replaced the per-affect `must_handled` member and the per-call
+`only_one` local bool in `CallMagicToRoom`; and all 8 room-affect
+spells now carry their duration / battleflag / modifier in
+`<talent_actions>/<affects>` blocks (§11.5), with `CallMagicToRoom`
+reading the data through a single pre-switch reader (raw-pulse
+duration convention, see §11.5).*
