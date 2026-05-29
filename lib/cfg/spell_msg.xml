@@ -723,6 +723,9 @@
 		<message type="kAffImposedToRoom" val="$n0 начал$g светиться ярким светом." />
 		<message type="kAffImposedToChar" val="Вы засветились, освещая комнату." />
 		<message type="kAffExpired" val="Ваше тело перестало светиться." />
+		<!-- Room-affect aura description (issue.sight-fmt). Same text for any viewer;
+		     the Invisible/SelfInvisible lookups fall through to Visible. -->
+		<message type="kRoomAffectVisible" val="&amp;W... земля освещена колдовством ...&amp;n" />
 	</msg_sheaf>
 	<msg_sheaf id="kRemovePoison">
 		<message type="kAlterObjToChar" val="$o стал$G вполне пригодным к применению." />
@@ -1369,6 +1372,8 @@
 		<message type="kAffExpired" val="Последний громовой камень грянул в землю и все стихло." />
 		<message type="kAffImposedToChar" val="Повинуясь вашей воле, несшиеся в неизмеримой дали громовые камни обрушились на землю." />
 		<message type="kAffImposedToRoom" val="$n воздел$g руки и с небес посыпался град раскаленных громовых камней." />
+		<!-- Room-affect aura (issue.sight-fmt). Visible to anyone. -->
+		<message type="kRoomAffectVisible" val="&amp;R... раскаленные громовые камни рушатся на землю!&amp;n" />
 	</msg_sheaf>
 	<msg_sheaf id="kMagicGlass">
 		<message type="kFightDeathToChar" val="Магическое зеркало спасло вам жизнь, чего не скажешь о $N5." />
@@ -1857,6 +1862,8 @@
 		     in magic_rooms.cpp because they branch on a runtime modifier value (issue.room-affects). -->
 		<message type="kAffImposedToChar" val="Вы запечатали магией все входы." />
 		<message type="kAffImposedToRoom" val="$n запечатал$g магией все входы." />
+		<!-- Room-affect aura (issue.sight-fmt). Pure-magical: visible only with detect-magic. -->
+		<message type="kRoomAffectInvisible" val="&amp;c... магическая печать закрывает все входы ...&amp;n" />
 	</msg_sheaf>
 	<msg_sheaf id="kRemoveSilence">
 		<message type="kCastPhraseHeathen" val="глаголите" />
@@ -2106,6 +2113,10 @@
 		<message type="kAffExpired" val="Порыв ветра развеял туман смерти." />
 		<message type="kAffImposedToChar" val="Пробормотав злобные проклятия, вы вызвали смертельный ядовитый туман, покрывший все вокруг тёмным саваном." />
 		<message type="kAffImposedToRoom" val="Пробормотав злобные проклятия, $n вызвал$g смертельный ядовитый туман, покрывший все вокруг тёмным саваном." />
+		<!-- Room-affect aura (issue.sight-fmt). Detect-magic viewers see a different
+		     phrasing ("плывет над вами") than non-detect viewers ("все окутано"). -->
+		<message type="kRoomAffectVisible" val="&amp;B... все окутано туманом &amp;Kсмерти&amp;B ...&amp;n" />
+		<message type="kRoomAffectInvisible" val="&amp;B... туман &amp;Kсмерти&amp;B плывет над вами  ...&amp;n" />
 	</msg_sheaf>
 	<msg_sheaf id="kThunderstorm">
 		<message type="kCastPhraseHeathen" val="Абие велий вихрь деяти!" />
@@ -2113,6 +2124,8 @@
 		<message type="kAffExpired" val="Ветер прогнал грозовые тучи." />
 		<message type="kAffImposedToChar" val="Вы ощутили в небесах силу бури и призвали ее к себе." />
 		<message type="kAffImposedToRoom" val="$n проревел$g заклинание. Вы услышали раскаты далекой грозы." />
+		<!-- Room-affect aura (issue.sight-fmt). Visible to anyone. -->
+		<message type="kRoomAffectVisible" val="&amp;W... чудовищная буря кружится над вашей головой ...&amp;n" />
 	</msg_sheaf>
 	<msg_sheaf id="kLightWalk">
 		<message type="kCastPhraseHeathen" val="" />
@@ -2202,6 +2215,10 @@
 		<message type="kAffImposedToRoom" val="$n начертил$g на земле несколько рун и произнес$q заклинание." />
 		<message type="kCastForbiddenToChar" val="Вы начертали свое имя рунами на земле, знаки вспыхнули, но ничего не произошло." />
 		<message type="kCastForbiddenToRoom" val="$n начертил$g на земле несколько рун, знаки вспыхнули, но ничего не произошло." />
+		<!-- Room-affect aura (issue.sight-fmt). Pure-magical, so visible-without-detect
+		     is omitted (silent). Self vs others differs ("Ваше имя" vs "чьё-то имя"). -->
+		<message type="kRoomAffectInvisible" val="&amp;G... светящиеся руны на земле складываются в чьё-то имя ...&amp;n" />
+		<message type="kRoomAffectSelfInvisible" val="&amp;G... светящиеся руны на земле складываются в Ваше имя ...&amp;n" />
 	</msg_sheaf>
 	<msg_sheaf id="kAconitumPoison">
 		<message type="kAffDispelledToRoom" val="$n выглядит лучше." />
@@ -2275,6 +2292,8 @@
 		<message type="kAffExpired" val="Плывший в воздухе огненный узор потускнел и растаял струйками дыма." />
 		<message type="kAffImposedToChar" val="Вы воскурили благовония и пропели заклинание. В воздухе поплыл чарующий глаз огненный узор." />
 		<message type="kAffImposedToRoom" val="$n воскурил$g благовония и пропел$g заклинание. В воздухе поплыл чарующий глаз огненный узор." />
+		<!-- Room-affect aura (issue.sight-fmt). Visible to anyone. -->
+		<message type="kRoomAffectVisible" val="&amp;Y... чарующий огненный узор плывет в воздухе ...&amp;n" />
 	</msg_sheaf>
 	<msg_sheaf id="kSolobonus">
 		<message type="kCastPhraseHeathen" val="" />
@@ -2315,6 +2334,8 @@
 		<message type="kAffExpired" val="Жуткие черные руки побледнели и расплылись зловонной дымкой." />
 		<message type="kAffImposedToChar" val="Вы выкрикнули несколько мерзко звучащих слов и притопнули. Из земли полезли скрюченные мертвые руки." />
 		<message type="kAffImposedToRoom" val="$n выкрикнул$g несколько мерзко звучащих слов и притопнул$g. Из земли полезли скрюченные мертвые руки." />
+		<!-- Room-affect aura (issue.sight-fmt). Visible to anyone. -->
+		<message type="kRoomAffectVisible" val="&amp;K... множество черных сухих рук высовывается из земли и шарит в воздухе!&amp;n" />
 	</msg_sheaf>
 	<msg_sheaf id="kExpedient">
 		<message type="kCastPhraseHeathen" val="!Применил боевой прием!" />
