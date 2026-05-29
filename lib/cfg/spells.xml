@@ -2567,7 +2567,7 @@ base_stat id - (например "kWis") какой берем параметр,
                      filter (issue.dispell): the any_of="*" wildcard picks any eligible
                      affect uniformly. The potency-gated DispelSucceeds rule still
                      applies per candidate. -->
-                <unaffect affect_flags="kAfDispellable">
+                <unaffect affect_flags="kAfDispellable" potency_weight="0.5">
                     <remove any_of="*"/>
                 </unaffect>
             </action>

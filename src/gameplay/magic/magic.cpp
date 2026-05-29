@@ -1816,22 +1816,14 @@ EStageResult CastUnaffects(int/* level*/, CharData *ch, CharData *victim, ESpell
 		return EStageResult::kSuccess;
 	}
 
-	// prob: percent chance the <unaffect> block fires at all (default 100). The prob<100 guard
-	// short-circuits the RNG when the unaffect always fires.
-	if (MUD::Spell(spell_id).actions.Contains(talents_actions::EAction::kUnaffect)) {
-		const int unaff_prob = MUD::Spell(spell_id).actions.GetUnaffect().GetProb();
-		if (unaff_prob < 100 && number(1, 100) > unaff_prob) {
-			return EStageResult::kSuccess;
-		}
-	}
-
-	// Fully data-driven path: the <unaffect> block says which affects block/break the cast and
-	// which it removes. The any_of="*"/all_of="*" wildcards cover the kDispellMagic "pick one
-	// random eligible affect" case (issue.dispell) and any future generic flag-filtered dispels.
 	if (!MUD::Spell(spell_id).actions.Contains(talents_actions::EAction::kUnaffect)) {
 		return EStageResult::kSuccess;
 	}
 	const auto &unaffect = MUD::Spell(spell_id).actions.GetUnaffect();
+	const int unaff_prob = unaffect.GetProb();
+	if (unaff_prob < 100 && number(1, 100) > unaff_prob) {
+		return EStageResult::kSuccess;
+	}
 
 	// TODO(#3342): CastUnaffect has no saving (success) check yet. kEnergyDrain/kWeaknes
 	// used to gate their kStrength/kDexterity removal behind a save in CastAffect; until
