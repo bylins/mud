@@ -36,6 +36,7 @@ ItemPtr SpellInfoBuilder::ParseSpell(DataNode node) {
 	auto info = ParseHeader(node);
 
 	ParseName(info, node);
+	ParseComponents(info, node);
 	ParseMisc(info, node);
 	ParseMana(info, node);
 	ParseTargets(info, node);
@@ -79,6 +80,23 @@ void SpellInfoBuilder::ParseName(ItemPtr &info, DataNode &node) {
 			info->name_eng_ = parse::ReadAsStr(node.GetValue("eng"));
 		} catch (std::exception &e) {
 			err_log("Incorrect 'name' section (spell: %s, value: %s).",
+					NAME_BY_ITEM(info->GetId()).c_str(), e.what());
+		}
+		node.GoToParent();
+	}
+}
+
+// Parses the <components>...</components> spell-level block placed right after
+// <name> (issue.spellcomponents). Errors bubble up via Components' ctor;
+// material entries with invalid vnums abort spell loading just like Roll/Actions
+// errors do today. Spells without a <components> tag keep the default empty
+// container (cast proceeds without any material requirement).
+void SpellInfoBuilder::ParseComponents(ItemPtr &info, DataNode &node) {
+	if (node.GoToChild("components")) {
+		try {
+			info->components_ = talents_actions::Components(node);
+		} catch (std::exception &e) {
+			err_log("Incorrect 'components' section (spell: %s, value: %s).",
 					NAME_BY_ITEM(info->GetId()).c_str(), e.what());
 		}
 		node.GoToParent();

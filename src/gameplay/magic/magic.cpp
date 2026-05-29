@@ -686,59 +686,190 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 	return rand;
 }
 
-EStageResult ProcessMatComponents(CharData *caster, CharData *victim, ESpell spell_id) {
-	int vnum = 0;
-	const char *missing = nullptr, *use = nullptr, *exhausted = nullptr;
-	switch (spell_id) {
-		case ESpell::kFascination:
-			for (auto i = caster->carrying; i; i = i->get_next_content()) {
-				if (i->get_type() == EObjType::kMagicIngredient && i->get_val(1) == 3000) {
-					vnum = GET_OBJ_VNUM(i);
-					break;
-				}
-			}
-			use = "Вы взяли череп летучей мыши в левую руку.\r\n";
-			missing = "Батюшки светы! А помаду-то я дома забыл$g.\r\n";
-			exhausted = "$o рассыпался в ваших руках от неловкого движения.\r\n";
-			break;
-		case ESpell::kHypnoticPattern:
-			for (auto i = caster->carrying; i; i = i->get_next_content()) {
-				if (i->get_type() == EObjType::kMagicIngredient && i->get_val(1) == 3006) {
-					vnum = GET_OBJ_VNUM(i);
-					break;
-				}
-			}
-			use = "Вы разожгли палочку заморских благовоний.\r\n";
-			missing = "Вы начали суматошно искать свои благовония, но тщетно.\r\n";
-			exhausted = "$o дотлели и рассыпались пеплом.\r\n";
-			break;
-		case ESpell::kEnchantWeapon:
-			for (auto i = caster->carrying; i; i = i->get_next_content()) {
-				if (i->get_type() == EObjType::kMagicIngredient && i->get_val(1) == 1930) {
-					vnum = GET_OBJ_VNUM(i);
-					break;
-				}
-			}
-			use = "Вы подготовили дополнительные компоненты для зачарования.\r\n";
-			missing = "Вы были уверены что положили его в этот карман.\r\n";
-			exhausted = "$o вспыхнул голубоватым светом, когда его вставили в предмет.\r\n";
-			break;
+// Search caster's equipment for an object with the given vnum. Returns the
+// first match (slots scanned 0..kNumEquipPos-1) or nullptr.
+static ObjData *FindMatInEquip(CharData *caster, int vnum) {
+	for (int i = 0; i < EEquipPos::kNumEquipPos; ++i) {
+		ObjData *o = GET_EQ(caster, i);
+		if (o && o->get_vnum() == vnum) {
+			return o;
+		}
+	}
+	return nullptr;
+}
 
-		// A spell with no material component: nothing to process, the cast proceeds.
-		// (The material component system is to be refined/expanded as a separate task.)
-		default: return EStageResult::kSuccess;
+// Search the caster's room contents for an object with the given vnum. Returns
+// the first match or nullptr (also nullptr if the caster is roomless).
+static ObjData *FindMatInRoom(CharData *caster, int vnum) {
+	if (caster->in_room == kNowhere) {
+		return nullptr;
 	}
-	ObjData *tobj = GetObjByVnumInContent(vnum, caster->carrying);
-	if (!tobj) {
-		act(missing, false, victim, nullptr, caster, kToChar);
-		return EStageResult::kBreak;	// required component missing -> stop the cast
+	for (ObjData *o : world[caster->in_room]->contents) {
+		if (o && o->get_vnum() == vnum) {
+			return o;
+		}
 	}
-	tobj->dec_val(2);
-	act(use, false, caster, tobj, nullptr, kToChar);
-	if (GET_OBJ_VAL(tobj, 2) < 1) {
-		act(exhausted, false, caster, tobj, nullptr, kToChar);
-		RemoveObjFromChar(tobj);
-		ExtractObjFromWorld(tobj);
+	return nullptr;
+}
+
+// Look for a component item by vnum across the locations enabled in `where`,
+// in the fixed order equipment -> inventory -> room. Returns the first match
+// from the highest-priority enabled location, or nullptr if none match. The
+// caller is responsible for ensuring `where` carries at least one location bit
+// (we treat 0 as a hard failure in ProcessMatComponents below).
+static ObjData *FindMatInLocations(CharData *caster, int vnum, Bitvector where) {
+	if ((where & EFind::kObjEquip) != 0) {
+		if (ObjData *o = FindMatInEquip(caster, vnum)) return o;
+	}
+	if ((where & EFind::kObjInventory) != 0) {
+		if (ObjData *o = GetObjByVnumInContent(vnum, caster->carrying)) return o;
+	}
+	if ((where & EFind::kObjRoom) != 0) {
+		if (ObjData *o = FindMatInRoom(caster, vnum)) return o;
+	}
+	return nullptr;
+}
+
+// Spend one charge of a matched material item. If the charge counter (val(2))
+// reaches zero, emit the spell's `exhausted` narration and destroy the item.
+// The unlink dispatches on where the item lives so destruction works whether
+// the component was found in equipment, inventory, or room.
+static void ConsumeMatComponent(CharData *caster, ObjData *obj,
+								const char *use, const char *exhausted) {
+	obj->dec_val(2);
+	if (use) {
+		act(use, false, caster, obj, nullptr, kToChar);
+	}
+	if (GET_OBJ_VAL(obj, 2) < 1) {
+		if (exhausted) {
+			act(exhausted, false, caster, obj, nullptr, kToChar);
+		}
+		// Unlink the item from wherever it lived before extracting it from the
+		// world. ExtractObjFromWorld also unlinks defensively, but matching the
+		// concrete container first matches the existing inventory-only path
+		// (RemoveObjFromChar+ExtractObjFromWorld) and avoids dangling
+		// equipment / room references in the meantime.
+		if (obj->get_worn_by()) {
+			for (int i = 0; i < EEquipPos::kNumEquipPos; ++i) {
+				if (GET_EQ(obj->get_worn_by(), i) == obj) {
+					UnequipChar(obj->get_worn_by(), i, CharEquipFlags{});
+					break;
+				}
+			}
+		} else if (obj->get_carried_by()) {
+			RemoveObjFromChar(obj);
+		} else if (obj->get_in_room() != kNowhere) {
+			RemoveObjFromRoom(obj);
+		}
+		ExtractObjFromWorld(obj);
+	}
+}
+
+// Per-spell narration kept in code for the three spells migrated in
+// issue.spellcomponents. The migration moved the search to data
+// (<components><material>) but kept the prose here; a follow-up will move
+// these strings into spell_msg.xml under per-spell keys.
+struct ComponentNarration {
+	const char *use;
+	const char *missing;
+	const char *exhausted;
+};
+static const ComponentNarration *GetComponentNarration(ESpell spell_id) {
+	static const ComponentNarration kFascination = {
+		"Вы взяли череп летучей мыши в левую руку.\r\n",
+		"Батюшки светы! А помаду-то я дома забыл$g.\r\n",
+		"$o рассыпался в ваших руках от неловкого движения.\r\n",
+	};
+	static const ComponentNarration kHypnotic = {
+		"Вы разожгли палочку заморских благовоний.\r\n",
+		"Вы начали суматошно искать свои благовония, но тщетно.\r\n",
+		"$o дотлели и рассыпались пеплом.\r\n",
+	};
+	static const ComponentNarration kEnchant = {
+		"Вы подготовили дополнительные компоненты для зачарования.\r\n",
+		"Вы были уверены что положили его в этот карман.\r\n",
+		"$o вспыхнул голубоватым светом, когда его вставили в предмет.\r\n",
+	};
+	switch (spell_id) {
+		case ESpell::kFascination:     return &kFascination;
+		case ESpell::kHypnoticPattern: return &kHypnotic;
+		case ESpell::kEnchantWeapon:   return &kEnchant;
+		default:                       return nullptr;
+	}
+}
+
+// Walk the spell's <components>/<material> entries and verify each requirement
+// (issue.spellcomponents). Returns kBreak if any material's all_of/any_of
+// cannot be satisfied; kSuccess otherwise. Matched items are consumed
+// (val(2)-- and possibly destroyed). Spells with no <components> block
+// return kSuccess immediately -- no requirement, no work.
+EStageResult ProcessMatComponents(CharData *caster, CharData *victim, ESpell spell_id) {
+	const auto &components = MUD::Spell(spell_id).GetComponents();
+	if (components.empty()) {
+		return EStageResult::kSuccess;
+	}
+	const ComponentNarration *narr = GetComponentNarration(spell_id);
+	const char *use       = narr ? narr->use       : nullptr;
+	const char *missing   = narr ? narr->missing   : nullptr;
+	const char *exhausted = narr ? narr->exhausted : nullptr;
+
+	for (const auto &mat : components.GetMaterials()) {
+		// Mask `where` down to the three search locations honoured here. If the
+		// XML named only non-search EFind values (or named nothing valid at
+		// all), the cast must abort: there's no way to honour the requirement.
+		const Bitvector allowed =
+				mat.where & (EFind::kObjEquip | EFind::kObjInventory | EFind::kObjRoom);
+		if (allowed == 0) {
+			log("SYSERR: spell %s: <material where> has no eq/inv/room flag "
+				"(where=%lu); cast aborted (issue.spellcomponents).",
+				NAME_BY_ITEM<ESpell>(spell_id).c_str(),
+				static_cast<unsigned long>(mat.where));
+			return EStageResult::kBreak;
+		}
+
+		// A material with neither any_of nor all_of is meaningless (the parser
+		// already logged a warning at load time). Skip it silently so the rest
+		// of the components block still gets a chance to run.
+		if (mat.any_of.empty() && mat.all_of.empty()) {
+			continue;
+		}
+
+		// Items to consume once every check has passed. Built up before any
+		// dec_val so a partial match doesn't half-spend the requirement.
+		std::vector<ObjData *> consume;
+
+		// all_of: every listed vnum must be present.
+		for (int vnum : mat.all_of) {
+			ObjData *o = FindMatInLocations(caster, vnum, allowed);
+			if (!o) {
+				if (missing) {
+					act(missing, false, victim, nullptr, caster, kToChar);
+				}
+				return EStageResult::kBreak;
+			}
+			consume.push_back(o);
+		}
+		// any_of: at least one listed vnum must be present.
+		if (!mat.any_of.empty()) {
+			ObjData *found = nullptr;
+			for (int vnum : mat.any_of) {
+				if ((found = FindMatInLocations(caster, vnum, allowed)) != nullptr) {
+					break;
+				}
+			}
+			if (!found) {
+				if (missing) {
+					act(missing, false, victim, nullptr, caster, kToChar);
+				}
+				return EStageResult::kBreak;
+			}
+			consume.push_back(found);
+		}
+
+		// Requirement satisfied; spend one charge of each matched item.
+		for (ObjData *o : consume) {
+			ConsumeMatComponent(caster, o, use, exhausted);
+		}
 	}
 	return EStageResult::kSuccess;
 }

@@ -1,6 +1,7 @@
 #include "talents_actions.h"
 
 #include "engine/ui/color.h"
+#include "engine/core/handler.h"  // EFind (issue.spellcomponents)
 #include "engine/entities/char_data.h"
 #include "gameplay/magic/spells_constants.h"
 #include "fmt/format.h"
@@ -143,6 +144,102 @@ Roll::Roll(parser_wrapper::DataNode &node) {
 		base_stat_threshold_ = parse::ReadAsInt(node.GetValue("threshold"));
 		base_stat_weight_ = parse::ReadAsDouble(node.GetValue("weight"));
 		node.GoToParent();
+	}
+}
+
+// EFind names addressable from the <material where=...> attribute. A focused
+// table -- only the three location flags used by ProcessMatComponents'
+// equip->inventory->room search live here. Other EFind bits (kCharInRoom,
+// kObjWorld, ...) are deliberately rejected; allowing them would invite
+// material-component searches that ProcessMatComponents can't honour.
+const std::map<std::string, EFind> kComponentWhereByName{
+	{"kObjEquip",     EFind::kObjEquip},
+	{"kObjInventory", EFind::kObjInventory},
+	{"kObjRoom",      EFind::kObjRoom},
+};
+
+static constexpr Bitvector kDefaultComponentWhere =
+		EFind::kObjEquip | EFind::kObjInventory | EFind::kObjRoom;
+
+// Parses a <components>...</components> spell-level block (issue.spellcomponents).
+// Each <material> child becomes one Material entry. Attribute defaults:
+//   any_of / all_of: empty (parser warns -- material can never be satisfied).
+//   where: kObjEquip|kObjInventory|kObjRoom.
+// Unknown EFind names in `where` are dropped with an error log; unparseable
+// vnums (non-integer tokens in any_of/all_of) raise the underlying parse
+// exception, which Components callers must catch in the same way SpellInfoBuilder
+// catches Roll/Actions errors today.
+Components::Components(parser_wrapper::DataNode &node) {
+	for (auto &child : node.Children()) {
+		if (strcmp(child.GetName(), "material") != 0) {
+			continue;
+		}
+		Material mat;
+		const char *any_of = child.GetValue("any_of");
+		if (any_of && *any_of) {
+			for (const auto &tok : utils::Split(any_of, '|')) {
+				mat.any_of.push_back(parse::ReadAsInt(tok.c_str()));
+			}
+		}
+		const char *all_of = child.GetValue("all_of");
+		if (all_of && *all_of) {
+			for (const auto &tok : utils::Split(all_of, '|')) {
+				mat.all_of.push_back(parse::ReadAsInt(tok.c_str()));
+			}
+		}
+		const char *where = child.GetValue("where");
+		if (where && *where) {
+			Bitvector w = 0;
+			for (const auto &tok : utils::Split(where, '|')) {
+				const auto it = kComponentWhereByName.find(tok);
+				if (it != kComponentWhereByName.end()) {
+					w |= it->second;
+				} else {
+					err_log("Components: unknown EFind '%s' in <material where>.", tok.c_str());
+				}
+			}
+			mat.where = w;
+		} else {
+			mat.where = kDefaultComponentWhere;
+		}
+		if (mat.any_of.empty() && mat.all_of.empty()) {
+			err_log("Components: <material> has neither any_of nor all_of -- "
+					"the requirement is meaningless and will be skipped.");
+		}
+		materials_.push_back(std::move(mat));
+	}
+}
+
+void Components::Print(std::ostringstream &buffer) const {
+	if (materials_.empty()) {
+		return;
+	}
+	buffer << "Components:\r\n";
+	for (const auto &mat : materials_) {
+		buffer << "  Material:";
+		if (!mat.any_of.empty()) {
+			buffer << " any_of=" << kColorGrn;
+			for (size_t i = 0; i < mat.any_of.size(); ++i) {
+				buffer << (i ? "|" : "") << mat.any_of[i];
+			}
+			buffer << kColorNrm;
+		}
+		if (!mat.all_of.empty()) {
+			buffer << " all_of=" << kColorGrn;
+			for (size_t i = 0; i < mat.all_of.size(); ++i) {
+				buffer << (i ? "|" : "") << mat.all_of[i];
+			}
+			buffer << kColorNrm;
+		}
+		buffer << " where=" << kColorGrn;
+		bool first = true;
+		for (const auto &[name, value] : kComponentWhereByName) {
+			if (mat.where & value) {
+				buffer << (first ? "" : "|") << name;
+				first = false;
+			}
+		}
+		buffer << kColorNrm << "\r\n";
 	}
 }
 

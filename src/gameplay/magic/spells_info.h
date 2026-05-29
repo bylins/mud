@@ -47,6 +47,11 @@ class SpellInfo : public info_container::BaseItem<ESpell> {
 	// <success_roll> section (issue #3333). Currently parsed and stored only;
 	// the value is evaluated in CallMagic but not yet interpreted.
 	talents_actions::Roll success_roll_;
+	// Material component requirements (issue.spellcomponents). Filled from the
+	// optional <components>...</components> block; spells without one keep an
+	// empty container, which ProcessMatComponents treats as "no component
+	// required, cast proceeds".
+	talents_actions::Components components_;
 
 	//std::unordered_map<effects::EEffect, effects::EffectPtr> effects_;
 
@@ -84,6 +89,7 @@ class SpellInfo : public info_container::BaseItem<ESpell> {
 
 	[[nodiscard]] const talents_actions::Roll &GetPotencyRoll() const { return potency_roll_; };
 	[[nodiscard]] const talents_actions::Roll &GetSuccessRoll() const { return success_roll_; };
+	[[nodiscard]] const talents_actions::Components &GetComponents() const { return components_; };
 
 	void Print(CharData *ch, std::ostringstream &buffer) const;
 };
@@ -98,6 +104,7 @@ class SpellInfoBuilder : public info_container::IItemBuilder<SpellInfo> {
 	static ItemPtr ParseSpell(DataNode node);
 	static ItemPtr ParseHeader(DataNode &node);
 	static void ParseName(ItemPtr &info, DataNode &node);
+	static void ParseComponents(ItemPtr &info, DataNode &node);
 	static void ParseMisc(ItemPtr &info, DataNode &node);
 	static void ParseMana(ItemPtr &info, DataNode &node);
 	static void ParseTargets(ItemPtr &info, DataNode &node);

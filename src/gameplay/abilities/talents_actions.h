@@ -110,6 +110,41 @@ class Roll {
 	void Print(CharData *ch, std::ostringstream &buffer) const;
 };
 
+// Material component specification (issue.spellcomponents): one entry in a spell's
+// <components> block. Both any_of and all_of are lists of object vnums; the cast
+// proceeds only when EVERY vnum in all_of is present in the caster's reachable
+// inventory/equip/room (subject to `where`) AND AT LEAST ONE of any_of is present.
+// `where` is an EFind bitmask restricting the search locations; only the three
+// flags kObjInventory / kObjRoom / kObjEquip are honoured, in the fixed search
+// order equipment -> inventory -> room. A material with neither any_of nor
+// all_of populated is meaningless (it can never be satisfied -- nothing to find);
+// the parser logs a warning, and ProcessMatComponents silently skips such an
+// entry rather than aborting the cast.
+struct Material {
+	std::vector<int> any_of;
+	std::vector<int> all_of;
+	// EFind bitmask. Set to the default (kObjInventory|kObjRoom|kObjEquip) in the
+	// parser when the attribute is absent; 0 here means "explicitly empty" and
+	// triggers a kBreak at consume time.
+	Bitvector where{0};
+};
+
+// The set of material requirements for a spell (issue.spellcomponents). Lives at
+// the <spell> level in spells.xml (sibling of <name>/<misc>/<potency_roll>),
+// parsed by SpellInfoBuilder::ParseComponents and stored on SpellInfo.
+// Currently only Material entries are recognised; the container is forward-shaped
+// to grow other component kinds (mana boosters, foci, sacrificial items, ...)
+// without further callsite churn.
+class Components {
+	std::vector<Material> materials_;
+ public:
+	Components() = default;
+	explicit Components(parser_wrapper::DataNode &node);
+	[[nodiscard]] const std::vector<Material> &GetMaterials() const { return materials_; }
+	[[nodiscard]] bool empty() const { return materials_.empty(); }
+	void Print(std::ostringstream &buffer) const;
+};
+
 // The roll parameters (dice/skill/stat) used to live here; since issue #3332
 // they belong to the spell-level potency roll (talents_actions::Roll, stored in
 // SpellInfo). Damage now only carries its saving throw.
