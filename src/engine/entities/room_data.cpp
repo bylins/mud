@@ -95,7 +95,6 @@ RoomData::RoomData() : vnum(0),
 					   affected(0),
 					   fires(0),
 					   ices(0),
-					   pkPenterUnique(0),
 					   holes(0),
 					   poison(0) {
 	for (auto i = 0; i < EDirection::kMaxDirNum; ++i) {

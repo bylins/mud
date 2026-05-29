@@ -415,7 +415,13 @@ void SpellRelocate(CharData *ch, CharData *victim) {
 	greet_otrigger(ch, -1);
 }
 
-void AddPortalTimer(CharData *ch, RoomData *from_room, RoomRnum to_room, int time) {
+// pk_unique: when non-zero, marks this portal as a PK-revenge/fight pentagram and
+// carries the imposing caster's uid. Replaces the old RoomData::pkPenterUnique
+// (which was per-room, ambiguous when multiple pentas land in one room, and had
+// to be cleared by hand). Read by show_room_affects (Pk variant selection) and
+// do_enter (entry gate); cleared automatically when the affect expires.
+void AddPortalTimer(CharData *ch, RoomData *from_room, RoomRnum to_room, int time,
+					long pk_unique = 0) {
 //	sprintf(buf, "Добавляем портал из %d в %d", from_room->vnum, world[to_room]->vnum);
 //	mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
 
@@ -428,6 +434,7 @@ void AddPortalTimer(CharData *ch, RoomData *from_room, RoomRnum to_room, int tim
 	af.location = room_spells::ERoomApply::kNone;
 	af.caster_id = ch? ch->get_uid() : 0;
 	af.apply_time = 0;
+	af.pk_unique = pk_unique;
 	room_spells::affect_to_room(from_room, af);
 	room_spells::AddRoomToAffected(from_room);
 }
@@ -512,9 +519,9 @@ void SpellPortal(CharData *ch, CharData *victim) {
 			if (remove)
 				RemovePortalGate(ch->in_room);
 		}
-		AddPortalTimer(ch, world[fnd_room], ch->in_room, 29);
-		if (pkPortal) 
-			world[fnd_room]->pkPenterUnique = ch->get_uid();
+		// pk_unique on the affect replaces the old per-room pkPenterUnique field
+		// (issue.affect-flags). pkPortal => imposing caster's uid; else 0.
+		AddPortalTimer(ch, world[fnd_room], ch->in_room, 29, pkPortal ? ch->get_uid() : 0);
 
 		if (pkPortal) {
 			act("Лазурная пентаграмма с кровавым отблеском возникла в воздухе.",
@@ -534,9 +541,7 @@ void SpellPortal(CharData *ch, CharData *victim) {
 			return;
 		}
 
-		AddPortalTimer(ch, world[ch->in_room], fnd_room, 29);
-		if (pkPortal) 
-			world[ch->in_room]->pkPenterUnique = ch->get_uid();
+		AddPortalTimer(ch, world[ch->in_room], fnd_room, 29, pkPortal ? ch->get_uid() : 0);
 
 		if (pkPortal) {
 			act("Лазурная пентаграмма с кровавым отблеском возникла в воздухе.",

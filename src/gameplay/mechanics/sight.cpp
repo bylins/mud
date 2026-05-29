@@ -212,24 +212,9 @@ void look_at_room(CharData *ch, int ignore_brief, bool msdp_mode) {
 		sprintf(buf, "%sВ центре %s.%s\r\n", kColorRed, Fires[MIN(world[ch->in_room]->fires, MAX_FIRES - 1)], kColorNrm);
 		SendMsgToChar(buf, ch);
 	}
-	if (room_spells::IsRoomAffected(world[ch->in_room], ESpell::kPortalTimer)) {
-		for (const auto &aff : world[ch->in_room]->affected) {
-			if (aff->type == ESpell::kPortalTimer && aff->affect_type != room_spells::ERoomAffect::kNoPortalExit) {
-				if (ch->IsGod()) {
-					sprintf(buf, "&BЛазурная пентаграмма ярко сверкает здесь. (время: %d, куда: %d)&n\r\n",
-							aff->duration,  world[aff->modifier]->vnum);
-				} else {
-					if (world[ch->in_room]->pkPenterUnique) {
-						sprintf(buf, "%sЛазурная пентаграмма %sс кровавым отблеском%s ярко сверкает здесь.%s\r\n",
-								kColorBoldBlu, kColorBoldRed, kColorBoldBlu, kColorNrm);
-					} else {
-						sprintf(buf, "&BЛазурная пентаграмма ярко сверкает здесь.&n\r\n");
-					}
-				}
-				SendMsgToChar(buf, ch);
-			}
-		}
-	}
+	// kPortalTimer rendering (regular + PK variant + immortal/tester timer suffix)
+	// moved into show_room_affects (issue.affect-flags): the PK uid lives on the
+	// affect (Affect::pk_unique) and spell_msg.xml supplies all narration variants.
 
 	if (world[ch->in_room]->holes) {
 		const int ar = round_up(world[ch->in_room]->holes / kHolesTime);
@@ -740,19 +725,29 @@ void list_char_to_char_thing(const RoomData::people_t &list, CharData *ch) {
 // rows added, not a code change.
 //
 // Lookup priority per affect (sheaf-direct, no kDefault fallback):
-//   detect_magic && caster:  kRoomAffectSelfInvisible
-//                            -> kRoomAffectInvisible
-//                            -> kRoomAffectVisible
-//   detect_magic && !caster: kRoomAffectInvisible
-//                            -> kRoomAffectVisible
-//   !detect_magic:           kRoomAffectVisible (no fallback)
+//   pk_unique != 0:
+//     detect_magic:          kRoomAffectPkInvisible -> kRoomAffectPkVisible
+//                            -> (fall through to the regular chain below)
+//     !detect_magic:         kRoomAffectPkVisible -> (fall through to regular)
+//   regular chain:
+//     detect_magic && caster:  kRoomAffectSelfInvisible
+//                              -> kRoomAffectInvisible
+//                              -> kRoomAffectVisible
+//     detect_magic && !caster: kRoomAffectInvisible
+//                              -> kRoomAffectVisible
+//     !detect_magic:           kRoomAffectVisible (no fallback)
 //
 // Each step falls through only on empty results, so a spell that wants to
 // stay silent to non-detect-magic viewers (kRuneLabel, kForbidden) simply
 // omits kRoomAffectVisible; a spell with one universal description
 // (kLight, kHypnoticPattern, ...) sets only kRoomAffectVisible and the
-// detect-magic lookups fall through to it. kPortal still has no row and
-// is rendered by look_at_room itself.
+// detect-magic lookups fall through to it. The Pk override is data-driven
+// via Affect::pk_unique (set by SpellPortal when pkPortal fires); only
+// kPortalTimer ships Pk variants today. kPortal still has no row and is
+// rendered separately.
+//
+// Per-affect filters:
+//   * kPortalTimer with affect_type == kNoPortalExit: silent (one-way side).
 //
 // After each visible description, detect-magic viewers (and immortals) get a
 // one-line star-rating banner [*..*****] showing how close the room-affect's
@@ -762,19 +757,45 @@ void list_char_to_char_thing(const RoomData::people_t &list, CharData *ch) {
 // makes sense relative to a known ceiling. Stars rather than prose because the
 // description hooks (which file, which sheaf, which key) would have to be
 // invented per spell, and the indicator only matters for testers / debuggers.
+//
+// kPortalTimer adds one extra debug line for immortals/testers:
+// "[timer: <duration> into: <destination-vnum>]", echoing the immortals-only
+// "(время: %d, куда: %d)" suffix that used to live in look_at_room.
 void show_room_affects(CharData *ch) {
 	std::ostringstream buffer;
 
 	const bool has_detect_magic =
 			AFF_FLAGGED(ch, EAffect::kDetectMagic) || ch->IsImmortal();
 	const auto viewer_uid = ch->get_uid();
+	const bool is_immortal_or_tester =
+			ch->IsImmortal() || ch->IsFlagged(EPrf::kTester);
 
 	for (const auto &af : world[ch->in_room]->affected) {
+		// One-way portal: side flagged kNoPortalExit shows nothing (mirrors
+		// the old look_at_room behaviour). kPortalTimer-only special case.
+		if (af->type == ESpell::kPortalTimer
+				&& af->affect_type == room_spells::ERoomAffect::kNoPortalExit) {
+			continue;
+		}
+
 		const auto &sheaf = MUD::SpellMessages()[af->type];
 		const bool is_caster = (af->caster_id == viewer_uid);
+		const bool is_pk = (af->pk_unique != 0);
 
 		const std::string *text = nullptr;
-		if (has_detect_magic && is_caster) {
+		// Pk override chain (issue.affect-flags): tried before the regular keys.
+		if (is_pk) {
+			if (has_detect_magic) {
+				const auto &m = sheaf.GetMessage(ESpellMsg::kRoomAffectPkInvisible);
+				if (!m.empty()) text = &m;
+			}
+			if (!text) {
+				const auto &m = sheaf.GetMessage(ESpellMsg::kRoomAffectPkVisible);
+				if (!m.empty()) text = &m;
+			}
+		}
+		// Regular chain (fall-through when no Pk variant).
+		if (!text && has_detect_magic && is_caster) {
 			const auto &m = sheaf.GetMessage(ESpellMsg::kRoomAffectSelfInvisible);
 			if (!m.empty()) text = &m;
 		}
@@ -805,6 +826,16 @@ void show_room_affects(CharData *ch) {
 						buffer << "[" << stars << "]\r\n";
 					}
 				}
+			}
+			// kPortalTimer debug suffix: timer (room-tick pulses) + destination vnum.
+			// Replaces the immortals-only "(время: %d, куда: %d)" suffix that used to
+			// be inlined into the main description in look_at_room.
+			if (af->type == ESpell::kPortalTimer && is_immortal_or_tester) {
+				char debug_buf[128];
+				snprintf(debug_buf, sizeof(debug_buf),
+						 "[timer: %d into: %d]\r\n",
+						 af->duration, world[af->modifier]->vnum);
+				buffer << debug_buf;
 			}
 		}
 	}

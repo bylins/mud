@@ -2430,5 +2430,10 @@
 	</msg_sheaf>
 	<msg_sheaf id="kPortalTimer">
 		<message type="kAffExpired" val="Пентаграмма медленно растаяла." />
+		<!-- Room-affect aura (issue.affect-flags). Visible to anyone in the room;
+		     detect-magic viewers fall through to the same line. PK variant is
+		     preferred when Affect::pk_unique is set (the blood-tinge text). -->
+		<message type="kRoomAffectVisible" val="&amp;BЛазурная пентаграмма ярко сверкает здесь.&amp;n" />
+		<message type="kRoomAffectPkVisible" val="&amp;BЛазурная пентаграмма &amp;Rс кровавым отблеском&amp;B ярко сверкает здесь.&amp;n" />
 	</msg_sheaf>
 </msg_container>

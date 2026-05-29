@@ -63,6 +63,20 @@ bool IsRoomAffected(RoomData *room, ESpell spell) {
 	return false;
 }
 
+long FindRoomPkPortalUid(RoomData *room, long exclude_uid) {
+	if (!room) {
+		return 0;
+	}
+	for (const auto &af : room->affected) {
+		if (af->type == ESpell::kPortalTimer
+				&& af->pk_unique != 0
+				&& af->pk_unique != exclude_uid) {
+			return af->pk_unique;
+		}
+	}
+	return 0;
+}
+
 void ShowAffectedRooms(CharData *ch) {
 	std::stringstream out;
 	out << " Список комнат под аффектами:" << "\r\n";

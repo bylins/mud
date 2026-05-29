@@ -116,6 +116,12 @@ enum class ESpellMsg {
 	kRoomAffectVisible,			// shown when the viewer lacks kDetectMagic; the "physical" trace.
 	kRoomAffectInvisible,		// shown when the viewer has kDetectMagic and is NOT the caster.
 	kRoomAffectSelfInvisible,	// shown when the viewer has kDetectMagic and IS the caster.
+	// Pk override (issue.affect-flags): preferred over the regular kRoomAffect* keys
+	// when the affect carries a non-zero pk_unique (set by SpellPortal when pkPortal
+	// fires). Looked up before the regular chain; empty result falls back to it.
+	// Used today by kPortalTimer to surface its blood-tinge variant.
+	kRoomAffectPkVisible,		// pk variant: viewer lacks kDetectMagic.
+	kRoomAffectPkInvisible,		// pk variant: viewer has kDetectMagic.
 };
 
 template<>
