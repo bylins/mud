@@ -722,10 +722,10 @@ void affect_total(CharData *ch) {
 	}
 	ch->obj_bonus().apply_affects(ch);
 
-	for (const auto &feat : MUD::Feats()) {
-		if (CanUseFeat(ch, feat.GetId())) {
-			feat.effects.ImposeApplies(ch);
-			feat.effects.ImposeSkillsMods(ch);
+	for (auto feat_id = EFeat::kFirst; feat_id <= EFeat::kLast; ++feat_id) {
+		if (ch->HaveFeat(feat_id) && CanUseFeat(ch, feat_id)) {
+			MUD::Feat(feat_id).effects.ImposeApplies(ch);
+			MUD::Feat(feat_id).effects.ImposeSkillsMods(ch);
 		}
 	}
 
