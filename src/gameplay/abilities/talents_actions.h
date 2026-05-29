@@ -32,17 +32,21 @@ enum class EAction {
 // (EAlign moved to engine/entities/entities_constants.h, issue.cast-dmg-migration: it's a
 //  general alignment concept, not a talents-specific one. Used by <blocking>/<required>/<reflection>.)
 
-// A set of mob flags (EMobFlag, from an NPC prototype), affect flags (EAffect) and an optional
-// alignment selector used by the action-level <blocking>/<required> tags (issue.cast-affect +
-// issue.cast-dmg-migration). For <blocking> the target must have NONE of them (any present
-// blocks the cast); for <required> the target must have ALL of them (any missing blocks).
-// Mob flags are meaningful only on NPCs. align kAny means "no alignment check on this side".
+// A set of mob flags (EMobFlag, from an NPC prototype), affect flags (EAffect), an optional
+// alignment selector, and a set of room flags (ERoomFlag) used by the action-level
+// <blocking>/<required>/<caster_blocking> tags (issue.cast-affect + issue.cast-dmg-migration
+// + issue.room-affects). For <blocking> any matching flag/affect/align/room_flag blocks the
+// cast; for <required> the target must have ALL of them. Mob flags are meaningful only on
+// NPCs. align kAny means "no alignment check on this side". The room_flags check examines
+// the CASTER's current room and is what drives the kNoMagic blocking for non-warcry spells.
 struct FlagCondition {
 	std::vector<EMobFlag> mob_flags;
 	std::vector<EAffect> affect_flags;
+	std::vector<ERoomFlag> room_flags;
 	EAlign align{EAlign::kAny};
 	[[nodiscard]] bool empty() const {
-		return mob_flags.empty() && affect_flags.empty() && align == EAlign::kAny;
+		return mob_flags.empty() && affect_flags.empty() && room_flags.empty()
+				&& align == EAlign::kAny;
 	}
 };
 

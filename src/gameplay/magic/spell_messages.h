@@ -104,6 +104,11 @@ enum class ESpellMsg {
 	kReflectedToChar,		// reflection: to the caster (whose spell bounced back).
 	kReflectedToVict,		// reflection: to the original victim (who reflected the spell).
 	kReflectedToRoom,		// reflection: to onlookers (not the original victim).
+	// Cast forbidden (issue.room-affects): the spell fizzles before any effects run because the
+	// caster's (or target room's) flags make casting impossible (ROOM_NOMAGIC, or e.g. kPeaceful
+	// for kRuneLabel). Looked up in the cast spell's sheaf with kDefault fallback.
+	kCastForbiddenToChar,	// fizzle: to the caster.
+	kCastForbiddenToRoom,	// fizzle: to onlookers.
 };
 
 template<>

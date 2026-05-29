@@ -22,6 +22,9 @@
         </effects>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <affects type="kDeafness" saving="kNone" resist="kMind">
                     <duration base="2" skill_divisor="10" min="6" max="0"/>
                     <flags val="kAfBattledec|kAfDispellable|kAfCurable"/>
@@ -83,6 +86,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <affects type="kArmor" saving="kNone" resist="kVitality">
                     <duration base="20" skill_divisor="3" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfCurable"/>
@@ -105,6 +111,13 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="140" min="120" change="2"/>
         <targets val="kTarCharRoom"/>
         <flags val="kMagManual|kNpcDamagePc"/>
+        <talent_actions>
+            <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kBless" element="kLight" mode="kEnabled">
         <name rus="доблесть" eng="bless"/>
@@ -119,6 +132,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <affects type="kBless" saving="kNone" resist="kVitality">
                     <duration base="20" skill_divisor="3" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfCurable"/>
@@ -145,7 +161,10 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
-                <blocking mob_flags="kNoBlind"/>
+                <blocking>
+                    <mob_flags val="kNoBlind"/>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <affects type="kBlindness" saving="kStability" resist="kDark">
                     <duration base="2" skill_divisor="20" min="0" max="0"/>
                     <flags val="kAfBattledec|kAfDispellable|kAfCurable"/>
@@ -162,6 +181,13 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="70" min="40" change="2"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
         <flags val="kMagAffects|kNpcAffectPc"/>
+        <talent_actions>
+            <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kBurningHands" element="kFire" mode="kEnabled">
         <name rus="горящие руки" eng="burning hands"/>
@@ -176,6 +202,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <damage saving="kReflex">
                     <amount min="0" dices_weight="1.0" competencies_weight="30"/>
                 </damage>
@@ -199,6 +228,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <damage saving="kReflex">
                     <amount min="0" dices_weight="1.0" competencies_weight="75"/>
                 </damage>
@@ -215,6 +247,13 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="55" min="40" change="1"/>
         <targets val="kTarCharRoom|kTarNotSelf"/>
         <flags val="kMagManual"/>
+        <talent_actions>
+            <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kChillTouch" element="kWater" mode="kEnabled">
         <name rus="ледяное прикосновение" eng="chill touch"/>
@@ -234,6 +273,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </success_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <damage saving="kReflex">
                     <amount min="0" dices_weight="1.0" competencies_weight="67.5"/>
                 </damage>
@@ -253,6 +295,13 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="150" min="130" change="5"/>
         <targets val="kTarCharRoom|kTarSelfOnly"/>
         <flags val="kMagSummons"/>
+        <talent_actions>
+            <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kIceBolts" element="kWater" mode="kEnabled">
         <name rus="ледяные стрелы" eng="ice bolts"/>
@@ -267,6 +316,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <damage saving="kStability">
                     <amount min="0" dices_weight="1.0" competencies_weight="241"/>
                 </damage>
@@ -283,6 +335,13 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="100" min="90" change="1"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagManual"/>
+        <talent_actions>
+            <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kCreateFood" element="kLife" mode="kEnabled">
         <name rus="создать пищу" eng="create food"/>
@@ -290,6 +349,13 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="40" min="30" change="1"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagCreations"/>
+        <talent_actions>
+            <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kCreateWater" element="kWater" mode="kEnabled">
         <name rus="создать воду" eng="create water"/>
@@ -297,6 +363,13 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="40" min="30" change="1"/>
         <targets val="kTarObjInv|kTarObjEquip|kTarCharRoom"/>
         <flags val="kMagManual"/>
+        <talent_actions>
+            <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kCureBlind" element="kLight" mode="kEnabled">
         <name rus="вылечить слепоту" eng="cure blind"/>
@@ -311,6 +384,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <unaffect>
                     <remove any_of="kBlindness"/>
                 </unaffect>
@@ -330,6 +406,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <heal npc_coeff="3">
                     <amount min="0" dices_weight="1.0" competencies_weight="27"/>
                 </heal>
@@ -349,6 +428,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <heal npc_coeff="3">
                     <amount min="0" dices_weight="1.0" competencies_weight="14"/>
                 </heal>
@@ -368,6 +450,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <affects type="kCurse" saving="kWill" resist="kDark">
                     <duration base="20" skill_divisor="3" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfCurable"/>
@@ -397,6 +482,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <affects type="kDetectAlign" saving="kNone" resist="kMind">
                     <duration base="20" skill_divisor="3" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfCurable"/>
@@ -420,6 +508,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <affects type="kDetectInvis" saving="kNone" resist="kMind">
                     <duration base="20" skill_divisor="3" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfCurable"/>
@@ -443,6 +534,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <affects type="kDetectMagic" saving="kNone" resist="kMind">
                     <duration base="20" skill_divisor="3" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfCurable"/>
@@ -466,6 +560,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <affects type="kDetectPoison" saving="kNone" resist="kMind">
                     <duration base="20" skill_divisor="3" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfCurable"/>
@@ -489,11 +586,18 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <damage saving="kStability">
                     <amount min="0" dices_weight="1.0" competencies_weight="122"/>
                 </damage>
-                <required align="kEvil"/>
-                <caster_blocking align="kEvil"/>
+                <required>
+                    <align val="kEvil"/>
+                </required>
+                <caster_blocking>
+                    <align val="kEvil"/>
+                </caster_blocking>
             </action>
         </talent_actions>
     </spell>
@@ -510,6 +614,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <damage saving="kStability">
                     <amount min="0" dices_weight="1.0" competencies_weight="110"/>
                 </damage>
@@ -532,6 +639,13 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="140" min="110" change="2"/>
         <targets val="kTarObjInv"/>
         <flags val="kMagAlterObjs"/>
+        <talent_actions>
+            <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kEnergyDrain" element="kDark" mode="kEnabled">
         <name rus="истощить энергию" eng="energy drain"/>
@@ -546,6 +660,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <damage saving="kReflex">
                     <amount min="0" dices_weight="1.0" competencies_weight="7"/>
                 </damage>
@@ -576,6 +693,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <damage saving="kReflex">
                     <amount min="0" dices_weight="1.0" competencies_weight="195.5"/>
                 </damage>
@@ -595,6 +715,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <damage saving="kCritical">
                     <amount min="0" dices_weight="1.0" competencies_weight="184"/>
                 </damage>
@@ -614,6 +737,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <heal npc_coeff="3">
                     <amount min="0" dices_weight="1.0" competencies_weight="90"/>
                 </heal>
@@ -633,7 +759,10 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
-                <blocking affect_flags="kGlitterDust"/>
+                <blocking>
+                    <affect_flags val="kGlitterDust"/>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <affects type="kInvisible" saving="kNone" resist="kMind">
                     <duration base="20" skill_divisor="3" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfCurable"/>
@@ -657,6 +786,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <damage saving="kReflex">
                     <amount min="0" dices_weight="1.0" competencies_weight="43"/>
                     <hits max="1" prob="20"/>
@@ -674,6 +806,13 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="140" min="110" change="2"/>
         <targets val="kTarObjWorld"/>
         <flags val="kMagManual"/>
+        <talent_actions>
+            <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kMagicMissile" element="kAir" mode="kEnabled">
         <name rus="магическая стрела" eng="magic missle"/>
@@ -688,6 +827,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <damage saving="kReflex">
                     <amount min="0" dices_weight="1.0" competencies_weight="25"/>
                     <hits skill_divisor="12" max="2" prob="100"/>
@@ -712,7 +854,10 @@ base_stat id - (например "kWis") какой берем параметр,
                     <decay cast="0.05" level="7" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
-                <blocking affect_flags="kGodsShield"/>
+                <blocking>
+                    <affect_flags val="kGodsShield"/>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <affects type="kPoison" saving="kCritical" resist="kDark">
                     <duration base="0" skill_divisor="3" min="0" max="0"/>
                     <flags val="kAfSameTime|kAfCurable"/>
@@ -739,6 +884,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <affects type="kProtectFromEvil" saving="kNone" resist="kVitality">
                     <duration base="20" skill_divisor="3" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfCurable"/>
@@ -762,6 +910,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <unaffect>
                     <remove any_of="kCurse"/>
                 </unaffect>
@@ -781,7 +932,10 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
-                <blocking affect_flags="kPrismaticAura"/>
+                <blocking>
+                    <affect_flags val="kPrismaticAura"/>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <affects type="kSanctuary" saving="kNone" resist="kVitality">
                     <duration base="20" skill_divisor="3" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfCurable"/>
@@ -809,6 +963,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <damage saving="kReflex">
                     <amount min="0" dices_weight="1.0" competencies_weight="50"/>
                 </damage>
@@ -828,7 +985,11 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
-                <blocking mob_flags="kNoSleep" affect_flags="kHold"/>
+                <blocking>
+                    <mob_flags val="kNoSleep"/>
+                    <affect_flags val="kHold"/>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <affects type="kSleep" saving="kWill" resist="kMind">
                     <reposition pos="kSleep"/>
                     <duration base="1" skill_divisor="15" min="1" max="6"/>
@@ -853,6 +1014,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <affects type="kStrength" saving="kNone" resist="kImmunity">
                     <duration base="20" skill_divisor="3" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfCurable"/>
@@ -873,6 +1037,13 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="110" min="100" change="2"/>
         <targets val="kTarCharWorld|kTarNotSelf"/>
         <flags val="kMagManual"/>
+        <talent_actions>
+            <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kPatronage" element="kLight" mode="kEnabled">
         <name rus="покровительство" eng="patronage"/>
@@ -887,6 +1058,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <heal npc_coeff="3">
                     <amount min="1" dices_weight="1.0" competencies_weight="2"/>
                 </heal>
@@ -906,6 +1080,13 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="140" min="100" change="4"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagManual|kNpcDamagePc"/>
+        <talent_actions>
+            <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kRemovePoison" element="kLife" mode="kEnabled">
         <name rus="удалить яд" eng="remove poison"/>
@@ -920,6 +1101,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <unaffect affect_flags="kAfCurable">
                     <remove all_of="kPoison|kAconitumPoison|kScopolaPoison|kBelenaPoison|kDaturaPoison"/>
                 </unaffect>
@@ -939,6 +1123,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <affects type="kSenseLife" saving="kNone" resist="kImmunity">
                     <duration base="20" skill_divisor="3" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfCurable"/>
@@ -955,6 +1142,13 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="50" min="35" change="3"/>
         <targets val="kTarObjRoom"/>
         <flags val="kMagSummons"/>
+        <talent_actions>
+            <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kDispelGood" element="kDark" mode="kEnabled">
         <name rus="рассеять свет" eng="dispel good"/>
@@ -969,11 +1163,18 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <damage saving="kStability">
                     <amount min="0" dices_weight="1.0" competencies_weight="102"/>
                 </damage>
-                <required align="kGood"/>
-                <caster_blocking align="kGood"/>
+                <required>
+                    <align val="kGood"/>
+                </required>
+                <caster_blocking>
+                    <align val="kGood"/>
+                </caster_blocking>
             </action>
         </talent_actions>
     </spell>
@@ -990,6 +1191,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <area>
                     <decay cast="0.01" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
@@ -1023,6 +1227,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <heal npc_coeff="3">
                     <amount min="0" dices_weight="1.0" competencies_weight="44"/>
                 </heal>
@@ -1042,6 +1249,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <heal npc_coeff="3">
                     <amount min="0" dices_weight="1.0" competencies_weight="90"/>
                 </heal>
@@ -1060,6 +1270,9 @@ base_stat id - (например "kWis") какой берем параметр,
         <flags val="kMagGroups|kMagManual"/>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <area>
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
@@ -1080,6 +1293,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <affects type="kInfravision" saving="kNone" resist="kVitality">
                     <duration base="20" skill_divisor="3" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfCurable"/>
@@ -1103,6 +1319,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <affects type="kWaterwalk" saving="kNone" resist="kWater">
                     <duration base="20" skill_divisor="3" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfCurable"/>
@@ -1126,6 +1345,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <heal npc_coeff="3">
                     <amount min="0" dices_weight="1.0" competencies_weight="15"/>
                 </heal>
@@ -1145,6 +1367,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <area>
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
@@ -1176,7 +1401,11 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
-                <blocking mob_flags="kNoHold" affect_flags="kBrokenChains|kSleep"/>
+                <blocking>
+                    <mob_flags val="kNoHold"/>
+                    <affect_flags val="kBrokenChains|kSleep"/>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <affects type="kHold" saving="kWill" resist="kMind">
                     <duration base="1" skill_divisor="25" min="1" max="3"/>
                     <flags val="kAfBattledec|kAfDispellable|kAfCurable"/>
@@ -1200,7 +1429,11 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
-                <blocking mob_flags="kNoHold" affect_flags="kBrokenChains|kSleep"/>
+                <blocking>
+                    <mob_flags val="kNoHold"/>
+                    <affect_flags val="kBrokenChains|kSleep"/>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <affects type="kHold" saving="kWill" resist="kMind">
                     <duration base="2" skill_divisor="20" min="2" max="5"/>
                     <flags val="kAfBattledec|kAfDispellable|kAfCurable"/>
@@ -1228,7 +1461,11 @@ base_stat id - (например "kWis") какой берем параметр,
                     <decay cast="0.05" level="2" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
-                <blocking mob_flags="kNoHold" affect_flags="kBrokenChains|kSleep"/>
+                <blocking>
+                    <mob_flags val="kNoHold"/>
+                    <affect_flags val="kBrokenChains|kSleep"/>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <affects type="kHold" saving="kWill" resist="kMind">
                     <duration base="1" skill_divisor="25" min="1" max="3"/>
                     <flags val="kAfBattledec|kAfDispellable|kAfCurable"/>
@@ -1252,6 +1489,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <affects type="kFly" saving="kNone" resist="kAir">
                     <duration base="20" skill_divisor="3" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfCurable"/>
@@ -1275,6 +1515,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <affects type="kBrokenChains" saving="kNone" resist="kMind">
                     <duration base="10" skill_divisor="3" min="0" max="0"/>
                     <flags val="kAfBattledec|kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfCurable"/>
@@ -1298,7 +1541,10 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
-                <blocking affect_flags="kBrokenChains"/>
+                <blocking>
+                    <affect_flags val="kBrokenChains"/>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <affects type="kNoflee" saving="kWill" resist="kMind">
                     <duration base="3" skill_divisor="10" min="4" max="0"/>
                     <flags val="kAfBattledec|kAfDispellable|kAfCurable"/>
@@ -1315,6 +1561,13 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="40" min="30" change="1"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagCreations"/>
+        <talent_actions>
+            <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kDarkness" element="kDark" mode="kEnabled">
         <name rus="тьма" eng="darkness"/>
@@ -1329,6 +1582,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <affects type="kDarkness" saving="kNone" resist="kDark">
                     <duration base="20" skill_divisor="3" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfCurable"/>
@@ -1352,6 +1608,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <affects type="kStoneSkin" saving="kNone" resist="kEarth">
                     <duration base="20" skill_divisor="3" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfCurable"/>
@@ -1375,6 +1634,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <affects type="kCloudly" saving="kNone" resist="kWater">
                     <duration base="20" skill_divisor="3" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfCurable"/>
@@ -1401,7 +1663,10 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
-                <blocking mob_flags="kNoSilence"/>
+                <blocking>
+                    <mob_flags val="kNoSilence"/>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <affects type="kSilence" saving="kWill" resist="kMind">
                     <duration base="2" skill_divisor="20" min="3" max="0"/>
                     <flags val="kAfBattledec|kAfDispellable|kAfCurable"/>
@@ -1425,6 +1690,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <affects type="kLight" saving="kNone" resist="kVitality">
                     <duration base="20" skill_divisor="3" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfCurable"/>
@@ -1448,6 +1716,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <damage saving="kStability">
                     <amount min="0" dices_weight="1.0" competencies_weight="160"/>
                 </damage>
@@ -1471,6 +1742,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <damage saving="kReflex">
                     <amount min="0" dices_weight="1.0" competencies_weight="120"/>
                 </damage>
@@ -1494,6 +1768,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <damage saving="kWill">
                     <amount min="0" dices_weight="1.0" competencies_weight="371"/>
                 </damage>
@@ -1513,6 +1790,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <area>
                     <decay cast="0.05" level="7" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
@@ -1548,7 +1828,10 @@ base_stat id - (например "kWis") какой берем параметр,
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
-                <blocking affect_flags="kGlitterDust"/>
+                <blocking>
+                    <affect_flags val="kGlitterDust"/>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <affects type="kInvisible" saving="kNone" resist="kMind">
                     <duration base="20" skill_divisor="3" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfCurable"/>
@@ -1572,6 +1855,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <affects type="kShadowCloak" saving="kNone" resist="kDark">
                     <duration base="20" skill_divisor="3" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfCurable"/>
@@ -1595,6 +1881,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <damage saving="kReflex">
                     <amount min="0" dices_weight="1.0" competencies_weight="86"/>
                 </damage>
@@ -1611,6 +1900,13 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="110" min="100" change="1"/>
         <targets val="kTarObjInv|kTarObjEquip"/>
         <flags val="kMagAlterObjs"/>
+        <talent_actions>
+            <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kEnlarge" element="kLife" mode="kEnabled">
         <name rus="увеличение" eng="enlarge"/>
@@ -1625,6 +1921,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <affects type="kEnlarge" saving="kNone" resist="kImmunity">
                     <duration base="20" skill_divisor="3" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfCurable"/>
@@ -1645,6 +1944,13 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="70" min="55" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
         <flags val="kMagManual|kNpcDamagePc"/>
+        <talent_actions>
+            <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kSacrifice" element="kDark" mode="kEnabled">
         <name rus="высосать жизнь" eng="sacrifice"/>
@@ -1659,6 +1965,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <damage saving="kWill">
                     <amount min="0" dices_weight="1.0" competencies_weight="124"/>
                 </damage>
@@ -1682,7 +1991,10 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
-                <blocking affect_flags="kBrokenChains"/>
+                <blocking>
+                    <affect_flags val="kBrokenChains"/>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <affects type="kWeb" saving="kReflex" resist="kMind">
                     <duration base="3" skill_divisor="15" min="0" max="0"/>
                     <flags val="kAfBattledec|kAfDispellable|kAfCurable"/>
@@ -1709,6 +2021,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <affects type="kBlink" saving="kNone" resist="kVitality">
                     <duration base="20" skill_divisor="3" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfCurable"/>
@@ -1732,6 +2047,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <unaffect>
                     <remove any_of="kHold"/>
                 </unaffect>
@@ -1744,6 +2062,13 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
+        <talent_actions>
+            <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kPowerBlindness" element="kDark" mode="kEnabled">
         <name rus="полная слепота" eng="power blind"/>
@@ -1762,7 +2087,10 @@ base_stat id - (например "kWis") какой берем параметр,
                     <decay cast="0.05" level="7" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
-                <blocking mob_flags="kNoBlind"/>
+                <blocking>
+                    <mob_flags val="kNoBlind"/>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <affects type="kBlindness" saving="kStability" resist="kDark">
                     <duration base="3" skill_divisor="15" min="0" max="0"/>
                     <flags val="kAfBattledec|kAfDispellable|kAfCurable"/>
@@ -1790,7 +2118,10 @@ base_stat id - (например "kWis") какой берем параметр,
                     <decay cast="0.05" level="2" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
-                <blocking mob_flags="kNoBlind"/>
+                <blocking>
+                    <mob_flags val="kNoBlind"/>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <affects type="kBlindness" saving="kStability" resist="kDark">
                     <duration base="2" skill_divisor="20" min="0" max="0"/>
                     <flags val="kAfBattledec|kAfDispellable|kAfCurable"/>
@@ -1814,7 +2145,10 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
-                <blocking mob_flags="kNoSilence"/>
+                <blocking>
+                    <mob_flags val="kNoSilence"/>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <affects type="kSilence" saving="kWill" resist="kMind">
                     <duration base="2" skill_divisor="10" min="6" max="0"/>
                     <flags val="kAfBattledec|kAfDispellable|kAfCurable"/>
@@ -1838,6 +2172,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
             <heal npc_coeff="3" extra="Y">
                 <amount min="0" dices_weight="1.0" competencies_weight="4"/>
             </heal>
@@ -1850,6 +2187,13 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="120" min="100" change="2"/>
         <targets val="kTarObjRoom"/>
         <flags val="kMagSummons"/>
+        <talent_actions>
+            <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kMagicShield" element="kLight" mode="kEnabled">
         <name rus="волшебный щит" eng="magic shield"/>
@@ -1864,6 +2208,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <affects type="kMagicShield" saving="kNone" resist="kVitality">
                     <duration base="20" skill_divisor="3" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfCurable"/>
@@ -1898,6 +2245,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <!-- Migrated from CallMagicToRoom (issue.room-affects). Duration is in
                      raw room-tick pulses, NOT hours. Modifier formula uses the spell's
                      <potency_roll>: ceil(Int + 0.4*max(0,skill-75)) capped at 100. The
@@ -1930,7 +2280,10 @@ base_stat id - (например "kWis") какой берем параметр,
                     <decay cast="0.05" level="2" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
-                <blocking mob_flags="kNoSilence"/>
+                <blocking>
+                    <mob_flags val="kNoSilence"/>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <affects type="kSilence" saving="kWill" resist="kMind">
                     <duration base="2" skill_divisor="20" min="3" max="0"/>
                     <flags val="kAfBattledec|kAfDispellable|kAfCurable"/>
@@ -1954,6 +2307,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <unaffect>
                     <remove any_of="kSilence"/>
                 </unaffect>
@@ -1973,6 +2329,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <damage saving="kCritical">
                     <amount min="0" dices_weight="1.0" competencies_weight="44"/>
                 </damage>
@@ -1992,6 +2351,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <damage saving="kCritical">
                     <amount min="0" dices_weight="1.0" competencies_weight="70"/>
                 </damage>
@@ -2015,6 +2377,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <damage saving="kCritical">
                     <amount min="0" dices_weight="1.0" competencies_weight="100"/>
                 </damage>
@@ -2038,6 +2403,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <affects type="kCurse" saving="kWill" resist="kDark">
                     <duration base="20" skill_divisor="3" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfCurable"/>
@@ -2068,6 +2436,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <damage saving="kWill">
                     <amount min="0" dices_weight="1.0" competencies_weight="255"/>
                 </damage>
@@ -2091,6 +2462,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <area>
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
@@ -2118,6 +2492,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <area>
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
@@ -2141,6 +2518,13 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="80" min="60" change="1"/>
         <targets val="kTarCharRoom"/>
         <flags val="kMagPoints"/>
+        <talent_actions>
+            <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kStunning" element="kEarth" mode="kEnabled">
         <name rus="каменное проклятие" eng="stunning"/>
@@ -2155,6 +2539,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <damage saving="kStability">
                     <amount min="0" dices_weight="1.0" competencies_weight="835"/>
                 </damage>
@@ -2173,6 +2560,13 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
+        <talent_actions>
+            <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kSneak" element="kUndefined" mode="kService">
         <name rus="!крадется!" eng="!set by skill!"/>
@@ -2180,6 +2574,13 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
+        <talent_actions>
+            <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kDrunked" element="kUndefined" mode="kService">
         <name rus="!опьянение!" eng="!set by programm!"/>
@@ -2187,6 +2588,13 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
+        <talent_actions>
+            <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kAbstinent" element="kUndefined" mode="kService">
         <name rus="!абстиненция!" eng="!set by programm!"/>
@@ -2194,6 +2602,13 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
+        <talent_actions>
+            <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kFullFeed" element="kLife" mode="kEnabled">
         <name rus="насыщение" eng="full"/>
@@ -2201,6 +2616,13 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="70" min="55" change="1"/>
         <targets val="kTarCharRoom"/>
         <flags val="kMagPoints"/>
+        <talent_actions>
+            <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kColdWind" element="kAir" mode="kEnabled">
         <name rus="ледяной ветер" eng="cold wind"/>
@@ -2215,6 +2637,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <damage saving="kStability">
                     <amount min="0" dices_weight="1.0" competencies_weight="99"/>
                 </damage>
@@ -2238,6 +2663,13 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
+        <talent_actions>
+            <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kHaemorrhage" element="kUndefined" mode="kService">
         <name rus="!кровотечение!" eng="!set by programm!"/>
@@ -2245,6 +2677,13 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
+        <talent_actions>
+            <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kCourage" element="kUndefined" mode="kService">
         <name rus="!ярость!" eng="!set by programm!"/>
@@ -2252,6 +2691,13 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
+        <talent_actions>
+            <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kFrenzy" element="kUndefined" mode="kService">
         <name rus="исступление" eng="!set by programm!"/>
@@ -2259,6 +2705,13 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="5" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
+        <talent_actions>
+            <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kWaterbreath" element="kWater" mode="kEnabled">
         <name rus="дышать водой" eng="waterbreath"/>
@@ -2273,6 +2726,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <affects type="kWaterbreath" saving="kNone" resist="kWater">
                     <duration base="20" skill_divisor="3" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfCurable"/>
@@ -2296,7 +2752,10 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
-                <blocking affect_flags="kBrokenChains|kHaste"/>
+                <blocking>
+                    <affect_flags val="kBrokenChains|kHaste"/>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <affects type="kSlowdown" saving="kStability" resist="kMind">
                     <flags val="kAfDispellable|kAfCurable"/>
                     <duration base="9" skill_divisor="0" min="0" max="0"/>
@@ -2327,6 +2786,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <affects type="kHaste" saving="kNone" resist="kMind">
                     <duration base="20" skill_divisor="3" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfCurable"/>
@@ -2358,7 +2820,10 @@ base_stat id - (например "kWis") какой берем параметр,
                     <decay cast="0.05" level="2" free_targets="3"/>
                     <victims skill_divisor="10" dice_size="3" min_targets="5" max_targets="20"/>
                 </area>
-                <blocking affect_flags="kBrokenChains|kHaste"/>
+                <blocking>
+                    <affect_flags val="kBrokenChains|kHaste"/>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <affects type="kSlowdown" saving="kStability" resist="kMind">
                     <flags val="kAfDispellable|kAfCurable"/>
                     <duration base="9" skill_divisor="0" min="0" max="0"/>
@@ -2389,6 +2854,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <area>
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
@@ -2420,6 +2888,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <affects type="kGodsShield" saving="kNone" resist="kVitality">
                     <duration base="4" skill_divisor="0" min="0" max="0"/>
                     <flags val="kAfBattledec|kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfCurable"/>
@@ -2449,6 +2920,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <area>
                     <decay cast="0.05" level="7" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
@@ -2497,6 +2971,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <unaffect>
                     <remove any_of="kFever"/>
                 </unaffect>
@@ -2516,6 +2993,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <affects type="kAwareness" saving="kNone" resist="kMind">
                     <duration base="20" skill_divisor="3" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfCurable"/>
@@ -2535,6 +3015,13 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
+        <talent_actions>
+            <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kAirShield" element="kAir" mode="kEnabled">
         <name rus="воздушный щит" eng="air shield"/>
@@ -2549,6 +3036,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <affects type="kAirShield" saving="kNone" resist="kAir">
                     <duration base="10" skill_divisor="0" min="0" max="0"/>
                     <flags val="kAfBattledec|kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfCurable"/>
@@ -2568,6 +3058,13 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="200" min="180" change="4"/>
         <targets val="kTarCharWorld"/>
         <flags val="kMagManual"/>
+        <talent_actions>
+            <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kPortalTimer" element="kLight" mode="kEnabled">
         <name rus="врата" eng="portal"/>
@@ -2575,6 +3072,13 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="200" min="180" change="4"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
+        <talent_actions>
+            <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kDispellMagic" element="kLight" mode="kEnabled">
         <name rus="развеять магию" eng="dispel magic"/>
@@ -2589,6 +3093,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <!-- kDispellMagic strips one random affect matching the affect_flags
                      filter (issue.dispell): the any_of="*" wildcard picks any eligible
                      affect uniformly. The potency-gated DispelSucceeds rule still
@@ -2605,6 +3112,13 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="100" min="80" change="2"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagSummons"/>
+        <talent_actions>
+            <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kFastRegeneration" element="kLife" mode="kEnabled">
         <name rus="быстрое восстановление" eng="fast regeneration"/>
@@ -2619,6 +3133,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <affects type="kFastRegeneration" saving="kNone" resist="kImmunity">
                     <duration base="20" skill_divisor="3" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfCurable"/>
@@ -2638,6 +3155,13 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="130" min="110" change="2"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagManual"/>
+        <talent_actions>
+            <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kFireShield" element="kFire" mode="kEnabled">
         <name rus="огненный щит" eng="fire shield"/>
@@ -2652,6 +3176,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <affects type="kFireShield" saving="kNone" resist="kFire">
                     <duration base="10" skill_divisor="0" min="0" max="0"/>
                     <flags val="kAfBattledec|kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfCurable"/>
@@ -2671,6 +3198,13 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="140" min="120" change="2"/>
         <targets val="kTarCharWorld"/>
         <flags val="kMagManual"/>
+        <talent_actions>
+            <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kSummonFirekeeper" element="kFire" mode="kEnabled">
         <name rus="огненный защитник" eng="fire keeper"/>
@@ -2678,6 +3212,13 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="150" min="140" change="1"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagSummons"/>
+        <talent_actions>
+            <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kIceShield" element="kWater" mode="kEnabled">
         <name rus="ледяной щит" eng="ice protect"/>
@@ -2692,6 +3233,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <affects type="kIceShield" saving="kNone" resist="kWater">
                     <duration base="10" skill_divisor="0" min="0" max="0"/>
                     <flags val="kAfBattledec|kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfCurable"/>
@@ -2718,6 +3262,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <damage saving="kStability">
                     <amount min="0" dices_weight="1.0" competencies_weight="110"/>
                 </damage>
@@ -2749,6 +3296,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <affects type="kLessening" saving="kNone" resist="kImmunity">
                     <duration base="20" skill_divisor="3" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfCurable"/>
@@ -2779,7 +3329,10 @@ base_stat id - (например "kWis") какой берем параметр,
                 <damage saving="kReflex">
                     <amount min="0" dices_weight="1.0" competencies_weight="40"/>
                 </damage>
-                <blocking mob_flags="kNoBlind"/>
+                <blocking>
+                    <mob_flags val="kNoBlind"/>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <affects type="kBlindness" saving="kStability" resist="kFire">
                     <duration base="2" skill_divisor="20" min="0" max="0"/>
                     <flags val="kAfBattledec|kAfDispellable|kAfCurable"/>
@@ -2803,6 +3356,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <affects type="kMadness" saving="kWill" resist="kMind">
                     <flags val="kAfDispellable|kAfCurable"/>
                     <duration base="3" skill_divisor="0" min="0" max="0"/>
@@ -2829,6 +3385,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <area>
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
@@ -2856,6 +3415,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <affects type="kCloudOfArrows" saving="kNone" resist="kFire">
                     <duration base="10" skill_divisor="3" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfCurable"/>
@@ -2879,6 +3441,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <damage saving="kStability">
                     <amount min="0" dices_weight="1.0" competencies_weight="582"/>
                 </damage>
@@ -2899,6 +3464,9 @@ base_stat id - (например "kWis") какой берем параметр,
         <flags val="kMagNeedControl|kMagRoom|kMagCasterInroom"/>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <affects type="kMeteorStorm" saving="kNone" resist="kVitality">
                     <duration base="3" skill_divisor="0" min="0" max="0"/>
                     <flags val="kAfMustBeHandled"/>
@@ -2919,6 +3487,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <affects type="kStoneHands" saving="kNone" resist="kEarth">
                     <duration base="20" skill_divisor="3" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfCurable"/>
@@ -2942,6 +3513,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <affects type="kMindless" saving="kStability" resist="kMind">
                     <flags val="kAfDispellable|kAfCurable"/>
                     <duration base="0" skill_divisor="25" min="0" max="0"/>
@@ -2971,7 +3545,10 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
-                <blocking affect_flags="kSanctuary"/>
+                <blocking>
+                    <affect_flags val="kSanctuary"/>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <affects type="kPrismaticAura" saving="kNone" resist="kVitality">
                     <duration base="20" skill_divisor="3" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfCurable"/>
@@ -2999,7 +3576,12 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
-                <required mob_flags="kCorpse"/>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
+                <required>
+                    <mob_flags val="kCorpse"/>
+                </required>
                 <heal npc_coeff="3">
                     <amount min="0" dices_weight="1.0" competencies_weight="135"/>
                 </heal>
@@ -3033,6 +3615,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <area>
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
@@ -3060,6 +3645,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <area>
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
@@ -3087,6 +3675,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <area>
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
@@ -3114,6 +3705,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <damage saving="kStability">
                     <amount min="0" dices_weight="1.0" competencies_weight="124"/>
                 </damage>
@@ -3148,6 +3742,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <affects type="kMagicGlass" saving="kNone" resist="kVitality">
                     <duration base="10" skill_divisor="3" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfCurable"/>
@@ -3175,7 +3772,10 @@ base_stat id - (например "kWis") какой берем параметр,
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
-                <blocking affect_flags="kPrismaticAura"/>
+                <blocking>
+                    <affect_flags val="kPrismaticAura"/>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <affects type="kSanctuary" saving="kNone" resist="kVitality">
                     <duration base="20" skill_divisor="3" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfCurable"/>
@@ -3207,7 +3807,10 @@ base_stat id - (например "kWis") какой берем параметр,
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
-                <blocking affect_flags="kSanctuary"/>
+                <blocking>
+                    <affect_flags val="kSanctuary"/>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <affects type="kPrismaticAura" saving="kNone" resist="kVitality">
                     <duration base="20" skill_divisor="3" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfCurable"/>
@@ -3235,6 +3838,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <affects type="kDeafness" saving="kStability" resist="kMind">
                     <duration base="2" skill_divisor="20" min="3" max="0"/>
                     <flags val="kAfBattledec|kAfDispellable|kAfCurable"/>
@@ -3258,6 +3864,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <affects type="kDeafness" saving="kStability" resist="kMind">
                     <duration base="4" skill_divisor="10" min="3" max="0"/>
                     <flags val="kAfBattledec|kAfDispellable|kAfCurable"/>
@@ -3281,6 +3890,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <unaffect>
                     <remove any_of="kDeafness"/>
                 </unaffect>
@@ -3300,6 +3912,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <area>
                     <decay cast="0.05" level="2" free_targets="3"/>
                     <victims skill_divisor="10" dice_size="3" min_targets="5" max_targets="20"/>
@@ -3334,7 +3949,10 @@ base_stat id - (например "kWis") какой берем параметр,
                     <decay cast="0.05" level="2" free_targets="3"/>
                     <victims skill_divisor="15" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
-                <blocking mob_flags="kNoBlind"/>
+                <blocking>
+                    <mob_flags val="kNoBlind"/>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <affects type="kBlindness" saving="kStability" resist="kEarth">
                     <reposition pos="kSit"/>
                     <lag base="2" bonus_divisor="-1"/>
@@ -3360,6 +3978,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <damage saving="kStability">
                     <amount min="0" dices_weight="1.0" competencies_weight="168"/>
                 </damage>
@@ -3391,6 +4012,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <damage saving="kStability">
                     <amount min="0" dices_weight="1.0" competencies_weight="95"/>
                 </damage>
@@ -3435,7 +4059,11 @@ base_stat id - (например "kWis") какой берем параметр,
                     <breaking any_of="kEviless"/>
                     <remove any_of="kEviless"/>
                 </unaffect>
-                <blocking mob_flags="kNoHold"  affect_flags="kForcesOfEvil|kBrokenChains|kSleep"/>
+                <blocking>
+                    <mob_flags val="kNoHold"/>
+                    <affect_flags val="kForcesOfEvil|kBrokenChains|kSleep"/>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <affects type="kHold" saving="kWill" resist="kVitality">
                     <duration base="1" skill_divisor="25" min="1" max="3"/>
                     <flags val="kAfBattledec|kAfDispellable|kAfCurable"/>
@@ -3452,6 +4080,13 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="150" min="130" change="5"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagSummons"/>
+        <talent_actions>
+            <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kMassFear" element="kDark" mode="kEnabled">
         <name rus="массовый страх" eng="mass fear"/>
@@ -3461,6 +4096,9 @@ base_stat id - (например "kWis") какой берем параметр,
         <flags val="kMagMasses|kMagManual|kNpcAffectPc"/>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <area>
                     <decay cast="0.05" level="3" free_targets="3"/>
                     <victims skill_divisor="15" dice_size="2" min_targets="5" max_targets="20"/>
@@ -3481,6 +4119,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <affects type="kFascination" saving="kNone" resist="kMind">
                     <duration base="20" skill_divisor="3" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfCurable"/>
@@ -3506,7 +4147,10 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
-                <blocking affect_flags="kCrying"/>
+                <blocking>
+                    <affect_flags val="kCrying"/>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <affects type="kCrying" saving="kStability" resist="kMind">
                     <flags val="kAfDispellable|kAfCurable"/>
                     <duration base="5" skill_divisor="0" min="0" max="0"/>
@@ -3539,6 +4183,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <affects type="kOblivion" saving="kWill" resist="kDark">
                     <lag base="3" bonus_divisor="-1"/>
                     <duration base="3" skill_divisor="0" min="0" max="0"/>
@@ -3563,6 +4210,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <area>
                     <decay cast="0.05" level="8" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
@@ -3586,6 +4236,9 @@ base_stat id - (например "kWis") какой берем параметр,
         <flags val="kMagGroups|kMagPoints|kNpcDummy"/>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <area>
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
@@ -3606,7 +4259,11 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
-                <blocking mob_flags="kNoHold"  affect_flags="kPeaceful"/>
+                <blocking>
+                    <mob_flags val="kNoHold"/>
+                    <affect_flags val="kPeaceful"/>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <affects type="kPeaceful" saving="kNone" resist="kMind">
                     <flags val="kAfDispellable|kAfCurable"/>
                     <reposition stop_fight="true"/>
@@ -3627,6 +4284,9 @@ base_stat id - (например "kWis") какой берем параметр,
         <flags val="kMagManual"/>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <affects type="kMagicBattle" saving="kNone" resist="kVitality">
                     <flags val="kAfDispellable|kAfCurable"/>
                     <duration base="2" skill_divisor="20" min="0" max="0"/>
@@ -3646,6 +4306,13 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
+        <talent_actions>
+            <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kStoneBones" element="kEarth" mode="kEnabled">
         <name rus="каменные кости" eng="stone bones"/>
@@ -3664,8 +4331,13 @@ base_stat id - (например "kWis") какой берем параметр,
                      vnum range [kMobSkeleton, kLastNecroMob]): a caster's minion
                      (kTarMinionsOnly) that is a corpse-born mob (required kCorpse) and not a
                      resurrected/mounting/helper/clone NPC (blocking). -->
-                <blocking mob_flags="kResurrected|kMounting|kHelper|kClone"/>
-                <required mob_flags="kCorpse"/>
+                <blocking>
+                    <mob_flags val="kResurrected|kMounting|kHelper|kClone"/>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
+                <required>
+                    <mob_flags val="kCorpse"/>
+                </required>
                 <affects type="kStoneBones" saving="kNone" resist="kEarth">
                     <duration base="100" skill_divisor="3" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfCurable"/>
@@ -3691,6 +4363,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <affects type="kRoomLight" saving="kNone" resist="kVitality">
                     <duration base="75" skill_divisor="1" min="0" max="0"/>
                     <flags val="kAfAccumulateDuration|kAfUpdateDuration"/>
@@ -3706,6 +4381,9 @@ base_stat id - (например "kWis") какой берем параметр,
         <flags val="kMagNeedControl|kMagRoom|kMagCasterInroom"/>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <affects type="kDeadlyFog" saving="kNone" resist="kVitality">
                     <duration base="8" skill_divisor="0" min="0" max="0"/>
                     <flags val="kAfMustBeHandled"/>
@@ -3721,6 +4399,9 @@ base_stat id - (например "kWis") какой берем параметр,
         <flags val="kMagNeedControl|kMagRoom|kMagCasterInroom"/>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <affects type="kThunderstorm" saving="kNone" resist="kVitality">
                     <duration base="7" skill_divisor="0" min="0" max="0"/>
                     <flags val="kAfMustBeHandled"/>
@@ -3734,6 +4415,13 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
+        <talent_actions>
+            <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kFailure" element="kDark" mode="kEnabled">
         <name rus="недоля" eng="failure"/>
@@ -3747,6 +4435,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <area>
                     <decay cast="0.05" level="8" free_targets="3"/>
                     <victims skill_divisor="15" dice_size="2" min_targets="1" max_targets="5"/>
@@ -3785,6 +4476,13 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
+        <talent_actions>
+            <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kGlitterDust" element="kEarth" mode="kEnabled">
         <name rus="блестящая пыль" eng="glitterdust"/>
@@ -3799,6 +4497,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <area>
                     <decay cast="0.05" level="3" free_targets="5"/>
                     <victims skill_divisor="15" dice_size="3" min_targets="5" max_targets="20"/>
@@ -3833,6 +4534,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <damage saving="kStability">
                     <amount min="0" dices_weight="1.0" competencies_weight="336"/>
                 </damage>
@@ -3866,6 +4570,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <affects type="kCatGrace" saving="kNone" resist="kImmunity">
                     <duration base="20" skill_divisor="3" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfCurable"/>
@@ -3889,6 +4596,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <affects type="kBullBody" saving="kNone" resist="kImmunity">
                     <duration base="20" skill_divisor="3" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfCurable"/>
@@ -3912,6 +4622,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <affects type="kSnakeWisdom" saving="kNone" resist="kImmunity">
                     <duration base="20" skill_divisor="3" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfCurable"/>
@@ -3935,6 +4648,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <affects type="kGimmicry" saving="kNone" resist="kImmunity">
                     <duration base="20" skill_divisor="3" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfCurable"/>
@@ -4075,7 +4791,9 @@ base_stat id - (например "kWis") какой берем параметр,
                     <decay cast="0.01" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
-                <blocking affect_flags="kDeafness"/>
+                <blocking>
+                    <affect_flags val="kDeafness"/>
+                </blocking>
                 <affects type="kWarcryOfThunder" saving="kStability" resist="kVitality">
                     <reposition pos="kSit"/>
                     <lag base="2" bonus_divisor="-1"/>
@@ -4252,6 +4970,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kPeaceful|kTunnel|kNoTeleportIn|kNoMagic"/>
+                </blocking>
                 <!-- Duration approximates OLD (300+R*10)*3 around R=8 typical caster.
                      OLD's aggressive R-scaling cannot be expressed cleanly within the
                      novice-cap skill_bonus mechanism; accepting the flatter curve per
@@ -4277,7 +4998,10 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
-                <blocking affect_flags="kGodsShield"/>
+                <blocking>
+                    <affect_flags val="kGodsShield"/>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <affects type="kAconitumPoison" saving="kNone" resist="kImmunity">
                     <duration base="7" skill_divisor="0" min="0" max="0"/>
                     <flags val="kAfSameTime|kAfCurable"/>
@@ -4301,7 +5025,10 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
-                <blocking affect_flags="kGodsShield"/>
+                <blocking>
+                    <affect_flags val="kGodsShield"/>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <affects type="kScopolaPoison" saving="kNone" resist="kImmunity">
                     <duration base="7" skill_divisor="0" min="0" max="0"/>
                     <flags val="kAfSameTime|kAfCurable"/>
@@ -4328,7 +5055,10 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
-                <blocking affect_flags="kGodsShield"/>
+                <blocking>
+                    <affect_flags val="kGodsShield"/>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <affects type="kBelenaPoison" saving="kNone" resist="kImmunity">
                     <duration base="7" skill_divisor="0" min="0" max="0"/>
                     <flags val="kAfSameTime|kAfCurable"/>
@@ -4352,7 +5082,10 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
-                <blocking affect_flags="kGodsShield"/>
+                <blocking>
+                    <affect_flags val="kGodsShield"/>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <affects type="kDaturaPoison" saving="kNone" resist="kImmunity">
                     <duration base="7" skill_divisor="0" min="0" max="0"/>
                     <flags val="kAfSameTime|kAfCurable"/>
@@ -4369,6 +5102,13 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="110" min="100" change="1"/>
         <targets val="kTarObjInv|kTarObjEquip"/>
         <flags val="kMagAlterObjs"/>
+        <talent_actions>
+            <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kCombatLuck" element="kMind" mode="kEnabled">
         <name rus="боевое везение" eng="lacky"/>
@@ -4376,6 +5116,13 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="100" min="90" change="1"/>
         <targets val="kTarCharRoom|kTarSelfOnly"/>
         <flags val="kMagAffects"/>
+        <talent_actions>
+            <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kBandage" element="kUndefined" mode="kEnabled">
         <name rus="перевязка" eng="!set by programm!"/>
@@ -4383,6 +5130,13 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
+        <talent_actions>
+            <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kNoBandage" element="kUndefined" mode="kService">
         <name rus="!нельзя перевязываться!" eng="!set by programm!"/>
@@ -4390,6 +5144,13 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
+        <talent_actions>
+            <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kCapable" element="kUndefined" mode="kService">
         <name rus="!зачарован!" eng="!set by programm!"/>
@@ -4397,6 +5158,13 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
+        <talent_actions>
+            <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kStrangle" element="kUndefined" mode="kService">
         <name rus="!удушье!" eng="!set by programm!"/>
@@ -4404,6 +5172,13 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
+        <talent_actions>
+            <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kRecallSpells" element="kUndefined" mode="kService">
         <name rus="!вспоминает заклинания!" eng="!set by programm!"/>
@@ -4411,6 +5186,13 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
+        <talent_actions>
+            <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kHypnoticPattern" element="kMind" mode="kEnabled">
         <name rus="чарующий узор" eng="hypnotic pattern"/>
@@ -4420,7 +5202,10 @@ base_stat id - (например "kWis") какой берем параметр,
         <flags val="kMagRoom|kMagCasterInroom"/>
         <talent_actions>
             <action>
-                <!-- OLD: 30 + (L+R)*RollDices(1,3) -- random per-cast, mean ~114 at L=30 R=12.
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
+                <!-- OLD: 30 + (L+R)*RollDices(1,3) random per-cast, mean ~114 at L=30 R=12.
                      XML version is constant; randomisation is lost in the migration. The
                      material-component check stays code-side. -->
                 <affects type="kHypnoticPattern" saving="kNone" resist="kVitality">
@@ -4435,6 +5220,13 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="55" min="40" change="1"/>
         <targets val="kTarCharRoom|kTarNotSelf"/>
         <flags val="kMagManual"/>
+        <talent_actions>
+            <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kVampirism" element="kDark" mode="kEnabled">
         <name rus="вампиризм" eng="vampire"/>
@@ -4449,6 +5241,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <affects type="kVampirism" saving="kNone" resist="kDark">
                     <duration base="10" skill_divisor="3" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfCurable"/>
@@ -4465,6 +5260,13 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="110" min="100" change="1"/>
         <targets val="kTarObjInv|kTarObjEquip"/>
         <flags val="kMagAlterObjs"/>
+        <talent_actions>
+            <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kDeathAura" element="kDark" mode="kEnabled">
         <name rus="аура смерти" eng="aura death"/>
@@ -4474,6 +5276,9 @@ base_stat id - (например "kWis") какой берем параметр,
         <flags val="kMagGroups|kMagAffects|kNpcAffectNpc"/>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <area>
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
@@ -4487,6 +5292,13 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="110" min="100" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagAffects|kNpcAffectNpc"/>
+        <talent_actions>
+            <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kMassRecovery" element="kDark" mode="kEnabled">
         <name rus="прикосновение смерти" eng="mass recovery"/>
@@ -4496,6 +5308,9 @@ base_stat id - (например "kWis") какой берем параметр,
         <flags val="kMagGroups|kMagPoints|kNpcDummy"/>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <area>
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
@@ -4509,6 +5324,13 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="150" min="130" change="5"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagManual"/>
+        <talent_actions>
+            <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kMentalShadow" element="kMind" mode="kEnabled">
         <name rus="ментальная тень" eng="mental shadow"/>
@@ -4516,6 +5338,13 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="150" min="130" change="5"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagSummons"/>
+        <talent_actions>
+            <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kBlackTentacles" element="kDark" mode="kEnabled">
         <name rus="навьи руки" eng="evards black tentacles"/>
@@ -4528,6 +5357,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <!-- Duration approximates OLD 1+L/7 via novice-cap skill_bonus (=4 at
                      skill 75 with divisor 18 + base 1 = 5, matching L=30). The
                      incompatible-room check stays code-side. -->
@@ -4551,6 +5383,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <damage saving="kStability">
                     <amount min="0" dices_weight="1.0" competencies_weight="102"/>
                     <hits max="1" prob="14"/>
@@ -4578,7 +5413,10 @@ base_stat id - (например "kWis") какой берем параметр,
                 <damage saving="kReflex">
                     <amount min="0" dices_weight="1.0" competencies_weight="37"/>
                 </damage>
-                <blocking affect_flags="kBrokenChains"/>
+                <blocking>
+                    <affect_flags val="kBrokenChains"/>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <affects type="kIndriksTeeth" saving="kWill" resist="kEarth">
                     <duration base="3" skill_divisor="10" min="4" max="0"/>
                     <flags val="kAfBattledec|kAfDispellable|kAfCurable"/>
@@ -4602,6 +5440,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <damage saving="kReflex">
                     <amount min="0" dices_weight="1.4" competencies_weight="120"/>
                 </damage>
@@ -4641,6 +5482,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <damage saving="kReflex">
                     <amount min="0" dices_weight="1.0" competencies_weight="82.5"/>
                 </damage>
@@ -4664,6 +5508,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <damage saving="kReflex">
                     <amount min="0" dices_weight="1.0" competencies_weight="144.5"/>
                 </damage>
@@ -4682,6 +5529,13 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
+        <talent_actions>
+            <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kSightOfDarkness" element="kLight" mode="kEnabled">
         <name rus="зрение тьмы" eng="sight darkness"/>
@@ -4696,6 +5550,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <area>
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
@@ -4723,6 +5580,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <area>
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
@@ -4750,6 +5610,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <area>
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
@@ -4777,6 +5640,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <area>
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
@@ -4804,6 +5670,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <area>
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
@@ -4831,6 +5700,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <area>
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
@@ -4858,6 +5730,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <area>
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
@@ -4883,6 +5758,9 @@ base_stat id - (например "kWis") какой берем параметр,
         <flags val="kMagGroups|kMagPoints|kNpcDummy"/>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <area>
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
@@ -4903,6 +5781,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <area>
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
@@ -4930,6 +5811,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <area>
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
@@ -4957,6 +5841,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <area>
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
@@ -4984,6 +5871,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <area>
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
@@ -5011,6 +5901,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <damage saving="kReflex">
                     <amount min="0" dices_weight="1.0" competencies_weight="120"/>
                 </damage>
@@ -5030,6 +5923,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <damage saving="kReflex">
                     <amount min="0" dices_weight="1.0" competencies_weight="120"/>
                 </damage>
@@ -5049,6 +5945,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <damage saving="kReflex">
                     <amount min="0" dices_weight="1.0" competencies_weight="120"/>
                 </damage>
@@ -5068,6 +5967,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <damage saving="kReflex">
                     <amount min="0" dices_weight="1.0" competencies_weight="120"/>
                 </damage>
@@ -5087,6 +5989,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <damage saving="kReflex">
                     <amount min="0" dices_weight="1.0" competencies_weight="120"/>
                 </damage>
@@ -5107,6 +6012,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <area>
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="1" max_targets="20"/>
@@ -5150,6 +6058,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <affects type="kDexterity" saving="kNone" resist="kImmunity">
                     <duration base="20" skill_divisor="3" min="0" max="0"/>
                     <flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfCurable"/>
@@ -5177,6 +6088,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <area>
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
@@ -5204,6 +6118,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <area>
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
@@ -5234,6 +6151,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <area>
                     <decay cast="0.0" level="0" free_targets="3"/>
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
@@ -5344,6 +6264,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <area>
                     <decay cast="0.03" level="6" free_targets="4"/>
                     <victims skill_divisor="25" dice_size="2" min_targets="3" max_targets="15"/>
@@ -5393,7 +6316,10 @@ base_stat id - (например "kWis") какой берем параметр,
                     <decay cast="0.03" level="6" free_targets="5"/>
                     <victims skill_divisor="25" dice_size="2" min_targets="3" max_targets="15"/>
                 </area>
-                <blocking affect_flags="kBrokenChains"/>
+                <blocking>
+                    <affect_flags val="kBrokenChains"/>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <affects type="kSnare" saving="kWill" resist="kMind">
                     <duration base="3" skill_divisor="10" min="4" max="0"/>
                     <flags val="kAfBattledec|kAfDispellable|kAfCurable"/>
@@ -5416,6 +6342,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <damage saving="kReflex">
                     <amount min="2" dices_weight="1.0" competencies_weight="2"/>
                 </damage>
@@ -5434,6 +6363,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <damage saving="kReflex">
                     <amount min="2" dices_weight="1.0" competencies_weight="2"/>
                 </damage>
@@ -5452,6 +6384,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <damage saving="kReflex">
                     <amount min="2" dices_weight="1.0" competencies_weight="2"/>
                 </damage>
@@ -5470,6 +6405,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <damage saving="kReflex">
                     <amount min="2" dices_weight="1.0" competencies_weight="2"/>
                 </damage>
@@ -5488,6 +6426,9 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
                 <damage saving="kReflex">
                     <amount min="2" dices_weight="1.0" competencies_weight="2"/>
                 </damage>
@@ -5500,6 +6441,13 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
+        <talent_actions>
+            <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kLowerEffectiveness" element="kUndefined" mode="kService">
         <name rus="снижение боеспособности" eng="injured"/>
@@ -5507,6 +6455,13 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
+        <talent_actions>
+            <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kNoInjure" element="kUndefined" mode="kService">
         <name rus="ранение" eng="injured"/>
@@ -5514,6 +6469,13 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
+        <talent_actions>
+            <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kNoCharge" element="kUndefined" mode="kService">
         <name rus="натиск" eng="injured"/>
@@ -5521,6 +6483,13 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
+        <talent_actions>
+            <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kConfuse" element="kUndefined" mode="kService">
         <name rus="ошарашен" eng="injured"/>
@@ -5528,6 +6497,13 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
+        <talent_actions>
+            <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kIdentify" element="kMind" mode="kEnabled">
         <name rus="идентификация" eng="identify"/>
@@ -5535,6 +6511,13 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="0" min="0" change="0"/>
         <targets val="kTarCharRoom|kTarObjInv|kTarObjRoom|kTarObjEquip"/>
         <flags val="kMagManual"/>
+        <talent_actions>
+            <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kFullIdentify" element="kMind" mode="kEnabled">
         <name rus="полная идентификация" eng="identify"/>
@@ -5542,6 +6525,13 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="0" min="0" change="0"/>
         <targets val="kTarCharRoom|kTarObjInv|kTarObjRoom|kTarObjEquip"/>
         <flags val="kMagManual"/>
+        <talent_actions>
+            <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kQUest" element="kUndefined" mode="kService">
         <name rus="!чары!" eng="!quest spell!"/>
@@ -5549,5 +6539,12 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="55" min="40" change="1"/>
         <targets val="kTarCharRoom|kTarNotSelf"/>
         <flags val="kMagManual"/>
+        <talent_actions>
+            <action>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
+            </action>
+        </talent_actions>
     </spell>
 </spells>

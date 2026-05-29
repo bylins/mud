@@ -4,6 +4,7 @@
 #include "engine/ui/modify.h"
 #include "engine/entities/char_data.h"
 #include "magic.h" //Включено ради material_component_processing
+#include "magic_utils.h" // IsRoomBlocked / MayCastInForbiddenRoom (issue.room-affects)
 #include "engine/ui/table_wrapper.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/skills/townportal.h"
@@ -393,6 +394,21 @@ int CallMagicToRoom(CharData *ch, RoomData *room, CastRollResult roll) {
 		return 0;
 	}
 
+	// Data-driven room block (issue.room-affects): mirrors the check at the top of
+	// CallMagic. The spell's <blocking><room_flags val=".."/></blocking> matches the
+	// caster's room (kRuneLabel: kPeaceful/kTunnel/kNoTeleportIn fizzle). Fizzle
+	// narration lives in spell_msg.xml; the default sheaf covers the generic case,
+	// the kRuneLabel sheaf overrides with its rune-specific phrasing.
+	if (IsRoomBlocked(world[ch->in_room], MUD::Spell(spell_id).actions.GetBlocking())
+			&& !MayCastInForbiddenRoom(ch)) {
+		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kCastForbiddenToChar) + "\r\n", ch);
+		const auto &to_room = MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kCastForbiddenToRoom);
+		if (!to_room.empty()) {
+			act(to_room.c_str(), false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
+		}
+		return 0;
+	}
+
 	Affect<ERoomApply> af[kMaxSpellAffects];
 	for (i = 0; i < kMaxSpellAffects; i++) {
 		af[i].type = spell_id;
@@ -407,8 +423,9 @@ int CallMagicToRoom(CharData *ch, RoomData *room, CastRollResult roll) {
 
 	// Data-driven defaults from the spell's <talent_actions>/<affects> block, if present
 	// (issue.room-affects). Fills af[0] with duration, battleflag, and modifier. Per-case
-	// special overrides (fizzles, mana-caster, mat-component, room-flag blockers) follow
-	// in the switch below.
+	// special overrides (mana-caster, kBlackTentacles' kForMono/kForPoly skip) follow in
+	// the switch below; room-flag fizzles and material components were lifted out and now
+	// run universally above.
 	//
 	// NOTE on duration units: room-affect durations are in RAW ROOM-TICK PULSES (not in
 	// hours-then-converted like char affects). The reader uses base + skill_bonus directly,
@@ -462,20 +479,6 @@ int CallMagicToRoom(CharData *ch, RoomData *room, CastRollResult roll) {
 			}
 			break;
 
-		case ESpell::kRuneLabel:
-			if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kPeaceful)
-				|| ROOM_FLAGGED(ch->in_room, ERoomFlag::kTunnel)
-				|| ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoTeleportIn)) {
-				// Fizzle: cancel the talent-set affect (the XML kAffImposed* path is for
-				// the success case only) and emit the room-flag-specific narration.
-				af[0].duration = 0;
-				af[0].battleflag = 0;
-				to_char = "Вы начертали свое имя рунами на земле, знаки вспыхнули, но ничего не произошло.";
-				to_room = "$n начертил$g на земле несколько рун, знаки вспыхнули, но ничего не произошло.";
-			}
-			lag = 2;
-			break;
-
 		case ESpell::kBlackTentacles:
 			if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kForMono)
 				|| ROOM_FLAGGED(ch->in_room, ERoomFlag::kForPoly)) {
@@ -484,9 +487,10 @@ int CallMagicToRoom(CharData *ch, RoomData *room, CastRollResult roll) {
 			break;
 
 		// All other room spells (kRoomLight, kDeadlyFog, kMeteorStorm, kThunderstorm,
-		// kHypnoticPattern) get their entire affect data from the XML talent block above
-		// -- no per-case override. (kHypnoticPattern's material-component check moved
-		// into the universal ProcessMatComponents call at the top of the function.)
+		// kHypnoticPattern, kRuneLabel) get their entire affect data from the XML talent
+		// block above -- no per-case override. (kHypnoticPattern's material-component
+		// check moved into the universal ProcessMatComponents call at the top of the
+		// function; kRuneLabel's room-flag fizzle migrated to <blocking><room_flags/>.)
 		default: break;
 	}
 	if (success) {
@@ -533,10 +537,10 @@ int CallMagicToRoom(CharData *ch, RoomData *room, CastRollResult roll) {
 	}
 
 	if (success) {
-		// Code-set messages win (kForbidden's modifier-tier text, kRuneLabel's "fizzled"
-		// variant); spell_msg.xml supplies the fallback for the data-driven success path
-		// (issue.room-affects). A sheaf with no kAffImposed* key shows nothing -- same
-		// silent-skip behaviour as the per-spell handler in CastAffect (issue #3335).
+		// Code-set messages win (kForbidden's modifier-tier text); spell_msg.xml supplies
+		// the fallback for the data-driven success path (issue.room-affects). A sheaf with
+		// no kAffImposed* key shows nothing -- same silent-skip behaviour as the per-spell
+		// handler in CastAffect (issue #3335).
 		const auto &sheaf = MUD::SpellMessages()[spell_id];
 		if (to_room != nullptr) {
 			act(to_room, true, ch, nullptr, nullptr, kToRoom | kToArenaListen);

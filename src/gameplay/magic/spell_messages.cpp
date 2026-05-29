@@ -78,6 +78,8 @@ const std::string &NAME_BY_ITEM<ESpellMsg>(const ESpellMsg item) {
 		{ESpellMsg::kReflectedToVict, "kReflectedToVict"},
 		{ESpellMsg::kReflectedToRoom, "kReflectedToRoom"},
 		{ESpellMsg::kAffExpired, "kAffExpired"},
+		{ESpellMsg::kCastForbiddenToChar, "kCastForbiddenToChar"},
+		{ESpellMsg::kCastForbiddenToRoom, "kCastForbiddenToRoom"},
 	};
 	return kMap.at(item);
 }
@@ -150,6 +152,8 @@ ESpellMsg ITEM_BY_NAME<ESpellMsg>(const std::string &name) {
 		{"kReflectedToVict", ESpellMsg::kReflectedToVict},
 		{"kReflectedToRoom", ESpellMsg::kReflectedToRoom},
 		{"kAffExpired", ESpellMsg::kAffExpired},
+		{"kCastForbiddenToChar", ESpellMsg::kCastForbiddenToChar},
+		{"kCastForbiddenToRoom", ESpellMsg::kCastForbiddenToRoom},
 	};
 	return kMap.at(name); // throws std::out_of_range on unknown name
 }

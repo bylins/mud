@@ -12,9 +12,10 @@
 namespace talents_actions {
 
 namespace {
-// Mob flags (EMobFlag) addressable from the <blocking>/<required> mob_flags="..." tags. A
-// focused table rather than a full EMobFlag name registry: only flags meaningful as a cast
-// gate (immunities for <blocking>, target requirements like kCorpse for <required>) live here.
+// Mob flags (EMobFlag) addressable from the <blocking>/<required>/<caster_blocking>
+// <mob_flags val=...> child tag. A focused table rather than a full EMobFlag name registry:
+// only flags meaningful as a cast gate (immunities for <blocking>, target requirements like
+// kCorpse for <required>) live here.
 const std::map<std::string, EMobFlag> kBlockingFlagByName{
 	{"kNoBlind", EMobFlag::kNoBlind},
 	{"kNoSleep", EMobFlag::kNoSleep},
@@ -29,6 +30,21 @@ const std::map<std::string, EMobFlag> kBlockingFlagByName{
 	{"kMounting", EMobFlag::kMounting},
 	{"kHelper", EMobFlag::kHelper},
 	{"kClone", EMobFlag::kClone},
+};
+
+// Room flags (ERoomFlag) addressable from the <blocking>/<required>/<caster_blocking>
+// <room_flags val=...> child tag. A focused table -- only flags meaningful as a cast gate
+// live here (kNoMagic is the universal "magic doesn't work here" gate for all non-warcry
+// spells; the others are spell-specific blockers like kRuneLabel's room-flag fizzle path).
+const std::map<std::string, ERoomFlag> kBlockingRoomFlagByName{
+	{"kNoMagic", ERoomFlag::kNoMagic},
+	{"kPeaceful", ERoomFlag::kPeaceful},
+	{"kTunnel", ERoomFlag::kTunnel},
+	{"kNoTeleportIn", ERoomFlag::kNoTeleportIn},
+	{"kNoBattle", ERoomFlag::kNoBattle},
+	{"kGodsRoom", ERoomFlag::kGodsRoom},
+	{"kForMono", ERoomFlag::kForMono},
+	{"kForPoly", ERoomFlag::kForPoly},
 };
 
 // Parse a `|`-separated list of ESpell names (an any_of/all_of attribute of an
@@ -390,6 +406,16 @@ void PrintFlagCondition(const char *label, const FlagCondition &cond, std::ostri
 	for (const auto flag : cond.affect_flags) {
 		buffer << " " << kColorGrn << NAME_BY_ITEM<EAffect>(flag) << kColorNrm;
 	}
+	for (const auto flag : cond.room_flags) {
+		std::string flag_name = "?";
+		for (const auto &[name, value] : kBlockingRoomFlagByName) {
+			if (value == flag) {
+				flag_name = name;
+				break;
+			}
+		}
+		buffer << " room:" << kColorGrn << flag_name << kColorNrm;
+	}
 	if (cond.align == EAlign::kGood) {
 		buffer << " align=" << kColorGrn << "kGood" << kColorNrm;
 	} else if (cond.align == EAlign::kEvil) {
@@ -445,39 +471,54 @@ void Actions::Build(parser_wrapper::DataNode &node) {
  *  Парсеры воздействий
  */
 
-// Parse a <blocking>/<required> tag: mob_flags (EMobFlag, from the focused name table) and
-// affect_flags (EAffect) -- both `|`-separated lists. Accumulates into the given condition.
+// Parse a <blocking>/<required>/<caster_blocking> tag. Schema: child tags <mob_flags val=>,
+// <affect_flags val=>, <room_flags val=>, <align val=>, each with a `|`-separated value
+// (or a single token for <align>). Accumulates into the given condition. The child-tag
+// form (issue.affect-flags step 2) replaced the previous attribute-list form so the line
+// stays readable when several axes are combined (kNoMagic blocking now lives on most spells).
 void Actions::ParseFlagCondition(FlagCondition &cond, parser_wrapper::DataNode &node) {
-	const char *mob = node.GetValue("mob_flags");
-	if (mob && *mob) {
-		for (const auto &flag_name : utils::Split(mob, '|')) {
-			const auto it = kBlockingFlagByName.find(flag_name);
-			if (it != kBlockingFlagByName.end()) {
-				cond.mob_flags.push_back(it->second);
-			} else {
-				err_log("Actions: unknown EMobFlag '%s' in <blocking/required mob_flags>.", flag_name.c_str());
+	for (auto &child : node.Children()) {
+		const auto name = child.GetName();
+		const char *val = child.GetValue("val");
+		if (!val || !*val) {
+			continue;
+		}
+		if (strcmp(name, "mob_flags") == 0) {
+			for (const auto &flag_name : utils::Split(val, '|')) {
+				const auto it = kBlockingFlagByName.find(flag_name);
+				if (it != kBlockingFlagByName.end()) {
+					cond.mob_flags.push_back(it->second);
+				} else {
+					err_log("Actions: unknown EMobFlag '%s' in <mob_flags>.", flag_name.c_str());
+				}
 			}
-		}
-	}
-	const char *aff = node.GetValue("affect_flags");
-	if (aff && *aff) {
-		for (const auto &flag_name : utils::Split(aff, '|')) {
-			cond.affect_flags.push_back(parse::ReadAsConstant<EAffect>(flag_name.c_str()));
-		}
-	}
-	// align (issue.cast-dmg-migration): blocking/required tied to the target's alignment via
-	// the IsGood / IsEvil / IsNeutral inline functions. Absent = no alignment check; valid
-	// values are "kGood" / "kEvil" / "kNeutral".
-	const char *align = node.GetValue("align");
-	if (align && *align) {
-		if (strcmp(align, "kGood") == 0) {
-			cond.align = EAlign::kGood;
-		} else if (strcmp(align, "kEvil") == 0) {
-			cond.align = EAlign::kEvil;
-		} else if (strcmp(align, "kNeutral") == 0) {
-			cond.align = EAlign::kNeutral;
-		} else {
-			err_log("Actions: unknown EAlign '%s' in <blocking/required align>.", align);
+		} else if (strcmp(name, "affect_flags") == 0) {
+			for (const auto &flag_name : utils::Split(val, '|')) {
+				cond.affect_flags.push_back(parse::ReadAsConstant<EAffect>(flag_name.c_str()));
+			}
+		} else if (strcmp(name, "room_flags") == 0) {
+			// ERoomFlag (issue.affect-flags): blocking by the CASTER's current room flags.
+			// Drives the kNoMagic blocking for all non-warcry spells and per-spell
+			// blockers like kRuneLabel's kPeaceful/kTunnel/kNoTeleportIn.
+			for (const auto &flag_name : utils::Split(val, '|')) {
+				const auto it = kBlockingRoomFlagByName.find(flag_name);
+				if (it != kBlockingRoomFlagByName.end()) {
+					cond.room_flags.push_back(it->second);
+				} else {
+					err_log("Actions: unknown ERoomFlag '%s' in <room_flags>.", flag_name.c_str());
+				}
+			}
+		} else if (strcmp(name, "align") == 0) {
+			// kGood / kEvil / kNeutral; absent = no alignment check.
+			if (strcmp(val, "kGood") == 0) {
+				cond.align = EAlign::kGood;
+			} else if (strcmp(val, "kEvil") == 0) {
+				cond.align = EAlign::kEvil;
+			} else if (strcmp(val, "kNeutral") == 0) {
+				cond.align = EAlign::kNeutral;
+			} else {
+				err_log("Actions: unknown EAlign '%s' in <align>.", val);
+			}
 		}
 	}
 }

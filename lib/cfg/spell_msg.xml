@@ -54,6 +54,8 @@
 		<message type="kAffDispelledToRoom" val="Быстрые тени метнулись вокруг $n3." />
 		<message type="kAffDispelledToChar" val="Волна тепла прошла по вашему телу." />
 		<message type="kAffExpired" val="Магия, наложенная на вас, рассеялась." />
+		<message type="kCastForbiddenToChar" val="Ваша магия потерпела неудачу и развеялась по воздуху." />
+		<message type="kCastForbiddenToRoom" val="Магия $n1 потерпела неудачу и развеялась по воздуху." />
 	</msg_sheaf>
 
 	<msg_sheaf id="kCureLight">
@@ -2194,6 +2196,8 @@
 		<message type="kAffExpired" val="Магические письмена на земле угасли." />
 		<message type="kAffImposedToChar" val="Вы начертали свое имя рунами на земле и произнесли заклинание." />
 		<message type="kAffImposedToRoom" val="$n начертил$g на земле несколько рун и произнес$q заклинание." />
+		<message type="kCastForbiddenToChar" val="Вы начертали свое имя рунами на земле, знаки вспыхнули, но ничего не произошло." />
+		<message type="kCastForbiddenToRoom" val="$n начертил$g на земле несколько рун, знаки вспыхнули, но ничего не произошло." />
 	</msg_sheaf>
 	<msg_sheaf id="kAconitumPoison">
 		<message type="kAffDispelledToRoom" val="$n выглядит лучше." />

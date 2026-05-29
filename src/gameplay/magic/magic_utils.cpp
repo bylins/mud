@@ -273,13 +273,31 @@ abilities::EAbility FixNameAndFindAbilityId(const std::string &name) {
 	return FindAbilityId(copy.c_str());
 }
 
-bool MayCastInNomagic(CharData *caster, ESpell spell_id) {
-	if (caster->IsGrGod() || MUD::Spell(spell_id).IsFlagged(kMagWarcry)) {
+bool MayCastInForbiddenRoom(CharData *caster) {
+	if (caster->IsGrGod()) {
 		return true;
 	}
 	if (caster->IsNpc() &&
 		!(AFF_FLAGGED(caster, EAffect::kCharmed) || caster->IsFlagged(EMobFlag::kTutelar)))
 		return true;
+	return false;
+}
+
+// Data-driven room-flag block: true if `room` carries any of the flags listed in
+// the spell's <blocking><room_flags val="..."/></blocking>. Mirrors the per-target
+// blocking helper in magic.cpp but examines the caster's room instead of the victim.
+// Together with MayCastInForbiddenRoom() this replaces the hard-coded
+// ROOM_FLAGGED(..., kNoMagic) check that used to live at the top of CallMagic, and
+// drives the kRuneLabel fizzle that used to live in CallMagicToRoom's switch.
+bool IsRoomBlocked(RoomData *room, const talents_actions::FlagCondition &cond) {
+	if (!room) {
+		return false;
+	}
+	for (const auto flag : cond.room_flags) {
+		if (room->get_flag(flag)) {
+			return true;
+		}
+	}
 	return false;
 }
 
@@ -390,10 +408,19 @@ int CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict
 	if (spell_id < ESpell::kFirst || spell_id > ESpell::kLast)
 		return 0;
 
-	if (ROOM_FLAGGED(caster->in_room, ERoomFlag::kNoMagic) && !MayCastInNomagic(caster, spell_id)) {
-		SendMsgToChar("Ваша магия потерпела неудачу и развеялась по воздуху.\r\n", caster);
-		act("Магия $n1 потерпела неудачу и развеялась по воздуху.",
-			false, caster, nullptr, nullptr, kToRoom | kToArenaListen);
+	// Data-driven room block (issue.room-affects): any spell whose XML
+	// <talent_actions><action><blocking><room_flags val="kNoMagic|..."/></blocking></action>
+	// matches the caster's room fizzles here. MayCastInForbiddenRoom() is the
+	// per-caster bypass (greater gods, uncharmed NPCs). The fizzle messages live
+	// in spell_msg.xml -- the default sheaf carries the generic narration; spells
+	// like kRuneLabel override with their own kCastForbidden* keys.
+	if (IsRoomBlocked(world[caster->in_room], MUD::Spell(spell_id).actions.GetBlocking())
+			&& !MayCastInForbiddenRoom(caster)) {
+		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kCastForbiddenToChar) + "\r\n", caster);
+		const auto &to_room = MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kCastForbiddenToRoom);
+		if (!to_room.empty()) {
+			act(to_room.c_str(), false, caster, nullptr, nullptr, kToRoom | kToArenaListen);
+		}
 		return 0;
 	}
 

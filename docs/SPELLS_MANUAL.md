@@ -252,36 +252,61 @@ that fires aborts damage *and* affect *and* heal for that target.
 ### 4.1 `<blocking>`
 
 ```xml
-<blocking mob_flags="kNoSleep" affect_flags="kHold|kSleep" align="kGood"/>
+<blocking>
+    <mob_flags val="kNoSleep"/>
+    <affect_flags val="kHold|kSleep"/>
+    <room_flags val="kNoMagic"/>
+    <align val="kGood"/>
+</blocking>
 ```
 
-The cast is refused on a target that **carries any one** of the listed
-flags/alignment. Mob flags are checked only on NPCs.
+The cast is refused if **any one** of the listed conditions matches: a
+mob flag (NPC only), an affect flag (any target), the alignment selector
+(target alignment), or a room flag (CASTER's current room). Each axis is
+optional; combine as many as the spell needs.
 
-| Attribute | Values |
+The child-tag form is used because lines get long when several axes
+combine (e.g. `kNoMagic` blocking now lives on almost every spell). The
+older attribute form (`<blocking mob_flags="..."/>`) has been retired.
+
+| Child tag | Values |
 |---|---|
-| `mob_flags` | `\|`-separated `EMobFlag` names. Recognised: `kNoBlind`, `kNoSleep`, `kNoSilence`, `kNoHold`, `kNoBash`, `kNoCharm`, `kNoSummon`, `kNoFear`, `kCorpse`, `kResurrected`, `kMounting`, `kHelper`, `kClone`. |
-| `affect_flags` | `\|`-separated `EAffect` names (any affect flag the engine recognises). |
-| `align` | `kGood`, `kEvil`, `kNeutral` — block if the target carries this alignment. |
+| `<mob_flags val="…"/>` | `\|`-separated `EMobFlag` names. Recognised: `kNoBlind`, `kNoSleep`, `kNoSilence`, `kNoHold`, `kNoBash`, `kNoCharm`, `kNoSummon`, `kNoFear`, `kCorpse`, `kResurrected`, `kMounting`, `kHelper`, `kClone`. |
+| `<affect_flags val="…"/>` | `\|`-separated `EAffect` names (any affect flag the engine recognises). |
+| `<room_flags val="…"/>` | `\|`-separated `ERoomFlag` names. Recognised: `kNoMagic`, `kPeaceful`, `kTunnel`, `kNoTeleportIn`, `kNoBattle`, `kGodsRoom`, `kForMono`, `kForPoly`. Matches against the caster's room. |
+| `<align val="…"/>` | `kGood`, `kEvil`, `kNeutral` — block if the target carries this alignment. |
 
-On a single-target spell, a block emits `kNoeffect` to the caster. On a
-group/mass cast, the block is silent for that target (no per-target spam).
+On a single-target spell, a target-side block emits `kNoeffect` to the
+caster. On a group/mass cast, a target-side block is silent for that
+target (no per-target spam). A **room-flag block** is different: it
+fizzles the *whole* cast before any per-target dispatch and emits
+`kCastForbiddenToChar` / `kCastForbiddenToRoom` (see §15). Greater gods
+and uncharmed/non-tutelar NPCs bypass the room-flag block
+(`MayCastInForbiddenRoom`); warcry spells simply do not list `kNoMagic`
+as a blocking flag, so the same bypass isn't needed for them.
 
 ### 4.2 `<required>`
 
 ```xml
-<required mob_flags="kCorpse" affect_flags="kCharmed" align="kEvil"/>
+<required>
+    <mob_flags val="kCorpse"/>
+    <affect_flags val="kCharmed"/>
+    <align val="kEvil"/>
+</required>
 ```
 
-Same attribute shape as `<blocking>` but the cast is refused unless the
+Same child-tag shape as `<blocking>` but the cast is refused unless the
 target **has all** the listed flags/alignment. Use it for "only on
 corpses" (animate dead), "only on charmed minions", "only on evil
-creatures" (dispel evil), etc.
+creatures" (dispel evil), etc. `<required>` does not currently use
+`<room_flags>`.
 
 ### 4.3 `<caster_blocking>`
 
 ```xml
-<caster_blocking align="kEvil"/>
+<caster_blocking>
+    <align val="kEvil"/>
+</caster_blocking>
 ```
 
 Mirrors `<blocking>` but examines the **caster**. Used to refuse a cast that
@@ -978,6 +1003,8 @@ specific spell hasn't overridden.
 | `kReflectedToChar` | Reflection: spell bounced back. | Caster |
 | `kReflectedToVict` | Reflection: target who reflected. | Original victim |
 | `kReflectedToRoom` | Reflection: onlookers. | Room |
+| `kCastForbiddenToChar` | Room-block fizzle: caster's room carries a `<blocking><room_flags val>` flag (`kNoMagic` etc.). | Caster |
+| `kCastForbiddenToRoom` | Room-block fizzle: announcement to onlookers. Empty means stay silent. | Room |
 | `kCantCastPosition`, `kCantCastSleeping`, … | Cast-precondition failures. | Caster |
 | `kAreaToChar`, `kAreaToRoom`, `kAreaToVict` | Area cast announcement. | Various |
 | `kSummonToRoom`, `kSummonFail`, `kSummonNoCorpse`, … | Summon outcomes. | Various |
@@ -991,6 +1018,11 @@ A message lookup tries the spell's own sheaf first, then falls back to
 `kDefault`. Imposition / dispel / reflection messages are exceptions:
 they're looked up sheaf-directly with **no kDefault fallback**, so a
 missing key just stays silent rather than leaking a wrong default.
+`kCastForbiddenToChar` *does* fall back to `kDefault` (so every spell
+shares the generic "Ваша магия потерпела неудачу…" line by default), and
+`kCastForbiddenToRoom` is treated as optional — an empty result means
+"announce nothing to the room", letting spells like `kRuneLabel`
+override only when they want their own narration.
 
 ---
 
@@ -1042,7 +1074,11 @@ missing key just stays silent rather than leaking a wrong default.
     </potency_roll>
     <talent_actions>
         <action>
-            <blocking mob_flags="kNoSleep" affect_flags="kHold"/>
+            <blocking>
+                <mob_flags val="kNoSleep"/>
+                <affect_flags val="kHold"/>
+                <room_flags val="kNoMagic"/>
+            </blocking>
             <affects type="kSleep" saving="kWill" resist="kMind">
                 <reposition pos="kSleep"/>
                 <duration base="1" skill_divisor="15" min="1" max="6"/>
@@ -1163,19 +1199,28 @@ missing key just stays silent rather than leaking a wrong default.
     </potency_roll>
     <talent_actions>
         <action>
+            <blocking>
+                <room_flags val="kNoMagic"/>
+            </blocking>
+            <required>
+                <align val="kEvil"/>
+            </required>
+            <caster_blocking>
+                <align val="kEvil"/>
+            </caster_blocking>
             <damage saving="kStability">
                 <amount min="0" dices_weight="1.0" competencies_weight="122"/>
             </damage>
-            <required align="kEvil"/>
-            <caster_blocking align="kEvil"/>
         </action>
     </talent_actions>
 </spell>
 ```
 
-* `<required align="kEvil"/>` — the *target* must be evil, else `kNoeffect`.
-* `<caster_blocking align="kEvil"/>` — the *caster* must not be evil, else
-  `kNoeffect` (the old "wrath of light" behaviour, now data-driven).
+* `<required><align val="kEvil"/></required>` — the *target* must be evil, else `kNoeffect`.
+* `<caster_blocking><align val="kEvil"/></caster_blocking>` — the *caster* must not be
+  evil, else `kNoeffect` (the old "wrath of light" behaviour, now data-driven).
+* `<blocking><room_flags val="kNoMagic"/></blocking>` — universal NOMAGIC-room fizzle
+  added to all non-warcry spells; emits `kCastForbidden*` (see §15).
 
 ### 13.6 A reflection template
 
@@ -1288,13 +1333,22 @@ The thresholds for "good / evil / neutral" come from
 
 `kAfBattledec` · `kAfDeadkeep` · `kAfPulsedec` · `kAfSameTime` ·
 `kAfUpdateDuration` · `kAfAccumulateDuration` · `kAfUpdateMod` ·
-`kAfDispellable` · `kAfCurable`.
+`kAfDispellable` · `kAfCurable` · `kAfMustBeHandled` · `kAfUnique`.
 
-### 14.7 `EMobFlag` allowed in `<blocking mob_flags>` / `<required mob_flags>`
+### 14.7 `EMobFlag` allowed in `<blocking><mob_flags val>` / `<required><mob_flags val>`
 
 `kNoBlind` · `kNoSleep` · `kNoSilence` · `kNoHold` · `kNoBash` · `kNoCharm`
 · `kNoSummon` · `kNoFear` · `kCorpse` · `kResurrected` · `kMounting` ·
 `kHelper` · `kClone`. Add new ones to the `kBlockingFlagByName` table in
+`src/gameplay/abilities/talents_actions.cpp` to expose more.
+
+### 14.7b `ERoomFlag` allowed in `<blocking><room_flags val>`
+
+`kNoMagic` · `kPeaceful` · `kTunnel` · `kNoTeleportIn` · `kNoBattle` ·
+`kGodsRoom` · `kForMono` · `kForPoly`. The room check matches against the
+**caster's** current room, fires *before* per-target dispatch, and emits
+`kCastForbiddenToChar` / `kCastForbiddenToRoom` (see §15). Add new ones
+to the `kBlockingRoomFlagByName` table in
 `src/gameplay/abilities/talents_actions.cpp` to expose more.
 
 ### 14.8 `EAffect` (status flags for `<apply id>` and the various
