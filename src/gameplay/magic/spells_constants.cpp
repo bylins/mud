@@ -292,6 +292,12 @@ void init_ESpell_ITEM_NAMES() {
 	ESpell_name_by_value[ESpell::kDazzle] = "kDazzle";
 	ESpell_name_by_value[ESpell::kGreatHeal] = "kGreatHeal";
 	ESpell_name_by_value[ESpell::kFrenzy] = "kFrenzy";
+	// Testing placeholders -- see spells_constants.h for the slot policy.
+	ESpell_name_by_value[ESpell::kTestOne] = "kTestOne";
+	ESpell_name_by_value[ESpell::kTestTwo] = "kTestTwo";
+	ESpell_name_by_value[ESpell::kTestThree] = "kTestThree";
+	ESpell_name_by_value[ESpell::kTestFour] = "kTestFour";
+	ESpell_name_by_value[ESpell::kTestFive] = "kTestFive";
 
 	for (const auto &i : ESpell_name_by_value) {
 		ESpell_value_by_name[i.second] = i.first;

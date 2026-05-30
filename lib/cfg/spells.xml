@@ -7197,4 +7197,25 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </talent_actions>
     </spell>
+
+    <!-- Placeholder slots for spell prototyping in test mode. Reserve a slot,
+         write the real <talent_actions>/<flags>/<targets>/etc. inline under
+         the placeholder id, then rename the ESpell constant (and this entry)
+         when the spell graduates. mode="kTesting" keeps the spell out of the
+         normal spell book until it's promoted. -->
+    <spell id="kTestOne" mode="kTesting">
+        <name rus="тест 1" eng="test 1"/>
+    </spell>
+    <spell id="kTestTwo" mode="kTesting">
+        <name rus="тест 2" eng="test 2"/>
+    </spell>
+    <spell id="kTestThree" mode="kTesting">
+        <name rus="тест 3" eng="test 3"/>
+    </spell>
+    <spell id="kTestFour" mode="kTesting">
+        <name rus="тест 4" eng="test 4"/>
+    </spell>
+    <spell id="kTestFive" mode="kTesting">
+        <name rus="тест 5" eng="test 5"/>
+    </spell>
 </spells>
