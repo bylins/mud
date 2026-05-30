@@ -574,6 +574,35 @@ void SpellPortal(CharData *ch, CharData *victim) {
 	}
 }
 
+// SpellSummon follow-up: relocate any charmice in the summoned victim's
+// old room to the caster's room with the same disappear/appear narration
+// used for the main victim. Each charmice is sent a "you were summoned"
+// notification via kCustomMsgTwo.
+static void SummonFollowingCharmices(CharData *ch, CharData *victim, RoomRnum vic_room, RoomRnum ch_room) {
+// призываем чармисов
+for (auto *k : victim->followers) {
+	if (k->in_room == vic_room) {
+		if (AFF_FLAGGED(k, EAffect::kCharmed)) {
+			if (!k->GetEnemy()) {
+				// Charmice reuses kSummon's disappear/appear keys but with the
+				// kCustomMsgThree "arrived following the master" line on arrival.
+				act(MUD::SpellMessages().GetMessage(
+						ESpell::kSummon, ESpellMsg::kCastDisappearToRoom).c_str(),
+					true, k, nullptr, nullptr, kToRoom | kToArenaListen);
+				RemoveCharFromRoom(k);
+				PlaceCharToRoom(k, ch_room);
+				act(MUD::SpellMessages().GetMessage(
+						ESpell::kSummon, ESpellMsg::kCustomMsgThree).c_str(),
+					true, k, nullptr, nullptr, kToRoom | kToArenaListen);
+				act(MUD::SpellMessages().GetMessage(
+						ESpell::kSummon, ESpellMsg::kCustomMsgTwo).c_str(),
+					false, ch, nullptr, k, kToVict);
+			}
+		}
+	}
+}
+}
+
 void SpellSummon(CharData *ch, CharData *victim) {
 	RoomRnum ch_room, vic_room;
 
@@ -707,28 +736,7 @@ void SpellSummon(CharData *ch, CharData *victim) {
 		false, ch, nullptr, victim, kToVict);
 	victim->dismount();
 	look_at_room(victim, 0);
-	// призываем чармисов
-	for (auto *k : victim->followers) {
-		if (k->in_room == vic_room) {
-			if (AFF_FLAGGED(k, EAffect::kCharmed)) {
-				if (!k->GetEnemy()) {
-					// Charmice reuses kSummon's disappear/appear keys but with the
-					// kCustomMsgThree "arrived following the master" line on arrival.
-					act(MUD::SpellMessages().GetMessage(
-							ESpell::kSummon, ESpellMsg::kCastDisappearToRoom).c_str(),
-						true, k, nullptr, nullptr, kToRoom | kToArenaListen);
-					RemoveCharFromRoom(k);
-					PlaceCharToRoom(k, ch_room);
-					act(MUD::SpellMessages().GetMessage(
-							ESpell::kSummon, ESpellMsg::kCustomMsgThree).c_str(),
-						true, k, nullptr, nullptr, kToRoom | kToArenaListen);
-					act(MUD::SpellMessages().GetMessage(
-							ESpell::kSummon, ESpellMsg::kCustomMsgTwo).c_str(),
-						false, ch, nullptr, k, kToVict);
-				}
-			}
-		}
-	}
+	SummonFollowingCharmices(ch, victim, vic_room, ch_room);
 	greet_mtrigger(victim, -1);
 	greet_otrigger(victim, -1);
 }
@@ -1157,9 +1165,228 @@ void print_book_uprgd_skill(CharData *ch, const ObjData *obj) {
 	}
 }
 
-void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness) {
-	int i, found, drndice = 0, drsdice = 0, j;
+// Per-type detail block of mort_show_obj_values. Pulled out so the parent
+// stays under the 200-line ceiling and the type-specific rendering can be
+// read without scrolling past the shared header / footer code.
+static void ShowObjTypeSpecificValues(const ObjData *obj, CharData *ch) {
+	int i, j, drndice = 0, drsdice = 0;
 	long int li;
+	(void) i; (void) j; (void) li;  // some branches do not touch all of them
+switch (obj->get_type()) {
+	case EObjType::kScroll:
+	case EObjType::kPotion: {
+		std::ostringstream out;
+		out << "Содержит заклинание:";
+		for (auto val = 1; val < 4; ++val) {
+			auto spell_id = static_cast<ESpell>(GET_OBJ_VAL(obj, val));
+			if (MUD::Spell(spell_id).IsValid()) {
+				out << " Ур. [" << GET_OBJ_VAL(obj, 0) << "] " << MUD::Spell(spell_id).GetName() << ",";
+			}
+		}
+		if (out.str().back() == ',') {
+			out.seekp(-1, out.end);
+		}
+		out << "\r\n";
+		SendMsgToChar(out.str(), ch);
+		break;
+	}
+	case EObjType::kWand:
+	case EObjType::kStaff: sprintf(buf, "Вызывает заклинания: ");
+		sprintf(buf + strlen(buf), " %s\r\n",
+				MUD::Spell(static_cast<ESpell>(GET_OBJ_VAL(obj, 3))).GetCName());
+		sprintf(buf + strlen(buf), "Зарядов %d (осталось %d).\r\n",
+				GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2));
+		SendMsgToChar(buf, ch);
+		break;
+
+	case EObjType::kWeapon: drndice = GET_OBJ_VAL(obj, 1);
+		drsdice = GET_OBJ_VAL(obj, 2);
+		sprintf(buf, "Наносимые повреждения '%dD%d'", drndice, drsdice);
+		sprintf(buf + strlen(buf), " среднее %.1f.\r\n", ((drsdice + 1) * drndice / 2.0));
+		SendMsgToChar(buf, ch);
+		break;
+
+	case EObjType::kArmor:
+	case EObjType::kLightArmor:
+	case EObjType::kMediumArmor:
+	case EObjType::kHeavyArmor: drndice = GET_OBJ_VAL(obj, 0);
+		drsdice = GET_OBJ_VAL(obj, 1);
+		sprintf(buf, "защита (AC) : %d\r\n", drndice);
+		SendMsgToChar(buf, ch);
+		sprintf(buf, "броня       : %d\r\n", drsdice);
+		SendMsgToChar(buf, ch);
+		break;
+
+	case EObjType::kBook:
+		switch (GET_OBJ_VAL(obj, 0)) {
+			case EBook::kSpell: {
+				auto spell_id = static_cast<ESpell>(GET_OBJ_VAL(obj, 1));
+				if (spell_id >= ESpell::kFirst && spell_id <= ESpell::kLast) {
+					drndice = GET_OBJ_VAL(obj, 1);
+					if (MUD::Class(ch->GetClass()).spells.IsAvailable(spell_id)) {
+						drsdice = CalcMinSpellLvl(ch, spell_id, GET_OBJ_VAL(obj, 2));
+					} else {
+						drsdice = kLvlImplementator;
+					}
+					sprintf(buf, "содержит заклинание        : \"%s\"\r\n", MUD::Spell(spell_id).GetCName());
+					SendMsgToChar(buf, ch);
+					sprintf(buf, "уровень изучения (для вас) : %d\r\n", drsdice);
+					SendMsgToChar(buf, ch);
+				}
+				break;
+			}
+			case EBook::kSkill: {
+				auto skill_id = static_cast<ESkill>(GET_OBJ_VAL(obj, 1));
+				if (MUD::Skills().IsValid(skill_id)) {
+					drndice = GET_OBJ_VAL(obj, 1);
+					if (MUD::Class(ch->GetClass()).skills[skill_id].IsAvailable()) {
+						drsdice = GetSkillMinLevel(ch, skill_id, GET_OBJ_VAL(obj, 2));
+					} else {
+						drsdice = kLvlImplementator;
+					}
+					sprintf(buf, "содержит секрет умения     : \"%s\"\r\n", MUD::Skill(skill_id).GetName());
+					SendMsgToChar(buf, ch);
+					sprintf(buf, "уровень изучения (для вас) : %d\r\n", drsdice);
+					SendMsgToChar(buf, ch);
+				}
+				break;
+			}
+			case EBook::kSkillUpgrade: print_book_uprgd_skill(ch, obj);
+				break;
+
+			case EBook::kReceipt: drndice = im_get_recipe(GET_OBJ_VAL(obj, 1));
+				if (drndice >= 0) {
+					drsdice = std::max(GET_OBJ_VAL(obj, 2), imrecipes[drndice].level);
+					int count = imrecipes[drndice].remort;
+					if (imrecipes[drndice].classknow[to_underlying(ch->GetClass())] != kKnownRecipe)
+						drsdice = kLvlImplementator;
+					sprintf(buf, "содержит рецепт отвара     : \"%s\"\r\n", imrecipes[drndice].name);
+					SendMsgToChar(buf, ch);
+					if (drsdice == -1 || count == -1) {
+						SendMsgToChar(kColorBoldRed, ch);
+						SendMsgToChar("Некорректная запись рецепта для вашего класса - сообщите Богам.\r\n", ch);
+						SendMsgToChar(kColorNrm, ch);
+					} else if (drsdice == kLvlImplementator) {
+						sprintf(buf, "уровень изучения (количество ремортов) : %d (--)\r\n", drsdice);
+						SendMsgToChar(buf, ch);
+					} else {
+						sprintf(buf, "уровень изучения (количество ремортов) : %d (%d)\r\n", drsdice, count);
+						SendMsgToChar(buf, ch);
+					}
+				}
+				break;
+
+			case EBook::kFeat: {
+				const auto feat_id = static_cast<EFeat>(GET_OBJ_VAL(obj, 1));
+				if (MUD::Feat(feat_id).IsValid()) {
+					if (CanGetFeat(ch, feat_id)) {
+						drsdice = MUD::Class(ch->GetClass()).feats[feat_id].GetSlot();
+					} else {
+						drsdice = kLvlImplementator;
+					}
+					sprintf(buf, "содержит секрет способности : \"%s\"\r\n", MUD::Feat(feat_id).GetCName());
+					SendMsgToChar(buf, ch);
+					sprintf(buf, "уровень изучения (для вас) : %d\r\n", drsdice);
+					SendMsgToChar(buf, ch);
+				}
+			}
+				break;
+
+			default: SendMsgToChar(kColorBoldRed, ch);
+				SendMsgToChar("НЕВЕРНО УКАЗАН ТИП КНИГИ - сообщите Богам\r\n", ch);
+				SendMsgToChar(kColorNrm, ch);
+				break;
+		}
+		break;
+
+	case EObjType::kMagicIngredient: sprintbit(obj->get_spec_param(), ingradient_bits, buf2, sizeof(buf2));
+		snprintf(buf, kMaxStringLength, "%s\r\n", buf2);
+		SendMsgToChar(buf, ch);
+
+		if (IS_SET(obj->get_spec_param(), kItemCheckUses)) {
+			sprintf(buf, "можно применить %d раз\r\n", GET_OBJ_VAL(obj, 2));
+			SendMsgToChar(buf, ch);
+		}
+
+		if (IS_SET(obj->get_spec_param(), kItemCheckLag)) {
+			sprintf(buf, "можно применить 1 раз в %d сек", (i = GET_OBJ_VAL(obj, 0) & 0xFF));
+			if (GET_OBJ_VAL(obj, 3) == 0 || GET_OBJ_VAL(obj, 3) + i < time(nullptr))
+				strcat(buf, "(можно применять).\r\n");
+			else {
+				li = GET_OBJ_VAL(obj, 3) + i - time(nullptr);
+				sprintf(buf + strlen(buf), "(осталось %ld сек).\r\n", li);
+			}
+			SendMsgToChar(buf, ch);
+		}
+
+		if (IS_SET(obj->get_spec_param(), kItemCheckLevel)) {
+			sprintf(buf, "можно применить с %d уровня.\r\n", (GET_OBJ_VAL(obj, 0) >> 8) & 0x1F);
+			SendMsgToChar(buf, ch);
+		}
+
+		if ((i = GetObjRnum(GET_OBJ_VAL(obj, 1))) >= 0) {
+			sprintf(buf, "прототип %s%s%s.\r\n",
+					kColorBoldCyn, obj_proto[i]->get_PName(ECase::kNom).c_str(), kColorNrm);
+			SendMsgToChar(buf, ch);
+		}
+		break;
+
+	case EObjType::kMagicComponent:
+		for (j = 0; imtypes[j].id != GET_OBJ_VAL(obj, IM_TYPE_SLOT) && j <= top_imtypes;) {
+			j++;
+		}
+		sprintf(buf, "Это ингредиент вида '%s%s%s'\r\n", kColorCyn, imtypes[j].name, kColorNrm);
+		SendMsgToChar(buf, ch);
+		i = GET_OBJ_VAL(obj, IM_POWER_SLOT);
+		if (i > 45) { // тут явно опечатка была, кроме того у нас мобы и выше 40лвл
+			SendMsgToChar("Вы не в состоянии определить качество этого ингредиента.\r\n", ch);
+		} else {
+			sprintf(buf, "Качество ингредиента ");
+			if (i > 40)
+				strcat(buf, "божественное.\r\n");
+			else if (i > 35)
+				strcat(buf, "идеальное.\r\n");
+			else if (i > 30)
+				strcat(buf, "наилучшее.\r\n");
+			else if (i > 25)
+				strcat(buf, "превосходное.\r\n");
+			else if (i > 20)
+				strcat(buf, "отличное.\r\n");
+			else if (i > 15)
+				strcat(buf, "очень хорошее.\r\n");
+			else if (i > 10)
+				strcat(buf, "выше среднего.\r\n");
+			else if (i > 5)
+				strcat(buf, "весьма посредственное.\r\n");
+			else
+				strcat(buf, "хуже не бывает.\r\n");
+			SendMsgToChar(buf, ch);
+		}
+		break;
+
+		//Информация о контейнерах (Купала)
+	case EObjType::kContainer: sprintf(buf, "Максимально вместимый вес: %d.\r\n", GET_OBJ_VAL(obj, 0));
+		SendMsgToChar(buf, ch);
+		break;
+
+		//Информация о емкостях (Купала)
+	case EObjType::kLiquidContainer: drinkcon::identify(ch, obj);
+		break;
+
+	case EObjType::kMagicArrow:
+	case EObjType::kMagicContaner: sprintf(buf, "Может вместить стрел: %d.\r\n", GET_OBJ_VAL(obj, 1));
+		sprintf(buf, "Осталось стрел: %s%d&n.\r\n",
+				GET_OBJ_VAL(obj, 2) > 3 ? "&G" : "&R", GET_OBJ_VAL(obj, 2));
+		SendMsgToChar(buf, ch);
+		break;
+
+	default: break;
+} // switch
+}
+
+void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness) {
+	int i;
+	bool found;
 	bool enhansed_scroll = false;
 	
 	if (fullness > 399) {
@@ -1249,216 +1476,7 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness) {
 	if (fullness < 75)
 		return;
 
-	switch (obj->get_type()) {
-		case EObjType::kScroll:
-		case EObjType::kPotion: {
-			std::ostringstream out;
-			out << "Содержит заклинание:";
-			for (auto val = 1; val < 4; ++val) {
-				auto spell_id = static_cast<ESpell>(GET_OBJ_VAL(obj, val));
-				if (MUD::Spell(spell_id).IsValid()) {
-					out << " Ур. [" << GET_OBJ_VAL(obj, 0) << "] " << MUD::Spell(spell_id).GetName() << ",";
-				}
-			}
-			if (out.str().back() == ',') {
-				out.seekp(-1, out.end);
-			}
-			out << "\r\n";
-			SendMsgToChar(out.str(), ch);
-			break;
-		}
-		case EObjType::kWand:
-		case EObjType::kStaff: sprintf(buf, "Вызывает заклинания: ");
-			sprintf(buf + strlen(buf), " %s\r\n",
-					MUD::Spell(static_cast<ESpell>(GET_OBJ_VAL(obj, 3))).GetCName());
-			sprintf(buf + strlen(buf), "Зарядов %d (осталось %d).\r\n",
-					GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2));
-			SendMsgToChar(buf, ch);
-			break;
-
-		case EObjType::kWeapon: drndice = GET_OBJ_VAL(obj, 1);
-			drsdice = GET_OBJ_VAL(obj, 2);
-			sprintf(buf, "Наносимые повреждения '%dD%d'", drndice, drsdice);
-			sprintf(buf + strlen(buf), " среднее %.1f.\r\n", ((drsdice + 1) * drndice / 2.0));
-			SendMsgToChar(buf, ch);
-			break;
-
-		case EObjType::kArmor:
-		case EObjType::kLightArmor:
-		case EObjType::kMediumArmor:
-		case EObjType::kHeavyArmor: drndice = GET_OBJ_VAL(obj, 0);
-			drsdice = GET_OBJ_VAL(obj, 1);
-			sprintf(buf, "защита (AC) : %d\r\n", drndice);
-			SendMsgToChar(buf, ch);
-			sprintf(buf, "броня       : %d\r\n", drsdice);
-			SendMsgToChar(buf, ch);
-			break;
-
-		case EObjType::kBook:
-			switch (GET_OBJ_VAL(obj, 0)) {
-				case EBook::kSpell: {
-					auto spell_id = static_cast<ESpell>(GET_OBJ_VAL(obj, 1));
-					if (spell_id >= ESpell::kFirst && spell_id <= ESpell::kLast) {
-						drndice = GET_OBJ_VAL(obj, 1);
-						if (MUD::Class(ch->GetClass()).spells.IsAvailable(spell_id)) {
-							drsdice = CalcMinSpellLvl(ch, spell_id, GET_OBJ_VAL(obj, 2));
-						} else {
-							drsdice = kLvlImplementator;
-						}
-						sprintf(buf, "содержит заклинание        : \"%s\"\r\n", MUD::Spell(spell_id).GetCName());
-						SendMsgToChar(buf, ch);
-						sprintf(buf, "уровень изучения (для вас) : %d\r\n", drsdice);
-						SendMsgToChar(buf, ch);
-					}
-					break;
-				}
-				case EBook::kSkill: {
-					auto skill_id = static_cast<ESkill>(GET_OBJ_VAL(obj, 1));
-					if (MUD::Skills().IsValid(skill_id)) {
-						drndice = GET_OBJ_VAL(obj, 1);
-						if (MUD::Class(ch->GetClass()).skills[skill_id].IsAvailable()) {
-							drsdice = GetSkillMinLevel(ch, skill_id, GET_OBJ_VAL(obj, 2));
-						} else {
-							drsdice = kLvlImplementator;
-						}
-						sprintf(buf, "содержит секрет умения     : \"%s\"\r\n", MUD::Skill(skill_id).GetName());
-						SendMsgToChar(buf, ch);
-						sprintf(buf, "уровень изучения (для вас) : %d\r\n", drsdice);
-						SendMsgToChar(buf, ch);
-					}
-					break;
-				}
-				case EBook::kSkillUpgrade: print_book_uprgd_skill(ch, obj);
-					break;
-
-				case EBook::kReceipt: drndice = im_get_recipe(GET_OBJ_VAL(obj, 1));
-					if (drndice >= 0) {
-						drsdice = std::max(GET_OBJ_VAL(obj, 2), imrecipes[drndice].level);
-						int count = imrecipes[drndice].remort;
-						if (imrecipes[drndice].classknow[to_underlying(ch->GetClass())] != kKnownRecipe)
-							drsdice = kLvlImplementator;
-						sprintf(buf, "содержит рецепт отвара     : \"%s\"\r\n", imrecipes[drndice].name);
-						SendMsgToChar(buf, ch);
-						if (drsdice == -1 || count == -1) {
-							SendMsgToChar(kColorBoldRed, ch);
-							SendMsgToChar("Некорректная запись рецепта для вашего класса - сообщите Богам.\r\n", ch);
-							SendMsgToChar(kColorNrm, ch);
-						} else if (drsdice == kLvlImplementator) {
-							sprintf(buf, "уровень изучения (количество ремортов) : %d (--)\r\n", drsdice);
-							SendMsgToChar(buf, ch);
-						} else {
-							sprintf(buf, "уровень изучения (количество ремортов) : %d (%d)\r\n", drsdice, count);
-							SendMsgToChar(buf, ch);
-						}
-					}
-					break;
-
-				case EBook::kFeat: {
-					const auto feat_id = static_cast<EFeat>(GET_OBJ_VAL(obj, 1));
-					if (MUD::Feat(feat_id).IsValid()) {
-						if (CanGetFeat(ch, feat_id)) {
-							drsdice = MUD::Class(ch->GetClass()).feats[feat_id].GetSlot();
-						} else {
-							drsdice = kLvlImplementator;
-						}
-						sprintf(buf, "содержит секрет способности : \"%s\"\r\n", MUD::Feat(feat_id).GetCName());
-						SendMsgToChar(buf, ch);
-						sprintf(buf, "уровень изучения (для вас) : %d\r\n", drsdice);
-						SendMsgToChar(buf, ch);
-					}
-				}
-					break;
-
-				default: SendMsgToChar(kColorBoldRed, ch);
-					SendMsgToChar("НЕВЕРНО УКАЗАН ТИП КНИГИ - сообщите Богам\r\n", ch);
-					SendMsgToChar(kColorNrm, ch);
-					break;
-			}
-			break;
-
-		case EObjType::kMagicIngredient: sprintbit(obj->get_spec_param(), ingradient_bits, buf2, sizeof(buf2));
-			snprintf(buf, kMaxStringLength, "%s\r\n", buf2);
-			SendMsgToChar(buf, ch);
-
-			if (IS_SET(obj->get_spec_param(), kItemCheckUses)) {
-				sprintf(buf, "можно применить %d раз\r\n", GET_OBJ_VAL(obj, 2));
-				SendMsgToChar(buf, ch);
-			}
-
-			if (IS_SET(obj->get_spec_param(), kItemCheckLag)) {
-				sprintf(buf, "можно применить 1 раз в %d сек", (i = GET_OBJ_VAL(obj, 0) & 0xFF));
-				if (GET_OBJ_VAL(obj, 3) == 0 || GET_OBJ_VAL(obj, 3) + i < time(nullptr))
-					strcat(buf, "(можно применять).\r\n");
-				else {
-					li = GET_OBJ_VAL(obj, 3) + i - time(nullptr);
-					sprintf(buf + strlen(buf), "(осталось %ld сек).\r\n", li);
-				}
-				SendMsgToChar(buf, ch);
-			}
-
-			if (IS_SET(obj->get_spec_param(), kItemCheckLevel)) {
-				sprintf(buf, "можно применить с %d уровня.\r\n", (GET_OBJ_VAL(obj, 0) >> 8) & 0x1F);
-				SendMsgToChar(buf, ch);
-			}
-
-			if ((i = GetObjRnum(GET_OBJ_VAL(obj, 1))) >= 0) {
-				sprintf(buf, "прототип %s%s%s.\r\n",
-						kColorBoldCyn, obj_proto[i]->get_PName(ECase::kNom).c_str(), kColorNrm);
-				SendMsgToChar(buf, ch);
-			}
-			break;
-
-		case EObjType::kMagicComponent:
-			for (j = 0; imtypes[j].id != GET_OBJ_VAL(obj, IM_TYPE_SLOT) && j <= top_imtypes;) {
-				j++;
-			}
-			sprintf(buf, "Это ингредиент вида '%s%s%s'\r\n", kColorCyn, imtypes[j].name, kColorNrm);
-			SendMsgToChar(buf, ch);
-			i = GET_OBJ_VAL(obj, IM_POWER_SLOT);
-			if (i > 45) { // тут явно опечатка была, кроме того у нас мобы и выше 40лвл
-				SendMsgToChar("Вы не в состоянии определить качество этого ингредиента.\r\n", ch);
-			} else {
-				sprintf(buf, "Качество ингредиента ");
-				if (i > 40)
-					strcat(buf, "божественное.\r\n");
-				else if (i > 35)
-					strcat(buf, "идеальное.\r\n");
-				else if (i > 30)
-					strcat(buf, "наилучшее.\r\n");
-				else if (i > 25)
-					strcat(buf, "превосходное.\r\n");
-				else if (i > 20)
-					strcat(buf, "отличное.\r\n");
-				else if (i > 15)
-					strcat(buf, "очень хорошее.\r\n");
-				else if (i > 10)
-					strcat(buf, "выше среднего.\r\n");
-				else if (i > 5)
-					strcat(buf, "весьма посредственное.\r\n");
-				else
-					strcat(buf, "хуже не бывает.\r\n");
-				SendMsgToChar(buf, ch);
-			}
-			break;
-
-			//Информация о контейнерах (Купала)
-		case EObjType::kContainer: sprintf(buf, "Максимально вместимый вес: %d.\r\n", GET_OBJ_VAL(obj, 0));
-			SendMsgToChar(buf, ch);
-			break;
-
-			//Информация о емкостях (Купала)
-		case EObjType::kLiquidContainer: drinkcon::identify(ch, obj);
-			break;
-
-		case EObjType::kMagicArrow:
-		case EObjType::kMagicContaner: sprintf(buf, "Может вместить стрел: %d.\r\n", GET_OBJ_VAL(obj, 1));
-			sprintf(buf, "Осталось стрел: %s%d&n.\r\n",
-					GET_OBJ_VAL(obj, 2) > 3 ? "&G" : "&R", GET_OBJ_VAL(obj, 2));
-			SendMsgToChar(buf, ch);
-			break;
-
-		default: break;
-	} // switch
+	ShowObjTypeSpecificValues(obj, ch);
 
 	if (fullness < 90) {
 		return;
