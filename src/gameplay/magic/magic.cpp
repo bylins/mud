@@ -14,10 +14,10 @@
 
 #include "magic.h"
 #include "magic_internal.h"
-#include "magic_rooms.h"  // room-affect helpers reused by CastUnaffects' room branch (issue.room-dispell)
+#include "magic_rooms.h"  // room-affect helpers reused by CastUnaffects' room branch
 
-#include "gameplay/core/game_limits.h"  // gain_condition (issue.mag-points)
-#include "gameplay/mechanics/liquid.h"   // kMaxCondition (issue.point-bugs thirst/full degrade)
+#include "gameplay/core/game_limits.h"  // gain_condition
+#include "gameplay/mechanics/liquid.h"   // kMaxCondition
 #include "engine/core/action_targeting.h"
 //#include "gameplay/affects/affect_handler.h"
 #include "gameplay/affects/affect_data.h"
@@ -222,7 +222,7 @@ int CalcGeneralSaving(CharData *killer, CharData *victim, ESaving type, int ext_
 	int save = CalcSaving(killer, victim, type, true);
 	int rnd = number(-200, 200);
 	char smallbuf[256];
-	// Saving-throw debug trace (issue.spell-msg-improve): the 3 hardcoded immortal-name
+	// Saving-throw debug trace: the 3 hardcoded immortal-name
 	// short-circuits (Верий/Кудояр/Рогоза) were removed -- send_to_TC already gates the
 	// message on EPrf::kTester / kCoderinfo / IsImpl, which is the correct way to opt in.
 	if (number(1, 100) <= 5 || (AFF_FLAGGED(victim, EAffect::kHold) && type == ESaving::kReflex)) { //абсолютный фейл
@@ -357,7 +357,6 @@ int CalcBaseDmg(CharData *ch, ESpell spell_id) {
 	return base_dmg;
 }
 
-// CalcHeal retired in issue.mag-points -- its body folded into CastToPoints
 // as a local lambda that handles every category (heal / moves / thirst /
 // cond) uniformly.
 
@@ -475,7 +474,6 @@ static int CalcTotalSpellDmg(CharData *ch, CharData *victim, ESpell spell_id) {
 // Three defensive checks shared between CastDamage and CastAffect. Each returns true (and emits
 // the standard 3-line ToChar/ToNotVict/ToVict message trio) when the defense fires; the caller
 // decides what to do next (recursive self-cast for reflection, early return for absorption).
-//
 // Conditions match the stricter set that CastAffect used (IsViolent / !ch->IsGod / same-room
 // for the magic mirror; +remort/2 bias on the sonic barrier; IsViolent on the shield block).
 // CastDamage previously had slightly looser conditions for some of these; in practice the diffs
@@ -642,10 +640,9 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 
 // Material-item match: an object qualifies as a component for `vnum` if it is
 // of type kMagicIngredient and its get_val(1) -- the prototype-vnum field of
-// magic ingredients -- equals the listed vnum. This is the "match by val(1),
-// not by object's own vnum" rule the user laid out in issue.spellcomponents
-// follow-up: a single material requirement can be satisfied by multiple
-// concrete ingredient prototypes, as long as each carries the right val(1).
+// magic ingredients -- equals the listed vnum (match by val(1), not by the
+// object's own vnum). A single material requirement can therefore be satisfied
+// by multiple concrete ingredient prototypes that carry the right val(1).
 static inline bool IsMaterialFor(const ObjData *o, int vnum) {
 	return o != nullptr
 		&& o->get_type() == EObjType::kMagicIngredient
@@ -763,11 +760,10 @@ static void ConsumeMatComponent(CharData *caster, ObjData *obj, int cost,
 }
 
 // Walk the spell's <components>/<material> entries and verify each requirement
-// (issue.spellcomponents). Returns kBreak if any material's all_of/any_of
+// Returns kBreak if any material's all_of/any_of
 // cannot be satisfied; kSuccess otherwise. Matched items are consumed
 // (val(2)-- and possibly destroyed). Spells with no <components> block
 // return kSuccess immediately -- no requirement, no work.
-//
 // Narration (the use / missing / exhausted prose) is looked up sheaf-directly
 // in spell_msg.xml on the cast spell -- a missing key stays silent, matching
 // the kAffImposed* convention. The kSheaf reference and the message strings
@@ -794,7 +790,7 @@ EStageResult ProcessMatComponents(CharData *caster, CharData *victim, ESpell spe
 				mat.where & (EFind::kObjEquip | EFind::kObjInventory | EFind::kObjRoom);
 		if (allowed == 0) {
 			log("SYSERR: spell %s: <material where> has no eq/inv/room flag "
-				"(where=%lu); cast aborted (issue.spellcomponents).",
+				"(where=%lu); cast aborted.",
 				NAME_BY_ITEM<ESpell>(spell_id).c_str(),
 				static_cast<unsigned long>(mat.where));
 			return EStageResult::kBreak;
@@ -1612,12 +1608,12 @@ static bool MaybeSpawnAdditionalClones(int level, CharData *ch, ObjData *obj, ES
 	return true;
 }
 
-// Helpers driving the per-category CastToPoints refactor (issue.point-bugs).
+// Helpers driving the per-category CastToPoints refactor.
 namespace {
 
 // One row of the four-category dispatch table. The Amount lives in TalentPoints
 // and gates whether this category fires at all (skip if !present, no calc_amount
-// invocation -- the eager-compute waste was issue.point-bugs #1).
+// invocation -- the eager-compute waste).
 struct PointsCategory {
 	points_intensity::ECategory cat;
 	ESpellMsg msg_key;
@@ -1640,7 +1636,7 @@ auto MakeAmountCalculator(const CharData *ch, double dice, double competencies, 
 	};
 }
 
-// Per-category percent formula for the {intensity} placeholder. issue.point-bugs #5+#6:
+// Per-category percent formula for the {intensity} placeholder:
 // - heal/moves use amount-relative percent (positive on improve, negative on degrade).
 // - thirst/full IMPROVE uses "fraction of current condition relieved" (positive 0..100).
 // - thirst/full DEGRADE uses signed percent of the AFTER-state on the 0..48 scale, so a
@@ -1730,7 +1726,7 @@ EStageResult CastToPoints([[maybe_unused]] int level, CharData *ch, CharData *vi
 		log("MAG_POINTS: Ошибка! Не указана цель, spell_id: %d!\r\n", to_underlying(spell_id));
 		return EStageResult::kSuccess;
 	}
-	// Fully data-driven (issue.mag-points): every category (heal / moves /
+	// Fully data-driven: every category (heal / moves /
 	// thirst / full) lives in the spell's <points> block. Spells without one
 	// are misconfigured -- log and skip rather than crash.
 	if (!MUD::Spell(spell_id).actions.Contains(talents_actions::EAction::kPoints)) {
@@ -1756,7 +1752,7 @@ EStageResult CastToPoints([[maybe_unused]] int level, CharData *ch, CharData *vi
 	const double bonus_mod = ch->add_abils.percent_spellpower_add / 100.0;
 	auto calc_amount = MakeAmountCalculator(ch, dice, competencies, bonus_mod);
 
-	// Per-category dispatch. issue.point-bugs #1: only present categories run
+	// Per-category dispatch: only present categories run
 	// through calc_amount and reach the apply/emit pass; spells with a single
 	// <heal> tag won't touch the moves/thirst/full math at all.
 	const PointsCategory categories[] = {
@@ -1790,7 +1786,7 @@ EStageResult CastToPoints([[maybe_unused]] int level, CharData *ch, CharData *vi
 		}
 	}
 
-	// Apply + narrate per category (issue.point-bugs #2: one message per
+	// Apply + narrate per category (one message per
 	// non-zero amount, emitted in heal/moves/thirst/full order). The percent
 	// formula reads the BEFORE-state for thirst/full degrade, so the message
 	// for each category is emitted right after that category is applied to
@@ -1854,7 +1850,7 @@ bool HasDispellableAffect(CharData *victim, ESpell spell, Bitvector flags) {
 	return false;
 }
 
-// Evaluate a <blocking>/<breaking> condition set (IsAffectedBySpell only, issue #3342):
+// Evaluate a <blocking>/<breaking> condition set (IsAffectedBySpell only):
 // true if any any_of affect is present, or every all_of affect is present.
 bool UnaffectConditionMet(CharData *victim, const talents_actions::TalentUnaffect::Set &set) {
 	for (const auto spell : set.any_of) {
@@ -1890,7 +1886,7 @@ struct RemovalCandidate {
 //   - wildcard_any (any_of="*")-> ONE eligible affect picked uniformly at random
 //   - wildcard_all (all_of="*")-> EVERY eligible affect on the victim
 // Each candidate carries the set's breaking_by_failure. The wildcards replaced the dedicated
-// kDispellMagic code path (issue.dispell) and enable generic "strip-by-flag" dispels (e.g.
+// kDispellMagic code path and enable generic "strip-by-flag" dispels (e.g.
 // future sphere-specific dispels added by tagging affects with kAfXSphere flags).
 void CollectRemovals(CharData *victim, const talents_actions::TalentUnaffect::Set &set,
 					 std::vector<RemovalCandidate> &out, Bitvector flags) {
@@ -1933,7 +1929,7 @@ void CollectRemovals(CharData *victim, const talents_actions::TalentUnaffect::Se
 }
 
 // A successful dispel of a stacked affect peels one stack instead of removing it
-//: for every affect of `spell` with stacks > 1, reduce the stack count by 1
+// for every affect of `spell` with stacks > 1, reduce the stack count by 1
 // and the accumulated modifier proportionally (~modifier/stacks), re-applying so the character's
 // stats update. If no affect of the spell has more than one stack, remove it outright.
 void ReduceStackOrRemove(CharData *victim, ESpell spell) {
@@ -1967,7 +1963,7 @@ void ReduceStackOrRemove(CharData *victim, ESpell spell) {
 }
 
 // Remove one affect (or peel a stack of it) and show its own dispel message (keyed by the removed
-// affect's spell, issues #3335/#3342); an affect whose sheaf has no such message shows nothing.
+// affect's spell; an affect whose sheaf has no such message shows nothing.
 void RemoveAffectAndAnnounce(CharData *ch, CharData *victim, ESpell removed) {
 	ReduceStackOrRemove(victim, removed);
 	const auto &sheaf = MUD::SpellMessages()[removed];
@@ -2033,7 +2029,7 @@ bool DispelSucceeds(CharData *ch, CharData *victim, ESpell dispel_spell, ESpell 
 	return ok;
 }
 
-// === Room-target overloads (issue.room-dispell) ===
+// === Room-target overloads ===
 // Mirror the char helpers above for a RoomData target. Room affects share the Affect template
 // (Affect<ERoomApply>) so the potency/debuff/battleflag fields read identically; only the storage
 // (room->affected vs victim->affected) and the apply/remove APIs differ. PK gating is intentionally
@@ -2235,9 +2231,8 @@ EStageResult RunCastUnaffects(CharData *ch, TTarget *target, ESpell spell_id,
 }  // namespace
 
 // Data-driven dispel stage. Dispatches on the non-null target: a CharData strips affects from
-// the victim (the historical path), a RoomData strips affects from the room (issue.room-dispell).
+// the victim (the historical path), a RoomData strips affects from the room.
 // Exactly one of {victim, room} should be non-null; passing both is treated as the char path.
-//
 // TODO(#3342): CastUnaffects has no saving (success) check yet. kEnergyDrain/kWeaknes
 // used to gate their kStrength/kDexterity removal behind a save in CastAffect; until
 // that check is added here the buff is stripped regardless of the save. See their
@@ -2287,11 +2282,9 @@ static const char *EnchantWeapon(CharData *ch, ObjData *obj, ESpell spell_id) {
 			|| GetObjByVnumInContent(GlobalDrop::MAGIC3_ENCHANT_VNUM, reagobj))) {
 		// у нас имеется доп символ для зачарования
 		obj->set_enchant(ch->GetSkill(ESkill::kLightMagic), reagobj);
-		// issue.spellcomponents follow-up: the legacy
-		//   bool ProcessMatComponents(caster, vnum_unused, spell_id)
-		// overload (held-slot consumption) was retired; the data-driven
-		// EStageResult overload now handles the kEnchantWeapon material
-		// requirement via <components><material vnum="..." where="kObjInventory"/>
+		// kEnchantWeapon's magical-symbol consumption now flows through the
+		// data-driven <components><material> path, so nothing more is needed
+		// here other than the enchant being recorded above.
 		// declared on kEnchantWeapon in spells.xml. Return value (kBreak when
 		// the inventory ingredient is absent) is intentionally ignored at this
 		// point: the enchant has already landed via set_enchant above, so the
@@ -2524,13 +2517,12 @@ EStageResult CastCreation(int/* level*/, CharData *ch, ESpell spell_id) {
 	if (!tobj) {
 		// Prototype lookup failed -- player-facing narration through the cast spell's
 		// sheaf (kDefault fallback), plus a SYSERR for designers/admins
-		// (issue.spell-msg-improve).
 		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kItemNoPrototype) + "\r\n", ch);
 		log("SYSERR: spell_creations, spell %d, obj %d: obj not found", to_underlying(spell_id), obj_vnum);
 		return EStageResult::kSuccess;
 	}
 
-	// Creation narration (issue.spell-msg-improve): act() with $o = the new object; the
+	// Creation narration: act() with $o = the new object; the
 	// kDefault sheaf carries the generic lines, per-spell overrides may flavour them.
 	const auto &item_room_msg =
 			MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kItemCreatedToRoom);
@@ -2862,7 +2854,7 @@ int CastToSingleTarget(CharData *caster, CharData *cvict, ObjData *ovict, CastRo
 }
 
 // Сообщения массовых/площадных заклинаний вынесены в lib/cfg/spell_msg.xml
-//: kAreaToChar / kAreaToRoom / kAreaToVict, доступны через
+// kAreaToChar / kAreaToRoom / kAreaToVict, доступны через
 // MUD::SpellMessages(). См. CallMagicToArea / CallMagicToGroup.
 
 void TrySendCastMessages(CharData *ch, CharData *victim, RoomData *room, ESpell spell_id) {

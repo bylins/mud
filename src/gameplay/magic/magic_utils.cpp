@@ -56,7 +56,6 @@ int MagusCastRequiredLevel(const CharData *ch, ESpell spell_id) {
 // True if `ch`'s race counts as "verbal": the cast is narrated as articulated speech
 // (PC always, plus the five humanoid NPC races that historically had their own narration
 // set). Non-humanoid NPC races default to "sound" -- a single collapsed narration line.
-// (issue.spell-msg-improve.)
 static bool IsCasterVerbal(CharData *ch) {
 	if (!ch->IsNpc()) {
 		return true;
@@ -82,7 +81,7 @@ void SaySpell(CharData *ch, ESpell spell_id, CharData *tch, ObjData *tobj) {
 	// (do_cast / CastSpell / process_player_attack bail out earlier), but
 	// a non-verbal spell will, and still has no business announcing prose.
 	// The cast itself continues; only the spoken phrase + room narration
-	// are suppressed. (issue.spellcomponents.)
+	// are suppressed.
 	if (AFF_FLAGGED(ch, EAffect::kSilence)) {
 		return;
 	}
@@ -95,7 +94,7 @@ void SaySpell(CharData *ch, ESpell spell_id, CharData *tch, ObjData *tobj) {
 		// A non-verbal spell may legitimately ship no cast phrase -- the
 		// caster simply makes no sound here. A verbal spell with no phrase
 		// IS a content gap, so keep the CMP-level mudlog for that case.
-		// (issue.spellcomponents: cast phrase is decorative for non-verbal
+		// (cast phrase is decorative for non-verbal
 		// spells. Speak it if present; stay silent otherwise.)
 		if (MUD::Spell(spell_id).IsVerbal()) {
 			sprintf(buf, "[ERROR]: SaySpell: для спелла %d не объявлена cast_phrase", to_underlying(spell_id));
@@ -127,7 +126,7 @@ void SaySpell(CharData *ch, ESpell spell_id, CharData *tch, ObjData *tobj) {
 				SendMsgToChar(OK, ch);
 			}
 		} else {
-			// Cast-incantation banner (issue.spell-msg-improve): kCastIncantToChar in the
+			// Cast-incantation banner: kCastIncantToChar in the
 			// cast spell's sheaf (with kDefault fallback) carries the line shown to the
 			// caster. {color}/{name}/{nrm} placeholders resolve to bold-red or bold-green
 			// by IsViolent, the spell's GetCName, and the colour reset. Warcry spells
@@ -340,7 +339,7 @@ int ComputeApplyModifier(const talents_actions::TalentAffect::Apply &apply,
 	const double competencies = potency.skill_coeff + potency.stat_coeff;
 	double raw = apply.min + std::ceil(competencies * apply.competencies_weight
 									   + potency.dices * apply.dices_weight);
-	// Optional cap on raw magnitude before factor (issue.modifier-cap). 0 = no cap.
+	// Optional cap on raw magnitude before factor. 0 = no cap.
 	// Clamps the buff/debuff magnitude regardless of factor sign.
 	if (apply.cap > 0) {
 		raw = std::min(raw, static_cast<double>(apply.cap));
@@ -437,7 +436,7 @@ private:
  * Spellnum 0 is legal but silently ignored here, to make callers simpler.
  */
 // Evaluates the spell's success and potency rolls against the caster once, so the
-// result can be threaded to the cast-dispatch functions (issue #3333). The roll
+// result can be threaded to the cast-dispatch functions. The roll
 // values do not depend on level; level is carried only to replace that parameter.
 CastRollResult ComputeCastRoll(CharData *caster, ESpell spell_id, int level) {
 	const auto &spell = MUD::Spell(spell_id);
@@ -455,7 +454,7 @@ int CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict
 	if (spell_id < ESpell::kFirst || spell_id > ESpell::kLast)
 		return 0;
 
-	// Data-driven room block (issue.room-affects): any spell whose XML
+	// Data-driven room block: any spell whose XML
 	// <talent_actions><action><blocking><room_flags val="kNoMagic|..."/></blocking></action>
 	// matches the caster's room fizzles here. MayCastInForbiddenRoom() is the
 	// per-caster bypass (greater gods, uncharmed NPCs). The fizzle messages live
@@ -472,7 +471,7 @@ int CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict
 	}
 
 	if (!MayCastHere(caster, cvict, spell_id)) {
-		// MayCastHere fizzle (issue.spell-msg-improve): per-spell sheaf with kDefault
+		// MayCastHere fizzle: per-spell sheaf with kDefault
 		// fallback supplies the narration. Warcry spells override with their louder
 		// variant; the default is the magic-flash line.
 		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kCantCastHereToChar) + "\r\n", caster);
@@ -562,7 +561,7 @@ ObjData *FindObjForLocate(CharData *ch, const char *name) {
 
 // Sends the kNoTarget message to `ch` keyed on the cast spell with the {target}
 // placeholder resolved against the spell's accepted target classes
-// (issue.spell-msg-improve). Object-accepting spells get "ЧТО" ("what"); char-only
+// Object-accepting spells get "ЧТО" ("what"); char-only
 // spells get "КОГО" ("whom"). Per-spell sheafs with no {target} (e.g. the
 // kControlWeather "тип погоды" override) just pass through.
 static void SendNoTargetMsg(ESpell spell_id, CharData *ch) {
@@ -675,7 +674,7 @@ int FindCastTarget(ESpell spell_id, const char *t, CharData *ch, CharData **tch,
 	}
 	// TODO: добавить обработку TAR_ROOM_DIR и TAR_ROOM_WORLD
 	// Warcry vs regular phrasing is data-driven through the per-spell kNoTarget
-	// override (issue.spell-msg-improve): warcry sheaves carry the "так громко
+	// override: warcry sheaves carry the "так громко
 	// крикнуть" variant; the kDefault sheaf has the regular line.
 	SendNoTargetMsg(spell_id, ch);
 	return false;
@@ -726,7 +725,7 @@ int CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, ESpel
 		return 0;
 	}
 
-	// Verbal-component gate (issue.spellcomponents): CastSpell is the
+	// Verbal-component gate: CastSpell is the
 	// universal entry point for "spoken" casts (PC do_cast, NPC specprocs,
 	// queued combat casts via process_player_attack, ...). Refuse only
 	// verbal spells under kSilence; non-verbal spells fall through.

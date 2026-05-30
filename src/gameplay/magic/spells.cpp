@@ -177,7 +177,7 @@ void SpellCreateWater(int/* level*/, CharData *ch, CharData *victim, ObjData *ob
 	if (obj
 		&& obj->get_type() == EObjType::kLiquidContainer) {
 		if ((GET_OBJ_VAL(obj, 2) != LIQ_WATER) && (GET_OBJ_VAL(obj, 1) != 0)) {
-			// issue.spell-msg-improve: kCreateWater overrides kItemCreationFailToChar
+			// kCreateWater overrides kItemCreationFailToChar
 			// with "Прекратите, ради бога, химичить.".
 			SendMsgToChar(MUD::SpellMessages().GetMessage(
 					ESpell::kCreateWater, ESpellMsg::kItemCreationFailToChar) + "\r\n", ch);
@@ -191,7 +191,7 @@ void SpellCreateWater(int/* level*/, CharData *ch, CharData *victim, ObjData *ob
 				obj->set_val(2, LIQ_WATER);
 				obj->add_val(1, water);
 				// kCreateWater overrides the generic "Вы создали $o3." (kItemCreatedToChar)
-				// with "Вы наполнили $o3 водой." (issue.spell-msg-improve).
+				// with "Вы наполнили $o3 водой.".
 				const auto &filled_msg = MUD::SpellMessages().GetMessage(
 						ESpell::kCreateWater, ESpellMsg::kItemCreatedToChar);
 				act(filled_msg.c_str(), false, ch, obj, nullptr, kToChar);
@@ -204,11 +204,11 @@ void SpellCreateWater(int/* level*/, CharData *ch, CharData *victim, ObjData *ob
 		GET_COND(victim, THIRST) = 0;
 		// kCreateWater overrides kThirstToVict with "Вы полностью утолили жажду."
 		// (literal text, no {intensity} expansion -- the manual path bypasses
-		// CastToPoints' intensity machinery; issue.spell-msg-improve).
+		// CastToPoints' intensity machinery).
 		SendMsgToChar(MUD::SpellMessages().GetMessage(
 				ESpell::kCreateWater, ESpellMsg::kThirstToVict) + "\r\n", victim);
 		// The redundant "Вы напоили $N3." line to the caster was removed
-		// (issue.spell-msg-improve): the caster has no way to gauge the target's
+		// the caster has no way to gauge the target's
 		// prior thirst level, so the line conveys no real info.
 	}
 }
@@ -271,7 +271,7 @@ void SpellRecall(CharData *ch, CharData *victim) {
 	}
 
 	// kNoTeleportOut moved to <blocking><room_flags> in spells.xml; CallMagic
-	// fizzles before this function runs (issue.no-teleport-out).
+	// fizzles before this function runs.
 	if (!ch->IsGod() && AFF_FLAGGED(victim, EAffect::kNoTeleport)) {
 		SendMsgToChar(SUMMON_FAIL, ch);
 		return;
@@ -322,7 +322,7 @@ void SpellRecall(CharData *ch, CharData *victim) {
 	}
 	if (!enter_wtrigger(world[fnd_room], ch, -1))
 		return;
-	// issue.spell-msg-improve: kWorldOfRecall overrides the kCastDisappearToRoom /
+	// kWorldOfRecall overrides the kCastDisappearToRoom /
 	// kCastAppearToRoom defaults with its specific "centre of room" wording.
 	act(MUD::SpellMessages().GetMessage(ESpell::kWorldOfRecall, ESpellMsg::kCastDisappearToRoom).c_str(),
 		true, victim, nullptr, nullptr, kToRoom | kToArenaListen);
@@ -342,7 +342,7 @@ void SpellTeleport(CharData *ch, CharData */*victim*/) {
 	RoomRnum rnum_start, rnum_stop;
 
 	// kNoTeleportOut moved to <blocking><room_flags> in spells.xml; CallMagic
-	// fizzles before this function runs (issue.no-teleport-out).
+	// fizzles before this function runs.
 	if (!ch->IsGod() && AFF_FLAGGED(ch, EAffect::kNoTeleport)) {
 		SendMsgToChar(SUMMON_FAIL, ch);
 		return;
@@ -356,7 +356,7 @@ void SpellTeleport(CharData *ch, CharData */*victim*/) {
 	}
 	if (!enter_wtrigger(world[fnd_room], ch, -1))
 		return;
-	// issue.spell-msg-improve: kTeleport overrides kCastDisappearToRoom / kCastAppearToRoom.
+	// kTeleport overrides kCastDisappearToRoom / kCastAppearToRoom.
 	act(MUD::SpellMessages().GetMessage(ESpell::kTeleport, ESpellMsg::kCastDisappearToRoom).c_str(),
 		false, ch, nullptr, nullptr, kToRoom);
 	RemoveCharFromRoom(ch);
@@ -383,7 +383,7 @@ void SpellRelocate(CharData *ch, CharData *victim) {
 		return;
 
 	// kNoTeleportOut moved to <blocking><room_flags> in spells.xml; CallMagic
-	// fizzles before this function runs (issue.no-teleport-out).
+	// fizzles before this function runs.
 	if (!ch->IsGod() && AFF_FLAGGED(ch, EAffect::kNoTeleport)) {
 		SendMsgToChar(SUMMON_FAIL, ch);
 		return;
@@ -420,7 +420,7 @@ void SpellRelocate(CharData *ch, CharData *victim) {
 	if (!enter_wtrigger(world[fnd_room], ch, -1))
 		return;
 //	check_auto_nosummon(victim);
-	// issue.spell-msg-improve: kRelocate shares the kTeleport disappear/appear wording
+	// kRelocate shares the kTeleport disappear/appear wording
 	// and adds its own kCustomMsgOne caster-side "azure flash" banner.
 	act(MUD::SpellMessages().GetMessage(ESpell::kRelocate, ESpellMsg::kCastDisappearToRoom).c_str(),
 		true, ch, nullptr, nullptr, kToRoom);
@@ -464,7 +464,7 @@ void AddPortalTimer(CharData *ch, RoomData *from_room, RoomRnum to_room, int tim
 void RemovePortalGate(RoomRnum rnum) {
 	auto aff = room_spells::FindAffect(world[rnum], ESpell::kPortalTimer);
 	const RoomRnum to_room = (*aff)->modifier;
-	// issue.spell-msg-improve: kPortal sheaf kCustomMsgThree holds "Пентаграмма была
+	// kPortal sheaf kCustomMsgThree holds "Пентаграмма была
 	// разрушена." -- emitted to both char and room of each affected portal endpoint.
 	const auto &broken_msg = MUD::SpellMessages().GetMessage(
 			ESpell::kPortal, ESpellMsg::kCustomMsgThree);
@@ -546,10 +546,10 @@ void SpellPortal(CharData *ch, CharData *victim) {
 				RemovePortalGate(ch->in_room);
 		}
 		// pk_unique on the affect replaces the old per-room pkPenterUnique field
-		// (issue.affect-flags). pkPortal => imposing caster's uid; else 0.
+		// pkPortal => imposing caster's uid; else 0.
 		AddPortalTimer(ch, world[fnd_room], ch->in_room, 29, pkPortal ? ch->get_uid() : 0);
 
-		// issue.spell-msg-improve: pentagram-appearance narration lives in kPortal's
+		// pentagram-appearance narration lives in kPortal's
 		// sheaf -- kCustomMsgOne is the normal line, kCustomMsgTwo is the pk variant
 		// (blood-tinged). Each is sent to both kToChar and kToRoom of the destination
 		// endpoint's first occupant.
@@ -677,7 +677,7 @@ void SpellSummon(CharData *ch, CharData *victim) {
 			}
 		} else {
 			if (ROOM_FLAGGED(vic_room, ERoomFlag::kNoSummonOut) || AFF_FLAGGED(victim, EAffect::kNoTeleport)) {
-				// issue.spell-msg-improve: block notice on kSummon's sheaf as kCustomMsgOne.
+				// block notice on kSummon's sheaf as kCustomMsgOne.
 				SendMsgToChar(MUD::SpellMessages().GetMessage(
 						ESpell::kSummon, ESpellMsg::kCustomMsgOne) + "\r\n", ch);
 				return;
@@ -692,7 +692,7 @@ void SpellSummon(CharData *ch, CharData *victim) {
 		ch->send_to_TC(true, true, true, "Чармис призыв запрещен триггером\r\n");
 		return;
 	}
-	// issue.spell-msg-improve: kSummon overrides kCastDisappearToRoom (vic disappearing
+	// kSummon overrides kCastDisappearToRoom (vic disappearing
 	// from old room) and kCastAppearToRoom (vic arriving in caster's room). kCustomMsgTwo
 	// is the to-vict notification.
 	act(MUD::SpellMessages().GetMessage(ESpell::kSummon, ESpellMsg::kCastDisappearToRoom).c_str(),
@@ -874,7 +874,6 @@ void SpellLocateObject(int level, CharData *ch, CharData* /*victim*/, ObjData *o
 			return true;
 		} else {
 			sprintf(buf, "Местоположение %s неопределимо.\r\n", OBJN(i.get(), ch, ECase::kGen));
-//		CAP(buf); issue #59
 		}
 		SendMsgToChar(buf, ch);
 		return true;
@@ -886,7 +885,7 @@ void SpellLocateObject(int level, CharData *ch, CharData* /*victim*/, ObjData *o
 	}
 
 	if (j == tmp_lvl) {
-		// issue.spell-msg-improve: "nothing felt" on kLocateObject's sheaf as kCustomMsgOne.
+		// "nothing felt" on kLocateObject's sheaf as kCustomMsgOne.
 		SendMsgToChar(MUD::SpellMessages().GetMessage(
 				ESpell::kLocateObject, ESpellMsg::kCustomMsgOne) + "\r\n", ch);
 	}
@@ -991,7 +990,7 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 	if (victim == nullptr || ch == nullptr)
 		return;
 
-	// Rejection narration (issue.spell-msg-improve): six of the SpellCharm reject
+	// Rejection narration: six of the SpellCharm reject
 	// paths share semantics with existing kSummon* / kResurrect* keys; the
 	// per-spell kCharm sheaf carries the charm-specific wording while the
 	// kDefault texts (phrased for resurrect/summon) stay intact for those
@@ -1002,7 +1001,7 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 	if (victim == ch)
 		SendCharmMsg(ESpellMsg::kCustomMsgOne);  // self-cast humor; see kCharm sheaf.
 	else if (!victim->IsNpc()) {
-		// issue.spell-msg-improve: 3 charm one-offs migrated to kCharm's kCustomMsg slots.
+		// 3 charm one-offs migrated to kCharm's kCustomMsg slots.
 		SendCharmMsg(ESpellMsg::kCustomMsgTwo);
 		if (!pk_agro_action(ch, victim))
 			return;
@@ -1067,7 +1066,7 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 		af.type = ESpell::kCharm;
 
 		// резервируем место под фит ()
-		// issue.magic-code-cleaning: the ~390-line AnimalMaster body moved to
+		// the ~390-line AnimalMaster body moved to
 		// src/gameplay/skills/animal_master.{h,cpp}; the race check now uses the
 		// named ENpcRace::kAnimal constant instead of the magic number 104.
 		if (CanUseFeat(ch, EFeat::kAnimalMaster) && GET_RACE(victim) == ENpcRace::kAnimal) {
@@ -1665,7 +1664,6 @@ void SpellFullIdentify(int/* level*/, CharData *ch, CharData *victim, ObjData *o
 		mort_show_obj_values(obj, ch, 400);
 	else if (victim) {
 		// kFullIdentify overrides kWrongTarget with the identify-specific text
-		// (issue.spell-msg-improve).
 		SendMsgToChar(MUD::SpellMessages().GetMessage(
 				ESpell::kFullIdentify, ESpellMsg::kWrongTarget) + "\r\n", ch);
 			return;
@@ -1682,13 +1680,12 @@ void SpellIdentify(int/* level*/, CharData *ch, CharData *victim, ObjData *obj) 
 		}
 		if (victim != ch) {
 			// kIdentify overrides kWrongTarget with the identify-specific text
-			// (issue.spell-msg-improve).
 			SendMsgToChar(MUD::SpellMessages().GetMessage(
 					ESpell::kIdentify, ESpellMsg::kWrongTarget) + "\r\n", ch);
 			return;
 		}
 		if (GetRealLevel(victim) < 3) {
-			// issue.spell-msg-improve: low-level self-identify rejection on kIdentify's sheaf.
+			// low-level self-identify rejection on kIdentify's sheaf.
 			SendMsgToChar(MUD::SpellMessages().GetMessage(
 					ESpell::kIdentify, ESpellMsg::kCustomMsgOne) + "\r\n", ch);
 			return;
@@ -1854,7 +1851,7 @@ void SpellHolystrike(int/* level*/, CharData *ch, CharData* /*victim*/, ObjData*
 			}
 		}
 
-		// issue.cast-dmg-migration: per-target order is Damage -> Unaffect -> Affect (matches
+		// per-target order is Damage -> Unaffect -> Affect (matches
 		// CallMagic's stage order). kHolystrike's <unaffect> dispels kEviless on the target and
 		// returns kBreak, which skips the hold imposition for that just-dispelled minion. Damage
 		// always lands first, so the high-damage replacement for the old instant_death still
@@ -1905,7 +1902,7 @@ void SpellMentalShadow(CharData *ch) {
 	float base_ac = 100;
 	float additional_ac = -1.5;
 	if (eff_int < 26 && !ch->IsImmortal()) {
-		// issue.spell-msg-improve: low-Int rejection on kMentalShadow's sheaf as kCustomMsgOne.
+		// low-Int rejection on kMentalShadow's sheaf as kCustomMsgOne.
 		SendMsgToChar(MUD::SpellMessages().GetMessage(
 				ESpell::kMentalShadow, ESpellMsg::kCustomMsgOne) + "\r\n", ch);
 		return;
@@ -1913,7 +1910,7 @@ void SpellMentalShadow(CharData *ch) {
 
 	if (!(mob = ReadMobile(mob_num, kVirtual))) {
 		// kSummonNoProto kDefault already carries this exact text -- the sheaf lookup
-		// returns it without any per-spell override needed (issue.spell-msg-improve).
+		// returns it without any per-spell override needed.
 		SendMsgToChar(MUD::SpellMessages().GetMessage(
 				ESpell::kMentalShadow, ESpellMsg::kSummonNoProto) + "\r\n", ch);
 		return;
@@ -1964,7 +1961,7 @@ void SpellMentalShadow(CharData *ch) {
 	
 	// kMentalShadow overrides kSummonToRoom (whose kDefault sheaf carries 9
 	// random-failure variants used by kClone-style spells) with its single
-	// success line (issue.spell-msg-improve).
+	// success line.
 	const auto &shadow_msg = MUD::SpellMessages().GetMessage(
 			ESpell::kMentalShadow, ESpellMsg::kSummonToRoom);
 	act(shadow_msg.c_str(), true, mob, nullptr, nullptr, kToRoom | kToArenaListen);

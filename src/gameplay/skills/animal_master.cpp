@@ -1,5 +1,5 @@
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
-// issue.magic-code-cleaning: extracted from SpellCharm (spells.cpp) where it lived
+// extracted from SpellCharm (spells.cpp) where it lived
 // as a ~390-line inline if-block guarding `EFeat::kAnimalMaster + race==104`. The
 // function applies the AnimalMaster feat's shape-shift / stat boost / per-type
 // ability assignment to a freshly-charmed kAnimal NPC. Logic is byte-for-byte
@@ -31,18 +31,15 @@ void ApplyAnimalMaster(CharData *ch, CharData *victim, Affect<EApply> &af,
 			if (it != rndcharmice.end()) {
 				rndcharmice.erase(it);
 			}
-//					SendMsgToChar(ch, "Найден в последователях Чармис тип %d\r\n", k->follower->get_type_charmice());
 		}
 	}
 	int rnd = number(0, rndcharmice.size() - 1);
 	if (std::find(rndcharmice.begin(), rndcharmice.end(), victim->get_type_charmice()) !=  rndcharmice.end()) {
 		type_mob = victim->get_type_charmice();
-//				SendMsgToChar(ch, "\r\n1Чармис старыйй, ставим случайный тип %d size %ld\r\n", type_mob, rndcharmice.size());
 	}
 	else {
 		type_mob = rndcharmice.at(rnd);
 		victim->set_type_charmice(type_mob);
-//				SendMsgToChar(ch, "\r\n2Чармис новый, ставим случайный тип %d size %ld\r\n", type_mob, rndcharmice.size());
 	}
 	act("$N0 обрел$G часть вашей магической силы, и стал$G намного опаснее...",
 		false, ch, nullptr, victim, kToChar);

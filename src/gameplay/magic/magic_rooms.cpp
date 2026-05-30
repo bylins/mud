@@ -4,7 +4,7 @@
 #include "engine/ui/modify.h"
 #include "engine/entities/char_data.h"
 #include "magic.h" //Включено ради material_component_processing
-#include "magic_utils.h" // IsRoomBlocked / MayCastInForbiddenRoom (issue.room-affects)
+#include "magic_utils.h" // IsRoomBlocked / MayCastInForbiddenRoom
 #include "engine/ui/table_wrapper.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/skills/townportal.h"
@@ -30,7 +30,7 @@ void affect_to_room(RoomData *room, const Affect<ERoomApply> &af);
 namespace {
 // Look up `key` in `spell`'s sheaf (with kDefault fallback) and send to `ch`,
 // substituting any {name} placeholder with `spell`'s canonical name. Trailing
-// "\r\n" matches the SendMsgToChar convention. (issue.spell-msg-improve.)
+// "\r\n" matches the SendMsgToChar convention.
 void SendSpellNameMsg(CharData *ch, ESpell spell, ESpellMsg key) {
 	std::string msg = MUD::SpellMessages().GetMessage(spell, key);
 	const auto pos = msg.find("{name}");
@@ -401,14 +401,12 @@ void UpdateRoomsAffects() {
 // <talent_actions>/<affects> block and spell_msg.xml. No per-spell switch or
 // code-set messages remain. New room spells need only their XML rows; this
 // function is unchanged.
-//
 // Three universal gates run before any affect data is computed:
 //   1. Material component (ProcessMatComponents). Missing -> abort silently.
 //   2. <blocking><room_flags val>. Room carries a blocking flag and the caster
 //      is not exempt (MayCastInForbiddenRoom) -> emit kCastForbidden* and
 //      abort. This is the kRuneLabel/kForbidden/kNoMagic fizzle path.
 //   3. (no third gate -- everything else is data-driven inside the impose loop)
-//
 // Duration unit: room-affect durations are in RAW ROOM-TICK PULSES, NOT the
 // hours used by char affects. The reader uses base + skill_bonus directly,
 // without the kSecsPerMudHour multiplier that CalcDuration applies for PCs.
@@ -428,7 +426,7 @@ int CallMagicToRoom(CharData *ch, RoomData *room, CastRollResult roll) {
 		return 0;
 	}
 
-	// Data-driven room block (issue.room-affects): same mechanism as in
+	// Data-driven room block: same mechanism as in
 	// CallMagic. Fizzle narration lives in spell_msg.xml; the kDefault
 	// sheaf covers the generic case, per-spell sheaves override.
 	if (IsRoomBlocked(world[ch->in_room], MUD::Spell(spell_id).actions.GetBlocking())
@@ -441,7 +439,7 @@ int CallMagicToRoom(CharData *ch, RoomData *room, CastRollResult roll) {
 		return 0;
 	}
 
-	// Data-driven dispel (issue.room-dispell). A kTarRoomThis spell carrying an <unaffect>
+	// Data-driven dispel. A kTarRoomThis spell carrying an <unaffect>
 	// block strips room affects here, mirroring CastToSingleTarget's "Damage -> Unaffect ->
 	// Affect" ordering. CastUnaffects emits its own dispel / no-effect narration via the
 	// kAffDispelledTo{Char,Room} sheaves. For a pure-dispel spell (no <affects>) the impose
@@ -513,7 +511,7 @@ int CallMagicToRoom(CharData *ch, RoomData *room, CastRollResult roll) {
 	if (MUD::Spell(spell_id).IsFlagged(kMagNeedControl)) {
 		auto found_spell = RemoveControlledRoomAffect(ch);
 		if (found_spell != ESpell::kUndefined) {
-			// Two separate messages (issue.spell-msg-improve): the interrupt line is
+			// Two separate messages: the interrupt line is
 			// keyed on the OLD spell's sheaf so a per-spell override can flavour HOW
 			// it ends ("свечение угасло" etc.); the prepare line is keyed on the NEW
 			// spell so each spell announces its own preparation.
@@ -670,7 +668,7 @@ void RemoveSingleAffectFromWorld(CharData *ch, ESpell spell_id) {
 		const auto aff = room_spells::FindAffect(affected_room, spell_id);
 		if (aff != affected_room->affected.end()) {
 			room_spells::RoomRemoveAffect(affected_room, aff);
-			// kAfDispelledToOwner sheaf lookup (issue.spell-msg-improve): the kDefault
+			// kAfDispelledToOwner sheaf lookup: the kDefault
 			// fallback is "Ваша магия была развеяна."; kRuneLabel overrides with
 			// "Ваша рунная метка удалена.". Other spells using this path inherit the
 			// default until a designer authors a per-spell line.
