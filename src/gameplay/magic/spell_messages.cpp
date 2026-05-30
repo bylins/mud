@@ -111,6 +111,11 @@ const std::string &NAME_BY_ITEM<ESpellMsg>(const ESpellMsg item) {
 		{ESpellMsg::kAfDispelledToOwner, "kAfDispelledToOwner"},
 		{ESpellMsg::kItemCreationFailToChar, "kItemCreationFailToChar"},
 		{ESpellMsg::kWrongTarget, "kWrongTarget"},
+		{ESpellMsg::kCustomMsgOne, "kCustomMsgOne"},
+		{ESpellMsg::kCustomMsgTwo, "kCustomMsgTwo"},
+		{ESpellMsg::kCustomMsgThree, "kCustomMsgThree"},
+		{ESpellMsg::kCustomMsgFour, "kCustomMsgFour"},
+		{ESpellMsg::kCustomMsgFive, "kCustomMsgFive"},
 	};
 	return kMap.at(item);
 }
@@ -216,6 +221,11 @@ ESpellMsg ITEM_BY_NAME<ESpellMsg>(const std::string &name) {
 		{"kAfDispelledToOwner", ESpellMsg::kAfDispelledToOwner},
 		{"kItemCreationFailToChar", ESpellMsg::kItemCreationFailToChar},
 		{"kWrongTarget", ESpellMsg::kWrongTarget},
+		{"kCustomMsgOne", ESpellMsg::kCustomMsgOne},
+		{"kCustomMsgTwo", ESpellMsg::kCustomMsgTwo},
+		{"kCustomMsgThree", ESpellMsg::kCustomMsgThree},
+		{"kCustomMsgFour", ESpellMsg::kCustomMsgFour},
+		{"kCustomMsgFive", ESpellMsg::kCustomMsgFive},
 	};
 	return kMap.at(name); // throws std::out_of_range on unknown name
 }

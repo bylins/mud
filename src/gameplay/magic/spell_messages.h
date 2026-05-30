@@ -206,6 +206,25 @@ enum class ESpellMsg {
 	// carries a generic line; per-spell sheaves override (kIdentify / kFullIdentify
 	// supply the "magic can't identify another creature" variant today).
 	kWrongTarget,
+	// Custom one-off slots for manual spells (issue.spell-msg-improve). These keys
+	// carry NO fixed semantic -- each per-spell sheaf assigns its own meaning. Use
+	// ONLY for messages that:
+	//   1. are unique to a single manual spell (do_ManualSpell-style function),
+	//   2. don't fit any existing semantically-named key, AND
+	//   3. live in a spell slated for eventual migration to a Lua/Python scripting
+	//      system.
+	// Add a one-line XML comment on each per-spell usage describing what fires the
+	// message -- the XML is the documentation source; the enum names stay anonymous
+	// on purpose. Hitting the kCustomMsgFive cap on a single spell is a signal to
+	// move that spell to scripts rather than extend the cap. NEVER use these when
+	// a clean semantically-named key fits (the SpellCharm migration that reused
+	// kSummonWarhorse / kResurrectConsecrated etc. is the right pattern; reaching
+	// for kCustomMsgOne would have hidden the semantic match).
+	kCustomMsgOne,
+	kCustomMsgTwo,
+	kCustomMsgThree,
+	kCustomMsgFour,
+	kCustomMsgFive,
 };
 
 template<>

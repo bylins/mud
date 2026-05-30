@@ -1689,6 +1689,9 @@
 		<message type="kSummonCharmed" val="Вы сами очарованы кем-то и не можете иметь последователей." />
 		<message type="kSummonFail" val="Ваша магия потерпела неудачу." />
 		<message type="kSummonWarhorse" val="Это боевой скакун, а не хухры-мухры." />
+		<!-- kCustomMsgOne (issue.spell-msg-improve): self-cast humor line shown when
+		     the caster targets themselves. Slated for Lua when scripting lands. -->
+		<message type="kCustomMsgOne" val="Вы просто очарованы своим внешним видом!" />
 	</msg_sheaf>
 	<msg_sheaf id="kControlWeather">
 		<message type="kNoTarget" val="Не указан тип погоды." />

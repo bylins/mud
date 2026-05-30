@@ -976,7 +976,7 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 		SendMsgToChar(MUD::SpellMessages().GetMessage(ESpell::kCharm, key) + "\r\n", ch);
 	};
 	if (victim == ch)
-		SendMsgToChar("Вы просто очарованы своим внешним видом!\r\n", ch);
+		SendCharmMsg(ESpellMsg::kCustomMsgOne);  // self-cast humor; see kCharm sheaf.
 	else if (!victim->IsNpc()) {
 		SendMsgToChar("Вы не можете очаровать реального игрока!\r\n", ch);
 		if (!pk_agro_action(ch, victim))
