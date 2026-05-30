@@ -155,10 +155,4 @@
 		<socket_path>admin_api.sock</socket_path>
 		<!-- <max_connections>5</max_connections> -->
 	</admin_api>
-	<!--
-	Number of threads for saving clan chests and ingredient chests.
-	0 (default) = hardware_concurrency() / 2 (physical cores with HT).
-	Override at runtime: CHEST_SAVER_THREADS=N environment variable.
-	-->
-	<!-- <chest_saver><threads>4</threads></chest_saver> -->
 </configuration>
