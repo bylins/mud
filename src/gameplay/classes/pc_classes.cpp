@@ -1274,6 +1274,84 @@ int invalid_no_class(CharData *ch, const ObjData *obj) {
 	return false;
 }
 
+int invalid_anti_class_proto(CharData *ch, const CObjectPrototype *obj) {
+	if (obj->has_anti_flag(EAntiFlag::kCharmice)
+		&& AFF_FLAGGED(ch, EAffect::kCharmed)) {
+		return (true);
+	}
+	if ((ch->IsNpc() || ch->IsImmortal()) && !IS_CHARMICE(ch)) {
+		return (false);
+	}
+	if ((obj->has_anti_flag(EAntiFlag::kNoPkClan) && char_to_pk_clan(ch))) {
+		return (true);
+	}
+	if ((obj->has_anti_flag(EAntiFlag::kMono) && GET_RELIGION(ch) == kReligionMono)
+		|| (obj->has_anti_flag(EAntiFlag::kPoly) && GET_RELIGION(ch) == kReligionPoly)
+		|| (obj->has_anti_flag(EAntiFlag::kMage) && IsMage(ch))
+		|| (obj->has_anti_flag(EAntiFlag::kConjurer) && IS_CONJURER(ch))
+		|| (obj->has_anti_flag(EAntiFlag::kCharmer) && IS_CHARMER(ch))
+		|| (obj->has_anti_flag(EAntiFlag::kWizard) && IS_WIZARD(ch))
+		|| (obj->has_anti_flag(EAntiFlag::kNecromancer) && IS_NECROMANCER(ch))
+		|| (obj->has_anti_flag(EAntiFlag::kFighter) && IsFighter(ch))
+		|| (obj->has_anti_flag(EAntiFlag::kMale) && IS_MALE(ch))
+		|| (obj->has_anti_flag(EAntiFlag::kFemale) && IS_FEMALE(ch))
+		|| (obj->has_anti_flag(EAntiFlag::kSorcerer) && IS_SORCERER(ch))
+		|| (obj->has_anti_flag(EAntiFlag::kWarrior) && IS_WARRIOR(ch))
+		|| (obj->has_anti_flag(EAntiFlag::kGuard) && IS_GUARD(ch))
+		|| (obj->has_anti_flag(EAntiFlag::kThief) && IS_THIEF(ch))
+		|| (obj->has_anti_flag(EAntiFlag::kAssasine) && IS_ASSASINE(ch))
+		|| (obj->has_anti_flag(EAntiFlag::kPaladine) && IS_PALADINE(ch))
+		|| (obj->has_anti_flag(EAntiFlag::kRanger) && IS_RANGER(ch))
+		|| (obj->has_anti_flag(EAntiFlag::kVigilant) && IS_VIGILANT(ch))
+		|| (obj->has_anti_flag(EAntiFlag::kMerchant) && IS_MERCHANT(ch))
+		|| (obj->has_anti_flag(EAntiFlag::kMagus) && IS_MAGUS(ch))
+		|| (obj->has_anti_flag(EAntiFlag::kKiller) && ch->IsFlagged(EPlrFlag::kKiller))
+		|| (obj->has_anti_flag(EAntiFlag::kBattle) && check_agrobd(ch))
+		|| (obj->has_anti_flag(EAntiFlag::kColored) && pk_count(ch))) {
+		return (true);
+	}
+	return (false);
+}
+
+int invalid_no_class_proto(CharData *ch, const CObjectPrototype *obj) {
+	if (obj->has_no_flag(ENoFlag::kCharmice)
+		&& AFF_FLAGGED(ch, EAffect::kCharmed)) {
+		return true;
+	}
+	if (!IS_CHARMICE(ch)
+		&& (ch->IsNpc()
+			|| ch->IsImmortal())) {
+		return false;
+	}
+	if ((obj->has_no_flag(ENoFlag::kMono) && GET_RELIGION(ch) == kReligionMono)
+		|| (obj->has_no_flag(ENoFlag::kPoly) && GET_RELIGION(ch) == kReligionPoly)
+		|| (obj->has_no_flag(ENoFlag::kMage) && IsMage(ch))
+		|| (obj->has_no_flag(ENoFlag::kConjurer) && IS_CONJURER(ch))
+		|| (obj->has_no_flag(ENoFlag::kCharmer) && IS_CHARMER(ch))
+		|| (obj->has_no_flag(ENoFlag::kWizard) && IS_WIZARD(ch))
+		|| (obj->has_no_flag(ENoFlag::kNecromancer) && IS_NECROMANCER(ch))
+		|| (obj->has_no_flag(ENoFlag::kFighter) && IsFighter(ch))
+		|| (obj->has_no_flag(ENoFlag::kMale) && IS_MALE(ch))
+		|| (obj->has_no_flag(ENoFlag::kFemale) && IS_FEMALE(ch))
+		|| (obj->has_no_flag(ENoFlag::kSorcerer) && IS_SORCERER(ch))
+		|| (obj->has_no_flag(ENoFlag::kWarrior) && IS_WARRIOR(ch))
+		|| (obj->has_no_flag(ENoFlag::kGuard) && IS_GUARD(ch))
+		|| (obj->has_no_flag(ENoFlag::kThief) && IS_THIEF(ch))
+		|| (obj->has_no_flag(ENoFlag::kAssasine) && IS_ASSASINE(ch))
+		|| (obj->has_no_flag(ENoFlag::kPaladine) && IS_PALADINE(ch))
+		|| (obj->has_no_flag(ENoFlag::kRanger) && IS_RANGER(ch))
+		|| (obj->has_no_flag(ENoFlag::kVigilant) && IS_VIGILANT(ch))
+		|| (obj->has_no_flag(ENoFlag::kMerchant) && IS_MERCHANT(ch))
+		|| (obj->has_no_flag(ENoFlag::kMagus) && IS_MAGUS(ch))
+		|| (obj->has_no_flag(ENoFlag::kKiller) && ch->IsFlagged(EPlrFlag::kKiller))
+		|| (obj->has_no_flag(ENoFlag::kBattle) && check_agrobd(ch))
+		|| (!IS_VIGILANT(ch) && (obj->has_flag(EObjFlag::kSharpen) || obj->has_flag(EObjFlag::kArmored)))
+		|| (obj->has_no_flag(ENoFlag::kColored) && pk_count(ch))) {
+		return true;
+	}
+	return false;
+}
+
 /*
  * SPELLS AND SKILLS.  This area defines which spells are assigned to
  * which classes, and the minimum level the character must be to use

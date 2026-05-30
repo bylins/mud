@@ -29,6 +29,8 @@ extern char *diag_timer_to_char(const ObjData *obj);    // implemented in the ac
 extern int invalid_anti_class(CharData *ch, const ObjData *obj);    // implemented in class.cpp
 extern int invalid_unique(CharData *ch, const ObjData *obj);    // implemented in class.cpp
 extern int invalid_no_class(CharData *ch, const ObjData *obj);    // implemented in class.cpp
+extern int invalid_anti_class_proto(CharData *ch, const CObjectPrototype *obj);    // implemented in class.cpp
+extern int invalid_no_class_proto(CharData *ch, const CObjectPrototype *obj);    // implemented in class.cpp
 char *find_exdesc(const char *word, const ExtraDescription::shared_ptr &list); // implemented in act.informative.cpp
 namespace ShopExt {
 const int IDENTIFY_COST = 110;
@@ -297,8 +299,8 @@ void shop_node::process_buy(CharData *ch, CharData *keeper, char *argument) {
 		return;
 	}
 
-	if (invalid_anti_class(ch, static_cast<const ObjData *>(proto))
-		|| invalid_no_class(ch, static_cast<const ObjData *>(proto))) {
+	if (invalid_anti_class_proto(ch, proto)
+		|| invalid_no_class_proto(ch, proto)) {
 		tell_to_char(keeper, ch, "Мне жаль, но эта вещь тебе не подходит.");
 		return;
 	}
