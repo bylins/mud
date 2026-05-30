@@ -123,7 +123,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <blocking>
-                    <room_flags val="kNoMagic"/>
+                    <room_flags val="kNoMagic|kNoTeleportOut"/>
                 </blocking>
             </action>
         </talent_actions>
@@ -1207,7 +1207,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <blocking>
-                    <room_flags val="kNoMagic"/>
+                    <room_flags val="kNoMagic|kNoTeleportOut"/>
                 </blocking>
             </action>
         </talent_actions>
@@ -3566,7 +3566,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <blocking>
-                    <room_flags val="kNoMagic"/>
+                    <room_flags val="kNoMagic|kNoTeleportOut"/>
                 </blocking>
             </action>
         </talent_actions>

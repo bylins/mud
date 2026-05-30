@@ -1602,6 +1602,7 @@
 		<message type="kAffExpired" val="Вы почувствовали себя менее защищенно." />
 	</msg_sheaf>
 	<msg_sheaf id="kTeleport">
+		<message type="kCastForbiddenToChar" val="Попытка перемещения не удалась." />
 		<message type="kCastPhraseHeathen" val="несите ветры" />
 		<message type="kCastPhraseChristian" val="... дух поднял меня и перенес меня." />
 	</msg_sheaf>
@@ -1707,6 +1708,7 @@
 		<message type="kAffExpired" val="Вы утратили покровительство высших сил." />
 	</msg_sheaf>
 	<msg_sheaf id="kWorldOfRecall">
+		<message type="kCastForbiddenToChar" val="Попытка перемещения не удалась." />
 		<message type="kCastPhraseHeathen" val="с глаз долой исчезни" />
 		<message type="kCastPhraseChristian" val="... ступай с миром." />
 	</msg_sheaf>
@@ -1988,6 +1990,7 @@
 		<message type="kCastPhraseChristian" val="...вооружите из себя людей на войну" />
 	</msg_sheaf>
 	<msg_sheaf id="kRelocate">
+		<message type="kCastForbiddenToChar" val="Попытка перемещения не удалась." />
 		<message type="kCastPhraseHeathen" val="Стрибог, укажи путь..." />
 		<message type="kCastPhraseChristian" val="... указывай им путь, по которому они должны идти." />
 	</msg_sheaf>
