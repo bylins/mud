@@ -101,7 +101,7 @@ const int kMobFirekeeper = 3022;
 
 const int kMaxSpellAffects = 16; // change it if you need more
 
-bool is_room_forbidden(RoomData *room);
+bool IsRoomForbidden(RoomData *room);
 void mobile_affect_update();
 void player_affect_update();
 void print_rune_log();

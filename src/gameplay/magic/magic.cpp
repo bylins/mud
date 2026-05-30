@@ -50,7 +50,7 @@ byte GetExtendSavingThrows(ECharClass class_id, ESaving save, int level);
 int CheckCharmices(CharData *ch, CharData *victim, ESpell spell_id);
 void ReactToCast(CharData *victim, CharData *caster, ESpell spell_id);
 
-bool is_room_forbidden(RoomData *room) {
+bool IsRoomForbidden(RoomData *room) {
 	for (const auto &af: room->affected) {
 		if (af->type == ESpell::kForbidden && (number(1, 100) <= af->modifier)) {
 			return true;

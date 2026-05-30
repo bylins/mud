@@ -1131,7 +1131,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 			  if (!rdata
 				  || rdata->to_room() == kNowhere
 				  || !IsCorrectDirection(ch.get(), door, true, false)
-				  || (is_room_forbidden(world[rdata->to_room()])
+				  || (IsRoomForbidden(world[rdata->to_room()])
 					  && !ch->IsFlagged(EMobFlag::kIgnoreForbidden))
 				  || is_dark(rdata->to_room())
 				  || (ch->IsFlagged(EMobFlag::kStayZone)
@@ -1189,7 +1189,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 		  && EXIT(ch, door)
 		  && EXIT(ch, door)->to_room() != kNowhere
 		  && IsCorrectDirection(ch.get(), door, true, false)
-		  && (!is_room_forbidden(world[EXIT(ch, door)->to_room()]) || ch->IsFlagged(EMobFlag::kIgnoreForbidden))
+		  && (!IsRoomForbidden(world[EXIT(ch, door)->to_room()]) || ch->IsFlagged(EMobFlag::kIgnoreForbidden))
 		  && (!ch->IsFlagged(EMobFlag::kStayZone)
 			  || world[EXIT(ch, door)->to_room()]->zone_rn == world[ch->in_room]->zone_rn)
 		  && allow_enter(world[EXIT(ch, door)->to_room()], ch.get())) {

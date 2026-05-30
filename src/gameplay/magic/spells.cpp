@@ -1128,7 +1128,7 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 	}
 }
 
-void show_weapon(CharData *ch, ObjData *obj) {
+void ShowWeapon(CharData *ch, ObjData *obj) {
 	if (obj->get_type() == EObjType::kWeapon) {
 		*buf = '\0';
 		if (CAN_WEAR(obj, EWearFlag::kWield)) {
@@ -1149,7 +1149,7 @@ void show_weapon(CharData *ch, ObjData *obj) {
 	}
 }
 
-void print_book_uprgd_skill(CharData *ch, const ObjData *obj) {
+void PrintBookUpgradeSkill(CharData *ch, const ObjData *obj) {
 	const auto skill_id = static_cast<ESkill>(GET_OBJ_VAL(obj, 1));
 	if (MUD::Skills().IsInvalid(skill_id)) {
 		log("SYSERR: invalid skill_id: %d, ch_name=%s, ObjVnum=%d (%s %s %d)",
@@ -1165,7 +1165,7 @@ void print_book_uprgd_skill(CharData *ch, const ObjData *obj) {
 	}
 }
 
-// Per-type detail block of mort_show_obj_values. Pulled out so the parent
+// Per-type detail block of MortShowObjValues. Pulled out so the parent
 // stays under the 200-line ceiling and the type-specific rendering can be
 // read without scrolling past the shared header / footer code.
 static void ShowObjTypeSpecificValues(const ObjData *obj, CharData *ch) {
@@ -1251,7 +1251,7 @@ switch (obj->get_type()) {
 				}
 				break;
 			}
-			case EBook::kSkillUpgrade: print_book_uprgd_skill(ch, obj);
+			case EBook::kSkillUpgrade: PrintBookUpgradeSkill(ch, obj);
 				break;
 
 			case EBook::kReceipt: drndice = im_get_recipe(GET_OBJ_VAL(obj, 1));
@@ -1384,7 +1384,7 @@ switch (obj->get_type()) {
 } // switch
 }
 
-void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness) {
+void MortShowObjValues(const ObjData *obj, CharData *ch, int fullness) {
 	int i;
 	bool found;
 	bool enhansed_scroll = false;
@@ -1406,7 +1406,7 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness) {
 	if (fullness < 20)
 		return;
 
-	//show_weapon(ch, obj);
+	//ShowWeapon(ch, obj);
 
 	sprintf(buf, "Вес: %d, Цена: %d, Рента: %d(%d)\r\n",
 			obj->get_weight(), obj->get_cost(), obj->get_rent_off(), obj->get_rent_on());
@@ -1566,7 +1566,7 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness) {
 	obj_sets::print_identify(ch, obj);
 }
 
-void mort_show_char_values(CharData *victim, CharData *ch, int fullness) {
+void MortShowCharValues(CharData *victim, CharData *ch, int fullness) {
 	int val0, val1, val2;
 
 	sprintf(buf, "Имя: %s\r\n", GET_NAME(victim));
@@ -1665,21 +1665,21 @@ void mort_show_char_values(CharData *victim, CharData *ch, int fullness) {
 
 void SkillIdentify(int/* level*/, CharData *ch, CharData *victim, ObjData *obj) {
 	if (obj) {
-		mort_show_obj_values(obj, ch, CalcCurrentSkill(ch, ESkill::kIdentify, nullptr));
+		MortShowObjValues(obj, ch, CalcCurrentSkill(ch, ESkill::kIdentify, nullptr));
 		TrainSkill(ch, ESkill::kIdentify, true, nullptr);
 	} else if (victim) {
 		if (GetRealLevel(victim) < 3) {
 			SendMsgToChar("Вы можете опознать только персонажа, достигнувшего третьего уровня.\r\n", ch);
 			return;
 		}
-		mort_show_char_values(victim, ch, CalcCurrentSkill(ch, ESkill::kIdentify, victim));
+		MortShowCharValues(victim, ch, CalcCurrentSkill(ch, ESkill::kIdentify, victim));
 		TrainSkill(ch, ESkill::kIdentify, true, victim);
 	}
 }
 
 void SpellFullIdentify(int/* level*/, CharData *ch, CharData *victim, ObjData *obj) {
 	if (obj)
-		mort_show_obj_values(obj, ch, 400);
+		MortShowObjValues(obj, ch, 400);
 	else if (victim) {
 		// kFullIdentify overrides kWrongTarget with the identify-specific text
 		SendMsgToChar(MUD::SpellMessages().GetMessage(
@@ -1690,7 +1690,7 @@ void SpellFullIdentify(int/* level*/, CharData *ch, CharData *victim, ObjData *o
 
 void SpellIdentify(int/* level*/, CharData *ch, CharData *victim, ObjData *obj) {
 	if (obj)
-		mort_show_obj_values(obj, ch, 100);
+		MortShowObjValues(obj, ch, 100);
 	else if (victim) {
 		if (GET_GOD_FLAG(ch, EGf::kAllowTesterMode) && (world[ch->in_room]->vnum / 100 >= dungeons::kZoneStartDungeons)) {
 			do_stat_character(ch, victim);
@@ -1708,7 +1708,7 @@ void SpellIdentify(int/* level*/, CharData *ch, CharData *victim, ObjData *obj) 
 					ESpell::kIdentify, ESpellMsg::kCustomMsgOne) + "\r\n", ch);
 			return;
 		}
-		mort_show_char_values(victim, ch, 100);
+		MortShowCharValues(victim, ch, 100);
 	}
 }
 
@@ -1987,7 +1987,7 @@ void SpellMentalShadow(CharData *ch) {
 
 std::map<int /* vnum */, int /* count */> rune_list;
 
-void add_rune_stats(CharData *ch, int vnum, int spelltype) {
+void AddRuneStats(CharData *ch, int vnum, int spelltype) {
 	if (ch->IsNpc() || ESpellType::kRunes != spelltype) {
 		return;
 	}
@@ -2281,28 +2281,28 @@ int CheckRecipeItems(CharData *ch, ESpell spell_id, ESpellType spell_type, int e
 			strcat(buf, kColorWht);
 			strcat(buf, obj0->get_PName(ECase::kAcc).c_str());
 			strcat(buf, ", ");
-			add_rune_stats(ch, GET_OBJ_VAL(obj0, 1), spell_type);
+			AddRuneStats(ch, GET_OBJ_VAL(obj0, 1), spell_type);
 		}
 
 		if (item1 == -2) {
 			strcat(buf, kColorWht);
 			strcat(buf, obj1->get_PName(ECase::kAcc).c_str());
 			strcat(buf, ", ");
-			add_rune_stats(ch, GET_OBJ_VAL(obj1, 1), spell_type);
+			AddRuneStats(ch, GET_OBJ_VAL(obj1, 1), spell_type);
 		}
 
 		if (item2 == -2) {
 			strcat(buf, kColorWht);
 			strcat(buf, obj2->get_PName(ECase::kAcc).c_str());
 			strcat(buf, ", ");
-			add_rune_stats(ch, GET_OBJ_VAL(obj2, 1), spell_type);
+			AddRuneStats(ch, GET_OBJ_VAL(obj2, 1), spell_type);
 		}
 
 		if (item3 == -2) {
 			strcat(buf, kColorWht);
 			strcat(buf, obj3->get_PName(ECase::kAcc).c_str());
 			strcat(buf, ", ");
-			add_rune_stats(ch, GET_OBJ_VAL(obj3, 1), spell_type);
+			AddRuneStats(ch, GET_OBJ_VAL(obj3, 1), spell_type);
 		}
 
 		strcat(buf, kColorNrm);
