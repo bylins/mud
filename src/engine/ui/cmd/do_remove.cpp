@@ -61,6 +61,7 @@ void do_remove(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			SendMsgToChar("На вас не надето предметов этого типа.\r\n", ch);
 			return;
 		}
+		ch->obj_bonus().update(ch);
 		affect_total(ch);
 	} else if (dotmode == kFindAlldot) {
 		if (!*arg) {
@@ -82,6 +83,7 @@ void do_remove(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				SendMsgToChar(buf, ch);
 				return;
 			}
+			ch->obj_bonus().update(ch);
 			affect_total(ch);
 		}
 	} else        // Returns object pointer but we don't need it, just true/false.
