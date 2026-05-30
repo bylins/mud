@@ -15,7 +15,7 @@
 
     Percent conventions:
       heal   improve: amount / max_hp     (positive, 0..100)
-      heal   degrade: empty -- heal stays positive-only by design
+      heal   degrade: empty - heal stays positive-only by design
       moves  improve: amount / max_moves  (positive, 0..100)
       moves  degrade: amount / max_moves  (negative, -100..0)
       thirst improve: removed / current   (positive, 0..100)
@@ -72,7 +72,7 @@
 
     <!-- THIRST: improve % = removed thirst / current thirst (engine field is
          inverted, CastToPoints negates the talent amount before
-         gain_condition). Degrade % = -(thirst_after * 100) / 48 -- the
+         gain_condition). Degrade % = -(thirst_after * 100) / 48 - the
          after-state's saturation on the 0..48 scale, signed negative so a
          thirstier outcome lands a more-negative tier. -->
     <thirst>
@@ -136,16 +136,16 @@
             <grade percent="70" text="очень сильно "/>
             <grade percent="65" text="сильно "/>
             <grade percent="60" text="основательно "/>
-            <grade percent="55" text="очень крепко "/>
-            <grade percent="50" text="крепко "/>
-            <grade percent="40" text=""/>
-            <grade percent="35" text="незначительно"/>
-            <grade percent="30" text="слабо "/>
-            <grade percent="25" text="очень слабо "/>
-            <grade percent="20" text="слегка "/>
-            <grade percent="15" text="легонько "/>
-            <grade percent="10" text="слабенько "/>
-            <grade percent="5" text="едва-едва "/>
+            <grade percent="50" text="очень крепко "/>
+            <grade percent="35" text="крепко "/>
+            <grade percent="20" text=""/>
+            <grade percent="16" text="незначительно "/>
+            <grade percent="12" text="слабо "/>
+            <grade percent="10" text="очень слабо "/>
+            <grade percent="8" text="слегка "/>
+            <grade percent="6" text="легонько "/>
+            <grade percent="4" text="слабенько "/>
+            <grade percent="2" text="едва-едва "/>
         </improve>
         <degrade>
             <!-- damage doesn't go negative; left empty for symmetry -->
