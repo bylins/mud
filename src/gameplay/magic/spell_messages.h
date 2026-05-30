@@ -184,6 +184,19 @@ enum class ESpellMsg {
 	kCastSayDamageeToVict,
 	kCastSayHelpeeToVict,
 	kCastSaySound,
+	// Controlled-cast swap narration (issue.spell-msg-improve): kMagNeedControl spells
+	// drop the existing controlled affect before imposing their own. kCastInterruptedToChar
+	// is looked up on the OLD spell's sheaf with the OLD spell's name in {name};
+	// kCastPreparedToChar is looked up on the NEW spell's sheaf with the NEW spell's
+	// name in {name}. Both fall back to kDefault.
+	kCastInterruptedToChar,
+	kCastPreparedToChar,
+	// Owner notification when one of the caster's room/world affects gets removed
+	// outside the dispel pipeline (issue.spell-msg-improve). RemoveSingleAffectFromWorld
+	// is the current caller (kRuneLabel expiry on idle-quit, etc.). The kDefault sheaf
+	// carries a generic "Ваша магия была развеяна" line; per-spell overrides flavour
+	// the message (kRuneLabel says "Ваша рунная метка удалена.").
+	kAfDispelledToOwner,
 };
 
 template<>

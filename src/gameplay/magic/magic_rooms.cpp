@@ -27,6 +27,20 @@ void HandleRoomAffect(RoomData *room, CharData *ch, const Affect<ERoomApply>::sh
 void SendRemoveAffectMsgToRoom(ESpell affect_type, RoomRnum room);
 void affect_to_room(RoomData *room, const Affect<ERoomApply> &af);
 
+namespace {
+// Look up `key` in `spell`'s sheaf (with kDefault fallback) and send to `ch`,
+// substituting any {name} placeholder with `spell`'s canonical name. Trailing
+// "\r\n" matches the SendMsgToChar convention. (issue.spell-msg-improve.)
+void SendSpellNameMsg(CharData *ch, ESpell spell, ESpellMsg key) {
+	std::string msg = MUD::SpellMessages().GetMessage(spell, key);
+	const auto pos = msg.find("{name}");
+	if (pos != std::string::npos) {
+		msg.replace(pos, std::strlen("{name}"), MUD::Spell(spell).GetCName());
+	}
+	SendMsgToChar(msg + "\r\n", ch);
+}
+}  // namespace
+
 void RoomRemoveAffect(RoomData *room, const RoomAffectIt &affect) {
 	if (room->affected.empty()) {
 		log("ERROR: Attempt to remove affect from no affected room!");
@@ -499,8 +513,12 @@ int CallMagicToRoom(CharData *ch, RoomData *room, CastRollResult roll) {
 	if (MUD::Spell(spell_id).IsFlagged(kMagNeedControl)) {
 		auto found_spell = RemoveControlledRoomAffect(ch);
 		if (found_spell != ESpell::kUndefined) {
-			SendMsgToChar(ch, "Вы прервали заклинание !%s! и приготовились применить !%s!\r\n",
-						  MUD::Spell(found_spell).GetCName(), MUD::Spell(spell_id).GetCName());
+			// Two separate messages (issue.spell-msg-improve): the interrupt line is
+			// keyed on the OLD spell's sheaf so a per-spell override can flavour HOW
+			// it ends ("свечение угасло" etc.); the prepare line is keyed on the NEW
+			// spell so each spell announces its own preparation.
+			SendSpellNameMsg(ch, found_spell, ESpellMsg::kCastInterruptedToChar);
+			SendSpellNameMsg(ch, spell_id, ESpellMsg::kCastPreparedToChar);
 		}
 	} else {
 		auto RoomAffect_i = FindAffect(room, spell_id);
@@ -652,7 +670,11 @@ void RemoveSingleAffectFromWorld(CharData *ch, ESpell spell_id) {
 		const auto aff = room_spells::FindAffect(affected_room, spell_id);
 		if (aff != affected_room->affected.end()) {
 			room_spells::RoomRemoveAffect(affected_room, aff);
-			SendMsgToChar("Ваша рунная метка удалена.\r\n", ch);
+			// kAfDispelledToOwner sheaf lookup (issue.spell-msg-improve): the kDefault
+			// fallback is "Ваша магия была развеяна."; kRuneLabel overrides with
+			// "Ваша рунная метка удалена.". Other spells using this path inherit the
+			// default until a designer authors a per-spell line.
+			SendSpellNameMsg(ch, spell_id, ESpellMsg::kAfDispelledToOwner);
 		}
 	}
 }

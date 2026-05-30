@@ -82,6 +82,15 @@
 		<message type="kCastSayHelpeeToVict" val="$n подмигнул$g вам и произнес$q : '%s'." />
 		<message type="kCastSayHelpeeToVict" val="$n улыбнул$u вам и произнес$q : '%s'." />
 		<message type="kCastSaySound" val="$n издал$g непонятный звук." />
+		<!-- Controlled-cast swap (issue.spell-msg-improve): kCastInterruptedToChar is
+		     looked up on the OLD spell's sheaf and {name} resolves to the OLD spell's
+		     name; kCastPreparedToChar on the NEW spell's sheaf with the NEW name. -->
+		<message type="kCastInterruptedToChar" val="Вы прервали заклинание !{name}!." />
+		<message type="kCastPreparedToChar" val="Вы приготовились применить !{name}!." />
+		<!-- Owner notification when an outstanding room affect cast by the player is
+		     removed (kRuneLabel cleanup on idle-quit etc.). kRuneLabel overrides with
+		     its specialised line. -->
+		<message type="kAfDispelledToOwner" val="Ваша магия была развеяна." />
 	</msg_sheaf>
 
 	<msg_sheaf id="kCureLight">
@@ -2306,6 +2315,7 @@
 		<message type="kAffImposedToRoom" val="$n начертил$g на земле несколько рун и произнес$q заклинание." />
 		<message type="kCastForbiddenToChar" val="Вы начертали свое имя рунами на земле, знаки вспыхнули, но ничего не произошло." />
 		<message type="kCastForbiddenToRoom" val="$n начертил$g на земле несколько рун, знаки вспыхнули, но ничего не произошло." />
+		<message type="kAfDispelledToOwner" val="Ваша рунная метка удалена." />
 		<!-- Room-affect aura (issue.sight-fmt). Pure-magical, so visible-without-detect
 		     is omitted (silent). Self vs others differs ("Ваше имя" vs "чьё-то имя"). -->
 		<message type="kRoomAffectInvisible" val="&amp;G... светящиеся руны на земле складываются в чьё-то имя ...&amp;n" />
