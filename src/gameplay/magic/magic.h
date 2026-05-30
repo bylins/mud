@@ -132,7 +132,7 @@ enum class EStageResult {
 // they're only called from CallMagic and the dispatcher in magic.cpp.
 int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id);
 EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const RollResult &potency = {});
-EStageResult CastUnaffects(int, CharData *ch, CharData *victim, ESpell spell_id);
+EStageResult CastUnaffects(CharData *ch, CharData *victim, RoomData *room, ESpell spell_id);
 int CalcSaving(CharData *killer, CharData *victim, ESaving saving, bool need_log = false);
 int CalcGeneralSaving(CharData *killer, CharData *victim, ESaving type, int ext_apply);
 int GetBasicSave(CharData *ch, ESaving saving, bool log = false);

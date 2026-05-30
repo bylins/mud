@@ -427,6 +427,16 @@ int CallMagicToRoom(CharData *ch, RoomData *room, CastRollResult roll) {
 		return 0;
 	}
 
+	// Data-driven dispel (issue.room-dispell). A kTarRoomThis spell carrying an <unaffect>
+	// block strips room affects here, mirroring CastToSingleTarget's "Damage -> Unaffect ->
+	// Affect" ordering. CastUnaffects emits its own dispel / no-effect narration via the
+	// kAffDispelledTo{Char,Room} sheaves. For a pure-dispel spell (no <affects>) the impose
+	// loop below then runs as a no-op; for a dual spell (kMagAffects + <unaffect>) the affect
+	// imposition continues normally.
+	if (CastUnaffects(ch, nullptr, room, spell_id) == EStageResult::kBreak) {
+		return 0;
+	}
+
 	// Default-init the affect array. kMaxSpellAffects slots; only slot 0 is
 	// populated from the XML today, but the impose loop still walks them all
 	// so multi-apply room spells stay forward-compatible.
