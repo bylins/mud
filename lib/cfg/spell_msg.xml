@@ -67,7 +67,7 @@
 		<!-- SaySpell room narration (issue.spell-msg-improve). The %s is filled in
 		     by sprintf BEFORE act(): the spell's canonical name for viewers who
 		     Know the spell, the cast phrase for everyone else. Two variants per
-		     verbal key -- one PC-flavoured, one humanoid-NPC-flavoured -- the
+		     verbal key - one PC-flavoured, one humanoid-NPC-flavoured - the
 		     container picks one at random. kCastSaySound is the "can't speak"
 		     line non-humanoid NPC races emit for every situation. -->
 		<message type="kCastSayToSelf" val="$n прикрыл$g глаза и прошептал$g : '%s'." />
@@ -783,9 +783,6 @@
 		<message type="kAffImposedToRoom" val="$n0 начал$g светиться ярким светом." />
 		<message type="kAffImposedToChar" val="Вы засветились, освещая комнату." />
 		<message type="kAffExpired" val="Ваше тело перестало светиться." />
-		<!-- Room-affect aura description (issue.sight-fmt). Same text for any viewer;
-		     the Invisible/SelfInvisible lookups fall through to Visible. -->
-		<message type="kRoomAffectVisible" val="&amp;W... земля освещена колдовством ...&amp;n" />
 	</msg_sheaf>
 	<msg_sheaf id="kRemovePoison">
 		<message type="kAlterObjToChar" val="$o стал$G вполне пригодным к применению." />
@@ -2195,11 +2192,14 @@
 		<message type="kAffImposedToChar" val=" " />
 	</msg_sheaf>
 	<msg_sheaf id="kRoomLight">
-		<message type="kCastPhraseHeathen" val="Да буде СВЕТ !!!" />
-		<message type="kCastPhraseChristian" val="...ибо сказал МОНТЕР !!!" />
+		<message type="kCastPhraseHeathen" val="...сотворити свет." />
+		<message type="kCastPhraseChristian" val="Да будет свет!" />
 		<message type="kAffExpired" val="Колдовской свет угас." />
 		<message type="kAffImposedToChar" val="Вы прищелкнули пальцами и в воздухе разлился свет." />
 		<message type="kAffImposedToRoom" val="$n вызвал$g разлившееся в воздухе свечение." />
+		<!-- Room-affect aura description (issue.sight-fmt). Same text for any viewer;
+     		the Invisible/SelfInvisible lookups fall through to Visible. -->
+		<message type="kRoomAffectVisible" val="&amp;W... земля освещена колдовством ...&amp;n" />
 	</msg_sheaf>
 	<msg_sheaf id="kDeadlyFog">
 		<message type="kCastPhraseHeathen" val="Порча великая туманом обернись!" />
