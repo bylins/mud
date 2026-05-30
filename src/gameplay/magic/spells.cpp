@@ -258,8 +258,9 @@ void SpellRecall(CharData *ch, CharData *victim) {
 		return;
 	}
 
-	if (!ch->IsGod()
-		&& (ROOM_FLAGGED(victim->in_room, ERoomFlag::kNoTeleportOut) || AFF_FLAGGED(victim, EAffect::kNoTeleport))) {
+	// kNoTeleportOut moved to <blocking><room_flags> in spells.xml; CallMagic
+	// fizzles before this function runs (issue.no-teleport-out).
+	if (!ch->IsGod() && AFF_FLAGGED(victim, EAffect::kNoTeleport)) {
 		SendMsgToChar(SUMMON_FAIL, ch);
 		return;
 	}
@@ -324,7 +325,9 @@ void SpellTeleport(CharData *ch, CharData */*victim*/) {
 	RoomRnum in_room = ch->in_room, fnd_room = kNowhere;
 	RoomRnum rnum_start, rnum_stop;
 
-	if (!ch->IsGod() && (ROOM_FLAGGED(in_room, ERoomFlag::kNoTeleportOut) || AFF_FLAGGED(ch, EAffect::kNoTeleport))) {
+	// kNoTeleportOut moved to <blocking><room_flags> in spells.xml; CallMagic
+	// fizzles before this function runs (issue.no-teleport-out).
+	if (!ch->IsGod() && AFF_FLAGGED(ch, EAffect::kNoTeleport)) {
 		SendMsgToChar(SUMMON_FAIL, ch);
 		return;
 	}
@@ -360,16 +363,11 @@ void SpellRelocate(CharData *ch, CharData *victim) {
 	if (victim == nullptr)
 		return;
 
-	if (!ch->IsGod()) {
-		if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoTeleportOut)) {
-			SendMsgToChar(SUMMON_FAIL, ch);
-			return;
-		}
-
-		if (AFF_FLAGGED(ch, EAffect::kNoTeleport)) {
-			SendMsgToChar(SUMMON_FAIL, ch);
-			return;
-		}
+	// kNoTeleportOut moved to <blocking><room_flags> in spells.xml; CallMagic
+	// fizzles before this function runs (issue.no-teleport-out).
+	if (!ch->IsGod() && AFF_FLAGGED(ch, EAffect::kNoTeleport)) {
+		SendMsgToChar(SUMMON_FAIL, ch);
+		return;
 	}
 
 	to_room = victim->in_room;
