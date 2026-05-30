@@ -4,8 +4,8 @@
     Each <heal>/<moves>/<thirst>/<cond> section carries an <improve> list of
     <grade percent= text=/> rows; the lookup picks the highest tier whose
     threshold the computed intensity strictly exceeds. text= may carry act()
-    suffix codes -- $h (soft-stem instrumental, "посвежевшим/посвежевшей"),
-    $r (hard-stem instrumental, "новым/новой") -- which resolve against the
+    suffix codes - $h (soft-stem instrumental, "посвежевшим/посвежевшей"),
+    $r (hard-stem instrumental, "новым/новой") - which resolve against the
     target's gender at send time.
 
     <degrade> sections are parsed but currently empty; CastToPoints will skip
@@ -21,10 +21,14 @@
     <heal>
         <improve>
             <grade percent="99" text="полностью исцелённ$r"/>
-            <grade percent="75" text="значительно посвежевш$h"/>
-            <grade percent="50" text="посвежевш$h"/>
-            <grade percent="25" text="немного посвежевш$h"/>
-            <grade percent="0"  text="едва живее"/>
+            <grade percent="75" text="почти исцеленн$r"/>
+            <grade percent="55" text="намного здоровей"/>
+            <grade percent="55" text="значительно лучше"/>
+            <grade percent="50" text="намного лучше"/>
+            <grade percent="35" text="лучше"/>
+            <grade percent="25" text="немного лучше"/>
+            <grade percent="15" text="чуточку лучше"/>
+            <grade percent="5"  text="едва живее"/>
         </improve>
         <degrade>
             <!-- intentionally empty: heal-drain narration TBD -->
@@ -41,7 +45,11 @@
             <grade percent="0"  text="едва свежее"/>
         </improve>
         <degrade>
-            <!-- intentionally empty: drain narration TBD -->
+            <grade percent="20" text="полностью истощенн$h"/>
+            <grade percent="40" text="сильно уставш$h"/>
+            <grade percent="60" text="уставш$h"/>
+            <grade percent="80" text="немного уставш$h"/>
+            <grade percent="99"  text="слегшка уставш$h"/>
         </degrade>
     </moves>
 
@@ -49,14 +57,18 @@
          (Engine field is inverted; CastToPoints negates before gain_condition.) -->
     <thirst>
         <improve>
-            <grade percent="99" text="напоённ$r до краёв"/>
+            <grade percent="99" text="полностью утоливш$h жажду"/>
             <grade percent="75" text="хорошо напивш$hся"/>
             <grade percent="50" text="напивш$hся"/>
             <grade percent="25" text="немного утоливш$h жажду"/>
             <grade percent="0"  text="едва менее жаждущ$h"/>
         </improve>
         <degrade>
-            <!-- intentionally empty: hungering / thirsting curses TBD -->
+            <grade percent="10" text="полность иссушенн$x"/>
+            <grade percent="30" text="иссушенн$x"/>
+            <grade percent="60" text="жаждущ$h"/>
+            <grade percent="80" text="желающ$h пить"/>
+            <grade percent="99"  text="слегка желающ$h пить"/>
         </degrade>
     </thirst>
 
@@ -70,13 +82,17 @@
             <grade percent="0"  text="едва менее голодн$r"/>
         </improve>
         <degrade>
-            <!-- intentionally empty -->
+            <grade percent="10" text="умирающ$h с голоду"/>
+            <grade percent="30" text="изголодавш$hся"/>
+            <grade percent="60" text="сильно голод$r"/>
+            <grade percent="80" text="голодн$r"/>
+            <grade percent="99"  text="желающ$h перекусить"/>
         </degrade>
     </cond>
 
     <!-- DAMAGE (issue.mag-points step 2): substituted into the {intensity}
          placeholder on kFightHit* messages by SendCombatMessages in
-         skills.cpp. Percentage formula = damage * 100 / STRIKER's max HP --
+         skills.cpp. Percentage formula = damage * 100 / STRIKER's max HP -
          a "% of MY power" scale, uniform for all viewers in the room. The
          mid range (>10) is intentionally an empty string so a normal hit
          reads as "Вы ударили $N3." with no adverb. The >150 tier crosses
@@ -85,13 +101,28 @@
          ударили $N3"), so an empty tier collapses cleanly. -->
     <damage>
         <improve>
-            <grade percent="150" text="АПОКАЛИПТИЧНО "/>
-            <grade percent="100" text="СМЕРТЕЛЬНО "/>
-            <grade percent="75"  text="сокрушающе "/>
-            <grade percent="50"  text="тяжело "/>
-            <grade percent="25"  text="сильно "/>
-            <grade percent="10"  text=""/>
-            <grade percent="0"   text="слегка "/>
+            <grade percent="150" text="СМЕРТЕЛЬНО "/>
+            <grade percent="130" text="УБИЙСТВЕННО "/>
+            <grade percent="110" text="УЖАСНО "/>
+            <grade percent="99" text="ЖЕСТОКО "/>
+            <grade percent="95" text="НЕВЫНОСИМО БОЛЬНО "/>
+            <grade percent="90" text="ЧРЕЗВВЧАЙНО БОЛЬНО "/>
+            <grade percent="85" text="ОЧЕНЬ БОЛЬНО "/>
+            <grade percent="80" text="БОЛЬНО "/>
+            <grade percent="75" text="чрезвычайно сильно "/>
+            <grade percent="70" text="очень сильно "/>
+            <grade percent="65" text="сильно "/>
+            <grade percent="60" text="основательно "/>
+            <grade percent="55" text="очень крепко "/>
+            <grade percent="50" text="крепко "/>
+            <grade percent="40" text=""/>
+            <grade percent="35" text="незначительно"/>
+            <grade percent="30" text="слабо "/>
+            <grade percent="25" text="очень слабо "/>
+            <grade percent="20" text="слегка "/>
+            <grade percent="15" text="легонько "/>
+            <grade percent="10" text="слабенько "/>
+            <grade percent="5" text="едва-едва "/>
         </improve>
         <degrade>
             <!-- damage doesn't go negative; left empty for symmetry -->

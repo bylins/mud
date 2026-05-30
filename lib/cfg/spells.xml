@@ -2812,6 +2812,11 @@ base_stat id - (например "kWis") какой берем параметр,
             <action>
                 <points>
                     <moves min="9999" dices_weight="0" competencies_weight="0"/>
+                    <!--
+                    <moves min="-20" dices_weight="0" competencies_weight="0"/>
+                    <thirst min="-50" dices_weight="0" competencies_weight="0"/>
+                    <cond min="-50" dices_weight="0" competencies_weight="0"/>
+                    -->
                 </points>
                 <blocking>
                     <room_flags val="kNoMagic"/>
