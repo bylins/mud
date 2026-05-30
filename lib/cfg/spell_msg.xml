@@ -60,33 +60,33 @@
 	</msg_sheaf>
 
 	<msg_sheaf id="kCureLight">
-		<message type="kPointsToVict" val="Вы почувствовали себя немножко лучше." />
+		<message type="kPointsToVict" val="Вы почувствовали себя {intensity}." />
 		<message type="kCastPhraseHeathen" val="малейше целити раны" />
 		<message type="kCastPhraseChristian" val="... да затянутся раны твои." />
 	</msg_sheaf>
 	<msg_sheaf id="kCureSerious">
-		<message type="kPointsToVict" val="Вы почувствовали себя лучше." />
+		<message type="kPointsToVict" val="Вы почувствовали себя {intensity}." />
 		<message type="kCastPhraseHeathen" val="целите раны" />
 		<message type="kCastPhraseChristian" val="... да уменьшатся раны твои." />
 	</msg_sheaf>
 	<msg_sheaf id="kCureCritic">
-		<message type="kPointsToVict" val="Вы почувствовали себя значительно лучше." />
+		<message type="kPointsToVict" val="Вы почувствовали себя {intensity}." />
 		<message type="kCastPhraseHeathen" val="гой еси" />
 		<message type="kCastPhraseChristian" val="... да зарубцуются гноища твои." />
 	</msg_sheaf>
 	<msg_sheaf id="kHeal">
-		<message type="kPointsToVict" val="Вы почувствовали себя намного лучше." />
+		<message type="kPointsToVict" val="Вы почувствовали себя {intensity}." />
 		<message type="kCastPhraseHeathen" val="згола гой еси" />
 		<message type="kCastPhraseChristian" val="... тебе говорю, встань." />
 	</msg_sheaf>
 	<msg_sheaf id="kGroupHeal">
-		<message type="kPointsToVict" val="Вы почувствовали себя лучше." />
+		<message type="kPointsToVict" val="Вы почувствовали себя {intensity}." />
 		<message type="kAreaToChar" val="Вы подняли голову вверх и ощутили яркий свет, ласково бегущий по вашему телу." />
 		<message type="kCastPhraseHeathen" val="други, гой еси" />
 		<message type="kCastPhraseChristian" val="... вам говорю, встаньте." />
 	</msg_sheaf>
 	<msg_sheaf id="kGreatHeal">
-		<message type="kPointsToVict" val="Вы почувствовали себя полностью здоровым." />
+		<message type="kPointsToVict" val="Вы почувствовали себя {intensity}." />
 		<message type="kAreaToChar" val="Вы подняли голову вверх и ощутили яркий свет, ласково бегущий по вашему телу." />
 		<message type="kCastPhraseHeathen" val="згола гой еси" />
 		<message type="kCastPhraseChristian" val="... тебе говорю, встань." />
@@ -103,24 +103,24 @@
 		<message type="kCastPhraseChristian" val="... крепкое тело лучше несметного богатства." />
 	</msg_sheaf>
 	<msg_sheaf id="kResfresh">
-		<message type="kPointsToVict" val="Вы почувствовали себя полным сил." />
+		<message type="kPointsToVict" val="Вы почувствовали себя {intensity}." />
 		<message type="kCastPhraseHeathen" val="буде свеж" />
 		<message type="kCastPhraseChristian" val="... не будет у него ни усталого, ни изнемогающего." />
 	</msg_sheaf>
 	<msg_sheaf id="kGroupRefresh">
-		<message type="kPointsToVict" val="Вы почувствовали себя полным сил." />
+		<message type="kPointsToVict" val="Вы почувствовали себя {intensity}." />
 		<message type="kAreaToChar" val="Ваша магия наполнила воздух зеленоватым сиянием." />
 		<message type="kCastPhraseHeathen" val="Исполняше други силою!" />
 		<message type="kCastPhraseChristian" val="...да не останется ни обделенного, ни обессиленного." />
 	</msg_sheaf>
 	<msg_sheaf id="kFullFeed">
-		<message type="kPointsToVict" val="Вы полностью насытились." />
+		<message type="kPointsToVict" val="Вы почувствовали себя {intensity}." />
 		<message type="kCastPhraseHeathen" val="брюхо полно" />
 		<message type="kCastPhraseChristian" val="... душа больше пищи, и тело - одежды." />
 		<message type="kAffExpired" val="Вам снова захотелось жареного, да с дымком." />
 	</msg_sheaf>
 	<msg_sheaf id="kCommonMeal">
-		<message type="kPointsToVict" val="Вы полностью насытились." />
+		<message type="kPointsToVict" val="Вы почувствовали себя {intensity}." />
 		<message type="kAreaToChar" val="Вы услышали гомон невидимых лакеев, готовящих трапезу." />
 		<message type="kCastPhraseHeathen" val="Благодарите богов за хлеб и соль!" />
 		<message type="kCastPhraseChristian" val="...дабы не осталось голодающих на свете белом" />
@@ -128,7 +128,7 @@
 	<msg_sheaf id="kPaladineInspiration">
 		<message type="kAreaToChar" val="Ваш точный удар воодушевил и придал новых сил!" />
 		<message type="kAreaToRoom" val="Точный удар $n1 воодушевил и придал новых сил!" />
-		<message type="kPointsToVict" val="Вы почувствовали себя полностью здоровым." />
+		<message type="kPointsToVict" val="Вы почувствовали себя {intensity}." />
 		<message type="kCastPhraseHeathen" val="" />
 		<message type="kCastPhraseChristian" val="" />
 		<message type="kAffExpired" val="*Боевое воодушевление угасло, а с ним и вся жажда подвигов!" />

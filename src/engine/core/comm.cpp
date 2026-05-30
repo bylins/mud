@@ -2591,6 +2591,17 @@ void perform_act(const char *orig,
 					else CHECK_NULL(obj, arena ? GET_OBJ_SUF_8(obj) : GET_OBJ_VIS_SUF_8(obj, to));
 					dg_victim = (CharData *) vict_obj;
 					break;
+//суффикс посвежевш(им,ей,ими) -- мягкая основа, творительный падеж
+//(issue.mag-points; см. GET_CH_EXSUF_1 в utils.h).
+				case 'h': i = ch->IsImmortal() || (arena) ? GET_CH_EXSUF_1(ch) : GET_CH_VIS_EXSUF_1(ch, to);
+					break;
+				case 'H':
+					if (vict_obj)
+						i = arena ? GET_CH_EXSUF_1((const CharData *) vict_obj)
+								  : GET_CH_VIS_EXSUF_1((const CharData *) vict_obj, to);
+					else CHECK_NULL(obj, arena ? GET_OBJ_EXSUF_1(obj) : GET_OBJ_VIS_EXSUF_1(obj, to));
+					dg_victim = (CharData *) vict_obj;
+					break;
 //склонение местоимения Ваш(е,а,и)
 				case 'z':
 					if (obj)

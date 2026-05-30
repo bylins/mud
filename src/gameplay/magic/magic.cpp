@@ -1678,9 +1678,63 @@ EStageResult CastToPoints([[maybe_unused]] int level, CharData *ch, CharData *vi
 	// already at cap, but the cast did try to do something -- consistent
 	// with the legacy "show on hit != 0" semantics, generalised.)
 	const auto &points_sheaf = MUD::SpellMessages()[spell_id];
-	if (points_sheaf.HasMessage(ESpellMsg::kPointsToVict)
-			&& (hit != 0 || move != 0 || thirst != 0 || cond != 0)) {
-		SendMsgToChar(points_sheaf.GetMessage(ESpellMsg::kPointsToVict) + "\r\n", victim);
+	const bool any_amount = (hit != 0 || move != 0 || thirst != 0 || cond != 0);
+	if (points_sheaf.HasMessage(ESpellMsg::kPointsToVict) && any_amount) {
+		// Pick the "dominant" category for the {intensity} placeholder. The
+		// preference order matches the natural hierarchy of restoration:
+		// heal > moves > thirst > cond. The percentage formula differs per
+		// category -- restored / max for heal+moves, removed / current for
+		// thirst/cond (the latter measuring how much of the player's existing
+		// thirst/hunger was cleared). See points.xml for the grade tables.
+		points_intensity::ECategory cat = points_intensity::ECategory::kHeal;
+		int percent = 0;
+		if (hit != 0) {
+			cat = points_intensity::ECategory::kHeal;
+			const int max_hp = victim->get_real_max_hit();
+			percent = (max_hp > 0) ? (hit * 100) / max_hp : 0;
+		} else if (move != 0) {
+			cat = points_intensity::ECategory::kMoves;
+			const int max_mv = victim->get_real_max_move();
+			percent = (max_mv > 0) ? (move * 100) / max_mv : 0;
+		} else if (thirst != 0) {
+			cat = points_intensity::ECategory::kThirst;
+			// Engine field stores "thirst level": XML positive thirst means
+			// REMOVE that many from the field. Effective delta is capped by
+			// current thirst -- you can't go below 0. The intensity reads as
+			// "what fraction of the current discomfort did we remove?"
+			const int current = GET_COND(victim, THIRST);
+			const int removed = (current > 0) ? std::min(thirst, current) : 0;
+			percent = (current > 0) ? (removed * 100) / current : 0;
+		} else if (cond != 0) {
+			cat = points_intensity::ECategory::kCond;
+			const int current = GET_COND(victim, FULL);
+			const int removed = (current > 0) ? std::min(cond, current) : 0;
+			percent = (current > 0) ? (removed * 100) / current : 0;
+		}
+		std::string msg = points_sheaf.GetMessage(ESpellMsg::kPointsToVict);
+		// Substitute {intensity} when present and resolution yields text. If
+		// the placeholder is absent the message is sent verbatim (designers
+		// can opt out of grading on a per-spell basis just by leaving the
+		// placeholder out of their text).
+		const auto pos = msg.find("{intensity}");
+		if (pos != std::string::npos) {
+			const std::string &grade =
+					MUD::PointsIntensity().Resolve(cat, percent);
+			if (grade.empty()) {
+				// Nothing to say at this intensity -- drop the message
+				// entirely rather than emit "Вы почувствовали себя ." with
+				// a dangling space + period.
+				msg.clear();
+			} else {
+				msg.replace(pos, std::strlen("{intensity}"), grade);
+			}
+		}
+		if (!msg.empty()) {
+			// Route through act() so $h / $r / $g resolve against the
+			// target's gender. We send to char only (`kToChar`); the room
+			// already gets its own narration via other channels.
+			act(msg.c_str(), false, victim, nullptr, victim, kToChar);
+		}
 	}
 
 	// Aggro consequence: buffing your fighting buddy is still PK-relevant.

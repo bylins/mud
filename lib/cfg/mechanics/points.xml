@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="koi8-r"?>
+<!--
+    Intensity-grade vocabulary for CastToPoints narration (issue.mag-points).
+    Each <heal>/<moves>/<thirst>/<cond> section carries an <improve> list of
+    <grade percent= text=/> rows; the lookup picks the highest tier whose
+    threshold the computed intensity strictly exceeds. text= may carry act()
+    suffix codes -- $h (soft-stem instrumental, "посвежевшим/посвежевшей"),
+    $r (hard-stem instrumental, "новым/новой") -- which resolve against the
+    target's gender at send time.
+
+    <degrade> sections are parsed but currently empty; CastToPoints will skip
+    intensity substitution when the percent is negative until designers fill
+    them in.
+
+    Percent thresholds use strict ">" comparison (top-down). A 50% restore
+    matches the >25 row, not the >50 row.
+-->
+<points_intensity>
+
+    <!-- HEAL: percent = restored HP / max HP * 100. -->
+    <heal>
+        <improve>
+            <grade percent="99" text="полностью исцелённ$r"/>
+            <grade percent="75" text="значительно посвежевш$h"/>
+            <grade percent="50" text="посвежевш$h"/>
+            <grade percent="25" text="немного посвежевш$h"/>
+            <grade percent="0"  text="едва живее"/>
+        </improve>
+        <degrade>
+            <!-- intentionally empty: heal-drain narration TBD -->
+        </degrade>
+    </heal>
+
+    <!-- MOVES: percent = restored moves / max moves * 100. -->
+    <moves>
+        <improve>
+            <grade percent="99" text="полностью отдохнувш$h"/>
+            <grade percent="75" text="крепко отдохнувш$h"/>
+            <grade percent="50" text="отдохнувш$h"/>
+            <grade percent="25" text="немного отдохнувш$h"/>
+            <grade percent="0"  text="едва свежее"/>
+        </improve>
+        <degrade>
+            <!-- intentionally empty: drain narration TBD -->
+        </degrade>
+    </moves>
+
+    <!-- THIRST: percent = removed thirst / current thirst * 100.
+         (Engine field is inverted; CastToPoints negates before gain_condition.) -->
+    <thirst>
+        <improve>
+            <grade percent="99" text="напоённ$r до краёв"/>
+            <grade percent="75" text="хорошо напивш$hся"/>
+            <grade percent="50" text="напивш$hся"/>
+            <grade percent="25" text="немного утоливш$h жажду"/>
+            <grade percent="0"  text="едва менее жаждущ$h"/>
+        </improve>
+        <degrade>
+            <!-- intentionally empty: hungering / thirsting curses TBD -->
+        </degrade>
+    </thirst>
+
+    <!-- COND (hunger): percent = removed FULL / current FULL * 100. -->
+    <cond>
+        <improve>
+            <grade percent="99" text="наевш$hся до отвала"/>
+            <grade percent="75" text="крепко наевш$hся"/>
+            <grade percent="50" text="сыт$r"/>
+            <grade percent="25" text="немного утоливш$h голод"/>
+            <grade percent="0"  text="едва менее голодн$r"/>
+        </improve>
+        <degrade>
+            <!-- intentionally empty -->
+        </degrade>
+    </cond>
+
+</points_intensity>

@@ -778,6 +778,10 @@ void BootMudDataBase() {
 	log("Loading spell messages cfg.");
 	MUD::CfgManager().LoadCfg("spell_messages");
 
+	boot_profiler.next_step("Loading points intensity cfg.");
+	log("Loading points intensity cfg.");
+	MUD::CfgManager().LoadCfg("points_intensity");
+
 	boot_profiler.next_step("Loading skill messages cfg.");
 	log("Loading skill messages cfg.");
 	MUD::CfgManager().LoadCfg("skill_messages");

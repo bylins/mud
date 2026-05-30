@@ -7,6 +7,7 @@
 #include "gameplay/economics/currencies.h"
 #include "gameplay/magic/spells_info.h"
 #include "gameplay/magic/spell_messages.h"
+#include "gameplay/magic/points_intensity.h"
 #include "gameplay/skills/skill_messages.h"
 #include "gameplay/fight/fight_messages.h"
 #include "gameplay/clans/ingr_chest_saver.h"
@@ -59,6 +60,7 @@ class GlobalObjects {
 	static spells::SpellsInfo &Spells();
 	static const spells::SpellInfo &Spell(ESpell spell_id);
 	static spells::SpellMessages &SpellMessages();
+	static points_intensity::PointsIntensity &PointsIntensity();
 	static skills::SkillMessages &SkillMessages();
     static fight::FightMessages &FightMessages();
 	static feats::FeatsInfo &Feats();
