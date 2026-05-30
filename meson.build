@@ -606,6 +606,7 @@ main_sources = files(
   'src/gameplay/skills/spell_capable.cpp',
   'src/gameplay/skills/lightwalk.cpp',
   'src/gameplay/skills/death_rage.cpp',
+  'src/gameplay/skills/animal_master.cpp',
   'src/gameplay/skills/fit.cpp',
   'src/gameplay/abilities/talents_effects.cpp',
   'src/gameplay/abilities/feats_constants.cpp',
