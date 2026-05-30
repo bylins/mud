@@ -45,11 +45,11 @@
             <grade percent="0"  text="едва свежее"/>
         </improve>
         <degrade>
-            <grade percent="20" text="полностью истощенн$h"/>
-            <grade percent="40" text="сильно уставш$h"/>
-            <grade percent="60" text="уставш$h"/>
-            <grade percent="80" text="немного уставш$h"/>
-            <grade percent="99"  text="слегшка уставш$h"/>
+            <grade percent="-95" text="полностью истощенн$h"/>
+            <grade percent="-80" text="сильно уставш$h"/>
+            <grade percent="-60" text="уставш$h"/>
+            <grade percent="-40" text="немного уставш$h"/>
+            <grade percent="-20"  text="слегшка уставш$h"/>
         </degrade>
     </moves>
 
@@ -66,7 +66,7 @@
         <degrade>
             <grade percent="10" text="полность иссушенн$x"/>
             <grade percent="30" text="иссушенн$x"/>
-            <grade percent="60" text="жаждущ$h"/>
+            <grade percent="60" text="жаждущ$h глотка воды"/>
             <grade percent="80" text="желающ$h пить"/>
             <grade percent="99"  text="слегка желающ$h пить"/>
         </degrade>
