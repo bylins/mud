@@ -225,6 +225,13 @@ enum class ESpellMsg {
 	kCustomMsgThree,
 	kCustomMsgFour,
 	kCustomMsgFive,
+	// Teleport-style relocation narration (issue.spell-msg-improve): shared by spells
+	// where an actor leaves one room ($n is the actor leaving) and enters another
+	// ($n is the actor arriving). kDefault carries generic "$n исчез$q." / "$n
+	// появил$u." lines; per-spell overrides flavour the wording for kWorldOfRecall,
+	// kTeleport, kRelocate, kSummon, and any future teleport-class spell.
+	kCastDisappearToRoom,
+	kCastAppearToRoom,
 };
 
 template<>

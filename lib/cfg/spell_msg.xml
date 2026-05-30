@@ -96,6 +96,11 @@
 		     so the key always resolves to something readable. -->
 		<message type="kItemCreationFailToChar" val="Создание не удалось." />
 		<message type="kWrongTarget" val="Это не подходящая цель для заклинания." />
+		<!-- Teleport-style "actor moved" generics (issue.spell-msg-improve). $n is the
+		     actor moving; the room sees them leave or arrive. Per-spell sheaves override
+		     with flavour for kWorldOfRecall, kTeleport, kRelocate, kSummon, etc. -->
+		<message type="kCastDisappearToRoom" val="$n исчез$q." />
+		<message type="kCastAppearToRoom" val="$n появил$u." />
 	</msg_sheaf>
 
 	<msg_sheaf id="kCureLight">
@@ -1661,6 +1666,9 @@
 		<message type="kCastForbiddenToChar" val="Попытка перемещения не удалась." />
 		<message type="kCastPhraseHeathen" val="несите ветры" />
 		<message type="kCastPhraseChristian" val="... дух поднял меня и перенес меня." />
+		<!-- SpellTeleport narration: same "slow disappear/appear" wording as kRelocate. -->
+		<message type="kCastDisappearToRoom" val="$n медленно исчез$q из виду." />
+		<message type="kCastAppearToRoom" val="$n медленно появил$u откуда-то." />
 	</msg_sheaf>
 	<msg_sheaf id="kBlindness">
 		<message type="kAffDispelledToRoom" val="$n прозрел$g." />
@@ -1689,6 +1697,13 @@
 		<!-- kCustomMsgOne (issue.spell-msg-improve): self-cast humor line shown when
 		     the caster targets themselves. Slated for Lua when scripting lands. -->
 		<message type="kCustomMsgOne" val="Вы просто очарованы своим внешним видом!" />
+		<!-- Three more SpellCharm one-offs (issue.spell-msg-improve), slated for Lua
+		     when scripting lands. kCustomMsgTwo: target is a PC. kCustomMsgThree:
+		     act-style line shown when target is fighting or below kRest. kCustomMsgFour:
+		     circle_follow rejection. -->
+		<message type="kCustomMsgTwo" val="Вы не можете очаровать реального игрока!" />
+		<message type="kCustomMsgThree" val="$M сейчас, похоже, не до вас." />
+		<message type="kCustomMsgFour" val="Следование по кругу запрещено." />
 	</msg_sheaf>
 	<msg_sheaf id="kControlWeather">
 		<message type="kNoTarget" val="Не указан тип погоды." />
@@ -1745,6 +1760,8 @@
 	<msg_sheaf id="kLocateObject">
 		<message type="kCastPhraseHeathen" val="рища, летая умом под облакы" />
 		<message type="kCastPhraseChristian" val="... ибо всякий просящий получает, и ищущий находит." />
+		<!-- "Nothing felt" line when SpellLocateObject's search yields no result. -->
+		<message type="kCustomMsgOne" val="Вы ничего не чувствуете." />
 	</msg_sheaf>
 	<msg_sheaf id="kProtectFromEvil">
 		<message type="kCastPhraseHeathen" val="супостат нощи" />
@@ -1777,6 +1794,17 @@
 	<msg_sheaf id="kSummon">
 		<message type="kCastPhraseHeathen" val="кличу-велю" />
 		<message type="kCastPhraseChristian" val="... и послали за ним и призвали его." />
+		<!-- SpellSummon narration (issue.spell-msg-improve). $n = the summoned victim
+		     in disappear/appear lines. kCustomMsgOne fires when the cast is blocked by
+		     a no-teleport-out room or an AFF kNoTeleport on the victim. kCustomMsgTwo
+		     is the to-vict notification when the summoned character lands. kCustomMsgThree
+		     is the "arrived following the master" line for charmice that travel with the
+		     summoned victim. -->
+		<message type="kCastDisappearToRoom" val="$n растворил$u на ваших глазах." />
+		<message type="kCastAppearToRoom" val="$n прибыл$g по вызову." />
+		<message type="kCustomMsgOne" val="Неведомая сила блокирует ваш призыв." />
+		<message type="kCustomMsgTwo" val="$n призвал$g вас!" />
+		<message type="kCustomMsgThree" val="$n прибыл$g за хозяином." />
 	</msg_sheaf>
 	<msg_sheaf id="kPatronage">
 		<message type="kCastPhraseHeathen" val="ибо будет угоден Богам" />
@@ -1789,6 +1817,10 @@
 		<message type="kCastForbiddenToChar" val="Попытка перемещения не удалась." />
 		<message type="kCastPhraseHeathen" val="с глаз долой исчезни" />
 		<message type="kCastPhraseChristian" val="... ступай с миром." />
+		<!-- SpellRecall teleport narration (issue.spell-msg-improve): $n = the recalled
+		     character (caster or summoned target); rooms see them vanish/appear. -->
+		<message type="kCastDisappearToRoom" val="$n исчез$q." />
+		<message type="kCastAppearToRoom" val="$n появил$u в центре комнаты." />
 	</msg_sheaf>
 	<msg_sheaf id="kSenseLife">
 		<message type="kCastPhraseHeathen" val="зряще живота" />
@@ -2051,6 +2083,12 @@
 	<msg_sheaf id="kPortal">
 		<message type="kCastPhraseHeathen" val="буде путь короток" />
 		<message type="kCastPhraseChristian" val="... входите во врата Его." />
+		<!-- SpellPortal narration (issue.spell-msg-improve). kCustomMsgOne is the
+		     normal pentagram appearance; kCustomMsgTwo is the pk variant (blood-tinged);
+		     kCustomMsgThree fires from RemovePortalGate when a portal expires/is broken. -->
+		<message type="kCustomMsgOne" val="Лазурная пентаграмма возникла в воздухе." />
+		<message type="kCustomMsgTwo" val="Лазурная пентаграмма с кровавым отблеском возникла в воздухе." />
+		<message type="kCustomMsgThree" val="Пентаграмма была разрушена." />
 	</msg_sheaf>
 	<msg_sheaf id="kDispellMagic">
 		<message type="kCastPhraseHeathen" val="изыде ворожба" />
@@ -2072,6 +2110,11 @@
 		<message type="kCastForbiddenToChar" val="Попытка перемещения не удалась." />
 		<message type="kCastPhraseHeathen" val="Стрибог, укажи путь..." />
 		<message type="kCastPhraseChristian" val="... указывай им путь, по которому они должны идти." />
+		<!-- SpellRelocate narration (same wording as kTeleport). kCustomMsgOne is the
+		     azure-flash banner shown to the caster on arrival. -->
+		<message type="kCastDisappearToRoom" val="$n медленно исчез$q из виду." />
+		<message type="kCastAppearToRoom" val="$n медленно появил$u откуда-то." />
+		<message type="kCustomMsgOne" val="Лазурные сполохи пронеслись перед вашими глазами." />
 	</msg_sheaf>
 	<msg_sheaf id="kIceShield">
 		<message type="kCastPhraseHeathen" val="Морена, даруй прибежище" />
@@ -2462,11 +2505,15 @@
 		     variants exist for kClone-style random-summon spells; kMentalShadow always
 		     produces the same line. -->
 		<message type="kSummonToRoom" val="Мимолётное наваждение воплотилось в призрачную тень." />
+		<!-- Caster-side rejection when effective Int is too low to summon the shadow. -->
+		<message type="kCustomMsgOne" val="Головные боли мешают работать!" />
 	</msg_sheaf>
 
 	<msg_sheaf id="kIdentify">
 		<!-- Per-spell override (issue.spell-msg-improve) of the generic kWrongTarget line. -->
 		<message type="kWrongTarget" val="С помощью магии нельзя опознать другое существо." />
+		<!-- Self-target rejection at low level. -->
+		<message type="kCustomMsgOne" val="Вы можете опознать себя только достигнув третьего уровня." />
 	</msg_sheaf>
 	<msg_sheaf id="kFullIdentify">
 		<message type="kWrongTarget" val="С помощью магии нельзя опознать другое существо." />
