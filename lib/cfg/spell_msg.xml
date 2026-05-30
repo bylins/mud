@@ -64,6 +64,24 @@
 		<message type="kItemNoPrototype" val="Что-то не видно образа для создания." />
 		<message type="kItemCreatedToChar" val="Вы создали $o3." />
 		<message type="kItemCreatedToRoom" val="$n создал$g $o3." />
+		<!-- SaySpell room narration (issue.spell-msg-improve). The %s is filled in
+		     by sprintf BEFORE act(): the spell's canonical name for viewers who
+		     Know the spell, the cast phrase for everyone else. Two variants per
+		     verbal key -- one PC-flavoured, one humanoid-NPC-flavoured -- the
+		     container picks one at random. kCastSaySound is the "can't speak"
+		     line non-humanoid NPC races emit for every situation. -->
+		<message type="kCastSayToSelf" val="$n прикрыл$g глаза и прошептал$g : '%s'." />
+		<message type="kCastSayToSelf" val="$n пробормотал$g : '%s'." />
+		<message type="kCastSayToOther" val="$n взглянул$g на $N3 и произнес$q : '%s'." />
+		<message type="kCastSayToOther" val="$n взглянул$g на $N3 и бросил$g : '%s'." />
+		<message type="kCastSayToObj" val="$n посмотрел$g на $o3 и произнес$q : '%s'." />
+		<message type="kCastSayToObj" val="$n глянул$g на $o3 и произнес$q : '%s'." />
+		<message type="kCastSayToSomething" val="$n произнес$q : '%s'." />
+		<message type="kCastSayDamageeToVict" val="$n зыркнул$g на вас и произнес$q : '%s'." />
+		<message type="kCastSayDamageeToVict" val="$n зыркнул$g на вас и проревел$g : '%s'." />
+		<message type="kCastSayHelpeeToVict" val="$n подмигнул$g вам и произнес$q : '%s'." />
+		<message type="kCastSayHelpeeToVict" val="$n улыбнул$u вам и произнес$q : '%s'." />
+		<message type="kCastSaySound" val="$n издал$g непонятный звук." />
 	</msg_sheaf>
 
 	<msg_sheaf id="kCureLight">

@@ -99,6 +99,13 @@ const std::string &NAME_BY_ITEM<ESpellMsg>(const ESpellMsg item) {
 		{ESpellMsg::kItemNoPrototype, "kItemNoPrototype"},
 		{ESpellMsg::kItemCreatedToChar, "kItemCreatedToChar"},
 		{ESpellMsg::kItemCreatedToRoom, "kItemCreatedToRoom"},
+		{ESpellMsg::kCastSayToSelf, "kCastSayToSelf"},
+		{ESpellMsg::kCastSayToOther, "kCastSayToOther"},
+		{ESpellMsg::kCastSayToObj, "kCastSayToObj"},
+		{ESpellMsg::kCastSayToSomething, "kCastSayToSomething"},
+		{ESpellMsg::kCastSayDamageeToVict, "kCastSayDamageeToVict"},
+		{ESpellMsg::kCastSayHelpeeToVict, "kCastSayHelpeeToVict"},
+		{ESpellMsg::kCastSaySound, "kCastSaySound"},
 	};
 	return kMap.at(item);
 }
@@ -192,6 +199,13 @@ ESpellMsg ITEM_BY_NAME<ESpellMsg>(const std::string &name) {
 		{"kItemNoPrototype", ESpellMsg::kItemNoPrototype},
 		{"kItemCreatedToChar", ESpellMsg::kItemCreatedToChar},
 		{"kItemCreatedToRoom", ESpellMsg::kItemCreatedToRoom},
+		{"kCastSayToSelf", ESpellMsg::kCastSayToSelf},
+		{"kCastSayToOther", ESpellMsg::kCastSayToOther},
+		{"kCastSayToObj", ESpellMsg::kCastSayToObj},
+		{"kCastSayToSomething", ESpellMsg::kCastSayToSomething},
+		{"kCastSayDamageeToVict", ESpellMsg::kCastSayDamageeToVict},
+		{"kCastSayHelpeeToVict", ESpellMsg::kCastSayHelpeeToVict},
+		{"kCastSaySound", ESpellMsg::kCastSaySound},
 	};
 	return kMap.at(name); // throws std::out_of_range on unknown name
 }

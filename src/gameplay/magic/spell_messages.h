@@ -167,6 +167,23 @@ enum class ESpellMsg {
 	kItemNoPrototype,
 	kItemCreatedToChar,
 	kItemCreatedToRoom,
+	// SaySpell room narration (issue.spell-msg-improve): 6 per-situation keys covering
+	// the cases SaySpell distinguishes (caster targeting self / another in room / object
+	// in room / something out of room; and the side narration to a violent victim
+	// / a friendly target). Each carries a printf %s slot that resolves to the spell's
+	// canonical name (for viewers who Know the spell) or to the cast phrase (everyone
+	// else). The kDefault sheaf carries TWO variants per key -- one PC-flavoured,
+	// one humanoid-NPC-flavoured -- and the container picks one at random per
+	// emission, so the verbal voice is mixed and stylistically varied. Per-spell
+	// overrides can pin a specific line. kCastSaySound replaces all six lines when
+	// the caster's race can't speak (default branch in SaySpell's NPC race switch).
+	kCastSayToSelf,
+	kCastSayToOther,
+	kCastSayToObj,
+	kCastSayToSomething,
+	kCastSayDamageeToVict,
+	kCastSayHelpeeToVict,
+	kCastSaySound,
 };
 
 template<>

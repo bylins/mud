@@ -53,11 +53,29 @@ int MagusCastRequiredLevel(const CharData *ch, ESpell spell_id) {
 	return std::max(1, required_level);
 }
 
+// True if `ch`'s race counts as "verbal": the cast is narrated as articulated speech
+// (PC always, plus the five humanoid NPC races that historically had their own narration
+// set). Non-humanoid NPC races default to "sound" -- a single collapsed narration line.
+// (issue.spell-msg-improve.)
+static bool IsCasterVerbal(CharData *ch) {
+	if (!ch->IsNpc()) {
+		return true;
+	}
+	switch (GET_RACE(ch)) {
+		case ENpcRace::kBoggart:
+		case ENpcRace::kGhost:
+		case ENpcRace::kHuman:
+		case ENpcRace::kZombie:
+		case ENpcRace::kSpirit:
+			return true;
+		default:
+			return false;
+	}
+}
+
 // SaySpell erodes buf, buf1, buf2
 void SaySpell(CharData *ch, ESpell spell_id, CharData *tch, ObjData *tobj) {
 	char lbuf[256];
-	const char *say_to_self, *say_to_other, *say_to_obj_vis, *say_to_something,
-		*helpee_vict, *damagee_vict, *format;
 
 	// Silenced caster can't speak the phrase regardless of whether the spell
 	// is verbal. A verbal spell shouldn't even reach SaySpell while silenced
@@ -71,7 +89,6 @@ void SaySpell(CharData *ch, ESpell spell_id, CharData *tch, ObjData *tobj) {
 
 	*buf = '\0';
 	strcpy(lbuf, MUD::Spell(spell_id).GetEngCName());
-	// Say phrase ?
 	const auto &cast_phrase_sheaf = MUD::SpellMessages()[spell_id];
 	if (!cast_phrase_sheaf.HasMessage(ESpellMsg::kCastPhraseHeathen)
 		&& !cast_phrase_sheaf.HasMessage(ESpellMsg::kCastPhraseChristian)) {
@@ -86,44 +103,35 @@ void SaySpell(CharData *ch, ESpell spell_id, CharData *tch, ObjData *tobj) {
 		}
 		return;
 	}
-	if (ch->IsNpc()) {
-		switch (GET_RACE(ch)) {
-			case ENpcRace::kBoggart:
-			case ENpcRace::kGhost:
-			case ENpcRace::kHuman:
-			case ENpcRace::kZombie:
-			case ENpcRace::kSpirit: {
-				const int religion = number(kReligionPoly, kReligionMono);
-				const std::string &cast_phrase = cast_phrase_sheaf.GetMessage(religion ? ESpellMsg::kCastPhraseChristian : ESpellMsg::kCastPhraseHeathen);
-				if (!cast_phrase.empty()) {
-					strcpy(buf, cast_phrase.c_str());
-				}
-				say_to_self = "$n пробормотал$g : '%s'.";
-				say_to_other = "$n взглянул$g на $N3 и бросил$g : '%s'.";
-				say_to_obj_vis = "$n глянул$g на $o3 и произнес$q : '%s'.";
-				say_to_something = "$n произнес$q : '%s'.";
-				damagee_vict = "$n зыркнул$g на вас и проревел$g : '%s'.";
-				helpee_vict = "$n улыбнул$u вам и произнес$q : '%s'.";
-				break;
-			}
-			default: say_to_self = "$n издал$g непонятный звук.";
-				say_to_other = "$n издал$g непонятный звук.";
-				say_to_obj_vis = "$n издал$g непонятный звук.";
-				say_to_something = "$n издал$g непонятный звук.";
-				damagee_vict = "$n издал$g непонятный звук.";
-				helpee_vict = "$n издал$g непонятный звук.";
+
+	const bool verbal = IsCasterVerbal(ch);
+
+	// Resolve the cast phrase used for viewers who don't Know the spell. PCs pick
+	// by religion; NPCs pick at random per cast. Sound-voice casters don't speak
+	// so the phrase stays empty (kCastSaySound has no %s slot anyway).
+	if (verbal) {
+		const int religion = ch->IsNpc()
+				? number(kReligionPoly, kReligionMono)
+				: GET_RELIGION(ch);
+		const std::string &cast_phrase = cast_phrase_sheaf.GetMessage(
+				religion ? ESpellMsg::kCastPhraseChristian : ESpellMsg::kCastPhraseHeathen);
+		if (!cast_phrase.empty()) {
+			strcpy(buf, cast_phrase.c_str());
 		}
-	} else {
+	}
+
+	// Caster-side banner -- PC only (NPCs have no client to message).
+	if (!ch->IsNpc()) {
 		if (ch->IsFlagged(EPrf::kNoRepeat)) {
 			if (!ch->GetEnemy()) {
 				SendMsgToChar(OK, ch);
 			}
 		} else {
-			// Cast-incantation banner (issue.spell-msg-improve): kCastIncantToChar in
-			// the cast spell's sheaf (with kDefault fallback) carries the line shown
-			// to the caster. {color}/{name}/{nrm} placeholders resolve to bold-red or
-			// bold-green by IsViolent, the spell's GetCName, and the colour reset.
-			// Warcry spells override the default's "произнесли" with "выкрикнули".
+			// Cast-incantation banner (issue.spell-msg-improve): kCastIncantToChar in the
+			// cast spell's sheaf (with kDefault fallback) carries the line shown to the
+			// caster. {color}/{name}/{nrm} placeholders resolve to bold-red or bold-green
+			// by IsViolent, the spell's GetCName, and the colour reset. Warcry spells
+			// override the default's "произнесли" with "выкрикнули".
 			std::string incant =
 					MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kCastIncantToChar);
 			const char *const color = MUD::Spell(spell_id).IsViolent()
@@ -139,32 +147,27 @@ void SaySpell(CharData *ch, ESpell spell_id, CharData *tch, ObjData *tobj) {
 			subst("{nrm}", kColorNrm);
 			SendMsgToChar(incant + "\r\n", ch);
 		}
-		const std::string &cast_phrase = cast_phrase_sheaf.GetMessage(GET_RELIGION(ch) ? ESpellMsg::kCastPhraseChristian : ESpellMsg::kCastPhraseHeathen);
-		if (!cast_phrase.empty()) {
-			strcpy(buf, cast_phrase.c_str());
-		}
-		say_to_self = "$n прикрыл$g глаза и прошептал$g : '%s'.";
-		say_to_other = "$n взглянул$g на $N3 и произнес$q : '%s'.";
-		say_to_obj_vis = "$n посмотрел$g на $o3 и произнес$q : '%s'.";
-		say_to_something = "$n произнес$q : '%s'.";
-		damagee_vict = "$n зыркнул$g на вас и произнес$q : '%s'.";
-		helpee_vict = "$n подмигнул$g вам и произнес$q : '%s'.";
 	}
 
+	// Pick the room-narration key by cast situation; sound voice collapses every
+	// slot to kCastSaySound. The per-spell sheaf may override (with kDefault
+	// fallback); when a key has multiple variants the container picks one at random.
+	ESpellMsg room_key;
 	if (tch != nullptr && tch->in_room == ch->in_room) {
-		if (tch == ch) {
-			format = say_to_self;
-		} else {
-			format = say_to_other;
-		}
+		room_key = (tch == ch) ? ESpellMsg::kCastSayToSelf : ESpellMsg::kCastSayToOther;
 	} else if (tobj != nullptr && (tobj->get_in_room() == ch->in_room || tobj->get_carried_by() == ch)) {
-		format = say_to_obj_vis;
+		room_key = ESpellMsg::kCastSayToObj;
 	} else {
-		format = say_to_something;
+		room_key = ESpellMsg::kCastSayToSomething;
 	}
+	const std::string &room_format = MUD::SpellMessages().GetMessage(
+			spell_id, verbal ? room_key : ESpellMsg::kCastSaySound);
 
-	sprintf(buf1, format, MUD::Spell(spell_id).GetCName());
-	sprintf(buf2, format, buf);
+	// The %s slot (when present) is filled by sprintf with the spell name for
+	// viewers who Know the cast, or the cast phrase for everyone else. Sound-voice
+	// narration has no %s and the argument is ignored, which is safe in standard C.
+	sprintf(buf1, room_format.c_str(), MUD::Spell(spell_id).GetCName());
+	sprintf(buf2, room_format.c_str(), buf);
 
 	for (const auto i : world[ch->in_room]->people) {
 		if (i == ch || i == tch || !i->desc || !AWAKE(i) || AFF_FLAGGED(i, EAffect::kDeafness)) {
@@ -181,15 +184,15 @@ void SaySpell(CharData *ch, ESpell spell_id, CharData *tch, ObjData *tobj) {
 	act(buf1, 1, ch, tobj, tch, kToArenaListen);
 
 	if (tch != nullptr && tch != ch && tch->in_room == ch->in_room && !AFF_FLAGGED(tch, EAffect::kDeafness)) {
-		if (MUD::Spell(spell_id).IsViolent()) {
-			sprintf(buf1, damagee_vict,
-					IS_SET(GET_SPELL_TYPE(tch, spell_id), ESpellType::kKnow | ESpellType::kTemp) ?
-					MUD::Spell(spell_id).GetCName() : buf);
-		} else {
-			sprintf(buf1, helpee_vict,
-					IS_SET(GET_SPELL_TYPE(tch, spell_id), ESpellType::kKnow | ESpellType::kTemp) ?
-					MUD::Spell(spell_id).GetCName() : buf);
-		}
+		const ESpellMsg vict_key = !verbal
+				? ESpellMsg::kCastSaySound
+				: (MUD::Spell(spell_id).IsViolent()
+						? ESpellMsg::kCastSayDamageeToVict
+						: ESpellMsg::kCastSayHelpeeToVict);
+		const std::string &vict_format = MUD::SpellMessages().GetMessage(spell_id, vict_key);
+		sprintf(buf1, vict_format.c_str(),
+				IS_SET(GET_SPELL_TYPE(tch, spell_id), ESpellType::kKnow | ESpellType::kTemp) ?
+				MUD::Spell(spell_id).GetCName() : buf);
 		act(buf1, false, ch, nullptr, tch, kToVict);
 	}
 }
