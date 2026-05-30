@@ -184,6 +184,47 @@ enum class ESpellMsg {
 	kCastSayDamageeToVict,
 	kCastSayHelpeeToVict,
 	kCastSaySound,
+	// Controlled-cast swap narration (issue.spell-msg-improve): kMagNeedControl spells
+	// drop the existing controlled affect before imposing their own. kCastInterruptedToChar
+	// is looked up on the OLD spell's sheaf with the OLD spell's name in {name};
+	// kCastPreparedToChar is looked up on the NEW spell's sheaf with the NEW spell's
+	// name in {name}. Both fall back to kDefault.
+	kCastInterruptedToChar,
+	kCastPreparedToChar,
+	// Owner notification when one of the caster's room/world affects gets removed
+	// outside the dispel pipeline (issue.spell-msg-improve). RemoveSingleAffectFromWorld
+	// is the current caller (kRuneLabel expiry on idle-quit, etc.). The kDefault sheaf
+	// carries a generic "Ваша магия была развеяна" line; per-spell overrides flavour
+	// the message (kRuneLabel says "Ваша рунная метка удалена.").
+	kAfDispelledToOwner,
+	// kCreateWater non-water-container reject (issue.spell-msg-improve): a generic
+	// "creation failed" notice. Default kDefault sheaf carries the placeholder line;
+	// kCreateWater overrides with "Прекратите, ради бога, химичить." for the
+	// non-empty non-water container case. Other creation spells may override later.
+	kItemCreationFailToChar,
+	// "Wrong target type for this spell" (issue.spell-msg-improve). kDefault sheaf
+	// carries a generic line; per-spell sheaves override (kIdentify / kFullIdentify
+	// supply the "magic can't identify another creature" variant today).
+	kWrongTarget,
+	// Custom one-off slots for manual spells (issue.spell-msg-improve). These keys
+	// carry NO fixed semantic -- each per-spell sheaf assigns its own meaning. Use
+	// ONLY for messages that:
+	//   1. are unique to a single manual spell (do_ManualSpell-style function),
+	//   2. don't fit any existing semantically-named key, AND
+	//   3. live in a spell slated for eventual migration to a Lua/Python scripting
+	//      system.
+	// Add a one-line XML comment on each per-spell usage describing what fires the
+	// message -- the XML is the documentation source; the enum names stay anonymous
+	// on purpose. Hitting the kCustomMsgFive cap on a single spell is a signal to
+	// move that spell to scripts rather than extend the cap. NEVER use these when
+	// a clean semantically-named key fits (the SpellCharm migration that reused
+	// kSummonWarhorse / kResurrectConsecrated etc. is the right pattern; reaching
+	// for kCustomMsgOne would have hidden the semantic match).
+	kCustomMsgOne,
+	kCustomMsgTwo,
+	kCustomMsgThree,
+	kCustomMsgFour,
+	kCustomMsgFive,
 };
 
 template<>
