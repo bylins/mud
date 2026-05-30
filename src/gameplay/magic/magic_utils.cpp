@@ -74,11 +74,18 @@ static bool IsCasterVerbal(CharData *ch) {
 
 // Caster-side "Вы произнесли заклинание ..." / "Вы выкрикнули ..." banner.
 // The kCastIncantToChar sheaf carries the line; {color}/{name}/{nrm}
-// placeholders are filled in with bold-red or bold-green by IsViolent,
-// the spell's canonical name, and the colour reset.
-static void EmitCastIncantBanner(CharData *ch, ESpell spell_id) {
+// placeholders are filled in with bold-red / bold-green by IsViolentAgainst
+// (issue.ambiguous-spells), or bold-yellow for an ambiguous spell whose
+// target wasn't resolved (e.g. an area cast where the banner can't pick a side).
+static void EmitCastIncantBanner(CharData *ch, ESpell spell_id, const CharData *tch) {
 	std::string incant = MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kCastIncantToChar);
-	const char *const color = MUD::Spell(spell_id).IsViolent() ? kColorBoldRed : kColorBoldGrn;
+	const auto &spell = MUD::Spell(spell_id);
+	const char *color;
+	if (spell.GetViolent() == spells::EViolent::kAmbiguous && !tch) {
+		color = kColorBoldYel;
+	} else {
+		color = spell.IsViolentAgainst(ch, tch ? tch : ch) ? kColorBoldRed : kColorBoldGrn;
+	}
 	auto subst = [&incant](const char *token, const char *value) {
 		const auto pos = incant.find(token);
 		if (pos != std::string::npos) {
@@ -145,7 +152,7 @@ void SaySpell(CharData *ch, ESpell spell_id, CharData *tch, ObjData *tobj) {
 				SendMsgToChar(OK, ch);
 			}
 		} else {
-			EmitCastIncantBanner(ch, spell_id);
+			EmitCastIncantBanner(ch, spell_id, tch);
 		}
 	}
 
@@ -186,7 +193,7 @@ void SaySpell(CharData *ch, ESpell spell_id, CharData *tch, ObjData *tobj) {
 	if (tch != nullptr && tch != ch && tch->in_room == ch->in_room && !AFF_FLAGGED(tch, EAffect::kDeafness)) {
 		const ESpellMsg vict_key = !verbal
 				? ESpellMsg::kCastSaySound
-				: (MUD::Spell(spell_id).IsViolent()
+				: (MUD::Spell(spell_id).IsViolentAgainst(ch, tch)
 						? ESpellMsg::kCastSayDamageeToVict
 						: ESpellMsg::kCastSayHelpeeToVict);
 		const std::string &vict_format = MUD::SpellMessages().GetMessage(spell_id, vict_key);
@@ -355,7 +362,8 @@ bool MayCastHere(CharData *caster, CharData *victim, ESpell spell_id) {
 		return true;
 	}
 
-	if (ROOM_FLAGGED(caster->in_room, ERoomFlag::kNoBattle) && MUD::Spell(spell_id).IsViolent()) {
+	if (ROOM_FLAGGED(caster->in_room, ERoomFlag::kNoBattle)
+		&& MUD::Spell(spell_id).IsViolentAgainst(caster, victim)) {
 		return false;
 	}
 
@@ -369,7 +377,7 @@ bool MayCastHere(CharData *caster, CharData *victim, ESpell spell_id) {
 
 	if (ignore && !MUD::Spell(spell_id).IsFlagged(kMagMasses) &&
 		!MUD::Spell(spell_id).IsFlagged(kMagGroups)) {
-		if (MUD::Spell(spell_id).IsViolent()) {
+		if (MUD::Spell(spell_id).IsViolentAgainst(caster, victim)) {
 			return false;
 		}
 		return victim == nullptr ? true : false;
@@ -384,11 +392,11 @@ bool MayCastHere(CharData *caster, CharData *victim, ESpell spell_id) {
 			continue;
 		if (!HERE(ch_vict))
 			continue;
-		if (MUD::Spell(spell_id).IsViolent() && group::same_group(caster, ch_vict))
+		if (MUD::Spell(spell_id).IsViolentAgainst(caster, ch_vict) && group::same_group(caster, ch_vict))
 			continue;
 		if (ignore && ch_vict != victim)
 			continue;
-		if (MUD::Spell(spell_id).IsViolent()) {
+		if (MUD::Spell(spell_id).IsViolentAgainst(caster, ch_vict)) {
 			if (!may_kill_here(caster, ch_vict, NoArgument)) {
 				return false;
 			}
@@ -603,7 +611,7 @@ int FindCastTarget(ESpell spell_id, const char *t, CharData *ch, CharData **tch,
 	else if (*t) {
 		if (MUD::Spell(spell_id).AllowTarget(kTarCharRoom)) {
 			if ((*tch = get_char_vis(ch, t, EFind::kCharInRoom)) != nullptr) {
-				if (MUD::Spell(spell_id).IsViolent() && !check_pkill(ch, *tch, t))
+				if (MUD::Spell(spell_id).IsViolentAgainst(ch, *tch) && !check_pkill(ch, *tch, t))
 					return false;
 				return true;
 			}
@@ -627,7 +635,7 @@ int FindCastTarget(ESpell spell_id, const char *t, CharData *ch, CharData **tch,
 			if ((*tch = get_char_vis(ch, t, EFind::kCharInWorld)) != nullptr) {
 				// чтобы мобов не чекали
 				if (ch->IsNpc() || !(*tch)->IsNpc()) {
-					if (MUD::Spell(spell_id).IsViolent() && !check_pkill(ch, *tch, t))
+					if (MUD::Spell(spell_id).IsViolentAgainst(ch, *tch) && !check_pkill(ch, *tch, t))
 						return false;
 					else
 						return true;
@@ -764,13 +772,17 @@ int CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, ESpel
 			MUD::Spell(spell_id).IsFlagged(kMagMasses) ||
 			MUD::Spell(spell_id).IsFlagged(kMagGroups);
 		if (ignore) { // индивидуальная цель
-			if (MUD::Spell(spell_id).IsViolent()) {
+			// (issue.ambiguous-spells) Peaceful blocks anything that *could* be aggressive,
+			// including kAmbiguous, because mass/area/no-target casts have no single victim
+			// to resolve the relationship against -- the conservative read is "this might
+			// hit an outsider".
+			if (MUD::Spell(spell_id).GetViolent() != spells::EViolent::kNo) {
 				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kCantCastPeaceful) + "\r\n", ch);
 				return false;    // нельзя злые кастовать
 			}
 		}
 		for (const auto ch_vict : world[ch->in_room]->people) {
-			if (MUD::Spell(spell_id).IsViolent()) {
+			if (MUD::Spell(spell_id).IsViolentAgainst(ch, ch_vict)) {
 				if (ch_vict == tch) {
 					SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kCantCastPeaceful) + "\r\n", ch);
 					return false;
@@ -835,14 +847,17 @@ int CalcCastSuccess(CharData *ch, CharData *victim, ESaving saving, ESpell spell
 	}
 
 	prob = CalcComplexSpellMod(ch, spell_id, GAPPLY_SPELL_SUCCESS, prob);
+	// God-flag prob modifiers (issue.ambiguous-spells): the violent vs helpful question
+	// is per-target, so victim's relationship to the caster picks the side for an A spell.
+	const bool aggressive_cast = victim && MUD::Spell(spell_id).IsViolentAgainst(ch, victim);
 	if (GET_GOD_FLAG(ch, EGf::kGodscurse) ||
-		(MUD::Spell(spell_id).IsViolent() && victim && GET_GOD_FLAG(victim, EGf::kGodsLike)) ||
-		(!MUD::Spell(spell_id).IsViolent() && victim && GET_GOD_FLAG(victim, EGf::kGodscurse))) {
+		(aggressive_cast && GET_GOD_FLAG(victim, EGf::kGodsLike)) ||
+		(!aggressive_cast && victim && GET_GOD_FLAG(victim, EGf::kGodscurse))) {
 		prob -= 50;
 	}
 
-	if ((MUD::Spell(spell_id).IsViolent() && victim && GET_GOD_FLAG(victim, EGf::kGodscurse)) ||
-		(!MUD::Spell(spell_id).IsViolent() && victim && GET_GOD_FLAG(victim, EGf::kGodsLike))) {
+	if ((aggressive_cast && GET_GOD_FLAG(victim, EGf::kGodscurse)) ||
+		(!aggressive_cast && victim && GET_GOD_FLAG(victim, EGf::kGodsLike))) {
 		prob += 50;
 	}
 

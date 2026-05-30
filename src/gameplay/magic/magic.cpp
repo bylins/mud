@@ -509,7 +509,7 @@ int LandOneDamageHit(CharData *ch, CharData *victim, ESpell spell_id, int total_
 bool TryReflectByMagicGlass(CharData *ch, CharData *victim, ESpell spell_id) {
 	if (ch == victim) return false;
 	if (MUD::Spell(spell_id).IsFlagged(kMagWarcry)) return false;
-	if (!MUD::Spell(spell_id).IsViolent()) return false;
+	if (!MUD::Spell(spell_id).IsViolentAgainst(ch, victim)) return false;
 	if (ch->IsGod()) return false;
 	if (ch->in_room != victim->in_room) return false;
 	if (!AFF_FLAGGED(victim, EAffect::kMagicGlass)) return false;
@@ -523,7 +523,7 @@ bool TryReflectByMagicGlass(CharData *ch, CharData *victim, ESpell spell_id) {
 bool TryReflectBySonicBarrier(CharData *ch, CharData *victim, ESpell spell_id) {
 	if (ch == victim) return false;
 	if (!MUD::Spell(spell_id).IsFlagged(kMagWarcry)) return false;
-	if (!MUD::Spell(spell_id).IsViolent()) return false;
+	if (!MUD::Spell(spell_id).IsViolentAgainst(ch, victim)) return false;
 	if (!victim->IsGod()) return false;
 	if (!ch->IsNpc() && GetRealLevel(victim) <= (GetRealLevel(ch) + GetRealRemort(ch) / 2)) return false;
 	act("Звуковой барьер $N1 отразил ваш крик!", false, ch, nullptr, victim, kToChar);
@@ -536,7 +536,7 @@ bool TryReflectBySonicBarrier(CharData *ch, CharData *victim, ESpell spell_id) {
 // (kShieldBlock / 20 + shield_weight / 2) percent. Mass/area/warcry casts bypass the shield.
 bool TryBlockByMagicalShield(CharData *ch, CharData *victim, ESpell spell_id) {
 	if (ch == victim) return false;
-	if (!MUD::Spell(spell_id).IsViolent()) return false;
+	if (!MUD::Spell(spell_id).IsViolentAgainst(ch, victim)) return false;
 	if (MUD::Spell(spell_id).IsFlagged(kMagWarcry)) return false;
 	if (MUD::Spell(spell_id).IsFlagged(kMagMasses)) return false;
 	if (MUD::Spell(spell_id).IsFlagged(kMagAreas)) return false;
@@ -1033,7 +1033,8 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, const ESpell 
 		return EStageResult::kSuccess;
 	}
 
-	if (!MUD::Spell(spell_id).IsFlagged(kMagWarcry) && ch != victim && MUD::Spell(spell_id).IsViolent()
+	if (!MUD::Spell(spell_id).IsFlagged(kMagWarcry) && ch != victim
+		&& MUD::Spell(spell_id).IsViolentAgainst(ch, victim)
 		&& number(1, 999) <= GET_AR(victim) * 10) {
 		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 		return EStageResult::kSuccess;
@@ -1053,14 +1054,17 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, const ESpell 
 
 	// A violent spell can never touch an immortal target: there is nothing to build or
 	// roll, so stop here. This subsumes the per-case victim->IsImmortal() guards.
-	if (victim->IsImmortal() && MUD::Spell(spell_id).IsViolent()) {
+	// (issue.ambiguous-spells) An A spell resolves against the immortal: a mortal casting
+	// kDispellMagic on an immortal outsider is aggressive -> blocked; on a grouped
+	// immortal -> non-violent path, no block here.
+	if (victim->IsImmortal() && MUD::Spell(spell_id).IsViolentAgainst(ch, victim)) {
 		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 		return EStageResult::kSuccess;
 	}
 	// Affect-resist (GET_AR): a blanket block on any debuff (a violent spell with an effect),
 	// a historical mechanic -- checked up front, before any saving throw or affect is built,
 	// so it stops the debuff regardless of circumstances.
-	if (ch != victim && MUD::Spell(spell_id).IsViolent() && number(1, 100) <= GET_AR(victim)) {
+	if (ch != victim && MUD::Spell(spell_id).IsViolentAgainst(ch, victim) && number(1, 100) <= GET_AR(victim)) {
 		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 		return EStageResult::kSuccess;
 	}
@@ -1077,9 +1081,10 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, const ESpell 
 	// Every affect this cast lands records the cast's potency (strength) and whether it is a
 	// debuff, so a later dispel can be gated by strength (see CastUnaffects/DispelSucceeds).
 	// CalcCastPotency lives in magic_utils so CallMagicToRoom records the same scalar for its
-	// room affects; the debuff flag follows <misc violent="Y">.
+	// room affects; the debuff flag follows the per-target relationship for ambiguous spells
+	// (issue.ambiguous-spells), since the dispel rules read this bit later.
 	const float cast_potency = CalcCastPotency(potency);
-	const bool cast_debuff = MUD::Spell(spell_id).IsViolent();
+	const bool cast_debuff = MUD::Spell(spell_id).IsViolentAgainst(ch, victim);
 
 	// A spell without an <affects> block has no affect to apply -- `success` stays true so the
 	// poison/message side-effects still fire for any non-affect-talent path.
@@ -2011,8 +2016,11 @@ bool DispelSucceeds(CharData *ch, CharData *victim, ESpell dispel_spell, ESpell 
 				 ok ? "Success" : "Fail");
 		SendMsgToChar(dbuf, ch);
 	};
-	// Case 3: a non-violent spell removing a buff needs no check.
-	if (!MUD::Spell(dispel_spell).IsViolent() && !affect_is_debuff) {
+	// Case 3: a non-violent (per-target) dispel removing a buff needs no check.
+	// (issue.ambiguous-spells) For an A dispel, the question is whether THIS cast on THIS
+	// victim is aggressive: dispel from an ally hand on an ally buff -> no contest;
+	// dispel from an enemy hand -> potency contest as for any violent dispel.
+	if (!MUD::Spell(dispel_spell).IsViolentAgainst(ch, victim) && !affect_is_debuff) {
 		if (show_debug) emit_debug(0.0f, "buff", true);
 		return true;
 	}
@@ -2633,7 +2641,10 @@ void ReactToCast(CharData *victim, CharData *caster, ESpell spell_id) {
 	if (caster == victim)
 		return;
 
-	if (!CheckMobList(victim) || !MUD::Spell(spell_id).IsViolent())
+	// (issue.ambiguous-spells) An NPC reacts to a cast only when it's actually aggressive
+	// against the NPC itself -- A spells from allies (PC's pet on its master, mob-to-mob)
+	// fall through silently.
+	if (!CheckMobList(victim) || !MUD::Spell(spell_id).IsViolentAgainst(caster, victim))
 		return;
 
 	if (AFF_FLAGGED(victim, EAffect::kCharmed) ||

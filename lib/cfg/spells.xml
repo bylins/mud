@@ -3432,9 +3432,14 @@ base_stat id - (например "kWis") какой берем параметр,
         <components>
             <verbal/>
         </components>
-        <misc pos="kFight" violent="N" danger="0"/>
+        <!-- issue.ambiguous-spells: violent="A" -- cast on self / groupmate / charmed pet is
+             helpful (no contest, no PK); cast on an outsider is treated as fully aggressive
+             (potency contest gate in DispelSucceeds, full PK liability). kTarAllyOnly was
+             dropped from <targets> because the A semantics replace the "self / groupmate only"
+             restriction with target-relationship-driven behaviour. -->
+        <misc pos="kFight" violent="A" danger="0"/>
         <mana max="85" min="70" change="1"/>
-        <targets val="kTarCharRoom|kTarFightSelf|kTarAllyOnly"/>
+        <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagUnaffects"/>
         <potency_roll>
             <dices ndice="5" sdice="9" adice="12"/>

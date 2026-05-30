@@ -3,6 +3,10 @@
 #include "engine/ui/color.h"
 //#include "spells.h"
 #include "engine/db/global_objects.h"
+#include "engine/entities/char_data.h"
+#include "gameplay/mechanics/groups.h"
+
+#include <string_view>
 
 /*
  * Эта структура и все с ней связанное - часть нерабочей, но недовырезанной системы то ли создания свитков,
@@ -50,6 +54,19 @@ ItemPtr SpellInfoBuilder::ParseSpell(DataNode node) {
 		node.GoToParent();
 	}
 	ParseActions(info, node);
+
+	// Cross-validate: kAmbiguous (violent="A") is meaningless for a room paint
+	// because there is no per-target relationship to resolve. Clamp to kYes
+	// conservatively and SYSERR so the misconfiguration is visible.
+	// (issue.ambiguous-spells)
+	if (info->violent_ == EViolent::kAmbiguous && info->IsFlagged(kMagRoom)) {
+		char buf[128];
+		snprintf(buf, sizeof(buf),
+				 "Spell %s declared violent=A together with kMagRoom -- clamped to Y.",
+				 NAME_BY_ITEM(info->GetId()).c_str());
+		mudlog(buf, CMP, kLvlGod, SYSLOG, true);
+		info->violent_ = EViolent::kYes;
+	}
 
 	return info;
 }
@@ -103,11 +120,26 @@ void SpellInfoBuilder::ParseComponents(ItemPtr &info, DataNode &node) {
 	}
 }
 
+// Parses the <misc violent> attribute as the three-state EViolent enum
+// (issue.ambiguous-spells). Accepts "Y"/"1" (kYes), "N"/"0"/empty (kNo),
+// "A" (kAmbiguous); anything else falls back to kNo with a CMP-level mudlog
+// so the misconfiguration is visible without breaking the load.
+static EViolent ParseViolent(const std::string &raw) {
+	if (raw.empty()) return EViolent::kNo;
+	if (raw == "Y" || raw == "y" || raw == "1") return EViolent::kYes;
+	if (raw == "N" || raw == "n" || raw == "0") return EViolent::kNo;
+	if (raw == "A" || raw == "a") return EViolent::kAmbiguous;
+	char buf[128];
+	snprintf(buf, sizeof(buf), "Unknown 'violent' value '%s' -- assuming N.", raw.c_str());
+	mudlog(buf, CMP, kLvlGod, SYSLOG, true);
+	return EViolent::kNo;
+}
+
 void SpellInfoBuilder::ParseMisc(ItemPtr &info, DataNode &node) {
 	if (node.GoToChild("misc")) {
 		try {
 			info->min_position_ = parse::ReadAsConstant<EPosition>(node.GetValue("pos"));
-			info->violent_ = parse::ReadAsBool(node.GetValue("violent"));
+			info->violent_ = ParseViolent(node.GetValue("violent"));
 			info->danger_ = parse::ReadAsInt(node.GetValue("danger"));
 		} catch (std::exception &e) {
 			err_log("Incorrect 'misc' section (spell: %s, value: %s).",
@@ -170,6 +202,35 @@ bool SpellInfo::AllowTarget(const Bitvector target_type) const {
 	return IS_SET(targets_, target_type);
 }
 
+// Walks up the charm-chain so a charmed NPC resolves to its PC master for
+// alliance purposes (issue.ambiguous-spells). The loop is bounded at a depth
+// of 4 so a pathological charm cycle can't hang the cast pipeline.
+static const CharData *AllyRoot(const CharData *ch) {
+	if (!ch) return nullptr;
+	for (int depth = 0; depth < 4 && IS_CHARMICE(ch) && ch->has_master(); ++depth) {
+		const auto *next = ch->get_master();
+		if (!next || next == ch) break;
+		ch = next;
+	}
+	return ch;
+}
+
+bool SpellInfo::IsViolentAgainst(const CharData *caster, const CharData *target) const {
+	if (violent_ == EViolent::kYes) return true;
+	if (violent_ == EViolent::kNo) return false;
+	// kAmbiguous: relationship-dependent.
+	if (!caster || !target || caster == target) return false;
+	const auto *cr = AllyRoot(caster);
+	const auto *tr = AllyRoot(target);
+	if (!cr || !tr || cr == tr) return false;
+	// Two NPCs whose roots are both NPCs: kvirund's "all aggressive mobs are
+	// conditionally allied" rule -- A spells between mobs always resolve to the
+	// helpful side. A PC's charmed pet has a PC root and falls into the cases below.
+	if (cr->IsNpc() && tr->IsNpc()) return false;
+	if (group::same_group(const_cast<CharData *>(cr), const_cast<CharData *>(tr))) return false;
+	return true;
+}
+
 void SpellInfo::Print(CharData *ch, std::ostringstream &buffer) const {
 	buffer << "Print spell:" << "\r\n"
 		   << " Id: " << kColorGrn << NAME_BY_ITEM<ESpell>(GetId()) << kColorNrm
@@ -178,7 +239,9 @@ void SpellInfo::Print(CharData *ch, std::ostringstream &buffer) const {
 		   << " Name (eng): " << kColorGrn << name_eng_ << kColorNrm << "\r\n"
 		   << " Element: " << kColorGrn << NAME_BY_ITEM<EElement>(element_) << kColorNrm << "\r\n"
 		   << " Min position: " << kColorGrn << NAME_BY_ITEM<EPosition>(min_position_) << kColorNrm << "\r\n"
-		   << " Violent: " << kColorGrn << (violent_ ? "Yes" : "No") << kColorNrm << "\r\n"
+		   << " Violent: " << kColorGrn
+		   << (violent_ == EViolent::kYes ? "Yes" : violent_ == EViolent::kAmbiguous ? "Ambiguous" : "No")
+		   << kColorNrm << "\r\n"
 		   << " Danger: " << kColorGrn << danger_ << kColorNrm << "\r\n"
 		   << " Mana min: " << kColorGrn << min_mana_ << kColorNrm
 		   << " Mana max: " << kColorGrn << max_mana_ << kColorNrm
