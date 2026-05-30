@@ -321,11 +321,15 @@ void SpellRecall(CharData *ch, CharData *victim) {
 	}
 	if (!enter_wtrigger(world[fnd_room], ch, -1))
 		return;
-	act("$n исчез$q.", true, victim, nullptr, nullptr, kToRoom | kToArenaListen);
+	// issue.spell-msg-improve: kWorldOfRecall overrides the kCastDisappearToRoom /
+	// kCastAppearToRoom defaults with its specific "centre of room" wording.
+	act(MUD::SpellMessages().GetMessage(ESpell::kWorldOfRecall, ESpellMsg::kCastDisappearToRoom).c_str(),
+		true, victim, nullptr, nullptr, kToRoom | kToArenaListen);
 	RemoveCharFromRoom(victim);
 	PlaceCharToRoom(victim, fnd_room);
 	victim->dismount();
-	act("$n появил$u в центре комнаты.", true, victim, nullptr, nullptr, kToRoom);
+	act(MUD::SpellMessages().GetMessage(ESpell::kWorldOfRecall, ESpellMsg::kCastAppearToRoom).c_str(),
+		true, victim, nullptr, nullptr, kToRoom);
 	look_at_room(victim, 0);
 	greet_mtrigger(victim, -1);
 	greet_otrigger(victim, -1);
@@ -351,11 +355,14 @@ void SpellTeleport(CharData *ch, CharData */*victim*/) {
 	}
 	if (!enter_wtrigger(world[fnd_room], ch, -1))
 		return;
-	act("$n медленно исчез$q из виду.", false, ch, nullptr, nullptr, kToRoom);
+	// issue.spell-msg-improve: kTeleport overrides kCastDisappearToRoom / kCastAppearToRoom.
+	act(MUD::SpellMessages().GetMessage(ESpell::kTeleport, ESpellMsg::kCastDisappearToRoom).c_str(),
+		false, ch, nullptr, nullptr, kToRoom);
 	RemoveCharFromRoom(ch);
 	PlaceCharToRoom(ch, fnd_room);
 	ch->dismount();
-	act("$n медленно появил$u откуда-то.", false, ch, nullptr, nullptr, kToRoom);
+	act(MUD::SpellMessages().GetMessage(ESpell::kTeleport, ESpellMsg::kCastAppearToRoom).c_str(),
+		false, ch, nullptr, nullptr, kToRoom);
 	look_at_room(ch, 0);
 	greet_mtrigger(ch, -1);
 	greet_otrigger(ch, -1);
@@ -412,13 +419,18 @@ void SpellRelocate(CharData *ch, CharData *victim) {
 	if (!enter_wtrigger(world[fnd_room], ch, -1))
 		return;
 //	check_auto_nosummon(victim);
-	act("$n медленно исчез$q из виду.", true, ch, nullptr, nullptr, kToRoom);
-	SendMsgToChar("Лазурные сполохи пронеслись перед вашими глазами.\r\n", ch);
+	// issue.spell-msg-improve: kRelocate shares the kTeleport disappear/appear wording
+	// and adds its own kCustomMsgOne caster-side "azure flash" banner.
+	act(MUD::SpellMessages().GetMessage(ESpell::kRelocate, ESpellMsg::kCastDisappearToRoom).c_str(),
+		true, ch, nullptr, nullptr, kToRoom);
+	SendMsgToChar(MUD::SpellMessages().GetMessage(
+			ESpell::kRelocate, ESpellMsg::kCustomMsgOne) + "\r\n", ch);
 	RemoveCharFromRoom(ch);
 	PlaceCharToRoom(ch, fnd_room);
 	ch->dismount();
 	look_at_room(ch, 0);
-	act("$n медленно появил$u откуда-то.", true, ch, nullptr, nullptr, kToRoom);
+	act(MUD::SpellMessages().GetMessage(ESpell::kRelocate, ESpellMsg::kCastAppearToRoom).c_str(),
+		true, ch, nullptr, nullptr, kToRoom);
 	SetBattleLag(ch, 2);
 	greet_mtrigger(ch, -1);
 	greet_otrigger(ch, -1);
@@ -451,17 +463,21 @@ void AddPortalTimer(CharData *ch, RoomData *from_room, RoomRnum to_room, int tim
 void RemovePortalGate(RoomRnum rnum) {
 	auto aff = room_spells::FindAffect(world[rnum], ESpell::kPortalTimer);
 	const RoomRnum to_room = (*aff)->modifier;
+	// issue.spell-msg-improve: kPortal sheaf kCustomMsgThree holds "Пентаграмма была
+	// разрушена." -- emitted to both char and room of each affected portal endpoint.
+	const auto &broken_msg = MUD::SpellMessages().GetMessage(
+			ESpell::kPortal, ESpellMsg::kCustomMsgThree);
 
 	if (aff != world[rnum]->affected.end()) {
 		room_spells::RoomRemoveAffect(world[rnum], aff);
-		act("Пентаграмма была разрушена.", false, world[rnum]->first_character(), 0, 0, kToRoom);
-		act("Пентаграмма была разрушена.", false, world[rnum]->first_character(), 0, 0, kToChar);
+		act(broken_msg.c_str(), false, world[rnum]->first_character(), 0, 0, kToRoom);
+		act(broken_msg.c_str(), false, world[rnum]->first_character(), 0, 0, kToChar);
 	}
 	aff = room_spells::FindAffect(world[to_room], ESpell::kPortalTimer);
 	if (aff != world[to_room]->affected.end()) {
 		room_spells::RoomRemoveAffect(world[to_room], aff);
-		act("Пентаграмма была разрушена.", false, world[to_room]->first_character(), 0, 0, kToRoom);
-		act("Пентаграмма была разрушена.", false, world[to_room]->first_character(), 0, 0, kToChar);
+		act(broken_msg.c_str(), false, world[to_room]->first_character(), 0, 0, kToRoom);
+		act(broken_msg.c_str(), false, world[to_room]->first_character(), 0, 0, kToChar);
 	}
 }
 
@@ -532,17 +548,14 @@ void SpellPortal(CharData *ch, CharData *victim) {
 		// (issue.affect-flags). pkPortal => imposing caster's uid; else 0.
 		AddPortalTimer(ch, world[fnd_room], ch->in_room, 29, pkPortal ? ch->get_uid() : 0);
 
-		if (pkPortal) {
-			act("Лазурная пентаграмма с кровавым отблеском возникла в воздухе.",
-				false, world[fnd_room]->first_character(), nullptr, nullptr, kToChar);
-			act("Лазурная пентаграмма с кровавым отблеском возникла в воздухе.",
-				false, world[fnd_room]->first_character(), nullptr, nullptr, kToRoom);
-		} else {
-			act("Лазурная пентаграмма возникла в воздухе.",
-				false, world[fnd_room]->first_character(), nullptr, nullptr, kToChar);
-			act("Лазурная пентаграмма возникла в воздухе.",
-				false, world[fnd_room]->first_character(), nullptr, nullptr, kToRoom);
-		}
+		// issue.spell-msg-improve: pentagram-appearance narration lives in kPortal's
+		// sheaf -- kCustomMsgOne is the normal line, kCustomMsgTwo is the pk variant
+		// (blood-tinged). Each is sent to both kToChar and kToRoom of the destination
+		// endpoint's first occupant.
+		const auto &dest_pentagram = MUD::SpellMessages().GetMessage(
+				ESpell::kPortal, pkPortal ? ESpellMsg::kCustomMsgTwo : ESpellMsg::kCustomMsgOne);
+		act(dest_pentagram.c_str(), false, world[fnd_room]->first_character(), nullptr, nullptr, kToChar);
+		act(dest_pentagram.c_str(), false, world[fnd_room]->first_character(), nullptr, nullptr, kToRoom);
 		CheckAutoNosummon(victim);
 
 		// если пенту ставит имм с привилегией arena (и находясь на арене), то пента получается односторонняя
@@ -552,17 +565,11 @@ void SpellPortal(CharData *ch, CharData *victim) {
 
 		AddPortalTimer(ch, world[ch->in_room], fnd_room, 29, pkPortal ? ch->get_uid() : 0);
 
-		if (pkPortal) {
-			act("Лазурная пентаграмма с кровавым отблеском возникла в воздухе.",
-					false, world[ch->in_room]->first_character(), nullptr, nullptr, kToChar);
-			act("Лазурная пентаграмма с кровавым отблеском возникла в воздухе.",
-					false, world[ch->in_room]->first_character(), nullptr, nullptr, kToRoom);
-		} else {
-			act("Лазурная пентаграмма возникла в воздухе.",
-					false, world[ch->in_room]->first_character(), nullptr, nullptr, kToChar);
-			act("Лазурная пентаграмма возникла в воздухе.",
-					false, world[ch->in_room]->first_character(), nullptr, nullptr, kToRoom);
-		}
+		// Caster-side pentagram (same key resolution as the destination side above).
+		const auto &caster_pentagram = MUD::SpellMessages().GetMessage(
+				ESpell::kPortal, pkPortal ? ESpellMsg::kCustomMsgTwo : ESpellMsg::kCustomMsgOne);
+		act(caster_pentagram.c_str(), false, world[ch->in_room]->first_character(), nullptr, nullptr, kToChar);
+		act(caster_pentagram.c_str(), false, world[ch->in_room]->first_character(), nullptr, nullptr, kToRoom);
 	}
 }
 
@@ -669,7 +676,9 @@ void SpellSummon(CharData *ch, CharData *victim) {
 			}
 		} else {
 			if (ROOM_FLAGGED(vic_room, ERoomFlag::kNoSummonOut) || AFF_FLAGGED(victim, EAffect::kNoTeleport)) {
-				SendMsgToChar("Неведомая сила блокирует ваш призыв.\r\n", ch);
+				// issue.spell-msg-improve: block notice on kSummon's sheaf as kCustomMsgOne.
+				SendMsgToChar(MUD::SpellMessages().GetMessage(
+						ESpell::kSummon, ESpellMsg::kCustomMsgOne) + "\r\n", ch);
 				return;
 			}
 		}
@@ -682,13 +691,19 @@ void SpellSummon(CharData *ch, CharData *victim) {
 		ch->send_to_TC(true, true, true, "Чармис призыв запрещен триггером\r\n");
 		return;
 	}
-	act("$n растворил$u на ваших глазах.", true, victim, nullptr, nullptr, kToRoom | kToArenaListen);
+	// issue.spell-msg-improve: kSummon overrides kCastDisappearToRoom (vic disappearing
+	// from old room) and kCastAppearToRoom (vic arriving in caster's room). kCustomMsgTwo
+	// is the to-vict notification.
+	act(MUD::SpellMessages().GetMessage(ESpell::kSummon, ESpellMsg::kCastDisappearToRoom).c_str(),
+		true, victim, nullptr, nullptr, kToRoom | kToArenaListen);
 	RemoveCharFromRoom(victim);
 	PlaceCharToRoom(victim, ch_room);
 	CheckAutoNosummon(victim);
 	victim->SetPosition(EPosition::kStand);
-	act("$n прибыл$g по вызову.", true, victim, nullptr, nullptr, kToRoom | kToArenaListen);
-	act("$n призвал$g вас!", false, ch, nullptr, victim, kToVict);
+	act(MUD::SpellMessages().GetMessage(ESpell::kSummon, ESpellMsg::kCastAppearToRoom).c_str(),
+		true, victim, nullptr, nullptr, kToRoom | kToArenaListen);
+	act(MUD::SpellMessages().GetMessage(ESpell::kSummon, ESpellMsg::kCustomMsgTwo).c_str(),
+		false, ch, nullptr, victim, kToVict);
 	victim->dismount();
 	look_at_room(victim, 0);
 	// призываем чармисов
@@ -696,13 +711,19 @@ void SpellSummon(CharData *ch, CharData *victim) {
 		if (k->in_room == vic_room) {
 			if (AFF_FLAGGED(k, EAffect::kCharmed)) {
 				if (!k->GetEnemy()) {
-					act("$n растворил$u на ваших глазах.",
+					// Charmice reuses kSummon's disappear/appear keys but with the
+					// kCustomMsgThree "arrived following the master" line on arrival.
+					act(MUD::SpellMessages().GetMessage(
+							ESpell::kSummon, ESpellMsg::kCastDisappearToRoom).c_str(),
 						true, k, nullptr, nullptr, kToRoom | kToArenaListen);
 					RemoveCharFromRoom(k);
 					PlaceCharToRoom(k, ch_room);
-					act("$n прибыл$g за хозяином.",
+					act(MUD::SpellMessages().GetMessage(
+							ESpell::kSummon, ESpellMsg::kCustomMsgThree).c_str(),
 						true, k, nullptr, nullptr, kToRoom | kToArenaListen);
-					act("$n призвал$g вас!", false, ch, nullptr, k, kToVict);
+					act(MUD::SpellMessages().GetMessage(
+							ESpell::kSummon, ESpellMsg::kCustomMsgTwo).c_str(),
+						false, ch, nullptr, k, kToVict);
 				}
 			}
 		}
@@ -864,7 +885,9 @@ void SpellLocateObject(int level, CharData *ch, CharData* /*victim*/, ObjData *o
 	}
 
 	if (j == tmp_lvl) {
-		SendMsgToChar("Вы ничего не чувствуете.\r\n", ch);
+		// issue.spell-msg-improve: "nothing felt" on kLocateObject's sheaf as kCustomMsgOne.
+		SendMsgToChar(MUD::SpellMessages().GetMessage(
+				ESpell::kLocateObject, ESpellMsg::kCustomMsgOne) + "\r\n", ch);
 	}
 }
 
@@ -978,7 +1001,8 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 	if (victim == ch)
 		SendCharmMsg(ESpellMsg::kCustomMsgOne);  // self-cast humor; see kCharm sheaf.
 	else if (!victim->IsNpc()) {
-		SendMsgToChar("Вы не можете очаровать реального игрока!\r\n", ch);
+		// issue.spell-msg-improve: 3 charm one-offs migrated to kCharm's kCustomMsg slots.
+		SendCharmMsg(ESpellMsg::kCustomMsgTwo);
 		if (!pk_agro_action(ch, victim))
 			return;
 	} else if (!ch->IsImmortal()
@@ -1005,9 +1029,10 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 	else if (IS_HORSE(victim))
 		SendCharmMsg(ESpellMsg::kSummonWarhorse);
 	else if (victim->GetEnemy() || victim->GetPosition() < EPosition::kRest)
-		act("$M сейчас, похоже, не до вас.", false, ch, nullptr, victim, kToChar);
+		act(MUD::SpellMessages().GetMessage(ESpell::kCharm, ESpellMsg::kCustomMsgThree).c_str(),
+			false, ch, nullptr, victim, kToChar);
 	else if (circle_follow(victim, ch))
-		SendMsgToChar("Следование по кругу запрещено.\r\n", ch);
+		SendCharmMsg(ESpellMsg::kCustomMsgFour);
 	else if (!ch->IsImmortal()
 		&& CalcGeneralSaving(ch, victim, ESaving::kWill, (GetRealCha(ch) - 10) * 4 + GetRealRemort(ch) * 3)) //предлагаю завязать на каст
 		SendCharmMsg(ESpellMsg::kSummonFail);
@@ -2044,7 +2069,9 @@ void SpellIdentify(int/* level*/, CharData *ch, CharData *victim, ObjData *obj) 
 			return;
 		}
 		if (GetRealLevel(victim) < 3) {
-			SendMsgToChar("Вы можете опознать себя только достигнув третьего уровня.\r\n", ch);
+			// issue.spell-msg-improve: low-level self-identify rejection on kIdentify's sheaf.
+			SendMsgToChar(MUD::SpellMessages().GetMessage(
+					ESpell::kIdentify, ESpellMsg::kCustomMsgOne) + "\r\n", ch);
 			return;
 		}
 		mort_show_char_values(victim, ch, 100);
@@ -2259,7 +2286,9 @@ void SpellMentalShadow(CharData *ch) {
 	float base_ac = 100;
 	float additional_ac = -1.5;
 	if (eff_int < 26 && !ch->IsImmortal()) {
-		SendMsgToChar("Головные боли мешают работать!\r\n", ch);
+		// issue.spell-msg-improve: low-Int rejection on kMentalShadow's sheaf as kCustomMsgOne.
+		SendMsgToChar(MUD::SpellMessages().GetMessage(
+				ESpell::kMentalShadow, ESpellMsg::kCustomMsgOne) + "\r\n", ch);
 		return;
 	};
 
