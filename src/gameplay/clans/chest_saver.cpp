@@ -4,6 +4,7 @@
 
 #include "house.h"
 
+#include "engine/core/config.h"
 #include "engine/db/db.h"
 #include "engine/db/obj_save.h"
 #include "engine/entities/room_data.h"
@@ -60,7 +61,11 @@ bool save_one_clan_chest(ObjData *chest, const std::string &filename) {
 
 class ChestSaver::Impl {
  public:
-	Impl() : pool(std::make_unique<utils::ThreadPool>(std::max<std::size_t>(1, std::thread::hardware_concurrency() / 2))) {}
+	Impl() {
+		const size_t cfg = runtime_config.thread_pools_workers();
+		const size_t n = cfg > 0 ? cfg : std::max<std::size_t>(1, std::thread::hardware_concurrency() / 2);
+		pool = std::make_unique<utils::ThreadPool>(n);
+	}
 
 	std::unique_ptr<utils::ThreadPool> pool;
 	std::unordered_set<Clan *> dirty;
