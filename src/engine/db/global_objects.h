@@ -11,6 +11,7 @@
 #include "gameplay/skills/skill_messages.h"
 #include "gameplay/fight/fight_messages.h"
 #include "gameplay/clans/ingr_chest_saver.h"
+#include "gameplay/clans/chest_saver.h"
 #include "gameplay/mechanics/celebrates.h"
 #include "gameplay/mechanics/guilds.h"
 #include "gameplay/abilities/feats.h"
@@ -105,6 +106,7 @@ class GlobalObjects {
 	static obj2triggers_t &obj_triggers();
 	static RoomDescriptions &descriptions();
 	static ClanSystem::IngrChestSaver &ingr_chest_saver();
+	static ClanSystem::ChestSaver &chest_saver();
 };
 
 using MUD = GlobalObjects;

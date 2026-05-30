@@ -604,6 +604,27 @@ void RuntimeConfiguration::load_world_loader_configuration(const pugi::xml_node 
 	}
 }
 
+void RuntimeConfiguration::load_thread_pools_configuration(const pugi::xml_node *root) {
+	const char *env = std::getenv("MUD_WORKERS");
+	if (env) {
+		const size_t n = static_cast<size_t>(std::strtoul(env, nullptr, 10));
+		if (n > 0 && n <= 256) {
+			m_thread_pools_workers = n;
+			return;
+		}
+	}
+
+	const auto node = root->child("thread_pools");
+	if (!node) {
+		return;
+	}
+
+	const char *val = node.child_value("workers");
+	if (val && *val) {
+		m_thread_pools_workers = static_cast<size_t>(std::strtoul(val, nullptr, 10));
+	}
+}
+
 typedef std::map<EOutputStream, std::string> EOutputStream_name_by_value_t;
 typedef std::map<const std::string, EOutputStream> EOutputStream_value_by_name_t;
 EOutputStream_name_by_value_t EOutputStream_name_by_value;
@@ -736,7 +757,8 @@ RuntimeConfiguration::RuntimeConfiguration() :
 	m_telemetry_service_name("bylins-mud"),
 	m_telemetry_service_version("1.0.0"),
 	m_telemetry_log_mode(ETelemetryLogMode::kFileOnly),
-	m_yaml_threads(0) {
+	m_yaml_threads(0),
+	m_thread_pools_workers(0) {
 }
 
 void RuntimeConfiguration::load_from_file(const char *filename) {
@@ -759,6 +781,7 @@ void RuntimeConfiguration::load_from_file(const char *filename) {
 		load_telemetry_configuration_impl(&root);
 		load_telemetry_configuration(&root);
 		load_world_loader_configuration(&root);
+		load_thread_pools_configuration(&root);
 #ifdef ENABLE_ADMIN_API
 		load_admin_api_configuration(&root);
 #endif

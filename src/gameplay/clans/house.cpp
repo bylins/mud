@@ -43,6 +43,7 @@
 #include "engine/core/conf.h"
 #include "engine/db/global_objects.h"
 #include "ingr_chest_saver.h"
+#include "chest_saver.h"
 #include "engine/ui/objects_filter.h"
 #include "engine/ui/table_wrapper.h"
 #include "gameplay/mechanics/sight.h"
@@ -2304,6 +2305,7 @@ bool Clan::PutChest(CharData *ch, ObjData *obj, ObjData *chest) {
 		}
 
 		CLAN(ch)->chest_objcount++;
+		GlobalObjects::chest_saver().mark_dirty(CLAN(ch).get());
 	}
 
 	return true;
@@ -2349,6 +2351,7 @@ bool Clan::TakeChest(CharData *ch, ObjData *obj, ObjData *chest) {
 			act("Вы взяли $o3 из $O1.", false, ch, obj, chest, kToChar);
 		}
 		CLAN(ch)->chest_objcount--;
+		GlobalObjects::chest_saver().mark_dirty(CLAN(ch).get());
 	}
 	return true;
 }
@@ -2386,9 +2389,7 @@ void Clan::save_chest() {
 // пользует write_one_object (мне кажется это разуменее, чем плодить свои форматы везде и потом
 // заниматься с ними сексом при изменении параметров на шмотках)
 void Clan::SaveChestAll() {
-	for (ClanListType::const_iterator clan = Clan::ClanList.begin(); clan != Clan::ClanList.end(); ++clan) {
-		(*clan)->save_chest();
-	}
+	GlobalObjects::chest_saver().run();
 }
 
 // чтение файлов клановых сундуков
@@ -2516,6 +2517,7 @@ void Clan::ChestUpdate() {
 			}
 			// пуржим ингры, если есть
 			(*clan)->purge_ingr_chest();
+			GlobalObjects::chest_saver().mark_dirty(clan->get());
 		}
 	}
 }

@@ -11,7 +11,7 @@
 
 const char* REVISION = "$ Build revision: ${REVISION} $";
 const char* revision = "${REVISION}";
-const char* build_datetime = __DATE__ " " __TIME__;
+const char* build_datetime = "${BUILD_DATETIME}";
 const char* build_compiler = "${BUILD_COMPILER}";
 const char* build_features = "${BUILD_FEATURES}";
 

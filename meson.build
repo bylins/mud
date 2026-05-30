@@ -328,6 +328,7 @@ compiler_id = '@0@ @1@ (@2@-@3@)'.format(
 version_cpp = custom_target('version_gen',
   input: 'src/version.cpp.in',
   output: 'version.cpp',
+  build_always_stale: true,
   command: [
     py3,
     files('tools/meson/generate_version.py'),
@@ -422,6 +423,7 @@ main_sources = files(
   'src/gameplay/clans/house.cpp',
   'src/gameplay/clans/house_exp.cpp',
   'src/gameplay/clans/ingr_chest_saver.cpp',
+  'src/gameplay/clans/chest_saver.cpp',
   'src/gameplay/communication/ignores.cpp',
   'src/gameplay/communication/ignores_loader.cpp',
   'src/gameplay/crafting/im.cpp',

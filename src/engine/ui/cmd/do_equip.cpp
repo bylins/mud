@@ -327,6 +327,7 @@ void do_wear(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (!items_worn) {
 			SendMsgToChar("Увы, но надеть вам нечего.\r\n", ch);
 		} else {
+			ch->obj_bonus().update(ch);
 			affect_total(ch);
 		}
 	} else if (dotmode == kFindAlldot) {
@@ -349,6 +350,7 @@ void do_wear(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				obj = next_obj;
 			}
 			if (items_worn > 0) {
+				ch->obj_bonus().update(ch);
 				affect_total(ch);
 			}
 		}
