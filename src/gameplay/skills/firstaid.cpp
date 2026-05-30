@@ -37,7 +37,7 @@
 // `#else` so we can fall back instantly if something needs investigating.
 // Once the new version has stabilised in play, delete the legacy branch.
 // =====================================================================================
-#define BYLINS_FIRSTAID_NEW 0
+#define BYLINS_FIRSTAID_NEW 1
 
 #if BYLINS_FIRSTAID_NEW
 
