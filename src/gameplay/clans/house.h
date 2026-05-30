@@ -236,6 +236,7 @@ class Clan {
   void set_ingr_chest_room_rnum(const int new_rnum) { ingr_chest_room_rnum_ = new_rnum; };
   int ingr_chest_tax();
   void purge_ingr_chest();
+  int get_chest_objcount() const { return chest_objcount; };
   int get_ingr_chest_objcount() const { return ingr_chest_objcount_; };
   bool ingr_chest_active() const;
   void set_ingr_chest(CharData *ch);

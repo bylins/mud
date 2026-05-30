@@ -59,6 +59,7 @@ struct GlobalObjectsStorage {
 	obj2triggers_t obj2triggers;
 	RoomDescriptions room_descriptions;
 	ClanSystem::IngrChestSaver ingr_chest_saver;
+	ClanSystem::ChestSaver chest_saver;
 };
 
 GlobalObjectsStorage::GlobalObjectsStorage() :
@@ -275,6 +276,10 @@ RoomDescriptions &GlobalObjects::descriptions() {
 
 ClanSystem::IngrChestSaver &GlobalObjects::ingr_chest_saver() {
 	return global_objects().ingr_chest_saver;
+}
+
+ClanSystem::ChestSaver &GlobalObjects::chest_saver() {
+	return global_objects().chest_saver;
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

@@ -1,6 +1,6 @@
 // Part of Bylins http://www.mud.ru
 
-#include "ingr_chest_saver.h"
+#include "chest_saver.h"
 
 #include "house.h"
 
@@ -28,10 +28,7 @@ namespace ClanSystem {
 
 namespace {
 
-// Сериализация одного сундука. Читает ObjData, не мутирует. Размер
-// буфера заранее резервируется под предыдущий размер файла +10%, чтобы
-// не было серии realloc в stringbuf при росте.
-bool save_one_chest(ObjData *chest, const std::string &filename) {
+bool save_one_clan_chest(ObjData *chest, const std::string &filename) {
 	std::size_t prealloc = 64 * 1024;
 	struct stat st {};
 	if (::stat(filename.c_str(), &st) == 0 && st.st_size > 0) {
@@ -52,8 +49,6 @@ bool save_one_chest(ObjData *chest, const std::string &filename) {
 	if (!file.is_open()) {
 		return false;
 	}
-	// Преаллокация оставляет нули в хвосте буфера, write() пишет только
-	// реально заполненную часть по tellp().
 	const auto written = out.tellp();
 	const auto contents = out.str();
 	file.write(contents.data(), static_cast<std::streamsize>(written));
@@ -63,26 +58,24 @@ bool save_one_chest(ObjData *chest, const std::string &filename) {
 
 }  // namespace
 
-class IngrChestSaver::Impl {
+class ChestSaver::Impl {
  public:
 	Impl() : pool(std::make_unique<utils::ThreadPool>(std::max<std::size_t>(1, std::thread::hardware_concurrency() / 2))) {}
 
 	std::unique_ptr<utils::ThreadPool> pool;
-	// Клан попадает сюда, когда содержимое его сундука изменилось.
-	// Обращения из главного потока, синхронизация не требуется.
 	std::unordered_set<Clan *> dirty;
 };
 
-IngrChestSaver::IngrChestSaver() : m_impl(std::make_unique<Impl>()) {}
-IngrChestSaver::~IngrChestSaver() = default;
+ChestSaver::ChestSaver() : m_impl(std::make_unique<Impl>()) {}
+ChestSaver::~ChestSaver() = default;
 
-void IngrChestSaver::mark_dirty(Clan *clan) {
+void ChestSaver::mark_dirty(Clan *clan) {
 	if (clan) {
 		m_impl->dirty.insert(clan);
 	}
 }
 
-void IngrChestSaver::run() {
+void ChestSaver::run() {
 	struct Job {
 		Clan *clan;
 		ObjData *chest;
@@ -96,37 +89,36 @@ void IngrChestSaver::run() {
 		double seconds;
 		bool success;
 	};
-	std::vector<Job> jobs;
 
+	std::vector<Job> jobs;
 	jobs.reserve(m_impl->dirty.size());
+
 	for (const auto &clan : Clan::ClanList) {
 		Clan *raw = clan.get();
 		if (!m_impl->dirty.count(raw)) {
 			continue;
 		}
-		if (!raw->ingr_chest_active()) {
+		const auto file_abbrev = raw->get_file_abbrev();
+		std::string filename = LIB_HOUSE + file_abbrev + "/" + file_abbrev + ".obj";
+		const auto rnum = GetRoomRnum(raw->get_chest_room());
+		if (rnum <= 0) {
 			m_impl->dirty.erase(raw);
 			continue;
 		}
-		const auto file_abbrev = raw->get_file_abbrev();
-		std::string filename = LIB_HOUSE + file_abbrev + "/" + file_abbrev + ".ing";
-		for (auto chest : world[raw->get_ingr_chest_room_rnum()]->contents) {
-			if (!ClanSystem::is_ingr_chest(chest)) {
+		for (auto chest : world[rnum]->contents) {
+			if (!Clan::is_clan_chest(chest)) {
 				continue;
 			}
 			Job job;
 			job.clan = raw;
 			job.chest = chest;
 			job.filename = std::move(filename);
-			job.objcount = raw->get_ingr_chest_objcount();
+			job.objcount = raw->get_chest_objcount();
 			jobs.push_back(std::move(job));
 			break;
 		}
 	}
 
-	// Снимаем dirty до постановки в очередь: параллельный put_ingr_chest
-	// взведёт флаг заново, и следующий вызов run() поднимет обновлённое
-	// состояние. При ошибке записи флаг будет восстановлен ниже.
 	for (const auto &job : jobs) {
 		m_impl->dirty.erase(job.clan);
 	}
@@ -135,10 +127,6 @@ void IngrChestSaver::run() {
 		return;
 	}
 
-	// Longest Processing Time. Время сериализации одного сундука линейно
-	// зависит от числа объектов в нём; используем это как вес задачи,
-	// чтобы самая тяжёлая стартовала первой и wall time был близок к
-	// теоретическому минимуму max(longest, total / threads).
 	std::sort(jobs.begin(), jobs.end(),
 		[](const Job &a, const Job &b) { return a.objcount > b.objcount; });
 
@@ -149,7 +137,7 @@ void IngrChestSaver::run() {
 	for (const auto &job : jobs) {
 		futures.push_back(m_impl->pool->Enqueue([job]() -> Result {
 			utils::CExecutionTimer timer;
-			const bool ok = save_one_chest(job.chest, job.filename);
+			const bool ok = save_one_clan_chest(job.chest, job.filename);
 			return Result{
 				job.clan,
 				std::string(job.clan->GetAbbrev()),
@@ -165,14 +153,13 @@ void IngrChestSaver::run() {
 			log(fmt::format("saving clan chest {} done, timer {:.10f}",
 				r.abbrev, r.seconds));
 		} else {
-			// Сундук остаётся изменённым: следующий run() повторит попытку.
 			m_impl->dirty.insert(r.clan);
 			log("Error saving clan chest %s: cannot open file", r.abbrev.c_str());
 		}
 	}
 
 	const double wall = wall_timer.delta().count();
-	log(fmt::format("save_ingr_chests: {} chests on {} threads, wall {:.10f}",
+	log(fmt::format("save_chests: {} chests on {} threads, wall {:.10f}",
 		jobs.size(), m_impl->pool->NumThreads(), wall));
 }
 

@@ -423,6 +423,7 @@ main_sources = files(
   'src/gameplay/clans/house.cpp',
   'src/gameplay/clans/house_exp.cpp',
   'src/gameplay/clans/ingr_chest_saver.cpp',
+  'src/gameplay/clans/chest_saver.cpp',
   'src/gameplay/communication/ignores.cpp',
   'src/gameplay/communication/ignores_loader.cpp',
   'src/gameplay/crafting/im.cpp',
