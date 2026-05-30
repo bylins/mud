@@ -967,6 +967,14 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 	if (victim == nullptr || ch == nullptr)
 		return;
 
+	// Rejection narration (issue.spell-msg-improve): six of the SpellCharm reject
+	// paths share semantics with existing kSummon* / kResurrect* keys; the
+	// per-spell kCharm sheaf carries the charm-specific wording while the
+	// kDefault texts (phrased for resurrect/summon) stay intact for those
+	// callers. Four messages without a clean key match stay inline.
+	auto SendCharmMsg = [ch](ESpellMsg key) {
+		SendMsgToChar(MUD::SpellMessages().GetMessage(ESpell::kCharm, key) + "\r\n", ch);
+	};
 	if (victim == ch)
 		SendMsgToChar("Вы просто очарованы своим внешним видом!\r\n", ch);
 	else if (!victim->IsNpc()) {
@@ -975,13 +983,13 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 			return;
 	} else if (!ch->IsImmortal()
 		&& (AFF_FLAGGED(victim, EAffect::kSanctuary) || victim->IsFlagged(EMobFlag::kProtect)))
-		SendMsgToChar("Ваша жертва освящена Богами!\r\n", ch);
+		SendCharmMsg(ESpellMsg::kResurrectConsecrated);
 	else if (!ch->IsImmortal() && (AFF_FLAGGED(victim, EAffect::kGodsShield) || victim->IsFlagged(EMobFlag::kProtect)))
-		SendMsgToChar("Ваша жертва защищена Богами!\r\n", ch);
+		SendCharmMsg(ESpellMsg::kResurrectProtected);
 	else if (!ch->IsImmortal() && victim->IsFlagged(EMobFlag::kNoCharm))
-		SendMsgToChar("Ваша жертва устойчива к этому!\r\n", ch);
+		SendCharmMsg(ESpellMsg::kResurrectNoPower);
 	else if (AFF_FLAGGED(ch, EAffect::kCharmed))
-		SendMsgToChar("Вы сами очарованы кем-то и не можете иметь последователей.\r\n", ch);
+		SendCharmMsg(ESpellMsg::kSummonCharmed);
 	else if (AFF_FLAGGED(victim, EAffect::kCharmed)
 		|| victim->IsFlagged(EMobFlag::kAgressive)
 		|| victim->IsFlagged(EMobFlag::kAgressiveMono)
@@ -993,16 +1001,16 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 		|| victim->IsFlagged(EMobFlag::kAgressiveSpring)
 		|| victim->IsFlagged(EMobFlag::kAgressiveSummer)
 		|| victim->IsFlagged(EMobFlag::kAgressiveAutumn))
-		SendMsgToChar("Ваша магия потерпела неудачу.\r\n", ch);
+		SendCharmMsg(ESpellMsg::kSummonFail);
 	else if (IS_HORSE(victim))
-		SendMsgToChar("Это боевой скакун, а не хухры-мухры.\r\n", ch);
+		SendCharmMsg(ESpellMsg::kSummonWarhorse);
 	else if (victim->GetEnemy() || victim->GetPosition() < EPosition::kRest)
 		act("$M сейчас, похоже, не до вас.", false, ch, nullptr, victim, kToChar);
 	else if (circle_follow(victim, ch))
 		SendMsgToChar("Следование по кругу запрещено.\r\n", ch);
 	else if (!ch->IsImmortal()
 		&& CalcGeneralSaving(ch, victim, ESaving::kWill, (GetRealCha(ch) - 10) * 4 + GetRealRemort(ch) * 3)) //предлагаю завязать на каст
-		SendMsgToChar("Ваша магия потерпела неудачу.\r\n", ch);
+		SendCharmMsg(ESpellMsg::kSummonFail);
 	else {
 		if (!CheckCharmices(ch, victim, ESpell::kCharm)) {
 			return;

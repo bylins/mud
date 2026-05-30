@@ -1678,6 +1678,17 @@
 		<message type="kCastPhraseHeathen" val="умь полонить" />
 		<message type="kCastPhraseChristian" val="... слушай пастыря сваего, и уразумей." />
 		<message type="kAffExpired" val="Вы подчиняетесь теперь только себе." />
+		<!-- Per-spell overrides reusing kResurrect*/kSummon* keys whose semantics fit
+		     SpellCharm's rejection paths (issue.spell-msg-improve). The kDefault texts
+		     are phrased for resurrect/summon contexts (mention "оживляемый", "после
+		     смерти", past tense "был боевой скакун"); kCharm overrides preserve the
+		     original charm-specific wording. -->
+		<message type="kResurrectConsecrated" val="Ваша жертва освящена Богами!" />
+		<message type="kResurrectProtected" val="Ваша жертва защищена Богами!" />
+		<message type="kResurrectNoPower" val="Ваша жертва устойчива к этому!" />
+		<message type="kSummonCharmed" val="Вы сами очарованы кем-то и не можете иметь последователей." />
+		<message type="kSummonFail" val="Ваша магия потерпела неудачу." />
+		<message type="kSummonWarhorse" val="Это боевой скакун, а не хухры-мухры." />
 	</msg_sheaf>
 	<msg_sheaf id="kControlWeather">
 		<message type="kNoTarget" val="Не указан тип погоды." />
