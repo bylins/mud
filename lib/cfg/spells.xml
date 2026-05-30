@@ -2515,7 +2515,7 @@ base_stat id - (например "kWis") какой берем параметр,
                  the 3-tier seal-quality narration remain code-side. -->
                 <affects type="kForbidden" saving="kNone" resist="kVitality">
                     <duration base="60" skill_divisor="3" min="0" max="0"/>
-                    <flags val="kAfUpdateDuration"/>
+                    <flags val="kAfUpdateDuration|kAfDispellable"/>
                     <apply id="kUndefinded" location="kNone">
                         <modifier min="0" dices_weight="0" competencies_weight="1" factor="1" cap="100"/>
                     </apply>
@@ -3864,7 +3864,7 @@ base_stat id - (например "kWis") какой берем параметр,
                 </blocking>
                 <affects type="kMeteorStorm" saving="kNone" resist="kVitality">
                     <duration base="3" skill_divisor="0" min="0" max="0"/>
-                    <flags val="kAfMustBeHandled"/>
+                    <flags val="kAfMustBeHandled|kAfDispellable"/>
                 </affects>
             </action>
         </talent_actions>
@@ -4869,7 +4869,7 @@ base_stat id - (например "kWis") какой берем параметр,
                 </blocking>
                 <affects type="kDeadlyFog" saving="kNone" resist="kVitality">
                     <duration base="8" skill_divisor="0" min="0" max="0"/>
-                    <flags val="kAfMustBeHandled"/>
+                    <flags val="kAfMustBeHandled|kAfDispellable"/>
                 </affects>
             </action>
         </talent_actions>
@@ -4890,7 +4890,7 @@ base_stat id - (например "kWis") какой берем параметр,
                 </blocking>
                 <affects type="kThunderstorm" saving="kNone" resist="kVitality">
                     <duration base="7" skill_divisor="0" min="0" max="0"/>
-                    <flags val="kAfMustBeHandled"/>
+                    <flags val="kAfMustBeHandled|kAfDispellable"/>
                 </affects>
             </action>
         </talent_actions>
@@ -5747,6 +5747,7 @@ base_stat id - (например "kWis") какой берем параметр,
                      material-component check stays code-side. -->
                 <affects type="kHypnoticPattern" saving="kNone" resist="kVitality">
                     <duration base="114" skill_divisor="0" min="0" max="0"/>
+                    <flags val="kAfDispellable"/>
                 </affects>
             </action>
         </talent_actions>
@@ -5926,7 +5927,7 @@ base_stat id - (например "kWis") какой берем параметр,
                      Incompatible-room (kForMono/kForPoly) now in <blocking>. -->
                 <affects type="kBlackTentacles" saving="kNone" resist="kVitality">
                     <duration base="1" skill_divisor="18" min="0" max="0"/>
-                    <flags val="kAfMustBeHandled"/>
+                    <flags val="kAfMustBeHandled|kAfDispellable"/>
                 </affects>
             </action>
         </talent_actions>

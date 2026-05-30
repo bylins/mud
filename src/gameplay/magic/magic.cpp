@@ -14,6 +14,7 @@
 
 #include "magic.h"
 #include "magic_internal.h"
+#include "magic_rooms.h"  // room-affect helpers reused by CastUnaffects' room branch (issue.room-dispell)
 
 #include "gameplay/core/game_limits.h"  // gain_condition (issue.mag-points)
 #include "engine/core/action_targeting.h"
@@ -1985,10 +1986,217 @@ bool DispelSucceeds(CharData *ch, CharData *victim, ESpell dispel_spell, ESpell 
 	return ok;
 }
 
+// === Room-target overloads (issue.room-dispell) ===
+// Mirror the char helpers above for a RoomData target. Room affects share the Affect template
+// (Affect<ERoomApply>) so the potency/debuff/battleflag fields read identically; only the storage
+// (room->affected vs victim->affected) and the apply/remove APIs differ. PK gating is intentionally
+// NOT replicated here -- concurrency rules for room dispel are deferred (no clear policy yet).
+
+bool AffectMatchesFlags(const Affect<room_spells::ERoomApply>::shared_ptr &affect, Bitvector flags) {
+	return affect && IS_SET(affect->battleflag, flags);
+}
+
+bool HasDispellableAffect(RoomData *room, ESpell spell, Bitvector flags) {
+	for (const auto &aff : room->affected) {
+		if (aff && aff->type == spell && AffectMatchesFlags(aff, flags)) {
+			return true;
+		}
+	}
+	return false;
+}
+
+bool UnaffectConditionMet(RoomData *room, const talents_actions::TalentUnaffect::Set &set) {
+	for (const auto spell : set.any_of) {
+		if (room_spells::IsRoomAffected(room, spell)) {
+			return true;
+		}
+	}
+	if (!set.all_of.empty()) {
+		bool all = true;
+		for (const auto spell : set.all_of) {
+			if (!room_spells::IsRoomAffected(room, spell)) {
+				all = false;
+				break;
+			}
+		}
+		if (all) {
+			return true;
+		}
+	}
+	return false;
+}
+
+void CollectRemovals(RoomData *room, const talents_actions::TalentUnaffect::Set &set,
+					 std::vector<RemovalCandidate> &out, Bitvector flags) {
+	if (set.wildcard_any) {
+		ESpell pick = ESpell::kUndefined;
+		int seen = 0;
+		for (const auto &aff : room->affected) {
+			if (AffectMatchesFlags(aff, flags) && number(1, ++seen) == 1) {
+				pick = aff->type;
+			}
+		}
+		if (pick != ESpell::kUndefined) {
+			out.push_back({pick, set.breaking_by_failure});
+		}
+	} else {
+		for (const auto spell : set.any_of) {
+			if (HasDispellableAffect(room, spell, flags)) {
+				out.push_back({spell, set.breaking_by_failure});
+				break;
+			}
+		}
+	}
+	if (set.wildcard_all) {
+		for (const auto &aff : room->affected) {
+			if (AffectMatchesFlags(aff, flags)) {
+				out.push_back({aff->type, set.breaking_by_failure});
+			}
+		}
+	} else {
+		for (const auto spell : set.all_of) {
+			if (HasDispellableAffect(room, spell, flags)) {
+				out.push_back({spell, set.breaking_by_failure});
+			}
+		}
+	}
+}
+
+// Strip every affect of `removed` from the room (room affects don't stack the way char affects do,
+// so peeling has no meaning here) and emit the dispel narration. Narration reuses
+// kAffDispelledTo{Char,Room} sheaves with the caster as the sole act() actor ($n = ch). Existing
+// keys were authored for char dispel and may read awkwardly until designers adapt them.
+void RemoveAffectAndAnnounce(CharData *ch, RoomData *room, ESpell removed) {
+	// Canonical "erase while iterating" over std::list -- list::erase invalidates only the erased
+	// iterator and returns the next one. Bypasses room_spells::RoomRemoveAffect (a thin
+	// empty-list-guarded wrapper) because the guard is redundant inside a live iteration.
+	for (auto it = room->affected.begin(); it != room->affected.end(); ) {
+		if (*it && (*it)->type == removed) {
+			it = room->affected.erase(it);
+		} else {
+			++it;
+		}
+	}
+	const auto &sheaf = MUD::SpellMessages()[removed];
+	const auto &to_char = sheaf.GetMessage(ESpellMsg::kAffDispelledToChar);
+	if (!to_char.empty()) {
+		act(to_char.c_str(), false, ch, nullptr, nullptr, kToChar);
+	}
+	const auto &to_room = sheaf.GetMessage(ESpellMsg::kAffDispelledToRoom);
+	if (!to_room.empty()) {
+		act(to_room.c_str(), true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
+	}
+}
+
+bool DispelSucceeds(CharData *ch, RoomData *room, ESpell dispel_spell, ESpell affect_spell,
+					float potency_weight) {
+	float affect_potency = 0.0f;
+	bool affect_is_debuff = false;
+	for (const auto &aff : room->affected) {
+		if (aff && aff->type == affect_spell) {
+			affect_potency = aff->potency;
+			affect_is_debuff = aff->debuff;
+			break;
+		}
+	}
+	const bool show_debug = ch->IsImmortal() || ch->IsFlagged(EPrf::kTester);
+	auto emit_debug = [&](float spell_pot, const char *kind, bool ok) {
+		char dbuf[256];
+		snprintf(dbuf, sizeof(dbuf),
+				 "Unaffect: %s [p: %.1f %s]. Target room: %s [p: %.1f]. %s.\r\n",
+				 MUD::Spell(dispel_spell).GetCName(), spell_pot, kind,
+				 MUD::Spell(affect_spell).GetCName(), affect_potency,
+				 ok ? "Success" : "Fail");
+		SendMsgToChar(dbuf, ch);
+	};
+	if (!MUD::Spell(dispel_spell).IsViolent() && !affect_is_debuff) {
+		if (show_debug) emit_debug(0.0f, "buff", true);
+		return true;
+	}
+	if (number(1, 100) <= 5) {
+		if (show_debug) emit_debug(0.0f, "luck", true);
+		return true;
+	}
+	const auto &roll = MUD::Spell(dispel_spell).GetPotencyRoll();
+	const float spell_potency = static_cast<float>(
+			roll.RollSkillDices() + roll.CalcSkillCoeff(ch) + roll.CalcBaseStatCoeff(ch)) * potency_weight;
+	const bool ok = spell_potency > affect_potency;
+	if (show_debug) emit_debug(spell_potency, "roll", ok);
+	return ok;
+}
+
+// Templated dispel-loop shared by the char and room branches of CastUnaffects. The helpers
+// (UnaffectConditionMet / CollectRemovals / DispelSucceeds / RemoveAffectAndAnnounce) are all
+// overloaded on the target type, so overload resolution picks the right one at instantiation.
+// PK aggro gating is char-only; for a RoomData target the `if constexpr` branch is dropped.
+template<typename TTarget>
+EStageResult RunCastUnaffects(CharData *ch, TTarget *target, ESpell spell_id,
+							  const talents_actions::TalentUnaffect &unaffect) {
+	const bool blocking = UnaffectConditionMet(target, unaffect.GetBlocking());
+	const bool breaking = UnaffectConditionMet(target, unaffect.GetBreaking());
+	bool break_chain = breaking;
+
+	const Bitvector flags = unaffect.GetAffectFlags();
+	std::vector<RemovalCandidate> to_remove;
+	CollectRemovals(target, unaffect.GetRemoveAnyway(), to_remove, flags);
+	if (!blocking) {
+		CollectRemovals(target, unaffect.GetRemove(), to_remove, flags);
+	}
+
+	if (!to_remove.empty()) {
+		if constexpr (std::is_same_v<TTarget, CharData>) {
+			// PK-action check: keyed on the first dispelled affect's spell flags; a
+			// disallowed action aborts the removal entirely. Char target only.
+			if (ch != target) {
+				const auto primary = to_remove.front().spell;
+				if (MUD::Spell(primary).IsFlagged(kNpcAffectNpc)) {
+					if (!pk_agro_action(ch, target)) {
+						return EStageResult::kSuccess;
+					}
+				} else if (MUD::Spell(primary).IsFlagged(kNpcAffectPc) && target->GetEnemy()) {
+					if (!pk_agro_action(ch, target->GetEnemy())) {
+						return EStageResult::kSuccess;
+					}
+				}
+			}
+		}
+		bool removed_any = false;
+		bool resisted_any = false;
+		for (const auto &cand : to_remove) {
+			if (DispelSucceeds(ch, target, spell_id, cand.spell, unaffect.GetPotencyWeight())) {
+				RemoveAffectAndAnnounce(ch, target, cand.spell);
+				removed_any = true;
+			} else {
+				resisted_any = true;
+				if (cand.break_on_fail) {
+					break_chain = true;
+				}
+			}
+		}
+		if (!removed_any && resisted_any && !MUD::Spell(spell_id).IsFlagged(kMagAffects)) {
+			SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
+		}
+	} else if (breaking
+			|| (!MUD::Spell(spell_id).IsFlagged(kMagAffects)
+				&& (!unaffect.GetRemove().empty() || !unaffect.GetRemoveAnyway().empty()))) {
+		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
+	}
+
+	return break_chain ? EStageResult::kBreak : EStageResult::kSuccess;
+}
+
 }  // namespace
 
-EStageResult CastUnaffects(int/* level*/, CharData *ch, CharData *victim, ESpell spell_id) {
-	if (victim == nullptr) {
+// Data-driven dispel stage. Dispatches on the non-null target: a CharData strips affects from
+// the victim (the historical path), a RoomData strips affects from the room (issue.room-dispell).
+// Exactly one of {victim, room} should be non-null; passing both is treated as the char path.
+//
+// TODO(#3342): CastUnaffects has no saving (success) check yet. kEnergyDrain/kWeaknes
+// used to gate their kStrength/kDexterity removal behind a save in CastAffect; until
+// that check is added here the buff is stripped regardless of the save. See their
+// commented stub case in CastAffect.
+EStageResult CastUnaffects(CharData *ch, CharData *victim, RoomData *room, ESpell spell_id) {
+	if (victim == nullptr && room == nullptr) {
 		return EStageResult::kSuccess;
 	}
 
@@ -2001,67 +2209,10 @@ EStageResult CastUnaffects(int/* level*/, CharData *ch, CharData *victim, ESpell
 		return EStageResult::kSuccess;
 	}
 
-	// TODO(#3342): CastUnaffect has no saving (success) check yet. kEnergyDrain/kWeaknes
-	// used to gate their kStrength/kDexterity removal behind a save in CastAffect; until
-	// that check is added here the buff is stripped regardless of the save. See their
-	// commented stub case in CastAffect.
-	const bool blocking = UnaffectConditionMet(victim, unaffect.GetBlocking());
-	const bool breaking = UnaffectConditionMet(victim, unaffect.GetBreaking());
-
-	// breaking_by_failure (issue): a resisted dispel of a candidate from a remove/remove_anyway
-	// block so flagged breaks the cast chain, in addition to the present-affect <breaking> set.
-	bool break_chain = breaking;
-
-	const Bitvector flags = unaffect.GetAffectFlags();
-	std::vector<RemovalCandidate> to_remove;
-	CollectRemovals(victim, unaffect.GetRemoveAnyway(), to_remove, flags);  // dispelled even when blocked
-	if (!blocking) {
-		CollectRemovals(victim, unaffect.GetRemove(), to_remove, flags);   // dispelled only when not blocked
+	if (victim != nullptr) {
+		return RunCastUnaffects(ch, victim, spell_id, unaffect);
 	}
-
-	if (!to_remove.empty()) {
-		// PK-action check (preserved from the old switch): keyed on the first dispelled
-		// affect's spell flags; a disallowed action aborts the removal entirely.
-		const auto primary = to_remove.front().spell;
-		if (ch != victim) {
-			if (MUD::Spell(primary).IsFlagged(kNpcAffectNpc)) {
-				if (!pk_agro_action(ch, victim)) {
-					return EStageResult::kSuccess;
-				}
-			} else if (MUD::Spell(primary).IsFlagged(kNpcAffectPc) && victim->GetEnemy()) {
-				if (!pk_agro_action(ch, victim->GetEnemy())) {
-					return EStageResult::kSuccess;
-				}
-			}
-		}
-		bool removed_any = false;
-		bool resisted_any = false;
-		for (const auto &cand : to_remove) {
-			if (DispelSucceeds(ch, victim, spell_id, cand.spell, unaffect.GetPotencyWeight())) {
-				RemoveAffectAndAnnounce(ch, victim, cand.spell);
-				removed_any = true;
-			} else {
-				resisted_any = true;
-				if (cand.break_on_fail) {
-					break_chain = true;
-				}
-			}
-		}
-		// Everything that could be removed resisted the potency check -> "no effect" to the caster.
-		// Only for a pure dispel: a kMagAffects spell stays silent and still applies its own affect.
-		if (!removed_any && resisted_any && !MUD::Spell(spell_id).IsFlagged(kMagAffects)) {
-			SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
-		}
-	} else if (breaking
-			|| (!MUD::Spell(spell_id).IsFlagged(kMagAffects)
-				&& (!unaffect.GetRemove().empty() || !unaffect.GetRemoveAnyway().empty()))) {
-		// "No effect" when a break stopped the cast, or when a *pure* dispel spell found
-		// nothing to remove. An affect-applying spell (kMagAffects) whose removal simply
-		// found nothing stays silent and goes on to apply its own affect.
-		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
-	}
-
-	return break_chain ? EStageResult::kBreak : EStageResult::kSuccess;
+	return RunCastUnaffects(ch, room, spell_id, unaffect);
 }
 
 // Try to enchant a weapon. Returns the to_char message to relay to the caster, or nullptr when
@@ -2616,7 +2767,7 @@ int CastToSingleTarget(CharData *caster, CharData *cvict, ObjData *ovict, CastRo
 	// Unaffect runs before affect: a spell strips/blocks existing affects
 	// first and may break the chain, before applying any new affect of its own.
 	if (MUD::Spell(spell_id).IsFlagged(kMagUnaffects)
-			&& CastUnaffects(abs(level), caster, cvict, spell_id) == EStageResult::kBreak) {
+			&& CastUnaffects(caster, cvict, nullptr, spell_id) == EStageResult::kBreak) {
 		return 1;
 	}
 
