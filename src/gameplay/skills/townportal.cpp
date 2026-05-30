@@ -107,7 +107,6 @@ Runestone GetLabelPortal(CharData *ch) {
 
 void OpenTownportal(CharData *ch, const Runestone &stone) {
 	ImproveSkill(ch, ESkill::kTownportal, 1, nullptr);
-	RoomData *from_room = world[ch->in_room];
 	auto to_room = GetRoomRnum(stone.GetRoomVnum());
 	// (issue.affect-flags: dead write to pkPenterUnique removed -- the field
 	// retired, PK-uid lives on the kPortalTimer affect via pk_unique.)
