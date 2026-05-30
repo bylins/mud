@@ -74,4 +74,28 @@
         </degrade>
     </cond>
 
+    <!-- DAMAGE (issue.mag-points step 2): substituted into the {intensity}
+         placeholder on kFightHit* messages by SendCombatMessages in
+         skills.cpp. Percentage formula = damage * 100 / STRIKER's max HP --
+         a "% of MY power" scale, uniform for all viewers in the room. The
+         mid range (>10) is intentionally an empty string so a normal hit
+         reads as "Вы ударили $N3." with no adverb. The >150 tier crosses
+         the lethal threshold. Each text carries a TRAILING SPACE because
+         the placeholder sits directly before the verb ("Вы {intensity}-
+         ударили $N3"), so an empty tier collapses cleanly. -->
+    <damage>
+        <improve>
+            <grade percent="150" text="АПОКАЛИПТИЧНО "/>
+            <grade percent="100" text="СМЕРТЕЛЬНО "/>
+            <grade percent="75"  text="сокрушающе "/>
+            <grade percent="50"  text="тяжело "/>
+            <grade percent="25"  text="сильно "/>
+            <grade percent="10"  text=""/>
+            <grade percent="0"   text="слегка "/>
+        </improve>
+        <degrade>
+            <!-- damage doesn't go negative; left empty for symmetry -->
+        </degrade>
+    </damage>
+
 </points_intensity>

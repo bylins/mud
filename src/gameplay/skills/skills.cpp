@@ -472,25 +472,20 @@ const std::string &NAME_BY_ITEM<ESkill>(const ESkill item) {
 ///
 /// \param add = "", строка для добавления после основного сообщения (краткий режим щитов)
 ///
-// Intensity adverb (with trailing space) for a hit of the given damage, substituted into
-// the {intensity} placeholder of kFightHit* messages (issue #3322). Reproduces the legacy
-// dam_weapons[] tiers exactly; empty string for the mid-damage tiers.
-static const char *HitIntensity(int dam) {
-	if (dam <= 5) return "легонько ";
-	if (dam <= 11) return "слегка ";
-	if (dam <= 26) return "";
-	if (dam <= 35) return "сильно ";
-	if (dam <= 45) return "очень сильно ";
-	if (dam <= 56) return "чрезвычайно сильно ";
-	if (dam <= 96) return "БОЛЬНО ";
-	if (dam <= 136) return "ОЧЕНЬ БОЛЬНО ";
-	if (dam <= 176) return "ЧРЕЗВЫЧАЙНО БОЛЬНО ";
-	if (dam <= 216) return "НЕВЫНОСИМО БОЛЬНО ";
-	if (dam <= 256) return "ЖЕСТОКО ";
-	if (dam <= 296) return "УЖАСНО ";
-	if (dam <= 400) return "УБИЙСТВЕННО ";
-	if (dam <= 800) return "ИЗУВЕРСКИ ";
-	return "СМЕРТЕЛЬНО ";
+// Intensity adverb for a hit, substituted into the {intensity} placeholder of
+// kFightHit* messages. Retired absolute-damage tiers in favour of a percentage
+// lookup against MUD::PointsIntensity (issue.mag-points step 2). Percent =
+// damage * 100 / striker's max HP, so the scale reads as "% of the striker's
+// own power" -- the same number every viewer in the room sees. Empty result
+// for the mid tier ("normal hit, no adverb") collapses cleanly because each
+// table row carries its own trailing space.
+//
+// max_hp = 0 (corner case: undead, fully drained, ...) falls back to 0%
+// which floors to the lightest tier rather than dividing by zero.
+static const std::string &HitIntensity(int dam, const CharData *striker) {
+	const int max_hp = striker ? striker->get_real_max_hit() : 0;
+	const int percent = (max_hp > 0) ? (dam * 100) / max_hp : 0;
+	return MUD::PointsIntensity().Resolve(points_intensity::ECategory::kDamage, percent);
 }
 
 // Renders one combat-message set (god/death/hit/miss x char/vict/room) for the given
@@ -546,9 +541,11 @@ static bool SendCombatMessages(msg_container::MsgContainer<IdEnum, MsgEnum> &con
 	brief_shields brief(ch, vict, weap, add);
 	brief.reflect = reflect;
 
-	// Substitute the {intensity} placeholder on weapon-hit messages (issue #3322).
-	// Messages without the placeholder (skills/spells, death/miss/god) are used as-is.
-	const char *const intensity = HitIntensity(dam);
+	// Substitute the {intensity} placeholder on weapon-hit messages (issue #3322;
+	// issue.mag-points step 2: switched from absolute-damage tiers to percentage
+	// lookup against MUD::PointsIntensity). Messages without the placeholder
+	// (skills/spells, death/miss/god lines) are used as-is.
+	const std::string &intensity = HitIntensity(dam, ch);
 	auto resolve = [&](MsgEnum type, std::string &buf) -> const char * {
 		const std::string &raw = sheaf.GetMessage(type);
 		if (raw.find("{intensity}") == std::string::npos) {

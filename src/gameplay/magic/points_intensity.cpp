@@ -16,7 +16,7 @@ namespace {
 // XML category names lined up with the ECategory enum. Indexed by the
 // ECategory underlying value so the load loop stays trivial.
 constexpr std::array<const char *, static_cast<size_t>(ECategory::kCount)>
-		kCategoryNames{"heal", "moves", "thirst", "cond"};
+		kCategoryNames{"heal", "moves", "thirst", "cond", "damage"};
 
 // Parse a <grade percent= text=/> element into a Grade. Skips entries with
 // no text -- the table only stores actionable rows.

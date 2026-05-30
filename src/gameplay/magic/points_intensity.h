@@ -36,6 +36,9 @@ enum class ECategory {
 	kMoves  = 1,
 	kThirst = 2,
 	kCond   = 3,
+	kDamage = 4,   // weapon-hit narration (issue.mag-points step 2: hit_msg.xml
+	               // grading retired). Percentage formula = damage * 100 / striker's
+	               // max HP (every viewer sees the same scale). Top tier crosses 150%.
 	kCount,
 };
 
