@@ -57,6 +57,31 @@
 		<message type="kAffExpired" val="Магия, наложенная на вас, рассеялась." />
 		<message type="kCastForbiddenToChar" val="Ваша магия потерпела неудачу и развеялась по воздуху." />
 		<message type="kCastForbiddenToRoom" val="Магия $n1 потерпела неудачу и развеялась по воздуху." />
+		<message type="kNoTarget" val="На {target} Вы хотите ЭТО колдовать?" />
+		<message type="kCantCastHereToChar" val="Ваша магия обратилась всего лишь в яркую вспышку!" />
+		<message type="kCantCastHereToRoom" val="Яркая вспышка на миг осветила комнату, и тут же погасла." />
+		<message type="kCastIncantToChar" val="Вы произнесли заклинание &quot;{color}{name}{nrm}&quot;." />
+		<message type="kItemNoPrototype" val="Что-то не видно образа для создания." />
+		<message type="kItemCreatedToChar" val="Вы создали $o3." />
+		<message type="kItemCreatedToRoom" val="$n создал$g $o3." />
+		<!-- SaySpell room narration (issue.spell-msg-improve). The %s is filled in
+		     by sprintf BEFORE act(): the spell's canonical name for viewers who
+		     Know the spell, the cast phrase for everyone else. Two variants per
+		     verbal key -- one PC-flavoured, one humanoid-NPC-flavoured -- the
+		     container picks one at random. kCastSaySound is the "can't speak"
+		     line non-humanoid NPC races emit for every situation. -->
+		<message type="kCastSayToSelf" val="$n прикрыл$g глаза и прошептал$g : '%s'." />
+		<message type="kCastSayToSelf" val="$n пробормотал$g : '%s'." />
+		<message type="kCastSayToOther" val="$n взглянул$g на $N3 и произнес$q : '%s'." />
+		<message type="kCastSayToOther" val="$n взглянул$g на $N3 и бросил$g : '%s'." />
+		<message type="kCastSayToObj" val="$n посмотрел$g на $o3 и произнес$q : '%s'." />
+		<message type="kCastSayToObj" val="$n глянул$g на $o3 и произнес$q : '%s'." />
+		<message type="kCastSayToSomething" val="$n произнес$q : '%s'." />
+		<message type="kCastSayDamageeToVict" val="$n зыркнул$g на вас и произнес$q : '%s'." />
+		<message type="kCastSayDamageeToVict" val="$n зыркнул$g на вас и проревел$g : '%s'." />
+		<message type="kCastSayHelpeeToVict" val="$n подмигнул$g вам и произнес$q : '%s'." />
+		<message type="kCastSayHelpeeToVict" val="$n улыбнул$u вам и произнес$q : '%s'." />
+		<message type="kCastSaySound" val="$n издал$g непонятный звук." />
 	</msg_sheaf>
 
 	<msg_sheaf id="kCureLight">
@@ -92,6 +117,10 @@
 		<message type="kCastPhraseChristian" val="... тебе говорю, встань." />
 	</msg_sheaf>
 	<msg_sheaf id="kWarcryOfPower">
+		<message type="kNoTarget" val="И на {target} же вы хотите так громко крикнуть?" />
+		<message type="kCantCastHereToChar" val="Ваш громовой глас сотряс воздух, но ничего не произошло!" />
+		<message type="kCantCastHereToRoom" val="Вы вздрогнули от неожиданного крика, но ничего не произошло." />
+		<message type="kCastIncantToChar" val="Вы выкрикнули &quot;{color}{name}{nrm}&quot;." />
 		<message type="kHealToVict" val="По вашему телу начала струиться живительная сила." />
 		<message type="kCastPhraseHeathen" val="Сарынь на кичку!" />
 		<message type="kCastPhraseChristian" val="Сарынь на кичку!" />
@@ -466,6 +495,10 @@
 		<message type="kCastPhraseChristian" val="... и из воды делается лед." />
 	</msg_sheaf>
 	<msg_sheaf id="kWarcryOfChallenge">
+		<message type="kNoTarget" val="И на {target} же вы хотите так громко крикнуть?" />
+		<message type="kCantCastHereToChar" val="Ваш громовой глас сотряс воздух, но ничего не произошло!" />
+		<message type="kCantCastHereToRoom" val="Вы вздрогнули от неожиданного крика, но ничего не произошло." />
+		<message type="kCastIncantToChar" val="Вы выкрикнули &quot;{color}{name}{nrm}&quot;." />
 		<message type="kAreaToRoom" val="Вы не стерпели насмешки, и бросились на $n1!" />
 		<message type="kCastPhraseHeathen" val="Эй, псы шелудивые, керасти плешивые, ослопы беспорточные, мшицы задочные!" />
 		<message type="kCastPhraseChristian" val="Эй, псы шелудивые, керасти плешивые, ослопы беспорточные, мшицы задочные!" />
@@ -602,18 +635,30 @@
 		<message type="kAffImposedToChar" val="Вы стали более внимательны к окружающему." />
 	</msg_sheaf>
 	<msg_sheaf id="kWarcryOfExperience">
+		<message type="kNoTarget" val="И на {target} же вы хотите так громко крикнуть?" />
+		<message type="kCantCastHereToChar" val="Ваш громовой глас сотряс воздух, но ничего не произошло!" />
+		<message type="kCantCastHereToRoom" val="Вы вздрогнули от неожиданного крика, но ничего не произошло." />
+		<message type="kCastIncantToChar" val="Вы выкрикнули &quot;{color}{name}{nrm}&quot;." />
 		<message type="kAreaToChar" val="Вы приготовились к обретению нового опыта." />
 		<message type="kCastPhraseHeathen" val="найдем новизну в рутине сражений!" />
 		<message type="kCastPhraseChristian" val="найдем новизну в рутине сражений!" />
 		<message type="kAffExpired" val="Действие клича 'обучение' закончилось." />
 	</msg_sheaf>
 	<msg_sheaf id="kWarcryOfLuck">
+		<message type="kNoTarget" val="И на {target} же вы хотите так громко крикнуть?" />
+		<message type="kCantCastHereToChar" val="Ваш громовой глас сотряс воздух, но ничего не произошло!" />
+		<message type="kCantCastHereToRoom" val="Вы вздрогнули от неожиданного крика, но ничего не произошло." />
+		<message type="kCastIncantToChar" val="Вы выкрикнули &quot;{color}{name}{nrm}&quot;." />
 		<message type="kAreaToChar" val="Вы ощутили, что вам улыбнулась удача." />
 		<message type="kCastPhraseHeathen" val="и пусть удача будет нашей спутницей!" />
 		<message type="kCastPhraseChristian" val="и пусть удача будет нашей спутницей!" />
 		<message type="kAffExpired" val="Действие клича 'везение' закончилось." />
 	</msg_sheaf>
 	<msg_sheaf id="kWarcryOfPhysdamage">
+		<message type="kNoTarget" val="И на {target} же вы хотите так громко крикнуть?" />
+		<message type="kCantCastHereToChar" val="Ваш громовой глас сотряс воздух, но ничего не произошло!" />
+		<message type="kCantCastHereToRoom" val="Вы вздрогнули от неожиданного крика, но ничего не произошло." />
+		<message type="kCastIncantToChar" val="Вы выкрикнули &quot;{color}{name}{nrm}&quot;." />
 		<message type="kAreaToChar" val="Боевой клич придал вам сил!" />
 		<message type="kCastPhraseHeathen" val="бей в глаз, не порти шкуру" />
 		<message type="kCastPhraseChristian" val="бей в глаз, не порти шкуру." />
@@ -1621,6 +1666,7 @@
 		<message type="kAffExpired" val="Вы подчиняетесь теперь только себе." />
 	</msg_sheaf>
 	<msg_sheaf id="kControlWeather">
+		<message type="kNoTarget" val="Не указан тип погоды." />
 		<message type="kCastPhraseHeathen" val="стихия подкоряшися" />
 		<message type="kCastPhraseChristian" val="... власть затворить небо, чтобы не шел дождь." />
 	</msg_sheaf>
@@ -1986,6 +2032,7 @@
 		<message type="kAffExpired" val="Живительная сила покинула вас." />
 	</msg_sheaf>
 	<msg_sheaf id="kCreateWeapon">
+		<message type="kNoTarget" val="Не указан тип оружия." />
 		<message type="kCastPhraseHeathen" val="будовати стружие" />
 		<message type="kCastPhraseChristian" val="...вооружите из себя людей на войну" />
 	</msg_sheaf>
@@ -2178,43 +2225,75 @@
 		<message type="kAffExpired" val="Навеянная магией хитрость покинула вас." />
 	</msg_sheaf>
 	<msg_sheaf id="kWarcryOfMenace">
+		<message type="kNoTarget" val="И на {target} же вы хотите так громко крикнуть?" />
+		<message type="kCantCastHereToChar" val="Ваш громовой глас сотряс воздух, но ничего не произошло!" />
+		<message type="kCantCastHereToRoom" val="Вы вздрогнули от неожиданного крика, но ничего не произошло." />
+		<message type="kCastIncantToChar" val="Вы выкрикнули &quot;{color}{name}{nrm}&quot;." />
 		<message type="kCastPhraseHeathen" val="Покрошу-изувечу, душу выну и в блины закатаю!" />
 		<message type="kCastPhraseChristian" val="Покрошу-изувечу, душу выну и в блины закатаю!" />
 		<message type="kAffImposedToRoom" val="Удача покинула $n3." />
 		<message type="kAffImposedToChar" val="Похоже, сегодня не ваш день." />
 	</msg_sheaf>
 	<msg_sheaf id="kWarcryOfRage">
+		<message type="kNoTarget" val="И на {target} же вы хотите так громко крикнуть?" />
+		<message type="kCantCastHereToChar" val="Ваш громовой глас сотряс воздух, но ничего не произошло!" />
+		<message type="kCantCastHereToRoom" val="Вы вздрогнули от неожиданного крика, но ничего не произошло." />
+		<message type="kCastIncantToChar" val="Вы выкрикнули &quot;{color}{name}{nrm}&quot;." />
 		<message type="kCastPhraseHeathen" val="Не отступим, други, они наше сало сперли!" />
 		<message type="kCastPhraseChristian" val="Не отступим, други, они наше сало сперли!" />
 		<message type="kAffImposedToRoom" val="$n0 оглох$q!" />
 		<message type="kAffImposedToChar" val="Вы оглохли." />
 	</msg_sheaf>
 	<msg_sheaf id="kWarcryOfMadness">
+		<message type="kNoTarget" val="И на {target} же вы хотите так громко крикнуть?" />
+		<message type="kCantCastHereToChar" val="Ваш громовой глас сотряс воздух, но ничего не произошло!" />
+		<message type="kCantCastHereToRoom" val="Вы вздрогнули от неожиданного крика, но ничего не произошло." />
+		<message type="kCastIncantToChar" val="Вы выкрикнули &quot;{color}{name}{nrm}&quot;." />
 		<message type="kCastPhraseHeathen" val="Всех убью, а сам$g останусь!" />
 		<message type="kCastPhraseChristian" val="Всех убью, а сам$g останусь!" />
 		<message type="kAffImposedToChar" val="Вы обезумели." />
 		<message type="kAffImposedToRoom" val="$n0 обезумел$g." />
 	</msg_sheaf>
 	<msg_sheaf id="kWarcryOfThunder">
+		<message type="kNoTarget" val="И на {target} же вы хотите так громко крикнуть?" />
+		<message type="kCantCastHereToChar" val="Ваш громовой глас сотряс воздух, но ничего не произошло!" />
+		<message type="kCantCastHereToRoom" val="Вы вздрогнули от неожиданного крика, но ничего не произошло." />
+		<message type="kCastIncantToChar" val="Вы выкрикнули &quot;{color}{name}{nrm}&quot;." />
 		<message type="kCastPhraseHeathen" val="Шоб вас приподняло, да шлепнуло!!!" />
 		<message type="kCastPhraseChristian" val="Шоб вас приподняло да шлепнуло!!!" />
 	</msg_sheaf>
 	<msg_sheaf id="kWarcryOfDefence">
+		<message type="kNoTarget" val="И на {target} же вы хотите так громко крикнуть?" />
+		<message type="kCantCastHereToChar" val="Ваш громовой глас сотряс воздух, но ничего не произошло!" />
+		<message type="kCantCastHereToRoom" val="Вы вздрогнули от неожиданного крика, но ничего не произошло." />
+		<message type="kCastIncantToChar" val="Вы выкрикнули &quot;{color}{name}{nrm}&quot;." />
 		<message type="kCastPhraseHeathen" val="В строй други, защитим животами Русь нашу!" />
 		<message type="kCastPhraseChristian" val="В строй други, защитим животами Русь нашу!" />
 		<message type="kAffExpired" val="Действие клича 'призыв к обороне' закончилось." />
 	</msg_sheaf>
 	<msg_sheaf id="kWarcryOfBattle">
+		<message type="kNoTarget" val="И на {target} же вы хотите так громко крикнуть?" />
+		<message type="kCantCastHereToChar" val="Ваш громовой глас сотряс воздух, но ничего не произошло!" />
+		<message type="kCantCastHereToRoom" val="Вы вздрогнули от неожиданного крика, но ничего не произошло." />
+		<message type="kCastIncantToChar" val="Вы выкрикнули &quot;{color}{name}{nrm}&quot;." />
 		<message type="kCastPhraseHeathen" val="Дер-ржать строй, волчьи хвосты!" />
 		<message type="kCastPhraseChristian" val="Дер-ржать строй, волчьи хвосты!" />
 		<message type="kAffExpired" val="Действие клича битвы закончилось." />
 	</msg_sheaf>
 	<msg_sheaf id="kWarcryOfBless">
+		<message type="kNoTarget" val="И на {target} же вы хотите так громко крикнуть?" />
+		<message type="kCantCastHereToChar" val="Ваш громовой глас сотряс воздух, но ничего не произошло!" />
+		<message type="kCantCastHereToRoom" val="Вы вздрогнули от неожиданного крика, но ничего не произошло." />
+		<message type="kCastIncantToChar" val="Вы выкрикнули &quot;{color}{name}{nrm}&quot;." />
 		<message type="kCastPhraseHeathen" val="Стоять крепко! За нами Киев, Подол и трактир с пивом!!!" />
 		<message type="kCastPhraseChristian" val="Стоять крепко! За нами Киев, Подол и трактир с пивом!!!" />
 		<message type="kAffExpired" val="Действие клича доблести закончилось." />
 	</msg_sheaf>
 	<msg_sheaf id="kWarcryOfCourage">
+		<message type="kNoTarget" val="И на {target} же вы хотите так громко крикнуть?" />
+		<message type="kCantCastHereToChar" val="Ваш громовой глас сотряс воздух, но ничего не произошло!" />
+		<message type="kCantCastHereToRoom" val="Вы вздрогнули от неожиданного крика, но ничего не произошло." />
+		<message type="kCastIncantToChar" val="Вы выкрикнули &quot;{color}{name}{nrm}&quot;." />
 		<message type="kCastPhraseHeathen" val="Орлы! Будем биться как львы!" />
 		<message type="kCastPhraseChristian" val="Орлы! Будем биться как львы!" />
 		<message type="kAffExpired" val="Действие клича отваги закончилось." />

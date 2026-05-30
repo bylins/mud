@@ -92,6 +92,20 @@ const std::string &NAME_BY_ITEM<ESpellMsg>(const ESpellMsg item) {
 		{ESpellMsg::kComponentMissing, "kComponentMissing"},
 		{ESpellMsg::kComponentExhausted, "kComponentExhausted"},
 		{ESpellMsg::kCantCastSilenced, "kCantCastSilenced"},
+		{ESpellMsg::kNoTarget, "kNoTarget"},
+		{ESpellMsg::kCantCastHereToChar, "kCantCastHereToChar"},
+		{ESpellMsg::kCantCastHereToRoom, "kCantCastHereToRoom"},
+		{ESpellMsg::kCastIncantToChar, "kCastIncantToChar"},
+		{ESpellMsg::kItemNoPrototype, "kItemNoPrototype"},
+		{ESpellMsg::kItemCreatedToChar, "kItemCreatedToChar"},
+		{ESpellMsg::kItemCreatedToRoom, "kItemCreatedToRoom"},
+		{ESpellMsg::kCastSayToSelf, "kCastSayToSelf"},
+		{ESpellMsg::kCastSayToOther, "kCastSayToOther"},
+		{ESpellMsg::kCastSayToObj, "kCastSayToObj"},
+		{ESpellMsg::kCastSayToSomething, "kCastSayToSomething"},
+		{ESpellMsg::kCastSayDamageeToVict, "kCastSayDamageeToVict"},
+		{ESpellMsg::kCastSayHelpeeToVict, "kCastSayHelpeeToVict"},
+		{ESpellMsg::kCastSaySound, "kCastSaySound"},
 	};
 	return kMap.at(item);
 }
@@ -178,6 +192,20 @@ ESpellMsg ITEM_BY_NAME<ESpellMsg>(const std::string &name) {
 		{"kComponentMissing", ESpellMsg::kComponentMissing},
 		{"kComponentExhausted", ESpellMsg::kComponentExhausted},
 		{"kCantCastSilenced", ESpellMsg::kCantCastSilenced},
+		{"kNoTarget", ESpellMsg::kNoTarget},
+		{"kCantCastHereToChar", ESpellMsg::kCantCastHereToChar},
+		{"kCantCastHereToRoom", ESpellMsg::kCantCastHereToRoom},
+		{"kCastIncantToChar", ESpellMsg::kCastIncantToChar},
+		{"kItemNoPrototype", ESpellMsg::kItemNoPrototype},
+		{"kItemCreatedToChar", ESpellMsg::kItemCreatedToChar},
+		{"kItemCreatedToRoom", ESpellMsg::kItemCreatedToRoom},
+		{"kCastSayToSelf", ESpellMsg::kCastSayToSelf},
+		{"kCastSayToOther", ESpellMsg::kCastSayToOther},
+		{"kCastSayToObj", ESpellMsg::kCastSayToObj},
+		{"kCastSayToSomething", ESpellMsg::kCastSayToSomething},
+		{"kCastSayDamageeToVict", ESpellMsg::kCastSayDamageeToVict},
+		{"kCastSayHelpeeToVict", ESpellMsg::kCastSayHelpeeToVict},
+		{"kCastSaySound", ESpellMsg::kCastSaySound},
 	};
 	return kMap.at(name); // throws std::out_of_range on unknown name
 }

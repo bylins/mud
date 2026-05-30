@@ -222,25 +222,18 @@ int CalcGeneralSaving(CharData *killer, CharData *victim, ESaving type, int ext_
 	int save = CalcSaving(killer, victim, type, true);
 	int rnd = number(-200, 200);
 	char smallbuf[256];
+	// Saving-throw debug trace (issue.spell-msg-improve): the 3 hardcoded immortal-name
+	// short-circuits (Верий/Кудояр/Рогоза) were removed -- send_to_TC already gates the
+	// message on EPrf::kTester / kCoderinfo / IsImpl, which is the correct way to opt in.
 	if (number(1, 100) <= 5 || (AFF_FLAGGED(victim, EAffect::kHold) && type == ESaving::kReflex)) { //абсолютный фейл
 		save /= 2;
-		sprintf(smallbuf, "Тестовое сообщение: &RПротивник %s (%d), ваш бонус: %d, спас '%s' противника: %d, random -200..200: %d, критудача: ДА, шанс успеха: %2.2f%%.\r\n&n", 
+		sprintf(smallbuf, "Тестовое сообщение: &RПротивник %s (%d), ваш бонус: %d, спас '%s' противника: %d, random -200..200: %d, критудача: ДА, шанс успеха: %2.2f%%.\r\n&n",
 				GET_NAME(victim), GetRealLevel(victim), ext_apply, saving_name.find(type)->second.c_str(), save, rnd, ((std::clamp(save +ext_apply, -200, 200) + 200) / 400.) * 100.);
-		if (killer->get_name_str() == "Верий" 
-				|| killer->get_name_str() == "Кудояр"
-				|| killer->get_name_str() == "Рогоза")
-			SendMsgToChar(killer, "%s", smallbuf);
-		else
-			killer->send_to_TC(false, true, true, smallbuf);
+		killer->send_to_TC(false, true, true, smallbuf);
 	} else {
-		sprintf(smallbuf, "Тестовое сообщение: Противник %s (%d), ваш бонус: %d, спас '%s' противника: %d, random -200..200: %d, критудача: НЕТ, шанс успеха: %2.2f%%.\r\n", 
+		sprintf(smallbuf, "Тестовое сообщение: Противник %s (%d), ваш бонус: %d, спас '%s' противника: %d, random -200..200: %d, критудача: НЕТ, шанс успеха: %2.2f%%.\r\n",
 				GET_NAME(victim), GetRealLevel(victim), ext_apply, saving_name.find(type)->second.c_str(), save, rnd, ((std::clamp(save +ext_apply, -200, 200) + 200) / 400.) * 100.);
-		if (killer->get_name_str() == "Верий" 
-				|| killer->get_name_str() == "Кудояр"
-				|| killer->get_name_str() == "Рогоза")
-			SendMsgToChar(killer, "%s", smallbuf);
-		else
-			killer->send_to_TC(false, true, true, smallbuf);
+		killer->send_to_TC(false, true, true, smallbuf);
 	}
 	save += ext_apply;    // внешний модификатор (обычно +каст)
 
@@ -2529,13 +2522,22 @@ EStageResult CastCreation(int/* level*/, CharData *ch, ESpell spell_id) {
 
 	const auto tobj = world_objects.create_from_prototype_by_vnum(obj_vnum);
 	if (!tobj) {
-		SendMsgToChar("Что-то не видно образа для создания.\r\n", ch);
+		// Prototype lookup failed -- player-facing narration through the cast spell's
+		// sheaf (kDefault fallback), plus a SYSERR for designers/admins
+		// (issue.spell-msg-improve).
+		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kItemNoPrototype) + "\r\n", ch);
 		log("SYSERR: spell_creations, spell %d, obj %d: obj not found", to_underlying(spell_id), obj_vnum);
 		return EStageResult::kSuccess;
 	}
 
-	act("$n создал$g $o3.", false, ch, tobj.get(), nullptr, kToRoom | kToArenaListen);
-	act("Вы создали $o3.", false, ch, tobj.get(), nullptr, kToChar);
+	// Creation narration (issue.spell-msg-improve): act() with $o = the new object; the
+	// kDefault sheaf carries the generic lines, per-spell overrides may flavour them.
+	const auto &item_room_msg =
+			MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kItemCreatedToRoom);
+	act(item_room_msg.c_str(), false, ch, tobj.get(), nullptr, kToRoom | kToArenaListen);
+	const auto &item_char_msg =
+			MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kItemCreatedToChar);
+	act(item_char_msg.c_str(), false, ch, tobj.get(), nullptr, kToChar);
 	load_otrigger(tobj.get());
 
 	if (ch->GetCarryingQuantity() >= CAN_CARRY_N(ch)) {
