@@ -197,6 +197,15 @@ enum class ESpellMsg {
 	// carries a generic "Ваша магия была развеяна" line; per-spell overrides flavour
 	// the message (kRuneLabel says "Ваша рунная метка удалена.").
 	kAfDispelledToOwner,
+	// kCreateWater non-water-container reject (issue.spell-msg-improve): a generic
+	// "creation failed" notice. Default kDefault sheaf carries the placeholder line;
+	// kCreateWater overrides with "Прекратите, ради бога, химичить." for the
+	// non-empty non-water container case. Other creation spells may override later.
+	kItemCreationFailToChar,
+	// "Wrong target type for this spell" (issue.spell-msg-improve). kDefault sheaf
+	// carries a generic line; per-spell sheaves override (kIdentify / kFullIdentify
+	// supply the "magic can't identify another creature" variant today).
+	kWrongTarget,
 };
 
 template<>

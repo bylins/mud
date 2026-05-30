@@ -91,6 +91,11 @@
 		     removed (kRuneLabel cleanup on idle-quit etc.). kRuneLabel overrides with
 		     its specialised line. -->
 		<message type="kAfDispelledToOwner" val="Ваша магия была развеяна." />
+		<!-- Generic creation-spell rejection / wrong-target lines (issue.spell-msg-improve).
+		     Per-spell overrides supply the flavoured text; the defaults are placeholders
+		     so the key always resolves to something readable. -->
+		<message type="kItemCreationFailToChar" val="Создание не удалось." />
+		<message type="kWrongTarget" val="Это не подходящая цель для заклинания." />
 	</msg_sheaf>
 
 	<msg_sheaf id="kCureLight">
@@ -1686,6 +1691,13 @@
 	<msg_sheaf id="kCreateWater">
 		<message type="kCastPhraseHeathen" val="напоиши влагой" />
 		<message type="kCastPhraseChristian" val="... и потекло много воды." />
+		<!-- kCreateWater manual cast (issue.spell-msg-improve). The "наполнили водой"
+		     line overrides the generic "Вы создали $o3." used by kCreateFood/kCreateLight.
+		     kThirstToVict is a literal override (no {intensity} expansion) since the
+		     manual path bypasses CastToPoints. -->
+		<message type="kItemCreationFailToChar" val="Прекратите, ради бога, химичить." />
+		<message type="kItemCreatedToChar" val="Вы наполнили $o3 водой." />
+		<message type="kThirstToVict" val="Вы полностью утолили жажду." />
 	</msg_sheaf>
 	<msg_sheaf id="kCureBlind">
 		<message type="kCastPhraseHeathen" val="зряще узрите" />
@@ -2432,6 +2444,18 @@
 	<msg_sheaf id="kMentalShadow">
 		<message type="kCastPhraseHeathen" val="Силою мысли защиту будую себе." />
 		<message type="kCastPhraseChristian" val="Даруй Отче защиту, силой разума воздвигнутую." />
+		<!-- Per-spell override (issue.spell-msg-improve): the 9 kDefault kSummonToRoom
+		     variants exist for kClone-style random-summon spells; kMentalShadow always
+		     produces the same line. -->
+		<message type="kSummonToRoom" val="Мимолётное наваждение воплотилось в призрачную тень." />
+	</msg_sheaf>
+
+	<msg_sheaf id="kIdentify">
+		<!-- Per-spell override (issue.spell-msg-improve) of the generic kWrongTarget line. -->
+		<message type="kWrongTarget" val="С помощью магии нельзя опознать другое существо." />
+	</msg_sheaf>
+	<msg_sheaf id="kFullIdentify">
+		<message type="kWrongTarget" val="С помощью магии нельзя опознать другое существо." />
 	</msg_sheaf>
 	<msg_sheaf id="kBlackTentacles">
 		<message type="kCastPhraseHeathen" val="Ато егоже руци попасти." />

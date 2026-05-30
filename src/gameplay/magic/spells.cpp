@@ -176,7 +176,10 @@ void SpellCreateWater(int/* level*/, CharData *ch, CharData *victim, ObjData *ob
 	if (obj
 		&& obj->get_type() == EObjType::kLiquidContainer) {
 		if ((GET_OBJ_VAL(obj, 2) != LIQ_WATER) && (GET_OBJ_VAL(obj, 1) != 0)) {
-			SendMsgToChar("Прекратите, ради бога, химичить.\r\n", ch);
+			// issue.spell-msg-improve: kCreateWater overrides kItemCreationFailToChar
+			// with "Прекратите, ради бога, химичить.".
+			SendMsgToChar(MUD::SpellMessages().GetMessage(
+					ESpell::kCreateWater, ESpellMsg::kItemCreationFailToChar) + "\r\n", ch);
 			return;
 		} else {
 			water = std::max(GET_OBJ_VAL(obj, 0) - GET_OBJ_VAL(obj, 1), 0);
@@ -186,7 +189,11 @@ void SpellCreateWater(int/* level*/, CharData *ch, CharData *victim, ObjData *ob
 				}
 				obj->set_val(2, LIQ_WATER);
 				obj->add_val(1, water);
-				act("Вы наполнили $o3 водой.", false, ch, obj, nullptr, kToChar);
+				// kCreateWater overrides the generic "Вы создали $o3." (kItemCreatedToChar)
+				// with "Вы наполнили $o3 водой." (issue.spell-msg-improve).
+				const auto &filled_msg = MUD::SpellMessages().GetMessage(
+						ESpell::kCreateWater, ESpellMsg::kItemCreatedToChar);
+				act(filled_msg.c_str(), false, ch, obj, nullptr, kToChar);
 				name_to_drinkcon(obj, LIQ_WATER);
 				weight_change_object(obj, water);
 			}
@@ -194,10 +201,14 @@ void SpellCreateWater(int/* level*/, CharData *ch, CharData *victim, ObjData *ob
 	}
 	if (victim && !victim->IsNpc() && !victim->IsImmortal()) {
 		GET_COND(victim, THIRST) = 0;
-		SendMsgToChar("Вы полностью утолили жажду.\r\n", victim);
-		if (victim != ch) {
-			act("Вы напоили $N3.", false, ch, nullptr, victim, kToChar);
-		}
+		// kCreateWater overrides kThirstToVict with "Вы полностью утолили жажду."
+		// (literal text, no {intensity} expansion -- the manual path bypasses
+		// CastToPoints' intensity machinery; issue.spell-msg-improve).
+		SendMsgToChar(MUD::SpellMessages().GetMessage(
+				ESpell::kCreateWater, ESpellMsg::kThirstToVict) + "\r\n", victim);
+		// The redundant "Вы напоили $N3." line to the caster was removed
+		// (issue.spell-msg-improve): the caster has no way to gauge the target's
+		// prior thirst level, so the line conveys no real info.
 	}
 }
 
@@ -2001,7 +2012,10 @@ void SpellFullIdentify(int/* level*/, CharData *ch, CharData *victim, ObjData *o
 	if (obj)
 		mort_show_obj_values(obj, ch, 400);
 	else if (victim) {
-		SendMsgToChar("С помощью магии нельзя опознать другое существо.\r\n", ch);
+		// kFullIdentify overrides kWrongTarget with the identify-specific text
+		// (issue.spell-msg-improve).
+		SendMsgToChar(MUD::SpellMessages().GetMessage(
+				ESpell::kFullIdentify, ESpellMsg::kWrongTarget) + "\r\n", ch);
 			return;
 	}
 }
@@ -2015,7 +2029,10 @@ void SpellIdentify(int/* level*/, CharData *ch, CharData *victim, ObjData *obj) 
 			return;
 		}
 		if (victim != ch) {
-			SendMsgToChar("С помощью магии нельзя опознать другое существо.\r\n", ch);
+			// kIdentify overrides kWrongTarget with the identify-specific text
+			// (issue.spell-msg-improve).
+			SendMsgToChar(MUD::SpellMessages().GetMessage(
+					ESpell::kIdentify, ESpellMsg::kWrongTarget) + "\r\n", ch);
 			return;
 		}
 		if (GetRealLevel(victim) < 3) {
@@ -2239,7 +2256,10 @@ void SpellMentalShadow(CharData *ch) {
 	};
 
 	if (!(mob = ReadMobile(mob_num, kVirtual))) {
-		SendMsgToChar("Вы точно не помните, как создать данного монстра.\r\n", ch);
+		// kSummonNoProto kDefault already carries this exact text -- the sheaf lookup
+		// returns it without any per-spell override needed (issue.spell-msg-improve).
+		SendMsgToChar(MUD::SpellMessages().GetMessage(
+				ESpell::kMentalShadow, ESpellMsg::kSummonNoProto) + "\r\n", ch);
 		return;
 	}
 	Affect<EApply> af;
@@ -2286,8 +2306,12 @@ void SpellMentalShadow(CharData *ch) {
 	ch->add_follower(mob);
 	mob->set_protecting(ch);
 	
-	act("Мимолётное наваждение воплотилось в призрачную тень.",
-		true, mob, nullptr, nullptr, kToRoom | kToArenaListen);
+	// kMentalShadow overrides kSummonToRoom (whose kDefault sheaf carries 9
+	// random-failure variants used by kClone-style spells) with its single
+	// success line (issue.spell-msg-improve).
+	const auto &shadow_msg = MUD::SpellMessages().GetMessage(
+			ESpell::kMentalShadow, ESpellMsg::kSummonToRoom);
+	act(shadow_msg.c_str(), true, mob, nullptr, nullptr, kToRoom | kToArenaListen);
 }
 
 std::map<int /* vnum */, int /* count */> rune_list;
