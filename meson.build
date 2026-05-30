@@ -328,6 +328,7 @@ compiler_id = '@0@ @1@ (@2@-@3@)'.format(
 version_cpp = custom_target('version_gen',
   input: 'src/version.cpp.in',
   output: 'version.cpp',
+  build_always_stale: true,
   command: [
     py3,
     files('tools/meson/generate_version.py'),
