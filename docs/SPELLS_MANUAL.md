@@ -360,14 +360,14 @@ reflection rates per spell.
 
 ---
 
-## 6. `<points>` — restoration: HP / moves / thirst / cond
+## 6. `<points>` — restoration: HP / moves / thirst / full
 
 ```xml
 <points extra="N" prob="100">
     <heal   npc_coeff="3" min="0" dices_weight="1.0" competencies_weight="90"/>
     <moves                min="0" dices_weight="0.0" competencies_weight="20"/>
     <thirst               min="0" dices_weight="0.0" competencies_weight="0"/>
-    <cond                 min="0" dices_weight="0.0" competencies_weight="0"/>
+    <full                 min="0" dices_weight="0.0" competencies_weight="0"/>
 </points>
 ```
 
@@ -383,7 +383,9 @@ restores (or drains) one category from the same potency roll:
 * **`<moves>`** — movement points. Same attribute shape as `<heal>`
   minus `npc_coeff`.
 * **`<thirst>`** — thirst (engine slot `THIRST`).
-* **`<cond>`** — hunger (engine slot `FULL`).
+* **`<full>`** — hunger (engine slot `FULL`). Renamed from `<cond>` in
+  issue.point-bugs to free the word "cond" for the overall
+  `{DRUNK, FULL, THIRST}` triplet rather than just hunger.
 
 | Outer `<points>` attr | Default | Description |
 |---|---|---|
@@ -397,10 +399,10 @@ restores (or drains) one category from the same potency roll:
 | `competencies_weight` | `0` | Weight on `(skill_coeff + stat_coeff)`. |
 | `npc_coeff` (`<heal>` only) | `1.0` | Extra multiplicative boost when the caster is an NPC. Default `1.0` reproduces the legacy `*2` effective heal for mob casters; set to `0` to disable. |
 
-### Sign convention for thirst / cond
+### Sign convention for thirst / full
 
 In the engine the thirst/full fields are inverted — `0` is fully sated,
-`kMaxCondition` is "starving". The XML uses the gameplay-natural sign:
+`kMaxCondition` (48) is "starving". The XML uses the gameplay-natural sign:
 
 * **Positive XML value** = restore (less thirsty / less hungry).
 * **Negative XML value** = make worse (more thirsty / more hungry).
@@ -423,6 +425,31 @@ if caster is NPC: amount += amount · npc_coeff   // 0 for non-heal categories
 The dice / competencies are rolled **once per cast** from the spell's
 `<potency_roll>` and shared across all four amounts — a single skill
 check drives every category on the same cast.
+
+### Per-category narration (issue.point-bugs)
+
+Each non-zero category emits its own message — one `act()` per category
+in `heal → moves → thirst → full` order. The keys are:
+
+| Key | Fires when | Category percent fed to `{intensity}` |
+|---|---|---|
+| `kHealToVict` | `<heal>` produced a non-zero amount | `amount * 100 / max_hp` |
+| `kMovesToVict` | `<moves>` produced a non-zero amount | `amount * 100 / max_moves` (signed; negative for drains) |
+| `kThirstToVict` | `<thirst>` produced a non-zero amount | improve: `removed * 100 / current`; degrade: `-(cond_after * 100) / kMaxCondition` |
+| `kFullToVict` | `<full>` produced a non-zero amount | same shape as kThirstToVict |
+
+The legacy single-key `kPointsToVict` was retired — each spell's sheaf
+specifies whichever per-category keys it wants (most heal spells just
+override `kHealToVict`; drain spells like a future "exhaust" would
+override `kMovesToVict`; etc.).
+
+The intensity table (`lib/cfg/mechanics/points.xml`) carries `<improve>`
+and `<degrade>` grades for each category. Resolution walks the table
+descending and returns the first tier `T` such that `T ≤ percent` —
+unified for both directions. `<heal><degrade>` is intentionally empty
+(heal is positive-only by design; a negative `<heal>` amount silently
+no-ops). Thirst/full `<degrade>` thresholds are **negative** because the
+percent formula is signed.
 
 ---
 
@@ -914,11 +941,14 @@ For each cast that runs `<unaffect>`:
 These stages are gated by their `kMag…` flag and run dedicated logic in
 `magic.cpp`. They are **partly data-driven**:
 
-* `CastToPoints` (HP / MV / thirst / cond restore) is fully data-driven
+* `CastToPoints` (HP / MV / thirst / full restore) is fully data-driven
   via the spell's `<points>` block (issue.mag-points). All four inner
-  amounts (`<heal>`, `<moves>`, `<thirst>`, `<cond>`) share a single
-  potency roll and a single `prob` gate. The `kPointsToVict` message
-  from `spell_msg.xml` fires when any amount produced a non-zero value.
+  amounts (`<heal>`, `<moves>`, `<thirst>`, `<full>`) share a single
+  potency roll and a single `prob` gate. Each non-zero amount fires its
+  **own** message — one `act()` per category in heal/moves/thirst/full
+  order, keyed `kHealToVict` / `kMovesToVict` / `kThirstToVict` /
+  `kFullToVict` (see §6 "Per-category narration"). The legacy single
+  `kPointsToVict` key was retired in issue.point-bugs.
 * `CastToAlterObjs` runs a per-spell handler in code (bless, curse,
   invisible, poison, enchant, repair, etc.) and reads its messages from
   `spell_msg.xml` (`kAlterObjToChar`, `kEnchantNotWeapon`, …).
@@ -1051,17 +1081,29 @@ specific spell hasn't overridden.
 | `kAffDispelledToChar` | An affect of this **affect type** was dispelled. Sheaf is keyed on the **removed** affect, not the dispel spell. | Cured char |
 | `kAffDispelledToRoom` | Same, to onlookers. | Room |
 | `kAffExpired` | An affect timed out naturally on the target. | Affected char |
-| `kPointsToVict` | A heal/restore landed. | Target |
+| `kAffDispelledToOwner` | An affect of yours was dispelled from someone you cast it on. | Original caster |
+| `kHealToVict` | `<heal>` produced a non-zero amount in a `<points>` cast. | Target |
+| `kMovesToVict` | `<moves>` produced a non-zero amount in a `<points>` cast. | Target |
+| `kThirstToVict` | `<thirst>` produced a non-zero amount in a `<points>` cast. | Target |
+| `kFullToVict` | `<full>` produced a non-zero amount in a `<points>` cast. | Target |
 | `kReflectedToChar` | Reflection: spell bounced back. | Caster |
 | `kReflectedToVict` | Reflection: target who reflected. | Original victim |
 | `kReflectedToRoom` | Reflection: onlookers. | Room |
 | `kCastForbiddenToChar` | Room-block fizzle: caster's room carries a `<blocking><room_flags val>` flag (`kNoMagic` etc.). | Caster |
 | `kCastForbiddenToRoom` | Room-block fizzle: announcement to onlookers. Empty means stay silent. | Room |
 | `kCantCastPosition`, `kCantCastSleeping`, … | Cast-precondition failures. | Caster |
+| `kCantCastNotAlly` | `kTarAllyOnly` target gate (§3.5) — victim isn't self / groupmate. | Caster |
+| `kCastHereForbiddenToChar`, `kCastHereForbiddenToRoom` | `<blocking><room_flags>` fizzle (caster's room carries the blocking flag, e.g. `kNoMagic`). Empty room-side message stays silent. | Caster / Room |
 | `kAreaToChar`, `kAreaToRoom`, `kAreaToVict` | Area cast announcement. | Various |
-| `kSummonToRoom`, `kSummonFail`, `kSummonNoCorpse`, … | Summon outcomes. | Various |
+| `kCastIncantToChar`, `kCastDisappearToRoom`, `kCastAppearToRoom` | Magic-word incantation banner + appearance/disappearance of the spell name in the room (`SaySpell`). | Various |
+| `kCastSayToSelf`, `kCastSayToOther`, `kCastSayToObj`, `kCastSayToSomething`, `kCastSayDamageeToVict`, `kCastSayHelpeeToVict`, `kCastSaySound` | The fly-by "$n stares at $N3 and utters …" lines emitted while the caster pronounces the incantation. | Room / victim |
+| `kCastInterruptedToChar`, `kCastPreparedToChar` | Concentration-broken / spell-ready announcements. | Caster |
+| `kNoTarget`, `kWrongTarget` | The caster's target argument missed (no such target / target type rejected by `<targets val>`). | Caster |
+| `kItemNoPrototype`, `kItemCreatedToChar`, `kItemCreatedToRoom`, `kItemCreationFailToChar` | `CastCreation` outcomes. | Various |
+| `kSummonToRoom`, `kSummonFail`, `kSummonNoCorpse`, `kResurrectNoPower`, `kResurrectProtected` | Summon / resurrect outcomes. | Various |
 | `kEnchantNotWeapon`, `kEnchantMagic`, `kEnchantSetItem`, `kEnchantMono`, `kEnchantPoly`, `kEnchantOther` | Enchant-weapon outcomes. | Caster |
 | `kFightDeathToChar`, `kFightHitToChar`, `kFightMissToChar` (+ `ToVict`, `ToRoom`) | Combat-damage messages keyed by `ESpell`. | Various |
+| `kCustomMsgOne` … `kCustomMsgFive` | Generic per-spell slots for one-off lines that don't deserve their own enum constant. Use these for the second/third/etc. line a specific spell needs (e.g. kSummon's secondary failure narration). | Various |
 
 Messages are stored **without** the trailing `\r\n` — `act()` and
 `SendMsgToChar` add it themselves.
@@ -1425,7 +1467,9 @@ should change a stat *without* imposing an affect flag.
 ## 15. Quick checklist for adding a new spell
 
 1. **Pick an `ESpell` id.** Add it to `spells_constants.h` if it's truly
-   new (engineer task).
+   new (engineer task). **Prototyping?** Use one of the reserved
+   `kTestOne … kTestFive` slots instead — see §17 — to iterate on the
+   XML alone without touching code.
 2. **Add the `<spell>` element** to `lib/cfg/spells.xml`. Required:
    header, `<name>`, `<misc>`, `<mana>`, `<targets>`, `<flags>`.
 3. **Pick the stages** you want by listing the `kMag…` flags in
@@ -1449,8 +1493,6 @@ should change a stat *without* imposing an affect flag.
   `CastCreation`, `CastToAlterObjs` switch cases) — those still live in
   `spells.cpp` and `magic.cpp`. Migrating them piece by piece into the
   data-driven system is ongoing work.
-* **Room spells** (`kMagRoom`, `magic_rooms.cpp`) — same XML system but a
-  parallel pipeline in `magic_rooms.cpp`.
 * **Success roll consumption** — `<success_roll>` is parsed and evaluated
   at cast time but is not yet wired into the cast-success decision. The
   classical percent-based `CalcCastSuccess` still gates landing.
@@ -1462,16 +1504,74 @@ If you need any of these, open an issue and the work can be scoped.
 
 ---
 
-*Last updated to match the `sventovit.work` head as of the
-`issue.affect-flags` room-affect-migration sequence: dice parser
-treats `0` as "no contribution" (absent `<dices>` block is
-equivalent to `0,0,0`); the modifier-scaling pattern of §8.9 is now
-used by ~20 spells in `spells.xml`; `<remove any_of="*">` and
-`<remove all_of="*">` wildcards replace the dedicated kDispellMagic
-code path (§9.5); `kAfMustBeHandled` and `kAfUnique` EAffFlag bits
-replaced the per-affect `must_handled` member and the per-call
-`only_one` local bool in `CallMagicToRoom`; and all 8 room-affect
-spells now carry their duration / battleflag / modifier in
-`<talent_actions>/<affects>` blocks (§11.5), with `CallMagicToRoom`
-reading the data through a single pre-switch reader (raw-pulse
-duration convention, see §11.5).*
+## 17. Test spell constants for prototyping
+
+To let designers iterate on a new spell's XML **without recompiling
+the engine**, five placeholder `ESpell` slots are permanently reserved:
+
+| Constant | id | Russian display name |
+|---|---|---|
+| `kTestOne`   | 359 | "тест 1" |
+| `kTestTwo`   | 360 | "тест 2" |
+| `kTestThree` | 361 | "тест 3" |
+| `kTestFour`  | 362 | "тест 4" |
+| `kTestFive`  | 363 | "тест 5" |
+
+Each slot ships in `lib/cfg/spells.xml` as a minimal stub:
+
+```xml
+<spell id="kTestOne" mode="kTesting">
+    <name rus="тест 1" eng="test 1"/>
+</spell>
+```
+
+`mode="kTesting"` keeps the slot out of class spell-lists in production
+(it's loaded but not granted) while still letting an immortal force-cast
+it for verification.
+
+**Workflow:**
+
+1. Pick a free slot (`kTestOne` … `kTestFive`).
+2. Edit its `<spell>` element in `spells.xml` — give it real
+   `<misc>`, `<mana>`, `<targets>`, `<flags>`, `<potency_roll>`, and
+   the `<talent_actions>` block you want to try. Optionally override
+   the Russian name with your prototype's working title (keep
+   `mode="kTesting"`).
+3. Add per-spell messages to `spell_msg.xml` under the same id.
+4. Refresh the build snapshot (see §2.3) and boot-test:
+   `./circle -d small <port>`, log in as an immortal, force-cast it
+   on a dummy.
+5. Iterate on the XML alone — no rebuilds needed beyond the snapshot
+   refresh.
+6. When the prototype graduates, an engineer renames the constant +
+   the XML `id=` to its final name (e.g. `kTestOne` → `kFrostshield`),
+   flips the mode to `kEnabled`, and adds it to the appropriate class
+   spell-lists. That's a single rename pass — all the design work
+   already done against the test slot transfers verbatim.
+
+Keep test slots short-lived: revert them to the minimal stub once your
+prototype graduates (or once you abandon it), so the next designer
+finds them empty.
+
+---
+
+*Last updated to match the `sventovit.work` head after the
+`issue.point-bugs` / `issue.spell-msg-improve` / `issue.first-aid`
+sequence: `<cond>` was renamed to `<full>` under `<points>` (the word
+"cond" now refers to the whole DRUNK/FULL/THIRST triplet, not just
+hunger); `kPointsToVict` was retired in favour of the per-category
+`kHealToVict` / `kMovesToVict` / `kThirstToVict` / `kFullToVict` keys
+(§6 "Per-category narration", §12); a large batch of previously
+hardcoded fly-by lines (`SaySpell` incantation banner, no-target /
+wrong-target / can't-cast-here fizzles, cast-prepared /
+cast-interrupted, summon-fail family) was migrated to per-spell
+sheaves with the `kCastSay*` / `kCastIncantToChar` /
+`kCastHereForbidden*` / `kNoTarget` / `kWrongTarget` /
+`kCastPreparedToChar` / `kCastInterruptedToChar` / `kSummonFail` keys
++ a generic `kCustomMsgOne…Five` family for one-off slots; the First
+Aid skill was reworked behind `BYLINS_FIRSTAID_NEW` to use the
+`kAfCurable` flag as removability source of truth, contesting a
+potency roll against the affect's stored potency, with cooldown only
+on failure; and five permanent `kTestOne…kTestFive` slots are now
+reserved in `ESpell` for prototyping new spells without code changes
+(§17).*
