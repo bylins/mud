@@ -189,6 +189,7 @@ class RuntimeConfiguration {
 	
 	void load_telemetry_configuration(const pugi::xml_node *root);
 	size_t yaml_threads() const { return m_yaml_threads; }
+	size_t chest_saver_threads() const { return m_chest_saver_threads; }
 
 #ifdef ENABLE_ADMIN_API
 	const auto &admin_socket_path() const { return m_admin_socket_path; }
@@ -216,6 +217,7 @@ class RuntimeConfiguration {
 	void load_statistics_configuration(const pugi::xml_node *root);
 	void load_telemetry_configuration_impl(const pugi::xml_node *root);
 	void load_world_loader_configuration(const pugi::xml_node *root);
+	void load_chest_saver_configuration(const pugi::xml_node *root);
 #ifdef ENABLE_ADMIN_API
 	void load_admin_api_configuration(const pugi::xml_node *root);
 #endif
@@ -244,6 +246,7 @@ class RuntimeConfiguration {
 	ETelemetryLogMode m_telemetry_log_mode;
 
 	size_t m_yaml_threads;
+	size_t m_chest_saver_threads;
 
 #ifdef ENABLE_ADMIN_API
 	std::string m_admin_socket_path{"admin_api.sock"};

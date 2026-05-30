@@ -4,6 +4,7 @@
 
 #include "house.h"
 
+#include "engine/core/config.h"
 #include "engine/db/db.h"
 #include "engine/db/obj_save.h"
 #include "engine/entities/room_data.h"
@@ -65,9 +66,13 @@ bool save_one_chest(ObjData *chest, const std::string &filename) {
 
 class IngrChestSaver::Impl {
  public:
-	Impl() : pool(std::max<std::size_t>(1, std::thread::hardware_concurrency() / 2)) {}
+	Impl() {
+		const size_t cfg = runtime_config.chest_saver_threads();
+		const size_t n = cfg > 0 ? cfg : std::max<std::size_t>(1, std::thread::hardware_concurrency() / 2);
+		pool = std::make_unique<utils::ThreadPool>(n);
+	}
 
-	utils::ThreadPool pool;
+	std::unique_ptr<utils::ThreadPool> pool;
 	// Клан попадает сюда, когда содержимое его сундука изменилось.
 	// Обращения из главного потока, синхронизация не требуется.
 	std::unordered_set<Clan *> dirty;
@@ -147,7 +152,7 @@ void IngrChestSaver::run() {
 	std::vector<std::future<Result>> futures;
 	futures.reserve(jobs.size());
 	for (const auto &job : jobs) {
-		futures.push_back(m_impl->pool.Enqueue([job]() -> Result {
+		futures.push_back(m_impl->pool->Enqueue([job]() -> Result {
 			utils::CExecutionTimer timer;
 			const bool ok = save_one_chest(job.chest, job.filename);
 			return Result{
@@ -173,7 +178,7 @@ void IngrChestSaver::run() {
 
 	const double wall = wall_timer.delta().count();
 	log(fmt::format("save_ingr_chests: {} chests on {} threads, wall {:.10f}",
-		jobs.size(), m_impl->pool.NumThreads(), wall));
+		jobs.size(), m_impl->pool->NumThreads(), wall));
 }
 
 }  // namespace ClanSystem

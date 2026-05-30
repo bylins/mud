@@ -605,6 +605,27 @@ void RuntimeConfiguration::load_world_loader_configuration(const pugi::xml_node 
 	}
 }
 
+void RuntimeConfiguration::load_chest_saver_configuration(const pugi::xml_node *root) {
+	const char* env_threads = std::getenv("CHEST_SAVER_THREADS");
+	if (env_threads) {
+		size_t threads = static_cast<size_t>(std::strtoul(env_threads, nullptr, 10));
+		if (threads > 0 && threads <= 64) {
+			m_chest_saver_threads = threads;
+			return;
+		}
+	}
+
+	const auto chest_saver = root->child("chest_saver");
+	if (!chest_saver) {
+		return;
+	}
+
+	const char* val = chest_saver.child_value("threads");
+	if (val && *val) {
+		m_chest_saver_threads = static_cast<size_t>(std::strtoul(val, nullptr, 10));
+	}
+}
+
 typedef std::map<EOutputStream, std::string> EOutputStream_name_by_value_t;
 typedef std::map<const std::string, EOutputStream> EOutputStream_value_by_name_t;
 EOutputStream_name_by_value_t EOutputStream_name_by_value;
@@ -737,7 +758,8 @@ RuntimeConfiguration::RuntimeConfiguration() :
 	m_telemetry_service_name("bylins-mud"),
 	m_telemetry_service_version("1.0.0"),
 	m_telemetry_log_mode(ETelemetryLogMode::kFileOnly),
-	m_yaml_threads(0) {
+	m_yaml_threads(0),
+	m_chest_saver_threads(0) {
 }
 
 void RuntimeConfiguration::load_from_file(const char *filename) {
@@ -760,6 +782,7 @@ void RuntimeConfiguration::load_from_file(const char *filename) {
 		load_telemetry_configuration_impl(&root);
 		load_telemetry_configuration(&root);
 		load_world_loader_configuration(&root);
+		load_chest_saver_configuration(&root);
 #ifdef ENABLE_ADMIN_API
 		load_admin_api_configuration(&root);
 #endif
