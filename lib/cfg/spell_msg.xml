@@ -1669,6 +1669,7 @@
 		<!-- SpellTeleport narration: same "slow disappear/appear" wording as kRelocate. -->
 		<message type="kCastDisappearToRoom" val="$n медленно исчез$q из виду." />
 		<message type="kCastAppearToRoom" val="$n медленно появил$u откуда-то." />
+		<message type="kSummonFail" val="Попытка перемещения не удалась." />
 	</msg_sheaf>
 	<msg_sheaf id="kBlindness">
 		<message type="kAffDispelledToRoom" val="$n прозрел$g." />
@@ -1805,6 +1806,14 @@
 		<message type="kCustomMsgOne" val="Неведомая сила блокирует ваш призыв." />
 		<message type="kCustomMsgTwo" val="$n призвал$g вас!" />
 		<message type="kCustomMsgThree" val="$n прибыл$g за хозяином." />
+		<!-- Summon-attempt rejections migrated from the SUMMON_FAIL macro family
+		     (spells.cpp). kSummonFail is the generic "couldn't complete" message.
+		     kResurrect* keys flavour the "target resistant / god-shielded" branches.
+		     kCustomMsgFour covers the "target busy in combat" branch. -->
+		<message type="kSummonFail" val="Попытка перемещения не удалась." />
+		<message type="kResurrectNoPower" val="Ваша жертва устойчива к этому." />
+		<message type="kResurrectProtected" val="Магический кокон, окружающий вас, помешал заклинанию сработать правильно." />
+		<message type="kCustomMsgFour" val="Ваша жертва в бою, подождите немного." />
 	</msg_sheaf>
 	<msg_sheaf id="kPatronage">
 		<message type="kCastPhraseHeathen" val="ибо будет угоден Богам" />
@@ -1821,6 +1830,7 @@
 		     character (caster or summoned target); rooms see them vanish/appear. -->
 		<message type="kCastDisappearToRoom" val="$n исчез$q." />
 		<message type="kCastAppearToRoom" val="$n появил$u в центре комнаты." />
+		<message type="kSummonFail" val="Попытка перемещения не удалась." />
 	</msg_sheaf>
 	<msg_sheaf id="kSenseLife">
 		<message type="kCastPhraseHeathen" val="зряще живота" />
@@ -2089,6 +2099,7 @@
 		<message type="kCustomMsgOne" val="Лазурная пентаграмма возникла в воздухе." />
 		<message type="kCustomMsgTwo" val="Лазурная пентаграмма с кровавым отблеском возникла в воздухе." />
 		<message type="kCustomMsgThree" val="Пентаграмма была разрушена." />
+		<message type="kSummonFail" val="Попытка перемещения не удалась." />
 	</msg_sheaf>
 	<msg_sheaf id="kDispellMagic">
 		<message type="kCastPhraseHeathen" val="изыде ворожба" />
@@ -2115,6 +2126,7 @@
 		<message type="kCastDisappearToRoom" val="$n медленно исчез$q из виду." />
 		<message type="kCastAppearToRoom" val="$n медленно появил$u откуда-то." />
 		<message type="kCustomMsgOne" val="Лазурные сполохи пронеслись перед вашими глазами." />
+		<message type="kSummonFail" val="Попытка перемещения не удалась." />
 	</msg_sheaf>
 	<msg_sheaf id="kIceShield">
 		<message type="kCastPhraseHeathen" val="Морена, даруй прибежище" />

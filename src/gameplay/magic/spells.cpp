@@ -213,10 +213,11 @@ void SpellCreateWater(int/* level*/, CharData *ch, CharData *victim, ObjData *ob
 	}
 }
 
-#define SUMMON_FAIL "Попытка перемещения не удалась.\r\n"
-#define SUMMON_FAIL2 "Ваша жертва устойчива к этому.\r\n"
-#define SUMMON_FAIL3 "Магический кокон, окружающий вас, помешал заклинанию сработать правильно.\r\n"
-#define SUMMON_FAIL4 "Ваша жертва в бою, подождите немного.\r\n"
+// Look up kSummonFail in `spell_id`'s sheaf (per-spell override on each summon-
+// style spell, with kDefault random-variant fallback) and emit to the caster.
+static void SendSummonFail(CharData *ch, ESpell spell_id) {
+	SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kSummonFail) + "\r\n", ch);
+}
 /*
 #define MIN_NEWBIE_ZONE  20
 #define MAX_NEWBIE_ZONE  79
@@ -266,27 +267,27 @@ void SpellRecall(CharData *ch, CharData *victim) {
 	RoomRnum rnum_start, rnum_stop;
 
 	if (!victim || victim->IsNpc() || ch->in_room != victim->in_room || GetRealLevel(victim) >= kLvlImmortal) {
-		SendMsgToChar(SUMMON_FAIL, ch);
+		SendSummonFail(ch, ESpell::kWorldOfRecall);
 		return;
 	}
 
 	// kNoTeleportOut moved to <blocking><room_flags> in spells.xml; CallMagic
 	// fizzles before this function runs.
 	if (!ch->IsGod() && AFF_FLAGGED(victim, EAffect::kNoTeleport)) {
-		SendMsgToChar(SUMMON_FAIL, ch);
+		SendSummonFail(ch, ESpell::kWorldOfRecall);
 		return;
 	}
 
 	if (victim != ch) {
 		if (group::same_group(ch, victim)) {
 			if (number(1, 100) <= 5) {
-				SendMsgToChar(SUMMON_FAIL, ch);
+				SendSummonFail(ch, ESpell::kWorldOfRecall);
 				return;
 			}
 		} else if (!ch->IsNpc() || (ch->has_master()
 			&& !ch->get_master()->IsNpc())) // игроки не в группе и  чармисы по приказу не могут реколить свитком
 		{
-			SendMsgToChar(SUMMON_FAIL, ch);
+			SendSummonFail(ch, ESpell::kWorldOfRecall);
 			return;
 		}
 
@@ -299,7 +300,7 @@ void SpellRecall(CharData *ch, CharData *victim) {
 		to_room = GetRoomRnum(calc_loadroom(victim));
 
 	if (to_room == kNowhere) {
-		SendMsgToChar(SUMMON_FAIL, ch);
+		SendSummonFail(ch, ESpell::kWorldOfRecall);
 		return;
 	}
 
@@ -312,7 +313,7 @@ void SpellRecall(CharData *ch, CharData *victim) {
 	}
 
 	if (fnd_room == kNowhere) {
-		SendMsgToChar(SUMMON_FAIL, ch);
+		SendSummonFail(ch, ESpell::kWorldOfRecall);
 		return;
 	}
 
@@ -344,14 +345,14 @@ void SpellTeleport(CharData *ch, CharData */*victim*/) {
 	// kNoTeleportOut moved to <blocking><room_flags> in spells.xml; CallMagic
 	// fizzles before this function runs.
 	if (!ch->IsGod() && AFF_FLAGGED(ch, EAffect::kNoTeleport)) {
-		SendMsgToChar(SUMMON_FAIL, ch);
+		SendSummonFail(ch, ESpell::kTeleport);
 		return;
 	}
 
 	GetZoneRooms(world[in_room]->zone_rn, &rnum_start, &rnum_stop);
 	fnd_room = GetTeleportTargetRoom(ch, rnum_start, rnum_stop);
 	if (fnd_room == kNowhere) {
-		SendMsgToChar(SUMMON_FAIL, ch);
+		SendSummonFail(ch, ESpell::kTeleport);
 		return;
 	}
 	if (!enter_wtrigger(world[fnd_room], ch, -1))
@@ -385,14 +386,14 @@ void SpellRelocate(CharData *ch, CharData *victim) {
 	// kNoTeleportOut moved to <blocking><room_flags> in spells.xml; CallMagic
 	// fizzles before this function runs.
 	if (!ch->IsGod() && AFF_FLAGGED(ch, EAffect::kNoTeleport)) {
-		SendMsgToChar(SUMMON_FAIL, ch);
+		SendSummonFail(ch, ESpell::kRelocate);
 		return;
 	}
 
 	to_room = victim->in_room;
 
 	if (to_room == kNowhere) {
-		SendMsgToChar(SUMMON_FAIL, ch);
+		SendSummonFail(ch, ESpell::kRelocate);
 		return;
 	}
 
@@ -403,7 +404,7 @@ void SpellRelocate(CharData *ch, CharData *victim) {
 	}
 
 	if (fnd_room != to_room && !ch->IsGod()) {
-		SendMsgToChar(SUMMON_FAIL, ch);
+		SendSummonFail(ch, ESpell::kRelocate);
 		return;
 	}
 
@@ -414,7 +415,7 @@ void SpellRelocate(CharData *ch, CharData *victim) {
 			ROOM_FLAGGED(fnd_room, ERoomFlag::kTunnel) ||
 			ROOM_FLAGGED(fnd_room, ERoomFlag::kNoRelocateIn) ||
 			ROOM_FLAGGED(fnd_room, ERoomFlag::kIceTrap) || (ROOM_FLAGGED(fnd_room, ERoomFlag::kGodsRoom) && !ch->IsImmortal()))) {
-		SendMsgToChar(SUMMON_FAIL, ch);
+		SendSummonFail(ch, ESpell::kRelocate);
 		return;
 	}
 	if (!enter_wtrigger(world[fnd_room], ch, -1))
@@ -488,31 +489,31 @@ void SpellPortal(CharData *ch, CharData *victim) {
 	if (victim == nullptr)
 		return;
 	if (GetRealLevel(victim) > GetRealLevel(ch) && !victim->IsFlagged(EPrf::KSummonable) && !group::same_group(ch, victim)) {
-		SendMsgToChar(SUMMON_FAIL, ch);
+		SendSummonFail(ch, ESpell::kPortal);
 		return;
 	}
 	// пентить чаров <=10 уровня, нельзя так-же нельзя пентать иммов
 	if (!ch->IsGod()) {
 		if ((!victim->IsNpc() && GetRealLevel(victim) <= 10 && GetRealRemort(ch) < 9) || victim->IsImmortal()
 			|| AFF_FLAGGED(victim, EAffect::kNoTeleport)) {
-			SendMsgToChar(SUMMON_FAIL, ch);
+			SendSummonFail(ch, ESpell::kPortal);
 			return;
 		}
 	}
 	if (victim->IsNpc()) {
-		SendMsgToChar(SUMMON_FAIL, ch);
+		SendSummonFail(ch, ESpell::kPortal);
 		return;
 	}
 	fnd_room = victim->in_room;
 	if (fnd_room == kNowhere) {
-		SendMsgToChar(SUMMON_FAIL, ch);
+		SendSummonFail(ch, ESpell::kPortal);
 		return;
 	}
 
 	if (!ch->IsGod() && (SECT(fnd_room) == ESector::kSecret || ROOM_FLAGGED(fnd_room, ERoomFlag::kDeathTrap) ||
 			ROOM_FLAGGED(fnd_room, ERoomFlag::kSlowDeathTrap) || ROOM_FLAGGED(fnd_room, ERoomFlag::kIceTrap) ||
 			ROOM_FLAGGED(fnd_room, ERoomFlag::kTunnel) || ROOM_FLAGGED(fnd_room, ERoomFlag::kGodsRoom))) {
-		SendMsgToChar(SUMMON_FAIL, ch);
+		SendSummonFail(ch, ESpell::kPortal);
 		return;
 	}
 
@@ -610,27 +611,27 @@ void SpellSummon(CharData *ch, CharData *victim) {
 		return;
 	}
 	if (!victim->desc) {
-		SendMsgToChar(SUMMON_FAIL, ch);
+		SendSummonFail(ch, ESpell::kSummon);
 	}
 	ch_room = ch->in_room;
 	vic_room = victim->in_room;
 
 	if (ch_room == kNowhere || vic_room == kNowhere) {
-		SendMsgToChar(SUMMON_FAIL, ch);
+		SendSummonFail(ch, ESpell::kSummon);
 		ch->send_to_TC(true, true, true, "Цель в Nowhere\r\n");
 		return;
 	}
 
 	if (ch->IsNpc() && victim->IsNpc()) {
 		ch->send_to_TC(true, true, true, "Да ты МОБ!!!!!\r\n");
-		SendMsgToChar(SUMMON_FAIL, ch);
+		SendSummonFail(ch, ESpell::kSummon);
 		return;
 	}
 
 	if (victim->IsImmortal()) {
 		if (ch->IsNpc() || (!ch->IsNpc() && GetRealLevel(ch) < GetRealLevel(victim))) {
 			ch->send_to_TC(true, true, true, "Неположено сие деяние!\r\n");
-			SendMsgToChar(SUMMON_FAIL, ch);
+			SendSummonFail(ch, ESpell::kSummon);
 			return;
 		}
 	}
@@ -638,7 +639,7 @@ void SpellSummon(CharData *ch, CharData *victim) {
 	if (!ch->IsNpc() && victim->IsNpc()) {
 		if (victim->get_master() != ch) {
 			ch->send_to_TC(true, true, true, "Чармис не ваш\r\n");
-			SendMsgToChar(SUMMON_FAIL, ch);
+			SendSummonFail(ch, ESpell::kSummon);
 			return;
 		}
 	}
@@ -647,29 +648,32 @@ void SpellSummon(CharData *ch, CharData *victim) {
 		if (!ch->IsNpc() || IS_CHARMICE(ch)) {
 			if (AFF_FLAGGED(ch, EAffect::kGodsShield)) {
 				ch->send_to_TC(true, true, true, "Чармис под зб\r\n");
-				SendMsgToChar(SUMMON_FAIL3, ch);
+				SendMsgToChar(MUD::SpellMessages().GetMessage(
+						ESpell::kSummon, ESpellMsg::kResurrectProtected) + "\r\n", ch);
 				return;
 			}
 			if (!victim->IsFlagged(EPrf::KSummonable) && !group::same_group(ch, victim)) {
 				ch->send_to_TC(true, true, true, "Чармис не в вашей группе\r\n");
-				SendMsgToChar(SUMMON_FAIL2, ch);
+				SendMsgToChar(MUD::SpellMessages().GetMessage(
+						ESpell::kSummon, ESpellMsg::kResurrectNoPower) + "\r\n", ch);
 				return;
 			}
 			if (NORENTABLE(victim) && !IS_CHARMICE(ch)) {
 				ch->send_to_TC(true, true, true, "Ваша жертва совсем не рентабельна!\r\n");
-				SendMsgToChar(SUMMON_FAIL, ch);
+				SendSummonFail(ch, ESpell::kSummon);
 				return;
 			}
 			if (victim->GetEnemy()
 				|| victim->GetPosition() < EPosition::kRest) {
 				ch->send_to_TC(true, true, true, "Чармис сражается или дрыхнет\r\n");
-				SendMsgToChar(SUMMON_FAIL4, ch);
+				SendMsgToChar(MUD::SpellMessages().GetMessage(
+						ESpell::kSummon, ESpellMsg::kCustomMsgFour) + "\r\n", ch);
 				return;
 			}
 		}
 		if (victim->get_wait() > 0) {
 			ch->send_to_TC(true, true, true, "Чармис в лаге\r\n");
-			SendMsgToChar(SUMMON_FAIL, ch);
+			SendSummonFail(ch, ESpell::kSummon);
 			return;
 		}
 
@@ -683,13 +687,13 @@ void SpellSummon(CharData *ch, CharData *victim) {
 			|| (!group::same_group(ch, victim)
 				&& (ROOM_FLAGGED(ch_room, ERoomFlag::kPeaceful) || ROOM_FLAGGED(ch_room, ERoomFlag::kArena)))) {
 			ch->send_to_TC(true, true, true, "Чармис в носуммоне\r\n");
-			SendMsgToChar(SUMMON_FAIL, ch);
+			SendSummonFail(ch, ESpell::kSummon);
 			return;
 		}
 		// отдельно проверку на клан комнаты, своих чармисов призвать можем ()
 		if (!Clan::MayEnter(victim, ch_room, kHousePortal) && !(victim->has_master()) && (victim->get_master() != ch)) {
 			ch->send_to_TC(true, true, true, "Чармис доступ в замок запрещен\r\n");
-			SendMsgToChar(SUMMON_FAIL, ch);
+			SendSummonFail(ch, ESpell::kSummon);
 			return;
 		}
 
@@ -701,7 +705,7 @@ void SpellSummon(CharData *ch, CharData *victim) {
 				|| (!group::same_group(ch, victim)
 					&& (ROOM_FLAGGED(vic_room, ERoomFlag::kTunnel) || ROOM_FLAGGED(vic_room, ERoomFlag::kArena)))) {
 				ch->send_to_TC(true, true, true, "Чармис в носуммоне\r\n");
-				SendMsgToChar(SUMMON_FAIL, ch);
+				SendSummonFail(ch, ESpell::kSummon);
 				return;
 			}
 		} else {
