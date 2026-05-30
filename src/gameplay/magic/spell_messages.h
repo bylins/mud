@@ -141,6 +141,24 @@ enum class ESpellMsg {
 	// AND the spell carries <verbal/>. Looked up sheaf-direct on the cast spell
 	// with kDefault fallback; default sheaf supplies the generic line.
 	kCantCastSilenced,
+	// Target-resolution narration (issue.spell-msg-improve): FindCastTarget couldn't
+	// resolve the player's argument into a target the spell accepts (or the player
+	// provided no argument and no default target applies). The default message
+	// substitutes a {target} placeholder ("ЧТО" for object spells, "КОГО" for char
+	// spells); warcry spells override with a louder variant, kControlWeather /
+	// kCreateWeapon override with their specific "what kind?" variants.
+	kNoTarget,
+	// Cast-here narration (issue.spell-msg-improve): MayCastHere refused (e.g. peaceful
+	// room + violent spell). Default key has the "magic dissolved into a flash" line;
+	// warcry spells override with the air-shaking variant. ToChar/ToRoom mirror the
+	// kCastForbidden pair pattern.
+	kCantCastHereToChar,
+	kCantCastHereToRoom,
+	// Caster-side cast incantation banner (issue.spell-msg-improve): the "Вы произнесли
+	// заклинание ..." / "Вы выкрикнули ..." line SaySpell prints to the caster, with
+	// {color}/{name}/{nrm} placeholders substituted at emission. Warcry spells override
+	// with the shouting variant.
+	kCastIncantToChar,
 };
 
 template<>

@@ -119,15 +119,25 @@ void SaySpell(CharData *ch, ESpell spell_id, CharData *tch, ObjData *tobj) {
 				SendMsgToChar(OK, ch);
 			}
 		} else {
-			if (MUD::Spell(spell_id).IsFlagged(kMagWarcry))
-				sprintf(buf, "Вы выкрикнули \"%s%s%s\".\r\n",
-						MUD::Spell(spell_id).IsViolent() ? kColorBoldRed : kColorBoldGrn,
-						MUD::Spell(spell_id).GetCName(), kColorNrm);
-			else
-				sprintf(buf, "Вы произнесли заклинание \"%s%s%s\".\r\n",
-						MUD::Spell(spell_id).IsViolent() ? kColorBoldRed : kColorBoldGrn,
-						MUD::Spell(spell_id).GetCName(), kColorNrm);
-			SendMsgToChar(buf, ch);
+			// Cast-incantation banner (issue.spell-msg-improve): kCastIncantToChar in
+			// the cast spell's sheaf (with kDefault fallback) carries the line shown
+			// to the caster. {color}/{name}/{nrm} placeholders resolve to bold-red or
+			// bold-green by IsViolent, the spell's GetCName, and the colour reset.
+			// Warcry spells override the default's "произнесли" with "выкрикнули".
+			std::string incant =
+					MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kCastIncantToChar);
+			const char *const color = MUD::Spell(spell_id).IsViolent()
+					? kColorBoldRed : kColorBoldGrn;
+			auto subst = [&incant](const char *token, const char *value) {
+				const auto pos = incant.find(token);
+				if (pos != std::string::npos) {
+					incant.replace(pos, std::strlen(token), value);
+				}
+			};
+			subst("{color}", color);
+			subst("{name}", MUD::Spell(spell_id).GetCName());
+			subst("{nrm}", kColorNrm);
+			SendMsgToChar(incant + "\r\n", ch);
 		}
 		const std::string &cast_phrase = cast_phrase_sheaf.GetMessage(GET_RELIGION(ch) ? ESpellMsg::kCastPhraseChristian : ESpellMsg::kCastPhraseHeathen);
 		if (!cast_phrase.empty()) {
@@ -459,14 +469,14 @@ int CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict
 	}
 
 	if (!MayCastHere(caster, cvict, spell_id)) {
-		if (MUD::Spell(spell_id).IsFlagged(kMagWarcry)) {
-			SendMsgToChar("Ваш громовой глас сотряс воздух, но ничего не произошло!\r\n", caster);
-			act("Вы вздрогнули от неожиданного крика, но ничего не произошло.",
-				false, caster, nullptr, nullptr, kToRoom | kToArenaListen);
-		} else {
-			SendMsgToChar("Ваша магия обратилась всего лишь в яркую вспышку!\r\n", caster);
-			act("Яркая вспышка на миг осветила комнату, и тут же погасла.",
-				false, caster, nullptr, nullptr, kToRoom | kToArenaListen);
+		// MayCastHere fizzle (issue.spell-msg-improve): per-spell sheaf with kDefault
+		// fallback supplies the narration. Warcry spells override with their louder
+		// variant; the default is the magic-flash line.
+		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kCantCastHereToChar) + "\r\n", caster);
+		const auto &cant_here_room =
+				MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kCantCastHereToRoom);
+		if (!cant_here_room.empty()) {
+			act(cant_here_room.c_str(), false, caster, nullptr, nullptr, kToRoom | kToArenaListen);
 		}
 		return 0;
 	}
@@ -547,6 +557,22 @@ ObjData *FindObjForLocate(CharData *ch, const char *name) {
 	return obj;
 }
 
+// Sends the kNoTarget message to `ch` keyed on the cast spell with the {target}
+// placeholder resolved against the spell's accepted target classes
+// (issue.spell-msg-improve). Object-accepting spells get "ЧТО" ("what"); char-only
+// spells get "КОГО" ("whom"). Per-spell sheafs with no {target} (e.g. the
+// kControlWeather "тип погоды" override) just pass through.
+static void SendNoTargetMsg(ESpell spell_id, CharData *ch) {
+	std::string msg = MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoTarget);
+	const auto pos = msg.find("{target}");
+	if (pos != std::string::npos) {
+		const char *what = MUD::Spell(spell_id).AllowTarget(
+				kTarObjRoom | kTarObjInv | kTarObjWorld | kTarObjEquip) ? "ЧТО" : "КОГО";
+		msg.replace(pos, std::strlen("{target}"), what);
+	}
+	SendMsgToChar(msg + "\r\n", ch);
+}
+
 int FindCastTarget(ESpell spell_id, const char *t, CharData *ch, CharData **tch, ObjData **tobj, RoomData **troom) {
 	*tch = nullptr;
 	*tobj = nullptr;
@@ -554,14 +580,14 @@ int FindCastTarget(ESpell spell_id, const char *t, CharData *ch, CharData **tch,
 
 	if (spell_id == ESpell::kControlWeather) {
 		if ((what_sky = search_block(t, what_sky_type, false)) < 0) {
-			SendMsgToChar("Не указан тип погоды.\r\n", ch);
+			SendNoTargetMsg(spell_id, ch);
 			return false;
 		} else
 			what_sky >>= 1;
 	}
 	if (spell_id == ESpell::kCreateWeapon) {
 		if ((what_sky = search_block(t, what_weapon, false)) < 0) {
-			SendMsgToChar("Не указан тип оружия.\r\n", ch);
+			SendNoTargetMsg(spell_id, ch);
 			return false;
 		} else
 			what_sky = 5 + (what_sky >> 1);
@@ -645,15 +671,10 @@ int FindCastTarget(ESpell spell_id, const char *t, CharData *ch, CharData **tch,
 		}
 	}
 	// TODO: добавить обработку TAR_ROOM_DIR и TAR_ROOM_WORLD
-	if (MUD::Spell(spell_id).IsFlagged(kMagWarcry))
-		sprintf(buf, "И на %s же вы хотите так громко крикнуть?\r\n",
-				MUD::Spell(spell_id).AllowTarget(kTarObjRoom | kTarObjInv | kTarObjWorld | kTarObjEquip)
-				? "ЧТО" : "КОГО");
-	else
-		sprintf(buf, "На %s Вы хотите ЭТО колдовать?\r\n",
-				MUD::Spell(spell_id).AllowTarget(kTarObjRoom | kTarObjInv | kTarObjWorld | kTarObjEquip)
-				? "ЧТО" : "КОГО");
-	SendMsgToChar(buf, ch);
+	// Warcry vs regular phrasing is data-driven through the per-spell kNoTarget
+	// override (issue.spell-msg-improve): warcry sheaves carry the "так громко
+	// крикнуть" variant; the kDefault sheaf has the regular line.
+	SendNoTargetMsg(spell_id, ch);
 	return false;
 }
 
