@@ -11,14 +11,14 @@
 
 const char* REVISION = "$ Build revision: ${REVISION} $";
 const char* revision = "${REVISION}";
-const char* build_datetime = __DATE__ " " __TIME__;
+const char* build_datetime = "${BUILD_DATETIME}";
 const char* build_compiler = "${BUILD_COMPILER}";
 const char* build_features = "${BUILD_FEATURES}";
 
 void ShowBuildInfo(CharData *ch) {
-  SendMsgToChar(ch, "МПМ Былины, версия от %s, ревизия: %s\n", build_datetime, revision);
+  SendMsgToChar(ch, "п°п÷п° п▒я▀п╩п╦п╫я▀, п╡п╣я─я│п╦я▐ п╬я┌ %s, я─п╣п╡п╦п╥п╦я▐: %s\n", build_datetime, revision);
   if (ch->IsImmortal()) {
-    SendMsgToChar(ch, "Собрано компилятором %s\nДоступные фичи: %s\n", build_compiler, build_features);
+    SendMsgToChar(ch, "п║п╬п╠я─п╟п╫п╬ п╨п╬п╪п©п╦п╩я▐я┌п╬я─п╬п╪ %s\nп■п╬я│я┌я┐п©п╫я▀п╣ я└п╦я┤п╦: %s\n", build_compiler, build_features);
   }
 }
 
