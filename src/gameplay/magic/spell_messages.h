@@ -30,7 +30,14 @@
  */
 enum class ESpellMsg {
 	kUndefined = 0,
-	kPointsToVict,		// CastToPoints: effect felt by the target of a points/heal spell.
+	// CastToPoints per-category narration (issue.point-bugs #2): one message per
+	// non-zero amount, emitted in heal/moves/thirst/full order to the target via
+	// act() with kToChar. The {intensity} placeholder substitutes from points.xml.
+	// Replaced the old composite kPointsToVict key.
+	kHealToVict,
+	kMovesToVict,
+	kThirstToVict,
+	kFullToVict,
 	kAreaToChar,		// CallMagicToArea: cast message to the caster.
 	kAreaToRoom,		// CallMagicToArea: cast message to the room.
 	kAreaToVict,		// CallMagicToArea: message to each affected target.

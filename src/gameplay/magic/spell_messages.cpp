@@ -14,7 +14,10 @@ template<>
 const std::string &NAME_BY_ITEM<ESpellMsg>(const ESpellMsg item) {
 	static const std::map<ESpellMsg, std::string> kMap{
 		{ESpellMsg::kUndefined, "kUndefined"},
-		{ESpellMsg::kPointsToVict, "kPointsToVict"},
+		{ESpellMsg::kHealToVict, "kHealToVict"},
+		{ESpellMsg::kMovesToVict, "kMovesToVict"},
+		{ESpellMsg::kThirstToVict, "kThirstToVict"},
+		{ESpellMsg::kFullToVict, "kFullToVict"},
 		{ESpellMsg::kAreaToChar, "kAreaToChar"},
 		{ESpellMsg::kAreaToRoom, "kAreaToRoom"},
 		{ESpellMsg::kAreaToVict, "kAreaToVict"},
@@ -97,7 +100,10 @@ template<>
 ESpellMsg ITEM_BY_NAME<ESpellMsg>(const std::string &name) {
 	static const std::map<std::string, ESpellMsg> kMap{
 		{"kUndefined", ESpellMsg::kUndefined},
-		{"kPointsToVict", ESpellMsg::kPointsToVict},
+		{"kHealToVict", ESpellMsg::kHealToVict},
+		{"kMovesToVict", ESpellMsg::kMovesToVict},
+		{"kThirstToVict", ESpellMsg::kThirstToVict},
+		{"kFullToVict", ESpellMsg::kFullToVict},
 		{"kAreaToChar", ESpellMsg::kAreaToChar},
 		{"kAreaToRoom", ESpellMsg::kAreaToRoom},
 		{"kAreaToVict", ESpellMsg::kAreaToVict},

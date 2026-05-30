@@ -239,7 +239,10 @@ class Points : public IAction {
 	Amount heal_;
 	Amount moves_;
 	Amount thirst_;
-	Amount cond_;
+	// Hunger axis. Named `full_` (XML tag <full>) since the engine COND[FULL] field
+	// is the hunger counter; the parent overall-state name "cond" is reserved for the
+	// whole condition triplet, not just hunger (issue.point-bugs #3).
+	Amount full_;
  public:
 	explicit Points(parser_wrapper::DataNode &node);
 	[[nodiscard]] bool IsExtra() const { return extra_; }
@@ -247,7 +250,7 @@ class Points : public IAction {
 	[[nodiscard]] const Amount &GetHeal()   const { return heal_; }
 	[[nodiscard]] const Amount &GetMoves()  const { return moves_; }
 	[[nodiscard]] const Amount &GetThirst() const { return thirst_; }
-	[[nodiscard]] const Amount &GetCond()   const { return cond_; }
+	[[nodiscard]] const Amount &GetFull()   const { return full_; }
 
 	void Print(CharData *ch, std::ostringstream &buffer) const override;
 };

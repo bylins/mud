@@ -1,23 +1,39 @@
 <?xml version="1.0" encoding="koi8-r"?>
 <!--
-    Intensity-grade vocabulary for CastToPoints narration (issue.mag-points).
-    Each <heal>/<moves>/<thirst>/<cond> section carries an <improve> list of
-    <grade percent= text=/> rows; the lookup picks the highest tier whose
-    threshold the computed intensity strictly exceeds. text= may carry act()
-    suffix codes - $h (soft-stem instrumental, "посвежевшим/посвежевшей"),
-    $r (hard-stem instrumental, "новым/новой") - which resolve against the
-    target's gender at send time.
+    Intensity-grade vocabulary for CastToPoints narration (issue.mag-points
+    + issue.point-bugs).
 
-    <degrade> sections are parsed but currently empty; CastToPoints will skip
-    intensity substitution when the percent is negative until designers fill
-    them in.
+    Each <heal>/<moves>/<thirst>/<full> section carries <improve> and
+    <degrade> lists of <grade percent= text=/> rows. The lookup picks the
+    largest threshold T such that T <= input (walk descending), so both
+    directions share a single algorithm and the tier whose threshold the
+    input has crossed wins.
 
-    Percent thresholds use strict ">" comparison (top-down). A 50% restore
-    matches the >25 row, not the >50 row.
+    text= may carry act() suffix codes - $h (soft-stem instrumental,
+    "посвежевшим/посвежевшей"), $r (hard-stem instrumental, "новым/новой") -
+    which resolve against the target's gender at send time.
+
+    Percent conventions:
+      heal   improve: amount / max_hp     (positive, 0..100)
+      heal   degrade: empty -- heal stays positive-only by design
+      moves  improve: amount / max_moves  (positive, 0..100)
+      moves  degrade: amount / max_moves  (negative, -100..0)
+      thirst improve: removed / current   (positive, 0..100)
+      thirst degrade: -(cond_after * 100) / kMaxCondition   (negative)
+      full   improve: removed / current   (positive, 0..100)
+      full   degrade: -(cond_after * 100) / kMaxCondition   (negative)
+
+    For thirst/full DEGRADE the formula uses the AFTER-state of the
+    inverted engine field (kMaxCondition = 48): a thirstier/hungrier
+    character lands a more-negative percent and matches a more-extreme
+    tier. The improve formula keeps its "fraction of current thirst/hunger
+    relieved" sense and yields positive percents.
 -->
 <points_intensity>
 
-    <!-- HEAL: percent = restored HP / max HP * 100. -->
+    <!-- HEAL: improve % = amount / max_hp; degrade unused (heal stays
+         positive-only by design; designers may fill <degrade> if a
+         heal-drain spell is ever introduced). -->
     <heal>
         <improve>
             <grade percent="99" text="полностью исцелённ$r"/>
@@ -35,7 +51,8 @@
         </degrade>
     </heal>
 
-    <!-- MOVES: percent = restored moves / max moves * 100. -->
+    <!-- MOVES: improve % = restored / max_moves;
+         degrade % = drain / max_moves (negative). -->
     <moves>
         <improve>
             <grade percent="99" text="полностью отдохнувш$h"/>
@@ -49,12 +66,15 @@
             <grade percent="-80" text="сильно уставш$h"/>
             <grade percent="-60" text="уставш$h"/>
             <grade percent="-40" text="немного уставш$h"/>
-            <grade percent="-20"  text="слегшка уставш$h"/>
+            <grade percent="-20" text="слегшка уставш$h"/>
         </degrade>
     </moves>
 
-    <!-- THIRST: percent = removed thirst / current thirst * 100.
-         (Engine field is inverted; CastToPoints negates before gain_condition.) -->
+    <!-- THIRST: improve % = removed thirst / current thirst (engine field is
+         inverted, CastToPoints negates the talent amount before
+         gain_condition). Degrade % = -(thirst_after * 100) / 48 -- the
+         after-state's saturation on the 0..48 scale, signed negative so a
+         thirstier outcome lands a more-negative tier. -->
     <thirst>
         <improve>
             <grade percent="99" text="полностью утоливш$h жажду"/>
@@ -64,16 +84,19 @@
             <grade percent="0"  text="едва менее жаждущ$h"/>
         </improve>
         <degrade>
-            <grade percent="10" text="полность иссушенн$x"/>
-            <grade percent="30" text="иссушенн$x"/>
-            <grade percent="60" text="жаждущ$h глотка воды"/>
-            <grade percent="80" text="желающ$h пить"/>
-            <grade percent="99"  text="слегка желающ$h пить"/>
+            <grade percent="-95" text="полностью иссушенн$h"/>
+            <grade percent="-75" text="иссушенн$h"/>
+            <grade percent="-55" text="жаждущ$h глотка воды"/>
+            <grade percent="-30" text="желающ$h пить"/>
+            <grade percent="-10" text="слегка желающ$h пить"/>
         </degrade>
     </thirst>
 
-    <!-- COND (hunger): percent = removed FULL / current FULL * 100. -->
-    <cond>
+    <!-- FULL (hunger): improve % = removed FULL / current FULL (engine
+         field is inverted, CastToPoints negates before gain_condition).
+         Degrade % = -(full_after * 100) / 48. Renamed from <cond> in
+         issue.point-bugs to free "cond" for the overall triplet name. -->
+    <full>
         <improve>
             <grade percent="99" text="наевш$hся до отвала"/>
             <grade percent="75" text="крепко наевш$hся"/>
@@ -82,13 +105,13 @@
             <grade percent="0"  text="едва менее голодн$r"/>
         </improve>
         <degrade>
-            <grade percent="10" text="умирающ$h с голоду"/>
-            <grade percent="30" text="изголодавш$hся"/>
-            <grade percent="60" text="сильно голод$r"/>
-            <grade percent="80" text="голодн$r"/>
-            <grade percent="99"  text="желающ$h перекусить"/>
+            <grade percent="-95" text="умирающ$h с голоду"/>
+            <grade percent="-75" text="изголодавш$hся"/>
+            <grade percent="-55" text="сильно голод$r"/>
+            <grade percent="-30" text="голодн$r"/>
+            <grade percent="-10" text="желающ$h перекусить"/>
         </degrade>
-    </cond>
+    </full>
 
     <!-- DAMAGE (issue.mag-points step 2): substituted into the {intensity}
          placeholder on kFightHit* messages by SendCombatMessages in

@@ -16,7 +16,7 @@ namespace {
 // XML category names lined up with the ECategory enum. Indexed by the
 // ECategory underlying value so the load loop stays trivial.
 constexpr std::array<const char *, static_cast<size_t>(ECategory::kCount)>
-		kCategoryNames{"heal", "moves", "thirst", "cond", "damage"};
+		kCategoryNames{"heal", "moves", "thirst", "full", "damage"};
 
 // Parse a <grade percent= text=/> element into a Grade. Skips entries with
 // no text -- the table only stores actionable rows.
@@ -33,8 +33,8 @@ bool ParseGrade(parser_wrapper::DataNode &node, Grade &out) {
 
 // Parse all <grade .../> children of `direction_node` into `grades`. The
 // direction_node should already be positioned at <improve> or <degrade>.
-// Sorts the result descending by percent (so the highest tier matches first
-// in the linear walk that Resolve uses).
+// Sorts the result descending by percent so Resolve's single linear walk hits
+// the highest tier whose threshold the input has reached, in either direction.
 void ParseDirection(parser_wrapper::DataNode direction_node, std::vector<Grade> &grades) {
 	grades.clear();
 	for (auto &child : direction_node.Children()) {
@@ -46,11 +46,13 @@ void ParseDirection(parser_wrapper::DataNode direction_node, std::vector<Grade> 
 			grades.push_back(std::move(g));
 		}
 	}
-	// Descending sort for improve (positive percents); for degrade the natural
-	// "most negative first" order matches a descending sort by `percent` too
-	// (-99 > -75 > -50 from the int-comparison standpoint is FALSE -- -99 is
-	// smaller than -75). So degrade needs ASCENDING sort instead.
-	// We don't know which list this is at parse time; the caller flips it.
+	// One sort direction (descending by signed percent) serves both improve and
+	// degrade tables: improve thresholds are positive so descending = strongest
+	// first; degrade thresholds are negative so descending puts the LEAST
+	// negative (weakest) first. Resolve walks this order and returns the first
+	// tier the input has reached (largest T such that T <= input), which yields
+	// the strongest crossed threshold in either direction. (issue.point-bugs #5
+	// retired the separate std::reverse for degrade.)
 	std::sort(grades.begin(), grades.end(),
 		[](const Grade &a, const Grade &b) { return a.percent > b.percent; });
 }
@@ -76,12 +78,10 @@ void PointsIntensity::Reload(const parser_wrapper::DataNode &node_in) {
 			node.GoToParent();
 		}
 		if (node.GoToChild("degrade")) {
+			// issue.point-bugs #5: keep the descending sort produced by
+			// ParseDirection. Resolve uses the same "largest T such that
+			// T <= input" walk for both improve and degrade.
 			ParseDirection(node, cat.degrade);
-			// Degrade grades use negative percent values; the descending sort
-			// from ParseDirection puts least-negative first. Reverse to get
-			// most-negative-first so Resolve picks the strongest tier the
-			// input drops below.
-			std::reverse(cat.degrade.begin(), cat.degrade.end());
 			node.GoToParent();
 		}
 		node.GoToParent();
@@ -94,22 +94,19 @@ const std::string &PointsIntensity::Resolve(ECategory category, int percent) con
 		return kEmpty;
 	}
 	const auto &cat = categories_[static_cast<size_t>(category)];
-	if (percent >= 0) {
-		// Improve table is sorted DESCENDING. First grade whose threshold the
-		// input strictly exceeds wins -- so >99 matches the >99 tier, 75
-		// matches the >50 tier (since 75 > 50 but not > 75), etc.
-		for (const auto &g : cat.improve) {
-			if (percent > g.percent) {
-				return g.text;
-			}
-		}
-		return kEmpty;
-	}
-	// Degrade table is sorted MOST-NEGATIVE-FIRST. First grade whose threshold
-	// the input strictly subverts wins -- so -99 matches the <-99 tier, -50
-	// matches the <-25 tier.
-	for (const auto &g : cat.degrade) {
-		if (percent < g.percent) {
+	// Unified algorithm (issue.point-bugs #5): walk descending and return the
+	// first tier T such that T <= input. That picks the largest signed
+	// threshold the input has reached, which is the strongest crossed tier
+	// in both directions:
+	//   improve (input >= 0): input=35 matches tier 35 (T=35 <= 35), input=80
+	//     matches tier 75 (T=99 fails, T=75 wins).
+	//   degrade (input <  0): input=-38 matches tier -40 (T in {-20,-40,...},
+	//     -20 fails since -20 > -38, -40 wins since -40 <= -38).
+	// An input below the weakest threshold returns an empty string -- callers
+	// (CastToPoints) treat that as "no narration this category."
+	const auto &table = (percent >= 0) ? cat.improve : cat.degrade;
+	for (const auto &g : table) {
+		if (g.percent <= percent) {
 			return g.text;
 		}
 	}

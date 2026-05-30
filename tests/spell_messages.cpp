@@ -24,9 +24,10 @@ TEST(SpellMessages, UndefinedKeepsCanonicalName) {
 }
 
 TEST(SpellMessages, ESpellMsgNameRoundTrip) {
-	EXPECT_EQ(ESpellMsg::kPointsToVict, ITEM_BY_NAME<ESpellMsg>("kPointsToVict"));
-	EXPECT_EQ(ESpellMsg::kPointsToVict, parse::ReadAsConstant<ESpellMsg>("kPointsToVict"));
-	EXPECT_EQ("kPointsToVict", NAME_BY_ITEM<ESpellMsg>(ESpellMsg::kPointsToVict));
+	// issue.point-bugs #2: kPointsToVict replaced by per-category keys.
+	EXPECT_EQ(ESpellMsg::kHealToVict, ITEM_BY_NAME<ESpellMsg>("kHealToVict"));
+	EXPECT_EQ(ESpellMsg::kHealToVict, parse::ReadAsConstant<ESpellMsg>("kHealToVict"));
+	EXPECT_EQ("kHealToVict", NAME_BY_ITEM<ESpellMsg>(ESpellMsg::kHealToVict));
 
 	for (const auto type : {ESpellMsg::kAreaToChar, ESpellMsg::kAreaToRoom, ESpellMsg::kAreaToVict,
 							ESpellMsg::kCantCastSleeping, ESpellMsg::kCantCastResting,

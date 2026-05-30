@@ -337,7 +337,7 @@ Points::Points(parser_wrapper::DataNode &node) {
 	ParsePointsAmount(node, "heal",   heal_,   /*with_npc=*/true);
 	ParsePointsAmount(node, "moves",  moves_,  false);
 	ParsePointsAmount(node, "thirst", thirst_, false);
-	ParsePointsAmount(node, "cond",   cond_,   false);
+	ParsePointsAmount(node, "full",   full_,   false);
 }
 
 static void PrintAmount(std::ostringstream &buffer, const char *label,
@@ -358,7 +358,7 @@ void Points::Print(CharData */*ch*/, std::ostringstream &buffer) const {
 	PrintAmount(buffer, "Heal",   heal_,   /*with_npc=*/true);
 	PrintAmount(buffer, "Moves",  moves_,  false);
 	PrintAmount(buffer, "Thirst", thirst_, false);
-	PrintAmount(buffer, "Cond",   cond_,   false);
+	PrintAmount(buffer, "Full",   full_,   false);
 }
 
 

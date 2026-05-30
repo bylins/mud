@@ -4,13 +4,16 @@
 \authors Created for issue.mag-points.
 \brief Intensity-grade vocabulary for CastToPoints narration.
 \details Loads lib/cfg/mechanics/points.xml at boot. Each of the four
-		 restoration categories (heal / moves / thirst / cond) carries an
-		 ordered list of <grade percent= text="..."/> entries; given a
-		 computed intensity percentage, Resolve() returns the text of the
-		 highest tier whose threshold the percentage exceeds.
+		 restoration categories (heal / moves / thirst / full) carries
+		 <improve> and <degrade> lists of <grade percent= text="..."/>
+		 entries; given a computed intensity percentage, Resolve() returns
+		 the text of the highest tier whose threshold the percentage has
+		 reached.
 
-		 Lookup pseudo-code: walk grades sorted descending by percent;
-		 return the first whose `percent` is strictly less than the input.
+		 Lookup pseudo-code: walk grades sorted descending by signed
+		 percent; return the first whose `percent` is <= the input
+		 (issue.point-bugs #5 -- unified for improve and degrade, was
+		 strict < with a special-case reverse for degrade).
 
 		 The returned text is fed through act() so suffix codes like $h /
 		 $r / $g resolve against the target's gender on emission.
@@ -29,13 +32,14 @@
 namespace points_intensity {
 
 // One restoration category in the table. Indexed by the order in which the
-// XML's <heal>/<moves>/<thirst>/<cond> sections appear -- ECategory is the
+// XML's <heal>/<moves>/<thirst>/<full> sections appear -- ECategory is the
 // canonical key used in the public API.
 enum class ECategory {
 	kHeal   = 0,
 	kMoves  = 1,
 	kThirst = 2,
-	kCond   = 3,
+	kFull   = 3,   // hunger axis (engine COND[FULL]; XML tag <full>, renamed from <cond>
+	               // in issue.point-bugs to free "cond" for the overall-state triplet).
 	kDamage = 4,   // weapon-hit narration (issue.mag-points step 2: hit_msg.xml
 	               // grading retired). Percentage formula = damage * 100 / striker's
 	               // max HP (every viewer sees the same scale). Top tier crosses 150%.
@@ -43,7 +47,9 @@ enum class ECategory {
 };
 
 struct Grade {
-	int percent{0};      // strict lower bound -- the tier matches when input > percent.
+	int percent{0};      // lower bound (inclusive) -- tier matches when percent <= input
+	                     // (issue.point-bugs #5: was "strict <", changed to "<=" so input
+	                     // exactly at the threshold maps to that threshold's tier).
 	std::string text;    // act()-ready string, may contain $h/$r/etc. suffix codes.
 };
 

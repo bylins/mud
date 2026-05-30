@@ -17,6 +17,7 @@
 #include "magic_rooms.h"  // room-affect helpers reused by CastUnaffects' room branch (issue.room-dispell)
 
 #include "gameplay/core/game_limits.h"  // gain_condition (issue.mag-points)
+#include "gameplay/mechanics/liquid.h"   // kMaxCondition (issue.point-bugs thirst/full degrade)
 #include "engine/core/action_targeting.h"
 //#include "gameplay/affects/affect_handler.h"
 #include "gameplay/affects/affect_data.h"
@@ -1618,13 +1619,126 @@ static bool MaybeSpawnAdditionalClones(int level, CharData *ch, ObjData *obj, ES
 	return true;
 }
 
+// Helpers driving the per-category CastToPoints refactor (issue.point-bugs).
+namespace {
+
+// One row of the four-category dispatch table. The Amount lives in TalentPoints
+// and gates whether this category fires at all (skip if !present, no calc_amount
+// invocation -- the eager-compute waste was issue.point-bugs #1).
+struct PointsCategory {
+	points_intensity::ECategory cat;
+	ESpellMsg msg_key;
+	const talents_actions::Points::Amount &amount;
+};
+
+// Lambda factored out for clarity: turns a Points::Amount into a signed delta
+// using the shared (dice, competencies, bonus_mod) trio captured by reference.
+// Heal carries an npc_coeff multiplier (legacy default 1.0 ~ +100% for mobs);
+// non-heal categories default to 0 (no NPC boost).
+auto MakeAmountCalculator(const CharData *ch, double dice, double competencies, double bonus_mod) {
+	return [ch, dice, competencies, bonus_mod](const talents_actions::Points::Amount &a) -> int {
+		int v = static_cast<int>(a.min + std::ceil(dice * a.dices_weight
+												  + competencies * a.competencies_weight));
+		v += static_cast<int>(v * bonus_mod);
+		if (ch->IsNpc()) {
+			v += static_cast<int>(v * a.npc_coeff);
+		}
+		return v;
+	};
+}
+
+// Per-category percent formula for the {intensity} placeholder. issue.point-bugs #5+#6:
+// - heal/moves use amount-relative percent (positive on improve, negative on degrade).
+// - thirst/full IMPROVE uses "fraction of current condition relieved" (positive 0..100).
+// - thirst/full DEGRADE uses signed percent of the AFTER-state on the 0..48 scale, so a
+//   thirstier/hungrier outcome lands a more-negative tier in the unified Resolve walk.
+int ComputePointsPercent(points_intensity::ECategory cat, int amount, CharData *victim) {
+	using points_intensity::ECategory;
+	switch (cat) {
+		case ECategory::kHeal: {
+			const int max_hp = victim->get_real_max_hit();
+			return (max_hp > 0) ? (amount * 100) / max_hp : 0;
+		}
+		case ECategory::kMoves: {
+			const int max_mv = victim->get_real_max_move();
+			return (max_mv > 0) ? (amount * 100) / max_mv : 0;
+		}
+		case ECategory::kThirst:
+		case ECategory::kFull: {
+			const unsigned cond_idx = (cat == ECategory::kThirst) ? THIRST : FULL;
+			if (amount >= 0) {
+				// Improve: fraction of current discomfort relieved.
+				const int current = GET_COND(victim, cond_idx);
+				const int removed = (current > 0) ? std::min(amount, current) : 0;
+				return (current > 0) ? (removed * 100) / current : 0;
+			}
+			// Degrade: signed percent of the after-state on the kMaxCondition scale.
+			// gain_condition clamps to [0, kMaxCondition] so we predict the same here.
+			const int before = GET_COND(victim, cond_idx);
+			const int raw_after = before + (-amount);   // amount<0 means XML "make worse"
+			const int after = std::clamp(raw_after, 0, kMaxCondition);
+			return -(after * 100) / kMaxCondition;
+		}
+		default:
+			return 0;
+	}
+}
+
+// Resolve {intensity} and act() the message. Silent when the sheaf has nothing
+// for this category, or when an {intensity} placeholder resolves to empty
+// (would otherwise emit "Вы почувствовали себя ." with a dangling period).
+// Templated on Sheaf to avoid spelling out msg_container::MsgSheaf<ESpell,ESpellMsg>;
+// MUD::SpellMessages()[id] always returns the right type.
+template<typename Sheaf>
+void EmitPointsMessage(CharData *victim, const Sheaf &sheaf,
+					   ESpellMsg key, points_intensity::ECategory cat, int percent) {
+	if (!sheaf.HasMessage(key)) return;
+	std::string msg = sheaf.GetMessage(key);
+	const auto pos = msg.find("{intensity}");
+	if (pos != std::string::npos) {
+		const std::string &grade = MUD::PointsIntensity().Resolve(cat, percent);
+		if (grade.empty()) return;
+		msg.replace(pos, std::strlen("{intensity}"), grade);
+	}
+	// $h / $r / $g resolve against victim's gender; route through act(). The
+	// vict slot is `victim` itself so the message stays kToChar-only --
+	// designers can add a separate kToRoom variant later if they want bystanders
+	// to witness the effect.
+	act(msg.c_str(), false, victim, nullptr, victim, kToChar);
+}
+
+// Apply heal: positive only (the <degrade> heal table is intentionally empty;
+// a negative <heal> amount silently no-ops -- damage paths go through CastDamage).
+// Lacerations halves a normal heal; kExtra opens an overheal cap of +33% max HP.
+void ApplyHeal(CharData *victim, int hit, bool extra) {
+	if (hit <= 0) return;
+	if (victim->get_hit() >= kMaxHits) return;
+	if (!extra && victim->get_hit() < victim->get_real_max_hit()) {
+		if (AFF_FLAGGED(victim, EAffect::kLacerations)) {
+			victim->set_hit(std::min(victim->get_hit() + hit / 2, victim->get_real_max_hit()));
+		} else {
+			victim->set_hit(std::min(victim->get_hit() + hit, victim->get_real_max_hit()));
+		}
+	}
+	if (extra) {
+		if (victim->get_real_max_hit() <= 0) {
+			victim->set_hit(std::max(victim->get_hit(), std::min(victim->get_hit() + hit, 1)));
+		} else {
+			victim->set_hit(std::clamp(victim->get_hit() + hit, victim->get_hit(),
+					victim->get_real_max_hit() + victim->get_real_max_hit() * 33 / 100));
+		}
+	}
+}
+
+}  // namespace
+
 EStageResult CastToPoints([[maybe_unused]] int level, CharData *ch, CharData *victim, ESpell spell_id) {
 	if (victim == nullptr) {
 		log("MAG_POINTS: Ошибка! Не указана цель, spell_id: %d!\r\n", to_underlying(spell_id));
 		return EStageResult::kSuccess;
 	}
 	// Fully data-driven (issue.mag-points): every category (heal / moves /
-	// thirst / cond) lives in the spell's <points> block. Spells without one
+	// thirst / full) lives in the spell's <points> block. Spells without one
 	// are misconfigured -- log and skip rather than crash.
 	if (!MUD::Spell(spell_id).actions.Contains(talents_actions::EAction::kPoints)) {
 		mudlog(fmt::format("SYSERR: spell {} ({}) has no <points> block, CastToPoints skipped",
@@ -1647,139 +1761,79 @@ EStageResult CastToPoints([[maybe_unused]] int level, CharData *ch, CharData *vi
 	const double dice = potency_roll.RollSkillDices();
 	const double competencies = potency_roll.CalcSkillCoeff(ch) + potency_roll.CalcBaseStatCoeff(ch);
 	const double bonus_mod = ch->add_abils.percent_spellpower_add / 100.0;
+	auto calc_amount = MakeAmountCalculator(ch, dice, competencies, bonus_mod);
 
-	// One amount in "XML-natural" units: positive = restore (HP / moves) or
-	// positive = "feels better" for thirst/cond (the engine fields are
-	// inverted -- 0 = sated -- so CastToPoints negates the result before
-	// calling gain_condition). Negative XML = drain / make worse.
-	auto calc_amount = [&](const talents_actions::Points::Amount &a) -> int {
-		if (!a.present) return 0;
-		int v = static_cast<int>(a.min + std::ceil(dice * a.dices_weight
-												  + competencies * a.competencies_weight));
-		v += static_cast<int>(v * bonus_mod);
-		if (ch->IsNpc()) {
-			// npc_coeff defaults to 0 for non-heal amounts (no boost) and to
-			// 1.0 for heal (the legacy default; *2 effective).
-			v += static_cast<int>(v * a.npc_coeff);
-		}
-		return v;
+	// Per-category dispatch. issue.point-bugs #1: only present categories run
+	// through calc_amount and reach the apply/emit pass; spells with a single
+	// <heal> tag won't touch the moves/thirst/full math at all.
+	const PointsCategory categories[] = {
+		{points_intensity::ECategory::kHeal,   ESpellMsg::kHealToVict,   points.GetHeal()},
+		{points_intensity::ECategory::kMoves,  ESpellMsg::kMovesToVict,  points.GetMoves()},
+		{points_intensity::ECategory::kThirst, ESpellMsg::kThirstToVict, points.GetThirst()},
+		{points_intensity::ECategory::kFull,   ESpellMsg::kFullToVict,   points.GetFull()},
 	};
 
-	int hit    = calc_amount(points.GetHeal());
-	int move   = calc_amount(points.GetMoves());
-	int thirst = calc_amount(points.GetThirst());
-	int cond   = calc_amount(points.GetCond());
-
-	// Legacy spell-modifier hook only applied to heal historically; keep that
-	// scoped to hit so existing /gear effects don't suddenly scale moves etc.
-	hit = CalcComplexSpellMod(ch, spell_id, GAPPLY_SPELL_EFFECT, hit);
-
-	// kPointsToVict: shown only when at least one category produced a
-	// non-zero amount. (Clamps below may still zero the actual delta if
-	// already at cap, but the cast did try to do something -- consistent
-	// with the legacy "show on hit != 0" semantics, generalised.)
-	const auto &points_sheaf = MUD::SpellMessages()[spell_id];
-	const bool any_amount = (hit != 0 || move != 0 || thirst != 0 || cond != 0);
-	if (points_sheaf.HasMessage(ESpellMsg::kPointsToVict) && any_amount) {
-		// Pick the "dominant" category for the {intensity} placeholder. The
-		// preference order matches the natural hierarchy of restoration:
-		// heal > moves > thirst > cond. The percentage formula differs per
-		// category -- restored / max for heal+moves, removed / current for
-		// thirst/cond (the latter measuring how much of the player's existing
-		// thirst/hunger was cleared). See points.xml for the grade tables.
-		points_intensity::ECategory cat = points_intensity::ECategory::kHeal;
-		int percent = 0;
-		if (hit != 0) {
-			cat = points_intensity::ECategory::kHeal;
-			const int max_hp = victim->get_real_max_hit();
-			percent = (max_hp > 0) ? (hit * 100) / max_hp : 0;
-		} else if (move != 0) {
-			cat = points_intensity::ECategory::kMoves;
-			const int max_mv = victim->get_real_max_move();
-			percent = (max_mv > 0) ? (move * 100) / max_mv : 0;
-		} else if (thirst != 0) {
-			cat = points_intensity::ECategory::kThirst;
-			// Engine field stores "thirst level": XML positive thirst means
-			// REMOVE that many from the field. Effective delta is capped by
-			// current thirst -- you can't go below 0. The intensity reads as
-			// "what fraction of the current discomfort did we remove?"
-			const int current = GET_COND(victim, THIRST);
-			const int removed = (current > 0) ? std::min(thirst, current) : 0;
-			percent = (current > 0) ? (removed * 100) / current : 0;
-		} else if (cond != 0) {
-			cat = points_intensity::ECategory::kCond;
-			const int current = GET_COND(victim, FULL);
-			const int removed = (current > 0) ? std::min(cond, current) : 0;
-			percent = (current > 0) ? (removed * 100) / current : 0;
+	int amounts[std::size(categories)] = {0, 0, 0, 0};
+	bool any_amount = false;
+	for (size_t i = 0; i < std::size(categories); ++i) {
+		const auto &c = categories[i];
+		if (!c.amount.present) continue;
+		int amt = calc_amount(c.amount);
+		// Legacy spell-modifier hook only ever applied to heal; keep that
+		// scoped to the heal slot so /gear effects don't suddenly scale moves.
+		if (c.cat == points_intensity::ECategory::kHeal) {
+			amt = CalcComplexSpellMod(ch, spell_id, GAPPLY_SPELL_EFFECT, amt);
 		}
-		std::string msg = points_sheaf.GetMessage(ESpellMsg::kPointsToVict);
-		// Substitute {intensity} when present and resolution yields text. If
-		// the placeholder is absent the message is sent verbatim (designers
-		// can opt out of grading on a per-spell basis just by leaving the
-		// placeholder out of their text).
-		const auto pos = msg.find("{intensity}");
-		if (pos != std::string::npos) {
-			const std::string &grade =
-					MUD::PointsIntensity().Resolve(cat, percent);
-			if (grade.empty()) {
-				// Nothing to say at this intensity -- drop the message
-				// entirely rather than emit "Вы почувствовали себя ." with
-				// a dangling space + period.
-				msg.clear();
-			} else {
-				msg.replace(pos, std::strlen("{intensity}"), grade);
-			}
-		}
-		if (!msg.empty()) {
-			// Route through act() so $h / $r / $g resolve against the
-			// target's gender. We send to char only (`kToChar`); the room
-			// already gets its own narration via other channels.
-			act(msg.c_str(), false, victim, nullptr, victim, kToChar);
-		}
+		amounts[i] = amt;
+		if (amt != 0) any_amount = true;
 	}
 
-	// Aggro consequence: buffing your fighting buddy is still PK-relevant.
-	// Generalised from "hit only" to "any non-zero amount".
-	if ((hit != 0 || move != 0 || thirst != 0 || cond != 0)
-			&& victim->GetEnemy() && ch != victim) {
-		if (!pk_agro_action(ch, victim->GetEnemy()))
+	// Aggro consequence: buffing (or draining) your fighting buddy is still
+	// PK-relevant. Single check on the aggregate `any_amount`, BEFORE applying
+	// effects so a refused action zeroes nothing.
+	if (any_amount && victim->GetEnemy() && ch != victim) {
+		if (!pk_agro_action(ch, victim->GetEnemy())) {
 			return EStageResult::kSuccess;
-	}
-
-	// --- HEAL --------------------------------------------------------------
-	if (hit != 0 && victim->get_hit() < kMaxHits) {
-		const bool extra = points.IsExtra();
-		if (!extra && victim->get_hit() < victim->get_real_max_hit()) {
-			if (AFF_FLAGGED(victim, EAffect::kLacerations)) {
-				victim->set_hit(std::min(victim->get_hit() + hit / 2, victim->get_real_max_hit()));
-			} else {
-				victim->set_hit(std::min(victim->get_hit() + hit, victim->get_real_max_hit()));
-			}
-		}
-		if (extra) {
-			if (victim->get_real_max_hit() <= 0) {
-				victim->set_hit(std::max(victim->get_hit(), std::min(victim->get_hit() + hit, 1)));
-			} else {
-				victim->set_hit(std::clamp(victim->get_hit() + hit, victim->get_hit(),
-						victim->get_real_max_hit() + victim->get_real_max_hit() * 33 / 100));
-			}
 		}
 	}
 
-	// --- MOVES -------------------------------------------------------------
-	if (move != 0) {
-		// Positive: restore (clamped at max). Negative: drain (clamped at 0).
-		const int target = std::clamp(victim->get_move() + move, 0, victim->get_real_max_move());
-		victim->set_move(target);
+	// Apply + narrate per category (issue.point-bugs #2: one message per
+	// non-zero amount, emitted in heal/moves/thirst/full order). The percent
+	// formula reads the BEFORE-state for thirst/full degrade, so the message
+	// for each category is emitted right after that category is applied to
+	// keep its "after-state" math accurate when later categories also fire.
+	const auto &points_sheaf = MUD::SpellMessages()[spell_id];
+	for (size_t i = 0; i < std::size(categories); ++i) {
+		const int amt = amounts[i];
+		if (amt == 0) continue;
+		const auto &c = categories[i];
+		// Compute percent for narration BEFORE we mutate the victim's state, so
+		// the thirst/full degrade formula sees the pre-spell condition and
+		// projects the after-state itself (ComputePointsPercent does the same
+		// clamp gain_condition will apply).
+		const int percent = ComputePointsPercent(c.cat, amt, victim);
+		// Apply the actual effect.
+		switch (c.cat) {
+			case points_intensity::ECategory::kHeal:
+				ApplyHeal(victim, amt, points.IsExtra());
+				break;
+			case points_intensity::ECategory::kMoves:
+				// Positive: restore (clamped at max). Negative: drain (clamped at 0).
+				victim->set_move(std::clamp(victim->get_move() + amt, 0, victim->get_real_max_move()));
+				break;
+			case points_intensity::ECategory::kThirst:
+				// XML positive = relieve thirst -> negate for gain_condition
+				// (engine field is inverted; gain_condition clamps to [0, kMaxCondition]).
+				gain_condition(victim, THIRST, -amt);
+				break;
+			case points_intensity::ECategory::kFull:
+				gain_condition(victim, FULL, -amt);
+				break;
+			default:
+				break;
+		}
+		EmitPointsMessage(victim, points_sheaf, c.msg_key, c.cat, percent);
 	}
-
-	// --- THIRST / COND -----------------------------------------------------
-	// XML positive = "make less thirsty/hungry"; engine field is inverted
-	// (0 = sated, higher = thirstier/hungrier). gain_condition handles the
-	// [0, kMaxCondition] clamp + the kDrunked threshold for DRUNK (irrelevant
-	// here since we only touch THIRST/FULL).
-	if (thirst != 0) gain_condition(victim, THIRST, -thirst);
-	if (cond   != 0) gain_condition(victim, FULL,   -cond);
 
 	update_pos(victim);
 	return EStageResult::kSuccess;
