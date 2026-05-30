@@ -61,6 +61,9 @@
 		<message type="kCantCastHereToChar" val="Ваша магия обратилась всего лишь в яркую вспышку!" />
 		<message type="kCantCastHereToRoom" val="Яркая вспышка на миг осветила комнату, и тут же погасла." />
 		<message type="kCastIncantToChar" val="Вы произнесли заклинание &quot;{color}{name}{nrm}&quot;." />
+		<message type="kItemNoPrototype" val="Что-то не видно образа для создания." />
+		<message type="kItemCreatedToChar" val="Вы создали $o3." />
+		<message type="kItemCreatedToRoom" val="$n создал$g $o3." />
 	</msg_sheaf>
 
 	<msg_sheaf id="kCureLight">

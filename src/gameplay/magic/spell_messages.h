@@ -159,6 +159,14 @@ enum class ESpellMsg {
 	// {color}/{name}/{nrm} placeholders substituted at emission. Warcry spells override
 	// with the shouting variant.
 	kCastIncantToChar,
+	// CastCreation narration (issue.spell-msg-improve): item-conjuring spells (kCreateFood
+	// / kCreateWater / kCreateLight / kCreateWeapon). kItemNoPrototype fires when the
+	// world-objects factory can't build the obj (logged as SYSERR too). kItemCreatedTo*
+	// are act()-style with $o = the new object; the kDefault sheaf carries generic text,
+	// per-spell overrides can flavour the narration.
+	kItemNoPrototype,
+	kItemCreatedToChar,
+	kItemCreatedToRoom,
 };
 
 template<>
