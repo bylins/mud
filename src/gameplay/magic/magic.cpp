@@ -1967,16 +1967,18 @@ void ReduceStackOrRemove(CharData *victim, ESpell spell) {
 	}
 }
 
-// Remove one affect (or peel a stack of it) and show its own dispel message (keyed by the removed
-// affect's spell; an affect whose sheaf has no such message shows nothing.
+// Remove one affect (or peel a stack of it) and emit its dispel narration. Lookup is keyed by
+// the REMOVED affect's spell with kDefault fallback, so the per-affect sheaf's bespoke flavor
+// fires when authored (kBlindness, kPoison, kCurse, ...) and the kDefault generic
+// (kAffDispelledTo{Char,Room}) fires for every other affect -- no more silent stripping of
+// common buffs (issue.dispel-default-msg).
 void RemoveAffectAndAnnounce(CharData *ch, CharData *victim, ESpell removed) {
 	ReduceStackOrRemove(victim, removed);
-	const auto &sheaf = MUD::SpellMessages()[removed];
-	const auto &to_vict = sheaf.GetMessage(ESpellMsg::kAffDispelledToChar);
+	const auto &to_vict = MUD::SpellMessages().GetMessage(removed, ESpellMsg::kAffDispelledToChar);
 	if (!to_vict.empty()) {
 		act(to_vict.c_str(), false, victim, nullptr, ch, kToChar);
 	}
-	const auto &to_room = sheaf.GetMessage(ESpellMsg::kAffDispelledToRoom);
+	const auto &to_room = MUD::SpellMessages().GetMessage(removed, ESpellMsg::kAffDispelledToRoom);
 	if (!to_room.empty()) {
 		act(to_room.c_str(), true, victim, nullptr, ch, kToRoom | kToArenaListen);
 	}
@@ -2128,12 +2130,11 @@ void RemoveAffectAndAnnounce(CharData *ch, RoomData *room, ESpell removed) {
 			++it;
 		}
 	}
-	const auto &sheaf = MUD::SpellMessages()[removed];
-	const auto &to_char = sheaf.GetMessage(ESpellMsg::kAffDispelledToChar);
+	const auto &to_char = MUD::SpellMessages().GetMessage(removed, ESpellMsg::kAffDispelledToChar);
 	if (!to_char.empty()) {
 		act(to_char.c_str(), false, ch, nullptr, nullptr, kToChar);
 	}
-	const auto &to_room = sheaf.GetMessage(ESpellMsg::kAffDispelledToRoom);
+	const auto &to_room = MUD::SpellMessages().GetMessage(removed, ESpellMsg::kAffDispelledToRoom);
 	if (!to_room.empty()) {
 		act(to_room.c_str(), true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 	}
