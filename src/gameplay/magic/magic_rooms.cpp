@@ -179,6 +179,116 @@ void AddRoomToAffected(RoomData *room) {
 		affected_rooms.push_back(room);
 }
 
+// Per-tick handler for kDeadlyFog room affect. Each duration step triggers a
+// progressively more harmful cascade against everyone in the room.
+static void HandleDeadlyFogTick(CharData *ch, int duration) {
+	switch (duration) {
+	case 7:
+		SendMsgToChar("Повинуясь вашему желанию отравить всех, туман начал густеть...\r\n", ch);
+		act("Облако тумана созданное $n4 начало густеть, отравляя комнату...\r\n",
+			false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
+		CallMagicToArea(ch, nullptr, world[ch->in_room], ComputeCastRoll(ch, ESpell::kPoison, GetRealLevel(ch)));
+		break;
+	case 6:
+		SendMsgToChar("Вы осознали, что хотите вызвать ужасные мучения у врагов...\r\nТуман тут же исполнил вашу прихоть...\r\n", ch);
+		act("$n захрипел$g, завыл$g, и враги, вдыхающие и выдыхающие туман, стали корчиться от силы черной магии!\r\n",
+			false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
+		CallMagicToArea(ch, nullptr, world[ch->in_room], ComputeCastRoll(ch, ESpell::kFever, GetRealLevel(ch)));
+		break;
+	case 5:
+		SendMsgToChar("Что может быть лучше, чем слабый враг?!\r\nТолько мертвый!\r\n", ch);
+		act("$n что-то проревел$g страшным голосом, и враги, окутанные туманом, стали быстро слабеть!\r\n",
+			false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
+		CallMagicToArea(ch, nullptr, world[ch->in_room], ComputeCastRoll(ch, ESpell::kWeaknes, GetRealLevel(ch)));
+		break;
+	case 4:
+		SendMsgToChar("Вам захотелось лишить всех глаз!\r\n", ch);
+		act("Туман, вызванный $n4, начал слепить врагов, сгустившись еще сильнее!\r\n",
+			false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
+		CallMagicToArea(ch, nullptr, world[ch->in_room], ComputeCastRoll(ch, ESpell::kPowerBlindness, GetRealLevel(ch)));
+		break;
+	case 3:
+		SendMsgToChar("Сильно навредить врагам?!\r\nХорошая идея!\r\n", ch);
+		act("$n пожелал$g, и туман уплотнился, чтобы навредить врагам!\r\n",
+			false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
+		CallMagicToArea(ch, nullptr, world[ch->in_room], ComputeCastRoll(ch, ESpell::kDamageCritic, GetRealLevel(ch)));
+		break;
+	case 2:
+		SendMsgToChar("Вам невтерпеж испить жизненной силы врагов!\r\nЧто и было исполнено.\r\n", ch);
+		act("Туман высосал часть вражеских сил и отдал их $n2!\r\n",
+			false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
+		CallMagicToArea(ch, nullptr, world[ch->in_room], ComputeCastRoll(ch, ESpell::kSacrifice, GetRealLevel(ch)));
+		break;
+	case 1: 
+		SendMsgToChar("Вы осознали что кислоты мало не бывает!\r\nТуман повиновался.\r\n", ch);
+		act("По воле $n1 из тумана вылетел сноп кислотных стрел!\r\n",
+			false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
+		CallMagicToArea(ch, nullptr, world[ch->in_room], ComputeCastRoll(ch, ESpell::kAcidArrow, GetRealLevel(ch)));
+		break;
+	case 0: 
+	default: 
+		SendMsgToChar("Вы решили проклясть всех напоследок!\r\n", ch);
+		act("$n что-то прошептал$g напоследок, и туман навлек проклятие на врагов!\r\n",
+			false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
+			CallMagicToArea(ch, nullptr, world[ch->in_room], ComputeCastRoll(ch, ESpell::kMassCurse, GetRealLevel(ch)));
+		break;
+	}
+}
+
+// Per-tick handler for kThunderstorm room affect. Each duration step triggers a
+// different elemental cascade until the storm fades.
+static void HandleThunderstormTick(CharData *ch, const Affect<ERoomApply>::shared_ptr &aff) {
+	switch (aff->duration) {
+	case 7:
+		if (!CallMagic(ch, nullptr, nullptr, nullptr, ESpell::kControlWeather, GetRealLevel(ch))) {
+			aff->duration = 0;
+			break;
+		}
+		what_sky = kSkyCloudy;
+		SendMsgToChar("Стремительно налетевшие черные тучи сгустились над вами.\r\n", ch);
+		act("Стремительно налетевшие черные тучи сгустились над вами.\r\n",
+			false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
+		break;
+	case 6: SendMsgToChar("Раздался чудовищный раскат грома!\r\n", ch);
+		act("Раздался чудовищный удар грома!\r\n",
+			false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
+		CallMagicToArea(ch, nullptr, world[ch->in_room], ComputeCastRoll(ch, ESpell::kDeafness, GetRealLevel(ch)));
+		break;
+	case 5: SendMsgToChar("Порывы мокрого ледяного ветра обрушились из туч!\r\n", ch);
+		act("Порывы мокрого ледяного ветра обрушились на вас!\r\n",
+			false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
+		CallMagicToArea(ch, nullptr, world[ch->in_room], ComputeCastRoll(ch, ESpell::kColdWind, GetRealLevel(ch)));
+		break;
+	case 4: SendMsgToChar("Из туч хлынул дождь кислоты!\r\n", ch);
+		act("Из туч хлынул дождь кислоты!\r\n",
+			false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
+		CallMagicToArea(ch, nullptr, world[ch->in_room], ComputeCastRoll(ch, ESpell::kAcid, GetRealLevel(ch)));
+		break;
+	case 3: SendMsgToChar("Из туч ударили разряды молний!\r\n", ch);
+		act("Из туч ударили разряды молний!\r\n",
+			false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
+		CallMagicToArea(ch, nullptr, world[ch->in_room], ComputeCastRoll(ch, ESpell::kLightingBolt, GetRealLevel(ch)));
+		break;
+	case 2: SendMsgToChar("Из тучи посыпались шаровые молнии!\r\n", ch);
+		act("Из тучи посыпались шаровые молнии!\r\n",
+			false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
+		CallMagicToArea(ch, nullptr, world[ch->in_room], ComputeCastRoll(ch, ESpell::kCallLighting, GetRealLevel(ch)));
+		break;
+	case 1: SendMsgToChar("Буря завыла, закручиваясь в вихри!\r\n", ch);
+		act("Буря завыла, закручиваясь в вихри!\r\n",
+			false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
+		CallMagicToArea(ch, nullptr, world[ch->in_room], ComputeCastRoll(ch, ESpell::kWhirlwind, GetRealLevel(ch)));
+		break;
+	case 0: 
+	default: 
+		what_sky = kSkyCloudless;
+		SendMsgToChar("Буря начала утихать.\r\n", ch);
+		act("Буря начала утихать.\r\n",
+			false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
+		break;
+	}
+}
+
 // Раз в 2 секунды идет вызов обработчиков аффектов//
 void HandleRoomAffect(RoomData *room, CharData *ch, const Affect<ERoomApply>::shared_ptr &aff) {
 	// Аффект в комнате.
@@ -195,57 +305,7 @@ void HandleRoomAffect(RoomData *room, CharData *ch, const Affect<ERoomApply>::sh
 		case ESpell::kRoomLight: break;
 
 		case ESpell::kDeadlyFog:
-			switch (aff->duration) {
-				case 7:
-					SendMsgToChar("Повинуясь вашему желанию отравить всех, туман начал густеть...\r\n", ch);
-					act("Облако тумана созданное $n4 начало густеть, отравляя комнату...\r\n",
-						false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-					CallMagicToArea(ch, nullptr, world[ch->in_room], ComputeCastRoll(ch, ESpell::kPoison, GetRealLevel(ch)));
-					break;
-				case 6:
-					SendMsgToChar("Вы осознали, что хотите вызвать ужасные мучения у врагов...\r\nТуман тут же исполнил вашу прихоть...\r\n", ch);
-					act("$n захрипел$g, завыл$g, и враги, вдыхающие и выдыхающие туман, стали корчиться от силы черной магии!\r\n",
-						false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-					CallMagicToArea(ch, nullptr, world[ch->in_room], ComputeCastRoll(ch, ESpell::kFever, GetRealLevel(ch)));
-					break;
-				case 5:
-					SendMsgToChar("Что может быть лучше, чем слабый враг?!\r\nТолько мертвый!\r\n", ch);
-					act("$n что-то проревел$g страшным голосом, и враги, окутанные туманом, стали быстро слабеть!\r\n",
-						false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-					CallMagicToArea(ch, nullptr, world[ch->in_room], ComputeCastRoll(ch, ESpell::kWeaknes, GetRealLevel(ch)));
-					break;
-				case 4:
-					SendMsgToChar("Вам захотелось лишить всех глаз!\r\n", ch);
-					act("Туман, вызванный $n4, начал слепить врагов, сгустившись еще сильнее!\r\n",
-						false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-					CallMagicToArea(ch, nullptr, world[ch->in_room], ComputeCastRoll(ch, ESpell::kPowerBlindness, GetRealLevel(ch)));
-					break;
-				case 3:
-					SendMsgToChar("Сильно навредить врагам?!\r\nХорошая идея!\r\n", ch);
-					act("$n пожелал$g, и туман уплотнился, чтобы навредить врагам!\r\n",
-						false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-					CallMagicToArea(ch, nullptr, world[ch->in_room], ComputeCastRoll(ch, ESpell::kDamageCritic, GetRealLevel(ch)));
-					break;
-				case 2:
-					SendMsgToChar("Вам невтерпеж испить жизненной силы врагов!\r\nЧто и было исполнено.\r\n", ch);
-					act("Туман высосал часть вражеских сил и отдал их $n2!\r\n",
-						false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-					CallMagicToArea(ch, nullptr, world[ch->in_room], ComputeCastRoll(ch, ESpell::kSacrifice, GetRealLevel(ch)));
-					break;
-				case 1: 
-					SendMsgToChar("Вы осознали что кислоты мало не бывает!\r\nТуман повиновался.\r\n", ch);
-					act("По воле $n1 из тумана вылетел сноп кислотных стрел!\r\n",
-						false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-					CallMagicToArea(ch, nullptr, world[ch->in_room], ComputeCastRoll(ch, ESpell::kAcidArrow, GetRealLevel(ch)));
-					break;
-				case 0: 
-				default: 
-					SendMsgToChar("Вы решили проклясть всех напоследок!\r\n", ch);
-					act("$n что-то прошептал$g напоследок, и туман навлек проклятие на врагов!\r\n",
-						false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-						CallMagicToArea(ch, nullptr, world[ch->in_room], ComputeCastRoll(ch, ESpell::kMassCurse, GetRealLevel(ch)));
-					break;
-			}
+			HandleDeadlyFogTick(ch, aff->duration);
 			break;
 		
 
@@ -256,55 +316,7 @@ void HandleRoomAffect(RoomData *room, CharData *ch, const Affect<ERoomApply>::sh
 			break;
 
 		case ESpell::kThunderstorm:
-			switch (aff->duration) {
-				case 7:
-					if (!CallMagic(ch, nullptr, nullptr, nullptr, ESpell::kControlWeather, GetRealLevel(ch))) {
-						aff->duration = 0;
-						break;
-					}
-					what_sky = kSkyCloudy;
-					SendMsgToChar("Стремительно налетевшие черные тучи сгустились над вами.\r\n", ch);
-					act("Стремительно налетевшие черные тучи сгустились над вами.\r\n",
-						false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-					break;
-				case 6: SendMsgToChar("Раздался чудовищный раскат грома!\r\n", ch);
-					act("Раздался чудовищный удар грома!\r\n",
-						false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-					CallMagicToArea(ch, nullptr, world[ch->in_room], ComputeCastRoll(ch, ESpell::kDeafness, GetRealLevel(ch)));
-					break;
-				case 5: SendMsgToChar("Порывы мокрого ледяного ветра обрушились из туч!\r\n", ch);
-					act("Порывы мокрого ледяного ветра обрушились на вас!\r\n",
-						false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-					CallMagicToArea(ch, nullptr, world[ch->in_room], ComputeCastRoll(ch, ESpell::kColdWind, GetRealLevel(ch)));
-					break;
-				case 4: SendMsgToChar("Из туч хлынул дождь кислоты!\r\n", ch);
-					act("Из туч хлынул дождь кислоты!\r\n",
-						false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-					CallMagicToArea(ch, nullptr, world[ch->in_room], ComputeCastRoll(ch, ESpell::kAcid, GetRealLevel(ch)));
-					break;
-				case 3: SendMsgToChar("Из туч ударили разряды молний!\r\n", ch);
-					act("Из туч ударили разряды молний!\r\n",
-						false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-					CallMagicToArea(ch, nullptr, world[ch->in_room], ComputeCastRoll(ch, ESpell::kLightingBolt, GetRealLevel(ch)));
-					break;
-				case 2: SendMsgToChar("Из тучи посыпались шаровые молнии!\r\n", ch);
-					act("Из тучи посыпались шаровые молнии!\r\n",
-						false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-					CallMagicToArea(ch, nullptr, world[ch->in_room], ComputeCastRoll(ch, ESpell::kCallLighting, GetRealLevel(ch)));
-					break;
-				case 1: SendMsgToChar("Буря завыла, закручиваясь в вихри!\r\n", ch);
-					act("Буря завыла, закручиваясь в вихри!\r\n",
-						false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-					CallMagicToArea(ch, nullptr, world[ch->in_room], ComputeCastRoll(ch, ESpell::kWhirlwind, GetRealLevel(ch)));
-					break;
-				case 0: 
-				default: 
-					what_sky = kSkyCloudless;
-					SendMsgToChar("Буря начала утихать.\r\n", ch);
-					act("Буря начала утихать.\r\n",
-						false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-					break;
-			}
+			HandleThunderstormTick(ch, aff);
 			break;
 
 		case ESpell::kBlackTentacles: SendMsgToChar("Мертвые руки навей шарят в поисках добычи!\r\n", ch);

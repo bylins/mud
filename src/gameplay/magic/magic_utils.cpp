@@ -72,6 +72,25 @@ static bool IsCasterVerbal(CharData *ch) {
 	}
 }
 
+// Caster-side "Вы произнесли заклинание ..." / "Вы выкрикнули ..." banner.
+// The kCastIncantToChar sheaf carries the line; {color}/{name}/{nrm}
+// placeholders are filled in with bold-red or bold-green by IsViolent,
+// the spell's canonical name, and the colour reset.
+static void EmitCastIncantBanner(CharData *ch, ESpell spell_id) {
+	std::string incant = MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kCastIncantToChar);
+	const char *const color = MUD::Spell(spell_id).IsViolent() ? kColorBoldRed : kColorBoldGrn;
+	auto subst = [&incant](const char *token, const char *value) {
+		const auto pos = incant.find(token);
+		if (pos != std::string::npos) {
+			incant.replace(pos, std::strlen(token), value);
+		}
+	};
+	subst("{color}", color);
+	subst("{name}", MUD::Spell(spell_id).GetCName());
+	subst("{nrm}", kColorNrm);
+	SendMsgToChar(incant + "\r\n", ch);
+}
+
 // SaySpell erodes buf, buf1, buf2
 void SaySpell(CharData *ch, ESpell spell_id, CharData *tch, ObjData *tobj) {
 	char lbuf[256];
@@ -126,25 +145,7 @@ void SaySpell(CharData *ch, ESpell spell_id, CharData *tch, ObjData *tobj) {
 				SendMsgToChar(OK, ch);
 			}
 		} else {
-			// Cast-incantation banner: kCastIncantToChar in the
-			// cast spell's sheaf (with kDefault fallback) carries the line shown to the
-			// caster. {color}/{name}/{nrm} placeholders resolve to bold-red or bold-green
-			// by IsViolent, the spell's GetCName, and the colour reset. Warcry spells
-			// override the default's "произнесли" with "выкрикнули".
-			std::string incant =
-					MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kCastIncantToChar);
-			const char *const color = MUD::Spell(spell_id).IsViolent()
-					? kColorBoldRed : kColorBoldGrn;
-			auto subst = [&incant](const char *token, const char *value) {
-				const auto pos = incant.find(token);
-				if (pos != std::string::npos) {
-					incant.replace(pos, std::strlen(token), value);
-				}
-			};
-			subst("{color}", color);
-			subst("{name}", MUD::Spell(spell_id).GetCName());
-			subst("{nrm}", kColorNrm);
-			SendMsgToChar(incant + "\r\n", ch);
+			EmitCastIncantBanner(ch, spell_id);
 		}
 	}
 
