@@ -179,6 +179,15 @@ Components::Components(parser_wrapper::DataNode &node) {
 			has_verbal_ = true;
 			continue;
 		}
+		// <weave/>: presence-only marker -- no attributes today (issue.weave-component).
+		// Spells with this child are "actual magic" and cannot be cast in a kNoMagic
+		// room. The CallMagic-side gate (magic_utils.cpp) consults HasWeave() and
+		// emits the same kCastForbidden* narration the legacy data-driven blocking
+		// used to.
+		if (strcmp(name, "weave") == 0) {
+			has_weave_ = true;
+			continue;
+		}
 		if (strcmp(name, "material") != 0) {
 			continue;
 		}
@@ -227,12 +236,15 @@ Components::Components(parser_wrapper::DataNode &node) {
 }
 
 void Components::Print(std::ostringstream &buffer) const {
-	if (materials_.empty() && !has_verbal_) {
+	if (materials_.empty() && !has_verbal_ && !has_weave_) {
 		return;
 	}
 	buffer << "Components:\r\n";
 	if (has_verbal_) {
 		buffer << "  Verbal" << "\r\n";
+	}
+	if (has_weave_) {
+		buffer << "  Weave" << "\r\n";
 	}
 	for (const auto &mat : materials_) {
 		buffer << "  Material:";

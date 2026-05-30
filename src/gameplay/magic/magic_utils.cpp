@@ -464,13 +464,20 @@ int CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict
 		return 0;
 
 	// Data-driven room block: any spell whose XML
-	// <talent_actions><action><blocking><room_flags val="kNoMagic|..."/></blocking></action>
-	// matches the caster's room fizzles here. MayCastInForbiddenRoom() is the
-	// per-caster bypass (greater gods, uncharmed NPCs). The fizzle messages live
-	// in spell_msg.xml -- the default sheaf carries the generic narration; spells
-	// like kRuneLabel override with their own kCastForbidden* keys.
-	if (IsRoomBlocked(world[caster->in_room], MUD::Spell(spell_id).actions.GetBlocking())
-			&& !MayCastInForbiddenRoom(caster)) {
+	// <talent_actions><action><blocking><room_flags val="..."/></blocking></action>
+	// matches the caster's room fizzles here, AND any spell carrying <components><weave/>
+	// fizzles in a kNoMagic room (issue.weave-component -- weave is the single source of
+	// truth for "is this magic", replacing the data-driven kNoMagic blocking that used
+	// to be duplicated across 228 spells). MayCastInForbiddenRoom() is the per-caster
+	// bypass (greater gods, uncharmed NPCs). The fizzle messages live in spell_msg.xml --
+	// the default sheaf carries the generic narration; spells like kRuneLabel override
+	// with their own kCastForbidden* keys.
+	const bool weave_blocked =
+			MUD::Spell(spell_id).GetComponents().HasWeave()
+			&& ROOM_FLAGGED(caster->in_room, ERoomFlag::kNoMagic);
+	const bool data_blocked = IsRoomBlocked(world[caster->in_room],
+			MUD::Spell(spell_id).actions.GetBlocking());
+	if ((weave_blocked || data_blocked) && !MayCastInForbiddenRoom(caster)) {
 		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kCastForbiddenToChar) + "\r\n", caster);
 		const auto &to_room = MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kCastForbiddenToRoom);
 		if (!to_room.empty()) {

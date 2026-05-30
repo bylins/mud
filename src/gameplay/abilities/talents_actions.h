@@ -142,10 +142,11 @@ struct Material {
 // The set of casting requirements for a spell (issue.spellcomponents). Lives at
 // the <spell> level in spells.xml (sibling of <name>/<misc>/<potency_roll>),
 // parsed by SpellInfoBuilder::ParseComponents and stored on SpellInfo.
-// Today recognises <material> entries (the consumable / focus requirement) and
+// Today recognises <material> entries (the consumable / focus requirement),
 // <verbal/> (the spell needs a spoken phrase to fire -- silenced casters can't
-// cast it). Forward-shaped for somatic / divine focus / sacrificial entries
-// without further callsite churn.
+// cast it) and <weave/> (the action is actual magic -- can't be performed in a
+// kNoMagic room). Forward-shaped for somatic / divine focus / sacrificial
+// entries without further callsite churn.
 class Components {
 	std::vector<Material> materials_;
 	// True if the spell has a <verbal/> child of <components>. A verbal spell
@@ -153,12 +154,20 @@ class Components {
 	// CastSpell, process_player_attack, SaySpell). A non-verbal spell can be
 	// cast under kSilence and SaySpell stays silent for it too.
 	bool has_verbal_{false};
+	// True if the spell has a <weave/> child of <components> (issue.weave-component).
+	// A weave spell is actual magic and cannot be cast in a kNoMagic room -- the
+	// CallMagic-side gate emits kCastForbiddenToChar / kCastForbiddenToRoom just
+	// like the legacy data-driven <blocking><room_flags val="kNoMagic"/></blocking>
+	// did; that block-shaped duplicate was removed from 228 spells in the same
+	// migration, so weave is now the single source of truth for "is this magic".
+	bool has_weave_{false};
  public:
 	Components() = default;
 	explicit Components(parser_wrapper::DataNode &node);
 	[[nodiscard]] const std::vector<Material> &GetMaterials() const { return materials_; }
 	[[nodiscard]] bool HasVerbal() const { return has_verbal_; }
-	[[nodiscard]] bool empty() const { return materials_.empty() && !has_verbal_; }
+	[[nodiscard]] bool HasWeave() const { return has_weave_; }
+	[[nodiscard]] bool empty() const { return materials_.empty() && !has_verbal_ && !has_weave_; }
 	void Print(std::ostringstream &buffer) const;
 };
 
