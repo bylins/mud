@@ -60,7 +60,7 @@ bool save_one_clan_chest(ObjData *chest, const std::string &filename) {
 
 class ChestSaver::Impl {
  public:
-	Impl() : pool(std::max<std::size_t>(1, std::thread::hardware_concurrency())) {}
+	Impl() : pool(std::max<std::size_t>(1, std::thread::hardware_concurrency() / 2)) {}
 
 	utils::ThreadPool pool;
 	std::unordered_set<Clan *> dirty;

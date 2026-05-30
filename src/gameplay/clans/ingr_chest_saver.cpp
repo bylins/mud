@@ -65,7 +65,7 @@ bool save_one_chest(ObjData *chest, const std::string &filename) {
 
 class IngrChestSaver::Impl {
  public:
-	Impl() : pool(std::max<std::size_t>(1, std::thread::hardware_concurrency())) {}
+	Impl() : pool(std::max<std::size_t>(1, std::thread::hardware_concurrency() / 2)) {}
 
 	utils::ThreadPool pool;
 	// Клан попадает сюда, когда содержимое его сундука изменилось.
