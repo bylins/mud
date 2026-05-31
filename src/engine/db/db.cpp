@@ -707,7 +707,9 @@ void BootMudDataBase() {
 	log("Assigning character classs info.");
 	MUD::CfgManager().LoadCfg("classes");
 
-	InitSpellLevels();
+	boot_profiler.next_step("Loading rune spells cfg");
+	log("Loading rune spells cfg.");
+	MUD::CfgManager().LoadCfg("rune_spells");
 
 	boot_profiler.next_step("Loading zone types and ingredient for each zone type");
 	log("Booting zone types and ingredient types for each zone type.");

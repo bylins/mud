@@ -15,6 +15,7 @@
 #include "gameplay/mechanics/celebrates.h"
 #include "gameplay/mechanics/guilds.h"
 #include "engine/entities/zone_types.h"
+#include "gameplay/mechanics/rune_spells.h"
 #include "gameplay/abilities/feats.h"
 #include "utils/logger.h"
 #include "engine/core/heartbeat.h"
@@ -75,6 +76,7 @@ class GlobalObjects {
 	static const guilds::GuildInfo &Guild(Vnum guild_vnum);
 	static zone_types::ZoneTypesInfo &ZoneTypes();
 	static const zone_types::ZoneTypeInfo &ZoneType(int type_vnum);
+	static rune_spells::Registry &RuneSpells();
 	static currencies::CurrenciesInfo &Currencies();
 	static const currencies::CurrencyInfo &Currency(Vnum currency_vnum);
 	static WorldObjects &world_objects();

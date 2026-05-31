@@ -44,6 +44,7 @@ struct GlobalObjectsStorage {
 	mob_classes::MobClassesInfo mob_classes_info;
 	guilds::GuildsInfo guilds_info;
 	zone_types::ZoneTypesInfo zone_types_info;
+	rune_spells::Registry rune_spells_info;
 	currencies::CurrenciesInfo currencies_info;
   	RunestoneRoster runestone_roster;
 	WorldObjects world_objects;
@@ -159,6 +160,10 @@ zone_types::ZoneTypesInfo &GlobalObjects::ZoneTypes() {
 
 const zone_types::ZoneTypeInfo &GlobalObjects::ZoneType(int type_vnum) {
 	return global_objects().zone_types_info[type_vnum];
+}
+
+rune_spells::Registry &GlobalObjects::RuneSpells() {
+	return global_objects().rune_spells_info;
 }
 
 currencies::CurrenciesInfo &GlobalObjects::Currencies() {

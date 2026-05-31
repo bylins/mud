@@ -116,7 +116,6 @@ ESpell FixNameAndFindSpellId(char *name);
 bool CatchBloodyCorpse(ObjData *l);
 
 // other prototypes //
-void InitSpellLevels();
 bool CanGetSpell(CharData *ch, ESpell spell_id);
 bool CanGetSpell(const CharData *ch, ESpell spell_id, int req_lvl);
 int CalcMinSpellLvl(const CharData *ch, ESpell spell_id, int req_lvl);

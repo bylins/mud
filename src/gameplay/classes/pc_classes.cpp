@@ -1358,82 +1358,10 @@ int invalid_no_class_proto(CharData *ch, const CObjectPrototype *obj) {
  * the spell or skill.
  */
 #include "classes_spell_slots.h"
-void InitSpellLevels() {
-	FILE *magic;
-	char line1[256], line2[256], line3[256], name[256];
-	int i[15];
-
-	if (!(magic = fopen(LIB_MISC "runes.lst", "r"))) {
-		log("Cann't open items list file...");
-		graceful_exit(1);
-	}
-
-	auto sp_num{ESpell::kUndefined};;
-	while (get_line(magic, name)) {
-		if (!name[0] || name[0] == ';')
-			continue;
-		if (sscanf(name, "%s %s %s %d %d %d %d %d", line1, line2, line3, i, i + 1, i + 2, i + 3, i + 4) != 8) {
-			log("Bad format for magic string!\r\n"
-				"Format : <spell name (%%s %%s)> <type (%%s)> <items_vnum (%%d %%d %%d %%d)>");
-			graceful_exit(1);
-		}
-
-		if (i[4] > 34)
-			i[4] = 34;
-		if (i[4] < 1)
-			i[4] = 1;
-
-		name[0] = '\0';
-		strcat(name, line1);
-		if (*line2 != '*') {
-			*(name + strlen(name) + 1) = '\0';
-			*(name + strlen(name) + 0) = ' ';
-			strcat(name, line2);
-		}
-		if ((sp_num = FixNameAndFindSpellId(name)) < ESpell::kFirst) {
-			log("Spell '%s' not found...", name);
-			graceful_exit(1);
-		}
-		size_t c = strlen(line3);
-/*		if (!strn_cmp(line3, "potion", c)) {
-			spell_create[sp_num].potion.items[0] = i[0];
-			spell_create[sp_num].potion.items[1] = i[1];
-			spell_create[sp_num].potion.items[2] = i[2];
-			spell_create[sp_num].potion.rnumber = i[3];
-			spell_create[sp_num].potion.min_caster_level = i[4];
-		} else if (!strn_cmp(line3, "wand", c)) {
-			spell_create[sp_num].wand.items[0] = i[0];
-			spell_create[sp_num].wand.items[1] = i[1];
-			spell_create[sp_num].wand.items[2] = i[2];
-			spell_create[sp_num].wand.rnumber = i[3];
-			spell_create[sp_num].wand.min_caster_level = i[4];
-		} else if (!strn_cmp(line3, "scroll", c)) {
-			spell_create[sp_num].scroll.items[0] = i[0];
-			spell_create[sp_num].scroll.items[1] = i[1];
-			spell_create[sp_num].scroll.items[2] = i[2];
-			spell_create[sp_num].scroll.rnumber = i[3];
-			spell_create[sp_num].scroll.min_caster_level = i[4];
-		} else if (!strn_cmp(line3, "items", c)) {
-			spell_create[sp_num].items.items[0] = i[0];
-			spell_create[sp_num].items.items[1] = i[1];
-			spell_create[sp_num].items.items[2] = i[2];
-			spell_create[sp_num].items.rnumber = i[3];
-			spell_create[sp_num].items.min_caster_level = i[4];
-		} else 
-*/
-		if (!strn_cmp(line3, "runes", c)) {
-			spell_create[sp_num].runes.items[0] = i[0];
-			spell_create[sp_num].runes.items[1] = i[1];
-			spell_create[sp_num].runes.items[2] = i[2];
-			spell_create[sp_num].runes.rnumber = i[3];
-			spell_create[sp_num].runes.min_caster_level = i[4];
-		} else {
-			log("Unknown items option : %s", line3);
-			graceful_exit(1);
-		}
-	}
-	fclose(magic);
-}
+// (issue.runes-migrate) InitSpellLevels() retired in favour of the
+// cfg_manager-driven rune_spells loader (cfg/mechanics/rune_spells.xml).
+// The boot call moved to MUD::CfgManager().LoadCfg("rune_spells") at the
+// same boot-step position; `reload runes` goes through ReloadCfg.
 
 void InitBasicValues() {
 	FILE *magic;

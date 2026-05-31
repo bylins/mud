@@ -446,13 +446,18 @@ std::pair<int, int> TotalMemUse(){
 }
 
 void ListSpellCreate(CharData *ch) {
+	// (issue.runes-migrate) Iterate the new registry directly; runes are now
+	// pipe-separated so 5+-rune spells render fully (legacy %3d x 4 capped).
 	int i = 0;
-	for (auto it : spell_create) {
-		SendMsgToChar(ch, "%3d) Rune spell [%3d] &W%-30s&n runes: %3d %3d %3d %3d level %d\r\n", 
-				++i, to_underlying(it.first), MUD::Spell(it.first).GetCName(),
-				it.second.runes.items[0], it.second.runes.items[1],
-				it.second.runes.items[2], it.second.runes.rnumber,
-				it.second.runes.min_caster_level);
+	for (const auto &[spell_id, info] : MUD::RuneSpells()) {
+		std::string runes_str;
+		for (size_t r = 0; r < info.runes.size(); ++r) {
+			if (r > 0) runes_str += '|';
+			runes_str += std::to_string(info.runes[r]);
+		}
+		SendMsgToChar(ch, "%3d) Rune spell [%3d] &W%-30s&n runes: %s level %d\r\n",
+				++i, to_underlying(spell_id), MUD::Spell(spell_id).GetCName(),
+				runes_str.c_str(), info.min_caster_level);
 	}
 }
 

@@ -16,6 +16,7 @@
 #include "gameplay/economics/currencies.h"
 #include "gameplay/mechanics/guilds.h"
 #include "engine/entities/zone_types.h"
+#include "gameplay/mechanics/rune_spells.h"
 #include "gameplay/skills/skills_info.h"
 #include "gameplay/skills/skill_messages.h"
 #include "gameplay/magic/spell_messages.h"
@@ -50,6 +51,8 @@ CfgManager::CfgManager() {
 										  std::make_unique<guilds::GuildsLoader>(guilds::GuildsLoader())));
 	loaders_.emplace("zone_types", LoaderInfo("cfg/zone_types.xml",
 										  std::make_unique<zone_types::ZoneTypesLoader>(zone_types::ZoneTypesLoader())));
+	loaders_.emplace("rune_spells", LoaderInfo("cfg/mechanics/rune_spells.xml",
+										  std::make_unique<rune_spells::RuneSpellsLoader>(rune_spells::RuneSpellsLoader())));
 	loaders_.emplace("mob_classes", LoaderInfo("cfg/mob_classes.xml",
 								  std::make_unique<mob_classes::MobClassesLoader>(mob_classes::MobClassesLoader())));
 }

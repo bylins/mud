@@ -40,8 +40,10 @@ extern int what_sky;
 
 int MagusCastRequiredLevel(const CharData *ch, ESpell spell_id) {
 	int required_level;
-	if (spell_create.contains(spell_id)) {
-		required_level = spell_create[spell_id].runes.min_caster_level;
+	// (issue.runes-migrate) Read from the new rune_spells registry.
+	const auto &runes = MUD::RuneSpells();
+	if (auto it = runes.find(spell_id); it != runes.end()) {
+		required_level = it->second.min_caster_level;
 	} else {
 		return 999;
 	}
