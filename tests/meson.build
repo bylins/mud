@@ -55,7 +55,8 @@ test_sources = files(
     'skill_messages.cpp',
     'fight_messages.cpp',
     'file_crc.cpp',
-    'buffered_file_writer.cpp'
+    'buffered_file_writer.cpp',
+    'where.format.cpp'
 )
 
 fs = import('fs')
