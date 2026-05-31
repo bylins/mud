@@ -2,7 +2,7 @@
 	Модуль составление списков целей для умений/зклинаний.
 */
 
-#include "action_targeting.h"
+#include "target_resolver.h"
 #include "gameplay/fight/pk.h"
 #include "gameplay/mechanics/groups.h"
 
@@ -10,7 +10,7 @@
 	2. Добавить возможность сформировать список группы без учета комнаты.
 */
 
-namespace ActionTargeting {
+namespace target_resolver {
 
 /*
 	isCorrectSingleFriend нет, потому что не имеется дружественных ареакастов
@@ -152,6 +152,6 @@ CharData *TargetsRosterType::getRandomItem() {
 	По покамест таких абилок нет и смысла в них тоже, потому воздержался.
 */
 
-}; // namespace ActionTargeting
+}; // namespace target_resolver
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

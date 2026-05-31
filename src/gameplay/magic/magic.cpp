@@ -18,7 +18,7 @@
 
 #include "gameplay/core/game_limits.h"  // gain_condition
 #include "gameplay/mechanics/liquid.h"   // kMaxCondition
-#include "engine/core/action_targeting.h"
+#include "engine/core/target_resolver.h"
 //#include "gameplay/affects/affect_handler.h"
 #include "gameplay/affects/affect_data.h"
 #include "engine/db/world_characters.h"
@@ -2894,7 +2894,7 @@ int CallMagicToArea(CharData *ch, CharData *victim, RoomData *room, CastRollResu
 	}
 	try {
 		const auto params = MUD::Spell(spell_id).actions.GetArea();
-		ActionTargeting::FoesRosterType roster{ch, victim,
+		target_resolver::FoesRosterType roster{ch, victim,
 											   [](CharData *, CharData *target) {
 												   return !IS_HORSE(target);
 											   }};
@@ -2961,7 +2961,7 @@ int CallMagicToGroup(CharData *ch, CastRollResult roll) {
 
 	TrySendCastMessages(ch, nullptr, world[ch->in_room], spell_id);
 
-	ActionTargeting::FriendsRosterType roster{ch, ch};
+	target_resolver::FriendsRosterType roster{ch, ch};
 	roster.flip();
 	for (const auto target: roster) {
 		CastToSingleTarget(ch, target, nullptr, roll);

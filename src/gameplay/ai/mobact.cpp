@@ -27,7 +27,7 @@
 #include "gameplay/skills/kick.h"
 
 #include "gameplay/abilities/abilities_rollsystem.h"
-#include "engine/core/action_targeting.h"
+#include "engine/core/target_resolver.h"
 #include "engine/core/comm.h"
 #include "engine/observability/helpers.h"
 #include "engine/observability/metrics.h"
@@ -308,7 +308,7 @@ int npc_track(CharData *ch) {
 }
 
 CharData *selectRandomSkirmisherFromGroup(CharData *leader) {
-	ActionTargeting::FriendsRosterType roster{leader};
+	target_resolver::FriendsRosterType roster{leader};
 	auto isSkirmisher = [](CharData *ch) { return ch->IsFlagged(EPrf::kSkirmisher); };
 	int skirmishers = roster.count(isSkirmisher);
 	if (skirmishers == 0 || skirmishers == roster.amount()) {

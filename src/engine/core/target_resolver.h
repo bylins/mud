@@ -1,5 +1,5 @@
-#ifndef _ACTION_TARGETING_HPP_INCLUDED_
-#define _ACTION_TARGETING_HPP_INCLUDED_
+#ifndef _TARGET_RESOLVER_HPP_INCLUDED_
+#define _TARGET_RESOLVER_HPP_INCLUDED_
 
 /*
 	Класс, формирующий списки целей для массовых умений и заклинаний.
@@ -18,7 +18,7 @@
 
 class CharData;
 
-namespace ActionTargeting {
+namespace target_resolver {
 
 using FilterType = std::function<bool(CharData *, CharData *)>;
 using PredicateType = std::function<bool(CharData *)>;
@@ -92,8 +92,8 @@ class FriendsRosterType : public TargetsRosterType {
 		FriendsRosterType(actor, nullptr, emptyFilter) {};
 };
 
-}; // namespace ActionTargeting
+}; // namespace target_resolver
 
-#endif // _ACTION_TARGETING_HPP_INCLUDED_
+#endif // _TARGET_RESOLVER_HPP_INCLUDED_
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

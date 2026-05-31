@@ -12,7 +12,7 @@
 #include "gameplay/fight/pk.h"
 #include "protect.h"
 #include "bash.h"
-#include "engine/core/action_targeting.h"
+#include "engine/core/target_resolver.h"
 #include "gameplay/fight/common.h"
 #include "gameplay/ai/mobact.h"
 #include "gameplay/mechanics/damage.h"
@@ -96,7 +96,7 @@ void GoCharge(CharData *ch, int direction) {
 
 	Damage dmg(SkillDmg(ESkill::kCharge), dam, fight::kPhysDmg, nullptr);
 
-	ActionTargeting::FoesRosterType roster{ch};
+	target_resolver::FoesRosterType roster{ch};
 	for (const auto target: roster) {
 //		if (target->purged() || target->in_room == kNowhere)
 //			continue;

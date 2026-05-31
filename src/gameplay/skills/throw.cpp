@@ -2,7 +2,7 @@
 #include "skill_messages.h"
 #include "engine/db/global_objects.h"
 
-#include "engine/core/action_targeting.h"
+#include "engine/core/target_resolver.h"
 #include "gameplay/abilities/abilities_rollsystem.h"
 #include "gameplay/fight/pk.h"
 #include "gameplay/fight/fight_hit.h"
@@ -157,7 +157,7 @@ void GoThrow(CharData *ch, CharData *victim) {
 	Damage damage(SkillDmg(ESkill::kThrow), fight::kZeroDmg, dmg_type, nullptr); //х3 как тут с оружием
 	damage.element = EElement::kDark;
 
-	ActionTargeting::FoesRosterType
+	target_resolver::FoesRosterType
 		roster{ch, victim, [](CharData *ch, CharData *victim) { return CAN_SEE(ch, victim); }};
 	for (auto target : roster) {
 //		if (target->purged() || target->in_room == kNowhere)

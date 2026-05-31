@@ -348,7 +348,7 @@ main_sources = files(
   'src/engine/core/heartbeat_commands.cpp',
   'src/gameplay/abilities/abilities_rollsystem.cpp',
   'src/administration/accounts.cpp',
-  'src/engine/core/action_targeting.cpp',
+  'src/engine/core/target_resolver.cpp',
   'src/engine/ui/cmd/do_sign.cpp',
   'src/engine/core/char_movement.cpp',
   'src/gameplay/communication/social.cpp',

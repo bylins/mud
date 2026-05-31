@@ -5,7 +5,7 @@
 #include "gameplay/fight/pk.h"
 #include "gameplay/fight/fight_hit.h"
 #include "gameplay/fight/common.h"
-#include "engine/core/action_targeting.h"
+#include "engine/core/target_resolver.h"
 #include "gameplay/abilities/abilities_rollsystem.h"
 #include "engine/core/handler.h"
 #include "engine/ui/cmd/do_flee.h"
@@ -51,7 +51,7 @@ void do_turn_undead(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd
 	damage.element = EElement::kLight;
 	damage.flags.set(fight::kIgnoreFireShield);
 	abilities_roll::TechniqueRoll roll;
-	ActionTargeting::FoesRosterType roster{ch, [](CharData *, CharData *target) { return IS_UNDEAD(target); }};
+	target_resolver::FoesRosterType roster{ch, [](CharData *, CharData *target) { return IS_UNDEAD(target); }};
 	for (const auto target: roster) {
 //		if (target->purged() || target->in_room == kNowhere)
 //			continue;
