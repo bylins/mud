@@ -118,7 +118,6 @@ extern int movement_loss[];
 extern int mana[];
 extern int mana_gain_cs[];
 extern const char *material_name[];
-extern struct AttackHitType attack_hit_text[];
 extern const char *godslike_bits[];
 extern const int material_value[];
 

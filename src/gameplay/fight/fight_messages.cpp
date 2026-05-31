@@ -97,6 +97,7 @@ const std::string &NAME_BY_ITEM<fight::EFightMsg>(const fight::EFightMsg item) {
 		{fight::EFightMsg::kFightGodToChar, "kFightGodToChar"},
 		{fight::EFightMsg::kFightGodToVict, "kFightGodToVict"},
 		{fight::EFightMsg::kFightGodToRoom, "kFightGodToRoom"},
+		{fight::EFightMsg::kDescription, "kDescription"},
 	};
 	return kMap.at(item);
 }
@@ -117,11 +118,22 @@ fight::EFightMsg ITEM_BY_NAME<fight::EFightMsg>(const std::string &name) {
 		{"kFightGodToChar", fight::EFightMsg::kFightGodToChar},
 		{"kFightGodToVict", fight::EFightMsg::kFightGodToVict},
 		{"kFightGodToRoom", fight::EFightMsg::kFightGodToRoom},
+		{"kDescription", fight::EFightMsg::kDescription},
 	};
 	return kMap.at(name); // throws std::out_of_range on unknown name
 }
 
 namespace fight {
+
+const std::string &GetAttackTypeDescription(int attack_type) {
+	// Weapon attack types occupy EDamageSource kHit..kSting; anything else uses the
+	// kDefault sheaf description.
+	const auto src = (attack_type >= static_cast<int>(EDamageSource::kHit)
+					  && attack_type <= static_cast<int>(EDamageSource::kSting))
+		? static_cast<EDamageSource>(attack_type)
+		: EDamageSource::kUndefined;
+	return MUD::FightMessages().GetMessage(src, EFightMsg::kDescription);
+}
 
 void FightMessagesLoader::Load(parser_wrapper::DataNode data) {
 	MUD::FightMessages().Init(data.Children());
