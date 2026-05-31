@@ -245,6 +245,29 @@ spell to carry a success/landing roll separate from its potency.
 The `base_skill` from `<potency_roll>` also drives the affect duration and
 multi-hit count (see §7 and §6.1).
 
+#### The `cast_potency` value
+
+Every place in the manual that talks about "the cast's potency" — the affect
+modifier formula, the stored Affect potency, the dispel contest, the
+damage / heal / extra-hits scaling — uses the same scalar:
+
+```
+cast_potency = RollSkillDices + skill_coeff + stat_coeff
+```
+
+Where:
+
+* `RollSkillDices` = result of the `<dices>` roll (one `ndice × sdice + adice`
+  sample per cast).
+* `skill_coeff` = `(low_skill · low_skill_bonus + hi_skill · hi_skill_bonus) / 100`
+  from `<base_skill>` (skill is capped at `kNoviceSkillThreshold = 75` for the
+  low part; everything above goes into the hi part).
+* `stat_coeff` = `max(0, stat − threshold) · weight / 100` from `<base_stat>`.
+
+A spell that omits a sub-block contributes 0 from that side. A spell with an
+empty `<potency_roll>` rolls a flat 0 — its affects land at potency 0, its
+dispel always fails the contest (5 % luck floor still applies).
+
 ### 3.8 `<talent_actions>`
 
 Container for one or more `<action>` blocks. Each `<action>` can declare any
@@ -869,23 +892,47 @@ wildcard is present, and the semantic is ambiguous. Use one or the other.
 
 ### 9.3 Potency-gated dispel *(new mechanic)*
 
-Each affect imposed by `CastAffect` now **records the cast's potency** (the
+Each affect imposed by `CastAffect` **records the cast's potency** (the
 roll value at the moment of imposition) and a debuff flag (matches the
 spell's `violent`). When `CastUnaffects` tries to remove an affect, the
-removal is gated by a strength contest:
+removal is gated by a strength contest.
 
-* If the dispel is **non-violent** *and* the affect is **not a debuff** (a
-  buff being purified by a non-violent cure) — **no check**, always removed.
-* Otherwise — flat 5 % chance to remove regardless of strength, else the
-  dispel's potency must exceed the affect's recorded potency:
+**The math**, side by side. Both sides use the same `cast_potency` formula
+(§3.7); the only knob is each side's `potency_weight`:
 
-  ```
-  dispel_potency = (RollSkillDices + skill_coeff + stat_coeff) · potency_weight
-  ```
+```
+stored_potency = cast_potency(affect_spell, caster_at_impose) · <affects potency_weight>     (impose-time, §8.1)
+dispel_potency = cast_potency(dispel_spell, caster_at_dispel) · <unaffect potency_weight>    (contest-time, §9.1)
+```
 
-This means a high-level necromancer's poison resists a weak novice's cure,
-but the cure may still win on the 5 % free chance. Tune `potency_weight` on
-the cure to make it stronger or weaker against the affects it targets.
+The dispel succeeds when `dispel_potency > stored_potency`. The full ruleset:
+
+1. **Non-violent dispel + non-debuff affect** (a buff being purified by a
+   non-violent cure) — **no check**, the affect is always removed. This is
+   the path that lets a benign `kRemovePoison` strip a player's own
+   accidental buffs without a contest. For an ambiguous (`A`) dispel like
+   `kDispellMagic`, the "non-violent" predicate resolves per-target
+   (§3.3): from an ally hand the dispel passes; from an outsider it goes
+   to the contest below.
+2. **Flat 5 % luck floor** — regardless of strength, the dispel always has
+   a 5 % chance to succeed. Keeps even a novice cure relevant against a
+   strong affect.
+3. **Strength contest** — otherwise `dispel_potency > stored_potency`.
+
+So a high-level necromancer's poison resists a weak novice's cure, but the
+cure may still win on the 5 % free chance. The two `potency_weight` knobs
+are independent — the affect-side knob (issue.affects-potency-weight) lets
+big-modifier spells stay dispellable by recording a deliberately weaker
+stored potency than the raw roll would suggest; the dispel-side knob
+(issue.#3342) lets a designer make a specific cure stronger or weaker
+against the affects it targets.
+
+**Worked example.** A kFireball with `<affects potency_weight="0.4">` and a
+`<potency_roll>` rolling 60 lands its burning affect at `stored = 60 × 0.4 = 24`.
+A kDispellMagic with `<unaffect potency_weight="0.5">` rolling 50 contests at
+`dispel = 50 × 0.5 = 25`. Dispel wins (25 > 24) — but only just; a slightly
+lower roll on the dispel side would fail the contest and rely on the 5 %
+floor.
 
 A failed potency check emits `kNoeffect` to the caster (for a pure dispel
 spell — a `kMagAffects` spell that also dispels remains silent on failure
