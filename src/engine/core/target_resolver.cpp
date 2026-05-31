@@ -302,6 +302,99 @@ std::vector<ObjData *> ResolveObjs(CharData *searcher, const Query &q) {
 	return matches;
 }
 
+// ---- Named filter factories (issue #3375 stage 3) -------------------------
+
+namespace {
+
+// Walk up the charm-chain so a charmed NPC resolves to its PC master for
+// alliance purposes. Mirrors AllyRoot() in spells_info.cpp -- bounded at depth
+// 4 so a pathological charm cycle can't hang the loop. (See
+// bylins-issue-ambiguous-spells.)
+const CharData *AllyRoot(const CharData *ch) {
+	if (!ch) return nullptr;
+	for (int depth = 0; depth < 4 && IS_CHARMICE(ch) && ch->has_master(); ++depth) {
+		const auto *next = ch->get_master();
+		if (!next || next == ch) break;
+		ch = next;
+	}
+	return ch;
+}
+
+bool IsAllyOf(const CharData *root, const CharData *cand) {
+	if (!root || !cand) return false;
+	if (root == cand) return true;
+	const auto *r = AllyRoot(root);
+	const auto *c = AllyRoot(cand);
+	if (!r || !c) return false;
+	if (r == c) return true;
+	// Two NPCs with no PC root: conditionally allied (mob-vs-mob rule).
+	if (r->IsNpc() && c->IsNpc()) return true;
+	return group::same_group(const_cast<CharData *>(r), const_cast<CharData *>(c));
+}
+
+}  // namespace
+
+CharPredicate MakeAllyFilter(CharData *root) {
+	return [root](CharData *cand) { return IsAllyOf(root, cand); };
+}
+
+CharPredicate MakeEnemyFilter(CharData *root) {
+	return [root](CharData *cand) { return !IsAllyOf(root, cand); };
+}
+
+CharPredicate MakeNpcFilter() {
+	return [](CharData *cand) { return cand && cand->IsNpc(); };
+}
+
+CharPredicate MakePcFilter() {
+	return [](CharData *cand) { return cand && !cand->IsNpc(); };
+}
+
+CharPredicate MakeFightingFilter() {
+	return [](CharData *cand) { return cand && cand->GetEnemy() != nullptr; };
+}
+
+CharPredicate MakeSameRoomFilter(CharData *root) {
+	return [root](CharData *cand) {
+		return root && cand && root->in_room == cand->in_room
+			&& root->in_room != kNowhere;
+	};
+}
+
+CharPredicate MakeVisibleFilter(CharData *viewer) {
+	return [viewer](CharData *cand) {
+		return viewer && cand && CAN_SEE(viewer, cand);
+	};
+}
+
+CharPredicate MakeAffectFilter(EAffect flag) {
+	return [flag](CharData *cand) { return cand && AFF_FLAGGED(cand, flag); };
+}
+
+CharPredicate MakeMobFlagFilter(EMobFlag flag) {
+	return [flag](CharData *cand) {
+		return cand && cand->IsNpc() && cand->IsFlagged(flag);
+	};
+}
+
+CharPredicate MakeMobVnumFilter(MobVnum vnum) {
+	return [vnum](CharData *cand) {
+		return cand && cand->IsNpc() && GET_MOB_VNUM(cand) == vnum;
+	};
+}
+
+ObjPredicate MakeObjVnumFilter(ObjVnum vnum) {
+	return [vnum](ObjData *cand) {
+		return cand && cand->get_vnum() == vnum;
+	};
+}
+
+ObjPredicate MakeObjVisibleFilter(CharData *viewer) {
+	return [viewer](ObjData *cand) {
+		return viewer && cand && CAN_SEE_OBJ(viewer, cand);
+	};
+}
+
 }; // namespace target_resolver
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

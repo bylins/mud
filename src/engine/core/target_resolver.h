@@ -151,6 +151,41 @@ RoomData *ResolveRoom(CharData *searcher, const Query &q);
 std::vector<CharData *> ResolveChars(CharData *searcher, const Query &q);
 std::vector<ObjData *>  ResolveObjs (CharData *searcher, const Query &q);
 
+// ---- Named filter factories (issue #3375 stage 3) -------------------------
+//
+// Building blocks for Query.char_predicate / Query.obj_predicate. Each
+// returns a `std::function<bool(...)>` ready to plug into a Query. Compose
+// by wrapping in a lambda that AND/OR's the results -- e.g.
+//
+//   q.char_predicate = [a = MakeAllyFilter(ch), v = MakeVisibleFilter(ch)]
+//                      (CharData *c) { return a(c) && v(c); };
+//
+// Most filters that need a "searcher" / "viewer" / "root" capture it at
+// factory time, so the returned predicate is a plain `bool(...)`.
+
+using CharPredicate = std::function<bool(CharData *)>;
+using ObjPredicate  = std::function<bool(ObjData *)>;
+
+// Relationship-side filters. "Ally" walks the charm-chain root the same way
+// issue.ambiguous-spells does -- charmed pets resolve to their PC master, two
+// mobs without PC roots count as conditionally allied, etc.
+CharPredicate MakeAllyFilter(CharData *root);
+CharPredicate MakeEnemyFilter(CharData *root);
+
+// Basic kind / state filters.
+CharPredicate MakeNpcFilter();
+CharPredicate MakePcFilter();
+CharPredicate MakeFightingFilter();
+CharPredicate MakeSameRoomFilter(CharData *root);
+CharPredicate MakeVisibleFilter(CharData *viewer);   // CAN_SEE-gated
+CharPredicate MakeAffectFilter(EAffect flag);        // AFF_FLAGGED(ch, flag)
+CharPredicate MakeMobFlagFilter(EMobFlag flag);      // NPC carrying flag
+
+// Vnum lookups. Mobs are matched by their proto vnum; objs by their proto vnum.
+CharPredicate MakeMobVnumFilter(MobVnum vnum);
+ObjPredicate  MakeObjVnumFilter(ObjVnum vnum);
+ObjPredicate  MakeObjVisibleFilter(CharData *viewer); // CAN_SEE_OBJ-gated
+
 }; // namespace target_resolver
 
 #endif // _TARGET_RESOLVER_HPP_INCLUDED_
