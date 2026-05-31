@@ -23,6 +23,7 @@ enum ELoadCharFlags : int {
 struct MERCDATA;
 
 class Account;
+class BufferedFileWriter;
 namespace DpsSystem {
 class Dps;
 }
@@ -74,13 +75,13 @@ class PlayerI {
 	virtual bool quested_get(int/* vnum*/) const { return false; };
 	virtual std::string quested_get_text(int/* vnum*/) const { return ""; };
 	virtual std::string quested_print() const { return ""; };
-	virtual void quested_save(FILE * /*saved*/) const {};
+	virtual void quested_save(BufferedFileWriter & /*saved*/) const {};
 
 	virtual int mobmax_get(int/* vnum*/) const { return 0; };
 	virtual void mobmax_add(CharData * /*ch*/, int/* vnum*/, int/* count*/, int/* level*/) {};
 	virtual void mobmax_load(CharData * /*ch*/, int/* vnum*/, int/* count*/, int/* level*/) {};
 	virtual void mobmax_remove(int/* vnum*/) {};
-	virtual void mobmax_save(FILE * /*saved*/) const {};
+	virtual void mobmax_save(BufferedFileWriter & /*saved*/) const {};
 
 	virtual void dps_add_dmg(int/* type*/, int/* dmg*/, int/* over_dmg*/ = 0, CharData * /*ch*/ = nullptr) {};
 	virtual void dps_clear(int/* type*/) {};

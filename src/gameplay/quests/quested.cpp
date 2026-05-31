@@ -4,6 +4,8 @@
 
 #include "quested.h"
 
+#include "utils/buffered_file_writer.h"
+
 #include "engine/entities/char_data.h"
 
 void smash_tilde(char *str);
@@ -63,9 +65,9 @@ std::string Quested::print() const {
 	return text.str();
 }
 
-void Quested::save(FILE *saved) const {
+void Quested::save(BufferedFileWriter &saved) const {
 	for (QuestedType::const_iterator it = quested_.begin(); it != quested_.end(); ++it) {
-		fprintf(saved, "Qst : %d %s~\n", it->first, it->second.c_str());
+		saved.printf("Qst : %d %s~\n", it->first, it->second.c_str());
 	}
 }
 
