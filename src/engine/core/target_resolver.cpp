@@ -352,9 +352,10 @@ void CollectObjs(CharData *searcher, const Query &q,
 				break;
 			}
 			case Scope::kWorld:
-				// Global obj walk -- expensive and rarely wanted. Deferred
-				// until a consumer asks for it. (FindObjForLocate stays as
-				// its own function with depot/parcel extensions.)
+				for (const auto &shared : world_objects) {
+					if (ord.done) break;
+					ConsiderObjAndChildren(shared.get(), q, name_filter, ord, out, searcher);
+				}
 				break;
 			case Scope::kRnum:
 				if (q.rnum_lookup) {

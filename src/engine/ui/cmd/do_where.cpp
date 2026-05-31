@@ -12,6 +12,7 @@
 #include "utils/utils_time.h"
 #include "gameplay/mechanics/dungeons.h"
 #include "engine/db/obj_prototypes.h"
+#include "engine/core/target_resolver.h"
 
 #include <fmt/format.h>
 
@@ -54,21 +55,21 @@ void PerformImmortWhere(CharData *ch, char *arg) {
 		}
 		SendMsgToChar(ss.str(), ch);
 	} else {
-		for (const auto &i : character_list) {
-			if (CAN_SEE(ch, i)
-				&& i->in_room != kNowhere
-				&& isname(arg, i->GetCharAliases())) {
-				ZoneData *zone = &zone_table[world[i->in_room]->zone_rn];
-				found = 1;
-				ss << fmt::format("{:>3}. {} ({:>6}) {:<25} - [{:>7}] {}. Название зоны: '{}'\r\n",
-								  num++,
-								  i->IsNpc() ? "Моб:   " : "Игрок: ",
-								  GET_MOB_VNUM(i),
-								  GET_NAME(i),
-								  GET_ROOM_VNUM(i->in_room),
-								  world[i->in_room]->name,
-								  zone->name.c_str());
-			}
+		target_resolver::Query q;
+		q.scopes = {target_resolver::Scope::kWorld};
+		q.name = arg;
+		q.char_predicate = [](CharData *c) { return c->in_room != kNowhere; };
+		for (CharData *i : target_resolver::ResolveChars(ch, q)) {
+			ZoneData *zone = &zone_table[world[i->in_room]->zone_rn];
+			found = 1;
+			ss << fmt::format("{:>3}. {} ({:>6}) {:<25} - [{:>7}] {}. Название зоны: '{}'\r\n",
+							  num++,
+							  i->IsNpc() ? "Моб:   " : "Игрок: ",
+							  GET_MOB_VNUM(i),
+							  GET_NAME(i),
+							  GET_ROOM_VNUM(i->in_room),
+							  world[i->in_room]->name,
+							  zone->name.c_str());
 		}
 		SendMsgToChar(ss.str(), ch);
 		if (!PrintImmWhereObj(ch, arg, num) && !found) {
@@ -83,21 +84,17 @@ void PerformImmortWhere(CharData *ch, char *arg) {
 */
 bool PrintImmWhereObj(CharData *ch, char *arg, int num) {
 	bool found = false;
-
-	/* maybe it is possible to create some index instead of linear search */
-	world_objects.foreach([&](const ObjData::shared_ptr& object) {
-	  if (isname(arg, object->get_aliases())) {
-		  if (PrintObjectLocation(num, object.get(), ch)) {
-			  found = true;
-			  num++;
-		  }
-	  }
-	});
-
-	if (found) {
-		return true;
+	target_resolver::Query q;
+	q.scopes = {target_resolver::Scope::kWorld};
+	q.name = arg;
+	q.visible_only = false;
+	for (ObjData *obj : target_resolver::ResolveObjs(ch, q)) {
+		if (PrintObjectLocation(num, obj, ch)) {
+			found = true;
+			num++;
+		}
 	}
-	return false;
+	return found;
 }
 
 void PerformMortalWhere(CharData *ch, char *arg) {
