@@ -684,6 +684,45 @@ void Actions::ParseFlagCondition(FlagCondition &cond, parser_wrapper::DataNode &
 	}
 }
 
+// Parse a <caster_blocking> tag (issue.caster-blocking-refine). Schema:
+//
+//     <caster_blocking>
+//         <caster align="kEvil" affect_flags="kHold|kCharmed"/>
+//     </caster_blocking>
+//
+// Diverges from <blocking>/<required> (multi-child-tag form) by collapsing the
+// caster's axes onto attributes of a single <caster> child -- the gate is a
+// short descriptive entry, not a multi-axis AND across loose <mob_flags>/
+// <room_flags>/<affect_flags>/<align> tags. Storage is still the shared
+// FlagCondition; TargetIsBlocked(caster, cond) reuses the same align +
+// affect_flags evaluation it does for victim-side <blocking>. Both attributes
+// are optional; absent attributes leave the corresponding field at its default.
+void Actions::ParseCasterBlocking(FlagCondition &cond, parser_wrapper::DataNode &node) {
+	for (auto &child : node.Children()) {
+		if (strcmp(child.GetName(), "caster") != 0) {
+			continue;
+		}
+		const char *align_val = child.GetValue("align");
+		if (align_val && *align_val) {
+			if (strcmp(align_val, "kGood") == 0) {
+				cond.align = EAlign::kGood;
+			} else if (strcmp(align_val, "kEvil") == 0) {
+				cond.align = EAlign::kEvil;
+			} else if (strcmp(align_val, "kNeutral") == 0) {
+				cond.align = EAlign::kNeutral;
+			} else {
+				err_log("Actions: unknown EAlign '%s' in <caster align>.", align_val);
+			}
+		}
+		const char *affect_flags_val = child.GetValue("affect_flags");
+		if (affect_flags_val && *affect_flags_val) {
+			for (const auto &flag_name : utils::Split(affect_flags_val, '|')) {
+				cond.affect_flags.push_back(parse::ReadAsConstant<EAffect>(flag_name.c_str()));
+			}
+		}
+	}
+}
+
 void Actions::ParseAction(ActionsRosterPtr &info, parser_wrapper::DataNode node) {
 	for (auto &manifestation: node.Children()) {
 		if (strcmp(manifestation.GetName(), "damage") == 0) {
@@ -701,7 +740,7 @@ void Actions::ParseAction(ActionsRosterPtr &info, parser_wrapper::DataNode node)
 		} else if (strcmp(manifestation.GetName(), "required") == 0) {
 			ParseFlagCondition(required_, manifestation);
 		} else if (strcmp(manifestation.GetName(), "caster_blocking") == 0) {
-			ParseFlagCondition(caster_blocking_, manifestation);
+			ParseCasterBlocking(caster_blocking_, manifestation);
 		} else if (strcmp(manifestation.GetName(), "reflection") == 0) {
 			ParseReflection(reflection_, manifestation);
 		}

@@ -438,6 +438,11 @@ class Actions {
 	static void ParseAffect(ActionsRosterPtr &info, parser_wrapper::DataNode &node);
 	static void ParseUnaffect(ActionsRosterPtr &info, parser_wrapper::DataNode &node);
 	static void ParseFlagCondition(FlagCondition &cond, parser_wrapper::DataNode &node);
+	// issue.caster-blocking-refine: <caster_blocking> uses a single-child
+	// <caster align="..." affect_flags="..."/> shape rather than the multi-child-tag
+	// form of <blocking>/<required>. The storage is still FlagCondition; only the
+	// parse shape differs.
+	static void ParseCasterBlocking(FlagCondition &cond, parser_wrapper::DataNode &node);
 	static void ParseReflection(Reflection &refl, parser_wrapper::DataNode &node);
 
  public:

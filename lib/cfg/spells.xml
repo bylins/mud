@@ -596,7 +596,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <align val="kEvil"/>
                 </required>
                 <caster_blocking>
-                    <align val="kEvil"/>
+                    <caster align="kEvil"/>
                 </caster_blocking>
             </action>
         </talent_actions>
@@ -1192,7 +1192,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <align val="kGood"/>
                 </required>
                 <caster_blocking>
-                    <align val="kGood"/>
+                    <caster align="kGood"/>
                 </caster_blocking>
             </action>
         </talent_actions>
