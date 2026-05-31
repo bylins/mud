@@ -276,8 +276,16 @@ enum class ESpell {
 	kDazzle = 356,
 	kGreatHeal = 357,
 	kFrenzy = 358,
+	// Placeholder slots for spell prototyping in test mode (mode="kTesting"
+	// in spells.xml). Pick the next free slot, write the config under that
+	// id, and rename here when the spell graduates to its real name.
+	kTestOne = 359,
+	kTestTwo = 360,
+	kTestThree = 361,
+	kTestFour = 362,
+	kTestFive = 363,
 	kFirst = kArmor,
-	kLast = 358	// Не забываем менять
+	kLast = 363	// Не забываем менять
 };
 
 const ESpell &operator++(ESpell &s);
@@ -336,7 +344,7 @@ enum EMagic : Bitvector {
 	kMagManual = 1 << 10,
 	kMagWarcry = 1 << 11,
 	kMagNeedControl = 1 << 12,
-	kMagCharRelocate = 1 << 13,
+	// Bit 13 used to be kMagCharRelocate; folded into kMagManual.
 // А чего это тут дырка Ж)
 	kNpcDamagePc = 1 << 16,
 	kNpcDamagePcMinhp = 1 << 17,
@@ -373,7 +381,9 @@ enum ETarget : Bitvector {
 	kTarObjEquip = 1 << 10,
 	kTarRoomThis = 1 << 11,	// Цель комната в которой сидит чар//
 	kTarRoomDir = 1 << 12,	// Цель комната в каком-то направлении от чара//
-	kTarRoomWorld = 1 << 13	// Цель какая-то комната в мире//
+	kTarRoomWorld = 1 << 13,	// Цель какая-то комната в мире//
+	kTarAllyOnly = 1 << 14,	// Only a check: PC may target only self or a groupmate. Use with kTarCharRoom //
+	kTarMinionsOnly = 1 << 15	// Only a check: target must be one of the caster's own NPC followers (master == caster) //
 };
 
 template<>

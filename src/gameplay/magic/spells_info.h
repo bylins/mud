@@ -9,9 +9,24 @@
 #include "engine/structs/structs.h"
 #include "engine/structs/info_container.h"
 
+class CharData;
+
 namespace spells {
 
 using DataNode = parser_wrapper::DataNode;
+
+// Three-state aggression flag for a spell, parsed from the <misc violent> attribute.
+// (issue.ambiguous-spells)
+//   kNo        -- a purely helpful spell ("N" / "0"), can be cast freely on anyone.
+//   kYes       -- always violent ("Y" / "1"), triggers PK / retaliation / saving-shield logic.
+//   kAmbiguous -- "A": helpful when cast on self / charmed pets / groupmates, but treated as
+//                 fully aggressive (including PK liability) when cast on outsiders. NPC<->NPC
+//                 mob casts always resolve to the helpful side; charmed pets resolve to their
+//                 PC master's relationship.
+// Backwards-compat note: IsViolent() returns true ONLY for kYes -- A is conservatively reported
+// as "not always violent" for the call sites that still ask the static question. Sites that
+// need the per-target answer call IsViolentAgainst(caster, target).
+enum class EViolent : uint8_t { kNo, kYes, kAmbiguous };
 
 /**
  * Загрузчик конфига заклинания.
@@ -33,11 +48,25 @@ class SpellInfo : public info_container::BaseItem<ESpell> {
 	Bitvector targets_{0};
 	long danger_{0};
 	EElement element_{EElement::kUndefined};
-	bool violent_{false};
+	EViolent violent_{EViolent::kNo};
 
 	int min_mana_{100};        // Min amount of mana used by a spell (highest lev) //
 	int max_mana_{120};        // Max amount of mana used by a spell (lowest lev) //
 	int mana_change_{1};    // Change in mana used by spell from lev to lev //
+
+	// Potency roll parameters of the spell (dice + skill/stat bonuses), shared by
+	// all of the spell's effects (issue #3332). Filled from the <potency_roll>
+	// section; spells without one keep the default-constructed roll.
+	talents_actions::Roll potency_roll_;
+	// Success roll parameters (same shape as the potency roll), filled from the
+	// <success_roll> section (issue #3333). Currently parsed and stored only;
+	// the value is evaluated in CallMagic but not yet interpreted.
+	talents_actions::Roll success_roll_;
+	// Material component requirements (issue.spellcomponents). Filled from the
+	// optional <components>...</components> block; spells without one keep an
+	// empty container, which ProcessMatComponents treats as "no component
+	// required, cast proceeds".
+	talents_actions::Components components_;
 
 	//std::unordered_map<effects::EEffect, effects::EffectPtr> effects_;
 
@@ -63,7 +92,18 @@ class SpellInfo : public info_container::BaseItem<ESpell> {
 
 	[[nodiscard]] bool IsFlagged(Bitvector flag) const;
 	[[nodiscard]] bool AllowTarget(Bitvector target_type) const;
-	[[nodiscard]] bool IsViolent() const { return violent_; };
+	// Strict / static accessor: returns true only for spells declared <misc violent="Y">.
+	// kAmbiguous reports false here -- call sites that need the per-target verdict use
+	// IsViolentAgainst() below. (issue.ambiguous-spells)
+	[[nodiscard]] bool IsViolent() const { return violent_ == EViolent::kYes; };
+	[[nodiscard]] EViolent GetViolent() const { return violent_; };
+	// Resolves an A (kAmbiguous) spell against a concrete caster<->target relationship.
+	// Returns true iff this cast on this target should be treated as aggression
+	// (PK rules apply, NPCs retaliate, saving-shields fire, dispel needs a strength
+	// contest, etc.). For kYes always true; for kNo always false. For kAmbiguous:
+	// allies (self / charmed-pet chain / same group, with NPC<->NPC mob casts defaulting
+	// to allied) -> false; outsiders -> true. (issue.ambiguous-spells)
+	[[nodiscard]] bool IsViolentAgainst(const CharData *caster, const CharData *target) const;
 
 	[[nodiscard]] long GetDanger() const { return danger_; };
 	[[nodiscard]] EPosition GetMinPos() const { return min_position_; };
@@ -72,6 +112,15 @@ class SpellInfo : public info_container::BaseItem<ESpell> {
 	[[nodiscard]] int GetMinMana() const { return min_mana_; };
 	[[nodiscard]] int GetMaxMana() const { return max_mana_; };
 	[[nodiscard]] int GetManaChange() const { return mana_change_; };
+
+	[[nodiscard]] const talents_actions::Roll &GetPotencyRoll() const { return potency_roll_; };
+	[[nodiscard]] const talents_actions::Roll &GetSuccessRoll() const { return success_roll_; };
+	[[nodiscard]] const talents_actions::Components &GetComponents() const { return components_; };
+	// Convenience: spell has a <verbal/> child in its <components> block.
+	// Speech-blocking effects (kSilence) only stop verbal spells; non-verbal
+	// spells can be cast under kSilence. See do_cast / CastSpell /
+	// process_player_attack / SaySpell guards.
+	[[nodiscard]] bool IsVerbal() const { return components_.HasVerbal(); };
 
 	void Print(CharData *ch, std::ostringstream &buffer) const;
 };
@@ -86,6 +135,7 @@ class SpellInfoBuilder : public info_container::IItemBuilder<SpellInfo> {
 	static ItemPtr ParseSpell(DataNode node);
 	static ItemPtr ParseHeader(DataNode &node);
 	static void ParseName(ItemPtr &info, DataNode &node);
+	static void ParseComponents(ItemPtr &info, DataNode &node);
 	static void ParseMisc(ItemPtr &info, DataNode &node);
 	static void ParseMana(ItemPtr &info, DataNode &node);
 	static void ParseTargets(ItemPtr &info, DataNode &node);

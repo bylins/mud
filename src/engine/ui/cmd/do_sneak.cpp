@@ -32,14 +32,14 @@ void do_sneak(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 
 	Affect<EApply> af;
 	af.type = ESpell::kSneak;
-	af.duration = CalcDuration(ch, 0, GetRealLevel(ch), 8, 0, 1);
+	af.duration = CalcDuration(ch, ch, ESkill::kSneak, 0, 20, 0, 1);
 	af.modifier = 0;
 	af.location = EApply::kNone;
 	af.battleflag = 0;
 	if (percent > prob) {
-		af.bitvector = 0;
+		af.affect_type = EAffect::kUndefinded;
 	} else {
-		af.bitvector = to_underlying(EAffect::kSneak);
+		af.affect_type = EAffect::kSneak;
 	}
 	affect_to_char(ch, af);
 }

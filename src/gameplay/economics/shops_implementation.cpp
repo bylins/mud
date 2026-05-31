@@ -796,7 +796,7 @@ void shop_node::process_ident(CharData *ch, CharData *keeper, char *argument, co
 			tell_to_char(keeper, ch, buf);
 
 			SendMsgToChar(ch, "Характеристики предмета: %s\r\n", ident_obj->get_PName(ECase::kNom).c_str());
-			mort_show_obj_values(ident_obj, ch, 200);
+			MortShowObjValues(ident_obj, ch, 200);
 			ch->remove_gold(IDENTIFY_COST);
 		}
 	}

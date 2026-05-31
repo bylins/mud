@@ -4,6 +4,7 @@
 #include "engine/ui/modify.h"
 #include "engine/entities/char_data.h"
 #include "magic.h" //Включено ради material_component_processing
+#include "magic_utils.h" // IsRoomBlocked / MayCastInForbiddenRoom
 #include "engine/ui/table_wrapper.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/skills/townportal.h"
@@ -25,6 +26,20 @@ void RemoveSingleRoomAffect(long caster_id, ESpell spell_id);
 void HandleRoomAffect(RoomData *room, CharData *ch, const Affect<ERoomApply>::shared_ptr &aff);
 void SendRemoveAffectMsgToRoom(ESpell affect_type, RoomRnum room);
 void affect_to_room(RoomData *room, const Affect<ERoomApply> &af);
+
+namespace {
+// Look up `key` in `spell`'s sheaf (with kDefault fallback) and send to `ch`,
+// substituting any {name} placeholder with `spell`'s canonical name. Trailing
+// "\r\n" matches the SendMsgToChar convention.
+void SendSpellNameMsg(CharData *ch, ESpell spell, ESpellMsg key) {
+	std::string msg = MUD::SpellMessages().GetMessage(spell, key);
+	const auto pos = msg.find("{name}");
+	if (pos != std::string::npos) {
+		msg.replace(pos, std::strlen("{name}"), MUD::Spell(spell).GetCName());
+	}
+	SendMsgToChar(msg + "\r\n", ch);
+}
+}  // namespace
 
 void RoomRemoveAffect(RoomData *room, const RoomAffectIt &affect) {
 	if (room->affected.empty()) {
@@ -60,6 +75,20 @@ bool IsRoomAffected(RoomData *room, ESpell spell) {
 		}
 	}
 	return false;
+}
+
+long FindRoomPkPortalUid(RoomData *room, long exclude_uid) {
+	if (!room) {
+		return 0;
+	}
+	for (const auto &af : room->affected) {
+		if (af->type == ESpell::kPortalTimer
+				&& af->pk_unique != 0
+				&& af->pk_unique != exclude_uid) {
+			return af->pk_unique;
+		}
+	}
+	return 0;
 }
 
 void ShowAffectedRooms(CharData *ch) {
@@ -150,6 +179,116 @@ void AddRoomToAffected(RoomData *room) {
 		affected_rooms.push_back(room);
 }
 
+// Per-tick handler for kDeadlyFog room affect. Each duration step triggers a
+// progressively more harmful cascade against everyone in the room.
+static void HandleDeadlyFogTick(CharData *ch, int duration) {
+	switch (duration) {
+	case 7:
+		SendMsgToChar("Повинуясь вашему желанию отравить всех, туман начал густеть...\r\n", ch);
+		act("Облако тумана созданное $n4 начало густеть, отравляя комнату...\r\n",
+			false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
+		CallMagicToArea(ch, nullptr, world[ch->in_room], ComputeCastRoll(ch, ESpell::kPoison, GetRealLevel(ch)));
+		break;
+	case 6:
+		SendMsgToChar("Вы осознали, что хотите вызвать ужасные мучения у врагов...\r\nТуман тут же исполнил вашу прихоть...\r\n", ch);
+		act("$n захрипел$g, завыл$g, и враги, вдыхающие и выдыхающие туман, стали корчиться от силы черной магии!\r\n",
+			false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
+		CallMagicToArea(ch, nullptr, world[ch->in_room], ComputeCastRoll(ch, ESpell::kFever, GetRealLevel(ch)));
+		break;
+	case 5:
+		SendMsgToChar("Что может быть лучше, чем слабый враг?!\r\nТолько мертвый!\r\n", ch);
+		act("$n что-то проревел$g страшным голосом, и враги, окутанные туманом, стали быстро слабеть!\r\n",
+			false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
+		CallMagicToArea(ch, nullptr, world[ch->in_room], ComputeCastRoll(ch, ESpell::kWeaknes, GetRealLevel(ch)));
+		break;
+	case 4:
+		SendMsgToChar("Вам захотелось лишить всех глаз!\r\n", ch);
+		act("Туман, вызванный $n4, начал слепить врагов, сгустившись еще сильнее!\r\n",
+			false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
+		CallMagicToArea(ch, nullptr, world[ch->in_room], ComputeCastRoll(ch, ESpell::kPowerBlindness, GetRealLevel(ch)));
+		break;
+	case 3:
+		SendMsgToChar("Сильно навредить врагам?!\r\nХорошая идея!\r\n", ch);
+		act("$n пожелал$g, и туман уплотнился, чтобы навредить врагам!\r\n",
+			false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
+		CallMagicToArea(ch, nullptr, world[ch->in_room], ComputeCastRoll(ch, ESpell::kDamageCritic, GetRealLevel(ch)));
+		break;
+	case 2:
+		SendMsgToChar("Вам невтерпеж испить жизненной силы врагов!\r\nЧто и было исполнено.\r\n", ch);
+		act("Туман высосал часть вражеских сил и отдал их $n2!\r\n",
+			false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
+		CallMagicToArea(ch, nullptr, world[ch->in_room], ComputeCastRoll(ch, ESpell::kSacrifice, GetRealLevel(ch)));
+		break;
+	case 1: 
+		SendMsgToChar("Вы осознали что кислоты мало не бывает!\r\nТуман повиновался.\r\n", ch);
+		act("По воле $n1 из тумана вылетел сноп кислотных стрел!\r\n",
+			false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
+		CallMagicToArea(ch, nullptr, world[ch->in_room], ComputeCastRoll(ch, ESpell::kAcidArrow, GetRealLevel(ch)));
+		break;
+	case 0: 
+	default: 
+		SendMsgToChar("Вы решили проклясть всех напоследок!\r\n", ch);
+		act("$n что-то прошептал$g напоследок, и туман навлек проклятие на врагов!\r\n",
+			false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
+			CallMagicToArea(ch, nullptr, world[ch->in_room], ComputeCastRoll(ch, ESpell::kMassCurse, GetRealLevel(ch)));
+		break;
+	}
+}
+
+// Per-tick handler for kThunderstorm room affect. Each duration step triggers a
+// different elemental cascade until the storm fades.
+static void HandleThunderstormTick(CharData *ch, const Affect<ERoomApply>::shared_ptr &aff) {
+	switch (aff->duration) {
+	case 7:
+		if (!CallMagic(ch, nullptr, nullptr, nullptr, ESpell::kControlWeather, GetRealLevel(ch))) {
+			aff->duration = 0;
+			break;
+		}
+		what_sky = kSkyCloudy;
+		SendMsgToChar("Стремительно налетевшие черные тучи сгустились над вами.\r\n", ch);
+		act("Стремительно налетевшие черные тучи сгустились над вами.\r\n",
+			false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
+		break;
+	case 6: SendMsgToChar("Раздался чудовищный раскат грома!\r\n", ch);
+		act("Раздался чудовищный удар грома!\r\n",
+			false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
+		CallMagicToArea(ch, nullptr, world[ch->in_room], ComputeCastRoll(ch, ESpell::kDeafness, GetRealLevel(ch)));
+		break;
+	case 5: SendMsgToChar("Порывы мокрого ледяного ветра обрушились из туч!\r\n", ch);
+		act("Порывы мокрого ледяного ветра обрушились на вас!\r\n",
+			false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
+		CallMagicToArea(ch, nullptr, world[ch->in_room], ComputeCastRoll(ch, ESpell::kColdWind, GetRealLevel(ch)));
+		break;
+	case 4: SendMsgToChar("Из туч хлынул дождь кислоты!\r\n", ch);
+		act("Из туч хлынул дождь кислоты!\r\n",
+			false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
+		CallMagicToArea(ch, nullptr, world[ch->in_room], ComputeCastRoll(ch, ESpell::kAcid, GetRealLevel(ch)));
+		break;
+	case 3: SendMsgToChar("Из туч ударили разряды молний!\r\n", ch);
+		act("Из туч ударили разряды молний!\r\n",
+			false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
+		CallMagicToArea(ch, nullptr, world[ch->in_room], ComputeCastRoll(ch, ESpell::kLightingBolt, GetRealLevel(ch)));
+		break;
+	case 2: SendMsgToChar("Из тучи посыпались шаровые молнии!\r\n", ch);
+		act("Из тучи посыпались шаровые молнии!\r\n",
+			false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
+		CallMagicToArea(ch, nullptr, world[ch->in_room], ComputeCastRoll(ch, ESpell::kCallLighting, GetRealLevel(ch)));
+		break;
+	case 1: SendMsgToChar("Буря завыла, закручиваясь в вихри!\r\n", ch);
+		act("Буря завыла, закручиваясь в вихри!\r\n",
+			false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
+		CallMagicToArea(ch, nullptr, world[ch->in_room], ComputeCastRoll(ch, ESpell::kWhirlwind, GetRealLevel(ch)));
+		break;
+	case 0: 
+	default: 
+		what_sky = kSkyCloudless;
+		SendMsgToChar("Буря начала утихать.\r\n", ch);
+		act("Буря начала утихать.\r\n",
+			false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
+		break;
+	}
+}
+
 // Раз в 2 секунды идет вызов обработчиков аффектов//
 void HandleRoomAffect(RoomData *room, CharData *ch, const Affect<ERoomApply>::shared_ptr &aff) {
 	// Аффект в комнате.
@@ -166,122 +305,24 @@ void HandleRoomAffect(RoomData *room, CharData *ch, const Affect<ERoomApply>::sh
 		case ESpell::kRoomLight: break;
 
 		case ESpell::kDeadlyFog:
-			switch (aff->duration) {
-				case 7:
-					SendMsgToChar("Повинуясь вашему желанию отравить всех, туман начал густеть...\r\n", ch);
-					act("Облако тумана созданное $n4 начало густеть, отравляя комнату...\r\n",
-						false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-					CallMagicToArea(ch, nullptr, world[ch->in_room], ESpell::kPoison, GetRealLevel(ch));
-					break;
-				case 6:
-					SendMsgToChar("Вы осознали, что хотите вызвать ужасные мучения у врагов...\r\nТуман тут же исполнил вашу прихоть...\r\n", ch);
-					act("$n захрипел$g, завыл$g, и враги, вдыхающие и выдыхающие туман, стали корчиться от силы черной магии!\r\n",
-						false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-					CallMagicToArea(ch, nullptr, world[ch->in_room], ESpell::kFever, GetRealLevel(ch));
-					break;
-				case 5:
-					SendMsgToChar("Что может быть лучше, чем слабый враг?!\r\nТолько мертвый!\r\n", ch);
-					act("$n что-то проревел$g страшным голосом, и враги, окутанные туманом, стали быстро слабеть!\r\n",
-						false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-					CallMagicToArea(ch, nullptr, world[ch->in_room], ESpell::kWeaknes, GetRealLevel(ch));
-					break;
-				case 4:
-					SendMsgToChar("Вам захотелось лишить всех глаз!\r\n", ch);
-					act("Туман, вызванный $n4, начал слепить врагов, сгустившись еще сильнее!\r\n",
-						false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-					CallMagicToArea(ch, nullptr, world[ch->in_room], ESpell::kPowerBlindness, GetRealLevel(ch));
-					break;
-				case 3:
-					SendMsgToChar("Сильно навредить врагам?!\r\nХорошая идея!\r\n", ch);
-					act("$n пожелал$g, и туман уплотнился, чтобы навредить врагам!\r\n",
-						false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-					CallMagicToArea(ch, nullptr, world[ch->in_room], ESpell::kDamageCritic, GetRealLevel(ch));
-					break;
-				case 2:
-					SendMsgToChar("Вам невтерпеж испить жизненной силы врагов!\r\nЧто и было исполнено.\r\n", ch);
-					act("Туман высосал часть вражеских сил и отдал их $n2!\r\n",
-						false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-					CallMagicToArea(ch, nullptr, world[ch->in_room], ESpell::kSacrifice, GetRealLevel(ch));
-					break;
-				case 1: 
-					SendMsgToChar("Вы осознали что кислоты мало не бывает!\r\nТуман повиновался.\r\n", ch);
-					act("По воле $n1 из тумана вылетел сноп кислотных стрел!\r\n",
-						false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-					CallMagicToArea(ch, nullptr, world[ch->in_room], ESpell::kAcidArrow, GetRealLevel(ch));
-					break;
-				case 0: 
-				default: 
-					SendMsgToChar("Вы решили проклясть всех напоследок!\r\n", ch);
-					act("$n что-то прошептал$g напоследок, и туман навлек проклятие на врагов!\r\n",
-						false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-						CallMagicToArea(ch, nullptr, world[ch->in_room], ESpell::kMassCurse, GetRealLevel(ch));
-					break;
-			}
+			HandleDeadlyFogTick(ch, aff->duration);
 			break;
 		
 
 		case ESpell::kMeteorStorm: SendMsgToChar("Раскаленные громовые камни рушатся с небес!\r\n", ch);
 			act("Раскаленные громовые камни рушатся с небес!\r\n",
 				false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-			CallMagicToArea(ch, nullptr, world[ch->in_room], ESpell::kThunderStone, GetRealLevel(ch));
+			CallMagicToArea(ch, nullptr, world[ch->in_room], ComputeCastRoll(ch, ESpell::kThunderStone, GetRealLevel(ch)));
 			break;
 
 		case ESpell::kThunderstorm:
-			switch (aff->duration) {
-				case 7:
-					if (!CallMagic(ch, nullptr, nullptr, nullptr, ESpell::kControlWeather, GetRealLevel(ch))) {
-						aff->duration = 0;
-						break;
-					}
-					what_sky = kSkyCloudy;
-					SendMsgToChar("Стремительно налетевшие черные тучи сгустились над вами.\r\n", ch);
-					act("Стремительно налетевшие черные тучи сгустились над вами.\r\n",
-						false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-					break;
-				case 6: SendMsgToChar("Раздался чудовищный раскат грома!\r\n", ch);
-					act("Раздался чудовищный удар грома!\r\n",
-						false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-					CallMagicToArea(ch, nullptr, world[ch->in_room], ESpell::kDeafness, GetRealLevel(ch));
-					break;
-				case 5: SendMsgToChar("Порывы мокрого ледяного ветра обрушились из туч!\r\n", ch);
-					act("Порывы мокрого ледяного ветра обрушились на вас!\r\n",
-						false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-					CallMagicToArea(ch, nullptr, world[ch->in_room], ESpell::kColdWind, GetRealLevel(ch));
-					break;
-				case 4: SendMsgToChar("Из туч хлынул дождь кислоты!\r\n", ch);
-					act("Из туч хлынул дождь кислоты!\r\n",
-						false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-					CallMagicToArea(ch, nullptr, world[ch->in_room], ESpell::kAcid, GetRealLevel(ch));
-					break;
-				case 3: SendMsgToChar("Из туч ударили разряды молний!\r\n", ch);
-					act("Из туч ударили разряды молний!\r\n",
-						false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-					CallMagicToArea(ch, nullptr, world[ch->in_room], ESpell::kLightingBolt, GetRealLevel(ch));
-					break;
-				case 2: SendMsgToChar("Из тучи посыпались шаровые молнии!\r\n", ch);
-					act("Из тучи посыпались шаровые молнии!\r\n",
-						false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-					CallMagicToArea(ch, nullptr, world[ch->in_room], ESpell::kCallLighting, GetRealLevel(ch));
-					break;
-				case 1: SendMsgToChar("Буря завыла, закручиваясь в вихри!\r\n", ch);
-					act("Буря завыла, закручиваясь в вихри!\r\n",
-						false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-					CallMagicToArea(ch, nullptr, world[ch->in_room], ESpell::kWhirlwind, GetRealLevel(ch));
-					break;
-				case 0: 
-				default: 
-					what_sky = kSkyCloudless;
-					SendMsgToChar("Буря начала утихать.\r\n", ch);
-					act("Буря начала утихать.\r\n",
-						false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-					break;
-			}
+			HandleThunderstormTick(ch, aff);
 			break;
 
 		case ESpell::kBlackTentacles: SendMsgToChar("Мертвые руки навей шарят в поисках добычи!\r\n", ch);
 			act("Мертвые руки навей шарят в поисках добычи!\r\n",
 				false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-			CallMagicToArea(ch, nullptr, world[ch->in_room], ESpell::kDamageSerious, GetRealLevel(ch));
+			CallMagicToArea(ch, nullptr, world[ch->in_room], ComputeCastRoll(ch, ESpell::kDamageSerious, GetRealLevel(ch)));
 			break;
 
 		default: log("ERROR: Try handle room affect for spell without handler!");
@@ -349,7 +390,7 @@ void UpdateRoomsAffects() {
 
 			// Учитываем что время выдается в пульсах а не в секундах  т.е. надо умножать на 2
 			affect->apply_time++;
-			if (affect->must_handled) {
+			if (IS_SET(affect->battleflag, kAfMustBeHandled)) {
 				HandleRoomAffect(*room, ch, affect);
 			}
 		}
@@ -366,214 +407,181 @@ void UpdateRoomsAffects() {
 
 // =============================================================== //
 
-// Применение заклинания к комнате //
-int CallMagicToRoom(int/* level*/, CharData *ch, RoomData *room, ESpell spell_id) {
-	bool accum_affect = false, accum_duration = false, success = true;
-	bool update_spell = false;
-	// Должен ли данный спелл быть только 1 в мире от этого кастера?
-	bool only_one = false;
-	const char *to_char = nullptr;
-	const char *to_room = nullptr;
-	int i = 0, lag = 0;
-	// Sanity check
+// Apply a room-targeted spell to ch's current room. Pure data-driven: every
+// affect parameter -- duration, modifier, potency, debuff flag, refresh /
+// dedup policy, imposition narration -- comes from the spell's XML
+// <talent_actions>/<affects> block and spell_msg.xml. No per-spell switch or
+// code-set messages remain. New room spells need only their XML rows; this
+// function is unchanged.
+// Three universal gates run before any affect data is computed:
+//   1. Material component (ProcessMatComponents). Missing -> abort silently.
+//   2. <blocking><room_flags val>. Room carries a blocking flag and the caster
+//      is not exempt (MayCastInForbiddenRoom) -> emit kCastForbidden* and
+//      abort. This is the kRuneLabel/kForbidden/kNoMagic fizzle path.
+//   3. (no third gate -- everything else is data-driven inside the impose loop)
+// Duration unit: room-affect durations are in RAW ROOM-TICK PULSES, NOT the
+// hours used by char affects. The reader uses base + skill_bonus directly,
+// without the kSecsPerMudHour multiplier that CalcDuration applies for PCs.
+// This preserves the OLD pulse-direct semantics of kDeadlyFog (8 pulses),
+// kMeteorStorm (3 pulses), etc. -- sub-hour values that hours-based duration
+// can't express in integers.
+int CallMagicToRoom(CharData *ch, RoomData *room, CastRollResult roll) {
+	const ESpell spell_id = roll.spell_id;   // roll.level is unused for room casts
+
 	if (room == nullptr || ch == nullptr || ch->in_room == kNowhere) {
 		return 0;
 	}
 
+	// Material component: silently abort if the cast requires one and ch
+	// can't provide it. No-op for spells without a configured component.
+	if (ProcessMatComponents(ch, ch, spell_id) == EStageResult::kBreak) {
+		return 0;
+	}
+
+	// Data-driven room block: same mechanism as in
+	// CallMagic. Fizzle narration lives in spell_msg.xml; the kDefault
+	// sheaf covers the generic case, per-spell sheaves override.
+	if (IsRoomBlocked(world[ch->in_room], MUD::Spell(spell_id).actions.GetBlocking())
+			&& !MayCastInForbiddenRoom(ch)) {
+		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kCastForbiddenToChar) + "\r\n", ch);
+		const auto &fizzle_room = MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kCastForbiddenToRoom);
+		if (!fizzle_room.empty()) {
+			act(fizzle_room.c_str(), false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
+		}
+		return 0;
+	}
+
+	// Data-driven dispel. A kTarRoomThis spell carrying an <unaffect>
+	// block strips room affects here, mirroring CastToSingleTarget's "Damage -> Unaffect ->
+	// Affect" ordering. CastUnaffects emits its own dispel / no-effect narration via the
+	// kAffDispelledTo{Char,Room} sheaves. For a pure-dispel spell (no <affects>) the impose
+	// loop below then runs as a no-op; for a dual spell (kMagAffects + <unaffect>) the affect
+	// imposition continues normally.
+	if (CastUnaffects(ch, nullptr, room, spell_id) == EStageResult::kBreak) {
+		return 0;
+	}
+
+	// Default-init the affect array. kMaxSpellAffects slots; only slot 0 is
+	// populated from the XML today, but the impose loop still walks them all
+	// so multi-apply room spells stay forward-compatible.
 	Affect<ERoomApply> af[kMaxSpellAffects];
-	for (i = 0; i < kMaxSpellAffects; i++) {
+	for (int i = 0; i < kMaxSpellAffects; i++) {
 		af[i].type = spell_id;
-		af[i].bitvector = 0;
+		af[i].affect_type = static_cast<ERoomAffect>(0);
 		af[i].modifier = 0;
 		af[i].battleflag = 0;
 		af[i].location = kNone;
 		af[i].caster_id = 0;
-		af[i].must_handled = false;
 		af[i].apply_time = 0;
 		af[i].duration = 0;
 	}
 
-	switch (spell_id) {
-		case ESpell::kForbidden: af[0].type = spell_id;
-			af[0].location = kNone;
-			af[0].duration = (1 + (GetRealLevel(ch) + 14) / 15) * 30;
-			af[0].caster_id = ch->get_uid();
-			af[0].must_handled = false;
-			accum_duration = false;
-			update_spell = true;
-			if (IS_MANA_CASTER(ch)) {
-				af[0].modifier = 95;
-			} else {
-				af[0].modifier = MIN(100, GetRealInt(ch) + MAX((GetRealInt(ch) - 30) * 4, 0));
-			}
-			if (af[0].modifier > 99) {
-				to_char = "Вы запечатали магией все входы.";
-				to_room = "$n запечатал$g магией все входы.";
-			} else if (af[0].modifier > 79) {
-				to_char = "Вы почти полностью запечатали магией все входы.";
-				to_room = "$n почти полностью запечатал$g магией все входы.";
-			} else {
-				to_char = "Вы очень плохо запечатали магией все входы.";
-				to_room = "$n очень плохо запечатал$g магией все входы.";
-			}
-			break;
-		case ESpell::kRoomLight: af[0].type = spell_id;
-			af[0].location = kNone;
-			af[0].modifier = 0;
-			af[0].duration = CalcDuration(ch, 0, GetRealLevel(ch) + 5, 6, 0, 0);
-			af[0].caster_id = ch->get_uid();
-			af[0].must_handled = false;
-			accum_duration = true;
-			update_spell = true;
-			to_char = "Вы облили комнату бензином и бросили окурок.";
-			to_room = "Пространство вокруг начало светиться.";
-			break;
-
-		case ESpell::kDeadlyFog: af[0].type = spell_id;
-			af[0].location = kNone;
-			af[0].modifier = 0;
-			af[0].duration = 8;
-			af[0].caster_id = ch->get_uid();
-			af[0].must_handled = true;
-			update_spell = false;
-			to_char = "Пробормотав злобные проклятия, вы вызвали смертельный ядовитый туман, покрывший все вокруг тёмным саваном.";
-			to_room = "Пробормотав злобные проклятия, $n вызвал$g смертельный ядовитый туман, покрывший все вокруг тёмным саваном.";
-			break;
-
-		case ESpell::kMeteorStorm: af[0].type = spell_id;
-			af[0].location = kNone;
-			af[0].modifier = 0;
-			af[0].duration = 3;
-			af[0].caster_id = ch->get_uid();
-			af[0].must_handled = true;
-			accum_duration = false;
-			update_spell = false;
-			to_char = "Повинуясь вашей воле, несшиеся в неизмеримой дали громовые камни обрушились на землю.";
-			to_room = "$n воздел$g руки и с небес посыпался град раскаленных громовых камней.";
-			break;
-
-		case ESpell::kThunderstorm: af[0].type = spell_id;
-			af[0].duration = 7;
-			af[0].must_handled = true;
-			af[0].caster_id = ch->get_uid();
-			update_spell = false;
-			to_char = "Вы ощутили в небесах силу бури и призвали ее к себе.";
-			to_room = "$n проревел$g заклинание. Вы услышали раскаты далекой грозы.";
-			break;
-
-		case ESpell::kRuneLabel:
-			if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kPeaceful)
-				|| ROOM_FLAGGED(ch->in_room, ERoomFlag::kTunnel)
-				|| ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoTeleportIn)) {
-				to_char = "Вы начертали свое имя рунами на земле, знаки вспыхнули, но ничего не произошло.";
-				to_room = "$n начертил$g на земле несколько рун, знаки вспыхнули, но ничего не произошло.";
-				lag = 2;
-				break;
-			}
-			af[0].type = spell_id;
-			af[0].location = kNone;
-			af[0].modifier = 0;
-			af[0].duration = (kRuneLabelDuration + (GetRealRemort(ch) * 10)) * 3;
-			af[0].caster_id = ch->get_uid();
-			af[0].must_handled = false;
-			accum_duration = false;
-			update_spell = true;
-			only_one = true;
-			to_char = "Вы начертали свое имя рунами на земле и произнесли заклинание.";
-			to_room = "$n начертил$g на земле несколько рун и произнес$q заклинание.";
-			lag = 2;
-			break;
-
-		case ESpell::kHypnoticPattern:
-			if (ProcessMatComponents(ch, ch, spell_id)) {
-				success = false;
-				break;
-			}
-			af[0].type = spell_id;
-			af[0].location = kNone;
-			af[0].modifier = 0;
-			af[0].duration = 30 + (GetRealLevel(ch) + GetRealRemort(ch)) * RollDices(1, 3);
-			af[0].caster_id = ch->get_uid();
-			af[0].must_handled = false;
-			accum_duration = false;
-			update_spell = false;
-			only_one = false;
-			to_char = "Вы воскурили благовония и пропели заклинание. В воздухе поплыл чарующий глаз огненный узор.";
-			to_room = "$n воскурил$g благовония и пропел$g заклинание. В воздухе поплыл чарующий глаз огненный узор.";
-			break;
-
-		case ESpell::kBlackTentacles:
-			if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kForMono) || ROOM_FLAGGED(ch->in_room, ERoomFlag::kForPoly)) {
-				success = false;
-				break;
-			}
-			af[0].type = spell_id;
-			af[0].location = kNone;
-			af[0].modifier = 0;
-			af[0].duration = 1 + GetRealLevel(ch) / 7;
-			af[0].caster_id = ch->get_uid();
-			af[0].must_handled = true;
-			accum_duration = false;
-			update_spell = false;
-			to_char =
-				"Вы выкрикнули несколько мерзко звучащих слов и притопнули.\r\n"
-				"Из-под ваших ног полезли скрюченные мертвые руки.";
-			to_room =
-				"$n выкрикнул$g несколько мерзко звучащих слов и притопнул$g.\r\n"
-				"Из-под ваших ног полезли скрюченные мертвые руки.";
-			break;
-		default: break;
-	}
-	if (success) {
-		if (MUD::Spell(spell_id).IsFlagged(kMagNeedControl)) {
-			auto found_spell = RemoveControlledRoomAffect(ch);
-			if (found_spell != ESpell::kUndefined) {
-				SendMsgToChar(ch, "Вы прервали заклинание !%s! и приготовились применить !%s!\r\n",
-							  MUD::Spell(found_spell).GetCName(), MUD::Spell(spell_id).GetCName());
-			}
-		} else {
-			auto RoomAffect_i = FindAffect(room, spell_id);
-			const auto RoomAffect = RoomAffect_i != room->affected.end() ? *RoomAffect_i : nullptr;
-			if (RoomAffect && RoomAffect->caster_id == ch->get_uid() && !update_spell) {
-				success = false;
-			} else if (only_one) {
-				RemoveSingleRoomAffect(ch->get_uid(), spell_id);
-			}
+	// Data-driven defaults from the spell's <talent_actions>/<affects> block.
+	// Fills af[0] with duration, battleflag, modifier, potency, debuff -- the
+	// same fields CastAffect populates on a per-target affect (the helpers
+	// CalcCastPotency / ComputeApplyModifier are shared with CastAffect's
+	// apply_one path so both record the same values for the same cast roll).
+	if (MUD::Spell(spell_id).actions.Contains(talents_actions::EAction::kAffect)) {
+		const auto &talent = MUD::Spell(spell_id).actions.GetAffect();
+		af[0].type = spell_id;
+		af[0].caster_id = ch->get_uid();
+		af[0].battleflag = talent.GetFlags();
+		const ESkill dur_skill = MUD::Spell(spell_id).GetPotencyRoll().GetBaseSkill();
+		int skill_bonus = (talent.GetDurationSkillDivisor() > 0 && dur_skill != ESkill::kUndefined)
+			? CalcNoviceSkillBonus(ch, dur_skill, talent.GetDurationSkillDivisor()) : 0;
+		if (talent.GetDurationMin() > 0) skill_bonus = std::max(skill_bonus, talent.GetDurationMin());
+		if (talent.GetDurationMax() > 0) skill_bonus = std::min(skill_bonus, talent.GetDurationMax());
+		af[0].duration = talent.GetDurationBase() + static_cast<unsigned>(skill_bonus);
+		// Stored potency scaled by <affects potency_weight=> (issue.affects-potency-weight;
+		// default 1.0). Symmetric with the char-affect path in TryApplyAffectTalent.
+		af[0].potency = CalcCastPotency(roll.potency) * talent.GetPotencyWeight();
+		af[0].debuff = MUD::Spell(spell_id).IsViolent();
+		if (!talent.GetApplies().empty()) {
+			af[0].modifier = ComputeApplyModifier(talent.GetApplies()[0], roll.potency);
 		}
 	}
 
-	// Перебираем заклы чтобы понять не производиться ли рефрешь закла
-	for (i = 0; success && i < kMaxSpellAffects; i++) {
+	/*
+	// The hack for displaying the sealing level has been removed. The code is
+	// left in case we need to quickly revert it.
+	if (spell_id == ESpell::kForbidden) {
+		if (af[0].modifier > 99) {
+			// top tier -> spell_msg.xml kForbidden/kAffImposed*
+		} else if (af[0].modifier > 79) {
+			to_char = "Вы почти полностью запечатали магией все входы.";
+			to_room = "$n почти полностью запечатал$g магией все входы.";
+		} else {
+			to_char = "Вы очень плохо запечатали магией все входы.";
+			to_room = "$n очень плохо запечатал$g магией все входы.";
+		}
+	}
+	*/
+
+	// Refresh / dedup policy. kMagNeedControl spells cancel any other
+	// controlled affect; otherwise a duplicate cast is allowed iff the
+	// affect's first slot carries kAfUpdateDuration. kAfUnique drops any
+	// prior copy from this caster.
+	bool success = true;
+	if (MUD::Spell(spell_id).IsFlagged(kMagNeedControl)) {
+		auto found_spell = RemoveControlledRoomAffect(ch);
+		if (found_spell != ESpell::kUndefined) {
+			// Two separate messages: the interrupt line is
+			// keyed on the OLD spell's sheaf so a per-spell override can flavour HOW
+			// it ends ("свечение угасло" etc.); the prepare line is keyed on the NEW
+			// spell so each spell announces its own preparation.
+			SendSpellNameMsg(ch, found_spell, ESpellMsg::kCastInterruptedToChar);
+			SendSpellNameMsg(ch, spell_id, ESpellMsg::kCastPreparedToChar);
+		}
+	} else {
+		auto RoomAffect_i = FindAffect(room, spell_id);
+		const auto RoomAffect = RoomAffect_i != room->affected.end() ? *RoomAffect_i : nullptr;
+		const bool refresh_allowed = IS_SET(af[0].battleflag, kAfUpdateDuration);
+		if (RoomAffect && RoomAffect->caster_id == ch->get_uid() && !refresh_allowed) {
+			success = false;
+		} else if (IS_SET(af[0].battleflag, kAfUnique)) {
+			RemoveSingleRoomAffect(ch->get_uid(), spell_id);
+		}
+	}
+
+	// Impose loop. Each affect's battleflag drives the join policy: kAfUpdate
+	// Duration -> affect_room_join_fspell (replace by spell id); otherwise
+	// affect_room_join with kAfAccumulateDuration deciding whether durations
+	// stack. Empty slots (no duration, no location, no kAfMustBeHandled flag)
+	// are skipped.
+	for (int i = 0; success && i < kMaxSpellAffects; i++) {
 		af[i].type = spell_id;
 		if (af[i].duration
 			|| af[i].location != kNone
-			|| af[i].must_handled) {
+			|| IS_SET(af[i].battleflag, kAfMustBeHandled)) {
 			af[i].duration = CalcComplexSpellMod(ch, spell_id, GAPPLY_SPELL_EFFECT, af[i].duration);
-			if (update_spell) {
+			if (IS_SET(af[i].battleflag, kAfUpdateDuration)) {
 				affect_room_join_fspell(room, af[i]);
 			} else {
-				affect_room_join(room, af[i], accum_duration, false, accum_affect, false);
+				const bool accum_duration = IS_SET(af[i].battleflag, kAfAccumulateDuration);
+				affect_room_join(room, af[i], accum_duration, false, false, false);
 			}
-			//Вставляем указатель на комнату в список обкастованных, с проверкой на наличие
-			//Здесь - потому что все равно надо проверять, может это не первый спелл такого типа на руме
 			AddRoomToAffected(room);
 		}
 	}
 
 	if (success) {
-		if (to_room != nullptr)
-			act(to_room, true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-		if (to_char != nullptr)
-			act(to_char, true, ch, nullptr, nullptr, kToChar);
+		// Imposition narration: pure spell_msg.xml lookup, sheaf-direct so a
+		// missing key stays silent (same convention as CastAffect's
+		// EmitImpositionEffects).
+		const auto &sheaf = MUD::SpellMessages()[spell_id];
+		const auto &xml_to_room = sheaf.GetMessage(ESpellMsg::kAffImposedToRoom);
+		if (!xml_to_room.empty()) {
+			act(xml_to_room.c_str(), true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
+		}
+		const auto &xml_to_char = sheaf.GetMessage(ESpellMsg::kAffImposedToChar);
+		if (!xml_to_char.empty()) {
+			act(xml_to_char.c_str(), true, ch, nullptr, nullptr, kToChar);
+		}
 		return 1;
-	} else
-		SendMsgToChar(NOEFFECT, ch);
+	}
 
-	if (!ch->IsImmortal())
-		SetWaitState(ch, lag * kBattleRound);
-
+	SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 	return 0;
-
 }
 
 int GetUniqueAffectDuration(long caster_id, ESpell spell_id) {
@@ -674,7 +682,11 @@ void RemoveSingleAffectFromWorld(CharData *ch, ESpell spell_id) {
 		const auto aff = room_spells::FindAffect(affected_room, spell_id);
 		if (aff != affected_room->affected.end()) {
 			room_spells::RoomRemoveAffect(affected_room, aff);
-			SendMsgToChar("Ваша рунная метка удалена.\r\n", ch);
+			// kAfDispelledToOwner sheaf lookup: the kDefault
+			// fallback is "Ваша магия была развеяна."; kRuneLabel overrides with
+			// "Ваша рунная метка удалена.". Other spells using this path inherit the
+			// default until a designer authors a per-spell line.
+			SendSpellNameMsg(ch, spell_id, ESpellMsg::kAfDispelledToOwner);
 		}
 	}
 }

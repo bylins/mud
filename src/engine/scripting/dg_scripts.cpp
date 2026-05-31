@@ -2710,6 +2710,8 @@ void find_replacement(void *go,
 			snprintf(str, str_size, "%s", GET_CH_SUF_7(mob));
 		else if (!str_cmp(field, "x"))
 			snprintf(str, str_size, "%s", GET_CH_SUF_8(mob));
+		else if (!str_cmp(field, "h"))                                   // issue.mag-points
+			snprintf(str, str_size, "%s", GET_CH_EXSUF_1(mob));
 		else if (!str_cmp(field, "weight"))
 			snprintf(str, str_size, "%d", GET_WEIGHT(mob));
 		else if (!str_cmp(field, "CarryWeight"))
@@ -3028,7 +3030,7 @@ void find_replacement(void *go,
 						}
 					}
 					else {
-						SetWaitState(mob, pos * kBattleRound);
+						SetBattleLag(mob, pos);
 					}
 				}
 			} else if (!str_cmp(field, "applyvalue")) {
@@ -3536,6 +3538,8 @@ void find_replacement(void *go,
 			snprintf(str, str_size, "%s", GET_OBJ_SUF_5(obj));
 		else if (!str_cmp(field, "a"))
 			snprintf(str, str_size, "%s", GET_OBJ_SUF_6(obj));
+		else if (!str_cmp(field, "h"))                                   // issue.mag-points
+			snprintf(str, str_size, "%s", GET_OBJ_EXSUF_1(obj));
 		else if (!str_cmp(field, "sex"))
 			snprintf(str, str_size, "%d", (int) GET_OBJ_SEX(obj));
 		else if (!str_cmp(field, "room")) {

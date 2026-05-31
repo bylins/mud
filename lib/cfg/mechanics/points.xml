@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="koi8-r"?>
+<!--
+    Intensity-grade vocabulary for CastToPoints narration (issue.mag-points
+    + issue.point-bugs).
+
+    Each <heal>/<moves>/<thirst>/<full> section carries <improve> and
+    <degrade> lists of <grade percent= text=/> rows. The lookup picks the
+    largest threshold T such that T <= input (walk descending), so both
+    directions share a single algorithm and the tier whose threshold the
+    input has crossed wins.
+
+    text= may carry act() suffix codes - $h (soft-stem instrumental,
+    "посвежевшим/посвежевшей"), $r (hard-stem instrumental, "новым/новой") -
+    which resolve against the target's gender at send time.
+
+    Percent conventions:
+      heal   improve: amount / max_hp     (positive, 0..100)
+      heal   degrade: empty - heal stays positive-only by design
+      moves  improve: amount / max_moves  (positive, 0..100)
+      moves  degrade: amount / max_moves  (negative, -100..0)
+      thirst improve: removed / current   (positive, 0..100)
+      thirst degrade: -(cond_after * 100) / kMaxCondition   (negative)
+      full   improve: removed / current   (positive, 0..100)
+      full   degrade: -(cond_after * 100) / kMaxCondition   (negative)
+
+    For thirst/full DEGRADE the formula uses the AFTER-state of the
+    inverted engine field (kMaxCondition = 48): a thirstier/hungrier
+    character lands a more-negative percent and matches a more-extreme
+    tier. The improve formula keeps its "fraction of current thirst/hunger
+    relieved" sense and yields positive percents.
+-->
+<points_intensity>
+
+    <!-- HEAL: improve % = amount / max_hp; degrade unused (heal stays
+         positive-only by design; designers may fill <degrade> if a
+         heal-drain spell is ever introduced). -->
+    <heal>
+        <improve>
+            <grade percent="99" text="полностью исцелённ$r"/>
+            <grade percent="75" text="почти исцеленн$r"/>
+            <grade percent="55" text="намного здоровей"/>
+            <grade percent="55" text="значительно лучше"/>
+            <grade percent="50" text="намного лучше"/>
+            <grade percent="35" text="лучше"/>
+            <grade percent="25" text="немного лучше"/>
+            <grade percent="15" text="чуточку лучше"/>
+            <grade percent="5"  text="едва живее"/>
+        </improve>
+        <degrade>
+            <!-- intentionally empty: heal-drain narration TBD -->
+        </degrade>
+    </heal>
+
+    <!-- MOVES: improve % = restored / max_moves;
+         degrade % = drain / max_moves (negative). -->
+    <moves>
+        <improve>
+            <grade percent="99" text="полностью отдохнувш$h"/>
+            <grade percent="75" text="крепко отдохнувш$h"/>
+            <grade percent="50" text="отдохнувш$h"/>
+            <grade percent="25" text="немного отдохнувш$h"/>
+            <grade percent="0"  text="едва свежее"/>
+        </improve>
+        <degrade>
+            <grade percent="-95" text="полностью истощенн$h"/>
+            <grade percent="-80" text="сильно уставш$h"/>
+            <grade percent="-60" text="уставш$h"/>
+            <grade percent="-40" text="немного уставш$h"/>
+            <grade percent="-20" text="слегшка уставш$h"/>
+        </degrade>
+    </moves>
+
+    <!-- THIRST: improve % = removed thirst / current thirst (engine field is
+         inverted, CastToPoints negates the talent amount before
+         gain_condition). Degrade % = -(thirst_after * 100) / 48 - the
+         after-state's saturation on the 0..48 scale, signed negative so a
+         thirstier outcome lands a more-negative tier. -->
+    <thirst>
+        <improve>
+            <grade percent="99" text="полностью утоливш$h жажду"/>
+            <grade percent="75" text="хорошо напивш$hся"/>
+            <grade percent="50" text="напивш$hся"/>
+            <grade percent="25" text="немного утоливш$h жажду"/>
+            <grade percent="0"  text="едва менее жаждущ$h"/>
+        </improve>
+        <degrade>
+            <grade percent="-95" text="полностью иссушенн$h"/>
+            <grade percent="-75" text="иссушенн$h"/>
+            <grade percent="-55" text="жаждущ$h глотка воды"/>
+            <grade percent="-30" text="желающ$h пить"/>
+            <grade percent="-10" text="слегка желающ$h пить"/>
+        </degrade>
+    </thirst>
+
+    <!-- FULL (hunger): improve % = removed FULL / current FULL (engine
+         field is inverted, CastToPoints negates before gain_condition).
+         Degrade % = -(full_after * 100) / 48. Renamed from <cond> in
+         issue.point-bugs to free "cond" for the overall triplet name. -->
+    <full>
+        <improve>
+            <grade percent="99" text="наевш$hся до отвала"/>
+            <grade percent="75" text="крепко наевш$hся"/>
+            <grade percent="50" text="сыт$r"/>
+            <grade percent="25" text="немного утоливш$h голод"/>
+            <grade percent="0"  text="едва менее голодн$r"/>
+        </improve>
+        <degrade>
+            <grade percent="-95" text="умирающ$h с голоду"/>
+            <grade percent="-75" text="изголодавш$hся"/>
+            <grade percent="-55" text="сильно голод$r"/>
+            <grade percent="-30" text="голодн$r"/>
+            <grade percent="-10" text="желающ$h перекусить"/>
+        </degrade>
+    </full>
+
+    <!-- DAMAGE (issue.mag-points step 2): substituted into the {intensity}
+         placeholder on kFightHit* messages by SendCombatMessages in
+         skills.cpp. Percentage formula = damage * 100 / STRIKER's max HP -
+         a "% of MY power" scale, uniform for all viewers in the room. The
+         mid range (>10) is intentionally an empty string so a normal hit
+         reads as "Вы ударили $N3." with no adverb. The >150 tier crosses
+         the lethal threshold. Each text carries a TRAILING SPACE because
+         the placeholder sits directly before the verb ("Вы {intensity}-
+         ударили $N3"), so an empty tier collapses cleanly. -->
+    <damage>
+        <improve>
+            <grade percent="150" text="СМЕРТЕЛЬНО "/>
+            <grade percent="130" text="УБИЙСТВЕННО "/>
+            <grade percent="110" text="УЖАСНО "/>
+            <grade percent="99" text="ЖЕСТОКО "/>
+            <grade percent="95" text="НЕВЫНОСИМО БОЛЬНО "/>
+            <grade percent="90" text="ЧРЕЗВВЧАЙНО БОЛЬНО "/>
+            <grade percent="85" text="ОЧЕНЬ БОЛЬНО "/>
+            <grade percent="80" text="БОЛЬНО "/>
+            <grade percent="75" text="чрезвычайно сильно "/>
+            <grade percent="70" text="очень сильно "/>
+            <grade percent="65" text="сильно "/>
+            <grade percent="60" text="основательно "/>
+            <grade percent="50" text="очень крепко "/>
+            <grade percent="35" text="крепко "/>
+            <grade percent="20" text=""/>
+            <grade percent="16" text="незначительно "/>
+            <grade percent="12" text="слабо "/>
+            <grade percent="10" text="очень слабо "/>
+            <grade percent="8" text="слегка "/>
+            <grade percent="6" text="легонько "/>
+            <grade percent="4" text="слабенько "/>
+            <grade percent="2" text="едва-едва "/>
+        </improve>
+        <degrade>
+            <!-- damage doesn't go negative; left empty for symmetry -->
+        </degrade>
+    </damage>
+
+</points_intensity>

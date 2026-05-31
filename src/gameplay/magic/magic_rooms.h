@@ -7,6 +7,7 @@
 #include <list>
 
 class CharData;
+struct CastRollResult;   // defined in magic.h (issue #3333)
 
 namespace room_spells {
 
@@ -23,6 +24,16 @@ enum ERoomApply {
 	kNone = 0
 };
 
+} // namespace room_spells
+
+// Room affects store an ERoomAffect flag in Affect::affect_type (see affect_data.h).
+template<>
+struct AffectFlagType<room_spells::ERoomApply> {
+	using type = room_spells::ERoomAffect;
+};
+
+namespace room_spells {
+
 using RoomAffects = std::list<Affect<ERoomApply>::shared_ptr>;
 using RoomAffectIt = RoomAffects::iterator;
 
@@ -33,7 +44,7 @@ void ShowAffectedRooms(CharData *ch);
 void RoomRemoveAffect(RoomData *room, const RoomAffectIt &affect);
 bool IsRoomAffected(RoomData *room, ESpell spell);
 bool IsZoneRoomAffected(int zone_vnum, ESpell spell);
-int CallMagicToRoom(int level, CharData *ch, RoomData *room, ESpell spell_id);
+int CallMagicToRoom(CharData *ch, RoomData *room, CastRollResult roll);
 int GetUniqueAffectDuration(long caster_id, ESpell spell_id);
 RoomAffectIt FindAffect(RoomData *room, ESpell type);
 RoomData *FindAffectedRoomByCasterID(long caster_id, ESpell spell_id);
@@ -44,6 +55,15 @@ void AffectRoomJoinReplace(RoomData *room, const Affect<ERoomApply> &af);
 void affect_to_room(RoomData *room, const Affect<ERoomApply> &af);
 void RemoveSingleAffectFromWorld(CharData *ch, ESpell spell_id);
 void ProcessRoomAffectsOnEntry(CharData *ch, RoomRnum room);
+
+// Walks room->affected for a kPortalTimer affect with pk_unique != 0 and
+// pk_unique != exclude_uid; returns the matching pk_unique, or 0 if none.
+// Replaces the per-room RoomData::pkPenterUnique field. exclude_uid = 0
+// (the default) treats every PK pentagram as a match -- use that for the
+// "is there ANY PK pentagram here?" question (do_enter arena/house gate).
+// Pass the viewer's uid to find only foreign PK pentagrams -- use that for
+// the "did someone else cast this?" question (do_enter entry penalty).
+long FindRoomPkPortalUid(RoomData *room, long exclude_uid = 0);
 
 } // namespace room_spells
 

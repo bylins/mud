@@ -760,9 +760,13 @@ void Player::save_char() {
 		fprintf(saved, "Affs:\n");
 		for (auto &aff : tmp_aff) {
 			if (aff->type >= ESpell::kFirst) {
-				fprintf(saved, "%d %d %d %d %d %d %s\n", to_underlying(aff->type), aff->duration,
-						aff->modifier, aff->location, static_cast<int>(aff->bitvector),
-						static_cast<int>(aff->battleflag), MUD::Spell(aff->type).GetCName());
+				// Поля после battleflag: potency (сила наложения), debuff (1 -- дебафф, 0 -- бафф)
+				// и stacks (число стаков, issue.affect-stacks). Имя заклинания идёт последним как
+				// читаемый комментарий и при загрузке игнорируется.
+				fprintf(saved, "%d %d %d %d %d %d %f %d %d %s\n", to_underlying(aff->type), aff->duration,
+						aff->modifier, aff->location, static_cast<int>(aff->affect_type),
+						static_cast<int>(aff->battleflag), aff->potency, static_cast<int>(aff->debuff),
+						aff->stacks, MUD::Spell(aff->type).GetCName());
 			}
 		}
 		fprintf(saved, "0 0 0 0 0 0\n");
@@ -1255,18 +1259,33 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 					i = 0;
 					do {
 						fbgetline(fl, line);
-						sscanf(line, "%d %d %d %d %d %d", &num, &num2, &num3, &num4, &num5, &num6);
+						// New saves carry extra fields after battleflag: potency (float), debuff (0/1)
+						// and stacks (issue.affect-stacks). Old saves parse fewer fields -> the
+						// missing ones keep their defaults (potency 0, debuff false, stacks 1). The
+						// trailing spell name is ignored.
+						float af_potency = 0.0f;
+						int af_debuff = 0;
+						int af_stacks = 1;
+						const int parsed = sscanf(line, "%d %d %d %d %d %d %f %d %d",
+								&num, &num2, &num3, &num4, &num5, &num6, &af_potency, &af_debuff, &af_stacks);
 						if (num > 0) {
 							Affect<EApply> af;
-							af.type = static_cast<ESpell>(num);;
+							af.type = static_cast<ESpell>(num);
 							af.duration = num2;
 							af.modifier = num3;
 							af.location = static_cast<EApply>(num4);
-							af.bitvector = num5;
+							af.affect_type = static_cast<EAffect>(num5);
 							af.battleflag = num6;
-							if (af.type == ESpell::kCombatLuck) {
-								af.handler.reset(new CombatLuckAffectHandler());
+							if (parsed >= 8) {
+								af.potency = af_potency;
+								af.debuff = (af_debuff != 0);
 							}
+							if (parsed >= 9) {
+								af.stacks = std::max(1, af_stacks);
+							}
+//							if (af.type == ESpell::kCombatLuck) {
+//								af.handler.reset(new CombatLuckAffectHandler());
+//							}
 							affect_to_char(this, af);
 							i++;
 						}

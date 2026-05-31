@@ -22,6 +22,7 @@
 #include "gameplay/clans/house.h"
 #include "gameplay/mechanics/liquid.h"
 #include "magic.h"
+#include "gameplay/skills/animal_master.h"
 #include "engine/db/obj_prototypes.h"
 #include "gameplay/communication/parcel.h"
 #include "administration/privilege.h"
@@ -176,7 +177,10 @@ void SpellCreateWater(int/* level*/, CharData *ch, CharData *victim, ObjData *ob
 	if (obj
 		&& obj->get_type() == EObjType::kLiquidContainer) {
 		if ((GET_OBJ_VAL(obj, 2) != LIQ_WATER) && (GET_OBJ_VAL(obj, 1) != 0)) {
-			SendMsgToChar("Прекратите, ради бога, химичить.\r\n", ch);
+			// kCreateWater overrides kItemCreationFailToChar
+			// with "Прекратите, ради бога, химичить.".
+			SendMsgToChar(MUD::SpellMessages().GetMessage(
+					ESpell::kCreateWater, ESpellMsg::kItemCreationFailToChar) + "\r\n", ch);
 			return;
 		} else {
 			water = std::max(GET_OBJ_VAL(obj, 0) - GET_OBJ_VAL(obj, 1), 0);
@@ -186,7 +190,11 @@ void SpellCreateWater(int/* level*/, CharData *ch, CharData *victim, ObjData *ob
 				}
 				obj->set_val(2, LIQ_WATER);
 				obj->add_val(1, water);
-				act("Вы наполнили $o3 водой.", false, ch, obj, nullptr, kToChar);
+				// kCreateWater overrides the generic "Вы создали $o3." (kItemCreatedToChar)
+				// with "Вы наполнили $o3 водой.".
+				const auto &filled_msg = MUD::SpellMessages().GetMessage(
+						ESpell::kCreateWater, ESpellMsg::kItemCreatedToChar);
+				act(filled_msg.c_str(), false, ch, obj, nullptr, kToChar);
 				name_to_drinkcon(obj, LIQ_WATER);
 				weight_change_object(obj, water);
 			}
@@ -194,17 +202,22 @@ void SpellCreateWater(int/* level*/, CharData *ch, CharData *victim, ObjData *ob
 	}
 	if (victim && !victim->IsNpc() && !victim->IsImmortal()) {
 		GET_COND(victim, THIRST) = 0;
-		SendMsgToChar("Вы полностью утолили жажду.\r\n", victim);
-		if (victim != ch) {
-			act("Вы напоили $N3.", false, ch, nullptr, victim, kToChar);
-		}
+		// kCreateWater overrides kThirstToVict with "Вы полностью утолили жажду."
+		// (literal text, no {intensity} expansion -- the manual path bypasses
+		// CastToPoints' intensity machinery).
+		SendMsgToChar(MUD::SpellMessages().GetMessage(
+				ESpell::kCreateWater, ESpellMsg::kThirstToVict) + "\r\n", victim);
+		// The redundant "Вы напоили $N3." line to the caster was removed
+		// the caster has no way to gauge the target's
+		// prior thirst level, so the line conveys no real info.
 	}
 }
 
-#define SUMMON_FAIL "Попытка перемещения не удалась.\r\n"
-#define SUMMON_FAIL2 "Ваша жертва устойчива к этому.\r\n"
-#define SUMMON_FAIL3 "Магический кокон, окружающий вас, помешал заклинанию сработать правильно.\r\n"
-#define SUMMON_FAIL4 "Ваша жертва в бою, подождите немного.\r\n"
+// Look up kSummonFail in `spell_id`'s sheaf (per-spell override on each summon-
+// style spell, with kDefault random-variant fallback) and emit to the caster.
+static void SendSummonFail(CharData *ch, ESpell spell_id) {
+	SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kSummonFail) + "\r\n", ch);
+}
 /*
 #define MIN_NEWBIE_ZONE  20
 #define MAX_NEWBIE_ZONE  79
@@ -254,26 +267,27 @@ void SpellRecall(CharData *ch, CharData *victim) {
 	RoomRnum rnum_start, rnum_stop;
 
 	if (!victim || victim->IsNpc() || ch->in_room != victim->in_room || GetRealLevel(victim) >= kLvlImmortal) {
-		SendMsgToChar(SUMMON_FAIL, ch);
+		SendSummonFail(ch, ESpell::kWorldOfRecall);
 		return;
 	}
 
-	if (!ch->IsGod()
-		&& (ROOM_FLAGGED(victim->in_room, ERoomFlag::kNoTeleportOut) || AFF_FLAGGED(victim, EAffect::kNoTeleport))) {
-		SendMsgToChar(SUMMON_FAIL, ch);
+	// kNoTeleportOut moved to <blocking><room_flags> in spells.xml; CallMagic
+	// fizzles before this function runs.
+	if (!ch->IsGod() && AFF_FLAGGED(victim, EAffect::kNoTeleport)) {
+		SendSummonFail(ch, ESpell::kWorldOfRecall);
 		return;
 	}
 
 	if (victim != ch) {
 		if (group::same_group(ch, victim)) {
 			if (number(1, 100) <= 5) {
-				SendMsgToChar(SUMMON_FAIL, ch);
+				SendSummonFail(ch, ESpell::kWorldOfRecall);
 				return;
 			}
 		} else if (!ch->IsNpc() || (ch->has_master()
 			&& !ch->get_master()->IsNpc())) // игроки не в группе и  чармисы по приказу не могут реколить свитком
 		{
-			SendMsgToChar(SUMMON_FAIL, ch);
+			SendSummonFail(ch, ESpell::kWorldOfRecall);
 			return;
 		}
 
@@ -286,7 +300,7 @@ void SpellRecall(CharData *ch, CharData *victim) {
 		to_room = GetRoomRnum(calc_loadroom(victim));
 
 	if (to_room == kNowhere) {
-		SendMsgToChar(SUMMON_FAIL, ch);
+		SendSummonFail(ch, ESpell::kWorldOfRecall);
 		return;
 	}
 
@@ -299,7 +313,7 @@ void SpellRecall(CharData *ch, CharData *victim) {
 	}
 
 	if (fnd_room == kNowhere) {
-		SendMsgToChar(SUMMON_FAIL, ch);
+		SendSummonFail(ch, ESpell::kWorldOfRecall);
 		return;
 	}
 
@@ -309,11 +323,15 @@ void SpellRecall(CharData *ch, CharData *victim) {
 	}
 	if (!enter_wtrigger(world[fnd_room], ch, -1))
 		return;
-	act("$n исчез$q.", true, victim, nullptr, nullptr, kToRoom | kToArenaListen);
+	// kWorldOfRecall overrides the kCastDisappearToRoom /
+	// kCastAppearToRoom defaults with its specific "centre of room" wording.
+	act(MUD::SpellMessages().GetMessage(ESpell::kWorldOfRecall, ESpellMsg::kCastDisappearToRoom).c_str(),
+		true, victim, nullptr, nullptr, kToRoom | kToArenaListen);
 	RemoveCharFromRoom(victim);
 	PlaceCharToRoom(victim, fnd_room);
 	victim->dismount();
-	act("$n появил$u в центре комнаты.", true, victim, nullptr, nullptr, kToRoom);
+	act(MUD::SpellMessages().GetMessage(ESpell::kWorldOfRecall, ESpellMsg::kCastAppearToRoom).c_str(),
+		true, victim, nullptr, nullptr, kToRoom);
 	look_at_room(victim, 0);
 	greet_mtrigger(victim, -1);
 	greet_otrigger(victim, -1);
@@ -324,24 +342,29 @@ void SpellTeleport(CharData *ch, CharData */*victim*/) {
 	RoomRnum in_room = ch->in_room, fnd_room = kNowhere;
 	RoomRnum rnum_start, rnum_stop;
 
-	if (!ch->IsGod() && (ROOM_FLAGGED(in_room, ERoomFlag::kNoTeleportOut) || AFF_FLAGGED(ch, EAffect::kNoTeleport))) {
-		SendMsgToChar(SUMMON_FAIL, ch);
+	// kNoTeleportOut moved to <blocking><room_flags> in spells.xml; CallMagic
+	// fizzles before this function runs.
+	if (!ch->IsGod() && AFF_FLAGGED(ch, EAffect::kNoTeleport)) {
+		SendSummonFail(ch, ESpell::kTeleport);
 		return;
 	}
 
 	GetZoneRooms(world[in_room]->zone_rn, &rnum_start, &rnum_stop);
 	fnd_room = GetTeleportTargetRoom(ch, rnum_start, rnum_stop);
 	if (fnd_room == kNowhere) {
-		SendMsgToChar(SUMMON_FAIL, ch);
+		SendSummonFail(ch, ESpell::kTeleport);
 		return;
 	}
 	if (!enter_wtrigger(world[fnd_room], ch, -1))
 		return;
-	act("$n медленно исчез$q из виду.", false, ch, nullptr, nullptr, kToRoom);
+	// kTeleport overrides kCastDisappearToRoom / kCastAppearToRoom.
+	act(MUD::SpellMessages().GetMessage(ESpell::kTeleport, ESpellMsg::kCastDisappearToRoom).c_str(),
+		false, ch, nullptr, nullptr, kToRoom);
 	RemoveCharFromRoom(ch);
 	PlaceCharToRoom(ch, fnd_room);
 	ch->dismount();
-	act("$n медленно появил$u откуда-то.", false, ch, nullptr, nullptr, kToRoom);
+	act(MUD::SpellMessages().GetMessage(ESpell::kTeleport, ESpellMsg::kCastAppearToRoom).c_str(),
+		false, ch, nullptr, nullptr, kToRoom);
 	look_at_room(ch, 0);
 	greet_mtrigger(ch, -1);
 	greet_otrigger(ch, -1);
@@ -360,22 +383,17 @@ void SpellRelocate(CharData *ch, CharData *victim) {
 	if (victim == nullptr)
 		return;
 
-	if (!ch->IsGod()) {
-		if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoTeleportOut)) {
-			SendMsgToChar(SUMMON_FAIL, ch);
-			return;
-		}
-
-		if (AFF_FLAGGED(ch, EAffect::kNoTeleport)) {
-			SendMsgToChar(SUMMON_FAIL, ch);
-			return;
-		}
+	// kNoTeleportOut moved to <blocking><room_flags> in spells.xml; CallMagic
+	// fizzles before this function runs.
+	if (!ch->IsGod() && AFF_FLAGGED(ch, EAffect::kNoTeleport)) {
+		SendSummonFail(ch, ESpell::kRelocate);
+		return;
 	}
 
 	to_room = victim->in_room;
 
 	if (to_room == kNowhere) {
-		SendMsgToChar(SUMMON_FAIL, ch);
+		SendSummonFail(ch, ESpell::kRelocate);
 		return;
 	}
 
@@ -386,7 +404,7 @@ void SpellRelocate(CharData *ch, CharData *victim) {
 	}
 
 	if (fnd_room != to_room && !ch->IsGod()) {
-		SendMsgToChar(SUMMON_FAIL, ch);
+		SendSummonFail(ch, ESpell::kRelocate);
 		return;
 	}
 
@@ -397,38 +415,49 @@ void SpellRelocate(CharData *ch, CharData *victim) {
 			ROOM_FLAGGED(fnd_room, ERoomFlag::kTunnel) ||
 			ROOM_FLAGGED(fnd_room, ERoomFlag::kNoRelocateIn) ||
 			ROOM_FLAGGED(fnd_room, ERoomFlag::kIceTrap) || (ROOM_FLAGGED(fnd_room, ERoomFlag::kGodsRoom) && !ch->IsImmortal()))) {
-		SendMsgToChar(SUMMON_FAIL, ch);
+		SendSummonFail(ch, ESpell::kRelocate);
 		return;
 	}
 	if (!enter_wtrigger(world[fnd_room], ch, -1))
 		return;
 //	check_auto_nosummon(victim);
-	act("$n медленно исчез$q из виду.", true, ch, nullptr, nullptr, kToRoom);
-	SendMsgToChar("Лазурные сполохи пронеслись перед вашими глазами.\r\n", ch);
+	// kRelocate shares the kTeleport disappear/appear wording
+	// and adds its own kCustomMsgOne caster-side "azure flash" banner.
+	act(MUD::SpellMessages().GetMessage(ESpell::kRelocate, ESpellMsg::kCastDisappearToRoom).c_str(),
+		true, ch, nullptr, nullptr, kToRoom);
+	SendMsgToChar(MUD::SpellMessages().GetMessage(
+			ESpell::kRelocate, ESpellMsg::kCustomMsgOne) + "\r\n", ch);
 	RemoveCharFromRoom(ch);
 	PlaceCharToRoom(ch, fnd_room);
 	ch->dismount();
 	look_at_room(ch, 0);
-	act("$n медленно появил$u откуда-то.", true, ch, nullptr, nullptr, kToRoom);
-	SetWaitState(ch, 2 * kBattleRound);
+	act(MUD::SpellMessages().GetMessage(ESpell::kRelocate, ESpellMsg::kCastAppearToRoom).c_str(),
+		true, ch, nullptr, nullptr, kToRoom);
+	SetBattleLag(ch, 2);
 	greet_mtrigger(ch, -1);
 	greet_otrigger(ch, -1);
 }
 
-void AddPortalTimer(CharData *ch, RoomData *from_room, RoomRnum to_room, int time) {
+// pk_unique: when non-zero, marks this portal as a PK-revenge/fight pentagram and
+// carries the imposing caster's uid. Replaces the old RoomData::pkPenterUnique
+// (which was per-room, ambiguous when multiple pentas land in one room, and had
+// to be cleared by hand). Read by show_room_affects (Pk variant selection) and
+// do_enter (entry gate); cleared automatically when the affect expires.
+void AddPortalTimer(CharData *ch, RoomData *from_room, RoomRnum to_room, int time,
+					long pk_unique = 0) {
 //	sprintf(buf, "Добавляем портал из %d в %d", from_room->vnum, world[to_room]->vnum);
 //	mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
 
 	Affect<room_spells::ERoomApply> af;
 	af.type = ESpell::kPortalTimer;
-	af.bitvector = 0;
+	af.affect_type = static_cast<room_spells::ERoomAffect>(0);
 	af.duration = time; //раз в 2 секунды
 	af.modifier = to_room;
 	af.battleflag = 0;
 	af.location = room_spells::ERoomApply::kNone;
 	af.caster_id = ch? ch->get_uid() : 0;
-	af.must_handled = false;
 	af.apply_time = 0;
+	af.pk_unique = pk_unique;
 	room_spells::affect_to_room(from_room, af);
 	room_spells::AddRoomToAffected(from_room);
 }
@@ -436,17 +465,21 @@ void AddPortalTimer(CharData *ch, RoomData *from_room, RoomRnum to_room, int tim
 void RemovePortalGate(RoomRnum rnum) {
 	auto aff = room_spells::FindAffect(world[rnum], ESpell::kPortalTimer);
 	const RoomRnum to_room = (*aff)->modifier;
+	// kPortal sheaf kCustomMsgThree holds "Пентаграмма была
+	// разрушена." -- emitted to both char and room of each affected portal endpoint.
+	const auto &broken_msg = MUD::SpellMessages().GetMessage(
+			ESpell::kPortal, ESpellMsg::kCustomMsgThree);
 
 	if (aff != world[rnum]->affected.end()) {
 		room_spells::RoomRemoveAffect(world[rnum], aff);
-		act("Пентаграмма была разрушена.", false, world[rnum]->first_character(), 0, 0, kToRoom);
-		act("Пентаграмма была разрушена.", false, world[rnum]->first_character(), 0, 0, kToChar);
+		act(broken_msg.c_str(), false, world[rnum]->first_character(), 0, 0, kToRoom);
+		act(broken_msg.c_str(), false, world[rnum]->first_character(), 0, 0, kToChar);
 	}
 	aff = room_spells::FindAffect(world[to_room], ESpell::kPortalTimer);
 	if (aff != world[to_room]->affected.end()) {
 		room_spells::RoomRemoveAffect(world[to_room], aff);
-		act("Пентаграмма была разрушена.", false, world[to_room]->first_character(), 0, 0, kToRoom);
-		act("Пентаграмма была разрушена.", false, world[to_room]->first_character(), 0, 0, kToChar);
+		act(broken_msg.c_str(), false, world[to_room]->first_character(), 0, 0, kToRoom);
+		act(broken_msg.c_str(), false, world[to_room]->first_character(), 0, 0, kToChar);
 	}
 }
 
@@ -456,31 +489,31 @@ void SpellPortal(CharData *ch, CharData *victim) {
 	if (victim == nullptr)
 		return;
 	if (GetRealLevel(victim) > GetRealLevel(ch) && !victim->IsFlagged(EPrf::KSummonable) && !group::same_group(ch, victim)) {
-		SendMsgToChar(SUMMON_FAIL, ch);
+		SendSummonFail(ch, ESpell::kPortal);
 		return;
 	}
 	// пентить чаров <=10 уровня, нельзя так-же нельзя пентать иммов
 	if (!ch->IsGod()) {
 		if ((!victim->IsNpc() && GetRealLevel(victim) <= 10 && GetRealRemort(ch) < 9) || victim->IsImmortal()
 			|| AFF_FLAGGED(victim, EAffect::kNoTeleport)) {
-			SendMsgToChar(SUMMON_FAIL, ch);
+			SendSummonFail(ch, ESpell::kPortal);
 			return;
 		}
 	}
 	if (victim->IsNpc()) {
-		SendMsgToChar(SUMMON_FAIL, ch);
+		SendSummonFail(ch, ESpell::kPortal);
 		return;
 	}
 	fnd_room = victim->in_room;
 	if (fnd_room == kNowhere) {
-		SendMsgToChar(SUMMON_FAIL, ch);
+		SendSummonFail(ch, ESpell::kPortal);
 		return;
 	}
 
 	if (!ch->IsGod() && (SECT(fnd_room) == ESector::kSecret || ROOM_FLAGGED(fnd_room, ERoomFlag::kDeathTrap) ||
 			ROOM_FLAGGED(fnd_room, ERoomFlag::kSlowDeathTrap) || ROOM_FLAGGED(fnd_room, ERoomFlag::kIceTrap) ||
 			ROOM_FLAGGED(fnd_room, ERoomFlag::kTunnel) || ROOM_FLAGGED(fnd_room, ERoomFlag::kGodsRoom))) {
-		SendMsgToChar(SUMMON_FAIL, ch);
+		SendSummonFail(ch, ESpell::kPortal);
 		return;
 	}
 
@@ -513,21 +546,18 @@ void SpellPortal(CharData *ch, CharData *victim) {
 			if (remove)
 				RemovePortalGate(ch->in_room);
 		}
-		AddPortalTimer(ch, world[fnd_room], ch->in_room, 29);
-		if (pkPortal) 
-			world[fnd_room]->pkPenterUnique = ch->get_uid();
+		// pk_unique on the affect replaces the old per-room pkPenterUnique field
+		// pkPortal => imposing caster's uid; else 0.
+		AddPortalTimer(ch, world[fnd_room], ch->in_room, 29, pkPortal ? ch->get_uid() : 0);
 
-		if (pkPortal) {
-			act("Лазурная пентаграмма с кровавым отблеском возникла в воздухе.",
-				false, world[fnd_room]->first_character(), nullptr, nullptr, kToChar);
-			act("Лазурная пентаграмма с кровавым отблеском возникла в воздухе.",
-				false, world[fnd_room]->first_character(), nullptr, nullptr, kToRoom);
-		} else {
-			act("Лазурная пентаграмма возникла в воздухе.",
-				false, world[fnd_room]->first_character(), nullptr, nullptr, kToChar);
-			act("Лазурная пентаграмма возникла в воздухе.",
-				false, world[fnd_room]->first_character(), nullptr, nullptr, kToRoom);
-		}
+		// pentagram-appearance narration lives in kPortal's
+		// sheaf -- kCustomMsgOne is the normal line, kCustomMsgTwo is the pk variant
+		// (blood-tinged). Each is sent to both kToChar and kToRoom of the destination
+		// endpoint's first occupant.
+		const auto &dest_pentagram = MUD::SpellMessages().GetMessage(
+				ESpell::kPortal, pkPortal ? ESpellMsg::kCustomMsgTwo : ESpellMsg::kCustomMsgOne);
+		act(dest_pentagram.c_str(), false, world[fnd_room]->first_character(), nullptr, nullptr, kToChar);
+		act(dest_pentagram.c_str(), false, world[fnd_room]->first_character(), nullptr, nullptr, kToRoom);
 		CheckAutoNosummon(victim);
 
 		// если пенту ставит имм с привилегией arena (и находясь на арене), то пента получается односторонняя
@@ -535,22 +565,43 @@ void SpellPortal(CharData *ch, CharData *victim) {
 			return;
 		}
 
-		AddPortalTimer(ch, world[ch->in_room], fnd_room, 29);
-		if (pkPortal) 
-			world[ch->in_room]->pkPenterUnique = ch->get_uid();
+		AddPortalTimer(ch, world[ch->in_room], fnd_room, 29, pkPortal ? ch->get_uid() : 0);
 
-		if (pkPortal) {
-			act("Лазурная пентаграмма с кровавым отблеском возникла в воздухе.",
-					false, world[ch->in_room]->first_character(), nullptr, nullptr, kToChar);
-			act("Лазурная пентаграмма с кровавым отблеском возникла в воздухе.",
-					false, world[ch->in_room]->first_character(), nullptr, nullptr, kToRoom);
-		} else {
-			act("Лазурная пентаграмма возникла в воздухе.",
-					false, world[ch->in_room]->first_character(), nullptr, nullptr, kToChar);
-			act("Лазурная пентаграмма возникла в воздухе.",
-					false, world[ch->in_room]->first_character(), nullptr, nullptr, kToRoom);
+		// Caster-side pentagram (same key resolution as the destination side above).
+		const auto &caster_pentagram = MUD::SpellMessages().GetMessage(
+				ESpell::kPortal, pkPortal ? ESpellMsg::kCustomMsgTwo : ESpellMsg::kCustomMsgOne);
+		act(caster_pentagram.c_str(), false, world[ch->in_room]->first_character(), nullptr, nullptr, kToChar);
+		act(caster_pentagram.c_str(), false, world[ch->in_room]->first_character(), nullptr, nullptr, kToRoom);
+	}
+}
+
+// SpellSummon follow-up: relocate any charmice in the summoned victim's
+// old room to the caster's room with the same disappear/appear narration
+// used for the main victim. Each charmice is sent a "you were summoned"
+// notification via kCustomMsgTwo.
+static void SummonFollowingCharmices(CharData *ch, CharData *victim, RoomRnum vic_room, RoomRnum ch_room) {
+// призываем чармисов
+for (auto *k : victim->followers) {
+	if (k->in_room == vic_room) {
+		if (AFF_FLAGGED(k, EAffect::kCharmed)) {
+			if (!k->GetEnemy()) {
+				// Charmice reuses kSummon's disappear/appear keys but with the
+				// kCustomMsgThree "arrived following the master" line on arrival.
+				act(MUD::SpellMessages().GetMessage(
+						ESpell::kSummon, ESpellMsg::kCastDisappearToRoom).c_str(),
+					true, k, nullptr, nullptr, kToRoom | kToArenaListen);
+				RemoveCharFromRoom(k);
+				PlaceCharToRoom(k, ch_room);
+				act(MUD::SpellMessages().GetMessage(
+						ESpell::kSummon, ESpellMsg::kCustomMsgThree).c_str(),
+					true, k, nullptr, nullptr, kToRoom | kToArenaListen);
+				act(MUD::SpellMessages().GetMessage(
+						ESpell::kSummon, ESpellMsg::kCustomMsgTwo).c_str(),
+					false, ch, nullptr, k, kToVict);
+			}
 		}
 	}
+}
 }
 
 void SpellSummon(CharData *ch, CharData *victim) {
@@ -560,27 +611,27 @@ void SpellSummon(CharData *ch, CharData *victim) {
 		return;
 	}
 	if (!victim->desc) {
-		SendMsgToChar(SUMMON_FAIL, ch);
+		SendSummonFail(ch, ESpell::kSummon);
 	}
 	ch_room = ch->in_room;
 	vic_room = victim->in_room;
 
 	if (ch_room == kNowhere || vic_room == kNowhere) {
-		SendMsgToChar(SUMMON_FAIL, ch);
+		SendSummonFail(ch, ESpell::kSummon);
 		ch->send_to_TC(true, true, true, "Цель в Nowhere\r\n");
 		return;
 	}
 
 	if (ch->IsNpc() && victim->IsNpc()) {
 		ch->send_to_TC(true, true, true, "Да ты МОБ!!!!!\r\n");
-		SendMsgToChar(SUMMON_FAIL, ch);
+		SendSummonFail(ch, ESpell::kSummon);
 		return;
 	}
 
 	if (victim->IsImmortal()) {
 		if (ch->IsNpc() || (!ch->IsNpc() && GetRealLevel(ch) < GetRealLevel(victim))) {
 			ch->send_to_TC(true, true, true, "Неположено сие деяние!\r\n");
-			SendMsgToChar(SUMMON_FAIL, ch);
+			SendSummonFail(ch, ESpell::kSummon);
 			return;
 		}
 	}
@@ -588,7 +639,7 @@ void SpellSummon(CharData *ch, CharData *victim) {
 	if (!ch->IsNpc() && victim->IsNpc()) {
 		if (victim->get_master() != ch) {
 			ch->send_to_TC(true, true, true, "Чармис не ваш\r\n");
-			SendMsgToChar(SUMMON_FAIL, ch);
+			SendSummonFail(ch, ESpell::kSummon);
 			return;
 		}
 	}
@@ -597,29 +648,32 @@ void SpellSummon(CharData *ch, CharData *victim) {
 		if (!ch->IsNpc() || IS_CHARMICE(ch)) {
 			if (AFF_FLAGGED(ch, EAffect::kGodsShield)) {
 				ch->send_to_TC(true, true, true, "Чармис под зб\r\n");
-				SendMsgToChar(SUMMON_FAIL3, ch);
+				SendMsgToChar(MUD::SpellMessages().GetMessage(
+						ESpell::kSummon, ESpellMsg::kResurrectProtected) + "\r\n", ch);
 				return;
 			}
 			if (!victim->IsFlagged(EPrf::KSummonable) && !group::same_group(ch, victim)) {
 				ch->send_to_TC(true, true, true, "Чармис не в вашей группе\r\n");
-				SendMsgToChar(SUMMON_FAIL2, ch);
+				SendMsgToChar(MUD::SpellMessages().GetMessage(
+						ESpell::kSummon, ESpellMsg::kResurrectNoPower) + "\r\n", ch);
 				return;
 			}
 			if (NORENTABLE(victim) && !IS_CHARMICE(ch)) {
 				ch->send_to_TC(true, true, true, "Ваша жертва совсем не рентабельна!\r\n");
-				SendMsgToChar(SUMMON_FAIL, ch);
+				SendSummonFail(ch, ESpell::kSummon);
 				return;
 			}
 			if (victim->GetEnemy()
 				|| victim->GetPosition() < EPosition::kRest) {
 				ch->send_to_TC(true, true, true, "Чармис сражается или дрыхнет\r\n");
-				SendMsgToChar(SUMMON_FAIL4, ch);
+				SendMsgToChar(MUD::SpellMessages().GetMessage(
+						ESpell::kSummon, ESpellMsg::kCustomMsgFour) + "\r\n", ch);
 				return;
 			}
 		}
 		if (victim->get_wait() > 0) {
 			ch->send_to_TC(true, true, true, "Чармис в лаге\r\n");
-			SendMsgToChar(SUMMON_FAIL, ch);
+			SendSummonFail(ch, ESpell::kSummon);
 			return;
 		}
 
@@ -633,13 +687,13 @@ void SpellSummon(CharData *ch, CharData *victim) {
 			|| (!group::same_group(ch, victim)
 				&& (ROOM_FLAGGED(ch_room, ERoomFlag::kPeaceful) || ROOM_FLAGGED(ch_room, ERoomFlag::kArena)))) {
 			ch->send_to_TC(true, true, true, "Чармис в носуммоне\r\n");
-			SendMsgToChar(SUMMON_FAIL, ch);
+			SendSummonFail(ch, ESpell::kSummon);
 			return;
 		}
 		// отдельно проверку на клан комнаты, своих чармисов призвать можем ()
 		if (!Clan::MayEnter(victim, ch_room, kHousePortal) && !(victim->has_master()) && (victim->get_master() != ch)) {
 			ch->send_to_TC(true, true, true, "Чармис доступ в замок запрещен\r\n");
-			SendMsgToChar(SUMMON_FAIL, ch);
+			SendSummonFail(ch, ESpell::kSummon);
 			return;
 		}
 
@@ -651,12 +705,14 @@ void SpellSummon(CharData *ch, CharData *victim) {
 				|| (!group::same_group(ch, victim)
 					&& (ROOM_FLAGGED(vic_room, ERoomFlag::kTunnel) || ROOM_FLAGGED(vic_room, ERoomFlag::kArena)))) {
 				ch->send_to_TC(true, true, true, "Чармис в носуммоне\r\n");
-				SendMsgToChar(SUMMON_FAIL, ch);
+				SendSummonFail(ch, ESpell::kSummon);
 				return;
 			}
 		} else {
 			if (ROOM_FLAGGED(vic_room, ERoomFlag::kNoSummonOut) || AFF_FLAGGED(victim, EAffect::kNoTeleport)) {
-				SendMsgToChar("Неведомая сила блокирует ваш призыв.\r\n", ch);
+				// block notice on kSummon's sheaf as kCustomMsgOne.
+				SendMsgToChar(MUD::SpellMessages().GetMessage(
+						ESpell::kSummon, ESpellMsg::kCustomMsgOne) + "\r\n", ch);
 				return;
 			}
 		}
@@ -669,31 +725,22 @@ void SpellSummon(CharData *ch, CharData *victim) {
 		ch->send_to_TC(true, true, true, "Чармис призыв запрещен триггером\r\n");
 		return;
 	}
-	act("$n растворил$u на ваших глазах.", true, victim, nullptr, nullptr, kToRoom | kToArenaListen);
+	// kSummon overrides kCastDisappearToRoom (vic disappearing
+	// from old room) and kCastAppearToRoom (vic arriving in caster's room). kCustomMsgTwo
+	// is the to-vict notification.
+	act(MUD::SpellMessages().GetMessage(ESpell::kSummon, ESpellMsg::kCastDisappearToRoom).c_str(),
+		true, victim, nullptr, nullptr, kToRoom | kToArenaListen);
 	RemoveCharFromRoom(victim);
 	PlaceCharToRoom(victim, ch_room);
 	CheckAutoNosummon(victim);
 	victim->SetPosition(EPosition::kStand);
-	act("$n прибыл$g по вызову.", true, victim, nullptr, nullptr, kToRoom | kToArenaListen);
-	act("$n призвал$g вас!", false, ch, nullptr, victim, kToVict);
+	act(MUD::SpellMessages().GetMessage(ESpell::kSummon, ESpellMsg::kCastAppearToRoom).c_str(),
+		true, victim, nullptr, nullptr, kToRoom | kToArenaListen);
+	act(MUD::SpellMessages().GetMessage(ESpell::kSummon, ESpellMsg::kCustomMsgTwo).c_str(),
+		false, ch, nullptr, victim, kToVict);
 	victim->dismount();
 	look_at_room(victim, 0);
-	// призываем чармисов
-	for (auto *k : victim->followers) {
-		if (k->in_room == vic_room) {
-			if (AFF_FLAGGED(k, EAffect::kCharmed)) {
-				if (!k->GetEnemy()) {
-					act("$n растворил$u на ваших глазах.",
-						true, k, nullptr, nullptr, kToRoom | kToArenaListen);
-					RemoveCharFromRoom(k);
-					PlaceCharToRoom(k, ch_room);
-					act("$n прибыл$g за хозяином.",
-						true, k, nullptr, nullptr, kToRoom | kToArenaListen);
-					act("$n призвал$g вас!", false, ch, nullptr, k, kToVict);
-				}
-			}
-		}
-	}
+	SummonFollowingCharmices(ch, victim, vic_room, ch_room);
 	greet_mtrigger(victim, -1);
 	greet_otrigger(victim, -1);
 }
@@ -839,7 +886,6 @@ void SpellLocateObject(int level, CharData *ch, CharData* /*victim*/, ObjData *o
 			return true;
 		} else {
 			sprintf(buf, "Местоположение %s неопределимо.\r\n", OBJN(i.get(), ch, ECase::kGen));
-//		CAP(buf); issue #59
 		}
 		SendMsgToChar(buf, ch);
 		return true;
@@ -851,7 +897,9 @@ void SpellLocateObject(int level, CharData *ch, CharData* /*victim*/, ObjData *o
 	}
 
 	if (j == tmp_lvl) {
-		SendMsgToChar("Вы ничего не чувствуете.\r\n", ch);
+		// "nothing felt" on kLocateObject's sheaf as kCustomMsgOne.
+		SendMsgToChar(MUD::SpellMessages().GetMessage(
+				ESpell::kLocateObject, ESpellMsg::kCustomMsgOne) + "\r\n", ch);
 	}
 }
 
@@ -954,21 +1002,30 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 	if (victim == nullptr || ch == nullptr)
 		return;
 
+	// Rejection narration: six of the SpellCharm reject
+	// paths share semantics with existing kSummon* / kResurrect* keys; the
+	// per-spell kCharm sheaf carries the charm-specific wording while the
+	// kDefault texts (phrased for resurrect/summon) stay intact for those
+	// callers. Four messages without a clean key match stay inline.
+	auto SendCharmMsg = [ch](ESpellMsg key) {
+		SendMsgToChar(MUD::SpellMessages().GetMessage(ESpell::kCharm, key) + "\r\n", ch);
+	};
 	if (victim == ch)
-		SendMsgToChar("Вы просто очарованы своим внешним видом!\r\n", ch);
+		SendCharmMsg(ESpellMsg::kCustomMsgOne);  // self-cast humor; see kCharm sheaf.
 	else if (!victim->IsNpc()) {
-		SendMsgToChar("Вы не можете очаровать реального игрока!\r\n", ch);
+		// 3 charm one-offs migrated to kCharm's kCustomMsg slots.
+		SendCharmMsg(ESpellMsg::kCustomMsgTwo);
 		if (!pk_agro_action(ch, victim))
 			return;
 	} else if (!ch->IsImmortal()
 		&& (AFF_FLAGGED(victim, EAffect::kSanctuary) || victim->IsFlagged(EMobFlag::kProtect)))
-		SendMsgToChar("Ваша жертва освящена Богами!\r\n", ch);
+		SendCharmMsg(ESpellMsg::kResurrectConsecrated);
 	else if (!ch->IsImmortal() && (AFF_FLAGGED(victim, EAffect::kGodsShield) || victim->IsFlagged(EMobFlag::kProtect)))
-		SendMsgToChar("Ваша жертва защищена Богами!\r\n", ch);
+		SendCharmMsg(ESpellMsg::kResurrectProtected);
 	else if (!ch->IsImmortal() && victim->IsFlagged(EMobFlag::kNoCharm))
-		SendMsgToChar("Ваша жертва устойчива к этому!\r\n", ch);
+		SendCharmMsg(ESpellMsg::kResurrectNoPower);
 	else if (AFF_FLAGGED(ch, EAffect::kCharmed))
-		SendMsgToChar("Вы сами очарованы кем-то и не можете иметь последователей.\r\n", ch);
+		SendCharmMsg(ESpellMsg::kSummonCharmed);
 	else if (AFF_FLAGGED(victim, EAffect::kCharmed)
 		|| victim->IsFlagged(EMobFlag::kAgressive)
 		|| victim->IsFlagged(EMobFlag::kAgressiveMono)
@@ -980,16 +1037,17 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 		|| victim->IsFlagged(EMobFlag::kAgressiveSpring)
 		|| victim->IsFlagged(EMobFlag::kAgressiveSummer)
 		|| victim->IsFlagged(EMobFlag::kAgressiveAutumn))
-		SendMsgToChar("Ваша магия потерпела неудачу.\r\n", ch);
+		SendCharmMsg(ESpellMsg::kSummonFail);
 	else if (IS_HORSE(victim))
-		SendMsgToChar("Это боевой скакун, а не хухры-мухры.\r\n", ch);
+		SendCharmMsg(ESpellMsg::kSummonWarhorse);
 	else if (victim->GetEnemy() || victim->GetPosition() < EPosition::kRest)
-		act("$M сейчас, похоже, не до вас.", false, ch, nullptr, victim, kToChar);
+		act(MUD::SpellMessages().GetMessage(ESpell::kCharm, ESpellMsg::kCustomMsgThree).c_str(),
+			false, ch, nullptr, victim, kToChar);
 	else if (circle_follow(victim, ch))
-		SendMsgToChar("Следование по кругу запрещено.\r\n", ch);
+		SendCharmMsg(ESpellMsg::kCustomMsgFour);
 	else if (!ch->IsImmortal()
 		&& CalcGeneralSaving(ch, victim, ESaving::kWill, (GetRealCha(ch) - 10) * 4 + GetRealRemort(ch) * 3)) //предлагаю завязать на каст
-		SendMsgToChar("Ваша магия потерпела неудачу.\r\n", ch);
+		SendCharmMsg(ESpellMsg::kSummonFail);
 	else {
 		if (!CheckCharmices(ch, victim, ESpell::kCharm)) {
 			return;
@@ -1010,9 +1068,9 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 			victim->UnsetFlag(EMobFlag::kNoGroup);
 		RemoveAffectFromChar(victim, ESpell::kCharm);
 		if (GetRealInt(victim) > GetRealInt(ch)) {
-			af.duration = CalcDuration(victim, GetRealCha(ch), 0, 0, 0, 0);
+			af.duration = CalcDuration(victim, victim, ESkill::kUndefined, GetRealCha(ch), 0, 0, 0);
 		} else {
-			af.duration = CalcDuration(victim, GetRealCha(ch) + number(1, 10) + GetRealRemort(ch) * 2, 0, 0, 0, 0);
+			af.duration = CalcDuration(victim, victim, ESkill::kUndefined, GetRealCha(ch) + number(1, 10) + GetRealRemort(ch) * 2, 0, 0, 0);
 		}
 		af.modifier = 0;
 		af.location = EApply::kNone;
@@ -1020,393 +1078,11 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 		af.type = ESpell::kCharm;
 
 		// резервируем место под фит ()
-		if (CanUseFeat(ch, EFeat::kAnimalMaster) && GET_RACE(victim) == 104) {
-			int type_mob;
-			std::vector<int> rndcharmice = {1, 2, 3, 4, 5, 6, 7, 8};
-			for (auto *k : ch->followers) {
-				if (IS_CHARMICE(k) && k->get_type_charmice() > 0) {
-					auto it = std::find(rndcharmice.begin(), rndcharmice.end(),  k->get_type_charmice());
-					if (it != rndcharmice.end()) {
-						rndcharmice.erase(it);
-					}
-//					SendMsgToChar(ch, "Найден в последователях Чармис тип %d\r\n", k->follower->get_type_charmice());
-				}
-			}
-			int rnd = number(0, rndcharmice.size() - 1);
-			if (std::find(rndcharmice.begin(), rndcharmice.end(), victim->get_type_charmice()) !=  rndcharmice.end()) {
-				type_mob = victim->get_type_charmice();
-//				SendMsgToChar(ch, "\r\n1Чармис старыйй, ставим случайный тип %d size %ld\r\n", type_mob, rndcharmice.size());
-			}
-			else {
-				type_mob = rndcharmice.at(rnd);
-				victim->set_type_charmice(type_mob);
-//				SendMsgToChar(ch, "\r\n2Чармис новый, ставим случайный тип %d size %ld\r\n", type_mob, rndcharmice.size());
-			}
-			act("$N0 обрел$G часть вашей магической силы, и стал$G намного опаснее...",
-				false, ch, nullptr, victim, kToChar);
-			act("$N0 обрел$G часть магической силы $n1.",
-				false, ch, nullptr, victim, kToRoom | kToArenaListen);
-			// начинаем модификации victim
-			// создаем переменные модификаторов
-			int r_cha = GetRealCha(ch);
-			int perc = ch->GetSkill(GetMagicSkillId(ESpell::kCharm));
-			ch->send_to_TC(false, true, false, "Значение хари:  %d.\r\n", r_cha);
-			ch->send_to_TC(false, true, false, "Значение скила магии: %d.\r\n", perc);
-			
-			// вычисляем % владения умений у victim
-			k_skills = floorf(0.8*r_cha + 0.5*perc);
-			ch->send_to_TC(false, true, false, "Владение скилом: %d.\r\n", k_skills);
-			// === Формируем новые статы ===
-			// Устанавливаем на виктим флаг маг-сумон (маг-зверь)
-			victim->SetFlag(EMobFlag::kSummoned);
-			// Модифицируем имя в зависимости от хари
-			static char descr[kMaxStringLength];
-			int gender;
-			// ниже идет просто порнуха
-			// по идее могут быть случаи "огромная огромная макака" или "громадная большая собака"
-			// как бороться думаю
-			// Sventovit:
-			// Для начала - вынести повторяющийся много раз кусок кода в функцию и вызывать её.
-			// Также вынести отсюда стену строковых констант.
-			// Тело функции в идеале должно занимать не более трех строк, никак не 30 экранов.
-			// У функции в идеале не должно быть параметров. В допустимом пределе - три параметра.
-			// Если их больше - программист что-то не так делает.
-			// А бороться - просто сравнивать добавляемое слово, если оно уже есть - то не добавлять.
-			// Варнинги по поводу неявного приведения типов тоже стоит почистить.
-			const char *state[4][9][6] = {
-							{  						
-							{"крепкие",  "крепких", "крепким", "крепкие", "крепкими", "крепких"},
-							{"сильные",  "сильных", "сильным", "сильные", "сильными", "сильных"},
-							{"упитанные",  "упитанных", "упитанным", "упитанных", "упитанными", "упитанных"},
-							{"крупные",  "крупные", "крупным", "крупные", "крупными", "крупных"},
-							{"большые",  "большые", "большым", "большых", "большыми", "большых"},
-							{"громадные", "громадные", "громадным", "громадные", "громадными", "громадных"},
-							{"огромные",  "огромных", "огромным", "огромные", "огромными", "огромных"},
-							{"исполинские",  "исполинские", "исполинским", "исполинские", "исполинскими", "исполинских"},
-							{"гигантские" ,"гигантские", "гигантские", "гигантские", "гигантские", "гигантские"},
-							},
-			 				{ // род ОН
-							{"крепкий",  "крепкого", "крепкому", "крепкого", "крепким", "крепком"},
-							{"сильный",  "сильного", "сильному", "сильного", "сильным", "сильном"},
-							{"упитанный",  "упитанного", "упитанному", "упитанного", "упитанным", "упитанном"},
-							{"крупный",  "крупного", "крупному", "крупного", "крупным", "крупном"},
-							{"большой",  "большого", "большому", "большого", "большым", "большом"},
-							{"громадный",  "громадного", "громадному", "громадного", "громадным", "громадном"},
-							{"огромный",  "огромного", "огромному", "огромного", "огромным", "огромном"},
-							{"исполинский",  "исполинского", "исполинскому", "исполинского", "исполинским", "исполинском"},
-							{"гигантский",  "гигантского", "гигантскому", "гигантского", "гигантским", "гигантском"},
-							},
-			 				{ // род ОНА
-							{"крепкая", "крепкой", "крепкой", "крепкую", "крепкой", "крепкой"},
-							{"сильная", "сильной", "сильной", "сильную", "сильной", "сильной"},
-							{"упитанная", "упитанной", "упитанной", "упитанную", "упитанной", "упитанной"},
-							{"крупная",  "крупной", "крупной", "крупную", "крупной", "крупной"},
-							{"большая", "большой", "большой", "большую", "большой", "большой"},
-							{"громадная",  "громадной", "громадной", "громадную", "громадной", "громадной"},
-							{"огромная",  "огромной", "огромной", "огромную", "огромной", "огромной"},
-							{"исполинская", "исполинской", "исполинской", "исполинскую", "исполинской", "исполинской"},
-							{"гигантская",  "гигантской", "гигантской", "гигантскую", "гигантской", "гигантской"},
-							},
-			 				{  // род ОНО
-							{"крепкое", "крепкое", "крепкому", "крепкое", "крепким", "крепком"},
-							{"сильное",  "сильное", "сильному", "сильное", "сильным", "сильном"},
-							{"упитанное","упитанное", "упитанному", "упитанное", "упитанным", "упитанном"},
-							{"крупное", "крупное", "крупному", "крупное", "крупным", "крупном"},
-							{"большое",  "большое", "большому", "большое", "большым", "большом"},
-							{"громадное", "громадное", "громадному", "громадное", "громадным", "громадном"},
-							{"огромное",  "огромное", "огромному", "огромное", "огромным", "огромном"},
-							{"исполинское",  "исполинское", "исполинскому", "исполинское", "исполинским", "исполинском"},
-							{"гигантское" , "гигантское", "гигантскому", "гигантское", "гигантским", "гигантском"},
-							}
-							};
-			//проверяем GENDER 
-			switch ((victim)->get_sex()) {
-					case EGender::kNeutral:
-					gender = 0;
-					break;
-					case EGender::kMale:
-					gender = 1;
-					break;
-					case EGender::kFemale:
-					gender = 2;
-					break;
-					default:
-					gender = 3;
-					break;
-			}
- 		// 1 при 10-19, 2 при 20-29 , 3 при 30-39....
-			int adj = r_cha/10;
-			sprintf(descr, "%s %s %s", state[gender][adj - 1][0], GET_PAD(victim, 0), GET_NAME(victim));
-			victim->SetCharAliases(descr);
-			sprintf(descr, "%s %s", state[gender][adj - 1][0], GET_PAD(victim, 0));
-			victim->set_npc_name(descr);
-			sprintf(descr, "%s %s", state[gender][adj - 1][0], GET_PAD(victim, 0));
-			victim->player_data.PNames[ECase::kNom] = std::string(descr);
-			sprintf(descr, "%s %s", state[gender][adj - 1][1], GET_PAD(victim, 1));
-			victim->player_data.PNames[ECase::kGen] = std::string(descr);
-			sprintf(descr, "%s %s", state[gender][adj - 1][2], GET_PAD(victim, 2));
-			victim->player_data.PNames[ECase::kDat] = std::string(descr);
-			sprintf(descr, "%s %s", state[gender][adj - 1][3], GET_PAD(victim, 3));
-			victim->player_data.PNames[ECase::kAcc] = std::string(descr);
-			sprintf(descr, "%s %s", state[gender][adj - 1][4], GET_PAD(victim, 4));
-			victim->player_data.PNames[ECase::kIns] = std::string(descr);
-			sprintf(descr, "%s %s", state[gender][adj - 1][5], GET_PAD(victim, 5));
-			victim->player_data.PNames[ECase::kPre] = std::string(descr);
-			victim->set_max_hit(victim->get_max_hit() + floorf( GetRealLevel(ch)*15 + r_cha*4 + perc*2));
-			victim->set_hit(victim->get_max_hit());
-			// статы
-			victim->set_int(std::min(90, static_cast<int>(floorf(r_cha*0.2 + perc*0.15))));
-			victim->set_dex(std::min(90, static_cast<int>(floorf(r_cha*0.3 + perc*0.15))));
-			victim->set_str(std::min(90, static_cast<int>(floorf(r_cha*0.3 + perc*0.15))));
-			victim->set_con(std::min(90, static_cast<int>(floorf(r_cha*0.3 + perc*0.15))));
-			victim->set_wis(std::min(90, static_cast<int>(floorf(r_cha*0.2 + perc*0.15))));
-			victim->set_cha(std::min(90, static_cast<int>(floorf(r_cha*0.2 + perc*0.15))));
-			// боевые показатели
-			GET_INITIATIVE(victim) = floorf(k_skills/4.0);	// инициатива
-			GET_MORALE(victim) = floorf(k_skills/5.0); 		// удача
-			GET_HR(victim) = floorf(r_cha/3.5 + perc/10.0);  // попадание
-			GET_AC(victim) = -floorf(r_cha/5.0 + perc/15.0); // АС
-			GET_DR(victim) = floorf(r_cha/6.0 + perc/20.0);  // дамрол
-			GET_ARMOUR(victim) = floorf(r_cha/4.0 + perc/10.0); // броня
-			// спелы не работают пока 
-			// SET_SPELL_MEM(victim, SPELL_CURE_BLIND, 1); // -?
-			// SET_SPELL_MEM(victim, SPELL_REMOVE_DEAFNESS, 1); // -?
-			// SET_SPELL_MEM(victim, SPELL_REMOVE_HOLD, 1); // -?
-			// SET_SPELL_MEM(victim, SPELL_REMOVE_POISON, 1); // -?
-			// SET_SPELL_MEM(victim, SPELL_HEAL, 1);
-
-			//NPC_FLAGS(victim).set(NPC_WIELDING); // тут пока закомитим
-			GET_LIKES(victim) = 10 + r_cha; // устанавливаем возможность авто применения умений
-			
-			// создаем кубики и доп атаки (пока без + а просто сет)
-			victim->mob_specials.damnodice = floorf((r_cha*1.3 + perc*0.2) / 5.0);
-			victim->mob_specials.damsizedice = floorf((r_cha*1.2 + perc*0.1) / 11.0);
-			victim->mob_specials.extra_attack = floorf((r_cha*1.2 + perc) / 120.0);
-			
-
-			// простые аффекты
-			if (r_cha > 25)  {
-				af.bitvector = to_underlying(EAffect::kInfravision);
-				affect_to_char(victim, af);
-			} 
-			 if (r_cha >= 30) {
-				af.bitvector = to_underlying(EAffect::kDetectInvisible);
-				affect_to_char(victim, af);
-			} 
-			if (r_cha >= 35) {
-				af.bitvector = to_underlying(EAffect::kFly);
-				affect_to_char(victim, af);
-			} 
-			if (r_cha >= 39) {	
-				af.bitvector = to_underlying(EAffect::kStoneHands);
-				affect_to_char(victim, af);
-			}
-			
-			// расщет крутых маг аффектов
-			if (r_cha > 56) {
-				af.bitvector = to_underlying(EAffect::kShadowCloak);
-				affect_to_char(victim, af);
-			} 
-			
-			if ((r_cha > 65) && (r_cha < 74)) {
-				af.bitvector = to_underlying(EAffect::kFireShield);
-			} else if ((r_cha >= 74) && (r_cha < 82)){
-				af.bitvector = to_underlying(EAffect::kAirShield);
-			} else if (r_cha >= 82) {
-				af.bitvector = to_underlying(EAffect::kIceShield);
-				affect_to_char(victim, af);
-				af.bitvector = to_underlying(EAffect::kBrokenChains);
-			}
-			affect_to_char(victim, af);
-			
-			// почистим изначальные скиллы, перки
-			RemoveAllSkills(victim);
-			victim->real_abils.Feats.reset();
-			// выбираем тип бойца - рандомно из 8 вариантов
-			af.bitvector = to_underlying(EAffect::kHelper);
-			affect_to_char(victim, af);
-			switch (type_mob)
-			{ // готовим наборы скиллов / способностей
-			case 1:
-				act("Лапы $N1 увеличились в размерах и обрели огромную, дикую мощь.\nТуловище $N1 стало огромным.",
-					false, ch, nullptr, victim, kToChar); // тут потом заменим на валидные фразы
-				act("Лапы $N1 увеличились в размерах и обрели огромную, дикую мощь.\nТуловище $N1 стало огромным.",
-					false, ch, nullptr, victim, kToRoom | kToArenaListen);
-				victim->set_skill(ESkill::kHammer, k_skills);
-				victim->set_skill(ESkill::kRescue, k_skills*0.8);
-				victim->set_skill(ESkill::kPunch, k_skills*0.9);
-				victim->set_skill(ESkill::kNoParryHit, k_skills*0.4);
-				victim->set_skill(ESkill::kIntercept, k_skills*0.75);
-				victim->SetFeat(EFeat::kPunchMaster);
-					if (floorf(r_cha*0.9 + perc/5.0) > number(1, 150)) {
-					victim->SetFeat(EFeat::kPunchFocus);
-					victim->SetFeat(EFeat::kBerserker);
-					act("&B$N0 теперь сможет просто удавить всех своих врагов.&n\n",
-						false, ch, nullptr, victim, kToChar);
-				}
-				victim->set_str(floorf(GetRealStr(victim)*1.3));
-				skill_id = ESkill::kPunch;
-				break;
-			case 2:
-				act("Лапы $N1 удлинились, и на них выросли гигантские острые когти.\nТуловище $N1 стало более мускулистым.",
-					false, ch, nullptr, victim, kToChar);
-				act("Лапы $N1 удлинились и на них выросли гигантские острые когти.\nТуловище $N1 стало более мускулистым.",
-					false, ch, nullptr, victim, kToRoom | kToArenaListen);
-				victim->set_skill(ESkill::kOverwhelm, k_skills);
-				victim->set_skill(ESkill::kRescue, k_skills*0.8);
-				victim->set_skill(ESkill::kTwohands, k_skills*0.95);
-				victim->set_skill(ESkill::kNoParryHit, k_skills*0.4);
-				victim->SetFeat(EFeat::kTwohandsMaster);
-				victim->SetFeat(EFeat::kTwohandsFocus);
-				if (floorf(r_cha + perc/5.0) > number(1, 150)) {
-					act("&G$N0 стал$G намного более опасным хищником.&n\n",
-						false, ch, nullptr, victim, kToChar);
-					victim->set_skill(ESkill::kFirstAid, k_skills*0.4);
-					victim->set_skill(ESkill::kParry, k_skills*0.7);
-				}
-				victim->set_str(floorf(GetRealStr(victim)*1.2));
-				skill_id = ESkill::kTwohands;
-				break;
-			case 3:
-				act("Когти на лапах $N1 удлинились и приобрели зеленоватый оттенок.\nДвижения $N1 стали более размытыми.",
-					false, ch, nullptr, victim, kToChar);
-				act("Когти на лапах $N1 удлинились и приобрели зеленоватый оттенок.\nДвижения $N1 стали более размытыми.",
-					false, ch, nullptr, victim, kToRoom | kToArenaListen);
-				victim->set_skill(ESkill::kBackstab, k_skills);
-				victim->set_skill(ESkill::kRescue, k_skills*0.6);
-				victim->set_skill(ESkill::kPicks, k_skills*0.75);
-				victim->set_skill(ESkill::kNoParryHit, k_skills*0.75);
-				victim->SetFeat(EFeat::kPicksMaster);
-				victim->SetFeat(EFeat::kThieveStrike);
-				if (floorf(r_cha*0.8 + perc/5.0) > number(1, 150)) {
-					victim->SetFeat(EFeat::kShadowStrike);
-					act("&c$N0 затаил$U в вашей тени...&n\n", false, ch, nullptr, victim, kToChar);
-				}
-				victim->set_dex(floorf(GetRealDex(victim)*1.3));
-				skill_id = ESkill::kPicks;
-				break;
-			case 4:
-				act("Рефлексы $N1 обострились, и туловище раздалось в ширь.\nНа огромных лапах засияли мелкие острые коготки.",
-					false, ch, nullptr, victim, kToChar);
-				act("Рефлексы $N1 обострились, и туловище раздалось в ширь.\nНа огромных лапах засияли мелкие острые коготки.",
-					false, ch, nullptr, victim, kToRoom | kToArenaListen);
-				victim->set_skill(ESkill::kAwake, k_skills);
-				victim->set_skill(ESkill::kRescue, k_skills*0.85);
-				victim->set_skill(ESkill::kShieldBlock, k_skills*0.75);
-				victim->set_skill(ESkill::kAxes, k_skills*0.85);
-				victim->set_skill(ESkill::kNoParryHit, k_skills*0.65);
-				if (floorf(r_cha*0.9 + perc/5.0) > number(1, 140)) {
-					victim->set_skill(ESkill::kProtect, k_skills*0.75);
-					act("&WЧуткий взгляд $N1 остановился на вас, и вы ощутили себя под защитой.&n\n",
-						false, ch, nullptr, victim, kToChar);
-					victim->set_protecting(ch);
-				}
-				victim->SetFeat(EFeat::kAxesMaster);
-				victim->SetFeat(EFeat::kThieveStrike);
-				victim->SetFeat(EFeat::kDefender);
-				victim->SetFeat(EFeat::kLiveShield);
-				victim->set_con(floorf(GetRealCon(victim)*1.3));
-				victim->set_str(floorf(GetRealStr(victim)*1.2));
-				skill_id = ESkill::kAxes;
-				break;
-			case 5:
-				act("Движения $N1 сильно ускорились.\nИз туловища выросло несколько новых лап, которые покрылись длинными когтями.",
-					false, ch, nullptr, victim, kToChar);
-				act("Движения $N1 сильно ускорились.\nИз туловища выросло несколько новых лап, которые покрылись длинными когтями.",
-					false, ch, nullptr, victim, kToRoom | kToArenaListen);
-				victim->set_skill(ESkill::kChopoff, k_skills);
-				victim->set_skill(ESkill::kDodge, k_skills*0.7);
-				victim->set_skill(ESkill::kAddshot, k_skills*0.7);
-				victim->set_skill(ESkill::kBows, k_skills*0.85);
-				victim->set_skill(ESkill::kRescue, k_skills*0.65);
-				victim->set_skill(ESkill::kNoParryHit, k_skills*0.5);
-				victim->SetFeat(EFeat::kThieveStrike);
-				victim->SetFeat(EFeat::kBowsMaster);
-				if (floorf(r_cha*0.8 + perc/5.0) > number(1, 150)) {
-					af.bitvector = to_underlying(EAffect::kCloudOfArrows);
-					act("&YВокруг когтей $N1 засияли яркие магические всполохи.&n\n",
-						false, ch, nullptr, victim, kToChar);
-					affect_to_char(victim, af);
-				}
-				victim->set_dex(floorf(GetRealDex(victim)*1.2));
-				victim->set_str(floorf(GetRealStr(victim)*1.15));
-				victim->mob_specials.extra_attack = floorf((r_cha*1.2 + perc) / 180.0); // срежем доп атаки
-				skill_id = ESkill::kBows;
-				break;
-			case 6:
-				act("Туловище $N1 увеличилось, лапы сильно удлинились.\nНа них выросли острые когти-шипы.",
-					false, ch, nullptr, victim, kToChar);
-				act("Туловище $N1 увеличилось, лапы сильно удлинились.\nНа них выросли острые когти-шипы.",
-					false, ch, nullptr, victim, kToRoom | kToArenaListen);
-				victim->set_skill(ESkill::kClubs, k_skills);
-				victim->set_skill(ESkill::kThrow, k_skills*0.85);
-				victim->set_skill(ESkill::kDodge, k_skills*0.7);
-				victim->set_skill(ESkill::kRescue, k_skills*0.6);
-				victim->set_skill(ESkill::kNoParryHit, k_skills*0.6);
-				victim->SetFeat(EFeat::kClubsMaster);
-				victim->SetFeat(EFeat::kDoubleThrower);
-				victim->SetFeat(EFeat::kTripleThrower);
-				victim->SetFeat(EFeat::kPowerThrow);
-				victim->SetFeat(EFeat::kDeadlyThrow);
-				if (floorf(r_cha*0.8 + perc/5.0) > number(1, 140)) {
-					victim->SetFeat(EFeat::kShadowThrower);
-					victim->SetFeat(EFeat::kShadowClub);
-					victim->set_skill(ESkill::kDarkMagic, k_skills*0.7);
-					act("&cКогти $N1 преобрели &Kчерный цвет&c, будто смерть коснулась их.&n\n",
-						false, ch, nullptr, victim, kToChar);
-					victim->mob_specials.extra_attack = floorf((r_cha*1.2 + perc) / 100.0);
-				}
-				victim->set_str(floorf(GetRealStr(victim)*1.25));
-				skill_id = ESkill::kClubs;
-			break;
-			case 7:
-				act("Туловище $N1 увеличилось, мышцы налились дикой силой.\nА когти на лапах удлинились и заострились.",
-					false, ch, nullptr, victim, kToChar);
-				act("Туловище $N1 увеличилось, мышцы налились дикой силой.\nА когти на лапах удлинились и заострились.",
-					false, ch, nullptr, victim, kToRoom | kToArenaListen);
-				victim->set_skill(ESkill::kLongBlades, k_skills);
-				victim->set_skill(ESkill::kKick, k_skills*0.95);
-				victim->set_skill(ESkill::kNoParryHit, k_skills*0.7);
-				victim->set_skill(ESkill::kRescue, k_skills*0.4);
-				victim->SetFeat(EFeat::kLongsMaster);
-				if (floorf(r_cha*0.8 + perc/5.0) > number(1, 150)) {
-					victim->set_skill(ESkill::kIronwind, k_skills*0.8);
-					victim->SetFeat(EFeat::kBerserker);
-					act("&mДвижения $N1 сильно ускорились, и в глазах появились &Rогоньки&m безумия.&n\n",
-						false, ch, nullptr, victim, kToChar);
-				}
-				victim->set_dex(floorf(GetRealDex(victim)*1.1));
-				victim->set_str(floorf(GetRealStr(victim)*1.35));
-				skill_id = ESkill::kLongBlades;
-			break;		
-			default:
-				act("Рефлексы $N1 обострились, а передние лапы сильно удлинились.\nНа них выросли острые когти.",
-					false, ch, nullptr, victim, kToChar);
-				act("Рефлексы $N1 обострились, а передние лапы сильно удлинились.\nНа них выросли острые когти.",
-					false, ch, nullptr, victim, kToRoom | kToArenaListen);
-				victim->set_skill(ESkill::kParry, k_skills);
-				victim->set_skill(ESkill::kRescue, k_skills*0.75);
-				victim->set_skill(ESkill::kThrow, k_skills*0.95);
-				victim->set_skill(ESkill::kSpades, k_skills*0.9);
-				victim->set_skill(ESkill::kNoParryHit, k_skills*0.6);
-				victim->SetFeat(EFeat::kLiveShield);
-				victim->SetFeat(EFeat::kSpadesMaster);
-				if (floorf(r_cha*0.9 + perc/4.0) > number(1, 140)) {
-					victim->SetFeat(EFeat::kShadowThrower);
-					victim->SetFeat(EFeat::kShadowSpear);
-					victim->set_skill(ESkill::kDarkMagic, k_skills*0.8);
-					act("&KКогти $N1 преобрели темный оттенок, будто сама тьма коснулась их.&n\n",
-						false, ch, nullptr, victim, kToChar);
-				}
-				victim->SetFeat(EFeat::kDoubleThrower);
-				victim->SetFeat(EFeat::kTripleThrower);
-				victim->SetFeat(EFeat::kPowerThrow);
-				victim->SetFeat(EFeat::kDeadlyThrow);
-				victim->set_str(floorf(GetRealStr(victim)*1.2));
-				victim->set_con(floorf(GetRealCon(victim)*1.2));
-				skill_id = ESkill::kSpades;
-				break;
-			}
+		// the ~390-line AnimalMaster body moved to
+		// src/gameplay/skills/animal_master.{h,cpp}; the race check now uses the
+		// named ENpcRace::kAnimal constant instead of the magic number 104.
+		if (CanUseFeat(ch, EFeat::kAnimalMaster) && GET_RACE(victim) == ENpcRace::kAnimal) {
+			ApplyAnimalMaster(ch, victim, af, k_skills, skill_id);
 		}
 		victim->summon_helpers.clear();
 		if (victim->IsNpc()) {
@@ -1446,7 +1122,7 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 		af.location = EApply::kNone;
 		af.battleflag = 0;
 		af.type = ESpell::kCharm;
-		af.bitvector = to_underlying(EAffect::kCharmed);
+		af.affect_type = EAffect::kCharmed;
 		affect_to_char(victim, af);
 		ch->add_follower(victim);
 	}
@@ -1456,7 +1132,7 @@ void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/
 	}
 }
 
-void show_weapon(CharData *ch, ObjData *obj) {
+void ShowWeapon(CharData *ch, ObjData *obj) {
 	if (obj->get_type() == EObjType::kWeapon) {
 		*buf = '\0';
 		if (CAN_WEAR(obj, EWearFlag::kWield)) {
@@ -1477,7 +1153,7 @@ void show_weapon(CharData *ch, ObjData *obj) {
 	}
 }
 
-void print_book_uprgd_skill(CharData *ch, const ObjData *obj) {
+void PrintBookUpgradeSkill(CharData *ch, const ObjData *obj) {
 	const auto skill_id = static_cast<ESkill>(GET_OBJ_VAL(obj, 1));
 	if (MUD::Skills().IsInvalid(skill_id)) {
 		log("SYSERR: invalid skill_id: %d, ch_name=%s, ObjVnum=%d (%s %s %d)",
@@ -1493,9 +1169,228 @@ void print_book_uprgd_skill(CharData *ch, const ObjData *obj) {
 	}
 }
 
-void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness) {
-	int i, found, drndice = 0, drsdice = 0, j;
+// Per-type detail block of MortShowObjValues. Pulled out so the parent
+// stays under the 200-line ceiling and the type-specific rendering can be
+// read without scrolling past the shared header / footer code.
+static void ShowObjTypeSpecificValues(const ObjData *obj, CharData *ch) {
+	int i, j, drndice = 0, drsdice = 0;
 	long int li;
+	(void) i; (void) j; (void) li;  // some branches do not touch all of them
+switch (obj->get_type()) {
+	case EObjType::kScroll:
+	case EObjType::kPotion: {
+		std::ostringstream out;
+		out << "Содержит заклинание:";
+		for (auto val = 1; val < 4; ++val) {
+			auto spell_id = static_cast<ESpell>(GET_OBJ_VAL(obj, val));
+			if (MUD::Spell(spell_id).IsValid()) {
+				out << " Ур. [" << GET_OBJ_VAL(obj, 0) << "] " << MUD::Spell(spell_id).GetName() << ",";
+			}
+		}
+		if (out.str().back() == ',') {
+			out.seekp(-1, out.end);
+		}
+		out << "\r\n";
+		SendMsgToChar(out.str(), ch);
+		break;
+	}
+	case EObjType::kWand:
+	case EObjType::kStaff: sprintf(buf, "Вызывает заклинания: ");
+		sprintf(buf + strlen(buf), " %s\r\n",
+				MUD::Spell(static_cast<ESpell>(GET_OBJ_VAL(obj, 3))).GetCName());
+		sprintf(buf + strlen(buf), "Зарядов %d (осталось %d).\r\n",
+				GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2));
+		SendMsgToChar(buf, ch);
+		break;
+
+	case EObjType::kWeapon: drndice = GET_OBJ_VAL(obj, 1);
+		drsdice = GET_OBJ_VAL(obj, 2);
+		sprintf(buf, "Наносимые повреждения '%dD%d'", drndice, drsdice);
+		sprintf(buf + strlen(buf), " среднее %.1f.\r\n", ((drsdice + 1) * drndice / 2.0));
+		SendMsgToChar(buf, ch);
+		break;
+
+	case EObjType::kArmor:
+	case EObjType::kLightArmor:
+	case EObjType::kMediumArmor:
+	case EObjType::kHeavyArmor: drndice = GET_OBJ_VAL(obj, 0);
+		drsdice = GET_OBJ_VAL(obj, 1);
+		sprintf(buf, "защита (AC) : %d\r\n", drndice);
+		SendMsgToChar(buf, ch);
+		sprintf(buf, "броня       : %d\r\n", drsdice);
+		SendMsgToChar(buf, ch);
+		break;
+
+	case EObjType::kBook:
+		switch (GET_OBJ_VAL(obj, 0)) {
+			case EBook::kSpell: {
+				auto spell_id = static_cast<ESpell>(GET_OBJ_VAL(obj, 1));
+				if (spell_id >= ESpell::kFirst && spell_id <= ESpell::kLast) {
+					drndice = GET_OBJ_VAL(obj, 1);
+					if (MUD::Class(ch->GetClass()).spells.IsAvailable(spell_id)) {
+						drsdice = CalcMinSpellLvl(ch, spell_id, GET_OBJ_VAL(obj, 2));
+					} else {
+						drsdice = kLvlImplementator;
+					}
+					sprintf(buf, "содержит заклинание        : \"%s\"\r\n", MUD::Spell(spell_id).GetCName());
+					SendMsgToChar(buf, ch);
+					sprintf(buf, "уровень изучения (для вас) : %d\r\n", drsdice);
+					SendMsgToChar(buf, ch);
+				}
+				break;
+			}
+			case EBook::kSkill: {
+				auto skill_id = static_cast<ESkill>(GET_OBJ_VAL(obj, 1));
+				if (MUD::Skills().IsValid(skill_id)) {
+					drndice = GET_OBJ_VAL(obj, 1);
+					if (MUD::Class(ch->GetClass()).skills[skill_id].IsAvailable()) {
+						drsdice = GetSkillMinLevel(ch, skill_id, GET_OBJ_VAL(obj, 2));
+					} else {
+						drsdice = kLvlImplementator;
+					}
+					sprintf(buf, "содержит секрет умения     : \"%s\"\r\n", MUD::Skill(skill_id).GetName());
+					SendMsgToChar(buf, ch);
+					sprintf(buf, "уровень изучения (для вас) : %d\r\n", drsdice);
+					SendMsgToChar(buf, ch);
+				}
+				break;
+			}
+			case EBook::kSkillUpgrade: PrintBookUpgradeSkill(ch, obj);
+				break;
+
+			case EBook::kReceipt: drndice = im_get_recipe(GET_OBJ_VAL(obj, 1));
+				if (drndice >= 0) {
+					drsdice = std::max(GET_OBJ_VAL(obj, 2), imrecipes[drndice].level);
+					int count = imrecipes[drndice].remort;
+					if (imrecipes[drndice].classknow[to_underlying(ch->GetClass())] != kKnownRecipe)
+						drsdice = kLvlImplementator;
+					sprintf(buf, "содержит рецепт отвара     : \"%s\"\r\n", imrecipes[drndice].name);
+					SendMsgToChar(buf, ch);
+					if (drsdice == -1 || count == -1) {
+						SendMsgToChar(kColorBoldRed, ch);
+						SendMsgToChar("Некорректная запись рецепта для вашего класса - сообщите Богам.\r\n", ch);
+						SendMsgToChar(kColorNrm, ch);
+					} else if (drsdice == kLvlImplementator) {
+						sprintf(buf, "уровень изучения (количество ремортов) : %d (--)\r\n", drsdice);
+						SendMsgToChar(buf, ch);
+					} else {
+						sprintf(buf, "уровень изучения (количество ремортов) : %d (%d)\r\n", drsdice, count);
+						SendMsgToChar(buf, ch);
+					}
+				}
+				break;
+
+			case EBook::kFeat: {
+				const auto feat_id = static_cast<EFeat>(GET_OBJ_VAL(obj, 1));
+				if (MUD::Feat(feat_id).IsValid()) {
+					if (CanGetFeat(ch, feat_id)) {
+						drsdice = MUD::Class(ch->GetClass()).feats[feat_id].GetSlot();
+					} else {
+						drsdice = kLvlImplementator;
+					}
+					sprintf(buf, "содержит секрет способности : \"%s\"\r\n", MUD::Feat(feat_id).GetCName());
+					SendMsgToChar(buf, ch);
+					sprintf(buf, "уровень изучения (для вас) : %d\r\n", drsdice);
+					SendMsgToChar(buf, ch);
+				}
+			}
+				break;
+
+			default: SendMsgToChar(kColorBoldRed, ch);
+				SendMsgToChar("НЕВЕРНО УКАЗАН ТИП КНИГИ - сообщите Богам\r\n", ch);
+				SendMsgToChar(kColorNrm, ch);
+				break;
+		}
+		break;
+
+	case EObjType::kMagicIngredient: sprintbit(obj->get_spec_param(), ingradient_bits, buf2, sizeof(buf2));
+		snprintf(buf, kMaxStringLength, "%s\r\n", buf2);
+		SendMsgToChar(buf, ch);
+
+		if (IS_SET(obj->get_spec_param(), kItemCheckUses)) {
+			sprintf(buf, "можно применить %d раз\r\n", GET_OBJ_VAL(obj, 2));
+			SendMsgToChar(buf, ch);
+		}
+
+		if (IS_SET(obj->get_spec_param(), kItemCheckLag)) {
+			sprintf(buf, "можно применить 1 раз в %d сек", (i = GET_OBJ_VAL(obj, 0) & 0xFF));
+			if (GET_OBJ_VAL(obj, 3) == 0 || GET_OBJ_VAL(obj, 3) + i < time(nullptr))
+				strcat(buf, "(можно применять).\r\n");
+			else {
+				li = GET_OBJ_VAL(obj, 3) + i - time(nullptr);
+				sprintf(buf + strlen(buf), "(осталось %ld сек).\r\n", li);
+			}
+			SendMsgToChar(buf, ch);
+		}
+
+		if (IS_SET(obj->get_spec_param(), kItemCheckLevel)) {
+			sprintf(buf, "можно применить с %d уровня.\r\n", (GET_OBJ_VAL(obj, 0) >> 8) & 0x1F);
+			SendMsgToChar(buf, ch);
+		}
+
+		if ((i = GetObjRnum(GET_OBJ_VAL(obj, 1))) >= 0) {
+			sprintf(buf, "прототип %s%s%s.\r\n",
+					kColorBoldCyn, obj_proto[i]->get_PName(ECase::kNom).c_str(), kColorNrm);
+			SendMsgToChar(buf, ch);
+		}
+		break;
+
+	case EObjType::kMagicComponent:
+		for (j = 0; imtypes[j].id != GET_OBJ_VAL(obj, IM_TYPE_SLOT) && j <= top_imtypes;) {
+			j++;
+		}
+		sprintf(buf, "Это ингредиент вида '%s%s%s'\r\n", kColorCyn, imtypes[j].name, kColorNrm);
+		SendMsgToChar(buf, ch);
+		i = GET_OBJ_VAL(obj, IM_POWER_SLOT);
+		if (i > 45) { // тут явно опечатка была, кроме того у нас мобы и выше 40лвл
+			SendMsgToChar("Вы не в состоянии определить качество этого ингредиента.\r\n", ch);
+		} else {
+			sprintf(buf, "Качество ингредиента ");
+			if (i > 40)
+				strcat(buf, "божественное.\r\n");
+			else if (i > 35)
+				strcat(buf, "идеальное.\r\n");
+			else if (i > 30)
+				strcat(buf, "наилучшее.\r\n");
+			else if (i > 25)
+				strcat(buf, "превосходное.\r\n");
+			else if (i > 20)
+				strcat(buf, "отличное.\r\n");
+			else if (i > 15)
+				strcat(buf, "очень хорошее.\r\n");
+			else if (i > 10)
+				strcat(buf, "выше среднего.\r\n");
+			else if (i > 5)
+				strcat(buf, "весьма посредственное.\r\n");
+			else
+				strcat(buf, "хуже не бывает.\r\n");
+			SendMsgToChar(buf, ch);
+		}
+		break;
+
+		//Информация о контейнерах (Купала)
+	case EObjType::kContainer: sprintf(buf, "Максимально вместимый вес: %d.\r\n", GET_OBJ_VAL(obj, 0));
+		SendMsgToChar(buf, ch);
+		break;
+
+		//Информация о емкостях (Купала)
+	case EObjType::kLiquidContainer: drinkcon::identify(ch, obj);
+		break;
+
+	case EObjType::kMagicArrow:
+	case EObjType::kMagicContaner: sprintf(buf, "Может вместить стрел: %d.\r\n", GET_OBJ_VAL(obj, 1));
+		sprintf(buf, "Осталось стрел: %s%d&n.\r\n",
+				GET_OBJ_VAL(obj, 2) > 3 ? "&G" : "&R", GET_OBJ_VAL(obj, 2));
+		SendMsgToChar(buf, ch);
+		break;
+
+	default: break;
+} // switch
+}
+
+void MortShowObjValues(const ObjData *obj, CharData *ch, int fullness) {
+	int i;
+	bool found;
 	bool enhansed_scroll = false;
 	
 	if (fullness > 399) {
@@ -1515,7 +1410,7 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness) {
 	if (fullness < 20)
 		return;
 
-	//show_weapon(ch, obj);
+	//ShowWeapon(ch, obj);
 
 	sprintf(buf, "Вес: %d, Цена: %d, Рента: %d(%d)\r\n",
 			obj->get_weight(), obj->get_cost(), obj->get_rent_off(), obj->get_rent_on());
@@ -1585,216 +1480,7 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness) {
 	if (fullness < 75)
 		return;
 
-	switch (obj->get_type()) {
-		case EObjType::kScroll:
-		case EObjType::kPotion: {
-			std::ostringstream out;
-			out << "Содержит заклинание:";
-			for (auto val = 1; val < 4; ++val) {
-				auto spell_id = static_cast<ESpell>(GET_OBJ_VAL(obj, val));
-				if (MUD::Spell(spell_id).IsValid()) {
-					out << " Ур. [" << GET_OBJ_VAL(obj, 0) << "] " << MUD::Spell(spell_id).GetName() << ",";
-				}
-			}
-			if (out.str().back() == ',') {
-				out.seekp(-1, out.end);
-			}
-			out << "\r\n";
-			SendMsgToChar(out.str(), ch);
-			break;
-		}
-		case EObjType::kWand:
-		case EObjType::kStaff: sprintf(buf, "Вызывает заклинания: ");
-			sprintf(buf + strlen(buf), " %s\r\n",
-					MUD::Spell(static_cast<ESpell>(GET_OBJ_VAL(obj, 3))).GetCName());
-			sprintf(buf + strlen(buf), "Зарядов %d (осталось %d).\r\n",
-					GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2));
-			SendMsgToChar(buf, ch);
-			break;
-
-		case EObjType::kWeapon: drndice = GET_OBJ_VAL(obj, 1);
-			drsdice = GET_OBJ_VAL(obj, 2);
-			sprintf(buf, "Наносимые повреждения '%dD%d'", drndice, drsdice);
-			sprintf(buf + strlen(buf), " среднее %.1f.\r\n", ((drsdice + 1) * drndice / 2.0));
-			SendMsgToChar(buf, ch);
-			break;
-
-		case EObjType::kArmor:
-		case EObjType::kLightArmor:
-		case EObjType::kMediumArmor:
-		case EObjType::kHeavyArmor: drndice = GET_OBJ_VAL(obj, 0);
-			drsdice = GET_OBJ_VAL(obj, 1);
-			sprintf(buf, "защита (AC) : %d\r\n", drndice);
-			SendMsgToChar(buf, ch);
-			sprintf(buf, "броня       : %d\r\n", drsdice);
-			SendMsgToChar(buf, ch);
-			break;
-
-		case EObjType::kBook:
-			switch (GET_OBJ_VAL(obj, 0)) {
-				case EBook::kSpell: {
-					auto spell_id = static_cast<ESpell>(GET_OBJ_VAL(obj, 1));
-					if (spell_id >= ESpell::kFirst && spell_id <= ESpell::kLast) {
-						drndice = GET_OBJ_VAL(obj, 1);
-						if (MUD::Class(ch->GetClass()).spells.IsAvailable(spell_id)) {
-							drsdice = CalcMinSpellLvl(ch, spell_id, GET_OBJ_VAL(obj, 2));
-						} else {
-							drsdice = kLvlImplementator;
-						}
-						sprintf(buf, "содержит заклинание        : \"%s\"\r\n", MUD::Spell(spell_id).GetCName());
-						SendMsgToChar(buf, ch);
-						sprintf(buf, "уровень изучения (для вас) : %d\r\n", drsdice);
-						SendMsgToChar(buf, ch);
-					}
-					break;
-				}
-				case EBook::kSkill: {
-					auto skill_id = static_cast<ESkill>(GET_OBJ_VAL(obj, 1));
-					if (MUD::Skills().IsValid(skill_id)) {
-						drndice = GET_OBJ_VAL(obj, 1);
-						if (MUD::Class(ch->GetClass()).skills[skill_id].IsAvailable()) {
-							drsdice = GetSkillMinLevel(ch, skill_id, GET_OBJ_VAL(obj, 2));
-						} else {
-							drsdice = kLvlImplementator;
-						}
-						sprintf(buf, "содержит секрет умения     : \"%s\"\r\n", MUD::Skill(skill_id).GetName());
-						SendMsgToChar(buf, ch);
-						sprintf(buf, "уровень изучения (для вас) : %d\r\n", drsdice);
-						SendMsgToChar(buf, ch);
-					}
-					break;
-				}
-				case EBook::kSkillUpgrade: print_book_uprgd_skill(ch, obj);
-					break;
-
-				case EBook::kReceipt: drndice = im_get_recipe(GET_OBJ_VAL(obj, 1));
-					if (drndice >= 0) {
-						drsdice = std::max(GET_OBJ_VAL(obj, 2), imrecipes[drndice].level);
-						int count = imrecipes[drndice].remort;
-						if (imrecipes[drndice].classknow[to_underlying(ch->GetClass())] != kKnownRecipe)
-							drsdice = kLvlImplementator;
-						sprintf(buf, "содержит рецепт отвара     : \"%s\"\r\n", imrecipes[drndice].name);
-						SendMsgToChar(buf, ch);
-						if (drsdice == -1 || count == -1) {
-							SendMsgToChar(kColorBoldRed, ch);
-							SendMsgToChar("Некорректная запись рецепта для вашего класса - сообщите Богам.\r\n", ch);
-							SendMsgToChar(kColorNrm, ch);
-						} else if (drsdice == kLvlImplementator) {
-							sprintf(buf, "уровень изучения (количество ремортов) : %d (--)\r\n", drsdice);
-							SendMsgToChar(buf, ch);
-						} else {
-							sprintf(buf, "уровень изучения (количество ремортов) : %d (%d)\r\n", drsdice, count);
-							SendMsgToChar(buf, ch);
-						}
-					}
-					break;
-
-				case EBook::kFeat: {
-					const auto feat_id = static_cast<EFeat>(GET_OBJ_VAL(obj, 1));
-					if (MUD::Feat(feat_id).IsValid()) {
-						if (CanGetFeat(ch, feat_id)) {
-							drsdice = MUD::Class(ch->GetClass()).feats[feat_id].GetSlot();
-						} else {
-							drsdice = kLvlImplementator;
-						}
-						sprintf(buf, "содержит секрет способности : \"%s\"\r\n", MUD::Feat(feat_id).GetCName());
-						SendMsgToChar(buf, ch);
-						sprintf(buf, "уровень изучения (для вас) : %d\r\n", drsdice);
-						SendMsgToChar(buf, ch);
-					}
-				}
-					break;
-
-				default: SendMsgToChar(kColorBoldRed, ch);
-					SendMsgToChar("НЕВЕРНО УКАЗАН ТИП КНИГИ - сообщите Богам\r\n", ch);
-					SendMsgToChar(kColorNrm, ch);
-					break;
-			}
-			break;
-
-		case EObjType::kMagicIngredient: sprintbit(obj->get_spec_param(), ingradient_bits, buf2, sizeof(buf2));
-			snprintf(buf, kMaxStringLength, "%s\r\n", buf2);
-			SendMsgToChar(buf, ch);
-
-			if (IS_SET(obj->get_spec_param(), kItemCheckUses)) {
-				sprintf(buf, "можно применить %d раз\r\n", GET_OBJ_VAL(obj, 2));
-				SendMsgToChar(buf, ch);
-			}
-
-			if (IS_SET(obj->get_spec_param(), kItemCheckLag)) {
-				sprintf(buf, "можно применить 1 раз в %d сек", (i = GET_OBJ_VAL(obj, 0) & 0xFF));
-				if (GET_OBJ_VAL(obj, 3) == 0 || GET_OBJ_VAL(obj, 3) + i < time(nullptr))
-					strcat(buf, "(можно применять).\r\n");
-				else {
-					li = GET_OBJ_VAL(obj, 3) + i - time(nullptr);
-					sprintf(buf + strlen(buf), "(осталось %ld сек).\r\n", li);
-				}
-				SendMsgToChar(buf, ch);
-			}
-
-			if (IS_SET(obj->get_spec_param(), kItemCheckLevel)) {
-				sprintf(buf, "можно применить с %d уровня.\r\n", (GET_OBJ_VAL(obj, 0) >> 8) & 0x1F);
-				SendMsgToChar(buf, ch);
-			}
-
-			if ((i = GetObjRnum(GET_OBJ_VAL(obj, 1))) >= 0) {
-				sprintf(buf, "прототип %s%s%s.\r\n",
-						kColorBoldCyn, obj_proto[i]->get_PName(ECase::kNom).c_str(), kColorNrm);
-				SendMsgToChar(buf, ch);
-			}
-			break;
-
-		case EObjType::kMagicComponent:
-			for (j = 0; imtypes[j].id != GET_OBJ_VAL(obj, IM_TYPE_SLOT) && j <= top_imtypes;) {
-				j++;
-			}
-			sprintf(buf, "Это ингредиент вида '%s%s%s'\r\n", kColorCyn, imtypes[j].name, kColorNrm);
-			SendMsgToChar(buf, ch);
-			i = GET_OBJ_VAL(obj, IM_POWER_SLOT);
-			if (i > 45) { // тут явно опечатка была, кроме того у нас мобы и выше 40лвл
-				SendMsgToChar("Вы не в состоянии определить качество этого ингредиента.\r\n", ch);
-			} else {
-				sprintf(buf, "Качество ингредиента ");
-				if (i > 40)
-					strcat(buf, "божественное.\r\n");
-				else if (i > 35)
-					strcat(buf, "идеальное.\r\n");
-				else if (i > 30)
-					strcat(buf, "наилучшее.\r\n");
-				else if (i > 25)
-					strcat(buf, "превосходное.\r\n");
-				else if (i > 20)
-					strcat(buf, "отличное.\r\n");
-				else if (i > 15)
-					strcat(buf, "очень хорошее.\r\n");
-				else if (i > 10)
-					strcat(buf, "выше среднего.\r\n");
-				else if (i > 5)
-					strcat(buf, "весьма посредственное.\r\n");
-				else
-					strcat(buf, "хуже не бывает.\r\n");
-				SendMsgToChar(buf, ch);
-			}
-			break;
-
-			//Информация о контейнерах (Купала)
-		case EObjType::kContainer: sprintf(buf, "Максимально вместимый вес: %d.\r\n", GET_OBJ_VAL(obj, 0));
-			SendMsgToChar(buf, ch);
-			break;
-
-			//Информация о емкостях (Купала)
-		case EObjType::kLiquidContainer: drinkcon::identify(ch, obj);
-			break;
-
-		case EObjType::kMagicArrow:
-		case EObjType::kMagicContaner: sprintf(buf, "Может вместить стрел: %d.\r\n", GET_OBJ_VAL(obj, 1));
-			sprintf(buf, "Осталось стрел: %s%d&n.\r\n",
-					GET_OBJ_VAL(obj, 2) > 3 ? "&G" : "&R", GET_OBJ_VAL(obj, 2));
-			SendMsgToChar(buf, ch);
-			break;
-
-		default: break;
-	} // switch
+	ShowObjTypeSpecificValues(obj, ch);
 
 	if (fullness < 90) {
 		return;
@@ -1884,7 +1570,7 @@ void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness) {
 	obj_sets::print_identify(ch, obj);
 }
 
-void mort_show_char_values(CharData *victim, CharData *ch, int fullness) {
+void MortShowCharValues(CharData *victim, CharData *ch, int fullness) {
 	int val0, val1, val2;
 
 	sprintf(buf, "Имя: %s\r\n", GET_NAME(victim));
@@ -1983,44 +1669,50 @@ void mort_show_char_values(CharData *victim, CharData *ch, int fullness) {
 
 void SkillIdentify(int/* level*/, CharData *ch, CharData *victim, ObjData *obj) {
 	if (obj) {
-		mort_show_obj_values(obj, ch, CalcCurrentSkill(ch, ESkill::kIdentify, nullptr));
+		MortShowObjValues(obj, ch, CalcCurrentSkill(ch, ESkill::kIdentify, nullptr));
 		TrainSkill(ch, ESkill::kIdentify, true, nullptr);
 	} else if (victim) {
 		if (GetRealLevel(victim) < 3) {
 			SendMsgToChar("Вы можете опознать только персонажа, достигнувшего третьего уровня.\r\n", ch);
 			return;
 		}
-		mort_show_char_values(victim, ch, CalcCurrentSkill(ch, ESkill::kIdentify, victim));
+		MortShowCharValues(victim, ch, CalcCurrentSkill(ch, ESkill::kIdentify, victim));
 		TrainSkill(ch, ESkill::kIdentify, true, victim);
 	}
 }
 
 void SpellFullIdentify(int/* level*/, CharData *ch, CharData *victim, ObjData *obj) {
 	if (obj)
-		mort_show_obj_values(obj, ch, 400);
+		MortShowObjValues(obj, ch, 400);
 	else if (victim) {
-		SendMsgToChar("С помощью магии нельзя опознать другое существо.\r\n", ch);
+		// kFullIdentify overrides kWrongTarget with the identify-specific text
+		SendMsgToChar(MUD::SpellMessages().GetMessage(
+				ESpell::kFullIdentify, ESpellMsg::kWrongTarget) + "\r\n", ch);
 			return;
 	}
 }
 
 void SpellIdentify(int/* level*/, CharData *ch, CharData *victim, ObjData *obj) {
 	if (obj)
-		mort_show_obj_values(obj, ch, 100);
+		MortShowObjValues(obj, ch, 100);
 	else if (victim) {
 		if (GET_GOD_FLAG(ch, EGf::kAllowTesterMode) && (world[ch->in_room]->vnum / 100 >= dungeons::kZoneStartDungeons)) {
 			do_stat_character(ch, victim);
 			return;
 		}
 		if (victim != ch) {
-			SendMsgToChar("С помощью магии нельзя опознать другое существо.\r\n", ch);
+			// kIdentify overrides kWrongTarget with the identify-specific text
+			SendMsgToChar(MUD::SpellMessages().GetMessage(
+					ESpell::kIdentify, ESpellMsg::kWrongTarget) + "\r\n", ch);
 			return;
 		}
 		if (GetRealLevel(victim) < 3) {
-			SendMsgToChar("Вы можете опознать себя только достигнув третьего уровня.\r\n", ch);
+			// low-level self-identify rejection on kIdentify's sheaf.
+			SendMsgToChar(MUD::SpellMessages().GetMessage(
+					ESpell::kIdentify, ESpellMsg::kCustomMsgOne) + "\r\n", ch);
 			return;
 		}
-		mort_show_char_values(victim, ch, 100);
+		MortShowCharValues(victim, ch, 100);
 	}
 }
 
@@ -2115,7 +1807,7 @@ void SpellEnergydrain(int/* level*/, CharData *ch, CharData *victim, ObjData* /*
 		victim->caster_level = 0;
 		SendMsgToChar("Внезапно вы осознали, что у вас напрочь отшибло память.\r\n", victim);
 	} else
-		SendMsgToChar(NOEFFECT, ch);
+		SendMsgToChar(MUD::SpellMessages().GetMessage(ESpell::kEnergyDrain, ESpellMsg::kNoeffect) + "\r\n", ch);
 }
 
 void do_sacrifice(CharData *ch, int dam) {
@@ -2131,7 +1823,7 @@ void SpellSacrifice(int/* level*/, CharData *ch, CharData *victim, ObjData* /*ob
 	// *** мин 54 макс 66 (330)
 
 	if (victim->IsImmortal() || victim == ch || IS_CHARMICE(victim)) {
-		SendMsgToChar(NOEFFECT, ch);
+		SendMsgToChar(MUD::SpellMessages().GetMessage(ESpell::kSacrifice, ESpellMsg::kNoeffect) + "\r\n", ch);
 		return;
 	}
 
@@ -2181,8 +1873,16 @@ void SpellHolystrike(int/* level*/, CharData *ch, CharData* /*victim*/, ObjData*
 			}
 		}
 
-		CastAffect(GetRealLevel(ch), ch, tch, ESpell::kHolystrike);
+		// per-target order is Damage -> Unaffect -> Affect (matches
+		// CallMagic's stage order). kHolystrike's <unaffect> dispels kEviless on the target and
+		// returns kBreak, which skips the hold imposition for that just-dispelled minion. Damage
+		// always lands first, so the high-damage replacement for the old instant_death still
+		// bites kEviless minions on the way through.
 		CastDamage(GetRealLevel(ch), ch, tch, ESpell::kHolystrike);
+		if (CastUnaffects(ch, tch, nullptr, ESpell::kHolystrike) == EStageResult::kBreak) {
+			continue;
+		}
+		CastAffect(GetRealLevel(ch), ch, tch, ESpell::kHolystrike);
 	}
 
 	act(msg2, false, ch, nullptr, nullptr, kToChar);
@@ -2224,20 +1924,25 @@ void SpellMentalShadow(CharData *ch) {
 	float base_ac = 100;
 	float additional_ac = -1.5;
 	if (eff_int < 26 && !ch->IsImmortal()) {
-		SendMsgToChar("Головные боли мешают работать!\r\n", ch);
+		// low-Int rejection on kMentalShadow's sheaf as kCustomMsgOne.
+		SendMsgToChar(MUD::SpellMessages().GetMessage(
+				ESpell::kMentalShadow, ESpellMsg::kCustomMsgOne) + "\r\n", ch);
 		return;
 	};
 
 	if (!(mob = ReadMobile(mob_num, kVirtual))) {
-		SendMsgToChar("Вы точно не помните, как создать данного монстра.\r\n", ch);
+		// kSummonNoProto kDefault already carries this exact text -- the sheaf lookup
+		// returns it without any per-spell override needed.
+		SendMsgToChar(MUD::SpellMessages().GetMessage(
+				ESpell::kMentalShadow, ESpellMsg::kSummonNoProto) + "\r\n", ch);
 		return;
 	}
 	Affect<EApply> af;
 	af.type = ESpell::kCharm;
-	af.duration = CalcDuration(mob, 5 + (int) VPOSI<float>((get_effective_int(ch) - 16.0) / 2, 0, 50), 0, 0, 0, 0);
+	af.duration = CalcDuration(mob, mob, ESkill::kUndefined, 5 + (int) VPOSI<float>((get_effective_int(ch) - 16.0) / 2, 0, 50), 0, 0, 0);
 	af.modifier = 0;
 	af.location = EApply::kNone;
-	af.bitvector = to_underlying(EAffect::kHelper);
+	af.affect_type = EAffect::kHelper;
 	af.battleflag = 0;
 	affect_to_char(mob, af);
 	
@@ -2249,20 +1954,20 @@ void SpellMentalShadow(CharData *ch) {
      	SET_SPELL_MEM(mob, ESpell::kRemoveSilence, 1);
 	} else if (eff_int >= 32 && eff_int < 38) {
 		SET_SPELL_MEM(mob, ESpell::kRemoveSilence, 1);
-		af.bitvector = to_underlying(EAffect::kShadowCloak);
+		af.affect_type = EAffect::kShadowCloak;
 		affect_to_char(mob, af);
 		mob->mob_specials.have_spell = true;
 	} else if(eff_int >= 38 && eff_int < 44) {
 		SET_SPELL_MEM(mob, ESpell::kRemoveSilence, 2);
-		af.bitvector = to_underlying(EAffect::kShadowCloak);
+		af.affect_type = EAffect::kShadowCloak;
 		affect_to_char(mob, af);
 		mob->mob_specials.have_spell = true;
 	
 	} else if(eff_int >= 44) {
 		SET_SPELL_MEM(mob, ESpell::kRemoveSilence, 3);
-		af.bitvector = to_underlying(EAffect::kShadowCloak);
+		af.affect_type = EAffect::kShadowCloak;
 		affect_to_char(mob, af);
-		af.bitvector = to_underlying(EAffect::kBrokenChains);
+		af.affect_type = EAffect::kBrokenChains;
 		affect_to_char(mob, af);
 		mob->mob_specials.have_spell = true;
 	}
@@ -2276,13 +1981,17 @@ void SpellMentalShadow(CharData *ch) {
 	ch->add_follower(mob);
 	mob->set_protecting(ch);
 	
-	act("Мимолётное наваждение воплотилось в призрачную тень.",
-		true, mob, nullptr, nullptr, kToRoom | kToArenaListen);
+	// kMentalShadow overrides kSummonToRoom (whose kDefault sheaf carries 9
+	// random-failure variants used by kClone-style spells) with its single
+	// success line.
+	const auto &shadow_msg = MUD::SpellMessages().GetMessage(
+			ESpell::kMentalShadow, ESpellMsg::kSummonToRoom);
+	act(shadow_msg.c_str(), true, mob, nullptr, nullptr, kToRoom | kToArenaListen);
 }
 
 std::map<int /* vnum */, int /* count */> rune_list;
 
-void add_rune_stats(CharData *ch, int vnum, int spelltype) {
+void AddRuneStats(CharData *ch, int vnum, int spelltype) {
 	if (ch->IsNpc() || ESpellType::kRunes != spelltype) {
 		return;
 	}
@@ -2576,28 +2285,28 @@ int CheckRecipeItems(CharData *ch, ESpell spell_id, ESpellType spell_type, int e
 			strcat(buf, kColorWht);
 			strcat(buf, obj0->get_PName(ECase::kAcc).c_str());
 			strcat(buf, ", ");
-			add_rune_stats(ch, GET_OBJ_VAL(obj0, 1), spell_type);
+			AddRuneStats(ch, GET_OBJ_VAL(obj0, 1), spell_type);
 		}
 
 		if (item1 == -2) {
 			strcat(buf, kColorWht);
 			strcat(buf, obj1->get_PName(ECase::kAcc).c_str());
 			strcat(buf, ", ");
-			add_rune_stats(ch, GET_OBJ_VAL(obj1, 1), spell_type);
+			AddRuneStats(ch, GET_OBJ_VAL(obj1, 1), spell_type);
 		}
 
 		if (item2 == -2) {
 			strcat(buf, kColorWht);
 			strcat(buf, obj2->get_PName(ECase::kAcc).c_str());
 			strcat(buf, ", ");
-			add_rune_stats(ch, GET_OBJ_VAL(obj2, 1), spell_type);
+			AddRuneStats(ch, GET_OBJ_VAL(obj2, 1), spell_type);
 		}
 
 		if (item3 == -2) {
 			strcat(buf, kColorWht);
 			strcat(buf, obj3->get_PName(ECase::kAcc).c_str());
 			strcat(buf, ", ");
-			add_rune_stats(ch, GET_OBJ_VAL(obj3, 1), spell_type);
+			AddRuneStats(ch, GET_OBJ_VAL(obj3, 1), spell_type);
 		}
 
 		strcat(buf, kColorNrm);

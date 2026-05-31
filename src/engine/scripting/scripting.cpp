@@ -694,7 +694,7 @@ std::string get_location_str(const AFFECT_DATA<EApplyLocation> &af) {
 
 std::string get_bitvector_str(const AFFECT_DATA<EApplyLocation> &af) {
 	char buf[MAX_STRING_LENGTH];
-	sprintbitwd(af.bitvector, affected_bits, buf, sizeof(buf), ", ");
+	sprintbitwd(to_underlying(af.affect_type), affected_bits, buf, sizeof(buf), ", ");
 	return buf;
 }
 

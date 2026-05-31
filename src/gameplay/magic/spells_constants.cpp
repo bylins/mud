@@ -5,274 +5,19 @@
 */
 
 #include "spells_constants.h"
+#include "spell_messages.h"
+#include "engine/db/global_objects.h"
 #include "utils/utils.h"
 
 #include <map>
-#include <sstream>
 
 std::string GetAffExpiredText(ESpell spell_id) {
-	static const std::map<ESpell, std::string> spell_to_text {
-		{ESpell::kArmor, "Вы почувствовали себя менее защищенно."},
-		{ESpell::kTeleport, "!Teleport!"},
-		{ESpell::kBless, "Вы почувствовали себя менее доблестно."},
-		{ESpell::kBlindness, "Вы вновь можете видеть."},
-		{ESpell::kBurningHands, "!Burning Hands!"},
-		{ESpell::kCallLighting, "!Call Lightning"},
-		{ESpell::kCharm, "Вы подчиняетесь теперь только себе."},
-		{ESpell::kChillTouch, "Вы отметили, что силы вернулись к вам."},
-		{ESpell::kClone, "!Clone!"},
-		{ESpell::kIceBolts, "!Color Spray!"},
-		{ESpell::kControlWeather, "!Control Weather!"},
-		{ESpell::kCreateFood, "!Create Food!"},
-		{ESpell::kCreateWater, "!Create Water!"},
-		{ESpell::kCureBlind, "!Cure Blind!"},
-		{ESpell::kCureCritic, "!Cure Critic!"},
-		{ESpell::kCureLight, "!Cure Light!"},
-		{ESpell::kCurse, "Вы почувствовали себя более уверенно."},
-		{ESpell::kDetectAlign, "Вы более не можете определять наклонности."},
-		{ESpell::kDetectInvis, "Вы не в состоянии больше видеть невидимых."},
-		{ESpell::kDetectMagic, "Вы не в состоянии более определять магию."},
-		{ESpell::kDetectPoison, "Вы не в состоянии более определять яды."},
-		{ESpell::kDispelEvil, "!Dispel Evil!"},
-		{ESpell::kEarthquake, "!Earthquake!"},
-		{ESpell::kEnchantWeapon, "!Enchant Weapon!"},
-		{ESpell::kEnergyDrain, "!Energy Drain!"},
-		{ESpell::kFireball, "!Fireball!"},
-		{ESpell::kHarm, "!Harm!"},
-		{ESpell::kHeal, "!Heal!"},
-		{ESpell::kInvisible, "Вы вновь видимы."},
-		{ESpell::kLightingBolt, "!Lightning Bolt!"},
-		{ESpell::kLocateObject, "!Locate object!"},
-		{ESpell::kMagicMissile, "!Magic Missile!"},
-		{ESpell::kPoison, "В вашей крови не осталось ни капельки яда."},
-		{ESpell::kProtectFromEvil, "Вы вновь ощущаете страх перед тьмой."},
-		{ESpell::kRemoveCurse, "!Remove Curse!"},
-		{ESpell::kSanctuary, "Белая аура вокруг вашего тела угасла."},
-		{ESpell::kShockingGasp, "!Shocking Grasp!"},
-		{ESpell::kSleep, "Вы не чувствуете сонливости."},
-		{ESpell::kStrength, "Вы чувствуете себя немного слабее."},
-		{ESpell::kSummon, "!Summon!"},
-		{ESpell::kPatronage, "Вы утратили покровительство высших сил."},
-		{ESpell::kWorldOfRecall, "!Word of Recall!"},
-		{ESpell::kRemovePoison, "!Remove Poison!"},
-		{ESpell::kSenseLife, "Вы больше не можете чувствовать жизнь."},
-		{ESpell::kAnimateDead, "!Animate Dead!"},
-		{ESpell::kDispelGood, "!Dispel Good!"},
-		{ESpell::kGroupArmor, "!Group Armor!"},
-		{ESpell::kGroupHeal, "!Group Heal!"},
-		{ESpell::kGroupRecall, "!Group Recall!"},
-		{ESpell::kInfravision, "Вы больше не можете видеть ночью."},
-		{ESpell::kWaterwalk, "Вы больше не можете ходить по воде."},
-		{ESpell::kCureSerious, "!SPELL CURE SERIOUS!"},
-		{ESpell::kGroupStrength, "!SPELL GROUP STRENGTH!"},
-		{ESpell::kHold, "К вам вернулась способность двигаться."},
-		{ESpell::kPowerHold, "!SPELL POWER HOLD!"},
-		{ESpell::kMassHold, "!SPELL MASS HOLD!"},
-		{ESpell::kFly, "Вы приземлились на землю."},
-		{ESpell::kBrokenChains, "Вы вновь стали уязвимы для оцепенения."},
-		{ESpell::kNoflee, "Вы опять можете сбежать с поля боя."},
-		{ESpell::kCreateLight, "!SPELL CREATE LIGHT!"},
-		{ESpell::kDarkness, "Облако тьмы, окружающее вас, спало."},
-		{ESpell::kStoneSkin, "Ваша кожа вновь стала мягкой и бархатистой."},
-		{ESpell::kCloudly, "Ваши очертания приобрели отчетливость."},
-		{ESpell::kSilence, "Теперь вы можете болтать, все что думаете."},
-		{ESpell::kLight, "Ваше тело перестало светиться."},
-		{ESpell::kChainLighting, "!SPELL CHAIN LIGHTNING!"},
-		{ESpell::kFireBlast, "!SPELL FIREBLAST!"},
-		{ESpell::kGodsWrath, "!SPELL IMPLOSION!"},
-		{ESpell::kWeaknes, "Силы вернулись к вам."},
-		{ESpell::kGroupInvisible, "!SPELL GROUP INVISIBLE!"},
-		{ESpell::kShadowCloak, "Ваша теневая мантия замерцала и растаяла."},
-		{ESpell::kAcid, "!SPELL ACID!"},
-		{ESpell::kRepair, "!SPELL REPAIR!"},
-		{ESpell::kEnlarge, "Ваши размеры стали прежними."},
-		{ESpell::kFear, "!SPELL FEAR!"},
-		{ESpell::kSacrifice, "!SPELL SACRIFICE!"},
-		{ESpell::kWeb, "Магическая сеть, покрывавшая вас, исчезла."},
-		{ESpell::kBlink, "Вы перестали мигать."},
-		{ESpell::kRemoveHold, "!SPELL REMOVE HOLD!"},
-		{ESpell::kCamouflage, "Вы стали вновь похожи сами на себя."},
-		{ESpell::kPowerBlindness, "!SPELL POWER BLINDNESS!"},
-		{ESpell::kMassBlindness, "!SPELL MASS BLINDNESS!"},
-		{ESpell::kPowerSilence, "!SPELL POWER SIELENCE!"},
-		{ESpell::kExtraHits, "!SPELL EXTRA HITS!"},
-		{ESpell::kResurrection, "!SPELL RESSURECTION!"},
-		{ESpell::kMagicShield, "Ваш волшебный щит рассеялся."},
-		{ESpell::kForbidden, "Магия, запечатывающая входы, пропала."},
-		{ESpell::kMassSilence, "!SPELL MASS SIELENCE!"},
-		{ESpell::kRemoveSilence, "!SPELL REMOVE SIELENCE!"},
-		{ESpell::kDamageLight, "!SPELL DAMAGE LIGHT!"},
-		{ESpell::kDamageSerious, "!SPELL DAMAGE SERIOUS!"},
-		{ESpell::kDamageCritic, "!SPELL DAMAGE CRITIC!"},
-		{ESpell::kMassCurse, "!SPELL MASS CURSE!"},
-		{ESpell::kArmageddon, "!SPELL ARMAGEDDON!"},
-		{ESpell::kGroupFly, "!SPELL GROUP FLY!"},
-		{ESpell::kGroupBless, "!SPELL GROUP BLESS!"},
-		{ESpell::kResfresh, "!SPELL REFRESH!"},
-		{ESpell::kStunning, "!SPELL STUNNING!"},
-		{ESpell::kHide, "Вы стали заметны окружающим."},
-		{ESpell::kSneak, "Ваши передвижения стали заметны."},
-		{ESpell::kDrunked, "Кураж прошел. Мама, лучше бы я умер$q вчера."},
-		{ESpell::kAbstinent, "А головка ваша уже не болит."},
-		{ESpell::kFullFeed, "Вам снова захотелось жареного, да с дымком."},
-		{ESpell::kColdWind, "Вы согрелись и подвижность вернулась к вам."},
-		{ESpell::kBattle, "К вам вернулась способность нормально сражаться."},
-		{ESpell::kHaemorrhage, "Ваши кровоточащие раны затянулись."},
-		{ESpell::kCourage, "Вы успокоились."},
-		{ESpell::kWaterbreath, "Вы более не способны дышать водой."},
-		{ESpell::kSlowdown, "Медлительность исчезла."},
-		{ESpell::kHaste, "Вы стали более медлительны."},
-		{ESpell::kMassSlow, "!SPELL MASS SLOW!"},
-		{ESpell::kGroupHaste, "!SPELL MASS HASTE!"},
-		{ESpell::kGodsShield, "Голубой кокон вокруг вашего тела угас."},
-		{ESpell::kFever, "Лихорадка прекратилась."},
-		{ESpell::kCureFever, "!SPELL CURE PLAQUE!"},
-		{ESpell::kAwareness, "Вы стали менее внимательны."},
-		{ESpell::kReligion, "Вы утратили расположение Богов."},
-		{ESpell::kAirShield, "Ваш воздушный щит исчез."},
-		{ESpell::kPortal, "!PORTAL!"},
-		{ESpell::kDispellMagic, "!DISPELL MAGIC!"},
-		{ESpell::kSummonKeeper, "!SUMMON KEEPER!"},
-		{ESpell::kFastRegeneration, "Живительная сила покинула вас."},
-		{ESpell::kCreateWeapon, "!CREATE WEAPON!"},
-		{ESpell::kFireShield, "Огненный щит вокруг вашего тела исчез."},
-		{ESpell::kRelocate, "!RELOCATE!"},
-		{ESpell::kSummonFirekeeper, "!SUMMON FIREKEEPER!"},
-		{ESpell::kIceShield, "Ледяной щит вокруг вашего тела исчез."},
-		{ESpell::kIceStorm, "Ваши мышцы оттаяли и вы снова можете двигаться."},
-		{ESpell::kLessening, "Ваши размеры вновь стали прежними."},
-		{ESpell::kShineFlash, "!SHINE LIGHT!"},
-		{ESpell::kMadness, "Безумие отпустило вас."},
-		{ESpell::kGroupMagicGlass, "!GROUP MAGICGLASS!"},
-		{ESpell::kCloudOfArrows, "Облако стрел вокруг вас рассеялось."},
-		{ESpell::kVacuum, "Пустота вокруг вас исчезла."},
-		{ESpell::kMeteorStorm, "Последний громовой камень грянул в землю и все стихло."},
-		{ESpell::kStoneHands, "Ваши руки вернулись к прежнему состоянию."},
-		{ESpell::kMindless, "Ваш разум просветлел."},
-		{ESpell::kPrismaticAura, "Призматическая аура вокруг вашего тела угасла."},
-		{ESpell::kEviless, "Силы зла оставили вас."},
-		{ESpell::kAirAura, "Воздушная аура вокруг вас исчезла."},
-		{ESpell::kFireAura, "Огненная аура вокруг вас исчезла."},
-		{ESpell::kIceAura, "Ледяная аура вокруг вас исчезла."},
-		{ESpell::kShock, "!SHOCK!"},
-		{ESpell::kMagicGlass, "Вы вновь чувствительны к магическим поражениям."},
-		{ESpell::kGroupSanctuary, "!SPELL GROUP SANCTUARY!"},
-		{ESpell::kGroupPrismaticAura, "!SPELL GROUP PRISMATICAURA!"},
-		{ESpell::kDeafness, "Вы вновь можете слышать."},
-		{ESpell::kPowerDeafness, "!SPELL_POWER_DEAFNESS!"},
-		{ESpell::kRemoveDeafness, "!SPELL_REMOVE_DEAFNESS!"},
-		{ESpell::kMassDeafness, "!SPELL_MASS_DEAFNESS!"},
-		{ESpell::kDustStorm, "!SPELL_DUSTSTORM!"},
-		{ESpell::kEarthfall, "!SPELL_EARTHFALL!"},
-		{ESpell::kSonicWave, "!SPELL_SONICWAVE!"},
-		{ESpell::kHolystrike, "!SPELL_HOLYSTRIKE!"},
-		{ESpell::kSumonAngel, "!SPELL_SPELL_ANGEL!"},
-		{ESpell::kMassFear, "!SPELL_SPELL_MASS_FEAR!"},
-		{ESpell::kFascination, "Ваша красота куда-то пропала."},
-		{ESpell::kCrying, "Ваша душа успокоилась."},
-		{ESpell::kOblivion, "!SPELL_OBLIVION!"},
-		{ESpell::kBurdenOfTime, "!SPELL_BURDEN_OF_TIME!"},
-		{ESpell::kGroupRefresh, "!SPELL_GROUP_REFRESH!"},
-		{ESpell::kPeaceful, "Смирение в вашей душе вдруг куда-то исчезло."},
-		{ESpell::kMagicBattle, "К вам вернулась способность нормально сражаться."},
-		{ESpell::kBerserk, "Неистовство оставило вас."},
-		{ESpell::kStoneBones, "!stone bones!"},
-		{ESpell::kRoomLight, "Колдовской свет угас."},
-		{ESpell::kDeadlyFog, "Порыв ветра развеял туман смерти."},
-		{ESpell::kThunderstorm, "Ветер прогнал грозовые тучи."},
-		{ESpell::kLightWalk, "Ваши следы вновь стали заметны."},
-		{ESpell::kFailure, "Удача вновь вернулась к вам."},
-		{ESpell::kClanPray, "Магические чары ослабели со временем и покинули вас."},
-		{ESpell::kGlitterDust, "Покрывавшая вас блестящая пыль осыпалась и растаяла в воздухе."},
-		{ESpell::kScream, "Леденящий душу испуг отпустил вас."},
-		{ESpell::kCatGrace, "Ваши движения утратили прежнюю колдовскую ловкость."},
-		{ESpell::kBullBody, "Ваше телосложение вновь стало обычным."},
-		{ESpell::kSnakeWisdom, "Вы утратили навеянную магией мудрость."},
-		{ESpell::kGimmicry, "Навеянная магией хитрость покинула вас."},
-		{ESpell::kWarcryOfChallenge, "!SPELL_WC_OF_CHALLENGE!"},
-		{ESpell::kWarcryOfMenace, ""},
-		{ESpell::kWarcryOfRage, "!SPELL_WC_OF_RAGE!"},
-		{ESpell::kWarcryOfMadness, ""},
-		{ESpell::kWarcryOfThunder, "!SPELL_WC_OF_THUNDER!"},
-		{ESpell::kWarcryOfDefence, "Действие клича 'призыв к обороне' закончилось."},
-		{ESpell::kWarcryOfBattle, "Действие клича битвы закончилось."},
-		{ESpell::kWarcryOfPower, "Действие клича мощи закончилось."},
-		{ESpell::kWarcryOfBless, "Действие клича доблести закончилось."},
-		{ESpell::kWarcryOfCourage, "Действие клича отваги закончилось."},
-		{ESpell::kRuneLabel, "Магические письмена на земле угасли."},
-		{ESpell::kAconitumPoison, "В вашей крови не осталось ни капельки яда аконита."},
-		{ESpell::kScopolaPoison, "В вашей крови не осталось ни капельки яда скополии."},
-		{ESpell::kBelenaPoison, "В вашей крови не осталось ни капельки яда белены."},
-		{ESpell::kDaturaPoison, "В вашей крови не осталось ни капельки яда дурмана."},
-		{ESpell::kTimerRestore, "SPELL_TIMER_REPAIR"},
-		{ESpell::kCombatLuck, "!SPELL_CombatLuck!"},
-		{ESpell::kBandage, "Вы аккуратно перевязали свои раны."},
-		{ESpell::kNoBandage, "Вы снова можете перевязывать свои раны."},
-		{ESpell::kCapable, "!SPELL_CAPABLE!"},
-		{ESpell::kStrangle, "Удушье отпустило вас, и вы вздохнули полной грудью."},
-		{ESpell::kRecallSpells, "Вам стало не на чем концентрироваться."},
-		{ESpell::kHypnoticPattern, "Плывший в воздухе огненный узор потускнел и растаял струйками дыма."},
-		{ESpell::kSolobonus, "Одна из наград прекратила действовать."},
-		{ESpell::kVampirism, "!SPELL_VAMPIRE!"},
-		{ESpell::kRestoration, "!SPELLS_RESTORATION!"},
-		{ESpell::kDeathAura, "Силы нави покинули вас."},
-		{ESpell::kRecovery, "!SPELL_RECOVERY!"},
-		{ESpell::kMassRecovery, "!SPELL_MASS_RECOVERY!"},
-		{ESpell::kAuraOfEvil, "Аура зла больше не помогает вам."},
-		{ESpell::kMentalShadow, "!SPELL_MENTAL_SHADOW!"},
-		{ESpell::kBlackTentacles, "Жуткие черные руки побледнели и расплылись зловонной дымкой."},
-		{ESpell::kWhirlwind, "!SPELL_WHIRLWIND!"},
-		{ESpell::kIndriksTeeth, "Каменные зубы исчезли, возвратив способность двигаться."},
-		{ESpell::kAcidArrow, "!SPELL_MELFS_ACID_ARROW!"},
-		{ESpell::kThunderStone, "!SPELL_THUNDERSTONE!"},
-		{ESpell::kClod, "!SPELL_CLOD!"},
-		{ESpell::kExpedient, "Эффект боевого приема завершился."},
-		{ESpell::kSightOfDarkness, "!SPELL SIGHT OF DARKNESS!"},
-		{ESpell::kGroupSincerity, "!SPELL GENERAL SINCERITY!"},
-		{ESpell::kMagicalGaze, "!SPELL MAGICAL GAZE!"},
-		{ESpell::kAllSeeingEye, "!SPELL ALL SEEING EYE!"},
-		{ESpell::kEyeOfGods, "!SPELL EYE OF GODS!"},
-		{ESpell::kBreathingAtDepth, "!SPELL BREATHING AT DEPTH!"},
-		{ESpell::kGeneralRecovery, "!SPELL GENERAL RECOVERY!"},
-		{ESpell::kCommonMeal, "!SPELL COMMON MEAL!"},
-		{ESpell::kStoneWall, "!SPELL STONE WALL!"},
-		{ESpell::kSnakeEyes, "!SPELL SNAKE EYES!"},
-		{ESpell::kEarthAura, "Матушка земля забыла про Вас."},
-		{ESpell::kGroupProtectFromEvil, "Вы вновь ощущаете страх перед тьмой."},
-		{ESpell::kArrowsFire, "!NONE"},
-		{ESpell::kArrowsWater, "!NONE"},
-		{ESpell::kArrowsEarth, "!NONE"},
-		{ESpell::kArrowsAir, "!NONE"},
-		{ESpell::kArrowsDeath, "!NONE"},
-		{ESpell::kPaladineInspiration, "*Боевое воодушевление угасло, а с ним и вся жажда подвигов!"},
-		{ESpell::kDexterity, "Вы стали менее шустрым."},
-		{ESpell::kGroupBlink, "!NONE"},
-		{ESpell::kGroupCloudly, "!NONE"},
-		{ESpell::kGroupAwareness, "!NONE"},
-		{ESpell::kWarcryOfExperience, "Действие клича 'обучение' закончилось."},
-		{ESpell::kWarcryOfLuck, "Действие клича 'везение' закончилось."},
-		{ESpell::kWarcryOfPhysdamage, "Действие клича 'точность' закончилось."},
-		{ESpell::kMassFailure, "Удача снова повернулась к вам лицом... и залепила пощечину."},
-		{ESpell::kSnare, "Покрывавшие вас сети колдовской западни растаяли."},
-		{ESpell::kQUest, "Наложенные на вас чары рассеялись."},
-		{ESpell::kExpedientFail, "Вы восстановили равновесие."},
-		{ESpell::kLowerEffectiveness, ""},
-		{ESpell::kNoInjure, ""},
-		{ESpell::kNoCharge, ""},
-		{ESpell::kConfuse, ""},
-		{ESpell::kDazzle, ""},
-		{ESpell::kGreatHeal, "!Great Heal!"},
-		{ESpell::kFrenzy, "Жажда крови отступила и Вы пришли в себя."},
-		{ESpell::kPortalTimer, "Пентаграмма медленно растаяла."}
-	};
-
-	if (!spell_to_text.contains(spell_id)) {
-		std::stringstream log_text;
-		log_text << "!нет сообщения при спадении аффекта под номером: " << static_cast<int>(spell_id) << "!";
-		return log_text.str();
-	}
-
-	return spell_to_text.at(spell_id);
+	// The map of per-spell expiration messages used to live here. The texts moved to
+	// lib/cfg/spell_msg.xml under the kAffExpired key; a generic default lives in the
+	// kDefault sheaf, so a spell without its own kAffExpired falls back to it. The
+	// callers (ShowAffExpiredMsg, SendRemoveAffectMsgToRoom) still gate on !msg.empty()
+	// in case the lookup ever returns the fallback error string.
+	return MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kAffExpired);
 }
 
 // GetCastPhrase удалён (issue #3304): фразы заклинаний перенесены в
@@ -547,6 +292,12 @@ void init_ESpell_ITEM_NAMES() {
 	ESpell_name_by_value[ESpell::kDazzle] = "kDazzle";
 	ESpell_name_by_value[ESpell::kGreatHeal] = "kGreatHeal";
 	ESpell_name_by_value[ESpell::kFrenzy] = "kFrenzy";
+	// Testing placeholders -- see spells_constants.h for the slot policy.
+	ESpell_name_by_value[ESpell::kTestOne] = "kTestOne";
+	ESpell_name_by_value[ESpell::kTestTwo] = "kTestTwo";
+	ESpell_name_by_value[ESpell::kTestThree] = "kTestThree";
+	ESpell_name_by_value[ESpell::kTestFour] = "kTestFour";
+	ESpell_name_by_value[ESpell::kTestFive] = "kTestFive";
 
 	for (const auto &i : ESpell_name_by_value) {
 		ESpell_value_by_name[i.second] = i.first;
@@ -679,7 +430,6 @@ void init_EMagic_ITEM_NAMES() {
 	EMagic_name_by_value[EMagic::kMagManual] = "kMagManual";
 	EMagic_name_by_value[EMagic::kMagWarcry] = "kMagWarcry";
 	EMagic_name_by_value[EMagic::kMagNeedControl] = "kMagNeedControl";
-	EMagic_name_by_value[EMagic::kMagCharRelocate] = "kMagCharRelocate";
 	EMagic_name_by_value[EMagic::kNpcDamagePc] = "kNpcDamagePc";
 	EMagic_name_by_value[EMagic::kNpcDamagePcMinhp] = "kNpcDamagePcMinhp";
 	EMagic_name_by_value[EMagic::kNpcAffectPc] = "kNpcAffectPc";
@@ -738,6 +488,8 @@ void init_ETarget_ITEM_NAMES() {
 	ETarget_name_by_value[ETarget::kTarRoomThis] = "kTarRoomThis";
 	ETarget_name_by_value[ETarget::kTarRoomDir] = "kTarRoomDir";
 	ETarget_name_by_value[ETarget::kTarRoomWorld] = "kTarRoomWorld";
+	ETarget_name_by_value[ETarget::kTarAllyOnly] = "kTarAllyOnly";
+	ETarget_name_by_value[ETarget::kTarMinionsOnly] = "kTarMinionsOnly";
 
 	for (const auto &i : ETarget_name_by_value) {
 		ETarget_value_by_name[i.second] = i.first;

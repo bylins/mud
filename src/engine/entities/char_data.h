@@ -873,40 +873,7 @@ class CharData : public ProtectedCharData {
 	bool IsLeader();
 };
 
-enum ERemovableSpell {
-	kRemAbstinent = 0,
-	kRemPoison,
-	kRemMadness,
-	kRemWeakness,
-	kRemSlowdown,
-	kRemMindless,
-	kRemColdWind,
-	kRemFever,
-	kRemCurse,
-	kRemDeafness,
-	kRemSilence,
-	kRemBlindness,
-	kRemSleep,
-	kRemHold,
-	kRemVacuum,
-	kRemHaemorrhage,
-	kRemBattle,
-	kMaxFirstaidRemove
-};
-
-inline ESpell GetRemovableSpellId(int num) {
-	static const ESpell spell[kMaxFirstaidRemove] = {
-		ESpell::kAbstinent, ESpell::kPoison, ESpell::kMadness,
-		ESpell::kWeaknes, ESpell::kSlowdown, ESpell::kMindless, ESpell::kColdWind,
-		ESpell::kFever, ESpell::kCurse, ESpell::kDeafness, ESpell::kSilence,
-		ESpell::kBlindness, ESpell::kSleep, ESpell::kHold, ESpell::kVacuum,
-		ESpell::kHaemorrhage, ESpell::kBattle
-	};
-	if (num < kMaxFirstaidRemove) {
-		return spell[num];
-	}
-	return ESpell::kUndefined;
-}
+// ERemovableSpell / GetRemovableSpellId moved to gameplay/magic/magic.h (issue.affect-dispell-flags).
 inline const player_special_data::ignores_t &CharData::get_ignores() const {
 	const auto &ps = get_player_specials();
 	return ps->ignores;
@@ -936,10 +903,27 @@ inline void SET_INVIS_LEV(const CharData *ch, const int level) {
 }
 inline void SET_INVIS_LEV(const CharData::shared_ptr &ch, const int level) { SET_INVIS_LEV(ch.get(), level); }
 
+// Alignment predicates (issue.cast-dmg-migration). Replace the IS_GOOD / IS_EVIL macros that used
+// to live in utils.h; IsNeutral covers the third band (between -300 and +300, exclusive). Named
+// per Google C++ style. Thresholds come from kAligGoodMore / kAligEvilLess in utils.h.
+inline bool IsGood(const CharData *ch) { return ch->char_specials.saved.alignment >= kAligGoodMore; }
+inline bool IsGood(const CharData::shared_ptr &ch) { return IsGood(ch.get()); }
+inline bool IsEvil(const CharData *ch) { return ch->char_specials.saved.alignment <= kAligEvilLess; }
+inline bool IsEvil(const CharData::shared_ptr &ch) { return IsEvil(ch.get()); }
+inline bool IsNeutral(const CharData *ch) { return !IsGood(ch) && !IsEvil(ch); }
+inline bool IsNeutral(const CharData::shared_ptr &ch) { return IsNeutral(ch.get()); }
+
 inline void SetWaitState(CharData *ch, const unsigned cycle) {
 	if (ch->get_wait() < cycle) {
 		ch->set_wait(cycle);
 	}
+}
+
+// Lag the character by `lag` battle rounds. Thin wrapper over SetWaitState that spells the
+// "rounds, not raw pulses" intent at the call site -- preferred over the ubiquitous
+// SetWaitState(ch, N * kBattleRound) idiom that previously dotted the codebase.
+inline void SetBattleLag(CharData *ch, const unsigned lag) {
+	SetWaitState(ch, lag * kBattleRound);
 }
 
 inline FlagData &AFF_FLAGS(CharData *ch) { return ch->char_specials.saved.affected_by; }

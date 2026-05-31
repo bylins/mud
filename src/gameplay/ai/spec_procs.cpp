@@ -1176,9 +1176,9 @@ int magic_user(CharData *ch, void * /*me*/, int cmd, char * /*argument*/) {
 	}
 
 	if ((GetRealLevel(ch) > 12) && (number(0, 12) == 0)) {
-		if (IS_EVIL(ch)) {
+		if (IsEvil(ch)) {
 			CastSpell(ch, target, nullptr, nullptr, ESpell::kEnergyDrain, ESpell::kEnergyDrain);
-		} else if (IS_GOOD(ch)) {
+		} else if (IsGood(ch)) {
 			CastSpell(ch, target, nullptr, nullptr, ESpell::kDispelEvil, ESpell::kDispelEvil);
 		}
 	}

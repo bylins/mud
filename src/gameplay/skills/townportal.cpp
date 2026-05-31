@@ -107,9 +107,9 @@ Runestone GetLabelPortal(CharData *ch) {
 
 void OpenTownportal(CharData *ch, const Runestone &stone) {
 	ImproveSkill(ch, ESkill::kTownportal, 1, nullptr);
-	RoomData *from_room = world[ch->in_room];
 	auto to_room = GetRoomRnum(stone.GetRoomVnum());
-	from_room->pkPenterUnique = 0;
+	// (issue.affect-flags: dead write to pkPenterUnique removed -- the field
+	// retired, PK-uid lives on the kPortalTimer affect via pk_unique.)
 	one_way_portal::ReplacePortalTimer(ch, ch->in_room, to_room, 29);
 	act("Лазурная пентаграмма возникла в воздухе.", false, ch, nullptr, nullptr, kToChar);
 	act("$n сложил$g руки в молитвенном жесте, испрашивая у Богов врата...", false, ch, nullptr, nullptr, kToRoom);
@@ -144,19 +144,18 @@ void ReplacePortalTimer(CharData *ch, RoomRnum from_room, RoomRnum to_room, int 
 
 	Affect<room_spells::ERoomApply> af;
 	af.type = ESpell::kPortalTimer;
-	af.bitvector = 0;
+	af.affect_type = static_cast<room_spells::ERoomAffect>(0);
 	af.duration = time; //раз в 2 секунды
 	af.modifier = to_room;
 	af.battleflag = 0;
 	af.location = room_spells::ERoomApply::kNone;
 	af.caster_id = ch ? ch->get_uid() : 0;
-	af.must_handled = false;
 	af.apply_time = 0;
 //	room_spells::AffectRoomJoinReplace(world[from_room], af);
 	room_spells::affect_to_room(world[from_room], af);
 	room_spells::AddRoomToAffected(world[from_room]);
 	af.modifier = from_room;
-	af.bitvector = room_spells::ERoomAffect::kNoPortalExit;
+	af.affect_type = room_spells::ERoomAffect::kNoPortalExit;
 	room_spells::affect_to_room(world[to_room], af);
 //	room_spells::AffectRoomJoinReplace(world[to_room], af);
 	room_spells::AddRoomToAffected(world[to_room]);
