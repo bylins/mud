@@ -128,13 +128,36 @@ enum class Scope : std::uint8_t {
 	kSelf,       // just the searcher
 	kEquip,      // searcher's equipment slots
 	kInventory,  // searcher's carrying list
-	kRoom,       // people / objects in searcher's room
-	kWorld,      // global character_list (chars only; obj-world lookup deferred)
+	kRoom,       // people / objects in searcher's room (or room_override if set)
+	kWorld,      // global character_list (PC-priority order) / world_objects registry
+	kRnum,       // direct registry lookup -- pairs with rnum_lookup (chars/objs)
 };
 
 struct Query {
 	std::vector<Scope> scopes = {Scope::kRoom};
+
+	// Name filter. Accepts the legacy "N.name" syntax -- the resolver strips
+	// the "N." prefix off and treats it as the ordinal (returns the N-th match
+	// instead of the first). "2.guard" picks the second visible guard. An
+	// ordinal of 0 (e.g. "0.foo") is treated as "no match" by the legacy
+	// semantics this preserves.
 	std::optional<std::string> name;
+
+	// kRoom uses this room when set; otherwise falls back to searcher->in_room.
+	// Lets a caller search a room the searcher isn't in (legacy
+	// SearchCharInRoomByName / scripted lookups).
+	std::optional<RoomRnum> room_override;
+
+	// Direct registry-key lookup for kRnum. Mob rnum for ResolveChar (deferred
+	// -- no caller asks for it today), obj rnum for ResolveObj (replaces
+	// SearchObjByRnum).
+	std::optional<int> rnum_lookup;
+
+	// Walk INTO containers when scanning equip / inventory / room obj lists
+	// (legacy get_obj_vis behaviour). Off by default since most callers want
+	// a flat scope walk.
+	bool walk_containers = false;
+
 	bool visible_only = true;
 	bool single = true;
 

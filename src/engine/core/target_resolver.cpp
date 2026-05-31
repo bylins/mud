@@ -7,12 +7,15 @@
 #include "engine/core/handler.h"
 #include "engine/core/utils_char_obj.inl"
 #include "engine/db/world_characters.h"
+#include "engine/db/world_objects.h"
 #include "engine/entities/char_data.h"
 #include "engine/entities/obj_data.h"
 #include "engine/entities/room_data.h"
 #include "gameplay/fight/pk.h"
 #include "gameplay/mechanics/groups.h"
 #include "utils/utils.h"
+
+#include <cctype>
 
 /*
 	2. Добавить возможность сформировать список группы без учета комнаты.
@@ -172,86 +175,191 @@ bool MatchesName(ObjData *cand, const std::string &name) {
 	return isname(name.c_str(), cand->get_aliases().c_str());
 }
 
+// Parse the legacy "N.name" ordinal prefix. "2.fido" -> {ordinal=2, raw="fido"};
+// "fido" -> {1, "fido"}; "0.fido" -> {0, "fido"} (legacy "no match" sentinel);
+// non-numeric prefix -> {1, "input as-is"}.
+struct Ordinal {
+	int n = 1;
+	std::string raw;
+};
+Ordinal ParseOrdinal(const std::string &input) {
+	Ordinal o{1, input};
+	auto dot = input.find('.');
+	if (dot == std::string::npos) return o;
+	const std::string head = input.substr(0, dot);
+	if (head.empty()) return o;
+	for (char c : head) {
+		if (!std::isdigit(static_cast<unsigned char>(c))) return o;
+	}
+	try {
+		o.n = std::stoi(head);
+		o.raw = input.substr(dot + 1);
+	} catch (...) {
+		// stoi can throw on overflow -- keep the {1, input} default.
+	}
+	return o;
+}
+
+// Tracks how many name-matched candidates have been seen so far, lets the
+// ordinal-aware consider() pick the Nth one out of the stream without
+// allocating a full match list.
+struct OrdinalState {
+	int target;     // the N from "N.name" (or 1 by default)
+	int seen = 0;   // matches consumed so far
+	bool done = false;
+};
+
 // Stage walking: for each scope in `q.scopes`, collect candidates and run the
-// visibility / name / predicate gates; stop once `single` is satisfied.
+// visibility / name / predicate gates; stop once `single` is satisfied. The
+// helper takes a const std::string& name_filter so the ordinal-stripped form
+// can be passed in without rebuilding the optional<std::string> per scope.
 void CollectChars(CharData *searcher, const Query &q,
+				  const std::optional<std::string> &name_filter,
+				  OrdinalState &ord,
 				  std::vector<CharData *> &out) {
 	auto consider = [&](CharData *cand) {
+		if (ord.done) return;
 		if (!cand || cand->purged()) return;
 		if (q.visible_only && !CAN_SEE(searcher, cand)) return;
-		if (q.name && !MatchesName(cand, *q.name)) return;
+		if (name_filter && !MatchesName(cand, *name_filter)) return;
 		if (q.char_predicate && !q.char_predicate(cand)) return;
+		// Ordinal: skip the first ord.target-1 matches when `single` is set;
+		// for multi mode, take everything.
+		if (q.single) {
+			if (++ord.seen != ord.target) return;
+			ord.done = true;
+		}
 		out.push_back(cand);
 	};
 
+	// Bail if "0.name" was specified (legacy no-match sentinel).
+	if (q.single && ord.target == 0) return;
+
 	for (const Scope scope : q.scopes) {
-		if (q.single && !out.empty()) return;
+		if (ord.done) return;
 		switch (scope) {
 			case Scope::kSelf:
 				consider(searcher);
 				break;
-			case Scope::kRoom:
-				if (searcher->in_room != kNowhere) {
-					for (CharData *c : world[searcher->in_room]->people) {
+			case Scope::kRoom: {
+				const RoomRnum room = q.room_override.value_or(searcher ? searcher->in_room : kNowhere);
+				if (room != kNowhere) {
+					for (CharData *c : world[room]->people) {
 						consider(c);
-						if (q.single && !out.empty()) return;
+						if (ord.done) return;
 					}
 				}
 				break;
+			}
 			case Scope::kWorld:
+				// PC-priority: walk PCs first, then NPCs. Matches the legacy
+				// get_char_vis ordering where get_player_vis fired before the
+				// character_list sweep.
 				for (const auto &shared : character_list) {
-					consider(shared.get());
-					if (q.single && !out.empty()) return;
+					CharData *c = shared.get();
+					if (c && !c->IsNpc()) consider(c);
+					if (ord.done) return;
 				}
+				for (const auto &shared : character_list) {
+					CharData *c = shared.get();
+					if (c && c->IsNpc()) consider(c);
+					if (ord.done) return;
+				}
+				break;
+			case Scope::kRnum:
+				// Char-by-rnum lookup: defer until a consumer asks for it.
+				// (Today's needs are obj-only; kRnum on chars is a no-op.)
 				break;
 			case Scope::kEquip:
 			case Scope::kInventory:
-				// Equip / inventory scopes carry no chars -- skip silently
-				// (a future "find a charmed mob in the saddle" path can plug
-				// container-walking in here).
+				// No chars in equip / inventory in today's model.
 				break;
 		}
 	}
 }
 
+// Forward declaration for the recursive container walk.
+void ConsiderObjAndChildren(ObjData *cand, const Query &q,
+							 const std::optional<std::string> &name_filter,
+							 OrdinalState &ord,
+							 std::vector<ObjData *> &out, CharData *searcher);
+
+void ConsiderObjOne(ObjData *cand, const Query &q,
+					 const std::optional<std::string> &name_filter,
+					 OrdinalState &ord,
+					 std::vector<ObjData *> &out, CharData *searcher) {
+	if (ord.done) return;
+	if (!cand) return;
+	if (q.visible_only && searcher && !CAN_SEE_OBJ(searcher, cand)) return;
+	if (name_filter && !MatchesName(cand, *name_filter)) return;
+	if (q.obj_predicate && !q.obj_predicate(cand)) return;
+	if (q.single) {
+		if (++ord.seen != ord.target) return;
+		ord.done = true;
+	}
+	out.push_back(cand);
+}
+
+void ConsiderObjAndChildren(ObjData *cand, const Query &q,
+							 const std::optional<std::string> &name_filter,
+							 OrdinalState &ord,
+							 std::vector<ObjData *> &out, CharData *searcher) {
+	ConsiderObjOne(cand, q, name_filter, ord, out, searcher);
+	if (ord.done) return;
+	if (!q.walk_containers || !cand) return;
+	for (ObjData *child = cand->get_contains(); child; child = child->get_next_content()) {
+		ConsiderObjAndChildren(child, q, name_filter, ord, out, searcher);
+		if (ord.done) return;
+	}
+}
+
 void CollectObjs(CharData *searcher, const Query &q,
+				 const std::optional<std::string> &name_filter,
+				 OrdinalState &ord,
 				 std::vector<ObjData *> &out) {
-	auto consider = [&](ObjData *cand) {
-		if (!cand) return;
-		if (q.visible_only && !CAN_SEE_OBJ(searcher, cand)) return;
-		if (q.name && !MatchesName(cand, *q.name)) return;
-		if (q.obj_predicate && !q.obj_predicate(cand)) return;
-		out.push_back(cand);
-	};
+	if (q.single && ord.target == 0) return;
 
 	for (const Scope scope : q.scopes) {
-		if (q.single && !out.empty()) return;
+		if (ord.done) return;
 		switch (scope) {
 			case Scope::kSelf:
-			case Scope::kWorld:
-				// Self / world obj lookups are out of scope for stage 2 --
-				// add when a consumer needs them (a global obj table walk
-				// is expensive; FindObjForLocate-style paths stay where
-				// they are for now).
+				// Objs have no "self" -- skip.
 				break;
 			case Scope::kEquip:
-				for (int slot = 0; slot < EEquipPos::kNumEquipPos; ++slot) {
-					consider(GET_EQ(searcher, slot));
-					if (q.single && !out.empty()) return;
+				if (searcher) {
+					for (int slot = 0; slot < EEquipPos::kNumEquipPos; ++slot) {
+						ConsiderObjAndChildren(GET_EQ(searcher, slot), q, name_filter, ord, out, searcher);
+						if (ord.done) return;
+					}
 				}
 				break;
 			case Scope::kInventory:
-				for (ObjData *o = searcher->carrying; o; o = o->get_next_content()) {
-					consider(o);
-					if (q.single && !out.empty()) return;
+				if (searcher) {
+					for (ObjData *o = searcher->carrying; o; o = o->get_next_content()) {
+						ConsiderObjAndChildren(o, q, name_filter, ord, out, searcher);
+						if (ord.done) return;
+					}
 				}
 				break;
-			case Scope::kRoom:
-				if (searcher->in_room != kNowhere) {
-					for (ObjData *o : world[searcher->in_room]->contents) {
-						consider(o);
-						if (q.single && !out.empty()) return;
+			case Scope::kRoom: {
+				const RoomRnum room = q.room_override.value_or(searcher ? searcher->in_room : kNowhere);
+				if (room != kNowhere) {
+					for (ObjData *o : world[room]->contents) {
+						ConsiderObjAndChildren(o, q, name_filter, ord, out, searcher);
+						if (ord.done) return;
 					}
+				}
+				break;
+			}
+			case Scope::kWorld:
+				// Global obj walk -- expensive and rarely wanted. Deferred
+				// until a consumer asks for it. (FindObjForLocate stays as
+				// its own function with depot/parcel extensions.)
+				break;
+			case Scope::kRnum:
+				if (q.rnum_lookup) {
+					const auto result = world_objects.find_first_by_rnum(*q.rnum_lookup);
+					ConsiderObjOne(result.get(), q, name_filter, ord, out, searcher);
 				}
 				break;
 		}
@@ -260,11 +368,23 @@ void CollectObjs(CharData *searcher, const Query &q,
 
 }  // namespace
 
+// Shared helper: ordinal-parses the q.name once, returns the stripped name
+// (or std::nullopt if no name filter was set) and the requested ordinal.
+namespace {
+std::pair<std::optional<std::string>, int> NameAndOrdinal(const Query &q) {
+	if (!q.name) return {std::nullopt, 1};
+	Ordinal o = ParseOrdinal(*q.name);
+	return {o.raw, o.n};
+}
+}  // namespace
+
 CharData *ResolveChar(CharData *searcher, const Query &q) {
 	std::vector<CharData *> matches;
 	Query qs = q;
 	qs.single = true;
-	CollectChars(searcher, qs, matches);
+	auto [name, ordinal] = NameAndOrdinal(qs);
+	OrdinalState ord{ordinal};
+	CollectChars(searcher, qs, name, ord, matches);
 	return matches.empty() ? nullptr : matches.front();
 }
 
@@ -272,7 +392,9 @@ ObjData *ResolveObj(CharData *searcher, const Query &q) {
 	std::vector<ObjData *> matches;
 	Query qs = q;
 	qs.single = true;
-	CollectObjs(searcher, qs, matches);
+	auto [name, ordinal] = NameAndOrdinal(qs);
+	OrdinalState ord{ordinal};
+	CollectObjs(searcher, qs, name, ord, matches);
 	return matches.empty() ? nullptr : matches.front();
 }
 
@@ -290,7 +412,9 @@ std::vector<CharData *> ResolveChars(CharData *searcher, const Query &q) {
 	std::vector<CharData *> matches;
 	Query qm = q;
 	qm.single = false;
-	CollectChars(searcher, qm, matches);
+	auto [name, ordinal] = NameAndOrdinal(qm);
+	OrdinalState ord{ordinal};
+	CollectChars(searcher, qm, name, ord, matches);
 	return matches;
 }
 
@@ -298,7 +422,9 @@ std::vector<ObjData *> ResolveObjs(CharData *searcher, const Query &q) {
 	std::vector<ObjData *> matches;
 	Query qm = q;
 	qm.single = false;
-	CollectObjs(searcher, qm, matches);
+	auto [name, ordinal] = NameAndOrdinal(qm);
+	OrdinalState ord{ordinal};
+	CollectObjs(searcher, qm, name, ord, matches);
 	return matches;
 }
 
