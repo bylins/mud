@@ -57,8 +57,7 @@ bool IsRoomBlocked(RoomData *room, const talents_actions::FlagCondition &cond);
 float CalcCastPotency(const RollResult &potency);
 
 // Apply-side modifier value used by every affect imposition path:
-//     raw = min + ceil(skill_coeff + stat_coeff)·competencies_weight
-//                    + dices·dices_weight
+//     raw = min + ceil(dices·dices_weight·(1 + alpha·C) + beta·C)   C = skill_coeff+stat_coeff
 //     raw = min(raw, cap)        if cap > 0
 //     return static_cast<int>(factor · raw)
 // Shared by CastAffect's per-target apply_one lambda and CallMagicToRoom's

@@ -446,8 +446,13 @@ static int CalcTotalSpellDmg(CharData *ch, CharData *victim, ESpell spell_id) {
 			// the roll's dice and competencies (skill+stat); an absent <amount> defaults to min 0
 			// and both weights 1.0.
 			const auto &dmg_act = MUD::Spell(spell_id).actions.GetDmg();
-			dmg = dmg_act.GetAmountMin() + std::ceil(base_dmg * dmg_act.GetAmountDicesWeight()
-					+ (skill_coeff + stat_coeff) * dmg_act.GetAmountCompetenciesWeight());
+			// Option-2 subquadratic (issue.potency-formula): skill/stat scales the dice
+			// multiplicatively (alpha) plus a flat additive term (beta). alpha=0 -> old
+			// Formula A. C = skill_coeff + stat_coeff.
+			const float C = skill_coeff + stat_coeff;
+			dmg = dmg_act.GetAmountMin() + std::ceil(
+					base_dmg * dmg_act.GetAmountDicesWeight() * (1.0f + dmg_act.GetAmountAlpha() * C)
+					+ dmg_act.GetAmountBeta() * C);
 		} else {
 			// Legacy multiplicative model dice * (1 + skill + stat), for spells with no <damage>
 			// action (e.g. kWarcryOfChallenge).
@@ -1635,8 +1640,11 @@ struct PointsCategory {
 // non-heal categories default to 0 (no NPC boost).
 auto MakeAmountCalculator(const CharData *ch, double dice, double competencies, double bonus_mod) {
 	return [ch, dice, competencies, bonus_mod](const talents_actions::Points::Amount &a) -> int {
-		int v = static_cast<int>(a.min + std::ceil(dice * a.dices_weight
-												  + competencies * a.competencies_weight));
+		// Option-2 subquadratic (issue.potency-formula): dice scaled multiplicatively by
+		// skill/stat (alpha) plus an additive term (beta). alpha=0 -> old Formula A.
+		int v = static_cast<int>(a.min + std::ceil(
+						dice * a.dices_weight * (1.0 + a.alpha * competencies)
+						+ a.beta * competencies));
 		v += static_cast<int>(v * bonus_mod);
 		if (ch->IsNpc()) {
 			v += static_cast<int>(v * a.npc_coeff);

@@ -345,8 +345,11 @@ float CalcCastPotency(const RollResult &potency) {
 int ComputeApplyModifier(const talents_actions::TalentAffect::Apply &apply,
 						 const RollResult &potency) {
 	const double competencies = potency.skill_coeff + potency.stat_coeff;
-	double raw = apply.min + std::ceil(competencies * apply.competencies_weight
-									   + potency.dices * apply.dices_weight);
+	// Option-2 subquadratic (issue.potency-formula): dice amplified by skill/stat (alpha)
+	// plus an additive term (beta). alpha=0 -> old Formula A.
+	double raw = apply.min + std::ceil(
+			potency.dices * apply.dices_weight * (1.0 + apply.alpha * competencies)
+			+ apply.beta * competencies);
 	// Optional cap on raw magnitude before factor. 0 = no cap.
 	// Clamps the buff/debuff magnitude regardless of factor sign.
 	if (apply.cap > 0) {
