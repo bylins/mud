@@ -620,7 +620,13 @@ int FindCastTarget(ESpell spell_id, const char *t, CharData *ch, CharData **tch,
 		return true;
 	else if (*t) {
 		if (MUD::Spell(spell_id).AllowTarget(kTarCharRoom)) {
-			if ((*tch = get_char_vis(ch, t, EFind::kCharInRoom)) != nullptr) {
+			{
+				target_resolver::Query _q;
+				_q.scopes = {target_resolver::Scope::kRoom};
+				_q.name = t;
+				*tch = target_resolver::ResolveChar(ch, _q);
+			}
+			if ((*tch != nullptr)) {
 				if (MUD::Spell(spell_id).IsViolentAgainst(ch, *tch) && !check_pkill(ch, *tch, t))
 					return false;
 				return true;
@@ -642,7 +648,13 @@ int FindCastTarget(ESpell spell_id, const char *t, CharData *ch, CharData **tch,
 					}
 				}
 			}
-			if ((*tch = get_char_vis(ch, t, EFind::kCharInWorld)) != nullptr) {
+			{
+				target_resolver::Query _q;
+				_q.scopes = {target_resolver::Scope::kRoom, target_resolver::Scope::kWorld};
+				_q.name = t;
+				*tch = target_resolver::ResolveChar(ch, _q);
+			}
+			if ((*tch != nullptr)) {
 				// чтобы мобов не чекали
 				if (ch->IsNpc() || !(*tch)->IsNpc()) {
 					if (MUD::Spell(spell_id).IsViolentAgainst(ch, *tch) && !check_pkill(ch, *tch, t))

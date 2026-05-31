@@ -13,6 +13,7 @@
 ************************************************************************ */
 
 #include "engine/core/handler.h"
+#include "engine/core/target_resolver.h"
 #include "utils/random.h"
 #include "engine/db/global_objects.h"
 
@@ -210,7 +211,13 @@ void do_sense(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 	// The person can't see the victim.
-	if (!(vict = get_char_vis(ch, arg, EFind::kCharInWorld))) {
+	{
+		target_resolver::Query _q;
+		_q.scopes = {target_resolver::Scope::kRoom, target_resolver::Scope::kWorld};
+		_q.name = arg;
+		vict = target_resolver::ResolveChar(ch, _q);
+	}
+	if (!vict) {
 		SendMsgToChar("Ваши чувства молчат.\r\n", ch);
 		return;
 	}

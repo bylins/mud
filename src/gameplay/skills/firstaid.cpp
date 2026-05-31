@@ -5,6 +5,7 @@
 #include "gameplay/magic/magic_utils.h"
 #include "skill_messages.h"
 #include "engine/core/handler.h"
+#include "engine/core/target_resolver.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/abilities/abilities_constants.h"
 #include "gameplay/affects/affect_data.h"
@@ -185,7 +186,12 @@ void DoFirstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!vict_arg.empty()) {
 		char buf[kMaxInputLength];
 		strcpy(buf, vict_arg.c_str());
-		vict = get_char_vis(ch, buf, EFind::kCharInRoom);
+		{
+			target_resolver::Query _q;
+			_q.scopes = {target_resolver::Scope::kRoom};
+			_q.name = buf;
+			vict = target_resolver::ResolveChar(ch, _q);
+		}
 		if (!vict) {
 			SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kFirstAid, ESkillMsg::kNoTarget) + "\r\n", ch);
 			return;
@@ -320,7 +326,12 @@ void DoFirstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!*arg) {
 		vict = ch;
 	} else {
-		vict = get_char_vis(ch, arg, EFind::kCharInRoom);
+		{
+			target_resolver::Query _q;
+			_q.scopes = {target_resolver::Scope::kRoom};
+			_q.name = arg;
+			vict = target_resolver::ResolveChar(ch, _q);
+		}
 		if (!vict) {
 			SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kFirstAid, ESkillMsg::kNoTarget) + "\r\n", ch);
 			return;

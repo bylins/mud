@@ -2,6 +2,7 @@
 
 #include "engine/entities/char_data.h"
 #include "engine/core/handler.h"
+#include "engine/core/target_resolver.h"
 #include "pk.h"
 #include "fight.h"
 
@@ -34,7 +35,13 @@ void do_assist(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			return;
 		}
 	} else {
-		if (!(helpee = get_char_vis(ch, arg, EFind::kCharInRoom))) {
+		{
+			target_resolver::Query _q;
+			_q.scopes = {target_resolver::Scope::kRoom};
+			_q.name = arg;
+			helpee = target_resolver::ResolveChar(ch, _q);
+		}
+		if (!helpee) {
 			SendMsgToChar(NOPERSON, ch);
 			return;
 		}

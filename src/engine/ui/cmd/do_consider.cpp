@@ -7,6 +7,7 @@
 
 #include "engine/entities/char_data.h"
 #include "engine/core/handler.h"
+#include "engine/core/target_resolver.h"
 
 void DoConsider(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *victim;
@@ -14,7 +15,19 @@ void DoConsider(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	one_argument(argument, buf);
 
-	if (!(victim = get_char_vis(ch, buf, EFind::kCharInRoom))) {
+	{
+
+		target_resolver::Query _q;
+
+		_q.scopes = {target_resolver::Scope::kRoom};
+
+		_q.name = buf;
+
+		victim = target_resolver::ResolveChar(ch, _q);
+
+	}
+
+	if (!victim) {
 		SendMsgToChar("Кого вы хотите оценить?\r\n", ch);
 		return;
 	}

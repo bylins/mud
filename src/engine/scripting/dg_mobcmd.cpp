@@ -28,6 +28,7 @@
 #include "gameplay/fight/fight.h"
 #include "gameplay/fight/fight_hit.h"
 #include "engine/core/handler.h"
+#include "engine/core/target_resolver.h"
 #include "engine/db/obj_prototypes.h"
 #include "gameplay/magic/magic_utils.h"
 #include "gameplay/skills/townportal.h"
@@ -587,7 +588,7 @@ void do_mteleport(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 				mob_log(ch, trig, buf);
 				return;
 			}
-		} else if (!(vict = get_char_vis(ch, arg1, EFind::kCharInWorld))) {
+		} else if (![&]() { target_resolver::Query _q; _q.scopes = {target_resolver::Scope::kRoom, target_resolver::Scope::kWorld}; _q.name = arg1; return (vict = target_resolver::ResolveChar(ch, _q)); }()) {
 			sprintf(buf, "mteleport: victim (%s) does not exist", arg1);
 			mob_log(ch, trig, buf);
 			return;
@@ -718,7 +719,7 @@ void do_mexp(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger 
 			mob_log(ch, trig, buf);
 			return;
 		}
-	} else if (!(victim = get_char_vis(ch, name, EFind::kCharInWorld))) {
+	} else if (![&]() { target_resolver::Query _q; _q.scopes = {target_resolver::Scope::kRoom, target_resolver::Scope::kWorld}; _q.name = name; return (victim = target_resolver::ResolveChar(ch, _q)); }()) {
 		sprintf(buf, "mexp: victim (%s) does not exist", name);
 		mob_log(ch, trig, buf);
 		return;
@@ -751,7 +752,7 @@ void do_mgold(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger
 			mob_log(ch, trig, buf);
 			return;
 		}
-	} else if (!(victim = get_char_vis(ch, name, EFind::kCharInWorld))) {
+	} else if (![&]() { target_resolver::Query _q; _q.scopes = {target_resolver::Scope::kRoom, target_resolver::Scope::kWorld}; _q.name = name; return (victim = target_resolver::ResolveChar(ch, _q)); }()) {
 		sprintf(buf, "mgold: victim (%s) does not exist", name);
 		mob_log(ch, trig, buf);
 		return;
@@ -1043,7 +1044,7 @@ void do_mfeatturn(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 			mob_log(ch, trig, buf);
 			return;
 		}
-	} else if (!(victim = get_char_vis(ch, name, EFind::kCharInWorld))) {
+	} else if (![&]() { target_resolver::Query _q; _q.scopes = {target_resolver::Scope::kRoom, target_resolver::Scope::kWorld}; _q.name = name; return (victim = target_resolver::ResolveChar(ch, _q)); }()) {
 		sprintf(buf, "mfeatturn: victim (%s) does not exist", name);
 		mob_log(ch, trig, buf);
 		return;
@@ -1095,7 +1096,7 @@ void do_mskillturn(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 			mob_log(ch, trig, buf);
 			return;
 		}
-	} else if (!(victim = get_char_vis(ch, name, EFind::kCharInWorld))) {
+	} else if (![&]() { target_resolver::Query _q; _q.scopes = {target_resolver::Scope::kRoom, target_resolver::Scope::kWorld}; _q.name = name; return (victim = target_resolver::ResolveChar(ch, _q)); }()) {
 		sprintf(buf, "mskillturn: victim (%s) does not exist", name);
 		mob_log(ch, trig, buf);
 		return;
@@ -1147,7 +1148,7 @@ void do_mskilladd(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 			mob_log(ch, trig, buf);
 			return;
 		}
-	} else if (!(victim = get_char_vis(ch, name, EFind::kCharInWorld))) {
+	} else if (![&]() { target_resolver::Query _q; _q.scopes = {target_resolver::Scope::kRoom, target_resolver::Scope::kWorld}; _q.name = name; return (victim = target_resolver::ResolveChar(ch, _q)); }()) {
 		sprintf(buf, "mskilladd: victim (%s) does not exist", name);
 		mob_log(ch, trig, buf);
 		return;
@@ -1201,7 +1202,7 @@ void do_mspellturn(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 			mob_log(ch, trig, buf);
 			return;
 		}
-	} else if (!(victim = get_char_vis(ch, name, EFind::kCharInWorld))) {
+	} else if (![&]() { target_resolver::Query _q; _q.scopes = {target_resolver::Scope::kRoom, target_resolver::Scope::kWorld}; _q.name = name; return (victim = target_resolver::ResolveChar(ch, _q)); }()) {
 		sprintf(buf, "mspellturn: victim (%s) does not exist", name);
 		mob_log(ch, trig, buf);
 		return;
@@ -1245,7 +1246,7 @@ void do_mspellturntemp(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/
 			mob_log(ch, trig, buf);
 			return;
 		}
-	} else if (!(victim = get_char_vis(ch, name, EFind::kCharInWorld))) {
+	} else if (![&]() { target_resolver::Query _q; _q.scopes = {target_resolver::Scope::kRoom, target_resolver::Scope::kWorld}; _q.name = name; return (victim = target_resolver::ResolveChar(ch, _q)); }()) {
 		sprintf(buf, "mspellturntemp: victim (%s) does not exist", name);
 		mob_log(ch, trig, buf);
 		return;
@@ -1279,7 +1280,7 @@ void do_mspelladd(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 			mob_log(ch, trig, buf);
 			return;
 		}
-	} else if (!(victim = get_char_vis(ch, name, EFind::kCharInWorld))) {
+	} else if (![&]() { target_resolver::Query _q; _q.scopes = {target_resolver::Scope::kRoom, target_resolver::Scope::kWorld}; _q.name = name; return (victim = target_resolver::ResolveChar(ch, _q)); }()) {
 		sprintf(buf, "mspelladd: victim (%s) does not exist", name);
 		mob_log(ch, trig, buf);
 		return;
@@ -1341,7 +1342,7 @@ void do_mspellitem(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 			mob_log(ch, trig, buf);
 			return;
 		}
-	} else if (!(victim = get_char_vis(ch, name, EFind::kCharInWorld))) {
+	} else if (![&]() { target_resolver::Query _q; _q.scopes = {target_resolver::Scope::kRoom, target_resolver::Scope::kWorld}; _q.name = name; return (victim = target_resolver::ResolveChar(ch, _q)); }()) {
 		sprintf(buf, "mspellitem: victim (%s) does not exist", name);
 		mob_log(ch, trig, buf);
 		return;

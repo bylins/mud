@@ -16,6 +16,7 @@
 #include "gameplay/fight/fight_hit.h"
 #include "do_get.h"
 #include "engine/core/utils_char_obj.inl"
+#include "engine/core/target_resolver.h"
 #include "gameplay/ai/spec_procs.h"
 
 void go_steal(CharData *ch, CharData *vict, char *obj_name) {
@@ -209,7 +210,13 @@ void do_steal(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 	two_arguments(argument, obj_name, vict_name);
-	if (!(vict = get_char_vis(ch, vict_name, EFind::kCharInRoom))) {
+	{
+		target_resolver::Query _q;
+		_q.scopes = {target_resolver::Scope::kRoom};
+		_q.name = vict_name;
+		vict = target_resolver::ResolveChar(ch, _q);
+	}
+	if (!vict) {
 		SendMsgToChar("Украсть у кого?\r\n", ch);
 		return;
 	} else if (vict == ch) {

@@ -57,12 +57,24 @@ int find_dg_cast_target(ESpell spell_id, const char *t, CharData *ch, CharData *
 		return true;
 	if (*t) {
 		if (MUD::Spell(spell_id).AllowTarget(kTarCharRoom)) {
-			if ((*tch = get_char_vis(ch, t, EFind::kCharInRoom)) != nullptr) {
+			{
+				target_resolver::Query _q;
+				_q.scopes = {target_resolver::Scope::kRoom};
+				_q.name = t;
+				*tch = target_resolver::ResolveChar(ch, _q);
+			}
+			if ((*tch != nullptr)) {
 				return true;
 			}
 		}
 		if (MUD::Spell(spell_id).AllowTarget(kTarCharWorld)) {
-			if ((*tch = get_char_vis(ch, t, EFind::kCharInWorld)) != nullptr) {
+			{
+				target_resolver::Query _q;
+				_q.scopes = {target_resolver::Scope::kRoom, target_resolver::Scope::kWorld};
+				_q.name = t;
+				*tch = target_resolver::ResolveChar(ch, _q);
+			}
+			if ((*tch != nullptr)) {
 				return true;
 			}
 		}

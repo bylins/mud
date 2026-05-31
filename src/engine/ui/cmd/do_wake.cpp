@@ -5,6 +5,7 @@
 #include "do_wake.h"
 #include "engine/entities/char_data.h"
 #include "engine/core/handler.h"
+#include "engine/core/target_resolver.h"
 
 void do_wake(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	CharData *vict;
@@ -24,7 +25,7 @@ void do_wake(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	if (*arg) {
 		if (ch->GetPosition() == EPosition::kSleep)
 			SendMsgToChar("Может быть вам лучше проснуться?\r\n", ch);
-		else if ((vict = get_char_vis(ch, arg, EFind::kCharInRoom)) == nullptr)
+		else if (([&]() { target_resolver::Query _q; _q.scopes = {target_resolver::Scope::kRoom}; _q.name = arg; return (vict = target_resolver::ResolveChar(ch, _q)); }()) == nullptr)
 			SendMsgToChar(NOPERSON, ch);
 		else if (vict == ch)
 			self = 1;

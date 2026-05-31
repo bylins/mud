@@ -2,6 +2,7 @@
 
 #include "gameplay/skills/parry.h"
 #include "engine/core/handler.h"
+#include "engine/core/target_resolver.h"
 
 int IsHaveNoExtraAttack(CharData *ch) {
 	std::string message = "";
@@ -54,7 +55,13 @@ void SetSkillCooldownInFight(CharData *ch, ESkill skill, int pulses) {
 
 CharData *FindVictim(CharData *ch, char *argument) {
 	one_argument(argument, arg);
-	CharData *victim = get_char_vis(ch, arg, EFind::kCharInRoom);
+	CharData * victim = nullptr;
+	{
+		target_resolver::Query _q;
+		_q.scopes = {target_resolver::Scope::kRoom};
+		_q.name = arg;
+		victim = target_resolver::ResolveChar(ch, _q);
+	}
 	if (!victim) {
 		if (!*arg && ch->GetEnemy() && ch->isInSameRoom(ch->GetEnemy())) {
 			victim = ch->GetEnemy();

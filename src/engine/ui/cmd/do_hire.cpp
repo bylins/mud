@@ -2,6 +2,7 @@
 
 #include "do_follow.h"
 #include "engine/core/handler.h"
+#include "engine/core/target_resolver.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/core/base_stats.h"
 #include "gameplay/mechanics/weather.h"
@@ -194,7 +195,19 @@ void DoFindhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	const auto helpee = get_char_vis(ch, arg, EFind::kCharInRoom);
+	CharData *helpee = nullptr;
+
+	{
+
+		target_resolver::Query _q;
+
+		_q.scopes = {target_resolver::Scope::kRoom};
+
+		_q.name = arg;
+
+		helpee = target_resolver::ResolveChar(ch, _q);
+
+	}
 	if (!helpee) {
 		SendMsgToChar("Вы не видите никого похожего.\r\n", ch);
 		return;

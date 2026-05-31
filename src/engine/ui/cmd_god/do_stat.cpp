@@ -1259,7 +1259,13 @@ void do_stat(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 			if (!*buf2)
 				SendMsgToChar("Состояние какого создания?\r\n", ch);
 			else {
-				if ((victim = get_char_vis(ch, buf2, EFind::kCharInWorld)) != nullptr)
+				{
+					target_resolver::Query _q;
+					_q.scopes = {target_resolver::Scope::kRoom, target_resolver::Scope::kWorld};
+					_q.name = buf2;
+					victim = target_resolver::ResolveChar(ch, _q);
+				}
+				if ((victim != nullptr))
 					do_stat_character(ch, victim, 0);
 				else
 					SendMsgToChar("Нет такого создания в этом МАДе.\r\n", ch);
@@ -1360,7 +1366,13 @@ void do_stat(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 			do_stat_object(ch, object);
 			return;
 		}
-		if ((victim = get_char_vis(ch, buf1, EFind::kCharInRoom)) != nullptr) {
+		{
+			target_resolver::Query _q;
+			_q.scopes = {target_resolver::Scope::kRoom};
+			_q.name = buf1;
+			victim = target_resolver::ResolveChar(ch, _q);
+		}
+		if ((victim != nullptr)) {
 			do_stat_character(ch, victim);
 			return;
 		}
@@ -1368,7 +1380,13 @@ void do_stat(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 			do_stat_object(ch, object);
 			return;
 		}
-		if ((victim = get_char_vis(ch, buf1, EFind::kCharInWorld)) != nullptr) {
+		{
+			target_resolver::Query _q;
+			_q.scopes = {target_resolver::Scope::kRoom, target_resolver::Scope::kWorld};
+			_q.name = buf1;
+			victim = target_resolver::ResolveChar(ch, _q);
+		}
+		if ((victim != nullptr)) {
 			do_stat_character(ch, victim);
 			return;
 		}
@@ -1395,7 +1413,13 @@ void do_stat(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 			do_stat_object(ch, object);
 			return;
 		}
-		if ((victim = get_char_vis(ch, buf1, EFind::kCharInRoom)) != nullptr) {
+		{
+			target_resolver::Query _q;
+			_q.scopes = {target_resolver::Scope::kRoom};
+			_q.name = buf1;
+			victim = target_resolver::ResolveChar(ch, _q);
+		}
+		if ((victim != nullptr)) {
 			do_stat_character(ch, victim);
 			return;
 		}

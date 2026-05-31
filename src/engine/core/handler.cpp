@@ -2269,11 +2269,23 @@ int generic_find(char *arg, Bitvector bitvector, CharData *ch, CharData **tar_ch
 
 	if (IS_SET(bitvector, EFind::kCharInRoom))    // Find person in room
 	{
-		if ((*tar_ch = get_char_vis(ch, name, EFind::kCharInRoom)) != nullptr)
+		{
+			target_resolver::Query _q;
+			_q.scopes = {target_resolver::Scope::kRoom};
+			_q.name = name;
+			*tar_ch = target_resolver::ResolveChar(ch, _q);
+		}
+		if ((*tar_ch != nullptr))
 			return (EFind::kCharInRoom);
 	}
 	if (IS_SET(bitvector, EFind::kCharInWorld)) {
-		if ((*tar_ch = get_char_vis(ch, name, EFind::kCharInWorld)) != nullptr)
+		{
+			target_resolver::Query _q;
+			_q.scopes = {target_resolver::Scope::kRoom, target_resolver::Scope::kWorld};
+			_q.name = name;
+			*tar_ch = target_resolver::ResolveChar(ch, _q);
+		}
+		if ((*tar_ch != nullptr))
 			return (EFind::kCharInWorld);
 	}
 	if (IS_SET(bitvector, EFind::kObjWorld)) {
@@ -2380,7 +2392,7 @@ RoomRnum FindRoomRnum(CharData *ch, char *rawroomstr, int trig) {
 			SendMsgToChar("Нет комнаты с таким номером.\r\n", ch);
 			return (kNowhere);
 		}
-	} else if ((target_mob = get_char_vis(ch, roomstr, EFind::kCharInWorld)) != nullptr) {
+	} else if (([&]() { target_resolver::Query _q; _q.scopes = {target_resolver::Scope::kRoom, target_resolver::Scope::kWorld}; _q.name = roomstr; return (target_mob = target_resolver::ResolveChar(ch, _q)); }()) != nullptr) {
 		location = target_mob->in_room;
 	} else if ([&]() {
 				target_resolver::Query q;

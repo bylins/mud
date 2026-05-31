@@ -4,6 +4,7 @@
 #include "gameplay/fight/pk.h"
 #include "gameplay/clans/house.h"
 #include "engine/core/utils_char_obj.inl"
+#include "engine/core/target_resolver.h"
 #include "engine/db/global_objects.h"
 
 extern void get_check_money(CharData *ch, ObjData *obj, ObjData *cont);
@@ -78,7 +79,7 @@ CharData *give_find_vict(CharData *ch, char *local_arg) {
 	if (!*local_arg) {
 		SendMsgToChar("Кому?\r\n", ch);
 		return (nullptr);
-	} else if (!(vict = get_char_vis(ch, local_arg, EFind::kCharInRoom))) {
+	} else if (![&]() { target_resolver::Query _q; _q.scopes = {target_resolver::Scope::kRoom}; _q.name = local_arg; return (vict = target_resolver::ResolveChar(ch, _q)); }()) {
 		SendMsgToChar(NOPERSON, ch);
 		return (nullptr);
 	} else if (vict == ch) {

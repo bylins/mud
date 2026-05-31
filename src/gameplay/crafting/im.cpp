@@ -20,6 +20,7 @@
 #include "gameplay/mechanics/mob_races.h"
 #include "engine/db/obj_prototypes.h"
 #include "engine/core/handler.h"
+#include "engine/core/target_resolver.h"
 #include "engine/ui/color.h"
 #include "engine/ui/modify.h"
 #include "engine/entities/zone.h"
@@ -1090,7 +1091,19 @@ void do_rset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	if (!(vict = get_char_vis(ch, name, EFind::kCharInWorld))) {
+	{
+
+		target_resolver::Query _q;
+
+		_q.scopes = {target_resolver::Scope::kRoom, target_resolver::Scope::kWorld};
+
+		_q.name = name;
+
+		vict = target_resolver::ResolveChar(ch, _q);
+
+	}
+
+	if (!vict) {
 		SendMsgToChar(NOPERSON, ch);
 		return;
 	}

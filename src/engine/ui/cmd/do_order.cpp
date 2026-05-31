@@ -1,6 +1,7 @@
 #include "do_order.h"
 
 #include "engine/core/handler.h"
+#include "engine/core/target_resolver.h"
 
 // ****************** CHARM ORDERS PROCEDURES
 void do_order(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
@@ -23,7 +24,12 @@ void do_order(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 	if (!*name || !*message)
 		SendMsgToChar("Приказать что и кому?\r\n", ch);
-	else if (!(vict = get_char_vis(ch, name, EFind::kCharInRoom)) &&
+	else if (!([&]() {
+			target_resolver::Query _q;
+			_q.scopes = {target_resolver::Scope::kRoom};
+			_q.name = name;
+			return (vict = target_resolver::ResolveChar(ch, _q));
+		}()) &&
 		!utils::IsAbbr(name, "followers") && !utils::IsAbbr(name, "все") && !utils::IsAbbr(name, "всем"))
 		SendMsgToChar("Вы не видите такого персонажа.\r\n", ch);
 	else if (ch == vict && !utils::IsAbbr(name, "все") && !utils::IsAbbr(name, "всем"))

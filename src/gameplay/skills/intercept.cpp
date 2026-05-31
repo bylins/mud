@@ -13,6 +13,7 @@
 #include "gameplay/fight/common.h"
 #include "parry.h"
 #include "engine/core/handler.h"
+#include "engine/core/target_resolver.h"
 
 void GoIntercept(CharData *ch, CharData *vict);
 void PerformIntercept(CharData *ch, CharData *vict, HitData &hit_data);
@@ -35,7 +36,13 @@ void DoIntercept(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	CharData *vict{nullptr};
 	one_argument(argument, arg);
-	if (!(vict = get_char_vis(ch, arg, EFind::kCharInRoom))) {
+	{
+		target_resolver::Query _q;
+		_q.scopes = {target_resolver::Scope::kRoom};
+		_q.name = arg;
+		vict = target_resolver::ResolveChar(ch, _q);
+	}
+	if (!vict) {
 		for (const auto i : world[ch->in_room]->people) {
 			if (i->GetEnemy() == ch) {
 				vict = i;

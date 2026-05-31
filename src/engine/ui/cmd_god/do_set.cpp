@@ -9,6 +9,7 @@
 #include "gameplay/mechanics/depot.h"
 #include "engine/entities/char_data.h"
 #include "engine/core/handler.h"
+#include "engine/core/target_resolver.h"
 #include "gameplay/mechanics/liquid.h"
 #include "engine/olc/olc.h"
 #include "engine/entities/char_player.h"
@@ -188,7 +189,12 @@ void DoSet(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 		} else    // is_mob
 		{
-			if (!(vict = get_char_vis(ch, name, EFind::kCharInWorld))
+			if (!([&]() {
+					target_resolver::Query _q;
+					_q.scopes = {target_resolver::Scope::kRoom, target_resolver::Scope::kWorld};
+					_q.name = name;
+					return (vict = target_resolver::ResolveChar(ch, _q));
+				}())
 				|| !vict->IsNpc()) {
 				SendMsgToChar("Нет такой твари Божьей.\r\n", ch);
 				return;

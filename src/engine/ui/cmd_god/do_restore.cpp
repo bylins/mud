@@ -9,6 +9,7 @@
 #include "engine/entities/char_data.h"
 #include "administration/privilege.h"
 #include "engine/core/handler.h"
+#include "engine/core/target_resolver.h"
 #include "gameplay/fight/fight.h"
 
 void DoRestore(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
@@ -17,7 +18,7 @@ void DoRestore(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	one_argument(argument, buf);
 	if (!*buf)
 		SendMsgToChar("Кого вы хотите восстановить?\r\n", ch);
-	else if (!(vict = get_char_vis(ch, buf, EFind::kCharInWorld)))
+	else if (!([&]() { target_resolver::Query _q; _q.scopes = {target_resolver::Scope::kRoom, target_resolver::Scope::kWorld}; _q.name = buf; return (vict = target_resolver::ResolveChar(ch, _q)); }()))
 		SendMsgToChar(NOPERSON, ch);
 	else {
 		// имм с привилегией arena может ресторить только чаров, находящихся с ним на этой же арене

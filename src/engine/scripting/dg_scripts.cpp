@@ -1109,7 +1109,13 @@ void do_attach(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 	if (utils::IsAbbr(arg, "mtr")) {
-		if ((victim = get_char_vis(ch, targ_name, EFind::kCharInWorld))) {
+		{
+			target_resolver::Query _q;
+			_q.scopes = {target_resolver::Scope::kRoom, target_resolver::Scope::kWorld};
+			_q.name = targ_name;
+			victim = target_resolver::ResolveChar(ch, _q);
+		}
+		if (victim) {
 			if (victim->IsNpc())    // have a valid mob, now get trigger
 			{
 				rn = GetTriggerRnum(tn);
@@ -1218,7 +1224,13 @@ void do_detach(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 	} else {
 		if (utils::IsAbbr(arg1, "mob")) {
-			if (!(victim = get_char_vis(ch, arg2, EFind::kCharInWorld)))
+			{
+				target_resolver::Query _q;
+				_q.scopes = {target_resolver::Scope::kRoom, target_resolver::Scope::kWorld};
+				_q.name = arg2;
+				victim = target_resolver::ResolveChar(ch, _q);
+			}
+			if (!victim)
 				SendMsgToChar("No such mobile around.\r\n", ch);
 			else if (!*arg3)
 				SendMsgToChar("You must specify a trigger to remove.\r\n", ch);
@@ -1248,7 +1260,7 @@ void do_detach(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			else if ((object = get_obj_in_list_vis(ch, arg1, ch->carrying)));
 			else if ((victim = get_char_room_vis(ch, arg1)));
 			else if ((object = get_obj_in_list_vis(ch, arg1, world[ch->in_room]->contents)));
-			else if ((victim = get_char_vis(ch, arg1, EFind::kCharInWorld)));
+			else if (([&]() { target_resolver::Query _q; _q.scopes = {target_resolver::Scope::kRoom, target_resolver::Scope::kWorld}; _q.name = arg1; return (victim = target_resolver::ResolveChar(ch, _q)); }()));
 			else if ((object = target_resolver::ResolveObj(ch, q_obj_arg1)));
 			else
 				SendMsgToChar("Nothing around by that name.\r\n", ch);
