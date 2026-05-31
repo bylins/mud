@@ -1231,39 +1231,6 @@ ObjData *GetObjByVnumInContent(ObjVnum vnum, ObjData *list) {
 	return nullptr;
 }
 
-/**
- * Search the entire world for an object by virtual number.
- * @param vnum - object vnum.
- * @return - ptr to found obj or nullptr.
- */
-ObjData *SearchObjByRnum(ObjRnum rnum) {
-	const auto result = world_objects.find_first_by_rnum(rnum);
-	return result.get();
-}
-
-// search a room for a char, and return a pointer if found..  //
-CharData *SearchCharInRoomByName(const char *name, RoomRnum room) {
-	char tmpname[kMaxInputLength];
-	char *tmp = tmpname;
-
-	strcpy(tmp, name);
-	const int number = get_number(&tmp);
-	if (0 == number) {
-		return nullptr;
-	}
-
-	int j = 0;
-	for (const auto i : world[room]->people) {
-		if (isname(tmp, i->GetCharAliases())) {
-			if (++j == number) {
-				return i;
-			}
-		}
-	}
-
-	return nullptr;
-}
-
 const int kMoneyDestroyTimer = 60;
 const int kDeathDestroyTimer = 5;
 const int kRoomDestroyTimer = 10;
@@ -1886,43 +1853,6 @@ CharData *get_char_room_vis(CharData *ch, const char *name) {
 	return nullptr;
 }
 
-CharData *get_char_vis(CharData *ch, const char *name, int where) {
-	CharData *i;
-	char tmpname[kMaxInputLength];
-	char *tmp = tmpname;
-
-	// check the room first
-	if (where == EFind::kCharInRoom) {
-		return get_char_room_vis(ch, name);
-	} else if (where == EFind::kCharInWorld) {
-		if ((i = get_char_room_vis(ch, name)) != nullptr) {
-			return (i);
-		}
-
-		strcpy(tmp, name);
-		const int number = get_number(&tmp);
-		if (0 == number) {
-			return get_player_vis(ch, tmp, EFind::kCharInRoom);
-		}
-		if (number == 1) {
-			CharData *tmp_ch = get_player_vis(ch, tmp, EFind::kCharInWorld);
-			if (tmp_ch != nullptr) {
-				return tmp_ch;
-			}
-		}
-		int j = 0;
-		for (const auto &target : character_list) {
-			if (HERE(target) && CAN_SEE(ch, target)
-				&& isname(tmp, target->GetCharAliases())) {
-				if (++j == number) {
-					return target.get();
-				}
-			}
-		}
-	}
-	return nullptr;
-}
-
 ObjData *get_obj_in_list_vis(CharData *ch, const char *name, const ObjData::obj_list_t &list, bool locate_item) {
 	int j = 0, number;
 	char tmpname[kMaxInputLength];
@@ -2030,76 +1960,6 @@ ObjData *get_obj_vis_and_dec_num(CharData *ch,
 		}
 	}
 
-	return nullptr;
-}
-
-// search the entire world for an object, and return a pointer
-ObjData *get_obj_vis(CharData *ch, const char *name) {
-	int number;
-	char tmpname[kMaxInputLength];
-	char *tmp = tmpname;
-
-	strcpy(tmp, name);
-	number = get_number(&tmp);
-	if (number < 1) {
-		return nullptr;
-	}
-
-	auto id_obj_set = std::unordered_set<unsigned int>();
-
-	//Scan in equipment
-	auto obj = get_obj_vis_and_dec_num(ch, tmp, ch->equipment, id_obj_set, number);
-	if (obj) {
-		return obj;
-	}
-
-	//Scan in carried items
-	obj = get_obj_vis_and_dec_num(ch, tmp, ch->carrying, id_obj_set, number);
-	if (obj) {
-		return obj;
-	}
-
-	//Scan in room
-	obj = get_obj_vis_and_dec_num(ch, tmp, world[ch->in_room]->contents, id_obj_set, number);
-	if (obj) {
-		return obj;
-	}
-
-	//Scan charater's in room
-	for (const auto &vict : world[ch->in_room]->people) {
-		if (ch->get_uid() == vict->get_uid()) {
-			continue;
-		}
-
-		//Scan in equipment
-		obj = get_obj_vis_and_dec_num(ch, tmp, vict->equipment, id_obj_set, number);
-		if (obj) {
-			return obj;
-		}
-
-		//Scan in carried items
-		obj = get_obj_vis_and_dec_num(ch, tmp, vict->carrying, id_obj_set, number);
-		if (obj) {
-			return obj;
-		}
-	}
-
-	// ok.. no luck yet. scan the entire obj list except already found
-	const WorldObjects::predicate_f predicate = [&ch, &tmp, &id_obj_set](const ObjData::shared_ptr &i) -> bool {
-		const auto result = CAN_SEE_OBJ(ch, i.get())
-			&& (isname(tmp, i->get_aliases())
-				|| CHECK_CUSTOM_LABEL(tmp, i.get(), ch))
-			&& (id_obj_set.count(i.get()->get_id()) == 0);
-		return result;
-	};
-	obj = world_objects.find_if(predicate, number).get();
-		if (obj) {
-		return obj;
-	}
-	obj = Depot::find_obj_from_depot_and_dec_number(tmp, number);
-		if (obj) {
-		return obj;
-	}
 	return nullptr;
 }
 
