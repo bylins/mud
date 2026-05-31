@@ -17,7 +17,6 @@ enum { PLAYER, TEXTOBJS, TIMEOBJS, UPDATE_PLAYER, UPDATE_TEXTOBJS, UPDATE_TIMEOB
 void load();
 void save(bool force_save = false);
 void show(CharData *ch);
-void check_crc(const char *name, int mode, long uid);
 // Записывает CRC из готового буфера в памяти (при сохранении), без чтения файла.
 void update_from_content(long uid, int mode, const char *data, std::size_t len);
 // Сбрасывает CRC указанного файла игрока в 0 (файл удалён).

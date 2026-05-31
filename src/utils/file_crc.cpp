@@ -68,17 +68,6 @@ uint32_t calculate_str_crc(const std::string &text) {
 	return CRC32_function(text.c_str(), text.size());
 }
 
-// * Подсчет crc для файла.
-uint32_t calculate_file_crc(const char *name) {
-	std::ifstream in(name, std::ios::binary);
-	if (!in.is_open())
-		return 0;
-
-	std::ostringstream t_out;
-	t_out << in.rdbuf();
-	return calculate_str_crc(t_out.str());
-}
-
 // * Загрузка глобального списка crc.
 void load() {
 	const char *file_name = LIB_PLRSTUFF"crc.lst";
@@ -197,83 +186,6 @@ void create_message(std::string &name, int mode, const uint32_t &expected, const
 				name.c_str(),
 				static_cast<unsigned>(expected),
 				static_cast<unsigned>(calculated));
-}
-
-/**
-* Проверка crc файлоа плеера.
-* \param mode - PLAYER для просто сверки, UPDATE_PLAYER - для сверки с перезаписью нового crc.
-*/
-void check_crc(const char *filename, int mode, long uid) {
-	CRCListType::const_iterator it = crc_list.find(uid);
-	if (it != crc_list.end()) {
-		switch (mode) {
-			case PLAYER: {
-				const auto crc = calculate_file_crc(filename);
-				if (it->second->player != crc) {
-					create_message(it->second->name, mode, it->second->player, crc);
-				}
-				break;
-			}
-
-			case TEXTOBJS: {
-				const auto crc = calculate_file_crc(filename);
-				if (it->second->textobjs != crc) {
-					create_message(it->second->name, mode, it->second->textobjs, crc);
-				}
-				break;
-			}
-
-			case TIMEOBJS: {
-				const auto crc = calculate_file_crc(filename);
-				if (it->second->timeobjs != crc) {
-					create_message(it->second->name, mode, it->second->timeobjs, crc);
-				}
-				break;
-			}
-
-			case UPDATE_PLAYER: it->second->player = calculate_file_crc(filename);
-				it->second->name = GetNameByUnique(uid);
-				break;
-
-			case UPDATE_TEXTOBJS: it->second->textobjs = calculate_file_crc(filename);
-				it->second->name = GetNameByUnique(uid);
-				break;
-
-			case UPDATE_TIMEOBJS: it->second->timeobjs = calculate_file_crc(filename);
-				it->second->name = GetNameByUnique(uid);
-				break;
-
-			default:
-				add_message("SYSERROR: мы не должны были сюда попасть, uid: %ld, mode: %d, func: %s",
-							uid,
-							mode,
-							__func__);
-				return;
-		}
-	} else {
-		CRCListPtr tmp_crc(new PlayerCRC);
-		tmp_crc->name = GetNameByUnique(uid);
-		switch (mode) {
-			case PLAYER:
-			case UPDATE_PLAYER: tmp_crc->player = calculate_file_crc(filename);
-				break;
-
-			case TEXTOBJS:
-			case UPDATE_TEXTOBJS: tmp_crc->textobjs = calculate_file_crc(filename);
-				break;
-
-			case TIMEOBJS:
-			case UPDATE_TIMEOBJS: tmp_crc->timeobjs = calculate_file_crc(filename);
-				break;
-
-			default: add_message("SYSERROR: мы не должны были сюда попасть2, mode: %d, func: %s", mode, __func__);
-				break;
-		}
-		crc_list[uid] = tmp_crc;
-	}
-
-	if (mode >= UPDATE_PLAYER)
-		need_save = true;
 }
 
 // * Вывод лога событий имму по show crc.
