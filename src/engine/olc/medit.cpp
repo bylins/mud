@@ -8,6 +8,7 @@
 ***************************************************************************/
 
 #include "engine/db/world_characters.h"
+#include "gameplay/fight/fight_messages.h"
 #include "engine/entities/obj_data.h"
 #include "engine/core/comm.h"
 #include "gameplay/magic/spells.h"
@@ -961,7 +962,7 @@ void medit_disp_attack_types(DescriptorData *d) {
 	SendMsgToChar("[H[J", d->character);
 #endif
 	for (i = 0; i < NUM_ATTACK_TYPES; i++) {
-		snprintf(buf, sizeof(buf), "%s%2d%s) %s\r\n", grn, i, nrm, attack_hit_text[i].singular);
+		snprintf(buf, sizeof(buf), "%s%2d%s) %s\r\n", grn, i, nrm, fight::GetAttackTypeDescription(i).c_str());
 		SendMsgToChar(buf, d->character.get());
 	}
 	SendMsgToChar("Выберите тип удара : ", d->character.get());
@@ -1115,7 +1116,7 @@ void medit_disp_menu(DescriptorData *d) {
 			 "%sV%s) Аффекты (AFF) : %s%s\r\n",
 			 grn, nrm, yel, position_types[(int) mob->GetPosition()],
 			 grn, nrm, yel, position_types[(int) GET_DEFAULT_POS(mob)],
-			 grn, nrm, yel, attack_hit_text[GET_ATTACK(mob)].singular, grn, nrm, cyn, buf1, grn, nrm, cyn, buf2);
+			 grn, nrm, yel, fight::GetAttackTypeDescription(GET_ATTACK(mob)).c_str(), grn, nrm, cyn, buf1, grn, nrm, cyn, buf2);
 	SendMsgToChar(buf, d->character.get());
 
 	mob->mob_specials.npc_flags.sprintbits(function_bits, buf1, sizeof(buf1), ",", 4);

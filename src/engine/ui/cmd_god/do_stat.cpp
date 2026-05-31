@@ -1,4 +1,5 @@
 #include "do_stat.h"
+#include "gameplay/fight/fight_messages.h"
 
 #include "administration/ban.h"
 #include "engine/entities/char_player.h"
@@ -389,7 +390,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt) {
 				smallBuf, (k->GetEnemy() ? GET_NAME(k->GetEnemy()) : "Нет"), (IsEquipInMetall(k) ? "Да" : "Нет"));
 		if (k->IsNpc()) {
 			sline += ", Тип атаки: ";
-			sline += attack_hit_text[k->mob_specials.attack_type].singular;
+			sline += fight::GetAttackTypeDescription(k->mob_specials.attack_type);
 		}
 		if (k->desc) {
 			sline += ", Соединение: ";

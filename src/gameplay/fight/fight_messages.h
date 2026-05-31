@@ -41,6 +41,9 @@ enum class EFightMsg {
 	kFightMissToChar, kFightMissToVict, kFightMissToRoom,
 	kFightHitToChar, kFightHitToVict, kFightHitToRoom,
 	kFightGodToChar, kFightGodToVict, kFightGodToRoom,
+	// Short attack-type description (e.g. "ударил") shown in stat / OLC menus;
+	// replaces attack_hit_text[].singular.
+	kDescription,
 };
 
 } // namespace fight
@@ -57,6 +60,11 @@ fight::EFightMsg ITEM_BY_NAME<fight::EFightMsg>(const std::string &name);
 namespace fight {
 
 using FightMessages = msg_container::MsgContainer<EDamageSource, EFightMsg>;
+
+// Short description (e.g. "ударил") for a weapon attack-type index (kHit..kSting).
+// Reads EFightMsg::kDescription from hit_msg.xml; out-of-range types fall back to
+// the kDefault sheaf. Replaces the old attack_hit_text[].singular lookup.
+const std::string &GetAttackTypeDescription(int attack_type);
 
 /**
  * Loads/reloads lib/cfg/hit_msg.xml into MUD::FightMessages().

@@ -79,11 +79,6 @@ constexpr Bitvector kMiLevel32 = 1 << 13;
 // Бывшие kTypeHit/kTypeMagic/kType*-константы удалены (issue #3316): источник боевого
 // урона теперь типизирован через fight::EDamageSource, выбор сообщения - по типу.
 
-struct AttackHitType {
-	const char *singular;
-	const char *plural;
-};
-
 #define MANUAL_SPELL(spellname)    spellname(level, caster, cvict, ovict);
 
 void SpellCreateWater(int/* level*/, CharData *ch, CharData *victim, ObjData *obj);
