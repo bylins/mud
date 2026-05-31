@@ -20,6 +20,7 @@
 #include "gameplay/mechanics/glory_const.h"
 #include "gameplay/mechanics/glory_misc.h"
 #include "engine/core/handler.h"
+#include "engine/core/target_resolver.h"
 #include "engine/ui/modify.h"
 #include "engine/db/obj_prototypes.h"
 #include "gameplay/statistics/mob_stat.h"
@@ -575,7 +576,7 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				SendMsgToChar("Уточните имя.\r\n", ch);
 				return;
 			}
-			if (!(vict = get_player_vis(ch, value, EFind::kCharInWorld))) {
+			if (!(vict = target_resolver::FindPlayerVis(ch, value))) {
 				SendMsgToChar("Нет такого игрока.\r\n", ch);
 				return;
 			}
@@ -821,7 +822,7 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				SendMsgToChar("Уточните имя.\r\n", ch);
 				return;
 			}
-			if (!(vict = get_player_vis(ch, value, EFind::kCharInWorld))) {
+			if (!(vict = target_resolver::FindPlayerVis(ch, value))) {
 				SendMsgToChar("Нет такого игрока.\r\n", ch);
 				return;
 			}
@@ -832,7 +833,7 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				SendMsgToChar("Уточните имя.\r\n", ch);
 				return;
 			}
-			if (!(vict = get_player_vis(ch, value, EFind::kCharInWorld))) {
+			if (!(vict = target_resolver::FindPlayerVis(ch, value))) {
 				SendMsgToChar("Нет такого игрока.\r\n", ch);
 				return;
 			}
@@ -850,7 +851,7 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				SendMsgToChar("Уточните имя.\r\n", ch);
 				return;
 			}
-			if (!(vict = get_player_vis(ch, value, EFind::kCharInWorld))) {
+			if (!(vict = target_resolver::FindPlayerVis(ch, value))) {
 				SendMsgToChar("Нет такого игрока.\r\n", ch);
 				return;
 			}
@@ -900,7 +901,7 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				SendMsgToChar("Уточните имя.\r\n", ch);
 				return;
 			}
-			if (!(vict = get_player_vis(ch, value, EFind::kCharInWorld))) {
+			if (!(vict = target_resolver::FindPlayerVis(ch, value))) {
 				SendMsgToChar("Нет такого игрока.\r\n", ch);
 				return;
 			}

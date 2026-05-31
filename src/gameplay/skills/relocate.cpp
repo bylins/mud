@@ -4,6 +4,7 @@
 #include "gameplay/clans/house.h"
 #include "engine/ui/color.h"
 #include "engine/core/handler.h"
+#include "engine/core/target_resolver.h"
 #include "gameplay/fight/pk.h"
 #include "gameplay/mechanics/sight.h"
 #include "gameplay/mechanics/groups.h"
@@ -36,7 +37,7 @@ void do_relocate(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	CharData *victim = get_player_vis(ch, arg, EFind::kCharInWorld);
+	CharData *victim = target_resolver::FindPlayerVis(ch, arg);
 
 	if (!victim) {
 		SendMsgToChar(NOPERSON, ch);

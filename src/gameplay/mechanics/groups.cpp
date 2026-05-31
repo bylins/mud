@@ -461,7 +461,7 @@ void group::GoGroup(CharData *ch, char *argument) {
 
 		return;
 	} else if (!str_cmp(buf, "leader") || !str_cmp(buf, "лидер")) {
-		vict = get_player_vis(ch, argument, EFind::kCharInWorld);
+		vict = target_resolver::FindPlayerVis(ch, argument);
 		if (vict
 			&& vict->IsNpc()
 			&& vict->IsFlagged(EMobFlag::kClone)

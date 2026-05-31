@@ -126,12 +126,13 @@ class FriendsRosterType : public TargetsRosterType {
 // selectors on multi-action spells.
 
 enum class Scope : std::uint8_t {
-	kSelf,       // just the searcher
-	kEquip,      // searcher's equipment slots
-	kInventory,  // searcher's carrying list
-	kRoom,       // people / objects in searcher's room (or room_override if set)
-	kWorld,      // global character_list (PC-priority order) / world_objects registry
-	kRnum,       // direct registry lookup -- pairs with rnum_lookup (chars/objs)
+	kSelf,        // just the searcher
+	kEquip,       // searcher's equipment slots
+	kInventory,   // searcher's carrying list
+	kRoom,        // people / objects in searcher's room (or room_override if set)
+	kWorld,       // global character_list (PC-priority order) / world_objects registry
+	kOnlinePcs,   // active PCs (descriptor_list state=kPlaying, HERE() gated)
+	kRnum,        // direct registry lookup -- pairs with rnum_lookup (chars/objs)
 };
 
 struct Query {
@@ -202,6 +203,13 @@ CharData *FindPlayer(CharData *finder, std::string_view name);
 // room walk. Replaces the legacy `get_char_room_vis`, used by DG scripts
 // to let mobs target themselves by alias.
 CharData *FindCharInRoomOrSelf(CharData *finder, std::string_view name);
+
+// FindPlayerVis: visible-only PC lookup over descriptor_list (currently
+// playing + HERE-gated). Used by player-facing commands -- tell, ask,
+// glory, send, etc. -- that want to reach actively-connected PCs only.
+// Distinct from FindPlayer (which sweeps character_list including hidden
+// PCs) and FindCharInWorld (which can match NPCs).
+CharData *FindPlayerVis(CharData *finder, std::string_view name);
 
 // ---- Named filter factories (issue #3375 stage 3) -------------------------
 //

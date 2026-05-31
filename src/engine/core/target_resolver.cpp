@@ -8,6 +8,8 @@
 #include "engine/core/utils_char_obj.inl"
 #include "engine/db/world_characters.h"
 #include "engine/db/world_objects.h"
+#include "engine/core/comm.h"
+#include "engine/network/descriptor_data.h"
 #include "engine/entities/char_data.h"
 #include "engine/entities/obj_data.h"
 #include "engine/entities/room_data.h"
@@ -266,6 +268,17 @@ void CollectChars(CharData *searcher, const Query &q,
 					if (ord.done) return;
 				}
 				break;
+			case Scope::kOnlinePcs:
+				// Walk live descriptors; HERE() filters out menu/login states
+				// where the character pointer is set but not in-world.
+				for (DescriptorData *d = descriptor_list; d; d = d->next) {
+					if (d->state != EConState::kPlaying) continue;
+					CharData *c = d->character.get();
+					if (!c || !HERE(c)) continue;
+					consider(c);
+					if (ord.done) return;
+				}
+				break;
 			case Scope::kRnum:
 				// Char-by-rnum lookup: defer until a consumer asks for it.
 				// (Today's needs are obj-only; kRnum on chars is a no-op.)
@@ -362,6 +375,9 @@ void CollectObjs(CharData *searcher, const Query &q,
 					const auto result = world_objects.find_first_by_rnum(*q.rnum_lookup);
 					ConsiderObjOne(result.get(), q, name_filter, ord, out, searcher);
 				}
+				break;
+			case Scope::kOnlinePcs:
+				// Online-PC scope is char-only; no objs to collect.
 				break;
 		}
 	}
@@ -477,6 +493,13 @@ CharData *FindCharInRoomOrSelf(CharData *finder, std::string_view name) {
 		return finder;
 	}
 	return FindCharInRoom(finder, name);
+}
+
+CharData *FindPlayerVis(CharData *finder, std::string_view name) {
+	Query q;
+	q.scopes = {Scope::kOnlinePcs};
+	q.name = std::string(name);
+	return ResolveChar(finder, q);
 }
 
 // ---- Named filter factories (issue #3375 stage 3) -------------------------

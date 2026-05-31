@@ -24,6 +24,7 @@
 #include "engine/db/db.h"
 #include "gameplay/core/genchar.h"
 #include "engine/core/handler.h"
+#include "engine/core/target_resolver.h"
 #include "engine/entities/char_player.h"
 #include "glory_misc.h"
 #include "gameplay/statistics/top.h"
@@ -785,7 +786,7 @@ void do_glory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	CharData *vict = get_player_vis(ch, arg, EFind::kCharInWorld);
+	CharData *vict = target_resolver::FindPlayerVis(ch, arg);
 	if (vict && vict->desc && vict->desc->state == EConState::kGloryConst) {
 		SendMsgToChar("Персонаж в данный момент редактирует свою славу.\r\n", ch);
 		return;

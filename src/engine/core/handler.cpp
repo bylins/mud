@@ -1790,26 +1790,6 @@ CharData *get_player_of_name(const char *name) {
 	return nullptr;
 }
 
-CharData *get_player_vis(CharData *ch, const char *name, int inroom) {
-	DescriptorData *d;
-	for (d = descriptor_list; d; d = d->next) {
-		if (d->state != EConState::kPlaying) {
-			continue;
-		}
-		if (!HERE(d->character))
-			continue;
-		if ((inroom & EFind::kCharInRoom) && d->character->in_room != ch->in_room)
-			continue;
-		if (!CAN_SEE_CHAR(ch, d->character))
-			continue;
-		if (!isname(name, d->character->GetCharAliases())) {
-			continue;
-		}
-		return d->character.get();
-	}
-	return nullptr;
-}
-
 ObjData *get_obj_in_list_vis(CharData *ch, const char *name, const ObjData::obj_list_t &list, bool locate_item) {
 	int j = 0, number;
 	char tmpname[kMaxInputLength];

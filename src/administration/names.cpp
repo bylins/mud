@@ -440,7 +440,7 @@ void do_name(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	CharData *vict;
-	if ((vict = get_player_vis(ch, name, EFind::kCharInWorld)) != nullptr) {
+	if ((vict = target_resolver::FindPlayerVis(ch, name)) != nullptr) {
 		if (!(vict = target_resolver::FindPlayer(ch, name))) {
 			SendMsgToChar("Нет такого игрока.\r\n", ch);
 			return;

@@ -1271,7 +1271,7 @@ void do_stat(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 			if (!*buf2) {
 				SendMsgToChar("Состояние какого игрока?\r\n", ch);
 			} else {
-				if ((victim = get_player_vis(ch, buf2, EFind::kCharInWorld)) != nullptr)
+				if ((victim = target_resolver::FindPlayerVis(ch, buf2)) != nullptr)
 					do_stat_character(ch, victim);
 				else
 					SendMsgToChar("Этого персонажа сейчас нет в игре.\r\n", ch);
@@ -1282,7 +1282,7 @@ void do_stat(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 			if (!*buf2) {
 				SendMsgToChar("Состояние ip какого игрока?\r\n", ch);
 			} else {
-				if ((victim = get_player_vis(ch, buf2, EFind::kCharInWorld)) != nullptr) {
+				if ((victim = target_resolver::FindPlayerVis(ch, buf2)) != nullptr) {
 					do_statip(ch, victim);
 					return;
 				} else {
@@ -1301,7 +1301,7 @@ void do_stat(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 			if (!*buf2) {
 				SendMsgToChar("Карму какого игрока?\r\n", ch);
 			} else {
-				if ((victim = get_player_vis(ch, buf2, EFind::kCharInWorld)) != nullptr) {
+				if ((victim = target_resolver::FindPlayerVis(ch, buf2)) != nullptr) {
 					DoStatKarma(ch, victim);
 					return;
 				} else {

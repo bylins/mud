@@ -13,6 +13,7 @@
 #include "engine/entities/obj_data.h"
 #include "engine/ui/color.h"
 #include "engine/core/handler.h"
+#include "engine/core/target_resolver.h"
 #include "gameplay/mechanics/named_stuff.h"
 #include "gameplay/fight/pk.h"
 #include "gameplay/ai/spec_procs.h"
@@ -167,7 +168,7 @@ bool auction_drive(CharData *ch, char *argument) {
 				value = std::max(1, obj->get_cost());
 			};
 			if (*whom) {
-				if (!(tch = get_player_vis(ch, whom, EFind::kCharInWorld))) {
+				if (!(tch = target_resolver::FindPlayerVis(ch, whom))) {
 					SendMsgToChar("Вы не видите этого игрока.\r\n", ch);
 					return false;
 				}
