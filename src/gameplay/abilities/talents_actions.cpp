@@ -42,6 +42,7 @@ const std::map<std::string, ERoomFlag> kBlockingRoomFlagByName{
 	{"kPeaceful", ERoomFlag::kPeaceful},
 	{"kTunnel", ERoomFlag::kTunnel},
 	{"kNoTeleportIn", ERoomFlag::kNoTeleportIn},
+	{"kNoTeleportOut", ERoomFlag::kNoTeleportOut},
 	{"kNoBattle", ERoomFlag::kNoBattle},
 	{"kGodsRoom", ERoomFlag::kGodsRoom},
 	{"kForMono", ERoomFlag::kForMono},
