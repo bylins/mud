@@ -446,8 +446,13 @@ static int CalcTotalSpellDmg(CharData *ch, CharData *victim, ESpell spell_id) {
 			// the roll's dice and competencies (skill+stat); an absent <amount> defaults to min 0
 			// and both weights 1.0.
 			const auto &dmg_act = MUD::Spell(spell_id).actions.GetDmg();
-			dmg = dmg_act.GetAmountMin() + std::ceil(base_dmg * dmg_act.GetAmountDicesWeight()
-					+ (skill_coeff + stat_coeff) * dmg_act.GetAmountCompetenciesWeight());
+			// Option-2 subquadratic (issue.potency-formula): skill/stat scales the dice
+			// multiplicatively (alpha) plus a flat additive term (beta). alpha=0 -> old
+			// Formula A. C = skill_coeff + stat_coeff.
+			const float C = skill_coeff + stat_coeff;
+			dmg = dmg_act.GetAmountMin() + std::ceil(
+					base_dmg * dmg_act.GetAmountDicesWeight() * (1.0f + dmg_act.GetAmountAlpha() * C)
+					+ dmg_act.GetAmountBeta() * C);
 		} else {
 			// Legacy multiplicative model dice * (1 + skill + stat), for spells with no <damage>
 			// action (e.g. kWarcryOfChallenge).
@@ -1635,8 +1640,11 @@ struct PointsCategory {
 // non-heal categories default to 0 (no NPC boost).
 auto MakeAmountCalculator(const CharData *ch, double dice, double competencies, double bonus_mod) {
 	return [ch, dice, competencies, bonus_mod](const talents_actions::Points::Amount &a) -> int {
-		int v = static_cast<int>(a.min + std::ceil(dice * a.dices_weight
-												  + competencies * a.competencies_weight));
+		// Option-2 subquadratic (issue.potency-formula): dice scaled multiplicatively by
+		// skill/stat (alpha) plus an additive term (beta). alpha=0 -> old Formula A.
+		int v = static_cast<int>(a.min + std::ceil(
+						dice * a.dices_weight * (1.0 + a.alpha * competencies)
+						+ a.beta * competencies));
 		v += static_cast<int>(v * bonus_mod);
 		if (ch->IsNpc()) {
 			v += static_cast<int>(v * a.npc_coeff);
@@ -1707,25 +1715,27 @@ void EmitPointsMessage(CharData *victim, const Sheaf &sheaf,
 
 // Apply heal: positive only (the <degrade> heal table is intentionally empty;
 // a negative <heal> amount silently no-ops -- damage paths go through CastDamage).
-// Lacerations halves a normal heal; kExtra opens an overheal cap of +33% max HP.
-void ApplyHeal(CharData *victim, int hit, bool extra) {
+// extra_percent: overheal cap above max_hp, in percent (0 = strict cap at max,
+// 33 = up to 133% of max, etc.). Lacerations halves the heal only when no
+// overheal is configured (extra_percent == 0); designer-flagged overheal
+// spells deliberately ignore the wound penalty.
+void ApplyHeal(CharData *victim, int hit, int extra_percent) {
 	if (hit <= 0) return;
 	if (victim->get_hit() >= kMaxHits) return;
-	if (!extra && victim->get_hit() < victim->get_real_max_hit()) {
-		if (AFF_FLAGGED(victim, EAffect::kLacerations)) {
-			victim->set_hit(std::min(victim->get_hit() + hit / 2, victim->get_real_max_hit()));
-		} else {
-			victim->set_hit(std::min(victim->get_hit() + hit, victim->get_real_max_hit()));
-		}
+	const int max_hp = victim->get_real_max_hit();
+	if (extra_percent == 0) {
+		if (victim->get_hit() >= max_hp) return;
+		const int amount = AFF_FLAGGED(victim, EAffect::kLacerations) ? hit / 2 : hit;
+		victim->set_hit(std::min(victim->get_hit() + amount, max_hp));
+		return;
 	}
-	if (extra) {
-		if (victim->get_real_max_hit() <= 0) {
-			victim->set_hit(std::max(victim->get_hit(), std::min(victim->get_hit() + hit, 1)));
-		} else {
-			victim->set_hit(std::clamp(victim->get_hit() + hit, victim->get_hit(),
-					victim->get_real_max_hit() + victim->get_real_max_hit() * 33 / 100));
-		}
+	if (max_hp <= 0) {
+		// Pathological char (max_hit <= 0): still let an overheal push to 1.
+		victim->set_hit(std::max(victim->get_hit(), std::min(victim->get_hit() + hit, 1)));
+		return;
 	}
+	const int cap = max_hp + max_hp * extra_percent / 100;
+	victim->set_hit(std::clamp(victim->get_hit() + hit, victim->get_hit(), cap));
 }
 
 }  // namespace
@@ -1813,7 +1823,7 @@ EStageResult CastToPoints([[maybe_unused]] int level, CharData *ch, CharData *vi
 		// Apply the actual effect.
 		switch (c.cat) {
 			case points_intensity::ECategory::kHeal:
-				ApplyHeal(victim, amt, points.IsExtra());
+				ApplyHeal(victim, amt, points.GetExtraPercent());
 				break;
 			case points_intensity::ECategory::kMoves:
 				// Positive: restore (clamped at max). Negative: drain (clamped at 0).

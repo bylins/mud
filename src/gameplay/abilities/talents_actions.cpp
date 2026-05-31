@@ -281,7 +281,8 @@ void Damage::Print(CharData */*ch*/, std::ostringstream &buffer) const {
 		   << " Prob: " << kColorGrn << prob_ << kColorNrm << "\r\n"
 		   << " Amount min: " << kColorGrn << amount_min_ << kColorNrm
 		   << " dices_weight: " << kColorGrn << amount_dices_weight_ << kColorNrm
-		   << " competencies_weight: " << kColorGrn << amount_competencies_weight_ << kColorNrm << "\r\n";
+		   << " alpha: " << kColorGrn << amount_alpha_ << kColorNrm
+		   << " beta: " << kColorGrn << amount_beta_ << kColorNrm << "\r\n";
 	if (has_hits_) {
 		buffer << " Hits: skill_divisor=" << kColorGrn << hits_skill_divisor_ << kColorNrm
 			   << " max=" << kColorGrn << hits_max_ << kColorNrm
@@ -300,8 +301,10 @@ Damage::Damage(parser_wrapper::DataNode &node) {
 		amount_min_ = (amin && *amin) ? parse::ReadAsDouble(amin) : 0.0;
 		const char *adw = node.GetValue("dices_weight");
 		amount_dices_weight_ = (adw && *adw) ? parse::ReadAsDouble(adw) : 1.0;
-		const char *acw = node.GetValue("competencies_weight");
-		amount_competencies_weight_ = (acw && *acw) ? parse::ReadAsDouble(acw) : 1.0;
+		const char *aa = node.GetValue("alpha");
+		amount_alpha_ = (aa && *aa) ? parse::ReadAsDouble(aa) : 0.0;
+		const char *ab = node.GetValue("beta");
+		amount_beta_ = (ab && *ab) ? parse::ReadAsDouble(ab) : 1.0;
 		node.GoToParent();
 	}
 	// <hits> is optional (issue.extra-hits); absent -> the spell deals one hit. Individual attrs
@@ -319,7 +322,7 @@ Damage::Damage(parser_wrapper::DataNode &node) {
 }
 
 // Parse one child amount tag (heal/moves/thirst/cond) into `a`. The shared
-// schema is (min, dices_weight, competencies_weight); npc_coeff is parsed only
+// schema is (min, dices_weight, alpha, beta); npc_coeff is parsed only
 // when `with_npc` is set (heal only). issue.mag-points.
 static void ParsePointsAmount(parser_wrapper::DataNode &node, const char *tag,
 							  Points::Amount &a, bool with_npc) {
@@ -331,8 +334,10 @@ static void ParsePointsAmount(parser_wrapper::DataNode &node, const char *tag,
 	a.min = (amin && *amin) ? parse::ReadAsDouble(amin) : 0.0;
 	const char *adw = node.GetValue("dices_weight");
 	a.dices_weight = (adw && *adw) ? parse::ReadAsDouble(adw) : 0.0;
-	const char *acw = node.GetValue("competencies_weight");
-	a.competencies_weight = (acw && *acw) ? parse::ReadAsDouble(acw) : 0.0;
+	const char *aa = node.GetValue("alpha");
+	a.alpha = (aa && *aa) ? parse::ReadAsDouble(aa) : 0.0;
+	const char *ab = node.GetValue("beta");
+	a.beta = (ab && *ab) ? parse::ReadAsDouble(ab) : 0.0;
 	if (with_npc) {
 		// 1.0 default mirrors the legacy <heal npc_coeff/> default: NPC casters
 		// get a *2 boost on heal points unless the tag overrides it.
@@ -344,7 +349,7 @@ static void ParsePointsAmount(parser_wrapper::DataNode &node, const char *tag,
 
 Points::Points(parser_wrapper::DataNode &node) {
 	const char *extra = node.GetValue("extra");
-	extra_ = (extra && *extra) && parse::ReadAsBool(extra);
+	extra_ = (extra && *extra) ? std::max(0, parse::ReadAsInt(extra)) : 0;
 	const char *prob = node.GetValue("prob");
 	prob_ = (prob && *prob) ? parse::ReadAsInt(prob) : 100;
 	ParsePointsAmount(node, "heal",   heal_,   /*with_npc=*/true);
@@ -358,7 +363,8 @@ static void PrintAmount(std::ostringstream &buffer, const char *label,
 	if (!a.present) return;
 	buffer << "  " << label << ": min=" << kColorGrn << a.min << kColorNrm
 		   << " dices_weight=" << kColorGrn << a.dices_weight << kColorNrm
-		   << " competencies_weight=" << kColorGrn << a.competencies_weight << kColorNrm;
+		   << " alpha=" << kColorGrn << a.alpha << kColorNrm
+		   << " beta=" << kColorGrn << a.beta << kColorNrm;
 	if (with_npc) {
 		buffer << " npc_coeff=" << kColorGrn << a.npc_coeff << kColorNrm;
 	}
@@ -366,7 +372,7 @@ static void PrintAmount(std::ostringstream &buffer, const char *label,
 }
 
 void Points::Print(CharData */*ch*/, std::ostringstream &buffer) const {
-	buffer << " Points: extra=" << kColorGrn << (extra_ ? "yes" : "no") << kColorNrm
+	buffer << " Points: extra=" << kColorGrn << extra_ << "%" << kColorNrm
 		   << " prob=" << kColorGrn << prob_ << kColorNrm << "\r\n";
 	PrintAmount(buffer, "Heal",   heal_,   /*with_npc=*/true);
 	PrintAmount(buffer, "Moves",  moves_,  false);
@@ -431,7 +437,8 @@ TalentAffect::TalentAffect(parser_wrapper::DataNode &node) {
 			if (child.GoToChild("modifier")) {
 				apply.min = parse::ReadAsDouble(child.GetValue("min"));
 				apply.dices_weight = parse::ReadAsDouble(child.GetValue("dices_weight"));
-				apply.competencies_weight = parse::ReadAsDouble(child.GetValue("competencies_weight"));
+				apply.alpha = parse::ReadAsDouble(child.GetValue("alpha"));
+				apply.beta = parse::ReadAsDouble(child.GetValue("beta"));
 				apply.factor = parse::ReadAsInt(child.GetValue("factor"));
 				// stack: optional max stack count, default 1, clamped to a minimum of 1.
 				const char *stack = child.GetValue("stack");
@@ -478,7 +485,7 @@ void TalentAffect::Print(CharData */*ch*/, std::ostringstream &buffer) const {
 			   << " -> " << kColorGrn << NAME_BY_ITEM<EApply>(apply.location) << kColorNrm
 			   << (apply.random ? " [random]" : "")
 			   << " (min=" << apply.min << " dices_weight=" << apply.dices_weight
-			   << " competencies_weight=" << apply.competencies_weight
+			   << " alpha=" << apply.alpha << " beta=" << apply.beta
 			   << " factor=" << apply.factor << " stack=" << apply.stack
 			   << " cap=" << apply.cap << ")\r\n";
 	}

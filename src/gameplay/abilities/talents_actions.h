@@ -175,16 +175,18 @@ class Components {
 // they belong to the spell-level potency roll (talents_actions::Roll, stored in
 // SpellInfo). Damage now only carries its saving throw.
 // Damage mirrors Heal's model (issue.damage-tag-improve): besides the saving throw it carries a
-// completion probability and an <amount min= dices_weight= competencies_weight=> block, so the
-// damage amount is the roll's dice and competencies weighted by the damage's own factors. The
-// <amount> is optional; its defaults are min=0 and BOTH weights 1.0 (so an omitted tag means
+// completion probability and an <amount min= dices_weight= alpha= beta=> block. The damage amount
+// follows the option-2 subquadratic model (issue.potency-formula): min + dice*dice_scale*(1 +
+// alpha*C) + beta*C, where C = skill_coeff + stat_coeff. alpha=0 reduces to the legacy additive
+// Formula A. The <amount> is optional; defaults are min=0, dices_weight=1.0, alpha=0, beta=1.0
 // amount = dice + competencies).
 class Damage : public IAction {
 	ESaving saving_{ESaving::kReflex};
 	int prob_{100};                          // percent chance the damage actually happens
 	double amount_min_{0};                   // flat minimum damage
-	double amount_dices_weight_{1.0};        // weight applied to the potency roll's dice
-	double amount_competencies_weight_{1.0}; // weight applied to the caster's skill+stat competencies
+	double amount_dices_weight_{1.0};        // base scale on the potency roll's dice
+	double amount_alpha_{0.0};               // dice-amplification: skill scales the dice (issue.potency-formula)
+	double amount_beta_{1.0};                // additive skill+stat coefficient (was competencies_weight)
 	// Multi-hit support (issue.extra-hits): a <hits ...> child enables extra-hits computation via
 	// CalcExtraHits. Absent tag -> has_hits_=false -> the spell deals exactly one hit (count=1).
 	// When present, count = 1 + CalcExtraHits(caster, spell_id, base_skill, divisor, max, prob).
@@ -197,7 +199,8 @@ class Damage : public IAction {
 	[[nodiscard]] int GetProb() const { return prob_; }
 	[[nodiscard]] double GetAmountMin() const { return amount_min_; }
 	[[nodiscard]] double GetAmountDicesWeight() const { return amount_dices_weight_; }
-	[[nodiscard]] double GetAmountCompetenciesWeight() const { return amount_competencies_weight_; }
+	[[nodiscard]] double GetAmountAlpha() const { return amount_alpha_; }
+	[[nodiscard]] double GetAmountBeta() const { return amount_beta_; }
 	[[nodiscard]] bool HasHits() const { return has_hits_; }
 	[[nodiscard]] int GetHitsSkillDivisor() const { return hits_skill_divisor_; }
 	[[nodiscard]] int GetHitsMax() const { return hits_max_; }
@@ -209,7 +212,7 @@ class Damage : public IAction {
 // Points (issue.mag-points): the data-driven home for hit-point heals, move
 // restores and thirst/cond adjustments. Each of the four categories lives in
 // its own optional inner tag (<heal>, <moves>, <thirst>, <cond>); all four
-// share the (min, dices_weight, competencies_weight) shape, only <heal>
+// share the (min, dices_weight, alpha, beta) shape, only <heal>
 // carries the NPC coefficient. The outer <points> tag carries the overheal-
 // above-max flag (still heal-specific in semantics) and the per-cast
 // probability that the whole points action fires.
@@ -238,12 +241,14 @@ class Points : public IAction {
 	struct Amount {
 		bool present{false};
 		double min{0};
-		double dices_weight{0};
-		double competencies_weight{0};
+		double dices_weight{0};   // base scale on the potency dice
+		double alpha{0};          // dice-amplification: skill scales the dice (issue.potency-formula)
+		double beta{0};           // additive skill/stat coefficient (was competencies_weight)
 		double npc_coeff{0};
 	};
  private:
-	bool extra_{false};   // may the heal raise hit points above the maximum?
+	int extra_{0};        // overheal cap as percent ABOVE max_hp
+	                      // (0 = no overheal; e.g. 20 lets HP reach 120% of max).
 	int prob_{100};       // percent chance the whole points action fires
 	Amount heal_;
 	Amount moves_;
@@ -254,7 +259,7 @@ class Points : public IAction {
 	Amount full_;
  public:
 	explicit Points(parser_wrapper::DataNode &node);
-	[[nodiscard]] bool IsExtra() const { return extra_; }
+	[[nodiscard]] int GetExtraPercent() const { return extra_; }
 	[[nodiscard]] int GetProb() const { return prob_; }
 	[[nodiscard]] const Amount &GetHeal()   const { return heal_; }
 	[[nodiscard]] const Amount &GetMoves()  const { return moves_; }
@@ -288,12 +293,13 @@ class TalentAffect : public IAction {
 	struct Apply {
 		EAffect id{EAffect::kUndefinded};
 		EApply location{EApply::kNone};
-		// Modifier = factor * cap(min + ceil(competencies*competencies_weight + dices*dices_weight)).
+		// Modifier = factor * cap(min + ceil(dices*dices_weight*(1+alpha*C) + beta*C)), C = skill+stat.
 		// The cap (see below) is applied to the raw magnitude BEFORE the factor, so factor=-1
 		// debuffs are bounded by [-cap, -min] when cap > 0.
 		double min{0.0};
-		double dices_weight{0.0};
-		double competencies_weight{0.0};
+		double dices_weight{0.0};   // base scale on the potency dice
+		double alpha{0.0};          // dice-amplification: skill scales the dice (issue.potency-formula)
+		double beta{0.0};           // additive skill/stat coefficient (was competencies_weight)
 		int factor{1};
 		// Optional upper bound on the raw magnitude (i.e. on (min + ceil(comp*cw + dice*dw)))
 		// before factor is applied. 0 (default) means "no cap" -- the modifier scales without

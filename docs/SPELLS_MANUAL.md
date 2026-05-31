@@ -427,7 +427,7 @@ reflection rates per spell.
 
 ```xml
 <damage saving="kReflex" prob="100">
-    <amount min="0" dices_weight="1.0" competencies_weight="25"/>
+    <amount min="0" dices_weight="1.0" alpha="0.5" beta="12.5"/>
     <hits skill_divisor="12" max="2" prob="100"/>
 </damage>
 ```
@@ -436,7 +436,7 @@ reflection rates per spell.
 |---|---|---|
 | `saving` | `kReflex` | `ESaving`: `kReflex`, `kStability`, `kWill`, `kCritical`, `kNone`. A successful save halves damage. |
 | `prob` | `100` | Percent chance the damage actually happens (silent miss otherwise). `prob<100` short-circuits the RNG. |
-| `<amount min= dices_weight= competencies_weight=>` | min=0, both weights=1.0 | Final amount = `min + dices · dices_weight + (skill_coeff + stat_coeff) · competencies_weight`. Omit the tag to keep the defaults; an empty `<amount/>` is fine. |
+| `<amount min= dices_weight= alpha= beta=>` | min=0, dices_weight=1.0, alpha=0, beta=1.0 | Final amount (issue.potency-formula) = `min + dice · dices_weight · (1 + alpha · C) + beta · C`, where `C = skill_coeff + stat_coeff`. `alpha` scales the dice multiplicatively with competence, so the random spread keeps growing with the output instead of going flat (sub-quadratic). `beta` is the additive competence term. `alpha=0` reduces to the legacy additive Formula A. Omit the tag to keep the defaults. |
 | `<hits skill_divisor= max= prob=>` | divisor=25, max=1, prob=20 | Multi-hit support: `count = 1 + CalcExtraHits(...)`. The extra-hit bonus uses the caster's potency-roll `base_skill`, scaled by `min(skill, 75) / skill_divisor`, capped at `max`, fired at `prob`%. `prob=0` means a uniform random pick between 0 and `extra`. Absent tag means a single hit. |
 
 ---
@@ -444,11 +444,11 @@ reflection rates per spell.
 ## 6. `<points>` — restoration: HP / moves / thirst / full
 
 ```xml
-<points extra="N" prob="100">
-    <heal   npc_coeff="3" min="0" dices_weight="1.0" competencies_weight="90"/>
-    <moves                min="0" dices_weight="0.0" competencies_weight="20"/>
-    <thirst               min="0" dices_weight="0.0" competencies_weight="0"/>
-    <full                 min="0" dices_weight="0.0" competencies_weight="0"/>
+<points extra="0" prob="100">
+    <heal   npc_coeff="3" min="0" dices_weight="1.0" alpha="0.5" beta="45"/>
+    <moves                min="0" dices_weight="0.0" alpha="0" beta="20"/>
+    <thirst               min="0" dices_weight="0.0" alpha="0" beta="0"/>
+    <full                 min="0" dices_weight="0.0" alpha="0" beta="0"/>
 </points>
 ```
 
@@ -456,8 +456,9 @@ The `<points>` tag (formerly `<heal>`, renamed in issue.mag-points)
 carries up to four optional inner amount tags. Each amount independently
 restores (or drains) one category from the same potency roll:
 
-* **`<heal>`** — hit points. `extra="Y"` on the outer `<points>` lets
-  the restoration push HP above the cap (overheal). Has the optional
+* **`<heal>`** — hit points. `extra="N"` on the outer `<points>` is an integer
+  overheal cap in percent above max HP (issue.points-extra-cap): `0` caps at max,
+  `20` allows 120%, `33` allows 133%. Has the optional
   `npc_coeff` attribute (default `1.0`) that boosts the amount when the
   caster is an NPC — legacy behaviour, designed to keep mob-cast heals
   punchy on minions.
@@ -470,14 +471,15 @@ restores (or drains) one category from the same potency roll:
 
 | Outer `<points>` attr | Default | Description |
 |---|---|---|
-| `extra` | `N` | `Y` allows the **heal** amount to push HP above the maximum cap. Affects only `<heal>`; the other categories already saturate at their natural caps. |
+| `extra` | `0` | Integer overheal cap **in percent above** max HP (issue.points-extra-cap). `0` = strict cap at max; `20` = up to 120%; `33` = up to 133%. Affects only `<heal>`; the other categories saturate at their natural caps. |
 | `prob` | `100` | Percent chance the whole points action fires. A failed roll restores zero across all four categories. |
 
 | Inner amount attr | Default | Description |
 |---|---|---|
 | `min` | `0` | Flat amount. May be **negative** — negative numbers drain instead of restore (`<moves min="-30">` drains 30 movement points). |
-| `dices_weight` | `0` | Weight on the potency roll's dice. |
-| `competencies_weight` | `0` | Weight on `(skill_coeff + stat_coeff)`. |
+| `dices_weight` | `0` | Base scale on the potency roll's dice. |
+| `alpha` | `0` | Multiplicative: how much competence `C` amplifies the dice (sub-quadratic spread growth). `0` = legacy additive behaviour. |
+| `beta` | `0` | Additive weight on `C = (skill_coeff + stat_coeff)` (the old `competencies_weight`). |
 | `npc_coeff` (`<heal>` only) | `1.0` | Extra multiplicative boost when the caster is an NPC. Default `1.0` reproduces the legacy `*2` effective heal for mob casters; set to `0` to disable. |
 
 ### Sign convention for thirst / full
@@ -498,7 +500,7 @@ mind.
 Each amount, before clamps:
 
 ```
-amount = ceil(min + dice · dices_weight + competencies · competencies_weight)
+amount = ceil(min + dice · dices_weight · (1 + alpha · C) + beta · C)   // C = skill_coeff + stat_coeff
 amount += amount · (caster's spellpower bonus / 100)
 if caster is NPC: amount += amount · npc_coeff   // 0 for non-heal categories
 ```
@@ -573,7 +575,7 @@ This is the workhorse for buffs and debuffs.
     <flags val="kAfBattledec|kAfDispellable|kAfCurable"/>
     <duration base="1" skill_divisor="15" min="1" max="6"/>
     <apply id="kSleep" location="kNone">
-        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0"
+        <modifier min="0.0" dices_weight="0.0" alpha="0" beta="0"
                   factor="1" stack="1"/>
     </apply>
     <reposition pos="kSleep" stop_fight="false"/>
@@ -635,7 +637,7 @@ The skill bonus is capped at the novice threshold (75) divided by
 
 ```xml
 <apply id="kPoisoned" location="kStr" random="false">
-    <modifier min="2.0" dices_weight="0.0" competencies_weight="0.0"
+    <modifier min="2.0" dices_weight="0.0" alpha="0" beta="0"
               factor="-1" stack="3"/>
 </apply>
 ```
@@ -649,8 +651,9 @@ The skill bonus is capped at the novice threshold (75) divided by
 | `<modifier>` attr | Default | Description |
 |---|---|---|
 | `min` | `0.0` | Floor for the modifier magnitude. |
-| `dices_weight` | `0.0` | Weight on the potency-roll dice contribution. |
-| `competencies_weight` | `0.0` | Weight on `(skill_coeff + stat_coeff)`. |
+| `dices_weight` | `0.0` | Base scale on the potency-roll dice contribution. |
+| `alpha` | `0.0` | Multiplicative: competence `C` amplifies the dice. `0` (the usual value for modifiers, which are flat) = legacy additive behaviour. |
+| `beta` | `0.0` | Additive weight on `C = (skill_coeff + stat_coeff)` (the old `competencies_weight`). |
 | `factor` | `1` | Final sign/scale multiplier. Use `-1` for debuffs (str penalty, save penalty, etc.). |
 | `cap` | `0` | Optional upper bound on the raw magnitude **before** factor. `0` (default) = no cap. Used by `kForbidden` (cap=100, mirroring the OLD `MIN(100, …)`) and by the elemental auras (cap=30, saturating around R15). |
 | `stack` | `1` | **Stacking cap** — see §8.5. |
@@ -658,7 +661,7 @@ The skill bonus is capped at the novice threshold (75) divided by
 Formula:
 
 ```
-raw      = min + ceil(competencies · competencies_weight + dices · dices_weight)
+raw      = min + ceil(dices · dices_weight · (1 + alpha · C) + beta · C)   // C = competencies = skill_coeff + stat_coeff
 if cap > 0: raw = min(raw, cap)            # optional clamp before factor
 modifier = factor · raw
 ```
@@ -694,11 +697,11 @@ Example design — a poison that stacks up to 3 times:
     <flags val="kAfAccumulateDuration|kAfCurable"/>
     <duration base="0" skill_divisor="3" min="0" max="0"/>
     <apply id="kPoisoned" location="kStr">
-        <modifier min="2.0" dices_weight="0.0" competencies_weight="0.0"
+        <modifier min="2.0" dices_weight="0.0" alpha="0" beta="0"
                   factor="-1" stack="3"/>
     </apply>
     <apply id="kPoisoned" location="kPoison">
-        <modifier min="30.0" dices_weight="0.0" competencies_weight="0.0"
+        <modifier min="30.0" dices_weight="0.0" alpha="0" beta="0"
                   factor="1" stack="3"/>
     </apply>
 </affects>
@@ -744,25 +747,25 @@ penalty out of six.
     <flags val="kAfDispellable|kAfCurable"/>
     <duration base="2" skill_divisor="5" min="0" max="0"/>
     <apply id="kUndefinded" location="kMorale">
-        <modifier min="5.0" competencies_weight="1.0" factor="-1"/>
+        <modifier min="5.0" alpha="0" beta="1" factor="-1"/>
     </apply>
     <apply id="kUndefinded" location="kStr" random="true">
-        <modifier min="0.0" competencies_weight="0.11" factor="-1"/>
+        <modifier min="0.0" alpha="0" beta="0.11" factor="-1"/>
     </apply>
     <apply id="kUndefinded" location="kDex" random="true">
-        <modifier min="0.0" competencies_weight="0.11" factor="-1"/>
+        <modifier min="0.0" alpha="0" beta="0.11" factor="-1"/>
     </apply>
     <apply id="kUndefinded" location="kInt" random="true">
-        <modifier min="0.0" competencies_weight="0.11" factor="-1"/>
+        <modifier min="0.0" alpha="0" beta="0.11" factor="-1"/>
     </apply>
     <apply id="kUndefinded" location="kWis" random="true">
-        <modifier min="0.0" competencies_weight="0.11" factor="-1"/>
+        <modifier min="0.0" alpha="0" beta="0.11" factor="-1"/>
     </apply>
     <apply id="kUndefinded" location="kCon" random="true">
-        <modifier min="0.0" competencies_weight="0.11" factor="-1"/>
+        <modifier min="0.0" alpha="0" beta="0.11" factor="-1"/>
     </apply>
     <apply id="kUndefinded" location="kCha" random="true">
-        <modifier min="0.0" competencies_weight="0.11" factor="-1"/>
+        <modifier min="0.0" alpha="0" beta="0.11" factor="-1"/>
     </apply>
 </affects>
 ```
@@ -772,7 +775,10 @@ penalty out of six.
 The new system's design philosophy is that **modifier magnitude grows with
 caster competence (skill + stat), not with caster level or remort
 directly**. The OLD per-spell formulas like `-1 - R/2` or `(L+R)/3` are
-re-expressed via `competencies_weight`.
+re-expressed via `beta` (the additive competence weight). Modifiers are almost
+always flat (`dices_weight=0`), where the formula is just `min + ceil(beta · C)`
+and `beta` is exactly the old `competencies_weight` renamed — so the tuning rules
+below carry over unchanged. `alpha` only matters when `dices_weight ≠ 0`.
 
 The conversion rule used when translating from OLD formulas:
 
@@ -785,9 +791,9 @@ The conversion rule used when translating from OLD formulas:
 For the cookie-cutter potency_roll (`low=3 hi=1.25`,
 `threshold=22 weight=0.5`), per-remort competencies grow by
 `(5·1.25 + 1·0.5)/100 = 0.0675`. So a modifier that should grow by
-`k` per remort needs `competencies_weight ≈ k / 0.0675`.
+`k` per remort needs `beta ≈ k / 0.0675`.
 
-**The min ≥ 0 rule.** Choose `min` and `competencies_weight` so an
+**The min ≥ 0 rule.** Choose `min` and `beta` so an
 untrained caster (competencies = 0) gets `min·factor` = 0 modifier
 (or a small clean baseline). This avoids untrained casters
 accidentally getting an inverted-sign buff from a debuff spell.
@@ -815,7 +821,7 @@ XML reads:
 ```xml
 <apply id="kBless" location="kSavingStability">
     <modifier min="0.0" dices_weight="0.0"
-              competencies_weight="2.8" factor="-1"/>
+              alpha="0" beta="2.8" factor="-1"/>
 </apply>
 ```
 
@@ -835,13 +841,13 @@ means an untrained caster's modifier becomes `-1·(negative)` = positive
 — inverting the spell's sign. For example, a debuff with `min=-7
 factor=-1` gives an untrained mage a `+7` *buff* on enemy saves. Fix by:
 
-- reducing `competencies_weight` until `min ≥ 0` (gentler scaling), or
+- reducing `beta` until `min ≥ 0` (gentler scaling), or
 - normalising the spell's potency_roll to cookie-cutter shape so the
   arithmetic works out without overshoot.
 
 A handful of spells in the codebase have unusually aggressive
 potency_rolls (`kPatronage`, `kEviless`, `kCurse`) and currently use
-flat-`min` modifiers without `competencies_weight`. They're left that
+flat-`min` modifiers without `beta`. They're left that
 way until their potency_rolls are normalised.
 
 ---
@@ -1256,7 +1262,7 @@ A message lookup tries the spell's own sheaf first, then falls back to
     <talent_actions>
         <action>
             <damage saving="kReflex">
-                <amount min="0" dices_weight="1.0" competencies_weight="25"/>
+                <amount min="0" dices_weight="1.0" alpha="0.5" beta="12.5"/>
                 <hits skill_divisor="12" max="2" prob="100"/>
             </damage>
         </action>
@@ -1296,7 +1302,7 @@ A message lookup tries the spell's own sheaf first, then falls back to
                 <flags val="kAfBattledec|kAfDispellable|kAfCurable"/>
                 <apply id="kSleep" location="kNone">
                     <modifier min="0.0" dices_weight="0.0"
-                              competencies_weight="0.0" factor="1"/>
+                              alpha="0" beta="0" factor="1"/>
                 </apply>
             </affects>
         </action>
@@ -1374,7 +1380,7 @@ A message lookup tries the spell's own sheaf first, then falls back to
                 <duration base="4" skill_divisor="0" min="0" max="0"/>
                 <apply id="kGlitterDust" location="kSavingReflex">
                     <modifier min="0.0" dices_weight="0.0"
-                              competencies_weight="4.4" factor="1"/>
+                              alpha="0" beta="4.4" factor="1"/>
                 </apply>
             </affects>
         </action>
@@ -1420,7 +1426,7 @@ A message lookup tries the spell's own sheaf first, then falls back to
                 <align val="kEvil"/>
             </caster_blocking>
             <damage saving="kStability">
-                <amount min="0" dices_weight="1.0" competencies_weight="122"/>
+                <amount min="0" dices_weight="1.0" alpha="0.5" beta="61"/>
             </damage>
         </action>
     </talent_actions>
@@ -1445,7 +1451,7 @@ ready). Here's how a fire-shielded creature might reflect cold spells:
         <action>
             <reflection affect_flags="kFireShield|kFireAura" prob="35"/>
             <damage saving="kReflex">
-                <amount min="0" dices_weight="1.0" competencies_weight="80"/>
+                <amount min="0" dices_weight="1.0" alpha="0.5" beta="40"/>
             </damage>
         </action>
     </talent_actions>
@@ -1463,7 +1469,7 @@ ready). Here's how a fire-shielded creature might reflect cold spells:
 ### 13.7 Stacking poison (hypothetical)
 
 The real `kPoison` doesn't stack today — this example illustrates the
-mechanic. The actual `kPoison` uses `competencies_weight` to scale the
+mechanic. The actual `kPoison` uses `beta` to scale the
 poison-damage tick (no stacking); here we re-add `stack="3"` to show
 how a stacking variant would be authored.
 
@@ -1478,12 +1484,12 @@ how a stacking variant would be authored.
                 <flags val="kAfSameTime|kAfAccumulateDuration|kAfCurable"/>
                 <apply id="kPoisoned" location="kStr">
                     <modifier min="2.0" dices_weight="0.0"
-                              competencies_weight="0.0"
+                              alpha="0" beta="0"
                               factor="-1" stack="3"/>
                 </apply>
                 <apply id="kPoisoned" location="kPoison">
                     <modifier min="0.0" dices_weight="0.0"
-                              competencies_weight="11.5"
+                              alpha="0" beta="11.5"
                               factor="1" stack="3"/>
                 </apply>
             </affects>
