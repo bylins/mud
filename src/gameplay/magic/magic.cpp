@@ -271,18 +271,6 @@ void ShowAffExpiredMsg(ESpell aff_type, CharData *ch) {
 }
 
 
-static bool IsBreath(ESpell spell_id) {
-	static const std::set<ESpell> magic_breath {
-	 	ESpell::kFireBreath,
-	 	ESpell::kGasBreath,
-	 	ESpell::kFrostBreath,
-	 	ESpell::kAcidBreath,
-	 	ESpell::kLightingBreath
-	};
-
-	return magic_breath.contains(spell_id);
-}
-
 // SetBattleLag(victim, lag) lives inline next to SetWaitState in char_data.h -- it isn't
 // magic-specific. This file keeps only the magic-pipeline-specific skill-scaled overload below.
 
@@ -340,17 +328,7 @@ double CalcMagicElementCoeff(CharData *victim, ESpell spell_id) {
 }
 
 int CalcBaseDmg(CharData *ch, ESpell spell_id) {
-	auto base_dmg{0};
-	if (IsBreath(spell_id)) {
-		if (!ch->IsNpc()) {
-			return 0;
-		}
-		base_dmg = RollDices(ch->mob_specials.damnodice, ch->mob_specials.damsizedice) +
-			GetRealDamroll(ch) + str_bonus(GetRealStr(ch), STR_TO_DAM);
-	} else {
-		base_dmg = MUD::Spell(spell_id).GetPotencyRoll().RollSkillDices();
-	}
-
+	auto base_dmg = MUD::Spell(spell_id).GetPotencyRoll().RollSkillDices();
 	if (!ch->IsNpc()) {
 		base_dmg *= ch->get_cond_penalty(P_DAMROLL);
 	}
@@ -568,10 +546,9 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 	if (!pk_agro_action(ch, victim))
 		return (0);
 	log("[MAG DAMAGE] %s damage %s (%d)", GET_NAME(ch), GET_NAME(victim), to_underlying(spell_id));
-	// Breath spells skip the defensive layer (the magic mirror / sonic barrier / shield block
-	// were never intended for them); self-casts also bypass it so the caster doesn't deflect
-	// their own spell off their own kMagicGlass.
-	if (!IsBreath(spell_id) || ch == victim) {
+	// Defensive layer: magic mirror / sonic barrier / shadow cloak. (Breath no longer
+	// reaches this path -- it is dealt as magic-melee damage in fight_hit.cpp.)
+	{
 		if (TryReflectByMagicGlass(ch, victim, spell_id)) {
 			log("[MAG DAMAGE] Зеркало - полное отражение: %s damage %s (%d)",
 				GET_NAME(ch), GET_NAME(victim), to_underlying(spell_id));
