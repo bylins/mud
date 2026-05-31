@@ -197,6 +197,12 @@ ObjData  *FindObjByRnum  (ObjRnum rnum);
 // otherwise hidden PCs. Replaces the legacy `get_player_pun`.
 CharData *FindPlayer(CharData *finder, std::string_view name);
 
+// FindCharInRoomOrSelf: room-scoped char lookup, BUT the names
+// "self"/"me"/"я▐"/"п╪п╣п╫я▐"/"я│п╣п╠я▐" resolve to the searcher itself without a
+// room walk. Replaces the legacy `get_char_room_vis`, used by DG scripts
+// to let mobs target themselves by alias.
+CharData *FindCharInRoomOrSelf(CharData *finder, std::string_view name);
+
 // ---- Named filter factories (issue #3375 stage 3) -------------------------
 //
 // Building blocks for Query.char_predicate / Query.obj_predicate. Each

@@ -470,6 +470,15 @@ CharData *FindPlayer(CharData *finder, std::string_view name) {
 	return ResolveChar(finder, q);
 }
 
+CharData *FindCharInRoomOrSelf(CharData *finder, std::string_view name) {
+	// Legacy self-aliases (do_look "self", DG-script "kill me", etc.).
+	if (name == "self" || name == "me"
+		|| name == "я" || name == "меня" || name == "себя") {
+		return finder;
+	}
+	return FindCharInRoom(finder, name);
+}
+
 // ---- Named filter factories (issue #3375 stage 3) -------------------------
 
 namespace {

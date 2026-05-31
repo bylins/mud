@@ -94,12 +94,6 @@ void DropEquipment(CharData *ch, bool zone_reset);
 void DropInventory(CharData *ch, bool zone_reset);
 
 // find if character can see //
-CharData *get_char_room_vis(CharData *ch, const char *name);
-inline CharData *get_char_room_vis(CharData *ch, const std::string &name) {
-	return get_char_room_vis(ch,
-							 name.c_str());
-}
-
 CharData *get_player_vis(CharData *ch, const char *name, int inroom);
 inline CharData *get_player_vis(CharData *ch, const std::string &name, int inroom) {
 	return get_player_vis(ch,

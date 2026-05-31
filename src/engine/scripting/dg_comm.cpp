@@ -11,6 +11,7 @@
 #include "engine/entities/obj_data.h"
 #include "dg_scripts.h"
 #include "engine/core/handler.h"
+#include "engine/core/target_resolver.h"
 #include "engine/core/utils_char_obj.inl"
 
 extern DescriptorData *descriptor_list;
@@ -133,7 +134,7 @@ void sub_write(char *arg, CharData *ch, byte find_invis, int targets) {
 				type[i] = *p;
 				*s = '\0';
 				p = any_one_name(++p, name);
-				otokens[i] = find_invis ? get_char(name) : get_char_room_vis(ch, name);
+				otokens[i] = find_invis ? get_char(name) : target_resolver::FindCharInRoomOrSelf(ch, name);
 				tokens[++i] = ++s;
 				break;
 

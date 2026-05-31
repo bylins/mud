@@ -1230,7 +1230,7 @@ void do_detach(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		} else {
 			if ((object = get_object_in_equip_vis(ch, arg1, ch->equipment, &tmp)));
 			else if ((object = get_obj_in_list_vis(ch, arg1, ch->carrying)));
-			else if ((victim = get_char_room_vis(ch, arg1)));
+			else if ((victim = target_resolver::FindCharInRoomOrSelf(ch, arg1)));
 			else if ((object = get_obj_in_list_vis(ch, arg1, world[ch->in_room]->contents)));
 			else if ((victim = target_resolver::FindCharInWorld(ch, arg1)));
 			else if ((object = target_resolver::FindObjAround(ch, arg1)));

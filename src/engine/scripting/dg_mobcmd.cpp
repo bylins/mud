@@ -176,7 +176,7 @@ void do_mkill(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger
 			mob_log(ch, trig, buf);
 			return;
 		}
-	} else if (!(victim = get_char_room_vis(ch, arg))) {
+	} else if (!(victim = target_resolver::FindCharInRoomOrSelf(ch, arg))) {
 		sprintf(buf, "mkill: victim (%s) not found, , команда: %s", arg, argument);
 		mob_log(ch, trig, buf);
 		return;
@@ -246,7 +246,7 @@ void do_mechoaround(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, T
 			mob_log(ch, trig, buf, LGH);
 			return;
 		}
-	} else if (!(victim = get_char_room_vis(ch, arg))) {
+	} else if (!(victim = target_resolver::FindCharInRoomOrSelf(ch, arg))) {
 		sprintf(buf, "mechoaround: victim (%s) does not exist, команда: %s", arg, argument);
 		mob_log(ch, trig, buf, LGH);
 		return;
@@ -283,7 +283,7 @@ void do_msend(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger
 //			mob_log(ch, buf, LGH);
 			return;
 		}
-	} else if (!(victim = get_char_room_vis(ch, arg))) {
+	} else if (!(victim = target_resolver::FindCharInRoomOrSelf(ch, arg))) {
 		sprintf(buf, "msend: victim (%s) does not exist, команда: %s", arg, argument);
 		mob_log(ch, trig, buf, LGH);
 		return;
@@ -405,7 +405,7 @@ void do_mpurge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigge
 	if (*arg == UID_CHAR)
 		victim = get_char(arg);
 	else
-		victim = get_char_room_vis(ch, arg);
+		victim = target_resolver::FindCharInRoomOrSelf(ch, arg);
 
 	if (victim == nullptr) {
 		if ((obj = get_obj_by_char(ch, arg))) {
@@ -663,7 +663,7 @@ void do_mforce(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigge
 			mob_log(ch, trig, buf);
 			return;
 		}
-	} else if ((victim = get_char_room_vis(ch, arg)) == nullptr) {
+	} else if ((victim = target_resolver::FindCharInRoomOrSelf(ch, arg)) == nullptr) {
 		mob_log(ch, trig, "mforce: no such victim");
 		return;
 	}

@@ -1810,35 +1810,6 @@ CharData *get_player_vis(CharData *ch, const char *name, int inroom) {
 	return nullptr;
 }
 
-CharData *get_char_room_vis(CharData *ch, const char *name) {
-	char tmpname[kMaxInputLength];
-	char *tmp = tmpname;
-	// JE 7/18/94 :-) :-)
-	if (!str_cmp(name, "self")
-		|| !str_cmp(name, "me")
-		|| !str_cmp(name, "я")
-		|| !str_cmp(name, "меня")
-		|| !str_cmp(name, "себя")) {
-		return (ch);
-	}
-	// 0.<name> means PC with name
-	strl_cpy(tmp, name, kMaxInputLength);
-	const int number = get_number(&tmp);
-	if (0 == number) {
-		return get_player_vis(ch, tmp, EFind::kCharInRoom);
-	}
-	int j = 0;
-	for (const auto i : world[ch->in_room]->people) {
-		if (HERE(i) && CAN_SEE(ch, i)
-			&& isname(tmp, i->GetCharAliases())) {
-			if (++j == number) {
-				return i;
-			}
-		}
-	}
-	return nullptr;
-}
-
 ObjData *get_obj_in_list_vis(CharData *ch, const char *name, const ObjData::obj_list_t &list, bool locate_item) {
 	int j = 0, number;
 	char tmpname[kMaxInputLength];
