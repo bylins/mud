@@ -3,8 +3,16 @@
 */
 
 #include "target_resolver.h"
+
+#include "engine/core/handler.h"
+#include "engine/core/utils_char_obj.inl"
+#include "engine/db/world_characters.h"
+#include "engine/entities/char_data.h"
+#include "engine/entities/obj_data.h"
+#include "engine/entities/room_data.h"
 #include "gameplay/fight/pk.h"
 #include "gameplay/mechanics/groups.h"
+#include "utils/utils.h"
 
 /*
 	2. Добавить возможность сформировать список группы без учета комнаты.
@@ -151,6 +159,148 @@ CharData *TargetsRosterType::getRandomItem() {
 	лечит наиболее тяжело раненых членов группы.
 	По покамест таких абилок нет и смысла в них тоже, потому воздержался.
 */
+
+// ---- Query-based resolver implementation (issue #3375 stage 2) ------------
+
+namespace {
+
+bool MatchesName(CharData *cand, const std::string &name) {
+	return isname(name.c_str(), cand->GetCharAliases());
+}
+
+bool MatchesName(ObjData *cand, const std::string &name) {
+	return isname(name.c_str(), cand->get_aliases().c_str());
+}
+
+// Stage walking: for each scope in `q.scopes`, collect candidates and run the
+// visibility / name / predicate gates; stop once `single` is satisfied.
+void CollectChars(CharData *searcher, const Query &q,
+				  std::vector<CharData *> &out) {
+	auto consider = [&](CharData *cand) {
+		if (!cand || cand->purged()) return;
+		if (q.visible_only && !CAN_SEE(searcher, cand)) return;
+		if (q.name && !MatchesName(cand, *q.name)) return;
+		if (q.char_predicate && !q.char_predicate(cand)) return;
+		out.push_back(cand);
+	};
+
+	for (const Scope scope : q.scopes) {
+		if (q.single && !out.empty()) return;
+		switch (scope) {
+			case Scope::kSelf:
+				consider(searcher);
+				break;
+			case Scope::kRoom:
+				if (searcher->in_room != kNowhere) {
+					for (CharData *c : world[searcher->in_room]->people) {
+						consider(c);
+						if (q.single && !out.empty()) return;
+					}
+				}
+				break;
+			case Scope::kWorld:
+				for (const auto &shared : character_list) {
+					consider(shared.get());
+					if (q.single && !out.empty()) return;
+				}
+				break;
+			case Scope::kEquip:
+			case Scope::kInventory:
+				// Equip / inventory scopes carry no chars -- skip silently
+				// (a future "find a charmed mob in the saddle" path can plug
+				// container-walking in here).
+				break;
+		}
+	}
+}
+
+void CollectObjs(CharData *searcher, const Query &q,
+				 std::vector<ObjData *> &out) {
+	auto consider = [&](ObjData *cand) {
+		if (!cand) return;
+		if (q.visible_only && !CAN_SEE_OBJ(searcher, cand)) return;
+		if (q.name && !MatchesName(cand, *q.name)) return;
+		if (q.obj_predicate && !q.obj_predicate(cand)) return;
+		out.push_back(cand);
+	};
+
+	for (const Scope scope : q.scopes) {
+		if (q.single && !out.empty()) return;
+		switch (scope) {
+			case Scope::kSelf:
+			case Scope::kWorld:
+				// Self / world obj lookups are out of scope for stage 2 --
+				// add when a consumer needs them (a global obj table walk
+				// is expensive; FindObjForLocate-style paths stay where
+				// they are for now).
+				break;
+			case Scope::kEquip:
+				for (int slot = 0; slot < EEquipPos::kNumEquipPos; ++slot) {
+					consider(GET_EQ(searcher, slot));
+					if (q.single && !out.empty()) return;
+				}
+				break;
+			case Scope::kInventory:
+				for (ObjData *o = searcher->carrying; o; o = o->get_next_content()) {
+					consider(o);
+					if (q.single && !out.empty()) return;
+				}
+				break;
+			case Scope::kRoom:
+				if (searcher->in_room != kNowhere) {
+					for (ObjData *o : world[searcher->in_room]->contents) {
+						consider(o);
+						if (q.single && !out.empty()) return;
+					}
+				}
+				break;
+		}
+	}
+}
+
+}  // namespace
+
+CharData *ResolveChar(CharData *searcher, const Query &q) {
+	std::vector<CharData *> matches;
+	Query qs = q;
+	qs.single = true;
+	CollectChars(searcher, qs, matches);
+	return matches.empty() ? nullptr : matches.front();
+}
+
+ObjData *ResolveObj(CharData *searcher, const Query &q) {
+	std::vector<ObjData *> matches;
+	Query qs = q;
+	qs.single = true;
+	CollectObjs(searcher, qs, matches);
+	return matches.empty() ? nullptr : matches.front();
+}
+
+RoomData *ResolveRoom(CharData *searcher, const Query &q) {
+	// Stage 2 placeholder: rooms have no scope/visibility model that maps
+	// onto the char/obj walks, and there's no consumer asking for it yet.
+	// Returning nullptr keeps the API symmetric for the day a consumer
+	// shows up; the legacy FindRoomRnum is the right tool today.
+	(void)searcher;
+	(void)q;
+	return nullptr;
+}
+
+std::vector<CharData *> ResolveChars(CharData *searcher, const Query &q) {
+	std::vector<CharData *> matches;
+	Query qm = q;
+	qm.single = false;
+	CollectChars(searcher, qm, matches);
+	return matches;
+}
+
+std::vector<ObjData *> ResolveObjs(CharData *searcher, const Query &q) {
+	std::vector<ObjData *> matches;
+	Query qm = q;
+	qm.single = false;
+	CollectObjs(searcher, qm, matches);
+	return matches;
+}
 
 }; // namespace target_resolver
 
