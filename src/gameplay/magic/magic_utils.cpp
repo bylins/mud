@@ -17,6 +17,7 @@
 #include "gameplay/mechanics/groups.h"
 #include "engine/db/global_objects.h"
 #include "engine/core/handler.h"
+#include "engine/core/target_resolver.h"
 #include "engine/ui/color.h"
 #include "gameplay/mechanics/depot.h"
 #include "gameplay/communication/parcel.h"
@@ -668,7 +669,13 @@ int FindCastTarget(ESpell spell_id, const char *t, CharData *ch, CharData **tch,
 			if (spell_id == ESpell::kLocateObject) {
 				*tobj = FindObjForLocate(ch, t);
 			} else {
-				*tobj = get_obj_vis(ch, t);
+				target_resolver::Query q;
+				q.scopes = {target_resolver::Scope::kEquip,
+							target_resolver::Scope::kInventory,
+							target_resolver::Scope::kRoom};
+				q.name = t;
+				q.walk_containers = true;
+				*tobj = target_resolver::ResolveObj(ch, q);
 			}
 			if (*tobj) {
 				return true;

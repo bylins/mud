@@ -10,6 +10,7 @@
 
 #include "dg_scripts.h"
 #include "engine/core/handler.h"
+#include "engine/core/target_resolver.h"
 #include "dg_event.h"
 #include "gameplay/magic/magic.h"
 #include "engine/db/global_objects.h"
@@ -86,9 +87,16 @@ int find_dg_cast_target(ESpell spell_id, const char *t, CharData *ch, CharData *
 			if ((*tobj = get_obj_in_list_vis(ch, t, world[ch->in_room]->contents)) != nullptr)
 				return true;
 
-		if (MUD::Spell(spell_id).AllowTarget(kTarObjWorld))
-			if ((*tobj = get_obj_vis(ch, t)) != nullptr)
+		if (MUD::Spell(spell_id).AllowTarget(kTarObjWorld)) {
+			target_resolver::Query q_obj_around;
+			q_obj_around.scopes = {target_resolver::Scope::kEquip,
+									target_resolver::Scope::kInventory,
+									target_resolver::Scope::kRoom};
+			q_obj_around.name = t;
+			q_obj_around.walk_containers = true;
+			if ((*tobj = target_resolver::ResolveObj(ch, q_obj_around)) != nullptr)
 				return true;
+		}
 	} else {
 		if (MUD::Spell(spell_id).AllowTarget(kTarFightSelf))
 			if (ch->GetEnemy() != nullptr) {

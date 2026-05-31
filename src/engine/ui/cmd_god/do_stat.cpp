@@ -4,6 +4,7 @@
 #include "engine/entities/char_player.h"
 #include "gameplay/mechanics/player_races.h"
 #include "engine/core/utils_char_obj.inl"
+#include "engine/core/target_resolver.h"
 #include "engine/db/description.h"
 #include "gameplay/fight/fight_hit.h"
 #include "engine/olc/olc.h"
@@ -1336,7 +1337,13 @@ void do_stat(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 			if (!*buf2)
 				SendMsgToChar("Состояние какого предмета?\r\n", ch);
 			else {
-				if ((object = get_obj_vis(ch, buf2)) != nullptr)
+				target_resolver::Query q;
+				q.scopes = {target_resolver::Scope::kEquip,
+							target_resolver::Scope::kInventory,
+							target_resolver::Scope::kRoom};
+				q.name = buf2;
+				q.walk_containers = true;
+				if ((object = target_resolver::ResolveObj(ch, q)) != nullptr)
 					do_stat_object(ch, object);
 				else
 					SendMsgToChar("Нет такого предмета в игре.\r\n", ch);
@@ -1365,7 +1372,16 @@ void do_stat(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 			do_stat_character(ch, victim);
 			return;
 		}
-		if ((object = get_obj_vis(ch, buf1)) != nullptr) {
+		{
+			target_resolver::Query q;
+			q.scopes = {target_resolver::Scope::kEquip,
+						target_resolver::Scope::kInventory,
+						target_resolver::Scope::kRoom};
+			q.name = buf1;
+			q.walk_containers = true;
+			object = target_resolver::ResolveObj(ch, q);
+		}
+		if (object != nullptr) {
 			do_stat_object(ch, object);
 			return;
 		}

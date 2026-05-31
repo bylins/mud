@@ -16,6 +16,7 @@
 #include "gameplay/economics/auction.h"
 #include "utils/backtrace.h"
 #include "utils_char_obj.inl"
+#include "engine/core/target_resolver.h"
 #include "engine/entities/char_player.h"
 #include "engine/db/world_characters.h"
 #include "engine/ui/cmd/do_follow.h"
@@ -2276,7 +2277,13 @@ int generic_find(char *arg, Bitvector bitvector, CharData *ch, CharData **tar_ch
 			return (EFind::kCharInWorld);
 	}
 	if (IS_SET(bitvector, EFind::kObjWorld)) {
-		if ((*tar_obj = get_obj_vis(ch, name)))
+		target_resolver::Query q;
+		q.scopes = {target_resolver::Scope::kEquip,
+					target_resolver::Scope::kInventory,
+					target_resolver::Scope::kRoom};
+		q.name = name;
+		q.walk_containers = true;
+		if ((*tar_obj = target_resolver::ResolveObj(ch, q)))
 			return (EFind::kObjWorld);
 	}
 
@@ -2375,7 +2382,16 @@ RoomRnum FindRoomRnum(CharData *ch, char *rawroomstr, int trig) {
 		}
 	} else if ((target_mob = get_char_vis(ch, roomstr, EFind::kCharInWorld)) != nullptr) {
 		location = target_mob->in_room;
-	} else if ((target_obj = get_obj_vis(ch, roomstr)) != nullptr) {
+	} else if ([&]() {
+				target_resolver::Query q;
+				q.scopes = {target_resolver::Scope::kEquip,
+							target_resolver::Scope::kInventory,
+							target_resolver::Scope::kRoom};
+				q.name = roomstr;
+				q.walk_containers = true;
+				target_obj = target_resolver::ResolveObj(ch, q);
+				return target_obj != nullptr;
+			}()) {
 		if (target_obj->get_in_room() != kNowhere) {
 			location = target_obj->get_in_room();
 		} else {
