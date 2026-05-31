@@ -13,13 +13,21 @@
 #include "gameplay/mechanics/dungeons.h"
 #include "engine/db/obj_prototypes.h"
 #include "engine/core/target_resolver.h"
+#include "engine/ui/cmd/do_where.h"
 
 #include <fmt/format.h>
 
+#include <algorithm>
+#include <string>
+#include <vector>
+
 void PerformImmortWhere(CharData *ch, char *arg);
 void PerformMortalWhere(CharData *ch, char *arg);
-bool PrintImmWhereObj(CharData *ch, char *arg, int num);
 bool PrintObjectLocation(int num, const ObjData *obj, CharData *ch);
+
+static std::string ResolveSpecialLocation(const ObjData *obj, CharData *ch);
+static std::vector<std::string> ResolveObjLocationLines(const ObjData *obj, CharData *ch);
+static bool CollectWhereObjects(CharData *ch, char *arg, int &num, std::vector<where_format::WhereRow> &rows);
 
 void DoWhere(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	one_argument(argument, arg);
@@ -55,6 +63,7 @@ void PerformImmortWhere(CharData *ch, char *arg) {
 		}
 		SendMsgToChar(ss.str(), ch);
 	} else {
+		std::vector<where_format::WhereRow> rows;
 		target_resolver::Query q;
 		q.scopes = {target_resolver::Scope::kWorld};
 		q.name = arg;
@@ -62,17 +71,21 @@ void PerformImmortWhere(CharData *ch, char *arg) {
 		for (CharData *i : target_resolver::ResolveChars(ch, q)) {
 			ZoneData *zone = &zone_table[world[i->in_room]->zone_rn];
 			found = 1;
-			ss << fmt::format("{:>3}. {} ({:>6}) {:<25} - [{:>7}] {}. Название зоны: '{}'\r\n",
-							  num++,
-							  i->IsNpc() ? "Моб:   " : "Игрок: ",
-							  GET_MOB_VNUM(i),
-							  GET_NAME(i),
-							  GET_ROOM_VNUM(i->in_room),
-							  world[i->in_room]->name,
-							  zone->name.c_str());
+			where_format::WhereRow row;
+			row.num = num++;
+			row.kind = i->IsNpc() ? where_format::ERowKind::kMob : where_format::ERowKind::kPlayer;
+			row.vnum = GET_MOB_VNUM(i);
+			row.name = GET_NAME(i);
+			row.location_lines.push_back(fmt::format("[{:>7}] {}. Зона: '{}'",
+					GET_ROOM_VNUM(i->in_room), world[i->in_room]->name, zone->name.c_str()));
+			rows.push_back(std::move(row));
 		}
-		SendMsgToChar(ss.str(), ch);
-		if (!PrintImmWhereObj(ch, arg, num) && !found) {
+		if (CollectWhereObjects(ch, arg, num, rows)) {
+			found = 1;
+		}
+		if (found) {
+			SendMsgToChar(where_format::FormatWhere(rows), ch);
+		} else {
 			SendMsgToChar("Нет ничего похожего.\r\n", ch);
 		}
 	}
@@ -80,19 +93,24 @@ void PerformImmortWhere(CharData *ch, char *arg) {
 
 /**
 * Иммский поиск шмоток по 'где' с проходом как по глобальному списку, так
-* и по спискам хранилищ и почты.
+* и по спискам хранилищ и почты. Собирает найденное в rows, продолжая
+* сквозную нумерацию из num; возвращает true, если что-то добавлено.
 */
-bool PrintImmWhereObj(CharData *ch, char *arg, int num) {
+static bool CollectWhereObjects(CharData *ch, char *arg, int &num, std::vector<where_format::WhereRow> &rows) {
 	bool found = false;
 	target_resolver::Query q;
 	q.scopes = {target_resolver::Scope::kWorld};
 	q.name = arg;
 	q.visible_only = false;
 	for (ObjData *obj : target_resolver::ResolveObjs(ch, q)) {
-		if (PrintObjectLocation(num, obj, ch)) {
-			found = true;
-			num++;
-		}
+		where_format::WhereRow row;
+		row.num = num++;
+		row.kind = where_format::ERowKind::kObject;
+		row.vnum = GET_OBJ_VNUM(obj);
+		row.name = obj->get_short_description();
+		row.location_lines = ResolveObjLocationLines(obj, ch);
+		rows.push_back(std::move(row));
+		found = true;
 	}
 	return found;
 }
@@ -153,85 +171,123 @@ void PerformMortalWhere(CharData *ch, char *arg) {
 	}
 }
 
+namespace {
+
+const char *RowKindLabel(where_format::ERowKind kind) {
+	switch (kind) {
+		case where_format::ERowKind::kMob: return "Моб";
+		case where_format::ERowKind::kPlayer: return "Игрок";
+		default: return "Вещь";
+	}
+}
+
+} // namespace
+
+std::string where_format::FormatWhere(const std::vector<WhereRow> &rows) {
+	int max_num = 0;
+	for (const auto &row : rows) {
+		max_num = std::max(max_num, row.num);
+	}
+	const int num_width = std::max(2, static_cast<int>(std::to_string(max_num).size()));
+
+	std::string out;
+	for (const auto &row : rows) {
+		const std::string prefix = fmt::format("{:>{}}. {:<5} [{:>7}] {:<25} - ",
+				row.num, num_width, RowKindLabel(row.kind), row.vnum, row.name);
+		// Отступ строк-продолжений = длине префикса, чтобы разделитель " - "
+		// встал ровно под разделителем первой строки.
+		const std::string cont = fmt::format("{:>{}}", " - ", static_cast<int>(prefix.size()));
+
+		out += prefix;
+		if (!row.location_lines.empty()) {
+			out += row.location_lines.front();
+		}
+		out += "\r\n";
+		for (std::size_t i = 1; i < row.location_lines.size(); ++i) {
+			out += cont;
+			out += row.location_lines[i];
+			out += "\r\n";
+		}
+	}
+	return out;
+}
+
+// Спец-локации предмета (базар / магазин / клан / депот / почта / иначе).
+// Возвращает одну строку без хвостового перевода строки.
+static std::string ResolveSpecialLocation(const ObjData *obj, CharData *ch) {
+	for (ExchangeItem *j = exchange_item_list; j; j = j->next) {
+		if (GET_EXCHANGE_ITEM(j)->get_unique_id() == obj->get_unique_id()) {
+			return fmt::format("продается на базаре, лот #{}", GET_EXCHANGE_ITEM_LOT(j));
+		}
+	}
+	for (const auto &shop : GlobalObjects::Shops()) {
+		if (shop->GetObjFromShop(obj->get_unique_id())) {
+			return fmt::format("можно купить в магазине: {}", shop->GetDictionaryName());
+		}
+	}
+	std::string str = Clan::print_imm_where_obj(obj);
+	if (str.empty()) {
+		str = Depot::print_imm_where_obj(obj);
+	}
+	if (str.empty()) {
+		str = Parcel::FindParcelObj(obj);
+	}
+	if (!str.empty()) {
+		// эти помощники возвращают строку с хвостовым "\r\n" - срезаем его,
+		// перевод строки добавит FormatWhere.
+		while (!str.empty() && (str.back() == '\r' || str.back() == '\n')) {
+			str.pop_back();
+		}
+		return str;
+	}
+	if (obj->get_in_room() == kNowhere) {
+		return "находится где-то там, далеко-далеко...";
+	}
+	return "расположение не найдено.";
+}
+
+// Разворачивает локацию предмета в строки без рекурсии: для предмета внутри
+// контейнера цепочка вложенности даёт несколько строк-продолжений.
+static std::vector<std::string> ResolveObjLocationLines(const ObjData *obj, CharData *ch) {
+	std::vector<std::string> lines;
+	for (const ObjData *cur = obj;;) {
+		if (cur->get_in_room() > kNowhere) {
+			lines.push_back(fmt::format("[{:>7}] {}",
+					GET_ROOM_VNUM(cur->get_in_room()), world[cur->get_in_room()]->name));
+			return lines;
+		}
+		if (cur->get_carried_by()) {
+			lines.push_back(fmt::format("затарено {} [{}] в комнате [{}]",
+					PERS(cur->get_carried_by(), ch, 4), GET_MOB_VNUM(cur->get_carried_by()),
+					world[cur->get_carried_by()->in_room]->vnum));
+			return lines;
+		}
+		if (cur->get_worn_by()) {
+			lines.push_back(fmt::format("надет на {} [{}] в комнате [{}]",
+					PERS(cur->get_worn_by(), ch, 3), GET_MOB_VNUM(cur->get_worn_by()),
+					world[cur->get_worn_by()->in_room]->vnum));
+			return lines;
+		}
+		if (cur->get_in_obj() && !Clan::is_clan_chest(cur->get_in_obj())) {// || Clan::is_ingr_chest(cur->get_in_obj())) сделать отдельный поиск
+			lines.push_back(fmt::format("лежит в [{}] {}, который находится",
+					GET_OBJ_VNUM(cur->get_in_obj()), cur->get_in_obj()->get_PName(ECase::kPre)));
+			cur = cur->get_in_obj();
+			continue;
+		}
+		lines.push_back(ResolveSpecialLocation(cur, ch));
+		return lines;
+	}
+}
+
 // возвращает true если объект был выведен
 bool PrintObjectLocation(int num, const ObjData *obj, CharData *ch) {
-	std::stringstream ss;
-	if (num > 0) {
-		ss << fmt::format("{:>2}. ", num);
-		if (ch->IsGrGod()) {
-			ss <<  fmt::format("[{:>7}] {:<25} - ", GET_OBJ_VNUM(obj), obj->get_short_description().c_str());
-		} else {
-			ss << fmt::format("{:<34} - ", obj->get_short_description().c_str());
-		}
-	} else {
-		ss << fmt::format("{:>41}", " - ");
-	}
-
-	if (obj->get_in_room() > kNowhere) {
-		ss << fmt::format("[{:>7}] {}", GET_ROOM_VNUM(obj->get_in_room()), world[obj->get_in_room()]->name);
-		ss << "\r\n";
-		SendMsgToChar(ss.str().c_str(), ch);
-	} else if (obj->get_carried_by()) {
-		ss << fmt::format("затарено {} [{}] в комнате [{}]", PERS(obj->get_carried_by(), ch, 4), GET_MOB_VNUM(obj->get_carried_by()),
-						  world[obj->get_carried_by()->in_room]->vnum);
-		ss << "\r\n";
-		SendMsgToChar(ss.str().c_str(), ch);
-	} else if (obj->get_worn_by()) {
-		ss << fmt::format("надет на {} [{}] в комнате [{}]", PERS(obj->get_worn_by(), ch, 3), GET_MOB_VNUM(obj->get_worn_by()),
-						  world[obj->get_worn_by()->in_room]->vnum);
-		ss << "\r\n";
-		SendMsgToChar(ss.str().c_str(), ch);
-	} else if (obj->get_in_obj() && !Clan::is_clan_chest(obj->get_in_obj())) {// || Clan::is_ingr_chest(obj->get_in_obj())) сделать отдельный поиск
-		ss << fmt::format("лежит в [{}] {}, который находится \r\n",
-				GET_OBJ_VNUM(obj->get_in_obj()), obj->get_in_obj()->get_PName(ECase::kPre).c_str());
-		SendMsgToChar(ss.str().c_str(), ch);
-		PrintObjectLocation(0, obj->get_in_obj(), ch);
-	} else {
-		for (ExchangeItem *j = exchange_item_list; j; j = j->next) {
-			if (GET_EXCHANGE_ITEM(j)->get_unique_id() == obj->get_unique_id()) {
-				ss << fmt::format("продается на базаре, лот #{}\r\n", GET_EXCHANGE_ITEM_LOT(j));
-				SendMsgToChar(ss.str().c_str(), ch);
-				return true;
-			}
-		}
-		for (const auto &shop : GlobalObjects::Shops()) {
-			const auto tmp_obj = shop->GetObjFromShop(obj->get_unique_id());
-			if (!tmp_obj) {
-				continue;
-			}
-			ss << fmt::format("можно купить в магазине: {}\r\n", shop->GetDictionaryName());
-			SendMsgToChar(ss.str().c_str(), ch);
-			return true;
-		}
-		std::string str = Clan::print_imm_where_obj(obj);
-
-		if (!str.empty()) {
-			ss << str;
-			SendMsgToChar(ss.str().c_str(), ch);
-			return true;
-		}
-		str = Depot::print_imm_where_obj(obj);
-		if (!str.empty()) {
-			ss << str;
-			SendMsgToChar(ss.str().c_str(), ch);
-			return true;
-		}
-		str = Parcel::FindParcelObj(obj);
-		if (!str.empty()) {
-			ss << str;
-			SendMsgToChar(ss.str().c_str(), ch);
-			return true;
-		}
-		if (obj->get_in_room() == kNowhere) {
-			ss << "находится где-то там, далеко-далеко...\r\n";
-			SendMsgToChar(ss.str().c_str(), ch);
-		} else {
-			ss << "расположение не найдено.\r\n";
-			SendMsgToChar(ss.str().c_str(), ch);
-		}
-		return true;
-	}
-
+	where_format::WhereRow row;
+	row.num = num;
+	row.kind = where_format::ERowKind::kObject;
+	row.vnum = GET_OBJ_VNUM(obj);
+	row.name = obj->get_short_description();
+	row.location_lines = ResolveObjLocationLines(obj, ch);
+	SendMsgToChar(where_format::FormatWhere({row}), ch);
 	return true;
 }
 
