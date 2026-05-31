@@ -132,8 +132,24 @@ constant" SYSERRs from old values.
 | Attribute | Description |
 |---|---|
 | `pos` | Minimum caster position (`EPosition`): `kSleep`, `kRest`, `kSit`, `kFight`, `kStand`. |
-| `violent` | `Y`/`N`. Violent spells trigger PK/agro, can be reflected, and are gated by `GET_AR` (affect-resist) on the victim. |
+| `violent` | `Y` / `N` / `A`. See below. |
 | `danger` | Integer threat rating used by mob AI / scrolls / pricing. |
+
+**`violent` (issue.ambiguous-spells).** Three-state:
+
+| Value | Behaviour |
+|---|---|
+| `N` | Pure-helpful spell. Never triggers PK, retaliation, AR resist, magic-mirror / sonic-barrier reflection, or potency-gated dispel. |
+| `Y` | Always violent. PK rules + retaliation + saving-shields + dispel contest + GET_AR check all apply. |
+| `A` | **Ambiguous.** Resolves per-target: helpful on self / charmed pet (walking up the master chain) / groupmate / NPC-vs-NPC, fully violent (with full PK liability) on an outsider. `kDispellMagic` is the current carrier — dispel from an ally hand passes without a contest; dispel from an outsider triggers the strength check. |
+
+The runtime helper that decides per-target is
+`SpellInfo::IsViolentAgainst(caster, target)`. The static `IsViolent()`
+predicate keeps `bool` semantics for back-compat — it reports `true` only
+for `kYes`, so any call site that hasn't been migrated treats `A` as
+"helpful by default" (the safer no-PK fallback). `A` is rejected at load
+when combined with `<flags val="kMagRoom">` (SYSERR-clamps to `Y`):
+room paints have no per-target relationship to resolve.
 
 ### 3.4 `<mana>`
 
@@ -241,6 +257,31 @@ Most spells use a single `<action>`. Multiple actions are technically allowed
 but the framework processes only one of each effect type, so the common
 pattern is a single `<action>` with everything inside it.
 
+### 3.9 `<components>` — casting requirements
+
+```xml
+<components>
+    <verbal/>
+    <weave/>
+    <material any_of="1234|5678" cost="1"/>
+</components>
+```
+
+Optional child of `<spell>`. Each inner tag is a presence-only marker or a
+material-component descriptor; absent `<components>` means "no requirements".
+Three kinds today:
+
+| Tag | Attributes | Effect |
+|---|---|---|
+| `<verbal/>` | none | The cast needs a spoken phrase. `kSilence` on the caster blocks it (silenced casters can still cast non-verbal spells, and `SaySpell` stays silent for them). |
+| `<weave/>` *(issue.weave-component)* | none | Marks the action as "actual magic". A weave spell fizzles in a `kNoMagic` room — emits `kCastForbiddenToChar` / `kCastForbiddenToRoom` exactly like the legacy data-driven `<blocking><room_flags val="kNoMagic"/>` did. Replaces 209 copies of that blocking block — `<weave/>` is now the single source of truth for "is this magic". `<verbal/>` and `<weave/>` are independent (warcries are verbal but **not** weaves). |
+| `<material .../>` | `any_of` / `all_of` / `where` / `cost` | Item-based component. `any_of` / `all_of` are `\|`-separated obj vnum lists. `where` is a `\|`-separated `EFind` list (defaults to `kObjEquip\|kObjInventory\|kObjRoom` — equip first, then inventory, then room). `cost` is the charge consumption (default 1; 0 = presence-only focus; -1 = consumed whole). |
+
+The `MayCastInForbiddenRoom` exemption (greater gods, uncharmed NPCs) bypasses
+both the `<weave/>` gate and the data-driven `<blocking>` room-flag gate
+symmetrically. Per-spell `kCastForbiddenToChar` / `kCastForbiddenToRoom`
+sheaves override the kDefault narration.
+
 ---
 
 ## 4. Target gates
@@ -305,14 +346,31 @@ creatures" (dispel evil), etc. `<required>` does not currently use
 
 ```xml
 <caster_blocking>
-    <align val="kEvil"/>
+    <caster align="kEvil" affect_flags="kHold|kCharmed"/>
 </caster_blocking>
 ```
 
-Mirrors `<blocking>` but examines the **caster**. Used to refuse a cast that
-the caster cannot wield — e.g. `kDispelEvil` is blocked if the caster is
-themselves evil. Always emits `kNoeffect` (no group/mass silent skip:
-caster-side blocks concern the one caster, not the per-target loop).
+Mirrors `<blocking>` but examines the **caster** instead of the victim.
+Used to refuse a cast that the caster cannot wield — e.g. `kDispelEvil`
+is blocked if the caster is themselves evil. Always emits `kNoeffect`
+(no group/mass silent skip: caster-side blocks concern the one caster,
+not the per-target loop).
+
+**Schema** *(issue.caster-blocking-refine)*. Unlike `<blocking>` / `<required>`
+which use a multi-child-tag form (loose `<mob_flags val>` / `<affect_flags val>`
+/ `<room_flags val>` / `<align val>` children), `<caster_blocking>` collapses
+its axes onto attributes of a single `<caster>` child:
+
+| Attribute | Default | Description |
+|---|---|---|
+| `align` | none | `kGood` / `kEvil` / `kNeutral`. Block fires when the caster matches the listed alignment (`IsGood` / `IsEvil` / `IsNeutral`). |
+| `affect_flags` | none | `\|`-separated `EAffect` list. Block fires when the caster carries **any** of the listed affect flags (e.g. `kHold` so a held caster can't fire a self-only buff). |
+
+Both attributes are optional and additive — any matching axis triggers the
+block. Storage is shared with `<blocking>` / `<required>` (the same
+`FlagCondition` struct), so internally the data lands on `cond.align` and
+`cond.affect_flags`; the schema asymmetry is deliberate (caster gating is
+a single descriptive entry rather than a multi-axis AND of loose conditions).
 
 ### 4.4 `<reflection>` *(new mechanic)*
 
@@ -508,6 +566,7 @@ This is the workhorse for buffs and debuffs.
 | `saving` | `kReflex` | The save the victim makes to avoid the affect. `kNone` means no save. |
 | `resist` | `kFire` | `EResist` — the resist channel applied to the affect's duration. |
 | `prob` | `100` | Percent chance the affect block fires at all (silent miss otherwise). The `<lag>` and `<reposition>` are *gated* by this same prob — failure suppresses them too. |
+| `potency_weight` | `1.0` | *(issue.affects-potency-weight)* Scale on the stored `Affect::potency` value (i.e. on `cast_potency`, not on the modifier). The Affect lands at `cast_potency * potency_weight`; the dispel contest in `DispelSucceeds` reads that scaled value back. **Use case:** a big-modifier spell where the same `<potency_roll>` feeds both the modifier formula *and* the stored potency can become undispellable just because the modifier needs to be big. `potency_weight="0.4"` lets the author decouple — keep the modifier strong, scale only the stored potency down to a dispellable range. Symmetric in spirit with `<unaffect potency_weight=>` on the dispel side (see §9.1). |
 
 ### 8.2 `<flags val="…">` — `EAffFlag` bits
 
@@ -1109,14 +1168,25 @@ Messages are stored **without** the trailing `\r\n` — `act()` and
 `SendMsgToChar` add it themselves.
 
 A message lookup tries the spell's own sheaf first, then falls back to
-`kDefault`. Imposition / dispel / reflection messages are exceptions:
-they're looked up sheaf-directly with **no kDefault fallback**, so a
-missing key just stays silent rather than leaking a wrong default.
-`kCastForbiddenToChar` *does* fall back to `kDefault` (so every spell
-shares the generic "Ваша магия потерпела неудачу…" line by default), and
-`kCastForbiddenToRoom` is treated as optional — an empty result means
-"announce nothing to the room", letting spells like `kRuneLabel`
-override only when they want their own narration.
+`kDefault`. The exceptions worth knowing:
+
+* **Imposition** (`kAffImposedToChar` / `kAffImposedToRoom`) and **reflection**
+  (`kReflectedToChar` / `kReflectedToVict` / `kReflectedToRoom`) are looked
+  up sheaf-directly with **no kDefault fallback** — a missing key stays
+  silent rather than leaking a wrong default.
+* **Dispel narration** (`kAffDispelledToChar` / `kAffDispelledToRoom`) was
+  originally also sheaf-direct, but *(issue.dispel-default-msg)* now goes
+  through the kDefault-aware lookup. The kDefault sheaf carries a generic
+  fallback so every dispel emits *something* — previously most affects
+  (kSanctuary / kBless / kArmor / kFly / etc.) were stripped silently
+  because their own sheaves never authored these keys. Per-affect overrides
+  (kCurse, kPoison, kBlindness, kHold, kSilence, kFever, kDeafness, the
+  4 poison variants, kPatronage) still win where present.
+* `kCastForbiddenToChar` falls back to `kDefault` (every spell shares the
+  generic "Ваша магия потерпела неудачу…" line by default), and
+  `kCastForbiddenToRoom` is treated as optional — an empty result means
+  "announce nothing to the room", letting spells like `kRuneLabel`
+  override only when they want their own narration.
 
 ---
 
@@ -1556,22 +1626,34 @@ finds them empty.
 ---
 
 *Last updated to match the `sventovit.work` head after the
-`issue.point-bugs` / `issue.spell-msg-improve` / `issue.first-aid`
-sequence: `<cond>` was renamed to `<full>` under `<points>` (the word
-"cond" now refers to the whole DRUNK/FULL/THIRST triplet, not just
-hunger); `kPointsToVict` was retired in favour of the per-category
-`kHealToVict` / `kMovesToVict` / `kThirstToVict` / `kFullToVict` keys
-(§6 "Per-category narration", §12); a large batch of previously
-hardcoded fly-by lines (`SaySpell` incantation banner, no-target /
-wrong-target / can't-cast-here fizzles, cast-prepared /
-cast-interrupted, summon-fail family) was migrated to per-spell
-sheaves with the `kCastSay*` / `kCastIncantToChar` /
+`issue.ambiguous-spells` / `issue.dispel-default-msg` /
+`issue.weave-component` / `issue.caster-blocking-refine` /
+`issue.affects-potency-weight` sequence: `<misc violent>` gained a
+third value `A` ("ambiguous") that resolves per-target via
+`IsViolentAgainst(caster, target)` — helpful on self / charmed pet /
+groupmate / NPC-vs-NPC, fully violent (with full PK liability) on an
+outsider (§3.3, kDispellMagic is the first carrier); a new
+`<components>` block at the `<spell>` level (§3.9) collects
+`<verbal/>` + `<weave/>` + `<material>` requirements, with
+`<weave/>` now the single source of truth for "is this magic" and
+the canonical `kNoMagic`-room gate (replacing 209 copies of the
+data-driven blocking pattern); `<caster_blocking>` schema was
+reshaped to use a single `<caster align="..." affect_flags="..."/>`
+child (§4.3) — `affect_flags` is a new optional axis that blocks the
+cast when the caster carries any of the listed `EAffect` flags
+(e.g. `kHold` so a held caster can't fire a self-only buff); a new
+`<affects potency_weight="0.4">` attribute (§8.1) scales the stored
+Affect potency at impose time so big-modifier spells stay dispellable
+(symmetric with `<unaffect potency_weight=>` on the dispel side); and
+the `kAffDispelledToChar` / `kAffDispelledToRoom` keys now fall back
+to the kDefault sheaf so every dispel emits *something* — previously
+most affects (kSanctuary / kBless / kArmor / kFly / etc.) were stripped
+silently because their sheaves never authored these keys (§12).
+Carries forward earlier additions: `<cond>` → `<full>` under `<points>`,
+the per-category `kHealToVict` / `kMovesToVict` / `kThirstToVict` /
+`kFullToVict` keys, the migrated `kCastSay*` / `kCastIncantToChar` /
 `kCastHereForbidden*` / `kNoTarget` / `kWrongTarget` /
-`kCastPreparedToChar` / `kCastInterruptedToChar` / `kSummonFail` keys
-+ a generic `kCustomMsgOne…Five` family for one-off slots; the First
-Aid skill was reworked behind `BYLINS_FIRSTAID_NEW` to use the
-`kAfCurable` flag as removability source of truth, contesting a
-potency roll against the affect's stored potency, with cooldown only
-on failure; and five permanent `kTestOne…kTestFive` slots are now
-reserved in `ESpell` for prototyping new spells without code changes
+`kCastPreparedToChar` / `kCastInterruptedToChar` / `kSummonFail`
+narration family + `kCustomMsgOne…Five`, the `BYLINS_FIRSTAID_NEW`
+First Aid rework, and the `kTestOne…kTestFive` prototyping slots
 (§17).*
