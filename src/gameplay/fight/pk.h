@@ -19,6 +19,7 @@
 #include <string>
 
 class ObjData;    // forward declaration to avoid inclusion of obj.hpp and any dependencies of that header.
+class BufferedFileWriter;
 
 //*************************************************************************
 // Основные функци и разрешения конфликтных ситуаций между игроками
@@ -94,7 +95,7 @@ void UpdatePkLogs(CharData *ch, CharData *victim);
 
 //*************************************************************************
 // Системные функции сохранения/загрузки ПК флагов
-void save_pkills(CharData *ch, FILE *saved);
+void save_pkills(CharData *ch, BufferedFileWriter &saved);
 
 //*************************************************************************
 bool has_clan_members_in_group(CharData *ch);
