@@ -893,17 +893,7 @@ void do_featset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	{
-
-		target_resolver::Query _q;
-
-		_q.scopes = {target_resolver::Scope::kRoom, target_resolver::Scope::kWorld};
-
-		_q.name = name;
-
-		vict = target_resolver::ResolveChar(ch, _q);
-
-	}
+	vict = target_resolver::FindCharInWorld(ch, name);
 
 	if (!vict) {
 		SendMsgToChar(NOPERSON, ch);
@@ -1013,17 +1003,7 @@ void do_skillset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	{
-
-		target_resolver::Query _q;
-
-		_q.scopes = {target_resolver::Scope::kRoom, target_resolver::Scope::kWorld};
-
-		_q.name = name;
-
-		vict = target_resolver::ResolveChar(ch, _q);
-
-	}
+	vict = target_resolver::FindCharInWorld(ch, name);
 
 	if (!vict) {
 		SendMsgToChar(NOPERSON, ch);

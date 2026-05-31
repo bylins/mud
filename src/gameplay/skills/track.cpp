@@ -129,17 +129,7 @@ void do_track(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	{
-
-		target_resolver::Query _q;
-
-		_q.scopes = {target_resolver::Scope::kRoom};
-
-		_q.name = arg;
-
-		vict = target_resolver::ResolveChar(ch, _q);
-
-	}
+	vict = target_resolver::FindCharInRoom(ch, arg);
 
 	if (vict) {
 		act("Вы же в одной комнате с $N4!", false, ch, nullptr, vict, kToChar);

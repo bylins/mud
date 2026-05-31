@@ -79,7 +79,7 @@ CharData *give_find_vict(CharData *ch, char *local_arg) {
 	if (!*local_arg) {
 		SendMsgToChar("Кому?\r\n", ch);
 		return (nullptr);
-	} else if (![&]() { target_resolver::Query _q; _q.scopes = {target_resolver::Scope::kRoom}; _q.name = local_arg; return (vict = target_resolver::ResolveChar(ch, _q)); }()) {
+	} else if (!(vict = target_resolver::FindCharInRoom(ch, local_arg))) {
 		SendMsgToChar(NOPERSON, ch);
 		return (nullptr);
 	} else if (vict == ch) {

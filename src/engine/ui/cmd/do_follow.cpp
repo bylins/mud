@@ -171,12 +171,7 @@ void do_follow(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 			return;
 		}
-		{
-			target_resolver::Query _q;
-			_q.scopes = {target_resolver::Scope::kRoom};
-			_q.name = smallBuf;
-			leader = target_resolver::ResolveChar(ch, _q);
-		}
+		leader = target_resolver::FindCharInRoom(ch, smallBuf);
 		if (!leader) {
 			SendMsgToChar(NOPERSON, ch);
 			return;

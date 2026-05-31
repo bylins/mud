@@ -186,12 +186,7 @@ void DoFirstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!vict_arg.empty()) {
 		char buf[kMaxInputLength];
 		strcpy(buf, vict_arg.c_str());
-		{
-			target_resolver::Query _q;
-			_q.scopes = {target_resolver::Scope::kRoom};
-			_q.name = buf;
-			vict = target_resolver::ResolveChar(ch, _q);
-		}
+		vict = target_resolver::FindCharInRoom(ch, buf);
 		if (!vict) {
 			SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kFirstAid, ESkillMsg::kNoTarget) + "\r\n", ch);
 			return;
@@ -326,12 +321,7 @@ void DoFirstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!*arg) {
 		vict = ch;
 	} else {
-		{
-			target_resolver::Query _q;
-			_q.scopes = {target_resolver::Scope::kRoom};
-			_q.name = arg;
-			vict = target_resolver::ResolveChar(ch, _q);
-		}
+		vict = target_resolver::FindCharInRoom(ch, arg);
 		if (!vict) {
 			SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kFirstAid, ESkillMsg::kNoTarget) + "\r\n", ch);
 			return;

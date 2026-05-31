@@ -36,12 +36,7 @@ void DoIntercept(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	CharData *vict{nullptr};
 	one_argument(argument, arg);
-	{
-		target_resolver::Query _q;
-		_q.scopes = {target_resolver::Scope::kRoom};
-		_q.name = arg;
-		vict = target_resolver::ResolveChar(ch, _q);
-	}
+	vict = target_resolver::FindCharInRoom(ch, arg);
 	if (!vict) {
 		for (const auto i : world[ch->in_room]->people) {
 			if (i->GetEnemy() == ch) {

@@ -18,12 +18,7 @@ void DoPurge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	one_argument(argument, buf);
 
 	if (*buf) {        // argument supplied. destroy single object or char
-		{
-			target_resolver::Query _q;
-			_q.scopes = {target_resolver::Scope::kRoom};
-			_q.name = buf;
-			vict = target_resolver::ResolveChar(ch, _q);
-		}
+		vict = target_resolver::FindCharInRoom(ch, buf);
 		if ((vict != nullptr)) {
 			if (!vict->IsNpc() && GetRealLevel(ch) <= GetRealLevel(vict) && !ch->IsFlagged(EPrf::kCoderinfo)) {
 				SendMsgToChar("Да я вас за это...\r\n", ch);

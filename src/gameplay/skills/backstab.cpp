@@ -25,12 +25,7 @@ void DoBackstab(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	one_argument(argument, arg);
 	CharData * vict = nullptr;
-	{
-		target_resolver::Query _q;
-		_q.scopes = {target_resolver::Scope::kRoom};
-		_q.name = arg;
-		vict = target_resolver::ResolveChar(ch, _q);
-	}
+	vict = target_resolver::FindCharInRoom(ch, arg);
 	if (!vict) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kBackstab, ESkillMsg::kNoTarget) + "\r\n", ch);
 		return;

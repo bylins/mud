@@ -24,12 +24,7 @@ void do_order(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 	if (!*name || !*message)
 		SendMsgToChar("Приказать что и кому?\r\n", ch);
-	else if (!([&]() {
-			target_resolver::Query _q;
-			_q.scopes = {target_resolver::Scope::kRoom};
-			_q.name = name;
-			return (vict = target_resolver::ResolveChar(ch, _q));
-		}()) &&
+	else if (!(vict = target_resolver::FindCharInRoom(ch, name)) &&
 		!utils::IsAbbr(name, "followers") && !utils::IsAbbr(name, "все") && !utils::IsAbbr(name, "всем"))
 		SendMsgToChar("Вы не видите такого персонажа.\r\n", ch);
 	else if (ch == vict && !utils::IsAbbr(name, "все") && !utils::IsAbbr(name, "всем"))

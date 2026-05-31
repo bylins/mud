@@ -98,12 +98,7 @@ int do_social(CharData *ch, char *argument) {
 		}
 		return (true);
 	}
-	{
-		target_resolver::Query _q;
-		_q.scopes = {target_resolver::Scope::kRoom};
-		_q.name = buf;
-		vict = target_resolver::ResolveChar(ch, _q);
-	}
+	vict = target_resolver::FindCharInRoom(ch, buf);
 	if (!vict) {
 		const auto message = action->not_found
 							 ? action->not_found

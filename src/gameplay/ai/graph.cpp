@@ -211,12 +211,7 @@ void do_sense(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 	// The person can't see the victim.
-	{
-		target_resolver::Query _q;
-		_q.scopes = {target_resolver::Scope::kRoom, target_resolver::Scope::kWorld};
-		_q.name = arg;
-		vict = target_resolver::ResolveChar(ch, _q);
-	}
+	vict = target_resolver::FindCharInWorld(ch, arg);
 	if (!vict) {
 		SendMsgToChar("Ваши чувства молчат.\r\n", ch);
 		return;

@@ -56,12 +56,7 @@ void SetSkillCooldownInFight(CharData *ch, ESkill skill, int pulses) {
 CharData *FindVictim(CharData *ch, char *argument) {
 	one_argument(argument, arg);
 	CharData * victim = nullptr;
-	{
-		target_resolver::Query _q;
-		_q.scopes = {target_resolver::Scope::kRoom};
-		_q.name = arg;
-		victim = target_resolver::ResolveChar(ch, _q);
-	}
+	victim = target_resolver::FindCharInRoom(ch, arg);
 	if (!victim) {
 		if (!*arg && ch->GetEnemy() && ch->isInSameRoom(ch->GetEnemy())) {
 			victim = ch->GetEnemy();

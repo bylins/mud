@@ -37,12 +37,7 @@ void do_page(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 			return;
 		}
-		{
-			target_resolver::Query _q;
-			_q.scopes = {target_resolver::Scope::kRoom, target_resolver::Scope::kWorld};
-			_q.name = arg;
-			vict = target_resolver::ResolveChar(ch, _q);
-		}
+		vict = target_resolver::FindCharInWorld(ch, arg);
 		if ((vict != nullptr)) {
 			act(buffer.str().c_str(), false, ch, nullptr, vict, kToVict);
 			if (ch->IsFlagged(EPrf::kNoRepeat))

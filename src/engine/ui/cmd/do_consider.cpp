@@ -15,17 +15,7 @@ void DoConsider(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	one_argument(argument, buf);
 
-	{
-
-		target_resolver::Query _q;
-
-		_q.scopes = {target_resolver::Scope::kRoom};
-
-		_q.name = buf;
-
-		victim = target_resolver::ResolveChar(ch, _q);
-
-	}
+	victim = target_resolver::FindCharInRoom(ch, buf);
 
 	if (!victim) {
 		SendMsgToChar("Кого вы хотите оценить?\r\n", ch);

@@ -22,12 +22,7 @@ void DoSwitch(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Стать кем?\r\n", ch);
 	} else {
 		CharData *visible_character = nullptr;
-		{
-			target_resolver::Query _q;
-			_q.scopes = {target_resolver::Scope::kRoom, target_resolver::Scope::kWorld};
-			_q.name = arg;
-			visible_character = target_resolver::ResolveChar(ch, _q);
-		}
+		visible_character = target_resolver::FindCharInWorld(ch, arg);
 		if (!visible_character) {
 			SendMsgToChar("Нет такого создания.\r\n", ch);
 		} else if (ch == visible_character) {

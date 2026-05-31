@@ -24,12 +24,7 @@ void do_force(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	} else if (!ch->IsGrGod() || (str_cmp("all", arg) && str_cmp("room", arg) && str_cmp("все", arg)
 		&& str_cmp("здесь", arg))) {
 		CharData *vict = nullptr;
-		{
-			target_resolver::Query _q;
-			_q.scopes = {target_resolver::Scope::kRoom, target_resolver::Scope::kWorld};
-			_q.name = arg;
-			vict = target_resolver::ResolveChar(ch, _q);
-		}
+		vict = target_resolver::FindCharInWorld(ch, arg);
 		if (!vict) {
 			SendMsgToChar(NOPERSON, ch);
 		} else if (!vict->IsNpc() && GetRealLevel(ch) <= GetRealLevel(vict) && !ch->IsFlagged(EPrf::kCoderinfo)) {

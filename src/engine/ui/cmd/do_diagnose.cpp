@@ -17,12 +17,7 @@ void do_diagnose(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	one_argument(argument, buf);
 
 	if (*buf) {
-		{
-			target_resolver::Query _q;
-			_q.scopes = {target_resolver::Scope::kRoom};
-			_q.name = buf;
-			vict = target_resolver::ResolveChar(ch, _q);
-		}
+		vict = target_resolver::FindCharInRoom(ch, buf);
 		if (!vict)
 			SendMsgToChar(NOPERSON, ch);
 		else

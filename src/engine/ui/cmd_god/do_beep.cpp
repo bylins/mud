@@ -20,12 +20,7 @@ void do_beep(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	if (!*buf)
 		SendMsgToChar("Кого вызывать?\r\n", ch);
-	else if (!([&]() {
-			target_resolver::Query _q;
-			_q.scopes = {target_resolver::Scope::kRoom, target_resolver::Scope::kWorld};
-			_q.name = buf;
-			return (vict = target_resolver::ResolveChar(ch, _q));
-		}()) || vict->IsNpc())
+	else if (!(vict = target_resolver::FindCharInWorld(ch, buf)) || vict->IsNpc())
 		SendMsgToChar(NOPERSON, ch);
 	else if (ch == vict)
 		SendMsgToChar("\007\007Вы вызвали себя!\r\n", ch);

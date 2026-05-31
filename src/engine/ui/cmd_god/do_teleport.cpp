@@ -19,7 +19,7 @@ void DoTeleport(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	if (!*buf)
 		SendMsgToChar("Кого вы хотите переместить?\r\n", ch);
-	else if (!([&]() { target_resolver::Query _q; _q.scopes = {target_resolver::Scope::kRoom, target_resolver::Scope::kWorld}; _q.name = buf; return (victim = target_resolver::ResolveChar(ch, _q)); }()))
+	else if (!(victim = target_resolver::FindCharInWorld(ch, buf)))
 		SendMsgToChar(NOPERSON, ch);
 	else if (victim == ch)
 		SendMsgToChar("Используйте 'прыжок' для собственного перемещения.\r\n", ch);

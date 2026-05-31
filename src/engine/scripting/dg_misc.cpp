@@ -57,23 +57,13 @@ int find_dg_cast_target(ESpell spell_id, const char *t, CharData *ch, CharData *
 		return true;
 	if (*t) {
 		if (MUD::Spell(spell_id).AllowTarget(kTarCharRoom)) {
-			{
-				target_resolver::Query _q;
-				_q.scopes = {target_resolver::Scope::kRoom};
-				_q.name = t;
-				*tch = target_resolver::ResolveChar(ch, _q);
-			}
+			*tch = target_resolver::FindCharInRoom(ch, t);
 			if ((*tch != nullptr)) {
 				return true;
 			}
 		}
 		if (MUD::Spell(spell_id).AllowTarget(kTarCharWorld)) {
-			{
-				target_resolver::Query _q;
-				_q.scopes = {target_resolver::Scope::kRoom, target_resolver::Scope::kWorld};
-				_q.name = t;
-				*tch = target_resolver::ResolveChar(ch, _q);
-			}
+			*tch = target_resolver::FindCharInWorld(ch, t);
 			if ((*tch != nullptr)) {
 				return true;
 			}
@@ -100,13 +90,7 @@ int find_dg_cast_target(ESpell spell_id, const char *t, CharData *ch, CharData *
 				return true;
 
 		if (MUD::Spell(spell_id).AllowTarget(kTarObjWorld)) {
-			target_resolver::Query q_obj_around;
-			q_obj_around.scopes = {target_resolver::Scope::kEquip,
-									target_resolver::Scope::kInventory,
-									target_resolver::Scope::kRoom};
-			q_obj_around.name = t;
-			q_obj_around.walk_containers = true;
-			if ((*tobj = target_resolver::ResolveObj(ch, q_obj_around)) != nullptr)
+			if ((*tobj = target_resolver::FindObjAround(ch, t)) != nullptr)
 				return true;
 		}
 	} else {

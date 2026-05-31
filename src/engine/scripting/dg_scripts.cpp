@@ -1109,12 +1109,7 @@ void do_attach(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 	if (utils::IsAbbr(arg, "mtr")) {
-		{
-			target_resolver::Query _q;
-			_q.scopes = {target_resolver::Scope::kRoom, target_resolver::Scope::kWorld};
-			_q.name = targ_name;
-			victim = target_resolver::ResolveChar(ch, _q);
-		}
+		victim = target_resolver::FindCharInWorld(ch, targ_name);
 		if (victim) {
 			if (victim->IsNpc())    // have a valid mob, now get trigger
 			{
@@ -1137,13 +1132,7 @@ void do_attach(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			SendMsgToChar("That mob does not exist.\r\n", ch);
 		}
 	} else if (utils::IsAbbr(arg, "otr")) {
-		target_resolver::Query q_obj_around;
-		q_obj_around.scopes = {target_resolver::Scope::kEquip,
-								target_resolver::Scope::kInventory,
-								target_resolver::Scope::kRoom};
-		q_obj_around.name = targ_name;
-		q_obj_around.walk_containers = true;
-		if ((object = target_resolver::ResolveObj(ch, q_obj_around)))    // have a valid obj, now get trigger
+		if ((object = target_resolver::FindObjAround(ch, targ_name)))    // have a valid obj, now get trigger
 		{
 			rn = GetTriggerRnum(tn);
 			if ((rn >= 0) && (trig = read_trigger(rn))) {
@@ -1224,12 +1213,7 @@ void do_detach(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 	} else {
 		if (utils::IsAbbr(arg1, "mob")) {
-			{
-				target_resolver::Query _q;
-				_q.scopes = {target_resolver::Scope::kRoom, target_resolver::Scope::kWorld};
-				_q.name = arg2;
-				victim = target_resolver::ResolveChar(ch, _q);
-			}
+			victim = target_resolver::FindCharInWorld(ch, arg2);
 			if (!victim)
 				SendMsgToChar("No such mobile around.\r\n", ch);
 			else if (!*arg3)
@@ -1237,31 +1221,19 @@ void do_detach(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			else
 				trigger = arg3;
 		} else if (utils::IsAbbr(arg1, "object")) {
-			target_resolver::Query q_obj_arg2;
-			q_obj_arg2.scopes = {target_resolver::Scope::kEquip,
-								  target_resolver::Scope::kInventory,
-								  target_resolver::Scope::kRoom};
-			q_obj_arg2.name = arg2;
-			q_obj_arg2.walk_containers = true;
-			if (!(object = target_resolver::ResolveObj(ch, q_obj_arg2)))
+			if (!(object = target_resolver::FindObjAround(ch, arg2)))
 				SendMsgToChar("No such object around.\r\n", ch);
 			else if (!*arg3)
 				SendMsgToChar("You must specify a trigger to remove.\r\n", ch);
 			else
 				trigger = arg3;
 		} else {
-			target_resolver::Query q_obj_arg1;
-			q_obj_arg1.scopes = {target_resolver::Scope::kEquip,
-								  target_resolver::Scope::kInventory,
-								  target_resolver::Scope::kRoom};
-			q_obj_arg1.name = arg1;
-			q_obj_arg1.walk_containers = true;
 			if ((object = get_object_in_equip_vis(ch, arg1, ch->equipment, &tmp)));
 			else if ((object = get_obj_in_list_vis(ch, arg1, ch->carrying)));
 			else if ((victim = get_char_room_vis(ch, arg1)));
 			else if ((object = get_obj_in_list_vis(ch, arg1, world[ch->in_room]->contents)));
-			else if (([&]() { target_resolver::Query _q; _q.scopes = {target_resolver::Scope::kRoom, target_resolver::Scope::kWorld}; _q.name = arg1; return (victim = target_resolver::ResolveChar(ch, _q)); }()));
-			else if ((object = target_resolver::ResolveObj(ch, q_obj_arg1)));
+			else if ((victim = target_resolver::FindCharInWorld(ch, arg1)));
+			else if ((object = target_resolver::FindObjAround(ch, arg1)));
 			else
 				SendMsgToChar("Nothing around by that name.\r\n", ch);
 			trigger = arg2;

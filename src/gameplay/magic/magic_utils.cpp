@@ -620,12 +620,7 @@ int FindCastTarget(ESpell spell_id, const char *t, CharData *ch, CharData **tch,
 		return true;
 	else if (*t) {
 		if (MUD::Spell(spell_id).AllowTarget(kTarCharRoom)) {
-			{
-				target_resolver::Query _q;
-				_q.scopes = {target_resolver::Scope::kRoom};
-				_q.name = t;
-				*tch = target_resolver::ResolveChar(ch, _q);
-			}
+			*tch = target_resolver::FindCharInRoom(ch, t);
 			if ((*tch != nullptr)) {
 				if (MUD::Spell(spell_id).IsViolentAgainst(ch, *tch) && !check_pkill(ch, *tch, t))
 					return false;
@@ -648,12 +643,7 @@ int FindCastTarget(ESpell spell_id, const char *t, CharData *ch, CharData **tch,
 					}
 				}
 			}
-			{
-				target_resolver::Query _q;
-				_q.scopes = {target_resolver::Scope::kRoom, target_resolver::Scope::kWorld};
-				_q.name = t;
-				*tch = target_resolver::ResolveChar(ch, _q);
-			}
+			*tch = target_resolver::FindCharInWorld(ch, t);
 			if ((*tch != nullptr)) {
 				// чтобы мобов не чекали
 				if (ch->IsNpc() || !(*tch)->IsNpc()) {
@@ -681,13 +671,7 @@ int FindCastTarget(ESpell spell_id, const char *t, CharData *ch, CharData **tch,
 			if (spell_id == ESpell::kLocateObject) {
 				*tobj = FindObjForLocate(ch, t);
 			} else {
-				target_resolver::Query q;
-				q.scopes = {target_resolver::Scope::kEquip,
-							target_resolver::Scope::kInventory,
-							target_resolver::Scope::kRoom};
-				q.name = t;
-				q.walk_containers = true;
-				*tobj = target_resolver::ResolveObj(ch, q);
+				*tobj = target_resolver::FindObjAround(ch, t);
 			}
 			if (*tobj) {
 				return true;

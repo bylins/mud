@@ -189,12 +189,7 @@ void DoSet(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 		} else    // is_mob
 		{
-			if (!([&]() {
-					target_resolver::Query _q;
-					_q.scopes = {target_resolver::Scope::kRoom, target_resolver::Scope::kWorld};
-					_q.name = name;
-					return (vict = target_resolver::ResolveChar(ch, _q));
-				}())
+			if (!(vict = target_resolver::FindCharInWorld(ch, name))
 				|| !vict->IsNpc()) {
 				SendMsgToChar("Нет такой твари Божьей.\r\n", ch);
 				return;

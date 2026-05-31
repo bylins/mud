@@ -35,12 +35,7 @@ void do_assist(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			return;
 		}
 	} else {
-		{
-			target_resolver::Query _q;
-			_q.scopes = {target_resolver::Scope::kRoom};
-			_q.name = arg;
-			helpee = target_resolver::ResolveChar(ch, _q);
-		}
+		helpee = target_resolver::FindCharInRoom(ch, arg);
 		if (!helpee) {
 			SendMsgToChar(NOPERSON, ch);
 			return;

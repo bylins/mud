@@ -18,7 +18,7 @@ void DoRestore(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	one_argument(argument, buf);
 	if (!*buf)
 		SendMsgToChar("Кого вы хотите восстановить?\r\n", ch);
-	else if (!([&]() { target_resolver::Query _q; _q.scopes = {target_resolver::Scope::kRoom, target_resolver::Scope::kWorld}; _q.name = buf; return (vict = target_resolver::ResolveChar(ch, _q)); }()))
+	else if (!(vict = target_resolver::FindCharInWorld(ch, buf)))
 		SendMsgToChar(NOPERSON, ch);
 	else {
 		// имм с привилегией arena может ресторить только чаров, находящихся с ним на этой же арене

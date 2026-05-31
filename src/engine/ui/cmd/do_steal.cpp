@@ -210,12 +210,7 @@ void do_steal(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 	two_arguments(argument, obj_name, vict_name);
-	{
-		target_resolver::Query _q;
-		_q.scopes = {target_resolver::Scope::kRoom};
-		_q.name = vict_name;
-		vict = target_resolver::ResolveChar(ch, _q);
-	}
+	vict = target_resolver::FindCharInRoom(ch, vict_name);
 	if (!vict) {
 		SendMsgToChar("Украсть у кого?\r\n", ch);
 		return;

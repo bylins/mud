@@ -2129,33 +2129,17 @@ int generic_find(char *arg, Bitvector bitvector, CharData *ch, CharData **tar_ch
 
 	if (IS_SET(bitvector, EFind::kCharInRoom))    // Find person in room
 	{
-		{
-			target_resolver::Query _q;
-			_q.scopes = {target_resolver::Scope::kRoom};
-			_q.name = name;
-			*tar_ch = target_resolver::ResolveChar(ch, _q);
-		}
+		*tar_ch = target_resolver::FindCharInRoom(ch, name);
 		if ((*tar_ch != nullptr))
 			return (EFind::kCharInRoom);
 	}
 	if (IS_SET(bitvector, EFind::kCharInWorld)) {
-		{
-			target_resolver::Query _q;
-			_q.scopes = {target_resolver::Scope::kRoom, target_resolver::Scope::kWorld};
-			_q.name = name;
-			*tar_ch = target_resolver::ResolveChar(ch, _q);
-		}
+		*tar_ch = target_resolver::FindCharInWorld(ch, name);
 		if ((*tar_ch != nullptr))
 			return (EFind::kCharInWorld);
 	}
 	if (IS_SET(bitvector, EFind::kObjWorld)) {
-		target_resolver::Query q;
-		q.scopes = {target_resolver::Scope::kEquip,
-					target_resolver::Scope::kInventory,
-					target_resolver::Scope::kRoom};
-		q.name = name;
-		q.walk_containers = true;
-		if ((*tar_obj = target_resolver::ResolveObj(ch, q)))
+		if ((*tar_obj = target_resolver::FindObjAround(ch, name)))
 			return (EFind::kObjWorld);
 	}
 
@@ -2252,18 +2236,9 @@ RoomRnum FindRoomRnum(CharData *ch, char *rawroomstr, int trig) {
 			SendMsgToChar("Нет комнаты с таким номером.\r\n", ch);
 			return (kNowhere);
 		}
-	} else if (([&]() { target_resolver::Query _q; _q.scopes = {target_resolver::Scope::kRoom, target_resolver::Scope::kWorld}; _q.name = roomstr; return (target_mob = target_resolver::ResolveChar(ch, _q)); }()) != nullptr) {
+	} else if ((target_mob = target_resolver::FindCharInWorld(ch, roomstr)) != nullptr) {
 		location = target_mob->in_room;
-	} else if ([&]() {
-				target_resolver::Query q;
-				q.scopes = {target_resolver::Scope::kEquip,
-							target_resolver::Scope::kInventory,
-							target_resolver::Scope::kRoom};
-				q.name = roomstr;
-				q.walk_containers = true;
-				target_obj = target_resolver::ResolveObj(ch, q);
-				return target_obj != nullptr;
-			}()) {
+	} else if ((target_obj = target_resolver::FindObjAround(ch, roomstr)) != nullptr) {
 		if (target_obj->get_in_room() != kNowhere) {
 			location = target_obj->get_in_room();
 		} else {

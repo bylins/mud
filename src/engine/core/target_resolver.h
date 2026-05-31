@@ -2,12 +2,12 @@
 #define _TARGET_RESOLVER_HPP_INCLUDED_
 
 /*
-	Класс, формирующий списки целей для массовых умений и заклинаний.
-	Плюс несколько функций для проверки корректности целей.
+	О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫.
+	О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫.
 
-	В перспективе сюда нужно перевести всю логику поиска и выбора целей для команд.
-	При большом желании можно сделать класс универсальным, а не только для персонажей.
-	Сейчас это не сделано, потому что при текущей логике исполнения команд это ничего особо не даст.
+	О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫.
+	О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫.
+	О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫.
 */
 
 #include "engine/structs/structs.h"
@@ -17,6 +17,7 @@
 #include <optional>
 #include <random>
 #include <string>
+#include <string_view>
 #include <vector>
 
 class CharData;
@@ -173,6 +174,23 @@ RoomData *ResolveRoom(CharData *searcher, const Query &q);
 // Multi-result entry points. `q.single` is ignored (always treated as false).
 std::vector<CharData *> ResolveChars(CharData *searcher, const Query &q);
 std::vector<ObjData *>  ResolveObjs (CharData *searcher, const Query &q);
+
+// ---- Convenience helpers --------------------------------------------------
+//
+// Thin shorthands over Query + Resolve* that cover the recurring shapes the
+// legacy get_char_vis / get_obj_vis / SearchObjByRnum APIs used to serve.
+// Use these when you don't need ordinals/predicates/custom scopes -- those
+// callers should drop down to the full Query API.
+//
+//   FindCharInRoom  -- scopes = {kRoom}
+//   FindCharInWorld -- scopes = {kRoom, kWorld}, PC-priority world walk
+//   FindObjAround   -- scopes = {kEquip, kInventory, kRoom}, walks containers
+//   FindObjByRnum   -- direct world-registry lookup by rnum
+//
+CharData *FindCharInRoom (CharData *finder, std::string_view name);
+CharData *FindCharInWorld(CharData *finder, std::string_view name);
+ObjData  *FindObjAround  (CharData *finder, std::string_view name);
+ObjData  *FindObjByRnum  (ObjRnum rnum);
 
 // ---- Named filter factories (issue #3375 stage 3) -------------------------
 //

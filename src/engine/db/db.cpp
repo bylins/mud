@@ -2531,11 +2531,7 @@ void ZoneReset::ResetZoneEssential() {
 								break;
 							}
 						} else {
-							target_resolver::Query q;
-							q.scopes = {target_resolver::Scope::kRnum};
-							q.rnum_lookup = reset_cmd.arg3;
-							q.visible_only = false;
-							if (!(obj_to = target_resolver::ResolveObj(nullptr, q))) {
+							if (!(obj_to = target_resolver::FindObjByRnum(reset_cmd.arg3))) {
 								LogZoneError(zone_data, cmd_no, "target obj not found in word, command omited");
 								break;
 							}

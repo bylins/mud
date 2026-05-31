@@ -1259,12 +1259,7 @@ void do_stat(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 			if (!*buf2)
 				SendMsgToChar("Состояние какого создания?\r\n", ch);
 			else {
-				{
-					target_resolver::Query _q;
-					_q.scopes = {target_resolver::Scope::kRoom, target_resolver::Scope::kWorld};
-					_q.name = buf2;
-					victim = target_resolver::ResolveChar(ch, _q);
-				}
+				victim = target_resolver::FindCharInWorld(ch, buf2);
 				if ((victim != nullptr))
 					do_stat_character(ch, victim, 0);
 				else
@@ -1343,13 +1338,7 @@ void do_stat(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 			if (!*buf2)
 				SendMsgToChar("Состояние какого предмета?\r\n", ch);
 			else {
-				target_resolver::Query q;
-				q.scopes = {target_resolver::Scope::kEquip,
-							target_resolver::Scope::kInventory,
-							target_resolver::Scope::kRoom};
-				q.name = buf2;
-				q.walk_containers = true;
-				if ((object = target_resolver::ResolveObj(ch, q)) != nullptr)
+				if ((object = target_resolver::FindObjAround(ch, buf2)) != nullptr)
 					do_stat_object(ch, object);
 				else
 					SendMsgToChar("Нет такого предмета в игре.\r\n", ch);
@@ -1366,12 +1355,7 @@ void do_stat(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 			do_stat_object(ch, object);
 			return;
 		}
-		{
-			target_resolver::Query _q;
-			_q.scopes = {target_resolver::Scope::kRoom};
-			_q.name = buf1;
-			victim = target_resolver::ResolveChar(ch, _q);
-		}
+		victim = target_resolver::FindCharInRoom(ch, buf1);
 		if ((victim != nullptr)) {
 			do_stat_character(ch, victim);
 			return;
@@ -1380,24 +1364,13 @@ void do_stat(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 			do_stat_object(ch, object);
 			return;
 		}
-		{
-			target_resolver::Query _q;
-			_q.scopes = {target_resolver::Scope::kRoom, target_resolver::Scope::kWorld};
-			_q.name = buf1;
-			victim = target_resolver::ResolveChar(ch, _q);
-		}
+		victim = target_resolver::FindCharInWorld(ch, buf1);
 		if ((victim != nullptr)) {
 			do_stat_character(ch, victim);
 			return;
 		}
 		{
-			target_resolver::Query q;
-			q.scopes = {target_resolver::Scope::kEquip,
-						target_resolver::Scope::kInventory,
-						target_resolver::Scope::kRoom};
-			q.name = buf1;
-			q.walk_containers = true;
-			object = target_resolver::ResolveObj(ch, q);
+			object = target_resolver::FindObjAround(ch, buf1);
 		}
 		if (object != nullptr) {
 			do_stat_object(ch, object);
@@ -1413,12 +1386,7 @@ void do_stat(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 			do_stat_object(ch, object);
 			return;
 		}
-		{
-			target_resolver::Query _q;
-			_q.scopes = {target_resolver::Scope::kRoom};
-			_q.name = buf1;
-			victim = target_resolver::ResolveChar(ch, _q);
-		}
+		victim = target_resolver::FindCharInRoom(ch, buf1);
 		if ((victim != nullptr)) {
 			do_stat_character(ch, victim);
 			return;

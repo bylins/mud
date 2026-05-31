@@ -197,17 +197,7 @@ void DoFindhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	CharData *helpee = nullptr;
 
-	{
-
-		target_resolver::Query _q;
-
-		_q.scopes = {target_resolver::Scope::kRoom};
-
-		_q.name = arg;
-
-		helpee = target_resolver::ResolveChar(ch, _q);
-
-	}
+	helpee = target_resolver::FindCharInRoom(ch, arg);
 	if (!helpee) {
 		SendMsgToChar("Вы не видите никого похожего.\r\n", ch);
 		return;

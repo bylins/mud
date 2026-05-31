@@ -18,12 +18,7 @@ void do_insult(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 	if (*arg) {
-		{
-			target_resolver::Query _q;
-			_q.scopes = {target_resolver::Scope::kRoom};
-			_q.name = arg;
-			victim = target_resolver::ResolveChar(ch, _q);
-		}
+		victim = target_resolver::FindCharInRoom(ch, arg);
 		if (!victim)
 			SendMsgToChar("&KА он вас и не услышит :(&n\r\n", ch);
 		else {

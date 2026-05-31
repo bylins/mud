@@ -38,12 +38,7 @@ void DoFit(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	};
 
 	argument = one_argument(argument, arg2);
-	{
-		target_resolver::Query _q;
-		_q.scopes = {target_resolver::Scope::kRoom};
-		_q.name = arg2;
-		vict = target_resolver::ResolveChar(ch, _q);
-	}
+	vict = target_resolver::FindCharInRoom(ch, arg2);
 	if (!vict) {
 		SendMsgToChar("Под кого вы хотите переделать эту вещь?\r\n Нет такого создания в округе!\r\n", ch);
 		return;

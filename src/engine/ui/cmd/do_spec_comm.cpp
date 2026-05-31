@@ -45,7 +45,7 @@ void do_spec_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	if (!*buf || !*buf2) {
 		sprintf(buf, "Что вы хотите %s.. и %s?\r\n", action_sing, vict1);
 		SendMsgToChar(buf, ch);
-	} else if (![&]() { target_resolver::Query _q; _q.scopes = {target_resolver::Scope::kRoom}; _q.name = buf; return (vict = target_resolver::ResolveChar(ch, _q)); }())
+	} else if (!(vict = target_resolver::FindCharInRoom(ch, buf)))
 		SendMsgToChar(NOPERSON, ch);
 	else if (vict == ch)
 		SendMsgToChar("От ваших уст до ушей - всего одна ладонь...\r\n", ch);
