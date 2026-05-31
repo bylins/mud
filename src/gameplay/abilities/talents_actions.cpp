@@ -396,6 +396,12 @@ TalentAffect::TalentAffect(parser_wrapper::DataNode &node) {
 	resist_ = parse::ReadAsConstant<EResist>(node.GetValue("resist"));
 	const char *prob = node.GetValue("prob");
 	prob_ = (prob && *prob) ? parse::ReadAsInt(prob) : 100;
+	// potency_weight (issue.affects-potency-weight): optional scale on the cast
+	// potency stored on each Affect this block imposes. Default 1.0 (no change).
+	// Mirrors TalentUnaffect::potency_weight_, which scales the dispel's roll
+	// in the opposite direction.
+	const char *pw = node.GetValue("potency_weight");
+	potency_weight_ = (pw && *pw) ? static_cast<float>(parse::ReadAsDouble(pw)) : 1.0f;
 
 	for (auto &child: node.Children()) {
 		const auto name = child.GetName();
@@ -460,7 +466,8 @@ void TalentAffect::Print(CharData */*ch*/, std::ostringstream &buffer) const {
 		   << " Saving: " << kColorGrn << NAME_BY_ITEM<ESaving>(saving_) << kColorNrm
 		   << " Resist: " << kColorGrn << NAME_BY_ITEM<EResist>(resist_) << kColorNrm
 		   << " Prob: " << kColorGrn << prob_ << kColorNrm
-		   << " Flags: " << kColorGrn << flags_ << kColorNrm << "\r\n"
+		   << " Flags: " << kColorGrn << flags_ << kColorNrm
+		   << " potency_weight=" << kColorGrn << potency_weight_ << kColorNrm << "\r\n"
 		   << "  Duration: base=" << kColorGrn << dur_base_ << kColorNrm
 		   << " skill_divisor=" << kColorGrn << dur_skill_divisor_ << kColorNrm
 		   << " min=" << kColorGrn << dur_min_ << kColorNrm

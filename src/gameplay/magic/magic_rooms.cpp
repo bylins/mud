@@ -492,7 +492,9 @@ int CallMagicToRoom(CharData *ch, RoomData *room, CastRollResult roll) {
 		if (talent.GetDurationMin() > 0) skill_bonus = std::max(skill_bonus, talent.GetDurationMin());
 		if (talent.GetDurationMax() > 0) skill_bonus = std::min(skill_bonus, talent.GetDurationMax());
 		af[0].duration = talent.GetDurationBase() + static_cast<unsigned>(skill_bonus);
-		af[0].potency = CalcCastPotency(roll.potency);
+		// Stored potency scaled by <affects potency_weight=> (issue.affects-potency-weight;
+		// default 1.0). Symmetric with the char-affect path in TryApplyAffectTalent.
+		af[0].potency = CalcCastPotency(roll.potency) * talent.GetPotencyWeight();
 		af[0].debuff = MUD::Spell(spell_id).IsViolent();
 		if (!talent.GetApplies().empty()) {
 			af[0].modifier = ComputeApplyModifier(talent.GetApplies()[0], roll.potency);

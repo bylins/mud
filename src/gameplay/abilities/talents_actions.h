@@ -332,6 +332,14 @@ class TalentAffect : public IAction {
 	[[nodiscard]] bool HasReposition() const { return has_reposition_; }
 	[[nodiscard]] EPosition GetRepositionPos() const { return reposition_pos_; }
 	[[nodiscard]] bool GetRepositionStopFight() const { return reposition_stop_fight_; }
+	// Scales the cast-potency value stored on each Affect this block imposes
+	// (issue.affects-potency-weight). Default 1.0 (no change). Smaller values
+	// (e.g. 0.5) record a weaker affect, which a future dispel contest in
+	// DispelSucceeds finds easier to beat. Used to keep big-modifier spells
+	// from becoming undispellable just because the same potency roll feeds
+	// both modifier and stored potency. Symmetric in spirit with
+	// TalentUnaffect::potency_weight_ on the dispel side.
+	[[nodiscard]] float GetPotencyWeight() const { return potency_weight_; }
 
  private:
 	ESpell spell_{static_cast<ESpell>(0)};
@@ -356,6 +364,8 @@ class TalentAffect : public IAction {
 	bool has_reposition_{false};
 	EPosition reposition_pos_{EPosition::kUndefined};
 	bool reposition_stop_fight_{false};
+	// Stored-potency scale (issue.affects-potency-weight); see GetPotencyWeight().
+	float potency_weight_{1.0f};
 };
 
 // The "unaffect" talent action (issue #3342): removes affects from the target and/or

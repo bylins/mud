@@ -943,7 +943,11 @@ static bool TryApplyAffectTalent(CharData *ch, CharData *victim, ESpell spell_id
 		taf.modifier = ComputeApplyModifier(apply, potency);
 		taf.battleflag = flags;
 		taf.caster_id = ch->get_uid();
-		taf.potency = cast_potency;
+		// Stored potency is the cast potency scaled by the <affects potency_weight=>
+		// attribute (issue.affects-potency-weight; default 1.0 = no change). Lets
+		// big-modifier spells stay dispellable by recording a deliberately weaker
+		// potency than the raw roll would suggest.
+		taf.potency = cast_potency * talent.GetPotencyWeight();
 		taf.debuff = cast_debuff;
 		// apply.stack is the max stack count: re-applying up to the cap adds a stack and
 		// accumulates the modifier (see ApplyTalentAffect).
