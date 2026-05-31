@@ -944,7 +944,7 @@ int Crash_delete_files(const std::size_t index) {
 				log("SYSERR: Error deleting objects file %s (2): %s", filename, strerror(errno));
 				retcode = false;
 			}
-			FileCRC::reset(player_table[index].uid(), FileCRC::TEXTOBJS);
+			FileCRC::reset(player_table[index].uid(), FileCRC::kTextObjs);
 		}
 	}
 
@@ -964,7 +964,7 @@ int Crash_delete_files(const std::size_t index) {
 				log("SYSERR: deleting timer file %s (2): %s", filename, strerror(errno));
 				retcode = false;
 			}
-			FileCRC::reset(player_table[index].uid(), FileCRC::TIMEOBJS);
+			FileCRC::reset(player_table[index].uid(), FileCRC::kTimeObjs);
 		}
 	}
 
@@ -1043,7 +1043,7 @@ int ReadCrashTimerFile(std::size_t index, int temp) {
 	fclose(fl);
 
 	// Сверка CRC из буфера вместо повторного чтения файла.
-	FileCRC::verify_from_content(player_table[index].uid(), FileCRC::TIMEOBJS,
+	FileCRC::verify_from_content(player_table[index].uid(), FileCRC::kTimeObjs,
 		content.data(), content.size());
 
 	std::memcpy(&rent, content.data(), sizeof(struct SaveRentInfo));
@@ -1157,7 +1157,7 @@ int Crash_write_timer(const std::size_t index) {
 	}
 #endif
 	// CRC из буфера вместо повторного чтения файла (см. FileCRC::update_from_content).
-	FileCRC::update_from_content(player_table[index].uid(), FileCRC::UPDATE_TIMEOBJS,
+	FileCRC::update_from_content(player_table[index].uid(), FileCRC::kTimeObjs,
 		content.data(), content.size());
 	return true;
 }
@@ -1464,7 +1464,7 @@ int Crash_load(CharData *ch) {
 	};
 	fclose(fl);
 	// Сверка CRC из уже прочитанного буфера, без повторного чтения файла.
-	FileCRC::verify_from_content(ch->get_uid(), FileCRC::TEXTOBJS, readdata, fsize);
+	FileCRC::verify_from_content(ch->get_uid(), FileCRC::kTextObjs, readdata, fsize);
 
 	data = readdata;
 	*(data + fsize) = '\0';
@@ -1983,7 +1983,7 @@ int save_char_objects(CharData *ch, int savetype, int rentcost) {
 			mudlog(ss.str(), BRF, kLvlGod, SYSLOG, true);
 		}
 #endif
-		FileCRC::update_from_content(ch->get_uid(), FileCRC::UPDATE_TEXTOBJS,
+		FileCRC::update_from_content(ch->get_uid(), FileCRC::kTextObjs,
 			obj_content.data(), obj_content.size());
 	} else {
 		Crash_delete_files(iplayer);

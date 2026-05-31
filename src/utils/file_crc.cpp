@@ -161,23 +161,15 @@ void save(bool force_save) {
 	file.close();
 }
 
-void create_message(std::string &name, int mode, const uint32_t &expected, const uint32_t &calculated) {
+void create_message(std::string &name, EType file, const uint32_t &expected, const uint32_t &calculated) {
 	char time_buf[20];
 	time_t ct = time(nullptr);
 	strftime(time_buf, sizeof(time_buf), "%d-%m-%y %H:%M:%S", localtime(&ct));
 	std::string file_type;
-	switch (mode) {
-		case PLAYER: file_type = "player";
-			break;
-
-		case TEXTOBJS: file_type = "textobjs";
-			break;
-
-		case TIMEOBJS: file_type = "timeobjs";
-			break;
-
-		default: file_type = "error mode";
-			break;
+	switch (file) {
+		case kPlayer:   file_type = "player";   break;
+		case kTextObjs: file_type = "textobjs"; break;
+		case kTimeObjs: file_type = "timeobjs"; break;
 	}
 
 	add_message("%s несовпадение контрольной суммы %s файла: %s (expected: %u; calculated: %u)",
@@ -197,69 +189,58 @@ void show(CharData *ch) {
 }
 
 // Внутренний upsert: создаёт запись uid при отсутствии и кладёт CRC в поле
-// по типу файла. Принимает и обычные, и UPDATE_-режимы. Возвращает запись
-// (nullptr при неизвестном режиме). Флаг need_save -- забота вызывающего.
-static PlayerCRC *set_crc_field(long uid, int mode, uint32_t crc) {
+// по типу файла. Флаг need_save -- забота вызывающего.
+static void set_crc_field(long uid, EType file, uint32_t crc) {
 	auto it = crc_list.find(uid);
 	if (it == crc_list.end()) {
 		it = crc_list.emplace(uid, CRCListPtr(new PlayerCRC)).first;
 	}
-	switch (mode) {
-		case PLAYER:   case UPDATE_PLAYER:   it->second->player = crc; break;
-		case TEXTOBJS: case UPDATE_TEXTOBJS: it->second->textobjs = crc; break;
-		case TIMEOBJS: case UPDATE_TIMEOBJS: it->second->timeobjs = crc; break;
-		default:
-			add_message("SYSERROR: FileCRC: неподдерживаемый режим CRC %d", mode);
-			return nullptr;
+	switch (file) {
+		case kPlayer:   it->second->player = crc;   break;
+		case kTextObjs: it->second->textobjs = crc; break;
+		case kTimeObjs: it->second->timeobjs = crc; break;
 	}
 	it->second->name = GetNameByUnique(uid);
-	return it->second.get();
 }
 
-// Чтение текущего CRC поля по типу файла (для сверки). false при неизвестном режиме.
-static bool get_crc_field(const PlayerCRC &p, int mode, uint32_t &out) {
-	switch (mode) {
-		case PLAYER:   case UPDATE_PLAYER:   out = p.player;   return true;
-		case TEXTOBJS: case UPDATE_TEXTOBJS: out = p.textobjs; return true;
-		case TIMEOBJS: case UPDATE_TIMEOBJS: out = p.timeobjs; return true;
-		default: return false;
+// Чтение текущего CRC поля по типу файла (для сверки).
+static uint32_t get_crc_field(const PlayerCRC &p, EType file) {
+	switch (file) {
+		case kPlayer:   return p.player;
+		case kTextObjs: return p.textobjs;
+		case kTimeObjs: return p.timeobjs;
 	}
+	return 0;  // недостижимо: switch исчерпывающий по EType
 }
 
 // Записывает CRC из готового буфера в памяти, без перечитывания файла.
 // Вызывается при сохранении: CRC считается из того же буфера, что и на диск.
-void update_from_content(long uid, int mode, const char *data, std::size_t len) {
-	if (set_crc_field(uid, mode, CRC32_function(data, static_cast<unsigned long>(len)))) {
-		need_save = true;
-	}
+void update_from_content(long uid, EType file, const char *data, std::size_t len) {
+	set_crc_field(uid, file, CRC32_function(data, static_cast<unsigned long>(len)));
+	need_save = true;
 }
 
 // Сброс CRC файла игрока в 0: файл удалён (Crash_delete_files). Раньше для
 // этого звали check_crc на уже удалённом файле, чтобы получить 0 чтением.
-void reset(long uid, int mode) {
-	if (set_crc_field(uid, mode, 0)) {
-		need_save = true;
-	}
+void reset(long uid, EType file) {
+	set_crc_field(uid, file, 0);
+	need_save = true;
 }
 
 // Сверка CRC из готового буфера со снимком в crc_list (вместо повторного
 // чтения файла на загрузке). Возвращает true при совпадении; при расхождении
 // -- сообщение имму в лог и false. Если снимка ещё нет -- заводит базовый
 // (как делал check_crc для режимов сверки) и возвращает true.
-bool verify_from_content(long uid, int mode, const char *data, std::size_t len) {
+bool verify_from_content(long uid, EType file, const char *data, std::size_t len) {
 	const uint32_t crc = CRC32_function(data, static_cast<unsigned long>(len));
 	auto it = crc_list.find(uid);
 	if (it == crc_list.end()) {
-		set_crc_field(uid, mode, crc);
+		set_crc_field(uid, file, crc);
 		return true;
 	}
-	uint32_t stored = 0;
-	if (!get_crc_field(*it->second, mode, stored)) {
-		add_message("SYSERROR: FileCRC::verify_from_content: неподдерживаемый режим CRC %d", mode);
-		return false;
-	}
+	const uint32_t stored = get_crc_field(*it->second, file);
 	if (stored != crc) {
-		create_message(it->second->name, mode, stored, crc);
+		create_message(it->second->name, file, stored, crc);
 		return false;
 	}
 	return true;

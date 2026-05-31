@@ -912,7 +912,7 @@ void Player::save_char() {
 		mudlog(ss.str(), BRF, kLvlGod, SYSLOG, true);
 	}
 #endif
-	FileCRC::update_from_content(this->get_uid(), FileCRC::UPDATE_PLAYER, pfile.data(), pfile.size());
+	FileCRC::update_from_content(this->get_uid(), FileCRC::kPlayer, pfile.data(), pfile.size());
 
 	// восстанавливаем аффекты
 	// add spell and eq affections back in now
@@ -1930,7 +1930,7 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 	// иначе в таблице crc будут пустые имена, т.к. сама плеер-таблица еще не сформирована
 	// и в любом случае при ребуте это все пересчитывать не нужно
 	if (!(load_flags & ELoadCharFlags::kNoCrcCheck)) {
-		FileCRC::verify_from_content(this->get_uid(), FileCRC::PLAYER, fl->buf, fl->size);
+		FileCRC::verify_from_content(this->get_uid(), FileCRC::kPlayer, fl->buf, fl->size);
 	}
 	fbclose(fl);
 
