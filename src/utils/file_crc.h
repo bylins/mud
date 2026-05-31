@@ -18,6 +18,8 @@ void load();
 void save(bool force_save = false);
 void show(CharData *ch);
 void check_crc(const char *name, int mode, long uid);
+// Обновляет CRC из готового буфера, без чтения файла с диска.
+void update_from_content(long uid, int mode, const char *data, std::size_t len);
 
 } // namespace FileCRC
 
