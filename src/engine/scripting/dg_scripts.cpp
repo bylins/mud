@@ -29,6 +29,7 @@
 #include "administration/privilege.h"
 #include "gameplay/fight/fight_hit.h"
 #include "engine/core/utils_char_obj.inl"
+#include "engine/core/target_resolver.h"
 #include "gameplay/mechanics/stable_objs.h"
 #include <fmt/format.h>
 #include <fmt/ranges.h>
@@ -1620,13 +1621,20 @@ void find_replacement(void *go,
 					log("SYSERROR: null ch (%s:%d %s)", __FILE__, __LINE__, __func__);
 					break;
 				}
+				{
+				target_resolver::Query q_mob_in_room;
+				q_mob_in_room.scopes = {target_resolver::Scope::kRoom};
+				q_mob_in_room.name = name.c_str();
+				q_mob_in_room.room_override = ch->in_room;
+				q_mob_in_room.visible_only = false;
 				if ((obj = get_object_in_equip(ch, name.c_str())));
 				else if ((obj = get_obj_in_list(name.c_str(), ch->carrying)));
-				else if ((mob = SearchCharInRoomByName(name.c_str(), ch->in_room)));
+				else if ((mob = target_resolver::ResolveChar(ch, q_mob_in_room)));
 				else if ((obj = get_obj_in_list(name.c_str(), world[ch->in_room]->contents)));
 				else if ((mob = get_char(name.c_str())));
 				else if ((obj = get_obj(name.c_str(), GET_TRIG_VNUM(trig))));
 				else if ((room = get_room(name.c_str()))) {
+				}
 				}
 				break;
 			case OBJ_TRIGGER: tmp_obj = (ObjData *) go;

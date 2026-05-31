@@ -16,6 +16,7 @@
 
 #include "engine/core/char_movement.h"
 #include "engine/core/utils_char_obj.inl"
+#include "engine/core/target_resolver.h"
 #include "engine/entities/char_player.h"
 #include "gameplay/mechanics/mount.h"
 #include "gameplay/mechanics/depot.h"
@@ -1336,7 +1337,12 @@ int pet_shops(CharData *ch, void * /*me*/, int cmd, char *argument) {
 	} else if (CMD_IS("buy")) {
 		two_arguments(argument, buf, pet_name);
 
-		if (!(pet = SearchCharInRoomByName(buf, pet_room))) {
+		target_resolver::Query q;
+		q.scopes = {target_resolver::Scope::kRoom};
+		q.name = buf;
+		q.room_override = pet_room;
+		q.visible_only = false;
+		if (!(pet = target_resolver::ResolveChar(ch, q))) {
 			SendMsgToChar("There is no such pet!\r\n", ch);
 			return (true);
 		}

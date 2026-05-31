@@ -28,6 +28,7 @@
 #include "gameplay/mechanics/glory_const.h"
 #include "gameplay/mechanics/glory_misc.h"
 #include "engine/core/handler.h"
+#include "engine/core/target_resolver.h"
 #include "help.h"
 #include "gameplay/clans/house.h"
 #include "gameplay/crafting/item_creation.h"
@@ -2530,7 +2531,11 @@ void ZoneReset::ResetZoneEssential() {
 								break;
 							}
 						} else {
-							if (!(obj_to = SearchObjByRnum(reset_cmd.arg3))) {
+							target_resolver::Query q;
+							q.scopes = {target_resolver::Scope::kRnum};
+							q.rnum_lookup = reset_cmd.arg3;
+							q.visible_only = false;
+							if (!(obj_to = target_resolver::ResolveObj(nullptr, q))) {
 								LogZoneError(zone_data, cmd_no, "target obj not found in word, command omited");
 								break;
 							}
