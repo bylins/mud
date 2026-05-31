@@ -944,7 +944,7 @@ int Crash_delete_files(const std::size_t index) {
 				log("SYSERR: Error deleting objects file %s (2): %s", filename, strerror(errno));
 				retcode = false;
 			}
-			FileCRC::check_crc(filename, FileCRC::UPDATE_TEXTOBJS, player_table[index].uid());
+			FileCRC::reset(player_table[index].uid(), FileCRC::TEXTOBJS);
 		}
 	}
 
@@ -964,7 +964,7 @@ int Crash_delete_files(const std::size_t index) {
 				log("SYSERR: deleting timer file %s (2): %s", filename, strerror(errno));
 				retcode = false;
 			}
-			FileCRC::check_crc(filename, FileCRC::UPDATE_TIMEOBJS, player_table[index].uid());
+			FileCRC::reset(player_table[index].uid(), FileCRC::TIMEOBJS);
 		}
 	}
 
@@ -1444,7 +1444,8 @@ int Crash_load(CharData *ch) {
 	fseek(fl, 0L, SEEK_SET);
 	if (!fread(readdata, fsize, 1, fl) || ferror(fl) || !readdata) {
 		fclose(fl);
-		FileCRC::check_crc(fname, FileCRC::TEXTOBJS, ch->get_uid());
+		// Чтение не удалось -- валидного буфера для сверки CRC нет, сверку
+		// (которая раньше перечитывала файл) тут опускаем и просто выходим.
 		SendMsgToChar("\r\n** Ошибка чтения файла описания вещей **\r\n"
 					  "Проблемы с восстановлением ваших вещей из файла.\r\n"
 					  "Обращайтесь за помощью к Богам.\r\n", ch);
@@ -1454,7 +1455,8 @@ int Crash_load(CharData *ch) {
 		return (1);
 	};
 	fclose(fl);
-	FileCRC::check_crc(fname, FileCRC::TEXTOBJS, ch->get_uid());
+	// Сверка CRC из уже прочитанного буфера, без повторного чтения файла.
+	FileCRC::verify_from_content(ch->get_uid(), FileCRC::TEXTOBJS, readdata, fsize);
 
 	data = readdata;
 	*(data + fsize) = '\0';
