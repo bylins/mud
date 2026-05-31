@@ -5,9 +5,11 @@
 // any length without truncation or overflow (the reason we use vsnprintf rather
 // than the legacy fbprintf/vsprintf).
 
-#include "utils/buffered_file_writer.h"
-
+// gtest first: on clang-cl (Windows) the project headers pull conf.h/sysdep.h
+// ahead of the system headers, which breaks the MSVC/clang intrinsic headers.
 #include <gtest/gtest.h>
+
+#include "utils/buffered_file_writer.h"
 
 #include <cstdio>
 #include <string>

@@ -2,9 +2,11 @@
 // Tests for the buffer-based FileCRC API (update/verify/reset) that replaces
 // the old "write file, then read it back to compute CRC" flow.
 
-#include "utils/file_crc.h"
-
+// gtest first: on clang-cl (Windows) the project headers pull conf.h/sysdep.h
+// ahead of the system headers, which breaks the MSVC/clang intrinsic headers.
 #include <gtest/gtest.h>
+
+#include "utils/file_crc.h"
 
 #include <string>
 
