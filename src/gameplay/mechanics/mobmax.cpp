@@ -3,6 +3,8 @@
 // Part of Bylins http://www.mud.ru
 
 #include "mobmax.h"
+
+#include "utils/buffered_file_writer.h"
 #include "dungeons.h"
 
 #include "engine/entities/char_data.h"
@@ -169,11 +171,11 @@ int MobMax::get_kill_count(int vnum) const {
 }
 
 // * Сохранение в плеер-файл.
-void MobMax::save(FILE *saved) const {
-	fprintf(saved, "Mobs:\n");
+void MobMax::save(BufferedFileWriter &saved) const {
+	saved.printf("Mobs:\n");
 	for (MobMaxType::const_reverse_iterator it = mobmax_.rbegin(); it != mobmax_.rend(); ++it)
-		fprintf(saved, "%d %d\n", it->vnum, it->count);
-	fprintf(saved, "~\n");
+		saved.printf("%d %d\n", it->vnum, it->count);
+	saved.printf("~\n");
 }
 
 // * Для очистки всех замаксов при реморте.

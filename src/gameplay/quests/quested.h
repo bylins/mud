@@ -11,6 +11,8 @@
 #include "engine/core/sysdep.h"
 #include "engine/structs/structs.h"
 
+class BufferedFileWriter;
+
 class Quested {
  public:
 	void add(CharData *ch, int vnum, char *text);
@@ -20,7 +22,7 @@ class Quested {
 	bool get(int vnum) const;
 	std::string get_text(int vnum) const;
 	std::string print() const;
-	void save(FILE *saved) const;
+	void save(BufferedFileWriter &saved) const;
 
  private:
 	// выполненные квесты

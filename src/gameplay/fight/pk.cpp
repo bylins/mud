@@ -13,6 +13,8 @@
 
 #include "pk.h"
 
+#include "utils/buffered_file_writer.h"
+
 #include "engine/db/global_objects.h"
 #include "engine/ui/color.h"
 #include "gameplay/clans/house.h"
@@ -793,8 +795,8 @@ void pk_free_list(CharData *ch) {
 }
 
 // сохранение списка пк-местей в файл персонажа
-void save_pkills(CharData *ch, FILE *saved) {
-	fprintf(saved, "Pkil:\n");
+void save_pkills(CharData *ch, BufferedFileWriter &saved) {
+	saved.printf("Pkil:\n");
 	for (auto it = ch->pk_map.begin(); it != ch->pk_map.end() && !ch->IsFlagged(EPlrFlag::kDeleted);) {
 		auto &pk = it->second;
 		if (pk.kill_num > 0 && IsCorrectUnique(pk.unique)) {
@@ -817,11 +819,11 @@ void save_pkills(CharData *ch, FILE *saved) {
 				it = ch->pk_map.erase(it);
 				continue;
 			}
-			fprintf(saved, "%ld %ld %ld\n", pk.unique, pk.kill_num, pk.revenge_num);
+			saved.printf("%ld %ld %ld\n", pk.unique, pk.kill_num, pk.revenge_num);
 		}
 		++it;
 	}
-	fprintf(saved, "~\n");
+	saved.printf("~\n");
 }
 
 // Проверка может ли ch начать аргессивные действия против victim

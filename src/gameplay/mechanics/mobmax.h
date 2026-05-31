@@ -14,6 +14,8 @@
 
 int get_max_kills(const int level);
 
+class BufferedFileWriter;
+
 class MobMax {
  public:
 	using mobmax_stats_t = std::map<int, int>;    ///< maps level to count
@@ -27,7 +29,7 @@ class MobMax {
 	void add(CharData *ch, int vnum, int count, int level);
 	void load(CharData *ch, int vnum, int count, int level);
 	void remove(int vnum);
-	void save(FILE *saved) const;
+	void save(BufferedFileWriter &saved) const;
 	void clear();
 
  private:

@@ -35,6 +35,8 @@ enum {
 	DIS_TOTAL_NUM
 };
 
+class BufferedFileWriter;
+
 class Player : public CharData {
  public:
 	Player();
@@ -75,14 +77,14 @@ class Player : public CharData {
 	bool quested_get(int vnum) const;
 	std::string quested_get_text(int vnum) const;
 	std::string quested_print() const;
-	void quested_save(FILE *saved) const; // TODO мб убрать
+	void quested_save(BufferedFileWriter &saved) const;
 
 	// обертка на MobMax
 	int mobmax_get(int vnum) const;
 	void mobmax_add(CharData *ch, int vnum, int count, int level);
 	void mobmax_load(CharData *ch, int vnum, int count, int level);
 	void mobmax_remove(int vnum);
-	void mobmax_save(FILE *saved) const; ///< TODO мб убрать
+	void mobmax_save(BufferedFileWriter &saved) const;
 	void show_mobmax();
 
 	// обертка на Dps
