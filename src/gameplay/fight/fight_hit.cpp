@@ -951,11 +951,14 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 		&& (ch->GetEnemy() 
 		|| (!ch->battle_affects.get(kEafHammer) && !ch->battle_affects.get(kEafOverwhelm)))) {
 		// здесь можно получить спурженного victim, но ch не умрет от зеркала
-		if (ch->IsNpc()) {
-			CastDamage(GetRealLevel(ch), ch, victim, ESpell::kMagicMissile);
-		} else {
-			CastDamage(1, ch, victim, ESpell::kMagicMissile);
-		}
+		// Cloud of Arrows fires one bolt per melee hit. Route it through the public
+		// CallMagic entry (unified cast pipeline) rather than a raw CastDamage. The
+		// dedicated kCloudOfArrowsBolt proc spell is weave-only (no verbal, so silence
+		// does not stop it), costs no mana, and is single-target -- it lands straight in
+		// CastToSingleTarget. A no-magic room now suppresses it (weave component), which
+		// is the intended unified behaviour.
+		const int bolt_level = ch->IsNpc() ? GetRealLevel(ch) : 1;
+		CallMagic(ch, victim, nullptr, nullptr, ESpell::kCloudOfArrowsBolt, bolt_level);
 		if (ch->purged() || victim->purged()) { // вдруг помер
 			return;
 		}
