@@ -509,6 +509,7 @@ main_sources = files(
   'src/engine/structs/radix_trie.cpp',
   'src/engine/structs/compact_trie.cpp',
   'src/engine/entities/zone.cpp',
+  'src/engine/entities/zone_types.cpp',
   'src/gameplay/mechanics/strengthening.cpp',
   'src/gameplay/skills/backstab.cpp',
   'src/gameplay/skills/bash.cpp',

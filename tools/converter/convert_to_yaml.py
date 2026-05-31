@@ -1738,7 +1738,12 @@ def strip_color_codes(s):
 
 
 def load_zone_type_names(ztypes_path):
-    """Load zone type names from ztypes.lst file."""
+    """Load zone type names from ztypes.lst file (legacy format).
+
+    Engine migration (issue.ztypes-migrate) replaced this file with
+    cfg/zone_types.xml; load_zone_type_names_xml() below reads the new
+    format. The main() candidate loop tries XML first, then this for
+    backward compatibility with older world snapshots."""
     global ZONE_TYPE_NAMES
     try:
         idx = 0
@@ -1754,6 +1759,28 @@ def load_zone_type_names(ztypes_path):
             print(f"Loaded {len(ZONE_TYPE_NAMES)} zone type names from {ztypes_path}")
     except Exception as e:
         print(f"Warning: Could not load zone type names from {ztypes_path}: {e}")
+
+
+def load_zone_type_names_xml(xml_path):
+    """Load zone type names from cfg/zone_types.xml (post issue.ztypes-migrate).
+
+    Each <type vnum=".." name=".."/> entry contributes one
+    ZONE_TYPE_NAMES[vnum] -> name mapping. Failures fall through silently
+    so the legacy ztypes.lst path can still be tried."""
+    global ZONE_TYPE_NAMES
+    try:
+        import xml.etree.ElementTree as ET
+        tree = ET.parse(xml_path)
+        root = tree.getroot()
+        for type_elt in root.findall('type'):
+            vnum = type_elt.get('vnum')
+            name = type_elt.get('name')
+            if vnum is not None and name is not None:
+                ZONE_TYPE_NAMES[int(vnum)] = name
+        if ZONE_TYPE_NAMES:
+            print(f"Loaded {len(ZONE_TYPE_NAMES)} zone type names from {xml_path}")
+    except Exception as e:
+        print(f"Warning: Could not load zone type names from {xml_path}: {e}")
 
 
 def get_spell_name(spell_id):
@@ -4196,14 +4223,24 @@ def main():
 #         if args.format == 'yaml' and output_path.exists():
 #             build_name_registries(output_path / 'world')
 
-        # Load zone type names for comments
-        for ztypes_candidate in [
-            input_path / 'misc' / 'ztypes.lst',
-            world_dir.parent / 'misc' / 'ztypes.lst',
+        # Load zone type names for comments. Prefer the new XML registry
+        # (issue.ztypes-migrate); fall back to the legacy ztypes.lst for
+        # older world snapshots.
+        for xml_candidate in [
+            input_path / 'cfg' / 'zone_types.xml',
+            world_dir.parent / 'cfg' / 'zone_types.xml',
         ]:
-            if ztypes_candidate.exists():
-                load_zone_type_names(ztypes_candidate)
+            if xml_candidate.exists():
+                load_zone_type_names_xml(xml_candidate)
                 break
+        else:
+            for ztypes_candidate in [
+                input_path / 'misc' / 'ztypes.lst',
+                world_dir.parent / 'misc' / 'ztypes.lst',
+            ]:
+                if ztypes_candidate.exists():
+                    load_zone_type_names(ztypes_candidate)
+                    break
 
         convert_directory(world_dir, output_path, delete_source=args.delete_source,
                          max_workers=args.workers, output_format=args.format,

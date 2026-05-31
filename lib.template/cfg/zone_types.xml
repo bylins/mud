@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="koi8-r"?>
+<!--
+    Zone type registry (issue.ztypes-migrate).
+
+    Each <type> entry is one zone category. The vnum attribute is the integer
+    referenced by zone.type in lib/world/zon/*.zon files; reordering or
+    renumbering a vnum changes the zone classification of every zone using it,
+    so DO NOT renumber existing vnums. Add new types with a fresh vnum at the
+    end (the legacy ztypes.lst had the same "append-only" rule, baked in here
+    by the explicit vnum= attribute rather than file position).
+
+    text_id is a stable C++-style identifier for documentation and OLC use.
+    name is the display label shown in `stat zone` and the zedit menu.
+    <ingredients val="..."/> (optional) is a "|"-separated list of integer
+    ingredient type ids consumed by im.cpp's ImForageRoom; an absent or empty
+    list means no forageable ingredients in zones of this type.
+
+    Reload at runtime via `reload ztypes`.
+-->
+<zone_types>
+    <type text_id="kNone"         vnum="0"  name="no_ingredients"/>
+    <type text_id="kTown"         vnum="1"  name="town"/>
+    <type text_id="kLightForest"  vnum="2"  name="light_forest">
+        <!-- Example ingredient list (issue.ztypes-migrate): authors populate
+             this per zone-type as forage content gets balanced. -->
+        <ingredients val="0|2|11|12|17|104"/>
+    </type>
+    <type text_id="kDarkForest"   vnum="3"  name="dark_forest"/>
+    <type text_id="kFields"       vnum="4"  name="fields"/>
+    <type text_id="kMountains"    vnum="5"  name="mountains"/>
+    <type text_id="kRivers"       vnum="6"  name="rivers"/>
+    <type text_id="kHouse"        vnum="7"  name="house"/>
+    <type text_id="kNearHouse"    vnum="8"  name="near_house"/>
+    <type text_id="kHills"        vnum="9"  name="hills"/>
+    <type text_id="kCaves"        vnum="10" name="caves"/>
+    <type text_id="kLittleTown"   vnum="11" name="little_town"/>
+    <type text_id="kVillage"      vnum="12" name="village"/>
+    <type text_id="kTownEnvirons" vnum="13" name="town_environs"/>
+    <type text_id="kWieldForest"  vnum="14" name="wield_forest"/>
+    <type text_id="kWieldSteppe"  vnum="15" name="wield_steppe"/>
+    <type text_id="kSea"          vnum="16" name="sea"/>
+    <type text_id="kRuins"        vnum="17" name="ruins"/>
+    <type text_id="kForestWay"    vnum="18" name="forest_way"/>
+    <type text_id="kSteppeWay"    vnum="19" name="steppe_way"/>
+    <type text_id="kMountainWay"  vnum="20" name="mountain_way"/>
+    <type text_id="kSwamp"        vnum="21" name="swamp"/>
+    <type text_id="kDesert"       vnum="22" name="desert"/>
+    <type text_id="kCastle"       vnum="23" name="castle"/>
+    <type text_id="kNearCastle"   vnum="24" name="near_castle"/>
+</zone_types>

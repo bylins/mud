@@ -336,7 +336,7 @@ void print_zone_to_buf(char **bufptr, ZoneRnum zone) {
 			 zone_table[zone].name.c_str(),
 			 zone_table[zone].level,
 			 zone_table[zone].mob_level,
-			 zone_types[zone_table[zone].type].name,
+			 MUD::ZoneTypes()[zone_table[zone].type].GetName().c_str(),
 			 zone_table[zone].age, zone_table[zone].lifespan,
 			 zone_table[zone].reset_mode,
 			 (zone_table[zone].reset_mode == 3) ? (CanBeReset(zone) ? 1 : 0) : (IsZoneEmpty(zone) ? 1 : 0),

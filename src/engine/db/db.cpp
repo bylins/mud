@@ -498,118 +498,6 @@ void GameLoader::BootWorld(std::unique_ptr<world_loader::IWorldDataSource> data_
 	}
 }
 
-void InitZoneTypes() {
-	FILE *zt_file;
-	char tmp[1024], dummy[128], name[128], itype_num[128];
-	int names = 0;
-	int i, j, k, n;
-
-	if (zone_types != nullptr) {
-		for (i = 0; *zone_types[i].name != '\n'; i++) {
-			if (zone_types[i].ingr_qty > 0)
-				free(zone_types[i].ingr_types);
-
-			free(zone_types[i].name);
-		}
-		free(zone_types[i].name);
-		free(zone_types);
-		zone_types = nullptr;
-	}
-
-	zt_file = fopen(LIB_MISC "ztypes.lst", "r");
-	if (!zt_file) {
-		log("Can not open ztypes.lst");
-		return;
-	}
-
-	while (get_line(zt_file, tmp)) {
-		if (!strn_cmp(tmp, "ИМЯ", 3)) {
-			if (sscanf(tmp, "%s %s", dummy, name) != 2) {
-				log("Corrupted file : ztypes.lst");
-				return;
-			}
-			if (!get_line(zt_file, tmp)) {
-				log("Corrupted file : ztypes.lst");
-				return;
-			}
-			if (!strn_cmp(tmp, "ТИПЫ", 4)) {
-				if (tmp[4] != ' ' && tmp[4] != '\0') {
-					log("Corrupted file : ztypes.lst");
-					return;
-				}
-				for (i = 4; tmp[i] != '\0'; i++) {
-					if (!a_isdigit(tmp[i]) && !a_isspace(tmp[i])) {
-						log("Corrupted file : ztypes.lst");
-						return;
-					}
-				}
-			} else {
-				log("Corrupted file : ztypes.lst");
-				return;
-			}
-			names++;
-		} else {
-			log("Corrupted file : ztypes.lst");
-			return;
-		}
-	}
-	names++;
-
-	CREATE(zone_types, names);
-	for (i = 0; i < names; i++) {
-		zone_types[i].name = nullptr;
-		zone_types[i].ingr_qty = 0;
-		zone_types[i].ingr_types = nullptr;
-	}
-
-	rewind(zt_file);
-	i = 0;
-	while (get_line(zt_file, tmp)) {
-		sscanf(tmp, "%s %s", dummy, name);
-		for (j = 0; name[j] != '\0'; j++) {
-			if (name[j] == '_') {
-				name[j] = ' ';
-			}
-		}
-		zone_types[i].name = str_dup(name);
-
-		get_line(zt_file, tmp);
-		for (j = 4; tmp[j] != '\0'; j++) {
-			if (a_isspace(tmp[j]))
-				continue;
-			zone_types[i].ingr_qty++;
-			for (; tmp[j] != '\0' && a_isdigit(tmp[j]); j++);
-			j--;
-		}
-		i++;
-	}
-	zone_types[i].name = str_dup("\n");
-
-	for (i = 0; *zone_types[i].name != '\n'; i++) {
-		if (zone_types[i].ingr_qty > 0) {
-			CREATE(zone_types[i].ingr_types, zone_types[i].ingr_qty);
-		}
-	}
-
-	rewind(zt_file);
-	i = 0;
-	while (get_line(zt_file, tmp)) {
-		get_line(zt_file, tmp);
-		for (j = 4, n = 0; tmp[j] != '\0'; j++) {
-			if (a_isspace(tmp[j]))
-				continue;
-			for (k = 0; tmp[j] != '\0' && a_isdigit(tmp[j]); j++)
-				itype_num[k++] = tmp[j];
-			itype_num[k] = '\0';
-			zone_types[i].ingr_types[n] = atoi(itype_num);
-			n++;
-			j--;
-		}
-		i++;
-	}
-
-	fclose(zt_file);
-}
 
 void SetZoneMobLevel() {
 	for (auto &i : zone_table) {
@@ -823,7 +711,7 @@ void BootMudDataBase() {
 
 	boot_profiler.next_step("Loading zone types and ingredient for each zone type");
 	log("Booting zone types and ingredient types for each zone type.");
-	InitZoneTypes();
+	MUD::CfgManager().LoadCfg("zone_types");
 
 	boot_profiler.next_step("Loading insert_wanted.lst");
 	log("Booting insert_wanted.lst.");
