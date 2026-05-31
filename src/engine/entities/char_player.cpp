@@ -761,8 +761,8 @@ void Player::save_char() {
 				// Поля после battleflag: potency (сила наложения), debuff (1 -- дебафф, 0 -- бафф)
 				// и stacks (число стаков, issue.affect-stacks). Имя заклинания идёт последним как
 				// читаемый комментарий и при загрузке игнорируется.
-				// (merge: master switched to buffered saved.printf API; we keep unstable's
-				// extended schema -- affect_type / potency / debuff / stacks fields)
+				// (merge: master switched to buffered saved.printf API; phase-1 work keeps
+				// the extended schema -- affect_type / potency / debuff / stacks fields)
 				saved.printf("%d %d %d %d %d %d %f %d %d %s\n", to_underlying(aff->type), aff->duration,
 						aff->modifier, aff->location, static_cast<int>(aff->affect_type),
 						static_cast<int>(aff->battleflag), aff->potency, static_cast<int>(aff->debuff),
