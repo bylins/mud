@@ -268,6 +268,9 @@ enum class ESpell {
 	kLowerEffectiveness = 249,
 	kNoInjure = 250,
 	kConfuse = 251,
+	// Internal proc spell: the per-hit bolt of the kCloudOfArrows affect. Cast via
+	// CallMagic from fight_hit.cpp (no verbal, weave-only) -- not player-castable.
+	kCloudOfArrowsBolt = 252,
 	kIdentify = 351,
 	kFullIdentify = 352,
 	kQUest = 353,

@@ -842,6 +842,31 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </talent_actions>
     </spell>
+    <spell id="kCloudOfArrowsBolt" element="kAir" mode="kService">
+        <name rus="облако стрел" eng="cloud of arrows bolt"/>
+        <!-- Internal proc of the kCloudOfArrows affect: one magic bolt per melee hit.
+             Cast from fight_hit.cpp via CallMagic. Weave but no verbal, so silence does
+             not stop it; mana 0 (the affect already paid for it); single-target. -->
+        <components>
+            <weave/>
+        </components>
+        <misc pos="kFight" violent="Y" danger="1"/>
+        <mana max="0" min="0" change="0"/>
+        <targets val="kTarCharRoom|kTarFightVict"/>
+        <flags val="kMagDamage|kNpcDamagePc"/>
+        <potency_roll>
+            <dices ndice="6" sdice="4" adice="10"/>
+            <base_skill id="kFireMagic" low_skill_bonus="3" hi_skill_bonus="0.75"/>
+            <base_stat id="kWis" threshold="22" weight="5"/>
+        </potency_roll>
+        <talent_actions>
+            <action>
+                <damage saving="kReflex">
+                    <amount min="0" dices_weight="1.0" alpha="0.5" beta="12.5"/>
+                </damage>
+            </action>
+        </talent_actions>
+    </spell>
     <spell id="kPoison" element="kDark" mode="kEnabled">
         <name rus="яд" eng="poison"/>
         <components>

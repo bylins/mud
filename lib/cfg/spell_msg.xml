@@ -1192,6 +1192,34 @@
 		<message type="kCastPhraseHeathen" val="ворожья стрела" />
 		<message type="kCastPhraseChristian" val="... остры стрелы Твои." />
 	</msg_sheaf>
+	<msg_sheaf id="kCloudOfArrowsBolt">
+		<message type="kFightDeathToChar" val="Ваша магическая стрела отняла остатки жизни у $N1." />
+		<message type="kFightDeathToChar" val="Вы убили $N3 своей магической стрелой. Можете радоваться." />
+		<message type="kFightDeathToVict" val="Магическая стрела, пущенная $n4, стала последней в вашей жизни." />
+		<message type="kFightDeathToVict" val="$n убил$g вас своей магической стрелой." />
+		<message type="kFightDeathToRoom" val="Магическая стрела, посланная $n4, погрузила $N3 в вечный сон." />
+		<message type="kFightDeathToRoom" val="$n послал$g магическую стрелу, которая убила $N3." />
+		<message type="kFightMissToChar" val="Магическая стрела прошла немного выше $N1." />
+		<message type="kFightMissToChar" val="Ваша магическая стрела не попала в $N3." />
+		<message type="kFightMissToVict" val="Магическая стрела, посланная $n4, пронеслась над вашей головой." />
+		<message type="kFightMissToVict" val="Ух! Магическая стрела $n1 чуть не попала в вас!" />
+		<message type="kFightMissToRoom" val="$n промахнул$u, пытаясь поразить $N3 магической стрелой." />
+		<message type="kFightMissToRoom" val="$n не смог$q попасть в $N3 своей магической стрелой." />
+		<message type="kFightHitToChar" val="Вы с радостью отметили, что магическая стрела поразила $N3." />
+		<message type="kFightHitToChar" val="Магическая стрела, пущенная вами, пронзила тело $N1." />
+		<message type="kFightHitToVict" val="Вы пошатнулись, задетые магической стрелой $n1." />
+		<message type="kFightHitToVict" val="Магическая стрела, пущенная $n4, пронзила вас." />
+		<message type="kFightHitToRoom" val="$n выпустил$g в $N3 магическую стрелу, которая достигла цели." />
+		<message type="kFightHitToRoom" val="Магическая стрела, пущенная $n4, пронзила $N3." />
+		<message type="kFightGodToChar" val="Ваша магическая стрела попала в щит, созданный $N4." />
+		<message type="kFightGodToChar" val="Ваша магическая стрела попала в щит, созданный $N4." />
+		<message type="kFightGodToVict" val="Вы создали щит, отразивший магическую стрелу $n1." />
+		<message type="kFightGodToVict" val="Вы создали щит, отразивший магическую стрелу $n1." />
+		<message type="kFightGodToRoom" val="$N создал$G щит, отразивший магическую стрелу $n1." />
+		<message type="kFightGodToRoom" val="$N создал$G щит, отразивший магическую стрелу $n1." />
+		<message type="kCastPhraseHeathen" val="ворожья стрела" />
+		<message type="kCastPhraseChristian" val="... остры стрелы Твои." />
+	</msg_sheaf>
 	<msg_sheaf id="kShockingGasp">
 		<message type="kFightDeathToChar" val="Ваша хватка оказалась для $N1 роковой." />
 		<message type="kFightDeathToChar" val="Вы схватили $N3 своей шокирующей хваткой и задушили." />
