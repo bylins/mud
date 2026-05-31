@@ -18,8 +18,13 @@ void load();
 void save(bool force_save = false);
 void show(CharData *ch);
 void check_crc(const char *name, int mode, long uid);
-// Обновляет CRC из готового буфера, без чтения файла с диска.
+// Записывает CRC из готового буфера в памяти (при сохранении), без чтения файла.
 void update_from_content(long uid, int mode, const char *data, std::size_t len);
+// Сбрасывает CRC указанного файла игрока в 0 (файл удалён).
+void reset(long uid, int mode);
+// Сверяет CRC из готового буфера со снимком (при загрузке, вместо чтения файла).
+// true -- совпало или снимка не было; false + сообщение имму -- при расхождении.
+bool verify_from_content(long uid, int mode, const char *data, std::size_t len);
 
 } // namespace FileCRC
 

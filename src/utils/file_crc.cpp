@@ -284,27 +284,73 @@ void show(CharData *ch) {
 		SendMsgToChar(message.c_str(), ch);
 }
 
-// Обновляет CRC игрока из готового буфера в памяти, не перечитывая файл.
-// Вызывается при сохранении предметов (save_char_objects): CRC считается из
-// того же буфера, который пишется на диск -- экономит чтение только что
-// записанного файла. Поддерживает только режимы записи предметов и таймеров.
-void update_from_content(long uid, int mode, const char *data, std::size_t len) {
-	if (mode != UPDATE_TEXTOBJS && mode != UPDATE_TIMEOBJS) {
-		add_message("SYSERROR: update_from_content: неподдерживаемый режим CRC %d", mode);
-		return;
-	}
-	const uint32_t crc = CRC32_function(data, static_cast<unsigned long>(len));
+// Внутренний upsert: создаёт запись uid при отсутствии и кладёт CRC в поле
+// по типу файла. Принимает и обычные, и UPDATE_-режимы. Возвращает запись
+// (nullptr при неизвестном режиме). Флаг need_save -- забота вызывающего.
+static PlayerCRC *set_crc_field(long uid, int mode, uint32_t crc) {
 	auto it = crc_list.find(uid);
 	if (it == crc_list.end()) {
 		it = crc_list.emplace(uid, CRCListPtr(new PlayerCRC)).first;
 	}
-	if (mode == UPDATE_TEXTOBJS) {
-		it->second->textobjs = crc;
-	} else {
-		it->second->timeobjs = crc;
+	switch (mode) {
+		case PLAYER:   case UPDATE_PLAYER:   it->second->player = crc; break;
+		case TEXTOBJS: case UPDATE_TEXTOBJS: it->second->textobjs = crc; break;
+		case TIMEOBJS: case UPDATE_TIMEOBJS: it->second->timeobjs = crc; break;
+		default:
+			add_message("SYSERROR: FileCRC: неподдерживаемый режим CRC %d", mode);
+			return nullptr;
 	}
 	it->second->name = GetNameByUnique(uid);
-	need_save = true;
+	return it->second.get();
+}
+
+// Чтение текущего CRC поля по типу файла (для сверки). false при неизвестном режиме.
+static bool get_crc_field(const PlayerCRC &p, int mode, uint32_t &out) {
+	switch (mode) {
+		case PLAYER:   case UPDATE_PLAYER:   out = p.player;   return true;
+		case TEXTOBJS: case UPDATE_TEXTOBJS: out = p.textobjs; return true;
+		case TIMEOBJS: case UPDATE_TIMEOBJS: out = p.timeobjs; return true;
+		default: return false;
+	}
+}
+
+// Записывает CRC из готового буфера в памяти, без перечитывания файла.
+// Вызывается при сохранении: CRC считается из того же буфера, что и на диск.
+void update_from_content(long uid, int mode, const char *data, std::size_t len) {
+	if (set_crc_field(uid, mode, CRC32_function(data, static_cast<unsigned long>(len)))) {
+		need_save = true;
+	}
+}
+
+// Сброс CRC файла игрока в 0: файл удалён (Crash_delete_files). Раньше для
+// этого звали check_crc на уже удалённом файле, чтобы получить 0 чтением.
+void reset(long uid, int mode) {
+	if (set_crc_field(uid, mode, 0)) {
+		need_save = true;
+	}
+}
+
+// Сверка CRC из готового буфера со снимком в crc_list (вместо повторного
+// чтения файла на загрузке). Возвращает true при совпадении; при расхождении
+// -- сообщение имму в лог и false. Если снимка ещё нет -- заводит базовый
+// (как делал check_crc для режимов сверки) и возвращает true.
+bool verify_from_content(long uid, int mode, const char *data, std::size_t len) {
+	const uint32_t crc = CRC32_function(data, static_cast<unsigned long>(len));
+	auto it = crc_list.find(uid);
+	if (it == crc_list.end()) {
+		set_crc_field(uid, mode, crc);
+		return true;
+	}
+	uint32_t stored = 0;
+	if (!get_crc_field(*it->second, mode, stored)) {
+		add_message("SYSERROR: FileCRC::verify_from_content: неподдерживаемый режим CRC %d", mode);
+		return false;
+	}
+	if (stored != crc) {
+		create_message(it->second->name, mode, stored, crc);
+		return false;
+	}
+	return true;
 }
 
 } // namespace FileCRC

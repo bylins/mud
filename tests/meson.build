@@ -53,7 +53,8 @@ test_sources = files(
     'msg_container.cpp',
     'spell_messages.cpp',
     'skill_messages.cpp',
-    'fight_messages.cpp'
+    'fight_messages.cpp',
+    'file_crc.cpp'
 )
 
 fs = import('fs')
