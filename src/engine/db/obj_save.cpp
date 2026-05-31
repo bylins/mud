@@ -1108,7 +1108,6 @@ void Crash_reload_timer(int index) {
 }
 
 int Crash_write_timer(const std::size_t index) {
-	FILE *fl;
 	char fname[kMaxStringLength];
 
 	auto name = player_table[index].name();
@@ -1120,14 +1119,27 @@ int Crash_write_timer(const std::size_t index) {
 		log("SYSERR: Error writing %s timer file - unable to resolve file name.", name.c_str());
 		return false;
 	}
-	if (!(fl = fopen(fname, "wb"))) {
+
+	// Сериализуем таймеры в буфер, чтобы посчитать CRC из него же,
+	// не перечитывая с диска только что записанный файл. Порядок и состав
+	// байт идентичны прежней пораздельной записи (rent + n_items записей).
+	const SaveInfo *si = SAVEINFO(index);
+	std::string content;
+	// reserve на пустой строке -- одна аллокация полного размера без копирований,
+	// дальше append пишет на месте (буфер мелкий, но реаллокации тут не нужны).
+	content.reserve(sizeof(SaveRentInfo)
+		+ static_cast<std::size_t>(si->rent.n_items) * sizeof(SaveTimeInfo));
+	content.append(reinterpret_cast<const char *>(&si->rent), sizeof(SaveRentInfo));
+	for (int i = 0; i < si->rent.n_items; ++i) {
+		content.append(reinterpret_cast<const char *>(&si->time[i]), sizeof(SaveTimeInfo));
+	}
+
+	FILE *fl = fopen(fname, "wb");
+	if (!fl) {
 		log("[WriteTimer] Error writing %s timer file - unable to open file %s.", name.c_str(), fname);
 		return false;
 	}
-	fwrite(&(SAVEINFO(index)->rent), sizeof(SaveRentInfo), 1, fl);
-	for (int i = 0; i < SAVEINFO(index)->rent.n_items; ++i) {
-		fwrite(&(SAVEINFO(index)->time[i]), sizeof(SaveTimeInfo), 1, fl);
-	}
+	fwrite(content.data(), 1, content.size(), fl);
 	fclose(fl);
 #ifndef _WIN32
 	if (chmod(fname, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP) < 0) {
@@ -1136,7 +1148,9 @@ int Crash_write_timer(const std::size_t index) {
 		mudlog(ss.str(), BRF, kLvlGod, SYSLOG, true);
 	}
 #endif
-	FileCRC::check_crc(fname, FileCRC::UPDATE_TIMEOBJS, player_table[index].uid());
+	// CRC из буфера вместо повторного чтения файла (см. FileCRC::update_from_content).
+	FileCRC::update_from_content(player_table[index].uid(), FileCRC::UPDATE_TIMEOBJS,
+		content.data(), content.size());
 	return true;
 }
 
@@ -1934,8 +1948,9 @@ int save_char_objects(CharData *ch, int savetype, int rentcost) {
 		Crash_extract_objs(ch->carrying);
 	}
 
+	utils::CExecutionTimer obj_io_timer;
 	if (get_filename(GET_NAME(ch), fname, kTextCrashFile)) {
-		std::ofstream file(fname);
+		std::ofstream file(fname, std::ios::binary);
 		if (!file.is_open()) {
 			snprintf(buf, kMaxStringLength, "[SYSERR] Store objects file '%s'- MAY BE LOCKED.", fname);
 			mudlog(buf, BRF, kLvlImmortal, SYSLOG, true);
@@ -1943,7 +1958,13 @@ int save_char_objects(CharData *ch, int savetype, int rentcost) {
 			return false;
 		}
 		write_buffer << "\n$\n$\n";
-		file << write_buffer.rdbuf();
+		// Пишем в бинарном режиме и из этого же буфера считаем CRC -- без
+		// перечитывания только что записанного файла. Бинарный режим
+		// гарантирует, что байты файла == байты буфера на всех платформах
+		// (в текстовом режиме Windows транслировал бы \n -> \r\n и CRC из
+		// буфера разошёлся бы с CRC файла).
+		const std::string obj_content = write_buffer.str();
+		file.write(obj_content.data(), static_cast<std::streamsize>(obj_content.size()));
 		file.close();
 #ifndef _WIN32
 		if (chmod(fname, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP) < 0) {
@@ -1952,15 +1973,27 @@ int save_char_objects(CharData *ch, int savetype, int rentcost) {
 			mudlog(ss.str(), BRF, kLvlGod, SYSLOG, true);
 		}
 #endif
-		FileCRC::check_crc(fname, FileCRC::UPDATE_TEXTOBJS, ch->get_uid());
+		FileCRC::update_from_content(ch->get_uid(), FileCRC::UPDATE_TEXTOBJS,
+			obj_content.data(), obj_content.size());
 	} else {
 		Crash_delete_files(iplayer);
 		return false;
 	}
+	const double obj_io_sec = obj_io_timer.delta().count();
 
+	utils::CExecutionTimer timer_io_timer;
 	if (!Crash_write_timer(iplayer)) {
 		Crash_delete_files(iplayer);
 		return false;
+	}
+	const double timer_io_sec = timer_io_timer.delta().count();
+
+	// Профилирование синхронной записи (см. #3368): раздельно .obj и .time,
+	// чтобы понять, на что уходит время и нужна ли дальнейшая оптимизация.
+	const double total_io_sec = obj_io_sec + timer_io_sec;
+	if (total_io_sec > 0.01) {
+		log("save_char_objects: %s items=%d obj_io=%.4f time_io=%.4f total=%.4f",
+			GET_NAME(ch), num, obj_io_sec, timer_io_sec, total_io_sec);
 	}
 
 	if (savetype == RENT_CRASH) {

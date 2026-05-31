@@ -284,6 +284,29 @@ void show(CharData *ch) {
 		SendMsgToChar(message.c_str(), ch);
 }
 
+// Обновляет CRC игрока из готового буфера в памяти, не перечитывая файл.
+// Вызывается при сохранении предметов (save_char_objects): CRC считается из
+// того же буфера, который пишется на диск -- экономит чтение только что
+// записанного файла. Поддерживает только режимы записи предметов и таймеров.
+void update_from_content(long uid, int mode, const char *data, std::size_t len) {
+	if (mode != UPDATE_TEXTOBJS && mode != UPDATE_TIMEOBJS) {
+		add_message("SYSERROR: update_from_content: неподдерживаемый режим CRC %d", mode);
+		return;
+	}
+	const uint32_t crc = CRC32_function(data, static_cast<unsigned long>(len));
+	auto it = crc_list.find(uid);
+	if (it == crc_list.end()) {
+		it = crc_list.emplace(uid, CRCListPtr(new PlayerCRC)).first;
+	}
+	if (mode == UPDATE_TEXTOBJS) {
+		it->second->textobjs = crc;
+	} else {
+		it->second->timeobjs = crc;
+	}
+	it->second->name = GetNameByUnique(uid);
+	need_save = true;
+}
+
 } // namespace FileCRC
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
