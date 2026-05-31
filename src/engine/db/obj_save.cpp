@@ -1023,15 +1023,31 @@ int ReadCrashTimerFile(std::size_t index, int temp) {
 	}
 
 	fseek(fl, 0L, SEEK_END);
-	size = ftell(fl);
+	const long fsize = ftell(fl);
 	rewind(fl);
-	if ((size = size - sizeof(struct SaveRentInfo)) < 0 || size % sizeof(struct SaveTimeInfo)) {
+	if ((size = static_cast<int>(fsize) - sizeof(struct SaveRentInfo)) < 0
+		|| size % sizeof(struct SaveTimeInfo)) {
 		log("WARNING:  Timer file %s is corrupt!", fname);
+		fclose(fl);
 		return false;
 	}
 
+	// Читаем файл целиком в буфер: из него же считаем CRC (без второго
+	// чтения только что прочитанного файла) и парсим записи.
+	std::string content(static_cast<std::size_t>(fsize), '\0');
+	if (fsize > 0 && fread(&content[0], static_cast<std::size_t>(fsize), 1, fl) != 1) {
+		log("SYSERR: I/O Error reading %s timer file.", name.c_str());
+		fclose(fl);
+		return false;
+	}
+	fclose(fl);
+
+	// Сверка CRC из буфера вместо повторного чтения файла.
+	FileCRC::verify_from_content(player_table[index].uid(), FileCRC::TIMEOBJS,
+		content.data(), content.size());
+
+	std::memcpy(&rent, content.data(), sizeof(struct SaveRentInfo));
 	sprintf(buf, "[ReadTimer] Reading timer file %s for %s :", fname, name.c_str());
-	size_t dummy = fread(&rent, sizeof(struct SaveRentInfo), 1, fl);
 	switch (rent.rentcode) {
 		case RENT_RENTED: strncat(buf, " Rent ", sizeof(buf) - strlen(buf) - 1);
 			break;
@@ -1056,15 +1072,11 @@ int ReadCrashTimerFile(std::size_t index, int temp) {
 	log("%s", buf);
 	Crash_create_timer(index, rent.n_items);
 	player_table[index].timer->rent = rent;
-	for (; count < rent.n_items && !feof(fl); count++) {
-		dummy = fread(&info, sizeof(struct SaveTimeInfo), 1, fl);
-		if (ferror(fl)) {
-			log("SYSERR: I/O Error reading %s timer file.", name.c_str());
-			fclose(fl);
-			FileCRC::check_crc(fname, FileCRC::TIMEOBJS, player_table[index].uid());
-			ClearSaveinfo(index);
-			return false;
-		}
+
+	const char *recptr = content.data() + sizeof(struct SaveRentInfo);
+	const std::size_t records = size / sizeof(struct SaveTimeInfo);
+	for (; static_cast<std::size_t>(count) < records && count < rent.n_items; count++) {
+		std::memcpy(&info, recptr + count * sizeof(struct SaveTimeInfo), sizeof(struct SaveTimeInfo));
 		if (info.vnum && info.timer >= -1) {
 			player_table[index].timer->time.push_back(info);
 			++num;
@@ -1076,10 +1088,6 @@ int ReadCrashTimerFile(std::size_t index, int temp) {
 			obj_proto.inc_stored(rnum);
 		}
 	}
-	UNUSED_ARG(dummy);
-
-	fclose(fl);
-	FileCRC::check_crc(fname, FileCRC::TIMEOBJS, player_table[index].uid());
 
 	if (rent.n_items != num) {
 		log("[ReadTimer] Error reading %s timer file - file is corrupt.", fname);

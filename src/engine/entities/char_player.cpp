@@ -1915,13 +1915,15 @@ int Player::load_char_ascii(const char *name, const int load_flags) {
 	} else
 		this->set_hit(std::min(this->get_hit(), this->get_real_max_hit()));
 
-	fbclose(fl);
+	// Сверка CRC из буфера fb (весь файл уже в памяти) -- до fbclose, который
+	// освобождает буфер; без повторного чтения только что прочитанного файла.
 	// здесь мы закладываемся на то, что при ребуте это все сейчас пропускается и это нормально,
 	// иначе в таблице crc будут пустые имена, т.к. сама плеер-таблица еще не сформирована
 	// и в любом случае при ребуте это все пересчитывать не нужно
 	if (!(load_flags & ELoadCharFlags::kNoCrcCheck)) {
-		FileCRC::check_crc(filename, FileCRC::PLAYER, this->get_uid());
+		FileCRC::verify_from_content(this->get_uid(), FileCRC::PLAYER, fl->buf, fl->size);
 	}
+	fbclose(fl);
 
 	return (id);
 }
