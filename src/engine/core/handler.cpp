@@ -1810,20 +1810,6 @@ CharData *get_player_vis(CharData *ch, const char *name, int inroom) {
 	return nullptr;
 }
 
-CharData *get_player_pun(CharData *ch, const char *name, int inroom) {
-	for (const auto &i : character_list) {
-		if (i->IsNpc())
-			continue;
-		if ((inroom & EFind::kCharInRoom) && i->in_room != ch->in_room)
-			continue;
-		if (!isname(name, i->GetCharAliases())) {
-			continue;
-		}
-		return i.get();
-	}
-	return nullptr;
-}
-
 CharData *get_char_room_vis(CharData *ch, const char *name) {
 	char tmpname[kMaxInputLength];
 	char *tmp = tmpname;

@@ -192,6 +192,11 @@ CharData *FindCharInWorld(CharData *finder, std::string_view name);
 ObjData  *FindObjAround  (CharData *finder, std::string_view name);
 ObjData  *FindObjByRnum  (ObjRnum rnum);
 
+// FindPlayer: PC-only world walk. Bypasses CAN_SEE so admin / system code
+// (titles, name validation, do_set, do_wizutil) can reach wizinvis or
+// otherwise hidden PCs. Replaces the legacy `get_player_pun`.
+CharData *FindPlayer(CharData *finder, std::string_view name);
+
 // ---- Named filter factories (issue #3375 stage 3) -------------------------
 //
 // Building blocks for Query.char_predicate / Query.obj_predicate. Each

@@ -461,6 +461,15 @@ ObjData *FindObjByRnum(ObjRnum rnum) {
 	return ResolveObj(nullptr, q);
 }
 
+CharData *FindPlayer(CharData *finder, std::string_view name) {
+	Query q;
+	q.scopes = {Scope::kWorld};
+	q.name = std::string(name);
+	q.visible_only = false;
+	q.char_predicate = [](CharData *c) { return !c->IsNpc(); };
+	return ResolveChar(finder, q);
+}
+
 // ---- Named filter factories (issue #3375 stage 3) -------------------------
 
 namespace {

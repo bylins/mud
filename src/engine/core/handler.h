@@ -107,13 +107,6 @@ inline CharData *get_player_vis(CharData *ch, const std::string &name, int inroo
 						  inroom);
 }
 
-CharData *get_player_pun(CharData *ch, const char *name, int inroom);
-inline CharData *get_player_pun(CharData *ch, const std::string &name, int inroom) {
-	return get_player_pun(ch,
-						  name.c_str(),
-						  inroom);
-}
-
 ObjData *get_obj_in_list_vis(CharData *ch, const char *name, const ObjData::obj_list_t &list, bool locate_item = false);
 ObjData *get_obj_in_list_vis(CharData *ch, const char *name, ObjData *list, bool locate_item = false);
 inline ObjData *get_obj_in_list_vis(CharData *ch,
