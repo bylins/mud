@@ -243,7 +243,8 @@ class Points : public IAction {
 		double npc_coeff{0};
 	};
  private:
-	bool extra_{false};   // may the heal raise hit points above the maximum?
+	int extra_{0};        // overheal cap as percent ABOVE max_hp
+	                      // (0 = no overheal; e.g. 20 lets HP reach 120% of max).
 	int prob_{100};       // percent chance the whole points action fires
 	Amount heal_;
 	Amount moves_;
@@ -254,7 +255,7 @@ class Points : public IAction {
 	Amount full_;
  public:
 	explicit Points(parser_wrapper::DataNode &node);
-	[[nodiscard]] bool IsExtra() const { return extra_; }
+	[[nodiscard]] int GetExtraPercent() const { return extra_; }
 	[[nodiscard]] int GetProb() const { return prob_; }
 	[[nodiscard]] const Amount &GetHeal()   const { return heal_; }
 	[[nodiscard]] const Amount &GetMoves()  const { return moves_; }

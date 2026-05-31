@@ -2233,7 +2233,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
-            <points extra="Y">
+            <points extra="33">
                     <heal npc_coeff="3" min="0" dices_weight="1.0" competencies_weight="4"/>
                 </points>
             </action>

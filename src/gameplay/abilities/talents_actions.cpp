@@ -344,7 +344,7 @@ static void ParsePointsAmount(parser_wrapper::DataNode &node, const char *tag,
 
 Points::Points(parser_wrapper::DataNode &node) {
 	const char *extra = node.GetValue("extra");
-	extra_ = (extra && *extra) && parse::ReadAsBool(extra);
+	extra_ = (extra && *extra) ? std::max(0, parse::ReadAsInt(extra)) : 0;
 	const char *prob = node.GetValue("prob");
 	prob_ = (prob && *prob) ? parse::ReadAsInt(prob) : 100;
 	ParsePointsAmount(node, "heal",   heal_,   /*with_npc=*/true);
@@ -366,7 +366,7 @@ static void PrintAmount(std::ostringstream &buffer, const char *label,
 }
 
 void Points::Print(CharData */*ch*/, std::ostringstream &buffer) const {
-	buffer << " Points: extra=" << kColorGrn << (extra_ ? "yes" : "no") << kColorNrm
+	buffer << " Points: extra=" << kColorGrn << extra_ << "%" << kColorNrm
 		   << " prob=" << kColorGrn << prob_ << kColorNrm << "\r\n";
 	PrintAmount(buffer, "Heal",   heal_,   /*with_npc=*/true);
 	PrintAmount(buffer, "Moves",  moves_,  false);

@@ -1707,25 +1707,27 @@ void EmitPointsMessage(CharData *victim, const Sheaf &sheaf,
 
 // Apply heal: positive only (the <degrade> heal table is intentionally empty;
 // a negative <heal> amount silently no-ops -- damage paths go through CastDamage).
-// Lacerations halves a normal heal; kExtra opens an overheal cap of +33% max HP.
-void ApplyHeal(CharData *victim, int hit, bool extra) {
+// extra_percent: overheal cap above max_hp, in percent (0 = strict cap at max,
+// 33 = up to 133% of max, etc.). Lacerations halves the heal only when no
+// overheal is configured (extra_percent == 0); designer-flagged overheal
+// spells deliberately ignore the wound penalty.
+void ApplyHeal(CharData *victim, int hit, int extra_percent) {
 	if (hit <= 0) return;
 	if (victim->get_hit() >= kMaxHits) return;
-	if (!extra && victim->get_hit() < victim->get_real_max_hit()) {
-		if (AFF_FLAGGED(victim, EAffect::kLacerations)) {
-			victim->set_hit(std::min(victim->get_hit() + hit / 2, victim->get_real_max_hit()));
-		} else {
-			victim->set_hit(std::min(victim->get_hit() + hit, victim->get_real_max_hit()));
-		}
+	const int max_hp = victim->get_real_max_hit();
+	if (extra_percent == 0) {
+		if (victim->get_hit() >= max_hp) return;
+		const int amount = AFF_FLAGGED(victim, EAffect::kLacerations) ? hit / 2 : hit;
+		victim->set_hit(std::min(victim->get_hit() + amount, max_hp));
+		return;
 	}
-	if (extra) {
-		if (victim->get_real_max_hit() <= 0) {
-			victim->set_hit(std::max(victim->get_hit(), std::min(victim->get_hit() + hit, 1)));
-		} else {
-			victim->set_hit(std::clamp(victim->get_hit() + hit, victim->get_hit(),
-					victim->get_real_max_hit() + victim->get_real_max_hit() * 33 / 100));
-		}
+	if (max_hp <= 0) {
+		// Pathological char (max_hit <= 0): still let an overheal push to 1.
+		victim->set_hit(std::max(victim->get_hit(), std::min(victim->get_hit() + hit, 1)));
+		return;
 	}
+	const int cap = max_hp + max_hp * extra_percent / 100;
+	victim->set_hit(std::clamp(victim->get_hit() + hit, victim->get_hit(), cap));
 }
 
 }  // namespace
@@ -1813,7 +1815,7 @@ EStageResult CastToPoints([[maybe_unused]] int level, CharData *ch, CharData *vi
 		// Apply the actual effect.
 		switch (c.cat) {
 			case points_intensity::ECategory::kHeal:
-				ApplyHeal(victim, amt, points.IsExtra());
+				ApplyHeal(victim, amt, points.GetExtraPercent());
 				break;
 			case points_intensity::ECategory::kMoves:
 				// Positive: restore (clamped at max). Negative: drain (clamped at 0).
