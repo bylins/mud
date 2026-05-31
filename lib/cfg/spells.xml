@@ -185,11 +185,8 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </talent_actions>
     </spell>
-    <spell id="kDazzle" element="kDark" mode="kEnabled">
+    <spell id="kDazzle" element="kDark" mode="kService">
         <name rus="ослепить" eng="dazzle"/>
-        <components>
-            <weave/>
-        </components>
         <misc pos="kFight" violent="Y" danger="1"/>
         <mana max="70" min="40" change="2"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
@@ -1098,7 +1095,7 @@ base_stat id - (например "kWis") какой берем параметр,
             <verbal/>
             <weave/>
         </components>
-        <misc pos="kFight" violent="N" danger="0"/>
+        <misc pos="kFight" violent="A" danger="0"/>
         <mana max="140" min="100" change="4"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
         <flags val="kMagManual|kNpcDamagePc"/>
@@ -1293,7 +1290,7 @@ base_stat id - (например "kWis") какой берем параметр,
             <verbal/>
             <weave/>
         </components>
-        <misc pos="kFight" violent="N" danger="0"/>
+        <misc pos="kFight" violent="A" danger="0"/>
         <mana max="125" min="120" change="2"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagGroups|kMagManual"/>
@@ -2120,13 +2117,6 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
-        <talent_actions>
-            <action>
-                <blocking>
-                    <room_flags val="kNoMagic"/>
-                </blocking>
-            </action>
-        </talent_actions>
     </spell>
     <spell id="kPowerBlindness" element="kDark" mode="kEnabled">
         <name rus="полная слепота" eng="power blind"/>
@@ -2601,10 +2591,15 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="80" min="60" change="1"/>
         <targets val="kTarCharRoom"/>
         <flags val="kMagPoints"/>
+        <potency_roll>
+            <dices ndice="18" sdice="90" adice="16"/>
+            <base_skill id="kLifeMagic" low_skill_bonus="1" hi_skill_bonus="2.75"/>
+            <base_stat id="kWis" threshold="15" weight="0.5"/>
+        </potency_roll>
         <talent_actions>
             <action>
                 <points>
-                    <moves min="9999" dices_weight="0" competencies_weight="0"/>
+                    <moves min="20" dices_weight="0.5" competencies_weight="10"/>
                     <!--
                     <moves min="-80" dices_weight="0" competencies_weight="0"/>
                     <thirst min="-50" dices_weight="0" competencies_weight="0"/>
@@ -2634,7 +2629,6 @@ base_stat id - (например "kWis") какой берем параметр,
                 <damage saving="kStability">
                     <amount min="0" dices_weight="1.0" competencies_weight="835"/>
                 </damage>
-                <!-- issue.cast-damage-affects: knockdown/lag moved out of CastDamage -->
                 <affects type="kStunning" saving="kCritical" resist="kEarth">
                     <flags val="kAfDispellable|kAfCurable"/>
                     <reposition pos="kStun"/>
@@ -2649,13 +2643,6 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
-        <talent_actions>
-            <action>
-                <blocking>
-                    <room_flags val="kNoMagic"/>
-                </blocking>
-            </action>
-        </talent_actions>
     </spell>
     <spell id="kSneak" element="kUndefined" mode="kService">
         <name rus="!крадется!" eng="!set by skill!"/>
@@ -2663,13 +2650,6 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
-        <talent_actions>
-            <action>
-                <blocking>
-                    <room_flags val="kNoMagic"/>
-                </blocking>
-            </action>
-        </talent_actions>
     </spell>
     <spell id="kDrunked" element="kUndefined" mode="kService">
         <name rus="!опьянение!" eng="!set by programm!"/>
@@ -2677,13 +2657,6 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
-        <talent_actions>
-            <action>
-                <blocking>
-                    <room_flags val="kNoMagic"/>
-                </blocking>
-            </action>
-        </talent_actions>
     </spell>
     <spell id="kAbstinent" element="kUndefined" mode="kService">
         <name rus="!абстиненция!" eng="!set by programm!"/>
@@ -2691,13 +2664,6 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
-        <talent_actions>
-            <action>
-                <blocking>
-                    <room_flags val="kNoMagic"/>
-                </blocking>
-            </action>
-        </talent_actions>
     </spell>
     <spell id="kFullFeed" element="kLife" mode="kEnabled">
         <name rus="насыщение" eng="full"/>
@@ -2758,13 +2724,6 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
-        <talent_actions>
-            <action>
-                <blocking>
-                    <room_flags val="kNoMagic"/>
-                </blocking>
-            </action>
-        </talent_actions>
     </spell>
     <spell id="kHaemorrhage" element="kUndefined" mode="kService">
         <name rus="!кровотечение!" eng="!set by programm!"/>
@@ -2772,13 +2731,6 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
-        <talent_actions>
-            <action>
-                <blocking>
-                    <room_flags val="kNoMagic"/>
-                </blocking>
-            </action>
-        </talent_actions>
     </spell>
     <spell id="kCourage" element="kUndefined" mode="kService">
         <name rus="!ярость!" eng="!set by programm!"/>
@@ -2786,13 +2738,6 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
-        <talent_actions>
-            <action>
-                <blocking>
-                    <room_flags val="kNoMagic"/>
-                </blocking>
-            </action>
-        </talent_actions>
     </spell>
     <spell id="kFrenzy" element="kUndefined" mode="kService">
         <name rus="исступление" eng="!set by programm!"/>
@@ -2800,13 +2745,6 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="5" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
-        <talent_actions>
-            <action>
-                <blocking>
-                    <room_flags val="kNoMagic"/>
-                </blocking>
-            </action>
-        </talent_actions>
     </spell>
     <spell id="kWaterbreath" element="kWater" mode="kEnabled">
         <name rus="дышать водой" eng="waterbreath"/>
@@ -3034,7 +2972,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <victims skill_divisor="20" dice_size="2" min_targets="5" max_targets="20"/>
                 </area>
                 <affects type="kFever" saving="kStability" resist="kImmunity">
-                    <flags val="kAfDispellable|kAfCurable"/>
+                    <flags val="kAfCurable"/>
                     <duration base="0" skill_divisor="5" min="0" max="0"/>
                     <apply id="kUndefinded" location="kHpRegen">
                         <modifier min="95.0" dices_weight="0.0" competencies_weight="0.0" factor="-1"/>
@@ -3081,7 +3019,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
-                <unaffect>
+                <unaffect affect_flags="kAfCurable">
                     <remove any_of="kFever"/>
                 </unaffect>
             </action>
@@ -3123,13 +3061,6 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
-        <talent_actions>
-            <action>
-                <blocking>
-                    <room_flags val="kNoMagic"/>
-                </blocking>
-            </action>
-        </talent_actions>
     </spell>
     <spell id="kAirShield" element="kAir" mode="kEnabled">
         <name rus="воздушный щит" eng="air shield"/>
@@ -3189,7 +3120,7 @@ base_stat id - (например "kWis") какой берем параметр,
             <verbal/>
             <weave/>
         </components>
-        <!-- issue.ambiguous-spells: violent="A" -- cast on self / groupmate / charmed pet is
+        <!-- issue.ambiguous-spells: violent="A" - cast on self / groupmate / charmed pet is
              helpful (no contest, no PK); cast on an outsider is treated as fully aggressive
              (potency contest gate in DispelSucceeds, full PK liability). kTarAllyOnly was
              dropped from <targets> because the A semantics replace the "self / groupmate only"
@@ -4441,9 +4372,6 @@ base_stat id - (например "kWis") какой берем параметр,
         <flags val="kMagManual"/>
         <talent_actions>
             <action>
-                <blocking>
-                    <room_flags val="kNoMagic"/>
-                </blocking>
                 <affects type="kMagicBattle" saving="kNone" resist="kVitality">
                     <flags val="kAfDispellable|kAfCurable"/>
                     <duration base="2" skill_divisor="20" min="0" max="0"/>
@@ -4463,13 +4391,6 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
-        <talent_actions>
-            <action>
-                <blocking>
-                    <room_flags val="kNoMagic"/>
-                </blocking>
-            </action>
-        </talent_actions>
     </spell>
     <spell id="kStoneBones" element="kEarth" mode="kEnabled">
         <name rus="каменные кости" eng="stone bones"/>
@@ -4639,13 +4560,6 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
-        <talent_actions>
-            <action>
-                <blocking>
-                    <room_flags val="kNoMagic"/>
-                </blocking>
-            </action>
-        </talent_actions>
     </spell>
     <spell id="kGlitterDust" element="kEarth" mode="kEnabled">
         <name rus="блестящая пыль" eng="glitterdust"/>
@@ -5201,7 +5115,6 @@ base_stat id - (например "kWis") какой берем параметр,
             <action>
                 <blocking>
                     <affect_flags val="kGodsShield"/>
-                    <room_flags val="kNoMagic"/>
                 </blocking>
                 <affects type="kAconitumPoison" saving="kNone" resist="kImmunity">
                     <duration base="7" skill_divisor="0" min="0" max="0"/>
@@ -5228,7 +5141,6 @@ base_stat id - (например "kWis") какой берем параметр,
             <action>
                 <blocking>
                     <affect_flags val="kGodsShield"/>
-                    <room_flags val="kNoMagic"/>
                 </blocking>
                 <affects type="kScopolaPoison" saving="kNone" resist="kImmunity">
                     <duration base="7" skill_divisor="0" min="0" max="0"/>
@@ -5258,7 +5170,6 @@ base_stat id - (например "kWis") какой берем параметр,
             <action>
                 <blocking>
                     <affect_flags val="kGodsShield"/>
-                    <room_flags val="kNoMagic"/>
                 </blocking>
                 <affects type="kBelenaPoison" saving="kNone" resist="kImmunity">
                     <duration base="7" skill_divisor="0" min="0" max="0"/>
@@ -5285,7 +5196,6 @@ base_stat id - (например "kWis") какой берем параметр,
             <action>
                 <blocking>
                     <affect_flags val="kGodsShield"/>
-                    <room_flags val="kNoMagic"/>
                 </blocking>
                 <affects type="kDaturaPoison" saving="kNone" resist="kImmunity">
                     <duration base="7" skill_divisor="0" min="0" max="0"/>
@@ -5299,17 +5209,14 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kTimerRestore" element="kLight" mode="kEnabled">
         <name rus="обновление таймера" eng=" timer repair"/>
+        <components>
+            <verba/>
+            <weave/>
+        </components>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="110" min="100" change="1"/>
         <targets val="kTarObjInv|kTarObjEquip"/>
         <flags val="kMagAlterObjs"/>
-        <talent_actions>
-            <action>
-                <blocking>
-                    <room_flags val="kNoMagic"/>
-                </blocking>
-            </action>
-        </talent_actions>
     </spell>
     <spell id="kCombatLuck" element="kMind" mode="kEnabled">
         <name rus="боевое везение" eng="lacky"/>
@@ -5317,27 +5224,13 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="100" min="90" change="1"/>
         <targets val="kTarCharRoom|kTarSelfOnly"/>
         <flags val="kMagAffects"/>
-        <talent_actions>
-            <action>
-                <blocking>
-                    <room_flags val="kNoMagic"/>
-                </blocking>
-            </action>
-        </talent_actions>
     </spell>
-    <spell id="kBandage" element="kUndefined" mode="kEnabled">
+    <spell id="kBandage" element="kUndefined" mode="kService">
         <name rus="перевязка" eng="!set by programm!"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
-        <talent_actions>
-            <action>
-                <blocking>
-                    <room_flags val="kNoMagic"/>
-                </blocking>
-            </action>
-        </talent_actions>
     </spell>
     <spell id="kNoBandage" element="kUndefined" mode="kService">
         <name rus="!нельзя перевязываться!" eng="!set by programm!"/>
@@ -5345,13 +5238,6 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
-        <talent_actions>
-            <action>
-                <blocking>
-                    <room_flags val="kNoMagic"/>
-                </blocking>
-            </action>
-        </talent_actions>
     </spell>
     <spell id="kCapable" element="kUndefined" mode="kService">
         <name rus="!зачарован!" eng="!set by programm!"/>
@@ -5359,13 +5245,6 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
-        <talent_actions>
-            <action>
-                <blocking>
-                    <room_flags val="kNoMagic"/>
-                </blocking>
-            </action>
-        </talent_actions>
     </spell>
     <spell id="kStrangle" element="kUndefined" mode="kService">
         <name rus="!удушье!" eng="!set by programm!"/>
@@ -5373,13 +5252,6 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
-        <talent_actions>
-            <action>
-                <blocking>
-                    <room_flags val="kNoMagic"/>
-                </blocking>
-            </action>
-        </talent_actions>
     </spell>
     <spell id="kRecallSpells" element="kUndefined" mode="kService">
         <name rus="!вспоминает заклинания!" eng="!set by programm!"/>
@@ -5387,13 +5259,6 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
-        <talent_actions>
-            <action>
-                <blocking>
-                    <room_flags val="kNoMagic"/>
-                </blocking>
-            </action>
-        </talent_actions>
     </spell>
     <spell id="kHypnoticPattern" element="kMind" mode="kEnabled">
         <name rus="чарующий узор" eng="hypnotic pattern"/>
@@ -5423,13 +5288,6 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="55" min="40" change="1"/>
         <targets val="kTarCharRoom|kTarNotSelf"/>
         <flags val="kMagManual"/>
-        <talent_actions>
-            <action>
-                <blocking>
-                    <room_flags val="kNoMagic"/>
-                </blocking>
-            </action>
-        </talent_actions>
     </spell>
     <spell id="kVampirism" element="kDark" mode="kEnabled">
         <name rus="вампиризм" eng="vampire"/>
@@ -5734,13 +5592,6 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
-        <talent_actions>
-            <action>
-                <blocking>
-                    <room_flags val="kNoMagic"/>
-                </blocking>
-            </action>
-        </talent_actions>
     </spell>
     <spell id="kSightOfDarkness" element="kLight" mode="kEnabled">
         <name rus="зрение тьмы" eng="sight darkness"/>
@@ -6111,9 +5962,6 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kArrowsFire" element="kFire" mode="kEnabled">
         <name rus="стрелы огня" eng="arrows of fire"/>
-        <components>
-            <weave/>
-        </components>
         <misc pos="kFight" violent="Y" danger="2"/>
         <mana max="0" min="0" change="0"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
@@ -6133,9 +5981,6 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kArrowsWater" element="kWater" mode="kEnabled">
         <name rus="стрелы воды" eng="arrows of water"/>
-        <components>
-            <weave/>
-        </components>
         <misc pos="kFight" violent="Y" danger="2"/>
         <mana max="0" min="0" change="0"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
@@ -6155,9 +6000,6 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kArrowsEarth" element="kEarth" mode="kEnabled">
         <name rus="стрелы земли" eng="arrows of earth"/>
-        <components>
-            <weave/>
-        </components>
         <misc pos="kFight" violent="Y" danger="2"/>
         <mana max="0" min="0" change="0"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
@@ -6177,9 +6019,6 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kArrowsAir" element="kAir" mode="kEnabled">
         <name rus="стрелы воздуха" eng="arrows of air"/>
-        <components>
-            <weave/>
-        </components>
         <misc pos="kFight" violent="Y" danger="2"/>
         <mana max="0" min="0" change="0"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
@@ -6199,9 +6038,6 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kArrowsDeath" element="kDark" mode="kEnabled">
         <name rus="стрелы смерти" eng="arrows of death"/>
-        <components>
-            <weave/>
-        </components>
         <misc pos="kFight" violent="Y" danger="2"/>
         <mana max="0" min="0" change="0"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
@@ -6221,9 +6057,6 @@ base_stat id - (например "kWis") какой берем параметр,
     </spell>
     <spell id="kPaladineInspiration" element="kUndefined" mode="kEnabled">
         <name rus="воодушевление" eng="inspiration"/>
-        <components>
-            <weave/>
-        </components>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
@@ -6580,9 +6413,6 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
-                <blocking>
-                    <room_flags val="kNoMagic"/>
-                </blocking>
                 <damage saving="kReflex">
                     <amount min="2" dices_weight="1.0" competencies_weight="2"/>
                 </damage>
@@ -6601,9 +6431,6 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
-                <blocking>
-                    <room_flags val="kNoMagic"/>
-                </blocking>
                 <damage saving="kReflex">
                     <amount min="2" dices_weight="1.0" competencies_weight="2"/>
                 </damage>
@@ -6622,9 +6449,6 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
-                <blocking>
-                    <room_flags val="kNoMagic"/>
-                </blocking>
                 <damage saving="kReflex">
                     <amount min="2" dices_weight="1.0" competencies_weight="2"/>
                 </damage>
@@ -6643,9 +6467,6 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
-                <blocking>
-                    <room_flags val="kNoMagic"/>
-                </blocking>
                 <damage saving="kReflex">
                     <amount min="2" dices_weight="1.0" competencies_weight="2"/>
                 </damage>
@@ -6664,9 +6485,6 @@ base_stat id - (например "kWis") какой берем параметр,
         </potency_roll>
         <talent_actions>
             <action>
-                <blocking>
-                    <room_flags val="kNoMagic"/>
-                </blocking>
                 <damage saving="kReflex">
                     <amount min="2" dices_weight="1.0" competencies_weight="2"/>
                 </damage>
@@ -6679,13 +6497,6 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
-        <talent_actions>
-            <action>
-                <blocking>
-                    <room_flags val="kNoMagic"/>
-                </blocking>
-            </action>
-        </talent_actions>
     </spell>
     <spell id="kLowerEffectiveness" element="kUndefined" mode="kService">
         <name rus="снижение боеспособности" eng="injured"/>
@@ -6693,13 +6504,6 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
-        <talent_actions>
-            <action>
-                <blocking>
-                    <room_flags val="kNoMagic"/>
-                </blocking>
-            </action>
-        </talent_actions>
     </spell>
     <spell id="kNoInjure" element="kUndefined" mode="kService">
         <name rus="ранение" eng="injured"/>
@@ -6707,13 +6511,6 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
-        <talent_actions>
-            <action>
-                <blocking>
-                    <room_flags val="kNoMagic"/>
-                </blocking>
-            </action>
-        </talent_actions>
     </spell>
     <spell id="kNoCharge" element="kUndefined" mode="kService">
         <name rus="натиск" eng="injured"/>
@@ -6721,13 +6518,6 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
-        <talent_actions>
-            <action>
-                <blocking>
-                    <room_flags val="kNoMagic"/>
-                </blocking>
-            </action>
-        </talent_actions>
     </spell>
     <spell id="kConfuse" element="kUndefined" mode="kService">
         <name rus="ошарашен" eng="injured"/>
@@ -6735,13 +6525,6 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
-        <talent_actions>
-            <action>
-                <blocking>
-                    <room_flags val="kNoMagic"/>
-                </blocking>
-            </action>
-        </talent_actions>
     </spell>
     <spell id="kIdentify" element="kMind" mode="kEnabled">
         <name rus="идентификация" eng="identify"/>
