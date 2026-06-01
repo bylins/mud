@@ -5,6 +5,7 @@
 #include "engine/entities/char_data.h"
 #include "magic.h" //Включено ради material_component_processing
 #include "magic_utils.h" // IsRoomBlocked / MayCastInForbiddenRoom
+#include "magic_internal.h" // ComputeCastRoll / CastUnaffects / ProcessMatComponents
 #include "engine/ui/table_wrapper.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/skills/townportal.h"
@@ -240,7 +241,7 @@ static void HandleDeadlyFogTick(CharData *ch, int duration) {
 static void HandleThunderstormTick(CharData *ch, const Affect<ERoomApply>::shared_ptr &aff) {
 	switch (aff->duration) {
 	case 7:
-		if (!CallMagic(ch, nullptr, nullptr, nullptr, ESpell::kControlWeather, GetRealLevel(ch))) {
+		if (CallMagic(ch, nullptr, nullptr, nullptr, ESpell::kControlWeather, GetRealLevel(ch)) == ECastResult::kNotCast) {
 			aff->duration = 0;
 			break;
 		}
@@ -425,19 +426,19 @@ void UpdateRoomsAffects() {
 // This preserves the OLD pulse-direct semantics of kDeadlyFog (8 pulses),
 // kMeteorStorm (3 pulses), etc. -- sub-hour values that hours-based duration
 // can't express in integers.
-int CallMagicToRoom(CharData *ch, RoomData *room, CastContext roll) {
+ECastResult CallMagicToRoom(CharData *ch, RoomData *room, CastContext roll) {
 	const ESpell spell_id = roll.spell_id();   // roll.level is unused for room casts
 	roll.cvict = nullptr;
 	roll.rvict = room;
 
 	if (room == nullptr || ch == nullptr || ch->in_room == kNowhere) {
-		return 0;
+		return ECastResult::kNotCast;
 	}
 
 	// Material component: silently abort if the cast requires one and ch
 	// can't provide it. No-op for spells without a configured component.
 	if (ProcessMatComponents(ch, ch, spell_id) == EStageResult::kBreak) {
-		return 0;
+		return ECastResult::kNotCast;
 	}
 
 	// Data-driven room block: same mechanism as in
@@ -450,7 +451,7 @@ int CallMagicToRoom(CharData *ch, RoomData *room, CastContext roll) {
 		if (!fizzle_room.empty()) {
 			act(fizzle_room.c_str(), false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 		}
-		return 0;
+		return ECastResult::kNotCast;
 	}
 
 	// Data-driven dispel. A kTarRoomThis spell carrying an <unaffect>
@@ -460,7 +461,7 @@ int CallMagicToRoom(CharData *ch, RoomData *room, CastContext roll) {
 	// loop below then runs as a no-op; for a dual spell (kMagAffects + <unaffect>) the affect
 	// imposition continues normally.
 	if (CastUnaffects(roll) == EStageResult::kBreak) {
-		return 0;
+		return ECastResult::kNotCast;
 	}
 
 	// Default-init the affect array. kMaxSpellAffects slots; only slot 0 is
@@ -579,11 +580,11 @@ int CallMagicToRoom(CharData *ch, RoomData *room, CastContext roll) {
 		if (!xml_to_char.empty()) {
 			act(xml_to_char.c_str(), true, ch, nullptr, nullptr, kToChar);
 		}
-		return 1;
+		return ECastResult::kSuccess;
 	}
 
 	SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
-	return 0;
+	return ECastResult::kNotCast;
 }
 
 int GetUniqueAffectDuration(long caster_id, ESpell spell_id) {

@@ -120,12 +120,8 @@ class CastContext {
 	RollResult potency_;        // from SpellInfo::GetPotencyRoll()
 };
 
-// Builds a CastContext for spell_id cast by caster at level (evaluates both rolls).
-// Targets stay null here; callers fill cvict/ovict/rvict. Defined in magic_utils.cpp.
-CastContext ComputeCastRoll(CharData *caster, ESpell spell_id, int level);
-
-// VNUM'ы мобов для заклинаний, создающих мобов
-const int kMobDouble = 3000; //внум прототипа для клона
+// VNUM'О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫
+const int kMobDouble = 3000; //О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫
 const int kMobSkeleton = 3001;
 const int kMobZombie = 3002;
 const int kMobBonedog = 3003;
@@ -136,7 +132,7 @@ const int kMobNecrotank = 3008;
 const int kMobNecrobreather = 3009;
 const int kMobNecrocaster = 3010;
 const int kLastNecroMob = 3010;
-// резерв для некротических забав
+// О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫
 const int kMobMentalShadow = 3020;
 const int kMobKeeper = 3021;
 const int kMobFirekeeper = 3022;
@@ -149,11 +145,22 @@ void player_affect_update();
 void print_rune_log();
 void ShowAffExpiredMsg(ESpell aff_type, CharData *ch);
 
-int CallMagicToGroup(CharData *ch, CastContext roll);
-int CallMagicToArea(CharData *ch, CharData *victim, RoomData *room, CastContext roll);
+// Outcome of a whole cast (the CallMagic / CastSpell / CastToSingleTarget chain).
+// Replaces the old int return whose -1/0/1 meaning callers had to memorise.
+enum class ECastResult {
+	kNotCast,     // the cast did not take effect: blocked, fizzled, refused, no target.
+	kSuccess,     // the cast took effect and the target is still alive.
+	kTargetDied,  // the cast took effect and killed the target (don't re-cast at it).
+};
 
-int CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict, ESpell spell_id, int level);
-int CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, ESpell spell_id, ESpell spell_subst);
+// True if the cast produced an effect (alive OR dead target) -- the old `>= 0` ... note
+// that the legacy idioms differed, so callers compare ECastResult directly; these helpers
+// exist only where a plain "did anything happen" / "did the target die" check reads cleaner.
+[[nodiscard]] inline bool CastTookEffect(ECastResult r) { return r != ECastResult::kNotCast; }
+[[nodiscard]] inline bool CastTargetDied(ECastResult r) { return r == ECastResult::kTargetDied; }
+
+ECastResult CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict, ESpell spell_id, int level);
+ECastResult CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, ESpell spell_id, ESpell spell_subst);
 
 // Result of one cast stage (CastAffect/CastUnaffects/...). CastToSingleTarget runs the
 // stages in order and stops the chain on kBreak. Today every stage returns kSuccess
@@ -164,22 +171,19 @@ enum class EStageResult {
 	kSuccess	// stage handled; continue to the next stage.
 };
 
-// Stage functions called from outside the magic module. Prefer CallMagic / CastSpell when
-// possible -- direct calls bypass CastToSingleTarget's blocking/required/reflection/
-// caster_blocking gates, which is rarely what callers want. fight_hit.cpp and spells.cpp
-// (SpellHolystrike etc.) call CastDamage/CastAffect/CastUnaffects directly because they run a
-// per-target loop outside the normal cast pipeline; handler.cpp calls CastAffect to re-apply
-// gear-borne effects. The remaining stage functions (CastToPoints / CastToAlterObjs /
-// CastCreation / CastSummon / CastManual / CastToSingleTarget) live in magic_internal.h --
-// they're only called from CallMagic and the dispatcher in magic.cpp.
+// Stage functions reachable from outside the magic module. Prefer CallMagic / CastSpell --
+// direct calls bypass CastToSingleTarget's blocking/required/reflection/caster_blocking gates,
+// which is rarely what callers want. The two kept here have real external callers:
+// fight_hit.cpp / spells.cpp run a per-target loop (CastDamage), and handler.cpp re-applies
+// gear-borne effects (CastAffect). Everything else that used to live here -- CastUnaffects,
+// CallMagicToArea/Group, ComputeCastRoll, ProcessMatComponents, CalcClassAntiSavingsMod, and
+// the CastToPoints/CastToAlterObjs/CastCreation/CastSummon/CastManual/CastToSingleTarget
+// dispatchers -- is module-internal and now lives in magic_internal.h.
 EStageResult CastDamage(CastContext &ctx);
 EStageResult CastAffect(CastContext &ctx);
-EStageResult CastUnaffects(CastContext &ctx);
 int CalcSaving(CharData *killer, CharData *victim, ESaving saving, bool need_log = false);
 int CalcGeneralSaving(CharData *killer, CharData *victim, ESaving type, int ext_apply);
 int GetBasicSave(CharData *ch, ESaving saving, bool log = false);
-EStageResult ProcessMatComponents(CharData *caster, CharData *victim, ESpell spell_id);
-int CalcClassAntiSavingsMod(CharData *ch, ESpell spell_id);
 
 #endif // MAGIC_H_
 

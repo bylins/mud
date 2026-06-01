@@ -98,7 +98,7 @@ void do_warcry(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	SaySpell(ch, spell_id, nullptr, nullptr);
 
-	if (CallMagic(ch, nullptr, nullptr, nullptr, spell_id, GetRealLevel(ch)) >= 0) {
+	if (CallMagic(ch, nullptr, nullptr, nullptr, spell_id, GetRealLevel(ch)) != ECastResult::kTargetDied) {
 		if (!ch->IsImmortal()) {
 			if (ch->get_wait() <= 0) {
 				SetBattleLag(ch, 1);

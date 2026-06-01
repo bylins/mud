@@ -130,7 +130,7 @@ void do_mixture(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 					SendMsgToChar("Вы не смогли правильно истолковать значение рун!\r\n", ch);
 			}
 		} else {
-			if (CallMagic(ch, tch, tobj, world[ch->in_room], spell_id, GetRealLevel(ch)) >= 0) {
+			if (CallMagic(ch, tch, tobj, world[ch->in_room], spell_id, GetRealLevel(ch)) != ECastResult::kTargetDied) {
 				if (!(ch->IsImmortal() || ch->get_wait() > 0 ))
 					SetBattleLag(ch, 1);
 			}

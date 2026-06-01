@@ -11,14 +11,30 @@
 #ifndef MAGIC_INTERNAL_H_
 #define MAGIC_INTERNAL_H_
 
-#include "magic.h"          // for EStageResult / CastContext / forward decls
+#include "magic.h"          // for EStageResult / ECastResult / CastContext / forward decls
 
+// Per-target entry: runs the stages in order with the blocking/required/reflection/
+// caster_blocking gates on top. Returns the whole-cast outcome.
+ECastResult CastToSingleTarget(CastContext &ctx);
+
+// Area / group dispatchers: only CallMagic fans out to these.
+ECastResult CallMagicToGroup(CharData *ch, CastContext roll);
+ECastResult CallMagicToArea(CharData *ch, CharData *victim, RoomData *room, CastContext roll);
+
+// Builds a CastContext (evaluates both rolls). Module-internal; CallMagic is the entry.
+CastContext ComputeCastRoll(CharData *caster, ESpell spell_id, int level);
+
+// Per-stage dispatchers reached from CastToSingleTarget via the kMag* flag table.
+EStageResult CastUnaffects(CastContext &ctx);
 EStageResult CastToPoints(CastContext &ctx);
 EStageResult CastToAlterObjs(CastContext &ctx);
 EStageResult CastCreation(CastContext &ctx);
 EStageResult CastSummon(CastContext &ctx, bool need_fail);
 EStageResult CastManual(CastContext &ctx);
-int CastToSingleTarget(CastContext &ctx);
+
+// Material-component check + class anti-saving modifier: only used inside the module.
+EStageResult ProcessMatComponents(CharData *caster, CharData *victim, ESpell spell_id);
+int CalcClassAntiSavingsMod(CharData *ch, ESpell spell_id);
 
 #endif  // MAGIC_INTERNAL_H_
 
