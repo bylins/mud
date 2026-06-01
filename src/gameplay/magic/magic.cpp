@@ -2861,6 +2861,11 @@ ECastResult CastOnTarget(CastContext &ctx, bool is_entry) {
 	CharData *cvict = ctx.cvict;
 	const ESpell spell_id = ctx.spell_id();
 	const auto &action = ctx.action_or_default();
+	// Dead-target guard (issue.area-cast): a later action may aim at someone an earlier action
+	// already killed; never run stages on a corpse -- skip it, the cast continues for the rest.
+	if (cvict && cvict->purged()) {
+		return ECastResult::kSuccess;
+	}
 	// kTarMinionsOnly: castable only on one of the caster's own NPC followers (master == caster).
 	// Checked per target so it covers group/mass casts too. A single-target cast on the wrong
 	// target is refused with a message; group/mass casts just skip non-followers silently.
@@ -2901,11 +2906,12 @@ ECastResult CastOnTarget(CastContext &ctx, bool is_entry) {
 		if (MUD::Spell(spell_id).IsFlagged(kMagWarcry) && cvict && IS_UNDEAD(cvict))
 			return ECastResult::kSuccess;
 	}
-	// This action's data-driven stages in the fixed order Damage -> Unaffect -> Affect -> Points.
+	// This action's data-driven stages, in the fixed order Damage -> Unaffect -> Affect -> Points.
 	// The entry action triggers on the spell's kMag* flags (so flag-only, code-driven stages such
-	// as kCallLighting still fire); later actions run only the stages they actually carry as data.
-	//   kBreak    -> stop the whole cast (return now);
-	//   kContinue -> skip this action's remaining stages.
+	// as kCallLighting still fire); later actions run only the stages they carry as data. A stage
+	// that breaks, or a target killed by the damage, stops only THIS action's remaining stages on
+	// THIS target -- never the action chain (a later heal on the group still runs) and never the
+	// action's other targets.
 	const bool run_damage    = is_entry ? MUD::Spell(spell_id).IsFlagged(kMagDamage)
 										: action.Contains(talents_actions::EAction::kDamage);
 	const bool run_unaffects = is_entry ? MUD::Spell(spell_id).IsFlagged(kMagUnaffects)
@@ -2914,30 +2920,25 @@ ECastResult CastOnTarget(CastContext &ctx, bool is_entry) {
 										: action.Contains(talents_actions::EAction::kAffect);
 	const bool run_points    = is_entry ? MUD::Spell(spell_id).IsFlagged(kMagPoints)
 										: action.Contains(talents_actions::EAction::kPoints);
+	bool target_died = false;
 	bool stop_stages = false;
-	if (run_damage) {
-		if (CastDamage(ctx) == EStageResult::kBreak) {
-			// CastDamage's kBreak means the target died (see its tail).
-			return ctx.is_vict_dead ? ECastResult::kTargetDied : ECastResult::kSuccess;
-		}
+	if (run_damage && CastDamage(ctx) == EStageResult::kBreak) {
+		// CastDamage breaks only when the target died: affect/points on a corpse are pointless,
+		// so skip this action's remaining stages -- but the cast continues for everyone else.
+		target_died = true;
+		stop_stages = true;
 	}
-	if (run_unaffects && !stop_stages) {
-		const EStageResult r = CastUnaffects(ctx);
-		if (r == EStageResult::kBreak) return ECastResult::kSuccess;
-		if (r == EStageResult::kContinue) stop_stages = true;
+	if (run_unaffects && !stop_stages && CastUnaffects(ctx) != EStageResult::kSuccess) {
+		stop_stages = true;   // a dispel that broke stops THIS action's remaining stages, not the chain.
 	}
-	if (run_affects && !stop_stages) {
-		const EStageResult r = CastAffect(ctx);
-		if (r == EStageResult::kBreak) return ECastResult::kSuccess;
-		if (r == EStageResult::kContinue) stop_stages = true;
+	if (run_affects && !stop_stages && CastAffect(ctx) != EStageResult::kSuccess) {
+		stop_stages = true;
 	}
-	if (run_points && !stop_stages) {
-		const EStageResult r = CastToPoints(ctx);
-		if (r == EStageResult::kBreak) return ECastResult::kSuccess;
-		if (r == EStageResult::kContinue) stop_stages = true;
+	if (run_points && !stop_stages && CastToPoints(ctx) != EStageResult::kSuccess) {
+		stop_stages = true;
 	}
-	// Whole-cast one-shots: entry action only.
-	if (is_entry) {
+	// Whole-cast one-shots: entry action only, and not when the target just died.
+	if (is_entry && !target_died) {
 		if (MUD::Spell(spell_id).IsFlagged(kMagAlterObjs)
 				&& CastToAlterObjs(ctx) == EStageResult::kBreak) {
 			return ECastResult::kSuccess;
@@ -2956,12 +2957,14 @@ ECastResult CastOnTarget(CastContext &ctx, bool is_entry) {
 		}
 	}
 	// Record this target for the deferred end-of-cast reaction (issue.area-cast). Reaching here
-	// means the cast landed on `cvict` (it was not refused and did not die), so the target should
+	// means the cast landed on a LIVE `cvict` (not refused, not killed), so the target should
 	// retaliate -- but only after ALL the spell's actions have run (fired in CastSpell).
-	if (cvict && std::find(ctx.reactions.begin(), ctx.reactions.end(), cvict) == ctx.reactions.end()) {
+	if (cvict && !target_died
+			&& std::find(ctx.reactions.begin(), ctx.reactions.end(), cvict) == ctx.reactions.end()) {
 		ctx.reactions.push_back(cvict);
 	}
-	return ECastResult::kSuccess;
+	// kTargetDied is a status (callers like warcry / mixture check it); it does NOT break the chain.
+	return target_died ? ECastResult::kTargetDied : ECastResult::kSuccess;
 }
 
 // Сообщения массовых/площадных заклинаний вынесены в lib/cfg/spell_msg.xml
@@ -3035,6 +3038,9 @@ static ECastResult RunActionOverTargets(CastContext &ctx, const std::vector<Char
 	for (CharData *target : targets) {
 		if (j >= n) {
 			break;
+		}
+		if (target->purged()) {
+			continue;  // skip a target an earlier action already killed (don't consume a slot)
 		}
 		++j;  // 1-based position; target #1 = primary victim (foes) / first ally (group).
 		const double coeff = caster->IsNpc() ? 1.0 : area.DistributionCoeff(j, n, decay_eff);
