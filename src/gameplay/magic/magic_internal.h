@@ -18,13 +18,15 @@
 // the caster's room (area/mass); kFriends -> the caster's group, caster placed last.
 enum class ECastTargets { kSingle, kFoes, kFriends };
 
-// Per-target pipeline: runs the stages in order with the target blocking/required/reflection
-// gates on top (the caster_conditions gate lives in CallMagic). One target = ctx.cvict.
-ECastResult CastOnTarget(CastContext &ctx);
+// Per-(action, target) pipeline: cast gates + the cursor action's data-driven stages on
+// ctx.cvict. is_entry (the spell's first action) also runs the whole-cast steps (reflection,
+// mtrigger, one-shots, ReactToCast). The caster_conditions gate lives in CallMagic.
+ECastResult CastOnTarget(CastContext &ctx, bool is_entry);
 
-// Main cast entry: builds the target list (per scope) and runs the pipeline on each, applying
-// the area <distribution> falloff. Unifies the former CallMagicToArea + CallMagicToGroup.
-ECastResult CastToTargets(CastContext &ctx, ECastTargets scope);
+// Main cast entry: walks the spell's <action> list, resolving and running each action over its
+// own target list (action[0] = the spell scope). Unifies the former CallMagicToArea/Group and
+// the single-target path. Per-action target resolving (issue.area-cast).
+ECastResult CastSpell(CastContext &ctx, ECastTargets scope);
 
 // Forced area-fanout of a spell over the caster's room (room-affect ticks); see magic.cpp.
 ECastResult CastAreaInRoom(CharData *ch, ESpell spell_id, int level);

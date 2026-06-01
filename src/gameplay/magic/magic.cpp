@@ -2851,11 +2851,16 @@ bool CastContext::HasPendingActions() const {
 	return action_idx_ < std::max<size_t>(1, count);
 }
 
-ECastResult CastOnTarget(CastContext &ctx) {
+// Per-(action, target) pipeline (issue.area-cast per-action targets). Runs the cast gates and
+// the CURRENT action's data-driven stages on ctx.cvict. `is_entry` (the spell's first action)
+// additionally runs the whole-cast steps -- reflection, god guard, mtrigger, the one-shot
+// stages (alter-objs / summon / creation / manual) and ReactToCast -- which belong to the
+// cast as a whole, not to a per-action target list.
+ECastResult CastOnTarget(CastContext &ctx, bool is_entry) {
 	CharData *caster = ctx.caster();
 	CharData *cvict = ctx.cvict;
-	ObjData *ovict = ctx.ovict;
 	const ESpell spell_id = ctx.spell_id();
+	const auto &action = ctx.action_or_default();
 	// kTarMinionsOnly: castable only on one of the caster's own NPC followers (master == caster).
 	// Checked per target so it covers group/mass casts too. A single-target cast on the wrong
 	// target is refused with a message; group/mass casts just skip non-followers silently.
@@ -2866,100 +2871,91 @@ ECastResult CastOnTarget(CastContext &ctx) {
 		}
 		return ECastResult::kNotCast;
 	}
-	// Action-level <blocking>/<required> gates: the cast is refused on a target
-	// that carries a blocking flag/affect or lacks a required one. This sits here (not inside a
-	// stage) so it gates the whole cast -- damage, affects, etc. Per target, so it covers group/
-	// mass casts; for those a refusal stays silent (no per-target spam).
-	if (cvict && (TargetIsBlocked(cvict, MUD::Spell(spell_id).actions.GetBlocking())
-			|| !TargetMeetsRequired(cvict, MUD::Spell(spell_id).actions.GetRequired()))) {
+	// Action-level <blocking>/<required> gates, read from THIS action (the cursor): the cast is
+	// refused on a target carrying a blocking flag/affect or lacking a required one. Per target,
+	// so it covers group/mass casts; for those a refusal stays silent (no per-target spam).
+	if (cvict && (TargetIsBlocked(cvict, action.GetBlocking())
+			|| !TargetMeetsRequired(cvict, action.GetRequired()))) {
 		if (!MUD::Spell(spell_id).IsFlagged(kMagGroups | kMagMasses | kMagAreas)) {
 			SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", caster);
 		}
 		return ECastResult::kNotCast;
 	}
-	cvict = MaybeReflectToCaster(caster, cvict, spell_id);
-	ctx.cvict = cvict;
-	if (cvict && (caster != cvict))
-		// The level-difference half of this guard is commented out: after
-		// proper balancing it should be moot -- a low-level mage can't land a strong buff,
-		// can't penetrate a debuff's saving throw, and damage now scales with (low) skill.
-		// Kept for quick reactivation if some unforeseen case needs it:
-		//     || (((GetRealLevel(cvict) / 2) > (GetRealLevel(caster) + (GetRealRemort(caster) / 2))) && !caster->IsNpc())
-		if (cvict->IsGod() /* level-diff condition disabled, see above */) {
-			SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", caster);
+	// Whole-cast gates: only for the entry action.
+	if (is_entry) {
+		cvict = MaybeReflectToCaster(caster, cvict, spell_id);
+		ctx.cvict = cvict;
+		if (cvict && (caster != cvict))
+			// The level-difference half of this guard is commented out: after
+			// proper balancing it should be moot -- a low-level mage can't land a strong buff,
+			// can't penetrate a debuff's saving throw, and damage now scales with (low) skill.
+			// Kept for quick reactivation if some unforeseen case needs it:
+			//     || (((GetRealLevel(cvict) / 2) > (GetRealLevel(caster) + (GetRealRemort(caster) / 2))) && !caster->IsNpc())
+			if (cvict->IsGod() /* level-diff condition disabled, see above */) {
+				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", caster);
+				return ECastResult::kNotCast;
+			}
+		if (!cast_mtrigger(cvict, caster, spell_id)) {
 			return ECastResult::kNotCast;
 		}
-
-	if (!cast_mtrigger(cvict, caster, spell_id)) {
-		return ECastResult::kNotCast;
+		if (MUD::Spell(spell_id).IsFlagged(kMagWarcry) && cvict && IS_UNDEAD(cvict))
+			return ECastResult::kSuccess;
 	}
-
-	if (MUD::Spell(spell_id).IsFlagged(kMagWarcry) && cvict && IS_UNDEAD(cvict))
-		return ECastResult::kSuccess;
-
-	// Per-action loop (issue.spell-pipeline multi-action): walk the spell's <action>
-	// list in order; for each action run its data-driven stages in the fixed intra-
-	// action order Damage -> Unaffect -> Affect -> Points (unchanged from the old
-	// single sequence). WHICH stages run is still gated by the kMag* flags -- some
-	// spells (kCallLighting / kDazzle / ...) carry a flag but no matching <action>
-	// block and apply their effect in code inside the stage, so the flag, not the
-	// block, stays the trigger. Each stage reads its block from ctx.action() (wired
-	// in stage 4); today every spell has one action, so each flagged stage runs once
-	// -- behaviour-identical.
-	//   kBreak    from a stage -> stop the whole cast (return now);
-	//   kContinue from a stage -> skip this action's remaining stages, go to next;
-	//   kSuccess  -> run the next stage of this action.
-	const bool has_damage    = MUD::Spell(spell_id).IsFlagged(kMagDamage);
-	const bool has_unaffects = MUD::Spell(spell_id).IsFlagged(kMagUnaffects);
-	const bool has_affects   = MUD::Spell(spell_id).IsFlagged(kMagAffects);
-	const bool has_points    = MUD::Spell(spell_id).IsFlagged(kMagPoints);
-	for (ctx.RewindActions(); ctx.HasPendingActions(); ctx.NextAction()) {
-		if (has_damage) {
-			if (CastDamage(ctx) == EStageResult::kBreak) {
-				// CastDamage's kBreak means the target died (see its tail).
-				return ctx.is_vict_dead ? ECastResult::kTargetDied : ECastResult::kSuccess;
-			}
-		}
-		// Unaffect runs before affect: a spell strips/blocks existing affects first,
-		// before applying any new affect of its own.
-		if (has_unaffects) {
-			const EStageResult r = CastUnaffects(ctx);
-			if (r == EStageResult::kBreak) return ECastResult::kSuccess;
-			if (r == EStageResult::kContinue) continue;
-		}
-		if (has_affects) {
-			const EStageResult r = CastAffect(ctx);
-			if (r == EStageResult::kBreak) return ECastResult::kSuccess;
-			if (r == EStageResult::kContinue) continue;
-		}
-		if (has_points) {
-			const EStageResult r = CastToPoints(ctx);
-			if (r == EStageResult::kBreak) return ECastResult::kSuccess;
-			if (r == EStageResult::kContinue) continue;
+	// This action's data-driven stages in the fixed order Damage -> Unaffect -> Affect -> Points.
+	// The entry action triggers on the spell's kMag* flags (so flag-only, code-driven stages such
+	// as kCallLighting still fire); later actions run only the stages they actually carry as data.
+	//   kBreak    -> stop the whole cast (return now);
+	//   kContinue -> skip this action's remaining stages.
+	const bool run_damage    = is_entry ? MUD::Spell(spell_id).IsFlagged(kMagDamage)
+										: action.Contains(talents_actions::EAction::kDamage);
+	const bool run_unaffects = is_entry ? MUD::Spell(spell_id).IsFlagged(kMagUnaffects)
+										: action.Contains(talents_actions::EAction::kUnaffect);
+	const bool run_affects   = is_entry ? MUD::Spell(spell_id).IsFlagged(kMagAffects)
+										: action.Contains(talents_actions::EAction::kAffect);
+	const bool run_points    = is_entry ? MUD::Spell(spell_id).IsFlagged(kMagPoints)
+										: action.Contains(talents_actions::EAction::kPoints);
+	bool stop_stages = false;
+	if (run_damage) {
+		if (CastDamage(ctx) == EStageResult::kBreak) {
+			// CastDamage's kBreak means the target died (see its tail).
+			return ctx.is_vict_dead ? ECastResult::kTargetDied : ECastResult::kSuccess;
 		}
 	}
-
-	if (MUD::Spell(spell_id).IsFlagged(kMagAlterObjs)
-			&& CastToAlterObjs(ctx) == EStageResult::kBreak) {
-		return ECastResult::kSuccess;
+	if (run_unaffects && !stop_stages) {
+		const EStageResult r = CastUnaffects(ctx);
+		if (r == EStageResult::kBreak) return ECastResult::kSuccess;
+		if (r == EStageResult::kContinue) stop_stages = true;
 	}
-
-	if (MUD::Spell(spell_id).IsFlagged(kMagSummons)
-			&& CastSummon(ctx, true) == EStageResult::kBreak) {
-		return ECastResult::kSuccess;
+	if (run_affects && !stop_stages) {
+		const EStageResult r = CastAffect(ctx);
+		if (r == EStageResult::kBreak) return ECastResult::kSuccess;
+		if (r == EStageResult::kContinue) stop_stages = true;
 	}
-
-	if (MUD::Spell(spell_id).IsFlagged(kMagCreations)
-			&& CastCreation(ctx) == EStageResult::kBreak) {
-		return ECastResult::kSuccess;
+	if (run_points && !stop_stages) {
+		const EStageResult r = CastToPoints(ctx);
+		if (r == EStageResult::kBreak) return ECastResult::kSuccess;
+		if (r == EStageResult::kContinue) stop_stages = true;
 	}
-
-	if (MUD::Spell(spell_id).IsFlagged(kMagManual)
-			&& CastManual(ctx) == EStageResult::kBreak) {
-		return ECastResult::kSuccess;
+	// Whole-cast one-shots + ReactToCast: entry action only.
+	if (is_entry) {
+		if (MUD::Spell(spell_id).IsFlagged(kMagAlterObjs)
+				&& CastToAlterObjs(ctx) == EStageResult::kBreak) {
+			return ECastResult::kSuccess;
+		}
+		if (MUD::Spell(spell_id).IsFlagged(kMagSummons)
+				&& CastSummon(ctx, true) == EStageResult::kBreak) {
+			return ECastResult::kSuccess;
+		}
+		if (MUD::Spell(spell_id).IsFlagged(kMagCreations)
+				&& CastCreation(ctx) == EStageResult::kBreak) {
+			return ECastResult::kSuccess;
+		}
+		if (MUD::Spell(spell_id).IsFlagged(kMagManual)
+				&& CastManual(ctx) == EStageResult::kBreak) {
+			return ECastResult::kSuccess;
+		}
+		ReactToCast(cvict, caster, spell_id);
 	}
-
-	ReactToCast(cvict, caster, spell_id);
 	return ECastResult::kSuccess;
 }
 
@@ -3004,68 +3000,100 @@ static std::vector<CharData *> BuildCastRoster(CharData *caster, CharData *victi
 	return out;
 }
 
-// Main cast entry (issue.area-cast; was CastToSingleTarget): launches the whole pipeline.
-// kSingle runs the per-action stages on ctx.cvict. kFoes/kFriends build the target list and
-// run the pipeline on each target, applying the <distribution> falloff coefficient (and the
-// matching cast_success scaling) per target. Unifies the former CallMagicToArea +
-// CallMagicToGroup -- a group cast is just an area cast over the friends roster.
-ECastResult CastToTargets(CastContext &ctx, ECastTargets scope) {
+// Run the cursor's current action over its target list, applying the <area> distribution
+// coefficient and the matching cast_success scaling per target. A single-target cast keeps
+// the old path: no roster, no distribution, no cast_success scaling.
+static ECastResult RunActionOverTargets(CastContext &ctx, const std::vector<CharData *> &targets,
+										ECastTargets scope, bool is_entry) {
+	CharData *caster = ctx.caster();
+	const ESpell spell_id = ctx.spell_id();
 	if (scope == ECastTargets::kSingle) {
-		return CastOnTarget(ctx);
+		ctx.area_coeff = 1.0;
+		ctx.cvict = targets.empty() ? nullptr : targets.front();
+		return CastOnTarget(ctx, is_entry);
 	}
+	const auto &area = ctx.action_or_default().GetArea();
+	// N = number of targets actually hit. max <= 0 means "no upper limit" -> everyone in the
+	// roster; else the historical count, capped at the roster size.
+	const int n = (area.max_targets <= 0)
+			? static_cast<int>(targets.size())
+			: std::min(area.CalcTargetsQuantity(caster->GetSkill(GetMagicSkillId(spell_id)),
+													  ctx.potency().stat_coeff),
+					   static_cast<int>(targets.size()));
+	const double decay_eff = (!caster->IsNpc() && CanUseFeat(caster, EFeat::kMultipleCast))
+			? area.decay * 0.6 : area.decay;
+	const int kCasterCastSuccess = GET_CAST_SUCCESS(caster);
+	const auto &sheaf = MUD::SpellMessages()[spell_id];
+	const bool has_vict_msg = sheaf.HasMessage(ESpellMsg::kAreaToVict);
+	const std::string vict_msg = has_vict_msg ? sheaf.GetMessage(ESpellMsg::kAreaToVict) : std::string{};
+	int j = 0;
+	for (CharData *target : targets) {
+		if (j >= n) {
+			break;
+		}
+		++j;  // 1-based position; target #1 = primary victim (foes) / first ally (group).
+		const double coeff = caster->IsNpc() ? 1.0 : area.DistributionCoeff(j, n, decay_eff);
+		ctx.area_coeff = coeff;
+		GET_CAST_SUCCESS(caster) = static_cast<int>(kCasterCastSuccess * coeff);
+		if (has_vict_msg && target->desc) {
+			act(vict_msg.c_str(), false, caster, nullptr, target, kToVict);
+		}
+		ctx.cvict = target;
+		ctx.ovict = nullptr;
+		CastOnTarget(ctx, is_entry);
+		if (caster->purged()) {
+			return ECastResult::kSuccess;
+		}
+		if (caster->IsFlagged(EPrf::kTester)) {
+			SendMsgToChar(caster,
+						  "&GМакс. целей: %d, Каст: %d, Коэффициент: %.2f.&n\r\n",
+						  n,
+						  GET_CAST_SUCCESS(caster),
+						  coeff);
+		}
+	}
+	GET_CAST_SUCCESS(caster) = kCasterCastSuccess;
+	return ECastResult::kSuccess;
+}
+
+// Main cast entry (issue.area-cast per-action targets; was CastToTargets / CastToSingleTarget):
+// walks the spell's <action> list and runs each action over its own target list. Action[0] (the
+// entry) targets the spell's scope (kSingle / kFoes / kFriends); later actions reuse the
+// previous list (the kTarSame default until per-action <target> resolving lands). Entry-only
+// gates (reflection / mtrigger / one-shots) fire on action[0] -- see CastOnTarget's is_entry.
+// A flag-only spell (no <action>) still gets one entry iteration so its in-code stages fire.
+ECastResult CastSpell(CastContext &ctx, ECastTargets scope) {
 	CharData *caster = ctx.caster();
 	const ESpell spell_id = ctx.spell_id();
 	if (caster == nullptr || caster->in_room == kNowhere) {
 		return ECastResult::kNotCast;
 	}
-	try {
-		const auto &area = ctx.action_or_default().GetArea();
-		const std::vector<CharData *> targets = BuildCastRoster(caster, ctx.cvict, scope);
+	std::vector<CharData *> entry_targets;
+	if (scope == ECastTargets::kSingle) {
+		entry_targets.push_back(ctx.cvict);
+	} else {
+		entry_targets = BuildCastRoster(caster, ctx.cvict, scope);
 		TrySendCastMessages(caster, ctx.cvict, world[caster->in_room], spell_id);
-		// N = number of targets actually hit. max <= 0 means "no upper limit" -> everyone in the
-		// roster (group buffs use this to cover the whole group); else the historical count, capped.
-		const int n = (area.max_targets <= 0)
-				? static_cast<int>(targets.size())
-				: std::min(area.CalcTargetsQuantity(caster->GetSkill(GetMagicSkillId(spell_id)),
-													  ctx.potency().stat_coeff),
-						   static_cast<int>(targets.size()));
-		const double decay_eff = (!caster->IsNpc() && CanUseFeat(caster, EFeat::kMultipleCast))
-				? area.decay * 0.6 : area.decay;
-		const int kCasterCastSuccess = GET_CAST_SUCCESS(caster);
-		const auto &sheaf = MUD::SpellMessages()[spell_id];
-		const bool has_vict_msg = sheaf.HasMessage(ESpellMsg::kAreaToVict);
-		const std::string vict_msg = has_vict_msg ? sheaf.GetMessage(ESpellMsg::kAreaToVict) : std::string{};
-		int j = 0;
-		for (CharData *target : targets) {
-			if (j >= n) {
-				break;
-			}
-			++j;  // 1-based position; target #1 = primary victim (foes) / first ally (group).
-			const double coeff = caster->IsNpc() ? 1.0 : area.DistributionCoeff(j, n, decay_eff);
-			ctx.area_coeff = coeff;
-			GET_CAST_SUCCESS(caster) = static_cast<int>(kCasterCastSuccess * coeff);
-			if (has_vict_msg && target->desc) {
-				act(vict_msg.c_str(), false, caster, nullptr, target, kToVict);
-			}
-			ctx.cvict = target;
-			ctx.ovict = nullptr;
-			CastOnTarget(ctx);
+	}
+	std::vector<CharData *> prev = entry_targets;
+	bool is_entry = true;
+	ECastResult result = ECastResult::kSuccess;
+	try {
+		for (ctx.RewindActions(); ctx.HasPendingActions(); ctx.NextAction()) {
+			// Stage A: the entry action uses the spell-scope roster; later actions reuse the
+			// previous list. Per-action <target> resolving (kTarFoes / kTarGroup / ...) is stage B.
+			const std::vector<CharData *> &targets = is_entry ? entry_targets : prev;
+			result = RunActionOverTargets(ctx, targets, scope, is_entry);
 			if (caster->purged()) {
 				return ECastResult::kSuccess;
 			}
-			if (caster->IsFlagged(EPrf::kTester)) {
-				SendMsgToChar(caster,
-							  "&GМакс. целей: %d, Каст: %d, Коэффициент: %.2f.&n\r\n",
-							  n,
-							  GET_CAST_SUCCESS(caster),
-							  coeff);
-			}
+			prev = targets;
+			is_entry = false;
 		}
-		GET_CAST_SUCCESS(caster) = kCasterCastSuccess;
 	} catch (std::runtime_error &e) {
 		err_log("%s", e.what());
 	}
-	return ECastResult::kSuccess;
+	return result;
 }
 
 // issue.area-cast: cast `spell_id` as an area attack on every foe in the caster's room,
@@ -3073,7 +3101,7 @@ ECastResult CastToTargets(CastContext &ctx, ECastTargets scope) {
 // thunderstorm). Replaces the old direct CallMagicToArea callers.
 ECastResult CastAreaInRoom(CharData *ch, ESpell spell_id, int level) {
 	auto roll = ComputeCastRoll(ch, spell_id, level);
-	return CastToTargets(roll, ECastTargets::kFoes);
+	return CastSpell(roll, ECastTargets::kFoes);
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

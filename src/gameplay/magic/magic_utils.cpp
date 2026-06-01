@@ -539,12 +539,12 @@ ECastResult CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomDat
 	if (MUD::Spell(spell_id).IsFlagged(kMagAreas) || MUD::Spell(spell_id).IsFlagged(kMagMasses)) {
 		profiler.next_step("area");
 		roll.level = abs(level);
-		return CastToTargets(roll, ECastTargets::kFoes);
+		return CastSpell(roll, ECastTargets::kFoes);
 	}
 
 	if (MUD::Spell(spell_id).IsFlagged(kMagGroups)) {
 		profiler.next_step("group");
-		return CastToTargets(roll, ECastTargets::kFriends);
+		return CastSpell(roll, ECastTargets::kFriends);
 	}
 
 	if (MUD::Spell(spell_id).IsFlagged(kMagRoom)) {
@@ -555,7 +555,7 @@ ECastResult CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomDat
 	}
 
 	profiler.next_step("single");
-	return CastToTargets(roll, ECastTargets::kSingle);
+	return CastSpell(roll, ECastTargets::kSingle);
 }
 
 const char *what_sky_type[] = {"пасмурно",
