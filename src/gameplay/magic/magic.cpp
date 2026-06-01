@@ -608,7 +608,8 @@ EStageResult CastDamage(CastContext &ctx) {
 	int total_dmg{0};
 
 	try {
-		total_dmg = CalcTotalSpellDmg(ch, victim, spell_id, ctx.action_or_default());
+		total_dmg = static_cast<int>(CalcTotalSpellDmg(ch, victim, spell_id, ctx.action_or_default())
+				* ctx.area_coeff);  // issue.area-cast per-target falloff
 	} catch (std::exception &e) {
 		err_log("%s", e.what());
 	}
@@ -896,7 +897,7 @@ static void ApplyTalentAffect(CharData *victim, Affect<EApply> &af, Bitvector fl
 // affect records the cast's potency and debuff nature so a later dispel can be strength-gated.
 static bool TryApplyAffectTalent(CharData *ch, CharData *victim, ESpell spell_id, int modi,
 						 const RollResult &potency, float cast_potency, bool cast_debuff,
-						 const talents_actions::Action &action) {
+						 const talents_actions::Action &action, double area_coeff) {
 	const auto &talent = action.GetAffect();
 	// prob: percent chance the <affects> block fires at all (default 100, silent miss on fail).
 	// Skipping it suppresses the affect, its lag and its reposition (gated by the caller).
@@ -938,14 +939,14 @@ static bool TryApplyAffectTalent(CharData *ch, CharData *victim, ESpell spell_id
 		taf.duration = duration;
 		// Modifier formula (cap-clamped, factor-applied) lives in magic_utils so
 		// CallMagicToRoom computes the room-affect modifier the exact same way.
-		taf.modifier = ComputeApplyModifier(apply, potency);
+		taf.modifier = static_cast<int>(ComputeApplyModifier(apply, potency) * area_coeff);
 		taf.battleflag = flags;
 		taf.caster_id = ch->get_uid();
 		// Stored potency is the cast potency scaled by the <affects potency_weight=>
 		// attribute (issue.affects-potency-weight; default 1.0 = no change). Lets
 		// big-modifier spells stay dispellable by recording a deliberately weaker
 		// potency than the raw roll would suggest.
-		taf.potency = cast_potency * talent.GetPotencyWeight();
+		taf.potency = cast_potency * talent.GetPotencyWeight() * static_cast<float>(area_coeff);
 		taf.debuff = cast_debuff;
 		// apply.stack is the max stack count: re-applying up to the cap adds a stack and
 		// accumulates the modifier (see ApplyTalentAffect).
@@ -1101,7 +1102,7 @@ EStageResult CastAffect(CastContext &ctx) {
 	bool success = true;
 	if (has_affect_talent) {
 		success = TryApplyAffectTalent(ch, victim, spell_id, modi, potency, cast_potency, cast_debuff,
-									   ctx.action_or_default());
+									   ctx.action_or_default(), ctx.area_coeff);
 	}
 
 	affect_total(victim);
@@ -1799,7 +1800,7 @@ EStageResult CastToPoints(CastContext &ctx) {
 	for (size_t i = 0; i < std::size(categories); ++i) {
 		const auto &c = categories[i];
 		if (!c.amount.present) continue;
-		int amt = calc_amount(c.amount);
+		int amt = static_cast<int>(calc_amount(c.amount) * ctx.area_coeff);  // issue.area-cast
 		// Legacy spell-modifier hook only ever applied to heal; keep that
 		// scoped to the heal slot so /gear effects don't suddenly scale moves.
 		if (c.cat == points_intensity::ECategory::kHeal) {
@@ -2020,7 +2021,7 @@ void RemoveAffectAndAnnounce(CharData *ch, CharData *victim, ESpell removed) {
 // potency -- (RollSkillDices + skill_coeff + stat_coeff) * potency_weight -- must exceed the
 // affect's recorded potency (the strength of the cast that imposed it).
 bool DispelSucceeds(CharData *ch, CharData *victim, ESpell dispel_spell, ESpell affect_spell,
-					float potency_weight) {
+					float potency_weight, double area_coeff = 1.0) {
 	float affect_potency = 0.0f;
 	bool affect_is_debuff = false;
 	for (const auto &aff : victim->affected) {
@@ -2060,7 +2061,8 @@ bool DispelSucceeds(CharData *ch, CharData *victim, ESpell dispel_spell, ESpell 
 	}
 	const auto &roll = MUD::Spell(dispel_spell).GetPotencyRoll();
 	const float spell_potency = static_cast<float>(
-			roll.RollSkillDices() + roll.CalcSkillCoeff(ch) + roll.CalcBaseStatCoeff(ch)) * potency_weight;
+			roll.RollSkillDices() + roll.CalcSkillCoeff(ch) + roll.CalcBaseStatCoeff(ch))
+			* potency_weight * static_cast<float>(area_coeff);  // issue.area-cast
 	const bool ok = spell_potency > affect_potency;
 	if (show_debug) emit_debug(spell_potency, "roll", ok);
 	return ok;
@@ -2168,7 +2170,7 @@ void RemoveAffectAndAnnounce(CharData *ch, RoomData *room, ESpell removed) {
 }
 
 bool DispelSucceeds(CharData *ch, RoomData *room, ESpell dispel_spell, ESpell affect_spell,
-					float potency_weight) {
+					float potency_weight, double area_coeff = 1.0) {
 	float affect_potency = 0.0f;
 	bool affect_is_debuff = false;
 	for (const auto &aff : room->affected) {
@@ -2198,7 +2200,8 @@ bool DispelSucceeds(CharData *ch, RoomData *room, ESpell dispel_spell, ESpell af
 	}
 	const auto &roll = MUD::Spell(dispel_spell).GetPotencyRoll();
 	const float spell_potency = static_cast<float>(
-			roll.RollSkillDices() + roll.CalcSkillCoeff(ch) + roll.CalcBaseStatCoeff(ch)) * potency_weight;
+			roll.RollSkillDices() + roll.CalcSkillCoeff(ch) + roll.CalcBaseStatCoeff(ch))
+			* potency_weight * static_cast<float>(area_coeff);  // issue.area-cast
 	const bool ok = spell_potency > affect_potency;
 	if (show_debug) emit_debug(spell_potency, "roll", ok);
 	return ok;
@@ -2210,7 +2213,7 @@ bool DispelSucceeds(CharData *ch, RoomData *room, ESpell dispel_spell, ESpell af
 // PK aggro gating is char-only; for a RoomData target the `if constexpr` branch is dropped.
 template<typename TTarget>
 EStageResult RunCastUnaffects(CharData *ch, TTarget *target, ESpell spell_id,
-							  const talents_actions::TalentUnaffect &unaffect) {
+							  const talents_actions::TalentUnaffect &unaffect, double area_coeff) {
 	const bool blocking = UnaffectConditionMet(target, unaffect.GetBlocking());
 	const bool breaking = UnaffectConditionMet(target, unaffect.GetBreaking());
 	bool break_chain = breaking;
@@ -2242,7 +2245,7 @@ EStageResult RunCastUnaffects(CharData *ch, TTarget *target, ESpell spell_id,
 		bool removed_any = false;
 		bool resisted_any = false;
 		for (const auto &cand : to_remove) {
-			if (DispelSucceeds(ch, target, spell_id, cand.spell, unaffect.GetPotencyWeight())) {
+			if (DispelSucceeds(ch, target, spell_id, cand.spell, unaffect.GetPotencyWeight(), area_coeff)) {
 				RemoveAffectAndAnnounce(ch, target, cand.spell);
 				removed_any = true;
 			} else {
@@ -2292,9 +2295,9 @@ EStageResult CastUnaffects(CastContext &ctx) {
 	}
 
 	if (victim != nullptr) {
-		return RunCastUnaffects(ch, victim, spell_id, unaffect);
+		return RunCastUnaffects(ch, victim, spell_id, unaffect, ctx.area_coeff);
 	}
-	return RunCastUnaffects(ch, room, spell_id, unaffect);
+	return RunCastUnaffects(ch, room, spell_id, unaffect, ctx.area_coeff);
 }
 
 // Try to enchant a weapon. Returns the to_char message to relay to the caster, or nullptr when

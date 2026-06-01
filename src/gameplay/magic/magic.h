@@ -97,6 +97,10 @@ class CastContext {
 	// --- Mutable working state ---
 	// Working level: starts at base_level, decays per target in area casts.
 	int level{0};
+	// issue.area-cast: per-target effect/cast_success multiplier for area casts
+	// (kUniform=1, kLinear/kStepped<=1). Set per target by CallMagicToArea; stays
+	// 1.0 for every non-area cast, so the stage scalings below are identity there.
+	double area_coeff{1.0};
 	// Results accumulated by the stage handlers, so later <action>s (and the
 	// dispatcher) can read what earlier ones produced.
 	struct ActionResult {
