@@ -1294,7 +1294,8 @@ void SqliteWorldDataSource::LoadMobs()
 					  "attr_str, attr_dex, attr_int, attr_wis, attr_con, attr_cha, "
 					  "attr_str_add, hp_regen, armour_bonus, mana_regen, cast_success, morale, "
 					  "initiative_add, absorb, aresist, mresist, presist, bare_hand_attack, "
-					  "like_work, max_factor, extra_attack, mob_remort, special_bitvector, role "
+					  "like_work, max_factor, extra_attack, mob_remort, special_bitvector, role, "
+					  "speed "
 					  "FROM mobs WHERE enabled = 1 ORDER BY vnum";
 
 	sqlite3_stmt *stmt;
@@ -1427,6 +1428,12 @@ void SqliteWorldDataSource::LoadMobs()
 			CharData::role_t role(role_str);
 			mob.set_role(role);
 		}
+
+		// Movement speed: -1 == default cadence (the common 3-field legacy
+		// position line). Older DBs without the column read NULL -> -1, the
+		// same default the YAML loader uses (issue #3384 class).
+		mob.mob_specials.speed = (sqlite3_column_type(stmt, 57) == SQLITE_NULL)
+			? -1 : sqlite3_column_int(stmt, 57);
 
 		// Set NPC flag
 
@@ -2839,8 +2846,8 @@ void SqliteWorldDataSource::SaveMobRecord(int mob_vnum, CharData &mob)
 		"attr_str, attr_dex, attr_int, attr_wis, attr_con, attr_cha, "
 		"attr_str_add, hp_regen, armour_bonus, mana_regen, cast_success, morale, "
 		"initiative_add, absorb, aresist, mresist, presist, bare_hand_attack, "
-		"like_work, max_factor, extra_attack, mob_remort, special_bitvector, role, enabled) "
-		"VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)";
+		"like_work, max_factor, extra_attack, mob_remort, special_bitvector, role, speed, enabled) "
+		"VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)";
 
 	if (sqlite3_prepare_v2(m_db, insert_sql, -1, &stmt, nullptr) != SQLITE_OK)
 	{
@@ -2960,6 +2967,9 @@ void SqliteWorldDataSource::SaveMobRecord(int mob_vnum, CharData &mob)
 	{
 		sqlite3_bind_null(stmt, col++);
 	}
+
+	// Movement speed (issue #3384 class)
+	sqlite3_bind_int(stmt, col++, mob.mob_specials.speed);
 
 	int rc = sqlite3_step(stmt);
 	if (rc != SQLITE_DONE)

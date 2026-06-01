@@ -1303,13 +1303,13 @@ class SqliteSaver(BaseSaver):
                 short_desc, long_desc, alignment, mob_type, level, hitroll_penalty, armor,
                 hp_dice_count, hp_dice_size, hp_bonus, dam_dice_count, dam_dice_size, dam_bonus,
                 gold_dice_count, gold_dice_size, gold_bonus, experience,
-                default_pos, start_pos, sex, size, height, weight, mob_class, race,
+                default_pos, start_pos, sex, speed, size, height, weight, mob_class, race,
                 attr_str, attr_dex, attr_int, attr_wis, attr_con, attr_cha,
                 attr_str_add, hp_regen, armour_bonus, mana_regen, cast_success, morale,
                 initiative_add, absorb, aresist, mresist, presist, bare_hand_attack,
                 like_work, max_factor, extra_attack, mob_remort, special_bitvector, role,
                 enabled
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ''', (
             vnum,
             *extract_entity_names(mob),
@@ -1333,6 +1333,7 @@ class SqliteSaver(BaseSaver):
             pos.get('default'),
             pos.get('start'),
             mob.get('sex'),
+            mob.get('speed', -1),
             mob.get('size'),
             mob.get('height'),
             mob.get('weight'),
@@ -2142,6 +2143,17 @@ def parse_mob_file(filepath):
                         'start': POSITIONS[pos_start] if pos_start < len(POSITIONS) else pos_start
                     }
                     mob['sex'] = GENDERS[sex] if sex < len(GENDERS) else sex
+                    # parse_simple_mob: a 4th field is the explicit movement
+                    # speed; with only 3 fields speed defaults to -1. Without
+                    # carrying this through, every legacy mob (the 3-field
+                    # common case) reloads with speed 0 and the wrong movement
+                    # cadence. Emit speed only when it differs from -1 so the
+                    # YAML stays clean; the loader defaults to -1 (issue #3384
+                    # class of dropped properties).
+                    if len(parts) >= 4 and parts[3].lstrip('-').isdigit():
+                        mob['speed'] = int(parts[3])
+                    else:
+                        mob['speed'] = -1
                 idx += 1
 
             # Parse extended mob info (E-spec)
@@ -2408,6 +2420,12 @@ def mob_to_yaml(mob):
     # Sex
     if 'sex' in mob:
         data['sex'] = mob['sex']
+
+    # Movement speed -- only emit when it deviates from the -1 default that
+    # parse_simple_mob assigns to 3-field position lines; the loader falls
+    # back to -1 when the key is absent (issue #3384 class).
+    if mob.get('speed', -1) != -1:
+        data['speed'] = mob['speed']
 
     # Attributes
     if mob.get('attributes'):

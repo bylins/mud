@@ -1507,6 +1507,13 @@ CharData YamlWorldDataSource::ParseMobFile(const std::string &file_path)
 	// Sex
 	mob.set_sex(static_cast<EGender>(ParseGender(root["sex"])));
 
+	// Movement speed. parse_simple_mob leaves speed == -1 when the position
+	// line has only three fields (the common case) and stores an explicit
+	// value otherwise. The converter omits the -1 default, so fall back to
+	// -1 here -- without it every such mob loads with speed 0 and walks on
+	// the wrong cadence (same dropped-property class as #3384/#3386).
+	mob.mob_specials.speed = GetInt(root, "speed", -1);
+
 	// Race -- legacy clamps to [kBasic, kLastNpcRace] (boot_data_files.cpp).
 	mob.player_data.Race = std::clamp(static_cast<ENpcRace>(GetInt(root, "race", ENpcRace::kBasic)),
 									  ENpcRace::kBasic, ENpcRace::kLastNpcRace);

@@ -152,6 +152,8 @@ CREATE TABLE mobs (
     start_pos INTEGER REFERENCES positions(id),
     -- Appearance
     sex INTEGER REFERENCES genders(id),
+    -- Movement speed: -1 == default cadence (3-field position line). Issue #3384 class.
+    speed INTEGER DEFAULT -1,
     size INTEGER DEFAULT 50,
     height INTEGER DEFAULT 170,
     weight INTEGER DEFAULT 70,
