@@ -893,6 +893,11 @@ void Actions::ParseUnaffect(Action &out, parser_wrapper::DataNode &node) {
 // ---- Action: per-action manifestation accessors (the real logic) ----
 
 bool Action::Contains(EAction action) const {
+	// kManual has no IAction in manifestations_ -- it is carried as a handler name
+	// (issue.manual-cast), so answer from that field instead of the manifestation map.
+	if (action == EAction::kManual) {
+		return !manual_handler_.empty();
+	}
 	return manifestations_.contains(action);
 }
 

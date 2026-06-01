@@ -2955,7 +2955,8 @@ ECastResult CastOnTarget(CastContext &ctx, bool is_entry) {
 	const bool run_points    = is_entry ? MUD::Spell(spell_id).IsFlagged(kMagPoints)
 										: action.Contains(talents_actions::EAction::kPoints);
 	// issue.manual-cast: the manual stage runs whenever the action names a handler (entry or not).
-	const bool run_manual    = !action.GetManualHandler().empty();
+	const bool run_manual    = is_entry ? MUD::Spell(spell_id).IsFlagged(kMagManual)
+										: action.Contains(talents_actions::EAction::kManual);
 	bool target_died = false;
 	bool stop_stages = false;
 	if (run_damage && CastDamage(ctx) == EStageResult::kBreak) {

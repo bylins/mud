@@ -27,7 +27,8 @@ enum class EAction {
 	kArea,
 	kPoints,   // hit / moves / thirst / cond restoration (was kHeal; issue.mag-points)
 	kAffect,
-	kUnaffect
+	kUnaffect,
+	kManual    // hand-coded handler (issue.manual-cast); not an IAction -- backed by manual_handler_
 };
 
 // issue.area-cast per-action targets: how a NON-FIRST <action> picks its targets (the first
