@@ -537,7 +537,7 @@ bool TryBlockByMagicalShield(CharData *ch, CharData *victim, ESpell spell_id) {
 
 }  // namespace
 
-int CastDamage(CastContext &ctx) {
+EStageResult CastDamage(CastContext &ctx) {
 	CharData *const ch = ctx.caster();
 	CharData *const victim = ctx.cvict;
 	const int level = ctx.level;
@@ -545,10 +545,10 @@ int CastDamage(CastContext &ctx) {
 	int rand = 0, count = 1, modi = 0;
 
 	if (victim == nullptr || victim->in_room == kNowhere || ch == nullptr)
-		return (0);
+		return EStageResult::kSuccess;
 
 	if (!pk_agro_action(ch, victim))
-		return (0);
+		return EStageResult::kSuccess;
 	log("[MAG DAMAGE] %s damage %s (%d)", GET_NAME(ch), GET_NAME(victim), to_underlying(spell_id));
 	// Defensive layer: magic mirror / sonic barrier / shadow cloak. (Breath no longer
 	// reaches this path -- it is dealt as magic-melee damage in fight_hit.cpp.)
@@ -572,10 +572,10 @@ int CastDamage(CastContext &ctx) {
 			act("Густая тень вокруг вас поглотила магию $n1.", false, ch, nullptr, victim, kToVict);
 			log("[MAG DAMAGE] Мантия  - поглощение урона: %s damage %s (%d)",
 				GET_NAME(ch), GET_NAME(victim), to_underlying(spell_id));
-			return 0;
+			return EStageResult::kSuccess;
 		}
 		if (TryBlockByMagicalShield(ch, victim, spell_id)) {
-			return 0;
+			return EStageResult::kSuccess;
 		}
 	}
 
@@ -623,7 +623,15 @@ int CastDamage(CastContext &ctx) {
 									ch_start_pos, victim_start_pos, count);
 		}
 	}
-	return rand;
+	// rand: >=0 damage dealt, -1 = victim died on this cast. Keep the raw value in
+	// result.damage (callers like kSacrifice rely on the -1 sentinel); expose death
+	// as a boolean + kBreak so the dispatcher stops the remaining actions.
+	ctx.result.damage = rand;
+	if (rand < 0) {
+		ctx.is_vict_dead = true;
+		return EStageResult::kBreak;
+	}
+	return EStageResult::kSuccess;
 }
 
 // Material-item match: an object qualifies as a component for `vnum` if it is
@@ -2854,7 +2862,7 @@ int CastToSingleTarget(CastContext &ctx) {
 		return 1;
 
 	if (MUD::Spell(spell_id).IsFlagged(kMagDamage))
-		if (CastDamage(ctx) == -1)
+		if (CastDamage(ctx) == EStageResult::kBreak)
 			return (-1);    // Successful and target died, don't cast again.
 
 	// Unaffect runs before affect: a spell strips/blocks existing affects

@@ -1832,7 +1832,8 @@ void SpellSacrifice(int/* level*/, CharData *ch, CharData *victim, ObjData* /*ob
 
 	CastContext sac_ctx(ch, ESpell::kSacrifice, GetRealLevel(ch), {}, {});
 	sac_ctx.cvict = victim;
-	dam = CastDamage(sac_ctx);
+	CastDamage(sac_ctx);
+	dam = sac_ctx.result.damage;
 	// victim может быть спуржен
 
 	if (dam < 0)

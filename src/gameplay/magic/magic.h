@@ -96,6 +96,16 @@ class CastContext {
 	// --- Mutable working state ---
 	// Working level: starts at base_level, decays per target in area casts.
 	int level{0};
+	// Results accumulated by the stage handlers, so later <action>s (and the
+	// dispatcher) can read what earlier ones produced.
+	struct ActionResult {
+		// Per-cast damage from the last CastDamage: >=0 dealt; -1 means the target
+		// died on this cast (kept as a sentinel -- see is_vict_dead for the boolean).
+		long damage{0};
+	};
+	ActionResult result;
+	// Set by CastDamage when the target died; the dispatcher stops the action chain.
+	bool is_vict_dead{false};
 	// Targets for the current cast. cvict will later become a richer target list
 	// built by the target resolver (issue.spell-pipeline note).
 	CharData *cvict{nullptr};
@@ -162,7 +172,7 @@ enum class EStageResult {
 // gear-borne effects. The remaining stage functions (CastToPoints / CastToAlterObjs /
 // CastCreation / CastSummon / CastManual / CastToSingleTarget) live in magic_internal.h --
 // they're only called from CallMagic and the dispatcher in magic.cpp.
-int CastDamage(CastContext &ctx);
+EStageResult CastDamage(CastContext &ctx);
 EStageResult CastAffect(CastContext &ctx);
 EStageResult CastUnaffects(CastContext &ctx);
 int CalcSaving(CharData *killer, CharData *victim, ESaving saving, bool need_log = false);
