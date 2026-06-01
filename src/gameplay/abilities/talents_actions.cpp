@@ -8,6 +8,7 @@
 #include "utils/random.h"
 
 #include <algorithm>
+#include <cmath>
 #include <map>
 
 namespace talents_actions {
@@ -383,18 +384,47 @@ void Points::Print(CharData */*ch*/, std::ostringstream &buffer) const {
 
 void Area::Print(CharData */*ch*/, std::ostringstream &buffer) const {
 	buffer << " Area:" << "\r\n"
-		   << "  Cast decay: " << kColorGrn << cast_decay << kColorNrm
-		   << " Level decay: " << kColorGrn << level_decay << kColorNrm
-		   << " Free targets: " << kColorGrn << free_targets << kColorNrm << "\r\n"
-		   << "  Skill divisor: " << kColorGrn << skill_divisor << kColorNrm
-		   << " Targets dice: " << kColorGrn << targets_dice_size << kColorNrm
-		   << " Min targets: " << kColorGrn << min_targets << kColorNrm
-		   << " Max targets: " << kColorGrn << max_targets << kColorNrm << "\r\n";
+		   << "  [legacy] cast_decay=" << kColorGrn << cast_decay << kColorNrm
+		   << " level_decay=" << kColorGrn << level_decay << kColorNrm
+		   << " skill_divisor=" << kColorGrn << skill_divisor << kColorNrm
+		   << " targets_dice=" << kColorGrn << targets_dice_size << kColorNrm << "\r\n"
+		   << "  Targets: dices_weight=" << kColorGrn << dices_weight << kColorNrm
+		   << " alpha=" << kColorGrn << alpha << kColorNrm
+		   << " beta=" << kColorGrn << beta << kColorNrm
+		   << " min=" << kColorGrn << min_targets << kColorNrm
+		   << " max=" << kColorGrn << max_targets << kColorNrm << "\r\n"
+		   << "  Distribution: type=" << kColorGrn << static_cast<int>(distribution) << kColorNrm
+		   << " decay=" << kColorGrn << decay << kColorNrm
+		   << " free_targets=" << kColorGrn << free_targets << kColorNrm << "\r\n";
 }
 
 int Area::CalcTargetsQuantity(const int skill_level) const {
 	auto bonus = RollDices(skill_level / skill_divisor, targets_dice_size);
 	return min_targets + std::min(bonus, max_targets);
+}
+
+// issue.area-cast: target count via the canonical modifier formula, fed by the cast's
+// potency roll (dices = RollSkillDices, competencies = skill_coeff + stat_coeff).
+int Area::CalcTargetsQuantity(const int dices, const double competencies) const {
+	const double raw = min_targets
+			+ std::ceil(dices * dices_weight * (1.0 + alpha * competencies) + beta * competencies);
+	return std::clamp(static_cast<int>(raw), min_targets, max_targets);
+}
+
+// issue.area-cast: per-target falloff coefficient (1-based j of n). decay_eff is the
+// effective (possibly kMultipleCast-softened) step rate. Result is always in [0,1].
+double Area::DistributionCoeff(const int j, const int n, const double decay_eff) const {
+	switch (distribution) {
+		case EAreaDistribution::kLinear:
+			return n > 0 ? static_cast<double>(n - j + 1) / n : 1.0;
+		case EAreaDistribution::kStepped:
+			return j <= free_targets
+					? 1.0
+					: std::max(0.0, 1.0 - decay_eff * (j - free_targets));
+		case EAreaDistribution::kUniform:
+		default:
+			return 1.0;
+	}
 }
 
 TalentAffect::TalentAffect(parser_wrapper::DataNode &node) {
@@ -801,6 +831,27 @@ void Actions::ParseArea(Action &out, parser_wrapper::DataNode &node) {
 		node.GoToParent();
 	}
 
+	if (node.GoToChild("targets")) {
+		ptr->dices_weight = parse::ReadAsDouble(node.GetValue("dices_weight"));
+		ptr->alpha = parse::ReadAsDouble(node.GetValue("alpha"));
+		ptr->beta = parse::ReadAsDouble(node.GetValue("beta"));
+		ptr->min_targets = std::max(1, parse::ReadAsInt(node.GetValue("min")));
+		ptr->max_targets = std::max(1, parse::ReadAsInt(node.GetValue("max")));
+		node.GoToParent();
+	}
+	if (node.GoToChild("distribution")) {
+		const char *type = node.GetValue("type");
+		if (type && strcmp(type, "kLinear") == 0) {
+			ptr->distribution = EAreaDistribution::kLinear;
+		} else if (type && strcmp(type, "kStepped") == 0) {
+			ptr->distribution = EAreaDistribution::kStepped;
+		} else {
+			ptr->distribution = EAreaDistribution::kUniform;
+		}
+		ptr->decay = parse::ReadAsDouble(node.GetValue("decay"));
+		ptr->free_targets = std::max(0, parse::ReadAsInt(node.GetValue("free_targets")));
+		node.GoToParent();
+	}
 	out.manifestations_.insert({EAction::kArea, std::move(ptr)});
 }
 

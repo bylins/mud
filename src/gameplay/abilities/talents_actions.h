@@ -269,17 +269,43 @@ class Points : public IAction {
 	void Print(CharData *ch, std::ostringstream &buffer) const override;
 };
 
+// issue.area-cast: per-target effect/cast_success falloff across area targets.
+// kUniform = no falloff (full spell on every target, default); kLinear = (N-j+1)/N
+// (target #1 full, linear down to 1/N); kStepped = free_targets full, then decay per step.
+enum class EAreaDistribution { kUniform, kLinear, kStepped };
+
 struct Area : public IAction {
+	// --- Legacy schema (issue.area-cast): still consumed by the current CallMagicToArea;
+	// removed at the pipeline switchover once the XML moves to <targets>/<distribution>. ---
 	double cast_decay{0.0};
 	int level_decay{0};
-	int free_targets{1};
-
 	int skill_divisor{1};
 	int targets_dice_size{1};
+
+	// --- Shared by both schemas ---
+	int free_targets{1};
 	int min_targets{1};
 	int max_targets{1};
 
+	// --- New schema (issue.area-cast) ---
+	// <targets dices_weight alpha beta min max/>: count via the canonical modifier
+	// formula (mirrors ComputeApplyModifier), fed by the cast's potency roll.
+	double dices_weight{0.0};
+	double alpha{0.0};
+	double beta{0.0};
+	// <distribution type decay free_targets/>: decay/free_targets matter only for
+	// kStepped (free_targets reuses the field above).
+	EAreaDistribution distribution{EAreaDistribution::kUniform};
+	double decay{0.0};
+
+	// Legacy count: min + min(RollDices(skill/skill_divisor, dice_size), max).
 	[[nodiscard]] int CalcTargetsQuantity(int skill_level) const;
+	// New count: clamp(min, min + ceil(dices*dices_weight*(1+alpha*C) + beta*C), max),
+	// C = competencies (skill_coeff + stat_coeff from the cast's potency roll).
+	[[nodiscard]] int CalcTargetsQuantity(int dices, double competencies) const;
+	// Per-target coefficient f_j (1-based j of n). decay_eff lets the caller pass the
+	// kMultipleCast-softened rate. Always in [0,1] and non-increasing (never amplifies).
+	[[nodiscard]] double DistributionCoeff(int j, int n, double decay_eff) const;
 	void Print(CharData *ch, std::ostringstream &buffer) const override;
 };
 
