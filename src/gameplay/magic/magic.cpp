@@ -1083,12 +1083,6 @@ EStageResult CastAffect(CastContext &ctx) {
 	// talent-affect block below; the <blocking>/<required> immunity checks moved up to
 	// CastToSingleTarget (action-level, gating the whole cast).
 	const bool has_affect_talent = ctx.action_or_default().Contains(talents_actions::EAction::kAffect);
-	// Material component: consume it if this spell has one (no-op for spells that don't);
-	// a missing component stops the cast. (Hook for the material-component system, TBD.)
-	if (ProcessMatComponents(ch, victim, spell_id) == EStageResult::kBreak) {
-		return EStageResult::kBreak;
-	}
-
 	// Every affect this cast lands records the cast's potency (strength) and whether it is a
 	// debuff, so a later dispel can be gated by strength (see CastUnaffects/DispelSucceeds).
 	// CalcCastPotency lives in magic_utils so CallMagicToRoom records the same scalar for its

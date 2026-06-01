@@ -769,6 +769,14 @@ ECastResult CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troo
 		return ECastResult::kNotCast;
 	}
 
+	// Material-component gate (issue.area-cast): a spoken cast consumes its material component(s)
+	// here, at launch -- alongside the verbal gate -- NOT inside CastAffect. CastAffect also runs
+	// for casts from equipment / scrolls / procs (which reach CallMagic directly, bypassing this
+	// function) and those must not require components. A missing component refuses the cast.
+	if (ProcessMatComponents(ch, ch, spell_id) == EStageResult::kBreak) {
+		return ECastResult::kNotCast;
+	}
+
 	if (tch != ch && !ch->IsImmortal() && MUD::Spell(spell_id).AllowTarget(kTarSelfOnly)) {
 		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kCantCastSelfOnly) + "\r\n", ch);
 		return ECastResult::kNotCast;
