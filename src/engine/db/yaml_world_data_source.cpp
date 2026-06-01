@@ -1693,13 +1693,18 @@ CharData YamlWorldDataSource::ParseMobFile(const std::string &file_path)
 			int idx = 0;
 			for (const auto &dest_node : enhanced["destinations"])
 			{
-				int room_vnum = dest_node.as<int>();
-				if (idx < static_cast<int>(mob.mob_specials.dest.size()))
+				if (idx >= static_cast<int>(mob.mob_specials.dest.size()))
 				{
-					mob.mob_specials.dest[idx] = room_vnum;
+					break;
 				}
+				mob.mob_specials.dest[idx] = dest_node.as<int>();
 				idx++;
 			}
+			// dest_count drives GET_DEST and the whole movement-route logic;
+			// without it the dest[] array we just filled stays invisible and
+			// the mob never walks its patrol (issue #3384, matches the legacy
+			// interpret_espec "Destination" handler in boot_data_files.cpp).
+			mob.mob_specials.dest_count = idx;
 		}
 	}
 

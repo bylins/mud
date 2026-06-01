@@ -1842,6 +1842,13 @@ void SqliteWorldDataSource::LoadMobDestinations()
 		if (dest_order >= 0 && dest_order < static_cast<int>(mob.mob_specials.dest.size()))
 		{
 			mob.mob_specials.dest[dest_order] = room_vnum;
+			// dest_count drives GET_DEST / the movement-route logic; rows are
+			// ordered by dest_order so this leaves dest_count == number of
+			// destinations, matching the legacy parser (issue #3384).
+			if (dest_order + 1 > mob.mob_specials.dest_count)
+			{
+				mob.mob_specials.dest_count = dest_order + 1;
+			}
 			destinations_set++;
 		}
 	}
