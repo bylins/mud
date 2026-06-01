@@ -1842,6 +1842,12 @@ void SqliteWorldDataSource::LoadMobDestinations()
 		if (dest_order >= 0 && dest_order < static_cast<int>(mob.mob_specials.dest.size()))
 		{
 			mob.mob_specials.dest[dest_order] = room_vnum;
+			// Без dest_count маршрут не виден ни в stat, ни в спецпроке движения
+			// (как в legacy-парсере boot_data_files.cpp). Issue #3384.
+			if (dest_order + 1 > mob.mob_specials.dest_count)
+			{
+				mob.mob_specials.dest_count = dest_order + 1;
+			}
 			destinations_set++;
 		}
 	}
