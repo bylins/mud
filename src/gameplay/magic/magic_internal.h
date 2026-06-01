@@ -4,7 +4,8 @@
  * outside the magic module; use CallMagic / CastSpell in magic.h instead.
  *
  * These functions are the per-stage dispatchers reached from CallMagic via the kMag*
- * flag table. CastToSingleTarget is the per-target entry that runs them in order with
+ * flag table. CastToTargets is the main entry (it fans out to the target list and runs
+ * CastOnTarget per target) with
  * the blocking / required / reflection / caster_blocking gates layered on top. Calling
  * any of them directly skips those gates, which is why they don't sit in magic.h.
  */
@@ -13,13 +14,20 @@
 
 #include "magic.h"          // for EStageResult / ECastResult / CastContext / forward decls
 
-// Per-target entry: runs the stages in order with the target blocking/required/reflection
-// gates on top (the caster_conditions gate lives in CallMagic). Returns the whole-cast outcome.
-ECastResult CastToSingleTarget(CastContext &ctx);
+// issue.area-cast: target scope for a cast. kSingle -> ctx.cvict only; kFoes -> every foe in
+// the caster's room (area/mass); kFriends -> the caster's group, caster placed last.
+enum class ECastTargets { kSingle, kFoes, kFriends };
 
-// Area / group dispatchers: only CallMagic fans out to these.
-ECastResult CallMagicToGroup(CharData *ch, CastContext roll);
-ECastResult CallMagicToArea(CharData *ch, CharData *victim, RoomData *room, CastContext roll);
+// Per-target pipeline: runs the stages in order with the target blocking/required/reflection
+// gates on top (the caster_conditions gate lives in CallMagic). One target = ctx.cvict.
+ECastResult CastOnTarget(CastContext &ctx);
+
+// Main cast entry: builds the target list (per scope) and runs the pipeline on each, applying
+// the area <distribution> falloff. Unifies the former CallMagicToArea + CallMagicToGroup.
+ECastResult CastToTargets(CastContext &ctx, ECastTargets scope);
+
+// Forced area-fanout of a spell over the caster's room (room-affect ticks); see magic.cpp.
+ECastResult CastAreaInRoom(CharData *ch, ESpell spell_id, int level);
 
 // Builds a CastContext (evaluates both rolls). Module-internal; CallMagic is the entry.
 CastContext ComputeCastRoll(CharData *caster, ESpell spell_id, int level);

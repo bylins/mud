@@ -399,7 +399,8 @@ void Area::Print(CharData */*ch*/, std::ostringstream &buffer) const {
 int Area::CalcTargetsQuantity(const int skill, const double stat_coeff) const {
 	const int bonus = RollDices(skill / skill_divisor, dice_size)
 			+ static_cast<int>(std::ceil(stat_weight * stat_coeff));
-	return min_targets + std::min(bonus, max_targets);
+	// max <= 0 -> no upper limit on the bonus.
+	return min_targets + (max_targets > 0 ? std::min(bonus, max_targets) : bonus);
 }
 
 // issue.area-cast: per-target falloff coefficient (1-based j of n). decay_eff is the
@@ -812,7 +813,8 @@ void Actions::ParseArea(Action &out, parser_wrapper::DataNode &node) {
 		ptr->skill_divisor = std::max(1, parse::ReadAsInt(node.GetValue("skill_divisor")));
 		ptr->dice_size = std::max(1, parse::ReadAsInt(node.GetValue("dice_size")));
 		ptr->min_targets = std::max(1, parse::ReadAsInt(node.GetValue("min")));
-		ptr->max_targets = std::max(1, parse::ReadAsInt(node.GetValue("max")));
+		// max <= 0 means "no upper limit" (hit every target in the roster); don't clamp it.
+		ptr->max_targets = parse::ReadAsInt(node.GetValue("max"));
 		ptr->stat_weight = parse::ReadAsDouble(node.GetValue("stat_weight"));
 		node.GoToParent();
 	}

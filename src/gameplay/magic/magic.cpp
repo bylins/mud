@@ -2851,7 +2851,7 @@ bool CastContext::HasPendingActions() const {
 	return action_idx_ < std::max<size_t>(1, count);
 }
 
-ECastResult CastToSingleTarget(CastContext &ctx) {
+ECastResult CastOnTarget(CastContext &ctx) {
 	CharData *caster = ctx.caster();
 	CharData *cvict = ctx.cvict;
 	ObjData *ovict = ctx.ovict;
@@ -2980,86 +2980,100 @@ void TrySendCastMessages(CharData *ch, CharData *victim, RoomData *room, ESpell 
 	}
 };
 
-ECastResult CallMagicToArea(CharData *ch, CharData *victim, RoomData *room, CastContext roll) {
-	const ESpell spell_id = roll.spell_id();
-	if (ch == nullptr || ch->in_room == kNowhere) {
-		return ECastResult::kNotCast;
-	}
-	try {
-		const auto &area = roll.action_or_default().GetArea();
-		target_resolver::FoesRosterType roster{ch, victim,
+// issue.area-cast: build the ordered target list for an area/group cast. kFoes -> every
+// foe in the caster's room (priority target first); kFriends -> the caster's group with the
+// caster moved LAST (so a group recall does not whisk the caster off before the others).
+static std::vector<CharData *> BuildCastRoster(CharData *caster, CharData *victim,
+											   ECastTargets scope) {
+	std::vector<CharData *> out;
+	if (scope == ECastTargets::kFoes) {
+		target_resolver::FoesRosterType roster{caster, victim,
 											   [](CharData *, CharData *target) {
 												   return !IS_HORSE(target);
 											   }};
-		TrySendCastMessages(ch, victim, room, spell_id);
-		// issue.area-cast: N = min(rolled count, available foes). The distribution needs the
-		// actual target count up front (kLinear divides by N). The count keeps the historical
-		// skill-scaled-dice formula (+ optional stat nudge via the cast potency stat_coeff).
-		const int rolled = area.CalcTargetsQuantity(ch->GetSkill(GetMagicSkillId(spell_id)),
-														roll.potency().stat_coeff);
-		const int targets_num = std::min(rolled, roster.amount());
-		// kMultipleCast softens the stepped falloff; NPC casters skip the falloff entirely.
-		const double decay_eff = (!ch->IsNpc() && CanUseFeat(ch, EFeat::kMultipleCast))
-				? area.decay * 0.6 : area.decay;
-		const int kCasterCastSuccess = GET_CAST_SUCCESS(ch);
+		for (auto *target : roster) {
+			out.push_back(target);
+		}
+	} else if (scope == ECastTargets::kFriends) {
+		target_resolver::FriendsRosterType roster{caster, caster};
+		roster.flip();
+		for (auto *target : roster) {
+			out.push_back(target);
+		}
+	}
+	return out;
+}
 
-		const auto &area_sheaf = MUD::SpellMessages()[spell_id];
-		const bool has_vict_msg = area_sheaf.HasMessage(ESpellMsg::kAreaToVict);
-		const std::string vict_msg = has_vict_msg ? area_sheaf.GetMessage(ESpellMsg::kAreaToVict) : std::string{};
+// Main cast entry (issue.area-cast; was CastToSingleTarget): launches the whole pipeline.
+// kSingle runs the per-action stages on ctx.cvict. kFoes/kFriends build the target list and
+// run the pipeline on each target, applying the <distribution> falloff coefficient (and the
+// matching cast_success scaling) per target. Unifies the former CallMagicToArea +
+// CallMagicToGroup -- a group cast is just an area cast over the friends roster.
+ECastResult CastToTargets(CastContext &ctx, ECastTargets scope) {
+	if (scope == ECastTargets::kSingle) {
+		return CastOnTarget(ctx);
+	}
+	CharData *caster = ctx.caster();
+	const ESpell spell_id = ctx.spell_id();
+	if (caster == nullptr || caster->in_room == kNowhere) {
+		return ECastResult::kNotCast;
+	}
+	try {
+		const auto &area = ctx.action_or_default().GetArea();
+		const std::vector<CharData *> targets = BuildCastRoster(caster, ctx.cvict, scope);
+		TrySendCastMessages(caster, ctx.cvict, world[caster->in_room], spell_id);
+		// N = number of targets actually hit. max <= 0 means "no upper limit" -> everyone in the
+		// roster (group buffs use this to cover the whole group); else the historical count, capped.
+		const int n = (area.max_targets <= 0)
+				? static_cast<int>(targets.size())
+				: std::min(area.CalcTargetsQuantity(caster->GetSkill(GetMagicSkillId(spell_id)),
+													  ctx.potency().stat_coeff),
+						   static_cast<int>(targets.size()));
+		const double decay_eff = (!caster->IsNpc() && CanUseFeat(caster, EFeat::kMultipleCast))
+				? area.decay * 0.6 : area.decay;
+		const int kCasterCastSuccess = GET_CAST_SUCCESS(caster);
+		const auto &sheaf = MUD::SpellMessages()[spell_id];
+		const bool has_vict_msg = sheaf.HasMessage(ESpellMsg::kAreaToVict);
+		const std::string vict_msg = has_vict_msg ? sheaf.GetMessage(ESpellMsg::kAreaToVict) : std::string{};
 		int j = 0;
-		for (const auto &target: roster) {
-			if (j >= targets_num) {
+		for (CharData *target : targets) {
+			if (j >= n) {
 				break;
 			}
-			++j;  // 1-based position of this target; target #1 is the primary victim.
-			// One coefficient per target scales BOTH the effect (via ctx.area_coeff, read by the
-			// stages) and the caster's effective cast_success. kUniform -> 1 (no falloff).
-			const double coeff = ch->IsNpc() ? 1.0 : area.DistributionCoeff(j, targets_num, decay_eff);
-			roll.area_coeff = coeff;
-			GET_CAST_SUCCESS(ch) = static_cast<int>(kCasterCastSuccess * coeff);
+			++j;  // 1-based position; target #1 = primary victim (foes) / first ally (group).
+			const double coeff = caster->IsNpc() ? 1.0 : area.DistributionCoeff(j, n, decay_eff);
+			ctx.area_coeff = coeff;
+			GET_CAST_SUCCESS(caster) = static_cast<int>(kCasterCastSuccess * coeff);
 			if (has_vict_msg && target->desc) {
-				act(vict_msg.c_str(), false, ch, nullptr, target, kToVict);
+				act(vict_msg.c_str(), false, caster, nullptr, target, kToVict);
 			}
-			roll.cvict = target;
-			roll.ovict = nullptr;
-			CastToSingleTarget(roll);
-			if (ch->purged()) {
+			ctx.cvict = target;
+			ctx.ovict = nullptr;
+			CastOnTarget(ctx);
+			if (caster->purged()) {
 				return ECastResult::kSuccess;
 			}
-			if (ch->IsFlagged(EPrf::kTester)) {
-				SendMsgToChar(ch,
+			if (caster->IsFlagged(EPrf::kTester)) {
+				SendMsgToChar(caster,
 							  "&GМакс. целей: %d, Каст: %d, Коэффициент: %.2f.&n\r\n",
-							  targets_num,
-							  GET_CAST_SUCCESS(ch),
+							  n,
+							  GET_CAST_SUCCESS(caster),
 							  coeff);
 			}
 		}
-
-		GET_CAST_SUCCESS(ch) = kCasterCastSuccess;
+		GET_CAST_SUCCESS(caster) = kCasterCastSuccess;
 	} catch (std::runtime_error &e) {
 		err_log("%s", e.what());
 	}
 	return ECastResult::kSuccess;
 }
 
-// Применение заклинания к группе в комнате
-//---------------------------------------------------------
-ECastResult CallMagicToGroup(CharData *ch, CastContext roll) {
-	const ESpell spell_id = roll.spell_id();
-	if (ch == nullptr) {
-		return ECastResult::kNotCast;
-	}
-
-	TrySendCastMessages(ch, nullptr, world[ch->in_room], spell_id);
-
-	target_resolver::FriendsRosterType roster{ch, ch};
-	roster.flip();
-	for (const auto target: roster) {
-		roll.cvict = target;
-		roll.ovict = nullptr;
-		CastToSingleTarget(roll);
-	}
-	return ECastResult::kSuccess;
+// issue.area-cast: cast `spell_id` as an area attack on every foe in the caster's room,
+// regardless of the spell's own targeting flags. Used by the room-affect ticks (deadly fog /
+// thunderstorm). Replaces the old direct CallMagicToArea callers.
+ECastResult CastAreaInRoom(CharData *ch, ESpell spell_id, int level) {
+	auto roll = ComputeCastRoll(ch, spell_id, level);
+	return CastToTargets(roll, ECastTargets::kFoes);
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

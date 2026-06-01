@@ -1262,8 +1262,8 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <area>
-                    <targets skill_divisor="20" dice_size="2" min="5" max="20"/>
-                    <distribution type="kStepped" decay="0.01" free_targets="3"/>
+                    <targets skill_divisor="20" dice_size="2" min="5" max="-1"/>
+                    <distribution type="kUniform"/>
                 </area>
                 <affects type="kArmor" saving="kNone" resist="kVitality">
                     <duration base="20" skill_divisor="3" min="0" max="0"/>
@@ -1325,8 +1325,8 @@ base_stat id - (например "kWis") какой берем параметр,
                     <heal npc_coeff="3" min="0" dices_weight="1.0" alpha="0.5" beta="45"/>
                 </points>
                 <area>
-                    <targets skill_divisor="20" dice_size="2" min="5" max="20"/>
-                    <distribution type="kStepped" decay="0.01" free_targets="3"/>
+                    <targets skill_divisor="20" dice_size="2" min="5" max="-1"/>
+                    <distribution type="kUniform"/>
                 </area>
             </action>
         </talent_actions>
@@ -1344,7 +1344,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <area>
-                    <targets skill_divisor="20" dice_size="2" min="5" max="20"/>
+                    <targets skill_divisor="20" dice_size="2" min="5" max="-1"/>
                     <distribution type="kUniform"/>
                 </area>
             </action>
@@ -1445,7 +1445,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <area>
-                    <targets skill_divisor="20" dice_size="2" min="5" max="20"/>
+                    <targets skill_divisor="20" dice_size="2" min="5" max="-1"/>
                     <distribution type="kUniform"/>
                 </area>
                 <affects type="kStrength" saving="kNone" resist="kImmunity">
@@ -1935,7 +1935,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <area>
-                    <targets skill_divisor="20" dice_size="2" min="5" max="20"/>
+                    <targets skill_divisor="20" dice_size="2" min="5" max="-1"/>
                     <distribution type="kUniform"/>
                 </area>
                 <target_conditions>
@@ -2603,7 +2603,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <area>
-                    <targets skill_divisor="20" dice_size="2" min="5" max="20"/>
+                    <targets skill_divisor="20" dice_size="2" min="5" max="-1"/>
                     <distribution type="kUniform"/>
                 </area>
                 <affects type="kFly" saving="kNone" resist="kAir">
@@ -2634,7 +2634,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <area>
-                    <targets skill_divisor="20" dice_size="2" min="5" max="20"/>
+                    <targets skill_divisor="20" dice_size="2" min="5" max="-1"/>
                     <distribution type="kUniform"/>
                 </area>
                 <affects type="kBless" saving="kNone" resist="kVitality">
@@ -2973,7 +2973,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <area>
-                    <targets skill_divisor="20" dice_size="2" min="5" max="20"/>
+                    <targets skill_divisor="20" dice_size="2" min="5" max="-1"/>
                     <distribution type="kUniform"/>
                 </area>
                 <affects type="kHaste" saving="kNone" resist="kMind">
@@ -3511,7 +3511,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <area>
-                    <targets skill_divisor="20" dice_size="2" min="5" max="20"/>
+                    <targets skill_divisor="20" dice_size="2" min="5" max="-1"/>
                     <distribution type="kUniform"/>
                 </area>
                 <affects type="kMagicGlass" saving="kNone" resist="kAir">
@@ -3721,7 +3721,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <heal npc_coeff="3" min="0" dices_weight="1.0" alpha="0.5" beta="67.5"/>
                 </points>
                 <area>
-                    <targets skill_divisor="20" dice_size="2" min="1" max="20"/>
+                    <targets skill_divisor="20" dice_size="2" min="1" max="-1"/>
                     <distribution type="kUniform"/>
                 </area>
                 <affects type="kEviless" saving="kNone" resist="kDark">
@@ -3755,7 +3755,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <area>
-                    <targets skill_divisor="20" dice_size="2" min="5" max="20"/>
+                    <targets skill_divisor="20" dice_size="2" min="5" max="-1"/>
                     <distribution type="kUniform"/>
                 </area>
                 <affects type="kAirAura" saving="kNone" resist="kAir">
@@ -3786,7 +3786,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <area>
-                    <targets skill_divisor="20" dice_size="2" min="5" max="20"/>
+                    <targets skill_divisor="20" dice_size="2" min="5" max="-1"/>
                     <distribution type="kUniform"/>
                 </area>
                 <affects type="kFireAura" saving="kNone" resist="kFire">
@@ -3817,7 +3817,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <area>
-                    <targets skill_divisor="20" dice_size="2" min="5" max="20"/>
+                    <targets skill_divisor="20" dice_size="2" min="5" max="-1"/>
                     <distribution type="kUniform"/>
                 </area>
                 <affects type="kIceAura" saving="kNone" resist="kWater">
@@ -3913,7 +3913,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <area>
-                    <targets skill_divisor="20" dice_size="2" min="5" max="20"/>
+                    <targets skill_divisor="20" dice_size="2" min="5" max="-1"/>
                     <distribution type="kUniform"/>
                 </area>
                 <target_conditions>
@@ -3953,7 +3953,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <area>
-                    <targets skill_divisor="20" dice_size="2" min="5" max="20"/>
+                    <targets skill_divisor="20" dice_size="2" min="5" max="-1"/>
                     <distribution type="kUniform"/>
                 </area>
                 <target_conditions>
@@ -4416,7 +4416,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <moves min="9999" dices_weight="0" alpha="0" beta="0"/>
                 </points>
                 <area>
-                    <targets skill_divisor="20" dice_size="2" min="5" max="20"/>
+                    <targets skill_divisor="20" dice_size="2" min="5" max="-1"/>
                     <distribution type="kUniform"/>
                 </area>
             </action>
@@ -5019,7 +5019,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <area>
-                    <targets skill_divisor="20" dice_size="2" min="5" max="20"/>
+                    <targets skill_divisor="20" dice_size="2" min="5" max="-1"/>
                     <distribution type="kUniform"/>
                 </area>
                 <affects type="kWarcryOfDefence" saving="kNone" resist="kMind">
@@ -5058,7 +5058,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <area>
-                    <targets skill_divisor="20" dice_size="2" min="5" max="20"/>
+                    <targets skill_divisor="20" dice_size="2" min="5" max="-1"/>
                     <distribution type="kUniform"/>
                 </area>
                 <affects type="kWarcryOfBattle" saving="kNone" resist="kMind">
@@ -5091,7 +5091,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <heal npc_coeff="3" min="1" dices_weight="1.0" alpha="1" beta="1"/>
                 </points>
                 <area>
-                    <targets skill_divisor="20" dice_size="2" min="5" max="20"/>
+                    <targets skill_divisor="20" dice_size="2" min="5" max="-1"/>
                     <distribution type="kUniform"/>
                 </area>
                 <affects type="kWarcryOfPower" saving="kNone" resist="kMind">
@@ -5121,7 +5121,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <area>
-                    <targets skill_divisor="20" dice_size="2" min="5" max="20"/>
+                    <targets skill_divisor="20" dice_size="2" min="5" max="-1"/>
                     <distribution type="kUniform"/>
                 </area>
                 <affects type="kWarcryOfBless" saving="kNone" resist="kMind">
@@ -5154,7 +5154,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <area>
-                    <targets skill_divisor="20" dice_size="2" min="5" max="20"/>
+                    <targets skill_divisor="20" dice_size="2" min="5" max="-1"/>
                     <distribution type="kUniform"/>
                 </area>
                 <affects type="kWarcryOfCourage" saving="kNone" resist="kMind">
@@ -5449,7 +5449,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <area>
-                    <targets skill_divisor="20" dice_size="2" min="5" max="20"/>
+                    <targets skill_divisor="20" dice_size="2" min="5" max="-1"/>
                     <distribution type="kUniform"/>
                 </area>
             </action>
@@ -5479,7 +5479,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <area>
-                    <targets skill_divisor="20" dice_size="2" min="5" max="20"/>
+                    <targets skill_divisor="20" dice_size="2" min="5" max="-1"/>
                     <distribution type="kUniform"/>
                 </area>
             </action>
@@ -5724,7 +5724,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <area>
-                    <targets skill_divisor="20" dice_size="2" min="5" max="20"/>
+                    <targets skill_divisor="20" dice_size="2" min="5" max="-1"/>
                     <distribution type="kUniform"/>
                 </area>
                 <affects type="kInfravision" saving="kNone" resist="kVitality">
@@ -5755,7 +5755,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <area>
-                    <targets skill_divisor="20" dice_size="2" min="5" max="20"/>
+                    <targets skill_divisor="20" dice_size="2" min="5" max="-1"/>
                     <distribution type="kUniform"/>
                 </area>
                 <affects type="kDetectAlign" saving="kNone" resist="kMind">
@@ -5786,7 +5786,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <area>
-                    <targets skill_divisor="20" dice_size="2" min="5" max="20"/>
+                    <targets skill_divisor="20" dice_size="2" min="5" max="-1"/>
                     <distribution type="kUniform"/>
                 </area>
                 <affects type="kDetectMagic" saving="kNone" resist="kMind">
@@ -5817,7 +5817,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <area>
-                    <targets skill_divisor="20" dice_size="2" min="5" max="20"/>
+                    <targets skill_divisor="20" dice_size="2" min="5" max="-1"/>
                     <distribution type="kUniform"/>
                 </area>
                 <affects type="kDetectInvis" saving="kNone" resist="kMind">
@@ -5848,7 +5848,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <area>
-                    <targets skill_divisor="20" dice_size="2" min="5" max="20"/>
+                    <targets skill_divisor="20" dice_size="2" min="5" max="-1"/>
                     <distribution type="kUniform"/>
                 </area>
                 <affects type="kSenseLife" saving="kNone" resist="kImmunity">
@@ -5879,7 +5879,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <area>
-                    <targets skill_divisor="20" dice_size="2" min="5" max="20"/>
+                    <targets skill_divisor="20" dice_size="2" min="5" max="-1"/>
                     <distribution type="kUniform"/>
                 </area>
                 <affects type="kWaterbreath" saving="kNone" resist="kWater">
@@ -5910,7 +5910,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <area>
-                    <targets skill_divisor="20" dice_size="2" min="5" max="20"/>
+                    <targets skill_divisor="20" dice_size="2" min="5" max="-1"/>
                     <distribution type="kUniform"/>
                 </area>
                 <affects type="kFastRegeneration" saving="kNone" resist="kImmunity">
@@ -5943,7 +5943,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <cond min="9999" dices_weight="0" alpha="0" beta="0"/>
                 </points>
                 <area>
-                    <targets skill_divisor="20" dice_size="2" min="5" max="20"/>
+                    <targets skill_divisor="20" dice_size="2" min="5" max="-1"/>
                     <distribution type="kUniform"/>
                 </area>
             </action>
@@ -5967,7 +5967,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <area>
-                    <targets skill_divisor="20" dice_size="2" min="5" max="20"/>
+                    <targets skill_divisor="20" dice_size="2" min="5" max="-1"/>
                     <distribution type="kUniform"/>
                 </area>
                 <affects type="kStoneSkin" saving="kNone" resist="kEarth">
@@ -5998,7 +5998,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <area>
-                    <targets skill_divisor="20" dice_size="2" min="5" max="20"/>
+                    <targets skill_divisor="20" dice_size="2" min="5" max="-1"/>
                     <distribution type="kUniform"/>
                 </area>
                 <affects type="kDetectPoison" saving="kNone" resist="kMind">
@@ -6029,7 +6029,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <area>
-                    <targets skill_divisor="20" dice_size="2" min="5" max="20"/>
+                    <targets skill_divisor="20" dice_size="2" min="5" max="-1"/>
                     <distribution type="kUniform"/>
                 </area>
                 <affects type="kEarthAura" saving="kNone" resist="kEarth">
@@ -6060,7 +6060,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <area>
-                    <targets skill_divisor="20" dice_size="2" min="5" max="20"/>
+                    <targets skill_divisor="20" dice_size="2" min="5" max="-1"/>
                     <distribution type="kUniform"/>
                 </area>
                 <affects type="kProtectFromEvil" saving="kNone" resist="kVitality">
@@ -6183,7 +6183,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <area>
-                    <targets skill_divisor="20" dice_size="2" min="1" max="20"/>
+                    <targets skill_divisor="20" dice_size="2" min="1" max="-1"/>
                     <distribution type="kUniform"/>
                 </area>
                 <!-- 15% chance to heal each group member, kGreatHeal-sized. -->
@@ -6261,7 +6261,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <area>
-                    <targets skill_divisor="20" dice_size="2" min="5" max="20"/>
+                    <targets skill_divisor="20" dice_size="2" min="5" max="-1"/>
                     <distribution type="kUniform"/>
                 </area>
                 <affects type="kBlink" saving="kNone" resist="kImmunity">
@@ -6292,7 +6292,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <area>
-                    <targets skill_divisor="20" dice_size="2" min="5" max="20"/>
+                    <targets skill_divisor="20" dice_size="2" min="5" max="-1"/>
                     <distribution type="kUniform"/>
                 </area>
                 <affects type="kCloudly" saving="kNone" resist="kWater">
@@ -6326,7 +6326,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <area>
-                    <targets skill_divisor="20" dice_size="2" min="5" max="20"/>
+                    <targets skill_divisor="20" dice_size="2" min="5" max="-1"/>
                     <distribution type="kUniform"/>
                 </area>
                 <affects type="kAwareness" saving="kNone" resist="kMind">
@@ -6359,7 +6359,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <area>
-                    <targets skill_divisor="20" dice_size="2" min="5" max="20"/>
+                    <targets skill_divisor="20" dice_size="2" min="5" max="-1"/>
                     <distribution type="kUniform"/>
                 </area>
                 <affects type="kWarcryOfExperience" saving="kNone" resist="kMind">
@@ -6389,7 +6389,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <area>
-                    <targets skill_divisor="20" dice_size="2" min="5" max="20"/>
+                    <targets skill_divisor="20" dice_size="2" min="5" max="-1"/>
                     <distribution type="kUniform"/>
                 </area>
                 <affects type="kWarcryOfLuck" saving="kNone" resist="kMind">
@@ -6419,7 +6419,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <talent_actions>
             <action>
                 <area>
-                    <targets skill_divisor="20" dice_size="2" min="5" max="20"/>
+                    <targets skill_divisor="20" dice_size="2" min="5" max="-1"/>
                     <distribution type="kUniform"/>
                 </area>
                 <affects type="kWarcryOfPhysdamage" saving="kNone" resist="kMind">
