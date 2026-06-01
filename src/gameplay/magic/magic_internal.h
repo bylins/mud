@@ -31,8 +31,9 @@ ECastResult CastSpell(CastContext &ctx, ECastTargets scope);
 // Forced area-fanout of a spell over the caster's room (room-affect ticks); see magic.cpp.
 ECastResult CastAreaInRoom(CharData *ch, ESpell spell_id, int level);
 
-// Builds a CastContext (evaluates both rolls). Module-internal; CallMagic is the entry.
-CastContext ComputeCastRoll(CharData *caster, ESpell spell_id, int level);
+// Build a CastContext for a cast: evaluates the success + potency rolls once. Module-internal
+// (CallMagic is the public entry; CastAreaInRoom uses it for the room-affect ticks).
+CastContext BuildCastContext(CharData *caster, ESpell spell_id, int level);
 
 // Spell-level caster gate (issue.spell-unification): true if the caster fails the
 // spell's <caster_conditions> -- carries a <blocking> flag/affect/align, or lacks a

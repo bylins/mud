@@ -3173,8 +3173,8 @@ ECastResult CastSpell(CastContext &ctx, ECastTargets scope) {
 // regardless of the spell's own targeting flags. Used by the room-affect ticks (deadly fog /
 // thunderstorm). Replaces the old direct CallMagicToArea callers.
 ECastResult CastAreaInRoom(CharData *ch, ESpell spell_id, int level) {
-	auto roll = ComputeCastRoll(ch, spell_id, level);
-	return CastSpell(roll, ECastTargets::kFoes);
+	auto ctx = BuildCastContext(ch, spell_id, level);
+	return CastSpell(ctx, ECastTargets::kFoes);
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

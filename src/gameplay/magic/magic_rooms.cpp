@@ -5,7 +5,7 @@
 #include "engine/entities/char_data.h"
 #include "magic.h" //Включено ради material_component_processing
 #include "magic_utils.h" // IsRoomBlocked / MayCastInForbiddenRoom
-#include "magic_internal.h" // ComputeCastRoll / CastUnaffects / ProcessMatComponents
+#include "magic_internal.h" // BuildCastContext / CastUnaffects / ProcessMatComponents
 #include "engine/ui/table_wrapper.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/skills/townportal.h"

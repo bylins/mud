@@ -453,7 +453,7 @@ private:
 // Evaluates the spell's success and potency rolls against the caster once, so the
 // result can be threaded to the cast-dispatch functions. The roll
 // values do not depend on level; level is carried only to replace that parameter.
-CastContext ComputeCastRoll(CharData *caster, ESpell spell_id, int level) {
+CastContext BuildCastContext(CharData *caster, ESpell spell_id, int level) {
 	const auto &spell = MUD::Spell(spell_id);
 	auto eval = [caster](const talents_actions::Roll &roll) {
 		return RollResult{roll.RollSkillDices(), roll.CalcSkillCoeff(caster),
@@ -531,31 +531,31 @@ ECastResult CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomDat
 	metrics.send();
 
 	// Compute both rolls once, now that we know the spell is actually being cast.
-	CastContext roll = ComputeCastRoll(caster, spell_id, level);
-	roll.cvict = cvict;
-	roll.ovict = ovict;
-	roll.rvict = rvict;
+	CastContext ctx = BuildCastContext(caster, spell_id, level);
+	ctx.cvict = cvict;
+	ctx.ovict = ovict;
+	ctx.rvict = rvict;
 
 	if (MUD::Spell(spell_id).IsFlagged(kMagAreas) || MUD::Spell(spell_id).IsFlagged(kMagMasses)) {
 		profiler.next_step("area");
-		roll.level = abs(level);
-		return CastSpell(roll, ECastTargets::kFoes);
+		ctx.level = abs(level);
+		return CastSpell(ctx, ECastTargets::kFoes);
 	}
 
 	if (MUD::Spell(spell_id).IsFlagged(kMagGroups)) {
 		profiler.next_step("group");
-		return CastSpell(roll, ECastTargets::kFriends);
+		return CastSpell(ctx, ECastTargets::kFriends);
 	}
 
 	if (MUD::Spell(spell_id).IsFlagged(kMagRoom)) {
 		profiler.next_step("room");
-		CastContext room_roll = roll;
-		room_roll.level = abs(level);
-		return room_spells::CallMagicToRoom(caster, rvict, room_roll);
+		CastContext room_ctx = ctx;
+		room_ctx.level = abs(level);
+		return room_spells::CallMagicToRoom(caster, rvict, room_ctx);
 	}
 
 	profiler.next_step("single");
-	return CastSpell(roll, ECastTargets::kSingle);
+	return CastSpell(ctx, ECastTargets::kSingle);
 }
 
 const char *what_sky_type[] = {"пасмурно",
