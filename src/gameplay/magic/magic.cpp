@@ -2982,61 +2982,56 @@ void TrySendCastMessages(CharData *ch, CharData *victim, RoomData *room, ESpell 
 
 ECastResult CallMagicToArea(CharData *ch, CharData *victim, RoomData *room, CastContext roll) {
 	const ESpell spell_id = roll.spell_id();
-	int level = roll.level;     // mutated by the per-target level decay below
 	if (ch == nullptr || ch->in_room == kNowhere) {
 		return ECastResult::kNotCast;
 	}
 	try {
-		const auto params = roll.action_or_default().GetArea();
+		const auto &area = roll.action_or_default().GetArea();
 		target_resolver::FoesRosterType roster{ch, victim,
 											   [](CharData *, CharData *target) {
 												   return !IS_HORSE(target);
 											   }};
 		TrySendCastMessages(ch, victim, room, spell_id);
-		int targets_num = params.CalcTargetsQuantity(ch->GetSkill(GetMagicSkillId(spell_id)));
-		int targets_counter = 1;
-		int lvl_decay = 0;
-		double cast_decay = 0.0;
-		if (CanUseFeat(ch, EFeat::kMultipleCast)) {
-			cast_decay = params.cast_decay * 0.6;
-			lvl_decay = std::max(0, params.level_decay - 1);
-		} else {
-			cast_decay = params.cast_decay;
-			lvl_decay = params.level_decay;
-		}
+		// issue.area-cast: N = min(rolled count, available foes). The distribution needs the
+		// actual target count up front (kLinear divides by N). The count keeps the historical
+		// skill-scaled-dice formula (+ optional stat nudge via the cast potency stat_coeff).
+		const int rolled = area.CalcTargetsQuantity(ch->GetSkill(GetMagicSkillId(spell_id)),
+														roll.potency().stat_coeff);
+		const int targets_num = std::min(rolled, roster.amount());
+		// kMultipleCast softens the stepped falloff; NPC casters skip the falloff entirely.
+		const double decay_eff = (!ch->IsNpc() && CanUseFeat(ch, EFeat::kMultipleCast))
+				? area.decay * 0.6 : area.decay;
 		const int kCasterCastSuccess = GET_CAST_SUCCESS(ch);
 
 		const auto &area_sheaf = MUD::SpellMessages()[spell_id];
 		const bool has_vict_msg = area_sheaf.HasMessage(ESpellMsg::kAreaToVict);
 		const std::string vict_msg = has_vict_msg ? area_sheaf.GetMessage(ESpellMsg::kAreaToVict) : std::string{};
+		int j = 0;
 		for (const auto &target: roster) {
+			if (j >= targets_num) {
+				break;
+			}
+			++j;  // 1-based position of this target; target #1 is the primary victim.
+			// One coefficient per target scales BOTH the effect (via ctx.area_coeff, read by the
+			// stages) and the caster's effective cast_success. kUniform -> 1 (no falloff).
+			const double coeff = ch->IsNpc() ? 1.0 : area.DistributionCoeff(j, targets_num, decay_eff);
+			roll.area_coeff = coeff;
+			GET_CAST_SUCCESS(ch) = static_cast<int>(kCasterCastSuccess * coeff);
 			if (has_vict_msg && target->desc) {
 				act(vict_msg.c_str(), false, ch, nullptr, target, kToVict);
 			}
-			roll.level = level;
 			roll.cvict = target;
 			roll.ovict = nullptr;
 			CastToSingleTarget(roll);
 			if (ch->purged()) {
 				return ECastResult::kSuccess;
 			}
-			if (!ch->IsNpc()) {
-				++targets_counter;
-				if (targets_counter > params.free_targets) {
-					int tax = kCasterCastSuccess * cast_decay * (targets_counter - params.free_targets);
-					GET_CAST_SUCCESS(ch) = std::max(-200, kCasterCastSuccess - tax);
-					level = std::max(1, level - lvl_decay);
-					if (ch->IsFlagged(EPrf::kTester)) {
-						SendMsgToChar(ch,
-									  "&GМакс. целей: %d, Каст: %d, Уровень заклинания: %d.&n\r\n",
-									  targets_num,
-									  GET_CAST_SUCCESS(ch),
-									  level);
-					}
-				};
-			};
-			if (targets_counter >= targets_num) {
-				break;
+			if (ch->IsFlagged(EPrf::kTester)) {
+				SendMsgToChar(ch,
+							  "&GМакс. целей: %d, Каст: %d, Коэффициент: %.2f.&n\r\n",
+							  targets_num,
+							  GET_CAST_SUCCESS(ch),
+							  coeff);
 			}
 		}
 

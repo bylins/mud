@@ -384,31 +384,22 @@ void Points::Print(CharData */*ch*/, std::ostringstream &buffer) const {
 
 void Area::Print(CharData */*ch*/, std::ostringstream &buffer) const {
 	buffer << " Area:" << "\r\n"
-		   << "  [legacy] cast_decay=" << kColorGrn << cast_decay << kColorNrm
-		   << " level_decay=" << kColorGrn << level_decay << kColorNrm
-		   << " skill_divisor=" << kColorGrn << skill_divisor << kColorNrm
-		   << " targets_dice=" << kColorGrn << targets_dice_size << kColorNrm << "\r\n"
-		   << "  Targets: dices_weight=" << kColorGrn << dices_weight << kColorNrm
-		   << " alpha=" << kColorGrn << alpha << kColorNrm
-		   << " beta=" << kColorGrn << beta << kColorNrm
+		   << "  Targets: skill_divisor=" << kColorGrn << skill_divisor << kColorNrm
+		   << " dice_size=" << kColorGrn << dice_size << kColorNrm
 		   << " min=" << kColorGrn << min_targets << kColorNrm
-		   << " max=" << kColorGrn << max_targets << kColorNrm << "\r\n"
+		   << " max=" << kColorGrn << max_targets << kColorNrm
+		   << " stat_weight=" << kColorGrn << stat_weight << kColorNrm << "\r\n"
 		   << "  Distribution: type=" << kColorGrn << static_cast<int>(distribution) << kColorNrm
 		   << " decay=" << kColorGrn << decay << kColorNrm
 		   << " free_targets=" << kColorGrn << free_targets << kColorNrm << "\r\n";
 }
 
-int Area::CalcTargetsQuantity(const int skill_level) const {
-	auto bonus = RollDices(skill_level / skill_divisor, targets_dice_size);
+// issue.area-cast: historical skill-scaled-dice count + an optional secondary-stat nudge.
+// stat_coeff is the cast potency roll's stat coefficient; stat_weight=0 -> exactly the old count.
+int Area::CalcTargetsQuantity(const int skill, const double stat_coeff) const {
+	const int bonus = RollDices(skill / skill_divisor, dice_size)
+			+ static_cast<int>(std::ceil(stat_weight * stat_coeff));
 	return min_targets + std::min(bonus, max_targets);
-}
-
-// issue.area-cast: target count via the canonical modifier formula, fed by the cast's
-// potency roll (dices = RollSkillDices, competencies = skill_coeff + stat_coeff).
-int Area::CalcTargetsQuantity(const int dices, const double competencies) const {
-	const double raw = min_targets
-			+ std::ceil(dices * dices_weight * (1.0 + alpha * competencies) + beta * competencies);
-	return std::clamp(static_cast<int>(raw), min_targets, max_targets);
 }
 
 // issue.area-cast: per-target falloff coefficient (1-based j of n). decay_eff is the
@@ -817,26 +808,12 @@ void Actions::ParseDamage(Action &out, parser_wrapper::DataNode &node) {
 
 void Actions::ParseArea(Action &out, parser_wrapper::DataNode &node) {
 	auto ptr = std::make_shared<Area>();
-	if (node.GoToChild("decay")) {
-		ptr->free_targets = std::max(0, parse::ReadAsInt(node.GetValue("free_targets")));
-		ptr->level_decay = parse::ReadAsInt(node.GetValue("level"));
-		ptr->cast_decay = parse::ReadAsDouble(node.GetValue("cast"));
-		node.GoToParent();
-	}
-	if (node.GoToChild("victims")) {
-		ptr->skill_divisor = std::max(1, parse::ReadAsInt(node.GetValue("skill_divisor")));
-		ptr->targets_dice_size = std::max(1, parse::ReadAsInt(node.GetValue("dice_size")));
-		ptr->min_targets = std::max(1, parse::ReadAsInt(node.GetValue("min_targets")));
-		ptr->max_targets = std::max(1, parse::ReadAsInt(node.GetValue("max_targets")));
-		node.GoToParent();
-	}
-
 	if (node.GoToChild("targets")) {
-		ptr->dices_weight = parse::ReadAsDouble(node.GetValue("dices_weight"));
-		ptr->alpha = parse::ReadAsDouble(node.GetValue("alpha"));
-		ptr->beta = parse::ReadAsDouble(node.GetValue("beta"));
+		ptr->skill_divisor = std::max(1, parse::ReadAsInt(node.GetValue("skill_divisor")));
+		ptr->dice_size = std::max(1, parse::ReadAsInt(node.GetValue("dice_size")));
 		ptr->min_targets = std::max(1, parse::ReadAsInt(node.GetValue("min")));
 		ptr->max_targets = std::max(1, parse::ReadAsInt(node.GetValue("max")));
+		ptr->stat_weight = parse::ReadAsDouble(node.GetValue("stat_weight"));
 		node.GoToParent();
 	}
 	if (node.GoToChild("distribution")) {
