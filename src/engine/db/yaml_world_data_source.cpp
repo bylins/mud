@@ -29,6 +29,7 @@
 
 #include <yaml-cpp/yaml.h>
 #include <algorithm>
+#include <cstdlib>
 #include <cstring>
 #include <iomanip>
 #include <regex>
@@ -482,6 +483,20 @@ int YamlWorldDataSource::ParseEnum(const YAML::Node &node, const std::string &di
 	}
 
 	std::string name = node.as<std::string>();
+	// A raw integer value (the converter emits one whenever the enum index
+	// has no symbolic name -- e.g. an out-of-range default_pos like 15) must
+	// round-trip verbatim instead of collapsing to the default; otherwise
+	// legacy<->yaml drift on such values, and the SQLite path (which stores
+	// the int directly) would disagree too (issue #3384 class).
+	if (!name.empty())
+	{
+		char *end = nullptr;
+		const long as_int = std::strtol(name.c_str(), &end, 10);
+		if (*end == '\0')
+		{
+			return static_cast<int>(as_int);
+		}
+	}
 	auto &dm = DictionaryManager::Instance();
 	long val = dm.Lookup(dict_name, name, default_val);
 	return static_cast<int>(val);
