@@ -126,6 +126,13 @@ class CastContext {
 	void NextAction();
 	[[nodiscard]] const talents_actions::Action *action() const;
 	[[nodiscard]] bool HasPendingActions() const;
+	// The action the current stage should read its block from: the cursor's
+	// current action when the per-action loop is driving (CastToSingleTarget),
+	// or the spell's primary action otherwise (bypass callers / rooms that call
+	// a stage directly without rewinding the cursor). Stages use this instead of
+	// MUD::Spell(spell_id).actions.GetX() so they read THEIR action, not always
+	// the first one.
+	[[nodiscard]] const talents_actions::Action &action_or_default() const;
 
  private:
 	CharData *caster_{nullptr};

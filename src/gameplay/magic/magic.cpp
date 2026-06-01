@@ -397,15 +397,16 @@ static void ForceReposition(CharData *victim, ESpell spell_id, EPosition pos, bo
 	}
 }
 
-static int CalcTotalSpellDmg(CharData *ch, CharData *victim, ESpell spell_id) {
+static int CalcTotalSpellDmg(CharData *ch, CharData *victim, ESpell spell_id,
+							const talents_actions::Action &action) {
 	const auto &potency_roll = MUD::Spell(spell_id).GetPotencyRoll();
-	const bool has_dmg = MUD::Spell(spell_id).actions.Contains(talents_actions::EAction::kDamage);
+	const bool has_dmg = action.Contains(talents_actions::EAction::kDamage);
 	// prob: a <damage prob=> spell may simply not fire (default 100).
 	// A miss returns 0 -- which, like a full magic-resist, is still processed downstream (no aggro
 	// change was requested), so behaviour matches today's zero-damage handling. The prob<100 guard
 	// short-circuits the RNG when the result is fixed at "always fires".
 	if (has_dmg) {
-		const int dmg_prob = MUD::Spell(spell_id).actions.GetDmg().GetProb();
+		const int dmg_prob = action.GetDmg().GetProb();
 		if (dmg_prob < 100 && number(1, 100) > dmg_prob) {
 			return 0;
 		}
@@ -423,7 +424,7 @@ static int CalcTotalSpellDmg(CharData *ch, CharData *victim, ESpell spell_id) {
 			// Additive model, mirroring heal: the <amount> weights scale
 			// the roll's dice and competencies (skill+stat); an absent <amount> defaults to min 0
 			// and both weights 1.0.
-			const auto &dmg_act = MUD::Spell(spell_id).actions.GetDmg();
+			const auto &dmg_act = action.GetDmg();
 			// Option-2 subquadratic (issue.potency-formula): skill/stat scales the dice
 			// multiplicatively (alpha) plus a flat additive term (beta). alpha=0 -> old
 			// Formula A. C = skill_coeff + stat_coeff.
@@ -595,8 +596,8 @@ EStageResult CastDamage(CastContext &ctx) {
 	// number from CalcExtraHits; the kMagicArrows feat for kMagicMissile is handled inside it.
 	// Absent <hits> -> count stays at the file-top default of 1 (single hit), which matches the
 	// current behaviour of every non-multi-hit damage spell.
-	if (MUD::Spell(spell_id).actions.Contains(talents_actions::EAction::kDamage)) {
-		const auto &dmg = MUD::Spell(spell_id).actions.GetDmg();
+	if (ctx.action_or_default().Contains(talents_actions::EAction::kDamage)) {
+		const auto &dmg = ctx.action_or_default().GetDmg();
 		if (dmg.HasHits()) {
 			const ESkill hits_skill = MUD::Spell(spell_id).GetPotencyRoll().GetBaseSkill();
 			count = 1 + CalcExtraHits(ch, spell_id, hits_skill,
@@ -607,7 +608,7 @@ EStageResult CastDamage(CastContext &ctx) {
 	int total_dmg{0};
 
 	try {
-		total_dmg = CalcTotalSpellDmg(ch, victim, spell_id);
+		total_dmg = CalcTotalSpellDmg(ch, victim, spell_id, ctx.action_or_default());
 	} catch (std::exception &e) {
 		err_log("%s", e.what());
 	}
@@ -894,8 +895,9 @@ static void ApplyTalentAffect(CharData *victim, Affect<EApply> &af, Bitvector fl
 // applies, then each apply's modifier is derived from the cast's potency roll. Every imposed
 // affect records the cast's potency and debuff nature so a later dispel can be strength-gated.
 static bool TryApplyAffectTalent(CharData *ch, CharData *victim, ESpell spell_id, int modi,
-								 const RollResult &potency, float cast_potency, bool cast_debuff) {
-	const auto &talent = MUD::Spell(spell_id).actions.GetAffect();
+						 const RollResult &potency, float cast_potency, bool cast_debuff,
+						 const talents_actions::Action &action) {
+	const auto &talent = action.GetAffect();
 	// prob: percent chance the <affects> block fires at all (default 100, silent miss on fail).
 	// Skipping it suppresses the affect, its lag and its reposition (gated by the caller).
 	// The prob<100 guard short-circuits the RNG when the spell always fires.
@@ -972,9 +974,10 @@ static bool TryApplyAffectTalent(CharData *ch, CharData *victim, ESpell spell_id
 // owner tag, and the imposition messages. The lag/reposition pair is gated on the spell having an
 // <affects> talent (where they live); the poison tag and messages apply to any successful cast.
 static void EmitImpositionEffects(CharData *ch, CharData *victim, ESpell spell_id,
-								  const RollResult &potency) {
-	if (MUD::Spell(spell_id).actions.Contains(talents_actions::EAction::kAffect)) {
-		const auto &side = MUD::Spell(spell_id).actions.GetAffect();
+								  const RollResult &potency,
+								  const talents_actions::Action &action) {
+	if (action.Contains(talents_actions::EAction::kAffect)) {
+		const auto &side = action.GetAffect();
 		// Battle lag: <affects> with <lag> delays the victim once the affect lands. Constant-lag
 		// spells use a non-positive bonus_divisor; skill-scaling ones add
 		// potency.low_skill_coeff / bonus_divisor.
@@ -1078,7 +1081,7 @@ EStageResult CastAffect(CastContext &ctx) {
 	// The affect's saving throw is read straight from the talent (GetAffect().GetSaving()) in the
 	// talent-affect block below; the <blocking>/<required> immunity checks moved up to
 	// CastToSingleTarget (action-level, gating the whole cast).
-	const bool has_affect_talent = MUD::Spell(spell_id).actions.Contains(talents_actions::EAction::kAffect);
+	const bool has_affect_talent = ctx.action_or_default().Contains(talents_actions::EAction::kAffect);
 	// Material component: consume it if this spell has one (no-op for spells that don't);
 	// a missing component stops the cast. (Hook for the material-component system, TBD.)
 	if (ProcessMatComponents(ch, victim, spell_id) == EStageResult::kBreak) {
@@ -1097,13 +1100,14 @@ EStageResult CastAffect(CastContext &ctx) {
 	// poison/message side-effects still fire for any non-affect-talent path.
 	bool success = true;
 	if (has_affect_talent) {
-		success = TryApplyAffectTalent(ch, victim, spell_id, modi, potency, cast_potency, cast_debuff);
+		success = TryApplyAffectTalent(ch, victim, spell_id, modi, potency, cast_potency, cast_debuff,
+									   ctx.action_or_default());
 	}
 
 	affect_total(victim);
 
 	if (success) {
-		EmitImpositionEffects(ch, victim, spell_id, potency);
+		EmitImpositionEffects(ch, victim, spell_id, potency, ctx.action_or_default());
 	}
 	return EStageResult::kSuccess;
 }
@@ -1757,13 +1761,13 @@ EStageResult CastToPoints(CastContext &ctx) {
 	// Fully data-driven: every category (heal / moves /
 	// thirst / full) lives in the spell's <points> block. Spells without one
 	// are misconfigured -- log and skip rather than crash.
-	if (!MUD::Spell(spell_id).actions.Contains(talents_actions::EAction::kPoints)) {
+	if (!ctx.action_or_default().Contains(talents_actions::EAction::kPoints)) {
 		mudlog(fmt::format("SYSERR: spell {} ({}) has no <points> block, CastToPoints skipped",
 				to_underlying(spell_id), MUD::Spell(spell_id).GetCName()),
 			CMP, kLvlImmortal, SYSLOG, true);
 		return EStageResult::kSuccess;
 	}
-	const auto &points = MUD::Spell(spell_id).actions.GetPoints();
+	const auto &points = ctx.action_or_default().GetPoints();
 
 	// Single prob roll for the whole action: a failed roll restores nothing.
 	const int prob = points.GetProb();
@@ -2278,10 +2282,10 @@ EStageResult CastUnaffects(CastContext &ctx) {
 		return EStageResult::kSuccess;
 	}
 
-	if (!MUD::Spell(spell_id).actions.Contains(talents_actions::EAction::kUnaffect)) {
+	if (!ctx.action_or_default().Contains(talents_actions::EAction::kUnaffect)) {
 		return EStageResult::kSuccess;
 	}
-	const auto &unaffect = MUD::Spell(spell_id).actions.GetUnaffect();
+	const auto &unaffect = ctx.action_or_default().GetUnaffect();
 	const int unaff_prob = unaffect.GetProb();
 	if (unaff_prob < 100 && number(1, 100) > unaff_prob) {
 		return EStageResult::kSuccess;
@@ -2801,6 +2805,13 @@ static CharData *MaybeReflectToCaster(CharData *caster, CharData *cvict, ESpell 
 	return caster;
 }
 
+const talents_actions::Action &CastContext::action_or_default() const {
+	// Cursor active (loop driving) -> the current action; otherwise (bypass
+	// callers / rooms / area setup that never rewound) -> the spell's primary.
+	const talents_actions::Action *a = action();
+	return a ? *a : MUD::Spell(spell_id_).actions.primary();
+}
+
 // --- CastContext action cursor (issue.spell-pipeline multi-action) ---
 // Defined here (not the header) so it can reach MUD::Spell for the action list.
 // A spell with NO <action> blocks (flag-only spells: kDazzle/kCombatLuck/...,
@@ -2975,7 +2986,7 @@ ECastResult CallMagicToArea(CharData *ch, CharData *victim, RoomData *room, Cast
 		return ECastResult::kNotCast;
 	}
 	try {
-		const auto params = MUD::Spell(spell_id).actions.GetArea();
+		const auto params = roll.action_or_default().GetArea();
 		target_resolver::FoesRosterType roster{ch, victim,
 											   [](CharData *, CharData *target) {
 												   return !IS_HORSE(target);
