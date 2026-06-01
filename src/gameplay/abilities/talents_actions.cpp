@@ -626,7 +626,9 @@ void PrintFlagCondition(const char *label, const FlagCondition &cond, std::ostri
 }  // namespace
 
 void Action::Print(CharData *ch, std::ostringstream &buffer) const {
-	buffer << "  Target: " << kColorGrn << static_cast<int>(target_) << kColorNrm << "\r\n";
+	buffer << "  Target: " << kColorGrn << static_cast<int>(target_) << kColorNrm
+		   << " Base: " << kColorGrn << static_cast<int>(base_) << kColorNrm
+		   << " Reset: " << kColorGrn << (reset_ ? "Y" : "N") << kColorNrm << "\r\n";
 	PrintFlagCondition("Blocking", blocking_, buffer);
 	PrintFlagCondition("Required", required_, buffer);
 	if (!reflection_.empty()) {
@@ -769,6 +771,18 @@ void Actions::ParseAction(Action &out, parser_wrapper::DataNode node) {
 		else if (strcmp(tgt, "kTarSame") == 0) { out.target_ = EActionTarget::kTarSame; }
 		else { err_log("Actions: unknown <action target='%s'>.", tgt); }
 	}
+	// issue.cast-chain: optional formula base + reset (non-first actions). Default kCompetence/false.
+	const char *bs = node.GetValue("base");
+	if (bs && *bs) {
+		if (strcmp(bs, "kDamage") == 0) { out.base_ = EActionBase::kDamage; }
+		else if (strcmp(bs, "kPoints") == 0) { out.base_ = EActionBase::kPoints; }
+		else if (strcmp(bs, "kAffects") == 0) { out.base_ = EActionBase::kAffects; }
+		else if (strcmp(bs, "kDispelled") == 0) { out.base_ = EActionBase::kDispelled; }
+		else if (strcmp(bs, "kCompetence") == 0) { out.base_ = EActionBase::kCompetence; }
+		else { err_log("Actions: unknown <action base='%s'>.", bs); }
+	}
+	const char *rs = node.GetValue("reset");
+	out.reset_ = (rs && (strcmp(rs, "true") == 0 || strcmp(rs, "Y") == 0 || strcmp(rs, "1") == 0));
 	for (auto &manifestation: node.Children()) {
 		if (strcmp(manifestation.GetName(), "damage") == 0) {
 			ParseDamage(out, manifestation);

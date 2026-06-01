@@ -41,6 +41,12 @@ enum class EActionTarget {
 	kTarRandomAlly   // one random ally in the room
 };
 
+// issue.cast-chain: what a NON-FIRST <action> uses as the "base" of its formula instead of the
+// caster's competence (skill+stat). kCompetence (default) keeps competence; the others substitute
+// the matching per-cast accumulator (damage dealt / points restored / affects applied / removed).
+// The first action ignores this -- it always uses competence. Set via <action base="...">.
+enum class EActionBase { kCompetence, kDamage, kPoints, kAffects, kDispelled };
+
 // (EAlign moved to engine/entities/entities_constants.h, issue.cast-dmg-migration: it's a
 //  general alignment concept, not a talents-specific one. Used by <blocking>/<required>/<reflection>.)
 
@@ -477,6 +483,11 @@ class Action {
 	// Per-action target selector (issue.area-cast): how a non-first action picks its targets.
 	// Ignored for the first action (uses the spell's targeting flags). Default kTarSame.
 	EActionTarget target_{EActionTarget::kTarSame};
+	// Per-action formula base (issue.cast-chain): kCompetence = caster competence (default);
+	// otherwise the matching accumulator. Ignored for the first action. reset_ zeroes the base
+	// accumulator after this action runs (no-op for the first action / kCompetence).
+	EActionBase base_{EActionBase::kCompetence};
+	bool reset_{false};
 
 	friend class Actions;   // Actions builds these via the Parse* helpers.
 
@@ -493,6 +504,8 @@ class Action {
 	[[nodiscard]] const FlagCondition &GetRequired() const { return required_; }
 	[[nodiscard]] const Reflection &GetReflection() const { return reflection_; }
 	[[nodiscard]] EActionTarget GetTarget() const { return target_; }
+	[[nodiscard]] EActionBase GetBase() const { return base_; }
+	[[nodiscard]] bool GetReset() const { return reset_; }
 };
 
 // Spell-level caster gate (issue.spell-unification): a spell is castable by the caster

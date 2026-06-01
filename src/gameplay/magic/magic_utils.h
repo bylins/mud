@@ -62,7 +62,7 @@ float CalcCastPotency(const RollResult &potency);
 // Shared by CastAffect's per-target apply_one lambda and CallMagicToRoom's
 // first-apply default. cap == 0 disables the clamp; factor is allowed to be
 // negative (debuffs), with the clamp acting on the pre-factor magnitude.
-int ComputeApplyModifier(const talents_actions::TalentAffect::Apply &apply,
+int ComputeApplyModifier(const talents_actions::TalentAffect::Apply &apply, double competence,
 						 const RollResult &potency);
 
 int CalcCastSuccess(CharData *ch, CharData *victim, ESaving saving, ESpell spell_id);

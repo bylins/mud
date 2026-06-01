@@ -112,6 +112,9 @@ class CastContext {
 	double points_count{0.0};     // total (computed) points restored, all categories
 	double affects_count{0.0};    // number of affects applied
 	double dispelled_count{0.0};  // number of affects removed
+	// issue.cast-chain: true while the spell's FIRST action runs; CompetenceBase() forces real
+	// competence then (the first action never chains off an accumulator). Set per action.
+	bool is_entry_action{true};
 	// Results accumulated by the stage handlers, so later <action>s (and the
 	// dispatcher) can read what earlier ones produced.
 	struct ActionResult {
@@ -148,6 +151,10 @@ class CastContext {
 	// MUD::Spell(spell_id).actions.GetX() so they read THEIR action, not always
 	// the first one.
 	[[nodiscard]] const talents_actions::Action &action_or_default() const;
+	// issue.cast-chain: the scalar a stage's formula uses where competence (skill+stat) would go.
+	// First action / base==kCompetence -> the potency roll's real competence; else the accumulator
+	// named by the current action's base=.
+	[[nodiscard]] double CompetenceBase() const;
 
  private:
 	CharData *caster_{nullptr};

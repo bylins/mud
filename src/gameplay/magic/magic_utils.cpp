@@ -345,9 +345,11 @@ float CalcCastPotency(const RollResult &potency) {
 	return static_cast<float>(potency.dices + potency.skill_coeff + potency.stat_coeff);
 }
 
-int ComputeApplyModifier(const talents_actions::TalentAffect::Apply &apply,
+int ComputeApplyModifier(const talents_actions::TalentAffect::Apply &apply, double competence,
 						 const RollResult &potency) {
-	const double competencies = potency.skill_coeff + potency.stat_coeff;
+	// issue.cast-chain: `competence` replaces the caster's skill+stat for chained actions
+	// (it equals skill+stat for the entry action / base==kCompetence). potency.dices stays.
+	const double competencies = competence;
 	// Option-2 subquadratic (issue.potency-formula): dice amplified by skill/stat (alpha)
 	// plus an additive term (beta). alpha=0 -> old Formula A.
 	double raw = apply.min + std::ceil(

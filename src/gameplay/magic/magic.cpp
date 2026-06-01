@@ -398,7 +398,7 @@ static void ForceReposition(CharData *victim, ESpell spell_id, EPosition pos, bo
 }
 
 static int CalcTotalSpellDmg(CharData *ch, CharData *victim, ESpell spell_id,
-							const talents_actions::Action &action) {
+							const talents_actions::Action &action, double competence) {
 	const auto &potency_roll = MUD::Spell(spell_id).GetPotencyRoll();
 	const bool has_dmg = action.Contains(talents_actions::EAction::kDamage);
 	// prob: a <damage prob=> spell may simply not fire (default 100).
@@ -428,7 +428,7 @@ static int CalcTotalSpellDmg(CharData *ch, CharData *victim, ESpell spell_id,
 			// Option-2 subquadratic (issue.potency-formula): skill/stat scales the dice
 			// multiplicatively (alpha) plus a flat additive term (beta). alpha=0 -> old
 			// Formula A. C = skill_coeff + stat_coeff.
-			const float C = skill_coeff + stat_coeff;
+			const float C = static_cast<float>(competence);  // issue.cast-chain: base override
 			dmg = dmg_act.GetAmountMin() + std::ceil(
 					base_dmg * dmg_act.GetAmountDicesWeight() * (1.0f + dmg_act.GetAmountAlpha() * C)
 					+ dmg_act.GetAmountBeta() * C);
@@ -608,8 +608,8 @@ EStageResult CastDamage(CastContext &ctx) {
 	int total_dmg{0};
 
 	try {
-		total_dmg = static_cast<int>(CalcTotalSpellDmg(ch, victim, spell_id, ctx.action_or_default())
-				* ctx.area_coeff);  // issue.area-cast per-target falloff
+		total_dmg = static_cast<int>(CalcTotalSpellDmg(ch, victim, spell_id, ctx.action_or_default(),
+													   ctx.CompetenceBase()) * ctx.area_coeff);  // issue.area-cast falloff
 	} catch (std::exception &e) {
 		err_log("%s", e.what());
 	}
@@ -901,7 +901,7 @@ static void ApplyTalentAffect(CharData *victim, Affect<EApply> &af, Bitvector fl
 // affect records the cast's potency and debuff nature so a later dispel can be strength-gated.
 static bool TryApplyAffectTalent(CharData *ch, CharData *victim, ESpell spell_id, int modi,
 						 const RollResult &potency, float cast_potency, bool cast_debuff,
-						 const talents_actions::Action &action, double area_coeff) {
+						 const talents_actions::Action &action, double area_coeff, double competence) {
 	const auto &talent = action.GetAffect();
 	// prob: percent chance the <affects> block fires at all (default 100, silent miss on fail).
 	// Skipping it suppresses the affect, its lag and its reposition (gated by the caller).
@@ -943,7 +943,7 @@ static bool TryApplyAffectTalent(CharData *ch, CharData *victim, ESpell spell_id
 		taf.duration = duration;
 		// Modifier formula (cap-clamped, factor-applied) lives in magic_utils so
 		// CallMagicToRoom computes the room-affect modifier the exact same way.
-		taf.modifier = static_cast<int>(ComputeApplyModifier(apply, potency) * area_coeff);
+		taf.modifier = static_cast<int>(ComputeApplyModifier(apply, competence, potency) * area_coeff);
 		taf.battleflag = flags;
 		taf.caster_id = ch->get_uid();
 		// Stored potency is the cast potency scaled by the <affects potency_weight=>
@@ -1100,7 +1100,7 @@ EStageResult CastAffect(CastContext &ctx) {
 	bool success = true;
 	if (has_affect_talent) {
 		success = TryApplyAffectTalent(ch, victim, spell_id, modi, potency, cast_potency, cast_debuff,
-									   ctx.action_or_default(), ctx.area_coeff);
+									   ctx.action_or_default(), ctx.area_coeff, ctx.CompetenceBase());
 	}
 
 	affect_total(victim);
@@ -1780,7 +1780,7 @@ EStageResult CastToPoints(CastContext &ctx) {
 	// category), so heal and moves restored on the same cast scale together
 	// with the same skill check.
 	const double dice = potency_roll.RollSkillDices();
-	const double competencies = potency_roll.CalcSkillCoeff(ch) + potency_roll.CalcBaseStatCoeff(ch);
+	const double competencies = ctx.CompetenceBase();  // issue.cast-chain: base override
 	const double bonus_mod = ch->add_abils.percent_spellpower_add / 100.0;
 	auto calc_amount = MakeAmountCalculator(ch, dice, competencies, bonus_mod);
 
@@ -2024,7 +2024,7 @@ void RemoveAffectAndAnnounce(CharData *ch, CharData *victim, ESpell removed) {
 // potency -- (RollSkillDices + skill_coeff + stat_coeff) * potency_weight -- must exceed the
 // affect's recorded potency (the strength of the cast that imposed it).
 bool DispelSucceeds(CharData *ch, CharData *victim, ESpell dispel_spell, ESpell affect_spell,
-					float potency_weight, double area_coeff = 1.0) {
+					float potency_weight, double competence, double area_coeff = 1.0) {
 	float affect_potency = 0.0f;
 	bool affect_is_debuff = false;
 	for (const auto &aff : victim->affected) {
@@ -2064,7 +2064,7 @@ bool DispelSucceeds(CharData *ch, CharData *victim, ESpell dispel_spell, ESpell 
 	}
 	const auto &roll = MUD::Spell(dispel_spell).GetPotencyRoll();
 	const float spell_potency = static_cast<float>(
-			roll.RollSkillDices() + roll.CalcSkillCoeff(ch) + roll.CalcBaseStatCoeff(ch))
+			roll.RollSkillDices() + competence)  // issue.cast-chain: competence base override
 			* potency_weight * static_cast<float>(area_coeff);  // issue.area-cast
 	const bool ok = spell_potency > affect_potency;
 	if (show_debug) emit_debug(spell_potency, "roll", ok);
@@ -2173,7 +2173,7 @@ void RemoveAffectAndAnnounce(CharData *ch, RoomData *room, ESpell removed) {
 }
 
 bool DispelSucceeds(CharData *ch, RoomData *room, ESpell dispel_spell, ESpell affect_spell,
-					float potency_weight, double area_coeff = 1.0) {
+					float potency_weight, double competence, double area_coeff = 1.0) {
 	float affect_potency = 0.0f;
 	bool affect_is_debuff = false;
 	for (const auto &aff : room->affected) {
@@ -2203,7 +2203,7 @@ bool DispelSucceeds(CharData *ch, RoomData *room, ESpell dispel_spell, ESpell af
 	}
 	const auto &roll = MUD::Spell(dispel_spell).GetPotencyRoll();
 	const float spell_potency = static_cast<float>(
-			roll.RollSkillDices() + roll.CalcSkillCoeff(ch) + roll.CalcBaseStatCoeff(ch))
+			roll.RollSkillDices() + competence)  // issue.cast-chain: competence base override
 			* potency_weight * static_cast<float>(area_coeff);  // issue.area-cast
 	const bool ok = spell_potency > affect_potency;
 	if (show_debug) emit_debug(spell_potency, "roll", ok);
@@ -2217,7 +2217,7 @@ bool DispelSucceeds(CharData *ch, RoomData *room, ESpell dispel_spell, ESpell af
 template<typename TTarget>
 EStageResult RunCastUnaffects(CharData *ch, TTarget *target, ESpell spell_id,
 							  const talents_actions::TalentUnaffect &unaffect, double area_coeff,
-							  int &removed_out) {
+							  int &removed_out, double competence) {
 	const bool blocking = UnaffectConditionMet(target, unaffect.GetBlocking());
 	const bool breaking = UnaffectConditionMet(target, unaffect.GetBreaking());
 	bool break_chain = breaking;
@@ -2249,7 +2249,7 @@ EStageResult RunCastUnaffects(CharData *ch, TTarget *target, ESpell spell_id,
 		bool removed_any = false;
 		bool resisted_any = false;
 		for (const auto &cand : to_remove) {
-			if (DispelSucceeds(ch, target, spell_id, cand.spell, unaffect.GetPotencyWeight(), area_coeff)) {
+			if (DispelSucceeds(ch, target, spell_id, cand.spell, unaffect.GetPotencyWeight(), competence, area_coeff)) {
 				RemoveAffectAndAnnounce(ch, target, cand.spell);
 				removed_any = true;
 				++removed_out;  // issue.cast-chain: count this dispelled affect
@@ -2301,8 +2301,8 @@ EStageResult CastUnaffects(CastContext &ctx) {
 
 	int removed = 0;
 	const EStageResult r = (victim != nullptr)
-			? RunCastUnaffects(ch, victim, spell_id, unaffect, ctx.area_coeff, removed)
-			: RunCastUnaffects(ch, room, spell_id, unaffect, ctx.area_coeff, removed);
+			? RunCastUnaffects(ch, victim, spell_id, unaffect, ctx.area_coeff, removed, ctx.CompetenceBase())
+			: RunCastUnaffects(ch, room, spell_id, unaffect, ctx.area_coeff, removed, ctx.CompetenceBase());
 	ctx.dispelled_count += removed;  // issue.cast-chain
 	return r;
 }
@@ -2822,6 +2822,21 @@ static CharData *MaybeReflectToCaster(CharData *caster, CharData *cvict, ESpell 
 	return caster;
 }
 
+double CastContext::CompetenceBase() const {
+	const double real = potency_.skill_coeff + potency_.stat_coeff;
+	if (is_entry_action) {
+		return real;
+	}
+	switch (action_or_default().GetBase()) {
+		case talents_actions::EActionBase::kDamage:    return damage_count;
+		case talents_actions::EActionBase::kPoints:    return points_count;
+		case talents_actions::EActionBase::kAffects:   return affects_count;
+		case talents_actions::EActionBase::kDispelled: return dispelled_count;
+		case talents_actions::EActionBase::kCompetence:
+		default:                                       return real;
+	}
+}
+
 const talents_actions::Action &CastContext::action_or_default() const {
 	// Cursor active (loop driving) -> the current action; otherwise (bypass
 	// callers / rooms / area setup that never rewound) -> the spell's primary.
@@ -2868,6 +2883,7 @@ ECastResult CastOnTarget(CastContext &ctx, bool is_entry) {
 	CharData *cvict = ctx.cvict;
 	const ESpell spell_id = ctx.spell_id();
 	const auto &action = ctx.action_or_default();
+	ctx.is_entry_action = is_entry;  // issue.cast-chain: stages read this via ctx.CompetenceBase()
 	// Dead-target guard (issue.area-cast): a later action may aim at someone an earlier action
 	// already killed; never run stages on a corpse -- skip it, the cast continues for the rest.
 	if (cvict && cvict->purged()) {
@@ -3157,6 +3173,17 @@ ECastResult CastSpell(CastContext &ctx, ECastTargets scope) {
 			result = RunActionOverTargets(ctx, targets, cur_scope, is_entry);
 			if (caster->purged()) {
 				return ECastResult::kSuccess;
+			}
+			// issue.cast-chain: a non-first action with reset zeroes the accumulator it read
+			// (its base=), so a later action starts fresh. Meaningless for the entry action.
+			if (!is_entry && ctx.action_or_default().GetReset()) {
+				switch (ctx.action_or_default().GetBase()) {
+					case talents_actions::EActionBase::kDamage:    ctx.damage_count = 0.0; break;
+					case talents_actions::EActionBase::kPoints:    ctx.points_count = 0.0; break;
+					case talents_actions::EActionBase::kAffects:   ctx.affects_count = 0.0; break;
+					case talents_actions::EActionBase::kDispelled: ctx.dispelled_count = 0.0; break;
+					default: break;
+				}
 			}
 			prev = std::move(targets);
 			prev_scope = cur_scope;

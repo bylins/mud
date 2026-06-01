@@ -500,7 +500,7 @@ ECastResult CallMagicToRoom(CharData *ch, RoomData *room, CastContext roll) {
 		af[0].potency = CalcCastPotency(roll.potency()) * talent.GetPotencyWeight();
 		af[0].debuff = MUD::Spell(spell_id).IsViolent();
 		if (!talent.GetApplies().empty()) {
-			af[0].modifier = ComputeApplyModifier(talent.GetApplies()[0], roll.potency());
+			af[0].modifier = ComputeApplyModifier(talent.GetApplies()[0], roll.CompetenceBase(), roll.potency());
 		}
 	}
 
