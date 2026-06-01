@@ -162,13 +162,20 @@ enum class ECastResult {
 ECastResult CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict, ESpell spell_id, int level);
 ECastResult CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, ESpell spell_id, ESpell spell_subst);
 
-// Result of one cast stage (CastAffect/CastUnaffects/...). CastToSingleTarget runs the
-// stages in order and stops the chain on kBreak. Today every stage returns kSuccess
-// (behaviour unchanged); per-spell kBreak conditions are to be driven from spells.xml later.
-// The list may grow.
+// Result of one cast stage (CastAffect/CastUnaffects/...). With the per-action loop
+// (issue.spell-pipeline) the dispatcher walks each spell action and runs its stages:
+//   kBreak    -- stop the whole cast: skip this action's remaining stages AND all
+//                following actions.
+//   kContinue -- stop only the current action's remaining stages; advance to the
+//                next action. (No stage produces this yet; until the per-action
+//                loop lands it is treated like kSuccess -- i.e. "not kBreak".)
+//   kSuccess  -- stage handled; run the next stage of the current action.
+// Today every stage returns kSuccess; per-spell kBreak/kContinue conditions are to be
+// driven from spells.xml later.
 enum class EStageResult {
-	kBreak,		// stop the cast: skip the remaining stages.
-	kSuccess	// stage handled; continue to the next stage.
+	kBreak,		// stop the whole cast (this action's rest + all later actions).
+	kContinue,	// stop this action's remaining stages; go to the next action.
+	kSuccess	// stage handled; continue to the next stage of this action.
 };
 
 // Stage functions reachable from outside the magic module. Prefer CallMagic / CastSpell --
