@@ -11,6 +11,7 @@
 #include "engine/db/obj_prototypes.h"
 #include "engine/db/world_data_source_manager.h"
 #include "utils/id_converter.h"
+#include "utils/logger.h"
 #include "engine/db/world_objects.h"
 #include "engine/db/world_characters.h"
 #include "engine/db/global_objects.h"
@@ -245,6 +246,14 @@ void admin_api_parse(DescriptorData *d, char *argument) {
 			std::string username_utf8 = request.value("username", "");
 			std::string password = request.value("password", "");
 
+			// IP клиента приходит от веб-панели (Admin API ходит через
+			// unix-сокет, поэтому реального адреса у дескриптора нет).
+			// Фолбэк на d->host ("unix-socket"), если фронт не передал.
+			std::string client_ip = request.value("client_ip", "");
+			if (client_ip.empty()) {
+				client_ip = d->host;
+			}
+
 			// Convert username from UTF-8 to KOI8-R (server's internal encoding)
 			std::string username = utf8_to_koi8r(username_utf8);
 
@@ -259,6 +268,8 @@ void admin_api_parse(DescriptorData *d, char *argument) {
 			} else {
 				admin_api_send_error(d, "Authentication failed");
 				mudlog(fmt::format("Admin API: authentication failed for user '{}'", username), BRF, kLvlGod, IMLOG, true);
+				// Отдельный лог для fail2ban (issue #3388).
+				admin_panel_access_log(client_ip.c_str(), username.c_str());
 			}
 			return;
 		}

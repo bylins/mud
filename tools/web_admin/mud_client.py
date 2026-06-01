@@ -8,10 +8,12 @@ import json
 class MudAdminClient:
     """Client for communicating with MUD Admin API via Unix socket"""
 
-    def __init__(self, socket_path='admin_api.sock', username=None, password=None):
+    def __init__(self, socket_path='admin_api.sock', username=None, password=None, client_ip=None):
         self.socket_path = socket_path
         self.username = username
         self.password = password
+        # IP клиента веб-панели, прокидывается в auth для лога fail2ban (issue #3388).
+        self.client_ip = client_ip
         self.authenticated = False
     
     def _recv_line(self, sock, max_size=1048576):
@@ -40,6 +42,8 @@ class MudAdminClient:
             # Authenticate if credentials provided
             if self.username and self.password:
                 auth_cmd = {"command": "auth", "username": self.username, "password": self.password}
+                if self.client_ip:
+                    auth_cmd["client_ip"] = self.client_ip
                 sock.sendall((json.dumps(auth_cmd) + '\n').encode())
                 auth_resp_data = self._recv_line(sock)
                 auth_resp = json.loads(auth_resp_data.decode())
