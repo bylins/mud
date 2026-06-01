@@ -13,8 +13,8 @@
 
 #include "magic.h"          // for EStageResult / ECastResult / CastContext / forward decls
 
-// Per-target entry: runs the stages in order with the blocking/required/reflection/
-// caster_blocking gates on top. Returns the whole-cast outcome.
+// Per-target entry: runs the stages in order with the target blocking/required/reflection
+// gates on top (the caster_conditions gate lives in CallMagic). Returns the whole-cast outcome.
 ECastResult CastToSingleTarget(CastContext &ctx);
 
 // Area / group dispatchers: only CallMagic fans out to these.
@@ -23,6 +23,11 @@ ECastResult CallMagicToArea(CharData *ch, CharData *victim, RoomData *room, Cast
 
 // Builds a CastContext (evaluates both rolls). Module-internal; CallMagic is the entry.
 CastContext ComputeCastRoll(CharData *caster, ESpell spell_id, int level);
+
+// Spell-level caster gate (issue.spell-unification): true if the caster fails the
+// spell's <caster_conditions> -- carries a <blocking> flag/affect/align, or lacks a
+// <required> one. Checked once in CallMagic before per-target dispatch.
+bool CasterBlocked(CharData *caster, const talents_actions::CasterConditions &cc);
 
 // Per-stage dispatchers reached from CastToSingleTarget via the kMag* flag table.
 EStageResult CastUnaffects(CastContext &ctx);

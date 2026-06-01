@@ -53,6 +53,10 @@ ItemPtr SpellInfoBuilder::ParseSpell(DataNode node) {
 		info->success_roll_ = talents_actions::Roll(node);
 		node.GoToParent();
 	}
+	if (node.GoToChild("caster_conditions")) {
+		talents_actions::Actions::ParseCasterConditions(info->caster_conditions_, node);
+		node.GoToParent();
+	}
 	ParseActions(info, node);
 
 	// Cross-validate: kAmbiguous (violent="A") is meaningless for a room paint
@@ -250,6 +254,9 @@ void SpellInfo::Print(CharData *ch, std::ostringstream &buffer) const {
 		   << " Targets: " << kColorGrn << parse::BitvectorToString<ETarget>(targets_) << kColorNrm << "\r\n\r\n";
 
 	potency_roll_.Print(ch, buffer);
+	if (!caster_conditions_.empty()) {
+		buffer << " CasterConditions:\r\n";
+	}
 	actions.Print(ch, buffer);
 }
 

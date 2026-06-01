@@ -204,7 +204,8 @@ enum class EStageResult {
 };
 
 // Stage functions reachable from outside the magic module. Prefer CallMagic / CastSpell --
-// direct calls bypass CastToSingleTarget's blocking/required/reflection/caster_blocking gates,
+// direct calls bypass CastToSingleTarget's blocking/required/reflection gates (and the
+// spell-level caster_conditions gate in CallMagic),
 // which is rarely what callers want. The two kept here have real external callers:
 // fight_hit.cpp / spells.cpp run a per-target loop (CastDamage), and handler.cpp re-applies
 // gear-borne effects (CastAffect). Everything else that used to live here -- CastUnaffects,

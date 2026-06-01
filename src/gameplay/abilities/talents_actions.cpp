@@ -606,7 +606,6 @@ void PrintFlagCondition(const char *label, const FlagCondition &cond, std::ostri
 void Action::Print(CharData *ch, std::ostringstream &buffer) const {
 	PrintFlagCondition("Blocking", blocking_, buffer);
 	PrintFlagCondition("Required", required_, buffer);
-	PrintFlagCondition("CasterBlocking", caster_blocking_, buffer);
 	if (!reflection_.empty()) {
 		buffer << "  Reflection: prob=" << kColorGrn << reflection_.prob << kColorNrm;
 		for (const auto aff : reflection_.affect_flags) {
@@ -706,41 +705,30 @@ void Actions::ParseFlagCondition(FlagCondition &cond, parser_wrapper::DataNode &
 	}
 }
 
-// Parse a <caster_blocking> tag (issue.caster-blocking-refine). Schema:
-//
-//     <caster_blocking>
-//         <caster align="kEvil" affect_flags="kHold|kCharmed"/>
-//     </caster_blocking>
-//
-// Diverges from <blocking>/<required> (multi-child-tag form) by collapsing the
-// caster's axes onto attributes of a single <caster> child -- the gate is a
-// short descriptive entry, not a multi-axis AND across loose <mob_flags>/
-// <room_flags>/<affect_flags>/<align> tags. Storage is still the shared
-// FlagCondition; TargetIsBlocked(caster, cond) reuses the same align +
-// affect_flags evaluation it does for victim-side <blocking>. Both attributes
-// are optional; absent attributes leave the corresponding field at its default.
-void Actions::ParseCasterBlocking(FlagCondition &cond, parser_wrapper::DataNode &node) {
+// <target_conditions> (issue.spell-unification): wraps the action's <blocking> and
+// <required> blocks. Each is a FlagCondition filled by ParseFlagCondition. Strict:
+// only these two children are recognised; bare <blocking>/<required> directly under
+// <action> is no longer accepted (the XML was migrated in the same issue).
+void Actions::ParseTargetConditions(Action &out, parser_wrapper::DataNode &node) {
 	for (auto &child : node.Children()) {
-		if (strcmp(child.GetName(), "caster") != 0) {
-			continue;
+		if (strcmp(child.GetName(), "blocking") == 0) {
+			ParseFlagCondition(out.blocking_, child);
+		} else if (strcmp(child.GetName(), "required") == 0) {
+			ParseFlagCondition(out.required_, child);
 		}
-		const char *align_val = child.GetValue("align");
-		if (align_val && *align_val) {
-			if (strcmp(align_val, "kGood") == 0) {
-				cond.align = EAlign::kGood;
-			} else if (strcmp(align_val, "kEvil") == 0) {
-				cond.align = EAlign::kEvil;
-			} else if (strcmp(align_val, "kNeutral") == 0) {
-				cond.align = EAlign::kNeutral;
-			} else {
-				err_log("Actions: unknown EAlign '%s' in <caster align>.", align_val);
-			}
-		}
-		const char *affect_flags_val = child.GetValue("affect_flags");
-		if (affect_flags_val && *affect_flags_val) {
-			for (const auto &flag_name : utils::Split(affect_flags_val, '|')) {
-				cond.affect_flags.push_back(parse::ReadAsConstant<EAffect>(flag_name.c_str()));
-			}
+	}
+}
+
+// <caster_conditions> (issue.spell-unification): spell-level caster gate.
+// <blocking>/<required> sections, each with <align>/<affect_flags> child tags --
+// reuses ParseFlagCondition (it honours those axes; mob_flags/room_flags are simply
+// not used for casters today). Lives at SpellInfo level, parsed by SpellInfoBuilder.
+void Actions::ParseCasterConditions(CasterConditions &out, parser_wrapper::DataNode &node) {
+	for (auto &child : node.Children()) {
+		if (strcmp(child.GetName(), "blocking") == 0) {
+			ParseFlagCondition(out.blocking, child);
+		} else if (strcmp(child.GetName(), "required") == 0) {
+			ParseFlagCondition(out.required, child);
 		}
 	}
 }
@@ -757,12 +745,8 @@ void Actions::ParseAction(Action &out, parser_wrapper::DataNode node) {
 			ParseAffect(out, manifestation);
 		} else if (strcmp(manifestation.GetName(), "unaffect") == 0) {
 			ParseUnaffect(out, manifestation);
-		} else if (strcmp(manifestation.GetName(), "blocking") == 0) {
-			ParseFlagCondition(out.blocking_, manifestation);
-		} else if (strcmp(manifestation.GetName(), "required") == 0) {
-			ParseFlagCondition(out.required_, manifestation);
-		} else if (strcmp(manifestation.GetName(), "caster_blocking") == 0) {
-			ParseCasterBlocking(out.caster_blocking_, manifestation);
+		} else if (strcmp(manifestation.GetName(), "target_conditions") == 0) {
+			ParseTargetConditions(out, manifestation);
 		} else if (strcmp(manifestation.GetName(), "reflection") == 0) {
 			ParseReflection(out.reflection_, manifestation);
 		}
@@ -923,10 +907,6 @@ const FlagCondition &Actions::GetBlocking() const {
 
 const FlagCondition &Actions::GetRequired() const {
 	return (list_.empty() ? EmptyAction() : list_.front()).GetRequired();
-}
-
-const FlagCondition &Actions::GetCasterBlocking() const {
-	return (list_.empty() ? EmptyAction() : list_.front()).GetCasterBlocking();
 }
 
 const Reflection &Actions::GetReflection() const {

@@ -442,9 +442,6 @@ class Action {
 	// none of blocking_ and all of required_. Checked in CastToSingleTarget, not inside a stage.
 	FlagCondition blocking_;
 	FlagCondition required_;
-	// Caster gate (issue.cast-dmg-migration): mirrors blocking_ but examines the CASTER. Used by
-	// kDispelEvil / kDispelGood to refuse the cast when the caster carries the wrong alignment.
-	FlagCondition caster_blocking_;
 	// Reflection (issue.cast-dmg-migration): checked in CastToSingleTarget; redirects the cast
 	// back at the caster on a successful prob roll.
 	Reflection reflection_;
@@ -462,8 +459,17 @@ class Action {
 	[[nodiscard]] const TalentUnaffect &GetUnaffect() const;
 	[[nodiscard]] const FlagCondition &GetBlocking() const { return blocking_; }
 	[[nodiscard]] const FlagCondition &GetRequired() const { return required_; }
-	[[nodiscard]] const FlagCondition &GetCasterBlocking() const { return caster_blocking_; }
 	[[nodiscard]] const Reflection &GetReflection() const { return reflection_; }
+};
+
+// Spell-level caster gate (issue.spell-unification): a spell is castable by the caster
+// or not -- this is a whole-spell concern, not per-action, so it lives on SpellInfo
+// (after potency_roll/success_roll), checked once in CallMagic. Both sections reuse
+// FlagCondition; only the <align> and <affect_flags> axes are meaningful for a caster.
+struct CasterConditions {
+	FlagCondition blocking;   // caster carrying any of these is refused the spell
+	FlagCondition required;   // caster must satisfy all of these to cast
+	[[nodiscard]] bool empty() const { return blocking.empty() && required.empty(); }
 };
 
 class Actions {
@@ -479,11 +485,9 @@ class Actions {
 	static void ParseAffect(Action &out, parser_wrapper::DataNode &node);
 	static void ParseUnaffect(Action &out, parser_wrapper::DataNode &node);
 	static void ParseFlagCondition(FlagCondition &cond, parser_wrapper::DataNode &node);
-	// issue.caster-blocking-refine: <caster_blocking> uses a single-child
-	// <caster align="..." affect_flags="..."/> shape rather than the multi-child-tag
-	// form of <blocking>/<required>. The storage is still FlagCondition; only the
-	// parse shape differs.
-	static void ParseCasterBlocking(FlagCondition &cond, parser_wrapper::DataNode &node);
+	// Parse a <target_conditions> block (issue.spell-unification): its <blocking> and
+	// <required> children fill the action's blocking_/required_ via ParseFlagCondition.
+	static void ParseTargetConditions(Action &out, parser_wrapper::DataNode &node);
 	static void ParseReflection(Reflection &refl, parser_wrapper::DataNode &node);
 
 	// Empty fallback for the back-compat delegating getters when list_ is empty
@@ -493,6 +497,10 @@ class Actions {
 
  public:
 	void Build(parser_wrapper::DataNode &node);
+	// Parse a spell-level <caster_conditions> block (issue.spell-unification) into
+	// `out`: <blocking>/<required> children with <align>/<affect_flags> tags. Static
+	// because it fills a SpellInfo-level member, not an Actions instance.
+	static void ParseCasterConditions(CasterConditions &out, parser_wrapper::DataNode &node);
 	void Print(CharData *ch, std::ostringstream &buffer) const;
 
 	// Ordered access to the action list (issue.spell-pipeline). The cast loop
@@ -518,7 +526,6 @@ class Actions {
 	[[nodiscard]] const TalentUnaffect &GetUnaffect() const;
 	[[nodiscard]] const FlagCondition &GetBlocking() const;
 	[[nodiscard]] const FlagCondition &GetRequired() const;
-	[[nodiscard]] const FlagCondition &GetCasterBlocking() const;
 	[[nodiscard]] const Reflection &GetReflection() const;
 };
 

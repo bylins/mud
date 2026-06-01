@@ -515,6 +515,15 @@ ECastResult CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomDat
 		return ECastResult::kNotCast;
 	}
 
+	// Spell-level caster gate (issue.spell-unification): a spell is castable by the caster
+	// or not, so this is checked ONCE here -- before per-target dispatch -- not per target.
+	// e.g. kDispelEvil carries <caster_conditions><blocking><align val="kEvil"/></blocking>
+	// so an evil caster simply can't fire it. Always emits kNoeffect to the one caster.
+	if (CasterBlocked(caster, MUD::Spell(spell_id).GetCasterConditions())) {
+		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", caster);
+		return ECastResult::kNotCast;
+	}
+
 	if (SpellUsage::is_active) {
 		SpellUsage::AddSpellStat(caster->GetClass(), spell_id);
 	}

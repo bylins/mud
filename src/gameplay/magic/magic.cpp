@@ -2768,6 +2768,13 @@ static bool TargetMeetsRequired(CharData *victim, const talents_actions::FlagCon
 	return true;
 }
 
+// Spell-level caster gate (issue.spell-unification). Reuses the victim-side helpers on the
+// CASTER: a <caster_conditions><blocking> flag/affect/align blocks the cast, and every
+// <caster_conditions><required> axis must be satisfied. Empty conditions never block.
+bool CasterBlocked(CharData *caster, const talents_actions::CasterConditions &cc) {
+	return TargetIsBlocked(caster, cc.blocking) || !TargetMeetsRequired(caster, cc.required);
+}
+
 // True if `victim` matches any of the reflection's affect flags or its alignment.
 // Bare flag/alignment match -- potency-gated reflection isn't possible today (mob/object
 // affects carry no potency value), so flag presence + prob is the best we can do.
@@ -2865,15 +2872,6 @@ ECastResult CastToSingleTarget(CastContext &ctx) {
 		if (!MUD::Spell(spell_id).IsFlagged(kMagGroups | kMagMasses | kMagAreas)) {
 			SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", caster);
 		}
-		return ECastResult::kNotCast;
-	}
-	// Action-level caster gate: mirrors the victim-side <blocking>,
-	// but examines the CASTER. Used to refuse casts the caster cannot wield -- e.g. kDispelEvil
-	// gets <caster_blocking align="kEvil"/> so an evil caster simply can't fire it. Always emits
-	// kNoeffect (no group/mass silent skip: a caster-side block concerns the one caster, not the
-	// per-target loop).
-	if (TargetIsBlocked(caster, MUD::Spell(spell_id).actions.GetCasterBlocking())) {
-		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", caster);
 		return ECastResult::kNotCast;
 	}
 	cvict = MaybeReflectToCaster(caster, cvict, spell_id);

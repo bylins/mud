@@ -62,6 +62,10 @@ class SpellInfo : public info_container::BaseItem<ESpell> {
 	// <success_roll> section (issue #3333). Currently parsed and stored only;
 	// the value is evaluated in CallMagic but not yet interpreted.
 	talents_actions::Roll success_roll_;
+	// Spell-level caster gate (issue.spell-unification): a spell is castable by the
+	// caster or not. Filled from the optional <caster_conditions> block (after
+	// success_roll); empty by default. Checked once in CallMagic.
+	talents_actions::CasterConditions caster_conditions_;
 	// Material component requirements (issue.spellcomponents). Filled from the
 	// optional <components>...</components> block; spells without one keep an
 	// empty container, which ProcessMatComponents treats as "no component
@@ -115,6 +119,7 @@ class SpellInfo : public info_container::BaseItem<ESpell> {
 
 	[[nodiscard]] const talents_actions::Roll &GetPotencyRoll() const { return potency_roll_; };
 	[[nodiscard]] const talents_actions::Roll &GetSuccessRoll() const { return success_roll_; };
+	[[nodiscard]] const talents_actions::CasterConditions &GetCasterConditions() const { return caster_conditions_; };
 	[[nodiscard]] const talents_actions::Components &GetComponents() const { return components_; };
 	// Convenience: spell has a <verbal/> child in its <components> block.
 	// Speech-blocking effects (kSilence) only stop verbal spells; non-verbal
