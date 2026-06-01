@@ -15,6 +15,9 @@
  */
 std::map<ESpell, SpellCreate> spell_create;
 
+// issue.manual-cast: defined in magic.cpp (global scope); validates <manual_cast> handler names.
+bool IsManualHandlerRegistered(const std::string &name);
+
 namespace spells {
 
 using ItemPtr = SpellInfoBuilder::ItemPtr;
@@ -58,6 +61,16 @@ ItemPtr SpellInfoBuilder::ParseSpell(DataNode node) {
 		node.GoToParent();
 	}
 	ParseActions(info, node);
+	// issue.manual-cast: a <manual_cast> handler name must resolve to a registered handler.
+	for (const auto &act : info->actions.list()) {
+		const std::string &mh = act.GetManualHandler();
+		if (!mh.empty() && !IsManualHandlerRegistered(mh)) {
+			char buf[160];
+			snprintf(buf, sizeof(buf), "Spell %s: unknown <manual_cast> handler '%s'.",
+					 NAME_BY_ITEM(info->GetId()).c_str(), mh.c_str());
+			mudlog(buf, CMP, kLvlGod, SYSLOG, true);
+		}
+	}
 
 	// Cross-validate: kAmbiguous (violent="A") is meaningless for a room paint
 	// because there is no per-target relationship to resolve. Clamp to kYes

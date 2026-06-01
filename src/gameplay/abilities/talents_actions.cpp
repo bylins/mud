@@ -626,6 +626,9 @@ void PrintFlagCondition(const char *label, const FlagCondition &cond, std::ostri
 }  // namespace
 
 void Action::Print(CharData *ch, std::ostringstream &buffer) const {
+	if (!manual_handler_.empty()) {
+		buffer << "  Manual: " << kColorGrn << manual_handler_ << kColorNrm << "\r\n";
+	}
 	buffer << "  Target: " << kColorGrn << static_cast<int>(target_) << kColorNrm
 		   << " Base: " << kColorGrn << static_cast<int>(base_) << kColorNrm
 		   << " Reset: " << kColorGrn << (reset_ ? "Y" : "N") << kColorNrm << "\r\n";
@@ -799,6 +802,13 @@ void Actions::ParseAction(Action &out, parser_wrapper::DataNode node) {
 			ParseTargetConditions(out, manifestation);
 		} else if (strcmp(manifestation.GetName(), "reflection") == 0) {
 			ParseReflection(out.reflection_, manifestation);
+		} else if (strcmp(manifestation.GetName(), "manual_cast") == 0) {
+			// issue.manual-cast: <manual_cast><handler val="SpellX"/></manual_cast>.
+			if (manifestation.GoToChild("handler")) {
+				const char *hv = manifestation.GetValue("val");
+				if (hv && *hv) { out.manual_handler_ = hv; }
+				manifestation.GoToParent();
+			}
 		}
 	}
 	node.GoToParent();

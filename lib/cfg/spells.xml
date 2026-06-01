@@ -124,6 +124,9 @@ base_stat id - (например "kWis") какой берем параметр,
                         <room_flags val="kNoTeleportOut"/>
                     </blocking>
                 </target_conditions>
+                <manual_cast>
+                    <handler val="SpellTeleport"/>
+                </manual_cast>
             </action>
         </talent_actions>
     </spell>
@@ -260,7 +263,14 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="55" min="40" change="1"/>
         <targets val="kTarCharRoom|kTarNotSelf"/>
         <flags val="kMagManual"/>
-    </spell>
+            <talent_actions>
+            <action>
+                <manual_cast>
+                    <handler val="SpellCharm"/>
+                </manual_cast>
+            </action>
+        </talent_actions>
+</spell>
     <spell id="kChillTouch" element="kWater" mode="kEnabled">
         <name rus="ледяное прикосновение" eng="chill touch"/>
         <components>
@@ -343,7 +353,14 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="100" min="90" change="1"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagManual"/>
-    </spell>
+            <talent_actions>
+            <action>
+                <manual_cast>
+                    <handler val="SpellControlWeather"/>
+                </manual_cast>
+            </action>
+        </talent_actions>
+</spell>
     <spell id="kCreateFood" element="kLife" mode="kEnabled">
         <name rus="создать пищу" eng="create food"/>
         <components>
@@ -365,7 +382,14 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="40" min="30" change="1"/>
         <targets val="kTarObjInv|kTarObjEquip|kTarCharRoom"/>
         <flags val="kMagManual"/>
-    </spell>
+            <talent_actions>
+            <action>
+                <manual_cast>
+                    <handler val="SpellCreateWater"/>
+                </manual_cast>
+            </action>
+        </talent_actions>
+</spell>
     <spell id="kCureBlind" element="kLight" mode="kEnabled">
         <name rus="вылечить слепоту" eng="cure blind"/>
         <components>
@@ -685,6 +709,9 @@ base_stat id - (например "kWis") какой берем параметр,
                     <breaking any_of="kStrength|kDexterity"/>
                     <remove any_of="kStrength|kDexterity"/>
                 </unaffect>
+                <manual_cast>
+                    <handler val="SpellEnergydrain"/>
+                </manual_cast>
             </action>
         </talent_actions>
     </spell>
@@ -827,7 +854,14 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="140" min="110" change="2"/>
         <targets val="kTarObjWorld"/>
         <flags val="kMagManual"/>
-    </spell>
+            <talent_actions>
+            <action>
+                <manual_cast>
+                    <handler val="SpellLocateObject"/>
+                </manual_cast>
+            </action>
+        </talent_actions>
+</spell>
     <spell id="kMagicMissile" element="kAir" mode="kEnabled">
         <name rus="магическая стрела" eng="magic missle"/>
         <components>
@@ -1099,7 +1133,14 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="110" min="100" change="2"/>
         <targets val="kTarCharWorld|kTarNotSelf"/>
         <flags val="kMagManual"/>
-    </spell>
+            <talent_actions>
+            <action>
+                <manual_cast>
+                    <handler val="SpellSummon"/>
+                </manual_cast>
+            </action>
+        </talent_actions>
+</spell>
     <spell id="kPatronage" element="kLight" mode="kEnabled">
         <name rus="покровительство" eng="patronage"/>
         <components>
@@ -1147,6 +1188,9 @@ base_stat id - (например "kWis") какой берем параметр,
                         <room_flags val="kNoTeleportOut"/>
                     </blocking>
                 </target_conditions>
+                <manual_cast>
+                    <handler val="SpellRecall"/>
+                </manual_cast>
             </action>
         </talent_actions>
     </spell>
@@ -1347,6 +1391,9 @@ base_stat id - (например "kWis") какой берем параметр,
                     <targets skill_divisor="20" dice_size="2" min="5" max="-1"/>
                     <distribution type="kUniform"/>
                 </area>
+                <manual_cast>
+                    <handler val="SpellRecall"/>
+                </manual_cast>
             </action>
         </talent_actions>
     </spell>
@@ -2059,7 +2106,14 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="70" min="55" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
         <flags val="kMagManual|kNpcDamagePc"/>
-    </spell>
+            <talent_actions>
+            <action>
+                <manual_cast>
+                    <handler val="SpellFear"/>
+                </manual_cast>
+            </action>
+        </talent_actions>
+</spell>
     <spell id="kSacrifice" element="kDark" mode="kEnabled">
         <name rus="высосать жизнь" eng="sacrifice"/>
         <components>
@@ -3198,7 +3252,14 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="200" min="180" change="4"/>
         <targets val="kTarCharWorld"/>
         <flags val="kMagManual"/>
-    </spell>
+            <talent_actions>
+            <action>
+                <manual_cast>
+                    <handler val="SpellPortal"/>
+                </manual_cast>
+            </action>
+        </talent_actions>
+</spell>
     <spell id="kPortalTimer" element="kLight" mode="kEnabled">
         <name rus="врата" eng="portal"/>
         <components>
@@ -3293,7 +3354,14 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="130" min="110" change="2"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagManual"/>
-    </spell>
+            <talent_actions>
+            <action>
+                <manual_cast>
+                    <handler val="SpellCreateWeapon"/>
+                </manual_cast>
+            </action>
+        </talent_actions>
+</spell>
     <spell id="kFireShield" element="kFire" mode="kEnabled">
         <name rus="огненный щит" eng="fire shield"/>
         <components>
@@ -3341,6 +3409,9 @@ base_stat id - (например "kWis") какой берем параметр,
                         <room_flags val="kNoTeleportOut"/>
                     </blocking>
                 </target_conditions>
+                <manual_cast>
+                    <handler val="SpellRelocate"/>
+                </manual_cast>
             </action>
         </talent_actions>
     </spell>
@@ -4259,6 +4330,9 @@ base_stat id - (например "kWis") какой берем параметр,
                         <modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1"/>
                     </apply>
                 </affects>
+                <manual_cast>
+                    <handler val="SpellHolystrike"/>
+                </manual_cast>
             </action>
         </talent_actions>
     </spell>
@@ -4289,6 +4363,9 @@ base_stat id - (например "kWis") какой берем параметр,
                     <targets skill_divisor="15" dice_size="2" min="5" max="20"/>
                     <distribution type="kStepped" decay="0.05" free_targets="3"/>
                 </area>
+                <manual_cast>
+                    <handler val="SpellFear"/>
+                </manual_cast>
             </action>
         </talent_actions>
     </spell>
@@ -5445,6 +5522,9 @@ base_stat id - (например "kWis") какой берем параметр,
                         <modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1"/>
                     </apply>
                 </affects>
+                <manual_cast>
+                    <handler val="SpellVampirism"/>
+                </manual_cast>
             </action>
         </talent_actions>
     </spell>
@@ -6584,7 +6664,14 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="0" min="0" change="0"/>
         <targets val="kTarCharRoom|kTarObjInv|kTarObjRoom|kTarObjEquip"/>
         <flags val="kMagManual"/>
-    </spell>
+            <talent_actions>
+            <action>
+                <manual_cast>
+                    <handler val="SpellIdentify"/>
+                </manual_cast>
+            </action>
+        </talent_actions>
+</spell>
     <spell id="kFullIdentify" element="kMind" mode="kEnabled">
         <name rus="полная идентификация" eng="identify"/>
         <components>
@@ -6595,7 +6682,14 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="0" min="0" change="0"/>
         <targets val="kTarCharRoom|kTarObjInv|kTarObjRoom|kTarObjEquip"/>
         <flags val="kMagManual"/>
-    </spell>
+            <talent_actions>
+            <action>
+                <manual_cast>
+                    <handler val="SpellFullIdentify"/>
+                </manual_cast>
+            </action>
+        </talent_actions>
+</spell>
     <spell id="kQUest" element="kUndefined" mode="kService">
         <name rus="!чары!" eng="!quest spell!"/>
         <misc pos="kFight" violent="N" danger="1"/>

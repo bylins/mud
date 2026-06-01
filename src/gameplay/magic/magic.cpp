@@ -14,6 +14,9 @@
 
 #include "magic.h"
 #include "magic_internal.h"
+
+#include <functional>
+#include <map>
 #include "magic_rooms.h"  // room-affect helpers reused by CastUnaffects' room branch
 
 #include "gameplay/core/game_limits.h"  // gain_condition
@@ -2616,30 +2619,45 @@ EStageResult CastCreation(CastContext &ctx) {
 
 // Dispatch for spells whose effect is a hand-coded handler in spells.cpp (the kMagManual flag).
 // Some handlers take only (caster, cvict) and ignore the unused `level` / `ovict` arguments.
+// issue.manual-cast: name -> hand-coded handler. The <manual_cast><handler val="..."/> on an
+// action selects one by name (which matches the function name), replacing the old spell_id
+// switch. std::function so future Lua/closure handlers can register the same way.
+static const std::map<std::string, std::function<EStageResult(CastContext &)>> kManualHandlers = {
+	{"SpellControlWeather", SpellControlWeather},
+	{"SpellCreateWater",    SpellCreateWater},
+	{"SpellLocateObject",   SpellLocateObject},
+	{"SpellCreateWeapon",   SpellCreateWeapon},
+	{"SpellCharm",          SpellCharm},
+	{"SpellEnergydrain",    SpellEnergydrain},
+	{"SpellFear",           SpellFear},
+	{"SpellIdentify",       SpellIdentify},
+	{"SpellFullIdentify",   SpellFullIdentify},
+	{"SpellHolystrike",     SpellHolystrike},
+	{"SpellVampirism",      SpellVampirism},
+	{"SpellRecall",         SpellRecall},
+	{"SpellTeleport",       SpellTeleport},
+	{"SpellSummon",         SpellSummon},
+	{"SpellPortal",         SpellPortal},
+	{"SpellRelocate",       SpellRelocate},
+};
+
+// issue.manual-cast: load-time validation hook (called from SpellInfoBuilder).
+bool IsManualHandlerRegistered(const std::string &name) {
+	return kManualHandlers.count(name) > 0;
+}
+
 EStageResult CastManual(CastContext &ctx) {
-	switch (ctx.spell_id()) {
-		case ESpell::kControlWeather: return SpellControlWeather(ctx);
-		case ESpell::kCreateWater: return SpellCreateWater(ctx);
-		case ESpell::kLocateObject: return SpellLocateObject(ctx);
-		case ESpell::kCreateWeapon: return SpellCreateWeapon(ctx);
-		case ESpell::kCharm: return SpellCharm(ctx);
-		case ESpell::kEnergyDrain: return SpellEnergydrain(ctx);
-		case ESpell::kMassFear:
-		case ESpell::kFear: return SpellFear(ctx);
-		case ESpell::kIdentify: return SpellIdentify(ctx);
-		case ESpell::kFullIdentify: return SpellFullIdentify(ctx);
-		case ESpell::kHolystrike: return SpellHolystrike(ctx);
-		case ESpell::kVampirism: return SpellVampirism(ctx);
-		// Movement-style spells whose handlers take only (caster, cvict).
-		case ESpell::kGroupRecall:
-		case ESpell::kWorldOfRecall: return SpellRecall(ctx);
-		case ESpell::kTeleport: return SpellTeleport(ctx);
-		case ESpell::kSummon: return SpellSummon(ctx);
-		case ESpell::kPortal: return SpellPortal(ctx);
-		case ESpell::kRelocate: return SpellRelocate(ctx);
-		default: return EStageResult::kSuccess;
+	const std::string &name = ctx.action_or_default().GetManualHandler();
+	if (name.empty()) {
+		return EStageResult::kSuccess;
 	}
-	return EStageResult::kSuccess;
+	const auto it = kManualHandlers.find(name);
+	if (it == kManualHandlers.end()) {
+		err_log("CastManual: unknown handler '%s' for spell %s", name.c_str(),
+				NAME_BY_ITEM<ESpell>(ctx.spell_id()).c_str());
+		return EStageResult::kSuccess;
+	}
+	return it->second(ctx);
 }
 
 //******************************************************************************
@@ -2936,6 +2954,8 @@ ECastResult CastOnTarget(CastContext &ctx, bool is_entry) {
 										: action.Contains(talents_actions::EAction::kAffect);
 	const bool run_points    = is_entry ? MUD::Spell(spell_id).IsFlagged(kMagPoints)
 										: action.Contains(talents_actions::EAction::kPoints);
+	// issue.manual-cast: the manual stage runs whenever the action names a handler (entry or not).
+	const bool run_manual    = !action.GetManualHandler().empty();
 	bool target_died = false;
 	bool stop_stages = false;
 	if (run_damage && CastDamage(ctx) == EStageResult::kBreak) {
@@ -2953,6 +2973,9 @@ ECastResult CastOnTarget(CastContext &ctx, bool is_entry) {
 	if (run_points && !stop_stages && CastToPoints(ctx) != EStageResult::kSuccess) {
 		stop_stages = true;
 	}
+	if (run_manual && !stop_stages && CastManual(ctx) != EStageResult::kSuccess) {
+		stop_stages = true;
+	}
 	// Whole-cast one-shots: entry action only, and not when the target just died.
 	if (is_entry && !target_died) {
 		if (MUD::Spell(spell_id).IsFlagged(kMagAlterObjs)
@@ -2965,10 +2988,6 @@ ECastResult CastOnTarget(CastContext &ctx, bool is_entry) {
 		}
 		if (MUD::Spell(spell_id).IsFlagged(kMagCreations)
 				&& CastCreation(ctx) == EStageResult::kBreak) {
-			return ECastResult::kSuccess;
-		}
-		if (MUD::Spell(spell_id).IsFlagged(kMagManual)
-				&& CastManual(ctx) == EStageResult::kBreak) {
 			return ECastResult::kSuccess;
 		}
 	}

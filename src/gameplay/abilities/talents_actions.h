@@ -14,6 +14,7 @@
 #include "engine/entities/entities_constants.h"
 #include "utils/parser_wrapper.h"
 
+#include <string>
 #include <vector>
 
 class CharData;
@@ -489,6 +490,9 @@ class Action {
 	// accumulator after this action runs (no-op for the first action / kCompetence).
 	EActionBase base_{EActionBase::kCompetence};
 	bool reset_{false};
+	// issue.manual-cast: name of the hand-coded handler (<manual_cast><handler val=>) this action
+	// runs as its manual stage; resolved against the registry in magic.cpp. Empty = no manual stage.
+	std::string manual_handler_;
 
 	friend class Actions;   // Actions builds these via the Parse* helpers.
 
@@ -507,6 +511,7 @@ class Action {
 	[[nodiscard]] EActionTarget GetTarget() const { return target_; }
 	[[nodiscard]] EActionBase GetBase() const { return base_; }
 	[[nodiscard]] bool GetReset() const { return reset_; }
+	[[nodiscard]] const std::string &GetManualHandler() const { return manual_handler_; }
 };
 
 // Spell-level caster gate (issue.spell-unification): a spell is castable by the caster
