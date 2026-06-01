@@ -29,6 +29,18 @@ enum class EAction {
 	kUnaffect
 };
 
+// issue.area-cast per-action targets: how a NON-FIRST <action> picks its targets (the first
+// action always uses the spell's own targeting flags). Set via the <action target="..."> attr.
+enum class EActionTarget {
+	kTarSame,        // reuse the previous action's resolved target list (default)
+	kTarFightSelf,   // the caster
+	kTarFightVict,   // the caster's current opponent
+	kTarGroup,       // groupmates in the room (needs an <area> section)
+	kTarFoes,        // all foes in the room (needs an <area> section)
+	kTarRandomFoe,   // one random foe in the room
+	kTarRandomAlly   // one random ally in the room
+};
+
 // (EAlign moved to engine/entities/entities_constants.h, issue.cast-dmg-migration: it's a
 //  general alignment concept, not a talents-specific one. Used by <blocking>/<required>/<reflection>.)
 
@@ -462,6 +474,9 @@ class Action {
 	// Reflection (issue.cast-dmg-migration): checked in CastToSingleTarget; redirects the cast
 	// back at the caster on a successful prob roll.
 	Reflection reflection_;
+	// Per-action target selector (issue.area-cast): how a non-first action picks its targets.
+	// Ignored for the first action (uses the spell's targeting flags). Default kTarSame.
+	EActionTarget target_{EActionTarget::kTarSame};
 
 	friend class Actions;   // Actions builds these via the Parse* helpers.
 
@@ -477,6 +492,7 @@ class Action {
 	[[nodiscard]] const FlagCondition &GetBlocking() const { return blocking_; }
 	[[nodiscard]] const FlagCondition &GetRequired() const { return required_; }
 	[[nodiscard]] const Reflection &GetReflection() const { return reflection_; }
+	[[nodiscard]] EActionTarget GetTarget() const { return target_; }
 };
 
 // Spell-level caster gate (issue.spell-unification): a spell is castable by the caster

@@ -626,6 +626,7 @@ void PrintFlagCondition(const char *label, const FlagCondition &cond, std::ostri
 }  // namespace
 
 void Action::Print(CharData *ch, std::ostringstream &buffer) const {
+	buffer << "  Target: " << kColorGrn << static_cast<int>(target_) << kColorNrm << "\r\n";
 	PrintFlagCondition("Blocking", blocking_, buffer);
 	PrintFlagCondition("Required", required_, buffer);
 	if (!reflection_.empty()) {
@@ -756,6 +757,18 @@ void Actions::ParseCasterConditions(CasterConditions &out, parser_wrapper::DataN
 }
 
 void Actions::ParseAction(Action &out, parser_wrapper::DataNode node) {
+	// issue.area-cast: optional per-action target selector (non-first actions). Default kTarSame.
+	const char *tgt = node.GetValue("target");
+	if (tgt && *tgt) {
+		if (strcmp(tgt, "kTarFightSelf") == 0) { out.target_ = EActionTarget::kTarFightSelf; }
+		else if (strcmp(tgt, "kTarFightVict") == 0) { out.target_ = EActionTarget::kTarFightVict; }
+		else if (strcmp(tgt, "kTarGroup") == 0) { out.target_ = EActionTarget::kTarGroup; }
+		else if (strcmp(tgt, "kTarFoes") == 0) { out.target_ = EActionTarget::kTarFoes; }
+		else if (strcmp(tgt, "kTarRandomFoe") == 0) { out.target_ = EActionTarget::kTarRandomFoe; }
+		else if (strcmp(tgt, "kTarRandomAlly") == 0) { out.target_ = EActionTarget::kTarRandomAlly; }
+		else if (strcmp(tgt, "kTarSame") == 0) { out.target_ = EActionTarget::kTarSame; }
+		else { err_log("Actions: unknown <action target='%s'>.", tgt); }
+	}
 	for (auto &manifestation: node.Children()) {
 		if (strcmp(manifestation.GetName(), "damage") == 0) {
 			ParseDamage(out, manifestation);

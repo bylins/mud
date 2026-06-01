@@ -3056,6 +3056,49 @@ static ECastResult RunActionOverTargets(CastContext &ctx, const std::vector<Char
 	return ECastResult::kSuccess;
 }
 
+// issue.area-cast: the ECastTargets scope implied by a per-action target selector -- decides
+// single-target vs roster/distribution handling. kTarSame inherits the previous action's scope.
+static ECastTargets ActionTargetScope(talents_actions::EActionTarget sel, ECastTargets prev_scope) {
+	switch (sel) {
+		case talents_actions::EActionTarget::kTarFoes:  return ECastTargets::kFoes;
+		case talents_actions::EActionTarget::kTarGroup: return ECastTargets::kFriends;
+		case talents_actions::EActionTarget::kTarSame:  return prev_scope;
+		default:                                        return ECastTargets::kSingle;
+	}
+}
+
+// issue.area-cast: resolve a NON-first action's target list from its <action target=...> selector.
+static std::vector<CharData *> ResolveActionTargets(CastContext &ctx,
+		talents_actions::EActionTarget sel, const std::vector<CharData *> &prev) {
+	CharData *caster = ctx.caster();
+	switch (sel) {
+		case talents_actions::EActionTarget::kTarSame:
+			return prev;
+		case talents_actions::EActionTarget::kTarFightSelf:
+			return {caster};
+		case talents_actions::EActionTarget::kTarFightVict: {
+			CharData *enemy = caster->GetEnemy();
+			return enemy ? std::vector<CharData *>{enemy} : std::vector<CharData *>{};
+		}
+		case talents_actions::EActionTarget::kTarGroup:
+			return BuildCastRoster(caster, caster, ECastTargets::kFriends);
+		case talents_actions::EActionTarget::kTarFoes:
+			return BuildCastRoster(caster, nullptr, ECastTargets::kFoes);
+		case talents_actions::EActionTarget::kTarRandomFoe: {
+			target_resolver::FoesRosterType roster{caster, nullptr,
+					[](CharData *, CharData *t) { return !IS_HORSE(t); }};
+			CharData *one = roster.getRandomItem();
+			return one ? std::vector<CharData *>{one} : std::vector<CharData *>{};
+		}
+		case talents_actions::EActionTarget::kTarRandomAlly: {
+			target_resolver::FriendsRosterType roster{caster, caster};
+			CharData *one = roster.getRandomItem();
+			return one ? std::vector<CharData *>{one} : std::vector<CharData *>{};
+		}
+	}
+	return {};
+}
+
 // Main cast entry (issue.area-cast per-action targets; was CastToTargets / CastToSingleTarget):
 // walks the spell's <action> list and runs each action over its own target list. Action[0] (the
 // entry) targets the spell's scope (kSingle / kFoes / kFriends); later actions reuse the
@@ -3076,18 +3119,29 @@ ECastResult CastSpell(CastContext &ctx, ECastTargets scope) {
 		TrySendCastMessages(caster, ctx.cvict, world[caster->in_room], spell_id);
 	}
 	std::vector<CharData *> prev = entry_targets;
+	ECastTargets prev_scope = scope;
 	bool is_entry = true;
 	ECastResult result = ECastResult::kSuccess;
 	try {
 		for (ctx.RewindActions(); ctx.HasPendingActions(); ctx.NextAction()) {
-			// Stage A: the entry action uses the spell-scope roster; later actions reuse the
-			// previous list. Per-action <target> resolving (kTarFoes / kTarGroup / ...) is stage B.
-			const std::vector<CharData *> &targets = is_entry ? entry_targets : prev;
-			result = RunActionOverTargets(ctx, targets, scope, is_entry);
+			// The entry action targets the spell scope; later actions resolve their own target
+			// list from <action target=...> (default kTarSame = reuse the previous list).
+			std::vector<CharData *> targets;
+			ECastTargets cur_scope;
+			if (is_entry) {
+				targets = entry_targets;
+				cur_scope = scope;
+			} else {
+				const talents_actions::EActionTarget sel = ctx.action_or_default().GetTarget();
+				targets = ResolveActionTargets(ctx, sel, prev);
+				cur_scope = ActionTargetScope(sel, prev_scope);
+			}
+			result = RunActionOverTargets(ctx, targets, cur_scope, is_entry);
 			if (caster->purged()) {
 				return ECastResult::kSuccess;
 			}
-			prev = targets;
+			prev = std::move(targets);
+			prev_scope = cur_scope;
 			is_entry = false;
 		}
 	} catch (std::runtime_error &e) {
