@@ -238,14 +238,14 @@ void copy_potion_values(const CObjectPrototype *from_obj, CObjectPrototype *to_o
 
 using namespace drinkcon;
 
-int cast_potion_spell(CharData *ch, ObjData *obj, int num) {
+ECastResult cast_potion_spell(CharData *ch, ObjData *obj, int num) {
 	const auto spell_id = static_cast<ESpell>(obj->GetPotionValueKey(init_spell_num(num)));
 	const int level = -obj->GetPotionValueKey(init_spell_lvl(num));
 
 	if (spell_id > ESpell::kUndefined) {
 		return CallMagic(ch, ch, nullptr, world[ch->in_room], spell_id, level);
 	}
-	return 1;
+	return ECastResult::kSuccess;
 }
 
 int TryCastSpellsFromLiquid(CharData *ch, ObjData *jar) {
@@ -255,7 +255,7 @@ int TryCastSpellsFromLiquid(CharData *ch, ObjData *jar) {
 
 		//не очень понятно, но так было
 		for (int i = 1; i <= 3; ++i)
-			if (cast_potion_spell(ch, jar, i) <= 0)
+			if (cast_potion_spell(ch, jar, i) != ECastResult::kSuccess)
 				break;
 
 		SetBattleLag(ch, 1);

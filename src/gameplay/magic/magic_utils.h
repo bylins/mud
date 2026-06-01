@@ -35,7 +35,6 @@ ESpell FindSpellIdWithName(const std::string &name);
 
 int FindCastTarget(ESpell spell_id, const char *t, CharData *ch, CharData **tch, ObjData **tobj, RoomData **troom);
 void SaySpell(CharData *ch, ESpell spell_id, CharData *tch, ObjData *tobj);
-int CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict, ESpell spell_id, int level);
 
 // True if `caster` bypasses the spell's room-level <blocking> (kNoMagic etc.).
 // Greater gods always bypass; uncharmed NPCs (other than tutelars) bypass too -- they
@@ -68,7 +67,6 @@ int ComputeApplyModifier(const talents_actions::TalentAffect::Apply &apply,
 
 int CalcCastSuccess(CharData *ch, CharData *victim, ESaving saving, ESpell spell_id);
 int MagusCastRequiredLevel(const CharData *ch, ESpell spell_id);
-int CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, ESpell spell_id, ESpell spell_subst);
 
 // Resistance calculate //
 int ApplyResist(CharData *ch, EResist resist_type, int value);

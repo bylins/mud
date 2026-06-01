@@ -158,7 +158,7 @@ void EmployMagicItem(CharData *ch, ObjData *obj, const char *argument) {
 
 			SetBattleLag(ch, 1);
 			for (i = 1; i <= 3; i++) {
-				if (CallMagic(ch, tch, tobj, world[ch->in_room], static_cast<ESpell>(GET_OBJ_VAL(obj, i)), level) <= 0) {
+				if (CallMagic(ch, tch, tobj, world[ch->in_room], static_cast<ESpell>(GET_OBJ_VAL(obj, i)), level) != ECastResult::kSuccess) {
 					break;
 				}
 			}
@@ -185,7 +185,7 @@ void EmployMagicItem(CharData *ch, ObjData *obj, const char *argument) {
 
 			SetBattleLag(ch, 1);
 			for (i = 1; i <= 3; i++) {
-				if (CallMagic(ch, ch, nullptr, world[ch->in_room], static_cast<ESpell>(GET_OBJ_VAL(obj, i)), level) <= 0) {
+				if (CallMagic(ch, ch, nullptr, world[ch->in_room], static_cast<ESpell>(GET_OBJ_VAL(obj, i)), level) != ECastResult::kSuccess) {
 					break;
 				}
 			}

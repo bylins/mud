@@ -462,12 +462,12 @@ CastContext ComputeCastRoll(CharData *caster, ESpell spell_id, int level) {
 	return CastContext(caster, spell_id, level, eval(spell.GetSuccessRoll()), eval(spell.GetPotencyRoll()));
 }
 
-int CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict, ESpell spell_id, int level) {
+ECastResult CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict, ESpell spell_id, int level) {
 	SpellCastMetrics metrics(spell_id, caster, level, cvict, ovict, rvict);
 	utils::CSteppedProfiler profiler("Spell Cast", 0.030);
 
 	if (spell_id < ESpell::kFirst || spell_id > ESpell::kLast)
-		return 0;
+		return ECastResult::kNotCast;
 
 	// Data-driven room block: any spell whose XML
 	// <talent_actions><action><blocking><room_flags val="..."/></blocking></action>
@@ -489,7 +489,7 @@ int CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict
 		if (!to_room.empty()) {
 			act(to_room.c_str(), false, caster, nullptr, nullptr, kToRoom | kToArenaListen);
 		}
-		return 0;
+		return ECastResult::kNotCast;
 	}
 
 	if (!MayCastHere(caster, cvict, spell_id)) {
@@ -502,7 +502,7 @@ int CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict
 		if (!cant_here_room.empty()) {
 			act(cant_here_room.c_str(), false, caster, nullptr, nullptr, kToRoom | kToArenaListen);
 		}
-		return 0;
+		return ECastResult::kNotCast;
 	}
 
 	// kTarAllyOnly (issue cast-to-ally-only): a PC may cast such spells only on self
@@ -512,7 +512,7 @@ int CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict
 	if (cvict && !caster->IsNpc() && MUD::Spell(spell_id).AllowTarget(kTarAllyOnly)
 			&& !group::same_group(caster, cvict)) {
 		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kCantCastNotAlly) + "\r\n", caster);
-		return 0;
+		return ECastResult::kNotCast;
 	}
 
 	if (SpellUsage::is_active) {
@@ -715,15 +715,15 @@ int FindCastTarget(ESpell spell_id, const char *t, CharData *ch, CharData **tch,
  * Entry point for NPC casts.  Recommended entry point for spells cast
  * by NPCs via specprocs.
  */
-int CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, ESpell spell_id, ESpell spell_subst) {
+ECastResult CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, ESpell spell_id, ESpell spell_subst) {
 	if (spell_id == ESpell::kUndefined) {
 		log("SYSERR: CastSpell trying to call spell id %d.\n", to_underlying(spell_id));
-		return 0;
+		return ECastResult::kNotCast;
 	}
 
 	if (tch && ch) {
 		if (tch->IsNpc() && ch->IsNpc() && !SAME_ALIGN(ch, tch) && !MUD::Spell(spell_id).IsViolent()) {
-			return 0;
+			return ECastResult::kNotCast;
 		}
 	}
 
@@ -744,12 +744,12 @@ int CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, ESpel
 			default: SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kCantCastPosition) + "\r\n", ch);
 				break;
 		}
-		return 0;
+		return ECastResult::kNotCast;
 	}
 
 	if (AFF_FLAGGED(ch, EAffect::kCharmed) && ch->get_master() == tch) {
 		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kCantCastMaster) + "\r\n", ch);
-		return 0;
+		return ECastResult::kNotCast;
 	}
 
 	// Verbal-component gate: CastSpell is the
@@ -758,30 +758,30 @@ int CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, ESpel
 	// verbal spells under kSilence; non-verbal spells fall through.
 	if (MUD::Spell(spell_id).IsVerbal() && AFF_FLAGGED(ch, EAffect::kSilence)) {
 		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kCantCastSilenced) + "\r\n", ch);
-		return 0;
+		return ECastResult::kNotCast;
 	}
 
 	if (tch != ch && !ch->IsImmortal() && MUD::Spell(spell_id).AllowTarget(kTarSelfOnly)) {
 		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kCantCastSelfOnly) + "\r\n", ch);
-		return 0;
+		return ECastResult::kNotCast;
 	}
 
 	if (tch == ch && MUD::Spell(spell_id).AllowTarget(kTarNotSelf)) {
 		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kCantCastNotSelf) + "\r\n", ch);
-		return 0;
+		return ECastResult::kNotCast;
 	}
 
 	if ((!tch || tch->in_room == kNowhere) && !tobj && !troom &&
 		MUD::Spell(spell_id).AllowTarget(kTarCharRoom | kTarCharWorld | kTarFightSelf | kTarFightVict |
 			kTarObjInv | kTarObjRoom | kTarObjWorld | kTarObjEquip | kTarRoomThis | kTarRoomDir)) {
 		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kTargetUnavailable) + "\r\n", ch);
-		return 0;
+		return ECastResult::kNotCast;
 	}
 
 	if (tch != nullptr && tch->in_room != ch->in_room) {
 		if (!MUD::Spell(spell_id).AllowTarget(kTarCharWorld)) {
 			SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kTargetUnavailable) + "\r\n", ch);
-			return 0;
+			return ECastResult::kNotCast;
 		}
 	}
 
@@ -796,19 +796,19 @@ int CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, ESpel
 			// hit an outsider".
 			if (MUD::Spell(spell_id).GetViolent() != spells::EViolent::kNo) {
 				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kCantCastPeaceful) + "\r\n", ch);
-				return false;    // нельзя злые кастовать
+				return ECastResult::kNotCast;    // нельзя злые кастовать
 			}
 		}
 		for (const auto ch_vict : world[ch->in_room]->people) {
 			if (MUD::Spell(spell_id).IsViolentAgainst(ch, ch_vict)) {
 				if (ch_vict == tch) {
 					SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kCantCastPeaceful) + "\r\n", ch);
-					return false;
+					return ECastResult::kNotCast;
 				}
 			} else {
 				if (ch_vict == tch && !group::same_group(ch, ch_vict)) {
 					SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kCantCastPeaceful) + "\r\n", ch);
-					return false;
+					return ECastResult::kNotCast;
 				}
 			}
 		}

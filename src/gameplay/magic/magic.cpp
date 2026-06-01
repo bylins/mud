@@ -2801,7 +2801,7 @@ static CharData *MaybeReflectToCaster(CharData *caster, CharData *cvict, ESpell 
 	return caster;
 }
 
-int CastToSingleTarget(CastContext &ctx) {
+ECastResult CastToSingleTarget(CastContext &ctx) {
 	CharData *caster = ctx.caster();
 	CharData *cvict = ctx.cvict;
 	ObjData *ovict = ctx.ovict;
@@ -2814,7 +2814,7 @@ int CastToSingleTarget(CastContext &ctx) {
 		if (!MUD::Spell(spell_id).IsFlagged(kMagGroups | kMagMasses | kMagAreas)) {
 			SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kCantCastNotMinion) + "\r\n", caster);
 		}
-		return 0;
+		return ECastResult::kNotCast;
 	}
 	// Action-level <blocking>/<required> gates: the cast is refused on a target
 	// that carries a blocking flag/affect or lacks a required one. This sits here (not inside a
@@ -2825,7 +2825,7 @@ int CastToSingleTarget(CastContext &ctx) {
 		if (!MUD::Spell(spell_id).IsFlagged(kMagGroups | kMagMasses | kMagAreas)) {
 			SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", caster);
 		}
-		return 0;
+		return ECastResult::kNotCast;
 	}
 	// Action-level caster gate: mirrors the victim-side <blocking>,
 	// but examines the CASTER. Used to refuse casts the caster cannot wield -- e.g. kDispelEvil
@@ -2834,7 +2834,7 @@ int CastToSingleTarget(CastContext &ctx) {
 	// per-target loop).
 	if (TargetIsBlocked(caster, MUD::Spell(spell_id).actions.GetCasterBlocking())) {
 		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", caster);
-		return 0;
+		return ECastResult::kNotCast;
 	}
 	cvict = MaybeReflectToCaster(caster, cvict, spell_id);
 	ctx.cvict = cvict;
@@ -2846,59 +2846,59 @@ int CastToSingleTarget(CastContext &ctx) {
 		//     || (((GetRealLevel(cvict) / 2) > (GetRealLevel(caster) + (GetRealRemort(caster) / 2))) && !caster->IsNpc())
 		if (cvict->IsGod() /* level-diff condition disabled, see above */) {
 			SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", caster);
-			return (-1);
+			return ECastResult::kNotCast;
 		}
 
 	if (!cast_mtrigger(cvict, caster, spell_id)) {
-		return -1;
+		return ECastResult::kNotCast;
 	}
 
 	if (MUD::Spell(spell_id).IsFlagged(kMagWarcry) && cvict && IS_UNDEAD(cvict))
-		return 1;
+		return ECastResult::kSuccess;
 
 	if (MUD::Spell(spell_id).IsFlagged(kMagDamage))
 		if (CastDamage(ctx) == EStageResult::kBreak)
-			return (-1);    // Successful and target died, don't cast again.
+			return ECastResult::kTargetDied;    // Successful and target died, don't cast again.
 
 	// Unaffect runs before affect: a spell strips/blocks existing affects
 	// first and may break the chain, before applying any new affect of its own.
 	if (MUD::Spell(spell_id).IsFlagged(kMagUnaffects)
 			&& CastUnaffects(ctx) == EStageResult::kBreak) {
-		return 1;
+		return ECastResult::kSuccess;
 	}
 
 	if (MUD::Spell(spell_id).IsFlagged(kMagAffects)
 			&& CastAffect(ctx) == EStageResult::kBreak) {
-		return 1;
+		return ECastResult::kSuccess;
 	}
 
 	if (MUD::Spell(spell_id).IsFlagged(kMagPoints)
 			&& CastToPoints(ctx) == EStageResult::kBreak) {
-		return 1;
+		return ECastResult::kSuccess;
 	}
 
 	if (MUD::Spell(spell_id).IsFlagged(kMagAlterObjs)
 			&& CastToAlterObjs(ctx) == EStageResult::kBreak) {
-		return 1;
+		return ECastResult::kSuccess;
 	}
 
 	if (MUD::Spell(spell_id).IsFlagged(kMagSummons)
 			&& CastSummon(ctx, true) == EStageResult::kBreak) {
-		return 1;
+		return ECastResult::kSuccess;
 	}
 
 	if (MUD::Spell(spell_id).IsFlagged(kMagCreations)
 			&& CastCreation(ctx) == EStageResult::kBreak) {
-		return 1;
+		return ECastResult::kSuccess;
 	}
 
 	if (MUD::Spell(spell_id).IsFlagged(kMagManual)
 			&& CastManual(ctx) == EStageResult::kBreak) {
-		return 1;
+		return ECastResult::kSuccess;
 	}
 
 	ReactToCast(cvict, caster, spell_id);
-	return 1;
+	return ECastResult::kSuccess;
 }
 
 // Сообщения массовых/площадных заклинаний вынесены в lib/cfg/spell_msg.xml
@@ -2918,11 +2918,11 @@ void TrySendCastMessages(CharData *ch, CharData *victim, RoomData *room, ESpell 
 	}
 };
 
-int CallMagicToArea(CharData *ch, CharData *victim, RoomData *room, CastContext roll) {
+ECastResult CallMagicToArea(CharData *ch, CharData *victim, RoomData *room, CastContext roll) {
 	const ESpell spell_id = roll.spell_id();
 	int level = roll.level;     // mutated by the per-target level decay below
 	if (ch == nullptr || ch->in_room == kNowhere) {
-		return 0;
+		return ECastResult::kNotCast;
 	}
 	try {
 		const auto params = MUD::Spell(spell_id).actions.GetArea();
@@ -2956,7 +2956,7 @@ int CallMagicToArea(CharData *ch, CharData *victim, RoomData *room, CastContext 
 			roll.ovict = nullptr;
 			CastToSingleTarget(roll);
 			if (ch->purged()) {
-				return 1;
+				return ECastResult::kSuccess;
 			}
 			if (!ch->IsNpc()) {
 				++targets_counter;
@@ -2982,15 +2982,15 @@ int CallMagicToArea(CharData *ch, CharData *victim, RoomData *room, CastContext 
 	} catch (std::runtime_error &e) {
 		err_log("%s", e.what());
 	}
-	return 1;
+	return ECastResult::kSuccess;
 }
 
 // Применение заклинания к группе в комнате
 //---------------------------------------------------------
-int CallMagicToGroup(CharData *ch, CastContext roll) {
+ECastResult CallMagicToGroup(CharData *ch, CastContext roll) {
 	const ESpell spell_id = roll.spell_id();
 	if (ch == nullptr) {
-		return 0;
+		return ECastResult::kNotCast;
 	}
 
 	TrySendCastMessages(ch, nullptr, world[ch->in_room], spell_id);
@@ -3002,7 +3002,7 @@ int CallMagicToGroup(CharData *ch, CastContext roll) {
 		roll.ovict = nullptr;
 		CastToSingleTarget(roll);
 	}
-	return 1;
+	return ECastResult::kSuccess;
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

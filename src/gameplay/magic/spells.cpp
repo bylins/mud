@@ -22,6 +22,7 @@
 #include "gameplay/clans/house.h"
 #include "gameplay/mechanics/liquid.h"
 #include "magic.h"
+#include "magic_internal.h"
 #include "gameplay/skills/animal_master.h"
 #include "engine/db/obj_prototypes.h"
 #include "gameplay/communication/parcel.h"
