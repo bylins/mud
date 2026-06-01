@@ -318,6 +318,16 @@ CREATE TABLE obj_applies (
     FOREIGN KEY (obj_vnum) REFERENCES objects(vnum) ON DELETE CASCADE
 );
 
+-- Skills granted by an object (legacy `S` line: skill_id value). Issue #3386.
+CREATE TABLE obj_skills (
+    obj_vnum INTEGER NOT NULL,
+    skill_id INTEGER NOT NULL,
+    value INTEGER NOT NULL,
+    PRIMARY KEY (obj_vnum, skill_id),
+    FOREIGN KEY (obj_vnum) REFERENCES objects(vnum) ON DELETE CASCADE,
+    FOREIGN KEY (skill_id) REFERENCES skills(id)
+);
+
 -- Rooms
 CREATE TABLE rooms (
     vnum INTEGER PRIMARY KEY,
@@ -427,6 +437,7 @@ CREATE INDEX idx_mob_flags_vnum ON mob_flags(mob_vnum);
 CREATE INDEX idx_mob_skills_vnum ON mob_skills(mob_vnum);
 CREATE INDEX idx_obj_flags_vnum ON obj_flags(obj_vnum);
 CREATE INDEX idx_obj_applies_vnum ON obj_applies(obj_vnum);
+CREATE INDEX idx_obj_skills_vnum ON obj_skills(obj_vnum);
 CREATE INDEX idx_room_flags_vnum ON room_flags(room_vnum);
 CREATE INDEX idx_room_exits_vnum ON room_exits(room_vnum);
 CREATE INDEX idx_room_exits_to ON room_exits(to_room);
@@ -507,6 +518,18 @@ FROM obj_applies oa
 JOIN objects o ON oa.obj_vnum = o.vnum
 JOIN apply_locations al ON oa.location_id = al.id
 ORDER BY oa.obj_vnum, al.name;
+
+-- Object skills (legacy `S` lines)
+CREATE VIEW v_obj_skills AS
+SELECT
+    os.obj_vnum,
+    o.name_nom AS obj_name,
+    s.name AS skill_name,
+    os.value AS skill_value
+FROM obj_skills os
+JOIN objects o ON os.obj_vnum = o.vnum
+JOIN skills s ON os.skill_id = s.id
+ORDER BY os.obj_vnum, s.name;
 
 -- Full room information
 CREATE VIEW v_rooms AS

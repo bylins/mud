@@ -1974,6 +1974,9 @@ void SqliteWorldDataSource::LoadObjects()
 	// Load object applies
 	LoadObjectApplies();
 
+	// Load object skills (legacy `S` lines, issue #3386)
+	LoadObjectSkills();
+
 	// Load object triggers
 	LoadObjectTriggers();
 
@@ -2136,6 +2139,36 @@ void SqliteWorldDataSource::LoadObjectApplies()
 	sqlite3_finalize(stmt);
 
 	log("   Loaded %d object applies.", applies_loaded);
+}
+
+void SqliteWorldDataSource::LoadObjectSkills()
+{
+	const char *sql = "SELECT obj_vnum, skill_id, value FROM obj_skills";
+
+	sqlite3_stmt *stmt;
+	if (sqlite3_prepare_v2(m_db, sql, -1, &stmt, nullptr) != SQLITE_OK)
+	{
+		return;
+	}
+
+	int skills_loaded = 0;
+	while (sqlite3_step(stmt) == SQLITE_ROW)
+	{
+		int obj_vnum = sqlite3_column_int(stmt, 0);
+		int skill_id = sqlite3_column_int(stmt, 1);
+		int value = sqlite3_column_int(stmt, 2);
+
+		int rnum = obj_proto.get_rnum(obj_vnum);
+		if (rnum < 0) continue;
+
+		// Mirrors the legacy `S` line handler; without it object skill
+		// bonuses are silently dropped in the SQLite world (issue #3386).
+		obj_proto[rnum]->set_skill(static_cast<ESkill>(skill_id), value);
+		skills_loaded++;
+	}
+	sqlite3_finalize(stmt);
+
+	log("   Loaded %d object skills.", skills_loaded);
 }
 
 void SqliteWorldDataSource::LoadObjectTriggers()
@@ -3263,6 +3296,20 @@ void SqliteWorldDataSource::SaveObjectRecord(int obj_vnum, CObjectPrototype *obj
 				sqlite3_step(stmt);
 				sqlite3_finalize(stmt);
 			}
+		}
+	}
+
+	// Save object skills (legacy `S` lines, issue #3386)
+	const char *obj_skill_sql = "INSERT OR REPLACE INTO obj_skills (obj_vnum, skill_id, value) VALUES (?, ?, ?)";
+	for (const auto &kv : obj->get_skills())
+	{
+		if (sqlite3_prepare_v2(m_db, obj_skill_sql, -1, &stmt, nullptr) == SQLITE_OK)
+		{
+			sqlite3_bind_int(stmt, 1, obj_vnum);
+			sqlite3_bind_int(stmt, 2, to_underlying(kv.first));
+			sqlite3_bind_int(stmt, 3, kv.second);
+			sqlite3_step(stmt);
+			sqlite3_finalize(stmt);
 		}
 	}
 

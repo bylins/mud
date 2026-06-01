@@ -1488,6 +1488,13 @@ class SqliteSaver(BaseSaver):
                 VALUES (?, ?, ?)
             ''', (vnum, location_id, apply['modifier']))
 
+        # Insert skills (legacy `S` lines, issue #3386)
+        for skill in obj.get('skills', []):
+            cursor.execute('''
+                INSERT OR REPLACE INTO obj_skills (obj_vnum, skill_id, value)
+                VALUES (?, ?, ?)
+            ''', (vnum, skill['skill_id'], skill['value']))
+
         # Insert extra descriptions
         insert_extra_descriptions(cursor, 'obj', vnum, obj.get('extra_descs', []))
         # Insert triggers
@@ -2684,10 +2691,11 @@ def parse_obj_file(filepath):
                 idx += 1
 
 
-            # Parse extra data (A, E, M, T sections)
+            # Parse extra data (A, E, M, S, T sections)
             obj['applies'] = []
             obj['extra_descs'] = []
             obj['triggers'] = []
+            obj['skills'] = []
 
             while idx < len(lines):
                 line = lines[idx].strip()
@@ -2726,6 +2734,20 @@ def parse_obj_file(filepath):
                             desc_parts.append(lines[idx].rstrip('~'))
                         ed['description'] = '\r\n'.join(desc_parts)
                         obj['extra_descs'].append(ed)
+                elif line == 'S':
+                    # Skill granted by the object (legacy `S` line:
+                    # `S\n<skill_id> <value>`, boot_data_files.cpp:795).
+                    # Without this branch the object's skill bonuses silently
+                    # vanish in YAML, then SQLite, and finally on every player
+                    # who equips it (issue #3386).
+                    idx += 1
+                    if idx < len(lines):
+                        parts = lines[idx].split()
+                        if len(parts) >= 2:
+                            obj['skills'].append({
+                                'skill_id': int(parts[0]),
+                                'value': int(parts[1])
+                            })
                 elif line.startswith('M '):
                     obj['max_in_world'] = int(line[2:].strip())
                 elif line.startswith('R '):
@@ -2847,6 +2869,19 @@ def obj_to_yaml(obj):
             a['modifier'] = apply['modifier']
             applies.append(a)
         data['applies'] = applies
+
+    # Skills granted by the object (legacy `S` lines, issue #3386).
+    if obj.get('skills'):
+        skills = CommentedSeq()
+        for skill in obj['skills']:
+            s = CommentedMap()
+            s['skill_id'] = skill['skill_id']
+            skill_name = get_skill_name(skill['skill_id'])
+            if skill_name:
+                s.yaml_add_eol_comment(skill_name, 'skill_id')
+            s['value'] = skill['value']
+            skills.append(s)
+        data['skills'] = skills
 
     # Extra descriptions
     if obj.get('extra_descs'):

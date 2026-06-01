@@ -2150,6 +2150,19 @@ CObjectPrototype* YamlWorldDataSource::ParseObjectFile(const std::string &file_p
 				}
 			}
 
+			// Skills granted by the object (legacy `S` lines). Mirrors the
+			// boot_data_files.cpp `case 'S'` handler; without it the object's
+			// skill bonuses are silently dropped in the YAML world (issue #3386).
+			if (root["skills"] && root["skills"].IsSequence())
+			{
+				for (const auto &skill_node : root["skills"])
+				{
+					int skill_id = GetInt(skill_node, "skill_id", 0);
+					int value = GetInt(skill_node, "value", 0);
+					obj_ptr->set_skill(static_cast<ESkill>(skill_id), value);
+				}
+			}
+
 			// Extra values (V-строки): данные зелий и контейнеров с жидкостью.
 			// Без чтения этой секции зелья в YAML-мире выходят без заклинаний (issue #3218).
 			if (root["extra_values"] && root["extra_values"].IsMap())
