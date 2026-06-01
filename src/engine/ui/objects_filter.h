@@ -20,6 +20,7 @@
 class CharData;
 struct ExchangeItem;
 class ObjData;
+class CObjectPrototype;
 
 
 // для парса строки с фильтрами в клан-хранах и базаре
@@ -43,7 +44,7 @@ struct ParseFilter {
 	bool init_realtime(const char *str);
 	bool init_profession(const char *str);
 	size_t affects_cnt() const;
-	bool check(ObjData *obj, CharData *ch);
+	bool check(const CObjectPrototype *obj, CharData *ch);
 	bool check(ExchangeItem *exch_obj);
 	bool parse_filter(const CharData *ch, ParseFilter &filter, const char *argument);
 	bool init_skill(char*);
@@ -51,7 +52,7 @@ struct ParseFilter {
 	std::string print() const;
 	std::string name;      // имя предмета
 	std::string owner;     // имя продавца (базар)
-	std::string show_obj_aff(ObjData *obj);
+	std::string show_obj_aff(const CObjectPrototype *obj);
 
  private:
 	std::vector<int> affect_apply; // аффекты apply_types
@@ -75,21 +76,21 @@ struct ParseFilter {
 	int filter_type;       // CLAN/EXCHANGE
 	ESkill skill_id;
 	ECharClass profession; // профессия (фильтр анти-классов на предмете)
-	bool check_name(ObjData *obj, CharData *ch = nullptr) const;
-	bool check_type(ObjData *obj) const;
-	bool check_state(ObjData *obj) const;
-	bool check_wear(ObjData *obj) const;
-	bool check_weap_class(ObjData *obj) const;
+	bool check_name(const CObjectPrototype *obj, CharData *ch = nullptr) const;
+	bool check_type(const CObjectPrototype *obj) const;
+	bool check_state(const CObjectPrototype *obj) const;
+	bool check_wear(const CObjectPrototype *obj) const;
+	bool check_weap_class(const CObjectPrototype *obj) const;
 	bool check_cost(int obj_price) const;
 	bool check_rent(int obj_price) const;
-	bool check_remorts(ObjData *obj) const;
-	bool check_affect_weap(ObjData *obj) const;
-	bool check_affect_apply(ObjData *obj) const;
-	bool check_affect_extra(ObjData *obj) const;
+	bool check_remorts(const CObjectPrototype *obj) const;
+	bool check_affect_weap(const CObjectPrototype *obj) const;
+	bool check_affect_apply(const CObjectPrototype *obj) const;
+	bool check_affect_extra(const CObjectPrototype *obj) const;
 	bool check_owner(ExchangeItem *exch_obj) const;
 	bool check_realtime(ExchangeItem *exch_obj) const;
-	bool check_skill(ObjData *obj) const;
-	bool check_profession(ObjData *obj) const;
+	bool check_skill(const CObjectPrototype *obj) const;
+	bool check_profession(const CObjectPrototype *obj) const;
 };
 
 #endif //BYLINS_SRC_UTILS_OBJECTS_FILTER_H_
