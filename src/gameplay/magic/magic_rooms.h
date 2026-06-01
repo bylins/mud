@@ -7,7 +7,7 @@
 #include <list>
 
 class CharData;
-struct CastRollResult;   // defined in magic.h (issue #3333)
+class CastContext;   // defined in magic.h (issue.spell-pipeline)
 
 namespace room_spells {
 
@@ -44,7 +44,7 @@ void ShowAffectedRooms(CharData *ch);
 void RoomRemoveAffect(RoomData *room, const RoomAffectIt &affect);
 bool IsRoomAffected(RoomData *room, ESpell spell);
 bool IsZoneRoomAffected(int zone_vnum, ESpell spell);
-int CallMagicToRoom(CharData *ch, RoomData *room, CastRollResult roll);
+int CallMagicToRoom(CharData *ch, RoomData *room, CastContext roll);
 int GetUniqueAffectDuration(long caster_id, ESpell spell_id);
 RoomAffectIt FindAffect(RoomData *room, ESpell type);
 RoomData *FindAffectedRoomByCasterID(long caster_id, ESpell spell_id);

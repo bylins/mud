@@ -69,18 +69,60 @@ struct RollResult {
 	                              // low-skill bonus only, fed to SetBattleLag as skill_bonus.
 };
 
-// The spell's success and potency rolls, computed once per cast in CallMagic and
-// threaded to the cast-dispatch functions in place of (level, spell_id). The roll
-// values do not depend on level; level is carried only to replace that parameter.
-struct CastRollResult {
-	ESpell spell_id{ESpell::kUndefined};
+// CastContext (issue.spell-pipeline): the single object threaded through the whole
+// cast handler chain (CallMagic -> CastToSingleTarget -> the per-stage Cast* fns).
+// It carries the cast parameters, the targets, and the accumulating results so that
+// later <action>s can see what earlier ones did.
+//
+// Immutable parts (set once at construction, exposed via const getters): the caster,
+// the spell, the base level and the two rolls -- these never change during a cast.
+// Mutable parts (public fields): the current targets, the working `level` (which
+// decays across area targets, starting from base_level()), and the action results.
+class CastContext {
+ public:
+	CastContext(CharData *caster, ESpell spell_id, int level,
+				const RollResult &success, const RollResult &potency)
+		: level{level},
+		  caster_{caster}, spell_id_{spell_id}, base_level_{level},
+		  success_{success}, potency_{potency} {}
+
+	// --- Immutable cast parameters ---
+	[[nodiscard]] CharData *caster() const { return caster_; }
+	[[nodiscard]] ESpell spell_id() const { return spell_id_; }
+	[[nodiscard]] int base_level() const { return base_level_; }
+	[[nodiscard]] const RollResult &success() const { return success_; }
+	[[nodiscard]] const RollResult &potency() const { return potency_; }
+
+	// --- Mutable working state ---
+	// Working level: starts at base_level, decays per target in area casts.
 	int level{0};
-	RollResult success;        // from SpellInfo::GetSuccessRoll()
-	RollResult potency;        // from SpellInfo::GetPotencyRoll()
+	// Results accumulated by the stage handlers, so later <action>s (and the
+	// dispatcher) can read what earlier ones produced.
+	struct ActionResult {
+		// Per-cast damage from the last CastDamage: >=0 dealt; -1 means the target
+		// died on this cast (kept as a sentinel -- see is_vict_dead for the boolean).
+		long damage{0};
+	};
+	ActionResult result;
+	// Set by CastDamage when the target died; the dispatcher stops the action chain.
+	bool is_vict_dead{false};
+	// Targets for the current cast. cvict will later become a richer target list
+	// built by the target resolver (issue.spell-pipeline note).
+	CharData *cvict{nullptr};
+	ObjData  *ovict{nullptr};
+	RoomData *rvict{nullptr};
+
+ private:
+	CharData *caster_{nullptr};
+	ESpell spell_id_{ESpell::kUndefined};
+	int base_level_{0};
+	RollResult success_;        // from SpellInfo::GetSuccessRoll()
+	RollResult potency_;        // from SpellInfo::GetPotencyRoll()
 };
 
-// Evaluates both rolls of spell_id against caster. Defined in magic_utils.cpp.
-CastRollResult ComputeCastRoll(CharData *caster, ESpell spell_id, int level);
+// Builds a CastContext for spell_id cast by caster at level (evaluates both rolls).
+// Targets stay null here; callers fill cvict/ovict/rvict. Defined in magic_utils.cpp.
+CastContext ComputeCastRoll(CharData *caster, ESpell spell_id, int level);
 
 // VNUM'ы мобов для заклинаний, создающих мобов
 const int kMobDouble = 3000; //внум прототипа для клона
@@ -107,8 +149,8 @@ void player_affect_update();
 void print_rune_log();
 void ShowAffExpiredMsg(ESpell aff_type, CharData *ch);
 
-int CallMagicToGroup(CharData *ch, CastRollResult roll);
-int CallMagicToArea(CharData *ch, CharData *victim, RoomData *room, CastRollResult roll);
+int CallMagicToGroup(CharData *ch, CastContext roll);
+int CallMagicToArea(CharData *ch, CharData *victim, RoomData *room, CastContext roll);
 
 int CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict, ESpell spell_id, int level);
 int CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troom, ESpell spell_id, ESpell spell_subst);
@@ -130,9 +172,9 @@ enum class EStageResult {
 // gear-borne effects. The remaining stage functions (CastToPoints / CastToAlterObjs /
 // CastCreation / CastSummon / CastManual / CastToSingleTarget) live in magic_internal.h --
 // they're only called from CallMagic and the dispatcher in magic.cpp.
-int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id);
-EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const RollResult &potency = {});
-EStageResult CastUnaffects(CharData *ch, CharData *victim, RoomData *room, ESpell spell_id);
+EStageResult CastDamage(CastContext &ctx);
+EStageResult CastAffect(CastContext &ctx);
+EStageResult CastUnaffects(CastContext &ctx);
 int CalcSaving(CharData *killer, CharData *victim, ESaving saving, bool need_log = false);
 int CalcGeneralSaving(CharData *killer, CharData *victim, ESaving type, int ext_apply);
 int GetBasicSave(CharData *ch, ESaving saving, bool log = false);
