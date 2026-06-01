@@ -172,13 +172,13 @@ const std::string &NAME_BY_ITEM<EIngredientFlag>(const EIngredientFlag item) {
 	return EIngredientFlag_name_by_value.at(item);
 }
 
-void SpellCreateWater(CastContext &ctx) {
+EStageResult SpellCreateWater(CastContext &ctx) {
 	CharData *ch = ctx.caster();
 	CharData *victim = ctx.cvict;
 	ObjData *obj = ctx.ovict;
 	int water;
 	if (ch == nullptr || (obj == nullptr && victim == nullptr))
-		return;
+		return EStageResult::kSuccess;
 	// level = MAX(MIN(level, kLevelImplementator), 1);       - not used
 
 	if (obj
@@ -188,7 +188,7 @@ void SpellCreateWater(CastContext &ctx) {
 			// with "Прекратите, ради бога, химичить.".
 			SendMsgToChar(MUD::SpellMessages().GetMessage(
 					ESpell::kCreateWater, ESpellMsg::kItemCreationFailToChar) + "\r\n", ch);
-			return;
+			return EStageResult::kSuccess;
 		} else {
 			water = std::max(GET_OBJ_VAL(obj, 0) - GET_OBJ_VAL(obj, 1), 0);
 			if (water > 0) {
@@ -218,6 +218,7 @@ void SpellCreateWater(CastContext &ctx) {
 		// the caster has no way to gauge the target's
 		// prior thirst level, so the line conveys no real info.
 	}
+	return EStageResult::kSuccess;
 }
 
 // Look up kSummonFail in `spell_id`'s sheaf (per-spell override on each summon-
@@ -269,7 +270,7 @@ int GetTeleportTargetRoom(CharData *ch, int rnum_start, int rnum_stop) {
 	return n ? fnd_room : kNowhere;
 }
 
-void SpellRecall(CastContext &ctx) {
+EStageResult SpellRecall(CastContext &ctx) {
 	CharData *ch = ctx.caster();
 	CharData *victim = ctx.cvict;
 	RoomRnum to_room = kNowhere, fnd_room = kNowhere;
@@ -277,31 +278,31 @@ void SpellRecall(CastContext &ctx) {
 
 	if (!victim || victim->IsNpc() || ch->in_room != victim->in_room || GetRealLevel(victim) >= kLvlImmortal) {
 		SendSummonFail(ch, ESpell::kWorldOfRecall);
-		return;
+		return EStageResult::kSuccess;
 	}
 
 	// kNoTeleportOut moved to <blocking><room_flags> in spells.xml; CallMagic
 	// fizzles before this function runs.
 	if (!ch->IsGod() && AFF_FLAGGED(victim, EAffect::kNoTeleport)) {
 		SendSummonFail(ch, ESpell::kWorldOfRecall);
-		return;
+		return EStageResult::kSuccess;
 	}
 
 	if (victim != ch) {
 		if (group::same_group(ch, victim)) {
 			if (number(1, 100) <= 5) {
 				SendSummonFail(ch, ESpell::kWorldOfRecall);
-				return;
+				return EStageResult::kSuccess;
 			}
 		} else if (!ch->IsNpc() || (ch->has_master()
 			&& !ch->get_master()->IsNpc())) // игроки не в группе и  чармисы по приказу не могут реколить свитком
 		{
 			SendSummonFail(ch, ESpell::kWorldOfRecall);
-			return;
+			return EStageResult::kSuccess;
 		}
 
 		if ((ch->IsNpc() && CalcGeneralSaving(ch, victim, ESaving::kWill, GetRealInt(ch))) || victim->IsGod()) {
-			return;
+			return EStageResult::kSuccess;
 		}
 	}
 
@@ -310,7 +311,7 @@ void SpellRecall(CastContext &ctx) {
 
 	if (to_room == kNowhere) {
 		SendSummonFail(ch, ESpell::kWorldOfRecall);
-		return;
+		return EStageResult::kSuccess;
 	}
 
 	(void) GetZoneRooms(world[to_room]->zone_rn, &rnum_start, &rnum_stop);
@@ -323,15 +324,15 @@ void SpellRecall(CastContext &ctx) {
 
 	if (fnd_room == kNowhere) {
 		SendSummonFail(ch, ESpell::kWorldOfRecall);
-		return;
+		return EStageResult::kSuccess;
 	}
 
 	if (victim->GetEnemy() && (victim != ch)) {
 		if (!pk_agro_action(ch, victim->GetEnemy()))
-			return;
+			return EStageResult::kSuccess;
 	}
 	if (!enter_wtrigger(world[fnd_room], ch, -1))
-		return;
+		return EStageResult::kSuccess;
 	// kWorldOfRecall overrides the kCastDisappearToRoom /
 	// kCastAppearToRoom defaults with its specific "centre of room" wording.
 	act(MUD::SpellMessages().GetMessage(ESpell::kWorldOfRecall, ESpellMsg::kCastDisappearToRoom).c_str(),
@@ -344,10 +345,11 @@ void SpellRecall(CastContext &ctx) {
 	look_at_room(victim, 0);
 	greet_mtrigger(victim, -1);
 	greet_otrigger(victim, -1);
+	return EStageResult::kSuccess;
 }
 
 // ПРЫЖОК в рамках зоны
-void SpellTeleport(CastContext &ctx) {
+EStageResult SpellTeleport(CastContext &ctx) {
 	CharData *ch = ctx.caster();
 	RoomRnum in_room = ch->in_room, fnd_room = kNowhere;
 	RoomRnum rnum_start, rnum_stop;
@@ -356,17 +358,17 @@ void SpellTeleport(CastContext &ctx) {
 	// fizzles before this function runs.
 	if (!ch->IsGod() && AFF_FLAGGED(ch, EAffect::kNoTeleport)) {
 		SendSummonFail(ch, ESpell::kTeleport);
-		return;
+		return EStageResult::kSuccess;
 	}
 
 	GetZoneRooms(world[in_room]->zone_rn, &rnum_start, &rnum_stop);
 	fnd_room = GetTeleportTargetRoom(ch, rnum_start, rnum_stop);
 	if (fnd_room == kNowhere) {
 		SendSummonFail(ch, ESpell::kTeleport);
-		return;
+		return EStageResult::kSuccess;
 	}
 	if (!enter_wtrigger(world[fnd_room], ch, -1))
-		return;
+		return EStageResult::kSuccess;
 	// kTeleport overrides kCastDisappearToRoom / kCastAppearToRoom.
 	act(MUD::SpellMessages().GetMessage(ESpell::kTeleport, ESpellMsg::kCastDisappearToRoom).c_str(),
 		false, ch, nullptr, nullptr, kToRoom);
@@ -378,6 +380,7 @@ void SpellTeleport(CastContext &ctx) {
 	look_at_room(ch, 0);
 	greet_mtrigger(ch, -1);
 	greet_otrigger(ch, -1);
+	return EStageResult::kSuccess;
 }
 
 void CheckAutoNosummon(CharData *ch) {
@@ -387,26 +390,26 @@ void CheckAutoNosummon(CharData *ch) {
 	}
 }
 
-void SpellRelocate(CastContext &ctx) {
+EStageResult SpellRelocate(CastContext &ctx) {
 	CharData *ch = ctx.caster();
 	CharData *victim = ctx.cvict;
 	RoomRnum to_room, fnd_room;
 
 	if (victim == nullptr)
-		return;
+		return EStageResult::kSuccess;
 
 	// kNoTeleportOut moved to <blocking><room_flags> in spells.xml; CallMagic
 	// fizzles before this function runs.
 	if (!ch->IsGod() && AFF_FLAGGED(ch, EAffect::kNoTeleport)) {
 		SendSummonFail(ch, ESpell::kRelocate);
-		return;
+		return EStageResult::kSuccess;
 	}
 
 	to_room = victim->in_room;
 
 	if (to_room == kNowhere) {
 		SendSummonFail(ch, ESpell::kRelocate);
-		return;
+		return EStageResult::kSuccess;
 	}
 
 	if (!Clan::MayEnter(ch, to_room, kHousePortal)) {
@@ -417,7 +420,7 @@ void SpellRelocate(CastContext &ctx) {
 
 	if (fnd_room != to_room && !ch->IsGod()) {
 		SendSummonFail(ch, ESpell::kRelocate);
-		return;
+		return EStageResult::kSuccess;
 	}
 
 	if (!ch->IsGod() &&
@@ -428,10 +431,10 @@ void SpellRelocate(CastContext &ctx) {
 			ROOM_FLAGGED(fnd_room, ERoomFlag::kNoRelocateIn) ||
 			ROOM_FLAGGED(fnd_room, ERoomFlag::kIceTrap) || (ROOM_FLAGGED(fnd_room, ERoomFlag::kGodsRoom) && !ch->IsImmortal()))) {
 		SendSummonFail(ch, ESpell::kRelocate);
-		return;
+		return EStageResult::kSuccess;
 	}
 	if (!enter_wtrigger(world[fnd_room], ch, -1))
-		return;
+		return EStageResult::kSuccess;
 //	check_auto_nosummon(victim);
 	// kRelocate shares the kTeleport disappear/appear wording
 	// and adds its own kCustomMsgOne caster-side "azure flash" banner.
@@ -448,6 +451,7 @@ void SpellRelocate(CastContext &ctx) {
 	SetBattleLag(ch, 2);
 	greet_mtrigger(ch, -1);
 	greet_otrigger(ch, -1);
+	return EStageResult::kSuccess;
 }
 
 // pk_unique: when non-zero, marks this portal as a PK-revenge/fight pentagram and
@@ -495,45 +499,45 @@ void RemovePortalGate(RoomRnum rnum) {
 	}
 }
 
-void SpellPortal(CastContext &ctx) {
+EStageResult SpellPortal(CastContext &ctx) {
 	CharData *ch = ctx.caster();
 	CharData *victim = ctx.cvict;
 	RoomRnum fnd_room;
 
 	if (victim == nullptr)
-		return;
+		return EStageResult::kSuccess;
 	if (GetRealLevel(victim) > GetRealLevel(ch) && !victim->IsFlagged(EPrf::KSummonable) && !group::same_group(ch, victim)) {
 		SendSummonFail(ch, ESpell::kPortal);
-		return;
+		return EStageResult::kSuccess;
 	}
 	// пентить чаров <=10 уровня, нельзя так-же нельзя пентать иммов
 	if (!ch->IsGod()) {
 		if ((!victim->IsNpc() && GetRealLevel(victim) <= 10 && GetRealRemort(ch) < 9) || victim->IsImmortal()
 			|| AFF_FLAGGED(victim, EAffect::kNoTeleport)) {
 			SendSummonFail(ch, ESpell::kPortal);
-			return;
+			return EStageResult::kSuccess;
 		}
 	}
 	if (victim->IsNpc()) {
 		SendSummonFail(ch, ESpell::kPortal);
-		return;
+		return EStageResult::kSuccess;
 	}
 	fnd_room = victim->in_room;
 	if (fnd_room == kNowhere) {
 		SendSummonFail(ch, ESpell::kPortal);
-		return;
+		return EStageResult::kSuccess;
 	}
 
 	if (!ch->IsGod() && (SECT(fnd_room) == ESector::kSecret || ROOM_FLAGGED(fnd_room, ERoomFlag::kDeathTrap) ||
 			ROOM_FLAGGED(fnd_room, ERoomFlag::kSlowDeathTrap) || ROOM_FLAGGED(fnd_room, ERoomFlag::kIceTrap) ||
 			ROOM_FLAGGED(fnd_room, ERoomFlag::kTunnel) || ROOM_FLAGGED(fnd_room, ERoomFlag::kGodsRoom))) {
 		SendSummonFail(ch, ESpell::kPortal);
-		return;
+		return EStageResult::kSuccess;
 	}
 
 	if (ch->in_room == fnd_room) {
 		SendMsgToChar("Может, вам лучше просто потоптаться на месте?\r\n", ch);
-		return;
+		return EStageResult::kSuccess;
 	}
 
 	bool pkPortal = pk_action_type_summon(ch, victim) == PK_ACTION_REVENGE ||
@@ -576,7 +580,7 @@ void SpellPortal(CastContext &ctx) {
 
 		// если пенту ставит имм с привилегией arena (и находясь на арене), то пента получается односторонняя
 		if (privilege::CheckFlag(ch, privilege::kArenaMaster) && ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena)) {
-			return;
+			return EStageResult::kSuccess;
 		}
 
 		AddPortalTimer(ch, world[ch->in_room], fnd_room, 29, pkPortal ? ch->get_uid() : 0);
@@ -587,6 +591,7 @@ void SpellPortal(CastContext &ctx) {
 		act(caster_pentagram.c_str(), false, world[ch->in_room]->first_character(), nullptr, nullptr, kToChar);
 		act(caster_pentagram.c_str(), false, world[ch->in_room]->first_character(), nullptr, nullptr, kToRoom);
 	}
+	return EStageResult::kSuccess;
 }
 
 // SpellSummon follow-up: relocate any charmice in the summoned victim's
@@ -618,13 +623,13 @@ for (auto *k : victim->followers) {
 }
 }
 
-void SpellSummon(CastContext &ctx) {
+EStageResult SpellSummon(CastContext &ctx) {
 	CharData *ch = ctx.caster();
 	CharData *victim = ctx.cvict;
 	RoomRnum ch_room, vic_room;
 
 	if (ch == nullptr || victim == nullptr || ch == victim) {
-		return;
+		return EStageResult::kSuccess;
 	}
 	if (!victim->desc) {
 		SendSummonFail(ch, ESpell::kSummon);
@@ -635,20 +640,20 @@ void SpellSummon(CastContext &ctx) {
 	if (ch_room == kNowhere || vic_room == kNowhere) {
 		SendSummonFail(ch, ESpell::kSummon);
 		ch->send_to_TC(true, true, true, "Цель в Nowhere\r\n");
-		return;
+		return EStageResult::kSuccess;
 	}
 
 	if (ch->IsNpc() && victim->IsNpc()) {
 		ch->send_to_TC(true, true, true, "Да ты МОБ!!!!!\r\n");
 		SendSummonFail(ch, ESpell::kSummon);
-		return;
+		return EStageResult::kSuccess;
 	}
 
 	if (victim->IsImmortal()) {
 		if (ch->IsNpc() || (!ch->IsNpc() && GetRealLevel(ch) < GetRealLevel(victim))) {
 			ch->send_to_TC(true, true, true, "Неположено сие деяние!\r\n");
 			SendSummonFail(ch, ESpell::kSummon);
-			return;
+			return EStageResult::kSuccess;
 		}
 	}
 
@@ -656,7 +661,7 @@ void SpellSummon(CastContext &ctx) {
 		if (victim->get_master() != ch) {
 			ch->send_to_TC(true, true, true, "Чармис не ваш\r\n");
 			SendSummonFail(ch, ESpell::kSummon);
-			return;
+			return EStageResult::kSuccess;
 		}
 	}
 
@@ -666,31 +671,31 @@ void SpellSummon(CastContext &ctx) {
 				ch->send_to_TC(true, true, true, "Чармис под зб\r\n");
 				SendMsgToChar(MUD::SpellMessages().GetMessage(
 						ESpell::kSummon, ESpellMsg::kResurrectProtected) + "\r\n", ch);
-				return;
+				return EStageResult::kSuccess;
 			}
 			if (!victim->IsFlagged(EPrf::KSummonable) && !group::same_group(ch, victim)) {
 				ch->send_to_TC(true, true, true, "Чармис не в вашей группе\r\n");
 				SendMsgToChar(MUD::SpellMessages().GetMessage(
 						ESpell::kSummon, ESpellMsg::kResurrectNoPower) + "\r\n", ch);
-				return;
+				return EStageResult::kSuccess;
 			}
 			if (NORENTABLE(victim) && !IS_CHARMICE(ch)) {
 				ch->send_to_TC(true, true, true, "Ваша жертва совсем не рентабельна!\r\n");
 				SendSummonFail(ch, ESpell::kSummon);
-				return;
+				return EStageResult::kSuccess;
 			}
 			if (victim->GetEnemy()
 				|| victim->GetPosition() < EPosition::kRest) {
 				ch->send_to_TC(true, true, true, "Чармис сражается или дрыхнет\r\n");
 				SendMsgToChar(MUD::SpellMessages().GetMessage(
 						ESpell::kSummon, ESpellMsg::kCustomMsgFour) + "\r\n", ch);
-				return;
+				return EStageResult::kSuccess;
 			}
 		}
 		if (victim->get_wait() > 0) {
 			ch->send_to_TC(true, true, true, "Чармис в лаге\r\n");
 			SendSummonFail(ch, ESpell::kSummon);
-			return;
+			return EStageResult::kSuccess;
 		}
 
 		if (ROOM_FLAGGED(ch_room, ERoomFlag::kNoSummonOut)
@@ -704,13 +709,13 @@ void SpellSummon(CastContext &ctx) {
 				&& (ROOM_FLAGGED(ch_room, ERoomFlag::kPeaceful) || ROOM_FLAGGED(ch_room, ERoomFlag::kArena)))) {
 			ch->send_to_TC(true, true, true, "Чармис в носуммоне\r\n");
 			SendSummonFail(ch, ESpell::kSummon);
-			return;
+			return EStageResult::kSuccess;
 		}
 		// отдельно проверку на клан комнаты, своих чармисов призвать можем ()
 		if (!Clan::MayEnter(victim, ch_room, kHousePortal) && !(victim->has_master()) && (victim->get_master() != ch)) {
 			ch->send_to_TC(true, true, true, "Чармис доступ в замок запрещен\r\n");
 			SendSummonFail(ch, ESpell::kSummon);
-			return;
+			return EStageResult::kSuccess;
 		}
 
 		if (!ch->IsNpc()) {
@@ -722,24 +727,24 @@ void SpellSummon(CastContext &ctx) {
 					&& (ROOM_FLAGGED(vic_room, ERoomFlag::kTunnel) || ROOM_FLAGGED(vic_room, ERoomFlag::kArena)))) {
 				ch->send_to_TC(true, true, true, "Чармис в носуммоне\r\n");
 				SendSummonFail(ch, ESpell::kSummon);
-				return;
+				return EStageResult::kSuccess;
 			}
 		} else {
 			if (ROOM_FLAGGED(vic_room, ERoomFlag::kNoSummonOut) || AFF_FLAGGED(victim, EAffect::kNoTeleport)) {
 				// block notice on kSummon's sheaf as kCustomMsgOne.
 				SendMsgToChar(MUD::SpellMessages().GetMessage(
 						ESpell::kSummon, ESpellMsg::kCustomMsgOne) + "\r\n", ch);
-				return;
+				return EStageResult::kSuccess;
 			}
 		}
 
 		if (ch->IsNpc() && number(1, 100) < 30) {
-			return;
+			return EStageResult::kSuccess;
 		}
 	}
 	if (!enter_wtrigger(world[ch_room], ch, -1)) {
 		ch->send_to_TC(true, true, true, "Чармис призыв запрещен триггером\r\n");
-		return;
+		return EStageResult::kSuccess;
 	}
 	// kSummon overrides kCastDisappearToRoom (vic disappearing
 	// from old room) and kCastAppearToRoom (vic arriving in caster's room). kCustomMsgTwo
@@ -759,9 +764,10 @@ void SpellSummon(CastContext &ctx) {
 	SummonFollowingCharmices(ch, victim, vic_room, ch_room);
 	greet_mtrigger(victim, -1);
 	greet_otrigger(victim, -1);
+	return EStageResult::kSuccess;
 }
 
-void SpellLocateObject(CastContext &ctx) {
+EStageResult SpellLocateObject(CastContext &ctx) {
 	const int level = abs(ctx.level);
 	CharData *ch = ctx.caster();
 	ObjData *obj = ctx.ovict;
@@ -772,7 +778,7 @@ void SpellLocateObject(CastContext &ctx) {
 	   * at what the player originally meant to search for. -gg
 	   */
 	if (!obj) {
-		return;
+		return EStageResult::kSuccess;
 	}
 
 	char name[kMaxInputLength];
@@ -920,6 +926,7 @@ void SpellLocateObject(CastContext &ctx) {
 		SendMsgToChar(MUD::SpellMessages().GetMessage(
 				ESpell::kLocateObject, ESpellMsg::kCustomMsgOne) + "\r\n", ch);
 	}
+	return EStageResult::kSuccess;
 }
 
 bool CatchBloodyCorpse(ObjData *l) {
@@ -957,9 +964,10 @@ bool CatchBloodyCorpse(ObjData *l) {
 	return false;
 }
 
-void SpellCreateWeapon(CastContext &ctx) {
+EStageResult SpellCreateWeapon(CastContext &ctx) {
 	//go_create_weapon(ch,nullptr,what_sky);
 // отключено, так как не реализовано
+	return EStageResult::kSuccess;
 }
 
 int CheckCharmices(CharData *ch, CharData *victim, ESpell spell_id) {
@@ -1014,14 +1022,14 @@ int CheckCharmices(CharData *ch, CharData *victim, ESpell spell_id) {
 	return (true);
 }
 
-void SpellCharm(CastContext &ctx) {
+EStageResult SpellCharm(CastContext &ctx) {
 	CharData *ch = ctx.caster();
 	CharData *victim = ctx.cvict;
 	int k_skills = 0;
 	ESkill skill_id = ESkill::kUndefined;
 		Affect<EApply> af;
 	if (victim == nullptr || ch == nullptr)
-		return;
+		return EStageResult::kSuccess;
 
 	// Rejection narration: six of the SpellCharm reject
 	// paths share semantics with existing kSummon* / kResurrect* keys; the
@@ -1037,7 +1045,7 @@ void SpellCharm(CastContext &ctx) {
 		// 3 charm one-offs migrated to kCharm's kCustomMsg slots.
 		SendCharmMsg(ESpellMsg::kCustomMsgTwo);
 		if (!pk_agro_action(ch, victim))
-			return;
+			return EStageResult::kSuccess;
 	} else if (!ch->IsImmortal()
 		&& (AFF_FLAGGED(victim, EAffect::kSanctuary) || victim->IsFlagged(EMobFlag::kProtect)))
 		SendCharmMsg(ESpellMsg::kResurrectConsecrated);
@@ -1071,13 +1079,13 @@ void SpellCharm(CastContext &ctx) {
 		SendCharmMsg(ESpellMsg::kSummonFail);
 	else {
 		if (!CheckCharmices(ch, victim, ESpell::kCharm)) {
-			return;
+			return EStageResult::kSuccess;
 		}
 
 		// Левая проверка
 		if (victim->has_master()) {
 			if (stop_follower(victim, kSfMasterdie)) {
-				return;
+				return EStageResult::kSuccess;
 			}
 		}
 
@@ -1151,6 +1159,7 @@ void SpellCharm(CastContext &ctx) {
 	if (victim->IsFlagged(EMobFlag::kSummoned)) {
 		create_charmice_stuff(victim, skill_id, k_skills);
 	}
+	return EStageResult::kSuccess;
 }
 
 void ShowWeapon(CharData *ch, ObjData *obj) {
@@ -1702,7 +1711,7 @@ void SkillIdentify(int/* level*/, CharData *ch, CharData *victim, ObjData *obj) 
 	}
 }
 
-void SpellFullIdentify(CastContext &ctx) {
+EStageResult SpellFullIdentify(CastContext &ctx) {
 	CharData *ch = ctx.caster();
 	CharData *victim = ctx.cvict;
 	ObjData *obj = ctx.ovict;
@@ -1712,11 +1721,12 @@ void SpellFullIdentify(CastContext &ctx) {
 		// kFullIdentify overrides kWrongTarget with the identify-specific text
 		SendMsgToChar(MUD::SpellMessages().GetMessage(
 				ESpell::kFullIdentify, ESpellMsg::kWrongTarget) + "\r\n", ch);
-			return;
+			return EStageResult::kSuccess;
 	}
+	return EStageResult::kSuccess;
 }
 
-void SpellIdentify(CastContext &ctx) {
+EStageResult SpellIdentify(CastContext &ctx) {
 	CharData *ch = ctx.caster();
 	CharData *victim = ctx.cvict;
 	ObjData *obj = ctx.ovict;
@@ -1725,25 +1735,26 @@ void SpellIdentify(CastContext &ctx) {
 	else if (victim) {
 		if (GET_GOD_FLAG(ch, EGf::kAllowTesterMode) && (world[ch->in_room]->vnum / 100 >= dungeons::kZoneStartDungeons)) {
 			do_stat_character(ch, victim);
-			return;
+			return EStageResult::kSuccess;
 		}
 		if (victim != ch) {
 			// kIdentify overrides kWrongTarget with the identify-specific text
 			SendMsgToChar(MUD::SpellMessages().GetMessage(
 					ESpell::kIdentify, ESpellMsg::kWrongTarget) + "\r\n", ch);
-			return;
+			return EStageResult::kSuccess;
 		}
 		if (GetRealLevel(victim) < 3) {
 			// low-level self-identify rejection on kIdentify's sheaf.
 			SendMsgToChar(MUD::SpellMessages().GetMessage(
 					ESpell::kIdentify, ESpellMsg::kCustomMsgOne) + "\r\n", ch);
-			return;
+			return EStageResult::kSuccess;
 		}
 		MortShowCharValues(victim, ch, 100);
 	}
+	return EStageResult::kSuccess;
 }
 
-void SpellControlWeather(CastContext &ctx) {
+EStageResult SpellControlWeather(CastContext &ctx) {
 	CharData *ch = ctx.caster();
 	const char *sky_info = nullptr;
 	int i, duration, zone, sky_type = 0;
@@ -1792,9 +1803,10 @@ void SpellControlWeather(CastContext &ctx) {
 				}
 			}
 	}
+	return EStageResult::kSuccess;
 }
 
-void SpellFear(CastContext &ctx) {
+EStageResult SpellFear(CastContext &ctx) {
 	CharData *ch = ctx.caster();
 	CharData *victim = ctx.cvict;
 	int modi = 0;
@@ -1802,7 +1814,7 @@ void SpellFear(CastContext &ctx) {
 		modi = CalcAntiSavings(ch);
 		modi += CalcClassAntiSavingsMod(ch, ESpell::kFear);
 		if (!pk_agro_action(ch, victim))
-			return;
+			return EStageResult::kSuccess;
 	}
 	if (!ch->IsNpc() && (GetRealLevel(ch) > 10))
 		modi += (GetRealLevel(ch) - 10);
@@ -1813,9 +1825,10 @@ void SpellFear(CastContext &ctx) {
 
 	if (!victim->IsFlagged(EMobFlag::kNoFear) && !CalcGeneralSaving(ch, victim, ESaving::kWill, modi))
 		GoFlee(victim);
+	return EStageResult::kSuccess;
 }
 
-void SpellEnergydrain(CastContext &ctx) {
+EStageResult SpellEnergydrain(CastContext &ctx) {
 	CharData *ch = ctx.caster();
 	CharData *victim = ctx.cvict;
 	// истощить энергию - круг 28 уровень 9 (1)
@@ -1825,7 +1838,7 @@ void SpellEnergydrain(CastContext &ctx) {
 		modi = CalcAntiSavings(ch);
 		modi += CalcClassAntiSavingsMod(ch, ESpell::kEnergyDrain);
 		if (!pk_agro_action(ch, victim))
-			return;
+			return EStageResult::kSuccess;
 	}
 	if (!ch->IsNpc() && (GetRealLevel(ch) > 10))
 		modi += (GetRealLevel(ch) - 10);
@@ -1840,10 +1853,11 @@ void SpellEnergydrain(CastContext &ctx) {
 		SendMsgToChar("Внезапно вы осознали, что у вас напрочь отшибло память.\r\n", victim);
 	} else
 		SendMsgToChar(MUD::SpellMessages().GetMessage(ESpell::kEnergyDrain, ESpellMsg::kNoeffect) + "\r\n", ch);
+	return EStageResult::kSuccess;
 }
 
 
-void SpellHolystrike(CastContext &ctx) {
+EStageResult SpellHolystrike(CastContext &ctx) {
 	CharData *ch = ctx.caster();
 	const char *msg1 = "Земля под вами засветилась и всех поглотил плотный туман.";
 	const char *msg2 = "Вдруг туман стал уходить обратно в землю, забирая с собой тела поверженных.";
@@ -1896,9 +1910,11 @@ void SpellHolystrike(CastContext &ctx) {
 			break;
 		}
 	} while (o);
+	return EStageResult::kSuccess;
 }
 
-void SpellVampirism(CastContext &ctx) {
+EStageResult SpellVampirism(CastContext &ctx) {
+	return EStageResult::kSuccess;
 }
 
 void SpellMentalShadow(CharData *ch) {

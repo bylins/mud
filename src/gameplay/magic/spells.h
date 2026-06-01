@@ -18,6 +18,7 @@
 #include "engine/structs/structs.h"    // there was defined type "byte" if it had been missing
 
 class CastContext;   // defined in magic.h (issue.spell-pipeline)
+enum class EStageResult;  // defined in magic.h; manual handlers return it (issue.manual-cast)
 
 #include <optional>
 
@@ -83,26 +84,26 @@ constexpr Bitvector kMiLevel32 = 1 << 13;
 
 #define MANUAL_SPELL(spellname)    spellname(level, caster, cvict, ovict);
 
-void SpellCreateWater(CastContext &ctx);
-void SpellRecall(CastContext &ctx);
-void SpellTeleport(CastContext &ctx);
-void SpellSummon(CastContext &ctx);
-void SpellRelocate(CastContext &ctx);
-void SpellPortal(CastContext &ctx);
-void SpellLocateObject(CastContext &ctx);
-void SpellCharm(CastContext &ctx);
+EStageResult SpellCreateWater(CastContext &ctx);
+EStageResult SpellRecall(CastContext &ctx);
+EStageResult SpellTeleport(CastContext &ctx);
+EStageResult SpellSummon(CastContext &ctx);
+EStageResult SpellRelocate(CastContext &ctx);
+EStageResult SpellPortal(CastContext &ctx);
+EStageResult SpellLocateObject(CastContext &ctx);
+EStageResult SpellCharm(CastContext &ctx);
 void SpellInformation(int level, CharData *ch, CharData *victim, ObjData *obj);
-void SpellIdentify(CastContext &ctx);
-void SpellFullIdentify(CastContext &ctx);
+EStageResult SpellIdentify(CastContext &ctx);
+EStageResult SpellFullIdentify(CastContext &ctx);
 void SpellEnchantWeapon(int level, CharData *ch, CharData *victim, ObjData *obj);
-void SpellControlWeather(CastContext &ctx);
-void SpellCreateWeapon(CastContext &ctx);
-void SpellEnergydrain(CastContext &ctx);
-void SpellFear(CastContext &ctx);
+EStageResult SpellControlWeather(CastContext &ctx);
+EStageResult SpellCreateWeapon(CastContext &ctx);
+EStageResult SpellEnergydrain(CastContext &ctx);
+EStageResult SpellFear(CastContext &ctx);
 void SpellForbidden(int level, CharData *ch, CharData *victim, ObjData *obj);
-void SpellHolystrike(CastContext &ctx);
+EStageResult SpellHolystrike(CastContext &ctx);
 void SkillIdentify(int level, CharData *ch, CharData *victim, ObjData *obj);
-void SpellVampirism(CastContext &ctx);
+EStageResult SpellVampirism(CastContext &ctx);
 void SpellMentalShadow(CharData *ch);
 void RemovePortalGate(RoomRnum rnum);
 // basic magic calling functions

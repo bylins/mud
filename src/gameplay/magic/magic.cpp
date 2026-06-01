@@ -2618,41 +2618,25 @@ EStageResult CastCreation(CastContext &ctx) {
 // Some handlers take only (caster, cvict) and ignore the unused `level` / `ovict` arguments.
 EStageResult CastManual(CastContext &ctx) {
 	switch (ctx.spell_id()) {
-		case ESpell::kControlWeather: SpellControlWeather(ctx);
-			break;
-		case ESpell::kCreateWater: SpellCreateWater(ctx);
-			break;
-		case ESpell::kLocateObject: SpellLocateObject(ctx);
-			break;
-		case ESpell::kCreateWeapon: SpellCreateWeapon(ctx);
-			break;
-		case ESpell::kCharm: SpellCharm(ctx);
-			break;
-		case ESpell::kEnergyDrain: SpellEnergydrain(ctx);
-			break;
+		case ESpell::kControlWeather: return SpellControlWeather(ctx);
+		case ESpell::kCreateWater: return SpellCreateWater(ctx);
+		case ESpell::kLocateObject: return SpellLocateObject(ctx);
+		case ESpell::kCreateWeapon: return SpellCreateWeapon(ctx);
+		case ESpell::kCharm: return SpellCharm(ctx);
+		case ESpell::kEnergyDrain: return SpellEnergydrain(ctx);
 		case ESpell::kMassFear:
-		case ESpell::kFear: SpellFear(ctx);
-			break;
-		case ESpell::kIdentify: SpellIdentify(ctx);
-			break;
-		case ESpell::kFullIdentify: SpellFullIdentify(ctx);
-			break;
-		case ESpell::kHolystrike: SpellHolystrike(ctx);
-			break;
-		case ESpell::kVampirism: SpellVampirism(ctx);
-			break;
+		case ESpell::kFear: return SpellFear(ctx);
+		case ESpell::kIdentify: return SpellIdentify(ctx);
+		case ESpell::kFullIdentify: return SpellFullIdentify(ctx);
+		case ESpell::kHolystrike: return SpellHolystrike(ctx);
+		case ESpell::kVampirism: return SpellVampirism(ctx);
 		// Movement-style spells whose handlers take only (caster, cvict).
 		case ESpell::kGroupRecall:
-		case ESpell::kWorldOfRecall: SpellRecall(ctx);
-			break;
-		case ESpell::kTeleport: SpellTeleport(ctx);
-			break;
-		case ESpell::kSummon: SpellSummon(ctx);
-			break;
-		case ESpell::kPortal: SpellPortal(ctx);
-			break;
-		case ESpell::kRelocate: SpellRelocate(ctx);
-			break;
+		case ESpell::kWorldOfRecall: return SpellRecall(ctx);
+		case ESpell::kTeleport: return SpellTeleport(ctx);
+		case ESpell::kSummon: return SpellSummon(ctx);
+		case ESpell::kPortal: return SpellPortal(ctx);
+		case ESpell::kRelocate: return SpellRelocate(ctx);
 		default: return EStageResult::kSuccess;
 	}
 	return EStageResult::kSuccess;
