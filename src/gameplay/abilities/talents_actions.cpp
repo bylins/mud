@@ -603,7 +603,7 @@ void PrintFlagCondition(const char *label, const FlagCondition &cond, std::ostri
 }
 }  // namespace
 
-void Actions::Print(CharData *ch, std::ostringstream &buffer) const {
+void Action::Print(CharData *ch, std::ostringstream &buffer) const {
 	PrintFlagCondition("Blocking", blocking_, buffer);
 	PrintFlagCondition("Required", required_, buffer);
 	PrintFlagCondition("CasterBlocking", caster_blocking_, buffer);
@@ -621,26 +621,33 @@ void Actions::Print(CharData *ch, std::ostringstream &buffer) const {
 		}
 		buffer << "\r\n";
 	}
-	for (const auto &effect: *actions_) {
+	for (const auto &effect: manifestations_) {
 		effect.second->Print(ch, buffer);
 	}
 }
 
+void Actions::Print(CharData *ch, std::ostringstream &buffer) const {
+	for (size_t i = 0; i < list_.size(); ++i) {
+		if (list_.size() > 1) {
+			buffer << " Action " << kColorGrn << (i + 1) << kColorNrm << ":\r\n";
+		}
+		list_[i].Print(ch, buffer);
+	}
+}
+
 void Actions::Build(parser_wrapper::DataNode &node) {
-	auto roster = std::make_unique<ActionsRoster>();
-	blocking_ = {};
-	required_ = {};
-	caster_blocking_ = {};
-	reflection_ = {};
+	std::vector<Action> list;
 	for (auto &action: node.Children()) {
 		try {
-			ParseAction(roster, action);
+			Action parsed;
+			ParseAction(parsed, action);
+			list.push_back(std::move(parsed));
 		} catch (std::exception &e) {
 			err_log("Incorrect value '%s' in '%s'.", e.what(), node.GetName());
 			return;
 		}
 	}
-	actions_ = std::move(roster);
+	list_ = std::move(list);
 }
 
 /*
@@ -738,26 +745,26 @@ void Actions::ParseCasterBlocking(FlagCondition &cond, parser_wrapper::DataNode 
 	}
 }
 
-void Actions::ParseAction(ActionsRosterPtr &info, parser_wrapper::DataNode node) {
+void Actions::ParseAction(Action &out, parser_wrapper::DataNode node) {
 	for (auto &manifestation: node.Children()) {
 		if (strcmp(manifestation.GetName(), "damage") == 0) {
-			ParseDamage(info, manifestation);
+			ParseDamage(out, manifestation);
 		} else if (strcmp(manifestation.GetName(), "area") == 0) {
-			ParseArea(info, manifestation);
+			ParseArea(out, manifestation);
 		} else if (strcmp(manifestation.GetName(), "points") == 0) {
-			ParsePoints(info, manifestation);
+			ParsePoints(out, manifestation);
 		} else if (strcmp(manifestation.GetName(), "affects") == 0) {
-			ParseAffect(info, manifestation);
+			ParseAffect(out, manifestation);
 		} else if (strcmp(manifestation.GetName(), "unaffect") == 0) {
-			ParseUnaffect(info, manifestation);
+			ParseUnaffect(out, manifestation);
 		} else if (strcmp(manifestation.GetName(), "blocking") == 0) {
-			ParseFlagCondition(blocking_, manifestation);
+			ParseFlagCondition(out.blocking_, manifestation);
 		} else if (strcmp(manifestation.GetName(), "required") == 0) {
-			ParseFlagCondition(required_, manifestation);
+			ParseFlagCondition(out.required_, manifestation);
 		} else if (strcmp(manifestation.GetName(), "caster_blocking") == 0) {
-			ParseCasterBlocking(caster_blocking_, manifestation);
+			ParseCasterBlocking(out.caster_blocking_, manifestation);
 		} else if (strcmp(manifestation.GetName(), "reflection") == 0) {
-			ParseReflection(reflection_, manifestation);
+			ParseReflection(out.reflection_, manifestation);
 		}
 	}
 	node.GoToParent();
@@ -790,11 +797,11 @@ void Actions::ParseReflection(Reflection &refl, parser_wrapper::DataNode &node) 
 	}
 }
 
-void Actions::ParseDamage(ActionsRosterPtr &info, parser_wrapper::DataNode &node) {
-	info->emplace(EAction::kDamage, std::make_shared<Damage>(node));
+void Actions::ParseDamage(Action &out, parser_wrapper::DataNode &node) {
+	out.manifestations_.emplace(EAction::kDamage, std::make_shared<Damage>(node));
 }
 
-void Actions::ParseArea(ActionsRosterPtr &info, parser_wrapper::DataNode &node) {
+void Actions::ParseArea(Action &out, parser_wrapper::DataNode &node) {
 	auto ptr = std::make_shared<Area>();
 	if (node.GoToChild("decay")) {
 		ptr->free_targets = std::max(0, parse::ReadAsInt(node.GetValue("free_targets")));
@@ -810,19 +817,19 @@ void Actions::ParseArea(ActionsRosterPtr &info, parser_wrapper::DataNode &node) 
 		node.GoToParent();
 	}
 
-	info->insert({EAction::kArea, std::move(ptr)});
+	out.manifestations_.insert({EAction::kArea, std::move(ptr)});
 }
 
-void Actions::ParsePoints(ActionsRosterPtr &info, parser_wrapper::DataNode &node) {
-	info->emplace(EAction::kPoints, std::make_shared<Points>(node));
+void Actions::ParsePoints(Action &out, parser_wrapper::DataNode &node) {
+	out.manifestations_.emplace(EAction::kPoints, std::make_shared<Points>(node));
 }
 
-void Actions::ParseAffect(ActionsRosterPtr &info, parser_wrapper::DataNode &node) {
-	info->emplace(EAction::kAffect, std::make_shared<TalentAffect>(node));
+void Actions::ParseAffect(Action &out, parser_wrapper::DataNode &node) {
+	out.manifestations_.emplace(EAction::kAffect, std::make_shared<TalentAffect>(node));
 }
 
-void Actions::ParseUnaffect(ActionsRosterPtr &info, parser_wrapper::DataNode &node) {
-	info->emplace(EAction::kUnaffect, std::make_shared<TalentUnaffect>(node));
+void Actions::ParseUnaffect(Action &out, parser_wrapper::DataNode &node) {
+	out.manifestations_.emplace(EAction::kUnaffect, std::make_shared<TalentUnaffect>(node));
 }
 
 /*
@@ -831,48 +838,99 @@ void Actions::ParseUnaffect(ActionsRosterPtr &info, parser_wrapper::DataNode &no
  *  работы с арекастами, а даже, скорее, переносить ее внутрь эффекта (как сделано с Applies).
  */
 
+// ---- Action: per-action manifestation accessors (the real logic) ----
+
+bool Action::Contains(EAction action) const {
+	return manifestations_.contains(action);
+}
+
+const Damage &Action::GetDmg() const {
+	if (manifestations_.contains(EAction::kDamage)) {
+		return *std::static_pointer_cast<Damage>(manifestations_.find(EAction::kDamage)->second);
+	} else {
+		throw std::runtime_error("Getting damage parameters from action which has no 'damage'.");
+	}
+}
+
+const Area &Action::GetArea() const {
+	if (manifestations_.contains(EAction::kArea)) {
+		return *std::static_pointer_cast<Area>(manifestations_.find(EAction::kArea)->second);
+	} else {
+		throw std::runtime_error("Getting area parameters from action which has no 'area'.");
+	}
+}
+
+const Points &Action::GetPoints() const {
+	if (manifestations_.contains(EAction::kPoints)) {
+		return *std::static_pointer_cast<Points>(manifestations_.find(EAction::kPoints)->second);
+	} else {
+		throw std::runtime_error("Getting points parameters from action which has no 'points'.");
+	}
+}
+
+const TalentAffect &Action::GetAffect() const {
+	if (manifestations_.contains(EAction::kAffect)) {
+		return *std::static_pointer_cast<TalentAffect>(manifestations_.find(EAction::kAffect)->second);
+	} else {
+		throw std::runtime_error("Getting affect parameters from action which has no 'affects'.");
+	}
+}
+
+const TalentUnaffect &Action::GetUnaffect() const {
+	if (manifestations_.contains(EAction::kUnaffect)) {
+		return *std::static_pointer_cast<TalentUnaffect>(manifestations_.find(EAction::kUnaffect)->second);
+	} else {
+		throw std::runtime_error("Getting unaffect parameters from action which has no 'unaffect'.");
+	}
+}
+
+// ---- Actions: back-compat single-action API, delegates to the first action ----
+// (Every spell has exactly one action today. EmptyAction() supplies the old
+// "default-constructed gates / no manifestation" behaviour for spells with none.)
+
+const Action &Actions::EmptyAction() {
+	static const Action empty{};
+	return empty;
+}
+
 bool Actions::Contains(EAction action) const {
-	return actions_->contains(action);
+	return !list_.empty() && list_.front().Contains(action);
 }
 
 const Damage &Actions::GetDmg() const {
-	if (actions_->contains(EAction::kDamage)) {
-		return *std::static_pointer_cast<Damage>(actions_->find(EAction::kDamage)->second);
-	} else {
-		throw std::runtime_error("Getting damage parameters from talent which has no 'damage' action.");
-	}
+	return (list_.empty() ? EmptyAction() : list_.front()).GetDmg();
 }
 
 const Area &Actions::GetArea() const {
-	if (actions_->contains(EAction::kArea)) {
-		return *std::static_pointer_cast<Area>(actions_->find(EAction::kArea)->second);
-	} else {
-		throw std::runtime_error("Getting area parameters from talent which has no 'area' action.");
-	}
+	return (list_.empty() ? EmptyAction() : list_.front()).GetArea();
 }
 
 const Points &Actions::GetPoints() const {
-	if (actions_->contains(EAction::kPoints)) {
-		return *std::static_pointer_cast<Points>(actions_->find(EAction::kPoints)->second);
-	} else {
-		throw std::runtime_error("Getting points parameters from talent which has no 'points' action.");
-	}
+	return (list_.empty() ? EmptyAction() : list_.front()).GetPoints();
 }
 
 const TalentAffect &Actions::GetAffect() const {
-	if (actions_->contains(EAction::kAffect)) {
-		return *std::static_pointer_cast<TalentAffect>(actions_->find(EAction::kAffect)->second);
-	} else {
-		throw std::runtime_error("Getting affect parameters from talent which has no 'affects' action.");
-	}
+	return (list_.empty() ? EmptyAction() : list_.front()).GetAffect();
 }
 
 const TalentUnaffect &Actions::GetUnaffect() const {
-	if (actions_->contains(EAction::kUnaffect)) {
-		return *std::static_pointer_cast<TalentUnaffect>(actions_->find(EAction::kUnaffect)->second);
-	} else {
-		throw std::runtime_error("Getting unaffect parameters from talent which has no 'unaffect' action.");
-	}
+	return (list_.empty() ? EmptyAction() : list_.front()).GetUnaffect();
+}
+
+const FlagCondition &Actions::GetBlocking() const {
+	return (list_.empty() ? EmptyAction() : list_.front()).GetBlocking();
+}
+
+const FlagCondition &Actions::GetRequired() const {
+	return (list_.empty() ? EmptyAction() : list_.front()).GetRequired();
+}
+
+const FlagCondition &Actions::GetCasterBlocking() const {
+	return (list_.empty() ? EmptyAction() : list_.front()).GetCasterBlocking();
+}
+
+const Reflection &Actions::GetReflection() const {
+	return (list_.empty() ? EmptyAction() : list_.front()).GetReflection();
 }
 
 }
