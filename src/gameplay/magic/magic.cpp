@@ -2801,6 +2801,35 @@ static CharData *MaybeReflectToCaster(CharData *caster, CharData *cvict, ESpell 
 	return caster;
 }
 
+// --- CastContext action cursor (issue.spell-pipeline multi-action) ---
+// Defined here (not the header) so it can reach MUD::Spell for the action list.
+// A spell with NO <action> blocks (flag-only spells: kDazzle/kCombatLuck/...,
+// plus the summon/creation/manual stages) still has flagged stages that run their
+// effect in code. To keep them firing, an empty action list yields exactly ONE
+// loop iteration with action() == nullptr; the data-reading stages then fall back
+// to the spell-id getters (which return the empty-action default). So the loop runs
+// max(1, action_count) times.
+void CastContext::RewindActions() {
+	actions_ = &MUD::Spell(spell_id_).actions.list();
+	action_idx_ = 0;
+}
+
+void CastContext::NextAction() {
+	++action_idx_;
+}
+
+const talents_actions::Action *CastContext::action() const {
+	if (!actions_ || action_idx_ >= actions_->size()) {
+		return nullptr;
+	}
+	return &(*actions_)[action_idx_];
+}
+
+bool CastContext::HasPendingActions() const {
+	const size_t count = actions_ ? actions_->size() : 0;
+	return action_idx_ < std::max<size_t>(1, count);
+}
+
 ECastResult CastToSingleTarget(CastContext &ctx) {
 	CharData *caster = ctx.caster();
 	CharData *cvict = ctx.cvict;
@@ -2856,25 +2885,46 @@ ECastResult CastToSingleTarget(CastContext &ctx) {
 	if (MUD::Spell(spell_id).IsFlagged(kMagWarcry) && cvict && IS_UNDEAD(cvict))
 		return ECastResult::kSuccess;
 
-	if (MUD::Spell(spell_id).IsFlagged(kMagDamage))
-		if (CastDamage(ctx) == EStageResult::kBreak)
-			return ECastResult::kTargetDied;    // Successful and target died, don't cast again.
-
-	// Unaffect runs before affect: a spell strips/blocks existing affects
-	// first and may break the chain, before applying any new affect of its own.
-	if (MUD::Spell(spell_id).IsFlagged(kMagUnaffects)
-			&& CastUnaffects(ctx) == EStageResult::kBreak) {
-		return ECastResult::kSuccess;
-	}
-
-	if (MUD::Spell(spell_id).IsFlagged(kMagAffects)
-			&& CastAffect(ctx) == EStageResult::kBreak) {
-		return ECastResult::kSuccess;
-	}
-
-	if (MUD::Spell(spell_id).IsFlagged(kMagPoints)
-			&& CastToPoints(ctx) == EStageResult::kBreak) {
-		return ECastResult::kSuccess;
+	// Per-action loop (issue.spell-pipeline multi-action): walk the spell's <action>
+	// list in order; for each action run its data-driven stages in the fixed intra-
+	// action order Damage -> Unaffect -> Affect -> Points (unchanged from the old
+	// single sequence). WHICH stages run is still gated by the kMag* flags -- some
+	// spells (kCallLighting / kDazzle / ...) carry a flag but no matching <action>
+	// block and apply their effect in code inside the stage, so the flag, not the
+	// block, stays the trigger. Each stage reads its block from ctx.action() (wired
+	// in stage 4); today every spell has one action, so each flagged stage runs once
+	// -- behaviour-identical.
+	//   kBreak    from a stage -> stop the whole cast (return now);
+	//   kContinue from a stage -> skip this action's remaining stages, go to next;
+	//   kSuccess  -> run the next stage of this action.
+	const bool has_damage    = MUD::Spell(spell_id).IsFlagged(kMagDamage);
+	const bool has_unaffects = MUD::Spell(spell_id).IsFlagged(kMagUnaffects);
+	const bool has_affects   = MUD::Spell(spell_id).IsFlagged(kMagAffects);
+	const bool has_points    = MUD::Spell(spell_id).IsFlagged(kMagPoints);
+	for (ctx.RewindActions(); ctx.HasPendingActions(); ctx.NextAction()) {
+		if (has_damage) {
+			if (CastDamage(ctx) == EStageResult::kBreak) {
+				// CastDamage's kBreak means the target died (see its tail).
+				return ctx.is_vict_dead ? ECastResult::kTargetDied : ECastResult::kSuccess;
+			}
+		}
+		// Unaffect runs before affect: a spell strips/blocks existing affects first,
+		// before applying any new affect of its own.
+		if (has_unaffects) {
+			const EStageResult r = CastUnaffects(ctx);
+			if (r == EStageResult::kBreak) return ECastResult::kSuccess;
+			if (r == EStageResult::kContinue) continue;
+		}
+		if (has_affects) {
+			const EStageResult r = CastAffect(ctx);
+			if (r == EStageResult::kBreak) return ECastResult::kSuccess;
+			if (r == EStageResult::kContinue) continue;
+		}
+		if (has_points) {
+			const EStageResult r = CastToPoints(ctx);
+			if (r == EStageResult::kBreak) return ECastResult::kSuccess;
+			if (r == EStageResult::kContinue) continue;
+		}
 	}
 
 	if (MUD::Spell(spell_id).IsFlagged(kMagAlterObjs)

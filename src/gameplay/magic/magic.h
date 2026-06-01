@@ -17,6 +17,7 @@
 #include "spells_info.h"
 
 #include <cstdlib>
+#include <vector>
 
 class CharData;
 class ObjData;
@@ -112,16 +113,33 @@ class CastContext {
 	ObjData  *ovict{nullptr};
 	RoomData *rvict{nullptr};
 
+	// --- Action cursor (issue.spell-pipeline multi-action) ---
+	// The context owns the walk over the spell's <action> list so a stage cannot
+	// swap the action mid-chain. RewindActions() must be called at the per-target
+	// entry (CastToSingleTarget) -- area/group reuse one context across targets, so
+	// the cursor has to restart per target. Usage:
+	//   for (ctx.RewindActions(); ctx.HasPendingActions(); ctx.NextAction()) {...}
+	// action() returns the current action, or nullptr when the spell has none --
+	// a flag-only spell (no <action>) still gets ONE iteration so its in-code
+	// stages fire; those stages then read their block via the spell-id getters.
+	void RewindActions();
+	void NextAction();
+	[[nodiscard]] const talents_actions::Action *action() const;
+	[[nodiscard]] bool HasPendingActions() const;
+
  private:
 	CharData *caster_{nullptr};
 	ESpell spell_id_{ESpell::kUndefined};
 	int base_level_{0};
 	RollResult success_;        // from SpellInfo::GetSuccessRoll()
 	RollResult potency_;        // from SpellInfo::GetPotencyRoll()
+	// Cursor state: the spell's action list + current index (set by RewindActions).
+	const std::vector<talents_actions::Action> *actions_{nullptr};
+	size_t action_idx_{0};
 };
 
-// VNUM'О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫
-const int kMobDouble = 3000; //О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫
+// VNUM'ы мобов для заклинаний, создающих мобов
+const int kMobDouble = 3000; //внум прототипа для клона
 const int kMobSkeleton = 3001;
 const int kMobZombie = 3002;
 const int kMobBonedog = 3003;
@@ -132,7 +150,7 @@ const int kMobNecrotank = 3008;
 const int kMobNecrobreather = 3009;
 const int kMobNecrocaster = 3010;
 const int kLastNecroMob = 3010;
-// О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫
+// резерв для некротических забав
 const int kMobMentalShadow = 3020;
 const int kMobKeeper = 3021;
 const int kMobFirekeeper = 3022;
