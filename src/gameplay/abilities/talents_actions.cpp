@@ -803,12 +803,9 @@ void Actions::ParseAction(Action &out, parser_wrapper::DataNode node) {
 		} else if (strcmp(manifestation.GetName(), "reflection") == 0) {
 			ParseReflection(out.reflection_, manifestation);
 		} else if (strcmp(manifestation.GetName(), "manual_cast") == 0) {
-			// issue.manual-cast: <manual_cast><handler val="SpellX"/></manual_cast>.
-			if (manifestation.GoToChild("handler")) {
-				const char *hv = manifestation.GetValue("val");
-				if (hv && *hv) { out.manual_handler_ = hv; }
-				manifestation.GoToParent();
-			}
+			// issue.manual-cast: <manual_cast handler="SpellX"/>.
+			const char *hv = manifestation.GetValue("handler");
+			if (hv && *hv) { out.manual_handler_ = hv; }
 		}
 	}
 	node.GoToParent();
