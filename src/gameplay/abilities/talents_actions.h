@@ -1,9 +1,9 @@
 /**
 \authors Created by Sventovit
 \date 5.06.2022.
-\brief Модуль воздействий талантов.
-\details Классы, описывающие активные воздействия различных талантов (заклинаний, умений, способностей) -
- урон, область применения, активные аффекты и т.п.
+\brief О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫.
+\details О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ (О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫) -
+ О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫.О©╫.
 */
 
 #ifndef BYLINS_SRC_STRUCTS_TALENTS_ACTIONS_H_
@@ -429,44 +429,29 @@ class TalentUnaffect : public IAction {
 
 using ActionPtr = std::shared_ptr<IAction>;
 
-class Actions {
+// One <action> block (issue.spell-pipeline multi-action): the manifestations it
+// contains (damage / area / points / affects / unaffect, keyed by EAction) plus
+// its own target/caster gates. A spell's <talent_actions> is an ordered list of
+// these; today every spell has exactly one. The manifestation getters throw if
+// the action lacks that kind -- callers guard with Contains() first, exactly as
+// the old Actions getters did.
+class Action {
 	using ActionsRoster = std::unordered_multimap<EAction, ActionPtr>;
-	using ActionsRosterPtr = std::unique_ptr<ActionsRoster>;
-	ActionsRosterPtr actions_;
-	// Action-level target gates (issue.cast-affect): the cast is refused unless the target has
-	// none of blocking_ and all of required_. They apply to the whole action (damage, affects,
-	// ...), so they are checked in CastToSingleTarget, not inside a single stage.
+	ActionsRoster manifestations_;
+	// Target gates (issue.cast-affect): the cast is refused on this action unless the target has
+	// none of blocking_ and all of required_. Checked in CastToSingleTarget, not inside a stage.
 	FlagCondition blocking_;
 	FlagCondition required_;
-	// Action-level caster gate (issue.cast-dmg-migration): mirrors blocking_, but examines the
-	// CASTER instead of the victim. Used by kDispelEvil / kDispelGood to refuse the cast when
-	// the caster carries the incompatible alignment (replaces their old in-code "wrath" branch).
-	// A future caster_required_ could be added by the same pattern.
+	// Caster gate (issue.cast-dmg-migration): mirrors blocking_ but examines the CASTER. Used by
+	// kDispelEvil / kDispelGood to refuse the cast when the caster carries the wrong alignment.
 	FlagCondition caster_blocking_;
-	// Reflection (issue.cast-dmg-migration): also checked in CastToSingleTarget; redirects the
-	// cast back at the caster on a successful prob roll (see Reflection comment above).
+	// Reflection (issue.cast-dmg-migration): checked in CastToSingleTarget; redirects the cast
+	// back at the caster on a successful prob roll.
 	Reflection reflection_;
 
-	void ParseAction(ActionsRosterPtr &info, parser_wrapper::DataNode node);
-	static void ParseDamage(ActionsRosterPtr &info, parser_wrapper::DataNode &node);
-	static void ParseArea(ActionsRosterPtr &info, parser_wrapper::DataNode &node);
-	static void ParsePoints(ActionsRosterPtr &info, parser_wrapper::DataNode &node);
-	static void ParseAffect(ActionsRosterPtr &info, parser_wrapper::DataNode &node);
-	static void ParseUnaffect(ActionsRosterPtr &info, parser_wrapper::DataNode &node);
-	static void ParseFlagCondition(FlagCondition &cond, parser_wrapper::DataNode &node);
-	// issue.caster-blocking-refine: <caster_blocking> uses a single-child
-	// <caster align="..." affect_flags="..."/> shape rather than the multi-child-tag
-	// form of <blocking>/<required>. The storage is still FlagCondition; only the
-	// parse shape differs.
-	static void ParseCasterBlocking(FlagCondition &cond, parser_wrapper::DataNode &node);
-	static void ParseReflection(Reflection &refl, parser_wrapper::DataNode &node);
+	friend class Actions;   // Actions builds these via the Parse* helpers.
 
  public:
-	Actions() {
-		actions_ = std::make_unique<ActionsRoster>();
-	};
-
-	void Build(parser_wrapper::DataNode &node);
 	void Print(CharData *ch, std::ostringstream &buffer) const;
 
 	[[nodiscard]] bool Contains(EAction action) const;
@@ -479,6 +464,55 @@ class Actions {
 	[[nodiscard]] const FlagCondition &GetRequired() const { return required_; }
 	[[nodiscard]] const FlagCondition &GetCasterBlocking() const { return caster_blocking_; }
 	[[nodiscard]] const Reflection &GetReflection() const { return reflection_; }
+};
+
+class Actions {
+	// Ordered list of <action> blocks, in XML order. Empty for spells with no
+	// <talent_actions> (flag-only spells: summon / creation / manual / ...).
+	std::vector<Action> list_;
+
+	// Parse one <action> into `out` (its manifestations + gates).
+	static void ParseAction(Action &out, parser_wrapper::DataNode node);
+	static void ParseDamage(Action &out, parser_wrapper::DataNode &node);
+	static void ParseArea(Action &out, parser_wrapper::DataNode &node);
+	static void ParsePoints(Action &out, parser_wrapper::DataNode &node);
+	static void ParseAffect(Action &out, parser_wrapper::DataNode &node);
+	static void ParseUnaffect(Action &out, parser_wrapper::DataNode &node);
+	static void ParseFlagCondition(FlagCondition &cond, parser_wrapper::DataNode &node);
+	// issue.caster-blocking-refine: <caster_blocking> uses a single-child
+	// <caster align="..." affect_flags="..."/> shape rather than the multi-child-tag
+	// form of <blocking>/<required>. The storage is still FlagCondition; only the
+	// parse shape differs.
+	static void ParseCasterBlocking(FlagCondition &cond, parser_wrapper::DataNode &node);
+	static void ParseReflection(Reflection &refl, parser_wrapper::DataNode &node);
+
+	// Empty fallback for the back-compat delegating getters when list_ is empty
+	// (a spell with no <action>): preserves the old "default-constructed gates"
+	// behaviour for GetBlocking()/GetRequired()/... on such spells.
+	[[nodiscard]] static const Action &EmptyAction();
+
+ public:
+	void Build(parser_wrapper::DataNode &node);
+	void Print(CharData *ch, std::ostringstream &buffer) const;
+
+	// Ordered access to the action list (issue.spell-pipeline). The cast loop
+	// walks this in order.
+	[[nodiscard]] const std::vector<Action> &list() const { return list_; }
+
+	// Back-compat single-action API: delegates to the first action (or the empty
+	// fallback when there is none). Every spell has exactly one action today, so
+	// these stay behaviour-identical; the dispatch migrates to list()/the cursor
+	// in later stages.
+	[[nodiscard]] bool Contains(EAction action) const;
+	[[nodiscard]] const Damage &GetDmg() const;
+	[[nodiscard]] const Area &GetArea() const;
+	[[nodiscard]] const Points &GetPoints() const;
+	[[nodiscard]] const TalentAffect &GetAffect() const;
+	[[nodiscard]] const TalentUnaffect &GetUnaffect() const;
+	[[nodiscard]] const FlagCondition &GetBlocking() const;
+	[[nodiscard]] const FlagCondition &GetRequired() const;
+	[[nodiscard]] const FlagCondition &GetCasterBlocking() const;
+	[[nodiscard]] const Reflection &GetReflection() const;
 };
 
 }
