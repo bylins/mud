@@ -2145,6 +2145,18 @@ CObjectPrototype* YamlWorldDataSource::ParseObjectFile(const std::string &file_p
 				}
 			}
 
+			// Умения предмета (legacy S-строки). Без этой секции предметы,
+			// дающие умения, грузились из YAML без них (issue #3386).
+			if (root["skills"] && root["skills"].IsSequence())
+			{
+				for (const auto &skill_node : root["skills"])
+				{
+					int skill_id = GetInt(skill_node, "skill_id", 0);
+					int value = GetInt(skill_node, "value", 0);
+					obj_ptr->set_skill(static_cast<ESkill>(skill_id), value);
+				}
+			}
+
 			// Extra values (V-строки): данные зелий и контейнеров с жидкостью.
 			// Без чтения этой секции зелья в YAML-мире выходят без заклинаний (issue #3218).
 			if (root["extra_values"] && root["extra_values"].IsMap())
@@ -4281,6 +4293,23 @@ void YamlWorldDataSource::SaveObjects(int zone_rnum, int specific_vnum)
 					out << "  # " << GetApplyTypeNameComment(location) << std::endl;
 					out << yaml.GetIndent() << "  modifier: " << modifier << std::endl;
 				}
+			}
+
+			yaml.DecreaseIndent();
+		}
+
+		// Умения предмета (legacy S-строки), issue #3386.
+		if (obj->has_skills())
+		{
+			yaml.Key("skills");
+			yaml.BeginSequence();
+			yaml.IncreaseIndent();
+
+			for (const auto &[skill_id, value] : obj->get_skills())
+			{
+				out << yaml.GetIndent() << "- skill_id: " << static_cast<int>(skill_id);
+				out << "  # " << GetSkillNameComment(skill_id) << std::endl;
+				out << yaml.GetIndent() << "  value: " << value << std::endl;
 			}
 
 			yaml.DecreaseIndent();
