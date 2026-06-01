@@ -1107,7 +1107,11 @@ EStageResult CastAffect(CastContext &ctx) {
 
 	if (success) {
 		EmitImpositionEffects(ch, victim, spell_id, potency, ctx.action_or_default());
-		ctx.affects_count += 1.0;  // issue.cast-chain: one affect landed on this target
+		if (has_affect_talent) {
+			// issue.cast-chain: accumulate the applied affect's potency (its stored strength =
+			// cast_potency * <affects potency_weight>), matching what a dispel later reads.
+			ctx.affects_potency += cast_potency * ctx.action_or_default().GetAffect().GetPotencyWeight();
+		}
 	}
 	return EStageResult::kSuccess;
 }
@@ -2217,7 +2221,7 @@ bool DispelSucceeds(CharData *ch, RoomData *room, ESpell dispel_spell, ESpell af
 template<typename TTarget>
 EStageResult RunCastUnaffects(CharData *ch, TTarget *target, ESpell spell_id,
 							  const talents_actions::TalentUnaffect &unaffect, double area_coeff,
-							  int &removed_out, double competence) {
+							  double &removed_out, double competence) {
 	const bool blocking = UnaffectConditionMet(target, unaffect.GetBlocking());
 	const bool breaking = UnaffectConditionMet(target, unaffect.GetBreaking());
 	bool break_chain = breaking;
@@ -2250,9 +2254,14 @@ EStageResult RunCastUnaffects(CharData *ch, TTarget *target, ESpell spell_id,
 		bool resisted_any = false;
 		for (const auto &cand : to_remove) {
 			if (DispelSucceeds(ch, target, spell_id, cand.spell, unaffect.GetPotencyWeight(), competence, area_coeff)) {
+				// issue.cast-chain: capture the removed affect's potency BEFORE it is stripped.
+				double removed_pot = 0.0;
+				for (const auto &aff : target->affected) {
+					if (aff && aff->type == cand.spell) { removed_pot = aff->potency; break; }
+				}
 				RemoveAffectAndAnnounce(ch, target, cand.spell);
 				removed_any = true;
-				++removed_out;  // issue.cast-chain: count this dispelled affect
+				removed_out += removed_pot;
 			} else {
 				resisted_any = true;
 				if (cand.break_on_fail) {
@@ -2299,11 +2308,11 @@ EStageResult CastUnaffects(CastContext &ctx) {
 		return EStageResult::kSuccess;
 	}
 
-	int removed = 0;
+	double removed = 0.0;
 	const EStageResult r = (victim != nullptr)
 			? RunCastUnaffects(ch, victim, spell_id, unaffect, ctx.area_coeff, removed, ctx.CompetenceBase())
 			: RunCastUnaffects(ch, room, spell_id, unaffect, ctx.area_coeff, removed, ctx.CompetenceBase());
-	ctx.dispelled_count += removed;  // issue.cast-chain
+	ctx.dispelled_potency += removed;  // issue.cast-chain
 	return r;
 }
 
@@ -2830,8 +2839,8 @@ double CastContext::CompetenceBase() const {
 	switch (action_or_default().GetBase()) {
 		case talents_actions::EActionBase::kDamage:    return damage_count;
 		case talents_actions::EActionBase::kPoints:    return points_count;
-		case talents_actions::EActionBase::kAffects:   return affects_count;
-		case talents_actions::EActionBase::kDispelled: return dispelled_count;
+		case talents_actions::EActionBase::kAffects:   return affects_potency;
+		case talents_actions::EActionBase::kDispelled: return dispelled_potency;
 		case talents_actions::EActionBase::kCompetence:
 		default:                                       return real;
 	}
@@ -3180,8 +3189,8 @@ ECastResult CastSpell(CastContext &ctx, ECastTargets scope) {
 				switch (ctx.action_or_default().GetBase()) {
 					case talents_actions::EActionBase::kDamage:    ctx.damage_count = 0.0; break;
 					case talents_actions::EActionBase::kPoints:    ctx.points_count = 0.0; break;
-					case talents_actions::EActionBase::kAffects:   ctx.affects_count = 0.0; break;
-					case talents_actions::EActionBase::kDispelled: ctx.dispelled_count = 0.0; break;
+					case talents_actions::EActionBase::kAffects:   ctx.affects_potency = 0.0; break;
+					case talents_actions::EActionBase::kDispelled: ctx.dispelled_potency = 0.0; break;
 					default: break;
 				}
 			}

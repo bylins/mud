@@ -110,8 +110,8 @@ class CastContext {
 	// instead of the caster's competence. Reset to 0 at cast start (fresh CastContext per cast).
 	double damage_count{0.0};     // total (computed) HP damage dealt
 	double points_count{0.0};     // total (computed) points restored, all categories
-	double affects_count{0.0};    // number of affects applied
-	double dispelled_count{0.0};  // number of affects removed
+	double affects_potency{0.0};    // total potency of affects applied
+	double dispelled_potency{0.0};  // total potency of affects removed
 	// issue.cast-chain: true while the spell's FIRST action runs; CompetenceBase() forces real
 	// competence then (the first action never chains off an accumulator). Set per action.
 	bool is_entry_action{true};
