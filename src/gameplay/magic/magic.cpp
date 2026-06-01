@@ -537,7 +537,11 @@ bool TryBlockByMagicalShield(CharData *ch, CharData *victim, ESpell spell_id) {
 
 }  // namespace
 
-int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
+int CastDamage(CastContext &ctx) {
+	CharData *const ch = ctx.caster();
+	CharData *const victim = ctx.cvict;
+	const int level = ctx.level;
+	const ESpell spell_id = ctx.spell_id();
 	int rand = 0, count = 1, modi = 0;
 
 	if (victim == nullptr || victim->in_room == kNowhere || ch == nullptr)
@@ -552,10 +556,12 @@ int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id) {
 		if (TryReflectByMagicGlass(ch, victim, spell_id)) {
 			log("[MAG DAMAGE] Зеркало - полное отражение: %s damage %s (%d)",
 				GET_NAME(ch), GET_NAME(victim), to_underlying(spell_id));
-			return CastDamage(level, ch, ch, spell_id);
+			ctx.cvict = ch;
+			return CastDamage(ctx);
 		}
 		if (TryReflectBySonicBarrier(ch, victim, spell_id)) {
-			return CastDamage(level, ch, ch, spell_id);
+			ctx.cvict = ch;
+			return CastDamage(ctx);
 		}
 		// kShadowCloak absorption: 21% chance for the victim's cloak to swallow the cast outright.
 		// Only damage spells get this defense (no parallel in CastAffect), so it stays inline.
@@ -989,7 +995,12 @@ static void EmitImpositionEffects(CharData *ch, CharData *victim, ESpell spell_i
 		act(to_room.c_str(), true, victim, nullptr, ch, kToRoom | kToArenaListen);
 }
 
-EStageResult CastAffect(int level, CharData *ch, CharData *victim, const ESpell spell_id, const RollResult &potency) {
+EStageResult CastAffect(CastContext &ctx) {
+	CharData *const ch = ctx.caster();
+	CharData *const victim = ctx.cvict;
+	const int level = abs(ctx.level);
+	const ESpell spell_id = ctx.spell_id();
+	const RollResult &potency = ctx.potency();
 	if (victim == nullptr || victim->in_room == kNowhere || ch == nullptr) {
 		return EStageResult::kSuccess;
 	}
@@ -1008,11 +1019,13 @@ EStageResult CastAffect(int level, CharData *ch, CharData *victim, const ESpell 
 	// Shared defensive layer with CastDamage: magic mirror, sonic barrier, magical shield. The
 	// kShadowCloak absorption is damage-only and stays in CastDamage.
 	if (TryReflectByMagicGlass(ch, victim, spell_id)) {
-		CastAffect(level, ch, ch, spell_id);
+		ctx.cvict = ch;
+		CastAffect(ctx);
 		return EStageResult::kSuccess;
 	}
 	if (TryReflectBySonicBarrier(ch, victim, spell_id)) {
-		CastAffect(level, ch, ch, spell_id);
+		ctx.cvict = ch;
+		CastAffect(ctx);
 		return EStageResult::kSuccess;
 	}
 	if (TryBlockByMagicalShield(ch, victim, spell_id)) {
@@ -1463,7 +1476,11 @@ static void SpillCorpseContents(CharData *ch, ObjData *obj) {
 	ExtractObjFromWorld(obj);
 }
 
-EStageResult CastSummon(int level, CharData *ch, ObjData *obj, ESpell spell_id, bool need_fail) {
+EStageResult CastSummon(CastContext &ctx, bool need_fail) {
+	CharData *const ch = ctx.caster();
+	ObjData *const obj = ctx.ovict;
+	const int level = abs(ctx.level);
+	const ESpell spell_id = ctx.spell_id();
 	if (ch == nullptr) {
 		return EStageResult::kSuccess;
 	}
@@ -1595,7 +1612,11 @@ static bool MaybeSpawnAdditionalClones(int level, CharData *ch, ObjData *obj, ES
 	if (remaining < 1) {
 		return false;
 	}
-	CastSummon(level, ch, obj, spell_id, 0);
+	{
+		CastContext summon_ctx(ch, spell_id, level, {}, {});
+		summon_ctx.ovict = obj;
+		CastSummon(summon_ctx, false);
+	}
 	return true;
 }
 
@@ -1717,7 +1738,10 @@ void ApplyHeal(CharData *victim, int hit, int extra_percent) {
 
 }  // namespace
 
-EStageResult CastToPoints([[maybe_unused]] int level, CharData *ch, CharData *victim, ESpell spell_id) {
+EStageResult CastToPoints(CastContext &ctx) {
+	CharData *const ch = ctx.caster();
+	CharData *const victim = ctx.cvict;
+	const ESpell spell_id = ctx.spell_id();
 	if (victim == nullptr) {
 		log("MAG_POINTS: Ошибка! Не указана цель, spell_id: %d!\r\n", to_underlying(spell_id));
 		return EStageResult::kSuccess;
@@ -2237,7 +2261,11 @@ EStageResult RunCastUnaffects(CharData *ch, TTarget *target, ESpell spell_id,
 // used to gate their kStrength/kDexterity removal behind a save in CastAffect; until
 // that check is added here the buff is stripped regardless of the save. See their
 // commented stub case in CastAffect.
-EStageResult CastUnaffects(CharData *ch, CharData *victim, RoomData *room, ESpell spell_id) {
+EStageResult CastUnaffects(CastContext &ctx) {
+	CharData *const ch = ctx.caster();
+	CharData *const victim = ctx.cvict;
+	RoomData *const room = ctx.rvict;
+	const ESpell spell_id = ctx.spell_id();
 	if (victim == nullptr && room == nullptr) {
 		return EStageResult::kSuccess;
 	}
@@ -2307,7 +2335,11 @@ static const char *EnchantWeapon(CharData *ch, ObjData *obj, ESpell spell_id) {
 // When `obj` is null but `victim` isn't, pick a random item from the victim's equipment/
 // inventory. If neither obj nor victim is given there is nothing to act on -- the function
 // exits without effect.
-EStageResult CastToAlterObjs(CharData *ch, CharData *victim, ObjData *obj, ESpell spell_id) {
+EStageResult CastToAlterObjs(CastContext &ctx) {
+	CharData *const ch = ctx.caster();
+	CharData *const victim = ctx.cvict;
+	ObjData *obj = ctx.ovict;
+	const ESpell spell_id = ctx.spell_id();
 	const char *to_char = nullptr;
 
 	if (obj == nullptr && victim != nullptr) {
@@ -2494,7 +2526,9 @@ EStageResult CastToAlterObjs(CharData *ch, CharData *victim, ObjData *obj, ESpel
 	return EStageResult::kSuccess;
 }
 
-EStageResult CastCreation(int/* level*/, CharData *ch, ESpell spell_id) {
+EStageResult CastCreation(CastContext &ctx) {
+	CharData *const ch = ctx.caster();
+	const ESpell spell_id = ctx.spell_id();
 	ObjVnum obj_vnum;
 
 	if (ch == nullptr) {
@@ -2549,7 +2583,12 @@ EStageResult CastCreation(int/* level*/, CharData *ch, ESpell spell_id) {
 
 // Dispatch for spells whose effect is a hand-coded handler in spells.cpp (the kMagManual flag).
 // Some handlers take only (caster, cvict) and ignore the unused `level` / `ovict` arguments.
-EStageResult CastManual(int level, CharData *caster, CharData *cvict, ObjData *ovict, ESpell spell_id) {
+EStageResult CastManual(CastContext &ctx) {
+	const int level = abs(ctx.level);
+	CharData *const caster = ctx.caster();
+	CharData *const cvict = ctx.cvict;
+	ObjData *const ovict = ctx.ovict;
+	const ESpell spell_id = ctx.spell_id();
 	switch (spell_id) {
 		case ESpell::kControlWeather: SpellControlWeather(level, caster, cvict, ovict);
 			break;
@@ -2759,9 +2798,11 @@ static CharData *MaybeReflectToCaster(CharData *caster, CharData *cvict, ESpell 
 	return caster;
 }
 
-int CastToSingleTarget(CharData *caster, CharData *cvict, ObjData *ovict, CastContext roll) {
-	const ESpell spell_id = roll.spell_id();
-	const int level = roll.level;
+int CastToSingleTarget(CastContext &ctx) {
+	CharData *caster = ctx.caster();
+	CharData *cvict = ctx.cvict;
+	ObjData *ovict = ctx.ovict;
+	const ESpell spell_id = ctx.spell_id();
 	// kTarMinionsOnly: castable only on one of the caster's own NPC followers (master == caster).
 	// Checked per target so it covers group/mass casts too. A single-target cast on the wrong
 	// target is refused with a message; group/mass casts just skip non-followers silently.
@@ -2793,6 +2834,7 @@ int CastToSingleTarget(CharData *caster, CharData *cvict, ObjData *ovict, CastCo
 		return 0;
 	}
 	cvict = MaybeReflectToCaster(caster, cvict, spell_id);
+	ctx.cvict = cvict;
 	if (cvict && (caster != cvict))
 		// The level-difference half of this guard is commented out: after
 		// proper balancing it should be moot -- a low-level mage can't land a strong buff,
@@ -2812,43 +2854,43 @@ int CastToSingleTarget(CharData *caster, CharData *cvict, ObjData *ovict, CastCo
 		return 1;
 
 	if (MUD::Spell(spell_id).IsFlagged(kMagDamage))
-		if (CastDamage(level, caster, cvict, spell_id) == -1)
+		if (CastDamage(ctx) == -1)
 			return (-1);    // Successful and target died, don't cast again.
 
 	// Unaffect runs before affect: a spell strips/blocks existing affects
 	// first and may break the chain, before applying any new affect of its own.
 	if (MUD::Spell(spell_id).IsFlagged(kMagUnaffects)
-			&& CastUnaffects(caster, cvict, nullptr, spell_id) == EStageResult::kBreak) {
+			&& CastUnaffects(ctx) == EStageResult::kBreak) {
 		return 1;
 	}
 
 	if (MUD::Spell(spell_id).IsFlagged(kMagAffects)
-			&& CastAffect(abs(level), caster, cvict, spell_id, roll.potency()) == EStageResult::kBreak) {
+			&& CastAffect(ctx) == EStageResult::kBreak) {
 		return 1;
 	}
 
 	if (MUD::Spell(spell_id).IsFlagged(kMagPoints)
-			&& CastToPoints(level, caster, cvict, spell_id) == EStageResult::kBreak) {
+			&& CastToPoints(ctx) == EStageResult::kBreak) {
 		return 1;
 	}
 
 	if (MUD::Spell(spell_id).IsFlagged(kMagAlterObjs)
-			&& CastToAlterObjs(caster, cvict, ovict, spell_id) == EStageResult::kBreak) {
+			&& CastToAlterObjs(ctx) == EStageResult::kBreak) {
 		return 1;
 	}
 
 	if (MUD::Spell(spell_id).IsFlagged(kMagSummons)
-			&& CastSummon(abs(level), caster, ovict, spell_id, true) == EStageResult::kBreak) {
+			&& CastSummon(ctx, true) == EStageResult::kBreak) {
 		return 1;
 	}
 
 	if (MUD::Spell(spell_id).IsFlagged(kMagCreations)
-			&& CastCreation(abs(level), caster, spell_id) == EStageResult::kBreak) {
+			&& CastCreation(ctx) == EStageResult::kBreak) {
 		return 1;
 	}
 
 	if (MUD::Spell(spell_id).IsFlagged(kMagManual)
-			&& CastManual(abs(level), caster, cvict, ovict, spell_id) == EStageResult::kBreak) {
+			&& CastManual(ctx) == EStageResult::kBreak) {
 		return 1;
 	}
 
@@ -2907,7 +2949,9 @@ int CallMagicToArea(CharData *ch, CharData *victim, RoomData *room, CastContext 
 				act(vict_msg.c_str(), false, ch, nullptr, target, kToVict);
 			}
 			roll.level = level;
-			CastToSingleTarget(ch, target, nullptr, roll);
+			roll.cvict = target;
+			roll.ovict = nullptr;
+			CastToSingleTarget(roll);
 			if (ch->purged()) {
 				return 1;
 			}
@@ -2951,7 +2995,9 @@ int CallMagicToGroup(CharData *ch, CastContext roll) {
 	target_resolver::FriendsRosterType roster{ch, ch};
 	roster.flip();
 	for (const auto target: roster) {
-		CastToSingleTarget(ch, target, nullptr, roll);
+		roll.cvict = target;
+		roll.ovict = nullptr;
+		CastToSingleTarget(roll);
 	}
 	return 1;
 }

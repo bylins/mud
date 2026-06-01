@@ -13,12 +13,12 @@
 
 #include "magic.h"          // for EStageResult / CastContext / forward decls
 
-EStageResult CastToPoints(int level, CharData *ch, CharData *victim, ESpell spell_id);
-EStageResult CastToAlterObjs(CharData *ch, CharData *victim, ObjData *obj, ESpell spell_id);
-EStageResult CastCreation(int, CharData *ch, ESpell spell_id);
-EStageResult CastSummon(int level, CharData *ch, ObjData *obj, ESpell spell_id, bool need_fail);
-EStageResult CastManual(int level, CharData *caster, CharData *cvict, ObjData *ovict, ESpell spell_id);
-int CastToSingleTarget(CharData *caster, CharData *cvict, ObjData *ovict, CastContext roll);
+EStageResult CastToPoints(CastContext &ctx);
+EStageResult CastToAlterObjs(CastContext &ctx);
+EStageResult CastCreation(CastContext &ctx);
+EStageResult CastSummon(CastContext &ctx, bool need_fail);
+EStageResult CastManual(CastContext &ctx);
+int CastToSingleTarget(CastContext &ctx);
 
 #endif  // MAGIC_INTERNAL_H_
 

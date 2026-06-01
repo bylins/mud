@@ -427,6 +427,8 @@ void UpdateRoomsAffects() {
 // can't express in integers.
 int CallMagicToRoom(CharData *ch, RoomData *room, CastContext roll) {
 	const ESpell spell_id = roll.spell_id();   // roll.level is unused for room casts
+	roll.cvict = nullptr;
+	roll.rvict = room;
 
 	if (room == nullptr || ch == nullptr || ch->in_room == kNowhere) {
 		return 0;
@@ -457,7 +459,7 @@ int CallMagicToRoom(CharData *ch, RoomData *room, CastContext roll) {
 	// kAffDispelledTo{Char,Room} sheaves. For a pure-dispel spell (no <affects>) the impose
 	// loop below then runs as a no-op; for a dual spell (kMagAffects + <unaffect>) the affect
 	// imposition continues normally.
-	if (CastUnaffects(ch, nullptr, room, spell_id) == EStageResult::kBreak) {
+	if (CastUnaffects(roll) == EStageResult::kBreak) {
 		return 0;
 	}
 

@@ -522,7 +522,10 @@ int CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict
 	metrics.send();
 
 	// Compute both rolls once, now that we know the spell is actually being cast.
-	const auto roll = ComputeCastRoll(caster, spell_id, level);
+	CastContext roll = ComputeCastRoll(caster, spell_id, level);
+	roll.cvict = cvict;
+	roll.ovict = ovict;
+	roll.rvict = rvict;
 
 	if (MUD::Spell(spell_id).IsFlagged(kMagAreas) || MUD::Spell(spell_id).IsFlagged(kMagMasses)) {
 		profiler.next_step("area");
@@ -544,7 +547,7 @@ int CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict
 	}
 
 	profiler.next_step("single");
-	return CastToSingleTarget(caster, cvict, ovict, roll);
+	return CastToSingleTarget(roll);
 }
 
 const char *what_sky_type[] = {"пасмурно",

@@ -85,6 +85,16 @@ bool IsWearingLight(CharData *ch) {
 	return wear_light;
 }
 
+namespace {
+// Cast a gear-borne weapon affect on the wearer, bypassing the normal cast
+// gates (component/room/mana) exactly as the legacy direct CastAffect did.
+void CastWeaponAffect(CharData *ch, ESpell spell_id) {
+	CastContext ctx(ch, spell_id, GetRealLevel(ch), {}, {});
+	ctx.cvict = ch;
+	CastAffect(ctx);
+}
+}  // namespace
+
 void CheckLight(CharData *ch, int was_equip, int was_single, int was_holylight, int was_holydark, int koef) {
 	if (ch->in_room == kNowhere) {
 		return;
@@ -671,7 +681,7 @@ unsigned int ActivateStuff(CharData *ch, ObjData *obj, id_to_set_info_map::const
 									act("Магия $o1 потерпела неудачу и развеялась по воздуху.",
 										false, ch, GET_EQ(ch, pos), nullptr, kToChar);
 								} else {
-									CastAffect(GetRealLevel(ch), ch, ch, i.aff_spell);
+									CastWeaponAffect(ch, i.aff_spell);
 								}
 							} else {
 								affect_modify(ch, GetApplyByWeaponAffect(i.aff_pos, ch).first,
@@ -706,7 +716,7 @@ unsigned int ActivateStuff(CharData *ch, ObjData *obj, id_to_set_info_map::const
 								act("Магия $o1 потерпела неудачу и развеялась по воздуху.",
 									false, ch, obj, nullptr, kToChar);
 							} else {
-								CastAffect(GetRealLevel(ch), ch, ch, i.aff_spell);
+								CastWeaponAffect(ch, i.aff_spell);
 							}
 						} else {
 							affect_modify(ch, GetApplyByWeaponAffect(i.aff_pos, ch).first,
@@ -886,7 +896,7 @@ void EquipObj(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip_f
 						act("Магия $o1 потерпела неудачу и развеялась по воздуху.",
 							false, ch, obj, nullptr, kToChar);
 					} else {
-						CastAffect(GetRealLevel(ch), ch, ch, j.aff_spell);
+						CastWeaponAffect(ch, j.aff_spell);
 					}
 				} else {
 					affect_modify(ch, GetApplyByWeaponAffect(j.aff_pos, ch).first,

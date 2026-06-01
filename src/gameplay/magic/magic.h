@@ -162,9 +162,9 @@ enum class EStageResult {
 // gear-borne effects. The remaining stage functions (CastToPoints / CastToAlterObjs /
 // CastCreation / CastSummon / CastManual / CastToSingleTarget) live in magic_internal.h --
 // they're only called from CallMagic and the dispatcher in magic.cpp.
-int CastDamage(int level, CharData *ch, CharData *victim, ESpell spell_id);
-EStageResult CastAffect(int level, CharData *ch, CharData *victim, ESpell spell_id, const RollResult &potency = {});
-EStageResult CastUnaffects(CharData *ch, CharData *victim, RoomData *room, ESpell spell_id);
+int CastDamage(CastContext &ctx);
+EStageResult CastAffect(CastContext &ctx);
+EStageResult CastUnaffects(CastContext &ctx);
 int CalcSaving(CharData *killer, CharData *victim, ESaving saving, bool need_log = false);
 int CalcGeneralSaving(CharData *killer, CharData *victim, ESaving type, int ext_apply);
 int GetBasicSave(CharData *ch, ESaving saving, bool log = false);

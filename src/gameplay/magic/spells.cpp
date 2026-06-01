@@ -1830,7 +1830,9 @@ void SpellSacrifice(int/* level*/, CharData *ch, CharData *victim, ObjData* /*ob
 		return;
 	}
 
-	dam = CastDamage(GetRealLevel(ch), ch, victim, ESpell::kSacrifice);
+	CastContext sac_ctx(ch, ESpell::kSacrifice, GetRealLevel(ch), {}, {});
+	sac_ctx.cvict = victim;
+	dam = CastDamage(sac_ctx);
 	// victim может быть спуржен
 
 	if (dam < 0)
@@ -1881,11 +1883,13 @@ void SpellHolystrike(int/* level*/, CharData *ch, CharData* /*victim*/, ObjData*
 		// returns kBreak, which skips the hold imposition for that just-dispelled minion. Damage
 		// always lands first, so the high-damage replacement for the old instant_death still
 		// bites kEviless minions on the way through.
-		CastDamage(GetRealLevel(ch), ch, tch, ESpell::kHolystrike);
-		if (CastUnaffects(ch, tch, nullptr, ESpell::kHolystrike) == EStageResult::kBreak) {
+		CastContext hs_ctx(ch, ESpell::kHolystrike, GetRealLevel(ch), {}, {});
+		hs_ctx.cvict = tch;
+		CastDamage(hs_ctx);
+		if (CastUnaffects(hs_ctx) == EStageResult::kBreak) {
 			continue;
 		}
-		CastAffect(GetRealLevel(ch), ch, tch, ESpell::kHolystrike);
+		CastAffect(hs_ctx);
 	}
 
 	act(msg2, false, ch, nullptr, nullptr, kToChar);
