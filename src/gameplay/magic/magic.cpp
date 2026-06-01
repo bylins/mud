@@ -2592,48 +2592,43 @@ EStageResult CastCreation(CastContext &ctx) {
 // Dispatch for spells whose effect is a hand-coded handler in spells.cpp (the kMagManual flag).
 // Some handlers take only (caster, cvict) and ignore the unused `level` / `ovict` arguments.
 EStageResult CastManual(CastContext &ctx) {
-	const int level = abs(ctx.level);
-	CharData *const caster = ctx.caster();
-	CharData *const cvict = ctx.cvict;
-	ObjData *const ovict = ctx.ovict;
-	const ESpell spell_id = ctx.spell_id();
-	switch (spell_id) {
-		case ESpell::kControlWeather: SpellControlWeather(level, caster, cvict, ovict);
+	switch (ctx.spell_id()) {
+		case ESpell::kControlWeather: SpellControlWeather(ctx);
 			break;
-		case ESpell::kCreateWater: SpellCreateWater(level, caster, cvict, ovict);
+		case ESpell::kCreateWater: SpellCreateWater(ctx);
 			break;
-		case ESpell::kLocateObject: SpellLocateObject(level, caster, cvict, ovict);
+		case ESpell::kLocateObject: SpellLocateObject(ctx);
 			break;
-		case ESpell::kCreateWeapon: SpellCreateWeapon(level, caster, cvict, ovict);
+		case ESpell::kCreateWeapon: SpellCreateWeapon(ctx);
 			break;
-		case ESpell::kCharm: SpellCharm(level, caster, cvict, ovict);
+		case ESpell::kCharm: SpellCharm(ctx);
 			break;
-		case ESpell::kEnergyDrain: SpellEnergydrain(level, caster, cvict, ovict);
+		case ESpell::kEnergyDrain: SpellEnergydrain(ctx);
 			break;
 		case ESpell::kMassFear:
-		case ESpell::kFear: SpellFear(level, caster, cvict, ovict);
+		case ESpell::kFear: SpellFear(ctx);
 			break;
-		case ESpell::kSacrifice: SpellSacrifice(level, caster, cvict, ovict);
+		case ESpell::kSacrifice: SpellSacrifice(ctx);
 			break;
-		case ESpell::kIdentify: SpellIdentify(level, caster, cvict, ovict);
+		case ESpell::kIdentify: SpellIdentify(ctx);
 			break;
-		case ESpell::kFullIdentify: SpellFullIdentify(level, caster, cvict, ovict);
+		case ESpell::kFullIdentify: SpellFullIdentify(ctx);
 			break;
-		case ESpell::kHolystrike: SpellHolystrike(level, caster, cvict, ovict);
+		case ESpell::kHolystrike: SpellHolystrike(ctx);
 			break;
-		case ESpell::kVampirism: SpellVampirism(level, caster, cvict, ovict);
+		case ESpell::kVampirism: SpellVampirism(ctx);
 			break;
 		// Movement-style spells whose handlers take only (caster, cvict).
 		case ESpell::kGroupRecall:
-		case ESpell::kWorldOfRecall: SpellRecall(caster, cvict);
+		case ESpell::kWorldOfRecall: SpellRecall(ctx);
 			break;
-		case ESpell::kTeleport: SpellTeleport(caster, cvict);
+		case ESpell::kTeleport: SpellTeleport(ctx);
 			break;
-		case ESpell::kSummon: SpellSummon(caster, cvict);
+		case ESpell::kSummon: SpellSummon(ctx);
 			break;
-		case ESpell::kPortal: SpellPortal(caster, cvict);
+		case ESpell::kPortal: SpellPortal(ctx);
 			break;
-		case ESpell::kRelocate: SpellRelocate(caster, cvict);
+		case ESpell::kRelocate: SpellRelocate(ctx);
 			break;
 		default: return EStageResult::kSuccess;
 	}
