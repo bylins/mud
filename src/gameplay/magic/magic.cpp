@@ -621,12 +621,14 @@ EStageResult CastDamage(CastContext &ctx) {
 			&& victim->in_room == ch->in_room
 			&& ch->GetPosition() > EPosition::kStun
 			&& victim->GetPosition() > EPosition::kDead) {
+			const int hp_before = victim->get_hit();
 			rand = LandOneDamageHit(ch, victim, spell_id, total_dmg,
 									ch_start_pos, victim_start_pos, count);
-			// issue.cast-chain: accumulate the computed damage of each landed hit so a later
-			// action can scale off it. NOTE (decision 6): this is the intended total_dmg, not the
-			// actual HP removed (overkill/caps ignored); accurate applied-damage needs a rework.
-			ctx.damage_count += total_dmg;
+			// issue.cast-chain: accumulate the ACTUAL HP removed this hit (post-resist/save, capped
+			// at the target's HP) so a chained action scales off real damage. On death the victim is
+			// extracted -> count the HP it had; otherwise the HP it actually lost.
+			ctx.damage_count += (rand < 0) ? std::max(0, hp_before)
+									   : std::max(0, hp_before - victim->get_hit());
 		}
 	}
 	// rand: >=0 damage dealt, -1 = victim died on this cast. Keep the raw value in
@@ -2631,8 +2633,6 @@ EStageResult CastManual(CastContext &ctx) {
 		case ESpell::kMassFear:
 		case ESpell::kFear: SpellFear(ctx);
 			break;
-		case ESpell::kSacrifice: SpellSacrifice(ctx);
-			break;
 		case ESpell::kIdentify: SpellIdentify(ctx);
 			break;
 		case ESpell::kFullIdentify: SpellFullIdentify(ctx);
@@ -3105,6 +3105,7 @@ static ECastTargets ActionTargetScope(talents_actions::EActionTarget sel, ECastT
 	switch (sel) {
 		case talents_actions::EActionTarget::kTarFoes:  return ECastTargets::kFoes;
 		case talents_actions::EActionTarget::kTarGroup: return ECastTargets::kFriends;
+		case talents_actions::EActionTarget::kTarMinions: return ECastTargets::kFriends;  // multi (all minions)
 		case talents_actions::EActionTarget::kTarSame:  return prev_scope;
 		default:                                        return ECastTargets::kSingle;
 	}
@@ -3127,6 +3128,17 @@ static std::vector<CharData *> ResolveActionTargets(CastContext &ctx,
 			return BuildCastRoster(caster, caster, ECastTargets::kFriends);
 		case talents_actions::EActionTarget::kTarFoes:
 			return BuildCastRoster(caster, nullptr, ECastTargets::kFoes);
+		case talents_actions::EActionTarget::kTarMinions: {
+			// The caster's charmed NPC followers in the room (the game's "minion"). An undead-only
+			// restriction etc. is layered on via the action's <target_conditions> (e.g. required kCorpse).
+			std::vector<CharData *> out;
+			for (auto *f : caster->followers) {
+				if (f && f->IsNpc() && AFF_FLAGGED(f, EAffect::kCharmed) && f->in_room == caster->in_room) {
+					out.push_back(f);
+				}
+			}
+			return out;
+		}
 		case talents_actions::EActionTarget::kTarRandomFoe: {
 			target_resolver::FoesRosterType roster{caster, nullptr,
 					[](CharData *, CharData *t) { return !IS_HORSE(t); }};

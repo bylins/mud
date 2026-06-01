@@ -38,7 +38,8 @@ enum class EActionTarget {
 	kTarGroup,       // groupmates in the room (needs an <area> section)
 	kTarFoes,        // all foes in the room (needs an <area> section)
 	kTarRandomFoe,   // one random foe in the room
-	kTarRandomAlly   // one random ally in the room
+	kTarRandomAlly,  // one random ally in the room
+	kTarMinions      // the caster's charmed NPC followers in the room (minions)
 };
 
 // issue.cast-chain: what a NON-FIRST <action> uses as the "base" of its formula instead of the

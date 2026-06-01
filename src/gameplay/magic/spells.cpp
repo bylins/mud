@@ -1842,50 +1842,6 @@ void SpellEnergydrain(CastContext &ctx) {
 		SendMsgToChar(MUD::SpellMessages().GetMessage(ESpell::kEnergyDrain, ESpellMsg::kNoeffect) + "\r\n", ch);
 }
 
-void do_sacrifice(CharData *ch, int dam) {
-	ch->set_hit(std::max(ch->get_hit(), std::min(ch->get_hit() + std::max(1, dam), ch->get_real_max_hit()
-		+ ch->get_real_max_hit() * GetRealLevel(ch) / 10)));
-	update_pos(ch);
-}
-
-void SpellSacrifice(CastContext &ctx) {
-	CharData *ch = ctx.caster();
-	CharData *victim = ctx.cvict;
-	int dam, d0 = victim->get_hit();
-
-	// Высосать жизнь - некроманы - уровень 18 круг 6й (5)
-	// *** мин 54 макс 66 (330)
-
-	if (victim->IsImmortal() || victim == ch || IS_CHARMICE(victim)) {
-		SendMsgToChar(MUD::SpellMessages().GetMessage(ESpell::kSacrifice, ESpellMsg::kNoeffect) + "\r\n", ch);
-		return;
-	}
-
-	CastContext sac_ctx(ch, ESpell::kSacrifice, GetRealLevel(ch), {}, {});
-	sac_ctx.cvict = victim;
-	CastDamage(sac_ctx);
-	dam = sac_ctx.result.damage;
-	// victim может быть спуржен
-
-	if (dam < 0)
-		dam = d0;
-	if (dam > d0)
-		dam = d0;
-	if (dam <= 0)
-		return;
-
-	do_sacrifice(ch, dam);
-	if (!ch->IsNpc()) {
-		for (auto *f : ch->followers) {
-			if (f->IsNpc()
-				&& AFF_FLAGGED(f, EAffect::kCharmed)
-				&& f->IsFlagged(EMobFlag::kCorpse)
-				&& ch->in_room == f->in_room) {
-				do_sacrifice(f, dam);
-			}
-		}
-	}
-}
 
 void SpellHolystrike(CastContext &ctx) {
 	CharData *ch = ctx.caster();

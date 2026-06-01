@@ -99,7 +99,6 @@ void SpellControlWeather(CastContext &ctx);
 void SpellCreateWeapon(CastContext &ctx);
 void SpellEnergydrain(CastContext &ctx);
 void SpellFear(CastContext &ctx);
-void SpellSacrifice(CastContext &ctx);
 void SpellForbidden(int level, CharData *ch, CharData *victim, ObjData *obj);
 void SpellHolystrike(CastContext &ctx);
 void SkillIdentify(int level, CharData *ch, CharData *victim, ObjData *obj);

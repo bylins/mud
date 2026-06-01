@@ -768,6 +768,7 @@ void Actions::ParseAction(Action &out, parser_wrapper::DataNode node) {
 		else if (strcmp(tgt, "kTarFoes") == 0) { out.target_ = EActionTarget::kTarFoes; }
 		else if (strcmp(tgt, "kTarRandomFoe") == 0) { out.target_ = EActionTarget::kTarRandomFoe; }
 		else if (strcmp(tgt, "kTarRandomAlly") == 0) { out.target_ = EActionTarget::kTarRandomAlly; }
+		else if (strcmp(tgt, "kTarMinions") == 0) { out.target_ = EActionTarget::kTarMinions; }
 		else if (strcmp(tgt, "kTarSame") == 0) { out.target_ = EActionTarget::kTarSame; }
 		else { err_log("Actions: unknown <action target='%s'>.", tgt); }
 	}

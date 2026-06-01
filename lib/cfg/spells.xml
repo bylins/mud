@@ -2068,22 +2068,45 @@ base_stat id - (например "kWis") какой берем параметр,
         </components>
         <misc pos="kFight" violent="Y" danger="10"/>
         <mana max="140" min="75" change="3"/>
-        <targets val="kTarCharRoom|kTarFightVict"/>
-        <flags val="kMagManual|kNpcDamagePc|kNpcDamagePcMinhp"/>
+        <targets val="kTarCharRoom|kTarFightVict|kTarNotSelf"/>
+        <flags val="kMagDamage|kNpcDamagePc|kNpcDamagePcMinhp"/>
         <potency_roll>
             <dices ndice="8" sdice="15" adice="60"/>
             <base_skill id="kDarkMagic" low_skill_bonus="2" hi_skill_bonus="2.5"/>
             <base_stat id="kWis" threshold="32" weight="4.5"/>
         </potency_roll>
         <talent_actions>
+            <!-- issue.sacrifice-migration: A1 damages one foe; A2 heals the caster by the
+                 damage dealt (base=kDamage); A3 heals the caster's UNDEAD minions likewise.
+                 The <area> on A1 was a leftover (the spell is single-target) and was removed. -->
             <action>
                 <damage saving="kWill">
                     <amount min="0" dices_weight="1.0" alpha="0.5" beta="62"/>
                 </damage>
+                <target_conditions>
+                    <blocking>
+                        <affect_flags val="kCharmed"/>
+                    </blocking>
+                </target_conditions>
+            </action>
+            <action target="kTarFightSelf" base="kDamage">
+                <points extra="300">
+                    <heal min="0" dices_weight="0" alpha="0" beta="1.0" npc_coeff="0"/>
+                </points>
+            </action>
+            <action target="kTarMinions" base="kDamage">
+                <points extra="300">
+                    <heal min="0" dices_weight="0" alpha="0" beta="1.0" npc_coeff="0"/>
+                </points>
                 <area>
-                    <targets skill_divisor="15" dice_size="2" min="5" max="20"/>
-                    <distribution type="kStepped" decay="0.05" free_targets="20"/>
+                    <targets max="-1"/>
+                    <distribution type="kUniform"/>
                 </area>
+                <target_conditions>
+                    <required>
+                        <mob_flags val="kCorpse"/>
+                    </required>
+                </target_conditions>
             </action>
         </talent_actions>
     </spell>
