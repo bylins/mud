@@ -105,6 +105,13 @@ class CastContext {
 	// ONE event, so reactions are recorded here per cast-upon target and fired once, after every
 	// action has run -- a mid-spell retaliation must not kill the caster before later actions.
 	std::vector<CharData *> reactions;
+	// issue.cast-chain: per-cast accumulators of what the actions have done so far, summed across
+	// each action's targets. A later action can scale off one of these (its base= attribute)
+	// instead of the caster's competence. Reset to 0 at cast start (fresh CastContext per cast).
+	double damage_count{0.0};     // total (computed) HP damage dealt
+	double points_count{0.0};     // total (computed) points restored, all categories
+	double affects_count{0.0};    // number of affects applied
+	double dispelled_count{0.0};  // number of affects removed
 	// Results accumulated by the stage handlers, so later <action>s (and the
 	// dispatcher) can read what earlier ones produced.
 	struct ActionResult {

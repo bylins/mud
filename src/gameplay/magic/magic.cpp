@@ -623,6 +623,10 @@ EStageResult CastDamage(CastContext &ctx) {
 			&& victim->GetPosition() > EPosition::kDead) {
 			rand = LandOneDamageHit(ch, victim, spell_id, total_dmg,
 									ch_start_pos, victim_start_pos, count);
+			// issue.cast-chain: accumulate the computed damage of each landed hit so a later
+			// action can scale off it. NOTE (decision 6): this is the intended total_dmg, not the
+			// actual HP removed (overkill/caps ignored); accurate applied-damage needs a rework.
+			ctx.damage_count += total_dmg;
 		}
 	}
 	// rand: >=0 damage dealt, -1 = victim died on this cast. Keep the raw value in
@@ -1103,6 +1107,7 @@ EStageResult CastAffect(CastContext &ctx) {
 
 	if (success) {
 		EmitImpositionEffects(ch, victim, spell_id, potency, ctx.action_or_default());
+		ctx.affects_count += 1.0;  // issue.cast-chain: one affect landed on this target
 	}
 	return EStageResult::kSuccess;
 }
@@ -1851,6 +1856,10 @@ EStageResult CastToPoints(CastContext &ctx) {
 		EmitPointsMessage(victim, points_sheaf, c.msg_key, c.cat, percent);
 	}
 
+	// issue.cast-chain: accumulate the (computed) points restored across all categories.
+	for (size_t i = 0; i < std::size(categories); ++i) {
+		ctx.points_count += amounts[i];
+	}
 	update_pos(victim);
 	return EStageResult::kSuccess;
 }
@@ -2207,7 +2216,8 @@ bool DispelSucceeds(CharData *ch, RoomData *room, ESpell dispel_spell, ESpell af
 // PK aggro gating is char-only; for a RoomData target the `if constexpr` branch is dropped.
 template<typename TTarget>
 EStageResult RunCastUnaffects(CharData *ch, TTarget *target, ESpell spell_id,
-							  const talents_actions::TalentUnaffect &unaffect, double area_coeff) {
+							  const talents_actions::TalentUnaffect &unaffect, double area_coeff,
+							  int &removed_out) {
 	const bool blocking = UnaffectConditionMet(target, unaffect.GetBlocking());
 	const bool breaking = UnaffectConditionMet(target, unaffect.GetBreaking());
 	bool break_chain = breaking;
@@ -2242,6 +2252,7 @@ EStageResult RunCastUnaffects(CharData *ch, TTarget *target, ESpell spell_id,
 			if (DispelSucceeds(ch, target, spell_id, cand.spell, unaffect.GetPotencyWeight(), area_coeff)) {
 				RemoveAffectAndAnnounce(ch, target, cand.spell);
 				removed_any = true;
+				++removed_out;  // issue.cast-chain: count this dispelled affect
 			} else {
 				resisted_any = true;
 				if (cand.break_on_fail) {
@@ -2288,10 +2299,12 @@ EStageResult CastUnaffects(CastContext &ctx) {
 		return EStageResult::kSuccess;
 	}
 
-	if (victim != nullptr) {
-		return RunCastUnaffects(ch, victim, spell_id, unaffect, ctx.area_coeff);
-	}
-	return RunCastUnaffects(ch, room, spell_id, unaffect, ctx.area_coeff);
+	int removed = 0;
+	const EStageResult r = (victim != nullptr)
+			? RunCastUnaffects(ch, victim, spell_id, unaffect, ctx.area_coeff, removed)
+			: RunCastUnaffects(ch, room, spell_id, unaffect, ctx.area_coeff, removed);
+	ctx.dispelled_count += removed;  // issue.cast-chain
+	return r;
 }
 
 // Try to enchant a weapon. Returns the to_char message to relay to the caster, or nullptr when
