@@ -24,6 +24,26 @@ from convert_to_yaml import (
 )
 
 
+def _init_ruamel_restoring(test_case):
+    """Switch the module to the ruamel YAML backend for an emit test and
+    restore the previous global state afterwards. Without the restore these
+    globals leak into later tests (e.g. to_literal_block's CR/LF handling)."""
+    import convert_to_yaml
+    prev_lib = convert_to_yaml._yaml_library
+    prev_blocks = convert_to_yaml._use_literal_blocks
+
+    def _restore():
+        convert_to_yaml._yaml_library = prev_lib
+        convert_to_yaml._use_literal_blocks = prev_blocks
+        if prev_lib:
+            convert_to_yaml._init_yaml_libraries()
+
+    test_case.addCleanup(_restore)
+    convert_to_yaml._yaml_library = 'ruamel'
+    convert_to_yaml._use_literal_blocks = True
+    convert_to_yaml._init_yaml_libraries()
+
+
 class TestParseAsciiFlags(unittest.TestCase):
     """Test the parse_ascii_flags function."""
 
@@ -157,6 +177,129 @@ class TestObjectFlagsArrays(unittest.TestCase):
             self.assertEqual(NO_FLAGS[68], 'kCharmice')
         else:
             self.skipTest("NO_FLAGS needs padding for plane 2")
+
+
+class TestObjectSkillLines(unittest.TestCase):
+    """Issue #3386: object `S` (skill) lines must survive conversion.
+
+    The legacy obj format grants skills via an `S` line followed by
+    `<skill_id> <value>` (boot_data_files.cpp:795). Before the fix the
+    converter ignored those lines, so the bonus silently vanished in YAML
+    and SQLite. These tests pin parsing and emission down.
+    """
+
+    # Minimal but complete legacy object with two A (apply) and two S (skill)
+    # sections, mirroring real object #91710.
+    OBJ_BLOCK = (
+        "#1\n"
+        "test obj~\n"
+        "objnom~\n"
+        "objgen~\n"
+        "objdat~\n"
+        "objacc~\n"
+        "objins~\n"
+        "objpre~\n"
+        "A test object lies here.~\n"
+        "~\n"
+        "0 100 100 0\n"
+        "0 0 -1 1\n"
+        "0 0 0\n"
+        "1 0 0\n"
+        "0 0 0 0\n"
+        "1 100 10 5\n"
+        "A\n"
+        "40 8\n"
+        "A\n"
+        "13 20\n"
+        "S\n"
+        "20 10\n"
+        "S\n"
+        "166 10\n"
+        "$\n"
+    )
+
+    def _parse(self):
+        import tempfile
+        from convert_to_yaml import parse_obj_file
+        with tempfile.NamedTemporaryFile('w', suffix='.obj', delete=False,
+                                         encoding='koi8-r') as f:
+            f.write(self.OBJ_BLOCK)
+            path = f.name
+        self.addCleanup(os.unlink, path)
+        objs = parse_obj_file(path)
+        self.assertEqual(len(objs), 1)
+        return objs[0]
+
+    def test_parses_skill_lines(self):
+        obj = self._parse()
+        self.assertEqual(
+            obj.get('skills'),
+            [{'skill_id': 20, 'value': 10}, {'skill_id': 166, 'value': 10}],
+            "object `S` lines must be parsed into obj['skills']")
+
+    def test_applies_still_parsed(self):
+        # Guard against the S-branch accidentally swallowing A lines.
+        obj = self._parse()
+        self.assertEqual(
+            obj.get('applies'),
+            [{'location': 40, 'modifier': 8}, {'location': 13, 'modifier': 20}])
+
+    def test_skills_emitted_to_yaml(self):
+        from convert_to_yaml import obj_to_yaml
+        _init_ruamel_restoring(self)
+        text = obj_to_yaml(self._parse())
+        self.assertIn('skills:', text)
+        self.assertIn('skill_id: 20', text)
+        self.assertIn('skill_id: 166', text)
+
+
+class TestMobSpeedField(unittest.TestCase):
+    """Mob movement speed (4th field of the position line) must survive.
+
+    parse_simple_mob assigns speed = -1 when the position line has only 3
+    fields and the explicit value when it has 4. The converter used to read
+    only position+sex, dropping speed, so every mob reloaded with speed 0
+    (issue #3384 class). These tests pin parsing + emission.
+    """
+
+    def _mob(self, position_line):
+        return (
+            "#1\n"
+            "testmob~\n"
+            "testmob~\ntestmoba~\ntestmobu~\ntestmoba~\ntestmobom~\ntestmobe~\n"
+            "A test mob stands here.~\n"
+            "A long description.\n~\n"
+            "0 0 0 S\n"
+            "1 20 100 1d1+10 1d1+1\n"
+            "0d0+0 100\n"
+            + position_line + "\n"
+        )
+
+    def _parse(self, position_line):
+        import tempfile
+        from convert_to_yaml import parse_mob_file
+        with tempfile.NamedTemporaryFile('w', suffix='.mob', delete=False,
+                                         encoding='koi8-r') as f:
+            f.write(self._mob(position_line))
+            path = f.name
+        self.addCleanup(os.unlink, path)
+        mobs = parse_mob_file(path)
+        self.assertEqual(len(mobs), 1)
+        return mobs[0]
+
+    def test_explicit_speed_parsed(self):
+        # 4-field position line: pos default_pos sex speed
+        self.assertEqual(self._parse("8 8 0 7").get('speed'), 7)
+
+    def test_missing_speed_defaults_to_minus_one(self):
+        # 3-field position line -> legacy default speed == -1
+        self.assertEqual(self._parse("8 8 0").get('speed'), -1)
+
+    def test_default_speed_not_emitted_explicit_is(self):
+        from convert_to_yaml import mob_to_yaml
+        _init_ruamel_restoring(self)
+        self.assertNotIn('speed:', mob_to_yaml(self._parse("8 8 0")))
+        self.assertIn('speed: 7', mob_to_yaml(self._parse("8 8 0 7")))
 
 
 if __name__ == '__main__':
