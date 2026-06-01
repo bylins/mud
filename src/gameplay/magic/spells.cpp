@@ -171,7 +171,10 @@ const std::string &NAME_BY_ITEM<EIngredientFlag>(const EIngredientFlag item) {
 	return EIngredientFlag_name_by_value.at(item);
 }
 
-void SpellCreateWater(int/* level*/, CharData *ch, CharData *victim, ObjData *obj) {
+void SpellCreateWater(CastContext &ctx) {
+	CharData *ch = ctx.caster();
+	CharData *victim = ctx.cvict;
+	ObjData *obj = ctx.ovict;
 	int water;
 	if (ch == nullptr || (obj == nullptr && victim == nullptr))
 		return;
@@ -265,7 +268,9 @@ int GetTeleportTargetRoom(CharData *ch, int rnum_start, int rnum_stop) {
 	return n ? fnd_room : kNowhere;
 }
 
-void SpellRecall(CharData *ch, CharData *victim) {
+void SpellRecall(CastContext &ctx) {
+	CharData *ch = ctx.caster();
+	CharData *victim = ctx.cvict;
 	RoomRnum to_room = kNowhere, fnd_room = kNowhere;
 	RoomRnum rnum_start, rnum_stop;
 
@@ -341,7 +346,8 @@ void SpellRecall(CharData *ch, CharData *victim) {
 }
 
 // ПРЫЖОК в рамках зоны
-void SpellTeleport(CharData *ch, CharData */*victim*/) {
+void SpellTeleport(CastContext &ctx) {
+	CharData *ch = ctx.caster();
 	RoomRnum in_room = ch->in_room, fnd_room = kNowhere;
 	RoomRnum rnum_start, rnum_stop;
 
@@ -380,7 +386,9 @@ void CheckAutoNosummon(CharData *ch) {
 	}
 }
 
-void SpellRelocate(CharData *ch, CharData *victim) {
+void SpellRelocate(CastContext &ctx) {
+	CharData *ch = ctx.caster();
+	CharData *victim = ctx.cvict;
 	RoomRnum to_room, fnd_room;
 
 	if (victim == nullptr)
@@ -486,7 +494,9 @@ void RemovePortalGate(RoomRnum rnum) {
 	}
 }
 
-void SpellPortal(CharData *ch, CharData *victim) {
+void SpellPortal(CastContext &ctx) {
+	CharData *ch = ctx.caster();
+	CharData *victim = ctx.cvict;
 	RoomRnum fnd_room;
 
 	if (victim == nullptr)
@@ -607,7 +617,9 @@ for (auto *k : victim->followers) {
 }
 }
 
-void SpellSummon(CharData *ch, CharData *victim) {
+void SpellSummon(CastContext &ctx) {
+	CharData *ch = ctx.caster();
+	CharData *victim = ctx.cvict;
 	RoomRnum ch_room, vic_room;
 
 	if (ch == nullptr || victim == nullptr || ch == victim) {
@@ -748,7 +760,10 @@ void SpellSummon(CharData *ch, CharData *victim) {
 	greet_otrigger(victim, -1);
 }
 
-void SpellLocateObject(int level, CharData *ch, CharData* /*victim*/, ObjData *obj) {
+void SpellLocateObject(CastContext &ctx) {
+	const int level = abs(ctx.level);
+	CharData *ch = ctx.caster();
+	ObjData *obj = ctx.ovict;
 	/*
 	   * FIXME: This is broken.  The spell parser routines took the argument
 	   * the player gave to the spell and located an object with that keyword.
@@ -941,7 +956,7 @@ bool CatchBloodyCorpse(ObjData *l) {
 	return false;
 }
 
-void SpellCreateWeapon(int/* level*/, CharData* /*ch*/, CharData* /*victim*/, ObjData* /* obj*/) {
+void SpellCreateWeapon(CastContext &ctx) {
 	//go_create_weapon(ch,nullptr,what_sky);
 // отключено, так как не реализовано
 }
@@ -998,7 +1013,9 @@ int CheckCharmices(CharData *ch, CharData *victim, ESpell spell_id) {
 	return (true);
 }
 
-void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/) {
+void SpellCharm(CastContext &ctx) {
+	CharData *ch = ctx.caster();
+	CharData *victim = ctx.cvict;
 	int k_skills = 0;
 	ESkill skill_id = ESkill::kUndefined;
 		Affect<EApply> af;
@@ -1684,7 +1701,10 @@ void SkillIdentify(int/* level*/, CharData *ch, CharData *victim, ObjData *obj) 
 	}
 }
 
-void SpellFullIdentify(int/* level*/, CharData *ch, CharData *victim, ObjData *obj) {
+void SpellFullIdentify(CastContext &ctx) {
+	CharData *ch = ctx.caster();
+	CharData *victim = ctx.cvict;
+	ObjData *obj = ctx.ovict;
 	if (obj)
 		MortShowObjValues(obj, ch, 400);
 	else if (victim) {
@@ -1695,7 +1715,10 @@ void SpellFullIdentify(int/* level*/, CharData *ch, CharData *victim, ObjData *o
 	}
 }
 
-void SpellIdentify(int/* level*/, CharData *ch, CharData *victim, ObjData *obj) {
+void SpellIdentify(CastContext &ctx) {
+	CharData *ch = ctx.caster();
+	CharData *victim = ctx.cvict;
+	ObjData *obj = ctx.ovict;
 	if (obj)
 		MortShowObjValues(obj, ch, 100);
 	else if (victim) {
@@ -1719,7 +1742,8 @@ void SpellIdentify(int/* level*/, CharData *ch, CharData *victim, ObjData *obj) 
 	}
 }
 
-void SpellControlWeather(int/* level*/, CharData *ch, CharData* /*victim*/, ObjData* /*obj*/) {
+void SpellControlWeather(CastContext &ctx) {
+	CharData *ch = ctx.caster();
 	const char *sky_info = nullptr;
 	int i, duration, zone, sky_type = 0;
 
@@ -1769,7 +1793,9 @@ void SpellControlWeather(int/* level*/, CharData *ch, CharData* /*victim*/, ObjD
 	}
 }
 
-void SpellFear(int/* level*/, CharData *ch, CharData *victim, ObjData* /*obj*/) {
+void SpellFear(CastContext &ctx) {
+	CharData *ch = ctx.caster();
+	CharData *victim = ctx.cvict;
 	int modi = 0;
 	if (ch != victim) {
 		modi = CalcAntiSavings(ch);
@@ -1788,7 +1814,9 @@ void SpellFear(int/* level*/, CharData *ch, CharData *victim, ObjData* /*obj*/) 
 		GoFlee(victim);
 }
 
-void SpellEnergydrain(int/* level*/, CharData *ch, CharData *victim, ObjData* /*obj*/) {
+void SpellEnergydrain(CastContext &ctx) {
+	CharData *ch = ctx.caster();
+	CharData *victim = ctx.cvict;
 	// истощить энергию - круг 28 уровень 9 (1)
 	// для всех
 	int modi = 0;
@@ -1819,7 +1847,9 @@ void do_sacrifice(CharData *ch, int dam) {
 	update_pos(ch);
 }
 
-void SpellSacrifice(int/* level*/, CharData *ch, CharData *victim, ObjData* /*obj*/) {
+void SpellSacrifice(CastContext &ctx) {
+	CharData *ch = ctx.caster();
+	CharData *victim = ctx.cvict;
 	int dam, d0 = victim->get_hit();
 
 	// Высосать жизнь - некроманы - уровень 18 круг 6й (5)
@@ -1856,7 +1886,8 @@ void SpellSacrifice(int/* level*/, CharData *ch, CharData *victim, ObjData* /*ob
 	}
 }
 
-void SpellHolystrike(int/* level*/, CharData *ch, CharData* /*victim*/, ObjData* /*obj*/) {
+void SpellHolystrike(CastContext &ctx) {
+	CharData *ch = ctx.caster();
 	const char *msg1 = "Земля под вами засветилась и всех поглотил плотный туман.";
 	const char *msg2 = "Вдруг туман стал уходить обратно в землю, забирая с собой тела поверженных.";
 
@@ -1910,7 +1941,7 @@ void SpellHolystrike(int/* level*/, CharData *ch, CharData* /*victim*/, ObjData*
 	} while (o);
 }
 
-void SpellVampirism(int/* level*/, CharData* /*ch*/, CharData* /*victim*/, ObjData* /*obj*/) {
+void SpellVampirism(CastContext &ctx) {
 }
 
 void SpellMentalShadow(CharData *ch) {
