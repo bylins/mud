@@ -2759,8 +2759,8 @@ static CharData *MaybeReflectToCaster(CharData *caster, CharData *cvict, ESpell 
 	return caster;
 }
 
-int CastToSingleTarget(CharData *caster, CharData *cvict, ObjData *ovict, CastRollResult roll) {
-	const ESpell spell_id = roll.spell_id;
+int CastToSingleTarget(CharData *caster, CharData *cvict, ObjData *ovict, CastContext roll) {
+	const ESpell spell_id = roll.spell_id();
 	const int level = roll.level;
 	// kTarMinionsOnly: castable only on one of the caster's own NPC followers (master == caster).
 	// Checked per target so it covers group/mass casts too. A single-target cast on the wrong
@@ -2823,7 +2823,7 @@ int CastToSingleTarget(CharData *caster, CharData *cvict, ObjData *ovict, CastRo
 	}
 
 	if (MUD::Spell(spell_id).IsFlagged(kMagAffects)
-			&& CastAffect(abs(level), caster, cvict, spell_id, roll.potency) == EStageResult::kBreak) {
+			&& CastAffect(abs(level), caster, cvict, spell_id, roll.potency()) == EStageResult::kBreak) {
 		return 1;
 	}
 
@@ -2873,8 +2873,8 @@ void TrySendCastMessages(CharData *ch, CharData *victim, RoomData *room, ESpell 
 	}
 };
 
-int CallMagicToArea(CharData *ch, CharData *victim, RoomData *room, CastRollResult roll) {
-	const ESpell spell_id = roll.spell_id;
+int CallMagicToArea(CharData *ch, CharData *victim, RoomData *room, CastContext roll) {
+	const ESpell spell_id = roll.spell_id();
 	int level = roll.level;     // mutated by the per-target level decay below
 	if (ch == nullptr || ch->in_room == kNowhere) {
 		return 0;
@@ -2940,8 +2940,8 @@ int CallMagicToArea(CharData *ch, CharData *victim, RoomData *room, CastRollResu
 
 // Применение заклинания к группе в комнате
 //---------------------------------------------------------
-int CallMagicToGroup(CharData *ch, CastRollResult roll) {
-	const ESpell spell_id = roll.spell_id;
+int CallMagicToGroup(CharData *ch, CastContext roll) {
+	const ESpell spell_id = roll.spell_id();
 	if (ch == nullptr) {
 		return 0;
 	}

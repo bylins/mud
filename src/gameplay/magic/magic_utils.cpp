@@ -453,13 +453,13 @@ private:
 // Evaluates the spell's success and potency rolls against the caster once, so the
 // result can be threaded to the cast-dispatch functions. The roll
 // values do not depend on level; level is carried only to replace that parameter.
-CastRollResult ComputeCastRoll(CharData *caster, ESpell spell_id, int level) {
+CastContext ComputeCastRoll(CharData *caster, ESpell spell_id, int level) {
 	const auto &spell = MUD::Spell(spell_id);
 	auto eval = [caster](const talents_actions::Roll &roll) {
 		return RollResult{roll.RollSkillDices(), roll.CalcSkillCoeff(caster),
 						  roll.CalcBaseStatCoeff(caster), roll.CalcLowSkillCoeff(caster)};
 	};
-	return CastRollResult{spell_id, level, eval(spell.GetSuccessRoll()), eval(spell.GetPotencyRoll())};
+	return CastContext(caster, spell_id, level, eval(spell.GetSuccessRoll()), eval(spell.GetPotencyRoll()));
 }
 
 int CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict, ESpell spell_id, int level) {
@@ -526,7 +526,7 @@ int CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict
 
 	if (MUD::Spell(spell_id).IsFlagged(kMagAreas) || MUD::Spell(spell_id).IsFlagged(kMagMasses)) {
 		profiler.next_step("area");
-		CastRollResult area_roll = roll;
+		CastContext area_roll = roll;
 		area_roll.level = abs(level);
 		return CallMagicToArea(caster, cvict, rvict, area_roll);
 	}
@@ -538,7 +538,7 @@ int CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict
 
 	if (MUD::Spell(spell_id).IsFlagged(kMagRoom)) {
 		profiler.next_step("room");
-		CastRollResult room_roll = roll;
+		CastContext room_roll = roll;
 		room_roll.level = abs(level);
 		return room_spells::CallMagicToRoom(caster, rvict, room_roll);
 	}

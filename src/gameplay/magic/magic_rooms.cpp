@@ -425,8 +425,8 @@ void UpdateRoomsAffects() {
 // This preserves the OLD pulse-direct semantics of kDeadlyFog (8 pulses),
 // kMeteorStorm (3 pulses), etc. -- sub-hour values that hours-based duration
 // can't express in integers.
-int CallMagicToRoom(CharData *ch, RoomData *room, CastRollResult roll) {
-	const ESpell spell_id = roll.spell_id;   // roll.level is unused for room casts
+int CallMagicToRoom(CharData *ch, RoomData *room, CastContext roll) {
+	const ESpell spell_id = roll.spell_id();   // roll.level is unused for room casts
 
 	if (room == nullptr || ch == nullptr || ch->in_room == kNowhere) {
 		return 0;
@@ -494,10 +494,10 @@ int CallMagicToRoom(CharData *ch, RoomData *room, CastRollResult roll) {
 		af[0].duration = talent.GetDurationBase() + static_cast<unsigned>(skill_bonus);
 		// Stored potency scaled by <affects potency_weight=> (issue.affects-potency-weight;
 		// default 1.0). Symmetric with the char-affect path in TryApplyAffectTalent.
-		af[0].potency = CalcCastPotency(roll.potency) * talent.GetPotencyWeight();
+		af[0].potency = CalcCastPotency(roll.potency()) * talent.GetPotencyWeight();
 		af[0].debuff = MUD::Spell(spell_id).IsViolent();
 		if (!talent.GetApplies().empty()) {
-			af[0].modifier = ComputeApplyModifier(talent.GetApplies()[0], roll.potency);
+			af[0].modifier = ComputeApplyModifier(talent.GetApplies()[0], roll.potency());
 		}
 	}
 
