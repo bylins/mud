@@ -2936,7 +2936,7 @@ ECastResult CastOnTarget(CastContext &ctx, bool is_entry) {
 		if (r == EStageResult::kBreak) return ECastResult::kSuccess;
 		if (r == EStageResult::kContinue) stop_stages = true;
 	}
-	// Whole-cast one-shots + ReactToCast: entry action only.
+	// Whole-cast one-shots: entry action only.
 	if (is_entry) {
 		if (MUD::Spell(spell_id).IsFlagged(kMagAlterObjs)
 				&& CastToAlterObjs(ctx) == EStageResult::kBreak) {
@@ -2954,7 +2954,12 @@ ECastResult CastOnTarget(CastContext &ctx, bool is_entry) {
 				&& CastManual(ctx) == EStageResult::kBreak) {
 			return ECastResult::kSuccess;
 		}
-		ReactToCast(cvict, caster, spell_id);
+	}
+	// Record this target for the deferred end-of-cast reaction (issue.area-cast). Reaching here
+	// means the cast landed on `cvict` (it was not refused and did not die), so the target should
+	// retaliate -- but only after ALL the spell's actions have run (fired in CastSpell).
+	if (cvict && std::find(ctx.reactions.begin(), ctx.reactions.end(), cvict) == ctx.reactions.end()) {
+		ctx.reactions.push_back(cvict);
 	}
 	return ECastResult::kSuccess;
 }
@@ -3146,6 +3151,20 @@ ECastResult CastSpell(CastContext &ctx, ECastTargets scope) {
 		}
 	} catch (std::runtime_error &e) {
 		err_log("%s", e.what());
+	}
+	// The whole cast is one event: fire the target/environment reactions now, after every action
+	// has completed (issue.area-cast). Skip if the caster is gone; skip targets that died during
+	// the cast; a reaction that kills the caster stops the rest.
+	if (!caster->purged()) {
+		for (CharData *target : ctx.reactions) {
+			if (target->purged()) {
+				continue;
+			}
+			ReactToCast(target, caster, spell_id);
+			if (caster->purged()) {
+				break;
+			}
+		}
 	}
 	return result;
 }

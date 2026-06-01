@@ -101,6 +101,10 @@ class CastContext {
 	// (kUniform=1, kLinear/kStepped<=1). Set per target by CallMagicToArea; stays
 	// 1.0 for every non-area cast, so the stage scalings below are identity there.
 	double area_coeff{1.0};
+	// issue.area-cast: targets that should react to the cast (retaliate). The whole spell is
+	// ONE event, so reactions are recorded here per cast-upon target and fired once, after every
+	// action has run -- a mid-spell retaliation must not kill the caster before later actions.
+	std::vector<CharData *> reactions;
 	// Results accumulated by the stage handlers, so later <action>s (and the
 	// dispatcher) can read what earlier ones produced.
 	struct ActionResult {
