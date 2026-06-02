@@ -435,6 +435,9 @@ TalentAffect::TalentAffect(parser_wrapper::DataNode &node) {
 	// each tick. Optional; absent -> kUndefined (no per-tick effect / handled in code).
 	const char *tick = node.GetValue("tick_spell");
 	tick_spell_ = (tick && *tick) ? parse::ReadAsConstant<ESpell>(tick) : ESpell::kUndefined;
+	// tick_handler (room affects): name of a registered code tick handler (manual-cast style).
+	const char *th = node.GetValue("tick_handler");
+	tick_handler_ = (th && *th) ? th : "";
 
 	for (auto &child: node.Children()) {
 		const auto name = child.GetName();
@@ -503,7 +506,8 @@ void TalentAffect::Print(CharData */*ch*/, std::ostringstream &buffer) const {
 		   << " Flags: " << kColorGrn << flags_ << kColorNrm
 		   << " potency_weight=" << kColorGrn << potency_weight_ << kColorNrm
 		   << (tick_spell_ != ESpell::kUndefined ? " tick_spell=" : "") << kColorGrn
-		   << (tick_spell_ != ESpell::kUndefined ? NAME_BY_ITEM<ESpell>(tick_spell_) : "") << kColorNrm << "\r\n"
+		   << (tick_spell_ != ESpell::kUndefined ? NAME_BY_ITEM<ESpell>(tick_spell_) : "") << kColorNrm
+		   << (tick_handler_.empty() ? "" : " tick_handler=") << kColorGrn << tick_handler_ << kColorNrm << "\r\n"
 		   << "  Duration: base=" << kColorGrn << dur_base_ << kColorNrm
 		   << " skill_divisor=" << kColorGrn << dur_skill_divisor_ << kColorNrm
 		   << " min=" << kColorGrn << dur_min_ << kColorNrm

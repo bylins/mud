@@ -4534,7 +4534,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <flags val="kMagNeedControl|kMagRoom|kMagCasterInroom"/>
         <talent_actions>
             <action>
-                <affects type="kThunderstorm" saving="kNone" resist="kVitality">
+                <affects type="kThunderstorm" saving="kNone" resist="kVitality" tick_handler="HandleThunderstormTick">
                     <duration base="7" skill_divisor="0" min="0" max="0"/>
                     <flags val="kAfMustBeHandled|kAfDispellable"/>
                 </affects>

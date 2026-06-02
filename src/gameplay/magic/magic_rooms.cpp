@@ -237,6 +237,13 @@ static void HandleThunderstormTick(CharData *ch, const Affect<ERoomApply>::share
 }
 
 // Раз в 2 секунды идет вызов обработчиков аффектов//
+// String-named code tick handlers for room affects -- the manual-cast mechanism for per-tick
+// room logic the data can't express. A room affect names one via <affects tick_handler="...">.
+static const std::map<std::string, std::function<void(CharData *, const Affect<ERoomApply>::shared_ptr &)>>
+		kRoomTickHandlers = {
+	{"HandleThunderstormTick", HandleThunderstormTick},
+};
+
 // Per-tick room narration: cycle the impose spell's defined kCustomMsg slots by the affect's
 // tick counter (apply_time), so a multi-phase room effect can show a different line each round.
 static void EmitRoomTickMessage(CharData *ch, ESpell impose, int tick) {
@@ -270,7 +277,24 @@ static bool RunRoomTick(RoomData *room, CharData *ch, const Affect<ERoomApply>::
 	if (!MUD::Spell(impose).actions.Contains(talents_actions::EAction::kAffect)) {
 		return false;
 	}
-	const ESpell tick = MUD::Spell(impose).actions.GetAffect().GetTickSpell();
+	const auto &affect = MUD::Spell(impose).actions.GetAffect();
+	// 1. Code tick handler named by string (manual-cast mechanism for room ticks): the handler
+	//    reads the affect directly (e.g. its duration). Used for ticks the data can't express.
+	const std::string &handler = affect.GetTickHandler();
+	if (!handler.empty()) {
+		const auto it = kRoomTickHandlers.find(handler);
+		if (it == kRoomTickHandlers.end()) {
+			err_log("RunRoomTick: unknown tick_handler '%s' for spell %s.",
+					handler.c_str(), NAME_BY_ITEM<ESpell>(impose).c_str());
+			return true;
+		}
+		if (ch != nullptr) {
+			it->second(ch, aff);
+		}
+		return true;
+	}
+	// 2. Data-driven tick_spell.
+	const ESpell tick = affect.GetTickSpell();
 	if (tick == ESpell::kUndefined) {
 		return false;
 	}
@@ -292,33 +316,14 @@ static bool RunRoomTick(RoomData *room, CharData *ch, const Affect<ERoomApply>::
 }
 
 void HandleRoomAffect(RoomData *room, CharData *ch, const Affect<ERoomApply>::shared_ptr &aff) {
-	// Аффект в комнате.
-	// Проверяем на то что нам передали бяку в параметрах.
 	assert(aff);
 	assert(room);
-
-	// Тут надо понимать что если закл наложит не один аффект а несколько
-	// то обработчик будет вызываться за пульс именно столько раз.
-	auto spell_id = aff->type;
-
-	// Data-driven tick: if the affect names a tick_spell, run it and skip the hardcoded switch.
-	if (RunRoomTick(room, ch, aff)) {
-		return;
-	}
-
-	switch (spell_id) {
-		case ESpell::kForbidden:
-		case ESpell::kRoomLight: break;
-
-		
-
-
-		case ESpell::kThunderstorm:
-			HandleThunderstormTick(ch, aff);
-			break;
-
-
-		default: log("ERROR: Try handle room affect for spell without handler!");
+	// Fully data-driven dispatch (no per-spell switch): the affect's <affects> names either a
+	// tick_spell (data) or a tick_handler (code, by string). A kAfMustBeHandled affect that
+	// resolves to neither is a misconfiguration -- fail loudly.
+	if (!RunRoomTick(room, ch, aff)) {
+		err_log("HandleRoomAffect: spell %s is kAfMustBeHandled but has no tick_spell/tick_handler.",
+				NAME_BY_ITEM<ESpell>(aff->type).c_str());
 	}
 }
 
