@@ -291,6 +291,52 @@ static void HandleThunderstormTick(CharData *ch, const Affect<ERoomApply>::share
 }
 
 // Раз в 2 секунды идет вызов обработчиков аффектов//
+// Per-tick room narration: cycle the impose spell's defined kCustomMsg slots by the affect's
+// tick counter (apply_time), so a multi-phase room effect can show a different line each round.
+static void EmitRoomTickMessage(CharData *ch, ESpell impose, int tick) {
+	const auto &sheaf = MUD::SpellMessages()[impose];
+	static const ESpellMsg slots[] = {ESpellMsg::kCustomMsgOne, ESpellMsg::kCustomMsgTwo,
+		ESpellMsg::kCustomMsgThree, ESpellMsg::kCustomMsgFour, ESpellMsg::kCustomMsgFive,
+		ESpellMsg::kCustomMsgSix, ESpellMsg::kCustomMsgSeven, ESpellMsg::kCustomMsgEight,
+		ESpellMsg::kCustomMsgNine, ESpellMsg::kCustomMsgTen};
+	std::vector<ESpellMsg> present;
+	for (const auto k : slots) {
+		if (sheaf.HasMessage(k)) present.push_back(k);
+	}
+	if (present.empty()) return;
+	const auto &msg = sheaf.GetMessage(present[tick % present.size()]);
+	if (!msg.empty()) {
+		act(msg.c_str(), false, ch, nullptr, nullptr, kToRoom | kToChar | kToArenaListen);
+	}
+}
+
+// Generic data-driven room-affect tick: if the impose spell carries <affects tick_spell="B">,
+// cast B on the affected room each tick (with B's own actions/targets) and emit the cycled
+// per-tick message. Returns true if it handled the tick (so HandleRoomAffect skips the hardcoded
+// switch); false to fall through to the in-code handlers. The 4 legacy room handlers move onto
+// this path in Stage D.
+// NOTE: B is cast fresh via CastAreaInRoom (the legacy per-tick re-cast onto the room's foes).
+// Two refinements are deferred until a spell needs them: (1) stored-potency-scaled ticks (use
+// the affect's saved potency instead of B's fresh roll); (2) caster-independent ticks under
+// kMagCasterAnywhere/kMagCasterInworldDelay when ch == nullptr (no caster to source the cast).
+static bool RunRoomTick(RoomData *room, CharData *ch, const Affect<ERoomApply>::shared_ptr &aff) {
+	(void)room;
+	const ESpell impose = aff->type;
+	if (!MUD::Spell(impose).actions.Contains(talents_actions::EAction::kAffect)) {
+		return false;
+	}
+	const ESpell tick = MUD::Spell(impose).actions.GetAffect().GetTickSpell();
+	if (tick == ESpell::kUndefined) {
+		return false;
+	}
+	if (ch == nullptr) {
+		return true;  // tick-driven affect, but no caster to source the cast this tick
+	}
+	EmitRoomTickMessage(ch, impose, aff->apply_time);
+	CastAreaInRoom(ch, tick, GetRealLevel(ch));
+	return true;
+}
+
 void HandleRoomAffect(RoomData *room, CharData *ch, const Affect<ERoomApply>::shared_ptr &aff) {
 	// Аффект в комнате.
 	// Проверяем на то что нам передали бяку в параметрах.
@@ -300,6 +346,11 @@ void HandleRoomAffect(RoomData *room, CharData *ch, const Affect<ERoomApply>::sh
 	// Тут надо понимать что если закл наложит не один аффект а несколько
 	// то обработчик будет вызываться за пульс именно столько раз.
 	auto spell_id = aff->type;
+
+	// Data-driven tick: if the affect names a tick_spell, run it and skip the hardcoded switch.
+	if (RunRoomTick(room, ch, aff)) {
+		return;
+	}
 
 	switch (spell_id) {
 		case ESpell::kForbidden:
