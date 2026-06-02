@@ -34,7 +34,8 @@ order** for each target. Any stage can short-circuit the whole cast.
 6. **`CastAffect`** — if `kMagAffects` flag set.
 7. **`CastToPoints`** — if `kMagPoints` flag set (HP/MV restore).
 8. **`CastToAlterObjs`** — if `kMagAlterObjs` flag set (modify an item).
-9. **`CastSummon`** — if `kMagSummons` flag set (animate dead, clone, …).
+9. **Summon** — if the action carries a `<summon>` (§3.8.5: summon keeper /
+   fire keeper / clone); runs once per action, not per target.
 10. **`CastCreation`** — if `kMagCreations` flag set (conjure food/light).
 11. **`CastManual`** — if `kMagManual` flag set (hand-coded handler in
     `spells.cpp`).
@@ -209,7 +210,6 @@ gameplay metadata** (PK / agro / damage-type).
 | `kMagUnaffects` | Run `CastUnaffects`. |
 | `kMagPoints` | Run `CastToPoints` (HP/MV restore). |
 | `kMagAlterObjs` | Run `CastToAlterObjs` (item transform). |
-| `kMagSummons` | Run `CastSummon`. |
 | `kMagCreations` | Run `CastCreation`. |
 | `kMagManual` | Run hand-coded handler in `spells.cpp` (also covers movement spells like teleport, recall, portal, relocate). |
 | `kMagGroups` | Spell targets a group. |
@@ -414,6 +414,56 @@ Names a hand-coded handler registered in `spells.cpp` (the handler name must mat
 the registry, or boot logs `unknown <manual_cast> handler`). It runs as the
 **Manual** stage of the action, so a manual handler is now gated and ordered like
 any other stage instead of being dispatched only by the old `kMagManual` flag.
+
+#### 3.8.5 `<summon>` — spawn a charmed minion *(issue.summon-pipeline)*
+
+```xml
+<summon base_fail="50" min_fail="0" handler="SetupKeeperStats">
+    <mob vnum="-3021" competence_weight="16" keeper="Y"/>
+</summon>
+```
+
+Spawns a mob in the **caster's room** and charms it to the caster. Like a room
+action (§3.8.1 `kTarRoomThis`), a `<summon>` runs **once per action — not once per
+target** — so it is dispatched at the action level (before the per-target path) and
+can chain off a prior action via `base=` (§3.8.2): the entry summon reads the real
+potency `C`, a chained one reads its `base=` accumulator (e.g. a familiar whose
+strength scales with the damage just dealt). It replaced the old `kMagSummons` flag,
+which no longer exists.
+
+`<summon>` attributes:
+
+| Attr | Meaning |
+|---|---|
+| `base_fail` | Base failure chance, percent. |
+| `min_fail` | Floor for the failure chance (default `0`). |
+| `handler` | Optional named post-spawn handler (see below). |
+
+The failure chance is `pfail = clamp(min_fail, base_fail − C·competence_weight, 100)`,
+where `C` is the action's competence (§3.7). So a competent caster drives the fail
+toward `min_fail`; a weak one approaches `base_fail`. The `kFavorOfDarkness` feat
+re-rolls a failure at ¼ (only 1 in 4 sticks). Immortals never fail.
+
+`<mob>` attributes:
+
+| Attr | Meaning |
+|---|---|
+| `vnum` | The **negated** virtual number to read (e.g. `-3021` loads mob `3021`). |
+| `competence_weight` | How strongly `C` reduces the fail (the `k` above). Author it against whatever scale `base=` feeds the action. |
+| `keeper` | `Y` → the minion gets `EAffect::kHelper` + `ESkill::kRescue=100` (a guardian that rescues its master). |
+
+The minion is charmed (`ESpell::kCharm`) for a wisdom + moon-phase duration, its
+gold/exp are zeroed, and it is placed and made a follower. `handler` then runs the
+spell-specific post-spawn work — it must match an entry in the `kSummonHandlers`
+registry in `magic.cpp` (signature `(ch, mob, ctx, duration)`) or boot logs
+`unknown summon handler`. Current handlers: `SetupKeeperStats`,
+`SetupFirekeeperStats`, `CloneCascade`.
+
+Use `<summon>` for **vnum-based** summons whose failure scales with `C`
+(summon keeper / fire keeper / clone). Corpse-based summons (animate dead,
+resurrection — the mob and a con/level-based fail come from the source corpse) and
+the non-mob summons (guardian angel, mental shadow) don't fit this data model and
+live in `<manual_cast>` handlers instead (§3.8.4).
 
 ### 3.9 `<components>` — casting requirements
 
@@ -1219,7 +1269,7 @@ For each cast that runs `<unaffect>`:
 
 ---
 
-## 11. `CastToPoints`, `CastToAlterObjs`, `CastSummon`, `CastCreation`, `CastManual`
+## 11. `CastToPoints`, `CastToAlterObjs`, `CastCreation`, `CastManual`
 
 These stages are gated by their `kMag…` flag and run dedicated logic in
 `magic.cpp`. They are **partly data-driven**:
@@ -1235,9 +1285,11 @@ These stages are gated by their `kMag…` flag and run dedicated logic in
 * `CastToAlterObjs` runs a per-spell handler in code (bless, curse,
   invisible, poison, enchant, repair, etc.) and reads its messages from
   `spell_msg.xml` (`kAlterObjToChar`, `kEnchantNotWeapon`, …).
-* `CastSummon` (animate dead, clone, summon keeper, …) is mostly code, with
-  messages in `spell_msg.xml` (`kSummonToRoom`, `kSummonFail`,
-  `kSummonNoCorpse`, etc.).
+* Summons are now the data-driven `<summon>` action (§3.8.5) for the vnum-based
+  ones (summon keeper / fire keeper / clone) and `<manual_cast>` handlers (§3.8.4)
+  for the corpse and non-mob ones (animate dead, resurrection, guardian angel,
+  mental shadow). Messages stay in `spell_msg.xml` (`kSummonToRoom`, `kSummonFail`,
+  `kSummonNoCorpse`, etc.). The old `kMagSummons` flag is gone.
 * `CastCreation` is a pure code stage.
 * `CastManual` runs a hand-coded handler, but **which** handler is now data-driven:
   name it with `<manual_cast handler="SpellX"/>` inside the action (§3.8.4). The
@@ -1898,11 +1950,11 @@ should change a stat *without* imposing an affect flag.
 
 ## 16. What this manual does **not** cover (yet)
 
-* **Hand-coded handler *bodies*** (`CastSummon`, `CastCreation`,
-  `CastToAlterObjs` switch cases, and the `<manual_cast>` handlers themselves) —
+* **Hand-coded handler *bodies*** (`CastCreation`, `CastToAlterObjs` switch cases,
+  the `<summon>` post-spawn handlers, and the `<manual_cast>` handlers themselves) —
   those still live in `spells.cpp` and `magic.cpp`. Their *selection and
-  ordering* are now data-driven (§3.8.4), but the logic inside is still code.
-  Migrating it piece by piece into the data-driven system is ongoing work.
+  ordering* are now data-driven (§3.8.4, §3.8.5), but the logic inside is still
+  code. Migrating it piece by piece into the data-driven system is ongoing work.
 * **Success roll consumption** — `<success_roll>` is parsed and evaluated
   at cast time but is not yet wired into the cast-success decision. The
   classical percent-based `CalcCastSuccess` still gates landing.
