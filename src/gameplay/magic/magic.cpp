@@ -3191,6 +3191,25 @@ static std::vector<CharData *> ResolveActionTargets(CastContext &ctx,
 	return {};
 }
 
+// Run a kTarRoomThis action on the room (ctx.rvict, defaulting to the caster's room): the
+// room-capable stages -- dispel (<unaffect>) then impose (<affects> via CastRoomAffect). Lets a
+// later action apply/scale a room affect off a prior action's result (ctx.CompetenceBase()).
+static ECastResult RunActionOnRoom(CastContext &ctx) {
+	CharData *caster = ctx.caster();
+	if (ctx.rvict == nullptr) {
+		if (caster->in_room == kNowhere) {
+			return ECastResult::kNotCast;
+		}
+		ctx.rvict = world[caster->in_room];
+	}
+	ctx.cvict = nullptr;
+	ctx.area_coeff = 1.0;
+	if (CastUnaffects(ctx) == EStageResult::kBreak) {
+		return ECastResult::kNotCast;
+	}
+	return room_spells::CastRoomAffect(ctx);
+}
+
 // Main cast entry:
 // walks the spell's <action> list and runs each action over its own target list. Action[0] (the
 // entry) targets the spell's scope (kSingle / kFoes / kFriends); later actions reuse the
@@ -3215,7 +3234,33 @@ ECastResult CastSpell(CastContext &ctx, ECastTargets scope) {
 	bool is_entry = true;
 	ECastResult result = ECastResult::kSuccess;
 	try {
+		auto apply_reset = [&]() {
+			// a non-first action with reset zeroes the accumulator it read (its base=), so a
+			// later action starts fresh. Meaningless for the entry action.
+			if (!is_entry && ctx.action_or_default().GetReset()) {
+				switch (ctx.action_or_default().GetBase()) {
+					case talents_actions::EActionBase::kDamage:    ctx.damage_count = 0.0; break;
+					case talents_actions::EActionBase::kPoints:    ctx.points_count = 0.0; break;
+					case talents_actions::EActionBase::kAffects:   ctx.affects_potency = 0.0; break;
+					case talents_actions::EActionBase::kDispelled: ctx.dispelled_potency = 0.0; break;
+					default: break;
+				}
+			}
+		};
 		for (ctx.RewindActions(); ctx.HasPendingActions(); ctx.NextAction()) {
+			// A kTarRoomThis action targets the room itself (ctx.rvict), not the char roster --
+			// it runs the room dispel + impose stages and can scale off a prior action.
+			if (ctx.action_or_default().GetTarget() == talents_actions::EActionTarget::kTarRoomThis) {
+				result = RunActionOnRoom(ctx);
+				if (caster->purged()) {
+					return ECastResult::kSuccess;
+				}
+				apply_reset();
+				prev.clear();
+				prev_scope = ECastTargets::kSingle;
+				is_entry = false;
+				continue;
+			}
 			// The entry action targets the spell scope; later actions resolve their own target
 			// list from <action target=...> (default kTarSame = reuse the previous list).
 			std::vector<CharData *> targets;
@@ -3232,17 +3277,7 @@ ECastResult CastSpell(CastContext &ctx, ECastTargets scope) {
 			if (caster->purged()) {
 				return ECastResult::kSuccess;
 			}
-			// a non-first action with reset zeroes the accumulator it read
-			// (its base=), so a later action starts fresh. Meaningless for the entry action.
-			if (!is_entry && ctx.action_or_default().GetReset()) {
-				switch (ctx.action_or_default().GetBase()) {
-					case talents_actions::EActionBase::kDamage:    ctx.damage_count = 0.0; break;
-					case talents_actions::EActionBase::kPoints:    ctx.points_count = 0.0; break;
-					case talents_actions::EActionBase::kAffects:   ctx.affects_potency = 0.0; break;
-					case talents_actions::EActionBase::kDispelled: ctx.dispelled_potency = 0.0; break;
-					default: break;
-				}
-			}
+			apply_reset();
 			prev = std::move(targets);
 			prev_scope = cur_scope;
 			is_entry = false;
