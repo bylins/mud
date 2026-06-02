@@ -362,6 +362,7 @@ cast_potency = RollSkillDices + skill_coeff + stat_coeff
 | `kTarRandomFoe` | один случайный враг в комнате | нет |
 | `kTarRandomAlly` | один случайный союзник в комнате | нет |
 | `kTarMinions` | очарованные NPC-последователи кастера (миньоны) в комнате | да (для >1) |
+| `kTarRoomThis` | сама комната (`ctx.rvict`); действие накладывает свой эффект на комнату | нет |
 
 `kTarGroup`/`kTarFoes`/`kTarMinions` охватывают нескольких персонажей, поэтому им
 нужен блок `<area>` (§7), задающий сколько целей и с каким затуханием.
@@ -753,6 +754,7 @@ ceil(stat_weight · stat_coeff), max)`. Реально поражается
 | `resist` | `kFire` | `EResist` — канал сопротивления, применяемый к длительности эффекта. |
 | `prob` | `100` | Вероятность срабатывания блока эффекта (молчаливый промах иначе). `<lag>` и `<reposition>` также привязаны к этой вероятности. |
 | `potency_weight` | `1.0` | *(issue.affects-potency-weight)* Масштаб сохранённого значения `Affect::potency` (т.е. `cast_potency`). Эффект накладывается с силой `cast_potency * potency_weight`; состязание при снятии читает это масштабированное значение. **Сценарий применения:** заклинание с большим модификатором, где тот же `<potency_roll>` питает и формулу модификатора, и сохранённую силу, может стать неснимаемым. `potency_weight="0.4"` позволяет разделить их — держать модификатор сильным, уменьшая лишь сохранённую силу. |
+| `tick_spell` | *(нет)* | *Только для комнатных эффектов.* `ESpell` `kService`-заклинания, чьи действия обработчик тика выполняет каждый пульс (см. §11.5). Отсутствует → нет тика на основе данных (эффект пассивный или обрабатывается в коде). |
 
 ### 8.2 `<flags val="…">` — биты `EAffFlag`
 
@@ -767,7 +769,7 @@ ceil(stat_weight · stat_coeff), max)`. Реально поражается
 | `kAfUpdateMod` | Повторное применение заменяет модификатор. |
 | `kAfDispellable` | **Можно снять через рассеивание** (например, `kDispellMagic`). |
 | `kAfCurable` | **Можно снять через лечение** (например, `kRemovePoison`). |
-| `kAfMustBeHandled` | Только для комнатных эффектов: у эффекта есть обработчик по тику в коде (`HandleRoomAffect`). |
+| `kAfMustBeHandled` | Только для комнатных эффектов: эффект тикает каждый пульс. `HandleRoomAffect` выполняет его `tick_spell` (§8.1, §11.5), если задан, иначе код-свитч (сейчас только погода `kThunderstorm`). |
 | `kAfUnique` | Только для комнатных эффектов: перед наложением удалить предыдущее применение того же заклинания тем же кастером. |
 
 `kAfDispellable` / `kAfCurable` — **единственный источник истины** о том, может
@@ -1119,8 +1121,26 @@ dispel_potency = cast_potency(dispel_spell, caster_at_dispel) · <unaffect poten
 |---|---|
 | `kAfUpdateDuration` | Повторное применение вашего комнатного эффекта обновляет длительность. |
 | `kAfAccumulateDuration` | Повторное применение суммирует длительности. |
-| `kAfMustBeHandled` | У эффекта есть обработчик по тику в `HandleRoomAffect`. |
+| `kAfMustBeHandled` | Эффект тикает каждый пульс — `HandleRoomAffect` выполняет его `tick_spell` (ниже), если задан, иначе case в коде. |
 | `kAfUnique` | Перед наложением удалить предыдущее применение того же заклинания тем же кастером. |
+
+**Пообработка по тику — `tick_spell` (на основе данных).** Комнатный эффект с
+`kAfMustBeHandled` может указать **тик-заклинание** в `<affects tick_spell="...">` —
+`kService`-заклинание, чьи действия обработчик тика выполняет каждый пульс, без кода:
+
+* **Однофазное** (обычное `kEnabled`-заклинание, напр. `kThunderStone`): всё заклинание
+  площадно применяется к врагам в комнате каждый пульс — прежний приём «перекастовать
+  заклинание каждый раунд». `kMeteorStorm` → `kThunderStone`; `kBlackTentacles` → `kDamageSerious`.
+* **Многофазное** (`kService`-заклинание с несколькими действиями): обработчик выполняет
+  **одно действие за пульс**, циклически `action[(apply_time-1) % N]`, поэтому каждый раунд
+  продвигает фазу, и последовательность зацикливается. У каждого действия свой `target=`
+  (`kTarFoes`, `kTarRoomThis`, …) и эффекты (`<side_spell>`, `<damage>`, …). `kDeadlyFog` →
+  `kDeadlyFogTick` (8 действий, kPoison → … → kMassCurse по врагам в комнате).
+* **Повествование по тику** берётся из слотов `kCustomMsgOne…Ten` *накладывающего*
+  заклинания, циклически по той же фазе, поэтому сообщение и эффект согласованы (kDeadlyFog задаёт 8).
+* **Нет `tick_spell`** → эффект проваливается в код-свитч `HandleRoomAffect`, оставленный лишь
+  для тиков, невыразимых данными (смена погоды `kThunderstorm`). Новые комнатные эффекты
+  должны использовать `tick_spell`, а не case в свитче.
 
 **Создание нового комнатного заклинания:**
 
@@ -1145,6 +1165,10 @@ dispel_potency = cast_potency(dispel_spell, caster_at_dispel) · <unaffect poten
     </talent_actions>
 </spell>
 ```
+
+Если заклинанию нужна логика по тику, задайте `tick_spell` на `kService`-заклинание
+(см. «Пообработка по тику» выше) — без кода. Только сугубо кодовые тики (напр. погода)
+по-прежнему требуют case в `HandleRoomAffect`.
 
 ---
 
@@ -1200,7 +1224,7 @@ dispel_potency = cast_potency(dispel_spell, caster_at_dispel) · <unaffect poten
 | `kNoTarget`, `kWrongTarget` | Аргумент цели не найден или тип цели отклонён. | Кастер |
 | `kSummonToRoom`, `kSummonFail`, `kSummonNoCorpse`, … | Исходы призыва/воскрешения. | Различные |
 | `kFightDeathToChar`, `kFightHitToChar`, `kFightMissToChar` (+ToVict, +ToRoom) | Боевые сообщения об уроне. | Различные |
-| `kCustomMsgOne` … `kCustomMsgFive` | Универсальные слоты для разовых строк. | Различные |
+| `kCustomMsgOne` … `kCustomMsgTen` | Универсальные слоты для разовых строк (без своей именованной константы). Также несут повествование комнатных эффектов по тику, циклически по `Affect::apply_time` — один слот на фазу (kDeadlyFog использует 8). | Различные |
 
 Сообщения хранятся **без** завершающего `\r\n` — `act()` и `SendMsgToChar`
 добавляют его сами.
@@ -1712,5 +1736,5 @@ kDefault, поэтому каждое снятие выдаёт хоть что-
 `kHealToVict` / `kMovesToVict` / `kThirstToVict` / `kFullToVict` по категориям,
 мигрированное семейство нарратива `kCastSay*` / `kCastIncantToChar` / `kCastHereForbidden*`
 / `kNoTarget` / `kWrongTarget` / `kCastPreparedToChar` / `kCastInterruptedToChar`
-/ `kSummonFail` + `kCustomMsgOne…Five`, переработка первой помощи `BYLINS_FIRSTAID_NEW`,
+/ `kSummonFail` + `kCustomMsgOne…Ten`, переработка первой помощи `BYLINS_FIRSTAID_NEW`,
 и прототипирующие слоты `kTestOne…kTestFive` (§17).*

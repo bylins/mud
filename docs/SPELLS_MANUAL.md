@@ -362,6 +362,7 @@ A non-entry `<action>` may carry a `target` attribute (an `EActionTarget`, defau
 | `kTarRandomFoe` | one random foe in the room | no |
 | `kTarRandomAlly` | one random ally in the room | no |
 | `kTarMinions` | the caster's charmed NPC followers (minions) in the room | yes (for >1) |
+| `kTarRoomThis` | the room itself (`ctx.rvict`); the action imposes its effect on the room | no |
 
 `kTarGroup`/`kTarFoes`/`kTarMinions` fan out over several characters, so they need
 an `<area>` block (§7) to say how many and with what falloff.
@@ -766,6 +767,7 @@ This is the workhorse for buffs and debuffs.
 | `resist` | `kFire` | `EResist` — the resist channel applied to the affect's duration. |
 | `prob` | `100` | Percent chance the affect block fires at all (silent miss otherwise). The `<lag>` and `<reposition>` are *gated* by this same prob — failure suppresses them too. |
 | `potency_weight` | `1.0` | *(issue.affects-potency-weight)* Scale on the stored `Affect::potency` value (i.e. on `cast_potency`, not on the modifier). The Affect lands at `cast_potency * potency_weight`; the dispel contest in `DispelSucceeds` reads that scaled value back. **Use case:** a big-modifier spell where the same `<potency_roll>` feeds both the modifier formula *and* the stored potency can become undispellable just because the modifier needs to be big. `potency_weight="0.4"` lets the author decouple — keep the modifier strong, scale only the stored potency down to a dispellable range. Symmetric in spirit with `<unaffect potency_weight=>` on the dispel side (see §9.1). |
+| `tick_spell` | *(none)* | *Room affects only.* `ESpell` of a `kService` spell whose action(s) the room-affect tick handler runs each pulse (see §11.5). Absent → no data-driven tick (the affect is passive, or handled by a code case). |
 
 ### 8.2 `<flags val="…">` — `EAffFlag` bits
 
@@ -780,7 +782,7 @@ This is the workhorse for buffs and debuffs.
 | `kAfUpdateMod` | Re-casting overwrites the modifier. |
 | `kAfDispellable` | **Eligible for dispel** (e.g. `kDispellMagic`). |
 | `kAfCurable` | **Eligible for cure** (e.g. `kRemovePoison`). |
-| `kAfMustBeHandled` | Room affects only: this affect has a periodic-tick handler in code (e.g. kDeadlyFog's poison tick, kMeteorStorm's meteor drops, kBlackTentacles' grab attempts). The room-affect loop calls `HandleRoomAffect` each tick when this bit is set. Char affects don't currently use this flag. |
+| `kAfMustBeHandled` | Room affects only: the affect ticks each pulse. `HandleRoomAffect` runs its `tick_spell` (§8.1, §11.5) if one is set, else the in-code switch (now only `kThunderstorm`'s weather). Char affects don't use this flag. |
 | `kAfUnique` | Room affects only: before imposing, remove any prior cast of this same spell by this same caster. Used by kRuneLabel ("one rune label in the world per caster"). |
 
 `kAfDispellable` / `kAfCurable` are the **single source of truth** for
@@ -1273,8 +1275,26 @@ are two differences from char-affect semantics:
 |---|---|
 | `kAfUpdateDuration` | Re-casting your own room affect refreshes its duration (`max(old, new)`). Without this, a self-recast is a no-op. |
 | `kAfAccumulateDuration` | Re-casting adds durations instead of refreshing. |
-| `kAfMustBeHandled` | The affect has a per-tick code handler in `HandleRoomAffect` (e.g. kDeadlyFog's poison tick, kMeteorStorm's meteor drops, kBlackTentacles' grab attempts). The room-affect loop calls the handler each pulse when this bit is set. |
+| `kAfMustBeHandled` | The affect ticks each pulse — `HandleRoomAffect` runs its `tick_spell` (below) if set, else an in-code case. |
 | `kAfUnique` | Before imposing, remove any prior cast of this same spell by this same caster (room-affect "only one in the world per caster", used by kRuneLabel). |
+
+**Per-tick handling — `tick_spell` (data-driven).** A `kAfMustBeHandled` room affect can
+name a **tick spell** in `<affects tick_spell="...">` — a `kService` spell whose action(s)
+the tick handler runs each pulse, no code required:
+
+* **Single-phase** (a normal `kEnabled` spell, e.g. `kThunderStone`): the whole spell is
+  area-cast on the room's foes each pulse — the legacy "re-cast a spell each round" pattern.
+  `kMeteorStorm` → `kThunderStone`; `kBlackTentacles` → `kDamageSerious`.
+* **Multi-phase** (a `kService` spell with several actions): the handler runs **one action
+  per pulse**, cycling `action[(apply_time-1) % N]`, so each round advances a phase and the
+  sequence loops. Each action uses its own `target=` (`kTarFoes`, `kTarRoomThis`, …) and
+  effects (`<side_spell>`, `<damage>`, …). `kDeadlyFog` → `kDeadlyFogTick` (8 actions,
+  kPoison → … → kMassCurse on the room's foes).
+* **Per-tick narration** comes from the *impose* spell's `kCustomMsgOne…Ten` slots, cycled
+  by the same phase, so message and effect stay aligned (kDeadlyFog defines 8).
+* **No `tick_spell`** → the affect falls through to the in-code `HandleRoomAffect` switch,
+  kept only for ticks the data can't express (`kThunderstorm`'s weather change). New room
+  effects should use `tick_spell`, not a switch case.
 
 **Material-component check is universal.** Any room spell that has a
 configured component in `ProcessMatComponents` (currently
@@ -1322,11 +1342,12 @@ schema can't express):
 </spell>
 ```
 
-If the spell needs per-tick logic (`kAfMustBeHandled`), add a case in
-`HandleRoomAffect`. If it needs any of the code-side overrides above,
-add a minimal case in `CallMagicToRoom`'s switch — but keep all the
-plain parameters (duration / battleflag / modifier formula) in the
-XML.
+If the spell needs per-tick logic, set `tick_spell` to a `kService`
+spell (see "Per-tick handling" above) — no code. Only genuinely
+code-only ticks (e.g. weather) still need a `HandleRoomAffect` case.
+If it needs a code-side override above, add a minimal case in
+`CallMagicToRoom`'s switch — but keep the plain parameters
+(duration / battleflag / modifier formula) in the XML.
 
 ---
 
@@ -1386,7 +1407,7 @@ specific spell hasn't overridden.
 | `kSummonToRoom`, `kSummonFail`, `kSummonNoCorpse`, `kResurrectNoPower`, `kResurrectProtected` | Summon / resurrect outcomes. | Various |
 | `kEnchantNotWeapon`, `kEnchantMagic`, `kEnchantSetItem`, `kEnchantMono`, `kEnchantPoly`, `kEnchantOther` | Enchant-weapon outcomes. | Caster |
 | `kFightDeathToChar`, `kFightHitToChar`, `kFightMissToChar` (+ `ToVict`, `ToRoom`) | Combat-damage messages keyed by `ESpell`. | Various |
-| `kCustomMsgOne` … `kCustomMsgFive` | Generic per-spell slots for one-off lines that don't deserve their own enum constant. Use these for the second/third/etc. line a specific spell needs (e.g. kSummon's secondary failure narration). | Various |
+| `kCustomMsgOne` … `kCustomMsgTen` | Generic per-spell slots for one-off lines without their own enum constant (e.g. kSummon's secondary failure narration). Also carry room-affect per-tick narration, cycled by `Affect::apply_time` — one slot per tick phase (kDeadlyFog uses 8). | Various |
 
 Messages are stored **without** the trailing `\r\n` — `act()` and
 `SendMsgToChar` add it themselves.
@@ -1970,6 +1991,6 @@ the per-category `kHealToVict` / `kMovesToVict` / `kThirstToVict` /
 `kFullToVict` keys, the migrated `kCastSay*` / `kCastIncantToChar` /
 `kCastHereForbidden*` / `kNoTarget` / `kWrongTarget` /
 `kCastPreparedToChar` / `kCastInterruptedToChar` / `kSummonFail`
-narration family + `kCustomMsgOne…Five`, the `BYLINS_FIRSTAID_NEW`
+narration family + `kCustomMsgOne…Ten`, the `BYLINS_FIRSTAID_NEW`
 First Aid rework, and the `kTestOne…kTestFive` prototyping slots
 (§17).*
