@@ -1513,6 +1513,94 @@ static void SpillCorpseContents(CharData *ch, ObjData *obj) {
 	ExtractObjFromWorld(obj);
 }
 
+// issue.summon-pipeline: string-named post-spawn handlers (the spell-specific 20%). Signature
+// (ch, spawned mob, ctx). Registered here; named by <summon handler="...">. The keeper's
+// post-spawn customization is SetupKeeperStats.
+static const std::map<std::string, std::function<void(CharData *, CharData *, const CastContext &)>>
+		kSummonHandlers = {
+	{"SetupKeeperStats", [](CharData *ch, CharData *mob, const CastContext &ctx) { SetupKeeperStats(ch, mob, ctx); }},
+};
+
+// Data-driven summon skeleton (issue.summon-pipeline): the common 80% -- fail roll, charmed
+// guard, charmice cap, read mob, charm (+keeper) affect, place/follow -- then the named handler
+// for the spell-specific 20%. Fail is the unified base_fail - C*competence_weight (floored at
+// min_fail); C = ctx.CompetenceBase() (incl. cast-chain base=). need_fail/GetEnemy/GET_CAST_SUCCESS
+// from the old per-spell fail are intentionally retired here.
+EStageResult CastSummonAction(CastContext &ctx) {
+	CharData *const ch = ctx.caster();
+	const ESpell spell_id = ctx.spell_id();
+	if (ch == nullptr) {
+		return EStageResult::kSuccess;
+	}
+	const auto &s = ctx.action_or_default().GetSummon();
+	if (AFF_FLAGGED(ch, EAffect::kCharmed)) {
+		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kSummonCharmed) + "\r\n", ch);
+		return EStageResult::kSuccess;
+	}
+	int pfail = s.base_fail - static_cast<int>(ctx.CompetenceBase() * s.competence_weight);
+	if (pfail < s.min_fail) { pfail = s.min_fail; }
+	if (pfail > 100) { pfail = 100; }
+	if (!ch->IsImmortal() && number(0, 101) < pfail) {
+		const bool fail_sticks = !CanUseFeat(ch, EFeat::kFavorOfDarkness) || number(0, 3) == 0;
+		if (fail_sticks) {
+			SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kSummonFail) + "\r\n", ch);
+			return EStageResult::kSuccess;
+		}
+	}
+	CharData *mob = ReadMobile(s.mob_vnum, kVirtual);
+	if (!mob) {
+		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kSummonNoProto) + "\r\n", ch);
+		return EStageResult::kSuccess;
+	}
+	if (IsSummonTargetProtected(ch, mob, spell_id)) {
+		return EStageResult::kSuccess;
+	}
+	if (!CheckCharmices(ch, mob, spell_id)) {
+		ExtractCharFromWorld(mob, false);
+		return EStageResult::kSuccess;
+	}
+	mob->set_exp(0);
+	IS_CARRYING_W(mob) = 0;
+	IS_CARRYING_N(mob) = 0;
+	mob->set_gold(0);
+	GET_GOLD_NoDs(mob) = 0;
+	GET_GOLD_SiDs(mob) = 0;
+	const auto days_from_full_moon =
+		(weather_info.moon_day < 14) ? (14 - weather_info.moon_day) : (weather_info.moon_day - 14);
+	const auto duration = CalcDuration(ch, mob, ESkill::kUndefined,
+		GetRealWis(ch) + number(0, days_from_full_moon), 0, 0, 0);
+	Affect<EApply> af;
+	af.type = ESpell::kCharm;
+	af.duration = duration;
+	af.modifier = 0;
+	af.location = EApply::kNone;
+	af.affect_type = EAffect::kCharmed;
+	af.battleflag = 0;
+	affect_to_char(mob, af);
+	if (s.keeper) {
+		af.affect_type = EAffect::kHelper;
+		affect_to_char(mob, af);
+		mob->set_skill(ESkill::kRescue, 100);
+	}
+	mob->SetFlag(EMobFlag::kCorpse);
+	act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kSummonToRoom).c_str(),
+		false, ch, nullptr, mob, kToRoom | kToArenaListen);
+	PlaceCharToRoom(mob, ch->in_room);
+	ch->add_follower(mob);
+	if (!s.handler.empty()) {
+		const auto it = kSummonHandlers.find(s.handler);
+		if (it != kSummonHandlers.end()) {
+			it->second(ch, mob, ctx);
+		} else {
+			err_log("CastSummonAction: unknown summon handler '%s' for %s.",
+					s.handler.c_str(), NAME_BY_ITEM<ESpell>(spell_id).c_str());
+		}
+	}
+	mob->SetFlag(EMobFlag::kNoSkillTrain);
+	mob->char_specials.saved.alignment = ch->char_specials.saved.alignment;
+	return EStageResult::kSuccess;
+}
+
 EStageResult CastSummon(CastContext &ctx, bool need_fail) {
 	CharData *const ch = ctx.caster();
 	ObjData *const obj = ctx.ovict;
@@ -1520,6 +1608,10 @@ EStageResult CastSummon(CastContext &ctx, bool need_fail) {
 	const ESpell spell_id = ctx.spell_id();
 	if (ch == nullptr) {
 		return EStageResult::kSuccess;
+	}
+	// issue.summon-pipeline: a <summon> action routes to the data-driven skeleton.
+	if (ctx.action_or_default().Contains(talents_actions::EAction::kSummon)) {
+		return CastSummonAction(ctx);
 	}
 	if (spell_id == ESpell::kSumonAngel) {
 		SummonTutelar(ch);

@@ -3178,6 +3178,15 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kCha" threshold="22" weight="0.5"/>
         </potency_roll>
+        <talent_actions>
+            <!-- issue.summon-pipeline: fail = 50 - 16*C (C from potency_roll); keeper post-spawn
+                 stats via the SetupKeeperStats handler. mob vnum -3021 = -kMobKeeper. -->
+            <action>
+                <summon base_fail="50" min_fail="0" handler="SetupKeeperStats">
+                    <mob vnum="-3021" competence_weight="16" keeper="Y"/>
+                </summon>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kFastRegeneration" element="kLife" mode="kEnabled">
         <name rus="быстрое восстановление" eng="fast regeneration"/>
