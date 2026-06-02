@@ -435,7 +435,6 @@ EStageResult SpellRelocate(CastContext &ctx) {
 	}
 	if (!enter_wtrigger(world[fnd_room], ch, -1))
 		return EStageResult::kSuccess;
-//	check_auto_nosummon(victim);
 	// kRelocate shares the kTeleport disappear/appear wording
 	// and adds its own kCustomMsgOne caster-side "azure flash" banner.
 	act(MUD::SpellMessages().GetMessage(ESpell::kRelocate, ESpellMsg::kCastDisappearToRoom).c_str(),
@@ -461,8 +460,6 @@ EStageResult SpellRelocate(CastContext &ctx) {
 // do_enter (entry gate); cleared automatically when the affect expires.
 void AddPortalTimer(CharData *ch, RoomData *from_room, RoomRnum to_room, int time,
 					long pk_unique = 0) {
-//	sprintf(buf, "Добавляем портал из %d в %d", from_room->vnum, world[to_room]->vnum);
-//	mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
 
 	Affect<room_spells::ERoomApply> af;
 	af.type = ESpell::kPortalTimer;

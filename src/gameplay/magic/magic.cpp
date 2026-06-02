@@ -463,9 +463,6 @@ static int CalcTotalSpellDmg(CharData *ch, CharData *victim, ESpell spell_id,
 // decides what to do next (recursive self-cast for reflection, early return for absorption).
 // Conditions match the stricter set that CastAffect used (IsViolent / !ch->IsGod / same-room
 // for the magic mirror; +remort/2 bias on the sonic barrier; IsViolent on the shield block).
-// CastDamage previously had slightly looser conditions for some of these; in practice the diffs
-// don't bite (damage spells are violent, same-room, etc.), but the unified version is what runs
-// for both call sites now.
 namespace {
 
 // Build and process one Damage object for a multi-hit damage spell. `count` is the
