@@ -704,8 +704,7 @@ This is the workhorse for buffs and debuffs.
     <flags val="kAfBattledec|kAfDispellable|kAfCurable"/>
     <duration base="1" skill_divisor="15" min="1" max="6"/>
     <apply id="kSleep" location="kNone">
-        <modifier min="0.0" dices_weight="0.0" alpha="0" beta="0"
-                  factor="1" stack="1"/>
+        <modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1" stack="1"/>
     </apply>
     <reposition pos="kSleep" stop_fight="false"/>
     <lag base="2" bonus_divisor="-1"/>
@@ -766,8 +765,7 @@ The skill bonus is capped at the novice threshold (75) divided by
 
 ```xml
 <apply id="kPoisoned" location="kStr" random="false">
-    <modifier min="2.0" dices_weight="0.0" alpha="0" beta="0"
-              factor="-1" stack="3"/>
+    <modifier min="2.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" stack="3"/>
 </apply>
 ```
 
@@ -826,12 +824,10 @@ Example design — a poison that stacks up to 3 times:
     <flags val="kAfAccumulateDuration|kAfCurable"/>
     <duration base="0" skill_divisor="3" min="0" max="0"/>
     <apply id="kPoisoned" location="kStr">
-        <modifier min="2.0" dices_weight="0.0" alpha="0" beta="0"
-                  factor="-1" stack="3"/>
+        <modifier min="2.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" stack="3"/>
     </apply>
     <apply id="kPoisoned" location="kPoison">
-        <modifier min="30.0" dices_weight="0.0" alpha="0" beta="0"
-                  factor="1" stack="3"/>
+        <modifier min="30.0" dices_weight="0.0" alpha="0" beta="0" factor="1" stack="3"/>
     </apply>
 </affects>
 ```
@@ -949,8 +945,7 @@ XML reads:
 
 ```xml
 <apply id="kBless" location="kSavingStability">
-    <modifier min="0.0" dices_weight="0.0"
-              alpha="0" beta="2.8" factor="-1"/>
+    <modifier min="0.0" dices_weight="0.0" alpha="0" beta="2.8" factor="-1"/>
 </apply>
 ```
 
@@ -985,12 +980,10 @@ way until their potency_rolls are normalised.
 
 ```xml
 <unaffect affect_flags="kAfCurable" potency_weight="1.0" prob="100">
-    <blocking      any_of="kGodsShield"
-                   all_of=""/>
+    <blocking      any_of="kGodsShield" all_of=""/>
     <breaking      any_of="kSanctuary"/>
     <remove_anyway any_of="kQuestMark"/>
-    <remove        all_of="kInvisible|kCamouflage|kHide"
-                   breaking_by_failure="true"/>
+    <remove        all_of="kInvisible|kCamouflage|kHide" breaking_by_failure="true"/>
 </unaffect>
 ```
 
@@ -1433,8 +1426,7 @@ A message lookup tries the spell's own sheaf first, then falls back to
                 <duration base="1" skill_divisor="15" min="1" max="6"/>
                 <flags val="kAfBattledec|kAfDispellable|kAfCurable"/>
                 <apply id="kSleep" location="kNone">
-                    <modifier min="0.0" dices_weight="0.0"
-                              alpha="0" beta="0" factor="1"/>
+                    <modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1"/>
                 </apply>
             </affects>
         </action>
@@ -1503,15 +1495,13 @@ A message lookup tries the spell's own sheaf first, then falls back to
                 <distribution type="kStepped" decay="0.05" free_targets="5"/>
             </area>
             <unaffect>
-                <remove all_of="kInvisible|kCamouflage|kHide"
-                        breaking_by_failure="true"/>
+                <remove all_of="kInvisible|kCamouflage|kHide" breaking_by_failure="true"/>
             </unaffect>
             <affects type="kGlitterDust" saving="kReflex" resist="kEarth">
                 <flags val="kAfDispellable|kAfCurable"/>
                 <duration base="4" skill_divisor="0" min="0" max="0"/>
                 <apply id="kGlitterDust" location="kSavingReflex">
-                    <modifier min="0.0" dices_weight="0.0"
-                              alpha="0" beta="4.4" factor="1"/>
+                    <modifier min="0.0" dices_weight="0.0" alpha="0" beta="4.4" factor="1"/>
                 </apply>
             </affects>
         </action>
@@ -1614,14 +1604,10 @@ how a stacking variant would be authored.
                 <duration base="0" skill_divisor="3" min="0" max="0"/>
                 <flags val="kAfSameTime|kAfAccumulateDuration|kAfCurable"/>
                 <apply id="kPoisoned" location="kStr">
-                    <modifier min="2.0" dices_weight="0.0"
-                              alpha="0" beta="0"
-                              factor="-1" stack="3"/>
+                    <modifier min="2.0" dices_weight="0.0" alpha="0" beta="0" factor="-1" stack="3"/>
                 </apply>
                 <apply id="kPoisoned" location="kPoison">
-                    <modifier min="0.0" dices_weight="0.0"
-                              alpha="0" beta="11.5"
-                              factor="1" stack="3"/>
+                    <modifier min="0.0" dices_weight="0.0" alpha="0" beta="11.5" factor="1" stack="3"/>
                 </apply>
             </affects>
         </action>
