@@ -3928,21 +3928,22 @@ void YamlWorldDataSource::SaveMobs(int zone_rnum, int specific_vnum)
 					yaml.DecreaseIndent();
 				}
 
-				// Destinations
-				bool has_destinations = false;
-				for (int dest : mob.mob_specials.dest)
-				{
-					if (dest != 0) { has_destinations = true; break; }
-				}
-				if (has_destinations)
+				// Destinations: emit only the real route (dest[0..dest_count-1]),
+				// NOT the full kMaxDest array. dest_count is the count the
+				// legacy loader and the converter use; padding the sequence
+				// with the array's trailing zeros makes the loader read
+				// dest_count too large with bogus 0 destinations, breaking the
+				// round-trip for every patrolling mob (issue #3384/#3391).
+				if (mob.mob_specials.dest_count > 0)
 				{
 					yaml.Key("destinations");
 					yaml.BeginSequence();
 					yaml.IncreaseIndent();
 
-					for (int dest : mob.mob_specials.dest)
+					for (int d = 0; d < mob.mob_specials.dest_count
+						&& d < static_cast<int>(mob.mob_specials.dest.size()); ++d)
 					{
-						yaml.SequenceItem(dest);
+						yaml.SequenceItem(mob.mob_specials.dest[d]);
 					}
 
 					yaml.DecreaseIndent();
@@ -4324,6 +4325,33 @@ void YamlWorldDataSource::SaveObjects(int zone_rnum, int specific_vnum)
 					out << "  # " << GetApplyTypeNameComment(location) << std::endl;
 					out << yaml.GetIndent() << "  modifier: " << modifier << std::endl;
 				}
+			}
+
+			yaml.DecreaseIndent();
+		}
+
+		// Skills granted by the object (legacy `S` lines). Without this the
+		// C++ emitter drops them on -S/OLC resave (same class as the SaveMobs
+		// fix); object skill bonuses would vanish on every resave. Mirrors the
+		// converter/loader (issues #3386/#3391).
+		std::vector<std::pair<int, int>> obj_skills;
+		for (const auto &kv : obj->get_skills())
+		{
+			obj_skills.emplace_back(static_cast<int>(kv.first), kv.second);
+		}
+		std::sort(obj_skills.begin(), obj_skills.end());
+
+		if (!obj_skills.empty())
+		{
+			yaml.Key("skills");
+			yaml.BeginSequence();
+			yaml.IncreaseIndent();
+
+			for (const auto &kv : obj_skills)
+			{
+				out << yaml.GetIndent() << "- skill_id: " << kv.first;
+				out << "  # " << GetSkillNameComment(static_cast<ESkill>(kv.first)) << std::endl;
+				out << yaml.GetIndent() << "  value: " << kv.second << std::endl;
 			}
 
 			yaml.DecreaseIndent();
