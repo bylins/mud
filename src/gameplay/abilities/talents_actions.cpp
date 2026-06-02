@@ -852,12 +852,23 @@ void Actions::ParseDamage(Action &out, parser_wrapper::DataNode &node) {
 void Actions::ParseArea(Action &out, parser_wrapper::DataNode &node) {
 	auto ptr = std::make_shared<Area>();
 	if (node.GoToChild("targets")) {
-		ptr->skill_divisor = std::max(1, parse::ReadAsInt(node.GetValue("skill_divisor")));
-		ptr->dice_size = std::max(1, parse::ReadAsInt(node.GetValue("dice_size")));
-		ptr->min_targets = std::max(1, parse::ReadAsInt(node.GetValue("min")));
+		// Every attribute is optional: a missing one must keep the Area member default, NOT abort
+		// the whole action parse. ReadAsInt/ReadAsDouble throw runtime_error("") on an empty string
+		// (std::stoi/stod on ""), and that exception is swallowed by Actions::Build, which then
+		// drops the spell's entire action list -- so an absent `stat_weight` silently disabled every
+		// area/mass/group spell (issue.area-spell-bug). Guard each read like Damage/Affect do.
+		const char *sd = node.GetValue("skill_divisor");
+		if (sd && *sd) { ptr->skill_divisor = std::max(1, parse::ReadAsInt(sd)); }
+		const char *ds = node.GetValue("dice_size");
+		if (ds && *ds) { ptr->dice_size = std::max(1, parse::ReadAsInt(ds)); }
+		const char *mn = node.GetValue("min");
+		if (mn && *mn) { ptr->min_targets = std::max(1, parse::ReadAsInt(mn)); }
 		// max <= 0 means "no upper limit" (hit every target in the roster); don't clamp it.
-		ptr->max_targets = parse::ReadAsInt(node.GetValue("max"));
-		ptr->stat_weight = parse::ReadAsDouble(node.GetValue("stat_weight"));
+		const char *mx = node.GetValue("max");
+		if (mx && *mx) { ptr->max_targets = parse::ReadAsInt(mx); }
+		// stat_weight defaults to 0 (exactly the historical count) and is absent everywhere today.
+		const char *sw = node.GetValue("stat_weight");
+		if (sw && *sw) { ptr->stat_weight = parse::ReadAsDouble(sw); }
 		node.GoToParent();
 	}
 	if (node.GoToChild("distribution")) {
@@ -869,8 +880,12 @@ void Actions::ParseArea(Action &out, parser_wrapper::DataNode &node) {
 		} else {
 			ptr->distribution = EAreaDistribution::kUniform;
 		}
-		ptr->decay = parse::ReadAsDouble(node.GetValue("decay"));
-		ptr->free_targets = std::max(0, parse::ReadAsInt(node.GetValue("free_targets")));
+		// decay / free_targets matter only for kStepped and are absent otherwise (e.g. kUniform);
+		// guard them so a missing attribute keeps the default instead of throwing.
+		const char *dc = node.GetValue("decay");
+		if (dc && *dc) { ptr->decay = parse::ReadAsDouble(dc); }
+		const char *ft = node.GetValue("free_targets");
+		if (ft && *ft) { ptr->free_targets = std::max(0, parse::ReadAsInt(ft)); }
 		node.GoToParent();
 	}
 	out.manifestations_.insert({EAction::kArea, std::move(ptr)});
