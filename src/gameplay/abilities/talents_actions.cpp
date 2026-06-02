@@ -629,6 +629,9 @@ void Action::Print(CharData *ch, std::ostringstream &buffer) const {
 	if (!manual_handler_.empty()) {
 		buffer << "  Manual: " << kColorGrn << manual_handler_ << kColorNrm << "\r\n";
 	}
+	for (const auto s : side_spells_) {
+		buffer << "  SideSpell: " << kColorGrn << NAME_BY_ITEM<ESpell>(s) << kColorNrm << "\r\n";
+	}
 	buffer << "  Target: " << kColorGrn << static_cast<int>(target_) << kColorNrm
 		   << " Base: " << kColorGrn << static_cast<int>(base_) << kColorNrm
 		   << " Reset: " << kColorGrn << (reset_ ? "Y" : "N") << kColorNrm << "\r\n";
@@ -806,6 +809,10 @@ void Actions::ParseAction(Action &out, parser_wrapper::DataNode node) {
 			// issue.manual-cast: <manual_cast handler="SpellX"/>.
 			const char *hv = manifestation.GetValue("handler");
 			if (hv && *hv) { out.manual_handler_ = hv; }
+		} else if (strcmp(manifestation.GetName(), "side_spell") == 0) {
+			// issue.side-spell: <side_spell id="kHold"/>.
+			const char *idv = manifestation.GetValue("id");
+			if (idv && *idv) { out.side_spells_.push_back(parse::ReadAsConstant<ESpell>(idv)); }
 		}
 	}
 	node.GoToParent();
@@ -890,10 +897,13 @@ void Actions::ParseUnaffect(Action &out, parser_wrapper::DataNode &node) {
 // ---- Action: per-action manifestation accessors (the real logic) ----
 
 bool Action::Contains(EAction action) const {
-	// kManual has no IAction in manifestations_ -- it is carried as a handler name
-	// (issue.manual-cast), so answer from that field instead of the manifestation map.
+	// kManual / kSideSpell have no IAction in manifestations_ -- they are carried as a handler
+	// name / a spell list, so answer from those fields instead of the manifestation map.
 	if (action == EAction::kManual) {
 		return !manual_handler_.empty();
+	}
+	if (action == EAction::kSideSpell) {
+		return !side_spells_.empty();
 	}
 	return manifestations_.contains(action);
 }

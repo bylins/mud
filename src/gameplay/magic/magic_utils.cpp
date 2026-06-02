@@ -461,7 +461,9 @@ CastContext BuildCastContext(CharData *caster, ESpell spell_id, int level) {
 		return RollResult{roll.RollSkillDices(), roll.CalcSkillCoeff(caster),
 						  roll.CalcBaseStatCoeff(caster), roll.CalcLowSkillCoeff(caster)};
 	};
-	return CastContext(caster, spell_id, level, eval(spell.GetSuccessRoll()), eval(spell.GetPotencyRoll()));
+	CastContext ctx(caster, spell_id, level, eval(spell.GetSuccessRoll()), eval(spell.GetPotencyRoll()));
+	ctx.casting.insert(spell_id);  // issue.side-spell: seed the cast-chain loop guard
+	return ctx;
 }
 
 ECastResult CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomData *rvict, ESpell spell_id, int level) {

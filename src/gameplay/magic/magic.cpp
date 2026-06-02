@@ -2884,6 +2884,35 @@ bool CastContext::HasPendingActions() const {
 	return action_idx_ < std::max<size_t>(1, count);
 }
 
+// issue.side-spell: cast each of the action's <side_spell> spells as a full nested pipeline on
+// the current target. Each side cast gets its OWN rolls (its potency/success, possibly a
+// different base_skill) and a fresh context, so its damage/affect accumulators and reactions
+// are isolated. Loop guard (option 5): a spell already in ctx.casting (this chain) is refused.
+EStageResult CastSideSpell(CastContext &ctx) {
+	const auto &sides = ctx.action_or_default().GetSideSpells();
+	if (sides.empty()) {
+		return EStageResult::kSuccess;
+	}
+	EStageResult result = EStageResult::kSuccess;
+	for (const ESpell side : sides) {
+		if (ctx.casting.count(side) > 0) {
+			err_log("CastSideSpell: cast loop -- %s already in the chain (spell %s); aborted.",
+					NAME_BY_ITEM<ESpell>(side).c_str(), NAME_BY_ITEM<ESpell>(ctx.spell_id()).c_str());
+			result = EStageResult::kFail;
+			continue;
+		}
+		CastContext sub = BuildCastContext(ctx.caster(), side, ctx.level);
+		sub.casting = ctx.casting;   // inherit the ancestry ...
+		sub.casting.insert(side);    // ... plus this side spell (so its own side casts see the chain)
+		sub.cvict = ctx.cvict;       // cast on the current target (this is a per-target stage)
+		sub.area_coeff = ctx.area_coeff;  // inherit the outer per-target falloff (mass spells)
+		if (CastSpell(sub, ECastTargets::kSingle) == ECastResult::kNotCast) {
+			result = EStageResult::kFail;
+		}
+	}
+	return result;
+}
+
 // Per-(action, target) pipeline (issue.area-cast per-action targets). Runs the cast gates and
 // the CURRENT action's data-driven stages on ctx.cvict. `is_entry` (the spell's first action)
 // additionally runs the whole-cast steps -- reflection, god guard, mtrigger, the one-shot
@@ -2957,6 +2986,8 @@ ECastResult CastOnTarget(CastContext &ctx, bool is_entry) {
 	// issue.manual-cast: the manual stage runs whenever the action names a handler (entry or not).
 	const bool run_manual    = is_entry ? MUD::Spell(spell_id).IsFlagged(kMagManual)
 										: action.Contains(talents_actions::EAction::kManual);
+	// issue.side-spell: runs whenever the action carries a <side_spell> (entry or not, no flag).
+	const bool run_side      = action.Contains(talents_actions::EAction::kSideSpell);
 	bool target_died = false;
 	bool stop_stages = false;
 	if (run_damage && CastDamage(ctx) == EStageResult::kBreak) {
@@ -2973,6 +3004,9 @@ ECastResult CastOnTarget(CastContext &ctx, bool is_entry) {
 	}
 	if (run_points && !stop_stages && CastToPoints(ctx) != EStageResult::kSuccess) {
 		stop_stages = true;
+	}
+	if (run_side && !stop_stages) {
+		CastSideSpell(ctx);  // issue.side-spell: nested cast(s) on the current target; fire-and-forget
 	}
 	if (run_manual && !stop_stages && CastManual(ctx) != EStageResult::kSuccess) {
 		stop_stages = true;

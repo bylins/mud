@@ -17,6 +17,7 @@
 #include "spells_info.h"
 
 #include <cstdlib>
+#include <set>
 #include <vector>
 
 class CharData;
@@ -105,6 +106,10 @@ class CastContext {
 	// ONE event, so reactions are recorded here per cast-upon target and fired once, after every
 	// action has run -- a mid-spell retaliation must not kill the caster before later actions.
 	std::vector<CharData *> reactions;
+	// issue.side-spell: the spells currently in this cast chain (this spell + ancestors).
+	// A side-spell stage refuses to cast a spell already here (cycle -> stack overflow).
+	// Initialised to {spell_id} in BuildCastContext; a side cast inherits this set + itself.
+	std::set<ESpell> casting;
 	// issue.cast-chain: per-cast accumulators of what the actions have done so far, summed across
 	// each action's targets. A later action can scale off one of these (its base= attribute)
 	// instead of the caster's competence. Reset to 0 at cast start (fresh CastContext per cast).
@@ -222,6 +227,7 @@ ECastResult CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troo
 enum class EStageResult {
 	kBreak,		// stop the whole cast (this action's rest + all later actions).
 	kContinue,	// stop this action's remaining stages; go to the next action.
+	kFail,		// issue.side-spell: stage ran but its effect failed; flow continues (status only).
 	kSuccess	// stage handled; continue to the next stage of this action.
 };
 

@@ -28,7 +28,8 @@ enum class EAction {
 	kPoints,   // hit / moves / thirst / cond restoration (was kHeal; issue.mag-points)
 	kAffect,
 	kUnaffect,
-	kManual    // hand-coded handler (issue.manual-cast); not an IAction -- backed by manual_handler_
+	kManual,   // hand-coded handler (issue.manual-cast); not an IAction -- backed by manual_handler_
+	kSideSpell // nested cast of another spell (issue.side-spell); not an IAction -- backed by side_spells_
 };
 
 // issue.area-cast per-action targets: how a NON-FIRST <action> picks its targets (the first
@@ -494,6 +495,9 @@ class Action {
 	// issue.manual-cast: name of the hand-coded handler (<manual_cast><handler val=>) this action
 	// runs as its manual stage; resolved against the registry in magic.cpp. Empty = no manual stage.
 	std::string manual_handler_;
+	// issue.side-spell: spells to cast (full nested pipeline) on this action's target(s), in order.
+	// Parsed from <side_spell id="kHold"/> (several allowed). Empty = no side-spell stage.
+	std::vector<ESpell> side_spells_;
 
 	friend class Actions;   // Actions builds these via the Parse* helpers.
 
@@ -513,6 +517,7 @@ class Action {
 	[[nodiscard]] EActionBase GetBase() const { return base_; }
 	[[nodiscard]] bool GetReset() const { return reset_; }
 	[[nodiscard]] const std::string &GetManualHandler() const { return manual_handler_; }
+	[[nodiscard]] const std::vector<ESpell> &GetSideSpells() const { return side_spells_; }
 };
 
 // Spell-level caster gate (issue.spell-unification): a spell is castable by the caster
