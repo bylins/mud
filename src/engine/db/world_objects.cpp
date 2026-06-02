@@ -10,6 +10,7 @@
 #include "gameplay/mechanics/dungeons.h"
 
 #include <algorithm>
+#include <vector>
 
 void WorldObjects::WO_VNumChangeObserver::notify(CObjectPrototype &object, const ObjVnum old_vnum) {
 	if (old_vnum != object.get_vnum()) {
@@ -337,14 +338,27 @@ ObjData::shared_ptr WorldObjects::find_by_vnum_and_dec_number(const ObjVnum vnum
 
 ObjData::shared_ptr WorldObjects::find_by_rnum(const ObjRnum rnum, unsigned number) const {
 	const auto set_i = m_rnum_to_object_ptr.find(rnum);
-	if (set_i != m_rnum_to_object_ptr.end()) {
-		for (const auto &object : set_i->second) {
-			if (0 == number) {
-				return object;
-			}
+	if (set_i == m_rnum_to_object_ptr.end()) {
+		return nullptr;
+	}
 
-			--number;
-		}
+	// Бакет хранится в std::unordered_set, поэтому порядок обхода не определён
+	// (зависит от хешей указателей, т.е. от раскладки кучи). Раньше это давало
+	// недетерминированный выбор, когда в мире несколько экземпляров одного
+	// прототипа: например, ресет зоны с командой 'P' клал предмет в случайный
+	// из нескольких одинаковых контейнеров. Упорядочиваем по get_id() (строго
+	// монотонный счётчик создания, max_id.allocate), чтобы выбор был стабильным
+	// и воспроизводимым. Путь холодный (единственный вызыватель -- ветка 'P' в
+	// ResetZoneEssential через SearchObjByRnum), бакет мал, так что сортировка
+	// ничего не стоит. См. issue #3371.
+	std::vector<ObjData::shared_ptr> ordered(set_i->second.begin(), set_i->second.end());
+	std::sort(ordered.begin(), ordered.end(),
+		[](const ObjData::shared_ptr &lhs, const ObjData::shared_ptr &rhs) {
+			return lhs->get_id() < rhs->get_id();
+		});
+
+	if (number < ordered.size()) {
+		return ordered[number];
 	}
 
 	return nullptr;
@@ -380,17 +394,12 @@ void WorldObjects::AddToExtractedList(ObjData *obj) {
 
 	object_ptr->unsubscribe_from_rnum_changes(m_rnum_change_observer);
 	m_rnum_to_object_ptr[object_ptr->get_rnum()].erase(object_ptr);
-	log("add obj to extracted list %s %d", obj->get_PName(ECase::kNom).c_str(), GET_OBJ_VNUM(obj));
-//	if (obj->get_vnum() == 33516) {
-//		debug::backtrace(runtime_config.logs(SYSLOG).handle());
-//	}
 	obj->set_extracted_list(true);
 //	obj->get_script()->set_purged(true);
 	m_extracted_list.insert(obj);
 }
 
 void WorldObjects::PurgeExtractedList() {
-	log("Start obj PurgeExtractedList");
 	if (!m_extracted_list.empty()) {
 		for (auto it : m_extracted_list) {
 			ExtractObjFromWorld(it, false);

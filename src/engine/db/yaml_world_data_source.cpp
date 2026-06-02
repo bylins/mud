@@ -29,8 +29,11 @@
 
 #include <yaml-cpp/yaml.h>
 #include <algorithm>
+#include <cstdlib>
 #include <cstring>
 #include <iomanip>
+#include <utility>
+#include <vector>
 #include <regex>
 #include <filesystem>
 #include <fstream>
@@ -482,6 +485,20 @@ int YamlWorldDataSource::ParseEnum(const YAML::Node &node, const std::string &di
 	}
 
 	std::string name = node.as<std::string>();
+	// A raw integer value (the converter emits one whenever the enum index
+	// has no symbolic name -- e.g. an out-of-range default_pos like 15) must
+	// round-trip verbatim instead of collapsing to the default; otherwise
+	// legacy<->yaml drift on such values, and the SQLite path (which stores
+	// the int directly) would disagree too (issue #3384 class).
+	if (!name.empty())
+	{
+		char *end = nullptr;
+		const long as_int = std::strtol(name.c_str(), &end, 10);
+		if (*end == '\0')
+		{
+			return static_cast<int>(as_int);
+		}
+	}
 	auto &dm = DictionaryManager::Instance();
 	long val = dm.Lookup(dict_name, name, default_val);
 	return static_cast<int>(val);
@@ -1507,6 +1524,13 @@ CharData YamlWorldDataSource::ParseMobFile(const std::string &file_path)
 	// Sex
 	mob.set_sex(static_cast<EGender>(ParseGender(root["sex"])));
 
+	// Movement speed. parse_simple_mob leaves speed == -1 when the position
+	// line has only three fields (the common case) and stores an explicit
+	// value otherwise. The converter omits the -1 default, so fall back to
+	// -1 here -- without it every such mob loads with speed 0 and walks on
+	// the wrong cadence (same dropped-property class as #3384/#3386).
+	mob.mob_specials.speed = GetInt(root, "speed", -1);
+
 	// Race -- legacy clamps to [kBasic, kLastNpcRace] (boot_data_files.cpp).
 	mob.player_data.Race = std::clamp(static_cast<ENpcRace>(GetInt(root, "race", ENpcRace::kBasic)),
 									  ENpcRace::kBasic, ENpcRace::kLastNpcRace);
@@ -1693,13 +1717,18 @@ CharData YamlWorldDataSource::ParseMobFile(const std::string &file_path)
 			int idx = 0;
 			for (const auto &dest_node : enhanced["destinations"])
 			{
-				int room_vnum = dest_node.as<int>();
-				if (idx < static_cast<int>(mob.mob_specials.dest.size()))
+				if (idx >= static_cast<int>(mob.mob_specials.dest.size()))
 				{
-					mob.mob_specials.dest[idx] = room_vnum;
+					break;
 				}
+				mob.mob_specials.dest[idx] = dest_node.as<int>();
 				idx++;
 			}
+			// dest_count drives GET_DEST and the whole movement-route logic;
+			// without it the dest[] array we just filled stays invisible and
+			// the mob never walks its patrol (issue #3384, matches the legacy
+			// interpret_espec "Destination" handler in boot_data_files.cpp).
+			mob.mob_specials.dest_count = idx;
 		}
 	}
 
@@ -2142,6 +2171,19 @@ CObjectPrototype* YamlWorldDataSource::ParseObjectFile(const std::string &file_p
 					int location = GetInt(apply_node, "location", 0);
 					int modifier = GetInt(apply_node, "modifier", 0);
 					obj_ptr->set_affected(apply_idx++, static_cast<EApply>(location), modifier);
+				}
+			}
+
+			// Skills granted by the object (legacy `S` lines). Mirrors the
+			// boot_data_files.cpp `case 'S'` handler; without it the object's
+			// skill bonuses are silently dropped in the YAML world (issue #3386).
+			if (root["skills"] && root["skills"].IsSequence())
+			{
+				for (const auto &skill_node : root["skills"])
+				{
+					int skill_id = GetInt(skill_node, "skill_id", 0);
+					int value = GetInt(skill_node, "value", 0);
+					obj_ptr->set_skill(static_cast<ESkill>(skill_id), value);
 				}
 			}
 
@@ -3631,32 +3673,33 @@ void YamlWorldDataSource::SaveMobs(int zone_rnum, int specific_vnum)
 			yaml.DecreaseIndent();
 		}
 
-		// Skills (with comments)
-		bool has_skills = false;
-		for (ESkill skill_id = ESkill::kFirst; skill_id <= ESkill::kLast; ++skill_id)
+		// Skills (with comments). Use the raw trained-skill map (skillLevel),
+		// NOT GetSkill(): GetSkill() layers on instance context -- equipment,
+		// affects and a kDominationArena clamp keyed off in_room -- which is
+		// meaningless for a prototype (in_room is NOWHERE) and would zero mob
+		// skills on resave. Mirrors WorldChecksum::SerializeMob and the loader
+		// so skills survive the round-trip (issue #3391).
+		std::vector<std::pair<int, int>> mob_skills;
+		for (const auto &kv : mob.GetCharSkills())
 		{
-			if (mob.GetSkill(skill_id) > 0)
+			if (kv.second.skillLevel > 0)
 			{
-				has_skills = true;
-				break;
+				mob_skills.emplace_back(static_cast<int>(kv.first), kv.second.skillLevel);
 			}
 		}
+		std::sort(mob_skills.begin(), mob_skills.end());
 
-		if (has_skills)
+		if (!mob_skills.empty())
 		{
 			yaml.Key("skills");
 			yaml.BeginSequence();
 			yaml.IncreaseIndent();
 
-			for (ESkill skill_id = ESkill::kFirst; skill_id <= ESkill::kLast; ++skill_id)
+			for (const auto &kv : mob_skills)
 			{
-				int skill_value = mob.GetSkill(skill_id);
-				if (skill_value > 0)
-				{
-					out << yaml.GetIndent() << "- skill_id: " << static_cast<int>(skill_id);
-					out << "  # " << GetSkillNameComment(skill_id) << std::endl;
-					out << yaml.GetIndent() << "  value: " << skill_value << std::endl;
-				}
+				out << yaml.GetIndent() << "- skill_id: " << kv.first;
+				out << "  # " << GetSkillNameComment(static_cast<ESkill>(kv.first)) << std::endl;
+				out << yaml.GetIndent() << "  value: " << kv.second << std::endl;
 			}
 
 			yaml.DecreaseIndent();
@@ -3885,21 +3928,22 @@ void YamlWorldDataSource::SaveMobs(int zone_rnum, int specific_vnum)
 					yaml.DecreaseIndent();
 				}
 
-				// Destinations
-				bool has_destinations = false;
-				for (int dest : mob.mob_specials.dest)
-				{
-					if (dest != 0) { has_destinations = true; break; }
-				}
-				if (has_destinations)
+				// Destinations: emit only the real route (dest[0..dest_count-1]),
+				// NOT the full kMaxDest array. dest_count is the count the
+				// legacy loader and the converter use; padding the sequence
+				// with the array's trailing zeros makes the loader read
+				// dest_count too large with bogus 0 destinations, breaking the
+				// round-trip for every patrolling mob (issue #3384/#3391).
+				if (mob.mob_specials.dest_count > 0)
 				{
 					yaml.Key("destinations");
 					yaml.BeginSequence();
 					yaml.IncreaseIndent();
 
-					for (int dest : mob.mob_specials.dest)
+					for (int d = 0; d < mob.mob_specials.dest_count
+						&& d < static_cast<int>(mob.mob_specials.dest.size()); ++d)
 					{
-						yaml.SequenceItem(dest);
+						yaml.SequenceItem(mob.mob_specials.dest[d]);
 					}
 
 					yaml.DecreaseIndent();
@@ -4281,6 +4325,23 @@ void YamlWorldDataSource::SaveObjects(int zone_rnum, int specific_vnum)
 					out << "  # " << GetApplyTypeNameComment(location) << std::endl;
 					out << yaml.GetIndent() << "  modifier: " << modifier << std::endl;
 				}
+			}
+
+			yaml.DecreaseIndent();
+		}
+
+		// Умения предмета (legacy S-строки), issue #3386.
+		if (obj->has_skills())
+		{
+			yaml.Key("skills");
+			yaml.BeginSequence();
+			yaml.IncreaseIndent();
+
+			for (const auto &[skill_id, value] : obj->get_skills())
+			{
+				out << yaml.GetIndent() << "- skill_id: " << static_cast<int>(skill_id);
+				out << "  # " << GetSkillNameComment(skill_id) << std::endl;
+				out << yaml.GetIndent() << "  value: " << value << std::endl;
 			}
 
 			yaml.DecreaseIndent();

@@ -258,8 +258,6 @@ void player_affect_update() {
 
 	RunStats profile;
 	utils::CExecutionTimer total_timer;
-	int count = 0, c_all = 0, recalc = 0;
-//	character_list.foreach_on_copy([&count](const CharData::shared_ptr &i) {
 	for (auto d = descriptor_list; d; d = d->next) {
 		if (d->state != EConState::kPlaying)
 			continue;
@@ -286,10 +284,8 @@ void player_affect_update() {
 		}
 
 		if (!i->affected.empty()) {
-			++count;
 			++profile.counters[static_cast<std::size_t>(Counter::kAffectedPlayers)];
 		}
-		++c_all;
 		bool was_purged = false;
 		bool set_abstinent = false;
 		bool need_recalc = false;
@@ -390,15 +386,12 @@ void player_affect_update() {
 				affect_total(i.get());
 				profile.sections[static_cast<std::size_t>(Section::kRecalc)] += recalc_timer.delta().count();
 			}
-			++recalc;
 			++profile.counters[static_cast<std::size_t>(Counter::kRecalcPlayers)];
 		}
 		profile.sections[static_cast<std::size_t>(Section::kDescriptorLoop)] += descriptor_timer.delta().count();
 	}
-	const auto total_elapsed = total_timer.delta().count();
-	profile.sections[static_cast<std::size_t>(Section::kTotal)] = total_elapsed;
+	profile.sections[static_cast<std::size_t>(Section::kTotal)] = total_timer.delta().count();
 	player_affect_update_profiler::record_run(profile);
-	log("player affect update: timer %f, num affected players %d, all %d recalc %d", total_elapsed, count, c_all, recalc);
 }
 
 // This file update battle affects only
@@ -466,15 +459,12 @@ void battle_affect_update(CharData *ch) {
 
 // раз в минуту
 void mobile_affect_update() {
-	log("mobile_affect_update() start, affected_mobs size=%zu", affected_mobs.size());
 	using mobile_affect_update_profiler::Counter;
 	using mobile_affect_update_profiler::RunStats;
 	using mobile_affect_update_profiler::Section;
 
 	RunStats profile;
 	utils::CExecutionTimer total_timer;
-	int count = 0;
-	int recalc = 0;
 
 	utils::CExecutionTimer copy_timer;
 	auto copy = affected_mobs;
@@ -486,7 +476,6 @@ void mobile_affect_update() {
 		int was_charmed = false, charmed_msg = false;
 		bool was_purged = false;
 		bool need_recalc = false;
-		++count;
 		++profile.counters[static_cast<std::size_t>(Counter::kMobs)];
 //		if (!ch->in_used_zone()) {
 //			return;
@@ -557,7 +546,6 @@ void mobile_affect_update() {
 				utils::CExecutionTimer recalc_timer;
 				affect_total(ch);
 				profile.sections[static_cast<std::size_t>(Section::kRecalc)] += recalc_timer.delta().count();
-				++recalc;
 				++profile.counters[static_cast<std::size_t>(Counter::kRecalcMobs)];
 			}
 			{
@@ -616,10 +604,8 @@ void mobile_affect_update() {
 		profile.sections[static_cast<std::size_t>(Section::kMobLoop)] += mob_timer.delta().count();
 	}
 
-	const auto total_elapsed = total_timer.delta().count();
-	profile.sections[static_cast<std::size_t>(Section::kTotal)] = total_elapsed;
+	profile.sections[static_cast<std::size_t>(Section::kTotal)] = total_timer.delta().count();
 	mobile_affect_update_profiler::record_run(profile);
-	log("mobile affect update: timer %f, num mobs %d recalc %d", total_elapsed, count, recalc);
 }
 
 void RemoveAffectFromCharAndRecalculate(CharData *ch, ESpell spell_id) {
@@ -764,10 +750,10 @@ void affect_total(CharData *ch) {
 	}
 	ch->obj_bonus().apply_affects(ch);
 
-	for (const auto &feat : MUD::Feats()) {
-		if (CanUseFeat(ch, feat.GetId())) {
-			feat.effects.ImposeApplies(ch);
-			feat.effects.ImposeSkillsMods(ch);
+	for (auto feat_id = EFeat::kFirst; feat_id <= EFeat::kLast; ++feat_id) {
+		if (ch->HaveFeat(feat_id) && CanUseFeat(ch, feat_id)) {
+			MUD::Feat(feat_id).effects.ImposeApplies(ch);
+			MUD::Feat(feat_id).effects.ImposeSkillsMods(ch);
 		}
 	}
 
@@ -818,8 +804,7 @@ void affect_total(CharData *ch) {
 				message_str_need(ch, obj, STR_BOTH_W);
 			}
 			act("$n прекратил$g использовать $o3.", false, ch, obj, nullptr, kToRoom);
-			PlaceObjToInventory(UnequipChar(ch, EEquipPos::kBoths, CharEquipFlags()), ch);
-			return;
+			PlaceObjToInventory(UnequipChar(ch, EEquipPos::kBoths, CharEquipFlag::skip_total), ch);
 		}
 		if ((obj = GET_EQ(ch, EEquipPos::kWield)) && !CanBeTakenInMajorHand(ch, obj)) {
 			if (!ch->IsNpc()) {
@@ -827,7 +812,7 @@ void affect_total(CharData *ch) {
 				message_str_need(ch, obj, STR_WIELD_W);
 			}
 			act("$n прекратил$g использовать $o3.", false, ch, obj, nullptr, kToRoom);
-			PlaceObjToInventory(UnequipChar(ch, EEquipPos::kWield, CharEquipFlags()), ch);
+			PlaceObjToInventory(UnequipChar(ch, EEquipPos::kWield, CharEquipFlag::skip_total), ch);
 			// если пушку можно вооружить в обе руки и эти руки свободны
 			if (CAN_WEAR(obj, EWearFlag::kBoth)
 				&& CanBeTakenInBothHands(ch, obj)
@@ -836,9 +821,8 @@ void affect_total(CharData *ch) {
 				&& !GET_EQ(ch, EEquipPos::kShield)
 				&& !GET_EQ(ch, EEquipPos::kWield)
 				&& !GET_EQ(ch, EEquipPos::kBoths)) {
-				EquipObj(ch, obj, EEquipPos::kBoths, CharEquipFlag::show_msg);
+				EquipObj(ch, obj, EEquipPos::kBoths, CharEquipFlag::skip_total);
 			}
-			return;
 		}
 		if ((obj = GET_EQ(ch, EEquipPos::kHold)) && !CanBeTakenInMinorHand(ch, obj)) {
 			if (!ch->IsNpc()) {
@@ -846,8 +830,7 @@ void affect_total(CharData *ch) {
 				message_str_need(ch, obj, STR_HOLD_W);
 			}
 			act("$n прекратил$g использовать $o3.", false, ch, obj, nullptr, kToRoom);
-			PlaceObjToInventory(UnequipChar(ch, EEquipPos::kHold, CharEquipFlags()), ch);
-			return;
+			PlaceObjToInventory(UnequipChar(ch, EEquipPos::kHold, CharEquipFlag::skip_total), ch);
 		}
 		if ((obj = GET_EQ(ch, EEquipPos::kShield)) && !CanBeWearedAsShield(ch, obj)) {
 			if (!ch->IsNpc()) {
@@ -855,14 +838,12 @@ void affect_total(CharData *ch) {
 				message_str_need(ch, obj, STR_SHIELD_W);
 			}
 			act("$n прекратил$g использовать $o3.", false, ch, obj, nullptr, kToRoom);
-			PlaceObjToInventory(UnequipChar(ch, EEquipPos::kShield, CharEquipFlags()), ch);
-			return;
+			PlaceObjToInventory(UnequipChar(ch, EEquipPos::kShield, CharEquipFlag::skip_total), ch);
 		}
 		if (!ch->IsNpc() && (obj = GET_EQ(ch, EEquipPos::kQuiver)) && !GET_EQ(ch, EEquipPos::kBoths)) {
 			SendMsgToChar("Нет лука, нет и стрел.\r\n", ch);
 			act("$n прекратил$g использовать $o3.", false, ch, obj, nullptr, kToRoom);
-			PlaceObjToInventory(UnequipChar(ch, EEquipPos::kQuiver, CharEquipFlags()), ch);
-			return;
+			PlaceObjToInventory(UnequipChar(ch, EEquipPos::kQuiver, CharEquipFlag::skip_total), ch);
 		}
 	}
 

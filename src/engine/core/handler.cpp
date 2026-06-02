@@ -852,10 +852,6 @@ void EquipObj(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip_f
 		}
 	}
 
-	if (ch->in_room == kNowhere) {
-		log("SYSERR: ch->in_room = kNowhere when equipping char %s.", GET_NAME(ch));
-	}
-
 	auto it = ObjData::set_table.begin();
 	if (obj->has_flag(EObjFlag::kSetItem)) {
 		for (; it != ObjData::set_table.end(); it++) {
@@ -1102,8 +1098,7 @@ ObjData *UnequipChar(CharData *ch, int pos, const CharEquipFlags& equip_flags) {
 
 	was_lamp = IsWearingLight(ch);
 
-	if (ch->in_room == kNowhere)
-		log("SYSERR: ch->in_room = kNowhere when unequipping char %s.", GET_NAME(ch));
+
 
 	auto it = ObjData::set_table.begin();
 	if (obj->has_flag(EObjFlag::kSetItem))

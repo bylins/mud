@@ -57,6 +57,9 @@ test_sources = files(
     'spell_messages.cpp',
     'skill_messages.cpp',
     'fight_messages.cpp',
+    'file_crc.cpp',
+    'buffered_file_writer.cpp',
+    'where.format.cpp',
     # Balance simulator (issue #2967)
     'random.seed.cpp',
     'file_event_sink.cpp',

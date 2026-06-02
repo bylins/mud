@@ -174,7 +174,7 @@ int find_eq_pos(CharData *ch, ObjData *obj, char *local_arg) {
 	return equip_pos;
 }
 
-void perform_wear(CharData *ch, ObjData *obj, int equip_pos) {
+void perform_wear(CharData *ch, ObjData *obj, int equip_pos, bool skip_total = false) {
 	/*
 	   * kTake is used for objects that do not require special bits
 	   * to be put into that position (e.g. you can hold any object, not just
@@ -282,7 +282,11 @@ void perform_wear(CharData *ch, ObjData *obj, int equip_pos) {
 		return;
 
 	//obj_from_char(obj);
-	EquipObj(ch, obj, equip_pos, CharEquipFlag::show_msg);
+	CharEquipFlags equip_flags{CharEquipFlag::show_msg};
+	if (skip_total) {
+		equip_flags.set(CharEquipFlag::skip_total);
+	}
+	EquipObj(ch, obj, equip_pos, equip_flags);
 }
 
 void do_wear(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
@@ -317,11 +321,14 @@ void do_wear(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			if (CAN_SEE_OBJ(ch, obj)
 				&& (equip_pos = find_eq_pos(ch, obj, nullptr)) >= 0) {
 				items_worn++;
-				perform_wear(ch, obj, equip_pos);
+				perform_wear(ch, obj, equip_pos, true);
 			}
 		}
 		if (!items_worn) {
 			SendMsgToChar("Увы, но надеть вам нечего.\r\n", ch);
+		} else {
+			ch->obj_bonus().update(ch);
+			affect_total(ch);
 		}
 	} else if (dotmode == kFindAlldot) {
 		if (!*arg1) {
@@ -331,16 +338,22 @@ void do_wear(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (!(obj = get_obj_in_list_vis(ch, arg1, ch->carrying))) {
 			sprintf(buf, "У вас нет ничего похожего на '%s'.\r\n", arg1);
 			SendMsgToChar(buf, ch);
-		} else
+		} else {
 			while (obj && !AFF_FLAGGED(ch, EAffect::kHold) && ch->GetPosition() > EPosition::kSleep) {
 				next_obj = get_obj_in_list_vis(ch, arg1, obj->get_next_content());
 				if ((equip_pos = find_eq_pos(ch, obj, nullptr)) >= 0) {
-					perform_wear(ch, obj, equip_pos);
+					perform_wear(ch, obj, equip_pos, true);
+					items_worn++;
 				} else {
 					act("Вы не можете надеть $o3.", false, ch, obj, nullptr, kToChar);
 				}
 				obj = next_obj;
 			}
+			if (items_worn > 0) {
+				ch->obj_bonus().update(ch);
+				affect_total(ch);
+			}
+		}
 	} else {
 		if (!(obj = get_obj_in_list_vis(ch, arg1, ch->carrying))) {
 			sprintf(buf, "У вас нет ничего похожего на '%s'.\r\n", arg1);

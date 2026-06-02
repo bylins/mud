@@ -5,19 +5,28 @@
 #include "engine/entities/char_data.h"
 #include "gameplay/magic/magic_utils.h"
 #include "engine/ui/modify.h"
+#include "engine/ui/objects_filter.h"
 #include "engine/db/obj_prototypes.h"
 #include "engine/olc/olc.h"
 #include "engine/db/global_objects.h"
 #include "utils/utils_string.h"
+#include "utils/utils_time.h"
 
 #include <fmt/format.h>
 
 int TabulateMobsByName(char *searchname, CharData *ch);
 int TabulateObjsByAliases(char *searchname, CharData *ch);
 int TabulateObjsByFlagName(char *searchname, CharData *ch);
+int TabulateObjsByFilter(char *argument, CharData *ch);
 int TabulateRoomsByName(char *searchname, CharData *ch);
 int TabulateTrigsByObjLoad(char *searchname, CharData *ch);
 int TabulateMobsByDeadLoad(char *vnum, CharData *ch);
+
+// Поиск по фильтру (vnum f ...) совпадает с сокращением "f" слова "filter",
+// поэтому проверяется до "flag" -- иначе одиночное "f" ушло бы во флаги.
+static bool IsFilterKey(const char *str) {
+	return utils::IsAbbr(str, "filter") || !str_cmp(str, "фильтр");
+}
 
 void DoTabulate(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	half_chop(argument, buf, buf2);
@@ -27,6 +36,7 @@ void DoTabulate(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			&& !utils::IsAbbr(buf, "obj")
 			&& !utils::IsAbbr(buf, "room")
 			&& !utils::IsAbbr(buf, "flag")
+			&& !IsFilterKey(buf)
 			&& !utils::IsAbbr(buf, "существо")
 			&& !utils::IsAbbr(buf, "предмет")
 			&& !utils::IsAbbr(buf, "флаг")
@@ -34,7 +44,9 @@ void DoTabulate(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			&& !utils::IsAbbr(buf, "trig")
 			&& !utils::IsAbbr(buf, "триггер")
 			&& !utils::IsAbbr(buf, "load"))) {
-		SendMsgToChar("Usage: vnum { obj | mob | flag | room | trig | load} <name>\r\n", ch);
+		SendMsgToChar("Usage: vnum { obj | mob | flag | f | room | trig | load} <name>\r\n"
+					  "  f <фильтр> -- поиск предметов по фильтру (как в хранилище клана),\r\n"
+					  "                например: vnum f Адлительность\r\n", ch);
 		return;
 	}
 
@@ -42,37 +54,61 @@ void DoTabulate(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if (!TabulateMobsByName(buf2, ch)) {
 			SendMsgToChar("Нет существа с таким именем.\r\n", ch);
 		}
-	}
-
-	if ((utils::IsAbbr(buf, "obj")) || (utils::IsAbbr(buf, "предмет"))) {
+	} else if ((utils::IsAbbr(buf, "obj")) || (utils::IsAbbr(buf, "предмет"))) {
 		if (!TabulateObjsByAliases(buf2, ch)) {
 			SendMsgToChar("Нет предмета с таким названием.\r\n", ch);
 		}
-	}
-
-	if ((utils::IsAbbr(buf, "flag")) || (utils::IsAbbr(buf, "флаг"))) {
+	} else if (IsFilterKey(buf)) {
+		TabulateObjsByFilter(buf2, ch);
+	} else if ((utils::IsAbbr(buf, "flag")) || (utils::IsAbbr(buf, "флаг"))) {
 		if (!TabulateObjsByFlagName(buf2, ch)) {
 			SendMsgToChar("Нет объектов с таким флагом.\r\n", ch);
 		}
-	}
-
-	if ((utils::IsAbbr(buf, "room")) || (utils::IsAbbr(buf, "комната"))) {
+	} else if ((utils::IsAbbr(buf, "room")) || (utils::IsAbbr(buf, "комната"))) {
 		if (!TabulateRoomsByName(buf2, ch)) {
 			SendMsgToChar("Нет объектов с таким флагом.\r\n", ch);
 		}
-	}
-
-	if (utils::IsAbbr(buf, "trig") || utils::IsAbbr(buf, "триггер")) {
+	} else if (utils::IsAbbr(buf, "trig") || utils::IsAbbr(buf, "триггер")) {
 		if (!TabulateTrigsByObjLoad(buf2, ch)) {
 			SendMsgToChar("Нет триггеров, загружающих такой объект.\r\n", ch);
 		}
-	}
-
-	if (utils::IsAbbr(buf, "load") || utils::IsAbbr(buf, "загрузка")) {
+	} else if (utils::IsAbbr(buf, "load") || utils::IsAbbr(buf, "загрузка")) {
 		if (!TabulateMobsByDeadLoad(buf2, ch)) {
 			SendMsgToChar("Нет мобов, загружаюющих такой объект по списку dead load.\r\n", ch);
 		}
 	}
+}
+
+// Поиск прототипов предметов через ParseFilter (те же фильтры, что в хранилище
+// клана и на базаре). Последней строкой печатает время поиска.
+int TabulateObjsByFilter(char *argument, CharData *ch) {
+	ParseFilter filter(ParseFilter::CLAN);
+	if (!filter.parse_filter(ch, filter, argument)) {
+		// parse_filter сам сообщил об ошибке или показал справку по фильтрам.
+		return 0;
+	}
+
+	utils::CExecutionTimer timer;
+	int found = 0;
+	std::string out;
+	char line[kMaxStringLength];
+	for (const auto &i : obj_proto) {
+		// ch не передаём: у прототипов нет наносимых меток (custom label).
+		if (filter.check(i.get(), nullptr)) {
+			snprintf(line, sizeof(line), "%3d. [%7d] %-50s %s\r\n",
+					 ++found, i->get_vnum(),
+					 utils::RemoveColors(i->get_short_description()).c_str(),
+					 filter.show_obj_aff(i.get()).c_str());
+			out += line;
+		}
+	}
+	if (found == 0) {
+		out += "Ничего не найдено.\r\n";
+	}
+	out += fmt::format("Просмотрено прототипов: {}, найдено: {}, время поиска: {:.3f} мс.\r\n",
+					   obj_proto.size(), found, timer.delta().count() * 1000.0);
+	page_string(ch->desc, out);
+	return found;
 }
 
 int TabulateMobsByName(char *searchname, CharData *ch) {

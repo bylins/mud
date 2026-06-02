@@ -43,8 +43,6 @@
 #include "scripting.hpp"
 #endif
 
-extern std::pair<int, int> TotalMemUse();
-
 constexpr bool FRAC_SAVE = true;
 
 void check_idle_passwords() {
@@ -65,17 +63,6 @@ void check_idle_passwords() {
 }
 
 void record_usage() {
-	int sockets_connected = 0, sockets_playing = 0;
-	DescriptorData *d;
-
-	for (d = descriptor_list; d; d = d->next) {
-		sockets_connected++;
-		if (d->state == EConState::kPlaying)
-			sockets_playing++;
-	}
-
-	log("nusage: %-3d sockets connected, %-3d sockets playing", sockets_connected, sockets_playing);
-
 #ifdef RUSAGE            // Not RUSAGE_SELF because it doesn't guarantee prototype.
 	{
 		struct rusage ru;
@@ -639,11 +626,8 @@ void Heartbeat::advance_pulse_numbers() {
 }
 
 void Heartbeat::pulse(const int missed_pulses, pulse_label_t &label) {
-	static int last_pmem_used = 0;
-
 	label.clear();
 	advance_pulse_numbers();
-	log("Heartbeat pulse");
 	{
 		auto span = tracing::TraceManager::Instance().StartSpan("Characters::PurgeExtractedList");
 		character_list.PurgeExtractedList();
@@ -654,31 +638,19 @@ void Heartbeat::pulse(const int missed_pulses, pulse_label_t &label) {
 	}
 	for (std::size_t i = 0; i != m_steps.size(); ++i) {
 		auto &step = m_steps[i];
-		auto get_mem = TotalMemUse();
-		int vmem_used = get_mem.first;
-		int pmem_used = get_mem.second;
 		if (step.off()) {
 			continue;
 		}
 
 		if (0 == (m_pulse_number + step.offset()) % step.modulo()) {
 			utils::CExecutionTimer timer;
-			
+
 			// Create child span for this step
 			auto step_span = tracing::TraceManager::Instance().StartSpan(step.name());
 			step_span->SetAttribute("step_index", static_cast<int64_t>(i));
 			step_span->SetAttribute("step_modulo", static_cast<int64_t>(step.modulo()));
 			step.action()->perform(pulse_number(), missed_pulses);
 			const auto execution_time = timer.delta().count();
-			if (step.modulo() >= kSecsPerMudHour * kPassesPerSec) {
-				log("Heartbeat step: %s", step.name().c_str());
-			}
-			if (pmem_used != last_pmem_used) {
-//				char buf [128];
-				last_pmem_used = pmem_used;
-				log("HeartBeat memory resize, step:(%s), memory used: virt (%d kB) phys (%d kB)", step.name().c_str(), vmem_used, pmem_used);
-//				mudlog(buf, CMP, kLvlGreatGod, SYSLOG, true);
-			}
 			step_span->SetAttribute("execution_time_seconds", execution_time);
 			step_span->End();
 			label.emplace(i, execution_time);

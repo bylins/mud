@@ -944,7 +944,7 @@ int Crash_delete_files(const std::size_t index) {
 				log("SYSERR: Error deleting objects file %s (2): %s", filename, strerror(errno));
 				retcode = false;
 			}
-			FileCRC::check_crc(filename, FileCRC::UPDATE_TEXTOBJS, player_table[index].uid());
+			FileCRC::reset(player_table[index].uid(), FileCRC::kTextObjs);
 		}
 	}
 
@@ -964,7 +964,7 @@ int Crash_delete_files(const std::size_t index) {
 				log("SYSERR: deleting timer file %s (2): %s", filename, strerror(errno));
 				retcode = false;
 			}
-			FileCRC::check_crc(filename, FileCRC::UPDATE_TIMEOBJS, player_table[index].uid());
+			FileCRC::reset(player_table[index].uid(), FileCRC::kTimeObjs);
 		}
 	}
 
@@ -1023,15 +1023,31 @@ int ReadCrashTimerFile(std::size_t index, int temp) {
 	}
 
 	fseek(fl, 0L, SEEK_END);
-	size = ftell(fl);
+	const long fsize = ftell(fl);
 	rewind(fl);
-	if ((size = size - sizeof(struct SaveRentInfo)) < 0 || size % sizeof(struct SaveTimeInfo)) {
+	if ((size = static_cast<int>(fsize) - sizeof(struct SaveRentInfo)) < 0
+		|| size % sizeof(struct SaveTimeInfo)) {
 		log("WARNING:  Timer file %s is corrupt!", fname);
+		fclose(fl);
 		return false;
 	}
 
+	// Читаем файл целиком в буфер: из него же считаем CRC (без второго
+	// чтения только что прочитанного файла) и парсим записи.
+	std::string content(static_cast<std::size_t>(fsize), '\0');
+	if (fsize > 0 && fread(&content[0], static_cast<std::size_t>(fsize), 1, fl) != 1) {
+		log("SYSERR: I/O Error reading %s timer file.", name.c_str());
+		fclose(fl);
+		return false;
+	}
+	fclose(fl);
+
+	// Сверка CRC из буфера вместо повторного чтения файла.
+	FileCRC::verify_from_content(player_table[index].uid(), FileCRC::kTimeObjs,
+		content.data(), content.size());
+
+	std::memcpy(&rent, content.data(), sizeof(struct SaveRentInfo));
 	sprintf(buf, "[ReadTimer] Reading timer file %s for %s :", fname, name.c_str());
-	size_t dummy = fread(&rent, sizeof(struct SaveRentInfo), 1, fl);
 	switch (rent.rentcode) {
 		case RENT_RENTED: strncat(buf, " Rent ", sizeof(buf) - strlen(buf) - 1);
 			break;
@@ -1056,15 +1072,11 @@ int ReadCrashTimerFile(std::size_t index, int temp) {
 	log("%s", buf);
 	Crash_create_timer(index, rent.n_items);
 	player_table[index].timer->rent = rent;
-	for (; count < rent.n_items && !feof(fl); count++) {
-		dummy = fread(&info, sizeof(struct SaveTimeInfo), 1, fl);
-		if (ferror(fl)) {
-			log("SYSERR: I/O Error reading %s timer file.", name.c_str());
-			fclose(fl);
-			FileCRC::check_crc(fname, FileCRC::TIMEOBJS, player_table[index].uid());
-			ClearSaveinfo(index);
-			return false;
-		}
+
+	const char *recptr = content.data() + sizeof(struct SaveRentInfo);
+	const std::size_t records = size / sizeof(struct SaveTimeInfo);
+	for (; static_cast<std::size_t>(count) < records && count < rent.n_items; count++) {
+		std::memcpy(&info, recptr + count * sizeof(struct SaveTimeInfo), sizeof(struct SaveTimeInfo));
 		if (info.vnum && info.timer >= -1) {
 			player_table[index].timer->time.push_back(info);
 			++num;
@@ -1076,10 +1088,6 @@ int ReadCrashTimerFile(std::size_t index, int temp) {
 			obj_proto.inc_stored(rnum);
 		}
 	}
-	UNUSED_ARG(dummy);
-
-	fclose(fl);
-	FileCRC::check_crc(fname, FileCRC::TIMEOBJS, player_table[index].uid());
 
 	if (rent.n_items != num) {
 		log("[ReadTimer] Error reading %s timer file - file is corrupt.", fname);
@@ -1108,7 +1116,6 @@ void Crash_reload_timer(int index) {
 }
 
 int Crash_write_timer(const std::size_t index) {
-	FILE *fl;
 	char fname[kMaxStringLength];
 
 	auto name = player_table[index].name();
@@ -1120,14 +1127,27 @@ int Crash_write_timer(const std::size_t index) {
 		log("SYSERR: Error writing %s timer file - unable to resolve file name.", name.c_str());
 		return false;
 	}
-	if (!(fl = fopen(fname, "wb"))) {
+
+	// Сериализуем таймеры в буфер, чтобы посчитать CRC из него же,
+	// не перечитывая с диска только что записанный файл. Порядок и состав
+	// байт идентичны прежней пораздельной записи (rent + n_items записей).
+	const SaveInfo *si = SAVEINFO(index);
+	std::string content;
+	// reserve на пустой строке -- одна аллокация полного размера без копирований,
+	// дальше append пишет на месте (буфер мелкий, но реаллокации тут не нужны).
+	content.reserve(sizeof(SaveRentInfo)
+		+ static_cast<std::size_t>(si->rent.n_items) * sizeof(SaveTimeInfo));
+	content.append(reinterpret_cast<const char *>(&si->rent), sizeof(SaveRentInfo));
+	for (int i = 0; i < si->rent.n_items; ++i) {
+		content.append(reinterpret_cast<const char *>(&si->time[i]), sizeof(SaveTimeInfo));
+	}
+
+	FILE *fl = fopen(fname, "wb");
+	if (!fl) {
 		log("[WriteTimer] Error writing %s timer file - unable to open file %s.", name.c_str(), fname);
 		return false;
 	}
-	fwrite(&(SAVEINFO(index)->rent), sizeof(SaveRentInfo), 1, fl);
-	for (int i = 0; i < SAVEINFO(index)->rent.n_items; ++i) {
-		fwrite(&(SAVEINFO(index)->time[i]), sizeof(SaveTimeInfo), 1, fl);
-	}
+	fwrite(content.data(), 1, content.size(), fl);
 	fclose(fl);
 #ifndef _WIN32
 	if (chmod(fname, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP) < 0) {
@@ -1136,7 +1156,9 @@ int Crash_write_timer(const std::size_t index) {
 		mudlog(ss.str(), BRF, kLvlGod, SYSLOG, true);
 	}
 #endif
-	FileCRC::check_crc(fname, FileCRC::UPDATE_TIMEOBJS, player_table[index].uid());
+	// CRC из буфера вместо повторного чтения файла (см. FileCRC::update_from_content).
+	FileCRC::update_from_content(player_table[index].uid(), FileCRC::kTimeObjs,
+		content.data(), content.size());
 	return true;
 }
 
@@ -1430,7 +1452,8 @@ int Crash_load(CharData *ch) {
 	fseek(fl, 0L, SEEK_SET);
 	if (!fread(readdata, fsize, 1, fl) || ferror(fl) || !readdata) {
 		fclose(fl);
-		FileCRC::check_crc(fname, FileCRC::TEXTOBJS, ch->get_uid());
+		// Чтение не удалось -- валидного буфера для сверки CRC нет, сверку
+		// (которая раньше перечитывала файл) тут опускаем и просто выходим.
 		SendMsgToChar("\r\n** Ошибка чтения файла описания вещей **\r\n"
 					  "Проблемы с восстановлением ваших вещей из файла.\r\n"
 					  "Обращайтесь за помощью к Богам.\r\n", ch);
@@ -1440,7 +1463,8 @@ int Crash_load(CharData *ch) {
 		return (1);
 	};
 	fclose(fl);
-	FileCRC::check_crc(fname, FileCRC::TEXTOBJS, ch->get_uid());
+	// Сверка CRC из уже прочитанного буфера, без повторного чтения файла.
+	FileCRC::verify_from_content(ch->get_uid(), FileCRC::kTextObjs, readdata, fsize);
 
 	data = readdata;
 	*(data + fsize) = '\0';
@@ -1934,8 +1958,9 @@ int save_char_objects(CharData *ch, int savetype, int rentcost) {
 		Crash_extract_objs(ch->carrying);
 	}
 
+	utils::CExecutionTimer obj_io_timer;
 	if (get_filename(GET_NAME(ch), fname, kTextCrashFile)) {
-		std::ofstream file(fname);
+		std::ofstream file(fname, std::ios::binary);
 		if (!file.is_open()) {
 			snprintf(buf, kMaxStringLength, "[SYSERR] Store objects file '%s'- MAY BE LOCKED.", fname);
 			mudlog(buf, BRF, kLvlImmortal, SYSLOG, true);
@@ -1943,7 +1968,13 @@ int save_char_objects(CharData *ch, int savetype, int rentcost) {
 			return false;
 		}
 		write_buffer << "\n$\n$\n";
-		file << write_buffer.rdbuf();
+		// Пишем в бинарном режиме и из этого же буфера считаем CRC -- без
+		// перечитывания только что записанного файла. Бинарный режим
+		// гарантирует, что байты файла == байты буфера на всех платформах
+		// (в текстовом режиме Windows транслировал бы \n -> \r\n и CRC из
+		// буфера разошёлся бы с CRC файла).
+		const std::string obj_content = write_buffer.str();
+		file.write(obj_content.data(), static_cast<std::streamsize>(obj_content.size()));
 		file.close();
 #ifndef _WIN32
 		if (chmod(fname, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP) < 0) {
@@ -1952,15 +1983,27 @@ int save_char_objects(CharData *ch, int savetype, int rentcost) {
 			mudlog(ss.str(), BRF, kLvlGod, SYSLOG, true);
 		}
 #endif
-		FileCRC::check_crc(fname, FileCRC::UPDATE_TEXTOBJS, ch->get_uid());
+		FileCRC::update_from_content(ch->get_uid(), FileCRC::kTextObjs,
+			obj_content.data(), obj_content.size());
 	} else {
 		Crash_delete_files(iplayer);
 		return false;
 	}
+	const double obj_io_sec = obj_io_timer.delta().count();
 
+	utils::CExecutionTimer timer_io_timer;
 	if (!Crash_write_timer(iplayer)) {
 		Crash_delete_files(iplayer);
 		return false;
+	}
+	const double timer_io_sec = timer_io_timer.delta().count();
+
+	// Профилирование синхронной записи (см. #3368): раздельно .obj и .time,
+	// чтобы понять, на что уходит время и нужна ли дальнейшая оптимизация.
+	const double total_io_sec = obj_io_sec + timer_io_sec;
+	if (total_io_sec > 0.01) {
+		log("save_char_objects: %s items=%d obj_io=%.4f time_io=%.4f total=%.4f",
+			GET_NAME(ch), num, obj_io_sec, timer_io_sec, total_io_sec);
 	}
 
 	if (savetype == RENT_CRASH) {

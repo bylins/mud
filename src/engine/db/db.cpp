@@ -369,6 +369,19 @@ void GameLoader::BootWorld(std::unique_ptr<world_loader::IWorldDataSource> data_
 	// idempotent if BootMudDataBase later runs.
 	text_id::Init();
 
+	// CharData::set_skill() / CObjectPrototype::set_skill() drop any skill
+	// whose id is invalid, and a skill is "invalid" until the skills config is
+	// loaded (MUD::Skills().IsInvalid). BootMudDataBase loads it before
+	// BootWorld for the running server, but `-S` / `scheck` call BootWorld
+	// directly and skip it -- so without this, every mob and object skill is
+	// silently dropped while loading the world to resave it, and the round
+	// trip loses them (issue #3391). Guarded so the normal boot, which already
+	// loaded the config, does not reload it.
+	if (!MUD::Skills().IsInitizalized())
+	{
+		MUD::CfgManager().LoadCfg("skills");
+	}
+
 	// Create default data source if none provided
 	if (!data_source)
 	{
@@ -2066,9 +2079,10 @@ void ZoneUpdate() {
 					}
 				}
 			}
-			std::stringstream ss;
 			DecayObjectsOnRepop(zone_repop_list);
-			ss << "В списке репопа: " << zone_table[zone].vnum << " ";
+			// Логируем попадание в список репопа до самого сброса, иначе строка
+			// печатается уже после "Stop zone" этой зоны (см. issue #3380).
+			mudlog(fmt::format("В списке репопа: {} ", zone_table[zone].vnum), LGH, kLvlGod, SYSLOG, true);
 			if (zone_table[zone].vnum < dungeons::kZoneStartDungeons) {
 				ResetZone(zone);
 				zones_reset_count++;
@@ -2081,7 +2095,6 @@ void ZoneUpdate() {
 				zone_table[zone].time_awake = time(nullptr);
 				zone_table[zone].first_enter.clear();
 			}
-			mudlog(ss.str(), LGH, kLvlGod, SYSLOG, true);
 			out << " ]\r\n[ Time reset: " << fmt::format("{:.3f} ms", timer_count.delta().count() * 1000.0);
 			mudlog(out.str(), LGH, kLvlGod, SYSLOG, true);
 			it = reset_q.erase(it);

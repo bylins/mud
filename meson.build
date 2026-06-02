@@ -237,6 +237,16 @@ if otel_opt != 'disabled'
     endif
     project_args += '-DWITH_OTEL'
     dependencies += [otel_dep, dependency('libcurl', required: true, allow_fallback: false)]
+    # protobuf >= 22 splits utf8_range into a separate library; add it when present.
+    cxx = meson.get_compiler('cpp')
+    utf8_range_dep = cxx.find_library('utf8_range', required: false)
+    if utf8_range_dep.found()
+        dependencies += utf8_range_dep
+    endif
+    utf8_validity_dep = cxx.find_library('utf8_validity', required: false)
+    if utf8_validity_dep.found()
+        dependencies += utf8_validity_dep
+    endif
 endif
 
 has_epoll_opt = get_option('has_epoll')
@@ -318,6 +328,7 @@ compiler_id = '@0@ @1@ (@2@-@3@)'.format(
 version_cpp = custom_target('version_gen',
   input: 'src/version.cpp.in',
   output: 'version.cpp',
+  build_always_stale: true,
   command: [
     py3,
     files('tools/meson/generate_version.py'),
@@ -412,6 +423,7 @@ main_sources = files(
   'src/gameplay/clans/house.cpp',
   'src/gameplay/clans/house_exp.cpp',
   'src/gameplay/clans/ingr_chest_saver.cpp',
+  'src/gameplay/clans/chest_saver.cpp',
   'src/gameplay/communication/ignores.cpp',
   'src/gameplay/communication/ignores_loader.cpp',
   'src/gameplay/crafting/im.cpp',

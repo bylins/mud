@@ -727,8 +727,6 @@ static const char *trigger_type_name(int mode) {
 
 // checks every PLUSE_SCRIPT for random triggers
 void script_trigger_check(int mode) {
-	utils::CExecutionTimer timer;
-
 	auto trigger_span = tracing::TraceManager::Instance().StartSpan("Script Trigger Check");
 	observability::ScopedMetric trigger_metric("script.trigger.duration");
 
@@ -775,8 +773,6 @@ void script_trigger_check(int mode) {
 		default:
 		break;
 	}
-	
-	log("script_trigger_check() mode %d всего: %f ms.", mode, timer.delta().count());
 }
 
 // проверка каждый час на триги изменении времени
@@ -5605,10 +5601,6 @@ void process_context(Script * /*sc*/, Trigger *trig, char *cmd) {
 		trig_log(trig, buf2);
 		return;
 	}
-	if (trig_index[trig->get_rnum()]->vnum / 100 == 2) {
-		log("dungeon смена контекста с %ld на %ld номер триггера %d строка %d", trig->context, atol(var), trig_index[trig->get_rnum()]->vnum, trig->curr_line->line_num);
-	}
-
 	trig->context = atol(var);
 }
 

@@ -29,6 +29,8 @@ extern char *diag_timer_to_char(const ObjData *obj);    // implemented in the ac
 extern int invalid_anti_class(CharData *ch, const ObjData *obj);    // implemented in class.cpp
 extern int invalid_unique(CharData *ch, const ObjData *obj);    // implemented in class.cpp
 extern int invalid_no_class(CharData *ch, const ObjData *obj);    // implemented in class.cpp
+extern int invalid_anti_class_proto(CharData *ch, const CObjectPrototype *obj);    // implemented in class.cpp
+extern int invalid_no_class_proto(CharData *ch, const CObjectPrototype *obj);    // implemented in class.cpp
 char *find_exdesc(const char *word, const ExtraDescription::shared_ptr &list); // implemented in act.informative.cpp
 namespace ShopExt {
 const int IDENTIFY_COST = 110;
@@ -294,6 +296,14 @@ void shop_node::process_buy(CharData *ch, CharData *keeper, char *argument) {
 	if (!proto) {
 		log("SYSERROR : не удалось прочитать прототип (%s:%d)", __FILE__, __LINE__);
 		SendMsgToChar("Ошибочка вышла.\r\n", ch);
+		return;
+	}
+
+	// Блокируем продажу только для anti-класса ("Недоступен"): такую вещь нельзя
+	// ни носить, ни взять (обжигает). Вещи с no-классом ("Неудобен") продаём:
+	// носить их можно, к тому же в магазине покупают и чармисам (issue #3356).
+	if (invalid_anti_class_proto(ch, proto)) {
+		tell_to_char(keeper, ch, "Мне жаль, но эта вещь тебе не подходит.");
 		return;
 	}
 
