@@ -97,7 +97,6 @@ EStageResult SpellIdentify(CastContext &ctx);
 EStageResult SpellFullIdentify(CastContext &ctx);
 void SpellEnchantWeapon(int level, CharData *ch, CharData *victim, ObjData *obj);
 EStageResult SpellControlWeather(CastContext &ctx);
-EStageResult SpellCreateWeapon(CastContext &ctx);
 EStageResult SpellEnergydrain(CastContext &ctx);
 EStageResult SpellFear(CastContext &ctx);
 void SpellForbidden(int level, CharData *ch, CharData *victim, ObjData *obj);

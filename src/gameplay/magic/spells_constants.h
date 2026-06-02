@@ -288,8 +288,9 @@ enum class ESpell {
 	kTestFour = 362,
 	kTestFive = 363,
 	kDeadlyFogTick = 364,
+	kCreateArmor = 365,  // issue.obj-casting: new data-driven <obj_creation> spell (plumbing)
 	kFirst = kArmor,
-	kLast = 364	// Не забываем менять
+	kLast = 365	// Не забываем менять
 };
 
 const ESpell &operator++(ESpell &s);

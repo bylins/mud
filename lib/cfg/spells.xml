@@ -3258,13 +3258,33 @@ base_stat id - (например "kWis") какой берем параметр,
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="130" min="110" change="2"/>
         <targets val="kTarIgnore"/>
-        <flags val="kMagManual"/>
-            <talent_actions>
+        <flags val="kMagCreations"/>
+        <talent_actions>
             <action>
-                <manual_cast handler="SpellCreateWeapon"/>
+                <!-- TODO(issue.obj-casting): base item vnum placeholder; designer sets the real
+                     base + fills the CreateWeapon handler. -->
+                <obj_creation vnum="0" handler="CreateWeapon"/>
             </action>
         </talent_actions>
 </spell>
+    <spell id="kCreateArmor" element="kLight" mode="kEnabled">
+        <name rus="создать доспех" eng="create armor"/>
+        <components>
+            <verbal/>
+            <weave/>
+        </components>
+        <misc pos="kStand" violent="N" danger="0"/>
+        <mana max="130" min="110" change="2"/>
+        <targets val="kTarIgnore"/>
+        <flags val="kMagCreations"/>
+        <talent_actions>
+            <action>
+                <!-- TODO(issue.obj-casting): base item vnum placeholder; designer sets the real
+                     base + fills the CreateArmor handler. -->
+                <obj_creation vnum="0" handler="CreateArmor"/>
+            </action>
+        </talent_actions>
+    </spell>
     <spell id="kFireShield" element="kFire" mode="kEnabled">
         <name rus="огненный щит" eng="fire shield"/>
         <components>

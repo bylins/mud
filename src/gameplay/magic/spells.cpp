@@ -961,12 +961,6 @@ bool CatchBloodyCorpse(ObjData *l) {
 	return false;
 }
 
-EStageResult SpellCreateWeapon(CastContext &) {
-	//go_create_weapon(ch,nullptr,what_sky);
-// отключено, так как не реализовано
-	return EStageResult::kSuccess;
-}
-
 int CheckCharmices(CharData *ch, CharData *victim, ESpell spell_id) {
 	int cha_summ = 0, reformed_hp_summ = 0;
 	bool undead_in_group = false, living_in_group = false;

@@ -2572,10 +2572,18 @@ EStageResult CastToAlterObjs(CastContext &ctx) {
 }
 
 // issue.obj-casting: string-named post-load creation handlers (the spell-specific customization,
-// e.g. shaping a created weapon/armor). Signature (ch, created obj, ctx). Empty for now -- the
-// plain food/light spells need no handler; kCreateWeapon/kCreateArmor register in Stage C.
+// e.g. shaping a created weapon/armor base). Signature (ch, created obj, ctx). The plain food/light
+// spells need no handler. CreateWeapon/CreateArmor are PLUMBING STUBS: the base vnum is loaded by
+// the skeleton; the stat/type customization (TODO) goes in these bodies.
 static const std::map<std::string, std::function<void(CharData *, ObjData *, const CastContext &)>>
-		kCreationHandlers = {};
+		kCreationHandlers = {
+	{"CreateWeapon", [](CharData *ch, ObjData *obj, const CastContext &ctx) {
+		(void) ch; (void) obj; (void) ctx;   // TODO: shape the loaded base object into a weapon
+	}},
+	{"CreateArmor", [](CharData *ch, ObjData *obj, const CastContext &ctx) {
+		(void) ch; (void) obj; (void) ctx;   // TODO: shape the loaded base object into armor
+	}},
+};
 
 // Data-driven object creation (issue.obj-casting): load <obj_creation vnum>, run the optional
 // post-load handler, narrate, then place in inventory (or drop to the room when over-encumbered).
@@ -2640,7 +2648,6 @@ static const std::map<std::string, std::function<EStageResult(CastContext &)>> k
 	{"SpellControlWeather", SpellControlWeather},
 	{"SpellCreateWater",    SpellCreateWater},
 	{"SpellLocateObject",   SpellLocateObject},
-	{"SpellCreateWeapon",   SpellCreateWeapon},
 	{"SpellCharm",          SpellCharm},
 	{"SpellEnergydrain",    SpellEnergydrain},
 	{"SpellFear",           SpellFear},
