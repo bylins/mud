@@ -18,7 +18,14 @@ class BufferedFileWriter {
  public:
 	BufferedFileWriter() { m_buf.reserve(8192); }
 
+// MSVC ne ponimaet GCC-style __attribute__((format(...))). MSVC-shim
+// '#define __attribute__(x)' zhivet v engine/core/sysdep.h, no esli etot
+// zagolovok podtyanyut do sysdep.h (chto v unity-sborkah byvayet --
+// poryadok TU peremeshivayetsya) MSVC padayet s C2059. Stavim guard
+// pryamo zdes, chtoby BufferedFileWriter byl include-order-agnostichnyy.
+#if defined(__GNUC__) || defined(__clang__)
 	__attribute__((format(printf, 2, 3)))
+#endif
 	void printf(const char *format, ...) {
 		va_list args;
 		va_start(args, format);

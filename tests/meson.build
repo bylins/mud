@@ -48,7 +48,10 @@ test_sources = files(
     'mob_classes.loader.cpp',
     'world_load_order.cpp',
     'obj_decay_manager.cpp',
-    'char.utilities.cpp',
+    # char.utilities.cpp removed: test_utils::CharacterBuilder is now an
+    # alias for simulator::CharacterBuilder (char.utilities.hpp is a shim);
+    # the implementation is compiled below as
+    # ../src/simulator/character_builder.cpp.
     'exit_is_empty.cpp',
     'msg_container.cpp',
     'spell_messages.cpp',
@@ -56,8 +59,24 @@ test_sources = files(
     'fight_messages.cpp',
     'file_crc.cpp',
     'buffered_file_writer.cpp',
-    'where.format.cpp'
+    'where.format.cpp',
+    # Balance simulator (issue #2967)
+    'random.seed.cpp',
+    'file_event_sink.cpp',
+    'event_sink_global.cpp',
+    'character_builder.cpp',
+    # CharacterBuilder simulator source compiled straight into the test
+    # binary (it is not in circle_lib -- it is part of mud-sim).
+    '../src/simulator/character_builder.cpp',
 )
+
+# scenario_loader parses YAML -- test + source only when yaml is enabled.
+if yaml_opt != 'disabled'
+    test_sources += files(
+        'scenario_loader.cpp',
+        '../src/simulator/scenario_loader.cpp',
+    )
+endif
 
 fs = import('fs')
 

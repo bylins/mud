@@ -786,6 +786,11 @@ main_sources = files(
   'src/engine/observability/provider.cpp',
   'src/engine/observability/metrics.cpp',
   'src/engine/observability/helpers.cpp',
+  # Event sink (issue #2967 balance simulator): in-process event fanout +
+  # JSONL file writer. Always compiled -- damage.cpp / fight_hit.cpp call
+  # observability::HasAnyEventSink() unconditionally (NoOp in prod).
+  'src/engine/observability/event_sink.cpp',
+  'src/engine/observability/file_event_sink.cpp',
   # World Data Sources
   'src/engine/db/world_checksum.cpp',
   'src/engine/db/world_data_source_manager.cpp',
@@ -875,6 +880,24 @@ circle_ex = executable('circle',
     export_dynamic: true,
     override_options: profile_target_opts
 )
+
+# Headless balance simulator (issue #2967). Reuses the engine via circle_dep
+# without the network layer. See src/simulator/README for the design.
+# Requires YAML: the simulator parses YAML scenarios, and the project is
+# migrating toward YAML world data anyway.
+if yaml_opt != 'disabled'
+    mud_sim_ex = executable('mud-sim',
+        files(
+            'src/simulator/character_builder.cpp',
+            'src/simulator/main.cpp',
+            'src/simulator/scenario_loader.cpp',
+            'src/simulator/scenario_runner.cpp',
+        ),
+        dependencies: [dependencies, circle_dep],
+        export_dynamic: true,
+        override_options: profile_target_opts
+    )
+endif
 
 summary({
     'Build Type':      buildtype,

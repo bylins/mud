@@ -17,6 +17,7 @@ class NormalRand {
 	//Нормальное распределение
 	double NormalDistributionNumber(double mean, double sigma);
 	bool BernoulliTrial(double prob);
+	void seed(unsigned value) { _rng.seed(value); }
 
  private:
 	std::random_device _rd;
@@ -71,6 +72,12 @@ int RollDices(int number, int size) {
 
 bool BernoulliTrial(double p) {
 	return Random::rnd.BernoulliTrial(p);
+}
+
+// Устанавливает зерно для глобального генератора. Используется автономным
+// симулятором для воспроизводимости прогонов.
+void SetRandomSeed(unsigned value) {
+	Random::rnd.seed(value);
 }
 
 /**
