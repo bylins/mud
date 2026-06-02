@@ -252,17 +252,11 @@ spell to carry a success/landing roll separate from its potency.
 The `base_skill` from `<potency_roll>` also drives the affect duration and
 multi-hit count (see §7 and §6.1).
 
-#### The `cast_potency` value
+#### Competence `C`, effect magnitude, and the `cast_potency` scalar
 
-Every place in the manual that talks about "the cast's potency" — the affect
-modifier formula, the stored Affect potency, the dispel contest, the
-damage / heal / extra-hits scaling — uses the same scalar:
-
-```
-cast_potency = RollSkillDices + skill_coeff + stat_coeff
-```
-
-Where:
+The roll produces three numbers — `RollSkillDices` (the random dice sample),
+`skill_coeff`, and `stat_coeff`. Two **different** quantities are built from them;
+do not conflate them.
 
 * `RollSkillDices` = result of the `<dices>` roll (one `ndice × sdice + adice`
   sample per cast).
@@ -271,9 +265,44 @@ Where:
   low part; everything above goes into the hi part).
 * `stat_coeff` = `max(0, stat − threshold) · weight / 100` from `<base_stat>`.
 
+**Competence** is the skill+stat part, written `C` throughout the manual:
+
+```
+C = skill_coeff + stat_coeff
+```
+
+**Effect magnitude** (damage, heal/points, affect modifier) is *not* a plain sum of
+the roll and `C`. It uses the option-2 formula (§5, §6, §8.4):
+
+```
+amount = min + dice · dices_weight · (1 + alpha · C) + beta · C
+```
+
+The dice (the random roll) are **multiplied** by `(1 + alpha · C)`, so the roll's
+weight *grows* with competence instead of shrinking to a negligible fraction of a
+large additive total. `beta · C` is a separate flat competence term. This is the whole
+point of the option-2 rework: a purely additive `roll + C` would make the roll
+meaningless at high skill/stat — option-2 avoids that. (Set `alpha=0` only when you
+deliberately want the legacy flat behaviour, e.g. flat affect modifiers.)
+
+**`cast_potency`** is a *separate* scalar, and it **is** the plain additive sum:
+
+```
+cast_potency = RollSkillDices + skill_coeff + stat_coeff
+```
+
+It is used **only as a relative-strength number**, never as an effect's magnitude:
+the potency stored on an affect (`cast_potency × <affects potency_weight>`) and the
+dispel contest that later tries to remove it (§9.3). Additivity is harmless here
+because the contest compares two casts that both scale the same way — the random
+term being a small share of a strong cast is fine when it's measured against another
+strong cast. Extra-hit counts are a third, separate thing: they scale on
+`min(skill, 75) / skill_divisor`, not on `cast_potency` (§5).
+
 A spell that omits a sub-block contributes 0 from that side. A spell with an
 empty `<potency_roll>` rolls a flat 0 — its affects land at potency 0, its
-dispel always fails the contest (5 % luck floor still applies).
+dispel always loses the contest (5 % luck floor still applies), and any
+magnitude reduces to its `min`.
 
 ### 3.8 `<talent_actions>` — the ordered action list *(multi-action)*
 
