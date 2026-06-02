@@ -2216,6 +2216,14 @@
 		<message type="kRoomAffectVisible" val="&amp;W... земля освещена колдовством ...&amp;n" />
 	</msg_sheaf>
 	<msg_sheaf id="kDeadlyFog">
+		<message type="kCustomMsgOne" val="Повинуясь вашему желанию отравить всех, туман начал густеть..." />
+		<message type="kCustomMsgTwo" val="Вы осознали, что хотите вызвать ужасные мучения у врагов..." />
+		<message type="kCustomMsgThree" val="Что может быть лучше, чем слабый враг?!" />
+		<message type="kCustomMsgFour" val="Вам захотелось лишить всех глаз!" />
+		<message type="kCustomMsgFive" val="Сильно навредить врагам?!" />
+		<message type="kCustomMsgSix" val="Вам невтерпеж испить жизненной силы врагов!" />
+		<message type="kCustomMsgSeven" val="Вы осознали что кислоты мало не бывает!" />
+		<message type="kCustomMsgEight" val="Вы решили проклясть всех напоследок!" />
 		<message type="kCastPhraseHeathen" val="Порча великая туманом обернись!" />
 		<message type="kCastPhraseChristian" val="...и смерть явись в тумане его." />
 		<message type="kAffExpired" val="Порыв ветра развеял туман смерти." />

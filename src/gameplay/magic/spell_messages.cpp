@@ -116,6 +116,11 @@ const std::string &NAME_BY_ITEM<ESpellMsg>(const ESpellMsg item) {
 		{ESpellMsg::kCustomMsgThree, "kCustomMsgThree"},
 		{ESpellMsg::kCustomMsgFour, "kCustomMsgFour"},
 		{ESpellMsg::kCustomMsgFive, "kCustomMsgFive"},
+		{ESpellMsg::kCustomMsgSix, "kCustomMsgSix"},
+		{ESpellMsg::kCustomMsgSeven, "kCustomMsgSeven"},
+		{ESpellMsg::kCustomMsgEight, "kCustomMsgEight"},
+		{ESpellMsg::kCustomMsgNine, "kCustomMsgNine"},
+		{ESpellMsg::kCustomMsgTen, "kCustomMsgTen"},
 		{ESpellMsg::kCastDisappearToRoom, "kCastDisappearToRoom"},
 		{ESpellMsg::kCastAppearToRoom, "kCastAppearToRoom"},
 	};
@@ -228,6 +233,11 @@ ESpellMsg ITEM_BY_NAME<ESpellMsg>(const std::string &name) {
 		{"kCustomMsgThree", ESpellMsg::kCustomMsgThree},
 		{"kCustomMsgFour", ESpellMsg::kCustomMsgFour},
 		{"kCustomMsgFive", ESpellMsg::kCustomMsgFive},
+		{"kCustomMsgSix", ESpellMsg::kCustomMsgSix},
+		{"kCustomMsgSeven", ESpellMsg::kCustomMsgSeven},
+		{"kCustomMsgEight", ESpellMsg::kCustomMsgEight},
+		{"kCustomMsgNine", ESpellMsg::kCustomMsgNine},
+		{"kCustomMsgTen", ESpellMsg::kCustomMsgTen},
 		{"kCastDisappearToRoom", ESpellMsg::kCastDisappearToRoom},
 		{"kCastAppearToRoom", ESpellMsg::kCastAppearToRoom},
 	};

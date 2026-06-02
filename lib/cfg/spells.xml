@@ -4471,10 +4471,54 @@ base_stat id - (например "kWis") какой берем параметр,
         <flags val="kMagNeedControl|kMagRoom|kMagCasterInroom"/>
         <talent_actions>
             <action>
-                <affects type="kDeadlyFog" saving="kNone" resist="kVitality">
+                <affects type="kDeadlyFog" saving="kNone" resist="kVitality" tick_spell="kDeadlyFogTick">
                     <duration base="8" skill_divisor="0" min="0" max="0"/>
                     <flags val="kAfMustBeHandled|kAfDispellable"/>
                 </affects>
+            </action>
+        </talent_actions>
+    </spell>
+    <spell id="kDeadlyFogTick" element="kDark" mode="kService">
+        <name rus="туман смерти (тик)" eng="deadly fog tick"/>
+        <misc pos="kStand" violent="Y" danger="0"/>
+        <mana max="0" min="0" change="0"/>
+        <targets val="kTarRoomThis"/>
+        <flags val="kMagDamage"/>
+        <!-- Per-tick phases of kDeadlyFog (issue.room-spell-extension): the room-affect handler
+             runs action[apply_time-1 % 8] each round, escalating kPoison -> ... -> kMassCurse,
+             casting each on the room's foes. Messages are kDeadlyFog's kCustomMsgOne..Eight. -->
+        <talent_actions>
+            <action target="kTarFoes">
+                <area><targets max="-1"/><distribution type="kUniform"/></area>
+                <side_spell id="kPoison"/>
+            </action>
+            <action target="kTarFoes">
+                <area><targets max="-1"/><distribution type="kUniform"/></area>
+                <side_spell id="kFever"/>
+            </action>
+            <action target="kTarFoes">
+                <area><targets max="-1"/><distribution type="kUniform"/></area>
+                <side_spell id="kWeaknes"/>
+            </action>
+            <action target="kTarFoes">
+                <area><targets max="-1"/><distribution type="kUniform"/></area>
+                <side_spell id="kPowerBlindness"/>
+            </action>
+            <action target="kTarFoes">
+                <area><targets max="-1"/><distribution type="kUniform"/></area>
+                <side_spell id="kDamageCritic"/>
+            </action>
+            <action target="kTarFoes">
+                <area><targets max="-1"/><distribution type="kUniform"/></area>
+                <side_spell id="kSacrifice"/>
+            </action>
+            <action target="kTarFoes">
+                <area><targets max="-1"/><distribution type="kUniform"/></area>
+                <side_spell id="kAcidArrow"/>
+            </action>
+            <action target="kTarFoes">
+                <area><targets max="-1"/><distribution type="kUniform"/></area>
+                <side_spell id="kMassCurse"/>
             </action>
         </talent_actions>
     </spell>

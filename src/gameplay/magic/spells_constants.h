@@ -287,8 +287,9 @@ enum class ESpell {
 	kTestThree = 361,
 	kTestFour = 362,
 	kTestFive = 363,
+	kDeadlyFogTick = 364,
 	kFirst = kArmor,
-	kLast = 363	// Не забываем менять
+	kLast = 364	// Не забываем менять
 };
 
 const ESpell &operator++(ESpell &s);

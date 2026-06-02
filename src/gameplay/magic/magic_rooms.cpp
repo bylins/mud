@@ -182,60 +182,6 @@ void AddRoomToAffected(RoomData *room) {
 
 // Per-tick handler for kDeadlyFog room affect. Each duration step triggers a
 // progressively more harmful cascade against everyone in the room.
-static void HandleDeadlyFogTick(CharData *ch, int duration) {
-	switch (duration) {
-	case 7:
-		SendMsgToChar("Повинуясь вашему желанию отравить всех, туман начал густеть...\r\n", ch);
-		act("Облако тумана созданное $n4 начало густеть, отравляя комнату...\r\n",
-			false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-		CastAreaInRoom(ch, ESpell::kPoison, GetRealLevel(ch));
-		break;
-	case 6:
-		SendMsgToChar("Вы осознали, что хотите вызвать ужасные мучения у врагов...\r\nТуман тут же исполнил вашу прихоть...\r\n", ch);
-		act("$n захрипел$g, завыл$g, и враги, вдыхающие и выдыхающие туман, стали корчиться от силы черной магии!\r\n",
-			false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-		CastAreaInRoom(ch, ESpell::kFever, GetRealLevel(ch));
-		break;
-	case 5:
-		SendMsgToChar("Что может быть лучше, чем слабый враг?!\r\nТолько мертвый!\r\n", ch);
-		act("$n что-то проревел$g страшным голосом, и враги, окутанные туманом, стали быстро слабеть!\r\n",
-			false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-		CastAreaInRoom(ch, ESpell::kWeaknes, GetRealLevel(ch));
-		break;
-	case 4:
-		SendMsgToChar("Вам захотелось лишить всех глаз!\r\n", ch);
-		act("Туман, вызванный $n4, начал слепить врагов, сгустившись еще сильнее!\r\n",
-			false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-		CastAreaInRoom(ch, ESpell::kPowerBlindness, GetRealLevel(ch));
-		break;
-	case 3:
-		SendMsgToChar("Сильно навредить врагам?!\r\nХорошая идея!\r\n", ch);
-		act("$n пожелал$g, и туман уплотнился, чтобы навредить врагам!\r\n",
-			false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-		CastAreaInRoom(ch, ESpell::kDamageCritic, GetRealLevel(ch));
-		break;
-	case 2:
-		SendMsgToChar("Вам невтерпеж испить жизненной силы врагов!\r\nЧто и было исполнено.\r\n", ch);
-		act("Туман высосал часть вражеских сил и отдал их $n2!\r\n",
-			false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-		CastAreaInRoom(ch, ESpell::kSacrifice, GetRealLevel(ch));
-		break;
-	case 1: 
-		SendMsgToChar("Вы осознали что кислоты мало не бывает!\r\nТуман повиновался.\r\n", ch);
-		act("По воле $n1 из тумана вылетел сноп кислотных стрел!\r\n",
-			false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-		CastAreaInRoom(ch, ESpell::kAcidArrow, GetRealLevel(ch));
-		break;
-	case 0: 
-	default: 
-		SendMsgToChar("Вы решили проклясть всех напоследок!\r\n", ch);
-		act("$n что-то прошептал$g напоследок, и туман навлек проклятие на врагов!\r\n",
-			false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-			CastAreaInRoom(ch, ESpell::kMassCurse, GetRealLevel(ch));
-		break;
-	}
-}
-
 // Per-tick handler for kThunderstorm room affect. Each duration step triggers a
 // different elemental cascade until the storm fades.
 static void HandleThunderstormTick(CharData *ch, const Affect<ERoomApply>::shared_ptr &aff) {
@@ -364,9 +310,6 @@ void HandleRoomAffect(RoomData *room, CharData *ch, const Affect<ERoomApply>::sh
 		case ESpell::kForbidden:
 		case ESpell::kRoomLight: break;
 
-		case ESpell::kDeadlyFog:
-			HandleDeadlyFogTick(ch, aff->duration);
-			break;
 		
 
 
