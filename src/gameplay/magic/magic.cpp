@@ -1513,12 +1513,84 @@ static void SpillCorpseContents(CharData *ch, ObjData *obj) {
 	ExtractObjFromWorld(obj);
 }
 
+// Charm a freshly-read summoned `mob` to `ch` and place it in the caster's room: zero gold/exp/
+// carry, the kCharm affect (+ kHelper & kRescue=100 when `keeper`) with a wisdom+moon-phase
+// duration, kCorpse, the kSummonToRoom narration, place + add_follower. Returns the charm duration
+// (callers reuse it -- the firekeeper aura and the animate-dead ice shield share it).
+static int FinalizeSummonedMob(CharData *ch, CharData *mob, ESpell spell_id, bool keeper) {
+	mob->set_exp(0);
+	IS_CARRYING_W(mob) = 0;
+	IS_CARRYING_N(mob) = 0;
+	mob->set_gold(0);
+	GET_GOLD_NoDs(mob) = 0;
+	GET_GOLD_SiDs(mob) = 0;
+	const auto days_from_full_moon =
+		(weather_info.moon_day < 14) ? (14 - weather_info.moon_day) : (weather_info.moon_day - 14);
+	const int duration = CalcDuration(ch, mob, ESkill::kUndefined,
+		GetRealWis(ch) + number(0, days_from_full_moon), 0, 0, 0);
+	Affect<EApply> af;
+	af.type = ESpell::kCharm;
+	af.duration = duration;
+	af.modifier = 0;
+	af.location = EApply::kNone;
+	af.affect_type = EAffect::kCharmed;
+	af.battleflag = 0;
+	affect_to_char(mob, af);
+	if (keeper) {
+		af.affect_type = EAffect::kHelper;
+		affect_to_char(mob, af);
+		mob->set_skill(ESkill::kRescue, 100);
+	}
+	mob->SetFlag(EMobFlag::kCorpse);
+	act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kSummonToRoom).c_str(),
+		false, ch, nullptr, mob, kToRoom | kToArenaListen);
+	PlaceCharToRoom(mob, ch->in_room);
+	ch->add_follower(mob);
+	return duration;
+}
+
+// kClone post-spawn (issue.summon-pipeline): make the spawned double a copy of the caster, then
+// fill the rest of the clone quota -- max(1,(level+4)/5-2) total -- with extra doubles. Each extra
+// is charmice-capped and finalized like the first but never re-rolls failure or cascades again
+// (replacing the old need_fail=false recursion into CastSummon).
+static void CloneCascade(CharData *ch, CharData *mob, const CastContext &ctx, int /*duration*/) {
+	ApplyCloneCosmetics(ch, mob);
+	int already = 0;
+	for (auto *k : ch->followers) {
+		if (AFF_FLAGGED(k, EAffect::kCharmed) && k->get_master() == ch) {
+			++already;
+		}
+	}
+	int remaining = std::max(1, (GetRealLevel(ch) + 4) / 5 - 2) - already;
+	while (remaining-- > 0) {
+		CharData *extra = ReadMobile(-kMobDouble, kVirtual);
+		if (!extra) {
+			break;
+		}
+		if (IsSummonTargetProtected(ch, extra, ctx.spell_id())) {
+			continue;
+		}
+		if (!CheckCharmices(ch, extra, ctx.spell_id())) {
+			ExtractCharFromWorld(extra, false);
+			break;
+		}
+		FinalizeSummonedMob(ch, extra, ctx.spell_id(), true);
+		ApplyCloneCosmetics(ch, extra);
+		extra->SetFlag(EMobFlag::kNoSkillTrain);
+		extra->char_specials.saved.alignment = ch->char_specials.saved.alignment;
+	}
+}
+
 // issue.summon-pipeline: string-named post-spawn handlers (the spell-specific 20%). Signature
 // (ch, spawned mob, ctx). Registered here; named by <summon handler="...">. The keeper's
 // post-spawn customization is SetupKeeperStats.
-static const std::map<std::string, std::function<void(CharData *, CharData *, const CastContext &)>>
+static const std::map<std::string, std::function<void(CharData *, CharData *, const CastContext &, int)>>
 		kSummonHandlers = {
-	{"SetupKeeperStats", [](CharData *ch, CharData *mob, const CastContext &ctx) { SetupKeeperStats(ch, mob, ctx); }},
+	{"SetupKeeperStats",
+		[](CharData *ch, CharData *mob, const CastContext &ctx, int) { SetupKeeperStats(ch, mob, ctx); }},
+	{"SetupFirekeeperStats",
+		[](CharData *ch, CharData *mob, const CastContext &ctx, int dur) { SetupFirekeeperStats(ch, mob, ctx, dur); }},
+	{"CloneCascade", CloneCascade},
 };
 
 // Data-driven summon skeleton (issue.summon-pipeline): the common 80% -- fail roll, charmed
@@ -1559,38 +1631,11 @@ EStageResult CastSummonAction(CastContext &ctx) {
 		ExtractCharFromWorld(mob, false);
 		return EStageResult::kSuccess;
 	}
-	mob->set_exp(0);
-	IS_CARRYING_W(mob) = 0;
-	IS_CARRYING_N(mob) = 0;
-	mob->set_gold(0);
-	GET_GOLD_NoDs(mob) = 0;
-	GET_GOLD_SiDs(mob) = 0;
-	const auto days_from_full_moon =
-		(weather_info.moon_day < 14) ? (14 - weather_info.moon_day) : (weather_info.moon_day - 14);
-	const auto duration = CalcDuration(ch, mob, ESkill::kUndefined,
-		GetRealWis(ch) + number(0, days_from_full_moon), 0, 0, 0);
-	Affect<EApply> af;
-	af.type = ESpell::kCharm;
-	af.duration = duration;
-	af.modifier = 0;
-	af.location = EApply::kNone;
-	af.affect_type = EAffect::kCharmed;
-	af.battleflag = 0;
-	affect_to_char(mob, af);
-	if (s.keeper) {
-		af.affect_type = EAffect::kHelper;
-		affect_to_char(mob, af);
-		mob->set_skill(ESkill::kRescue, 100);
-	}
-	mob->SetFlag(EMobFlag::kCorpse);
-	act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kSummonToRoom).c_str(),
-		false, ch, nullptr, mob, kToRoom | kToArenaListen);
-	PlaceCharToRoom(mob, ch->in_room);
-	ch->add_follower(mob);
+	const int duration = FinalizeSummonedMob(ch, mob, spell_id, s.keeper);
 	if (!s.handler.empty()) {
 		const auto it = kSummonHandlers.find(s.handler);
 		if (it != kSummonHandlers.end()) {
-			it->second(ch, mob, ctx);
+			it->second(ch, mob, ctx, duration);
 		} else {
 			err_log("CastSummonAction: unknown summon handler '%s' for %s.",
 					s.handler.c_str(), NAME_BY_ITEM<ESpell>(spell_id).c_str());

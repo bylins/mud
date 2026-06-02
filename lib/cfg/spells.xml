@@ -311,6 +311,19 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="150" min="130" change="5"/>
         <targets val="kTarCharRoom|kTarSelfOnly"/>
         <flags val="kMagSummons"/>
+        <potency_roll>
+            <base_skill id="kDarkMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </potency_roll>
+        <talent_actions>
+            <!-- issue.summon-pipeline: clone fail rebalanced to C-based (was 50 - cast_success -
+                 remort*5); CloneCascade copies the caster and fills the (level+4)/5-2 quota. -->
+            <action>
+                <summon base_fail="50" min_fail="0" handler="CloneCascade">
+                    <mob vnum="-3000" competence_weight="16" keeper="Y"/>
+                </summon>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kIceBolts" element="kWater" mode="kEnabled">
         <name rus="ледяные стрелы" eng="ice bolts"/>
@@ -3298,6 +3311,15 @@ base_stat id - (например "kWis") какой берем параметр,
         <potency_roll>
             <base_stat id="kCha" threshold="20" weight="100"/>
         </potency_roll>
+        <talent_actions>
+            <!-- issue.summon-pipeline: firekeeper fail rebalanced to C-based (C = base_cha - 20);
+                 SetupFirekeeperStats applies the fire aura + cha-scaled stats. -->
+            <action>
+                <summon base_fail="50" min_fail="0" handler="SetupFirekeeperStats">
+                    <mob vnum="-3022" competence_weight="5" keeper="Y"/>
+                </summon>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kIceShield" element="kWater" mode="kEnabled">
         <name rus="ледяной щит" eng="ice protect"/>
