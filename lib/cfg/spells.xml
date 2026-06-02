@@ -3173,6 +3173,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="100" min="80" change="2"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagSummons"/>
+        <potency_roll>
+            <dices ndice="10" sdice="10" adice="0"/>
+            <base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kCha" threshold="22" weight="0.5"/>
+        </potency_roll>
     </spell>
     <spell id="kFastRegeneration" element="kLife" mode="kEnabled">
         <name rus="быстрое восстановление" eng="fast regeneration"/>

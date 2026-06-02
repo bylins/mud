@@ -1435,19 +1435,37 @@ static void EnhanceAnimateDead(CharData *ch, CharData *mob, MobVnum mob_num,
 // kSummonKeeper post-spawn: tie keeper level to caster, then derive a "rating" from
 // light-magic + cha and project that onto hit/skills/stats/HR/AC.
 // Svent TODO: не забыть перенести это в ability
-static void SetupKeeperStats(CharData *ch, CharData *mob) {
+// Scale a keeper stat off the cast competence C (skill_coeff+stat_coeff, from kSummonKeeper's
+// <potency_roll>) via the standard option-2 modifier formula -- the SAME ComputeApplyModifier the
+// affect modifiers use; no new formula. dices_weight>0 folds in the spell's potency dice (the HP
+// spread, replacing the old RollDices(10,10)); flat stats use beta*C only.
+static int KeeperStat(const CastContext &ctx, double min, double dices_weight, double beta) {
+	talents_actions::TalentAffect::Apply a;
+	a.min = min;
+	a.dices_weight = dices_weight;
+	a.alpha = 0.0;
+	a.beta = beta;
+	a.factor = 1;
+	return ComputeApplyModifier(a, ctx.CompetenceBase(), ctx.potency());
+}
+
+// Keeper stats, calibrated to reproduce the old rating-based curve at a maxed R12 keeper-summoner
+// (C ~ 3.1: skill 140, cha 30) and flatten above the novice skill threshold (the accepted
+// rebalance -- caps runaway high-skill keepers). C replaces the old (kLightMagic skill + cha)/2
+// rating; competence_weight lives in each stat's beta. kRescue is now scaled (was flat 100 only
+// via the keeper flag; this is the in-class keeper's own rescue).
+static void SetupKeeperStats(CharData *ch, CharData *mob, const CastContext &ctx) {
 	mob->set_level(GetRealLevel(ch));
-	int rating = (ch->GetSkill(ESkill::kLightMagic) + GetRealCha(ch)) / 2;
-	int v = 50 + RollDices(10, 10) + rating * 6;
-	mob->set_hit(v);
-	mob->set_max_hit(v);
-	mob->set_skill(ESkill::kPunch, 10 + rating * 1.5);
-	mob->set_skill(ESkill::kRescue, 50 + rating);
-	mob->set_str(3 + rating / 5);
-	mob->set_dex(10 + rating / 5);
-	mob->set_con(10 + rating / 5);
-	GET_HR(mob) = rating / 2 - 4;
-	GET_AC(mob) = 100 - rating * 2.65;
+	const int hp = KeeperStat(ctx, 50, 1.0, 164.4);   // + the 10d10 potency dice (old RollDices(10,10))
+	mob->set_hit(hp);
+	mob->set_max_hit(hp);
+	mob->set_skill(ESkill::kPunch,  KeeperStat(ctx, 10, 0.0, 41.1));
+	mob->set_skill(ESkill::kRescue, KeeperStat(ctx, 50, 0.0, 27.4));
+	mob->set_str(KeeperStat(ctx, 3,  0.0, 5.5));
+	mob->set_dex(KeeperStat(ctx, 10, 0.0, 5.5));
+	mob->set_con(KeeperStat(ctx, 10, 0.0, 5.5));
+	GET_HR(mob) = KeeperStat(ctx, 0, 0.0, 12.4);
+	GET_AC(mob) = 100 - KeeperStat(ctx, 0, 0.0, 72.6);
 }
 
 // kSummonFirekeeper post-spawn: a fire-aura (or fire-shield at 30+ effective cha) charm affect,
@@ -1603,7 +1621,7 @@ EStageResult CastSummon(CastContext &ctx, bool need_fail) {
 		EnhanceAnimateDead(ch, mob, p.mob_num, spell_id, duration);
 	}
 	if (spell_id == ESpell::kSummonKeeper) {
-		SetupKeeperStats(ch, mob);
+		SetupKeeperStats(ch, mob, ctx);
 	}
 	if (spell_id == ESpell::kSummonFirekeeper) {
 		SetupFirekeeperStats(ch, mob, duration);
