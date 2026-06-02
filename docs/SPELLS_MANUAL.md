@@ -33,10 +33,12 @@ order** for each target. Any stage can short-circuit the whole cast.
    a spell can dispel an existing affect and then apply its own.
 6. **`CastAffect`** — if `kMagAffects` flag set.
 7. **`CastToPoints`** — if `kMagPoints` flag set (HP/MV restore).
-8. **`CastToAlterObjs`** — if `kMagAlterObjs` flag set (modify an item).
+8. **Alter object** — if the action carries an `<alter_obj>` (§3.8.7: bless,
+   curse, enchant, repair, acid, …); a per-target stage.
 9. **Summon** — if the action carries a `<summon>` (§3.8.5: summon keeper /
    fire keeper / clone); runs once per action, not per target.
-10. **`CastCreation`** — if `kMagCreations` flag set (conjure food/light).
+10. **Create object** — if the action carries an `<obj_creation>` (§3.8.6:
+    conjure food / light / weapon / armor); runs once per action.
 11. **`CastManual`** — if `kMagManual` flag set (hand-coded handler in
     `spells.cpp`).
 12. **Victim reaction** — NPC hostility / auto-cast of detection.
@@ -209,8 +211,6 @@ gameplay metadata** (PK / agro / damage-type).
 | `kMagAffects` | Run `CastAffect`. |
 | `kMagUnaffects` | Run `CastUnaffects`. |
 | `kMagPoints` | Run `CastToPoints` (HP/MV restore). |
-| `kMagAlterObjs` | Run `CastToAlterObjs` (item transform). |
-| `kMagCreations` | Run `CastCreation`. |
 | `kMagManual` | Run hand-coded handler in `spells.cpp` (also covers movement spells like teleport, recall, portal, relocate). |
 | `kMagGroups` | Spell targets a group. |
 | `kMagMasses` | Mass cast — every NPC in the room (excluding allies). |
@@ -464,6 +464,54 @@ Use `<summon>` for **vnum-based** summons whose failure scales with `C`
 resurrection — the mob and a con/level-based fail come from the source corpse) and
 the non-mob summons (guardian angel, mental shadow) don't fit this data model and
 live in `<manual_cast>` handlers instead (§3.8.4).
+
+#### 3.8.6 `<obj_creation>` — conjure an object *(issue.obj-casting)*
+
+```xml
+<obj_creation vnum="125" handler="CreateWeapon"/>
+```
+
+Creates an object in the caster's room/inventory. Runs **once per action** (like `<summon>`), at the
+action level. `vnum` (required) is the prototype to load; the skeleton narrates and places it
+(inventory, or dropped to the room when the caster is over-encumbered). `handler` (optional) names a
+post-load customizer in the `kCreationHandlers` registry (`magic.cpp`) — it runs **before** the
+narration/placement so it can shape the freshly-loaded base object. An unregistered name logs
+`unknown creation handler` at cast time (same as `<manual_cast>` / `<alter_obj>`).
+
+| Attr | Meaning |
+|---|---|
+| `vnum` | Prototype vnum to load (required). |
+| `handler` | Optional post-load customizer (`kCreationHandlers`). |
+
+`kCreateFood` / `kCreateLight` use no handler (plain load). `kCreateWeapon` / `kCreateArmor` carry
+`CreateWeapon` / `CreateArmor` — **plumbing stubs today** (the base vnum is loaded; the stat/type
+customization is a documented TODO in each handler body). It replaced the old `kMagCreations` flag.
+
+#### 3.8.7 `<alter_obj>` — transform the target object *(issue.obj-casting)*
+
+```xml
+<alter_obj handler="AlterBless"/>
+```
+
+Transforms a target object, running as a **per-target stage** (so an area corrode hits each target's
+item). The skeleton resolves the object (an explicit `ovict`, else a random equipped/carried item of
+the victim), guards the `kNoalter` flag, then dispatches the named handler from the
+`kAlterObjHandlers` registry (`magic.cpp`). The transform itself is irreducibly per-spell, so the
+only attribute is `handler` (mirroring `<manual_cast>`, but with the shared object-resolution +
+guard skeleton around it).
+
+The handler does its **own** messaging and returns `kSuccess` when it acted (or chose to stay
+silent), or **`kFail`** to ask the skeleton for the generic "no effect" line. Current handlers:
+`AlterBless` / `AlterCurse` / `AlterInvisible` / `AlterPoison` / `AlterRemoveCurse` /
+`AlterEnchantWeapon` / `AlterRemovePoison` / `AlterFly` / `AlterAcid` (kAcid + kAcidArrow) /
+`AlterRepair` / `AlterTimerRestore` / `AlterRestoration` / `AlterLight` / `AlterDarkness`. A
+multi-purpose spell (e.g. `kBless`, which also affects a character) carries `<alter_obj>` alongside
+its `<affects>` in the same action. It replaced the old `kMagAlterObjs` flag.
+
+> **Object lifetime:** if the cast destroys the target object (the acid corrode, or a consumed
+> material component), it is **deferred-extracted** — flagged `ObjData::purged()` and freed at the
+> next heartbeat, never dangling. The skeleton treats a `purged()` target as absent. See §3.8.7's
+> handlers and `DamageObj` / `ProcessMatComponents`.
 
 ### 3.9 `<components>` — casting requirements
 
@@ -1269,10 +1317,9 @@ For each cast that runs `<unaffect>`:
 
 ---
 
-## 11. `CastToPoints`, `CastToAlterObjs`, `CastCreation`, `CastManual`
+## 11. `CastToPoints`, `CastManual` (and the object stages)
 
-These stages are gated by their `kMag…` flag and run dedicated logic in
-`magic.cpp`. They are **partly data-driven**:
+These stages run dedicated logic in `magic.cpp`. They are **partly data-driven**:
 
 * `CastToPoints` (HP / MV / thirst / full restore) is fully data-driven
   via the spell's `<points>` block (issue.mag-points). All four inner
@@ -1282,15 +1329,18 @@ These stages are gated by their `kMag…` flag and run dedicated logic in
   order, keyed `kHealToVict` / `kMovesToVict` / `kThirstToVict` /
   `kFullToVict` (see §6 "Per-category narration"). The legacy single
   `kPointsToVict` key was retired in issue.point-bugs.
-* `CastToAlterObjs` runs a per-spell handler in code (bless, curse,
-  invisible, poison, enchant, repair, etc.) and reads its messages from
-  `spell_msg.xml` (`kAlterObjToChar`, `kEnchantNotWeapon`, …).
-* Summons are now the data-driven `<summon>` action (§3.8.5) for the vnum-based
+* Object transforms are the data-driven `<alter_obj>` action (§3.8.7): a shared
+  resolve+`kNoalter`+no-effect skeleton plus a per-spell handler (bless, curse,
+  enchant, repair, acid, …) that does its own messaging (`kAlterObjToChar`, …).
+  The old `kMagAlterObjs` flag is gone.
+* Object creation is the data-driven `<obj_creation>` action (§3.8.6): load a
+  base vnum + an optional post-load handler (food / light / weapon / armor).
+  The old `kMagCreations` flag is gone.
+* Summons are the data-driven `<summon>` action (§3.8.5) for the vnum-based
   ones (summon keeper / fire keeper / clone) and `<manual_cast>` handlers (§3.8.4)
   for the corpse and non-mob ones (animate dead, resurrection, guardian angel,
   mental shadow). Messages stay in `spell_msg.xml` (`kSummonToRoom`, `kSummonFail`,
   `kSummonNoCorpse`, etc.). The old `kMagSummons` flag is gone.
-* `CastCreation` is a pure code stage.
 * `CastManual` runs a hand-coded handler, but **which** handler is now data-driven:
   name it with `<manual_cast handler="SpellX"/>` inside the action (§3.8.4). The
   handler still lives in `spells.cpp`; the XML just selects and stage-gates it.
@@ -1458,7 +1508,7 @@ specific spell hasn't overridden.
 | `kCastSayToSelf`, `kCastSayToOther`, `kCastSayToObj`, `kCastSayToSomething`, `kCastSayDamageeToVict`, `kCastSayHelpeeToVict`, `kCastSaySound` | The fly-by "$n stares at $N3 and utters …" lines emitted while the caster pronounces the incantation. | Room / victim |
 | `kCastInterruptedToChar`, `kCastPreparedToChar` | Concentration-broken / spell-ready announcements. | Caster |
 | `kNoTarget`, `kWrongTarget` | The caster's target argument missed (no such target / target type rejected by `<targets val>`). | Caster |
-| `kItemNoPrototype`, `kItemCreatedToChar`, `kItemCreatedToRoom`, `kItemCreationFailToChar` | `CastCreation` outcomes. | Various |
+| `kItemNoPrototype`, `kItemCreatedToChar`, `kItemCreatedToRoom`, `kItemCreationFailToChar` | `<obj_creation>` outcomes. | Various |
 | `kSummonToRoom`, `kSummonFail`, `kSummonNoCorpse`, `kResurrectNoPower`, `kResurrectProtected` | Summon / resurrect outcomes. | Various |
 | `kEnchantNotWeapon`, `kEnchantMagic`, `kEnchantSetItem`, `kEnchantMono`, `kEnchantPoly`, `kEnchantOther` | Enchant-weapon outcomes. | Caster |
 | `kFightDeathToChar`, `kFightHitToChar`, `kFightMissToChar` (+ `ToVict`, `ToRoom`) | Combat-damage messages keyed by `ESpell`. | Various |
@@ -1573,7 +1623,7 @@ A message lookup tries the spell's own sheaf first, then falls back to
     <misc pos="kFight" violent="N" danger="0"/>
     <mana max="60" min="45" change="2"/>
     <targets val="kTarCharRoom|kTarFightSelf|kTarObjInv|kTarObjRoom"/>
-    <flags val="kMagUnaffects|kMagAlterObjs|kNpcUnaffectNpc"/>
+    <flags val="kMagUnaffects|kNpcUnaffectNpc"/>
     <potency_roll>
         <dices ndice="5" sdice="9" adice="12"/>
         <base_skill id="kLifeMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
@@ -1584,6 +1634,7 @@ A message lookup tries the spell's own sheaf first, then falls back to
             <unaffect affect_flags="kAfCurable">
                 <remove all_of="kPoison|kAconitumPoison|kScopolaPoison|kBelenaPoison|kDaturaPoison"/>
             </unaffect>
+            <alter_obj handler="AlterRemovePoison"/>
         </action>
     </talent_actions>
 </spell>
@@ -1592,6 +1643,9 @@ A message lookup tries the spell's own sheaf first, then falls back to
 * `affect_flags="kAfCurable"` — won't touch affects that are only
   `kAfDispellable` (e.g. blessings).
 * `<remove all_of="…">` — tries every listed poison present on the target.
+* `<alter_obj handler="AlterRemovePoison"/>` — the same spell cast on a poisoned
+  food/drink cleans the object instead (§3.8.7); both manifestations live in the
+  one action.
 * Each removal is a potency contest. A novice priest's `remove poison`
   may fail against a master assassin's `poison` (high recorded potency),
   but always has the 5 % free chance.
@@ -1950,11 +2004,11 @@ should change a stat *without* imposing an affect flag.
 
 ## 16. What this manual does **not** cover (yet)
 
-* **Hand-coded handler *bodies*** (`CastCreation`, `CastToAlterObjs` switch cases,
-  the `<summon>` post-spawn handlers, and the `<manual_cast>` handlers themselves) —
-  those still live in `spells.cpp` and `magic.cpp`. Their *selection and
-  ordering* are now data-driven (§3.8.4, §3.8.5), but the logic inside is still
-  code. Migrating it piece by piece into the data-driven system is ongoing work.
+* **Hand-coded handler *bodies*** (the `<alter_obj>` / `<obj_creation>` / `<summon>`
+  post-spawn handlers, and the `<manual_cast>` handlers themselves) — those still
+  live in `spells.cpp` and `magic.cpp`. Their *selection and ordering* are now
+  data-driven (§3.8.4–§3.8.7), but the logic inside is still code. Migrating it
+  piece by piece into the data-driven system is ongoing work.
 * **Success roll consumption** — `<success_roll>` is parsed and evaluated
   at cast time but is not yet wired into the cast-success decision. The
   classical percent-based `CalcCastSuccess` still gates landing.
