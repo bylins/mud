@@ -152,7 +152,7 @@
 	</telemetry>
 	<admin_api>
 		<enabled>false</enabled>
-		<socket_path>admin_api.sock</socket_path>
+		<socket_path>run/admin_api.sock</socket_path>
 		<!-- <max_connections>5</max_connections> -->
 	</admin_api>
 	<!--

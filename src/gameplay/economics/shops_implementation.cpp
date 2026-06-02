@@ -299,8 +299,10 @@ void shop_node::process_buy(CharData *ch, CharData *keeper, char *argument) {
 		return;
 	}
 
-	if (invalid_anti_class_proto(ch, proto)
-		|| invalid_no_class_proto(ch, proto)) {
+	// Блокируем продажу только для anti-класса ("Недоступен"): такую вещь нельзя
+	// ни носить, ни взять (обжигает). Вещи с no-классом ("Неудобен") продаём:
+	// носить их можно, к тому же в магазине покупают и чармисам (issue #3356).
+	if (invalid_anti_class_proto(ch, proto)) {
 		tell_to_char(keeper, ch, "Мне жаль, но эта вещь тебе не подходит.");
 		return;
 	}

@@ -5,21 +5,40 @@ Flask application for managing MUD world via Admin API
 from flask import Flask, render_template, request, jsonify, redirect, url_for, session
 from functools import wraps
 from mud_client import MudAdminClient
+import logging
 import os
+import sys
+
+# Logging to stdout so `docker logs` (and systemd/journald) capture everything:
+# HTTP-запросы пишет werkzeug/gunicorn, а события аутентификации и проблемы с
+# сокетом логируем явно здесь.
+logging.basicConfig(
+    level=getattr(logging, os.environ.get('LOG_LEVEL', 'INFO').upper(), logging.INFO),
+    format='%(asctime)s %(levelname)s %(name)s: %(message)s',
+    stream=sys.stdout,
+)
+logger = logging.getLogger('web_admin')
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = os.urandom(24)
+# Постоянный секрет из окружения позволяет сессиям переживать рестарт контейнера
+# и корректно работать при нескольких воркерах; иначе — случайный на запуск.
+app.config['SECRET_KEY'] = os.environ.get('FLASK_SECRET_KEY') or os.urandom(24)
 
 # Get socket path from environment or use default (current directory)
 SOCKET_PATH = os.environ.get('MUD_SOCKET', 'admin_api.sock')
 SOCKET_PATH = os.path.expanduser(SOCKET_PATH)
 
-# Check if socket exists
+# Сокет может отсутствовать в момент старта (циркуль ещё поднимается или
+# перезапускается). Не падаем — подключение выполняется на каждый запрос, а
+# mud_client вернёт понятную ошибку, если сокета нет.
 if not os.path.exists(SOCKET_PATH):
-    print(f"ERROR: Socket file not found: {SOCKET_PATH}")
-    print(f"Make sure MUD server is running with Admin API enabled.")
-    print(f"You can override socket path with: MUD_SOCKET=/path/to/socket python3 app.py")
-    exit(1)
+    logger.warning(
+        "Socket not found at startup: %s. Это нормально, если MUD-сервер ещё "
+        "стартует или перезапускается; подключение будет повторяться на каждый запрос.",
+        SOCKET_PATH,
+    )
+else:
+    logger.info("Using MUD Admin API socket: %s", SOCKET_PATH)
 
 # Helper function to get MUD client with session credentials
 def get_mud_client():
@@ -107,9 +126,15 @@ def login():
         username = request.form.get('username')
         password = request.form.get('password')
 
+        # IP клиента для лога неудачных входов (fail2ban, issue #3388).
+        # За обратным прокси берём первый адрес из X-Forwarded-For.
+        forwarded = request.headers.get('X-Forwarded-For', '')
+        client_ip = forwarded.split(',')[0].strip() if forwarded else request.remote_addr
+
         # Try to authenticate with MUD
         try:
-            test_client = MudAdminClient(SOCKET_PATH, username=username, password=password)
+            test_client = MudAdminClient(SOCKET_PATH, username=username, password=password,
+                                         client_ip=client_ip)
             # Test connection with real command
             response = test_client._send_command('list_zones')
 
@@ -117,14 +142,19 @@ def login():
                 # Authentication successful - save to session
                 session['username'] = username
                 session['password'] = password
+                logger.info("auth OK: user=%s from=%s", username, client_ip)
                 return redirect(url_for('index'))
             else:
-                return render_template('login.html', error=f"Ошибка: {response.get('error', 'Неизвестная ошибка')}")
+                err = response.get('error', 'Неизвестная ошибка')
+                logger.warning("auth FAILED: user=%s from=%s reason=%s", username, client_ip, err)
+                return render_template('login.html', error=f"Ошибка: {err}")
 
         except ValueError as e:
             # Authentication failed
+            logger.warning("auth FAILED: user=%s from=%s reason=%s", username, client_ip, e)
             return render_template('login.html', error=str(e))
         except Exception as e:
+            logger.error("auth ERROR: user=%s from=%s reason=%s", username, client_ip, e)
             return render_template('login.html', error=f'Ошибка подключения: {str(e)}')
 
     return render_template('login.html')

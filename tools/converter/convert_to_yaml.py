@@ -1303,13 +1303,13 @@ class SqliteSaver(BaseSaver):
                 short_desc, long_desc, alignment, mob_type, level, hitroll_penalty, armor,
                 hp_dice_count, hp_dice_size, hp_bonus, dam_dice_count, dam_dice_size, dam_bonus,
                 gold_dice_count, gold_dice_size, gold_bonus, experience,
-                default_pos, start_pos, sex, size, height, weight, mob_class, race,
+                default_pos, start_pos, sex, speed, size, height, weight, mob_class, race,
                 attr_str, attr_dex, attr_int, attr_wis, attr_con, attr_cha,
                 attr_str_add, hp_regen, armour_bonus, mana_regen, cast_success, morale,
                 initiative_add, absorb, aresist, mresist, presist, bare_hand_attack,
                 like_work, max_factor, extra_attack, mob_remort, special_bitvector, role,
                 enabled
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ''', (
             vnum,
             *extract_entity_names(mob),
@@ -1333,6 +1333,7 @@ class SqliteSaver(BaseSaver):
             pos.get('default'),
             pos.get('start'),
             mob.get('sex'),
+            mob.get('speed', -1),
             mob.get('size'),
             mob.get('height'),
             mob.get('weight'),
@@ -1487,6 +1488,13 @@ class SqliteSaver(BaseSaver):
                 INSERT INTO obj_applies (obj_vnum, location_id, modifier)
                 VALUES (?, ?, ?)
             ''', (vnum, location_id, apply['modifier']))
+
+        # Insert skills (legacy `S` lines, issue #3386)
+        for skill in obj.get('skills', []):
+            cursor.execute('''
+                INSERT OR REPLACE INTO obj_skills (obj_vnum, skill_id, value)
+                VALUES (?, ?, ?)
+            ''', (vnum, skill['skill_id'], skill['value']))
 
         # Insert extra descriptions
         insert_extra_descriptions(cursor, 'obj', vnum, obj.get('extra_descs', []))
@@ -2110,8 +2118,13 @@ def parse_mob_file(filepath):
                         'hitroll_penalty': int(parts[1]) if parts[1].lstrip('-').isdigit() else 20,
                         'armor': int(parts[2]) if parts[2].lstrip('-').isdigit() else 100
                     }
-                    # Parse HP dice (format: XdY+Z)
-                    hp_match = re.match(r'(-?\d+)d(-?\d+)([+-]\d+)?', parts[3])
+                    # Parse HP dice (format: XdY+Z). The bonus Z is a *signed*
+                    # value behind a literal '+' separator (matches the legacy
+                    # sscanf "%dd%d+%d"), so a negative bonus reads "0d0+-56".
+                    # The old `([+-]\d+)?` group failed on the "+-" pair and
+                    # silently dropped the bonus to 0 -- e.g. mob 12821's
+                    # damroll -56 became 0 in YAML (issue #3384 class).
+                    hp_match = re.match(r'(-?\d+)d(-?\d+)(?:\+(-?\d+))?', parts[3])
                     if hp_match:
                         mob['stats']['hp'] = {
                             'dice_count': int(hp_match.group(1)),
@@ -2119,7 +2132,7 @@ def parse_mob_file(filepath):
                             'bonus': int(hp_match.group(3)) if hp_match.group(3) else 0
                         }
                     # Parse damage dice
-                    dmg_match = re.match(r'(-?\d+)d(-?\d+)([+-]\d+)?', parts[4])
+                    dmg_match = re.match(r'(-?\d+)d(-?\d+)(?:\+(-?\d+))?', parts[4])
                     if dmg_match:
                         mob['stats']['damage'] = {
                             'dice_count': int(dmg_match.group(1)),
@@ -2132,7 +2145,7 @@ def parse_mob_file(filepath):
             if idx < len(lines):
                 parts = lines[idx].split()
                 if parts:
-                    gold_match = re.match(r'(-?\d+)d(-?\d+)([+-]\d+)?', parts[0])
+                    gold_match = re.match(r'(-?\d+)d(-?\d+)(?:\+(-?\d+))?', parts[0])
                     if gold_match:
                         mob['gold'] = {
                             'dice_count': int(gold_match.group(1)),
@@ -2162,6 +2175,17 @@ def parse_mob_file(filepath):
                         'start': POSITIONS[pos_start] if pos_start < len(POSITIONS) else pos_start
                     }
                     mob['sex'] = GENDERS[sex] if sex < len(GENDERS) else sex
+                    # parse_simple_mob: a 4th field is the explicit movement
+                    # speed; with only 3 fields speed defaults to -1. Without
+                    # carrying this through, every legacy mob (the 3-field
+                    # common case) reloads with speed 0 and the wrong movement
+                    # cadence. Emit speed only when it differs from -1 so the
+                    # YAML stays clean; the loader defaults to -1 (issue #3384
+                    # class of dropped properties).
+                    if len(parts) >= 4 and parts[3].lstrip('-').isdigit():
+                        mob['speed'] = int(parts[3])
+                    else:
+                        mob['speed'] = -1
                 idx += 1
 
             # Parse extended mob info (E-spec)
@@ -2428,6 +2452,12 @@ def mob_to_yaml(mob):
     # Sex
     if 'sex' in mob:
         data['sex'] = mob['sex']
+
+    # Movement speed -- only emit when it deviates from the -1 default that
+    # parse_simple_mob assigns to 3-field position lines; the loader falls
+    # back to -1 when the key is absent (issue #3384 class).
+    if mob.get('speed', -1) != -1:
+        data['speed'] = mob['speed']
 
     # Attributes
     if mob.get('attributes'):
@@ -2711,8 +2741,9 @@ def parse_obj_file(filepath):
                 idx += 1
 
 
-            # Parse extra data (A, E, M, T sections)
+            # Parse extra data (A, E, M, S, T sections)
             obj['applies'] = []
+            obj['skills'] = []
             obj['extra_descs'] = []
             obj['triggers'] = []
 
@@ -2728,6 +2759,16 @@ def parse_obj_file(filepath):
                             obj['applies'].append({
                                 'location': int(parts[0]),
                                 'modifier': int(parts[1])
+                            })
+                elif line == 'S':
+                    # Skill (умение предмета): "S\n<skill_id> <value>", issue #3386
+                    idx += 1
+                    if idx < len(lines):
+                        parts = lines[idx].split()
+                        if len(parts) >= 2:
+                            obj['skills'].append({
+                                'skill_id': int(parts[0]),
+                                'value': int(parts[1])
                             })
                 elif line == 'E':
                     # Extra description
@@ -2753,6 +2794,20 @@ def parse_obj_file(filepath):
                             desc_parts.append(lines[idx].rstrip('~'))
                         ed['description'] = '\r\n'.join(desc_parts)
                         obj['extra_descs'].append(ed)
+                elif line == 'S':
+                    # Skill granted by the object (legacy `S` line:
+                    # `S\n<skill_id> <value>`, boot_data_files.cpp:795).
+                    # Without this branch the object's skill bonuses silently
+                    # vanish in YAML, then SQLite, and finally on every player
+                    # who equips it (issue #3386).
+                    idx += 1
+                    if idx < len(lines):
+                        parts = lines[idx].split()
+                        if len(parts) >= 2:
+                            obj['skills'].append({
+                                'skill_id': int(parts[0]),
+                                'value': int(parts[1])
+                            })
                 elif line.startswith('M '):
                     obj['max_in_world'] = int(line[2:].strip())
                 elif line.startswith('R '):
@@ -2874,6 +2929,19 @@ def obj_to_yaml(obj):
             a['modifier'] = apply['modifier']
             applies.append(a)
         data['applies'] = applies
+
+    # Skills granted by the object (legacy `S` lines, issue #3386).
+    if obj.get('skills'):
+        skills = CommentedSeq()
+        for skill in obj['skills']:
+            s = CommentedMap()
+            s['skill_id'] = skill['skill_id']
+            skill_name = get_skill_name(skill['skill_id'])
+            if skill_name:
+                s.yaml_add_eol_comment(skill_name, 'skill_id')
+            s['value'] = skill['value']
+            skills.append(s)
+        data['skills'] = skills
 
     # Extra descriptions
     if obj.get('extra_descs'):

@@ -96,7 +96,7 @@ ENoFlag class_specific_no_flag(ECharClass c) {
 // независимо запрещают использование, и в display даже именованы
 // по-разному -- "Недоступен" / "Неудобен", -- но игроку оба запрещают
 // носить (#3269).
-bool obj_blocked_for_class(const ObjData *obj, ECharClass c) {
+bool obj_blocked_for_class(const CObjectPrototype *obj, ECharClass c) {
 	if (obj->has_anti_flag(EAntiFlag::kMage) && is_magic_class(c)) {
 		return true;
 	}
@@ -507,7 +507,7 @@ bool ParseFilter::init_affect(char *str, size_t str_len) {
 }
 
 /// имя, метка для клан-хранов
-bool ParseFilter::check_name(ObjData *obj, CharData *ch) const {
+bool ParseFilter::check_name(const CObjectPrototype *obj, CharData *ch) const {
 	bool result = false;
 	char name_obj[kMaxStringLength];
 	strcpy(name_obj, obj->get_PName(ECase::kNom).c_str());
@@ -522,14 +522,14 @@ bool ParseFilter::check_name(ObjData *obj, CharData *ch) const {
 		result = true;
 	} else if (ch
 		&& filter_type == CLAN
-		&& CHECK_CUSTOM_LABEL(name, obj, ch)) {
+		&& CHECK_CUSTOM_LABEL(name, static_cast<const ObjData *>(obj), ch)) {
 		result = true;
 	}
 
 	return result;
 }
 
-bool ParseFilter::check_type(ObjData *obj) const {
+bool ParseFilter::check_type(const CObjectPrototype *obj) const {
 	if (type < 0
 		|| type == obj->get_type()) {
 		return true;
@@ -538,7 +538,7 @@ bool ParseFilter::check_type(ObjData *obj) const {
 	return false;
 }
 
-bool ParseFilter::check_state(ObjData *obj) const {
+bool ParseFilter::check_state(const CObjectPrototype *obj) const {
 	bool result = false;
 	if (state < 0) {
 		result = true;
@@ -569,7 +569,7 @@ bool ParseFilter::check_state(ObjData *obj) const {
 	return result;
 }
 
-bool ParseFilter::check_skill(ObjData *obj) const {
+bool ParseFilter::check_skill(const CObjectPrototype *obj) const {
 	if (skill_id == ESkill::kUndefined)
 		return true;
 	if (obj->has_skills()) {
@@ -581,13 +581,13 @@ bool ParseFilter::check_skill(ObjData *obj) const {
 	return false;
 }
 
-bool ParseFilter::check_profession(ObjData *obj) const {
+bool ParseFilter::check_profession(const CObjectPrototype *obj) const {
 	if (profession == ECharClass::kUndefined)
 		return true;
 	return !obj_blocked_for_class(obj, profession);
 }
 
-bool ParseFilter::check_wear(ObjData *obj) const {
+bool ParseFilter::check_wear(const CObjectPrototype *obj) const {
 	if (wear == EWearFlag::kUndefined
 		|| CAN_WEAR(obj, wear)) {
 		return true;
@@ -595,7 +595,7 @@ bool ParseFilter::check_wear(ObjData *obj) const {
 	return false;
 }
 
-bool ParseFilter::check_weap_class(ObjData *obj) const {
+bool ParseFilter::check_weap_class(const CObjectPrototype *obj) const {
 	if (MUD::Skills().IsInvalid(weap_class) || weap_class == static_cast<ESkill>(obj->get_spec_param())) {
 		return true;
 	}
@@ -628,7 +628,7 @@ bool ParseFilter::check_rent(int obj_price) const {
 	return result;
 }
 
-bool ParseFilter::check_remorts(ObjData *obj) const {
+bool ParseFilter::check_remorts(const CObjectPrototype *obj) const {
 	int obj_remorts = 0;
 
 	if (obj->get_minimum_remorts() != 0) {
@@ -661,7 +661,7 @@ bool ParseFilter::check_remorts(ObjData *obj) const {
 	return false;
 }
 
-bool ParseFilter::check_affect_weap(ObjData *obj) const {
+bool ParseFilter::check_affect_weap(const CObjectPrototype *obj) const {
 	if (!affect_weap.empty()) {
 		for (auto it = affect_weap.begin(); it != affect_weap.end(); ++it) {
 			if (!CompareBits(obj->get_affect_flags(), weapon_affects, *it)) {
@@ -672,7 +672,7 @@ bool ParseFilter::check_affect_weap(ObjData *obj) const {
 	return true;
 }
 
-std::string ParseFilter::show_obj_aff(ObjData *obj) {
+std::string ParseFilter::show_obj_aff(const CObjectPrototype *obj) {
 	if (!affect_apply.empty()) {
 		for (auto it = affect_apply.begin(); it != affect_apply.end(); ++it) {
 			for (int i = 0; i < kMaxObjAffect; ++i) {
@@ -697,7 +697,7 @@ std::string ParseFilter::show_obj_aff(ObjData *obj) {
 	return " ";
 }
 
-bool ParseFilter::check_affect_apply(ObjData *obj) const {
+bool ParseFilter::check_affect_apply(const CObjectPrototype *obj) const {
 	bool result = true;
 	if (!affect_apply.empty()) {
 		for (auto it = affect_apply.begin(); it != affect_apply.end() && result; ++it) {
@@ -713,7 +713,7 @@ bool ParseFilter::check_affect_apply(ObjData *obj) const {
 	return result;
 }
 
-bool ParseFilter::check_affect_extra(ObjData *obj) const {
+bool ParseFilter::check_affect_extra(const CObjectPrototype *obj) const {
 	if (!affect_extra.empty()) {
 		for (auto it = affect_extra.begin(); it != affect_extra.end(); ++it) {
 			if (!CompareBits(obj->get_extra_flags(), extra_bits, *it)) {
@@ -748,7 +748,7 @@ bool ParseFilter::check_realtime(ExchangeItem *exch_obj) const {
 	return result;
 }
 
-bool ParseFilter::check(ObjData *obj, CharData *ch) {
+bool ParseFilter::check(const CObjectPrototype *obj, CharData *ch) {
 	if (check_name(obj, ch)
 		&& check_type(obj)
 		&& check_state(obj)

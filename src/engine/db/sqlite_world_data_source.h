@@ -75,6 +75,7 @@ private:
 	// Object loading helpers
 	void LoadObjectFlags();
 	void LoadObjectApplies();
+	void LoadObjectSkills();
 	void LoadObjectTriggers();
 	void LoadObjectExtraDescriptions();
 

@@ -477,35 +477,40 @@ void do_stat_character(CharData *ch, CharData *k, const int virt) {
 				str_dest_list << std::to_string(k->mob_specials.dest[i]);
 			}
 
-			// пытаемся просчитать маршрут на несколько клеток вперед
-			std::vector<RoomVnum> predictive_path_vnum_list;
-			static const int max_path_size = 25;
-			RoomVnum current_room = world[k->in_room]->vnum;
-			while (current_room != GET_DEST(k) && predictive_path_vnum_list.size() < max_path_size && current_room > kNowhere) {
-				const auto direction = find_first_step(GetRoomRnum(current_room), GetRoomRnum(GET_DEST(k)), k);
-				if (direction >= 0) {
-					const auto exit_room_rnum = world[GetRoomRnum(current_room)]->dir_option[direction]->to_room();
-					current_room = world[exit_room_rnum]->vnum;
-					predictive_path_vnum_list.push_back(current_room);
-				} else {
-					break;
-				}
-			}
-			// конвертируем путь из внумов в строку
-			std::stringstream str_predictive_path;
-			for (const auto &room : predictive_path_vnum_list) {
-				if (!str_predictive_path.str().empty()) {
-					str_predictive_path << " - ";
-				}
-				str_predictive_path << std::to_string(room);
-			}
-
 			SendMsgToChar(ch,
 						  "Заданные путевые точки: %s%s%s\r\n",
 						  kColorCyn,
 						  str_dest_list.str().c_str(),
 						  kColorNrm);
+
+			// Предполагаемый маршрут считаем и показываем только для живого моба
+			// (не vstat): vstat ставит временный прототип в комнату rnum 1 чужой
+			// зоны, а kStayZone-моб не строит путь между зонами, из-за чего
+			// find_first_step зря писал "can't find path" в errlog (issue #3384).
 			if (!virt) {
+				// пытаемся просчитать маршрут на несколько клеток вперед
+				std::vector<RoomVnum> predictive_path_vnum_list;
+				static const int max_path_size = 25;
+				RoomVnum current_room = world[k->in_room]->vnum;
+				while (current_room != GET_DEST(k) && predictive_path_vnum_list.size() < max_path_size && current_room > kNowhere) {
+					const auto direction = find_first_step(GetRoomRnum(current_room), GetRoomRnum(GET_DEST(k)), k);
+					if (direction >= 0) {
+						const auto exit_room_rnum = world[GetRoomRnum(current_room)]->dir_option[direction]->to_room();
+						current_room = world[exit_room_rnum]->vnum;
+						predictive_path_vnum_list.push_back(current_room);
+					} else {
+						break;
+					}
+				}
+				// конвертируем путь из внумов в строку
+				std::stringstream str_predictive_path;
+				for (const auto &room : predictive_path_vnum_list) {
+					if (!str_predictive_path.str().empty()) {
+						str_predictive_path << " - ";
+					}
+					str_predictive_path << std::to_string(room);
+				}
+
 				SendMsgToChar(ch,
 							  "Предполагаемый маршрут: %s%s%s\r\n",
 							  kColorCyn,
