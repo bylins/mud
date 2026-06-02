@@ -2382,19 +2382,214 @@ static const char *EnchantWeapon(CharData *ch, ObjData *obj, ESpell spell_id) {
 // When `obj` is null but `victim` isn't, pick a random item from the victim's equipment/
 // inventory. If neither obj nor victim is given there is nothing to act on -- the function
 // exits without effect.
+// issue.obj-casting: alter-obj handlers (the per-spell object transforms migrated out of the old
+// CastToAlterObjs switch). Each runs on ctx.ovict (resolved + kNoalter-guarded by the skeleton),
+// does its OWN messaging, and returns kSuccess when it acted (or chose to stay silent) / kFail to
+// ask the skeleton for the generic "no effect" line.
+static EStageResult AlterMsg(CastContext &ctx, ESpellMsg key) {
+	act(MUD::SpellMessages().GetMessage(ctx.spell_id(), key).c_str(), true, ctx.caster(), ctx.ovict, nullptr, kToChar);
+	return EStageResult::kSuccess;
+}
+
+static EStageResult AlterBless(CastContext &ctx) {
+	CharData *ch = ctx.caster();
+	ObjData *obj = ctx.ovict;
+	if (!obj->has_flag(EObjFlag::kBless) && (obj->get_weight() <= 5 * GetRealLevel(ch))) {
+		obj->set_extra_flag(EObjFlag::kBless);
+		if (obj->has_flag(EObjFlag::kNodrop)) {
+			obj->unset_extraflag(EObjFlag::kNodrop);
+			if (obj->get_type() == EObjType::kWeapon) {
+				obj->inc_val(2);
+			}
+		}
+		obj->add_maximum(std::max(obj->get_maximum_durability() >> 2, 1));
+		obj->set_current_durability(obj->get_maximum_durability());
+		obj->add_timed_spell(ESpell::kBless, -1);
+		return AlterMsg(ctx, ESpellMsg::kAlterObjToChar);
+	}
+	return EStageResult::kFail;
+}
+
+static EStageResult AlterCurse(CastContext &ctx) {
+	ObjData *obj = ctx.ovict;
+	if (!obj->has_flag(EObjFlag::kNodrop)) {
+		obj->set_extra_flag(EObjFlag::kNodrop);
+		if (obj->get_type() == EObjType::kWeapon) {
+			if (GET_OBJ_VAL(obj, 2) > 0) {
+				obj->dec_val(2);
+			}
+		} else if (ObjSystem::is_armor_type(obj)) {
+			if (GET_OBJ_VAL(obj, 0) > 0) {
+				obj->dec_val(0);
+			}
+			if (GET_OBJ_VAL(obj, 1) > 0) {
+				obj->dec_val(1);
+			}
+		}
+		return AlterMsg(ctx, ESpellMsg::kAlterObjToChar);
+	}
+	return EStageResult::kFail;
+}
+
+static EStageResult AlterInvisible(CastContext &ctx) {
+	ObjData *obj = ctx.ovict;
+	if (!obj->has_flag(EObjFlag::kNoinvis) && !obj->has_flag(EObjFlag::kInvisible)) {
+		obj->set_extra_flag(EObjFlag::kInvisible);
+		return AlterMsg(ctx, ESpellMsg::kAlterObjToChar);
+	}
+	return EStageResult::kFail;
+}
+
+static EStageResult AlterPoison(CastContext &ctx) {
+	ObjData *obj = ctx.ovict;
+	if (!GET_OBJ_VAL(obj, 3) && (obj->get_type() == EObjType::kLiquidContainer
+			|| obj->get_type() == EObjType::kFountain || obj->get_type() == EObjType::kFood)) {
+		obj->set_val(3, 1);
+		return AlterMsg(ctx, ESpellMsg::kAlterObjToChar);
+	}
+	return EStageResult::kFail;
+}
+
+static EStageResult AlterRemoveCurse(CastContext &ctx) {
+	ObjData *obj = ctx.ovict;
+	if (obj->has_flag(EObjFlag::kNodrop)) {
+		obj->unset_extraflag(EObjFlag::kNodrop);
+		if (obj->get_type() == EObjType::kWeapon) {
+			obj->inc_val(2);
+		}
+		return AlterMsg(ctx, ESpellMsg::kAlterObjToChar);
+	}
+	return EStageResult::kFail;
+}
+
+static EStageResult AlterEnchantWeapon(CastContext &ctx) {
+	CharData *ch = ctx.caster();
+	if (ch == nullptr) {
+		return EStageResult::kSuccess;
+	}
+	const char *msg = EnchantWeapon(ch, ctx.ovict, ctx.spell_id());
+	if (msg == nullptr) {
+		return EStageResult::kFail;
+	}
+	act(msg, true, ch, ctx.ovict, nullptr, kToChar);
+	return EStageResult::kSuccess;
+}
+
+static EStageResult AlterRemovePoison(CastContext &ctx) {
+	ObjData *obj = ctx.ovict;
+	if (obj->get_rnum() < 0) {
+		char message[100];
+		sprintf(message, "неизвестный прототип объекта : %s (VNUM=%d)", obj->get_PName(ECase::kNom).c_str(), obj->get_vnum());
+		mudlog(message, BRF, kLvlBuilder, SYSLOG, 1);
+		return AlterMsg(ctx, ESpellMsg::kRemovePoisonUnknown);
+	}
+	if (obj_proto[obj->get_rnum()]->get_val(3) > 1 && GET_OBJ_VAL(obj, 3) == 1) {
+		return AlterMsg(ctx, ESpellMsg::kRemovePoisonRotten);
+	}
+	if ((GET_OBJ_VAL(obj, 3) == 1) && (obj->get_type() == EObjType::kLiquidContainer
+			|| obj->get_type() == EObjType::kFountain || obj->get_type() == EObjType::kFood)) {
+		obj->set_val(3, 0);
+		return AlterMsg(ctx, ESpellMsg::kAlterObjToChar);
+	}
+	return EStageResult::kFail;
+}
+
+static EStageResult AlterFly(CastContext &ctx) {
+	ObjData *obj = ctx.ovict;
+	obj->add_timed_spell(ESpell::kFly, -1);
+	obj->set_extra_flag(EObjFlag::kFlying);
+	return AlterMsg(ctx, ESpellMsg::kAlterObjToChar);
+}
+
+static EStageResult AlterAcid(CastContext &ctx) {
+	CharData *ch = ctx.caster();
+	CharData *victim = ctx.cvict;
+	ObjData *obj = ctx.ovict;
+	const ESpell spell_id = ctx.spell_id();
+	CharData *recipient = victim ? victim : ch;
+	act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kAcidCorrodeObj).c_str(),
+		false, recipient, obj, nullptr, kToChar);
+	DamageObj(obj, number(GetRealLevel(ch) * 2, GetRealLevel(ch) * 4), 100);
+	return EStageResult::kSuccess;
+}
+
+static EStageResult AlterRepair(CastContext &ctx) {
+	ctx.ovict->set_current_durability(ctx.ovict->get_maximum_durability());
+	return AlterMsg(ctx, ESpellMsg::kAlterObjToChar);
+}
+
+static EStageResult AlterTimerRestore(CastContext &ctx) {
+	CharData *ch = ctx.caster();
+	ObjData *obj = ctx.ovict;
+	if (obj->get_rnum() != kNothing) {
+		obj->set_current_durability(obj->get_maximum_durability());
+		obj->set_timer(obj_proto.at(obj->get_rnum())->get_timer());
+		log("%s used magic repair", GET_NAME(ch));
+		return AlterMsg(ctx, ESpellMsg::kAlterObjToChar);
+	}
+	return EStageResult::kSuccess;  // rnum==kNothing: silent no-op (matches old early return)
+}
+
+static EStageResult AlterRestoration(CastContext &ctx) {
+	ObjData *obj = ctx.ovict;
+	if (obj->has_flag(EObjFlag::kMagic) && (obj->get_rnum() != kNothing)) {
+		if (obj_proto.at(obj->get_rnum())->has_flag(EObjFlag::kMagic)) {
+			return EStageResult::kSuccess;
+		}
+		obj->unset_enchant();
+	} else {
+		return EStageResult::kSuccess;
+	}
+	return AlterMsg(ctx, ESpellMsg::kAlterObjToChar);
+}
+
+static EStageResult AlterLight(CastContext &ctx) {
+	ObjData *obj = ctx.ovict;
+	obj->add_timed_spell(ESpell::kLight, -1);
+	obj->set_extra_flag(EObjFlag::kGlow);
+	return AlterMsg(ctx, ESpellMsg::kAlterObjToChar);
+}
+
+static EStageResult AlterDarkness(CastContext &ctx) {
+	ObjData *obj = ctx.ovict;
+	if (obj->timed_spell().check_spell(ESpell::kLight)) {
+		obj->del_timed_spell(ESpell::kLight, true);
+		return EStageResult::kSuccess;  // silent (matches old early return)
+	}
+	return EStageResult::kFail;
+}
+
+static const std::map<std::string, std::function<EStageResult(CastContext &)>> kAlterObjHandlers = {
+	{"AlterBless", AlterBless},
+	{"AlterCurse", AlterCurse},
+	{"AlterInvisible", AlterInvisible},
+	{"AlterPoison", AlterPoison},
+	{"AlterRemoveCurse", AlterRemoveCurse},
+	{"AlterEnchantWeapon", AlterEnchantWeapon},
+	{"AlterRemovePoison", AlterRemovePoison},
+	{"AlterFly", AlterFly},
+	{"AlterAcid", AlterAcid},
+	{"AlterRepair", AlterRepair},
+	{"AlterTimerRestore", AlterTimerRestore},
+	{"AlterRestoration", AlterRestoration},
+	{"AlterLight", AlterLight},
+	{"AlterDarkness", AlterDarkness},
+};
+
+// Data-driven object transform (issue.obj-casting): resolve the target object (an explicit ovict,
+// else a random equipped/carried item of the victim), guard kNoalter, then dispatch the per-spell
+// transform handler (kAlterObjHandlers); kFail from the handler => the generic "no effect" line.
 EStageResult CastToAlterObjs(CastContext &ctx) {
 	CharData *const ch = ctx.caster();
 	CharData *const victim = ctx.cvict;
 	ObjData *obj = ctx.ovict;
 	const ESpell spell_id = ctx.spell_id();
-	// issue.obj-casting: a prior action or component consumption may have destroyed the target
-	// (now deferred-extracted, flagged purged()); treat a purged target as absent.
+	// issue.obj-casting: a prior action / component consumption may have destroyed the target
+	// (deferred-extracted, flagged purged()); treat a purged target as absent.
 	if (obj && obj->purged()) {
 		obj = nullptr;
 		ctx.ovict = nullptr;
 	}
-	const char *to_char = nullptr;
-
 	if (obj == nullptr && victim != nullptr) {
 		int rand = number(1, 50);
 		if (rand <= EEquipPos::kBoths) {
@@ -2404,178 +2599,24 @@ EStageResult CastToAlterObjs(CastContext &ctx) {
 				 rand--, obj = obj->get_next_content());
 		}
 	}
-
 	if (obj == nullptr) {
 		return EStageResult::kSuccess;
 	}
-
 	if (obj->has_flag(EObjFlag::kNoalter)) {
 		act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kObjResist).c_str(), true, ch, obj, nullptr, kToChar);
 		return EStageResult::kSuccess;
 	}
-
-	switch (spell_id) {
-		case ESpell::kBless:
-			if (!obj->has_flag(EObjFlag::kBless)
-				&& (obj->get_weight() <= 5 * GetRealLevel(ch))) {
-				obj->set_extra_flag(EObjFlag::kBless);
-				if (obj->has_flag(EObjFlag::kNodrop)) {
-					obj->unset_extraflag(EObjFlag::kNodrop);
-					if (obj->get_type() == EObjType::kWeapon) {
-						obj->inc_val(2);
-					}
-				}
-				obj->add_maximum(std::max(obj->get_maximum_durability() >> 2, 1));
-				obj->set_current_durability(obj->get_maximum_durability());
-				to_char = MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kAlterObjToChar).c_str();
-				obj->add_timed_spell(ESpell::kBless, -1);
-			}
-			break;
-
-		case ESpell::kCurse:
-			if (!obj->has_flag(EObjFlag::kNodrop)) {
-				obj->set_extra_flag(EObjFlag::kNodrop);
-				if (obj->get_type() == EObjType::kWeapon) {
-					if (GET_OBJ_VAL(obj, 2) > 0) {
-						obj->dec_val(2);
-					}
-				} else if (ObjSystem::is_armor_type(obj)) {
-					if (GET_OBJ_VAL(obj, 0) > 0) {
-						obj->dec_val(0);
-					}
-					if (GET_OBJ_VAL(obj, 1) > 0) {
-						obj->dec_val(1);
-					}
-				}
-				to_char = MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kAlterObjToChar).c_str();
-			}
-			break;
-
-		case ESpell::kInvisible:
-			if (!obj->has_flag(EObjFlag::kNoinvis)
-				&& !obj->has_flag(EObjFlag::kInvisible)) {
-				obj->set_extra_flag(EObjFlag::kInvisible);
-				to_char = MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kAlterObjToChar).c_str();
-			}
-			break;
-
-		case ESpell::kPoison:
-			if (!GET_OBJ_VAL(obj, 3)
-				&& (obj->get_type() == EObjType::kLiquidContainer
-					|| obj->get_type() == EObjType::kFountain
-					|| obj->get_type() == EObjType::kFood)) {
-				obj->set_val(3, 1);
-				to_char = MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kAlterObjToChar).c_str();
-			}
-			break;
-
-		case ESpell::kRemoveCurse:
-			if (obj->has_flag(EObjFlag::kNodrop)) {
-				obj->unset_extraflag(EObjFlag::kNodrop);
-				if (obj->get_type() == EObjType::kWeapon) {
-					obj->inc_val(2);
-				}
-				to_char = MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kAlterObjToChar).c_str();
-			}
-			break;
-
-		case ESpell::kEnchantWeapon:
-			// obj is already non-null (guarded above); ch is hypothetically nullable.
-			if (ch == nullptr) {
-				return EStageResult::kSuccess;
-			}
-			to_char = EnchantWeapon(ch, obj, spell_id);
-			break;
-		case ESpell::kRemovePoison:
-			if (obj->get_rnum() < 0) {
-				to_char = MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kRemovePoisonUnknown).c_str();
-				char message[100];
-				sprintf(message,
-						"неизвестный прототип объекта : %s (VNUM=%d)",
-						obj->get_PName(ECase::kNom).c_str(),
-						obj->get_vnum());
-				mudlog(message, BRF, kLvlBuilder, SYSLOG, 1);
-				break;
-			}
-			if (obj_proto[obj->get_rnum()]->get_val(3) > 1 && GET_OBJ_VAL(obj, 3) == 1) {
-				to_char = MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kRemovePoisonRotten).c_str();
-				break;
-			}
-			if ((GET_OBJ_VAL(obj, 3) == 1)
-				&& ((obj->get_type() == EObjType::kLiquidContainer)
-					|| obj->get_type() == EObjType::kFountain
-					|| obj->get_type() == EObjType::kFood)) {
-				obj->set_val(3, 0);
-				to_char = MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kAlterObjToChar).c_str();
-			}
-			break;
-
-		case ESpell::kFly: obj->add_timed_spell(ESpell::kFly, -1);
-			obj->set_extra_flag(EObjFlag::kFlying);
-			to_char = MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kAlterObjToChar).c_str();
-			break;
-
-		case ESpell::kAcid:
-		case ESpell::kAcidArrow: {
-			// The corrode message is keyed on the cast spell and shown to the victim whose item is
-			// being damaged (or the caster if there's no separate victim). Returning here skips the
-			// standard caster-side to_char fallback (kNoeffect / kAlterObj).
-			CharData *recipient = victim ? victim : ch;
-			act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kAcidCorrodeObj).c_str(),
-				false, recipient, obj, nullptr, kToChar);
-			DamageObj(obj, number(GetRealLevel(ch) * 2, GetRealLevel(ch) * 4), 100);
-			return EStageResult::kSuccess;
-		}
-
-		case ESpell::kRepair: obj->set_current_durability(obj->get_maximum_durability());
-			to_char = MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kAlterObjToChar).c_str();
-			break;
-
-		case ESpell::kTimerRestore:
-			if (obj->get_rnum() != kNothing) {
-				obj->set_current_durability(obj->get_maximum_durability());
-				obj->set_timer(obj_proto.at(obj->get_rnum())->get_timer());
-				to_char = MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kAlterObjToChar).c_str();
-				log("%s used magic repair", GET_NAME(ch));
-			} else {
-				return EStageResult::kSuccess;
-			}
-			break;
-
-		case ESpell::kRestoration: {
-			if (obj->has_flag(EObjFlag::kMagic)
-				&& (obj->get_rnum() != kNothing)) {
-				if (obj_proto.at(obj->get_rnum())->has_flag(EObjFlag::kMagic)) {
-					return EStageResult::kSuccess;
-				}
-				obj->unset_enchant();
-			} else {
-				return EStageResult::kSuccess;
-			}
-			to_char = MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kAlterObjToChar).c_str();
-		}
-			break;
-
-		case ESpell::kLight: obj->add_timed_spell(ESpell::kLight, -1);
-			obj->set_extra_flag(EObjFlag::kGlow);
-			to_char = MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kAlterObjToChar).c_str();
-			break;
-
-		case ESpell::kDarkness:
-			if (obj->timed_spell().check_spell(ESpell::kLight)) {
-				obj->del_timed_spell(ESpell::kLight, true);
-				return EStageResult::kSuccess;
-			}
-			break;
-		default: break;
-	} // switch
-
-	if (to_char == nullptr) {
-		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
-	} else {
-		act(to_char, true, ch, obj, nullptr, kToChar);
+	ctx.ovict = obj;  // hand the resolved object to the handler
+	const auto &a = ctx.action_or_default().GetAlterObj();
+	const auto it = kAlterObjHandlers.find(a.handler);
+	if (it == kAlterObjHandlers.end()) {
+		err_log("CastToAlterObjs: unknown alter_obj handler '%s' for %s.",
+				a.handler.c_str(), NAME_BY_ITEM<ESpell>(spell_id).c_str());
+		return EStageResult::kSuccess;
 	}
-
+	if (it->second(ctx) == EStageResult::kFail) {
+		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
+	}
 	return EStageResult::kSuccess;
 }
 
@@ -3021,6 +3062,9 @@ ECastResult CastOnTarget(CastContext &ctx, bool is_entry) {
 										: action.Contains(talents_actions::EAction::kManual);
 	// runs whenever the action carries a <side_spell> (entry or not, no flag).
 	const bool run_side      = action.Contains(talents_actions::EAction::kSideSpell);
+	// issue.obj-casting: <alter_obj> runs as a per-target stage (replaces the kMagAlterObjs
+	// one-shot). Pure action-based, so the flag can go in Stage F.
+	const bool run_alter     = action.Contains(talents_actions::EAction::kAlterObj);
 	bool target_died = false;
 	bool stop_stages = false;
 	if (run_damage && CastDamage(ctx) == EStageResult::kBreak) {
@@ -3044,12 +3088,12 @@ ECastResult CastOnTarget(CastContext &ctx, bool is_entry) {
 	if (run_manual && !stop_stages && CastManual(ctx) != EStageResult::kSuccess) {
 		stop_stages = true;
 	}
-	// Whole-cast one-shots: entry action only, and not when the target just died.
-	if (is_entry && !target_died) {
-		if (MUD::Spell(spell_id).IsFlagged(kMagAlterObjs)
-				&& CastToAlterObjs(ctx) == EStageResult::kBreak) {
-			return ECastResult::kSuccess;
-		}
+	// issue.obj-casting: the object transform runs here (after manual, as the old one-shot did),
+	// per target -- so an area corrode (kAcidArrow) still hits each target's item. Gated on
+	// !target_died only (NOT stop_stages): the old one-shot ran independently of an affect/unaffect
+	// break, so e.g. remove-curse still cleans the object even if the char-side dispel did nothing.
+	if (run_alter && !target_died) {
+		CastToAlterObjs(ctx);
 	}
 	// Record this target for the deferred end-of-cast reaction. Reaching here
 	// means the cast landed on a LIVE `cvict` (not refused, not killed), so the target should

@@ -155,6 +155,7 @@ base_stat id - (например "kWis") какой берем параметр,
                         <modifier min="0.0" dices_weight="0.0" alpha="0" beta="2.5" factor="-1"/>
                     </apply>
                 </affects>
+                <alter_obj handler="AlterBless"/>
             </action>
         </talent_actions>
     </spell>
@@ -498,6 +499,7 @@ base_stat id - (например "kWis") какой берем параметр,
                         <modifier min="22.0" dices_weight="0.0" alpha="0" beta="0" factor="-1"/>
                     </apply>
                 </affects>
+                <alter_obj handler="AlterCurse"/>
             </action>
         </talent_actions>
     </spell>
@@ -686,6 +688,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="140" min="110" change="2"/>
         <targets val="kTarObjInv"/>
         <flags val="kMagAlterObjs"/>
+        <talent_actions>
+            <action>
+                <alter_obj handler="AlterEnchantWeapon"/>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kEnergyDrain" element="kDark" mode="kEnabled">
         <name rus="истощить энергию" eng="energy drain"/>
@@ -820,6 +827,7 @@ base_stat id - (например "kWis") какой берем параметр,
                         <modifier min="40.0" dices_weight="0.0" alpha="0" beta="0" factor="-1"/>
                     </apply>
                 </affects>
+                <alter_obj handler="AlterInvisible"/>
             </action>
         </talent_actions>
     </spell>
@@ -952,6 +960,7 @@ base_stat id - (например "kWis") какой берем параметр,
                         <modifier min="0.0" dices_weight="0.0" alpha="0" beta="11.5" factor="1"/>
                     </apply>
                 </affects>
+                <alter_obj handler="AlterPoison"/>
             </action>
         </talent_actions>
     </spell>
@@ -1002,6 +1011,7 @@ base_stat id - (например "kWis") какой берем параметр,
                 <unaffect>
                     <remove any_of="kCurse"/>
                 </unaffect>
+                <alter_obj handler="AlterRemoveCurse"/>
             </action>
         </talent_actions>
     </spell>
@@ -1215,6 +1225,7 @@ base_stat id - (например "kWis") какой берем параметр,
                 <unaffect affect_flags="kAfCurable">
                     <remove all_of="kPoison|kAconitumPoison|kScopolaPoison|kBelenaPoison|kDaturaPoison"/>
                 </unaffect>
+                <alter_obj handler="AlterRemovePoison"/>
             </action>
         </talent_actions>
     </spell>
@@ -1607,6 +1618,7 @@ base_stat id - (например "kWis") какой берем параметр,
                         <modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1"/>
                     </apply>
                 </affects>
+                <alter_obj handler="AlterFly"/>
             </action>
         </talent_actions>
     </spell>
@@ -1709,6 +1721,7 @@ base_stat id - (например "kWis") какой берем параметр,
                         <modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1"/>
                     </apply>
                 </affects>
+                <alter_obj handler="AlterDarkness"/>
             </action>
         </talent_actions>
     </spell>
@@ -1825,6 +1838,7 @@ base_stat id - (например "kWis") какой берем параметр,
                         <modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1"/>
                     </apply>
                 </affects>
+                <alter_obj handler="AlterLight"/>
             </action>
         </talent_actions>
     </spell>
@@ -2016,6 +2030,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <targets skill_divisor="10" dice_size="3" min="5" max="20"/>
                     <distribution type="kStepped" decay="0.05" free_targets="3"/>
                 </area>
+                <alter_obj handler="AlterAcid"/>
             </action>
         </talent_actions>
     </spell>
@@ -2029,6 +2044,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="110" min="100" change="1"/>
         <targets val="kTarObjInv|kTarObjEquip"/>
         <flags val="kMagAlterObjs"/>
+        <talent_actions>
+            <action>
+                <alter_obj handler="AlterRepair"/>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kEnlarge" element="kLife" mode="kEnabled">
         <name rus="увеличение" eng="enlarge"/>
@@ -5361,6 +5381,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="110" min="100" change="1"/>
         <targets val="kTarObjInv|kTarObjEquip"/>
         <flags val="kMagAlterObjs"/>
+        <talent_actions>
+            <action>
+                <alter_obj handler="AlterTimerRestore"/>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kCombatLuck" element="kMind" mode="kEnabled">
         <name rus="боевое везение" eng="lacky"/>
@@ -5471,6 +5496,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="110" min="100" change="1"/>
         <targets val="kTarObjInv|kTarObjEquip"/>
         <flags val="kMagAlterObjs"/>
+        <talent_actions>
+            <action>
+                <alter_obj handler="AlterRestoration"/>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kDeathAura" element="kDark" mode="kEnabled">
         <name rus="аура смерти" eng="aura death"/>
@@ -5681,6 +5711,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <targets skill_divisor="10" dice_size="3" min="5" max="20"/>
                     <distribution type="kStepped" decay="0.05" free_targets="3"/>
                 </area>
+                <alter_obj handler="AlterAcid"/>
             </action>
         </talent_actions>
     </spell>
