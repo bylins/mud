@@ -107,9 +107,15 @@ def login():
         username = request.form.get('username')
         password = request.form.get('password')
 
+        # IP клиента для лога неудачных входов (fail2ban, issue #3388).
+        # За обратным прокси берём первый адрес из X-Forwarded-For.
+        forwarded = request.headers.get('X-Forwarded-For', '')
+        client_ip = forwarded.split(',')[0].strip() if forwarded else request.remote_addr
+
         # Try to authenticate with MUD
         try:
-            test_client = MudAdminClient(SOCKET_PATH, username=username, password=password)
+            test_client = MudAdminClient(SOCKET_PATH, username=username, password=password,
+                                         client_ip=client_ip)
             # Test connection with real command
             response = test_client._send_command('list_zones')
 

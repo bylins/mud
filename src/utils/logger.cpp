@@ -318,6 +318,25 @@ void ip_log(const char *ip) {
 	fclose(iplog);
 }
 
+// Лог неудачных входов в админ-панель (Admin API) для fail2ban (issue #3388).
+// Формат строки языконезависимый и стабильный для разбора:
+//   <дата> :: accesadminpanel: login failed ip=<IP> user='<name>'
+void admin_panel_access_log(const char *ip, const char *username) {
+	const auto filename = runtime_config.log_dir() + "/accesadminpanel.log";
+
+	FILE *file = fopen(filename.c_str(), "a");
+	if (!file) {
+		log("SYSERR: can't open %s!", filename.c_str());
+		return;
+	}
+
+	write_time(file);
+	fprintf(file, "accesadminpanel: login failed ip=%s user='%s'\n",
+			ip && *ip ? ip : "unknown",
+			username ? username : "");
+	fclose(file);
+}
+
 /*
  * Перегрузка функции mudlog, которая первым параметром вместо char *, принимает строку
  */
