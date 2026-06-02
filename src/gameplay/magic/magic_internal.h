@@ -30,6 +30,8 @@ ECastResult CastSpell(CastContext &ctx, ECastTargets scope);
 
 // Forced area-fanout of a spell over the caster's room (room-affect ticks); see magic.cpp.
 ECastResult CastAreaInRoom(CharData *ch, ESpell spell_id, int level);
+// Run a single, cycled action (action[phase % N]) of a kService tick spell on the room.
+ECastResult CastRoomTickAction(CharData *ch, RoomData *room, ESpell tick_spell, int phase);
 
 // Build a CastContext for a cast: evaluates the success + potency rolls once. Module-internal
 // (CallMagic is the public entry; CastAreaInRoom uses it for the room-affect ticks).

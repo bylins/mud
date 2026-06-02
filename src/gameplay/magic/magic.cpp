@@ -3302,6 +3302,34 @@ ECastResult CastSpell(CastContext &ctx, ECastTargets scope) {
 	return result;
 }
 
+// Run a single, cycled action of a (kService) tick spell on the room -- the action-cycling room
+// tick. `phase` selects the action: action[phase % N], so a multi-phase room effect (e.g. deadly
+// fog) advances one action per round. The action's own target marker drives whom it hits
+// (kTarRoomThis -> the room; kTarFoes/kTarGroup/... -> the room's occupants).
+ECastResult CastRoomTickAction(CharData *ch, RoomData *room, ESpell tick_spell, int phase) {
+	if (ch == nullptr) {
+		return ECastResult::kNotCast;
+	}
+	CastContext ctx = BuildCastContext(ch, tick_spell, GetRealLevel(ch));
+	ctx.rvict = room;
+	const auto &list = MUD::Spell(tick_spell).actions.list();
+	if (list.empty()) {
+		return ECastResult::kNotCast;
+	}
+	ctx.RewindActions();
+	const size_t idx = static_cast<size_t>(phase < 0 ? 0 : phase) % list.size();
+	for (size_t i = 0; i < idx; ++i) {
+		ctx.NextAction();
+	}
+	const talents_actions::EActionTarget sel = ctx.action_or_default().GetTarget();
+	if (sel == talents_actions::EActionTarget::kTarRoomThis) {
+		return RunActionOnRoom(ctx);
+	}
+	const ECastTargets scope = ActionTargetScope(sel, ECastTargets::kFoes);
+	std::vector<CharData *> targets = ResolveActionTargets(ctx, sel, {});
+	return RunActionOverTargets(ctx, targets, scope, false);
+}
+
 // cast `spell_id` as an area attack on every foe in the caster's room,
 // regardless of the spell's own targeting flags. Used by the room-affect ticks (deadly fog /
 // thunderstorm). Replaces the old direct CallMagicToArea callers.

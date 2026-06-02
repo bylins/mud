@@ -320,7 +320,6 @@ static void EmitRoomTickMessage(CharData *ch, ESpell impose, int tick) {
 // the affect's saved potency instead of B's fresh roll); (2) caster-independent ticks under
 // kMagCasterAnywhere/kMagCasterInworldDelay when ch == nullptr (no caster to source the cast).
 static bool RunRoomTick(RoomData *room, CharData *ch, const Affect<ERoomApply>::shared_ptr &aff) {
-	(void)room;
 	const ESpell impose = aff->type;
 	if (!MUD::Spell(impose).actions.Contains(talents_actions::EAction::kAffect)) {
 		return false;
@@ -332,8 +331,17 @@ static bool RunRoomTick(RoomData *room, CharData *ch, const Affect<ERoomApply>::
 	if (ch == nullptr) {
 		return true;  // tick-driven affect, but no caster to source the cast this tick
 	}
-	EmitRoomTickMessage(ch, impose, aff->apply_time);
-	CastAreaInRoom(ch, tick, GetRealLevel(ch));
+	// apply_time is incremented before the handler runs, so the first tick is apply_time==1.
+	// phase counts from 0 so action[phase % N] / kCustomMsg slot [phase % K] start at the first.
+	const int phase = aff->apply_time > 0 ? aff->apply_time - 1 : 0;
+	EmitRoomTickMessage(ch, impose, phase);
+	if (MUD::Spell(tick).GetMode() == EItemMode::kService) {
+		// multi-phase: run the tick spell's cycled action (action[phase % N]) on the room.
+		CastRoomTickAction(ch, room, tick, phase);
+	} else {
+		// single-phase: area-cast the whole tick spell on the room's foes (legacy re-cast).
+		CastAreaInRoom(ch, tick, GetRealLevel(ch));
+	}
 	return true;
 }
 
