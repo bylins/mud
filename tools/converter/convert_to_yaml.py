@@ -2684,8 +2684,9 @@ def parse_obj_file(filepath):
                 idx += 1
 
 
-            # Parse extra data (A, E, M, T sections)
+            # Parse extra data (A, E, M, T, S sections)
             obj['applies'] = []
+            obj['skills'] = []
             obj['extra_descs'] = []
             obj['triggers'] = []
 
@@ -2701,6 +2702,16 @@ def parse_obj_file(filepath):
                             obj['applies'].append({
                                 'location': int(parts[0]),
                                 'modifier': int(parts[1])
+                            })
+                elif line == 'S':
+                    # Skill (умение предмета): "S\n<skill_id> <value>", issue #3386
+                    idx += 1
+                    if idx < len(lines):
+                        parts = lines[idx].split()
+                        if len(parts) >= 2:
+                            obj['skills'].append({
+                                'skill_id': int(parts[0]),
+                                'value': int(parts[1])
                             })
                 elif line == 'E':
                     # Extra description
@@ -2847,6 +2858,19 @@ def obj_to_yaml(obj):
             a['modifier'] = apply['modifier']
             applies.append(a)
         data['applies'] = applies
+
+    # Skills (умения предмета, legacy S-строки), issue #3386
+    if obj.get('skills'):
+        skills = CommentedSeq()
+        for skill in obj['skills']:
+            s = CommentedMap()
+            s['skill_id'] = skill['skill_id']
+            skill_name = get_skill_name(skill['skill_id'])
+            if skill_name:
+                s.yaml_add_eol_comment(skill_name, 'skill_id')
+            s['value'] = skill['value']
+            skills.append(s)
+        data['skills'] = skills
 
     # Extra descriptions
     if obj.get('extra_descs'):
