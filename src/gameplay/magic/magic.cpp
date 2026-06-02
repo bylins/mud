@@ -2571,34 +2571,39 @@ EStageResult CastToAlterObjs(CastContext &ctx) {
 	return EStageResult::kSuccess;
 }
 
-EStageResult CastCreation(CastContext &ctx) {
+// issue.obj-casting: string-named post-load creation handlers (the spell-specific customization,
+// e.g. shaping a created weapon/armor). Signature (ch, created obj, ctx). Empty for now -- the
+// plain food/light spells need no handler; kCreateWeapon/kCreateArmor register in Stage C.
+static const std::map<std::string, std::function<void(CharData *, ObjData *, const CastContext &)>>
+		kCreationHandlers = {};
+
+// Data-driven object creation (issue.obj-casting): load <obj_creation vnum>, run the optional
+// post-load handler, narrate, then place in inventory (or drop to the room when over-encumbered).
+EStageResult CastCreationAction(CastContext &ctx) {
 	CharData *const ch = ctx.caster();
 	const ESpell spell_id = ctx.spell_id();
-	ObjVnum obj_vnum;
-
 	if (ch == nullptr) {
 		return EStageResult::kSuccess;
 	}
-
-	switch (spell_id) {
-		case ESpell::kCreateFood: obj_vnum = kStartBread;
-			break;
-
-		case ESpell::kCreateLight: obj_vnum = kCreateLight;
-			break;
-
-		default: SendMsgToChar("Spell unimplemented, it would seem.\r\n", ch);
-			return EStageResult::kSuccess;
-			break;
-	}
-
-	const auto tobj = world_objects.create_from_prototype_by_vnum(obj_vnum);
+	const auto &s = ctx.action_or_default().GetCreation();
+	const auto tobj = world_objects.create_from_prototype_by_vnum(s.vnum);
 	if (!tobj) {
 		// Prototype lookup failed -- player-facing narration through the cast spell's
 		// sheaf (kDefault fallback), plus a SYSERR for designers/admins
 		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kItemNoPrototype) + "\r\n", ch);
-		log("SYSERR: spell_creations, spell %d, obj %d: obj not found", to_underlying(spell_id), obj_vnum);
+		log("SYSERR: spell_creations, spell %d, obj %d: obj not found", to_underlying(spell_id), s.vnum);
 		return EStageResult::kSuccess;
+	}
+	// Optional post-load customizer (kCreationHandlers): runs before narration/placement so it
+	// can shape the freshly-loaded base object (weapon/armor). No handler => plain creation.
+	if (!s.handler.empty()) {
+		const auto it = kCreationHandlers.find(s.handler);
+		if (it != kCreationHandlers.end()) {
+			it->second(ch, tobj.get(), ctx);
+		} else {
+			err_log("CastCreationAction: unknown creation handler '%s' for %s.",
+					s.handler.c_str(), NAME_BY_ITEM<ESpell>(spell_id).c_str());
+		}
 	}
 
 	// Creation narration: act() with $o = the new object; the
@@ -3030,10 +3035,6 @@ ECastResult CastOnTarget(CastContext &ctx, bool is_entry) {
 				&& CastToAlterObjs(ctx) == EStageResult::kBreak) {
 			return ECastResult::kSuccess;
 		}
-		if (MUD::Spell(spell_id).IsFlagged(kMagCreations)
-				&& CastCreation(ctx) == EStageResult::kBreak) {
-			return ECastResult::kSuccess;
-		}
 	}
 	// Record this target for the deferred end-of-cast reaction. Reaching here
 	// means the cast landed on a LIVE `cvict` (not refused, not killed), so the target should
@@ -3283,6 +3284,21 @@ ECastResult CastSpell(CastContext &ctx, ECastTargets scope) {
 			if (ctx.action_or_default().Contains(talents_actions::EAction::kSummon)) {
 				ctx.is_entry_action = is_entry;
 				CastSummonAction(ctx);
+				if (caster->purged()) {
+					return ECastResult::kSuccess;
+				}
+				apply_reset();
+				prev.clear();
+				prev_scope = ECastTargets::kSingle;
+				is_entry = false;
+				continue;
+			}
+			// An <obj_creation> action creates an object once (not per target) -- like <summon> it
+			// runs at the action level. is_entry_action is set so a future scaling handler can read
+			// the action competence (entry C or base=).
+			if (ctx.action_or_default().Contains(talents_actions::EAction::kCreation)) {
+				ctx.is_entry_action = is_entry;
+				CastCreationAction(ctx);
 				if (caster->purged()) {
 					return ECastResult::kSuccess;
 				}

@@ -377,6 +377,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="40" min="30" change="1"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagCreations"/>
+        <talent_actions>
+            <action>
+                <obj_creation vnum="125"/>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kCreateWater" element="kWater" mode="kEnabled">
         <name rus="создать воду" eng="create water"/>
@@ -1674,6 +1679,11 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="40" min="30" change="1"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagCreations"/>
+        <talent_actions>
+            <action>
+                <obj_creation vnum="126"/>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kDarkness" element="kDark" mode="kEnabled">
         <name rus="тьма" eng="darkness"/>

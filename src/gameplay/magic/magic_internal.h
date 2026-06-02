@@ -46,7 +46,6 @@ bool CasterBlocked(CharData *caster, const talents_actions::CasterConditions &cc
 EStageResult CastUnaffects(CastContext &ctx);
 EStageResult CastToPoints(CastContext &ctx);
 EStageResult CastToAlterObjs(CastContext &ctx);
-EStageResult CastCreation(CastContext &ctx);
 EStageResult CastManual(CastContext &ctx);
 
 // Material-component check + class anti-saving modifier: only used inside the module.
