@@ -528,7 +528,7 @@ handler`). Он выполняется как стадия **Manual** дейст
 
 ```xml
 <damage saving="kReflex" prob="100">
-    <amount min="0" dices_weight="1.0" competencies_weight="25"/>
+    <amount min="0" dices_weight="1.0" alpha="0.5" beta="12.5"/>
     <hits skill_divisor="12" max="2" prob="100"/>
 </damage>
 ```
@@ -537,7 +537,7 @@ handler`). Он выполняется как стадия **Manual** дейст
 |---|---|---|
 | `saving` | `kReflex` | `ESaving`: `kReflex`, `kStability`, `kWill`, `kCritical`, `kNone`. Успешный спасбросок вдвое уменьшает урон. |
 | `prob` | `100` | Вероятность того, что урон будет нанесён (молчаливый промах иначе). `prob<100` не задействует ГСЧ. |
-| `<amount min= dices_weight= competencies_weight=>` | min=0, оба веса=1.0 | Итоговое количество = `min + кубики · dices_weight + (skill_coeff + stat_coeff) · competencies_weight`. Опустите тег, чтобы сохранить значения по умолчанию. |
+| `<amount min= dices_weight= alpha= beta=>` | min=0, dices_weight=1.0, alpha=0, beta=1.0 | Итоговое количество (issue.potency-formula) = `min + кубики · dices_weight · (1 + alpha · C) + beta · C`, где `C = skill_coeff + stat_coeff`. `alpha` мультипликативно масштабирует кубики с компетентностью, чтобы случайный разброс рос вместе с результатом (субквадратично). `beta` — аддитивный член компетентности. `alpha=0` сводит формулу к прежней аддитивной (Формула A). Опустите тег, чтобы сохранить значения по умолчанию. |
 | `<hits skill_divisor= max= prob=>` | divisor=25, max=1, prob=20 | Поддержка нескольких ударов: `count = 1 + CalcExtraHits(...)`. Бонус дополнительных ударов использует `base_skill` броска силы, масштабируется `min(skill, 75) / skill_divisor`, ограничен значением `max`, срабатывает с вероятностью `prob`%. `prob=0` означает равномерный случайный выбор от 0 до `extra`. Отсутствие тега — одиночный удар. |
 
 ---
@@ -546,10 +546,10 @@ handler`). Он выполняется как стадия **Manual** дейст
 
 ```xml
 <points extra="N" prob="100">
-    <heal   npc_coeff="3" min="0" dices_weight="1.0" competencies_weight="90"/>
-    <moves                min="0" dices_weight="0.0" competencies_weight="20"/>
-    <thirst               min="0" dices_weight="0.0" competencies_weight="0"/>
-    <full                 min="0" dices_weight="0.0" competencies_weight="0"/>
+    <heal   npc_coeff="3" min="0" dices_weight="1.0" alpha="0.5" beta="45"/>
+    <moves                min="0" dices_weight="0.0" alpha="0" beta="20"/>
+    <thirst               min="0" dices_weight="0.0" alpha="0" beta="0"/>
+    <full                 min="0" dices_weight="0.0" alpha="0" beta="0"/>
 </points>
 ```
 
@@ -557,23 +557,26 @@ handler`). Он выполняется как стадия **Manual** дейст
 четырёх необязательных дочерних тегов количества. Каждое количество независимо
 восстанавливает (или уменьшает) одну категорию на основе одного броска силы:
 
-* **`<heal>`** — очки здоровья. `extra="Y"` на внешнем `<points>` позволяет
-  восстановлению превысить максимум (сверхлечение). Имеет необязательный атрибут
-  `npc_coeff` (по умолчанию `1.0`), который усиливает количество, когда кастер — NPC.
+* **`<heal>`** — очки здоровья. `extra="N"` на внешнем `<points>` —
+  целочисленный предел сверхлечения **в процентах сверх** максимума HP
+  (issue.points-extra-cap): `0` ограничивает максимумом, `20` разрешает 120%, `33`
+  — 133%. Имеет необязательный атрибут `npc_coeff` (по умолчанию `1.0`), который
+  усиливает количество, когда кастер — NPC.
 * **`<moves>`** — очки движения. Та же структура атрибутов, что у `<heal>`, без `npc_coeff`.
 * **`<thirst>`** — жажда (слот движка `THIRST`).
 * **`<full>`** — голод (слот движка `FULL`). Переименован из `<cond>` в issue.point-bugs.
 
 | Атрибут внешнего `<points>` | По умолчанию | Описание |
 |---|---|---|
-| `extra` | `N` | `Y` позволяет **лечению** превысить максимальный порог HP. Касается только `<heal>`. |
+| `extra` | `0` | Целочисленный предел сверхлечения **в процентах сверх** максимума HP (issue.points-extra-cap). `0` = строгий предел по максимуму; `20` = до 120%; `33` = до 133%. Касается только `<heal>`; остальные категории насыщаются на своих естественных пределах. |
 | `prob` | `100` | Вероятность срабатывания всего действия. Неудача обнуляет все четыре категории. |
 
 | Атрибут дочернего количества | По умолчанию | Описание |
 |---|---|---|
 | `min` | `0` | Фиксированное количество. Может быть **отрицательным** — отрицательные числа отнимают вместо восстановления. |
-| `dices_weight` | `0` | Вес вклада кубиков броска силы. |
-| `competencies_weight` | `0` | Вес вклада `(skill_coeff + stat_coeff)`. |
+| `dices_weight` | `0` | Базовый масштаб на кубики броска силы. |
+| `alpha` | `0` | Мультипликативный: насколько компетентность `C` усиливает кубики (субквадратичный рост разброса). `0` = прежнее аддитивное поведение. |
+| `beta` | `0` | Аддитивный вес на `C = (skill_coeff + stat_coeff)` (прежний `competencies_weight`). |
 | `npc_coeff` (только `<heal>`) | `1.0` | Дополнительный мультипликатор для кастера-NPC. |
 
 ### Знаковое соглашение для жажды / сытости
@@ -591,9 +594,9 @@ handler`). Он выполняется как стадия **Manual** дейст
 Каждое количество, до ограничений:
 
 ```
-amount = ceil(min + кубики · dices_weight + competencies · competencies_weight)
+amount = ceil(min + кубики · dices_weight · (1 + alpha · C) + beta · C)   // C = skill_coeff + stat_coeff
 amount += amount · (бонус силы заклинания кастера / 100)
-если кастер — NPC: amount += amount · npc_coeff
+если кастер — NPC: amount += amount · npc_coeff   // 0 для категорий, кроме лечения
 ```
 
 Кубики / компетенции бросаются **один раз за применение** из `<potency_roll>`
@@ -685,7 +688,7 @@ ceil(stat_weight · stat_coeff), max)`. Реально поражается
     <flags val="kAfBattledec|kAfDispellable|kAfCurable"/>
     <duration base="1" skill_divisor="15" min="1" max="6"/>
     <apply id="kSleep" location="kNone">
-        <modifier min="0.0" dices_weight="0.0" competencies_weight="0.0"
+        <modifier min="0.0" dices_weight="0.0" alpha="0" beta="0.0"
                   factor="1" stack="1"/>
     </apply>
     <reposition pos="kSleep" stop_fight="false"/>
@@ -739,7 +742,7 @@ ceil(stat_weight · stat_coeff), max)`. Реально поражается
 
 ```xml
 <apply id="kPoisoned" location="kStr" random="false">
-    <modifier min="2.0" dices_weight="0.0" competencies_weight="0.0"
+    <modifier min="2.0" dices_weight="0.0" alpha="0" beta="0.0"
               factor="-1" stack="3"/>
 </apply>
 ```
@@ -753,8 +756,9 @@ ceil(stat_weight · stat_coeff), max)`. Реально поражается
 | Атрибут `<modifier>` | По умолчанию | Описание |
 |---|---|---|
 | `min` | `0.0` | Минимальная величина модификатора. |
-| `dices_weight` | `0.0` | Вес вклада кубиков броска силы. |
-| `competencies_weight` | `0.0` | Вес вклада `(skill_coeff + stat_coeff)`. |
+| `dices_weight` | `0.0` | Базовый масштаб на кубики броска силы. |
+| `alpha` | `0.0` | Мультипликативный: компетентность `C` усиливает кубики. `0` (обычное значение для модификаторов, они плоские) = прежнее аддитивное поведение. |
+| `beta` | `0.0` | Аддитивный вес на `C = (skill_coeff + stat_coeff)` (прежний `competencies_weight`). |
 | `factor` | `1` | Итоговый знак/масштаб. Используйте `-1` для дебафов (штраф к силе, штраф к спасброску и т.д.). |
 | `cap` | `0` | Необязательный верхний предел сырой величины **до** factor. `0` = без ограничения. |
 | `stack` | `1` | **Максимальное число стаков** — см. §8.5. |
@@ -762,8 +766,8 @@ ceil(stat_weight · stat_coeff), max)`. Реально поражается
 Формула:
 
 ```
-raw      = min + ceil(competencies · competencies_weight + кубики · dices_weight)
-если cap > 0: raw = min(raw, cap)
+raw      = min + ceil(кубики · dices_weight · (1 + alpha · C) + beta · C)   // C = компетентность = skill_coeff + stat_coeff
+если cap > 0: raw = min(raw, cap)            # необязательное ограничение до factor
 modifier = factor · raw
 ```
 
@@ -789,11 +793,11 @@ modifier = factor · raw
     <flags val="kAfAccumulateDuration|kAfCurable"/>
     <duration base="0" skill_divisor="3" min="0" max="0"/>
     <apply id="kPoisoned" location="kStr">
-        <modifier min="2.0" dices_weight="0.0" competencies_weight="0.0"
+        <modifier min="2.0" dices_weight="0.0" alpha="0" beta="0.0"
                   factor="-1" stack="3"/>
     </apply>
     <apply id="kPoisoned" location="kPoison">
-        <modifier min="30.0" dices_weight="0.0" competencies_weight="0.0"
+        <modifier min="30.0" dices_weight="0.0" alpha="0" beta="0.0"
                   factor="1" stack="3"/>
     </apply>
 </affects>
@@ -834,10 +838,10 @@ modifier = factor · raw
     <flags val="kAfDispellable|kAfCurable"/>
     <duration base="2" skill_divisor="5" min="0" max="0"/>
     <apply id="kUndefinded" location="kMorale">
-        <modifier min="5.0" competencies_weight="1.0" factor="-1"/>
+        <modifier min="5.0" alpha="0" beta="1.0" factor="-1"/>
     </apply>
     <apply id="kUndefinded" location="kStr" random="true">
-        <modifier min="0.0" competencies_weight="0.11" factor="-1"/>
+        <modifier min="0.0" alpha="0" beta="0.11" factor="-1"/>
     </apply>
     <!-- … аналогичные apply для kDex, kInt, kWis, kCon, kCha … -->
 </affects>
@@ -847,7 +851,11 @@ modifier = factor · raw
 
 Философия новой системы: **величина модификатора растёт с компетентностью кастера
 (навык + стат), а не с его уровнем или числом перерождений напрямую**. Старые
-формулы вида `-1 - R/2` или `(L+R)/3` переводятся через `competencies_weight`.
+формулы вида `-1 - R/2` или `(L+R)/3` переводятся через `beta` (аддитивный вес
+компетентности). Модификаторы почти всегда плоские (`dices_weight=0`), и тогда
+формула — это просто `min + ceil(beta · C)`, а `beta` — это в точности
+переименованный прежний `competencies_weight`, поэтому правила настройки ниже
+переносятся без изменений. `alpha` важен только при `dices_weight ≠ 0`.
 
 Правило пересчёта при переводе из старых формул:
 
@@ -858,9 +866,9 @@ modifier = factor · raw
 
 Для стандартного броска силы (`low=3 hi=1.25`, `threshold=22 weight=0.5`)
 компетенции за перерождение растут на `(5·1.25 + 1·0.5)/100 = 0.0675`. Значит,
-модификатор, растущий на `k` за перерождение, требует `competencies_weight ≈ k / 0.0675`.
+модификатор, растущий на `k` за перерождение, требует `beta ≈ k / 0.0675`.
 
-**Правило min ≥ 0.** Выбирайте `min` и `competencies_weight` так, чтобы
+**Правило min ≥ 0.** Выбирайте `min` и `beta` так, чтобы
 необученный кастер (компетенции = 0) получал модификатор `min·factor` = 0. Это
 предотвращает случайный инвертированный знак у дебафа.
 
@@ -879,16 +887,30 @@ min        = |цель при R=12| - ceil(competencies_at_R12 * cw)
 ```xml
 <apply id="kBless" location="kSavingStability">
     <modifier min="0.0" dices_weight="0.0"
-              competencies_weight="2.8" factor="-1"/>
+              alpha="0" beta="2.8" factor="-1"/>
 </apply>
 ```
 
-**Когда `min` оказывается отрицательным.** При агрессивных бросках силы алгоритм
-может дать `min < 0`. *Избегайте этого.* Отрицательный `min` превращает дебаф
-в баф для необученного мага. Исправьте:
+Проверка:
+- Необученный кастер (компетенции = 0): модификатор = `-1·(0 + 0)` = 0.
+- R=0 макс.навык (компетенции ≈ 2.31): модификатор = `-1·ceil(6.47)` = −7.
+- R=12 типовой (компетенции ≈ 3.12): модификатор = `-1·ceil(8.74)` = **−9** ✓
+- R=24 макс. (компетенции ≈ 3.93): модификатор = `-1·ceil(11.0)` = −11.
 
-* уменьшив `competencies_weight` (более мягкое масштабирование), или
+Наклон чуть мягче, чем старый `-1/3` за перерождение, но R=12 совпадает точно, и
+значением управляет компетентность от начала до конца.
+
+**Когда `min` оказывается отрицательным.** При агрессивных бросках силы (большие
+`low_skill_bonus`/`hi_skill_bonus` или большой `weight` стата) алгоритм может дать
+`min < 0`. *Избегайте этого.* Отрицательный `min` превращает дебаф в баф для
+необученного мага. Исправьте:
+
+* уменьшив `beta` (более мягкое масштабирование), или
 * нормализовав бросок силы до стандартной формы.
+
+Несколько заклинаний с необычно агрессивными бросками силы (`kPatronage`,
+`kEviless`, `kCurse`) сейчас используют плоский `min` без `beta` — они оставлены так
+до нормализации их бросков силы.
 
 ---
 
@@ -1173,7 +1195,7 @@ dispel_potency = cast_potency(dispel_spell, caster_at_dispel) · <unaffect poten
     <talent_actions>
         <action>
             <damage saving="kReflex">
-                <amount min="0" dices_weight="1.0" competencies_weight="25"/>
+                <amount min="0" dices_weight="1.0" alpha="0.5" beta="12.5"/>
                 <hits skill_divisor="12" max="2" prob="100"/>
             </damage>
         </action>
@@ -1212,7 +1234,7 @@ dispel_potency = cast_potency(dispel_spell, caster_at_dispel) · <unaffect poten
                 <flags val="kAfBattledec|kAfDispellable|kAfCurable"/>
                 <apply id="kSleep" location="kNone">
                     <modifier min="0.0" dices_weight="0.0"
-                              competencies_weight="0.0" factor="1"/>
+                              alpha="0" beta="0.0" factor="1"/>
                 </apply>
             </affects>
         </action>
@@ -1274,7 +1296,7 @@ dispel_potency = cast_potency(dispel_spell, caster_at_dispel) · <unaffect poten
                 <duration base="4" skill_divisor="0" min="0" max="0"/>
                 <apply id="kGlitterDust" location="kSavingReflex">
                     <modifier min="0.0" dices_weight="0.0"
-                              competencies_weight="4.4" factor="1"/>
+                              alpha="0" beta="4.4" factor="1"/>
                 </apply>
             </affects>
         </action>
@@ -1306,7 +1328,7 @@ dispel_potency = cast_potency(dispel_spell, caster_at_dispel) · <unaffect poten
                 <align val="kEvil"/>
             </caster_blocking>
             <damage saving="kStability">
-                <amount min="0" dices_weight="1.0" competencies_weight="122"/>
+                <amount min="0" dices_weight="1.0" alpha="0.5" beta="61"/>
             </damage>
         </action>
     </talent_actions>
@@ -1326,7 +1348,7 @@ dispel_potency = cast_potency(dispel_spell, caster_at_dispel) · <unaffect poten
         <action>
             <reflection affect_flags="kFireShield|kFireAura" prob="35"/>
             <damage saving="kReflex">
-                <amount min="0" dices_weight="1.0" competencies_weight="80"/>
+                <amount min="0" dices_weight="1.0" alpha="0.5" beta="40"/>
             </damage>
         </action>
     </talent_actions>
@@ -1350,12 +1372,12 @@ dispel_potency = cast_potency(dispel_spell, caster_at_dispel) · <unaffect poten
                 <flags val="kAfSameTime|kAfAccumulateDuration|kAfCurable"/>
                 <apply id="kPoisoned" location="kStr">
                     <modifier min="2.0" dices_weight="0.0"
-                              competencies_weight="0.0"
+                              alpha="0" beta="0.0"
                               factor="-1" stack="3"/>
                 </apply>
                 <apply id="kPoisoned" location="kPoison">
                     <modifier min="0.0" dices_weight="0.0"
-                              competencies_weight="11.5"
+                              alpha="0" beta="11.5"
                               factor="1" stack="3"/>
                 </apply>
             </affects>
