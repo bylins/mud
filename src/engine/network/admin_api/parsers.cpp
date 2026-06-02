@@ -68,7 +68,16 @@ void ParseMobUpdate(CharData* mob, const nlohmann::json& data)
 		const auto& descriptions = data["descriptions"];
 		if (HasString(descriptions, "short_desc"))
 		{
-			mob->player_data.long_descr = Utf8ToKoi8r(descriptions["short_desc"].get<std::string>());
+			// long_descr is the "in room" line; the engine prints it verbatim and
+			// relies on a trailing newline (legacy data and convert_to_yaml.py both
+			// honour this). Enforce the invariant so API-created mobs don't run their
+			// room lines together when several stand in the same room.
+			std::string ldesc = Utf8ToKoi8r(descriptions["short_desc"].get<std::string>());
+			if (!ldesc.empty() && ldesc.back() != '\n')
+			{
+				ldesc += '\n';
+			}
+			mob->player_data.long_descr = ldesc;
 		}
 		if (HasString(descriptions, "long_desc"))
 		{
