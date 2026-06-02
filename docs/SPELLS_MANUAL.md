@@ -767,7 +767,8 @@ This is the workhorse for buffs and debuffs.
 | `resist` | `kFire` | `EResist` — the resist channel applied to the affect's duration. |
 | `prob` | `100` | Percent chance the affect block fires at all (silent miss otherwise). The `<lag>` and `<reposition>` are *gated* by this same prob — failure suppresses them too. |
 | `potency_weight` | `1.0` | *(issue.affects-potency-weight)* Scale on the stored `Affect::potency` value (i.e. on `cast_potency`, not on the modifier). The Affect lands at `cast_potency * potency_weight`; the dispel contest in `DispelSucceeds` reads that scaled value back. **Use case:** a big-modifier spell where the same `<potency_roll>` feeds both the modifier formula *and* the stored potency can become undispellable just because the modifier needs to be big. `potency_weight="0.4"` lets the author decouple — keep the modifier strong, scale only the stored potency down to a dispellable range. Symmetric in spirit with `<unaffect potency_weight=>` on the dispel side (see §9.1). |
-| `tick_spell` | *(none)* | *Room affects only.* `ESpell` of a `kService` spell whose action(s) the room-affect tick handler runs each pulse (see §11.5). Absent → no data-driven tick (the affect is passive, or handled by a code case). |
+| `tick_spell` | *(none)* | *Room affects only.* `ESpell` of a `kService` spell whose action(s) the room-affect tick handler runs each pulse (see §11.5). Absent → no data-driven tick (the affect is passive, or uses `tick_handler`). |
+| `tick_handler` | *(none)* | *Room affects only.* Name of a C++ tick handler — the manual-cast mechanism for ticks the data can't express (e.g. `kThunderstorm`'s weather). Registered in the room tick-handler table; receives the affect (so it can read its `duration`). Takes precedence over `tick_spell`. |
 
 ### 8.2 `<flags val="…">` — `EAffFlag` bits
 
@@ -782,7 +783,7 @@ This is the workhorse for buffs and debuffs.
 | `kAfUpdateMod` | Re-casting overwrites the modifier. |
 | `kAfDispellable` | **Eligible for dispel** (e.g. `kDispellMagic`). |
 | `kAfCurable` | **Eligible for cure** (e.g. `kRemovePoison`). |
-| `kAfMustBeHandled` | Room affects only: the affect ticks each pulse. `HandleRoomAffect` runs its `tick_spell` (§8.1, §11.5) if one is set, else the in-code switch (now only `kThunderstorm`'s weather). Char affects don't use this flag. |
+| `kAfMustBeHandled` | Room affects only: the affect ticks each pulse. `HandleRoomAffect` runs its `tick_spell` (§8.1, §11.5) if set, else its `tick_handler` (a named C++ handler, e.g. `kThunderstorm`'s weather). There is no per-spell switch. Char affects don't use this flag. |
 | `kAfUnique` | Room affects only: before imposing, remove any prior cast of this same spell by this same caster. Used by kRuneLabel ("one rune label in the world per caster"). |
 
 `kAfDispellable` / `kAfCurable` are the **single source of truth** for
@@ -1275,7 +1276,7 @@ are two differences from char-affect semantics:
 |---|---|
 | `kAfUpdateDuration` | Re-casting your own room affect refreshes its duration (`max(old, new)`). Without this, a self-recast is a no-op. |
 | `kAfAccumulateDuration` | Re-casting adds durations instead of refreshing. |
-| `kAfMustBeHandled` | The affect ticks each pulse — `HandleRoomAffect` runs its `tick_spell` (below) if set, else an in-code case. |
+| `kAfMustBeHandled` | The affect ticks each pulse — `HandleRoomAffect` runs its `tick_spell` (below) if set, else its `tick_handler`. |
 | `kAfUnique` | Before imposing, remove any prior cast of this same spell by this same caster (room-affect "only one in the world per caster", used by kRuneLabel). |
 
 **Per-tick handling — `tick_spell` (data-driven).** A `kAfMustBeHandled` room affect can
@@ -1292,9 +1293,11 @@ the tick handler runs each pulse, no code required:
   kPoison → … → kMassCurse on the room's foes).
 * **Per-tick narration** comes from the *impose* spell's `kCustomMsgOne…Ten` slots, cycled
   by the same phase, so message and effect stay aligned (kDeadlyFog defines 8).
-* **No `tick_spell`** → the affect falls through to the in-code `HandleRoomAffect` switch,
-  kept only for ticks the data can't express (`kThunderstorm`'s weather change). New room
-  effects should use `tick_spell`, not a switch case.
+* **`tick_handler`** → for ticks the data can't express (`kThunderstorm`'s weather change),
+  name a C++ handler by string in `<affects tick_handler="...">`. It's registered in the room
+  tick-handler table and receives the affect (so it can read its `duration`) — the manual-cast
+  mechanism for room ticks. `HandleRoomAffect` has **no** per-spell switch: every tick resolves
+  to a `tick_spell` or a `tick_handler`.
 
 **Material-component check is universal.** Any room spell that has a
 configured component in `ProcessMatComponents` (currently
