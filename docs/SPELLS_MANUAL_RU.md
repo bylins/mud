@@ -20,9 +20,11 @@
 порядку** для каждой цели. Любой этап может прервать всю цепочку.
 
 1. **Предусловия применения** — мана, позиция, сон, состояние боя и т.д.
-2. **Шлюзы цели** (`<blocking>`, `<required>`, `<caster_blocking>`) —
-   проверки на уровне данных. Неудача молча прерывает обработку данной цели
-   (массовые/групповые заклинания) или выдаёт сообщение «нет эффекта» (одиночная цель).
+2. **Шлюзы цели и кастера** (`<target_conditions>` на действие;
+   `<caster_conditions>` на заклинание) — проверки `<blocking>`/`<required>` на
+   уровне данных. Шлюз цели молча прерывает обработку данной цели (массовые/групповые
+   заклинания) или выдаёт «нет эффекта» (одиночная цель); шлюз кастера или блок по
+   комнате NOMAGIC прерывает всё применение.
 3. **Отражение** (`<reflection>`) — если цель несёт флаг отражения или
    нужное мировоззрение, заклинание может отразиться обратно в кастера (один
    бросок вероятности, охватывает все последующие этапы).
@@ -71,7 +73,7 @@
         <success_roll> … </success_roll>          <!-- необязательно -->
         <talent_actions>
             <action>
-                <!-- шлюзы: blocking / required / caster_blocking / reflection -->
+                <!-- шлюзы: target_conditions (blocking/required) / reflection -->
                 <!-- эффекты: damage / heal / area / affects / unaffect -->
             </action>
         </talent_actions>
@@ -309,8 +311,8 @@ cast_potency = RollSkillDices + skill_coeff + stat_coeff
 запускает **собственные** стадии, а действия выполняются **сверху вниз**. Каждый
 `<action>` может содержать любое сочетание:
 
-* Шлюзов: `<blocking>`, `<required>`, `<caster_blocking>`, `<reflection>`,
-  `<target_conditions>` (обёртка для пер-действенных `<blocking>`/`<required>`).
+* Шлюзов: `<target_conditions>` (обёртка для пер-действенных `<blocking>`/`<required>`),
+  `<reflection>`. (Шлюз со стороны кастера — это `<caster_conditions>` на уровне заклинания, §4.3.)
 * Эффектов: `<damage>`, `<points>`, `<area>`, `<affects>`, `<unaffect>`,
   `<side_spell>`, `<manual_cast>`.
 
@@ -441,21 +443,36 @@ handler`). Он выполняется как стадия **Manual** дейст
 
 ---
 
-## 4. Шлюзы цели
+## 4. Шлюзы цели и кастера
 
-Все они располагаются *внутри* `<talent_actions> → <action>`, рядом с эффектами.
-Они блокируют **всё применение** (каждый этап, каждый эффект), поэтому сработавший
-`<blocking>` прерывает и урон, и эффект, и лечение для данной цели.
+Применение ограничивается переиспользуемыми блоками условий — `<blocking>`
+(отклонить, если совпадает **хотя бы одно** условие) и `<required>` (отклонить,
+если не выполнены **все**). Они никогда не пишутся «голыми»; каждый оборачивается
+одним из двух контейнеров:
+
+- **`<target_conditions>`** — дочерний элемент `<action>`. Его `<blocking>` /
+  `<required>` проверяют **цель** и ограничивают **данное действие** для текущей
+  цели (все его стадии). Большинство заклинаний одно-действенные, поэтому на
+  практике это ограничивает всё применение для данной цели.
+- **`<caster_conditions>`** — элемент уровня **заклинания** (дочерний для `<spell>`,
+  не для `<action>`). Его `<blocking>` / `<required>` проверяют **кастера** и
+  выполняются один раз, до цикла по целям — см. §4.3.
+
+«Голые» `<blocking>` / `<required>` прямо под `<action>` **больше не принимаются**;
+всегда оборачивайте их. (`<caster_blocking>`, одно-тег шлюз кастера, удалён — его
+работу теперь выполняет `<caster_conditions>`.)
 
 ### 4.1 `<blocking>`
 
 ```xml
-<blocking>
-    <mob_flags val="kNoSleep"/>
-    <affect_flags val="kHold|kSleep"/>
-    <room_flags val="kNoMagic"/>
-    <align val="kGood"/>
-</blocking>
+<target_conditions>
+    <blocking>
+        <mob_flags val="kNoSleep"/>
+        <affect_flags val="kHold|kSleep"/>
+        <room_flags val="kNoMagic"/>
+        <align val="kGood"/>
+    </blocking>
+</target_conditions>
 ```
 
 Применение отклоняется, если совпадает **хотя бы одно** из перечисленных условий:
@@ -496,33 +513,37 @@ handler`). Он выполняется как стадия **Manual** дейст
 «только на трупах» (поднять мертвеца), «только на очарованных слугах», «только
 на злых существах» (рассеять зло) и т.д. `<required>` не поддерживает `<room_flags>`.
 
-### 4.3 `<caster_blocking>`
+### 4.3 `<caster_conditions>` — шлюз по **кастеру**
 
 ```xml
-<caster_blocking>
-    <caster align="kEvil" affect_flags="kHold|kCharmed"/>
-</caster_blocking>
+<caster_conditions>
+    <blocking>
+        <align val="kEvil"/>
+    </blocking>
+</caster_conditions>
 ```
 
-Зеркальное отражение `<blocking>`, но проверяет **кастера**, а не жертву.
-Используется, чтобы отказать в применении, которое кастер не может выполнить —
-например, `kDispelEvil` блокируется, если кастер сам является злым. Всегда
-выдаёт `kNoeffect` (без молчаливого пропуска группы/массы: блокировки со стороны
-кастера касаются одного кастера, а не цикла по целям).
+Блок уровня **заклинания** — дочерний элемент `<spell>`, *не* `<action>`. Он
+оборачивает те же `<blocking>` / `<required>`, что и `<target_conditions>` (§4.1,
+§4.2), но они проверяют **кастера**, а не цель, и выполняются **один раз**, до цикла
+по целям — поэтому неудача прерывает *всё* применение и выдаёт `kNoeffect` (без
+молчаливого пропуска группы/массы: шлюз кастера касается одного кастера, а не цикла
+по целям).
 
-**Схема** *(issue.caster-blocking-refine)*. В отличие от `<blocking>` / `<required>`,
-использующих форму с несколькими дочерними тегами, `<caster_blocking>` сворачивает
-свои оси в атрибуты единственного дочернего элемента `<caster>`:
+Для кастера осмысленны только оси `<align>` и `<affect_flags>` (`<mob_flags>` /
+`<room_flags>` парсер принимает, но для кастеров сегодня не используются). Семантика
+как на стороне цели: `<blocking>` отклоняет при **любом** совпадении; `<required>`
+отклоняет, если у кастера нет **всех**.
 
-| Атрибут | По умолчанию | Описание |
-|---|---|---|
-| `align` | нет | `kGood` / `kEvil` / `kNeutral`. Блокировка срабатывает, если мировоззрение кастера совпадает (`IsGood` / `IsEvil` / `IsNeutral`). |
-| `affect_flags` | нет | Список `EAffect` через `\|`. Блокировка срабатывает, если кастер несёт **хотя бы один** из перечисленных флагов (например, `kHold`, чтобы удержанный кастер не мог применить баф на себя). |
+Используйте, чтобы отказать в применении, которое кастер не может выполнить.
+`kDispelEvil` несёт блок выше, поэтому злой кастер не может его применить;
+удержанного кастера можно запереть от самобафа через
+`<blocking><affect_flags val="kHold"/></blocking>`; а `<required>` может, наоборот,
+требовать у кастера наличие флага.
 
-Оба атрибута необязательны и аддитивны — совпадение любой оси вызывает
-блокировку. Хранение общее с `<blocking>` / `<required>` (одна структура
-`FlagCondition`), поэтому данные попадают в `cond.align` и `cond.affect_flags`;
-асимметрия схемы намеренна.
+> Заменяет старую одно-теговую форму `<caster_blocking><caster align= affect_flags=/>` —
+> шлюз кастера теперь использует ту же вложенную структуру `<blocking>` / `<required>`,
+> что и сторона цели, так что они симметричны.
 
 ### 4.4 `<reflection>` *(новая механика)*
 
@@ -1334,17 +1355,21 @@ dispel_potency = cast_potency(dispel_spell, caster_at_dispel) · <unaffect poten
 <spell id="kDispelEvil" element="kLight" mode="kEnabled">
     <name rus="рассеять зло" eng="dispel evil"/>
     …
+    <caster_conditions>
+        <blocking>
+            <align val="kEvil"/>
+        </blocking>
+    </caster_conditions>
     <talent_actions>
         <action>
-            <blocking>
-                <room_flags val="kNoMagic"/>
-            </blocking>
-            <required>
-                <align val="kEvil"/>
-            </required>
-            <caster_blocking>
-                <align val="kEvil"/>
-            </caster_blocking>
+            <target_conditions>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
+                <required>
+                    <align val="kEvil"/>
+                </required>
+            </target_conditions>
             <damage saving="kStability">
                 <amount min="0" dices_weight="1.0" alpha="0.5" beta="61"/>
             </damage>
@@ -1353,9 +1378,12 @@ dispel_potency = cast_potency(dispel_spell, caster_at_dispel) · <unaffect poten
 </spell>
 ```
 
-* `<required><align val="kEvil"/>` — *цель* должна быть злой, иначе `kNoeffect`.
-* `<caster_blocking><align val="kEvil"/>` — *кастер* не должен быть злым.
-* `<blocking><room_flags val="kNoMagic"/>` — универсальный срыв в комнате с NOMAGIC.
+* `<caster_conditions><blocking><align val="kEvil"/></blocking></caster_conditions>` —
+  *кастер* не должен быть злым (на уровне заклинания, проверяется один раз до целей).
+* `<target_conditions><required><align val="kEvil"/></required></target_conditions>` —
+  *цель* должна быть злой, иначе `kNoeffect`.
+* `<target_conditions><blocking><room_flags val="kNoMagic"/></blocking></target_conditions>` —
+  универсальный срыв в комнате с NOMAGIC.
 
 ### 13.6 Шаблон отражения
 
@@ -1669,8 +1697,11 @@ dispel_potency = cast_potency(dispel_spell, caster_at_dispel) · <unaffect poten
 новый блок `<components>` на уровне `<spell>` (§3.9) объединяет требования
 `<verbal/>` + `<weave/>` + `<material>`, причём `<weave/>` теперь является
 единственным источником истины для «это магия» и канонического шлюза комнаты
-`kNoMagic`; схема `<caster_blocking>` изменена: используется единственный дочерний
-элемент `<caster align="..." affect_flags="..."/>` (§4.3); новый атрибут
+`kNoMagic`; шлюз кастера перенесён в блок уровня заклинания `<caster_conditions>`,
+оборачивающий ту же структуру `<blocking>`/`<required>`, что и сторона цели (§4.3),
+взамен старой одно-теговой формы `<caster_blocking>` (так удержанного кастера или
+кастера с неподходящим мировоззрением можно запереть через `<align>`/`<affect_flags>`);
+новый атрибут
 `<affects potency_weight="0.4">` (§8.1) масштабирует сохранённую силу эффекта
 при наложении, симметрично `<unaffect potency_weight=>` на стороне снятия; ключи
 `kAffDispelledToChar` / `kAffDispelledToRoom` теперь используют запасной пучок

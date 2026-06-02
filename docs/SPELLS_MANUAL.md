@@ -20,9 +20,11 @@ When a player casts a spell, the engine runs the following stages **in this
 order** for each target. Any stage can short-circuit the whole cast.
 
 1. **Cast preconditions** — mana, position, sleeping, fighting, etc.
-2. **Target gates** (`<blocking>`, `<required>`, `<caster_blocking>`) —
-   data-driven action-level checks. Failure aborts this target silently
-   (group/mass casts) or with a "no effect" message (single-target).
+2. **Target & caster gates** (`<target_conditions>` per action;
+   `<caster_conditions>` per spell) — data-driven `<blocking>`/`<required>`
+   checks. A target gate aborts this target silently (group/mass casts) or with a
+   "no effect" message (single-target); a caster gate or a NOMAGIC-room block
+   aborts the whole cast.
 3. **Reflection** (`<reflection>`) — if the target carries a reflecting flag
    or alignment, the spell may bounce back at the caster (one prob roll,
    covers all subsequent stages).
@@ -71,7 +73,7 @@ one `<spell>` child. Spell IDs come from the `ESpell` enum
         <success_roll> … </success_roll>          <!-- optional -->
         <talent_actions>
             <action>
-                <!-- gates: blocking / required / caster_blocking / reflection -->
+                <!-- gates: target_conditions (blocking/required) / reflection -->
                 <!-- effects: damage / heal / area / affects / unaffect -->
             </action>
         </talent_actions>
@@ -311,8 +313,8 @@ self-contained sub-cast: it resolves its **own** target list and runs its **own*
 stages, and the actions execute **top to bottom**. Each `<action>` can declare any
 mix of:
 
-* Gates: `<blocking>`, `<required>`, `<caster_blocking>`, `<reflection>`,
-  `<target_conditions>` (a wrapper that holds per-action `<blocking>`/`<required>`).
+* Gates: `<target_conditions>` (wraps per-action `<blocking>`/`<required>`),
+  `<reflection>`. (Caster-side gating is the spell-level `<caster_conditions>` — §4.3.)
 * Effects: `<damage>`, `<points>`, `<area>`, `<affects>`, `<unaffect>`,
   `<side_spell>`, `<manual_cast>`.
 
@@ -439,21 +441,35 @@ sheaves override the kDefault narration.
 
 ---
 
-## 4. Target gates
+## 4. Target & caster gates
 
-These all sit *inside* `<talent_actions> → <action>`, alongside the effects.
-They gate the **whole cast** (every stage, every effect), so a `<blocking>`
-that fires aborts damage *and* affect *and* heal for that target.
+Casts are gated by reusable condition blocks — `<blocking>` (refuse if **any**
+listed condition matches) and `<required>` (refuse unless **all** match). They
+never appear bare; each is wrapped by one of two containers:
+
+- **`<target_conditions>`** — a child of an `<action>`. Its `<blocking>` /
+  `<required>` examine the **target** and gate **that action** for the current
+  target (all of the action's stages). Most spells are single-action, so in
+  practice this gates the whole cast for that target.
+- **`<caster_conditions>`** — a **spell-level** child of `<spell>` (not of an
+  `<action>`). Its `<blocking>` / `<required>` examine the **caster** and run once,
+  before any per-target dispatch — see §4.3.
+
+Bare `<blocking>` / `<required>` directly under `<action>` is **no longer accepted**;
+always wrap them. (`<caster_blocking>`, a single-tag caster gate, was removed — its
+job is now done by `<caster_conditions>`.)
 
 ### 4.1 `<blocking>`
 
 ```xml
-<blocking>
-    <mob_flags val="kNoSleep"/>
-    <affect_flags val="kHold|kSleep"/>
-    <room_flags val="kNoMagic"/>
-    <align val="kGood"/>
-</blocking>
+<target_conditions>
+    <blocking>
+        <mob_flags val="kNoSleep"/>
+        <affect_flags val="kHold|kSleep"/>
+        <room_flags val="kNoMagic"/>
+        <align val="kGood"/>
+    </blocking>
+</target_conditions>
 ```
 
 The cast is refused if **any one** of the listed conditions matches: a
@@ -497,35 +513,36 @@ corpses" (animate dead), "only on charmed minions", "only on evil
 creatures" (dispel evil), etc. `<required>` does not currently use
 `<room_flags>`.
 
-### 4.3 `<caster_blocking>`
+### 4.3 `<caster_conditions>` — gate on the **caster**
 
 ```xml
-<caster_blocking>
-    <caster align="kEvil" affect_flags="kHold|kCharmed"/>
-</caster_blocking>
+<caster_conditions>
+    <blocking>
+        <align val="kEvil"/>
+    </blocking>
+</caster_conditions>
 ```
 
-Mirrors `<blocking>` but examines the **caster** instead of the victim.
-Used to refuse a cast that the caster cannot wield — e.g. `kDispelEvil`
-is blocked if the caster is themselves evil. Always emits `kNoeffect`
-(no group/mass silent skip: caster-side blocks concern the one caster,
-not the per-target loop).
+A **spell-level** block — a direct child of `<spell>`, *not* of an `<action>`.
+It wraps the same `<blocking>` / `<required>` blocks as `<target_conditions>`
+(§4.1, §4.2), but they examine the **caster** instead of the target, and the check
+runs **once**, before any per-target dispatch — so a failure aborts the *whole*
+cast and emits `kNoeffect` (there is no group/mass silent skip: a caster gate
+concerns the one caster, not the per-target loop).
 
-**Schema** *(issue.caster-blocking-refine)*. Unlike `<blocking>` / `<required>`
-which use a multi-child-tag form (loose `<mob_flags val>` / `<affect_flags val>`
-/ `<room_flags val>` / `<align val>` children), `<caster_blocking>` collapses
-its axes onto attributes of a single `<caster>` child:
+Only the `<align>` and `<affect_flags>` axes are meaningful for a caster
+(`<mob_flags>` / `<room_flags>` are accepted by the parser but unused for casters
+today). Semantics match the target side: `<blocking>` refuses on **any** match;
+`<required>` refuses unless the caster has **all**.
 
-| Attribute | Default | Description |
-|---|---|---|
-| `align` | none | `kGood` / `kEvil` / `kNeutral`. Block fires when the caster matches the listed alignment (`IsGood` / `IsEvil` / `IsNeutral`). |
-| `affect_flags` | none | `\|`-separated `EAffect` list. Block fires when the caster carries **any** of the listed affect flags (e.g. `kHold` so a held caster can't fire a self-only buff). |
+Use it to refuse a cast the caster cannot wield. `kDispelEvil` carries the block
+above so an evil caster can't cast it; a held caster can be locked out of a
+self-buff with `<blocking><affect_flags val="kHold"/></blocking>`; and
+`<required>` can demand the caster carry a flag instead.
 
-Both attributes are optional and additive — any matching axis triggers the
-block. Storage is shared with `<blocking>` / `<required>` (the same
-`FlagCondition` struct), so internally the data lands on `cond.align` and
-`cond.affect_flags`; the schema asymmetry is deliberate (caster gating is
-a single descriptive entry rather than a multi-axis AND of loose conditions).
+> Replaces the old single-tag `<caster_blocking><caster align= affect_flags=/>`
+> form — caster gating now uses exactly the same nested `<blocking>` / `<required>`
+> shape as the target side, so the two are symmetric.
 
 ### 4.4 `<reflection>` *(new mechanic)*
 
@@ -1564,17 +1581,21 @@ A message lookup tries the spell's own sheaf first, then falls back to
         <base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
         <base_stat id="kWis" threshold="22" weight="0.5"/>
     </potency_roll>
+    <caster_conditions>
+        <blocking>
+            <align val="kEvil"/>
+        </blocking>
+    </caster_conditions>
     <talent_actions>
         <action>
-            <blocking>
-                <room_flags val="kNoMagic"/>
-            </blocking>
-            <required>
-                <align val="kEvil"/>
-            </required>
-            <caster_blocking>
-                <align val="kEvil"/>
-            </caster_blocking>
+            <target_conditions>
+                <blocking>
+                    <room_flags val="kNoMagic"/>
+                </blocking>
+                <required>
+                    <align val="kEvil"/>
+                </required>
+            </target_conditions>
             <damage saving="kStability">
                 <amount min="0" dices_weight="1.0" alpha="0.5" beta="61"/>
             </damage>
@@ -1583,11 +1604,14 @@ A message lookup tries the spell's own sheaf first, then falls back to
 </spell>
 ```
 
-* `<required><align val="kEvil"/></required>` — the *target* must be evil, else `kNoeffect`.
-* `<caster_blocking><align val="kEvil"/></caster_blocking>` — the *caster* must not be
-  evil, else `kNoeffect` (the old "wrath of light" behaviour, now data-driven).
-* `<blocking><room_flags val="kNoMagic"/></blocking>` — universal NOMAGIC-room fizzle
-  added to all non-warcry spells; emits `kCastForbidden*` (see §15).
+* `<caster_conditions><blocking><align val="kEvil"/></blocking></caster_conditions>` —
+  the *caster* must not be evil, else `kNoeffect` (the old "wrath of light" behaviour,
+  now data-driven). Spell-level, checked once before any target.
+* `<target_conditions><required><align val="kEvil"/></required></target_conditions>` —
+  the *target* must be evil, else `kNoeffect`.
+* `<target_conditions><blocking><room_flags val="kNoMagic"/></blocking></target_conditions>` —
+  universal NOMAGIC-room fizzle added to all non-warcry spells; emits `kCastForbidden*`
+  (see §15).
 
 ### 13.6 A reflection template
 
@@ -1929,11 +1953,11 @@ outsider (§3.3, kDispellMagic is the first carrier); a new
 `<verbal/>` + `<weave/>` + `<material>` requirements, with
 `<weave/>` now the single source of truth for "is this magic" and
 the canonical `kNoMagic`-room gate (replacing 209 copies of the
-data-driven blocking pattern); `<caster_blocking>` schema was
-reshaped to use a single `<caster align="..." affect_flags="..."/>`
-child (§4.3) — `affect_flags` is a new optional axis that blocks the
-cast when the caster carries any of the listed `EAffect` flags
-(e.g. `kHold` so a held caster can't fire a self-only buff); a new
+data-driven blocking pattern); caster gating moved to a spell-level
+`<caster_conditions>` block wrapping the same `<blocking>`/`<required>`
+shape as the target side (§4.3), replacing the old single-tag
+`<caster_blocking>` (so a held or wrong-alignment caster can be locked
+out via `<align>`/`<affect_flags>`); a new
 `<affects potency_weight="0.4">` attribute (§8.1) scales the stored
 Affect potency at impose time so big-modifier spells stay dispellable
 (symmetric with `<unaffect potency_weight=>` on the dispel side); and
