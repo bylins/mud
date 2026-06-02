@@ -1649,16 +1649,6 @@ static EStageResult CorpseSummon(CastContext &ctx, bool resurrection) {
 static EStageResult SpellAnimateDead(CastContext &ctx) { return CorpseSummon(ctx, false); }
 static EStageResult SpellResurrection(CastContext &ctx) { return CorpseSummon(ctx, true); }
 
-// All summon spells carry a <summon> action (kMagSummons one-shot stage); CastSummonAction runs
-// the shared skeleton and dispatches the per-spell post-spawn handler. The corpse summons
-// (animate/resurrection) and the non-mob summons (angel/mental shadow) are manual-cast handlers.
-EStageResult CastSummon(CastContext &ctx) {
-	if (ctx.caster() == nullptr) {
-		return EStageResult::kSuccess;
-	}
-	return CastSummonAction(ctx);
-}
-
 
 // Helpers driving the per-category CastToPoints refactor.
 namespace {
@@ -3040,10 +3030,6 @@ ECastResult CastOnTarget(CastContext &ctx, bool is_entry) {
 				&& CastToAlterObjs(ctx) == EStageResult::kBreak) {
 			return ECastResult::kSuccess;
 		}
-		if (MUD::Spell(spell_id).IsFlagged(kMagSummons)
-				&& CastSummon(ctx) == EStageResult::kBreak) {
-			return ECastResult::kSuccess;
-		}
 		if (MUD::Spell(spell_id).IsFlagged(kMagCreations)
 				&& CastCreation(ctx) == EStageResult::kBreak) {
 			return ECastResult::kSuccess;
@@ -3280,6 +3266,23 @@ ECastResult CastSpell(CastContext &ctx, ECastTargets scope) {
 			// it runs the room dispel + impose stages and can scale off a prior action.
 			if (ctx.action_or_default().GetTarget() == talents_actions::EActionTarget::kTarRoomThis) {
 				result = RunActionOnRoom(ctx);
+				if (caster->purged()) {
+					return ECastResult::kSuccess;
+				}
+				apply_reset();
+				prev.clear();
+				prev_scope = ECastTargets::kSingle;
+				is_entry = false;
+				continue;
+			}
+			// A <summon> action spawns a mob in the caster's room ONCE (not per target), so -- like
+			// kTarRoomThis -- it runs at the action level, not via the per-target path. Running it here
+			// (entry or later) lets a summon chain off a prior action's result via base= (e.g. a
+			// familiar whose strength scales with the damage just dealt). is_entry_action is set so the
+			// entry summon reads the real potency C while a chained one reads its base= accumulator.
+			if (ctx.action_or_default().Contains(talents_actions::EAction::kSummon)) {
+				ctx.is_entry_action = is_entry;
+				CastSummonAction(ctx);
 				if (caster->purged()) {
 					return ECastResult::kSuccess;
 				}
