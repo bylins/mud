@@ -42,7 +42,9 @@ enum class EActionTarget {
 	kTarFoes,        // all foes in the room (needs an <area> section)
 	kTarRandomFoe,   // one random foe in the room
 	kTarRandomAlly,  // one random ally in the room
-	kTarMinions      // the caster's charmed NPC followers in the room (minions)
+	kTarMinions,     // the caster's charmed NPC followers in the room (minions)
+	kTarRoomThis     // the room itself -- this action imposes its effect on the room
+	                 // (the per-tick effect lives in the linked kService spell)
 };
 
 // issue.cast-chain: what a NON-FIRST <action> uses as the "base" of its formula instead of the

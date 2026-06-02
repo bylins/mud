@@ -3172,6 +3172,10 @@ static std::vector<CharData *> ResolveActionTargets(CastContext &ctx,
 			}
 			return out;
 		}
+		case talents_actions::EActionTarget::kTarRoomThis:
+			// The room itself is not a CharData target -- it is applied to ctx.rvict by the
+			// room-impose path, not through the char roster. No char targets here.
+			return {};
 		case talents_actions::EActionTarget::kTarRandomFoe: {
 			target_resolver::FoesRosterType roster{caster, nullptr,
 					[](CharData *, CharData *t) { return !IS_HORSE(t); }};

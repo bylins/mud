@@ -776,6 +776,7 @@ void Actions::ParseAction(Action &out, parser_wrapper::DataNode node) {
 		else if (strcmp(tgt, "kTarRandomAlly") == 0) { out.target_ = EActionTarget::kTarRandomAlly; }
 		else if (strcmp(tgt, "kTarMinions") == 0) { out.target_ = EActionTarget::kTarMinions; }
 		else if (strcmp(tgt, "kTarSame") == 0) { out.target_ = EActionTarget::kTarSame; }
+		else if (strcmp(tgt, "kTarRoomThis") == 0) { out.target_ = EActionTarget::kTarRoomThis; }
 		else { err_log("Actions: unknown <action target='%s'>.", tgt); }
 	}
 	// optional formula base + reset (non-first actions). Default kCompetence/false.
