@@ -343,7 +343,7 @@ enum EMagic : Bitvector {
 	kMagGroups = 1 << 5,
 	kMagMasses = 1 << 6,
 	kMagAreas = 1 << 7,
-	kMagSummons = 1 << 8,
+	// 1 << 8 free (was kMagSummons; summon is now the data-driven <summon> action)
 	kMagCreations = 1 << 9,
 	kMagManual = 1 << 10,
 	kMagWarcry = 1 << 11,

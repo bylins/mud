@@ -427,7 +427,6 @@ void init_EMagic_ITEM_NAMES() {
 	EMagic_name_by_value[EMagic::kMagGroups] = "kMagGroups";
 	EMagic_name_by_value[EMagic::kMagMasses] = "kMagMasses";
 	EMagic_name_by_value[EMagic::kMagAreas] = "kMagAreas";
-	EMagic_name_by_value[EMagic::kMagSummons] = "kMagSummons";
 	EMagic_name_by_value[EMagic::kMagCreations] = "kMagCreations";
 	EMagic_name_by_value[EMagic::kMagManual] = "kMagManual";
 	EMagic_name_by_value[EMagic::kMagWarcry] = "kMagWarcry";

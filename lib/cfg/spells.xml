@@ -310,7 +310,6 @@ base_stat id - (например "kWis") какой берем параметр,
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="150" min="130" change="5"/>
         <targets val="kTarCharRoom|kTarSelfOnly"/>
-        <flags val="kMagSummons"/>
         <potency_roll>
             <base_skill id="kDarkMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kInt" threshold="22" weight="0.5"/>
@@ -3195,7 +3194,6 @@ base_stat id - (например "kWis") какой берем параметр,
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="100" min="80" change="2"/>
         <targets val="kTarIgnore"/>
-        <flags val="kMagSummons"/>
         <potency_roll>
             <dices ndice="10" sdice="10" adice="0"/>
             <base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
@@ -3317,7 +3315,6 @@ base_stat id - (например "kWis") какой берем параметр,
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="150" min="140" change="1"/>
         <targets val="kTarIgnore"/>
-        <flags val="kMagSummons"/>
         <potency_roll>
             <base_stat id="kCha" threshold="20" weight="100"/>
         </potency_roll>
