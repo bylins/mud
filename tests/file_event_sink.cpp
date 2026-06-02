@@ -18,7 +18,7 @@ std::string ReadFile(const std::string& path) {
 	return ss.str();
 }
 
-std::vector<std::string> SplitLines(const std::string& blob) {
+std::vector<std::string> SplitJsonLines(const std::string& blob) {
 	std::vector<std::string> out;
 	std::string cur;
 	for (char c : blob) {
@@ -53,7 +53,7 @@ TEST(FileEventSink, WritesBaseFieldsAsJsonLine) {
 		e.ts_unix_ms = 1714400000000;
 		sink->Emit(e);
 	}
-	const auto lines = SplitLines(ReadFile(path));
+	const auto lines = SplitJsonLines(ReadFile(path));
 	ASSERT_EQ(lines.size(), 1u);
 	EXPECT_EQ(lines[0], R"({"ts":1714400000000,"name":"hit"})");
 	std::remove(path.c_str());
@@ -73,7 +73,7 @@ TEST(FileEventSink, EncodesAttributeTypes) {
 		e.attrs["d"] = 3.5;
 		sink->Emit(e);
 	}
-	const auto lines = SplitLines(ReadFile(path));
+	const auto lines = SplitJsonLines(ReadFile(path));
 	ASSERT_EQ(lines.size(), 1u);
 	// Order is enforced by FileEventSink: ts, name, then attributes sorted
 	// alphabetically (b, d, i, s).
@@ -92,7 +92,7 @@ TEST(FileEventSink, EscapesSpecialCharsInStrings) {
 		e.attrs["s"] = std::string("line1\nline2\t\"quoted\"\\back");
 		sink->Emit(e);
 	}
-	const auto lines = SplitLines(ReadFile(path));
+	const auto lines = SplitJsonLines(ReadFile(path));
 	ASSERT_EQ(lines.size(), 1u);
 	EXPECT_NE(lines[0].find("\"s\":\"line1\\nline2\\t\\\"quoted\\\"\\\\back\""), std::string::npos);
 	std::remove(path.c_str());
@@ -111,7 +111,7 @@ TEST(FileEventSink, AppendsManyEventsAsSeparateLines) {
 			sink->Emit(e);
 		}
 	}
-	const auto lines = SplitLines(ReadFile(path));
+	const auto lines = SplitJsonLines(ReadFile(path));
 	EXPECT_EQ(lines.size(), 10u);
 	std::remove(path.c_str());
 }
