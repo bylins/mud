@@ -88,6 +88,7 @@
 #include "engine/network/admin_api.h"
 #include <sys/un.h>
 #include <sys/stat.h>
+#include <filesystem>
 #endif
 
 #ifdef CIRCLE_MACINTOSH        // Includes for the Macintosh
@@ -1079,6 +1080,20 @@ socket_t init_unix_socket(const char *path) {
 	memset(&sa, 0, sizeof(sa));
 	sa.sun_family = AF_UNIX;
 	strncpy(sa.sun_path, path, sizeof(sa.sun_path) - 1);
+
+	// Создаём родительский каталог сокета, если его нет: bind() сам каталоги не
+	// создаёт, а сокет удобно держать в выделенной директории (например, чтобы
+	// монтировать её в Docker-контейнер web-админки).
+	const std::filesystem::path sock_path(path);
+	const auto parent_dir = sock_path.parent_path();
+	if (!parent_dir.empty()) {
+		std::error_code ec;
+		std::filesystem::create_directories(parent_dir, ec);
+		if (ec) {
+			log("SYSERR: Cannot create directory %s for Unix socket: %s",
+				parent_dir.c_str(), ec.message().c_str());
+		}
+	}
 
 	unlink(path);
 

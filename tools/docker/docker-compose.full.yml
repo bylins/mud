@@ -1,0 +1,79 @@
+# Combined-стек: игровой сервер (circle с admin_api+otel+yaml) + web-админка.
+#
+# Телеметрия: циркуль запускается с host-сетью, поэтому OTLP-endpoint берётся
+# из configuration.xml мира как есть — localhost:<порт> бьёт в коллектор ЭТОГО
+# сервера (4319 у gateway, 4318 у agent). Один и тот же compose работает на
+# любом сервере без переопределения портов.
+#
+# Подготовка:
+#   - распакуйте мир в каталог (внутри misc/, world/, text/ ...). В его
+#     configuration.xml уже должен быть рабочий telemetry-endpoint этого сервера;
+#   - задайте MUD_WORLD_DIR (обязательно).
+#
+# Запуск (контекст сборки circle — корень репозитория):
+#   MUD_WORLD_DIR=/home/you/worlds/w/lib \
+#     docker compose -f tools/docker/docker-compose.full.yml up -d
+#
+# Web-админка по умолчанию слушает только localhost. Чтобы открыть наружу:
+#   WEB_ADMIN_BIND=0.0.0.0 ... up -d   (учтите: это публикует админку в Интернет)
+#
+# Логи:
+#   docker compose -f tools/docker/docker-compose.full.yml logs -f web-admin
+#   docker compose -f tools/docker/docker-compose.full.yml logs -f circle
+
+services:
+  circle:
+    build:
+      context: ../..
+      dockerfile: Dockerfile
+      args:
+        WITH_OTEL: "true"
+        WITH_ADMIN_API: "true"
+        WITH_YAML: "true"
+        WITH_SQLITE: "${WITH_SQLITE:-false}"
+    image: mud-circle
+    container_name: mud-circle
+    # Host-сеть: игровой порт сразу на интерфейсах хоста (наружу, в Интернет), а
+    # localhost:<порт> из конфига достаёт локальный OTEL-коллектор напрямую.
+    network_mode: host
+    volumes:
+      # Мир монтируется целиком (rw): циркуль создаёт здесь run/admin_api.sock и
+      # пишет сейвы. Это же — общий канал к web-админке (она читает сокет отсюда).
+      - "${MUD_WORLD_DIR:?set MUD_WORLD_DIR to the host world directory}:/world"
+    environment:
+      WORLD_DIR: /world
+      MUD_PORT: "${MUD_PORT:-4000}"
+      FORCE_CONFIG: "${FORCE_CONFIG:-1}"
+    restart: unless-stopped
+
+  web-admin:
+    build:
+      context: ../web_admin
+      dockerfile: Dockerfile
+    image: mud-web-admin
+    container_name: mud-web-admin
+    depends_on:
+      - circle
+    # Сокет циркуля принадлежит root (0600), и сам циркуль в контейнере работает
+    # от root — поэтому админку тоже запускаем от root, иначе connect к сокету
+    # упрётся в права.
+    user: "0:0"
+    ports:
+      # admin API по умолчанию только на localhost; WEB_ADMIN_BIND=0.0.0.0 откроет
+      # наружу (в Интернет — ставьте reverse-proxy/аутентификацию осознанно).
+      - "${WEB_ADMIN_BIND:-127.0.0.1}:${WEB_ADMIN_PORT:-12001}:5000"
+    volumes:
+      # Тот же каталог мира (read-only) — внутри run/admin_api.sock. Монтируем
+      # каталог, а не файл: при рестарте циркуля сокет пересоздаётся, и dir-mount
+      # сразу видит новый inode.
+      - "${MUD_WORLD_DIR}:/world:ro"
+    environment:
+      MUD_SOCKET: /world/run/admin_api.sock
+      LOG_LEVEL: "${LOG_LEVEL:-INFO}"
+      FLASK_SECRET_KEY: "${FLASK_SECRET_KEY:-}"
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"

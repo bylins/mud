@@ -1,0 +1,48 @@
+# Bylins MUD Web Admin в Docker.
+#
+# Подготовка:
+#   1) В configuration.xml циркуля укажите сокет в ВЫДЕЛЕННОМ каталоге, например:
+#        <admin_api>
+#          <enabled>true</enabled>
+#          <socket_path>run/admin_api.sock</socket_path>
+#        </admin_api>
+#      Путь относителен каталогу мира. Каталог run/ циркуль создаёт сам при старте.
+#   2) Задайте переменные окружения (или создайте файл .env рядом):
+#        MUD_SOCKET_DIR — каталог с admin_api.sock (на хосте), напр. /opt/mud/lib/run
+#        WEB_ADMIN_UID / WEB_ADMIN_GID — UID/GID пользователя, под которым работает
+#          циркуль (сокет создаётся с правами 0600 — owner-only, поэтому веб-админка
+#          обязана подключаться от того же пользователя).
+#
+# Запуск:
+#   MUD_SOCKET_DIR=/opt/mud/lib/run WEB_ADMIN_UID=$(id -u) WEB_ADMIN_GID=$(id -g) \
+#     docker compose -f tools/web_admin/docker-compose.yml up -d --build
+#
+# Логи (HTTP-запросы + успехи/ошибки аутентификации) в stdout:
+#   docker compose -f tools/web_admin/docker-compose.yml logs -f
+
+services:
+  web-admin:
+    build: .
+    image: mud-web-admin
+    container_name: mud-web-admin
+    # UID:GID владельца сокета (того, под кем запущен циркуль).
+    user: "${WEB_ADMIN_UID:-1000}:${WEB_ADMIN_GID:-1000}"
+    ports:
+      # По умолчанию только localhost; наружу — WEB_ADMIN_BIND=0.0.0.0.
+      - "${WEB_ADMIN_BIND:-127.0.0.1}:${WEB_ADMIN_PORT:-12001}:5000"
+    volumes:
+      # Монтируем КАТАЛОГ с сокетом (не файл!), read-only. При рестарте циркуля
+      # сокет пересоздаётся с новым inode — каталог-mount сразу видит новый файл,
+      # перезапуск контейнера не нужен.
+      - "${MUD_SOCKET_DIR:?set MUD_SOCKET_DIR to the host dir containing admin_api.sock}:/mud/socket:ro"
+    environment:
+      MUD_SOCKET: /mud/socket/admin_api.sock
+      LOG_LEVEL: "${LOG_LEVEL:-INFO}"
+      # Необязательно: постоянный секрет, чтобы сессии переживали рестарт контейнера.
+      FLASK_SECRET_KEY: "${FLASK_SECRET_KEY:-}"
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
