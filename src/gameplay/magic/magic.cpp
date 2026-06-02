@@ -544,7 +544,6 @@ bool TryBlockByMagicalShield(CharData *ch, CharData *victim, ESpell spell_id) {
 EStageResult CastDamage(CastContext &ctx) {
 	CharData *const ch = ctx.caster();
 	CharData *const victim = ctx.cvict;
-	const int level = ctx.level;
 	const ESpell spell_id = ctx.spell_id();
 	int rand = 0, count = 1, modi = 0;
 
@@ -1019,7 +1018,6 @@ static void EmitImpositionEffects(CharData *ch, CharData *victim, ESpell spell_i
 EStageResult CastAffect(CastContext &ctx) {
 	CharData *const ch = ctx.caster();
 	CharData *const victim = ctx.cvict;
-	const int level = abs(ctx.level);
 	const ESpell spell_id = ctx.spell_id();
 	const RollResult &potency = ctx.potency();
 	if (victim == nullptr || victim->in_room == kNowhere || ch == nullptr) {

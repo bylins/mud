@@ -964,7 +964,7 @@ bool CatchBloodyCorpse(ObjData *l) {
 	return false;
 }
 
-EStageResult SpellCreateWeapon(CastContext &ctx) {
+EStageResult SpellCreateWeapon(CastContext &) {
 	//go_create_weapon(ch,nullptr,what_sky);
 // отключено, так как не реализовано
 	return EStageResult::kSuccess;
@@ -1913,7 +1913,7 @@ EStageResult SpellHolystrike(CastContext &ctx) {
 	return EStageResult::kSuccess;
 }
 
-EStageResult SpellVampirism(CastContext &ctx) {
+EStageResult SpellVampirism(CastContext &) {
 	return EStageResult::kSuccess;
 }
 
