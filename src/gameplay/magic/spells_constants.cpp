@@ -424,11 +424,9 @@ void init_EMagic_ITEM_NAMES() {
 	EMagic_name_by_value[EMagic::kMagAffects] = "kMagAffects";
 	EMagic_name_by_value[EMagic::kMagUnaffects] = "kMagUnaffects";
 	EMagic_name_by_value[EMagic::kMagPoints] = "kMagPoints";
-	EMagic_name_by_value[EMagic::kMagAlterObjs] = "kMagAlterObjs";
 	EMagic_name_by_value[EMagic::kMagGroups] = "kMagGroups";
 	EMagic_name_by_value[EMagic::kMagMasses] = "kMagMasses";
 	EMagic_name_by_value[EMagic::kMagAreas] = "kMagAreas";
-	EMagic_name_by_value[EMagic::kMagCreations] = "kMagCreations";
 	EMagic_name_by_value[EMagic::kMagManual] = "kMagManual";
 	EMagic_name_by_value[EMagic::kMagWarcry] = "kMagWarcry";
 	EMagic_name_by_value[EMagic::kMagNeedControl] = "kMagNeedControl";

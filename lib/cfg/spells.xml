@@ -137,7 +137,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="55" min="40" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf|kTarObjInv|kTarObjEquip"/>
-        <flags val="kMagAffects|kMagAlterObjs|kNpcAffectNpc"/>
+        <flags val="kMagAffects|kNpcAffectNpc"/>
         <potency_roll>
             <dices ndice="5" sdice="9" adice="12"/>
             <base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
@@ -377,7 +377,6 @@ base_stat id - (например "kWis") какой берем параметр,
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="40" min="30" change="1"/>
         <targets val="kTarIgnore"/>
-        <flags val="kMagCreations"/>
         <talent_actions>
             <action>
                 <obj_creation vnum="125"/>
@@ -478,7 +477,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <misc pos="kFight" violent="N" danger="1"/>
         <mana max="55" min="40" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict|kTarObjInv"/>
-        <flags val="kMagAffects|kMagAlterObjs|kNpcAffectPc"/>
+        <flags val="kMagAffects|kNpcAffectPc"/>
         <potency_roll>
             <dices ndice="4" sdice="4" adice="4"/>
             <base_skill id="kDarkMagic" low_skill_bonus="5" hi_skill_bonus="15"/>
@@ -687,7 +686,6 @@ base_stat id - (например "kWis") какой берем параметр,
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="140" min="110" change="2"/>
         <targets val="kTarObjInv"/>
-        <flags val="kMagAlterObjs"/>
         <talent_actions>
             <action>
                 <alter_obj handler="AlterEnchantWeapon"/>
@@ -807,7 +805,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="50" min="40" change="3"/>
         <targets val="kTarCharRoom|kTarObjInv|kTarObjRoom"/>
-        <flags val="kMagAffects|kMagAlterObjs"/>
+        <flags val="kMagAffects"/>
         <potency_roll>
             <dices ndice="5" sdice="9" adice="12"/>
             <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
@@ -933,7 +931,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <misc pos="kFight" violent="Y" danger="2"/>
         <mana max="70" min="55" change="1"/>
         <targets val="kTarCharRoom|kTarNotSelf|kTarObjInv|kTarFightVict"/>
-        <flags val="kMagAffects|kMagAlterObjs|kNpcAffectPc"/>
+        <flags val="kMagAffects|kNpcAffectPc"/>
         <potency_roll>
             <dices ndice="5" sdice="9" adice="12"/>
             <base_skill id="kDarkMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
@@ -1000,7 +998,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="50" min="40" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf|kTarObjInv|kTarObjEquip"/>
-        <flags val="kMagUnaffects|kMagAlterObjs|kNpcUnaffectNpc"/>
+        <flags val="kMagUnaffects|kNpcUnaffectNpc"/>
         <potency_roll>
             <dices ndice="5" sdice="9" adice="12"/>
             <base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
@@ -1214,7 +1212,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="60" min="45" change="2"/>
         <targets val="kTarCharRoom|kTarFightSelf|kTarObjInv|kTarObjRoom"/>
-        <flags val="kMagUnaffects|kMagAlterObjs|kNpcUnaffectNpc"/>
+        <flags val="kMagUnaffects|kNpcUnaffectNpc"/>
         <potency_roll>
             <dices ndice="5" sdice="9" adice="12"/>
             <base_skill id="kLifeMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
@@ -1603,7 +1601,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="50" min="35" change="1"/>
         <targets val="kTarCharRoom|kTarObjInv|kTarObjEquip"/>
-        <flags val="kMagAffects|kMagAlterObjs"/>
+        <flags val="kMagAffects"/>
         <potency_roll>
             <dices ndice="5" sdice="9" adice="12"/>
             <base_skill id="kAirMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
@@ -1690,7 +1688,6 @@ base_stat id - (например "kWis") какой берем параметр,
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="40" min="30" change="1"/>
         <targets val="kTarIgnore"/>
-        <flags val="kMagCreations"/>
         <talent_actions>
             <action>
                 <obj_creation vnum="126"/>
@@ -1706,7 +1703,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="100" min="70" change="2"/>
         <targets val="kTarCharRoom|kTarObjInv|kTarObjEquip|kTarAllyOnly"/>
-        <flags val="kMagAffects|kMagAlterObjs"/>
+        <flags val="kMagAffects"/>
         <potency_roll>
             <dices ndice="5" sdice="9" adice="12"/>
             <base_skill id="kDarkMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
@@ -1823,7 +1820,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="100" min="70" change="2"/>
         <targets val="kTarCharRoom|kTarObjInv|kTarObjEquip|kTarAllyOnly"/>
-        <flags val="kMagAffects|kMagAlterObjs"/>
+        <flags val="kMagAffects"/>
         <potency_roll>
             <dices ndice="5" sdice="9" adice="12"/>
             <base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
@@ -2015,7 +2012,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <misc pos="kFight" violent="Y" danger="2"/>
         <mana max="90" min="65" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
-        <flags val="kMagDamage|kMagAlterObjs|kNpcDamagePc"/>
+        <flags val="kMagDamage|kNpcDamagePc"/>
         <potency_roll>
             <dices ndice="7" sdice="15" adice="30"/>
             <base_skill id="kWaterMagic" low_skill_bonus="4" hi_skill_bonus="1.75"/>
@@ -2043,7 +2040,6 @@ base_stat id - (например "kWis") какой берем параметр,
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="110" min="100" change="1"/>
         <targets val="kTarObjInv|kTarObjEquip"/>
-        <flags val="kMagAlterObjs"/>
         <talent_actions>
             <action>
                 <alter_obj handler="AlterRepair"/>
@@ -3278,7 +3274,6 @@ base_stat id - (например "kWis") какой берем параметр,
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="130" min="110" change="2"/>
         <targets val="kTarIgnore"/>
-        <flags val="kMagCreations"/>
         <talent_actions>
             <action>
                 <!-- TODO(issue.obj-casting): base item vnum placeholder; designer sets the real
@@ -3296,7 +3291,6 @@ base_stat id - (например "kWis") какой берем параметр,
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="130" min="110" change="2"/>
         <targets val="kTarIgnore"/>
-        <flags val="kMagCreations"/>
         <talent_actions>
             <action>
                 <!-- TODO(issue.obj-casting): base item vnum placeholder; designer sets the real
@@ -5380,7 +5374,6 @@ base_stat id - (например "kWis") какой берем параметр,
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="110" min="100" change="1"/>
         <targets val="kTarObjInv|kTarObjEquip"/>
-        <flags val="kMagAlterObjs"/>
         <talent_actions>
             <action>
                 <alter_obj handler="AlterTimerRestore"/>
@@ -5495,7 +5488,6 @@ base_stat id - (например "kWis") какой берем параметр,
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="110" min="100" change="1"/>
         <targets val="kTarObjInv|kTarObjEquip"/>
-        <flags val="kMagAlterObjs"/>
         <talent_actions>
             <action>
                 <alter_obj handler="AlterRestoration"/>
@@ -5680,7 +5672,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <misc pos="kFight" violent="Y" danger="2"/>
         <mana max="130" min="100" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
-        <flags val="kMagDamage|kMagAffects|kMagAlterObjs|kNpcDamagePc|kNpcDamagePcMinhp"/>
+        <flags val="kMagDamage|kMagAffects|kNpcDamagePc|kNpcDamagePcMinhp"/>
         <potency_roll>
             <dices ndice="20" sdice="25" adice="75"/>
             <base_skill id="kWaterMagic" low_skill_bonus="2" hi_skill_bonus="1.75"/>
