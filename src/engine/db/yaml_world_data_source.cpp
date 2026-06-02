@@ -2940,18 +2940,8 @@ bool YamlWorldDataSource::SaveTriggers(int zone_rnum, int specific_vnum, int not
 	}
 
 	const ZoneData &zone = zone_table[zone_rnum];
-	TrgRnum first_trig = zone.RnumTrigsLocation.first;
-	TrgRnum last_trig = zone.RnumTrigsLocation.second;
-
-	log("SaveTriggers: Zone %d, first_trig=%d, last_trig=%d", zone.vnum, first_trig, last_trig);
-	if (first_trig == -1 || last_trig == -1)
-	{
-		log("Zone %d has no triggers to save", zone.vnum);
-		// Still write the (empty) index so a subsequent boot sees the zone
-		// has nothing to load instead of failing on a missing file.
-		RebuildPerZoneIndex(zone.vnum, "triggers");
-		return true;
-	}
+	TrgRnum first_trig = 0;
+	TrgRnum last_trig = top_of_trigt;
 
 	namespace fs = std::filesystem;
 
@@ -2965,6 +2955,10 @@ bool YamlWorldDataSource::SaveTriggers(int zone_rnum, int specific_vnum, int not
 		}
 
 		int trig_vnum = trig_index[trig_rnum]->vnum;
+		if (trig_vnum < zone.vnum * 100 || trig_vnum > zone.top)
+		{
+			continue;
+		}
 		Trigger *trig = trig_index[trig_rnum]->proto;
 
 		if (!trig)
@@ -3112,15 +3106,12 @@ void YamlWorldDataSource::SaveRooms(int zone_rnum, int specific_vnum)
 	}
 
 	const ZoneData &zone = zone_table[zone_rnum];
-	RoomRnum first_room = zone.RnumRoomsLocation.first;
-	RoomRnum last_room = zone.RnumRoomsLocation.second;
-
-	if (first_room == -1 || last_room == -1)
-	{
-		log("Zone %d has no rooms to save", zone.vnum);
-		RebuildPerZoneIndex(zone.vnum, "rooms");
-		return;
-	}
+	// The cached RnumRoomsLocation range is set at boot and misses rooms added
+	// later via OLC/the Admin API (stays (-1,-1) for zones empty at boot, and
+	// never grows when rooms are appended). Always scan the whole world; the
+	// loop below filters by vnum so only this zone's rooms are written.
+	RoomRnum first_room = 0;
+	RoomRnum last_room = top_of_world;
 
 	std::string rooms_dir = m_world_dir + "/zones/" + std::to_string(zone.vnum) + "/rooms";
 	namespace fs = std::filesystem;
@@ -3398,15 +3389,8 @@ void YamlWorldDataSource::SaveMobs(int zone_rnum, int specific_vnum)
 	}
 
 	const ZoneData &zone = zone_table[zone_rnum];
-	MobRnum first_mob = zone.RnumMobsLocation.first;
-	MobRnum last_mob = zone.RnumMobsLocation.second;
-
-	if (first_mob == -1 || last_mob == -1)
-	{
-		log("Zone %d has no mobs to save", zone.vnum);
-		RebuildPerZoneIndex(zone.vnum, "mobs");
-		return;
-	}
+	MobRnum first_mob = 0;
+	MobRnum last_mob = top_of_mobt;
 
 	namespace fs = std::filesystem;
 
@@ -3419,6 +3403,10 @@ void YamlWorldDataSource::SaveMobs(int zone_rnum, int specific_vnum)
 		}
 
 		int mob_vnum = mob_index[mob_rnum].vnum;
+		if (mob_vnum < zone.vnum * 100 || mob_vnum > zone.top)
+		{
+			continue;
+		}
 		CharData &mob = mob_proto[mob_rnum];
 
 		// If specific_vnum is set, save only that mob
