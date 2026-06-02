@@ -42,6 +42,13 @@ Stages 4–11 are gated by the spell's `<flags val="kMag…">` bitset, so a sing
 spell can run any subset of them in the order above. Each stage may return a
 "break" code that ends the chain.
 
+The list above is what runs for **one `<action>`** of the spell. A spell's
+`<talent_actions>` is an **ordered list** of actions, each with its own target
+set and its own stages; the engine runs them top to bottom (action-outer,
+target-inner), and the victim reaction (stage 12) fires once, after the **last**
+action. A single-action spell behaves exactly as the list above. See §3.8 for the
+multi-action model and §13.8 for a worked example (`kSacrifice`).
+
 ---
 
 ## 2. File layout
@@ -268,17 +275,113 @@ A spell that omits a sub-block contributes 0 from that side. A spell with an
 empty `<potency_roll>` rolls a flat 0 — its affects land at potency 0, its
 dispel always fails the contest (5 % luck floor still applies).
 
-### 3.8 `<talent_actions>`
+### 3.8 `<talent_actions>` — the ordered action list *(multi-action)*
 
-Container for one or more `<action>` blocks. Each `<action>` can declare any
+Container for an **ordered list** of `<action>` blocks. Each `<action>` is a
+self-contained sub-cast: it resolves its **own** target list and runs its **own**
+stages, and the actions execute **top to bottom**. Each `<action>` can declare any
 mix of:
 
-* Gates: `<blocking>`, `<required>`, `<caster_blocking>`, `<reflection>`
-* Effects: `<damage>`, `<points>`, `<area>`, `<affects>`, `<unaffect>`
+* Gates: `<blocking>`, `<required>`, `<caster_blocking>`, `<reflection>`,
+  `<target_conditions>` (a wrapper that holds per-action `<blocking>`/`<required>`).
+* Effects: `<damage>`, `<points>`, `<area>`, `<affects>`, `<unaffect>`,
+  `<side_spell>`, `<manual_cast>`.
 
-Most spells use a single `<action>`. Multiple actions are technically allowed
-but the framework processes only one of each effect type, so the common
-pattern is a single `<action>` with everything inside it.
+Within a single action the effect stages always run in this fixed order:
+
+> **Damage → Unaffect → Affect → Points → SideSpell → Manual**
+
+Most spells still use a single `<action>`, but a spell can now chain several —
+each aimed at a different target set and able to scale off what an earlier action
+did. See **§3.8.1–3.8.4** below and the worked example in **§13.8 (`kSacrifice`)**.
+
+#### How the action list is executed (action-outer, target-inner)
+
+* **Action 0 (the *entry* action)** uses the **spell-level** scope — the `kMag…`
+  flags pick the roster (`kMagAreas`/`kMagMasses` → foes, `kMagGroups` → allies,
+  otherwise the single chosen target). It runs the full per-target pipeline:
+  the target gates, `<reflection>`, the god guard, the cast `mtrigger`, **and** the
+  effect stages, then records each successfully-affected target for the reaction.
+* **Actions 1, 2, …** resolve their own roster from their `target=` attribute
+  (§3.8.1) and run **only** their effect stages plus their own
+  `<blocking>`/`<required>`. They do **not** re-fire reflection, the mtrigger, or
+  the victim reaction.
+* **Victim reaction** (NPC retaliation / auto-detect) is deferred until **all**
+  actions have finished — the whole spell is one event, so a debuff in action 1
+  can't make the target retaliate before action 2's damage lands.
+* If an action **kills** its target (or a dispel breaks the chain on it), only
+  that action's remaining stages on **that** target are skipped — the rest of the
+  action list, and the action's other targets, continue.
+
+For a one-action spell only the entry action runs, exactly as before — the whole
+mechanism is backward-compatible.
+
+#### 3.8.1 `target="…"` — per-action target selector
+
+A non-entry `<action>` may carry a `target` attribute (an `EActionTarget`, default
+`kTarSame`) selecting **which** characters it affects:
+
+| value | resolves to | needs `<area>`? |
+|---|---|---|
+| `kTarSame` *(default)* | the **previous** action's resolved target list | inherits |
+| `kTarFightSelf` | the caster | no |
+| `kTarFightVict` | the caster's current opponent | no |
+| `kTarGroup` | groupmates in the room | **yes** |
+| `kTarFoes` | all foes in the room | **yes** |
+| `kTarRandomFoe` | one random foe in the room | no |
+| `kTarRandomAlly` | one random ally in the room | no |
+| `kTarMinions` | the caster's charmed NPC followers (minions) in the room | yes (for >1) |
+
+`kTarGroup`/`kTarFoes`/`kTarMinions` fan out over several characters, so they need
+an `<area>` block (§7) to say how many and with what falloff.
+
+#### 3.8.2 `base="…"` and `reset` — chain off a prior action's result *(cast-chain)*
+
+By default every action scales its effect off the caster's **competence**
+(skill + stat coefficients from the potency roll). A non-entry action can instead
+scale off **what an earlier action produced**, via `base` (an `EActionBase`):
+
+| `base` value | substitutes the competence scalar with… |
+|---|---|
+| `kCompetence` *(default)* | the real caster competence (skill + stat) |
+| `kDamage` | total HP damage dealt so far in the cast |
+| `kPoints` | total points (HP/moves/…) restored so far |
+| `kAffects` | total **potency** of affects applied so far |
+| `kDispelled` | total **potency** of affects removed so far |
+
+The accumulators **aggregate across an action's targets** (they sum). `base` only
+replaces the competence scalar in the formula — the action's own dice and weights
+still apply, so for a clean 1:1 transfer the designer sets `dices_weight="0"` and
+`beta="1.0"` (see `kSacrifice` A2/A3 in §13.8). `reset="true"` zeroes the chosen
+base accumulator **after** this action runs, so a later action starts the tally
+fresh.
+
+#### 3.8.3 `<side_spell id="…"/>` — trigger a full nested cast
+
+```xml
+<side_spell id="kHold"/>
+```
+
+Fires a **complete nested cast** of another spell on the current target — with
+that spell's *own* rolls, potency, and effect config. Several `<side_spell>` tags
+are allowed (run in document order). This is how a mass/group spell becomes a thin
+wrapper over its single-target base: `kMassHold` is just an `<area>` fan-out plus
+`<side_spell id="kHold"/>`, reusing `kHold`'s entire definition instead of copying
+it. A **cycle guard** refuses any spell already present in the current cast chain,
+so `A → B → A` (and deeper loops) can't recurse infinitely. The nested cast
+inherits the outer per-target area coefficient, so mass-falloff still reaches the
+delegated effect.
+
+#### 3.8.4 `<manual_cast handler="…"/>` — data-driven manual handler
+
+```xml
+<manual_cast handler="SpellMentalShadow"/>
+```
+
+Names a hand-coded handler registered in `spells.cpp` (the handler name must match
+the registry, or boot logs `unknown <manual_cast> handler`). It runs as the
+**Manual** stage of the action, so a manual handler is now gated and ordered like
+any other stage instead of being dispatched only by the old `kMagManual` flag.
 
 ### 3.9 `<components>` — casting requirements
 
@@ -536,33 +639,59 @@ percent formula is signed.
 
 ---
 
-## 7. `<area>` — area cast scaling
+## 7. `<area>` — how many targets, and per-target falloff
+
+> **Schema change (issue.area-cast).** The old `<victims>` / `<decay>` children
+> are gone. `<area>` now has two children — `<targets>` (how many) and
+> `<distribution>` (per-target falloff). Area and group casts share one pipeline:
+> a group cast is just an area cast over the ally roster.
 
 ```xml
 <area>
-    <decay cast="0.05" level="7" free_targets="3"/>
-    <victims skill_divisor="15" dice_size="2" min_targets="5" max_targets="20"/>
+    <targets skill_divisor="15" dice_size="2" min="5" max="20"/>
+    <distribution type="kStepped" decay="0.05" free_targets="3"/>
 </area>
 ```
 
-`<decay>` controls how the cast's effective level/cost decays per extra
-target; `<victims>` controls how many targets the cast picks.
+An `<area>` block is needed by any action whose target selector fans out over more
+than one character — the entry action of a `kMagAreas`/`kMagMasses`/`kMagGroups`
+spell, or a later action with `target="kTarFoes"` / `kTarGroup` / `kTarMinions`
+(§3.8.1).
 
-| `<decay>` attr | Description |
+### `<targets>` — the count
+
+| attr | default | meaning |
+|---|---|---|
+| `skill_divisor` | 1 | caster-skill divisor that scales the count (clamped ≥1) |
+| `dice_size` | 1 | sides per random target-count die |
+| `min` | 1 | floor for the count |
+| `max` | 1 | cap on the **bonus** (total ∈ `[min, min+max]`); **`max ≤ 0` means "no limit"** — hit the whole roster |
+| `stat_weight` | 0 | optional secondary-stat nudge from the potency roll's `stat_coeff` (0 = exactly the historical count) |
+
+> **Every attribute is optional** and falls back to the default above. (A missing
+> attribute must *not* be read as an empty string — that used to throw and silently
+> drop the whole action; fixed in issue.area-spell-bug. So `<targets max="-1"/>`
+> alone is valid and means "everyone, no scaling".)
+
+`CalcTargetsQuantity = min + min(RollDices(skill / skill_divisor, dice_size) +
+ceil(stat_weight · stat_coeff), max)`. The actual number hit is
+`N = min(CalcTargetsQuantity, roster size)` (or the whole roster when `max ≤ 0`).
+
+### `<distribution>` — the per-target coefficient `f_j`
+
+`type` ∈ `{kUniform (default), kLinear, kStepped}`. For the j-th target (1-based,
+target #1 = the primary victim / first ally, hit first) of `N`, the coefficient
+`f_j` scales **both** the effect magnitude **and** the effective cast-success:
+
+| `type` | `f_j` |
 |---|---|
-| `cast` | Decay multiplier applied to cost each step. |
-| `level` | Caster-level decrement per target beyond `free_targets`. |
-| `free_targets` | The first N targets cost nothing extra. |
+| `kUniform` | `1` — nothing decays (all targets full strength) |
+| `kLinear` | `(N − j + 1) / N` — #1 full, linearly down to `1/N` |
+| `kStepped` | `1` for `j ≤ free_targets`, else `max(0, 1 − decay·(j − free_targets))` |
 
-| `<victims>` attr | Description |
-|---|---|
-| `skill_divisor` | Caster-skill divisor that scales the target count (≥1). |
-| `dice_size` | Sides per random target-count die. |
-| `min_targets` | Floor for victim count. |
-| `max_targets` | Ceiling for victim count. |
-
-Used together with `kMagAreas` / `kMagMasses` flags. `CalcTargetsQuantity =
-min_targets + min(RollDices(skill / skill_divisor, dice_size), max_targets)`.
+`decay` and `free_targets` are read **only** for `kStepped`. `f_j` is always in
+`[0, 1]` and never amplifies. **NPC casters bypass** the falloff (`f_j = 1`
+everywhere). The `kMultipleCast` feat softens `kStepped` decay (`decay ×= 0.6`).
 
 ---
 
@@ -1067,7 +1196,10 @@ These stages are gated by their `kMag…` flag and run dedicated logic in
 * `CastSummon` (animate dead, clone, summon keeper, …) is mostly code, with
   messages in `spell_msg.xml` (`kSummonToRoom`, `kSummonFail`,
   `kSummonNoCorpse`, etc.).
-* `CastCreation`, `CastManual` are pure code stages.
+* `CastCreation` is a pure code stage.
+* `CastManual` runs a hand-coded handler, but **which** handler is now data-driven:
+  name it with `<manual_cast handler="SpellX"/>` inside the action (§3.8.4). The
+  handler still lives in `spells.cpp`; the XML just selects and stage-gates it.
 
 The data-driven parts you can tune for these stages are: `<flags>`,
 `<targets>`, `<misc>`, `<mana>`, and the spell's messages.
@@ -1367,9 +1499,8 @@ A message lookup tries the spell's own sheaf first, then falls back to
     <talent_actions>
         <action>
             <area>
-                <decay cast="0.05" level="3" free_targets="5"/>
-                <victims skill_divisor="15" dice_size="3"
-                         min_targets="5" max_targets="20"/>
+                <targets skill_divisor="15" dice_size="3" min="5" max="20"/>
+                <distribution type="kStepped" decay="0.05" free_targets="5"/>
             </area>
             <unaffect>
                 <remove all_of="kInvisible|kCamouflage|kHide"
@@ -1512,6 +1643,90 @@ how a stacking variant would be authored.
 
 ---
 
+### 13.8 A multi-action spell: `kSacrifice` *(per-action targets + cast-chain)*
+
+`kSacrifice` ("высосать жизнь") is the reference multi-action spell: it damages a
+foe, then heals the caster by the damage dealt, then heals the caster's **undead**
+minions by the same amount. Three `<action>` blocks, each with a different target.
+
+```xml
+<spell id="kSacrifice" element="kDark" mode="kEnabled">
+    <name rus="высосать жизнь" eng="sacrifice"/>
+    <components><verbal/><weave/></components>
+    <misc pos="kFight" violent="Y" danger="10"/>
+    <mana max="140" min="75" change="3"/>
+    <targets val="kTarCharRoom|kTarFightVict|kTarNotSelf"/>
+    <flags val="kMagDamage|kNpcDamagePc|kNpcDamagePcMinhp"/>
+    <potency_roll>
+        <dices ndice="8" sdice="15" adice="60"/>
+        <base_skill id="kDarkMagic" low_skill_bonus="2" hi_skill_bonus="2.5"/>
+        <base_stat id="kWis" threshold="32" weight="4.5"/>
+    </potency_roll>
+    <talent_actions>
+        <!-- A1 — damage ONE foe (the entry action; uses the spell-level target). -->
+        <action>
+            <damage saving="kWill">
+                <amount min="0" dices_weight="1.0" alpha="0.5" beta="62"/>
+            </damage>
+            <target_conditions>
+                <blocking><affect_flags val="kCharmed"/></blocking>   <!-- never your own charmed pet -->
+            </target_conditions>
+        </action>
+        <!-- A2 — heal the CASTER by the damage just dealt (base=kDamage). -->
+        <action target="kTarFightSelf" base="kDamage">
+            <points extra="300">
+                <heal min="0" dices_weight="0" alpha="0" beta="1.0" npc_coeff="0"/>
+            </points>
+        </action>
+        <!-- A3 — heal the caster's UNDEAD minions by the same amount. -->
+        <action target="kTarMinions" base="kDamage">
+            <points extra="300">
+                <heal min="0" dices_weight="0" alpha="0" beta="1.0" npc_coeff="0"/>
+            </points>
+            <area>
+                <targets max="-1"/>             <!-- all minions, no scaling -->
+                <distribution type="kUniform"/>
+            </area>
+            <target_conditions>
+                <required><mob_flags val="kCorpse"/></required>   <!-- undead only -->
+            </target_conditions>
+        </action>
+    </talent_actions>
+</spell>
+```
+
+What each piece does:
+
+* **A1 (entry action)** uses the spell's own `<targets>`/`kMagDamage` scope — one
+  chosen foe — and deals `kWill`-saved damage. `<target_conditions><blocking>` on
+  `kCharmed` refuses to drain your own pet. Because it's the entry action, it also
+  carries the spell's gates and the victim reaction (deferred to the end).
+* **A2 (`target="kTarFightSelf"`, `base="kDamage"`)** re-aims at the caster and
+  **heals**. `base="kDamage"` swaps the competence scalar for *the HP A1 actually
+  removed*; with `dices_weight="0"` and `beta="1.0"` the heal equals the damage
+  (a clean 1:1 transfer). `<points extra="300">` lets the heal overheal to 4× max.
+* **A3 (`target="kTarMinions"`, `base="kDamage"`)** repeats that heal on the
+  caster's charmed NPC followers, but its `<required><mob_flags val="kCorpse"/>`
+  limits it to **undead** minions, and its `<area><targets max="-1"/>` fans the
+  heal out to **all** of them uniformly. Note `<targets max="-1"/>` deliberately
+  omits `skill_divisor`/`dice_size`/`min`/`stat_weight` — they default (§7).
+
+Things this example illustrates:
+
+* **Per-action targets** — A1 hits a foe, A2 the caster, A3 the minions; the
+  spell re-aims mid-cast (§3.8.1).
+* **Cast-chain** — A2 and A3 read the running **damage** accumulator instead of
+  re-rolling competence (§3.8.2). The accumulator captures *actual HP removed*
+  (overkill and resists already applied), so the heal can never exceed the damage.
+* **Per-action area** — only A3 fans out; A1/A2 are single-target.
+* **One reaction** — the foe retaliates once, after A3, not between actions.
+
+> The single-target version of "deal damage, then heal by it" needs only A1 + A2;
+> A3 is the undead-minion bonus. A *mass* version would instead make A1 fan out
+> (`kMagMasses` + an `<area>` on A1).
+
+---
+
 ## 14. Reference: enum cheat-sheet
 
 The full enums live in C++ headers; the most-used values are listed here.
@@ -1600,22 +1815,31 @@ should change a stat *without* imposing an affect flag.
 4. **Author `<potency_roll>`** — at least one of `<dices>`, `<base_skill>`,
    `<base_stat>`. Without a roll, the spell deals zero/no-magnitude
    effects.
-5. **Write the `<talent_actions>` block** — gates first, then effects.
+5. **Write the `<talent_actions>` block** — gates first, then effects. For a
+   multi-action spell, list the actions in execution order; give actions 2+ a
+   `target=` (and `base=` if they should chain off an earlier result), and an
+   `<area>` for any action that fans out (§3.8, §7, §13.8).
 6. **Add per-spell messages** to `lib/cfg/spell_msg.xml`: at minimum the
    imposition / dispel / expiration messages if the spell adds affects, or
    the damage description messages if it deals damage.
 7. **Refresh the build snapshot** (see §2.3) and boot-test:
-   `./circle -d small <port>` — look for SYSERR lines mentioning your
-   spell's id or its tag names.
+   `./circle -d small <port>`. **Read the right log:** boot SYSERR goes to
+   `build/syslog` (append-mode) and `build/log/errlog.txt`, **not** to stdout
+   (stdout only has the startup banner). Truncate `build/syslog` first, boot, then
+   `grep SYSERR build/syslog` — a malformed `<action>` is swallowed-and-logged
+   (the whole action list is dropped) rather than crashing, so syslog is the only
+   place the error appears. Look for `Incorrect value '' in 'talent_actions'`
+   (a required attribute read as empty) and lines mentioning your spell's tags.
 
 ---
 
 ## 16. What this manual does **not** cover (yet)
 
-* **Hand-coded handlers** (`kMagManual` spells, `CastSummon`,
-  `CastCreation`, `CastToAlterObjs` switch cases) — those still live in
-  `spells.cpp` and `magic.cpp`. Migrating them piece by piece into the
-  data-driven system is ongoing work.
+* **Hand-coded handler *bodies*** (`CastSummon`, `CastCreation`,
+  `CastToAlterObjs` switch cases, and the `<manual_cast>` handlers themselves) —
+  those still live in `spells.cpp` and `magic.cpp`. Their *selection and
+  ordering* are now data-driven (§3.8.4), but the logic inside is still code.
+  Migrating it piece by piece into the data-driven system is ongoing work.
 * **Success roll consumption** — `<success_roll>` is parsed and evaluated
   at cast time but is not yet wired into the cast-success decision. The
   classical percent-based `CalcCastSuccess` still gates landing.
