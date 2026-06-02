@@ -1693,13 +1693,16 @@ CharData YamlWorldDataSource::ParseMobFile(const std::string &file_path)
 			int idx = 0;
 			for (const auto &dest_node : enhanced["destinations"])
 			{
-				int room_vnum = dest_node.as<int>();
-				if (idx < static_cast<int>(mob.mob_specials.dest.size()))
+				if (idx >= static_cast<int>(mob.mob_specials.dest.size()))
 				{
-					mob.mob_specials.dest[idx] = room_vnum;
+					break;
 				}
+				mob.mob_specials.dest[idx] = dest_node.as<int>();
 				idx++;
 			}
+			// Без dest_count маршрут не виден ни в stat, ни в спецпроке движения
+			// (как в legacy-парсере boot_data_files.cpp). Issue #3384.
+			mob.mob_specials.dest_count = idx;
 		}
 	}
 
