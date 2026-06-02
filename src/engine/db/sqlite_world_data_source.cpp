@@ -1294,7 +1294,8 @@ void SqliteWorldDataSource::LoadMobs()
 					  "attr_str, attr_dex, attr_int, attr_wis, attr_con, attr_cha, "
 					  "attr_str_add, hp_regen, armour_bonus, mana_regen, cast_success, morale, "
 					  "initiative_add, absorb, aresist, mresist, presist, bare_hand_attack, "
-					  "like_work, max_factor, extra_attack, mob_remort, special_bitvector, role "
+					  "like_work, max_factor, extra_attack, mob_remort, special_bitvector, role, "
+					  "speed "
 					  "FROM mobs WHERE enabled = 1 ORDER BY vnum";
 
 	sqlite3_stmt *stmt;
@@ -1427,6 +1428,12 @@ void SqliteWorldDataSource::LoadMobs()
 			CharData::role_t role(role_str);
 			mob.set_role(role);
 		}
+
+		// Movement speed: -1 == default cadence (the common 3-field legacy
+		// position line). Older DBs without the column read NULL -> -1, the
+		// same default the YAML loader uses (issue #3384 class).
+		mob.mob_specials.speed = (sqlite3_column_type(stmt, 57) == SQLITE_NULL)
+			? -1 : sqlite3_column_int(stmt, 57);
 
 		// Set NPC flag
 
@@ -1842,8 +1849,9 @@ void SqliteWorldDataSource::LoadMobDestinations()
 		if (dest_order >= 0 && dest_order < static_cast<int>(mob.mob_specials.dest.size()))
 		{
 			mob.mob_specials.dest[dest_order] = room_vnum;
-			// Без dest_count маршрут не виден ни в stat, ни в спецпроке движения
-			// (как в legacy-парсере boot_data_files.cpp). Issue #3384.
+			// dest_count drives GET_DEST / the movement-route logic; rows are
+			// ordered by dest_order so this leaves dest_count == number of
+			// destinations, matching the legacy parser (issue #3384).
 			if (dest_order + 1 > mob.mob_specials.dest_count)
 			{
 				mob.mob_specials.dest_count = dest_order + 1;
@@ -1972,6 +1980,9 @@ void SqliteWorldDataSource::LoadObjects()
 
 	// Load object applies
 	LoadObjectApplies();
+
+	// Load object skills (legacy `S` lines, issue #3386)
+	LoadObjectSkills();
 
 	// Load object triggers
 	LoadObjectTriggers();
@@ -2135,6 +2146,36 @@ void SqliteWorldDataSource::LoadObjectApplies()
 	sqlite3_finalize(stmt);
 
 	log("   Loaded %d object applies.", applies_loaded);
+}
+
+void SqliteWorldDataSource::LoadObjectSkills()
+{
+	const char *sql = "SELECT obj_vnum, skill_id, value FROM obj_skills";
+
+	sqlite3_stmt *stmt;
+	if (sqlite3_prepare_v2(m_db, sql, -1, &stmt, nullptr) != SQLITE_OK)
+	{
+		return;
+	}
+
+	int skills_loaded = 0;
+	while (sqlite3_step(stmt) == SQLITE_ROW)
+	{
+		int obj_vnum = sqlite3_column_int(stmt, 0);
+		int skill_id = sqlite3_column_int(stmt, 1);
+		int value = sqlite3_column_int(stmt, 2);
+
+		int rnum = obj_proto.get_rnum(obj_vnum);
+		if (rnum < 0) continue;
+
+		// Mirrors the legacy `S` line handler; without it object skill
+		// bonuses are silently dropped in the SQLite world (issue #3386).
+		obj_proto[rnum]->set_skill(static_cast<ESkill>(skill_id), value);
+		skills_loaded++;
+	}
+	sqlite3_finalize(stmt);
+
+	log("   Loaded %d object skills.", skills_loaded);
 }
 
 void SqliteWorldDataSource::LoadObjectTriggers()
@@ -2805,8 +2846,8 @@ void SqliteWorldDataSource::SaveMobRecord(int mob_vnum, CharData &mob)
 		"attr_str, attr_dex, attr_int, attr_wis, attr_con, attr_cha, "
 		"attr_str_add, hp_regen, armour_bonus, mana_regen, cast_success, morale, "
 		"initiative_add, absorb, aresist, mresist, presist, bare_hand_attack, "
-		"like_work, max_factor, extra_attack, mob_remort, special_bitvector, role, enabled) "
-		"VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)";
+		"like_work, max_factor, extra_attack, mob_remort, special_bitvector, role, speed, enabled) "
+		"VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)";
 
 	if (sqlite3_prepare_v2(m_db, insert_sql, -1, &stmt, nullptr) != SQLITE_OK)
 	{
@@ -2926,6 +2967,9 @@ void SqliteWorldDataSource::SaveMobRecord(int mob_vnum, CharData &mob)
 	{
 		sqlite3_bind_null(stmt, col++);
 	}
+
+	// Movement speed (issue #3384 class)
+	sqlite3_bind_int(stmt, col++, mob.mob_specials.speed);
 
 	int rc = sqlite3_step(stmt);
 	if (rc != SQLITE_DONE)
@@ -3262,6 +3306,20 @@ void SqliteWorldDataSource::SaveObjectRecord(int obj_vnum, CObjectPrototype *obj
 				sqlite3_step(stmt);
 				sqlite3_finalize(stmt);
 			}
+		}
+	}
+
+	// Save object skills (legacy `S` lines, issue #3386)
+	const char *obj_skill_sql = "INSERT OR REPLACE INTO obj_skills (obj_vnum, skill_id, value) VALUES (?, ?, ?)";
+	for (const auto &kv : obj->get_skills())
+	{
+		if (sqlite3_prepare_v2(m_db, obj_skill_sql, -1, &stmt, nullptr) == SQLITE_OK)
+		{
+			sqlite3_bind_int(stmt, 1, obj_vnum);
+			sqlite3_bind_int(stmt, 2, to_underlying(kv.first));
+			sqlite3_bind_int(stmt, 3, kv.second);
+			sqlite3_step(stmt);
+			sqlite3_finalize(stmt);
 		}
 	}
 
