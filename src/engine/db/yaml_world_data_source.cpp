@@ -4330,28 +4330,18 @@ void YamlWorldDataSource::SaveObjects(int zone_rnum, int specific_vnum)
 			yaml.DecreaseIndent();
 		}
 
-		// Skills granted by the object (legacy `S` lines). Without this the
-		// C++ emitter drops them on -S/OLC resave (same class as the SaveMobs
-		// fix); object skill bonuses would vanish on every resave. Mirrors the
-		// converter/loader (issues #3386/#3391).
-		std::vector<std::pair<int, int>> obj_skills;
-		for (const auto &kv : obj->get_skills())
-		{
-			obj_skills.emplace_back(static_cast<int>(kv.first), kv.second);
-		}
-		std::sort(obj_skills.begin(), obj_skills.end());
-
-		if (!obj_skills.empty())
+		// Умения предмета (legacy S-строки), issue #3386.
+		if (obj->has_skills())
 		{
 			yaml.Key("skills");
 			yaml.BeginSequence();
 			yaml.IncreaseIndent();
 
-			for (const auto &kv : obj_skills)
+			for (const auto &[skill_id, value] : obj->get_skills())
 			{
-				out << yaml.GetIndent() << "- skill_id: " << kv.first;
-				out << "  # " << GetSkillNameComment(static_cast<ESkill>(kv.first)) << std::endl;
-				out << yaml.GetIndent() << "  value: " << kv.second << std::endl;
+				out << yaml.GetIndent() << "- skill_id: " << static_cast<int>(skill_id);
+				out << "  # " << GetSkillNameComment(skill_id) << std::endl;
+				out << yaml.GetIndent() << "  value: " << value << std::endl;
 			}
 
 			yaml.DecreaseIndent();

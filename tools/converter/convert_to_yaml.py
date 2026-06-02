@@ -2716,9 +2716,9 @@ def parse_obj_file(filepath):
 
             # Parse extra data (A, E, M, S, T sections)
             obj['applies'] = []
+            obj['skills'] = []
             obj['extra_descs'] = []
             obj['triggers'] = []
-            obj['skills'] = []
 
             while idx < len(lines):
                 line = lines[idx].strip()
@@ -2732,6 +2732,16 @@ def parse_obj_file(filepath):
                             obj['applies'].append({
                                 'location': int(parts[0]),
                                 'modifier': int(parts[1])
+                            })
+                elif line == 'S':
+                    # Skill (умение предмета): "S\n<skill_id> <value>", issue #3386
+                    idx += 1
+                    if idx < len(lines):
+                        parts = lines[idx].split()
+                        if len(parts) >= 2:
+                            obj['skills'].append({
+                                'skill_id': int(parts[0]),
+                                'value': int(parts[1])
                             })
                 elif line == 'E':
                     # Extra description
