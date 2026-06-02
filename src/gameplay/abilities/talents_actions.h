@@ -28,6 +28,7 @@ enum class EAction {
 	kPoints,   // hit / moves / thirst / cond restoration (was kHeal; issue.mag-points)
 	kAffect,
 	kUnaffect,
+	kSummon,   // data-driven summon skeleton (issue.summon-pipeline); IAction-backed
 	kManual,   // hand-coded handler (issue.manual-cast); not an IAction -- backed by manual_handler_
 	kSideSpell // nested cast of another spell (issue.side-spell); not an IAction -- backed by side_spells_
 };
@@ -324,6 +325,23 @@ struct Area : public IAction {
 	void Print(CharData *ch, std::ostringstream &buffer) const override;
 };
 
+// <summon base_fail min_fail handler><mob vnum competence_weight extra keeper from_corpse/></summon>
+// (issue.summon-pipeline): the formalized common 80% of a summon -- the fail roll and the
+// standard competence-scaled stats/affects -- with the spell-specific 20% in a named C++
+// handler. Inert until the summon stage consumes it.
+struct Summon : public IAction {
+	int base_fail{0};               // base % failure chance; C*competence_weight is subtracted
+	int min_fail{0};                // floor for the failure chance
+	std::string handler;            // post-spawn handler name (looked up in the summon handler registry)
+	// the single <mob> spec
+	int mob_vnum{0};                // mob vnum (0 = the handler resolves it, e.g. from a corpse)
+	double competence_weight{0.0};  // weight on C for this mob's fail/stat scaling
+	bool extra{false};              // may summon extra abilities
+	bool keeper{false};             // gets EAffect::kHelper + ESkill::kRescue
+	bool from_corpse{false};        // resolve the mob from a corpse (animate dead / resurrection)
+	void Print(CharData *ch, std::ostringstream &buffer) const override;
+};
+
 // A spell affect described in data (issue #3334): the <affects> talent action.
 // It stores the affect identity (spell)/saving/resist, the duration parameters
 // (one duration for all applies), the affect flags (EAffFlag, common to all
@@ -516,6 +534,7 @@ class Action {
 	[[nodiscard]] bool Contains(EAction action) const;
 	[[nodiscard]] const Damage &GetDmg() const;
 	[[nodiscard]] const Area &GetArea() const;
+	[[nodiscard]] const Summon &GetSummon() const;
 	[[nodiscard]] const Points &GetPoints() const;
 	[[nodiscard]] const TalentAffect &GetAffect() const;
 	[[nodiscard]] const TalentUnaffect &GetUnaffect() const;
@@ -548,6 +567,7 @@ class Actions {
 	static void ParseAction(Action &out, parser_wrapper::DataNode node);
 	static void ParseDamage(Action &out, parser_wrapper::DataNode &node);
 	static void ParseArea(Action &out, parser_wrapper::DataNode &node);
+	static void ParseSummon(Action &out, parser_wrapper::DataNode &node);
 	static void ParsePoints(Action &out, parser_wrapper::DataNode &node);
 	static void ParseAffect(Action &out, parser_wrapper::DataNode &node);
 	static void ParseUnaffect(Action &out, parser_wrapper::DataNode &node);
@@ -588,6 +608,7 @@ class Actions {
 	[[nodiscard]] bool Contains(EAction action) const;
 	[[nodiscard]] const Damage &GetDmg() const;
 	[[nodiscard]] const Area &GetArea() const;
+	[[nodiscard]] const Summon &GetSummon() const;
 	[[nodiscard]] const Points &GetPoints() const;
 	[[nodiscard]] const TalentAffect &GetAffect() const;
 	[[nodiscard]] const TalentUnaffect &GetUnaffect() const;

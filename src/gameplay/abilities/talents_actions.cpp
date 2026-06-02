@@ -394,6 +394,17 @@ void Area::Print(CharData */*ch*/, std::ostringstream &buffer) const {
 		   << " free_targets=" << kColorGrn << free_targets << kColorNrm << "\r\n";
 }
 
+void Summon::Print(CharData */*ch*/, std::ostringstream &buffer) const {
+	buffer << " Summon: base_fail=" << kColorGrn << base_fail << kColorNrm
+		   << " min_fail=" << kColorGrn << min_fail << kColorNrm
+		   << " handler=" << kColorGrn << (handler.empty() ? "-" : handler) << kColorNrm << "\r\n"
+		   << "  Mob: vnum=" << kColorGrn << mob_vnum << kColorNrm
+		   << " competence_weight=" << kColorGrn << competence_weight << kColorNrm
+		   << " extra=" << kColorGrn << (extra ? "Y" : "N") << kColorNrm
+		   << " keeper=" << kColorGrn << (keeper ? "Y" : "N") << kColorNrm
+		   << " from_corpse=" << kColorGrn << (from_corpse ? "Y" : "N") << kColorNrm << "\r\n";
+}
+
 // historical skill-scaled-dice count + an optional secondary-stat nudge.
 // stat_coeff is the cast potency roll's stat coefficient; stat_weight=0 -> exactly the old count.
 int Area::CalcTargetsQuantity(const int skill, const double stat_coeff) const {
@@ -806,6 +817,8 @@ void Actions::ParseAction(Action &out, parser_wrapper::DataNode node) {
 			ParseDamage(out, manifestation);
 		} else if (strcmp(manifestation.GetName(), "area") == 0) {
 			ParseArea(out, manifestation);
+		} else if (strcmp(manifestation.GetName(), "summon") == 0) {
+			ParseSummon(out, manifestation);
 		} else if (strcmp(manifestation.GetName(), "points") == 0) {
 			ParsePoints(out, manifestation);
 		} else if (strcmp(manifestation.GetName(), "affects") == 0) {
@@ -902,6 +915,30 @@ void Actions::ParseArea(Action &out, parser_wrapper::DataNode &node) {
 	out.manifestations_.insert({EAction::kArea, std::move(ptr)});
 }
 
+void Actions::ParseSummon(Action &out, parser_wrapper::DataNode &node) {
+	auto ptr = std::make_shared<Summon>();
+	const char *bf = node.GetValue("base_fail");
+	if (bf && *bf) { ptr->base_fail = parse::ReadAsInt(bf); }
+	const char *mf = node.GetValue("min_fail");
+	if (mf && *mf) { ptr->min_fail = parse::ReadAsInt(mf); }
+	const char *h = node.GetValue("handler");
+	if (h && *h) { ptr->handler = h; }
+	if (node.GoToChild("mob")) {
+		const char *vn = node.GetValue("vnum");
+		if (vn && *vn) { ptr->mob_vnum = parse::ReadAsInt(vn); }
+		const char *cw = node.GetValue("competence_weight");
+		if (cw && *cw) { ptr->competence_weight = parse::ReadAsDouble(cw); }
+		const char *ex = node.GetValue("extra");
+		ptr->extra = (ex && *ex) && parse::ReadAsBool(ex);
+		const char *kp = node.GetValue("keeper");
+		ptr->keeper = (kp && *kp) && parse::ReadAsBool(kp);
+		const char *fc = node.GetValue("from_corpse");
+		ptr->from_corpse = (fc && *fc) && parse::ReadAsBool(fc);
+		node.GoToParent();
+	}
+	out.manifestations_.insert({EAction::kSummon, std::move(ptr)});
+}
+
 void Actions::ParsePoints(Action &out, parser_wrapper::DataNode &node) {
 	out.manifestations_.emplace(EAction::kPoints, std::make_shared<Points>(node));
 }
@@ -993,6 +1030,18 @@ const Damage &Actions::GetDmg() const {
 
 const Area &Actions::GetArea() const {
 	return (list_.empty() ? EmptyAction() : list_.front()).GetArea();
+}
+
+const Summon &Action::GetSummon() const {
+	if (manifestations_.contains(EAction::kSummon)) {
+		return *std::static_pointer_cast<Summon>(manifestations_.find(EAction::kSummon)->second);
+	} else {
+		throw std::runtime_error("Getting summon parameters from action which has no 'summon'.");
+	}
+}
+
+const Summon &Actions::GetSummon() const {
+	return (list_.empty() ? EmptyAction() : list_.front()).GetSummon();
 }
 
 const Points &Actions::GetPoints() const {
