@@ -184,6 +184,15 @@ void AddRoomToAffected(RoomData *room) {
 // progressively more harmful cascade against everyone in the room.
 // Per-tick handler for kThunderstorm room affect. Each duration step triggers a
 // different elemental cascade until the storm fades.
+// Emit a kThunderstorm per-tick line from the kThunderstorm sheaf (kCustomMsgOne..Eight, one per
+// duration phase) to the whole room. Replaces the hardcoded SendMsgToChar/act pairs.
+static void EmitThunderstormMsg(CharData *ch, ESpellMsg key) {
+	const auto &msg = MUD::SpellMessages()[ESpell::kThunderstorm].GetMessage(key);
+	if (!msg.empty()) {
+		act(msg.c_str(), false, ch, nullptr, nullptr, kToRoom | kToChar | kToArenaListen);
+	}
+}
+
 static void HandleThunderstormTick(CharData *ch, const Affect<ERoomApply>::shared_ptr &aff) {
 	switch (aff->duration) {
 	case 7:
@@ -192,46 +201,36 @@ static void HandleThunderstormTick(CharData *ch, const Affect<ERoomApply>::share
 			break;
 		}
 		what_sky = kSkyCloudy;
-		SendMsgToChar("Стремительно налетевшие черные тучи сгустились над вами.\r\n", ch);
-		act("Стремительно налетевшие черные тучи сгустились над вами.\r\n",
-			false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
+		EmitThunderstormMsg(ch, ESpellMsg::kCustomMsgOne);
 		break;
-	case 6: SendMsgToChar("Раздался чудовищный раскат грома!\r\n", ch);
-		act("Раздался чудовищный удар грома!\r\n",
-			false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
+	case 6:
+		EmitThunderstormMsg(ch, ESpellMsg::kCustomMsgTwo);
 		CastAreaInRoom(ch, ESpell::kDeafness, GetRealLevel(ch));
 		break;
-	case 5: SendMsgToChar("Порывы мокрого ледяного ветра обрушились из туч!\r\n", ch);
-		act("Порывы мокрого ледяного ветра обрушились на вас!\r\n",
-			false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
+	case 5:
+		EmitThunderstormMsg(ch, ESpellMsg::kCustomMsgThree);
 		CastAreaInRoom(ch, ESpell::kColdWind, GetRealLevel(ch));
 		break;
-	case 4: SendMsgToChar("Из туч хлынул дождь кислоты!\r\n", ch);
-		act("Из туч хлынул дождь кислоты!\r\n",
-			false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
+	case 4:
+		EmitThunderstormMsg(ch, ESpellMsg::kCustomMsgFour);
 		CastAreaInRoom(ch, ESpell::kAcid, GetRealLevel(ch));
 		break;
-	case 3: SendMsgToChar("Из туч ударили разряды молний!\r\n", ch);
-		act("Из туч ударили разряды молний!\r\n",
-			false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
+	case 3:
+		EmitThunderstormMsg(ch, ESpellMsg::kCustomMsgFive);
 		CastAreaInRoom(ch, ESpell::kLightingBolt, GetRealLevel(ch));
 		break;
-	case 2: SendMsgToChar("Из тучи посыпались шаровые молнии!\r\n", ch);
-		act("Из тучи посыпались шаровые молнии!\r\n",
-			false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
+	case 2:
+		EmitThunderstormMsg(ch, ESpellMsg::kCustomMsgSix);
 		CastAreaInRoom(ch, ESpell::kCallLighting, GetRealLevel(ch));
 		break;
-	case 1: SendMsgToChar("Буря завыла, закручиваясь в вихри!\r\n", ch);
-		act("Буря завыла, закручиваясь в вихри!\r\n",
-			false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
+	case 1:
+		EmitThunderstormMsg(ch, ESpellMsg::kCustomMsgSeven);
 		CastAreaInRoom(ch, ESpell::kWhirlwind, GetRealLevel(ch));
 		break;
-	case 0: 
-	default: 
+	case 0:
+	default:
 		what_sky = kSkyCloudless;
-		SendMsgToChar("Буря начала утихать.\r\n", ch);
-		act("Буря начала утихать.\r\n",
-			false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
+		EmitThunderstormMsg(ch, ESpellMsg::kCustomMsgEight);
 		break;
 	}
 }

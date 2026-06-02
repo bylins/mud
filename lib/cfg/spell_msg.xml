@@ -2235,6 +2235,14 @@
 		<message type="kRoomAffectInvisible" val="&amp;B... туман &amp;Kсмерти&amp;B плывет над вами  ...&amp;n" />
 	</msg_sheaf>
 	<msg_sheaf id="kThunderstorm">
+		<message type="kCustomMsgOne" val="Стремительно налетевшие черные тучи сгустились над вами." />
+		<message type="kCustomMsgTwo" val="Раздался чудовищный раскат грома!" />
+		<message type="kCustomMsgThree" val="Порывы мокрого ледяного ветра обрушились из туч!" />
+		<message type="kCustomMsgFour" val="Из туч хлынул дождь кислоты!" />
+		<message type="kCustomMsgFive" val="Из туч ударили разряды молний!" />
+		<message type="kCustomMsgSix" val="Из тучи посыпались шаровые молнии!" />
+		<message type="kCustomMsgSeven" val="Буря завыла, закручиваясь в вихри!" />
+		<message type="kCustomMsgEight" val="Буря начала утихать." />
 		<message type="kCastPhraseHeathen" val="Абие велий вихрь деяти!" />
 		<message type="kCastPhraseChristian" val="...творит молнии при дожде, изводит ветер из хранилищ Своих." />
 		<message type="kAffExpired" val="Ветер прогнал грозовые тучи." />
