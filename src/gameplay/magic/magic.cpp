@@ -1132,16 +1132,6 @@ EStageResult CastAffect(CastContext &ctx) {
 // kSummonToRoom (по заклинанию), kSummonFail / kSummonNoCorpse и прочие
 // guard-сообщения в ветви kDefault. См. MUD::SpellMessages().
 
-// Per-spell summon parameters produced by PrepareSummonParams. mob_num is the negated VNUM
-// passed to ReadMobile; pfail is the failure-chance percent (0 = never fail); keeper marks
-// the spawned mob as a charm-keeper helper; handle_corpse means the source object is a corpse
-// to be spilled+extracted after a successful spawn.
-struct SummonParams {
-	MobVnum mob_num = 0;
-	int pfail = 0;
-	bool keeper = false;
-	bool handle_corpse = false;
-};
 
 // Pick the necro-mob VNUM to spawn for kAnimateDead, given the source corpse's mob level. The
 // upper tier (>34) is a 50/50 between damager/breather. The caster's own (level + remort + 4)
@@ -1179,69 +1169,6 @@ static MobVnum PickNecroMobForCorpse(CharData *ch, int corpse_mob_level) {
 // when the spell short-circuits with its own diagnostic message (e.g. kAnimateDead/kResurrection
 // when obj isn't a corpse, kResurrection on a corpse missing its mob VNUM, or an unsummonable
 // spell_id reaching the default case).
-static bool PrepareSummonParams(CharData *ch, ObjData *obj, ESpell spell_id, SummonParams &p) {
-	switch (spell_id) {
-		case ESpell::kClone:
-			p.mob_num = kMobDouble;
-			// 50% failure, should be based on something later.
-			p.pfail = 50 - GET_CAST_SUCCESS(ch) - GetRealRemort(ch) * 5;
-			p.keeper = true;
-			return true;
-
-		case ESpell::kSummonKeeper:
-			p.mob_num = kMobKeeper;
-			p.pfail = ch->GetEnemy() ? 50 - GET_CAST_SUCCESS(ch) - GetRealRemort(ch) : 0;
-			p.keeper = true;
-			return true;
-
-		case ESpell::kSummonFirekeeper:
-			p.mob_num = kMobFirekeeper;
-			p.pfail = ch->GetEnemy() ? 50 - GET_CAST_SUCCESS(ch) - GetRealRemort(ch) : 0;
-			p.keeper = true;
-			return true;
-
-		case ESpell::kAnimateDead:
-			if (obj == nullptr || !IS_CORPSE(obj)) {
-				act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kSummonNoCorpse).c_str(),
-					false, ch, nullptr, nullptr, kToChar);
-				return false;
-			}
-			p.mob_num = GET_OBJ_VAL(obj, 2);
-			if (p.mob_num <= 0) {
-				p.mob_num = kMobSkeleton;
-			} else {
-				const int real_mob_num = GetMobRnum(p.mob_num);
-				CharData *tmp_mob = mob_proto + real_mob_num;
-				p.pfail = 10 + tmp_mob->get_con() * 2
-					- number(1, GetRealLevel(ch)) - GET_CAST_SUCCESS(ch) - GetRealRemort(ch) * 5;
-				p.mob_num = PickNecroMobForCorpse(ch, GetRealLevel(tmp_mob));
-			}
-			p.handle_corpse = true;
-			return true;
-
-		case ESpell::kResurrection:
-			if (obj == nullptr || !IS_CORPSE(obj)) {
-				act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kSummonNoCorpse).c_str(),
-					false, ch, nullptr, nullptr, kToChar);
-				return false;
-			}
-			p.mob_num = GET_OBJ_VAL(obj, 2);
-			if (p.mob_num <= 0) {
-				SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kResurrectBadCorpse) + "\r\n", ch);
-				return false;
-			}
-			p.handle_corpse = true;
-			{
-				CharData *tmp_mob = mob_proto + GetMobRnum(p.mob_num);
-				p.pfail = 10 + tmp_mob->get_con() * 2
-					- number(1, GetRealLevel(ch)) - GET_CAST_SUCCESS(ch) - GetRealRemort(ch) * 5;
-			}
-			return true;
-
-		default:
-			return false;
-	}
-}
 
 // Rename a freshly-spawned resurrection mob as "умертвие <его_имя>" across all six grammatical
 // cases. Also clears the long-description, sets neutral gender, marks it kResurrected, and
@@ -1395,10 +1322,6 @@ static void ApplyCloneCosmetics(CharData *ch, CharData *mob) {
 	mob->UnsetFlag(EMobFlag::kMounting);
 }
 
-// Recurse into CastSummon to fill the caster's clone quota: cap is max(1, (level+4)/5 - 2), minus
-// the clones already in the follower list. Returns false (caller must stop) when the quota is
-// already met; the recursive call passes need_fail=0 so subsequent clones don't re-roll failure.
-static bool MaybeSpawnAdditionalClones(int level, CharData *ch, ObjData *obj, ESpell spell_id);
 
 // kAnimateDead post-spawn: kResurrected flag + per-tier rescue grants for the kLoyalAssist /
 // kHauntingSpirit feats; high-wisdom (75+) casters also gift an ice shield. The wis>=65 magic-
@@ -1646,153 +1569,96 @@ EStageResult CastSummonAction(CastContext &ctx) {
 	return EStageResult::kSuccess;
 }
 
-EStageResult CastSummon(CastContext &ctx, bool need_fail) {
+// Corpse-based summon (kAnimateDead / kResurrection), a manual-cast handler: the mob is read from
+// the source corpse and the failure chance is the legacy con/level/cast-success/remort roll (not
+// the C-based <summon> fail), so it does not fit the data-driven skeleton. Reuses the shared
+// FinalizeSummonedMob tail + IsSummonTargetProtected / CheckCharmices / SpillCorpseContents.
+static EStageResult CorpseSummon(CastContext &ctx, bool resurrection) {
 	CharData *const ch = ctx.caster();
 	ObjData *const obj = ctx.ovict;
-	const int level = abs(ctx.level);
 	const ESpell spell_id = ctx.spell_id();
 	if (ch == nullptr) {
 		return EStageResult::kSuccess;
 	}
-	// issue.summon-pipeline: a <summon> action routes to the data-driven skeleton.
-	if (ctx.action_or_default().Contains(talents_actions::EAction::kSummon)) {
-		return CastSummonAction(ctx);
-	}
-	if (spell_id == ESpell::kSumonAngel) {
-		SummonTutelar(ch);
-		return EStageResult::kSuccess;
-	}
-	if (spell_id == ESpell::kMentalShadow) {
-		SpellMentalShadow(ch);
-		return EStageResult::kSuccess;
-	}
-
-	SummonParams p;
-	if (!PrepareSummonParams(ch, obj, spell_id, p)) {
-		return EStageResult::kSuccess;
-	}
-
 	if (AFF_FLAGGED(ch, EAffect::kCharmed)) {
 		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kSummonCharmed) + "\r\n", ch);
 		return EStageResult::kSuccess;
 	}
-	// при перке помощь тьмы гораздо меньше шанс фейла -- kFavorOfDarkness rerolls the fail at
-	// 1/4 (i.e. only 1 in 4 fails actually sticks); without the feat the fail always sticks.
-	if (!ch->IsImmortal() && number(0, 101) < p.pfail && need_fail) {
+	if (obj == nullptr || !IS_CORPSE(obj)) {
+		act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kSummonNoCorpse).c_str(),
+			false, ch, nullptr, nullptr, kToChar);
+		return EStageResult::kSuccess;
+	}
+	MobVnum mob_num = GET_OBJ_VAL(obj, 2);
+	int pfail = 0;
+	if (resurrection) {
+		if (mob_num <= 0) {
+			SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kResurrectBadCorpse) + "\r\n", ch);
+			return EStageResult::kSuccess;
+		}
+		CharData *tmp_mob = mob_proto + GetMobRnum(mob_num);
+		pfail = 10 + tmp_mob->get_con() * 2
+			- number(1, GetRealLevel(ch)) - GET_CAST_SUCCESS(ch) - GetRealRemort(ch) * 5;
+	} else {
+		if (mob_num <= 0) {
+			mob_num = kMobSkeleton;
+		} else {
+			CharData *tmp_mob = mob_proto + GetMobRnum(mob_num);
+			pfail = 10 + tmp_mob->get_con() * 2
+				- number(1, GetRealLevel(ch)) - GET_CAST_SUCCESS(ch) - GetRealRemort(ch) * 5;
+			mob_num = PickNecroMobForCorpse(ch, GetRealLevel(tmp_mob));
+		}
+	}
+	if (!ch->IsImmortal() && number(0, 101) < pfail) {
 		const bool fail_sticks = !CanUseFeat(ch, EFeat::kFavorOfDarkness) || number(0, 3) == 0;
 		if (fail_sticks) {
 			SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kSummonFail) + "\r\n", ch);
-			if (p.handle_corpse) {
-				ExtractObjFromWorld(obj);
-			}
+			ExtractObjFromWorld(obj);
 			return EStageResult::kSuccess;
 		}
 	}
-
-	CharData *mob = ReadMobile(-p.mob_num, kVirtual);
+	CharData *mob = ReadMobile(-mob_num, kVirtual);
 	if (!mob) {
 		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kSummonNoProto) + "\r\n", ch);
 		return EStageResult::kSuccess;
 	}
-
-	if (spell_id == ESpell::kResurrection) {
+	if (resurrection) {
 		RenameAsUndead(ch, mob);
 	}
-
 	if (IsSummonTargetProtected(ch, mob, spell_id)) {
 		return EStageResult::kSuccess;
 	}
-
-	if (spell_id == ESpell::kAnimateDead && p.mob_num >= kMobNecrodamager && p.mob_num <= kLastNecroMob) {
+	if (!resurrection && mob_num >= kMobNecrodamager && mob_num <= kLastNecroMob) {
 		BoostNecroDamage(ch, mob, spell_id);
 	}
-
 	if (!CheckCharmices(ch, mob, spell_id)) {
 		ExtractCharFromWorld(mob, false);
-		if (p.handle_corpse) {
-			ExtractObjFromWorld(obj);
-		}
+		ExtractObjFromWorld(obj);
 		return EStageResult::kSuccess;
 	}
-
-	mob->set_exp(0);
-	IS_CARRYING_W(mob) = 0;
-	IS_CARRYING_N(mob) = 0;
-	mob->set_gold(0);
-	GET_GOLD_NoDs(mob) = 0;
-	GET_GOLD_SiDs(mob) = 0;
-	const auto days_from_full_moon =
-		(weather_info.moon_day < 14) ? (14 - weather_info.moon_day) : (weather_info.moon_day - 14);
-	// familiar duration is a flat number tied to caster wisdom + the moon phase; no skill scaling,
-	// so skill_id=kUndefined. `mob` (the familiar) sets the NPC-raw unit.
-	const auto duration = CalcDuration(ch, mob, ESkill::kUndefined,
-		GetRealWis(ch) + number(0, days_from_full_moon), 0, 0, 0);
-	Affect<EApply> af;
-	af.type = ESpell::kCharm;
-	af.duration = duration;
-	af.modifier = 0;
-	af.location = EApply::kNone;
-	af.affect_type = EAffect::kCharmed;
-	af.battleflag = 0;
-	affect_to_char(mob, af);
-	if (p.keeper) {
-		af.affect_type = EAffect::kHelper;
-		affect_to_char(mob, af);
-		mob->set_skill(ESkill::kRescue, 100);
-	}
-
-	mob->SetFlag(EMobFlag::kCorpse);
-	if (spell_id == ESpell::kClone) {
-		ApplyCloneCosmetics(ch, mob);
-	}
-	act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kSummonToRoom).c_str(),
-		false, ch, nullptr, mob, kToRoom | kToArenaListen);
-
-	PlaceCharToRoom(mob, ch->in_room);
-	ch->add_follower(mob);
-
-	if (spell_id == ESpell::kClone) {
-		// клоны теперь кастятся все вместе // ужасно некрасиво сделано
-		if (!MaybeSpawnAdditionalClones(level, ch, obj, spell_id)) {
-			return EStageResult::kSuccess;
-		}
-	}
-	if (spell_id == ESpell::kAnimateDead) {
-		EnhanceAnimateDead(ch, mob, p.mob_num, spell_id, duration);
-	}
-	if (spell_id == ESpell::kSummonKeeper) {
-		SetupKeeperStats(ch, mob, ctx);
-	}
-	if (spell_id == ESpell::kSummonFirekeeper) {
-		SetupFirekeeperStats(ch, mob, ctx, duration);
+	const int duration = FinalizeSummonedMob(ch, mob, spell_id, false);
+	if (!resurrection) {
+		EnhanceAnimateDead(ch, mob, mob_num, spell_id, duration);
 	}
 	mob->SetFlag(EMobFlag::kNoSkillTrain);
-	if (p.handle_corpse) {
-		SpillCorpseContents(ch, obj);
-	}
-	mob->char_specials.saved.alignment = ch->char_specials.saved.alignment; //выровняем алигмент чтоб не агрили вдруг
+	SpillCorpseContents(ch, obj);
+	mob->char_specials.saved.alignment = ch->char_specials.saved.alignment;
 	return EStageResult::kSuccess;
 }
 
-// Defined after CastSummon (forward-declared above) because it recurses into it.
-static bool MaybeSpawnAdditionalClones(int level, CharData *ch, ObjData *obj, ESpell spell_id) {
-	int already = 0;
-	for (auto *k : ch->followers) {
-		if (AFF_FLAGGED(k, EAffect::kCharmed) && k->get_master() == ch) {
-			++already;
-		}
+static EStageResult SpellAnimateDead(CastContext &ctx) { return CorpseSummon(ctx, false); }
+static EStageResult SpellResurrection(CastContext &ctx) { return CorpseSummon(ctx, true); }
+
+// All summon spells carry a <summon> action (kMagSummons one-shot stage); CastSummonAction runs
+// the shared skeleton and dispatches the per-spell post-spawn handler. The corpse summons
+// (animate/resurrection) and the non-mob summons (angel/mental shadow) are manual-cast handlers.
+EStageResult CastSummon(CastContext &ctx) {
+	if (ctx.caster() == nullptr) {
+		return EStageResult::kSuccess;
 	}
-	const int remaining = std::max(1, (GetRealLevel(ch) + 4) / 5 - 2) - already;
-	if (remaining < 1) {
-		return false;
-	}
-	{
-		CastContext summon_ctx(ch, spell_id, level, {}, {});
-		summon_ctx.ovict = obj;
-		CastSummon(summon_ctx, false);
-	}
-	return true;
+	return CastSummonAction(ctx);
 }
+
 
 // Helpers driving the per-category CastToPoints refactor.
 namespace {
@@ -2792,6 +2658,10 @@ static const std::map<std::string, std::function<EStageResult(CastContext &)>> k
 	{"SpellSummon",         SpellSummon},
 	{"SpellPortal",         SpellPortal},
 	{"SpellRelocate",       SpellRelocate},
+	{"SummonTutelar",       [](CastContext &ctx) { SummonTutelar(ctx.caster()); return EStageResult::kSuccess; }},
+	{"SpellMentalShadow",   [](CastContext &ctx) { SpellMentalShadow(ctx.caster()); return EStageResult::kSuccess; }},
+	{"SpellAnimateDead",    SpellAnimateDead},
+	{"SpellResurrection",   SpellResurrection},
 };
 
 // load-time validation hook (called from SpellInfoBuilder).
@@ -3171,7 +3041,7 @@ ECastResult CastOnTarget(CastContext &ctx, bool is_entry) {
 			return ECastResult::kSuccess;
 		}
 		if (MUD::Spell(spell_id).IsFlagged(kMagSummons)
-				&& CastSummon(ctx, true) == EStageResult::kBreak) {
+				&& CastSummon(ctx) == EStageResult::kBreak) {
 			return ECastResult::kSuccess;
 		}
 		if (MUD::Spell(spell_id).IsFlagged(kMagCreations)

@@ -1250,7 +1250,12 @@ base_stat id - (например "kWis") какой берем параметр,
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="50" min="35" change="3"/>
         <targets val="kTarObjRoom"/>
-        <flags val="kMagSummons"/>
+        <flags val="kMagManual"/>
+        <talent_actions>
+            <action>
+                <manual_cast handler="SpellAnimateDead"/>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kDispelGood" element="kDark" mode="kEnabled">
         <name rus="рассеять свет" eng="dispel good"/>
@@ -2330,7 +2335,12 @@ base_stat id - (например "kWis") какой берем параметр,
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="120" min="100" change="2"/>
         <targets val="kTarObjRoom"/>
-        <flags val="kMagSummons"/>
+        <flags val="kMagManual"/>
+        <talent_actions>
+            <action>
+                <manual_cast handler="SpellResurrection"/>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kMagicShield" element="kLight" mode="kEnabled">
         <name rus="волшебный щит" eng="magic shield"/>
@@ -4196,7 +4206,12 @@ base_stat id - (например "kWis") какой берем параметр,
         <misc pos="kStand" violent="N" danger="1"/>
         <mana max="150" min="130" change="5"/>
         <targets val="kTarIgnore"/>
-        <flags val="kMagSummons"/>
+        <flags val="kMagManual"/>
+        <talent_actions>
+            <action>
+                <manual_cast handler="SummonTutelar"/>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kMassFear" element="kDark" mode="kEnabled">
         <name rus="массовый страх" eng="mass fear"/>
@@ -5499,7 +5514,12 @@ base_stat id - (например "kWis") какой берем параметр,
         <misc pos="kStand" violent="N" danger="1"/>
         <mana max="150" min="130" change="5"/>
         <targets val="kTarIgnore"/>
-        <flags val="kMagSummons"/>
+        <flags val="kMagManual"/>
+        <talent_actions>
+            <action>
+                <manual_cast handler="SpellMentalShadow"/>
+            </action>
+        </talent_actions>
     </spell>
     <spell id="kBlackTentacles" element="kDark" mode="kEnabled">
         <name rus="навьи руки" eng="evards black tentacles"/>

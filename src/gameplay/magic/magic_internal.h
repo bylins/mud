@@ -47,7 +47,7 @@ EStageResult CastUnaffects(CastContext &ctx);
 EStageResult CastToPoints(CastContext &ctx);
 EStageResult CastToAlterObjs(CastContext &ctx);
 EStageResult CastCreation(CastContext &ctx);
-EStageResult CastSummon(CastContext &ctx, bool need_fail);
+EStageResult CastSummon(CastContext &ctx);
 EStageResult CastManual(CastContext &ctx);
 
 // Material-component check + class anti-saving modifier: only used inside the module.
