@@ -428,10 +428,10 @@ static int CalcTotalSpellDmg(CharData *ch, CharData *victim, ESpell spell_id,
 			// the roll's dice and competencies (skill+stat); an absent <amount> defaults to min 0
 			// and both weights 1.0.
 			const auto &dmg_act = action.GetDmg();
-			// Option-2 subquadratic (issue.potency-formula): skill/stat scales the dice
+			// Option-2 subquadratic: skill/stat scales the dice
 			// multiplicatively (alpha) plus a flat additive term (beta). alpha=0 -> old
 			// Formula A. C = skill_coeff + stat_coeff.
-			const float C = static_cast<float>(competence);  // issue.cast-chain: base override
+			const float C = static_cast<float>(competence);  // base override
 			dmg = dmg_act.GetAmountMin() + std::ceil(
 					base_dmg * dmg_act.GetAmountDicesWeight() * (1.0f + dmg_act.GetAmountAlpha() * C)
 					+ dmg_act.GetAmountBeta() * C);
@@ -611,7 +611,7 @@ EStageResult CastDamage(CastContext &ctx) {
 
 	try {
 		total_dmg = static_cast<int>(CalcTotalSpellDmg(ch, victim, spell_id, ctx.action_or_default(),
-													   ctx.CompetenceBase()) * ctx.area_coeff);  // issue.area-cast falloff
+													   ctx.CompetenceBase()) * ctx.area_coeff);
 	} catch (std::exception &e) {
 		err_log("%s", e.what());
 	}
@@ -626,7 +626,7 @@ EStageResult CastDamage(CastContext &ctx) {
 			const int hp_before = victim->get_hit();
 			rand = LandOneDamageHit(ch, victim, spell_id, total_dmg,
 									ch_start_pos, victim_start_pos, count);
-			// issue.cast-chain: accumulate the ACTUAL HP removed this hit (post-resist/save, capped
+			// accumulate the ACTUAL HP removed this hit (post-resist/save, capped
 			// at the target's HP) so a chained action scales off real damage. On death the victim is
 			// extracted -> count the HP it had; otherwise the HP it actually lost.
 			ctx.damage_count += (rand < 0) ? std::max(0, hp_before)
@@ -951,7 +951,7 @@ static bool TryApplyAffectTalent(CharData *ch, CharData *victim, ESpell spell_id
 		taf.battleflag = flags;
 		taf.caster_id = ch->get_uid();
 		// Stored potency is the cast potency scaled by the <affects potency_weight=>
-		// attribute (issue.affects-potency-weight; default 1.0 = no change). Lets
+		// attribute (default 1.0 = no change). Lets
 		// big-modifier spells stay dispellable by recording a deliberately weaker
 		// potency than the raw roll would suggest.
 		taf.potency = cast_potency * talent.GetPotencyWeight() * static_cast<float>(area_coeff);
@@ -1072,7 +1072,7 @@ EStageResult CastAffect(CastContext &ctx) {
 
 	// A violent spell can never touch an immortal target: there is nothing to build or
 	// roll, so stop here. This subsumes the per-case victim->IsImmortal() guards.
-	// (issue.ambiguous-spells) An A spell resolves against the immortal: a mortal casting
+	// An A spell resolves against the immortal: a mortal casting
 	// kDispellMagic on an immortal outsider is aggressive -> blocked; on a grouped
 	// immortal -> non-violent path, no block here.
 	if (victim->IsImmortal() && MUD::Spell(spell_id).IsViolentAgainst(ch, victim)) {
@@ -1094,7 +1094,7 @@ EStageResult CastAffect(CastContext &ctx) {
 	// debuff, so a later dispel can be gated by strength (see CastUnaffects/DispelSucceeds).
 	// CalcCastPotency lives in magic_utils so CallMagicToRoom records the same scalar for its
 	// room affects; the debuff flag follows the per-target relationship for ambiguous spells
-	// (issue.ambiguous-spells), since the dispel rules read this bit later.
+	// since the dispel rules read this bit later.
 	const float cast_potency = CalcCastPotency(potency);
 	const bool cast_debuff = MUD::Spell(spell_id).IsViolentAgainst(ch, victim);
 
@@ -1111,7 +1111,7 @@ EStageResult CastAffect(CastContext &ctx) {
 	if (success) {
 		EmitImpositionEffects(ch, victim, spell_id, potency, ctx.action_or_default());
 		if (has_affect_talent) {
-			// issue.cast-chain: accumulate the applied affect's potency (its stored strength =
+			// accumulate the applied affect's potency (its stored strength =
 			// cast_potency * <affects potency_weight>), matching what a dispel later reads.
 			ctx.affects_potency += cast_potency * ctx.action_or_default().GetAffect().GetPotencyWeight();
 		}
@@ -1657,7 +1657,7 @@ struct PointsCategory {
 // non-heal categories default to 0 (no NPC boost).
 auto MakeAmountCalculator(const CharData *ch, double dice, double competencies, double bonus_mod) {
 	return [ch, dice, competencies, bonus_mod](const talents_actions::Points::Amount &a) -> int {
-		// Option-2 subquadratic (issue.potency-formula): dice scaled multiplicatively by
+		// Option-2 subquadratic: dice scaled multiplicatively by
 		// skill/stat (alpha) plus an additive term (beta). alpha=0 -> old Formula A.
 		int v = static_cast<int>(a.min + std::ceil(
 						dice * a.dices_weight * (1.0 + a.alpha * competencies)
@@ -1787,7 +1787,7 @@ EStageResult CastToPoints(CastContext &ctx) {
 	// category), so heal and moves restored on the same cast scale together
 	// with the same skill check.
 	const double dice = potency_roll.RollSkillDices();
-	const double competencies = ctx.CompetenceBase();  // issue.cast-chain: base override
+	const double competencies = ctx.CompetenceBase();  // base override
 	const double bonus_mod = ch->add_abils.percent_spellpower_add / 100.0;
 	auto calc_amount = MakeAmountCalculator(ch, dice, competencies, bonus_mod);
 
@@ -1806,7 +1806,7 @@ EStageResult CastToPoints(CastContext &ctx) {
 	for (size_t i = 0; i < std::size(categories); ++i) {
 		const auto &c = categories[i];
 		if (!c.amount.present) continue;
-		int amt = static_cast<int>(calc_amount(c.amount) * ctx.area_coeff);  // issue.area-cast
+		int amt = static_cast<int>(calc_amount(c.amount) * ctx.area_coeff);
 		// Legacy spell-modifier hook only ever applied to heal; keep that
 		// scoped to the heal slot so /gear effects don't suddenly scale moves.
 		if (c.cat == points_intensity::ECategory::kHeal) {
@@ -1863,7 +1863,7 @@ EStageResult CastToPoints(CastContext &ctx) {
 		EmitPointsMessage(victim, points_sheaf, c.msg_key, c.cat, percent);
 	}
 
-	// issue.cast-chain: accumulate the (computed) points restored across all categories.
+	// accumulate the (computed) points restored across all categories.
 	for (size_t i = 0; i < std::size(categories); ++i) {
 		ctx.points_count += amounts[i];
 	}
@@ -2009,7 +2009,7 @@ void ReduceStackOrRemove(CharData *victim, ESpell spell) {
 // the REMOVED affect's spell with kDefault fallback, so the per-affect sheaf's bespoke flavor
 // fires when authored (kBlindness, kPoison, kCurse, ...) and the kDefault generic
 // (kAffDispelledTo{Char,Room}) fires for every other affect -- no more silent stripping of
-// common buffs (issue.dispel-default-msg).
+// common buffs.
 void RemoveAffectAndAnnounce(CharData *ch, CharData *victim, ESpell removed) {
 	ReduceStackOrRemove(victim, removed);
 	const auto &to_vict = MUD::SpellMessages().GetMessage(removed, ESpellMsg::kAffDispelledToChar);
@@ -2057,7 +2057,7 @@ bool DispelSucceeds(CharData *ch, CharData *victim, ESpell dispel_spell, ESpell 
 		SendMsgToChar(dbuf, ch);
 	};
 	// Case 3: a non-violent (per-target) dispel removing a buff needs no check.
-	// (issue.ambiguous-spells) For an A dispel, the question is whether THIS cast on THIS
+	// For an A dispel, the question is whether THIS cast on THIS
 	// victim is aggressive: dispel from an ally hand on an ally buff -> no contest;
 	// dispel from an enemy hand -> potency contest as for any violent dispel.
 	if (!MUD::Spell(dispel_spell).IsViolentAgainst(ch, victim) && !affect_is_debuff) {
@@ -2071,8 +2071,8 @@ bool DispelSucceeds(CharData *ch, CharData *victim, ESpell dispel_spell, ESpell 
 	}
 	const auto &roll = MUD::Spell(dispel_spell).GetPotencyRoll();
 	const float spell_potency = static_cast<float>(
-			roll.RollSkillDices() + competence)  // issue.cast-chain: competence base override
-			* potency_weight * static_cast<float>(area_coeff);  // issue.area-cast
+			roll.RollSkillDices() + competence)  // competence base override
+			* potency_weight * static_cast<float>(area_coeff);
 	const bool ok = spell_potency > affect_potency;
 	if (show_debug) emit_debug(spell_potency, "roll", ok);
 	return ok;
@@ -2210,8 +2210,8 @@ bool DispelSucceeds(CharData *ch, RoomData *room, ESpell dispel_spell, ESpell af
 	}
 	const auto &roll = MUD::Spell(dispel_spell).GetPotencyRoll();
 	const float spell_potency = static_cast<float>(
-			roll.RollSkillDices() + competence)  // issue.cast-chain: competence base override
-			* potency_weight * static_cast<float>(area_coeff);  // issue.area-cast
+			roll.RollSkillDices() + competence)  // competence base override
+			* potency_weight * static_cast<float>(area_coeff);
 	const bool ok = spell_potency > affect_potency;
 	if (show_debug) emit_debug(spell_potency, "roll", ok);
 	return ok;
@@ -2257,7 +2257,7 @@ EStageResult RunCastUnaffects(CharData *ch, TTarget *target, ESpell spell_id,
 		bool resisted_any = false;
 		for (const auto &cand : to_remove) {
 			if (DispelSucceeds(ch, target, spell_id, cand.spell, unaffect.GetPotencyWeight(), competence, area_coeff)) {
-				// issue.cast-chain: capture the removed affect's potency BEFORE it is stripped.
+				// capture the removed affect's potency BEFORE it is stripped.
 				double removed_pot = 0.0;
 				for (const auto &aff : target->affected) {
 					if (aff && aff->type == cand.spell) { removed_pot = aff->potency; break; }
@@ -2315,7 +2315,7 @@ EStageResult CastUnaffects(CastContext &ctx) {
 	const EStageResult r = (victim != nullptr)
 			? RunCastUnaffects(ch, victim, spell_id, unaffect, ctx.area_coeff, removed, ctx.CompetenceBase())
 			: RunCastUnaffects(ch, room, spell_id, unaffect, ctx.area_coeff, removed, ctx.CompetenceBase());
-	ctx.dispelled_potency += removed;  // issue.cast-chain
+	ctx.dispelled_potency += removed;
 	return r;
 }
 
@@ -2617,7 +2617,7 @@ EStageResult CastCreation(CastContext &ctx) {
 
 // Dispatch for spells whose effect is a hand-coded handler in spells.cpp (the kMagManual flag).
 // Some handlers take only (caster, cvict) and ignore the unused `level` / `ovict` arguments.
-// issue.manual-cast: name -> hand-coded handler. The <manual_cast><handler val="..."/> on an
+// name -> hand-coded handler. The <manual_cast><handler val="..."/> on an
 // action selects one by name (which matches the function name), replacing the old spell_id
 // switch. std::function so future Lua/closure handlers can register the same way.
 static const std::map<std::string, std::function<EStageResult(CastContext &)>> kManualHandlers = {
@@ -2639,7 +2639,7 @@ static const std::map<std::string, std::function<EStageResult(CastContext &)>> k
 	{"SpellRelocate",       SpellRelocate},
 };
 
-// issue.manual-cast: load-time validation hook (called from SpellInfoBuilder).
+// load-time validation hook (called from SpellInfoBuilder).
 bool IsManualHandlerRegistered(const std::string &name) {
 	return kManualHandlers.count(name) > 0;
 }
@@ -2698,7 +2698,7 @@ void ReactToCast(CharData *victim, CharData *caster, ESpell spell_id) {
 	if (caster == victim)
 		return;
 
-	// (issue.ambiguous-spells) An NPC reacts to a cast only when it's actually aggressive
+	// An NPC reacts to a cast only when it's actually aggressive
 	// against the NPC itself -- A spells from allies (PC's pet on its master, mob-to-mob)
 	// fall through silently.
 	if (!CheckMobList(victim) || !MUD::Spell(spell_id).IsViolentAgainst(caster, victim))
@@ -2787,7 +2787,7 @@ static bool TargetMeetsRequired(CharData *victim, const talents_actions::FlagCon
 	return true;
 }
 
-// Spell-level caster gate (issue.spell-unification). Reuses the victim-side helpers on the
+// Spell-level caster gate. Reuses the victim-side helpers on the
 // CASTER: a <caster_conditions><blocking> flag/affect/align blocks the cast, and every
 // <caster_conditions><required> axis must be satisfied. Empty conditions never block.
 bool CasterBlocked(CharData *caster, const talents_actions::CasterConditions &cc) {
@@ -2853,7 +2853,7 @@ const talents_actions::Action &CastContext::action_or_default() const {
 	return a ? *a : MUD::Spell(spell_id_).actions.primary();
 }
 
-// --- CastContext action cursor (issue.spell-pipeline multi-action) ---
+// --- CastContext action cursor (multi-action) ---
 // Defined here (not the header) so it can reach MUD::Spell for the action list.
 // A spell with NO <action> blocks (flag-only spells: kDazzle/kCombatLuck/...,
 // plus the summon/creation/manual stages) still has flagged stages that run their
@@ -2882,7 +2882,7 @@ bool CastContext::HasPendingActions() const {
 	return action_idx_ < std::max<size_t>(1, count);
 }
 
-// issue.side-spell: cast each of the action's <side_spell> spells as a full nested pipeline on
+// cast each of the action's <side_spell> spells as a full nested pipeline on
 // the current target. Each side cast gets its OWN rolls (its potency/success, possibly a
 // different base_skill) and a fresh context, so its damage/affect accumulators and reactions
 // are isolated. Loop guard (option 5): a spell already in ctx.casting (this chain) is refused.
@@ -2911,7 +2911,7 @@ EStageResult CastSideSpell(CastContext &ctx) {
 	return result;
 }
 
-// Per-(action, target) pipeline (issue.area-cast per-action targets). Runs the cast gates and
+// Per-(action, target) pipeline (per-action targets). Runs the cast gates and
 // the CURRENT action's data-driven stages on ctx.cvict. `is_entry` (the spell's first action)
 // additionally runs the whole-cast steps -- reflection, god guard, mtrigger, the one-shot
 // stages (alter-objs / summon / creation / manual) and ReactToCast -- which belong to the
@@ -2921,8 +2921,8 @@ ECastResult CastOnTarget(CastContext &ctx, bool is_entry) {
 	CharData *cvict = ctx.cvict;
 	const ESpell spell_id = ctx.spell_id();
 	const auto &action = ctx.action_or_default();
-	ctx.is_entry_action = is_entry;  // issue.cast-chain: stages read this via ctx.CompetenceBase()
-	// Dead-target guard (issue.area-cast): a later action may aim at someone an earlier action
+	ctx.is_entry_action = is_entry;  // stages read this via ctx.CompetenceBase()
+	// Dead-target guard: a later action may aim at someone an earlier action
 	// already killed; never run stages on a corpse -- skip it, the cast continues for the rest.
 	if (cvict && cvict->purged()) {
 		return ECastResult::kSuccess;
@@ -2981,10 +2981,10 @@ ECastResult CastOnTarget(CastContext &ctx, bool is_entry) {
 										: action.Contains(talents_actions::EAction::kAffect);
 	const bool run_points    = is_entry ? MUD::Spell(spell_id).IsFlagged(kMagPoints)
 										: action.Contains(talents_actions::EAction::kPoints);
-	// issue.manual-cast: the manual stage runs whenever the action names a handler (entry or not).
+	// the manual stage runs whenever the action names a handler (entry or not).
 	const bool run_manual    = is_entry ? MUD::Spell(spell_id).IsFlagged(kMagManual)
 										: action.Contains(talents_actions::EAction::kManual);
-	// issue.side-spell: runs whenever the action carries a <side_spell> (entry or not, no flag).
+	// runs whenever the action carries a <side_spell> (entry or not, no flag).
 	const bool run_side      = action.Contains(talents_actions::EAction::kSideSpell);
 	bool target_died = false;
 	bool stop_stages = false;
@@ -3004,7 +3004,7 @@ ECastResult CastOnTarget(CastContext &ctx, bool is_entry) {
 		stop_stages = true;
 	}
 	if (run_side && !stop_stages) {
-		CastSideSpell(ctx);  // issue.side-spell: nested cast(s) on the current target; fire-and-forget
+		CastSideSpell(ctx);  // nested cast(s) on the current target; fire-and-forget
 	}
 	if (run_manual && !stop_stages && CastManual(ctx) != EStageResult::kSuccess) {
 		stop_stages = true;
@@ -3024,7 +3024,7 @@ ECastResult CastOnTarget(CastContext &ctx, bool is_entry) {
 			return ECastResult::kSuccess;
 		}
 	}
-	// Record this target for the deferred end-of-cast reaction (issue.area-cast). Reaching here
+	// Record this target for the deferred end-of-cast reaction. Reaching here
 	// means the cast landed on a LIVE `cvict` (not refused, not killed), so the target should
 	// retaliate -- but only after ALL the spell's actions have run (fired in CastSpell).
 	if (cvict && !target_died
@@ -3052,7 +3052,7 @@ void TrySendCastMessages(CharData *ch, CharData *victim, RoomData *room, ESpell 
 	}
 };
 
-// issue.area-cast: build the ordered target list for an area/group cast. kFoes -> every
+// build the ordered target list for an area/group cast. kFoes -> every
 // foe in the caster's room (priority target first); kFriends -> the caster's group with the
 // caster moved LAST (so a group recall does not whisk the caster off before the others).
 static std::vector<CharData *> BuildCastRoster(CharData *caster, CharData *victim,
@@ -3135,7 +3135,7 @@ static ECastResult RunActionOverTargets(CastContext &ctx, const std::vector<Char
 	return ECastResult::kSuccess;
 }
 
-// issue.area-cast: the ECastTargets scope implied by a per-action target selector -- decides
+// the ECastTargets scope implied by a per-action target selector -- decides
 // single-target vs roster/distribution handling. kTarSame inherits the previous action's scope.
 static ECastTargets ActionTargetScope(talents_actions::EActionTarget sel, ECastTargets prev_scope) {
 	switch (sel) {
@@ -3147,7 +3147,7 @@ static ECastTargets ActionTargetScope(talents_actions::EActionTarget sel, ECastT
 	}
 }
 
-// issue.area-cast: resolve a NON-first action's target list from its <action target=...> selector.
+// resolve a NON-first action's target list from its <action target=...> selector.
 static std::vector<CharData *> ResolveActionTargets(CastContext &ctx,
 		talents_actions::EActionTarget sel, const std::vector<CharData *> &prev) {
 	CharData *caster = ctx.caster();
@@ -3190,7 +3190,7 @@ static std::vector<CharData *> ResolveActionTargets(CastContext &ctx,
 	return {};
 }
 
-// Main cast entry (issue.area-cast per-action targets; was CastToTargets / CastToSingleTarget):
+// Main cast entry:
 // walks the spell's <action> list and runs each action over its own target list. Action[0] (the
 // entry) targets the spell's scope (kSingle / kFoes / kFriends); later actions reuse the
 // previous list (the kTarSame default until per-action <target> resolving lands). Entry-only
@@ -3231,7 +3231,7 @@ ECastResult CastSpell(CastContext &ctx, ECastTargets scope) {
 			if (caster->purged()) {
 				return ECastResult::kSuccess;
 			}
-			// issue.cast-chain: a non-first action with reset zeroes the accumulator it read
+			// a non-first action with reset zeroes the accumulator it read
 			// (its base=), so a later action starts fresh. Meaningless for the entry action.
 			if (!is_entry && ctx.action_or_default().GetReset()) {
 				switch (ctx.action_or_default().GetBase()) {
@@ -3250,7 +3250,7 @@ ECastResult CastSpell(CastContext &ctx, ECastTargets scope) {
 		err_log("%s", e.what());
 	}
 	// The whole cast is one event: fire the target/environment reactions now, after every action
-	// has completed (issue.area-cast). Skip if the caster is gone; skip targets that died during
+	// has completed. Skip if the caster is gone; skip targets that died during
 	// the cast; a reaction that kills the caster stops the rest.
 	if (!caster->purged()) {
 		for (CharData *target : ctx.reactions) {
@@ -3266,7 +3266,7 @@ ECastResult CastSpell(CastContext &ctx, ECastTargets scope) {
 	return result;
 }
 
-// issue.area-cast: cast `spell_id` as an area attack on every foe in the caster's room,
+// cast `spell_id` as an area attack on every foe in the caster's room,
 // regardless of the spell's own targeting flags. Used by the room-affect ticks (deadly fog /
 // thunderstorm). Replaces the old direct CallMagicToArea callers.
 ECastResult CastAreaInRoom(CharData *ch, ESpell spell_id, int level) {

@@ -41,7 +41,7 @@ extern int what_sky;
 
 int MagusCastRequiredLevel(const CharData *ch, ESpell spell_id) {
 	int required_level;
-	// (issue.runes-migrate) Read from the new rune_spells registry.
+	// Read from the new rune_spells registry.
 	const auto &runes = MUD::RuneSpells();
 	if (auto it = runes.find(spell_id); it != runes.end()) {
 		required_level = it->second.min_caster_level;
@@ -78,7 +78,7 @@ static bool IsCasterVerbal(CharData *ch) {
 // Caster-side "Вы произнесли заклинание ..." / "Вы выкрикнули ..." banner.
 // The kCastIncantToChar sheaf carries the line; {color}/{name}/{nrm}
 // placeholders are filled in with bold-red / bold-green by IsViolentAgainst
-// (issue.ambiguous-spells), or bold-yellow for an ambiguous spell whose
+// or bold-yellow for an ambiguous spell whose
 // target wasn't resolved (e.g. an area cast where the banner can't pick a side).
 static void EmitCastIncantBanner(CharData *ch, ESpell spell_id, const CharData *tch) {
 	std::string incant = MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kCastIncantToChar);
@@ -347,10 +347,10 @@ float CalcCastPotency(const RollResult &potency) {
 
 int ComputeApplyModifier(const talents_actions::TalentAffect::Apply &apply, double competence,
 						 const RollResult &potency) {
-	// issue.cast-chain: `competence` replaces the caster's skill+stat for chained actions
+	// `competence` replaces the caster's skill+stat for chained actions
 	// (it equals skill+stat for the entry action / base==kCompetence). potency.dices stays.
 	const double competencies = competence;
-	// Option-2 subquadratic (issue.potency-formula): dice amplified by skill/stat (alpha)
+	// Option-2 subquadratic: dice amplified by skill/stat (alpha)
 	// plus an additive term (beta). alpha=0 -> old Formula A.
 	double raw = apply.min + std::ceil(
 			potency.dices * apply.dices_weight * (1.0 + apply.alpha * competencies)
@@ -462,7 +462,7 @@ CastContext BuildCastContext(CharData *caster, ESpell spell_id, int level) {
 						  roll.CalcBaseStatCoeff(caster), roll.CalcLowSkillCoeff(caster)};
 	};
 	CastContext ctx(caster, spell_id, level, eval(spell.GetSuccessRoll()), eval(spell.GetPotencyRoll()));
-	ctx.casting.insert(spell_id);  // issue.side-spell: seed the cast-chain loop guard
+	ctx.casting.insert(spell_id);  // seed the cast-chain loop guard
 	return ctx;
 }
 
@@ -476,7 +476,7 @@ ECastResult CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomDat
 	// Data-driven room block: any spell whose XML
 	// <talent_actions><action><blocking><room_flags val="..."/></blocking></action>
 	// matches the caster's room fizzles here, AND any spell carrying <components><weave/>
-	// fizzles in a kNoMagic room (issue.weave-component -- weave is the single source of
+	// fizzles in a kNoMagic room (weave is the single source of
 	// truth for "is this magic", replacing the data-driven kNoMagic blocking that used
 	// to be duplicated across 228 spells). MayCastInForbiddenRoom() is the per-caster
 	// bypass (greater gods, uncharmed NPCs). The fizzle messages live in spell_msg.xml --
@@ -519,7 +519,7 @@ ECastResult CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomDat
 		return ECastResult::kNotCast;
 	}
 
-	// Spell-level caster gate (issue.spell-unification): a spell is castable by the caster
+	// Spell-level caster gate: a spell is castable by the caster
 	// or not, so this is checked ONCE here -- before per-target dispatch -- not per target.
 	// e.g. kDispelEvil carries <caster_conditions><blocking><align val="kEvil"/></blocking>
 	// so an evil caster simply can't fire it. Always emits kNoeffect to the one caster.
@@ -773,7 +773,7 @@ ECastResult CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troo
 		return ECastResult::kNotCast;
 	}
 
-	// Material-component gate (issue.area-cast): a spoken cast consumes its material component(s)
+	// Material-component gate: a spoken cast consumes its material component(s)
 	// here, at launch -- alongside the verbal gate -- NOT inside CastAffect. CastAffect also runs
 	// for casts from equipment / scrolls / procs (which reach CallMagic directly, bypassing this
 	// function) and those must not require components. A missing component refuses the cast.
@@ -810,7 +810,7 @@ ECastResult CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troo
 			MUD::Spell(spell_id).IsFlagged(kMagMasses) ||
 			MUD::Spell(spell_id).IsFlagged(kMagGroups);
 		if (ignore) { // индивидуальная цель
-			// (issue.ambiguous-spells) Peaceful blocks anything that *could* be aggressive,
+			// Peaceful blocks anything that *could* be aggressive,
 			// including kAmbiguous, because mass/area/no-target casts have no single victim
 			// to resolve the relationship against -- the conservative read is "this might
 			// hit an outsider".
@@ -885,7 +885,7 @@ int CalcCastSuccess(CharData *ch, CharData *victim, ESaving saving, ESpell spell
 	}
 
 	prob = CalcComplexSpellMod(ch, spell_id, GAPPLY_SPELL_SUCCESS, prob);
-	// God-flag prob modifiers (issue.ambiguous-spells): the violent vs helpful question
+	// God-flag prob modifiers: the violent vs helpful question
 	// is per-target, so victim's relationship to the caster picks the side for an A spell.
 	const bool aggressive_cast = victim && MUD::Spell(spell_id).IsViolentAgainst(ch, victim);
 	if (GET_GOD_FLAG(ch, EGf::kGodscurse) ||

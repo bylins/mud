@@ -102,7 +102,7 @@ int CalcMinSpellLvl(const CharData *ch, ESpell spell_id) {
 int CalcMinRuneSpellLvl(const CharData *ch, ESpell spell_id) {
 	int min_lvl;
 
-	// (issue.runes-migrate) Read from the new rune_spells registry.
+	// Read from the new rune_spells registry.
 	const auto &runes = MUD::RuneSpells();
 	if (auto it = runes.find(spell_id); it != runes.end()) {
 		min_lvl = it->second.min_caster_level - GetRealRemort(ch) / MUD::Class(ch->GetClass()).GetSpellLvlDecrement();

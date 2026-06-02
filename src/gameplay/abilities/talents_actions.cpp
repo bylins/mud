@@ -1,7 +1,7 @@
 #include "talents_actions.h"
 
 #include "engine/ui/color.h"
-#include "engine/core/handler.h"  // EFind (issue.spellcomponents)
+#include "engine/core/handler.h"  // EFind
 #include "engine/entities/char_data.h"
 #include "gameplay/magic/spells_constants.h"
 #include "fmt/format.h"
@@ -123,7 +123,7 @@ double Roll::CalcBaseStatCoeff(const CharData *const ch) const {
 
 Roll::Roll(parser_wrapper::DataNode &node) {
 	if (node.GoToChild("dices")) {
-		// issue.dicerolls: no clamp-to-1. ndice=0 or sdice=0 means "no dice rolled", so
+		// no clamp-to-1. ndice=0 or sdice=0 means "no dice rolled", so
 		// <dices ndice="0" sdice="0" adice="N"/> reliably returns N. The previous std::max(1, ...)
 		// silently added one to every all-zero spec, which violated the principle of least
 		// surprise. RollDices(0, *) and RollDices(*, 0) already short-circuit to 0, so the
@@ -163,7 +163,7 @@ const std::map<std::string, EFind> kComponentWhereByName{
 static constexpr Bitvector kDefaultComponentWhere =
 		EFind::kObjEquip | EFind::kObjInventory | EFind::kObjRoom;
 
-// Parses a <components>...</components> spell-level block (issue.spellcomponents).
+// Parses a <components>...</components> spell-level block.
 // Each <material> child becomes one Material entry. Attribute defaults:
 //   any_of / all_of: empty (parser warns -- material can never be satisfied).
 //   where: kObjEquip|kObjInventory|kObjRoom.
@@ -181,7 +181,7 @@ Components::Components(parser_wrapper::DataNode &node) {
 			has_verbal_ = true;
 			continue;
 		}
-		// <weave/>: presence-only marker -- no attributes today (issue.weave-component).
+		// <weave/>: presence-only marker -- no attributes today.
 		// Spells with this child are "actual magic" and cannot be cast in a kNoMagic
 		// room. The CallMagic-side gate (magic_utils.cpp) consults HasWeave() and
 		// emits the same kCastForbidden* narration the legacy data-driven blocking
@@ -224,7 +224,7 @@ Components::Components(parser_wrapper::DataNode &node) {
 		// cost: optional, default 1 (single-charge consumption, matching the
 		// legacy dec_val(2) behaviour). 0 = presence-only focus; -1 = consumed
 		// whole in one cast. Parsed via ReadAsInt -- any other integer is a
-		// charge cost. (issue.spellcomponents.)
+		// charge cost.
 		const char *cost = child.GetValue("cost");
 		if (cost && *cost) {
 			mat.cost = parse::ReadAsInt(cost);
@@ -308,7 +308,7 @@ Damage::Damage(parser_wrapper::DataNode &node) {
 		amount_beta_ = (ab && *ab) ? parse::ReadAsDouble(ab) : 1.0;
 		node.GoToParent();
 	}
-	// <hits> is optional (issue.extra-hits); absent -> the spell deals one hit. Individual attrs
+	// <hits> is optional; absent -> the spell deals one hit. Individual attrs
 	// also fall back to their member defaults (skill_divisor=25, max=1, prob=20).
 	if (node.GoToChild("hits")) {
 		has_hits_ = true;
@@ -324,7 +324,7 @@ Damage::Damage(parser_wrapper::DataNode &node) {
 
 // Parse one child amount tag (heal/moves/thirst/cond) into `a`. The shared
 // schema is (min, dices_weight, alpha, beta); npc_coeff is parsed only
-// when `with_npc` is set (heal only). issue.mag-points.
+// when `with_npc` is set (heal only).
 static void ParsePointsAmount(parser_wrapper::DataNode &node, const char *tag,
 							  Points::Amount &a, bool with_npc) {
 	if (!node.GoToChild(tag)) {
@@ -394,7 +394,7 @@ void Area::Print(CharData */*ch*/, std::ostringstream &buffer) const {
 		   << " free_targets=" << kColorGrn << free_targets << kColorNrm << "\r\n";
 }
 
-// issue.area-cast: historical skill-scaled-dice count + an optional secondary-stat nudge.
+// historical skill-scaled-dice count + an optional secondary-stat nudge.
 // stat_coeff is the cast potency roll's stat coefficient; stat_weight=0 -> exactly the old count.
 int Area::CalcTargetsQuantity(const int skill, const double stat_coeff) const {
 	const int bonus = RollDices(skill / skill_divisor, dice_size)
@@ -403,7 +403,7 @@ int Area::CalcTargetsQuantity(const int skill, const double stat_coeff) const {
 	return min_targets + (max_targets > 0 ? std::min(bonus, max_targets) : bonus);
 }
 
-// issue.area-cast: per-target falloff coefficient (1-based j of n). decay_eff is the
+// per-target falloff coefficient (1-based j of n). decay_eff is the
 // effective (possibly kMultipleCast-softened) step rate. Result is always in [0,1].
 double Area::DistributionCoeff(const int j, const int n, const double decay_eff) const {
 	switch (distribution) {
@@ -425,7 +425,7 @@ TalentAffect::TalentAffect(parser_wrapper::DataNode &node) {
 	resist_ = parse::ReadAsConstant<EResist>(node.GetValue("resist"));
 	const char *prob = node.GetValue("prob");
 	prob_ = (prob && *prob) ? parse::ReadAsInt(prob) : 100;
-	// potency_weight (issue.affects-potency-weight): optional scale on the cast
+	// potency_weight: optional scale on the cast
 	// potency stored on each Affect this block imposes. Default 1.0 (no change).
 	// Mirrors TalentUnaffect::potency_weight_, which scales the dispel's roll
 	// in the opposite direction.
@@ -435,7 +435,7 @@ TalentAffect::TalentAffect(parser_wrapper::DataNode &node) {
 	for (auto &child: node.Children()) {
 		const auto name = child.GetName();
 		if (strcmp(name, "duration") == 0) {
-			// issue.calc-duration: `cnst`/`level_divisor` renamed to `base`/`skill_divisor`.
+			// `cnst`/`level_divisor` renamed to `base`/`skill_divisor`.
 			// The bonus is now `min(skill, 75) / skill_divisor` (capped, so monsters can't grow
 			// affects unbounded), where `skill` is the spell's potency-roll `base_skill`.
 			dur_min_ = parse::ReadAsInt(child.GetValue("min"));
@@ -453,7 +453,7 @@ TalentAffect::TalentAffect(parser_wrapper::DataNode &node) {
 			// guard, ANY <apply> tag missing the random= attribute aborts parsing of the whole
 			// <affects> block via the exception caught in Actions::Build -- which silently leaves
 			// the spell's actions_ empty, so the affect never lands at runtime even though
-			// CastAffect's imposition messages still fire (issue.no-affects-bug).
+			// CastAffect's imposition messages still fire.
 			const char *r = child.GetValue("random");
 			apply.random = (r && *r) && parse::ReadAsBool(r);
 			if (child.GoToChild("modifier")) {
@@ -465,7 +465,7 @@ TalentAffect::TalentAffect(parser_wrapper::DataNode &node) {
 				// stack: optional max stack count, default 1, clamped to a minimum of 1.
 				const char *stack = child.GetValue("stack");
 				apply.stack = (stack && *stack) ? std::max(1, parse::ReadAsInt(stack)) : 1;
-				// cap: optional upper bound on raw magnitude (issue.modifier-cap). 0 = no cap.
+				// cap: optional upper bound on raw magnitude. 0 = no cap.
 				// Same (p && *p) guard as random/stack so missing attribute keeps the default.
 				const char *cap = child.GetValue("cap");
 				apply.cap = (cap && *cap) ? std::max(0, parse::ReadAsInt(cap)) : 0;
@@ -687,7 +687,7 @@ void Actions::Build(parser_wrapper::DataNode &node) {
 // Parse a <blocking>/<required>/<caster_blocking> tag. Schema: child tags <mob_flags val=>,
 // <affect_flags val=>, <room_flags val=>, <align val=>, each with a `|`-separated value
 // (or a single token for <align>). Accumulates into the given condition. The child-tag
-// form (issue.affect-flags step 2) replaced the previous attribute-list form so the line
+// form replaced the previous attribute-list form so the line
 // stays readable when several axes are combined (kNoMagic blocking now lives on most spells).
 void Actions::ParseFlagCondition(FlagCondition &cond, parser_wrapper::DataNode &node) {
 	for (auto &child : node.Children()) {
@@ -710,7 +710,7 @@ void Actions::ParseFlagCondition(FlagCondition &cond, parser_wrapper::DataNode &
 				cond.affect_flags.push_back(parse::ReadAsConstant<EAffect>(flag_name.c_str()));
 			}
 		} else if (strcmp(name, "room_flags") == 0) {
-			// ERoomFlag (issue.affect-flags): blocking by the CASTER's current room flags.
+			// ERoomFlag: blocking by the CASTER's current room flags.
 			// Drives the kNoMagic blocking for all non-warcry spells and per-spell
 			// blockers like kRuneLabel's kPeaceful/kTunnel/kNoTeleportIn.
 			for (const auto &flag_name : utils::Split(val, '|')) {
@@ -736,7 +736,7 @@ void Actions::ParseFlagCondition(FlagCondition &cond, parser_wrapper::DataNode &
 	}
 }
 
-// <target_conditions> (issue.spell-unification): wraps the action's <blocking> and
+// <target_conditions>: wraps the action's <blocking> and
 // <required> blocks. Each is a FlagCondition filled by ParseFlagCondition. Strict:
 // only these two children are recognised; bare <blocking>/<required> directly under
 // <action> is no longer accepted (the XML was migrated in the same issue).
@@ -750,7 +750,7 @@ void Actions::ParseTargetConditions(Action &out, parser_wrapper::DataNode &node)
 	}
 }
 
-// <caster_conditions> (issue.spell-unification): spell-level caster gate.
+// <caster_conditions>: spell-level caster gate.
 // <blocking>/<required> sections, each with <align>/<affect_flags> child tags --
 // reuses ParseFlagCondition (it honours those axes; mob_flags/room_flags are simply
 // not used for casters today). Lives at SpellInfo level, parsed by SpellInfoBuilder.
@@ -765,7 +765,7 @@ void Actions::ParseCasterConditions(CasterConditions &out, parser_wrapper::DataN
 }
 
 void Actions::ParseAction(Action &out, parser_wrapper::DataNode node) {
-	// issue.area-cast: optional per-action target selector (non-first actions). Default kTarSame.
+	// optional per-action target selector (non-first actions). Default kTarSame.
 	const char *tgt = node.GetValue("target");
 	if (tgt && *tgt) {
 		if (strcmp(tgt, "kTarFightSelf") == 0) { out.target_ = EActionTarget::kTarFightSelf; }
@@ -778,7 +778,7 @@ void Actions::ParseAction(Action &out, parser_wrapper::DataNode node) {
 		else if (strcmp(tgt, "kTarSame") == 0) { out.target_ = EActionTarget::kTarSame; }
 		else { err_log("Actions: unknown <action target='%s'>.", tgt); }
 	}
-	// issue.cast-chain: optional formula base + reset (non-first actions). Default kCompetence/false.
+	// optional formula base + reset (non-first actions). Default kCompetence/false.
 	const char *bs = node.GetValue("base");
 	if (bs && *bs) {
 		if (strcmp(bs, "kDamage") == 0) { out.base_ = EActionBase::kDamage; }
@@ -806,11 +806,11 @@ void Actions::ParseAction(Action &out, parser_wrapper::DataNode node) {
 		} else if (strcmp(manifestation.GetName(), "reflection") == 0) {
 			ParseReflection(out.reflection_, manifestation);
 		} else if (strcmp(manifestation.GetName(), "manual_cast") == 0) {
-			// issue.manual-cast: <manual_cast handler="SpellX"/>.
+			// <manual_cast handler="SpellX"/>.
 			const char *hv = manifestation.GetValue("handler");
 			if (hv && *hv) { out.manual_handler_ = hv; }
 		} else if (strcmp(manifestation.GetName(), "side_spell") == 0) {
-			// issue.side-spell: <side_spell id="kHold"/>.
+			// <side_spell id="kHold"/>.
 			const char *idv = manifestation.GetValue("id");
 			if (idv && *idv) { out.side_spells_.push_back(parse::ReadAsConstant<ESpell>(idv)); }
 		}
@@ -818,7 +818,7 @@ void Actions::ParseAction(Action &out, parser_wrapper::DataNode node) {
 	node.GoToParent();
 }
 
-// <reflection affect_flags="..."  align="kGood|kEvil"  prob="N"/> (issue.cast-dmg-migration).
+// <reflection affect_flags="..."  align="kGood|kEvil"  prob="N"/>.
 // prob defaults to 20 if the attribute is absent; align defaults to kAny (no alignment check).
 void Actions::ParseReflection(Reflection &refl, parser_wrapper::DataNode &node) {
 	const char *aff = node.GetValue("affect_flags");
@@ -856,7 +856,7 @@ void Actions::ParseArea(Action &out, parser_wrapper::DataNode &node) {
 		// the whole action parse. ReadAsInt/ReadAsDouble throw runtime_error("") on an empty string
 		// (std::stoi/stod on ""), and that exception is swallowed by Actions::Build, which then
 		// drops the spell's entire action list -- so an absent `stat_weight` silently disabled every
-		// area/mass/group spell (issue.area-spell-bug). Guard each read like Damage/Affect do.
+		// area/mass/group spell. Guard each read like Damage/Affect do.
 		const char *sd = node.GetValue("skill_divisor");
 		if (sd && *sd) { ptr->skill_divisor = std::max(1, parse::ReadAsInt(sd)); }
 		const char *ds = node.GetValue("dice_size");
