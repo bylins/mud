@@ -1281,7 +1281,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="110" min="100" change="2"/>
         <targets val="kTarIgnore"/>
-        <flags val="kMagGroups|kMagAffects|kNpcAffectNpc"/>
+        <flags val="kMagGroups|kNpcAffectNpc"/>
         <potency_roll>
             <dices ndice="5" sdice="9" adice="12"/>
             <base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
@@ -1293,19 +1293,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <targets skill_divisor="20" dice_size="2" min="5" max="-1"/>
                     <distribution type="kUniform"/>
                 </area>
-                <affects type="kArmor" saving="kNone" resist="kVitality">
-                    <duration base="20" skill_divisor="3" min="0" max="0"/>
-                    <flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfCurable"/>
-                    <apply id="kUndefinded" location="kAc">
-                        <modifier min="20.0" dices_weight="0.0" alpha="0" beta="0" factor="-1"/>
-                    </apply>
-                    <apply id="kUndefinded" location="kSavingReflex">
-                        <modifier min="5.0" dices_weight="0.0" alpha="0" beta="0" factor="-1"/>
-                    </apply>
-                    <apply id="kUndefinded" location="kSavingStability">
-                        <modifier min="5.0" dices_weight="0.0" alpha="0" beta="0" factor="-1"/>
-                    </apply>
-                </affects>
+                <side_spell id="kArmor"/>
             </action>
         </talent_actions>
     </spell>
@@ -1465,7 +1453,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="140" min="120" change="2"/>
         <targets val="kTarIgnore"/>
-        <flags val="kMagGroups|kMagAffects|kMagUnaffects|kNpcAffectNpc"/>
+        <flags val="kMagGroups|kNpcAffectNpc"/>
         <potency_roll>
             <dices ndice="5" sdice="9" adice="12"/>
             <base_skill id="kLifeMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
@@ -1477,17 +1465,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <targets skill_divisor="20" dice_size="2" min="5" max="-1"/>
                     <distribution type="kUniform"/>
                 </area>
-                <affects type="kStrength" saving="kNone" resist="kImmunity">
-                    <duration base="20" skill_divisor="3" min="0" max="0"/>
-                    <flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfCurable"/>
-                    <apply id="kUndefinded" location="kStr">
-                        <modifier min="5.0" dices_weight="0.0" alpha="0" beta="0" factor="1"/>
-                    </apply>
-                </affects>
-                <unaffect>
-                    <breaking any_of="kWeaknes"/>
-                    <remove any_of="kWeaknes"/>
-                </unaffect>
+                <side_spell id="kStrength"/>
             </action>
         </talent_actions>
     </spell>
@@ -1944,7 +1922,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="150" min="130" change="5"/>
         <targets val="kTarIgnore"/>
-        <flags val="kMagGroups|kMagAffects"/>
+        <flags val="kMagGroups"/>
         <potency_roll>
             <dices ndice="5" sdice="9" adice="12"/>
             <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
@@ -1956,18 +1934,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <targets skill_divisor="20" dice_size="2" min="5" max="-1"/>
                     <distribution type="kUniform"/>
                 </area>
-                <target_conditions>
-                    <blocking>
-                        <affect_flags val="kGlitterDust"/>
-                    </blocking>
-                </target_conditions>
-                <affects type="kInvisible" saving="kNone" resist="kMind">
-                    <duration base="20" skill_divisor="3" min="0" max="0"/>
-                    <flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfCurable"/>
-                    <apply id="kInvisible" location="kAc">
-                        <modifier min="40.0" dices_weight="0.0" alpha="0" beta="0" factor="-1"/>
-                    </apply>
-                </affects>
+                <side_spell id="kInvisible"/>
             </action>
         </talent_actions>
     </spell>
@@ -2270,7 +2237,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <misc pos="kFight" violent="Y" danger="4"/>
         <mana max="140" min="120" change="2"/>
         <targets val="kTarIgnore"/>
-        <flags val="kMagMasses|kMagAffects|kNpcAffectPc"/>
+        <flags val="kMagMasses|kNpcAffectPc"/>
         <potency_roll>
             <dices ndice="5" sdice="9" adice="12"/>
             <base_skill id="kDarkMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
@@ -2282,18 +2249,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <targets skill_divisor="20" dice_size="2" min="5" max="20"/>
                     <distribution type="kStepped" decay="0.05" free_targets="3"/>
                 </area>
-                <target_conditions>
-                    <blocking>
-                        <mob_flags val="kNoBlind"/>
-                    </blocking>
-                </target_conditions>
-                <affects type="kBlindness" saving="kStability" resist="kDark">
-                    <duration base="2" skill_divisor="20" min="0" max="0"/>
-                    <flags val="kAfBattledec|kAfDispellable|kAfCurable"/>
-                    <apply id="kBlind" location="kNone">
-                        <modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1"/>
-                    </apply>
-                </affects>
+                <side_spell id="kBlindness"/>
             </action>
         </talent_actions>
     </spell>
@@ -2443,7 +2399,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <misc pos="kFight" violent="Y" danger="3"/>
         <mana max="140" min="120" change="2"/>
         <targets val="kTarIgnore"/>
-        <flags val="kMagMasses|kMagAffects|kNpcAffectPc"/>
+        <flags val="kMagMasses|kNpcAffectPc"/>
         <potency_roll>
             <dices ndice="5" sdice="9" adice="12"/>
             <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
@@ -2455,18 +2411,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <targets skill_divisor="20" dice_size="2" min="5" max="20"/>
                     <distribution type="kStepped" decay="0.05" free_targets="3"/>
                 </area>
-                <target_conditions>
-                    <blocking>
-                        <mob_flags val="kNoSilence"/>
-                    </blocking>
-                </target_conditions>
-                <affects type="kSilence" saving="kWill" resist="kMind">
-                    <duration base="2" skill_divisor="20" min="3" max="0"/>
-                    <flags val="kAfBattledec|kAfDispellable|kAfCurable"/>
-                    <apply id="kSilence" location="kNone">
-                        <modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1"/>
-                    </apply>
-                </affects>
+                <side_spell id="kSilence"/>
             </action>
         </talent_actions>
     </spell>
@@ -2640,7 +2585,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="140" min="120" change="2"/>
         <targets val="kTarIgnore"/>
-        <flags val="kMagGroups|kMagAffects"/>
+        <flags val="kMagGroups"/>
         <potency_roll>
             <dices ndice="5" sdice="9" adice="12"/>
             <base_skill id="kAirMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
@@ -2652,13 +2597,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <targets skill_divisor="20" dice_size="2" min="5" max="-1"/>
                     <distribution type="kUniform"/>
                 </area>
-                <affects type="kFly" saving="kNone" resist="kAir">
-                    <duration base="20" skill_divisor="3" min="0" max="0"/>
-                    <flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfCurable"/>
-                    <apply id="kFly" location="kNone">
-                        <modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1"/>
-                    </apply>
-                </affects>
+                <side_spell id="kFly"/>
             </action>
         </talent_actions>
     </spell>
@@ -2967,7 +2906,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <misc pos="kFight" violent="Y" danger="2"/>
         <mana max="140" min="120" change="2"/>
         <targets val="kTarIgnore"/>
-        <flags val="kMagMasses|kMagAffects|kNpcAffectPc"/>
+        <flags val="kMagMasses|kNpcAffectPc"/>
         <potency_roll>
             <dices ndice="5" sdice="9" adice="12"/>
             <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
@@ -2979,25 +2918,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <targets skill_divisor="10" dice_size="3" min="5" max="20"/>
                     <distribution type="kStepped" decay="0.05" free_targets="3"/>
                 </area>
-                <target_conditions>
-                    <blocking>
-                        <affect_flags val="kBrokenChains|kHaste"/>
-                    </blocking>
-                </target_conditions>
-                <affects type="kSlowdown" saving="kStability" resist="kMind">
-                    <flags val="kAfDispellable|kAfCurable"/>
-                    <duration base="9" skill_divisor="0" min="0" max="0"/>
-                    <apply id="kSlow" location="kNone">
-                        <modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1"/>
-                    </apply>
-                    <apply id="kUndefinded" location="kDex">
-                        <modifier min="2.0" dices_weight="0.0" alpha="0" beta="0" factor="-1"/>
-                    </apply>
-                </affects>
-                <unaffect>
-                    <breaking any_of="kHaste"/>
-                    <remove any_of="kHaste"/>
-                </unaffect>
+                <side_spell id="kSlowdown"/>
             </action>
         </talent_actions>
     </spell>
@@ -3961,7 +3882,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <misc pos="kFight" violent="N" danger="1"/>
         <mana max="110" min="100" change="1"/>
         <targets val="kTarIgnore"/>
-        <flags val="kMagGroups|kMagAffects|kNpcAffectNpc"/>
+        <flags val="kMagGroups|kNpcAffectNpc"/>
         <potency_roll>
             <dices ndice="5" sdice="9" adice="12"/>
             <base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
@@ -3973,22 +3894,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <targets skill_divisor="20" dice_size="2" min="5" max="-1"/>
                     <distribution type="kUniform"/>
                 </area>
-                <target_conditions>
-                    <blocking>
-                        <affect_flags val="kPrismaticAura"/>
-                    </blocking>
-                </target_conditions>
-                <affects type="kSanctuary" saving="kNone" resist="kVitality">
-                    <duration base="20" skill_divisor="3" min="0" max="0"/>
-                    <flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfCurable"/>
-                    <apply id="kSanctuary" location="kNone">
-                        <modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1"/>
-                    </apply>
-                </affects>
-                <unaffect>
-                    <breaking any_of="kPrismaticAura"/>
-                    <remove any_of="kPrismaticAura"/>
-                </unaffect>
+                <side_spell id="kSanctuary"/>
             </action>
         </talent_actions>
     </spell>
@@ -4001,7 +3907,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <misc pos="kFight" violent="N" danger="1"/>
         <mana max="110" min="100" change="1"/>
         <targets val="kTarIgnore"/>
-        <flags val="kMagGroups|kMagAffects|kNpcAffectNpc"/>
+        <flags val="kMagGroups|kNpcAffectNpc"/>
         <potency_roll>
             <dices ndice="5" sdice="9" adice="12"/>
             <base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
@@ -4013,22 +3919,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <targets skill_divisor="20" dice_size="2" min="5" max="-1"/>
                     <distribution type="kUniform"/>
                 </area>
-                <target_conditions>
-                    <blocking>
-                        <affect_flags val="kSanctuary"/>
-                    </blocking>
-                </target_conditions>
-                <affects type="kPrismaticAura" saving="kNone" resist="kVitality">
-                    <duration base="20" skill_divisor="3" min="0" max="0"/>
-                    <flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfCurable"/>
-                    <apply id="kPrismaticAura" location="kNone">
-                        <modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1"/>
-                    </apply>
-                </affects>
-                <unaffect>
-                    <breaking any_of="kSanctuary"/>
-                    <remove any_of="kSanctuary"/>
-                </unaffect>
+                <side_spell id="kPrismaticAura"/>
             </action>
         </talent_actions>
     </spell>
@@ -5806,7 +5697,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <misc pos="kFight" violent="N" danger="1"/>
         <mana max="110" min="100" change="1"/>
         <targets val="kTarIgnore"/>
-        <flags val="kMagGroups|kMagAffects|kNpcAffectNpc"/>
+        <flags val="kMagGroups|kNpcAffectNpc"/>
         <potency_roll>
             <dices ndice="5" sdice="9" adice="12"/>
             <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
@@ -5818,13 +5709,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <targets skill_divisor="20" dice_size="2" min="5" max="-1"/>
                     <distribution type="kUniform"/>
                 </area>
-                <affects type="kDetectAlign" saving="kNone" resist="kMind">
-                    <duration base="20" skill_divisor="3" min="0" max="0"/>
-                    <flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfCurable"/>
-                    <apply id="kDetectAlign" location="kNone">
-                        <modifier min="0.0" dices_weight="0.0" alpha="0" beta="0" factor="1"/>
-                    </apply>
-                </affects>
+                <side_spell id="kDetectAlign"/>
             </action>
         </talent_actions>
     </spell>
@@ -6343,7 +6228,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <misc pos="kFight" violent="N" danger="30"/>
         <mana max="110" min="100" change="2"/>
         <targets val="kTarIgnore"/>
-        <flags val="kMagGroups|kMagAffects|kNpcAffectNpc"/>
+        <flags val="kMagGroups|kNpcAffectNpc"/>
         <potency_roll>
             <dices ndice="5" sdice="9" adice="12"/>
             <base_skill id="kWaterMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
@@ -6355,16 +6240,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <targets skill_divisor="20" dice_size="2" min="5" max="-1"/>
                     <distribution type="kUniform"/>
                 </area>
-                <affects type="kCloudly" saving="kNone" resist="kWater">
-                    <duration base="20" skill_divisor="3" min="0" max="0"/>
-                    <flags val="kAfUpdateDuration|kAfUpdateMod|kAfDispellable|kAfCurable"/>
-                    <apply id="kUndefinded" location="kSpelledBlinkMag">
-                        <modifier min="10.0" dices_weight="0.0" alpha="0" beta="0" factor="1"/>
-                    </apply>
-                    <apply id="kUndefinded" location="kAc">
-                        <modifier min="20.0" dices_weight="0.0" alpha="0" beta="0" factor="-1"/>
-                    </apply>
-                </affects>
+                <side_spell id="kCloudly"/>
             </action>
         </talent_actions>
     </spell>
