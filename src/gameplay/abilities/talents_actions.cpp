@@ -431,6 +431,10 @@ TalentAffect::TalentAffect(parser_wrapper::DataNode &node) {
 	// in the opposite direction.
 	const char *pw = node.GetValue("potency_weight");
 	potency_weight_ = (pw && *pw) ? static_cast<float>(parse::ReadAsDouble(pw)) : 1.0f;
+	// tick_spell (room affects): the kService spell whose actions the room-affect handler runs
+	// each tick. Optional; absent -> kUndefined (no per-tick effect / handled in code).
+	const char *tick = node.GetValue("tick_spell");
+	tick_spell_ = (tick && *tick) ? parse::ReadAsConstant<ESpell>(tick) : ESpell::kUndefined;
 
 	for (auto &child: node.Children()) {
 		const auto name = child.GetName();
@@ -497,7 +501,9 @@ void TalentAffect::Print(CharData */*ch*/, std::ostringstream &buffer) const {
 		   << " Resist: " << kColorGrn << NAME_BY_ITEM<EResist>(resist_) << kColorNrm
 		   << " Prob: " << kColorGrn << prob_ << kColorNrm
 		   << " Flags: " << kColorGrn << flags_ << kColorNrm
-		   << " potency_weight=" << kColorGrn << potency_weight_ << kColorNrm << "\r\n"
+		   << " potency_weight=" << kColorGrn << potency_weight_ << kColorNrm
+		   << (tick_spell_ != ESpell::kUndefined ? " tick_spell=" : "") << kColorGrn
+		   << (tick_spell_ != ESpell::kUndefined ? NAME_BY_ITEM<ESpell>(tick_spell_) : "") << kColorNrm << "\r\n"
 		   << "  Duration: base=" << kColorGrn << dur_base_ << kColorNrm
 		   << " skill_divisor=" << kColorGrn << dur_skill_divisor_ << kColorNrm
 		   << " min=" << kColorGrn << dur_min_ << kColorNrm

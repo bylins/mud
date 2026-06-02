@@ -215,8 +215,9 @@ enum class ESpellMsg {
 	//      system.
 	// Add a one-line XML comment on each per-spell usage describing what fires the
 	// message -- the XML is the documentation source; the enum names stay anonymous
-	// on purpose. Hitting the kCustomMsgFive cap on a single spell is a signal to
-	// move that spell to scripts rather than extend the cap. NEVER use these when
+	// on purpose. Hitting the kCustomMsgTen cap on a single spell is a signal to
+	// move that spell to scripts rather than extend the cap. Slots also carry room-affect
+	// per-tick narration (cycled by Affect::apply_time -- one slot per tick phase). NEVER use these when
 	// a clean semantically-named key fits (the SpellCharm migration that reused
 	// kSummonWarhorse / kResurrectConsecrated etc. is the right pattern; reaching
 	// for kCustomMsgOne would have hidden the semantic match).
@@ -225,6 +226,11 @@ enum class ESpellMsg {
 	kCustomMsgThree,
 	kCustomMsgFour,
 	kCustomMsgFive,
+	kCustomMsgSix,
+	kCustomMsgSeven,
+	kCustomMsgEight,
+	kCustomMsgNine,
+	kCustomMsgTen,
 	// Teleport-style relocation narration (issue.spell-msg-improve): shared by spells
 	// where an actor leaves one room ($n is the actor leaving) and enters another
 	// ($n is the actor arriving). kDefault carries generic "$n исчез$q." / "$n
