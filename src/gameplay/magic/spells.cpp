@@ -1908,7 +1908,12 @@ EStageResult SpellVampirism(CastContext &) {
 	return EStageResult::kSuccess;
 }
 
-void SpellMentalShadow(CharData *ch) {
+EStageResult SpellMentalShadow(CastContext &ctx) {
+	CharData *ch = ctx.caster();
+	if (ch == nullptr) {
+		return EStageResult::kSuccess;
+	}
+
 	// подготовка контейнера для создания заклинания ментальная тень
 	// все предложения пишем мад почтой
 
@@ -1930,7 +1935,7 @@ void SpellMentalShadow(CharData *ch) {
 		// low-Int rejection on kMentalShadow's sheaf as kCustomMsgOne.
 		SendMsgToChar(MUD::SpellMessages().GetMessage(
 				ESpell::kMentalShadow, ESpellMsg::kCustomMsgOne) + "\r\n", ch);
-		return;
+		return EStageResult::kSuccess;
 	};
 
 	if (!(mob = ReadMobile(mob_num, kVirtual))) {
@@ -1938,7 +1943,7 @@ void SpellMentalShadow(CharData *ch) {
 		// returns it without any per-spell override needed.
 		SendMsgToChar(MUD::SpellMessages().GetMessage(
 				ESpell::kMentalShadow, ESpellMsg::kSummonNoProto) + "\r\n", ch);
-		return;
+		return EStageResult::kSuccess;
 	}
 	Affect<EApply> af;
 	af.type = ESpell::kCharm;
@@ -1990,6 +1995,7 @@ void SpellMentalShadow(CharData *ch) {
 	const auto &shadow_msg = MUD::SpellMessages().GetMessage(
 			ESpell::kMentalShadow, ESpellMsg::kSummonToRoom);
 	act(shadow_msg.c_str(), true, mob, nullptr, nullptr, kToRoom | kToArenaListen);
+	return EStageResult::kSuccess;
 }
 
 std::map<int /* vnum */, int /* count */> rune_list;

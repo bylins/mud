@@ -15,8 +15,14 @@
 #include "gameplay/fight/pk.h"
 #include "gameplay/fight/common.h"
 #include "gameplay/skills/resque.h"
+#include "gameplay/magic/magic.h"  // CastContext / EStageResult (issue.summons-fix)
 
-void SummonTutelar(CharData *ch) {
+EStageResult SummonTutelar(CastContext &ctx) {
+	CharData *ch = ctx.caster();
+	if (ch == nullptr) {
+		return EStageResult::kSuccess;
+	}
+
 	MobVnum mob_num = 108;
 	//int modifier = 0;
 	CharData *mob = nullptr;
@@ -34,11 +40,11 @@ void SummonTutelar(CharData *ch) {
 
 	if (number(1, 100) > floorf(base_success + additional_success_for_charisma * eff_cha)) {
 		SendMsgToRoom("Яркая вспышка света! Несколько белых перьев кружась легли на землю...", ch->in_room, true);
-		return;
+		return EStageResult::kSuccess;
 	};
 	if (!(mob = ReadMobile(mob_num, kVirtual))) {
 		SendMsgToChar("Вы точно не помните, как создать данного монстра.\r\n", ch);
-		return;
+		return EStageResult::kSuccess;
 	}
 
 	int base_hp = 360;
@@ -192,6 +198,7 @@ void SummonTutelar(CharData *ch) {
 			true, mob, nullptr, nullptr, kToRoom | kToArenaListen);
 	}
 	ch->add_follower(mob);
+	return EStageResult::kSuccess;
 }
 
 void CheckTutelarSelfSacrfice(CharData *ch, CharData *victim) {

@@ -2712,8 +2712,8 @@ static const std::map<std::string, std::function<EStageResult(CastContext &)>> k
 	{"SpellSummon",         SpellSummon},
 	{"SpellPortal",         SpellPortal},
 	{"SpellRelocate",       SpellRelocate},
-	{"SummonTutelar",       [](CastContext &ctx) { SummonTutelar(ctx.caster()); return EStageResult::kSuccess; }},
-	{"SpellMentalShadow",   [](CastContext &ctx) { SpellMentalShadow(ctx.caster()); return EStageResult::kSuccess; }},
+	{"SummonTutelar",       SummonTutelar},
+	{"SpellMentalShadow",   SpellMentalShadow},
 	{"SpellAnimateDead",    SpellAnimateDead},
 	{"SpellResurrection",   SpellResurrection},
 };

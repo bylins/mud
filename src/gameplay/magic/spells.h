@@ -103,7 +103,7 @@ void SpellForbidden(int level, CharData *ch, CharData *victim, ObjData *obj);
 EStageResult SpellHolystrike(CastContext &ctx);
 void SkillIdentify(int level, CharData *ch, CharData *victim, ObjData *obj);
 EStageResult SpellVampirism(CastContext &ctx);
-void SpellMentalShadow(CharData *ch);
+EStageResult SpellMentalShadow(CastContext &ctx);
 void RemovePortalGate(RoomRnum rnum);
 // basic magic calling functions
 
