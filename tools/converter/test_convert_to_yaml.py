@@ -302,6 +302,54 @@ class TestMobSpeedField(unittest.TestCase):
         self.assertIn('speed: 7', mob_to_yaml(self._parse("8 8 0 7")))
 
 
+class TestMobNegativeDiceBonus(unittest.TestCase):
+    r"""A negative dice bonus is written as XdY+-N (e.g. damage 4d3+-56): the
+    legacy '+' is a literal separator and the value behind it is signed. The
+    old regex ([+-]\d+)? failed on the '+-' pair and silently zeroed the bonus
+    -- so e.g. a mob's damroll became 0 after conversion (issue #3384 class).
+    """
+
+    def _mob(self, stats_line, gold_line="0d0+0 100"):
+        return (
+            "#1\n"
+            "testmob~\n"
+            "testmob~\ntestmoba~\ntestmobu~\ntestmoba~\ntestmobom~\ntestmobe~\n"
+            "A test mob stands here.~\n"
+            "A long description.\n~\n"
+            "0 0 0 S\n"
+            + stats_line + "\n"
+            + gold_line + "\n"
+            "8 8 0\n"
+        )
+
+    def _parse(self, stats_line, gold_line="0d0+0 100"):
+        import tempfile
+        from convert_to_yaml import parse_mob_file
+        with tempfile.NamedTemporaryFile('w', suffix='.mob', delete=False,
+                                         encoding='koi8-r') as f:
+            f.write(self._mob(stats_line, gold_line))
+            path = f.name
+        self.addCleanup(os.unlink, path)
+        mobs = parse_mob_file(path)
+        self.assertEqual(len(mobs), 1)
+        return mobs[0]
+
+    def test_negative_damage_bonus(self):
+        m = self._parse("5 0 0 10d4+60 4d3+-56")
+        self.assertEqual(m['stats']['damage']['bonus'], -56)
+        self.assertEqual(m['stats']['hp']['bonus'], 60)  # positive still ok
+
+    def test_negative_gold_bonus(self):
+        m = self._parse("5 0 0 1d1+1 1d1+1", gold_line="0d0+-3 100")
+        self.assertEqual(m['gold']['bonus'], -3)
+
+    def test_positive_and_zero_bonus_unaffected(self):
+        m = self._parse("5 0 0 10d4+60 4d3+12")
+        self.assertEqual(m['stats']['damage']['bonus'], 12)
+        m0 = self._parse("5 0 0 0d0+0 0d0+0")
+        self.assertEqual(m0['stats']['damage']['bonus'], 0)
+
+
 if __name__ == '__main__':
     unittest.main(verbosity=2)
 
