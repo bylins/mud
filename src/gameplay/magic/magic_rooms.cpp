@@ -426,44 +426,17 @@ void UpdateRoomsAffects() {
 // This preserves the OLD pulse-direct semantics of kDeadlyFog (8 pulses),
 // kMeteorStorm (3 pulses), etc. -- sub-hour values that hours-based duration
 // can't express in integers.
-ECastResult CallMagicToRoom(CharData *ch, RoomData *room, CastContext roll) {
-	const ESpell spell_id = roll.spell_id();   // roll.level is unused for room casts
-	roll.cvict = nullptr;
-	roll.rvict = room;
-
-	if (room == nullptr || ch == nullptr || ch->in_room == kNowhere) {
+// Impose the spell's room affect on ctx.rvict from the CURRENT action's <affects> block.
+// Reads ctx.action_or_default(): action[0] for the legacy CallMagicToRoom entry, or the cursor
+// action when driven from the per-action loop -- so a kTarRoomThis action can scale the room
+// affect off a prior action's result via ctx.CompetenceBase(). kSuccess on impose, kNotCast on no-effect.
+ECastResult CastRoomAffect(CastContext &ctx) {
+	CharData *const ch = ctx.caster();
+	RoomData *const room = ctx.rvict;
+	const ESpell spell_id = ctx.spell_id();
+	if (ch == nullptr || room == nullptr) {
 		return ECastResult::kNotCast;
 	}
-
-	// Material component: silently abort if the cast requires one and ch
-	// can't provide it. No-op for spells without a configured component.
-	if (ProcessMatComponents(ch, ch, spell_id) == EStageResult::kBreak) {
-		return ECastResult::kNotCast;
-	}
-
-	// Data-driven room block: same mechanism as in
-	// CallMagic. Fizzle narration lives in spell_msg.xml; the kDefault
-	// sheaf covers the generic case, per-spell sheaves override.
-	if (IsRoomBlocked(world[ch->in_room], MUD::Spell(spell_id).actions.GetBlocking())
-			&& !MayCastInForbiddenRoom(ch)) {
-		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kCastForbiddenToChar) + "\r\n", ch);
-		const auto &fizzle_room = MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kCastForbiddenToRoom);
-		if (!fizzle_room.empty()) {
-			act(fizzle_room.c_str(), false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-		}
-		return ECastResult::kNotCast;
-	}
-
-	// Data-driven dispel. A kTarRoomThis spell carrying an <unaffect>
-	// block strips room affects here, mirroring CastToSingleTarget's "Damage -> Unaffect ->
-	// Affect" ordering. CastUnaffects emits its own dispel / no-effect narration via the
-	// kAffDispelledTo{Char,Room} sheaves. For a pure-dispel spell (no <affects>) the impose
-	// loop below then runs as a no-op; for a dual spell (kMagAffects + <unaffect>) the affect
-	// imposition continues normally.
-	if (CastUnaffects(roll) == EStageResult::kBreak) {
-		return ECastResult::kNotCast;
-	}
-
 	// Default-init the affect array. kMaxSpellAffects slots; only slot 0 is
 	// populated from the XML today, but the impose loop still walks them all
 	// so multi-apply room spells stay forward-compatible.
@@ -484,8 +457,8 @@ ECastResult CallMagicToRoom(CharData *ch, RoomData *room, CastContext roll) {
 	// same fields CastAffect populates on a per-target affect (the helpers
 	// CalcCastPotency / ComputeApplyModifier are shared with CastAffect's
 	// apply_one path so both record the same values for the same cast roll).
-	if (MUD::Spell(spell_id).actions.Contains(talents_actions::EAction::kAffect)) {
-		const auto &talent = MUD::Spell(spell_id).actions.GetAffect();
+	if (ctx.action_or_default().Contains(talents_actions::EAction::kAffect)) {
+		const auto &talent = ctx.action_or_default().GetAffect();
 		af[0].type = spell_id;
 		af[0].caster_id = ch->get_uid();
 		af[0].battleflag = talent.GetFlags();
@@ -497,10 +470,10 @@ ECastResult CallMagicToRoom(CharData *ch, RoomData *room, CastContext roll) {
 		af[0].duration = talent.GetDurationBase() + static_cast<unsigned>(skill_bonus);
 		// Stored potency scaled by <affects potency_weight=> (default 1.0).
 		// Symmetric with the char-affect path in TryApplyAffectTalent.
-		af[0].potency = CalcCastPotency(roll.potency()) * talent.GetPotencyWeight();
+		af[0].potency = CalcCastPotency(ctx.potency()) * talent.GetPotencyWeight();
 		af[0].debuff = MUD::Spell(spell_id).IsViolent();
 		if (!talent.GetApplies().empty()) {
-			af[0].modifier = ComputeApplyModifier(talent.GetApplies()[0], roll.CompetenceBase(), roll.potency());
+			af[0].modifier = ComputeApplyModifier(talent.GetApplies()[0], ctx.CompetenceBase(), ctx.potency());
 		}
 	}
 
@@ -585,6 +558,47 @@ ECastResult CallMagicToRoom(CharData *ch, RoomData *room, CastContext roll) {
 
 	SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", ch);
 	return ECastResult::kNotCast;
+}
+
+ECastResult CallMagicToRoom(CharData *ch, RoomData *room, CastContext roll) {
+	const ESpell spell_id = roll.spell_id();   // roll.level is unused for room casts
+	roll.cvict = nullptr;
+	roll.rvict = room;
+
+	if (room == nullptr || ch == nullptr || ch->in_room == kNowhere) {
+		return ECastResult::kNotCast;
+	}
+
+	// Material component: silently abort if the cast requires one and ch
+	// can't provide it. No-op for spells without a configured component.
+	if (ProcessMatComponents(ch, ch, spell_id) == EStageResult::kBreak) {
+		return ECastResult::kNotCast;
+	}
+
+	// Data-driven room block: same mechanism as in
+	// CallMagic. Fizzle narration lives in spell_msg.xml; the kDefault
+	// sheaf covers the generic case, per-spell sheaves override.
+	if (IsRoomBlocked(world[ch->in_room], MUD::Spell(spell_id).actions.GetBlocking())
+			&& !MayCastInForbiddenRoom(ch)) {
+		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kCastForbiddenToChar) + "\r\n", ch);
+		const auto &fizzle_room = MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kCastForbiddenToRoom);
+		if (!fizzle_room.empty()) {
+			act(fizzle_room.c_str(), false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
+		}
+		return ECastResult::kNotCast;
+	}
+
+	// Data-driven dispel. A kTarRoomThis spell carrying an <unaffect>
+	// block strips room affects here, mirroring CastToSingleTarget's "Damage -> Unaffect ->
+	// Affect" ordering. CastUnaffects emits its own dispel / no-effect narration via the
+	// kAffDispelledTo{Char,Room} sheaves. For a pure-dispel spell (no <affects>) the impose
+	// loop below then runs as a no-op; for a dual spell (kMagAffects + <unaffect>) the affect
+	// imposition continues normally.
+	if (CastUnaffects(roll) == EStageResult::kBreak) {
+		return ECastResult::kNotCast;
+	}
+
+	return CastRoomAffect(roll);
 }
 
 int GetUniqueAffectDuration(long caster_id, ESpell spell_id) {
