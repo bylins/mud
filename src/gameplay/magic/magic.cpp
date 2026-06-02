@@ -758,7 +758,9 @@ static void ConsumeMatComponent(CharData *caster, ObjData *obj, int cost,
 		} else if (obj->get_in_room() != kNowhere) {
 			RemoveObjFromRoom(obj);
 		}
-		ExtractObjFromWorld(obj);
+		// issue.obj-casting: deferred free (unlinked above, freed at heartbeat end) so a target
+		// object that doubled as a consumed component is left flagged purged(), not dangling.
+		world_objects.AddToExtractedList(obj);
 	}
 }
 
@@ -2385,6 +2387,12 @@ EStageResult CastToAlterObjs(CastContext &ctx) {
 	CharData *const victim = ctx.cvict;
 	ObjData *obj = ctx.ovict;
 	const ESpell spell_id = ctx.spell_id();
+	// issue.obj-casting: a prior action or component consumption may have destroyed the target
+	// (now deferred-extracted, flagged purged()); treat a purged target as absent.
+	if (obj && obj->purged()) {
+		obj = nullptr;
+		ctx.ovict = nullptr;
+	}
 	const char *to_char = nullptr;
 
 	if (obj == nullptr && victim != nullptr) {
