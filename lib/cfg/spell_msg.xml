@@ -1449,6 +1449,7 @@
 		<message type="kAffImposedToChar" val="Вы ослепли!" />
 	</msg_sheaf>
 	<msg_sheaf id="kMeteorStorm">
+		<message type="kCustomMsgOne" val="Раскаленные громовые камни рушатся с небес!" />
 		<message type="kFightDeathToChar" val="Вызванные вами метеориты расплющили $N3, образовав кровавое месиво." />
 		<message type="kFightDeathToVict" val="Вызванные $n4 метеориты расплющили вас, образовав кровавое месиво." />
 		<message type="kFightDeathToRoom" val="Вызванные $n4 метеориты расплющили $N3, образовав кровавое месиво." />
@@ -2489,6 +2490,7 @@
 		<message type="kWrongTarget" val="С помощью магии нельзя опознать другое существо." />
 	</msg_sheaf>
 	<msg_sheaf id="kBlackTentacles">
+		<message type="kCustomMsgOne" val="Мертвые руки навей шарят в поисках добычи!" />
 		<message type="kCastPhraseHeathen" val="Ато егоже руци попасти." />
 		<message type="kCastPhraseChristian" val="И он не знает, что мертвецы там и что в глубине..." />
 		<message type="kAffExpired" val="Жуткие черные руки побледнели и расплылись зловонной дымкой." />

@@ -3536,7 +3536,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <flags val="kMagNeedControl|kMagRoom|kMagCasterInroom"/>
         <talent_actions>
             <action>
-                <affects type="kMeteorStorm" saving="kNone" resist="kVitality">
+                <affects type="kMeteorStorm" saving="kNone" resist="kVitality" tick_spell="kThunderStone">
                     <duration base="3" skill_divisor="0" min="0" max="0"/>
                     <flags val="kAfMustBeHandled|kAfDispellable"/>
                 </affects>
@@ -5441,7 +5441,7 @@ base_stat id - (например "kWis") какой берем параметр,
                 <!-- Duration approximates OLD 1+L/7 via novice-cap skill_bonus (=4 at
                      skill 75 with divisor 18 + base 1 = 5, matching L=30).
                      Incompatible-room (kForMono/kForPoly) now in <blocking>. -->
-                <affects type="kBlackTentacles" saving="kNone" resist="kVitality">
+                <affects type="kBlackTentacles" saving="kNone" resist="kVitality" tick_spell="kDamageSerious">
                     <duration base="1" skill_divisor="18" min="0" max="0"/>
                     <flags val="kAfMustBeHandled|kAfDispellable"/>
                 </affects>

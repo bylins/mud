@@ -361,21 +361,11 @@ void HandleRoomAffect(RoomData *room, CharData *ch, const Affect<ERoomApply>::sh
 			break;
 		
 
-		case ESpell::kMeteorStorm: SendMsgToChar("Раскаленные громовые камни рушатся с небес!\r\n", ch);
-			act("Раскаленные громовые камни рушатся с небес!\r\n",
-				false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-			CastAreaInRoom(ch, ESpell::kThunderStone, GetRealLevel(ch));
-			break;
 
 		case ESpell::kThunderstorm:
 			HandleThunderstormTick(ch, aff);
 			break;
 
-		case ESpell::kBlackTentacles: SendMsgToChar("Мертвые руки навей шарят в поисках добычи!\r\n", ch);
-			act("Мертвые руки навей шарят в поисках добычи!\r\n",
-				false, ch, nullptr, nullptr, kToRoom | kToArenaListen);
-			CastAreaInRoom(ch, ESpell::kDamageSerious, GetRealLevel(ch));
-			break;
 
 		default: log("ERROR: Try handle room affect for spell without handler!");
 	}
