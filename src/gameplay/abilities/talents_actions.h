@@ -336,7 +336,8 @@ struct Summon : public IAction {
 	int min_fail{0};                // floor for the failure chance
 	std::string handler;            // post-spawn handler name (looked up in the summon handler registry)
 	// the single <mob> spec
-	int mob_vnum{0};                // mob vnum (0 = the handler resolves it, e.g. from a corpse)
+	int mob_vnum{0};                // positive mob vnum (0 = the handler resolves it, e.g. from a corpse);
+	                                // the summon loads it as a kSummoned instance (ReadMobile negates)
 	double competence_weight{0.0};  // weight on C for this mob's fail/stat scaling
 	bool extra{false};              // may summon extra abilities
 	bool keeper{false};             // gets EAffect::kHelper + ESkill::kRescue

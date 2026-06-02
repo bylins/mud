@@ -419,7 +419,7 @@ any other stage instead of being dispatched only by the old `kMagManual` flag.
 
 ```xml
 <summon base_fail="50" min_fail="0" handler="SetupKeeperStats">
-    <mob vnum="-3021" competence_weight="16" keeper="Y"/>
+    <mob vnum="3021" competence_weight="16" keeper="Y"/>
 </summon>
 ```
 
@@ -448,7 +448,7 @@ re-rolls a failure at ¼ (only 1 in 4 sticks). Immortals never fail.
 
 | Attr | Meaning |
 |---|---|
-| `vnum` | The **negated** virtual number to read (e.g. `-3021` loads mob `3021`). |
+| `vnum` | The mob prototype vnum (plain positive, e.g. `3021`). It is loaded as a *summoned* instance — no triggers / online count, `EMobFlag::kSummoned` set (`ReadMobile` negates internally). |
 | `competence_weight` | How strongly `C` reduces the fail (the `k` above). Author it against whatever scale `base=` feeds the action. |
 | `keeper` | `Y` → the minion gets `EAffect::kHelper` + `ESkill::kRescue=100` (a guardian that rescues its master). |
 

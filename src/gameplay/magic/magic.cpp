@@ -1544,7 +1544,10 @@ EStageResult CastSummonAction(CastContext &ctx) {
 			return EStageResult::kSuccess;
 		}
 	}
-	CharData *mob = ReadMobile(s.mob_vnum, kVirtual);
+	// A negative vnum tells ReadMobile to load a *summoned* instance: no trigger assignment, no
+	// mob-index online count, EMobFlag::kSummoned set. The <summon vnum> is the plain positive
+	// prototype, so negate it here (issue.summons-fix).
+	CharData *mob = ReadMobile(-s.mob_vnum, kVirtual);
 	if (!mob) {
 		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kSummonNoProto) + "\r\n", ch);
 		return EStageResult::kSuccess;

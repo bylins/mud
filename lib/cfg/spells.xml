@@ -320,7 +320,7 @@ base_stat id - (например "kWis") какой берем параметр,
                  remort*5); CloneCascade copies the caster and fills the (level+4)/5-2 quota. -->
             <action>
                 <summon base_fail="50" min_fail="0" handler="CloneCascade">
-                    <mob vnum="-3000" competence_weight="16" keeper="Y"/>
+                    <mob vnum="3000" competence_weight="16" keeper="Y"/>
                 </summon>
             </action>
         </talent_actions>
@@ -3230,7 +3230,7 @@ base_stat id - (например "kWis") какой берем параметр,
                  stats via the SetupKeeperStats handler. mob vnum -3021 = -kMobKeeper. -->
             <action>
                 <summon base_fail="50" min_fail="0" handler="SetupKeeperStats">
-                    <mob vnum="-3021" competence_weight="16" keeper="Y"/>
+                    <mob vnum="3021" competence_weight="16" keeper="Y"/>
                 </summon>
             </action>
         </talent_actions>
@@ -3367,7 +3367,7 @@ base_stat id - (например "kWis") какой берем параметр,
                  SetupFirekeeperStats applies the fire aura + cha-scaled stats. -->
             <action>
                 <summon base_fail="50" min_fail="0" handler="SetupFirekeeperStats">
-                    <mob vnum="-3022" competence_weight="5" keeper="Y"/>
+                    <mob vnum="3022" competence_weight="5" keeper="Y"/>
                 </summon>
             </action>
         </talent_actions>
