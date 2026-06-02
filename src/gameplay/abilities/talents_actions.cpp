@@ -405,6 +405,15 @@ void Summon::Print(CharData */*ch*/, std::ostringstream &buffer) const {
 		   << " from_corpse=" << kColorGrn << (from_corpse ? "Y" : "N") << kColorNrm << "\r\n";
 }
 
+void Creation::Print(CharData */*ch*/, std::ostringstream &buffer) const {
+	buffer << " Creation: vnum=" << kColorGrn << vnum << kColorNrm
+		   << " handler=" << kColorGrn << (handler.empty() ? "-" : handler) << kColorNrm << "\r\n";
+}
+
+void AlterObj::Print(CharData */*ch*/, std::ostringstream &buffer) const {
+	buffer << " AlterObj: handler=" << kColorGrn << (handler.empty() ? "-" : handler) << kColorNrm << "\r\n";
+}
+
 // historical skill-scaled-dice count + an optional secondary-stat nudge.
 // stat_coeff is the cast potency roll's stat coefficient; stat_weight=0 -> exactly the old count.
 int Area::CalcTargetsQuantity(const int skill, const double stat_coeff) const {
@@ -819,6 +828,10 @@ void Actions::ParseAction(Action &out, parser_wrapper::DataNode node) {
 			ParseArea(out, manifestation);
 		} else if (strcmp(manifestation.GetName(), "summon") == 0) {
 			ParseSummon(out, manifestation);
+		} else if (strcmp(manifestation.GetName(), "obj_creation") == 0) {
+			ParseCreation(out, manifestation);
+		} else if (strcmp(manifestation.GetName(), "alter_obj") == 0) {
+			ParseAlterObj(out, manifestation);
 		} else if (strcmp(manifestation.GetName(), "points") == 0) {
 			ParsePoints(out, manifestation);
 		} else if (strcmp(manifestation.GetName(), "affects") == 0) {
@@ -939,6 +952,22 @@ void Actions::ParseSummon(Action &out, parser_wrapper::DataNode &node) {
 	out.manifestations_.insert({EAction::kSummon, std::move(ptr)});
 }
 
+void Actions::ParseCreation(Action &out, parser_wrapper::DataNode &node) {
+	auto ptr = std::make_shared<Creation>();
+	const char *vn = node.GetValue("vnum");
+	if (vn && *vn) { ptr->vnum = parse::ReadAsInt(vn); }
+	const char *h = node.GetValue("handler");
+	if (h && *h) { ptr->handler = h; }
+	out.manifestations_.insert({EAction::kCreation, std::move(ptr)});
+}
+
+void Actions::ParseAlterObj(Action &out, parser_wrapper::DataNode &node) {
+	auto ptr = std::make_shared<AlterObj>();
+	const char *h = node.GetValue("handler");
+	if (h && *h) { ptr->handler = h; }
+	out.manifestations_.insert({EAction::kAlterObj, std::move(ptr)});
+}
+
 void Actions::ParsePoints(Action &out, parser_wrapper::DataNode &node) {
 	out.manifestations_.emplace(EAction::kPoints, std::make_shared<Points>(node));
 }
@@ -1042,6 +1071,30 @@ const Summon &Action::GetSummon() const {
 
 const Summon &Actions::GetSummon() const {
 	return (list_.empty() ? EmptyAction() : list_.front()).GetSummon();
+}
+
+const Creation &Action::GetCreation() const {
+	if (manifestations_.contains(EAction::kCreation)) {
+		return *std::static_pointer_cast<Creation>(manifestations_.find(EAction::kCreation)->second);
+	} else {
+		throw std::runtime_error("Getting creation parameters from action which has no 'obj_creation'.");
+	}
+}
+
+const Creation &Actions::GetCreation() const {
+	return (list_.empty() ? EmptyAction() : list_.front()).GetCreation();
+}
+
+const AlterObj &Action::GetAlterObj() const {
+	if (manifestations_.contains(EAction::kAlterObj)) {
+		return *std::static_pointer_cast<AlterObj>(manifestations_.find(EAction::kAlterObj)->second);
+	} else {
+		throw std::runtime_error("Getting alter_obj parameters from action which has no 'alter_obj'.");
+	}
+}
+
+const AlterObj &Actions::GetAlterObj() const {
+	return (list_.empty() ? EmptyAction() : list_.front()).GetAlterObj();
 }
 
 const Points &Actions::GetPoints() const {

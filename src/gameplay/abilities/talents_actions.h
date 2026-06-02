@@ -29,6 +29,8 @@ enum class EAction {
 	kAffect,
 	kUnaffect,
 	kSummon,   // data-driven summon skeleton (issue.summon-pipeline); IAction-backed
+	kCreation, // data-driven object creation (issue.obj-casting); IAction-backed
+	kAlterObj, // data-driven object transform (issue.obj-casting); IAction-backed
 	kManual,   // hand-coded handler (issue.manual-cast); not an IAction -- backed by manual_handler_
 	kSideSpell // nested cast of another spell (issue.side-spell); not an IAction -- backed by side_spells_
 };
@@ -342,6 +344,23 @@ struct Summon : public IAction {
 	void Print(CharData *ch, std::ostringstream &buffer) const override;
 };
 
+// <obj_creation vnum handler/> (issue.obj-casting): create an object by vnum, then optionally
+// run a named post-load handler to customize it (e.g. kCreateWeapon/kCreateArmor base items).
+// The shared load/narrate/place skeleton lives in the creation stage. Inert until consumed.
+struct Creation : public IAction {
+	int vnum{0};               // prototype vnum to load
+	std::string handler;       // optional post-load customizer (creation handler registry)
+	void Print(CharData *ch, std::ostringstream &buffer) const override;
+};
+
+// <alter_obj handler/> (issue.obj-casting): transform the target object via a named handler.
+// The shared skeleton (resolve obj, kNoalter guard, no-effect message) lives in the alter-obj
+// stage; only the per-spell transform is the handler. Inert until consumed.
+struct AlterObj : public IAction {
+	std::string handler;       // the per-spell transform (alter-obj handler registry)
+	void Print(CharData *ch, std::ostringstream &buffer) const override;
+};
+
 // A spell affect described in data (issue #3334): the <affects> talent action.
 // It stores the affect identity (spell)/saving/resist, the duration parameters
 // (one duration for all applies), the affect flags (EAffFlag, common to all
@@ -535,6 +554,8 @@ class Action {
 	[[nodiscard]] const Damage &GetDmg() const;
 	[[nodiscard]] const Area &GetArea() const;
 	[[nodiscard]] const Summon &GetSummon() const;
+	[[nodiscard]] const Creation &GetCreation() const;
+	[[nodiscard]] const AlterObj &GetAlterObj() const;
 	[[nodiscard]] const Points &GetPoints() const;
 	[[nodiscard]] const TalentAffect &GetAffect() const;
 	[[nodiscard]] const TalentUnaffect &GetUnaffect() const;
@@ -568,6 +589,8 @@ class Actions {
 	static void ParseDamage(Action &out, parser_wrapper::DataNode &node);
 	static void ParseArea(Action &out, parser_wrapper::DataNode &node);
 	static void ParseSummon(Action &out, parser_wrapper::DataNode &node);
+	static void ParseCreation(Action &out, parser_wrapper::DataNode &node);
+	static void ParseAlterObj(Action &out, parser_wrapper::DataNode &node);
 	static void ParsePoints(Action &out, parser_wrapper::DataNode &node);
 	static void ParseAffect(Action &out, parser_wrapper::DataNode &node);
 	static void ParseUnaffect(Action &out, parser_wrapper::DataNode &node);
@@ -609,6 +632,8 @@ class Actions {
 	[[nodiscard]] const Damage &GetDmg() const;
 	[[nodiscard]] const Area &GetArea() const;
 	[[nodiscard]] const Summon &GetSummon() const;
+	[[nodiscard]] const Creation &GetCreation() const;
+	[[nodiscard]] const AlterObj &GetAlterObj() const;
 	[[nodiscard]] const Points &GetPoints() const;
 	[[nodiscard]] const TalentAffect &GetAffect() const;
 	[[nodiscard]] const TalentUnaffect &GetUnaffect() const;
