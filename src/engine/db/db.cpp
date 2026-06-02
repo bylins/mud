@@ -369,6 +369,19 @@ void GameLoader::BootWorld(std::unique_ptr<world_loader::IWorldDataSource> data_
 	// idempotent if BootMudDataBase later runs.
 	text_id::Init();
 
+	// CharData::set_skill() / CObjectPrototype::set_skill() drop any skill
+	// whose id is invalid, and a skill is "invalid" until the skills config is
+	// loaded (MUD::Skills().IsInvalid). BootMudDataBase loads it before
+	// BootWorld for the running server, but `-S` / `scheck` call BootWorld
+	// directly and skip it -- so without this, every mob and object skill is
+	// silently dropped while loading the world to resave it, and the round
+	// trip loses them (issue #3391). Guarded so the normal boot, which already
+	// loaded the config, does not reload it.
+	if (!MUD::Skills().IsInitizalized())
+	{
+		MUD::CfgManager().LoadCfg("skills");
+	}
+
 	// Create default data source if none provided
 	if (!data_source)
 	{

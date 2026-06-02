@@ -32,6 +32,8 @@
 #include <cstdlib>
 #include <cstring>
 #include <iomanip>
+#include <utility>
+#include <vector>
 #include <regex>
 #include <filesystem>
 #include <fstream>
@@ -3671,32 +3673,33 @@ void YamlWorldDataSource::SaveMobs(int zone_rnum, int specific_vnum)
 			yaml.DecreaseIndent();
 		}
 
-		// Skills (with comments)
-		bool has_skills = false;
-		for (ESkill skill_id = ESkill::kFirst; skill_id <= ESkill::kLast; ++skill_id)
+		// Skills (with comments). Use the raw trained-skill map (skillLevel),
+		// NOT GetSkill(): GetSkill() layers on instance context -- equipment,
+		// affects and a kDominationArena clamp keyed off in_room -- which is
+		// meaningless for a prototype (in_room is NOWHERE) and would zero mob
+		// skills on resave. Mirrors WorldChecksum::SerializeMob and the loader
+		// so skills survive the round-trip (issue #3391).
+		std::vector<std::pair<int, int>> mob_skills;
+		for (const auto &kv : mob.GetCharSkills())
 		{
-			if (mob.GetSkill(skill_id) > 0)
+			if (kv.second.skillLevel > 0)
 			{
-				has_skills = true;
-				break;
+				mob_skills.emplace_back(static_cast<int>(kv.first), kv.second.skillLevel);
 			}
 		}
+		std::sort(mob_skills.begin(), mob_skills.end());
 
-		if (has_skills)
+		if (!mob_skills.empty())
 		{
 			yaml.Key("skills");
 			yaml.BeginSequence();
 			yaml.IncreaseIndent();
 
-			for (ESkill skill_id = ESkill::kFirst; skill_id <= ESkill::kLast; ++skill_id)
+			for (const auto &kv : mob_skills)
 			{
-				int skill_value = mob.GetSkill(skill_id);
-				if (skill_value > 0)
-				{
-					out << yaml.GetIndent() << "- skill_id: " << static_cast<int>(skill_id);
-					out << "  # " << GetSkillNameComment(skill_id) << std::endl;
-					out << yaml.GetIndent() << "  value: " << skill_value << std::endl;
-				}
+				out << yaml.GetIndent() << "- skill_id: " << kv.first;
+				out << "  # " << GetSkillNameComment(static_cast<ESkill>(kv.first)) << std::endl;
+				out << yaml.GetIndent() << "  value: " << kv.second << std::endl;
 			}
 
 			yaml.DecreaseIndent();
