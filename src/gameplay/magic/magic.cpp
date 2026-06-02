@@ -1435,17 +1435,18 @@ static void EnhanceAnimateDead(CharData *ch, CharData *mob, MobVnum mob_num,
 // kSummonKeeper post-spawn: tie keeper level to caster, then derive a "rating" from
 // light-magic + cha and project that onto hit/skills/stats/HR/AC.
 // Svent TODO: не забыть перенести это в ability
-// Scale a keeper stat off the cast competence C (skill_coeff+stat_coeff, from kSummonKeeper's
+// Scale a summoned-minion stat off the cast competence C (skill_coeff+stat_coeff, from kSummonKeeper's
 // <potency_roll>) via the standard option-2 modifier formula -- the SAME ComputeApplyModifier the
 // affect modifiers use; no new formula. dices_weight>0 folds in the spell's potency dice (the HP
 // spread, replacing the old RollDices(10,10)); flat stats use beta*C only.
-static int KeeperStat(const CastContext &ctx, double min, double dices_weight, double beta) {
+static int SummonScaledStat(const CastContext &ctx, double min, double dices_weight, double beta, int cap = 0) {
 	talents_actions::TalentAffect::Apply a;
 	a.min = min;
 	a.dices_weight = dices_weight;
 	a.alpha = 0.0;
 	a.beta = beta;
 	a.factor = 1;
+	a.cap = cap;
 	return ComputeApplyModifier(a, ctx.CompetenceBase(), ctx.potency());
 }
 
@@ -1456,21 +1457,21 @@ static int KeeperStat(const CastContext &ctx, double min, double dices_weight, d
 // via the keeper flag; this is the in-class keeper's own rescue).
 static void SetupKeeperStats(CharData *ch, CharData *mob, const CastContext &ctx) {
 	mob->set_level(GetRealLevel(ch));
-	const int hp = KeeperStat(ctx, 50, 1.0, 164.4);   // + the 10d10 potency dice (old RollDices(10,10))
+	const int hp = SummonScaledStat(ctx, 50, 1.0, 164.4);   // + the 10d10 potency dice (old RollDices(10,10))
 	mob->set_hit(hp);
 	mob->set_max_hit(hp);
-	mob->set_skill(ESkill::kPunch,  KeeperStat(ctx, 10, 0.0, 41.1));
-	mob->set_skill(ESkill::kRescue, KeeperStat(ctx, 50, 0.0, 27.4));
-	mob->set_str(KeeperStat(ctx, 3,  0.0, 5.5));
-	mob->set_dex(KeeperStat(ctx, 10, 0.0, 5.5));
-	mob->set_con(KeeperStat(ctx, 10, 0.0, 5.5));
-	GET_HR(mob) = KeeperStat(ctx, 0, 0.0, 12.4);
-	GET_AC(mob) = 100 - KeeperStat(ctx, 0, 0.0, 72.6);
+	mob->set_skill(ESkill::kPunch,  SummonScaledStat(ctx, 10, 0.0, 41.1));
+	mob->set_skill(ESkill::kRescue, SummonScaledStat(ctx, 50, 0.0, 27.4));
+	mob->set_str(SummonScaledStat(ctx, 3,  0.0, 5.5));
+	mob->set_dex(SummonScaledStat(ctx, 10, 0.0, 5.5));
+	mob->set_con(SummonScaledStat(ctx, 10, 0.0, 5.5));
+	GET_HR(mob) = SummonScaledStat(ctx, 0, 0.0, 12.4);
+	GET_AC(mob) = 100 - SummonScaledStat(ctx, 0, 0.0, 72.6);
 }
 
 // kSummonFirekeeper post-spawn: a fire-aura (or fire-shield at 30+ effective cha) charm affect,
 // dr/hp/skills scaled by a 0..30 modifier derived from caster cha. Awakens on spawn.
-static void SetupFirekeeperStats(CharData *ch, CharData *mob, int charm_duration) {
+static void SetupFirekeeperStats(CharData *ch, CharData *mob, const CastContext &ctx, int charm_duration) {
 	Affect<EApply> af;
 	af.type = ESpell::kCharm;
 	af.duration = charm_duration;
@@ -1480,17 +1481,19 @@ static void SetupFirekeeperStats(CharData *ch, CharData *mob, int charm_duration
 	af.affect_type = (get_effective_cha(ch) >= 30) ? EAffect::kFireShield : EAffect::kFireAura;
 	affect_to_char(mob, af);
 
-	const int modifier = VPOSI((int) get_effective_cha(ch) - 20, 0, 30);
-
-	GET_DR(mob) = 10 + modifier * 3 / 2;
+	// Cha-driven stats, calibrated onto C = base_cha-20 (kSummonFirekeeper potency: kCha
+	// threshold=20 weight=100) via the same SummonScaledStat/option-2 formula; each cap
+	// reproduces the old clamp(effective_cha-20, 0, 30) ceiling at cha 50. No new formula.
+	GET_DR(mob) = SummonScaledStat(ctx, 10, 0.0, 1.5, 55);
 	GET_NDD(mob) = 1;
-	GET_SDD(mob) = modifier / 5 + 1;
+	GET_SDD(mob) = SummonScaledStat(ctx, 1, 0.0, 0.2, 7);
 	mob->mob_specials.extra_attack = 0;
 
-	const int m = 300 + number(modifier * 12, modifier * 16);
+	// old: 300 + number(modifier*12, modifier*16) -- the random spread collapses to the average.
+	const int m = SummonScaledStat(ctx, 300, 0.0, 14.0, 720);
 	mob->set_hit(m);
 	mob->set_max_hit(m);
-	mob->set_skill(ESkill::kAwake, 50 + modifier * 2);
+	mob->set_skill(ESkill::kAwake, SummonScaledStat(ctx, 50, 0.0, 2.0, 110));
 	mob->SetFlag(EPrf::kAwake);
 }
 
@@ -1624,7 +1627,7 @@ EStageResult CastSummon(CastContext &ctx, bool need_fail) {
 		SetupKeeperStats(ch, mob, ctx);
 	}
 	if (spell_id == ESpell::kSummonFirekeeper) {
-		SetupFirekeeperStats(ch, mob, duration);
+		SetupFirekeeperStats(ch, mob, ctx, duration);
 	}
 	mob->SetFlag(EMobFlag::kNoSkillTrain);
 	if (p.handle_corpse) {

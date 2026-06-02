@@ -3286,6 +3286,9 @@ base_stat id - (например "kWis") какой берем параметр,
         <mana max="150" min="140" change="1"/>
         <targets val="kTarIgnore"/>
         <flags val="kMagSummons"/>
+        <potency_roll>
+            <base_stat id="kCha" threshold="20" weight="100"/>
+        </potency_roll>
     </spell>
     <spell id="kIceShield" element="kWater" mode="kEnabled">
         <name rus="ледяной щит" eng="ice protect"/>
