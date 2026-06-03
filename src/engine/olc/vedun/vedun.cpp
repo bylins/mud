@@ -349,18 +349,11 @@ void do_vedun(CharData *ch, char *argument, int /*cmd*/, int /*subcmd*/) {
 		SendMsgToChar(fmt::format("Vedun: '{}' is not editable (prohibited by its scheme).\r\n", resolved_id), ch);
 		return;
 	}
-	// the DOM node is the direct child of the file root whose `id` matches the resolved canonical id.
+	// Locate the element's DOM node via the loader (it owns its file layout / id-attribute). The
+	// returned node shares `doc`'s document, so edits through the session are persisted with the file.
 	parser_wrapper::DataNode doc(entry->file);
-	parser_wrapper::DataNode found;
-	bool ok = false;
-	for (auto &child : doc.Children()) {
-		if (resolved_id == child.GetValue("id")) {
-			found = child;
-			ok = true;
-			break;
-		}
-	}
-	if (!ok) {
+	parser_wrapper::DataNode found = entry->loader->FindElementNode(doc, resolved_id);
+	if (found.IsEmpty()) {
 		SendMsgToChar(fmt::format("Vedun: '{}' has no node in {} (data/file out of sync?).\r\n",
 			resolved_id, entry->what), ch);
 		return;

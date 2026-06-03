@@ -51,6 +51,19 @@ class IEditableCfgLoader : public virtual ICfgLoader {
 	[[nodiscard]] virtual std::string EditableWhat() const = 0;                       // `vedun <what>`
 	[[nodiscard]] virtual std::vector<EditableElement> ListElements() const = 0;      // editable items
 	[[nodiscard]] virtual ValidationResult Validate(parser_wrapper::DataNode &doc) const = 0;  // dry-run
+	// Locate one element's DOM node inside the loaded file root, so the editor need not hard-code
+	// the file layout. Default: a direct child of the root whose `id` attribute matches. Override
+	// for a file whose elements are nested differently or keyed by another attribute. The returned
+	// node shares the passed root's document (an empty node means "not found").
+	[[nodiscard]] virtual parser_wrapper::DataNode FindElementNode(
+			parser_wrapper::DataNode root, const std::string &id) const {
+		for (auto &child : root.Children()) {
+			if (id == child.GetValue("id")) {
+				return child;
+			}
+		}
+		return parser_wrapper::DataNode{};
+	}
 };
 
 using LoaderPtr = std::unique_ptr<ICfgLoader>;
