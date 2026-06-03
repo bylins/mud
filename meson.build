@@ -463,6 +463,7 @@ main_sources = files(
   'src/gameplay/mechanics/obj_sets_olc.cpp',
   'src/gameplay/magic/magic_objects.cpp',
   'src/engine/olc/oedit.cpp',
+  'src/engine/olc/vedun/vedun.cpp',
   'src/engine/olc/olc.cpp',
   'src/gameplay/communication/parcel.cpp',
   'src/utils/parse.cpp',

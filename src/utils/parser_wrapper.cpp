@@ -59,6 +59,14 @@ const char *DataNode::GetValue(const std::string &key) const {
 	return impl_->curren_xml_node.attribute(key.c_str()).value();
 }
 
+std::vector<std::pair<std::string, std::string>> DataNode::Attributes() const {
+	std::vector<std::pair<std::string, std::string>> out;
+	for (auto attr = impl_->curren_xml_node.first_attribute(); attr; attr = attr.next_attribute()) {
+		out.emplace_back(attr.name(), attr.value());
+	}
+	return out;
+}
+
 void DataNode::GoToRadix() {
 	impl_->curren_xml_node = impl_->xml_doc->document_element();
 }

@@ -21,6 +21,8 @@
 #include <filesystem>
 #include <memory>
 #include <string>
+#include <utility>
+#include <vector>
 
 #include "engine/structs/iterators.h"
 
@@ -139,6 +141,12 @@ class DataNode {
 	 * Диапазон дочерних узлов с именем key,
 	 */
 	[[nodiscard]] iterators::Range<DataNode> Children(const std::string &key);
+
+	/*
+	 * issue.vedun-editor: enumerate this node's attributes as (name, value) pairs, in document
+	 * order. The editor reflects an arbitrary node's attributes into form fields.
+	 */
+	[[nodiscard]] std::vector<std::pair<std::string, std::string>> Attributes() const;
 
  private:
 	struct Impl;

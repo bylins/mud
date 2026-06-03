@@ -1967,6 +1967,7 @@ bool any_other_ch(CharData *ch) {
 }
 
 #ifdef HAS_EPOLL
+namespace vedun { void vedun_cleanup(DescriptorData *d); }  // issue.vedun-editor
 void close_socket(DescriptorData *d, int direct, int epoll, struct epoll_event *events, int n_ev)
 #else
 void close_socket(DescriptorData * d, int direct)
@@ -2019,6 +2020,8 @@ void close_socket(DescriptorData * d, int direct)
 		case EConState::kMedit:
 		case EConState::kMredit:
 		case EConState::kTrigedit: cleanup_olc(d, CLEANUP_ALL);
+			break;
+		case EConState::kVedun: vedun::vedun_cleanup(d);
 			break;
 			/*case CON_CONSOLE:
 				d->console.reset();
