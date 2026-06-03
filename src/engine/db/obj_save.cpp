@@ -2014,7 +2014,7 @@ int save_char_objects(CharData *ch, int savetype, int rentcost) {
 	// Дисковый write почти не зависит от числа предметов и обычно доминирует,
 	// поэтому "меньше предметов, но дольше" -- это про занятость диска, не про items.
 	const double total_io_sec = serialize_sec + obj_io_sec + timer_io_sec;
-	if (total_io_sec > 0.01) {
+	if (total_io_sec > 0.04) {
 		log("save_char_objects: %s items=%d serialize=%.4f write=%.4f crc=%.4f time_io=%.4f total=%.4f",
 			GET_NAME(ch), num, serialize_sec, write_sec, crc_sec, timer_io_sec, total_io_sec);
 	}
