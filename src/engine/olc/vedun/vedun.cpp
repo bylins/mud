@@ -11,6 +11,7 @@
 #include "engine/core/comm.h"                 // SendMsgToChar
 #include "engine/ui/table_wrapper.h"          // table_wrapper::Table
 #include "engine/ui/modify.h"                 // page_string (pager)
+#include "engine/olc/vedun/enum_registry.h"   // EnumRegistry / RegisterEditorEnums
 #include "utils/mud_string.h"                 // two_arguments
 #include "utils/utils_string.h"               // str_cmp (case-insensitive)
 
@@ -45,23 +46,64 @@ std::string ChildHint(const parser_wrapper::DataNode &child) {
 	return "";
 }
 
+// Build a compact type/validity hint for an attribute from its scheme def (empty if untyped).
+std::string AttrHint(const AttrDef *ad, const std::string &value) {
+	if (ad == nullptr) {
+		return "";
+	}
+	std::string hint;
+	switch (ad->type) {
+		case FieldType::kEnum:
+		case FieldType::kFlagset:
+		case FieldType::kList:
+			hint = fmt::format("{}<{}>", FieldTypeName(ad->type), ad->enum_type);
+			if (ad->type == FieldType::kEnum) {
+				const auto &reg = EnumRegistry::Instance();
+				if (reg.Known(ad->enum_type) && !reg.ValueOf(ad->enum_type, value).has_value()) {
+					hint += " (?)";   // current value is not a known member
+				}
+			}
+			break;
+		case FieldType::kInt:
+		case FieldType::kDouble:
+			hint = FieldTypeName(ad->type);
+			if (ad->min || ad->max) {
+				hint += fmt::format("[{}..{}]", ad->min ? std::to_string(*ad->min) : "",
+					ad->max ? std::to_string(*ad->max) : "");
+			}
+			break;
+		default:
+			hint = FieldTypeName(ad->type);
+			break;
+	}
+	if (ad->readonly) {
+		hint += " ro";
+	}
+	return hint;
+}
+
 void Render(DescriptorData *d) {
 	auto *ch = d->character.get();
 	const auto &s = *d->vedun_session;
 	parser_wrapper::DataNode cur = s.path.back();   // copy: keep the stored cursor stable
+	const TagDef *tagdef = s.scheme.FindTag(cur.GetName());
 
 	std::string crumb;
 	for (std::size_t i = 0; i < s.path.size(); ++i) {
 		crumb += (i ? "/" : "");
 		crumb += s.path[i].GetName();
 	}
-	SendMsgToChar(fmt::format("&WVedun&n [{}]  &c{}&n  (read-only)\r\n", s.what, crumb), ch);
+	const std::string tag_desc = tagdef ? tagdef->desc : "";
+	SendMsgToChar(fmt::format("&WVedun&n [{}]  &c{}&n  (read-only){}\r\n",
+		s.what, crumb, tag_desc.empty() ? std::string{} : "  -- " + tag_desc), ch);
 
 	const auto attrs = cur.Attributes();
 	if (!attrs.empty()) {
 		table_wrapper::Table table;
 		for (const auto &[name, value] : attrs) {
-			table << name << value << table_wrapper::kEndRow;
+			const AttrDef *ad = tagdef ? tagdef->FindAttr(name) : nullptr;
+			table << name << value << AttrHint(ad, value) << (ad ? ad->desc : "")
+				  << table_wrapper::kEndRow;
 		}
 		table_wrapper::DecorateNoBorderTable(ch, table);
 		table_wrapper::PrintTableToChar(ch, table);
@@ -76,9 +118,11 @@ void Render(DescriptorData *d) {
 	if (!kids.empty()) {
 		table_wrapper::Table table;
 		for (std::size_t i = 0; i < kids.size(); ++i) {
+			const TagDef *kdef = s.scheme.FindTag(kids[i].GetName());
 			table << fmt::format("{})", i + 1)
 				  << fmt::format("<{}>", kids[i].GetName())
-				  << ChildHint(kids[i]) << table_wrapper::kEndRow;
+				  << ChildHint(kids[i])
+				  << (kdef ? kdef->desc : "") << table_wrapper::kEndRow;
 		}
 		table_wrapper::DecorateNoBorderTable(ch, table);
 		table_wrapper::PrintTableToChar(ch, table);
@@ -93,6 +137,8 @@ void do_vedun(CharData *ch, char *argument, int /*cmd*/, int /*subcmd*/) {
 	if (!d) {
 		return;
 	}
+	static const bool kEnumsReady = [] { RegisterEditorEnums(); return true; }();  // once
+	(void) kEnumsReady;
 	char what[kMaxInputLength], element[kMaxInputLength];
 	two_arguments(argument, what, element);
 
@@ -151,6 +197,11 @@ void do_vedun(CharData *ch, char *argument, int /*cmd*/, int /*subcmd*/) {
 		SendMsgToChar(fmt::format("Vedun: element '{}' not found in '{}'.\r\n", element, entry->what), ch);
 		return;
 	}
+	Scheme scheme = LoadScheme(SchemePathFor(entry->file));
+	if (scheme.IsProhibited(resolved_id)) {
+		SendMsgToChar(fmt::format("Vedun: '{}' is not editable (prohibited by its scheme).\r\n", resolved_id), ch);
+		return;
+	}
 	// the DOM node is the direct child of the file root whose `id` matches the resolved canonical id.
 	parser_wrapper::DataNode doc(entry->file);
 	parser_wrapper::DataNode found;
@@ -173,6 +224,7 @@ void do_vedun(CharData *ch, char *argument, int /*cmd*/, int /*subcmd*/) {
 	session->loader = entry->loader;
 	session->doc = std::move(doc);
 	session->path.push_back(found);
+	session->scheme = std::move(scheme);
 	d->vedun_session = std::move(session);
 	d->state = EConState::kVedun;
 	Render(d);

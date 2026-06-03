@@ -5,6 +5,7 @@
 #include "engine/olc/vedun/scheme.h"
 
 #include <cstdio>
+#include <filesystem>
 #include <fstream>
 
 namespace {
@@ -70,4 +71,20 @@ TEST(Vedun_Scheme, MissingFileYieldsEmptyScheme) {
 
 TEST(Vedun_Scheme, SchemePathDerivation) {
 	EXPECT_EQ(vedun::SchemePathFor("cfg/spells.xml").string(), "cfg/spells.scheme");
+}
+
+TEST(Vedun_Scheme, RealSpellSchemeLoads) {
+	const char *path = "small/cfg/spells.scheme";  // relative to the test workdir (build/)
+	if (!std::filesystem::exists(path)) {
+		GTEST_SKIP() << "needs the small-world cfg (" << path << ")";
+	}
+	const auto scheme = vedun::LoadScheme(path);
+	EXPECT_FALSE(scheme.Empty());
+	EXPECT_TRUE(scheme.IsProhibited("kUndefined"));
+	const auto *spell = scheme.FindTag("spell");
+	ASSERT_NE(spell, nullptr);
+	const auto *element = spell->FindAttr("element");
+	ASSERT_NE(element, nullptr);
+	EXPECT_EQ(element->type, vedun::FieldType::kEnum);
+	EXPECT_EQ(element->enum_type, "EElement");
 }

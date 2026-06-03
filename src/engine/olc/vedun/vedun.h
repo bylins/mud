@@ -11,6 +11,7 @@
 #define BYLINS_SRC_ENGINE_OLC_VEDUN_VEDUN_H_
 
 #include "engine/boot/cfg_manager.h"
+#include "engine/olc/vedun/scheme.h"
 #include "utils/parser_wrapper.h"
 
 #include <filesystem>
@@ -30,6 +31,7 @@ struct Session {
 	cfg_manager::IEditableCfgLoader *loader{nullptr};
 	parser_wrapper::DataNode doc;                  // the loaded whole-file DOM (kept alive here)
 	std::vector<parser_wrapper::DataNode> path;    // cursor stack; path.front() = the element root
+	Scheme scheme;                                 // the data file's .scheme (empty if none)
 };
 
 // The `vedun [what] [element]` command (implementor-only). The listing forms (no args / what only)

@@ -1,0 +1,57 @@
+<!--
+  issue.vedun-editor: editor scheme for spells.xml. OPTIONAL sidecar - it describes field types,
+  bounds, and help so the Vedun editor can show enum pick-lists, ranges, and descriptions instead of
+  bare strings. It is intentionally INCOMPLETE: any tag/attribute not declared here degrades to a
+  plain string field in the editor (and is still validated on save by the spell loader). Grow it as
+  needed; this is also the right home for the per-field documentation that used to rot in XML
+  header comments.
+
+  enum/flagset attributes name an enum resolved at runtime via vedun::EnumRegistry; enums not yet
+  registered there still display their type but skip the value-validity check.
+-->
+<scheme>
+	<prohibited>
+		<element id="kUndefined"/>
+	</prohibited>
+
+	<tag name="spell" desc="A spell definition">
+		<attr name="id" type="enum" enum="ESpell" readonly="Y" desc="Spell identifier (immutable)"/>
+		<attr name="element" type="enum" enum="EElement" desc="Magic element"/>
+		<attr name="mode" type="enum" enum="EItemMode" desc="kEnabled / kDisabled / kTesting"/>
+		<child tag="name"/>
+		<child tag="misc"/>
+		<child tag="mana"/>
+		<child tag="targets"/>
+		<child tag="flags"/>
+		<child tag="components"/>
+		<child tag="potency_roll"/>
+		<child tag="success_roll"/>
+		<child tag="talent_actions"/>
+		<child tag="caster_conditions"/>
+	</tag>
+
+	<tag name="name" desc="Localised spell names">
+		<attr name="rus" type="string" desc="Russian name"/>
+		<attr name="eng" type="string" desc="English name"/>
+	</tag>
+
+	<tag name="misc" desc="Position / violence / PK danger">
+		<attr name="pos" type="enum" enum="EPosition" desc="Minimum caster position"/>
+		<attr name="violent" type="enum" enum="EViolent" desc="Violent spell? Y / N / A(mbiguous)"/>
+		<attr name="danger" type="int" min="0" desc="PK danger class"/>
+	</tag>
+
+	<tag name="mana" desc="Mana cost">
+		<attr name="max" type="int" min="0" desc="Max mana cost"/>
+		<attr name="min" type="int" min="0" desc="Min mana cost"/>
+		<attr name="change" type="int" desc="Cost reduction per skill"/>
+	</tag>
+
+	<tag name="targets" desc="Valid spell targets">
+		<attr name="val" type="flagset" enum="ETarget" desc="ETarget flag set"/>
+	</tag>
+
+	<tag name="flags" desc="Spell routing / PK flags">
+		<attr name="val" type="flagset" enum="EMagic" desc="EMagic flag set"/>
+	</tag>
+</scheme>
