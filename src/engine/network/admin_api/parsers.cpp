@@ -480,6 +480,15 @@ void ParseObjectUpdate(CObjectPrototype* obj, const nlohmann::json& data)
 	{
 		obj->set_type(static_cast<EObjType>(data["type"].get<int>()));
 	}
+
+	// spec_param: per-type special parameter (loader reads top-level "spec_param",
+	// yaml_world_data_source.cpp:2003). For weapons it is the associated ESkill
+	// (e.g. kBows for a bow); without it the YAML format/OLC support it but the
+	// API did not, so weapon-skill could not be set through the API.
+	if (data.contains("spec_param"))
+	{
+		obj->set_spec_param(data["spec_param"].get<int>());
+	}
 	if (data.contains("material"))
 	{
 		obj->set_material(static_cast<EObjMaterial>(data["material"].get<int>()));
