@@ -18,6 +18,8 @@
 #include <fmt/format.h>
 
 #include <cctype>
+#include <filesystem>
+#include <system_error>
 
 namespace vedun {
 
@@ -94,16 +96,19 @@ void Render(DescriptorData *d) {
 		crumb += s.path[i].GetName();
 	}
 	const std::string tag_desc = tagdef ? tagdef->desc : "";
-	SendMsgToChar(fmt::format("&WVedun&n [{}]  &c{}&n  (read-only){}\r\n",
-		s.what, crumb, tag_desc.empty() ? std::string{} : "  -- " + tag_desc), ch);
+	SendMsgToChar(fmt::format("&WVedun&n [{}]  &c{}&n{}{}\r\n",
+		s.what, crumb, s.dirty ? "  &Y*modified*&n" : "",
+		tag_desc.empty() ? std::string{} : "  -- " + tag_desc), ch);
 
+	std::size_t index = 0;
 	const auto attrs = cur.Attributes();
 	if (!attrs.empty()) {
 		table_wrapper::Table table;
 		for (const auto &[name, value] : attrs) {
+			++index;
 			const AttrDef *ad = tagdef ? tagdef->FindAttr(name) : nullptr;
-			table << name << value << AttrHint(ad, value) << (ad ? ad->desc : "")
-				  << table_wrapper::kEndRow;
+			table << fmt::format("{})", index) << name << value << AttrHint(ad, value)
+				  << (ad ? ad->desc : "") << table_wrapper::kEndRow;
 		}
 		table_wrapper::DecorateNoBorderTable(ch, table);
 		table_wrapper::PrintTableToChar(ch, table);
@@ -118,8 +123,9 @@ void Render(DescriptorData *d) {
 	if (!kids.empty()) {
 		table_wrapper::Table table;
 		for (std::size_t i = 0; i < kids.size(); ++i) {
+			++index;
 			const TagDef *kdef = s.scheme.FindTag(kids[i].GetName());
-			table << fmt::format("{})", i + 1)
+			table << fmt::format("{})", index)
 				  << fmt::format("<{}>", kids[i].GetName())
 				  << ChildHint(kids[i])
 				  << (kdef ? kdef->desc : "") << table_wrapper::kEndRow;
@@ -127,7 +133,41 @@ void Render(DescriptorData *d) {
 		table_wrapper::DecorateNoBorderTable(ch, table);
 		table_wrapper::PrintTableToChar(ch, table);
 	}
-	SendMsgToChar("&WSelect&n: a number to descend, &Wu&n) up, &Wq&n) quit\r\n", ch);
+	SendMsgToChar("&WSelect&n: a number (attribute=edit, &lt;tag&gt;=enter), &Ws&n) save, &Wu&n) up, &Wq&n) quit\r\n", ch);
+}
+
+// The safe commit: validate the edited DOM (dry-parse, no swap), then atomically rewrite the file
+// (.new -> rename) and reload the container. The original file is never at risk.
+void SaveSession(DescriptorData *d) {
+	auto &s = *d->vedun_session;
+	auto *ch = d->character.get();
+	if (!s.dirty) {
+		SendMsgToChar("Vedun: nothing to save.\r\n", ch);
+		return;
+	}
+	s.doc.GoToRadix();
+	const auto result = s.loader->Validate(s.doc);
+	if (!result.ok) {
+		SendMsgToChar(fmt::format("&RVedun: save refused -- {}&n\r\nThe file was not changed.\r\n",
+			result.error), ch);
+		return;
+	}
+	std::filesystem::path tmp = s.file;
+	tmp += ".new";
+	if (!s.doc.Save(tmp)) {
+		SendMsgToChar("&RVedun: save failed (could not write the file).&n\r\n", ch);
+		return;
+	}
+	std::error_code ec;
+	std::filesystem::rename(tmp, s.file, ec);
+	if (ec) {
+		std::filesystem::remove(tmp, ec);
+		SendMsgToChar("&RVedun: save failed (rename).&n\r\n", ch);
+		return;
+	}
+	s.loader->Reload(parser_wrapper::DataNode(s.file));
+	s.dirty = false;
+	SendMsgToChar("&GVedun: saved and reloaded.&n\r\n", ch);
 }
 
 } // namespace
@@ -236,12 +276,38 @@ void vedun_parse(DescriptorData *d, char *arg) {
 		return;
 	}
 	auto &s = *d->vedun_session;
+
+	// Awaiting a new attribute value: the whole line (case preserved in the editor state).
+	if (s.mode == Mode::kEditAttr) {
+		while (*arg == ' ') {
+			++arg;
+		}
+		std::string value = arg;
+		while (!value.empty() && std::isspace(static_cast<unsigned char>(value.back()))) {
+			value.pop_back();
+		}
+		if (value.empty() || value == ".") {
+			SendMsgToChar("Cancelled.\r\n", d->character.get());
+		} else {
+			s.path.back().SetValue(s.edit_attr, value);
+			s.dirty = true;
+		}
+		s.mode = Mode::kBrowse;
+		s.edit_attr.clear();
+		Render(d);
+		return;
+	}
+
 	while (*arg && std::isspace(static_cast<unsigned char>(*arg))) {
 		++arg;
 	}
-
 	if (*arg == 'q' || *arg == 'Q') {
 		vedun_cleanup(d);
+		return;
+	}
+	if (*arg == 's' || *arg == 'S') {
+		SaveSession(d);
+		Render(d);
 		return;
 	}
 	if (*arg == 'u' || *arg == 'U' || *arg == '0') {
@@ -254,10 +320,28 @@ void vedun_parse(DescriptorData *d, char *arg) {
 		return;
 	}
 	const int n = atoi(arg);
-	if (n > 0) {
+	if (n >= 1) {
+		const auto attrs = s.path.back().Attributes();
+		const int num_attrs = static_cast<int>(attrs.size());
+		if (n <= num_attrs) {
+			const std::string &name = attrs[n - 1].first;
+			const TagDef *td = s.scheme.FindTag(s.path.back().GetName());
+			const AttrDef *ad = td ? td->FindAttr(name) : nullptr;
+			if (ad && ad->readonly) {
+				SendMsgToChar(fmt::format("Vedun: '{}' is read-only.\r\n", name), d->character.get());
+				Render(d);
+				return;
+			}
+			s.mode = Mode::kEditAttr;
+			s.edit_attr = name;
+			SendMsgToChar(fmt::format("New value for &g{}&n [{}] (enum/list by token name; '.' or blank cancels):\r\n",
+				name, attrs[n - 1].second), d->character.get());
+			return;
+		}
 		const auto kids = ChildrenOf(s.path.back());
-		if (n <= static_cast<int>(kids.size())) {
-			s.path.push_back(kids[n - 1]);
+		const int child_index = n - num_attrs;
+		if (child_index >= 1 && child_index <= static_cast<int>(kids.size())) {
+			s.path.push_back(kids[child_index - 1]);
 		}
 	}
 	Render(d);

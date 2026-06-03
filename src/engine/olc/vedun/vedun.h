@@ -23,8 +23,10 @@ class DescriptorData;
 
 namespace vedun {
 
-// Per-descriptor editing session. Phase 1 is a read-only viewer: it holds the whole-file DOM and a
-// cursor stack (path) from the element's root node to the node currently shown.
+// Per-descriptor editing session: the whole-file DOM, a cursor stack (path) from the element root
+// to the node shown, the scheme, and the edit state. Editing mutates the shared DOM in place;
+// saving validates then atomically rewrites the file and reloads the container.
+enum class Mode { kBrowse, kEditAttr };
 struct Session {
 	std::string what;                              // e.g. "spell"
 	std::filesystem::path file;                    // the cfg source file
@@ -32,6 +34,9 @@ struct Session {
 	parser_wrapper::DataNode doc;                  // the loaded whole-file DOM (kept alive here)
 	std::vector<parser_wrapper::DataNode> path;    // cursor stack; path.front() = the element root
 	Scheme scheme;                                 // the data file's .scheme (empty if none)
+	Mode mode{Mode::kBrowse};                      // browse vs awaiting an attribute value
+	std::string edit_attr;                         // attribute being edited (kEditAttr)
+	bool dirty{false};                             // unsaved edits in the DOM
 };
 
 // The `vedun [what] [element]` command (implementor-only). The listing forms (no args / what only)
