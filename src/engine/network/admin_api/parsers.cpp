@@ -742,7 +742,13 @@ void ParseRoomUpdate(RoomData* room, const nlohmann::json& data)
 			}
 			if (exit_json.contains("keyword"))
 			{
-				exit->set_keyword(Utf8ToKoi8r(exit_json["keyword"].get<std::string>()));
+				// set_keywords (not set_keyword): parses "nominative|accusative"
+				// and, when no '|' is given, copies the value into BOTH keyword
+				// and vkeyword. find_door (FindDoorDir) requires BOTH to be set,
+				// so plain set_keyword left vkeyword null and the door became
+				// unopenable by name until the next reload (which uses
+				// set_keywords). Mirrors the YAML loader.
+				exit->set_keywords(Utf8ToKoi8r(exit_json["keyword"].get<std::string>()));
 			}
 			if (exit_json.contains("exit_info"))
 			{
