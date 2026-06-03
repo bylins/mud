@@ -10,7 +10,9 @@
 #include "engine/network/descriptor_data.h"
 #include "engine/core/comm.h"                 // SendMsgToChar
 #include "engine/ui/table_wrapper.h"          // table_wrapper::Table
+#include "engine/ui/modify.h"                 // page_string (pager)
 #include "utils/mud_string.h"                 // two_arguments
+#include "utils/utils_string.h"               // str_cmp (case-insensitive)
 
 #include <fmt/format.h>
 
@@ -94,16 +96,28 @@ void do_vedun(CharData *ch, char *argument, int /*cmd*/, int /*subcmd*/) {
 	char what[kMaxInputLength], element[kMaxInputLength];
 	two_arguments(argument, what, element);
 
-	// `vedun` -- list the editable data sets.
+	// `vedun` -- list the editable data sets, four per row (paged).
 	if (!*what) {
-		SendMsgToChar("&WVedun&n -- editable data sets:\r\n", ch);
-		table_wrapper::Table table;
+		std::vector<std::string> whats;
 		for (const auto &entry : MUD::CfgManager().EditableEntries()) {
-			table << entry.what << table_wrapper::kEndRow;
+			whats.push_back(entry.what);
+		}
+		table_wrapper::Table table;
+		for (std::size_t i = 0; i < whats.size(); ++i) {
+			table << whats[i];
+			if ((i + 1) % 4 == 0) {
+				table << table_wrapper::kEndRow;
+			}
+		}
+		if (const auto rem = whats.size() % 4; rem != 0) {  // pad the last partial row
+			for (std::size_t j = rem; j < 4; ++j) {
+				table << "";
+			}
+			table << table_wrapper::kEndRow;
 		}
 		table_wrapper::DecorateNoBorderTable(ch, table);
-		table_wrapper::PrintTableToChar(ch, table);
-		SendMsgToChar("Usage: vedun <what> [element]\r\n", ch);
+		page_string(d, fmt::format("&WVedun&n -- editable data sets:\r\n{}Usage: vedun <what> [element]\r\n",
+			table.to_string()));
 		return;
 	}
 
@@ -113,36 +127,46 @@ void do_vedun(CharData *ch, char *argument, int /*cmd*/, int /*subcmd*/) {
 		return;
 	}
 
-	// `vedun <what>` -- list the editable elements.
+	// `vedun <what>` -- list the editable elements (paged).
 	if (!*element) {
-		SendMsgToChar(fmt::format("&WVedun&n [{}] -- elements:\r\n", entry->what), ch);
 		table_wrapper::Table table;
 		for (const auto &el : entry->loader->ListElements()) {
 			table << el.id << el.label << table_wrapper::kEndRow;
 		}
 		table_wrapper::DecorateNoBorderTable(ch, table);
-		table_wrapper::PrintTableToChar(ch, table);
+		page_string(d, fmt::format("&WVedun&n [{}] -- elements:\r\n{}", entry->what, table.to_string()));
 		return;
 	}
 
-	// `vedun <what> <element>` -- open the read-only viewer on that element's DOM. The element is
-	// the direct child of the file root whose `id` attribute matches (true for spells; generalised
-	// later via the loader/scheme).
+	// `vedun <what> <element>` -- resolve the element by id (case-insensitive; the interpreter
+	// lowercases input) or by its label (e.g. the Russian name), then open the read-only viewer.
+	std::string resolved_id;
+	for (const auto &el : entry->loader->ListElements()) {
+		if (str_cmp(el.id, element) == 0 || str_cmp(el.label, element) == 0) {
+			resolved_id = el.id;
+			break;
+		}
+	}
+	if (resolved_id.empty()) {
+		SendMsgToChar(fmt::format("Vedun: element '{}' not found in '{}'.\r\n", element, entry->what), ch);
+		return;
+	}
+	// the DOM node is the direct child of the file root whose `id` matches the resolved canonical id.
 	parser_wrapper::DataNode doc(entry->file);
 	parser_wrapper::DataNode found;
 	bool ok = false;
 	for (auto &child : doc.Children()) {
-		if (std::string(child.GetValue("id")) == element) {
+		if (resolved_id == child.GetValue("id")) {
 			found = child;
 			ok = true;
 			break;
 		}
 	}
 	if (!ok) {
-		SendMsgToChar(fmt::format("Vedun: element '{}' not found in '{}'.\r\n", element, entry->what), ch);
+		SendMsgToChar(fmt::format("Vedun: '{}' has no node in {} (data/file out of sync?).\r\n",
+			resolved_id, entry->what), ch);
 		return;
 	}
-
 	auto session = std::make_shared<Session>();
 	session->what = entry->what;
 	session->file = entry->file;
