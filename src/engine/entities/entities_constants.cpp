@@ -406,6 +406,14 @@ const std::string &NAME_BY_ITEM<EBaseStat>(const EBaseStat item) {
 }
 
 template<>
+const std::map<EBaseStat, std::string> &NAMES_OF<EBaseStat>() {
+	if (EBaseStat_name_by_value.empty()) {
+		init_EBaseStat_ITEM_NAMES();
+	}
+	return EBaseStat_name_by_value;
+}
+
+template<>
 EBaseStat ITEM_BY_NAME<EBaseStat>(const std::string &name) {
 	if (EBaseStat_name_by_value.empty()) {
 		init_EBaseStat_ITEM_NAMES();

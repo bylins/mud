@@ -154,6 +154,8 @@ template<>
 ESkill ITEM_BY_NAME<ESkill>(const std::string &name);
 template<>
 const std::string &NAME_BY_ITEM<ESkill>(ESkill item);
+template<>
+const std::map<ESkill, std::string> &NAMES_OF<ESkill>();  // issue.vedun-editor: editor pick-list
 
 struct SkillRollResult {
 	bool success{true};

@@ -82,6 +82,8 @@ template<>
 const std::string &NAME_BY_ITEM<EBaseStat>(EBaseStat item);
 template<>
 EBaseStat ITEM_BY_NAME<EBaseStat>(const std::string &name);
+template<>
+const std::map<EBaseStat, std::string> &NAMES_OF<EBaseStat>();  // issue.vedun-editor: editor pick-list
 
 const int kDefaultBaseStatMin{10};
 const int kDefaultBaseStatMax{25};

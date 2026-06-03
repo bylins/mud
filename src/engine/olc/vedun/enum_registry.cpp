@@ -9,6 +9,7 @@
 #include "engine/entities/entities_constants.h" // EPosition + NAMES_OF
 #include "engine/structs/info_container.h"      // EItemMode + NAMES_OF
 #include "gameplay/affects/affect_contants.h" // EAffFlag + NAMES_OF
+#include "gameplay/skills/skills.h"           // ESkill + NAMES_OF
 
 namespace vedun {
 
@@ -60,6 +61,8 @@ void RegisterEditorEnums() {
 	registry.Register<EPosition>("EPosition");
 	registry.Register<EItemMode>("EItemMode");
 	registry.Register<EAffFlag>("EAffFlag");
+	registry.Register<ESkill>("ESkill");
+	registry.Register<EBaseStat>("EBaseStat");
 }
 
 } // namespace vedun

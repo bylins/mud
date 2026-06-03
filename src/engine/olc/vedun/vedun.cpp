@@ -92,22 +92,16 @@ void StyleColumns(table_wrapper::Table &table) {
 	table.column(2).set_cell_content_fg_color(table_wrapper::color::kLightWhite);
 }
 
-// Show an enum's members as a tooltip when entering an enum value (point 4). For a single enum the
-// list is numbered (pick by number); for a flag-set it is a plain reference list.
-void ShowEnumChoices(CharData *ch, const std::string &enum_type, bool numbered) {
-	const auto *members = EnumRegistry::Instance().Members(enum_type);
-	if (members == nullptr || members->empty()) {
-		return;
-	}
-	if (members->size() > 160) {
-		SendMsgToChar(fmt::format("(&c{}&n has {} values -- type the token name)\r\n", enum_type, members->size()), ch);
-		return;
-	}
-	SendMsgToChar(fmt::format("&cValid {} values:&n\r\n", enum_type), ch);
-	table_wrapper::Table table;
+// Enums up to this size are listed inline when editing; larger ones (ESpell ~268, ESkill ~96)
+// would flood the screen, so the prompt points at "?" for a paged list instead.
+constexpr std::size_t kInlineEnumLimit = 100;
+
+// Fill a 4-column grid with an enum's members (numbered for a single-pick enum) and decorate it.
+void FillEnumGrid(CharData *ch, const std::vector<EnumMember> &members, bool numbered,
+				  table_wrapper::Table &table) {
 	std::size_t col = 0;
-	for (std::size_t i = 0; i < members->size(); ++i) {
-		table << (numbered ? fmt::format("{}) {}", i + 1, (*members)[i].name) : (*members)[i].name);
+	for (std::size_t i = 0; i < members.size(); ++i) {
+		table << (numbered ? fmt::format("{}) {}", i + 1, members[i].name) : members[i].name);
 		if (++col % 4 == 0) {
 			table << table_wrapper::kEndRow;
 		}
@@ -119,7 +113,40 @@ void ShowEnumChoices(CharData *ch, const std::string &enum_type, bool numbered) 
 		table << table_wrapper::kEndRow;
 	}
 	table_wrapper::DecorateNoBorderTable(ch, table);
+}
+
+// Show an enum's members as a tooltip when entering an enum/list value. A single enum is numbered
+// (pick by number); a list is a plain reference. Small enums are shown inline; large ones (ESpell,
+// ESkill) print a hint to type "?" for the full paged list (handled in vedun_parse).
+void ShowEnumChoices(CharData *ch, const std::string &enum_type, bool numbered) {
+	const auto *members = EnumRegistry::Instance().Members(enum_type);
+	if (members == nullptr || members->empty()) {
+		return;
+	}
+	if (members->size() > kInlineEnumLimit) {
+		SendMsgToChar(fmt::format("(&c{}&n has {} values -- type &W?&n for the full list, or type the token name)\r\n",
+			enum_type, members->size()), ch);
+		return;
+	}
+	SendMsgToChar(fmt::format("&cValid {} values{}:&n\r\n", enum_type, numbered ? " (pick by number)" : ""), ch);
+	table_wrapper::Table table;
+	FillEnumGrid(ch, *members, numbered, table);
 	table_wrapper::PrintTableToChar(ch, table);
+}
+
+// Page the full member list of an enum (the "?" help at an edit prompt), regardless of size. Uses
+// the pager (page_string works in the editor state -- comm.cpp routes paged input before vedun_parse).
+void PageEnumList(DescriptorData *d, const std::string &enum_type, bool numbered) {
+	auto *ch = d->character.get();
+	const auto *members = EnumRegistry::Instance().Members(enum_type);
+	if (members == nullptr || members->empty()) {
+		SendMsgToChar(fmt::format("(&c{}&n has no listable values)\r\n", enum_type), ch);
+		return;
+	}
+	table_wrapper::Table table;
+	FillEnumGrid(ch, *members, numbered, table);
+	page_string(d, fmt::format("&cValid {} values{}:&n\r\n{}",
+		enum_type, numbered ? " (pick by number)" : " ('|'-separated; '*' = any)", table.to_string()));
 }
 
 // Split a pipe-separated flag value ("a|b|c") into a set of (trimmed) tokens.
@@ -511,6 +538,18 @@ void vedun_parse(DescriptorData *d, char *arg) {
 		std::string value = arg;
 		while (!value.empty() && std::isspace(static_cast<unsigned char>(value.back()))) {
 			value.pop_back();
+		}
+		// "?" pages the full list of valid values for an enum/list field, then keeps the edit open.
+		if (value == "?") {
+			const TagDef *td = s.scheme.FindTag(s.path.back().GetName());
+			const AttrDef *ad = td ? td->FindAttr(s.edit_attr) : nullptr;
+			if (ad && (ad->type == FieldType::kEnum || ad->type == FieldType::kList)
+					&& EnumRegistry::Instance().Known(ad->enum_type)) {
+				PageEnumList(d, ad->enum_type, ad->type == FieldType::kEnum);
+			} else {
+				SendMsgToChar("(no value list for this field)\r\n", ch);
+			}
+			return;
 		}
 		if (value.empty() || value == ".") {
 			SendMsgToChar("Cancelled.\r\n", ch);

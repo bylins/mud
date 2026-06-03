@@ -74,13 +74,13 @@
 	</tag>
 
 	<tag name="base_skill" desc="Skill that scales the roll">
-		<attr name="id" type="string" desc="Scaling skill token (e.g. kLightMagic)"/>
+		<attr name="id" type="enum" enum="ESkill" desc="Scaling skill"/>
 		<attr name="low_skill_bonus" type="double" min="0" desc="Per-point bonus below the novice threshold"/>
 		<attr name="hi_skill_bonus" type="double" min="0" desc="Per-point bonus above the novice threshold"/>
 	</tag>
 
 	<tag name="base_stat" desc="Stat that scales the roll">
-		<attr name="id" type="string" desc="Scaling stat token (e.g. kWis)"/>
+		<attr name="id" type="enum" enum="EBaseStat" desc="Scaling stat"/>
 		<attr name="threshold" type="int" min="0" desc="Stat value at which the weight applies"/>
 		<attr name="weight" type="double" desc="Per-point weight above the threshold"/>
 	</tag>

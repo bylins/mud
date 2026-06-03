@@ -468,6 +468,14 @@ const std::string &NAME_BY_ITEM<ESkill>(const ESkill item) {
 	return ESkill_name_by_value.at(item);
 }
 
+template<>
+const std::map<ESkill, std::string> &NAMES_OF<ESkill>() {
+	if (ESkill_name_by_value.empty()) {
+		init_ESkill_ITEM_NAMES();
+	}
+	return ESkill_name_by_value;
+}
+
 
 ///
 /// \param add = "", строка для добавления после основного сообщения (краткий режим щитов)
