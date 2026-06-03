@@ -320,6 +320,14 @@ const std::string &NAME_BY_ITEM<ESpell>(const ESpell item) {
 }
 
 template<>
+const std::map<ESpell, std::string> &NAMES_OF<ESpell>() {
+	if (ESpell_name_by_value.empty()) {
+		init_ESpell_ITEM_NAMES();
+	}
+	return ESpell_name_by_value;
+}
+
+template<>
 ESpell ITEM_BY_NAME(const std::string &name) {
 	if (ESpell_name_by_value.empty()) {
 		init_ESpell_ITEM_NAMES();
@@ -369,6 +377,14 @@ const std::string &NAME_BY_ITEM<EElement>(const EElement item) {
 }
 
 template<>
+const std::map<EElement, std::string> &NAMES_OF<EElement>() {
+	if (EElement_name_by_value.empty()) {
+		init_EElement_ITEM_NAMES();
+	}
+	return EElement_name_by_value;
+}
+
+template<>
 EElement ITEM_BY_NAME(const std::string &name) {
 	if (EElement_name_by_value.empty()) {
 		init_EElement_ITEM_NAMES();
@@ -402,6 +418,14 @@ const std::string &NAME_BY_ITEM<ESpellType>(const ESpellType item) {
 		init_ESpellType_ITEM_NAMES();
 	}
 	return ESpellType_name_by_value.at(item);
+}
+
+template<>
+const std::map<ESpellType, std::string> &NAMES_OF<ESpellType>() {
+	if (ESpellType_name_by_value.empty()) {
+		init_ESpellType_ITEM_NAMES();
+	}
+	return ESpellType_name_by_value;
 }
 
 template<>
@@ -458,6 +482,14 @@ const std::string &NAME_BY_ITEM<EMagic>(const EMagic item) {
 }
 
 template<>
+const std::map<EMagic, std::string> &NAMES_OF<EMagic>() {
+	if (EMagic_name_by_value.empty()) {
+		init_EMagic_ITEM_NAMES();
+	}
+	return EMagic_name_by_value;
+}
+
+template<>
 EMagic ITEM_BY_NAME(const std::string &name) {
 	if (EMagic_name_by_value.empty()) {
 		init_EMagic_ITEM_NAMES();
@@ -502,6 +534,14 @@ const std::string &NAME_BY_ITEM<ETarget>(const ETarget item) {
 		init_ETarget_ITEM_NAMES();
 	}
 	return ETarget_name_by_value.at(item);
+}
+
+template<>
+const std::map<ETarget, std::string> &NAMES_OF<ETarget>() {
+	if (ETarget_name_by_value.empty()) {
+		init_ETarget_ITEM_NAMES();
+	}
+	return ETarget_name_by_value;
 }
 
 template<>

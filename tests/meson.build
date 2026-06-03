@@ -10,6 +10,7 @@ endif
 
 test_sources = files(
     'main.cpp',
+    'vedun.enum_names.cpp',
     'spell_wear_off_msg.wrapper.cpp',
     'blocking.queue.cpp',
     'boards.changelog.cpp',

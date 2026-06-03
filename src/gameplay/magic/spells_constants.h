@@ -300,6 +300,8 @@ template<>
 ESpell ITEM_BY_NAME<ESpell>(const std::string &name);
 template<>
 const std::string &NAME_BY_ITEM<ESpell>(const ESpell spell);
+template<>
+const std::map<ESpell, std::string> &NAMES_OF<ESpell>();
 
 enum class EElement {
 	kUndefined = 0,
@@ -317,6 +319,8 @@ template<>
 EElement ITEM_BY_NAME<EElement>(const std::string &name);
 template<>
 const std::string &NAME_BY_ITEM<EElement>(const EElement element);
+template<>
+const std::map<EElement, std::string> &NAMES_OF<EElement>();
 
 // PLAYER SPELLS TYPES //
 enum ESpellType {
@@ -334,6 +338,8 @@ template<>
 ESpellType ITEM_BY_NAME<ESpellType>(const std::string &name);
 template<>
 const std::string &NAME_BY_ITEM<ESpellType>(const ESpellType item);
+template<>
+const std::map<ESpellType, std::string> &NAMES_OF<ESpellType>();
 
 enum EMagic : Bitvector {
 	kMagDamage = 1 << 0,
@@ -370,6 +376,8 @@ template<>
 EMagic ITEM_BY_NAME<EMagic>(const std::string &name);
 template<>
 const std::string &NAME_BY_ITEM<EMagic>(const EMagic item);
+template<>
+const std::map<EMagic, std::string> &NAMES_OF<EMagic>();
 
 enum ETarget : Bitvector {
 	kTarNone = 0,
@@ -395,6 +403,8 @@ template<>
 ETarget ITEM_BY_NAME<ETarget>(const std::string &name);
 template<>
 const std::string &NAME_BY_ITEM<ETarget>(const ETarget item);
+template<>
+const std::map<ETarget, std::string> &NAMES_OF<ETarget>();
 
 constexpr Bitvector kMtypeNeutral = 1 << 0;
 constexpr Bitvector kMtypeAggressive = 1 << 1;
