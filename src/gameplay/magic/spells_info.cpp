@@ -30,6 +30,26 @@ void SpellsLoader::Reload(DataNode data) {
 	MUD::Spells().Reload(data.Children());
 }
 
+// issue.vedun-editor: editor discovery + safe-commit validation.
+std::string SpellsLoader::EditableWhat() const {
+	return "spell";
+}
+
+std::vector<cfg_manager::EditableElement> SpellsLoader::ListElements() const {
+	std::vector<cfg_manager::EditableElement> out;
+	for (const auto &spell : MUD::Spells()) {
+		out.push_back({NAME_BY_ITEM<ESpell>(spell.GetId()), spell.GetName()});
+	}
+	return out;
+}
+
+cfg_manager::ValidationResult SpellsLoader::Validate(DataNode &doc) const {
+	if (MUD::Spells().Validate(doc.Children())) {
+		return {true, ""};
+	}
+	return {false, "Spell data failed to parse (see syslog for the offending spell/attribute)."};
+}
+
 ItemPtr SpellInfoBuilder::Build(DataNode &node) {
 	try {
 		return ParseSpell(node);

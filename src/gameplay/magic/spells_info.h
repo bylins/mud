@@ -31,10 +31,14 @@ enum class EViolent : uint8_t { kNo, kYes, kAmbiguous };
 /**
  * Загрузчик конфига заклинания.
  */
-class SpellsLoader : virtual public cfg_manager::ICfgLoader {
+class SpellsLoader : virtual public cfg_manager::IEditableCfgLoader {
  public:
 	void Load(parser_wrapper::DataNode data) final;
 	void Reload(parser_wrapper::DataNode data) final;
+	// issue.vedun-editor:
+	[[nodiscard]] std::string EditableWhat() const final;
+	[[nodiscard]] std::vector<cfg_manager::EditableElement> ListElements() const final;
+	[[nodiscard]] cfg_manager::ValidationResult Validate(parser_wrapper::DataNode &doc) const final;
 };
 
 /**

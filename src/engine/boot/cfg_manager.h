@@ -10,8 +10,11 @@
 #define BYLINS_SRC_BOOT_CFG_MANAGER_H_
 
 #include <filesystem>
+#include <optional>
+#include <string>
 #include <unordered_map>
 #include <utility>
+#include <vector>
 
 #include "utils/parser_wrapper.h"
 
@@ -33,6 +36,23 @@ class ICfgLoader {
 	virtual ~ICfgLoader() = default;
 };
 
+// issue.vedun-editor: a cfg loader that opts into in-game editing (the Vedun editor). Implementing
+// this makes the data discoverable + editable; the editor reuses the loader as the validator.
+struct EditableElement {
+	std::string id;     // id-token, e.g. "kArmor"
+	std::string label;  // human label (e.g. the Russian name)
+};
+struct ValidationResult {
+	bool ok{false};
+	std::string error;
+};
+class IEditableCfgLoader : public virtual ICfgLoader {
+ public:
+	[[nodiscard]] virtual std::string EditableWhat() const = 0;                       // `vedun <what>`
+	[[nodiscard]] virtual std::vector<EditableElement> ListElements() const = 0;      // editable items
+	[[nodiscard]] virtual ValidationResult Validate(parser_wrapper::DataNode &doc) const = 0;  // dry-run
+};
+
 using LoaderPtr = std::unique_ptr<ICfgLoader>;
 
 class CfgManager {
@@ -41,6 +61,15 @@ class CfgManager {
 
 	void LoadCfg(const std::string &id);
 	void ReloadCfg(const std::string &id);
+
+	// issue.vedun-editor: the editor's discovery surface (loaders implementing IEditableCfgLoader).
+	struct EditableEntry {
+		std::string what;
+		std::filesystem::path file;
+		IEditableCfgLoader *loader;
+	};
+	[[nodiscard]] std::vector<EditableEntry> EditableEntries() const;
+	[[nodiscard]] std::optional<EditableEntry> FindEditable(const std::string &what) const;
  private:
 	struct LoaderInfo {
 		LoaderInfo(std::filesystem::path file, LoaderPtr loader) :

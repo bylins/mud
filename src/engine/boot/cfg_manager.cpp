@@ -77,6 +77,26 @@ void CfgManager::LoadCfg(const std::string &id) {
 	loader_info.loader->Load(data);
 }
 
+// issue.vedun-editor: enumerate loaders that opted into editing (implement IEditableCfgLoader).
+std::vector<CfgManager::EditableEntry> CfgManager::EditableEntries() const {
+	std::vector<EditableEntry> out;
+	for (const auto &[id, info] : loaders_) {
+		if (auto *editable = dynamic_cast<IEditableCfgLoader *>(info.loader.get())) {
+			out.push_back({editable->EditableWhat(), info.file, editable});
+		}
+	}
+	return out;
+}
+
+std::optional<CfgManager::EditableEntry> CfgManager::FindEditable(const std::string &what) const {
+	for (auto &entry : EditableEntries()) {
+		if (entry.what == what) {
+			return entry;
+		}
+	}
+	return std::nullopt;
+}
+
 } // namespace cfg manager
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
