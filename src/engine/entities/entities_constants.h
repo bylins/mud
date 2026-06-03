@@ -58,6 +58,8 @@ EPosition operator--(const EPosition &p);
 template<>
 const std::string &NAME_BY_ITEM<EPosition>(EPosition item);
 template<>
+const std::map<EPosition, std::string> &NAMES_OF<EPosition>();
+template<>
 EPosition ITEM_BY_NAME<EPosition>(const std::string &name);
 
 /**

@@ -6,6 +6,8 @@
 #include "enum_registry.h"
 
 #include "gameplay/magic/spells_constants.h"   // ESpell/EElement/EMagic/ETarget/ESpellType + NAMES_OF
+#include "engine/entities/entities_constants.h" // EPosition + NAMES_OF
+#include "engine/structs/info_container.h"      // EItemMode + NAMES_OF
 
 namespace vedun {
 
@@ -54,6 +56,8 @@ void RegisterEditorEnums() {
 	registry.Register<EMagic>("EMagic");
 	registry.Register<ETarget>("ETarget");
 	registry.Register<ESpellType>("ESpellType");
+	registry.Register<EPosition>("EPosition");
+	registry.Register<EItemMode>("EItemMode");
 }
 
 } // namespace vedun

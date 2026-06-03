@@ -37,7 +37,7 @@
 
 	<tag name="misc" desc="Position / violence / PK danger">
 		<attr name="pos" type="enum" enum="EPosition" desc="Minimum caster position"/>
-		<attr name="violent" type="enum" enum="EViolent" desc="Violent spell? Y / N / A(mbiguous)"/>
+		<attr name="violent" type="string" desc="Violent spell? Y / N / A(mbiguous)"/>
 		<attr name="danger" type="int" min="0" desc="PK danger class"/>
 	</tag>
 

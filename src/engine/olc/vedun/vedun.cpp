@@ -84,6 +84,44 @@ std::string AttrHint(const AttrDef *ad, const std::string &value) {
 	return hint;
 }
 
+// Colour + space the editor tables: dark-green numbering, dark-cyan name, white value (point 3).
+void StyleColumns(table_wrapper::Table &table) {
+	table.set_cell_right_padding(2);
+	table.column(0).set_cell_content_fg_color(table_wrapper::color::kGreen);
+	table.column(1).set_cell_content_fg_color(table_wrapper::color::kCyan);
+	table.column(2).set_cell_content_fg_color(table_wrapper::color::kLightWhite);
+}
+
+// Show an enum's members as a tooltip when entering an enum value (point 4). For a single enum the
+// list is numbered (pick by number); for a flag-set it is a plain reference list.
+void ShowEnumChoices(CharData *ch, const std::string &enum_type, bool numbered) {
+	const auto *members = EnumRegistry::Instance().Members(enum_type);
+	if (members == nullptr || members->empty()) {
+		return;
+	}
+	if (members->size() > 160) {
+		SendMsgToChar(fmt::format("(&c{}&n has {} values -- type the token name)\r\n", enum_type, members->size()), ch);
+		return;
+	}
+	SendMsgToChar(fmt::format("&cValid {} values:&n\r\n", enum_type), ch);
+	table_wrapper::Table table;
+	std::size_t col = 0;
+	for (std::size_t i = 0; i < members->size(); ++i) {
+		table << (numbered ? fmt::format("{}) {}", i + 1, (*members)[i].name) : (*members)[i].name);
+		if (++col % 4 == 0) {
+			table << table_wrapper::kEndRow;
+		}
+	}
+	if (col % 4 != 0) {
+		for (std::size_t j = col % 4; j < 4; ++j) {
+			table << "";
+		}
+		table << table_wrapper::kEndRow;
+	}
+	table_wrapper::DecorateNoBorderTable(ch, table);
+	table_wrapper::PrintTableToChar(ch, table);
+}
+
 void Render(DescriptorData *d) {
 	auto *ch = d->character.get();
 	const auto &s = *d->vedun_session;
@@ -111,6 +149,7 @@ void Render(DescriptorData *d) {
 				  << (ad ? ad->desc : "") << table_wrapper::kEndRow;
 		}
 		table_wrapper::DecorateNoBorderTable(ch, table);
+		StyleColumns(table);
 		table_wrapper::PrintTableToChar(ch, table);
 	}
 
@@ -131,9 +170,11 @@ void Render(DescriptorData *d) {
 				  << (kdef ? kdef->desc : "") << table_wrapper::kEndRow;
 		}
 		table_wrapper::DecorateNoBorderTable(ch, table);
+		StyleColumns(table);
 		table_wrapper::PrintTableToChar(ch, table);
 	}
-	SendMsgToChar("&WSelect&n: a number (attribute=edit, &lt;tag&gt;=enter), &Ws&n) save, &Wu&n) up, &Wq&n) quit\r\n", ch);
+	SendMsgToChar("&WSelect&n a number -- attribute = edit, <tag> = enter.\r\n", ch);
+	SendMsgToChar("&Ws&n) save   &Wu&n) up   &Wq&n) quit\r\n", ch);
 }
 
 // The safe commit: validate the edited DOM (dry-parse, no swap), then atomically rewrite the file
@@ -168,6 +209,18 @@ void SaveSession(DescriptorData *d) {
 	s.loader->Reload(parser_wrapper::DataNode(s.file));
 	s.dirty = false;
 	SendMsgToChar("&GVedun: saved and reloaded.&n\r\n", ch);
+}
+
+// Quit, or (if there are unsaved edits) prompt for save/abandon/cancel (point 5).
+void QuitOrConfirm(DescriptorData *d) {
+	auto &s = *d->vedun_session;
+	if (!s.dirty) {
+		vedun_cleanup(d);
+		return;
+	}
+	s.mode = Mode::kConfirmQuit;
+	SendMsgToChar("&YUnsaved changes.&n  &Ws&n) save & exit   &Wa&n) abandon (no save)   &Wc&n) cancel\r\n",
+		d->character.get());
 }
 
 } // namespace
@@ -276,8 +329,34 @@ void vedun_parse(DescriptorData *d, char *arg) {
 		return;
 	}
 	auto &s = *d->vedun_session;
+	auto *ch = d->character.get();
 
-	// Awaiting a new attribute value: the whole line (case preserved in the editor state).
+	// Confirm-on-quit with unsaved edits (point 5).
+	if (s.mode == Mode::kConfirmQuit) {
+		while (*arg == ' ') {
+			++arg;
+		}
+		if (*arg == 's' || *arg == 'S') {
+			SaveSession(d);
+			if (!s.dirty) {
+				vedun_cleanup(d);
+			} else {
+				s.mode = Mode::kBrowse;  // save refused; stay open
+				Render(d);
+			}
+			return;
+		}
+		if (*arg == 'a' || *arg == 'A') {
+			vedun_cleanup(d);
+			return;
+		}
+		s.mode = Mode::kBrowse;
+		SendMsgToChar("Cancelled.\r\n", ch);
+		Render(d);
+		return;
+	}
+
+	// Awaiting a new attribute value (case preserved). For an enum, a bare number picks a member.
 	if (s.mode == Mode::kEditAttr) {
 		while (*arg == ' ') {
 			++arg;
@@ -287,13 +366,23 @@ void vedun_parse(DescriptorData *d, char *arg) {
 			value.pop_back();
 		}
 		if (value.empty() || value == ".") {
-			SendMsgToChar("Cancelled.\r\n", d->character.get());
+			SendMsgToChar("Cancelled.\r\n", ch);
 		} else {
+			if (!s.edit_enum.empty()) {
+				const auto *members = EnumRegistry::Instance().Members(s.edit_enum);
+				if (members && value.find_first_not_of("0123456789") == std::string::npos) {
+					const std::size_t pick = static_cast<std::size_t>(atoi(value.c_str()));
+					if (pick >= 1 && pick <= members->size()) {
+						value = (*members)[pick - 1].name;
+					}
+				}
+			}
 			s.path.back().SetValue(s.edit_attr, value);
 			s.dirty = true;
 		}
 		s.mode = Mode::kBrowse;
 		s.edit_attr.clear();
+		s.edit_enum.clear();
 		Render(d);
 		return;
 	}
@@ -302,7 +391,7 @@ void vedun_parse(DescriptorData *d, char *arg) {
 		++arg;
 	}
 	if (*arg == 'q' || *arg == 'Q') {
-		vedun_cleanup(d);
+		QuitOrConfirm(d);
 		return;
 	}
 	if (*arg == 's' || *arg == 'S') {
@@ -315,7 +404,7 @@ void vedun_parse(DescriptorData *d, char *arg) {
 			s.path.pop_back();
 			Render(d);
 		} else {
-			vedun_cleanup(d);
+			QuitOrConfirm(d);
 		}
 		return;
 	}
@@ -328,14 +417,22 @@ void vedun_parse(DescriptorData *d, char *arg) {
 			const TagDef *td = s.scheme.FindTag(s.path.back().GetName());
 			const AttrDef *ad = td ? td->FindAttr(name) : nullptr;
 			if (ad && ad->readonly) {
-				SendMsgToChar(fmt::format("Vedun: '{}' is read-only.\r\n", name), d->character.get());
+				SendMsgToChar(fmt::format("Vedun: '{}' is read-only.\r\n", name), ch);
 				Render(d);
 				return;
 			}
 			s.mode = Mode::kEditAttr;
 			s.edit_attr = name;
-			SendMsgToChar(fmt::format("New value for &g{}&n [{}] (enum/list by token name; '.' or blank cancels):\r\n",
-				name, attrs[n - 1].second), d->character.get());
+			s.edit_enum.clear();
+			if (ad && (ad->type == FieldType::kEnum || ad->type == FieldType::kFlagset)
+					&& EnumRegistry::Instance().Known(ad->enum_type)) {
+				ShowEnumChoices(ch, ad->enum_type, ad->type == FieldType::kEnum);
+				if (ad->type == FieldType::kEnum) {
+					s.edit_enum = ad->enum_type;
+				}
+			}
+			SendMsgToChar(fmt::format("New value for &g{}&n [{}] ('.' or blank cancels):\r\n",
+				name, attrs[n - 1].second), ch);
 			return;
 		}
 		const auto kids = ChildrenOf(s.path.back());

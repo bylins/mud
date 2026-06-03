@@ -34,6 +34,8 @@ enum class EItemMode {
 template<>
 const std::string &NAME_BY_ITEM<EItemMode>(EItemMode item);
 template<>
+const std::map<EItemMode, std::string> &NAMES_OF<EItemMode>();
+template<>
 EItemMode ITEM_BY_NAME<EItemMode>(const std::string &name);
 
 namespace info_container {

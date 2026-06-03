@@ -356,6 +356,14 @@ const std::string &NAME_BY_ITEM<EPosition>(const EPosition item) {
 }
 
 template<>
+const std::map<EPosition, std::string> &NAMES_OF<EPosition>() {
+	if (EPosition_name_by_value.empty()) {
+		init_EPosition_ITEM_NAMES();
+	}
+	return EPosition_name_by_value;
+}
+
+template<>
 EPosition ITEM_BY_NAME<EPosition>(const std::string &name) {
 	if (EPosition_name_by_value.empty()) {
 		init_EPosition_ITEM_NAMES();

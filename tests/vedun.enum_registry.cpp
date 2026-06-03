@@ -31,3 +31,11 @@ TEST(Vedun_EnumRegistry, UnknownTypeAndMember) {
 	EXPECT_FALSE(reg.ValueOf("EElement", "kNotARealMember").has_value());
 	EXPECT_EQ(reg.NameOf("EElement", 999999), nullptr);
 }
+
+TEST(Vedun_EnumRegistry, SpellSchemeEnumsRegistered) {
+	vedun::RegisterEditorEnums();
+	const auto &reg = vedun::EnumRegistry::Instance();
+	for (const char *e : {"ESpell", "EElement", "EMagic", "ETarget", "EPosition", "EItemMode"}) {
+		EXPECT_TRUE(reg.Known(e)) << e << " should be registered for the spell scheme";
+	}
+}

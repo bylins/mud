@@ -37,6 +37,14 @@ const std::string &NAME_BY_ITEM<EItemMode>(const EItemMode item) {
 }
 
 template<>
+const std::map<EItemMode, std::string> &NAMES_OF<EItemMode>() {
+	if (EItemMode_name_by_value.empty()) {
+		init_EItemMode_ITEM_NAMES();
+	}
+	return EItemMode_name_by_value;
+}
+
+template<>
 EItemMode ITEM_BY_NAME<EItemMode>(const std::string &name) {
 	if (EItemMode_name_by_value.empty()) {
 		init_EItemMode_ITEM_NAMES();
