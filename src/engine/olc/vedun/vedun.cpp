@@ -122,6 +122,60 @@ void ShowEnumChoices(CharData *ch, const std::string &enum_type, bool numbered) 
 	table_wrapper::PrintTableToChar(ch, table);
 }
 
+// Split a pipe-separated flag value ("a|b|c") into a set of (trimmed) tokens.
+std::set<std::string> ParsePipeSet(const std::string &value) {
+	std::set<std::string> out;
+	std::size_t start = 0;
+	while (true) {
+		const auto pos = value.find('|', start);
+		std::string token = value.substr(start, pos == std::string::npos ? std::string::npos : pos - start);
+		while (!token.empty() && std::isspace(static_cast<unsigned char>(token.front()))) {
+			token.erase(token.begin());
+		}
+		while (!token.empty() && std::isspace(static_cast<unsigned char>(token.back()))) {
+			token.pop_back();
+		}
+		if (!token.empty()) {
+			out.insert(token);
+		}
+		if (pos == std::string::npos) {
+			break;
+		}
+		start = pos + 1;
+	}
+	return out;
+}
+
+// The flag-set toggle editor (point 5): every member listed with a bright-green [*] marker on the
+// selected ones; the user toggles by number, then applies.
+void RenderFlagEditor(DescriptorData *d) {
+	auto *ch = d->character.get();
+	const auto &s = *d->vedun_session;
+	const auto *members = EnumRegistry::Instance().Members(s.edit_enum);
+	SendMsgToChar(fmt::format("&WFlag-set&n &g{}&n &c<{}>&n -- toggle members by number:\r\n",
+		s.edit_attr, s.edit_enum), ch);
+	std::string current;
+	if (members) {
+		table_wrapper::Table table;
+		for (std::size_t i = 0; i < members->size(); ++i) {
+			const bool on = s.flag_set.count((*members)[i].name) > 0;
+			table << fmt::format("{})", i + 1) << (on ? "[*]" : "") << (*members)[i].name
+				  << table_wrapper::kEndRow;
+			if (on) {
+				current += (current.empty() ? "" : "|") + (*members)[i].name;
+			}
+		}
+		table.set_cell_right_padding(2);
+		table.column(0).set_cell_content_fg_color(table_wrapper::color::kGreen);
+		table.column(1).set_cell_content_fg_color(table_wrapper::color::kLightGreen);  // [*] bright green
+		table.column(2).set_cell_content_fg_color(table_wrapper::color::kLightWhite);
+		table_wrapper::DecorateNoBorderTable(ch, table);
+		table_wrapper::PrintTableToChar(ch, table);
+	}
+	SendMsgToChar(fmt::format("Current: &g{}&n\r\n", current.empty() ? "(none)" : current), ch);
+	SendMsgToChar("&Wd&n) done (apply)   &Wc&n) cancel\r\n", ch);
+}
+
 void Render(DescriptorData *d) {
 	auto *ch = d->character.get();
 	const auto &s = *d->vedun_session;
@@ -387,6 +441,53 @@ void vedun_parse(DescriptorData *d, char *arg) {
 		return;
 	}
 
+	// Flag-set toggle editor: numbers toggle membership; d) applies, c) cancels.
+	if (s.mode == Mode::kEditFlagset) {
+		while (*arg == ' ') {
+			++arg;
+		}
+		if (*arg == 'c' || *arg == 'C' || *arg == '.') {
+			s.mode = Mode::kBrowse;
+			s.flag_set.clear();
+			s.edit_attr.clear();
+			s.edit_enum.clear();
+			SendMsgToChar("Cancelled.\r\n", ch);
+			Render(d);
+			return;
+		}
+		if (*arg == 'd' || *arg == 'D') {
+			const auto *members = EnumRegistry::Instance().Members(s.edit_enum);
+			std::string joined;
+			if (members) {
+				for (const auto &m : *members) {
+					if (s.flag_set.count(m.name)) {
+						joined += (joined.empty() ? "" : "|") + m.name;
+					}
+				}
+			}
+			s.path.back().SetValue(s.edit_attr, joined);
+			s.dirty = true;
+			s.mode = Mode::kBrowse;
+			s.flag_set.clear();
+			s.edit_attr.clear();
+			s.edit_enum.clear();
+			Render(d);
+			return;
+		}
+		const int pick = atoi(arg);
+		const auto *members = EnumRegistry::Instance().Members(s.edit_enum);
+		if (members && pick >= 1 && pick <= static_cast<int>(members->size())) {
+			const std::string &nm = (*members)[pick - 1].name;
+			if (s.flag_set.count(nm)) {
+				s.flag_set.erase(nm);
+			} else {
+				s.flag_set.insert(nm);
+			}
+		}
+		RenderFlagEditor(d);
+		return;
+	}
+
 	while (*arg && std::isspace(static_cast<unsigned char>(*arg))) {
 		++arg;
 	}
@@ -421,15 +522,22 @@ void vedun_parse(DescriptorData *d, char *arg) {
 				Render(d);
 				return;
 			}
+			// Flag-set attribute: open the [*] toggle editor.
+			if (ad && ad->type == FieldType::kFlagset && EnumRegistry::Instance().Known(ad->enum_type)) {
+				s.mode = Mode::kEditFlagset;
+				s.edit_attr = name;
+				s.edit_enum = ad->enum_type;
+				s.flag_set = ParsePipeSet(attrs[n - 1].second);
+				RenderFlagEditor(d);
+				return;
+			}
+			// Scalar / single-enum attribute.
 			s.mode = Mode::kEditAttr;
 			s.edit_attr = name;
 			s.edit_enum.clear();
-			if (ad && (ad->type == FieldType::kEnum || ad->type == FieldType::kFlagset)
-					&& EnumRegistry::Instance().Known(ad->enum_type)) {
-				ShowEnumChoices(ch, ad->enum_type, ad->type == FieldType::kEnum);
-				if (ad->type == FieldType::kEnum) {
-					s.edit_enum = ad->enum_type;
-				}
+			if (ad && ad->type == FieldType::kEnum && EnumRegistry::Instance().Known(ad->enum_type)) {
+				ShowEnumChoices(ch, ad->enum_type, true);
+				s.edit_enum = ad->enum_type;
 			}
 			SendMsgToChar(fmt::format("New value for &g{}&n [{}] ('.' or blank cancels):\r\n",
 				name, attrs[n - 1].second), ch);

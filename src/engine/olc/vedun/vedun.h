@@ -15,6 +15,7 @@
 #include "utils/parser_wrapper.h"
 
 #include <filesystem>
+#include <set>
 #include <string>
 #include <vector>
 
@@ -26,7 +27,7 @@ namespace vedun {
 // Per-descriptor editing session: the whole-file DOM, a cursor stack (path) from the element root
 // to the node shown, the scheme, and the edit state. Editing mutates the shared DOM in place;
 // saving validates then atomically rewrites the file and reloads the container.
-enum class Mode { kBrowse, kEditAttr, kConfirmQuit };
+enum class Mode { kBrowse, kEditAttr, kEditFlagset, kConfirmQuit };
 struct Session {
 	std::string what;                              // e.g. "spell"
 	std::filesystem::path file;                    // the cfg source file
@@ -37,6 +38,7 @@ struct Session {
 	Mode mode{Mode::kBrowse};                      // browse vs awaiting an attribute value
 	std::string edit_attr;                         // attribute being edited (kEditAttr)
 	std::string edit_enum;                         // enum type of edit_attr (number-pick), else empty
+	std::set<std::string> flag_set;                // selected members while editing a flag-set
 	bool dirty{false};                             // unsaved edits in the DOM
 };
 
