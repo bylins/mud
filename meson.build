@@ -465,6 +465,7 @@ main_sources = files(
   'src/engine/olc/oedit.cpp',
   'src/engine/olc/vedun/vedun.cpp',
   'src/engine/olc/vedun/enum_registry.cpp',
+  'src/engine/olc/vedun/scheme.cpp',
   'src/engine/olc/olc.cpp',
   'src/gameplay/communication/parcel.cpp',
   'src/utils/parse.cpp',

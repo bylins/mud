@@ -13,6 +13,7 @@ test_sources = files(
     'vedun.enum_names.cpp',
     'vedun.dom.cpp',
     'vedun.enum_registry.cpp',
+    'vedun.scheme.cpp',
     'spell_wear_off_msg.wrapper.cpp',
     'blocking.queue.cpp',
     'boards.changelog.cpp',

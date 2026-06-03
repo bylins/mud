@@ -1,0 +1,149 @@
+/**
+ \file scheme.cpp - a part of the Bylins engine.
+ \brief Vedun editor: .scheme sidecar loader (issue.vedun-editor Phase 2).
+*/
+
+#include "scheme.h"
+
+#include "utils/parser_wrapper.h"
+#include "utils/logger.h"
+
+#include <string>
+
+namespace vedun {
+
+FieldType ParseFieldType(const std::string &name) {
+	if (name == "int") { return FieldType::kInt; }
+	if (name == "double") { return FieldType::kDouble; }
+	if (name == "bool") { return FieldType::kBool; }
+	if (name == "enum") { return FieldType::kEnum; }
+	if (name == "flagset") { return FieldType::kFlagset; }
+	if (name == "list") { return FieldType::kList; }
+	if (name == "multiline") { return FieldType::kMultiline; }
+	return FieldType::kString;
+}
+
+const char *FieldTypeName(FieldType type) {
+	switch (type) {
+		case FieldType::kInt: return "int";
+		case FieldType::kDouble: return "double";
+		case FieldType::kBool: return "bool";
+		case FieldType::kEnum: return "enum";
+		case FieldType::kFlagset: return "flagset";
+		case FieldType::kList: return "list";
+		case FieldType::kMultiline: return "multiline";
+		case FieldType::kString:
+		default: return "string";
+	}
+}
+
+const AttrDef *TagDef::FindAttr(const std::string &attr) const {
+	for (const auto &a : attrs) {
+		if (a.name == attr) {
+			return &a;
+		}
+	}
+	return nullptr;
+}
+
+const TagDef *Scheme::FindTag(const std::string &tag) const {
+	const auto it = tags_.find(tag);
+	return it == tags_.end() ? nullptr : &it->second;
+}
+
+bool Scheme::IsProhibited(const std::string &element_id) const {
+	return prohibited_.find(element_id) != prohibited_.end();
+}
+
+void Scheme::AddTag(TagDef tag) {
+	tags_[tag.name] = std::move(tag);
+}
+
+namespace {
+
+// Read an optional numeric bound from an attribute; absent/blank -> nullopt.
+std::optional<long> ReadOptionalLong(const char *value) {
+	if (value == nullptr || *value == '\0') {
+		return std::nullopt;
+	}
+	try {
+		return std::stol(value);
+	} catch (const std::exception &) {
+		return std::nullopt;
+	}
+}
+
+bool ReadBool(const char *value) {
+	return value != nullptr && (*value == 'Y' || *value == 'y' || *value == '1'
+		|| *value == 'T' || *value == 't');
+}
+
+AttrDef ParseAttr(parser_wrapper::DataNode &node) {
+	AttrDef attr;
+	attr.name = node.GetValue("name");
+	attr.type = ParseFieldType(node.GetValue("type"));
+	attr.enum_type = node.GetValue("enum");
+	attr.readonly = ReadBool(node.GetValue("readonly"));
+	attr.min = ReadOptionalLong(node.GetValue("min"));
+	attr.max = ReadOptionalLong(node.GetValue("max"));
+	attr.desc = node.GetValue("desc");
+	return attr;
+}
+
+TagDef ParseTag(parser_wrapper::DataNode &node) {
+	TagDef tag;
+	tag.name = node.GetValue("name");
+	tag.desc = node.GetValue("desc");
+	for (auto &child : node.Children()) {
+		const std::string kind = child.GetName();
+		if (kind == "attr") {
+			tag.attrs.push_back(ParseAttr(child));
+		} else if (kind == "child") {
+			tag.children.emplace_back(child.GetValue("tag"));
+		}
+	}
+	return tag;
+}
+
+} // namespace
+
+Scheme LoadScheme(const std::filesystem::path &file) {
+	Scheme scheme;
+	if (!std::filesystem::exists(file)) {
+		return scheme;   // no sidecar -> untyped editing, which is fine
+	}
+	parser_wrapper::DataNode doc(file);
+	if (doc.IsEmpty()) {
+		err_log("Vedun: scheme '%s' is empty or unreadable.", file.string().c_str());
+		return scheme;
+	}
+	for (auto &node : doc.Children()) {
+		const std::string kind = node.GetName();
+		if (kind == "tag") {
+			TagDef tag = ParseTag(node);
+			if (tag.name.empty()) {
+				err_log("Vedun: scheme '%s' has a <tag> with no name.", file.string().c_str());
+				continue;
+			}
+			scheme.AddTag(std::move(tag));
+		} else if (kind == "prohibited") {
+			for (auto &element : node.Children()) {
+				const std::string id = element.GetValue("id");
+				if (!id.empty()) {
+					scheme.AddProhibited(id);
+				}
+			}
+		}
+	}
+	return scheme;
+}
+
+std::filesystem::path SchemePathFor(const std::filesystem::path &data_file) {
+	std::filesystem::path scheme = data_file;
+	scheme.replace_extension(".scheme");
+	return scheme;
+}
+
+} // namespace vedun
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :
