@@ -176,6 +176,83 @@ void RenderFlagEditor(DescriptorData *d) {
 	SendMsgToChar("&Wd&n) done (apply)   &Wc&n) cancel\r\n", ch);
 }
 
+// Validate a typed value against its scheme def before it is written. Returns an error message (shown
+// to the user) when the value violates the field's type / numeric range / enum membership, or empty
+// when acceptable. Untyped fields (no scheme def) accept anything -- the loader still checks structure
+// on save. This is the editor's first line of defence: bad values never reach the DOM.
+std::string ValidateValue(const AttrDef *ad, const std::string &value) {
+	if (ad == nullptr) {
+		return "";
+	}
+	const auto &reg = EnumRegistry::Instance();
+	switch (ad->type) {
+		case FieldType::kInt: {
+			long n = 0;
+			try {
+				std::size_t used = 0;
+				n = std::stol(value, &used);
+				if (used != value.size()) {
+					return "expected a whole number";
+				}
+			} catch (...) {
+				return "expected a whole number";
+			}
+			if (ad->min && n < *ad->min) {
+				return fmt::format("must be at least {}", *ad->min);
+			}
+			if (ad->max && n > *ad->max) {
+				return fmt::format("must be at most {}", *ad->max);
+			}
+			break;
+		}
+		case FieldType::kDouble: {
+			double v = 0.0;
+			try {
+				std::size_t used = 0;
+				v = std::stod(value, &used);
+				if (used != value.size()) {
+					return "expected a number";
+				}
+			} catch (...) {
+				return "expected a number";
+			}
+			if (ad->min && v < static_cast<double>(*ad->min)) {
+				return fmt::format("must be at least {}", *ad->min);
+			}
+			if (ad->max && v > static_cast<double>(*ad->max)) {
+				return fmt::format("must be at most {}", *ad->max);
+			}
+			break;
+		}
+		case FieldType::kEnum: {
+			if (reg.Known(ad->enum_type) && !reg.ValueOf(ad->enum_type, value).has_value()) {
+				return fmt::format("'{}' is not a valid {} value", value, ad->enum_type);
+			}
+			break;
+		}
+		case FieldType::kFlagset:
+		case FieldType::kList: {
+			if (reg.Known(ad->enum_type)) {
+				for (const auto &token : utils::Split(value, '|')) {
+					if (token.empty()) {
+						continue;
+					}
+					if (ad->type == FieldType::kList && token == "*") {
+						continue;   // the "any eligible" wildcard
+					}
+					if (!reg.ValueOf(ad->enum_type, token).has_value()) {
+						return fmt::format("'{}' is not a valid {} member", token, ad->enum_type);
+					}
+				}
+			}
+			break;
+		}
+		default:
+			break;
+	}
+	return "";
+}
+
 void Render(DescriptorData *d) {
 	auto *ch = d->character.get();
 	const auto &s = *d->vedun_session;
@@ -341,6 +418,29 @@ void do_vedun(CharData *ch, char *argument, int /*cmd*/, int /*subcmd*/) {
 		}
 	}
 	if (resolved_id.empty()) {
+		// No exact id/label hit: fall back to a case-insensitive substring search over id and label.
+		// A single hit opens directly; several hits are listed so the user can disambiguate.
+		std::vector<cfg_manager::EditableElement> matches;
+		for (const auto &el : entry->loader->ListElements()) {
+			if (str_str(el.id, element) != std::string::npos
+					|| str_str(el.label, element) != std::string::npos) {
+				matches.push_back(el);
+			}
+		}
+		if (matches.size() == 1) {
+			resolved_id = matches.front().id;
+		} else if (matches.size() > 1) {
+			table_wrapper::Table table;
+			for (const auto &m : matches) {
+				table << m.id << m.label << table_wrapper::kEndRow;
+			}
+			table_wrapper::DecorateNoBorderTable(ch, table);
+			page_string(d, fmt::format("&WVedun&n: '{}' matches {} elements in '{}' -- be more specific:\r\n{}",
+				element, matches.size(), entry->what, table.to_string()));
+			return;
+		}
+	}
+	if (resolved_id.empty()) {
 		SendMsgToChar(fmt::format("Vedun: element '{}' not found in '{}'.\r\n", element, entry->what), ch);
 		return;
 	}
@@ -423,6 +523,15 @@ void vedun_parse(DescriptorData *d, char *arg) {
 						value = (*members)[pick - 1].name;
 					}
 				}
+			}
+			// Enforce the scheme: reject out-of-range numbers / unknown enum tokens and re-prompt,
+			// keeping the edit open (mode/edit_attr/edit_enum preserved) so the user can retry.
+			const TagDef *td = s.scheme.FindTag(s.path.back().GetName());
+			const AttrDef *ad = td ? td->FindAttr(s.edit_attr) : nullptr;
+			const std::string err = ValidateValue(ad, value);
+			if (!err.empty()) {
+				SendMsgToChar(fmt::format("&RRejected:&n {}. Try again ('.' or blank cancels):\r\n", err), ch);
+				return;
 			}
 			s.path.back().SetValue(s.edit_attr, value);
 			s.dirty = true;
@@ -531,6 +640,8 @@ void vedun_parse(DescriptorData *d, char *arg) {
 			if (ad && ad->type == FieldType::kEnum && EnumRegistry::Instance().Known(ad->enum_type)) {
 				ShowEnumChoices(ch, ad->enum_type, true);
 				s.edit_enum = ad->enum_type;
+			} else if (ad && ad->type == FieldType::kList && EnumRegistry::Instance().Known(ad->enum_type)) {
+				ShowEnumChoices(ch, ad->enum_type, false);   // reference list ('|'-separated; '*' = any)
 			}
 			SendMsgToChar(fmt::format("New value for &g{}&n [{}] ('.' or blank cancels):\r\n",
 				name, attrs[n - 1].second), ch);

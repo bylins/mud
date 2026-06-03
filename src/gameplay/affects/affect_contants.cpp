@@ -567,4 +567,12 @@ const std::string &NAME_BY_ITEM<EAffFlag>(const EAffFlag item) {
 	return EAffFlag_name_by_value.at(item);
 }
 
+template<>
+const std::map<EAffFlag, std::string> &NAMES_OF<EAffFlag>() {
+	if (EAffFlag_name_by_value.empty()) {
+		init_EAffFlag_ITEM_NAMES();
+	}
+	return EAffFlag_name_by_value;
+}
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

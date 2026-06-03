@@ -35,7 +35,9 @@ TEST(Vedun_EnumRegistry, UnknownTypeAndMember) {
 TEST(Vedun_EnumRegistry, SpellSchemeEnumsRegistered) {
 	vedun::RegisterEditorEnums();
 	const auto &reg = vedun::EnumRegistry::Instance();
-	for (const char *e : {"ESpell", "EElement", "EMagic", "ETarget", "EPosition", "EItemMode"}) {
+	for (const char *e : {"ESpell", "EElement", "EMagic", "ETarget", "EPosition", "EItemMode", "EAffFlag"}) {
 		EXPECT_TRUE(reg.Known(e)) << e << " should be registered for the spell scheme";
 	}
+	// EAffFlag drives the <unaffect affect_flags=...> pick-list; spot-check a known member.
+	EXPECT_TRUE(reg.ValueOf("EAffFlag", "kAfDispellable").has_value());
 }

@@ -283,6 +283,8 @@ template<>
 const std::string &NAME_BY_ITEM<EAffFlag>(EAffFlag item);
 template<>
 EAffFlag ITEM_BY_NAME<EAffFlag>(const std::string &name);
+template<>
+const std::map<EAffFlag, std::string> &NAMES_OF<EAffFlag>();  // issue.vedun-editor: editor enum pick-list
 
 using WeaponAffectArray = std::array<WeaponAffect, kWeaponAffectCount>;
 extern WeaponAffectArray weapon_affect;
