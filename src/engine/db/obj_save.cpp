@@ -1918,6 +1918,9 @@ int save_char_objects(CharData *ch, int savetype, int rentcost) {
 	Crash_create_timer(iplayer, num);
 	SAVEINFO(iplayer)->rent = rent;
 
+	// Тайминг сериализации предметов в буфер -- отдельно от дисковой записи,
+	// чтобы в логе было видно, что именно долгое (issue #3396).
+	utils::CExecutionTimer serialize_timer;
 	std::stringstream write_buffer;
 	write_buffer << "@ Items file\n";
 
@@ -1948,6 +1951,8 @@ int save_char_objects(CharData *ch, int savetype, int rentcost) {
 		}
 	}
 
+	const double serialize_sec = serialize_timer.delta().count();
+
 	// в принципе экстрактить здесь чармисовый шмот в случае ребута - смысла ноль
 	if (savetype != RENT_CRASH) {
 		for (j = 0; j < EEquipPos::kNumEquipPos; j++) {
@@ -1958,6 +1963,7 @@ int save_char_objects(CharData *ch, int savetype, int rentcost) {
 		Crash_extract_objs(ch->carrying);
 	}
 
+	double crc_sec = 0.0;
 	utils::CExecutionTimer obj_io_timer;
 	if (get_filename(GET_NAME(ch), fname, kTextCrashFile)) {
 		std::ofstream file(fname, std::ios::binary);
@@ -1983,13 +1989,17 @@ int save_char_objects(CharData *ch, int savetype, int rentcost) {
 			mudlog(ss.str(), BRF, kLvlGod, SYSLOG, true);
 		}
 #endif
+		utils::CExecutionTimer crc_timer;
 		FileCRC::update_from_content(ch->get_uid(), FileCRC::kTextObjs,
 			obj_content.data(), obj_content.size());
+		crc_sec = crc_timer.delta().count();
 	} else {
 		Crash_delete_files(iplayer);
 		return false;
 	}
 	const double obj_io_sec = obj_io_timer.delta().count();
+	// Чистая запись на диск (open+write+close+chmod) = весь io-блок минус CRC.
+	const double write_sec = obj_io_sec - crc_sec;
 
 	utils::CExecutionTimer timer_io_timer;
 	if (!Crash_write_timer(iplayer)) {
@@ -1998,12 +2008,15 @@ int save_char_objects(CharData *ch, int savetype, int rentcost) {
 	}
 	const double timer_io_sec = timer_io_timer.delta().count();
 
-	// Профилирование синхронной записи (см. #3368): раздельно .obj и .time,
-	// чтобы понять, на что уходит время и нужна ли дальнейшая оптимизация.
-	const double total_io_sec = obj_io_sec + timer_io_sec;
+	// Профилирование синхронной записи (см. #3368, #3396). Разбито по фазам:
+	// serialize -- сборка буфера предметов, write -- запись файла на диск
+	// (open+write+close+chmod), crc -- подсчёт CRC, time_io -- запись .time.
+	// Дисковый write почти не зависит от числа предметов и обычно доминирует,
+	// поэтому "меньше предметов, но дольше" -- это про занятость диска, не про items.
+	const double total_io_sec = serialize_sec + obj_io_sec + timer_io_sec;
 	if (total_io_sec > 0.01) {
-		log("save_char_objects: %s items=%d obj_io=%.4f time_io=%.4f total=%.4f",
-			GET_NAME(ch), num, obj_io_sec, timer_io_sec, total_io_sec);
+		log("save_char_objects: %s items=%d serialize=%.4f write=%.4f crc=%.4f time_io=%.4f total=%.4f",
+			GET_NAME(ch), num, serialize_sec, write_sec, crc_sec, timer_io_sec, total_io_sec);
 	}
 
 	if (savetype == RENT_CRASH) {
