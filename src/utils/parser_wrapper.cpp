@@ -67,6 +67,19 @@ std::vector<std::pair<std::string, std::string>> DataNode::Attributes() const {
 	return out;
 }
 
+bool DataNode::SetValue(const std::string &key, const std::string &value) {
+	auto node = impl_->curren_xml_node;
+	auto attr = node.attribute(key.c_str());
+	if (!attr) {
+		attr = node.append_attribute(key.c_str());
+	}
+	return attr.set_value(value.c_str());
+}
+
+bool DataNode::Save(const std::filesystem::path &file) const {
+	return impl_->xml_doc->save_file(file.string().c_str());
+}
+
 void DataNode::GoToRadix() {
 	impl_->curren_xml_node = impl_->xml_doc->document_element();
 }

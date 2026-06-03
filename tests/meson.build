@@ -14,6 +14,7 @@ test_sources = files(
     'vedun.dom.cpp',
     'vedun.enum_registry.cpp',
     'vedun.scheme.cpp',
+    'vedun.datanode_mutation.cpp',
     'spell_wear_off_msg.wrapper.cpp',
     'blocking.queue.cpp',
     'boards.changelog.cpp',

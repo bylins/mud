@@ -148,6 +148,18 @@ class DataNode {
 	 */
 	[[nodiscard]] std::vector<std::pair<std::string, std::string>> Attributes() const;
 
+	/*
+	 * issue.vedun-editor: set an attribute's value on the current node (creating the attribute
+	 * if absent). Mutates the shared document. Returns false on failure.
+	 */
+	bool SetValue(const std::string &key, const std::string &value);
+
+	/*
+	 * issue.vedun-editor: serialize the whole document to a file (pugixml). Returns false on
+	 * failure. The editor writes to a temp file then renames for an atomic commit.
+	 */
+	[[nodiscard]] bool Save(const std::filesystem::path &file) const;
+
  private:
 	struct Impl;
 	std::unique_ptr<Impl> impl_;
