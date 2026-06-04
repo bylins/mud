@@ -529,6 +529,347 @@ void QuitOrConfirm(DescriptorData *d) {
 		d->character.get());
 }
 
+// Skip leading spaces, then return the argument with trailing whitespace trimmed (the editor's
+// menus take a single token / number per line).
+std::string TrimmedToken(const char *arg) {
+	while (*arg == ' ') {
+		++arg;
+	}
+	std::string token = arg;
+	while (!token.empty() && std::isspace(static_cast<unsigned char>(token.back()))) {
+		token.pop_back();
+	}
+	return token;
+}
+
+// Confirm-on-quit with unsaved edits: s) save & exit, a) abandon, anything else cancels.
+void ParseConfirmQuit(DescriptorData *d, char *arg) {
+	auto &s = *d->vedun_session;
+	auto *ch = d->character.get();
+	while (*arg == ' ') {
+		++arg;
+	}
+	if (*arg == 's' || *arg == 'S') {
+		SaveSession(d);
+		if (!s.dirty) {
+			vedun_cleanup(d);
+		} else {
+			s.mode = Mode::kBrowse;  // save refused; stay open
+			Render(d);
+		}
+		return;
+	}
+	if (*arg == 'a' || *arg == 'A') {
+		vedun_cleanup(d);
+		return;
+	}
+	s.mode = Mode::kBrowse;
+	SendMsgToChar("Cancelled.\r\n", ch);
+	Render(d);
+}
+
+// Awaiting a new attribute value (case preserved). "?" pages the value list; a bare number picks an
+// enum member; the value is validated against the scheme before it is written (creating the attr).
+void ParseEditAttr(DescriptorData *d, char *arg) {
+	auto &s = *d->vedun_session;
+	auto *ch = d->character.get();
+	std::string value = TrimmedToken(arg);
+	if (value == "?") {
+		const TagDef *td = CurrentTagDef(s);
+		const AttrDef *ad = td ? td->FindAttr(s.edit_attr) : nullptr;
+		if (ad && (ad->type == FieldType::kEnum || ad->type == FieldType::kList)
+				&& EnumRegistry::Instance().Known(ad->enum_type)) {
+			PageEnumList(d, ad->enum_type, ad->type == FieldType::kEnum);
+		} else {
+			SendMsgToChar("(no value list for this field)\r\n", ch);
+		}
+		return;
+	}
+	if (value.empty() || value == ".") {
+		SendMsgToChar("Cancelled.\r\n", ch);
+	} else {
+		if (!s.edit_enum.empty()) {
+			const auto *members = EnumRegistry::Instance().Members(s.edit_enum);
+			if (members && value.find_first_not_of("0123456789") == std::string::npos) {
+				const std::size_t pick = static_cast<std::size_t>(atoi(value.c_str()));
+				if (pick >= 1 && pick <= members->size()) {
+					value = (*members)[pick - 1].name;
+				}
+			}
+		}
+		// Enforce the scheme: reject out-of-range numbers / unknown enum tokens and re-prompt, keeping
+		// the edit open (mode/edit_attr/edit_enum preserved) so the user can retry.
+		const TagDef *td = CurrentTagDef(s);
+		const AttrDef *ad = td ? td->FindAttr(s.edit_attr) : nullptr;
+		const std::string err = ValidateValue(ad, value);
+		if (!err.empty()) {
+			SendMsgToChar(fmt::format("&RRejected:&n {}. Try again ('.' or blank cancels):\r\n", err), ch);
+			return;
+		}
+		s.path.back().SetValue(s.edit_attr, value);
+		s.dirty = true;
+	}
+	s.mode = Mode::kBrowse;
+	s.edit_attr.clear();
+	s.edit_enum.clear();
+	Render(d);
+}
+
+// Flag-set toggle editor: a number toggles a member; d) applies (joins selected in enum order); c)/. cancels.
+void ParseEditFlagset(DescriptorData *d, char *arg) {
+	auto &s = *d->vedun_session;
+	auto *ch = d->character.get();
+	while (*arg == ' ') {
+		++arg;
+	}
+	if (*arg == 'c' || *arg == 'C' || *arg == '.') {
+		s.mode = Mode::kBrowse;
+		s.flag_set.clear();
+		s.edit_attr.clear();
+		s.edit_enum.clear();
+		SendMsgToChar("Cancelled.\r\n", ch);
+		Render(d);
+		return;
+	}
+	if (*arg == 'd' || *arg == 'D') {
+		const auto *members = EnumRegistry::Instance().Members(s.edit_enum);
+		std::string joined;
+		if (members) {
+			for (const auto &m : *members) {
+				if (s.flag_set.count(m.name)) {
+					joined += (joined.empty() ? "" : "|") + m.name;
+				}
+			}
+		}
+		s.path.back().SetValue(s.edit_attr, joined);
+		s.dirty = true;
+		s.mode = Mode::kBrowse;
+		s.flag_set.clear();
+		s.edit_attr.clear();
+		s.edit_enum.clear();
+		Render(d);
+		return;
+	}
+	const int pick = atoi(arg);
+	const auto *members = EnumRegistry::Instance().Members(s.edit_enum);
+	if (members && pick >= 1 && pick <= static_cast<int>(members->size())) {
+		const std::string &nm = (*members)[pick - 1].name;
+		if (s.flag_set.count(nm)) {
+			s.flag_set.erase(nm);
+		} else {
+			s.flag_set.insert(nm);
+		}
+	}
+	RenderFlagEditor(d);
+}
+
+// Add-child menu: resolve a still-addable child (by number or exact name) and append it.
+void ParseAddChild(DescriptorData *d, char *arg) {
+	auto &s = *d->vedun_session;
+	auto *ch = d->character.get();
+	const std::string token = TrimmedToken(arg);
+	if (token.empty() || token == "c" || token == "C" || token == ".") {
+		s.mode = Mode::kBrowse;
+		SendMsgToChar("Cancelled.\r\n", ch);
+		Render(d);
+		return;
+	}
+	// Resolve against the addable list (single-use children already present are excluded), so a
+	// maxed-out tag simply isn't offered.
+	const auto addable = AddableChildren(s);
+	if (addable.empty()) {
+		s.mode = Mode::kBrowse;
+		SendMsgToChar("&RNothing can be added here.&n\r\n", ch);
+		Render(d);
+		return;
+	}
+	const ChildDef *picked = nullptr;
+	if (token.find_first_not_of("0123456789") == std::string::npos) {
+		const std::size_t pick = static_cast<std::size_t>(atoi(token.c_str()));
+		if (pick >= 1 && pick <= addable.size()) {
+			picked = addable[pick - 1];
+		}
+	} else {
+		for (const auto *cd : addable) {
+			if (cd->tag == token) {
+				picked = cd;
+				break;
+			}
+		}
+	}
+	if (picked == nullptr) {
+		const TagDef *td = CurrentTagDef(s);
+		if (td && td->FindChild(token)) {
+			SendMsgToChar(fmt::format("&R<{}> is already present (only one allowed here).&n\r\n", token), ch);
+		} else {
+			SendMsgToChar(fmt::format("&R'{}' is not an allowed child here.&n Pick from the list.\r\n", token), ch);
+		}
+		RenderAddChild(d);
+		return;
+	}
+	s.path.back().AddChild(picked->tag);
+	s.dirty = true;
+	s.mode = Mode::kBrowse;
+	SendMsgToChar(fmt::format("&GAdded&n <{}> (not saved yet).\r\n", picked->tag), ch);
+	Render(d);
+}
+
+// Delete-child menu: a number removes that child of the current node.
+void ParseDeleteChild(DescriptorData *d, char *arg) {
+	auto &s = *d->vedun_session;
+	auto *ch = d->character.get();
+	while (*arg == ' ') {
+		++arg;
+	}
+	if (!*arg || *arg == 'c' || *arg == 'C' || *arg == '.') {
+		s.mode = Mode::kBrowse;
+		SendMsgToChar("Cancelled.\r\n", ch);
+		Render(d);
+		return;
+	}
+	const auto kids = ChildrenOf(s.path.back());
+	const int n = atoi(arg);
+	if (n >= 1 && n <= static_cast<int>(kids.size())) {
+		const std::string name = kids[n - 1].GetName();
+		s.path.back().RemoveChild(kids[n - 1]);
+		s.dirty = true;
+		s.mode = Mode::kBrowse;
+		SendMsgToChar(fmt::format("&GDeleted&n <{}> (not saved yet).\r\n", name), ch);
+		Render(d);
+	} else {
+		SendMsgToChar("No such child number.\r\n", ch);
+		RenderDeleteChild(d);
+	}
+}
+
+// Move-child menu: first a number picks the child; then u/d nudge it, an empty line (or c) finishes.
+void ParseMoveChild(DescriptorData *d, char *arg) {
+	auto &s = *d->vedun_session;
+	auto *ch = d->character.get();
+	const std::string tok = TrimmedToken(arg);
+	if (s.move_node.IsEmpty()) {
+		if (tok.empty() || tok == "c" || tok == "C" || tok == ".") {
+			s.mode = Mode::kBrowse;
+			Render(d);
+			return;
+		}
+		const auto kids = ChildrenOf(s.path.back());
+		const int n = atoi(tok.c_str());
+		if (n >= 1 && n <= static_cast<int>(kids.size())) {
+			s.move_node = kids[n - 1];
+		} else {
+			SendMsgToChar("No such child number.\r\n", ch);
+		}
+		RenderMoveChild(d);
+		return;
+	}
+	// A child is picked: u/d reposition it, an empty line (or c) finishes.
+	if (tok.empty() || tok == "c" || tok == "C" || tok == "." || tok == "q") {
+		s.move_node = parser_wrapper::DataNode{};
+		s.mode = Mode::kBrowse;
+		Render(d);
+		return;
+	}
+	if (tok == "u" || tok == "U") {
+		if (s.path.back().MoveChildUp(s.move_node)) {
+			s.dirty = true;
+		}
+	} else if (tok == "d" || tok == "D") {
+		if (s.path.back().MoveChildDown(s.move_node)) {
+			s.dirty = true;
+		}
+	}
+	RenderMoveChild(d);
+}
+
+// Browse mode: top-level keys (q/s/u/a/d/m), else a number selects (attribute = edit, child = descend).
+void ParseBrowse(DescriptorData *d, char *arg) {
+	auto &s = *d->vedun_session;
+	auto *ch = d->character.get();
+	while (*arg && std::isspace(static_cast<unsigned char>(*arg))) {
+		++arg;
+	}
+	if (*arg == 'q' || *arg == 'Q') {
+		QuitOrConfirm(d);
+		return;
+	}
+	if (*arg == 's' || *arg == 'S') {
+		SaveSession(d);
+		Render(d);
+		return;
+	}
+	if (*arg == 'u' || *arg == 'U' || *arg == '0') {
+		if (s.path.size() > 1) {
+			s.path.pop_back();
+			Render(d);
+		} else {
+			QuitOrConfirm(d);
+		}
+		return;
+	}
+	if (*arg == 'a' || *arg == 'A') {
+		s.mode = Mode::kAddChild;
+		RenderAddChild(d);
+		return;
+	}
+	if (*arg == 'd' || *arg == 'D') {
+		s.mode = Mode::kDeleteChild;
+		RenderDeleteChild(d);
+		return;
+	}
+	if (*arg == 'm' || *arg == 'M') {
+		s.mode = Mode::kMoveChild;
+		s.move_node = parser_wrapper::DataNode{};
+		RenderMoveChild(d);
+		return;
+	}
+	const int n = atoi(arg);
+	if (n >= 1) {
+		const auto rows = AttrRows(s);
+		const int num_attrs = static_cast<int>(rows.size());
+		if (n <= num_attrs) {
+			const AttrRow &row = rows[n - 1];
+			const std::string &name = row.name;
+			const AttrDef *ad = row.def;
+			if (ad && ad->readonly) {
+				SendMsgToChar(fmt::format("Vedun: '{}' is read-only.\r\n", name), ch);
+				Render(d);
+				return;
+			}
+			// Flag-set attribute: open the [*] toggle editor (empty start when the attr is unset).
+			if (ad && ad->type == FieldType::kFlagset && EnumRegistry::Instance().Known(ad->enum_type)) {
+				s.mode = Mode::kEditFlagset;
+				s.edit_attr = name;
+				s.edit_enum = ad->enum_type;
+				s.flag_set = ParsePipeSet(row.value);
+				RenderFlagEditor(d);
+				return;
+			}
+			// Scalar / single-enum / list attribute. Entering a value creates the attribute if unset.
+			s.mode = Mode::kEditAttr;
+			s.edit_attr = name;
+			s.edit_enum.clear();
+			if (ad && ad->type == FieldType::kEnum && EnumRegistry::Instance().Known(ad->enum_type)) {
+				ShowEnumChoices(ch, ad->enum_type, true);
+				s.edit_enum = ad->enum_type;
+			} else if (ad && ad->type == FieldType::kList && EnumRegistry::Instance().Known(ad->enum_type)) {
+				ShowEnumChoices(ch, ad->enum_type, false);   // reference list ('|'-separated; '*' = any)
+			} else if (ad && ad->type == FieldType::kBool) {
+				SendMsgToChar("&c(boolean: true / false)&n\r\n", ch);
+			}
+			SendMsgToChar(fmt::format("New value for &g{}&n [{}] ('.' or blank cancels):\r\n",
+				name, row.present ? row.value : "unset"), ch);
+			return;
+		}
+		const auto kids = ChildrenOf(s.path.back());
+		const int child_index = n - num_attrs;
+		if (child_index >= 1 && child_index <= static_cast<int>(kids.size())) {
+			s.path.push_back(kids[child_index - 1]);
+		}
+	}
+	Render(d);
+}
+
 } // namespace
 
 void do_vedun(CharData *ch, char *argument, int /*cmd*/, int /*subcmd*/) {
@@ -650,344 +991,15 @@ void vedun_parse(DescriptorData *d, char *arg) {
 		d->state = EConState::kPlaying;
 		return;
 	}
-	auto &s = *d->vedun_session;
-	auto *ch = d->character.get();
-
-	// Confirm-on-quit with unsaved edits (point 5).
-	if (s.mode == Mode::kConfirmQuit) {
-		while (*arg == ' ') {
-			++arg;
-		}
-		if (*arg == 's' || *arg == 'S') {
-			SaveSession(d);
-			if (!s.dirty) {
-				vedun_cleanup(d);
-			} else {
-				s.mode = Mode::kBrowse;  // save refused; stay open
-				Render(d);
-			}
-			return;
-		}
-		if (*arg == 'a' || *arg == 'A') {
-			vedun_cleanup(d);
-			return;
-		}
-		s.mode = Mode::kBrowse;
-		SendMsgToChar("Cancelled.\r\n", ch);
-		Render(d);
-		return;
+	switch (d->vedun_session->mode) {
+		case Mode::kConfirmQuit: ParseConfirmQuit(d, arg); return;
+		case Mode::kEditAttr:    ParseEditAttr(d, arg);    return;
+		case Mode::kEditFlagset: ParseEditFlagset(d, arg); return;
+		case Mode::kAddChild:    ParseAddChild(d, arg);    return;
+		case Mode::kDeleteChild: ParseDeleteChild(d, arg); return;
+		case Mode::kMoveChild:   ParseMoveChild(d, arg);   return;
+		case Mode::kBrowse:      ParseBrowse(d, arg);      return;
 	}
-
-	// Awaiting a new attribute value (case preserved). For an enum, a bare number picks a member.
-	if (s.mode == Mode::kEditAttr) {
-		while (*arg == ' ') {
-			++arg;
-		}
-		std::string value = arg;
-		while (!value.empty() && std::isspace(static_cast<unsigned char>(value.back()))) {
-			value.pop_back();
-		}
-		// "?" pages the full list of valid values for an enum/list field, then keeps the edit open.
-		if (value == "?") {
-			const TagDef *td = CurrentTagDef(s);
-			const AttrDef *ad = td ? td->FindAttr(s.edit_attr) : nullptr;
-			if (ad && (ad->type == FieldType::kEnum || ad->type == FieldType::kList)
-					&& EnumRegistry::Instance().Known(ad->enum_type)) {
-				PageEnumList(d, ad->enum_type, ad->type == FieldType::kEnum);
-			} else {
-				SendMsgToChar("(no value list for this field)\r\n", ch);
-			}
-			return;
-		}
-		if (value.empty() || value == ".") {
-			SendMsgToChar("Cancelled.\r\n", ch);
-		} else {
-			if (!s.edit_enum.empty()) {
-				const auto *members = EnumRegistry::Instance().Members(s.edit_enum);
-				if (members && value.find_first_not_of("0123456789") == std::string::npos) {
-					const std::size_t pick = static_cast<std::size_t>(atoi(value.c_str()));
-					if (pick >= 1 && pick <= members->size()) {
-						value = (*members)[pick - 1].name;
-					}
-				}
-			}
-			// Enforce the scheme: reject out-of-range numbers / unknown enum tokens and re-prompt,
-			// keeping the edit open (mode/edit_attr/edit_enum preserved) so the user can retry.
-			const TagDef *td = CurrentTagDef(s);
-			const AttrDef *ad = td ? td->FindAttr(s.edit_attr) : nullptr;
-			const std::string err = ValidateValue(ad, value);
-			if (!err.empty()) {
-				SendMsgToChar(fmt::format("&RRejected:&n {}. Try again ('.' or blank cancels):\r\n", err), ch);
-				return;
-			}
-			s.path.back().SetValue(s.edit_attr, value);
-			s.dirty = true;
-		}
-		s.mode = Mode::kBrowse;
-		s.edit_attr.clear();
-		s.edit_enum.clear();
-		Render(d);
-		return;
-	}
-
-	// Flag-set toggle editor: numbers toggle membership; d) applies, c) cancels.
-	if (s.mode == Mode::kEditFlagset) {
-		while (*arg == ' ') {
-			++arg;
-		}
-		if (*arg == 'c' || *arg == 'C' || *arg == '.') {
-			s.mode = Mode::kBrowse;
-			s.flag_set.clear();
-			s.edit_attr.clear();
-			s.edit_enum.clear();
-			SendMsgToChar("Cancelled.\r\n", ch);
-			Render(d);
-			return;
-		}
-		if (*arg == 'd' || *arg == 'D') {
-			const auto *members = EnumRegistry::Instance().Members(s.edit_enum);
-			std::string joined;
-			if (members) {
-				for (const auto &m : *members) {
-					if (s.flag_set.count(m.name)) {
-						joined += (joined.empty() ? "" : "|") + m.name;
-					}
-				}
-			}
-			s.path.back().SetValue(s.edit_attr, joined);
-			s.dirty = true;
-			s.mode = Mode::kBrowse;
-			s.flag_set.clear();
-			s.edit_attr.clear();
-			s.edit_enum.clear();
-			Render(d);
-			return;
-		}
-		const int pick = atoi(arg);
-		const auto *members = EnumRegistry::Instance().Members(s.edit_enum);
-		if (members && pick >= 1 && pick <= static_cast<int>(members->size())) {
-			const std::string &nm = (*members)[pick - 1].name;
-			if (s.flag_set.count(nm)) {
-				s.flag_set.erase(nm);
-			} else {
-				s.flag_set.insert(nm);
-			}
-		}
-		RenderFlagEditor(d);
-		return;
-	}
-
-	// Add-child menu: only scheme-declared children may be added (by number or exact name), so no
-	// arbitrary/invalid tag can be created. If the scheme declares no children here, nothing is added.
-	if (s.mode == Mode::kAddChild) {
-		while (*arg == ' ') {
-			++arg;
-		}
-		std::string token = arg;
-		while (!token.empty() && std::isspace(static_cast<unsigned char>(token.back()))) {
-			token.pop_back();
-		}
-		if (token.empty() || token == "c" || token == "C" || token == ".") {
-			s.mode = Mode::kBrowse;
-			SendMsgToChar("Cancelled.\r\n", ch);
-			Render(d);
-			return;
-		}
-		// Resolve against the addable list (single-use children already present are excluded), so a
-		// maxed-out tag simply isn't offered.
-		const auto addable = AddableChildren(s);
-		if (addable.empty()) {
-			s.mode = Mode::kBrowse;
-			SendMsgToChar("&RNothing can be added here.&n\r\n", ch);
-			Render(d);
-			return;
-		}
-		const ChildDef *picked = nullptr;
-		if (token.find_first_not_of("0123456789") == std::string::npos) {
-			const std::size_t pick = static_cast<std::size_t>(atoi(token.c_str()));
-			if (pick >= 1 && pick <= addable.size()) {
-				picked = addable[pick - 1];
-			}
-		} else {
-			for (const auto *cd : addable) {
-				if (cd->tag == token) {
-					picked = cd;
-					break;
-				}
-			}
-		}
-		if (picked == nullptr) {
-			const TagDef *td = CurrentTagDef(s);
-			if (td && td->FindChild(token)) {
-				SendMsgToChar(fmt::format("&R<{}> is already present (only one allowed here).&n\r\n", token), ch);
-			} else {
-				SendMsgToChar(fmt::format("&R'{}' is not an allowed child here.&n Pick from the list.\r\n", token), ch);
-			}
-			RenderAddChild(d);
-			return;
-		}
-		s.path.back().AddChild(picked->tag);
-		s.dirty = true;
-		s.mode = Mode::kBrowse;
-		SendMsgToChar(fmt::format("&GAdded&n <{}> (not saved yet).\r\n", picked->tag), ch);
-		Render(d);
-		return;
-	}
-
-	// Delete-child menu: a number removes that child of the current node.
-	if (s.mode == Mode::kDeleteChild) {
-		while (*arg == ' ') {
-			++arg;
-		}
-		if (!*arg || *arg == 'c' || *arg == 'C' || *arg == '.') {
-			s.mode = Mode::kBrowse;
-			SendMsgToChar("Cancelled.\r\n", ch);
-			Render(d);
-			return;
-		}
-		const auto kids = ChildrenOf(s.path.back());
-		const int n = atoi(arg);
-		if (n >= 1 && n <= static_cast<int>(kids.size())) {
-			const std::string name = kids[n - 1].GetName();
-			s.path.back().RemoveChild(kids[n - 1]);
-			s.dirty = true;
-			s.mode = Mode::kBrowse;
-			SendMsgToChar(fmt::format("&GDeleted&n <{}> (not saved yet).\r\n", name), ch);
-			Render(d);
-		} else {
-			SendMsgToChar("No such child number.\r\n", ch);
-			RenderDeleteChild(d);
-		}
-		return;
-	}
-
-	// Move-child menu: pick a child by number, then nudge it up/down; an empty line finishes.
-	if (s.mode == Mode::kMoveChild) {
-		while (*arg == ' ') {
-			++arg;
-		}
-		std::string tok = arg;
-		while (!tok.empty() && std::isspace(static_cast<unsigned char>(tok.back()))) {
-			tok.pop_back();
-		}
-		if (s.move_node.IsEmpty()) {
-			if (tok.empty() || tok == "c" || tok == "C" || tok == ".") {
-				s.mode = Mode::kBrowse;
-				Render(d);
-				return;
-			}
-			const auto kids = ChildrenOf(s.path.back());
-			const int n = atoi(tok.c_str());
-			if (n >= 1 && n <= static_cast<int>(kids.size())) {
-				s.move_node = kids[n - 1];
-			} else {
-				SendMsgToChar("No such child number.\r\n", ch);
-			}
-			RenderMoveChild(d);
-			return;
-		}
-		// A child is picked: u/d reposition it, an empty line (or c) finishes.
-		if (tok.empty() || tok == "c" || tok == "C" || tok == "." || tok == "q") {
-			s.move_node = parser_wrapper::DataNode{};
-			s.mode = Mode::kBrowse;
-			Render(d);
-			return;
-		}
-		if (tok == "u" || tok == "U") {
-			if (s.path.back().MoveChildUp(s.move_node)) {
-				s.dirty = true;
-			}
-		} else if (tok == "d" || tok == "D") {
-			if (s.path.back().MoveChildDown(s.move_node)) {
-				s.dirty = true;
-			}
-		}
-		RenderMoveChild(d);
-		return;
-	}
-
-	while (*arg && std::isspace(static_cast<unsigned char>(*arg))) {
-		++arg;
-	}
-	if (*arg == 'q' || *arg == 'Q') {
-		QuitOrConfirm(d);
-		return;
-	}
-	if (*arg == 's' || *arg == 'S') {
-		SaveSession(d);
-		Render(d);
-		return;
-	}
-	if (*arg == 'u' || *arg == 'U' || *arg == '0') {
-		if (s.path.size() > 1) {
-			s.path.pop_back();
-			Render(d);
-		} else {
-			QuitOrConfirm(d);
-		}
-		return;
-	}
-	if (*arg == 'a' || *arg == 'A') {
-		s.mode = Mode::kAddChild;
-		RenderAddChild(d);
-		return;
-	}
-	if (*arg == 'd' || *arg == 'D') {
-		s.mode = Mode::kDeleteChild;
-		RenderDeleteChild(d);
-		return;
-	}
-	if (*arg == 'm' || *arg == 'M') {
-		s.mode = Mode::kMoveChild;
-		s.move_node = parser_wrapper::DataNode{};
-		RenderMoveChild(d);
-		return;
-	}
-	const int n = atoi(arg);
-	if (n >= 1) {
-		const auto rows = AttrRows(s);
-		const int num_attrs = static_cast<int>(rows.size());
-		if (n <= num_attrs) {
-			const AttrRow &row = rows[n - 1];
-			const std::string &name = row.name;
-			const AttrDef *ad = row.def;
-			if (ad && ad->readonly) {
-				SendMsgToChar(fmt::format("Vedun: '{}' is read-only.\r\n", name), ch);
-				Render(d);
-				return;
-			}
-			// Flag-set attribute: open the [*] toggle editor (empty start when the attr is unset).
-			if (ad && ad->type == FieldType::kFlagset && EnumRegistry::Instance().Known(ad->enum_type)) {
-				s.mode = Mode::kEditFlagset;
-				s.edit_attr = name;
-				s.edit_enum = ad->enum_type;
-				s.flag_set = ParsePipeSet(row.value);
-				RenderFlagEditor(d);
-				return;
-			}
-			// Scalar / single-enum / list attribute. Entering a value creates the attribute if unset.
-			s.mode = Mode::kEditAttr;
-			s.edit_attr = name;
-			s.edit_enum.clear();
-			if (ad && ad->type == FieldType::kEnum && EnumRegistry::Instance().Known(ad->enum_type)) {
-				ShowEnumChoices(ch, ad->enum_type, true);
-				s.edit_enum = ad->enum_type;
-			} else if (ad && ad->type == FieldType::kList && EnumRegistry::Instance().Known(ad->enum_type)) {
-				ShowEnumChoices(ch, ad->enum_type, false);   // reference list ('|'-separated; '*' = any)
-			} else if (ad && ad->type == FieldType::kBool) {
-				SendMsgToChar("&c(boolean: true / false)&n\r\n", ch);
-			}
-			SendMsgToChar(fmt::format("New value for &g{}&n [{}] ('.' or blank cancels):\r\n",
-				name, row.present ? row.value : "unset"), ch);
-			return;
-		}
-		const auto kids = ChildrenOf(s.path.back());
-		const int child_index = n - num_attrs;
-		if (child_index >= 1 && child_index <= static_cast<int>(kids.size())) {
-			s.path.push_back(kids[child_index - 1]);
-		}
-	}
-	Render(d);
 }
 
 namespace {
