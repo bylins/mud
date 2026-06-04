@@ -14,6 +14,8 @@
 #include "gameplay/magic/magic.h"   // CastContext, EStageResult
 
 enum class ESpellMsg;               // defined in gameplay/magic/spell_messages.h
+class CharData;                     // entities/char_data.h
+class ObjData;                      // entities/obj_data.h
 
 namespace handlers {
 
@@ -35,6 +37,12 @@ EStageResult AlterTimerRestore(CastContext &ctx);
 EStageResult AlterRestoration(CastContext &ctx);
 EStageResult AlterLight(CastContext &ctx);
 EStageResult AlterDarkness(CastContext &ctx);
+
+// --- Object-creation handlers (issue.obj-casting) ----------------------------------------------
+// Optional post-load customizer for <obj_creation>: shapes the freshly-loaded base object before
+// narration/placement. Currently plumbing stubs (the stat/type customization is a TODO).
+void CreateWeapon(CharData *ch, ObjData *obj, const CastContext &ctx);
+void CreateArmor(CharData *ch, ObjData *obj, const CastContext &ctx);
 
 // Shared messaging helper for the alter-obj handlers: act() the cast spell's `key` message on
 // ctx.ovict and return kSuccess. Used by multiple handlers, so by the issue's rule it is shared
