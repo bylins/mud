@@ -190,6 +190,12 @@ Components::Components(parser_wrapper::DataNode &node) {
 			has_weave_ = true;
 			continue;
 		}
+		// <sight/>: presence-only marker. Casting requires the caster to see; the CallMagic-side
+		// gate (magic_utils.cpp) blocks a blind caster via HasSight() (issue.sight-component).
+		if (strcmp(name, "sight") == 0) {
+			has_sight_ = true;
+			continue;
+		}
 		if (strcmp(name, "material") != 0) {
 			continue;
 		}

@@ -4280,6 +4280,7 @@ base_stat id - (например "kWis") какой берем параметр,
             <verbal/>
             <weave/>
             <material any_of="3000"/>
+            <sight/>
         </components>
         <misc pos="kFight" violent="N" danger="2"/>
         <mana max="480" min="440" change="20"/>
@@ -5223,6 +5224,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <name rus="рунная метка" eng="rune label"/>
         <components>
             <weave/>
+            <sight/>
         </components>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="50" min="35" change="1"/>

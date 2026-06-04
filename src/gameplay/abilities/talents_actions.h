@@ -188,13 +188,17 @@ class Components {
 	// did; that block-shaped duplicate was removed from 228 spells in the same
 	// migration, so weave is now the single source of truth for "is this magic".
 	bool has_weave_{false};
+	// True if the spell has a <sight/> child of <components> (issue.sight-component). Casting it
+	// requires the caster to see; a blind caster is blocked by the CallMagic-side gate (HasSight()).
+	bool has_sight_{false};
  public:
 	Components() = default;
 	explicit Components(parser_wrapper::DataNode &node);
 	[[nodiscard]] const std::vector<Material> &GetMaterials() const { return materials_; }
 	[[nodiscard]] bool HasVerbal() const { return has_verbal_; }
 	[[nodiscard]] bool HasWeave() const { return has_weave_; }
-	[[nodiscard]] bool empty() const { return materials_.empty() && !has_verbal_ && !has_weave_; }
+	[[nodiscard]] bool HasSight() const { return has_sight_; }
+	[[nodiscard]] bool empty() const { return materials_.empty() && !has_verbal_ && !has_weave_ && !has_sight_; }
 	void Print(std::ostringstream &buffer) const;
 };
 

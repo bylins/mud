@@ -496,6 +496,15 @@ ECastResult CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomDat
 		return ECastResult::kNotCast;
 	}
 
+	// issue.sight-component: a spell carrying <components><sight/> requires the caster to see -- a
+	// blind caster cannot cast it. The "blinded" notice is inline for now; the generic no-effect
+	// line comes from the spell's message sheaf (kNoeffect).
+	if (MUD::Spell(spell_id).GetComponents().HasSight() && AFF_FLAGGED(caster, EAffect::kBlind)) {
+		SendMsgToChar("Вы ослеплены!\r\n", caster);
+		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", caster);
+		return ECastResult::kNotCast;
+	}
+
 	if (!MayCastHere(caster, cvict, spell_id)) {
 		// MayCastHere fizzle: per-spell sheaf with kDefault
 		// fallback supplies the narration. Warcry spells override with their louder
