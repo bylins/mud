@@ -15,6 +15,8 @@
 #include "utils/mud_string.h"                 // two_arguments
 #include "utils/utils_string.h"               // str_cmp (case-insensitive)
 #include "utils/logger.h"                      // log (boot-time scheme lint)
+#include "gameplay/magic/spells_info.h"        // SpellInfo::Print -- the `l` spellinfo view
+#include "utils/parse.h"                        // parse::ReadAsConstant<ESpell>
 
 #include <fmt/format.h>
 
@@ -22,6 +24,7 @@
 #include <filesystem>
 #include <system_error>
 #include <map>
+#include <sstream>
 
 namespace vedun {
 
@@ -379,6 +382,25 @@ void RenderMoveChild(DescriptorData *d) {
 
 // Page the current node's children as a flat "number) key: value" list -- the full overview of a
 // sheaf's messages (or any node's children) without descending into each one. The number shown is the
+// `l` on a spell: show the live parsed spell -- the in-game `show spellinfo` view -- for the element
+// being edited (MUD::Spell(id).Print). Reflects the currently-loaded spell, so unsaved DOM edits show
+// only after a save+reload. Read-only.
+void ShowSpellInfoForCurrent(DescriptorData *d) {
+	auto *ch = d->character.get();
+	const auto &s = *d->vedun_session;
+	const std::string id_str = s.path.front().GetValue("id");
+	ESpell id = ESpell::kUndefined;
+	try {
+		id = parse::ReadAsConstant<ESpell>(id_str.c_str());
+	} catch (const std::exception &) {
+		SendMsgToChar(fmt::format("Vedun: cannot resolve spell id '{}'.\r\n", id_str), ch);
+		return;
+	}
+	std::ostringstream out;
+	MUD::Spell(id).Print(ch, out);
+	page_string(d, out.str());
+}
+
 // browse selection number, so the user can type it directly afterwards. Read-only.
 void ListChildrenFull(DescriptorData *d) {
 	auto *ch = d->character.get();
@@ -903,7 +925,11 @@ void ParseBrowse(DescriptorData *d, char *arg) {
 		return;
 	}
 	if (*arg == 'l' || *arg == 'L') {
-		ListChildrenFull(d);
+		if (s.what == "spell") {
+			ShowSpellInfoForCurrent(d);   // `l` = the `show spellinfo` view for the edited spell
+		} else {
+			ListChildrenFull(d);
+		}
 		return;
 	}
 	if (*arg == 'p' || *arg == 'P') {
