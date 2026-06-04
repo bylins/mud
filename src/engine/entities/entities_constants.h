@@ -111,6 +111,8 @@ template<>
 const std::string &NAME_BY_ITEM<ESaving>(ESaving item);
 template<>
 ESaving ITEM_BY_NAME<ESaving>(const std::string &name);
+template<>
+const std::map<ESaving, std::string> &NAMES_OF<ESaving>();  // issue.vedun-editor
 
 /**
  * Alignment selector for the action-level <blocking align=> / <required align=> /
@@ -142,6 +144,8 @@ template<>
 const std::string &NAME_BY_ITEM<EResist>(EResist item);
 template<>
 EResist ITEM_BY_NAME<EResist>(const std::string &name);
+template<>
+const std::map<EResist, std::string> &NAMES_OF<EResist>();  // issue.vedun-editor
 
 const int kMaxPcResist = 75;
 

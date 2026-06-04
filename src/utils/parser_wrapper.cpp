@@ -91,6 +91,24 @@ bool DataNode::RemoveChild(const DataNode &child) {
 	return impl_->curren_xml_node.remove_child(child.impl_->curren_xml_node);
 }
 
+bool DataNode::MoveChildUp(const DataNode &child) {
+	auto node = child.impl_->curren_xml_node;
+	auto prev = node.previous_sibling();
+	if (!prev) {
+		return false;
+	}
+	return !impl_->curren_xml_node.insert_move_before(node, prev).empty();
+}
+
+bool DataNode::MoveChildDown(const DataNode &child) {
+	auto node = child.impl_->curren_xml_node;
+	auto next = node.next_sibling();
+	if (!next) {
+		return false;
+	}
+	return !impl_->curren_xml_node.insert_move_after(node, next).empty();
+}
+
 void DataNode::GoToRadix() {
 	impl_->curren_xml_node = impl_->xml_doc->document_element();
 }

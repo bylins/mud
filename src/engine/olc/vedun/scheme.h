@@ -57,6 +57,7 @@ struct AttrDef {
 
 struct TagDef {
 	std::string name;
+	std::string parent;   // optional: scopes this def to a parent tag (tag names repeat across contexts)
 	std::string desc;
 	std::vector<AttrDef> attrs;
 	std::vector<std::string> children;   // allowed child tag names
@@ -67,6 +68,8 @@ class Scheme {
  public:
 	[[nodiscard]] bool Empty() const { return tags_.empty() && prohibited_.empty(); }
 	[[nodiscard]] const TagDef *FindTag(const std::string &tag) const;
+	// Context-aware lookup: prefers a def scoped to `parent`, else the global def.
+	[[nodiscard]] const TagDef *FindTag(const std::string &tag, const std::string &parent) const;
 	[[nodiscard]] bool IsProhibited(const std::string &element_id) const;
 	[[nodiscard]] const std::map<std::string, TagDef> &Tags() const { return tags_; }
 

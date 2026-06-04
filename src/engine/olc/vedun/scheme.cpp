@@ -56,7 +56,18 @@ bool Scheme::IsProhibited(const std::string &element_id) const {
 }
 
 void Scheme::AddTag(TagDef tag) {
-	tags_[tag.name] = std::move(tag);
+	const std::string key = tag.parent.empty() ? tag.name : tag.parent + ">" + tag.name;
+	tags_[key] = std::move(tag);
+}
+
+const TagDef *Scheme::FindTag(const std::string &tag, const std::string &parent) const {
+	if (!parent.empty()) {
+		const auto it = tags_.find(parent + ">" + tag);
+		if (it != tags_.end()) {
+			return &it->second;
+		}
+	}
+	return FindTag(tag);
 }
 
 namespace {
@@ -93,6 +104,7 @@ AttrDef ParseAttr(parser_wrapper::DataNode &node) {
 TagDef ParseTag(parser_wrapper::DataNode &node) {
 	TagDef tag;
 	tag.name = node.GetValue("name");
+	tag.parent = node.GetValue("parent");
 	tag.desc = node.GetValue("desc");
 	for (auto &child : node.Children()) {
 		const std::string kind = child.GetName();

@@ -127,6 +127,8 @@ template<>
 const std::string &NAME_BY_ITEM<EAffect>(EAffect item);
 template<>
 EAffect ITEM_BY_NAME<EAffect>(const std::string &name);
+template<>
+const std::map<EAffect, std::string> &NAMES_OF<EAffect>();  // issue.vedun-editor
 
 typedef std::list<EAffect> affects_list_t;
 
@@ -278,6 +280,8 @@ template<>
 const std::string &NAME_BY_ITEM<EApply>(EApply item);
 template<>
 EApply ITEM_BY_NAME<EApply>(const std::string &name);
+template<>
+const std::map<EApply, std::string> &NAMES_OF<EApply>();  // issue.vedun-editor
 
 template<>
 const std::string &NAME_BY_ITEM<EAffFlag>(EAffFlag item);

@@ -167,6 +167,14 @@ class DataNode {
 	bool RemoveChild(const DataNode &child);
 
 	/*
+	 * issue.vedun-editor: reorder a child element among its siblings (mutates the shared
+	 * document). Returns false if it is already at the start/end. The editor's move menu uses
+	 * these; combined with AddChild they cover inserting at an arbitrary position.
+	 */
+	bool MoveChildUp(const DataNode &child);
+	bool MoveChildDown(const DataNode &child);
+
+	/*
 	 * issue.vedun-editor: serialize the whole document to a file (pugixml). Returns false on
 	 * failure. The editor writes to a temp file then renames for an atomic commit.
 	 */

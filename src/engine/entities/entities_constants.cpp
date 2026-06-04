@@ -450,6 +450,14 @@ const std::string &NAME_BY_ITEM<ESaving>(const ESaving item) {
 }
 
 template<>
+const std::map<ESaving, std::string> &NAMES_OF<ESaving>() {
+	if (ESaving_name_by_value.empty()) {
+		init_ESaving_ITEM_NAMES();
+	}
+	return ESaving_name_by_value;
+}
+
+template<>
 ESaving ITEM_BY_NAME<ESaving>(const std::string &name) {
 	if (ESaving_name_by_value.empty()) {
 		init_ESaving_ITEM_NAMES();
@@ -613,6 +621,14 @@ const std::string &NAME_BY_ITEM<EResist>(const EResist item) {
 		init_EResist_ITEM_NAMES();
 	}
 	return EResist_name_by_value.at(item);
+}
+
+template<>
+const std::map<EResist, std::string> &NAMES_OF<EResist>() {
+	if (EResist_name_by_value.empty()) {
+		init_EResist_ITEM_NAMES();
+	}
+	return EResist_name_by_value;
 }
 
 template<>

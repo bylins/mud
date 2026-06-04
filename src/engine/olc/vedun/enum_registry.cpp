@@ -63,6 +63,10 @@ void RegisterEditorEnums() {
 	registry.Register<EAffFlag>("EAffFlag");
 	registry.Register<ESkill>("ESkill");
 	registry.Register<EBaseStat>("EBaseStat");
+	registry.Register<ESaving>("ESaving");
+	registry.Register<EResist>("EResist");
+	registry.Register<EAffect>("EAffect");
+	registry.Register<EApply>("EApply");
 }
 
 } // namespace vedun

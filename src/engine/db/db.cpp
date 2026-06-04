@@ -41,6 +41,7 @@
 #include "gameplay/mechanics/noob.h"
 #include "obj_prototypes.h"
 #include "engine/olc/olc.h"
+#include "engine/olc/vedun/vedun.h"
 #include "engine/observability/helpers.h"
 #include "engine/observability/metrics.h"
 #include "utils/tracing/trace_manager.h"
@@ -679,6 +680,9 @@ void BootMudDataBase() {
 	boot_profiler.next_step("Loading spell messages cfg.");
 	log("Loading spell messages cfg.");
 	MUD::CfgManager().LoadCfg("spell_messages");
+
+	boot_profiler.next_step("Linting editor schemes.");
+	vedun::LintSchemes();
 
 	boot_profiler.next_step("Loading points intensity cfg.");
 	log("Loading points intensity cfg.");

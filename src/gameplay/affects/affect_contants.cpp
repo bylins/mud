@@ -575,4 +575,20 @@ const std::map<EAffFlag, std::string> &NAMES_OF<EAffFlag>() {
 	return EAffFlag_name_by_value;
 }
 
+template<>
+const std::map<EAffect, std::string> &NAMES_OF<EAffect>() {
+	if (EAffectFlag_name_by_value.empty()) {
+		init_EAffectFlag_ITEM_NAMES();
+	}
+	return EAffectFlag_name_by_value;
+}
+
+template<>
+const std::map<EApply, std::string> &NAMES_OF<EApply>() {
+	if (EApplyLocation_name_by_value.empty()) {
+		init_EApplyLocation_ITEM_NAMES();
+	}
+	return EApplyLocation_name_by_value;
+}
+
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

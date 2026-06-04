@@ -14,6 +14,7 @@
 #include "engine/olc/vedun/enum_registry.h"   // EnumRegistry / RegisterEditorEnums
 #include "utils/mud_string.h"                 // two_arguments
 #include "utils/utils_string.h"               // str_cmp (case-insensitive)
+#include "utils/logger.h"                      // log (boot-time scheme lint)
 
 #include <fmt/format.h>
 
@@ -24,6 +25,17 @@
 namespace vedun {
 
 namespace {
+
+// The parent tag name of the deepest path node (empty at the element root). Used so the scheme
+// can disambiguate repeated tag names (e.g. <flags> = EMagic at spell level, EAffFlag in <affects>).
+std::string ParentTagName(const Session &s) {
+	return s.path.size() >= 2 ? std::string(s.path[s.path.size() - 2].GetName()) : std::string();
+}
+
+// The scheme def for the current node, honouring its parent context.
+const TagDef *CurrentTagDef(const Session &s) {
+	return s.scheme.FindTag(s.path.back().GetName(), ParentTagName(s));
+}
 
 // Collect a node's child tags into an indexable vector (the menu order shown to the user).
 std::vector<parser_wrapper::DataNode> ChildrenOf(parser_wrapper::DataNode node) {
@@ -209,12 +221,12 @@ void RenderAddChild(DescriptorData *d) {
 	auto *ch = d->character.get();
 	const auto &s = *d->vedun_session;
 	const std::string parent = s.path.back().GetName();
-	const TagDef *td = s.scheme.FindTag(parent);
+	const TagDef *td = CurrentTagDef(s);
 	SendMsgToChar(fmt::format("&WAdd child to&n &c<{}>&n:\r\n", parent), ch);
 	if (td && !td->children.empty()) {
 		table_wrapper::Table table;
 		for (std::size_t i = 0; i < td->children.size(); ++i) {
-			const TagDef *kd = s.scheme.FindTag(td->children[i]);
+			const TagDef *kd = s.scheme.FindTag(td->children[i], parent);
 			table << fmt::format("{})", i + 1) << fmt::format("<{}>", td->children[i])
 				  << (kd ? kd->desc : "") << table_wrapper::kEndRow;
 		}
@@ -245,6 +257,34 @@ void RenderDeleteChild(DescriptorData *d) {
 	StyleColumns(table);
 	table_wrapper::PrintTableToChar(ch, table);
 	SendMsgToChar("\r\nType a number to remove it.  &Wc&n) cancel\r\n", ch);
+}
+
+// The move-child menu: the current node's children numbered, with the picked one marked ">>". Before
+// a child is picked a number selects it; after, u/d nudge it and an empty line finishes.
+void RenderMoveChild(DescriptorData *d) {
+	auto *ch = d->character.get();
+	const auto &s = *d->vedun_session;
+	const auto kids = ChildrenOf(s.path.back());
+	const bool picked = s.move_node.IsNotEmpty();
+	SendMsgToChar(picked ? "&WMove&n -- reposition the picked child:\r\n" : "&WMove which child?&n\r\n", ch);
+	if (kids.empty()) {
+		SendMsgToChar("(no children)  &Wc&n) cancel\r\n", ch);
+		return;
+	}
+	table_wrapper::Table table;
+	for (std::size_t i = 0; i < kids.size(); ++i) {
+		const bool sel = picked && kids[i] == s.move_node;
+		table << fmt::format("{})", i + 1) << (sel ? ">>" : "") << fmt::format("<{}>", kids[i].GetName())
+			  << ChildHint(kids[i]) << table_wrapper::kEndRow;
+	}
+	table_wrapper::DecorateNoBorderTable(ch, table);
+	StyleColumns(table);
+	table_wrapper::PrintTableToChar(ch, table);
+	if (picked) {
+		SendMsgToChar("\r\n&Wu&n) up   &Wd&n) down   &W<enter>&n) finish   &Wc&n) cancel\r\n", ch);
+	} else {
+		SendMsgToChar("\r\nType a child number to pick it up.  &Wc&n) cancel\r\n", ch);
+	}
 }
 
 // Validate a typed value against its scheme def before it is written. Returns an error message (shown
@@ -328,7 +368,7 @@ void Render(DescriptorData *d) {
 	auto *ch = d->character.get();
 	const auto &s = *d->vedun_session;
 	parser_wrapper::DataNode cur = s.path.back();   // copy: keep the stored cursor stable
-	const TagDef *tagdef = s.scheme.FindTag(cur.GetName());
+	const TagDef *tagdef = CurrentTagDef(s);
 
 	std::string crumb;
 	for (std::size_t i = 0; i < s.path.size(); ++i) {
@@ -365,7 +405,7 @@ void Render(DescriptorData *d) {
 		table_wrapper::Table table;
 		for (std::size_t i = 0; i < kids.size(); ++i) {
 			++index;
-			const TagDef *kdef = s.scheme.FindTag(kids[i].GetName());
+			const TagDef *kdef = s.scheme.FindTag(kids[i].GetName(), cur.GetName());
 			table << fmt::format("{})", index)
 				  << fmt::format("<{}>", kids[i].GetName())
 				  << ChildHint(kids[i])
@@ -376,7 +416,7 @@ void Render(DescriptorData *d) {
 		table_wrapper::PrintTableToChar(ch, table);
 	}
 	SendMsgToChar("\r\n&WSelect&n a number -- attribute = edit, <tag> = enter.\r\n", ch);
-	SendMsgToChar("&Wa&n) add child   &Wd&n) delete child   &Ws&n) save   &Wu&n) up   &Wq&n) quit\r\n", ch);
+	SendMsgToChar("&Wa&n) add child   &Wd&n) delete child   &Wm&n) move child   &Ws&n) save   &Wu&n) up   &Wq&n) quit\r\n", ch);
 }
 
 // The safe commit: validate the edited DOM (dry-parse, no swap), then atomically rewrite the file
@@ -585,7 +625,7 @@ void vedun_parse(DescriptorData *d, char *arg) {
 		}
 		// "?" pages the full list of valid values for an enum/list field, then keeps the edit open.
 		if (value == "?") {
-			const TagDef *td = s.scheme.FindTag(s.path.back().GetName());
+			const TagDef *td = CurrentTagDef(s);
 			const AttrDef *ad = td ? td->FindAttr(s.edit_attr) : nullptr;
 			if (ad && (ad->type == FieldType::kEnum || ad->type == FieldType::kList)
 					&& EnumRegistry::Instance().Known(ad->enum_type)) {
@@ -609,7 +649,7 @@ void vedun_parse(DescriptorData *d, char *arg) {
 			}
 			// Enforce the scheme: reject out-of-range numbers / unknown enum tokens and re-prompt,
 			// keeping the edit open (mode/edit_attr/edit_enum preserved) so the user can retry.
-			const TagDef *td = s.scheme.FindTag(s.path.back().GetName());
+			const TagDef *td = CurrentTagDef(s);
 			const AttrDef *ad = td ? td->FindAttr(s.edit_attr) : nullptr;
 			const std::string err = ValidateValue(ad, value);
 			if (!err.empty()) {
@@ -689,7 +729,7 @@ void vedun_parse(DescriptorData *d, char *arg) {
 			return;
 		}
 		std::string tag;
-		const TagDef *td = s.scheme.FindTag(s.path.back().GetName());
+		const TagDef *td = CurrentTagDef(s);
 		if (td && !td->children.empty() && token.find_first_not_of("0123456789") == std::string::npos) {
 			const std::size_t pick = static_cast<std::size_t>(atoi(token.c_str()));
 			if (pick >= 1 && pick <= td->children.size()) {
@@ -739,6 +779,51 @@ void vedun_parse(DescriptorData *d, char *arg) {
 		return;
 	}
 
+	// Move-child menu: pick a child by number, then nudge it up/down; an empty line finishes.
+	if (s.mode == Mode::kMoveChild) {
+		while (*arg == ' ') {
+			++arg;
+		}
+		std::string tok = arg;
+		while (!tok.empty() && std::isspace(static_cast<unsigned char>(tok.back()))) {
+			tok.pop_back();
+		}
+		if (s.move_node.IsEmpty()) {
+			if (tok.empty() || tok == "c" || tok == "C" || tok == ".") {
+				s.mode = Mode::kBrowse;
+				Render(d);
+				return;
+			}
+			const auto kids = ChildrenOf(s.path.back());
+			const int n = atoi(tok.c_str());
+			if (n >= 1 && n <= static_cast<int>(kids.size())) {
+				s.move_node = kids[n - 1];
+			} else {
+				SendMsgToChar("No such child number.\r\n", ch);
+			}
+			RenderMoveChild(d);
+			return;
+		}
+		// A child is picked: u/d reposition it, an empty line (or c) finishes.
+		if (tok.empty() || tok == "c" || tok == "C" || tok == "." || tok == "q") {
+			s.move_node = parser_wrapper::DataNode{};
+			s.mode = Mode::kBrowse;
+			Render(d);
+			return;
+		}
+		if (tok == "u" || tok == "U") {
+			if (s.path.back().MoveChildUp(s.move_node)) {
+				s.dirty = true;
+			}
+		} else if (tok == "d" || tok == "D") {
+			if (s.path.back().MoveChildDown(s.move_node)) {
+				s.dirty = true;
+			}
+		}
+		RenderMoveChild(d);
+		return;
+	}
+
 	while (*arg && std::isspace(static_cast<unsigned char>(*arg))) {
 		++arg;
 	}
@@ -770,13 +855,19 @@ void vedun_parse(DescriptorData *d, char *arg) {
 		RenderDeleteChild(d);
 		return;
 	}
+	if (*arg == 'm' || *arg == 'M') {
+		s.mode = Mode::kMoveChild;
+		s.move_node = parser_wrapper::DataNode{};
+		RenderMoveChild(d);
+		return;
+	}
 	const int n = atoi(arg);
 	if (n >= 1) {
 		const auto attrs = s.path.back().Attributes();
 		const int num_attrs = static_cast<int>(attrs.size());
 		if (n <= num_attrs) {
 			const std::string &name = attrs[n - 1].first;
-			const TagDef *td = s.scheme.FindTag(s.path.back().GetName());
+			const TagDef *td = CurrentTagDef(s);
 			const AttrDef *ad = td ? td->FindAttr(name) : nullptr;
 			if (ad && ad->readonly) {
 				SendMsgToChar(fmt::format("Vedun: '{}' is read-only.\r\n", name), ch);
@@ -813,6 +904,84 @@ void vedun_parse(DescriptorData *d, char *arg) {
 		}
 	}
 	Render(d);
+}
+
+namespace {
+
+// Recursively collect, for the lint, tag names present in the data but undeclared by the scheme, and
+// (for declared tags) attributes present in the data but not declared on that tag.
+void CollectCoverage(const Scheme &scheme, parser_wrapper::DataNode node, const std::string &parent,
+					 std::set<std::string> &undeclared_tags, std::set<std::string> &undeclared_attrs) {
+	const std::string name = node.GetName();
+	const TagDef *td = scheme.FindTag(name, parent);
+	if (td == nullptr) {
+		undeclared_tags.insert(parent.empty() ? name : parent + "/" + name);
+	} else {
+		for (const auto &[an, av] : node.Attributes()) {
+			(void) av;
+			if (td->FindAttr(an) == nullptr) {
+				undeclared_attrs.insert(name + "." + an);
+			}
+		}
+	}
+	for (auto &child : node.Children()) {
+		CollectCoverage(scheme, child, name, undeclared_tags, undeclared_attrs);
+	}
+}
+
+// A short, capped sample of a set (so the log line can't be flooded).
+std::string SampleOf(const std::set<std::string> &items) {
+	std::string out;
+	int n = 0;
+	for (const auto &x : items) {
+		if (n++ >= 15) {
+			out += " ...";
+			break;
+		}
+		out += " " + x;
+	}
+	return out;
+}
+
+} // namespace
+
+void LintSchemes() {
+	RegisterEditorEnums();
+	const auto &reg = EnumRegistry::Instance();
+	for (const auto &entry : MUD::CfgManager().EditableEntries()) {
+		Scheme scheme = LoadScheme(SchemePathFor(entry.file));
+		if (scheme.Empty()) {
+			continue;
+		}
+		int enum_errors = 0;
+		for (const auto &[key, tag] : scheme.Tags()) {
+			(void) key;
+			for (const auto &attr : tag.attrs) {
+				const bool enumish = attr.type == FieldType::kEnum || attr.type == FieldType::kFlagset
+					|| attr.type == FieldType::kList;
+				if (enumish && !attr.enum_type.empty() && !reg.Known(attr.enum_type)) {
+					log("Vedun scheme lint [%s]: <%s %s> references unregistered enum '%s'.",
+						entry.what.c_str(), tag.name.c_str(), attr.name.c_str(), attr.enum_type.c_str());
+					++enum_errors;
+				}
+			}
+		}
+		std::set<std::string> undeclared_tags;
+		std::set<std::string> undeclared_attrs;
+		parser_wrapper::DataNode doc(entry.file);
+		const std::string root = doc.GetName();
+		for (auto &el : doc.Children()) {
+			CollectCoverage(scheme, el, root, undeclared_tags, undeclared_attrs);
+		}
+		log("Vedun scheme lint [%s]: %d enum error(s), %zu undeclared tag type(s), %zu undeclared attribute(s).",
+			entry.what.c_str(), enum_errors, undeclared_tags.size(), undeclared_attrs.size());
+		if (!undeclared_tags.empty()) {
+			log("Vedun scheme lint [%s]: undeclared tags:%s", entry.what.c_str(), SampleOf(undeclared_tags).c_str());
+		}
+		if (!undeclared_attrs.empty()) {
+			log("Vedun scheme lint [%s]: undeclared attrs:%s", entry.what.c_str(), SampleOf(undeclared_attrs).c_str());
+		}
+	}
 }
 
 void vedun_cleanup(DescriptorData *d) {

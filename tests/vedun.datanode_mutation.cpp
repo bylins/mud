@@ -52,6 +52,42 @@ TEST(Vedun_DataNodeMutation, SetValueAndSaveRoundTrip) {
 	std::remove(out);
 }
 
+TEST(Vedun_DataNodeMutation, MoveChildReorders) {
+	const char *src = "vedun_move_src.xml";
+	{
+		std::ofstream f(src);
+		f << R"(<root><list><a/><b/><c/></list></root>)";
+	}
+	parser_wrapper::DataNode doc(src);
+	parser_wrapper::DataNode list;
+	for (auto &l : doc.Children()) {
+		list = l;
+	}
+	ASSERT_TRUE(list.IsNotEmpty());
+	auto order = [&]() {
+		std::string s;
+		for (auto &c : list.Children()) {
+			s += c.GetName();
+		}
+		return s;
+	};
+	ASSERT_EQ(order(), "abc");
+	// Move <c> up one (-> "acb"), then <a> down one (-> "cab" ... wait: from "acb" moving a down -> "cab").
+	for (auto &c : list.Children()) {
+		if (std::string(c.GetName()) == "c") {
+			EXPECT_TRUE(list.MoveChildUp(c));
+			break;
+		}
+	}
+	EXPECT_EQ(order(), "acb");
+	// First element can't move up.
+	for (auto &c : list.Children()) {
+		EXPECT_FALSE(list.MoveChildUp(c));   // 'a' is first
+		break;
+	}
+	std::remove(src);
+}
+
 TEST(Vedun_DataNodeMutation, AddAndRemoveChildRoundTrip) {
 	const char *src = "vedun_child_src.xml";
 	const char *out = "vedun_child_out.xml";

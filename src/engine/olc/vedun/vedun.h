@@ -27,7 +27,7 @@ namespace vedun {
 // Per-descriptor editing session: the whole-file DOM, a cursor stack (path) from the element root
 // to the node shown, the scheme, and the edit state. Editing mutates the shared DOM in place;
 // saving validates then atomically rewrites the file and reloads the container.
-enum class Mode { kBrowse, kEditAttr, kEditFlagset, kAddChild, kDeleteChild, kConfirmQuit };
+enum class Mode { kBrowse, kEditAttr, kEditFlagset, kAddChild, kDeleteChild, kMoveChild, kConfirmQuit };
 struct Session {
 	std::string what;                              // e.g. "spell"
 	std::filesystem::path file;                    // the cfg source file
@@ -39,6 +39,7 @@ struct Session {
 	std::string edit_attr;                         // attribute being edited (kEditAttr)
 	std::string edit_enum;                         // enum type of edit_attr (number-pick), else empty
 	std::set<std::string> flag_set;                // selected members while editing a flag-set
+	parser_wrapper::DataNode move_node;            // the child being repositioned (kMoveChild)
 	bool dirty{false};                             // unsaved edits in the DOM
 };
 
@@ -51,6 +52,12 @@ void vedun_parse(DescriptorData *d, char *arg);
 
 // Tear down the session and return the descriptor to play.
 void vedun_cleanup(DescriptorData *d);
+
+// issue.vedun-editor: boot-time scheme lint. For every editable data set that has a .scheme, logs
+// scheme/data drift -- enum types the scheme references but the editor hasn't registered, and the
+// tags/attributes present in the data but not declared in the scheme (so they edit untyped). Cheap,
+// log-only; call once after the cfg files are loaded.
+void LintSchemes();
 
 } // namespace vedun
 
