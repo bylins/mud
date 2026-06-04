@@ -18,6 +18,7 @@
 #include "gameplay/affects/affect_contants.h"  // NAME_BY_ITEM<EApply>
 #include "gameplay/handlers/spell_handlers.h"
 #include "gameplay/mechanics/summon.h"
+#include "gameplay/mechanics/charm.h"
 
 #include <functional>
 #include <map>
@@ -54,7 +55,6 @@ extern int interpolate(int min_value, int pulse);
 
 byte GetSavingThrows(ECharClass class_id, ESaving type, int level);    // class.cpp
 byte GetExtendSavingThrows(ECharClass class_id, ESaving save, int level);
-int CheckCharmices(CharData *ch, CharData *victim, ESpell spell_id);
 void ReactToCast(CharData *victim, CharData *caster, ESpell spell_id);
 
 bool IsRoomForbidden(RoomData *room) {

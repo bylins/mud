@@ -8,6 +8,7 @@
 #include "engine/core/handler.h"
 #include "engine/db/db.h"
 #include "gameplay/mechanics/summon.h"
+#include "gameplay/mechanics/charm.h"
 #include "utils/utils.h"
 #include <cstdio>
 
@@ -63,9 +64,6 @@ static void ApplyCloneCosmetics(CharData *ch, CharData *mob) {
 	mob->SetFlag(EMobFlag::kClone);
 	mob->UnsetFlag(EMobFlag::kMounting);
 }
-
-// CheckCharmices is defined non-static in spells.cpp (forward-declared here, as magic.cpp does).
-int CheckCharmices(CharData *ch, CharData *victim, ESpell spell_id);
 
 namespace handlers {
 
