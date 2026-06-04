@@ -462,6 +462,7 @@ main_sources = files(
   'src/gameplay/handlers/setup_keeper_stats.cpp',
   'src/gameplay/handlers/setup_firekeeper_stats.cpp',
   'src/gameplay/handlers/clone_cascade.cpp',
+  'src/gameplay/handlers/handle_thunderstorm_tick.cpp',
   'src/gameplay/mechanics/summon.cpp',
   'src/gameplay/magic/points_intensity.cpp',
   'src/gameplay/magic/magic_temp_spells.cpp',

@@ -11,7 +11,8 @@
 #ifndef BYLINS_SRC_GAMEPLAY_HANDLERS_SPELL_HANDLERS_H_
 #define BYLINS_SRC_GAMEPLAY_HANDLERS_SPELL_HANDLERS_H_
 
-#include "gameplay/magic/magic.h"   // CastContext, EStageResult
+#include "gameplay/magic/magic.h"        // CastContext, EStageResult
+#include "gameplay/magic/magic_rooms.h"  // room_spells::ERoomApply (HandleThunderstormTick sig)
 
 enum class ESpellMsg;               // defined in gameplay/magic/spell_messages.h
 class CharData;                     // entities/char_data.h
@@ -53,6 +54,11 @@ EStageResult SummonTutelar(CastContext &ctx);
 void SetupKeeperStats(CharData *ch, CharData *mob, const CastContext &ctx);
 void SetupFirekeeperStats(CharData *ch, CharData *mob, const CastContext &ctx, int charm_duration);
 void CloneCascade(CharData *ch, CharData *mob, const CastContext &ctx, int duration);
+
+// --- Room-affect tick handler (issue.spellhandlers) ---------------------------------------------
+// kThunderstorm per-tick cascade, dispatched by magic_rooms.cpp's kRoomTickHandlers. (Its
+// Affect<ERoomApply>::shared_ptr signature is why this header includes magic_rooms.h.)
+void HandleThunderstormTick(CharData *ch, const Affect<room_spells::ERoomApply>::shared_ptr &aff);
 
 // Shared messaging helper for the alter-obj handlers: act() the cast spell's `key` message on
 // ctx.ovict and return kSuccess. Used by multiple handlers, so by the issue's rule it is shared

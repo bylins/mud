@@ -1,4 +1,5 @@
 #include "magic_rooms.h"
+#include "gameplay/handlers/spell_handlers.h"
 
 #include "spells_info.h"
 #include "engine/ui/modify.h"
@@ -186,61 +187,14 @@ void AddRoomToAffected(RoomData *room) {
 // different elemental cascade until the storm fades.
 // Emit a kThunderstorm per-tick line from the kThunderstorm sheaf (kCustomMsgOne..Eight, one per
 // duration phase) to the whole room. Replaces the hardcoded SendMsgToChar/act pairs.
-static void EmitThunderstormMsg(CharData *ch, ESpellMsg key) {
-	const auto &msg = MUD::SpellMessages()[ESpell::kThunderstorm].GetMessage(key);
-	if (!msg.empty()) {
-		act(msg.c_str(), false, ch, nullptr, nullptr, kToRoom | kToChar | kToArenaListen);
-	}
-}
 
-static void HandleThunderstormTick(CharData *ch, const Affect<ERoomApply>::shared_ptr &aff) {
-	switch (aff->duration) {
-	case 7:
-		if (CallMagic(ch, nullptr, nullptr, nullptr, ESpell::kControlWeather, GetRealLevel(ch)) == ECastResult::kNotCast) {
-			aff->duration = 0;
-			break;
-		}
-		what_sky = kSkyCloudy;
-		EmitThunderstormMsg(ch, ESpellMsg::kCustomMsgOne);
-		break;
-	case 6:
-		EmitThunderstormMsg(ch, ESpellMsg::kCustomMsgTwo);
-		CastAreaInRoom(ch, ESpell::kDeafness, GetRealLevel(ch));
-		break;
-	case 5:
-		EmitThunderstormMsg(ch, ESpellMsg::kCustomMsgThree);
-		CastAreaInRoom(ch, ESpell::kColdWind, GetRealLevel(ch));
-		break;
-	case 4:
-		EmitThunderstormMsg(ch, ESpellMsg::kCustomMsgFour);
-		CastAreaInRoom(ch, ESpell::kAcid, GetRealLevel(ch));
-		break;
-	case 3:
-		EmitThunderstormMsg(ch, ESpellMsg::kCustomMsgFive);
-		CastAreaInRoom(ch, ESpell::kLightingBolt, GetRealLevel(ch));
-		break;
-	case 2:
-		EmitThunderstormMsg(ch, ESpellMsg::kCustomMsgSix);
-		CastAreaInRoom(ch, ESpell::kCallLighting, GetRealLevel(ch));
-		break;
-	case 1:
-		EmitThunderstormMsg(ch, ESpellMsg::kCustomMsgSeven);
-		CastAreaInRoom(ch, ESpell::kWhirlwind, GetRealLevel(ch));
-		break;
-	case 0:
-	default:
-		what_sky = kSkyCloudless;
-		EmitThunderstormMsg(ch, ESpellMsg::kCustomMsgEight);
-		break;
-	}
-}
 
 // Раз в 2 секунды идет вызов обработчиков аффектов//
 // String-named code tick handlers for room affects -- the manual-cast mechanism for per-tick
 // room logic the data can't express. A room affect names one via <affects tick_handler="...">.
 static const std::map<std::string, std::function<void(CharData *, const Affect<ERoomApply>::shared_ptr &)>>
 		kRoomTickHandlers = {
-	{"HandleThunderstormTick", HandleThunderstormTick},
+	{"HandleThunderstormTick", handlers::HandleThunderstormTick},
 };
 
 // Per-tick room narration: cycle the impose spell's defined kCustomMsg slots by the affect's
