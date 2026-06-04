@@ -561,6 +561,7 @@ EStageResult CastDamage(CastContext &ctx) {
 
 	auto ch_start_pos = ch->GetPosition();
 	auto victim_start_pos = victim->GetPosition();
+	const bool tc = spell_trace::Active(ch, victim);
 
 	if (ch != victim) {
 		modi = CalcAntiSavings(ch);
@@ -581,6 +582,10 @@ EStageResult CastDamage(CastContext &ctx) {
 			const ESkill hits_skill = MUD::Spell(spell_id).GetPotencyRoll().GetBaseSkill();
 			count = 1 + CalcExtraHits(ch, spell_id, hits_skill,
 									  dmg.GetHitsSkillDivisor(), dmg.GetHitsMax(), dmg.GetHitsProb());
+			if (tc) {
+				spell_trace::Line(ch, victim, "&C  hits: 1 + CalcExtraHits(skilldiv %d max %d prob %d) = %d.&n\r\n",
+					dmg.GetHitsSkillDivisor(), dmg.GetHitsMax(), dmg.GetHitsProb(), count);
+			}
 		}
 	}
 
@@ -593,7 +598,12 @@ EStageResult CastDamage(CastContext &ctx) {
 		err_log("%s", e.what());
 	}
 	total_dmg = std::clamp(total_dmg, 0, kMaxHits);
+	if (tc) {
+		spell_trace::Line(ch, victim, "&CDamage %s -> %s: total_dmg %d (area %.2f applied), hits %d.&n\r\n",
+			MUD::Spell(spell_id).GetCName(), GET_NAME(victim), total_dmg, ctx.area_coeff, count);
+	}
 
+	const int total_hits = count;
 	for (; count > 0 && rand >= 0; count--) {
 		if (ch->in_room != kNowhere
 			&& victim->in_room != kNowhere
@@ -606,9 +616,22 @@ EStageResult CastDamage(CastContext &ctx) {
 			// accumulate the ACTUAL HP removed this hit (post-resist/save, capped
 			// at the target's HP) so a chained action scales off real damage. On death the victim is
 			// extracted -> count the HP it had; otherwise the HP it actually lost.
-			ctx.damage_count += (rand < 0) ? std::max(0, hp_before)
+			const int removed = (rand < 0) ? std::max(0, hp_before)
 									   : std::max(0, hp_before - victim->get_hit());
+			ctx.damage_count += removed;
+			// On a lethal hit the victim may be extracted -- pass nullptr so the trace
+			// never dereferences it (caster-only line).
+			if (tc) {
+				spell_trace::Line(ch, (rand < 0) ? nullptr : victim, "&C  hit %d: removed %d HP%s.&n\r\n",
+					total_hits - count + 1, removed, (rand < 0) ? " (lethal)" : "");
+			}
 		}
+	}
+	// Knockdown/stun outcome: report any position change (only when the victim is
+	// alive -- a dead victim may already be extracted).
+	if (tc && rand >= 0 && victim->GetPosition() != victim_start_pos) {
+		spell_trace::Line(ch, victim, "&C  reposition: pos %d -> %d.&n\r\n",
+			to_underlying(victim_start_pos), to_underlying(victim->GetPosition()));
 	}
 	// rand: >=0 damage dealt, -1 = victim died on this cast. Keep the raw value in
 	// result.damage (callers like kSacrifice rely on the -1 sentinel); expose death
@@ -1690,6 +1713,18 @@ struct PointsCategory {
 	const talents_actions::Points::Amount &amount;
 };
 
+// Short category label for the tester trace.
+const char *PointsCatName(points_intensity::ECategory cat) {
+	using points_intensity::ECategory;
+	switch (cat) {
+		case ECategory::kHeal: return "heal";
+		case ECategory::kMoves: return "moves";
+		case ECategory::kThirst: return "thirst";
+		case ECategory::kFull: return "full";
+		default: return "?";
+	}
+}
+
 // Lambda factored out for clarity: turns a Points::Amount into a signed delta
 // using the shared (dice, competencies, bonus_mod) trio captured by reference.
 // Heal carries an npc_coeff multiplier (legacy default 1.0 ~ +100% for mobs);
@@ -1829,6 +1864,11 @@ EStageResult CastToPoints(CastContext &ctx) {
 	const double competencies = ctx.CompetenceBase();  // base override
 	const double bonus_mod = ch->add_abils.percent_spellpower_add / 100.0;
 	auto calc_amount = MakeAmountCalculator(ch, dice, competencies, bonus_mod);
+	const bool tc = spell_trace::Active(ch, victim);
+	if (tc) {
+		spell_trace::Line(ch, victim, "&CPoints %s -> %s: dice %.1f C %.2f bonus_mod %.2f area %.2f.&n\r\n",
+			MUD::Spell(spell_id).GetCName(), GET_NAME(victim), dice, competencies, bonus_mod, ctx.area_coeff);
+	}
 
 	// Per-category dispatch: only present categories run
 	// through calc_amount and reach the apply/emit pass; spells with a single
@@ -1853,6 +1893,11 @@ EStageResult CastToPoints(CastContext &ctx) {
 		}
 		amounts[i] = amt;
 		if (amt != 0) any_amount = true;
+		if (tc) {
+			spell_trace::Line(ch, victim, "&C  %s: min %.1f dw %.1f alpha %.1f beta %.1f npc_coeff %.2f -> %d.&n\r\n",
+				PointsCatName(c.cat), c.amount.min, c.amount.dices_weight, c.amount.alpha,
+				c.amount.beta, c.amount.npc_coeff, amt);
+		}
 	}
 
 	// Aggro consequence: buffing (or draining) your fighting buddy is still
@@ -1879,6 +1924,10 @@ EStageResult CastToPoints(CastContext &ctx) {
 		// projects the after-state itself (ComputePointsPercent does the same
 		// clamp gain_condition will apply).
 		const int percent = ComputePointsPercent(c.cat, amt, victim);
+		if (tc) {
+			spell_trace::Line(ch, victim, "&C  %s applied: amount %d, intensity %d%%.&n\r\n",
+				PointsCatName(c.cat), amt, percent);
+		}
 		// Apply the actual effect.
 		switch (c.cat) {
 			case points_intensity::ECategory::kHeal:
