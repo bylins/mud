@@ -67,13 +67,13 @@ class IEditableCfgLoader : public virtual ICfgLoader {
 	// Is `id` a valid element key, whether or not an element currently exists? Default: only the ids
 	// of existing elements are valid. Override to accept any valid key, so the editor can create a
 	// new element for an id that does not exist yet.
-	[[nodiscard]] virtual bool IsValidElementId(const std::string &id) const {
-		for (const auto &e : ListElements()) {
-			if (e.id == id) {
-				return true;
-			}
-		}
-		return false;
+	// Resolve `id` (case-insensitively) to the canonical element key for this data set, whether or
+	// not an element exists yet. Returns "" when `id` is not a valid key. Default: no key is
+	// creatable (only existing ids, already resolved by the caller, work). Override to allow
+	// creating new elements -- return the canonical (proper-cased) id.
+	[[nodiscard]] virtual std::string CanonicalElementId(const std::string &id) const {
+		(void) id;
+		return "";
 	}
 	// Create a fresh, minimal element node for `id` directly under `root` (a child of the file root)
 	// and return it -- a handle sharing root's document, so the edit persists on save. Returns an

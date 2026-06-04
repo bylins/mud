@@ -1104,8 +1104,9 @@ void do_vedun(CharData *ch, char *argument, int /*cmd*/, int /*subcmd*/) {
 	if (resolved_id.empty()) {
 		// No existing element matched. If the typed token is itself a valid key for this data set,
 		// open it for editing -- creating it if it does not exist yet. Otherwise the id is invalid.
-		if (entry->loader->IsValidElementId(element)) {
-			resolved_id = element;
+		const std::string canon = entry->loader->CanonicalElementId(element);
+		if (!canon.empty()) {
+			resolved_id = canon;
 		} else {
 			SendMsgToChar(fmt::format("Vedun: '{}' is not a valid {} identifier (and matches no existing element).\r\n",
 				element, entry->what), ch);

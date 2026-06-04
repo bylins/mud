@@ -5,6 +5,7 @@
 */
 
 #include "spell_messages.h"
+#include "utils/utils_string.h"   // str_cmp
 
 #include "engine/db/global_objects.h"
 
@@ -292,12 +293,13 @@ cfg_manager::ValidationResult SpellMessagesLoader::Validate(parser_wrapper::Data
 	return {false, "Spell-message data failed to parse (see syslog for the offending sheaf/message)."};
 }
 
-bool SpellMessagesLoader::IsValidElementId(const std::string &id) const {
-	try {
-		return ITEM_BY_NAME<ESpell>(id) != ESpell::kUndefined;
-	} catch (const std::exception &) {
-		return false;
+std::string SpellMessagesLoader::CanonicalElementId(const std::string &id) const {
+	for (const auto &[value, name] : NAMES_OF<ESpell>()) {
+		if (value != ESpell::kUndefined && str_cmp(name, id) == 0) {
+			return name;
+		}
 	}
+	return "";
 }
 
 parser_wrapper::DataNode SpellMessagesLoader::CreateElementNode(parser_wrapper::DataNode root, const std::string &id) const {

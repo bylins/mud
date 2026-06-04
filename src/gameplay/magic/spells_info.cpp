@@ -1,6 +1,7 @@
 //#include "spells_info.h"
 
 #include "engine/ui/color.h"
+#include "utils/utils_string.h"   // str_cmp
 //#include "spells.h"
 #include "engine/db/global_objects.h"
 #include "engine/entities/char_data.h"
@@ -50,12 +51,13 @@ cfg_manager::ValidationResult SpellsLoader::Validate(DataNode &doc) const {
 	return {false, "Spell data failed to parse (see syslog for the offending spell/attribute)."};
 }
 
-bool SpellsLoader::IsValidElementId(const std::string &id) const {
-	try {
-		return parse::ReadAsConstant<ESpell>(id.c_str()) != ESpell::kUndefined;
-	} catch (const std::exception &) {
-		return false;
+std::string SpellsLoader::CanonicalElementId(const std::string &id) const {
+	for (const auto &[value, name] : NAMES_OF<ESpell>()) {
+		if (value != ESpell::kUndefined && str_cmp(name, id) == 0) {
+			return name;
+		}
 	}
+	return "";
 }
 
 parser_wrapper::DataNode SpellsLoader::CreateElementNode(parser_wrapper::DataNode root, const std::string &id) const {

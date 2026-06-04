@@ -5,6 +5,7 @@
 */
 
 #include "fight_messages.h"
+#include "utils/utils_string.h"   // str_cmp
 
 #include "engine/db/global_objects.h"
 
@@ -184,12 +185,13 @@ cfg_manager::ValidationResult FightMessagesLoader::Validate(parser_wrapper::Data
 	return {false, "Hit-message data failed to parse (see syslog for the offending sheaf/message)."};
 }
 
-bool FightMessagesLoader::IsValidElementId(const std::string &id) const {
-	try {
-		return ITEM_BY_NAME<EDamageSource>(id) != EDamageSource::kUndefined;
-	} catch (const std::exception &) {
-		return false;
+std::string FightMessagesLoader::CanonicalElementId(const std::string &id) const {
+	for (const auto &[value, name] : NAMES_OF<EDamageSource>()) {
+		if (value != EDamageSource::kUndefined && str_cmp(name, id) == 0) {
+			return name;
+		}
 	}
+	return "";
 }
 
 parser_wrapper::DataNode FightMessagesLoader::CreateElementNode(parser_wrapper::DataNode root, const std::string &id) const {

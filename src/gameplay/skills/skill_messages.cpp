@@ -5,6 +5,7 @@
 */
 
 #include "skill_messages.h"
+#include "utils/utils_string.h"   // str_cmp
 
 #include <vector>
 
@@ -121,12 +122,13 @@ cfg_manager::ValidationResult SkillMessagesLoader::Validate(parser_wrapper::Data
 	return {false, "Skill-message data failed to parse (see syslog for the offending sheaf/message)."};
 }
 
-bool SkillMessagesLoader::IsValidElementId(const std::string &id) const {
-	try {
-		return ITEM_BY_NAME<ESkill>(id) != ESkill::kUndefined;
-	} catch (const std::exception &) {
-		return false;
+std::string SkillMessagesLoader::CanonicalElementId(const std::string &id) const {
+	for (const auto &[value, name] : NAMES_OF<ESkill>()) {
+		if (value != ESkill::kUndefined && str_cmp(name, id) == 0) {
+			return name;
+		}
 	}
+	return "";
 }
 
 parser_wrapper::DataNode SkillMessagesLoader::CreateElementNode(parser_wrapper::DataNode root, const std::string &id) const {
