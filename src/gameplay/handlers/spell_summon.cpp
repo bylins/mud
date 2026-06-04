@@ -71,27 +71,27 @@ EStageResult SpellSummon(CastContext &ctx) {
 		return EStageResult::kSuccess;
 	}
 	if (!victim->desc) {
-		SendSummonFail(ch, ESpell::kSummon);
+		SendMsgToChar(MUD::SpellMessages().GetMessage(ESpell::kSummon, ESpellMsg::kSummonFail) + "\r\n", ch);
 	}
 	ch_room = ch->in_room;
 	vic_room = victim->in_room;
 
 	if (ch_room == kNowhere || vic_room == kNowhere) {
-		SendSummonFail(ch, ESpell::kSummon);
+		SendMsgToChar(MUD::SpellMessages().GetMessage(ESpell::kSummon, ESpellMsg::kSummonFail) + "\r\n", ch);
 		ch->send_to_TC(true, true, true, "Цель в Nowhere\r\n");
 		return EStageResult::kSuccess;
 	}
 
 	if (ch->IsNpc() && victim->IsNpc()) {
 		ch->send_to_TC(true, true, true, "Да ты МОБ!!!!!\r\n");
-		SendSummonFail(ch, ESpell::kSummon);
+		SendMsgToChar(MUD::SpellMessages().GetMessage(ESpell::kSummon, ESpellMsg::kSummonFail) + "\r\n", ch);
 		return EStageResult::kSuccess;
 	}
 
 	if (victim->IsImmortal()) {
 		if (ch->IsNpc() || (!ch->IsNpc() && GetRealLevel(ch) < GetRealLevel(victim))) {
 			ch->send_to_TC(true, true, true, "Неположено сие деяние!\r\n");
-			SendSummonFail(ch, ESpell::kSummon);
+			SendMsgToChar(MUD::SpellMessages().GetMessage(ESpell::kSummon, ESpellMsg::kSummonFail) + "\r\n", ch);
 			return EStageResult::kSuccess;
 		}
 	}
@@ -99,7 +99,7 @@ EStageResult SpellSummon(CastContext &ctx) {
 	if (!ch->IsNpc() && victim->IsNpc()) {
 		if (victim->get_master() != ch) {
 			ch->send_to_TC(true, true, true, "Чармис не ваш\r\n");
-			SendSummonFail(ch, ESpell::kSummon);
+			SendMsgToChar(MUD::SpellMessages().GetMessage(ESpell::kSummon, ESpellMsg::kSummonFail) + "\r\n", ch);
 			return EStageResult::kSuccess;
 		}
 	}
@@ -120,7 +120,7 @@ EStageResult SpellSummon(CastContext &ctx) {
 			}
 			if (NORENTABLE(victim) && !IS_CHARMICE(ch)) {
 				ch->send_to_TC(true, true, true, "Ваша жертва совсем не рентабельна!\r\n");
-				SendSummonFail(ch, ESpell::kSummon);
+				SendMsgToChar(MUD::SpellMessages().GetMessage(ESpell::kSummon, ESpellMsg::kSummonFail) + "\r\n", ch);
 				return EStageResult::kSuccess;
 			}
 			if (victim->GetEnemy()
@@ -133,7 +133,7 @@ EStageResult SpellSummon(CastContext &ctx) {
 		}
 		if (victim->get_wait() > 0) {
 			ch->send_to_TC(true, true, true, "Чармис в лаге\r\n");
-			SendSummonFail(ch, ESpell::kSummon);
+			SendMsgToChar(MUD::SpellMessages().GetMessage(ESpell::kSummon, ESpellMsg::kSummonFail) + "\r\n", ch);
 			return EStageResult::kSuccess;
 		}
 
@@ -147,13 +147,13 @@ EStageResult SpellSummon(CastContext &ctx) {
 			|| (!group::same_group(ch, victim)
 				&& (ROOM_FLAGGED(ch_room, ERoomFlag::kPeaceful) || ROOM_FLAGGED(ch_room, ERoomFlag::kArena)))) {
 			ch->send_to_TC(true, true, true, "Чармис в носуммоне\r\n");
-			SendSummonFail(ch, ESpell::kSummon);
+			SendMsgToChar(MUD::SpellMessages().GetMessage(ESpell::kSummon, ESpellMsg::kSummonFail) + "\r\n", ch);
 			return EStageResult::kSuccess;
 		}
 		// отдельно проверку на клан комнаты, своих чармисов призвать можем ()
 		if (!Clan::MayEnter(victim, ch_room, kHousePortal) && !(victim->has_master()) && (victim->get_master() != ch)) {
 			ch->send_to_TC(true, true, true, "Чармис доступ в замок запрещен\r\n");
-			SendSummonFail(ch, ESpell::kSummon);
+			SendMsgToChar(MUD::SpellMessages().GetMessage(ESpell::kSummon, ESpellMsg::kSummonFail) + "\r\n", ch);
 			return EStageResult::kSuccess;
 		}
 
@@ -165,7 +165,7 @@ EStageResult SpellSummon(CastContext &ctx) {
 				|| (!group::same_group(ch, victim)
 					&& (ROOM_FLAGGED(vic_room, ERoomFlag::kTunnel) || ROOM_FLAGGED(vic_room, ERoomFlag::kArena)))) {
 				ch->send_to_TC(true, true, true, "Чармис в носуммоне\r\n");
-				SendSummonFail(ch, ESpell::kSummon);
+				SendMsgToChar(MUD::SpellMessages().GetMessage(ESpell::kSummon, ESpellMsg::kSummonFail) + "\r\n", ch);
 				return EStageResult::kSuccess;
 			}
 		} else {

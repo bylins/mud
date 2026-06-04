@@ -90,7 +90,6 @@ void SpellForbidden(int level, CharData *ch, CharData *victim, ObjData *obj);
 void SkillIdentify(int level, CharData *ch, CharData *victim, ObjData *obj);
 void RemovePortalGate(RoomRnum rnum);
 // issue.spellhandlers: helpers used by the extracted manual handlers (defs stay in spells.cpp).
-void SendSummonFail(CharData *ch, ESpell spell_id);
 int GetTeleportTargetRoom(CharData *ch, int rnum_start, int rnum_stop);
 void CheckAutoNosummon(CharData *ch);
 void AddPortalTimer(CharData *ch, RoomData *from_room, RoomRnum to_room, int time, long pk_unique = 0);

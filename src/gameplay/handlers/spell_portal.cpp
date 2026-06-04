@@ -44,31 +44,31 @@ EStageResult SpellPortal(CastContext &ctx) {
 	if (victim == nullptr)
 		return EStageResult::kSuccess;
 	if (GetRealLevel(victim) > GetRealLevel(ch) && !victim->IsFlagged(EPrf::KSummonable) && !group::same_group(ch, victim)) {
-		SendSummonFail(ch, ESpell::kPortal);
+		SendMsgToChar(MUD::SpellMessages().GetMessage(ESpell::kPortal, ESpellMsg::kSummonFail) + "\r\n", ch);
 		return EStageResult::kSuccess;
 	}
 	// пентить чаров <=10 уровня, нельзя так-же нельзя пентать иммов
 	if (!ch->IsGod()) {
 		if ((!victim->IsNpc() && GetRealLevel(victim) <= 10 && GetRealRemort(ch) < 9) || victim->IsImmortal()
 			|| AFF_FLAGGED(victim, EAffect::kNoTeleport)) {
-			SendSummonFail(ch, ESpell::kPortal);
+			SendMsgToChar(MUD::SpellMessages().GetMessage(ESpell::kPortal, ESpellMsg::kSummonFail) + "\r\n", ch);
 			return EStageResult::kSuccess;
 		}
 	}
 	if (victim->IsNpc()) {
-		SendSummonFail(ch, ESpell::kPortal);
+		SendMsgToChar(MUD::SpellMessages().GetMessage(ESpell::kPortal, ESpellMsg::kSummonFail) + "\r\n", ch);
 		return EStageResult::kSuccess;
 	}
 	fnd_room = victim->in_room;
 	if (fnd_room == kNowhere) {
-		SendSummonFail(ch, ESpell::kPortal);
+		SendMsgToChar(MUD::SpellMessages().GetMessage(ESpell::kPortal, ESpellMsg::kSummonFail) + "\r\n", ch);
 		return EStageResult::kSuccess;
 	}
 
 	if (!ch->IsGod() && (SECT(fnd_room) == ESector::kSecret || ROOM_FLAGGED(fnd_room, ERoomFlag::kDeathTrap) ||
 			ROOM_FLAGGED(fnd_room, ERoomFlag::kSlowDeathTrap) || ROOM_FLAGGED(fnd_room, ERoomFlag::kIceTrap) ||
 			ROOM_FLAGGED(fnd_room, ERoomFlag::kTunnel) || ROOM_FLAGGED(fnd_room, ERoomFlag::kGodsRoom))) {
-		SendSummonFail(ch, ESpell::kPortal);
+		SendMsgToChar(MUD::SpellMessages().GetMessage(ESpell::kPortal, ESpellMsg::kSummonFail) + "\r\n", ch);
 		return EStageResult::kSuccess;
 	}
 

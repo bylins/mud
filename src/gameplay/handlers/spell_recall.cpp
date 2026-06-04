@@ -43,27 +43,27 @@ EStageResult SpellRecall(CastContext &ctx) {
 	RoomRnum rnum_start, rnum_stop;
 
 	if (!victim || victim->IsNpc() || ch->in_room != victim->in_room || GetRealLevel(victim) >= kLvlImmortal) {
-		SendSummonFail(ch, ESpell::kWorldOfRecall);
+		SendMsgToChar(MUD::SpellMessages().GetMessage(ESpell::kWorldOfRecall, ESpellMsg::kSummonFail) + "\r\n", ch);
 		return EStageResult::kSuccess;
 	}
 
 	// kNoTeleportOut moved to <blocking><room_flags> in spells.xml; CallMagic
 	// fizzles before this function runs.
 	if (!ch->IsGod() && AFF_FLAGGED(victim, EAffect::kNoTeleport)) {
-		SendSummonFail(ch, ESpell::kWorldOfRecall);
+		SendMsgToChar(MUD::SpellMessages().GetMessage(ESpell::kWorldOfRecall, ESpellMsg::kSummonFail) + "\r\n", ch);
 		return EStageResult::kSuccess;
 	}
 
 	if (victim != ch) {
 		if (group::same_group(ch, victim)) {
 			if (number(1, 100) <= 5) {
-				SendSummonFail(ch, ESpell::kWorldOfRecall);
+				SendMsgToChar(MUD::SpellMessages().GetMessage(ESpell::kWorldOfRecall, ESpellMsg::kSummonFail) + "\r\n", ch);
 				return EStageResult::kSuccess;
 			}
 		} else if (!ch->IsNpc() || (ch->has_master()
 			&& !ch->get_master()->IsNpc())) // игроки не в группе и  чармисы по приказу не могут реколить свитком
 		{
-			SendSummonFail(ch, ESpell::kWorldOfRecall);
+			SendMsgToChar(MUD::SpellMessages().GetMessage(ESpell::kWorldOfRecall, ESpellMsg::kSummonFail) + "\r\n", ch);
 			return EStageResult::kSuccess;
 		}
 
@@ -76,7 +76,7 @@ EStageResult SpellRecall(CastContext &ctx) {
 		to_room = GetRoomRnum(calc_loadroom(victim));
 
 	if (to_room == kNowhere) {
-		SendSummonFail(ch, ESpell::kWorldOfRecall);
+		SendMsgToChar(MUD::SpellMessages().GetMessage(ESpell::kWorldOfRecall, ESpellMsg::kSummonFail) + "\r\n", ch);
 		return EStageResult::kSuccess;
 	}
 
@@ -89,7 +89,7 @@ EStageResult SpellRecall(CastContext &ctx) {
 	}
 
 	if (fnd_room == kNowhere) {
-		SendSummonFail(ch, ESpell::kWorldOfRecall);
+		SendMsgToChar(MUD::SpellMessages().GetMessage(ESpell::kWorldOfRecall, ESpellMsg::kSummonFail) + "\r\n", ch);
 		return EStageResult::kSuccess;
 	}
 

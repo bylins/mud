@@ -47,14 +47,14 @@ EStageResult SpellRelocate(CastContext &ctx) {
 	// kNoTeleportOut moved to <blocking><room_flags> in spells.xml; CallMagic
 	// fizzles before this function runs.
 	if (!ch->IsGod() && AFF_FLAGGED(ch, EAffect::kNoTeleport)) {
-		SendSummonFail(ch, ESpell::kRelocate);
+		SendMsgToChar(MUD::SpellMessages().GetMessage(ESpell::kRelocate, ESpellMsg::kSummonFail) + "\r\n", ch);
 		return EStageResult::kSuccess;
 	}
 
 	to_room = victim->in_room;
 
 	if (to_room == kNowhere) {
-		SendSummonFail(ch, ESpell::kRelocate);
+		SendMsgToChar(MUD::SpellMessages().GetMessage(ESpell::kRelocate, ESpellMsg::kSummonFail) + "\r\n", ch);
 		return EStageResult::kSuccess;
 	}
 
@@ -65,7 +65,7 @@ EStageResult SpellRelocate(CastContext &ctx) {
 	}
 
 	if (fnd_room != to_room && !ch->IsGod()) {
-		SendSummonFail(ch, ESpell::kRelocate);
+		SendMsgToChar(MUD::SpellMessages().GetMessage(ESpell::kRelocate, ESpellMsg::kSummonFail) + "\r\n", ch);
 		return EStageResult::kSuccess;
 	}
 
@@ -76,7 +76,7 @@ EStageResult SpellRelocate(CastContext &ctx) {
 			ROOM_FLAGGED(fnd_room, ERoomFlag::kTunnel) ||
 			ROOM_FLAGGED(fnd_room, ERoomFlag::kNoRelocateIn) ||
 			ROOM_FLAGGED(fnd_room, ERoomFlag::kIceTrap) || (ROOM_FLAGGED(fnd_room, ERoomFlag::kGodsRoom) && !ch->IsImmortal()))) {
-		SendSummonFail(ch, ESpell::kRelocate);
+		SendMsgToChar(MUD::SpellMessages().GetMessage(ESpell::kRelocate, ESpellMsg::kSummonFail) + "\r\n", ch);
 		return EStageResult::kSuccess;
 	}
 	if (!enter_wtrigger(world[fnd_room], ch, -1))

@@ -44,14 +44,14 @@ EStageResult SpellTeleport(CastContext &ctx) {
 	// kNoTeleportOut moved to <blocking><room_flags> in spells.xml; CallMagic
 	// fizzles before this function runs.
 	if (!ch->IsGod() && AFF_FLAGGED(ch, EAffect::kNoTeleport)) {
-		SendSummonFail(ch, ESpell::kTeleport);
+		SendMsgToChar(MUD::SpellMessages().GetMessage(ESpell::kTeleport, ESpellMsg::kSummonFail) + "\r\n", ch);
 		return EStageResult::kSuccess;
 	}
 
 	GetZoneRooms(world[in_room]->zone_rn, &rnum_start, &rnum_stop);
 	fnd_room = GetTeleportTargetRoom(ch, rnum_start, rnum_stop);
 	if (fnd_room == kNowhere) {
-		SendSummonFail(ch, ESpell::kTeleport);
+		SendMsgToChar(MUD::SpellMessages().GetMessage(ESpell::kTeleport, ESpellMsg::kSummonFail) + "\r\n", ch);
 		return EStageResult::kSuccess;
 	}
 	if (!enter_wtrigger(world[fnd_room], ch, -1))

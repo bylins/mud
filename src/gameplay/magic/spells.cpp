@@ -175,9 +175,6 @@ const std::string &NAME_BY_ITEM<EIngredientFlag>(const EIngredientFlag item) {
 
 // Look up kSummonFail in `spell_id`'s sheaf (per-spell override on each summon-
 // style spell, with kDefault random-variant fallback) and emit to the caster.
-void SendSummonFail(CharData *ch, ESpell spell_id) {
-	SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kSummonFail) + "\r\n", ch);
-}
 /*
 #define MIN_NEWBIE_ZONE  20
 #define MAX_NEWBIE_ZONE  79
