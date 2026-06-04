@@ -14,6 +14,8 @@
 #include "engine/entities/obj_data.h"
 #include "engine/entities/room_data.h"
 #include "gameplay/fight/pk.h"
+#include "engine/db/db.h"            // GetZoneRooms, world
+#include "gameplay/clans/house.h"    // Clan::MayEnter, kHousePortal
 #include "gameplay/mechanics/groups.h"
 #include "utils/utils.h"
 
@@ -593,6 +595,36 @@ ObjPredicate MakeObjVisibleFilter(CharData *viewer) {
 	return [viewer](ObjData *cand) {
 		return viewer && cand && CAN_SEE_OBJ(viewer, cand);
 	};
+}
+
+RoomRnum GetRandomTeleportTargetInZone(CharData *ch, RoomRnum zone_room) {
+	int rnum_start = 0, rnum_stop = 0;
+	GetZoneRooms(world[zone_room]->zone_rn, &rnum_start, &rnum_stop);
+	int n = rnum_stop - rnum_start + 1;
+	if (n <= 0) {
+		return kNowhere;
+	}
+	std::vector<int> rooms(n);
+	for (int i = 0; i < n; ++i) {
+		rooms[i] = rnum_start + i;
+	}
+	RoomRnum fnd_room = kNowhere;
+	for (; n; --n) {
+		const int j = number(0, n - 1);
+		fnd_room = rooms[j];
+		rooms[j] = rooms[n - 1];
+		if (SECT(fnd_room) != ESector::kSecret
+			&& !ROOM_FLAGGED(fnd_room, ERoomFlag::kDeathTrap)
+			&& !ROOM_FLAGGED(fnd_room, ERoomFlag::kTunnel)
+			&& !ROOM_FLAGGED(fnd_room, ERoomFlag::kNoTeleportIn)
+			&& !ROOM_FLAGGED(fnd_room, ERoomFlag::kSlowDeathTrap)
+			&& !ROOM_FLAGGED(fnd_room, ERoomFlag::kIceTrap)
+			&& (!ROOM_FLAGGED(fnd_room, ERoomFlag::kGodsRoom) || ch->IsImmortal())
+			&& Clan::MayEnter(ch, fnd_room, kHousePortal)) {
+			break;
+		}
+	}
+	return n ? fnd_room : kNowhere;
 }
 
 }; // namespace target_resolver

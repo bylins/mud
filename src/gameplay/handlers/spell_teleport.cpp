@@ -4,6 +4,7 @@
 */
 
 #include "gameplay/handlers/spell_handlers.h"
+#include "engine/core/target_resolver.h"
 #include "gameplay/magic/spells.h"
 #include "gameplay/magic/magic.h"
 #include "gameplay/magic/magic_internal.h"
@@ -39,7 +40,6 @@ namespace handlers {
 EStageResult SpellTeleport(CastContext &ctx) {
 	CharData *ch = ctx.caster();
 	RoomRnum in_room = ch->in_room, fnd_room = kNowhere;
-	RoomRnum rnum_start, rnum_stop;
 
 	// kNoTeleportOut moved to <blocking><room_flags> in spells.xml; CallMagic
 	// fizzles before this function runs.
@@ -48,8 +48,7 @@ EStageResult SpellTeleport(CastContext &ctx) {
 		return EStageResult::kSuccess;
 	}
 
-	GetZoneRooms(world[in_room]->zone_rn, &rnum_start, &rnum_stop);
-	fnd_room = GetTeleportTargetRoom(ch, rnum_start, rnum_stop);
+	fnd_room = target_resolver::GetRandomTeleportTargetInZone(ch, in_room);
 	if (fnd_room == kNowhere) {
 		SendMsgToChar(MUD::SpellMessages().GetMessage(ESpell::kTeleport, ESpellMsg::kSummonFail) + "\r\n", ch);
 		return EStageResult::kSuccess;

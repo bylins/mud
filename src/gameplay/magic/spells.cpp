@@ -183,41 +183,6 @@ const std::string &NAME_BY_ITEM<EIngredientFlag>(const EIngredientFlag item) {
 
 // Поиск комнаты для перемещающего заклинания
 // ch - кого перемещают, rnum_start - первая комната диапазона, rnum_stop - последняя комната диапазона
-int GetTeleportTargetRoom(CharData *ch, int rnum_start, int rnum_stop) {
-	int *r_array;
-	int n, i, j;
-	int fnd_room = kNowhere;
-
-	n = rnum_stop - rnum_start + 1;
-
-	if (n <= 0) {
-		return kNowhere;
-	}
-
-	r_array = (int *) malloc(n * sizeof(int));
-	for (i = 0; i < n; ++i)
-		r_array[i] = rnum_start + i;
-
-	for (; n; --n) {
-		j = number(0, n - 1);
-		fnd_room = r_array[j];
-		r_array[j] = r_array[n - 1];
-
-		if (SECT(fnd_room) != ESector::kSecret &&
-			!ROOM_FLAGGED(fnd_room, ERoomFlag::kDeathTrap) &&
-			!ROOM_FLAGGED(fnd_room, ERoomFlag::kTunnel) &&
-			!ROOM_FLAGGED(fnd_room, ERoomFlag::kNoTeleportIn) &&
-			!ROOM_FLAGGED(fnd_room, ERoomFlag::kSlowDeathTrap) &&
-			!ROOM_FLAGGED(fnd_room, ERoomFlag::kIceTrap) &&
-			(!ROOM_FLAGGED(fnd_room, ERoomFlag::kGodsRoom) || ch->IsImmortal()) &&
-			Clan::MayEnter(ch, fnd_room, kHousePortal))
-			break;
-	}
-
-	free(r_array);
-
-	return n ? fnd_room : kNowhere;
-}
 
 
 // ПРЫЖОК в рамках зоны

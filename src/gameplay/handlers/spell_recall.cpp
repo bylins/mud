@@ -4,6 +4,7 @@
 */
 
 #include "gameplay/handlers/spell_handlers.h"
+#include "engine/core/target_resolver.h"
 #include "gameplay/magic/spells.h"
 #include "gameplay/magic/magic.h"
 #include "gameplay/magic/magic_internal.h"
@@ -40,7 +41,6 @@ EStageResult SpellRecall(CastContext &ctx) {
 	CharData *ch = ctx.caster();
 	CharData *victim = ctx.cvict;
 	RoomRnum to_room = kNowhere, fnd_room = kNowhere;
-	RoomRnum rnum_start, rnum_stop;
 
 	if (!victim || victim->IsNpc() || ch->in_room != victim->in_room || GetRealLevel(victim) >= kLvlImmortal) {
 		SendMsgToChar(MUD::SpellMessages().GetMessage(ESpell::kWorldOfRecall, ESpellMsg::kSummonFail) + "\r\n", ch);
@@ -80,12 +80,10 @@ EStageResult SpellRecall(CastContext &ctx) {
 		return EStageResult::kSuccess;
 	}
 
-	(void) GetZoneRooms(world[to_room]->zone_rn, &rnum_start, &rnum_stop);
-	fnd_room = GetTeleportTargetRoom(victim, rnum_start, rnum_stop);
+	fnd_room = target_resolver::GetRandomTeleportTargetInZone(victim, to_room);
 	if (fnd_room == kNowhere) {
 		to_room = Clan::CloseRent(to_room);
-		(void) GetZoneRooms(world[to_room]->zone_rn, &rnum_start, &rnum_stop);
-		fnd_room = GetTeleportTargetRoom(victim, rnum_start, rnum_stop);
+		fnd_room = target_resolver::GetRandomTeleportTargetInZone(victim, to_room);
 	}
 
 	if (fnd_room == kNowhere) {

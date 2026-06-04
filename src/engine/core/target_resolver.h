@@ -248,6 +248,13 @@ CharPredicate MakeMobVnumFilter(MobVnum vnum);
 ObjPredicate  MakeObjVnumFilter(ObjVnum vnum);
 ObjPredicate  MakeObjVisibleFilter(CharData *viewer); // CAN_SEE_OBJ-gated
 
+
+// Pick a random room in the same zone as `zone_room` that a teleport/recall may land in (skips
+// secret/deathtrap/tunnel/no-teleport-in/gods rooms the actor can't enter; honours clan-house
+// access). Returns kNowhere if the zone has no valid room. issue.spellhandlers: folds the old
+// GetTeleportTargetRoom + its per-site GetZoneRooms call into one.
+RoomRnum GetRandomTeleportTargetInZone(CharData *ch, RoomRnum zone_room);
+
 }; // namespace target_resolver
 
 #endif // _TARGET_RESOLVER_HPP_INCLUDED_
