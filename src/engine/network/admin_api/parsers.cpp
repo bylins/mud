@@ -68,7 +68,16 @@ void ParseMobUpdate(CharData* mob, const nlohmann::json& data)
 		const auto& descriptions = data["descriptions"];
 		if (HasString(descriptions, "short_desc"))
 		{
-			mob->player_data.long_descr = Utf8ToKoi8r(descriptions["short_desc"].get<std::string>());
+			// long_descr is the "in room" line; the engine prints it verbatim and
+			// relies on a trailing newline (legacy data and convert_to_yaml.py both
+			// honour this). Enforce the invariant so API-created mobs don't run their
+			// room lines together when several stand in the same room.
+			std::string ldesc = Utf8ToKoi8r(descriptions["short_desc"].get<std::string>());
+			if (!ldesc.empty() && ldesc.back() != '\n')
+			{
+				ldesc += '\n';
+			}
+			mob->player_data.long_descr = ldesc;
 		}
 		if (HasString(descriptions, "long_desc"))
 		{
@@ -471,6 +480,15 @@ void ParseObjectUpdate(CObjectPrototype* obj, const nlohmann::json& data)
 	{
 		obj->set_type(static_cast<EObjType>(data["type"].get<int>()));
 	}
+
+	// spec_param: per-type special parameter (loader reads top-level "spec_param",
+	// yaml_world_data_source.cpp:2003). For weapons it is the associated ESkill
+	// (e.g. kBows for a bow); without it the YAML format/OLC support it but the
+	// API did not, so weapon-skill could not be set through the API.
+	if (data.contains("spec_param"))
+	{
+		obj->set_spec_param(data["spec_param"].get<int>());
+	}
 	if (data.contains("material"))
 	{
 		obj->set_material(static_cast<EObjMaterial>(data["material"].get<int>()));
@@ -724,7 +742,13 @@ void ParseRoomUpdate(RoomData* room, const nlohmann::json& data)
 			}
 			if (exit_json.contains("keyword"))
 			{
-				exit->set_keyword(Utf8ToKoi8r(exit_json["keyword"].get<std::string>()));
+				// set_keywords (not set_keyword): parses "nominative|accusative"
+				// and, when no '|' is given, copies the value into BOTH keyword
+				// and vkeyword. find_door (FindDoorDir) requires BOTH to be set,
+				// so plain set_keyword left vkeyword null and the door became
+				// unopenable by name until the next reload (which uses
+				// set_keywords). Mirrors the YAML loader.
+				exit->set_keywords(Utf8ToKoi8r(exit_json["keyword"].get<std::string>()));
 			}
 			if (exit_json.contains("exit_info"))
 			{
