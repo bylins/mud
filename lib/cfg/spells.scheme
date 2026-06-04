@@ -72,7 +72,7 @@
 	<tag name="weave" desc="Actual magic; blocked in no-magic rooms (presence-only marker)"/>
 	<tag name="sight" desc="Requires sight; a blind caster cannot cast (presence-only marker)"/>
 	<tag name="material" desc="Requires a material component">
-		<attr name="any_of" type="string" desc="Object vnum(s) accepted, '|'-separated"/>
+		<attr name="any_of" type="intlist" desc="Object vnum(s) accepted, '|'-separated"/>
 	</tag>
 
 	<tag name="potency_roll" desc="Potency dice pool + skill/stat scaling">

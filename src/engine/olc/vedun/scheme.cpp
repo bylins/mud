@@ -19,6 +19,7 @@ FieldType ParseFieldType(const std::string &name) {
 	if (name == "enum") { return FieldType::kEnum; }
 	if (name == "flagset") { return FieldType::kFlagset; }
 	if (name == "list") { return FieldType::kList; }
+	if (name == "intlist") { return FieldType::kIntList; }
 	if (name == "multiline") { return FieldType::kMultiline; }
 	return FieldType::kString;
 }
@@ -31,6 +32,7 @@ const char *FieldTypeName(FieldType type) {
 		case FieldType::kEnum: return "enum";
 		case FieldType::kFlagset: return "flagset";
 		case FieldType::kList: return "list";
+		case FieldType::kIntList: return "intlist";
 		case FieldType::kMultiline: return "multiline";
 		case FieldType::kString:
 		default: return "string";

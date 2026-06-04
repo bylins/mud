@@ -498,6 +498,30 @@ std::string ValidateValue(const AttrDef *ad, const std::string &value) {
 			}
 			break;
 		}
+		case FieldType::kIntList: {
+			for (const auto &token : utils::Split(value, '|')) {
+				if (token.empty()) {
+					continue;
+				}
+				long n = 0;
+				try {
+					std::size_t used = 0;
+					n = std::stol(token, &used);
+					if (used != token.size()) {
+						return fmt::format("'{}' is not a whole number", token);
+					}
+				} catch (...) {
+					return fmt::format("'{}' is not a whole number", token);
+				}
+				if (ad->min && n < *ad->min) {
+					return fmt::format("each value must be at least {}", *ad->min);
+				}
+				if (ad->max && n > *ad->max) {
+					return fmt::format("each value must be at most {}", *ad->max);
+				}
+			}
+			break;
+		}
 		case FieldType::kFlagset:
 		case FieldType::kList: {
 			if (reg.Known(ad->enum_type)) {

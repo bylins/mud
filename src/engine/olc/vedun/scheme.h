@@ -39,6 +39,7 @@ enum class FieldType {
 	kEnum,       // a single enum token; enum_type names the enum (e.g. "EElement")
 	kFlagset,    // pipe-separated enum tokens (e.g. "kMagDamage|kMagAffects")
 	kList,       // a list of enum tokens (ordered) -- reserved for later phases
+	kIntList,    // a pipe-separated list of integers (e.g. object vnums)
 	kMultiline,  // multi-line text
 };
 

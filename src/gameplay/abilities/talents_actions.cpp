@@ -158,6 +158,14 @@ double Roll::CalcBaseStatCoeff(const CharData *const ch) const {
 	return std::max(0, GetRealBaseStat(ch, base_stat_) - base_stat_threshold_) * base_stat_weight_ / 100.0;
 }
 
+// Editor-friendly reads: a <potency_roll>/<success_roll> built in the Vedun editor may leave some
+// dice/skill/stat attributes unset; treat a missing/empty attribute as its neutral default (0 /
+// kUndefined) rather than throwing "incorrect value ''" on save.
+namespace {
+int RollIntOr(const char *v, int def) { return (v && *v) ? parse::ReadAsInt(v) : def; }
+double RollDoubleOr(const char *v, double def) { return (v && *v) ? parse::ReadAsDouble(v) : def; }
+}  // namespace
+
 Roll::Roll(parser_wrapper::DataNode &node) {
 	if (node.GoToChild("dices")) {
 		// no clamp-to-1. ndice=0 or sdice=0 means "no dice rolled", so
@@ -165,23 +173,27 @@ Roll::Roll(parser_wrapper::DataNode &node) {
 		// silently added one to every all-zero spec, which violated the principle of least
 		// surprise. RollDices(0, *) and RollDices(*, 0) already short-circuit to 0, so the
 		// arithmetic stays correct without any extra guard here.
-		dice_num_ = parse::ReadAsInt(node.GetValue("ndice"));
-		dice_size_ = parse::ReadAsInt(node.GetValue("sdice"));
-		dice_add_ = parse::ReadAsInt(node.GetValue("adice"));
+		dice_num_ = RollIntOr(node.GetValue("ndice"), 0);
+		dice_size_ = RollIntOr(node.GetValue("sdice"), 0);
+		dice_add_ = RollIntOr(node.GetValue("adice"), 0);
 		node.GoToParent();
 	}
 
 	if (node.GoToChild("base_skill")) {
-		base_skill_ = parse::ReadAsConstant<ESkill>(node.GetValue("id"));
-		low_skill_bonus_ = parse::ReadAsDouble(node.GetValue("low_skill_bonus"));
-		hi_skill_bonus_ = parse::ReadAsDouble(node.GetValue("hi_skill_bonus"));
+		const char *skill_id = node.GetValue("id");
+		base_skill_ = (skill_id && *skill_id) ? parse::ReadAsConstant<ESkill>(skill_id) : ESkill::kUndefined;
+		low_skill_bonus_ = RollDoubleOr(node.GetValue("low_skill_bonus"), 0.0);
+		hi_skill_bonus_ = RollDoubleOr(node.GetValue("hi_skill_bonus"), 0.0);
 		node.GoToParent();
 	}
 
 	if (node.GoToChild("base_stat")) {
-		base_stat_ = parse::ReadAsConstant<EBaseStat>(node.GetValue("id"));
-		base_stat_threshold_ = parse::ReadAsInt(node.GetValue("threshold"));
-		base_stat_weight_ = parse::ReadAsDouble(node.GetValue("weight"));
+		const char *stat_id = node.GetValue("id");
+		if (stat_id && *stat_id) {
+			base_stat_ = parse::ReadAsConstant<EBaseStat>(stat_id);
+		}
+		base_stat_threshold_ = RollIntOr(node.GetValue("threshold"), 0);
+		base_stat_weight_ = RollDoubleOr(node.GetValue("weight"), 0.0);
 		node.GoToParent();
 	}
 }
