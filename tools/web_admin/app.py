@@ -500,6 +500,37 @@ def api_zone(vnum):
     return jsonify(mud.get_zone(vnum))
 
 
+# Symmetric JSON read of individual entities (mirror the update/create payloads).
+# Previously only HTML edit forms (/room, /object, ...) existed; a programmatic
+# client could write but not read entities back as JSON.
+@app.route('/api/rooms/<int:vnum>')
+@login_required
+def api_room(vnum):
+    """API: Get room details (full, symmetric with /room/<v>/update)"""
+    return jsonify(get_mud_client().get_room(vnum))
+
+
+@app.route('/api/objects/<int:vnum>')
+@login_required
+def api_object(vnum):
+    """API: Get object details (full, symmetric with /object/<v>/update)"""
+    return jsonify(get_mud_client().get_object(vnum))
+
+
+@app.route('/api/mobs/<int:vnum>')
+@login_required
+def api_mob(vnum):
+    """API: Get mob details (full, symmetric with /mob/<v>/update)"""
+    return jsonify(get_mud_client().get_mob(vnum))
+
+
+@app.route('/api/triggers/<int:vnum>')
+@login_required
+def api_trigger(vnum):
+    """API: Get trigger details (full, symmetric with /trigger/<v>/update)"""
+    return jsonify(get_mud_client().get_trigger(vnum))
+
+
 # ===== API ENDPOINTS FOR AUTOCOMPLETE =====
 
 @app.route('/api/search/mobs')

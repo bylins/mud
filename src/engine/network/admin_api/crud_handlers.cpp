@@ -729,6 +729,7 @@ void HandleUpdateRoom(DescriptorData* d, int room_vnum, const char* json_data)
 		json response;
 		response["status"] = "ok";
 		response["message"] = "Room updated successfully";
+		response["room"] = SerializeRoom(*world[rnum], room_vnum);   // symmetry: echo full room like mob/object
 		SendJsonResponse(d, response);
 	}
 	catch (const json::parse_error&)
