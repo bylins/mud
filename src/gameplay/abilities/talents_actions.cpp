@@ -14,6 +14,43 @@
 namespace talents_actions {
 
 namespace {
+// issue.vedun-print: token names for the internal action enums (mirror the parser below and the
+// enum order in talents_actions.h) so "show spell" prints e.g. kTarMinions rather than the raw 7.
+const char *ActionTargetName(EActionTarget t) {
+	switch (t) {
+		case EActionTarget::kTarSame: return "kTarSame";
+		case EActionTarget::kTarFightSelf: return "kTarFightSelf";
+		case EActionTarget::kTarFightVict: return "kTarFightVict";
+		case EActionTarget::kTarGroup: return "kTarGroup";
+		case EActionTarget::kTarFoes: return "kTarFoes";
+		case EActionTarget::kTarRandomFoe: return "kTarRandomFoe";
+		case EActionTarget::kTarRandomAlly: return "kTarRandomAlly";
+		case EActionTarget::kTarMinions: return "kTarMinions";
+		case EActionTarget::kTarRoomThis: return "kTarRoomThis";
+	}
+	return "?";
+}
+
+const char *ActionBaseName(EActionBase b) {
+	switch (b) {
+		case EActionBase::kCompetence: return "kCompetence";
+		case EActionBase::kDamage: return "kDamage";
+		case EActionBase::kPoints: return "kPoints";
+		case EActionBase::kAffects: return "kAffects";
+		case EActionBase::kDispelled: return "kDispelled";
+	}
+	return "?";
+}
+
+const char *AreaDistributionName(EAreaDistribution d) {
+	switch (d) {
+		case EAreaDistribution::kUniform: return "kUniform";
+		case EAreaDistribution::kLinear: return "kLinear";
+		case EAreaDistribution::kStepped: return "kStepped";
+	}
+	return "?";
+}
+
 // Mob flags (EMobFlag) addressable from the <blocking>/<required>/<caster_blocking>
 // <mob_flags val=...> child tag. A focused table rather than a full EMobFlag name registry:
 // only flags meaningful as a cast gate (immunities for <blocking>, target requirements like
@@ -395,7 +432,7 @@ void Area::Print(CharData */*ch*/, std::ostringstream &buffer) const {
 		   << " min=" << kColorGrn << min_targets << kColorNrm
 		   << " max=" << kColorGrn << max_targets << kColorNrm
 		   << " stat_weight=" << kColorGrn << stat_weight << kColorNrm << "\r\n"
-		   << "  Distribution: type=" << kColorGrn << static_cast<int>(distribution) << kColorNrm
+		   << "  Distribution: type=" << kColorGrn << AreaDistributionName(distribution) << kColorNrm
 		   << " decay=" << kColorGrn << decay << kColorNrm
 		   << " free_targets=" << kColorGrn << free_targets << kColorNrm << "\r\n";
 }
@@ -668,8 +705,8 @@ void Action::Print(CharData *ch, std::ostringstream &buffer) const {
 	for (const auto s : side_spells_) {
 		buffer << "  SideSpell: " << kColorGrn << NAME_BY_ITEM<ESpell>(s) << kColorNrm << "\r\n";
 	}
-	buffer << "  Target: " << kColorGrn << static_cast<int>(target_) << kColorNrm
-		   << " Base: " << kColorGrn << static_cast<int>(base_) << kColorNrm
+	buffer << "  Target: " << kColorGrn << ActionTargetName(target_) << kColorNrm
+		   << " Base: " << kColorGrn << ActionBaseName(base_) << kColorNrm
 		   << " Reset: " << kColorGrn << (reset_ ? "Y" : "N") << kColorNrm << "\r\n";
 	PrintFlagCondition("Blocking", blocking_, buffer);
 	PrintFlagCondition("Required", required_, buffer);
