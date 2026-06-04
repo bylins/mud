@@ -34,6 +34,10 @@ class EnumRegistry {
 	void Register(const std::string &type_name) {
 		std::vector<EnumMember> members;
 		for (const auto &[value, name] : NAMES_OF<E>()) {
+			// Skip the conventional end-of-enum sentinel: it is not a selectable value.
+			if (name == "kLast") {
+				continue;
+			}
 			members.push_back({name, static_cast<long>(value)});
 		}
 		registry_[type_name] = std::move(members);

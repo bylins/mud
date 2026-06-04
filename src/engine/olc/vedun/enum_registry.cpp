@@ -80,6 +80,8 @@ void RegisterEditorEnums() {
 		"kTarRandomFoe", "kTarRandomAlly", "kTarMinions", "kTarSame", "kTarRoomThis"});
 	registry.RegisterNames("EActionBase", {"kDamage", "kPoints", "kAffects", "kDispelled", "kCompetence"});
 	registry.RegisterNames("EAlign", {"kGood", "kEvil", "kNeutral"});
+	// <misc violent> is stored as the literal Y/N/A the spell loader parses into EViolent.
+	registry.RegisterNames("EViolent", {"Y", "N", "A"});
 }
 
 } // namespace vedun

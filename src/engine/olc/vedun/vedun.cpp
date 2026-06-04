@@ -84,17 +84,36 @@ struct AttrRow {
 // added). Render and the number dispatch share this so the numbering matches.
 std::vector<AttrRow> AttrRows(const Session &s) {
 	const TagDef *td = CurrentTagDef(s);
+	// Snapshot the node's present attributes once (name -> value, document order).
+	std::vector<std::pair<std::string, std::string>> present;
+	for (const auto &[name, value] : s.path.back().Attributes()) {
+		present.emplace_back(name, value);
+	}
+	const auto find_present = [&present](const std::string &n) -> const std::string * {
+		for (const auto &p : present) {
+			if (p.first == n) {
+				return &p.second;
+			}
+		}
+		return nullptr;
+	};
 	std::vector<AttrRow> rows;
 	std::set<std::string> seen;
-	for (const auto &[name, value] : s.path.back().Attributes()) {
-		rows.push_back({name, value, true, td ? td->FindAttr(name) : nullptr});
-		seen.insert(name);
-	}
+	// Scheme-declared attributes first, in declared order, so a row keeps its position whether or
+	// not the attribute is set yet -- setting a value no longer makes its row jump to the end, so
+	// the editor view stays stable across edits (the previous "present first, then absent" order
+	// reshuffled rows the moment an unset attribute was given a value).
 	if (td != nullptr) {
 		for (const auto &ad : td->attrs) {
-			if (seen.find(ad.name) == seen.end()) {
-				rows.push_back({ad.name, "", false, &ad});
-			}
+			const std::string *val = find_present(ad.name);
+			rows.push_back({ad.name, val ? *val : "", val != nullptr, &ad});
+			seen.insert(ad.name);
+		}
+	}
+	// Any present-but-undeclared (untyped) attributes follow, in document order.
+	for (const auto &p : present) {
+		if (seen.find(p.first) == seen.end()) {
+			rows.push_back({p.first, p.second, true, nullptr});
 		}
 	}
 	return rows;
