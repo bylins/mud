@@ -44,9 +44,15 @@ EStageResult AlterDarkness(CastContext &ctx);
 void CreateWeapon(CharData *ch, ObjData *obj, const CastContext &ctx);
 void CreateArmor(CharData *ch, ObjData *obj, const CastContext &ctx);
 
-// --- Summon handler (issue.spellhandlers) -------------------------------------------------------
+// --- Summon handlers (issue.spellhandlers) ------------------------------------------------------
 // kSummonTutelar manual cast: rolls the guardian-angel summon, builds and places the mob.
 EStageResult SummonTutelar(CastContext &ctx);
+
+// Post-spawn customizers run by CastSummonAction's kSummonHandlers registry (the spell-specific
+// 20%); the shared summon-pipeline helpers they use live in gameplay/mechanics/summon.h.
+void SetupKeeperStats(CharData *ch, CharData *mob, const CastContext &ctx);
+void SetupFirekeeperStats(CharData *ch, CharData *mob, const CastContext &ctx, int charm_duration);
+void CloneCascade(CharData *ch, CharData *mob, const CastContext &ctx, int duration);
 
 // Shared messaging helper for the alter-obj handlers: act() the cast spell's `key` message on
 // ctx.ovict and return kSuccess. Used by multiple handlers, so by the issue's rule it is shared

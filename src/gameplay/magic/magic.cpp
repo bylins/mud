@@ -17,6 +17,7 @@
 #include "spell_trace.h"
 #include "gameplay/affects/affect_contants.h"  // NAME_BY_ITEM<EApply>
 #include "gameplay/handlers/spell_handlers.h"
+#include "gameplay/mechanics/summon.h"
 
 #include <functional>
 #include <map>
@@ -1259,33 +1260,7 @@ static void RenameAsUndead(CharData *ch, CharData *mob) {
 // god's shield / horse). On true, sends the appropriate kResurrect*/kSummonWarhorse message and
 // extracts `mob` from the world; caller must `return kSuccess` without further action. Immortals
 // bypass every guard except the horse check (which is universal).
-static bool IsSummonTargetProtected(CharData *ch, CharData *mob, ESpell spell_id) {
-	if (!ch->IsImmortal() && (AFF_FLAGGED(mob, EAffect::kSanctuary) || mob->IsFlagged(EMobFlag::kProtect))) {
-		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kResurrectConsecrated) + "\r\n", ch);
-		ExtractCharFromWorld(mob, false);
-		return true;
-	}
-	if (!ch->IsImmortal()
-		&& (GET_MOB_SPEC(mob) || mob->IsFlagged(EMobFlag::kNoResurrection) || mob->IsFlagged(EMobFlag::kAreaAttack))) {
-		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kResurrectNoPower) + "\r\n", ch);
-		ExtractCharFromWorld(mob, false);
-		return true;
-	}
-	if (!ch->IsImmortal() && AFF_FLAGGED(mob, EAffect::kGodsShield)) {
-		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kResurrectProtected) + "\r\n", ch);
-		ExtractCharFromWorld(mob, false);
-		return true;
-	}
-	if (mob->IsFlagged(EMobFlag::kMounting)) {
-		mob->UnsetFlag(EMobFlag::kMounting);
-	}
-	if (IS_HORSE(mob)) {
-		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kSummonWarhorse) + "\r\n", ch);
-		ExtractCharFromWorld(mob, false);
-		return true;
-	}
-	return false;
-}
+
 
 // For the top-tier kAnimateDead spawns (kMobNecrodamager..kLastNecroMob): bump max HP by 10% per
 // remort, then crank up damnodice until the mob's reformed-charm value matches the caster's
@@ -1319,57 +1294,6 @@ static void BoostNecroDamage(CharData *ch, CharData *mob, ESpell spell_id) {
 
 // Copy caster cosmetics + stats onto the kClone double: PNames in all six cases, every stat, the
 // hp/ac/dr/hr/class/build, position, gender, flags.
-static void ApplyCloneCosmetics(CharData *ch, CharData *mob) {
-	sprintf(buf2, "двойник %s %s", GET_PAD(ch, 1), GET_NAME(ch));
-	mob->SetCharAliases(buf2);
-	sprintf(buf2, "двойник %s", GET_PAD(ch, 1));
-	mob->set_npc_name(buf2);
-	mob->player_data.long_descr = "";
-	sprintf(buf2, "двойник %s", GET_PAD(ch, 1));
-	mob->player_data.PNames[ECase::kNom] = std::string(buf2);
-	sprintf(buf2, "двойника %s", GET_PAD(ch, 1));
-	mob->player_data.PNames[ECase::kGen] = std::string(buf2);
-	sprintf(buf2, "двойнику %s", GET_PAD(ch, 1));
-	mob->player_data.PNames[ECase::kDat] = std::string(buf2);
-	sprintf(buf2, "двойника %s", GET_PAD(ch, 1));
-	mob->player_data.PNames[ECase::kAcc] = std::string(buf2);
-	sprintf(buf2, "двойником %s", GET_PAD(ch, 1));
-	mob->player_data.PNames[ECase::kIns] = std::string(buf2);
-	sprintf(buf2, "двойнике %s", GET_PAD(ch, 1));
-	mob->player_data.PNames[ECase::kPre] = std::string(buf2);
-
-	mob->set_str(ch->get_str());
-	mob->set_dex(ch->get_dex());
-	mob->set_con(ch->get_con());
-	mob->set_wis(ch->get_wis());
-	mob->set_int(ch->get_int());
-	mob->set_cha(ch->get_cha());
-
-	mob->set_level(GetRealLevel(ch));
-	GET_HR(mob) = -20;
-	GET_AC(mob) = GET_AC(ch);
-	GET_DR(mob) = GET_DR(ch);
-
-	mob->set_max_hit(ch->get_max_hit());
-	mob->set_hit(ch->get_max_hit());
-	mob->mob_specials.damnodice = 0;
-	mob->mob_specials.damsizedice = 0;
-	mob->set_gold(0);
-	GET_GOLD_NoDs(mob) = 0;
-	GET_GOLD_SiDs(mob) = 0;
-	mob->set_exp(0);
-
-	mob->SetPosition(EPosition::kStand);
-	GET_DEFAULT_POS(mob) = EPosition::kStand;
-	mob->set_sex(EGender::kMale);
-
-	mob->set_class(ch->GetClass());
-	GET_WEIGHT(mob) = GET_WEIGHT(ch);
-	GET_HEIGHT(mob) = GET_HEIGHT(ch);
-	GET_SIZE(mob) = GET_SIZE(ch);
-	mob->SetFlag(EMobFlag::kClone);
-	mob->UnsetFlag(EMobFlag::kMounting);
-}
 
 
 // kAnimateDead post-spawn: kResurrected flag + per-tier rescue grants for the kLoyalAssist /
@@ -1411,63 +1335,18 @@ static void EnhanceAnimateDead(CharData *ch, CharData *mob, MobVnum mob_num,
 // <potency_roll>) via the standard option-2 modifier formula -- the SAME ComputeApplyModifier the
 // affect modifiers use; no new formula. dices_weight>0 folds in the spell's potency dice (the HP
 // spread, replacing the old RollDices(10,10)); flat stats use beta*C only.
-static int SummonScaledStat(const CastContext &ctx, double min, double dices_weight, double beta, int cap = 0) {
-	talents_actions::TalentAffect::Apply a;
-	a.min = min;
-	a.dices_weight = dices_weight;
-	a.alpha = 0.0;
-	a.beta = beta;
-	a.factor = 1;
-	a.cap = cap;
-	return ComputeApplyModifier(a, ctx.CompetenceBase(), ctx.potency());
-}
+
 
 // Keeper stats, calibrated to reproduce the old rating-based curve at a maxed R12 keeper-summoner
 // (C ~ 3.1: skill 140, cha 30) and flatten above the novice skill threshold (the accepted
 // rebalance -- caps runaway high-skill keepers). C replaces the old (kLightMagic skill + cha)/2
 // rating; competence_weight lives in each stat's beta. kRescue is now scaled (was flat 100 only
 // via the keeper flag; this is the in-class keeper's own rescue).
-static void SetupKeeperStats(CharData *ch, CharData *mob, const CastContext &ctx) {
-	mob->set_level(GetRealLevel(ch));
-	const int hp = SummonScaledStat(ctx, 50, 1.0, 164.4);   // + the 10d10 potency dice (old RollDices(10,10))
-	mob->set_hit(hp);
-	mob->set_max_hit(hp);
-	mob->set_skill(ESkill::kPunch,  SummonScaledStat(ctx, 10, 0.0, 41.1));
-	mob->set_skill(ESkill::kRescue, SummonScaledStat(ctx, 50, 0.0, 27.4));
-	mob->set_str(SummonScaledStat(ctx, 3,  0.0, 5.5));
-	mob->set_dex(SummonScaledStat(ctx, 10, 0.0, 5.5));
-	mob->set_con(SummonScaledStat(ctx, 10, 0.0, 5.5));
-	GET_HR(mob) = SummonScaledStat(ctx, 0, 0.0, 12.4);
-	GET_AC(mob) = 100 - SummonScaledStat(ctx, 0, 0.0, 72.6);
-}
+
 
 // kSummonFirekeeper post-spawn: a fire-aura (or fire-shield at 30+ effective cha) charm affect,
 // dr/hp/skills scaled by a 0..30 modifier derived from caster cha. Awakens on spawn.
-static void SetupFirekeeperStats(CharData *ch, CharData *mob, const CastContext &ctx, int charm_duration) {
-	Affect<EApply> af;
-	af.type = ESpell::kCharm;
-	af.duration = charm_duration;
-	af.modifier = 0;
-	af.location = EApply::kNone;
-	af.battleflag = 0;
-	af.affect_type = (get_effective_cha(ch) >= 30) ? EAffect::kFireShield : EAffect::kFireAura;
-	affect_to_char(mob, af);
 
-	// Cha-driven stats, calibrated onto C = base_cha-20 (kSummonFirekeeper potency: kCha
-	// threshold=20 weight=100) via the same SummonScaledStat/option-2 formula; each cap
-	// reproduces the old clamp(effective_cha-20, 0, 30) ceiling at cha 50. No new formula.
-	GET_DR(mob) = SummonScaledStat(ctx, 10, 0.0, 1.5, 55);
-	GET_NDD(mob) = 1;
-	GET_SDD(mob) = SummonScaledStat(ctx, 1, 0.0, 0.2, 7);
-	mob->mob_specials.extra_attack = 0;
-
-	// old: 300 + number(modifier*12, modifier*16) -- the random spread collapses to the average.
-	const int m = SummonScaledStat(ctx, 300, 0.0, 14.0, 720);
-	mob->set_hit(m);
-	mob->set_max_hit(m);
-	mob->set_skill(ESkill::kAwake, SummonScaledStat(ctx, 50, 0.0, 2.0, 110));
-	mob->SetFlag(EPrf::kAwake);
-}
 
 // Spill the source corpse's contents into the caster's room (decay-checking each item) and
 // extract the corpse itself. Used post-spawn whenever SummonParams::handle_corpse is set.
@@ -1489,69 +1368,13 @@ static void SpillCorpseContents(CharData *ch, ObjData *obj) {
 // carry, the kCharm affect (+ kHelper & kRescue=100 when `keeper`) with a wisdom+moon-phase
 // duration, kCorpse, the kSummonToRoom narration, place + add_follower. Returns the charm duration
 // (callers reuse it -- the firekeeper aura and the animate-dead ice shield share it).
-static int FinalizeSummonedMob(CharData *ch, CharData *mob, ESpell spell_id, bool keeper) {
-	mob->set_exp(0);
-	IS_CARRYING_W(mob) = 0;
-	IS_CARRYING_N(mob) = 0;
-	mob->set_gold(0);
-	GET_GOLD_NoDs(mob) = 0;
-	GET_GOLD_SiDs(mob) = 0;
-	const auto days_from_full_moon =
-		(weather_info.moon_day < 14) ? (14 - weather_info.moon_day) : (weather_info.moon_day - 14);
-	const int duration = CalcDuration(ch, mob, ESkill::kUndefined,
-		GetRealWis(ch) + number(0, days_from_full_moon), 0, 0, 0);
-	Affect<EApply> af;
-	af.type = ESpell::kCharm;
-	af.duration = duration;
-	af.modifier = 0;
-	af.location = EApply::kNone;
-	af.affect_type = EAffect::kCharmed;
-	af.battleflag = 0;
-	affect_to_char(mob, af);
-	if (keeper) {
-		af.affect_type = EAffect::kHelper;
-		affect_to_char(mob, af);
-		mob->set_skill(ESkill::kRescue, 100);
-	}
-	mob->SetFlag(EMobFlag::kCorpse);
-	act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kSummonToRoom).c_str(),
-		false, ch, nullptr, mob, kToRoom | kToArenaListen);
-	PlaceCharToRoom(mob, ch->in_room);
-	ch->add_follower(mob);
-	return duration;
-}
+
 
 // kClone post-spawn (issue.summon-pipeline): make the spawned double a copy of the caster, then
 // fill the rest of the clone quota -- max(1,(level+4)/5-2) total -- with extra doubles. Each extra
 // is charmice-capped and finalized like the first but never re-rolls failure or cascades again
 // (replacing the old need_fail=false recursion into CastSummon).
-static void CloneCascade(CharData *ch, CharData *mob, const CastContext &ctx, int /*duration*/) {
-	ApplyCloneCosmetics(ch, mob);
-	int already = 0;
-	for (auto *k : ch->followers) {
-		if (AFF_FLAGGED(k, EAffect::kCharmed) && k->get_master() == ch) {
-			++already;
-		}
-	}
-	int remaining = std::max(1, (GetRealLevel(ch) + 4) / 5 - 2) - already;
-	while (remaining-- > 0) {
-		CharData *extra = ReadMobile(-kMobDouble, kVirtual);
-		if (!extra) {
-			break;
-		}
-		if (IsSummonTargetProtected(ch, extra, ctx.spell_id())) {
-			continue;
-		}
-		if (!CheckCharmices(ch, extra, ctx.spell_id())) {
-			ExtractCharFromWorld(extra, false);
-			break;
-		}
-		FinalizeSummonedMob(ch, extra, ctx.spell_id(), true);
-		ApplyCloneCosmetics(ch, extra);
-		extra->SetFlag(EMobFlag::kNoSkillTrain);
-		extra->char_specials.saved.alignment = ch->char_specials.saved.alignment;
-	}
-}
+
 
 // issue.summon-pipeline: string-named post-spawn handlers (the spell-specific 20%). Signature
 // (ch, spawned mob, ctx). Registered here; named by <summon handler="...">. The keeper's
@@ -1559,10 +1382,10 @@ static void CloneCascade(CharData *ch, CharData *mob, const CastContext &ctx, in
 static const std::map<std::string, std::function<void(CharData *, CharData *, const CastContext &, int)>>
 		kSummonHandlers = {
 	{"SetupKeeperStats",
-		[](CharData *ch, CharData *mob, const CastContext &ctx, int) { SetupKeeperStats(ch, mob, ctx); }},
+		[](CharData *ch, CharData *mob, const CastContext &ctx, int) { handlers::SetupKeeperStats(ch, mob, ctx); }},
 	{"SetupFirekeeperStats",
-		[](CharData *ch, CharData *mob, const CastContext &ctx, int dur) { SetupFirekeeperStats(ch, mob, ctx, dur); }},
-	{"CloneCascade", CloneCascade},
+		[](CharData *ch, CharData *mob, const CastContext &ctx, int dur) { handlers::SetupFirekeeperStats(ch, mob, ctx, dur); }},
+	{"CloneCascade", handlers::CloneCascade},
 };
 
 // Data-driven summon skeleton (issue.summon-pipeline): the common 80% -- fail roll, charmed
