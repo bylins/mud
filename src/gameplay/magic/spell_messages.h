@@ -20,7 +20,9 @@
 #include "engine/structs/msg_container.h"
 #include "spells_constants.h"
 
+#include <map>
 #include <string>
+#include <vector>
 
 /**
  * Per-spell message types. The id type of the container is ESpell; this enum
@@ -244,6 +246,8 @@ template<>
 const std::string &NAME_BY_ITEM<ESpellMsg>(ESpellMsg item);
 template<>
 ESpellMsg ITEM_BY_NAME<ESpellMsg>(const std::string &name);
+template<>
+const std::map<ESpellMsg, std::string> &NAMES_OF<ESpellMsg>();  // issue.vedun-msg-editor
 
 namespace spells {
 
@@ -252,10 +256,13 @@ using SpellMessages = msg_container::MsgContainer<ESpell, ESpellMsg>;
 /**
  * Loads/reloads lib/cfg/spell_msg.xml into MUD::SpellMessages().
  */
-class SpellMessagesLoader : virtual public cfg_manager::ICfgLoader {
+class SpellMessagesLoader : virtual public cfg_manager::IEditableCfgLoader {
  public:
 	void Load(parser_wrapper::DataNode data) final;
 	void Reload(parser_wrapper::DataNode data) final;
+	[[nodiscard]] std::string EditableWhat() const final;
+	[[nodiscard]] std::vector<cfg_manager::EditableElement> ListElements() const final;
+	[[nodiscard]] cfg_manager::ValidationResult Validate(parser_wrapper::DataNode &doc) const final;
 };
 
 } // namespace spells

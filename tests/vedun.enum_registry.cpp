@@ -36,7 +36,7 @@ TEST(Vedun_EnumRegistry, SpellSchemeEnumsRegistered) {
 	vedun::RegisterEditorEnums();
 	const auto &reg = vedun::EnumRegistry::Instance();
 	for (const char *e : {"ESpell", "EElement", "EMagic", "ETarget", "EPosition", "EItemMode",
-						  "EAffFlag", "ESkill", "EBaseStat", "ESaving", "EResist", "EAffect", "EApply"}) {
+						  "EAffFlag", "ESkill", "EBaseStat", "ESaving", "EResist", "EAffect", "EApply", "ESpellMsg"}) {
 		EXPECT_TRUE(reg.Known(e)) << e << " should be registered for the spell scheme";
 	}
 	// Spot-check a known member of the enums the expanded scheme relies on.
@@ -44,4 +44,5 @@ TEST(Vedun_EnumRegistry, SpellSchemeEnumsRegistered) {
 	EXPECT_TRUE(reg.ValueOf("EBaseStat", "kWis").has_value());
 	EXPECT_TRUE(reg.ValueOf("ESaving", "kStability").has_value());
 	EXPECT_TRUE(reg.ValueOf("EApply", "kStr").has_value());
+	EXPECT_TRUE(reg.ValueOf("ESpellMsg", "kNoeffect").has_value());
 }

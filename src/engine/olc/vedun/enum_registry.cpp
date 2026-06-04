@@ -6,6 +6,7 @@
 #include "enum_registry.h"
 
 #include "gameplay/magic/spells_constants.h"   // ESpell/EElement/EMagic/ETarget/ESpellType + NAMES_OF
+#include "gameplay/magic/spell_messages.h"     // ESpellMsg + NAMES_OF
 #include "engine/entities/entities_constants.h" // EPosition + NAMES_OF
 #include "engine/structs/info_container.h"      // EItemMode + NAMES_OF
 #include "gameplay/affects/affect_contants.h" // EAffFlag + NAMES_OF
@@ -67,6 +68,7 @@ void RegisterEditorEnums() {
 	registry.Register<EResist>("EResist");
 	registry.Register<EAffect>("EAffect");
 	registry.Register<EApply>("EApply");
+	registry.Register<ESpellMsg>("ESpellMsg");
 	// Inline-strcmp enums (no NAMES_OF map) registered by explicit name list -- keep in sync with
 	// the parser in talents_actions.cpp (Actions::ParseAction / the align reader).
 	registry.RegisterNames("EActionTarget", {"kTarFightSelf", "kTarFightVict", "kTarGroup", "kTarFoes",

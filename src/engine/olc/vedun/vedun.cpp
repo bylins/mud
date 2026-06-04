@@ -105,6 +105,10 @@ std::string ChildHint(const parser_wrapper::DataNode &child) {
 	if (!id.empty()) {
 		return fmt::format("id={}", id);
 	}
+	const std::string type = child.GetValue("type");
+	if (!type.empty()) {
+		return fmt::format("type={}", type);
+	}
 	const std::string val = child.GetValue("val");
 	if (!val.empty()) {
 		return fmt::format("val={}", val);

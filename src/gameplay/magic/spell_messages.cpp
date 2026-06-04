@@ -9,10 +9,12 @@
 #include "engine/db/global_objects.h"
 
 #include <map>
+#include <string>
+#include <vector>
 
-template<>
-const std::string &NAME_BY_ITEM<ESpellMsg>(const ESpellMsg item) {
-	static const std::map<ESpellMsg, std::string> kMap{
+namespace {
+// issue.vedun-msg-editor: file-scope so NAMES_OF can expose it for the editor pick-list.
+const std::map<ESpellMsg, std::string> kESpellMsgNames{
 		{ESpellMsg::kUndefined, "kUndefined"},
 		{ESpellMsg::kHealToVict, "kHealToVict"},
 		{ESpellMsg::kMovesToVict, "kMovesToVict"},
@@ -123,8 +125,17 @@ const std::string &NAME_BY_ITEM<ESpellMsg>(const ESpellMsg item) {
 		{ESpellMsg::kCustomMsgTen, "kCustomMsgTen"},
 		{ESpellMsg::kCastDisappearToRoom, "kCastDisappearToRoom"},
 		{ESpellMsg::kCastAppearToRoom, "kCastAppearToRoom"},
-	};
-	return kMap.at(item);
+};
+}  // namespace
+
+template<>
+const std::string &NAME_BY_ITEM<ESpellMsg>(const ESpellMsg item) {
+	return kESpellMsgNames.at(item);
+}
+
+template<>
+const std::map<ESpellMsg, std::string> &NAMES_OF<ESpellMsg>() {
+	return kESpellMsgNames;
 }
 
 template<>
@@ -252,6 +263,33 @@ void SpellMessagesLoader::Load(parser_wrapper::DataNode data) {
 
 void SpellMessagesLoader::Reload(parser_wrapper::DataNode data) {
 	MUD::SpellMessages().Reload(data.Children());
+}
+
+// issue.vedun-msg-editor: editor discovery + safe-commit validation (mirrors SpellsLoader).
+std::string SpellMessagesLoader::EditableWhat() const {
+	return "spellmsg";
+}
+
+std::vector<cfg_manager::EditableElement> SpellMessagesLoader::ListElements() const {
+	std::vector<cfg_manager::EditableElement> out;
+	for (const auto &sheaf : MUD::SpellMessages()) {
+		const ESpell id = sheaf.GetId();
+		// The default sheaf is stored under kUndefined but its XML id is "kDefault".
+		const std::string id_str = (id == ESpell::kUndefined) ? "kDefault" : NAME_BY_ITEM<ESpell>(id);
+		std::string label;
+		if (id != ESpell::kUndefined && MUD::Spells().IsKnown(id)) {
+			label = MUD::Spells()[id].GetName();
+		}
+		out.push_back({id_str, label});
+	}
+	return out;
+}
+
+cfg_manager::ValidationResult SpellMessagesLoader::Validate(parser_wrapper::DataNode &doc) const {
+	if (MUD::SpellMessages().Validate(doc.Children())) {
+		return {true, ""};
+	}
+	return {false, "Spell-message data failed to parse (see syslog for the offending sheaf/message)."};
 }
 
 } // namespace spells
