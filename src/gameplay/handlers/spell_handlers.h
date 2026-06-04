@@ -60,6 +60,24 @@ void CloneCascade(CharData *ch, CharData *mob, const CastContext &ctx, int durat
 // Affect<ERoomApply>::shared_ptr signature is why this header includes magic_rooms.h.)
 void HandleThunderstormTick(CharData *ch, const Affect<room_spells::ERoomApply>::shared_ptr &aff);
 
+// --- Manual spell-cast handlers (issue.spellhandlers, extracted from spells.cpp) ------------
+EStageResult SpellCreateWater(CastContext &ctx);
+EStageResult SpellRecall(CastContext &ctx);
+EStageResult SpellTeleport(CastContext &ctx);
+EStageResult SpellRelocate(CastContext &ctx);
+EStageResult SpellPortal(CastContext &ctx);
+EStageResult SpellSummon(CastContext &ctx);
+EStageResult SpellLocateObject(CastContext &ctx);
+EStageResult SpellCharm(CastContext &ctx);
+EStageResult SpellIdentify(CastContext &ctx);
+EStageResult SpellFullIdentify(CastContext &ctx);
+EStageResult SpellControlWeather(CastContext &ctx);
+EStageResult SpellFear(CastContext &ctx);
+EStageResult SpellEnergydrain(CastContext &ctx);
+EStageResult SpellHolystrike(CastContext &ctx);
+EStageResult SpellVampirism(CastContext &ctx);
+EStageResult SpellMentalShadow(CastContext &ctx);
+
 // Shared messaging helper for the alter-obj handlers: act() the cast spell's `key` message on
 // ctx.ovict and return kSuccess. Used by multiple handlers, so by the issue's rule it is shared
 // code -- kept in magic.cpp by design (trivial pipeline messaging glue; a candidate for a future

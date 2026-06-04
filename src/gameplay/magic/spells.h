@@ -84,27 +84,24 @@ constexpr Bitvector kMiLevel32 = 1 << 13;
 
 #define MANUAL_SPELL(spellname)    spellname(level, caster, cvict, ovict);
 
-EStageResult SpellCreateWater(CastContext &ctx);
-EStageResult SpellRecall(CastContext &ctx);
-EStageResult SpellTeleport(CastContext &ctx);
-EStageResult SpellSummon(CastContext &ctx);
-EStageResult SpellRelocate(CastContext &ctx);
-EStageResult SpellPortal(CastContext &ctx);
-EStageResult SpellLocateObject(CastContext &ctx);
-EStageResult SpellCharm(CastContext &ctx);
 void SpellInformation(int level, CharData *ch, CharData *victim, ObjData *obj);
-EStageResult SpellIdentify(CastContext &ctx);
-EStageResult SpellFullIdentify(CastContext &ctx);
 void SpellEnchantWeapon(int level, CharData *ch, CharData *victim, ObjData *obj);
-EStageResult SpellControlWeather(CastContext &ctx);
-EStageResult SpellEnergydrain(CastContext &ctx);
-EStageResult SpellFear(CastContext &ctx);
 void SpellForbidden(int level, CharData *ch, CharData *victim, ObjData *obj);
-EStageResult SpellHolystrike(CastContext &ctx);
 void SkillIdentify(int level, CharData *ch, CharData *victim, ObjData *obj);
-EStageResult SpellVampirism(CastContext &ctx);
-EStageResult SpellMentalShadow(CastContext &ctx);
 void RemovePortalGate(RoomRnum rnum);
+// issue.spellhandlers: helpers used by the extracted manual handlers (defs stay in spells.cpp).
+void SendSummonFail(CharData *ch, ESpell spell_id);
+int GetTeleportTargetRoom(CharData *ch, int rnum_start, int rnum_stop);
+void CheckAutoNosummon(CharData *ch);
+void AddPortalTimer(CharData *ch, RoomData *from_room, RoomRnum to_room, int time, long pk_unique = 0);
+int CheckCharmices(CharData *ch, CharData *victim, ESpell spell_id);
+void SetPrecipitations(int *wtype, int startvalue, int chance1, int chance2, int chance3);
+int CalcAntiSavings(CharData *ch);
+int pk_action_type_summon(CharData *agressor, CharData *victim);
+int pk_increment_revenge(CharData *agressor, CharData *victim);
+void MortShowCharValues(CharData *victim, CharData *ch, int fullness);
+extern int what_sky;
+extern char cast_argument[];
 // basic magic calling functions
 
 ESpell FixNameAndFindSpellId(char *name);
