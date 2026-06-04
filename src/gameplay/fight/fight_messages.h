@@ -24,7 +24,9 @@
 #include "engine/structs/msg_container.h"
 #include "fight_constants.h"
 
+#include <map>
 #include <string>
+#include <vector>
 
 namespace fight {
 
@@ -53,9 +55,13 @@ const std::string &NAME_BY_ITEM<fight::EDamageSource>(fight::EDamageSource item)
 template<>
 fight::EDamageSource ITEM_BY_NAME<fight::EDamageSource>(const std::string &name);
 template<>
+const std::map<fight::EDamageSource, std::string> &NAMES_OF<fight::EDamageSource>();  // issue.vedun-msg-editor
+template<>
 const std::string &NAME_BY_ITEM<fight::EFightMsg>(fight::EFightMsg item);
 template<>
 fight::EFightMsg ITEM_BY_NAME<fight::EFightMsg>(const std::string &name);
+template<>
+const std::map<fight::EFightMsg, std::string> &NAMES_OF<fight::EFightMsg>();  // issue.vedun-msg-editor
 
 namespace fight {
 
@@ -69,10 +75,13 @@ const std::string &GetAttackTypeDescription(int attack_type);
 /**
  * Loads/reloads lib/cfg/hit_msg.xml into MUD::FightMessages().
  */
-class FightMessagesLoader : virtual public cfg_manager::ICfgLoader {
+class FightMessagesLoader : virtual public cfg_manager::IEditableCfgLoader {
  public:
 	void Load(parser_wrapper::DataNode data) final;
 	void Reload(parser_wrapper::DataNode data) final;
+	[[nodiscard]] std::string EditableWhat() const final;
+	[[nodiscard]] std::vector<cfg_manager::EditableElement> ListElements() const final;
+	[[nodiscard]] cfg_manager::ValidationResult Validate(parser_wrapper::DataNode &doc) const final;
 };
 
 } // namespace fight

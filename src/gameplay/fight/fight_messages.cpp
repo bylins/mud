@@ -9,10 +9,11 @@
 #include "engine/db/global_objects.h"
 
 #include <map>
+#include <vector>
 
-template<>
-const std::string &NAME_BY_ITEM<fight::EDamageSource>(const fight::EDamageSource item) {
-	static const std::map<fight::EDamageSource, std::string> kMap{
+namespace {
+// issue.vedun-msg-editor: file-scope so NAMES_OF can expose it to the editor.
+const std::map<fight::EDamageSource, std::string> kEDamageSourceNames{
 		{fight::EDamageSource::kUndefined, "kUndefined"},
 		{fight::EDamageSource::kHit, "kHit"},
 		{fight::EDamageSource::kSkin, "kSkin"},
@@ -42,7 +43,16 @@ const std::string &NAME_BY_ITEM<fight::EDamageSource>(const fight::EDamageSource
 		{fight::EDamageSource::kSlowDeathTrap, "kSlowDeathTrap"},
 		{fight::EDamageSource::kSuffering, "kSuffering"},
 	};
-	return kMap.at(item);
+}  // namespace
+
+template<>
+const std::string &NAME_BY_ITEM<fight::EDamageSource>(const fight::EDamageSource item) {
+	return kEDamageSourceNames.at(item);
+}
+
+template<>
+const std::map<fight::EDamageSource, std::string> &NAMES_OF<fight::EDamageSource>() {
+	return kEDamageSourceNames;
 }
 
 template<>
@@ -81,9 +91,9 @@ fight::EDamageSource ITEM_BY_NAME<fight::EDamageSource>(const std::string &name)
 	return kMap.at(name); // throws std::out_of_range on unknown name
 }
 
-template<>
-const std::string &NAME_BY_ITEM<fight::EFightMsg>(const fight::EFightMsg item) {
-	static const std::map<fight::EFightMsg, std::string> kMap{
+namespace {
+// issue.vedun-msg-editor: file-scope so NAMES_OF can expose it to the editor.
+const std::map<fight::EFightMsg, std::string> kEFightMsgNames{
 		{fight::EFightMsg::kUndefined, "kUndefined"},
 		{fight::EFightMsg::kFightDeathToChar, "kFightDeathToChar"},
 		{fight::EFightMsg::kFightDeathToVict, "kFightDeathToVict"},
@@ -99,7 +109,16 @@ const std::string &NAME_BY_ITEM<fight::EFightMsg>(const fight::EFightMsg item) {
 		{fight::EFightMsg::kFightGodToRoom, "kFightGodToRoom"},
 		{fight::EFightMsg::kDescription, "kDescription"},
 	};
-	return kMap.at(item);
+}  // namespace
+
+template<>
+const std::string &NAME_BY_ITEM<fight::EFightMsg>(const fight::EFightMsg item) {
+	return kEFightMsgNames.at(item);
+}
+
+template<>
+const std::map<fight::EFightMsg, std::string> &NAMES_OF<fight::EFightMsg>() {
+	return kEFightMsgNames;
 }
 
 template<>
@@ -141,6 +160,28 @@ void FightMessagesLoader::Load(parser_wrapper::DataNode data) {
 
 void FightMessagesLoader::Reload(parser_wrapper::DataNode data) {
 	MUD::FightMessages().Reload(data.Children());
+}
+
+// issue.vedun-msg-editor: editor discovery + safe-commit validation.
+std::string FightMessagesLoader::EditableWhat() const {
+	return "hitmsg";
+}
+
+std::vector<cfg_manager::EditableElement> FightMessagesLoader::ListElements() const {
+	std::vector<cfg_manager::EditableElement> out;
+	for (const auto &sheaf : MUD::FightMessages()) {
+		const EDamageSource id = sheaf.GetId();
+		const std::string id_str = (id == EDamageSource::kUndefined) ? "kDefault" : NAME_BY_ITEM<EDamageSource>(id);
+		out.push_back({id_str, ""});
+	}
+	return out;
+}
+
+cfg_manager::ValidationResult FightMessagesLoader::Validate(parser_wrapper::DataNode &doc) const {
+	if (MUD::FightMessages().Validate(doc.Children())) {
+		return {true, ""};
+	}
+	return {false, "Hit-message data failed to parse (see syslog for the offending sheaf/message)."};
 }
 
 } // namespace fight

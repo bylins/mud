@@ -23,7 +23,9 @@
 #include "engine/structs/msg_container.h"
 #include "skills.h"
 
+#include <map>
 #include <string>
+#include <vector>
 
 /**
  * Per-skill message types. The id type of the container is ESkill; this enum
@@ -64,6 +66,8 @@ template<>
 const std::string &NAME_BY_ITEM<ESkillMsg>(ESkillMsg item);
 template<>
 ESkillMsg ITEM_BY_NAME<ESkillMsg>(const std::string &name);
+template<>
+const std::map<ESkillMsg, std::string> &NAMES_OF<ESkillMsg>();  // issue.vedun-msg-editor
 
 namespace skills {
 
@@ -72,10 +76,13 @@ using SkillMessages = msg_container::MsgContainer<ESkill, ESkillMsg>;
 /**
  * Loads/reloads lib/cfg/skill_msg.xml into MUD::SkillMessages().
  */
-class SkillMessagesLoader : virtual public cfg_manager::ICfgLoader {
+class SkillMessagesLoader : virtual public cfg_manager::IEditableCfgLoader {
  public:
 	void Load(parser_wrapper::DataNode data) final;
 	void Reload(parser_wrapper::DataNode data) final;
+	[[nodiscard]] std::string EditableWhat() const final;
+	[[nodiscard]] std::vector<cfg_manager::EditableElement> ListElements() const final;
+	[[nodiscard]] cfg_manager::ValidationResult Validate(parser_wrapper::DataNode &doc) const final;
 };
 
 } // namespace skills
