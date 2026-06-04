@@ -203,41 +203,6 @@ void CheckAutoNosummon(CharData *ch) {
 // do_enter (entry gate); cleared automatically when the affect expires.
 
 
-bool CatchBloodyCorpse(ObjData *l) {
-	bool temp_bloody = false;
-	ObjData *next_element;
-
-	if (!l->get_contains()) {
-		return false;
-	}
-
-	if (bloody::is_bloody(l->get_contains())) {
-		return true;
-	}
-
-	if (!l->get_contains()->get_next_content()) {
-		return false;
-	}
-
-	next_element = l->get_contains()->get_next_content();
-	while (next_element) {
-		if (next_element->get_contains()) {
-			temp_bloody = CatchBloodyCorpse(next_element->get_contains());
-			if (temp_bloody) {
-				return true;
-			}
-		}
-
-		if (bloody::is_bloody(next_element)) {
-			return true;
-		}
-
-		next_element = next_element->get_contains();
-	}
-
-	return false;
-}
-
 int CheckCharmices(CharData *ch, CharData *victim, ESpell spell_id) {
 	int cha_summ = 0, reformed_hp_summ = 0;
 	bool undead_in_group = false, living_in_group = false;

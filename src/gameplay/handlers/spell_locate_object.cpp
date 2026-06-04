@@ -4,6 +4,7 @@
 */
 
 #include "gameplay/handlers/spell_handlers.h"
+#include "gameplay/fight/pk.h"
 #include "gameplay/magic/spells.h"
 #include "gameplay/magic/magic.h"
 #include "gameplay/magic/magic_internal.h"
@@ -72,7 +73,7 @@ EStageResult SpellLocateObject(CastContext &ctx) {
 			}
 
 			if (IS_CORPSE(i)) {
-				bloody_corpse = CatchBloodyCorpse(i.get());
+				bloody_corpse = bloody::CatchBloodyCorpse(i.get());
 				if (!bloody_corpse) {
 					return false;
 				}

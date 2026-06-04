@@ -102,7 +102,6 @@ extern char cast_argument[];
 
 ESpell FixNameAndFindSpellId(char *name);
 
-bool CatchBloodyCorpse(ObjData *l);
 
 // other prototypes //
 bool CanGetSpell(CharData *ch, ESpell spell_id);
