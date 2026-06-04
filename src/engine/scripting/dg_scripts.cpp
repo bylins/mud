@@ -13,6 +13,7 @@
 #include "engine/db/obj_prototypes.h"
 #include "engine/db/utils_find_obj_id_by_vnum.h"
 #include "engine/core/handler.h"
+#include "engine/ui/cmd/do_follow.h"  // circle_follow для char.leader(UID) (#3398)
 #include "dg_event.h"
 #include "engine/ui/color.h"
 #include "gameplay/clans/house.h"
@@ -3138,7 +3139,25 @@ void find_replacement(void *go,
 					snprintf(str, str_size, "%s", out.c_str());
 				}
 			} else if (!str_cmp(field, "leader")) {
-				if (mob->has_master()) {
+				if (subfield && *subfield) {
+					// %actor.leader(UID)% -- установить следование за указанным
+					// персонажем (по UID или имени), как делает команда follow (#3398).
+					CharData *new_leader = get_char(subfield);
+					if (new_leader && new_leader != mob && !circle_follow(mob, new_leader)) {
+						if (mob->has_master()) {
+							stop_follower(mob, kSfEmpty);
+						}
+						mob->removeGroupFlags();
+						for (auto *f : mob->followers) {
+							f->removeGroupFlags();
+						}
+						new_leader->add_follower(mob);
+						// возвращаем UID нового лидера (если следование удалось установить)
+						if (mob->get_master() == new_leader) {
+							snprintf(str, str_size, "%c%ld", uid_type, new_leader->get_uid());
+						}
+					}
+				} else if (mob->has_master()) {
 					snprintf(str, str_size, "%c%ld", uid_type, (mob->get_master())->get_uid());
 				}
 			} else if (!str_cmp(field, "group")) {
