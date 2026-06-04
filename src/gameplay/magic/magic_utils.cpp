@@ -483,7 +483,7 @@ ECastResult CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomDat
 	// the default sheaf carries the generic narration; spells like kRuneLabel override
 	// with their own kCastForbidden* keys.
 	const bool weave_blocked =
-			MUD::Spell(spell_id).GetComponents().HasWeave()
+			MUD::Spell(spell_id).GetComponents().HasWeaveComponent()
 			&& ROOM_FLAGGED(caster->in_room, ERoomFlag::kNoMagic);
 	const bool data_blocked = IsRoomBlocked(world[caster->in_room],
 			MUD::Spell(spell_id).actions.GetBlocking());
@@ -499,7 +499,7 @@ ECastResult CallMagic(CharData *caster, CharData *cvict, ObjData *ovict, RoomDat
 	// issue.sight-component: a spell carrying <components><sight/> requires the caster to see -- a
 	// blind caster cannot cast it. The "blinded" notice is inline for now; the generic no-effect
 	// line comes from the spell's message sheaf (kNoeffect).
-	if (MUD::Spell(spell_id).GetComponents().HasSight() && AFF_FLAGGED(caster, EAffect::kBlind)) {
+	if (MUD::Spell(spell_id).GetComponents().HasSightComponent() && AFF_FLAGGED(caster, EAffect::kBlind)) {
 		SendMsgToChar("Вы ослеплены!\r\n", caster);
 		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kNoeffect) + "\r\n", caster);
 		return ECastResult::kNotCast;

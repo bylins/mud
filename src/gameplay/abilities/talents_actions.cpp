@@ -176,14 +176,14 @@ Components::Components(parser_wrapper::DataNode &node) {
 		const auto name = child.GetName();
 		// <verbal/>: presence-only marker -- no attributes today. Spells with
 		// this child require speech; the kSilence-aware guards in do_cast,
-		// CastSpell, process_player_attack and SaySpell consult HasVerbal().
+		// CastSpell, process_player_attack and SaySpell consult HasVerbalComponent().
 		if (strcmp(name, "verbal") == 0) {
 			has_verbal_ = true;
 			continue;
 		}
 		// <weave/>: presence-only marker -- no attributes today.
 		// Spells with this child are "actual magic" and cannot be cast in a kNoMagic
-		// room. The CallMagic-side gate (magic_utils.cpp) consults HasWeave() and
+		// room. The CallMagic-side gate (magic_utils.cpp) consults HasWeaveComponent() and
 		// emits the same kCastForbidden* narration the legacy data-driven blocking
 		// used to.
 		if (strcmp(name, "weave") == 0) {
@@ -191,7 +191,7 @@ Components::Components(parser_wrapper::DataNode &node) {
 			continue;
 		}
 		// <sight/>: presence-only marker. Casting requires the caster to see; the CallMagic-side
-		// gate (magic_utils.cpp) blocks a blind caster via HasSight() (issue.sight-component).
+		// gate (magic_utils.cpp) blocks a blind caster via HasSightComponent() (issue.sight-component).
 		if (strcmp(name, "sight") == 0) {
 			has_sight_ = true;
 			continue;

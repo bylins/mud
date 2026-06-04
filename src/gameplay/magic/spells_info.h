@@ -129,7 +129,7 @@ class SpellInfo : public info_container::BaseItem<ESpell> {
 	// Speech-blocking effects (kSilence) only stop verbal spells; non-verbal
 	// spells can be cast under kSilence. See do_cast / CastSpell /
 	// process_player_attack / SaySpell guards.
-	[[nodiscard]] bool IsVerbal() const { return components_.HasVerbal(); };
+	[[nodiscard]] bool IsVerbal() const { return components_.HasVerbalComponent(); };
 
 	void Print(CharData *ch, std::ostringstream &buffer) const;
 };
