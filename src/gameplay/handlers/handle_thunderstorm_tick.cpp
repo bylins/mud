@@ -12,6 +12,7 @@
 #include "engine/db/global_objects.h"
 #include "gameplay/magic/spell_messages.h"
 #include "gameplay/mechanics/weather.h"
+#include "gameplay/magic/spells.h"   // cast_argument
 
 extern int what_sky;
 
@@ -30,6 +31,7 @@ namespace handlers {
 void HandleThunderstormTick(CharData *ch, const Affect<ERoomApply>::shared_ptr &aff) {
 	switch (aff->duration) {
 	case 7:
+		cast_argument[0] = '\0';   // programmatic cast: SpellControlWeather must not parse a stale argument
 		if (CallMagic(ch, nullptr, nullptr, nullptr, ESpell::kControlWeather, GetRealLevel(ch)) == ECastResult::kNotCast) {
 			aff->duration = 0;
 			break;

@@ -608,20 +608,9 @@ int FindCastTarget(ESpell spell_id, const char *t, CharData *ch, CharData **tch,
 	*tobj = nullptr;
 	*troom = world[ch->in_room];
 
-	if (spell_id == ESpell::kControlWeather) {
-		if ((what_sky = search_block(t, what_sky_type, false)) < 0) {
-			SendNoTargetMsg(spell_id, ch);
-			return false;
-		} else
-			what_sky >>= 1;
-	}
-	if (spell_id == ESpell::kCreateWeapon) {
-		if ((what_sky = search_block(t, what_weapon, false)) < 0) {
-			SendNoTargetMsg(spell_id, ch);
-			return false;
-		} else
-			what_sky = 5 + (what_sky >> 1);
-	}
+	// kControlWeather / kCreateWeapon used to parse their argument here (weather / weapon type);
+	// that moved into the respective handlers (issue.spell-pipeline-cleaning #2/#3), so the generic
+	// resolver no longer special-cases spell ids.
 	strcpy(cast_argument, t);
 	if (MUD::Spell(spell_id).AllowTarget(kTarRoomThis))
 		return true;

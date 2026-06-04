@@ -9,6 +9,9 @@
 #include "engine/db/global_objects.h"
 #include "gameplay/magic/spell_messages.h"
 #include "gameplay/magic/spells.h"
+#include "engine/ui/interpreter.h"   // search_block
+
+extern const char *what_sky_type[];   // defined in magic_utils.cpp (shared with dg scripts)
 
 namespace handlers {
 
@@ -16,6 +19,18 @@ EStageResult SpellControlWeather(CastContext &ctx) {
 	CharData *ch = ctx.caster();
 	const char *sky_info = nullptr;
 	int i, duration, zone, sky_type = 0;
+
+	// Player casts pass the desired weather type as the spell argument; resolve it to what_sky here
+	// (moved out of FindCastTarget). A programmatic cast (the thunderstorm tick) clears the argument
+	// and relies on what_sky already being set, so empty -> keep the current value.
+	if (cast_argument[0]) {
+		const int idx = search_block(cast_argument, what_sky_type, false);
+		if (idx < 0) {
+			SendMsgToChar(MUD::SpellMessages().GetMessage(ESpell::kControlWeather, ESpellMsg::kNoTarget) + "\r\n", ch);
+			return EStageResult::kSuccess;
+		}
+		what_sky = idx >> 1;
+	}
 
 	if (what_sky > kSkyLightning)
 		what_sky = kSkyLightning;
