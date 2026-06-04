@@ -3,6 +3,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include "shop_ext.h"
+#include "gameplay/mechanics/identify.h"
 
 #include "third_party_libs/pugixml/pugixml.h"
 

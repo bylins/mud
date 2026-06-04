@@ -9,6 +9,7 @@
 ************************************************************************ */
 
 #include "exchange.h"
+#include "gameplay/mechanics/identify.h"
 
 #include <fmt/format.h>
 #include <fmt/printf.h>

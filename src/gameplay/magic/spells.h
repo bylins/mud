@@ -87,14 +87,12 @@ constexpr Bitvector kMiLevel32 = 1 << 13;
 void SpellInformation(int level, CharData *ch, CharData *victim, ObjData *obj);
 void SpellEnchantWeapon(int level, CharData *ch, CharData *victim, ObjData *obj);
 void SpellForbidden(int level, CharData *ch, CharData *victim, ObjData *obj);
-void SkillIdentify(int level, CharData *ch, CharData *victim, ObjData *obj);
 // issue.spellhandlers: helpers used by the extracted manual handlers (defs stay in spells.cpp).
 void CheckAutoNosummon(CharData *ch);
 void SetPrecipitations(int *wtype, int startvalue, int chance1, int chance2, int chance3);
 int CalcAntiSavings(CharData *ch);
 int pk_action_type_summon(CharData *agressor, CharData *victim);
 int pk_increment_revenge(CharData *agressor, CharData *victim);
-void MortShowCharValues(CharData *victim, CharData *ch, int fullness);
 extern int what_sky;
 extern char cast_argument[];
 // basic magic calling functions
@@ -111,7 +109,6 @@ int CalcMinRuneSpellLvl(const CharData *ch, ESpell spell_id);
 ESkill GetMagicSkillId(ESpell spell_id);
 int CheckRecipeValues(CharData *ch, ESpell spell_id, ESpellType spell_type, int showrecipe);
 int CheckRecipeItems(CharData *ch, ESpell spell_id, ESpellType spell_type, int extract, CharData *tch = nullptr);
-void MortShowObjValues(const ObjData *obj, CharData *ch, int fullness);
 
 //#define CALC_SUCCESS(modi, perc)         ((modi)-100+(perc))
 

@@ -5,6 +5,7 @@
 ******************************************************************************/
 
 #include "house.h"
+#include "gameplay/mechanics/identify.h"
 
 #include <sys/stat.h>
 #include <algorithm>
