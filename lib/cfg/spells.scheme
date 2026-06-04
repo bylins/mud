@@ -55,6 +55,17 @@
 		<attr name="val" type="flagset" enum="EMagic" desc="EMagic flag set"/>
 	</tag>
 
+	<tag name="components" desc="Casting components">
+		<child tag="verbal"/>
+		<child tag="weave"/>
+		<child tag="material"/>
+	</tag>
+	<tag name="verbal" desc="Requires speech (presence-only marker)"/>
+	<tag name="weave" desc="Actual magic; blocked in no-magic rooms (presence-only marker)"/>
+	<tag name="material" desc="Requires a material component">
+		<attr name="any_of" type="string" desc="Object vnum(s) accepted, '|'-separated"/>
+	</tag>
+
 	<tag name="potency_roll" desc="Potency dice pool + skill/stat scaling">
 		<child tag="dices"/>
 		<child tag="base_skill"/>

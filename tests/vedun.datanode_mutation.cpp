@@ -51,3 +51,56 @@ TEST(Vedun_DataNodeMutation, SetValueAndSaveRoundTrip) {
 	std::remove(src);
 	std::remove(out);
 }
+
+TEST(Vedun_DataNodeMutation, AddAndRemoveChildRoundTrip) {
+	const char *src = "vedun_child_src.xml";
+	const char *out = "vedun_child_out.xml";
+	{
+		std::ofstream f(src);
+		f << R"(<root><spell id="s"><components><verbal/><weave/></components></spell></root>)";
+	}
+	parser_wrapper::DataNode doc(src);
+	// Navigate to <components>.
+	parser_wrapper::DataNode components;
+	for (auto &spell : doc.Children()) {
+		for (auto &comp : spell.Children()) {
+			if (std::string(comp.GetName()) == "components") {
+				components = comp;
+			}
+		}
+	}
+	ASSERT_TRUE(components.IsNotEmpty());
+
+	// Add a new child, and remove an existing one (delete <verbal>).
+	parser_wrapper::DataNode added = components.AddChild("material");
+	ASSERT_TRUE(added.IsNotEmpty());
+	EXPECT_TRUE(added.SetValue("any_of", "1930"));
+	for (auto &comp : components.Children()) {
+		if (std::string(comp.GetName()) == "verbal") {
+			EXPECT_TRUE(components.RemoveChild(comp));
+			break;
+		}
+	}
+
+	ASSERT_TRUE(doc.Save(out));
+	parser_wrapper::DataNode reloaded(out);
+	bool has_verbal = false, has_weave = false, has_material = false;
+	std::string material_any;
+	for (auto &spell : reloaded.Children()) {
+		for (auto &comp : spell.Children()) {
+			for (auto &c : comp.Children()) {
+				const std::string n = c.GetName();
+				if (n == "verbal") { has_verbal = true; }
+				if (n == "weave") { has_weave = true; }
+				if (n == "material") { has_material = true; material_any = c.GetValue("any_of"); }
+			}
+		}
+	}
+	EXPECT_FALSE(has_verbal);   // removed
+	EXPECT_TRUE(has_weave);     // untouched
+	EXPECT_TRUE(has_material);  // added
+	EXPECT_EQ(material_any, "1930");
+
+	std::remove(src);
+	std::remove(out);
+}

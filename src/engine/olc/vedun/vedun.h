@@ -27,7 +27,7 @@ namespace vedun {
 // Per-descriptor editing session: the whole-file DOM, a cursor stack (path) from the element root
 // to the node shown, the scheme, and the edit state. Editing mutates the shared DOM in place;
 // saving validates then atomically rewrites the file and reloads the container.
-enum class Mode { kBrowse, kEditAttr, kEditFlagset, kConfirmQuit };
+enum class Mode { kBrowse, kEditAttr, kEditFlagset, kAddChild, kDeleteChild, kConfirmQuit };
 struct Session {
 	std::string what;                              // e.g. "spell"
 	std::filesystem::path file;                    // the cfg source file

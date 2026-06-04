@@ -203,6 +203,50 @@ void RenderFlagEditor(DescriptorData *d) {
 	SendMsgToChar("&Wd&n) done (apply)   &Wc&n) cancel\r\n", ch);
 }
 
+// The add-child menu: the scheme-allowed child tags of the current node, numbered. A number adds
+// that tag; an arbitrary tag name may also be typed (the loader still validates structure on save).
+void RenderAddChild(DescriptorData *d) {
+	auto *ch = d->character.get();
+	const auto &s = *d->vedun_session;
+	const std::string parent = s.path.back().GetName();
+	const TagDef *td = s.scheme.FindTag(parent);
+	SendMsgToChar(fmt::format("&WAdd child to&n &c<{}>&n:\r\n", parent), ch);
+	if (td && !td->children.empty()) {
+		table_wrapper::Table table;
+		for (std::size_t i = 0; i < td->children.size(); ++i) {
+			const TagDef *kd = s.scheme.FindTag(td->children[i]);
+			table << fmt::format("{})", i + 1) << fmt::format("<{}>", td->children[i])
+				  << (kd ? kd->desc : "") << table_wrapper::kEndRow;
+		}
+		table_wrapper::DecorateNoBorderTable(ch, table);
+		StyleColumns(table);
+		table_wrapper::PrintTableToChar(ch, table);
+		SendMsgToChar("\r\nType a number, or a tag name to add.  &Wc&n) cancel\r\n", ch);
+	} else {
+		SendMsgToChar("(the scheme lists no children here -- type a tag name to add)  &Wc&n) cancel\r\n", ch);
+	}
+}
+
+// The delete-child menu: the current node's children, numbered. A number removes that child.
+void RenderDeleteChild(DescriptorData *d) {
+	auto *ch = d->character.get();
+	const auto kids = ChildrenOf(d->vedun_session->path.back());
+	SendMsgToChar("&WDelete which child?&n\r\n", ch);
+	if (kids.empty()) {
+		SendMsgToChar("(no children to delete)  &Wc&n) cancel\r\n", ch);
+		return;
+	}
+	table_wrapper::Table table;
+	for (std::size_t i = 0; i < kids.size(); ++i) {
+		table << fmt::format("{})", i + 1) << fmt::format("<{}>", kids[i].GetName())
+			  << ChildHint(kids[i]) << table_wrapper::kEndRow;
+	}
+	table_wrapper::DecorateNoBorderTable(ch, table);
+	StyleColumns(table);
+	table_wrapper::PrintTableToChar(ch, table);
+	SendMsgToChar("\r\nType a number to remove it.  &Wc&n) cancel\r\n", ch);
+}
+
 // Validate a typed value against its scheme def before it is written. Returns an error message (shown
 // to the user) when the value violates the field's type / numeric range / enum membership, or empty
 // when acceptable. Untyped fields (no scheme def) accept anything -- the loader still checks structure
@@ -331,8 +375,8 @@ void Render(DescriptorData *d) {
 		StyleColumns(table);
 		table_wrapper::PrintTableToChar(ch, table);
 	}
-	SendMsgToChar("&WSelect&n a number -- attribute = edit, <tag> = enter.\r\n", ch);
-	SendMsgToChar("&Ws&n) save   &Wu&n) up   &Wq&n) quit\r\n", ch);
+	SendMsgToChar("\r\n&WSelect&n a number -- attribute = edit, <tag> = enter.\r\n", ch);
+	SendMsgToChar("&Wa&n) add child   &Wd&n) delete child   &Ws&n) save   &Wu&n) up   &Wq&n) quit\r\n", ch);
 }
 
 // The safe commit: validate the edited DOM (dry-parse, no swap), then atomically rewrite the file
@@ -629,6 +673,72 @@ void vedun_parse(DescriptorData *d, char *arg) {
 		return;
 	}
 
+	// Add-child menu: a number picks a scheme-allowed child tag; a bare token is taken as a tag name.
+	if (s.mode == Mode::kAddChild) {
+		while (*arg == ' ') {
+			++arg;
+		}
+		std::string token = arg;
+		while (!token.empty() && std::isspace(static_cast<unsigned char>(token.back()))) {
+			token.pop_back();
+		}
+		if (token.empty() || token == "c" || token == "C" || token == ".") {
+			s.mode = Mode::kBrowse;
+			SendMsgToChar("Cancelled.\r\n", ch);
+			Render(d);
+			return;
+		}
+		std::string tag;
+		const TagDef *td = s.scheme.FindTag(s.path.back().GetName());
+		if (td && !td->children.empty() && token.find_first_not_of("0123456789") == std::string::npos) {
+			const std::size_t pick = static_cast<std::size_t>(atoi(token.c_str()));
+			if (pick >= 1 && pick <= td->children.size()) {
+				tag = td->children[pick - 1];
+			}
+		}
+		if (tag.empty()) {
+			tag = token;   // a free-text tag name (the loader still validates structure on save)
+		}
+		if (tag.find_first_of(" \t<>/") != std::string::npos) {
+			SendMsgToChar("&RNot a valid tag name.&n\r\n", ch);
+			RenderAddChild(d);
+			return;
+		}
+		s.path.back().AddChild(tag);
+		s.dirty = true;
+		s.mode = Mode::kBrowse;
+		SendMsgToChar(fmt::format("&GAdded&n <{}> (not saved yet).\r\n", tag), ch);
+		Render(d);
+		return;
+	}
+
+	// Delete-child menu: a number removes that child of the current node.
+	if (s.mode == Mode::kDeleteChild) {
+		while (*arg == ' ') {
+			++arg;
+		}
+		if (!*arg || *arg == 'c' || *arg == 'C' || *arg == '.') {
+			s.mode = Mode::kBrowse;
+			SendMsgToChar("Cancelled.\r\n", ch);
+			Render(d);
+			return;
+		}
+		const auto kids = ChildrenOf(s.path.back());
+		const int n = atoi(arg);
+		if (n >= 1 && n <= static_cast<int>(kids.size())) {
+			const std::string name = kids[n - 1].GetName();
+			s.path.back().RemoveChild(kids[n - 1]);
+			s.dirty = true;
+			s.mode = Mode::kBrowse;
+			SendMsgToChar(fmt::format("&GDeleted&n <{}> (not saved yet).\r\n", name), ch);
+			Render(d);
+		} else {
+			SendMsgToChar("No such child number.\r\n", ch);
+			RenderDeleteChild(d);
+		}
+		return;
+	}
+
 	while (*arg && std::isspace(static_cast<unsigned char>(*arg))) {
 		++arg;
 	}
@@ -648,6 +758,16 @@ void vedun_parse(DescriptorData *d, char *arg) {
 		} else {
 			QuitOrConfirm(d);
 		}
+		return;
+	}
+	if (*arg == 'a' || *arg == 'A') {
+		s.mode = Mode::kAddChild;
+		RenderAddChild(d);
+		return;
+	}
+	if (*arg == 'd' || *arg == 'D') {
+		s.mode = Mode::kDeleteChild;
+		RenderDeleteChild(d);
 		return;
 	}
 	const int n = atoi(arg);

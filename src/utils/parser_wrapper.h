@@ -155,6 +155,18 @@ class DataNode {
 	bool SetValue(const std::string &key, const std::string &value);
 
 	/*
+	 * issue.vedun-editor: append an empty child element with the given tag name to the current
+	 * node (mutates the shared document). Returns the new child, sharing this node's document.
+	 */
+	DataNode AddChild(const std::string &name);
+
+	/*
+	 * issue.vedun-editor: remove the given child element from the current node (mutates the
+	 * shared document). Returns false if it is not a child of this node.
+	 */
+	bool RemoveChild(const DataNode &child);
+
+	/*
 	 * issue.vedun-editor: serialize the whole document to a file (pugixml). Returns false on
 	 * failure. The editor writes to a temp file then renames for an atomic commit.
 	 */

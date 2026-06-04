@@ -80,6 +80,17 @@ bool DataNode::Save(const std::filesystem::path &file) const {
 	return impl_->xml_doc->save_file(file.string().c_str());
 }
 
+DataNode DataNode::AddChild(const std::string &name) {
+	auto node = impl_->curren_xml_node.append_child(name.c_str());
+	DataNode child(*this);                 // copy shares the same xml_doc (shared_ptr)
+	child.impl_->curren_xml_node = node;
+	return child;
+}
+
+bool DataNode::RemoveChild(const DataNode &child) {
+	return impl_->curren_xml_node.remove_child(child.impl_->curren_xml_node);
+}
+
 void DataNode::GoToRadix() {
 	impl_->curren_xml_node = impl_->xml_doc->document_element();
 }
