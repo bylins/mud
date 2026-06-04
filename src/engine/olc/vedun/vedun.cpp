@@ -374,6 +374,24 @@ void ListChildrenFull(DescriptorData *d) {
 	page_string(d, out);
 }
 
+// Page the whole element being edited (e.g. the entire spell) as XML, regardless of how deep the
+// cursor sits in its tree -- it always serialises path.front() (the element root). Read-only. '&' is
+// doubled so the pager's colour processor renders colour / act codes literally instead of eating them.
+void ShowElement(DescriptorData *d) {
+	const auto &s = *d->vedun_session;
+	const std::string xml = s.path.front().ToXmlString();
+	std::string out = fmt::format("&WVedun&n [{}] id=&c{}&n -- full element:\r\n",
+		s.what, s.path.front().GetValue("id"));
+	out.reserve(out.size() + xml.size() + 32);
+	for (const char c : xml) {
+		out += c;
+		if (c == '&') {
+			out += '&';   // pager: && renders one literal '&' (see color.cpp)
+		}
+	}
+	page_string(d, out);
+}
+
 // Validate a typed value against its scheme def before it is written. Returns an error message (shown
 // to the user) when the value violates the field's type / numeric range / enum membership, or empty
 // when acceptable. Untyped fields (no scheme def) accept anything -- the loader still checks structure
@@ -511,7 +529,7 @@ void Render(DescriptorData *d) {
 		table_wrapper::PrintTableToChar(ch, table);
 	}
 	SendMsgToChar("\r\n&WSelect&n a number -- attribute = edit, <tag> = enter.\r\n", ch);
-	SendMsgToChar("&Wl&n) list   &Wa&n) add child   &Wd&n) delete child   &Wm&n) move child   &Ws&n) save   &Wu&n) up   &Wq&n) quit\r\n", ch);
+	SendMsgToChar("&Wl&n) list   &Wp&n) print   &Wa&n) add child   &Wd&n) delete child   &Wm&n) move child   &Ws&n) save   &Wu&n) up   &Wq&n) quit\r\n", ch);
 }
 
 // The safe commit: validate the edited DOM (dry-parse, no swap), then atomically rewrite the file
@@ -856,6 +874,10 @@ void ParseBrowse(DescriptorData *d, char *arg) {
 	}
 	if (*arg == 'l' || *arg == 'L') {
 		ListChildrenFull(d);
+		return;
+	}
+	if (*arg == 'p' || *arg == 'P') {
+		ShowElement(d);
 		return;
 	}
 	const int n = atoi(arg);

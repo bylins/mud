@@ -80,6 +80,12 @@ bool DataNode::Save(const std::filesystem::path &file) const {
 	return impl_->xml_doc->save_file(file.string().c_str());
 }
 
+std::string DataNode::ToXmlString() const {
+	std::ostringstream os;
+	impl_->curren_xml_node.print(os, "  ", pugi::format_default);
+	return os.str();
+}
+
 DataNode DataNode::AddChild(const std::string &name) {
 	auto node = impl_->curren_xml_node.append_child(name.c_str());
 	DataNode child(*this);                 // copy shares the same xml_doc (shared_ptr)

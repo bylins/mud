@@ -180,6 +180,12 @@ class DataNode {
 	 */
 	[[nodiscard]] bool Save(const std::filesystem::path &file) const;
 
+	/*
+	 * issue.vedun-print: serialize this node's element subtree to an XML string (pugixml print),
+	 * for the editor's "show the whole element" command. Read-only.
+	 */
+	[[nodiscard]] std::string ToXmlString() const;
+
  private:
 	struct Impl;
 	std::unique_ptr<Impl> impl_;
