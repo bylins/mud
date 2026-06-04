@@ -441,6 +441,7 @@ main_sources = files(
   'src/gameplay/magic/spells.cpp',
   'src/gameplay/magic/spells_info.cpp',
   'src/gameplay/magic/spell_messages.cpp',
+  'src/gameplay/magic/spell_trace.cpp',
   'src/gameplay/magic/points_intensity.cpp',
   'src/gameplay/magic/magic_temp_spells.cpp',
   'src/gameplay/communication/mail.cpp',

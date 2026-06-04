@@ -14,6 +14,7 @@
 
 #include "magic.h"
 #include "magic_internal.h"
+#include "spell_trace.h"
 
 #include <functional>
 #include <map>
@@ -183,30 +184,12 @@ int CalcSaving(CharData *killer, CharData *victim, ESaving saving, bool need_log
 	}
 	save += round(GetSave(victim, saving) * abilities::kSaveWeight);    // одежда бафы и слава
 	if (need_log) {
-		killer->send_to_TC(false, true, true,
+		spell_trace::Line(killer, victim,
 				"SAVING (%s): Killer==%s  Target==%s vnum==%d Level==%d base_save==%d save_equip==%d save_awake=-%d result_save=%d\r\n",
 				saving_name.find(saving)->second.c_str(),
-				GET_NAME(killer),
-				GET_NAME(victim),
-				GET_MOB_VNUM(victim),
-				GetRealLevel(victim),
-				GetBasicSave(victim, saving, false),
-				GetSave(victim, saving),
-				victim->GetSkill(ESkill::kAwake) / 5,
-				save);
-		if (killer != victim && !victim->IsNpc()) {
-			victim->send_to_TC(false, true, true,
-					"SAVING (%s): Killer==%s  Target==%s vnum==%d Level==%d base_save==%d save_equip==%d save_awake=-%d result_save==%d\r\n",
-					saving_name.find(saving)->second.c_str(),
-					GET_NAME(killer),
-					GET_NAME(victim),
-					GET_MOB_VNUM(killer),
-					GetRealLevel(victim),
-					GetBasicSave(victim, saving, false),
-					GetSave(victim, saving),
-					victim->GetSkill(ESkill::kAwake) / 5,
-					save);
-		}
+				GET_NAME(killer), GET_NAME(victim), GET_MOB_VNUM(victim), GetRealLevel(victim),
+				GetBasicSave(victim, saving, false), GetSave(victim, saving),
+				victim->GetSkill(ESkill::kAwake) / 5, save);
 	}
 	// Throwing a 0 is always a failure.
 	return save;
@@ -232,11 +215,11 @@ int CalcGeneralSaving(CharData *killer, CharData *victim, ESaving type, int ext_
 		save /= 2;
 		sprintf(smallbuf, "Тестовое сообщение: &RПротивник %s (%d), ваш бонус: %d, спас '%s' противника: %d, random -200..200: %d, критудача: ДА, шанс успеха: %2.2f%%.\r\n&n",
 				GET_NAME(victim), GetRealLevel(victim), ext_apply, saving_name.find(type)->second.c_str(), save, rnd, ((std::clamp(save +ext_apply, -200, 200) + 200) / 400.) * 100.);
-		killer->send_to_TC(false, true, true, smallbuf);
+		spell_trace::Line(killer, nullptr, "%s", smallbuf);
 	} else {
 		sprintf(smallbuf, "Тестовое сообщение: Противник %s (%d), ваш бонус: %d, спас '%s' противника: %d, random -200..200: %d, критудача: НЕТ, шанс успеха: %2.2f%%.\r\n",
 				GET_NAME(victim), GetRealLevel(victim), ext_apply, saving_name.find(type)->second.c_str(), save, rnd, ((std::clamp(save +ext_apply, -200, 200) + 200) / 400.) * 100.);
-		killer->send_to_TC(false, true, true, smallbuf);
+		spell_trace::Line(killer, nullptr, "%s", smallbuf);
 	}
 	save += ext_apply;    // внешний модификатор (обычно +каст)
 
@@ -446,13 +429,9 @@ static int CalcTotalSpellDmg(CharData *ch, CharData *victim, ESpell spell_id,
 		int complex_mod = total_dmg;
 		total_dmg = CalcComplexSpellMod(ch, spell_id, GAPPLY_SPELL_EFFECT, total_dmg);
 		complex_mod = total_dmg - complex_mod;
-		ch->send_to_TC(false, true, true,
-				"&CMag.dmg (%s). Base: %2.2f, Skill: %2.2f, Stat: %2.2f, Amount: %2.2f, Bonus: %1.2f, Cmplx: %d, Elem.coeff: %1.2f, Total: %d &n\r\n",
-				GET_NAME(victim), base_dmg, skill_coeff, stat_coeff, dmg, 1 + bonus_mod, complex_mod, elem_coeff, total_dmg);
-
-		victim->send_to_TC(false, true, true,
-				"&CMag.dmg (%s). Base: %2.2f, Skill: %2.2f, Stat: %2.2f, Amount: %2.2f, Bonus: %1.2f, Cmplx: %d, Elem.coeff: %1.2f, Total: %d &n\r\n",
-				GET_NAME(ch), base_dmg, skill_coeff, stat_coeff, dmg, bonus_mod, complex_mod, elem_coeff, total_dmg);
+		spell_trace::Line(ch, victim,
+				"&CMag.dmg (%s -> %s). Base: %2.2f, Skill: %2.2f, Stat: %2.2f, Amount: %2.2f, Bonus: %1.2f, Cmplx: %d, Elem.coeff: %1.2f, Total: %d &n\r\n",
+				GET_NAME(ch), GET_NAME(victim), base_dmg, skill_coeff, stat_coeff, dmg, 1 + bonus_mod, complex_mod, elem_coeff, total_dmg);
 	}
 
 	return total_dmg;
@@ -2062,27 +2041,24 @@ bool DispelSucceeds(CharData *ch, CharData *victim, ESpell dispel_spell, ESpell 
 	//   buff  -- a non-violent dispel of a buff auto-passes (no contest rolled).
 	//   luck  -- the flat 5% auto-success bypassed the contest.
 	//   roll  -- a normal weighted potency contest was rolled.
-	const bool show_debug = ch->IsImmortal() || ch->IsFlagged(EPrf::kTester);
 	auto emit_debug = [&](float spell_pot, const char *kind, bool ok) {
-		char dbuf[256];
-		snprintf(dbuf, sizeof(dbuf),
+		spell_trace::Line(ch, nullptr,
 				 "Unaffect: %s [p: %.1f %s]. Target: %s [p: %.1f]. %s.\r\n",
 				 MUD::Spell(dispel_spell).GetCName(), spell_pot, kind,
 				 MUD::Spell(affect_spell).GetCName(), affect_potency,
 				 ok ? "Success" : "Fail");
-		SendMsgToChar(dbuf, ch);
 	};
 	// Case 3: a non-violent (per-target) dispel removing a buff needs no check.
 	// For an A dispel, the question is whether THIS cast on THIS
 	// victim is aggressive: dispel from an ally hand on an ally buff -> no contest;
 	// dispel from an enemy hand -> potency contest as for any violent dispel.
 	if (!MUD::Spell(dispel_spell).IsViolentAgainst(ch, victim) && !affect_is_debuff) {
-		if (show_debug) emit_debug(0.0f, "buff", true);
+		emit_debug(0.0f, "buff", true);
 		return true;
 	}
 	// Always a 5% chance to remove regardless of potency.
 	if (number(1, 100) <= 5) {
-		if (show_debug) emit_debug(0.0f, "luck", true);
+		emit_debug(0.0f, "luck", true);
 		return true;
 	}
 	const auto &roll = MUD::Spell(dispel_spell).GetPotencyRoll();
@@ -2090,7 +2066,7 @@ bool DispelSucceeds(CharData *ch, CharData *victim, ESpell dispel_spell, ESpell 
 			roll.RollSkillDices() + competence)  // competence base override
 			* potency_weight * static_cast<float>(area_coeff);
 	const bool ok = spell_potency > affect_potency;
-	if (show_debug) emit_debug(spell_potency, "roll", ok);
+	emit_debug(spell_potency, "roll", ok);
 	return ok;
 }
 
@@ -2206,22 +2182,19 @@ bool DispelSucceeds(CharData *ch, RoomData *room, ESpell dispel_spell, ESpell af
 			break;
 		}
 	}
-	const bool show_debug = ch->IsImmortal() || ch->IsFlagged(EPrf::kTester);
 	auto emit_debug = [&](float spell_pot, const char *kind, bool ok) {
-		char dbuf[256];
-		snprintf(dbuf, sizeof(dbuf),
+		spell_trace::Line(ch, nullptr,
 				 "Unaffect: %s [p: %.1f %s]. Target room: %s [p: %.1f]. %s.\r\n",
 				 MUD::Spell(dispel_spell).GetCName(), spell_pot, kind,
 				 MUD::Spell(affect_spell).GetCName(), affect_potency,
 				 ok ? "Success" : "Fail");
-		SendMsgToChar(dbuf, ch);
 	};
 	if (!MUD::Spell(dispel_spell).IsViolent() && !affect_is_debuff) {
-		if (show_debug) emit_debug(0.0f, "buff", true);
+		emit_debug(0.0f, "buff", true);
 		return true;
 	}
 	if (number(1, 100) <= 5) {
-		if (show_debug) emit_debug(0.0f, "luck", true);
+		emit_debug(0.0f, "luck", true);
 		return true;
 	}
 	const auto &roll = MUD::Spell(dispel_spell).GetPotencyRoll();
@@ -2229,7 +2202,7 @@ bool DispelSucceeds(CharData *ch, RoomData *room, ESpell dispel_spell, ESpell af
 			roll.RollSkillDices() + competence)  // competence base override
 			* potency_weight * static_cast<float>(area_coeff);
 	const bool ok = spell_potency > affect_potency;
-	if (show_debug) emit_debug(spell_potency, "roll", ok);
+	emit_debug(spell_potency, "roll", ok);
 	return ok;
 }
 
