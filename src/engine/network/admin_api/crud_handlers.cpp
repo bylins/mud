@@ -1614,7 +1614,7 @@ void HandleAddZoneCommand(DescriptorData* d, int zone_vnum, const char* json_dat
 		zone_table[zrn].cmd = new_cmds;
 
 		// Save to disk
-		zedit_save_to_disk(zrn);
+		world_loader::WorldDataSourceManager::Instance().GetDataSource()->SaveZone(zrn);
 
 		json response;
 		response["status"] = "ok";
@@ -1671,7 +1671,7 @@ void HandleDeleteZoneCommand(DescriptorData* d, int zone_vnum, int cmd_index)
 	}
 
 	// Save to disk
-	zedit_save_to_disk(zrn);
+	world_loader::WorldDataSourceManager::Instance().GetDataSource()->SaveZone(zrn);
 
 	json response;
 	response["status"] = "ok";
