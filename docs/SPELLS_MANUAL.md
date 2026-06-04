@@ -19,7 +19,9 @@ This document focuses strictly on what *you, the designer, can configure*.
 When a player casts a spell, the engine runs the following stages **in this
 order** for each target. Any stage can short-circuit the whole cast.
 
-1. **Cast preconditions** — mana, position, sleeping, fighting, etc.
+1. **Cast preconditions** — mana, position, sleeping, fighting, and the
+   `<components>` gates (verbal → silence, weave → `kNoMagic` room, sight →
+   blindness; §3.9), etc.
 2. **Target & caster gates** (`<target_conditions>` per action;
    `<caster_conditions>` per spell) — data-driven `<blocking>`/`<required>`
    checks. A target gate aborts this target silently (group/mass casts) or with a
@@ -519,24 +521,27 @@ its `<affects>` in the same action. It replaced the old `kMagAlterObjs` flag.
 <components>
     <verbal/>
     <weave/>
+    <sight/>
     <material any_of="1234|5678" cost="1"/>
 </components>
 ```
 
 Optional child of `<spell>`. Each inner tag is a presence-only marker or a
 material-component descriptor; absent `<components>` means "no requirements".
-Three kinds today:
+Four kinds today:
 
 | Tag | Attributes | Effect |
 |---|---|---|
 | `<verbal/>` | none | The cast needs a spoken phrase. `kSilence` on the caster blocks it (silenced casters can still cast non-verbal spells, and `SaySpell` stays silent for them). |
 | `<weave/>` *(issue.weave-component)* | none | Marks the action as "actual magic". A weave spell fizzles in a `kNoMagic` room — emits `kCastForbiddenToChar` / `kCastForbiddenToRoom` exactly like the legacy data-driven `<blocking><room_flags val="kNoMagic"/>` did. Replaces 209 copies of that blocking block — `<weave/>` is now the single source of truth for "is this magic". `<verbal/>` and `<weave/>` are independent (warcries are verbal but **not** weaves). |
+| `<sight/>` *(issue.sight-component)* | none | The cast needs the caster to **see**. A blind caster (`AFF kBlind`) cannot cast it — gets the inline notice `Вы ослеплены!` plus the spell's `kNoeffect` message, and the cast fizzles. Currently on `kRuneLabel` and `kFascination`. This is a **caster-state** gate (blindness), not a room gate. |
 | `<material .../>` | `any_of` / `all_of` / `where` / `cost` | Item-based component. `any_of` / `all_of` are `\|`-separated obj vnum lists. `where` is a `\|`-separated `EFind` list (defaults to `kObjEquip\|kObjInventory\|kObjRoom` — equip first, then inventory, then room). `cost` is the charge consumption (default 1; 0 = presence-only focus; -1 = consumed whole). |
 
 The `MayCastInForbiddenRoom` exemption (greater gods, uncharmed NPCs) bypasses
 both the `<weave/>` gate and the data-driven `<blocking>` room-flag gate
-symmetrically. Per-spell `kCastForbiddenToChar` / `kCastForbiddenToRoom`
-sheaves override the kDefault narration.
+symmetrically. The `<sight/>` gate is a caster-state check (blindness) and is
+**not** subject to that room exemption. Per-spell `kCastForbiddenToChar` /
+`kCastForbiddenToRoom` sheaves override the kDefault narration.
 
 ---
 
@@ -2080,10 +2085,11 @@ third value `A` ("ambiguous") that resolves per-target via
 groupmate / NPC-vs-NPC, fully violent (with full PK liability) on an
 outsider (§3.3, kDispellMagic is the first carrier); a new
 `<components>` block at the `<spell>` level (§3.9) collects
-`<verbal/>` + `<weave/>` + `<material>` requirements, with
+`<verbal/>` + `<weave/>` + `<sight/>` + `<material>` requirements, with
 `<weave/>` now the single source of truth for "is this magic" and
 the canonical `kNoMagic`-room gate (replacing 209 copies of the
-data-driven blocking pattern); caster gating moved to a spell-level
+data-driven blocking pattern), and `<sight/>` blocking a blind caster
+(issue.sight-component); caster gating moved to a spell-level
 `<caster_conditions>` block wrapping the same `<blocking>`/`<required>`
 shape as the target side (§4.3), replacing the old single-tag
 `<caster_blocking>` (so a held or wrong-alignment caster can be locked
