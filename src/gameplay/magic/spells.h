@@ -24,32 +24,6 @@ enum class EStageResult;  // defined in magic.h; manual handlers return it (issu
 
 struct RoomData;    // forward declaration to avoid inclusion of room.hpp and any dependencies of that header.
 
-#define NPC_CALCULATE 0xff << 16
-
-// *** Extra attack bit flags //
-constexpr Bitvector kEafParry = 1 << 0;
-constexpr Bitvector kEafBlock = 1 << 1;
-constexpr Bitvector kEafTouch = 1 << 2;
-//constexpr Bitvector kEafProtect = 1 << 3;
-constexpr Bitvector kEafDodge = 1 << 4;
-constexpr Bitvector kEafHammer = 1 << 5;
-constexpr Bitvector kEafOverwhelm = 1 << 6;
-constexpr Bitvector kEafSlow = 1 << 7;
-constexpr Bitvector kEafPunctual = 1 << 8;
-constexpr Bitvector kEafAwake = 1 << 9;
-constexpr Bitvector kEafFirst = 1 << 10;
-constexpr Bitvector kEafSecond = 1 << 11;
-constexpr Bitvector kEafStand = 1 << 13;
-constexpr Bitvector kEafUsedright = 1 << 14;
-constexpr Bitvector kEafUsedleft = 1 << 15;
-constexpr Bitvector kEafMultyparry = 1 << 16;
-constexpr Bitvector kEafSleep = 1 << 17;
-constexpr Bitvector kEafIronWind = 1 << 18;
-constexpr Bitvector kEafAutoblock = 1 << 19;	// автоматический блок щитом в осторожном стиле
-constexpr Bitvector kEafPoisoned = 1 << 20;		// отравление с пушек раз в раунд
-constexpr Bitvector kEafFirstPoison = 1 << 21;	// отравление цели первый раз за бой
-constexpr Bitvector kEafInvisible = 1 << 22;	// одет автоинвиз
-
 /// Flags for ingredient items (kMagicIngredient)
 enum EIngredientFlag {
 	kItemRunes = 1 << 0,
@@ -64,25 +38,8 @@ EIngredientFlag ITEM_BY_NAME<EIngredientFlag>(const std::string &name);
 template<>
 const std::string &NAME_BY_ITEM<EIngredientFlag>(const EIngredientFlag item);
 
-constexpr Bitvector kMiLag1S = 1 << 0;
-constexpr Bitvector kMiLag2S = 1 << 1;
-constexpr Bitvector kMiLag4S = 1 << 2;
-constexpr Bitvector kMiLag8S = 1 << 3;
-constexpr Bitvector kMiLag16S = 1 << 4;
-constexpr Bitvector kMiLag32S = 1 << 5;
-constexpr Bitvector kMiLag64S = 1 << 6;
-constexpr Bitvector kMiLag128S = 1 << 7;
-constexpr Bitvector kMiLevel1 = 1 << 8;
-constexpr Bitvector kMiLevel2 = 1 << 9;
-constexpr Bitvector kMiLevel4 = 1 << 10;
-constexpr Bitvector kMiLevel8 = 1 << 11;
-constexpr Bitvector kMiLevel16 = 1 << 12;
-constexpr Bitvector kMiLevel32 = 1 << 13;
-
 // Бывшие kTypeHit/kTypeMagic/kType*-константы удалены (issue #3316): источник боевого
 // урона теперь типизирован через fight::EDamageSource, выбор сообщения - по типу.
-
-#define MANUAL_SPELL(spellname)    spellname(level, caster, cvict, ovict);
 
 void SpellInformation(int level, CharData *ch, CharData *victim, ObjData *obj);
 void SpellEnchantWeapon(int level, CharData *ch, CharData *victim, ObjData *obj);
@@ -98,7 +55,6 @@ extern char cast_argument[];
 // basic magic calling functions
 
 ESpell FixNameAndFindSpellId(char *name);
-
 
 // other prototypes //
 bool CanGetSpell(CharData *ch, ESpell spell_id);

@@ -412,6 +412,37 @@ constexpr Bitvector kMtypeAggressive = 1 << 1;
 // возращает текст выводимый при спадении скила
 std::string GetAffExpiredText(ESpell spell_id);
 
+
+// Extra-attack bit flags (combat; stored in CharData::battle_affects).
+enum EExtraAttackFlag : Bitvector {
+	kEafParry = 1 << 0,
+	kEafBlock = 1 << 1,
+	kEafTouch = 1 << 2,
+	// kEafProtect = 1 << 3,  // unused
+	kEafDodge = 1 << 4,
+	kEafHammer = 1 << 5,
+	kEafOverwhelm = 1 << 6,
+	kEafSlow = 1 << 7,
+	kEafPunctual = 1 << 8,
+	kEafAwake = 1 << 9,
+	kEafFirst = 1 << 10,
+	kEafSecond = 1 << 11,
+	kEafStand = 1 << 13,
+	kEafUsedright = 1 << 14,
+	kEafUsedleft = 1 << 15,
+	kEafMultyparry = 1 << 16,
+	kEafSleep = 1 << 17,
+	kEafIronWind = 1 << 18,
+	kEafAutoblock = 1 << 19,	// автоматический блок щитом в осторожном стиле
+	kEafPoisoned = 1 << 20,		// отравление с пушек раз в раунд
+	kEafFirstPoison = 1 << 21,	// отравление цели первый раз за бой
+	kEafInvisible = 1 << 22,	// одет автоинвиз
+};
+
+// Spell-flag mask: the 8 "NPC casting calculation" bits (issue.spellhandlers: was the
+// `#define NPC_CALCULATE 0xff << 16` magic number).
+constexpr Bitvector NPC_CALCULATE = 0xff << 16;
+
 #endif //BYLINS_SRC_GAME_MAGIC_SPELLS_CONSTANTS_H_
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

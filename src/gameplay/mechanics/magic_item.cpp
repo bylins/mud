@@ -31,6 +31,22 @@ extern int top_imtypes;
 // vnum -> times-used, for the rune-usage reporting below.
 static std::map<int /* vnum */, int /* count */> rune_list;
 
+// magic-item lag/level requirement flags (used only by mag_item_ok).
+constexpr Bitvector kMiLag1S = 1 << 0;
+constexpr Bitvector kMiLag2S = 1 << 1;
+constexpr Bitvector kMiLag4S = 1 << 2;
+constexpr Bitvector kMiLag8S = 1 << 3;
+constexpr Bitvector kMiLag16S = 1 << 4;
+constexpr Bitvector kMiLag32S = 1 << 5;
+constexpr Bitvector kMiLag64S = 1 << 6;
+constexpr Bitvector kMiLag128S = 1 << 7;
+constexpr Bitvector kMiLevel1 = 1 << 8;
+constexpr Bitvector kMiLevel2 = 1 << 9;
+constexpr Bitvector kMiLevel4 = 1 << 10;
+constexpr Bitvector kMiLevel8 = 1 << 11;
+constexpr Bitvector kMiLevel16 = 1 << 12;
+constexpr Bitvector kMiLevel32 = 1 << 13;
+
 static void AddRuneStats(CharData *ch, int vnum, int spelltype) {
 	if (ch->IsNpc() || ESpellType::kRunes != spelltype) {
 		return;
