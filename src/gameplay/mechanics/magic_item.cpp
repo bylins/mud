@@ -25,6 +25,42 @@
 #include <sstream>
 #include <cmath>
 
+typedef std::map<EIngredientFlag, std::string> EIngredientFlag_name_by_value_t;
+typedef std::map<const std::string, EIngredientFlag> EIngredientFlag_value_by_name_t;
+EIngredientFlag_name_by_value_t EIngredientFlag_name_by_value;
+EIngredientFlag_value_by_name_t EIngredientFlag_value_by_name;
+
+void init_EIngredientFlag_ITEM_NAMES() {
+	EIngredientFlag_name_by_value.clear();
+	EIngredientFlag_value_by_name.clear();
+
+	EIngredientFlag_name_by_value[EIngredientFlag::kItemRunes] = "kItemRunes";
+	EIngredientFlag_name_by_value[EIngredientFlag::kItemCheckUses] = "kItemCheckUses";
+	EIngredientFlag_name_by_value[EIngredientFlag::kItemCheckLag] = "kItemCheckLag";
+	EIngredientFlag_name_by_value[EIngredientFlag::kItemCheckLevel] = "kItemCheckLevel";
+	EIngredientFlag_name_by_value[EIngredientFlag::kItemDecayEmpty] = "kItemDecayEmpty";
+
+	for (const auto &i : EIngredientFlag_name_by_value) {
+		EIngredientFlag_value_by_name[i.second] = i.first;
+	}
+}
+
+template<>
+EIngredientFlag ITEM_BY_NAME(const std::string &name) {
+	if (EIngredientFlag_name_by_value.empty()) {
+		init_EIngredientFlag_ITEM_NAMES();
+	}
+	return EIngredientFlag_value_by_name.at(name);
+}
+
+template<>
+const std::string &NAME_BY_ITEM<EIngredientFlag>(const EIngredientFlag item) {
+	if (EIngredientFlag_name_by_value.empty()) {
+		init_EIngredientFlag_ITEM_NAMES();
+	}
+	return EIngredientFlag_name_by_value.at(item);
+}
+
 extern im_type *imtypes;
 extern int top_imtypes;
 

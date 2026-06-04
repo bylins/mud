@@ -24,20 +24,6 @@ enum class EStageResult;  // defined in magic.h; manual handlers return it (issu
 
 struct RoomData;    // forward declaration to avoid inclusion of room.hpp and any dependencies of that header.
 
-/// Flags for ingredient items (kMagicIngredient)
-enum EIngredientFlag {
-	kItemRunes = 1 << 0,
-	kItemCheckUses = 1 << 1,
-	kItemCheckLag = 1 << 2,
-	kItemCheckLevel = 1 << 3,
-	kItemDecayEmpty = 1 << 4
-};
-
-template<>
-EIngredientFlag ITEM_BY_NAME<EIngredientFlag>(const std::string &name);
-template<>
-const std::string &NAME_BY_ITEM<EIngredientFlag>(const EIngredientFlag item);
-
 // Бывшие kTypeHit/kTypeMagic/kType*-константы удалены (issue #3316): источник боевого
 // урона теперь типизирован через fight::EDamageSource, выбор сообщения - по типу.
 

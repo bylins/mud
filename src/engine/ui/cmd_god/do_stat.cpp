@@ -1,4 +1,5 @@
 #include "do_stat.h"
+#include "gameplay/mechanics/magic_item.h"
 #include "gameplay/fight/fight_messages.h"
 
 #include "administration/ban.h"

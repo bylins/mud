@@ -4,6 +4,7 @@
 */
 
 #include "gameplay/mechanics/identify.h"
+#include "gameplay/mechanics/magic_item.h"
 #include "gameplay/magic/spells.h"
 #include "gameplay/magic/magic.h"
 #include "gameplay/magic/magic_internal.h"

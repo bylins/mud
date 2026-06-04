@@ -136,43 +136,6 @@ bool CanGetSpell(CharData *ch, ESpell spell_id) {
 	return true;
 };
 
-typedef std::map<EIngredientFlag, std::string> EIngredientFlag_name_by_value_t;
-typedef std::map<const std::string, EIngredientFlag> EIngredientFlag_value_by_name_t;
-EIngredientFlag_name_by_value_t EIngredientFlag_name_by_value;
-EIngredientFlag_value_by_name_t EIngredientFlag_value_by_name;
-
-void init_EIngredientFlag_ITEM_NAMES() {
-	EIngredientFlag_name_by_value.clear();
-	EIngredientFlag_value_by_name.clear();
-
-	EIngredientFlag_name_by_value[EIngredientFlag::kItemRunes] = "kItemRunes";
-	EIngredientFlag_name_by_value[EIngredientFlag::kItemCheckUses] = "kItemCheckUses";
-	EIngredientFlag_name_by_value[EIngredientFlag::kItemCheckLag] = "kItemCheckLag";
-	EIngredientFlag_name_by_value[EIngredientFlag::kItemCheckLevel] = "kItemCheckLevel";
-	EIngredientFlag_name_by_value[EIngredientFlag::kItemDecayEmpty] = "kItemDecayEmpty";
-
-	for (const auto &i : EIngredientFlag_name_by_value) {
-		EIngredientFlag_value_by_name[i.second] = i.first;
-	}
-}
-
-template<>
-EIngredientFlag ITEM_BY_NAME(const std::string &name) {
-	if (EIngredientFlag_name_by_value.empty()) {
-		init_EIngredientFlag_ITEM_NAMES();
-	}
-	return EIngredientFlag_value_by_name.at(name);
-}
-
-template<>
-const std::string &NAME_BY_ITEM<EIngredientFlag>(const EIngredientFlag item) {
-	if (EIngredientFlag_name_by_value.empty()) {
-		init_EIngredientFlag_ITEM_NAMES();
-	}
-	return EIngredientFlag_name_by_value.at(item);
-}
-
-
 // Look up kSummonFail in `spell_id`'s sheaf (per-spell override on each summon-
 // style spell, with kDefault random-variant fallback) and emit to the caster.
 /*
@@ -184,9 +147,7 @@ const std::string &NAME_BY_ITEM<EIngredientFlag>(const EIngredientFlag item) {
 // Поиск комнаты для перемещающего заклинания
 // ch - кого перемещают, rnum_start - первая комната диапазона, rnum_stop - последняя комната диапазона
 
-
 // ПРЫЖОК в рамках зоны
-
 
 void CheckAutoNosummon(CharData *ch) {
 	if (ch->IsFlagged(EPrf::kAutonosummon) && ch->IsFlagged(EPrf::KSummonable)) {
@@ -195,18 +156,15 @@ void CheckAutoNosummon(CharData *ch) {
 	}
 }
 
-
 // pk_unique: when non-zero, marks this portal as a PK-revenge/fight pentagram and
 // carries the imposing caster's uid. Replaces the old RoomData::pkPenterUnique
 // (which was per-room, ambiguous when multiple pentas land in one room, and had
 // to be cleared by hand). Read by show_room_affects (Pk variant selection) and
 // do_enter (entry gate); cleared automatically when the affect expires.
 
-
 // Per-type detail block of MortShowObjValues. Pulled out so the parent
 // stays under the 200-line ceiling and the type-specific rendering can be
 // read without scrolling past the shared header / footer code.
-
 
 /*
  *  mag_materials:
@@ -216,6 +174,5 @@ void CheckAutoNosummon(CharData *ch) {
  * it to implement your own spells which require ingredients (i.e., some
  * heal spell which requires a rare herb or some such.)
  */
-
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

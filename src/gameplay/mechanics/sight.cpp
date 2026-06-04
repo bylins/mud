@@ -6,6 +6,7 @@
 */
 
 #include "sight.h"
+#include "gameplay/mechanics/magic_item.h"
 
 #include "engine/entities/char_data.h"
 #include "engine/entities/obj_data.h"
