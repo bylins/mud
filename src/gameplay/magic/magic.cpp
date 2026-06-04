@@ -13,6 +13,7 @@
 ************************************************************************ */
 
 #include "magic.h"
+#include "gameplay/mechanics/resist.h"
 #include "magic_internal.h"
 #include "spell_trace.h"
 #include "gameplay/affects/affect_contants.h"  // NAME_BY_ITEM<EApply>

@@ -68,8 +68,5 @@ int ComputeApplyModifier(const talents_actions::TalentAffect::Apply &apply, doub
 int CalcCastSuccess(CharData *ch, CharData *victim, ESaving saving, ESpell spell_id);
 
 // Resistance calculate //
-int ApplyResist(CharData *ch, EResist resist_type, int value);
-EResist GetResisTypeWithElement(EElement element);
-EResist GetResistType(ESpell spell_id);
 
 #endif // SPELL_PARSER_HPP_

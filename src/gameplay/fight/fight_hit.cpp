@@ -1,4 +1,5 @@
 #include "fight_hit.h"
+#include "gameplay/mechanics/resist.h"
 
 #include "engine/observability/event_sink.h"
 #include "engine/ui/color.h"

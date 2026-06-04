@@ -7,6 +7,7 @@
 */
 
 #include "damage.h"
+#include "gameplay/mechanics/resist.h"
 
 #include <fmt/format.h>
 

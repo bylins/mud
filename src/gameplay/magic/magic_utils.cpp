@@ -902,34 +902,4 @@ int CalcCastSuccess(CharData *ch, CharData *victim, ESaving saving, ESpell spell
 	return (prob > number(0, 100));
 }
 
-EResist GetResisTypeWithElement(EElement element) {
-	switch (element) {
-		case EElement::kFire: return EResist::kFire;
-		case EElement::kDark: return EResist::kDark;
-		case EElement::kAir: return EResist::kAir;
-		case EElement::kWater: return EResist::kWater;
-		case EElement::kEarth: return EResist::kEarth;
-		case EElement::kLight: return EResist::kVitality;
-		case EElement::kMind: return EResist::kMind;
-		case EElement::kLife: return EResist::kImmunity;
-		default: return EResist::kVitality;
-	}
-};
-
-EResist GetResistType(ESpell spell_id) {
-	return GetResisTypeWithElement(MUD::Spell(spell_id).GetElement());
-}
-
-int ApplyResist(CharData *ch, EResist resist_type, int value) {
-	int resistance = GET_RESIST(ch, resist_type);
-	if (resistance <= 0) {
-		return value - resistance * value / 100;
-	}
-	if (!ch->IsNpc()) {
-		resistance = std::min(kMaxPcResist, resistance);
-	}
-	auto result = static_cast<int>(value - (resistance + number(0, resistance)) * value / 200.0);
-	return std::max(0, result);
-}
-
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

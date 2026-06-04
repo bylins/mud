@@ -7,6 +7,7 @@
 */
 
 #include "punctual_style.h"
+#include "gameplay/mechanics/resist.h"
 
 #include "engine/entities/obj_data.h"
 #include "engine/entities/char_data.h"

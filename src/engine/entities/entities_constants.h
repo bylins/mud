@@ -122,32 +122,7 @@ const std::map<ESaving, std::string> &NAMES_OF<ESaving>();  // issue.vedun-edito
  */
 enum class EAlign { kAny, kGood, kEvil, kNeutral };
 
-/**
- * Magic damage resistance types.
- */
-enum EResist {
-	kFire = 0,
-	kAir,
-	kWater,
-	kEarth,
-	kVitality,
-	kMind,
-	kImmunity,
-	kDark,
-	kFirstResist = kFire,
-	kLastResist = kDark
-};
-
-EResist& operator++(EResist &r);
-
-template<>
-const std::string &NAME_BY_ITEM<EResist>(EResist item);
-template<>
-EResist ITEM_BY_NAME<EResist>(const std::string &name);
-template<>
-const std::map<EResist, std::string> &NAMES_OF<EResist>();  // issue.vedun-editor
-
-const int kMaxPcResist = 75;
+#include "gameplay/mechanics/resist.h"
 
 enum class EWhereObj : int {
 	kNowhere = 0,
