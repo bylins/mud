@@ -37,6 +37,36 @@ const TagDef *CurrentTagDef(const Session &s) {
 	return s.scheme.FindTag(s.path.back().GetName(), ParentTagName(s));
 }
 
+// One editable attribute row: present on the node, or scheme-declared but not yet set (offered so it
+// can be added). `def` is the scheme def (may be null for an untyped present attr).
+struct AttrRow {
+	std::string name;
+	std::string value;
+	bool present{false};
+	const AttrDef *def{nullptr};
+};
+
+// The current node's editable attributes: those present (document order), then any scheme-declared
+// attributes still absent (so a missing field like reposition/stop_fight or material/any_of can be
+// added). Render and the number dispatch share this so the numbering matches.
+std::vector<AttrRow> AttrRows(const Session &s) {
+	const TagDef *td = CurrentTagDef(s);
+	std::vector<AttrRow> rows;
+	std::set<std::string> seen;
+	for (const auto &[name, value] : s.path.back().Attributes()) {
+		rows.push_back({name, value, true, td ? td->FindAttr(name) : nullptr});
+		seen.insert(name);
+	}
+	if (td != nullptr) {
+		for (const auto &ad : td->attrs) {
+			if (seen.find(ad.name) == seen.end()) {
+				rows.push_back({ad.name, "", false, &ad});
+			}
+		}
+	}
+	return rows;
+}
+
 // Collect a node's child tags into an indexable vector (the menu order shown to the user).
 std::vector<parser_wrapper::DataNode> ChildrenOf(parser_wrapper::DataNode node) {
 	std::vector<parser_wrapper::DataNode> kids;
@@ -233,9 +263,9 @@ void RenderAddChild(DescriptorData *d) {
 		table_wrapper::DecorateNoBorderTable(ch, table);
 		StyleColumns(table);
 		table_wrapper::PrintTableToChar(ch, table);
-		SendMsgToChar("\r\nType a number, or a tag name to add.  &Wc&n) cancel\r\n", ch);
+		SendMsgToChar("\r\nType a number (or the tag name) to add it.  &Wc&n) cancel\r\n", ch);
 	} else {
-		SendMsgToChar("(the scheme lists no children here -- type a tag name to add)  &Wc&n) cancel\r\n", ch);
+		SendMsgToChar("(the scheme declares no children for this tag -- nothing can be added here)  &Wc&n) cancel\r\n", ch);
 	}
 }
 
@@ -358,6 +388,13 @@ std::string ValidateValue(const AttrDef *ad, const std::string &value) {
 			}
 			break;
 		}
+		case FieldType::kBool: {
+			static const std::set<std::string> ok = {"true", "false", "Y", "N", "y", "n", "1", "0"};
+			if (ok.find(value) == ok.end()) {
+				return "expected true/false (or Y/N)";
+			}
+			break;
+		}
 		default:
 			break;
 	}
@@ -381,14 +418,15 @@ void Render(DescriptorData *d) {
 		tag_desc.empty() ? std::string{} : "  -- " + tag_desc), ch);
 
 	std::size_t index = 0;
-	const auto attrs = cur.Attributes();
-	if (!attrs.empty()) {
+	const auto rows = AttrRows(s);
+	if (!rows.empty()) {
 		table_wrapper::Table table;
-		for (const auto &[name, value] : attrs) {
+		for (const auto &row : rows) {
 			++index;
-			const AttrDef *ad = tagdef ? tagdef->FindAttr(name) : nullptr;
-			table << fmt::format("{})", index) << name << value << AttrHint(ad, value)
-				  << (ad ? ad->desc : "") << table_wrapper::kEndRow;
+			table << fmt::format("{})", index) << row.name
+				  << (row.present ? row.value : "(unset)")
+				  << AttrHint(row.def, row.value)
+				  << (row.def ? row.def->desc : "") << table_wrapper::kEndRow;
 		}
 		table_wrapper::DecorateNoBorderTable(ch, table);
 		StyleColumns(table);
@@ -713,7 +751,8 @@ void vedun_parse(DescriptorData *d, char *arg) {
 		return;
 	}
 
-	// Add-child menu: a number picks a scheme-allowed child tag; a bare token is taken as a tag name.
+	// Add-child menu: only scheme-declared children may be added (by number or exact name), so no
+	// arbitrary/invalid tag can be created. If the scheme declares no children here, nothing is added.
 	if (s.mode == Mode::kAddChild) {
 		while (*arg == ' ') {
 			++arg;
@@ -728,19 +767,29 @@ void vedun_parse(DescriptorData *d, char *arg) {
 			Render(d);
 			return;
 		}
-		std::string tag;
 		const TagDef *td = CurrentTagDef(s);
-		if (td && !td->children.empty() && token.find_first_not_of("0123456789") == std::string::npos) {
+		if (td == nullptr || td->children.empty()) {
+			s.mode = Mode::kBrowse;
+			SendMsgToChar("&RNothing can be added here&n -- the scheme declares no children for this tag.\r\n", ch);
+			Render(d);
+			return;
+		}
+		std::string tag;
+		if (token.find_first_not_of("0123456789") == std::string::npos) {
 			const std::size_t pick = static_cast<std::size_t>(atoi(token.c_str()));
 			if (pick >= 1 && pick <= td->children.size()) {
 				tag = td->children[pick - 1];
 			}
+		} else {
+			for (const auto &c : td->children) {
+				if (c == token) {
+					tag = c;
+					break;
+				}
+			}
 		}
 		if (tag.empty()) {
-			tag = token;   // a free-text tag name (the loader still validates structure on save)
-		}
-		if (tag.find_first_of(" \t<>/") != std::string::npos) {
-			SendMsgToChar("&RNot a valid tag name.&n\r\n", ch);
+			SendMsgToChar(fmt::format("&R'{}' is not an allowed child here.&n Pick from the list.\r\n", token), ch);
 			RenderAddChild(d);
 			return;
 		}
@@ -863,27 +912,27 @@ void vedun_parse(DescriptorData *d, char *arg) {
 	}
 	const int n = atoi(arg);
 	if (n >= 1) {
-		const auto attrs = s.path.back().Attributes();
-		const int num_attrs = static_cast<int>(attrs.size());
+		const auto rows = AttrRows(s);
+		const int num_attrs = static_cast<int>(rows.size());
 		if (n <= num_attrs) {
-			const std::string &name = attrs[n - 1].first;
-			const TagDef *td = CurrentTagDef(s);
-			const AttrDef *ad = td ? td->FindAttr(name) : nullptr;
+			const AttrRow &row = rows[n - 1];
+			const std::string &name = row.name;
+			const AttrDef *ad = row.def;
 			if (ad && ad->readonly) {
 				SendMsgToChar(fmt::format("Vedun: '{}' is read-only.\r\n", name), ch);
 				Render(d);
 				return;
 			}
-			// Flag-set attribute: open the [*] toggle editor.
+			// Flag-set attribute: open the [*] toggle editor (empty start when the attr is unset).
 			if (ad && ad->type == FieldType::kFlagset && EnumRegistry::Instance().Known(ad->enum_type)) {
 				s.mode = Mode::kEditFlagset;
 				s.edit_attr = name;
 				s.edit_enum = ad->enum_type;
-				s.flag_set = ParsePipeSet(attrs[n - 1].second);
+				s.flag_set = ParsePipeSet(row.value);
 				RenderFlagEditor(d);
 				return;
 			}
-			// Scalar / single-enum attribute.
+			// Scalar / single-enum / list attribute. Entering a value creates the attribute if unset.
 			s.mode = Mode::kEditAttr;
 			s.edit_attr = name;
 			s.edit_enum.clear();
@@ -892,9 +941,11 @@ void vedun_parse(DescriptorData *d, char *arg) {
 				s.edit_enum = ad->enum_type;
 			} else if (ad && ad->type == FieldType::kList && EnumRegistry::Instance().Known(ad->enum_type)) {
 				ShowEnumChoices(ch, ad->enum_type, false);   // reference list ('|'-separated; '*' = any)
+			} else if (ad && ad->type == FieldType::kBool) {
+				SendMsgToChar("&c(boolean: true / false)&n\r\n", ch);
 			}
 			SendMsgToChar(fmt::format("New value for &g{}&n [{}] ('.' or blank cancels):\r\n",
-				name, attrs[n - 1].second), ch);
+				name, row.present ? row.value : "unset"), ch);
 			return;
 		}
 		const auto kids = ChildrenOf(s.path.back());

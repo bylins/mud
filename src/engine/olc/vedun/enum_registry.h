@@ -39,6 +39,18 @@ class EnumRegistry {
 		registry_[type_name] = std::move(members);
 	}
 
+	// Register an enum by an explicit list of member names, for enums parsed via inline strcmp that
+	// have no NAMES_OF map (e.g. EActionTarget / EActionBase / EAlign). Values are synthetic indices --
+	// the editor's pick-lists and validation key on the names, which are what land in the XML.
+	void RegisterNames(const std::string &type_name, const std::vector<std::string> &names) {
+		std::vector<EnumMember> members;
+		long index = 0;
+		for (const auto &name : names) {
+			members.push_back({name, index++});
+		}
+		registry_[type_name] = std::move(members);
+	}
+
 	[[nodiscard]] bool Known(const std::string &type_name) const;
 	// Members of a registered enum (in value order), or nullptr if the type name is unknown.
 	[[nodiscard]] const std::vector<EnumMember> *Members(const std::string &type_name) const;

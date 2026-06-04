@@ -67,6 +67,12 @@ void RegisterEditorEnums() {
 	registry.Register<EResist>("EResist");
 	registry.Register<EAffect>("EAffect");
 	registry.Register<EApply>("EApply");
+	// Inline-strcmp enums (no NAMES_OF map) registered by explicit name list -- keep in sync with
+	// the parser in talents_actions.cpp (Actions::ParseAction / the align reader).
+	registry.RegisterNames("EActionTarget", {"kTarFightSelf", "kTarFightVict", "kTarGroup", "kTarFoes",
+		"kTarRandomFoe", "kTarRandomAlly", "kTarMinions", "kTarSame", "kTarRoomThis"});
+	registry.RegisterNames("EActionBase", {"kDamage", "kPoints", "kAffects", "kDispelled", "kCompetence"});
+	registry.RegisterNames("EAlign", {"kGood", "kEvil", "kNeutral"});
 }
 
 } // namespace vedun

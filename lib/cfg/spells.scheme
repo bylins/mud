@@ -108,16 +108,38 @@
 	</tag>
 
 	<tag name="action" desc="One cast action">
-		<attr name="target" type="flagset" enum="ETarget" desc="Target selector for this action"/>
-		<attr name="base" type="string" desc="Base action category (e.g. kDamage)"/>
+		<attr name="target" type="enum" enum="EActionTarget" desc="Per-action target selector (default kTarSame)"/>
+		<attr name="base" type="enum" enum="EActionBase" desc="Formula base (default kCompetence)"/>
+		<attr name="reset" type="bool" desc="Reset the roll for this action"/>
 		<child tag="affects"/>
 		<child tag="unaffect"/>
 		<child tag="damage"/>
 		<child tag="points"/>
-		<child tag="blocking"/>
-		<child tag="required"/>
+		<child tag="target_conditions"/>
 		<child tag="reflection"/>
 		<child tag="caster_blocking"/>
+	</tag>
+
+	<tag name="target_conditions" desc="Gates on the target before this action fires">
+		<child tag="blocking"/>
+		<child tag="required"/>
+	</tag>
+
+	<tag name="caster_conditions" desc="Gates on the caster before the spell fires">
+		<child tag="blocking"/>
+		<child tag="required"/>
+	</tag>
+
+	<!-- Condition flag-tags. align is typed (EAlign registered by name); room_flags / mob_flags stay
+	     untyped until ERoomFlag / EMobFlag get value->name maps (separate task). -->
+	<tag name="align" desc="Alignment gate">
+		<attr name="val" type="enum" enum="EAlign" desc="kGood / kEvil / kNeutral"/>
+	</tag>
+	<tag name="room_flags" desc="Room-flag gate">
+		<attr name="val" type="string" desc="ERoomFlag token(s), '|'-separated"/>
+	</tag>
+	<tag name="mob_flags" desc="Mob-flag gate (NPC targets)">
+		<attr name="val" type="string" desc="EMobFlag token(s), '|'-separated"/>
 	</tag>
 
 	<tag name="damage" desc="Deal damage to the target">
