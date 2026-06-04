@@ -18,7 +18,6 @@
 #include "gameplay/affects/affect_contants.h"  // NAME_BY_ITEM<EApply>
 #include "gameplay/handlers/spell_handlers.h"
 #include "gameplay/mechanics/summon.h"
-#include "gameplay/mechanics/charm.h"
 
 #include <functional>
 #include <map>

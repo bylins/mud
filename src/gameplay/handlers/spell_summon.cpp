@@ -4,7 +4,7 @@
 */
 
 #include "gameplay/handlers/spell_handlers.h"
-#include "gameplay/mechanics/charm.h"
+#include "gameplay/mechanics/minions.h"
 #include "engine/entities/char_data.h"
 #include "engine/core/comm.h"
 #include "engine/db/global_objects.h"

@@ -481,7 +481,6 @@ main_sources = files(
   'src/gameplay/handlers/spell_mental_shadow.cpp',
   'src/gameplay/mechanics/summon.cpp',
   'src/gameplay/mechanics/portal.cpp',
-  'src/gameplay/mechanics/charm.cpp',
   'src/gameplay/mechanics/identify.cpp',
   'src/gameplay/mechanics/magic_item.cpp',
   'src/gameplay/magic/points_intensity.cpp',

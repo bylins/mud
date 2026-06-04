@@ -8,7 +8,7 @@
 #include "engine/core/handler.h"
 #include "engine/db/db.h"
 #include "gameplay/mechanics/summon.h"
-#include "gameplay/mechanics/charm.h"
+#include "gameplay/mechanics/minions.h"
 #include "utils/utils.h"
 #include <cstdio>
 

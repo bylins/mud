@@ -17,6 +17,10 @@ float CalcEffectiveWis(CharData *ch, ESpell spell_id);
 float get_effective_int(CharData *ch);
 int CalcCharmPoint(CharData *ch, ESpell spell_id);
 void ClearMinionTalents(CharData *ch);
+float CalcDamagePerRound(CharData *victim);
+int GetReformedCharmiceHp(CharData *ch, CharData *victim, ESpell spell_id);
+// Can `ch` take on `victim` as another charmed follower for `spell_id`? (was mechanics/charm.)
+int CheckCharmices(CharData *ch, CharData *victim, ESpell spell_id);
 
 #endif //BYLINS_SRC_GAMEPLAY_MECHANICS_MINIONS_H_
 
