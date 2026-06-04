@@ -254,11 +254,22 @@ void RenderAddChild(DescriptorData *d) {
 	const TagDef *td = CurrentTagDef(s);
 	SendMsgToChar(fmt::format("&WAdd child to&n &c<{}>&n:\r\n", parent), ch);
 	if (td && !td->children.empty()) {
+		std::set<std::string> have;
+		for (auto &c : ChildrenOf(s.path.back())) {
+			have.insert(c.GetName());
+		}
 		table_wrapper::Table table;
 		for (std::size_t i = 0; i < td->children.size(); ++i) {
-			const TagDef *kd = s.scheme.FindTag(td->children[i], parent);
-			table << fmt::format("{})", i + 1) << fmt::format("<{}>", td->children[i])
-				  << (kd ? kd->desc : "") << table_wrapper::kEndRow;
+			const ChildDef &cd = td->children[i];
+			const TagDef *kd = s.scheme.FindTag(cd.tag, parent);
+			std::string note = kd ? kd->desc : "";
+			if (cd.multiple) {
+				note += "  (repeatable)";
+			} else if (have.count(cd.tag)) {
+				note += "  (already present)";
+			}
+			table << fmt::format("{})", i + 1) << fmt::format("<{}>", cd.tag)
+				  << note << table_wrapper::kEndRow;
 		}
 		table_wrapper::DecorateNoBorderTable(ch, table);
 		StyleColumns(table);
@@ -774,29 +785,35 @@ void vedun_parse(DescriptorData *d, char *arg) {
 			Render(d);
 			return;
 		}
-		std::string tag;
+		const ChildDef *picked = nullptr;
 		if (token.find_first_not_of("0123456789") == std::string::npos) {
 			const std::size_t pick = static_cast<std::size_t>(atoi(token.c_str()));
 			if (pick >= 1 && pick <= td->children.size()) {
-				tag = td->children[pick - 1];
+				picked = &td->children[pick - 1];
 			}
 		} else {
-			for (const auto &c : td->children) {
-				if (c == token) {
-					tag = c;
-					break;
-				}
-			}
+			picked = td->FindChild(token);
 		}
-		if (tag.empty()) {
+		if (picked == nullptr) {
 			SendMsgToChar(fmt::format("&R'{}' is not an allowed child here.&n Pick from the list.\r\n", token), ch);
 			RenderAddChild(d);
 			return;
 		}
-		s.path.back().AddChild(tag);
+		// Cardinality: a non-repeatable child may appear only once.
+		if (!picked->multiple) {
+			for (auto &c : ChildrenOf(s.path.back())) {
+				if (picked->tag == c.GetName()) {
+					SendMsgToChar(fmt::format("&R<{}> may appear only once here and is already present.&n\r\n",
+						picked->tag), ch);
+					RenderAddChild(d);
+					return;
+				}
+			}
+		}
+		s.path.back().AddChild(picked->tag);
 		s.dirty = true;
 		s.mode = Mode::kBrowse;
-		SendMsgToChar(fmt::format("&GAdded&n <{}> (not saved yet).\r\n", tag), ch);
+		SendMsgToChar(fmt::format("&GAdded&n <{}> (not saved yet).\r\n", picked->tag), ch);
 		Render(d);
 		return;
 	}

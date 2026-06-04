@@ -55,13 +55,21 @@ struct AttrDef {
 	std::string desc;
 };
 
+// An allowed child of a tag. `multiple` lets it appear more than once (default: at most one, so the
+// editor refuses adding a second).
+struct ChildDef {
+	std::string tag;
+	bool multiple{false};
+};
+
 struct TagDef {
 	std::string name;
 	std::string parent;   // optional: scopes this def to a parent tag (tag names repeat across contexts)
 	std::string desc;
 	std::vector<AttrDef> attrs;
-	std::vector<std::string> children;   // allowed child tag names
+	std::vector<ChildDef> children;   // allowed child tags (+ cardinality)
 	[[nodiscard]] const AttrDef *FindAttr(const std::string &attr) const;
+	[[nodiscard]] const ChildDef *FindChild(const std::string &tag) const;
 };
 
 class Scheme {

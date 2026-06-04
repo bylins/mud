@@ -46,6 +46,15 @@ const AttrDef *TagDef::FindAttr(const std::string &attr) const {
 	return nullptr;
 }
 
+const ChildDef *TagDef::FindChild(const std::string &tag) const {
+	for (const auto &c : children) {
+		if (c.tag == tag) {
+			return &c;
+		}
+	}
+	return nullptr;
+}
+
 const TagDef *Scheme::FindTag(const std::string &tag) const {
 	const auto it = tags_.find(tag);
 	return it == tags_.end() ? nullptr : &it->second;
@@ -111,7 +120,10 @@ TagDef ParseTag(parser_wrapper::DataNode &node) {
 		if (kind == "attr") {
 			tag.attrs.push_back(ParseAttr(child));
 		} else if (kind == "child") {
-			tag.children.emplace_back(child.GetValue("tag"));
+			ChildDef cd;
+			cd.tag = child.GetValue("tag");
+			cd.multiple = ReadBool(child.GetValue("multiple"));
+			tag.children.push_back(cd);
 		}
 	}
 	return tag;

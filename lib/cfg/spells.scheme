@@ -65,7 +65,7 @@
 	<tag name="components" desc="Casting components">
 		<child tag="verbal"/>
 		<child tag="weave"/>
-		<child tag="material"/>
+		<child tag="material" multiple="Y"/>
 	</tag>
 	<tag name="verbal" desc="Requires speech (presence-only marker)"/>
 	<tag name="weave" desc="Actual magic; blocked in no-magic rooms (presence-only marker)"/>
@@ -104,17 +104,17 @@
 	</tag>
 
 	<tag name="talent_actions" desc="Ordered list of cast actions">
-		<child tag="action"/>
+		<child tag="action" multiple="Y"/>
 	</tag>
 
 	<tag name="action" desc="One cast action">
 		<attr name="target" type="enum" enum="EActionTarget" desc="Per-action target selector (default kTarSame)"/>
 		<attr name="base" type="enum" enum="EActionBase" desc="Formula base (default kCompetence)"/>
 		<attr name="reset" type="bool" desc="Reset the roll for this action"/>
-		<child tag="affects"/>
-		<child tag="unaffect"/>
-		<child tag="damage"/>
-		<child tag="points"/>
+		<child tag="affects" multiple="Y"/>
+		<child tag="unaffect" multiple="Y"/>
+		<child tag="damage" multiple="Y"/>
+		<child tag="points" multiple="Y"/>
 		<child tag="target_conditions"/>
 		<child tag="reflection"/>
 		<child tag="caster_blocking"/>
@@ -206,11 +206,11 @@
 		<attr name="resist" type="enum" enum="EResist" desc="Resistance type that mitigates it"/>
 		<attr name="prob" type="int" min="0" max="100" desc="Chance to impose (percent)"/>
 		<attr name="potency_weight" type="double" min="0" desc="Caster potency multiplier"/>
-		<attr name="tick_spell" type="enum" enum="ESpell" desc="Per-tick spell effect (optional)"/>
-		<attr name="tick_handler" type="string" desc="Per-tick code handler name (optional)"/>
+		<attr name="tick_spell" type="enum" enum="ESpell" desc="Per-tick spell effect for a room affect (optional)"/>
+		<attr name="tick_handler" type="string" desc="Per-tick code handler name for a room affect (optional)"/>
 		<child tag="duration"/>
 		<child tag="flags"/>
-		<child tag="apply"/>
+		<child tag="apply" multiple="Y"/>
 		<child tag="lag"/>
 		<child tag="reposition"/>
 	</tag>
