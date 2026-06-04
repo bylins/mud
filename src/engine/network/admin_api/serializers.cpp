@@ -194,6 +194,7 @@ json SerializeObject(const CObjectPrototype& obj, int vnum)
 	obj_data["description"] = Koi8rToUtf8(obj.get_description());
 	obj_data["action_desc"] = Koi8rToUtf8(obj.get_action_description());
 	obj_data["type"] = static_cast<int>(obj.get_type());
+	obj_data["spec_param"] = obj.get_spec_param();   // symmetry: ParseObjectUpdate reads it
 
 	// Extra flags (4 planes)
 	obj_data["extra_flags"] = json::array();

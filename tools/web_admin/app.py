@@ -500,6 +500,151 @@ def api_zone(vnum):
     return jsonify(mud.get_zone(vnum))
 
 
+# ===== WORLD-BUILDING API (programmatic zone construction) =====
+# These JSON endpoints let a client build a whole zone over HTTP: create
+# rooms/mobs/objects/triggers, manage zone reset commands, and trigger a repop.
+# Each create endpoint accepts the entity "data" object as the JSON body and
+# forwards it to the Admin API socket via mud_client.
+
+def _json_body():
+    """Return the request JSON body or (None, error_response)."""
+    data = request.get_json(silent=True)
+    if data is None:
+        return None, (jsonify({'status': 'error', 'error': 'No JSON data received'}), 400)
+    return data, None
+
+
+@app.route('/api/zones/<int:zone>/rooms', methods=['POST'])
+@login_required
+def api_create_room(zone):
+    """Create a room in the zone. Body = room data object."""
+    data, err = _json_body()
+    if err:
+        return err
+    return jsonify(get_mud_client().create_room(zone, data))
+
+
+@app.route('/api/zones/<int:zone>/mobs', methods=['POST'])
+@login_required
+def api_create_mob(zone):
+    """Create a mob in the zone. Body = mob data object."""
+    data, err = _json_body()
+    if err:
+        return err
+    return jsonify(get_mud_client().create_mob(zone, data))
+
+
+@app.route('/api/zones/<int:zone>/objects', methods=['POST'])
+@login_required
+def api_create_object(zone):
+    """Create an object in the zone. Body = object data object."""
+    data, err = _json_body()
+    if err:
+        return err
+    return jsonify(get_mud_client().create_object(zone, data))
+
+
+@app.route('/api/zones/<int:zone>/triggers', methods=['POST'])
+@login_required
+def api_create_trigger(zone):
+    """Create a DG-script trigger in the zone. Body = trigger data object."""
+    data, err = _json_body()
+    if err:
+        return err
+    return jsonify(get_mud_client().create_trigger(zone, data))
+
+
+@app.route('/api/zones/<int:zone>/commands', methods=['GET'])
+@login_required
+def api_list_zone_commands(zone):
+    """List the zone's reset commands."""
+    return jsonify(get_mud_client().list_zone_commands(zone))
+
+
+@app.route('/api/zones/<int:zone>/commands', methods=['POST'])
+@login_required
+def api_add_zone_command(zone):
+    """Append a reset command. Body = {command, mob_vnum, room_vnum, ...}."""
+    data, err = _json_body()
+    if err:
+        return err
+    return jsonify(get_mud_client().add_zone_command(zone, data))
+
+
+@app.route('/api/zones/<int:zone>/commands/<int:index>', methods=['DELETE'])
+@login_required
+def api_delete_zone_command(zone, index):
+    """Delete a reset command by its index."""
+    return jsonify(get_mud_client().delete_zone_command(zone, index))
+
+
+@app.route('/api/zones/<int:zone>/reset', methods=['POST'])
+@login_required
+def api_reset_zone(zone):
+    """Force an immediate reset (repop) of the zone."""
+    return jsonify(get_mud_client().reset_zone(zone))
+
+
+@app.route('/api/rooms/<int:vnum>', methods=['DELETE'])
+@login_required
+def api_delete_room(vnum):
+    """Delete a room by vnum."""
+    return jsonify(get_mud_client().delete_room(vnum))
+
+
+@app.route('/api/mobs/<int:vnum>', methods=['DELETE'])
+@login_required
+def api_delete_mob(vnum):
+    """Delete a mob prototype by vnum."""
+    return jsonify(get_mud_client().delete_mob(vnum))
+
+
+@app.route('/api/objects/<int:vnum>', methods=['DELETE'])
+@login_required
+def api_delete_object(vnum):
+    """Delete an object prototype by vnum."""
+    return jsonify(get_mud_client().delete_object(vnum))
+
+
+@app.route('/api/triggers/<int:vnum>', methods=['DELETE'])
+@login_required
+def api_delete_trigger(vnum):
+    """Delete a trigger by vnum."""
+    return jsonify(get_mud_client().delete_trigger(vnum))
+
+
+# Symmetric JSON read of individual entities (mirror the update/create payloads).
+# Previously only HTML edit forms (/room, /object, ...) existed; a programmatic
+# client could write but not read entities back as JSON. GET coexists with the
+# DELETE routes above on the same paths (different HTTP methods).
+@app.route('/api/rooms/<int:vnum>')
+@login_required
+def api_room(vnum):
+    """API: Get room details (full, symmetric with /room/<v>/update)"""
+    return jsonify(get_mud_client().get_room(vnum))
+
+
+@app.route('/api/objects/<int:vnum>')
+@login_required
+def api_object(vnum):
+    """API: Get object details (full, symmetric with /object/<v>/update)"""
+    return jsonify(get_mud_client().get_object(vnum))
+
+
+@app.route('/api/mobs/<int:vnum>')
+@login_required
+def api_mob(vnum):
+    """API: Get mob details (full, symmetric with /mob/<v>/update)"""
+    return jsonify(get_mud_client().get_mob(vnum))
+
+
+@app.route('/api/triggers/<int:vnum>')
+@login_required
+def api_trigger(vnum):
+    """API: Get trigger details (full, symmetric with /trigger/<v>/update)"""
+    return jsonify(get_mud_client().get_trigger(vnum))
+
+
 # ===== API ENDPOINTS FOR AUTOCOMPLETE =====
 
 @app.route('/api/search/mobs')
