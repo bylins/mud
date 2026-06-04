@@ -43,6 +43,7 @@
 #include "handler.h"
 #include "gameplay/clans/house.h"
 #include "engine/olc/olc.h"
+#include "engine/olc/vedun/vedun.h"
 #include "administration/ban.h"
 #include "administration/proxy.h"
 #include "gameplay/economics/exchange.h"
