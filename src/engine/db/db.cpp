@@ -1,4 +1,5 @@
 #include <filesystem>
+#include "gameplay/mechanics/portal.h"
 
 #include "third_party_libs/pugixml/pugixml.h"
 

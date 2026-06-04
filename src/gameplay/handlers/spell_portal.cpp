@@ -4,6 +4,7 @@
 */
 
 #include "gameplay/handlers/spell_handlers.h"
+#include "gameplay/mechanics/portal.h"
 #include "gameplay/magic/spells.h"
 #include "gameplay/magic/magic.h"
 #include "gameplay/magic/magic_internal.h"

@@ -201,43 +201,6 @@ void CheckAutoNosummon(CharData *ch) {
 // (which was per-room, ambiguous when multiple pentas land in one room, and had
 // to be cleared by hand). Read by show_room_affects (Pk variant selection) and
 // do_enter (entry gate); cleared automatically when the affect expires.
-void AddPortalTimer(CharData *ch, RoomData *from_room, RoomRnum to_room, int time,
-					long pk_unique) {
-
-	Affect<room_spells::ERoomApply> af;
-	af.type = ESpell::kPortalTimer;
-	af.affect_type = static_cast<room_spells::ERoomAffect>(0);
-	af.duration = time; //раз в 2 секунды
-	af.modifier = to_room;
-	af.battleflag = 0;
-	af.location = room_spells::ERoomApply::kNone;
-	af.caster_id = ch? ch->get_uid() : 0;
-	af.apply_time = 0;
-	af.pk_unique = pk_unique;
-	room_spells::affect_to_room(from_room, af);
-	room_spells::AddRoomToAffected(from_room);
-}
-
-void RemovePortalGate(RoomRnum rnum) {
-	auto aff = room_spells::FindAffect(world[rnum], ESpell::kPortalTimer);
-	const RoomRnum to_room = (*aff)->modifier;
-	// kPortal sheaf kCustomMsgThree holds "Пентаграмма была
-	// разрушена." -- emitted to both char and room of each affected portal endpoint.
-	const auto &broken_msg = MUD::SpellMessages().GetMessage(
-			ESpell::kPortal, ESpellMsg::kCustomMsgThree);
-
-	if (aff != world[rnum]->affected.end()) {
-		room_spells::RoomRemoveAffect(world[rnum], aff);
-		act(broken_msg.c_str(), false, world[rnum]->first_character(), 0, 0, kToRoom);
-		act(broken_msg.c_str(), false, world[rnum]->first_character(), 0, 0, kToChar);
-	}
-	aff = room_spells::FindAffect(world[to_room], ESpell::kPortalTimer);
-	if (aff != world[to_room]->affected.end()) {
-		room_spells::RoomRemoveAffect(world[to_room], aff);
-		act(broken_msg.c_str(), false, world[to_room]->first_character(), 0, 0, kToRoom);
-		act(broken_msg.c_str(), false, world[to_room]->first_character(), 0, 0, kToChar);
-	}
-}
 
 
 bool CatchBloodyCorpse(ObjData *l) {

@@ -88,10 +88,8 @@ void SpellInformation(int level, CharData *ch, CharData *victim, ObjData *obj);
 void SpellEnchantWeapon(int level, CharData *ch, CharData *victim, ObjData *obj);
 void SpellForbidden(int level, CharData *ch, CharData *victim, ObjData *obj);
 void SkillIdentify(int level, CharData *ch, CharData *victim, ObjData *obj);
-void RemovePortalGate(RoomRnum rnum);
 // issue.spellhandlers: helpers used by the extracted manual handlers (defs stay in spells.cpp).
 void CheckAutoNosummon(CharData *ch);
-void AddPortalTimer(CharData *ch, RoomData *from_room, RoomRnum to_room, int time, long pk_unique = 0);
 int CheckCharmices(CharData *ch, CharData *victim, ESpell spell_id);
 void SetPrecipitations(int *wtype, int startvalue, int chance1, int chance2, int chance3);
 int CalcAntiSavings(CharData *ch);
