@@ -41,6 +41,11 @@ struct Session {
 	std::set<std::string> flag_set;                // selected members while editing a flag-set
 	parser_wrapper::DataNode move_node;            // the child being repositioned (kMoveChild)
 	bool dirty{false};                             // unsaved edits in the DOM
+	std::string lock_key;                          // the held per-file edit lock (empty = none)
+
+	Session() = default;
+	// Releases the per-file edit lock (RAII): fires on quit, disconnect, or session replacement.
+	~Session();
 };
 
 // The `vedun [what] [element]` command (implementor-only). The listing forms (no args / what only)

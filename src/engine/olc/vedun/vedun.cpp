@@ -21,10 +21,21 @@
 #include <cctype>
 #include <filesystem>
 #include <system_error>
+#include <map>
 
 namespace vedun {
 
 namespace {
+
+// issue: prevent two implementors from clobbering the same data file. A Vedun session loads and
+// rewrites the WHOLE file (any element's edit re-saves the entire file), so concurrent editing of
+// any element of the same file races -- last save wins. We therefore lock at file granularity:
+// one active editor per data file. The lock is released by Session's destructor (RAII), so a quit,
+// a disconnect, or a session replacement all free it. Maps file path -> current editor's name.
+std::map<std::string, std::string> &EditLocks() {
+	static std::map<std::string, std::string> locks;
+	return locks;
+}
 
 std::vector<parser_wrapper::DataNode> ChildrenOf(parser_wrapper::DataNode node);   // defined below
 
@@ -929,6 +940,13 @@ void ParseBrowse(DescriptorData *d, char *arg) {
 
 } // namespace
 
+// RAII release of the per-file edit lock (see EditLocks): runs on quit, disconnect, or replacement.
+Session::~Session() {
+	if (!lock_key.empty()) {
+		EditLocks().erase(lock_key);
+	}
+}
+
 void do_vedun(CharData *ch, char *argument, int /*cmd*/, int /*subcmd*/) {
 	auto *d = ch->desc;
 	if (!d) {
@@ -1031,14 +1049,23 @@ void do_vedun(CharData *ch, char *argument, int /*cmd*/, int /*subcmd*/) {
 			resolved_id, entry->what), ch);
 		return;
 	}
+	// Refuse if another implementor already holds this file's edit lock (whole-file save races).
+	const std::string lock_key = entry->file.string();
+	if (const auto it = EditLocks().find(lock_key); it != EditLocks().end()) {
+		SendMsgToChar(fmt::format("Vedun: '{}' is being edited by {} right now -- try again later.\r\n",
+			entry->what, it->second), ch);
+		return;
+	}
 	auto session = std::make_shared<Session>();
 	session->what = entry->what;
+	session->lock_key = lock_key;
 	session->file = entry->file;
 	session->loader = entry->loader;
 	session->doc = std::move(doc);
 	session->path.push_back(found);
 	session->scheme = std::move(scheme);
 	d->vedun_session = std::move(session);
+	EditLocks()[lock_key] = GET_NAME(ch);
 	d->state = EConState::kVedun;
 	Render(d);
 }
