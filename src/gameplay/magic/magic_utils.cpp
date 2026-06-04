@@ -38,24 +38,6 @@ char cast_argument[kMaxInputLength];
 
 extern int what_sky;
 
-
-int MagusCastRequiredLevel(const CharData *ch, ESpell spell_id) {
-	int required_level;
-	// Read from the new rune_spells registry.
-	const auto &runes = MUD::RuneSpells();
-	if (auto it = runes.find(spell_id); it != runes.end()) {
-		required_level = it->second.min_caster_level;
-	} else {
-		return 999;
-	}
-	if (required_level >= kLvlGod)
-		return required_level;
-	if (CanUseFeat(ch, EFeat::kSecretRunes)) {
-		required_level -= GetRealRemort(ch)/ MUD::Class(ch->GetClass()).GetSpellLvlDecrement();
-	}
-	return std::max(1, required_level);
-}
-
 // True if `ch`'s race counts as "verbal": the cast is narrated as articulated speech
 // (PC always, plus the five humanoid NPC races that historically had their own narration
 // set). Non-humanoid NPC races default to "sound" -- a single collapsed narration line.

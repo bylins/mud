@@ -21,6 +21,7 @@
 #include "gameplay/mechanics/sight.h"
 #include "gameplay/mechanics/minions.h"
 #include "utils/logger.h"
+#include "gameplay/abilities/feats.h"   // CanUseFeat
 #include <map>
 #include <sstream>
 #include <cmath>
@@ -466,6 +467,23 @@ void print_rune_log() {
 			 iend = rune_list.end(); i != iend; ++i) {
 		log("RuneUsed: %d %d", i->first, i->second);
 	}
+}
+
+int MagusCastRequiredLevel(const CharData *ch, ESpell spell_id) {
+	int required_level;
+	// Read from the new rune_spells registry.
+	const auto &runes = MUD::RuneSpells();
+	if (auto it = runes.find(spell_id); it != runes.end()) {
+		required_level = it->second.min_caster_level;
+	} else {
+		return 999;
+	}
+	if (required_level >= kLvlGod)
+		return required_level;
+	if (CanUseFeat(ch, EFeat::kSecretRunes)) {
+		required_level -= GetRealRemort(ch)/ MUD::Class(ch->GetClass()).GetSpellLvlDecrement();
+	}
+	return std::max(1, required_level);
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

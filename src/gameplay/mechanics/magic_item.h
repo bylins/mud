@@ -18,6 +18,8 @@ int CheckRecipeValues(CharData *ch, ESpell spell_id, ESpellType spell_type, int 
 int CheckRecipeItems(CharData *ch, ESpell spell_id, ESpellType spell_type, int extract, CharData *tch = nullptr);
 void print_rune_stats(CharData *ch);
 void print_rune_log();
+// Min caster level for a rune spell (rune/magic-item system); 999 if not a rune spell.
+int MagusCastRequiredLevel(const CharData *ch, ESpell spell_id);
 
 /// Flags for ingredient items (kMagicIngredient)
 enum EIngredientFlag {

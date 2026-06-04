@@ -66,7 +66,6 @@ int ComputeApplyModifier(const talents_actions::TalentAffect::Apply &apply, doub
 						 const RollResult &potency);
 
 int CalcCastSuccess(CharData *ch, CharData *victim, ESaving saving, ESpell spell_id);
-int MagusCastRequiredLevel(const CharData *ch, ESpell spell_id);
 
 // Resistance calculate //
 int ApplyResist(CharData *ch, EResist resist_type, int value);

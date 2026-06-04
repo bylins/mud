@@ -6,6 +6,7 @@
 */
 
 #include "mem_queue.h"
+#include "gameplay/mechanics/magic_item.h"
 
 #include "engine/ui/color.h"
 #include "engine/entities/char_data.h"
