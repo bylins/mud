@@ -16,6 +16,7 @@
 #include "magic_internal.h"
 #include "spell_trace.h"
 #include "gameplay/affects/affect_contants.h"  // NAME_BY_ITEM<EApply>
+#include "gameplay/handlers/spell_handlers.h"
 
 #include <functional>
 #include <map>
@@ -2406,47 +2407,7 @@ EStageResult CastUnaffects(CastContext &ctx) {
 // (a held magical symbol in MAGIC1/2/3_ENCHANT_VNUM containers), set the obj's enchant, and
 // silently emit kEnchantSetItem when the item is part of a set. Caller is responsible for the
 // (ch, obj) null guard.
-static const char *EnchantWeapon(CharData *ch, ObjData *obj, ESpell spell_id) {
-	// Either already enchanted or not a weapon.
-	if (obj->get_type() != EObjType::kWeapon) {
-		return MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kEnchantNotWeapon).c_str();
-	}
-	if (obj->has_flag(EObjFlag::kMagic)) {
-		return MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kEnchantMagic).c_str();
-	}
-	if (obj->has_flag(EObjFlag::kSetItem)) {
-		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kEnchantSetItem) + "\r\n", ch);
-		return nullptr;
-	}
 
-	auto reagobj = GET_EQ(ch, EEquipPos::kHold);
-	if (reagobj
-		&& (GetObjByVnumInContent(GlobalDrop::MAGIC1_ENCHANT_VNUM, reagobj)
-			|| GetObjByVnumInContent(GlobalDrop::MAGIC2_ENCHANT_VNUM, reagobj)
-			|| GetObjByVnumInContent(GlobalDrop::MAGIC3_ENCHANT_VNUM, reagobj))) {
-		// у нас имеется доп символ для зачарования
-		obj->set_enchant(ch->GetSkill(ESkill::kLightMagic), reagobj);
-		// kEnchantWeapon's magical-symbol consumption now flows through the
-		// data-driven <components><material> path, so nothing more is needed
-		// here other than the enchant being recorded above.
-		// declared on kEnchantWeapon in spells.xml. Return value (kBreak when
-		// the inventory ingredient is absent) is intentionally ignored at this
-		// point: the enchant has already landed via set_enchant above, so the
-		// "missing" message simply reports the post-hoc shortage to the player
-		// without rolling back -- same UX as the bool overload's old branch
-		// where the held slot was empty.
-		ProcessMatComponents(ch, ch, spell_id);
-	} else {
-		obj->set_enchant(ch->GetSkill(ESkill::kLightMagic));
-	}
-	if (GET_RELIGION(ch) == kReligionMono) {
-		return MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kEnchantMono).c_str();
-	}
-	if (GET_RELIGION(ch) == kReligionPoly) {
-		return MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kEnchantPoly).c_str();
-	}
-	return MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kEnchantOther).c_str();
-}
 
 // When `obj` is null but `victim` isn't, pick a random item from the victim's equipment/
 // inventory. If neither obj nor victim is given there is nothing to act on -- the function
@@ -2455,194 +2416,29 @@ static const char *EnchantWeapon(CharData *ch, ObjData *obj, ESpell spell_id) {
 // CastToAlterObjs switch). Each runs on ctx.ovict (resolved + kNoalter-guarded by the skeleton),
 // does its OWN messaging, and returns kSuccess when it acted (or chose to stay silent) / kFail to
 // ask the skeleton for the generic "no effect" line.
-static EStageResult AlterMsg(CastContext &ctx, ESpellMsg key) {
+namespace handlers {
+EStageResult AlterMsg(CastContext &ctx, ESpellMsg key) {
 	act(MUD::SpellMessages().GetMessage(ctx.spell_id(), key).c_str(), true, ctx.caster(), ctx.ovict, nullptr, kToChar);
 	return EStageResult::kSuccess;
 }
+}  // namespace handlers
 
-static EStageResult AlterBless(CastContext &ctx) {
-	CharData *ch = ctx.caster();
-	ObjData *obj = ctx.ovict;
-	if (!obj->has_flag(EObjFlag::kBless) && (obj->get_weight() <= 5 * GetRealLevel(ch))) {
-		obj->set_extra_flag(EObjFlag::kBless);
-		if (obj->has_flag(EObjFlag::kNodrop)) {
-			obj->unset_extraflag(EObjFlag::kNodrop);
-			if (obj->get_type() == EObjType::kWeapon) {
-				obj->inc_val(2);
-			}
-		}
-		obj->add_maximum(std::max(obj->get_maximum_durability() >> 2, 1));
-		obj->set_current_durability(obj->get_maximum_durability());
-		obj->add_timed_spell(ESpell::kBless, -1);
-		return AlterMsg(ctx, ESpellMsg::kAlterObjToChar);
-	}
-	return EStageResult::kFail;
-}
-
-static EStageResult AlterCurse(CastContext &ctx) {
-	ObjData *obj = ctx.ovict;
-	if (!obj->has_flag(EObjFlag::kNodrop)) {
-		obj->set_extra_flag(EObjFlag::kNodrop);
-		if (obj->get_type() == EObjType::kWeapon) {
-			if (GET_OBJ_VAL(obj, 2) > 0) {
-				obj->dec_val(2);
-			}
-		} else if (ObjSystem::is_armor_type(obj)) {
-			if (GET_OBJ_VAL(obj, 0) > 0) {
-				obj->dec_val(0);
-			}
-			if (GET_OBJ_VAL(obj, 1) > 0) {
-				obj->dec_val(1);
-			}
-		}
-		return AlterMsg(ctx, ESpellMsg::kAlterObjToChar);
-	}
-	return EStageResult::kFail;
-}
-
-static EStageResult AlterInvisible(CastContext &ctx) {
-	ObjData *obj = ctx.ovict;
-	if (!obj->has_flag(EObjFlag::kNoinvis) && !obj->has_flag(EObjFlag::kInvisible)) {
-		obj->set_extra_flag(EObjFlag::kInvisible);
-		return AlterMsg(ctx, ESpellMsg::kAlterObjToChar);
-	}
-	return EStageResult::kFail;
-}
-
-static EStageResult AlterPoison(CastContext &ctx) {
-	ObjData *obj = ctx.ovict;
-	if (!GET_OBJ_VAL(obj, 3) && (obj->get_type() == EObjType::kLiquidContainer
-			|| obj->get_type() == EObjType::kFountain || obj->get_type() == EObjType::kFood)) {
-		obj->set_val(3, 1);
-		return AlterMsg(ctx, ESpellMsg::kAlterObjToChar);
-	}
-	return EStageResult::kFail;
-}
-
-static EStageResult AlterRemoveCurse(CastContext &ctx) {
-	ObjData *obj = ctx.ovict;
-	if (obj->has_flag(EObjFlag::kNodrop)) {
-		obj->unset_extraflag(EObjFlag::kNodrop);
-		if (obj->get_type() == EObjType::kWeapon) {
-			obj->inc_val(2);
-		}
-		return AlterMsg(ctx, ESpellMsg::kAlterObjToChar);
-	}
-	return EStageResult::kFail;
-}
-
-static EStageResult AlterEnchantWeapon(CastContext &ctx) {
-	CharData *ch = ctx.caster();
-	if (ch == nullptr) {
-		return EStageResult::kSuccess;
-	}
-	const char *msg = EnchantWeapon(ch, ctx.ovict, ctx.spell_id());
-	if (msg == nullptr) {
-		return EStageResult::kFail;
-	}
-	act(msg, true, ch, ctx.ovict, nullptr, kToChar);
-	return EStageResult::kSuccess;
-}
-
-static EStageResult AlterRemovePoison(CastContext &ctx) {
-	ObjData *obj = ctx.ovict;
-	if (obj->get_rnum() < 0) {
-		char message[100];
-		sprintf(message, "неизвестный прототип объекта : %s (VNUM=%d)", obj->get_PName(ECase::kNom).c_str(), obj->get_vnum());
-		mudlog(message, BRF, kLvlBuilder, SYSLOG, 1);
-		return AlterMsg(ctx, ESpellMsg::kRemovePoisonUnknown);
-	}
-	if (obj_proto[obj->get_rnum()]->get_val(3) > 1 && GET_OBJ_VAL(obj, 3) == 1) {
-		return AlterMsg(ctx, ESpellMsg::kRemovePoisonRotten);
-	}
-	if ((GET_OBJ_VAL(obj, 3) == 1) && (obj->get_type() == EObjType::kLiquidContainer
-			|| obj->get_type() == EObjType::kFountain || obj->get_type() == EObjType::kFood)) {
-		obj->set_val(3, 0);
-		return AlterMsg(ctx, ESpellMsg::kAlterObjToChar);
-	}
-	return EStageResult::kFail;
-}
-
-static EStageResult AlterFly(CastContext &ctx) {
-	ObjData *obj = ctx.ovict;
-	obj->add_timed_spell(ESpell::kFly, -1);
-	obj->set_extra_flag(EObjFlag::kFlying);
-	return AlterMsg(ctx, ESpellMsg::kAlterObjToChar);
-}
-
-static EStageResult AlterAcid(CastContext &ctx) {
-	CharData *ch = ctx.caster();
-	CharData *victim = ctx.cvict;
-	ObjData *obj = ctx.ovict;
-	const ESpell spell_id = ctx.spell_id();
-	CharData *recipient = victim ? victim : ch;
-	act(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kAcidCorrodeObj).c_str(),
-		false, recipient, obj, nullptr, kToChar);
-	DamageObj(obj, number(GetRealLevel(ch) * 2, GetRealLevel(ch) * 4), 100);
-	return EStageResult::kSuccess;
-}
-
-static EStageResult AlterRepair(CastContext &ctx) {
-	ctx.ovict->set_current_durability(ctx.ovict->get_maximum_durability());
-	return AlterMsg(ctx, ESpellMsg::kAlterObjToChar);
-}
-
-static EStageResult AlterTimerRestore(CastContext &ctx) {
-	CharData *ch = ctx.caster();
-	ObjData *obj = ctx.ovict;
-	if (obj->get_rnum() != kNothing) {
-		obj->set_current_durability(obj->get_maximum_durability());
-		obj->set_timer(obj_proto.at(obj->get_rnum())->get_timer());
-		log("%s used magic repair", GET_NAME(ch));
-		return AlterMsg(ctx, ESpellMsg::kAlterObjToChar);
-	}
-	return EStageResult::kSuccess;  // rnum==kNothing: silent no-op (matches old early return)
-}
-
-static EStageResult AlterRestoration(CastContext &ctx) {
-	ObjData *obj = ctx.ovict;
-	if (obj->has_flag(EObjFlag::kMagic) && (obj->get_rnum() != kNothing)) {
-		if (obj_proto.at(obj->get_rnum())->has_flag(EObjFlag::kMagic)) {
-			return EStageResult::kSuccess;
-		}
-		obj->unset_enchant();
-	} else {
-		return EStageResult::kSuccess;
-	}
-	return AlterMsg(ctx, ESpellMsg::kAlterObjToChar);
-}
-
-static EStageResult AlterLight(CastContext &ctx) {
-	ObjData *obj = ctx.ovict;
-	obj->add_timed_spell(ESpell::kLight, -1);
-	obj->set_extra_flag(EObjFlag::kGlow);
-	return AlterMsg(ctx, ESpellMsg::kAlterObjToChar);
-}
-
-static EStageResult AlterDarkness(CastContext &ctx) {
-	ObjData *obj = ctx.ovict;
-	if (obj->timed_spell().check_spell(ESpell::kLight)) {
-		obj->del_timed_spell(ESpell::kLight, true);
-		return EStageResult::kSuccess;  // silent (matches old early return)
-	}
-	return EStageResult::kFail;
-}
 
 static const std::map<std::string, std::function<EStageResult(CastContext &)>> kAlterObjHandlers = {
-	{"AlterBless", AlterBless},
-	{"AlterCurse", AlterCurse},
-	{"AlterInvisible", AlterInvisible},
-	{"AlterPoison", AlterPoison},
-	{"AlterRemoveCurse", AlterRemoveCurse},
-	{"AlterEnchantWeapon", AlterEnchantWeapon},
-	{"AlterRemovePoison", AlterRemovePoison},
-	{"AlterFly", AlterFly},
-	{"AlterAcid", AlterAcid},
-	{"AlterRepair", AlterRepair},
-	{"AlterTimerRestore", AlterTimerRestore},
-	{"AlterRestoration", AlterRestoration},
-	{"AlterLight", AlterLight},
-	{"AlterDarkness", AlterDarkness},
+	{"AlterBless", handlers::AlterBless},
+	{"AlterCurse", handlers::AlterCurse},
+	{"AlterInvisible", handlers::AlterInvisible},
+	{"AlterPoison", handlers::AlterPoison},
+	{"AlterRemoveCurse", handlers::AlterRemoveCurse},
+	{"AlterEnchantWeapon", handlers::AlterEnchantWeapon},
+	{"AlterRemovePoison", handlers::AlterRemovePoison},
+	{"AlterFly", handlers::AlterFly},
+	{"AlterAcid", handlers::AlterAcid},
+	{"AlterRepair", handlers::AlterRepair},
+	{"AlterTimerRestore", handlers::AlterTimerRestore},
+	{"AlterRestoration", handlers::AlterRestoration},
+	{"AlterLight", handlers::AlterLight},
+	{"AlterDarkness", handlers::AlterDarkness},
 };
 
 // Data-driven object transform (issue.obj-casting): resolve the target object (an explicit ovict,
