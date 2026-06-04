@@ -194,7 +194,6 @@ const int kMaxSpellAffects = 16; // change it if you need more
 bool IsRoomForbidden(RoomData *room);
 void mobile_affect_update();
 void player_affect_update();
-void print_rune_log();
 void ShowAffExpiredMsg(ESpell aff_type, CharData *ch);
 
 // Outcome of a whole cast (the CallMagic / CastSpell / CastToSingleTarget chain).

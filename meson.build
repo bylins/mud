@@ -483,6 +483,7 @@ main_sources = files(
   'src/gameplay/mechanics/portal.cpp',
   'src/gameplay/mechanics/charm.cpp',
   'src/gameplay/mechanics/identify.cpp',
+  'src/gameplay/mechanics/magic_item.cpp',
   'src/gameplay/magic/points_intensity.cpp',
   'src/gameplay/magic/magic_temp_spells.cpp',
   'src/gameplay/communication/mail.cpp',

@@ -1,4 +1,5 @@
 #include "do_mixture.h"
+#include "gameplay/mechanics/magic_item.h"
 
 #include <string>
 

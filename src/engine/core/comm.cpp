@@ -28,6 +28,7 @@
  */
 
 #include "engine/core/sysdep_net.h"
+#include "gameplay/mechanics/magic_item.h"
 
 #include "comm.h"
 
