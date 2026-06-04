@@ -347,6 +347,33 @@ void RenderMoveChild(DescriptorData *d) {
 	}
 }
 
+// Page the current node's children as a flat "number) key: value" list -- the full overview of a
+// sheaf's messages (or any node's children) without descending into each one. The number shown is the
+// browse selection number, so the user can type it directly afterwards. Read-only.
+void ListChildrenFull(DescriptorData *d) {
+	auto *ch = d->character.get();
+	const auto &s = *d->vedun_session;
+	const auto kids = ChildrenOf(s.path.back());
+	if (kids.empty()) {
+		SendMsgToChar("(no entries to list)\r\n", ch);
+		return;
+	}
+	const int base = static_cast<int>(AttrRows(s).size());   // children are numbered after the attrs
+	std::string out = fmt::format("&WVedun&n [{}] &c<{}>&n -- {} entries:\r\n",
+		s.what, s.path.back().GetName(), kids.size());
+	for (std::size_t i = 0; i < kids.size(); ++i) {
+		std::string key = kids[i].GetValue("type");
+		if (key.empty()) {
+			key = kids[i].GetValue("id");
+		}
+		if (key.empty()) {
+			key = kids[i].GetName();
+		}
+		out += fmt::format("&g{}&n) &c{}&n: {}\r\n", base + static_cast<int>(i) + 1, key, kids[i].GetValue("val"));
+	}
+	page_string(d, out);
+}
+
 // Validate a typed value against its scheme def before it is written. Returns an error message (shown
 // to the user) when the value violates the field's type / numeric range / enum membership, or empty
 // when acceptable. Untyped fields (no scheme def) accept anything -- the loader still checks structure
@@ -484,7 +511,7 @@ void Render(DescriptorData *d) {
 		table_wrapper::PrintTableToChar(ch, table);
 	}
 	SendMsgToChar("\r\n&WSelect&n a number -- attribute = edit, <tag> = enter.\r\n", ch);
-	SendMsgToChar("&Wa&n) add child   &Wd&n) delete child   &Wm&n) move child   &Ws&n) save   &Wu&n) up   &Wq&n) quit\r\n", ch);
+	SendMsgToChar("&Wl&n) list   &Wa&n) add child   &Wd&n) delete child   &Wm&n) move child   &Ws&n) save   &Wu&n) up   &Wq&n) quit\r\n", ch);
 }
 
 // The safe commit: validate the edited DOM (dry-parse, no swap), then atomically rewrite the file
@@ -825,6 +852,10 @@ void ParseBrowse(DescriptorData *d, char *arg) {
 		s.mode = Mode::kMoveChild;
 		s.move_node = parser_wrapper::DataNode{};
 		RenderMoveChild(d);
+		return;
+	}
+	if (*arg == 'l' || *arg == 'L') {
+		ListChildrenFull(d);
 		return;
 	}
 	const int n = atoi(arg);
