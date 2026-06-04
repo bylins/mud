@@ -458,6 +458,7 @@ main_sources = files(
   'src/gameplay/handlers/alter_darkness.cpp',
   'src/gameplay/handlers/create_weapon.cpp',
   'src/gameplay/handlers/create_armor.cpp',
+  'src/gameplay/handlers/summon_tutelar.cpp',
   'src/gameplay/magic/points_intensity.cpp',
   'src/gameplay/magic/magic_temp_spells.cpp',
   'src/gameplay/communication/mail.cpp',

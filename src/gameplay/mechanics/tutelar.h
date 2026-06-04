@@ -12,7 +12,6 @@
 class CharData;
 class CastContext;        // defined in magic.h (issue.summons-fix)
 enum class EStageResult;  // defined in magic.h
-EStageResult SummonTutelar(CastContext &ctx);
 void CheckTutelarSelfSacrfice(CharData *ch, CharData *victim);
 void TryToRescueWithTutelar(CharData *ch);
 

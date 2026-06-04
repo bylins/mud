@@ -2570,7 +2570,7 @@ static const std::map<std::string, std::function<EStageResult(CastContext &)>> k
 	{"SpellSummon",         SpellSummon},
 	{"SpellPortal",         SpellPortal},
 	{"SpellRelocate",       SpellRelocate},
-	{"SummonTutelar",       SummonTutelar},
+	{"SummonTutelar",       handlers::SummonTutelar},
 	{"SpellMentalShadow",   SpellMentalShadow},
 	{"SpellAnimateDead",    SpellAnimateDead},
 	{"SpellResurrection",   SpellResurrection},

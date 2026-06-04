@@ -44,6 +44,10 @@ EStageResult AlterDarkness(CastContext &ctx);
 void CreateWeapon(CharData *ch, ObjData *obj, const CastContext &ctx);
 void CreateArmor(CharData *ch, ObjData *obj, const CastContext &ctx);
 
+// --- Summon handler (issue.spellhandlers) -------------------------------------------------------
+// kSummonTutelar manual cast: rolls the guardian-angel summon, builds and places the mob.
+EStageResult SummonTutelar(CastContext &ctx);
+
 // Shared messaging helper for the alter-obj handlers: act() the cast spell's `key` message on
 // ctx.ovict and return kSuccess. Used by multiple handlers, so by the issue's rule it is shared
 // code -- kept in magic.cpp by design (trivial pipeline messaging glue; a candidate for a future
