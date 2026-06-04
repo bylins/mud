@@ -26,6 +26,8 @@ namespace vedun {
 
 namespace {
 
+std::vector<parser_wrapper::DataNode> ChildrenOf(parser_wrapper::DataNode node);   // defined below
+
 // The parent tag name of the deepest path node (empty at the element root). Used so the scheme
 // can disambiguate repeated tag names (e.g. <flags> = EMagic at spell level, EAffFlag in <affects>).
 std::string ParentTagName(const Session &s) {
@@ -35,6 +37,26 @@ std::string ParentTagName(const Session &s) {
 // The scheme def for the current node, honouring its parent context.
 const TagDef *CurrentTagDef(const Session &s) {
 	return s.scheme.FindTag(s.path.back().GetName(), ParentTagName(s));
+}
+
+// The children the current node can still gain: repeatable ones always; singletons only while absent.
+// (So the add-child menu hides a single-use tag once it is present.)
+std::vector<const ChildDef *> AddableChildren(const Session &s) {
+	const TagDef *td = CurrentTagDef(s);
+	std::vector<const ChildDef *> out;
+	if (td == nullptr) {
+		return out;
+	}
+	std::set<std::string> have;
+	for (auto &c : ChildrenOf(s.path.back())) {
+		have.insert(c.GetName());
+	}
+	for (const auto &cd : td->children) {
+		if (cd.multiple || have.find(cd.tag) == have.end()) {
+			out.push_back(&cd);
+		}
+	}
+	return out;
 }
 
 // One editable attribute row: present on the node, or scheme-declared but not yet set (offered so it
@@ -245,39 +267,32 @@ void RenderFlagEditor(DescriptorData *d) {
 	SendMsgToChar("&Wd&n) done (apply)   &Wc&n) cancel\r\n", ch);
 }
 
-// The add-child menu: the scheme-allowed child tags of the current node, numbered. A number adds
-// that tag; an arbitrary tag name may also be typed (the loader still validates structure on save).
+// The add-child menu: only the tags the node can still gain (single-use children already present are
+// hidden). A number or the exact tag name adds it.
 void RenderAddChild(DescriptorData *d) {
 	auto *ch = d->character.get();
 	const auto &s = *d->vedun_session;
 	const std::string parent = s.path.back().GetName();
-	const TagDef *td = CurrentTagDef(s);
+	const auto addable = AddableChildren(s);
 	SendMsgToChar(fmt::format("&WAdd child to&n &c<{}>&n:\r\n", parent), ch);
-	if (td && !td->children.empty()) {
-		std::set<std::string> have;
-		for (auto &c : ChildrenOf(s.path.back())) {
-			have.insert(c.GetName());
-		}
-		table_wrapper::Table table;
-		for (std::size_t i = 0; i < td->children.size(); ++i) {
-			const ChildDef &cd = td->children[i];
-			const TagDef *kd = s.scheme.FindTag(cd.tag, parent);
-			std::string note = kd ? kd->desc : "";
-			if (cd.multiple) {
-				note += "  (repeatable)";
-			} else if (have.count(cd.tag)) {
-				note += "  (already present)";
-			}
-			table << fmt::format("{})", i + 1) << fmt::format("<{}>", cd.tag)
-				  << note << table_wrapper::kEndRow;
-		}
-		table_wrapper::DecorateNoBorderTable(ch, table);
-		StyleColumns(table);
-		table_wrapper::PrintTableToChar(ch, table);
-		SendMsgToChar("\r\nType a number (or the tag name) to add it.  &Wc&n) cancel\r\n", ch);
-	} else {
-		SendMsgToChar("(the scheme declares no children for this tag -- nothing can be added here)  &Wc&n) cancel\r\n", ch);
+	if (addable.empty()) {
+		SendMsgToChar("(nothing can be added here)  &Wc&n) cancel\r\n", ch);
+		return;
 	}
+	table_wrapper::Table table;
+	for (std::size_t i = 0; i < addable.size(); ++i) {
+		const TagDef *kd = s.scheme.FindTag(addable[i]->tag, parent);
+		std::string note = kd ? kd->desc : "";
+		if (addable[i]->multiple) {
+			note += "  (repeatable)";
+		}
+		table << fmt::format("{})", i + 1) << fmt::format("<{}>", addable[i]->tag)
+			  << note << table_wrapper::kEndRow;
+	}
+	table_wrapper::DecorateNoBorderTable(ch, table);
+	StyleColumns(table);
+	table_wrapper::PrintTableToChar(ch, table);
+	SendMsgToChar("\r\nType a number (or the tag name) to add it.  &Wc&n) cancel\r\n", ch);
 }
 
 // The delete-child menu: the current node's children, numbered. A number removes that child.
@@ -778,37 +793,38 @@ void vedun_parse(DescriptorData *d, char *arg) {
 			Render(d);
 			return;
 		}
-		const TagDef *td = CurrentTagDef(s);
-		if (td == nullptr || td->children.empty()) {
+		// Resolve against the addable list (single-use children already present are excluded), so a
+		// maxed-out tag simply isn't offered.
+		const auto addable = AddableChildren(s);
+		if (addable.empty()) {
 			s.mode = Mode::kBrowse;
-			SendMsgToChar("&RNothing can be added here&n -- the scheme declares no children for this tag.\r\n", ch);
+			SendMsgToChar("&RNothing can be added here.&n\r\n", ch);
 			Render(d);
 			return;
 		}
 		const ChildDef *picked = nullptr;
 		if (token.find_first_not_of("0123456789") == std::string::npos) {
 			const std::size_t pick = static_cast<std::size_t>(atoi(token.c_str()));
-			if (pick >= 1 && pick <= td->children.size()) {
-				picked = &td->children[pick - 1];
+			if (pick >= 1 && pick <= addable.size()) {
+				picked = addable[pick - 1];
 			}
 		} else {
-			picked = td->FindChild(token);
-		}
-		if (picked == nullptr) {
-			SendMsgToChar(fmt::format("&R'{}' is not an allowed child here.&n Pick from the list.\r\n", token), ch);
-			RenderAddChild(d);
-			return;
-		}
-		// Cardinality: a non-repeatable child may appear only once.
-		if (!picked->multiple) {
-			for (auto &c : ChildrenOf(s.path.back())) {
-				if (picked->tag == c.GetName()) {
-					SendMsgToChar(fmt::format("&R<{}> may appear only once here and is already present.&n\r\n",
-						picked->tag), ch);
-					RenderAddChild(d);
-					return;
+			for (const auto *cd : addable) {
+				if (cd->tag == token) {
+					picked = cd;
+					break;
 				}
 			}
+		}
+		if (picked == nullptr) {
+			const TagDef *td = CurrentTagDef(s);
+			if (td && td->FindChild(token)) {
+				SendMsgToChar(fmt::format("&R<{}> is already present (only one allowed here).&n\r\n", token), ch);
+			} else {
+				SendMsgToChar(fmt::format("&R'{}' is not an allowed child here.&n Pick from the list.\r\n", token), ch);
+			}
+			RenderAddChild(d);
+			return;
 		}
 		s.path.back().AddChild(picked->tag);
 		s.dirty = true;
