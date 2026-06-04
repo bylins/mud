@@ -184,6 +184,21 @@ cfg_manager::ValidationResult FightMessagesLoader::Validate(parser_wrapper::Data
 	return {false, "Hit-message data failed to parse (see syslog for the offending sheaf/message)."};
 }
 
+bool FightMessagesLoader::IsValidElementId(const std::string &id) const {
+	try {
+		return ITEM_BY_NAME<EDamageSource>(id) != EDamageSource::kUndefined;
+	} catch (const std::exception &) {
+		return false;
+	}
+}
+
+parser_wrapper::DataNode FightMessagesLoader::CreateElementNode(parser_wrapper::DataNode root, const std::string &id) const {
+	// An empty sheaf for `id`; the editor then adds <message> children.
+	auto node = root.AddChild("msg_sheaf");
+	node.SetValue("id", id);
+	return node;
+}
+
 } // namespace fight
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

@@ -39,6 +39,8 @@ class SpellsLoader : virtual public cfg_manager::IEditableCfgLoader {
 	[[nodiscard]] std::string EditableWhat() const final;
 	[[nodiscard]] std::vector<cfg_manager::EditableElement> ListElements() const final;
 	[[nodiscard]] cfg_manager::ValidationResult Validate(parser_wrapper::DataNode &doc) const final;
+	[[nodiscard]] bool IsValidElementId(const std::string &id) const final;
+	[[nodiscard]] parser_wrapper::DataNode CreateElementNode(parser_wrapper::DataNode root, const std::string &id) const final;
 };
 
 /**

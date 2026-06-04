@@ -64,6 +64,26 @@ class IEditableCfgLoader : public virtual ICfgLoader {
 		}
 		return parser_wrapper::DataNode{};
 	}
+	// Is `id` a valid element key, whether or not an element currently exists? Default: only the ids
+	// of existing elements are valid. Override to accept any valid key, so the editor can create a
+	// new element for an id that does not exist yet.
+	[[nodiscard]] virtual bool IsValidElementId(const std::string &id) const {
+		for (const auto &e : ListElements()) {
+			if (e.id == id) {
+				return true;
+			}
+		}
+		return false;
+	}
+	// Create a fresh, minimal element node for `id` directly under `root` (a child of the file root)
+	// and return it -- a handle sharing root's document, so the edit persists on save. Returns an
+	// empty node when this data set does not support creating new elements (the default).
+	[[nodiscard]] virtual parser_wrapper::DataNode CreateElementNode(
+			parser_wrapper::DataNode root, const std::string &id) const {
+		(void) root;
+		(void) id;
+		return parser_wrapper::DataNode{};
+	}
 };
 
 using LoaderPtr = std::unique_ptr<ICfgLoader>;

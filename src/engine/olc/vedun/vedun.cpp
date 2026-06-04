@@ -1100,9 +1100,17 @@ void do_vedun(CharData *ch, char *argument, int /*cmd*/, int /*subcmd*/) {
 			return;
 		}
 	}
+	bool creating = false;
 	if (resolved_id.empty()) {
-		SendMsgToChar(fmt::format("Vedun: element '{}' not found in '{}'.\r\n", element, entry->what), ch);
-		return;
+		// No existing element matched. If the typed token is itself a valid key for this data set,
+		// open it for editing -- creating it if it does not exist yet. Otherwise the id is invalid.
+		if (entry->loader->IsValidElementId(element)) {
+			resolved_id = element;
+		} else {
+			SendMsgToChar(fmt::format("Vedun: '{}' is not a valid {} identifier (and matches no existing element).\r\n",
+				element, entry->what), ch);
+			return;
+		}
 	}
 	Scheme scheme = LoadScheme(SchemePathFor(entry->file));
 	if (scheme.IsProhibited(resolved_id)) {
@@ -1114,9 +1122,14 @@ void do_vedun(CharData *ch, char *argument, int /*cmd*/, int /*subcmd*/) {
 	parser_wrapper::DataNode doc(entry->file);
 	parser_wrapper::DataNode found = entry->loader->FindElementNode(doc, resolved_id);
 	if (found.IsEmpty()) {
-		SendMsgToChar(fmt::format("Vedun: '{}' has no node in {} (data/file out of sync?).\r\n",
-			resolved_id, entry->what), ch);
-		return;
+		// Valid id but no element on disk yet: create a minimal one and open it for editing.
+		found = entry->loader->CreateElementNode(doc, resolved_id);
+		if (found.IsEmpty()) {
+			SendMsgToChar(fmt::format("Vedun: '{}' has no node in {} and new elements can't be created here.\r\n",
+				resolved_id, entry->what), ch);
+			return;
+		}
+		creating = true;
 	}
 	// Refuse if another implementor already holds this file's edit lock (whole-file save races).
 	const std::string lock_key = entry->file.string();
@@ -1136,6 +1149,11 @@ void do_vedun(CharData *ch, char *argument, int /*cmd*/, int /*subcmd*/) {
 	d->vedun_session = std::move(session);
 	EditLocks()[lock_key] = GET_NAME(ch);
 	d->state = EConState::kVedun;
+	if (creating) {
+		d->vedun_session->dirty = true;   // brand-new element -- save to write it to disk
+		SendMsgToChar(fmt::format("&GVedun: created new {} '{}' -- fill it in and save (not on disk yet).&n\r\n",
+			entry->what, resolved_id), ch);
+	}
 	Render(d);
 }
 

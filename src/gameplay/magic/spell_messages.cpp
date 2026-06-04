@@ -292,6 +292,21 @@ cfg_manager::ValidationResult SpellMessagesLoader::Validate(parser_wrapper::Data
 	return {false, "Spell-message data failed to parse (see syslog for the offending sheaf/message)."};
 }
 
+bool SpellMessagesLoader::IsValidElementId(const std::string &id) const {
+	try {
+		return ITEM_BY_NAME<ESpell>(id) != ESpell::kUndefined;
+	} catch (const std::exception &) {
+		return false;
+	}
+}
+
+parser_wrapper::DataNode SpellMessagesLoader::CreateElementNode(parser_wrapper::DataNode root, const std::string &id) const {
+	// An empty sheaf for `id`; the editor then adds <message> children.
+	auto node = root.AddChild("msg_sheaf");
+	node.SetValue("id", id);
+	return node;
+}
+
 } // namespace spells
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

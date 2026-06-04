@@ -121,6 +121,21 @@ cfg_manager::ValidationResult SkillMessagesLoader::Validate(parser_wrapper::Data
 	return {false, "Skill-message data failed to parse (see syslog for the offending sheaf/message)."};
 }
 
+bool SkillMessagesLoader::IsValidElementId(const std::string &id) const {
+	try {
+		return ITEM_BY_NAME<ESkill>(id) != ESkill::kUndefined;
+	} catch (const std::exception &) {
+		return false;
+	}
+}
+
+parser_wrapper::DataNode SkillMessagesLoader::CreateElementNode(parser_wrapper::DataNode root, const std::string &id) const {
+	// An empty sheaf for `id`; the editor then adds <message> children.
+	auto node = root.AddChild("msg_sheaf");
+	node.SetValue("id", id);
+	return node;
+}
+
 } // namespace skills
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

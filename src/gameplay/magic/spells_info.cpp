@@ -50,6 +50,23 @@ cfg_manager::ValidationResult SpellsLoader::Validate(DataNode &doc) const {
 	return {false, "Spell data failed to parse (see syslog for the offending spell/attribute)."};
 }
 
+bool SpellsLoader::IsValidElementId(const std::string &id) const {
+	try {
+		return parse::ReadAsConstant<ESpell>(id.c_str()) != ESpell::kUndefined;
+	} catch (const std::exception &) {
+		return false;
+	}
+}
+
+parser_wrapper::DataNode SpellsLoader::CreateElementNode(parser_wrapper::DataNode root, const std::string &id) const {
+	// Minimal skeleton: a kTesting spell with just its id; the editor fills in the rest and the
+	// save-time dry-parse validates before it is written.
+	auto node = root.AddChild("spell");
+	node.SetValue("id", id);
+	node.SetValue("mode", "kTesting");
+	return node;
+}
+
 ItemPtr SpellInfoBuilder::Build(DataNode &node) {
 	try {
 		return ParseSpell(node);
