@@ -64,10 +64,10 @@ class SpellInfo : public info_container::BaseItem<ESpell> {
 	// all of the spell's effects (issue #3332). Filled from the <potency_roll>
 	// section; spells without one keep the default-constructed roll.
 	talents_actions::Roll potency_roll_;
-	// Success roll parameters (same shape as the potency roll), filled from the
-	// <success_roll> section (issue #3333). Currently parsed and stored only;
-	// the value is evaluated in CallMagic but not yet interpreted.
-	talents_actions::Roll success_roll_;
+	// Success roll parameters, filled from the <success_roll> section (issue.success-roll).
+	// Dice-less; base_skill/base_stat mirror potency_roll, plus optional <bonus>/<thresholds>.
+	// Parsed and stored only for now; not yet consumed (the success mechanic is future work).
+	talents_actions::SuccessRoll success_roll_;
 	// Spell-level caster gate (issue.spell-unification): a spell is castable by the
 	// caster or not. Filled from the optional <caster_conditions> block (after
 	// success_roll); empty by default. Checked once in CallMagic.
@@ -124,7 +124,7 @@ class SpellInfo : public info_container::BaseItem<ESpell> {
 	[[nodiscard]] int GetManaChange() const { return mana_change_; };
 
 	[[nodiscard]] const talents_actions::Roll &GetPotencyRoll() const { return potency_roll_; };
-	[[nodiscard]] const talents_actions::Roll &GetSuccessRoll() const { return success_roll_; };
+	[[nodiscard]] const talents_actions::SuccessRoll &GetSuccessRoll() const { return success_roll_; };
 	[[nodiscard]] const talents_actions::CasterConditions &GetCasterConditions() const { return caster_conditions_; };
 	[[nodiscard]] const talents_actions::Components &GetComponents() const { return components_; };
 	// Convenience: spell has a <verbal/> child in its <components> block.

@@ -89,7 +89,7 @@ namespace {
 // Cast a gear-borne weapon affect on the wearer, bypassing the normal cast
 // gates (component/room/mana) exactly as the legacy direct CastAffect did.
 void CastWeaponAffect(CharData *ch, ESpell spell_id) {
-	CastContext ctx(ch, spell_id, GetRealLevel(ch), {}, {});
+	CastContext ctx(ch, spell_id, GetRealLevel(ch), {});
 	ctx.cvict = ch;
 	CastAffect(ctx);
 }

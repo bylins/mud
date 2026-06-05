@@ -81,10 +81,26 @@
 		<child tag="base_stat"/>
 	</tag>
 
-	<tag name="success_roll" desc="Cast-success dice pool + skill/stat scaling">
-		<child tag="dices"/>
+	<!-- issue.success-roll: dice-less. base_skill/base_stat mirror potency_roll; optional <bonus> and
+	     <thresholds> mirror the abilities roll system (for later unification). -->
+	<tag name="success_roll" desc="Cast-success roll: skill/stat target + optional bonus / crit thresholds">
 		<child tag="base_skill"/>
 		<child tag="base_stat"/>
+		<child tag="bonus"/>
+		<child tag="thresholds"/>
+	</tag>
+
+	<tag name="bonus" desc="Flat + per-matchup roll bonus (caster x target; P=player, E=env/NPC)">
+		<attr name="roll" type="int" desc="Flat bonus added to every success roll"/>
+		<attr name="pvp" type="int" desc="Bonus when a player casts at a player"/>
+		<attr name="pve" type="int" desc="Bonus when a player casts at an NPC"/>
+		<attr name="evp" type="int" desc="Bonus when an NPC casts at a player"/>
+		<attr name="eve" type="int" desc="Bonus when an NPC casts at an NPC"/>
+	</tag>
+
+	<tag name="thresholds" desc="d100 crit cutoffs (defaults match the abilities system)">
+		<attr name="critsuccess" type="int" min="1" max="100" desc="Roll &lt;= this is a critical success (default 6)"/>
+		<attr name="critfail" type="int" min="1" max="100" desc="Roll &gt;= this is a critical failure (default 95)"/>
 	</tag>
 
 	<tag name="dices" desc="Dice pool: ndice d sdice plus adice">

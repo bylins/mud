@@ -92,7 +92,7 @@ ItemPtr SpellInfoBuilder::ParseSpell(DataNode node) {
 		node.GoToParent();
 	}
 	if (node.GoToChild("success_roll")) {
-		info->success_roll_ = talents_actions::Roll(node);
+		info->success_roll_ = talents_actions::SuccessRoll(node);
 		node.GoToParent();
 	}
 	if (node.GoToChild("caster_conditions")) {

@@ -82,17 +82,15 @@ struct RollResult {
 // decays across area targets, starting from base_level()), and the action results.
 class CastContext {
  public:
-	CastContext(CharData *caster, ESpell spell_id, int level,
-				const RollResult &success, const RollResult &potency)
+	CastContext(CharData *caster, ESpell spell_id, int level, const RollResult &potency)
 		: level{level},
 		  caster_{caster}, spell_id_{spell_id}, base_level_{level},
-		  success_{success}, potency_{potency} {}
+		  potency_{potency} {}
 
 	// --- Immutable cast parameters ---
 	[[nodiscard]] CharData *caster() const { return caster_; }
 	[[nodiscard]] ESpell spell_id() const { return spell_id_; }
 	[[nodiscard]] int base_level() const { return base_level_; }
-	[[nodiscard]] const RollResult &success() const { return success_; }
 	[[nodiscard]] const RollResult &potency() const { return potency_; }
 
 	// --- Mutable working state ---
@@ -165,7 +163,6 @@ class CastContext {
 	CharData *caster_{nullptr};
 	ESpell spell_id_{ESpell::kUndefined};
 	int base_level_{0};
-	RollResult success_;        // from SpellInfo::GetSuccessRoll()
 	RollResult potency_;        // from SpellInfo::GetPotencyRoll()
 	// Cursor state: the spell's action list + current index (set by RewindActions).
 	const std::vector<talents_actions::Action> *actions_{nullptr};

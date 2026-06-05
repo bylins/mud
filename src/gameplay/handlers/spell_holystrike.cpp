@@ -42,7 +42,7 @@ EStageResult SpellHolystrike(CastContext &ctx) {
 		// returns kBreak, which skips the hold imposition for that just-dispelled minion. Damage
 		// always lands first, so the high-damage replacement for the old instant_death still
 		// bites kEviless minions on the way through.
-		CastContext hs_ctx(ch, ESpell::kHolystrike, GetRealLevel(ch), {}, {});
+		CastContext hs_ctx(ch, ESpell::kHolystrike, GetRealLevel(ch), {});
 		hs_ctx.cvict = tch;
 		CastDamage(hs_ctx);
 		if (CastUnaffects(hs_ctx) == EStageResult::kBreak) {

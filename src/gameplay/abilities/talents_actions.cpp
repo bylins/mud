@@ -198,6 +198,40 @@ Roll::Roll(parser_wrapper::DataNode &node) {
 	}
 }
 
+// issue.success-roll: parse <success_roll> -- base_skill/base_stat like potency_roll (NO <dices>),
+// plus the optional <bonus> and <thresholds> blocks. Stored only; not yet consumed.
+SuccessRoll::SuccessRoll(parser_wrapper::DataNode &node) {
+	if (node.GoToChild("base_skill")) {
+		const char *skill_id = node.GetValue("id");
+		base_skill_ = (skill_id && *skill_id) ? parse::ReadAsConstant<ESkill>(skill_id) : ESkill::kUndefined;
+		low_skill_bonus_ = RollDoubleOr(node.GetValue("low_skill_bonus"), 0.0);
+		hi_skill_bonus_ = RollDoubleOr(node.GetValue("hi_skill_bonus"), 0.0);
+		node.GoToParent();
+	}
+	if (node.GoToChild("base_stat")) {
+		const char *stat_id = node.GetValue("id");
+		if (stat_id && *stat_id) {
+			base_stat_ = parse::ReadAsConstant<EBaseStat>(stat_id);
+		}
+		base_stat_threshold_ = RollIntOr(node.GetValue("threshold"), 0);
+		base_stat_weight_ = RollDoubleOr(node.GetValue("weight"), 0.0);
+		node.GoToParent();
+	}
+	if (node.GoToChild("bonus")) {
+		bonus_roll_ = RollIntOr(node.GetValue("roll"), 0);
+		bonus_pvp_ = RollIntOr(node.GetValue("pvp"), 0);
+		bonus_pve_ = RollIntOr(node.GetValue("pve"), 0);
+		bonus_evp_ = RollIntOr(node.GetValue("evp"), 0);
+		bonus_eve_ = RollIntOr(node.GetValue("eve"), 0);
+		node.GoToParent();
+	}
+	if (node.GoToChild("thresholds")) {
+		critsuccess_ = RollIntOr(node.GetValue("critsuccess"), 6);
+		critfail_ = RollIntOr(node.GetValue("critfail"), 95);
+		node.GoToParent();
+	}
+}
+
 // EFind names addressable from the <material where=...> attribute. A focused
 // table -- only the three location flags used by ProcessMatComponents'
 // equip->inventory->room search live here. Other EFind bits (kCharInRoom,

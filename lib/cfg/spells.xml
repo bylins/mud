@@ -89,6 +89,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kInt" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <affects type="kArmor" saving="kNone" resist="kVitality">
@@ -143,6 +147,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kCha" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kCha" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <affects type="kBless" saving="kNone" resist="kVitality">
@@ -174,6 +182,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kDarkMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kInt" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kDarkMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <target_conditions>
@@ -213,6 +225,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kFireMagic" low_skill_bonus="3" hi_skill_bonus="1.5"/>
             <base_stat id="kWis" threshold="22" weight="5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kFireMagic" low_skill_bonus="3" hi_skill_bonus="1.5"/>
+            <base_stat id="kWis" threshold="22" weight="5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <damage saving="kReflex">
@@ -240,6 +256,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kAirMagic" low_skill_bonus="3.5" hi_skill_bonus="1.5"/>
             <base_stat id="kWis" threshold="32" weight="5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kAirMagic" low_skill_bonus="3.5" hi_skill_bonus="1.5"/>
+            <base_stat id="kWis" threshold="32" weight="5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <damage saving="kReflex">
@@ -283,7 +303,6 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_stat id="kWis" threshold="32" weight="5"/>
         </potency_roll>
         <success_roll>
-            <dices ndice="15" sdice="4" adice="30"/>
             <base_skill id="kWaterMagic" low_skill_bonus="4" hi_skill_bonus="1.75"/>
             <base_stat id="kWis" threshold="32" weight="5"/>
         </success_roll>
@@ -315,6 +334,14 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kDarkMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kInt" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kWaterMagic" low_skill_bonus="4" hi_skill_bonus="1.75"/>
+            <base_stat id="kWis" threshold="32" weight="5"/>
+            <base_skill id="kWaterMagic" low_skill_bonus="4" hi_skill_bonus="1.75"/>
+            <base_stat id="kWis" threshold="32" weight="5"/>
+            <base_skill id="kDarkMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <!-- issue.summon-pipeline: clone fail rebalanced to C-based (was 50 - cast_success -
                  remort*5); CloneCascade copies the caster and fills the (level+4)/5-2 quota. -->
@@ -340,6 +367,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kWaterMagic" low_skill_bonus="2" hi_skill_bonus="2.5"/>
             <base_stat id="kWis" threshold="22" weight="5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kWaterMagic" low_skill_bonus="2" hi_skill_bonus="2.5"/>
+            <base_stat id="kWis" threshold="22" weight="5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <damage saving="kStability">
@@ -414,6 +445,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kInt" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <unaffect>
@@ -437,6 +472,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kLifeMagic" low_skill_bonus="7" hi_skill_bonus="8"/>
             <base_stat id="kWis" threshold="25" weight="5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kLifeMagic" low_skill_bonus="7" hi_skill_bonus="8"/>
+            <base_stat id="kWis" threshold="25" weight="5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <points>
@@ -460,6 +499,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kLifeMagic" low_skill_bonus="5" hi_skill_bonus="5"/>
             <base_stat id="kWis" threshold="25" weight="5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kLifeMagic" low_skill_bonus="5" hi_skill_bonus="5"/>
+            <base_stat id="kWis" threshold="25" weight="5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <points>
@@ -483,6 +526,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kDarkMagic" low_skill_bonus="5" hi_skill_bonus="15"/>
             <base_stat id="kInt" threshold="12" weight="20"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kDarkMagic" low_skill_bonus="5" hi_skill_bonus="15"/>
+            <base_stat id="kInt" threshold="12" weight="20"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <affects type="kCurse" saving="kWill" resist="kDark">
@@ -517,6 +564,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kCha" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kCha" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <affects type="kDetectAlign" saving="kNone" resist="kMind">
@@ -544,6 +595,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kInt" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <affects type="kDetectInvis" saving="kNone" resist="kMind">
@@ -571,6 +626,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kWis" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <affects type="kDetectMagic" saving="kNone" resist="kMind">
@@ -598,6 +657,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kInt" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <affects type="kDetectPoison" saving="kNone" resist="kMind">
@@ -625,6 +688,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kLightMagic" low_skill_bonus="2" hi_skill_bonus="1.5"/>
             <base_stat id="kWis" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kLightMagic" low_skill_bonus="2" hi_skill_bonus="1.5"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </success_roll>
         <caster_conditions>
             <blocking>
                 <align val="kEvil"/>
@@ -658,6 +725,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kEarthMagic" low_skill_bonus="3" hi_skill_bonus="0.3"/>
             <base_stat id="kWis" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kEarthMagic" low_skill_bonus="3" hi_skill_bonus="0.3"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <damage saving="kStability">
@@ -707,6 +778,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kDarkMagic" low_skill_bonus="0.3" hi_skill_bonus="0.5"/>
             <base_stat id="kWis" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kDarkMagic" low_skill_bonus="0.3" hi_skill_bonus="0.5"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <damage saving="kReflex">
@@ -742,6 +817,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kFireMagic" low_skill_bonus="2.0" hi_skill_bonus="1.5"/>
             <base_stat id="kWis" threshold="32" weight="4.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kFireMagic" low_skill_bonus="2.0" hi_skill_bonus="1.5"/>
+            <base_stat id="kWis" threshold="32" weight="4.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <damage saving="kReflex">
@@ -765,6 +844,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kDarkMagic" low_skill_bonus="1.5" hi_skill_bonus="3"/>
             <base_stat id="kWis" threshold="32" weight="2.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kDarkMagic" low_skill_bonus="1.5" hi_skill_bonus="3"/>
+            <base_stat id="kWis" threshold="32" weight="2.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <damage saving="kCritical">
@@ -788,6 +871,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kLifeMagic" low_skill_bonus="10" hi_skill_bonus="5"/>
             <base_stat id="kWis" threshold="25" weight="6"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kLifeMagic" low_skill_bonus="10" hi_skill_bonus="5"/>
+            <base_stat id="kWis" threshold="25" weight="6"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <points>
@@ -811,6 +898,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kInt" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <target_conditions>
@@ -844,6 +935,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kAirMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kWis" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kAirMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <damage saving="kReflex">
@@ -888,6 +983,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kFireMagic" low_skill_bonus="3" hi_skill_bonus="0.75"/>
             <base_stat id="kWis" threshold="22" weight="5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kFireMagic" low_skill_bonus="3" hi_skill_bonus="0.75"/>
+            <base_stat id="kWis" threshold="22" weight="5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <damage saving="kReflex">
@@ -914,6 +1013,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kFireMagic" low_skill_bonus="3" hi_skill_bonus="0.75"/>
             <base_stat id="kWis" threshold="22" weight="5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kFireMagic" low_skill_bonus="3" hi_skill_bonus="0.75"/>
+            <base_stat id="kWis" threshold="22" weight="5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <damage saving="kReflex">
@@ -937,6 +1040,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kDarkMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kWis" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kDarkMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <area>
@@ -977,6 +1084,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kCha" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kCha" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <affects type="kProtectFromEvil" saving="kNone" resist="kVitality">
@@ -1004,6 +1115,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kWis" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <unaffect>
@@ -1028,6 +1143,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kCha" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kCha" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <target_conditions>
@@ -1063,6 +1182,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kFireMagic" low_skill_bonus="3.5" hi_skill_bonus="1.75"/>
             <base_stat id="kWis" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kFireMagic" low_skill_bonus="3.5" hi_skill_bonus="1.75"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <damage saving="kReflex">
@@ -1086,6 +1209,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kInt" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <target_conditions>
@@ -1120,6 +1247,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kLifeMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kInt" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kLifeMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <affects type="kStrength" saving="kNone" resist="kImmunity">
@@ -1167,6 +1298,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kLightMagic" low_skill_bonus="30" hi_skill_bonus="200"/>
             <base_stat id="kWis" threshold="20" weight="150"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kLightMagic" low_skill_bonus="30" hi_skill_bonus="200"/>
+            <base_stat id="kWis" threshold="20" weight="150"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <points>
@@ -1218,6 +1353,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kLifeMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kWis" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kLifeMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <unaffect affect_flags="kAfCurable">
@@ -1242,6 +1381,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kLifeMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kInt" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kLifeMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <affects type="kSenseLife" saving="kNone" resist="kImmunity">
@@ -1285,6 +1428,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kDarkMagic" low_skill_bonus="2" hi_skill_bonus="2"/>
             <base_stat id="kWis" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kDarkMagic" low_skill_bonus="2" hi_skill_bonus="2"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </success_roll>
         <caster_conditions>
             <blocking>
                 <align val="kGood"/>
@@ -1318,6 +1465,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kInt" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <area>
@@ -1343,6 +1494,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kLifeMagic" low_skill_bonus="9" hi_skill_bonus="7"/>
             <base_stat id="kWis" threshold="25" weight="5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kLifeMagic" low_skill_bonus="9" hi_skill_bonus="7"/>
+            <base_stat id="kWis" threshold="25" weight="5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <points>
@@ -1366,6 +1521,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kPunctual" low_skill_bonus="10" hi_skill_bonus="5"/>
             <base_stat id="kInt" threshold="16" weight="6"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kPunctual" low_skill_bonus="10" hi_skill_bonus="5"/>
+            <base_stat id="kInt" threshold="16" weight="6"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <points>
@@ -1413,6 +1572,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kInt" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <affects type="kInfravision" saving="kNone" resist="kVitality">
@@ -1440,6 +1603,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kWaterMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kInt" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kWaterMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <affects type="kWaterwalk" saving="kNone" resist="kWater">
@@ -1467,6 +1634,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kLifeMagic" low_skill_bonus="8" hi_skill_bonus="7"/>
             <base_stat id="kWis" threshold="25" weight="5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kLifeMagic" low_skill_bonus="8" hi_skill_bonus="7"/>
+            <base_stat id="kWis" threshold="25" weight="5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <points>
@@ -1490,6 +1661,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kLifeMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kInt" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kLifeMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <area>
@@ -1515,6 +1690,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kWis" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <target_conditions>
@@ -1548,6 +1727,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kWis" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <target_conditions>
@@ -1581,6 +1764,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kWis" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <area>
@@ -1607,6 +1794,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kAirMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kInt" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kAirMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <affects type="kFly" saving="kNone" resist="kAir">
@@ -1635,6 +1826,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kInt" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <affects type="kBrokenChains" saving="kNone" resist="kMind">
@@ -1662,6 +1857,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kWis" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <target_conditions>
@@ -1709,6 +1908,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kDarkMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kInt" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kDarkMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <affects type="kDarkness" saving="kNone" resist="kDark">
@@ -1737,6 +1940,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kEarthMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kInt" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kEarthMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <affects type="kStoneSkin" saving="kNone" resist="kEarth">
@@ -1764,6 +1971,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kWaterMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kInt" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kWaterMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <affects type="kCloudly" saving="kNone" resist="kWater">
@@ -1794,6 +2005,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kWis" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <target_conditions>
@@ -1826,6 +2041,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kInt" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <affects type="kLight" saving="kNone" resist="kVitality">
@@ -1854,6 +2073,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kAirMagic" low_skill_bonus="2" hi_skill_bonus="1.25"/>
             <base_stat id="kWis" threshold="32" weight="5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kAirMagic" low_skill_bonus="2" hi_skill_bonus="1.25"/>
+            <base_stat id="kWis" threshold="32" weight="5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <damage saving="kStability">
@@ -1881,6 +2104,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kFireMagic" low_skill_bonus="2.25" hi_skill_bonus="1.25"/>
             <base_stat id="kWis" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kFireMagic" low_skill_bonus="2.25" hi_skill_bonus="1.25"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <damage saving="kReflex">
@@ -1908,6 +2135,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kFireMagic" low_skill_bonus="2.5" hi_skill_bonus="2.75"/>
             <base_stat id="kWis" threshold="22" weight="3.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kFireMagic" low_skill_bonus="2.5" hi_skill_bonus="2.75"/>
+            <base_stat id="kWis" threshold="22" weight="3.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <damage saving="kWill">
@@ -1931,6 +2162,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kLifeMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kInt" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kLifeMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <area>
@@ -1966,6 +2201,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kWis" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <area>
@@ -1991,6 +2230,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kDarkMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kWis" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kDarkMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <affects type="kShadowCloak" saving="kNone" resist="kDark">
@@ -2018,6 +2261,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kWaterMagic" low_skill_bonus="4" hi_skill_bonus="1.75"/>
             <base_stat id="kWis" threshold="32" weight="5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kWaterMagic" low_skill_bonus="4" hi_skill_bonus="1.75"/>
+            <base_stat id="kWis" threshold="32" weight="5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <damage saving="kReflex">
@@ -2061,6 +2308,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kLifeMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kInt" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kLifeMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <affects type="kEnlarge" saving="kNone" resist="kImmunity">
@@ -2108,6 +2359,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kDarkMagic" low_skill_bonus="2" hi_skill_bonus="2.5"/>
             <base_stat id="kWis" threshold="32" weight="4.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kDarkMagic" low_skill_bonus="2" hi_skill_bonus="2.5"/>
+            <base_stat id="kWis" threshold="32" weight="4.5"/>
+        </success_roll>
         <talent_actions>
             <!-- issue.sacrifice-migration: A1 damages one foe; A2 heals the caster by the
                  damage dealt (base=kDamage); A3 heals the caster's UNDEAD minions likewise.
@@ -2158,6 +2413,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kWis" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <target_conditions>
@@ -2193,6 +2452,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kInt" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <affects type="kBlink" saving="kNone" resist="kVitality">
@@ -2220,6 +2483,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kWis" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <unaffect>
@@ -2250,6 +2517,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kDarkMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kWis" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kDarkMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <area>
@@ -2286,6 +2557,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kDarkMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kWis" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kDarkMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <area>
@@ -2311,6 +2586,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kWis" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <target_conditions>
@@ -2343,6 +2622,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kLifeMagic" low_skill_bonus="15" hi_skill_bonus="25"/>
             <base_stat id="kInt" threshold="20" weight="20"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kLifeMagic" low_skill_bonus="15" hi_skill_bonus="25"/>
+            <base_stat id="kInt" threshold="20" weight="20"/>
+        </success_roll>
         <talent_actions>
             <action>
             <points extra="33">
@@ -2382,6 +2665,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kInt" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <affects type="kMagicShield" saving="kNone" resist="kVitality">
@@ -2420,6 +2707,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kMindMagic" low_skill_bonus="0" hi_skill_bonus="40"/>
             <base_stat id="kInt" threshold="0" weight="100"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kMindMagic" low_skill_bonus="0" hi_skill_bonus="40"/>
+            <base_stat id="kInt" threshold="0" weight="100"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <!-- Migrated from CallMagicToRoom (issue.room-affects). Duration is in
@@ -2453,6 +2744,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kInt" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <area>
@@ -2478,6 +2773,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kWis" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <unaffect>
@@ -2501,6 +2800,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kDarkMagic" low_skill_bonus="3" hi_skill_bonus="0.5"/>
             <base_stat id="kWis" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kDarkMagic" low_skill_bonus="3" hi_skill_bonus="0.5"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <damage saving="kCritical">
@@ -2524,6 +2827,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kDarkMagic" low_skill_bonus="2.5" hi_skill_bonus="0.75"/>
             <base_stat id="kWis" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kDarkMagic" low_skill_bonus="2.5" hi_skill_bonus="0.75"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <damage saving="kCritical">
@@ -2551,6 +2858,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kDarkMagic" low_skill_bonus="2.25" hi_skill_bonus="1"/>
             <base_stat id="kWis" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kDarkMagic" low_skill_bonus="2.25" hi_skill_bonus="1"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <damage saving="kCritical">
@@ -2578,6 +2889,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kDarkMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kInt" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kDarkMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <side_spell id="kCurse"/>
@@ -2603,6 +2918,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kAirMagic" low_skill_bonus="0.5" hi_skill_bonus="2.75"/>
             <base_stat id="kWis" threshold="32" weight="5.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kAirMagic" low_skill_bonus="0.5" hi_skill_bonus="2.75"/>
+            <base_stat id="kWis" threshold="32" weight="5.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <damage saving="kWill">
@@ -2630,6 +2949,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kAirMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kInt" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kAirMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <area>
@@ -2655,6 +2978,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kInt" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <area>
@@ -2680,6 +3007,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kLifeMagic" low_skill_bonus="1" hi_skill_bonus="2.75"/>
             <base_stat id="kWis" threshold="15" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kLifeMagic" low_skill_bonus="1" hi_skill_bonus="2.75"/>
+            <base_stat id="kWis" threshold="15" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <points>
@@ -2708,6 +3039,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kEarthMagic" low_skill_bonus="1" hi_skill_bonus="2.75"/>
             <base_stat id="kWis" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kEarthMagic" low_skill_bonus="1" hi_skill_bonus="2.75"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <damage saving="kStability">
@@ -2783,6 +3118,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kAirMagic" low_skill_bonus="2.25" hi_skill_bonus="1.5"/>
             <base_stat id="kWis" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kAirMagic" low_skill_bonus="2.25" hi_skill_bonus="1.5"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <damage saving="kStability">
@@ -2845,6 +3184,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kWaterMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kInt" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kWaterMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <affects type="kWaterbreath" saving="kNone" resist="kWater">
@@ -2872,6 +3215,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kInt" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <target_conditions>
@@ -2911,6 +3258,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kInt" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <affects type="kHaste" saving="kNone" resist="kMind">
@@ -2942,6 +3293,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kInt" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <area>
@@ -2967,6 +3322,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kInt" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <area>
@@ -2992,6 +3351,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kCha" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kCha" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <affects type="kGodsShield" saving="kNone" resist="kVitality">
@@ -3025,6 +3388,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kLifeMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kInt" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kLifeMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <area>
@@ -3077,6 +3444,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kLifeMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kWis" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kLifeMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <unaffect affect_flags="kAfCurable">
@@ -3100,6 +3471,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kWis" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <affects type="kAwareness" saving="kNone" resist="kMind">
@@ -3137,6 +3512,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kAirMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kInt" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kAirMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <affects type="kAirShield" saving="kNone" resist="kAir">
@@ -3199,6 +3578,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kWis" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <!-- kDispellMagic strips one random affect matching the affect_flags
@@ -3225,6 +3608,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kCha" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kCha" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <!-- issue.summon-pipeline: fail = 50 - 16*C (C from potency_roll); keeper post-spawn
                  stats via the SetupKeeperStats handler. mob vnum -3021 = -kMobKeeper. -->
@@ -3250,6 +3637,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kLifeMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kInt" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kLifeMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <affects type="kFastRegeneration" saving="kNone" resist="kImmunity">
@@ -3314,6 +3705,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kFireMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kInt" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kFireMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <affects type="kFireShield" saving="kNone" resist="kFire">
@@ -3362,6 +3757,9 @@ base_stat id - (например "kWis") какой берем параметр,
         <potency_roll>
             <base_stat id="kCha" threshold="20" weight="100"/>
         </potency_roll>
+        <success_roll>
+            <base_stat id="kCha" threshold="20" weight="100"/>
+        </success_roll>
         <talent_actions>
             <!-- issue.summon-pipeline: firekeeper fail rebalanced to C-based (C = base_cha - 20);
                  SetupFirekeeperStats applies the fire aura + cha-scaled stats. -->
@@ -3387,6 +3785,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kWaterMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kInt" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kWaterMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <affects type="kIceShield" saving="kNone" resist="kWater">
@@ -3417,6 +3819,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kWaterMagic" low_skill_bonus="0.75" hi_skill_bonus="1.25"/>
             <base_stat id="kWis" threshold="22" weight="1"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kWaterMagic" low_skill_bonus="0.75" hi_skill_bonus="1.25"/>
+            <base_stat id="kWis" threshold="22" weight="1"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <damage saving="kStability">
@@ -3452,6 +3858,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kLifeMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kWis" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kLifeMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <affects type="kLessening" saving="kNone" resist="kImmunity">
@@ -3483,6 +3893,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kFireMagic" low_skill_bonus="2" hi_skill_bonus="0.75"/>
             <base_stat id="kWis" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kFireMagic" low_skill_bonus="2" hi_skill_bonus="0.75"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <damage saving="kReflex">
@@ -3518,6 +3932,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kWis" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <affects type="kMadness" saving="kWill" resist="kMind">
@@ -3548,6 +3966,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kAirMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kInt" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kAirMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <area>
@@ -3573,6 +3995,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kFireMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kInt" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kFireMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <affects type="kCloudOfArrows" saving="kNone" resist="kFire">
@@ -3600,6 +4026,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kDarkMagic" low_skill_bonus="2" hi_skill_bonus="1.25"/>
             <base_stat id="kWis" threshold="22" weight="1.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kDarkMagic" low_skill_bonus="2" hi_skill_bonus="1.25"/>
+            <base_stat id="kWis" threshold="22" weight="1.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <damage saving="kStability">
@@ -3648,6 +4078,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kEarthMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kWis" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kEarthMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <affects type="kStoneHands" saving="kNone" resist="kEarth">
@@ -3675,6 +4109,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kInt" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <affects type="kMindless" saving="kStability" resist="kMind">
@@ -3708,6 +4146,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kInt" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <target_conditions>
@@ -3744,6 +4186,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kDarkMagic" low_skill_bonus="20" hi_skill_bonus="100"/>
             <base_stat id="kInt" threshold="20" weight="50"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kDarkMagic" low_skill_bonus="20" hi_skill_bonus="100"/>
+            <base_stat id="kInt" threshold="20" weight="50"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <target_conditions>
@@ -3786,6 +4232,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kAirMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kInt" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kAirMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <area>
@@ -3817,6 +4267,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kFireMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kInt" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kFireMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <area>
@@ -3848,6 +4302,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kWaterMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kInt" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kWaterMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <area>
@@ -3879,6 +4337,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kLightMagic" low_skill_bonus="0.75" hi_skill_bonus="1.75"/>
             <base_stat id="kWis" threshold="32" weight="2.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kLightMagic" low_skill_bonus="0.75" hi_skill_bonus="1.75"/>
+            <base_stat id="kWis" threshold="32" weight="2.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <damage saving="kStability">
@@ -3917,6 +4379,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kInt" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <affects type="kMagicGlass" saving="kNone" resist="kVitality">
@@ -3944,6 +4410,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kInt" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <area>
@@ -3969,6 +4439,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kInt" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <area>
@@ -3994,6 +4468,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kWis" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <affects type="kDeafness" saving="kStability" resist="kMind">
@@ -4021,6 +4499,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kWis" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <affects type="kDeafness" saving="kStability" resist="kMind">
@@ -4048,6 +4530,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kLifeMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kInt" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kLifeMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <unaffect>
@@ -4071,6 +4557,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kWis" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <area>
@@ -4096,6 +4586,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kEarthMagic" low_skill_bonus="0.25" hi_skill_bonus="1.25"/>
             <base_stat id="kWis" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kEarthMagic" low_skill_bonus="0.25" hi_skill_bonus="1.25"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <damage saving="kStability">
@@ -4137,6 +4631,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kEarthMagic" low_skill_bonus="0.75" hi_skill_bonus="1.5"/>
             <base_stat id="kWis" threshold="50" weight="7"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kEarthMagic" low_skill_bonus="0.75" hi_skill_bonus="1.5"/>
+            <base_stat id="kWis" threshold="50" weight="7"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <damage saving="kStability">
@@ -4171,6 +4669,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kAirMagic" low_skill_bonus="1" hi_skill_bonus="3"/>
             <base_stat id="kWis" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kAirMagic" low_skill_bonus="1" hi_skill_bonus="3"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <damage saving="kStability">
@@ -4207,6 +4709,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kLightMagic" low_skill_bonus="2" hi_skill_bonus="2"/>
             <base_stat id="kWis" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kLightMagic" low_skill_bonus="2" hi_skill_bonus="2"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <damage saving="kCritical">
@@ -4291,6 +4797,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kCha" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kCha" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <affects type="kFascination" saving="kNone" resist="kMind">
@@ -4320,6 +4830,9 @@ base_stat id - (например "kWis") какой берем параметр,
             <dices ndice="1" sdice="1" adice="0"/>
             <base_skill id="kMindMagic" low_skill_bonus="240" hi_skill_bonus="400"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kMindMagic" low_skill_bonus="240" hi_skill_bonus="400"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <target_conditions>
@@ -4361,6 +4874,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kDarkMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kInt" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kDarkMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <affects type="kOblivion" saving="kWill" resist="kDark">
@@ -4389,6 +4906,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kDarkMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kInt" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kDarkMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <area>
@@ -4443,6 +4964,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kInt" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <target_conditions>
@@ -4506,6 +5031,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kEarthMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kWis" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kEarthMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <!-- Restrict the target to a necromancer's own raised undead (the old
@@ -4546,6 +5075,9 @@ base_stat id - (например "kWis") какой берем параметр,
             <!-- Provides kLightMagic skill identity for duration scaling; bonuses unused. -->
             <base_skill id="kLightMagic" low_skill_bonus="0" hi_skill_bonus="0"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kLightMagic" low_skill_bonus="0" hi_skill_bonus="0"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <affects type="kRoomLight" saving="kNone" resist="kVitality">
@@ -4667,6 +5199,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kAirMagic" low_skill_bonus="12" hi_skill_bonus="8"/>
             <base_stat id="kCha" threshold="12" weight="10"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kAirMagic" low_skill_bonus="12" hi_skill_bonus="8"/>
+            <base_stat id="kCha" threshold="12" weight="10"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <area>
@@ -4722,6 +5258,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kEarthMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kWis" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kEarthMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <area>
@@ -4760,6 +5300,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kAirMagic" low_skill_bonus="1.25" hi_skill_bonus="2.25"/>
             <base_stat id="kWis" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kAirMagic" low_skill_bonus="1.25" hi_skill_bonus="2.25"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <damage saving="kStability">
@@ -4797,6 +5341,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kLifeMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kInt" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kLifeMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <affects type="kCatGrace" saving="kNone" resist="kImmunity">
@@ -4824,6 +5372,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kLifeMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kInt" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kLifeMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <affects type="kBullBody" saving="kNone" resist="kImmunity">
@@ -4851,6 +5403,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kLifeMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kInt" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kLifeMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <affects type="kSnakeWisdom" saving="kNone" resist="kImmunity">
@@ -4878,6 +5434,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kLifeMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kInt" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kLifeMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <affects type="kGimmicry" saving="kNone" resist="kImmunity">
@@ -4904,6 +5464,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kWarcry" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kCon" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kWarcry" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kCon" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <area>
@@ -4927,6 +5491,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kWarcry" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kCon" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kWarcry" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kCon" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <affects type="kWarcryOfMenace" saving="kWill" resist="kMind">
@@ -4957,6 +5525,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kWarcry" low_skill_bonus="2" hi_skill_bonus="2"/>
             <base_stat id="kWis" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kWarcry" low_skill_bonus="2" hi_skill_bonus="2"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <damage saving="kStability">
@@ -4990,6 +5562,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kWarcry" low_skill_bonus="10" hi_skill_bonus="10"/>
             <base_stat id="kCon" threshold="20" weight="15"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kWarcry" low_skill_bonus="10" hi_skill_bonus="10"/>
+            <base_stat id="kCon" threshold="20" weight="15"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <area>
@@ -5026,6 +5602,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kWarcry" low_skill_bonus="2" hi_skill_bonus="2"/>
             <base_stat id="kWis" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kWarcry" low_skill_bonus="2" hi_skill_bonus="2"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <damage saving="kStability">
@@ -5066,6 +5646,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kWarcry" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kCon" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kWarcry" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kCon" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <area>
@@ -5105,6 +5689,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kWarcry" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kCon" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kWarcry" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kCon" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <area>
@@ -5135,6 +5723,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kWarcry" low_skill_bonus="40" hi_skill_bonus="60"/>
             <base_stat id="kCon" threshold="20" weight="200"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kWarcry" low_skill_bonus="40" hi_skill_bonus="60"/>
+            <base_stat id="kCon" threshold="20" weight="200"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <points>
@@ -5168,6 +5760,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kWarcry" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kCon" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kWarcry" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kCon" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <area>
@@ -5201,6 +5797,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kWarcry" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kCon" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kWarcry" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kCon" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <area>
@@ -5233,6 +5833,9 @@ base_stat id - (например "kWis") какой берем параметр,
         <potency_roll>
             <base_skill id="kMindMagic" low_skill_bonus="0" hi_skill_bonus="0"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kMindMagic" low_skill_bonus="0" hi_skill_bonus="0"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <target_conditions>
@@ -5263,6 +5866,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kPoisoning" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kInt" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kPoisoning" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <target_conditions>
@@ -5291,6 +5898,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kPoisoning" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kInt" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kPoisoning" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <target_conditions>
@@ -5322,6 +5933,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kPoisoning" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kInt" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kPoisoning" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <target_conditions>
@@ -5350,6 +5965,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kPoisoning" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kInt" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kPoisoning" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <target_conditions>
@@ -5468,6 +6087,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kDarkMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kWis" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kDarkMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <affects type="kVampirism" saving="kNone" resist="kDark">
@@ -5585,6 +6208,9 @@ base_stat id - (например "kWis") какой берем параметр,
         <potency_roll>
             <base_skill id="kEarthMagic" low_skill_bonus="0" hi_skill_bonus="0"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kEarthMagic" low_skill_bonus="0" hi_skill_bonus="0"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <target_conditions>
@@ -5617,6 +6243,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kAirMagic" low_skill_bonus="3" hi_skill_bonus="1.75"/>
             <base_stat id="kWis" threshold="32" weight="3.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kAirMagic" low_skill_bonus="3" hi_skill_bonus="1.75"/>
+            <base_stat id="kWis" threshold="32" weight="3.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <damage saving="kStability">
@@ -5645,6 +6275,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kEarthMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kWis" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kEarthMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <damage saving="kReflex">
@@ -5680,6 +6314,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kWaterMagic" low_skill_bonus="2" hi_skill_bonus="1.75"/>
             <base_stat id="kWis" threshold="22" weight="1.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kWaterMagic" low_skill_bonus="2" hi_skill_bonus="1.75"/>
+            <base_stat id="kWis" threshold="22" weight="1.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <damage saving="kReflex">
@@ -5724,6 +6362,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kEarthMagic" low_skill_bonus="3" hi_skill_bonus="2"/>
             <base_stat id="kWis" threshold="40" weight="5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kEarthMagic" low_skill_bonus="3" hi_skill_bonus="2"/>
+            <base_stat id="kWis" threshold="40" weight="5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <damage saving="kReflex">
@@ -5751,6 +6393,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kEarthMagic" low_skill_bonus="3" hi_skill_bonus="2"/>
             <base_stat id="kWis" threshold="22" weight="2.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kEarthMagic" low_skill_bonus="3" hi_skill_bonus="2"/>
+            <base_stat id="kWis" threshold="22" weight="2.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <damage saving="kReflex">
@@ -5787,6 +6433,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kWis" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <area>
@@ -5818,6 +6468,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kWis" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <area>
@@ -5843,6 +6497,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kWis" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <area>
@@ -5874,6 +6532,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kWis" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <area>
@@ -5905,6 +6567,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kLifeMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kCha" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kLifeMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kCha" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <area>
@@ -5936,6 +6602,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kWaterMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kWis" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kWaterMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <area>
@@ -5967,6 +6637,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kLifeMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kInt" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kLifeMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <area>
@@ -6024,6 +6698,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kEarthMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kWis" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kEarthMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <area>
@@ -6055,6 +6733,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kWis" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <area>
@@ -6086,6 +6768,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kEarthMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kWis" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kEarthMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <area>
@@ -6117,6 +6803,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kWis" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kLightMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <area>
@@ -6138,6 +6828,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kFireMagic" low_skill_bonus="3" hi_skill_bonus="1.5"/>
             <base_stat id="kWis" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kFireMagic" low_skill_bonus="3" hi_skill_bonus="1.5"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <damage saving="kReflex">
@@ -6157,6 +6851,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kWaterMagic" low_skill_bonus="3" hi_skill_bonus="1.5"/>
             <base_stat id="kWis" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kWaterMagic" low_skill_bonus="3" hi_skill_bonus="1.5"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <damage saving="kReflex">
@@ -6176,6 +6874,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kEarthMagic" low_skill_bonus="3" hi_skill_bonus="1.5"/>
             <base_stat id="kWis" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kEarthMagic" low_skill_bonus="3" hi_skill_bonus="1.5"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <damage saving="kReflex">
@@ -6195,6 +6897,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kAirMagic" low_skill_bonus="3" hi_skill_bonus="1.5"/>
             <base_stat id="kWis" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kAirMagic" low_skill_bonus="3" hi_skill_bonus="1.5"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <damage saving="kReflex">
@@ -6214,6 +6920,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kDarkMagic" low_skill_bonus="3" hi_skill_bonus="1.5"/>
             <base_stat id="kWis" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kDarkMagic" low_skill_bonus="3" hi_skill_bonus="1.5"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <damage saving="kReflex">
@@ -6234,6 +6944,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kPunctual" low_skill_bonus="10" hi_skill_bonus="5"/>
             <base_stat id="kInt" threshold="16" weight="6"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kPunctual" low_skill_bonus="10" hi_skill_bonus="5"/>
+            <base_stat id="kInt" threshold="16" weight="6"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <area>
@@ -6281,6 +6995,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kLifeMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kInt" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kLifeMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <affects type="kDexterity" saving="kNone" resist="kImmunity">
@@ -6312,6 +7030,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kLifeMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kInt" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kLifeMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kInt" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <area>
@@ -6337,6 +7059,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kWaterMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kWis" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kWaterMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <area>
@@ -6362,6 +7088,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kWis" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <area>
@@ -6386,6 +7116,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kWarcry" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kCon" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kWarcry" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kCon" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <area>
@@ -6416,6 +7150,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kWarcry" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kCon" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kWarcry" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kCon" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <area>
@@ -6446,6 +7184,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kWarcry" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kCon" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kWarcry" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kCon" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <area>
@@ -6476,6 +7218,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kAirMagic" low_skill_bonus="12" hi_skill_bonus="8"/>
             <base_stat id="kCha" threshold="12" weight="10"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kAirMagic" low_skill_bonus="12" hi_skill_bonus="8"/>
+            <base_stat id="kCha" threshold="12" weight="10"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <area>
@@ -6501,6 +7247,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
             <base_stat id="kCha" threshold="22" weight="0.5"/>
         </potency_roll>
+        <success_roll>
+            <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kCha" threshold="22" weight="0.5"/>
+        </success_roll>
         <talent_actions>
             <action>
                 <area>

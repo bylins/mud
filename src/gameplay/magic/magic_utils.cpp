@@ -418,16 +418,16 @@ private:
  * This is also the entry point for non-spoken or unrestricted spells.
  * Spellnum 0 is legal but silently ignored here, to make callers simpler.
  */
-// Evaluates the spell's success and potency rolls against the caster once, so the
-// result can be threaded to the cast-dispatch functions. The roll
-// values do not depend on level; level is carried only to replace that parameter.
+// Evaluates the spell's potency roll against the caster once, so the result can be
+// threaded to the cast-dispatch functions. The roll values do not depend on level;
+// level is carried only to replace that parameter.
 CastContext BuildCastContext(CharData *caster, ESpell spell_id, int level) {
 	const auto &spell = MUD::Spell(spell_id);
 	auto eval = [caster](const talents_actions::Roll &roll) {
 		return RollResult{roll.RollSkillDices(), roll.CalcSkillCoeff(caster),
 						  roll.CalcBaseStatCoeff(caster), roll.CalcLowSkillCoeff(caster)};
 	};
-	CastContext ctx(caster, spell_id, level, eval(spell.GetSuccessRoll()), eval(spell.GetPotencyRoll()));
+	CastContext ctx(caster, spell_id, level, eval(spell.GetPotencyRoll()));
 	ctx.casting.insert(spell_id);  // seed the cast-chain loop guard
 	return ctx;
 }

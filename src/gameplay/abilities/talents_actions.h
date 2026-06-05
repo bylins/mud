@@ -137,6 +137,45 @@ class Roll {
 	void Print(CharData *ch, std::ostringstream &buffer) const;
 };
 
+// issue.success-roll: per-spell success-roll config (sibling of <potency_roll>). Unlike Roll it has
+// NO <dices> block -- success depends on randomness differently (the planned mechanic is a d100 roll
+// vs a skill/stat-derived target with crit thresholds, mirroring the abilities roll system so the two
+// can later be unified). base_skill / base_stat mirror potency_roll/Roll. <bonus> and <thresholds>
+// are optional. Parsed and stored only for now; not yet consumed.
+class SuccessRoll {
+	ESkill base_skill_{ESkill::kUndefined};
+	double low_skill_bonus_{0.0};
+	double hi_skill_bonus_{0.0};
+
+	EBaseStat base_stat_{EBaseStat::kFirst};
+	int base_stat_threshold_{0};
+	double base_stat_weight_{0.0};
+
+	// <bonus> (optional): flat roll bonus + per-matchup bonus (caster x target; P=player, E=env/NPC).
+	int bonus_roll_{0};
+	int bonus_pvp_{0};
+	int bonus_pve_{0};
+	int bonus_evp_{0};
+	int bonus_eve_{0};
+
+	// <thresholds> (optional): d100 crit cutoffs; defaults match the abilities system (6 / 95).
+	int critsuccess_{6};
+	int critfail_{95};
+ public:
+	SuccessRoll() = default;
+	explicit SuccessRoll(parser_wrapper::DataNode &node);
+
+	[[nodiscard]] ESkill GetBaseSkill() const { return base_skill_; }
+	[[nodiscard]] EBaseStat GetBaseStat() const { return base_stat_; }
+	[[nodiscard]] int GetRollBonus() const { return bonus_roll_; }
+	[[nodiscard]] int GetPvpBonus() const { return bonus_pvp_; }
+	[[nodiscard]] int GetPveBonus() const { return bonus_pve_; }
+	[[nodiscard]] int GetEvpBonus() const { return bonus_evp_; }
+	[[nodiscard]] int GetEveBonus() const { return bonus_eve_; }
+	[[nodiscard]] int GetCritsuccessThreshold() const { return critsuccess_; }
+	[[nodiscard]] int GetCritfailThreshold() const { return critfail_; }
+};
+
 // Material component specification (issue.spellcomponents): one entry in a spell's
 // <components> block. Both any_of and all_of are lists of object vnums; the cast
 // proceeds only when EVERY vnum in all_of is present in the caster's reachable
