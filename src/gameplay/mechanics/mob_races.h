@@ -113,7 +113,7 @@ class MobRacesLoader : public cfg_manager::IEditableCfgLoader {
 	void Load(parser_wrapper::DataNode data) final;
 	void Reload(parser_wrapper::DataNode data) final;
 
-	[[nodiscard]] std::string EditableWhat() const final { return "mob_race"; }
+	[[nodiscard]] std::string EditableWhat() const final { return "mobrace"; }
 	[[nodiscard]] std::vector<cfg_manager::EditableElement> ListElements() const final;
 	[[nodiscard]] cfg_manager::ValidationResult Validate(parser_wrapper::DataNode &doc) const final;
 	[[nodiscard]] std::string CanonicalElementId(const std::string &id) const final;
