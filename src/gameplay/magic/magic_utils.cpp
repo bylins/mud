@@ -36,8 +36,6 @@
 
 char cast_argument[kMaxInputLength];
 
-extern int what_sky;
-
 // True if `ch`'s race counts as "verbal": the cast is narrated as articulated speech
 // (PC always, plus the five humanoid NPC races that historically had their own narration
 // set). Non-humanoid NPC races default to "sound" -- a single collapsed narration line.

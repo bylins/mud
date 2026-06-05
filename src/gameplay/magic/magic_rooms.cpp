@@ -16,8 +16,6 @@
 
 // Структуры и функции для работы с заклинаниями, обкастовывающими комнаты
 
-extern int what_sky;
-
 namespace room_spells {
 
 const int kRuneLabelDuration = 300;

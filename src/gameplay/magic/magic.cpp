@@ -28,10 +28,9 @@
 #include "gameplay/core/game_limits.h"  // gain_condition
 #include "gameplay/mechanics/liquid.h"   // kMaxCondition
 #include "engine/core/target_resolver.h"
-//#include "gameplay/affects/affect_handler.h"
+
 #include "gameplay/affects/affect_data.h"
 #include "engine/db/world_characters.h"
-#include "engine/ui/cmd/do_hire.h"
 #include "gameplay/mechanics/corpse.h"
 #include "gameplay/fight/fight.h"
 #include "gameplay/fight/fight_hit.h"
@@ -48,10 +47,7 @@
 #include "gameplay/mechanics/weather.h"
 #include "utils/utils_time.h"
 #include "gameplay/mechanics/minions.h"
-#include "gameplay/mechanics/equipment.h"
-#include "gameplay/mechanics/tutelar.h"
 
-extern int what_sky;
 extern int interpolate(int min_value, int pulse);
 
 byte GetSavingThrows(ECharClass class_id, ESaving type, int level);    // class.cpp
