@@ -60,29 +60,6 @@ int pk_increment_revenge(CharData *agressor, CharData *victim);
 int what_sky = kSkyCloudless;
 // * Special spells appear below.
 
-ESkill GetMagicSkillId(ESpell spell_id) {
-	switch (MUD::Spell(spell_id).GetElement()) {
-		case EElement::kAir: return ESkill::kAirMagic;
-			break;
-		case EElement::kFire: return ESkill::kFireMagic;
-			break;
-		case EElement::kWater: return ESkill::kWaterMagic;
-			break;
-		case EElement::kEarth: return ESkill::kEarthMagic;
-			break;
-		case EElement::kLight: return ESkill::kLightMagic;
-			break;
-		case EElement::kDark: return ESkill::kDarkMagic;
-			break;
-		case EElement::kMind: return ESkill::kMindMagic;
-			break;
-		case EElement::kLife: return ESkill::kLifeMagic;
-			break;
-		case EElement::kUndefined: [[fallthrough]];
-		default: return ESkill::kUndefined;
-	}
-}
-
 //Определим мин уровень для изучения спелла из книги
 //req_lvl - требуемый уровень из книги
 int CalcMinSpellLvl(const CharData *ch, ESpell spell_id, int req_lvl) {

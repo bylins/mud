@@ -13,6 +13,8 @@
 #include "engine/core/handler.h"
 #include "engine/ui/color.h"
 #include "gameplay/abilities/feats.h"
+#include "gameplay/magic/spells_info.h"   // MUD::Spell(...).GetSuccessRoll().GetBaseSkill()
+#include "engine/db/global_objects.h"
 #include "gameplay/magic/spells.h"
 #include "utils/grammar/cases.h"
 #include "utils/random.h"
@@ -48,7 +50,7 @@ void ApplyAnimalMaster(CharData *ch, CharData *victim, Affect<EApply> &af,
 	// начинаем модификации victim
 	// создаем переменные модификаторов
 	int r_cha = GetRealCha(ch);
-	int perc = ch->GetSkill(GetMagicSkillId(ESpell::kCharm));
+	int perc = ch->GetSkill(MUD::Spell(ESpell::kCharm).GetSuccessRoll().GetBaseSkill());
 	ch->send_to_TC(false, true, false, "Значение хари:  %d.\r\n", r_cha);
 	ch->send_to_TC(false, true, false, "Значение скила магии: %d.\r\n", perc);
 	

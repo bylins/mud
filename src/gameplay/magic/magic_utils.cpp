@@ -798,7 +798,7 @@ ECastResult CastSpell(CharData *ch, CharData *tch, ObjData *tobj, RoomData *troo
 		}
 	}
 
-	if (auto skill_id = GetMagicSkillId(spell_id); skill_id != ESkill::kUndefined) {
+	if (auto skill_id = MUD::Spell(spell_id).GetSuccessRoll().GetBaseSkill(); skill_id != ESkill::kUndefined) {
 		TrainSkill(ch, skill_id, true, tch);
 	}
 	// Комнату тут в SaySpell не обрабатываем - будет сказал "что-то"
@@ -867,7 +867,7 @@ int CalcCastSuccess(CharData *ch, CharData *victim, ESaving saving, ESpell spell
 		prob += GetRealLevel(ch) - 20;
 	}
 
-	const ESkill skill_number = GetMagicSkillId(spell_id);
+	const ESkill skill_number = MUD::Spell(spell_id).GetSuccessRoll().GetBaseSkill();
 	if (skill_number != ESkill::kUndefined) {
 		prob += ch->GetSkill(skill_number) / 20;
 	}

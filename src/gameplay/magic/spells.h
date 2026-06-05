@@ -48,7 +48,6 @@ bool CanGetSpell(const CharData *ch, ESpell spell_id, int req_lvl);
 int CalcMinSpellLvl(const CharData *ch, ESpell spell_id, int req_lvl);
 int CalcMinSpellLvl(const CharData *ch, ESpell spell_id);
 int CalcMinRuneSpellLvl(const CharData *ch, ESpell spell_id);
-ESkill GetMagicSkillId(ESpell spell_id);
 
 //#define CALC_SUCCESS(modi, perc)         ((modi)-100+(perc))
 

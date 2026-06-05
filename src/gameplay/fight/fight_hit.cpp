@@ -990,7 +990,7 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 		if (ch->in_room != victim->in_room) {  //если сбег по трусости
 			return;
 		}
-		auto skillnum = GetMagicSkillId(ESpell::kCloudOfArrows);
+		auto skillnum = MUD::Spell(ESpell::kCloudOfArrows).GetSuccessRoll().GetBaseSkill();
 		TrainSkill(ch, skillnum, true, victim);
 	}
 	// вычисление хитролов/ац

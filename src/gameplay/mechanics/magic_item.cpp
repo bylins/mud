@@ -426,7 +426,7 @@ int CheckRecipeItems(CharData *ch, ESpell spell_id, ESpellType spell_type, int e
 						(tch && tch != ch ? " на " : ""),
 						(tch && tch != ch ? GET_PAD(tch, 1) : ""));
 				act(buf, true, ch, nullptr, nullptr, kToArenaListen);
-				auto magic_skill = GetMagicSkillId(spell_id);
+				auto magic_skill = MUD::Spell(spell_id).GetSuccessRoll().GetBaseSkill();
 				if (MUD::Skills().IsValid(magic_skill)) {
 					TrainSkill(ch, magic_skill, true, tch);
 				}

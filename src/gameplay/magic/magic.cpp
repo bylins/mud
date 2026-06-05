@@ -109,7 +109,7 @@ int CalcAntiSavings(CharData *ch) {
 
 int CalcClassAntiSavingsMod(CharData *ch, ESpell spell_id) {
 	auto mod = MUD::Class(ch->GetClass()).spells[spell_id].GetCastMod();
-	auto skill = ch->GetSkill(GetMagicSkillId(spell_id));
+	auto skill = ch->GetSkill(MUD::Spell(spell_id).GetSuccessRoll().GetBaseSkill());
 	return static_cast<int>(mod*skill);
 }
 
@@ -2729,7 +2729,7 @@ static ECastResult RunActionOverTargets(CastContext &ctx, const std::vector<Char
 	// roster; else the historical count, capped at the roster size.
 	const int n = (area.max_targets <= 0)
 			? static_cast<int>(targets.size())
-			: std::min(area.CalcTargetsQuantity(caster->GetSkill(GetMagicSkillId(spell_id)),
+			: std::min(area.CalcTargetsQuantity(caster->GetSkill(MUD::Spell(spell_id).GetSuccessRoll().GetBaseSkill()),
 													  ctx.potency().stat_coeff),
 					   static_cast<int>(targets.size()));
 	const double decay_eff = (!caster->IsNpc() && CanUseFeat(caster, EFeat::kMultipleCast))
