@@ -117,6 +117,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <verbal/>
             <weave/>
         </components>
+        <success_roll>
+            <base_skill id="kAirMagic" low_skill_bonus="2" hi_skill_bonus="2"/>
+            <base_stat id="kInt" threshold="14" weight="0.5"/>
+        </success_roll>
         <misc pos="kStand" violent="N" danger="1"/>
         <mana max="140" min="120" change="2"/>
         <targets val="kTarCharRoom"/>
@@ -278,6 +282,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <verbal/>
             <weave/>
         </components>
+        <success_roll>
+            <base_skill id="kMindMagic" low_skill_bonus="2" hi_skill_bonus="2"/>
+            <base_stat id="kCha" threshold="14" weight="0.5"/>
+        </success_roll>
         <misc pos="kFight" violent="Y" danger="1"/>
         <mana max="55" min="40" change="1"/>
         <targets val="kTarCharRoom|kTarNotSelf"/>
@@ -389,6 +397,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <verbal/>
             <weave/>
         </components>
+        <success_roll>
+            <base_skill id="kAirMagic" low_skill_bonus="2" hi_skill_bonus="2"/>
+            <base_stat id="kWis" threshold="14" weight="0.5"/>
+        </success_roll>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="100" min="90" change="1"/>
         <targets val="kTarIgnore"/>
@@ -405,6 +417,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <verbal/>
             <weave/>
         </components>
+        <success_roll>
+            <base_skill id="kLifeMagic" low_skill_bonus="2" hi_skill_bonus="2"/>
+            <base_stat id="kWis" threshold="14" weight="0.5"/>
+        </success_roll>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="40" min="30" change="1"/>
         <targets val="kTarIgnore"/>
@@ -420,6 +436,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <verbal/>
             <weave/>
         </components>
+        <success_roll>
+            <base_skill id="kLifeMagic" low_skill_bonus="2" hi_skill_bonus="2"/>
+            <base_stat id="kWis" threshold="14" weight="0.5"/>
+        </success_roll>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="40" min="30" change="1"/>
         <targets val="kTarObjInv|kTarObjEquip|kTarCharRoom"/>
@@ -754,6 +774,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <weave/>
             <material any_of="1930"/>
         </components>
+        <success_roll>
+            <base_skill id="kLightMagic" low_skill_bonus="2" hi_skill_bonus="2"/>
+            <base_stat id="kInt" threshold="14" weight="0.5"/>
+        </success_roll>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="140" min="110" change="2"/>
         <targets val="kTarObjInv"/>
@@ -958,6 +982,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <verbal/>
             <weave/>
         </components>
+        <success_roll>
+            <base_skill id="kMindMagic" low_skill_bonus="2" hi_skill_bonus="2"/>
+            <base_stat id="kInt" threshold="14" weight="0.5"/>
+        </success_roll>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="140" min="110" change="2"/>
         <targets val="kTarObjWorld"/>
@@ -1273,6 +1301,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <verbal/>
             <weave/>
         </components>
+        <success_roll>
+            <base_skill id="kMindMagic" low_skill_bonus="2" hi_skill_bonus="2"/>
+            <base_stat id="kCha" threshold="14" weight="0.5"/>
+        </success_roll>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="110" min="100" change="2"/>
         <targets val="kTarCharWorld|kTarNotSelf"/>
@@ -1323,6 +1355,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <verbal/>
             <weave/>
         </components>
+        <success_roll>
+            <base_skill id="kMindMagic" low_skill_bonus="2" hi_skill_bonus="2"/>
+            <base_stat id="kInt" threshold="14" weight="0.5"/>
+        </success_roll>
         <misc pos="kFight" violent="A" danger="0"/>
         <mana max="140" min="100" change="4"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
@@ -1403,6 +1439,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <verbal/>
             <weave/>
         </components>
+        <success_roll>
+            <base_skill id="kDarkMagic" low_skill_bonus="2" hi_skill_bonus="2"/>
+            <base_stat id="kWis" threshold="14" weight="0.5"/>
+        </success_roll>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="50" min="35" change="3"/>
         <targets val="kTarObjRoom"/>
@@ -1543,6 +1583,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <verbal/>
             <weave/>
         </components>
+        <success_roll>
+            <base_skill id="kMindMagic" low_skill_bonus="2" hi_skill_bonus="2"/>
+            <base_stat id="kInt" threshold="14" weight="0.5"/>
+        </success_roll>
         <misc pos="kFight" violent="A" danger="0"/>
         <mana max="125" min="120" change="2"/>
         <targets val="kTarIgnore"/>
@@ -1884,6 +1928,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <verbal/>
             <weave/>
         </components>
+        <success_roll>
+            <base_skill id="kLightMagic" low_skill_bonus="2" hi_skill_bonus="2"/>
+            <base_stat id="kInt" threshold="14" weight="0.5"/>
+        </success_roll>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="40" min="30" change="1"/>
         <targets val="kTarIgnore"/>
@@ -2284,6 +2332,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <verbal/>
             <weave/>
         </components>
+        <success_roll>
+            <base_skill id="kLightMagic" low_skill_bonus="2" hi_skill_bonus="2"/>
+            <base_stat id="kInt" threshold="14" weight="0.5"/>
+        </success_roll>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="110" min="100" change="1"/>
         <targets val="kTarObjInv|kTarObjEquip"/>
@@ -2334,6 +2386,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <verbal/>
             <weave/>
         </components>
+        <success_roll>
+            <base_skill id="kDarkMagic" low_skill_bonus="2" hi_skill_bonus="2"/>
+            <base_stat id="kCha" threshold="14" weight="0.5"/>
+        </success_roll>
         <misc pos="kFight" violent="Y" danger="1"/>
         <mana max="70" min="55" change="1"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
@@ -2640,6 +2696,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <verbal/>
             <weave/>
         </components>
+        <success_roll>
+            <base_skill id="kDarkMagic" low_skill_bonus="2" hi_skill_bonus="2"/>
+            <base_stat id="kWis" threshold="14" weight="0.5"/>
+        </success_roll>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="120" min="100" change="2"/>
         <targets val="kTarObjRoom"/>
@@ -3090,6 +3150,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <verbal/>
             <weave/>
         </components>
+        <success_roll>
+            <base_skill id="kLifeMagic" low_skill_bonus="2" hi_skill_bonus="2"/>
+            <base_stat id="kCha" threshold="14" weight="0.5"/>
+        </success_roll>
         <misc pos="kStand" violent="N" danger="10"/>
         <mana max="70" min="55" change="1"/>
         <targets val="kTarCharRoom"/>
@@ -3537,6 +3601,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <verbal/>
             <weave/>
         </components>
+        <success_roll>
+            <base_skill id="kLightMagic" low_skill_bonus="2" hi_skill_bonus="2"/>
+            <base_stat id="kInt" threshold="14" weight="0.5"/>
+        </success_roll>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="200" min="180" change="4"/>
         <targets val="kTarCharWorld"/>
@@ -3547,7 +3615,7 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </talent_actions>
 </spell>
-    <spell id="kPortalTimer" element="kLight" mode="kEnabled">
+    <spell id="kPortalTimer" element="kLight" mode="kService">
         <name rus="врата" eng="portal"/>
         <components>
             <verbal/>
@@ -3662,6 +3730,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <verbal/>
             <weave/>
         </components>
+        <success_roll>
+            <base_skill id="kLightMagic" low_skill_bonus="2" hi_skill_bonus="2"/>
+            <base_stat id="kInt" threshold="14" weight="0.5"/>
+        </success_roll>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="130" min="110" change="2"/>
         <targets val="kTarIgnore"/>
@@ -3679,6 +3751,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <verbal/>
             <weave/>
         </components>
+        <success_roll>
+            <base_skill id="kLightMagic" low_skill_bonus="2" hi_skill_bonus="2"/>
+            <base_stat id="kInt" threshold="14" weight="0.5"/>
+        </success_roll>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="130" min="110" change="2"/>
         <targets val="kTarIgnore"/>
@@ -3730,6 +3806,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <verbal/>
             <weave/>
         </components>
+        <success_roll>
+            <base_skill id="kAirMagic" low_skill_bonus="2" hi_skill_bonus="2"/>
+            <base_stat id="kInt" threshold="14" weight="0.5"/>
+        </success_roll>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="140" min="120" change="2"/>
         <targets val="kTarCharWorld"/>
@@ -4050,6 +4130,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <verbal/>
             <weave/>
         </components>
+        <success_roll>
+            <base_skill id="kEarthMagic" low_skill_bonus="2" hi_skill_bonus="2"/>
+            <base_stat id="kInt" threshold="14" weight="0.5"/>
+        </success_roll>
         <misc pos="kFight" violent="Y" danger="0"/>
         <mana max="125" min="110" change="2"/>
         <targets val="kTarRoomThis"/>
@@ -4750,6 +4834,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <verbal/>
             <weave/>
         </components>
+        <success_roll>
+            <base_skill id="kLightMagic" low_skill_bonus="2" hi_skill_bonus="2"/>
+            <base_stat id="kWis" threshold="12" weight="0.5"/>
+        </success_roll>
         <misc pos="kStand" violent="N" danger="1"/>
         <mana max="150" min="130" change="5"/>
         <targets val="kTarIgnore"/>
@@ -4766,6 +4854,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <verbal/>
             <weave/>
         </components>
+        <success_roll>
+            <base_skill id="kDarkMagic" low_skill_bonus="2" hi_skill_bonus="2"/>
+            <base_stat id="kWis" threshold="14" weight="0.5"/>
+        </success_roll>
         <misc pos="kFight" violent="Y" danger="4"/>
         <mana max="140" min="120" change="2"/>
         <targets val="kTarIgnore"/>
@@ -4933,6 +5025,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <verbal/>
             <weave/>
         </components>
+        <success_roll>
+            <base_skill id="kLifeMagic" low_skill_bonus="2" hi_skill_bonus="2"/>
+            <base_stat id="kWis" threshold="14" weight="0.5"/>
+        </success_roll>
         <misc pos="kStand" violent="N" danger="30"/>
         <mana max="160" min="140" change="1"/>
         <targets val="kTarIgnore"/>
@@ -5093,6 +5189,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <verbal/>
             <weave/>
         </components>
+        <success_roll>
+            <base_skill id="kDarkMagic" low_skill_bonus="2" hi_skill_bonus="2"/>
+            <base_stat id="kWis" threshold="14" weight="0.5"/>
+        </success_roll>
         <misc pos="kFight" violent="Y" danger="2"/>
         <mana max="140" min="110" change="1"/>
         <targets val="kTarRoomThis"/>
@@ -5156,6 +5256,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <verbal/>
             <weave/>
         </components>
+        <success_roll>
+            <base_skill id="kAirMagic" low_skill_bonus="2" hi_skill_bonus="2"/>
+            <base_stat id="kWis" threshold="14" weight="0.5"/>
+        </success_roll>
         <misc pos="kFight" violent="Y" danger="7"/>
         <mana max="140" min="110" change="1"/>
         <targets val="kTarRoomThis"/>
@@ -5992,6 +6096,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <verba/>
             <weave/>
         </components>
+        <success_roll>
+            <base_skill id="kLightMagic" low_skill_bonus="2" hi_skill_bonus="2"/>
+            <base_stat id="kInt" threshold="14" weight="0.5"/>
+        </success_roll>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="110" min="100" change="1"/>
         <targets val="kTarObjInv|kTarObjEquip"/>
@@ -6002,6 +6110,10 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kCombatLuck" element="kMind" mode="kEnabled">
+        <success_roll>
+            <base_skill id="kMindMagic" low_skill_bonus="2" hi_skill_bonus="2"/>
+            <base_stat id="kCha" threshold="14" weight="0.5"/>
+        </success_roll>
         <name rus="боевое везение" eng="lacky"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="100" min="90" change="1"/>
@@ -6049,15 +6161,16 @@ base_stat id - (например "kWis") какой берем параметр,
             <weave/>
             <material any_of="3006"/>
         </components>
+        <success_roll>
+            <base_skill id="kMindMagic" low_skill_bonus="2" hi_skill_bonus="2"/>
+            <base_stat id="kCha" threshold="14" weight="0.5"/>
+        </success_roll>
         <misc pos="kStand" violent="Y" danger="0"/>
         <mana max="120" min="100" change="2"/>
         <targets val="kTarRoomThis"/>
         <flags val="kMagRoom|kMagCasterInroom"/>
         <talent_actions>
             <action>
-                <!-- OLD: 30 + (L+R)*RollDices(1,3) random per-cast, mean ~114 at L=30 R=12.
-                     XML version is constant; randomisation is lost in the migration. The
-                     material-component check stays code-side. -->
                 <affects type="kHypnoticPattern" saving="kNone" resist="kVitality">
                     <duration base="114" skill_divisor="0" min="0" max="0"/>
                     <flags val="kAfDispellable"/>
@@ -6065,14 +6178,14 @@ base_stat id - (например "kWis") какой берем параметр,
             </action>
         </talent_actions>
     </spell>
-    <spell id="kSolobonus" element="kUndefined" mode="kEnabled">
+    <spell id="kSolobonus" element="kUndefined" mode="kService">
         <name rus="награда" eng="bonus"/>
         <misc pos="kFight" violent="N" danger="1"/>
         <mana max="55" min="40" change="1"/>
         <targets val="kTarCharRoom|kTarNotSelf"/>
         <flags val="kMagManual"/>
     </spell>
-    <spell id="kVampirism" element="kDark" mode="kEnabled">
+    <spell id="kVampirism" element="kDark" mode="kDisabled">
         <name rus="вампиризм" eng="vampire"/>
         <components>
             <verbal/>
@@ -6110,6 +6223,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <verbal/>
             <weave/>
         </components>
+        <success_roll>
+            <base_skill id="kLightMagic" low_skill_bonus="2" hi_skill_bonus="2"/>
+            <base_stat id="kInt" threshold="14" weight="0.5"/>
+        </success_roll>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="110" min="100" change="1"/>
         <targets val="kTarObjInv|kTarObjEquip"/>
@@ -6125,6 +6242,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <verbal/>
             <weave/>
         </components>
+        <success_roll>
+            <base_skill id="kDarkMagic" low_skill_bonus="2" hi_skill_bonus="2"/>
+            <base_stat id="kInt" threshold="14" weight="0.5"/>
+        </success_roll>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="140" min="120" change="2"/>
         <targets val="kTarIgnore"/>
@@ -6144,6 +6265,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <verbal/>
             <weave/>
         </components>
+        <success_roll>
+            <base_skill id="kDarkMagic" low_skill_bonus="2" hi_skill_bonus="2"/>
+            <base_stat id="kWis" threshold="14" weight="0.5"/>
+        </success_roll>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="110" min="100" change="1"/>
         <targets val="kTarCharRoom|kTarFightSelf"/>
@@ -6155,6 +6280,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <verbal/>
             <weave/>
         </components>
+        <success_roll>
+            <base_skill id="kDarkMagic" low_skill_bonus="2" hi_skill_bonus="2"/>
+            <base_stat id="kWis" threshold="14" weight="0.5"/>
+        </success_roll>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="110" min="100" change="1"/>
         <targets val="kTarIgnore"/>
@@ -6174,6 +6303,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <verbal/>
             <weave/>
         </components>
+        <success_roll>
+            <base_skill id="kDarkMagic" low_skill_bonus="2" hi_skill_bonus="2"/>
+            <base_stat id="kWis" threshold="14" weight="0.5"/>
+        </success_roll>
         <misc pos="kStand" violent="N" danger="3"/>
         <mana max="150" min="130" change="5"/>
         <targets val="kTarIgnore"/>
@@ -6185,6 +6318,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <verbal/>
             <weave/>
         </components>
+        <success_roll>
+            <base_skill id="kMindMagic" low_skill_bonus="2" hi_skill_bonus="2"/>
+            <base_stat id="kCha" threshold="14" weight="0.5"/>
+        </success_roll>
         <misc pos="kStand" violent="N" danger="1"/>
         <mana max="150" min="130" change="5"/>
         <targets val="kTarIgnore"/>
@@ -6666,6 +6803,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <verbal/>
             <weave/>
         </components>
+        <success_roll>
+            <base_skill id="kLifeMagic" low_skill_bonus="2" hi_skill_bonus="2"/>
+            <base_stat id="kInt" threshold="14" weight="0.5"/>
+        </success_roll>
         <misc pos="kFight" violent="N" danger="1"/>
         <mana max="110" min="100" change="1"/>
         <targets val="kTarIgnore"/>
@@ -7313,6 +7454,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <verbal/>
             <weave/>
         </components>
+        <success_roll>
+            <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </success_roll>
         <misc pos="kSit" violent="N" danger="0"/>
         <mana max="0" min="0" change="0"/>
         <targets val="kTarCharRoom|kTarObjInv|kTarObjRoom|kTarObjEquip"/>
@@ -7329,6 +7474,10 @@ base_stat id - (например "kWis") какой берем параметр,
             <verbal/>
             <weave/>
         </components>
+        <success_roll>
+            <base_skill id="kMindMagic" low_skill_bonus="3" hi_skill_bonus="1.25"/>
+            <base_stat id="kWis" threshold="22" weight="0.5"/>
+        </success_roll>
         <misc pos="kSit" violent="N" danger="0"/>
         <mana max="0" min="0" change="0"/>
         <targets val="kTarCharRoom|kTarObjInv|kTarObjRoom|kTarObjEquip"/>
