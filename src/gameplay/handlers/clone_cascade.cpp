@@ -69,6 +69,7 @@ namespace handlers {
 
 void CloneCascade(CharData *ch, CharData *mob, const CastContext &ctx, int /*duration*/) {
 	ApplyCloneCosmetics(ch, mob);
+	mob->SetFlag(EMobFlag::kSummoned);	// true conjuration (banishable)
 	int already = 0;
 	for (auto *k : ch->followers) {
 		if (AFF_FLAGGED(k, EAffect::kCharmed) && k->get_master() == ch) {
@@ -91,6 +92,7 @@ void CloneCascade(CharData *ch, CharData *mob, const CastContext &ctx, int /*dur
 		FinalizeSummonedMob(ch, extra, ctx.spell_id(), true);
 		ApplyCloneCosmetics(ch, extra);
 		extra->SetFlag(EMobFlag::kNoSkillTrain);
+		extra->SetFlag(EMobFlag::kSummoned);	// true conjuration (banishable)
 		extra->char_specials.saved.alignment = ch->char_specials.saved.alignment;
 	}
 }

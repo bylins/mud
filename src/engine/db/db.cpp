@@ -1846,7 +1846,7 @@ CharData *ReadMobile(MobVnum nr, int type) {                // and MobRnum
 		mob_index[i].total_online++;
 		assign_triggers(mob, MOB_TRIGGER);
 	} else {
-		mob->SetFlag(EMobFlag::kSummoned);
+		mob->SetFlag(EMobFlag::kCompanion);
 	}
 	chardata_by_uid[mob->get_uid()] = mob;
 	i = mob_index[i].zone;

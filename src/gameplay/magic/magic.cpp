@@ -1296,7 +1296,7 @@ EStageResult CastSummonAction(CastContext &ctx) {
 		}
 	}
 	// A negative vnum tells ReadMobile to load a *summoned* instance: no trigger assignment, no
-	// mob-index online count, EMobFlag::kSummoned set. The <summon vnum> is the plain positive
+	// mob-index online count, EMobFlag::kCompanion set. The <summon vnum> is the plain positive
 	// prototype, so negate it here (issue.summons-fix).
 	CharData *mob = ReadMobile(-s.mob_vnum, kVirtual);
 	if (!mob) {

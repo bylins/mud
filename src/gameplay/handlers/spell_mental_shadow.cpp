@@ -90,6 +90,7 @@ EStageResult SpellMentalShadow(CastContext &ctx) {
 	mob->set_level(GetRealLevel(ch));
 	mob->SetFlag(EMobFlag::kCorpse);
 	mob->SetFlag(EMobFlag::kMentalShadow);
+	mob->SetFlag(EMobFlag::kSummoned);	// true conjuration (banishable)
 	PlaceCharToRoom(mob, ch->in_room);
 	ch->add_follower(mob);
 	mob->set_protecting(ch);

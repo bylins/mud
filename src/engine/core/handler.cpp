@@ -1756,7 +1756,7 @@ void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset) {
 		Crash_delete_crashfile(ch);
 	} else {
 //		log("[Extract char] All clear for NPC");
-		if ((ch->get_rnum() >= 0) && !ch->IsFlagged(EMobFlag::kSummoned)) {
+		if ((ch->get_rnum() >= 0) && !ch->IsFlagged(EMobFlag::kCompanion)) {
 			mob_index[ch->get_rnum()].total_online--;
 		}
 	}

@@ -436,7 +436,7 @@ CharData *find_friend_cure(CharData *caster, ESpell spell_id) {
 	}
 
 	if ((AFF_FLAGGED(caster, EAffect::kCharmed) || caster->IsFlagged(EMobFlag::kTutelar)
-		|| caster->IsFlagged(EMobFlag::kMentalShadow) || caster->IsFlagged(EMobFlag::kSummoned)) // ()
+		|| caster->IsFlagged(EMobFlag::kMentalShadow) || caster->IsFlagged(EMobFlag::kCompanion)) // ()
 		&& AFF_FLAGGED(caster, EAffect::kHelper)) {
 		if (get_hp_perc(caster) < AFF_USED) {
 			return caster;
@@ -453,7 +453,7 @@ CharData *find_friend_cure(CharData *caster, ESpell spell_id) {
 	for (const auto vict : world[caster->in_room]->people) {
 		if (!vict->IsNpc()
 			|| AFF_FLAGGED(vict, EAffect::kCharmed)
-			|| ((vict->IsFlagged(EMobFlag::kTutelar) || vict->IsFlagged(EMobFlag::kMentalShadow) || vict->IsFlagged(EMobFlag::kSummoned)) // ()
+			|| ((vict->IsFlagged(EMobFlag::kTutelar) || vict->IsFlagged(EMobFlag::kMentalShadow) || vict->IsFlagged(EMobFlag::kCompanion)) // ()
 				&& vict->has_master()
 				&& !vict->get_master()->IsNpc())
 			|| !CAN_SEE(caster, vict)) {
@@ -502,7 +502,7 @@ CharData *find_friend(CharData *caster, ESpell spell_id) {
 	}
 	if (AFF_FLAGGED(caster, EAffect::kHelper)
 		&& (AFF_FLAGGED(caster, EAffect::kCharmed)
-			|| caster->IsFlagged(EMobFlag::kTutelar) || caster->IsFlagged(EMobFlag::kMentalShadow) || caster->IsFlagged(EMobFlag::kSummoned))) { //()
+			|| caster->IsFlagged(EMobFlag::kTutelar) || caster->IsFlagged(EMobFlag::kMentalShadow) || caster->IsFlagged(EMobFlag::kCompanion))) { //()
 		if (caster->has_any_affect(AFF_USED)
 			|| IsAffectedBySpell(caster, spellreal)) {
 			return caster;
@@ -522,7 +522,7 @@ CharData *find_friend(CharData *caster, ESpell spell_id) {
 			if (!vict->IsNpc() || AFF_FLAGGED(vict, EAffect::kCharmed) ||
 				((vict->IsFlagged(EMobFlag::kTutelar) ||
 				vict->IsFlagged(EMobFlag::kMentalShadow) ||
-				vict->IsFlagged(EMobFlag::kSummoned)) // ()
+				vict->IsFlagged(EMobFlag::kCompanion)) // ()
 					&& vict->get_master()
 					&& !vict->get_master()->IsNpc())
 				|| !CAN_SEE(caster, vict)) {
@@ -580,7 +580,7 @@ CharData *find_caster(CharData *caster, ESpell spell_id) {
 
 	if (AFF_FLAGGED(caster, EAffect::kHelper)
 		&& (AFF_FLAGGED(caster, EAffect::kCharmed)
-			|| caster->IsFlagged(EMobFlag::kTutelar) || caster->IsFlagged(EMobFlag::kMentalShadow) || caster->IsFlagged(EMobFlag::kSummoned))) { // ()
+			|| caster->IsFlagged(EMobFlag::kTutelar) || caster->IsFlagged(EMobFlag::kMentalShadow) || caster->IsFlagged(EMobFlag::kCompanion))) { // ()
 		if (caster->has_any_affect(AFF_USED)
 			|| IsAffectedBySpell(caster, spellreal)) {
 			return caster;
@@ -599,7 +599,7 @@ CharData *find_caster(CharData *caster, ESpell spell_id) {
 		for (const auto vict : world[caster->in_room]->people) {
 			if (!vict->IsNpc()
 				|| AFF_FLAGGED(vict, EAffect::kCharmed)
-				|| ((vict->IsFlagged(EMobFlag::kTutelar) || vict->IsFlagged(EMobFlag::kMentalShadow) || vict->IsFlagged(EMobFlag::kSummoned)) // ()
+				|| ((vict->IsFlagged(EMobFlag::kTutelar) || vict->IsFlagged(EMobFlag::kMentalShadow) || vict->IsFlagged(EMobFlag::kCompanion)) // ()
 					&& (vict->get_master() && !vict->get_master()->IsNpc()))
 				|| !CAN_SEE(caster, vict)) {
 				continue;
@@ -667,7 +667,7 @@ CharData *find_affectee(CharData *caster, ESpell spell_id) {
 		spellreal = ESpell::kDetectPoison;
 
 	if ((AFF_FLAGGED(caster, EAffect::kCharmed) || caster->IsFlagged(EMobFlag::kTutelar) ||
-		caster->IsFlagged(EMobFlag::kMentalShadow) || caster->IsFlagged(EMobFlag::kSummoned)) &&
+		caster->IsFlagged(EMobFlag::kMentalShadow) || caster->IsFlagged(EMobFlag::kCompanion)) &&
 		AFF_FLAGGED(caster, EAffect::kHelper)) {
 		if (!IsAffectedBySpell(caster, spellreal)) {
 			return caster;
@@ -685,7 +685,7 @@ CharData *find_affectee(CharData *caster, ESpell spell_id) {
 		for (const auto vict : world[caster->in_room]->people) {
 			if (!vict->IsNpc()
 				|| AFF_FLAGGED(vict, EAffect::kCharmed)
-				|| ((vict->IsFlagged(EMobFlag::kTutelar) || vict->IsFlagged(EMobFlag::kMentalShadow) || vict->IsFlagged(EMobFlag::kSummoned)) // ()
+				|| ((vict->IsFlagged(EMobFlag::kTutelar) || vict->IsFlagged(EMobFlag::kMentalShadow) || vict->IsFlagged(EMobFlag::kCompanion)) // ()
 					&& vict->has_master()
 					&& !vict->get_master()->IsNpc())
 				|| !CAN_SEE(caster, vict)) {
@@ -735,7 +735,7 @@ CharData *find_opp_affectee(CharData *caster, ESpell spell_id) {
 	if (GetRealInt(caster) > number(10, 20)) {
 		for (const auto vict : world[caster->in_room]->people) {
 			if ((vict->IsNpc()
-				&& !((vict->IsFlagged(EMobFlag::kTutelar) || vict->IsFlagged(EMobFlag::kMentalShadow) || vict->IsFlagged(EMobFlag::kSummoned) // ()
+				&& !((vict->IsFlagged(EMobFlag::kTutelar) || vict->IsFlagged(EMobFlag::kMentalShadow) || vict->IsFlagged(EMobFlag::kCompanion) // ()
 					|| AFF_FLAGGED(vict, EAffect::kCharmed))
 					&& vict->has_master()
 					&& !vict->get_master()->IsNpc()))
@@ -772,7 +772,7 @@ CharData *find_opp_caster(CharData *caster) {
 
 	for (const auto vict : world[caster->in_room]->people) {
 		if (vict->IsNpc()
-			&& !((vict->IsFlagged(EMobFlag::kTutelar) || vict->IsFlagged(EMobFlag::kMentalShadow) || vict->IsFlagged(EMobFlag::kSummoned)) //
+			&& !((vict->IsFlagged(EMobFlag::kTutelar) || vict->IsFlagged(EMobFlag::kMentalShadow) || vict->IsFlagged(EMobFlag::kCompanion)) //
 				&& vict->has_master()
 				&& !vict->get_master()->IsNpc())) {
 			continue;
@@ -948,7 +948,7 @@ CharData *find_minhp(CharData *caster) {
 	if (GetRealInt(caster) > number(10, 20)) {
 		for (const auto vict : world[caster->in_room]->people) {
 			if ((vict->IsNpc()
-				&& !((vict->IsFlagged(EMobFlag::kTutelar) || vict->IsFlagged(EMobFlag::kMentalShadow) || vict->IsFlagged(EMobFlag::kSummoned) // ()
+				&& !((vict->IsFlagged(EMobFlag::kTutelar) || vict->IsFlagged(EMobFlag::kMentalShadow) || vict->IsFlagged(EMobFlag::kCompanion) // ()
 					|| AFF_FLAGGED(vict, EAffect::kCharmed))
 					&& vict->has_master()
 					&& !vict->get_master()->IsNpc()))

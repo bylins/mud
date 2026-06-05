@@ -57,7 +57,7 @@ void ApplyAnimalMaster(CharData *ch, CharData *victim, Affect<EApply> &af,
 	ch->send_to_TC(false, true, false, "Владение скилом: %d.\r\n", k_skills);
 	// === Формируем новые статы ===
 	// Устанавливаем на виктим флаг маг-сумон (маг-зверь)
-	victim->SetFlag(EMobFlag::kSummoned);
+	victim->SetFlag(EMobFlag::kCompanion);
 	// Модифицируем имя в зависимости от хари
 	static char descr[kMaxStringLength];
 	int gender;

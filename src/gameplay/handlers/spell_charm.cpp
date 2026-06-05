@@ -110,7 +110,7 @@ EStageResult SpellCharm(CastContext &ctx) {
 		}
 		victim->summon_helpers.clear();
 		if (victim->IsNpc()) {
-			if (!victim->IsFlagged(EMobFlag::kSummoned)) { // только если не маг зверьки ()
+			if (!victim->IsFlagged(EMobFlag::kCompanion)) { // только если не маг зверьки ()
 				for (int i = 0; i < EEquipPos::kNumEquipPos; i++) {
 					if (GET_EQ(victim, i)) {
 						if (!remove_otrigger(GET_EQ(victim, i), victim)) {
@@ -151,7 +151,7 @@ EStageResult SpellCharm(CastContext &ctx) {
 		ch->add_follower(victim);
 	}
 	// тут обрабатываем, если виктим маг-зверь => передаем в фунцию создание маг шмоток (цель, базовый скил, процент владения)
-	if (victim->IsFlagged(EMobFlag::kSummoned)) {
+	if (victim->IsFlagged(EMobFlag::kCompanion)) {
 		create_charmice_stuff(victim, skill_id, k_skills);
 	}
 	return EStageResult::kSuccess;

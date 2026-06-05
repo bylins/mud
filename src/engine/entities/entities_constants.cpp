@@ -608,6 +608,7 @@ void init_EMobFlag_ITEM_NAMES() {
 	EMobFlag_name_by_value[EMobFlag::kNoBattleExp] = "kNoBattleExp";
 	EMobFlag_name_by_value[EMobFlag::kNoHammer] = "kNoHammer";
 	EMobFlag_name_by_value[EMobFlag::kMentalShadow] = "kMentalShadow";
+	EMobFlag_name_by_value[EMobFlag::kCompanion] = "kCompanion";
 	EMobFlag_name_by_value[EMobFlag::kSummoned] = "kSummoned";
 	EMobFlag_name_by_value[EMobFlag::kUndead] = "kUndead";
 	EMobFlag_name_by_value[EMobFlag::kFireBreath] = "kFireBreath";

@@ -21,6 +21,7 @@ void SetupKeeperStats(CharData *ch, CharData *mob, const CastContext &ctx) {
 	mob->set_con(SummonScaledStat(ctx, 10, 0.0, 5.5));
 	GET_HR(mob) = SummonScaledStat(ctx, 0, 0.0, 12.4);
 	GET_AC(mob) = 100 - SummonScaledStat(ctx, 0, 0.0, 72.6);
+	mob->SetFlag(EMobFlag::kSummoned);	// true conjuration (banishable)
 }
 
 }  // namespace handlers
