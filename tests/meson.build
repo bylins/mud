@@ -35,7 +35,6 @@ test_sources = files(
     'quested.cpp',
     'sprintbitwd.cpp',
     'triggers.list.cpp',
-    'radix.trie.cpp',
     'compact.trie.cpp',
     'compact.trie.iterators.cpp',
     'yaml.save.encoding.cpp',

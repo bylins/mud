@@ -553,7 +553,6 @@ main_sources = files(
   'src/gameplay/economics/shops_implementation.cpp',
   'src/engine/db/world_characters.cpp',
   'src/utils/utils_debug.cpp',
-  'src/engine/structs/radix_trie.cpp',
   'src/engine/structs/compact_trie.cpp',
   'src/engine/entities/zone.cpp',
   'src/engine/entities/zone_types.cpp',
