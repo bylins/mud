@@ -58,6 +58,10 @@ void vedun_parse(DescriptorData *d, char *arg);
 // Tear down the session and return the descriptor to play.
 void vedun_cleanup(DescriptorData *d);
 
+// issue.vedun-hotfixes: redraw the active editor prompt after the global pager (the "?" value-list
+// help) returns control. Called from print_con_prompt for the kVedun state.
+void vedun_reprompt(DescriptorData *d);
+
 // issue.vedun-editor: boot-time scheme lint. For every editable data set that has a .scheme, logs
 // scheme/data drift -- enum types the scheme references but the editor hasn't registered, and the
 // tags/attributes present in the data but not declared in the scheme (so they edit untyped). Cheap,

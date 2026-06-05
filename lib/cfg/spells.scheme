@@ -119,7 +119,6 @@
 		<child tag="points"/>
 		<child tag="target_conditions"/>
 		<child tag="reflection"/>
-		<child tag="caster_blocking"/>
 	</tag>
 
 	<tag name="target_conditions" desc="Gates on the target before this action fires">
@@ -167,7 +166,6 @@
 	<tag name="points" desc="Restore/drain points (hp / moves / thirst / fullness)">
 		<attr name="extra" type="int" min="0" desc="Extra applications"/>
 		<attr name="prob" type="int" min="0" max="100" desc="Chance to apply (percent)"/>
-		<child tag="targets"/>
 		<child tag="heal"/>
 		<child tag="moves"/>
 		<child tag="thirst"/>
@@ -241,7 +239,7 @@
 		<attr name="alpha" type="double" desc="Skill-scaling coefficient"/>
 		<attr name="beta" type="double" desc="Skill-scaling coefficient"/>
 		<attr name="factor" type="int" desc="Sign/scale factor (e.g. -1 to make it a penalty)"/>
-		<attr name="stack" type="string" desc="Stacking mode (count / accumulate / peel / persist / xN)"/>
+		<attr name="stack" type="int" min="2" desc="Number of stacks (must be >= 2)"/>
 		<attr name="cap" type="int" desc="Stacking cap"/>
 	</tag>
 
@@ -300,7 +298,7 @@
 		<child tag="affect_flags"/>
 	</tag>
 
-	<!-- Condition flag-tags (children of blocking / required / caster_blocking). affect_flags is typed
+	<!-- Condition flag-tags (children of blocking / required). affect_flags is typed
 	     (EAffect is registered); room_flags / mob_flags / align stay untyped until ERoomFlag / EMobFlag /
 	     EAlign get value->name maps (a separate task; the boot lint tracks them). -->
 	<tag name="affect_flags" desc="AFF bits gating the cast">

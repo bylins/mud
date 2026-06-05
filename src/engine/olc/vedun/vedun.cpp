@@ -605,7 +605,19 @@ void Render(DescriptorData *d) {
 		table_wrapper::PrintTableToChar(ch, table);
 	}
 	SendMsgToChar("\r\n&WSelect&n a number -- attribute = edit, <tag> = enter.\r\n", ch);
-	SendMsgToChar("&Wl&n) list   &Wp&n) print   &Wa&n) add child   &Wd&n) delete child   &Wm&n) move child   &Ws&n) save   &Wu&n) up   &Wq&n) quit\r\n", ch);
+	// issue.vedun-hotfixes: only offer "add child" when the scheme actually allows a child here
+	// (a tag with no addable children -- only attributes -- hides the menu item entirely).
+	const bool can_add = !AddableChildren(s).empty();
+	const bool has_kids = !kids.empty();
+	std::string menu = "&Wl&n) list   &Wp&n) print";
+	if (can_add) {
+		menu += "   &Wa&n) add child";
+	}
+	if (has_kids) {
+		menu += "   &Wd&n) delete child   &Wm&n) move child";
+	}
+	menu += "   &Ws&n) save   &Wu&n) up   &Wq&n) quit\r\n";
+	SendMsgToChar(menu, ch);
 }
 
 // The safe commit: validate the edited DOM (dry-parse, no swap), then atomically rewrite the file
@@ -1156,6 +1168,35 @@ void do_vedun(CharData *ch, char *argument, int /*cmd*/, int /*subcmd*/) {
 			entry->what, resolved_id), ch);
 	}
 	Render(d);
+}
+
+// issue.vedun-hotfixes (item 4): redraw the current editor prompt. The "?" value-list help uses
+// the global pager (page_string); when it hands control back (via print_con_prompt) the editor
+// would otherwise be left with a blank screen and look dead. Called from print_con_prompt for the
+// kVedun state so the active prompt is reprinted after the pager is dismissed.
+void vedun_reprompt(DescriptorData *d) {
+	if (!d || !d->vedun_session) {
+		return;
+	}
+	auto &s = *d->vedun_session;
+	switch (s.mode) {
+		case Mode::kEditFlagset: RenderFlagEditor(d); return;
+		case Mode::kAddChild:    RenderAddChild(d);   return;
+		case Mode::kDeleteChild: RenderDeleteChild(d); return;
+		case Mode::kMoveChild:   RenderMoveChild(d);  return;
+		case Mode::kConfirmQuit:
+			SendMsgToChar("&YUnsaved changes.&n  &Ws&n) save & exit   &Wa&n) abandon (no save)   &Wc&n) cancel\r\n",
+				d->character.get());
+			return;
+		case Mode::kEditAttr:
+			SendMsgToChar(fmt::format("New value for &g{}&n ('&W?&n' lists values; '.' or blank cancels):\r\n",
+				s.edit_attr), d->character.get());
+			return;
+		case Mode::kBrowse:
+		default:
+			Render(d);
+			return;
+	}
 }
 
 void vedun_parse(DescriptorData *d, char *arg) {

@@ -16,6 +16,7 @@
 #include <string>
 
 #include "modify.h"
+#include "engine/olc/vedun/vedun.h"
 #include "interpreter.h"
 #include "engine/core/handler.h"
 #include "engine/core/target_resolver.h"
@@ -1313,6 +1314,11 @@ void print_con_prompt(DescriptorData *d) {
 	}
 	if (d->state == EConState::kResetStats) {
 		genchar_disp_menu(d->character.get());
+	}
+	// issue.vedun-hotfixes: after the pager (used by the editor's "?" value-list help) is dismissed,
+	// redraw the Vedun editor's current prompt so the session does not look dead.
+	if (d->state == EConState::kVedun) {
+		vedun::vedun_reprompt(d);
 	}
 }
 
