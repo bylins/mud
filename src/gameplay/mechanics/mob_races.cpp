@@ -148,7 +148,7 @@ ItemPtr MobRaceBuilder::ParseRace(DataNode node) {
 		node.GoToParent();
 	}
 
-	if (node.GoToChild("tzs_flags")) {
+	if (node.GoToChild("npc_flags")) {
 		ParseFlagSet<ENpcFlag>(node.GetValue("val"), race->npc_flags_);
 		node.GoToParent();
 	}

@@ -542,7 +542,7 @@ EDirection& operator++(EDirection &d) {
 	return d;
 }
 
-// issue.npc-races: EMobFlag / ENpcFlag name tables (mob_flags / tzs_flags parsing + Vedun).
+// issue.npc-races: EMobFlag / ENpcFlag name tables (mob_flags / npc_flags parsing + Vedun).
 typedef std::map<EMobFlag, std::string> EMobFlag_name_by_value_t;
 typedef std::map<const std::string, EMobFlag> EMobFlag_value_by_name_t;
 EMobFlag_name_by_value_t EMobFlag_name_by_value;

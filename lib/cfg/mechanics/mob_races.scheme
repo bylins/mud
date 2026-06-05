@@ -14,7 +14,7 @@
 		<attr name="mode" type="enum" enum="EItemMode" desc="kEnabled / kDisabled / kTesting"/>
 		<child tag="imlist"/>
 		<child tag="mob_flags"/>
-		<child tag="tzs_flags"/>
+		<child tag="npc_flags"/>
 		<child tag="traits"/>
 	</tag>
 	<tag name="imlist" desc="Ingredient drop list">
@@ -32,7 +32,7 @@
 	<tag name="mob_flags" desc="EMobFlag set OR'd onto a loaded mob of this race">
 		<attr name="val" type="flagset" enum="EMobFlag" desc="EMobFlag flag set"/>
 	</tag>
-	<tag name="tzs_flags" desc="ENpcFlag set OR'd onto a loaded mob of this race">
+	<tag name="npc_flags" desc="ENpcFlag set OR'd onto a loaded mob of this race">
 		<attr name="val" type="flagset" enum="ENpcFlag" desc="ENpcFlag flag set"/>
 	</tag>
 	<tag name="traits" desc="Boolean race traits (presence markers)">

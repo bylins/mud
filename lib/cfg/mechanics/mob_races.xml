@@ -48,7 +48,7 @@
         <prob lvl="46" val="6" />
       </im>
     </imlist>
-    <tzs_flags val="kUsingMagicItems" />
+    <npc_flags val="kUsingMagicItems" />
     <traits>
       <vocal />
       <respiration />

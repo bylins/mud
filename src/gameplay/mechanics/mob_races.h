@@ -79,7 +79,7 @@ class MobRace : public info_container::BaseItem<int> {
 	std::string race_name_{"!undefined!"};
 	std::vector<ingredient> ingrlist_;
 	FlagData mob_flags_;	// EMobFlag set OR'd onto a freshly loaded instance (issue.npc-races item 8)
-	FlagData npc_flags_;	// ENpcFlag set OR'd onto a freshly loaded instance (the <tzs_flags> tag)
+	FlagData npc_flags_;	// ENpcFlag set OR'd onto a freshly loaded instance (the <npc_flags> tag)
 	bool vocal_{false};			// race can speak/incant (replaces the old per-race speech switch)
 	bool respiration_{false};	// race breathes (drives the can-breathe / strangle check)
 	bool skinnable_{false};		// corpses of this race can be skinned
