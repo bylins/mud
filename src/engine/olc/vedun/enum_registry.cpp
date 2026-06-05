@@ -68,6 +68,9 @@ void RegisterEditorEnums() {
 	registry.Register<EBaseStat>("EBaseStat");
 	registry.Register<ESaving>("ESaving");
 	registry.Register<EResist>("EResist");
+	registry.Register<ENpcRace>("ENpcRace");        // issue.npc-races: mob_race scheme
+	registry.Register<EMobFlag>("EMobFlag");        // issue.npc-races: <mob_flags>
+	registry.Register<ENpcFlag>("ENpcFlag");        // issue.npc-races: <tzs_flags>
 	registry.Register<EAffect>("EAffect");
 	registry.Register<EApply>("EApply");
 	registry.Register<ESpellMsg>("ESpellMsg");

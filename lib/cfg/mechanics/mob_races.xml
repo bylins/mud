@@ -353,6 +353,7 @@
   <mob_race id="kConstruct" name ="Предмет">
   </mob_race>
   <mob_race id="kZombie" name ="Живой труп">
+    <mob_flags val="kUndead" />
     <imlist>
       <im type="201" name ="зубы">
         <prob lvl="1" val="1" />
@@ -380,6 +381,7 @@
     </traits>
   </mob_race>
   <mob_race id="kGhost" name ="Призрак">
+    <mob_flags val="kUndead" />
     <traits>
       <vocal />
     </traits>

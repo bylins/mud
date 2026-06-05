@@ -373,6 +373,7 @@ enum EMobFlag : Bitvector {
 	kNoHammer = kIntOne | (1 << 24), // нельзя оглушить богатырским молотом
 	kMentalShadow = kIntOne | (1 << 25), // Используется для ментальной тени
 	kSummoned = kIntOne | (1 << 26), // (ангел, тень, храны, трупы, умки)
+	kUndead = kIntOne | (1 << 27),	// issue.npc-races: the undead marker (replaces IS_UNDEAD)
 
 	kFireBreath = kIntTwo | (1 << 0),
 	kGasBreath = kIntTwo | (1 << 1),

@@ -1127,6 +1127,7 @@ static void RenameAsUndead(CharData *ch, CharData *mob) {
 	mob->player_data.PNames[ECase::kGen] = std::string(buf2);
 	mob->set_sex(EGender::kNeutral);
 	mob->SetFlag(EMobFlag::kResurrected);
+	mob->SetFlag(EMobFlag::kUndead);	// issue.npc-races: resurrected => undead
 	if (CanUseFeat(ch, EFeat::kFuryOfDarkness)) {
 		GET_DR(mob) = GET_DR(mob) + GET_DR(mob) * 0.20;
 		mob->set_max_hit(mob->get_max_hit() + mob->get_max_hit() * 0.20);
@@ -1181,6 +1182,7 @@ static void BoostNecroDamage(CharData *ch, CharData *mob, ESpell spell_id) {
 static void EnhanceAnimateDead(CharData *ch, CharData *mob, MobVnum mob_num,
 							   ESpell spell_id, int charm_duration) {
 	mob->SetFlag(EMobFlag::kResurrected);
+	mob->SetFlag(EMobFlag::kUndead);	// issue.npc-races: resurrected => undead
 	if (mob_num == kMobSkeleton && CanUseFeat(ch, EFeat::kLoyalAssist)) {
 		mob->set_skill(ESkill::kRescue, 100);
 	}
@@ -2603,7 +2605,7 @@ ECastResult CastOnTarget(CastContext &ctx, bool is_entry) {
 		if (!cast_mtrigger(cvict, caster, spell_id)) {
 			return ECastResult::kNotCast;
 		}
-		if (MUD::Spell(spell_id).IsFlagged(kMagWarcry) && cvict && IS_UNDEAD(cvict))
+		if (MUD::Spell(spell_id).IsFlagged(kMagWarcry) && cvict && cvict->IsFlagged(EMobFlag::kUndead))
 			return ECastResult::kSuccess;
 	}
 	// This action's data-driven stages, in the fixed order Damage -> Unaffect -> Affect -> Points.

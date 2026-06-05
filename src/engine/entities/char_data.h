@@ -1036,13 +1036,6 @@ inline void SetSave(CharData *ch, ESaving save, int mod) {
 	ch->add_abils.apply_saving_throw[to_underlying(save)] = mod;
 }
 
-inline bool IS_UNDEAD(CharData *ch) {
-	return ch->IsNpc()
-			&& (ch->IsFlagged(EMobFlag::kResurrected)
-					|| GET_RACE(ch) == ENpcRace::kZombie
-					|| GET_RACE(ch) == ENpcRace::kGhost);
-}
-
 void change_fighting(CharData *ch, int need_stop);
 
 /*

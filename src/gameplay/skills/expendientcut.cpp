@@ -44,7 +44,7 @@ void PerformCutSuccess(abilities_roll::TechniqueRoll &roll) {
 		false, roll.GetActor(), nullptr, roll.GetRival(), kToVict);
 	act("$n сделал$g неуловимое движение, сместившись за спину $N1.",
 		true, roll.GetActor(), nullptr, roll.GetRival(), kToNotVict | kToArenaListen);
-	if (!IS_UNDEAD(roll.GetRival()) && GET_RACE(roll.GetRival()) != ENpcRace::kConstruct) {
+	if (!roll.GetRival()->IsFlagged(EMobFlag::kUndead) && GET_RACE(roll.GetRival()) != ENpcRace::kConstruct) {
 		ApplyDebuffs(roll);
 	}
 }

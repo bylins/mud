@@ -173,7 +173,7 @@ int attack_best(CharData *ch, CharData *victim, bool do_mode) {
 	if (victim) {
 		// issue.npc-races: strangle needs a victim that breathes (race <respiration/>) and isn't undead.
 		if (ch->GetSkill(ESkill::kStrangle) && !IsTimedBySkill(ch, ESkill::kStrangle)
-				&& CanBreathe(victim) && !IS_UNDEAD(victim)) {
+				&& CanBreathe(victim) && !victim->IsFlagged(EMobFlag::kUndead)) {
 			if (do_mode)
 				do_strangle(ch, victim);
 			else

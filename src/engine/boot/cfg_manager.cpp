@@ -27,7 +27,7 @@
 namespace cfg_manager {
 
 CfgManager::CfgManager() {
-	loaders_.emplace("mob_races", LoaderInfo("cfg/mob_races.xml",
+	loaders_.emplace("mob_races", LoaderInfo("cfg/mechanics/mob_races.xml",
 											  std::make_unique<mob_races::MobRacesLoader>(mob_races::MobRacesLoader())));
 	loaders_.emplace("currencies", LoaderInfo("cfg/economics/currencies.xml",
 											  std::make_unique<currencies::CurrenciesLoader>(currencies::CurrenciesLoader())));

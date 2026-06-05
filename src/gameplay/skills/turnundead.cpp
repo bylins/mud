@@ -51,7 +51,7 @@ void do_turn_undead(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd
 	damage.element = EElement::kLight;
 	damage.flags.set(fight::kIgnoreFireShield);
 	abilities_roll::TechniqueRoll roll;
-	target_resolver::FoesRosterType roster{ch, [](CharData *, CharData *target) { return IS_UNDEAD(target); }};
+	target_resolver::FoesRosterType roster{ch, [](CharData *, CharData *target) { return target->IsFlagged(EMobFlag::kUndead); }};
 	for (const auto target: roster) {
 //		if (target->purged() || target->in_room == kNowhere)
 //			continue;

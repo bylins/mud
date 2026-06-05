@@ -1,0 +1,46 @@
+<!--
+  issue.npc-races: editor scheme for cfg/mechanics/mob_races.xml (the mob-race container).
+  Structure: <mob_races> -> <mob_race id="<ENpcRace>"> with an ingredient drop list, per-race
+  flag sets applied to loaded instances, and boolean traits. Optional sidecar; undeclared tags
+  degrade to plain strings and are still validated on save by the mob-race loader.
+-->
+<scheme>
+	<tag name="mob_races" desc="Mob race container">
+		<child tag="mob_race" multiple="Y"/>
+	</tag>
+	<tag name="mob_race" desc="One NPC race">
+		<attr name="id" type="enum" enum="ENpcRace" readonly="Y" desc="Race identifier (immutable)"/>
+		<attr name="name" type="string" desc="Display name"/>
+		<attr name="mode" type="enum" enum="EItemMode" desc="kEnabled / kDisabled / kTesting"/>
+		<child tag="imlist"/>
+		<child tag="mob_flags"/>
+		<child tag="tzs_flags"/>
+		<child tag="traits"/>
+	</tag>
+	<tag name="imlist" desc="Ingredient drop list">
+		<child tag="im" multiple="Y"/>
+	</tag>
+	<tag name="im" desc="One ingredient with a per-level drop probability table">
+		<attr name="type" type="int" desc="Ingredient item type (imtype)"/>
+		<attr name="name" type="string" desc="Ingredient name"/>
+		<child tag="prob" multiple="Y"/>
+	</tag>
+	<tag name="prob" desc="Drop probability from this level upward">
+		<attr name="lvl" type="int" desc="Mob level threshold"/>
+		<attr name="val" type="int" desc="Probability from this level until the next threshold"/>
+	</tag>
+	<tag name="mob_flags" desc="EMobFlag set OR'd onto a loaded mob of this race">
+		<attr name="val" type="flagset" enum="EMobFlag" desc="EMobFlag flag set"/>
+	</tag>
+	<tag name="tzs_flags" desc="ENpcFlag set OR'd onto a loaded mob of this race">
+		<attr name="val" type="flagset" enum="ENpcFlag" desc="ENpcFlag flag set"/>
+	</tag>
+	<tag name="traits" desc="Boolean race traits (presence markers)">
+		<child tag="vocal"/>
+		<child tag="respiration"/>
+		<child tag="skinnable"/>
+	</tag>
+	<tag name="vocal" desc="Race can speak/incant (presence-only marker)"/>
+	<tag name="respiration" desc="Race breathes; can be strangled if not undead (presence-only marker)"/>
+	<tag name="skinnable" desc="Corpses of this race can be skinned (presence-only marker)"/>
+</scheme>

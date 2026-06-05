@@ -52,7 +52,7 @@ void do_strangle(CharData *ch, CharData *vict) {
 	}
 
 	// issue.npc-races: only a breathing (race <respiration/>), non-undead victim can be strangled.
-	if (!CanBreathe(vict) || IS_UNDEAD(vict)) {
+	if (!CanBreathe(vict) || vict->IsFlagged(EMobFlag::kUndead)) {
 		SendMsgToChar("Вы бы еще верстовой столб удавить попробовали...\r\n", ch);
 		return;
 	}
