@@ -6069,9 +6069,12 @@ void do_tlist(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 		SendMsgToChar("Максимальный показываемый промежуток - 200.\n\r", ch);
 		return;
 	}
-	nr = GetTriggerRnum(first);
-	if (nr < 0) {
-		SendMsgToChar("Кривое первое число.\n\r", ch);
+	// Ищем первый триггер с vnum >= first, не требуя триггер ровно на first.
+	// Иначе "tlist <зона>" падал с "Кривое первое число", если в зоне нет
+	// триггера на N00 (билдер не может знать, есть ли он).
+	for (nr = 0; nr < top_of_trigt && trig_index[nr]->vnum < first; nr++);
+	if (nr >= top_of_trigt || trig_index[nr]->vnum > last) {
+		SendMsgToChar("В этом промежутке триггеров нет.\n\r", ch);
 		return;
 	}
 	char trgtypes[256];
