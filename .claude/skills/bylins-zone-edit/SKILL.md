@@ -40,14 +40,17 @@ The live world is edited through the **web admin panel** (`tools/web_admin/`), w
 **Mobs**
 - Flags are **numbers**, encoding `(plane<<30)|(1<<bit)` = the literal `EMobFlag` value (`kIntOne = 1<<30`). Send via `{"flags":{"mob_flags":[<ints>]}}`. `update_mob` is **additive** for flags (can't unset — use medit for that). Useful: `!ходит`/kSentinel=2; seasonal appear flags kAppearsWinter=1073742848, Spring=1073743872, Summer=1073745920, Autumn=1073750016 (mob loads always, but hides in the zone's auto-created room 99 out of season, returns to its reset room in season).
 - `death_load` (loot on death) is an **array, replaced wholesale** on update — send existing + new: `[{"obj_vnum":N,"load_prob":0-100,"load_type":0,"spec_param":0}, …]`.
-- Name has 6 grammatical cases under `names` (nominative…prepositional); descriptions under `descriptions` (long_desc/short_desc).
+- Name has 6 grammatical cases under `names` (nominative…prepositional). **Descriptions field mapping is non-obvious** (API ≠ engine naming): `descriptions.short_desc` → the **in-room line** (`long_descr`, printed verbatim); `descriptions.long_desc` → the **look-at/examine** text.
+- `stats`: `level`, `sex`, `armor`, `race`, `alignment`, `hp:{dice_count,dice_size,bonus}`, `damage:{…}`. `position:{default_position,load_position}` (8 = standing).
+- **MOB-AS-ITEM trick** (a mob that looks like an object/item to players — talking statue, sacred tree, idol, sign): (1) set `stats.race` = **109** (`kConstruct`, displayed «Предмет» — the item NPC type; `ENpcRace` is 100+, so race = 100 + `npc_race_types[]` index); (2) set `descriptions.short_desc` (the long_descr line) to an item-like sentence — the mob then renders among "things" (`list_char_to_char_thing`, sight.cpp:1677) instead of the red people-list, **but only while position == default_position** (just standing); the red list explicitly excludes race==kConstruct; (3) make it `kSentinel`+`kNoFight`, non-aggressive, big HP; (4) put the room on **`kPeaceful`/«мирная»** (room_flags plane0 bit4 = 16) so it can't be attacked. It then catches speech via MTRIG_SPEECH — **this is the only way to make a speech-reacting "item"** (objects can't do speech).
 
 **Objects**
 - `type`: 8 = treasure/valuable (sells to shop, no stats); 20 = money (`type_specific.value0` = amount of куны, `value1`=0 for kuna); 5 weapon, 9 armor, etc.
 - `material`: 6 = precious metal (gold/silver), 15 = skin/leather, 14 = cloth, 13 = bone, 8 = wood… (no separate gold vs silver).
 - `sex` (grammatical gender): 0 neuter, 1 masculine, 2 feminine.
 - `wear_flags`: bitmask, `1` = TAKE (carryable). `affects: []` = no stat bonuses.
-- Set `names` (6 cases), `aliases`, `short_desc`, `description` (on ground), `extra_descriptions:[{keywords,description}]` (on examine), `cost`, `weight`, `timer`.
+- Set `names` (6 cases), `aliases`, `short_desc`, `description` (on ground = one short line), `extra_descriptions:[{keywords,description}]` (on examine = elaborate text + any hints), `cost`, `weight`, `timer`.
+- **Scenery objects left on the ground** (non-takeable `wear_flags:0`) must have extra-flag **kNodecay** (`extra_flags:[8192,0,0,0]` — plane0 bit13) AND `timer = 2147483647` (`UNLIMITED_TIMER`), or they vanish in ~10 min / warn "нулевой таймер". (For a talking/reacting scenery 'item' use a **mob-object** instead — see §4 Mobs.)
 
 ## 5. Description style (Stribog's rules)
 
@@ -65,13 +68,27 @@ The live world is edited through the **web admin panel** (`tools/web_admin/`), w
 - **Numeric random exists:** `%random.N%` → `number(1,N)`; `%number.range(x,y)%` → `number(x,y)`. Use it to vary mob speech/reactions. `%time.hour%` banding (`if %h% < N`) is a fine alternative for time-of-day flavor.
 - **Mobs can run socials inside triggers** (`emote` always works; verified: кланяться, плакать, креститься, вздыхать, причитать, оскал, рычать…). Use `say` / `emote` / `%echo%` (room ambiance) freely.
 - **Quests:** `%actor.quested(N)%` reads a persistent, saved per-player "quest done" map; set it with `eval tmp %actor.setquest(N)%`, clear with `unsetquest`. Mark a quest done at BOTH accept and completion so any path counts. **GOTCHA: `setquest`/`quested` is a no-op for immortals** (`Quested::add` skips `IsImmortal()`, level ≥ 31) — quest-gated logic can't be tested on a god; use a mortal alt.
-- `dgaffect <target> <name> <type> <value> <duration> <location>` is a script-driver builtin (all trigger types) — e.g. charm a mob without casting.
+- **The script body goes in the `script` field as ONE newline-joined string** — NOT a `commands` array (an array is ignored → default placeholder). `attach_type`: 0=mob, 1=obj, 2=room.
+- **Trigger types & matching:** `trigger_type` bits — SPEECH=8, COMMAND=4, mob GREET_PC=65536, room ENTER=1<<6, RESET=1<<5. **SPEECH (`сказать`) is ONLY on WTRIG (room) / MTRIG (mob) — never OTRIG (object); so a speech-reacting "item" = a room trigger or a mob-object (§4).** SPEECH `narg`: 0=word_check (word in the phrase), 1=substring, else exact; `arglist`=the word. COMMAND `narg` = where the obj must be (OCMD_ROOM=4). GREET/RANDOM `narg` = % chance.
+- **Send/echo** (prefix m=mob / o=obj / w=room): `msend %actor% text` (one char), `mecho text` (room). **Religion:** `%actor.religion%` → 0 = язычник (`kReligionPoly`), 1 = христианин (`kReligionMono`). **Self-detach:** `detach <trig_vnum> %self.id%` (2nd arg = UID, not a bare vnum). **Self-purge mob:** `mpurge <keyword>` (needs an arg; no-arg = no-op).
+- **`dgaffect <target> <property> <spell> <value> <duration>`** (verified order) — apply an affect. Property from `apply_types` (`сила`=STR, `ловкость`=DEX…). **`<spell>` MUST be a valid spell** (from `lib/cfg/spells.xml` `<name rus=…>`, e.g. `сила`, `благословение`) or the affect is **silently not applied** (despite a "ставим чары" log). **Real seconds = `duration × 120`** → 1 hour RL = `duration=30` (the affect line then shows "~30 часов" — that display unit ≈ 2 real min each, so 30 ≈ 1h). E.g. `dgaffect %actor% сила сила 20 30` = STR+20 for 1h.
+- **Once-per-repop (anti-farm):** the rite script **`detach`es its own trigger(s)** so a *visible* scenery mob stays put but goes dormant — don't `mpurge` a visible mob (it vanishes). Pair zone **`Q` (remove mob) + `M` (load)** so each repop purges the dormant instance and reloads a fresh one with triggers (and propagates proto edits — a reset does NOT auto-purge a living sentinel mob). For object scenery use **`R` (remove) + `O` (load)**. Worked example: zone-738 «Священный дуб» (mob 73810 race=109, GREET_PC for pagans + MTRIG_SPEECH «требу» → STR+20/1h then detach, Q+M each repop, room kPeaceful).
 
 ## 7. Seasons & time (for testing seasonal descriptions)
 
 - Season is derived from the game **month** and is purely clock-driven — **there is no immortal command to change it.** Month is computed from `kBeginningOfTime` at boot, then ticks on its own.
 - Rates: 1 MUD month = **24 real hours**, 1 MUD year = 12 real days (`kTimeKoeff=2`). Winter = Dec/Jan/Feb (Mar & Nov are transitional — season holds its previous value).
 - To see a `<winter…>` description right now, restart the server with the host/container clock shifted so boot lands in a winter month (waiting for the cycle is impractical).
+
+## 8. Zone reset commands
+
+`POST /api/zones/<zone>/commands` with `command` = one of:
+- `M` (load mob): `mob_vnum, room_vnum, max_in_world, max_in_room`.
+- `Q` (remove/purge mob by vnum): `mob_vnum`. Put **Q before M** to refresh a mob each reset (mob analogue of `R`+`O`).
+- `O` (load obj in room): `obj_vnum, room_vnum, max_in_world, load_percent`.
+- `R` (remove obj from room): `room_vnum, obj_vnum`.
+- `G`/`E` (give/equip to last mob), `P` (put in container), `D` (door state).
+Commands run in list order; new ones append. **Delete by index** `DELETE /api/zones/<zone>/commands/<index>` — delete the HIGHEST index first (deleting shifts later indices down).
 
 ## Related memory
 `reference_web_admin_panel`, `reference_admin_api_mob_flags`, `feedback_room_descriptions`, `reference_seasonal_room_descriptions`.
