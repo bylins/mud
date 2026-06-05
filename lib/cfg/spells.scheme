@@ -121,6 +121,14 @@
 		<child tag="reflection"/>
 	</tag>
 
+	<!-- reflection: an attribute-only action tag (no children). Without a def here the editor had
+	     nothing to show/edit once a fresh <reflection> was added. -->
+	<tag name="reflection" desc="Reflect the cast back at the caster when the target matches">
+		<attr name="affect_flags" type="flagset" enum="EAffect" desc="Reflect only if the target carries any of these AFF flags"/>
+		<attr name="align" type="enum" enum="EAlign" desc="Reflect only for this target alignment (omit = any)"/>
+		<attr name="prob" type="int" min="0" max="100" desc="Reflection chance, percent (default 20)"/>
+	</tag>
+
 	<tag name="target_conditions" desc="Gates on the target before this action fires">
 		<child tag="blocking"/>
 		<child tag="required"/>

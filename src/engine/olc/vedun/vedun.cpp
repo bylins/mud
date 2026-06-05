@@ -1275,6 +1275,19 @@ void LintSchemes() {
 				}
 			}
 		}
+		// issue.vedun-hotfixes: a tag listed as an addable <child> but with no <tag> definition is a
+		// dead end -- the editor lets you add it but then has no attributes to show or edit (the bug
+		// hit by <reflection>). Flag every such reference so the scheme stays editable end-to-end.
+		for (const auto &[key, tag] : scheme.Tags()) {
+			(void) key;
+			for (const auto &cd : tag.children) {
+				if (scheme.FindTag(cd.tag, tag.name) == nullptr) {
+					log("Vedun scheme lint [%s]: <%s> lists child <%s> that has no <tag> definition "
+						"(addable but not editable).", entry.what.c_str(), tag.name.c_str(), cd.tag.c_str());
+					++enum_errors;
+				}
+			}
+		}
 		std::set<std::string> undeclared_tags;
 		std::set<std::string> undeclared_attrs;
 		parser_wrapper::DataNode doc(entry.file);
