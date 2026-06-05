@@ -117,18 +117,13 @@ int CalcClassAntiSavingsMod(CharData *ch, ESpell spell_id) {
 //killer нужен для того чтоб вывести стату
 
 
+// issue.npc-races: a mob can speak/incant iff its race carries the <vocal/> trait (players always
+// can). Replaces the old per-race switch here and the duplicate IsCasterVerbal in magic_utils.cpp.
 bool IsAbleToSay(CharData *ch) {
 	if (!ch->IsNpc()) {
 		return true;
 	}
-	switch (GET_RACE(ch)) {
-		case ENpcRace::kBoggart:
-		case ENpcRace::kGhost:
-		case ENpcRace::kHuman:
-		case ENpcRace::kZombie: [[fallthrough]];
-		case ENpcRace::kSpirit: return true;
-	}
-	return false;
+	return MUD::MobRaces()[GET_RACE(ch)].IsVocal();
 }
 
 void ShowAffExpiredMsg(ESpell aff_type, CharData *ch) {

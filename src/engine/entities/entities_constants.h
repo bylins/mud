@@ -307,33 +307,9 @@ enum EGf : Bitvector {
  * ========================================================================================
  */
 
-/**
- * NPC races
- */
-enum ENpcRace : int {
-	kBasic = 100,
-	kHuman = 101,
-	kBeastman = 102,
-	kBird = 103,
-	kAnimal = 104,
-	kReptile = 105,
-	kFish = 106,
-	kInsect = 107,
-	kPlant = 108,
-	kConstruct = 109,
-	kZombie = 110,
-	kGhost = 111,
-	kBoggart = 112,
-	kSpirit = 113,
-	kMagicCreature = 114,
-	kLastNpcRace = kMagicCreature // Не забываем менять при добавлении новых
-};
-
-/**
- * Virtual NPC races
- */
-const int kNpcBoss = 200;
-const int kNpcUnique = 201;
+// issue.npc-races: ENpcRace (+ kNpcBoss / kNpcUnique) moved to gameplay/mechanics/mob_races.h.
+// This header re-includes mob_races.h at the bottom (compat shim), so every user that includes
+// entities_constants.h still sees ENpcRace.
 
 /**
  * Mobile flags: used by char_data.char_specials.act
@@ -450,8 +426,23 @@ enum ENpcFlag : Bitvector {
 	kArmoring = kIntOne | (1 << 2),
 	kUsingLight = kIntOne | (1 << 3),
 	kNoTakeItems = kIntOne | (1 << 4),
-	kIgnoreRareKill = kIntOne | (1 << 5)
+	kIgnoreRareKill = kIntOne | (1 << 5),
+	kUsingMagicItems = kIntOne | (1 << 6)	// issue.npc-races: NPC casts from wands/staves/potions
 };
+
+template<>
+EMobFlag ITEM_BY_NAME<EMobFlag>(const std::string &name);
+template<>
+const std::string &NAME_BY_ITEM<EMobFlag>(EMobFlag item);
+template<>
+const std::map<EMobFlag, std::string> &NAMES_OF<EMobFlag>();
+
+template<>
+ENpcFlag ITEM_BY_NAME<ENpcFlag>(const std::string &name);
+template<>
+const std::string &NAME_BY_ITEM<ENpcFlag>(ENpcFlag item);
+template<>
+const std::map<ENpcFlag, std::string> &NAMES_OF<ENpcFlag>();
 
 /*
  * ========================================================================================
@@ -880,6 +871,11 @@ enum EContainerFlag {
 	kLockedUp = 1 << 3,
 	kLockIsBroken = 1 << 4
 };
+
+// issue.npc-races: compat shim -- ENpcRace lives here now. Placed at the very bottom (after every
+// enum above) so that mob_races.h's heavy info_container/cfg_manager includes, which transitively
+// re-enter this header, always find the full set of entities constants already defined.
+#include "gameplay/mechanics/mob_races.h"
 
 #endif //BYLINS_SRC_ENTITY_ROOMS_ROOM_CONSTANTS_H_
 

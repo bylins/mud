@@ -41,22 +41,6 @@ extern int what_sky;
 // True if `ch`'s race counts as "verbal": the cast is narrated as articulated speech
 // (PC always, plus the five humanoid NPC races that historically had their own narration
 // set). Non-humanoid NPC races default to "sound" -- a single collapsed narration line.
-static bool IsCasterVerbal(CharData *ch) {
-	if (!ch->IsNpc()) {
-		return true;
-	}
-	switch (GET_RACE(ch)) {
-		case ENpcRace::kBoggart:
-		case ENpcRace::kGhost:
-		case ENpcRace::kHuman:
-		case ENpcRace::kZombie:
-		case ENpcRace::kSpirit:
-			return true;
-		default:
-			return false;
-	}
-}
-
 // Caster-side "Вы произнесли заклинание ..." / "Вы выкрикнули ..." banner.
 // The kCastIncantToChar sheaf carries the line; {color}/{name}/{nrm}
 // placeholders are filled in with bold-red / bold-green by IsViolentAgainst
@@ -114,7 +98,7 @@ void SaySpell(CharData *ch, ESpell spell_id, CharData *tch, ObjData *tobj) {
 		return;
 	}
 
-	const bool verbal = IsCasterVerbal(ch);
+	const bool verbal = IsAbleToSay(ch);
 
 	// Resolve the cast phrase used for viewers who don't Know the spell. PCs pick
 	// by religion; NPCs pick at random per cast. Sound-voice casters don't speak

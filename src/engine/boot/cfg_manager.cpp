@@ -15,6 +15,7 @@
 #include "gameplay/magic/spells_info.h"
 #include "gameplay/economics/currencies.h"
 #include "gameplay/mechanics/guilds.h"
+#include "gameplay/mechanics/mob_races.h"
 #include "engine/entities/zone_types.h"
 #include "gameplay/mechanics/rune_spells.h"
 #include "gameplay/skills/skills_info.h"
@@ -26,7 +27,8 @@
 namespace cfg_manager {
 
 CfgManager::CfgManager() {
-/* loaders_.emplace("mobraces", "cfg/mob_races.xml");*/
+	loaders_.emplace("mob_races", LoaderInfo("cfg/mob_races.xml",
+											  std::make_unique<mob_races::MobRacesLoader>(mob_races::MobRacesLoader())));
 	loaders_.emplace("currencies", LoaderInfo("cfg/economics/currencies.xml",
 											  std::make_unique<currencies::CurrenciesLoader>(currencies::CurrenciesLoader())));
 	loaders_.emplace("classes", LoaderInfo("cfg/classes/pc_classes.xml",

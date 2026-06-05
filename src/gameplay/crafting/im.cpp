@@ -960,17 +960,17 @@ ObjData *try_make_ingr(int *ing_list, int vnum, int max_prob) {
 }
 
 ObjData *try_make_ingr(CharData *mob, int prob_default) {
-	auto it = mob_races::mobraces_list.find(GET_RACE(mob));
 	const int vnum = GET_MOB_VNUM(mob);
-	if (it != mob_races::mobraces_list.end()) {
-		size_t num_inrgs = it->second->ingrlist.size();
+	if (MUD::MobRaces().IsKnown(GET_RACE(mob))) {
+		const auto &ingrlist = MUD::MobRaces()[GET_RACE(mob)].GetIngredients();
+		size_t num_inrgs = ingrlist.size();
 		int *ingr_to_load_list = nullptr;
 		CREATE(ingr_to_load_list, num_inrgs * 2 + 1);
 		size_t j = 0;
 		const int level_mob = GetRealLevel(mob) > 0 ? GetRealLevel(mob) : 1;
 		for (; j < num_inrgs; j++) {
-			ingr_to_load_list[2 * j] = im_get_idx_by_type(it->second->ingrlist[j].imtype);
-			ingr_to_load_list[2 * j + 1] = it->second->ingrlist[j].prob.at(level_mob - 1);
+			ingr_to_load_list[2 * j] = im_get_idx_by_type(ingrlist[j].imtype);
+			ingr_to_load_list[2 * j + 1] = ingrlist[j].prob.at(level_mob - 1);
 			ingr_to_load_list[2 * j + 1] |= (level_mob << 16);
 		}
 		ingr_to_load_list[2 * j] = -1;

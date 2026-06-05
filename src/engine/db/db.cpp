@@ -842,6 +842,10 @@ void BootMudDataBase() {
 	log("Assigning mob classes info.");
 	MUD::CfgManager().LoadCfg("mob_classes");
 
+	boot_profiler.next_step("Loading mob races");
+	log("Load mob races.");
+	MUD::CfgManager().LoadCfg("mob_races");
+
 	boot_profiler.next_step("Loading portals for 'town portal' spell");
 	log("Booting portals for 'town portal' spell");
 	MUD::Runestones().LoadRunestones();
@@ -935,10 +939,6 @@ void BootMudDataBase() {
 
 	log("Load zone traffic.");
 	zone_traffic_load();
-
-	boot_profiler.next_step("Loading mob races");
-	log("Load mob races.");
-	mob_races::LoadMobraces();
 
 	boot_profiler.next_step("Initializing global drop list");
 	log("Init global drop list.");
@@ -1805,6 +1805,14 @@ CharData *ReadMobile(MobVnum nr, int type) {                // and MobRnum
 	mob->proto_script = std::make_shared<ObjData::triggers_list_t>();
 	mob->script = std::make_shared<Script>();    //fill it in assign_triggers from proto_script
 	character_list.push_front(mob);
+
+	// issue.npc-races: stamp this instance with the flags declared for its race. Race flags are
+	// added (OR) to the mob's own flags -- they never live on the prototype, only on the loaded mob.
+	{
+		const auto &race_info = MUD::MobRaces()[GET_RACE(mob)];
+		mob->char_specials.saved.act += race_info.GetMobFlags();
+		mob->mob_specials.npc_flags += race_info.GetNpcFlags();
+	}
 
 	if (!mob->points.max_hit) {
 		mob->points.max_hit = std::max(1, RollDices(mob->mem_queue.total, mob->mem_queue.stored) + mob->points.hit);

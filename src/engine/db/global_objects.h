@@ -5,6 +5,7 @@
 #include "gameplay/classes/pc_classes_info.h"
 #include "gameplay/fight/pk.h"
 #include "gameplay/economics/currencies.h"
+#include "gameplay/mechanics/mob_races.h"
 #include "gameplay/magic/spells_info.h"
 #include "gameplay/magic/spell_messages.h"
 #include "gameplay/magic/points_intensity.h"
@@ -78,6 +79,7 @@ class GlobalObjects {
 	static const zone_types::ZoneTypeInfo &ZoneType(int type_vnum);
 	static rune_spells::Registry &RuneSpells();
 	static currencies::CurrenciesInfo &Currencies();
+	static mob_races::MobRacesInfo &MobRaces();
 	static const currencies::CurrencyInfo &Currency(Vnum currency_vnum);
 	static WorldObjects &world_objects();
 	static ShopExt::ShopListType &Shops();

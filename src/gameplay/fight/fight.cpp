@@ -1022,7 +1022,7 @@ void mob_casting(CharData *ch) {
 	item = ch->carrying;
 	while (spells < kMaxStringLength
 		&& item
-		&& GET_RACE(ch) == ENpcRace::kHuman
+		&& ch->IsFlagged(ENpcFlag::kUsingMagicItems)	// issue.npc-races: race grants magic-item use
 		&& !(ch->IsFlagged(EMobFlag::kTutelar) || ch->IsFlagged(EMobFlag::kMentalShadow))) {
 		switch (item->get_type()) {
 			case EObjType::kWand:
@@ -1193,7 +1193,7 @@ void summon_mob_helpers(CharData *ch) {
 				continue;
 			}
 			vict->SetFlag(EMobFlag::kHelper);
-			if (GET_RACE(ch) == ENpcRace::kHuman) {
+			if (IsAbleToSay(ch)) {	// issue.npc-races: any vocal race calls for help
 				act("$n воззвал$g : \"На помощь, мои верные соратники!\"",
 					false, ch, 0, 0, kToRoom | kToArenaListen);
 			}

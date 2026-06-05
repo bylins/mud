@@ -195,6 +195,8 @@ bool IsRoomForbidden(RoomData *room);
 void mobile_affect_update();
 void player_affect_update();
 void ShowAffExpiredMsg(ESpell aff_type, CharData *ch);
+// issue.npc-races: true if `ch` can speak/incant (players always; NPCs iff their race is <vocal/>).
+bool IsAbleToSay(CharData *ch);
 
 // Outcome of a whole cast (the CallMagic / CastSpell / CastToSingleTarget chain).
 // Replaces the old int return whose -1/0/1 meaning callers had to memorise.

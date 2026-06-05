@@ -171,11 +171,9 @@ int attack_best(CharData *ch, CharData *victim, bool do_mode) {
 	ObjData *wielded = GET_EQ(ch, EEquipPos::kWield);
 
 	if (victim) {
-		if (ch->GetSkill(ESkill::kStrangle) && !IsTimedBySkill(ch, ESkill::kStrangle) 
-				&& !(IS_UNDEAD(victim) 
-						|| victim->player_data.Race == ENpcRace::kFish
-						|| victim->player_data.Race == ENpcRace::kPlant
-						|| victim->player_data.Race == ENpcRace::kConstruct)) {
+		// issue.npc-races: strangle needs a victim that breathes (race <respiration/>) and isn't undead.
+		if (ch->GetSkill(ESkill::kStrangle) && !IsTimedBySkill(ch, ESkill::kStrangle)
+				&& CanBreathe(victim) && !IS_UNDEAD(victim)) {
 			if (do_mode)
 				do_strangle(ch, victim);
 			else

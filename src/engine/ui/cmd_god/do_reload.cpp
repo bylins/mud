@@ -67,7 +67,7 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		LoadSheduledReboot();
 		oload_table.init();
 		ObjData::InitSetTable();
-		mob_races::LoadMobraces();
+		MUD::CfgManager().ReloadCfg("mob_races");
 		GlobalDrop::init();
 		offtop_system::Init();
 		celebrates::Load();
@@ -170,7 +170,7 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	else if (!str_cmp(arg, "privilege"))
 		privilege::Load();
 	else if (!str_cmp(arg, "mobraces"))
-		mob_races::LoadMobraces();
+		MUD::CfgManager().ReloadCfg("mob_races");
 	else if (!str_cmp(arg, "depot") && ch->IsFlagged(EPrf::kCoderinfo)) {
 		skip_spaces(&argument);
 		if (*argument) {
