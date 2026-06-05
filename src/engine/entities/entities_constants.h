@@ -92,27 +92,6 @@ const int kDefaultBaseStatCap{50};
 const int kMobBaseStatCap{100};
 const int kLeastBaseStat{1};
 
-/*
- * Character savings ids.
- */
-enum class ESaving : int {
-	kWill = 0,
-	kCritical = 1,
-	kStability = 2,
-	kReflex = 3,
-	kNone = 4,
-	kFirst = kWill,
-	kLast = kReflex, // Не забываем менять при добаввлении новых элементов.
-};
-
-ESaving& operator++(ESaving &s);
-
-template<>
-const std::string &NAME_BY_ITEM<ESaving>(ESaving item);
-template<>
-ESaving ITEM_BY_NAME<ESaving>(const std::string &name);
-template<>
-const std::map<ESaving, std::string> &NAMES_OF<ESaving>();  // issue.vedun-editor
 
 /**
  * Alignment selector for the action-level <blocking align=> / <required align=> /
@@ -123,6 +102,7 @@ const std::map<ESaving, std::string> &NAMES_OF<ESaving>();  // issue.vedun-edito
 enum class EAlign { kAny, kGood, kEvil, kNeutral };
 
 #include "gameplay/mechanics/resist.h"
+#include "gameplay/mechanics/saving.h"
 
 enum class EWhereObj : int {
 	kNowhere = 0,

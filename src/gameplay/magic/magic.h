@@ -241,9 +241,6 @@ enum class EStageResult {
 // dispatchers -- is module-internal and now lives in magic_internal.h.
 EStageResult CastDamage(CastContext &ctx);
 EStageResult CastAffect(CastContext &ctx);
-int CalcSaving(CharData *killer, CharData *victim, ESaving saving, bool need_log = false);
-int CalcGeneralSaving(CharData *killer, CharData *victim, ESaving type, int ext_apply);
-int GetBasicSave(CharData *ch, ESaving saving, bool log = false);
 
 #endif // MAGIC_H_
 
