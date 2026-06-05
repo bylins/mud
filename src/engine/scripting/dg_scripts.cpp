@@ -6080,51 +6080,49 @@ void do_tlist(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 
 	char trgtypes[256];
 	for (; nr < top_of_trigt && (trig_index[nr]->vnum <= last); nr++) {
-		if (true) {
-			std::string out = "";
-			snprintf(buf, sizeof(buf), "%2d) [%5d] %-50s ", ++found,
-					trig_index[nr]->vnum, trig_index[nr]->proto->get_name().c_str());
-			out += buf;
-			if (trig_index[nr]->proto->get_attach_type() == MOB_TRIGGER) {
-				sprintbit(trig_index[nr]->proto->get_trigger_type(), trig_types, trgtypes, sizeof(trgtypes));
-				out += "[MOB] ";
-				out += trgtypes;
-			}
-			if (trig_index[nr]->proto->get_attach_type() == OBJ_TRIGGER) {
-				sprintbit(GET_TRIG_TYPE(trig_index[nr]->proto), otrig_types, trgtypes, sizeof(trgtypes));
-				out += "[OBJ] ";
-				out += trgtypes;
-			}
-			if (trig_index[nr]->proto->get_attach_type() == WLD_TRIGGER) {
-				sprintbit(GET_TRIG_TYPE(trig_index[nr]->proto), wtrig_types, trgtypes, sizeof(trgtypes));
-				out += "[WLD] ";
-				out += trgtypes;
-			}
-			out += "\r\nПрикреплен к: ";
-			if (!owner_trig[trig_index[nr]->vnum].empty()) {
-				for (auto it = owner_trig[trig_index[nr]->vnum].begin(); it != owner_trig[trig_index[nr]->vnum].end();
-					 ++it) {
-//					out += "[";
-					std::string out_tmp = "";
-					for (const auto trigger_vnum : it->second) {
-						snprintf(buf, sizeof(buf), "%d ", trigger_vnum);
-						out_tmp += buf;
-					}
-					if (it->first != -1) {
-						out += "attach из " + std::to_string(it->first) + " к: ";
-					}
-					out += out_tmp;// + "]";
-				}
-				out += "\r\n";
-			} else {
-				out += "-\r\n";
-			}
-			strncat(pagebuf, out.c_str(), sizeof(pagebuf) - strlen(pagebuf) - 1);
+		std::string out = "";
+		snprintf(buf, sizeof(buf), "%2d) [%5d] %-50s ", ++found,
+				trig_index[nr]->vnum, trig_index[nr]->proto->get_name().c_str());
+		out += buf;
+		if (trig_index[nr]->proto->get_attach_type() == MOB_TRIGGER) {
+			sprintbit(trig_index[nr]->proto->get_trigger_type(), trig_types, trgtypes, sizeof(trgtypes));
+			out += "[MOB] ";
+			out += trgtypes;
 		}
+		if (trig_index[nr]->proto->get_attach_type() == OBJ_TRIGGER) {
+			sprintbit(GET_TRIG_TYPE(trig_index[nr]->proto), otrig_types, trgtypes, sizeof(trgtypes));
+			out += "[OBJ] ";
+			out += trgtypes;
+		}
+		if (trig_index[nr]->proto->get_attach_type() == WLD_TRIGGER) {
+			sprintbit(GET_TRIG_TYPE(trig_index[nr]->proto), wtrig_types, trgtypes, sizeof(trgtypes));
+			out += "[WLD] ";
+			out += trgtypes;
+		}
+		out += "\r\nПрикреплен к: ";
+		if (!owner_trig[trig_index[nr]->vnum].empty()) {
+			for (auto it = owner_trig[trig_index[nr]->vnum].begin(); it != owner_trig[trig_index[nr]->vnum].end();
+				 ++it) {
+//				out += "[";
+				std::string out_tmp = "";
+				for (const auto trigger_vnum : it->second) {
+					snprintf(buf, sizeof(buf), "%d ", trigger_vnum);
+					out_tmp += buf;
+				}
+				if (it->first != -1) {
+					out += "attach из " + std::to_string(it->first) + " к: ";
+				}
+				out += out_tmp;// + "]";
+			}
+			out += "\r\n";
+		} else {
+			out += "-\r\n";
+		}
+		strncat(pagebuf, out.c_str(), sizeof(pagebuf) - strlen(pagebuf) - 1);
 	}
 
 	if (!found) {
-		SendMsgToChar("No triggers were found in those parameters.\n\r", ch);
+		SendMsgToChar("В этом промежутке триггеров нет.\n\r", ch);
 	} else {
 		page_string(ch->desc, pagebuf, true);
 	}
