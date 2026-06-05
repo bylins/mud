@@ -8,6 +8,9 @@
 
 #include "cfg_manager.h"
 
+#include "utils/utils_time.h"   // issue.xml-cfg-parsing: reload timing
+#include "utils/logger.h"
+
 //#include  "feats.h"
 #include "gameplay/abilities/abilities_info.h"
 #include "gameplay/classes/pc_classes_info.h"
@@ -65,8 +68,16 @@ void CfgManager::ReloadCfg(const std::string &id) {
 		return;
 	}
 	const auto &loader_info = loaders_.at(id);
+	// issue.xml-cfg-parsing: time the two phases separately -- DOM parse (file read + pugixml) vs
+	// build+swap (constructing the new register) -- so we know where the hot-reload lag really is.
+	utils::CExecutionTimer parse_timer;
 	auto data = parser_wrapper::DataNode(loader_info.file);
+	const double parse_ms = parse_timer.delta().count() * 1000.0;
+	utils::CExecutionTimer build_timer;
 	loader_info.loader->Reload(data);
+	const double build_ms = build_timer.delta().count() * 1000.0;
+	log("Cfg reload [%s]: parse %.2f ms + build/swap %.2f ms = %.2f ms (%s)",
+		id.c_str(), parse_ms, build_ms, parse_ms + build_ms, loader_info.file.string().c_str());
 }
 
 void CfgManager::LoadCfg(const std::string &id) {
@@ -75,8 +86,15 @@ void CfgManager::LoadCfg(const std::string &id) {
 		return;
 	}
 	const auto &loader_info = loaders_.at(id);
+	// issue.xml-cfg-parsing: boot-time baseline of the same two phases.
+	utils::CExecutionTimer parse_timer;
 	auto data = parser_wrapper::DataNode(loader_info.file);
+	const double parse_ms = parse_timer.delta().count() * 1000.0;
+	utils::CExecutionTimer build_timer;
 	loader_info.loader->Load(data);
+	const double build_ms = build_timer.delta().count() * 1000.0;
+	log("Cfg load [%s]: parse %.2f ms + build %.2f ms = %.2f ms (%s)",
+		id.c_str(), parse_ms, build_ms, parse_ms + build_ms, loader_info.file.string().c_str());
 }
 
 // issue.vedun-editor: enumerate loaders that opted into editing (implement IEditableCfgLoader).
