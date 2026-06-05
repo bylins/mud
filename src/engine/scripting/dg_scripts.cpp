@@ -6034,22 +6034,17 @@ void do_tlist(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 
 	two_arguments(argument, buf, buf2);
 
-	first = atoi(buf);
-
-	if (!(privilege::HasPrivilege(ch, std::string(cmd_info[cmd].command), 0, 0, false)) && (GET_OLC_ZONE(ch) != first)) {
-		SendMsgToChar("Чаво?\r\n", ch);
-		return;
-	}
-
 	if (!*buf) {
-		SendMsgToChar("Usage: tlist <begining number or zone> [<ending number>]\r\n", ch);
+		SendMsgToChar("Usage: tlist <начальный номер или зона> [<конечный номер>]\r\n", ch);
 		return;
 	}
 
+	// Один аргумент -- номер зоны: листаем все её триггеры (vnum / 100 == зона).
+	// Два аргумента -- диапазон vnum [first, last].
 	first = atoi(buf);
-	if (*buf2)
+	if (*buf2) {
 		last = atoi(buf2);
-	else {
+	} else {
 		first *= 100;
 		last = first + 99;
 	}
@@ -6069,14 +6064,20 @@ void do_tlist(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 		SendMsgToChar("Максимальный показываемый промежуток - 200.\n\r", ch);
 		return;
 	}
-	// Ищем первый триггер с vnum >= first, не требуя триггер ровно на first.
-	// Иначе "tlist <зона>" падал с "Кривое первое число", если в зоне нет
-	// триггера на N00 (билдер не может знать, есть ли он).
-	for (nr = 0; nr < top_of_trigt && trig_index[nr]->vnum < first; nr++);
-	if (nr >= top_of_trigt || trig_index[nr]->vnum > last) {
-		SendMsgToChar("В этом промежутке триггеров нет.\n\r", ch);
+
+	// Билдеру доступна только его зона (сравниваем по зоне vnum, а не по сырому аргументу).
+	if (!privilege::HasPrivilege(ch, std::string(cmd_info[cmd].command), 0, 0, false)
+		&& (GET_OLC_ZONE(ch) != first / 100 || GET_OLC_ZONE(ch) != last / 100)) {
+		SendMsgToChar("Чаво?\r\n", ch);
 		return;
 	}
+
+	// trig_index отсортирован по vnum -- бинарным поиском находим первый триггер
+	// с vnum >= first, а не сканируем все >16k триггеров последовательно.
+	const auto start = std::lower_bound(trig_index, trig_index + top_of_trigt, first,
+		[](const IndexData *trig, int vnum) { return trig->vnum < vnum; });
+	nr = start - trig_index;
+
 	char trgtypes[256];
 	for (; nr < top_of_trigt && (trig_index[nr]->vnum <= last); nr++) {
 		if (true) {
