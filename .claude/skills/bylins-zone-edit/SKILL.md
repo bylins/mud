@@ -58,5 +58,20 @@ The live world is edited through the **web admin panel** (`tools/web_admin/`), w
 - Geographic consistency (don't call a city gate a "застава"; landmarks must match exits).
 - Keep place-features even if they read cold ("незамерзающий ручей", "не стынет в мороз") — those are lore, not season.
 
+## 6. Triggers & DG scripting
+
+- Attach via `update_mob`/`update_object` `{"triggers":[<vnum>,…]}` (whole list, replaces). Trigger record: `trigger_type` (bitvector), `attach_type` (0=mob,1=obj,2=room), `narg`, `arglist`, `script`.
+- **Newly attached triggers do NOT apply to an already-spawned mob/obj** — triggers are copied at spawn. After attaching + zone reset, the live instance keeps its old list (`stat <mob>` → "Script information: None"). Repop it: kill/`purge` the instance, then reset the zone (or reboot). Editing the *body* of an existing trigger vnum DOES take effect live (the prototype is shared).
+- **Numeric random exists:** `%random.N%` → `number(1,N)`; `%number.range(x,y)%` → `number(x,y)`. Use it to vary mob speech/reactions. `%time.hour%` banding (`if %h% < N`) is a fine alternative for time-of-day flavor.
+- **Mobs can run socials inside triggers** (`emote` always works; verified: кланяться, плакать, креститься, вздыхать, причитать, оскал, рычать…). Use `say` / `emote` / `%echo%` (room ambiance) freely.
+- **Quests:** `%actor.quested(N)%` reads a persistent, saved per-player "quest done" map; set it with `eval tmp %actor.setquest(N)%`, clear with `unsetquest`. Mark a quest done at BOTH accept and completion so any path counts. **GOTCHA: `setquest`/`quested` is a no-op for immortals** (`Quested::add` skips `IsImmortal()`, level ≥ 31) — quest-gated logic can't be tested on a god; use a mortal alt.
+- `dgaffect <target> <name> <type> <value> <duration> <location>` is a script-driver builtin (all trigger types) — e.g. charm a mob without casting.
+
+## 7. Seasons & time (for testing seasonal descriptions)
+
+- Season is derived from the game **month** and is purely clock-driven — **there is no immortal command to change it.** Month is computed from `kBeginningOfTime` at boot, then ticks on its own.
+- Rates: 1 MUD month = **24 real hours**, 1 MUD year = 12 real days (`kTimeKoeff=2`). Winter = Dec/Jan/Feb (Mar & Nov are transitional — season holds its previous value).
+- To see a `<winter…>` description right now, restart the server with the host/container clock shifted so boot lands in a winter month (waiting for the cycle is impractical).
+
 ## Related memory
 `reference_web_admin_panel`, `reference_admin_api_mob_flags`, `feedback_room_descriptions`, `reference_seasonal_room_descriptions`.
