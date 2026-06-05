@@ -9,6 +9,7 @@
 #include "json_helpers.h"
 #include "../../../engine/structs/structs.h"
 #include "../../../engine/db/obj_prototypes.h"
+#include "../../../engine/db/global_objects.h"
 #include "../../../engine/entities/room_data.h"
 #include "../../../engine/scripting/dg_scripts.h"
 #include "../../../gameplay/core/constants.h"
@@ -310,10 +311,17 @@ json SerializeRoom(RoomData& room, int vnum)
 	room_data["vnum"] = vnum;
 	room_data["name"] = Koi8rToUtf8(room.name);
 
-	// Description stored in GlobalObjects::descriptions()
+	// Description: temp_description holds a freshly-edited (unsaved) value; the
+	// persisted description lives in the shared pool by description_num. Reading
+	// only temp_description dropped the description from JSON for normal rooms
+	// (issue #3401) -- fall back to the pooled text.
 	if (room.temp_description)
 	{
 		room_data["description"] = Koi8rToUtf8(room.temp_description);
+	}
+	else if (room.description_num > 0)
+	{
+		room_data["description"] = Koi8rToUtf8(GlobalObjects::descriptions().get(room.description_num).c_str());
 	}
 	room_data["sector_type"] = static_cast<int>(room.sector_type);
 
