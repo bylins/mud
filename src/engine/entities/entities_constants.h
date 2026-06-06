@@ -58,8 +58,6 @@ EPosition operator--(const EPosition &p);
 template<>
 const std::string &NAME_BY_ITEM<EPosition>(EPosition item);
 template<>
-const std::map<EPosition, std::string> &NAMES_OF<EPosition>();
-template<>
 EPosition ITEM_BY_NAME<EPosition>(const std::string &name);
 
 /**
@@ -82,8 +80,6 @@ template<>
 const std::string &NAME_BY_ITEM<EBaseStat>(EBaseStat item);
 template<>
 EBaseStat ITEM_BY_NAME<EBaseStat>(const std::string &name);
-template<>
-const std::map<EBaseStat, std::string> &NAMES_OF<EBaseStat>();  // issue.vedun-editor: editor pick-list
 
 const int kDefaultBaseStatMin{10};
 const int kDefaultBaseStatMax{25};
@@ -111,16 +107,6 @@ template<>
 const std::string &NAME_BY_ITEM<ESaving>(ESaving item);
 template<>
 ESaving ITEM_BY_NAME<ESaving>(const std::string &name);
-template<>
-const std::map<ESaving, std::string> &NAMES_OF<ESaving>();  // issue.vedun-editor
-
-/**
- * Alignment selector for the action-level <blocking align=> / <required align=> /
- * <reflection align=> tags (issue.cast-dmg-migration). kAny means no alignment check (the
- * attribute is absent). kGood / kEvil / kNeutral map to the IsGood / IsEvil / IsNeutral
- * inline functions in char_data.h (the +/-300 thresholds defined in utils.h).
- */
-enum class EAlign { kAny, kGood, kEvil, kNeutral };
 
 /**
  * Magic damage resistance types.
@@ -144,8 +130,6 @@ template<>
 const std::string &NAME_BY_ITEM<EResist>(EResist item);
 template<>
 EResist ITEM_BY_NAME<EResist>(const std::string &name);
-template<>
-const std::map<EResist, std::string> &NAMES_OF<EResist>();  // issue.vedun-editor
 
 const int kMaxPcResist = 75;
 

@@ -13,7 +13,7 @@ void do_retreat(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 		return;
 	}
 
-	if (ch->IsFlagged(EPrf::kIronWind) /* || AFF_FLAGGED(ch, EAffect::kCombatLuck) */) {
+	if (ch->IsFlagged(EPrf::kIronWind) || AFF_FLAGGED(ch, EAffect::kCombatLuck)) {
 		SendMsgToChar("Вы не желаете отступать, не расправившись со всеми врагами!\r\n", ch);
 		return;
 	}
@@ -32,7 +32,7 @@ void do_retreat(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) 
 	} else {
 		stop_fighting(ch, true);
 		if (!(ch->IsImmortal() || GET_GOD_FLAG(ch, EGf::kGodsLike)))
-			SetBattleLag(ch, 1);
+			SetWaitState(ch, kBattleRound);
 		SendMsgToChar("Вы отступили из битвы.\r\n", ch);
 		act("$n выбыл$g из битвы.", false, ch, 0, 0, kToRoom | kToArenaListen);
 	}

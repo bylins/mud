@@ -107,35 +107,6 @@ class MsgContainer
 	: public info_container::InfoContainer<IdEnum, MsgSheaf<IdEnum, MsgType>, MsgSheafBuilder<IdEnum, MsgType>> {
  public:
 	using Sheaf = MsgSheaf<IdEnum, MsgType>;
-	using Base = info_container::InfoContainer<IdEnum, MsgSheaf<IdEnum, MsgType>, MsgSheafBuilder<IdEnum, MsgType>>;
-	using NodeRange = typename Base::NodeRange;
-
-	/**
-	 * Pre-save validation gate (the Vedun editor's SaveSession runs the loader's Validate as a
-	 * dry-parse before writing). Runs the base id/structure check, then additionally rejects any
-	 * <message type="..."> whose key is not a known MsgType. The lenient builder (MsgSheafBuilder)
-	 * would otherwise silently drop an unknown-keyed message, which let the editor persist an
-	 * arbitrary string for the message key; here a bad key fails the dry-parse so the save is
-	 * refused with a clear error -- independent of the optional editor .scheme sidecar.
-	 */
-	[[nodiscard]] bool Validate(const NodeRange &data) const {
-		if (!Base::Validate(data)) {
-			return false;
-		}
-		for (auto sheaf : data) {
-			for (auto message : sheaf.Children("message")) {
-				const char *type_str = message.GetValue("type");
-				try {
-					(void) parse::ReadAsConstant<MsgType>(type_str);
-				} catch (const std::exception &) {
-					err_log("MsgContainer::Validate: message has unknown 'type' ('%s').",
-							type_str ? type_str : "(missing)");
-					return false;
-				}
-			}
-		}
-		return true;
-	}
 
 	/**
 	 * Returns a message string for the element id and message type.

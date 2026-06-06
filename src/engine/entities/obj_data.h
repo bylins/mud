@@ -342,10 +342,6 @@ class CObjectPrototype {
 	void set_rnum(const ObjRnum _);
 	auto get_vnum() const { return m_vnum; }
 	auto get_extracted_list() const { return m_in_extracted_list; }
-	// issue.obj-casting: mirrors CharData::purged() -- true once the object is on the deferred
-	// extraction list (AddToExtractedList): logically destroyed but not yet freed (freed by
-	// WorldObjects::PurgeExtractedList at heartbeat end). Cast stages guard ctx.ovict with this.
-	[[nodiscard]] bool purged() const { return m_in_extracted_list; }
 	void set_extracted_list(bool _);
 	void subscribe_for_vnum_changes(const VNumChangeObserver::shared_ptr &observer) {
 		m_vnum_change_observers.insert(observer);

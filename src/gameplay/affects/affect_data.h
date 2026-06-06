@@ -2,7 +2,6 @@
 #define BYLINS_AFFECT_DATA_H
 
 #include "affect_contants.h"
-#include "gameplay/skills/skills.h"
 #include "engine/structs/flag_data.h"
 #include "engine/structs/structs.h"
 
@@ -23,21 +22,13 @@ extern std::unordered_set<CharData *> affected_mobs;
 // An affect structure. //
 class IAffectHandler;
 
-// Maps an affect's location enum to the flag enum stored in Affect::affect_type.
-// Character affects (EApply) use EAffect by default; room affects specialize this
-// (see magic_rooms.h) to room_spells::ERoomAffect.
-template<typename TLocation>
-struct AffectFlagType {
-	using type = EAffect;
-};
-
 template<typename TLocation>
 class Affect {
  public:
 	using shared_ptr = std::shared_ptr<Affect<TLocation>>;
 
 	Affect() : type(ESpell::kUndefined), duration(0), modifier(0), location(static_cast<TLocation>(0)),
-			   battleflag(0), caster_id(0),
+			   battleflag(0), bitvector(0), caster_id(0), must_handled(false),
 			   apply_time(0) {};
 	[[nodiscard]] bool removable() const;
 
@@ -46,34 +37,12 @@ class Affect {
 	int modifier;        // This is added to appropriate ability     //
 	TLocation location;        // Tells which ability to change(APPLY_XXX) //
 	Bitvector battleflag;       //*** SUCH AS HOLD,SIELENCE etc
-	// The single flag this affect sets while active (AFF_XXX). Its enum type
-	// follows the affect's location kind via AffectFlagType (EAffect for chars,
-	// ERoomAffect for rooms). kUndefinded/0 means the affect sets no flag.
-	typename AffectFlagType<TLocation>::type affect_type{};
+	Bitvector bitvector;        // Tells which bits to set (AFF_XXX) //
 	FlagData aff;
 	long caster_id; //Unique caster ID //
-	// (Бывшее поле `must_handled` мигрировало в `battleflag & kAfMustBeHandled`; занимало
-	// одно и то же место в семантике и теперь не дублирует battleflag. См. EAffFlag.)
+	bool must_handled; // Указывает муду что для аффекта должен быть вызван обработчик (пока только для комнат) //
 	sh_int apply_time; // Указывает сколько аффект висит (пока используется только в комнатах) //
 	std::shared_ptr<IAffectHandler> handler; //обработчик аффектов
-	// Сила наложенного заклинания (потенция) на момент наложения: dice + skill_coeff +
-	// stat_coeff из potency_roll. Сравнивается с потенцией снимающего заклинания при
-	// развеивании (CastUnaffects). 0 для аффектов не от заклинаний (вещи, врождённые,
-	// загруженные из файла) -- такие снимаются легко.
-	float potency{0.0f};
-	// true, если аффект наложен "злым" (violent) заклинанием, т.е. это дебафф; false -- бафф.
-	bool debuff{false};
-	// Число стаков этого аффекта (issue.affect-stacks). 1 по умолчанию. Повторное наложение
-	// до предела <modifier stack=N> увеличивает счётчик и суммирует модификатор; успешное
-	// снятие при stacks > 1 уменьшает счётчик (и модификатор пропорционально) вместо удаления.
-	int stacks{1};
-	// PK-метка: для room-affect'ов kPortalTimer хранит caster_id игрока, поставившего пенту
-	// в режиме мести/боя (pkPortal). Заменил поле RoomData::pkPenterUnique: связан с
-	// конкретным аффектом, а не с комнатой, поэтому корректно работает с несколькими
-	// пентами в одной комнате и автоматически уходит вместе с аффектом по таймеру.
-	// Для char-аффектов и room-аффектов не-пента типа всегда 0; в save-файлы не пишется
-	// (room-аффекты не персистентны, char-аффекты этим полем не пользуются).
-	long pk_unique{0};
 };
 
 template<>
@@ -121,13 +90,6 @@ void reset_affects_no_recalc(CharData *ch);
 bool no_bad_affects(ObjData *obj);
 bool IsNegativeApply(EApply location);
 bool GetAffectNumByName(const std::string &affName, EAffect &result);
-// Skill-based duration (issue.calc-duration): `caster` provides the skill (via CalcNoviceSkillBonus,
-// capped at kNoviceSkillThreshold so the bonus can't grow without bound on high-level monsters);
-// `victim` decides the unit (PC -> hour-to-tick conversion, NPC -> raw). skill_id == kUndefined
-// skips the skill bonus entirely (flat duration). min/max keep OLD-style semantics: a 0 means
-// "no clamp on that side", a positive value clamps the bonus accordingly. The previous level-based
-// overload was removed once every caller migrated to this one.
-int CalcDuration(CharData *caster, CharData *victim, ESkill skill_id,
-				 unsigned base, unsigned skill_divisor, int min, int max);
+int CalcDuration(CharData *ch, int cnst, int level, int level_divisor, int min, int max);
 
 #endif //BYLINS_AFFECT_DATA_H

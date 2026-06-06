@@ -147,13 +147,13 @@ void PerformMighthit(CharData *ch, CharData *victim, HitData &hit_data) {
 			sprintf(buf, "&b&qВаш богатырский удар задел %s.&Q&n\r\n", PERS(victim, ch, 3));
 			SendMsgToChar(buf, ch);
 			lag = 1;
-			SetBattleLag(victim, 1);
+			SetWaitState(victim, kBattleRound);
 			Affect<EApply> af;
 			af.type = ESpell::kBattle;
-			af.affect_type = EAffect::kStopFight;
+			af.bitvector = to_underlying(EAffect::kStopFight);
 			af.location = EApply::kNone;
 			af.modifier = 0;
-			af.duration = CalcDuration(victim, victim, ESkill::kUndefined, 1, 0, 0, 0);
+			af.duration = CalcDuration(victim, 1, 0, 0, 0, 0);
 			af.battleflag = kAfBattledec | kAfPulsedec;
 			ImposeAffect(victim, af, true, false, true, false);
 			sprintf(buf, "&R&qВаше сознание затуманилось после удара %s.&Q&n\r\n", PERS(ch, victim, 1));
@@ -167,13 +167,13 @@ void PerformMighthit(CharData *ch, CharData *victim, HitData &hit_data) {
 			SendMsgToChar(buf, ch);
 			lag = 2;
 			hit_data.dam += (hit_data.dam / 1);
-			SetBattleLag(victim, 2);
+			SetWaitState(victim, 2 * kBattleRound);
 			Affect<EApply> af;
 			af.type = ESpell::kBattle;
-			af.affect_type = EAffect::kStopFight;
+			af.bitvector = to_underlying(EAffect::kStopFight);
 			af.location = EApply::kNone;
 			af.modifier = 0;
-			af.duration = CalcDuration(victim, victim, ESkill::kUndefined, 2, 0, 0, 0);
+			af.duration = CalcDuration(victim, 2, 0, 0, 0, 0);
 			af.battleflag = kAfBattledec | kAfPulsedec;
 			ImposeAffect(victim, af, true, false, true, false);
 			sprintf(buf, "&R&qВаше сознание помутилось после удара %s.&Q&n\r\n", PERS(ch, victim, 1));
@@ -187,13 +187,13 @@ void PerformMighthit(CharData *ch, CharData *victim, HitData &hit_data) {
 			SendMsgToChar(buf, ch);
 			lag = 2;
 			hit_data.dam *= 4;
-			SetBattleLag(victim, 3);
+			SetWaitState(victim, 3 * kBattleRound);
 			Affect<EApply> af;
 			af.type = ESpell::kBattle;
-			af.affect_type = EAffect::kStopFight;
+			af.bitvector = to_underlying(EAffect::kStopFight);
 			af.location = EApply::kNone;
 			af.modifier = 0;
-			af.duration = CalcDuration(victim, victim, ESkill::kUndefined, 3, 0, 0, 0);
+			af.duration = CalcDuration(victim, 3, 0, 0, 0, 0);
 			af.battleflag = kAfBattledec | kAfPulsedec;
 			ImposeAffect(victim, af, true, false, true, false);
 			sprintf(buf, "&R&qВаше сознание померкло после удара %s.&Q&n\r\n", PERS(ch, victim, 1));
@@ -214,7 +214,7 @@ void ProcessMighthitBash(CharData *ch, CharData *victim) {
 	}
 
 	act("$n обреченно повалил$u на землю.", true, victim, nullptr, nullptr, kToRoom | kToArenaListen);
-	SetBattleLag(victim, 3);
+	SetWaitState(victim, 3 * kBattleRound);
 
 	if (victim->GetPosition() > EPosition::kSit) {
 		victim->SetPosition(EPosition::kSit);

@@ -60,8 +60,7 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		AllocateBufferForFile(NAME_RULES_FILE, &name_rules);
 		GoBootSocials();
 		initIngredientsMagic();
-		MUD::CfgManager().ReloadCfg("zone_types");
-		MUD::CfgManager().ReloadCfg("rune_spells");
+		InitZoneTypes();
 		ReloadSpecProcs();
 		MUD::Runestones().LoadRunestones();
 		LoadSheduledReboot();
@@ -104,9 +103,7 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	} else if (!str_cmp(arg, "imagic"))
 		initIngredientsMagic();
 	else if (!str_cmp(arg, "ztypes"))
-		MUD::CfgManager().ReloadCfg("zone_types");
-	else if (!str_cmp(arg, "runes"))
-		MUD::CfgManager().ReloadCfg("rune_spells");
+		InitZoneTypes();
 	else if (!str_cmp(arg, "oloadtable"))
 		oload_table.init();
 	else if (!str_cmp(arg, "setstuff")) {

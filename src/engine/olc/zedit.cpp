@@ -15,7 +15,6 @@
 #include "engine/entities/room_data.h"
 #include "engine/db/help.h"
 #include "engine/entities/zone.h"
-#include "engine/db/global_objects.h"
 #include "utils/logger.h"
 #include "utils/utils.h"
 #include "engine/structs/structs.h"
@@ -30,7 +29,7 @@ extern CharData *mob_proto;
 extern IndexData *mob_index;
 extern char const *equipment_types[];
 extern char const *dirs[];
-// (issue.ztypes-migrate) zone_types[] -> MUD::ZoneTypes(); see engine/entities/zone_types.h.
+extern struct ZoneCategory *zone_types;
 //---------------------------------
 
 // * Function prototypes.
@@ -912,7 +911,7 @@ void zedit_disp_menu(DescriptorData *d) {
 			grn,
 			nrm,
 			yel,
-			MUD::ZoneTypes()[OLC_ZONE(d)->type].GetName().c_str(),
+			zone_types[OLC_ZONE(d)->type].name,
 			grn,
 			nrm,
 			yel,
@@ -983,17 +982,14 @@ void zedit_disp_menu(DescriptorData *d) {
 
 //MZ.load
 void zedit_disp_type_menu(DescriptorData *d) {
-	int columns = 0;
+	int counter, columns = 0;
 
 #if defined(CLEAR_SCREEN)
 	SendMsgToChar("[H[J", d->character);
 #endif
-	// (issue.ztypes-migrate) Iterate registry directly; ordering and contiguity
-	// of vnums is the configuration author's responsibility (the legacy ztypes.lst
-	// loader implicitly assumed 0..N-1 contiguous slots, the registry doesn't).
-	for (const auto &zone_type : MUD::ZoneTypes()) {
-		sprintf(buf, "%s%2d%s) %-20.20s %s", grn, zone_type.GetId(), nrm,
-				zone_type.GetName().c_str(), !(++columns % 2) ? "\r\n" : "");
+	for (counter = 0; *zone_types[counter].name != '\n'; counter++) {
+		sprintf(buf, "%s%2d%s) %-20.20s %s", grn, counter, nrm,
+				zone_types[counter].name, !(++columns % 2) ? "\r\n" : "");
 		SendMsgToChar(buf, d->character.get());
 	}
 	SendMsgToChar("\r\nВыберите тип зоны : ", d->character.get());
@@ -1864,16 +1860,19 @@ void zedit_parse(DescriptorData *d, char *arg) {
 		case ZEDIT_ZONE_TYPE:
 			// * Parse and add new zone type and return to main menu.
 			pos = atoi(arg);
-			if (!is_number(arg) || (pos < 0)) {
+			if (!is_number(arg) || (pos < 0))
 				zedit_disp_type_menu(d);
-			} else if (!MUD::ZoneTypes().IsKnown(pos)) {
-				// (issue.ztypes-migrate) IsKnown(vnum) replaces the legacy
-				// "walk to sentinel" search; vnums may now be non-contiguous.
-				zedit_disp_type_menu(d);
-			} else {
-				OLC_ZONE(d)->type = pos;
-				OLC_ZONE(d)->vnum = 1;
-				zedit_disp_menu(d);
+			else {
+				for (i = 0; *zone_types[i].name != '\n'; i++)
+					if (i == pos)
+						break;
+				if (*zone_types[i].name == '\n')
+					zedit_disp_type_menu(d);
+				else {
+					OLC_ZONE(d)->type = pos;
+					OLC_ZONE(d)->vnum = 1;
+					zedit_disp_menu(d);
+				}
 			}
 			break;
 //-MZ.load

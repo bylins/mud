@@ -2,15 +2,15 @@
 \file sight.cpp - a part of the Bylins engine.
 \authors Created by Sventovit.
 \date 11.09.2024.
-\brief О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ - О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫.
-\details О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫.
- О©╫О©╫ О©╫О©╫О©╫О©╫, О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫. О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫,
- О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫. О©╫О©╫О©╫ О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ - О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫
- О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫. О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ - О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫
- О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫, О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫/О©╫О©╫О©╫О©╫.
+\brief Модуль оператора над игровыми сущностями - персонажами, предметами и комнатами.
+\details Тут должен размещаться код, который перемещает и размещает персонажей, предметы и мобов.
+ То есть, в комнату, из комнаты, в контейнер, в инвентарь и обратно и так далее. Либо сообщает их численность,
+ составляет списки и тому подобное. Что тут нужно сделать - удалить отсюда и перенести в соответствующие модули
+ код, который не относится к таким действиям. Если после этого модуль будет чересчур большим - раздеить его
+ на хендлеры объектов, персонажей и комнат/мира.
 */
 
-// О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫ bitbucket
+// комментарий на русском в надежде починить кодировки bitbucket
 
 #ifndef HANDLER_H_
 #define HANDLER_H_
@@ -71,6 +71,7 @@ ObjData *GetObjByVnumInContent(int vnum, ObjData *list);
 ObjData *GetObjByVnumInContent(int vnum, const ObjData::obj_list_t &list);
 
 //ObjData *get_obj(const char *name, int vnum = 0);
+ObjData *SearchObjByRnum(ObjRnum rnum);
 
 bool CheckObjDecay(ObjData *object, bool need_extract = true);
 bool PlaceObjToRoom(ObjData *object, RoomRnum room);
@@ -83,6 +84,7 @@ void ExtractObjFromWorld(ObjData *obj, bool showlog = false);
 
 // ******* characters ********* //
 
+CharData *SearchCharInRoomByName(const char *name, RoomRnum room);
 //CharData *get_char(char *name);
 
 void RemoveCharFromRoom(CharData *ch);
@@ -94,6 +96,33 @@ void DropEquipment(CharData *ch, bool zone_reset);
 void DropInventory(CharData *ch, bool zone_reset);
 
 // find if character can see //
+CharData *get_char_room_vis(CharData *ch, const char *name);
+inline CharData *get_char_room_vis(CharData *ch, const std::string &name) {
+	return get_char_room_vis(ch,
+							 name.c_str());
+}
+
+CharData *get_player_vis(CharData *ch, const char *name, int inroom);
+inline CharData *get_player_vis(CharData *ch, const std::string &name, int inroom) {
+	return get_player_vis(ch,
+						  name.c_str(),
+						  inroom);
+}
+
+CharData *get_player_pun(CharData *ch, const char *name, int inroom);
+inline CharData *get_player_pun(CharData *ch, const std::string &name, int inroom) {
+	return get_player_pun(ch,
+						  name.c_str(),
+						  inroom);
+}
+
+CharData *get_char_vis(CharData *ch, const char *name, int where);
+inline CharData *get_char_vis(CharData *ch, const std::string &name, int where) {
+	return get_char_vis(ch,
+						name.c_str(),
+						where);
+}
+
 ObjData *get_obj_in_list_vis(CharData *ch, const char *name, const ObjData::obj_list_t &list, bool locate_item = false);
 ObjData *get_obj_in_list_vis(CharData *ch, const char *name, ObjData *list, bool locate_item = false);
 inline ObjData *get_obj_in_list_vis(CharData *ch,
@@ -102,6 +131,9 @@ inline ObjData *get_obj_in_list_vis(CharData *ch,
 inline ObjData *get_obj_in_list_vis(CharData *ch,
 									const std::string &name,
 									ObjData *list) { return get_obj_in_list_vis(ch, name.c_str(), list); }
+
+ObjData *get_obj_vis(CharData *ch, const char *name);
+inline ObjData *get_obj_vis(CharData *ch, const std::string &name) { return get_obj_vis(ch, name.c_str()); }
 
 ObjData *get_obj_vis_for_locate(CharData *ch, const char *name);
 inline ObjData *get_obj_vis_for_locate(CharData *ch, const std::string &name) {

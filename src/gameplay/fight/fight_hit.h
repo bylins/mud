@@ -50,7 +50,7 @@ struct HitData {
 	// в целом если < 0 - считается, что бьем простой атакой hit_type
 	// если >= 0 - считается, что бьем скилом
 	ESkill skill_num;
-	// тип удара пушкой или руками (индекс EDamageSource kHit..kSting, см. fight::GetAttackTypeDescription)
+	// тип удара пушкой или руками (attack_hit_text[])
 	// инится в любом случае независимо от skill_num
 	int hit_type;
 	// true - удар не парируется/не блочится/не веерится и т.п.

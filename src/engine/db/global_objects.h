@@ -7,15 +7,12 @@
 #include "gameplay/economics/currencies.h"
 #include "gameplay/magic/spells_info.h"
 #include "gameplay/magic/spell_messages.h"
-#include "gameplay/magic/points_intensity.h"
 #include "gameplay/skills/skill_messages.h"
 #include "gameplay/fight/fight_messages.h"
 #include "gameplay/clans/ingr_chest_saver.h"
 #include "gameplay/clans/chest_saver.h"
 #include "gameplay/mechanics/celebrates.h"
 #include "gameplay/mechanics/guilds.h"
-#include "engine/entities/zone_types.h"
-#include "gameplay/mechanics/rune_spells.h"
 #include "gameplay/abilities/feats.h"
 #include "utils/logger.h"
 #include "engine/core/heartbeat.h"
@@ -63,7 +60,6 @@ class GlobalObjects {
 	static spells::SpellsInfo &Spells();
 	static const spells::SpellInfo &Spell(ESpell spell_id);
 	static spells::SpellMessages &SpellMessages();
-	static points_intensity::PointsIntensity &PointsIntensity();
 	static skills::SkillMessages &SkillMessages();
     static fight::FightMessages &FightMessages();
 	static feats::FeatsInfo &Feats();
@@ -74,9 +70,6 @@ class GlobalObjects {
 	static const mob_classes:: MobClassInfo &MobClass(EMobClass mob_class_id);
 	static guilds::GuildsInfo &Guilds();
 	static const guilds::GuildInfo &Guild(Vnum guild_vnum);
-	static zone_types::ZoneTypesInfo &ZoneTypes();
-	static const zone_types::ZoneTypeInfo &ZoneType(int type_vnum);
-	static rune_spells::Registry &RuneSpells();
 	static currencies::CurrenciesInfo &Currencies();
 	static const currencies::CurrencyInfo &Currency(Vnum currency_vnum);
 	static WorldObjects &world_objects();

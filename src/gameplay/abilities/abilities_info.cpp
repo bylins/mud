@@ -5,7 +5,7 @@
 #include "abilities_info.h"
 
 #include "engine/entities/char_data.h"
-#include "engine/core/target_resolver.h"
+#include "engine/core/action_targeting.h"
 #include "engine/ui/color.h"
 //#include "utils/parser_wrapper.h"
 #include "engine/db/global_objects.h"
@@ -225,7 +225,7 @@ void AbilityInfoBuilder::TemporarySetStat(ItemPtr &info) {
 * Svent TODO: Придумать более универсальный механизм бонусов/штрафов в зависимости от данных абилки
 */
 int CalcRollBonusOfGroupFormation(CharData *ch, CharData * /* enemy */) {
-	target_resolver::FriendsRosterType roster{ch};
+	ActionTargeting::FriendsRosterType roster{ch};
 	int skirmishers = roster.count([](CharData *ch) { return ch->IsFlagged(EPrf::kSkirmisher); });
 	int uncoveredSquadMembers = roster.amount() - skirmishers;
 	if (AFF_FLAGGED(ch, EAffect::kBlind)) {

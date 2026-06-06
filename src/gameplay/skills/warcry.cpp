@@ -38,16 +38,8 @@ void do_warcry(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				&& ch->GetSkill(ESkill::kWarcry) >= MUD::Spell(spell_id).GetManaChange()) {
 				if (!IS_SET(GET_SPELL_TYPE(ch, spell_id), ESpellType::kKnow | ESpellType::kTemp))
 					continue;
-				// (issue.ambiguous-spells) Catalog row has no concrete target, so colour
-				// reflects the spell's intrinsic kind: red for Y, green for N, yellow for A.
-				const char *row_color;
-				switch (MUD::Spell(spell_id).GetViolent()) {
-					case spells::EViolent::kYes:       row_color = kColorBoldRed; break;
-					case spells::EViolent::kAmbiguous: row_color = kColorBoldYel; break;
-					default:                           row_color = kColorBoldGrn; break;
-				}
 				sprintf(buf + strlen(buf), "%s%2d%s) %s%s%s\r\n",
-						kColorGrn, cnt++, kColorNrm, row_color, realname, kColorNrm);
+						kColorGrn, cnt++, kColorNrm, MUD::Spell(spell_id).IsViolent() ? kColorBoldRed : kColorBoldGrn, realname, kColorNrm);
 			}
 		}
 		SendMsgToChar(buf, ch);
@@ -98,10 +90,10 @@ void do_warcry(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	SaySpell(ch, spell_id, nullptr, nullptr);
 
-	if (CallMagic(ch, nullptr, nullptr, nullptr, spell_id, GetRealLevel(ch)) != ECastResult::kTargetDied) {
+	if (CallMagic(ch, nullptr, nullptr, nullptr, spell_id, GetRealLevel(ch)) >= 0) {
 		if (!ch->IsImmortal()) {
 			if (ch->get_wait() <= 0) {
-				SetBattleLag(ch, 1);
+				SetWaitState(ch, kBattleRound);
 			}
 			ImposeTimedSkill(ch, &timed);
 			ch->set_move(ch->get_move() - MUD::Spell(spell_id).GetMaxMana());

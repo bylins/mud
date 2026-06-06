@@ -781,10 +781,7 @@ int cast_mtrigger(CharData *ch, CharData *actor, ESpell spell_id) {
 			sprintf(buf, "%d", to_underlying(spell_id));
 			add_var_cntx(t->var_list, "castnum", buf, 0);
 			add_var_cntx(t->var_list, "castname", MUD::Spell(spell_id).GetCName(), 0);
-			// (issue.ambiguous-spells) %violent% reflects the resolved sign of the cast
-			// from the trigger owner's standpoint -- A spells set "1" for an outsider-cast
-			// and "0" for an ally-cast. The script doesn't need to know about ambiguity.
-			if (MUD::Spell(spell_id).IsViolentAgainst(actor, ch)) {
+			if (MUD::Spell(spell_id).IsViolent()) {
 				add_var_cntx(t->var_list, "violent", "1", 0);
 			} else {
 				add_var_cntx(t->var_list, "violent", "0", 0);

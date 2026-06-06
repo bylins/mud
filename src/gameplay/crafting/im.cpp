@@ -20,11 +20,9 @@
 #include "gameplay/mechanics/mob_races.h"
 #include "engine/db/obj_prototypes.h"
 #include "engine/core/handler.h"
-#include "engine/core/target_resolver.h"
 #include "engine/ui/color.h"
 #include "engine/ui/modify.h"
 #include "engine/entities/zone.h"
-#include "engine/db/global_objects.h"
 #include "gameplay/core/base_stats.h"
 
 #define        VAR_CHAR    '@'
@@ -900,25 +898,19 @@ void im_reset_room(RoomData *room, int level, int type) {
 		return;
 	}
 
-	// (issue.ztypes-migrate) Reach zone-type data through the new info_container
-	// registry. Unknown vnum yields the kUndefined entry whose ingredient list is
-	// empty, so the short-circuit below covers both "no ingredients configured"
-	// and "zone.type out of range" cases the legacy array used to hit.
-	const auto &zone_type_info = MUD::ZoneTypes()[type];
-	const auto &ingredients = zone_type_info.GetIngredients();
-	if (ingredients.empty()
+	if (!zone_types[type].ingr_qty
 		|| room->get_flag(ERoomFlag::kDeathTrap)) {
 		return;
 	}
-	for (i = 0; i < static_cast<int>(ingredients.size()); i++) {
+	for (i = 0; i < zone_types[type].ingr_qty; i++) {
 		//	3% - 1-17
 		//	2% - 18-34
 		//	1% - 35-50
 		//		if (number(1, 100) <= 3 - 3 * (level - 1) / MAX_ZONE_LEVEL)
 		if (number(1, 1000) <= (4 - level / 10) * 10) {
-			indx = im_type_rnum(ingredients[i]);
+			indx = im_type_rnum(zone_types[type].ingr_types[i]);
 			if (indx == -1) {
-				log("SYSERR: WRONG INGREDIENT TYPE Id %d IN zone_types.xml", ingredients[i]);
+				log("SYSERR: WRONG INGREDIENT TYPE Id %d IN ZTYPES.LST", zone_types[type].ingr_types[i]);
 				continue;
 			}
 			after = nullptr;
@@ -1091,9 +1083,7 @@ void do_rset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	vict = target_resolver::FindCharInWorld(ch, name);
-
-	if (!vict) {
+	if (!(vict = get_char_vis(ch, name, EFind::kCharInWorld))) {
 		SendMsgToChar(NOPERSON, ch);
 		return;
 	}

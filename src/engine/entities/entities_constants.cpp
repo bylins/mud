@@ -356,14 +356,6 @@ const std::string &NAME_BY_ITEM<EPosition>(const EPosition item) {
 }
 
 template<>
-const std::map<EPosition, std::string> &NAMES_OF<EPosition>() {
-	if (EPosition_name_by_value.empty()) {
-		init_EPosition_ITEM_NAMES();
-	}
-	return EPosition_name_by_value;
-}
-
-template<>
 EPosition ITEM_BY_NAME<EPosition>(const std::string &name) {
 	if (EPosition_name_by_value.empty()) {
 		init_EPosition_ITEM_NAMES();
@@ -406,14 +398,6 @@ const std::string &NAME_BY_ITEM<EBaseStat>(const EBaseStat item) {
 }
 
 template<>
-const std::map<EBaseStat, std::string> &NAMES_OF<EBaseStat>() {
-	if (EBaseStat_name_by_value.empty()) {
-		init_EBaseStat_ITEM_NAMES();
-	}
-	return EBaseStat_name_by_value;
-}
-
-template<>
 EBaseStat ITEM_BY_NAME<EBaseStat>(const std::string &name) {
 	if (EBaseStat_name_by_value.empty()) {
 		init_EBaseStat_ITEM_NAMES();
@@ -447,14 +431,6 @@ const std::string &NAME_BY_ITEM<ESaving>(const ESaving item) {
 		init_ESaving_ITEM_NAMES();
 	}
 	return ESaving_name_by_value.at(item);
-}
-
-template<>
-const std::map<ESaving, std::string> &NAMES_OF<ESaving>() {
-	if (ESaving_name_by_value.empty()) {
-		init_ESaving_ITEM_NAMES();
-	}
-	return ESaving_name_by_value;
 }
 
 template<>
@@ -621,14 +597,6 @@ const std::string &NAME_BY_ITEM<EResist>(const EResist item) {
 		init_EResist_ITEM_NAMES();
 	}
 	return EResist_name_by_value.at(item);
-}
-
-template<>
-const std::map<EResist, std::string> &NAMES_OF<EResist>() {
-	if (EResist_name_by_value.empty()) {
-		init_EResist_ITEM_NAMES();
-	}
-	return EResist_name_by_value;
 }
 
 template<>

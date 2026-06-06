@@ -11,7 +11,6 @@
 #include "administration/punishments.h"
 #include "engine/entities/char_data.h"
 #include "engine/core/handler.h"
-#include "engine/core/target_resolver.h"
 #include "gameplay/core/genchar.h"
 #include "utils/logger.h"
 
@@ -27,7 +26,7 @@ void DoWizutil(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 
 	if (!*arg)
 		SendMsgToChar("Для кого?\r\n", ch);
-	else if (!(vict = target_resolver::FindPlayer(ch, arg)))
+	else if (!(vict = get_player_pun(ch, arg, EFind::kCharInWorld)))
 		SendMsgToChar("Нет такого игрока.\r\n", ch);
 	else if (GetRealLevel(vict) > GetRealLevel(ch) && !GET_GOD_FLAG(ch, EGf::kDemigod)
 		&& !ch->IsFlagged(EPrf::kCoderinfo))

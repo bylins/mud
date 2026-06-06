@@ -59,62 +59,6 @@ const char *DataNode::GetValue(const std::string &key) const {
 	return impl_->curren_xml_node.attribute(key.c_str()).value();
 }
 
-std::vector<std::pair<std::string, std::string>> DataNode::Attributes() const {
-	std::vector<std::pair<std::string, std::string>> out;
-	for (auto attr = impl_->curren_xml_node.first_attribute(); attr; attr = attr.next_attribute()) {
-		out.emplace_back(attr.name(), attr.value());
-	}
-	return out;
-}
-
-bool DataNode::SetValue(const std::string &key, const std::string &value) {
-	auto node = impl_->curren_xml_node;
-	auto attr = node.attribute(key.c_str());
-	if (!attr) {
-		attr = node.append_attribute(key.c_str());
-	}
-	return attr.set_value(value.c_str());
-}
-
-bool DataNode::Save(const std::filesystem::path &file) const {
-	return impl_->xml_doc->save_file(file.string().c_str());
-}
-
-std::string DataNode::ToXmlString() const {
-	std::ostringstream os;
-	impl_->curren_xml_node.print(os, "  ", pugi::format_default);
-	return os.str();
-}
-
-DataNode DataNode::AddChild(const std::string &name) {
-	auto node = impl_->curren_xml_node.append_child(name.c_str());
-	DataNode child(*this);                 // copy shares the same xml_doc (shared_ptr)
-	child.impl_->curren_xml_node = node;
-	return child;
-}
-
-bool DataNode::RemoveChild(const DataNode &child) {
-	return impl_->curren_xml_node.remove_child(child.impl_->curren_xml_node);
-}
-
-bool DataNode::MoveChildUp(const DataNode &child) {
-	auto node = child.impl_->curren_xml_node;
-	auto prev = node.previous_sibling();
-	if (!prev) {
-		return false;
-	}
-	return !impl_->curren_xml_node.insert_move_before(node, prev).empty();
-}
-
-bool DataNode::MoveChildDown(const DataNode &child) {
-	auto node = child.impl_->curren_xml_node;
-	auto next = node.next_sibling();
-	if (!next) {
-		return false;
-	}
-	return !impl_->curren_xml_node.insert_move_after(node, next).empty();
-}
-
 void DataNode::GoToRadix() {
 	impl_->curren_xml_node = impl_->xml_doc->document_element();
 }

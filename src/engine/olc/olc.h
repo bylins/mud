@@ -39,7 +39,7 @@
 
 #define NUM_MOB_FLAGS        18
 #define NUM_AFF_FLAGS        22
-#define NUM_ATTACK_TYPES    17  // weapon attack types EDamageSource kHit..kSting
+#define NUM_ATTACK_TYPES    20
 
 #define NUM_ITEM_TYPES        36
 #define NUM_ITEM_FLAGS        30

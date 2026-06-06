@@ -14,7 +14,6 @@
 #include "gameplay/clans/house.h"
 #include "gameplay/mechanics/deathtrap.h"
 #include "gameplay/mechanics/sight.h"
-#include "gameplay/magic/magic_rooms.h"   // FindRoomPkPortalUid (issue.affect-flags)
 
 void DoEnter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	RoomRnum door = kNowhere;
@@ -35,7 +34,7 @@ void DoEnter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 			int i = 0;
 			for (const auto &aff : world[ch->in_room]->affected) {
-				if (aff->type == ESpell::kPortalTimer && aff->affect_type != room_spells::ERoomAffect::kNoPortalExit && ++i == fnum) {
+				if (aff->type == ESpell::kPortalTimer && aff->bitvector != room_spells::ERoomAffect::kNoPortalExit && ++i == fnum) {
 					door = aff->modifier;
 				}
 			}
@@ -76,14 +75,12 @@ void DoEnter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 						ch->dismount();
 					}
 				}
-				// Обработка флагов NOTELEPORTIN и NOTELEPORTOUT здесь же. PK-пента
-				// в комнате-приёмнике теперь хранится на самом аффекте (pk_unique),
-				// а не на флаге комнаты (issue.affect-flags).
+				// Обработка флагов NOTELEPORTIN и NOTELEPORTOUT здесь же
 				if (!ch->IsImmortal()
 					&& ((!ch->IsNpc() && !Clan::MayEnter(ch, door, kHousePortal))
 						|| (ROOM_FLAGGED(from_room, ERoomFlag::kNoTeleportOut) || ROOM_FLAGGED(door, ERoomFlag::kNoTeleportIn))
 						|| AFF_FLAGGED(ch, EAffect::kNoTeleport)
-						|| (room_spells::FindRoomPkPortalUid(world[door]) != 0
+						|| (world[door]->pkPenterUnique
 							&& (ROOM_FLAGGED(door, ERoomFlag::kArena) || ROOM_FLAGGED(door, ERoomFlag::kHouse))))) {
 					sprintf(smallBuf, "%sПентаграмма ослепительно вспыхнула!%s\r\n",
 							kColorWht, kColorNrm);
@@ -94,17 +91,14 @@ void DoEnter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					act("$n с визгом отлетел$g от пентаграммы.\r\n", true, ch,
 						nullptr, nullptr, kToRoom | kToNotDeaf);
 					act("$n отлетел$g от пентаграммы.\r\n", true, ch, nullptr, nullptr, kToRoom | kToDeaf);
-					SetBattleLag(ch, 1);
+					SetWaitState(ch, kBattleRound);
 					return;
 				}
 				if (!enter_wtrigger(world[door], ch, -1))
 					return;
 				act("$n исчез$q в пентаграмме.", true, ch, nullptr, nullptr, kToRoom);
-				// Чужая PK-пента в from_room => агрессивный поступок (issue.affect-flags:
-				// поле pkPenterUnique уехало на аффект; helper отдаёт чужой pk_unique,
-				// исключая ch's собственный, чтобы вход в свою же пенту не штрафовался).
-				if (!ch->IsImmortal()
-					&& room_spells::FindRoomPkPortalUid(world[from_room], ch->get_uid()) != 0) {
+				if (world[from_room]->pkPenterUnique && world[from_room]->pkPenterUnique != ch->get_uid()
+					&& !ch->IsImmortal()) {
 					SendMsgToChar(ch, "%sВаш поступок был расценен как потенциально агрессивный.%s\r\n",
 								  kColorBoldRed, kColorBoldBlk);
 					pkPortal(ch);

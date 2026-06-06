@@ -2,7 +2,6 @@
 
 #include "gameplay/fight/fight.h"
 #include "engine/core/handler.h"
-#include "engine/core/target_resolver.h"
 #include "engine/db/global_objects.h"
 #include "utils/backtrace.h"
 
@@ -171,8 +170,7 @@ void do_follow(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 			return;
 		}
-		leader = target_resolver::FindCharInRoom(ch, smallBuf);
-		if (!leader) {
+		if (!(leader = get_char_vis(ch, smallBuf, EFind::kCharInRoom))) {
 			SendMsgToChar(NOPERSON, ch);
 			return;
 		}

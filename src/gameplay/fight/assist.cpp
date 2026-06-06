@@ -2,7 +2,6 @@
 
 #include "engine/entities/char_data.h"
 #include "engine/core/handler.h"
-#include "engine/core/target_resolver.h"
 #include "pk.h"
 #include "fight.h"
 
@@ -35,8 +34,7 @@ void do_assist(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			return;
 		}
 	} else {
-		helpee = target_resolver::FindCharInRoom(ch, arg);
-		if (!helpee) {
+		if (!(helpee = get_char_vis(ch, arg, EFind::kCharInRoom))) {
 			SendMsgToChar(NOPERSON, ch);
 			return;
 		}

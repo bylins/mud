@@ -43,15 +43,6 @@ enum class EDamageSource {
 	kStab,		// was type_stab
 	kPick,		// was type_pick
 	kSting,		// was type_sting
-	// Magic-melee breath attacks: a breathing mob deals elemental damage typed
-	// kMagicDmg; the EElement on the Damage picks the resist channel. Keyed into
-	// hit_msg.xml like any other attack type (replaces the old kService breath
-	// pseudo-spells + CastDamage workaround).
-	kFireBreath,
-	kGasBreath,
-	kFrostBreath,
-	kAcidBreath,
-	kLightingBreath,
 	// Server-inflicted damage sources (lib/misc/messages 495..499; no damager,
 	// so only the to-victim / to-room messages are present).
 	kTriggerDeath = 95,		// kTypeTriggerdeath (495): DG mdamage/wdamage/odamage

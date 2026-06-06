@@ -15,14 +15,8 @@
 #include "gameplay/fight/pk.h"
 #include "gameplay/fight/common.h"
 #include "gameplay/skills/resque.h"
-#include "gameplay/magic/magic.h"  // CastContext / EStageResult (issue.summons-fix)
 
-EStageResult SummonTutelar(CastContext &ctx) {
-	CharData *ch = ctx.caster();
-	if (ch == nullptr) {
-		return EStageResult::kSuccess;
-	}
-
+void SummonTutelar(CharData *ch) {
 	MobVnum mob_num = 108;
 	//int modifier = 0;
 	CharData *mob = nullptr;
@@ -40,11 +34,11 @@ EStageResult SummonTutelar(CastContext &ctx) {
 
 	if (number(1, 100) > floorf(base_success + additional_success_for_charisma * eff_cha)) {
 		SendMsgToRoom("Яркая вспышка света! Несколько белых перьев кружась легли на землю...", ch->in_room, true);
-		return EStageResult::kSuccess;
+		return;
 	};
 	if (!(mob = ReadMobile(mob_num, kVirtual))) {
 		SendMsgToChar("Вы точно не помните, как создать данного монстра.\r\n", ch);
-		return EStageResult::kSuccess;
+		return;
 	}
 
 	int base_hp = 360;
@@ -70,20 +64,20 @@ EStageResult SummonTutelar(CastContext &ctx) {
 	ClearMinionTalents(mob);
 	Affect<EApply> af;
 	af.type = ESpell::kCharm;
-	af.duration = CalcDuration(mob, mob, ESkill::kUndefined, floorf(base_ttl + additional_ttl_for_charisma * eff_cha), 0, 0, 0);
+	af.duration = CalcDuration(mob, floorf(base_ttl + additional_ttl_for_charisma * eff_cha), 0, 0, 0, 0);
 	af.modifier = 0;
 	af.location = EApply::kNone;
 	af.battleflag = 0;
-	af.affect_type = EAffect::kHelper;
+	af.bitvector = to_underlying(EAffect::kHelper);
 	affect_to_char(mob, af);
 
-	af.affect_type = EAffect::kFly;
+	af.bitvector = to_underlying(EAffect::kFly);
 	affect_to_char(mob, af);
 
-	af.affect_type = EAffect::kInfravision;
+	af.bitvector = to_underlying(EAffect::kInfravision);
 	affect_to_char(mob, af);
 
-	af.affect_type = EAffect::kSanctuary;
+	af.bitvector = to_underlying(EAffect::kSanctuary);
 	affect_to_char(mob, af);
 
 	//Set shields
@@ -92,15 +86,15 @@ EStageResult SummonTutelar(CastContext &ctx) {
 	int count_shields = base_shields + floorf(eff_cha * additional_shields_for_charisma);
 	if (count_shields > 0) {
 		mob->SetFlag(EMobFlag::kNoHold);
-		af.affect_type = EAffect::kAirShield;
+		af.bitvector = to_underlying(EAffect::kAirShield);
 		affect_to_char(mob, af);
 	}
 	if (count_shields > 1) {
-		af.affect_type = EAffect::kIceShield;
+		af.bitvector = to_underlying(EAffect::kIceShield);
 		affect_to_char(mob, af);
 	}
 	if (count_shields > 2) {
-		af.affect_type = EAffect::kFireShield;
+		af.bitvector = to_underlying(EAffect::kFireShield);
 		affect_to_char(mob, af);
 	}
 
@@ -198,7 +192,6 @@ EStageResult SummonTutelar(CastContext &ctx) {
 			true, mob, nullptr, nullptr, kToRoom | kToArenaListen);
 	}
 	ch->add_follower(mob);
-	return EStageResult::kSuccess;
 }
 
 void CheckTutelarSelfSacrfice(CharData *ch, CharData *victim) {

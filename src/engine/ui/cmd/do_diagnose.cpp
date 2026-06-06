@@ -9,7 +9,6 @@
 #include "engine/entities/char_data.h"
 #include "gameplay/mechanics/sight.h"
 #include "engine/core/handler.h"
-#include "engine/core/target_resolver.h"
 
 void do_diagnose(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *vict;
@@ -17,8 +16,7 @@ void do_diagnose(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	one_argument(argument, buf);
 
 	if (*buf) {
-		vict = target_resolver::FindCharInRoom(ch, buf);
-		if (!vict)
+		if (!(vict = get_char_vis(ch, buf, EFind::kCharInRoom)))
 			SendMsgToChar(NOPERSON, ch);
 		else
 			diag_char_to_char(vict, ch);
