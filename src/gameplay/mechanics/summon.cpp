@@ -4,6 +4,7 @@
 */
 
 #include "gameplay/mechanics/summon.h"
+#include "gameplay/ai/spec_procs.h"
 #include "engine/entities/char_data.h"
 #include "engine/core/comm.h"
 #include "engine/core/handler.h"
@@ -66,7 +67,7 @@ bool IsSummonTargetProtected(CharData *ch, CharData *mob, ESpell spell_id) {
 		return true;
 	}
 	if (!ch->IsImmortal()
-		&& (GET_MOB_SPEC(mob) || mob->IsFlagged(EMobFlag::kNoResurrection) || mob->IsFlagged(EMobFlag::kAreaAttack))) {
+		&& (specials::IsMobSpecial(GET_MOB_VNUM(mob)) || mob->IsFlagged(EMobFlag::kNoResurrection) || mob->IsFlagged(EMobFlag::kAreaAttack))) {
 		SendMsgToChar(MUD::SpellMessages().GetMessage(spell_id, ESpellMsg::kResurrectNoPower) + "\r\n", ch);
 		ExtractCharFromWorld(mob, false);
 		return true;

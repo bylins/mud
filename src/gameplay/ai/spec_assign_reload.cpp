@@ -40,6 +40,7 @@ void ClearManagedSpecProcs() {
 	for (MobRnum i = 0; i <= top_of_mobt; ++i) {
 		if (IsManagedMobSpecial(mob_index[i].func)) {
 			mob_index[i].func = nullptr;
+			specials::RegisterMob(mob_index[i].vnum, specials::ESpecial::kNone);
 		}
 	}
 

@@ -45,11 +45,46 @@ void clear_mob_charm(CharData *mob);
 
 // functions to perform assignments
 
+namespace specials {
+namespace {
+std::unordered_map<int, ESpecial> g_mob_specials, g_obj_specials, g_room_specials;
+ESpecial Lookup(const std::unordered_map<int, ESpecial> &m, int vnum) {
+	const auto it = m.find(vnum);
+	return it == m.end() ? ESpecial::kNone : it->second;
+}
+} // namespace
+void RegisterMob(int vnum, ESpecial s) { if (s == ESpecial::kNone) g_mob_specials.erase(vnum); else g_mob_specials[vnum] = s; }
+void RegisterObj(int vnum, ESpecial s) { if (s == ESpecial::kNone) g_obj_specials.erase(vnum); else g_obj_specials[vnum] = s; }
+void RegisterRoom(int vnum, ESpecial s) { if (s == ESpecial::kNone) g_room_specials.erase(vnum); else g_room_specials[vnum] = s; }
+ESpecial MobSpecial(int vnum) { return Lookup(g_mob_specials, vnum); }
+ESpecial ObjSpecial(int vnum) { return Lookup(g_obj_specials, vnum); }
+bool IsMobSpecial(int vnum) { return MobSpecial(vnum) != ESpecial::kNone; }
+} // namespace specials
+
+// Map a spec-proc function to its ESpecial, so ASSIGN* keeps the registry in sync with func.
+static specials::ESpecial ESpecialForFunc(special_f *f) {
+	using E = specials::ESpecial;
+	if (f == receptionist) return E::kRent;
+	if (f == postmaster) return E::kMail;
+	if (f == bank) return E::kBank;
+	if (f == horse_keeper) return E::kHorse;
+	if (f == exchange) return E::kExchange;
+	if (f == mercenary) return E::kMercenary;
+	if (f == Noob::outfit) return E::kOutfit;
+	if (f == torc) return E::kTorc;
+	if (f == puff) return E::kPuff;
+	if (f == shop_ext) return E::kShop;
+	if (f == dump) return E::kDump;
+	if (f == Boards::Static::Special) return E::kBoard;
+	return E::kNone;
+}
+
 void ASSIGNMOB(MobVnum mob, int fname(CharData *, void *, int, char *)) {
 	MobRnum rnum;
 
 	if ((rnum = GetMobRnum(mob)) >= 0) {
 		mob_index[rnum].func = fname;
+		specials::RegisterMob(mob, ESpecialForFunc(fname));
 		// рентерам хардкодом снимаем возможные нежелательные флаги
 		if (fname == receptionist) {
 			clear_mob_charm(&mob_proto[rnum]);
@@ -64,6 +99,7 @@ void ASSIGNOBJ(ObjVnum obj, special_f fname) {
 
 	if (rnum >= 0) {
 		obj_proto.func(rnum, fname);
+		specials::RegisterObj(obj, ESpecialForFunc(fname));
 	} else {
 		err_log("Attempt to assign spec to non-existant obj #%d", obj);
 	}
@@ -74,6 +110,7 @@ void ASSIGNROOM(RoomVnum room, special_f fname) {
 
 	if (rnum != kNowhere) {
 		world[rnum]->func = fname;
+		specials::RegisterRoom(room, ESpecialForFunc(fname));
 	} else {
 		err_log("Attempt to assign spec to non-existant room #%d", room);
 	}
@@ -85,6 +122,7 @@ void ASSIGNMASTER(MobVnum mob, special_f fname, int learn_info) {
 	if ((rnum = GetMobRnum(mob)) >= 0) {
 		mob_index[rnum].func = fname;
 		mob_index[rnum].stored = learn_info;
+		specials::RegisterMob(mob, specials::ESpecial::kGuild);
 	} else {
 		err_log("Attempt to assign spec to non-existant mob #%d", mob);
 	}

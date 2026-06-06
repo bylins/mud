@@ -253,6 +253,7 @@ void load(bool reload) {
 					mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
 				} else {
 					mob_index[mob_rnum].func = shop_ext;
+					specials::RegisterMob(mob_vnum, specials::ESpecial::kShop);
 				}
 			} else {
 				snprintf(buf, kMaxStringLength, "...incorrect mob_vnum=%d", mob_vnum);

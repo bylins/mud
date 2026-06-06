@@ -27,6 +27,21 @@ int shop_ext(CharData *, void *, int, char *);
 int mercenary(CharData *, void *, int, char *);
 void npc_groupbattle(CharData *ch);
 
+namespace specials {
+// issue.specials: data-driven registry of "what special is this", mirroring the prototype func
+// pointer; the single source of truth for special-entity IDENTITY (replaces GET_MOB_SPEC == fn).
+enum class ESpecial {
+	kNone, kRent, kMail, kBank, kHorse, kExchange, kMercenary, kOutfit, kTorc, kPuff,
+	kShop, kGuild, kBoard, kDump,
+};
+void RegisterMob(int vnum, ESpecial s);
+void RegisterObj(int vnum, ESpecial s);
+void RegisterRoom(int vnum, ESpecial s);
+[[nodiscard]] ESpecial MobSpecial(int vnum);
+[[nodiscard]] ESpecial ObjSpecial(int vnum);
+[[nodiscard]] bool IsMobSpecial(int vnum);
+} // namespace specials
+
 #endif //BYLINS_SRC_GAMEPLAY_AI_SPEC_PROCS_H_
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

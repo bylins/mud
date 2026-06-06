@@ -1021,6 +1021,7 @@ void AddDungeonShopSeller(MobRnum mrn_from, MobRnum mrn_to) {
 		if (std::find(shop->mob_vnums().begin(), shop->mob_vnums().end(), mvn_from) != std::end(shop->mob_vnums())) {
 			shop->add_mob_vnum(mob_index[mrn_to].vnum);
 			mob_index[mrn_to].func = shop_ext;
+			specials::RegisterMob(mob_index[mrn_to].vnum, specials::ESpecial::kShop);
 		}
 	}
 }

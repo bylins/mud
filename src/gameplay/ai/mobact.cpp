@@ -12,6 +12,7 @@
 *  $Revision$                                                      *
 ************************************************************************ */
 #include "mobact.h"
+#include "gameplay/ai/spec_procs.h"
 #include "utils/utils_time.h"
 
 #include "gameplay/skills/backstab.h"
@@ -867,13 +868,13 @@ void do_aggressive_room(CharData *ch, int check_sneak) {
  * \return true - можно войти, false - нельзя
  */
 bool allow_enter(RoomData *room, CharData *ch) {
-	if (!ch->IsNpc() || !GET_MOB_SPEC(ch)) {
+	if (!ch->IsNpc() || !specials::IsMobSpecial(GET_MOB_VNUM(ch))) {
 		return true;
 	}
 
 	for (const auto vict : room->people) {
 		if (vict->IsNpc()
-			&& GET_MOB_SPEC(vict) == GET_MOB_SPEC(ch)) {
+			&& specials::MobSpecial(GET_MOB_VNUM(vict)) == specials::MobSpecial(GET_MOB_VNUM(ch))) {
 			return false;
 		}
 	}
