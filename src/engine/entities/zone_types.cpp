@@ -12,6 +12,7 @@
 #include "engine/db/global_objects.h"
 #include "utils/parse.h"
 #include "utils/utils_string.h"
+#include "gameplay/core/entity_names.h"
 
 namespace zone_types {
 
@@ -41,12 +42,12 @@ ItemPtr ZoneTypeInfoBuilder::ParseType(DataNode node) {
 	auto mode = EItemMode::kEnabled;
 
 	std::string text_id{"kUndefined"};
-	std::string name{"undefined"};
 	try {
 		text_id = parse::ReadAsStr(node.GetValue("text_id"));
-		name = parse::ReadAsStr(node.GetValue("name"));
 	} catch (...) {
 	}
+	// issue.thing-names: display name comes from entity_names.xml (keyed by text_id).
+	std::string name = entity_names::FindZoneTypeName(text_id);
 
 	auto info = std::make_shared<ZoneTypeInfo>(vnum, text_id, name, mode);
 

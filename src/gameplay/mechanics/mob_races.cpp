@@ -11,6 +11,7 @@
 #include "utils/parse.h"
 #include "utils/utils.h"                           // GET_RACE
 #include "utils/utils_string.h"                    // utils::Split, str_cmp
+#include "gameplay/core/entity_names.h"
 
 // =============================================================================================
 //  ENpcRace name table (meta_enum)
@@ -106,10 +107,8 @@ ItemPtr MobRaceBuilder::ParseRace(DataNode node) {
 	std::string text_id = parse::ReadAsStr(node.GetValue("id"));
 	const int race_num = ITEM_BY_NAME<ENpcRace>(text_id);
 	auto mode = MobRaceBuilder::ParseItemMode(node, EItemMode::kEnabled);
-	std::string name{"undefined"};
-	try {
-		name = parse::ReadAsStr(node.GetValue("name"));
-	} catch (...) {}
+	// issue.thing-names: display name comes from entity_names.xml (keyed by the ENpcRace token).
+	std::string name = entity_names::FindMobRaceName(text_id);
 
 	auto race = std::make_shared<MobRace>(race_num, text_id, name, mode);
 

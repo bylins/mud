@@ -27,10 +27,13 @@
 #include "gameplay/magic/points_intensity.h"
 #include "gameplay/fight/fight_messages.h"
 #include "gameplay/abilities/feat_messages.h"
+#include "gameplay/core/entity_names.h"
 
 namespace cfg_manager {
 
 CfgManager::CfgManager() {
+	loaders_.emplace("entity_names", LoaderInfo("cfg/messages/ru/entity_names.xml",
+										  std::make_unique<entity_names::EntityNamesLoader>(entity_names::EntityNamesLoader())));
 	loaders_.emplace("mob_races", LoaderInfo("cfg/mechanics/mob_races.xml",
 											  std::make_unique<mob_races::MobRacesLoader>(mob_races::MobRacesLoader())));
 	loaders_.emplace("currency_messages", LoaderInfo("cfg/messages/ru/currency_msg.xml",

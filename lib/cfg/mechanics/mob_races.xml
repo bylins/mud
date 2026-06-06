@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="koi8-r"?>
 <mob_races>
-  <mob_race id="kBasic" name ="Обычный">
+  <mob_race id="kBasic">
     <traits>
       <respiration />
     </traits>
   </mob_race>
-  <mob_race id="kHuman" name ="Человек">
+  <mob_race id="kHuman">
     <imlist>
       <im type="201" name ="зубы">
         <prob lvl="1" val="1" />
@@ -54,7 +54,7 @@
       <respiration />
     </traits>
   </mob_race>
-  <mob_race id="kBeastman" name ="Зверолюд">
+  <mob_race id="kBeastman">
     <imlist>
       <im type="1" name="шерсть">
         <prob lvl="1" val="1" />
@@ -122,7 +122,7 @@
       <skinnable />
     </traits>
   </mob_race>
-  <mob_race id="kBird" name ="Птица">
+  <mob_race id="kBird">
     <imlist>
       <im type="202" name ="когти">
         <prob lvl="1" val="1" />
@@ -180,7 +180,7 @@
       <skinnable />
     </traits>
   </mob_race>
-  <mob_race id="kAnimal" name ="Животное">
+  <mob_race id="kAnimal">
     <imlist>
       <im type="1" name="шерсть">
         <prob lvl="1" val="1" />
@@ -238,7 +238,7 @@
       <skinnable />
     </traits>
   </mob_race>
-  <mob_race id="kReptile" name ="Пресмыкающееся">
+  <mob_race id="kReptile">
     <imlist>
       <im type="201" name ="зубы">
         <prob lvl="1" val="1" />
@@ -296,7 +296,7 @@
       <skinnable />
     </traits>
   </mob_race>
-  <mob_race id="kFish" name ="Рыба">
+  <mob_race id="kFish">
     <imlist>
       <im type="203" name ="глаза">
         <prob lvl="1" val="1" />
@@ -343,16 +343,16 @@
       <skinnable />
     </traits>
   </mob_race>
-  <mob_race id="kInsect" name ="Насекомое">
+  <mob_race id="kInsect">
     <traits>
       <respiration />
     </traits>
   </mob_race>
-  <mob_race id="kPlant" name ="Растение">
+  <mob_race id="kPlant">
   </mob_race>
-  <mob_race id="kConstruct" name ="Предмет">
+  <mob_race id="kConstruct">
   </mob_race>
-  <mob_race id="kZombie" name ="Живой труп">
+  <mob_race id="kZombie">
     <mob_flags val="kUndead" />
     <imlist>
       <im type="201" name ="зубы">
@@ -380,13 +380,13 @@
       <vocal />
     </traits>
   </mob_race>
-  <mob_race id="kGhost" name ="Призрак">
+  <mob_race id="kGhost">
     <mob_flags val="kUndead" />
     <traits>
       <vocal />
     </traits>
   </mob_race>
-  <mob_race id="kBoggart" name ="Нечисть">
+  <mob_race id="kBoggart">
     <imlist>
       <im type="1" name="шерсть">
         <prob lvl="1" val="1" />
@@ -474,13 +474,13 @@
       <respiration />
     </traits>
   </mob_race>
-  <mob_race id="kSpirit" name ="Нематериальный дух">
+  <mob_race id="kSpirit">
     <traits>
       <vocal />
       <respiration />
     </traits>
   </mob_race>
-  <mob_race id="kMagicCreature" name ="Магическое создание">
+  <mob_race id="kMagicCreature">
     <imlist>
       <im type="203" name ="глаза">
         <prob lvl="1" val="1" />
