@@ -33,7 +33,7 @@
 	<!-- issue.thing-names: the Russian display name moved to spell_msg.xml (<name val=...>); only the
 	     English admin label remains here. -->
 	<tag name="name" desc="Spell admin label (English); display name lives in spell_msg.xml">
-		<attr name="eng" type="string" desc="English name (admin label)"/>
+		<attr name="val" type="string" desc="English name (admin label)"/>
 	</tag>
 
 	<tag name="misc" desc="Position / violence / PK danger">

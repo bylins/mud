@@ -151,7 +151,7 @@ void SpellInfoBuilder::ParseName(ItemPtr &info, DataNode &node) {
 	// name now lives in spell_msg.xml and is read from the message container (loaded just before spells).
 	if (node.GoToChild("name")) {
 		try {
-			info->name_eng_ = parse::ReadAsStr(node.GetValue("eng"));
+			info->name_eng_ = parse::ReadAsStr(node.GetValue("val"));
 		} catch (std::exception &e) {
 			err_log("Incorrect 'name' section (spell: %s, value: %s).",
 					NAME_BY_ITEM(info->GetId()).c_str(), e.what());

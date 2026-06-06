@@ -3,6 +3,7 @@
 //
 
 #include "administration/ban.h"
+#include <map>
 #include "engine/entities/char_data.h"
 #include "gameplay/clans/house.h"
 #include "engine/db/db.h"
@@ -219,6 +220,16 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	std::string str = fmt::format("{} reload {}.", ch->get_name(), arg);
 	mudlog(str.c_str(), NRM, kLvlImmortal, SYSLOG, true);
 
+	// issue.thing-names: some containers cache data from another file at build time, so reloading the
+	// source string file alone is not enough -- remind the admin to reload the dependent file too.
+	// Add entries here as more such cross-file dependencies appear.
+	static const std::map<std::string, std::string> kReloadReminders{
+		{"spell_messages", "Напоминание: имена заклинаний кэшируются при загрузке spells.xml. "
+		                   "Выполните также 'reload spells', чтобы изменения имён вступили в силу."},
+	};
+	if (const auto it = kReloadReminders.find(arg); it != kReloadReminders.end()) {
+		SendMsgToChar(it->second + "\r\n", ch);
+	}
 	SendMsgToChar(OK, ch);
 }
 
