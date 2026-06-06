@@ -9,6 +9,7 @@
 #include "gameplay/magic/spell_messages.h"     // ESpellMsg + NAMES_OF
 #include "gameplay/skills/skill_messages.h"    // ESkillMsg + NAMES_OF
 #include "gameplay/abilities/feat_messages.h"   // EFeat + EFeatMsg + NAMES_OF
+#include "gameplay/mechanics/guild_messages.h"   // guilds::EMsg + NAMES_OF
 #include "gameplay/fight/fight_messages.h"     // EFightMsg/EDamageSource + NAMES_OF
 #include "engine/entities/entities_constants.h" // EPosition + NAMES_OF
 #include "engine/structs/info_container.h"      // EItemMode + NAMES_OF
@@ -78,6 +79,7 @@ void RegisterEditorEnums() {
 	registry.Register<ESkillMsg>("ESkillMsg");
 	registry.Register<EFeat>("EFeat");
 	registry.Register<EFeatMsg>("EFeatMsg");
+	registry.Register<guilds::EMsg>("EGuildMsg");
 	registry.Register<fight::EDamageSource>("EDamageSource");
 	registry.Register<fight::EFightMsg>("EFightMsg");
 	// Inline-strcmp enums (no NAMES_OF map) registered by explicit name list -- keep in sync with

@@ -847,6 +847,7 @@ void BootMudDataBase() {
 
 	boot_profiler.next_step("Assigning guilds info.");
 	log("Assigning guilds info.");
+	MUD::CfgManager().LoadCfg("guild_messages");   // issue.thing-names: messages before guilds
 	MUD::CfgManager().LoadCfg("guilds");
 
 	boot_profiler.next_step("Assigning mob classes info.");

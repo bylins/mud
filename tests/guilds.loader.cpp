@@ -6,6 +6,9 @@
 #include <gtest/gtest.h>
 
 #include "gameplay/mechanics/guilds.h"
+#include "gameplay/mechanics/guild_messages.h"
+#include "engine/structs/msg_container.h"
+#include "engine/structs/info_container.h"
 #include "utils/parser_wrapper.h"
 
 #include <cstdio>
@@ -70,6 +73,29 @@ TEST(GuildsLoader_Vnum, CreateElementNodeSetsVnumAndIsFindable) {
 	ASSERT_TRUE(node.IsNotEmpty());
 	EXPECT_STREQ(node.GetValue("vnum"), "99");
 	EXPECT_TRUE(loader.FindElementNode(doc, "99").IsNotEmpty());
+	std::remove(src);
+}
+
+// The int specialization of MsgContainer (used by guild_msg.xml): "kDefault" is the shared sheaf
+// (info_container::kUndefinedVnum); a per-vnum sheaf overrides it for that guild and falls back to
+// the default for any message type it does not define; an unknown vnum falls back to the default.
+TEST(GuildMessages_IntContainer, DefaultSheafVnumOverrideAndFallback) {
+	const char *src = "guild_msgc_src.xml";
+	{
+		std::ofstream f(src);
+		f << R"(<msg_container>)"
+		     R"(<msg_sheaf id="kDefault"><message type="kGreeting" val="hi"/><message type="kError" val="err"/></msg_sheaf>)"
+		     R"(<msg_sheaf id="6"><message type="kGreeting" val="hi6"/></msg_sheaf>)"
+		     R"(</msg_container>)";
+	}
+	parser_wrapper::DataNode doc(src);
+	msg_container::MsgContainer<int, guilds::EMsg> c;
+	c.Init(doc.Children());
+
+	EXPECT_EQ(c.GetMessage(info_container::kUndefinedVnum, guilds::EMsg::kGreeting), "hi");  // default sheaf
+	EXPECT_EQ(c.GetMessage(6, guilds::EMsg::kGreeting), "hi6");                              // per-vnum override
+	EXPECT_EQ(c.GetMessage(6, guilds::EMsg::kError), "err");     // vnum 6 lacks kError -> default sheaf
+	EXPECT_EQ(c.GetMessage(999, guilds::EMsg::kGreeting), "hi"); // unknown vnum -> default sheaf
 	std::remove(src);
 }
 

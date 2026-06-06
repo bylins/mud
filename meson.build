@@ -648,6 +648,7 @@ main_sources = files(
   'src/gameplay/crafting/fry.cpp',
   'src/engine/ui/cmd/do_refill.cpp',
   'src/gameplay/mechanics/guilds.cpp',
+  'src/gameplay/mechanics/guild_messages.cpp',
   'src/gameplay/mechanics/rune_spells.cpp',
   'src/engine/ui/cmd/do_features.cpp',
   'src/engine/ui/cmd/do_spells.cpp',

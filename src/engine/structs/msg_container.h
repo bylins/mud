@@ -22,6 +22,7 @@
 #include <map>
 #include <memory>
 #include <string>
+#include <type_traits>
 #include <vector>
 
 namespace msg_container {
@@ -89,15 +90,29 @@ class MsgSheafBuilder : public info_container::IItemBuilder<MsgSheaf<IdEnum, Msg
 
 	ItemPtr Build(parser_wrapper::DataNode &node) override {
 		const char *id_str = node.GetValue("id");
-		IdEnum id;
-		try {
-			id = parse::ReadAsConstant<IdEnum>(id_str);
-		} catch (const std::exception &) {
-			err_log("MsgSheafBuilder: msg_sheaf has unknown or missing 'id' attribute ('%s').", id_str);
-			return nullptr;
+		std::shared_ptr<Sheaf> sheaf;
+		if constexpr (std::is_same_v<IdEnum, int>) {
+			// Vnum-keyed container (e.g. guilds): "kDefault" => the kUndefinedVnum default sheaf.
+			int id;
+			try {
+				id = (id_str && std::string(id_str) == "kDefault")
+						 ? info_container::kUndefinedVnum : parse::ReadAsInt(id_str);
+			} catch (const std::exception &) {
+				err_log("MsgSheafBuilder: msg_sheaf has unknown or missing 'id' attribute ('%s').", id_str);
+				return nullptr;
+			}
+			std::string text_id = id_str ? id_str : "";
+			sheaf = std::make_shared<Sheaf>(id, text_id, EItemMode::kEnabled);
+		} else {
+			IdEnum id;
+			try {
+				id = parse::ReadAsConstant<IdEnum>(id_str);
+			} catch (const std::exception &) {
+				err_log("MsgSheafBuilder: msg_sheaf has unknown or missing 'id' attribute ('%s').", id_str);
+				return nullptr;
+			}
+			sheaf = std::make_shared<Sheaf>(id, EItemMode::kEnabled);
 		}
-
-		auto sheaf = std::make_shared<Sheaf>(id, EItemMode::kEnabled);
 		for (auto &message : node.Children("message")) {
 			const char *type_str = message.GetValue("type");
 			try {
@@ -170,12 +185,21 @@ class MsgContainer
 			if (!message.empty()) {
 				return message;
 			}
+		} else if constexpr (std::is_same_v<IdEnum, int>) {
+			err_log("MsgContainer: unknown element id '%d', falling back to default messages.", id);
 		} else {
 			err_log("MsgContainer: unknown element id '%s', falling back to default messages.",
 					NAME_BY_ITEM<IdEnum>(id).c_str());
 		}
 
-		const auto &default_message = (*this)[IdEnum::kUndefined].GetMessage(type);
+		const auto default_id = [] {
+			if constexpr (std::is_same_v<IdEnum, int>) {
+				return info_container::kUndefinedVnum;
+			} else {
+				return IdEnum::kUndefined;
+			}
+		}();
+		const auto &default_message = (*this)[default_id].GetMessage(type);
 		if (!default_message.empty()) {
 			return default_message;
 		}

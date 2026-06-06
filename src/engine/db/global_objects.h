@@ -15,6 +15,7 @@
 #include "gameplay/clans/chest_saver.h"
 #include "gameplay/mechanics/celebrates.h"
 #include "gameplay/mechanics/guilds.h"
+#include "gameplay/mechanics/guild_messages.h"
 #include "engine/entities/zone_types.h"
 #include "gameplay/mechanics/rune_spells.h"
 #include "gameplay/abilities/feats.h"
@@ -76,6 +77,7 @@ class GlobalObjects {
 	static mob_classes::MobClassesInfo &MobClasses();
 	static const mob_classes:: MobClassInfo &MobClass(EMobClass mob_class_id);
 	static guilds::GuildsInfo &Guilds();
+	static guilds::GuildMessages &GuildMessages();
 	static const guilds::GuildInfo &Guild(Vnum guild_vnum);
 	static zone_types::ZoneTypesInfo &ZoneTypes();
 	static const zone_types::ZoneTypeInfo &ZoneType(int type_vnum);

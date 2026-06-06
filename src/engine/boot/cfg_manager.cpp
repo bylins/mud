@@ -28,6 +28,7 @@
 #include "gameplay/fight/fight_messages.h"
 #include "gameplay/abilities/feat_messages.h"
 #include "gameplay/core/entity_names.h"
+#include "gameplay/mechanics/guild_messages.h"
 
 namespace cfg_manager {
 
@@ -62,6 +63,8 @@ CfgManager::CfgManager() {
 										  std::make_unique<feats::FeatMessagesLoader>(feats::FeatMessagesLoader())));
 	loaders_.emplace("feats", LoaderInfo("cfg/feats.xml",
 										  std::make_unique<feats::FeatsLoader>(feats::FeatsLoader())));
+	loaders_.emplace("guild_messages", LoaderInfo("cfg/messages/ru/guild_msg.xml",
+										  std::make_unique<guilds::GuildMessagesLoader>(guilds::GuildMessagesLoader())));
 	loaders_.emplace("guilds", LoaderInfo("cfg/guilds.xml",
 										  std::make_unique<guilds::GuildsLoader>(guilds::GuildsLoader())));
 	loaders_.emplace("zone_types", LoaderInfo("cfg/zone_types.xml",
