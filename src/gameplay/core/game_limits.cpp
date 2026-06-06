@@ -1649,13 +1649,15 @@ void point_update() {
 					}
 				}
 				// Remember some spells
-				if (i->mob_specials.have_spell) {
+				if (i->mob_specials.have_spell && GET_MOB_RNUM(i) >= 0) {
+					const auto mob_num = GET_MOB_RNUM(i);
 					auto mana{0};
 					auto count{0};
 					const auto max_mana = GetRealInt(i) * 10;
 					while (count <= to_underlying(ESpell::kLast) && mana < max_mana) {
 						const auto spell_id = real_spell[count];
-						if (GET_SPELL_MEM(i, spell_id) > GET_SPELL_MEM(i, spell_id)) {
+						// Моб добивает память спеллов до уровня своего прототипа.
+						if (GET_SPELL_MEM(mob_proto + mob_num, spell_id) > GET_SPELL_MEM(i, spell_id)) {
 							GET_SPELL_MEM(i, spell_id)++;
 							mana += ((MUD::Spell(spell_id).GetMaxMana() + MUD::Spell(spell_id).GetMinMana()) / 2);
 							i->caster_level += (MUD::Spell(spell_id).IsFlagged(NPC_CALCULATE) ? 1 : 0);
