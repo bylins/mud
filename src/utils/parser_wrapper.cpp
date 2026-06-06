@@ -207,6 +207,8 @@ const DataNode DataNode::operator--(int) {
 
 [[nodiscard]] iterators::Range<DataNode> DataNode::Children() {
 	auto node = *this;
+	node.impl_->filter_name.clear();   // a no-arg Children() iterates ALL children, regardless of any
+	                                   // filter inherited from a node copied out of a Children(key) range.
 	node.impl_->curren_xml_node = node.impl_->curren_xml_node.first_child();
 	return iterators::Range(node);
 }

@@ -65,9 +65,11 @@ cfg_manager::ValidationResult GuildsLoader::Validate(parser_wrapper::DataNode &d
 
 parser_wrapper::DataNode GuildsLoader::FindElementNode(parser_wrapper::DataNode root,
 														  const std::string &id) const {
-	// A <guild> carries no `id` attribute; its key is the integer `vnum`.
-	for (auto &child : root.Children("guild")) {
-		if (id == child.GetValue("vnum")) {
+	// A <guild> carries no `id` attribute; its key is the integer `vnum`. Iterate ALL children with
+	// a name check rather than Children("guild"): a node copied out of a keyed range would otherwise
+	// carry that range's filter, breaking its own later Children() (it would stop after the 1st child).
+	for (auto &child : root.Children()) {
+		if (std::string(child.GetName()) == "guild" && id == child.GetValue("vnum")) {
 			return child;
 		}
 	}

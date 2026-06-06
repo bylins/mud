@@ -76,6 +76,33 @@ TEST(GuildsLoader_Vnum, CreateElementNodeSetsVnumAndIsFindable) {
 	std::remove(src);
 }
 
+// The node FindElementNode hands back to the editor must expose the guild's children (trainers,
+// talents) -- the editor renders ChildrenOf(found). Regression for "no talents section".
+TEST(GuildsLoader_Vnum, FoundGuildExposesItsChildren) {
+	const char *src = "guilds_children_src.xml";
+	{
+		std::ofstream f(src);
+		f << R"(<guilds><guild text_id="kElder" vnum="0" name="x">)"
+		     R"(<trainers vnums="1"/>)"
+		     R"(<talents><skill id="kPunch" fail="0"><upgrade practices="10" min="0" max="10"/></skill></talents>)"
+		     R"(</guild></guilds>)";
+	}
+	parser_wrapper::DataNode doc(src);
+	guilds::GuildsLoader loader;
+
+	auto g = loader.FindElementNode(doc, "0");
+	ASSERT_TRUE(g.IsNotEmpty());
+	bool has_trainers = false, has_talents = false;
+	for (auto &c : g.Children()) {
+		const std::string n = c.GetName();
+		if (n == "trainers") { has_trainers = true; }
+		if (n == "talents") { has_talents = true; }
+	}
+	EXPECT_TRUE(has_trainers);
+	EXPECT_TRUE(has_talents);
+	std::remove(src);
+}
+
 // The int specialization of MsgContainer (used by guild_msg.xml): "kDefault" is the shared sheaf
 // (info_container::kUndefinedVnum); a per-vnum sheaf overrides it for that guild and falls back to
 // the default for any message type it does not define; an unknown vnum falls back to the default.
