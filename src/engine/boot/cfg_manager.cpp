@@ -32,6 +32,8 @@ namespace cfg_manager {
 CfgManager::CfgManager() {
 	loaders_.emplace("mob_races", LoaderInfo("cfg/mechanics/mob_races.xml",
 											  std::make_unique<mob_races::MobRacesLoader>(mob_races::MobRacesLoader())));
+	loaders_.emplace("currency_messages", LoaderInfo("cfg/messages/ru/currency_msg.xml",
+											  std::make_unique<currencies::CurrencyNamesLoader>(currencies::CurrencyNamesLoader())));
 	loaders_.emplace("currencies", LoaderInfo("cfg/economics/currencies.xml",
 											  std::make_unique<currencies::CurrenciesLoader>(currencies::CurrenciesLoader())));
 	loaders_.emplace("classes", LoaderInfo("cfg/classes/pc_classes.xml",

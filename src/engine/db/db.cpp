@@ -664,6 +664,9 @@ void BootMudDataBase() {
 
 	boot_profiler.next_step("Loading currencies cfg.");
 	log("Loading currencies cfg.");
+	// issue.thing-names: currency names (currency_msg.xml) load before currencies.xml so the builder
+	// can read each currency's display name from the message file.
+	MUD::CfgManager().LoadCfg("currency_messages");
 	MUD::CfgManager().LoadCfg("currencies");
 
 	boot_profiler.next_step("Loading skills cfg.");

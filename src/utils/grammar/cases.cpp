@@ -12,6 +12,8 @@
 #include "utils/parser_wrapper.h"
 #include "utils/parse.h"
 
+#include <map>
+
 namespace grammar {
 
 void ParseValueToNameCase(const char *value, std::string &name_case) {
@@ -22,7 +24,35 @@ void ParseValueToNameCase(const char *value, std::string &name_case) {
 	}
 }
 
+// issue.thing-names: map a case token ("kNom".."kPre") to ECase for the new <case id=.. val=..>
+// declension format. Returns kLastCase+1 (out of range) for an unknown token.
+static int CaseFromToken(const std::string &id) {
+	static const std::map<std::string, ECase> kByToken{
+		{"kNom", ECase::kNom}, {"kGen", ECase::kGen}, {"kDat", ECase::kDat},
+		{"kAcc", ECase::kAcc}, {"kIns", ECase::kIns}, {"kPre", ECase::kPre},
+	};
+	const auto it = kByToken.find(id);
+	return it == kByToken.end() ? (ECase::kLastCase + 1) : it->second;
+}
+
 void ParseNodeToNameCases(parser_wrapper::DataNode &node, ItemName::NameCases &name_cases) {
+	// New format (issue.thing-names): <singular><case id="kNom" val="..."/>...</singular>. A language
+	// lists only the cases it has; the rest stay default. Detected by the presence of <case> children.
+	bool any_case = false;
+	for (auto &c : node.Children("case")) {
+		any_case = true;
+		const char *id = c.GetValue("id");
+		const int idx = CaseFromToken(id ? id : "");
+		if (idx > ECase::kLastCase) {
+			err_log("unknown case id '%s' in <case>.", id ? id : "(none)");
+			continue;
+		}
+		ParseValueToNameCase(c.GetValue("val"), name_cases[idx]);
+	}
+	if (any_case) {
+		return;
+	}
+	// Legacy format: <singular nom=".." gen=".." .../> (still used by pc_classes etc.).
 	ParseValueToNameCase(node.GetValue("nom"), name_cases[ECase::kNom]);
 	ParseValueToNameCase(node.GetValue("gen"), name_cases[ECase::kGen]);
 	ParseValueToNameCase(node.GetValue("dat"), name_cases[ECase::kDat]);
