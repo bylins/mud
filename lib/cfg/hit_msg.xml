@@ -14,6 +14,7 @@
 <msg_container>
 	<!-- Сообщения по умолчанию (kUndefined): общий удар, описание атаки "ударил". -->
 	<msg_sheaf id="kDefault">
+		<message type="kDescription" val="ударил" />
 		<message type="kFightDeathToChar" val="Вы СМЕРТЕЛЬНО ударили $N3." />
 		<message type="kFightDeathToVict" val="$n СМЕРТЕЛЬНО ударил$g вас." />
 		<message type="kFightDeathToRoom" val="$n СМЕРТЕЛЬНО ударил$g $N3." />
@@ -28,6 +29,7 @@
 		<message type="kFightGodToRoom" val="$n не осмелил$u ударить $N3." />
 	</msg_sheaf>
 	<msg_sheaf id="kHit">
+		<message type="kDescription" val="ударил" />
 		<message type="kFightDeathToChar" val="Вы нанесли $N2 прекрасный удар - после этого $M уже не встать." />
 		<message type="kFightDeathToVict" val="$n ударил$g вас - и в глазах у вас померкло." />
 		<message type="kFightDeathToRoom" val="От удара $n1 $N отправил$U в мир теней." />
@@ -51,6 +53,7 @@
 		<message type="kFightHitToRoom" val="$n {intensity}ударил$g $N3." />
 	</msg_sheaf>
 	<msg_sheaf id="kSkin">
+		<message type="kDescription" val="ободрал" />
 		<message type="kFightDeathToChar" val="Вы разорвали $N3 на мелкие кусочки. Бедн$W $N!" />
 		<message type="kFightDeathToVict" val="$n разорвал$g вас, как Тузик шапку. Вам не позавидуешь." />
 		<message type="kFightDeathToRoom" val="$n разорвал$g $N3 на мелкие кусочки. Вот это смерть!" />
@@ -74,6 +77,7 @@
 		<message type="kFightHitToRoom" val="$n {intensity}ободрал$g $N3." />
 	</msg_sheaf>
 	<msg_sheaf id="kWhip">
+		<message type="kDescription" val="хлестнул" />
 		<message type="kFightDeathToChar" val="Вы, кажется, перехлестнули - $N помер$Q." />
 		<message type="kFightDeathToVict" val="$n захлестал$g вас до смерти." />
 		<message type="kFightDeathToRoom" val="$n хлестнул$g $N3 - кажется, $N2 уже хватит." />
@@ -97,6 +101,7 @@
 		<message type="kFightHitToRoom" val="$n {intensity}хлестнул$g $N3." />
 	</msg_sheaf>
 	<msg_sheaf id="kSlash">
+		<message type="kDescription" val="рубанул" />
 		<message type="kFightDeathToChar" val="Вы изрубили $N3 в капусту. Хороший пирог получится." />
 		<message type="kFightDeathToVict" val="$n изрубил$g вас на мелкие кусочки. Теперь вас не стыдно подать к столу." />
 		<message type="kFightDeathToRoom" val="$n изрубил$g $N3 в фарш. При жизни $N выглядел$G лучше." />
@@ -120,6 +125,7 @@
 		<message type="kFightHitToRoom" val="$n {intensity}рубанул$g $N3." />
 	</msg_sheaf>
 	<msg_sheaf id="kBite">
+		<message type="kDescription" val="укусил" />
 		<message type="kFightDeathToChar" val="Вы вцепились мертвой хваткой в шею $N1 и выпустили $M всю кровь." />
 		<message type="kFightDeathToVict" val="$n вцепил$u в вашу шею, разорвав сонные артерии." />
 		<message type="kFightDeathToRoom" val="$n вцепил$u в шею $N1, загрыз$q до смерти." />
@@ -143,6 +149,7 @@
 		<message type="kFightHitToRoom" val="$n {intensity}укусил$g $N3." />
 	</msg_sheaf>
 	<msg_sheaf id="kBludgeon">
+		<message type="kDescription" val="огрел" />
 		<message type="kFightDeathToChar" val="Вы огрели $N3, расколов $S жизнь в щепки." />
 		<message type="kFightDeathToVict" val="С криком &quot;А почему без кепки?&quot; $n расколол$g вашу голову, как пустой орех." />
 		<message type="kFightDeathToRoom" val="$n огрел$g $N3. Жизнь $N1 дала трещину." />
@@ -166,6 +173,7 @@
 		<message type="kFightHitToRoom" val="$n {intensity}огрел$g $N3." />
 	</msg_sheaf>
 	<msg_sheaf id="kCrush">
+		<message type="kDescription" val="сокрушил" />
 		<message type="kFightDeathToChar" val="Ваш сокрушающий удар отправил $N3 подальше из этого мира." />
 		<message type="kFightDeathToVict" val="Вы сокрушены ударом $n1. Нам будет вас не хватать." />
 		<message type="kFightDeathToRoom" val="$N насмерть сокрушен$A $n4." />
@@ -189,6 +197,7 @@
 		<message type="kFightHitToRoom" val="$n {intensity}сокрушил$g $N3." />
 	</msg_sheaf>
 	<msg_sheaf id="kPound">
+		<message type="kDescription" val="резанул" />
 		<message type="kFightDeathToChar" val="Вы резанули $N3 так, что от н$S остались рожки да ножки." />
 		<message type="kFightDeathToVict" val="$n резанул$g вас, отделив душу от тела." />
 		<message type="kFightDeathToRoom" val="$n резанул$g $N3, выпустив дух из $S тела." />
@@ -212,6 +221,7 @@
 		<message type="kFightHitToRoom" val="$n {intensity}резанул$g $N3." />
 	</msg_sheaf>
 	<msg_sheaf id="kClaw">
+		<message type="kDescription" val="оцарапал" />
 		<message type="kFightDeathToChar" val="Вы оцарапали $N3 своими коготками. Не поняв произошедшего, $N помер$Q." />
 		<message type="kFightDeathToVict" val="$n оцарапал$g вас своими когтями. Это было последним, что вы почувствовали." />
 		<message type="kFightDeathToRoom" val="$n оцарапал$g $N3 своими когтями. От такого умрет кто угодно." />
@@ -235,6 +245,7 @@
 		<message type="kFightHitToRoom" val="$n {intensity}оцарапал$g $N3." />
 	</msg_sheaf>
 	<msg_sheaf id="kMaul">
+		<message type="kDescription" val="подстрелил" />
 		<message type="kFightDeathToChar" val="Ваша стрела, выпущенная в $N3, была для н$S последней." />
 		<message type="kFightDeathToVict" val="$n метко поразил$g вас стрелой - и все поблекло." />
 		<message type="kFightDeathToRoom" val="Меткий выстрел $n1 послал $N3 в мир иной." />
@@ -258,6 +269,7 @@
 		<message type="kFightHitToRoom" val="$n {intensity}подстрелил$g $N3." />
 	</msg_sheaf>
 	<msg_sheaf id="kThrash">
+		<message type="kDescription" val="пырнул" />
 		<message type="kFightDeathToChar" val="Вы распороли $N3 на несколько частей, убив $S." />
 		<message type="kFightDeathToVict" val="$n зверски распорол$g вас, и вы погибли." />
 		<message type="kFightDeathToRoom" val="$n зверски распорол$g $N3 на несколько частей, убив $S." />
@@ -281,6 +293,7 @@
 		<message type="kFightHitToRoom" val="$n {intensity}пырнул$g $N3." />
 	</msg_sheaf>
 	<msg_sheaf id="kPierce">
+		<message type="kDescription" val="уколол" />
 		<message type="kFightDeathToChar" val="Вы пронзили тело $N1 и $E упал$G на землю замертво." />
 		<message type="kFightDeathToVict" val="$n пронзил$g вас насквозь. Вы ушли в мир иной." />
 		<message type="kFightDeathToRoom" val="$n пронзил$g $N3 насквозь и $S безжизненное тело упало на землю." />
@@ -304,6 +317,7 @@
 		<message type="kFightHitToRoom" val="$n {intensity}уколол$g $N3." />
 	</msg_sheaf>
 	<msg_sheaf id="kBlast">
+		<message type="kDescription" val="ткнул" />
 		<message type="kFightDeathToChar" val="Вы сильно ткнули $N3 и $E с криком боли безжизненно упал$G на землю." />
 		<message type="kFightDeathToVict" val="$n сильно ткнул$g вас, вы почувствовали дикую боль... А затем ничего." />
 		<message type="kFightDeathToRoom" val="$n сильно ткнул$g $N3, вызвав мгновенную смерть." />
@@ -327,6 +341,7 @@
 		<message type="kFightHitToRoom" val="$n {intensity}ткнул$g $N3." />
 	</msg_sheaf>
 	<msg_sheaf id="kPunch">
+		<message type="kDescription" val="лягнул" />
 		<message type="kFightDeathToChar" val="Вы так сильно лягнули $N3, что $E мгновенно скончал$U." />
 		<message type="kFightDeathToVict" val="$n очень сильно лягнул$g вас, кровь залила вам глаза, и в скором времени вы погибли." />
 		<message type="kFightDeathToRoom" val="$n очень сильно лягнул$g $N3. Похоже, что $N не выдержал$G удара и погиб$Q." />
@@ -350,6 +365,7 @@
 		<message type="kFightHitToRoom" val="$n {intensity}лягнул$g $N3." />
 	</msg_sheaf>
 	<msg_sheaf id="kStab">
+		<message type="kDescription" val="боднул" />
 		<message type="kFightDeathToChar" val="Вы забодали $N3 насмерть! И так будет с каждым!" />
 		<message type="kFightDeathToVict" val="$n забодал$g вас насмерть. Теперь вас не узнать." />
 		<message type="kFightDeathToRoom" val="$n забодал$g $N3 насмерть. Бедн$W $N!" />
@@ -373,6 +389,7 @@
 		<message type="kFightHitToRoom" val="$n {intensity}боднул$g $N3." />
 	</msg_sheaf>
 	<msg_sheaf id="kPick">
+		<message type="kDescription" val="клюнул" />
 		<message type="kFightDeathToChar" val="Вы досмерти заклевали $N3! Теперь $E вам не помеха." />
 		<message type="kFightDeathToVict" val="$n досмерти заклевал$g вас. Ну и монстр!!!" />
 		<message type="kFightDeathToRoom" val="$n досмерти заклевал$g $N3. Вот это расправа!" />
@@ -387,6 +404,7 @@
 		<message type="kFightHitToRoom" val="$n {intensity}клюнул$g $N3." />
 	</msg_sheaf>
 	<msg_sheaf id="kSting">
+		<message type="kDescription" val="ужалил" />
 		<message type="kFightDeathToChar" val="Вы ужалили $N3, от этого $E распух$Q и помер$Q." />
 		<message type="kFightDeathToVict" val="$n зажалил$g вас насмерть. Нам будет вас не хватать..." />
 		<message type="kFightDeathToRoom" val="$n ужалил$g $N3, $N распух$Q и помер$Q." />
@@ -448,5 +466,82 @@
 		<message type="kFightHitToRoom" val="$N беспомощно лежит на земле, страдая..." />
 		<message type="kFightGodToVict" val="Еще не затянувшиеся раны причиняют вам боль." />
 		<message type="kFightGodToRoom" val="Еще не затянувшиеся раны причиняют $N2 боль." />
+	</msg_sheaf>
+	<!-- Breath attacks (issue: breath без псевдо-спелла). Mob breathes elemental
+	     damage typed kMagicDmg; moved here verbatim from spell_msg.xml. -->
+	<msg_sheaf id="kFireBreath">
+		<message type="kDescription" val="дыхнул огнём" />
+		<message type="kFightDeathToChar" val="$N убит$A вашим огненным дыханием." />
+		<message type="kFightDeathToVict" val="$n превратил$g вас в пепел своим огненным дыханием." />
+		<message type="kFightDeathToRoom" val="$n оставил$g от $N1 лишь кучку пепла." />
+		<message type="kFightMissToChar" val="$N избежал$G вашего огненного дыхания." />
+		<message type="kFightMissToVict" val="$n дыхнул$g на вас огнем, но вы избежали этой &quot;радости&quot;." />
+		<message type="kFightMissToRoom" val="$N избежал$G огненного дыхания $n1." />
+		<message type="kFightHitToChar" val="Вы поджарили $N3." />
+		<message type="kFightHitToVict" val="$n поджарил$g вас." />
+		<message type="kFightHitToRoom" val="$N подгорел$G в нескольких местах, когда $n дыхнул$g на н$S огнем." />
+		<message type="kFightGodToChar" val="$N - бессмертн$W. Это бесполезно." />
+		<message type="kFightGodToVict" val="$n согрел$g вас." />
+		<message type="kFightGodToRoom" val="$n согрел$g $N3." />
+	</msg_sheaf>
+	<msg_sheaf id="kGasBreath">
+		<message type="kDescription" val="дыхнул зловонием" />
+		<message type="kFightDeathToChar" val="$N умер от вашего зловонного дыхания." />
+		<message type="kFightDeathToVict" val="Вы не вынесли этого ужасного зловонья от $n1." />
+		<message type="kFightDeathToRoom" val="$n убил$g $N3, смертельно дыхнув на н$S." />
+		<message type="kFightMissToChar" val="Вы дыхнули на $N3, но вонь не достигла цели." />
+		<message type="kFightMissToVict" val="$n дыхнул$g на вас, но это не возымело эффекта." />
+		<message type="kFightMissToRoom" val="$N избежал$G газовой атаки от $n1." />
+		<message type="kFightHitToChar" val="Вы ударили по $N2 газовым дыханием." />
+		<message type="kFightHitToVict" val="$n напустил$g на вас газ." />
+		<message type="kFightHitToRoom" val="$n напустил$g газ на $N3." />
+		<message type="kFightGodToChar" val="$N бессмертн$W... так что..." />
+		<message type="kFightGodToVict" val="$n захотел$g пустить на вас газ, но не смог$q." />
+		<message type="kFightGodToRoom" val="$n попытал$u пустить газ на $N3, но не смог$q." />
+	</msg_sheaf>
+	<msg_sheaf id="kFrostBreath">
+		<message type="kDescription" val="дыхнул холодом" />
+		<message type="kFightDeathToChar" val="$N убит$A вашим ледяным дыханием." />
+		<message type="kFightDeathToVict" val="Ваше тело сковал лед, когда $n дыхнул$g на вас." />
+		<message type="kFightDeathToRoom" val="$n сделал$g из $N1 кусок льда." />
+		<message type="kFightMissToChar" val="$n промахнул$u, попытавшись заморозить вас своим ледяным дыханием." />
+		<message type="kFightMissToVict" val="$n дыхнул$g на вас холодом, но вы слишком разгорячились и не почувствовали этого." />
+		<message type="kFightMissToRoom" val="$N избежал$G участи стать ледышкой от холодного дыхания $n1." />
+		<message type="kFightHitToChar" val="$N согнул$U от вашего холода." />
+		<message type="kFightHitToVict" val="$n заморозил$g вас, сильно дунув." />
+		<message type="kFightHitToRoom" val="$N медленно покрывается льдом, после морозного дыхания $n1." />
+		<message type="kFightGodToChar" val="$N - бессмертн$W. Зря вы так..." />
+		<message type="kFightGodToVict" val="$n согрел$g вас." />
+		<message type="kFightGodToRoom" val="$n согрел$g $N3." />
+	</msg_sheaf>
+	<msg_sheaf id="kAcidBreath">
+		<message type="kDescription" val="дыхнул кислотой" />
+		<message type="kFightDeathToChar" val="$N был$G убит$A вашим кислотным дыханием." />
+		<message type="kFightDeathToVict" val="Вы свалились замертво, когда $n дыхнул$g кислотой на вас." />
+		<message type="kFightDeathToRoom" val="$n заставил$g $N3 забиться в судорогах. \u$N умирает..." />
+		<message type="kFightMissToChar" val="Вы дыхнули на $N3 кислотой, но $E избежал$G попадания!" />
+		<message type="kFightMissToVict" val="$n вздумал$g убить вас своим кислотным дыханием, но вам еще мила жизнь." />
+		<message type="kFightMissToRoom" val="Кислотное дыхание $n1 прошло мимо $N1." />
+		<message type="kFightHitToChar" val="$N пропитывается кислотой." />
+		<message type="kFightHitToVict" val="$n заставил$g вас быстро заткнуть нос от кислотного запаха." />
+		<message type="kFightHitToRoom" val="$N бьется в судорогах от кислотного дыхания $n1." />
+		<message type="kFightGodToChar" val="$N - бессмертн$W и $M все нипочем." />
+		<message type="kFightGodToVict" val="$n помог$q вам избавиться от кислотного отравления." />
+		<message type="kFightGodToRoom" val="$n помог$q $N2 очиститься от кислоты." />
+	</msg_sheaf>
+	<msg_sheaf id="kLightingBreath">
+		<message type="kDescription" val="дыхнул тьмой" />
+		<message type="kFightDeathToChar" val="$N убит$Q вашим ослепляющим дыханием." />
+		<message type="kFightDeathToVict" val="Вы убиты ослепляющим дыханием $n1." />
+		<message type="kFightDeathToRoom" val="$n убил$g $N3 ослепляющим дыханием." />
+		<message type="kFightMissToChar" val="Вы не попали в $N3 своим ослепляющим дыханием." />
+		<message type="kFightMissToVict" val="$n дыхнул$g на вас слепотой, но зачем вам терять зрение в самом расцвете сил?" />
+		<message type="kFightMissToRoom" val="$N избежал$G воздействия ослепляющего дыхания $n1." />
+		<message type="kFightHitToChar" val="Вы ослепили $N3 своим дыханием." />
+		<message type="kFightHitToVict" val="$n ослепил$g вас своим дыханием." />
+		<message type="kFightHitToRoom" val="$N ослеплен$A дыханием $n1." />
+		<message type="kFightGodToChar" val="$N - бессмертн$W, у н$S есть иммунитет к ослепляющему дыханию." />
+		<message type="kFightGodToVict" val="$n попытался ослепить вас своим дыханием." />
+		<message type="kFightGodToRoom" val="$n попытался ослепить $N3 своим дыханием." />
 	</msg_sheaf>
 </msg_container>

@@ -9,6 +9,7 @@
 #include "engine/entities/char_data.h"
 #include "gameplay/communication/talk.h"
 #include "engine/core/handler.h"
+#include "engine/core/target_resolver.h"
 
 void do_tell(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *vict = nullptr;
@@ -33,7 +34,7 @@ void do_tell(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	if (!*buf || !*buf2) {
 		SendMsgToChar("Что и кому вы хотите сказать?\r\n", ch);
-	} else if (!(vict = get_player_vis(ch, buf, EFind::kCharInWorld))) {
+	} else if (!(vict = target_resolver::FindPlayerVis(ch, buf))) {
 		SendMsgToChar(NOPERSON, ch);
 	} else if (vict->IsNpc())
 		SendMsgToChar(NOPERSON, ch);

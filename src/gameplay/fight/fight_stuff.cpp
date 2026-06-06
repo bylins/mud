@@ -3,6 +3,7 @@
 #include <random>
 
 #include "gameplay/affects/affect_data.h"
+#include "gameplay/magic/magic.h"
 #include "gameplay/mechanics/dead_load.h"
 #include "gameplay/mechanics/dungeons.h"
 #include "gameplay/ai/mobact.h"
@@ -178,7 +179,7 @@ bool stone_rebirth(CharData *ch, CharData *killer) {
 					greet_mtrigger(ch, -1);
 					greet_otrigger(ch, -1);
 					act("$n медленно появил$u откуда-то.", false, ch, nullptr, nullptr, kToRoom);
-					SetWaitState(ch, 10 * kBattleRound);
+					SetBattleLag(ch, 10);
 					return true;
 				}
 			}

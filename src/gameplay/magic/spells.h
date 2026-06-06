@@ -17,6 +17,9 @@
 #include "spells_constants.h"
 #include "engine/structs/structs.h"    // there was defined type "byte" if it had been missing
 
+class CastContext;   // defined in magic.h (issue.spell-pipeline)
+enum class EStageResult;  // defined in magic.h; manual handlers return it (issue.manual-cast)
+
 #include <optional>
 
 struct RoomData;    // forward declaration to avoid inclusion of room.hpp and any dependencies of that header.
@@ -79,35 +82,28 @@ constexpr Bitvector kMiLevel32 = 1 << 13;
 // Бывшие kTypeHit/kTypeMagic/kType*-константы удалены (issue #3316): источник боевого
 // урона теперь типизирован через fight::EDamageSource, выбор сообщения - по типу.
 
-struct AttackHitType {
-	const char *singular;
-	const char *plural;
-};
-
 #define MANUAL_SPELL(spellname)    spellname(level, caster, cvict, ovict);
 
-void SpellCreateWater(int/* level*/, CharData *ch, CharData *victim, ObjData *obj);
-void SpellRecall(CharData *ch, CharData *victim);
-void SpellTeleport(CharData *ch, CharData */*victim*/);
-void SpellSummon(CharData *ch, CharData *victim);
-void SpellRelocate(CharData *ch, CharData *victim);
-void SpellPortal(CharData *ch, CharData *victim);
-void SpellLocateObject(int level, CharData *ch, CharData* /*victim*/, ObjData *obj);
-void SpellCharm(int/* level*/, CharData *ch, CharData *victim, ObjData* /* obj*/);
+EStageResult SpellCreateWater(CastContext &ctx);
+EStageResult SpellRecall(CastContext &ctx);
+EStageResult SpellTeleport(CastContext &ctx);
+EStageResult SpellSummon(CastContext &ctx);
+EStageResult SpellRelocate(CastContext &ctx);
+EStageResult SpellPortal(CastContext &ctx);
+EStageResult SpellLocateObject(CastContext &ctx);
+EStageResult SpellCharm(CastContext &ctx);
 void SpellInformation(int level, CharData *ch, CharData *victim, ObjData *obj);
-void SpellIdentify(int level, CharData *ch, CharData *victim, ObjData *obj);
-void SpellFullIdentify(int level, CharData *ch, CharData *victim, ObjData *obj);
+EStageResult SpellIdentify(CastContext &ctx);
+EStageResult SpellFullIdentify(CastContext &ctx);
 void SpellEnchantWeapon(int level, CharData *ch, CharData *victim, ObjData *obj);
-void SpellControlWeather(int level, CharData *ch, CharData *victim, ObjData *obj);
-void SpellCreateWeapon(int/* level*/, CharData* /*ch*/, CharData* /*victim*/, ObjData* /* obj*/);
-void SpellEnergydrain(int/* level*/, CharData *ch, CharData *victim, ObjData* /*obj*/);
-void SpellFear(int/* level*/, CharData *ch, CharData *victim, ObjData* /*obj*/);
-void SpellSacrifice(int/* level*/, CharData *ch, CharData *victim, ObjData* /*obj*/);
+EStageResult SpellControlWeather(CastContext &ctx);
+EStageResult SpellEnergydrain(CastContext &ctx);
+EStageResult SpellFear(CastContext &ctx);
 void SpellForbidden(int level, CharData *ch, CharData *victim, ObjData *obj);
-void SpellHolystrike(int/* level*/, CharData *ch, CharData* /*victim*/, ObjData* /*obj*/);
+EStageResult SpellHolystrike(CastContext &ctx);
 void SkillIdentify(int level, CharData *ch, CharData *victim, ObjData *obj);
-void SpellVampirism(int/* level*/, CharData* /*ch*/, CharData* /*victim*/, ObjData* /*obj*/);
-void SpellMentalShadow(CharData *ch);
+EStageResult SpellVampirism(CastContext &ctx);
+EStageResult SpellMentalShadow(CastContext &ctx);
 void RemovePortalGate(RoomRnum rnum);
 // basic magic calling functions
 
@@ -116,7 +112,6 @@ ESpell FixNameAndFindSpellId(char *name);
 bool CatchBloodyCorpse(ObjData *l);
 
 // other prototypes //
-void InitSpellLevels();
 bool CanGetSpell(CharData *ch, ESpell spell_id);
 bool CanGetSpell(const CharData *ch, ESpell spell_id, int req_lvl);
 int CalcMinSpellLvl(const CharData *ch, ESpell spell_id, int req_lvl);
@@ -125,7 +120,7 @@ int CalcMinRuneSpellLvl(const CharData *ch, ESpell spell_id);
 ESkill GetMagicSkillId(ESpell spell_id);
 int CheckRecipeValues(CharData *ch, ESpell spell_id, ESpellType spell_type, int showrecipe);
 int CheckRecipeItems(CharData *ch, ESpell spell_id, ESpellType spell_type, int extract, CharData *tch = nullptr);
-void mort_show_obj_values(const ObjData *obj, CharData *ch, int fullness);
+void MortShowObjValues(const ObjData *obj, CharData *ch, int fullness);
 
 //#define CALC_SUCCESS(modi, perc)         ((modi)-100+(perc))
 

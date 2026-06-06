@@ -35,6 +35,7 @@ struct GlobalObjectsStorage {
 	SkillsInfo skills_info;
 	spells::SpellsInfo spells_info;
 	spells::SpellMessages spell_messages;
+	points_intensity::PointsIntensity points_intensity;
 	skills::SkillMessages skill_messages;
     fight::FightMessages fight_messages;
 	feats::FeatsInfo feats_info;
@@ -42,6 +43,8 @@ struct GlobalObjectsStorage {
 	classes::ClassesInfo classes_info;
 	mob_classes::MobClassesInfo mob_classes_info;
 	guilds::GuildsInfo guilds_info;
+	zone_types::ZoneTypesInfo zone_types_info;
+	rune_spells::Registry rune_spells_info;
 	currencies::CurrenciesInfo currencies_info;
   	RunestoneRoster runestone_roster;
 	WorldObjects world_objects;
@@ -103,6 +106,10 @@ spells::SpellMessages &GlobalObjects::SpellMessages() {
 	return global_objects().spell_messages;
 }
 
+points_intensity::PointsIntensity &GlobalObjects::PointsIntensity() {
+	return global_objects().points_intensity;
+}
+
 skills::SkillMessages &GlobalObjects::SkillMessages() {
 	return global_objects().skill_messages;
 }
@@ -145,6 +152,18 @@ guilds::GuildsInfo &GlobalObjects::Guilds() {
 
 const guilds::GuildInfo &GlobalObjects::Guild(Vnum guild_vnum) {
 	return global_objects().guilds_info[guild_vnum];
+}
+
+zone_types::ZoneTypesInfo &GlobalObjects::ZoneTypes() {
+	return global_objects().zone_types_info;
+}
+
+const zone_types::ZoneTypeInfo &GlobalObjects::ZoneType(int type_vnum) {
+	return global_objects().zone_types_info[type_vnum];
+}
+
+rune_spells::Registry &GlobalObjects::RuneSpells() {
+	return global_objects().rune_spells_info;
 }
 
 currencies::CurrenciesInfo &GlobalObjects::Currencies() {

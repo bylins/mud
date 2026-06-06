@@ -458,53 +458,11 @@ const char *preference_bits[] = {"краткий",
 								 "\n"
 };
 
-// AFF_ROOM_x
-// Список описаний аффектов на комнатах которые видны - без DETECT_MAGIC
-const char *room_aff_visib_bits[] =
-	{
-		"&W... земля освещена колдовством ...&n",    // 0
-		"&B... все окутано туманом &Kсмерти&B ...&n",        // AFF_DEADLY_FOG
-		"",    // AFF_RUNE_LABEL
-		"", // AFF_FORBIDDEN
-		"&Y... чарующий огненный узор плывет в воздухе ...&n", // AFF_HYPNOTIC_PATTERN
-		"&K... множество черных сухих рук высовывается из земли и шарит в воздухе!&n", // AFF_EVARDS_BLACK_TENTACLES
-		"&R... раскаленные громовые камни рушатся на землю!&n", // AFF_METEORSTORM
-		"&W... чудовищная буря кружится над вашей головой ...&n", // AFF_THUNDERSTORM
-		"\n",
-		"\n",
-		"\n"
-	};
-int xdfa = 11;
-// Список описаний аффектов на комнатах готорые видны - с DETECT_MAGIC
-const char *room_aff_invis_bits[] =
-	{
-		"&W... земля освещена колдовством ...&n",    // 0
-		"&B... туман &Kсмерти&B плывет над вами  ...&n", // AFF_DEADLY_FOG
-		"&G... светящиеся руны на земле складываются в чьё-то имя ...&n",    // AFF_RUNE_LABEL
-		"&c... магическая печать закрывает все входы ...&n", // AFF_FORBIDDEN
-		"&Y... чарующий огненный узор плывет в воздухе ...&n", // AFF_HYPNOTIC_PATTERN
-		"&K... множество черных сухих рук высовывается из земли и шарит в воздухе!&n", // AFF_EVARDS_BLACK_TENTACLES
-		"&R... раскаленные громовые камни рушатся на землю!&n", // AFF_METEORSTORM
-		"&W... чудовищная буря кружится над вашей головой ...&n", // AFF_THUNDERSTORM
-		"\n",
-		"\n",
-		"\n",
-	};
-
-const char *room_self_aff_invis_bits[] =
-	{
-		"&W... земля освещена колдовством ...&n",    // 0
-		"&B... туман &Kсмерти&B плывет над вами  ...&n", // AFF_DEADLY_FOG
-		"&G... светящиеся руны на земле складываются в Ваше имя ...&n",    // AFF_RUNE_LABEL
-		"&c... магическая печать закрывает все входы ...&n", // AFF_FORBIDDEN
-		"&Y... чарующий огненный узор плывет в воздухе ...&n", // AFF_HYPNOTIC_PATTERN
-		"&K... множество черных сухих рук высовывается из земли и шарит в воздухе!&n", // AFF_EVARDS_BLACK_TENTACLES
-		"&R... раскаленные громовые камни рушатся на землю!&n", // AFF_METEORSTORM
-		"&W... чудовищная буря кружится над вашей головой ...&n", // AFF_THUNDERSTORM
-		"\n",
-		"\n",
-		"\n",
-	};
+// Room-affect description arrays retired (issue.sight-fmt): per-spell sheaves in
+// lib/cfg/spell_msg.xml now carry kRoomAffectVisible / kRoomAffectInvisible /
+// kRoomAffectSelfInvisible. show_room_affects() in sight.cpp picks the variant
+// from the viewer's kDetectMagic flag and caster id. The previously-unused
+// `int xdfa = 11;` companion symbol is gone with them.
 
 /*
  * WEAR_x - for eq list
@@ -1731,30 +1689,6 @@ int mana_gain_cs[] = {2,    // Int= 0
 					133 //100
 };
 
-// Weapon attack texts
-struct AttackHitType attack_hit_text[] =
-	{
-		{"ударил", "ударить"},    // 0
-		{"ободрал", "ободрать"},
-		{"хлестнул", "хлестнуть"},
-		{"рубанул", "рубануть"},
-		{"укусил", "укусить"},
-		{"огрел", "огреть"},    // 5
-		{"сокрушил", "сокрушить"},
-		{"резанул", "резануть"},
-		{"оцарапал", "оцарапать"},
-		{"подстрелил", "подстрелить"},
-		{"пырнул", "пырнуть"},    // 10
-		{"уколол", "уколоть"},
-		{"ткнул", "ткнуть"},
-		{"лягнул", "лягнуть"},
-		{"боднул", "боднуть"},
-		{"клюнул", "клюнуть"},
-		{"ужалил", "ужалить"},
-		{"*", "*"},
-		{"*", "*"},
-		{"*", "*"}
-	};
 
 const char *godslike_bits[] =
 	{

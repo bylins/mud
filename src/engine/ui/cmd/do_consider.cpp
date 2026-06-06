@@ -7,6 +7,7 @@
 
 #include "engine/entities/char_data.h"
 #include "engine/core/handler.h"
+#include "engine/core/target_resolver.h"
 
 void DoConsider(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *victim;
@@ -14,7 +15,9 @@ void DoConsider(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	one_argument(argument, buf);
 
-	if (!(victim = get_char_vis(ch, buf, EFind::kCharInRoom))) {
+	victim = target_resolver::FindCharInRoom(ch, buf);
+
+	if (!victim) {
 		SendMsgToChar("Кого вы хотите оценить?\r\n", ch);
 		return;
 	}

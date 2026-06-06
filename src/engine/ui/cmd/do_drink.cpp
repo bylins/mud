@@ -259,26 +259,26 @@ void TryDrinkAlcohol(CharData *ch, ObjData *jar, int amount) {
 			// **** Decrease AC ***** //
 			Affect<EApply> af;
 			af.type = ESpell::kDrunked;
-			af.duration = CalcDuration(ch, duration, 0, 0, 0, 0);
+			af.duration = CalcDuration(ch, ch, ESkill::kUndefined, duration, 0, 0, 0);
 			af.modifier = -20;
 			af.location = EApply::kAc;
-			af.bitvector = to_underlying(EAffect::kDrunked);
+			af.affect_type = EAffect::kDrunked;
 			af.battleflag = 0;
 			ImposeAffect(ch, af, false, false, false, false);
 			// **** Decrease HR ***** //
 			af.type = ESpell::kDrunked;
-			af.duration = CalcDuration(ch, duration, 0, 0, 0, 0);
+			af.duration = CalcDuration(ch, ch, ESkill::kUndefined, duration, 0, 0, 0);
 			af.modifier = -2;
 			af.location = EApply::kHitroll;
-			af.bitvector = to_underlying(EAffect::kDrunked);
+			af.affect_type = EAffect::kDrunked;
 			af.battleflag = 0;
 			ImposeAffect(ch, af, false, false, false, false);
 			// **** Increase DR ***** //
 			af.type = ESpell::kDrunked;
-			af.duration = CalcDuration(ch, duration, 0, 0, 0, 0);
+			af.duration = CalcDuration(ch, ch, ESkill::kUndefined, duration, 0, 0, 0);
 			af.modifier = GetRealLevel(ch) / 5 + GetRealRemort(ch) / 5;
 			af.location = EApply::kPhysicDamagePercent;
-			af.bitvector = to_underlying(EAffect::kDrunked);
+			af.affect_type = EAffect::kDrunked;
 			af.battleflag = 0;
 			ImposeAffect(ch, af, false, false, false, false);
 		}

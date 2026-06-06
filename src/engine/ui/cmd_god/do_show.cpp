@@ -20,6 +20,7 @@
 #include "gameplay/mechanics/glory_const.h"
 #include "gameplay/mechanics/glory_misc.h"
 #include "engine/core/handler.h"
+#include "engine/core/target_resolver.h"
 #include "engine/ui/modify.h"
 #include "engine/db/obj_prototypes.h"
 #include "gameplay/statistics/mob_stat.h"
@@ -336,7 +337,7 @@ void print_zone_to_buf(char **bufptr, ZoneRnum zone) {
 			 zone_table[zone].name.c_str(),
 			 zone_table[zone].level,
 			 zone_table[zone].mob_level,
-			 zone_types[zone_table[zone].type].name,
+			 MUD::ZoneTypes()[zone_table[zone].type].GetName().c_str(),
 			 zone_table[zone].age, zone_table[zone].lifespan,
 			 zone_table[zone].reset_mode,
 			 (zone_table[zone].reset_mode == 3) ? (CanBeReset(zone) ? 1 : 0) : (IsZoneEmpty(zone) ? 1 : 0),
@@ -446,13 +447,18 @@ std::pair<int, int> TotalMemUse(){
 }
 
 void ListSpellCreate(CharData *ch) {
+	// (issue.runes-migrate) Iterate the new registry directly; runes are now
+	// pipe-separated so 5+-rune spells render fully (legacy %3d x 4 capped).
 	int i = 0;
-	for (auto it : spell_create) {
-		SendMsgToChar(ch, "%3d) Rune spell [%3d] &W%-30s&n runes: %3d %3d %3d %3d level %d\r\n", 
-				++i, to_underlying(it.first), MUD::Spell(it.first).GetCName(),
-				it.second.runes.items[0], it.second.runes.items[1],
-				it.second.runes.items[2], it.second.runes.rnumber,
-				it.second.runes.min_caster_level);
+	for (const auto &[spell_id, info] : MUD::RuneSpells()) {
+		std::string runes_str;
+		for (size_t r = 0; r < info.runes.size(); ++r) {
+			if (r > 0) runes_str += '|';
+			runes_str += std::to_string(info.runes[r]);
+		}
+		SendMsgToChar(ch, "%3d) Rune spell [%3d] &W%-30s&n runes: %s level %d\r\n",
+				++i, to_underlying(spell_id), MUD::Spell(spell_id).GetCName(),
+				runes_str.c_str(), info.min_caster_level);
 	}
 }
 
@@ -570,7 +576,7 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				SendMsgToChar("Уточните имя.\r\n", ch);
 				return;
 			}
-			if (!(vict = get_player_vis(ch, value, EFind::kCharInWorld))) {
+			if (!(vict = target_resolver::FindPlayerVis(ch, value))) {
 				SendMsgToChar("Нет такого игрока.\r\n", ch);
 				return;
 			}
@@ -816,7 +822,7 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				SendMsgToChar("Уточните имя.\r\n", ch);
 				return;
 			}
-			if (!(vict = get_player_vis(ch, value, EFind::kCharInWorld))) {
+			if (!(vict = target_resolver::FindPlayerVis(ch, value))) {
 				SendMsgToChar("Нет такого игрока.\r\n", ch);
 				return;
 			}
@@ -827,7 +833,7 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				SendMsgToChar("Уточните имя.\r\n", ch);
 				return;
 			}
-			if (!(vict = get_player_vis(ch, value, EFind::kCharInWorld))) {
+			if (!(vict = target_resolver::FindPlayerVis(ch, value))) {
 				SendMsgToChar("Нет такого игрока.\r\n", ch);
 				return;
 			}
@@ -845,7 +851,7 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				SendMsgToChar("Уточните имя.\r\n", ch);
 				return;
 			}
-			if (!(vict = get_player_vis(ch, value, EFind::kCharInWorld))) {
+			if (!(vict = target_resolver::FindPlayerVis(ch, value))) {
 				SendMsgToChar("Нет такого игрока.\r\n", ch);
 				return;
 			}
@@ -895,7 +901,7 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				SendMsgToChar("Уточните имя.\r\n", ch);
 				return;
 			}
-			if (!(vict = get_player_vis(ch, value, EFind::kCharInWorld))) {
+			if (!(vict = target_resolver::FindPlayerVis(ch, value))) {
 				SendMsgToChar("Нет такого игрока.\r\n", ch);
 				return;
 			}

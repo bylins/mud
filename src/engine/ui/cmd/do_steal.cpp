@@ -16,6 +16,7 @@
 #include "gameplay/fight/fight_hit.h"
 #include "do_get.h"
 #include "engine/core/utils_char_obj.inl"
+#include "engine/core/target_resolver.h"
 #include "gameplay/ai/spec_procs.h"
 
 void go_steal(CharData *ch, CharData *vict, char *obj_name) {
@@ -190,7 +191,7 @@ void go_steal(CharData *ch, CharData *vict, char *obj_name) {
 			ImproveSkill(ch, ESkill::kSteal, 0, vict);
 	}
 	if (!ch->IsImmortal() && ohoh)
-		SetWaitState(ch, 3 * kBattleRound);
+		SetBattleLag(ch, 3);
 	pk_thiefs_action(ch, vict);
 	if (ohoh && vict->IsNpc() && AWAKE(vict) && CAN_SEE(vict, ch) && MAY_ATTACK(vict))
 		hit(vict, ch, ESkill::kUndefined, fight::kMainHand);
@@ -209,7 +210,8 @@ void do_steal(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 	two_arguments(argument, obj_name, vict_name);
-	if (!(vict = get_char_vis(ch, vict_name, EFind::kCharInRoom))) {
+	vict = target_resolver::FindCharInRoom(ch, vict_name);
+	if (!vict) {
 		SendMsgToChar("Украсть у кого?\r\n", ch);
 		return;
 	} else if (vict == ch) {

@@ -12,6 +12,7 @@
 #include "utils/utils_time.h"
 #include "gameplay/mechanics/dungeons.h"
 #include "engine/db/obj_prototypes.h"
+#include "engine/core/target_resolver.h"
 #include "engine/ui/cmd/do_where.h"
 
 #include <fmt/format.h>
@@ -24,7 +25,7 @@ void PerformImmortWhere(CharData *ch, char *arg);
 void PerformMortalWhere(CharData *ch, char *arg);
 bool PrintObjectLocation(int num, const ObjData *obj, CharData *ch);
 
-static std::string ResolveSpecialLocation(const ObjData *obj, CharData *ch);
+static std::string ResolveSpecialLocation(const ObjData *obj);
 static std::vector<std::string> ResolveObjLocationLines(const ObjData *obj, CharData *ch);
 static bool CollectWhereObjects(CharData *ch, char *arg, int &num, std::vector<where_format::WhereRow> &rows);
 
@@ -63,21 +64,21 @@ void PerformImmortWhere(CharData *ch, char *arg) {
 		SendMsgToChar(ss.str(), ch);
 	} else {
 		std::vector<where_format::WhereRow> rows;
-		for (const auto &i : character_list) {
-			if (CAN_SEE(ch, i)
-				&& i->in_room != kNowhere
-				&& isname(arg, i->GetCharAliases())) {
-				ZoneData *zone = &zone_table[world[i->in_room]->zone_rn];
-				found = 1;
-				where_format::WhereRow row;
-				row.num = num++;
-				row.kind = i->IsNpc() ? where_format::ERowKind::kMob : where_format::ERowKind::kPlayer;
-				row.vnum = GET_MOB_VNUM(i);
-				row.name = GET_NAME(i);
-				row.location_lines.push_back(fmt::format("[{:>7}] {}. Зона: '{}'",
-						GET_ROOM_VNUM(i->in_room), world[i->in_room]->name, zone->name.c_str()));
-				rows.push_back(std::move(row));
-			}
+		target_resolver::Query q;
+		q.scopes = {target_resolver::Scope::kWorld};
+		q.name = arg;
+		q.char_predicate = [](CharData *c) { return c->in_room != kNowhere; };
+		for (CharData *i : target_resolver::ResolveChars(ch, q)) {
+			ZoneData *zone = &zone_table[world[i->in_room]->zone_rn];
+			found = 1;
+			where_format::WhereRow row;
+			row.num = num++;
+			row.kind = i->IsNpc() ? where_format::ERowKind::kMob : where_format::ERowKind::kPlayer;
+			row.vnum = GET_MOB_VNUM(i);
+			row.name = GET_NAME(i);
+			row.location_lines.push_back(fmt::format("[{:>7}] {}. Зона: '{}'",
+					GET_ROOM_VNUM(i->in_room), world[i->in_room]->name, zone->name.c_str()));
+			rows.push_back(std::move(row));
 		}
 		if (CollectWhereObjects(ch, arg, num, rows)) {
 			found = 1;
@@ -97,21 +98,20 @@ void PerformImmortWhere(CharData *ch, char *arg) {
 */
 static bool CollectWhereObjects(CharData *ch, char *arg, int &num, std::vector<where_format::WhereRow> &rows) {
 	bool found = false;
-
-	/* maybe it is possible to create some index instead of linear search */
-	world_objects.foreach([&](const ObjData::shared_ptr& object) {
-	  if (isname(arg, object->get_aliases())) {
-		  where_format::WhereRow row;
-		  row.num = num++;
-		  row.kind = where_format::ERowKind::kObject;
-		  row.vnum = GET_OBJ_VNUM(object.get());
-		  row.name = object->get_short_description();
-		  row.location_lines = ResolveObjLocationLines(object.get(), ch);
-		  rows.push_back(std::move(row));
-		  found = true;
-	  }
-	});
-
+	target_resolver::Query q;
+	q.scopes = {target_resolver::Scope::kWorld};
+	q.name = arg;
+	q.visible_only = false;
+	for (ObjData *obj : target_resolver::ResolveObjs(ch, q)) {
+		where_format::WhereRow row;
+		row.num = num++;
+		row.kind = where_format::ERowKind::kObject;
+		row.vnum = GET_OBJ_VNUM(obj);
+		row.name = obj->get_short_description();
+		row.location_lines = ResolveObjLocationLines(obj, ch);
+		rows.push_back(std::move(row));
+		found = true;
+	}
 	return found;
 }
 
@@ -214,7 +214,7 @@ std::string where_format::FormatWhere(const std::vector<WhereRow> &rows) {
 
 // Спец-локации предмета (базар / магазин / клан / депот / почта / иначе).
 // Возвращает одну строку без хвостового перевода строки.
-static std::string ResolveSpecialLocation(const ObjData *obj, CharData *ch) {
+static std::string ResolveSpecialLocation(const ObjData *obj) {
 	for (ExchangeItem *j = exchange_item_list; j; j = j->next) {
 		if (GET_EXCHANGE_ITEM(j)->get_unique_id() == obj->get_unique_id()) {
 			return fmt::format("продается на базаре, лот #{}", GET_EXCHANGE_ITEM_LOT(j));
@@ -274,7 +274,7 @@ static std::vector<std::string> ResolveObjLocationLines(const ObjData *obj, Char
 			cur = cur->get_in_obj();
 			continue;
 		}
-		lines.push_back(ResolveSpecialLocation(cur, ch));
+		lines.push_back(ResolveSpecialLocation(cur));
 		return lines;
 	}
 }

@@ -34,7 +34,7 @@ void DoListen(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 			for (i = 0; i < EDirection::kMaxDirNum; i++)
 				hear_in_direction(ch, i, 0);
 			if (!(ch->IsImmortal() || GET_GOD_FLAG(ch, EGf::kGodsLike)))
-				SetWaitState(ch, 1 * kBattleRound);
+				SetBattleLag(ch, 1);
 		}
 	} else
 		SendMsgToChar("Выучите сначала как это следует делать.\r\n", ch);

@@ -2,6 +2,7 @@
 
 #include "do_follow.h"
 #include "engine/core/handler.h"
+#include "engine/core/target_resolver.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/core/base_stats.h"
 #include "gameplay/mechanics/weather.h"
@@ -194,7 +195,9 @@ void DoFindhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	const auto helpee = get_char_vis(ch, arg, EFind::kCharInRoom);
+	CharData *helpee = nullptr;
+
+	helpee = target_resolver::FindCharInRoom(ch, arg);
 	if (!helpee) {
 		SendMsgToChar("Вы не видите никого похожего.\r\n", ch);
 		return;
@@ -276,7 +279,7 @@ void DoFindhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		Affect<EApply> af;
 		if (!(hired && hired == helpee)) {
 			ch->add_follower(helpee);
-			af.duration = CalcDuration(helpee, times * kTimeKoeff, 0, 0, 0, 0);
+			af.duration = CalcDuration(helpee, helpee, ESkill::kUndefined, times * kTimeKoeff, 0, 0, 0);
 		} else {
 			auto aff = hired->affected.begin();
 			for (; aff != hired->affected.end(); ++aff) {
@@ -295,7 +298,7 @@ void DoFindhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					SendMsgToChar(ch, "Вам вернули нерастраченный задаток в %ld %s.\r\n",
 								  oldcost, GetDeclensionInNumber(cost, EWhat::kMoneyA));
 				}
-				af.duration = CalcDuration(helpee, times * kTimeKoeff, 0, 0, 0, 0);
+				af.duration = CalcDuration(helpee, helpee, ESkill::kUndefined, times * kTimeKoeff, 0, 0, 0);
 			}
 		}
 		RemoveAffectFromChar(helpee, ESpell::kCharm);
@@ -312,14 +315,14 @@ void DoFindhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		af.type = ESpell::kCharm;
 		af.modifier = 0;
 		af.location = EApply::kNone;
-		af.bitvector = to_underlying(EAffect::kCharmed);
+		af.affect_type = EAffect::kCharmed;
 		af.battleflag = 0;
 		affect_to_char(helpee, af);
 
 		af.type = ESpell::kCharm;
 		af.modifier = 0;
 		af.location = EApply::kNone;
-		af.bitvector = to_underlying(EAffect::kHelper);
+		af.affect_type = EAffect::kHelper;
 		af.battleflag = 0;
 		affect_to_char(helpee, af);
 

@@ -109,7 +109,7 @@ void go_strangle(CharData *ch, CharData *vict) {
 	af.type = ESpell::kStrangle;
 	af.duration = strangle_duration;
 	af.battleflag = kNone;
-	af.bitvector = to_underlying(EAffect::kStrangled);
+	af.affect_type = EAffect::kStrangled;
 	af.caster_id = ch->get_uid();
 
 	TrainSkill(ch, ESkill::kStrangle, success, vict);
@@ -133,7 +133,7 @@ void go_strangle(CharData *ch, CharData *vict) {
 		af2.modifier = -skill_strangle/3;
 		af2.location = EApply::kMagicDamagePercent;
 		af2.battleflag = kAfBattledec;
-		af2.bitvector = to_underlying(EAffect::kSilence);
+		af2.affect_type = EAffect::kSilence;
 		affect_to_char(vict, af2);
 
 		Damage dmg(SkillDmg(ESkill::kStrangle), dam, fight::kPhysDmg, nullptr);

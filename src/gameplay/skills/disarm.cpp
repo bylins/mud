@@ -99,14 +99,14 @@ void go_injure(CharData *ch, CharData *vict) {
 		}
 
 //Ввожу ДВА аффекта: 1. Короткий - собственно сам дебафф. 2. Долгий, для запрета повторного наложения.
-//af.bitvector = to_underlying(EAffect::kInjured); - этот битвектор нафиг не нужен. Ввел его только для того чтобы не показывало !UNDEF! при выводе аффектов
+//af.affect_type = EAffect::kInjured; - этот битвектор нафиг не нужен. Ввел его только для того чтобы не показывало !UNDEF! при выводе аффектов
 		Affect<EApply> af;
 		af.type = ESpell::kLowerEffectiveness;
 		af.duration = injure_duration;
 		af.modifier = -(10 + std::min((ch->GetSkill(ESkill::kDisarm) / 10), 20));
 		af.location = EApply::kPhysicDamagePercent;
 		af.battleflag = kAfBattledec;
-		af.bitvector = to_underlying(EAffect::kInjured);
+		af.affect_type = EAffect::kInjured;
 		affect_to_char(vict, af);
 
 		act("Вы ранили $N3! Как же $E теперь будет Вас бить?...",

@@ -35,7 +35,7 @@ void do_frenzy(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	const int duration = CalcDuration(ch, 23, 0, 0, 0, 0);;
+	const int duration = CalcDuration(ch, ch, ESkill::kUndefined, 23, 0, 0, 0);;
 	const int hp_regen = ch->GetSkill(ESkill::kFrenzy) / 12.5;
 	const int dmg_multiplier = ch->GetSkill(ESkill::kFrenzy) / 12.5;
 
@@ -44,13 +44,13 @@ void do_frenzy(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	af[0].duration = duration;
 	af[0].modifier = hp_regen;
 	af[0].location = EApply::kHpRegen;
-	af[0].bitvector = to_underlying(EAffect::kFrenzy);
+	af[0].affect_type = EAffect::kFrenzy;
 	af[0].battleflag = kAfPulsedec;
 	af[1].type = ESpell::kFrenzy;
 	af[1].duration = duration;
 	af[1].modifier = dmg_multiplier;
 	af[1].location = EApply::kPhysicDamagePercent;
-	af[1].bitvector = to_underlying(EAffect::kNoFlee);
+	af[1].affect_type = EAffect::kNoFlee;
 	af[1].battleflag = kAfPulsedec;
 	bool has_frenzy = false;
 	bool can_be_angrier = false;

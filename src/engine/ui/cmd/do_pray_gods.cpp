@@ -10,6 +10,7 @@
 #include "engine/network/descriptor_data.h"
 #include "gameplay/communication/remember.h"
 #include "engine/core/handler.h"
+#include "engine/core/target_resolver.h"
 #include "gameplay/fight/common.h"
 
 void do_pray_gods(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
@@ -32,7 +33,7 @@ void do_pray_gods(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			SendMsgToChar("Какому смертному вы собираетесь ответить?\r\n", ch);
 			return;
 		}
-		victim = get_player_vis(ch, arg1, EFind::kCharInWorld);
+		victim = target_resolver::FindPlayerVis(ch, arg1);
 		if (victim == nullptr) {
 			SendMsgToChar("Такого нет в игре!\r\n", ch);
 			return;

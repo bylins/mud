@@ -105,10 +105,10 @@ void do_pray(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		if (i.metter == metter) {
 			Affect<EApply> af;
 			af.type = ESpell::kReligion;
-			af.duration = CalcDuration(ch, 12, 0, 0, 0, 0);
+			af.duration = CalcDuration(ch, ch, ESkill::kUndefined, 12, 0, 0, 0);
 			af.modifier = i.modifier;
 			af.location = i.location;
-			af.bitvector = i.bitvector;
+			af.affect_type = static_cast<EAffect>(i.bitvector);
 			af.battleflag = i.battleflag;
 			ImposeAffect(ch, af, false, false, false, false);
 		}

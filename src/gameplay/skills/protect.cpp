@@ -6,6 +6,7 @@
 #include "gameplay/fight/common.h"
 #include "gameplay/fight/fight_hit.h"
 #include "engine/core/handler.h"
+#include "engine/core/target_resolver.h"
 #include "engine/db/global_objects.h"
 
 // ************** PROTECT PROCEDURES
@@ -39,7 +40,9 @@ void do_protect(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	};
 
-	CharData *vict = get_char_vis(ch, arg, EFind::kCharInRoom);
+	CharData * vict = nullptr;
+
+	vict = target_resolver::FindCharInRoom(ch, arg);
 	if (!vict) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kProtect, ESkillMsg::kNoTarget) + "\r\n", ch);
 		return;
@@ -105,13 +108,13 @@ CharData *TryToFindProtector(CharData *victim, CharData *ch) {
 					false, vict, 0, victim, kToChar);
 				act("$N пытается напасть на вас! Лучше бы вам отойти.", false, victim, 0, vict, kToChar);
 				vict->remove_protecting();
-				SetWaitState(vict, kBattleRound);
+				SetBattleLag(vict, 1);
 				Affect<EApply> af;
 				af.type = ESpell::kBattle;
-				af.bitvector = to_underlying(EAffect::kStopFight);
+				af.affect_type = EAffect::kStopFight;
 				af.location = EApply::kNone;
 				af.modifier = 0;
-				af.duration = CalcDuration(vict, 1, 0, 0, 0, 0);
+				af.duration = CalcDuration(vict, vict, ESkill::kUndefined, 1, 0, 0, 0);
 				af.battleflag = kAfBattledec | kAfPulsedec;
 				ImposeAffect(vict, af, true, false, true, false);
 				return victim;

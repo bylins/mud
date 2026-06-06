@@ -2,7 +2,7 @@
 
 #include "engine/db/global_objects.h"
 
-struct ZoneCategory *zone_types = nullptr;
+// (issue.ztypes-migrate) zone_types[] retired -- see engine/entities/zone_types.h.
 
 ZoneData::ZoneData() : traffic(0),
 					   level(0),

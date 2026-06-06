@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="koi8-r"?>
+<!--
+    Zone type registry (issue.ztypes-migrate).
+
+    Each <type> entry is one zone category. The vnum attribute is the integer
+    referenced by zone.type in lib/world/zon/*.zon files; reordering or
+    renumbering a vnum changes the zone classification of every zone using it,
+    so DO NOT renumber existing vnums. Add new types with a fresh vnum at the
+    end (the legacy ztypes.lst had the same "append-only" rule, baked in here
+    by the explicit vnum= attribute rather than file position).
+
+    text_id is a stable C++-style identifier for documentation and OLC use.
+    name is the display label shown in `stat zone` and the zedit menu.
+    <ingredients val="..."/> (optional) is a "|"-separated list of integer
+    ingredient type ids consumed by im.cpp's ImForageRoom; an absent or empty
+    list means no forageable ingredients in zones of this type.
+
+    Reload at runtime via `reload ztypes`.
+-->
+<zone_types>
+    <type text_id="kNone"         vnum="0"  name="Ингридиентов нет"/>
+    <type text_id="kTown"         vnum="1"  name="Город">
+        <ingredients val="16|103|104"/>
+    </type>
+    <type text_id="kLightForest"  vnum="2"  name="Светлый лес">
+        <ingredients val="0|2|11|12|17|104"/>
+    </type>
+    <type text_id="kDarkForest"   vnum="3"  name="Темный лес">
+        <ingredients val="2|6|11|12|17|51|52|104"/>
+    </type>
+    <type text_id="kFields"       vnum="4"  name="Поля">
+        <ingredients val="15|16|104"/>
+    </type>
+    <type text_id="kMountains"    vnum="5"  name="Горы">
+        <ingredients val="101|102"/>
+    </type>
+    <type text_id="kRivers"       vnum="6"  name="Реки">
+        <ingredients val="104"/>
+    </type>
+    <type text_id="kHouse"        vnum="7"  name="Дом">
+        <ingredients val="103"/>
+    </type>
+    <type text_id="kNearHouse"    vnum="8"  name="Лужайка">
+        <ingredients val="15|16|103|104"/>
+    </type>
+    <type text_id="kHills"        vnum="9"  name="Холмы">
+        <ingredients val="11|17|101|104"/>
+    </type>
+    <type text_id="kCaves"        vnum="10" name="Пещеры">
+        <ingredients val="6|12|101|102"/>
+    </type>
+    <type text_id="kLittleTown"   vnum="11" name="Поселок">
+        <ingredients val="15|16|103|104"/>
+    </type>
+    <type text_id="kVillage"      vnum="12" name="Деревня">
+        <ingredients val="12|15|16|103|104"/>
+    </type>
+    <type text_id="kTownEnvirons" vnum="13" name="Городские окрестности">
+        <ingredients val="0|6|11|12|51|52|104"/>
+    </type>
+    <type text_id="kWieldForest"  vnum="14" name="Дикий лес">
+        <ingredients val="2|6|11|12|17|51|52"/>
+    </type>
+    <type text_id="kWieldSteppe"  vnum="15" name="Дикая степь">
+        <ingredients val="2|51|52|104"/>
+    </type>
+    <type text_id="kSea"          vnum="16" name="Океан"/>
+    <type text_id="kRuins"        vnum="17" name="Руины">
+        <ingredients val="6|101|102|103"/>
+    </type>
+    <type text_id="kForestWay"    vnum="18" name="Лесная тропа">
+        <ingredients val="2|11|12|17|51|103|104"/>
+    </type>
+    <type text_id="kSteppeWay"    vnum="19" name="Степная дорога">
+        <ingredients val="2|103"/>
+    </type>
+    <type text_id="kMountainWay"  vnum="20" name="Горная тропа">
+        <ingredients val="101|102"/>
+    </type>
+    <type text_id="kSwamp"        vnum="21" name="Болото">
+        <ingredients val="0|2|6|11|12|51|52|104"/>
+    </type>
+    <type text_id="kDesert"       vnum="22" name="Пустыня">
+        <ingredients val="101"/>
+    </type>
+    <type text_id="kCastle"       vnum="23" name="Замок"/>
+    <type text_id="kNearCastle"   vnum="24" name="Окрестности замка"/>
+</zone_types>

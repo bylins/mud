@@ -391,7 +391,7 @@ int process_input(DescriptorData *t) {
 			} else if (isascii(*ptr) && isprint(*ptr)) {
 				*(write_point++) = *ptr;
 				space_left--;
-				if (*ptr == '$' &&  t->state != EConState::kSedit)    // copy one character
+				if (*ptr == '$' &&  t->state != EConState::kSedit && t->state != EConState::kVedun)    // copy one character
 				{
 					*(write_point++) = '$';    // if it's a $, double it
 					space_left--;

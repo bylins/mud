@@ -74,17 +74,28 @@ void do_affects(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					sprintf(buf2, "%-3d к параметру: %s", aff->modifier, apply_types[(int) aff->location]);
 					snprintf(buf + strlen(buf), sizeof(buf) - strlen(buf), "%s", buf2);
 				}
-				if (aff->bitvector) {
+				if (aff->affect_type != EAffect::kUndefinded) {
 					if (*buf2) {
 						strncat(buf, ", устанавливает ", sizeof(buf) - strlen(buf) - 1);
 					} else {
 						strncat(buf, "устанавливает ", sizeof(buf) - strlen(buf) - 1);
 					}
 					strncat(buf, kColorBoldRed, sizeof(buf) - strlen(buf) - 1);
-					sprintbit(aff->bitvector, affected_bits, buf2, sizeof(buf2));
+					sprintbit(to_underlying(aff->affect_type), affected_bits, buf2, sizeof(buf2));
 					snprintf(buf + strlen(buf), sizeof(buf) - strlen(buf), "%s", buf2);
 					strncat(buf, kColorNrm, sizeof(buf) - strlen(buf) - 1);
 				}
+			}
+			// Stack count (issue.affect-stacks): show [xN] for a multi-stack affect.
+			if (aff->stacks > 1) {
+				snprintf(buf + strlen(buf), sizeof(buf) - strlen(buf), " [x%d]", aff->stacks);
+			}
+			// Potency for immortals / testers: the cast-roll strength (dice+skill+stat)
+			// recorded on the affect at impose time; drives the dispel comparison in
+			// CastUnaffects::DispelSucceeds. 0 means "not recorded" (charms, name-tied
+			// affects, etc.).
+			if (ch->IsImmortal() || ch->IsFlagged(EPrf::kTester)) {
+				snprintf(buf + strlen(buf), sizeof(buf) - strlen(buf), " [p: %.1f]", aff->potency);
 			}
 			SendMsgToChar(strcat(buf, "\r\n"), ch);
 		}
