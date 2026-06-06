@@ -45,6 +45,24 @@ extern char *greetings;
 void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	argument = one_argument(argument, arg);
 
+	// issue.thing-names: list the available reload targets when called with no argument. Option names
+	// avoid '_' on purpose -- the client renders '_' as a space, which is ambiguous (is "spell
+	// messages" one option or two?), so e.g. spellmsg / skillmsg / hitmsg / mobclasses.
+	if (!*arg) {
+		SendMsgToChar(
+			"Usage: reload <what>. Available targets:\r\n"
+			"  all  *  -- everything below\r\n"
+			"  cfg data : abilities skills spells feats classes mobclasses guilds currencies\r\n"
+			"             ztypes runes mobraces objsets\r\n"
+			"  messages : spellmsg skillmsg hitmsg\r\n"
+			"  systems  : portals imagic oloadtable setstuff specials schedule clan proxy boards\r\n"
+			"             globaldrop offtop shop named celebrates setsdrop remort daily resetstats\r\n"
+			"  text     : immlist credits motd rules help info policy handbook background namerules\r\n"
+			"             greetings xhelp socials noobhelp titles emails privilege\r\n"
+			"  depot <char-name>\r\n", ch);
+		return;
+	}
+
 	if (!str_cmp(arg, "all") || *arg == '*') {
 		if (AllocateBufferForFile(GREETINGS_FILE, &greetings) == 0) {
 			PruneCrlf(greetings);
@@ -86,17 +104,17 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		MUD::CfgManager().ReloadCfg("skills");
 	} else if (!str_cmp(arg, "spells")) {
 		MUD::CfgManager().ReloadCfg("spells");
-	} else if (!str_cmp(arg, "spell_messages")) {
+	} else if (!str_cmp(arg, "spellmsg")) {
 		MUD::CfgManager().ReloadCfg("spell_messages");
-	} else if (!str_cmp(arg, "skill_messages")) {
+	} else if (!str_cmp(arg, "skillmsg")) {
 		MUD::CfgManager().ReloadCfg("skill_messages");
-    } else if (!str_cmp(arg, "fight_messages")) {
+    } else if (!str_cmp(arg, "hitmsg")) {
         MUD::CfgManager().ReloadCfg("fight_messages");
 	} else if (!str_cmp(arg, "feats")) {
 		MUD::CfgManager().ReloadCfg("feats");
 	} else if (!str_cmp(arg, "classes")) {
 		MUD::CfgManager().ReloadCfg("classes");
-	} else if (!str_cmp(arg, "mob_classes")) {
+	} else if (!str_cmp(arg, "mobclasses")) {
 		MUD::CfgManager().ReloadCfg("mob_classes");
 	} else if (!str_cmp(arg, "guilds")) {
 		MUD::CfgManager().ReloadCfg("guilds");
@@ -224,7 +242,7 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	// source string file alone is not enough -- remind the admin to reload the dependent file too.
 	// Add entries here as more such cross-file dependencies appear.
 	static const std::map<std::string, std::string> kReloadReminders{
-		{"spell_messages", "Reminder: spell names are cached when spells.xml is loaded. "
+		{"spellmsg", "Reminder: spell names are cached when spells.xml is loaded. "
 		                   "Run 'reload spells' as well for the name changes to take effect."},
 	};
 	if (const auto it = kReloadReminders.find(arg); it != kReloadReminders.end()) {
