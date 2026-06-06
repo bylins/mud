@@ -31,6 +31,7 @@
 #include "engine/observability/helpers.h"
 #include "engine/observability/metrics.h"
 #include "utils/tracing/trace_manager.h"
+#include "utils/utils_time.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/mechanics/sight.h"
 #include "gameplay/ai/mob_memory.h"
@@ -1528,8 +1529,15 @@ void point_update() {
 	}
 	std::shuffle(real_spell.begin(), real_spell.end(), std::mt19937(std::random_device()()));
 
+	// Профайлер частей цикла: копим время по каждой части за весь цикл и выводим 1 раз после.
+	utils::CExecutionTimer point_update_timer;    // весь цикл целиком
+	utils::CExecutionTimer prof;                  // переиспользуем для замера частей
+	double t_cond = 0.0, t_hp = 0.0, t_mob = 0.0, t_move = 0.0, t_pos = 0.0, t_idle = 0.0;
+	std::size_t scanned = 0, profiled_chars = 0;
+
 	for (auto &ch : character_list) {
 		const auto i = ch.get();
+		++scanned;
 
 		if (i->purged() || (i->IsNpc() && !i->in_used_zone())) {
 			continue;
@@ -1546,6 +1554,8 @@ void point_update() {
 			act("$n попытал$u очнуться, но снова заснул$a и упал$a наземь.",
 				true, i, nullptr, nullptr, kToRoom);
 		}
+		++profiled_chars;
+		prof.restart();
 		if (!i->IsNpc()) {
 			gain_condition(i, DRUNK, -1);
 			if (average_day_temp() < -20) {
@@ -1564,8 +1574,10 @@ void point_update() {
 			}
 			UpdateCharObjects(i);
 		}
+		t_cond += prof.delta().count();
 		if (i->GetPosition() >= EPosition::kStun)    // Restore hit points
 		{
+			prof.restart();
 			if (i->IsNpc() || !UPDATE_PC_ON_BEAT) {
 				const int count = hit_gain(i);
 
@@ -1573,6 +1585,8 @@ void point_update() {
 					i->set_hit(std::min(i->get_hit() + count, i->get_real_max_hit()));
 				}
 			}
+			t_hp += prof.delta().count();
+			prof.restart();
 			// Restore mobs
 			if (i->IsNpc() && !i->GetEnemy())    // Restore horse
 			{
@@ -1636,13 +1650,15 @@ void point_update() {
 					}
 				}
 				// Remember some spells
-				if (i->mob_specials.have_spell) {
+				if (i->mob_specials.have_spell && GET_MOB_RNUM(i) >= 0) {
+					const auto mob_num = GET_MOB_RNUM(i);
 					auto mana{0};
 					auto count{0};
 					const auto max_mana = GetRealInt(i) * 10;
 					while (count <= to_underlying(ESpell::kLast) && mana < max_mana) {
 						const auto spell_id = real_spell[count];
-						if (GET_SPELL_MEM(i, spell_id) > GET_SPELL_MEM(i, spell_id)) {
+						// Моб добивает память спеллов до уровня своего прототипа.
+						if (GET_SPELL_MEM(mob_proto + mob_num, spell_id) > GET_SPELL_MEM(i, spell_id)) {
 							GET_SPELL_MEM(i, spell_id)++;
 							mana += ((MUD::Spell(spell_id).GetMaxMana() + MUD::Spell(spell_id).GetMinMana()) / 2);
 							i->caster_level += (MUD::Spell(spell_id).IsFlagged(NPC_CALCULATE) ? 1 : 0);
@@ -1651,6 +1667,8 @@ void point_update() {
 					}
 				}
 			}
+			t_mob += prof.delta().count();
+			prof.restart();
 			// Restore moves
 			if (i->IsNpc()
 				|| !UPDATE_PC_ON_BEAT) {
@@ -1658,6 +1676,7 @@ void point_update() {
 					i->set_move(std::min(i->get_move() + move_gain(i), i->get_real_max_move()));
 				}
 			}
+			t_move += prof.delta().count();
 		} else if (i->GetPosition() == EPosition::kIncap) {
 			i->points.hit += 1;
 			act("$n, пуская слюни, забил$u в судорогах.", true, i, nullptr, nullptr, kToRoom | kToArenaListen);
@@ -1665,13 +1684,21 @@ void point_update() {
 			act("$n, пуская слюни, забил$u в судорогах.", true, i, nullptr, nullptr, kToRoom | kToArenaListen);
 			i->points.hit += 2;
 		}
+		prof.restart();
 		update_pos(i);
+		t_pos += prof.delta().count();
+		prof.restart();
 		if (!i->IsNpc()
 			&& GetRealLevel(i) < idle_max_level
 			&& !i->IsFlagged(EPrf::kCoderinfo)) {
 			check_idling(i);
 		}
+		t_idle += prof.delta().count();
 	}
+
+	const double point_update_total = point_update_timer.delta().count();
+	log("Point updating (просмотрено %zu, обработано %zu, всего %.4f сек): условия=%.4f hp=%.4f мобы=%.4f move=%.4f update_pos=%.4f idle=%.4f",
+		scanned, profiled_chars, point_update_total, t_cond, t_hp, t_mob, t_move, t_pos, t_idle);
 }
 void ExtractRepopDecayObject(ObjData *obj) {
 	if (obj->get_worn_by()) {
