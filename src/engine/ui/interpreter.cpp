@@ -326,6 +326,10 @@ void DeletePcByHimself(const char *name);
 // external functions
 void read_saved_vars(CharData *ch);
 void oedit_parse(DescriptorData *d, char *arg);
+namespace vedun {  // issue.vedun-editor
+void do_vedun(CharData *ch, char *argument, int cmd, int subcmd);
+void vedun_parse(DescriptorData *d, char *arg);
+}
 void redit_parse(DescriptorData *d, char *arg);
 void zedit_parse(DescriptorData *d, char *arg);
 void medit_parse(DescriptorData *d, char *arg);
@@ -1007,6 +1011,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"use", EPosition::kSit, do_employ, 1, SCMD_USE, 500},
 		{"users", EPosition::kDead, do_users, kLvlImmortal, 0, 0},
 		{"value", EPosition::kStand, do_not_here, 0, 0, -1},
+		{"vedun", EPosition::kDead, vedun::do_vedun, kLvlImplementator, 0, 0},
 		{"version", EPosition::kDead, DoGenericPage, 0, kScmdVersion, 0},
 		{"visible", EPosition::kRest, do_visible, 1, 0, -1},
 		{"vnum", EPosition::kDead, DoTabulate, kLvlGreatGod, 0, 0},
@@ -2421,6 +2426,9 @@ void nanny(DescriptorData *d, char *argument) {
 			break;
 
 		case EConState::kMredit: mredit_parse(d, argument);
+			break;
+
+		case EConState::kVedun: vedun::vedun_parse(d, argument);
 			break;
 
 		case EConState::kClanedit: d->clan_olc->clan->Manage(d, argument);

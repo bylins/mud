@@ -9,6 +9,7 @@
 #include "engine/entities/char_data.h"
 #include "engine/network/descriptor_data.h"
 #include "engine/core/handler.h"
+#include "engine/core/target_resolver.h"
 
 void do_page(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	DescriptorData *d;
@@ -36,7 +37,8 @@ void do_page(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 			return;
 		}
-		if ((vict = get_char_vis(ch, arg, EFind::kCharInWorld)) != nullptr) {
+		vict = target_resolver::FindCharInWorld(ch, arg);
+		if ((vict != nullptr)) {
 			act(buffer.str().c_str(), false, ch, nullptr, vict, kToVict);
 			if (ch->IsFlagged(EPrf::kNoRepeat))
 				SendMsgToChar(OK, ch);

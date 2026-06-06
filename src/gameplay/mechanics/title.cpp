@@ -6,6 +6,7 @@
 #include "engine/entities/char_player.h"
 #include "gameplay/fight/pk.h"
 #include "engine/core/handler.h"
+#include "engine/core/target_resolver.h"
 #include "administration/privilege.h"
 #include "engine/ui/color.h"
 
@@ -83,7 +84,7 @@ void TitleSystem::do_title(CharData *ch, char *argument, int/* cmd*/, int/* subc
 		utils::Trim(buffer);
 		if (CompareParam(buffer, "удалить")) {
 			utils::Trim(buffer2);
-			CharData *vict = get_player_pun(ch, buffer2, EFind::kCharInWorld);
+			CharData *vict = target_resolver::FindPlayer(ch, buffer2);
 			if (!vict) {
 				SendMsgToChar("Нет такого игрока.\r\n", ch);
 				return;

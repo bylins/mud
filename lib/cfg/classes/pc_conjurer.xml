@@ -1,9 +1,5 @@
 <?xml version="1.0" encoding="koi8-r"?>
 <class id="kConjurer">
-    <name abbr="Кл">
-        <singular nom="колдун" gen="колдуна" dat="колдуну" acc="колдуна" ins="колдуном" pre="колдуне"/>
-        <plural nom="колдуны" gen="колдунов" dat="колдунам" acc="колдунов" ins="колдунами" pre="колдунах"/>
-    </name>
     <stats>
         <base_stats>
             <stat id="kStr"	gen_min="10"	gen_max="14"	auto="12"	cap="50"/>

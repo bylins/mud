@@ -5,6 +5,7 @@
  */
 
 #include "craft.h"
+#include "gameplay/mechanics/magic_item.h"
 
 #include "engine/db/obj_prototypes.h"
 #include "craft_logger.h"

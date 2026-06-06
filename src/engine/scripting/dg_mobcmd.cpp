@@ -28,6 +28,7 @@
 #include "gameplay/fight/fight.h"
 #include "gameplay/fight/fight_hit.h"
 #include "engine/core/handler.h"
+#include "engine/core/target_resolver.h"
 #include "engine/db/obj_prototypes.h"
 #include "gameplay/magic/magic_utils.h"
 #include "gameplay/skills/townportal.h"
@@ -175,7 +176,7 @@ void do_mkill(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger
 			mob_log(ch, trig, buf);
 			return;
 		}
-	} else if (!(victim = get_char_room_vis(ch, arg))) {
+	} else if (!(victim = target_resolver::FindCharInRoomOrSelf(ch, arg))) {
 		sprintf(buf, "mkill: victim (%s) not found, , команда: %s", arg, argument);
 		mob_log(ch, trig, buf);
 		return;
@@ -245,7 +246,7 @@ void do_mechoaround(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, T
 			mob_log(ch, trig, buf, LGH);
 			return;
 		}
-	} else if (!(victim = get_char_room_vis(ch, arg))) {
+	} else if (!(victim = target_resolver::FindCharInRoomOrSelf(ch, arg))) {
 		sprintf(buf, "mechoaround: victim (%s) does not exist, команда: %s", arg, argument);
 		mob_log(ch, trig, buf, LGH);
 		return;
@@ -282,7 +283,7 @@ void do_msend(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger
 //			mob_log(ch, buf, LGH);
 			return;
 		}
-	} else if (!(victim = get_char_room_vis(ch, arg))) {
+	} else if (!(victim = target_resolver::FindCharInRoomOrSelf(ch, arg))) {
 		sprintf(buf, "msend: victim (%s) does not exist, команда: %s", arg, argument);
 		mob_log(ch, trig, buf, LGH);
 		return;
@@ -404,7 +405,7 @@ void do_mpurge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigge
 	if (*arg == UID_CHAR)
 		victim = get_char(arg);
 	else
-		victim = get_char_room_vis(ch, arg);
+		victim = target_resolver::FindCharInRoomOrSelf(ch, arg);
 
 	if (victim == nullptr) {
 		if ((obj = get_obj_by_char(ch, arg))) {
@@ -587,7 +588,7 @@ void do_mteleport(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 				mob_log(ch, trig, buf);
 				return;
 			}
-		} else if (!(vict = get_char_vis(ch, arg1, EFind::kCharInWorld))) {
+		} else if (!(vict = target_resolver::FindCharInWorld(ch, arg1))) {
 			sprintf(buf, "mteleport: victim (%s) does not exist", arg1);
 			mob_log(ch, trig, buf);
 			return;
@@ -662,7 +663,7 @@ void do_mforce(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigge
 			mob_log(ch, trig, buf);
 			return;
 		}
-	} else if ((victim = get_char_room_vis(ch, arg)) == nullptr) {
+	} else if ((victim = target_resolver::FindCharInRoomOrSelf(ch, arg)) == nullptr) {
 		mob_log(ch, trig, "mforce: no such victim");
 		return;
 	}
@@ -718,7 +719,7 @@ void do_mexp(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger 
 			mob_log(ch, trig, buf);
 			return;
 		}
-	} else if (!(victim = get_char_vis(ch, name, EFind::kCharInWorld))) {
+	} else if (!(victim = target_resolver::FindCharInWorld(ch, name))) {
 		sprintf(buf, "mexp: victim (%s) does not exist", name);
 		mob_log(ch, trig, buf);
 		return;
@@ -751,7 +752,7 @@ void do_mgold(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Trigger
 			mob_log(ch, trig, buf);
 			return;
 		}
-	} else if (!(victim = get_char_vis(ch, name, EFind::kCharInWorld))) {
+	} else if (!(victim = target_resolver::FindCharInWorld(ch, name))) {
 		sprintf(buf, "mgold: victim (%s) does not exist", name);
 		mob_log(ch, trig, buf);
 		return;
@@ -1043,7 +1044,7 @@ void do_mfeatturn(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 			mob_log(ch, trig, buf);
 			return;
 		}
-	} else if (!(victim = get_char_vis(ch, name, EFind::kCharInWorld))) {
+	} else if (!(victim = target_resolver::FindCharInWorld(ch, name))) {
 		sprintf(buf, "mfeatturn: victim (%s) does not exist", name);
 		mob_log(ch, trig, buf);
 		return;
@@ -1095,7 +1096,7 @@ void do_mskillturn(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 			mob_log(ch, trig, buf);
 			return;
 		}
-	} else if (!(victim = get_char_vis(ch, name, EFind::kCharInWorld))) {
+	} else if (!(victim = target_resolver::FindCharInWorld(ch, name))) {
 		sprintf(buf, "mskillturn: victim (%s) does not exist", name);
 		mob_log(ch, trig, buf);
 		return;
@@ -1147,7 +1148,7 @@ void do_mskilladd(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 			mob_log(ch, trig, buf);
 			return;
 		}
-	} else if (!(victim = get_char_vis(ch, name, EFind::kCharInWorld))) {
+	} else if (!(victim = target_resolver::FindCharInWorld(ch, name))) {
 		sprintf(buf, "mskilladd: victim (%s) does not exist", name);
 		mob_log(ch, trig, buf);
 		return;
@@ -1201,7 +1202,7 @@ void do_mspellturn(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 			mob_log(ch, trig, buf);
 			return;
 		}
-	} else if (!(victim = get_char_vis(ch, name, EFind::kCharInWorld))) {
+	} else if (!(victim = target_resolver::FindCharInWorld(ch, name))) {
 		sprintf(buf, "mspellturn: victim (%s) does not exist", name);
 		mob_log(ch, trig, buf);
 		return;
@@ -1245,7 +1246,7 @@ void do_mspellturntemp(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/
 			mob_log(ch, trig, buf);
 			return;
 		}
-	} else if (!(victim = get_char_vis(ch, name, EFind::kCharInWorld))) {
+	} else if (!(victim = target_resolver::FindCharInWorld(ch, name))) {
 		sprintf(buf, "mspellturntemp: victim (%s) does not exist", name);
 		mob_log(ch, trig, buf);
 		return;
@@ -1279,7 +1280,7 @@ void do_mspelladd(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 			mob_log(ch, trig, buf);
 			return;
 		}
-	} else if (!(victim = get_char_vis(ch, name, EFind::kCharInWorld))) {
+	} else if (!(victim = target_resolver::FindCharInWorld(ch, name))) {
 		sprintf(buf, "mspelladd: victim (%s) does not exist", name);
 		mob_log(ch, trig, buf);
 		return;
@@ -1341,7 +1342,7 @@ void do_mspellitem(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tr
 			mob_log(ch, trig, buf);
 			return;
 		}
-	} else if (!(victim = get_char_vis(ch, name, EFind::kCharInWorld))) {
+	} else if (!(victim = target_resolver::FindCharInWorld(ch, name))) {
 		sprintf(buf, "mspellitem: victim (%s) does not exist", name);
 		mob_log(ch, trig, buf);
 		return;

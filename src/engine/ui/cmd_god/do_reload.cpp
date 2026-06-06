@@ -3,6 +3,7 @@
 //
 
 #include "administration/ban.h"
+#include <map>
 #include "engine/entities/char_data.h"
 #include "gameplay/clans/house.h"
 #include "engine/db/db.h"
@@ -44,6 +45,24 @@ extern char *greetings;
 void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	argument = one_argument(argument, arg);
 
+	// issue.thing-names: list the available reload targets when called with no argument. Option names
+	// avoid '_' on purpose -- the client renders '_' as a space, which is ambiguous (is "spell
+	// messages" one option or two?), so e.g. spellmsg / skillmsg / hitmsg / mobclasses.
+	if (!*arg) {
+		SendMsgToChar(
+			"Usage: reload <what>. Available targets:\r\n"
+			"  all  *  -- everything below\r\n"
+			"  cfg data : abilities skills spells feats classes mobclasses guilds currencies\r\n"
+			"             ztypes runes mobraces objsets\r\n"
+			"  messages : spellmsg skillmsg hitmsg\r\n"
+			"  systems  : portals imagic oloadtable setstuff specials schedule clan proxy boards\r\n"
+			"             globaldrop offtop shop named celebrates setsdrop remort daily resetstats\r\n"
+			"  text     : immlist credits motd rules help info policy handbook background namerules\r\n"
+			"             greetings xhelp socials noobhelp titles emails privilege\r\n"
+			"  depot <char-name>\r\n", ch);
+		return;
+	}
+
 	if (!str_cmp(arg, "all") || *arg == '*') {
 		if (AllocateBufferForFile(GREETINGS_FILE, &greetings) == 0) {
 			PruneCrlf(greetings);
@@ -60,13 +79,14 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		AllocateBufferForFile(NAME_RULES_FILE, &name_rules);
 		GoBootSocials();
 		initIngredientsMagic();
-		InitZoneTypes();
+		MUD::CfgManager().ReloadCfg("zone_types");
+		MUD::CfgManager().ReloadCfg("rune_spells");
 		ReloadSpecProcs();
 		MUD::Runestones().LoadRunestones();
 		LoadSheduledReboot();
 		oload_table.init();
 		ObjData::InitSetTable();
-		mob_races::LoadMobraces();
+		MUD::CfgManager().ReloadCfg("mob_races");
 		GlobalDrop::init();
 		offtop_system::Init();
 		celebrates::Load();
@@ -84,17 +104,17 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		MUD::CfgManager().ReloadCfg("skills");
 	} else if (!str_cmp(arg, "spells")) {
 		MUD::CfgManager().ReloadCfg("spells");
-	} else if (!str_cmp(arg, "spell_messages")) {
+	} else if (!str_cmp(arg, "spellmsg")) {
 		MUD::CfgManager().ReloadCfg("spell_messages");
-	} else if (!str_cmp(arg, "skill_messages")) {
+	} else if (!str_cmp(arg, "skillmsg")) {
 		MUD::CfgManager().ReloadCfg("skill_messages");
-    } else if (!str_cmp(arg, "fight_messages")) {
+    } else if (!str_cmp(arg, "hitmsg")) {
         MUD::CfgManager().ReloadCfg("fight_messages");
 	} else if (!str_cmp(arg, "feats")) {
 		MUD::CfgManager().ReloadCfg("feats");
 	} else if (!str_cmp(arg, "classes")) {
 		MUD::CfgManager().ReloadCfg("classes");
-	} else if (!str_cmp(arg, "mob_classes")) {
+	} else if (!str_cmp(arg, "mobclasses")) {
 		MUD::CfgManager().ReloadCfg("mob_classes");
 	} else if (!str_cmp(arg, "guilds")) {
 		MUD::CfgManager().ReloadCfg("guilds");
@@ -103,7 +123,9 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	} else if (!str_cmp(arg, "imagic"))
 		initIngredientsMagic();
 	else if (!str_cmp(arg, "ztypes"))
-		InitZoneTypes();
+		MUD::CfgManager().ReloadCfg("zone_types");
+	else if (!str_cmp(arg, "runes"))
+		MUD::CfgManager().ReloadCfg("rune_spells");
 	else if (!str_cmp(arg, "oloadtable"))
 		oload_table.init();
 	else if (!str_cmp(arg, "setstuff")) {
@@ -167,7 +189,7 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	else if (!str_cmp(arg, "privilege"))
 		privilege::Load();
 	else if (!str_cmp(arg, "mobraces"))
-		mob_races::LoadMobraces();
+		MUD::CfgManager().ReloadCfg("mob_races");
 	else if (!str_cmp(arg, "depot") && ch->IsFlagged(EPrf::kCoderinfo)) {
 		skip_spaces(&argument);
 		if (*argument) {
@@ -216,6 +238,16 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	std::string str = fmt::format("{} reload {}.", ch->get_name(), arg);
 	mudlog(str.c_str(), NRM, kLvlImmortal, SYSLOG, true);
 
+	// issue.thing-names: some containers cache data from another file at build time, so reloading the
+	// source string file alone is not enough -- remind the admin to reload the dependent file too.
+	// Add entries here as more such cross-file dependencies appear.
+	static const std::map<std::string, std::string> kReloadReminders{
+		{"spellmsg", "Reminder: spell names are cached when spells.xml is loaded. "
+		                   "Run 'reload spells' as well for the name changes to take effect."},
+	};
+	if (const auto it = kReloadReminders.find(arg); it != kReloadReminders.end()) {
+		SendMsgToChar(it->second + "\r\n", ch);
+	}
 	SendMsgToChar(OK, ch);
 }
 

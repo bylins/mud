@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="koi8-r"?>
 <!--
 Формат:
-    <currency text_id="kKuna" name="куны" vnum="0" mode="kEnabled">
-        <name gender="kFemale">
-            <singular nom="куна" gen="куны" dat="куне" acc="куну" ins="куной" pre="куне"/>
-            <plural nom="куны" gen="кун" dat="кунам" acc="куны" ins="кунами" pre="кунах"/>
-        </name>
+    <currency text_id="kKuna" vnum="0" mode="kEnabled">
         <permits give="1" obj="1" bank="1" transfer="1" transfer_other="1" transfer_tax="5" drop="100" clan_tax="25"/>
         <flags account_shared="N"  locked="Y"/>
     </currency>
+
+  Имя (строка для поиска + склонения по падежам) теперь хранится отдельно, в
+  messages/ru/currency_msg.xml (контейнер сообщений валют, грузится до currencies.xml),
+  по ключу text_id. Падежи задаются в новом формате <case id="kNom" val="..."/>.
 
 text_id="id для указаня в других конфигах" name="имя для поиска по имени" vnum="виртуальный номер" mode="режим"
 gender - Грамматиеский род, Имена в единственном и множественном числе для всех падежей.
@@ -27,43 +27,23 @@ flags - флаги
 
 -->
 <currencies>
-    <currency text_id="kKuna" name="куны" vnum="0" mode="kEnabled">
-        <name gender="kFemale">
-            <singular nom="куна" gen="куны" dat="куне" acc="куну" ins="куной" pre="куне"/>
-            <plural nom="куны" gen="кун" dat="кунам" acc="куны" ins="кунами" pre="кунах"/>
-        </name>
+    <currency text_id="kKuna" vnum="0" mode="kEnabled">
         <permits give="1" obj="1" bank="1" transfer="1" transfer_other="1" transfer_tax="5" drop="100" clan_tax="25"/>
         <flags account_shared="N"  locked="Y"/>
     </currency>
-    <currency text_id="kGlory" name="слава" vnum="1" mode="kEnabled">
-        <name gender="kNeutral">
-            <singular nom="очко славы" gen="очка славы" dat="очку славы" acc="очко славы" ins="очком славы" pre="очке славы"/>
-            <plural nom="очки славы" gen="очков славы" dat="очкам славы" acc="очки славы" ins="очками славы" pre="очках славы"/>
-        </name>
+    <currency text_id="kGlory" vnum="1" mode="kEnabled">
         <permits give="0" obj="0" bank="0" transfer="0" transfer_other="0" transfer_tax="5" drop="100" clan_tax="25"/>
         <flags account_shared="Y"  locked="Y"/>
     </currency>
-    <currency text_id="kGrivna" name="гривны" vnum="2" mode="kEnabled">
-        <name gender="kFemale">
-            <singular nom="гривна" gen="гривны" dat="гривне" acc="гривну" ins="гривно" pre="гривне"/>
-            <plural nom="гривны" gen="гривен" dat="гривнам" acc="гривны" ins="гривнами" pre="гривнах"/>
-        </name>
+    <currency text_id="kGrivna" vnum="2" mode="kEnabled">
         <permits give="0" obj="0" bank="0" transfer="0" transfer_other="0" transfer_tax="5" drop="100" clan_tax="25"/>
         <flags account_shared="N"  locked="N"/>
     </currency>
-    <currency text_id="kMagicIce" name="волшебный лед" vnum="3" mode="kEnabled">
-        <name gender="kMale">
-            <singular nom="осколок волшебного льда" gen="осколка волшебного льда" dat="осколку волшебного льда" acc="осколок волшебного льда" ins="осколком волшебного льда" pre="осколком волшебного льда"/>
-            <plural nom="осколки волшебного льда" gen="осколков волшебного льда" dat="осколкам волшебного льда" acc="осколки волшебного льда" ins="осколками волшебного льда" pre="осколками волшебного льда"/>
-        </name>
+    <currency text_id="kMagicIce" vnum="3" mode="kEnabled">
         <permits give="0" obj="0" bank="0" transfer="0" transfer_other="0" transfer_tax="5" drop="100" clan_tax="25"/>
         <flags account_shared="N"  locked="N"/>
     </currency>
-    <currency text_id="kNogata" name="ногата" vnum="4" mode="kEnabled">
-        <name gender="kFemale">
-            <singular nom="ногата" gen="ногаты" dat="ногате" acc="ногату" ins="ногатой" pre="ногате"/>
-            <plural nom="ногаты" gen="ногат" dat="ногатам" acc="ногаты" ins="ногатами" pre="ногатах"/>
-        </name>
+    <currency text_id="kNogata" vnum="4" mode="kEnabled">
         <permits give="0" obj="0" bank="0" transfer="0" transfer_other="0" transfer_tax="5" drop="100" clan_tax="25"/>
         <flags account_shared="N"  locked="N"/>
     </currency>

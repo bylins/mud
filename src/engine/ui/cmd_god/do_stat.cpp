@@ -1,9 +1,12 @@
 #include "do_stat.h"
+#include "gameplay/mechanics/magic_item.h"
+#include "gameplay/fight/fight_messages.h"
 
 #include "administration/ban.h"
 #include "engine/entities/char_player.h"
 #include "gameplay/mechanics/player_races.h"
 #include "engine/core/utils_char_obj.inl"
+#include "engine/core/target_resolver.h"
 #include "engine/db/description.h"
 #include "gameplay/fight/fight_hit.h"
 #include "engine/olc/olc.h"
@@ -388,7 +391,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt) {
 				smallBuf, (k->GetEnemy() ? GET_NAME(k->GetEnemy()) : "Нет"), (IsEquipInMetall(k) ? "Да" : "Нет"));
 		if (k->IsNpc()) {
 			sline += ", Тип атаки: ";
-			sline += attack_hit_text[k->mob_specials.attack_type].singular;
+			sline += fight::GetAttackTypeDescription(k->mob_specials.attack_type);
 		}
 		if (k->desc) {
 			sline += ", Соединение: ";
@@ -597,9 +600,9 @@ void do_stat_character(CharData *ch, CharData *k, const int virt) {
 			if (has_modifier) {
 				sline += fmt::sprintf("%+d to %s", aff->modifier, apply_types[(int) aff->location]);
 			}
-			if (aff->bitvector) {
+			if (aff->affect_type != EAffect::kUndefinded) {
 				sline += has_modifier ? ", sets " : "sets ";
-				sprintbit(aff->bitvector, affected_bits, buf2, sizeof(buf2));
+				sprintbit(to_underlying(aff->affect_type), affected_bits, buf2, sizeof(buf2));
 				sline += buf2;
 			}
 			sline += "\r\n";
@@ -1263,7 +1266,8 @@ void do_stat(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 			if (!*buf2)
 				SendMsgToChar("Состояние какого создания?\r\n", ch);
 			else {
-				if ((victim = get_char_vis(ch, buf2, EFind::kCharInWorld)) != nullptr)
+				victim = target_resolver::FindCharInWorld(ch, buf2);
+				if ((victim != nullptr))
 					do_stat_character(ch, victim, 0);
 				else
 					SendMsgToChar("Нет такого создания в этом МАДе.\r\n", ch);
@@ -1274,7 +1278,7 @@ void do_stat(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 			if (!*buf2) {
 				SendMsgToChar("Состояние какого игрока?\r\n", ch);
 			} else {
-				if ((victim = get_player_vis(ch, buf2, EFind::kCharInWorld)) != nullptr)
+				if ((victim = target_resolver::FindPlayerVis(ch, buf2)) != nullptr)
 					do_stat_character(ch, victim);
 				else
 					SendMsgToChar("Этого персонажа сейчас нет в игре.\r\n", ch);
@@ -1285,7 +1289,7 @@ void do_stat(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 			if (!*buf2) {
 				SendMsgToChar("Состояние ip какого игрока?\r\n", ch);
 			} else {
-				if ((victim = get_player_vis(ch, buf2, EFind::kCharInWorld)) != nullptr) {
+				if ((victim = target_resolver::FindPlayerVis(ch, buf2)) != nullptr) {
 					do_statip(ch, victim);
 					return;
 				} else {
@@ -1304,7 +1308,7 @@ void do_stat(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 			if (!*buf2) {
 				SendMsgToChar("Карму какого игрока?\r\n", ch);
 			} else {
-				if ((victim = get_player_vis(ch, buf2, EFind::kCharInWorld)) != nullptr) {
+				if ((victim = target_resolver::FindPlayerVis(ch, buf2)) != nullptr) {
 					DoStatKarma(ch, victim);
 					return;
 				} else {
@@ -1341,7 +1345,7 @@ void do_stat(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 			if (!*buf2)
 				SendMsgToChar("Состояние какого предмета?\r\n", ch);
 			else {
-				if ((object = get_obj_vis(ch, buf2)) != nullptr)
+				if ((object = target_resolver::FindObjAround(ch, buf2)) != nullptr)
 					do_stat_object(ch, object);
 				else
 					SendMsgToChar("Нет такого предмета в игре.\r\n", ch);
@@ -1358,7 +1362,8 @@ void do_stat(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 			do_stat_object(ch, object);
 			return;
 		}
-		if ((victim = get_char_vis(ch, buf1, EFind::kCharInRoom)) != nullptr) {
+		victim = target_resolver::FindCharInRoom(ch, buf1);
+		if ((victim != nullptr)) {
 			do_stat_character(ch, victim);
 			return;
 		}
@@ -1366,11 +1371,15 @@ void do_stat(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 			do_stat_object(ch, object);
 			return;
 		}
-		if ((victim = get_char_vis(ch, buf1, EFind::kCharInWorld)) != nullptr) {
+		victim = target_resolver::FindCharInWorld(ch, buf1);
+		if ((victim != nullptr)) {
 			do_stat_character(ch, victim);
 			return;
 		}
-		if ((object = get_obj_vis(ch, buf1)) != nullptr) {
+		{
+			object = target_resolver::FindObjAround(ch, buf1);
+		}
+		if (object != nullptr) {
 			do_stat_object(ch, object);
 			return;
 		}
@@ -1384,7 +1393,8 @@ void do_stat(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 			do_stat_object(ch, object);
 			return;
 		}
-		if ((victim = get_char_vis(ch, buf1, EFind::kCharInRoom)) != nullptr) {
+		victim = target_resolver::FindCharInRoom(ch, buf1);
+		if ((victim != nullptr)) {
 			do_stat_character(ch, victim);
 			return;
 		}

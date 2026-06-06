@@ -1,9 +1,5 @@
 <?xml version="1.0" encoding="koi8-r"?>
 <class id="kMagus">
-    <name abbr="Вх">
-        <singular nom="волхв" gen="волхва" dat="волхву" acc="волхва" ins="волхвом" pre="волхве"/>
-        <plural nom="волхвы" gen="волхвов" dat="волхвам" acc="волхвов" ins="волхвами" pre="волхвах"/>
-    </name>
     <stats>
         <base_stats>
             <stat id="kStr"	gen_min="15"	gen_max="18"	auto="16"	cap="50" />

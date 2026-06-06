@@ -11,6 +11,7 @@
 #include "engine/db/world_characters.h"
 #include "gameplay/clans/house.h"
 #include "engine/core/handler.h"
+#include "engine/core/target_resolver.h"
 
 void DoSwitch(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	one_argument(argument, arg);
@@ -20,7 +21,8 @@ void DoSwitch(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	} else if (!*arg) {
 		SendMsgToChar("Стать кем?\r\n", ch);
 	} else {
-		const auto visible_character = get_char_vis(ch, arg, EFind::kCharInWorld);
+		CharData *visible_character = nullptr;
+		visible_character = target_resolver::FindCharInWorld(ch, arg);
 		if (!visible_character) {
 			SendMsgToChar("Нет такого создания.\r\n", ch);
 		} else if (ch == visible_character) {

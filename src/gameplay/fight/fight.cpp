@@ -235,7 +235,7 @@ void SetFighting(CharData *ch, CharData *vict) {
 //		div_t tmp = div(static_cast<const int>(ch->get_wait()), static_cast<const int>(kBattleRound));
 		auto tmp = div(ch->get_wait(), kBattleRound);
 		if (tmp.rem > 0) {
-			SetWaitState(ch, (tmp.quot + 1) * kBattleRound);
+			SetBattleLag(ch, (tmp.quot + 1));
 		}
 	}
 	if (!ch->IsNpc() && (!ch->GetSkill(ESkill::kAwake))) {
@@ -436,7 +436,7 @@ CharData *find_friend_cure(CharData *caster, ESpell spell_id) {
 	}
 
 	if ((AFF_FLAGGED(caster, EAffect::kCharmed) || caster->IsFlagged(EMobFlag::kTutelar)
-		|| caster->IsFlagged(EMobFlag::kMentalShadow) || caster->IsFlagged(EMobFlag::kSummoned)) // ()
+		|| caster->IsFlagged(EMobFlag::kMentalShadow) || caster->IsFlagged(EMobFlag::kCompanion)) // ()
 		&& AFF_FLAGGED(caster, EAffect::kHelper)) {
 		if (get_hp_perc(caster) < AFF_USED) {
 			return caster;
@@ -453,7 +453,7 @@ CharData *find_friend_cure(CharData *caster, ESpell spell_id) {
 	for (const auto vict : world[caster->in_room]->people) {
 		if (!vict->IsNpc()
 			|| AFF_FLAGGED(vict, EAffect::kCharmed)
-			|| ((vict->IsFlagged(EMobFlag::kTutelar) || vict->IsFlagged(EMobFlag::kMentalShadow) || vict->IsFlagged(EMobFlag::kSummoned)) // ()
+			|| ((vict->IsFlagged(EMobFlag::kTutelar) || vict->IsFlagged(EMobFlag::kMentalShadow) || vict->IsFlagged(EMobFlag::kCompanion)) // ()
 				&& vict->has_master()
 				&& !vict->get_master()->IsNpc())
 			|| !CAN_SEE(caster, vict)) {
@@ -502,7 +502,7 @@ CharData *find_friend(CharData *caster, ESpell spell_id) {
 	}
 	if (AFF_FLAGGED(caster, EAffect::kHelper)
 		&& (AFF_FLAGGED(caster, EAffect::kCharmed)
-			|| caster->IsFlagged(EMobFlag::kTutelar) || caster->IsFlagged(EMobFlag::kMentalShadow) || caster->IsFlagged(EMobFlag::kSummoned))) { //()
+			|| caster->IsFlagged(EMobFlag::kTutelar) || caster->IsFlagged(EMobFlag::kMentalShadow) || caster->IsFlagged(EMobFlag::kCompanion))) { //()
 		if (caster->has_any_affect(AFF_USED)
 			|| IsAffectedBySpell(caster, spellreal)) {
 			return caster;
@@ -522,7 +522,7 @@ CharData *find_friend(CharData *caster, ESpell spell_id) {
 			if (!vict->IsNpc() || AFF_FLAGGED(vict, EAffect::kCharmed) ||
 				((vict->IsFlagged(EMobFlag::kTutelar) ||
 				vict->IsFlagged(EMobFlag::kMentalShadow) ||
-				vict->IsFlagged(EMobFlag::kSummoned)) // ()
+				vict->IsFlagged(EMobFlag::kCompanion)) // ()
 					&& vict->get_master()
 					&& !vict->get_master()->IsNpc())
 				|| !CAN_SEE(caster, vict)) {
@@ -580,7 +580,7 @@ CharData *find_caster(CharData *caster, ESpell spell_id) {
 
 	if (AFF_FLAGGED(caster, EAffect::kHelper)
 		&& (AFF_FLAGGED(caster, EAffect::kCharmed)
-			|| caster->IsFlagged(EMobFlag::kTutelar) || caster->IsFlagged(EMobFlag::kMentalShadow) || caster->IsFlagged(EMobFlag::kSummoned))) { // ()
+			|| caster->IsFlagged(EMobFlag::kTutelar) || caster->IsFlagged(EMobFlag::kMentalShadow) || caster->IsFlagged(EMobFlag::kCompanion))) { // ()
 		if (caster->has_any_affect(AFF_USED)
 			|| IsAffectedBySpell(caster, spellreal)) {
 			return caster;
@@ -599,7 +599,7 @@ CharData *find_caster(CharData *caster, ESpell spell_id) {
 		for (const auto vict : world[caster->in_room]->people) {
 			if (!vict->IsNpc()
 				|| AFF_FLAGGED(vict, EAffect::kCharmed)
-				|| ((vict->IsFlagged(EMobFlag::kTutelar) || vict->IsFlagged(EMobFlag::kMentalShadow) || vict->IsFlagged(EMobFlag::kSummoned)) // ()
+				|| ((vict->IsFlagged(EMobFlag::kTutelar) || vict->IsFlagged(EMobFlag::kMentalShadow) || vict->IsFlagged(EMobFlag::kCompanion)) // ()
 					&& (vict->get_master() && !vict->get_master()->IsNpc()))
 				|| !CAN_SEE(caster, vict)) {
 				continue;
@@ -667,7 +667,7 @@ CharData *find_affectee(CharData *caster, ESpell spell_id) {
 		spellreal = ESpell::kDetectPoison;
 
 	if ((AFF_FLAGGED(caster, EAffect::kCharmed) || caster->IsFlagged(EMobFlag::kTutelar) ||
-		caster->IsFlagged(EMobFlag::kMentalShadow) || caster->IsFlagged(EMobFlag::kSummoned)) &&
+		caster->IsFlagged(EMobFlag::kMentalShadow) || caster->IsFlagged(EMobFlag::kCompanion)) &&
 		AFF_FLAGGED(caster, EAffect::kHelper)) {
 		if (!IsAffectedBySpell(caster, spellreal)) {
 			return caster;
@@ -685,7 +685,7 @@ CharData *find_affectee(CharData *caster, ESpell spell_id) {
 		for (const auto vict : world[caster->in_room]->people) {
 			if (!vict->IsNpc()
 				|| AFF_FLAGGED(vict, EAffect::kCharmed)
-				|| ((vict->IsFlagged(EMobFlag::kTutelar) || vict->IsFlagged(EMobFlag::kMentalShadow) || vict->IsFlagged(EMobFlag::kSummoned)) // ()
+				|| ((vict->IsFlagged(EMobFlag::kTutelar) || vict->IsFlagged(EMobFlag::kMentalShadow) || vict->IsFlagged(EMobFlag::kCompanion)) // ()
 					&& vict->has_master()
 					&& !vict->get_master()->IsNpc())
 				|| !CAN_SEE(caster, vict)) {
@@ -735,7 +735,7 @@ CharData *find_opp_affectee(CharData *caster, ESpell spell_id) {
 	if (GetRealInt(caster) > number(10, 20)) {
 		for (const auto vict : world[caster->in_room]->people) {
 			if ((vict->IsNpc()
-				&& !((vict->IsFlagged(EMobFlag::kTutelar) || vict->IsFlagged(EMobFlag::kMentalShadow) || vict->IsFlagged(EMobFlag::kSummoned) // ()
+				&& !((vict->IsFlagged(EMobFlag::kTutelar) || vict->IsFlagged(EMobFlag::kMentalShadow) || vict->IsFlagged(EMobFlag::kCompanion) // ()
 					|| AFF_FLAGGED(vict, EAffect::kCharmed))
 					&& vict->has_master()
 					&& !vict->get_master()->IsNpc()))
@@ -772,7 +772,7 @@ CharData *find_opp_caster(CharData *caster) {
 
 	for (const auto vict : world[caster->in_room]->people) {
 		if (vict->IsNpc()
-			&& !((vict->IsFlagged(EMobFlag::kTutelar) || vict->IsFlagged(EMobFlag::kMentalShadow) || vict->IsFlagged(EMobFlag::kSummoned)) //
+			&& !((vict->IsFlagged(EMobFlag::kTutelar) || vict->IsFlagged(EMobFlag::kMentalShadow) || vict->IsFlagged(EMobFlag::kCompanion)) //
 				&& vict->has_master()
 				&& !vict->get_master()->IsNpc())) {
 			continue;
@@ -948,7 +948,7 @@ CharData *find_minhp(CharData *caster) {
 	if (GetRealInt(caster) > number(10, 20)) {
 		for (const auto vict : world[caster->in_room]->people) {
 			if ((vict->IsNpc()
-				&& !((vict->IsFlagged(EMobFlag::kTutelar) || vict->IsFlagged(EMobFlag::kMentalShadow) || vict->IsFlagged(EMobFlag::kSummoned) // ()
+				&& !((vict->IsFlagged(EMobFlag::kTutelar) || vict->IsFlagged(EMobFlag::kMentalShadow) || vict->IsFlagged(EMobFlag::kCompanion) // ()
 					|| AFF_FLAGGED(vict, EAffect::kCharmed))
 					&& vict->has_master()
 					&& !vict->get_master()->IsNpc()))
@@ -1022,7 +1022,7 @@ void mob_casting(CharData *ch) {
 	item = ch->carrying;
 	while (spells < kMaxStringLength
 		&& item
-		&& GET_RACE(ch) == ENpcRace::kHuman
+		&& ch->IsFlagged(ENpcFlag::kUsingMagicItems)	// issue.npc-races: race grants magic-item use
 		&& !(ch->IsFlagged(EMobFlag::kTutelar) || ch->IsFlagged(EMobFlag::kMentalShadow))) {
 		switch (item->get_type()) {
 			case EObjType::kWand:
@@ -1193,7 +1193,7 @@ void summon_mob_helpers(CharData *ch) {
 				continue;
 			}
 			vict->SetFlag(EMobFlag::kHelper);
-			if (GET_RACE(ch) == ENpcRace::kHuman) {
+			if (IsAbleToSay(ch)) {	// issue.npc-races: any vocal race calls for help
 				act("$n воззвал$g : \"На помощь, мои верные соратники!\"",
 					false, ch, 0, 0, kToRoom | kToArenaListen);
 			}
@@ -1699,7 +1699,7 @@ void update_round_affs() {
 		if (it.ch->battle_affects.get(kEafBlock)) {
 			it.ch->battle_affects.unset(kEafBlock);
 			if (!it.ch->IsImmortal() && it.ch->get_wait() < kBattleRound)
-				SetWaitState(it.ch, 1 * kBattleRound);
+				SetBattleLag(it.ch, 1);
 		}
 
 		if (it.ch->battle_affects.get(kEafPoisoned)) {
@@ -1865,13 +1865,16 @@ void process_player_attack(CharData *ch, int min_init) {
 
 	//* каст заклинания
 	if (ch->GetCastSpell() != ESpell::kUndefined && ch->get_wait() <= 0 && !IS_SET(trigger_code, kNoCastMagic)) {
-		if (AFF_FLAGGED(ch, EAffect::kSilence)) {
-			SendMsgToChar("Вы не смогли вымолвить и слова.\r\n", ch);
+		const auto queued_spell = ch->GetCastSpell();
+		// Verbal-component gate (issue.spellcomponents): only verbal spells
+		// fizzle under kSilence. The queued non-verbal spell goes through.
+		if (MUD::Spell(queued_spell).IsVerbal() && AFF_FLAGGED(ch, EAffect::kSilence)) {
+			SendMsgToChar(MUD::SpellMessages().GetMessage(queued_spell, ESpellMsg::kCantCastSilenced) + "\r\n", ch);
 			ch->SetCast(ESpell::kUndefined, ESpell::kUndefined, 0, 0, 0);
 		} else {
-			CastSpell(ch, ch->GetCastChar(), ch->GetCastObj(), 0, ch->GetCastSpell(), ch->GetCastSubst());
+			CastSpell(ch, ch->GetCastChar(), ch->GetCastObj(), 0, queued_spell, ch->GetCastSubst());
 			if (!(ch->IsImmortal() || GET_GOD_FLAG(ch, EGf::kGodsLike) || ch->get_wait() > 0)) {
-				SetWaitState(ch, kBattleRound);
+				SetBattleLag(ch, 1);
 			}
 			ch->SetCast(ESpell::kUndefined, ESpell::kUndefined, 0, 0, 0);
 		}

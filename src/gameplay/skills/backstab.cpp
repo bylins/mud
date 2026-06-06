@@ -5,6 +5,7 @@
 #include "gameplay/fight/common.h"
 #include "gameplay/fight/fight_hit.h"
 #include "engine/core/handler.h"
+#include "engine/core/target_resolver.h"
 #include "protect.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/magic/magic_utils.h"
@@ -23,7 +24,8 @@ void DoBackstab(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	one_argument(argument, arg);
-	CharData *vict = get_char_vis(ch, arg, EFind::kCharInRoom);
+	CharData * vict = nullptr;
+	vict = target_resolver::FindCharInRoom(ch, arg);
 	if (!vict) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kBackstab, ESkillMsg::kNoTarget) + "\r\n", ch);
 		return;

@@ -9,6 +9,7 @@
 #include "gameplay/mechanics/depot.h"
 #include "engine/entities/char_data.h"
 #include "engine/core/handler.h"
+#include "engine/core/target_resolver.h"
 #include "gameplay/mechanics/liquid.h"
 #include "engine/olc/olc.h"
 #include "engine/entities/char_player.h"
@@ -169,7 +170,7 @@ void DoSet(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!is_file) {
 		if (is_player) {
 
-			if (!(vict = get_player_pun(ch, name, EFind::kCharInWorld))) {
+			if (!(vict = target_resolver::FindPlayer(ch, name))) {
 				SendMsgToChar("Нет такого игрока.\r\n", ch);
 				return;
 			}
@@ -188,7 +189,7 @@ void DoSet(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 		} else    // is_mob
 		{
-			if (!(vict = get_char_vis(ch, name, EFind::kCharInWorld))
+			if (!(vict = target_resolver::FindCharInWorld(ch, name))
 				|| !vict->IsNpc()) {
 				SendMsgToChar("Нет такой твари Божьей.\r\n", ch);
 				return;
@@ -196,7 +197,7 @@ void DoSet(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 	} else if (is_file)    // try to load the player off disk
 	{
-		if (get_player_pun(ch, name, EFind::kCharInWorld)) {
+		if (target_resolver::FindPlayer(ch, name)) {
 			SendMsgToChar("Да разуй же глаза! Оно в сети!\r\n", ch);
 			return;
 		}

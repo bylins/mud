@@ -136,7 +136,7 @@ void do_insertgem(CharData *ch, char *argument, int/* cmd*/, int /*subcmd*/) {
 	percent = number(1, MUD::Skill(ESkill::kJewelry).difficulty);
 	prob = ch->GetSkill(ESkill::kJewelry);
 
-	SetWaitState(ch, kBattleRound);
+	SetBattleLag(ch, 1);
 
 	for (int i = 0; i < kMaxObjAffect; i++) {
 		if (itemobj->get_affected(i).location == EApply::kNone) {

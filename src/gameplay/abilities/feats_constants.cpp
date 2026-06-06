@@ -1,7 +1,7 @@
 #include "feats_constants.h"
 #include "utils/utils.h"
 
-//#include <map>
+#include <map>
 
 typedef std::unordered_map<EFeat, std::string> EFeat_name_by_value_t;
 typedef std::unordered_map<std::string, EFeat> EFeat_value_by_name_t;
@@ -168,6 +168,10 @@ void init_EFeat_ITEM_NAMES() {
 	for (const auto &i : EFeat_name_by_value) {
 		EFeat_value_by_name[i.second] = i.first;
 	}
+
+	// issue.thing-names: "kDefault" is an alias for kUndefined -- the default sheaf id in
+	// feat_msg.xml. kUndefined keeps its canonical name "kUndefined" for NAME_BY_ITEM.
+	EFeat_value_by_name["kDefault"] = EFeat::kUndefined;
 }
 
 template<>
@@ -184,6 +188,19 @@ EFeat ITEM_BY_NAME<EFeat>(const std::string &name) {
 		init_EFeat_ITEM_NAMES();
 	}
 	return EFeat_value_by_name.at(name);
+}
+
+template<>
+const std::map<EFeat, std::string> &NAMES_OF<EFeat>() {
+	// issue.thing-names: ordered view of the feat token map for the Vedun enum registry.
+	static std::map<EFeat, std::string> names;
+	if (names.empty()) {
+		if (EFeat_name_by_value.empty()) {
+			init_EFeat_ITEM_NAMES();
+		}
+		names.insert(EFeat_name_by_value.begin(), EFeat_name_by_value.end());
+	}
+	return names;
 }
 
 EFeat& operator++(EFeat &f) {

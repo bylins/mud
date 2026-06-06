@@ -13,6 +13,7 @@
 #include "engine/entities/entities_constants.h"
 #include "utils/random.h"
 #include "engine/core/handler.h"
+#include "engine/db/world_objects.h"
 #include "gameplay/core/constants.h"
 
 void DamageEquipment(CharData *ch, int pos, int dam, int chance) {
@@ -80,7 +81,9 @@ void DamageObj(ObjData *obj, int dam, int chance) {
 						 char_get_custom_label(obj, obj->get_carried_by()).c_str());
 				act(buf, false, obj->get_carried_by(), obj, nullptr, kToChar);
 			}
-			ExtractObjFromWorld(obj);
+			// issue.obj-casting: deferred extraction (freed at heartbeat end) so a live ctx.ovict
+			// (acid corrode etc.) is left flagged purged() rather than dangling.
+			world_objects.AddToExtractedList(obj);
 		}
 	}
 }

@@ -1,0 +1,332 @@
+<!--
+  issue.vedun-editor: editor scheme for spells.xml. OPTIONAL sidecar - it describes field types,
+  bounds, and help so the Vedun editor can show enum pick-lists, ranges, and descriptions instead of
+  bare strings. It is intentionally INCOMPLETE: any tag/attribute not declared here degrades to a
+  plain string field in the editor (and is still validated on save by the spell loader). Grow it as
+  needed; this is also the right home for the per-field documentation that used to rot in XML
+  header comments.
+
+  enum/flagset attributes name an enum resolved at runtime via vedun::EnumRegistry; enums not yet
+  registered there still display their type but skip the value-validity check.
+-->
+<scheme>
+	<prohibited>
+		<element id="kUndefined"/>
+	</prohibited>
+
+	<tag name="spell" desc="A spell definition">
+		<attr name="id" type="enum" enum="ESpell" readonly="Y" desc="Spell identifier (immutable)"/>
+		<attr name="element" type="enum" enum="EElement" desc="Magic element"/>
+		<attr name="mode" type="enum" enum="EItemMode" desc="kEnabled / kDisabled / kTesting"/>
+		<child tag="name"/>
+		<child tag="misc"/>
+		<child tag="mana"/>
+		<child tag="targets"/>
+		<child tag="flags"/>
+		<child tag="components"/>
+		<child tag="potency_roll"/>
+		<child tag="success_roll"/>
+		<child tag="talent_actions"/>
+		<child tag="caster_conditions"/>
+	</tag>
+
+	<!-- issue.thing-names: the Russian display name moved to spell_msg.xml (<name val=...>); only the
+	     English admin label remains here. -->
+	<tag name="name" desc="Spell admin label (English); display name lives in spell_msg.xml">
+		<attr name="val" type="string" desc="English name (admin label)"/>
+	</tag>
+
+	<tag name="misc" desc="Position / violence / PK danger">
+		<attr name="pos" type="enum" enum="EPosition" desc="Minimum caster position"/>
+		<attr name="violent" type="enum" enum="EViolent" desc="Violent spell? Y / N / A(mbiguous)"/>
+		<attr name="danger" type="int" min="0" desc="PK danger class"/>
+	</tag>
+
+	<tag name="mana" desc="Mana cost">
+		<attr name="max" type="int" min="0" desc="Max mana cost"/>
+		<attr name="min" type="int" min="0" desc="Min mana cost"/>
+		<attr name="change" type="int" desc="Cost reduction per skill"/>
+	</tag>
+
+	<!-- Two shapes: the spell-level selector (val=ETarget) and the points/area tuning block
+	     (skill_divisor/dice_size/min/max/stat_weight). One def carries both; only present attrs show. -->
+	<tag name="targets" desc="Targets: selector (val) or points/area count tuning">
+		<attr name="val" type="flagset" enum="ETarget" desc="ETarget flag set (spell-level selector)"/>
+		<attr name="skill_divisor" type="int" min="1" desc="Skill points per extra target (tuning)"/>
+		<attr name="dice_size" type="int" min="1" desc="Die size for the roll (tuning)"/>
+		<attr name="min" type="int" desc="Minimum count (tuning)"/>
+		<attr name="max" type="int" desc="Maximum count (tuning)"/>
+		<attr name="stat_weight" type="double" desc="Stat-scaling weight (tuning)"/>
+	</tag>
+
+	<tag name="flags" desc="Spell routing / PK flags">
+		<attr name="val" type="flagset" enum="EMagic" desc="EMagic flag set"/>
+	</tag>
+
+	<tag name="components" desc="Casting components">
+		<child tag="verbal"/>
+		<child tag="weave"/>
+		<child tag="sight"/>
+		<child tag="material" multiple="Y"/>
+	</tag>
+	<tag name="verbal" desc="Requires speech (presence-only marker)"/>
+	<tag name="weave" desc="Actual magic; blocked in no-magic rooms (presence-only marker)"/>
+	<tag name="sight" desc="Requires sight; a blind caster cannot cast (presence-only marker)"/>
+	<tag name="material" desc="Requires a material component">
+		<attr name="any_of" type="intlist" desc="Object vnum(s) accepted, '|'-separated"/>
+	</tag>
+
+	<tag name="potency_roll" desc="Potency dice pool + skill/stat scaling">
+		<child tag="dices"/>
+		<child tag="base_skill"/>
+		<child tag="base_stat"/>
+	</tag>
+
+	<!-- issue.success-roll: dice-less. base_skill/base_stat mirror potency_roll; optional <bonus> and
+	     <thresholds> mirror the abilities roll system (for later unification). -->
+	<tag name="success_roll" desc="Cast-success roll: skill/stat target + optional bonus / crit thresholds">
+		<child tag="base_skill"/>
+		<child tag="base_stat"/>
+		<child tag="bonus"/>
+		<child tag="thresholds"/>
+	</tag>
+
+	<tag name="bonus" desc="Flat + per-matchup roll bonus (caster x target; P=player, E=env/NPC)">
+		<attr name="roll" type="int" desc="Flat bonus added to every success roll"/>
+		<attr name="pvp" type="int" desc="Bonus when a player casts at a player"/>
+		<attr name="pve" type="int" desc="Bonus when a player casts at an NPC"/>
+		<attr name="evp" type="int" desc="Bonus when an NPC casts at a player"/>
+		<attr name="eve" type="int" desc="Bonus when an NPC casts at an NPC"/>
+	</tag>
+
+	<tag name="thresholds" desc="d100 crit cutoffs (defaults match the abilities system)">
+		<attr name="critsuccess" type="int" min="1" max="100" desc="Roll &lt;= this is a critical success (default 6)"/>
+		<attr name="critfail" type="int" min="1" max="100" desc="Roll &gt;= this is a critical failure (default 95)"/>
+	</tag>
+
+	<tag name="dices" desc="Dice pool: ndice d sdice plus adice">
+		<attr name="ndice" type="int" min="0" desc="Number of dice"/>
+		<attr name="sdice" type="int" min="0" desc="Die size (number of faces)"/>
+		<attr name="adice" type="int" min="0" desc="Flat amount added to the roll"/>
+	</tag>
+
+	<tag name="base_skill" desc="Skill that scales the roll">
+		<attr name="id" type="enum" enum="ESkill" desc="Scaling skill"/>
+		<attr name="low_skill_bonus" type="double" min="0" desc="Per-point bonus below the novice threshold"/>
+		<attr name="hi_skill_bonus" type="double" min="0" desc="Per-point bonus above the novice threshold"/>
+	</tag>
+
+	<tag name="base_stat" desc="Stat that scales the roll">
+		<attr name="id" type="enum" enum="EBaseStat" desc="Scaling stat"/>
+		<attr name="threshold" type="int" min="0" desc="Stat value at which the weight applies"/>
+		<attr name="weight" type="double" desc="Per-point weight above the threshold"/>
+	</tag>
+
+	<tag name="talent_actions" desc="Ordered list of cast actions">
+		<child tag="action" multiple="Y"/>
+	</tag>
+
+	<tag name="action" desc="One cast action">
+		<attr name="target" type="enum" enum="EActionTarget" desc="Per-action target selector (default kTarSame)"/>
+		<attr name="base" type="enum" enum="EActionBase" desc="Formula base (default kCompetence)"/>
+		<attr name="reset" type="bool" desc="Reset the roll for this action"/>
+		<child tag="affects"/>
+		<child tag="unaffect"/>
+		<child tag="damage"/>
+		<child tag="points"/>
+		<child tag="target_conditions"/>
+		<child tag="reflection"/>
+	</tag>
+
+	<!-- reflection: an attribute-only action tag (no children). Without a def here the editor had
+	     nothing to show/edit once a fresh <reflection> was added. -->
+	<tag name="reflection" desc="Reflect the cast back at the caster when the target matches">
+		<attr name="affect_flags" type="flagset" enum="EAffect" desc="Reflect only if the target carries any of these AFF flags"/>
+		<attr name="align" type="enum" enum="EAlign" desc="Reflect only for this target alignment (omit = any)"/>
+		<attr name="prob" type="int" min="0" max="100" desc="Reflection chance, percent (default 20)"/>
+	</tag>
+
+	<tag name="target_conditions" desc="Gates on the target before this action fires">
+		<child tag="blocking"/>
+		<child tag="required"/>
+	</tag>
+
+	<tag name="caster_conditions" desc="Gates on the caster before the spell fires">
+		<child tag="blocking"/>
+		<child tag="required"/>
+	</tag>
+
+	<!-- Condition flag-tags. align is typed (EAlign registered by name); room_flags / mob_flags stay
+	     untyped until ERoomFlag / EMobFlag get value->name maps (separate task). -->
+	<tag name="align" desc="Alignment gate">
+		<attr name="val" type="enum" enum="EAlign" desc="kGood / kEvil / kNeutral"/>
+	</tag>
+	<tag name="room_flags" desc="Room-flag gate">
+		<attr name="val" type="string" desc="ERoomFlag token(s), '|'-separated"/>
+	</tag>
+	<tag name="mob_flags" desc="Mob-flag gate (NPC targets)">
+		<attr name="val" type="string" desc="EMobFlag token(s), '|'-separated"/>
+	</tag>
+
+	<tag name="damage" desc="Deal damage to the target">
+		<attr name="saving" type="enum" enum="ESaving" desc="Saving throw that mitigates the damage"/>
+		<attr name="prob" type="int" min="0" max="100" desc="Chance to land (percent)"/>
+		<child tag="amount"/>
+		<child tag="hits"/>
+	</tag>
+
+	<tag name="amount" desc="Magnitude formula: min + dices_weight*roll, shaped by alpha/beta">
+		<attr name="min" type="double" desc="Floor amount"/>
+		<attr name="dices_weight" type="double" desc="Weight applied to the potency roll"/>
+		<attr name="alpha" type="double" desc="Skill-scaling coefficient"/>
+		<attr name="beta" type="double" desc="Skill-scaling coefficient"/>
+	</tag>
+
+	<tag name="hits" desc="Multi-hit: 1 + extra hits scaled by skill">
+		<attr name="skill_divisor" type="int" min="1" desc="Skill points per extra hit"/>
+		<attr name="max" type="int" min="1" desc="Max number of hits"/>
+		<attr name="prob" type="int" min="0" max="100" desc="Chance of each extra hit"/>
+	</tag>
+
+	<tag name="points" desc="Restore/drain points (hp / moves / thirst / fullness)">
+		<attr name="extra" type="int" min="0" desc="Extra applications"/>
+		<attr name="prob" type="int" min="0" max="100" desc="Chance to apply (percent)"/>
+		<child tag="heal"/>
+		<child tag="moves"/>
+		<child tag="thirst"/>
+		<child tag="full"/>
+	</tag>
+	<tag name="heal" desc="Hit-point restore amount" parent="points">
+		<attr name="npc_coeff" type="double" desc="Multiplier when the caster is an NPC"/>
+		<attr name="min" type="double" desc="Floor amount"/>
+		<attr name="dices_weight" type="double" desc="Weight applied to the potency roll"/>
+		<attr name="alpha" type="double" desc="Skill-scaling coefficient"/>
+		<attr name="beta" type="double" desc="Skill-scaling coefficient"/>
+	</tag>
+	<tag name="moves" desc="Movement-point amount" parent="points">
+		<attr name="npc_coeff" type="double" desc="Multiplier when the caster is an NPC"/>
+		<attr name="min" type="double" desc="Floor amount"/>
+		<attr name="dices_weight" type="double" desc="Weight applied to the potency roll"/>
+		<attr name="alpha" type="double" desc="Skill-scaling coefficient"/>
+		<attr name="beta" type="double" desc="Skill-scaling coefficient"/>
+	</tag>
+	<tag name="thirst" desc="Thirst condition amount" parent="points">
+		<attr name="npc_coeff" type="double" desc="Multiplier when the caster is an NPC"/>
+		<attr name="min" type="double" desc="Floor amount"/>
+		<attr name="dices_weight" type="double" desc="Weight applied to the potency roll"/>
+		<attr name="alpha" type="double" desc="Skill-scaling coefficient"/>
+		<attr name="beta" type="double" desc="Skill-scaling coefficient"/>
+	</tag>
+	<tag name="full" desc="Fullness condition amount" parent="points">
+		<attr name="npc_coeff" type="double" desc="Multiplier when the caster is an NPC"/>
+		<attr name="min" type="double" desc="Floor amount"/>
+		<attr name="dices_weight" type="double" desc="Weight applied to the potency roll"/>
+		<attr name="alpha" type="double" desc="Skill-scaling coefficient"/>
+		<attr name="beta" type="double" desc="Skill-scaling coefficient"/>
+	</tag>
+
+	<tag name="affects" desc="Impose an affect on the target">
+		<attr name="type" type="enum" enum="ESpell" desc="Affect identity (the spell whose affect is imposed)"/>
+		<attr name="saving" type="enum" enum="ESaving" desc="Saving throw that resists the affect"/>
+		<attr name="resist" type="enum" enum="EResist" desc="Resistance type that mitigates it"/>
+		<attr name="prob" type="int" min="0" max="100" desc="Chance to impose (percent)"/>
+		<attr name="potency_weight" type="double" min="0" desc="Caster potency multiplier"/>
+		<attr name="tick_spell" type="enum" enum="ESpell" desc="Per-tick spell effect for a room affect (optional)"/>
+		<attr name="tick_handler" type="string" desc="Per-tick code handler name for a room affect (optional)"/>
+		<child tag="duration"/>
+		<child tag="flags"/>
+		<child tag="apply" multiple="Y"/>
+		<child tag="lag"/>
+		<child tag="reposition"/>
+	</tag>
+
+	<tag name="duration" desc="Affect duration formula">
+		<attr name="base" type="int" min="0" desc="Base duration (ticks)"/>
+		<attr name="skill_divisor" type="int" min="0" desc="Skill points per extra tick (0 = flat)"/>
+		<attr name="min" type="int" min="0" desc="Minimum duration (0 = no clamp)"/>
+		<attr name="max" type="int" min="0" desc="Maximum duration (0 = no clamp)"/>
+	</tag>
+
+	<tag name="flags" parent="affects" desc="Affect behaviour flags">
+		<attr name="val" type="flagset" enum="EAffFlag" desc="EAffFlag set (dispellable / curable / decay / ...)"/>
+	</tag>
+
+	<tag name="apply" desc="Stat modifier carried by the affect">
+		<attr name="id" type="enum" enum="EAffect" desc="Affect bit set on the target (kUndefinded = none)"/>
+		<attr name="location" type="enum" enum="EApply" desc="Stat location modified"/>
+		<attr name="random" type="bool" desc="Pick one apply at random per cast"/>
+		<child tag="modifier"/>
+	</tag>
+
+	<tag name="modifier" desc="Modifier magnitude formula">
+		<attr name="min" type="double" desc="Floor modifier"/>
+		<attr name="dices_weight" type="double" desc="Weight applied to the potency roll"/>
+		<attr name="alpha" type="double" desc="Skill-scaling coefficient"/>
+		<attr name="beta" type="double" desc="Skill-scaling coefficient"/>
+		<attr name="factor" type="int" desc="Sign/scale factor (e.g. -1 to make it a penalty)"/>
+		<attr name="stack" type="int" min="2" desc="Number of stacks (must be >= 2)"/>
+		<attr name="cap" type="int" desc="Stacking cap"/>
+	</tag>
+
+	<tag name="lag" desc="Battle lag imposed on the victim">
+		<attr name="base" type="int" min="0" desc="Base lag"/>
+		<attr name="bonus_divisor" type="double" desc="Skill divisor for the bonus (-1 = constant lag)"/>
+	</tag>
+
+	<tag name="reposition" desc="Force the target into a position / stop their fight">
+		<attr name="pos" type="enum" enum="EPosition" desc="Position to force (kUndefined = stop-fight only)"/>
+		<attr name="stop_fight" type="bool" desc="Also break the target out of combat"/>
+	</tag>
+
+	<tag name="unaffect" desc="Strip affects from the target">
+		<attr name="affect_flags" type="flagset" enum="EAffFlag" desc="Only affects carrying these flags are eligible"/>
+		<attr name="potency_weight" type="double" min="0" desc="Caster potency multiplier for the dispel contest"/>
+		<attr name="prob" type="int" min="0" max="100" desc="Chance to apply (percent)"/>
+		<child tag="remove"/>
+		<child tag="remove_anyway"/>
+		<child tag="blocking"/>
+		<child tag="breaking"/>
+	</tag>
+
+	<tag name="remove" desc="Which spells to strip (* = any eligible)">
+		<attr name="any_of" type="list" enum="ESpell" desc="Strip any one of these spells"/>
+		<attr name="all_of" type="list" enum="ESpell" desc="Strip all of these spells"/>
+		<attr name="breaking_by_failure" type="bool" desc="Also strip when the dispel contest fails"/>
+	</tag>
+
+	<tag name="remove_anyway" desc="Spells stripped regardless of the dispel contest">
+		<attr name="any_of" type="list" enum="ESpell" desc="Strip any one of these spells"/>
+		<attr name="all_of" type="list" enum="ESpell" desc="Strip all of these spells"/>
+	</tag>
+
+	<!-- blocking / required appear in two shapes: a spell-list form (any_of / all_of, under
+	     <unaffect>) and a target/caster-condition form (child flag-tags). A single def carries both;
+	     only the attrs/children actually present in a given node are shown. -->
+	<tag name="blocking" desc="Block the cast when the target carries these">
+		<attr name="any_of" type="list" enum="ESpell" desc="Blocked if any present (unaffect form)"/>
+		<attr name="all_of" type="list" enum="ESpell" desc="Blocked if all present (unaffect form)"/>
+		<child tag="room_flags"/>
+		<child tag="mob_flags"/>
+		<child tag="affect_flags"/>
+		<child tag="align"/>
+	</tag>
+
+	<tag name="breaking" desc="Affects this cast breaks before imposing its own">
+		<attr name="any_of" type="list" enum="ESpell" desc="Break any present"/>
+		<attr name="all_of" type="list" enum="ESpell" desc="Break all present"/>
+	</tag>
+
+	<tag name="required" desc="Require the target to carry these">
+		<attr name="any_of" type="list" enum="ESpell" desc="Required: any present (unaffect form)"/>
+		<attr name="all_of" type="list" enum="ESpell" desc="Required: all present (unaffect form)"/>
+		<child tag="align"/>
+		<child tag="affect_flags"/>
+	</tag>
+
+	<!-- Condition flag-tags (children of blocking / required). affect_flags is typed
+	     (EAffect is registered); room_flags / mob_flags / align stay untyped until ERoomFlag / EMobFlag /
+	     EAlign get value->name maps (a separate task; the boot lint tracks them). -->
+	<tag name="affect_flags" desc="AFF bits gating the cast">
+		<attr name="val" type="flagset" enum="EAffect" desc="EAffect (AFF) flag set"/>
+	</tag>
+</scheme>

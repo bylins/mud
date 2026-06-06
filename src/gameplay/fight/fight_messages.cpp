@@ -5,14 +5,16 @@
 */
 
 #include "fight_messages.h"
+#include "utils/utils_string.h"   // str_cmp
 
 #include "engine/db/global_objects.h"
 
 #include <map>
+#include <vector>
 
-template<>
-const std::string &NAME_BY_ITEM<fight::EDamageSource>(const fight::EDamageSource item) {
-	static const std::map<fight::EDamageSource, std::string> kMap{
+namespace {
+// issue.vedun-msg-editor: file-scope so NAMES_OF can expose it to the editor.
+const std::map<fight::EDamageSource, std::string> kEDamageSourceNames{
 		{fight::EDamageSource::kUndefined, "kUndefined"},
 		{fight::EDamageSource::kHit, "kHit"},
 		{fight::EDamageSource::kSkin, "kSkin"},
@@ -31,13 +33,27 @@ const std::string &NAME_BY_ITEM<fight::EDamageSource>(const fight::EDamageSource
 		{fight::EDamageSource::kStab, "kStab"},
 		{fight::EDamageSource::kPick, "kPick"},
 		{fight::EDamageSource::kSting, "kSting"},
+		{fight::EDamageSource::kFireBreath, "kFireBreath"},
+		{fight::EDamageSource::kGasBreath, "kGasBreath"},
+		{fight::EDamageSource::kFrostBreath, "kFrostBreath"},
+		{fight::EDamageSource::kAcidBreath, "kAcidBreath"},
+		{fight::EDamageSource::kLightingBreath, "kLightingBreath"},
 		{fight::EDamageSource::kTriggerDeath, "kTriggerDeath"},
 		{fight::EDamageSource::kTunnelDeath, "kTunnelDeath"},
 		{fight::EDamageSource::kUnderwaterDeathTrap, "kUnderwaterDeathTrap"},
 		{fight::EDamageSource::kSlowDeathTrap, "kSlowDeathTrap"},
 		{fight::EDamageSource::kSuffering, "kSuffering"},
 	};
-	return kMap.at(item);
+}  // namespace
+
+template<>
+const std::string &NAME_BY_ITEM<fight::EDamageSource>(const fight::EDamageSource item) {
+	return kEDamageSourceNames.at(item);
+}
+
+template<>
+const std::map<fight::EDamageSource, std::string> &NAMES_OF<fight::EDamageSource>() {
+	return kEDamageSourceNames;
 }
 
 template<>
@@ -62,6 +78,11 @@ fight::EDamageSource ITEM_BY_NAME<fight::EDamageSource>(const std::string &name)
 		{"kStab", fight::EDamageSource::kStab},
 		{"kPick", fight::EDamageSource::kPick},
 		{"kSting", fight::EDamageSource::kSting},
+		{"kFireBreath", fight::EDamageSource::kFireBreath},
+		{"kGasBreath", fight::EDamageSource::kGasBreath},
+		{"kFrostBreath", fight::EDamageSource::kFrostBreath},
+		{"kAcidBreath", fight::EDamageSource::kAcidBreath},
+		{"kLightingBreath", fight::EDamageSource::kLightingBreath},
 		{"kTriggerDeath", fight::EDamageSource::kTriggerDeath},
 		{"kTunnelDeath", fight::EDamageSource::kTunnelDeath},
 		{"kUnderwaterDeathTrap", fight::EDamageSource::kUnderwaterDeathTrap},
@@ -71,9 +92,9 @@ fight::EDamageSource ITEM_BY_NAME<fight::EDamageSource>(const std::string &name)
 	return kMap.at(name); // throws std::out_of_range on unknown name
 }
 
-template<>
-const std::string &NAME_BY_ITEM<fight::EFightMsg>(const fight::EFightMsg item) {
-	static const std::map<fight::EFightMsg, std::string> kMap{
+namespace {
+// issue.vedun-msg-editor: file-scope so NAMES_OF can expose it to the editor.
+const std::map<fight::EFightMsg, std::string> kEFightMsgNames{
 		{fight::EFightMsg::kUndefined, "kUndefined"},
 		{fight::EFightMsg::kFightDeathToChar, "kFightDeathToChar"},
 		{fight::EFightMsg::kFightDeathToVict, "kFightDeathToVict"},
@@ -87,8 +108,18 @@ const std::string &NAME_BY_ITEM<fight::EFightMsg>(const fight::EFightMsg item) {
 		{fight::EFightMsg::kFightGodToChar, "kFightGodToChar"},
 		{fight::EFightMsg::kFightGodToVict, "kFightGodToVict"},
 		{fight::EFightMsg::kFightGodToRoom, "kFightGodToRoom"},
+		{fight::EFightMsg::kDescription, "kDescription"},
 	};
-	return kMap.at(item);
+}  // namespace
+
+template<>
+const std::string &NAME_BY_ITEM<fight::EFightMsg>(const fight::EFightMsg item) {
+	return kEFightMsgNames.at(item);
+}
+
+template<>
+const std::map<fight::EFightMsg, std::string> &NAMES_OF<fight::EFightMsg>() {
+	return kEFightMsgNames;
 }
 
 template<>
@@ -107,11 +138,22 @@ fight::EFightMsg ITEM_BY_NAME<fight::EFightMsg>(const std::string &name) {
 		{"kFightGodToChar", fight::EFightMsg::kFightGodToChar},
 		{"kFightGodToVict", fight::EFightMsg::kFightGodToVict},
 		{"kFightGodToRoom", fight::EFightMsg::kFightGodToRoom},
+		{"kDescription", fight::EFightMsg::kDescription},
 	};
 	return kMap.at(name); // throws std::out_of_range on unknown name
 }
 
 namespace fight {
+
+const std::string &GetAttackTypeDescription(int attack_type) {
+	// Weapon attack types occupy EDamageSource kHit..kSting; anything else uses the
+	// kDefault sheaf description.
+	const auto src = (attack_type >= static_cast<int>(EDamageSource::kHit)
+					  && attack_type <= static_cast<int>(EDamageSource::kSting))
+		? static_cast<EDamageSource>(attack_type)
+		: EDamageSource::kUndefined;
+	return MUD::FightMessages().GetMessage(src, EFightMsg::kDescription);
+}
 
 void FightMessagesLoader::Load(parser_wrapper::DataNode data) {
 	MUD::FightMessages().Init(data.Children());
@@ -119,6 +161,44 @@ void FightMessagesLoader::Load(parser_wrapper::DataNode data) {
 
 void FightMessagesLoader::Reload(parser_wrapper::DataNode data) {
 	MUD::FightMessages().Reload(data.Children());
+}
+
+// issue.vedun-msg-editor: editor discovery + safe-commit validation.
+std::string FightMessagesLoader::EditableWhat() const {
+	return "hitmsg";
+}
+
+std::vector<cfg_manager::EditableElement> FightMessagesLoader::ListElements() const {
+	std::vector<cfg_manager::EditableElement> out;
+	for (const auto &sheaf : MUD::FightMessages()) {
+		const EDamageSource id = sheaf.GetId();
+		const std::string id_str = (id == EDamageSource::kUndefined) ? "kDefault" : NAME_BY_ITEM<EDamageSource>(id);
+		out.push_back({id_str, ""});
+	}
+	return out;
+}
+
+cfg_manager::ValidationResult FightMessagesLoader::Validate(parser_wrapper::DataNode &doc) const {
+	if (MUD::FightMessages().Validate(doc.Children())) {
+		return {true, ""};
+	}
+	return {false, "Hit-message data failed to parse (see syslog for the offending sheaf/message)."};
+}
+
+std::string FightMessagesLoader::CanonicalElementId(const std::string &id) const {
+	for (const auto &[value, name] : NAMES_OF<EDamageSource>()) {
+		if (value != EDamageSource::kUndefined && str_cmp(name, id) == 0) {
+			return name;
+		}
+	}
+	return "";
+}
+
+parser_wrapper::DataNode FightMessagesLoader::CreateElementNode(parser_wrapper::DataNode root, const std::string &id) const {
+	// An empty sheaf for `id`; the editor then adds <message> children.
+	auto node = root.AddChild("msg_sheaf");
+	node.SetValue("id", id);
+	return node;
 }
 
 } // namespace fight

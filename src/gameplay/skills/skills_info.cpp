@@ -21,9 +21,11 @@ ItemPtr SkillInfoBuilder::Build(DataNode &node) {
 }
 
 void SkillInfoBuilder::ParseDispensableValues(ItemPtr &item_ptr, DataNode &node) {
+	// issue.thing-names: name + abbr now live in skill_msg.xml (loaded before skills); read them from
+	// the message container by id. Gameplay params stay in skills.xml.
+	item_ptr->name = MUD::SkillMessages().GetName(item_ptr->GetId());
+	item_ptr->short_name = MUD::SkillMessages().GetAbbr(item_ptr->GetId());
 	try {
-		item_ptr->name = parse::ReadAsStr(node.GetValue("name"));
-		item_ptr->short_name = parse::ReadAsStr(node.GetValue("abbr"));
 		item_ptr->save_type = parse::ReadAsConstant<ESaving>(node.GetValue("saving"));
 		item_ptr->difficulty = parse::ReadAsInt(node.GetValue("difficulty"));
 		item_ptr->cap = parse::ReadAsInt(node.GetValue("cap"));

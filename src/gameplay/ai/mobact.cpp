@@ -27,7 +27,7 @@
 #include "gameplay/skills/kick.h"
 
 #include "gameplay/abilities/abilities_rollsystem.h"
-#include "engine/core/action_targeting.h"
+#include "engine/core/target_resolver.h"
 #include "engine/core/comm.h"
 #include "engine/observability/helpers.h"
 #include "engine/observability/metrics.h"
@@ -171,11 +171,9 @@ int attack_best(CharData *ch, CharData *victim, bool do_mode) {
 	ObjData *wielded = GET_EQ(ch, EEquipPos::kWield);
 
 	if (victim) {
-		if (ch->GetSkill(ESkill::kStrangle) && !IsTimedBySkill(ch, ESkill::kStrangle) 
-				&& !(IS_UNDEAD(victim) 
-						|| victim->player_data.Race == ENpcRace::kFish
-						|| victim->player_data.Race == ENpcRace::kPlant
-						|| victim->player_data.Race == ENpcRace::kConstruct)) {
+		// issue.npc-races: strangle needs a victim that breathes (race <respiration/>) and isn't undead.
+		if (ch->GetSkill(ESkill::kStrangle) && !IsTimedBySkill(ch, ESkill::kStrangle)
+				&& CanBreathe(victim) && !victim->IsFlagged(EMobFlag::kUndead)) {
 			if (do_mode)
 				do_strangle(ch, victim);
 			else
@@ -308,7 +306,7 @@ int npc_track(CharData *ch) {
 }
 
 CharData *selectRandomSkirmisherFromGroup(CharData *leader) {
-	ActionTargeting::FriendsRosterType roster{leader};
+	target_resolver::FriendsRosterType roster{leader};
 	auto isSkirmisher = [](CharData *ch) { return ch->IsFlagged(EPrf::kSkirmisher); };
 	int skirmishers = roster.count(isSkirmisher);
 	if (skirmishers == 0 || skirmishers == roster.amount()) {
@@ -1131,7 +1129,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 			  if (!rdata
 				  || rdata->to_room() == kNowhere
 				  || !IsCorrectDirection(ch.get(), door, true, false)
-				  || (is_room_forbidden(world[rdata->to_room()])
+				  || (IsRoomForbidden(world[rdata->to_room()])
 					  && !ch->IsFlagged(EMobFlag::kIgnoreForbidden))
 				  || is_dark(rdata->to_room())
 				  || (ch->IsFlagged(EMobFlag::kStayZone)
@@ -1189,7 +1187,7 @@ void mobile_activity(int activity_level, int missed_pulses) {
 		  && EXIT(ch, door)
 		  && EXIT(ch, door)->to_room() != kNowhere
 		  && IsCorrectDirection(ch.get(), door, true, false)
-		  && (!is_room_forbidden(world[EXIT(ch, door)->to_room()]) || ch->IsFlagged(EMobFlag::kIgnoreForbidden))
+		  && (!IsRoomForbidden(world[EXIT(ch, door)->to_room()]) || ch->IsFlagged(EMobFlag::kIgnoreForbidden))
 		  && (!ch->IsFlagged(EMobFlag::kStayZone)
 			  || world[EXIT(ch, door)->to_room()]->zone_rn == world[ch->in_room]->zone_rn)
 		  && allow_enter(world[EXIT(ch, door)->to_room()], ch.get())) {

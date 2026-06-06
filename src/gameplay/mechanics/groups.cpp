@@ -10,6 +10,7 @@
 
 #include "engine/entities/char_data.h"
 #include "engine/core/handler.h"
+#include "engine/core/target_resolver.h"
 #include "engine/ui/color.h"
 #include "gameplay/core/game_limits.h"
 #include "gameplay/magic/magic.h"
@@ -460,7 +461,7 @@ void group::GoGroup(CharData *ch, char *argument) {
 
 		return;
 	} else if (!str_cmp(buf, "leader") || !str_cmp(buf, "лидер")) {
-		vict = get_player_vis(ch, argument, EFind::kCharInWorld);
+		vict = target_resolver::FindPlayerVis(ch, argument);
 		if (vict
 			&& vict->IsNpc()
 			&& vict->IsFlagged(EMobFlag::kClone)
@@ -489,7 +490,9 @@ void group::GoGroup(CharData *ch, char *argument) {
 		return;
 	}
 
-	if (!(vict = get_char_vis(ch, buf, EFind::kCharInRoom))) {
+	vict = target_resolver::FindCharInRoom(ch, buf);
+
+	if (!vict) {
 		SendMsgToChar(NOPERSON, ch);
 	} else if ((vict->get_master() != ch) && (vict != ch)) {
 		act("$N2 нужно следовать за вами, чтобы стать членом вашей группы.", false, ch, nullptr, vict, kToChar);

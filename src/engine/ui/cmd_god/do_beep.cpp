@@ -8,6 +8,7 @@
 
 #include "engine/entities/char_data.h"
 #include "engine/core/handler.h"
+#include "engine/core/target_resolver.h"
 #include "engine/ui/color.h"
 
 void perform_beep(CharData *ch, CharData *vict);
@@ -19,7 +20,7 @@ void do_beep(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	if (!*buf)
 		SendMsgToChar("Кого вызывать?\r\n", ch);
-	else if (!(vict = get_char_vis(ch, buf, EFind::kCharInWorld)) || vict->IsNpc())
+	else if (!(vict = target_resolver::FindCharInWorld(ch, buf)) || vict->IsNpc())
 		SendMsgToChar(NOPERSON, ch);
 	else if (ch == vict)
 		SendMsgToChar("\007\007Вы вызвали себя!\r\n", ch);

@@ -6,6 +6,7 @@
 
 #include "engine/entities/char_data.h"
 #include "engine/core/handler.h"
+#include "engine/core/target_resolver.h"
 
 void do_insult(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *victim;
@@ -17,7 +18,8 @@ void do_insult(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 	if (*arg) {
-		if (!(victim = get_char_vis(ch, arg, EFind::kCharInRoom)))
+		victim = target_resolver::FindCharInRoom(ch, arg);
+		if (!victim)
 			SendMsgToChar("&KА он вас и не услышит :(&n\r\n", ch);
 		else {
 			if (victim != ch) {

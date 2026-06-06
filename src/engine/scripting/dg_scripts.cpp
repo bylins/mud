@@ -30,6 +30,7 @@
 #include "administration/privilege.h"
 #include "gameplay/fight/fight_hit.h"
 #include "engine/core/utils_char_obj.inl"
+#include "engine/core/target_resolver.h"
 #include "gameplay/mechanics/stable_objs.h"
 #include <fmt/format.h>
 #include <fmt/ranges.h>
@@ -1109,7 +1110,8 @@ void do_attach(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 	if (utils::IsAbbr(arg, "mtr")) {
-		if ((victim = get_char_vis(ch, targ_name, EFind::kCharInWorld))) {
+		victim = target_resolver::FindCharInWorld(ch, targ_name);
+		if (victim) {
 			if (victim->IsNpc())    // have a valid mob, now get trigger
 			{
 				rn = GetTriggerRnum(tn);
@@ -1131,7 +1133,7 @@ void do_attach(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			SendMsgToChar("That mob does not exist.\r\n", ch);
 		}
 	} else if (utils::IsAbbr(arg, "otr")) {
-		if ((object = get_obj_vis(ch, targ_name)))    // have a valid obj, now get trigger
+		if ((object = target_resolver::FindObjAround(ch, targ_name)))    // have a valid obj, now get trigger
 		{
 			rn = GetTriggerRnum(tn);
 			if ((rn >= 0) && (trig = read_trigger(rn))) {
@@ -1212,14 +1214,15 @@ void do_detach(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 	} else {
 		if (utils::IsAbbr(arg1, "mob")) {
-			if (!(victim = get_char_vis(ch, arg2, EFind::kCharInWorld)))
+			victim = target_resolver::FindCharInWorld(ch, arg2);
+			if (!victim)
 				SendMsgToChar("No such mobile around.\r\n", ch);
 			else if (!*arg3)
 				SendMsgToChar("You must specify a trigger to remove.\r\n", ch);
 			else
 				trigger = arg3;
 		} else if (utils::IsAbbr(arg1, "object")) {
-			if (!(object = get_obj_vis(ch, arg2)))
+			if (!(object = target_resolver::FindObjAround(ch, arg2)))
 				SendMsgToChar("No such object around.\r\n", ch);
 			else if (!*arg3)
 				SendMsgToChar("You must specify a trigger to remove.\r\n", ch);
@@ -1228,10 +1231,10 @@ void do_detach(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		} else {
 			if ((object = get_object_in_equip_vis(ch, arg1, ch->equipment, &tmp)));
 			else if ((object = get_obj_in_list_vis(ch, arg1, ch->carrying)));
-			else if ((victim = get_char_room_vis(ch, arg1)));
+			else if ((victim = target_resolver::FindCharInRoomOrSelf(ch, arg1)));
 			else if ((object = get_obj_in_list_vis(ch, arg1, world[ch->in_room]->contents)));
-			else if ((victim = get_char_vis(ch, arg1, EFind::kCharInWorld)));
-			else if ((object = get_obj_vis(ch, arg1)));
+			else if ((victim = target_resolver::FindCharInWorld(ch, arg1)));
+			else if ((object = target_resolver::FindObjAround(ch, arg1)));
 			else
 				SendMsgToChar("Nothing around by that name.\r\n", ch);
 			trigger = arg2;
@@ -1621,13 +1624,20 @@ void find_replacement(void *go,
 					log("SYSERROR: null ch (%s:%d %s)", __FILE__, __LINE__, __func__);
 					break;
 				}
+				{
+				target_resolver::Query q_mob_in_room;
+				q_mob_in_room.scopes = {target_resolver::Scope::kRoom};
+				q_mob_in_room.name = name.c_str();
+				q_mob_in_room.room_override = ch->in_room;
+				q_mob_in_room.visible_only = false;
 				if ((obj = get_object_in_equip(ch, name.c_str())));
 				else if ((obj = get_obj_in_list(name.c_str(), ch->carrying)));
-				else if ((mob = SearchCharInRoomByName(name.c_str(), ch->in_room)));
+				else if ((mob = target_resolver::ResolveChar(ch, q_mob_in_room)));
 				else if ((obj = get_obj_in_list(name.c_str(), world[ch->in_room]->contents)));
 				else if ((mob = get_char(name.c_str())));
 				else if ((obj = get_obj(name.c_str(), GET_TRIG_VNUM(trig))));
 				else if ((room = get_room(name.c_str()))) {
+				}
 				}
 				break;
 			case OBJ_TRIGGER: tmp_obj = (ObjData *) go;
@@ -2711,6 +2721,8 @@ void find_replacement(void *go,
 			snprintf(str, str_size, "%s", GET_CH_SUF_7(mob));
 		else if (!str_cmp(field, "x"))
 			snprintf(str, str_size, "%s", GET_CH_SUF_8(mob));
+		else if (!str_cmp(field, "h"))                                   // issue.mag-points
+			snprintf(str, str_size, "%s", GET_CH_EXSUF_1(mob));
 		else if (!str_cmp(field, "weight"))
 			snprintf(str, str_size, "%d", GET_WEIGHT(mob));
 		else if (!str_cmp(field, "CarryWeight"))
@@ -3029,7 +3041,7 @@ void find_replacement(void *go,
 						}
 					}
 					else {
-						SetWaitState(mob, pos * kBattleRound);
+						SetBattleLag(mob, pos);
 					}
 				}
 			} else if (!str_cmp(field, "applyvalue")) {
@@ -3555,6 +3567,8 @@ void find_replacement(void *go,
 			snprintf(str, str_size, "%s", GET_OBJ_SUF_5(obj));
 		else if (!str_cmp(field, "a"))
 			snprintf(str, str_size, "%s", GET_OBJ_SUF_6(obj));
+		else if (!str_cmp(field, "h"))                                   // issue.mag-points
+			snprintf(str, str_size, "%s", GET_OBJ_EXSUF_1(obj));
 		else if (!str_cmp(field, "sex"))
 			snprintf(str, str_size, "%d", (int) GET_OBJ_SEX(obj));
 		else if (!str_cmp(field, "room")) {

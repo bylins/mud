@@ -9,6 +9,7 @@
 #include "engine/entities/char_data.h"
 #include "engine/network/descriptor_data.h"
 #include "engine/core/handler.h"
+#include "engine/core/target_resolver.h"
 
 void do_force(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	DescriptorData *i, *next_desc;
@@ -22,7 +23,8 @@ void do_force(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Кого и что вы хотите принудить сделать?\r\n", ch);
 	} else if (!ch->IsGrGod() || (str_cmp("all", arg) && str_cmp("room", arg) && str_cmp("все", arg)
 		&& str_cmp("здесь", arg))) {
-		const auto vict = get_char_vis(ch, arg, EFind::kCharInWorld);
+		CharData *vict = nullptr;
+		vict = target_resolver::FindCharInWorld(ch, arg);
 		if (!vict) {
 			SendMsgToChar(NOPERSON, ch);
 		} else if (!vict->IsNpc() && GetRealLevel(ch) <= GetRealLevel(vict) && !ch->IsFlagged(EPrf::kCoderinfo)) {

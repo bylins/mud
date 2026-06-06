@@ -268,6 +268,9 @@ enum class ESpell {
 	kLowerEffectiveness = 249,
 	kNoInjure = 250,
 	kConfuse = 251,
+	// Internal proc spell: the per-hit bolt of the kCloudOfArrows affect. Cast via
+	// CallMagic from fight_hit.cpp (no verbal, weave-only) -- not player-castable.
+	kCloudOfArrowsBolt = 252,
 	kIdentify = 351,
 	kFullIdentify = 352,
 	kQUest = 353,
@@ -276,8 +279,18 @@ enum class ESpell {
 	kDazzle = 356,
 	kGreatHeal = 357,
 	kFrenzy = 358,
+	// Placeholder slots for spell prototyping in test mode (mode="kTesting"
+	// in spells.xml). Pick the next free slot, write the config under that
+	// id, and rename here when the spell graduates to its real name.
+	kTestOne = 359,
+	kTestTwo = 360,
+	kTestThree = 361,
+	kTestFour = 362,
+	kTestFive = 363,
+	kDeadlyFogTick = 364,
+	kCreateArmor = 365,  // issue.obj-casting: new data-driven <obj_creation> spell (plumbing)
 	kFirst = kArmor,
-	kLast = 358	// Не забываем менять
+	kLast = 365	// Не забываем менять
 };
 
 const ESpell &operator++(ESpell &s);
@@ -287,6 +300,8 @@ template<>
 ESpell ITEM_BY_NAME<ESpell>(const std::string &name);
 template<>
 const std::string &NAME_BY_ITEM<ESpell>(const ESpell spell);
+template<>
+const std::map<ESpell, std::string> &NAMES_OF<ESpell>();
 
 enum class EElement {
 	kUndefined = 0,
@@ -304,6 +319,8 @@ template<>
 EElement ITEM_BY_NAME<EElement>(const std::string &name);
 template<>
 const std::string &NAME_BY_ITEM<EElement>(const EElement element);
+template<>
+const std::map<EElement, std::string> &NAMES_OF<EElement>();
 
 // PLAYER SPELLS TYPES //
 enum ESpellType {
@@ -321,22 +338,24 @@ template<>
 ESpellType ITEM_BY_NAME<ESpellType>(const std::string &name);
 template<>
 const std::string &NAME_BY_ITEM<ESpellType>(const ESpellType item);
+template<>
+const std::map<ESpellType, std::string> &NAMES_OF<ESpellType>();
 
 enum EMagic : Bitvector {
 	kMagDamage = 1 << 0,
 	kMagAffects = 1 << 1,
 	kMagUnaffects = 1 << 2,
 	kMagPoints = 1 << 3,
-	kMagAlterObjs = 1 << 4,
+	// 1 << 4 free (was kMagAlterObjs; now the data-driven <alter_obj> action)
 	kMagGroups = 1 << 5,
 	kMagMasses = 1 << 6,
 	kMagAreas = 1 << 7,
-	kMagSummons = 1 << 8,
-	kMagCreations = 1 << 9,
+	// 1 << 8 free (was kMagSummons; summon is now the data-driven <summon> action)
+	// 1 << 9 free (was kMagCreations; now the data-driven <obj_creation> action)
 	kMagManual = 1 << 10,
 	kMagWarcry = 1 << 11,
 	kMagNeedControl = 1 << 12,
-	kMagCharRelocate = 1 << 13,
+	// Bit 13 used to be kMagCharRelocate; folded into kMagManual.
 // А чего это тут дырка Ж)
 	kNpcDamagePc = 1 << 16,
 	kNpcDamagePcMinhp = 1 << 17,
@@ -357,6 +376,8 @@ template<>
 EMagic ITEM_BY_NAME<EMagic>(const std::string &name);
 template<>
 const std::string &NAME_BY_ITEM<EMagic>(const EMagic item);
+template<>
+const std::map<EMagic, std::string> &NAMES_OF<EMagic>();
 
 enum ETarget : Bitvector {
 	kTarNone = 0,
@@ -373,19 +394,54 @@ enum ETarget : Bitvector {
 	kTarObjEquip = 1 << 10,
 	kTarRoomThis = 1 << 11,	// Цель комната в которой сидит чар//
 	kTarRoomDir = 1 << 12,	// Цель комната в каком-то направлении от чара//
-	kTarRoomWorld = 1 << 13	// Цель какая-то комната в мире//
+	kTarRoomWorld = 1 << 13,	// Цель какая-то комната в мире//
+	kTarAllyOnly = 1 << 14,	// Only a check: PC may target only self or a groupmate. Use with kTarCharRoom //
+	kTarMinionsOnly = 1 << 15	// Only a check: target must be one of the caster's own NPC followers (master == caster) //
 };
 
 template<>
 ETarget ITEM_BY_NAME<ETarget>(const std::string &name);
 template<>
 const std::string &NAME_BY_ITEM<ETarget>(const ETarget item);
+template<>
+const std::map<ETarget, std::string> &NAMES_OF<ETarget>();
 
 constexpr Bitvector kMtypeNeutral = 1 << 0;
 constexpr Bitvector kMtypeAggressive = 1 << 1;
 
 // возращает текст выводимый при спадении скила
 std::string GetAffExpiredText(ESpell spell_id);
+
+
+// Extra-attack bit flags (combat; stored in CharData::battle_affects).
+enum EExtraAttackFlag : Bitvector {
+	kEafParry = 1 << 0,
+	kEafBlock = 1 << 1,
+	kEafTouch = 1 << 2,
+	// kEafProtect = 1 << 3,  // unused
+	kEafDodge = 1 << 4,
+	kEafHammer = 1 << 5,
+	kEafOverwhelm = 1 << 6,
+	kEafSlow = 1 << 7,
+	kEafPunctual = 1 << 8,
+	kEafAwake = 1 << 9,
+	kEafFirst = 1 << 10,
+	kEafSecond = 1 << 11,
+	kEafStand = 1 << 13,
+	kEafUsedright = 1 << 14,
+	kEafUsedleft = 1 << 15,
+	kEafMultyparry = 1 << 16,
+	kEafSleep = 1 << 17,
+	kEafIronWind = 1 << 18,
+	kEafAutoblock = 1 << 19,	// автоматический блок щитом в осторожном стиле
+	kEafPoisoned = 1 << 20,		// отравление с пушек раз в раунд
+	kEafFirstPoison = 1 << 21,	// отравление цели первый раз за бой
+	kEafInvisible = 1 << 22,	// одет автоинвиз
+};
+
+// Spell-flag mask: the 8 "NPC casting calculation" bits (issue.spellhandlers: was the
+// `#define NPC_CALCULATE 0xff << 16` magic number).
+constexpr Bitvector NPC_CALCULATE = 0xff << 16;
 
 #endif //BYLINS_SRC_GAME_MAGIC_SPELLS_CONSTANTS_H_
 

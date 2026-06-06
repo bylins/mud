@@ -506,10 +506,7 @@ ItemPtr FeatInfoBuilder::ParseHeader(DataNode &node) {
 	auto mode = FeatInfoBuilder::ParseItemMode(node, EItemMode::kEnabled);
 
 	auto info = std::make_shared<FeatInfo>(id, mode);
-	try {
-		info->name_ = parse::ReadAsStr(node.GetValue("name"));
-	} catch (std::exception &) {
-	}
+	info->name_ = MUD::FeatMessages().GetName(id);   // issue.thing-names: name from feat_msg.xml
 
 	return info;
 }

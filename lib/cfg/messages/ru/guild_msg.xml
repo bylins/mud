@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="koi8-r"?>
+<!--
+    issue.thing-names: guild messages, moved out of GuildInfo::GetMsg (guilds.cpp). The container is
+    vnum-keyed (MsgContainer<int, guilds::EMsg>); these shared messages live in the default sheaf
+    (id="kDefault"). Loaded (guild_messages) BEFORE guilds. Text uses $n/$N act-codes; three messages
+    use {named} fmt placeholders filled by the trainer code:
+      kTalentEarned      -> {talent_type} {color} {name} {nocolor}
+      kYouGiveMoney      -> {money}
+      kSomeoneGivesMoney -> {money}
+-->
+<msg_container>
+	<msg_sheaf id="kDefault">
+		<message type="kGreeting" val="$N сказал$G: 'Я могу научить тебя следующему:'"/>
+		<message type="kDischarge" val="$N сказал$G : 'Извини, $n, я уже в отставке.'"/>
+		<message type="kDidNotTeach" val="$N уставил$U на $n3 и прорычал$G: 'Я никогда и никого ЭТОМУ не учил$G!'"/>
+		<message type="kInquiry" val="$n о чем-то спросил$g $N3."/>
+		<message type="kCannotToChar" val="$N сказал$G: 'Я не могу тебя этому научить'."/>
+		<message type="kCannotToRoom" val="$N сказал$G $n2: 'Я не могу тебя этому научить'."/>
+		<message type="kAskToChar" val="Вы попросились в обучение к $N2."/>
+		<message type="kAskToRoom" val="$n попросил$u в ученики к $N2."/>
+		<message type="kLearnToChar" val="Вы получили несколько уроков и мудрых советов от $N1."/>
+		<message type="kLearnToRoom" val="$N дал$G $n2 несколько наставлений."/>
+		<message type="kAllSkills" val="$N сказал$G: '$n, нельзя научиться всем умениям или способностям сразу. Выбери необходимые!'"/>
+		<message type="kTalentEarned" val="Под наставничеством $N1 вы изучили {talent_type} {color}'{name}'{nocolor}."/>
+		<message type="kNothingLearned" val="$N ничему новому вас не научил$G."/>
+		<message type="kListEmpty" val="$N сказал$G : 'Похоже, $n, я не смогу тебе помочь'."/>
+		<message type="kIsInsolvent" val="$N сказал$G : 'Вот у меня забот нет - голодранцев наставлять! Иди-ка, $n, подзаработай сначала!"/>
+		<message type="kFree" val="бесплатно"/>
+		<message type="kTemporary" val="временно"/>
+		<message type="kYouGiveMoney" val="Вы дали {money} $N2."/>
+		<message type="kSomeoneGivesMoney" val="$n дал$g {money} $N2."/>
+		<message type="kFailToChar" val="...но все уроки влетели вам в одно ухо, да вылетели в другое."/>
+		<message type="kFailToRoom" val="...но, судя по осовелому взгляду $n1, наука $N1 не пошла $m впрок."/>
+		<message type="kError" val="У кодера какие-то проблемы."/>
+	</msg_sheaf>
+</msg_container>

@@ -58,6 +58,8 @@ EPosition operator--(const EPosition &p);
 template<>
 const std::string &NAME_BY_ITEM<EPosition>(EPosition item);
 template<>
+const std::map<EPosition, std::string> &NAMES_OF<EPosition>();
+template<>
 EPosition ITEM_BY_NAME<EPosition>(const std::string &name);
 
 /**
@@ -80,6 +82,8 @@ template<>
 const std::string &NAME_BY_ITEM<EBaseStat>(EBaseStat item);
 template<>
 EBaseStat ITEM_BY_NAME<EBaseStat>(const std::string &name);
+template<>
+const std::map<EBaseStat, std::string> &NAMES_OF<EBaseStat>();  // issue.vedun-editor: editor pick-list
 
 const int kDefaultBaseStatMin{10};
 const int kDefaultBaseStatMax{25};
@@ -88,50 +92,17 @@ const int kDefaultBaseStatCap{50};
 const int kMobBaseStatCap{100};
 const int kLeastBaseStat{1};
 
-/*
- * Character savings ids.
- */
-enum class ESaving : int {
-	kWill = 0,
-	kCritical = 1,
-	kStability = 2,
-	kReflex = 3,
-	kNone = 4,
-	kFirst = kWill,
-	kLast = kReflex, // Не забываем менять при добаввлении новых элементов.
-};
-
-ESaving& operator++(ESaving &s);
-
-template<>
-const std::string &NAME_BY_ITEM<ESaving>(ESaving item);
-template<>
-ESaving ITEM_BY_NAME<ESaving>(const std::string &name);
 
 /**
- * Magic damage resistance types.
+ * Alignment selector for the action-level <blocking align=> / <required align=> /
+ * <reflection align=> tags (issue.cast-dmg-migration). kAny means no alignment check (the
+ * attribute is absent). kGood / kEvil / kNeutral map to the IsGood / IsEvil / IsNeutral
+ * inline functions in char_data.h (the +/-300 thresholds defined in utils.h).
  */
-enum EResist {
-	kFire = 0,
-	kAir,
-	kWater,
-	kEarth,
-	kVitality,
-	kMind,
-	kImmunity,
-	kDark,
-	kFirstResist = kFire,
-	kLastResist = kDark
-};
+enum class EAlign { kAny, kGood, kEvil, kNeutral };
 
-EResist& operator++(EResist &r);
-
-template<>
-const std::string &NAME_BY_ITEM<EResist>(EResist item);
-template<>
-EResist ITEM_BY_NAME<EResist>(const std::string &name);
-
-const int kMaxPcResist = 75;
+#include "gameplay/mechanics/resist.h"
+#include "gameplay/mechanics/saving.h"
 
 enum class EWhereObj : int {
 	kNowhere = 0,
@@ -336,33 +307,9 @@ enum EGf : Bitvector {
  * ========================================================================================
  */
 
-/**
- * NPC races
- */
-enum ENpcRace : int {
-	kBasic = 100,
-	kHuman = 101,
-	kBeastman = 102,
-	kBird = 103,
-	kAnimal = 104,
-	kReptile = 105,
-	kFish = 106,
-	kInsect = 107,
-	kPlant = 108,
-	kConstruct = 109,
-	kZombie = 110,
-	kGhost = 111,
-	kBoggart = 112,
-	kSpirit = 113,
-	kMagicCreature = 114,
-	kLastNpcRace = kMagicCreature // Не забываем менять при добавлении новых
-};
-
-/**
- * Virtual NPC races
- */
-const int kNpcBoss = 200;
-const int kNpcUnique = 201;
+// issue.npc-races: ENpcRace (+ kNpcBoss / kNpcUnique) moved to gameplay/mechanics/mob_races.h.
+// This header re-includes mob_races.h at the bottom (compat shim), so every user that includes
+// entities_constants.h still sees ENpcRace.
 
 /**
  * Mobile flags: used by char_data.char_specials.act
@@ -425,7 +372,9 @@ enum EMobFlag : Bitvector {
 	kNoBattleExp = kIntOne | (1 << 23), // не дает экспу за удары
 	kNoHammer = kIntOne | (1 << 24), // нельзя оглушить богатырским молотом
 	kMentalShadow = kIntOne | (1 << 25), // Используется для ментальной тени
-	kSummoned = kIntOne | (1 << 26), // (ангел, тень, храны, трупы, умки)
+	kCompanion = kIntOne | (1 << 26), // (ангел, тень, храны, трупы, умки)
+	kUndead = kIntOne | (1 << 27),	// issue.npc-races: the undead marker (replaces IS_UNDEAD)
+	kSummoned = kIntOne | (1 << 28),	// truly conjured "from other realms" (banishable); a subset of kCompanion
 
 	kFireBreath = kIntTwo | (1 << 0),
 	kGasBreath = kIntTwo | (1 << 1),
@@ -479,8 +428,23 @@ enum ENpcFlag : Bitvector {
 	kArmoring = kIntOne | (1 << 2),
 	kUsingLight = kIntOne | (1 << 3),
 	kNoTakeItems = kIntOne | (1 << 4),
-	kIgnoreRareKill = kIntOne | (1 << 5)
+	kIgnoreRareKill = kIntOne | (1 << 5),
+	kUsingMagicItems = kIntOne | (1 << 6)	// issue.npc-races: NPC casts from wands/staves/potions
 };
+
+template<>
+EMobFlag ITEM_BY_NAME<EMobFlag>(const std::string &name);
+template<>
+const std::string &NAME_BY_ITEM<EMobFlag>(EMobFlag item);
+template<>
+const std::map<EMobFlag, std::string> &NAMES_OF<EMobFlag>();
+
+template<>
+ENpcFlag ITEM_BY_NAME<ENpcFlag>(const std::string &name);
+template<>
+const std::string &NAME_BY_ITEM<ENpcFlag>(ENpcFlag item);
+template<>
+const std::map<ENpcFlag, std::string> &NAMES_OF<ENpcFlag>();
 
 /*
  * ========================================================================================
@@ -909,6 +873,11 @@ enum EContainerFlag {
 	kLockedUp = 1 << 3,
 	kLockIsBroken = 1 << 4
 };
+
+// issue.npc-races: compat shim -- ENpcRace lives here now. Placed at the very bottom (after every
+// enum above) so that mob_races.h's heavy info_container/cfg_manager includes, which transitively
+// re-enter this header, always find the full set of entities constants already defined.
+#include "gameplay/mechanics/mob_races.h"
 
 #endif //BYLINS_SRC_ENTITY_ROOMS_ROOM_CONSTANTS_H_
 

@@ -7,6 +7,8 @@
 
 #include "currencies.h"
 
+#include <unordered_map>
+
 #include "engine/ui/color.h"
 #include "engine/db/global_objects.h"
 //#include "utils/parse.h"
@@ -24,6 +26,40 @@ void CurrenciesLoader::Reload(DataNode data) {
 	MUD::Currencies().Reload(data.Children());
 }
 
+// issue.thing-names: currency display names, keyed by text_id, loaded from currency_msg.xml.
+static std::unordered_map<std::string, CurrencyName> g_currency_names;
+
+static void LoadCurrencyNames(DataNode data) {
+	g_currency_names.clear();
+	for (auto &sheaf : data.Children("msg_sheaf")) {
+		const char *id = sheaf.GetValue("id");
+		if (!id || !*id) {
+			continue;
+		}
+		CurrencyName cn;
+		if (sheaf.GoToChild("name")) {
+			try {
+				cn.gender = parse::ReadAsConstant<EGender>(sheaf.GetValue("gender"));
+			} catch (std::exception &) {}
+			const char *search = sheaf.GetValue("search");
+			cn.search = (search && *search) ? search : id;
+			if (auto built = grammar::ItemName::Build(sheaf)) {
+				cn.cases = std::move(*built);
+			}
+			sheaf.GoToParent();
+		}
+		g_currency_names[id] = std::move(cn);
+	}
+}
+
+void CurrencyNamesLoader::Load(DataNode data) { LoadCurrencyNames(data); }
+void CurrencyNamesLoader::Reload(DataNode data) { LoadCurrencyNames(data); }
+
+const CurrencyName *FindCurrencyName(const std::string &text_id) {
+	const auto it = g_currency_names.find(text_id);
+	return it == g_currency_names.end() ? nullptr : &it->second;
+}
+
 ItemPtr CurrencyInfoBuilder::Build(DataNode &node) {
 	try {
 		return ParseCurrency(node);
@@ -37,13 +73,25 @@ ItemPtr CurrencyInfoBuilder::ParseCurrency(DataNode node) {
 	auto vnum = std::clamp(parse::ReadAsInt(node.GetValue("vnum")), 0, kMaxProtoNumber);
 	auto mode = SkillInfoBuilder::ParseItemMode(node, EItemMode::kEnabled);
 	std::string text_id{"kUndefined"};
-	std::string name{"undefined"};
 	try {
 		text_id = parse::ReadAsStr(node.GetValue("text_id"));
-		name = parse::ReadAsStr(node.GetValue("name"));
 	} catch (...) {}
 
+	// issue.thing-names: name (search string + gendered declensions) comes from currency_msg.xml.
+	std::string name{"undefined"};
+	EGender gender{EGender::kFemale};
+	auto names = std::make_unique<grammar::ItemName>();
+	if (const auto *cn = FindCurrencyName(text_id)) {
+		name = cn->search;
+		gender = cn->gender;
+		names = std::make_unique<grammar::ItemName>(cn->cases);
+	} else {
+		err_log("currency '%s' has no name in currency_msg.xml.", text_id.c_str());
+	}
+
 	auto currency_info = std::make_shared<CurrencyInfo>(vnum, text_id, name, mode);
+	currency_info->gender_ = gender;
+	currency_info->names_ = std::move(names);
 
 	if (node.GoToChild("flags")) {
 		try {
@@ -70,13 +118,6 @@ ItemPtr CurrencyInfoBuilder::ParseCurrency(DataNode node) {
 			err_log("incorrect permits (%s) in currency '%s'.", e.what(), currency_info->name_.c_str());
 		}
 		node.GoToParent();
-	}
-
-	if (node.GoToChild("name")) {
-		try {
-			currency_info->gender_ = parse::ReadAsConstant<EGender>(node.GetValue("gender"));
-		} catch (std::exception &e) {}
-		currency_info->names_ = grammar::ItemName::Build(node);
 	}
 
 	return currency_info;

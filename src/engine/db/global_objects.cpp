@@ -35,14 +35,20 @@ struct GlobalObjectsStorage {
 	SkillsInfo skills_info;
 	spells::SpellsInfo spells_info;
 	spells::SpellMessages spell_messages;
+	points_intensity::PointsIntensity points_intensity;
 	skills::SkillMessages skill_messages;
     fight::FightMessages fight_messages;
 	feats::FeatsInfo feats_info;
+	feats::FeatMessages feat_messages;
 	cfg_manager::CfgManager cfg_mngr;
 	classes::ClassesInfo classes_info;
 	mob_classes::MobClassesInfo mob_classes_info;
 	guilds::GuildsInfo guilds_info;
+	guilds::GuildMessages guild_messages;
+	zone_types::ZoneTypesInfo zone_types_info;
+	rune_spells::Registry rune_spells_info;
 	currencies::CurrenciesInfo currencies_info;
+	mob_races::MobRacesInfo mob_races_info;
   	RunestoneRoster runestone_roster;
 	WorldObjects world_objects;
 	ShopExt::ShopListType shop_list;
@@ -103,8 +109,16 @@ spells::SpellMessages &GlobalObjects::SpellMessages() {
 	return global_objects().spell_messages;
 }
 
+points_intensity::PointsIntensity &GlobalObjects::PointsIntensity() {
+	return global_objects().points_intensity;
+}
+
 skills::SkillMessages &GlobalObjects::SkillMessages() {
 	return global_objects().skill_messages;
+}
+
+feats::FeatMessages &GlobalObjects::FeatMessages() {
+	return global_objects().feat_messages;
 }
 
 fight::FightMessages &GlobalObjects::FightMessages() {
@@ -143,12 +157,32 @@ guilds::GuildsInfo &GlobalObjects::Guilds() {
 	return global_objects().guilds_info;
 }
 
+guilds::GuildMessages &GlobalObjects::GuildMessages() {
+	return global_objects().guild_messages;
+}
+
 const guilds::GuildInfo &GlobalObjects::Guild(Vnum guild_vnum) {
 	return global_objects().guilds_info[guild_vnum];
 }
 
+zone_types::ZoneTypesInfo &GlobalObjects::ZoneTypes() {
+	return global_objects().zone_types_info;
+}
+
+const zone_types::ZoneTypeInfo &GlobalObjects::ZoneType(int type_vnum) {
+	return global_objects().zone_types_info[type_vnum];
+}
+
+rune_spells::Registry &GlobalObjects::RuneSpells() {
+	return global_objects().rune_spells_info;
+}
+
 currencies::CurrenciesInfo &GlobalObjects::Currencies() {
 	return global_objects().currencies_info;
+};
+
+mob_races::MobRacesInfo &GlobalObjects::MobRaces() {
+	return global_objects().mob_races_info;
 };
 
 const currencies::CurrencyInfo &GlobalObjects::Currency(Vnum currency_vnum) {

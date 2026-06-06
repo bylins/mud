@@ -5,6 +5,7 @@
 #include "engine/entities/char_data.h"
 #include "engine/entities/entities_constants.h"
 #include "engine/core/handler.h"
+#include "engine/core/target_resolver.h"
 
 void make_horse(CharData *horse, CharData *ch) {
 	AFF_FLAGS(horse).set(EAffect::kHorse);
@@ -35,7 +36,7 @@ void do_horseon(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	one_argument(argument, arg);
 	if (*arg)
-		horse = get_char_vis(ch, arg, EFind::kCharInRoom);
+		horse = target_resolver::FindCharInRoom(ch, arg);
 	else
 		horse = ch->get_horse();
 
@@ -103,7 +104,7 @@ void do_horseget(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	one_argument(argument, arg);
 	if (*arg)
-		horse = get_char_vis(ch, arg, EFind::kCharInRoom);
+		horse = target_resolver::FindCharInRoom(ch, arg);
 	else
 		horse = ch->get_horse();
 
@@ -141,7 +142,7 @@ void do_horseput(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	one_argument(argument, arg);
 	if (*arg)
-		horse = get_char_vis(ch, arg, EFind::kCharInRoom);
+		horse = target_resolver::FindCharInRoom(ch, arg);
 	else
 		horse = ch->get_horse();
 	if (horse == nullptr)
@@ -174,7 +175,7 @@ void do_horsetake(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	one_argument(argument, arg);
 	if (*arg) {
-		horse = get_char_vis(ch, arg, EFind::kCharInRoom);
+		horse = target_resolver::FindCharInRoom(ch, arg);
 	}
 
 	if (horse == nullptr) {
@@ -232,7 +233,8 @@ void do_givehorse(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Кому вы хотите передать скакуна?\r\n", ch);
 		return;
 	}
-	if (!(victim = get_char_vis(ch, arg, EFind::kCharInRoom))) {
+	victim = target_resolver::FindCharInRoom(ch, arg);
+	if (!victim) {
 		SendMsgToChar("Вам некому передать скакуна.\r\n", ch);
 		return;
 	} else if (victim->IsNpc()) {
