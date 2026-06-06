@@ -120,8 +120,6 @@ bool handle_transfer(CharData *ch, CharData *victim, ObjData *obj, ObjData *cont
 //Помечает стаф в трупе как кровавый
 void handle_corpse(ObjData *corpse, CharData *ch, CharData *killer);
 bool is_bloody(const ObjData *obj);
-//рекурсивно ищет кровавый предмет внутри трупа/контейнера
-bool CatchBloodyCorpse(ObjData *l);
 }
 
 //Структура для хранения информации о кровавом стафе

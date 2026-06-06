@@ -7,7 +7,6 @@
 #include "engine/ui/color.h"
 #include "engine/entities/char_data.h"
 #include "engine/core/handler.h"
-#include "engine/core/target_resolver.h"
 
 namespace DpsSystem {
 
@@ -507,7 +506,7 @@ void do_dmeter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 	} else if (ch->IsFlagged(EPrf::kCoderinfo)) {
 		// распечатка статистики указанного персонажа
-		CharData *vict = target_resolver::FindPlayerVis(ch, arg);
+		CharData *vict = get_player_vis(ch, arg, EFind::kCharInWorld);
 		if (vict) {
 			vict->dps_print_stats(ch);
 		} else {

@@ -13,49 +13,10 @@
 //#include "utils/table_wrapper.h"
 #include "engine/entities/entities_constants.h"
 
-#include <memory>
-#include <unordered_map>
-
 namespace classes {
 
 using DataNode = parser_wrapper::DataNode;
 using ItemPtr = CharClassInfoBuilder::ItemPtr;
-
-// issue.thing-names: class display names live in cfg/messages/ru/class_msg.xml, loaded into this
-// registry before the class config so the builder can pull each class's name/abbr by id token.
-namespace {
-std::unordered_map<std::string, ClassName> g_class_names;
-
-void LoadClassNames(DataNode data) {
-	g_class_names.clear();
-	for (auto &sheaf : data.Children("msg_sheaf")) {
-		const char *id = sheaf.GetValue("id");
-		if (!id || !*id) {
-			continue;
-		}
-		ClassName cn;
-		if (sheaf.GoToChild("name")) {
-			const char *abbr = sheaf.GetValue("abbr");
-			if (abbr && *abbr) {
-				cn.abbr = abbr;
-			}
-			if (auto built = grammar::ItemName::Build(sheaf)) {
-				cn.cases = std::move(*built);
-			}
-			sheaf.GoToParent();
-		}
-		g_class_names[id] = std::move(cn);
-	}
-}
-} // namespace
-
-void ClassNamesLoader::Load(DataNode data) { LoadClassNames(std::move(data)); }
-void ClassNamesLoader::Reload(DataNode data) { LoadClassNames(std::move(data)); }
-
-const ClassName *FindClassName(const std::string &id) {
-	const auto it = g_class_names.find(id);
-	return it == g_class_names.end() ? nullptr : &it->second;
-}
 
 void ClassesLoader::Load(DataNode data) {
 	MUD::Classes().Init(data.Children());
@@ -108,27 +69,24 @@ ItemPtr CharClassInfoBuilder::ParseClass(DataNode &node) {
 	auto mode = CharClassInfoBuilder::ParseItemMode(node, EItemMode::kEnabled);
 	auto info = std::make_shared<CharClassInfo>(id, mode);
 
-	// issue.thing-names: the name now comes from class_msg.xml (registry), not the <name> child.
-	ParseName(info);
+	if (node.GoToChild("name")) {
+		ParseName(info, node);
+	}
 
-	if (node.GoToChild("stats")) {
+	if (node.GoToSibling("stats")) {
 		ParseStats(info, node);
-		node.GoToParent();
 	}
 
-	if (node.GoToChild("skills")) {
+	if (node.GoToSibling("skills")) {
 		ParseSkills(info, node);
-		node.GoToParent();
 	}
 
-	if (node.GoToChild("spells")) {
+	if (node.GoToSibling("spells")) {
 		ParseSpells(info, node);
-		node.GoToParent();
 	}
 
-	if (node.GoToChild("feats")) {
+	if (node.GoToSibling("feats")) {
 		ParseFeats(info, node);
-		node.GoToParent();
 	}
 
 	TemporarySetStat(info);	// Временное проставление параметроа не из файла, а вручную
@@ -180,16 +138,13 @@ void CharClassInfo::PrintBaseStatsTable(CharData *ch, std::ostringstream &buffer
 	table_wrapper::PrintTableToStream(buffer, table);
 }
 
-void CharClassInfoBuilder::ParseName(ItemPtr &info) {
-	const std::string id = NAME_BY_ITEM<ECharClass>(info->GetId());
-	if (const auto *cn = FindClassName(id)) {
-		info->abbr = cn->abbr;
-		info->names = std::make_unique<grammar::ItemName>(cn->cases);
-	} else {
-		err_log("class '%s' has no name in class_msg.xml.", id.c_str());
+void CharClassInfoBuilder::ParseName(ItemPtr &info, DataNode &node) {
+	try {
+		info->abbr = parse::ReadAsStr(node.GetValue("abbr"));
+	} catch (std::exception &) {
 		info->abbr = "--";
-		info->names = std::make_unique<grammar::ItemName>();
 	}
+	info->names = grammar::ItemName::Build(node);
 }
 
 int ParseLevelDecrement(DataNode &node) {

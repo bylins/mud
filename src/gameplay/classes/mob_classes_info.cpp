@@ -10,7 +10,6 @@
 #include "engine/ui/color.h"
 #include "engine/db/global_objects.h"
 #include "engine/entities/entities_constants.h"
-#include "gameplay/core/entity_names.h"
 
 EMobClass FindAvailableMobClassId(const CharData *ch, const std::string &mob_class_name) {
     for (const auto &it: MUD::MobClasses()) {
@@ -136,10 +135,9 @@ MobClassInfoBuilder::ItemPtr MobClassInfoBuilder::ParseHeader(DataNode &node) {
 }
 
 void MobClassInfoBuilder::ParseName(ItemPtr &info, DataNode &node) {
-    // issue.thing-names: rus display name comes from entity_names.xml; eng admin name stays in config.
-    info->name = entity_names::FindMobClassName(NAME_BY_ITEM(info->GetId()));
     if (node.GoToChild("name")) {
         try {
+            info->name = parse::ReadAsStr(node.GetValue("rus"));
             info->eng_name = parse::ReadAsStr(node.GetValue("eng"));
         } catch (const std::exception &e) {
             err_log("Incorrect 'name' section (mob class: %s, value: %s).",

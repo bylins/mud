@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="koi8-r"?>
 <class id="kPaladine">
+    <name abbr="Вт">
+        <singular nom="витязь" gen="витязя" dat="витязю" acc="витязя" ins="витязем" pre="витязе"/>
+        <plural nom="витязи" gen="витязей" dat="витязям" acc="витязей" ins="витязями" pre="витязях"/>
+    </name>
     <stats>
         <base_stats>
             <stat id="kStr"	gen_min="19"	gen_max="22"	auto="22"	cap="90"/>

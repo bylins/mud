@@ -12,7 +12,6 @@
 #include "gameplay/mechanics/glory_misc.h"
 #include "engine/entities/char_player.h"
 #include "engine/core/handler.h"
-#include "engine/core/target_resolver.h"
 #include "administration/karma.h"
 
 enum DoGloryMode {
@@ -78,7 +77,7 @@ void DoGlory(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 	}
 
-	CharData *vict = target_resolver::FindPlayerVis(ch, arg);
+	CharData *vict = get_player_vis(ch, arg, EFind::kCharInWorld);
 	Player t_vict; // TODO: надо выносить во вторую функцию, чтобы зря не создавать
 	if (!vict) {
 		if (LoadPlayerCharacter(arg, &t_vict, ELoadCharFlags::kFindId) < 0) {

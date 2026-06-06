@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="koi8-r"?>
 <class id="kCharmer">
+    <name abbr="Кд">
+        <singular nom="кудесник" gen="кудесника" dat="кудеснику" acc="кудесника" ins="кудесником" pre="кудеснике"/>
+        <plural nom="кудесники" gen="кудесников" dat="кудесникам" acc="кудесников" ins="кудесниками" pre="кудесниках"/>
+    </name>
     <stats>
         <base_stats>
             <stat id="kStr"	gen_min="10"	gen_max="14"	auto="10"	cap="50"/>

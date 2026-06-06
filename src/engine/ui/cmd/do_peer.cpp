@@ -27,7 +27,7 @@ void DoPeer(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 			for (i = 0; i < EDirection::kMaxDirNum; i++)
 				look_in_direction(ch, i, EXIT_SHOW_LOOKING);
 			if (!(ch->IsImmortal() || GET_GOD_FLAG(ch, EGf::kGodsLike)))
-				SetBattleLag(ch, 1);
+				SetWaitState(ch, 1 * kBattleRound);
 		}
 	} else
 		SendMsgToChar("Вам явно не хватает этого умения.\r\n", ch);

@@ -90,6 +90,7 @@ int load_into_inventory = YES;
 
 const char *OK = "Ладушки.\r\n";
 const char *NOPERSON = "Нет такого создания в этом мире.\r\n";
+const char *NOEFFECT = "Ваши потуги оказались напрасными.\r\n";
 const char *nothing_string = "ничего";
 
 /*

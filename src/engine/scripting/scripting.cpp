@@ -24,7 +24,6 @@ str.cpp - PyUnicode_FromString на PyUnicode_DecodeLocale, PyUnicode_FromString
 #include "gameplay/magic/magic_utils.h"
 #include "gameplay/magic/spells.h"
 #include "engine/core/handler.h"
-#include "engine/core/target_resolver.h"
 #include "gameplay/core/constants.h"
 #include "engine/ui/modify.h"
 #include "gameplay/magic/spells_info.h"
@@ -565,12 +564,7 @@ class CharacterWrapper : public Wrapper<CharacterData> {
 
 	CharacterWrapper get_vis(const char *name, int where) const {
 		Ensurer ch(*this);
-		target_resolver::Query _q;
-		_q.scopes = (where == EFind::kCharInWorld)
-			? std::vector<target_resolver::Scope>{target_resolver::Scope::kRoom, target_resolver::Scope::kWorld}
-			: std::vector<target_resolver::Scope>{target_resolver::Scope::kRoom};
-		_q.name = name;
-		CharData *r = target_resolver::ResolveChar(ch, _q);
+		CharacterData *r = get_char_vis(ch, name, where);
 		if (!r) {
 			PyErr_SetString(PyExc_ValueError, "Character not found");
 			throw_error_already_set();
@@ -700,7 +694,7 @@ std::string get_location_str(const AFFECT_DATA<EApplyLocation> &af) {
 
 std::string get_bitvector_str(const AFFECT_DATA<EApplyLocation> &af) {
 	char buf[MAX_STRING_LENGTH];
-	sprintbitwd(to_underlying(af.affect_type), affected_bits, buf, sizeof(buf), ", ");
+	sprintbitwd(af.bitvector, affected_bits, buf, sizeof(buf), ", ");
 	return buf;
 }
 

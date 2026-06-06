@@ -45,20 +45,11 @@ enum class EMsg {
 
 using DataNode = parser_wrapper::DataNode;
 
-class GuildsLoader : virtual public cfg_manager::IEditableCfgLoader {
+class GuildsLoader : virtual public cfg_manager::ICfgLoader {
 	static void AssignGuildsToTrainers();
  public:
 	void Load(parser_wrapper::DataNode data) final;
 	void Reload(parser_wrapper::DataNode data) final;
-	// issue.thing-names: Vedun editing of vnum-keyed guilds -- opened by vnum (the canonical key) or
-	// found by text_id/name substring. The vnum overrides exist because a <guild> has no `id`
-	// attribute (the editor's default element model); its identity is the integer `vnum`.
-	[[nodiscard]] std::string EditableWhat() const final;
-	[[nodiscard]] std::vector<cfg_manager::EditableElement> ListElements() const final;
-	[[nodiscard]] cfg_manager::ValidationResult Validate(parser_wrapper::DataNode &doc) const final;
-	[[nodiscard]] parser_wrapper::DataNode FindElementNode(parser_wrapper::DataNode root, const std::string &id) const final;
-	[[nodiscard]] std::string CanonicalElementId(const std::string &id) const final;
-	[[nodiscard]] parser_wrapper::DataNode CreateElementNode(parser_wrapper::DataNode root, const std::string &id) const final;
 };
 
 class GuildInfo : public info_container::BaseItem<int> {
@@ -174,6 +165,7 @@ class GuildInfo : public info_container::BaseItem<int> {
 	[[nodiscard]] static const std::string &GetMsg(EMsg msg_id);
 	[[nodiscard]] static bool ProcessPayment(CharData *trainer, CharData *ch, const TalentPtr &talent);
 
+	const std::string &GetName() const { return name_; };
 	void DisplayMenu(CharData *trainer, CharData *ch) const;
 	void LearnAll(CharData *trainer, CharData *ch) const;
 	void LearnWithTalentNum(CharData *trainer, CharData *ch, std::size_t talent_num) const;
@@ -184,7 +176,6 @@ class GuildInfo : public info_container::BaseItem<int> {
 	GuildInfo(int id, std::string &text_id, std::string &name, EItemMode mode)
 	: BaseItem<int>(id, text_id, mode), name_{name} {};
 
-	[[nodiscard]] const std::string &GetName() const { return name_; };
 	void Print(CharData *ch, std::ostringstream &buffer) const;
 	void AssignToTrainers() const;
 	void Process(CharData *trainer, CharData *ch, std::string &argument) const;

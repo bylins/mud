@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="koi8-r"?>
 <class id="kVigilant">
+    <name abbr="Кз">
+        <singular nom="кузнец" gen="кузнеца" dat="кузнецу" acc="кузнеца" ins="кузнецом" pre="кузнеце"/>
+        <plural nom="кузнецы" gen="кузнецов" dat="кузнецам" acc="кузнецов" ins="кузнецами" pre="кузнецах"/>
+    </name>
     <stats>
         <base_stats>
             <stat id="kStr"	gen_min="20"	gen_max="25"	auto="25"	cap="90" />

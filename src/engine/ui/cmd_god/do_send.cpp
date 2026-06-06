@@ -8,7 +8,6 @@
 
 #include "engine/entities/char_data.h"
 #include "engine/core/handler.h"
-#include "engine/core/target_resolver.h"
 
 void DoSendMsgToChar(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *vict;
@@ -19,7 +18,7 @@ void DoSendMsgToChar(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) 
 		SendMsgToChar("Послать что и кому (не путать с куда и кого :)\r\n", ch);
 		return;
 	}
-	if (!(vict = target_resolver::FindPlayerVis(ch, arg))) {
+	if (!(vict = get_player_vis(ch, arg, EFind::kCharInWorld))) {
 		SendMsgToChar(NOPERSON, ch);
 		return;
 	}

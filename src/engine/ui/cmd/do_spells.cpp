@@ -1,5 +1,4 @@
 #include "do_spells.h"
-#include "gameplay/mechanics/magic_item.h"
 
 #include "engine/ui/color.h"
 #include "engine/entities/char_data.h"

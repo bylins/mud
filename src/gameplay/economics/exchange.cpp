@@ -9,7 +9,6 @@
 ************************************************************************ */
 
 #include "exchange.h"
-#include "gameplay/mechanics/identify.h"
 
 #include <fmt/format.h>
 #include <fmt/printf.h>
@@ -518,7 +517,7 @@ int exchange_identify(CharData *ch, char *arg) {
 		SendMsgToChar("У вас не хватит на это денег!\r\n", ch);
 		return false;
 	}
-	MortShowObjValues(GET_EXCHANGE_ITEM(item), ch, 200);    //400 - полное опознание
+	mort_show_obj_values(GET_EXCHANGE_ITEM(item), ch, 200);    //400 - полное опознание
 	ch->remove_both_gold(EXCHANGE_IDENT_PAY);
 	SendMsgToChar(ch, "\r\n%sЗа информацию о предмете с вашего банковского счета сняли %d %s%s\r\n",
 				  kColorBoldGrn, EXCHANGE_IDENT_PAY,

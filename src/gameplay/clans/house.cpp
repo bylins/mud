@@ -5,7 +5,6 @@
 ******************************************************************************/
 
 #include "house.h"
-#include "gameplay/mechanics/identify.h"
 
 #include <sys/stat.h>
 #include <algorithm>
@@ -5403,7 +5402,7 @@ void DoStoreHouse(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				ObjData *tmp_obj = get_obj_in_list_vis(ch, stufina, chest->get_contains());
 				if (tmp_obj) {
 					SendMsgToChar(ch, "Характеристики предмета: %s\r\n", stufina);
-					MortShowObjValues(tmp_obj, ch, 200);
+					mort_show_obj_values(tmp_obj, ch, 200);
 					ch->remove_bank(kChestIdentPay);
 					SendMsgToChar(ch,
 								  "%sЗа информацию о предмете с вашего банковского счета сняли %d %s%s\r\n",

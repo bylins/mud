@@ -1,5 +1,4 @@
 #include "do_mixture.h"
-#include "gameplay/mechanics/magic_item.h"
 
 #include <string>
 
@@ -123,7 +122,7 @@ void do_mixture(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 
 	if (CheckRecipeItems(ch, spell_id, subcmd == SCMD_ITEMS ? ESpellType::kItemCast : ESpellType::kRunes, true, tch)) {
 		if (!CalcCastSuccess(ch, tch, ESaving::kStability, spell_id)) {
-			SetBattleLag(ch, 1);
+			SetWaitState(ch, kBattleRound);
 			if (!tch || !SendSkillMessages(0, ch, tch, spell_id)) {
 				if (subcmd == SCMD_ITEMS)
 					SendMsgToChar("Вы неправильно смешали ингредиенты!\r\n", ch);
@@ -131,9 +130,9 @@ void do_mixture(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 					SendMsgToChar("Вы не смогли правильно истолковать значение рун!\r\n", ch);
 			}
 		} else {
-			if (CallMagic(ch, tch, tobj, world[ch->in_room], spell_id, GetRealLevel(ch)) != ECastResult::kTargetDied) {
+			if (CallMagic(ch, tch, tobj, world[ch->in_room], spell_id, GetRealLevel(ch)) >= 0) {
 				if (!(ch->IsImmortal() || ch->get_wait() > 0 ))
-					SetBattleLag(ch, 1);
+					SetWaitState(ch, kBattleRound);
 			}
 		}
 	}

@@ -34,23 +34,6 @@ class CurrenciesLoader : virtual public cfg_manager::ICfgLoader {
 	void Reload(parser_wrapper::DataNode data) final;
 };
 
-// issue.thing-names: a currency's display name -- the search string + gendered cased declensions --
-// loaded from cfg/messages/ru/currency_msg.xml (before currencies.xml), keyed by currency text_id.
-struct CurrencyName {
-	EGender gender{EGender::kFemale};
-	std::string search{"!undefined!"};
-	grammar::ItemName cases;
-};
-
-class CurrencyNamesLoader : virtual public cfg_manager::ICfgLoader {
- public:
-	void Load(parser_wrapper::DataNode data) final;
-	void Reload(parser_wrapper::DataNode data) final;
-};
-
-// The loaded name for a currency text_id, or nullptr if none.
-const CurrencyName *FindCurrencyName(const std::string &text_id);
-
 class CurrencyInfo : public info_container::BaseItem<int> {
 	friend class CurrencyInfoBuilder;
 

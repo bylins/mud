@@ -51,6 +51,7 @@ void ZoneTrafficSave();
 void ResetZone(ZoneRnum zone);
 void LoadSheduledReboot();
 void initIngredientsMagic();
+void InitZoneTypes();
 int AllocateBufferForFile(const char *name, char **destination_buf);
 int LoadPlayerCharacter(const char *name, CharData *char_element, int load_flags);
 CharData *ReadMobile(MobVnum nr, int type);

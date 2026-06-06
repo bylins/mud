@@ -10,13 +10,6 @@ endif
 
 test_sources = files(
     'main.cpp',
-    'vedun.enum_names.cpp',
-    'vedun.dom.cpp',
-    'vedun.enum_registry.cpp',
-    'vedun.scheme.cpp',
-    'vedun.datanode_mutation.cpp',
-    'vedun.element_find.cpp',
-    'guilds.loader.cpp',
     'spell_wear_off_msg.wrapper.cpp',
     'blocking.queue.cpp',
     'boards.changelog.cpp',
@@ -36,6 +29,7 @@ test_sources = files(
     'quested.cpp',
     'sprintbitwd.cpp',
     'triggers.list.cpp',
+    'radix.trie.cpp',
     'compact.trie.cpp',
     'compact.trie.iterators.cpp',
     'yaml.save.encoding.cpp',

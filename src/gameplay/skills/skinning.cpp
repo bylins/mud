@@ -329,8 +329,12 @@ void DoSkinning(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	const auto mob = (mob_proto + GetMobRnum(mobn));
 
-	// issue.npc-races: only corpses of races with the <skinnable/> trait can be skinned.
-	if (!ch->IsImmortal() && !MUD::MobRaces()[GET_RACE(mob)].IsSkinnable()) {
+	if (!ch->IsImmortal()
+		&& GET_RACE(mob) != ENpcRace::kAnimal
+		&& GET_RACE(mob) != ENpcRace::kReptile
+		&& GET_RACE(mob) != ENpcRace::kFish
+		&& GET_RACE(mob) != ENpcRace::kBird
+		&& GET_RACE(mob) != ENpcRace::kBeastman) {
 		SendMsgToChar("Этот труп невозможно освежевать.\r\n", ch);
 		return;
 	}

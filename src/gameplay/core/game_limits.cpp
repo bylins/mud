@@ -1176,8 +1176,7 @@ void room_point_update() {
 			world[count]->portal_time--;
 			if (!world[count]->portal_time) {
 				OneWayPortal::remove(world[count]);
-				// (issue.affect-flags: pkPenterUnique field retired; this commented-out
-				// block was a write to it. PK-uid now lives on the affect via pk_unique.)
+				world[count]->pkPenterUnique = 0;
 				act("Пентаграмма медленно растаяла.",
 					false, world[count]->first_character(), nullptr, nullptr, kToRoom);
 				act("Пентаграмма медленно растаяла.",

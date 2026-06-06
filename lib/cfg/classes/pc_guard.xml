@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="koi8-r"?>
 <class id="kGuard">
+    <name abbr="Др">
+        <singular nom="дружинник" gen="дружинника" dat="дружиннику" acc="дружинника" ins="дружинником" pre="дружиннике"/>
+        <plural nom="дружинники" gen="дружинников" dat="дружинникам" acc="дружинников" ins="дружинниками" pre="дружинниках"/>
+    </name>
     <stats>
         <base_stats>
             <stat id="kStr"	gen_min="20"	gen_max="23"	auto="23"	cap="75"/>

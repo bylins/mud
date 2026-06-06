@@ -1,7 +1,6 @@
 //#include "heartbeat.h"
 
 #include <utility>
-#include "gameplay/mechanics/magic_item.h"
 
 #include "administration/proxy.h"
 #include "gameplay/economics/auction.h"

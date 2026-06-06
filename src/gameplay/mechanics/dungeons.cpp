@@ -7,7 +7,6 @@
 */
 
 #include "engine/ui/cmd/do_follow.h"
-#include "gameplay/mechanics/portal.h"
 #include "engine/scripting/dg_db_scripts.h"
 #include "dungeons.h"
 #include "engine/core/handler.h"

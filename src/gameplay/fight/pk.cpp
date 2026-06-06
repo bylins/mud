@@ -1125,41 +1125,6 @@ bool bloody::is_bloody(const ObjData *obj) {
 	return result;
 }
 
-bool bloody::CatchBloodyCorpse(ObjData *l) {
-	bool temp_bloody = false;
-	ObjData *next_element;
-
-	if (!l->get_contains()) {
-		return false;
-	}
-
-	if (bloody::is_bloody(l->get_contains())) {
-		return true;
-	}
-
-	if (!l->get_contains()->get_next_content()) {
-		return false;
-	}
-
-	next_element = l->get_contains()->get_next_content();
-	while (next_element) {
-		if (next_element->get_contains()) {
-			temp_bloody = bloody::CatchBloodyCorpse(next_element->get_contains());
-			if (temp_bloody) {
-				return true;
-			}
-		}
-
-		if (bloody::is_bloody(next_element)) {
-			return true;
-		}
-
-		next_element = next_element->get_contains();
-	}
-
-	return false;
-}
-
 void UpdatePkLogs(CharData *ch, CharData *victim) {
 	ClanPkLog::check(ch, victim);
 	sprintf(buf2, "%s killed by %s at %s [%d] ", GET_NAME(victim), GET_NAME(ch),

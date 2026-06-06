@@ -488,8 +488,8 @@ const int kNameLevel = 5;
 #define CAN_SEE_IN_DARK(ch) \
    (AFF_FLAGGED(ch, EAffect::kInfravision) || (!(ch)->IsNpc() && (ch)->IsFlagged(EPrf::kHolylight)))
 
-// IS_GOOD / IS_EVIL replaced by IsGood/IsEvil/IsNeutral inline functions in char_data.h
-// (issue.cast-dmg-migration: macros -> Google-style inline functions, plus the new IsNeutral).
+#define IS_GOOD(ch)          (GET_ALIGNMENT(ch) >= kAligGoodMore)
+#define IS_EVIL(ch)          (GET_ALIGNMENT(ch) <= kAligEvilLess)
 #define ALIGN_DELTA  10
 #define SAME_ALIGN(ch, vict)  (GET_ALIGNMENT(ch)>GET_ALIGNMENT(vict)?\
                               (GET_ALIGNMENT(ch)-GET_ALIGNMENT(vict))<=ALIGN_DELTA:\
@@ -615,27 +615,9 @@ const int kNameLevel = 5;
                           IS_OBJ_MALE(obj) ? "ой"  :\
                           IS_OBJ_FEMALE(obj) ? "ая" : "ие")
 
-// Soft-stem instrumental: посвежевш(им/им/ей/ими). Wired to act()'s $h / $H
-// codes (issue.mag-points). Used by the cast-message {intensity} substitution
-// for past participles -- "Вы почувствовали себя посвежевш$h."
 #define GET_CH_EXSUF_1(ch) (IS_NOSEXY(ch) ? "им" :\
                             IS_MALE(ch) ? "им"  :\
                             IS_FEMALE(ch) ? "ей" : "ими")
-// Vis variant: fallback "им" matches the masculine form when the observer
-// can't see the actor (consistent with the other GET_CH_VIS_SUF_* fallbacks).
-#define GET_CH_VIS_EXSUF_1(ch, och) (!CAN_SEE(och,ch) ? "им" :\
-                            IS_NOSEXY(ch) ? "им" :\
-                            IS_MALE(ch) ? "им"  :\
-                            IS_FEMALE(ch) ? "ей" : "ими")
-// OBJ counterpart for $H when an object is the actor (rare, but symmetric
-// with every other GET_OBJ_SUF_*).
-#define GET_OBJ_EXSUF_1(obj) (IS_OBJ_NOSEXY(obj) ? "им" :\
-                            IS_OBJ_MALE(obj) ? "им"  :\
-                            IS_OBJ_FEMALE(obj) ? "ей" : "ими")
-#define GET_OBJ_VIS_EXSUF_1(obj, ch) (!CAN_SEE_OBJ(ch,obj) ? "им" :\
-                            IS_OBJ_NOSEXY(obj) ? "им" :\
-                            IS_OBJ_MALE(obj) ? "им"  :\
-                            IS_OBJ_FEMALE(obj) ? "ей" : "ими")
 #define GET_CH_POLY_1(ch) (IS_POLY(ch) ? "те" : "")
 
 #define GET_OBJ_POLY_1(ch, obj) ((GET_OBJ_SEX(obj) == EGender::kPoly) ? "ят" : "ит")

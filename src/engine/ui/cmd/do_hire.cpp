@@ -2,7 +2,6 @@
 
 #include "do_follow.h"
 #include "engine/core/handler.h"
-#include "engine/core/target_resolver.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/core/base_stats.h"
 #include "gameplay/mechanics/weather.h"
@@ -18,6 +17,26 @@ constexpr short kMaxHireTime = 10080 / 2; // Неделя в минутах по
 constexpr long kMaxHirePrice = LONG_MAX / (kMaxHireTime + 1);
 
 //Функции для модифицированного чарма
+float CalcDamagePerRound(CharData *victim) {
+	float dam_per_attack = GET_DR(victim) + str_bonus(victim->get_str(), STR_TO_DAM)
+		+ victim->mob_specials.damnodice * (victim->mob_specials.damsizedice + 1) / 2.0
+		+ (AFF_FLAGGED(victim, EAffect::kCloudOfArrows) ? 14 : 0);
+	int num_attacks = 1 + victim->mob_specials.extra_attack
+		+ (victim->GetSkill(ESkill::kAddshot) ? 2 : 0);
+
+	float dam_per_round = dam_per_attack * num_attacks;
+
+	//Если дыхание - то дамаг умножается
+	if (victim->IsFlagged(EMobFlag::kFireBreath) ||
+		victim->IsFlagged(EMobFlag::kGasBreath) ||
+		victim->IsFlagged(EMobFlag::kFrostBreath) ||
+		victim->IsFlagged(EMobFlag::kAcidBreath) ||
+		victim->IsFlagged(EMobFlag::kLightingBreath)) {
+		dam_per_round *= 1.3f;
+	}
+
+	return dam_per_round;
+}
 
 float CalcChaForHire(CharData *victim) {
 	int i;
@@ -117,6 +136,38 @@ long CalcHirePrice(CharData *ch, CharData *victim) {
 	return std::min(finalPrice, kMaxHirePrice);
 }
 
+int GetReformedCharmiceHp(CharData *ch, CharData *victim, ESpell spell_id) {
+	auto r_hp{0.0};
+	auto eff_cha{0.0};
+	auto stat_cap{0.0};
+
+	if (spell_id == ESpell::kResurrection || spell_id == ESpell::kAnimateDead) {
+		eff_cha = CalcEffectiveWis(ch, spell_id);
+		stat_cap = MUD::Class(ch->GetClass()).GetBaseStatCap(EBaseStat::kWis);
+	} else {
+		stat_cap = MUD::Class(ch->GetClass()).GetBaseStatCap(EBaseStat::kCha);
+		eff_cha = get_effective_cha(ch);
+	}
+
+	if (spell_id != ESpell::kCharm) {
+		eff_cha = std::min(stat_cap, eff_cha + 2); // Все кроме чарма кастится с бонусом в 2
+	}
+
+	// Интерполяция между значениями для целых значений обаяния
+	if (eff_cha < stat_cap) {
+		r_hp = victim->get_max_hit() + CalcDamagePerRound(victim) *
+			((1 - eff_cha + (int) eff_cha) * cha_app[(int) eff_cha].dam_to_hit_rate +
+				(eff_cha - (int) eff_cha) * cha_app[(int) eff_cha + 1].dam_to_hit_rate);
+	} else {
+		r_hp = victim->get_max_hit() + CalcDamagePerRound(victim) *
+			((1 - eff_cha + (int) eff_cha) * cha_app[(int) eff_cha].dam_to_hit_rate);
+	}
+
+	if (ch->IsFlagged(EPrf::kTester))
+		SendMsgToChar(ch, "&Gget_reformed_charmice_hp Расчет чарма r_hp = %f \r\n&n", r_hp);
+	return (int) r_hp;
+}
+
 void DoFindhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->IsNpc()
 		|| (!ch->IsImmortal() && !CanUseFeat(ch, EFeat::kEmployer))) {
@@ -143,9 +194,7 @@ void DoFindhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	CharData *helpee = nullptr;
-
-	helpee = target_resolver::FindCharInRoom(ch, arg);
+	const auto helpee = get_char_vis(ch, arg, EFind::kCharInRoom);
 	if (!helpee) {
 		SendMsgToChar("Вы не видите никого похожего.\r\n", ch);
 		return;
@@ -227,7 +276,7 @@ void DoFindhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		Affect<EApply> af;
 		if (!(hired && hired == helpee)) {
 			ch->add_follower(helpee);
-			af.duration = CalcDuration(helpee, helpee, ESkill::kUndefined, times * kTimeKoeff, 0, 0, 0);
+			af.duration = CalcDuration(helpee, times * kTimeKoeff, 0, 0, 0, 0);
 		} else {
 			auto aff = hired->affected.begin();
 			for (; aff != hired->affected.end(); ++aff) {
@@ -246,7 +295,7 @@ void DoFindhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					SendMsgToChar(ch, "Вам вернули нерастраченный задаток в %ld %s.\r\n",
 								  oldcost, GetDeclensionInNumber(cost, EWhat::kMoneyA));
 				}
-				af.duration = CalcDuration(helpee, helpee, ESkill::kUndefined, times * kTimeKoeff, 0, 0, 0);
+				af.duration = CalcDuration(helpee, times * kTimeKoeff, 0, 0, 0, 0);
 			}
 		}
 		RemoveAffectFromChar(helpee, ESpell::kCharm);
@@ -263,14 +312,14 @@ void DoFindhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		af.type = ESpell::kCharm;
 		af.modifier = 0;
 		af.location = EApply::kNone;
-		af.affect_type = EAffect::kCharmed;
+		af.bitvector = to_underlying(EAffect::kCharmed);
 		af.battleflag = 0;
 		affect_to_char(helpee, af);
 
 		af.type = ESpell::kCharm;
 		af.modifier = 0;
 		af.location = EApply::kNone;
-		af.affect_type = EAffect::kHelper;
+		af.bitvector = to_underlying(EAffect::kHelper);
 		af.battleflag = 0;
 		affect_to_char(helpee, af);
 
@@ -360,6 +409,7 @@ void DoFreehelpee(CharData *ch, char * /* argument*/, int/* cmd*/, int/* subcmd*
 	RemoveAffectFromCharAndRecalculate(hired, ESpell::kCharm);
 	stop_follower(hired, kSfCharmlost);
 }
+
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
 

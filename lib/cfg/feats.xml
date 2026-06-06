@@ -16,15 +16,15 @@
         </requirements>>
     </feat>
     -->
-    <feat id="kUndefined" mode="kService">
+    <feat id="kUndefined" name="!undefined!" mode="kService">
     </feat>
-    <feat id="kBerserker" mode="kEnabled">
+    <feat id="kBerserker" name="предсмертная ярость" mode="kEnabled">
     </feat>
-    <feat id="kParryArrow" mode="kEnabled">
+    <feat id="kParryArrow" name="отбить стрелу" mode="kEnabled">
     </feat>
-    <feat id="kBlindFight" mode="kEnabled">
+    <feat id="kBlindFight" name="слепой бой" mode="kEnabled">
     </feat>
-    <feat id="kImpregnable" mode="kEnabled">
+    <feat id="kImpregnable" name="непробиваемый" mode="kEnabled">
         <talent_effects>
             <applies>
                 <apply location="kMagicResist" val="1" affect="kUndefinded" lvl_bonus="0.0" remort_bonus="1.0" cap="10"/>
@@ -32,16 +32,16 @@
             </applies>
         </talent_effects>
     </feat>
-    <feat id="kNightVision" mode="kTesting">
+    <feat id="kNightVision" name="ночное зрение" mode="kTesting">
         <talent_effects>
             <applies>
                 <apply location="kNone" affect="kInfravision" val="0" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
             </applies>
         </talent_effects>
     </feat>
-    <feat id="kDefender" mode="kEnabled">
+    <feat id="kDefender" name="щитоносец" mode="kEnabled">
     </feat>
-    <feat id="kDodger" mode="kEnabled">
+    <feat id="kDodger" name="изворотливость" mode="kEnabled">
         <talent_effects>
             <applies>
                 <apply location="kSpelledBlinkPhys" val="5" affect="kBlink" lvl_bonus="0.2" remort_bonus="0.67" cap="30"/>
@@ -52,15 +52,15 @@
             </applies>
         </talent_effects>
     </feat>
-    <feat id="kLightWalk" mode="kEnabled">
+    <feat id="kLightWalk" name="легкая поступь" mode="kEnabled">
     </feat>
-    <feat id="kWriggler" mode="kEnabled">
+    <feat id="kWriggler" name="проныра" mode="kEnabled">
     </feat>
-    <feat id="kSpellSubstitute" mode="kEnabled">
+    <feat id="kSpellSubstitute" name="подмена заклинания" mode="kEnabled">
     </feat>
-    <feat id="kPowerAttack" mode="kEnabled">
+    <feat id="kPowerAttack" name="мощная атака" mode="kEnabled">
     </feat>
-    <feat id="kWoodenSkin" mode="kEnabled">
+    <feat id="kWoodenSkin" name="деревянная кожа" mode="kEnabled">
         <talent_effects>
             <applies>
                 <apply location="kResistFire" val="5" affect="kUndefinded" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
@@ -71,7 +71,7 @@
             </applies>
         </talent_effects>
     </feat>
-    <feat id="kIronSkin" mode="kEnabled">
+    <feat id="kIronSkin" name="железная кожа" mode="kEnabled">
         <talent_effects>
             <applies>
                 <apply location="kResistFire" val="10" affect="kUndefinded" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
@@ -83,7 +83,7 @@
             </applies>
         </talent_effects>
     </feat>
-    <feat id="kConnoiseur" mode="kEnabled">
+    <feat id="kConnoiseur" name="знаток" mode="kEnabled">
         <talent_effects>
             <skill_timer_mods>
                 <skill_timer id="kIdentify" val="-6"/>
@@ -93,7 +93,7 @@
             </skill_mods>
         </talent_effects>
     </feat>
-    <feat id="kExorcist" mode="kEnabled">
+    <feat id="kExorcist" name="экзорцист" mode="kEnabled">
         <talent_effects>
 <!-- Это пришлось убрать, потому что "гашетки" скиллов сделаны на костылях
             <skill_timer_mods>
@@ -104,21 +104,21 @@
             </skill_mods>
         </talent_effects>
     </feat>
-    <feat id="kHealer" mode="kEnabled">
+    <feat id="kHealer" name="целитель" mode="kEnabled">
         <talent_effects>
             <skill_mods>
                 <skill id="kFirstAid" val="10"/>
             </skill_mods>
         </talent_effects>
     </feat>
-    <feat id="kLightingReflex" mode="kEnabled">
+    <feat id="kLightingReflex" name="мгновенная реакция" mode="kEnabled">
         <talent_effects>
             <applies>
                 <apply location="kSavingReflex" val="-10" affect="kUndefinded" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
             </applies>
         </talent_effects>
     </feat>
-    <feat id="kDrunkard" mode="kEnabled">
+    <feat id="kDrunkard" name="пьяница" mode="kEnabled">
         <talent_effects>
             <skill_timer_mods>
                 <skill_timer id="kHangovering" val="-4"/>
@@ -128,14 +128,14 @@
             </skill_mods>
         </talent_effects>
     </feat>
-    <feat id="kPowerMagic" mode="kEnabled">
+    <feat id="kPowerMagic" name="мощь колдовства" mode="kEnabled">
         <talent_effects>
             <applies>
                 <apply location="kMagicDamagePercent" val="50" affect="kUndefinded" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
             </applies>
         </talent_effects>
     </feat>
-    <feat id="kEndurance" mode="kEnabled">
+    <feat id="kEndurance" name="выносливость" mode="kEnabled">
         <talent_effects>
             <applies>
                 <apply location="kMove" val="2" affect="kUndefinded" lvl_bonus="2.0" remort_bonus="4.0" cap="200"/>
@@ -143,7 +143,7 @@
             </applies>
         </talent_effects>
     </feat>
-    <feat id="kGreatFortitude" mode="kEnabled">
+    <feat id="kGreatFortitude" name="сила духа" mode="kEnabled">
         <talent_effects>
             <applies>
                 <apply location="kSavingWill" affect="kUndefinded" val="-10" lvl_bonus="0.0" remort_bonus="0.4" cap="-40"/>
@@ -151,14 +151,14 @@
             </applies>
         </talent_effects>
     </feat>
-    <feat id="kFastRegen" mode="kEnabled">
+    <feat id="kFastRegen" name="быстрое заживление" mode="kEnabled">
         <talent_effects>4
             <applies>
                 <apply location="kHpRegen" val="35" affect="kUndefinded" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
             </applies>
         </talent_effects>
     </feat>
-    <feat id="kStealthy" mode="kEnabled">
+    <feat id="kStealthy" name="незаметность" mode="kEnabled">
         <talent_effects>
             <skill_mods>
                 <skill id="kHideTrack" val="5"/>
@@ -168,14 +168,14 @@
             </skill_mods>
         </talent_effects>
     </feat>
-    <feat id="kWolfScent" mode="kEnabled">
+    <feat id="kWolfScent" name="волчье чутье" mode="kEnabled">
         <talent_effects>
             <applies>
                 <apply location="kNone" val="0" affect="kDetectLife" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
             </applies>
         </talent_effects>
     </feat>
-    <feat id="kSplendidHealth" mode="kEnabled">
+    <feat id="kSplendidHealth" name="богатырское здоровье" mode="kEnabled">
         <talent_effects>
             <applies>
                 <apply location="kHp" val="2" affect="kUndefinded" lvl_bonus="2.0" remort_bonus="0.0" cap="0"/>
@@ -184,7 +184,7 @@
             </applies>
         </talent_effects>
     </feat>
-    <feat id="kTracker" mode="kEnabled">
+    <feat id="kTracker" name="следопыт" mode="kEnabled">
         <talent_effects>
             <skill_mods>
                 <skill id="kTrack" val="10"/>
@@ -192,104 +192,104 @@
             </skill_mods>
         </talent_effects>
     </feat>
-    <feat id="kWeaponFinesse" mode="kEnabled">
+    <feat id="kWeaponFinesse" name="ловкий удар" mode="kEnabled">
     </feat>
-    <feat id="kCombatCasting" mode="kEnabled">
+    <feat id="kCombatCasting" name="боевое колдовство" mode="kEnabled">
     </feat>
-    <feat id="kPunchMaster" mode="kEnabled">
+    <feat id="kPunchMaster" name="мастер кулачного боя" mode="kEnabled">
     </feat>
-    <feat id="kClubsMaster" mode="kEnabled">
+    <feat id="kClubsMaster" name="мастер палицы" mode="kEnabled">
     </feat>
-    <feat id="kAxesMaster" mode="kEnabled">
+    <feat id="kAxesMaster" name="мастер секиры" mode="kEnabled">
     </feat>
-    <feat id="kLongsMaster" mode="kEnabled">
+    <feat id="kLongsMaster" name="мастер меча" mode="kEnabled">
     </feat>
-    <feat id="kShortsMaster" mode="kEnabled">
+    <feat id="kShortsMaster" name="мастер ножа" mode="kEnabled">
     </feat>
-    <feat id="kNonstandartsMaster" mode="kEnabled">
+    <feat id="kNonstandartsMaster" name="мастер необычного оружия" mode="kEnabled">
     </feat>
-    <feat id="kTwohandsMaster" mode="kEnabled">
+    <feat id="kTwohandsMaster" name="мастер двуручника" mode="kEnabled">
     </feat>
-    <feat id="kPicksMaster" mode="kEnabled">
+    <feat id="kPicksMaster" name="мастер кинжала" mode="kEnabled">
     </feat>
-    <feat id="kSpadesMaster" mode="kEnabled">
+    <feat id="kSpadesMaster" name="мастер копья" mode="kEnabled">
     </feat>
-    <feat id="kBowsMaster" mode="kEnabled">
+    <feat id="kBowsMaster" name="мастер лучник" mode="kEnabled">
     </feat>
-    <feat id="kForestPath" mode="kEnabled">
+    <feat id="kForestPath" name="лесные тропы" mode="kEnabled">
     </feat>
-    <feat id="kMountainPath" mode="kEnabled">
+    <feat id="kMountainPath" name="горные тропы" mode="kEnabled">
     </feat>
-    <feat id="kLuckyGuy" mode="kEnabled">
+    <feat id="kLuckyGuy" name="счастливчик" mode="kEnabled">
         <talent_effects>
             <applies>
                 <apply location="kMorale" val="5" affect="kUndefinded" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
             </applies>
         </talent_effects>
     </feat>
-    <feat id="kWarriorSpirit" mode="kEnabled">
+    <feat id="kWarriorSpirit" name="боевой дух" mode="kEnabled">
     </feat>
-    <feat id="kReliableHealth" mode="kEnabled">
+    <feat id="kReliableHealth" name="крепкое здоровье" mode="kEnabled">
         <talent_effects>
             <applies>
                 <apply location="kHpRegen" val="50" affect="kUndefinded" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
             </applies>
         </talent_effects>
     </feat>
-    <feat id="kExcellentMemory" mode="kEnabled">
+    <feat id="kExcellentMemory" name="превосходная память" mode="kEnabled">
         <talent_effects>
             <applies>
                 <apply location="kManaRegen" val="100" affect="kUndefinded" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
             </applies>
         </talent_effects>
     </feat>
-    <feat id="kAnimalDextery" mode="kEnabled">
+    <feat id="kAnimalDextery" name="звериная прыть" mode="kEnabled">
         <talent_effects>
             <applies>
                 <apply location="kDex" val="1" affect="kUndefinded" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
             </applies>
         </talent_effects>
     </feat>
-    <feat id="kLegibleWritting" mode="kEnabled">
+    <feat id="kLegibleWritting" name="чёткий почерк" mode="kEnabled">
         <talent_effects>
             <applies>
                 <apply location="kManaRegen" val="25" affect="kUndefinded" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
             </applies>
         </talent_effects>
     </feat>
-    <feat id="kIronMuscles" mode="kEnabled">
+    <feat id="kIronMuscles" name="стальные мышцы" mode="kEnabled">
         <talent_effects>
             <applies>
                 <apply location="kDamroll" val="2" affect="kUndefinded" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
             </applies>
         </talent_effects>
     </feat>
-    <feat id="kMagicSign" mode="kEnabled">
+    <feat id="kMagicSign" name="знак чародея" mode="kEnabled">
         <talent_effects>
             <applies>
                 <apply location="kCastSuccess" val="5" affect="kUndefinded" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
             </applies>
         </talent_effects>
     </feat>
-    <feat id="kGreatEndurance" mode="kEnabled">
+    <feat id="kGreatEndurance" name="двужильность" mode="kEnabled">
         <talent_effects>
             <applies>
                 <apply location="kMoveRegen" val="75" affect="kUndefinded" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
             </applies>
         </talent_effects>
     </feat>
-    <feat id="kBestDestiny" mode="kEnabled">
+    <feat id="kBestDestiny" name="лучшая доля" mode="kEnabled">
         <talent_effects>
             <applies>
                 <apply location="kMorale" val="5" affect="kUndefinded" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
             </applies>
         </talent_effects>
     </feat>
-    <feat id="kHerbalist" mode="kEnabled">
+    <feat id="kHerbalist" name="травник" mode="kEnabled">
     </feat>
-    <feat id="kJuggler" mode="kEnabled">
+    <feat id="kJuggler" name="жонглер" mode="kEnabled">
     </feat>
-    <feat id="kNimbleFingers" mode="kEnabled">
+    <feat id="kNimbleFingers" name="ловкач" mode="kEnabled">
         <talent_effects>
             <skill_mods>
                 <skill id="kPickLock" val="10"/>
@@ -297,265 +297,265 @@
             </skill_mods>
         </talent_effects>
     </feat>
-    <feat id="kGreatPowerAttack" mode="kEnabled">
+    <feat id="kGreatPowerAttack" name="улучшенная мощная атака" mode="kEnabled">
     </feat>
-    <feat id="kStrongImmunity" mode="kEnabled">
+    <feat id="kStrongImmunity" name="привычка к яду" mode="kEnabled">
         <talent_effects>
             <applies>
                 <apply location="kResistImmunity" val="15" affect="kUndefinded" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
             </applies>
         </talent_effects>
     </feat>
-    <feat id="kMobility" mode="kEnabled">
+    <feat id="kMobility" name="подвижность" mode="kEnabled">
         <talent_effects>
             <applies>
                 <apply location="kAc" affect="kUndefinded" val="-40" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
             </applies>
         </talent_effects>
     </feat>
-    <feat id="kNaturalStr" mode="kEnabled">
+    <feat id="kNaturalStr" name="силач" mode="kEnabled">
         <talent_effects>
             <applies>
                 <apply location="kStr" val="1" affect="kUndefinded" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
             </applies>
         </talent_effects>
     </feat>
-    <feat id="kNaturalDex" mode="kEnabled">
+    <feat id="kNaturalDex" name="проворство" mode="kEnabled">
         <talent_effects>
             <applies>
                 <apply location="kDex" val="1" affect="kUndefinded" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
             </applies>
         </talent_effects>
     </feat>
-    <feat id="kNaturalInt" mode="kEnabled">
+    <feat id="kNaturalInt" name="природный ум" mode="kEnabled">
         <talent_effects>
             <applies>
                 <apply location="kInt" val="1" affect="kUndefinded" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
             </applies>
         </talent_effects>
     </feat>
-    <feat id="kNaturalWis" mode="kEnabled">
+    <feat id="kNaturalWis" name="мудрец" mode="kEnabled">
         <talent_effects>
             <applies>
                 <apply location="kWis" val="1" affect="kUndefinded" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
             </applies>
         </talent_effects>
     </feat>
-    <feat id="kNaturalCon" mode="kEnabled">
+    <feat id="kNaturalCon" name="здоровяк" mode="kEnabled">
         <talent_effects>
             <applies>
                 <apply location="kCon" val="1" affect="kUndefinded" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
             </applies>
         </talent_effects>
     </feat>
-    <feat id="kNaturalCha" mode="kEnabled">
+    <feat id="kNaturalCha" name="природное обаяние" mode="kEnabled">
         <talent_effects>
             <applies>
                 <apply location="kCha" val="1" affect="kUndefinded" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
             </applies>
         </talent_effects>
     </feat>
-    <feat id="kMnemonicEnhancer" mode="kEnabled">
+    <feat id="kMnemonicEnhancer" name="отличная память" mode="kEnabled">
         <talent_effects>
             <applies>
                 <apply location="kManaRegen" val="25" affect="kUndefinded" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
             </applies>
         </talent_effects>
     </feat>
-    <feat id="kMagneticPersonality" mode="kEnabled">
+    <feat id="kMagneticPersonality" name="предводитель" mode="kEnabled">
         <talent_effects>
             <skill_mods>
                 <skill id="kLeadership" val="5"/>
             </skill_mods>
         </talent_effects>
     </feat>
-    <feat id="kDamrollBonus" mode="kEnabled">
+    <feat id="kDamrollBonus" name="тяжел на руку" mode="kEnabled">
         <talent_effects>
             <applies>
                 <apply location="kDamroll" val="2" affect="kUndefinded" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
             </applies>
         </talent_effects>
     </feat>
-    <feat id="kHitrollBonus" mode="kEnabled">
+    <feat id="kHitrollBonus" name="твердая рука" mode="kEnabled">
         <talent_effects>
             <applies>
                 <apply location="kHitroll" val="1" affect="kUndefinded" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
             </applies>
         </talent_effects>
     </feat>
-    <feat id="kInjure" mode="kEnabled">
+    <feat id="kInjure" name="ранить" mode="kEnabled">
     </feat>
-    <feat id="kPunchFocus" mode="kEnabled">
+    <feat id="kPunchFocus" name="любимое оружие: голые руки" mode="kEnabled">
     </feat>
-    <feat id="kClubsFocus" mode="kEnabled">
+    <feat id="kClubsFocus" name="любимое оружие: палица" mode="kEnabled">
     </feat>
-    <feat id="kAxesFocus" mode="kEnabled">
+    <feat id="kAxesFocus" name="любимое оружие: секира" mode="kEnabled">
     </feat>
-    <feat id="kLongsFocus" mode="kEnabled">
+    <feat id="kLongsFocus" name="любимое оружие: меч" mode="kEnabled">
     </feat>
-    <feat id="kShortsFocus" mode="kEnabled">
+    <feat id="kShortsFocus" name="любимое оружие: нож" mode="kEnabled">
     </feat>
-    <feat id="kNonstandartsFocus" mode="kEnabled">
+    <feat id="kNonstandartsFocus" name="любимое оружие: необычное" mode="kEnabled">
     </feat>
-    <feat id="kTwohandsFocus" mode="kEnabled">
+    <feat id="kTwohandsFocus" name="любимое оружие: двуручник" mode="kEnabled">
     </feat>
-    <feat id="kPicksFocus" mode="kEnabled">
+    <feat id="kPicksFocus" name="любимое оружие: кинжал" mode="kEnabled">
     </feat>
-    <feat id="kSpadesFocus" mode="kEnabled">
+    <feat id="kSpadesFocus" name="любимое оружие: копье" mode="kEnabled">
     </feat>
-    <feat id="kBowsFocus" mode="kEnabled">
+    <feat id="kBowsFocus" name="любимое оружие: лук" mode="kEnabled">
     </feat>
-    <feat id="kAimingAttack" mode="kEnabled">
+    <feat id="kAimingAttack" name="прицельная атака" mode="kEnabled">
     </feat>
-    <feat id="kGreatAimingAttack" mode="kEnabled">
+    <feat id="kGreatAimingAttack" name="улучшенная прицельная атака" mode="kEnabled">
     </feat>
-    <feat id="kDoubleShot" mode="kEnabled">
+    <feat id="kDoubleShot" name="двойной выстрел" mode="kEnabled">
     </feat>
-    <feat id="kPorter" mode="kEnabled">
+    <feat id="kPorter" name="тяжеловоз" mode="kEnabled">
     </feat>
-    <feat id="kSecretRunes" mode="kEnabled">
+    <feat id="kSecretRunes" name="тайные руны" mode="kEnabled">
     </feat>
-    <feat id="kToFitItem" mode="kTesting">
+    <feat id="kToFitItem" name="переделать" mode="kTesting">
     </feat>
-    <feat id="kToFitClotches" mode="kTesting">
+    <feat id="kToFitClotches" name="перешить" mode="kTesting">
     </feat>
-    <feat id="kStrengthConcentration" mode="kEnabled">
+    <feat id="kStrengthConcentration" name="концентрация силы" mode="kEnabled">
     </feat>
-    <feat id="kDarkReading" mode="kEnabled">
+    <feat id="kDarkReading" name="кошачий глаз" mode="kEnabled">
         <talent_effects>
             <applies>
                 <apply location="kNone" affect="kInfravision" val="0" lvl_bonus="0.0" remort_bonus="0.0" cap="0"/>
             </applies>
         </talent_effects>
     </feat>
-    <feat id="kSpellCapabler" mode="kEnabled">
+    <feat id="kSpellCapabler" name="зачаровать" mode="kEnabled">
     </feat>
-    <feat id="kWearingLightArmor" mode="kEnabled">
+    <feat id="kWearingLightArmor" name="легкие доспехи" mode="kEnabled">
     </feat>
-    <feat id="kWearingMediumArmor" mode="kEnabled">
+    <feat id="kWearingMediumArmor" name="средние доспехи" mode="kEnabled">
     </feat>
-    <feat id="kWearingHeavyArmor" mode="kEnabled">
+    <feat id="kWearingHeavyArmor" name="тяжелые доспехи" mode="kEnabled">
     </feat>
-    <feat id="kGemsInlay" mode="kEnabled">
+    <feat id="kGemsInlay" name="инкрустация" mode="kEnabled">
     </feat>
-    <feat id="kWarriorStrength" mode="kEnabled">
+    <feat id="kWarriorStrength" name="богатырская сила" mode="kEnabled">
     </feat>
-    <feat id="kRelocate" mode="kEnabled">
+    <feat id="kRelocate" name="переместиться" mode="kEnabled">
     </feat>
-    <feat id="kSilverTongue" mode="kEnabled">
+    <feat id="kSilverTongue" name="сладкоречие" mode="kEnabled">
     </feat>
-    <feat id="kBully" mode="kEnabled">
+    <feat id="kBully" name="забияка" mode="kEnabled">
     </feat>
-    <feat id="kThieveStrike" mode="kEnabled">
+    <feat id="kThieveStrike" name="воровской удар" mode="kEnabled">
     </feat>
-    <feat id="kJeweller" mode="kEnabled">
+    <feat id="kJeweller" name="искусный ювелир" mode="kEnabled">
     </feat>
-    <feat id="kSkilledTrader" mode="kEnabled">
+    <feat id="kSkilledTrader" name="торговая сметка" mode="kEnabled">
     </feat>
-    <feat id="kZombieDrover" mode="kEnabled">
+    <feat id="kZombieDrover" name="погонщик умертвий" mode="kEnabled">
     </feat>
-    <feat id="kEmployer" mode="kEnabled">
+    <feat id="kEmployer" name="навык найма" mode="kEnabled">
     </feat>
-    <feat id="kMagicUser" mode="kEnabled">
+    <feat id="kMagicUser" name="использование амулетов" mode="kEnabled">
     </feat>
-    <feat id="kGoldTongue" mode="kEnabled">
+    <feat id="kGoldTongue" name="златоуст" mode="kEnabled">
     </feat>
-    <feat id="kCalmness" mode="kEnabled">
+    <feat id="kCalmness" name="хладнокровие" mode="kEnabled">
     </feat>
-    <feat id="kRetreat" mode="kEnabled">
+    <feat id="kRetreat" name="отступление" mode="kEnabled">
     </feat>
-    <feat id="kShadowStrike" mode="kEnabled">
+    <feat id="kShadowStrike" name="танцующая тень" mode="kEnabled">
     </feat>
-    <feat id="kThrifty" mode="kEnabled">
+    <feat id="kThrifty" name="запасливость" mode="kEnabled">
     </feat>
-    <feat id="kCynic" mode="kEnabled">
+    <feat id="kCynic" name="циничность" mode="kEnabled">
     </feat>
-    <feat id="kPartner" mode="kEnabled">
+    <feat id="kPartner" name="напарник" mode="kEnabled">
     </feat>
-    <feat id="kFavorOfDarkness" mode="kEnabled">
+    <feat id="kFavorOfDarkness" name="помощь тьмы" mode="kEnabled">
     </feat>
-    <feat id="kFuryOfDarkness" mode="kEnabled">
+    <feat id="kFuryOfDarkness" name="ярость тьмы" mode="kEnabled">
     </feat>
-    <feat id="kRegenOfDarkness" mode="kEnabled">
+    <feat id="kRegenOfDarkness" name="темное восстановление" mode="kEnabled">
     </feat>
-    <feat id="kSoulLink" mode="kEnabled">
+    <feat id="kSoulLink" name="родство душ" mode="kEnabled">
     </feat>
-    <feat id="kStrongClutch" mode="kEnabled">
+    <feat id="kStrongClutch" name="сильная хватка" mode="kEnabled">
     </feat>
-    <feat id="kMagicArrows" mode="kEnabled">
+    <feat id="kMagicArrows" name="магические стрелы" mode="kEnabled">
     </feat>
-    <feat id="kSoulsCollector" mode="kEnabled">
+    <feat id="kSoulsCollector" name="колекционер душ" mode="kEnabled">
     </feat>
-    <feat id="kDarkPact" mode="kEnabled">
+    <feat id="kDarkPact" name="темная сделка" mode="kEnabled">
     </feat>
-    <feat id="kCorruption" mode="kEnabled">
+    <feat id="kCorruption" name="порча" mode="kEnabled">
     </feat>
-    <feat id="kHarvestOfLife" mode="kEnabled">
+    <feat id="kHarvestOfLife" name="жатва жизни" mode="kEnabled">
     </feat>
-    <feat id="kLoyalAssist" mode="kEnabled">
+    <feat id="kLoyalAssist" name="верный помощник" mode="kEnabled">
     </feat>
-    <feat id="kHauntingSpirit" mode="kEnabled">
+    <feat id="kHauntingSpirit" name="блуждающий дух" mode="kEnabled">
     </feat>
-    <feat id="kSnakeRage" mode="kEnabled">
+    <feat id="kSnakeRage" name="ярость змеи" mode="kEnabled">
     </feat>
-    <feat id="kElderTaskmaster" mode="kEnabled">
+    <feat id="kElderTaskmaster" name="старший надсмотрщик" mode="kEnabled">
     </feat>
-    <feat id="kLordOfUndeads" mode="kEnabled">
+    <feat id="kLordOfUndeads" name="повелитель нежити" mode="kEnabled">
     </feat>
-    <feat id="kWarlock" mode="kEnabled">
+    <feat id="kWarlock" name="темный маг" mode="kEnabled">
     </feat>
-    <feat id="kElderPriest" mode="kEnabled">
+    <feat id="kElderPriest" name="старший жрец" mode="kEnabled">
     </feat>
-    <feat id="kHighLich" mode="kEnabled">
+    <feat id="kHighLich" name="верховный лич" mode="kEnabled">
     </feat>
-    <feat id="kDarkRitual" mode="kEnabled">
+    <feat id="kDarkRitual" name="темный ритуал" mode="kEnabled">
     </feat>
-    <feat id="kTeamsterOfUndead" mode="kEnabled">
+    <feat id="kTeamsterOfUndead" name="погонщик нежити" mode="kEnabled">
     </feat>
-    <feat id="kScirmisher" mode="kEnabled">
+    <feat id="kScirmisher" name="держать строй" mode="kEnabled">
     </feat>
-    <feat id="kTactician" mode="kEnabled">
+    <feat id="kTactician" name="десяцкий" mode="kEnabled">
     </feat>
-    <feat id="kLiveShield" mode="kEnabled">
+    <feat id="kLiveShield" name="живой щит" mode="kEnabled">
     </feat>
-    <feat id="kSerratedBlade" mode="kEnabled">
+    <feat id="kSerratedBlade" name="воровская заточка" mode="kEnabled">
     </feat>
-    <feat id="kEvasion" mode="kEnabled">
+    <feat id="kEvasion" name="скользкий тип" mode="kEnabled">
     </feat>
-    <feat id="kCutting" mode="kEnabled">
+    <feat id="kCutting" name="порез" mode="kEnabled">
     </feat>
-    <feat id="kFInesseShot" mode="kEnabled">
+    <feat id="kFInesseShot" name="ловкий выстрел" mode="kEnabled">
     </feat>
-    <feat id="kObjectEnchanter" mode="kEnabled">
+    <feat id="kObjectEnchanter" name="наложение чар" mode="kEnabled">
     </feat>
-    <feat id="kDeftShooter" mode="kEnabled">
+    <feat id="kDeftShooter" name="ловкий стрелок" mode="kEnabled">
     </feat>
-    <feat id="kMagicShooter" mode="kEnabled">
+    <feat id="kMagicShooter" name="магический выстрел" mode="kEnabled">
     </feat>
-    <feat id="kShadowThrower" mode="kEnabled">
+    <feat id="kShadowThrower" name="змеево оружие" mode="kEnabled">
     </feat>
-    <feat id="kShadowDagger" mode="kEnabled">
+    <feat id="kShadowDagger" name="змеев кинжал" mode="kEnabled">
     </feat>
-    <feat id="kShadowSpear" mode="kEnabled">
+    <feat id="kShadowSpear" name="змеево копьё" mode="kEnabled">
     </feat>
-    <feat id="kShadowClub" mode="kEnabled">
+    <feat id="kShadowClub" name="змеева палица" mode="kEnabled">
     </feat>
-    <feat id="kDoubleThrower" mode="kEnabled">
+    <feat id="kDoubleThrower" name="двойной бросок" mode="kEnabled">
     </feat>
-    <feat id="kTripleThrower" mode="kEnabled">
+    <feat id="kTripleThrower" name="тройной бросок" mode="kEnabled">
     </feat>
-    <feat id="kPowerThrow" mode="kEnabled">
+    <feat id="kPowerThrow" name="размах" mode="kEnabled">
     </feat>
-    <feat id="kDeadlyThrow" mode="kEnabled">
+    <feat id="kDeadlyThrow" name="широкий размах" mode="kEnabled">
     </feat>
-    <feat id="kMultipleCast" mode="kEnabled">
+    <feat id="kMultipleCast" name="изощренные чары" mode="kEnabled">
     </feat>
-    <feat id="kMagicalShield" mode="kEnabled">
+    <feat id="kMagicalShield" name="заговоренный щит" mode="kEnabled">
     </feat>
-    <feat id="kAnimalMaster" mode="kEnabled">
+    <feat id="kAnimalMaster" name="хозяин животных" mode="kEnabled">
     </feat>
-    <feat id="kSlashMaster" mode="kEnabled">
+    <feat id="kSlashMaster" name="рубака" mode="kEnabled">
     </feat>
-    <feat id="kPhysicians" mode="kEnabled">
+    <feat id="kPhysicians" name="врачеватель" mode="kEnabled">
     </feat>
 </feats>

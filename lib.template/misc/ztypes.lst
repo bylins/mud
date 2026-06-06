@@ -1,0 +1,59 @@
+* zone names and types of ingredients in this zone type
+* FORMAT:
+*
+* ИМЯ <name_of_zone_type>
+* ТИПЫ <ids of ingredient types if any>
+*
+* WARNING: ADD NEW ZONE TYPES ONLY IN THE END OF THIS
+* FILE OR YOU WILL CHANGE TYPES OF EXISTING ZONES
+
+ИМЯ no_ingredients
+ТИПЫ
+ИМЯ town
+ТИПЫ
+ИМЯ light_forest
+ТИПЫ
+ИМЯ dark_forest
+ТИПЫ
+ИМЯ fields
+ТИПЫ
+ИМЯ mountains
+ТИПЫ
+ИМЯ rivers
+ТИПЫ
+ИМЯ house
+ТИПЫ
+ИМЯ near_house
+ТИПЫ
+ИМЯ hills
+ТИПЫ
+ИМЯ caves
+ТИПЫ
+ИМЯ little_town
+ТИПЫ
+ИМЯ village
+ТИПЫ
+ИМЯ town_environs
+ТИПЫ
+ИМЯ wield_forest
+ТИПЫ
+ИМЯ wield_steppe
+ТИПЫ
+ИМЯ sea
+ТИПЫ
+ИМЯ ruins
+ТИПЫ
+ИМЯ forest_way
+ТИПЫ
+ИМЯ steppe_way
+ТИПЫ
+ИМЯ mountain_way
+ТИПЫ
+ИМЯ swamp
+ТИПЫ
+ИМЯ desert
+ТИПЫ
+ИМЯ castle
+ТИПЫ
+ИМЯ near_castle
+ТИПЫ

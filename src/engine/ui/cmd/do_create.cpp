@@ -1,5 +1,4 @@
 #include "do_create.h"
-#include "gameplay/mechanics/magic_item.h"
 
 #include <string>
 

@@ -7,6 +7,7 @@ class CharData;
 
 void DoFindhelpee(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/);
 void DoFreehelpee(CharData *ch, char * /* argument*/, int/* cmd*/, int/* subcmd*/);
+int GetReformedCharmiceHp(CharData *ch, CharData *victim, ESpell spell_id);
 
 #endif //BYLINS_HIRE_H
 

@@ -21,8 +21,6 @@
 #include <filesystem>
 #include <memory>
 #include <string>
-#include <utility>
-#include <vector>
 
 #include "engine/structs/iterators.h"
 
@@ -141,50 +139,6 @@ class DataNode {
 	 * Диапазон дочерних узлов с именем key,
 	 */
 	[[nodiscard]] iterators::Range<DataNode> Children(const std::string &key);
-
-	/*
-	 * issue.vedun-editor: enumerate this node's attributes as (name, value) pairs, in document
-	 * order. The editor reflects an arbitrary node's attributes into form fields.
-	 */
-	[[nodiscard]] std::vector<std::pair<std::string, std::string>> Attributes() const;
-
-	/*
-	 * issue.vedun-editor: set an attribute's value on the current node (creating the attribute
-	 * if absent). Mutates the shared document. Returns false on failure.
-	 */
-	bool SetValue(const std::string &key, const std::string &value);
-
-	/*
-	 * issue.vedun-editor: append an empty child element with the given tag name to the current
-	 * node (mutates the shared document). Returns the new child, sharing this node's document.
-	 */
-	DataNode AddChild(const std::string &name);
-
-	/*
-	 * issue.vedun-editor: remove the given child element from the current node (mutates the
-	 * shared document). Returns false if it is not a child of this node.
-	 */
-	bool RemoveChild(const DataNode &child);
-
-	/*
-	 * issue.vedun-editor: reorder a child element among its siblings (mutates the shared
-	 * document). Returns false if it is already at the start/end. The editor's move menu uses
-	 * these; combined with AddChild they cover inserting at an arbitrary position.
-	 */
-	bool MoveChildUp(const DataNode &child);
-	bool MoveChildDown(const DataNode &child);
-
-	/*
-	 * issue.vedun-editor: serialize the whole document to a file (pugixml). Returns false on
-	 * failure. The editor writes to a temp file then renames for an atomic commit.
-	 */
-	[[nodiscard]] bool Save(const std::filesystem::path &file) const;
-
-	/*
-	 * issue.vedun-print: serialize this node's element subtree to an XML string (pugixml print),
-	 * for the editor's "show the whole element" command. Read-only.
-	 */
-	[[nodiscard]] std::string ToXmlString() const;
 
  private:
 	struct Impl;

@@ -2,7 +2,6 @@
 
 #include "gameplay/fight/fight.h"
 #include "engine/core/handler.h"
-#include "engine/core/target_resolver.h"
 #include "engine/db/global_objects.h"
 #include "utils/backtrace.h"
 
@@ -80,7 +79,7 @@ bool stop_follower(CharData *ch, int mode) {
 			}
 		}
 	}
-	if (ch->IsNpc() && ch->IsFlagged(EMobFlag::kCompanion)) {
+	if (ch->IsNpc() && ch->IsFlagged(EMobFlag::kSummoned)) {
 		act("Магия подпитывающая $n3 развеялась, и $n0 вернул$u в норму.", true, ch, 0, 0, kToRoom | kToArenaListen);
 		ch->restore_npc();
 			// сначало бросаем лишнее
@@ -171,8 +170,7 @@ void do_follow(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 			return;
 		}
-		leader = target_resolver::FindCharInRoom(ch, smallBuf);
-		if (!leader) {
+		if (!(leader = get_char_vis(ch, smallBuf, EFind::kCharInRoom))) {
 			SendMsgToChar(NOPERSON, ch);
 			return;
 		}

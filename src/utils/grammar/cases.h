@@ -42,8 +42,6 @@ class ItemName {
   using NameCases = std::array<std::string, ECase::kLastCase + 1>;
   ItemName(ItemName &&i) noexcept;
   ItemName &operator=(ItemName &&i) noexcept;
-  ItemName(const ItemName &i) = default;            // issue.thing-names: copyable for the name registry
-  ItemName &operator=(const ItemName &i) = default;
 
   [[nodiscard]] const std::string &GetSingular(ECase name_case = ECase::kNom) const;
   [[nodiscard]] const std::string &GetPlural(ECase name_case = ECase::kNom) const;

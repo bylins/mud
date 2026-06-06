@@ -6,7 +6,6 @@
 */
 
 #include "mem_queue.h"
-#include "gameplay/mechanics/magic_item.h"
 
 #include "engine/ui/color.h"
 #include "engine/entities/char_data.h"
@@ -173,7 +172,7 @@ int CalcSpellManacost(CharData *ch, ESpell spell_id) {
 		}
 	}
 	if (result > 0)
-		return result * koef_skill_magic(ch->GetSkill(MUD::Spell(spell_id).GetSuccessRoll().GetBaseSkill())) / 100;
+		return result * koef_skill_magic(ch->GetSkill(GetMagicSkillId(spell_id))) / 100;
 		// при скилле 200 + 25%, чем меньше тем лучше
 	else
 		return 99999;
@@ -389,8 +388,8 @@ void forget_all_spells(CharData *ch) {
 		af.modifier = 1; // номер круга, который восстанавливаем
 		//добавим 1 проход про запас, иначе неуспевает отмемиться последний круг -- аффект спадает раньше
 
-		af.duration = CalcDuration(ch, ch, ESkill::kUndefined, max_slot*kRecallSpellsInterval + kSecsPerPlayerAffect, 0, 0, 0);
-		af.affect_type = EAffect::kMemorizeSpells;
+		af.duration = CalcDuration(ch, max_slot*kRecallSpellsInterval + kSecsPerPlayerAffect, 0, 0, 0, 0);
+		af.bitvector = to_underlying(EAffect::kMemorizeSpells);
 		af.battleflag = kAfPulsedec | kAfDeadkeep;
 		ImposeAffect(ch, af, false, false, false, false);
 	}

@@ -13,7 +13,6 @@
 #include "gameplay/magic/magic_utils.h"
 #include "gameplay/magic/magic_temp_spells.h"
 #include "engine/db/global_objects.h"
-#include "engine/structs/info_container.h"   // info_container::kUndefinedVnum
 
 typedef int special_f(CharData *, void *, int, char *);
 extern void ASSIGNMASTER(MobVnum mob, special_f, int learn_info);
@@ -36,67 +35,6 @@ void GuildsLoader::AssignGuildsToTrainers() {
 	for (const auto &guild: MUD::Guilds()) {
 		guild.AssignToTrainers();
 	}
-}
-
-// issue.thing-names: Vedun editable surface for guilds. Guilds are keyed by an integer vnum (no
-// enum, no `id` attribute), so the element id handed to/from the editor is the vnum as a string;
-// text_id + name go in the label so a guild can also be found by either of those.
-std::string GuildsLoader::EditableWhat() const {
-	return "guild";
-}
-
-std::vector<cfg_manager::EditableElement> GuildsLoader::ListElements() const {
-	std::vector<cfg_manager::EditableElement> out;
-	for (const auto &guild : MUD::Guilds()) {
-		if (guild.GetId() < 0) {   // skip the kUndefined sentinel
-			continue;
-		}
-		out.push_back({std::to_string(guild.GetId()), guild.GetTextId() + " " + guild.GetName()});
-	}
-	return out;
-}
-
-cfg_manager::ValidationResult GuildsLoader::Validate(parser_wrapper::DataNode &doc) const {
-	if (MUD::Guilds().Validate(doc.Children())) {
-		return {true, ""};
-	}
-	return {false, "Guild data failed to parse (see syslog for the offending guild)."};
-}
-
-parser_wrapper::DataNode GuildsLoader::FindElementNode(parser_wrapper::DataNode root,
-														  const std::string &id) const {
-	// A <guild> carries no `id` attribute; its key is the integer `vnum`. Iterate ALL children with
-	// a name check rather than Children("guild"): a node copied out of a keyed range would otherwise
-	// carry that range's filter, breaking its own later Children() (it would stop after the 1st child).
-	for (auto &child : root.Children()) {
-		if (std::string(child.GetName()) == "guild" && id == child.GetValue("vnum")) {
-			return child;
-		}
-	}
-	return parser_wrapper::DataNode{};
-}
-
-std::string GuildsLoader::CanonicalElementId(const std::string &id) const {
-	// Only a non-negative integer is a valid (new) guild key. Existing guilds are already resolved
-	// by ListElements (by vnum, text_id or name) before this create-path hook is consulted.
-	if (id.empty()) {
-		return "";
-	}
-	for (const char c : id) {
-		if (c < '0' || c > '9') {
-			return "";
-		}
-	}
-	return id;
-}
-
-parser_wrapper::DataNode GuildsLoader::CreateElementNode(parser_wrapper::DataNode root,
-															const std::string &id) const {
-	auto node = root.AddChild("guild");
-	node.SetValue("vnum", id);
-	node.SetValue("text_id", "kUndefined");
-	node.SetValue("name", "новая гильдия");
-	return node;
 }
 
 ItemPtr GuildInfoBuilder::Build(DataNode &node) {
@@ -154,9 +92,36 @@ void GuildInfoBuilder::ParseTalents(ItemPtr &info, DataNode &node) {
 }
 
 const std::string &GuildInfo::GetMsg(EMsg msg_id) {
-	// issue.thing-names: guild messages live in guild_msg.xml (the default sheaf of the vnum-keyed
-	// guild message container), not a hardcoded table.
-	return MUD::GuildMessages().GetMessage(info_container::kUndefinedVnum, msg_id);
+	static const std::unordered_map<EMsg, std::string> guild_msgs = {
+		{EMsg::kGreeting, "$N сказал$G: 'Я могу научить тебя следующему:'"},
+		{EMsg::kDischarge, "$N сказал$G : 'Извини, $n, я уже в отставке.'"},
+		{EMsg::kDidNotTeach, "$N уставил$U на $n3 и прорычал$G: 'Я никогда и никого ЭТОМУ не учил$G!'"},
+		{EMsg::kInquiry, "$n о чем-то спросил$g $N3."},
+		{EMsg::kCannotToChar, "$N сказал$G: 'Я не могу тебя этому научить'."},
+		{EMsg::kCannotToRoom, "$N сказал$G $n2: 'Я не могу тебя этому научить'."},
+		{EMsg::kAskToChar, "Вы попросились в обучение к $N2."},
+		{EMsg::kAskToRoom, "$n попросил$u в ученики к $N2."},
+		{EMsg::kLearnToChar, "Вы получили несколько уроков и мудрых советов от $N1."},
+		{EMsg::kLearnToRoom, "$N дал$G $n2 несколько наставлений."},
+		{EMsg::kAllSkills, "$N сказал$G: '$n, нельзя научиться всем умениям или способностям сразу. Выбери необходимые!'"},
+		{EMsg::kTalentEarned, "Под наставничеством $N1 вы изучили {} {}'{}'{}."},
+		{EMsg::kNothingLearned, "$N ничему новому вас не научил$G."},
+		{EMsg::kListEmpty, "$N сказал$G : 'Похоже, $n, я не смогу тебе помочь'."},
+		{EMsg::kIsInsolvent, "$N сказал$G : 'Вот у меня забот нет - голодранцев наставлять! Иди-ка, $n, подзаработай сначала!"},
+		{EMsg::kFree, "бесплатно"},
+		{EMsg::kTemporary, "временно"},
+		{EMsg::kYouGiveMoney, "Вы дали {} $N2."},
+		{EMsg::kSomeoneGivesMoney, "$n дал$g {} $N2."},
+		{EMsg::kFailToChar, "...но все уроки влетели вам в одно ухо, да вылетели в другое."},
+		{EMsg::kFailToRoom, "...но, судя по осовелому взгляду $n1, наука $N1 не пошла $m впрок."},
+		{EMsg::kError, "У кодера какие-то проблемы."},
+	};
+
+	if (guild_msgs.contains(msg_id)) {
+		return guild_msgs.at(msg_id);
+	} else {
+		return guild_msgs.at(EMsg::kError);
+	}
 }
 
 int GuildInfo::DoGuildLearn(CharData *ch, void *me, int cmd, char *argument) {
@@ -348,10 +313,7 @@ void GuildInfo::Learn(CharData *trainer, CharData *ch, const TalentPtr &talent) 
 		act(GetMsg(EMsg::kFailToRoom), false, ch, nullptr, trainer, kToRoom);
 	} else {
 		auto out = fmt::format(fmt::runtime(GetMsg(EMsg::kTalentEarned)),
-							   fmt::arg("talent_type", talent->GetTalentTypeName()),
-							   fmt::arg("color", kColorBoldYel),
-							   fmt::arg("name", talent->GetName()),
-							   fmt::arg("nocolor", kColorNrm));
+							   talent->GetTalentTypeName(), kColorBoldYel, talent->GetName(), kColorNrm);
 		act(out, false, ch, nullptr, trainer, kToChar);
 		talent->SetTalent(ch);
 	}
@@ -367,9 +329,9 @@ bool GuildInfo::ProcessPayment(CharData *trainer, CharData *ch, const TalentPtr 
 	auto price = talent->CalcPrice(ch);
 	if (price > 0) {
 		auto description = MUD::Currency(talent->GetCurrencyId()).GetObjName(price, ECase::kAcc);
-		act(fmt::format(fmt::runtime(GetMsg(EMsg::kYouGiveMoney)), fmt::arg("money", description)),
+		act(fmt::format(fmt::runtime(GetMsg(EMsg::kYouGiveMoney)), description),
 			false, ch, nullptr, trainer, kToChar);
-		act(fmt::format(fmt::runtime(GetMsg(EMsg::kSomeoneGivesMoney)), fmt::arg("money", description)),
+		act(fmt::format(fmt::runtime(GetMsg(EMsg::kSomeoneGivesMoney)), description),
 			false, ch, nullptr, trainer, kToRoom);
 	}
 

@@ -1,5 +1,4 @@
 #include "shops_implementation.h"
-#include "gameplay/mechanics/identify.h"
 
 #include "engine/db/obj_prototypes.h"
 #include "utils/logger.h"
@@ -799,7 +798,7 @@ void shop_node::process_ident(CharData *ch, CharData *keeper, char *argument, co
 			tell_to_char(keeper, ch, buf);
 
 			SendMsgToChar(ch, "Характеристики предмета: %s\r\n", ident_obj->get_PName(ECase::kNom).c_str());
-			MortShowObjValues(ident_obj, ch, 200);
+			mort_show_obj_values(ident_obj, ch, 200);
 			ch->remove_gold(IDENTIFY_COST);
 		}
 	}

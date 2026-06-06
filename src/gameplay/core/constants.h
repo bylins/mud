@@ -60,6 +60,12 @@ struct PrayAffect {
 	int battleflag;
 };
 
+struct ApplyNegative {
+	std::string name;
+	EApply location;
+	ESaving savetype;
+};
+
 extern const char *circlemud_version;
 extern const char *dirs_rus[];
 extern const char *dirs[];
@@ -78,6 +84,8 @@ extern const char *where[];
 extern const char *item_types[];
 extern const char *wear_bits[];
 extern const char *extra_bits[];
+extern const std::vector<ApplyNegative> apply_negative;
+extern const std::map<ESaving, std::string> saving_name;
 extern const char *weapon_affects[];
 extern const char *anti_bits[];
 extern const char *no_bits[];
@@ -95,9 +103,9 @@ extern const char *magic_container_bits[];
 extern const char *function_bits[];
 extern const char *pray_metter[];
 extern const char *pray_whom[];
-// room_aff_*_bits arrays retired (issue.sight-fmt): room-affect descriptions
-// live in lib/cfg/spell_msg.xml under the kRoomAffect{Visible,Invisible,
-// SelfInvisible} keys per spell. See show_room_affects in sight.cpp.
+extern const char *room_aff_visib_bits[];
+extern const char *room_aff_invis_bits[];
+extern const char *room_self_aff_invis_bits[];
 extern const char *equipment_types[];
 extern struct IntApplies int_app[];
 extern const size_t INT_APP_SIZE;
@@ -110,6 +118,7 @@ extern int movement_loss[];
 extern int mana[];
 extern int mana_gain_cs[];
 extern const char *material_name[];
+extern struct AttackHitType attack_hit_text[];
 extern const char *godslike_bits[];
 extern const int material_value[];
 

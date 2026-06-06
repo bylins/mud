@@ -8,7 +8,7 @@
 
 #include "gameplay/fight/fight.h"
 #include "engine/core/char_movement.h"
-#include "engine/core/target_resolver.h"
+#include "engine/core/action_targeting.h"
 #include "gameplay/fight/pk.h"
 #include "gameplay/fight/common.h"
 #include "gameplay/fight/fight_hit.h"
@@ -92,7 +92,7 @@ void GoThrowout(CharData *ch, CharData *vict) {
 		ProcessThrowoutFail(ch, vict);
 	} else {
 		//Поскольку это соло-умение, запрещаем использование если в клетке есть другие игроки.
-		target_resolver::FoesRosterType roster{ch};
+		ActionTargeting::FoesRosterType roster{ch};
 		for (const auto target: roster) {
 			if (!target->IsNpc() && target != vict) {
 				act("Вы швырнули своего соперника куда подальше, но нечаянно попали им прямо в $N3!",

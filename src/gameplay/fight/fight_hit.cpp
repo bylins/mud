@@ -1,5 +1,4 @@
 #include "fight_hit.h"
-#include "gameplay/mechanics/resist.h"
 
 #include "engine/observability/event_sink.h"
 #include "engine/ui/color.h"
@@ -839,45 +838,21 @@ int HitData::CalcDmg(CharData *ch, bool need_dice) {
 
 }
 
-// Breath as magic melee (issue: breath without a pseudo-spell). A breathing mob's
-// EMobFlag selects an element + an attack type; the hit is dealt as kMagicDmg of
-// that element, so Damage::Process picks the matching resist channel. Replaces the
-// old GetSpellIdByBreathflag + CastDamage(kService breath spell) workaround.
-namespace {
-struct BreathAttack {
-	EElement element{EElement::kUndefined};
-	fight::EDamageSource source{fight::EDamageSource::kUndefined};
-};
-
-BreathAttack GetBreathAttack(CharData *ch) {
-	if (ch->IsFlagged(EMobFlag::kFireBreath))     return {EElement::kFire,  fight::EDamageSource::kFireBreath};
-	if (ch->IsFlagged(EMobFlag::kGasBreath))      return {EElement::kEarth, fight::EDamageSource::kGasBreath};
-	if (ch->IsFlagged(EMobFlag::kFrostBreath))    return {EElement::kAir,   fight::EDamageSource::kFrostBreath};
-	if (ch->IsFlagged(EMobFlag::kAcidBreath))     return {EElement::kWater, fight::EDamageSource::kAcidBreath};
-	if (ch->IsFlagged(EMobFlag::kLightingBreath)) return {EElement::kDark,  fight::EDamageSource::kLightingBreath};
-	return {};
-}
-
-// One breath hit: the mob's melee dice dealt as kMagicDmg of the breath element.
-// GET_MR keeps its legacy role as a flat chance to fully resist the elemental hit.
-// CalcMagicElementCoeff is deliberately NOT applied -- breath is magic melee, not a
-// spell; the element alone drives the resist channel inside Damage::Process.
-void DealBreathDamage(CharData *ch, CharData *victim, const BreathAttack &breath) {
-	if (!pk_agro_action(ch, victim)) {
-		return;
+ESpell GetSpellIdByBreathflag(CharData *ch) {
+	if (ch->IsFlagged((EMobFlag::kFireBreath))) {
+		return ESpell::kFireBreath;
+	} else if (ch->IsFlagged((EMobFlag::kGasBreath))) {
+		return ESpell::kGasBreath;
+	} else if (ch->IsFlagged((EMobFlag::kFrostBreath))) {
+		return ESpell::kFrostBreath;
+	} else if (ch->IsFlagged((EMobFlag::kAcidBreath))) {
+		return ESpell::kAcidBreath;
+	} else if (ch->IsFlagged((EMobFlag::kLightingBreath))) {
+		return ESpell::kLightingBreath;
 	}
-	int dam = 0;
-	const int max_resist = ch->IsNpc() ? kMaxNpcResist : kMaxPcResist;
-	if (number(1, 100) > std::min(max_resist, GET_MR(victim))) {
-		dam = RollDices(ch->mob_specials.damnodice, ch->mob_specials.damsizedice)
-			+ GetRealDamroll(ch) + str_bonus(GetRealStr(ch), STR_TO_DAM);
-		dam = std::clamp(dam, 0, kMaxHits);
-	}
-	Damage breath_dmg(SimpleDmg(breath.source), dam, fight::kMagicDmg);
-	breath_dmg.element = breath.element;
-	breath_dmg.Process(ch, victim);
+
+	return ESpell::kUndefined;
 }
-}  // namespace
 
 /**
 * обработка ударов оружием, санка, призма, стили, итд.
@@ -933,29 +908,30 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 		set_battle_pos(victim);
 	}
 
-	// Breathing mob: a magic-typed melee attack of an element (no pseudo-spell).
+	// дышащий моб может оглушить, и нанесёт физ.дамаг!!
 	if (type == ESkill::kUndefined) {
-		const BreathAttack breath = GetBreathAttack(ch);
-		if (breath.element != EElement::kUndefined) {
+		ESpell spell_id;
+		spell_id = GetSpellIdByBreathflag(ch);
+		if (spell_id != ESpell::kUndefined) { // защита от падения
 			if (!ch->GetEnemy())
 				SetFighting(ch, victim);
 			if (!victim->GetEnemy())
 				SetFighting(victim, ch);
-			// AOE breath hits every non-groupmate in the room.
+			// AOE атаки всегда магические. Раздаём каждому игроку и уходим.
 			if (ch->IsFlagged(EMobFlag::kAreaAttack)) {
-				const auto people = world[ch->in_room]->people;    // copy: list may change inside the loop
+				const auto
+					people = world[ch->in_room]->people;    // make copy because inside loop this list might be changed.
 				for (const auto &tch : people) {
 					if (tch->IsImmortal() || ch->in_room == kNowhere || tch->in_room == kNowhere)
 						continue;
 					if (tch != ch && !group::same_group(ch, tch)) {
-						DealBreathDamage(ch, tch, breath);
-						if (ch->purged())
-							return;
+						CastDamage(GetRealLevel(ch), ch, tch, spell_id);
 					}
 				}
 				return;
 			}
-			DealBreathDamage(ch, victim, breath);
+			// а теперь просто дышащие
+			CastDamage(GetRealLevel(ch), ch, victim, spell_id);
 			return;
 		}
 	}
@@ -975,14 +951,11 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 		&& (ch->GetEnemy() 
 		|| (!ch->battle_affects.get(kEafHammer) && !ch->battle_affects.get(kEafOverwhelm)))) {
 		// здесь можно получить спурженного victim, но ch не умрет от зеркала
-		// Cloud of Arrows fires one bolt per melee hit. Route it through the public
-		// CallMagic entry (unified cast pipeline) rather than a raw CastDamage. The
-		// dedicated kCloudOfArrowsBolt proc spell is weave-only (no verbal, so silence
-		// does not stop it), costs no mana, and is single-target -- it lands straight in
-		// CastToSingleTarget. A no-magic room now suppresses it (weave component), which
-		// is the intended unified behaviour.
-		const int bolt_level = ch->IsNpc() ? GetRealLevel(ch) : 1;
-		CallMagic(ch, victim, nullptr, nullptr, ESpell::kCloudOfArrowsBolt, bolt_level);
+		if (ch->IsNpc()) {
+			CastDamage(GetRealLevel(ch), ch, victim, ESpell::kMagicMissile);
+		} else {
+			CastDamage(1, ch, victim, ESpell::kMagicMissile);
+		}
 		if (ch->purged() || victim->purged()) { // вдруг помер
 			return;
 		}
@@ -990,7 +963,7 @@ void hit(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) 
 		if (ch->in_room != victim->in_room) {  //если сбег по трусости
 			return;
 		}
-		auto skillnum = MUD::Spell(ESpell::kCloudOfArrows).GetSuccessRoll().GetBaseSkill();
+		auto skillnum = GetMagicSkillId(ESpell::kCloudOfArrows);
 		TrainSkill(ch, skillnum, true, victim);
 	}
 	// вычисление хитролов/ац

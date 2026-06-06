@@ -13,7 +13,6 @@
 *  $Revision$                                                   *
 ************************************************************************ */
 #include "dg_db_scripts.h"
-#include "gameplay/mechanics/magic_item.h"
 
 #include "engine/db/obj_prototypes.h"
 #include "dg_scripts.h"

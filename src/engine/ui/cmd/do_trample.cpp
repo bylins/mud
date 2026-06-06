@@ -105,7 +105,7 @@ void DoTrample(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	if (!ch->IsImmortal()) {
-		SetBattleLag(ch, lag);
+		SetWaitState(ch, lag * kBattleRound);
 	}
 }
 

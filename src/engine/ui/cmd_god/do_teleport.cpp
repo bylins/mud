@@ -8,7 +8,6 @@
 
 #include "engine/entities/char_data.h"
 #include "engine/core/handler.h"
-#include "engine/core/target_resolver.h"
 #include "gameplay/mechanics/sight.h"
 
 void DoTeleport(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
@@ -19,7 +18,7 @@ void DoTeleport(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	if (!*buf)
 		SendMsgToChar("Кого вы хотите переместить?\r\n", ch);
-	else if (!(victim = target_resolver::FindCharInWorld(ch, buf)))
+	else if (!(victim = get_char_vis(ch, buf, EFind::kCharInWorld)))
 		SendMsgToChar(NOPERSON, ch);
 	else if (victim == ch)
 		SendMsgToChar("Используйте 'прыжок' для собственного перемещения.\r\n", ch);

@@ -7,7 +7,6 @@
 */
 
 #include "damage.h"
-#include "gameplay/mechanics/resist.h"
 
 #include <fmt/format.h>
 
@@ -647,11 +646,7 @@ int Damage::Process(CharData *ch, CharData *victim) {
 			if (!damage_mtrigger(ch, victim, dam, MUD::Skill(skill_id).GetName(), 1, wielded))
 				return 0;
 		} else if (dmg_type == fight::kMagicDmg) {
-			// spell_id is kUndefined for spell-less magic damage (e.g. mob breath, which
-			// is magic melee of an element). Use an empty name rather than looking up an
-			// invalid spell.
-			const char *dmg_name = (spell_id > ESpell::kUndefined) ? MUD::Spell(spell_id).GetCName() : "";
-			if (!damage_mtrigger(ch, victim, dam, dmg_name, 0, wielded))
+			if (!damage_mtrigger(ch, victim, dam, MUD::Spell(spell_id).GetCName(), 0, wielded))
 				return 0;
 		} else if (dmg_type == fight::kPoisonDmg) {
 			if (!damage_mtrigger(ch, victim, dam, MUD::Spell(spell_id).GetCName(), 2, wielded))

@@ -1,5 +1,4 @@
 #include <filesystem>
-#include "gameplay/mechanics/portal.h"
 
 #include "third_party_libs/pugixml/pugixml.h"
 
@@ -29,7 +28,6 @@
 #include "gameplay/mechanics/glory_const.h"
 #include "gameplay/mechanics/glory_misc.h"
 #include "engine/core/handler.h"
-#include "engine/core/target_resolver.h"
 #include "help.h"
 #include "gameplay/clans/house.h"
 #include "gameplay/crafting/item_creation.h"
@@ -42,7 +40,6 @@
 #include "gameplay/mechanics/noob.h"
 #include "obj_prototypes.h"
 #include "engine/olc/olc.h"
-#include "engine/olc/vedun/vedun.h"
 #include "engine/observability/helpers.h"
 #include "engine/observability/metrics.h"
 #include "utils/tracing/trace_manager.h"
@@ -382,7 +379,6 @@ void GameLoader::BootWorld(std::unique_ptr<world_loader::IWorldDataSource> data_
 	// loaded the config, does not reload it.
 	if (!MUD::Skills().IsInitizalized())
 	{
-		MUD::CfgManager().LoadCfg("skill_messages");   // issue.thing-names: names/abbr before skills
 		MUD::CfgManager().LoadCfg("skills");
 	}
 
@@ -515,6 +511,118 @@ void GameLoader::BootWorld(std::unique_ptr<world_loader::IWorldDataSource> data_
 	}
 }
 
+void InitZoneTypes() {
+	FILE *zt_file;
+	char tmp[1024], dummy[128], name[128], itype_num[128];
+	int names = 0;
+	int i, j, k, n;
+
+	if (zone_types != nullptr) {
+		for (i = 0; *zone_types[i].name != '\n'; i++) {
+			if (zone_types[i].ingr_qty > 0)
+				free(zone_types[i].ingr_types);
+
+			free(zone_types[i].name);
+		}
+		free(zone_types[i].name);
+		free(zone_types);
+		zone_types = nullptr;
+	}
+
+	zt_file = fopen(LIB_MISC "ztypes.lst", "r");
+	if (!zt_file) {
+		log("Can not open ztypes.lst");
+		return;
+	}
+
+	while (get_line(zt_file, tmp)) {
+		if (!strn_cmp(tmp, "ИМЯ", 3)) {
+			if (sscanf(tmp, "%s %s", dummy, name) != 2) {
+				log("Corrupted file : ztypes.lst");
+				return;
+			}
+			if (!get_line(zt_file, tmp)) {
+				log("Corrupted file : ztypes.lst");
+				return;
+			}
+			if (!strn_cmp(tmp, "ТИПЫ", 4)) {
+				if (tmp[4] != ' ' && tmp[4] != '\0') {
+					log("Corrupted file : ztypes.lst");
+					return;
+				}
+				for (i = 4; tmp[i] != '\0'; i++) {
+					if (!a_isdigit(tmp[i]) && !a_isspace(tmp[i])) {
+						log("Corrupted file : ztypes.lst");
+						return;
+					}
+				}
+			} else {
+				log("Corrupted file : ztypes.lst");
+				return;
+			}
+			names++;
+		} else {
+			log("Corrupted file : ztypes.lst");
+			return;
+		}
+	}
+	names++;
+
+	CREATE(zone_types, names);
+	for (i = 0; i < names; i++) {
+		zone_types[i].name = nullptr;
+		zone_types[i].ingr_qty = 0;
+		zone_types[i].ingr_types = nullptr;
+	}
+
+	rewind(zt_file);
+	i = 0;
+	while (get_line(zt_file, tmp)) {
+		sscanf(tmp, "%s %s", dummy, name);
+		for (j = 0; name[j] != '\0'; j++) {
+			if (name[j] == '_') {
+				name[j] = ' ';
+			}
+		}
+		zone_types[i].name = str_dup(name);
+
+		get_line(zt_file, tmp);
+		for (j = 4; tmp[j] != '\0'; j++) {
+			if (a_isspace(tmp[j]))
+				continue;
+			zone_types[i].ingr_qty++;
+			for (; tmp[j] != '\0' && a_isdigit(tmp[j]); j++);
+			j--;
+		}
+		i++;
+	}
+	zone_types[i].name = str_dup("\n");
+
+	for (i = 0; *zone_types[i].name != '\n'; i++) {
+		if (zone_types[i].ingr_qty > 0) {
+			CREATE(zone_types[i].ingr_types, zone_types[i].ingr_qty);
+		}
+	}
+
+	rewind(zt_file);
+	i = 0;
+	while (get_line(zt_file, tmp)) {
+		get_line(zt_file, tmp);
+		for (j = 4, n = 0; tmp[j] != '\0'; j++) {
+			if (a_isspace(tmp[j]))
+				continue;
+			for (k = 0; tmp[j] != '\0' && a_isdigit(tmp[j]); j++)
+				itype_num[k++] = tmp[j];
+			itype_num[k] = '\0';
+			zone_types[i].ingr_types[n] = atoi(itype_num);
+			n++;
+			j--;
+		}
+		i++;
+	}
+
+	fclose(zt_file);
+}
 
 void SetZoneMobLevel() {
 	for (auto &i : zone_table) {
@@ -665,15 +773,7 @@ void BootMudDataBase() {
 
 	boot_profiler.next_step("Loading currencies cfg.");
 	log("Loading currencies cfg.");
-	// issue.thing-names: currency names (currency_msg.xml) load before currencies.xml so the builder
-	// can read each currency's display name from the message file.
-	MUD::CfgManager().LoadCfg("currency_messages");
 	MUD::CfgManager().LoadCfg("currencies");
-
-	// issue.thing-names: skill messages (which now hold skill names + abbreviations) load before skills.
-	boot_profiler.next_step("Loading skill messages cfg.");
-	log("Loading skill messages cfg.");
-	MUD::CfgManager().LoadCfg("skill_messages");
 
 	boot_profiler.next_step("Loading skills cfg.");
 	log("Loading skills cfg.");
@@ -681,26 +781,19 @@ void BootMudDataBase() {
 
 	boot_profiler.next_step("Loading feats cfg.");
 	log("Loading feats cfg.");
-	MUD::CfgManager().LoadCfg("feat_messages");   // issue.thing-names: names before feats
 	MUD::CfgManager().LoadCfg("feats");
-
-	// issue.thing-names: spell messages (which now hold the Russian display names) load BEFORE
-	// spells, so SpellInfoBuilder::ParseName can read each spell's name from the message container.
-	boot_profiler.next_step("Loading spell messages cfg.");
-	log("Loading spell messages cfg.");
-	MUD::CfgManager().LoadCfg("spell_messages");
 
 	boot_profiler.next_step("Loading spells cfg.");
 	log("Loading spells cfg.");
 	MUD::CfgManager().LoadCfg("spells");
 
-	boot_profiler.next_step("Linting editor schemes.");
-	vedun::LintSchemes();
+	boot_profiler.next_step("Loading spell messages cfg.");
+	log("Loading spell messages cfg.");
+	MUD::CfgManager().LoadCfg("spell_messages");
 
-	boot_profiler.next_step("Loading points intensity cfg.");
-	log("Loading points intensity cfg.");
-	MUD::CfgManager().LoadCfg("points_intensity");
-
+	boot_profiler.next_step("Loading skill messages cfg.");
+	log("Loading skill messages cfg.");
+	MUD::CfgManager().LoadCfg("skill_messages");
 
     boot_profiler.next_step("Loading hit type messages cfg.");
     log("Loading hit type messages cfg.");
@@ -733,17 +826,13 @@ void BootMudDataBase() {
 
 	boot_profiler.next_step("Assigning character classs info.");
 	log("Assigning character classs info.");
-	MUD::CfgManager().LoadCfg("class_messages");   // issue.thing-names: names/abbr before classes
 	MUD::CfgManager().LoadCfg("classes");
 
-	boot_profiler.next_step("Loading rune spells cfg");
-	log("Loading rune spells cfg.");
-	MUD::CfgManager().LoadCfg("rune_spells");
+	InitSpellLevels();
 
 	boot_profiler.next_step("Loading zone types and ingredient for each zone type");
 	log("Booting zone types and ingredient types for each zone type.");
-	MUD::CfgManager().LoadCfg("entity_names");   // issue.thing-names: names before mob_classes/races/zone_types
-	MUD::CfgManager().LoadCfg("zone_types");
+	InitZoneTypes();
 
 	boot_profiler.next_step("Loading insert_wanted.lst");
 	log("Booting insert_wanted.lst.");
@@ -847,16 +936,11 @@ void BootMudDataBase() {
 
 	boot_profiler.next_step("Assigning guilds info.");
 	log("Assigning guilds info.");
-	MUD::CfgManager().LoadCfg("guild_messages");   // issue.thing-names: messages before guilds
 	MUD::CfgManager().LoadCfg("guilds");
 
 	boot_profiler.next_step("Assigning mob classes info.");
 	log("Assigning mob classes info.");
 	MUD::CfgManager().LoadCfg("mob_classes");
-
-	boot_profiler.next_step("Loading mob races");
-	log("Load mob races.");
-	MUD::CfgManager().LoadCfg("mob_races");
 
 	boot_profiler.next_step("Loading portals for 'town portal' spell");
 	log("Booting portals for 'town portal' spell");
@@ -951,6 +1035,10 @@ void BootMudDataBase() {
 
 	log("Load zone traffic.");
 	zone_traffic_load();
+
+	boot_profiler.next_step("Loading mob races");
+	log("Load mob races.");
+	mob_races::LoadMobraces();
 
 	boot_profiler.next_step("Initializing global drop list");
 	log("Init global drop list.");
@@ -1818,14 +1906,6 @@ CharData *ReadMobile(MobVnum nr, int type) {                // and MobRnum
 	mob->script = std::make_shared<Script>();    //fill it in assign_triggers from proto_script
 	character_list.push_front(mob);
 
-	// issue.npc-races: stamp this instance with the flags declared for its race. Race flags are
-	// added (OR) to the mob's own flags -- they never live on the prototype, only on the loaded mob.
-	{
-		const auto &race_info = MUD::MobRaces()[GET_RACE(mob)];
-		mob->char_specials.saved.act += race_info.GetMobFlags();
-		mob->mob_specials.npc_flags += race_info.GetNpcFlags();
-	}
-
 	if (!mob->points.max_hit) {
 		mob->points.max_hit = std::max(1, RollDices(mob->mem_queue.total, mob->mem_queue.stored) + mob->points.hit);
 	} else {
@@ -1858,7 +1938,7 @@ CharData *ReadMobile(MobVnum nr, int type) {                // and MobRnum
 		mob_index[i].total_online++;
 		assign_triggers(mob, MOB_TRIGGER);
 	} else {
-		mob->SetFlag(EMobFlag::kCompanion);
+		mob->SetFlag(EMobFlag::kSummoned);
 	}
 	chardata_by_uid[mob->get_uid()] = mob;
 	i = mob_index[i].zone;
@@ -2569,7 +2649,7 @@ void ZoneReset::ResetZoneEssential() {
 								break;
 							}
 						} else {
-							if (!(obj_to = target_resolver::FindObjByRnum(reset_cmd.arg3))) {
+							if (!(obj_to = SearchObjByRnum(reset_cmd.arg3))) {
 								LogZoneError(zone_data, cmd_no, "target obj not found in word, command omited");
 								break;
 							}

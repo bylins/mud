@@ -5,21 +5,15 @@
 #include "gameplay/classes/pc_classes_info.h"
 #include "gameplay/fight/pk.h"
 #include "gameplay/economics/currencies.h"
-#include "gameplay/mechanics/mob_races.h"
 #include "gameplay/magic/spells_info.h"
 #include "gameplay/magic/spell_messages.h"
-#include "gameplay/magic/points_intensity.h"
 #include "gameplay/skills/skill_messages.h"
 #include "gameplay/fight/fight_messages.h"
 #include "gameplay/clans/ingr_chest_saver.h"
 #include "gameplay/clans/chest_saver.h"
 #include "gameplay/mechanics/celebrates.h"
 #include "gameplay/mechanics/guilds.h"
-#include "gameplay/mechanics/guild_messages.h"
-#include "engine/entities/zone_types.h"
-#include "gameplay/mechanics/rune_spells.h"
 #include "gameplay/abilities/feats.h"
-#include "gameplay/abilities/feat_messages.h"
 #include "utils/logger.h"
 #include "engine/core/heartbeat.h"
 #include "administration/shutdown_parameters.h"
@@ -66,24 +60,17 @@ class GlobalObjects {
 	static spells::SpellsInfo &Spells();
 	static const spells::SpellInfo &Spell(ESpell spell_id);
 	static spells::SpellMessages &SpellMessages();
-	static points_intensity::PointsIntensity &PointsIntensity();
 	static skills::SkillMessages &SkillMessages();
     static fight::FightMessages &FightMessages();
 	static feats::FeatsInfo &Feats();
-	static feats::FeatMessages &FeatMessages();
 	static const feats::FeatInfo &Feat(EFeat feat_id);
 	static classes::ClassesInfo &Classes();
 	static const classes::CharClassInfo &Class(ECharClass class_id);
 	static mob_classes::MobClassesInfo &MobClasses();
 	static const mob_classes:: MobClassInfo &MobClass(EMobClass mob_class_id);
 	static guilds::GuildsInfo &Guilds();
-	static guilds::GuildMessages &GuildMessages();
 	static const guilds::GuildInfo &Guild(Vnum guild_vnum);
-	static zone_types::ZoneTypesInfo &ZoneTypes();
-	static const zone_types::ZoneTypeInfo &ZoneType(int type_vnum);
-	static rune_spells::Registry &RuneSpells();
 	static currencies::CurrenciesInfo &Currencies();
-	static mob_races::MobRacesInfo &MobRaces();
 	static const currencies::CurrencyInfo &Currency(Vnum currency_vnum);
 	static WorldObjects &world_objects();
 	static ShopExt::ShopListType &Shops();
