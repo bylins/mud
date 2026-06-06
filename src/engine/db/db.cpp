@@ -732,6 +732,7 @@ void BootMudDataBase() {
 
 	boot_profiler.next_step("Assigning character classs info.");
 	log("Assigning character classs info.");
+	MUD::CfgManager().LoadCfg("class_messages");   // issue.thing-names: names/abbr before classes
 	MUD::CfgManager().LoadCfg("classes");
 
 	boot_profiler.next_step("Loading rune spells cfg");

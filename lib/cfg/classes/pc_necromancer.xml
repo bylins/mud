@@ -1,9 +1,5 @@
 <?xml version="1.0" encoding="koi8-r"?>
 <class id="kNecromancer">
-    <name abbr="Чр">
-        <singular nom="чернокнижник" gen="чернокнижника" dat="чернокнижнику" acc="чернокнижника" ins="чернокнижником" pre="чернокнижнике"/>
-        <plural nom="чернокнижники" gen="чернокнижников" dat="чернокнижникам" acc="чернокнижников" ins="чернокнижниками" pre="чернокнижниках"/>
-    </name>
     <stats>
         <base_stats>
             <stat id="kStr"	gen_min="9"		gen_max="15"	auto="14"	cap="50"/>

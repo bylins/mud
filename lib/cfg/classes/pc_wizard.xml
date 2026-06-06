@@ -1,9 +1,5 @@
 <?xml version="1.0" encoding="koi8-r"?>
 <class id="kWizard">
-    <name abbr="Вл">
-        <singular nom="волшебник" gen="волшебника" dat="волшебнику" acc="волшебника" ins="волшебником" pre="волшебнике"/>
-        <plural nom="волшебники" gen="волшебников" dat="волшебникам" acc="волшебников" ins="волшебниками" pre="волшебниках"/>
-    </name>
     <stats>
         <base_stats>
             <stat id="kStr"	gen_min="10"	gen_max="14"	auto="10"	cap="50" />

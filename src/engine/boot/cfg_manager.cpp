@@ -36,6 +36,8 @@ CfgManager::CfgManager() {
 											  std::make_unique<currencies::CurrencyNamesLoader>(currencies::CurrencyNamesLoader())));
 	loaders_.emplace("currencies", LoaderInfo("cfg/economics/currencies.xml",
 											  std::make_unique<currencies::CurrenciesLoader>(currencies::CurrenciesLoader())));
+	loaders_.emplace("class_messages", LoaderInfo("cfg/messages/ru/class_msg.xml",
+										  std::make_unique<classes::ClassNamesLoader>(classes::ClassNamesLoader())));
 	loaders_.emplace("classes", LoaderInfo("cfg/classes/pc_classes.xml",
 										   std::make_unique<classes::ClassesLoader>(classes::ClassesLoader())));
 	loaders_.emplace("skills", LoaderInfo("cfg/skills.xml",
