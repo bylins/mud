@@ -224,8 +224,8 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	// source string file alone is not enough -- remind the admin to reload the dependent file too.
 	// Add entries here as more such cross-file dependencies appear.
 	static const std::map<std::string, std::string> kReloadReminders{
-		{"spell_messages", "Напоминание: имена заклинаний кэшируются при загрузке spells.xml. "
-		                   "Выполните также 'reload spells', чтобы изменения имён вступили в силу."},
+		{"spell_messages", "Reminder: spell names are cached when spells.xml is loaded. "
+		                   "Run 'reload spells' as well for the name changes to take effect."},
 	};
 	if (const auto it = kReloadReminders.find(arg); it != kReloadReminders.end()) {
 		SendMsgToChar(it->second + "\r\n", ch);
