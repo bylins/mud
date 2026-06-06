@@ -165,9 +165,29 @@ Scheme LoadScheme(const std::filesystem::path &file) {
 }
 
 std::filesystem::path SchemePathFor(const std::filesystem::path &data_file) {
-	std::filesystem::path scheme = data_file;
-	scheme.replace_extension(".scheme");
-	return scheme;
+	// issue.thing-names: a "<stem>.scheme" sidecar may live next to the data file (the original
+	// layout, e.g. spells.xml + spells.scheme) OR one or more levels up -- so a per-type scheme can be
+	// shared across per-locale data dirs (cfg/messages/spell_msg.scheme covers cfg/messages/<lang>/
+	// spell_msg.xml). Search the data file's directory first, then walk up a few parents, and return
+	// the first existing match. If none exists, fall back to the same-dir path (LoadScheme then yields
+	// an empty scheme, i.e. untyped editing -- unchanged behaviour).
+	const std::string name = data_file.stem().string() + ".scheme";
+	constexpr int kMaxSchemeSearchDepth = 4;
+	std::filesystem::path dir = data_file.parent_path();
+	for (int depth = 0; depth < kMaxSchemeSearchDepth; ++depth) {
+		std::filesystem::path candidate = dir / name;
+		std::error_code ec;
+		if (std::filesystem::exists(candidate, ec)) {
+			return candidate;
+		}
+		if (!dir.has_parent_path() || dir.parent_path() == dir) {
+			break;
+		}
+		dir = dir.parent_path();
+	}
+	std::filesystem::path fallback = data_file;
+	fallback.replace_extension(".scheme");
+	return fallback;
 }
 
 } // namespace vedun

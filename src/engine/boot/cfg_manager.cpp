@@ -38,17 +38,17 @@ CfgManager::CfgManager() {
 										   std::make_unique<classes::ClassesLoader>(classes::ClassesLoader())));
 	loaders_.emplace("skills", LoaderInfo("cfg/skills.xml",
 										  std::make_unique<SkillsLoader>(SkillsLoader())));
-	loaders_.emplace("skill_messages", LoaderInfo("cfg/skill_msg.xml",
+	loaders_.emplace("skill_messages", LoaderInfo("cfg/messages/ru/skill_msg.xml",
 										  std::make_unique<skills::SkillMessagesLoader>(skills::SkillMessagesLoader())));
 	loaders_.emplace("abilities", LoaderInfo("cfg/abilities.xml",
 										  std::make_unique<abilities::AbilitiesLoader>(abilities::AbilitiesLoader())));
 	loaders_.emplace("spells", LoaderInfo("cfg/spells.xml",
 										  std::make_unique<spells::SpellsLoader>(spells::SpellsLoader())));
-	loaders_.emplace("spell_messages", LoaderInfo("cfg/spell_msg.xml",
+	loaders_.emplace("spell_messages", LoaderInfo("cfg/messages/ru/spell_msg.xml",
 										  std::make_unique<spells::SpellMessagesLoader>(spells::SpellMessagesLoader())));
 	loaders_.emplace("points_intensity", LoaderInfo("cfg/mechanics/points.xml",
 										  std::make_unique<points_intensity::PointsIntensityLoader>(points_intensity::PointsIntensityLoader())));
-	loaders_.emplace("fight_messages", LoaderInfo("cfg/hit_msg.xml",
+	loaders_.emplace("fight_messages", LoaderInfo("cfg/messages/ru/hit_msg.xml",
 										  std::make_unique<fight::FightMessagesLoader>(fight::FightMessagesLoader())));
 	loaders_.emplace("feats", LoaderInfo("cfg/feats.xml",
 										  std::make_unique<feats::FeatsLoader>(feats::FeatsLoader())));
