@@ -20,6 +20,12 @@
 #include "gameplay/mechanics/noob.h"
 #include "gameplay/ai/spec_procs.h"
 #include "gameplay/ai/spec_assign.h"
+#include "utils/parse.h"
+#include "utils/utils_string.h"
+#include "utils/logger.h"
+
+#include <string>
+#include <unordered_map>
 
 extern int dts_are_dumps;
 
@@ -131,66 +137,6 @@ void AssignRooms() {
 */
 }
 
-void InitSpecProcs(void) {
-	FILE *magic;
-	char line1[256], line2[256], name[256];
-	int i;
-
-	if (!(magic = fopen(LIB_MISC "specials.lst", "r"))) {
-		log("Cann't open specials list file...");
-		AssignMobiles();
-		AssignObjects();
-		return;
-	}
-	while (get_line(magic, name)) {
-		if (!name[0] || name[0] == ';')
-			continue;
-		if (sscanf(name, "%s %d %s", line1, &i, line2) != 3) {
-			log("Bad format for special string!\r\n"
-				"Format : <who/what (%%s)> <vnum (%%d)> <type (%%s)>");
-			graceful_exit(1);
-		}
-		log("<%s>-%d-[%s]", line1, i, line2);
-		if (!str_cmp(line1, "mob")) {
-			if (GetMobRnum(i) < 0) {
-				log("Unknown mobile %d in specials assignment...", i);
-				continue;
-			}
-			if (!str_cmp(line2, "puff"))
-				ASSIGNMOB(i, puff);
-			else if (!str_cmp(line2, "rent"))
-				ASSIGNMOB(i, receptionist);
-			else if (!str_cmp(line2, "mail"))
-				ASSIGNMOB(i, postmaster);
-			else if (!str_cmp(line2, "bank"))
-				ASSIGNMOB(i, bank);
-			else if (!str_cmp(line2, "horse"))
-				ASSIGNMOB(i, horse_keeper);
-			else if (!str_cmp(line2, "exchange"))
-				ASSIGNMOB(i, exchange);
-			else if (!str_cmp(line2, "torc"))
-				ASSIGNMOB(i, torc);
-			else if (!str_cmp(line2, "outfit"))
-				ASSIGNMOB(i, Noob::outfit);
-			else if (!str_cmp(line2, "mercenary"))
-				ASSIGNMOB(i, mercenary);
-			else
-				log("Unknown mobile %d assignment type - %s...", i, line2);
-		} else if (!str_cmp(line1, "obj")) {
-			if (GetObjRnum(i) < 0) {
-				log("Unknown object %d in specials assignment...", i);
-				continue;
-			}
-		} else if (!str_cmp(line1, "room")) {
-		} else {
-			log("Error in specials file!\r\n" "May be : mob, obj or room...");
-			graceful_exit(1);
-		}
-	}
-	fclose(magic);
-	return;
-}
-
 // * Снятие нежелательных флагов у рентеров и продавцов.
 void clear_mob_charm(CharData *mob) {
 	if (mob && !mob->purged()) {
@@ -204,5 +150,49 @@ void clear_mob_charm(CharData *mob) {
 			__FILE__, __LINE__);
 	}
 }
+
+namespace {
+// issue.specials: handler name -> prototype spec-proc function. Mirrors the old InitSpecProcs chain.
+const std::unordered_map<std::string, int (*)(CharData *, void *, int, char *)> kSpecialMobFuncs{
+	{"rent", receptionist}, {"mail", postmaster}, {"bank", bank}, {"horse", horse_keeper},
+	{"exchange", exchange}, {"torc", torc}, {"outfit", Noob::outfit}, {"mercenary", mercenary},
+	{"puff", puff},
+};
+
+void ParseSpecials(parser_wrapper::DataNode &data) {
+	for (auto &node : data.Children("special")) {
+		const char *type = node.GetValue("type");
+		const char *handler = node.GetValue("handler");
+		int vnum;
+		try {
+			vnum = parse::ReadAsInt(node.GetValue("vnum"));
+		} catch (const std::exception &e) {
+			err_log("specials: bad or missing 'vnum' (%s) -- entry skipped.", e.what());
+			continue;
+		}
+		if (!type || !handler || !*type || !*handler) {
+			err_log("specials: vnum %d missing type/handler -- skipped.", vnum);
+			continue;
+		}
+		if (!str_cmp(type, "mob")) {
+			const auto it = kSpecialMobFuncs.find(handler);
+			if (it == kSpecialMobFuncs.end()) {
+				err_log("specials: unknown mob handler '%s' for vnum %d -- skipped.", handler, vnum);
+				continue;
+			}
+			ASSIGNMOB(vnum, it->second);   // logs + skips a non-existent vnum
+		} else if (!str_cmp(type, "obj")) {
+			// Object specials (notice boards) are still assigned in code via AssignObjects.
+		} else if (!str_cmp(type, "room")) {
+			// Room specials are not yet data-driven.
+		} else {
+			err_log("specials: unknown type '%s' for vnum %d -- skipped.", type, vnum);
+		}
+	}
+}
+} // namespace
+
+void SpecialsLoader::Load(parser_wrapper::DataNode data) { ParseSpecials(data); }
+void SpecialsLoader::Reload(parser_wrapper::DataNode data) { ParseSpecials(data); }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

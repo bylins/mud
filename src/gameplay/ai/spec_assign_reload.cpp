@@ -1,5 +1,7 @@
 #include "gameplay/ai/spec_assign.h"
 
+#include "engine/db/global_objects.h"
+
 #include "engine/db/db.h"
 #include "engine/db/obj_prototypes.h"
 #include "engine/entities/char_data.h"
@@ -61,7 +63,7 @@ void ReloadSpecProcs() {
 	AssignMobiles();
 	AssignObjects();
 	AssignRooms();
-	InitSpecProcs();
+	MUD::CfgManager().ReloadCfg("specials");
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

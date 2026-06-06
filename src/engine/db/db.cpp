@@ -165,7 +165,6 @@ void LoadGlobalUid();
 void AssignMobiles();
 void AssignObjects();
 void AssignRooms();
-void InitSpecProcs();
 int ReadFileToBuffer(const char *name, char *destination_buf);
 void CheckStartRooms();
 void AddVirtualRoomsToAllZones();
@@ -842,7 +841,7 @@ void BootMudDataBase() {
 
 	boot_profiler.next_step("Loading special assignments");
 	log("Booting special assignment");
-	InitSpecProcs();
+	MUD::CfgManager().LoadCfg("specials");
 
 	boot_profiler.next_step("Assigning guilds info.");
 	log("Assigning guilds info.");

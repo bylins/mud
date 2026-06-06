@@ -19,6 +19,7 @@
 #include "gameplay/economics/currencies.h"
 #include "gameplay/mechanics/guilds.h"
 #include "gameplay/communication/social.h"
+#include "gameplay/ai/spec_assign.h"
 #include "gameplay/mechanics/mob_races.h"
 #include "engine/entities/zone_types.h"
 #include "gameplay/mechanics/rune_spells.h"
@@ -66,6 +67,8 @@ CfgManager::CfgManager() {
 										  std::make_unique<feats::FeatsLoader>(feats::FeatsLoader())));
 	loaders_.emplace("guild_messages", LoaderInfo("cfg/messages/ru/guild_msg.xml",
 										  std::make_unique<guilds::GuildMessagesLoader>(guilds::GuildMessagesLoader())));
+	loaders_.emplace("specials", LoaderInfo("cfg/specials.xml",
+										  std::make_unique<SpecialsLoader>(SpecialsLoader())));
 	loaders_.emplace("socials", LoaderInfo("cfg/messages/ru/social_msg.xml",
 										  std::make_unique<communication::social::SocialsLoader>(communication::social::SocialsLoader())));
 	loaders_.emplace("guilds", LoaderInfo("cfg/guilds.xml",

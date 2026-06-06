@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="koi8-r"?>
+<!--
+    issue.specials: data-driven spec-proc assignment (replaces lib/misc/specials.lst + InitSpecProcs).
+    <special type="mob" vnum=".." handler=".."/> assigns a named special to a prototype.
+    handlers: rent mail bank horse exchange mercenary outfit torc puff (mobs).
+    This is the stripped TEST set (repo/small world); the full production set converts the same way.
+    Object notice-boards are still assigned in code via AssignObjects for now.
+-->
+<specials>
+	<special type="mob" vnum="4022" handler="rent"/>
+	<special type="mob" vnum="4070" handler="mail"/>
+	<special type="mob" vnum="4001" handler="bank"/>
+	<special type="mob" vnum="4023" handler="horse"/>
+</specials>
