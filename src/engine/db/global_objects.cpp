@@ -44,6 +44,7 @@ struct GlobalObjectsStorage {
 	classes::ClassesInfo classes_info;
 	mob_classes::MobClassesInfo mob_classes_info;
 	guilds::GuildsInfo guilds_info;
+	communication::social::SocialsInfo socials_info;
 	guilds::GuildMessages guild_messages;
 	zone_types::ZoneTypesInfo zone_types_info;
 	rune_spells::Registry rune_spells_info;
@@ -155,6 +156,10 @@ const mob_classes::MobClassInfo &GlobalObjects::MobClass(EMobClass mob_class_id)
 
 guilds::GuildsInfo &GlobalObjects::Guilds() {
 	return global_objects().guilds_info;
+}
+
+communication::social::SocialsInfo &GlobalObjects::Socials() {
+	return global_objects().socials_info;
 }
 
 guilds::GuildMessages &GlobalObjects::GuildMessages() {

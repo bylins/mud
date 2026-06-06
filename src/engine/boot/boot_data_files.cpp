@@ -1795,95 +1795,6 @@ bool HelpFile::load_help() {
 	return true;
 }
 
-class SocialsFile : public DataFile {
- public:
-	SocialsFile(const std::string &file_name) : DataFile(file_name) {}
-
-	virtual bool load() override { return load_socials(); }
-	virtual std::string full_file_name() const override { return prefixes(DB_BOOT_SOCIAL) + file_name(); }
-
-	static shared_ptr create(const std::string &file_name) { return shared_ptr(new SocialsFile(file_name)); }
-
- private:
-	bool load_socials();
-	char *str_dup_bl(const char *source);
-};
-
-bool SocialsFile::load_socials() {
-	char line[kMaxInputLength], next_key[kMaxInputLength];
-	const char *scan;
-	int key = -1, message = -1, c_min_pos, c_max_pos, v_min_pos, v_max_pos, what;
-
-	// get the first keyword line
-	get_one_line(line);
-	while (*line != '$') {
-		message++;
-		scan = one_word(line, next_key);
-		while (*next_key) {
-			key++;
-			// Не нужен лишний спам, только мешает искать ошибки
-			//log("Social %d '%s' - message %d", key, next_key, message);
-			soc_keys_list[key].keyword = str_dup(next_key);
-			soc_keys_list[key].social_message = message;
-			scan = one_word(scan, next_key);
-		}
-
-		what = 0;
-		get_one_line(line);
-		while (*line != '#') {
-			scan = line;
-			skip_spaces(&scan);
-			if (scan && *scan && *scan != ';') {
-				switch (what) {
-					case 0:
-						if (sscanf(scan, " %d %d %d %d \n", &c_min_pos, &c_max_pos, &v_min_pos, &v_max_pos) < 4) {
-							fatal_log("SYSERR: format error in %d social file near social '%s' #d #d #d #d\n", message, line);
-						}
-						soc_mess_list[message].ch_min_pos = static_cast<EPosition>(c_min_pos);
-						soc_mess_list[message].ch_max_pos = static_cast<EPosition>(c_max_pos);
-						soc_mess_list[message].vict_min_pos = static_cast<EPosition>(v_min_pos);
-						soc_mess_list[message].vict_max_pos = static_cast<EPosition>(v_max_pos);
-						break;
-					case 1: soc_mess_list[message].char_no_arg = str_dup_bl(scan);
-						break;
-					case 2: soc_mess_list[message].others_no_arg = str_dup_bl(scan);
-						break;
-					case 3: soc_mess_list[message].char_found = str_dup_bl(scan);
-						break;
-					case 4: soc_mess_list[message].others_found = str_dup_bl(scan);
-						break;
-					case 5: soc_mess_list[message].vict_found = str_dup_bl(scan);
-						break;
-					case 6: soc_mess_list[message].not_found = str_dup_bl(scan);
-						break;
-				}
-			}
-
-			if (!scan || *scan != ';') {
-				what++;
-			}
-
-			get_one_line(line);
-		}
-		// get next keyword line (or $)
-		get_one_line(line);
-	}
-
-	return true;
-}
-
-char *SocialsFile::str_dup_bl(const char *source) {
-	char line[kMaxInputLength];
-
-	line[0] = 0;
-	if (source[0]) {
-		size_t line_len = strlen(line);
-		snprintf(line + line_len, sizeof(line) - line_len, "&K%s&n", source);
-	}
-
-	return (str_dup(line));
-}
-
 DataFileFactory::shared_ptr DataFileFactory::create() {
 	return std::make_shared<DataFileFactoryImpl>();
 }
@@ -1902,7 +1813,6 @@ BaseDataFile::shared_ptr DataFileFactoryImpl::get_file(const EBootType mode, con
 
 		case DB_BOOT_TRG:return TriggersFile::create(file_name, m_load_obj_exp);
 
-		case DB_BOOT_SOCIAL:return SocialsFile::create(file_name);
 
 		default:return nullptr;
 	}

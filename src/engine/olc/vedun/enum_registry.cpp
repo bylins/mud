@@ -11,6 +11,7 @@
 #include "gameplay/skills/skill_messages.h"    // ESkillMsg + NAMES_OF
 #include "gameplay/abilities/feat_messages.h"   // EFeat + EFeatMsg + NAMES_OF
 #include "gameplay/mechanics/guild_messages.h"   // guilds::EMsg + NAMES_OF
+#include "gameplay/communication/social.h"        // ESocialMsg + NAMES_OF
 #include "gameplay/fight/fight_messages.h"     // EFightMsg/EDamageSource + NAMES_OF
 #include "engine/entities/entities_constants.h" // EPosition + NAMES_OF
 #include "engine/structs/info_container.h"      // EItemMode + NAMES_OF
@@ -65,6 +66,7 @@ void RegisterEditorEnums() {
 	registry.Register<ETarget>("ETarget");
 	registry.Register<ESpellType>("ESpellType");
 	registry.Register<EPosition>("EPosition");
+	registry.Register<ESocialMsg>("ESocialMsg");
 	registry.Register<EItemMode>("EItemMode");
 	registry.Register<EAffFlag>("EAffFlag");
 	registry.Register<ESkill>("ESkill");

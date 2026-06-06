@@ -9,7 +9,6 @@ const char *boot_mode_name(EBootType mode) {
 			//case DB_BOOT_SHP:    return "SHP";
 		case DB_BOOT_HLP: return "HLP";
 		case DB_BOOT_TRG: return "trg";
-		case DB_BOOT_SOCIAL: return "soc";
 		default: return "unknown";
 	}
 }
@@ -26,7 +25,6 @@ FilesPrefixes::FilesPrefixes() {
 	(*this)[DB_BOOT_OBJ] = OBJ_PREFIX;
 	(*this)[DB_BOOT_ZON] = ZON_PREFIX;
 	(*this)[DB_BOOT_HLP] = HLP_PREFIX;
-	(*this)[DB_BOOT_SOCIAL] = SOC_PREFIX;
 }
 
 std::string FilesPrefixes::s_empty_prefix;

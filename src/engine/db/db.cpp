@@ -180,7 +180,6 @@ void SetZoneRnumForObjects();
 void SetZoneRnumForMobiles();
 void SetZoneRnumForTriggers();
 void InitBasicValues();
-int CompareSocials(const void *a, const void *b);
 int ReadCrashTimerFile(std::size_t index, int temp);
 int LoadExchange();
 void SetPrecipitations(int *wtype, int startvalue, int chance1, int chance2, int chance3);
@@ -772,9 +771,9 @@ void BootMudDataBase() {
 	log("Loading help entries.");
 	GameLoader::BootIndex(DB_BOOT_HLP);
 
-	boot_profiler.next_step("Loading social entries");
-	log("Loading social entries.");
-	GameLoader::BootIndex(DB_BOOT_SOCIAL);
+	boot_profiler.next_step("Loading socials");
+	log("Loading socials.");
+	MUD::CfgManager().LoadCfg("socials");
 
 	boot_profiler.next_step("Loading players index");
 	log("Generating player index.");
@@ -1239,11 +1238,6 @@ void GameLoader::BootIndex(const EBootType mode) {
 		// brackets to suppress define
 		data_file->close();
 	}
-
-	// sort the social index
-	if (mode == DB_BOOT_SOCIAL) {
-		qsort(soc_keys_list, number_of_social_commands, sizeof(struct SocialKeyword), CompareSocials);
-	}
 }
 
 void GameLoader::PrepareGlobalStructures(const EBootType mode, const int rec_count) {
@@ -1287,15 +1281,6 @@ void GameLoader::PrepareGlobalStructures(const EBootType mode, const int rec_cou
 
 		case DB_BOOT_HLP: break;
 
-		case DB_BOOT_SOCIAL: {
-			CREATE(soc_mess_list, number_of_social_messages);
-			CREATE(soc_keys_list, number_of_social_commands);
-			const size_t messages_size = sizeof(struct SocialMessages) * (number_of_social_messages);
-			const size_t keywords_size = sizeof(struct SocialKeyword) * (number_of_social_commands);
-			log("   %d entries(%d keywords), %zd(%zd) bytes.", number_of_social_messages,
-				number_of_social_commands, messages_size, keywords_size);
-		}
-			break;
 	}
 }
 
@@ -1712,15 +1697,6 @@ void SetTestData(CharData *mob) {
 			}
 		}
 	}
-}
-
-int CompareSocials(const void *a, const void *b) {
-	const struct SocialKeyword *a1, *b1;
-
-	a1 = (const struct SocialKeyword *) a;
-	b1 = (const struct SocialKeyword *) b;
-
-	return (str_cmp(a1->keyword, b1->keyword));
 }
 
 /*************************************************************************

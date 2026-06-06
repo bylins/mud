@@ -18,6 +18,7 @@
 #include "gameplay/magic/spells_info.h"
 #include "gameplay/economics/currencies.h"
 #include "gameplay/mechanics/guilds.h"
+#include "gameplay/communication/social.h"
 #include "gameplay/mechanics/mob_races.h"
 #include "engine/entities/zone_types.h"
 #include "gameplay/mechanics/rune_spells.h"
@@ -65,6 +66,8 @@ CfgManager::CfgManager() {
 										  std::make_unique<feats::FeatsLoader>(feats::FeatsLoader())));
 	loaders_.emplace("guild_messages", LoaderInfo("cfg/messages/ru/guild_msg.xml",
 										  std::make_unique<guilds::GuildMessagesLoader>(guilds::GuildMessagesLoader())));
+	loaders_.emplace("socials", LoaderInfo("cfg/messages/ru/social_msg.xml",
+										  std::make_unique<communication::social::SocialsLoader>(communication::social::SocialsLoader())));
 	loaders_.emplace("guilds", LoaderInfo("cfg/guilds.xml",
 										  std::make_unique<guilds::GuildsLoader>(guilds::GuildsLoader())));
 	loaders_.emplace("zone_types", LoaderInfo("cfg/zone_types.xml",

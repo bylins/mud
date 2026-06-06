@@ -77,7 +77,7 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		AllocateBufferForFile(HANDBOOK_FILE, &handbook);
 		AllocateBufferForFile(BACKGROUND_FILE, &background);
 		AllocateBufferForFile(NAME_RULES_FILE, &name_rules);
-		GoBootSocials();
+		MUD::CfgManager().ReloadCfg("socials");
 		initIngredientsMagic();
 		MUD::CfgManager().ReloadCfg("zone_types");
 		MUD::CfgManager().ReloadCfg("rune_spells");
@@ -157,7 +157,7 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	} else if (!str_cmp(arg, "xhelp")) {
 		HelpSystem::reload_all();
 	} else if (!str_cmp(arg, "socials"))
-		GoBootSocials();
+		MUD::CfgManager().ReloadCfg("socials");
 	else if (!str_cmp(arg, "specials"))
 		ReloadSpecProcs();
 	else if (!str_cmp(arg, "schedule"))

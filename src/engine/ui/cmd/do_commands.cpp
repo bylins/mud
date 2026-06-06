@@ -9,6 +9,7 @@
 #include "engine/entities/char_data.h"
 #include "administration/privilege.h"
 #include "gameplay/communication/social.h"
+#include "engine/db/global_objects.h"
 
 void do_commands(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	int no, i, cmd_num, num_of;
@@ -26,19 +27,25 @@ void do_commands(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			wizhelp ? "привилегированные " : "",
 			socials ? "социалы" : "команды", vict == ch ? "вам" : GET_PAD(vict, 2));
 
-	if (socials)
-		num_of = number_of_social_commands;
-	else
-		num_of = num_of_cmds - 1;
+	num_of = num_of_cmds - 1;
 
-	// cmd_num starts at 1, not 0, to remove 'RESERVED'
-	for (no = 1, cmd_num = socials ? 0 : 1; cmd_num < num_of; cmd_num++)
-		if (socials) {
-			sprintf(buf + strlen(buf), "%-19s", soc_keys_list[cmd_num].keyword);
-			if (!(no % 4))
-				strcat(buf, "\r\n");
-			no++;
-		} else {
+	no = 1;
+	if (socials) {
+		// issue.socials: list every keyword synonym of every social.
+		for (const auto &soc : MUD::Socials()) {
+			if (soc.GetId() < 0) {
+				continue;
+			}
+			for (const auto &kw : soc.GetKeywords()) {
+				sprintf(buf + strlen(buf), "%-19s", kw.c_str());
+				if (!(no % 4))
+					strcat(buf, "\r\n");
+				no++;
+			}
+		}
+	} else {
+		// cmd_num starts at 1, not 0, to remove 'RESERVED'
+		for (cmd_num = 1; cmd_num < num_of; cmd_num++) {
 			i = cmd_sort_info[cmd_num].sort_pos;
 			if (wizhelp) {
 				if (privilege::HasPrivilege(vict, std::string(cmd_info[i].command), 0, 0, 0)) {
@@ -54,6 +61,7 @@ void do_commands(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 				no++;
 			}
 		}
+	}
 
 	strcat(buf, "\r\n");
 	SendMsgToChar(buf, ch);

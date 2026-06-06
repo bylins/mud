@@ -17,6 +17,7 @@ test_sources = files(
     'vedun.datanode_mutation.cpp',
     'vedun.element_find.cpp',
     'guilds.loader.cpp',
+    'socials.loader.cpp',
     'spell_wear_off_msg.wrapper.cpp',
     'blocking.queue.cpp',
     'boards.changelog.cpp',
