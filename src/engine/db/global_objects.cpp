@@ -39,6 +39,7 @@ struct GlobalObjectsStorage {
 	skills::SkillMessages skill_messages;
     fight::FightMessages fight_messages;
 	feats::FeatsInfo feats_info;
+	feats::FeatMessages feat_messages;
 	cfg_manager::CfgManager cfg_mngr;
 	classes::ClassesInfo classes_info;
 	mob_classes::MobClassesInfo mob_classes_info;
@@ -113,6 +114,10 @@ points_intensity::PointsIntensity &GlobalObjects::PointsIntensity() {
 
 skills::SkillMessages &GlobalObjects::SkillMessages() {
 	return global_objects().skill_messages;
+}
+
+feats::FeatMessages &GlobalObjects::FeatMessages() {
+	return global_objects().feat_messages;
 }
 
 fight::FightMessages &GlobalObjects::FightMessages() {

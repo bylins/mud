@@ -18,6 +18,7 @@
 #include "engine/entities/zone_types.h"
 #include "gameplay/mechanics/rune_spells.h"
 #include "gameplay/abilities/feats.h"
+#include "gameplay/abilities/feat_messages.h"
 #include "utils/logger.h"
 #include "engine/core/heartbeat.h"
 #include "administration/shutdown_parameters.h"
@@ -68,6 +69,7 @@ class GlobalObjects {
 	static skills::SkillMessages &SkillMessages();
     static fight::FightMessages &FightMessages();
 	static feats::FeatsInfo &Feats();
+	static feats::FeatMessages &FeatMessages();
 	static const feats::FeatInfo &Feat(EFeat feat_id);
 	static classes::ClassesInfo &Classes();
 	static const classes::CharClassInfo &Class(ECharClass class_id);

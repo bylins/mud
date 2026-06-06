@@ -26,6 +26,7 @@
 #include "gameplay/magic/spell_messages.h"
 #include "gameplay/magic/points_intensity.h"
 #include "gameplay/fight/fight_messages.h"
+#include "gameplay/abilities/feat_messages.h"
 
 namespace cfg_manager {
 
@@ -54,6 +55,8 @@ CfgManager::CfgManager() {
 										  std::make_unique<points_intensity::PointsIntensityLoader>(points_intensity::PointsIntensityLoader())));
 	loaders_.emplace("fight_messages", LoaderInfo("cfg/messages/ru/hit_msg.xml",
 										  std::make_unique<fight::FightMessagesLoader>(fight::FightMessagesLoader())));
+	loaders_.emplace("feat_messages", LoaderInfo("cfg/messages/ru/feat_msg.xml",
+										  std::make_unique<feats::FeatMessagesLoader>(feats::FeatMessagesLoader())));
 	loaders_.emplace("feats", LoaderInfo("cfg/feats.xml",
 										  std::make_unique<feats::FeatsLoader>(feats::FeatsLoader())));
 	loaders_.emplace("guilds", LoaderInfo("cfg/guilds.xml",

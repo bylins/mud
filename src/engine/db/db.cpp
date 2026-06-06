@@ -681,6 +681,7 @@ void BootMudDataBase() {
 
 	boot_profiler.next_step("Loading feats cfg.");
 	log("Loading feats cfg.");
+	MUD::CfgManager().LoadCfg("feat_messages");   // issue.thing-names: names before feats
 	MUD::CfgManager().LoadCfg("feats");
 
 	// issue.thing-names: spell messages (which now hold the Russian display names) load BEFORE
