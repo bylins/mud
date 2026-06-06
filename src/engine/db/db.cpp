@@ -674,13 +674,15 @@ void BootMudDataBase() {
 	log("Loading feats cfg.");
 	MUD::CfgManager().LoadCfg("feats");
 
-	boot_profiler.next_step("Loading spells cfg.");
-	log("Loading spells cfg.");
-	MUD::CfgManager().LoadCfg("spells");
-
+	// issue.thing-names: spell messages (which now hold the Russian display names) load BEFORE
+	// spells, so SpellInfoBuilder::ParseName can read each spell's name from the message container.
 	boot_profiler.next_step("Loading spell messages cfg.");
 	log("Loading spell messages cfg.");
 	MUD::CfgManager().LoadCfg("spell_messages");
+
+	boot_profiler.next_step("Loading spells cfg.");
+	log("Loading spells cfg.");
+	MUD::CfgManager().LoadCfg("spells");
 
 	boot_profiler.next_step("Linting editor schemes.");
 	vedun::LintSchemes();

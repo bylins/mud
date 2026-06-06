@@ -147,9 +147,10 @@ ItemPtr SpellInfoBuilder::ParseHeader(DataNode &node) {
 }
 
 void SpellInfoBuilder::ParseName(ItemPtr &info, DataNode &node) {
+	// issue.thing-names: the English name stays in spells.xml as an admin label; the Russian display
+	// name now lives in spell_msg.xml and is read from the message container (loaded just before spells).
 	if (node.GoToChild("name")) {
 		try {
-			info->name_ = parse::ReadAsStr(node.GetValue("rus"));
 			info->name_eng_ = parse::ReadAsStr(node.GetValue("eng"));
 		} catch (std::exception &e) {
 			err_log("Incorrect 'name' section (spell: %s, value: %s).",
@@ -157,6 +158,7 @@ void SpellInfoBuilder::ParseName(ItemPtr &info, DataNode &node) {
 		}
 		node.GoToParent();
 	}
+	info->name_ = MUD::SpellMessages().GetName(info->GetId());
 }
 
 // Parses the <components>...</components> spell-level block placed right after

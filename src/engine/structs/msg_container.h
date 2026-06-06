@@ -16,6 +16,7 @@
 #include "utils/parse.h"
 #include "utils/parser_wrapper.h"
 #include "utils/random.h"
+#include "utils/utils_string.h"   // issue.thing-names: utils::IsEquivalent for FindByName
 #include "utils/logger.h"
 
 #include <map>
@@ -58,8 +59,15 @@ class MsgSheaf : public info_container::BaseItem<IdEnum> {
 		return it != messages_.end() && !it->second.empty();
 	}
 
+	// issue.thing-names: the entity's localised display name, parsed from the <name val="..."/> child
+	// of the sheaf. Empty when the entity has no name in this string file. (Spells have a single name;
+	// cased entities will later extend <name> with <case> children -- a sparse case map.)
+	void SetName(std::string name) { name_ = std::move(name); }
+	[[nodiscard]] const std::string &GetName() const { return name_; }
+
  private:
 	std::map<MsgType, std::vector<std::string>> messages_;
+	std::string name_;
 };
 
 /**
@@ -92,6 +100,12 @@ class MsgSheafBuilder : public info_container::IItemBuilder<MsgSheaf<IdEnum, Msg
 			} catch (const std::exception &) {
 				err_log("MsgSheafBuilder: message has unknown 'type' ('%s') in msg_sheaf '%s'.", type_str, id_str);
 			}
+		}
+		// issue.thing-names: optional <name val="..."/> -- the entity's localised display name.
+		if (node.GoToChild("name")) {
+			const char *name_val = node.GetValue("val");
+			sheaf->SetName(name_val ? name_val : "");
+			node.GoToParent();
 		}
 		return sheaf;
 	}
@@ -158,6 +172,33 @@ class MsgContainer
 			return default_message;
 		}
 		return fallback;
+	}
+
+	/**
+	 * issue.thing-names: the localised display name for an element id (the <name val=...> of its
+	 * sheaf), or an empty string if unknown / unnamed. No default-sheaf fallback -- a name is per
+	 * entity, not shared.
+	 */
+	[[nodiscard]] const std::string &GetName(IdEnum id) const {
+		static const std::string kEmpty;
+		if (this->IsKnown(id)) {
+			return (*this)[id].GetName();
+		}
+		return kEmpty;
+	}
+
+	/**
+	 * issue.thing-names: reverse lookup -- find the element id whose name matches `name`
+	 * (case/letter-equivalent, via utils::IsEquivalent), or IdEnum::kUndefined if none. This is the
+	 * "search the string set, return the id" entry point; callers resolve the id back to gameplay data.
+	 */
+	[[nodiscard]] IdEnum FindByName(const std::string &name) const {
+		for (const auto &sheaf : *this) {
+			if (!sheaf.GetName().empty() && utils::IsEquivalent(name, sheaf.GetName())) {
+				return sheaf.GetId();
+			}
+		}
+		return IdEnum::kUndefined;
 	}
 
  private:

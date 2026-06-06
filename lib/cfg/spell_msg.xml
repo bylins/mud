@@ -13,6 +13,7 @@
 	<!-- Ветвь по умолчанию: сюда позже переедут сообщения, общие для всех
 	     заклинаний (проверки позиции каста и т.п. из magic_utils.cpp). -->
 	<msg_sheaf id="kDefault">
+		<name val="!undefined!" />
 		<message type="kCantCastSleeping" val="Вы спите и не могете думать больше ни о чем." />
 		<message type="kCantCastResting" val="Вы расслаблены и отдыхаете. И далась вам эта магия?" />
 		<message type="kCantCastSitting" val="Похоже, в этой позе Вы много не наколдуете." />
@@ -104,38 +105,45 @@
 	</msg_sheaf>
 
 	<msg_sheaf id="kCureLight">
+		<name val="легкое исцеление" />
 		<message type="kHealToVict" val="Вы почувствовали себя {intensity}." />
 		<message type="kCastPhraseHeathen" val="малейше целити раны" />
 		<message type="kCastPhraseChristian" val="... да затянутся раны твои." />
 	</msg_sheaf>
 	<msg_sheaf id="kCureSerious">
+		<name val="серьезное исцеление" />
 		<message type="kHealToVict" val="Вы почувствовали себя {intensity}." />
 		<message type="kCastPhraseHeathen" val="целите раны" />
 		<message type="kCastPhraseChristian" val="... да уменьшатся раны твои." />
 	</msg_sheaf>
 	<msg_sheaf id="kCureCritic">
+		<name val="критическое исцеление" />
 		<message type="kHealToVict" val="Вы почувствовали себя {intensity}." />
 		<message type="kCastPhraseHeathen" val="гой еси" />
 		<message type="kCastPhraseChristian" val="... да зарубцуются гноища твои." />
 	</msg_sheaf>
 	<msg_sheaf id="kHeal">
+		<name val="исцеление" />
 		<message type="kHealToVict" val="Вы почувствовали себя {intensity}." />
 		<message type="kCastPhraseHeathen" val="згола гой еси" />
 		<message type="kCastPhraseChristian" val="... тебе говорю, встань." />
 	</msg_sheaf>
 	<msg_sheaf id="kGroupHeal">
+		<name val="групповое исцеление" />
 		<message type="kHealToVict" val="Вы почувствовали себя {intensity}." />
 		<message type="kAreaToChar" val="Вы подняли голову вверх и ощутили яркий свет, ласково бегущий по вашему телу." />
 		<message type="kCastPhraseHeathen" val="други, гой еси" />
 		<message type="kCastPhraseChristian" val="... вам говорю, встаньте." />
 	</msg_sheaf>
 	<msg_sheaf id="kGreatHeal">
+		<name val="великое исцеление" />
 		<message type="kHealToVict" val="Вы почувствовали себя {intensity}." />
 		<message type="kAreaToChar" val="Вы подняли голову вверх и ощутили яркий свет, ласково бегущий по вашему телу." />
 		<message type="kCastPhraseHeathen" val="згола гой еси" />
 		<message type="kCastPhraseChristian" val="... тебе говорю, встань." />
 	</msg_sheaf>
 	<msg_sheaf id="kWarcryOfPower">
+		<name val="клич мощи" />
 		<message type="kNoTarget" val="И на {target} же вы хотите так громко крикнуть?" />
 		<message type="kCantCastHereToChar" val="Ваш громовой глас сотряс воздух, но ничего не произошло!" />
 		<message type="kCantCastHereToRoom" val="Вы вздрогнули от неожиданного крика, но ничего не произошло." />
@@ -146,34 +154,40 @@
 		<message type="kAffExpired" val="Действие клича мощи закончилось." />
 	</msg_sheaf>
 	<msg_sheaf id="kExtraHits">
+		<name val="увеличить жизнь" />
 		<message type="kHealToVict" val="По вашему телу начала струиться живительная сила." />
 		<message type="kCastPhraseHeathen" val="буде полон здоровья" />
 		<message type="kCastPhraseChristian" val="... крепкое тело лучше несметного богатства." />
 	</msg_sheaf>
 	<msg_sheaf id="kResfresh">
+		<name val="восстановление" />
 		<message type="kMovesToVict" val="Вы почувствовали себя {intensity}." />
 		<message type="kCastPhraseHeathen" val="буде свеж" />
 		<message type="kCastPhraseChristian" val="... не будет у него ни усталого, ни изнемогающего." />
 	</msg_sheaf>
 	<msg_sheaf id="kGroupRefresh">
+		<name val="групповое восстановление" />
 		<message type="kMovesToVict" val="Вы почувствовали себя {intensity}." />
 		<message type="kAreaToChar" val="Ваша магия наполнила воздух зеленоватым сиянием." />
 		<message type="kCastPhraseHeathen" val="Исполняше други силою!" />
 		<message type="kCastPhraseChristian" val="...да не останется ни обделенного, ни обессиленного." />
 	</msg_sheaf>
 	<msg_sheaf id="kFullFeed">
+		<name val="насыщение" />
 		<message type="kFullToVict" val="Вы почувствовали себя {intensity}." />
 		<message type="kCastPhraseHeathen" val="брюхо полно" />
 		<message type="kCastPhraseChristian" val="... душа больше пищи, и тело - одежды." />
 		<message type="kAffExpired" val="Вам снова захотелось жареного, да с дымком." />
 	</msg_sheaf>
 	<msg_sheaf id="kCommonMeal">
+		<name val="общая трапеза" />
 		<message type="kFullToVict" val="Вы почувствовали себя {intensity}." />
 		<message type="kAreaToChar" val="Вы услышали гомон невидимых лакеев, готовящих трапезу." />
 		<message type="kCastPhraseHeathen" val="Благодарите богов за хлеб и соль!" />
 		<message type="kCastPhraseChristian" val="...дабы не осталось голодающих на свете белом" />
 	</msg_sheaf>
 	<msg_sheaf id="kPaladineInspiration">
+		<name val="воодушевление" />
 		<message type="kAreaToChar" val="Ваш точный удар воодушевил и придал новых сил!" />
 		<message type="kAreaToRoom" val="Точный удар $n1 воодушевил и придал новых сил!" />
 		<message type="kHealToVict" val="Вы почувствовали себя {intensity}." />
@@ -182,6 +196,7 @@
 		<message type="kAffExpired" val="*Боевое воодушевление угасло, а с ним и вся жажда подвигов!" />
 	</msg_sheaf>
 	<msg_sheaf id="kEviless">
+		<name val="силы зла" />
 		<message type="kAreaToChar" val="Вы запросили помощи у Чернобога. Долг перед темными силами стал чуточку больше.." />
 		<message type="kAreaToRoom" val="Внезапно появившееся чёрное облако скрыло $n3 на мгновение от вашего взгляда." />
 		<message type="kCastPhraseHeathen" val="зло творяще" />
@@ -191,6 +206,7 @@
 		<message type="kAffExpired" val="Силы зла оставили вас." />
 	</msg_sheaf>
 	<msg_sheaf id="kMassBlindness">
+		<name val="массовая слепота" />
 		<message type="kAreaToChar" val="У вас над головой возникла яркая вспышка, которая ослепила все живое." />
 		<message type="kAreaToRoom" val="Вдруг над головой $n1 возникла яркая вспышка." />
 		<message type="kAreaToVict" val="Вы невольно взглянули на вспышку света, вызванную $n4, и ваши глаза заслезились." />
@@ -200,6 +216,7 @@
 		<message type="kAffImposedToChar" val="Вы ослепли!" />
 	</msg_sheaf>
 	<msg_sheaf id="kMassHold">
+		<name val="массовое оцепенение" />
 		<message type="kAreaToChar" val="Вы сжали зубы от боли, когда из вашего тела вырвалось множество невидимых каменных лучей." />
 		<message type="kAreaToVict" val="В вас попал каменный луч, исходящий от $n1." />
 		<message type="kCastPhraseHeathen" val="их окалеть" />
@@ -208,6 +225,7 @@
 		<message type="kAffImposedToChar" val="Вы замерли на месте, не в силах пошевельнуться." />
 	</msg_sheaf>
 	<msg_sheaf id="kMassCurse">
+		<name val="массовое проклятие" />
 		<message type="kAreaToChar" val="Медленно оглянувшись, вы прошептали древние слова." />
 		<message type="kAreaToVict" val="$n злобно посмотрел$g на вас и начал$g шептать древние слова." />
 		<message type="kCastPhraseHeathen" val="порча их" />
@@ -216,6 +234,7 @@
 		<message type="kAffImposedToChar" val="Боги сурово поглядели на вас." />
 	</msg_sheaf>
 	<msg_sheaf id="kMassSilence">
+		<name val="массовое молчание" />
 		<message type="kAreaToChar" val="Поведя вокруг грозным взглядом, вы заставили всех замолчать." />
 		<message type="kAreaToVict" val="Вы встретились взглядом с $n4, и у вас появилось ощущение, что горлу чего-то не хватает." />
 		<message type="kCastPhraseHeathen" val="их уста непотребны" />
@@ -224,6 +243,7 @@
 		<message type="kAffImposedToChar" val="Вы не в состоянии вымолвить ни слова." />
 	</msg_sheaf>
 	<msg_sheaf id="kMassDeafness">
+		<name val="массовая глухота" />
 		<message type="kAreaToChar" val="Вы нахмурились, склонив голову, и громкий хлопок сотряс воздух." />
 		<message type="kAreaToRoom" val="Как только $n0 склонил$g голову, раздался оглушающий хлопок." />
 		<message type="kCastPhraseHeathen" val="будьте глухи" />
@@ -232,6 +252,7 @@
 		<message type="kAffImposedToChar" val="Вы оглохли." />
 	</msg_sheaf>
 	<msg_sheaf id="kMassSlow">
+		<name val="массовая медлительность" />
 		<message type="kAreaToChar" val="Положив ладони на землю, вы вызвали цепкие корни, опутавшие существ, стоящих рядом с вами." />
 		<message type="kAreaToVict" val="$n вызвал$g цепкие корни, опутавшие ваши ноги." />
 		<message type="kCastPhraseHeathen" val="тернии им" />
@@ -240,6 +261,7 @@
 		<message type="kAffImposedToChar" val="Ваши движения заметно замедлились." />
 	</msg_sheaf>
 	<msg_sheaf id="kArmageddon">
+		<name val="суд богов" />
 		<message type="kAreaToChar" val="Вы сплели руки в замысловатом жесте, и все потускнело!" />
 		<message type="kAreaToRoom" val="$n сплел$g руки в замысловатом жесте, и все потускнело!" />
 		<message type="kFightDeathToChar" val="Вы отправили $N3 на $S судный день." />
@@ -258,6 +280,7 @@
 		<message type="kCastPhraseChristian" val="... какою мерою мерите, такою отмерено будет и вам." />
 	</msg_sheaf>
 	<msg_sheaf id="kEarthquake">
+		<name val="землетрясение" />
 		<message type="kAreaToChar" val="Вы опустили руки, и земля начала дрожать вокруг вас!" />
 		<message type="kAreaToRoom" val="$n опустил$g руки, и земля задрожала!" />
 		<message type="kFightDeathToChar" val="От ваших слов Земля разверзлась под $N4... Навсегда." />
@@ -288,6 +311,7 @@
 		<message type="kCastPhraseChristian" val="... в тот же час произошло великое землетрясение." />
 	</msg_sheaf>
 	<msg_sheaf id="kFireBlast">
+		<name val="огненный поток" />
 		<message type="kAreaToChar" val="Вы вызвали потоки подземного пламени!" />
 		<message type="kAreaToRoom" val="$n0 вызвал$g потоки пламени из глубин земли!" />
 		<message type="kFightDeathToChar" val="$N попал$G в поток огня и сгорел$G заживо. Теперь $E расскажет об этом Богам." />
@@ -306,6 +330,7 @@
 		<message type="kCastPhraseChristian" val="... и ввергне их в озеро огненное." />
 	</msg_sheaf>
 	<msg_sheaf id="kIceStorm">
+		<name val="ледяной шторм" />
 		<message type="kAreaToChar" val="Вы воздели руки к небу, и тысячи мелких льдинок хлынули вниз!" />
 		<message type="kAreaToRoom" val="$n воздел$g руки к небу, и тысячи мелких льдинок хлынули вниз!" />
 		<message type="kCastPhraseHeathen" val="торже, яко вихор" />
@@ -315,6 +340,7 @@
 		<message type="kAffExpired" val="Ваши мышцы оттаяли и вы снова можете двигаться." />
 	</msg_sheaf>
 	<msg_sheaf id="kDustStorm">
+		<name val="пылевая буря" />
 		<message type="kAreaToChar" val="Вы взмахнули руками и вызвали огромное пылевое облако, скрывшее все вокруг." />
 		<message type="kAreaToRoom" val="Вас поглотила пылевая буря, вызванная $n4." />
 		<message type="kCastPhraseHeathen" val="пыль поднимется столбами" />
@@ -323,12 +349,14 @@
 		<message type="kAffImposedToChar" val="Вы ослепли!" />
 	</msg_sheaf>
 	<msg_sheaf id="kMassFear">
+		<name val="массовый страх" />
 		<message type="kAreaToChar" val="Вы оглядели комнату устрашающим взглядом, заставив всех содрогнуться." />
 		<message type="kAreaToRoom" val="$n0 оглядел$g комнату устрашающим взглядом." />
 		<message type="kCastPhraseHeathen" val="Поврещу сташивые души их в скарядие!" />
 		<message type="kCastPhraseChristian" val="... и затмил ужас разум их." />
 	</msg_sheaf>
 	<msg_sheaf id="kGlitterDust">
+		<name val="блестящая пыль" />
 		<message type="kAreaToChar" val="Вы слегка прищелкнули пальцами, и вокруг сгустилось облако блестящей пыли." />
 		<message type="kAreaToRoom" val="$n0 сотворил$g облако блестящей пыли, медленно осевшее на землю." />
 		<message type="kCastPhraseHeathen" val="зрети супостат охабиша" />
@@ -338,6 +366,7 @@
 		<message type="kAffExpired" val="Покрывавшая вас блестящая пыль осыпалась и растаяла в воздухе." />
 	</msg_sheaf>
 	<msg_sheaf id="kSonicWave">
+		<name val="звуковая волна" />
 		<message type="kAreaToChar" val="Вы оттолкнули от себя воздух руками, и он плотным кольцом стремительно двинулся во все стороны!" />
 		<message type="kAreaToRoom" val="$n махнул$g руками, и огромное кольцо сжатого воздуха распостранилось во все стороны!" />
 		<message type="kCastPhraseHeathen" val="да невзлюбит тебя воздух" />
@@ -346,6 +375,7 @@
 		<message type="kAffImposedToChar" val="Вы оглохли." />
 	</msg_sheaf>
 	<msg_sheaf id="kChainLighting">
+		<name val="цепь молний" />
 		<message type="kAreaToChar" val="Вы подняли руки к небу и оно осветилось яркими вспышками!" />
 		<message type="kAreaToRoom" val="$n поднял$g руки к небу и оно осветилось яркими вспышками!" />
 		<message type="kFightDeathToChar" val="Одна из ваших молний не оставила и следа от $N1." />
@@ -364,6 +394,7 @@
 		<message type="kCastPhraseChristian" val="... понесутся меткие стрелы молний из облаков." />
 	</msg_sheaf>
 	<msg_sheaf id="kEarthfall">
+		<name val="камнепад" />
 		<message type="kAreaToChar" val="Вы высоко подбросили комок земли и он, увеличиваясь на глазах, обрушился вниз." />
 		<message type="kAreaToRoom" val="$n высоко подбросил$g комок земли, который, увеличиваясь на глазах, стал падать вниз." />
 		<message type="kCastPhraseHeathen" val="пусть каменья падут" />
@@ -372,6 +403,7 @@
 		<message type="kAffImposedToChar" val="Вас оглушило." />
 	</msg_sheaf>
 	<msg_sheaf id="kShock">
+		<name val="шок" />
 		<message type="kAreaToChar" val="Яркая вспышка слетела с кончиков ваших пальцев и с оглушительным грохотом взорвалась в воздухе." />
 		<message type="kAreaToRoom" val="Выпущенная $n1 яркая вспышка с оглушительным грохотом взорвалась в воздухе." />
 		<message type="kFightDeathToChar" val="Вы насмерть шокировали $N3." />
@@ -404,6 +436,7 @@
 		<message type="kAffImposedToChar" val="Вас оглушило." />
 	</msg_sheaf>
 	<msg_sheaf id="kBurdenOfTime">
+		<name val="бремя времени" />
 		<message type="kAreaToChar" val="Вы скрестили руки на груди, вызвав яркую вспышку синего света." />
 		<message type="kAreaToRoom" val="$n0 скрестил$g руки на груди, вызвав яркую вспышку синего света." />
 		<message type="kCastPhraseHeathen" val="Яко небытие нещадно к вам, али время вернулось вспять." />
@@ -412,6 +445,7 @@
 		<message type="kAffImposedToChar" val="Ваш разум помутился." />
 	</msg_sheaf>
 	<msg_sheaf id="kFailure">
+		<name val="недоля" />
 		<message type="kAreaToChar" val="Вы простерли руки над головой, вызвав череду раскатов грома." />
 		<message type="kAreaToRoom" val="$n0 вызвал$g череду раскатов грома, заставивших все вокруг содрогнуться." />
 		<message type="kCastPhraseHeathen" val="аще доля зла и удача немилостива" />
@@ -421,6 +455,7 @@
 		<message type="kAffExpired" val="Удача вновь вернулась к вам." />
 	</msg_sheaf>
 	<msg_sheaf id="kScream">
+		<name val="вопль" />
 		<message type="kAreaToChar" val="Вы испустили кошмарный вопль, едва не разорвавший вам горло." />
 		<message type="kAreaToRoom" val="$n0 испустил$g кошмарный вопль, отдавшийся в вашей душе замогильным холодом." />
 		<message type="kFightDeathToChar" val="$N умер$Q от тоски, навеяной вашим криком." />
@@ -454,6 +489,7 @@
 		<message type="kAffExpired" val="Леденящий душу испуг отпустил вас." />
 	</msg_sheaf>
 	<msg_sheaf id="kBurningHands">
+		<name val="горящие руки" />
 		<message type="kAreaToChar" val="С ваших ладоней сорвался поток жаркого пламени." />
 		<message type="kAreaToRoom" val="$n0 испустил$g поток жаркого багрового пламени!" />
 		<message type="kFightDeathToChar" val="Ваши горящие руки - последнее, что увидел$G $N0 в своей жалкой жизни." />
@@ -484,6 +520,7 @@
 		<message type="kCastPhraseChristian" val="... простер руку свою к огню." />
 	</msg_sheaf>
 	<msg_sheaf id="kIceBolts">
+		<name val="ледяные стрелы" />
 		<message type="kAreaToChar" val="Из ваших рук вылетел сноп ледяных стрел." />
 		<message type="kAreaToRoom" val="$n0 метнул$g во врагов сноп ледяных стрел." />
 		<message type="kFightDeathToChar" val="В $N3 попала ледяная стрела. &quot;Красивая дырочка&quot; - подумали вы." />
@@ -514,6 +551,7 @@
 		<message type="kCastPhraseChristian" val="... и из воды делается лед." />
 	</msg_sheaf>
 	<msg_sheaf id="kWarcryOfChallenge">
+		<name val="клич вызова" />
 		<message type="kNoTarget" val="И на {target} же вы хотите так громко крикнуть?" />
 		<message type="kCantCastHereToChar" val="Ваш громовой глас сотряс воздух, но ничего не произошло!" />
 		<message type="kCantCastHereToRoom" val="Вы вздрогнули от неожиданного крика, но ничего не произошло." />
@@ -523,6 +561,7 @@
 		<message type="kCastPhraseChristian" val="Эй, псы шелудивые, керасти плешивые, ослопы беспорточные, мшицы задочные!" />
 	</msg_sheaf>
 	<msg_sheaf id="kGroupArmor">
+		<name val="групповая защита" />
 		<message type="kAreaToChar" val="Вы создали защитную сферу, которая окутала вас и пространство рядом с вами." />
 		<message type="kCastPhraseHeathen" val="прибежище други" />
 		<message type="kCastPhraseChristian" val="... ибо кто Бог, кроме Господа, и кто защита, кроме Бога нашего?" />
@@ -530,11 +569,13 @@
 		<message type="kAffImposedToChar" val="Вы почувствовали вокруг себя невидимую защиту." />
 	</msg_sheaf>
 	<msg_sheaf id="kGroupRecall">
+		<name val="групповой возврат" />
 		<message type="kAreaToChar" val="Вы выкрикнули заклинание и хлопнули в ладоши." />
 		<message type="kCastPhraseHeathen" val="исчезните с глаз моих" />
 		<message type="kCastPhraseChristian" val="... вам говорю, ступайте с миром." />
 	</msg_sheaf>
 	<msg_sheaf id="kGroupStrength">
+		<name val="групповая сила" />
 		<message type="kAreaToChar" val="Серая дымка сплелась вокруг вашего отряда, даруя жилам железную твёрдость." />
 		<message type="kAreaToChar" val="Вас и ваших спутников окутал золотистый отсвет, разлившийся по мышцам." />
 		<message type="kAreaToChar" val="Лёгкий вихрь пробежал меж вами и товарищами, вливая в тела силу." />
@@ -544,6 +585,7 @@
 		<message type="kAffImposedToChar" val="Вы почувствовали себя сильнее." />
 	</msg_sheaf>
 	<msg_sheaf id="kGroupBless">
+		<name val="групповая доблесть" />
 		<message type="kAreaToChar" val="Прикрыв глаза, вы прошептали таинственную молитву." />
 		<message type="kCastPhraseHeathen" val="други, наполнися ратнаго духа" />
 		<message type="kCastPhraseChristian" val="... блажены те, слышащие слово Божие." />
@@ -551,6 +593,7 @@
 		<message type="kAffImposedToChar" val="Боги одарили вас своей улыбкой." />
 	</msg_sheaf>
 	<msg_sheaf id="kGroupHaste">
+		<name val="групповое ускорение" />
 		<message type="kAreaToChar" val="Разведя руки в стороны, вы ощутили всю мощь стихии ветра." />
 		<message type="kCastPhraseHeathen" val="быстры аки ястребов стая" />
 		<message type="kCastPhraseChristian" val="... и они быстры как серны на горах." />
@@ -558,6 +601,7 @@
 		<message type="kAffImposedToChar" val="Вы начали двигаться быстрее." />
 	</msg_sheaf>
 	<msg_sheaf id="kGroupFly">
+		<name val="групповой полет" />
 		<message type="kAreaToChar" val="Ваше заклинание вызвало белое облако, которое разделилось, подхватывая вас и товарищей." />
 		<message type="kCastPhraseHeathen" val="крыла им створисте" />
 		<message type="kCastPhraseChristian" val="... и все летающие по роду их." />
@@ -565,6 +609,7 @@
 		<message type="kAffImposedToChar" val="Вы медленно поднялись в воздух." />
 	</msg_sheaf>
 	<msg_sheaf id="kGroupInvisible">
+		<name val="групповая невидимость" />
 		<message type="kAreaToChar" val="Вы вызвали прозрачный туман, поглотивший все дружественное вам." />
 		<message type="kCastPhraseHeathen" val="други, низовати мечетны" />
 		<message type="kCastPhraseChristian" val="... возвещай всем великую силу Бога. И, сказав сие, они стали невидимы." />
@@ -572,6 +617,7 @@
 		<message type="kAffImposedToChar" val="Вы стали невидимы для окружающих." />
 	</msg_sheaf>
 	<msg_sheaf id="kGroupMagicGlass">
+		<name val="магическое зеркало" />
 		<message type="kAreaToChar" val="Вы произнесли несколько резких слов, и все вокруг засеребрилось." />
 		<message type="kCastPhraseHeathen" val="гладь воды отразит" />
 		<message type="kCastPhraseChristian" val="... воздай им по делам их, по злым поступкам их." />
@@ -579,6 +625,7 @@
 		<message type="kAffImposedToChar" val="Вас покрыло зеркало магии." />
 	</msg_sheaf>
 	<msg_sheaf id="kGroupSanctuary">
+		<name val="групповое освящение" />
 		<message type="kAreaToChar" val="Вы подняли руки к небу и произнесли священную молитву." />
 		<message type="kCastPhraseHeathen" val="иже во святых, други" />
 		<message type="kCastPhraseChristian" val="... будьте святы, аки Господь наш свят." />
@@ -586,6 +633,7 @@
 		<message type="kAffImposedToChar" val="Белая аура мгновенно окружила вас." />
 	</msg_sheaf>
 	<msg_sheaf id="kGroupPrismaticAura">
+		<name val="групповая призматическая аура" />
 		<message type="kAreaToChar" val="Силы духа, призванные вами, окутали вас и окружающих голубоватым сиянием." />
 		<message type="kCastPhraseHeathen" val="други, буде окружены радугой" />
 		<message type="kCastPhraseChristian" val="... взгляни на радугу, и прославь Сотворившего ее." />
@@ -593,6 +641,7 @@
 		<message type="kAffImposedToChar" val="Вас покрыла призматическая аура." />
 	</msg_sheaf>
 	<msg_sheaf id="kFireAura">
+		<name val="огненная аура" />
 		<message type="kAreaToChar" val="Силы огня пришли к вам на помощь и защитили вас." />
 		<message type="kCastPhraseHeathen" val="Сварог, даруй защиту." />
 		<message type="kCastPhraseChristian" val="... и огонь низводит с неба." />
@@ -601,6 +650,7 @@
 		<message type="kAffExpired" val="Огненная аура вокруг вас исчезла." />
 	</msg_sheaf>
 	<msg_sheaf id="kAirAura">
+		<name val="воздушная аура" />
 		<message type="kAreaToChar" val="Силы воздуха пришли к вам на помощь и защитили вас." />
 		<message type="kCastPhraseHeathen" val="Мать-земля, даруй защиту." />
 		<message type="kCastPhraseChristian" val="... поклон тебе матушка земля." />
@@ -609,6 +659,7 @@
 		<message type="kAffExpired" val="Воздушная аура вокруг вас исчезла." />
 	</msg_sheaf>
 	<msg_sheaf id="kIceAura">
+		<name val="ледяная аура" />
 		<message type="kAreaToChar" val="Силы холода пришли к вам на помощь и защитили вас." />
 		<message type="kCastPhraseHeathen" val="Морена, даруй защиту." />
 		<message type="kCastPhraseChristian" val="... текущие холодные воды." />
@@ -617,6 +668,7 @@
 		<message type="kAffExpired" val="Ледяная аура вокруг вас исчезла." />
 	</msg_sheaf>
 	<msg_sheaf id="kEarthAura">
+		<name val="земной поклон" />
 		<message type="kAreaToChar" val="Земля одарила вас своей защитой." />
 		<message type="kCastPhraseHeathen" val="Велес, даруй защиту." />
 		<message type="kCastPhraseChristian" val="... земля благословенна твоя." />
@@ -625,6 +677,7 @@
 		<message type="kAffExpired" val="Матушка земля забыла про Вас." />
 	</msg_sheaf>
 	<msg_sheaf id="kGroupProtectFromEvil">
+		<name val="групповая защита от тьмы" />
 		<message type="kAreaToChar" val="Сила света подавила в вас страх к тьме." />
 		<message type="kCastPhraseHeathen" val="други, супостат нощи" />
 		<message type="kCastPhraseChristian" val="други, свет который в нас, да убоится тьма." />
@@ -633,6 +686,7 @@
 		<message type="kAffExpired" val="Вы вновь ощущаете страх перед тьмой." />
 	</msg_sheaf>
 	<msg_sheaf id="kGroupBlink">
+		<name val="групповое мигание" />
 		<message type="kAreaToChar" val="Очертания вас и соратников замерцали в такт биения сердца, став прозрачней." />
 		<message type="kCastPhraseHeathen" val="защити нас от железа разящего" />
 		<message type="kCastPhraseChristian" val="... ни стрела, ни меч не пронзят печень вашу." />
@@ -640,6 +694,7 @@
 		<message type="kAffImposedToChar" val="Вы начали мигать." />
 	</msg_sheaf>
 	<msg_sheaf id="kGroupCloudly">
+		<name val="групповое затуманивание" />
 		<message type="kAreaToChar" val="Пелена тумана окутала вас и окружающих, скрыв очертания." />
 		<message type="kCastPhraseHeathen" val="огрожу беззакония их туманом" />
 		<message type="kCastPhraseChristian" val="...да защитит и покроет рассветная пелена тела ваши." />
@@ -647,6 +702,7 @@
 		<message type="kAffImposedToChar" val="Ваше тело стало прозрачным, как туман." />
 	</msg_sheaf>
 	<msg_sheaf id="kGroupAwareness">
+		<name val="групповая внимательность" />
 		<message type="kAreaToChar" val="Произнесенные слова обострили ваши чувства и внимательность ваших соратников." />
 		<message type="kCastPhraseHeathen" val="буде вежды ваши открыты" />
 		<message type="kCastPhraseChristian" val="... и забота о ближнем отгоняет сон от очей их." />
@@ -654,6 +710,7 @@
 		<message type="kAffImposedToChar" val="Вы стали более внимательны к окружающему." />
 	</msg_sheaf>
 	<msg_sheaf id="kWarcryOfExperience">
+		<name val="клич обучения" />
 		<message type="kNoTarget" val="И на {target} же вы хотите так громко крикнуть?" />
 		<message type="kCantCastHereToChar" val="Ваш громовой глас сотряс воздух, но ничего не произошло!" />
 		<message type="kCantCastHereToRoom" val="Вы вздрогнули от неожиданного крика, но ничего не произошло." />
@@ -664,6 +721,7 @@
 		<message type="kAffExpired" val="Действие клича 'обучение' закончилось." />
 	</msg_sheaf>
 	<msg_sheaf id="kWarcryOfLuck">
+		<name val="клич везения" />
 		<message type="kNoTarget" val="И на {target} же вы хотите так громко крикнуть?" />
 		<message type="kCantCastHereToChar" val="Ваш громовой глас сотряс воздух, но ничего не произошло!" />
 		<message type="kCantCastHereToRoom" val="Вы вздрогнули от неожиданного крика, но ничего не произошло." />
@@ -674,6 +732,7 @@
 		<message type="kAffExpired" val="Действие клича 'везение' закончилось." />
 	</msg_sheaf>
 	<msg_sheaf id="kWarcryOfPhysdamage">
+		<name val="клич точности" />
 		<message type="kNoTarget" val="И на {target} же вы хотите так громко крикнуть?" />
 		<message type="kCantCastHereToChar" val="Ваш громовой глас сотряс воздух, но ничего не произошло!" />
 		<message type="kCantCastHereToRoom" val="Вы вздрогнули от неожиданного крика, но ничего не произошло." />
@@ -684,6 +743,7 @@
 		<message type="kAffExpired" val="Действие клича 'точность' закончилось." />
 	</msg_sheaf>
 	<msg_sheaf id="kMassFailure">
+		<name val="взор Велеса" />
 		<message type="kAreaToChar" val="Вняв вашему призыву, Змей Велес коснулся недобрым взглядом ваших супостатов." />
 		<message type="kAreaToVict" val="$n провыл$g несколько странно звучащих слов и от тяжелого взгляда из-за края мира у вас подкосились ноги." />
 		<message type="kCastPhraseHeathen" val="...отче Велес, очи отвержеши!" />
@@ -693,6 +753,7 @@
 		<message type="kAffExpired" val="Удача снова повернулась к вам лицом... и залепила пощечину." />
 	</msg_sheaf>
 	<msg_sheaf id="kSnare">
+		<name val="западня" />
 		<message type="kAreaToChar" val="Вы соткали магические тенета, опутавшие ваших врагов." />
 		<message type="kAreaToVict" val="$n что-то прошептал$g, странно скрючив пальцы, и взлетевшие откуда ни возьмись ловчие сети опутали вас" />
 		<message type="kCastPhraseHeathen" val="Заклинати поврещение в сети заскопиены!" />
@@ -702,6 +763,7 @@
 		<message type="kAffExpired" val="Покрывавшие вас сети колдовской западни растаяли." />
 	</msg_sheaf>
 	<msg_sheaf id="kBless">
+		<name val="доблесть" />
 		<message type="kAlterObjToChar" val="$o вспыхнул$G голубым светом и тут же погас$Q." />
 		<message type="kCastPhraseHeathen" val="истягну умь крепостию" />
 		<message type="kCastPhraseChristian" val="... даст блага просящим у Него." />
@@ -710,6 +772,7 @@
 		<message type="kAffExpired" val="Вы почувствовали себя менее доблестно." />
 	</msg_sheaf>
 	<msg_sheaf id="kCurse">
+		<name val="проклятие" />
 		<message type="kAffDispelledToChar" val="Боги вернули вам свое покровительство." />
 		<message type="kAlterObjToChar" val="$o вспыхнул$G красным светом и тут же погас$Q." />
 		<message type="kCastPhraseHeathen" val="порча" />
@@ -719,6 +782,7 @@
 		<message type="kAffExpired" val="Вы почувствовали себя более уверенно." />
 	</msg_sheaf>
 	<msg_sheaf id="kInvisible">
+		<name val="невидимость" />
 		<message type="kAlterObjToChar" val="$o растворил$U в пустоте." />
 		<message type="kCastPhraseHeathen" val="низовати мечетно" />
 		<message type="kCastPhraseChristian" val="... ибо видимое временно, а невидимое вечно." />
@@ -727,6 +791,7 @@
 		<message type="kAffExpired" val="Вы вновь видимы." />
 	</msg_sheaf>
 	<msg_sheaf id="kPoison">
+		<name val="яд" />
 		<message type="kAffDispelledToRoom" val="$n выглядит лучше." />
 		<message type="kAffDispelledToChar" val="Тепло заполнило ваше тело." />
 		<message type="kAlterObjToChar" val="$o отравлен$G." />
@@ -753,11 +818,13 @@
 		<message type="kAffExpired" val="В вашей крови не осталось ни капельки яда." />
 	</msg_sheaf>
 	<msg_sheaf id="kRemoveCurse">
+		<name val="снять проклятие" />
 		<message type="kAlterObjToChar" val="$o вспыхнул$G розовым светом и тут же погас$Q." />
 		<message type="kCastPhraseHeathen" val="изыде порча" />
 		<message type="kCastPhraseChristian" val="... да простятся тебе прегрешения твои." />
 	</msg_sheaf>
 	<msg_sheaf id="kFly">
+		<name val="полет" />
 		<message type="kAlterObjToChar" val="$o вспыхнул$G зеленоватым светом и тут же погас$Q." />
 		<message type="kCastPhraseHeathen" val="летать зегзицею" />
 		<message type="kCastPhraseChristian" val="... и полетел, и понесся на крыльях ветра." />
@@ -766,22 +833,26 @@
 		<message type="kAffExpired" val="Вы приземлились на землю." />
 	</msg_sheaf>
 	<msg_sheaf id="kRepair">
+		<name val="починка" />
 		<message type="kAlterObjToChar" val="Вы полностью восстановили $o3." />
 		<message type="kCastPhraseHeathen" val="будь целым, аки прежде" />
 		<message type="kCastPhraseChristian" val="... заделаю трещины в ней и разрушенное восстановлю." />
 	</msg_sheaf>
 	<msg_sheaf id="kTimerRestore">
+		<name val="обновление таймера" />
 		<message type="kAlterObjToChar" val="Вы полностью восстановили $o3." />
 		<message type="kCastPhraseHeathen" val="" />
 		<message type="kCastPhraseChristian" val="" />
 		<message type="kAffExpired" val="SPELL_TIMER_REPAIR" />
 	</msg_sheaf>
 	<msg_sheaf id="kRestoration">
+		<name val="реконструкция" />
 		<message type="kAlterObjToChar" val="$o осветил$U на миг внутренним светом и тут же потух$Q." />
 		<message type="kCastPhraseHeathen" val="Да прими вид прежний, якой был." />
 		<message type="kCastPhraseChristian" val=".. Воззри на предмет сей Отче и верни ему силу прежнюю." />
 	</msg_sheaf>
 	<msg_sheaf id="kLight">
+		<name val="свет" />
 		<message type="kAlterObjToChar" val="$o засветил$U ровным зеленоватым светом." />
 		<message type="kCastPhraseHeathen" val="буде аки светоч" />
 		<message type="kCastPhraseChristian" val="... и да воссияет над ним свет!" />
@@ -790,6 +861,7 @@
 		<message type="kAffExpired" val="Ваше тело перестало светиться." />
 	</msg_sheaf>
 	<msg_sheaf id="kRemovePoison">
+		<name val="удалить яд" />
 		<message type="kAlterObjToChar" val="$o стал$G вполне пригодным к применению." />
 		<message type="kRemovePoisonUnknown" val="Ничего не случилось." />
 		<message type="kRemovePoisonRotten" val="Содержимое $o1 протухло и не поддается магии." />
@@ -797,6 +869,7 @@
 		<message type="kCastPhraseChristian" val="... именем Божьим, изгнати сгниенье из тела." />
 	</msg_sheaf>
 	<msg_sheaf id="kEnchantWeapon">
+		<name val="заколдовать оружие" />
 		<message type="kEnchantNotWeapon" val="Еще раз ударьтесь головой об стену, авось зрение вернется..." />
 		<message type="kEnchantMagic" val="Вам не под силу зачаровать магическую вещь." />
 		<message type="kEnchantSetItem" val="Сетовый предмет не может быть заколдован." />
@@ -811,6 +884,7 @@
 		<message type="kComponentExhausted" val="$o вспыхнул голубоватым светом, когда его вставили в предмет." />
 	</msg_sheaf>
 	<msg_sheaf id="kAnimateDead">
+		<name val="поднять труп" />
 		<message type="kSummonToRoom" val="$n сделал$g несколько изящных пассов - вы почувствовали странное дуновение!" />
 		<message type="kSummonToRoom" val="$n поднял$g труп!" />
 		<message type="kSummonToRoom" val="$N появил$U из клубов голубого дыма!" />
@@ -824,6 +898,7 @@
 		<message type="kCastPhraseChristian" val="... и земля извергнет мертвецов." />
 	</msg_sheaf>
 	<msg_sheaf id="kClone">
+		<name val="клонирование" />
 		<message type="kSummonToRoom" val="$n раздвоил$u!" />
 		<message type="kSummonToRoom" val="$n моргнул$g - из воздуха выпала тень $s	." />
 		<message type="kSummonToRoom" val="$n плечом повел$g, и народился $s двойник." />
@@ -836,6 +911,7 @@
 		<message type="kCastPhraseChristian" val="... и плодились, и весьма умножились." />
 	</msg_sheaf>
 	<msg_sheaf id="kResurrection">
+		<name val="оживить труп" />
 		<message type="kSummonToRoom" val="$n оживил труп!" />
 		<message type="kSummonToRoom" val="$n плюнул$g в тлен и ударил$g посохом. Мороз продрал по коже, когда лик мертвеца обратился к живому." />
 		<message type="kSummonToRoom" val="Чёрное слово сорвалось с уст $n - и мёртвая плоть поднялась, отряхая червей." />
@@ -844,16 +920,19 @@
 		<message type="kCastPhraseChristian" val="... оживут мертвецы Твои, восстанут мертвые тела!" />
 	</msg_sheaf>
 	<msg_sheaf id="kSummonKeeper">
+		<name val="защитник" />
 		<message type="kSummonToRoom" val="$n призвал$g защитника!" />
 		<message type="kCastPhraseHeathen" val="Сварог, даруй защитника" />
 		<message type="kCastPhraseChristian" val="... и благословен защитник мой!" />
 	</msg_sheaf>
 	<msg_sheaf id="kSummonFirekeeper">
+		<name val="огненный защитник" />
 		<message type="kSummonToRoom" val="Огненный хранитель появился из вихря пламени!" />
 		<message type="kCastPhraseHeathen" val="Дажьбог, даруй защитника" />
 		<message type="kCastPhraseChristian" val="... Ангел Мой с вами, и он защитник душ ваших." />
 	</msg_sheaf>
 	<msg_sheaf id="kAcid">
+		<name val="кислота" />
 		<message type="kFightDeathToChar" val="$N, покрыт$W кислотой, обратил$U в однородную массу и умер$Q." />
 		<message type="kFightDeathToVict" val="Кислота, которой плеснул$g $n, обратила вас в однородную массу." />
 		<message type="kFightDeathToRoom" val="$n обдал$g кислотой $N3, обратив $S в однородную массу." />
@@ -870,6 +949,7 @@
 		<message type="kCastPhraseChristian" val="... подобно мучению от скорпиона." />
 	</msg_sheaf>
 	<msg_sheaf id="kClod">
+		<name val="глыба" />
 		<message type="kLaggedToRoom" val="$n3 придавило глыбой камня." />
 		<message type="kLaggedToChar" val="Огромная глыба камня свалила вас на землю!" />
 		<!-- issue.cast-damage-affects: the knockdown is now the <reposition> in spells.xml, which
@@ -904,6 +984,7 @@
 		<message type="kCastPhraseChristian" val="...доколе камень не оторвался от горы без содействия рук." />
 	</msg_sheaf>
 	<msg_sheaf id="kStunning">
+		<name val="каменное проклятие" />
 		<message type="kKnockdownToChar" val="У вас отшибло сознание, вам очень плохо..." />
 		<message type="kKnockdownToRoom" val="Каменное проклятие отшибло сознание у $n2." />
 		<message type="kFightDeathToChar" val="Ваше каменное проклятие оглушило $N3, после чего $E умер$Q." />
@@ -922,6 +1003,7 @@
 		<message type="kCastPhraseChristian" val="... и проклял его именем Господним." />
 	</msg_sheaf>
 	<msg_sheaf id="kVacuum">
+		<name val="круг пустоты" />
 		<message type="kKnockdownToChar" val="У вас отшибло сознание, вам очень плохо..." />
 		<message type="kKnockdownToRoom" val="Круг пустоты отшиб сознание у $n2." />
 		<message type="kFightDeathToChar" val="Ваш круг пустоты покрыл $N3, котор$W так и не смог$Q из него выбраться." />
@@ -953,6 +1035,7 @@
 		<message type="kAffExpired" val="Пустота вокруг вас исчезла." />
 	</msg_sheaf>
 	<msg_sheaf id="kArrowsEarth">
+		<name val="стрелы земли" />
 		<message type="kFightHitToChar" val="Ваша каменная стрела поразила $N1." />
 		<message type="kFightHitToVict" val="Каменная стрела $n1 настигла вас." />
 		<message type="kFightHitToRoom" val="Каменная стрела $n1 поразила $N1." />
@@ -960,6 +1043,7 @@
 		<message type="kCastPhraseChristian" val="!use battle expedient!" />
 	</msg_sheaf>
 	<msg_sheaf id="kArrowsAir">
+		<name val="стрелы воздуха" />
 		<message type="kFightHitToChar" val="Ваша воздушная стрела поразила $N1." />
 		<message type="kFightHitToVict" val="Воздушная стрела $n1 настигла вас." />
 		<message type="kFightHitToRoom" val="Воздушная стрела $n1 поразила $N1." />
@@ -967,6 +1051,7 @@
 		<message type="kCastPhraseChristian" val="!use battle expedient!" />
 	</msg_sheaf>
 	<msg_sheaf id="kArrowsDeath">
+		<name val="стрелы смерти" />
 		<message type="kFightHitToChar" val="Ваша смертоносная стрела поразила $N1." />
 		<message type="kFightHitToVict" val="Смертоносная стрела $n1 настигла вас." />
 		<message type="kFightHitToRoom" val="Смертоносная стрела $n1 поразила $N1." />
@@ -974,6 +1059,7 @@
 		<message type="kCastPhraseChristian" val="!use battle expedient!" />
 	</msg_sheaf>
 	<msg_sheaf id="kLightingBolt">
+		<name val="молния" />
 		<message type="kFightDeathToChar" val="Вызванная вами молния просто испепелила $N3." />
 		<message type="kFightDeathToVict" val="Вы не смогли оправиться после попадания молнии, посланной в вас $n4." />
 		<message type="kFightDeathToRoom" val="После молнии, вызванной $n4, от $N1 остались одни угли." />
@@ -990,6 +1076,7 @@
 		<message type="kCastPhraseChristian" val="... и были громы и молнии." />
 	</msg_sheaf>
 	<msg_sheaf id="kChillTouch">
+		<name val="ледяное прикосновение" />
 		<message type="kFightDeathToChar" val="Ваши ледяные пальцы доведут до смерти кого угодно. \u$N не был$G исключением." />
 		<message type="kFightDeathToChar" val="$N посинел$G от вашего ледяного прикосновения. Жить $M осталось недолго." />
 		<message type="kFightDeathToVict" val="Вам остается пожаловаться Богам на холодные руки $n1." />
@@ -1021,6 +1108,7 @@
 		<message type="kAffExpired" val="Вы отметили, что силы вернулись к вам." />
 	</msg_sheaf>
 	<msg_sheaf id="kDispelEvil">
+		<name val="изгнать зло" />
 		<message type="kFightDeathToChar" val="Тьма покинула тело $N1, прихватив с собой и $S душу." />
 		<message type="kFightDeathToChar" val="Сгусток тьмы вырвался из тела $N1, от чего $E умер$Q." />
 		<message type="kFightDeathToVict" val="$n изгнал$g тьму, переполнявшую вас. А без этого вам жисть не в радость." />
@@ -1049,6 +1137,7 @@
 		<message type="kCastPhraseChristian" val="... грешников преследует зло, а праведникам воздается добром." />
 	</msg_sheaf>
 	<msg_sheaf id="kEnergyDrain">
+		<name val="истощить энергию" />
 		<message type="kFightDeathToChar" val="Вы забрали остатки энергии у $N1." />
 		<message type="kFightDeathToChar" val="Вы истощили последние запасы жизни у $N1." />
 		<message type="kFightDeathToVict" val="$n забрал$g у вас остатки энергии. Прощайте." />
@@ -1079,6 +1168,7 @@
 		<message type="kAffImposedToChar" val="Вы почувствовали себя слабее!" />
 	</msg_sheaf>
 	<msg_sheaf id="kFireball">
+		<name val="огненный шар" />
 		<message type="kFightDeathToChar" val="Ваш огненный шар испепелил $N3 дотла." />
 		<message type="kFightDeathToChar" val="Огненный шар окутал и скрыл в себе $N3." />
 		<message type="kFightDeathToVict" val="Огненный шар $n1 оставил от вас кучку пепла." />
@@ -1107,6 +1197,7 @@
 		<message type="kCastPhraseChristian" val="... да ниспадет огонь с неба, и пожрет их." />
 	</msg_sheaf>
 	<msg_sheaf id="kHarm">
+		<name val="вред" />
 		<message type="kFightDeathToChar" val="$N назвал$G бы вас вредителем. Если бы смог$Q." />
 		<message type="kFightDeathToChar" val="Ваш вред полностью уничтожил тело $N1." />
 		<message type="kFightDeathToVict" val="&quot;\u$n! Вредн$w!!!&quot; - с этими словами ваша душа покинула тело." />
@@ -1135,6 +1226,7 @@
 		<message type="kCastPhraseChristian" val="... и жестокою болью во всех костях твоих." />
 	</msg_sheaf>
 	<msg_sheaf id="kCallLighting">
+		<name val="шаровая молния" />
 		<message type="kFightDeathToChar" val="Вы вызвали шаровую молнию, которая оставила от $N1 горстку пепла." />
 		<message type="kFightDeathToChar" val="Ваша шаровая молния осветила $N3 и $S предсмертный лик." />
 		<message type="kFightDeathToVict" val="Шаровая молния $n1 лишила вас жизни." />
@@ -1165,6 +1257,7 @@
 		<message type="kAffImposedToChar" val="Взрыв шаровой молнии $N1 отдался в вашей голове громким звоном." />
 	</msg_sheaf>
 	<msg_sheaf id="kMagicMissile">
+		<name val="магическая стрела" />
 		<message type="kFightDeathToChar" val="Ваша магическая стрела отняла остатки жизни у $N1." />
 		<message type="kFightDeathToChar" val="Вы убили $N3 своей магической стрелой. Можете радоваться." />
 		<message type="kFightDeathToVict" val="Магическая стрела, пущенная $n4, стала последней в вашей жизни." />
@@ -1193,6 +1286,7 @@
 		<message type="kCastPhraseChristian" val="... остры стрелы Твои." />
 	</msg_sheaf>
 	<msg_sheaf id="kCloudOfArrowsBolt">
+		<name val="облако стрел" />
 		<message type="kFightDeathToChar" val="Ваша магическая стрела отняла остатки жизни у $N1." />
 		<message type="kFightDeathToChar" val="Вы убили $N3 своей магической стрелой. Можете радоваться." />
 		<message type="kFightDeathToVict" val="Магическая стрела, пущенная $n4, стала последней в вашей жизни." />
@@ -1221,6 +1315,7 @@
 		<message type="kCastPhraseChristian" val="... остры стрелы Твои." />
 	</msg_sheaf>
 	<msg_sheaf id="kShockingGasp">
+		<name val="обжигающая хватка" />
 		<message type="kFightDeathToChar" val="Ваша хватка оказалась для $N1 роковой." />
 		<message type="kFightDeathToChar" val="Вы схватили $N3 своей шокирующей хваткой и задушили." />
 		<message type="kFightDeathToVict" val="$n схватил$g вас так крепко, что вы испустили дух." />
@@ -1249,6 +1344,7 @@
 		<message type="kCastPhraseChristian" val="... и дано буде жечь врагов огнем." />
 	</msg_sheaf>
 	<msg_sheaf id="kDispelGood">
+		<name val="рассеять свет" />
 		<message type="kFightDeathToChar" val="Вы изгнали все добро из души $N1, заставив $S умереть." />
 		<message type="kFightDeathToChar" val="Сгусток света вырвался из тела $N1, от чего $E умер$Q." />
 		<message type="kFightDeathToVict" val="$n затоптал$g последние искры света в вашей изможденной душе." />
@@ -1277,6 +1373,7 @@
 		<message type="kCastPhraseChristian" val="... и тьма свет накроет." />
 	</msg_sheaf>
 	<msg_sheaf id="kGodsWrath">
+		<name val="гнев богов" />
 		<message type="kFightDeathToChar" val="Ваш гнев обратил $N3 в пар." />
 		<message type="kFightDeathToVict" val="Гнев, исходящий от $n1, был силен настолько, что обратил вас в пар." />
 		<message type="kFightDeathToRoom" val="Излучаемый $n4 гнев оставил от $N1 лишь облачко пара." />
@@ -1293,6 +1390,7 @@
 		<message type="kCastPhraseChristian" val="... и воспламенится гнев Господа, и Он скоро истребит тебя." />
 	</msg_sheaf>
 	<msg_sheaf id="kSacrifice">
+		<name val="высосать жизнь" />
 		<message type="kFightDeathToChar" val="Вы выпили остатки жизненных сил у $N1." />
 		<message type="kFightDeathToChar" val="Вы истощили последние запасы жизни $N1." />
 		<message type="kFightDeathToVict" val="$n выпил$g у вас остатки жизненных соков. Прощайте." />
@@ -1321,6 +1419,7 @@
 		<message type="kCastPhraseChristian" val="... плоть твоя и тело твое будут истощены." />
 	</msg_sheaf>
 	<msg_sheaf id="kDamageLight">
+		<name val="легкий вред" />
 		<message type="kFightDeathToChar" val="$N почернел$G до корней волос и медленно умер$Q." />
 		<message type="kFightDeathToVict" val="Вред, нанесенный $n4, заставил вас забиться в судорогах и умереть." />
 		<message type="kFightDeathToRoom" val="$N не вынес$Q вреда, нанесенного $M $n4." />
@@ -1337,6 +1436,7 @@
 		<message type="kCastPhraseChristian" val="... будет чувствовать боль." />
 	</msg_sheaf>
 	<msg_sheaf id="kDamageSerious">
+		<name val="серьезный вред" />
 		<message type="kFightDeathToChar" val="$N почернел$G до корней волос и медленно умер$Q." />
 		<message type="kFightDeathToVict" val="Вред, нанесенный $n4, заставил вас забиться в судорогах и умереть." />
 		<message type="kFightDeathToRoom" val="$N не вынес$Q вреда, нанесенного $M $n4." />
@@ -1353,6 +1453,7 @@
 		<message type="kCastPhraseChristian" val="... постигнут тебя муки." />
 	</msg_sheaf>
 	<msg_sheaf id="kDamageCritic">
+		<name val="критический вред" />
 		<message type="kFightDeathToChar" val="$N почернел$G до корней волос и медленно умер$Q." />
 		<message type="kFightDeathToVict" val="Вред, нанесенный $n4, заставил вас забиться в судорогах и умереть." />
 		<message type="kFightDeathToRoom" val="$N не вынес$Q вреда, нанесенного $M $n4." />
@@ -1369,6 +1470,7 @@
 		<message type="kCastPhraseChristian" val="... боль и муки схватили." />
 	</msg_sheaf>
 	<msg_sheaf id="kColdWind">
+		<name val="ледяной ветер" />
 		<message type="kFightDeathToChar" val="$N превратил$U в кусок льда и разлетел$U на мелкие осколки." />
 		<message type="kFightDeathToVict" val="$n заморозил$g вас и раздробил$g на миллионы осколков." />
 		<message type="kFightDeathToRoom" val="$n заморозил$g $N3 и раздробил$g $S на крохотные осколки." />
@@ -1388,6 +1490,7 @@
 		<message type="kAffExpired" val="Вы согрелись и подвижность вернулась к вам." />
 	</msg_sheaf>
 	<msg_sheaf id="kFireShield">
+		<name val="огненный щит" />
 		<message type="kFightDeathToChar" val="Энергия вашего огненного щита выбила из $N1 остатки жизни." />
 		<message type="kFightDeathToChar" val="Огненный щит спас вам жизнь, чего не скажешь о $N5." />
 		<message type="kFightDeathToVict" val="Энергия огненного щита $n1 выбила из вас остатки жизни." />
@@ -1419,6 +1522,7 @@
 		<message type="kAffExpired" val="Огненный щит вокруг вашего тела исчез." />
 	</msg_sheaf>
 	<msg_sheaf id="kShineFlash">
+		<name val="яркий блик" />
 		<message type="kFightDeathToChar" val="Вы послали яркий блик, который прожег $N3 насквозь." />
 		<message type="kFightDeathToChar" val="Ваш яркий блик высветил для $N1 путь в загробный мир." />
 		<message type="kFightDeathToVict" val="Яркий блик $n1 прожег вас до костей." />
@@ -1449,6 +1553,7 @@
 		<message type="kAffImposedToChar" val="Вы ослепли!" />
 	</msg_sheaf>
 	<msg_sheaf id="kMeteorStorm">
+		<name val="метеоритный дождь" />
 		<message type="kCustomMsgOne" val="Раскаленные громовые камни рушатся с небес!" />
 		<message type="kFightDeathToChar" val="Вызванные вами метеориты расплющили $N3, образовав кровавое месиво." />
 		<message type="kFightDeathToVict" val="Вызванные $n4 метеориты расплющили вас, образовав кровавое месиво." />
@@ -1471,6 +1576,7 @@
 		<message type="kRoomAffectVisible" val="&amp;R... раскаленные громовые камни рушатся на землю!&amp;n" />
 	</msg_sheaf>
 	<msg_sheaf id="kMagicGlass">
+		<name val="зеркало магии" />
 		<message type="kFightDeathToChar" val="Магическое зеркало спасло вам жизнь, чего не скажешь о $N5." />
 		<message type="kFightDeathToVict" val="Магическое зеркало спасло $n2 жизнь, чего не скажешь о вас." />
 		<message type="kFightDeathToRoom" val="Магическое зеркало спасло $n2 жизнь, чего не скажешь о $N5." />
@@ -1490,6 +1596,7 @@
 		<message type="kAffExpired" val="Вы вновь чувствительны к магическим поражениям." />
 	</msg_sheaf>
 	<msg_sheaf id="kWhirlwind">
+		<name val="вихрь" />
 		<message type="kFightDeathToChar" val="$N умер$Q, разорванн$w в кровавые клочья вашим вихрем." />
 		<message type="kFightDeathToChar" val="Призванный вами вихрь с хрустом сдавил $N3, превратитв $S в изломанную куклу." />
 		<message type="kFightDeathToVict" val="Призванный $n4 вихрь разметал вас в клочья." />
@@ -1518,6 +1625,7 @@
 		<message type="kCastPhraseChristian" val="И поднялась великая буря..." />
 	</msg_sheaf>
 	<msg_sheaf id="kIndriksTeeth">
+		<name val="зубы индрика" />
 		<message type="kFightDeathToChar" val="Выступившие из земли каменные зубы индрик-зверя перекусили $N3 пополам." />
 		<message type="kFightDeathToChar" val="Выросшие из земли каменные зубы индрик-зверя перекусили $N3 пополам." />
 		<message type="kFightDeathToVict" val="Призванный $n4 индрик-зверь разорвал вас в клочья каменными зубами." />
@@ -1549,6 +1657,7 @@
 		<message type="kAffExpired" val="Каменные зубы исчезли, возвратив способность двигаться." />
 	</msg_sheaf>
 	<msg_sheaf id="kAcidArrow">
+		<name val="кислотная стрела" />
 		<message type="kFightDeathToChar" val="Кислотная стрела превратила $N3 в лужицу слизи." />
 		<message type="kFightDeathToChar" val="Кислотная стрела превратила $N3 в лужицу слизи." />
 		<message type="kFightDeathToVict" val="Пущенная $n4 кислотная стрела полностью растворила вас." />
@@ -1577,6 +1686,7 @@
 		<message type="kCastPhraseChristian" val="...и на коже его сделаются как бы язвы проказы" />
 	</msg_sheaf>
 	<msg_sheaf id="kThunderStone">
+		<name val="громовой камень" />
 		<message type="kFightDeathToChar" val="Громовой камень пробил $N3 насквозь." />
 		<message type="kFightDeathToChar" val="Громовой камень вбил $N3 в сыру землю... полностью." />
 		<message type="kFightDeathToVict" val="Громовой камень $n1 проделал в вас большую дыру, в которую вылетела душа." />
@@ -1605,6 +1715,7 @@
 		<message type="kCastPhraseChristian" val="...и взял оттуда камень, и бросил из пращи." />
 	</msg_sheaf>
 	<msg_sheaf id="kHolystrike">
+		<name val="силы света" />
 		<message type="kFightDeathToChar" val="Туман, поглотивший $N3, полностью растворил $S." />
 		<message type="kFightDeathToVict" val="Последнее, что вы почувствовали - как поглотивший вас туман растворяет ваше тело..." />
 		<message type="kFightDeathToRoom" val="Туман, поглотивший $N3, полностью растворил $S." />
@@ -1615,6 +1726,7 @@
 		<message type="kCastPhraseChristian" val="... и предоставь мертвым погребать своих мертвецов." />
 	</msg_sheaf>
 	<msg_sheaf id="kArmor">
+		<name val="защита" />
 		<message type="kCastPhraseHeathen" val="буде во прибежище" />
 		<message type="kCastPhraseChristian" val="... Он - помощь наша и защита наша." />
 		<message type="kAffImposedToRoom" val="Вокруг $n1 вспыхнул белый щит и тут же погас." />
@@ -1622,6 +1734,7 @@
 		<message type="kAffExpired" val="Вы почувствовали себя менее защищенно." />
 	</msg_sheaf>
 	<msg_sheaf id="kTeleport">
+		<name val="прыжок" />
 		<message type="kCastForbiddenToChar" val="Попытка перемещения не удалась." />
 		<message type="kCastPhraseHeathen" val="несите ветры" />
 		<message type="kCastPhraseChristian" val="... дух поднял меня и перенес меня." />
@@ -1631,6 +1744,7 @@
 		<message type="kSummonFail" val="Попытка перемещения не удалась." />
 	</msg_sheaf>
 	<msg_sheaf id="kBlindness">
+		<name val="слепота" />
 		<message type="kAffDispelledToRoom" val="$n прозрел$g." />
 		<message type="kAffDispelledToChar" val="К вам вернулась способность видеть." />
 		<message type="kCastPhraseHeathen" val="Чтоб твои зенки вылезли!" />
@@ -1640,6 +1754,7 @@
 		<message type="kAffExpired" val="Вы вновь можете видеть." />
 	</msg_sheaf>
 	<msg_sheaf id="kCharm">
+		<name val="подчинить разум" />
 		<message type="kCastPhraseHeathen" val="умь полонить" />
 		<message type="kCastPhraseChristian" val="... слушай пастыря сваего, и уразумей." />
 		<message type="kAffExpired" val="Вы подчиняетесь теперь только себе." />
@@ -1666,15 +1781,18 @@
 		<message type="kCustomMsgFour" val="Следование по кругу запрещено." />
 	</msg_sheaf>
 	<msg_sheaf id="kControlWeather">
+		<name val="контроль погоды" />
 		<message type="kNoTarget" val="Не указан тип погоды." />
 		<message type="kCastPhraseHeathen" val="стихия подкоряшися" />
 		<message type="kCastPhraseChristian" val="... власть затворить небо, чтобы не шел дождь." />
 	</msg_sheaf>
 	<msg_sheaf id="kCreateFood">
+		<name val="создать пищу" />
 		<message type="kCastPhraseHeathen" val="будовати снедь" />
 		<message type="kCastPhraseChristian" val="... это хлеб, который Господь дал вам в пищу." />
 	</msg_sheaf>
 	<msg_sheaf id="kCreateWater">
+		<name val="создать воду" />
 		<message type="kCastPhraseHeathen" val="напоиши влагой" />
 		<message type="kCastPhraseChristian" val="... и потекло много воды." />
 		<!-- kCreateWater manual cast (issue.spell-msg-improve). The "наполнили водой"
@@ -1686,10 +1804,12 @@
 		<message type="kThirstToVict" val="Вы полностью утолили жажду." />
 	</msg_sheaf>
 	<msg_sheaf id="kCureBlind">
+		<name val="вылечить слепоту" />
 		<message type="kCastPhraseHeathen" val="зряще узрите" />
 		<message type="kCastPhraseChristian" val="... и прозрят из тьмы и мрака глаза слепых." />
 	</msg_sheaf>
 	<msg_sheaf id="kDetectAlign">
+		<name val="определение наклонностей" />
 		<message type="kCastPhraseHeathen" val="узряще норов" />
 		<message type="kCastPhraseChristian" val="... и отделит одних от других, как пастырь отделяет овец от козлов." />
 		<message type="kAffImposedToRoom" val="Глаза $n1 приобрели зеленый оттенок." />
@@ -1697,6 +1817,7 @@
 		<message type="kAffExpired" val="Вы более не можете определять наклонности." />
 	</msg_sheaf>
 	<msg_sheaf id="kDetectInvis">
+		<name val="видеть невидимое" />
 		<message type="kCastPhraseHeathen" val="взор мечетный" />
 		<message type="kCastPhraseChristian" val="... ибо нет ничего тайного, что не сделалось бы явным." />
 		<message type="kAffImposedToRoom" val="Глаза $n1 приобрели золотистый оттенок." />
@@ -1704,6 +1825,7 @@
 		<message type="kAffExpired" val="Вы не в состоянии больше видеть невидимых." />
 	</msg_sheaf>
 	<msg_sheaf id="kDetectMagic">
+		<name val="определение магии" />
 		<message type="kCastPhraseHeathen" val="зряще ворожбу" />
 		<message type="kCastPhraseChristian" val="... покажись, ересь богопротивная." />
 		<message type="kAffImposedToRoom" val="Глаза $n1 приобрели желтый оттенок." />
@@ -1711,6 +1833,7 @@
 		<message type="kAffExpired" val="Вы не в состоянии более определять магию." />
 	</msg_sheaf>
 	<msg_sheaf id="kDetectPoison">
+		<name val="определение яда" />
 		<message type="kCastPhraseHeathen" val="зряще трутизну" />
 		<message type="kCastPhraseChristian" val="... по плодам их узнаете их." />
 		<message type="kAffImposedToRoom" val="Глаза $n1 приобрели карий оттенок." />
@@ -1718,12 +1841,14 @@
 		<message type="kAffExpired" val="Вы не в состоянии более определять яды." />
 	</msg_sheaf>
 	<msg_sheaf id="kLocateObject">
+		<name val="разыскать предмет" />
 		<message type="kCastPhraseHeathen" val="рища, летая умом под облакы" />
 		<message type="kCastPhraseChristian" val="... ибо всякий просящий получает, и ищущий находит." />
 		<!-- "Nothing felt" line when SpellLocateObject's search yields no result. -->
 		<message type="kCustomMsgOne" val="Вы ничего не чувствуете." />
 	</msg_sheaf>
 	<msg_sheaf id="kProtectFromEvil">
+		<name val="защита от тьмы" />
 		<message type="kCastPhraseHeathen" val="супостат нощи" />
 		<message type="kCastPhraseChristian" val="... свет, который в тебе, да убоится тьма." />
 		<message type="kAffImposedToRoom" val="$n подавил$g в себе страх к тьме." />
@@ -1731,6 +1856,7 @@
 		<message type="kAffExpired" val="Вы вновь ощущаете страх перед тьмой." />
 	</msg_sheaf>
 	<msg_sheaf id="kSanctuary">
+		<name val="освящение" />
 		<message type="kCastPhraseHeathen" val="иже во святых" />
 		<message type="kCastPhraseChristian" val="... буде святым, аки Господь наш свят." />
 		<message type="kAffImposedToRoom" val="Белая аура покрыла $n3 с головы до пят." />
@@ -1738,6 +1864,7 @@
 		<message type="kAffExpired" val="Белая аура вокруг вашего тела угасла." />
 	</msg_sheaf>
 	<msg_sheaf id="kSleep">
+		<name val="сон" />
 		<message type="kCastPhraseHeathen" val="иже дремлет" />
 		<message type="kCastPhraseChristian" val="... на веки твои тяжесть покладет." />
 		<message type="kKnockdownToChar" val="Вы слишком устали... Спать... Спа..." />
@@ -1745,6 +1872,7 @@
 		<message type="kAffExpired" val="Вы не чувствуете сонливости." />
 	</msg_sheaf>
 	<msg_sheaf id="kStrength">
+		<name val="сила" />
 		<message type="kCastPhraseHeathen" val="будет силен" />
 		<message type="kCastPhraseChristian" val="... и человек разумный укрепляет силу свою." />
 		<message type="kAffImposedToRoom" val="Мышцы $n1 налились силой." />
@@ -1752,6 +1880,7 @@
 		<message type="kAffExpired" val="Вы чувствуете себя немного слабее." />
 	</msg_sheaf>
 	<msg_sheaf id="kSummon">
+		<name val="призвать" />
 		<message type="kCastPhraseHeathen" val="кличу-велю" />
 		<message type="kCastPhraseChristian" val="... и послали за ним и призвали его." />
 		<!-- SpellSummon narration (issue.spell-msg-improve). $n = the summoned victim
@@ -1775,6 +1904,7 @@
 		<message type="kCustomMsgFour" val="Ваша жертва в бою, подождите немного." />
 	</msg_sheaf>
 	<msg_sheaf id="kPatronage">
+		<name val="покровительство" />
 		<message type="kCastPhraseHeathen" val="ибо будет угоден Богам" />
 		<message type="kCastPhraseChristian" val="... ибо спасет людей Своих от грехов их." />
 		<message type="kAffImposedToRoom" val="Исходящий с небес свет на мгновение озарил $n3." />
@@ -1782,6 +1912,7 @@
 		<message type="kAffExpired" val="Вы утратили покровительство высших сил." />
 	</msg_sheaf>
 	<msg_sheaf id="kWorldOfRecall">
+		<name val="слово возврата" />
 		<message type="kCastForbiddenToChar" val="Попытка перемещения не удалась." />
 		<message type="kCastPhraseHeathen" val="с глаз долой исчезни" />
 		<message type="kCastPhraseChristian" val="... ступай с миром." />
@@ -1792,6 +1923,7 @@
 		<message type="kSummonFail" val="Попытка перемещения не удалась." />
 	</msg_sheaf>
 	<msg_sheaf id="kSenseLife">
+		<name val="определение жизни" />
 		<message type="kCastPhraseHeathen" val="зряще живота" />
 		<message type="kCastPhraseChristian" val="... ибо нет ничего сокровенного, что не обнаружилось бы." />
 		<message type="kAffImposedToRoom" val="$n0 начал$g замечать любые движения." />
@@ -1799,6 +1931,7 @@
 		<message type="kAffExpired" val="Вы больше не можете чувствовать жизнь." />
 	</msg_sheaf>
 	<msg_sheaf id="kInfravision">
+		<name val="видение ночью" />
 		<message type="kCastPhraseHeathen" val="в нощи зряще" />
 		<message type="kCastPhraseChristian" val="...ибо ни днем, ни ночью сна не знают очи." />
 		<message type="kAffImposedToRoom" val="Глаза $n1 приобрели красный оттенок." />
@@ -1806,6 +1939,7 @@
 		<message type="kAffExpired" val="Вы больше не можете видеть ночью." />
 	</msg_sheaf>
 	<msg_sheaf id="kWaterwalk">
+		<name val="водохождение" />
 		<message type="kCastPhraseHeathen" val="по воде аки по суху" />
 		<message type="kCastPhraseChristian" val="... поднимись и ввергнись в море." />
 		<message type="kAffImposedToRoom" val="" />
@@ -1813,6 +1947,7 @@
 		<message type="kAffExpired" val="Вы больше не можете ходить по воде." />
 	</msg_sheaf>
 	<msg_sheaf id="kHold">
+		<name val="оцепенение" />
 		<message type="kAffDispelledToChar" val="К вам вернулась способность двигаться." />
 		<message type="kCastPhraseHeathen" val="аки околел" />
 		<message type="kCastPhraseChristian" val="... замри." />
@@ -1821,12 +1956,14 @@
 		<message type="kAffExpired" val="К вам вернулась способность двигаться." />
 	</msg_sheaf>
 	<msg_sheaf id="kPowerHold">
+		<name val="длительное оцепенение" />
 		<message type="kCastPhraseHeathen" val="згола аки околел" />
 		<message type="kCastPhraseChristian" val="... замри надолго." />
 		<message type="kAffImposedToRoom" val="$n0 замер$q на месте!" />
 		<message type="kAffImposedToChar" val="Вы замерли на месте, не в силах пошевельнуться." />
 	</msg_sheaf>
 	<msg_sheaf id="kBrokenChains">
+		<name val="разбитые оковы" />
 		<message type="kCastPhraseHeathen" val="вериги и цепи железные изорву" />
 		<message type="kCastPhraseChristian" val="... и цепи упали с рук его." />
 		<message type="kAffImposedToRoom" val="Ярко-синий ореол вспыхнул вокруг $n1 и тут же угас." />
@@ -1834,6 +1971,7 @@
 		<message type="kAffExpired" val="Вы вновь стали уязвимы для оцепенения." />
 	</msg_sheaf>
 	<msg_sheaf id="kNoflee">
+		<name val="приковать противника" />
 		<message type="kCastPhraseHeathen" val="опуташа в путины железны" />
 		<message type="kCastPhraseChristian" val="... да поищешь уйти, да не возможешь." />
 		<message type="kAffImposedToRoom" val="$n0 теперь прикован$a к $N2." />
@@ -1841,10 +1979,12 @@
 		<message type="kAffExpired" val="Вы опять можете сбежать с поля боя." />
 	</msg_sheaf>
 	<msg_sheaf id="kCreateLight">
+		<name val="создать свет" />
 		<message type="kCastPhraseHeathen" val="будовати светоч" />
 		<message type="kCastPhraseChristian" val="... да будет свет." />
 	</msg_sheaf>
 	<msg_sheaf id="kDarkness">
+		<name val="тьма" />
 		<message type="kCastPhraseHeathen" val="тьмою прикрыты" />
 		<message type="kCastPhraseChristian" val="... тьма покроет землю." />
 		<message type="kAffImposedToRoom" val="$n0 погрузил$g комнату во мрак." />
@@ -1852,6 +1992,7 @@
 		<message type="kAffExpired" val="Облако тьмы, окружающее вас, спало." />
 	</msg_sheaf>
 	<msg_sheaf id="kStoneSkin">
+		<name val="каменная кожа" />
 		<message type="kCastPhraseHeathen" val="буде тверд аки камень" />
 		<message type="kCastPhraseChristian" val="... твердость ли камней твердость твоя?" />
 		<message type="kAffImposedToRoom" val="Кожа $n1 покрылась каменными пластинами." />
@@ -1859,6 +2000,7 @@
 		<message type="kAffExpired" val="Ваша кожа вновь стала мягкой и бархатистой." />
 	</msg_sheaf>
 	<msg_sheaf id="kCloudly">
+		<name val="затуманивание" />
 		<message type="kCastPhraseHeathen" val="мгла покрыла" />
 		<message type="kCastPhraseChristian" val="... будут как утренний туман." />
 		<message type="kAffImposedToRoom" val="Очертания $n1 расплылись и стали менее отчетливыми." />
@@ -1866,6 +2008,7 @@
 		<message type="kAffExpired" val="Ваши очертания приобрели отчетливость." />
 	</msg_sheaf>
 	<msg_sheaf id="kSilence">
+		<name val="молчание" />
 		<message type="kAffDispelledToChar" val="К вам вернулась способность разговаривать." />
 		<message type="kCastPhraseHeathen" val="типун тебе на язык!" />
 		<message type="kCastPhraseChristian" val="... да замкнутся уста твои." />
@@ -1874,6 +2017,7 @@
 		<message type="kAffExpired" val="Теперь вы можете болтать, все что думаете." />
 	</msg_sheaf>
 	<msg_sheaf id="kWeaknes">
+		<name val="слабость" />
 		<message type="kCastPhraseHeathen" val="буде чахнуть" />
 		<message type="kCastPhraseChristian" val="... и силу могучих ослабляет." />
 		<message type="kAffImposedToRoom" val="$n стал$g немного слабее." />
@@ -1881,6 +2025,7 @@
 		<message type="kAffExpired" val="Силы вернулись к вам." />
 	</msg_sheaf>
 	<msg_sheaf id="kShadowCloak">
+		<name val="мантия теней" />
 		<message type="kCastPhraseHeathen" val="будут тени и туман, и мрак ночной" />
 		<message type="kCastPhraseChristian" val="... распростираются вечерние тени." />
 		<message type="kAffImposedToRoom" val="$n скрыл$u в густой тени." />
@@ -1888,6 +2033,7 @@
 		<message type="kAffExpired" val="Ваша теневая мантия замерцала и растаяла." />
 	</msg_sheaf>
 	<msg_sheaf id="kEnlarge">
+		<name val="увеличение" />
 		<message type="kCastPhraseHeathen" val="возросши к небу" />
 		<message type="kCastPhraseChristian" val="... и плоть выросла." />
 		<message type="kAffImposedToRoom" val="$n начал$g расти, как на дрожжах." />
@@ -1895,10 +2041,12 @@
 		<message type="kAffExpired" val="Ваши размеры стали прежними." />
 	</msg_sheaf>
 	<msg_sheaf id="kFear">
+		<name val="страх" />
 		<message type="kCastPhraseHeathen" val="падоша в тернии" />
 		<message type="kCastPhraseChristian" val="... убойся того, кто по убиении ввергнет в геенну." />
 	</msg_sheaf>
 	<msg_sheaf id="kWeb">
+		<name val="сеть" />
 		<message type="kCastPhraseHeathen" val="сети ловчи" />
 		<message type="kCastPhraseChristian" val="... терны и сети на пути коварного." />
 		<message type="kAffImposedToRoom" val="$n3 покрыла невидимая паутина, сковывая $s движения!" />
@@ -1906,6 +2054,7 @@
 		<message type="kAffExpired" val="Магическая сеть, покрывавшая вас, исчезла." />
 	</msg_sheaf>
 	<msg_sheaf id="kBlink">
+		<name val="мигание" />
 		<message type="kCastPhraseHeathen" val="от стрел укрытие и от меча оборона" />
 		<message type="kCastPhraseChristian" val="...да защитит он себя." />
 		<message type="kAffImposedToRoom" val="$n начал$g мигать." />
@@ -1913,27 +2062,32 @@
 		<message type="kAffExpired" val="Вы перестали мигать." />
 	</msg_sheaf>
 	<msg_sheaf id="kRemoveHold">
+		<name val="снять оцепенение" />
 		<message type="kCastPhraseHeathen" val="буде быстр аки прежде" />
 		<message type="kCastPhraseChristian" val="... встань, и ходи." />
 	</msg_sheaf>
 	<msg_sheaf id="kCamouflage">
+		<name val="!маскировка!" />
 		<message type="kCastPhraseHeathen" val="" />
 		<message type="kCastPhraseChristian" val="" />
 		<message type="kAffExpired" val="Вы стали вновь похожи сами на себя." />
 	</msg_sheaf>
 	<msg_sheaf id="kPowerBlindness">
+		<name val="полная слепота" />
 		<message type="kCastPhraseHeathen" val="згола застить очеса" />
 		<message type="kCastPhraseChristian" val="... поразит тебя Господь слепотою навечно." />
 		<message type="kAffImposedToRoom" val="$n0 ослеп$q!" />
 		<message type="kAffImposedToChar" val="Вы ослепли!" />
 	</msg_sheaf>
 	<msg_sheaf id="kPowerSilence">
+		<name val="длительное молчание" />
 		<message type="kCastPhraseHeathen" val="згола не прерчет" />
 		<message type="kCastPhraseChristian" val="... исходящее из уст твоих, да не осквернит слуха." />
 		<message type="kAffImposedToRoom" val="$n0 прикусил$g язык!" />
 		<message type="kAffImposedToChar" val="Вы не в состоянии вымолвить ни слова." />
 	</msg_sheaf>
 	<msg_sheaf id="kMagicShield">
+		<name val="волшебный щит" />
 		<message type="kCastPhraseHeathen" val="и ворога оберегись" />
 		<message type="kCastPhraseChristian" val="... руками своими да защитит он себя" />
 		<message type="kAffImposedToRoom" val="Сверкающий щит вспыхнул вокруг $n1 и угас." />
@@ -1941,6 +2095,7 @@
 		<message type="kAffExpired" val="Ваш волшебный щит рассеялся." />
 	</msg_sheaf>
 	<msg_sheaf id="kForbidden">
+		<name val="запечатать комнату" />
 		<message type="kCastPhraseHeathen" val="вороги не войдут" />
 		<message type="kCastPhraseChristian" val="... ибо положена печать, и никто не возвращается." />
 		<message type="kAffExpired" val="Магия, запечатывающая входы, пропала." />
@@ -1952,45 +2107,54 @@
 		<message type="kRoomAffectInvisible" val="&amp;c... магическая печать закрывает все входы ...&amp;n" />
 	</msg_sheaf>
 	<msg_sheaf id="kRemoveSilence">
+		<name val="снять молчание" />
 		<message type="kCastPhraseHeathen" val="глаголите" />
 		<message type="kCastPhraseChristian" val="... слова из уст мудрого - благодать." />
 	</msg_sheaf>
 	<msg_sheaf id="kHide">
+		<name val="!спрятался!" />
 		<message type="kCastPhraseHeathen" val="" />
 		<message type="kCastPhraseChristian" val="" />
 		<message type="kAffExpired" val="Вы стали заметны окружающим." />
 	</msg_sheaf>
 	<msg_sheaf id="kSneak">
+		<name val="!крадется!" />
 		<message type="kCastPhraseHeathen" val="" />
 		<message type="kCastPhraseChristian" val="" />
 		<message type="kAffExpired" val="Ваши передвижения стали заметны." />
 	</msg_sheaf>
 	<msg_sheaf id="kDrunked">
+		<name val="!опьянение!" />
 		<message type="kCastPhraseHeathen" val="" />
 		<message type="kCastPhraseChristian" val="" />
 		<message type="kAffExpired" val="Кураж прошел. Мама, лучше бы я умер$q вчера." />
 	</msg_sheaf>
 	<msg_sheaf id="kAbstinent">
+		<name val="!абстиненция!" />
 		<message type="kCastPhraseHeathen" val="" />
 		<message type="kCastPhraseChristian" val="" />
 		<message type="kAffExpired" val="А головка ваша уже не болит." />
 	</msg_sheaf>
 	<msg_sheaf id="kBattle">
+		<name val="!получил в бою!" />
 		<message type="kCastPhraseHeathen" val="" />
 		<message type="kCastPhraseChristian" val="" />
 		<message type="kAffExpired" val="К вам вернулась способность нормально сражаться." />
 	</msg_sheaf>
 	<msg_sheaf id="kHaemorrhage">
+		<name val="!кровотечение!" />
 		<message type="kCastPhraseHeathen" val="" />
 		<message type="kCastPhraseChristian" val="" />
 		<message type="kAffExpired" val="Ваши кровоточащие раны затянулись." />
 	</msg_sheaf>
 	<msg_sheaf id="kCourage">
+		<name val="!ярость!" />
 		<message type="kCastPhraseHeathen" val="" />
 		<message type="kCastPhraseChristian" val="" />
 		<message type="kAffExpired" val="Вы успокоились." />
 	</msg_sheaf>
 	<msg_sheaf id="kWaterbreath">
+		<name val="дышать водой" />
 		<message type="kCastPhraseHeathen" val="не затвори темне березе" />
 		<message type="kCastPhraseChristian" val="... дух дышит, где хочет." />
 		<message type="kAffImposedToRoom" val="У $n1 выросли жабры." />
@@ -1998,6 +2162,7 @@
 		<message type="kAffExpired" val="Вы более не способны дышать водой." />
 	</msg_sheaf>
 	<msg_sheaf id="kSlowdown">
+		<name val="медлительность" />
 		<message type="kCastPhraseHeathen" val="немочь" />
 		<message type="kCastPhraseChristian" val="...и помедлил еще семь дней других." />
 		<message type="kAffImposedToRoom" val="Движения $n1 заметно замедлились." />
@@ -2005,6 +2170,7 @@
 		<message type="kAffExpired" val="Медлительность исчезла." />
 	</msg_sheaf>
 	<msg_sheaf id="kHaste">
+		<name val="ускорение" />
 		<message type="kCastPhraseHeathen" val="скор аки ястреб" />
 		<message type="kCastPhraseChristian" val="... поднимет его ветер и понесет, и он быстро побежит от него." />
 		<message type="kAffImposedToRoom" val="$n начал$g двигаться заметно быстрее." />
@@ -2012,6 +2178,7 @@
 		<message type="kAffExpired" val="Вы стали более медлительны." />
 	</msg_sheaf>
 	<msg_sheaf id="kGodsShield">
+		<name val="защита богов" />
 		<message type="kCastPhraseHeathen" val="Живый в помощи Вышняго" />
 		<message type="kCastPhraseChristian" val="... благословен буде Грядый во имя Господне." />
 		<message type="kAffImposedToRoom" val="$n покрыл$u сверкающим коконом." />
@@ -2019,6 +2186,7 @@
 		<message type="kAffExpired" val="Голубой кокон вокруг вашего тела угас." />
 	</msg_sheaf>
 	<msg_sheaf id="kFever">
+		<name val="лихорадка" />
 		<message type="kAffDispelledToChar" val="Лихорадка прекратилась." />
 		<message type="kCastPhraseHeathen" val="нутро снеде" />
 		<message type="kCastPhraseChristian" val="... и сделаются жестокие и кровавые язвы." />
@@ -2027,10 +2195,12 @@
 		<message type="kAffExpired" val="Лихорадка прекратилась." />
 	</msg_sheaf>
 	<msg_sheaf id="kCureFever">
+		<name val="вылечить лихорадку" />
 		<message type="kCastPhraseHeathen" val="Навь, очисти тело" />
 		<message type="kCastPhraseChristian" val="... хочу, очистись." />
 	</msg_sheaf>
 	<msg_sheaf id="kAwareness">
+		<name val="внимательность" />
 		<message type="kCastPhraseHeathen" val="око недреманно" />
 		<message type="kCastPhraseChristian" val="... не дам сна очам моим и веждам моим - дремания." />
 		<message type="kAffImposedToRoom" val="$n начал$g внимательно осматриваться по сторонам." />
@@ -2038,11 +2208,13 @@
 		<message type="kAffExpired" val="Вы стали менее внимательны." />
 	</msg_sheaf>
 	<msg_sheaf id="kReligion">
+		<name val="!молитва или жертва!" />
 		<message type="kCastPhraseHeathen" val="" />
 		<message type="kCastPhraseChristian" val="" />
 		<message type="kAffExpired" val="Вы утратили расположение Богов." />
 	</msg_sheaf>
 	<msg_sheaf id="kAirShield">
+		<name val="воздушный щит" />
 		<message type="kCastPhraseHeathen" val="Стрибог, даруй прибежище" />
 		<message type="kCastPhraseChristian" val="... защита от ветра и покров от непогоды." />
 		<message type="kAffImposedToRoom" val="$n3 окутал воздушный щит." />
@@ -2050,6 +2222,7 @@
 		<message type="kAffExpired" val="Ваш воздушный щит исчез." />
 	</msg_sheaf>
 	<msg_sheaf id="kPortal">
+		<name val="переход" />
 		<message type="kCastPhraseHeathen" val="буде путь короток" />
 		<message type="kCastPhraseChristian" val="... входите во врата Его." />
 		<!-- SpellPortal narration (issue.spell-msg-improve). kCustomMsgOne is the
@@ -2061,10 +2234,12 @@
 		<message type="kSummonFail" val="Попытка перемещения не удалась." />
 	</msg_sheaf>
 	<msg_sheaf id="kDispellMagic">
+		<name val="развеять магию" />
 		<message type="kCastPhraseHeathen" val="изыде ворожба" />
 		<message type="kCastPhraseChristian" val="... выйди, дух нечистый." />
 	</msg_sheaf>
 	<msg_sheaf id="kFastRegeneration">
+		<name val="быстрое восстановление" />
 		<message type="kCastPhraseHeathen" val="заживет, аки на собаке" />
 		<message type="kCastPhraseChristian" val="... нет богатства лучше телесного здоровья." />
 		<message type="kAffImposedToRoom" val="$n расцвел$g на ваших глазах." />
@@ -2072,11 +2247,13 @@
 		<message type="kAffExpired" val="Живительная сила покинула вас." />
 	</msg_sheaf>
 	<msg_sheaf id="kCreateWeapon">
+		<name val="создать оружие" />
 		<message type="kNoTarget" val="Не указан тип оружия." />
 		<message type="kCastPhraseHeathen" val="будовати стружие" />
 		<message type="kCastPhraseChristian" val="...вооружите из себя людей на войну" />
 	</msg_sheaf>
 	<msg_sheaf id="kRelocate">
+		<name val="переместиться" />
 		<message type="kCastForbiddenToChar" val="Попытка перемещения не удалась." />
 		<message type="kCastPhraseHeathen" val="Стрибог, укажи путь..." />
 		<message type="kCastPhraseChristian" val="... указывай им путь, по которому они должны идти." />
@@ -2088,6 +2265,7 @@
 		<message type="kSummonFail" val="Попытка перемещения не удалась." />
 	</msg_sheaf>
 	<msg_sheaf id="kIceShield">
+		<name val="ледяной щит" />
 		<message type="kCastPhraseHeathen" val="Морена, даруй прибежище" />
 		<message type="kCastPhraseChristian" val="... а снег и лед выдерживали огонь и не таяли." />
 		<message type="kAffImposedToRoom" val="$n3 окутал ледяной щит." />
@@ -2095,6 +2273,7 @@
 		<message type="kAffExpired" val="Ледяной щит вокруг вашего тела исчез." />
 	</msg_sheaf>
 	<msg_sheaf id="kLessening">
+		<name val="уменьшение" />
 		<message type="kCastPhraseHeathen" val="буде мал аки мышь" />
 		<message type="kCastPhraseChristian" val="... плоть на нем пропадает." />
 		<message type="kAffImposedToRoom" val="$n скукожил$u." />
@@ -2102,6 +2281,7 @@
 		<message type="kAffExpired" val="Ваши размеры вновь стали прежними." />
 	</msg_sheaf>
 	<msg_sheaf id="kMadness">
+		<name val="безумие" />
 		<message type="kCastPhraseHeathen" val="згола яростен" />
 		<message type="kCastPhraseChristian" val="... и ярость его загорелась в нем." />
 		<message type="kAffImposedToRoom" val="Теперь $n не сможет сбежать из боя!" />
@@ -2109,6 +2289,7 @@
 		<message type="kAffExpired" val="Безумие отпустило вас." />
 	</msg_sheaf>
 	<msg_sheaf id="kCloudOfArrows">
+		<name val="облако стрел" />
 		<message type="kCastPhraseHeathen" val="и будут стрелы молний, и зарницы в высях" />
 		<message type="kCastPhraseChristian" val="... соберу на них бедствия и истощу на них стрелы Мои." />
 		<message type="kAffImposedToRoom" val="$n3 окружило облако летающих огненных стрел." />
@@ -2116,6 +2297,7 @@
 		<message type="kAffExpired" val="Облако стрел вокруг вас рассеялось." />
 	</msg_sheaf>
 	<msg_sheaf id="kStoneHands">
+		<name val="каменные руки" />
 		<message type="kCastPhraseHeathen" val="сильны велетов руки" />
 		<message type="kCastPhraseChristian" val="... рука Моя пребудет с ним, и мышца Моя укрепит его." />
 		<message type="kAffImposedToRoom" val="Руки $n1 задубели." />
@@ -2123,6 +2305,7 @@
 		<message type="kAffExpired" val="Ваши руки вернулись к прежнему состоянию." />
 	</msg_sheaf>
 	<msg_sheaf id="kMindless">
+		<name val="повреждение разума" />
 		<message type="kCastPhraseHeathen" val="разум аки мутный омут" />
 		<message type="kCastPhraseChristian" val="... и безумие его с ним." />
 		<message type="kAffImposedToRoom" val="$n0 стал$g слаб$g на голову!" />
@@ -2130,6 +2313,7 @@
 		<message type="kAffExpired" val="Ваш разум просветлел." />
 	</msg_sheaf>
 	<msg_sheaf id="kPrismaticAura">
+		<name val="призматическая аура" />
 		<message type="kCastPhraseHeathen" val="окружен радугой" />
 		<message type="kCastPhraseChristian" val="... явится радуга в облаке." />
 		<message type="kAffImposedToRoom" val="$n3 покрыла призматическая аура." />
@@ -2137,6 +2321,7 @@
 		<message type="kAffExpired" val="Призматическая аура вокруг вашего тела угасла." />
 	</msg_sheaf>
 	<msg_sheaf id="kDeafness">
+		<name val="глухота" />
 		<message type="kAffDispelledToChar" val="К вам вернулась способность слышать." />
 		<message type="kCastPhraseHeathen" val="оглохни" />
 		<message type="kCastPhraseChristian" val="... и глухота поразит тебя." />
@@ -2145,20 +2330,24 @@
 		<message type="kAffExpired" val="Вы вновь можете слышать." />
 	</msg_sheaf>
 	<msg_sheaf id="kPowerDeafness">
+		<name val="длительная глухота" />
 		<message type="kCastPhraseHeathen" val="да застит уши твои" />
 		<message type="kCastPhraseChristian" val="... и будь глухим надолго." />
 		<message type="kAffImposedToRoom" val="$n0 оглох$q!" />
 		<message type="kAffImposedToChar" val="Вы оглохли." />
 	</msg_sheaf>
 	<msg_sheaf id="kRemoveDeafness">
+		<name val="снять глухоту" />
 		<message type="kCastPhraseHeathen" val="слушай глас мой" />
 		<message type="kCastPhraseChristian" val="... услышь слово Его." />
 	</msg_sheaf>
 	<msg_sheaf id="kSumonAngel">
+		<name val="ангел-хранитель" />
 		<message type="kCastPhraseHeathen" val="Боги, даруйте защитника" />
 		<message type="kCastPhraseChristian" val="... дабы уберег он меня от зла." />
 	</msg_sheaf>
 	<msg_sheaf id="kFascination">
+		<name val="обаяние" />
 		<message type="kCastPhraseHeathen" val="Да пребудет с тобой вся краса мира!" />
 		<message type="kCastPhraseChristian" val="... и омолодил он, и украсил их." />
 		<message type="kAffImposedToRoom" val="$n0 достал$g из сумчки какие-то склянки и отвернул$u, бормоча под нос." />
@@ -2170,6 +2359,7 @@
 		<message type="kComponentExhausted" val="$o рассыпался в ваших руках от неловкого движения." />
 	</msg_sheaf>
 	<msg_sheaf id="kCrying">
+		<name val="плач" />
 		<message type="kCastPhraseHeathen" val="Будут слезы твои, аки камень на сердце" />
 		<message type="kCastPhraseChristian" val="... и постигнет твой дух угнетение вечное." />
 		<message type="kAffImposedToRoom" val="$n0 издал$g протяжный стон." />
@@ -2177,12 +2367,14 @@
 		<message type="kAffExpired" val="Ваша душа успокоилась." />
 	</msg_sheaf>
 	<msg_sheaf id="kOblivion">
+		<name val="забвение" />
 		<message type="kCastPhraseHeathen" val="будь живот аки буява с шерстнями." />
 		<message type="kCastPhraseChristian" val="... опадет на тебя чернь страшная." />
 		<message type="kAffImposedToRoom" val="Облако забвения окружило $n3." />
 		<message type="kAffImposedToChar" val="Ваш разум помутился." />
 	</msg_sheaf>
 	<msg_sheaf id="kPeaceful">
+		<name val="смирение" />
 		<message type="kCastPhraseHeathen" val="Избавь речь свою от недобрых слов, а ум - от крамольных мыслей." />
 		<message type="kCastPhraseChristian" val="... любите врагов ваших и благотворите ненавидящим вас." />
 		<message type="kAffImposedToRoom" val="Взгляд $n1 потускнел, а сам он успокоился." />
@@ -2190,22 +2382,26 @@
 		<message type="kAffExpired" val="Смирение в вашей душе вдруг куда-то исчезло." />
 	</msg_sheaf>
 	<msg_sheaf id="kMagicBattle">
+		<name val="!получил в бою!" />
 		<message type="kCastPhraseHeathen" val="" />
 		<message type="kCastPhraseChristian" val="" />
 		<message type="kAffExpired" val="К вам вернулась способность нормально сражаться." />
 	</msg_sheaf>
 	<msg_sheaf id="kBerserk">
+		<name val="!предсмертная ярость!" />
 		<message type="kCastPhraseHeathen" val="" />
 		<message type="kCastPhraseChristian" val="" />
 		<message type="kAffExpired" val="Неистовство оставило вас." />
 	</msg_sheaf>
 	<msg_sheaf id="kStoneBones">
+		<name val="каменные кости" />
 		<message type="kCastPhraseHeathen" val="Обращу кости их в твердый камень." />
 		<message type="kCastPhraseChristian" val="...и тот, кто упадет на камень сей, разобьется." />
 		<message type="kAffImposedToRoom" val="Кости $n1 обрели твердость кремня." />
 		<message type="kAffImposedToChar" val=" " />
 	</msg_sheaf>
 	<msg_sheaf id="kRoomLight">
+		<name val="осветить комнату" />
 		<message type="kCastPhraseHeathen" val="...сотворити свет." />
 		<message type="kCastPhraseChristian" val="Да будет свет!" />
 		<message type="kAffExpired" val="Колдовской свет угас." />
@@ -2216,6 +2412,7 @@
 		<message type="kRoomAffectVisible" val="&amp;W... земля освещена колдовством ...&amp;n" />
 	</msg_sheaf>
 	<msg_sheaf id="kDeadlyFog">
+		<name val="туман смерти" />
 		<message type="kCustomMsgOne" val="Повинуясь вашему желанию отравить всех, туман начал густеть..." />
 		<message type="kCustomMsgTwo" val="Вы осознали, что хотите вызвать ужасные мучения у врагов..." />
 		<message type="kCustomMsgThree" val="Что может быть лучше, чем слабый враг?!" />
@@ -2235,6 +2432,7 @@
 		<message type="kRoomAffectInvisible" val="&amp;B... туман &amp;Kсмерти&amp;B плывет над вами  ...&amp;n" />
 	</msg_sheaf>
 	<msg_sheaf id="kThunderstorm">
+		<name val="буря отмщения" />
 		<message type="kCustomMsgOne" val="Стремительно налетевшие черные тучи сгустились над вами." />
 		<message type="kCustomMsgTwo" val="Раздался чудовищный раскат грома!" />
 		<message type="kCustomMsgThree" val="Порывы мокрого ледяного ветра обрушились из туч!" />
@@ -2252,16 +2450,19 @@
 		<message type="kRoomAffectVisible" val="&amp;W... чудовищная буря кружится над вашей головой ...&amp;n" />
 	</msg_sheaf>
 	<msg_sheaf id="kLightWalk">
+		<name val="!легкая поступь!" />
 		<message type="kCastPhraseHeathen" val="" />
 		<message type="kCastPhraseChristian" val="" />
 		<message type="kAffExpired" val="Ваши следы вновь стали заметны." />
 	</msg_sheaf>
 	<msg_sheaf id="kClanPray">
+		<name val="!клановые чары!" />
 		<message type="kCastPhraseHeathen" val="" />
 		<message type="kCastPhraseChristian" val="" />
 		<message type="kAffExpired" val="Магические чары ослабели со временем и покинули вас." />
 	</msg_sheaf>
 	<msg_sheaf id="kCatGrace">
+		<name val="кошачья ловкость" />
 		<message type="kCastPhraseHeathen" val="ристати споро" />
 		<message type="kCastPhraseChristian" val="...и не уязвит враг того, кто скор." />
 		<message type="kAffImposedToRoom" val="Движения $n1 обрели невиданную ловкость." />
@@ -2269,6 +2470,7 @@
 		<message type="kAffExpired" val="Ваши движения утратили прежнюю колдовскую ловкость." />
 	</msg_sheaf>
 	<msg_sheaf id="kBullBody">
+		<name val="бычье тело" />
 		<message type="kCastPhraseHeathen" val="руци яре ворога супротив" />
 		<message type="kCastPhraseChristian" val="...и мощь звериная жила в теле его." />
 		<message type="kAffImposedToRoom" val="Плечи $n1 раздались вширь, а тело налилось звериной мощью." />
@@ -2276,6 +2478,7 @@
 		<message type="kAffExpired" val="Ваше телосложение вновь стало обычным." />
 	</msg_sheaf>
 	<msg_sheaf id="kSnakeWisdom">
+		<name val="мудрость змеи" />
 		<message type="kCastPhraseHeathen" val="веси и зрети стези отай" />
 		<message type="kCastPhraseChristian" val="...и даровал мудрость ему." />
 		<message type="kAffImposedToRoom" val="$n спокойно и мудро посмотрел$g вокруг." />
@@ -2283,6 +2486,7 @@
 		<message type="kAffExpired" val="Вы утратили навеянную магией мудрость." />
 	</msg_sheaf>
 	<msg_sheaf id="kGimmicry">
+		<name val="хитроумие" />
 		<message type="kCastPhraseHeathen" val="клюка вящего улучити" />
 		<message type="kCastPhraseChristian" val="...ибо кто познал ум Господень?" />
 		<message type="kAffImposedToRoom" val="$n хитро прищурил$u и поглядел$g по сторонам." />
@@ -2290,6 +2494,7 @@
 		<message type="kAffExpired" val="Навеянная магией хитрость покинула вас." />
 	</msg_sheaf>
 	<msg_sheaf id="kWarcryOfMenace">
+		<name val="клич угрозы" />
 		<message type="kNoTarget" val="И на {target} же вы хотите так громко крикнуть?" />
 		<message type="kCantCastHereToChar" val="Ваш громовой глас сотряс воздух, но ничего не произошло!" />
 		<message type="kCantCastHereToRoom" val="Вы вздрогнули от неожиданного крика, но ничего не произошло." />
@@ -2300,6 +2505,7 @@
 		<message type="kAffImposedToChar" val="Похоже, сегодня не ваш день." />
 	</msg_sheaf>
 	<msg_sheaf id="kWarcryOfRage">
+		<name val="клич ярости" />
 		<message type="kNoTarget" val="И на {target} же вы хотите так громко крикнуть?" />
 		<message type="kCantCastHereToChar" val="Ваш громовой глас сотряс воздух, но ничего не произошло!" />
 		<message type="kCantCastHereToRoom" val="Вы вздрогнули от неожиданного крика, но ничего не произошло." />
@@ -2310,6 +2516,7 @@
 		<message type="kAffImposedToChar" val="Вы оглохли." />
 	</msg_sheaf>
 	<msg_sheaf id="kWarcryOfMadness">
+		<name val="клич безумия" />
 		<message type="kNoTarget" val="И на {target} же вы хотите так громко крикнуть?" />
 		<message type="kCantCastHereToChar" val="Ваш громовой глас сотряс воздух, но ничего не произошло!" />
 		<message type="kCantCastHereToRoom" val="Вы вздрогнули от неожиданного крика, но ничего не произошло." />
@@ -2320,6 +2527,7 @@
 		<message type="kAffImposedToRoom" val="$n0 обезумел$g." />
 	</msg_sheaf>
 	<msg_sheaf id="kWarcryOfThunder">
+		<name val="клич грома" />
 		<message type="kNoTarget" val="И на {target} же вы хотите так громко крикнуть?" />
 		<message type="kCantCastHereToChar" val="Ваш громовой глас сотряс воздух, но ничего не произошло!" />
 		<message type="kCantCastHereToRoom" val="Вы вздрогнули от неожиданного крика, но ничего не произошло." />
@@ -2328,6 +2536,7 @@
 		<message type="kCastPhraseChristian" val="Шоб вас приподняло да шлепнуло!!!" />
 	</msg_sheaf>
 	<msg_sheaf id="kWarcryOfDefence">
+		<name val="клич обороны" />
 		<message type="kNoTarget" val="И на {target} же вы хотите так громко крикнуть?" />
 		<message type="kCantCastHereToChar" val="Ваш громовой глас сотряс воздух, но ничего не произошло!" />
 		<message type="kCantCastHereToRoom" val="Вы вздрогнули от неожиданного крика, но ничего не произошло." />
@@ -2337,6 +2546,7 @@
 		<message type="kAffExpired" val="Действие клича 'призыв к обороне' закончилось." />
 	</msg_sheaf>
 	<msg_sheaf id="kWarcryOfBattle">
+		<name val="клич битвы" />
 		<message type="kNoTarget" val="И на {target} же вы хотите так громко крикнуть?" />
 		<message type="kCantCastHereToChar" val="Ваш громовой глас сотряс воздух, но ничего не произошло!" />
 		<message type="kCantCastHereToRoom" val="Вы вздрогнули от неожиданного крика, но ничего не произошло." />
@@ -2346,6 +2556,7 @@
 		<message type="kAffExpired" val="Действие клича битвы закончилось." />
 	</msg_sheaf>
 	<msg_sheaf id="kWarcryOfBless">
+		<name val="клич доблести" />
 		<message type="kNoTarget" val="И на {target} же вы хотите так громко крикнуть?" />
 		<message type="kCantCastHereToChar" val="Ваш громовой глас сотряс воздух, но ничего не произошло!" />
 		<message type="kCantCastHereToRoom" val="Вы вздрогнули от неожиданного крика, но ничего не произошло." />
@@ -2355,6 +2566,7 @@
 		<message type="kAffExpired" val="Действие клича доблести закончилось." />
 	</msg_sheaf>
 	<msg_sheaf id="kWarcryOfCourage">
+		<name val="клич отваги" />
 		<message type="kNoTarget" val="И на {target} же вы хотите так громко крикнуть?" />
 		<message type="kCantCastHereToChar" val="Ваш громовой глас сотряс воздух, но ничего не произошло!" />
 		<message type="kCantCastHereToRoom" val="Вы вздрогнули от неожиданного крика, но ничего не произошло." />
@@ -2364,6 +2576,7 @@
 		<message type="kAffExpired" val="Действие клича отваги закончилось." />
 	</msg_sheaf>
 	<msg_sheaf id="kRuneLabel">
+		<name val="рунная метка" />
 		<message type="kCastPhraseHeathen" val="...пьсати черты и резы." />
 		<message type="kCastPhraseChristian" val="...и Сам отошел от них на вержение камня." />
 		<message type="kAffExpired" val="Магические письмена на земле угасли." />
@@ -2378,6 +2591,7 @@
 		<message type="kRoomAffectSelfInvisible" val="&amp;G... светящиеся руны на земле складываются в Ваше имя ...&amp;n" />
 	</msg_sheaf>
 	<msg_sheaf id="kAconitumPoison">
+		<name val="яд аконита" />
 		<message type="kAffDispelledToRoom" val="$n выглядит лучше." />
 		<message type="kAffDispelledToChar" val="Тепло заполнило ваше тело." />
 		<message type="kCastPhraseHeathen" val="трутизна" />
@@ -2387,6 +2601,7 @@
 		<message type="kAffExpired" val="В вашей крови не осталось ни капельки яда аконита." />
 	</msg_sheaf>
 	<msg_sheaf id="kScopolaPoison">
+		<name val="яд скополии" />
 		<message type="kAffDispelledToRoom" val="$n выглядит лучше." />
 		<message type="kAffDispelledToChar" val="Тепло заполнило ваше тело." />
 		<message type="kCastPhraseHeathen" val="трутизна" />
@@ -2396,6 +2611,7 @@
 		<message type="kAffExpired" val="В вашей крови не осталось ни капельки яда скополии." />
 	</msg_sheaf>
 	<msg_sheaf id="kBelenaPoison">
+		<name val="яд белены" />
 		<message type="kAffDispelledToRoom" val="$n выглядит лучше." />
 		<message type="kAffDispelledToChar" val="Тепло заполнило ваше тело." />
 		<message type="kCastPhraseHeathen" val="трутизна" />
@@ -2405,6 +2621,7 @@
 		<message type="kAffExpired" val="В вашей крови не осталось ни капельки яда белены." />
 	</msg_sheaf>
 	<msg_sheaf id="kDaturaPoison">
+		<name val="яд дурмана" />
 		<message type="kAffDispelledToRoom" val="$n выглядит лучше." />
 		<message type="kAffDispelledToChar" val="Тепло заполнило ваше тело." />
 		<message type="kCastPhraseHeathen" val="трутизна" />
@@ -2414,36 +2631,43 @@
 		<message type="kAffExpired" val="В вашей крови не осталось ни капельки яда дурмана." />
 	</msg_sheaf>
 	<msg_sheaf id="kCombatLuck">
+		<name val="боевое везение" />
 		<message type="kCastPhraseHeathen" val="" />
 		<message type="kCastPhraseChristian" val="" />
 		<message type="kAffImposedToRoom" val="$n вдохновенно выпятил$g грудь." />
 		<message type="kAffImposedToChar" val="Вы почувствовали вдохновение." />
 	</msg_sheaf>
 	<msg_sheaf id="kBandage">
+		<name val="перевязка" />
 		<message type="kCastPhraseHeathen" val="" />
 		<message type="kCastPhraseChristian" val="" />
 		<message type="kAffExpired" val="Вы аккуратно перевязали свои раны." />
 	</msg_sheaf>
 	<msg_sheaf id="kNoBandage">
+		<name val="!нельзя перевязываться!" />
 		<message type="kCastPhraseHeathen" val="" />
 		<message type="kCastPhraseChristian" val="" />
 		<message type="kAffExpired" val="Вы снова можете перевязывать свои раны." />
 	</msg_sheaf>
 	<msg_sheaf id="kCapable">
+		<name val="!зачарован!" />
 		<message type="kCastPhraseHeathen" val="" />
 		<message type="kCastPhraseChristian" val="" />
 	</msg_sheaf>
 	<msg_sheaf id="kStrangle">
+		<name val="!удушье!" />
 		<message type="kCastPhraseHeathen" val="" />
 		<message type="kCastPhraseChristian" val="" />
 		<message type="kAffExpired" val="Удушье отпустило вас, и вы вздохнули полной грудью." />
 	</msg_sheaf>
 	<msg_sheaf id="kRecallSpells">
+		<name val="!вспоминает заклинания!" />
 		<message type="kCastPhraseHeathen" val="" />
 		<message type="kCastPhraseChristian" val="" />
 		<message type="kAffExpired" val="Вам стало не на чем концентрироваться." />
 	</msg_sheaf>
 	<msg_sheaf id="kHypnoticPattern">
+		<name val="чарующий узор" />
 		<message type="kCastPhraseHeathen" val="ажбо супостаты блазнити да клюковати" />
 		<message type="kCastPhraseChristian" val="...и утроба его приготовляет обман." />
 		<message type="kAffExpired" val="Плывший в воздухе огненный узор потускнел и растаял струйками дыма." />
@@ -2457,35 +2681,42 @@
 		<message type="kComponentExhausted" val="$o дотлели и рассыпались пеплом." />
 	</msg_sheaf>
 	<msg_sheaf id="kSolobonus">
+		<name val="награда" />
 		<message type="kCastPhraseHeathen" val="" />
 		<message type="kCastPhraseChristian" val="" />
 		<message type="kAffExpired" val="Одна из наград прекратила действовать." />
 	</msg_sheaf>
 	<msg_sheaf id="kVampirism">
+		<name val="вампиризм" />
 		<message type="kCastPhraseHeathen" val="" />
 		<message type="kCastPhraseChristian" val="" />
 		<message type="kAffImposedToRoom" val="Зрачки $n3 приобрели красный оттенок." />
 		<message type="kAffImposedToChar" val="Ваши зрачки приобрели красный оттенок." />
 	</msg_sheaf>
 	<msg_sheaf id="kDeathAura">
+		<name val="аура смерти" />
 		<message type="kCastPhraseHeathen" val="Надели силою своею Навь, дабы собрать урожай тебе." />
 		<message type="kCastPhraseChristian" val="...налякай ворогов наших и покарай их немощью." />
 		<message type="kAffExpired" val="Силы нави покинули вас." />
 	</msg_sheaf>
 	<msg_sheaf id="kRecovery">
+		<name val="темное прикосновение" />
 		<message type="kCastPhraseHeathen" val="Обрасти плотью сызнова." />
 		<message type="kCastPhraseChristian" val="... прости Господи грехи, верни плоть созданию." />
 	</msg_sheaf>
 	<msg_sheaf id="kMassRecovery">
+		<name val="прикосновение смерти" />
 		<message type="kCastPhraseHeathen" val="Обрастите плотью сызнова." />
 		<message type="kCastPhraseChristian" val="... прости Господи грехи, верни плоть созданиям." />
 	</msg_sheaf>
 	<msg_sheaf id="kAuraOfEvil">
+		<name val="аура зла" />
 		<message type="kCastPhraseHeathen" val="Возьми личину зла для жатвы славной." />
 		<message type="kCastPhraseChristian" val="Надели силой злою во благо." />
 		<message type="kAffExpired" val="Аура зла больше не помогает вам." />
 	</msg_sheaf>
 	<msg_sheaf id="kMentalShadow">
+		<name val="ментальная тень" />
 		<message type="kCastPhraseHeathen" val="Силою мысли защиту будую себе." />
 		<message type="kCastPhraseChristian" val="Даруй Отче защиту, силой разума воздвигнутую." />
 		<!-- Per-spell override (issue.spell-msg-improve): the 9 kDefault kSummonToRoom
@@ -2497,15 +2728,18 @@
 	</msg_sheaf>
 
 	<msg_sheaf id="kIdentify">
+		<name val="идентификация" />
 		<!-- Per-spell override (issue.spell-msg-improve) of the generic kWrongTarget line. -->
 		<message type="kWrongTarget" val="С помощью магии нельзя опознать другое существо." />
 		<!-- Self-target rejection at low level. -->
 		<message type="kCustomMsgOne" val="Вы можете опознать себя только достигнув третьего уровня." />
 	</msg_sheaf>
 	<msg_sheaf id="kFullIdentify">
+		<name val="полная идентификация" />
 		<message type="kWrongTarget" val="С помощью магии нельзя опознать другое существо." />
 	</msg_sheaf>
 	<msg_sheaf id="kBlackTentacles">
+		<name val="навьи руки" />
 		<message type="kCustomMsgOne" val="Мертвые руки навей шарят в поисках добычи!" />
 		<message type="kCastPhraseHeathen" val="Ато егоже руци попасти." />
 		<message type="kCastPhraseChristian" val="И он не знает, что мертвецы там и что в глубине..." />
@@ -2516,65 +2750,76 @@
 		<message type="kRoomAffectVisible" val="&amp;K... множество черных сухих рук высовывается из земли и шарит в воздухе!&amp;n" />
 	</msg_sheaf>
 	<msg_sheaf id="kExpedient">
+		<name val="!боевой прием!" />
 		<message type="kCastPhraseHeathen" val="!Применил боевой прием!" />
 		<message type="kCastPhraseChristian" val="!use battle expedient!" />
 		<message type="kAffExpired" val="Эффект боевого приема завершился." />
 	</msg_sheaf>
 	<msg_sheaf id="kSightOfDarkness">
+		<name val="зрение тьмы" />
 		<message type="kCastPhraseHeathen" val="Что свет, что тьма - глазу одинаково." />
 		<message type="kCastPhraseChristian" val="Станьте зрячи в тьме кромешной!" />
 		<message type="kAffImposedToRoom" val="Глаза $n1 приобрели красный оттенок." />
 		<message type="kAffImposedToChar" val="Ваши глаза приобрели красный оттенок." />
 	</msg_sheaf>
 	<msg_sheaf id="kGroupSincerity">
+		<name val="общая искренность" />
 		<message type="kCastPhraseHeathen" val="...да не скроются намерения." />
 		<message type="kCastPhraseChristian" val="И узрим братья намерения окружающих." />
 		<message type="kAffImposedToRoom" val="Глаза $n1 приобрели зеленый оттенок." />
 		<message type="kAffImposedToChar" val="Ваши глаза приобрели зеленый оттенок." />
 	</msg_sheaf>
 	<msg_sheaf id="kMagicalGaze">
+		<name val="магический взор" />
 		<message type="kCastPhraseHeathen" val="Узрим же все, что с магией навкруги нас." />
 		<message type="kCastPhraseChristian" val="Покажи, Спаситель, магические силы братии." />
 		<message type="kAffImposedToRoom" val="Глаза $n1 приобрели желтый оттенок." />
 		<message type="kAffImposedToChar" val="Ваши глаза приобрели желтый оттенок." />
 	</msg_sheaf>
 	<msg_sheaf id="kAllSeeingEye">
+		<name val="всевидящее око" />
 		<message type="kCastPhraseHeathen" val="Все тайное станет явным." />
 		<message type="kCastPhraseChristian" val="Не спрячется, не скроется, ни заяц, ни блоха." />
 		<message type="kAffImposedToRoom" val="Глаза $n1 приобрели золотистый оттенок." />
 		<message type="kAffImposedToChar" val="Ваши глаза приобрели золотистый оттенок." />
 	</msg_sheaf>
 	<msg_sheaf id="kEyeOfGods">
+		<name val="око богов" />
 		<message type="kCastPhraseHeathen" val="Осязаемое откройся взору!" />
 		<message type="kCastPhraseChristian" val="Да не скроется от взора вашего, ни одна живая душа." />
 		<message type="kAffImposedToRoom" val="$n0 начал$g замечать любые движения." />
 		<message type="kAffImposedToChar" val="Вы способны разглядеть даже микроба." />
 	</msg_sheaf>
 	<msg_sheaf id="kBreathingAtDepth">
+		<name val="дыхание глубин" />
 		<message type="kCastPhraseHeathen" val="Аки стайка рыбок, плывите вместе." />
 		<message type="kCastPhraseChristian" val="Что в воде, что на земле, воздух свежим будет." />
 		<message type="kAffImposedToRoom" val="У $n1 выросли жабры." />
 		<message type="kAffImposedToChar" val="У вас выросли жабры." />
 	</msg_sheaf>
 	<msg_sheaf id="kGeneralRecovery">
+		<name val="общее восстановление" />
 		<message type="kCastPhraseHeathen" val="...дабы пройти вместе не одну сотню верст" />
 		<message type="kCastPhraseChristian" val="Сохрани Отче от усталости детей своих!" />
 		<message type="kAffImposedToRoom" val="$n расцвел$g на ваших глазах." />
 		<message type="kAffImposedToChar" val="Вас наполнила живительная сила." />
 	</msg_sheaf>
 	<msg_sheaf id="kStoneWall">
+		<name val="каменная стена" />
 		<message type="kCastPhraseHeathen" val="Станем други крепки як николы!" />
 		<message type="kCastPhraseChristian" val="Укрепим тела наши перед битвой!" />
 		<message type="kAffImposedToRoom" val="Кожа $n1 покрылась каменными пластинами." />
 		<message type="kAffImposedToChar" val="Вы стали менее чувствительны к ударам." />
 	</msg_sheaf>
 	<msg_sheaf id="kSnakeEyes">
+		<name val="глаза змея" />
 		<message type="kCastPhraseHeathen" val="Что яд, а что мед. Не обманемся!" />
 		<message type="kCastPhraseChristian" val="...и самый сильный яд станет вам виден." />
 		<message type="kAffImposedToRoom" val="Глаза $n1 приобрели карий оттенок." />
 		<message type="kAffImposedToChar" val="Ваши глаза приобрели карий оттенок." />
 	</msg_sheaf>
 	<msg_sheaf id="kArrowsFire">
+		<name val="стрелы огня" />
 		<message type="kFightHitToChar" val="Ваша огненная стрела поразила $N1." />
 		<message type="kFightHitToVict" val="Огненная стрела $n1 настигла вас." />
 		<message type="kFightHitToRoom" val="Огненная стрела $n1 поразила $N1." />
@@ -2582,6 +2827,7 @@
 		<message type="kCastPhraseChristian" val="!use battle expedient!" />
 	</msg_sheaf>
 	<msg_sheaf id="kArrowsWater">
+		<name val="стрелы воды" />
 		<message type="kFightHitToChar" val="Ваша ледяная стрела поразила $N1." />
 		<message type="kFightHitToVict" val="Ледяная стрела $n1 настигла вас." />
 		<message type="kFightHitToRoom" val="Ледяная стрела $n1 поразила $N1." />
@@ -2589,6 +2835,7 @@
 		<message type="kCastPhraseChristian" val="!use battle expedient!" />
 	</msg_sheaf>
 	<msg_sheaf id="kDexterity">
+		<name val="ловкость" />
 		<message type="kCastPhraseHeathen" val="будет ловким" />
 		<message type="kCastPhraseChristian" val="... и человек разумный укрепляет ловкость свою." />
 		<message type="kAffImposedToRoom" val="$n0 будет двигаться более шустро." />
@@ -2596,22 +2843,62 @@
 		<message type="kAffExpired" val="Вы стали менее шустрым." />
 	</msg_sheaf>
 	<msg_sheaf id="kExpedientFail">
+		<name val="!неудачный прием!" />
 		<message type="kCastPhraseHeathen" val="!Провалил боевой прием!" />
 		<message type="kCastPhraseChristian" val="!Провалил боевой прием!" />
 		<message type="kAffExpired" val="Вы восстановили равновесие." />
 	</msg_sheaf>
 	<msg_sheaf id="kQUest">
+		<name val="!чары!" />
 		<message type="kAffExpired" val="Наложенные на вас чары рассеялись." />
 	</msg_sheaf>
 	<msg_sheaf id="kFrenzy">
+		<name val="исступление" />
 		<message type="kAffExpired" val="Жажда крови отступила и Вы пришли в себя." />
 	</msg_sheaf>
 	<msg_sheaf id="kPortalTimer">
+		<name val="врата" />
 		<message type="kAffExpired" val="Пентаграмма медленно растаяла." />
 		<!-- Room-affect aura (issue.affect-flags). Visible to anyone in the room;
 		     detect-magic viewers fall through to the same line. PK variant is
 		     preferred when Affect::pk_unique is set (the blood-tinge text). -->
 		<message type="kRoomAffectVisible" val="&amp;BЛазурная пентаграмма ярко сверкает здесь.&amp;n" />
 		<message type="kRoomAffectPkVisible" val="&amp;BЛазурная пентаграмма &amp;Rс кровавым отблеском&amp;B ярко сверкает здесь.&amp;n" />
+	</msg_sheaf>
+	<msg_sheaf id="kDazzle">
+		<name val="ослепить" />
+	</msg_sheaf>
+	<msg_sheaf id="kCreateArmor">
+		<name val="создать доспех" />
+	</msg_sheaf>
+	<msg_sheaf id="kDeadlyFogTick">
+		<name val="туман смерти (тик)" />
+	</msg_sheaf>
+	<msg_sheaf id="kLowerEffectiveness">
+		<name val="снижение боеспособности" />
+	</msg_sheaf>
+	<msg_sheaf id="kNoInjure">
+		<name val="ранение" />
+	</msg_sheaf>
+	<msg_sheaf id="kNoCharge">
+		<name val="натиск" />
+	</msg_sheaf>
+	<msg_sheaf id="kConfuse">
+		<name val="ошарашен" />
+	</msg_sheaf>
+	<msg_sheaf id="kTestOne">
+		<name val="тест 1" />
+	</msg_sheaf>
+	<msg_sheaf id="kTestTwo">
+		<name val="тест 2" />
+	</msg_sheaf>
+	<msg_sheaf id="kTestThree">
+		<name val="тест 3" />
+	</msg_sheaf>
+	<msg_sheaf id="kTestFour">
+		<name val="тест 4" />
+	</msg_sheaf>
+	<msg_sheaf id="kTestFive">
+		<name val="тест 5" />
 	</msg_sheaf>
 </msg_container>

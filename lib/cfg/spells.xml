@@ -2,7 +2,7 @@
 <!--
 Формат (пример):
     <spell id="kPowerDeafness" element="kTypeMind" mode="kEnabled">
-        <name rus="длительная глухота" eng="power deafness"/>
+        <name eng="power deafness"/>
         <components>
             <verbal/>
             <weave/>
@@ -68,14 +68,14 @@ base_stat id - (например "kWis") какой берем параметр,
 -->
 <spells>
     <spell id="kUndefined" element="kUndefined" mode="kDisabled">
-        <name rus="!undefined!" eng="!undefined!"/>
+        <name eng="!undefined!"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="40" min="30" change="1"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
     </spell>
     <spell id="kArmor" element="kLight" mode="kEnabled">
-        <name rus="защита" eng="armor"/>
+        <name eng="armor"/>
         <components>
             <verbal/>
             <weave/>
@@ -112,7 +112,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kTeleport" element="kAir" mode="kEnabled">
-        <name rus="прыжок" eng="teleport"/>
+        <name eng="teleport"/>
         <components>
             <verbal/>
             <weave/>
@@ -137,7 +137,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kBless" element="kLight" mode="kEnabled">
-        <name rus="доблесть" eng="bless"/>
+        <name eng="bless"/>
         <components>
             <verbal/>
             <weave/>
@@ -172,7 +172,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kBlindness" element="kDark" mode="kEnabled">
-        <name rus="слепота" eng="blind"/>
+        <name eng="blind"/>
         <components>
             <verbal/>
             <weave/>
@@ -208,14 +208,14 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kDazzle" element="kDark" mode="kService">
-        <name rus="ослепить" eng="dazzle"/>
+        <name eng="dazzle"/>
         <misc pos="kFight" violent="Y" danger="1"/>
         <mana max="70" min="40" change="2"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
         <flags val="kMagAffects|kNpcAffectPc"/>
     </spell>
     <spell id="kBurningHands" element="kFire" mode="kEnabled">
-        <name rus="горящие руки" eng="burning hands"/>
+        <name eng="burning hands"/>
         <components>
             <verbal/>
             <weave/>
@@ -246,7 +246,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kCallLighting" element="kAir" mode="kEnabled">
-        <name rus="шаровая молния" eng="call lightning"/>
+        <name eng="call lightning"/>
         <components>
             <verbal/>
             <weave/>
@@ -277,7 +277,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kCharm" element="kMind" mode="kEnabled">
-        <name rus="подчинить разум" eng="mind control"/>
+        <name eng="mind control"/>
         <components>
             <verbal/>
             <weave/>
@@ -297,7 +297,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
 </spell>
     <spell id="kChillTouch" element="kWater" mode="kEnabled">
-        <name rus="ледяное прикосновение" eng="chill touch"/>
+        <name eng="chill touch"/>
         <components>
             <weave/>
         </components>
@@ -330,7 +330,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kClone" element="kDark" mode="kEnabled">
-        <name rus="клонирование" eng="clone"/>
+        <name eng="clone"/>
         <components>
             <verbal/>
             <weave/>
@@ -361,7 +361,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kIceBolts" element="kWater" mode="kEnabled">
-        <name rus="ледяные стрелы" eng="ice bolts"/>
+        <name eng="ice bolts"/>
         <components>
             <verbal/>
             <weave/>
@@ -392,7 +392,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kControlWeather" element="kAir" mode="kEnabled">
-        <name rus="контроль погоды" eng="weather control"/>
+        <name eng="weather control"/>
         <components>
             <verbal/>
             <weave/>
@@ -412,7 +412,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
 </spell>
     <spell id="kCreateFood" element="kLife" mode="kEnabled">
-        <name rus="создать пищу" eng="create food"/>
+        <name eng="create food"/>
         <components>
             <verbal/>
             <weave/>
@@ -431,7 +431,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kCreateWater" element="kWater" mode="kEnabled">
-        <name rus="создать воду" eng="create water"/>
+        <name eng="create water"/>
         <components>
             <verbal/>
             <weave/>
@@ -451,7 +451,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
 </spell>
     <spell id="kCureBlind" element="kLight" mode="kEnabled">
-        <name rus="вылечить слепоту" eng="cure blind"/>
+        <name eng="cure blind"/>
         <components>
             <verbal/>
             <weave/>
@@ -478,7 +478,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kCureCritic" element="kLife" mode="kEnabled">
-        <name rus="критическое исцеление" eng="critical cure"/>
+        <name eng="critical cure"/>
         <components>
             <verbal/>
             <weave/>
@@ -505,7 +505,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kCureLight" element="kLife" mode="kEnabled">
-        <name rus="легкое исцеление" eng="light cure"/>
+        <name eng="light cure"/>
         <components>
             <verbal/>
             <weave/>
@@ -532,7 +532,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kCurse" element="kDark" mode="kEnabled">
-        <name rus="проклятие" eng="curse"/>
+        <name eng="curse"/>
         <components>
             <verbal/>
             <weave/>
@@ -570,7 +570,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kDetectAlign" element="kMind" mode="kEnabled">
-        <name rus="определение наклонностей" eng="detect alignment"/>
+        <name eng="detect alignment"/>
         <components>
             <verbal/>
             <weave/>
@@ -601,7 +601,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kDetectInvis" element="kMind" mode="kEnabled">
-        <name rus="видеть невидимое" eng="detect invisible"/>
+        <name eng="detect invisible"/>
         <components>
             <verbal/>
             <weave/>
@@ -632,7 +632,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kDetectMagic" element="kMind" mode="kEnabled">
-        <name rus="определение магии" eng="detect magic"/>
+        <name eng="detect magic"/>
         <components>
             <verbal/>
             <weave/>
@@ -663,7 +663,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kDetectPoison" element="kMind" mode="kEnabled">
-        <name rus="определение яда" eng="detect poison"/>
+        <name eng="detect poison"/>
         <components>
             <verbal/>
             <weave/>
@@ -694,7 +694,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kDispelEvil" element="kLight" mode="kEnabled">
-        <name rus="изгнать зло" eng="dispel evil"/>
+        <name eng="dispel evil"/>
         <components>
             <verbal/>
             <weave/>
@@ -731,7 +731,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kEarthquake" element="kEarth" mode="kEnabled">
-        <name rus="землетрясение" eng="earthquake"/>
+        <name eng="earthquake"/>
         <components>
             <verbal/>
             <weave/>
@@ -768,7 +768,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kEnchantWeapon" element="kLight" mode="kEnabled">
-        <name rus="заколдовать оружие" eng="enchant weapon"/>
+        <name eng="enchant weapon"/>
         <components>
             <verbal/>
             <weave/>
@@ -788,7 +788,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kEnergyDrain" element="kDark" mode="kEnabled">
-        <name rus="истощить энергию" eng="energy drain"/>
+        <name eng="energy drain"/>
         <components>
             <verbal/>
             <weave/>
@@ -827,7 +827,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kFireball" element="kFire" mode="kEnabled">
-        <name rus="огненный шар" eng="fireball"/>
+        <name eng="fireball"/>
         <components>
             <verbal/>
             <weave/>
@@ -854,7 +854,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kHarm" element="kDark" mode="kEnabled">
-        <name rus="вред" eng="harm"/>
+        <name eng="harm"/>
         <components>
             <verbal/>
             <weave/>
@@ -881,7 +881,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kHeal" element="kLife" mode="kEnabled">
-        <name rus="исцеление" eng="heal"/>
+        <name eng="heal"/>
         <components>
             <verbal/>
             <weave/>
@@ -908,7 +908,7 @@ base_stat id - (например "kWis") какой берем параметр,
             </talent_actions>
         </spell>
     <spell id="kInvisible" element="kMind" mode="kEnabled">
-        <name rus="невидимость" eng="invisible"/>
+        <name eng="invisible"/>
         <components>
             <verbal/>
             <weave/>
@@ -945,7 +945,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kLightingBolt" element="kAir" mode="kEnabled">
-        <name rus="молния" eng="lightning bolt"/>
+        <name eng="lightning bolt"/>
         <components>
             <verbal/>
             <weave/>
@@ -977,7 +977,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kLocateObject" element="kMind" mode="kEnabled">
-        <name rus="разыскать предмет" eng="locate object"/>
+        <name eng="locate object"/>
         <components>
             <verbal/>
             <weave/>
@@ -997,7 +997,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
 </spell>
     <spell id="kMagicMissile" element="kAir" mode="kEnabled">
-        <name rus="магическая стрела" eng="magic missle"/>
+        <name eng="magic missle"/>
         <components>
             <verbal/>
             <weave/>
@@ -1025,7 +1025,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kCloudOfArrowsBolt" element="kAir" mode="kService">
-        <name rus="облако стрел" eng="cloud of arrows bolt"/>
+        <name eng="cloud of arrows bolt"/>
         <!-- Internal proc of the kCloudOfArrows affect: one magic bolt per melee hit.
              Cast from fight_hit.cpp via CallMagic. Weave but no verbal, so silence does
              not stop it; mana 0 (the affect already paid for it); single-target. -->
@@ -1054,7 +1054,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kPoison" element="kDark" mode="kEnabled">
-        <name rus="яд" eng="poison"/>
+        <name eng="poison"/>
         <components>
             <verbal/>
             <weave/>
@@ -1098,7 +1098,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kProtectFromEvil" element="kLight" mode="kEnabled">
-        <name rus="защита от тьмы" eng="protect evil"/>
+        <name eng="protect evil"/>
         <components>
             <verbal/>
             <weave/>
@@ -1129,7 +1129,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kRemoveCurse" element="kLight" mode="kEnabled">
-        <name rus="снять проклятие" eng="remove curse"/>
+        <name eng="remove curse"/>
         <components>
             <verbal/>
             <weave/>
@@ -1157,7 +1157,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kSanctuary" element="kLight" mode="kEnabled">
-        <name rus="освящение" eng="sanctuary"/>
+        <name eng="sanctuary"/>
         <components>
             <verbal/>
             <weave/>
@@ -1197,7 +1197,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kShockingGasp" element="kFire" mode="kEnabled">
-        <name rus="обжигающая хватка" eng="shocking grasp"/>
+        <name eng="shocking grasp"/>
         <components>
             <weave/>
         </components>
@@ -1223,7 +1223,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kSleep" element="kMind" mode="kEnabled">
-        <name rus="сон" eng="sleep"/>
+        <name eng="sleep"/>
         <components>
             <verbal/>
             <weave/>
@@ -1261,7 +1261,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kStrength" element="kLife" mode="kEnabled">
-        <name rus="сила" eng="strength"/>
+        <name eng="strength"/>
         <components>
             <verbal/>
             <weave/>
@@ -1296,7 +1296,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kSummon" element="kMind" mode="kEnabled">
-        <name rus="призвать" eng="summon"/>
+        <name eng="summon"/>
         <components>
             <verbal/>
             <weave/>
@@ -1316,7 +1316,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
 </spell>
     <spell id="kPatronage" element="kLight" mode="kEnabled">
-        <name rus="покровительство" eng="patronage"/>
+        <name eng="patronage"/>
         <components>
             <verbal/>
             <weave/>
@@ -1350,7 +1350,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kWorldOfRecall" element="kMind" mode="kEnabled">
-        <name rus="слово возврата" eng="recall"/>
+        <name eng="recall"/>
         <components>
             <verbal/>
             <weave/>
@@ -1375,7 +1375,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kRemovePoison" element="kLife" mode="kEnabled">
-        <name rus="удалить яд" eng="remove poison"/>
+        <name eng="remove poison"/>
         <components>
             <verbal/>
             <weave/>
@@ -1403,7 +1403,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kSenseLife" element="kLife" mode="kEnabled">
-        <name rus="определение жизни" eng="sense life"/>
+        <name eng="sense life"/>
         <components>
             <verbal/>
             <weave/>
@@ -1434,7 +1434,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kAnimateDead" element="kDark" mode="kEnabled">
-        <name rus="поднять труп" eng="animate dead"/>
+        <name eng="animate dead"/>
         <components>
             <verbal/>
             <weave/>
@@ -1454,7 +1454,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kDispelGood" element="kDark" mode="kEnabled">
-        <name rus="рассеять свет" eng="dispel good"/>
+        <name eng="dispel good"/>
         <components>
             <verbal/>
             <weave/>
@@ -1491,7 +1491,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kGroupArmor" element="kLight" mode="kEnabled">
-        <name rus="групповая защита" eng="group armor"/>
+        <name eng="group armor"/>
         <components>
             <verbal/>
             <weave/>
@@ -1520,7 +1520,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kGroupHeal" element="kLife" mode="kEnabled">
-        <name rus="групповое исцеление" eng="group heal"/>
+        <name eng="group heal"/>
         <components>
             <verbal/>
             <weave/>
@@ -1547,7 +1547,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kGreatHeal" element="kLife" mode="kEnabled">
-        <name rus="великое исцеление" eng="great heal"/>
+        <name eng="great heal"/>
         <components>
             <verbal/>
             <weave/>
@@ -1578,7 +1578,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kGroupRecall" element="kMind" mode="kEnabled">
-        <name rus="групповой возврат" eng="group recall"/>
+        <name eng="group recall"/>
         <components>
             <verbal/>
             <weave/>
@@ -1602,7 +1602,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kInfravision" element="kLight" mode="kEnabled">
-        <name rus="видение ночью" eng="infravision"/>
+        <name eng="infravision"/>
         <components>
             <verbal/>
             <weave/>
@@ -1633,7 +1633,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kWaterwalk" element="kWater" mode="kEnabled">
-        <name rus="водохождение" eng="waterwalk"/>
+        <name eng="waterwalk"/>
         <components>
             <verbal/>
             <weave/>
@@ -1664,7 +1664,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kCureSerious" element="kLife" mode="kEnabled">
-        <name rus="серьезное исцеление" eng="serious cure"/>
+        <name eng="serious cure"/>
         <components>
             <verbal/>
             <weave/>
@@ -1691,7 +1691,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kGroupStrength" element="kLife" mode="kEnabled">
-        <name rus="групповая сила" eng="group strength"/>
+        <name eng="group strength"/>
         <components>
             <verbal/>
             <weave/>
@@ -1720,7 +1720,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kHold" element="kMind" mode="kEnabled">
-        <name rus="оцепенение" eng="hold"/>
+        <name eng="hold"/>
         <components>
             <verbal/>
             <weave/>
@@ -1757,7 +1757,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kPowerHold" element="kMind" mode="kEnabled">
-        <name rus="длительное оцепенение" eng="power hold"/>
+        <name eng="power hold"/>
         <components>
             <verbal/>
             <weave/>
@@ -1794,7 +1794,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kMassHold" element="kMind" mode="kEnabled">
-        <name rus="массовое оцепенение" eng="mass hold"/>
+        <name eng="mass hold"/>
         <components>
             <verbal/>
             <weave/>
@@ -1824,7 +1824,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kFly" element="kAir" mode="kEnabled">
-        <name rus="полет" eng="fly"/>
+        <name eng="fly"/>
         <components>
             <verbal/>
             <weave/>
@@ -1856,7 +1856,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kBrokenChains" element="kMind" mode="kEnabled">
-        <name rus="разбитые оковы" eng="broken chains"/>
+        <name eng="broken chains"/>
         <components>
             <verbal/>
             <weave/>
@@ -1887,7 +1887,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kNoflee" element="kMind" mode="kEnabled">
-        <name rus="приковать противника" eng="noflee"/>
+        <name eng="noflee"/>
         <components>
             <verbal/>
             <weave/>
@@ -1923,7 +1923,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kCreateLight" element="kLight" mode="kEnabled">
-        <name rus="создать свет" eng="create light"/>
+        <name eng="create light"/>
         <components>
             <verbal/>
             <weave/>
@@ -1942,7 +1942,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kDarkness" element="kDark" mode="kEnabled">
-        <name rus="тьма" eng="darkness"/>
+        <name eng="darkness"/>
         <components>
             <verbal/>
             <weave/>
@@ -1974,7 +1974,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kStoneSkin" element="kEarth" mode="kEnabled">
-        <name rus="каменная кожа" eng="stoneskin"/>
+        <name eng="stoneskin"/>
         <components>
             <verbal/>
             <weave/>
@@ -2005,7 +2005,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kCloudly" element="kWater" mode="kEnabled">
-        <name rus="затуманивание" eng="cloudly"/>
+        <name eng="cloudly"/>
         <components>
             <verbal/>
             <weave/>
@@ -2039,7 +2039,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kSilence" element="kMind" mode="kEnabled">
-        <name rus="молчание" eng="sielence"/>
+        <name eng="sielence"/>
         <components>
             <verbal/>
             <weave/>
@@ -2075,7 +2075,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kLight" element="kLight" mode="kEnabled">
-        <name rus="свет" eng="sun shine"/>
+        <name eng="sun shine"/>
         <components>
             <verbal/>
             <weave/>
@@ -2107,7 +2107,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kChainLighting" element="kAir" mode="kEnabled">
-        <name rus="цепь молний" eng="chain lightning"/>
+        <name eng="chain lightning"/>
         <components>
             <verbal/>
             <weave/>
@@ -2138,7 +2138,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kFireBlast" element="kFire" mode="kStability">
-        <name rus="огненный поток" eng="fireblast"/>
+        <name eng="fireblast"/>
         <components>
             <verbal/>
             <weave/>
@@ -2169,7 +2169,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kGodsWrath" element="kFire" mode="kEnabled">
-        <name rus="гнев богов" eng="gods wrath"/>
+        <name eng="gods wrath"/>
         <components>
             <verbal/>
             <weave/>
@@ -2196,7 +2196,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kWeaknes" element="kLife" mode="kEnabled">
-        <name rus="слабость" eng="weakness"/>
+        <name eng="weakness"/>
         <components>
             <verbal/>
             <weave/>
@@ -2235,7 +2235,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kGroupInvisible" element="kMind" mode="kEnabled">
-        <name rus="групповая невидимость" eng="group invisible"/>
+        <name eng="group invisible"/>
         <components>
             <verbal/>
             <weave/>
@@ -2264,7 +2264,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kShadowCloak" element="kDark" mode="kEnabled">
-        <name rus="мантия теней" eng="shadow cloak"/>
+        <name eng="shadow cloak"/>
         <components>
             <verbal/>
             <weave/>
@@ -2295,7 +2295,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kAcid" element="kWater" mode="kEnabled">
-        <name rus="кислота" eng="acid"/>
+        <name eng="acid"/>
         <components>
             <verbal/>
             <weave/>
@@ -2327,7 +2327,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kRepair" element="kLight" mode="kEnabled">
-        <name rus="починка" eng="repair"/>
+        <name eng="repair"/>
         <components>
             <verbal/>
             <weave/>
@@ -2346,7 +2346,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kEnlarge" element="kLife" mode="kEnabled">
-        <name rus="увеличение" eng="enlarge"/>
+        <name eng="enlarge"/>
         <components>
             <verbal/>
             <weave/>
@@ -2381,7 +2381,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kFear" element="kDark" mode="kEnabled">
-        <name rus="страх" eng="fear"/>
+        <name eng="fear"/>
         <components>
             <verbal/>
             <weave/>
@@ -2401,7 +2401,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
 </spell>
     <spell id="kSacrifice" element="kDark" mode="kEnabled">
-        <name rus="высосать жизнь" eng="sacrifice"/>
+        <name eng="sacrifice"/>
         <components>
             <verbal/>
             <weave/>
@@ -2455,7 +2455,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kWeb" element="kMind" mode="kEnabled">
-        <name rus="сеть" eng="web"/>
+        <name eng="web"/>
         <components>
             <verbal/>
             <weave/>
@@ -2494,7 +2494,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kBlink" element="kLight" mode="kEnabled">
-        <name rus="мигание" eng="blink"/>
+        <name eng="blink"/>
         <components>
             <verbal/>
             <weave/>
@@ -2525,7 +2525,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kRemoveHold" element="kLight" mode="kEnabled">
-        <name rus="снять оцепенение" eng="remove hold"/>
+        <name eng="remove hold"/>
         <components>
             <verbal/>
             <weave/>
@@ -2552,14 +2552,14 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kCamouflage" element="kUndefined" mode="kService">
-        <name rus="!маскировка!" eng="!set by skill!"/>
+        <name eng="!set by skill!"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
     </spell>
     <spell id="kPowerBlindness" element="kDark" mode="kEnabled">
-        <name rus="полная слепота" eng="power blind"/>
+        <name eng="power blind"/>
         <components>
             <verbal/>
             <weave/>
@@ -2599,7 +2599,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kMassBlindness" element="kDark" mode="kEnabled">
-        <name rus="массовая слепота" eng="mass blind"/>
+        <name eng="mass blind"/>
         <components>
             <verbal/>
             <weave/>
@@ -2628,7 +2628,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kPowerSilence" element="kMind" mode="kEnabled">
-        <name rus="длительное молчание" eng="power sielence"/>
+        <name eng="power sielence"/>
         <components>
             <verbal/>
             <weave/>
@@ -2664,7 +2664,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kExtraHits" element="kLife" mode="kEnabled">
-        <name rus="увеличить жизнь" eng="extra hits"/>
+        <name eng="extra hits"/>
         <components>
             <verbal/>
             <weave/>
@@ -2691,7 +2691,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kResurrection" element="kDark" mode="kEnabled">
-        <name rus="оживить труп" eng="ressurection"/>
+        <name eng="ressurection"/>
         <components>
             <verbal/>
             <weave/>
@@ -2711,7 +2711,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kMagicShield" element="kLight" mode="kEnabled">
-        <name rus="волшебный щит" eng="magic shield"/>
+        <name eng="magic shield"/>
         <components>
             <verbal/>
             <weave/>
@@ -2748,7 +2748,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kForbidden" element="kMind" mode="kEnabled">
-        <name rus="запечатать комнату" eng="forbidden"/>
+        <name eng="forbidden"/>
         <components>
             <verbal/>
             <weave/>
@@ -2790,7 +2790,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kMassSilence" element="kMind" mode="kEnabled">
-        <name rus="массовое молчание" eng="mass sielence"/>
+        <name eng="mass sielence"/>
         <components>
             <verbal/>
             <weave/>
@@ -2819,7 +2819,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kRemoveSilence" element="kLight" mode="kEnabled">
-        <name rus="снять молчание" eng="remove sielence"/>
+        <name eng="remove sielence"/>
         <components>
             <verbal/>
             <weave/>
@@ -2846,7 +2846,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kDamageLight" element="kDark" mode="kEnabled">
-        <name rus="легкий вред" eng="light damage"/>
+        <name eng="light damage"/>
         <components>
             <verbal/>
             <weave/>
@@ -2873,7 +2873,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kDamageSerious" element="kDark" mode="kEnabled">
-        <name rus="серьезный вред" eng="serious damage"/>
+        <name eng="serious damage"/>
         <components>
             <verbal/>
             <weave/>
@@ -2904,7 +2904,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kDamageCritic" element="kDark" mode="kEnabled">
-        <name rus="критический вред" eng="critical damage"/>
+        <name eng="critical damage"/>
         <components>
             <verbal/>
             <weave/>
@@ -2935,7 +2935,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kMassCurse" element="kDark" mode="kEnabled">
-        <name rus="массовое проклятие" eng="mass curse"/>
+        <name eng="mass curse"/>
         <components>
             <verbal/>
             <weave/>
@@ -2964,7 +2964,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kArmageddon" element="kAir" mode="kEnabled">
-        <name rus="суд богов" eng="armageddon"/>
+        <name eng="armageddon"/>
         <components>
             <verbal/>
             <weave/>
@@ -2995,7 +2995,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kGroupFly" element="kAir" mode="kEnabled">
-        <name rus="групповой полет" eng="group fly"/>
+        <name eng="group fly"/>
         <components>
             <verbal/>
             <weave/>
@@ -3024,7 +3024,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kGroupBless" element="kLight" mode="kEnabled">
-        <name rus="групповая доблесть" eng="group bless"/>
+        <name eng="group bless"/>
         <components>
             <verbal/>
             <weave/>
@@ -3053,7 +3053,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kResfresh" element="kLife" mode="kEnabled">
-        <name rus="восстановление" eng="refresh"/>
+        <name eng="refresh"/>
         <components>
             <verbal/>
             <weave/>
@@ -3085,7 +3085,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kStunning" element="kEarth" mode="kEnabled">
-        <name rus="каменное проклятие" eng="stunning"/>
+        <name eng="stunning"/>
         <components>
             <verbal/>
             <weave/>
@@ -3117,35 +3117,35 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kHide" element="kUndefined" mode="kService">
-        <name rus="!спрятался!" eng="!set by skill!"/>
+        <name eng="!set by skill!"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
     </spell>
     <spell id="kSneak" element="kUndefined" mode="kService">
-        <name rus="!крадется!" eng="!set by skill!"/>
+        <name eng="!set by skill!"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
     </spell>
     <spell id="kDrunked" element="kUndefined" mode="kService">
-        <name rus="!опьянение!" eng="!set by programm!"/>
+        <name eng="!set by programm!"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
     </spell>
     <spell id="kAbstinent" element="kUndefined" mode="kService">
-        <name rus="!абстиненция!" eng="!set by programm!"/>
+        <name eng="!set by programm!"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
     </spell>
     <spell id="kFullFeed" element="kLife" mode="kEnabled">
-        <name rus="насыщение" eng="full"/>
+        <name eng="full"/>
         <components>
             <verbal/>
             <weave/>
@@ -3168,7 +3168,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kColdWind" element="kAir" mode="kEnabled">
-        <name rus="ледяной ветер" eng="cold wind"/>
+        <name eng="cold wind"/>
         <components>
             <verbal/>
             <weave/>
@@ -3206,35 +3206,35 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kBattle" element="kUndefined" mode="kService">
-        <name rus="!получил в бою!" eng="!set by programm!"/>
+        <name eng="!set by programm!"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
     </spell>
     <spell id="kHaemorrhage" element="kUndefined" mode="kService">
-        <name rus="!кровотечение!" eng="!set by programm!"/>
+        <name eng="!set by programm!"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
     </spell>
     <spell id="kCourage" element="kUndefined" mode="kService">
-        <name rus="!ярость!" eng="!set by programm!"/>
+        <name eng="!set by programm!"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
     </spell>
     <spell id="kFrenzy" element="kUndefined" mode="kService">
-        <name rus="исступление" eng="!set by programm!"/>
+        <name eng="!set by programm!"/>
         <misc pos="kFight" violent="N" danger="0"/>
         <mana max="5" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
     </spell>
     <spell id="kWaterbreath" element="kWater" mode="kEnabled">
-        <name rus="дышать водой" eng="waterbreath"/>
+        <name eng="waterbreath"/>
         <components>
             <verbal/>
             <weave/>
@@ -3265,7 +3265,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kSlowdown" element="kMind" mode="kEnabled">
-        <name rus="медлительность" eng="slow"/>
+        <name eng="slow"/>
         <components>
             <verbal/>
             <weave/>
@@ -3308,7 +3308,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kHaste" element="kMind" mode="kEnabled">
-        <name rus="ускорение" eng="haste"/>
+        <name eng="haste"/>
         <components>
             <verbal/>
             <weave/>
@@ -3343,7 +3343,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kMassSlow" element="kMind" mode="kEnabled">
-        <name rus="массовая медлительность" eng="mass slow"/>
+        <name eng="mass slow"/>
         <components>
             <verbal/>
             <weave/>
@@ -3372,7 +3372,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kGroupHaste" element="kMind" mode="kEnabled">
-        <name rus="групповое ускорение" eng="group haste"/>
+        <name eng="group haste"/>
         <components>
             <verbal/>
             <weave/>
@@ -3401,7 +3401,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kGodsShield" element="kLight" mode="kEnabled">
-        <name rus="защита богов" eng="gods shield"/>
+        <name eng="gods shield"/>
         <components>
             <verbal/>
             <weave/>
@@ -3438,7 +3438,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kFever" element="kLife" mode="kEnabled">
-        <name rus="лихорадка" eng="plaque"/>
+        <name eng="plaque"/>
         <components>
             <verbal/>
             <weave/>
@@ -3494,7 +3494,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kCureFever" element="kLife" mode="kEnabled">
-        <name rus="вылечить лихорадку" eng="cure plaque"/>
+        <name eng="cure plaque"/>
         <components>
             <verbal/>
             <weave/>
@@ -3521,7 +3521,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kAwareness" element="kMind" mode="kEnabled">
-        <name rus="внимательность" eng="awarness"/>
+        <name eng="awarness"/>
         <components>
             <verbal/>
             <weave/>
@@ -3555,14 +3555,14 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kReligion" element="kUndefined" mode="kService">
-        <name rus="!молитва или жертва!" eng="!pray or donate!"/>
+        <name eng="!pray or donate!"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
     </spell>
     <spell id="kAirShield" element="kAir" mode="kEnabled">
-        <name rus="воздушный щит" eng="air shield"/>
+        <name eng="air shield"/>
         <components>
             <verbal/>
             <weave/>
@@ -3596,7 +3596,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kPortal" element="kLight" mode="kEnabled">
-        <name rus="переход" eng="portal"/>
+        <name eng="portal"/>
         <components>
             <verbal/>
             <weave/>
@@ -3616,7 +3616,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
 </spell>
     <spell id="kPortalTimer" element="kLight" mode="kService">
-        <name rus="врата" eng="portal"/>
+        <name eng="portal"/>
         <components>
             <verbal/>
             <weave/>
@@ -3627,7 +3627,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <flags val="kMagManual"/>
     </spell>
     <spell id="kDispellMagic" element="kLight" mode="kEnabled">
-        <name rus="развеять магию" eng="dispel magic"/>
+        <name eng="dispel magic"/>
         <components>
             <verbal/>
             <weave/>
@@ -3663,7 +3663,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kSummonKeeper" element="kLight" mode="kEnabled">
-        <name rus="защитник" eng="keeper"/>
+        <name eng="keeper"/>
         <components>
             <verbal/>
             <weave/>
@@ -3691,7 +3691,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kFastRegeneration" element="kLife" mode="kEnabled">
-        <name rus="быстрое восстановление" eng="fast regeneration"/>
+        <name eng="fast regeneration"/>
         <components>
             <verbal/>
             <weave/>
@@ -3725,7 +3725,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kCreateWeapon" element="kLight" mode="kEnabled">
-        <name rus="создать оружие" eng="create weapon"/>
+        <name eng="create weapon"/>
         <components>
             <verbal/>
             <weave/>
@@ -3746,7 +3746,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
 </spell>
     <spell id="kCreateArmor" element="kLight" mode="kEnabled">
-        <name rus="создать доспех" eng="create armor"/>
+        <name eng="create armor"/>
         <components>
             <verbal/>
             <weave/>
@@ -3767,7 +3767,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kFireShield" element="kFire" mode="kEnabled">
-        <name rus="огненный щит" eng="fire shield"/>
+        <name eng="fire shield"/>
         <components>
             <verbal/>
             <weave/>
@@ -3801,7 +3801,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kRelocate" element="kAir" mode="kEnabled">
-        <name rus="переместиться" eng="relocate"/>
+        <name eng="relocate"/>
         <components>
             <verbal/>
             <weave/>
@@ -3826,7 +3826,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kSummonFirekeeper" element="kFire" mode="kEnabled">
-        <name rus="огненный защитник" eng="fire keeper"/>
+        <name eng="fire keeper"/>
         <components>
             <verbal/>
             <weave/>
@@ -3851,7 +3851,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kIceShield" element="kWater" mode="kEnabled">
-        <name rus="ледяной щит" eng="ice protect"/>
+        <name eng="ice protect"/>
         <components>
             <verbal/>
             <weave/>
@@ -3885,7 +3885,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kIceStorm" element="kWater" mode="kEnabled">
-        <name rus="ледяной шторм" eng="ice storm"/>
+        <name eng="ice storm"/>
         <components>
             <verbal/>
             <weave/>
@@ -3924,7 +3924,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kLessening" element="kLife" mode="kEnabled">
-        <name rus="уменьшение" eng="enless"/>
+        <name eng="enless"/>
         <components>
             <verbal/>
             <weave/>
@@ -3959,7 +3959,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kShineFlash" element="kFire" mode="kEnabled">
-        <name rus="яркий блик" eng="shine flash"/>
+        <name eng="shine flash"/>
         <components>
             <verbal/>
             <weave/>
@@ -3998,7 +3998,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kMadness" element="kMind" mode="kEnabled">
-        <name rus="безумие" eng="madness"/>
+        <name eng="madness"/>
         <components>
             <verbal/>
             <weave/>
@@ -4032,7 +4032,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kGroupMagicGlass" element="kAir" mode="kEnabled">
-        <name rus="магическое зеркало" eng="group magicglass"/>
+        <name eng="group magicglass"/>
         <components>
             <verbal/>
             <weave/>
@@ -4061,7 +4061,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kCloudOfArrows" element="kFire" mode="kEnabled">
-        <name rus="облако стрел" eng="cloud of arrous"/>
+        <name eng="cloud of arrous"/>
         <components>
             <verbal/>
             <weave/>
@@ -4092,7 +4092,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kVacuum" element="kDark" mode="kEnabled">
-        <name rus="круг пустоты" eng="vacuum sphere"/>
+        <name eng="vacuum sphere"/>
         <components>
             <verbal/>
             <weave/>
@@ -4125,7 +4125,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kMeteorStorm" element="kEarth" mode="kEnabled">
-        <name rus="метеоритный дождь" eng="meteor storm"/>
+        <name eng="meteor storm"/>
         <components>
             <verbal/>
             <weave/>
@@ -4148,7 +4148,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kStoneHands" element="kEarth" mode="kEnabled">
-        <name rus="каменные руки" eng="stonehand"/>
+        <name eng="stonehand"/>
         <components>
             <verbal/>
             <weave/>
@@ -4179,7 +4179,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kMindless" element="kMind" mode="kEnabled">
-        <name rus="повреждение разума" eng="mindness"/>
+        <name eng="mindness"/>
         <components>
             <verbal/>
             <weave/>
@@ -4216,7 +4216,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kPrismaticAura" element="kLight" mode="kEnabled">
-        <name rus="призматическая аура" eng="prismatic aura"/>
+        <name eng="prismatic aura"/>
         <components>
             <verbal/>
             <weave/>
@@ -4256,7 +4256,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kEviless" element="kDark" mode="kEnabled">
-        <name rus="силы зла" eng="eviless"/>
+        <name eng="eviless"/>
         <components>
             <verbal/>
             <weave/>
@@ -4302,7 +4302,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kAirAura" element="kAir" mode="kEnabled">
-        <name rus="воздушная аура" eng="air aura"/>
+        <name eng="air aura"/>
         <components>
             <verbal/>
             <weave/>
@@ -4337,7 +4337,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kFireAura" element="kFire" mode="kEnabled">
-        <name rus="огненная аура" eng="fire aura"/>
+        <name eng="fire aura"/>
         <components>
             <verbal/>
             <weave/>
@@ -4372,7 +4372,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kIceAura" element="kWater" mode="kEnabled">
-        <name rus="ледяная аура" eng="ice aura"/>
+        <name eng="ice aura"/>
         <components>
             <verbal/>
             <weave/>
@@ -4407,7 +4407,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kShock" element="kLight" mode="kEnabled">
-        <name rus="шок" eng="shock"/>
+        <name eng="shock"/>
         <components>
             <verbal/>
             <weave/>
@@ -4449,7 +4449,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kMagicGlass" element="kLight" mode="kEnabled">
-        <name rus="зеркало магии" eng="magic glassie"/>
+        <name eng="magic glassie"/>
         <components>
             <verbal/>
             <weave/>
@@ -4480,7 +4480,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kGroupSanctuary" element="kLight" mode="kEnabled">
-        <name rus="групповое освящение" eng="group sanctuary"/>
+        <name eng="group sanctuary"/>
         <components>
             <verbal/>
             <weave/>
@@ -4509,7 +4509,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kGroupPrismaticAura" element="kLight" mode="kEnabled">
-        <name rus="групповая призматическая аура" eng="group prismatic aura"/>
+        <name eng="group prismatic aura"/>
         <components>
             <verbal/>
             <weave/>
@@ -4538,7 +4538,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kDeafness" element="kMind" mode="kEnabled">
-        <name rus="глухота" eng="deafness"/>
+        <name eng="deafness"/>
         <components>
             <verbal/>
             <weave/>
@@ -4569,7 +4569,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kPowerDeafness" element="kMind" mode="kEnabled">
-        <name rus="длительная глухота" eng="power deafness"/>
+        <name eng="power deafness"/>
         <components>
             <verbal/>
             <weave/>
@@ -4600,7 +4600,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kRemoveDeafness" element="kLife" mode="kEnabled">
-        <name rus="снять глухоту" eng="remove deafness"/>
+        <name eng="remove deafness"/>
         <components>
             <verbal/>
             <weave/>
@@ -4627,7 +4627,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kMassDeafness" element="kMind" mode="kEnabled">
-        <name rus="массовая глухота" eng="mass deafness"/>
+        <name eng="mass deafness"/>
         <components>
             <verbal/>
             <weave/>
@@ -4656,7 +4656,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kDustStorm" element="kEarth" mode="kEnabled">
-        <name rus="пылевая буря" eng="dust storm"/>
+        <name eng="dust storm"/>
         <components>
             <verbal/>
             <weave/>
@@ -4701,7 +4701,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kEarthfall" element="kEarth" mode="kEnabled">
-        <name rus="камнепад" eng="earth fall"/>
+        <name eng="earth fall"/>
         <components>
             <verbal/>
             <weave/>
@@ -4740,7 +4740,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kSonicWave" element="kAir" mode="kStability">
-        <name rus="звуковая волна" eng="sonic wave"/>
+        <name eng="sonic wave"/>
         <components>
             <weave/>
         </components>
@@ -4779,7 +4779,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kHolystrike" element="kLight" mode="kEnabled">
-        <name rus="силы света" eng="holystrike"/>
+        <name eng="holystrike"/>
         <components>
             <verbal/>
             <weave/>
@@ -4829,7 +4829,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kSumonAngel" element="kLight" mode="kEnabled">
-        <name rus="ангел-хранитель" eng="angel"/>
+        <name eng="angel"/>
         <components>
             <verbal/>
             <weave/>
@@ -4849,7 +4849,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kMassFear" element="kDark" mode="kEnabled">
-        <name rus="массовый страх" eng="mass fear"/>
+        <name eng="mass fear"/>
         <components>
             <verbal/>
             <weave/>
@@ -4873,7 +4873,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kFascination" element="kMind" mode="kEnabled">
-        <name rus="обаяние" eng="fascination"/>
+        <name eng="fascination"/>
         <components>
             <verbal/>
             <weave/>
@@ -4906,7 +4906,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kCrying" element="kMind" mode="kEnabled">
-        <name rus="плач" eng="crying"/>
+        <name eng="crying"/>
         <components>
             <verbal/>
             <weave/>
@@ -4952,7 +4952,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kOblivion" element="kDark" mode="kEnabled">
-        <name rus="забвение" eng="oblivion"/>
+        <name eng="oblivion"/>
         <components>
             <verbal/>
             <weave/>
@@ -4984,7 +4984,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kBurdenOfTime" element="kDark" mode="kTesting">
-        <name rus="бремя времени" eng="burden time"/>
+        <name eng="burden time"/>
         <components>
             <verbal/>
             <weave/>
@@ -5020,7 +5020,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kGroupRefresh" element="kLife" mode="kEnabled">
-        <name rus="групповое восстановление" eng="group refresh"/>
+        <name eng="group refresh"/>
         <components>
             <verbal/>
             <weave/>
@@ -5046,7 +5046,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kPeaceful" element="kMind" mode="kEnabled">
-        <name rus="смирение" eng="peaceful"/>
+        <name eng="peaceful"/>
         <components>
             <verbal/>
             <weave/>
@@ -5085,7 +5085,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kMagicBattle" element="kUndefined" mode="kService">
-        <name rus="!получил в бою!" eng="!set by programm!"/>
+        <name eng="!set by programm!"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
@@ -5106,14 +5106,14 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kBerserk" element="kUndefined" mode="kService">
-        <name rus="!предсмертная ярость!" eng="!set by programm!"/>
+        <name eng="!set by programm!"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
     </spell>
     <spell id="kStoneBones" element="kEarth" mode="kEnabled">
-        <name rus="каменные кости" eng="stone bones"/>
+        <name eng="stone bones"/>
         <components>
             <verbal/>
             <weave/>
@@ -5159,7 +5159,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kRoomLight" element="kLight" mode="kEnabled">
-        <name rus="осветить комнату" eng="room light"/>
+        <name eng="room light"/>
         <components>
             <weave/>
         </components>
@@ -5184,7 +5184,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kDeadlyFog" element="kDark" mode="kEnabled">
-        <name rus="туман смерти" eng="deadly fog"/>
+        <name eng="deadly fog"/>
         <components>
             <verbal/>
             <weave/>
@@ -5207,7 +5207,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kDeadlyFogTick" element="kDark" mode="kService">
-        <name rus="туман смерти (тик)" eng="deadly fog tick"/>
+        <name eng="deadly fog tick"/>
         <misc pos="kStand" violent="Y" danger="0"/>
         <mana max="0" min="0" change="0"/>
         <targets val="kTarRoomThis"/>
@@ -5251,7 +5251,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kThunderstorm" element="kAir" mode="kEnabled">
-        <name rus="буря отмщения" eng="storm of vengeance"/>
+        <name eng="storm of vengeance"/>
         <components>
             <verbal/>
             <weave/>
@@ -5274,7 +5274,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kLightWalk" element="kUndefined" mode="kService">
-        <name rus="!легкая поступь!" eng="!set by programm!"/>
+        <name eng="!set by programm!"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
@@ -5290,7 +5290,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kFailure" element="kDark" mode="kEnabled">
-        <name rus="недоля" eng="failure"/>
+        <name eng="failure"/>
         <components>
             <verbal/>
             <weave/>
@@ -5342,14 +5342,14 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kClanPray" element="kUndefined" mode="kService">
-        <name rus="!клановые чары!" eng="!clan affect!"/>
+        <name eng="!clan affect!"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
     </spell>
     <spell id="kGlitterDust" element="kEarth" mode="kEnabled">
-        <name rus="блестящая пыль" eng="glitterdust"/>
+        <name eng="glitterdust"/>
         <components>
             <weave/>
         </components>
@@ -5390,7 +5390,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kScream" element="kAir" mode="kEnabled">
-        <name rus="вопль" eng="scream"/>
+        <name eng="scream"/>
         <components>
             <verbal/>
             <weave/>
@@ -5431,7 +5431,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kCatGrace" element="kLife" mode="kEnabled">
-        <name rus="кошачья ловкость" eng="cats grace"/>
+        <name eng="cats grace"/>
         <components>
             <verbal/>
             <weave/>
@@ -5462,7 +5462,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kBullBody" element="kLife" mode="kEnabled">
-        <name rus="бычье тело" eng="bull body"/>
+        <name eng="bull body"/>
         <components>
             <verbal/>
             <weave/>
@@ -5493,7 +5493,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kSnakeWisdom" element="kLife" mode="kEnabled">
-        <name rus="мудрость змеи" eng="snake wisdom"/>
+        <name eng="snake wisdom"/>
         <components>
             <verbal/>
             <weave/>
@@ -5524,7 +5524,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kGimmicry" element="kLife" mode="kEnabled">
-        <name rus="хитроумие" eng="gimmickry"/>
+        <name eng="gimmickry"/>
         <components>
             <verbal/>
             <weave/>
@@ -5555,7 +5555,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kWarcryOfChallenge" element="kMind" mode="kTesting">
-        <name rus="клич вызова" eng="warcry of challenge"/>
+        <name eng="warcry of challenge"/>
         <components>
             <verbal/>
         </components>
@@ -5582,7 +5582,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kWarcryOfMenace" element="kMind" mode="kTesting">
-        <name rus="клич угрозы" eng="warcry of menace"/>
+        <name eng="warcry of menace"/>
         <components>
             <verbal/>
         </components>
@@ -5616,7 +5616,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kWarcryOfRage" element="kMind" mode="kTesting">
-        <name rus="клич ярости" eng="warcry of rage"/>
+        <name eng="warcry of rage"/>
         <components>
             <verbal/>
         </components>
@@ -5653,7 +5653,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kWarcryOfMadness" element="kMind" mode="kTesting">
-        <name rus="клич безумия" eng="warcry of madness"/>
+        <name eng="warcry of madness"/>
         <components>
             <verbal/>
         </components>
@@ -5693,7 +5693,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kWarcryOfThunder" element="kMind" mode="kTesting">
-        <name rus="клич грома" eng="warcry of thunder"/>
+        <name eng="warcry of thunder"/>
         <components>
             <verbal/>
         </components>
@@ -5737,7 +5737,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kWarcryOfDefence" element="kMind" mode="kEnabled">
-        <name rus="клич обороны" eng="warcry of defense"/>
+        <name eng="warcry of defense"/>
         <components>
             <verbal/>
         </components>
@@ -5780,7 +5780,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kWarcryOfBattle" element="kMind" mode="kEnabled">
-        <name rus="клич битвы" eng="warcry of battle"/>
+        <name eng="warcry of battle"/>
         <components>
             <verbal/>
         </components>
@@ -5814,7 +5814,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kWarcryOfPower" element="kMind" mode="kEnabled">
-        <name rus="клич мощи" eng="warcry of power"/>
+        <name eng="warcry of power"/>
         <components>
             <verbal/>
         </components>
@@ -5851,7 +5851,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kWarcryOfBless" element="kMind" mode="kEnabled">
-        <name rus="клич доблести" eng="warcry of bless"/>
+        <name eng="warcry of bless"/>
         <components>
             <verbal/>
         </components>
@@ -5888,7 +5888,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kWarcryOfCourage" element="kMind" mode="kEnabled">
-        <name rus="клич отваги" eng="warcry of courage"/>
+        <name eng="warcry of courage"/>
         <components>
             <verbal/>
         </components>
@@ -5925,7 +5925,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kRuneLabel" element="kLight" mode="kEnabled">
-        <name rus="рунная метка" eng="rune label"/>
+        <name eng="rune label"/>
         <components>
             <weave/>
             <sight/>
@@ -5960,7 +5960,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kAconitumPoison" element="kLife" mode="kEnabled">
-        <name rus="яд аконита" eng="aconitum poison"/>
+        <name eng="aconitum poison"/>
         <misc pos="kFight" violent="Y" danger="0"/>
         <mana max="0" min="0" change="0"/>
         <targets val="kTarIgnore"/>
@@ -5992,7 +5992,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kScopolaPoison" element="kLife" mode="kEnabled">
-        <name rus="яд скополии" eng="scopolia poison"/>
+        <name eng="scopolia poison"/>
         <misc pos="kFight" violent="Y" danger="0"/>
         <mana max="0" min="0" change="0"/>
         <targets val="kTarIgnore"/>
@@ -6027,7 +6027,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kBelenaPoison" element="kLife" mode="kEnabled">
-        <name rus="яд белены" eng="belena poison"/>
+        <name eng="belena poison"/>
         <misc pos="kFight" violent="Y" danger="0"/>
         <mana max="0" min="0" change="0"/>
         <targets val="kTarIgnore"/>
@@ -6059,7 +6059,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kDaturaPoison" element="kLife" mode="kEnabled">
-        <name rus="яд дурмана" eng="datura poison"/>
+        <name eng="datura poison"/>
         <misc pos="kFight" violent="Y" danger="0"/>
         <mana max="0" min="0" change="0"/>
         <targets val="kTarIgnore"/>
@@ -6091,7 +6091,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kTimerRestore" element="kLight" mode="kEnabled">
-        <name rus="обновление таймера" eng=" timer repair"/>
+        <name eng=" timer repair"/>
         <components>
             <verba/>
             <weave/>
@@ -6114,49 +6114,49 @@ base_stat id - (например "kWis") какой берем параметр,
             <base_skill id="kMindMagic" low_skill_bonus="2" hi_skill_bonus="2"/>
             <base_stat id="kCha" threshold="14" weight="0.5"/>
         </success_roll>
-        <name rus="боевое везение" eng="lacky"/>
+        <name eng="lacky"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="100" min="90" change="1"/>
         <targets val="kTarCharRoom|kTarSelfOnly"/>
         <flags val="kMagAffects"/>
     </spell>
     <spell id="kBandage" element="kUndefined" mode="kService">
-        <name rus="перевязка" eng="!set by programm!"/>
+        <name eng="!set by programm!"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
     </spell>
     <spell id="kNoBandage" element="kUndefined" mode="kService">
-        <name rus="!нельзя перевязываться!" eng="!set by programm!"/>
+        <name eng="!set by programm!"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
     </spell>
     <spell id="kCapable" element="kUndefined" mode="kService">
-        <name rus="!зачарован!" eng="!set by programm!"/>
+        <name eng="!set by programm!"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
     </spell>
     <spell id="kStrangle" element="kUndefined" mode="kService">
-        <name rus="!удушье!" eng="!set by programm!"/>
+        <name eng="!set by programm!"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
     </spell>
     <spell id="kRecallSpells" element="kUndefined" mode="kService">
-        <name rus="!вспоминает заклинания!" eng="!set by programm!"/>
+        <name eng="!set by programm!"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
     </spell>
     <spell id="kHypnoticPattern" element="kMind" mode="kEnabled">
-        <name rus="чарующий узор" eng="hypnotic pattern"/>
+        <name eng="hypnotic pattern"/>
         <components>
             <weave/>
             <material any_of="3006"/>
@@ -6179,14 +6179,14 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kSolobonus" element="kUndefined" mode="kService">
-        <name rus="награда" eng="bonus"/>
+        <name eng="bonus"/>
         <misc pos="kFight" violent="N" danger="1"/>
         <mana max="55" min="40" change="1"/>
         <targets val="kTarCharRoom|kTarNotSelf"/>
         <flags val="kMagManual"/>
     </spell>
     <spell id="kVampirism" element="kDark" mode="kDisabled">
-        <name rus="вампиризм" eng="vampire"/>
+        <name eng="vampire"/>
         <components>
             <verbal/>
             <weave/>
@@ -6218,7 +6218,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kRestoration" element="kLight" mode="kEnabled">
-        <name rus="реконструкция" eng="reconstruction"/>
+        <name eng="reconstruction"/>
         <components>
             <verbal/>
             <weave/>
@@ -6237,7 +6237,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kDeathAura" element="kDark" mode="kEnabled">
-        <name rus="аура смерти" eng="aura death"/>
+        <name eng="aura death"/>
         <components>
             <verbal/>
             <weave/>
@@ -6260,7 +6260,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kRecovery" element="kDark" mode="kEnabled">
-        <name rus="темное прикосновение" eng="recovery"/>
+        <name eng="recovery"/>
         <components>
             <verbal/>
             <weave/>
@@ -6275,7 +6275,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <flags val="kMagAffects|kNpcAffectNpc"/>
     </spell>
     <spell id="kMassRecovery" element="kDark" mode="kEnabled">
-        <name rus="прикосновение смерти" eng="mass recovery"/>
+        <name eng="mass recovery"/>
         <components>
             <verbal/>
             <weave/>
@@ -6298,7 +6298,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kAuraOfEvil" element="kDark" mode="kEnabled">
-        <name rus="аура зла" eng="aura evil"/>
+        <name eng="aura evil"/>
         <components>
             <verbal/>
             <weave/>
@@ -6313,7 +6313,7 @@ base_stat id - (например "kWis") какой берем параметр,
         <flags val="kMagManual"/>
     </spell>
     <spell id="kMentalShadow" element="kMind" mode="kEnabled">
-        <name rus="ментальная тень" eng="mental shadow"/>
+        <name eng="mental shadow"/>
         <components>
             <verbal/>
             <weave/>
@@ -6333,7 +6333,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kBlackTentacles" element="kDark" mode="kEnabled">
-        <name rus="навьи руки" eng="evards black tentacles"/>
+        <name eng="evards black tentacles"/>
         <components>
             <verbal/>
             <weave/>
@@ -6366,7 +6366,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kWhirlwind" element="kAir" mode="kEnabled">
-        <name rus="вихрь" eng="whirlwind"/>
+        <name eng="whirlwind"/>
         <components>
             <verbal/>
             <weave/>
@@ -6398,7 +6398,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kIndriksTeeth" element="kEarth" mode="kEnabled">
-        <name rus="зубы индрика" eng="indriks teeth"/>
+        <name eng="indriks teeth"/>
         <components>
             <verbal/>
             <weave/>
@@ -6437,7 +6437,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kAcidArrow" element="kWater" mode="kEnabled">
-        <name rus="кислотная стрела" eng="acid arrow"/>
+        <name eng="acid arrow"/>
         <components>
             <verbal/>
             <weave/>
@@ -6485,7 +6485,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kThunderStone" element="kEarth" mode="kEnabled">
-        <name rus="громовой камень" eng="thunderstone"/>
+        <name eng="thunderstone"/>
         <components>
             <verbal/>
             <weave/>
@@ -6516,7 +6516,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kClod" element="kEarth" mode="kEnabled">
-        <name rus="глыба" eng="clod"/>
+        <name eng="clod"/>
         <components>
             <verbal/>
             <weave/>
@@ -6549,14 +6549,14 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kExpedient" element="kUndefined" mode="kService">
-        <name rus="!боевой прием!" eng="!set by programm!"/>
+        <name eng="!set by programm!"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
     </spell>
     <spell id="kSightOfDarkness" element="kLight" mode="kEnabled">
-        <name rus="зрение тьмы" eng="sight darkness"/>
+        <name eng="sight darkness"/>
         <components>
             <verbal/>
             <weave/>
@@ -6591,7 +6591,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kGroupSincerity" element="kMind" mode="kEnabled">
-        <name rus="общая искренность" eng="general sincerity"/>
+        <name eng="general sincerity"/>
         <components>
             <verbal/>
             <weave/>
@@ -6620,7 +6620,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kMagicalGaze" element="kMind" mode="kEnabled">
-        <name rus="магический взор" eng="magical gaze"/>
+        <name eng="magical gaze"/>
         <components>
             <verbal/>
             <weave/>
@@ -6655,7 +6655,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kAllSeeingEye" element="kMind" mode="kEnabled">
-        <name rus="всевидящее око" eng="allseeing eye"/>
+        <name eng="allseeing eye"/>
         <components>
             <verbal/>
             <weave/>
@@ -6690,7 +6690,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kEyeOfGods" element="kLife" mode="kEnabled">
-        <name rus="око богов" eng="eye gods"/>
+        <name eng="eye gods"/>
         <components>
             <verbal/>
             <weave/>
@@ -6725,7 +6725,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kBreathingAtDepth" element="kWater" mode="kEnabled">
-        <name rus="дыхание глубин" eng="breathing at depth"/>
+        <name eng="breathing at depth"/>
         <components>
             <verbal/>
             <weave/>
@@ -6760,7 +6760,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kGeneralRecovery" element="kLife" mode="kEnabled">
-        <name rus="общее восстановление" eng="general recovery"/>
+        <name eng="general recovery"/>
         <components>
             <verbal/>
             <weave/>
@@ -6798,7 +6798,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kCommonMeal" element="kLife" mode="kEnabled">
-        <name rus="общая трапеза" eng="common meal"/>
+        <name eng="common meal"/>
         <components>
             <verbal/>
             <weave/>
@@ -6825,7 +6825,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kStoneWall" element="kEarth" mode="kEnabled">
-        <name rus="каменная стена" eng="stone wall"/>
+        <name eng="stone wall"/>
         <components>
             <verbal/>
             <weave/>
@@ -6860,7 +6860,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kSnakeEyes" element="kMind" mode="kEnabled">
-        <name rus="глаза змея" eng="snake eyes"/>
+        <name eng="snake eyes"/>
         <components>
             <verbal/>
             <weave/>
@@ -6895,7 +6895,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kEarthAura" element="kEarth" mode="kEnabled">
-        <name rus="земной поклон" eng="earth aura"/>
+        <name eng="earth aura"/>
         <components>
             <verbal/>
             <weave/>
@@ -6930,7 +6930,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kGroupProtectFromEvil" element="kLight" mode="kEnabled">
-        <name rus="групповая защита от тьмы" eng="group protect evil"/>
+        <name eng="group protect evil"/>
         <components>
             <verbal/>
             <weave/>
@@ -6959,7 +6959,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kArrowsFire" element="kFire" mode="kEnabled">
-        <name rus="стрелы огня" eng="arrows of fire"/>
+        <name eng="arrows of fire"/>
         <misc pos="kFight" violent="Y" danger="2"/>
         <mana max="0" min="0" change="0"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
@@ -6982,7 +6982,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kArrowsWater" element="kWater" mode="kEnabled">
-        <name rus="стрелы воды" eng="arrows of water"/>
+        <name eng="arrows of water"/>
         <misc pos="kFight" violent="Y" danger="2"/>
         <mana max="0" min="0" change="0"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
@@ -7005,7 +7005,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kArrowsEarth" element="kEarth" mode="kEnabled">
-        <name rus="стрелы земли" eng="arrows of earth"/>
+        <name eng="arrows of earth"/>
         <misc pos="kFight" violent="Y" danger="2"/>
         <mana max="0" min="0" change="0"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
@@ -7028,7 +7028,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kArrowsAir" element="kAir" mode="kEnabled">
-        <name rus="стрелы воздуха" eng="arrows of air"/>
+        <name eng="arrows of air"/>
         <misc pos="kFight" violent="Y" danger="2"/>
         <mana max="0" min="0" change="0"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
@@ -7051,7 +7051,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kArrowsDeath" element="kDark" mode="kEnabled">
-        <name rus="стрелы смерти" eng="arrows of death"/>
+        <name eng="arrows of death"/>
         <misc pos="kFight" violent="Y" danger="2"/>
         <mana max="0" min="0" change="0"/>
         <targets val="kTarCharRoom|kTarFightVict"/>
@@ -7074,7 +7074,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kPaladineInspiration" element="kUndefined" mode="kEnabled">
-        <name rus="воодушевление" eng="inspiration"/>
+        <name eng="inspiration"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
@@ -7122,7 +7122,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kDexterity" element="kLife" mode="kEnabled">
-        <name rus="ловкость" eng="dexterity"/>
+        <name eng="dexterity"/>
         <components>
             <verbal/>
             <weave/>
@@ -7157,7 +7157,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kGroupBlink" element="kLife" mode="kEnabled">
-        <name rus="групповое мигание" eng="group blink"/>
+        <name eng="group blink"/>
         <components>
             <verbal/>
             <weave/>
@@ -7186,7 +7186,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kGroupCloudly" element="kWater" mode="kEnabled">
-        <name rus="групповое затуманивание" eng="group cloudly"/>
+        <name eng="group cloudly"/>
         <components>
             <verbal/>
             <weave/>
@@ -7215,7 +7215,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kGroupAwareness" element="kMind" mode="kEnabled">
-        <name rus="групповая внимательность" eng="group awarness"/>
+        <name eng="group awarness"/>
         <components>
             <verbal/>
             <weave/>
@@ -7244,7 +7244,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kWarcryOfExperience" element="kMind" mode="kEnabled">
-        <name rus="клич обучения" eng="warcry of training"/>
+        <name eng="warcry of training"/>
         <components>
             <verbal/>
         </components>
@@ -7278,7 +7278,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kWarcryOfLuck" element="kMind" mode="kEnabled">
-        <name rus="клич везения" eng="warcry of luck"/>
+        <name eng="warcry of luck"/>
         <components>
             <verbal/>
         </components>
@@ -7312,7 +7312,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kWarcryOfPhysdamage" element="kMind" mode="kEnabled">
-        <name rus="клич точности" eng="warcry of accuracy"/>
+        <name eng="warcry of accuracy"/>
         <components>
             <verbal/>
         </components>
@@ -7346,7 +7346,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kMassFailure" element="kDark" mode="kEnabled">
-        <name rus="взор Велеса" eng="gaze of Veles"/>
+        <name eng="gaze of Veles"/>
         <components>
             <verbal/>
             <weave/>
@@ -7374,7 +7374,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kSnare" element="kMind" mode="kEnabled">
-        <name rus="западня" eng="snare"/>
+        <name eng="snare"/>
         <components>
             <verbal/>
             <weave/>
@@ -7414,42 +7414,42 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
     </spell>
     <spell id="kExpedientFail" element="kUndefined" mode="kService">
-        <name rus="!неудачный прием!" eng="!expediend fail!"/>
+        <name eng="!expediend fail!"/>
         <misc pos="kStand" violent="N" danger="0"/>
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
     </spell>
     <spell id="kLowerEffectiveness" element="kUndefined" mode="kService">
-        <name rus="снижение боеспособности" eng="injured"/>
+        <name eng="injured"/>
         <misc pos="kStand" violent="Y" danger="0"/>
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
     </spell>
     <spell id="kNoInjure" element="kUndefined" mode="kService">
-        <name rus="ранение" eng="injured"/>
+        <name eng="injured"/>
         <misc pos="kStand" violent="Y" danger="0"/>
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
     </spell>
     <spell id="kNoCharge" element="kUndefined" mode="kService">
-        <name rus="натиск" eng="injured"/>
+        <name eng="injured"/>
         <misc pos="kStand" violent="Y" danger="0"/>
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
     </spell>
     <spell id="kConfuse" element="kUndefined" mode="kService">
-        <name rus="ошарашен" eng="injured"/>
+        <name eng="injured"/>
         <misc pos="kStand" violent="Y" danger="0"/>
         <mana max="0" min="0" change="0"/>
         <targets val="kTarNone"/>
         <flags val="kMagManual"/>
     </spell>
     <spell id="kIdentify" element="kMind" mode="kEnabled">
-        <name rus="идентификация" eng="identify"/>
+        <name eng="identify"/>
         <components>
             <verbal/>
             <weave/>
@@ -7469,7 +7469,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
 </spell>
     <spell id="kFullIdentify" element="kMind" mode="kEnabled">
-        <name rus="полная идентификация" eng="identify"/>
+        <name eng="identify"/>
         <components>
             <verbal/>
             <weave/>
@@ -7489,7 +7489,7 @@ base_stat id - (например "kWis") какой берем параметр,
         </talent_actions>
 </spell>
     <spell id="kQUest" element="kUndefined" mode="kService">
-        <name rus="!чары!" eng="!quest spell!"/>
+        <name eng="!quest spell!"/>
         <misc pos="kFight" violent="N" danger="1"/>
         <mana max="55" min="40" change="1"/>
         <targets val="kTarCharRoom|kTarNotSelf"/>
@@ -7511,18 +7511,18 @@ base_stat id - (например "kWis") какой берем параметр,
          when the spell graduates. mode="kTesting" keeps the spell out of the
          normal spell book until it's promoted. -->
     <spell id="kTestOne" mode="kTesting">
-        <name rus="тест 1" eng="test 1"/>
+        <name eng="test 1"/>
     </spell>
     <spell id="kTestTwo" mode="kTesting">
-        <name rus="тест 2" eng="test 2"/>
+        <name eng="test 2"/>
     </spell>
     <spell id="kTestThree" mode="kTesting">
-        <name rus="тест 3" eng="test 3"/>
+        <name eng="test 3"/>
     </spell>
     <spell id="kTestFour" mode="kTesting">
-        <name rus="тест 4" eng="test 4"/>
+        <name eng="test 4"/>
     </spell>
     <spell id="kTestFive" mode="kTesting">
-        <name rus="тест 5" eng="test 5"/>
+        <name eng="test 5"/>
     </spell>
 </spells>

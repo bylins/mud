@@ -1,0 +1,29 @@
+<!--
+  issue.vedun-msg-editor: editor scheme for spell_msg.xml (the spell message container).
+  Structure: <msg_container> -> <msg_sheaf id="<ESpell>"> -> <message type="<ESpellMsg>" val="text"/>.
+  The message text lives in the `val` attribute, so the editor's attribute editor handles it.
+  Optional sidecar; anything not declared degrades to a plain string field and is still validated on
+  save by the spell-message loader.
+-->
+<scheme>
+	<tag name="msg_container" desc="Spell message container">
+		<child tag="msg_sheaf" multiple="Y"/>
+	</tag>
+
+	<tag name="msg_sheaf" desc="Messages for one spell (kDefault = shared fallback)">
+		<attr name="id" type="enum" enum="ESpell" readonly="Y" desc="Owning spell (kDefault = shared); immutable"/>
+		<child tag="name"/>
+		<child tag="message" multiple="Y"/>
+	</tag>
+
+	<!-- issue.thing-names: the spell's localised display name (moved out of spells.xml). Single string
+	     for now; cased entities will later add <case id=... val=.../> children. -->
+	<tag name="name" desc="Localised display name of the entity">
+		<attr name="val" type="string" desc="Display name in this file's language"/>
+	</tag>
+
+	<tag name="message" desc="One message line (a slot may repeat to form a random pool)">
+		<attr name="type" type="enum" enum="ESpellMsg" desc="Message slot"/>
+		<attr name="val" type="string" desc="Text: $n/$N act-codes, {intensity}, &amp; colour codes, \u markers"/>
+	</tag>
+</scheme>

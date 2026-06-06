@@ -222,16 +222,9 @@ ESpell FindSpellId(const char *name) {
 }
 
 ESpell FindSpellIdWithName(const std::string &name) {
-	for (const auto &spell : MUD::Spells()) {
-		if (spell.IsInvalid()) {
-			continue;
-		}
-		if (utils::IsEquivalent(name, spell.GetName())) {
-			return spell.GetId();
-		}
-	}
-
-	return ESpell::kUndefined;
+	// issue.thing-names: search the string container (where the display names now live) and return
+	// the spell id, instead of scanning gameplay records.
+	return MUD::SpellMessages().FindByName(name);
 }
 
 template<typename T>
