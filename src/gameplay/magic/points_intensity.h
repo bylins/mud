@@ -3,7 +3,7 @@
 \file points_intensity.h - a part of the Bylins engine.
 \authors Created for issue.mag-points.
 \brief Intensity-grade vocabulary for CastToPoints narration.
-\details Loads lib/cfg/mechanics/points.xml at boot. Each of the four
+\details Loads lib/cfg/messages/ru/points_intensity.xml at boot. Each of the four
 		 restoration categories (heal / moves / thirst / full) carries
 		 <improve> and <degrade> lists of <grade percent= text="..."/>
 		 entries; given a computed intensity percentage, Resolve() returns

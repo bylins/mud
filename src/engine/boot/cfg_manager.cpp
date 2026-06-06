@@ -55,7 +55,7 @@ CfgManager::CfgManager() {
 										  std::make_unique<spells::SpellsLoader>(spells::SpellsLoader())));
 	loaders_.emplace("spell_messages", LoaderInfo("cfg/messages/ru/spell_msg.xml",
 										  std::make_unique<spells::SpellMessagesLoader>(spells::SpellMessagesLoader())));
-	loaders_.emplace("points_intensity", LoaderInfo("cfg/mechanics/points.xml",
+	loaders_.emplace("points_intensity", LoaderInfo("cfg/messages/ru/points_intensity.xml",
 										  std::make_unique<points_intensity::PointsIntensityLoader>(points_intensity::PointsIntensityLoader())));
 	loaders_.emplace("fight_messages", LoaderInfo("cfg/messages/ru/hit_msg.xml",
 										  std::make_unique<fight::FightMessagesLoader>(fight::FightMessagesLoader())));
