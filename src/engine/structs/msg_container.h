@@ -65,9 +65,15 @@ class MsgSheaf : public info_container::BaseItem<IdEnum> {
 	void SetName(std::string name) { name_ = std::move(name); }
 	[[nodiscard]] const std::string &GetName() const { return name_; }
 
+	// issue.thing-names: a short localised abbreviation (e.g. a skill's status-bar tag). Empty when
+	// the entity has none. Parsed from <name abbr="..."/>.
+	void SetAbbr(std::string abbr) { abbr_ = std::move(abbr); }
+	[[nodiscard]] const std::string &GetAbbr() const { return abbr_; }
+
  private:
 	std::map<MsgType, std::vector<std::string>> messages_;
 	std::string name_;
+	std::string abbr_;
 };
 
 /**
@@ -105,6 +111,8 @@ class MsgSheafBuilder : public info_container::IItemBuilder<MsgSheaf<IdEnum, Msg
 		if (node.GoToChild("name")) {
 			const char *name_val = node.GetValue("val");
 			sheaf->SetName(name_val ? name_val : "");
+			const char *abbr_val = node.GetValue("abbr");
+			sheaf->SetAbbr(abbr_val ? abbr_val : "");
 			node.GoToParent();
 		}
 		return sheaf;
@@ -183,6 +191,15 @@ class MsgContainer
 		static const std::string kEmpty;
 		if (this->IsKnown(id)) {
 			return (*this)[id].GetName();
+		}
+		return kEmpty;
+	}
+
+	/// issue.thing-names: the localised short abbreviation for an element id (or empty).
+	[[nodiscard]] const std::string &GetAbbr(IdEnum id) const {
+		static const std::string kEmpty;
+		if (this->IsKnown(id)) {
+			return (*this)[id].GetAbbr();
 		}
 		return kEmpty;
 	}

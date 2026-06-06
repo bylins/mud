@@ -382,6 +382,7 @@ void GameLoader::BootWorld(std::unique_ptr<world_loader::IWorldDataSource> data_
 	// loaded the config, does not reload it.
 	if (!MUD::Skills().IsInitizalized())
 	{
+		MUD::CfgManager().LoadCfg("skill_messages");   // issue.thing-names: names/abbr before skills
 		MUD::CfgManager().LoadCfg("skills");
 	}
 
@@ -669,6 +670,11 @@ void BootMudDataBase() {
 	MUD::CfgManager().LoadCfg("currency_messages");
 	MUD::CfgManager().LoadCfg("currencies");
 
+	// issue.thing-names: skill messages (which now hold skill names + abbreviations) load before skills.
+	boot_profiler.next_step("Loading skill messages cfg.");
+	log("Loading skill messages cfg.");
+	MUD::CfgManager().LoadCfg("skill_messages");
+
 	boot_profiler.next_step("Loading skills cfg.");
 	log("Loading skills cfg.");
 	MUD::CfgManager().LoadCfg("skills");
@@ -694,9 +700,6 @@ void BootMudDataBase() {
 	log("Loading points intensity cfg.");
 	MUD::CfgManager().LoadCfg("points_intensity");
 
-	boot_profiler.next_step("Loading skill messages cfg.");
-	log("Loading skill messages cfg.");
-	MUD::CfgManager().LoadCfg("skill_messages");
 
     boot_profiler.next_step("Loading hit type messages cfg.");
     log("Loading hit type messages cfg.");
