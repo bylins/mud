@@ -877,7 +877,6 @@ void zedit_disp_menu(DescriptorData *d) {
 			"%sS%s) Уровень зоны     : %s%d (качество ингридиентов)\r\n"
 			"%sY%s) Тип зоны         : %s%s\r\n"
 			"%sL%s) Время жизни      : %s%d minutes\r\n"
-			"%sP%s) Макс.комната     : %s%d\r\n"
 			"%sR%s) Тип очистки      : %s%s\r\n"
 			"%sI%s) Оч. никто не был : %s%s%s\r\n",
 			cyn,
@@ -917,10 +916,6 @@ void zedit_disp_menu(DescriptorData *d) {
 			nrm,
 			yel,
 			OLC_ZONE(d)->lifespan,
-			grn,
-			nrm,
-			yel,
-			OLC_ZONE(d)->top,
 			grn,
 			nrm,
 			yel,
@@ -1496,17 +1491,6 @@ void zedit_parse(DescriptorData *d, char *arg) {
 				case 'v':
 				case 'V': SendMsgToChar(d->character.get(), "Укажите vnum основного входа в зону: ");
 					OLC_MODE(d) = ZEDIT_ZONE_ENTRANCE;
-					break;
-				case 'p':
-				case 'P':
-					// * Edit top of zone.
-					if (GetRealLevel(d->character) < kLvlImplementator)
-						zedit_disp_menu(d);
-					else {
-						SendMsgToChar("Введите новую старшую комнату зоны.\r\n"
-									 "Помните, она всегда должны быть равна НомерЗоны*100+99 : ", d->character.get());
-						OLC_MODE(d) = ZEDIT_ZONE_TOP;
-					}
 					break;
 				case 'l':
 				case 'L':
