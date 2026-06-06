@@ -1534,17 +1534,10 @@ void point_update() {
 	double t_cond = 0.0, t_hp = 0.0, t_mob = 0.0, t_move = 0.0, t_pos = 0.0, t_idle = 0.0;
 	std::size_t scanned = 0, profiled_chars = 0;
 
-	// #3414: вместо скана всего character_list -- только активные мобы
-	// (их помечает mobile_activity) и все игроки в игре. Снимок указателей,
-	// чтобы отложенные extract не ломали обход set'ов между итерациями.
-	std::vector<CharData *> to_update;
-	to_update.reserve(character_list.active().size() + character_list.players().size());
-	for (auto *m : character_list.active()) {
-		to_update.push_back(m);
-	}
-	for (auto *p : character_list.players()) {
-		to_update.push_back(p);
-	}
+	// #3414: вместо скана всего character_list -- только активные мобы (их
+	// помечает mobile_activity) и все игроки в игре. Снимок, чтобы отложенные
+	// extract не ломали обход set'ов между итерациями.
+	const auto to_update = character_list.active_and_players();
 	character_list.clear_active();
 
 	for (auto *i : to_update) {

@@ -7,6 +7,7 @@
 #include <functional>
 #include <unordered_map>
 #include <unordered_set>
+#include <vector>
 
 class Characters {
  public:
@@ -61,6 +62,14 @@ class Characters {
 	const auto &active() const { return m_active; }
 	const auto &players() const { return m_players; }
 	void clear_active() { m_active.clear(); }
+	// Снимок набора для point_update: активные мобы + все игроки (одним вектором).
+	std::vector<CharData *> active_and_players() const {
+		std::vector<CharData *> result;
+		result.reserve(m_active.size() + m_players.size());
+		result.insert(result.end(), m_active.begin(), m_active.end());
+		result.insert(result.end(), m_players.begin(), m_players.end());
+		return result;
+	}
 
  private:
 	using character_raw_ptr_to_character_ptr_t = std::unordered_map<const void *, list_t::iterator>;
