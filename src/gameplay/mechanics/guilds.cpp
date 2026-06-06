@@ -37,6 +37,65 @@ void GuildsLoader::AssignGuildsToTrainers() {
 	}
 }
 
+// issue.thing-names: Vedun editable surface for guilds. Guilds are keyed by an integer vnum (no
+// enum, no `id` attribute), so the element id handed to/from the editor is the vnum as a string;
+// text_id + name go in the label so a guild can also be found by either of those.
+std::string GuildsLoader::EditableWhat() const {
+	return "guild";
+}
+
+std::vector<cfg_manager::EditableElement> GuildsLoader::ListElements() const {
+	std::vector<cfg_manager::EditableElement> out;
+	for (const auto &guild : MUD::Guilds()) {
+		if (guild.GetId() < 0) {   // skip the kUndefined sentinel
+			continue;
+		}
+		out.push_back({std::to_string(guild.GetId()), guild.GetTextId() + " " + guild.GetName()});
+	}
+	return out;
+}
+
+cfg_manager::ValidationResult GuildsLoader::Validate(parser_wrapper::DataNode &doc) const {
+	if (MUD::Guilds().Validate(doc.Children())) {
+		return {true, ""};
+	}
+	return {false, "Guild data failed to parse (see syslog for the offending guild)."};
+}
+
+parser_wrapper::DataNode GuildsLoader::FindElementNode(parser_wrapper::DataNode root,
+														  const std::string &id) const {
+	// A <guild> carries no `id` attribute; its key is the integer `vnum`.
+	for (auto &child : root.Children("guild")) {
+		if (id == child.GetValue("vnum")) {
+			return child;
+		}
+	}
+	return parser_wrapper::DataNode{};
+}
+
+std::string GuildsLoader::CanonicalElementId(const std::string &id) const {
+	// Only a non-negative integer is a valid (new) guild key. Existing guilds are already resolved
+	// by ListElements (by vnum, text_id or name) before this create-path hook is consulted.
+	if (id.empty()) {
+		return "";
+	}
+	for (const char c : id) {
+		if (c < '0' || c > '9') {
+			return "";
+		}
+	}
+	return id;
+}
+
+parser_wrapper::DataNode GuildsLoader::CreateElementNode(parser_wrapper::DataNode root,
+															const std::string &id) const {
+	auto node = root.AddChild("guild");
+	node.SetValue("vnum", id);
+	node.SetValue("text_id", "kUndefined");
+	node.SetValue("name", "новая гильдия");
+	return node;
+}
+
 ItemPtr GuildInfoBuilder::Build(DataNode &node) {
 	try {
 		return ParseGuild(node);
