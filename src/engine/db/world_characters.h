@@ -54,6 +54,14 @@ class Characters {
 	void AddToExtractedList(CharData *ch);
 	void PurgeExtractedList();
 
+	// #3414: активный набор для point_update. Мобы помечаются в mobile_activity
+	// (mark_active) и сбрасываются каждый point_update (clear_active); игроки
+	// держатся постоянно (наполняется в push_front, чистится в remove).
+	void mark_active(CharData *ch) { m_active.insert(ch); }
+	const auto &active() const { return m_active; }
+	const auto &players() const { return m_players; }
+	void clear_active() { m_active.clear(); }
+
  private:
 	using character_raw_ptr_to_character_ptr_t = std::unordered_map<const void *, list_t::iterator>;
 	using set_t = std::unordered_set<const CharData *>;
@@ -63,6 +71,8 @@ class Characters {
 	std::unordered_set<CharData *>  m_extracted_list;
 	character_raw_ptr_to_character_ptr_t m_character_raw_ptr_to_character_ptr;
 	vnum_to_characters_set_t m_vnum_to_characters_set;
+	std::unordered_set<CharData *> m_active;     // #3414: активные мобы (за окно между point_update)
+	std::unordered_set<CharData *> m_players;    // #3414: все игроки в игре
 	CharacterRNum_ChangeObserver::shared_ptr m_rnum_change_observer;
 	list_t m_purge_list;
 	set_t m_purge_set;

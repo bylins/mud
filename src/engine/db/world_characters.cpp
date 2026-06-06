@@ -52,6 +52,10 @@ void Characters::push_front(const CharData::shared_ptr &character) {
 	}
 	character->subscribe_for_rnum_changes(m_rnum_change_observer);
 
+	if (!character->IsNpc()) {
+		m_players.insert(character.get());    // #3414: все игроки в игре
+	}
+
 	if (character->purged()) {
 		/*
 		* Anton Gorev (2017/10/29): It is possible is character quit the game without
@@ -166,6 +170,8 @@ void Characters::remove(CharData *character) {
 		character->ZeroCooldowns();
 		chardata_cooldown_list.erase(clist);
 	}
+	m_active.erase(character);     // #3414: убрать из активного набора
+	m_players.erase(character);    // #3414: убрать из списка игроков
 	m_list.erase(index_i->second);
 	m_character_raw_ptr_to_character_ptr.erase(index_i);
 	auto tmp_it = std::find_if(combat_list.begin(), combat_list.end(), [character] (auto it) {return (it.ch == character); });
