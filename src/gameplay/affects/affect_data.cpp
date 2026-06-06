@@ -43,7 +43,7 @@ void EmitAffectEvent(const char *kind, const CharData *ch,
 	ev.attrs["duration"] = static_cast<std::int64_t>(af.duration);
 	ev.attrs["modifier"] = static_cast<std::int64_t>(af.modifier);
 	ev.attrs["location"] = static_cast<std::int64_t>(af.location);
-	ev.attrs["affect_type"] = static_cast<std::int64_t>(af.affect_type);
+	ev.attrs["bitvector"] = static_cast<std::int64_t>(af.bitvector);
 	observability::EmitToAllSinks(ev);
 }
 
@@ -501,7 +501,7 @@ void mobile_affect_update() {
 
 			if (affect->duration == 0) {
 				if (affect->type >= ESpell::kFirst && affect->type <= ESpell::kLast) {
-					if (affect->type == ESpell::kCharm || affect->affect_type == EAffect::kCharmed) {
+					if (affect->type == ESpell::kCharm || affect->bitvector == to_underlying(EAffect::kCharmed)) {
 						was_charmed = true;
 					}
 					auto next_affect_i = affect_i;
@@ -765,7 +765,7 @@ void affect_total(CharData *ch) {
 
 	// move affect modifiers
 	for (const auto &af : ch->affected) {
-		affect_modify(ch, af->location, af->modifier, af->affect_type, true);
+		affect_modify(ch, af->location, af->modifier, static_cast<EAffect>(af->bitvector), true);
 	}
 
 	// move race and class modifiers
@@ -912,7 +912,7 @@ void affect_total(CharData *ch) {
 
 void ImposeAffect(CharData *ch, const Affect<EApply> &af) {
 	for (const auto &affect : ch->affected) {
-		const bool same_affect = (af.location == EApply::kNone) && (affect->affect_type == af.affect_type);
+		const bool same_affect = (af.location == EApply::kNone) && (affect->bitvector == af.bitvector);
 		const bool same_type = (af.location != EApply::kNone) && (affect->type == af.type) && (affect->location == af.location);
 		if (same_affect || same_type) {
 			if (affect->modifier < af.modifier) {
@@ -968,8 +968,8 @@ void affect_to_char(CharData *ch, const Affect<EApply> &af) {
 	ch->affected.push_front(affected_alloc);
 
 	AFF_FLAGS(ch) += af.aff;
-	if (af.affect_type != EAffect::kUndefinded)
-		affect_modify(ch, af.location, af.modifier, af.affect_type, true);
+	if (af.bitvector)
+		affect_modify(ch, af.location, af.modifier, static_cast<EAffect>(af.bitvector), true);
 	//log("[AFFECT_TO_CHAR->AFFECT_TOTAL] Start");
 	affect_total(ch);
 	EmitAffectEvent("affect_added", ch, af);
@@ -986,15 +986,15 @@ void affect_to_char_no_recalc(CharData *ch, const Affect<EApply> &af) {
 	ch->affected.push_front(affected_alloc);
 
 	AFF_FLAGS(ch) += af.aff;
-	if (af.affect_type != EAffect::kUndefinded)
-		affect_modify(ch, af.location, af.modifier, af.affect_type, true);
+	if (af.bitvector)
+		affect_modify(ch, af.location, af.modifier, static_cast<EAffect>(af.bitvector), true);
 }
 
 // Same as ImposeAffect but without affect_total() recalculation.
 // Caller MUST call affect_total(ch) after all affects are applied.
 void ImposeAffectNoRecalc(CharData *ch, const Affect<EApply> &af) {
 	for (const auto &affect : ch->affected) {
-		const bool same_affect = (af.location == EApply::kNone) && (affect->affect_type == af.affect_type);
+		const bool same_affect = (af.location == EApply::kNone) && (affect->bitvector == af.bitvector);
 		const bool same_type = (af.location != EApply::kNone) && (affect->type == af.type) && (affect->location == af.location);
 		if (same_affect || same_type) {
 			if (affect->modifier < af.modifier) {
@@ -1003,12 +1003,6 @@ void ImposeAffectNoRecalc(CharData *ch, const Affect<EApply> &af) {
 			if (affect->duration < af.duration) {
 				affect->duration = af.duration;
 			}
-			// Refresh the dispel potency/nature too (issue): a stronger re-cast raises the
-			// recorded potency; the nature follows the (re-)casting spell.
-			if (affect->potency < af.potency) {
-				affect->potency = af.potency;
-			}
-			affect->debuff = af.debuff;
 			return;
 		}
 	}
@@ -1278,24 +1272,32 @@ bool GetAffectNumByName(const std::string &affName, EAffect &result) {
 	return false;
 }
 
-// issue.calc-duration: skill-based duration. `caster` provides the skill (bounded by
-// CalcNoviceSkillBonus's kNoviceSkillThreshold cap, so monster durations no longer grow with
-// raw mob level), `victim` decides the unit (PC: convert hours to player-affect ticks; NPC: raw).
-// skill_id == kUndefined skips the skill bonus -- used for flat durations and for spells without
-// a <potency_roll>. min/max keep the OLD-style "0 means no clamp on that side" semantics.
-int CalcDuration(CharData *caster, CharData *victim, ESkill skill_id,
-				 unsigned base, unsigned skill_divisor, int min, int max) {
-	if (skill_divisor == 0 && min == 0 && max == 0) {
-		return (victim->IsNpc() ? base : (base * kSecsPerMudHour / kSecsPerPlayerAffect));
-	}
-	int skill_bonus = (skill_id == ESkill::kUndefined)
-		? 0
-		: CalcNoviceSkillBonus(caster, skill_id, skill_divisor);
-	if (min > 0) skill_bonus = std::max(skill_bonus, min);
-	if (max > 0) skill_bonus = std::min(skill_bonus, max);
-	const auto duration = base + static_cast<unsigned>(skill_bonus);
-	return (victim->IsNpc() ? duration : (duration * kSecsPerMudHour / kSecsPerPlayerAffect));
-}
+int CalcDuration(CharData *ch, int cnst, int level, int level_divisor, int min, int max) {
+	int result = 0;
 
+	if (ch->IsNpc()) {
+		result = cnst;
+		if (level > 0 && level_divisor > 0)
+			level = level / level_divisor;
+		else
+			level = 0;
+		if (min > 0)
+			level = std::min(level, min);
+		if (max > 0)
+			level = std::max(level, max);
+		return (level + result);
+	}
+	result = cnst * kSecsPerMudHour;
+	if (level > 0 && level_divisor > 0)
+		level = level * kSecsPerMudHour / level_divisor;
+	else
+		level = 0;
+	if (min > 0)
+		level = std::min(level, min * kSecsPerMudHour);
+	if (max > 0)
+		level = std::max(level, max * kSecsPerMudHour);
+	result = (level + result) / kSecsPerPlayerAffect;
+	return (result);
+}
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

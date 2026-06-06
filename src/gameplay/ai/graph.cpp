@@ -13,7 +13,6 @@
 ************************************************************************ */
 
 #include "engine/core/handler.h"
-#include "engine/core/target_resolver.h"
 #include "utils/random.h"
 #include "engine/db/global_objects.h"
 
@@ -211,8 +210,7 @@ void do_sense(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 	// The person can't see the victim.
-	vict = target_resolver::FindCharInWorld(ch, arg);
-	if (!vict) {
+	if (!(vict = get_char_vis(ch, arg, EFind::kCharInWorld))) {
 		SendMsgToChar("Ваши чувства молчат.\r\n", ch);
 		return;
 	}

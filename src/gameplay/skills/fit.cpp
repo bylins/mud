@@ -2,7 +2,6 @@
 
 #include "engine/entities/char_data.h"
 #include "engine/core/handler.h"
-#include "engine/core/target_resolver.h"
 
 void DoFit(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	ObjData *obj;
@@ -38,8 +37,7 @@ void DoFit(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	};
 
 	argument = one_argument(argument, arg2);
-	vict = target_resolver::FindCharInRoom(ch, arg2);
-	if (!vict) {
+	if (!(vict = get_char_vis(ch, arg2, EFind::kCharInRoom))) {
 		SendMsgToChar("Под кого вы хотите переделать эту вещь?\r\n Нет такого создания в округе!\r\n", ch);
 		return;
 	};

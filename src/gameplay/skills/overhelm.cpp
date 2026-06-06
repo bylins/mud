@@ -161,7 +161,7 @@ int CalcOverhelmDmg(CharData *ch, CharData *victim, int dmg) {
 			k = std::min(2, k);
 		}
 		dmg *= std::max(2, number(1, k));
-		SetBattleLag(victim, 3);
+		SetWaitState(victim, 3 * kBattleRound);
 		sprintf(buf, "&R&qВаше сознание слегка помутилось после удара %s.&Q&n\r\n", PERS(ch, victim, 1));
 		SendMsgToChar(buf, victim);
 		act("$n оглушил$a $N3.", true, ch, nullptr, victim, kToNotVict | kToArenaListen);
@@ -183,7 +183,7 @@ int CalcOverhelmDmg(CharData *ch, CharData *victim, int dmg) {
 			k = std::min(4, k);
 		}
 		dmg *= std::max(3, number(1, k));
-		SetBattleLag(victim, 3);
+		SetWaitState(victim, 3 * kBattleRound);
 		if (victim->GetPosition() > EPosition::kSit && !victim->IsFlagged(EMobFlag::kNoBash)) {
 			victim->SetPosition(EPosition::kSit);
 			victim->DropFromHorse();

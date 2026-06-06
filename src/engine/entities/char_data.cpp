@@ -215,7 +215,7 @@ void CharData::reset() {
 }
 
 void CharData::set_abstinent() {
-	int duration = CalcDuration(this, this, ESkill::kHangovering, 2, 10, 2, 5);
+	int duration = CalcDuration(this, 2, std::max(0, GET_DRUNK_STATE(this) - kDrunked), 4, 2, 5);
 
 	if (CanUseFeat(this, EFeat::kDrunkard)) {
 		duration /= 2;
@@ -223,7 +223,7 @@ void CharData::set_abstinent() {
 
 	Affect<EApply> af;
 	af.type = ESpell::kAbstinent;
-	af.affect_type = EAffect::kAbstinent;
+	af.bitvector = to_underlying(EAffect::kAbstinent);
 	af.duration = duration;
 
 	af.location = EApply::kAc;
@@ -2112,7 +2112,7 @@ bool CharData::DropFromHorse() {
 	sprintf(buf, "%s свалил%s со своего скакуна.", GET_PAD(plr, 0), GET_CH_SUF_2(plr));
 	act(buf, false, plr, 0, 0, kToRoom | kToArenaListen);
 	AFF_FLAGS(plr).unset(EAffect::kHorse);
-	SetBattleLag(plr, 3);
+	SetWaitState(plr, 3 * kBattleRound);
 	if (plr->GetPosition() > EPosition::kSit) {
 		plr->SetPosition(EPosition::kSit);
 	}

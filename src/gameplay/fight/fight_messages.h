@@ -24,9 +24,7 @@
 #include "engine/structs/msg_container.h"
 #include "fight_constants.h"
 
-#include <map>
 #include <string>
-#include <vector>
 
 namespace fight {
 
@@ -43,9 +41,6 @@ enum class EFightMsg {
 	kFightMissToChar, kFightMissToVict, kFightMissToRoom,
 	kFightHitToChar, kFightHitToVict, kFightHitToRoom,
 	kFightGodToChar, kFightGodToVict, kFightGodToRoom,
-	// Short attack-type description (e.g. "ударил") shown in stat / OLC menus;
-	// replaces attack_hit_text[].singular.
-	kDescription,
 };
 
 } // namespace fight
@@ -55,35 +50,21 @@ const std::string &NAME_BY_ITEM<fight::EDamageSource>(fight::EDamageSource item)
 template<>
 fight::EDamageSource ITEM_BY_NAME<fight::EDamageSource>(const std::string &name);
 template<>
-const std::map<fight::EDamageSource, std::string> &NAMES_OF<fight::EDamageSource>();  // issue.vedun-msg-editor
-template<>
 const std::string &NAME_BY_ITEM<fight::EFightMsg>(fight::EFightMsg item);
 template<>
 fight::EFightMsg ITEM_BY_NAME<fight::EFightMsg>(const std::string &name);
-template<>
-const std::map<fight::EFightMsg, std::string> &NAMES_OF<fight::EFightMsg>();  // issue.vedun-msg-editor
 
 namespace fight {
 
 using FightMessages = msg_container::MsgContainer<EDamageSource, EFightMsg>;
 
-// Short description (e.g. "ударил") for a weapon attack-type index (kHit..kSting).
-// Reads EFightMsg::kDescription from hit_msg.xml; out-of-range types fall back to
-// the kDefault sheaf. Replaces the old attack_hit_text[].singular lookup.
-const std::string &GetAttackTypeDescription(int attack_type);
-
 /**
  * Loads/reloads lib/cfg/hit_msg.xml into MUD::FightMessages().
  */
-class FightMessagesLoader : virtual public cfg_manager::IEditableCfgLoader {
+class FightMessagesLoader : virtual public cfg_manager::ICfgLoader {
  public:
 	void Load(parser_wrapper::DataNode data) final;
 	void Reload(parser_wrapper::DataNode data) final;
-	[[nodiscard]] std::string EditableWhat() const final;
-	[[nodiscard]] std::vector<cfg_manager::EditableElement> ListElements() const final;
-	[[nodiscard]] cfg_manager::ValidationResult Validate(parser_wrapper::DataNode &doc) const final;
-	[[nodiscard]] std::string CanonicalElementId(const std::string &id) const final;
-	[[nodiscard]] parser_wrapper::DataNode CreateElementNode(parser_wrapper::DataNode root, const std::string &id) const final;
 };
 
 } // namespace fight

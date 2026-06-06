@@ -43,7 +43,6 @@
 #include "handler.h"
 #include "gameplay/clans/house.h"
 #include "engine/olc/olc.h"
-#include "engine/olc/vedun/vedun.h"
 #include "administration/ban.h"
 #include "administration/proxy.h"
 #include "gameplay/economics/exchange.h"
@@ -1968,7 +1967,6 @@ bool any_other_ch(CharData *ch) {
 }
 
 #ifdef HAS_EPOLL
-namespace vedun { void vedun_cleanup(DescriptorData *d); }  // issue.vedun-editor
 void close_socket(DescriptorData *d, int direct, int epoll, struct epoll_event *events, int n_ev)
 #else
 void close_socket(DescriptorData * d, int direct)
@@ -2021,8 +2019,6 @@ void close_socket(DescriptorData * d, int direct)
 		case EConState::kMedit:
 		case EConState::kMredit:
 		case EConState::kTrigedit: cleanup_olc(d, CLEANUP_ALL);
-			break;
-		case EConState::kVedun: vedun::vedun_cleanup(d);
 			break;
 			/*case CON_CONSOLE:
 				d->console.reset();
@@ -2608,17 +2604,6 @@ void perform_act(const char *orig,
 						i = arena ? GET_CH_SUF_8((const CharData *) vict_obj)
 								  : GET_CH_VIS_SUF_8((const CharData *) vict_obj, to);
 					else CHECK_NULL(obj, arena ? GET_OBJ_SUF_8(obj) : GET_OBJ_VIS_SUF_8(obj, to));
-					dg_victim = (CharData *) vict_obj;
-					break;
-//суффикс посвежевш(им,ей,ими) -- мягкая основа, творительный падеж
-//(issue.mag-points; см. GET_CH_EXSUF_1 в utils.h).
-				case 'h': i = ch->IsImmortal() || (arena) ? GET_CH_EXSUF_1(ch) : GET_CH_VIS_EXSUF_1(ch, to);
-					break;
-				case 'H':
-					if (vict_obj)
-						i = arena ? GET_CH_EXSUF_1((const CharData *) vict_obj)
-								  : GET_CH_VIS_EXSUF_1((const CharData *) vict_obj, to);
-					else CHECK_NULL(obj, arena ? GET_OBJ_EXSUF_1(obj) : GET_OBJ_VIS_EXSUF_1(obj, to));
 					dg_victim = (CharData *) vict_obj;
 					break;
 //склонение местоимения Ваш(е,а,и)

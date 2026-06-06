@@ -147,14 +147,21 @@ std::string GetRoomNameByVnum(int room_vnum)
 	return StripMudColorCodes(GetRoomNameComment(rnum));
 }
 
-// Get zone type name by type index (issue.ztypes-migrate: registry lookup).
+// Get zone type name by type index
 std::string GetZoneTypeName(int type_id)
 {
-	if (type_id < 0 || !MUD::ZoneTypes().IsKnown(type_id))
+	if (zone_types == nullptr || type_id < 0)
 	{
 		return "";
 	}
-	return MUD::ZoneTypes()[type_id].GetName();
+	for (int i = 0; *zone_types[i].name != '\n'; ++i)
+	{
+		if (i == type_id)
+		{
+			return zone_types[i].name;
+		}
+	}
+	return "";
 }
 
 // Get object name (nominative) by vnum (for zone command comments)

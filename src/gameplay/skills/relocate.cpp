@@ -4,12 +4,9 @@
 #include "gameplay/clans/house.h"
 #include "engine/ui/color.h"
 #include "engine/core/handler.h"
-#include "engine/core/target_resolver.h"
 #include "gameplay/fight/pk.h"
 #include "gameplay/mechanics/sight.h"
 #include "gameplay/mechanics/groups.h"
-#include "gameplay/magic/magic_utils.h"          // IsRoomBlocked (issue.no-teleport-out)
-#include "engine/db/global_objects.h"            // MUD::Spell
 
 extern void CheckAutoNosummon(CharData *ch);
 
@@ -37,7 +34,7 @@ void do_relocate(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	CharData *victim = target_resolver::FindPlayerVis(ch, arg);
+	CharData *victim = get_player_vis(ch, arg, EFind::kCharInWorld);
 
 	if (!victim) {
 		SendMsgToChar(NOPERSON, ch);
@@ -54,19 +51,15 @@ void do_relocate(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	// Room-flag gating reuses kRelocate spell's <blocking><room_flags> (single source of
-	// truth: edit spells.xml to retune both the cast and this feat). issue.no-teleport-out
-	// dropped the inline ROOM_FLAGGED(kNoTeleportOut) check; the same XML config now also
-	// extends kNoMagic blocking to the feat (previously code didn't gate on kNoMagic).
-	if (!ch->IsGod()
-		&& IsRoomBlocked(world[ch->in_room],
-						 MUD::Spell(ESpell::kRelocate).actions.GetBlocking())) {
-		SendMsgToChar("Попытка перемещения не удалась.\r\n", ch);
-		return;
-	}
-	if (!ch->IsGod() && AFF_FLAGGED(ch, EAffect::kNoTeleport)) {
-		SendMsgToChar("Попытка перемещения не удалась.\r\n", ch);
-		return;
+	if (!ch->IsGod()) {
+		if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kNoTeleportOut)) {
+			SendMsgToChar("Попытка перемещения не удалась.\r\n", ch);
+			return;
+		}
+		if (AFF_FLAGGED(ch, EAffect::kNoTeleport)) {
+			SendMsgToChar("Попытка перемещения не удалась.\r\n", ch);
+			return;
+		}
 	}
 
 	to_room = victim->in_room;
@@ -111,15 +104,15 @@ void do_relocate(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					  kColorBoldRed, kColorBoldBlk);
 		pkPortal(ch);
 		timed.time = 18 - MIN(GetRealRemort(ch), 15);
-		SetBattleLag(ch, 3);
+		SetWaitState(ch, 3 * kBattleRound);
 		Affect<EApply> af;
-		af.duration = CalcDuration(ch, ch, ESkill::kUndefined, 3, 0, 0, 0);
-		af.affect_type = EAffect::kNoTeleport;
+		af.duration = CalcDuration(ch, 3, 0, 0, 0, 0);
+		af.bitvector = to_underlying(EAffect::kNoTeleport);
 		af.battleflag = kAfPulsedec;
 		affect_to_char(ch, af);
 	} else {
 		timed.time = 2;
-		SetBattleLag(ch, 1);
+		SetWaitState(ch, kBattleRound);
 	}
 	ImposeTimedFeat(ch, &timed);
 	look_at_room(ch, 0);

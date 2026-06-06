@@ -13,7 +13,6 @@
 ************************************************************************ */
 
 #include "engine/core/handler.h"
-#include "engine/core/target_resolver.h"
 #include "gameplay/communication/ignores.h"
 #include "social.h"
 
@@ -98,8 +97,7 @@ int do_social(CharData *ch, char *argument) {
 		}
 		return (true);
 	}
-	vict = target_resolver::FindCharInRoom(ch, buf);
-	if (!vict) {
+	if (!(vict = get_char_vis(ch, buf, EFind::kCharInRoom))) {
 		const auto message = action->not_found
 							 ? action->not_found
 							 : "Поищите кого-нибудь более доступного для этих целей.\r\n";

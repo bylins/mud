@@ -2,7 +2,7 @@
 #include "skill_messages.h"
 #include "engine/db/global_objects.h"
 
-#include "engine/core/target_resolver.h"
+#include "engine/core/action_targeting.h"
 #include "gameplay/abilities/abilities_rollsystem.h"
 #include "gameplay/fight/pk.h"
 #include "gameplay/fight/fight_hit.h"
@@ -58,8 +58,8 @@ void PerformShadowThrowSideAbilities(abilities_roll::TechniqueRoll &technique) {
 			DoSideAction = ([](abilities_roll::TechniqueRoll &technique) {
 				Affect<EApply> af;
 				af.type = ESpell::kBattle;
-				af.affect_type = EAffect::kSilence;
-				af.duration = CalcDuration(technique.GetActor(), technique.GetRival(), ESkill::kDarkMagic, 2, 23, 2, 6);
+				af.bitvector = to_underlying(EAffect::kSilence);
+				af.duration = CalcDuration(technique.GetRival(), 2, GetRealLevel(technique.GetActor()), 9, 6, 2);
 				af.battleflag = kAfBattledec | kAfPulsedec;
 				ImposeAffect(technique.GetRival(), af, false, false, false, false);
 			});
@@ -73,8 +73,8 @@ void PerformShadowThrowSideAbilities(abilities_roll::TechniqueRoll &technique) {
 			DoSideAction = ([](abilities_roll::TechniqueRoll &technique) {
 				Affect<EApply> af;
 				af.type = ESpell::kBattle;
-				af.affect_type = EAffect::kStopFight;
-				af.duration = CalcDuration(technique.GetRival(), technique.GetRival(), ESkill::kUndefined, 3, 0, 0, 0);
+				af.bitvector = to_underlying(EAffect::kStopFight);
+				af.duration = CalcDuration(technique.GetRival(), 3, 0, 0, 0, 0);
 				af.battleflag = kAfBattledec | kAfPulsedec;
 				ImposeAffect(technique.GetRival(), af, false, false, false, false);
 				SetWait(technique.GetRival(), 3, false);
@@ -157,7 +157,7 @@ void GoThrow(CharData *ch, CharData *victim) {
 	Damage damage(SkillDmg(ESkill::kThrow), fight::kZeroDmg, dmg_type, nullptr); //х3 как тут с оружием
 	damage.element = EElement::kDark;
 
-	target_resolver::FoesRosterType
+	ActionTargeting::FoesRosterType
 		roster{ch, victim, [](CharData *ch, CharData *victim) { return CAN_SEE(ch, victim); }};
 	for (auto target : roster) {
 //		if (target->purged() || target->in_room == kNowhere)

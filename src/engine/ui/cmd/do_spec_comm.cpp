@@ -8,7 +8,6 @@
 
 #include "engine/entities/char_data.h"
 #include "engine/core/handler.h"
-#include "engine/core/target_resolver.h"
 
 // \todo Аналогично - распилить на отдельные команды, механику посыла сообщения убрать в communication
 void do_spec_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
@@ -45,7 +44,7 @@ void do_spec_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	if (!*buf || !*buf2) {
 		sprintf(buf, "Что вы хотите %s.. и %s?\r\n", action_sing, vict1);
 		SendMsgToChar(buf, ch);
-	} else if (!(vict = target_resolver::FindCharInRoom(ch, buf)))
+	} else if (!(vict = get_char_vis(ch, buf, EFind::kCharInRoom)))
 		SendMsgToChar(NOPERSON, ch);
 	else if (vict == ch)
 		SendMsgToChar("От ваших уст до ушей - всего одна ладонь...\r\n", ch);

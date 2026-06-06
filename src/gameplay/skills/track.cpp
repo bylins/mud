@@ -7,7 +7,6 @@
 
 #include "gameplay/ai/graph.h"
 #include "engine/core/handler.h"
-#include "engine/core/target_resolver.h"
 #include "engine/db/global_objects.h"
 
 const char *track_when[] = {"совсем свежие",
@@ -129,9 +128,7 @@ void do_track(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	vict = target_resolver::FindCharInRoom(ch, arg);
-
-	if (vict) {
+	if ((vict = get_char_vis(ch, arg, EFind::kCharInRoom))) {
 		act("Вы же в одной комнате с $N4!", false, ch, nullptr, vict, kToChar);
 		return;
 	}

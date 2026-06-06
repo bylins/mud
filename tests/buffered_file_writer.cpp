@@ -50,10 +50,7 @@ TEST(BufferedFileWriter, EmptyThenAppends) {
 	EXPECT_TRUE(w.str().empty());
 	w.printf("a");
 	w.printf("b%d", 2);
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wformat-zero-length"
-	w.printf("");  // empty format must be a no-op (deliberately a zero-length format)
-#pragma GCC diagnostic pop
+	w.printf("");  // empty format must be a no-op
 	EXPECT_EQ(w.str(), "ab2");
 }
 

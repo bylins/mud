@@ -13,19 +13,10 @@
 const int kSecsPerPlayerAffect = 2;
 
 // Типы таймеров аффектов.
-enum EAffFlag : Bitvector {
-  kAfBattledec			= 1u << 0,
-  kAfDeadkeep			= 1u << 1,
-  kAfPulsedec			= 1u << 2,
-  kAfSameTime			= 1u << 3,	// тикает раз в две секунды для PC, раз в минуту для NPC, или во время раунда в бою (чтобы не между раундами)
-  kAfUpdateDuration		= 1u << 4,
-  kAfAccumulateDuration	= 1u << 5,
-  kAfUpdateMod			= 1u << 6,
-  kAfDispellable		= 1u << 7,	// аффект можно снять магией (источник истины для CheckNodispel)
-  kAfCurable			= 1u << 8,	// аффект можно вылечить (первая помощь и будущая механика лечения)
-  kAfMustBeHandled		= 1u << 9,	// у аффекта есть периодический обработчик в коде (room-affect tick, см. HandleRoomAffect) -- бывший Affect::must_handled
-  kAfUnique				= 1u << 10	// перед наложением снять предыдущий аффект этого же типа от того же кастера (room-affect "только один в мире") -- бывший локальный only_one в CallMagicToRoom
-};
+constexpr Bitvector kAfBattledec = 1u << 0;
+constexpr Bitvector kAfDeadkeep = 1u << 1;
+constexpr Bitvector kAfPulsedec = 1u << 2;
+constexpr Bitvector kAfSameTime = 1u << 3; // тикает раз в две секунды для PC, раз в минуту для NPC, или во время раунда в бою (чтобы не между раундами)
 
 /**
  * Affect bits: used in char_data.char_specials.saved.affected_by //
@@ -127,8 +118,6 @@ template<>
 const std::string &NAME_BY_ITEM<EAffect>(EAffect item);
 template<>
 EAffect ITEM_BY_NAME<EAffect>(const std::string &name);
-template<>
-const std::map<EAffect, std::string> &NAMES_OF<EAffect>();  // issue.vedun-editor
 
 typedef std::list<EAffect> affects_list_t;
 
@@ -280,15 +269,6 @@ template<>
 const std::string &NAME_BY_ITEM<EApply>(EApply item);
 template<>
 EApply ITEM_BY_NAME<EApply>(const std::string &name);
-template<>
-const std::map<EApply, std::string> &NAMES_OF<EApply>();  // issue.vedun-editor
-
-template<>
-const std::string &NAME_BY_ITEM<EAffFlag>(EAffFlag item);
-template<>
-EAffFlag ITEM_BY_NAME<EAffFlag>(const std::string &name);
-template<>
-const std::map<EAffFlag, std::string> &NAMES_OF<EAffFlag>();  // issue.vedun-editor: editor enum pick-list
 
 using WeaponAffectArray = std::array<WeaponAffect, kWeaponAffectCount>;
 extern WeaponAffectArray weapon_affect;

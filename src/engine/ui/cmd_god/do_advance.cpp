@@ -9,7 +9,6 @@
 #include "engine/entities/char_data.h"
 #include "gameplay/classes/pc_classes.h"
 #include "engine/core/handler.h"
-#include "engine/core/target_resolver.h"
 #include "gameplay/core/game_limits.h"
 
 void DoAdvance(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
@@ -20,7 +19,7 @@ void DoAdvance(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	two_arguments(argument, name, level);
 
 	if (*name) {
-		if (!(victim = target_resolver::FindPlayerVis(ch, name))) {
+		if (!(victim = get_player_vis(ch, name, EFind::kCharInWorld))) {
 			SendMsgToChar("Не найду такого игрока.\r\n", ch);
 			return;
 		}

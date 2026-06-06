@@ -62,7 +62,7 @@ namespace {
 			Affect<EApply> af[3];
 			af[0].location = EApply::kAconitumPoison;
 			af[0].modifier = ch->GetSkill(ESkill::kPoisoning);
-			af[0].affect_type = EAffect::kNoBattleSwitch;
+			af[0].bitvector = to_underlying(EAffect::kNoBattleSwitch);
 
 			af[1].location = EApply::kPhysicResist;
 			af[1].modifier = -4;
@@ -97,11 +97,8 @@ namespace {
 			af[1].location = EApply::kSavingCritical;
 			af[2].location = EApply::kSavingWill;
 			af[3].location = EApply::kSavingStability;
-			// One EAffect per affect now: keep the poison flag on af[3] and put
-			// kNoBattleSwitch on a sibling. All entries share type/duration, so the
-			// victim ends up with the same flags, applied and removed together.
-			af[3].affect_type = EAffect::kScopolaPoison;
-			af[0].affect_type = EAffect::kNoBattleSwitch;
+			af[3].bitvector = to_underlying(EAffect::kScopolaPoison)
+							  | to_underlying(EAffect::kNoBattleSwitch);
 			int affect_modifier = 10;
 
 			if (vict->IsNpc()) {
@@ -135,11 +132,9 @@ namespace {
 			// -хитролы/хп-рег/дамаг-физ.атак/скилы
 
 			Affect<EApply> af[4];
-			// One EAffect per affect now: the poison flag plus its two secondary
-			// flags are spread across sibling entries (same type/duration).
-			af[1].affect_type = EAffect::kBelenaPoison;
-			af[0].affect_type = EAffect::kSkillReduce;
-			af[2].affect_type = EAffect::kNoBattleSwitch;
+			af[1].bitvector = to_underlying(EAffect::kBelenaPoison)
+							  | to_underlying(EAffect::kSkillReduce)
+							  | to_underlying(EAffect::kNoBattleSwitch);
 
 			// скилл * 0.05 + 5 на чаров и + 10 на мобов. 5.5-15% и 10.5-20% (10-200 скила)
 			int percent = (std::min(ch->GetSkill(ESkill::kPoisoning), 200) * 5 / 100) + (vict->IsNpc() ? 10 : 5);
@@ -182,11 +177,9 @@ namespace {
 			// AFF_DATURA_POISON - флаг на снижение дамага с заклов
 
 			Affect<EApply> af[3];
-			// One EAffect per affect now: the poison flag plus its two secondary
-			// flags are spread across sibling entries (same type/duration).
-			af[0].affect_type = EAffect::kDaturaPoison;
-			af[1].affect_type = EAffect::kSkillReduce;
-			af[2].affect_type = EAffect::kNoBattleSwitch;
+			af[0].bitvector = to_underlying(EAffect::kDaturaPoison)
+							  | to_underlying(EAffect::kSkillReduce)
+							  | to_underlying(EAffect::kNoBattleSwitch);
 
 			// скилл * 0.05 + 5 на чаров и + 10 на мобов. 5.5-15% и 10.5-20% (10-200 скила)
 			int percent = (std::min(ch->GetSkill(ESkill::kPoisoning), 200) * 5 / 100) + (vict->IsNpc() ? 10 : 5);
@@ -249,7 +242,7 @@ namespace {
 								true, ch, nullptr, vict, kToNotVict);
 							vict->SetPosition(EPosition::kSit);
 							vict->DropFromHorse();
-							SetBattleLag(vict, 3);
+							SetWaitState(vict, 3 * kBattleRound);
 						}
 						break;
 					}
@@ -262,7 +255,7 @@ namespace {
 						af.duration *= 30;
 					}
 					af.modifier = -GetRealLevel(ch) / 6 * 2;
-					af.affect_type = EAffect::kPoisoned;
+					af.bitvector = to_underlying(EAffect::kPoisoned);
 					af.battleflag = kAfSameTime;
 
 					for (int i = EApply::kStr; i <= EApply::kCha; i++) {
@@ -285,7 +278,7 @@ namespace {
 					}
 					af.location = EApply::kInitiative;
 					af.modifier = -GetRealLevel(ch) / 6;
-					af.affect_type = EAffect::kPoisoned;
+					af.bitvector = to_underlying(EAffect::kPoisoned);
 					af.battleflag = kAfSameTime;
 					ImposeAffect(vict, af, false, false, false, false);
 					SendMsgToChar(ch, "%sОт действия вашего яда %s стал%s заметно медленнее двигаться!%s\r\n",
@@ -321,30 +314,30 @@ void PerformToxicate(CharData *ch, CharData *vict, int modifier) {
 	// change strength
 	af[0].type = ESpell::kPoison;
 	af[0].location = EApply::kStr;
-	af[0].duration = CalcDuration(ch, vict, ESkill::kUndefined, 1, 0, 0, 0);
+	af[0].duration = CalcDuration(vict, 0, std::max(2, GetRealLevel(ch) - GetRealLevel(vict)), 2, 0, 1);
 	af[0].modifier = -std::min(2, (modifier + 29) / 40);
-	af[0].affect_type = EAffect::kPoisoned;
+	af[0].bitvector = to_underlying(EAffect::kPoisoned);
 	af[0].battleflag = kAfSameTime;
 	// change damroll
 	af[1].type = ESpell::kPoison;
 	af[1].location = EApply::kDamroll;
 	af[1].duration = af[0].duration;
 	af[1].modifier = -std::min(2, (modifier + 29) / 30);
-	af[1].affect_type = EAffect::kPoisoned;
+	af[1].bitvector = to_underlying(EAffect::kPoisoned);
 	af[1].battleflag = kAfSameTime;
 	// change hitroll
 	af[2].type = ESpell::kPoison;
 	af[2].location = EApply::kHitroll;
 	af[2].duration = af[0].duration;
 	af[2].modifier = -std::min(2, (modifier + 19) / 20);
-	af[2].affect_type = EAffect::kPoisoned;
+	af[2].bitvector = to_underlying(EAffect::kPoisoned);
 	af[2].battleflag = kAfSameTime;
 	// change poison level
 	af[3].type = ESpell::kPoison;
 	af[3].location = EApply::kPoison;
 	af[3].duration = af[0].duration;
 	af[3].modifier = GetRealLevel(ch);
-	af[3].affect_type = EAffect::kPoisoned;
+	af[3].bitvector = to_underlying(EAffect::kPoisoned);
 	af[3].battleflag = kAfSameTime;
 
 	for (auto & i : af) {
@@ -493,16 +486,16 @@ void TryDrinkPoison(CharData *ch, ObjData *jar, int amount) {
 		Affect<EApply> af;
 		af.type = ESpell::kPoison;
 		//если объем 0 -
-		af.duration = CalcDuration(ch, ch, ESkill::kUndefined, amount == 0 ? 3 : amount == 1 ? amount : amount * 3, 0, 0, 0);
+		af.duration = CalcDuration(ch, amount == 0 ? 3 : amount == 1 ? amount : amount * 3, 0, 0, 0, 0);
 		af.modifier = -2;
 		af.location = EApply::kStr;
-		af.affect_type = EAffect::kPoisoned;
+		af.bitvector = to_underlying(EAffect::kPoisoned);
 		af.battleflag = kAfSameTime;
 		ImposeAffect(ch, af, false, false, false, false);
 		af.type = ESpell::kPoison;
 		af.modifier = amount == 0 ? GetRealLevel(ch) * 3 : amount * 3;
 		af.location = EApply::kPoison;
-		af.affect_type = EAffect::kPoisoned;
+		af.bitvector = to_underlying(EAffect::kPoisoned);
 		af.battleflag = kAfSameTime;
 		ImposeAffect(ch, af, false, false, false, false);
 		ch->poisoner = 0;

@@ -12,7 +12,6 @@
 #include "names.h"
 
 #include "engine/core/handler.h"
-#include "engine/core/target_resolver.h"
 #include "engine/ui/color.h"
 #include "engine/entities/char_player.h"
 #include "engine/db/player_index.h"
@@ -440,8 +439,8 @@ void do_name(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	CharData *vict;
-	if ((vict = target_resolver::FindPlayerVis(ch, name)) != nullptr) {
-		if (!(vict = target_resolver::FindPlayer(ch, name))) {
+	if ((vict = get_player_vis(ch, name, EFind::kCharInWorld)) != nullptr) {
+		if (!(vict = get_player_pun(ch, name, EFind::kCharInWorld))) {
 			SendMsgToChar("Нет такого игрока.\r\n", ch);
 			return;
 		}

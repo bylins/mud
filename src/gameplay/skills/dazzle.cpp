@@ -5,7 +5,7 @@
 #include "protect.h"
 #include "engine/db/global_objects.h"
 #include "dazzle.h"
-#include "engine/core/target_resolver.h"
+#include "engine/core/action_targeting.h"
 #include "engine/core/handler.h"
 
 //
@@ -96,7 +96,7 @@ void GoDazzle(CharData *ch, CharData *vict) {
 	af.type = ESpell::kBlindness;
 	af.battleflag = kAfPulsedec;
 	af.duration = 150 + (ch->GetSkill(ESkill::kDazzle) * 1.25);
-	af.affect_type = EAffect::kBlind;
+	af.bitvector = to_underlying(EAffect::kBlind);
 
 	Affect<EApply> af2;
 	af2.type = ESpell::kDazzle;
@@ -104,7 +104,7 @@ void GoDazzle(CharData *ch, CharData *vict) {
 	af2.battleflag = kNone;
 	af2.caster_id = ch->get_uid();
 
-	target_resolver::FoesRosterType roster{ch};
+	ActionTargeting::FoesRosterType roster{ch};
 	for (const auto target: roster) {
 		if (!IsAffectedBySpellWithCasterId(ch, target, ESpell::kDazzle)) {
 			if (!ch->IsImmortal() && !target->IsNpc()) {

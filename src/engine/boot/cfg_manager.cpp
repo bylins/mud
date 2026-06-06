@@ -15,12 +15,9 @@
 #include "gameplay/magic/spells_info.h"
 #include "gameplay/economics/currencies.h"
 #include "gameplay/mechanics/guilds.h"
-#include "engine/entities/zone_types.h"
-#include "gameplay/mechanics/rune_spells.h"
 #include "gameplay/skills/skills_info.h"
 #include "gameplay/skills/skill_messages.h"
 #include "gameplay/magic/spell_messages.h"
-#include "gameplay/magic/points_intensity.h"
 #include "gameplay/fight/fight_messages.h"
 
 namespace cfg_manager {
@@ -41,18 +38,12 @@ CfgManager::CfgManager() {
 										  std::make_unique<spells::SpellsLoader>(spells::SpellsLoader())));
 	loaders_.emplace("spell_messages", LoaderInfo("cfg/spell_msg.xml",
 										  std::make_unique<spells::SpellMessagesLoader>(spells::SpellMessagesLoader())));
-	loaders_.emplace("points_intensity", LoaderInfo("cfg/mechanics/points.xml",
-										  std::make_unique<points_intensity::PointsIntensityLoader>(points_intensity::PointsIntensityLoader())));
 	loaders_.emplace("fight_messages", LoaderInfo("cfg/hit_msg.xml",
 										  std::make_unique<fight::FightMessagesLoader>(fight::FightMessagesLoader())));
 	loaders_.emplace("feats", LoaderInfo("cfg/feats.xml",
 										  std::make_unique<feats::FeatsLoader>(feats::FeatsLoader())));
 	loaders_.emplace("guilds", LoaderInfo("cfg/guilds.xml",
 										  std::make_unique<guilds::GuildsLoader>(guilds::GuildsLoader())));
-	loaders_.emplace("zone_types", LoaderInfo("cfg/zone_types.xml",
-										  std::make_unique<zone_types::ZoneTypesLoader>(zone_types::ZoneTypesLoader())));
-	loaders_.emplace("rune_spells", LoaderInfo("cfg/mechanics/rune_spells.xml",
-										  std::make_unique<rune_spells::RuneSpellsLoader>(rune_spells::RuneSpellsLoader())));
 	loaders_.emplace("mob_classes", LoaderInfo("cfg/mob_classes.xml",
 								  std::make_unique<mob_classes::MobClassesLoader>(mob_classes::MobClassesLoader())));
 }
@@ -75,26 +66,6 @@ void CfgManager::LoadCfg(const std::string &id) {
 	const auto &loader_info = loaders_.at(id);
 	auto data = parser_wrapper::DataNode(loader_info.file);
 	loader_info.loader->Load(data);
-}
-
-// issue.vedun-editor: enumerate loaders that opted into editing (implement IEditableCfgLoader).
-std::vector<CfgManager::EditableEntry> CfgManager::EditableEntries() const {
-	std::vector<EditableEntry> out;
-	for (const auto &[id, info] : loaders_) {
-		if (auto *editable = dynamic_cast<IEditableCfgLoader *>(info.loader.get())) {
-			out.push_back({editable->EditableWhat(), info.file, editable});
-		}
-	}
-	return out;
-}
-
-std::optional<CfgManager::EditableEntry> CfgManager::FindEditable(const std::string &what) const {
-	for (auto &entry : EditableEntries()) {
-		if (entry.what == what) {
-			return entry;
-		}
-	}
-	return std::nullopt;
 }
 
 } // namespace cfg manager

@@ -9,7 +9,6 @@
  ************************************************************************/
 
 #include "engine/db/world_objects.h"
-#include "gameplay/fight/fight_messages.h"
 #include "engine/db/obj_prototypes.h"
 #include "engine/core/conf.h"
 #include "engine/core/sysdep.h"
@@ -534,7 +533,7 @@ void oedit_disp_weapon_menu(DescriptorData *d) {
 #endif
 	for (counter = 0; counter < NUM_ATTACK_TYPES; counter++) {
 		snprintf(buf, sizeof(buf), "%s%2d%s) %-20.20s %s", grn, counter, nrm,
-				fight::GetAttackTypeDescription(counter).c_str(), !(++columns % 2) ? "\r\n" : "");
+				attack_hit_text[counter].singular, !(++columns % 2) ? "\r\n" : "");
 		SendMsgToChar(buf, d->character.get());
 	}
 	SendMsgToChar("\r\nВыберите тип удара (0 - выход): ", d->character.get());

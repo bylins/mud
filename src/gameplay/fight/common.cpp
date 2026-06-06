@@ -2,7 +2,6 @@
 
 #include "gameplay/skills/parry.h"
 #include "engine/core/handler.h"
-#include "engine/core/target_resolver.h"
 
 int IsHaveNoExtraAttack(CharData *ch) {
 	std::string message = "";
@@ -35,7 +34,7 @@ int IsHaveNoExtraAttack(CharData *ch) {
 
 void SetWait(CharData *ch, int waittime, int wait_if_fight) {
 	if (!ch->IsImmortal() && (!wait_if_fight || (ch->GetEnemy() && ch->isInSameRoom(ch->GetEnemy())))) {
-		SetBattleLag(ch, waittime);
+		SetWaitState(ch, waittime * kBattleRound);
 	}
 }
 
@@ -55,8 +54,7 @@ void SetSkillCooldownInFight(CharData *ch, ESkill skill, int pulses) {
 
 CharData *FindVictim(CharData *ch, char *argument) {
 	one_argument(argument, arg);
-	CharData * victim = nullptr;
-	victim = target_resolver::FindCharInRoom(ch, arg);
+	CharData *victim = get_char_vis(ch, arg, EFind::kCharInRoom);
 	if (!victim) {
 		if (!*arg && ch->GetEnemy() && ch->isInSameRoom(ch->GetEnemy())) {
 			victim = ch->GetEnemy();

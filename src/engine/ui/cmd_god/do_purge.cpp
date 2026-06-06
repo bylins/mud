@@ -8,7 +8,6 @@
 
 #include "engine/entities/char_data.h"
 #include "engine/core/handler.h"
-#include "engine/core/target_resolver.h"
 #include "engine/ui/cmd/do_follow.h"
 
 void DoPurge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
@@ -18,8 +17,7 @@ void DoPurge(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	one_argument(argument, buf);
 
 	if (*buf) {        // argument supplied. destroy single object or char
-		vict = target_resolver::FindCharInRoom(ch, buf);
-		if ((vict != nullptr)) {
+		if ((vict = get_char_vis(ch, buf, EFind::kCharInRoom)) != nullptr) {
 			if (!vict->IsNpc() && GetRealLevel(ch) <= GetRealLevel(vict) && !ch->IsFlagged(EPrf::kCoderinfo)) {
 				SendMsgToChar("Да я вас за это...\r\n", ch);
 				return;

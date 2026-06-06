@@ -511,7 +511,7 @@ void DoStoreShop(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				const auto obj = shop->GetObjFromShop(item_list.node(i)->uid());
 				if (isname(stufina, obj->get_PName(ECase::kNom))) {
 					SendMsgToChar(ch, "Характеристики предмета: %s\r\n", stufina);
-					MortShowObjValues(obj, ch, 200);
+					mort_show_obj_values(obj, ch, 200);
 					ch->remove_bank(kChestIdentPay);
 					SendMsgToChar(ch,
 								  "&GЗа информацию о предмете с вашего банковского счета сняли %d %s&n\r\n",
