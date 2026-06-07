@@ -36,6 +36,10 @@ class SubCmdResolver {
 
 	[[nodiscard]] std::string Tooltip() const;  // "(баланс, вложить, получить, ...)"
 
+	// Resolve a typed word to its row id (the enum value), or -1 if unknown; sets `ambiguous` when the
+	// word is a prefix of more than one subcommand. Exposed so Dispatch's resolution can be unit-tested.
+	[[nodiscard]] int Match(const char *word, bool &ambiguous) const;
+
  private:
 	[[nodiscard]] const Row *Resolve(const char *word, bool &ambiguous) const;
 

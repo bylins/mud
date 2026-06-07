@@ -56,6 +56,11 @@ const SubCmdResolver::Row *SubCmdResolver::Resolve(const char *word, bool &ambig
 	return match;
 }
 
+int SubCmdResolver::Match(const char *word, bool &ambiguous) const {
+	const Row *row = Resolve(word, ambiguous);
+	return row ? row->id : -1;
+}
+
 int SubCmdResolver::Dispatch(CharData *ch, void *me, char *argument) const {
 	char word[kMaxInputLength];
 	char *rest = one_argument(argument, word);

@@ -60,6 +60,7 @@ void RegisterRoom(int vnum, ESpecial s) { if (s == ESpecial::kNone) g_room_speci
 ESpecial MobSpecial(int vnum) { return Lookup(g_mob_specials, vnum); }
 ESpecial ObjSpecial(int vnum) { return Lookup(g_obj_specials, vnum); }
 bool IsMobSpecial(int vnum) { return MobSpecial(vnum) != ESpecial::kNone; }
+bool IsMobSpecial(int vnum, ESpecial s) { return MobSpecial(vnum) == s; }
 } // namespace specials
 
 // Map a spec-proc function to its ESpecial, so ASSIGN* keeps the registry in sync with func.

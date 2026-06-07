@@ -40,6 +40,7 @@ void RegisterRoom(int vnum, ESpecial s);
 [[nodiscard]] ESpecial MobSpecial(int vnum);
 [[nodiscard]] ESpecial ObjSpecial(int vnum);
 [[nodiscard]] bool IsMobSpecial(int vnum);
+[[nodiscard]] bool IsMobSpecial(int vnum, ESpecial s);
 } // namespace specials
 
 #endif //BYLINS_SRC_GAMEPLAY_AI_SPEC_PROCS_H_

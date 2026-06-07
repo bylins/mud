@@ -140,7 +140,7 @@ std::vector<int> get_start_outfit(CharData *ch) {
 ///
 CharData *find_renter(int room_rnum) {
 	for (const auto tch : world[room_rnum]->people) {
-		if (specials::MobSpecial(GET_MOB_VNUM(tch)) == specials::ESpecial::kRent) {
+		if (specials::IsMobSpecial(GET_MOB_VNUM(tch), specials::ESpecial::kRent)) {
 			return tch;
 		}
 	}

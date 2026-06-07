@@ -18,6 +18,7 @@ test_sources = files(
     'vedun.element_find.cpp',
     'guilds.loader.cpp',
     'socials.loader.cpp',
+    'subcmd_resolver.cpp',
     'spell_wear_off_msg.wrapper.cpp',
     'blocking.queue.cpp',
     'boards.changelog.cpp',

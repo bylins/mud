@@ -15,7 +15,7 @@ namespace MERC {
 const int BASE_COST = 1000;
 CharData *findMercboss(int room_rnum) {
 	for (const auto tch : world[room_rnum]->people)
-		if (specials::MobSpecial(GET_MOB_VNUM(tch)) == specials::ESpecial::kMercenary)
+		if (specials::IsMobSpecial(GET_MOB_VNUM(tch), specials::ESpecial::kMercenary))
 			return tch;
 	sprintf(buf1, "[ERROR] MERC::doList - вызвана команда, не найден моб, room %d", room_rnum);
 	mudlog(buf1, LogMode::CMP, 1, EOutputStream::SYSLOG, 1);
