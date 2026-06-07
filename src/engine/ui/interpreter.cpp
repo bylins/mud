@@ -1360,7 +1360,7 @@ int find_command(const char *command) {
 }
 
 // int fnum - номер найденного в комнате спешиал-моба, для обработки нескольких спешиал-мобов в одной комнате //
-int special(CharData *ch, int cmd, char *argument, int fnum) {
+int special(CharData *ch, int cmd, char *argument, int /*fnum*/) {
 	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kHouse)) {
 		const auto clan = Clan::GetClanByRoom(ch->in_room);
 		if (!clan) {
@@ -1397,15 +1397,7 @@ int special(CharData *ch, int cmd, char *argument, int fnum) {
 		}
 	}
 
-	// special in mobile present? //
-	int specialNum = 1; //если номер не указан - по умолчанию берется первый
-	for (const auto k : world[ch->in_room]->people) {
-		if (GET_MOB_SPEC(k) != nullptr && (fnum == 1 || fnum == specialNum++)
-			&& GET_MOB_SPEC(k)(ch, k, cmd, argument)) {
-			check_hiding_cmd(ch, -1);
-			return (1);
-		}
-	}
+	// (mob spec procs are data-driven now -- dispatched via do_specproc, not special(); see spec_assign)
 
 	// special in object present? //
 	for (auto i : world[ch->in_room]->contents) {

@@ -471,7 +471,6 @@ const int kNameLevel = 5;
 
 #define GET_EQ(ch, i)      ((ch)->equipment[i])
 
-#define GET_MOB_SPEC(ch)   ((ch)->IsNpc() ? mob_index[(ch)->get_rnum()].func : nullptr)
 #define GET_MOB_RNUM(mob)  (mob)->get_rnum()
 #define GET_MOB_VNUM(mob)  ((mob)->IsNpc() ? mob_index[(mob)->get_rnum()].vnum : -1)
 
