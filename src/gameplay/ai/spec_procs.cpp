@@ -41,7 +41,6 @@ void do_say(CharData *ch, char *argument, int cmd, int subcmd);
 int find_first_step(RoomRnum src, RoomRnum target, CharData *ch);
 
 // local functions
-int dump(CharData *ch, void *me, int cmd, char *argument);
 int mayor(CharData *ch, void *me, int cmd, char *argument);
 
 // ********************************************************************
@@ -997,38 +996,6 @@ void npc_groupbattle(CharData *ch) {
 	for (auto *f : leader->followers) {
 		check_helper(f);
 	}
-}
-
-int dump(CharData *ch, void * /*me*/, int cmd, char *argument) {
-	int value = 0;
-
-	while (!world[ch->in_room]->contents.empty()) {
-		auto k = world[ch->in_room]->contents.front();
-		act("$p рассыпал$U в прах!", false, 0, k, 0, kToRoom);
-		ExtractObjFromWorld(k);
-	}
-
-	if (!CMD_IS("drop") || !CMD_IS("бросить"))
-		return (0);
-
-	DoDrop(ch, argument, cmd, 0);
-
-	while (!world[ch->in_room]->contents.empty()) {
-		auto k = world[ch->in_room]->contents.front();
-		act("$p рассыпал$U в прах!", false, 0, k, 0, kToRoom);
-		value += MAX(1, MIN(1, k->get_cost() / 10));
-		ExtractObjFromWorld(k);
-	}
-
-	if (value) {
-		SendMsgToChar("Боги оценили вашу жертву.\r\n", ch);
-		act("$n оценен$y Богами.", true, ch, 0, 0, kToRoom);
-		if (GetRealLevel(ch) < 3)
-			EndowExpToChar(ch, value);
-		else
-			ch->add_gold(value);
-	}
-	return (1);
 }
 
 #if 0

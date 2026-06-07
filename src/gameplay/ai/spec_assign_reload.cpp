@@ -11,7 +11,6 @@
 
 using special_f = int(CharData *, void *, int, char *);
 
-int dump(CharData *ch, void *me, int cmd, char *argument);
 int puff(CharData *ch, void *me, int cmd, char *argument);
 
 namespace {
@@ -31,8 +30,8 @@ bool IsManagedObjectSpecial(const special_f *func) {
 	return func == Boards::Static::Special;
 }
 
-bool IsManagedRoomSpecial(const special_f *func) {
-	return func == dump;
+bool IsManagedRoomSpecial(const special_f * /*func*/) {
+	return false;  // dump (the only room special) removed
 }
 
 void ClearManagedSpecProcs() {

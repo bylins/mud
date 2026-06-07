@@ -33,7 +33,6 @@ extern int dts_are_dumps;
 
 extern IndexData *mob_index;
 
-int dump(CharData *ch, void *me, int cmd, char *argument);
 int puff(CharData *ch, void *me, int cmd, char *argument);
 
 void assign_kings_castle(void);
@@ -82,7 +81,6 @@ static specials::ESpecial ESpecialForFunc(special_f *f) {
 	if (f == torc) return E::kTorc;
 	if (f == puff) return E::kPuff;
 	if (f == shop_ext) return E::kShop;
-	if (f == dump) return E::kDump;
 	if (f == Boards::Static::Special) return E::kBoard;
 	return E::kNone;
 }
