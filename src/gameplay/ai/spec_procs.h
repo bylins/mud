@@ -14,7 +14,6 @@
 class CharData;
 int exchange(CharData *ch, void *me, int cmd, char *argument);
 int horse_keeper(CharData *ch, void *me, int cmd, char *argument);
-int torc(CharData *ch, void *me, int cmd, char *argument);
 int TorcExchange(CharData *ch, void *me, int cmd, char *argument);
 int mercenary(CharData *ch, void * /*me*/, int cmd, char *argument);
 int shop_ext(CharData *ch, void *me, int cmd, char *argument);

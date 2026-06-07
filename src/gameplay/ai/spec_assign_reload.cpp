@@ -21,7 +21,6 @@ bool IsManagedMobSpecial(const special_f *func) {
 		|| func == bank
 		|| func == horse_keeper
 		|| func == exchange
-		|| func == torc
 		|| func == Noob::outfit
 		|| func == mercenary;
 }

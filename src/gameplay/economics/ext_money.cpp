@@ -16,7 +16,6 @@ using namespace Remort;
 
 namespace {
 
-void message_low_torc(CharData *ch, unsigned type, int amount, const char *add_text);
 
 } // namespace
 
@@ -754,50 +753,7 @@ bool need_torc(CharData *ch) {
 namespace {
 
 // жертвование гривен
-void donat_torc(CharData *ch, const std::string &mob_name, unsigned type, int amount) {
-	const int balance = ch->get_ext_money(type) - amount;
-	ch->set_ext_money(type, balance);
-	ch->SetFlag(EPrf::kCanRemort);
-
-	SendMsgToChar(ch, "Вы пожертвовали %d %s %s.\r\n",
-				  amount, GetDeclensionInNumber(amount, type_list[type].DESC_MESSAGE_NUM),
-				  GetDeclensionInNumber(amount, EWhat::kTorc));
-
-	std::string name = mob_name;
-	name_convert(name);
-
-	SendMsgToChar(ch,
-				  "%s оценил ваши заслуги перед князем и народом земли русской и вознес вам хвалу.\r\n"
-				  "Вы почувствовали себя значительно опытней.\r\n", name.c_str());
-
-	if (GET_GOD_FLAG(ch, EGf::kRemort)) {
-		SendMsgToChar(ch,
-					  "%sПоздравляем, вы получили право на перевоплощение!%s\r\n",
-					  kColorBoldGrn, kColorNrm);
-	} else {
-		SendMsgToChar(ch,
-					  "Вы подтвердили свое право на следующее перевоплощение,\r\n"
-					  "для его совершения вам нужно набрать максимальное количество опыта.\r\n");
-	}
-}
-
 // дергается как при нехватке гривен, так и при попытке реморта без пожертвований
-void message_low_torc(CharData *ch, unsigned type, int amount, const char *add_text) {
-	if (type < kTotalTypes) {
-		const int money = ch->get_ext_money(type);
-		SendMsgToChar(ch,
-					  "Для подтверждения права на перевоплощение вы должны пожертвовать %d %s %s.\r\n"
-					  "У вас в данный момент %d %s %s%s\r\n",
-					  amount,
-					  GetDeclensionInNumber(amount, type_list[type].DESC_MESSAGE_U_NUM),
-					  GetDeclensionInNumber(amount, EWhat::kTorc),
-					  money,
-					  GetDeclensionInNumber(money, type_list[type].DESC_MESSAGE_NUM),
-					  GetDeclensionInNumber(money, EWhat::kTorc),
-					  add_text);
-	}
-}
-
 } // namespace
 
 // глашатаи
@@ -813,51 +769,6 @@ int TorcExchange(CharData *ch, void * /*me*/, int /*cmd*/, char * /*argument*/) 
 	}
 	torc_exch_menu(ch);
 	return 1;
-}
-
-int torc(CharData *ch, void *me, int cmd, char * /*argument*/) {
-	if (!ch->desc || ch->IsNpc()) {
-		return 0;
-	}
-	if (CMD_IS("перевоплотитьс") || CMD_IS("перевоплотиться")) {
-		if (can_remort_now(ch)) {
-			// чар уже жертвовал или от него и не требовалось
-			return 0;
-		} else if (need_torc(ch)) {
-			TorcReq torc_req(GetRealRemort(ch));
-			// чар еще не жертвовал и от него что-то требуется
-			message_low_torc(ch, torc_req.type, torc_req.amount, " (команда 'жертвовать').");
-			return 1;
-		}
-	}
-	if (CMD_IS("жертвовать")) {
-		if (!need_torc(ch)) {
-			// от чара для реморта ничего не требуется
-			SendMsgToChar(
-				"Вам не нужно подтверждать свое право на перевоплощение, просто наберите 'перевоплотиться'.\r\n", ch);
-		} else if (ch->IsFlagged(EPrf::kCanRemort)) {
-			// чар на этом морте уже жертвовал необходимое кол-во гривен
-			if (GET_GOD_FLAG(ch, EGf::kRemort)) {
-				SendMsgToChar(
-					"Вы уже подтвердили свое право на перевоплощение, просто наберите 'перевоплотиться'.\r\n", ch);
-			} else {
-				SendMsgToChar(
-					"Вы уже пожертвовали достаточное количество гривен.\r\n"
-					"Для совершения перевоплощения вам нужно набрать максимальное количество опыта.\r\n", ch);
-			}
-		} else {
-			// пробуем пожертвовать
-			TorcReq torc_req(GetRealRemort(ch));
-			if (ch->get_ext_money(torc_req.type) >= torc_req.amount) {
-				const CharData *mob = reinterpret_cast<CharData *>(me);
-				donat_torc(ch, mob->get_name_str(), torc_req.type, torc_req.amount);
-			} else {
-				message_low_torc(ch, torc_req.type, torc_req.amount, ". Попробуйте позже.");
-			}
-		}
-		return 1;
-	}
-	return 0;
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

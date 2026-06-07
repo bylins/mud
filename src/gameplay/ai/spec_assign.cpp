@@ -78,7 +78,6 @@ static specials::ESpecial ESpecialForFunc(special_f *f) {
 	if (f == exchange) return E::kExchange;
 	if (f == mercenary) return E::kMercenary;
 	if (f == Noob::outfit) return E::kOutfit;
-	if (f == torc) return E::kTorc;
 	if (f == puff) return E::kPuff;
 	if (f == shop_ext) return E::kShop;
 	if (f == Boards::Static::Special) return E::kBoard;
@@ -195,7 +194,7 @@ namespace {
 // issue.specials: handler name -> prototype spec-proc function. Mirrors the old InitSpecProcs chain.
 const std::unordered_map<std::string, int (*)(CharData *, void *, int, char *)> kSpecialMobFuncs{
 	{"mail", postmaster}, {"bank", bank}, {"horse", horse_keeper},
-	{"exchange", exchange}, {"torc", torc}, {"outfit", Noob::outfit}, {"mercenary", mercenary},
+	{"exchange", exchange}, {"outfit", Noob::outfit}, {"mercenary", mercenary},
 	{"puff", puff},
 };
 
@@ -220,6 +219,7 @@ void ParseSpecials(parser_wrapper::DataNode &data) {
 			static const std::unordered_map<std::string, specials::ESpecial> kMigrated{
 				{"bank", specials::ESpecial::kBank},
 				{"rent", specials::ESpecial::kRent},
+				{"torc", specials::ESpecial::kTorc},
 				{"horse", specials::ESpecial::kHorse},
 				{"mail", specials::ESpecial::kMail},
 			};
