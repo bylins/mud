@@ -45,6 +45,8 @@ extern int free_crashrent_period;
 extern int free_rent;
 extern RoomRnum r_helled_start_room;
 extern RoomRnum r_named_start_room;
+#include "gameplay/ai/subcmd_resolver.h"
+#include "gameplay/ai/spec_procs.h"
 extern RoomRnum r_unreg_start_room;
 
 #define RENTCODE(number) (player_table[(number)].timer->rent.rentcode)
@@ -64,7 +66,6 @@ int auto_equip(CharData *ch, ObjData *obj, int location);
 int Crash_report_unrentables(CharData *ch, CharData *recep, ObjData *obj);
 void Crash_report_rent(CharData *ch, CharData *recep, ObjData *obj,
 					   int *cost, long *n_items, int rentshow, int factor, int equip, int recursive);
-int gen_receptionist(CharData *ch, CharData *recep, int cmd, char *arg, int mode);
 void Crash_save(std::stringstream &write_buffer, int iplayer, ObjData *obj, int location, int savetype);
 void Crash_rent_deadline(CharData *ch, CharData *recep, long cost);
 void Crash_restore_weight(ObjData *obj);
@@ -2326,30 +2327,13 @@ int Crash_offer_rent(CharData *ch, CharData *receptionist, int rentshow, int fac
 	return (true);
 }
 
-int gen_receptionist(CharData *ch, CharData *recep, int cmd, char * /*arg*/, int mode) {
+enum class ERentAction { kRent, kOffer, kSettle };
+
+int gen_receptionist(CharData *ch, CharData *recep, ERentAction action, int mode) {
 	RoomRnum save_room;
 	int cost, rentshow = true;
 
-	if (!ch->desc || ch->IsNpc())
-		return (false);
-
-	if (!cmd && !number(0, 5))
-		return (false);
-
-	if (!CMD_IS("offer") && !CMD_IS("предложение")
-		&& !CMD_IS("rent") && !CMD_IS("постой")
-		&& !CMD_IS("quit") && !CMD_IS("конец")
-		&& !CMD_IS("settle") && !CMD_IS("поселиться"))
-		return (false);
-
 	save_room = ch->in_room;
-
-	if (CMD_IS("конец") || CMD_IS("quit")) {
-		if (save_room != r_helled_start_room &&
-			save_room != r_named_start_room && save_room != r_unreg_start_room)
-			GET_LOADROOM(ch) = GET_ROOM_VNUM(save_room);
-		return (false);
-	}
 
 	if (!AWAKE(recep)) {
 		sprintf(buf, "%s не в состоянии говорить с вами...\r\n", HSSH(recep));
@@ -2375,7 +2359,7 @@ int gen_receptionist(CharData *ch, CharData *recep, int cmd, char * /*arg*/, int
 		act("$n сказал$g вам : \"Сегодня спим нахаляву!\"", false, recep, 0, ch, kToVict);
 		rentshow = false;
 	}
-	if (CMD_IS("rent") || CMD_IS("постой")) {
+	if (action == ERentAction::kRent) {
 
 		if (!Crash_offer_rent(ch, recep, rentshow, mode, &cost))
 			return (true);
@@ -2430,7 +2414,7 @@ int gen_receptionist(CharData *ch, CharData *recep, int cmd, char * /*arg*/, int
 		Clan::clan_invoice(ch, false);
 		ch->save_char();
 		ExtractCharFromWorld(ch, false);
-	} else if (CMD_IS("offer") || CMD_IS("предложение")) {
+	} else if (action == ERentAction::kOffer) {
 		Crash_offer_rent(ch, recep, rentshow, mode, &cost);
 		act("$N предложил$G $n2 остановиться у н$S.", false, ch, 0, recep, kToRoom);
 	} else {
@@ -2460,8 +2444,37 @@ int gen_receptionist(CharData *ch, CharData *recep, int cmd, char * /*arg*/, int
 	return (true);
 }
 
-int receptionist(CharData *ch, void *me, int cmd, char *argument) {
-	return (gen_receptionist(ch, (CharData *) me, cmd, argument, RENT_FACTOR));
+namespace {
+// issue.specials: rent-keeper subcommands. постой = rent+exit, предложение = show cost, поселиться =
+// set this inn as home. (Plain quit/конец is do_quit; quitting next to a renter sets loadroom there.)
+int RentRent(CharData *ch, void *me, char * /*rest*/) {
+	return gen_receptionist(ch, reinterpret_cast<CharData *>(me), ERentAction::kRent, RENT_FACTOR);
+}
+int RentOffer(CharData *ch, void *me, char * /*rest*/) {
+	return gen_receptionist(ch, reinterpret_cast<CharData *>(me), ERentAction::kOffer, RENT_FACTOR);
+}
+int RentSettle(CharData *ch, void *me, char * /*rest*/) {
+	return gen_receptionist(ch, reinterpret_cast<CharData *>(me), ERentAction::kSettle, RENT_FACTOR);
+}
+
+const SubCmdResolver kRentCmds("Чего изволите?", {
+	{{"постой", "rent"}, static_cast<int>(ERentAction::kRent), RentRent},
+	{{"предложение", "offer"}, static_cast<int>(ERentAction::kOffer), RentOffer},
+	{{"поселиться", "settle"}, static_cast<int>(ERentAction::kSettle), RentSettle},
+});
+} // namespace
+
+int RentReceptionist(CharData *ch, void *me, int /*cmd*/, char *argument) {
+	if (ch->IsNpc() || !ch->desc) {
+		return 0;
+	}
+	return kRentCmds.Dispatch(ch, me, argument);
+}
+
+// Identity marker only: IS_RENTKEEPER / map / medit detect a rentkeeper via func == receptionist.
+// Rent commands are handled by RentReceptionist (do_specproc kRent); this never handles a command.
+int receptionist(CharData * /*ch*/, void * /*me*/, int /*cmd*/, char * /*argument*/) {
+	return 0;
 }
 
 void Crash_frac_save_all(int frac_part) {
