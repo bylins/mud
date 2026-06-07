@@ -335,35 +335,57 @@ void draw_spec_mobs(const CharData *ch, int room_rnum, int next_y, int next_x, i
 	bool all = ch->map_check_option(MAP_MODE_MOB_SPEC_ALL) ? true : false;
 
 	for (const auto tch : world[room_rnum]->people) {
-		auto func = GET_MOB_SPEC(tch);
-		if (func) {
-			if (func == shop_ext
-				&& (all || ch->map_check_option(MAP_MODE_MOB_SPEC_SHOP))) {
-				put_on_screen(next_y, next_x, SCREEN_MOB_SPEC_SHOP, cur_depth);
-			} else if (func == receptionist
-				&& (all || ch->map_check_option(MAP_MODE_MOB_SPEC_RENT))) {
-				put_on_screen(next_y, next_x, SCREEN_MOB_SPEC_RENT, cur_depth);
-			} else if (func == postmaster
-				&& (all || ch->map_check_option(MAP_MODE_MOB_SPEC_MAIL))) {
-				put_on_screen(next_y, next_x, SCREEN_MOB_SPEC_MAIL, cur_depth);
-			} else if (func == bank
-				&& (all || ch->map_check_option(MAP_MODE_MOB_SPEC_BANK))) {
-				put_on_screen(next_y, next_x, SCREEN_MOB_SPEC_BANK, cur_depth);
-			} else if (func == exchange
-				&& (all || ch->map_check_option(MAP_MODE_MOB_SPEC_EXCH))) {
-				put_on_screen(next_y, next_x, SCREEN_MOB_SPEC_EXCH, cur_depth);
-			} else if (func == horse_keeper
-				&& (all || ch->map_check_option(MAP_MODE_MOB_SPEC_HORSE))) {
-				put_on_screen(next_y, next_x, SCREEN_MOB_SPEC_HORSE, cur_depth);
-			} else if ((func == guilds::GuildInfo::DoGuildLearn)
-				&& (all || ch->map_check_option(MAP_MODE_MOB_SPEC_TEACH))) {
-				put_on_screen(next_y, next_x, SCREEN_MOB_SPEC_TEACH, cur_depth);
-			} else if (func == torc
-				&& (all || ch->map_check_option(MAP_MODE_MOB_SPEC_TORC))) {
-				put_on_screen(next_y, next_x, SCREEN_MOB_SPEC_TORC, cur_depth);
-			} else if (func == Noob::outfit && (Noob::is_noob(ch))) {
-				put_on_screen(next_y, next_x, SCREEN_MOB_SPEC_OUTFIT, cur_depth);
-			}
+		if (!tch->IsNpc()) {
+			continue;
+		}
+		// issue.specials: spec-proc map markers read the data-driven registry, not the func pointer.
+		switch (specials::MobSpecial(GET_MOB_VNUM(tch))) {
+			case specials::ESpecial::kShop:
+				if (all || ch->map_check_option(MAP_MODE_MOB_SPEC_SHOP)) {
+					put_on_screen(next_y, next_x, SCREEN_MOB_SPEC_SHOP, cur_depth);
+				}
+				break;
+			case specials::ESpecial::kRent:
+				if (all || ch->map_check_option(MAP_MODE_MOB_SPEC_RENT)) {
+					put_on_screen(next_y, next_x, SCREEN_MOB_SPEC_RENT, cur_depth);
+				}
+				break;
+			case specials::ESpecial::kMail:
+				if (all || ch->map_check_option(MAP_MODE_MOB_SPEC_MAIL)) {
+					put_on_screen(next_y, next_x, SCREEN_MOB_SPEC_MAIL, cur_depth);
+				}
+				break;
+			case specials::ESpecial::kBank:
+				if (all || ch->map_check_option(MAP_MODE_MOB_SPEC_BANK)) {
+					put_on_screen(next_y, next_x, SCREEN_MOB_SPEC_BANK, cur_depth);
+				}
+				break;
+			case specials::ESpecial::kExchange:
+				if (all || ch->map_check_option(MAP_MODE_MOB_SPEC_EXCH)) {
+					put_on_screen(next_y, next_x, SCREEN_MOB_SPEC_EXCH, cur_depth);
+				}
+				break;
+			case specials::ESpecial::kHorse:
+				if (all || ch->map_check_option(MAP_MODE_MOB_SPEC_HORSE)) {
+					put_on_screen(next_y, next_x, SCREEN_MOB_SPEC_HORSE, cur_depth);
+				}
+				break;
+			case specials::ESpecial::kGuild:
+				if (all || ch->map_check_option(MAP_MODE_MOB_SPEC_TEACH)) {
+					put_on_screen(next_y, next_x, SCREEN_MOB_SPEC_TEACH, cur_depth);
+				}
+				break;
+			case specials::ESpecial::kTorc:
+				if (all || ch->map_check_option(MAP_MODE_MOB_SPEC_TORC)) {
+					put_on_screen(next_y, next_x, SCREEN_MOB_SPEC_TORC, cur_depth);
+				}
+				break;
+			case specials::ESpecial::kOutfit:
+				if (Noob::is_noob(ch)) {
+					put_on_screen(next_y, next_x, SCREEN_MOB_SPEC_OUTFIT, cur_depth);
+				}
+				break;
+			default: break;
 		}
 	}
 }

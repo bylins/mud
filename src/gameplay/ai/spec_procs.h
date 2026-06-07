@@ -20,7 +20,6 @@ int shop_ext(CharData *ch, void *me, int cmd, char *argument);
 bool is_post(RoomRnum room);
 bool is_rent(RoomRnum room);
 
-int receptionist(CharData *, void *, int, char *);
 int RentReceptionist(CharData *ch, void *me, int cmd, char *argument);
 int postmaster(CharData *, void *, int, char *);
 int bank(CharData *, void *, int, char *);

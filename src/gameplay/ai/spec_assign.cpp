@@ -64,10 +64,15 @@ bool IsMobSpecial(int vnum) { return MobSpecial(vnum) != ESpecial::kNone; }
 bool IsMobSpecial(int vnum, ESpecial s) { return MobSpecial(vnum) == s; }
 } // namespace specials
 
+bool IsRentkeeper(const CharData *ch) {
+	return ch->IsNpc() && specials::MobSpecial(GET_MOB_VNUM(ch)) == specials::ESpecial::kRent;
+}
+
+namespace specials {} // namespace specials
+
 // Map a spec-proc function to its ESpecial, so ASSIGN* keeps the registry in sync with func.
 static specials::ESpecial ESpecialForFunc(special_f *f) {
 	using E = specials::ESpecial;
-	if (f == receptionist) return E::kRent;
 	if (f == postmaster) return E::kMail;
 	if (f == bank) return E::kBank;
 	if (f == horse_keeper) return E::kHorse;
@@ -88,10 +93,6 @@ void ASSIGNMOB(MobVnum mob, int fname(CharData *, void *, int, char *)) {
 	if ((rnum = GetMobRnum(mob)) >= 0) {
 		mob_index[rnum].func = fname;
 		specials::RegisterMob(mob, ESpecialForFunc(fname));
-		// рентерам хардкодом снимаем возможные нежелательные флаги
-		if (fname == receptionist) {
-			clear_mob_charm(&mob_proto[rnum]);
-		}
 	} else {
 		err_log("Attempt to assign spec to non-existant mob #%d", mob);
 	}
@@ -141,9 +142,12 @@ void ASSIGNMASTER(MobVnum mob, special_f /*fname*/, int learn_info) {
 * не запустится, толку в коде держать даже этот минимальный набор.
 */
 void AssignMobiles(void) {
-	// HOTEL //
-	ASSIGNMOB(106, receptionist);
-	ASSIGNMOB(4022, receptionist);
+	// HOTEL: data-driven (registry kRent, do_specproc). 4022 comes from cfg/specials.xml;
+	// 106 is hardcoded here (not in cfg). Rentkeepers get charm flags cleared.
+	if (const auto rnum = GetMobRnum(106); rnum >= 0) {
+		specials::RegisterMob(106, specials::ESpecial::kRent);
+		clear_mob_charm(&mob_proto[rnum]);
+	}
 
 	// POSTMASTER 4002: data-driven (registry kMail, do_specproc); 4070 comes from cfg/specials.xml.
 	specials::RegisterMob(4002, specials::ESpecial::kMail);
@@ -192,7 +196,7 @@ void clear_mob_charm(CharData *mob) {
 namespace {
 // issue.specials: handler name -> prototype spec-proc function. Mirrors the old InitSpecProcs chain.
 const std::unordered_map<std::string, int (*)(CharData *, void *, int, char *)> kSpecialMobFuncs{
-	{"rent", receptionist}, {"mail", postmaster}, {"bank", bank}, {"horse", horse_keeper},
+	{"mail", postmaster}, {"bank", bank}, {"horse", horse_keeper},
 	{"exchange", exchange}, {"torc", torc}, {"outfit", Noob::outfit}, {"mercenary", mercenary},
 	{"puff", puff},
 };
@@ -217,13 +221,18 @@ void ParseSpecials(parser_wrapper::DataNode &data) {
 			// (no func pointer): the command verb routes to do_specproc, which dispatches by ESpecial.
 			static const std::unordered_map<std::string, specials::ESpecial> kMigrated{
 				{"bank", specials::ESpecial::kBank},
+				{"rent", specials::ESpecial::kRent},
 				{"horse", specials::ESpecial::kHorse},
 				{"mail", specials::ESpecial::kMail},
 			};
 			const auto mig = kMigrated.find(handler);
 			if (mig != kMigrated.end()) {
-				if (GetMobRnum(vnum) >= 0) {
+				const auto mrnum = GetMobRnum(vnum);
+				if (mrnum >= 0) {
 					specials::RegisterMob(vnum, mig->second);
+					if (mig->second == specials::ESpecial::kRent) {
+						clear_mob_charm(&mob_proto[mrnum]);
+					}
 				} else {
 					err_log("specials: mob vnum %d not found -- skipped.", vnum);
 				}

@@ -183,7 +183,8 @@ constexpr int kSecsPerRealDay = 24*kSecsPerRealHour;
 // ch->IsImmortal(), ch->IsGod(), ch->IsGrGod(), ch->IsImpl()
 
 #define IS_SHOPKEEPER(ch) ((ch)->IsNpc() && mob_index[(ch)->get_rnum()].func == shop_ext)
-#define IS_RENTKEEPER(ch) ((ch)->IsNpc() && mob_index[(ch)->get_rnum()].func == receptionist)
+bool IsRentkeeper(const CharData *ch);  // defined in spec_assign.cpp; rentkeeper = registry kRent
+#define IS_RENTKEEPER(ch) IsRentkeeper(&*(ch))
 #define IS_POSTKEEPER(ch) ((ch)->IsNpc() && mob_index[(ch)->get_rnum()].func == postmaster)
 #define IS_BANKKEEPER(ch) ((ch)->IsNpc() && mob_index[(ch)->get_rnum()].func == bank)
 

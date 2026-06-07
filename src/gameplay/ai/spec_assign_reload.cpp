@@ -18,7 +18,6 @@ namespace {
 
 bool IsManagedMobSpecial(const special_f *func) {
 	return func == puff
-		|| func == receptionist
 		|| func == postmaster
 		|| func == bank
 		|| func == horse_keeper

@@ -2471,12 +2471,6 @@ int RentReceptionist(CharData *ch, void *me, int /*cmd*/, char *argument) {
 	return kRentCmds.Dispatch(ch, me, argument);
 }
 
-// Identity marker only: IS_RENTKEEPER / map / medit detect a rentkeeper via func == receptionist.
-// Rent commands are handled by RentReceptionist (do_specproc kRent); this never handles a command.
-int receptionist(CharData * /*ch*/, void * /*me*/, int /*cmd*/, char * /*argument*/) {
-	return 0;
-}
-
 void Crash_frac_save_all(int frac_part) {
 	DescriptorData *d;
 	// OpenTelemetry: Track fractional save
