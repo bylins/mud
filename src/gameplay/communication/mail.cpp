@@ -9,6 +9,7 @@
 ************************************************************************ */
 
 #include "mail.h"
+#include "gameplay/ai/subcmd_resolver.h"
 
 #include "engine/db/world_objects.h"
 #include "engine/core/handler.h"
@@ -96,34 +97,51 @@ const int MAX_MAIL_SIZE = 32768;
 //* Below is the spec_proc for a postmaster using the above      *
 //* routines.  Written by Jeremy Elson (jelson@circlemud.org)    *
 //****************************************************************
-int postmaster(CharData *ch, void *me, int cmd, char *argument) {
-	if (!ch->desc || ch->IsNpc())
-		return (0);    // so mobs don't get caught here
+namespace {
+// issue.specials: post-office subcommands. почта with no arg checks mail (in the wrapper); the rest
+// (отправить/получить/вернуть/проверить) go through the resolver.
+enum class EMailCmd { kSend, kReceive, kReturn, kCheck };
 
-	if (!(CMD_IS("mail") || CMD_IS("check") || CMD_IS("receive")
-		|| CMD_IS("почта") || CMD_IS("получить") || CMD_IS("отправить")
-		|| CMD_IS("return") || CMD_IS("вернуть")))
-		return (0);
+int MailSend(CharData *ch, void *me, char *rest) {
+	postmaster_send_mail(ch, reinterpret_cast<CharData *>(me), 0, rest);
+	return 1;
+}
+int MailCheck(CharData *ch, void *me, char *rest) {
+	postmaster_check_mail(ch, reinterpret_cast<CharData *>(me), 0, rest);
+	return 1;
+}
+int MailReceive(CharData *ch, void *me, char *rest) {
+	one_argument(rest, arg);
+	if (utils::IsAbbr(arg, "вещи")) {
+		NamedStuff::receive_items(ch, reinterpret_cast<CharData *>(me));
+	} else {
+		postmaster_receive_mail(ch, reinterpret_cast<CharData *>(me), 0, rest);
+	}
+	return 1;
+}
+int MailReturn(CharData *ch, void *me, char * /*rest*/) {
+	Parcel::bring_back(ch, reinterpret_cast<CharData *>(me));
+	return 1;
+}
 
-	if (CMD_IS("mail") || CMD_IS("отправить")) {
-		postmaster_send_mail(ch, (CharData *) me, cmd, argument);
-		return (1);
-	} else if (CMD_IS("check") || CMD_IS("почта")) {
-		postmaster_check_mail(ch, (CharData *) me, cmd, argument);
-		return (1);
-	} else if (CMD_IS("receive") || CMD_IS("получить")) {
-		one_argument(argument, arg);
-		if (utils::IsAbbr(arg, "вещи")) {
-			NamedStuff::receive_items(ch, (CharData *) me);
-		} else {
-			postmaster_receive_mail(ch, (CharData *) me, cmd, argument);
-		}
-		return (1);
-	} else if (CMD_IS("return") || CMD_IS("вернуть")) {
-		Parcel::bring_back(ch, (CharData *) me);
-		return (1);
-	} else
+const SubCmdResolver kMailCmds("Что вам угодно на почте?", {
+	{{"отправить", "mail"}, static_cast<int>(EMailCmd::kSend), MailSend},
+	{{"получить", "receive"}, static_cast<int>(EMailCmd::kReceive), MailReceive},
+	{{"вернуть"}, static_cast<int>(EMailCmd::kReturn), MailReturn},
+	{{"проверить", "check"}, static_cast<int>(EMailCmd::kCheck), MailCheck},
+});
+} // namespace
+
+int postmaster(CharData *ch, void *me, int /*cmd*/, char *argument) {
+	if (!ch->desc || ch->IsNpc()) {
 		return (0);
+	}
+	skip_spaces(&argument);
+	if (!*argument) {
+		postmaster_check_mail(ch, reinterpret_cast<CharData *>(me), 0, argument);
+		return (1);
+	}
+	return kMailCmds.Dispatch(ch, me, argument);
 }
 
 void postmaster_check_mail(CharData *ch, CharData *mailman, int/* cmd*/, char * /*arg*/) {

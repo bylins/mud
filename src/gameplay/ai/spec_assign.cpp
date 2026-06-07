@@ -144,8 +144,8 @@ void AssignMobiles(void) {
 	ASSIGNMOB(106, receptionist);
 	ASSIGNMOB(4022, receptionist);
 
-	// POSTMASTER //
-	ASSIGNMOB(4002, postmaster);
+	// POSTMASTER 4002: data-driven (registry kMail, do_specproc); 4070 comes from cfg/specials.xml.
+	specials::RegisterMob(4002, specials::ESpecial::kMail);
 
 	// BANK is data-driven now (cfg/specials.xml -> kBank registry, do_specproc dispatch).
 
@@ -217,6 +217,7 @@ void ParseSpecials(parser_wrapper::DataNode &data) {
 			static const std::unordered_map<std::string, specials::ESpecial> kMigrated{
 				{"bank", specials::ESpecial::kBank},
 				{"horse", specials::ESpecial::kHorse},
+				{"mail", specials::ESpecial::kMail},
 			};
 			const auto mig = kMigrated.find(handler);
 			if (mig != kMigrated.end()) {
@@ -258,6 +259,7 @@ static int DispatchSpecial(specials::ESpecial s, CharData *ch, void *me, int cmd
 		case specials::ESpecial::kShop: return shop_ext(ch, me, cmd, arg);
 		case specials::ESpecial::kBank: return bank(ch, me, cmd, arg);
 		case specials::ESpecial::kHorse: return horse_keeper(ch, me, cmd, arg);
+		case specials::ESpecial::kMail: return postmaster(ch, me, cmd, arg);
 		default: return 0;
 	}
 }
