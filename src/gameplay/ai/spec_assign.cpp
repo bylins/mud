@@ -149,8 +149,7 @@ void AssignMobiles(void) {
 
 	// BANK is data-driven now (cfg/specials.xml -> kBank registry, do_specproc dispatch).
 
-	// HORSEKEEPER //
-	ASSIGNMOB(4023, horse_keeper);
+	// HORSEKEEPER is data-driven now (cfg/specials.xml -> kHorse, do_specproc).
 }
 
 // assign special procedures to objects //
@@ -217,6 +216,7 @@ void ParseSpecials(parser_wrapper::DataNode &data) {
 			// (no func pointer): the command verb routes to do_specproc, which dispatches by ESpecial.
 			static const std::unordered_map<std::string, specials::ESpecial> kMigrated{
 				{"bank", specials::ESpecial::kBank},
+				{"horse", specials::ESpecial::kHorse},
 			};
 			const auto mig = kMigrated.find(handler);
 			if (mig != kMigrated.end()) {
@@ -257,6 +257,7 @@ static int DispatchSpecial(specials::ESpecial s, CharData *ch, void *me, int cmd
 	switch (s) {
 		case specials::ESpecial::kShop: return shop_ext(ch, me, cmd, arg);
 		case specials::ESpecial::kBank: return bank(ch, me, cmd, arg);
+		case specials::ESpecial::kHorse: return horse_keeper(ch, me, cmd, arg);
 		default: return 0;
 	}
 }

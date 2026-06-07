@@ -48,30 +48,13 @@ int mayor(CharData *ch, void *me, int cmd, char *argument);
 // *  Special procedures for mobiles                                  *
 // ********************************************************************
 
-int horse_keeper(CharData *ch, void *me, int cmd, char *argument) {
+namespace {
+// issue.specials: horse-keeper subcommands. лошадь with no arg offers a horse (depends on state,
+// handled in the wrapper); лошадь купить/продать go through the resolver.
+enum class EHorseCmd { kBuy, kSell };
+
+int HorseBuy(CharData *ch, void *me, char * /*rest*/) {
 	CharData *victim = (CharData *) me, *horse = nullptr;
-
-	if (ch->IsNpc())
-		return (0);
-
-	if (!CMD_IS("лошадь") && !CMD_IS("horse"))
-		return (0);
-
-	skip_spaces(&argument);
-
-	if (!*argument) {
-		if (ch->has_horse(false)) {
-			act("$N поинтересовал$U : \"$n, зачем тебе второй скакун? У тебя ведь одно седалище.\"",
-				false, ch, nullptr, victim, kToChar);
-			return (true);
-		}
-		sprintf(buf, "$N сказал$G : \"Я продам тебе скакуна за %d %s.\"",
-				kHorseCost, GetDeclensionInNumber(kHorseCost, EWhat::kMoneyA));
-		act(buf, false, ch, nullptr, victim, kToChar);
-		return (true);
-	}
-
-	if (!strn_cmp(argument, "купить", strlen(argument)) || !strn_cmp(argument, "buy", strlen(argument))) {
 		if (ch->has_horse(false)) {
 			act("$N засмеял$U : \"$n, ты шутишь, у тебя же есть скакун.\"", false, ch, 0, victim, kToChar);
 			return (true);
@@ -98,9 +81,11 @@ int horse_keeper(CharData *ch, void *me, int cmd, char *argument) {
 		ch->remove_gold(kHorseCost);
 		ch->SetFlag(EPlrFlag::kCrashSave);
 		return (true);
-	}
+	return (1);
+}
 
-	if (!strn_cmp(argument, "продать", strlen(argument)) || !strn_cmp(argument, "sell", strlen(argument))) {
+int HorseSell(CharData *ch, void *me, char * /*rest*/) {
+	CharData *victim = (CharData *) me, *horse = nullptr;
 		if (!ch->has_horse(true)) {
 			act("$N засмеял$U : \"$n, ты не влезешь в мое стойло.\"", false, ch, 0, victim, kToChar);
 			return (true);
@@ -129,9 +114,34 @@ int horse_keeper(CharData *ch, void *me, int cmd, char *argument) {
 		ch->add_gold((kHorseCost >> 1));
 		ch->SetFlag(EPlrFlag::kCrashSave);
 		return (true);
-	}
+	return (1);
+}
 
-	return (0);
+const SubCmdResolver kHorseCmds("Что вам угодно?", {
+	{{"купить", "buy"}, static_cast<int>(EHorseCmd::kBuy), HorseBuy},
+	{{"продать", "sell"}, static_cast<int>(EHorseCmd::kSell), HorseSell},
+});
+} // namespace
+
+int horse_keeper(CharData *ch, void *me, int /*cmd*/, char *argument) {
+	if (ch->IsNpc()) {
+		return (0);
+	}
+	CharData *victim = (CharData *) me;
+	skip_spaces(&argument);
+	if (!*argument) {
+			if (ch->has_horse(false)) {
+				act("$N поинтересовал$U : \"$n, зачем тебе второй скакун? У тебя ведь одно седалище.\"",
+					false, ch, nullptr, victim, kToChar);
+				return (true);
+			}
+			sprintf(buf, "$N сказал$G : \"Я продам тебе скакуна за %d %s.\"",
+					kHorseCost, GetDeclensionInNumber(kHorseCost, EWhat::kMoneyA));
+			act(buf, false, ch, nullptr, victim, kToChar);
+			return (true);
+		return (1);
+	}
+	return kHorseCmds.Dispatch(ch, me, argument);
 }
 
 bool item_nouse(ObjData *obj) {

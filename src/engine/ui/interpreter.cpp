@@ -575,7 +575,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"леваярука", EPosition::kRest, do_grab, 1, 0, 300},
 		{"лечить", EPosition::kStand, DoFirstaid, 0, 0, -1},
 		{"лить", EPosition::kStand, do_pour, 0, kScmdPour, 500},
-		{"лошадь", EPosition::kStand, do_not_here, 1, 0, -1},
+		{"лошадь", EPosition::kStand, do_specproc, 1, static_cast<int>(specials::ESpecial::kHorse), -1},
 		{"лучшие", EPosition::kDead, Rating::DoBest, 0, 0, 0},
 
 		{"маскировка", EPosition::kRest, do_camouflage, 0, 0, 500},
@@ -870,7 +870,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"hit", EPosition::kFight, DoHit, 0, kScmdHit, -1},
 		{"hold", EPosition::kRest, do_grab, 1, 0, 500},
 		{"holler", EPosition::kRest, do_gen_comm, 1, kScmdHoller, -1},
-		{"horse", EPosition::kStand, do_not_here, 0, 0, -1},
+		{"horse", EPosition::kStand, do_specproc, 0, static_cast<int>(specials::ESpecial::kHorse), -1},
 		{"house", EPosition::kRest, ClanSystem::DoHouse, 0, 0, 0},
 		{"huk", EPosition::kFight, DoMighthit, 0, 0, -1},
 		{"idea", EPosition::kDead, Boards::DoBoard, 1, Boards::IDEA_BOARD, 0},
