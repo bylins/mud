@@ -27,6 +27,7 @@
 #include "utils/logger.h"
 
 #include <string>
+#include <set>
 #include <unordered_map>
 
 extern int dts_are_dumps;
@@ -47,23 +48,37 @@ void clear_mob_charm(CharData *mob);
 
 namespace specials {
 namespace {
-std::unordered_map<int, ESpecial> g_mob_specials, g_obj_specials, g_room_specials;
+// A mob may carry SEVERAL specials (banker + innkeeper, trainer + merchant); objs/rooms carry one.
+std::unordered_map<int, std::set<ESpecial>> g_mob_specials;
+std::unordered_map<int, ESpecial> g_obj_specials, g_room_specials;
 ESpecial Lookup(const std::unordered_map<int, ESpecial> &m, int vnum) {
 	const auto it = m.find(vnum);
 	return it == m.end() ? ESpecial::kNone : it->second;
 }
 } // namespace
-void RegisterMob(int vnum, ESpecial s) { if (s == ESpecial::kNone) g_mob_specials.erase(vnum); else g_mob_specials[vnum] = s; }
+void RegisterMob(int vnum, ESpecial s) { if (s == ESpecial::kNone) g_mob_specials.erase(vnum); else g_mob_specials[vnum].insert(s); }
 void RegisterObj(int vnum, ESpecial s) { if (s == ESpecial::kNone) g_obj_specials.erase(vnum); else g_obj_specials[vnum] = s; }
 void RegisterRoom(int vnum, ESpecial s) { if (s == ESpecial::kNone) g_room_specials.erase(vnum); else g_room_specials[vnum] = s; }
-ESpecial MobSpecial(int vnum) { return Lookup(g_mob_specials, vnum); }
+const std::set<ESpecial> &MobSpecials(int vnum) {
+	static const std::set<ESpecial> kEmpty;
+	const auto it = g_mob_specials.find(vnum);
+	return it == g_mob_specials.end() ? kEmpty : it->second;
+}
 ESpecial ObjSpecial(int vnum) { return Lookup(g_obj_specials, vnum); }
-bool IsMobSpecial(int vnum) { return MobSpecial(vnum) != ESpecial::kNone; }
-bool IsMobSpecial(int vnum, ESpecial s) { return MobSpecial(vnum) == s; }
+bool IsMobSpecial(int vnum) { return !MobSpecials(vnum).empty(); }
+bool IsMobSpecial(int vnum, ESpecial s) { return MobSpecials(vnum).count(s) > 0; }
+bool SharesMobSpecial(int v1, int v2) {
+	for (const auto s : MobSpecials(v1)) {
+		if (IsMobSpecial(v2, s)) {
+			return true;
+		}
+	}
+	return false;
+}
 } // namespace specials
 
 bool IsRentkeeper(const CharData *ch) {
-	return ch->IsNpc() && specials::MobSpecial(GET_MOB_VNUM(ch)) == specials::ESpecial::kRent;
+	return ch->IsNpc() && specials::IsMobSpecial(GET_MOB_VNUM(ch), specials::ESpecial::kRent);
 }
 
 namespace specials {} // namespace specials
@@ -257,7 +272,7 @@ void RunSpecCommand(CharData *ch, ESpecial want, char *line) {
 	const int fnum = GetSpecprocFnum();
 	int specialNum = 1;
 	for (const auto vict : world[ch->in_room]->people) {
-		if (vict->IsNpc() && MobSpecial(GET_MOB_VNUM(vict)) == want) {
+		if (vict->IsNpc() && IsMobSpecial(GET_MOB_VNUM(vict), want)) {
 			if (fnum == 1 || fnum == specialNum++) {
 				if (DispatchSpecial(want, ch, vict, 0, line)) {
 					return;
@@ -270,7 +285,7 @@ void RunSpecCommand(CharData *ch, ESpecial want, char *line) {
 
 bool IsMobSpecialInRoom(RoomRnum room, ESpecial s) {
 	for (const auto vict : world[room]->people) {
-		if (vict->IsNpc() && MobSpecial(GET_MOB_VNUM(vict)) == s) {
+		if (vict->IsNpc() && IsMobSpecial(GET_MOB_VNUM(vict), s)) {
 			return true;
 		}
 	}

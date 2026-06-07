@@ -664,7 +664,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"переделать", EPosition::kRest, DoFit, 0, kScmdDoAdapt, 500},
 		{"подсмотреть", EPosition::kRest, DoLook, 0, kScmdLookHide, 0},
 		{"положить", EPosition::kRest, do_put, 0, 0, 400},
-		{"получить", EPosition::kStand, do_not_here, 1, 0, -1},
+		{"получить", EPosition::kStand, do_receive, 1, 0, -1},
 		{"политика", EPosition::kSleep, ClanSystem::DoShowPolitics, 0, 0, 0},
 		{"помочь", EPosition::kFight, do_assist, 1, 0, -1},
 		{"помощь", EPosition::kDead, do_help, 0, 0, 0},
@@ -1135,6 +1135,17 @@ void do_specword(CharData *ch, char *argument, int cmd, int subcmd) {
 	char line[kMaxInputLength];
 	snprintf(line, sizeof(line), "%s %s", cmd_info[cmd].command, argument);
 	specials::RunSpecCommand(ch, static_cast<specials::ESpecial>(subcmd), line);
+}
+
+// "получить" is claimed by both the bank (withdraw) and the post office (receive); when both could
+// apply we prefer the bank (банк получить / почта получить are always unambiguous).
+void do_receive(CharData *ch, char *argument, int cmd, int /*subcmd*/) {
+	char line[kMaxInputLength];
+	snprintf(line, sizeof(line), "%s %s", cmd_info[cmd].command, argument);
+	const auto target = specials::IsMobSpecialInRoom(ch->in_room, specials::ESpecial::kBank)
+		? specials::ESpecial::kBank
+		: specials::ESpecial::kMail;
+	specials::RunSpecCommand(ch, target, line);
 }
 
 void command_interpreter(CharData *ch, char *argument) {

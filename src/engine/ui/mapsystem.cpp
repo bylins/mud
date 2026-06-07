@@ -338,8 +338,9 @@ void draw_spec_mobs(const CharData *ch, int room_rnum, int next_y, int next_x, i
 		if (!tch->IsNpc()) {
 			continue;
 		}
-		// issue.specials: spec-proc map markers read the data-driven registry, not the func pointer.
-		switch (specials::MobSpecial(GET_MOB_VNUM(tch))) {
+		// issue.specials: markers read the registry; a mob may have several specials -> several markers.
+		for (const auto spec : specials::MobSpecials(GET_MOB_VNUM(tch))) {
+		switch (spec) {
 			case specials::ESpecial::kShop:
 				if (all || ch->map_check_option(MAP_MODE_MOB_SPEC_SHOP)) {
 					put_on_screen(next_y, next_x, SCREEN_MOB_SPEC_SHOP, cur_depth);
@@ -386,6 +387,7 @@ void draw_spec_mobs(const CharData *ch, int room_rnum, int next_y, int next_x, i
 				}
 				break;
 			default: break;
+		}
 		}
 	}
 }

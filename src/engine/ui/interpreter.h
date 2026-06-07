@@ -50,6 +50,7 @@ int special(CharData *ch, int cmd, char *argument, int fnum);
 int GetSpecprocFnum();
 void do_specproc(CharData *ch, char *argument, int cmd, int subcmd);
 void do_specword(CharData *ch, char *argument, int cmd, int subcmd);
+void do_receive(CharData *ch, char *argument, int cmd, int subcmd);
 int find_name(const char *name);
 
 void check_hiding_cmd(CharData *ch, int percent);

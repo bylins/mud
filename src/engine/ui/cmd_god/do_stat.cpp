@@ -41,20 +41,29 @@
 extern char *diag_weapon_to_char(const CObjectPrototype *obj, int show_wear);
 
 std::string print_special(CharData *mob) {
-	// issue.specials: identity via the data-driven registry (shops are registry-only now).
-	switch (specials::MobSpecial(GET_MOB_VNUM(mob))) {
-		case specials::ESpecial::kShop: return "торговец";
-		case specials::ESpecial::kRent: return "рентер";
-		case specials::ESpecial::kMail: return "почтальон";
-		case specials::ESpecial::kBank: return "банкир";
-		case specials::ESpecial::kExchange: return "зазывала";
-		case specials::ESpecial::kHorse: return "конюх";
-		case specials::ESpecial::kGuild: return "учитель";
-		case specials::ESpecial::kTorc: return "меняла";
-		case specials::ESpecial::kOutfit: return "нубхелпер";
-		case specials::ESpecial::kMercenary: return "ватажник";
-		default: return "нет";
+	// issue.specials: identity via the registry; a mob may carry several specials (comma-joined).
+	std::string out;
+	for (const auto s : specials::MobSpecials(GET_MOB_VNUM(mob))) {
+		const char *name = "глюк";
+		switch (s) {
+			case specials::ESpecial::kShop: name = "торговец"; break;
+			case specials::ESpecial::kRent: name = "рентер"; break;
+			case specials::ESpecial::kMail: name = "почтальон"; break;
+			case specials::ESpecial::kBank: name = "банкир"; break;
+			case specials::ESpecial::kExchange: name = "зазывала"; break;
+			case specials::ESpecial::kHorse: name = "конюх"; break;
+			case specials::ESpecial::kGuild: name = "учитель"; break;
+			case specials::ESpecial::kTorc: name = "меняла"; break;
+			case specials::ESpecial::kOutfit: name = "нубхелпер"; break;
+			case specials::ESpecial::kMercenary: name = "ватажник"; break;
+			default: break;
+		}
+		if (!out.empty()) {
+			out += ", ";
+		}
+		out += name;
 	}
+	return out.empty() ? "нет" : out;
 }
 
 

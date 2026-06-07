@@ -874,7 +874,7 @@ bool allow_enter(RoomData *room, CharData *ch) {
 
 	for (const auto vict : room->people) {
 		if (vict->IsNpc()
-			&& specials::MobSpecial(GET_MOB_VNUM(vict)) == specials::MobSpecial(GET_MOB_VNUM(ch))) {
+			&& specials::SharesMobSpecial(GET_MOB_VNUM(vict), GET_MOB_VNUM(ch))) {
 			return false;
 		}
 	}

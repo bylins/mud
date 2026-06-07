@@ -357,7 +357,7 @@ void medit_save_internally(DescriptorData *d) {
 		medit_mobile_free(OLC_MOB(d));
 		// Удаление "оболочки" произойдет в olc_cleanup
 
-		if (specials::MobSpecial(mob_index[rmob_num].vnum) == specials::ESpecial::kRent) {
+		if (specials::IsMobSpecial(mob_index[rmob_num].vnum, specials::ESpecial::kRent)) {
 			clear_mob_charm(&mob_proto[rmob_num]);
 		}
 

@@ -11,6 +11,8 @@
 
 #include "engine/structs/structs.h"
 
+#include <set>
+
 class CharData;
 int exchange(CharData *ch, void *me, int cmd, char *argument);
 int horse_keeper(CharData *ch, void *me, int cmd, char *argument);
@@ -37,11 +39,12 @@ enum class ESpecial {
 void RegisterMob(int vnum, ESpecial s);
 void RegisterObj(int vnum, ESpecial s);
 void RegisterRoom(int vnum, ESpecial s);
-[[nodiscard]] ESpecial MobSpecial(int vnum);
+[[nodiscard]] const std::set<ESpecial> &MobSpecials(int vnum);  // a mob may have several specials
 [[nodiscard]] ESpecial ObjSpecial(int vnum);
 [[nodiscard]] bool IsMobSpecial(int vnum);
 [[nodiscard]] bool IsMobSpecial(int vnum, ESpecial s);
 [[nodiscard]] bool IsMobSpecialInRoom(RoomRnum room, ESpecial s);
+[[nodiscard]] bool SharesMobSpecial(int v1, int v2);  // do two mobs have any special in common
 // Find the room carrier registered with `s` (honouring fnum) and run `line` through its handler;
 // if no carrier handles it, send the standard "wrong place" reply.
 void RunSpecCommand(CharData *ch, ESpecial s, char *line);
