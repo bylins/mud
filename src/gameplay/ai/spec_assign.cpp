@@ -14,6 +14,7 @@
 
 #include "engine/db/obj_prototypes.h"
 #include "gameplay/clans/house.h"
+#include "gameplay/mechanics/guilds.h"
 #include "gameplay/communication/boards/boards_constants.h"
 #include "gameplay/communication/boards/boards.h"
 #include "engine/entities/char_data.h"
@@ -118,11 +119,11 @@ void ASSIGNROOM(RoomVnum room, special_f fname) {
 	}
 }
 
-void ASSIGNMASTER(MobVnum mob, special_f fname, int learn_info) {
+void ASSIGNMASTER(MobVnum mob, special_f /*fname*/, int learn_info) {
 	MobRnum rnum;
 
 	if ((rnum = GetMobRnum(mob)) >= 0) {
-		mob_index[rnum].func = fname;
+		// do_specproc-only: store the guild vnum + register kGuild; no func pointer.
 		mob_index[rnum].stored = learn_info;
 		specials::RegisterMob(mob, specials::ESpecial::kGuild);
 	} else {
@@ -260,6 +261,7 @@ static int DispatchSpecial(specials::ESpecial s, CharData *ch, void *me, int cmd
 		case specials::ESpecial::kBank: return bank(ch, me, cmd, arg);
 		case specials::ESpecial::kHorse: return horse_keeper(ch, me, cmd, arg);
 		case specials::ESpecial::kMail: return postmaster(ch, me, cmd, arg);
+		case specials::ESpecial::kGuild: return guilds::GuildInfo::DoGuildLearn(ch, me, cmd, arg);
 		default: return 0;
 	}
 }

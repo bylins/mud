@@ -163,9 +163,7 @@ int GuildInfo::DoGuildLearn(CharData *ch, void *me, int cmd, char *argument) {
 	if (ch->IsNpc()) {
 		return 0;
 	}
-	if (!CMD_IS("учить") && !CMD_IS("practice")) {
-		return 0;
-	}
+	// dispatched via do_specproc(kGuild); the command word is always учить/practice.
 
 	/*
 	 *  Это не слишком красиво, потому что кто-нибудь может затереть поле stored в индексе и гильдия перестанет работать,
