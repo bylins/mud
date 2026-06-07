@@ -356,7 +356,6 @@ void do_horseput(CharData *ch, char *argument, int cmd, int subcmd);
 void do_horseget(CharData *ch, char *argument, int cmd, int subcmd);
 void do_horsetake(CharData *ch, char *argument, int cmd, int subcmd);
 void do_givehorse(CharData *ch, char *argument, int cmd, int subcmd);
-void DoStoreShop(CharData *ch, char *argument, int, int);
 void do_not_here(CharData *ch, char *argument, int cmd, int subcmd);
 void do_olc(CharData *ch, char *argument, int cmd, int subcmd);
 void do_report(CharData *ch, char *argument, int cmd, int subcmd);
@@ -580,7 +579,6 @@ cpp_extern const struct command_info cmd_info[] =
 		{"лучшие", EPosition::kDead, Rating::DoBest, 0, 0, 0},
 
 		{"маскировка", EPosition::kRest, do_camouflage, 0, 0, 500},
-		{"магазины", EPosition::kDead, DoStoreShop, kLvlImmortal, 0, 0},
 		{"метнуть", EPosition::kFight, DoThrow, 0, kScmdPhysicalThrow, -1},
 		{"магазин", EPosition::kStand, do_specproc, 0, static_cast<int>(specials::ESpecial::kShop), -1},
 		{"менять", EPosition::kStand, do_not_here, 0, 0, -1},
