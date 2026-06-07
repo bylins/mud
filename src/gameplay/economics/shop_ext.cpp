@@ -3,6 +3,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include "shop_ext.h"
+#include "gameplay/ai/subcmd_resolver.h"
 #include "gameplay/mechanics/identify.h"
 
 #include "third_party_libs/pugixml/pugixml.h"
@@ -361,83 +362,123 @@ int get_spent_today() {
 
 using namespace ShopExt;
 
-int shop_ext(CharData *ch, void *me, int cmd, char *argument) {
+namespace {
+// issue.specials: shop subcommands. One function per action; the resolver maps the synonym words to
+// these handlers and auto-generates the "Чего желаете" tooltip from the same list. The legacy steal
+// override is gone (shops are entity-verb "магазин <действие>" now).
+enum class EShopCmd { kList, kBuy, kSell, kValue, kRepair, kFilter, kExamine, kIdentify };
+
+shop_node::shared_ptr ShopOf(CharData *ch, CharData *keeper) {
+	for (const auto &s : shop_list) {
+		if (std::find(s->mob_vnums().begin(), s->mob_vnums().end(), GET_MOB_VNUM(keeper)) != s->mob_vnums().end()) {
+			return s;
+		}
+	}
+	log("SYSERROR : магазин не найден mob_vnum=%d (%s:%d)", GET_MOB_VNUM(keeper), __FILE__, __LINE__);
+	SendMsgToChar("Ошибочка вышла.\r\n", ch);
+	return nullptr;
+}
+
+int ShopList(CharData *ch, void *me, char *rest) {
+	auto *const keeper = reinterpret_cast<CharData *>(me);
+	const auto shop = ShopOf(ch, keeper);
+	if (!shop) {
+		return 1;
+	}
+	std::string buffer = rest, buffer2;
+	GetOneParam(buffer, buffer2);
+	shop->print_shop_list(ch, buffer2, GET_MOB_VNUM(keeper));
+	return 1;
+}
+
+int ShopFilter(CharData *ch, void *me, char *rest) {
+	auto *const keeper = reinterpret_cast<CharData *>(me);
+	const auto shop = ShopOf(ch, keeper);
+	if (!shop) {
+		return 1;
+	}
+	shop->filter_shop_list(ch, rest, GET_MOB_VNUM(keeper));
+	return 1;
+}
+
+int ShopBuy(CharData *ch, void *me, char *rest) {
+	auto *const keeper = reinterpret_cast<CharData *>(me);
+	const auto shop = ShopOf(ch, keeper);
+	if (!shop) {
+		return 1;
+	}
+	shop->process_buy(ch, keeper, rest);
+	return 1;
+}
+
+int ShopSell(CharData *ch, void *me, char *rest) {
+	auto *const keeper = reinterpret_cast<CharData *>(me);
+	const auto shop = ShopOf(ch, keeper);
+	if (!shop) {
+		return 1;
+	}
+	shop->process_cmd(ch, keeper, rest, "Продать");
+	return 1;
+}
+
+int ShopValue(CharData *ch, void *me, char *rest) {
+	auto *const keeper = reinterpret_cast<CharData *>(me);
+	const auto shop = ShopOf(ch, keeper);
+	if (!shop) {
+		return 1;
+	}
+	shop->process_cmd(ch, keeper, rest, "Оценить");
+	return 1;
+}
+
+int ShopRepair(CharData *ch, void *me, char *rest) {
+	auto *const keeper = reinterpret_cast<CharData *>(me);
+	const auto shop = ShopOf(ch, keeper);
+	if (!shop) {
+		return 1;
+	}
+	shop->process_cmd(ch, keeper, rest, "Чинить");
+	return 1;
+}
+
+int ShopExamine(CharData *ch, void *me, char *rest) {
+	auto *const keeper = reinterpret_cast<CharData *>(me);
+	const auto shop = ShopOf(ch, keeper);
+	if (!shop) {
+		return 1;
+	}
+	shop->process_ident(ch, keeper, rest, "Рассмотреть");
+	return 1;
+}
+
+int ShopIdentify(CharData *ch, void *me, char *rest) {
+	auto *const keeper = reinterpret_cast<CharData *>(me);
+	const auto shop = ShopOf(ch, keeper);
+	if (!shop) {
+		return 1;
+	}
+	shop->process_ident(ch, keeper, rest, "Характеристики");
+	return 1;
+}
+
+const SubCmdResolver kShopCmds("Чего желаете?", {
+	{{"список", "list"}, static_cast<int>(EShopCmd::kList), ShopList},
+	{{"купить", "buy"}, static_cast<int>(EShopCmd::kBuy), ShopBuy},
+	{{"продать", "sell"}, static_cast<int>(EShopCmd::kSell), ShopSell},
+	{{"оценить", "value"}, static_cast<int>(EShopCmd::kValue), ShopValue},
+	{{"чинить", "repair"}, static_cast<int>(EShopCmd::kRepair), ShopRepair},
+	{{"фильтровать", "filter"}, static_cast<int>(EShopCmd::kFilter), ShopFilter},
+	{{"рассмотреть", "examine"}, static_cast<int>(EShopCmd::kExamine), ShopExamine},
+	{{"характеристики", "identify"}, static_cast<int>(EShopCmd::kIdentify), ShopIdentify},
+});
+} // namespace
+
+int shop_ext(CharData *ch, void *me, int /*cmd*/, char *argument) {
 	if (!ch->desc
 		|| ch->IsNpc()) {
 		return 0;
 	}
-
-	// issue.specials 1.2b: entity-verb form. The action is the first word of the argument
-	// ("магазин <action> ..."), not the command. The old steal-override is dropped.
-	char sub[kMaxInputLength];
-	char *rest = one_argument(argument, sub);
-	skip_spaces(&rest);
-
-	const auto sub_is = [&sub](const char *ru, const char *en) -> bool {
-		const size_t len = strlen(sub);
-		return len > 0 && (!strn_cmp(sub, ru, len) || !strn_cmp(sub, en, len));
-	};
-
-	if (!*sub) {
-		SendMsgToChar(
-			"Чего желаете? (список, купить, продать, оценить, чинить, фильтровать, рассмотреть, характеристики)\r\n", ch);
-		return 1;
-	}
-
-	CharData *const keeper = reinterpret_cast<CharData *>(me);
-	shop_node::shared_ptr shop;
-	for (const auto &s : shop_list) {
-		const auto found =
-			std::find(s->mob_vnums().begin(), s->mob_vnums().end(), GET_MOB_VNUM(keeper)) != s->mob_vnums().end();
-		if (found) {
-			shop = s;
-			break;
-		}
-	}
-
-	if (!shop) {
-		log("SYSERROR : магазин не найден mob_vnum=%d (%s:%d)", GET_MOB_VNUM(keeper), __FILE__, __LINE__);
-		SendMsgToChar("Ошибочка вышла.\r\n", ch);
-		return 1;
-	}
-
-	if (sub_is("список", "list")) {
-		std::string buffer = rest, buffer2;
-		GetOneParam(buffer, buffer2);
-		shop->print_shop_list(ch, buffer2, GET_MOB_VNUM(keeper));
-		return 1;
-	}
-	if (sub_is("фильтровать", "filter")) {
-		shop->filter_shop_list(ch, rest, GET_MOB_VNUM(keeper));
-		return 1;
-	}
-	if (sub_is("купить", "buy")) {
-		shop->process_buy(ch, keeper, rest);
-		return 1;
-	}
-	if (sub_is("характеристики", "identify")) {
-		shop->process_ident(ch, keeper, rest, "Характеристики");
-		return 1;
-	}
-	if (sub_is("оценить", "value")) {
-		shop->process_cmd(ch, keeper, rest, "Оценить");
-		return 1;
-	}
-	if (sub_is("продать", "sell")) {
-		shop->process_cmd(ch, keeper, rest, "Продать");
-		return 1;
-	}
-	if (sub_is("чинить", "repair")) {
-		shop->process_cmd(ch, keeper, rest, "Чинить");
-		return 1;
-	}
-	if (sub_is("рассмотреть", "examine")) {
-		shop->process_ident(ch, keeper, rest, "Рассмотреть");
-		return 1;
-	}
-
-	SendMsgToChar("Вам явно в какое-то другое заведение.\r\n", ch);
-	return 1;
+	return kShopCmds.Dispatch(ch, me, argument);
 }
 
 // * Лоад странствующих продавцов в каждой ренте.
