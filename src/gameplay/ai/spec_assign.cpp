@@ -261,20 +261,25 @@ static int DispatchSpecial(specials::ESpecial s, CharData *ch, void *me, int cmd
 	}
 }
 
-void do_specproc(CharData *ch, char *argument, int /*cmd*/, int subcmd) {
-	const auto want = static_cast<specials::ESpecial>(subcmd);
+namespace specials {
+void RunSpecCommand(CharData *ch, ESpecial want, char *line) {
 	const int fnum = GetSpecprocFnum();
 	int specialNum = 1;
 	for (const auto vict : world[ch->in_room]->people) {
-		if (vict->IsNpc() && specials::MobSpecial(GET_MOB_VNUM(vict)) == want) {
+		if (vict->IsNpc() && MobSpecial(GET_MOB_VNUM(vict)) == want) {
 			if (fnum == 1 || fnum == specialNum++) {
-				if (DispatchSpecial(want, ch, vict, 0, argument)) {
+				if (DispatchSpecial(want, ch, vict, 0, line)) {
 					return;
 				}
 			}
 		}
 	}
 	SendMsgToChar("Это нельзя сделать здесь.\r\n", ch);
+}
+} // namespace specials
+
+void do_specproc(CharData *ch, char *argument, int /*cmd*/, int subcmd) {
+	specials::RunSpecCommand(ch, static_cast<specials::ESpecial>(subcmd), argument);
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

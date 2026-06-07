@@ -570,7 +570,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"кто", EPosition::kRest, DoWho, 0, 0, 0},
 		{"ктодружина", EPosition::kRest, ClanSystem::DoWhoClan, 0, 0, 0},
 		{"ктоя", EPosition::kDead, DoWhoAmI, 0, 0, 0},
-		{"купить", EPosition::kStand, do_not_here, 0, 0, -1},
+		{"купить", EPosition::kStand, do_specword, 0, static_cast<int>(specials::ESpecial::kShop), -1},
 
 		{"леваярука", EPosition::kRest, do_grab, 1, 0, 300},
 		{"лечить", EPosition::kStand, DoFirstaid, 0, 0, -1},
@@ -633,7 +633,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"отправить", EPosition::kStand, do_not_here, 1, 0, -1},
 		{"оффтоп", EPosition::kDead, do_offtop, 0, 0, -1},
 		{"ошеломить", EPosition::kStand, do_stun, 1, 0, -1},
-		{"оценить", EPosition::kStand, do_not_here, 0, 0, 500},
+		{"оценить", EPosition::kStand, do_specword, 0, static_cast<int>(specials::ESpecial::kShop), 500},
 		{"очки", EPosition::kDead, DoScore, 0, 0, 0},
 		{"очепятки", EPosition::kDead, Boards::DoBoard, 1, Boards::MISPRINT_BOARD, 0},
 		{"очистить", EPosition::kDead, do_not_here, 0, kScmdClear, -1},
@@ -694,8 +694,8 @@ cpp_extern const struct command_info cmd_info[] =
 		{"простить", EPosition::kRest, do_forgive, 0, 0, 0},
 		{"пробовать", EPosition::kRest, do_eat, 0, kScmdTaste, 300},
 		{"сожрать", EPosition::kRest, do_eat, 0, kScmdDevour, 300},
-		{"продать", EPosition::kStand, do_not_here, 0, 0, -1},
-		{"фильтровать", EPosition::kStand, do_not_here, 0, 0, -1},
+		{"продать", EPosition::kStand, do_specword, 0, static_cast<int>(specials::ESpecial::kShop), -1},
+		{"фильтровать", EPosition::kStand, do_specword, 0, static_cast<int>(specials::ESpecial::kShop), -1},
 		{"прыжок", EPosition::kSleep, DoGoto, kLvlGod, 0, 0},
 
 		{"разбудить", EPosition::kRest, do_wake, 0, kScmdWakeUp, -1},
@@ -739,7 +739,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"спать", EPosition::kSleep, do_sleep, 0, 0, -1},
 		{"спасти", EPosition::kFight, do_rescue, 1, 0, -1},
 		{"способности", EPosition::kSleep, DoFeatures, 0, 0, 0},
-		{"список", EPosition::kStand, do_not_here, 0, 0, -1},
+		{"список", EPosition::kStand, do_specword, 0, static_cast<int>(specials::ESpecial::kShop), -1},
 		{"справка", EPosition::kDead, do_help, 0, 0, 0},
 		{"спросить", EPosition::kRest, do_spec_comm, 0, kScmdAsk, -1},
 		{"сбросить", EPosition::kRest, dungeons::DoDungeonReset, kLvlImplementator, 0, -1},
@@ -772,7 +772,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"хранилище", EPosition::kDead, ClanSystem::DoStoreHouse, 0, 0, 0},
 		{"характеристики", EPosition::kStand, do_not_here, 0, 0, -1},
 		{"кланстаф", EPosition::kStand, ClanSystem::do_clanstuff, 0, 0, 0},
-		{"чинить", EPosition::kStand, do_not_here, 0, 0, -1},
+		{"чинить", EPosition::kStand, do_specword, 0, static_cast<int>(specials::ESpecial::kShop), -1},
 		{"читать", EPosition::kRest, DoLook, 0, kScmdRead, 200},
 		{"шептать", EPosition::kRest, do_spec_comm, 0, kScmdWhisper, -1},
 		{"экипировка", EPosition::kSleep, DoEquipment, 0, 0, 0},
@@ -805,7 +805,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"beep", EPosition::kDead, do_beep, kLvlImmortal, 0, 0},
 		{"block", EPosition::kFight, do_block, 0, 0, -1},
 		{"bug", EPosition::kDead, Boards::report_on_board, 0, Boards::ERROR_BOARD, 0},
-		{"buy", EPosition::kStand, do_not_here, 0, 0, -1},
+		{"buy", EPosition::kStand, do_specword, 0, static_cast<int>(specials::ESpecial::kShop), -1},
 		{"best", EPosition::kDead, Rating::DoBest, 0, 0, 0},
 		{"cast", EPosition::kSit, DoCast, 1, 0, -1},
 		{"charge", EPosition::kStand, DoCharge, 0, 0, 0},
@@ -887,7 +887,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"kill", EPosition::kFight, DoKill, 0, 0, -1},
 		{"last", EPosition::kDead, DoPageLastLogins, kLvlGod, 0, 0},
 		{"levels", EPosition::kDead, do_levels, 0, 0, 0},
-		{"list", EPosition::kStand, do_not_here, 0, 0, -1},
+		{"list", EPosition::kStand, do_specword, 0, static_cast<int>(specials::ESpecial::kShop), -1},
 		{"load", EPosition::kDead, DoLoad, 0, 0, 0},
 		{"loadstat", EPosition::kDead, DoLoadstat, kLvlImplementator, 0, 0},
 		{"look", EPosition::kRest, DoLook, 0, kScmdLook, 200},
@@ -958,7 +958,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"scan", EPosition::kRest, DoLookAround, 0, 0, 500},
 		{"score", EPosition::kDead, DoScore, 0, 0, 0},
 		{"shop", EPosition::kStand, do_specproc, 0, static_cast<int>(specials::ESpecial::kShop), -1},
-		{"sell", EPosition::kStand, do_not_here, 0, 0, -1},
+		{"sell", EPosition::kStand, do_specword, 0, static_cast<int>(specials::ESpecial::kShop), -1},
 		{"send", EPosition::kSleep, DoSendMsgToChar, kLvlGreatGod, 0, 0},
 		{"sense", EPosition::kStand, do_sense, 0, 0, 500},
 		{"set", EPosition::kDead, DoSet, kLvlImmortal, 0, 0},
@@ -1012,7 +1012,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"uptime", EPosition::kDead, DoPageDateTime, kLvlImmortal, kScmdUptime, 0},
 		{"use", EPosition::kSit, do_employ, 1, SCMD_USE, 500},
 		{"users", EPosition::kDead, do_users, kLvlImmortal, 0, 0},
-		{"value", EPosition::kStand, do_not_here, 0, 0, -1},
+		{"value", EPosition::kStand, do_specword, 0, static_cast<int>(specials::ESpecial::kShop), -1},
 		{"vedun", EPosition::kDead, vedun::do_vedun, kLvlImplementator, 0, 0},
 		{"version", EPosition::kDead, DoGenericPage, 0, kScmdVersion, 0},
 		{"visible", EPosition::kRest, do_visible, 1, 0, -1},
@@ -1127,6 +1127,15 @@ bool check_frozen_cmd(CharData * /*ch*/, int cmd) {
  */
 namespace { int s_specproc_fnum = 1; }
 int GetSpecprocFnum() { return s_specproc_fnum; }
+
+// Bare spec-proc action words (список/продать/...) route here: the command word IS the action, so we
+// prepend it to the argument and run it through the room carrier -- a player at a shop can just type
+// "список" instead of "магазин список", and gets the carrier's reply, not "command not available".
+void do_specword(CharData *ch, char *argument, int cmd, int subcmd) {
+	char line[kMaxInputLength];
+	snprintf(line, sizeof(line), "%s %s", cmd_info[cmd].command, argument);
+	specials::RunSpecCommand(ch, static_cast<specials::ESpecial>(subcmd), line);
+}
 
 void command_interpreter(CharData *ch, char *argument) {
 	int cmd, social = false, hardcopy = false;

@@ -621,7 +621,7 @@ void shop_node::process_cmd(CharData *ch, CharData *keeper, char *argument, cons
 		ObjData *obj = get_obj_in_list_vis(ch, buffer, ch->carrying);
 
 		if (!obj) {
-			SendMsgToChar("У вас нет " + buffer + "!\r\n", ch);
+			SendMsgToChar("У вас нет " + (buffer.empty() ? buffer1 : buffer) + "!\r\n", ch);
 			return;
 		}
 

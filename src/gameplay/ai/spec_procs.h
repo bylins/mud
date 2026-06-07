@@ -41,6 +41,9 @@ void RegisterRoom(int vnum, ESpecial s);
 [[nodiscard]] ESpecial ObjSpecial(int vnum);
 [[nodiscard]] bool IsMobSpecial(int vnum);
 [[nodiscard]] bool IsMobSpecial(int vnum, ESpecial s);
+// Find the room carrier registered with `s` (honouring fnum) and run `line` through its handler;
+// if no carrier handles it, send the standard "wrong place" reply.
+void RunSpecCommand(CharData *ch, ESpecial s, char *line);
 } // namespace specials
 
 #endif //BYLINS_SRC_GAMEPLAY_AI_SPEC_PROCS_H_
