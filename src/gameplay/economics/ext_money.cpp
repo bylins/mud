@@ -801,18 +801,23 @@ void message_low_torc(CharData *ch, unsigned type, int amount, const char *add_t
 } // namespace
 
 // глашатаи
+// issue.specials: torc currency exchange (менять/обмен/обменять) via do_specproc(kTorc). The remort
+// overrides (перевоплотиться -> DoRemort precheck, жертвовать -> donate) stay on torc()/special().
+int TorcExchange(CharData *ch, void * /*me*/, int /*cmd*/, char * /*argument*/) {
+	if (ch->IsNpc() || !ch->desc) {
+		return 0;
+	}
+	ch->desc->state = EConState::kTorcExch;
+	for (unsigned i = 0; i < kTotalTypes; ++i) {
+		ch->desc->ext_money[i] = ch->get_ext_money(i);
+	}
+	torc_exch_menu(ch);
+	return 1;
+}
+
 int torc(CharData *ch, void *me, int cmd, char * /*argument*/) {
 	if (!ch->desc || ch->IsNpc()) {
 		return 0;
-	}
-	if (CMD_IS("менять") || CMD_IS("обмен") || CMD_IS("обменять")) {
-		// олц для обмена гривен в обе стороны
-		ch->desc->state = EConState::kTorcExch;
-		for (unsigned i = 0; i < kTotalTypes; ++i) {
-			ch->desc->ext_money[i] = ch->get_ext_money(i);
-		}
-		torc_exch_menu(ch);
-		return 1;
 	}
 	if (CMD_IS("перевоплотитьс") || CMD_IS("перевоплотиться")) {
 		if (can_remort_now(ch)) {
