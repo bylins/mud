@@ -40,7 +40,6 @@ void assign_kings_castle(void);
 typedef int special_f(CharData *, void *, int, char *);
 
 void ASSIGNROOM(RoomVnum room, special_f);
-void ASSIGNMOB(MobVnum mob, special_f);
 void ASSIGNOBJ(ObjVnum obj, special_f);
 void clear_mob_charm(CharData *mob);
 
@@ -70,29 +69,13 @@ bool IsRentkeeper(const CharData *ch) {
 namespace specials {} // namespace specials
 
 // Map a spec-proc function to its ESpecial, so ASSIGN* keeps the registry in sync with func.
+// Only object/board specials are still assigned via a func pointer (ASSIGNOBJ); every mob spec is
+// data-driven (cfg/specials.xml -> registry), so ESpecialForFunc only needs the board handler.
 static specials::ESpecial ESpecialForFunc(special_f *f) {
-	using E = specials::ESpecial;
-	if (f == postmaster) return E::kMail;
-	if (f == bank) return E::kBank;
-	if (f == horse_keeper) return E::kHorse;
-	if (f == exchange) return E::kExchange;
-	if (f == mercenary) return E::kMercenary;
-	if (f == Noob::outfit) return E::kOutfit;
-	if (f == puff) return E::kPuff;
-	if (f == shop_ext) return E::kShop;
-	if (f == Boards::Static::Special) return E::kBoard;
-	return E::kNone;
-}
-
-void ASSIGNMOB(MobVnum mob, int fname(CharData *, void *, int, char *)) {
-	MobRnum rnum;
-
-	if ((rnum = GetMobRnum(mob)) >= 0) {
-		mob_index[rnum].func = fname;
-		specials::RegisterMob(mob, ESpecialForFunc(fname));
-	} else {
-		err_log("Attempt to assign spec to non-existant mob #%d", mob);
+	if (f == Boards::Static::Special) {
+		return specials::ESpecial::kBoard;
 	}
+	return specials::ESpecial::kNone;
 }
 
 void ASSIGNOBJ(ObjVnum obj, special_f fname) {
@@ -192,12 +175,6 @@ void clear_mob_charm(CharData *mob) {
 
 namespace {
 // issue.specials: handler name -> prototype spec-proc function. Mirrors the old InitSpecProcs chain.
-const std::unordered_map<std::string, int (*)(CharData *, void *, int, char *)> kSpecialMobFuncs{
-	{"mail", postmaster}, {"bank", bank}, {"horse", horse_keeper},
-	{"exchange", exchange}, {"outfit", Noob::outfit}, {"mercenary", mercenary},
-	{"puff", puff},
-};
-
 void ParseSpecials(parser_wrapper::DataNode &data) {
 	for (auto &node : data.Children("special")) {
 		const char *type = node.GetValue("type");
@@ -214,38 +191,33 @@ void ParseSpecials(parser_wrapper::DataNode &data) {
 			continue;
 		}
 		if (!str_cmp(type, "mob")) {
-			// Handlers migrated to the entity-verb + do_specproc form get a registry entry only
-			// (no func pointer): the command verb routes to do_specproc, which dispatches by ESpecial.
-			static const std::unordered_map<std::string, specials::ESpecial> kMigrated{
-				{"bank", specials::ESpecial::kBank},
+			// Mob spec procs are fully data-driven: the handler name maps to an ESpecial registered against
+			// the vnum; the command verbs route to do_specproc, which dispatches by ESpecial. No func pointer.
+			static const std::unordered_map<std::string, specials::ESpecial> kMobSpecials{
 				{"rent", specials::ESpecial::kRent},
-				{"torc", specials::ESpecial::kTorc},
-				{"horse", specials::ESpecial::kHorse},
 				{"mail", specials::ESpecial::kMail},
+				{"bank", specials::ESpecial::kBank},
+				{"horse", specials::ESpecial::kHorse},
 				{"exchange", specials::ESpecial::kExchange},
+				{"torc", specials::ESpecial::kTorc},
 				{"mercenary", specials::ESpecial::kMercenary},
 				{"outfit", specials::ESpecial::kOutfit},
 				{"puff", specials::ESpecial::kPuff},
 			};
-			const auto mig = kMigrated.find(handler);
-			if (mig != kMigrated.end()) {
-				const auto mrnum = GetMobRnum(vnum);
-				if (mrnum >= 0) {
-					specials::RegisterMob(vnum, mig->second);
-					if (mig->second == specials::ESpecial::kRent) {
-						clear_mob_charm(&mob_proto[mrnum]);
-					}
-				} else {
-					err_log("specials: mob vnum %d not found -- skipped.", vnum);
-				}
-				continue;
-			}
-			const auto it = kSpecialMobFuncs.find(handler);
-			if (it == kSpecialMobFuncs.end()) {
+			const auto it = kMobSpecials.find(handler);
+			if (it == kMobSpecials.end()) {
 				err_log("specials: unknown mob handler '%s' for vnum %d -- skipped.", handler, vnum);
 				continue;
 			}
-			ASSIGNMOB(vnum, it->second);   // logs + skips a non-existent vnum
+			const auto mrnum = GetMobRnum(vnum);
+			if (mrnum < 0) {
+				err_log("specials: mob vnum %d not found -- skipped.", vnum);
+				continue;
+			}
+			specials::RegisterMob(vnum, it->second);
+			if (it->second == specials::ESpecial::kRent) {
+				clear_mob_charm(&mob_proto[mrnum]);
+			}
 		} else if (!str_cmp(type, "obj")) {
 			// Object specials (notice boards) are still assigned in code via AssignObjects.
 		} else if (!str_cmp(type, "room")) {
