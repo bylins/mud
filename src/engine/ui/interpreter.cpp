@@ -469,6 +469,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"взглянуть", EPosition::kRest, do_diagnose, 0, 0, 100},
 		{"взломать", EPosition::kStand, do_gen_door, 1, EDoorScmd::kScmdPick, -1},
 		{"вихрь", EPosition::kFight, do_iron_wind, 0, 0, -1},
+		{"вклад", EPosition::kStand, do_specword, 1, static_cast<int>(specials::ESpecial::kBank), -1},
 		{"вложить", EPosition::kStand, do_specword, 1, static_cast<int>(specials::ESpecial::kBank), -1},
 		{"вернуть", EPosition::kStand, do_specword, 0, static_cast<int>(specials::ESpecial::kMail), -1},
 		{"вернуться", EPosition::kDead, DoReturn, 0, 0, -1},
@@ -713,6 +714,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"руны", EPosition::kFight, do_mixture, 0, SCMD_RUNES, -1},
 
 		{"сбить", EPosition::kFight, do_bash, 1, 0, -1},
+		{"сальдо", EPosition::kStand, do_specword, 1, static_cast<int>(specials::ESpecial::kBank), -1},
 		{"свойства", EPosition::kStand, do_not_here, 0, 0, -1},
 		{"сгруппа", EPosition::kSleep, do_gsay, 0, 0, -1},
 		{"сглазить", EPosition::kFight, do_manadrain, 0, 0, -1},
