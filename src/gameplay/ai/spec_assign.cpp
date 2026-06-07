@@ -222,6 +222,10 @@ void ParseSpecials(parser_wrapper::DataNode &data) {
 				{"torc", specials::ESpecial::kTorc},
 				{"horse", specials::ESpecial::kHorse},
 				{"mail", specials::ESpecial::kMail},
+				{"exchange", specials::ESpecial::kExchange},
+				{"mercenary", specials::ESpecial::kMercenary},
+				{"outfit", specials::ESpecial::kOutfit},
+				{"puff", specials::ESpecial::kPuff},
 			};
 			const auto mig = kMigrated.find(handler);
 			if (mig != kMigrated.end()) {
@@ -271,6 +275,7 @@ static int DispatchSpecial(specials::ESpecial s, CharData *ch, void *me, int cmd
 		case specials::ESpecial::kGuild: return guilds::GuildInfo::DoGuildLearn(ch, me, cmd, arg);
 		case specials::ESpecial::kRent: return RentReceptionist(ch, me, cmd, arg);
 		case specials::ESpecial::kTorc: return TorcExchange(ch, me, cmd, arg);
+		case specials::ESpecial::kMercenary: return mercenary(ch, me, cmd, arg);
 		default: return 0;
 	}
 }
@@ -289,6 +294,15 @@ void RunSpecCommand(CharData *ch, ESpecial want, char *line) {
 		}
 	}
 	SendMsgToChar("Это нельзя сделать здесь.\r\n", ch);
+}
+
+bool IsMobSpecialInRoom(RoomRnum room, ESpecial s) {
+	for (const auto vict : world[room]->people) {
+		if (vict->IsNpc() && MobSpecial(GET_MOB_VNUM(vict)) == s) {
+			return true;
+		}
+	}
+	return false;
 }
 } // namespace specials
 

@@ -9,6 +9,7 @@
 ************************************************************************ */
 
 #include "exchange.h"
+#include "gameplay/ai/spec_procs.h"
 #include "gameplay/mechanics/identify.h"
 
 #include <fmt/format.h>
@@ -1244,7 +1245,8 @@ void do_exchange(CharData *ch, char *argument, int cmd, int/* subcmd*/) {
 	} else if ((utils::IsAbbr(arg1, "выставить") || utils::IsAbbr(arg1, "exhibit")
 		|| utils::IsAbbr(arg1, "цена") || utils::IsAbbr(arg1, "cost")
 		|| utils::IsAbbr(arg1, "снять") || utils::IsAbbr(arg1, "withdraw")
-		|| utils::IsAbbr(arg1, "купить") || utils::IsAbbr(arg1, "purchase")) && !ch->IsImpl()) {
+		|| utils::IsAbbr(arg1, "купить") || utils::IsAbbr(arg1, "purchase")) && !ch->IsImpl()
+		&& !specials::IsMobSpecialInRoom(ch->in_room, specials::ESpecial::kExchange)) {
 		SendMsgToChar("Вам необходимо находиться возле базарного торговца, чтобы воспользоваться этой командой.\r\n",
 					 ch);
 	} else

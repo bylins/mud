@@ -180,8 +180,6 @@ unsigned int getPos(char *arg, CharData *ch, CharData *boss) {
 int mercenary(CharData *ch, void * /*me*/, int cmd, char *argument) {
 	if (!ch || !ch->desc || ch->IsNpc())
 		return 0;
-	if (!(CMD_IS("наемник") || CMD_IS("mercenary")))
-		return 0;
 
 	CharData *boss = MERC::findMercboss(ch->in_room);
 	if (!boss) return 0;

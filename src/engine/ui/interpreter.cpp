@@ -589,7 +589,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"мысл", EPosition::kDead, do_quit, 0, 0, 0},
 		{"мысль", EPosition::kDead, Boards::report_on_board, 0, Boards::SUGGEST_BOARD, 0},
 
-		{"наемник", EPosition::kStand, do_not_here, 1, 0, -1},
+		{"наемник", EPosition::kStand, do_specproc, 1, static_cast<int>(specials::ESpecial::kMercenary), -1},
 		{"наказания", EPosition::kDead, Boards::DoBoard, 1, Boards::GODPUNISH_BOARD, -1},
 		{"налить", EPosition::kStand, do_pour, 0, kScmdFill, 500},
 		{"наполнить", EPosition::kStand, do_pour, 0, kScmdFill, 500},
@@ -894,7 +894,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"lock", EPosition::kSit, do_gen_door, 0, kScmdLock, 500},
 		{"map", EPosition::kRest, do_map, 0, 0, 0},
 		{"mail", EPosition::kStand, do_specword, 1, static_cast<int>(specials::ESpecial::kMail), -1},
-		{"mercenary", EPosition::kStand, do_not_here, 1, 0, -1},
+		{"mercenary", EPosition::kStand, do_specproc, 1, static_cast<int>(specials::ESpecial::kMercenary), -1},
 		{"mode", EPosition::kDead, DoMode, 0, 0, 0},
 		{"mshout", EPosition::kRest, do_mobshout, 0, 0, -1},
 		{"motd", EPosition::kDead, DoGenericPage, 0, kScmdMotd, 0},
