@@ -20,6 +20,7 @@
 #include "gameplay/mechanics/noob.h"
 #include "gameplay/ai/spec_procs.h"
 #include "gameplay/ai/spec_assign.h"
+#include "engine/ui/interpreter.h"
 #include "utils/parse.h"
 #include "utils/utils_string.h"
 #include "utils/logger.h"
@@ -145,9 +146,7 @@ void AssignMobiles(void) {
 	// POSTMASTER //
 	ASSIGNMOB(4002, postmaster);
 
-	// BANK //
-	ASSIGNMOB(4001, bank);
-	ASSIGNMOB(4001, mercenary);
+	// BANK is data-driven now (cfg/specials.xml -> kBank registry, do_specproc dispatch).
 
 	// HORSEKEEPER //
 	ASSIGNMOB(4023, horse_keeper);
@@ -213,6 +212,20 @@ void ParseSpecials(parser_wrapper::DataNode &data) {
 			continue;
 		}
 		if (!str_cmp(type, "mob")) {
+			// Handlers migrated to the entity-verb + do_specproc form get a registry entry only
+			// (no func pointer): the command verb routes to do_specproc, which dispatches by ESpecial.
+			static const std::unordered_map<std::string, specials::ESpecial> kMigrated{
+				{"bank", specials::ESpecial::kBank},
+			};
+			const auto mig = kMigrated.find(handler);
+			if (mig != kMigrated.end()) {
+				if (GetMobRnum(vnum) >= 0) {
+					specials::RegisterMob(vnum, mig->second);
+				} else {
+					err_log("specials: mob vnum %d not found -- skipped.", vnum);
+				}
+				continue;
+			}
 			const auto it = kSpecialMobFuncs.find(handler);
 			if (it == kSpecialMobFuncs.end()) {
 				err_log("specials: unknown mob handler '%s' for vnum %d -- skipped.", handler, vnum);
@@ -232,5 +245,35 @@ void ParseSpecials(parser_wrapper::DataNode &data) {
 
 void SpecialsLoader::Load(parser_wrapper::DataNode data) { ParseSpecials(data); }
 void SpecialsLoader::Reload(parser_wrapper::DataNode data) { ParseSpecials(data); }
+
+// vim: ts=4 sw=4 tw=0 noet syntax=cpp :
+
+// issue.specials 1.2b: data-driven dispatch. DispatchSpecial calls a special handler by its ESpecial.
+// do_specproc is the target of the entity-verb commands (shop/магазин, ...): it finds the room carrier
+// registered with that ESpecial (honouring fnum) and dispatches, passing the FULL argument (the action
+// word plus its parameters). No carrier present gives the standard wrong-place reply.
+static int DispatchSpecial(specials::ESpecial s, CharData *ch, void *me, int cmd, char *arg) {
+	switch (s) {
+		case specials::ESpecial::kShop: return shop_ext(ch, me, cmd, arg);
+		case specials::ESpecial::kBank: return bank(ch, me, cmd, arg);
+		default: return 0;
+	}
+}
+
+void do_specproc(CharData *ch, char *argument, int /*cmd*/, int subcmd) {
+	const auto want = static_cast<specials::ESpecial>(subcmd);
+	const int fnum = GetSpecprocFnum();
+	int specialNum = 1;
+	for (const auto vict : world[ch->in_room]->people) {
+		if (vict->IsNpc() && specials::MobSpecial(GET_MOB_VNUM(vict)) == want) {
+			if (fnum == 1 || fnum == specialNum++) {
+				if (DispatchSpecial(want, ch, vict, 0, argument)) {
+					return;
+				}
+			}
+		}
+	}
+	SendMsgToChar("Это нельзя сделать здесь.\r\n", ch);
+}
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

@@ -41,36 +41,20 @@
 extern char *diag_weapon_to_char(const CObjectPrototype *obj, int show_wear);
 
 std::string print_special(CharData *mob) {
-	std::string out;
-
-	if (mob_index[mob->get_rnum()].func) {
-		auto func = mob_index[mob->get_rnum()].func;
-		if (func == shop_ext)
-			out += "торговец";
-		else if (func == receptionist)
-			out += "рентер";
-		else if (func == postmaster)
-			out += "почтальон";
-		else if (func == bank)
-			out += "банкир";
-		else if (func == exchange)
-			out += "зазывала";
-		else if (func == horse_keeper)
-			out += "конюх";
-		else if (func == guilds::GuildInfo::DoGuildLearn)
-			out += "учитель";
-		else if (func == torc)
-			out += "меняла";
-		else if (func == Noob::outfit)
-			out += "нубхелпер";
-		else if (func == mercenary)
-			out += "ватажник";
-		else
-			out += "глюк";
-	} else {
-		out += "нет";
+	// issue.specials: identity via the data-driven registry (shops are registry-only now).
+	switch (specials::MobSpecial(GET_MOB_VNUM(mob))) {
+		case specials::ESpecial::kShop: return "торговец";
+		case specials::ESpecial::kRent: return "рентер";
+		case specials::ESpecial::kMail: return "почтальон";
+		case specials::ESpecial::kBank: return "банкир";
+		case specials::ESpecial::kExchange: return "зазывала";
+		case specials::ESpecial::kHorse: return "конюх";
+		case specials::ESpecial::kGuild: return "учитель";
+		case specials::ESpecial::kTorc: return "меняла";
+		case specials::ESpecial::kOutfit: return "нубхелпер";
+		case specials::ESpecial::kMercenary: return "ватажник";
+		default: return "нет";
 	}
-	return out;
 }
 
 

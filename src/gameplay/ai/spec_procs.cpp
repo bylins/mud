@@ -1388,11 +1388,24 @@ int pet_shops(CharData *ch, void * /*me*/, int cmd, char *argument) {
 // ********************************************************************
 // *  Special procedures for objects                                  *
 // ********************************************************************
-int bank(CharData *ch, void * /*me*/, int cmd, char *argument) {
+int bank(CharData *ch, void * /*me*/, int /*cmd*/, char *argument) {
 	int amount;
 	CharData *vict;
 
-	if (CMD_IS("balance") || CMD_IS("баланс") || CMD_IS("сальдо")) {
+	// issue.specials 1.2b: entity-verb form ("банк <действие> ..."); action = first word of argument.
+	char sub[kMaxInputLength];
+	argument = one_argument(argument, sub);
+	skip_spaces(&argument);
+	const auto eq = [&sub](const char *w) -> bool {
+		const size_t n = strlen(sub);
+		return n > 0 && !strn_cmp(sub, w, n);
+	};
+	if (!*sub) {
+		SendMsgToChar("Да-да, тут банк, чего изволите? (баланс, вложить, получить, перевести, казна)\r\n", ch);
+		return (1);
+	}
+
+	if (eq("баланс") || eq("сальдо") || eq("balance")) {
 		if (ch->get_bank() > 0)
 			sprintf(buf, "У вас на счету %ld %s.\r\n",
 					ch->get_bank(), GetDeclensionInNumber(ch->get_bank(), EWhat::kMoneyA));
@@ -1400,7 +1413,7 @@ int bank(CharData *ch, void * /*me*/, int cmd, char *argument) {
 			sprintf(buf, "У вас нет денег.\r\n");
 		SendMsgToChar(buf, ch);
 		return (1);
-	} else if (CMD_IS("deposit") || CMD_IS("вложить") || CMD_IS("вклад")) {
+	} else if (eq("вложить") || eq("вклад") || eq("deposit")) {
 		if ((amount = atoi(argument)) <= 0) {
 			SendMsgToChar("Сколько вы хотите вложить?\r\n", ch);
 			return (1);
@@ -1415,7 +1428,7 @@ int bank(CharData *ch, void * /*me*/, int cmd, char *argument) {
 		SendMsgToChar(buf, ch);
 		act("$n произвел$g финансовую операцию.", true, ch, nullptr, nullptr, kToRoom);
 		return (1);
-	} else if (CMD_IS("withdraw") || CMD_IS("получить")) {
+	} else if (eq("получить") || eq("withdraw")) {
 		if ((amount = atoi(argument)) <= 0) {
 			SendMsgToChar("Уточните количество денег, которые вы хотите получить?\r\n", ch);
 			return (1);
@@ -1430,7 +1443,7 @@ int bank(CharData *ch, void * /*me*/, int cmd, char *argument) {
 		SendMsgToChar(buf, ch);
 		act("$n произвел$g финансовую операцию.", true, ch, nullptr, nullptr, kToRoom);
 		return (1);
-	} else if (CMD_IS("transfer") || CMD_IS("перевести")) {
+	} else if (eq("перевести") || eq("transfer")) {
 		argument = one_argument(argument, arg);
 		amount = atoi(argument);
 		if (ch->IsGod() && !ch->IsImpl()) {
@@ -1510,9 +1523,15 @@ int bank(CharData *ch, void * /*me*/, int cmd, char *argument) {
 			delete vict;
 			return (1);
 		}
-	} else if (CMD_IS("казна"))
-		return (Clan::BankManage(ch, argument));
-	return 0;
+	} else if (eq("казна")) {
+		// казна = clan treasury; BankManage returns false only when the char is not in a clan.
+		if (!Clan::BankManage(ch, argument)) {
+			SendMsgToChar("Вы не состоите в дружине.\r\n", ch);
+		}
+		return (1);
+	}
+	SendMsgToChar("Вам явно в какое-то другое заведение.\r\n", ch);
+	return (1);
 }
 
 bool is_post(RoomRnum room) {

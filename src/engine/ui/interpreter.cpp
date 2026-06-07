@@ -449,6 +449,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"анонсы", EPosition::kDead, Boards::DoBoard, 1, Boards::NOTICE_BOARD, -1},
 
 		{"базар", EPosition::kRest, do_exchange, 1, 0, -1},
+		{"банк", EPosition::kStand, do_specproc, 0, static_cast<int>(specials::ESpecial::kBank), -1},
 		{"баланс", EPosition::kStand, do_not_here, 1, 0, 0},
 		{"баги", EPosition::kDead, Boards::DoBoard, 1, Boards::ERROR_BOARD, 0},
 		{"бежать", EPosition::kFight, DoFlee, 1, 0, -1},
@@ -581,6 +582,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"маскировка", EPosition::kRest, do_camouflage, 0, 0, 500},
 		{"магазины", EPosition::kDead, DoStoreShop, kLvlImmortal, 0, 0},
 		{"метнуть", EPosition::kFight, DoThrow, 0, kScmdPhysicalThrow, -1},
+		{"магазин", EPosition::kStand, do_specproc, 0, static_cast<int>(specials::ESpecial::kShop), -1},
 		{"менять", EPosition::kStand, do_not_here, 0, 0, -1},
 		{"месть", EPosition::kRest, do_revenge, 0, 0, 0},
 		{"молот", EPosition::kFight, DoMighthit, 0, 0, -1},
@@ -798,6 +800,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"auction", EPosition::kRest, do_gen_comm, 0, kScmdAuction, -1},
 		{"arenarestore", EPosition::kSleep, DoArenaRestore, kLvlGod, 0, 0},
 		{"backstab", EPosition::kStand, DoBackstab, 1, 0, 1},
+		{"bank", EPosition::kStand, do_specproc, 0, static_cast<int>(specials::ESpecial::kBank), -1},
 		{"balance", EPosition::kStand, do_not_here, 1, 0, -1},
 		{"ban", EPosition::kDead, do_ban, kLvlGreatGod, 0, 0},
 		{"bash", EPosition::kFight, do_bash, 1, 0, -1},
@@ -956,6 +959,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"say", EPosition::kRest, do_say, 0, 0, -1},
 		{"scan", EPosition::kRest, DoLookAround, 0, 0, 500},
 		{"score", EPosition::kDead, DoScore, 0, 0, 0},
+		{"shop", EPosition::kStand, do_specproc, 0, static_cast<int>(specials::ESpecial::kShop), -1},
 		{"sell", EPosition::kStand, do_not_here, 0, 0, -1},
 		{"send", EPosition::kSleep, DoSendMsgToChar, kLvlGreatGod, 0, 0},
 		{"sense", EPosition::kStand, do_sense, 0, 0, 500},
@@ -1123,6 +1127,9 @@ bool check_frozen_cmd(CharData * /*ch*/, int cmd) {
  * It makes sure you are the proper level and position to execute the command,
  * then calls the appropriate function.
  */
+namespace { int s_specproc_fnum = 1; }
+int GetSpecprocFnum() { return s_specproc_fnum; }
+
 void command_interpreter(CharData *ch, char *argument) {
 	int cmd, social = false, hardcopy = false;
 	char *line;
@@ -1262,6 +1269,7 @@ void command_interpreter(CharData *ch, char *argument) {
 		do_social(ch, argument);
 	} else if (no_specials || !special(ch, cmd, line, fnum)) {
 		check_hiding_cmd(ch, cmd_info[cmd].unhide_percent);
+		s_specproc_fnum = fnum;
 		(*cmd_info[cmd].command_pointer)(ch, line, cmd, cmd_info[cmd].subcmd);
 		if (ch->purged()) {
 			return;

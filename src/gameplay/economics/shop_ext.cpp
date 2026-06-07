@@ -252,7 +252,6 @@ void load(bool reload) {
 							 "...shopkeeper already with special (mob_vnum=%d)", mob_vnum);
 					mudlog(buf, CMP, kLvlImmortal, SYSLOG, true);
 				} else {
-					mob_index[mob_rnum].func = shop_ext;
 					specials::RegisterMob(mob_vnum, specials::ESpecial::kShop);
 				}
 			} else {
@@ -368,28 +367,23 @@ int shop_ext(CharData *ch, void *me, int cmd, char *argument) {
 		return 0;
 	}
 
-	if (!(CMD_IS("список")
-		|| CMD_IS("list")
-		|| CMD_IS("купить")
-		|| CMD_IS("buy")
-		|| CMD_IS("продать")
-		|| CMD_IS("sell")
-		|| CMD_IS("оценить")
-		|| CMD_IS("value")
-		|| CMD_IS("чинить")
-		|| CMD_IS("repair")
-		|| CMD_IS("украсть")
-		|| CMD_IS("steal")
-		|| CMD_IS("фильтровать")
-		|| CMD_IS("filter")
-		|| CMD_IS("рассмотреть")
-		|| CMD_IS("examine")
-		|| CMD_IS("характеристики")
-		|| CMD_IS("identify"))) {
-		return 0;
+	// issue.specials 1.2b: entity-verb form. The action is the first word of the argument
+	// ("магазин <action> ..."), not the command. The old steal-override is dropped.
+	char sub[kMaxInputLength];
+	char *rest = one_argument(argument, sub);
+	skip_spaces(&rest);
+
+	const auto sub_is = [&sub](const char *ru, const char *en) -> bool {
+		const size_t len = strlen(sub);
+		return len > 0 && (!strn_cmp(sub, ru, len) || !strn_cmp(sub, en, len));
+	};
+
+	if (!*sub) {
+		SendMsgToChar(
+			"Чего желаете? (список, купить, продать, оценить, чинить, фильтровать, рассмотреть, характеристики)\r\n", ch);
+		return 1;
 	}
 
-	char argm[kMaxInputLength];
 	CharData *const keeper = reinterpret_cast<CharData *>(me);
 	shop_node::shared_ptr shop;
 	for (const auto &s : shop_list) {
@@ -404,61 +398,46 @@ int shop_ext(CharData *ch, void *me, int cmd, char *argument) {
 	if (!shop) {
 		log("SYSERROR : магазин не найден mob_vnum=%d (%s:%d)", GET_MOB_VNUM(keeper), __FILE__, __LINE__);
 		SendMsgToChar("Ошибочка вышла.\r\n", ch);
-
 		return 1;
 	}
 
-	if (CMD_IS("steal")
-		|| CMD_IS("украсть")) {
-		sprintf(argm, "$N вскричал$G '%s'", MSG_NO_STEAL_HERE);
-		sprintf(buf, "ругать %s", GET_NAME(ch));
-		do_social(keeper, buf);
-		act(argm, false, ch, 0, keeper, kToChar);
-		return 1;
-	}
-
-	if (CMD_IS("список")
-		|| CMD_IS("list")) {
-		std::string buffer = argument, buffer2;
+	if (sub_is("список", "list")) {
+		std::string buffer = rest, buffer2;
 		GetOneParam(buffer, buffer2);
 		shop->print_shop_list(ch, buffer2, GET_MOB_VNUM(keeper));
 		return 1;
 	}
-
-	if (CMD_IS("фильтровать")
-		|| CMD_IS("filter")) {
-		shop->filter_shop_list(ch, argument, GET_MOB_VNUM(keeper));
+	if (sub_is("фильтровать", "filter")) {
+		shop->filter_shop_list(ch, rest, GET_MOB_VNUM(keeper));
+		return 1;
+	}
+	if (sub_is("купить", "buy")) {
+		shop->process_buy(ch, keeper, rest);
+		return 1;
+	}
+	if (sub_is("характеристики", "identify")) {
+		shop->process_ident(ch, keeper, rest, "Характеристики");
+		return 1;
+	}
+	if (sub_is("оценить", "value")) {
+		shop->process_cmd(ch, keeper, rest, "Оценить");
+		return 1;
+	}
+	if (sub_is("продать", "sell")) {
+		shop->process_cmd(ch, keeper, rest, "Продать");
+		return 1;
+	}
+	if (sub_is("чинить", "repair")) {
+		shop->process_cmd(ch, keeper, rest, "Чинить");
+		return 1;
+	}
+	if (sub_is("рассмотреть", "examine")) {
+		shop->process_ident(ch, keeper, rest, "Рассмотреть");
 		return 1;
 	}
 
-	if (CMD_IS("купить")
-		|| CMD_IS("buy")) {
-		shop->process_buy(ch, keeper, argument);
-		return 1;
-	}
-	if (CMD_IS("характеристики") || CMD_IS("identify")) {
-		shop->process_ident(ch, keeper, argument, "Характеристики");
-		return 1;
-	}
-
-	if (CMD_IS("value") || CMD_IS("оценить")) {
-		shop->process_cmd(ch, keeper, argument, "Оценить");
-		return 1;
-	}
-	if (CMD_IS("продать") || CMD_IS("sell")) {
-		shop->process_cmd(ch, keeper, argument, "Продать");
-		return 1;
-	}
-	if (CMD_IS("чинить") || CMD_IS("repair")) {
-		shop->process_cmd(ch, keeper, argument, "Чинить");
-		return 1;
-	}
-	if (CMD_IS("рассмотреть") || CMD_IS("examine")) {
-		shop->process_ident(ch, keeper, argument, "Рассмотреть");
-		return 1;
-	}
-
-	return 0;
+	SendMsgToChar("Вам явно в какое-то другое заведение.\r\n", ch);
+	return 1;
 }
 
 // * Лоад странствующих продавцов в каждой ренте.
