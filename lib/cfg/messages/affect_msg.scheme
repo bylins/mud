@@ -1,0 +1,17 @@
+<!--
+  issue.ext-affects: Vedun scheme for affect_msg.xml. One <msg_sheaf> per affect (id = EAffect) plus
+  the shared "kDefault" sheaf; <message type="<EAffectMsgType>" val="text"/>.
+-->
+<scheme>
+	<tag name="msg_container" desc="Affect message container (short names + aura look text)">
+		<child tag="msg_sheaf" multiple="Y"/>
+	</tag>
+	<tag name="msg_sheaf" desc="One affect's messages (id = EAffect), or kDefault (shared scaffolding)">
+		<attr name="id" type="enum" enum="EAffect" readonly="Y" desc="EAffect token, or kDefault; immutable"/>
+		<child tag="message" multiple="Y"/>
+	</tag>
+	<tag name="message" desc="One affect message">
+		<attr name="type" type="enum" enum="EAffectMsgType" desc="Slot (kShortDesc / kLook / kLookPoly / kShield* / kAura*)"/>
+		<attr name="val" type="string" desc="Text; $a = looked-at char gender suffix"/>
+	</tag>
+</scheme>

@@ -1,0 +1,299 @@
+<?xml version="1.0" encoding="koi8-r"?>
+<!--
+    issue.ext-affects: affect short names (kShortDesc -> affected_bits) and ListOneChar aura look text
+    (kLook / kLookPoly), one <msg_sheaf> per affect. The shared kDefault sheaf holds the merged
+    shield/aura group scaffolding (prefix + singular/plural nouns). $a = looked-at char gender suffix.
+-->
+<msg_container>
+	<msg_sheaf id="kDefault">
+		<message type="kShieldPrefix" val="окружен$a"/>
+		<message type="kShieldNoun" val="щитом"/>
+		<message type="kShieldNounMany" val="щитами"/>
+		<message type="kAuraNoun" val="аура"/>
+		<message type="kAuraNounMany" val="ауры"/>
+	</msg_sheaf>
+	<msg_sheaf id="kBlind">
+		<message type="kShortDesc" val="слепота"/>
+		<message type="kLook" val="слеп$a"/>
+	</msg_sheaf>
+	<msg_sheaf id="kInvisible">
+		<message type="kShortDesc" val="невидимость"/>
+	</msg_sheaf>
+	<msg_sheaf id="kDetectAlign">
+		<message type="kShortDesc" val="определение наклонностей"/>
+	</msg_sheaf>
+	<msg_sheaf id="kDetectInvisible">
+		<message type="kShortDesc" val="определение невидимости"/>
+	</msg_sheaf>
+	<msg_sheaf id="kDetectMagic">
+		<message type="kShortDesc" val="определение магии"/>
+	</msg_sheaf>
+	<msg_sheaf id="kDetectLife">
+		<message type="kShortDesc" val="чувствовать жизнь"/>
+	</msg_sheaf>
+	<msg_sheaf id="kWaterWalk">
+		<message type="kShortDesc" val="хождение по воде"/>
+	</msg_sheaf>
+	<msg_sheaf id="kSanctuary">
+		<message type="kShortDesc" val="освящение"/>
+		<message type="kLook" val="светится ярким сиянием"/>
+		<message type="kLookPoly" val="светятся ярким сиянием"/>
+	</msg_sheaf>
+	<msg_sheaf id="kGroup">
+		<message type="kShortDesc" val="состоит в группе"/>
+	</msg_sheaf>
+	<msg_sheaf id="kCurse">
+		<message type="kShortDesc" val="проклятие"/>
+	</msg_sheaf>
+	<msg_sheaf id="kInfravision">
+		<message type="kShortDesc" val="инфравидение"/>
+	</msg_sheaf>
+	<msg_sheaf id="kPoisoned">
+		<message type="kShortDesc" val="яд"/>
+	</msg_sheaf>
+	<msg_sheaf id="kProtectFromDark">
+		<message type="kShortDesc" val="защита от тьмы"/>
+	</msg_sheaf>
+	<msg_sheaf id="kProtectFromMind">
+		<message type="kShortDesc" val="защита от света"/>
+	</msg_sheaf>
+	<msg_sheaf id="kSleep">
+		<message type="kShortDesc" val="магический сон"/>
+	</msg_sheaf>
+	<msg_sheaf id="kNoTrack">
+		<message type="kShortDesc" val="нельзя выследить"/>
+	</msg_sheaf>
+	<msg_sheaf id="kTethered">
+		<message type="kShortDesc" val="привязан"/>
+	</msg_sheaf>
+	<msg_sheaf id="kBless">
+		<message type="kShortDesc" val="доблесть"/>
+	</msg_sheaf>
+	<msg_sheaf id="kSneak">
+		<message type="kShortDesc" val="подкрадывается"/>
+	</msg_sheaf>
+	<msg_sheaf id="kHide">
+		<message type="kShortDesc" val="прячется"/>
+	</msg_sheaf>
+	<msg_sheaf id="kCourage">
+		<message type="kShortDesc" val="ярость"/>
+	</msg_sheaf>
+	<msg_sheaf id="kCharmed">
+		<message type="kShortDesc" val="зачарован"/>
+	</msg_sheaf>
+	<msg_sheaf id="kHold">
+		<message type="kShortDesc" val="оцепенение"/>
+		<message type="kLook" val="парализован$a"/>
+	</msg_sheaf>
+	<msg_sheaf id="kFly">
+		<message type="kShortDesc" val="летит"/>
+	</msg_sheaf>
+	<msg_sheaf id="kSilence">
+		<message type="kShortDesc" val="молчание"/>
+		<message type="kLook" val="нем$a"/>
+	</msg_sheaf>
+	<msg_sheaf id="kAwarness">
+		<message type="kShortDesc" val="настороженность"/>
+	</msg_sheaf>
+	<msg_sheaf id="kBlink">
+		<message type="kShortDesc" val="мигание"/>
+	</msg_sheaf>
+	<msg_sheaf id="kHorse">
+		<message type="kShortDesc" val="верхом или под седлом"/>
+	</msg_sheaf>
+	<msg_sheaf id="kNoFlee">
+		<message type="kShortDesc" val="не сбежать"/>
+	</msg_sheaf>
+	<msg_sheaf id="kSingleLight">
+		<message type="kShortDesc" val="свет"/>
+	</msg_sheaf>
+	<msg_sheaf id="kHolyLight">
+		<message type="kShortDesc" val="освещение"/>
+	</msg_sheaf>
+	<msg_sheaf id="kHolyDark">
+		<message type="kShortDesc" val="затемнение"/>
+	</msg_sheaf>
+	<msg_sheaf id="kDetectPoison">
+		<message type="kShortDesc" val="определение яда"/>
+	</msg_sheaf>
+	<msg_sheaf id="kDrunked">
+		<message type="kShortDesc" val="под мухой"/>
+	</msg_sheaf>
+	<msg_sheaf id="kAbstinent">
+		<message type="kShortDesc" val="отходняк"/>
+	</msg_sheaf>
+	<msg_sheaf id="kStopRight">
+		<message type="kShortDesc" val="декстраплегия"/>
+	</msg_sheaf>
+	<msg_sheaf id="kStopLeft">
+		<message type="kShortDesc" val="синистроплегия"/>
+	</msg_sheaf>
+	<msg_sheaf id="kStopFight">
+		<message type="kShortDesc" val="параплегия"/>
+	</msg_sheaf>
+	<msg_sheaf id="kHaemorrhage">
+		<message type="kShortDesc" val="кровотечение"/>
+	</msg_sheaf>
+	<msg_sheaf id="kDisguise">
+		<message type="kShortDesc" val="маскировка"/>
+	</msg_sheaf>
+	<msg_sheaf id="kWaterBreath">
+		<message type="kShortDesc" val="дышать водой"/>
+	</msg_sheaf>
+	<msg_sheaf id="kSlow">
+		<message type="kShortDesc" val="медлительность"/>
+	</msg_sheaf>
+	<msg_sheaf id="kHaste">
+		<message type="kShortDesc" val="ускорение"/>
+	</msg_sheaf>
+	<msg_sheaf id="kGodsShield">
+		<message type="kShortDesc" val="защита богов"/>
+		<message type="kLook" val="окутан$a сверкающим коконом"/>
+	</msg_sheaf>
+	<msg_sheaf id="kAirShield">
+		<message type="kShortDesc" val="воздушный щит"/>
+		<message type="kLook" val="воздушным"/>
+	</msg_sheaf>
+	<msg_sheaf id="kFireShield">
+		<message type="kShortDesc" val="огненный щит"/>
+		<message type="kLook" val="огненным"/>
+	</msg_sheaf>
+	<msg_sheaf id="kIceShield">
+		<message type="kShortDesc" val="ледяной щит"/>
+		<message type="kLook" val="ледяным"/>
+	</msg_sheaf>
+	<msg_sheaf id="kMagicGlass">
+		<message type="kShortDesc" val="зеркало магии"/>
+		<message type="kLook" val="серебристая"/>
+	</msg_sheaf>
+	<msg_sheaf id="kStairs">
+		<message type="kShortDesc" val="звезды"/>
+	</msg_sheaf>
+	<msg_sheaf id="kStoneHands">
+		<message type="kShortDesc" val="каменная рука"/>
+	</msg_sheaf>
+	<msg_sheaf id="kPrismaticAura">
+		<message type="kShortDesc" val="призматическая.аура"/>
+		<message type="kLook" val="переливается всеми цветами"/>
+		<message type="kLookPoly" val="переливаются всеми цветами"/>
+	</msg_sheaf>
+	<msg_sheaf id="kHelper">
+		<message type="kShortDesc" val="нанят"/>
+	</msg_sheaf>
+	<msg_sheaf id="kForcesOfEvil">
+		<message type="kShortDesc" val="силы зла"/>
+		<message type="kLook" val="черная"/>
+	</msg_sheaf>
+	<msg_sheaf id="kAirAura">
+		<message type="kShortDesc" val="воздушная аура"/>
+	</msg_sheaf>
+	<msg_sheaf id="kFireAura">
+		<message type="kShortDesc" val="огненная аура"/>
+	</msg_sheaf>
+	<msg_sheaf id="kIceAura">
+		<message type="kShortDesc" val="ледяная аура"/>
+	</msg_sheaf>
+	<msg_sheaf id="kDeafness">
+		<message type="kShortDesc" val="глухота"/>
+		<message type="kLook" val="глух$a"/>
+	</msg_sheaf>
+	<msg_sheaf id="kCrying">
+		<message type="kShortDesc" val="плач"/>
+	</msg_sheaf>
+	<msg_sheaf id="kPeaceful">
+		<message type="kShortDesc" val="смирение"/>
+	</msg_sheaf>
+	<msg_sheaf id="kMagicStopFight">
+		<message type="kShortDesc" val="маг параплегия"/>
+	</msg_sheaf>
+	<msg_sheaf id="kBerserk">
+		<message type="kShortDesc" val="предсмертная ярость"/>
+	</msg_sheaf>
+	<msg_sheaf id="kLightWalk">
+		<message type="kShortDesc" val="легкая поступь"/>
+	</msg_sheaf>
+	<msg_sheaf id="kBrokenChains">
+		<message type="kShortDesc" val="разбитые оковы"/>
+		<message type="kLook" val="ярко-синяя"/>
+	</msg_sheaf>
+	<msg_sheaf id="kCloudOfArrows">
+		<message type="kShortDesc" val="облако стрел"/>
+	</msg_sheaf>
+	<msg_sheaf id="kShadowCloak">
+		<message type="kShortDesc" val="мантия теней"/>
+	</msg_sheaf>
+	<msg_sheaf id="kGlitterDust">
+		<message type="kShortDesc" val="блестящая пыль"/>
+	</msg_sheaf>
+	<msg_sheaf id="kAffright">
+		<message type="kShortDesc" val="испуг"/>
+	</msg_sheaf>
+	<msg_sheaf id="kScopolaPoison">
+		<message type="kShortDesc" val="яд скополии"/>
+	</msg_sheaf>
+	<msg_sheaf id="kDaturaPoison">
+		<message type="kShortDesc" val="яд дурмана"/>
+	</msg_sheaf>
+	<msg_sheaf id="kSkillReduce">
+		<message type="kShortDesc" val="понижение умений"/>
+	</msg_sheaf>
+	<msg_sheaf id="kNoBattleSwitch">
+		<message type="kShortDesc" val="не переключается"/>
+	</msg_sheaf>
+	<msg_sheaf id="kBelenaPoison">
+		<message type="kShortDesc" val="яд белены"/>
+	</msg_sheaf>
+	<msg_sheaf id="kNoTeleport">
+		<message type="kShortDesc" val="прикован"/>
+	</msg_sheaf>
+	<msg_sheaf id="kCombatLuck">
+		<message type="kShortDesc" val="боевое везение"/>
+	</msg_sheaf>
+	<msg_sheaf id="kBandage">
+		<message type="kShortDesc" val="перевязка"/>
+	</msg_sheaf>
+	<msg_sheaf id="kCannotBeBandaged">
+		<message type="kShortDesc" val="не может перевязываться"/>
+	</msg_sheaf>
+	<msg_sheaf id="kMorphing">
+		<message type="kShortDesc" val="превращен"/>
+	</msg_sheaf>
+	<msg_sheaf id="kStrangled">
+		<message type="kShortDesc" val="удушье"/>
+		<message type="kLook" val="задыхается"/>
+	</msg_sheaf>
+	<msg_sheaf id="kMemorizeSpells">
+		<message type="kShortDesc" val="вспоминает заклинания"/>
+	</msg_sheaf>
+	<msg_sheaf id="kNoobRegen">
+		<message type="kShortDesc" val="регенерация новичка"/>
+	</msg_sheaf>
+	<msg_sheaf id="kVampirism">
+		<message type="kShortDesc" val="вампиризм"/>
+	</msg_sheaf>
+	<msg_sheaf id="kLacerations">
+		<message type="kShortDesc" val="рваные раны"/>
+	</msg_sheaf>
+	<msg_sheaf id="kCommander">
+		<message type="kShortDesc" val="полководец"/>
+		<message type="kLook" val="реет стяг над головой"/>
+	</msg_sheaf>
+	<msg_sheaf id="kEarthAura">
+		<message type="kShortDesc" val="земной поклон"/>
+	</msg_sheaf>
+	<msg_sheaf id="kCloudly">
+		<message type="kShortDesc" val="затуманивание"/>
+	</msg_sheaf>
+	<msg_sheaf id="kConfused">
+		<message type="kShortDesc" val="ошарашен"/>
+	</msg_sheaf>
+	<msg_sheaf id="kNoCharge">
+		<message type="kShortDesc" val="натиск"/>
+	</msg_sheaf>
+	<msg_sheaf id="kInjured">
+		<message type="kShortDesc" val="ранен"/>
+	</msg_sheaf>
+	<msg_sheaf id="kFrenzy">
+		<message type="kShortDesc" val="исступление"/>
+	</msg_sheaf>
+</msg_container>

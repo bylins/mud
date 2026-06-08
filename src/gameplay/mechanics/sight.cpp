@@ -7,6 +7,7 @@
 
 #include "sight.h"
 #include "gameplay/mechanics/magic_item.h"
+#include "gameplay/affects/affect_messages.h"
 
 #include "engine/entities/char_data.h"
 #include "engine/entities/obj_data.h"
@@ -1616,9 +1617,89 @@ void obj_info(CharData *ch, ObjData *obj, char buf[kMaxStringLength]) {
 	}
 }
 
+// issue.ext-affects: render the affect "aura" look lines for char i as seen by ch. Text is data --
+// each affect's sheaf in affect_msg.xml (kLook/kLookPoly) + the shared kDefault sheaf for the merged
+// shield/aura prefix and singular/plural nouns. Composition, gender ($a), poly choice, group joining
+// and the count-based noun pick stay here. Shared by both ListOneChar display paths (the old code had
+// two drifted copies); produces their union -- the commander stag (was PC-only) and the black
+// forces-of-evil aura (was NPC-long-descr-only) now both show everywhere. Honours brief-shield modes.
+static void ShowAffectAuras(CharData *i, CharData *ch) {
+	using affects::AffectMsg;
+	using EAMT = affects::EAffectMsgType;
+	const auto brief = ch->GetBriefShieldsMode();
+	std::string line;
+
+	// cocoon + sanctuary/prismatic glow (one line)
+	if (AFF_FLAGGED(i, EAffect::kGodsShield)) {
+		line += "..." + AffectMsg(EAffect::kGodsShield, EAMT::kLook) + " ";
+	}
+	if (AFF_FLAGGED(i, EAffect::kSanctuary)) {
+		line += "..." + AffectMsg(EAffect::kSanctuary, IS_POLY(i) ? EAMT::kLookPoly : EAMT::kLook) + " ";
+	} else if (AFF_FLAGGED(i, EAffect::kPrismaticAura)) {
+		line += "..." + AffectMsg(EAffect::kPrismaticAura, IS_POLY(i) ? EAMT::kLookPoly : EAMT::kLook) + " ";
+	}
+	if (!line.empty() && brief != EBriefShieldsMode::kCompressed) {
+		act(line.c_str(), false, i, nullptr, ch, kToVict);
+	}
+
+	// elemental shields: "...окружен$a <фрагменты> щитом|щитами"
+	std::vector<const std::string *> frags;
+	if (AFF_FLAGGED(i, EAffect::kAirShield)) frags.push_back(&AffectMsg(EAffect::kAirShield, EAMT::kLook));
+	if (AFF_FLAGGED(i, EAffect::kFireShield)) frags.push_back(&AffectMsg(EAffect::kFireShield, EAMT::kLook));
+	if (AFF_FLAGGED(i, EAffect::kIceShield)) frags.push_back(&AffectMsg(EAffect::kIceShield, EAMT::kLook));
+	if (!frags.empty()) {
+		line = "..." + AffectMsg(EAffect::kUndefined, EAMT::kShieldPrefix);
+		for (size_t k = 0; k < frags.size(); ++k) {
+			line += (k ? ", " : " ") + *frags[k];
+		}
+		line += " " + AffectMsg(EAffect::kUndefined, frags.size() == 1 ? EAMT::kShieldNoun : EAMT::kShieldNounMany) + " ";
+		if (brief != EBriefShieldsMode::kCompact && brief != EBriefShieldsMode::kCompressed) {
+			act(line.c_str(), false, i, nullptr, ch, kToVict);
+		}
+	}
+
+	// detect-magic auras (only the viewer with kDetectMagic sees them)
+	if (AFF_FLAGGED(ch, EAffect::kDetectMagic)) {
+		frags.clear();
+		if (AFF_FLAGGED(i, EAffect::kMagicGlass)
+			&& brief != EBriefShieldsMode::kCompact && brief != EBriefShieldsMode::kCompressed) {
+			frags.push_back(&AffectMsg(EAffect::kMagicGlass, EAMT::kLook));
+		}
+		if (AFF_FLAGGED(i, EAffect::kBrokenChains)) frags.push_back(&AffectMsg(EAffect::kBrokenChains, EAMT::kLook));
+		if (AFF_FLAGGED(i, EAffect::kForcesOfEvil)) frags.push_back(&AffectMsg(EAffect::kForcesOfEvil, EAMT::kLook));
+		if (!frags.empty()) {
+			line = "...";
+			for (size_t k = 0; k < frags.size(); ++k) {
+				line += (k ? ", " : "") + *frags[k];
+			}
+			line += " " + AffectMsg(EAffect::kUndefined, frags.size() == 1 ? EAMT::kAuraNoun : EAMT::kAuraNounMany) + " ";
+			if (brief != EBriefShieldsMode::kCompressed) {
+				act(line.c_str(), false, i, nullptr, ch, kToVict);
+			}
+		}
+	}
+
+	// status afflictions (concatenated into one line)
+	line.clear();
+	if (AFF_FLAGGED(ch, EAffect::kDetectMagic)) {
+		if (AFF_FLAGGED(i, EAffect::kHold)) line += "..." + AffectMsg(EAffect::kHold, EAMT::kLook);
+		if (AFF_FLAGGED(i, EAffect::kSilence) && !AFF_FLAGGED(i, EAffect::kStrangled)) {
+			line += "..." + AffectMsg(EAffect::kSilence, EAMT::kLook);
+		}
+	}
+	if (AFF_FLAGGED(i, EAffect::kBlind)) line += "..." + AffectMsg(EAffect::kBlind, EAMT::kLook);
+	if (AFF_FLAGGED(i, EAffect::kDeafness)) line += "..." + AffectMsg(EAffect::kDeafness, EAMT::kLook);
+	if (AFF_FLAGGED(i, EAffect::kStrangled) && AFF_FLAGGED(i, EAffect::kSilence)) {
+		line += "..." + AffectMsg(EAffect::kStrangled, EAMT::kLook);
+	}
+	if (AFF_FLAGGED(i, EAffect::kCommander)) line += "..." + AffectMsg(EAffect::kCommander, EAMT::kLook);
+	if (!line.empty()) {
+		act(line.c_str(), false, i, nullptr, ch, kToVict);
+	}
+}
+
 void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 	int sector = ESector::kCity;
-	int n;
 	char aura_txt[200];
 	const char *positions[] =
 		{
@@ -1759,100 +1840,7 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 		AppendCompactShieldSuffix(line, ch, i);
 		SendMsgToChar(line, ch);
 
-		*aura_txt = '\0';
-		if (AFF_FLAGGED(i, EAffect::kGodsShield)) {
-			strcat(aura_txt, "...окутан");
-			strcat(aura_txt, GET_CH_SUF_6(i));
-			strcat(aura_txt, " сверкающим коконом ");
-		}
-		if (AFF_FLAGGED(i, EAffect::kSanctuary))
-			strcat(aura_txt, IS_POLY(i) ? "...светятся ярким сиянием " : "...светится ярким сиянием ");
-		else if (AFF_FLAGGED(i, EAffect::kPrismaticAura))
-			strcat(aura_txt, IS_POLY(i) ? "...переливаются всеми цветами " : "...переливается всеми цветами ");
-		if (ch->GetBriefShieldsMode() != EBriefShieldsMode::kCompressed)
-			act(aura_txt, false, i, nullptr, ch, kToVict);
-
-		*aura_txt = '\0';
-		n = 0;
-		strcat(aura_txt, "...окружен");
-		strcat(aura_txt, GET_CH_SUF_6(i));
-		if (AFF_FLAGGED(i, EAffect::kAirShield)) {
-			strcat(aura_txt, " воздушным");
-			n++;
-		}
-		if (AFF_FLAGGED(i, EAffect::kFireShield)) {
-			if (n > 0)
-				strcat(aura_txt, ", огненным");
-			else
-				strcat(aura_txt, " огненным");
-			n++;
-		}
-		if (AFF_FLAGGED(i, EAffect::kIceShield)) {
-			if (n > 0)
-				strcat(aura_txt, ", ледяным");
-			else
-				strcat(aura_txt, " ледяным");
-			n++;
-		}
-		if (n == 1)
-			strcat(aura_txt, " щитом ");
-		else if (n > 1)
-			strcat(aura_txt, " щитами ");
-		if (n > 0 && ch->GetBriefShieldsMode() != EBriefShieldsMode::kCompact
-			&& ch->GetBriefShieldsMode() != EBriefShieldsMode::kCompressed)
-			act(aura_txt, false, i, nullptr, ch, kToVict);
-
-		if (AFF_FLAGGED(ch, EAffect::kDetectMagic)) {
-			*aura_txt = '\0';
-			n = 0;
-			strcat(aura_txt, "...");
-			if (AFF_FLAGGED(i, EAffect::kMagicGlass)
-				&& ch->GetBriefShieldsMode() != EBriefShieldsMode::kCompact
-				&& ch->GetBriefShieldsMode() != EBriefShieldsMode::kCompressed) {
-				if (n > 0)
-					strcat(aura_txt, ", серебристая");
-				else
-					strcat(aura_txt, "серебристая");
-				n++;
-			}
-			if (AFF_FLAGGED(i, EAffect::kBrokenChains)) {
-				if (n > 0)
-					strcat(aura_txt, ", ярко-синяя");
-				else
-					strcat(aura_txt, "ярко-синяя");
-				n++;
-			}
-			if (AFF_FLAGGED(i, EAffect::kForcesOfEvil)) {
-				if (n > 0)
-					strcat(aura_txt, ", черная");
-				else
-					strcat(aura_txt, "черная");
-				n++;
-			}
-			if (n == 1)
-				strcat(aura_txt, " аура ");
-			else if (n > 1)
-				strcat(aura_txt, " ауры ");
-
-			if (n > 0 && ch->GetBriefShieldsMode() != EBriefShieldsMode::kCompressed)
-				act(aura_txt, false, i, nullptr, ch, kToVict);
-		}
-		*aura_txt = '\0';
-		if (AFF_FLAGGED(ch, EAffect::kDetectMagic)) {
-			if (AFF_FLAGGED(i, EAffect::kHold))
-				strcat(aura_txt, "...парализован$a");
-			if (AFF_FLAGGED(i, EAffect::kSilence) && (!AFF_FLAGGED(i, EAffect::kStrangled)))
-				strcat(aura_txt, "...нем$a");
-		}
-		if (AFF_FLAGGED(i, EAffect::kBlind))
-			strcat(aura_txt, "...слеп$a");
-		if (AFF_FLAGGED(i, EAffect::kDeafness))
-			strcat(aura_txt, "...глух$a");
-		if (AFF_FLAGGED(i, EAffect::kStrangled) && AFF_FLAGGED(i, EAffect::kSilence))
-			strcat(aura_txt, "...задыхается.");
-
-		if (*aura_txt)
-			act(aura_txt, false, i, nullptr, ch, kToVict);
+		ShowAffectAuras(i, ch);
 
 		return;
 	}
@@ -1969,109 +1957,7 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 	line += "\r\n";
 	SendMsgToChar(line, ch);
 
-	*aura_txt = '\0';
-	if (AFF_FLAGGED(i, EAffect::kGodsShield)) {
-		strcat(aura_txt, "...окутан");
-		strcat(aura_txt, GET_CH_SUF_6(i));
-		strcat(aura_txt, " сверкающим коконом ");
-	}
-	if (AFF_FLAGGED(i, EAffect::kSanctuary))
-		strcat(aura_txt, IS_POLY(i) ? "...светятся ярким сиянием " : "...светится ярким сиянием ");
-	else if (AFF_FLAGGED(i, EAffect::kPrismaticAura))
-		strcat(aura_txt, IS_POLY(i) ? "...переливаются всеми цветами " : "...переливается всеми цветами ");
-	if (ch->GetBriefShieldsMode() != EBriefShieldsMode::kCompressed)
-		act(aura_txt, false, i, nullptr, ch, kToVict);
-
-	*aura_txt = '\0';
-	n = 0;
-	strcat(aura_txt, "...окружен");
-	strcat(aura_txt, GET_CH_SUF_6(i));
-	if (AFF_FLAGGED(i, EAffect::kAirShield)) {
-		strcat(aura_txt, " воздушным");
-		n++;
-	}
-	if (AFF_FLAGGED(i, EAffect::kFireShield)) {
-		if (n > 0)
-			strcat(aura_txt, ", огненным");
-		else
-			strcat(aura_txt, " огненным");
-		n++;
-	}
-	if (AFF_FLAGGED(i, EAffect::kIceShield)) {
-		if (n > 0)
-			strcat(aura_txt, ", ледяным");
-		else
-			strcat(aura_txt, " ледяным");
-		n++;
-	}
-	if (n == 1)
-		strcat(aura_txt, " щитом ");
-	else if (n > 1)
-		strcat(aura_txt, " щитами ");
-	if (n > 0 && ch->GetBriefShieldsMode() != EBriefShieldsMode::kCompact
-		&& ch->GetBriefShieldsMode() != EBriefShieldsMode::kCompressed)
-		act(aura_txt, false, i, nullptr, ch, kToVict);
-	if (AFF_FLAGGED(ch, EAffect::kDetectMagic)) {
-		*aura_txt = '\0';
-		n = 0;
-		strcat(aura_txt, " ..");
-		if (AFF_FLAGGED(i, EAffect::kMagicGlass)
-			&& ch->GetBriefShieldsMode() != EBriefShieldsMode::kCompact
-			&& ch->GetBriefShieldsMode() != EBriefShieldsMode::kCompressed) {
-			if (n > 0)
-				strcat(aura_txt, ", серебристая");
-			else
-				strcat(aura_txt, "серебристая");
-			n++;
-		}
-		if (AFF_FLAGGED(i, EAffect::kBrokenChains)) {
-			if (n > 0)
-				strcat(aura_txt, ", ярко-синяя");
-			else
-				strcat(aura_txt, "ярко-синяя");
-			n++;
-		}
-		if (n == 1)
-			strcat(aura_txt, " аура ");
-		else if (n > 1)
-			strcat(aura_txt, " ауры ");
-
-		if (n > 0 && ch->GetBriefShieldsMode() != EBriefShieldsMode::kCompressed)
-			act(aura_txt, false, i, nullptr, ch, kToVict);
-	}
-	*aura_txt = '\0';
-	if (AFF_FLAGGED(ch, EAffect::kDetectMagic)) {
-		if (AFF_FLAGGED(i, EAffect::kHold))
-			strcat(aura_txt, " ...парализован$a");
-		if (AFF_FLAGGED(i, EAffect::kSilence) && (!AFF_FLAGGED(i, EAffect::kStrangled)))
-			strcat(aura_txt, " ...нем$a");
-	}
-	if (AFF_FLAGGED(i, EAffect::kBlind))
-		strcat(aura_txt, " ...слеп$a");
-	if (AFF_FLAGGED(i, EAffect::kDeafness))
-		strcat(aura_txt, " ...глух$a");
-	if (AFF_FLAGGED(i, EAffect::kStrangled) && AFF_FLAGGED(i, EAffect::kSilence))
-		strcat(aura_txt, " ...задыхается");
-	if (AFF_FLAGGED(i, EAffect::kCommander))
-		strcat(aura_txt, " ...реет стяг над головой");
-	if (*aura_txt)
-		act(aura_txt, false, i, nullptr, ch, kToVict);
-/*	if (IS_MANA_CASTER(i)) {
-		*aura_txt = '\0';
-		if (i->GetMorphSkill(ESkill::kDarkMagic) > 0)
-			strcat(aura_txt, "...все сферы магии кружатся над головой");
-		else if (i->GetMorphSkill(ESkill::kAirMagic) > 0)
-			strcat(aura_txt, "...сферы четырех магий кружатся над головой");
-		else if (i->GetMorphSkill(ESkill::kEarthMagic) > 0)
-			strcat(aura_txt, "...сферы трех магий кружатся над головой");
-		else if (i->GetMorphSkill(ESkill::kWaterMagic) > 0)
-			strcat(aura_txt, "...сферы двух магий кружатся над головой");
-		else if (i->GetMorphSkill(ESkill::kFireMagic) > 0)
-			strcat(aura_txt, "...сфера огня кружит над головой");
-		if (*aura_txt)
-			act(aura_txt, false, i, nullptr, ch, kToVict);
-	}
-*/
+	ShowAffectAuras(i, ch);
 }
 
 char *diag_weapon_to_char(const CObjectPrototype *obj, int show_wear) {

@@ -413,7 +413,7 @@ struct AlterObj : public IAction {
 class TalentAffect : public IAction {
  public:
 	struct Apply {
-		EAffect id{EAffect::kUndefinded};
+		EAffect id{EAffect::kUndefined};
 		EApply location{EApply::kNone};
 		// Modifier = factor * cap(min + ceil(dices*dices_weight*(1+alpha*C) + beta*C)), C = skill+stat.
 		// The cap (see below) is applied to the raw magnitude BEFORE the factor, so factor=-1

@@ -370,6 +370,15 @@ void GameLoader::BootWorld(std::unique_ptr<world_loader::IWorldDataSource> data_
 	// idempotent if BootMudDataBase later runs.
 	text_id::Init();
 
+	// issue.ext-affects: affected_bits[] is data-driven -- rebuilt from each affect's kShortDesc when
+	// affect_messages loads -- and object/mob parsing below renders affect flags through it (sprintbits),
+	// so it must be populated before the world loads. affects (the id registry) is validated alongside.
+	// Guarded like the skills load just below; the normal running-server boot reaches here too.
+	if (!affected_bits) {
+		MUD::CfgManager().LoadCfg("affects");
+		MUD::CfgManager().LoadCfg("affect_messages");
+	}
+
 	// CharData::set_skill() / CObjectPrototype::set_skill() drop any skill
 	// whose id is invalid, and a skill is "invalid" until the skills config is
 	// loaded (MUD::Skills().IsInvalid). BootMudDataBase loads it before
@@ -852,6 +861,8 @@ void BootMudDataBase() {
 	MUD::CfgManager().LoadCfg("rent_messages");
 	MUD::CfgManager().LoadCfg("shop_messages");
 	MUD::CfgManager().LoadCfg("board_messages");
+	// "affects" + "affect_messages" load earlier, at the top of BootWorld (affected_bits must exist
+	// before the world's objects/mobs are parsed) -- see GameLoader::BootWorld.
 
 	boot_profiler.next_step("Assigning guilds info.");
 	log("Assigning guilds info.");

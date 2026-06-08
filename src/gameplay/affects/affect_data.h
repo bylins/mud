@@ -48,7 +48,7 @@ class Affect {
 	Bitvector battleflag;       //*** SUCH AS HOLD,SIELENCE etc
 	// The single flag this affect sets while active (AFF_XXX). Its enum type
 	// follows the affect's location kind via AffectFlagType (EAffect for chars,
-	// ERoomAffect for rooms). kUndefinded/0 means the affect sets no flag.
+	// ERoomAffect for rooms). kUndefined/0 means the affect sets no flag.
 	typename AffectFlagType<TLocation>::type affect_type{};
 	FlagData aff;
 	long caster_id; //Unique caster ID //

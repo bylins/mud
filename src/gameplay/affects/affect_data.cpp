@@ -968,7 +968,7 @@ void affect_to_char(CharData *ch, const Affect<EApply> &af) {
 	ch->affected.push_front(affected_alloc);
 
 	AFF_FLAGS(ch) += af.aff;
-	if (af.affect_type != EAffect::kUndefinded)
+	if (af.affect_type != EAffect::kUndefined)
 		affect_modify(ch, af.location, af.modifier, af.affect_type, true);
 	//log("[AFFECT_TO_CHAR->AFFECT_TOTAL] Start");
 	affect_total(ch);
@@ -986,7 +986,7 @@ void affect_to_char_no_recalc(CharData *ch, const Affect<EApply> &af) {
 	ch->affected.push_front(affected_alloc);
 
 	AFF_FLAGS(ch) += af.aff;
-	if (af.affect_type != EAffect::kUndefinded)
+	if (af.affect_type != EAffect::kUndefined)
 		affect_modify(ch, af.location, af.modifier, af.affect_type, true);
 }
 

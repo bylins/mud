@@ -36,7 +36,7 @@ void PerformPunctualHit(CharData *ch, CharData *victim, HitData &hit_data) {
 	for (auto & i : af) {
 		i.type = ESpell::kUndefined;
 		i.location = EApply::kNone;
-		i.affect_type = EAffect::kUndefinded;
+		i.affect_type = EAffect::kUndefined;
 		i.modifier = 0;
 		i.battleflag = 0;
 		i.duration = CalcDuration(victim, victim, ESkill::kUndefined, 2, 0, 0, 0);
@@ -668,19 +668,19 @@ void ImposeHaemorrhage(CharData *ch, int percent) {
 	af[0].modifier = -percent;
 	//TODO: Отрицательное время, если тело больше 31?
 	af[0].duration = CalcDuration(ch, ch, ESkill::kUndefined, number(1, 31 - GetRealCon(ch)), 0, 0, 0);
-	af[0].affect_type = EAffect::kUndefinded;
+	af[0].affect_type = EAffect::kUndefined;
 	af[0].battleflag = 0;
 	af[1].type = ESpell::kHaemorrhage;
 	af[1].location = EApply::kMoveRegen;
 	af[1].modifier = -percent;
 	af[1].duration = af[0].duration;
-	af[1].affect_type = EAffect::kUndefinded;
+	af[1].affect_type = EAffect::kUndefined;
 	af[1].battleflag = 0;
 	af[2].type = ESpell::kHaemorrhage;
 	af[2].location = EApply::kManaRegen;
 	af[2].modifier = -percent;
 	af[2].duration = af[0].duration;
-	af[2].affect_type = EAffect::kUndefinded;
+	af[2].affect_type = EAffect::kUndefined;
 	af[2].battleflag = 0;
 
 	for (auto &i : af) {

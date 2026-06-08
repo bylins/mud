@@ -599,7 +599,7 @@ void do_stat_character(CharData *ch, CharData *k, const int virt) {
 			if (has_modifier) {
 				sline += fmt::sprintf("%+d to %s", aff->modifier, apply_types[(int) aff->location]);
 			}
-			if (aff->affect_type != EAffect::kUndefinded) {
+			if (aff->affect_type != EAffect::kUndefined) {
 				sline += has_modifier ? ", sets " : "sets ";
 				sprintbit(to_underlying(aff->affect_type), affected_bits, buf2, sizeof(buf2));
 				sline += buf2;

@@ -31,7 +31,7 @@ enum EAffFlag : Bitvector {
  * Affect bits: used in char_data.char_specials.saved.affected_by //
  */
 enum class EAffect : Bitvector {
-	kUndefinded = 0u,
+	kUndefined = 0u,
 	kBlind = 1u << 0,                    ///< (R) Char is blind
 	kInvisible = 1u << 1,                ///< Char is invisible
 	kDetectAlign = 1u << 2,                ///< Char is sensitive to align
@@ -292,7 +292,9 @@ const std::map<EAffFlag, std::string> &NAMES_OF<EAffFlag>();  // issue.vedun-edi
 
 using WeaponAffectArray = std::array<WeaponAffect, kWeaponAffectCount>;
 extern WeaponAffectArray weapon_affect;
-extern const char *affected_bits[];
+// issue.ext-affects: built at boot from cfg/affects.xml (see affects_loader.h), indexed positionally by
+// the EAffect bit so sprintbits keeps working unchanged; null until the "affects" cfg is loaded.
+extern const char **affected_bits;
 extern const char *apply_types[];
 
 #endif //BYLINS_SRC_AFFECTS_AFFECT_CONTANTS_H_

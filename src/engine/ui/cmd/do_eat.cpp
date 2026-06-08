@@ -181,7 +181,7 @@ void do_eat(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 			Affect<EApply> af;
 			af.location = food->get_affected(i).location;
 			af.modifier = food->get_affected(i).modifier;
-			af.affect_type = EAffect::kUndefinded;
+			af.affect_type = EAffect::kUndefined;
 			af.type = ESpell::kFullFeed;
 //			af.battleflag = 0;
 			af.duration = CalcDuration(ch, ch, ESkill::kUndefined, 10 * 2, 0, 0, 0);
