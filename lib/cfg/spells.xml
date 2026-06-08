@@ -3078,7 +3078,7 @@ base_stat id - (например "kWis") какой берем параметр,
                     <!--
                     <moves min="-80" dices_weight="0" alpha="0" beta="0"/>
                     <thirst min="-50" dices_weight="0" alpha="0" beta="0"/>
-                    <cond min="-50" dices_weight="0" alpha="0" beta="0"/>
+                    <full min="-50" dices_weight="0" alpha="0" beta="0"/>
                     -->
                 </points>
             </action>
@@ -3162,7 +3162,7 @@ base_stat id - (например "kWis") какой берем параметр,
             <action>
                 <points>
                     <thirst min="9999" dices_weight="0" alpha="0" beta="0"/>
-                    <cond min="9999" dices_weight="0" alpha="0" beta="0"/>
+                    <full min="9999" dices_weight="0" alpha="0" beta="0"/>
                 </points>
             </action>
         </talent_actions>
@@ -6815,7 +6815,7 @@ base_stat id - (например "kWis") какой берем параметр,
             <action>
                 <points>
                     <thirst min="9999" dices_weight="0" alpha="0" beta="0"/>
-                    <cond min="9999" dices_weight="0" alpha="0" beta="0"/>
+                    <full min="9999" dices_weight="0" alpha="0" beta="0"/>
                 </points>
                 <area>
                     <targets skill_divisor="20" dice_size="2" min="5" max="-1"/>

@@ -90,6 +90,16 @@ void RegisterEditorEnums() {
 	registry.RegisterNames("EAlign", {"kGood", "kEvil", "kNeutral"});
 	// <misc violent> is stored as the literal Y/N/A the spell loader parses into EViolent.
 	registry.RegisterNames("EViolent", {"Y", "N", "A"});
+	// issue.vedun-hotfix #4: ERoomFlag has no NAMES_OF map (multi-int Bitvector with bit-group markers
+	// + exit/sector tokens mixed in), so register the room-flag subset by name for the <room_flags>
+	// flagset menu/validation (flagsets key on member names, not values).
+	registry.RegisterNames("ERoomFlag", {"kDarked", "kDeathTrap", "kNoEntryMob", "kIndoors", "kPeaceful",
+		"kSoundproof", "kNoTrack", "kNoMagic", "kTunnel", "kNoTeleportIn", "kGodsRoom", "kLevelGod",
+		"kHouse", "kHouseCrash", "kHouseEntry", "kOlc", "kBfsMark", "kForMages", "kForSorcerers",
+		"kForThieves", "kForWarriors", "kForAssasines", "kForGuards", "kForPaladines", "kForRangers",
+		"kForPoly", "kForMono", "kForge", "kForMerchants", "kForMaguses", "kArena", "kNoSummonOut",
+		"kNoTeleportOut", "kNohorse", "kNoWeather", "kSlowDeathTrap", "kIceTrap", "kNoRelocateIn",
+		"kTribune", "kArenaSend", "kNoBattle", "kAlwaysLit", "kMoMapper", "kNoItem", "kDominationArena"});
 }
 
 } // namespace vedun

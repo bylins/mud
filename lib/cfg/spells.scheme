@@ -136,6 +136,48 @@
 		<child tag="points"/>
 		<child tag="target_conditions"/>
 		<child tag="reflection"/>
+		<child tag="side_spell" multiple="Y"/>
+		<child tag="manual_cast"/>
+		<child tag="summon" multiple="Y"/>
+		<child tag="obj_creation" multiple="Y"/>
+		<child tag="alter_obj" multiple="Y"/>
+		<child tag="area"/>
+	</tag>
+
+	<!-- issue.vedun-hotfix #1: the data-driven action sub-tags, so the editor's add-child menu offers
+	     them and they are editable once added (previously undeclared -> not addable). -->
+	<tag name="side_spell" desc="Also cast another spell as part of this action">
+		<attr name="id" type="enum" enum="ESpell" desc="Spell to also cast"/>
+	</tag>
+	<tag name="manual_cast" desc="Invoke a hardcoded spell handler function">
+		<attr name="handler" type="string" desc="Registered spell handler name (e.g. SpellTeleport)"/>
+	</tag>
+	<tag name="summon" desc="Summon mob(s) for this action">
+		<attr name="base_fail" type="int" min="0" max="100" desc="Base fail chance, percent"/>
+		<attr name="min_fail" type="int" min="0" max="100" desc="Minimum fail chance, percent"/>
+		<attr name="handler" type="string" desc="Optional setup handler (e.g. SetupKeeperStats)"/>
+		<child tag="mob" multiple="Y"/>
+	</tag>
+	<tag name="mob" desc="A mob this summon action creates">
+		<attr name="vnum" type="int" min="0" desc="Mob vnum"/>
+		<attr name="competence_weight" type="int" desc="Weight of caster competence on this mob"/>
+		<attr name="keeper" type="bool" desc="Y if this mob is the kept/primary summon"/>
+	</tag>
+	<tag name="obj_creation" desc="Create an object for this action">
+		<attr name="vnum" type="int" min="0" desc="Object vnum (0 when a handler builds the item)"/>
+		<attr name="handler" type="string" desc="Registered builder handler (e.g. CreateArmor / CreateWeapon)"/>
+	</tag>
+	<tag name="alter_obj" desc="Alter the target object via a handler">
+		<attr name="handler" type="string" desc="Registered alter-object handler name (e.g. AlterBless)"/>
+	</tag>
+	<tag name="area" desc="Area/mass target selection + distribution">
+		<child tag="targets"/>
+		<child tag="distribution"/>
+	</tag>
+	<tag name="distribution" desc="How the area effect spreads across targets">
+		<attr name="type" type="string" desc="kUniform or kStepped"/>
+		<attr name="decay" type="double" desc="Per-target decay (kStepped)"/>
+		<attr name="free_targets" type="int" desc="Targets hit at full strength before decay (kStepped)"/>
 	</tag>
 
 	<!-- reflection: an attribute-only action tag (no children). Without a def here the editor had
@@ -156,16 +198,17 @@
 		<child tag="required"/>
 	</tag>
 
-	<!-- Condition flag-tags. align is typed (EAlign registered by name); room_flags / mob_flags stay
-	     untyped until ERoomFlag / EMobFlag get value->name maps (separate task). -->
+	<!-- Condition flag-tags. issue.vedun-hotfix #4: room_flags/mob_flags are now flagsets so the editor
+	     shows a flag-toggle menu and rejects unknown tokens (EMobFlag has NAMES_OF; ERoomFlag is
+	     registered by name in enum_registry with the room-flag subset). -->
 	<tag name="align" desc="Alignment gate">
 		<attr name="val" type="enum" enum="EAlign" desc="kGood / kEvil / kNeutral"/>
 	</tag>
 	<tag name="room_flags" desc="Room-flag gate">
-		<attr name="val" type="string" desc="ERoomFlag token(s), '|'-separated"/>
+		<attr name="val" type="flagset" enum="ERoomFlag" desc="ERoomFlag token(s), '|'-separated"/>
 	</tag>
 	<tag name="mob_flags" desc="Mob-flag gate (NPC targets)">
-		<attr name="val" type="string" desc="EMobFlag token(s), '|'-separated"/>
+		<attr name="val" type="flagset" enum="EMobFlag" desc="EMobFlag token(s), '|'-separated"/>
 	</tag>
 
 	<tag name="damage" desc="Deal damage to the target">
