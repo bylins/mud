@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="koi8-r"?>
+<!--
+    issue.specials Phase 2: bank (spec_procs.cpp) + clan treasury / казна (clans/house.cpp) messages.
+    Money lines use {amount} {currency} named fmt args; transfer lines add {color} {nocolor} and the
+    padded {recipient}/{sender}. kFinancialOp is an act() line ($n act-codes). Several core bank slots
+    (kDepositHowMuch/kCantAfford/kDeposited/kWithdrawHowMuch/kWithdrawn/kFinancialOp) are reused by казна.
+-->
+<msg_container>
+	<msg_sheaf id="kDefault">
+		<message type="kGreeting" val="Да-да, тут банк, чего изволите?"/>
+		<message type="kBalance" val="У вас на счету {amount} {currency}."/>
+		<message type="kNoMoney" val="У вас нет денег."/>
+		<message type="kDepositHowMuch" val="Сколько вы хотите вложить?"/>
+		<message type="kCantAfford" val="О такой сумме вы можете только мечтать!"/>
+		<message type="kDeposited" val="Вы вложили {amount} {currency}."/>
+		<message type="kWithdrawHowMuch" val="Уточните количество денег, которые вы хотите получить?"/>
+		<message type="kNeverHadThatMuch" val="Да вы отродясь столько денег не видели!"/>
+		<message type="kWithdrawn" val="Вы сняли {amount} {currency}."/>
+		<message type="kFinancialOp" val="$n произвел$g финансовую операцию."/>
+		<message type="kImmCant" val="Почитить захотелось?"/>
+		<message type="kTransferToWhom" val="Уточните кому вы хотите перевести?"/>
+		<message type="kNoTaxMoney" val="У вас не хватит денег на налоги!"/>
+		<message type="kTransferSent" val="{color}Вы перевели {amount} кун {recipient}{nocolor}."/>
+		<message type="kTransferReceived" val="{color}Вы получили {amount} кун банковским переводом от {sender}{nocolor}."/>
+		<message type="kNoSuchPlayer" val="Такого персонажа не существует."/>
+		<message type="kNotInClan" val="Вы не состоите в дружине."/>
+		<message type="kClanBalance" val="На счету вашей дружины ровно {amount} {currency}."/>
+		<message type="kClanDepositFormat" val="Формат команды казна вложить &lt;число&gt;"/>
+		<message type="kClanDepositPartial" val="Вам удалось вложить в казну дружины только {amount} {currency}."/>
+		<message type="kClanNoWithdraw" val="К сожалению, у вас нет возможности транжирить средства дружины."/>
+		<message type="kClanTooPoor" val="К сожалению, ваша дружина не так богата."/>
+		<message type="kClanWithdrawPartial" val="Вам удалось снять только {amount} {currency}."/>
+		<message type="kClanFormat" val="Формат команды: казна вложить|получить|баланс сумма."/>
+	</msg_sheaf>
+</msg_container>

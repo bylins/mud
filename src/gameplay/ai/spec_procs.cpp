@@ -13,6 +13,9 @@
 ************************************************************************ */
 
 #include "gameplay/ai/spec_procs.h"
+#include "gameplay/ai/special_messages.h"
+
+#include <fmt/format.h>
 #include "gameplay/ai/subcmd_resolver.h"
 
 #include "engine/core/char_movement.h"
@@ -1372,48 +1375,51 @@ namespace {
 enum class EBankCmd { kBalance, kDeposit, kWithdraw, kTransfer, kTreasury };
 
 int BankBalance(CharData *ch, void * /*me*/, char * /*argument*/) {
-	if (ch->get_bank() > 0)
-		sprintf(buf, "У вас на счету %ld %s.\r\n",
-				ch->get_bank(), GetDeclensionInNumber(ch->get_bank(), EWhat::kMoneyA));
-	else
-		sprintf(buf, "У вас нет денег.\r\n");
-	SendMsgToChar(buf, ch);
+	if (ch->get_bank() > 0) {
+		SendMsgToChar(fmt::format(fmt::runtime(specials::BankMsg(specials::EBankMsg::kBalance)),
+				fmt::arg("amount", ch->get_bank()),
+				fmt::arg("currency", GetDeclensionInNumber(ch->get_bank(), EWhat::kMoneyA))) + "\r\n", ch);
+	} else {
+		SendMsgToChar(specials::BankMsg(specials::EBankMsg::kNoMoney) + "\r\n", ch);
+	}
 	return (1);
 }
 
 int BankDeposit(CharData *ch, void * /*me*/, char *argument) {
 	int amount;
 	if ((amount = atoi(argument)) <= 0) {
-		SendMsgToChar("Сколько вы хотите вложить?\r\n", ch);
+		SendMsgToChar(specials::BankMsg(specials::EBankMsg::kDepositHowMuch) + "\r\n", ch);
 		return (1);
 	}
 	if (ch->get_gold() < amount) {
-		SendMsgToChar("О такой сумме вы можете только мечтать!\r\n", ch);
+		SendMsgToChar(specials::BankMsg(specials::EBankMsg::kCantAfford) + "\r\n", ch);
 		return (1);
 	}
 	ch->remove_gold(amount, false);
 	ch->add_bank(amount, false);
-	sprintf(buf, "Вы вложили %d %s.\r\n", amount, GetDeclensionInNumber(amount, EWhat::kMoneyU));
-	SendMsgToChar(buf, ch);
-	act("$n произвел$g финансовую операцию.", true, ch, nullptr, nullptr, kToRoom);
+	SendMsgToChar(fmt::format(fmt::runtime(specials::BankMsg(specials::EBankMsg::kDeposited)),
+			fmt::arg("amount", amount),
+			fmt::arg("currency", GetDeclensionInNumber(amount, EWhat::kMoneyU))) + "\r\n", ch);
+	act(specials::BankMsg(specials::EBankMsg::kFinancialOp), true, ch, nullptr, nullptr, kToRoom);
 	return (1);
 }
 
 int BankWithdraw(CharData *ch, void * /*me*/, char *argument) {
 	int amount;
 	if ((amount = atoi(argument)) <= 0) {
-		SendMsgToChar("Уточните количество денег, которые вы хотите получить?\r\n", ch);
+		SendMsgToChar(specials::BankMsg(specials::EBankMsg::kWithdrawHowMuch) + "\r\n", ch);
 		return (1);
 	}
 	if (ch->get_bank() < amount) {
-		SendMsgToChar("Да вы отродясь столько денег не видели!\r\n", ch);
+		SendMsgToChar(specials::BankMsg(specials::EBankMsg::kNeverHadThatMuch) + "\r\n", ch);
 		return (1);
 	}
 	ch->add_gold(amount, false);
 	ch->remove_bank(amount, false);
-	sprintf(buf, "Вы сняли %d %s.\r\n", amount, GetDeclensionInNumber(amount, EWhat::kMoneyU));
-	SendMsgToChar(buf, ch);
-	act("$n произвел$g финансовую операцию.", true, ch, nullptr, nullptr, kToRoom);
+	SendMsgToChar(fmt::format(fmt::runtime(specials::BankMsg(specials::EBankMsg::kWithdrawn)),
+			fmt::arg("amount", amount),
+			fmt::arg("currency", GetDeclensionInNumber(amount, EWhat::kMoneyU))) + "\r\n", ch);
+	act(specials::BankMsg(specials::EBankMsg::kFinancialOp), true, ch, nullptr, nullptr, kToRoom);
 	return (1);
 }
 
@@ -1423,31 +1429,31 @@ int BankTransfer(CharData *ch, void * /*me*/, char *argument) {
 	argument = one_argument(argument, arg);
 	amount = atoi(argument);
 	if (ch->IsGod() && !ch->IsImpl()) {
-		SendMsgToChar("Почитить захотелось?\r\n", ch);
+		SendMsgToChar(specials::BankMsg(specials::EBankMsg::kImmCant) + "\r\n", ch);
 		return (1);
 
 	}
 	if (!*arg) {
-		SendMsgToChar("Уточните кому вы хотите перевести?\r\n", ch);
+		SendMsgToChar(specials::BankMsg(specials::EBankMsg::kTransferToWhom) + "\r\n", ch);
 		return (1);
 	}
 	if (amount <= 0) {
-		SendMsgToChar("Уточните количество денег, которые вы хотите получить?\r\n", ch);
+		SendMsgToChar(specials::BankMsg(specials::EBankMsg::kWithdrawHowMuch) + "\r\n", ch);
 		return (1);
 	}
 	if (amount <= 100) {
 		if (ch->get_bank() < (amount + 5)) {
-			SendMsgToChar("У вас не хватит денег на налоги!\r\n", ch);
+			SendMsgToChar(specials::BankMsg(specials::EBankMsg::kNoTaxMoney) + "\r\n", ch);
 			return (1);
 		}
 	}
 
 	if (ch->get_bank() < amount) {
-		SendMsgToChar("Да вы отродясь столько денег не видели!\r\n", ch);
+		SendMsgToChar(specials::BankMsg(specials::EBankMsg::kNeverHadThatMuch) + "\r\n", ch);
 		return (1);
 	}
 	if (ch->get_bank() < amount + ((amount * 5) / 100)) {
-		SendMsgToChar("У вас не хватит денег на налоги!\r\n", ch);
+		SendMsgToChar(specials::BankMsg(specials::EBankMsg::kNoTaxMoney) + "\r\n", ch);
 		return (1);
 	}
 
@@ -1455,13 +1461,13 @@ int BankTransfer(CharData *ch, void * /*me*/, char *argument) {
 		ch->remove_bank(amount);
 		if (amount <= 100) ch->remove_bank(5);
 		else ch->remove_bank(((amount * 5) / 100));
-		sprintf(buf, "%sВы перевели %d кун %s%s.\r\n", kColorWht, amount,
-				GET_PAD(vict, 2), kColorNrm);
-		SendMsgToChar(buf, ch);
+		SendMsgToChar(fmt::format(fmt::runtime(specials::BankMsg(specials::EBankMsg::kTransferSent)),
+				fmt::arg("color", kColorWht), fmt::arg("amount", amount),
+				fmt::arg("recipient", GET_PAD(vict, 2)), fmt::arg("nocolor", kColorNrm)) + "\r\n", ch);
 		vict->add_bank(amount);
-		sprintf(buf, "%sВы получили %d кун банковским переводом от %s%s.\r\n", kColorWht, amount,
-				GET_PAD(ch, 1), kColorNrm);
-		SendMsgToChar(buf, vict);
+		SendMsgToChar(fmt::format(fmt::runtime(specials::BankMsg(specials::EBankMsg::kTransferReceived)),
+				fmt::arg("color", kColorWht), fmt::arg("amount", amount),
+				fmt::arg("sender", GET_PAD(ch, 1)), fmt::arg("nocolor", kColorNrm)) + "\r\n", vict);
 		sprintf(buf,
 				"<%s> {%d} перевел %d кун банковским переводом %s.",
 				ch->get_name().c_str(),
@@ -1474,7 +1480,7 @@ int BankTransfer(CharData *ch, void * /*me*/, char *argument) {
 	} else {
 		vict = new Player; // TODO: переделать на стек
 		if (LoadPlayerCharacter(arg, vict, ELoadCharFlags::kFindId) < 0) {
-			SendMsgToChar("Такого персонажа не существует.\r\n", ch);
+			SendMsgToChar(specials::BankMsg(specials::EBankMsg::kNoSuchPlayer) + "\r\n", ch);
 			delete vict;
 			return (1);
 		}
@@ -1482,9 +1488,9 @@ int BankTransfer(CharData *ch, void * /*me*/, char *argument) {
 		ch->remove_bank(amount);
 		if (amount <= 100) ch->remove_bank(5);
 		else ch->remove_bank(((amount * 5) / 100));
-		sprintf(buf, "%sВы перевели %d кун %s%s.\r\n", kColorWht, amount,
-				GET_PAD(vict, 2), kColorNrm);
-		SendMsgToChar(buf, ch);
+		SendMsgToChar(fmt::format(fmt::runtime(specials::BankMsg(specials::EBankMsg::kTransferSent)),
+				fmt::arg("color", kColorWht), fmt::arg("amount", amount),
+				fmt::arg("recipient", GET_PAD(vict, 2)), fmt::arg("nocolor", kColorNrm)) + "\r\n", ch);
 		sprintf(buf,
 				"<%s> {%d} перевел %d кун банковским переводом %s.",
 				ch->get_name().c_str(),
@@ -1504,12 +1510,12 @@ int BankTransfer(CharData *ch, void * /*me*/, char *argument) {
 int BankTreasury(CharData *ch, void * /*me*/, char *argument) {
 	// казна = clan treasury; BankManage returns false only when the char is not in a clan.
 	if (!Clan::BankManage(ch, argument)) {
-		SendMsgToChar("Вы не состоите в дружине.\r\n", ch);
+		SendMsgToChar(specials::BankMsg(specials::EBankMsg::kNotInClan) + "\r\n", ch);
 	}
 	return (1);
 }
 
-const SubCmdResolver kBankCmds("Да-да, тут банк, чего изволите?", {
+const SubCmdResolver kBankCmds([] { return specials::BankMsg(specials::EBankMsg::kGreeting); }, {
 	{{"баланс", "сальдо", "balance"}, static_cast<int>(EBankCmd::kBalance), BankBalance},
 	{{"вложить", "вклад", "deposit"}, static_cast<int>(EBankCmd::kDeposit), BankDeposit},
 	{{"получить", "withdraw"}, static_cast<int>(EBankCmd::kWithdraw), BankWithdraw},

@@ -11,6 +11,7 @@
 #include "gameplay/skills/skill_messages.h"    // ESkillMsg + NAMES_OF
 #include "gameplay/abilities/feat_messages.h"   // EFeat + EFeatMsg + NAMES_OF
 #include "gameplay/mechanics/guild_messages.h"   // guilds::EMsg + NAMES_OF
+#include "gameplay/ai/special_messages.h"          // specials::ESpecialMsg/EBankMsg + NAMES_OF
 #include "gameplay/communication/social.h"        // ESocialMsg + NAMES_OF
 #include "gameplay/fight/fight_messages.h"     // EFightMsg/EDamageSource + NAMES_OF
 #include "engine/entities/entities_constants.h" // EPosition + NAMES_OF
@@ -113,6 +114,9 @@ void RegisterEditorEnums() {
 	// mob-handler subset of ESpecial; kShop/kGuild/kBoard come from other sources, not the file).
 	registry.RegisterNames("ESpecial", {"kRent", "kMail", "kBank", "kHorse", "kExchange", "kTorc",
 		"kMercenary", "kOutfit", "kPuff"});
+	// issue.specials Phase 2: special-procedure message enums (special_msg.xml / bank_msg.xml).
+	registry.Register<specials::ESpecialMsg>("ESpecialMsg");
+	registry.Register<specials::EBankMsg>("EBankMsg");
 }
 
 } // namespace vedun

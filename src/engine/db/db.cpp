@@ -842,6 +842,8 @@ void BootMudDataBase() {
 	boot_profiler.next_step("Loading special assignments");
 	log("Booting special assignment");
 	MUD::CfgManager().LoadCfg("specials");
+	MUD::CfgManager().LoadCfg("special_messages");   // issue.specials Phase 2: spec-proc messages
+	MUD::CfgManager().LoadCfg("bank_messages");
 
 	boot_profiler.next_step("Assigning guilds info.");
 	log("Assigning guilds info.");

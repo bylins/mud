@@ -20,6 +20,7 @@
 #include "engine/entities/char_data.h"
 #include "gameplay/mechanics/noob.h"
 #include "gameplay/ai/spec_procs.h"
+#include "gameplay/ai/special_messages.h"
 #include "gameplay/ai/spec_assign.h"
 #include "engine/ui/interpreter.h"
 #include "utils/parse.h"
@@ -374,7 +375,7 @@ void RunSpecCommand(CharData *ch, ESpecial want, char *line) {
 			}
 		}
 	}
-	SendMsgToChar("Это нельзя сделать здесь.\r\n", ch);
+	SendMsgToChar((specials::SpecialMsg(specials::ESpecialMsg::kNotHere) + "\r\n").c_str(), ch);
 }
 
 bool IsMobSpecialInRoom(RoomRnum room, ESpecial s) {

@@ -31,6 +31,7 @@
 #include "gameplay/abilities/feat_messages.h"
 #include "gameplay/core/entity_names.h"
 #include "gameplay/mechanics/guild_messages.h"
+#include "gameplay/ai/special_messages.h"
 
 namespace cfg_manager {
 
@@ -67,6 +68,10 @@ CfgManager::CfgManager() {
 										  std::make_unique<feats::FeatsLoader>(feats::FeatsLoader())));
 	loaders_.emplace("guild_messages", LoaderInfo("cfg/messages/ru/guild_msg.xml",
 										  std::make_unique<guilds::GuildMessagesLoader>(guilds::GuildMessagesLoader())));
+	loaders_.emplace("special_messages", LoaderInfo("cfg/messages/ru/special_msg.xml",
+										  std::make_unique<specials::SpecialMessagesLoader>(specials::SpecialMessagesLoader())));
+	loaders_.emplace("bank_messages", LoaderInfo("cfg/messages/ru/bank_msg.xml",
+										  std::make_unique<specials::BankMessagesLoader>(specials::BankMessagesLoader())));
 	loaders_.emplace("specials", LoaderInfo("cfg/specials.xml",
 										  std::make_unique<SpecialsLoader>(SpecialsLoader())));
 	loaders_.emplace("socials", LoaderInfo("cfg/messages/ru/social_msg.xml",

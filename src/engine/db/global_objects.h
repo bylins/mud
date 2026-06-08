@@ -17,6 +17,7 @@
 #include "gameplay/mechanics/guilds.h"
 #include "gameplay/communication/social.h"
 #include "gameplay/mechanics/guild_messages.h"
+#include "gameplay/ai/special_messages.h"
 #include "engine/entities/zone_types.h"
 #include "gameplay/mechanics/rune_spells.h"
 #include "gameplay/abilities/feats.h"
@@ -80,6 +81,8 @@ class GlobalObjects {
 	static guilds::GuildsInfo &Guilds();
 	static communication::social::SocialsInfo &Socials();
 	static guilds::GuildMessages &GuildMessages();
+	static specials::SpecialMessages &SpecialMessages();
+	static specials::BankMessages &BankMessages();
 	static const guilds::GuildInfo &Guild(Vnum guild_vnum);
 	static zone_types::ZoneTypesInfo &ZoneTypes();
 	static const zone_types::ZoneTypeInfo &ZoneType(int type_vnum);

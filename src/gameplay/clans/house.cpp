@@ -5,6 +5,7 @@
 ******************************************************************************/
 
 #include "house.h"
+#include "gameplay/ai/special_messages.h"
 #include "gameplay/mechanics/identify.h"
 
 #include <sys/stat.h>
@@ -2579,10 +2580,9 @@ bool Clan::BankManage(CharData *ch, char *arg) {
 	GetOneParam(buffer, buffer2);
 
 	if (CompareParam(buffer2, "баланс") || CompareParam(buffer2, "balance")) {
-		SendMsgToChar(ch,
-					  "На счету вашей дружины ровно %ld %s.\r\n",
-					  CLAN(ch)->bank,
-					  GetDeclensionInNumber(CLAN(ch)->bank, EWhat::kMoneyA));
+		SendMsgToChar(fmt::format(fmt::runtime(specials::BankMsg(specials::EBankMsg::kClanBalance)),
+				fmt::arg("amount", CLAN(ch)->bank),
+				fmt::arg("currency", GetDeclensionInNumber(CLAN(ch)->bank, EWhat::kMoneyA))) + "\r\n", ch);
 		return true;
 
 	} else if (CompareParam(buffer2, "вложить") || CompareParam(buffer2, "deposit")) {
@@ -2591,16 +2591,16 @@ bool Clan::BankManage(CharData *ch, char *arg) {
 		try {
 			gold = std::stol(buffer2, nullptr, 10);
 			if (gold <= 0) {
-				SendMsgToChar("Сколько вы хотите вложить?\r\n", ch);
+				SendMsgToChar(specials::BankMsg(specials::EBankMsg::kDepositHowMuch) + "\r\n", ch);
 				return true;
 			}
 			if (ch->get_gold() < gold) {
-				SendMsgToChar("О такой сумме вы можете только мечтать!\r\n", ch);
+				SendMsgToChar(specials::BankMsg(specials::EBankMsg::kCantAfford) + "\r\n", ch);
 				return true;
 			}
 		}
 		catch (const std::invalid_argument &) {
-			SendMsgToChar("Формат команды казна вложить <число>\r\n", ch);
+			SendMsgToChar(specials::BankMsg(specials::EBankMsg::kClanDepositFormat) + "\r\n", ch);
 		}
 		// на случай переполнения казны
 		if ((CLAN(ch)->bank + gold) < 0) {
@@ -2608,11 +2608,10 @@ bool Clan::BankManage(CharData *ch, char *arg) {
 			CLAN(ch)->bank += over;
 			CLAN(ch)->m_members.add_money(ch->get_uid(), over);
 			ch->remove_gold(over);
-			SendMsgToChar(ch,
-						  "Вам удалось вложить в казну дружины только %ld %s.\r\n",
-						  over,
-						  GetDeclensionInNumber(over, EWhat::kMoneyU));
-			act("$n произвел$g финансовую операцию.", true, ch, nullptr, nullptr, kToRoom);
+			SendMsgToChar(fmt::format(fmt::runtime(specials::BankMsg(specials::EBankMsg::kClanDepositPartial)),
+				fmt::arg("amount", over),
+				fmt::arg("currency", GetDeclensionInNumber(over, EWhat::kMoneyU))) + "\r\n", ch);
+			act(specials::BankMsg(specials::EBankMsg::kFinancialOp), true, ch, nullptr, nullptr, kToRoom);
 			std::string log_text = fmt::format("{} вложил%s в казну {} {}\r\n",
 											   GET_NAME(ch), GET_CH_SUF_1(ch), over,
 											   GetDeclensionInNumber(over, EWhat::kMoneyU));
@@ -2622,8 +2621,8 @@ bool Clan::BankManage(CharData *ch, char *arg) {
 		ch->remove_gold(gold);
 		CLAN(ch)->bank += gold;
 		CLAN(ch)->m_members.add_money(ch->get_uid(), gold);
-		SendMsgToChar(ch, "Вы вложили %ld %s.\r\n", gold, GetDeclensionInNumber(gold, EWhat::kMoneyU));
-		act("$n произвел$g финансовую операцию.", true, ch, 0, nullptr, kToRoom);
+		SendMsgToChar(fmt::format(fmt::runtime(specials::BankMsg(specials::EBankMsg::kDeposited)), fmt::arg("amount", gold), fmt::arg("currency", GetDeclensionInNumber(gold, EWhat::kMoneyU))) + "\r\n", ch);
+		act(specials::BankMsg(specials::EBankMsg::kFinancialOp), true, ch, 0, nullptr, kToRoom);
 		std::string log_text = fmt::format("{} вложил%s в казну {} {}\r\n",
 										   GET_NAME(ch),
 										   GET_CH_SUF_1(ch),
@@ -2633,18 +2632,18 @@ bool Clan::BankManage(CharData *ch, char *arg) {
 		return true;
 	} else if (CompareParam(buffer2, "получить") || CompareParam(buffer2, "withdraw")) {
 		if (!CLAN(ch)->privileges[CLAN_MEMBER(ch)->rank_num][MAY_CLAN_BANK]) {
-			SendMsgToChar("К сожалению, у вас нет возможности транжирить средства дружины.\r\n", ch);
+			SendMsgToChar(specials::BankMsg(specials::EBankMsg::kClanNoWithdraw) + "\r\n", ch);
 			return true;
 		}
 		GetOneParam(buffer, buffer2);
 		long gold = atol(buffer2.c_str());
 
 		if (gold <= 0) {
-			SendMsgToChar("Уточните количество денег, которые вы хотите получить?\r\n", ch);
+			SendMsgToChar(specials::BankMsg(specials::EBankMsg::kWithdrawHowMuch) + "\r\n", ch);
 			return true;
 		}
 		if (CLAN(ch)->bank < gold) {
-			SendMsgToChar("К сожалению, ваша дружина не так богата.\r\n", ch);
+			SendMsgToChar(specials::BankMsg(specials::EBankMsg::kClanTooPoor) + "\r\n", ch);
 			return true;
 		}
 
@@ -2654,11 +2653,10 @@ bool Clan::BankManage(CharData *ch, char *arg) {
 			ch->add_gold(over);
 			CLAN(ch)->bank -= over;
 			CLAN(ch)->m_members.sub_money(ch->get_uid(), over);
-			SendMsgToChar(ch,
-						  "Вам удалось снять только %ld %s.\r\n",
-						  over,
-						  GetDeclensionInNumber(over, EWhat::kMoneyU));
-			act("$n произвел$g финансовую операцию.", true, ch, 0, nullptr, kToRoom);
+			SendMsgToChar(fmt::format(fmt::runtime(specials::BankMsg(specials::EBankMsg::kClanWithdrawPartial)),
+				fmt::arg("amount", over),
+				fmt::arg("currency", GetDeclensionInNumber(over, EWhat::kMoneyU))) + "\r\n", ch);
+			act(specials::BankMsg(specials::EBankMsg::kFinancialOp), true, ch, 0, nullptr, kToRoom);
 			std::string log_text = fmt::format("{} получил%s из казны {} {}\r\n",
 											   GET_NAME(ch), GET_CH_SUF_1(ch), over,
 											   GetDeclensionInNumber(over, EWhat::kMoneyU));
@@ -2668,15 +2666,15 @@ bool Clan::BankManage(CharData *ch, char *arg) {
 		CLAN(ch)->bank -= gold;
 		CLAN(ch)->m_members.sub_money(ch->get_uid(), gold);
 		ch->add_gold(gold);
-		SendMsgToChar(ch, "Вы сняли %ld %s.\r\n", gold, GetDeclensionInNumber(gold, EWhat::kMoneyU));
-		act("$n произвел$g финансовую операцию.", true, ch, nullptr, nullptr, kToRoom);
+		SendMsgToChar(fmt::format(fmt::runtime(specials::BankMsg(specials::EBankMsg::kWithdrawn)), fmt::arg("amount", gold), fmt::arg("currency", GetDeclensionInNumber(gold, EWhat::kMoneyU))) + "\r\n", ch);
+		act(specials::BankMsg(specials::EBankMsg::kFinancialOp), true, ch, nullptr, nullptr, kToRoom);
 		std::string log_text = fmt::format("{} получил%s из казны {} {}\r\n",
 										   GET_NAME(ch), GET_CH_SUF_1(ch),
 										   gold, GetDeclensionInNumber(gold, EWhat::kMoneyU));
 		CLAN(ch)->chest_log.add(log_text);
 		return true;
 	} else
-		SendMsgToChar(ch, "Формат команды: казна вложить|получить|баланс сумма.\r\n");
+		SendMsgToChar(specials::BankMsg(specials::EBankMsg::kClanFormat) + "\r\n", ch);
 	return true;
 }
 

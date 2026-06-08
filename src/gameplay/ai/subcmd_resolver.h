@@ -1,6 +1,7 @@
 #ifndef BYLINS_SRC_GAMEPLAY_AI_SUBCMD_RESOLVER_H_
 #define BYLINS_SRC_GAMEPLAY_AI_SUBCMD_RESOLVER_H_
 
+#include <functional>
 #include <initializer_list>
 #include <string>
 #include <vector>
@@ -28,6 +29,10 @@ class SubCmdResolver {
 		Handler handler;
 	};
 
+	// The greeting is resolved lazily at Dispatch time: a per-special greeting now lives in that
+	// special's *_msg.xml (loaded after static init), so it is supplied as a provider. The std::string
+	// overload (a constant greeting) is kept for tests and any still-inline greeting.
+	SubCmdResolver(std::function<std::string()> greeting, std::initializer_list<Row> rows);
 	SubCmdResolver(std::string greeting, std::initializer_list<Row> rows);
 
 	// Always "handles" the input (returns the handler result, or 1 for the framework replies):
@@ -43,7 +48,7 @@ class SubCmdResolver {
  private:
 	[[nodiscard]] const Row *Resolve(const char *word, bool &ambiguous) const;
 
-	std::string greeting_;
+	std::function<std::string()> greeting_;
 	std::vector<Row> rows_;
 };
 

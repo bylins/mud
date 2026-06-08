@@ -536,6 +536,7 @@ main_sources = files(
   'src/gameplay/ai/spec_assign.cpp',
   'src/gameplay/ai/spec_assign_reload.cpp',
   'src/gameplay/ai/spec_procs.cpp',
+  'src/gameplay/ai/special_messages.cpp',
   'src/gameplay/ai/subcmd_resolver.cpp',
   'src/engine/network/descriptor_data.cpp',
   'src/gameplay/mechanics/stuff.cpp',

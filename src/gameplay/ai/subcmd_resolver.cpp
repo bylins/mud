@@ -1,5 +1,7 @@
 #include "gameplay/ai/subcmd_resolver.h"
 
+#include "gameplay/ai/special_messages.h"  // shared dispatch messages (ESpecialMsg)
+
 #include "engine/core/comm.h"        // SendMsgToChar
 #include "utils/mud_string.h"        // one_argument
 #include "utils/utils.h"             // skip_spaces, kMaxInputLength
@@ -8,8 +10,11 @@
 #include <cstring>
 #include <utility>
 
-SubCmdResolver::SubCmdResolver(std::string greeting, std::initializer_list<Row> rows)
+SubCmdResolver::SubCmdResolver(std::function<std::string()> greeting, std::initializer_list<Row> rows)
 	: greeting_(std::move(greeting)), rows_(rows) {}
+
+SubCmdResolver::SubCmdResolver(std::string greeting, std::initializer_list<Row> rows)
+	: greeting_([g = std::move(greeting)] { return g; }), rows_(rows) {}
 
 std::string SubCmdResolver::Tooltip() const {
 	std::string out = "(";
@@ -67,7 +72,7 @@ int SubCmdResolver::Dispatch(CharData *ch, void *me, char *argument) const {
 	skip_spaces(&rest);
 
 	if (!*word) {
-		const std::string msg = greeting_ + " " + Tooltip() + "\r\n";
+		const std::string msg = greeting_() + " " + Tooltip() + "\r\n";
 		SendMsgToChar(msg.c_str(), ch);
 		return 1;
 	}
@@ -75,12 +80,13 @@ int SubCmdResolver::Dispatch(CharData *ch, void *me, char *argument) const {
 	bool ambiguous = false;
 	const Row *row = Resolve(word, ambiguous);
 	if (ambiguous) {
-		const std::string msg = "Уточните, что именно: " + Tooltip() + "\r\n";
+		const std::string msg = specials::SpecialMsg(specials::ESpecialMsg::kAmbiguous)
+				+ " " + Tooltip() + "\r\n";
 		SendMsgToChar(msg.c_str(), ch);
 		return 1;
 	}
 	if (!row) {
-		SendMsgToChar("Вам явно в какое-то другое заведение.\r\n", ch);
+		SendMsgToChar((specials::SpecialMsg(specials::ESpecialMsg::kUnknownCommand) + "\r\n").c_str(), ch);
 		return 1;
 	}
 	return row->handler(ch, me, rest);
