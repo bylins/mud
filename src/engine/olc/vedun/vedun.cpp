@@ -284,19 +284,33 @@ void RenderFlagEditor(DescriptorData *d) {
 		s.edit_attr, s.edit_enum), ch);
 	std::string current;
 	if (members) {
+		// issue.vedun-hotfix #2 follow-up: lay long flag lists out in a grid (kCols flags per row,
+		// each = number + [*] marker + name = 3 table columns) instead of one-per-line.
+		constexpr std::size_t kCols = 3;
 		table_wrapper::Table table;
+		std::size_t col = 0;
 		for (std::size_t i = 0; i < members->size(); ++i) {
 			const bool on = s.flag_set.count((*members)[i].name) > 0;
-			table << fmt::format("{})", i + 1) << (on ? "[*]" : "") << (*members)[i].name
-				  << table_wrapper::kEndRow;
+			table << fmt::format("{})", i + 1) << (on ? "[*]" : "") << (*members)[i].name;
 			if (on) {
 				current += (current.empty() ? "" : "|") + (*members)[i].name;
 			}
+			if (++col % kCols == 0) {
+				table << table_wrapper::kEndRow;
+			}
+		}
+		if (col % kCols != 0) {   // pad the last partial row (3 cells per flag)
+			for (std::size_t j = col % kCols; j < kCols; ++j) {
+				table << "" << "" << "";
+			}
+			table << table_wrapper::kEndRow;
 		}
 		table.set_cell_right_padding(2);
-		table.column(0).set_cell_content_fg_color(table_wrapper::color::kGreen);
-		table.column(1).set_cell_content_fg_color(table_wrapper::color::kLightGreen);  // [*] bright green
-		table.column(2).set_cell_content_fg_color(table_wrapper::color::kLightWhite);
+		for (std::size_t g = 0; g < kCols; ++g) {   // colour each flag's number/marker/name group
+			table.column(g * 3 + 0).set_cell_content_fg_color(table_wrapper::color::kGreen);
+			table.column(g * 3 + 1).set_cell_content_fg_color(table_wrapper::color::kLightGreen);
+			table.column(g * 3 + 2).set_cell_content_fg_color(table_wrapper::color::kLightWhite);
+		}
 		table_wrapper::DecorateNoBorderTable(ch, table);
 		table_wrapper::PrintTableToChar(ch, table);
 	}
