@@ -6093,7 +6093,7 @@ base_stat id - (например "kWis") какой берем параметр,
     <spell id="kTimerRestore" element="kLight" mode="kEnabled">
         <name val=" timer repair"/>
         <components>
-            <verba/>
+            <verbal/>
             <weave/>
         </components>
         <success_roll>
