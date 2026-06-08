@@ -190,6 +190,43 @@ const std::map<specials::EExchMsg, std::string> kExchMsgNames{
 		{specials::EExchMsg::kNeedTrader, "kNeedTrader"},
 	};
 
+const std::map<specials::ERentMsg, std::string> kRentMsgNames{
+		{specials::ERentMsg::kGreeting, "kGreeting"},
+		{specials::ERentMsg::kCanLiveForever, "kCanLiveForever"},
+		{specials::ERentMsg::kDeadlineIntro, "kDeadlineIntro"},
+		{specials::ERentMsg::kDepotCost, "kDepotCost"},
+		{specials::ERentMsg::kRentCost, "kRentCost"},
+		{specials::ERentMsg::kMoneyLasts, "kMoneyLasts"},
+		{specials::ERentMsg::kUnrentSet, "kUnrentSet"},
+		{specials::ERentMsg::kUnrent, "kUnrent"},
+		{specials::ERentMsg::kRentIntroEquip, "kRentIntroEquip"},
+		{specials::ERentMsg::kRentIntroStore, "kRentIntroStore"},
+		{specials::ERentMsg::kNothingToRent, "kNothingToRent"},
+		{specials::ERentMsg::kTooManyItems1, "kTooManyItems1"},
+		{specials::ERentMsg::kTooManyItems2, "kTooManyItems2"},
+		{specials::ERentMsg::kTipForBeer, "kTipForBeer"},
+		{specials::ERentMsg::kTotalCost, "kTotalCost"},
+		{specials::ERentMsg::kNoMoneyEver, "kNoMoneyEver"},
+		{specials::ERentMsg::kHalfPrice, "kHalfPrice"},
+		{specials::ERentMsg::kRecepAsleep, "kRecepAsleep"},
+		{specials::ERentMsg::kCantSee, "kCantSee"},
+		{specials::ERentMsg::kEnemyZone, "kEnemyZone"},
+		{specials::ERentMsg::kNoRentableWar, "kNoRentableWar"},
+		{specials::ERentMsg::kFreeRent, "kFreeRent"},
+		{specials::ERentMsg::kDailyCost, "kDailyCost"},
+		{specials::ERentMsg::kDailyCostCryo, "kDailyCostCryo"},
+		{specials::ERentMsg::kCantAfford, "kCantAfford"},
+		{specials::ERentMsg::kLockedAway, "kLockedAway"},
+		{specials::ERentMsg::kCryoGhost, "kCryoGhost"},
+		{specials::ERentMsg::kCryoLostTouch, "kCryoLostTouch"},
+		{specials::ERentMsg::kKickedToBench, "kKickedToBench"},
+		{specials::ERentMsg::kHelpedToSleep, "kHelpedToSleep"},
+		{specials::ERentMsg::kOfferStay, "kOfferStay"},
+		{specials::ERentMsg::kSettleForced, "kSettleForced"},
+		{specials::ERentMsg::kSettleOffer, "kSettleOffer"},
+		{specials::ERentMsg::kSettleWelcome, "kSettleWelcome"},
+	};
+
 // Editable msg-sheaf loaders share the kDefault-only element model (one shared sheaf per file).
 std::vector<cfg_manager::EditableElement> DefaultSheafElements(
 		const std::string &label, std::size_t count) {
@@ -357,6 +394,26 @@ specials::EExchMsg ITEM_BY_NAME<specials::EExchMsg>(const std::string &name) {
 	return by_name.at(name);
 }
 
+
+template<>
+const std::string &NAME_BY_ITEM<specials::ERentMsg>(const specials::ERentMsg item) {
+	return kRentMsgNames.at(item);
+}
+template<>
+const std::map<specials::ERentMsg, std::string> &NAMES_OF<specials::ERentMsg>() {
+	return kRentMsgNames;
+}
+template<>
+specials::ERentMsg ITEM_BY_NAME<specials::ERentMsg>(const std::string &name) {
+	static std::map<std::string, specials::ERentMsg> by_name;
+	if (by_name.empty()) {
+		for (const auto &[value, token] : kRentMsgNames) {
+			by_name.emplace(token, value);
+		}
+	}
+	return by_name.at(name);
+}
+
 namespace specials {
 
 const std::string &SpecialMsg(ESpecialMsg id) {
@@ -385,6 +442,10 @@ const std::string &MercMsg(EMercMsg id) {
 
 const std::string &ExchMsg(EExchMsg id) {
 	return MUD::ExchMessages().GetMessage(info_container::kUndefinedVnum, id);
+}
+
+const std::string &RentMsg(ERentMsg id) {
+	return MUD::RentMessages().GetMessage(info_container::kUndefinedVnum, id);
 }
 
 // --- shared dispatch messages (special_msg.xml) -----------------------------------------------------
@@ -510,6 +571,24 @@ cfg_manager::ValidationResult ExchMessagesLoader::Validate(parser_wrapper::DataN
 }
 std::string ExchMessagesLoader::CanonicalElementId(const std::string &id) const { return CanonicalSheafId(id); }
 parser_wrapper::DataNode ExchMessagesLoader::CreateElementNode(parser_wrapper::DataNode root, const std::string &id) const {
+	return CreateSheaf(root, id);
+}
+
+// --- rent receptionist messages (rent_msg.xml) ------------------------------------------------------
+void RentMessagesLoader::Load(parser_wrapper::DataNode data) { MUD::RentMessages().Init(data.Children()); }
+void RentMessagesLoader::Reload(parser_wrapper::DataNode data) { MUD::RentMessages().Reload(data.Children()); }
+std::string RentMessagesLoader::EditableWhat() const { return "rentmsg"; }
+std::vector<cfg_manager::EditableElement> RentMessagesLoader::ListElements() const {
+	return DefaultSheafElements("rent receptionist messages (shared)", 1);
+}
+cfg_manager::ValidationResult RentMessagesLoader::Validate(parser_wrapper::DataNode &doc) const {
+	if (MUD::RentMessages().Validate(doc.Children())) {
+		return {true, ""};
+	}
+	return {false, "Rent-message data failed to parse (see syslog for the offending message)."};
+}
+std::string RentMessagesLoader::CanonicalElementId(const std::string &id) const { return CanonicalSheafId(id); }
+parser_wrapper::DataNode RentMessagesLoader::CreateElementNode(parser_wrapper::DataNode root, const std::string &id) const {
 	return CreateSheaf(root, id);
 }
 

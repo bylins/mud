@@ -10,6 +10,9 @@
 // * AutoEQ by Burkhard Knopf <burkhard.knopf@informatik.tu-clausthal.de>
 
 #include "obj_save.h"
+#include "gameplay/ai/special_messages.h"
+
+#include <fmt/format.h>
 
 #include "world_objects.h"
 #include "world_characters.h"
@@ -2057,23 +2060,21 @@ void Crash_rent_deadline(CharData *ch, CharData *recep, long cost) {
 	long rent_deadline;
 
 	if (!cost) {
-		SendMsgToChar("Ты сможешь жить у меня до второго пришествия.\r\n", ch);
+		SendMsgToChar(specials::RentMsg(specials::ERentMsg::kCanLiveForever) + "\r\n", ch);
 		return;
 	}
 
-	act("$n сказал$g вам :\r\n", false, recep, 0, ch, kToVict);
+	act(specials::RentMsg(specials::ERentMsg::kDeadlineIntro) + "\r\n", false, recep, 0, ch, kToVict);
 
 	long depot_cost = static_cast<long>(Depot::get_total_cost_per_day(ch));
 	if (depot_cost) {
-		SendMsgToChar(ch, "\"За вещи в хранилище придется доплатить %ld %s.\"\r\n",
-					  depot_cost, GetDeclensionInNumber(depot_cost, EWhat::kMoneyU));
+		SendMsgToChar(fmt::format(fmt::runtime(specials::RentMsg(specials::ERentMsg::kDepotCost)), fmt::arg("amount", depot_cost), fmt::arg("currency", GetDeclensionInNumber(depot_cost, EWhat::kMoneyU))) + "\r\n", ch);
 		cost += depot_cost;
 	}
 
-	SendMsgToChar(ch, "\"Постой обойдется тебе в %ld %s.\"\r\n", cost, GetDeclensionInNumber(cost, EWhat::kMoneyU));
+	SendMsgToChar(fmt::format(fmt::runtime(specials::RentMsg(specials::ERentMsg::kRentCost)), fmt::arg("amount", cost), fmt::arg("currency", GetDeclensionInNumber(cost, EWhat::kMoneyU))) + "\r\n", ch);
 	rent_deadline = ((ch->get_gold() + ch->get_bank()) / cost);
-	SendMsgToChar(ch, "\"Твоих денег хватит на %ld %s.\"\r\n", rent_deadline,
-				  GetDeclensionInNumber(rent_deadline, EWhat::kDay));
+	SendMsgToChar(fmt::format(fmt::runtime(specials::RentMsg(specials::ERentMsg::kMoneyLasts)), fmt::arg("amount", rent_deadline), fmt::arg("day", GetDeclensionInNumber(rent_deadline, EWhat::kDay))) + "\r\n", ch);
 }
 
 int Crash_report_unrentables(CharData *ch, CharData *recep, ObjData *obj) {
@@ -2084,12 +2085,9 @@ int Crash_report_unrentables(CharData *ch, CharData *recep, ObjData *obj) {
 		if (Crash_is_unrentable(ch, obj)) {
 			has_norents = 1;
 			if (SetSystem::is_norent_set(ch, obj)) {
-				snprintf(buf, sizeof(buf),
-						 "$n сказал$g вам : \"Я не приму на постой %s - требуется две и более вещи из набора.\"",
-						 OBJN(obj, ch, ECase::kAcc));
+				snprintf(buf, sizeof(buf), "%s", fmt::format(fmt::runtime(specials::RentMsg(specials::ERentMsg::kUnrentSet)), fmt::arg("item", OBJN(obj, ch, ECase::kAcc))).c_str());
 			} else {
-				snprintf(buf, sizeof(buf),
-						 "$n сказал$g вам : \"Я не приму на постой %s.\"", OBJN(obj, ch, ECase::kAcc));
+				snprintf(buf, sizeof(buf), "%s", fmt::format(fmt::runtime(specials::RentMsg(specials::ERentMsg::kUnrent)), fmt::arg("item", OBJN(obj, ch, ECase::kAcc))).c_str());
 			}
 			act(buf, false, recep, 0, ch, kToVict);
 		}
@@ -2184,14 +2182,9 @@ void Crash_report_rent(CharData *ch, CharData *recep, ObjData *obj, int *cost,
 				if (rentshow) {
 					if (*n_items == 1) {
 						if (!recursive) {
-							act("$n сказал$g вам : \"Одет$W спать будешь? Хм.. Ну смотри, тогда дешевле возьму\"",
-								false,
-								recep,
-								0,
-								ch,
-								kToVict);
+							act(specials::RentMsg(specials::ERentMsg::kRentIntroEquip), false, recep, 0, ch, kToVict);
 						} else {
-							act("$n сказал$g вам : \"Это я в чулане запру:\"", false, recep, 0, ch, kToVict);
+							act(specials::RentMsg(specials::ERentMsg::kRentIntroStore), false, recep, 0, ch, kToVict);
 						}
 					}
 
@@ -2272,19 +2265,12 @@ int Crash_offer_rent(CharData *ch, CharData *receptionist, int rentshow, int fac
 	numitems += numitems_weared;
 
 	if (!numitems) {
-		act("$n сказал$g вам : \"Но у тебя ведь ничего нет! Просто набери \"конец\"!\"",
-			false,
-			receptionist,
-			0,
-			ch,
-			kToVict);
+		act(specials::RentMsg(specials::ERentMsg::kNothingToRent), false, receptionist, 0, ch, kToVict);
 		return (false);
 	}
 
 	if (numitems > kMaxSavedItems) {
-		sprintf(buf,
-				"$n сказал$g вам : \"Извините, но я не могу хранить больше %d предметов.\"\r\n"
-				"$n сказал$g вам : \"В данный момент их у вас %ld.\"", kMaxSavedItems, numitems);
+		snprintf(buf, kMaxExtendLength, "%s", (fmt::format(fmt::runtime(specials::RentMsg(specials::ERentMsg::kTooManyItems1)), fmt::arg("max", kMaxSavedItems)) + "\r\n" + fmt::format(fmt::runtime(specials::RentMsg(specials::ERentMsg::kTooManyItems2)), fmt::arg("count", numitems))).c_str());
 		act(buf, false, receptionist, 0, ch, kToVict);
 		return (false);
 	}
@@ -2296,26 +2282,21 @@ int Crash_offer_rent(CharData *ch, CharData *receptionist, int rentshow, int fac
 
 	if (rentshow) {
 		if (min_rent_cost(ch) > 0) {
-			sprintf(buf,
-					"$n сказал$g вам : \"И еще %d %s мне на сбитень с медовухой :)\"",
-					min_rent_cost(ch) * factor, GetDeclensionInNumber(min_rent_cost(ch) * factor, EWhat::kMoneyU));
+			snprintf(buf, kMaxExtendLength, "%s", fmt::format(fmt::runtime(specials::RentMsg(specials::ERentMsg::kTipForBeer)), fmt::arg("amount", min_rent_cost(ch) * factor), fmt::arg("currency", GetDeclensionInNumber(min_rent_cost(ch) * factor, EWhat::kMoneyU))).c_str());
 			act(buf, false, receptionist, 0, ch, kToVict);
 		}
 
-		sprintf(buf, "$n сказал$g вам : \"В сумме это составит %d %s %s.\"",
-				*totalcost, GetDeclensionInNumber(*totalcost, EWhat::kMoneyU),
-				(factor == RENT_FACTOR ? "в день " : ""));
+		snprintf(buf, kMaxExtendLength, "%s", fmt::format(fmt::runtime(specials::RentMsg(specials::ERentMsg::kTotalCost)), fmt::arg("amount", *totalcost), fmt::arg("currency", GetDeclensionInNumber(*totalcost, EWhat::kMoneyU)), fmt::arg("perday", (factor == RENT_FACTOR ? "в день " : ""))).c_str());
 		act(buf, false, receptionist, 0, ch, kToVict);
 
 		if (MAX(0, *totalcost / divide) > ch->get_gold() + ch->get_bank()) {
-			act("\"...которых у тебя отродясь не было.\"", false, receptionist, 0, ch, kToVict);
+			act(specials::RentMsg(specials::ERentMsg::kNoMoneyEver), false, receptionist, 0, ch, kToVict);
 			return (false);
 		}
 
 		*totalcost = MAX(0, *totalcost / divide);
 		if (divide == 2) {
-			act("$n сказал$g вам : \"Так уж и быть, я скощу тебе половину.\"",
-				false, receptionist, 0, ch, kToVict);
+			act(specials::RentMsg(specials::ERentMsg::kHalfPrice), false, receptionist, 0, ch, kToVict);
 		}
 
 		if (factor == RENT_FACTOR) {
@@ -2336,27 +2317,27 @@ int gen_receptionist(CharData *ch, CharData *recep, ERentAction action, int mode
 	save_room = ch->in_room;
 
 	if (!AWAKE(recep)) {
-		sprintf(buf, "%s не в состоянии говорить с вами...\r\n", HSSH(recep));
+		snprintf(buf, kMaxStringLength, "%s", (fmt::format(fmt::runtime(specials::RentMsg(specials::ERentMsg::kRecepAsleep)), fmt::arg("recep", HSSH(recep))) + "\r\n").c_str());
 		SendMsgToChar(buf, ch);
 		return (true);
 	}
 	if (!CAN_SEE(recep, ch)) {
-		act("$n сказал$g : \"Не люблю говорить с теми, кого я не вижу!\"", false, recep, 0, 0, kToRoom);
+		act(specials::RentMsg(specials::ERentMsg::kCantSee), false, recep, 0, 0, kToRoom);
 		return (true);
 	}
 	if (Clan::InEnemyZone(ch)) {
-		act("$n сказал$g : \"Чужакам здесь не место!\"", false, recep, 0, 0, kToRoom);
+		act(specials::RentMsg(specials::ERentMsg::kEnemyZone), false, recep, 0, 0, kToRoom);
 		return (true);
 	}
 	if (NORENTABLE(ch)) {
-		SendMsgToChar("В связи с боевыми действиями эвакуация временно прекращена.\r\n", ch);
+		SendMsgToChar(specials::RentMsg(specials::ERentMsg::kNoRentableWar) + "\r\n", ch);
 		return (true);
 	}
 	if (ch->GetEnemy()) {
 		return (false);
 	}
 	if (free_rent) {
-		act("$n сказал$g вам : \"Сегодня спим нахаляву!\"", false, recep, 0, ch, kToVict);
+		act(specials::RentMsg(specials::ERentMsg::kFreeRent), false, recep, 0, ch, kToVict);
 		rentshow = false;
 	}
 	if (action == ERentAction::kRent) {
@@ -2366,18 +2347,13 @@ int gen_receptionist(CharData *ch, CharData *recep, ERentAction action, int mode
 
 		if (rentshow) {
 			if (mode == RENT_FACTOR)
-				sprintf(buf,
-						"$n сказал$g вам : \"Дневной постой обойдется тебе в! %d %s.\"",
-						cost, GetDeclensionInNumber(cost, EWhat::kMoneyU));
+				snprintf(buf, kMaxStringLength, "%s", fmt::format(fmt::runtime(specials::RentMsg(specials::ERentMsg::kDailyCost)), fmt::arg("amount", cost), fmt::arg("currency", GetDeclensionInNumber(cost, EWhat::kMoneyU))).c_str());
 			else if (mode == CRYO_FACTOR)
-				sprintf(buf,
-						"$n сказал$g вам : \"Дневной постой обойдется тебе в %d %s (за пользование холодильником :)\"",
-						cost, GetDeclensionInNumber(cost, EWhat::kMoneyU));
+				snprintf(buf, kMaxStringLength, "%s", fmt::format(fmt::runtime(specials::RentMsg(specials::ERentMsg::kDailyCostCryo)), fmt::arg("amount", cost), fmt::arg("currency", GetDeclensionInNumber(cost, EWhat::kMoneyU))).c_str());
 			act(buf, false, recep, 0, ch, kToVict);
 
 			if (cost > ch->get_gold() + ch->get_bank()) {
-				act("$n сказал$g вам : '..но такой голытьбе, как ты, это не по карману.'",
-					false, recep, 0, ch, kToVict);
+				act(specials::RentMsg(specials::ERentMsg::kCantAfford), false, recep, 0, ch, kToVict);
 				return (true);
 			}
 			if (cost && (mode == RENT_FACTOR))
@@ -2387,15 +2363,13 @@ int gen_receptionist(CharData *ch, CharData *recep, ERentAction action, int mode
 			cost = 0;
 		}
 		if (mode == RENT_FACTOR) {
-			act("$n запер$q ваши вещи в сундук и повел$g в тесную каморку.", false, recep, 0, ch, kToVict);
+			act(specials::RentMsg(specials::ERentMsg::kLockedAway), false, recep, 0, ch, kToVict);
 			Crash_rentsave(ch, cost);
 			sprintf(buf, "%s has rented (%d/day, %ld tot.)",
 					GET_NAME(ch), cost, ch->get_gold() + ch->get_bank());
 		} else    // cryo
 		{
-			act("$n запер$q ваши вещи в сундук и повел$g в тесную каморку.\r\n"
-				"Белый призрак появился в комнате, обдав вас холодом...\r\n"
-				"Вы потеряли связь с окружающими вас...", false, recep, 0, ch, kToVict);
+			act(specials::RentMsg(specials::ERentMsg::kLockedAway) + "\r\n" + specials::RentMsg(specials::ERentMsg::kCryoGhost) + "\r\n" + specials::RentMsg(specials::ERentMsg::kCryoLostTouch), false, recep, 0, ch, kToVict);
 			Crash_cryosave(ch, cost);
 			sprintf(buf, "%s has cryo-rented.", GET_NAME(ch));
 			ch->SetFlag(EPlrFlag::kCryo);
@@ -2406,9 +2380,9 @@ int gen_receptionist(CharData *ch, CharData *recep, ERentAction action, int mode
 		if ((save_room == r_helled_start_room)
 			|| (save_room == r_named_start_room)
 			|| (save_room == r_unreg_start_room))
-			act("$n проводил$g $N3 мощным пинком на свободную лавку.", false, recep, 0, ch, kToRoom);
+			act(specials::RentMsg(specials::ERentMsg::kKickedToBench), false, recep, 0, ch, kToRoom);
 		else {
-			act("$n помог$q $N2 отойти ко сну.", false, recep, 0, ch, kToNotVict);
+			act(specials::RentMsg(specials::ERentMsg::kHelpedToSleep), false, recep, 0, ch, kToNotVict);
 			GET_LOADROOM(ch) = GET_ROOM_VNUM(save_room);
 		}
 		Clan::clan_invoice(ch, false);
@@ -2416,20 +2390,15 @@ int gen_receptionist(CharData *ch, CharData *recep, ERentAction action, int mode
 		ExtractCharFromWorld(ch, false);
 	} else if (action == ERentAction::kOffer) {
 		Crash_offer_rent(ch, recep, rentshow, mode, &cost);
-		act("$N предложил$G $n2 остановиться у н$S.", false, ch, 0, recep, kToRoom);
+		act(specials::RentMsg(specials::ERentMsg::kOfferStay), false, ch, 0, recep, kToRoom);
 	} else {
 		if ((save_room == r_helled_start_room)
 			|| (save_room == r_named_start_room)
 			|| (save_room == r_unreg_start_room))
-			act("$N сказал$G : \"Куда же ты денешься от меня?\"", false, ch, 0, recep, kToChar);
+			act(specials::RentMsg(specials::ERentMsg::kSettleForced), false, ch, 0, recep, kToChar);
 		else {
-			act("$n предложил$g $N2 поселиться у н$s.", false, recep, 0, ch, kToNotVict);
-			act("$N сказал$G вам : \"Примем в любое время и почти в любом состоянии!\"",
-				false,
-				ch,
-				0,
-				recep,
-				kToChar);
+			act(specials::RentMsg(specials::ERentMsg::kSettleOffer), false, recep, 0, ch, kToNotVict);
+			act(specials::RentMsg(specials::ERentMsg::kSettleWelcome), false, ch, 0, recep, kToChar);
 			sprintf(buf,
 					"%s has changed loadroom from %d to %d.",
 					GET_NAME(ch),
@@ -2457,7 +2426,7 @@ int RentSettle(CharData *ch, void *me, char * /*rest*/) {
 	return gen_receptionist(ch, reinterpret_cast<CharData *>(me), ERentAction::kSettle, RENT_FACTOR);
 }
 
-const SubCmdResolver kRentCmds("Чего изволите?", {
+const SubCmdResolver kRentCmds([] { return specials::RentMsg(specials::ERentMsg::kGreeting); }, {
 	{{"постой", "rent"}, static_cast<int>(ERentAction::kRent), RentRent},
 	{{"предложение", "offer"}, static_cast<int>(ERentAction::kOffer), RentOffer},
 	{{"поселиться", "settle"}, static_cast<int>(ERentAction::kSettle), RentSettle},

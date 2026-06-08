@@ -115,6 +115,14 @@ enum class EExchMsg {
 	kSilenced, kDumbed, kLevelTooLow, kNoRentable, kImmortalNoEconomy, kNoLotNum, kBadLotNum, kFormat, kNoItem, kDontHave, kPriceTooHigh, kNotForExchange, kNoTaxMoney, kEmptyFirst, kBigSet, kMaxItems, kBazaarFull, kExhibited, kBcastNew, kCostFormat, kNotYourLot, kSameCost, kBadCost, kCostSet, kBcastNewCost, kWithdrawn, kBcastWithdrawnGod, kBcastWithdrawnOwner, kIdentImmortal, kIdentNoMoney, kIdentCharged, kOwnLot, kBankNoMoney, kBought, kBcastSold, kSellerSold, kFilterTooLong, kFilterEmpty, kFilterCurrent, kFilterCleared, kFilterBadFormat, kFilterCurrentShort, kFilterYours, kBadFilterString, kBazaarEmpty, kNotHuman, kNeedTrader,
 };
 
+// Rent receptionist (rent_msg.xml). Greeting + gen_receptionist/Crash_* dialogue (act + printf
+// SendMsgToChar). {amount}/{currency}/{day}/{item}/{recep}/{max}/{count}/{perday} are fmt args; act
+// lines keep $n/$N codes. The assembled per-item rent listing (Crash_report_rent_item) and the
+// general do_quit messages stay in code.
+enum class ERentMsg {
+	kGreeting, kCanLiveForever, kDeadlineIntro, kDepotCost, kRentCost, kMoneyLasts, kUnrentSet, kUnrent, kRentIntroEquip, kRentIntroStore, kNothingToRent, kTooManyItems1, kTooManyItems2, kTipForBeer, kTotalCost, kNoMoneyEver, kHalfPrice, kRecepAsleep, kCantSee, kEnemyZone, kNoRentableWar, kFreeRent, kDailyCost, kDailyCostCryo, kCantAfford, kLockedAway, kCryoGhost, kCryoLostTouch, kKickedToBench, kHelpedToSleep, kOfferStay, kSettleForced, kSettleOffer, kSettleWelcome,
+};
+
 using SpecialMessages = msg_container::MsgContainer<int, ESpecialMsg>;
 using BankMessages = msg_container::MsgContainer<int, EBankMsg>;
 using MailMessages = msg_container::MsgContainer<int, EMailMsg>;
@@ -122,6 +130,7 @@ using HorseMessages = msg_container::MsgContainer<int, EHorseMsg>;
 using TorcMessages = msg_container::MsgContainer<int, ETorcMsg>;
 using MercMessages = msg_container::MsgContainer<int, EMercMsg>;
 using ExchMessages = msg_container::MsgContainer<int, EExchMsg>;
+using RentMessages = msg_container::MsgContainer<int, ERentMsg>;
 
 // Convenience accessors for the shared (default-sheaf) message of each container.
 [[nodiscard]] const std::string &SpecialMsg(ESpecialMsg id);
@@ -131,6 +140,7 @@ using ExchMessages = msg_container::MsgContainer<int, EExchMsg>;
 [[nodiscard]] const std::string &TorcMsg(ETorcMsg id);
 [[nodiscard]] const std::string &MercMsg(EMercMsg id);
 [[nodiscard]] const std::string &ExchMsg(EExchMsg id);
+[[nodiscard]] const std::string &RentMsg(ERentMsg id);
 
 // One loader per data file (cfg_manager id in the comment). All are Vedun-editable (msg-sheaf model).
 class SpecialMessagesLoader : virtual public cfg_manager::IEditableCfgLoader {  // "special_messages"
@@ -210,6 +220,17 @@ class ExchMessagesLoader : virtual public cfg_manager::IEditableCfgLoader {  // 
 	[[nodiscard]] parser_wrapper::DataNode CreateElementNode(parser_wrapper::DataNode root, const std::string &id) const final;
 };
 
+class RentMessagesLoader : virtual public cfg_manager::IEditableCfgLoader {  // "rent_messages"
+ public:
+	void Load(parser_wrapper::DataNode data) final;
+	void Reload(parser_wrapper::DataNode data) final;
+	[[nodiscard]] std::string EditableWhat() const final;
+	[[nodiscard]] std::vector<cfg_manager::EditableElement> ListElements() const final;
+	[[nodiscard]] cfg_manager::ValidationResult Validate(parser_wrapper::DataNode &doc) const final;
+	[[nodiscard]] std::string CanonicalElementId(const std::string &id) const final;
+	[[nodiscard]] parser_wrapper::DataNode CreateElementNode(parser_wrapper::DataNode root, const std::string &id) const final;
+};
+
 } // namespace specials
 
 template<>
@@ -260,6 +281,13 @@ template<>
 specials::EExchMsg ITEM_BY_NAME<specials::EExchMsg>(const std::string &name);
 template<>
 const std::map<specials::EExchMsg, std::string> &NAMES_OF<specials::EExchMsg>();
+
+template<>
+const std::string &NAME_BY_ITEM<specials::ERentMsg>(specials::ERentMsg item);
+template<>
+specials::ERentMsg ITEM_BY_NAME<specials::ERentMsg>(const std::string &name);
+template<>
+const std::map<specials::ERentMsg, std::string> &NAMES_OF<specials::ERentMsg>();
 
 #endif // BYLINS_SRC_GAMEPLAY_AI_SPECIAL_MESSAGES_H_
 

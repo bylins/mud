@@ -88,6 +88,7 @@ class GlobalObjects {
 	static specials::TorcMessages &TorcMessages();
 	static specials::MercMessages &MercMessages();
 	static specials::ExchMessages &ExchMessages();
+	static specials::RentMessages &RentMessages();
 	static const guilds::GuildInfo &Guild(Vnum guild_vnum);
 	static zone_types::ZoneTypesInfo &ZoneTypes();
 	static const zone_types::ZoneTypeInfo &ZoneType(int type_vnum);
