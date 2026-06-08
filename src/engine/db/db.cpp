@@ -846,6 +846,7 @@ void BootMudDataBase() {
 	MUD::CfgManager().LoadCfg("bank_messages");
 	MUD::CfgManager().LoadCfg("mail_messages");
 	MUD::CfgManager().LoadCfg("horse_messages");
+	MUD::CfgManager().LoadCfg("torc_messages");
 
 	boot_profiler.next_step("Assigning guilds info.");
 	log("Assigning guilds info.");

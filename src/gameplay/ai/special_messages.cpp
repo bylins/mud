@@ -89,6 +89,30 @@ const std::map<specials::EHorseMsg, std::string> kHorseMsgNames{
 		{specials::EHorseMsg::kSellTaken, "kSellTaken"},
 	};
 
+const std::map<specials::ETorcMsg, std::string> kTorcMsgNames{
+		{specials::ETorcMsg::kNotEnough, "kNotEnough"},
+		{specials::ETorcMsg::kReducedTo, "kReducedTo"},
+		{specials::ETorcMsg::kExchanged, "kExchanged"},
+		{specials::ETorcMsg::kInvalidChoice, "kInvalidChoice"},
+		{specials::ETorcMsg::kMinAmount, "kMinAmount"},
+		{specials::ETorcMsg::kCancelled, "kCancelled"},
+		{specials::ETorcMsg::kTechError, "kTechError"},
+		{specials::ETorcMsg::kConfirmed, "kConfirmed"},
+		{specials::ETorcMsg::kRatesHeader, "kRatesHeader"},
+		{specials::ETorcMsg::kRateBronze, "kRateBronze"},
+		{specials::ETorcMsg::kRateSilver, "kRateSilver"},
+		{specials::ETorcMsg::kBalance, "kBalance"},
+		{specials::ETorcMsg::kRow, "kRow"},
+		{specials::ETorcMsg::kLabelBronze, "kLabelBronze"},
+		{specials::ETorcMsg::kLabelSilver, "kLabelSilver"},
+		{specials::ETorcMsg::kLabelGold, "kLabelGold"},
+		{specials::ETorcMsg::kInstrMin, "kInstrMin"},
+		{specials::ETorcMsg::kInstrAmount, "kInstrAmount"},
+		{specials::ETorcMsg::kOptCancel, "kOptCancel"},
+		{specials::ETorcMsg::kOptConfirm, "kOptConfirm"},
+		{specials::ETorcMsg::kPrompt, "kPrompt"},
+	};
+
 // Editable msg-sheaf loaders share the kDefault-only element model (one shared sheaf per file).
 std::vector<cfg_manager::EditableElement> DefaultSheafElements(
 		const std::string &label, std::size_t count) {
@@ -196,6 +220,26 @@ specials::EHorseMsg ITEM_BY_NAME<specials::EHorseMsg>(const std::string &name) {
 	return by_name.at(name);
 }
 
+
+template<>
+const std::string &NAME_BY_ITEM<specials::ETorcMsg>(const specials::ETorcMsg item) {
+	return kTorcMsgNames.at(item);
+}
+template<>
+const std::map<specials::ETorcMsg, std::string> &NAMES_OF<specials::ETorcMsg>() {
+	return kTorcMsgNames;
+}
+template<>
+specials::ETorcMsg ITEM_BY_NAME<specials::ETorcMsg>(const std::string &name) {
+	static std::map<std::string, specials::ETorcMsg> by_name;
+	if (by_name.empty()) {
+		for (const auto &[value, token] : kTorcMsgNames) {
+			by_name.emplace(token, value);
+		}
+	}
+	return by_name.at(name);
+}
+
 namespace specials {
 
 const std::string &SpecialMsg(ESpecialMsg id) {
@@ -212,6 +256,10 @@ const std::string &MailMsg(EMailMsg id) {
 
 const std::string &HorseMsg(EHorseMsg id) {
 	return MUD::HorseMessages().GetMessage(info_container::kUndefinedVnum, id);
+}
+
+const std::string &TorcMsg(ETorcMsg id) {
+	return MUD::TorcMessages().GetMessage(info_container::kUndefinedVnum, id);
 }
 
 // --- shared dispatch messages (special_msg.xml) -----------------------------------------------------
@@ -283,6 +331,24 @@ cfg_manager::ValidationResult HorseMessagesLoader::Validate(parser_wrapper::Data
 }
 std::string HorseMessagesLoader::CanonicalElementId(const std::string &id) const { return CanonicalSheafId(id); }
 parser_wrapper::DataNode HorseMessagesLoader::CreateElementNode(parser_wrapper::DataNode root, const std::string &id) const {
+	return CreateSheaf(root, id);
+}
+
+// --- torc / гривна exchange messages (torc_msg.xml) -------------------------------------------------
+void TorcMessagesLoader::Load(parser_wrapper::DataNode data) { MUD::TorcMessages().Init(data.Children()); }
+void TorcMessagesLoader::Reload(parser_wrapper::DataNode data) { MUD::TorcMessages().Reload(data.Children()); }
+std::string TorcMessagesLoader::EditableWhat() const { return "torcmsg"; }
+std::vector<cfg_manager::EditableElement> TorcMessagesLoader::ListElements() const {
+	return DefaultSheafElements("torc exchange messages (shared)", 1);
+}
+cfg_manager::ValidationResult TorcMessagesLoader::Validate(parser_wrapper::DataNode &doc) const {
+	if (MUD::TorcMessages().Validate(doc.Children())) {
+		return {true, ""};
+	}
+	return {false, "Torc-message data failed to parse (see syslog for the offending message)."};
+}
+std::string TorcMessagesLoader::CanonicalElementId(const std::string &id) const { return CanonicalSheafId(id); }
+parser_wrapper::DataNode TorcMessagesLoader::CreateElementNode(parser_wrapper::DataNode root, const std::string &id) const {
 	return CreateSheaf(root, id);
 }
 

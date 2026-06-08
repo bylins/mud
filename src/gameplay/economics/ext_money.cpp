@@ -3,6 +3,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include "ext_money.h"
+#include "gameplay/ai/special_messages.h"
 
 #include "engine/entities/char_data.h"
 #include "engine/ui/color.h"
@@ -127,50 +128,37 @@ namespace ExtMoney {
 
 // распечатка меню обмена гривен ('менять' у глашатая)
 void torc_exch_menu(CharData *ch) {
-	std::string_view menu{"   {}{}) {}{:<17}{} -> {}{:<17}{} [{} -> {}]\r\n"};
+	using ET = specials::ETorcMsg;
+	const std::string &row = specials::TorcMsg(ET::kRow);
 	std::stringstream out;
 
-	out << "\r\n"
-		   "   Курсы обмена гривен:\r\n"
-		   "   " << TORC_EXCH_RATE << "  бронзовых <-> 1 серебряная\r\n"
-									  "   " << TORC_EXCH_RATE << " серебряных <-> 1 золотая\r\n\r\n";
+	out << "\r\n   " << specials::TorcMsg(ET::kRatesHeader) << "\r\n   "
+		<< fmt::format(fmt::runtime(specials::TorcMsg(ET::kRateBronze)), fmt::arg("rate", TORC_EXCH_RATE)) << "\r\n   "
+		<< fmt::format(fmt::runtime(specials::TorcMsg(ET::kRateSilver)), fmt::arg("rate", TORC_EXCH_RATE)) << "\r\n\r\n";
 
-	out << "   Текущий баланс: "
+	out << "   " << specials::TorcMsg(ET::kBalance) << " "
 		<< kColorBoldYel << ch->desc->ext_money[kTorcGold] << "з "
 		<< kColorWht << ch->desc->ext_money[kTorcSilver] << "с "
 		<< kColorYel << ch->desc->ext_money[kTorcBronze] << "б\r\n\r\n";
 
-	out << fmt::format(fmt::runtime(menu),
-					   kColorGrn, 1,
-					   kColorYel, "Бронзовые гривны", kColorNrm,
-					   kColorWht, "Серебряные гривны", kColorNrm,
-					   TORC_EXCH_RATE, 1);
-	out << fmt::format(fmt::runtime(menu),
-					   kColorGrn, 2,
-					   kColorWht, "Серебряные гривны", kColorNrm,
-					   kColorBoldYel, "Золотые гривны", kColorNrm,
-					   TORC_EXCH_RATE, 1);
-	out << "\r\n"
-		<< fmt::format(fmt::runtime(menu),
-					   kColorGrn, 3,
-					   kColorBoldYel, "Золотые гривны", kColorNrm,
-					   kColorWht, "Серебряные гривны", kColorNrm,
-					   1, TORC_EXCH_RATE);
-	out << fmt::format(fmt::runtime(menu),
-					   kColorGrn, 4,
-					   kColorWht, "Серебряные гривны", kColorNrm,
-					   kColorYel, "Бронзовые гривны", kColorNrm,
-					   1, TORC_EXCH_RATE);
+	auto fmt_row = [&](int num, const char *fc, ET from, const char *tc, ET to, int rfrom, int rto) {
+		return fmt::format(fmt::runtime(row),
+			fmt::arg("nc", kColorGrn), fmt::arg("num", num),
+			fmt::arg("fc", fc), fmt::arg("from", specials::TorcMsg(from)), fmt::arg("nrm", kColorNrm),
+			fmt::arg("tc", tc), fmt::arg("to", specials::TorcMsg(to)),
+			fmt::arg("rfrom", rfrom), fmt::arg("rto", rto));
+	};
+	out << fmt_row(1, kColorYel, ET::kLabelBronze, kColorWht, ET::kLabelSilver, TORC_EXCH_RATE, 1) << "\r\n";
+	out << fmt_row(2, kColorWht, ET::kLabelSilver, kColorBoldYel, ET::kLabelGold, TORC_EXCH_RATE, 1) << "\r\n";
+	out << "\r\n" << fmt_row(3, kColorBoldYel, ET::kLabelGold, kColorWht, ET::kLabelSilver, 1, TORC_EXCH_RATE) << "\r\n";
+	out << fmt_row(4, kColorWht, ET::kLabelSilver, kColorYel, ET::kLabelBronze, 1, TORC_EXCH_RATE) << "\r\n";
 
-	out << "\r\n"
-		   "   <номер действия> - один минимальный обмен указанного вида\r\n"
-		   "   <номер действия> <число х> - обмен х имеющихся гривен\r\n\r\n";
+	out << "\r\n   " << specials::TorcMsg(ET::kInstrMin) << "\r\n   "
+		<< specials::TorcMsg(ET::kInstrAmount) << "\r\n\r\n";
 
-	out << kColorGrn << "   5)"
-		<< kColorNrm << " Отменить обмен и выйти\r\n"
-		<< kColorGrn << "   6)"
-		<< kColorNrm << " Подтвердить обмен и выйти\r\n\r\n"
-		<< "   Ваш выбор:";
+	out << kColorGrn << "   5)" << kColorNrm << " " << specials::TorcMsg(ET::kOptCancel) << "\r\n"
+		<< kColorGrn << "   6)" << kColorNrm << " " << specials::TorcMsg(ET::kOptConfirm) << "\r\n\r\n"
+		<< "   " << specials::TorcMsg(ET::kPrompt);
 
 	SendMsgToChar(out.str(), ch);
 }
@@ -188,22 +176,22 @@ void parse_inc_exch(CharData *ch, int amount, int num) {
 
 	if (ch->desc->ext_money[torc_from] < amount) {
 		if (ch->desc->ext_money[torc_from] < torc_rate) {
-			SendMsgToChar("Нет необходимого количества гривен!\r\n", ch);
+			SendMsgToChar(specials::TorcMsg(specials::ETorcMsg::kNotEnough) + "\r\n", ch);
 		} else {
 			amount = ch->desc->ext_money[torc_from] / torc_rate * torc_rate;
-			SendMsgToChar(ch, "Количество меняемых гривен уменьшено до %d.\r\n", amount);
+			SendMsgToChar(fmt::format(fmt::runtime(specials::TorcMsg(specials::ETorcMsg::kReducedTo)), fmt::arg("amount", amount)) + "\r\n", ch);
 			ch->desc->ext_money[torc_from] -= amount;
 			ch->desc->ext_money[torc_to] += amount / torc_rate;
-			SendMsgToChar(ch, "Произведен обмен: %d -> %d.\r\n", amount, amount / torc_rate);
+			SendMsgToChar(fmt::format(fmt::runtime(specials::TorcMsg(specials::ETorcMsg::kExchanged)), fmt::arg("from", amount), fmt::arg("to", amount / torc_rate)) + "\r\n", ch);
 		}
 	} else {
 		int real_amount = amount / torc_rate * torc_rate;
 		if (real_amount != amount) {
-			SendMsgToChar(ch, "Количество меняемых гривен уменьшено до %d.\r\n", real_amount);
+			SendMsgToChar(fmt::format(fmt::runtime(specials::TorcMsg(specials::ETorcMsg::kReducedTo)), fmt::arg("amount", real_amount)) + "\r\n", ch);
 		}
 		ch->desc->ext_money[torc_from] -= real_amount;
 		ch->desc->ext_money[torc_to] += real_amount / torc_rate;
-		SendMsgToChar(ch, "Произведен обмен: %d -> %d.\r\n", real_amount, real_amount / torc_rate);
+		SendMsgToChar(fmt::format(fmt::runtime(specials::TorcMsg(specials::ETorcMsg::kExchanged)), fmt::arg("from", real_amount), fmt::arg("to", real_amount / torc_rate)) + "\r\n", ch);
 	}
 }
 
@@ -220,19 +208,19 @@ void parse_dec_exch(CharData *ch, int amount, int num) {
 
 	if (ch->desc->ext_money[torc_from] < amount) {
 		if (ch->desc->ext_money[torc_from] < 1) {
-			SendMsgToChar("Нет необходимого количества гривен!\r\n", ch);
+			SendMsgToChar(specials::TorcMsg(specials::ETorcMsg::kNotEnough) + "\r\n", ch);
 		} else {
 			amount = ch->desc->ext_money[torc_from];
-			SendMsgToChar(ch, "Количество меняемых гривен уменьшено до %d.\r\n", amount);
+			SendMsgToChar(fmt::format(fmt::runtime(specials::TorcMsg(specials::ETorcMsg::kReducedTo)), fmt::arg("amount", amount)) + "\r\n", ch);
 
 			ch->desc->ext_money[torc_from] -= amount;
 			ch->desc->ext_money[torc_to] += amount * torc_rate;
-			SendMsgToChar(ch, "Произведен обмен: %d -> %d.\r\n", amount, amount * torc_rate);
+			SendMsgToChar(fmt::format(fmt::runtime(specials::TorcMsg(specials::ETorcMsg::kExchanged)), fmt::arg("from", amount), fmt::arg("to", amount * torc_rate)) + "\r\n", ch);
 		}
 	} else {
 		ch->desc->ext_money[torc_from] -= amount;
 		ch->desc->ext_money[torc_to] += amount * torc_rate;
-		SendMsgToChar(ch, "Произведен обмен: %d -> %d.\r\n", amount, amount * torc_rate);
+		SendMsgToChar(fmt::format(fmt::runtime(specials::TorcMsg(specials::ETorcMsg::kExchanged)), fmt::arg("from", amount), fmt::arg("to", amount * torc_rate)) + "\r\n", ch);
 	}
 }
 
@@ -274,7 +262,7 @@ bool check_equal_exch(CharData *ch) {
 // парс ввода при обмене гривен
 void torc_exch_parse(CharData *ch, const char *arg) {
 	if (!*arg || !a_isdigit(*arg)) {
-		SendMsgToChar("Неверный выбор!\r\n", ch);
+		SendMsgToChar(specials::TorcMsg(specials::ETorcMsg::kInvalidChoice) + "\r\n", ch);
 		torc_exch_menu(ch);
 		return;
 	}
@@ -295,7 +283,7 @@ void torc_exch_parse(CharData *ch, const char *arg) {
 		log("SYSERROR: invalid_argument arg=%s (%s %s %d)",
 			arg, __FILE__, __func__, __LINE__);
 
-		SendMsgToChar("Неверный выбор!\r\n", ch);
+		SendMsgToChar(specials::TorcMsg(specials::ETorcMsg::kInvalidChoice) + "\r\n", ch);
 		torc_exch_menu(ch);
 		return;
 	}
@@ -305,7 +293,7 @@ void torc_exch_parse(CharData *ch, const char *arg) {
 		// ввели два числа - проверка пользовательского ввода кол-ва гривен
 		int min_amount = check_input_amount(ch, num1, amount);
 		if (min_amount > 0) {
-			SendMsgToChar(ch, "Минимальное количество гривен для данного обмена: %d.", min_amount);
+			SendMsgToChar(fmt::format(fmt::runtime(specials::TorcMsg(specials::ETorcMsg::kMinAmount)), fmt::arg("amount", min_amount)), ch);
 			torc_exch_menu(ch);
 			return;
 		}
@@ -324,21 +312,21 @@ void torc_exch_parse(CharData *ch, const char *arg) {
 		parse_dec_exch(ch, amount, num1);
 	} else if (num1 == 5) {
 		ch->desc->state = EConState::kPlaying;
-		SendMsgToChar("Обмен отменен.\r\n", ch);
+		SendMsgToChar(specials::TorcMsg(specials::ETorcMsg::kCancelled) + "\r\n", ch);
 		return;
 	} else if (num1 == 6) {
 		if (!check_equal_exch(ch)) {
-			SendMsgToChar("Обмен отменен по техническим причинам, обратитесь к Богам.\r\n", ch);
+			SendMsgToChar(specials::TorcMsg(specials::ETorcMsg::kTechError) + "\r\n", ch);
 		} else {
 			for (unsigned i = 0; i < kTotalTypes; ++i) {
 				ch->set_ext_money(i, ch->desc->ext_money[i]);
 			}
 			ch->desc->state = EConState::kPlaying;
-			SendMsgToChar("Обмен произведен.\r\n", ch);
+			SendMsgToChar(specials::TorcMsg(specials::ETorcMsg::kConfirmed) + "\r\n", ch);
 		}
 		return;
 	} else {
-		SendMsgToChar("Неверный выбор!\r\n", ch);
+		SendMsgToChar(specials::TorcMsg(specials::ETorcMsg::kInvalidChoice) + "\r\n", ch);
 	}
 	torc_exch_menu(ch);
 }
