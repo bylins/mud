@@ -109,6 +109,10 @@ void RegisterEditorEnums() {
 	registry.RegisterNames("SummonHandler", SummonHandlerNames());
 	registry.RegisterNames("AlterObjHandler", AlterObjHandlerNames());
 	registry.RegisterNames("ObjCreationHandler", ObjCreationHandlerNames());
+	// issue.specials: the <special id=> tokens that may be assigned to a mob in specials.xml (the
+	// mob-handler subset of ESpecial; kShop/kGuild/kBoard come from other sources, not the file).
+	registry.RegisterNames("ESpecial", {"kRent", "kMail", "kBank", "kHorse", "kExchange", "kTorc",
+		"kMercenary", "kOutfit", "kPuff"});
 }
 
 } // namespace vedun

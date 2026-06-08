@@ -189,63 +189,157 @@ void clear_mob_charm(CharData *mob) {
 }
 
 namespace {
-// issue.specials: handler name -> prototype spec-proc function. Mirrors the old InitSpecProcs chain.
-void ParseSpecials(parser_wrapper::DataNode &data) {
-	for (auto &node : data.Children("special")) {
-		const char *type = node.GetValue("type");
-		const char *handler = node.GetValue("handler");
-		int vnum;
-		try {
-			vnum = parse::ReadAsInt(node.GetValue("vnum"));
-		} catch (const std::exception &e) {
-			err_log("specials: bad or missing 'vnum' (%s) -- entry skipped.", e.what());
+// issue.specials: special id token -> ESpecial. The file groups mobs UNDER each special:
+//   <special id="kRent"><mob vnum="4022"/><mob vnum="4001"/></special>
+// id is the ESpecial enum token (kRent/kBank/...); the verbs route to do_specproc, which dispatches
+// by ESpecial -- no func pointer. kShop comes from shop config, kGuild from guilds.xml, kBoard from code.
+const std::unordered_map<std::string, specials::ESpecial> &HandlerMap() {
+	static const std::unordered_map<std::string, specials::ESpecial> kMobSpecials{
+		{"kRent", specials::ESpecial::kRent},
+		{"kMail", specials::ESpecial::kMail},
+		{"kBank", specials::ESpecial::kBank},
+		{"kHorse", specials::ESpecial::kHorse},
+		{"kExchange", specials::ESpecial::kExchange},
+		{"kTorc", specials::ESpecial::kTorc},
+		{"kMercenary", specials::ESpecial::kMercenary},
+		{"kOutfit", specials::ESpecial::kOutfit},
+		{"kPuff", specials::ESpecial::kPuff},
+	};
+	return kMobSpecials;
+}
+// Resolve an id token (case-insensitively) to its ESpecial, or kNone if it is not a mob-handler id.
+specials::ESpecial IdToSpecial(const char *id) {
+	if (id && *id) {
+		for (const auto &[name, sp] : HandlerMap()) {
+			if (!str_cmp(name.c_str(), id)) {
+				return sp;
+			}
+		}
+	}
+	return specials::ESpecial::kNone;
+}
+
+// Read the nested <specials> tree (<special id><mob vnum/></special>) into the registry. A mob may
+// appear under several <special> blocks (banker + innkeeper); RegisterMob accumulates into a set, so no
+// search is needed. `out`, when given, collects one EditableElement per <special> block (id -> joined
+// mob vnums) for ListElements. NOTE: iterate the UNFILTERED Children() and name-check -- a node copied
+// out of a keyed Children("x") range carries that filter, breaking its own later Children().
+void ParseSpecials(parser_wrapper::DataNode &data, std::vector<cfg_manager::EditableElement> *out) {
+	for (auto &group : data.Children()) {
+		if (std::string(group.GetName()) != "special") {
 			continue;
 		}
-		if (!type || !handler || !*type || !*handler) {
-			err_log("specials: vnum %d missing type/handler -- skipped.", vnum);
+		const char *id = group.GetValue("id");
+		const auto special = IdToSpecial(id);
+		if (special == specials::ESpecial::kNone) {
+			err_log("specials: unknown/empty special id '%s' -- block skipped.", id ? id : "");
 			continue;
 		}
-		if (!str_cmp(type, "mob")) {
-			// Mob spec procs are fully data-driven: the handler name maps to an ESpecial registered against
-			// the vnum; the command verbs route to do_specproc, which dispatches by ESpecial. No func pointer.
-			static const std::unordered_map<std::string, specials::ESpecial> kMobSpecials{
-				{"rent", specials::ESpecial::kRent},
-				{"mail", specials::ESpecial::kMail},
-				{"bank", specials::ESpecial::kBank},
-				{"horse", specials::ESpecial::kHorse},
-				{"exchange", specials::ESpecial::kExchange},
-				{"torc", specials::ESpecial::kTorc},
-				{"mercenary", specials::ESpecial::kMercenary},
-				{"outfit", specials::ESpecial::kOutfit},
-				{"puff", specials::ESpecial::kPuff},
-			};
-			const auto it = kMobSpecials.find(handler);
-			if (it == kMobSpecials.end()) {
-				err_log("specials: unknown mob handler '%s' for vnum %d -- skipped.", handler, vnum);
+		std::string vnums;
+		for (auto &mob : group.Children()) {
+			if (std::string(mob.GetName()) != "mob") {
+				continue;
+			}
+			int vnum;
+			try {
+				vnum = parse::ReadAsInt(mob.GetValue("vnum"));
+			} catch (const std::exception &e) {
+				err_log("specials: %s <mob> with bad or missing 'vnum' (%s) -- skipped.", id, e.what());
+				continue;
+			}
+			if (vnum <= 0) {
+				err_log("specials: %s <mob> vnum %d is not a positive integer -- skipped.", id, vnum);
 				continue;
 			}
 			const auto mrnum = GetMobRnum(vnum);
 			if (mrnum < 0) {
-				err_log("specials: mob vnum %d not found -- skipped.", vnum);
+				err_log("specials: %s mob vnum %d not found -- skipped.", id, vnum);
 				continue;
 			}
-			specials::RegisterMob(vnum, it->second);
-			if (it->second == specials::ESpecial::kRent) {
+			specials::RegisterMob(vnum, special);
+			if (special == specials::ESpecial::kRent) {
 				clear_mob_charm(&mob_proto[mrnum]);
 			}
-		} else if (!str_cmp(type, "obj")) {
-			// Object specials (notice boards) are still assigned in code via AssignObjects.
-		} else if (!str_cmp(type, "room")) {
-			// Room specials are not yet data-driven.
-		} else {
-			err_log("specials: unknown type '%s' for vnum %d -- skipped.", type, vnum);
+			if (!vnums.empty()) {
+				vnums += ", ";
+			}
+			vnums += std::to_string(vnum);
+		}
+		if (out) {
+			out->push_back({id, vnums.empty() ? std::string("(no mobs)") : vnums});
 		}
 	}
 }
 } // namespace
 
-void SpecialsLoader::Load(parser_wrapper::DataNode data) { ParseSpecials(data); }
-void SpecialsLoader::Reload(parser_wrapper::DataNode data) { ParseSpecials(data); }
+void SpecialsLoader::Load(parser_wrapper::DataNode data) { elements_.clear(); ParseSpecials(data, &elements_); }
+void SpecialsLoader::Reload(parser_wrapper::DataNode data) { elements_.clear(); ParseSpecials(data, &elements_); }
+
+// --- issue.specials: Vedun in-game editing of specials.xml ------------------------------------------
+// A <special> block (keyed by its ESpecial id token, e.g. kRent) is the editable element; the user
+// adds/removes its <mob vnum=> children. id is validated to a mob-handler token; vnum to a positive int.
+std::string SpecialsLoader::EditableWhat() const { return "special"; }
+
+std::vector<cfg_manager::EditableElement> SpecialsLoader::ListElements() const { return elements_; }
+
+cfg_manager::ValidationResult SpecialsLoader::Validate(parser_wrapper::DataNode &doc) const {
+	for (auto &group : doc.Children()) {
+		if (std::string(group.GetName()) != "special") {
+			continue;
+		}
+		const char *id = group.GetValue("id");
+		if (IdToSpecial(id) == specials::ESpecial::kNone) {
+			return {false, std::string("Unknown special id '") + (id ? id : "") +
+					"' (valid: kRent kMail kBank kHorse kExchange kTorc kMercenary kOutfit kPuff)."};
+		}
+		for (auto &mob : group.Children()) {
+			if (std::string(mob.GetName()) != "mob") {
+				continue;
+			}
+			int vnum;
+			try {
+				vnum = parse::ReadAsInt(mob.GetValue("vnum"));
+			} catch (const std::exception &) {
+				return {false, std::string("A <mob> under ") + id + " has a missing or non-integer vnum."};
+			}
+			if (vnum <= 0) {
+				return {false, std::string("A <mob> under ") + id + " has a non-positive vnum."};
+			}
+		}
+	}
+	return {true, ""};
+}
+
+parser_wrapper::DataNode SpecialsLoader::FindElementNode(parser_wrapper::DataNode root,
+														   const std::string &id) const {
+	// A <special> is keyed by its `id` token. Iterate ALL children with a name check (not
+	// Children("special")) so the returned node keeps a working Children() for its <mob> list.
+	for (auto &child : root.Children()) {
+		if (std::string(child.GetName()) == "special" && id == child.GetValue("id")) {
+			return child;
+		}
+	}
+	return parser_wrapper::DataNode{};
+}
+
+std::string SpecialsLoader::CanonicalElementId(const std::string &id) const {
+	// Valid only if it is a mob-handler special token; return the canonical (proper-cased) token.
+	for (const auto &[name, sp] : HandlerMap()) {
+		(void) sp;
+		if (!str_cmp(name.c_str(), id.c_str())) {
+			return name;
+		}
+	}
+	return "";
+}
+
+parser_wrapper::DataNode SpecialsLoader::CreateElementNode(parser_wrapper::DataNode root,
+															 const std::string &id) const {
+	// A fresh special block with no mobs yet; the user adds <mob vnum=> children in the editor.
+	auto node = root.AddChild("special");
+	node.SetValue("id", id);
+	return node;
+}
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
 

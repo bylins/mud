@@ -1,14 +1,25 @@
 <?xml version="1.0" encoding="koi8-r"?>
 <!--
     issue.specials: data-driven spec-proc assignment (replaces lib/misc/specials.lst + InitSpecProcs).
-    <special type="mob" vnum=".." handler=".."/> assigns a named special to a prototype.
-    handlers: rent mail bank horse exchange mercenary outfit torc puff (mobs).
+    Mobs are grouped UNDER each special (the special's id is an ESpecial enum token):
+        <special id="kRent"><mob vnum="4022"/><mob vnum="4001"/></special>
+    A mob may appear under several <special> blocks (banker + innkeeper, trainer + merchant).
+    id: kRent kMail kBank kHorse kExchange kTorc kMercenary kOutfit kPuff.  vnum: positive integer.
+    Editable in Vedun: "vedun special kRent" opens a <special> element; add/remove its <mob> children.
     This is the stripped TEST set (repo/small world); the full production set converts the same way.
-    Object notice-boards are still assigned in code via AssignObjects for now.
+    kShop comes from the shop config, kGuild from guilds.xml, kBoard (objects) from code (AssignObjects).
 -->
 <specials>
-	<special type="mob" vnum="4022" handler="rent"/>
-	<special type="mob" vnum="4070" handler="mail"/>
-	<special type="mob" vnum="4001" handler="bank"/>
-	<special type="mob" vnum="4023" handler="horse"/>
+	<special id="kRent">
+		<mob vnum="4022"/>
+	</special>
+	<special id="kMail">
+		<mob vnum="4070"/>
+	</special>
+	<special id="kBank">
+		<mob vnum="4001"/>
+	</special>
+	<special id="kHorse">
+		<mob vnum="4023"/>
+	</special>
 </specials>
