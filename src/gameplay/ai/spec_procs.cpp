@@ -58,17 +58,15 @@ enum class EHorseCmd { kBuy, kSell };
 int HorseBuy(CharData *ch, void *me, char * /*rest*/) {
 	CharData *victim = (CharData *) me, *horse = nullptr;
 		if (ch->has_horse(false)) {
-			act("$N засмеял$U : \"$n, ты шутишь, у тебя же есть скакун.\"", false, ch, 0, victim, kToChar);
+			act(specials::HorseMsg(specials::EHorseMsg::kBuyHaveAlready), false, ch, 0, victim, kToChar);
 			return (true);
 		}
 		if (ch->get_gold() < kHorseCost) {
-			act("\"Ступай отсюда, злыдень, у тебя нет таких денег!\"-заорал$G $N",
-				false, ch, 0, victim, kToChar);
+			act(specials::HorseMsg(specials::EHorseMsg::kBuyNoMoney), false, ch, 0, victim, kToChar);
 			return (true);
 		}
 		if (!(horse = ReadMobile(kHorseVnum, kVirtual))) {
-			act("\"Извини, у меня нет для тебя скакуна.\"-смущенно произнес$Q $N",
-				false, ch, 0, victim, kToChar);
+			act(specials::HorseMsg(specials::EHorseMsg::kBuyNoHorse), false, ch, 0, victim, kToChar);
 			return (true);
 		}
 		// Сначала поместить коня в комнату, иначе add_follower внутри
@@ -76,10 +74,12 @@ int HorseBuy(CharData *ch, void *me, char * /*rest*/) {
 		// загрупить игроков в разных комнатах" (#3207).
 		PlaceCharToRoom(horse, ch->in_room);
 		make_horse(horse, ch);
-		sprintf(buf, "$N оседлал$G %s и отдал$G %s вам.", GET_PAD(horse, 3), HSHR(horse));
-		act(buf, false, ch, 0, victim, kToChar);
-		sprintf(buf, "$N оседлал$G %s и отдал$G %s $n2.", GET_PAD(horse, 3), HSHR(horse));
-		act(buf, false, ch, 0, victim, kToRoom);
+		act(fmt::format(fmt::runtime(specials::HorseMsg(specials::EHorseMsg::kBuyGiveChar)),
+				fmt::arg("horse", GET_PAD(horse, 3)), fmt::arg("pronoun", HSHR(horse))),
+			false, ch, 0, victim, kToChar);
+		act(fmt::format(fmt::runtime(specials::HorseMsg(specials::EHorseMsg::kBuyGiveRoom)),
+				fmt::arg("horse", GET_PAD(horse, 3)), fmt::arg("pronoun", HSHR(horse))),
+			false, ch, 0, victim, kToRoom);
 		ch->remove_gold(kHorseCost);
 		ch->SetFlag(EPlrFlag::kCrashSave);
 		return (true);
@@ -89,29 +89,30 @@ int HorseBuy(CharData *ch, void *me, char * /*rest*/) {
 int HorseSell(CharData *ch, void *me, char * /*rest*/) {
 	CharData *victim = (CharData *) me, *horse = nullptr;
 		if (!ch->has_horse(true)) {
-			act("$N засмеял$U : \"$n, ты не влезешь в мое стойло.\"", false, ch, 0, victim, kToChar);
+			act(specials::HorseMsg(specials::EHorseMsg::kSellNoHorse), false, ch, 0, victim, kToChar);
 			return (true);
 		}
 		if (ch->IsOnHorse()) {
-			act("\"Я не собираюсь платить еще и за всадника.\"-усмехнул$U $N",
-				false, ch, 0, victim, kToChar);
+			act(specials::HorseMsg(specials::EHorseMsg::kSellOnHorse), false, ch, 0, victim, kToChar);
 			return (true);
 		}
 
 		if (!(horse = ch->get_horse()) || GET_MOB_VNUM(horse) != kHorseVnum) {
-			act("\"Извини, твой скакун мне не подходит.\"- заявил$G $N", false, ch, 0, victim, kToChar);
+			act(specials::HorseMsg(specials::EHorseMsg::kSellWrongHorse), false, ch, 0, victim, kToChar);
 			return (true);
 		}
 
 		if (horse->in_room != victim->in_room) {
-			act("\"Извини, твой скакун где-то бродит.\"- заявил$G $N", false, ch, 0, victim, kToChar);
+			act(specials::HorseMsg(specials::EHorseMsg::kSellHorseAway), false, ch, 0, victim, kToChar);
 			return (true);
 		}
 
-		sprintf(buf, "$N расседлал$G %s и отвел$G %s в стойло.", GET_PAD(horse, 3), HSHR(horse));
-		act(buf, false, ch, 0, victim, kToChar);
-		sprintf(buf, "$N расседлал$G %s и отвел$G %s в стойло.", GET_PAD(horse, 3), HSHR(horse));
-		act(buf, false, ch, 0, victim, kToRoom);
+		act(fmt::format(fmt::runtime(specials::HorseMsg(specials::EHorseMsg::kSellTaken)),
+				fmt::arg("horse", GET_PAD(horse, 3)), fmt::arg("pronoun", HSHR(horse))),
+			false, ch, 0, victim, kToChar);
+		act(fmt::format(fmt::runtime(specials::HorseMsg(specials::EHorseMsg::kSellTaken)),
+				fmt::arg("horse", GET_PAD(horse, 3)), fmt::arg("pronoun", HSHR(horse))),
+			false, ch, 0, victim, kToRoom);
 		ExtractCharFromWorld(horse, false);
 		ch->add_gold((kHorseCost >> 1));
 		ch->SetFlag(EPlrFlag::kCrashSave);
@@ -119,7 +120,7 @@ int HorseSell(CharData *ch, void *me, char * /*rest*/) {
 	return (1);
 }
 
-const SubCmdResolver kHorseCmds("Что вам угодно?", {
+const SubCmdResolver kHorseCmds([] { return specials::HorseMsg(specials::EHorseMsg::kGreeting); }, {
 	{{"купить", "buy"}, static_cast<int>(EHorseCmd::kBuy), HorseBuy},
 	{{"продать", "sell"}, static_cast<int>(EHorseCmd::kSell), HorseSell},
 });
@@ -133,13 +134,13 @@ int horse_keeper(CharData *ch, void *me, int /*cmd*/, char *argument) {
 	skip_spaces(&argument);
 	if (!*argument) {
 			if (ch->has_horse(false)) {
-				act("$N поинтересовал$U : \"$n, зачем тебе второй скакун? У тебя ведь одно седалище.\"",
-					false, ch, nullptr, victim, kToChar);
+				act(specials::HorseMsg(specials::EHorseMsg::kAlreadyHave), false, ch, nullptr, victim, kToChar);
 				return (true);
 			}
-			sprintf(buf, "$N сказал$G : \"Я продам тебе скакуна за %d %s.\"",
-					kHorseCost, GetDeclensionInNumber(kHorseCost, EWhat::kMoneyA));
-			act(buf, false, ch, nullptr, victim, kToChar);
+			act(fmt::format(fmt::runtime(specials::HorseMsg(specials::EHorseMsg::kForSale)),
+					fmt::arg("amount", kHorseCost),
+					fmt::arg("currency", GetDeclensionInNumber(kHorseCost, EWhat::kMoneyA))),
+				false, ch, nullptr, victim, kToChar);
 			return (true);
 		return (1);
 	}

@@ -80,14 +80,26 @@ enum class EMailMsg {
 	kUndeliveredHeader, kUndeliveredCount, kUndeliveredNames,
 };
 
+// Horse keeper (horse_msg.xml). All act() lines ($n/$N codes, to char/room). kForSale uses
+// {amount} {currency}; the buy/sell delivery lines use {horse} (padded name) and {pronoun} (HSHR).
+// kSellTaken serves both the to-char and to-room delivery lines (identical text).
+enum class EHorseMsg {
+	kGreeting,
+	kAlreadyHave, kForSale,
+	kBuyHaveAlready, kBuyNoMoney, kBuyNoHorse, kBuyGiveChar, kBuyGiveRoom,
+	kSellNoHorse, kSellOnHorse, kSellWrongHorse, kSellHorseAway, kSellTaken,
+};
+
 using SpecialMessages = msg_container::MsgContainer<int, ESpecialMsg>;
 using BankMessages = msg_container::MsgContainer<int, EBankMsg>;
 using MailMessages = msg_container::MsgContainer<int, EMailMsg>;
+using HorseMessages = msg_container::MsgContainer<int, EHorseMsg>;
 
 // Convenience accessors for the shared (default-sheaf) message of each container.
 [[nodiscard]] const std::string &SpecialMsg(ESpecialMsg id);
 [[nodiscard]] const std::string &BankMsg(EBankMsg id);
 [[nodiscard]] const std::string &MailMsg(EMailMsg id);
+[[nodiscard]] const std::string &HorseMsg(EHorseMsg id);
 
 // One loader per data file (cfg_manager id in the comment). All are Vedun-editable (msg-sheaf model).
 class SpecialMessagesLoader : virtual public cfg_manager::IEditableCfgLoader {  // "special_messages"
@@ -123,6 +135,17 @@ class MailMessagesLoader : virtual public cfg_manager::IEditableCfgLoader {  // 
 	[[nodiscard]] parser_wrapper::DataNode CreateElementNode(parser_wrapper::DataNode root, const std::string &id) const final;
 };
 
+class HorseMessagesLoader : virtual public cfg_manager::IEditableCfgLoader {  // "horse_messages"
+ public:
+	void Load(parser_wrapper::DataNode data) final;
+	void Reload(parser_wrapper::DataNode data) final;
+	[[nodiscard]] std::string EditableWhat() const final;
+	[[nodiscard]] std::vector<cfg_manager::EditableElement> ListElements() const final;
+	[[nodiscard]] cfg_manager::ValidationResult Validate(parser_wrapper::DataNode &doc) const final;
+	[[nodiscard]] std::string CanonicalElementId(const std::string &id) const final;
+	[[nodiscard]] parser_wrapper::DataNode CreateElementNode(parser_wrapper::DataNode root, const std::string &id) const final;
+};
+
 } // namespace specials
 
 template<>
@@ -145,6 +168,13 @@ template<>
 specials::EMailMsg ITEM_BY_NAME<specials::EMailMsg>(const std::string &name);
 template<>
 const std::map<specials::EMailMsg, std::string> &NAMES_OF<specials::EMailMsg>();
+
+template<>
+const std::string &NAME_BY_ITEM<specials::EHorseMsg>(specials::EHorseMsg item);
+template<>
+specials::EHorseMsg ITEM_BY_NAME<specials::EHorseMsg>(const std::string &name);
+template<>
+const std::map<specials::EHorseMsg, std::string> &NAMES_OF<specials::EHorseMsg>();
 
 #endif // BYLINS_SRC_GAMEPLAY_AI_SPECIAL_MESSAGES_H_
 

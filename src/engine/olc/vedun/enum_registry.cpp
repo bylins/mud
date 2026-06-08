@@ -118,6 +118,7 @@ void RegisterEditorEnums() {
 	registry.Register<specials::ESpecialMsg>("ESpecialMsg");
 	registry.Register<specials::EBankMsg>("EBankMsg");
 	registry.Register<specials::EMailMsg>("EMailMsg");
+	registry.Register<specials::EHorseMsg>("EHorseMsg");
 }
 
 } // namespace vedun

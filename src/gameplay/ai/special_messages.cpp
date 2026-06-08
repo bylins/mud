@@ -73,6 +73,22 @@ const std::map<specials::EMailMsg, std::string> kMailMsgNames{
 		{specials::EMailMsg::kUndeliveredNames, "kUndeliveredNames"},
 	};
 
+const std::map<specials::EHorseMsg, std::string> kHorseMsgNames{
+		{specials::EHorseMsg::kGreeting, "kGreeting"},
+		{specials::EHorseMsg::kAlreadyHave, "kAlreadyHave"},
+		{specials::EHorseMsg::kForSale, "kForSale"},
+		{specials::EHorseMsg::kBuyHaveAlready, "kBuyHaveAlready"},
+		{specials::EHorseMsg::kBuyNoMoney, "kBuyNoMoney"},
+		{specials::EHorseMsg::kBuyNoHorse, "kBuyNoHorse"},
+		{specials::EHorseMsg::kBuyGiveChar, "kBuyGiveChar"},
+		{specials::EHorseMsg::kBuyGiveRoom, "kBuyGiveRoom"},
+		{specials::EHorseMsg::kSellNoHorse, "kSellNoHorse"},
+		{specials::EHorseMsg::kSellOnHorse, "kSellOnHorse"},
+		{specials::EHorseMsg::kSellWrongHorse, "kSellWrongHorse"},
+		{specials::EHorseMsg::kSellHorseAway, "kSellHorseAway"},
+		{specials::EHorseMsg::kSellTaken, "kSellTaken"},
+	};
+
 // Editable msg-sheaf loaders share the kDefault-only element model (one shared sheaf per file).
 std::vector<cfg_manager::EditableElement> DefaultSheafElements(
 		const std::string &label, std::size_t count) {
@@ -161,6 +177,25 @@ specials::EMailMsg ITEM_BY_NAME<specials::EMailMsg>(const std::string &name) {
 	return by_name.at(name);
 }
 
+template<>
+const std::string &NAME_BY_ITEM<specials::EHorseMsg>(const specials::EHorseMsg item) {
+	return kHorseMsgNames.at(item);
+}
+template<>
+const std::map<specials::EHorseMsg, std::string> &NAMES_OF<specials::EHorseMsg>() {
+	return kHorseMsgNames;
+}
+template<>
+specials::EHorseMsg ITEM_BY_NAME<specials::EHorseMsg>(const std::string &name) {
+	static std::map<std::string, specials::EHorseMsg> by_name;
+	if (by_name.empty()) {
+		for (const auto &[value, token] : kHorseMsgNames) {
+			by_name.emplace(token, value);
+		}
+	}
+	return by_name.at(name);
+}
+
 namespace specials {
 
 const std::string &SpecialMsg(ESpecialMsg id) {
@@ -173,6 +208,10 @@ const std::string &BankMsg(EBankMsg id) {
 
 const std::string &MailMsg(EMailMsg id) {
 	return MUD::MailMessages().GetMessage(info_container::kUndefinedVnum, id);
+}
+
+const std::string &HorseMsg(EHorseMsg id) {
+	return MUD::HorseMessages().GetMessage(info_container::kUndefinedVnum, id);
 }
 
 // --- shared dispatch messages (special_msg.xml) -----------------------------------------------------
@@ -226,6 +265,24 @@ cfg_manager::ValidationResult MailMessagesLoader::Validate(parser_wrapper::DataN
 }
 std::string MailMessagesLoader::CanonicalElementId(const std::string &id) const { return CanonicalSheafId(id); }
 parser_wrapper::DataNode MailMessagesLoader::CreateElementNode(parser_wrapper::DataNode root, const std::string &id) const {
+	return CreateSheaf(root, id);
+}
+
+// --- horse keeper messages (horse_msg.xml) ----------------------------------------------------------
+void HorseMessagesLoader::Load(parser_wrapper::DataNode data) { MUD::HorseMessages().Init(data.Children()); }
+void HorseMessagesLoader::Reload(parser_wrapper::DataNode data) { MUD::HorseMessages().Reload(data.Children()); }
+std::string HorseMessagesLoader::EditableWhat() const { return "horsemsg"; }
+std::vector<cfg_manager::EditableElement> HorseMessagesLoader::ListElements() const {
+	return DefaultSheafElements("horse keeper messages (shared)", 1);
+}
+cfg_manager::ValidationResult HorseMessagesLoader::Validate(parser_wrapper::DataNode &doc) const {
+	if (MUD::HorseMessages().Validate(doc.Children())) {
+		return {true, ""};
+	}
+	return {false, "Horse-message data failed to parse (see syslog for the offending message)."};
+}
+std::string HorseMessagesLoader::CanonicalElementId(const std::string &id) const { return CanonicalSheafId(id); }
+parser_wrapper::DataNode HorseMessagesLoader::CreateElementNode(parser_wrapper::DataNode root, const std::string &id) const {
 	return CreateSheaf(root, id);
 }
 

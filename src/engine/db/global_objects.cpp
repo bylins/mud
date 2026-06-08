@@ -49,6 +49,7 @@ struct GlobalObjectsStorage {
 	specials::SpecialMessages special_messages;
 	specials::BankMessages bank_messages;
 	specials::MailMessages mail_messages;
+	specials::HorseMessages horse_messages;
 	zone_types::ZoneTypesInfo zone_types_info;
 	rune_spells::Registry rune_spells_info;
 	currencies::CurrenciesInfo currencies_info;
@@ -179,6 +180,10 @@ specials::BankMessages &GlobalObjects::BankMessages() {
 
 specials::MailMessages &GlobalObjects::MailMessages() {
 	return global_objects().mail_messages;
+}
+
+specials::HorseMessages &GlobalObjects::HorseMessages() {
+	return global_objects().horse_messages;
 }
 
 const guilds::GuildInfo &GlobalObjects::Guild(Vnum guild_vnum) {
