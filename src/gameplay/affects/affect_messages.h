@@ -2,10 +2,10 @@
  \brief issue.ext-affects: affect short names + "look at character" aura text (cfg/messages/ru/
 		affect_msg.xml), keyed by affect.
  \details A MsgContainer<EAffect, EAffectMsgType>: one sheaf per affect (kShortDesc + kLook[+kLookPoly])
-		  plus the shared "kDefault" sheaf for the merged shield/aura group scaffolding (prefix + the
-		  noun forms). affected_bits is rebuilt from each affect's kShortDesc. The composition (which
-		  affects, grouping, gender/poly/count selection) stays in code; only the words live here. The
-		  EAffect enum itself stays in C++ (it is the identity, used in AFF_FLAGGED/switch everywhere).
+		  plus the shared "kDefault" sheaf for the merged shield/aura group scaffolding (the line frames
+		  + the count nouns). affected_bits is rebuilt from each affect's kShortDesc. Composition (which
+		  affects, grouping, gender/poly/count selection) stays in code; the words and the line structure
+		  live here. The EAffect enum itself stays in C++ (it is the identity, used in AFF_FLAGGED/switch).
 */
 
 #ifndef BYLINS_SRC_GAMEPLAY_AFFECTS_AFFECT_MESSAGES_H_
@@ -20,19 +20,20 @@
 
 namespace affects {
 
-// Slots within an affect's sheaf. kShortDesc/kLook/kLookPoly are per-affect; the kShield*/kAura* nouns
-// and kShieldPrefix are the shared group scaffolding kept in the "kDefault" sheaf. $a in a value is the
-// act gender suffix of the looked-at character.
+// Slots within an affect's sheaf. $a in any value is the act gender suffix of the looked-at character.
 enum class EAffectMsgType {
 	kUndefined = 0,
-	kShortDesc,        // short display name (affected_bits / score / identify); every affect
-	kLook,             // ListOneChar aura line or fragment
-	kLookPoly,         // poly (multi-form creature) variant of kLook
-	kShieldPrefix,     // kDefault: "п╬п╨я─я┐п╤п╣п╫$a"
-	kShieldNoun,       // kDefault: "я┴п╦я┌п╬п╪"  (one shield)
-	kShieldNounMany,   // kDefault: "я┴п╦я┌п╟п╪п╦" (several)
-	kAuraNoun,         // kDefault: "п╟я┐я─п╟"   (one aura)
-	kAuraNounMany,     // kDefault: "п╟я┐я─я▀"   (several)
+	kShortDesc,        // per-affect: short display name (affected_bits / score / identify)
+	kLook,             // per-affect: ListOneChar aura -- a complete "...line" for standalone affects
+	                   //             (cocoon/glow/status), or a bare list fragment for grouped ones
+	                   //             (shields/auras) that the frame below joins via {list}
+	kLookPoly,         // per-affect: poly (multi-form creature) variant of kLook
+	kShieldFrame,      // kDefault: elemental-shield line frame; fmt template with {list} and {noun}
+	kShieldNoun,       // kDefault: shield count-noun, singular  (one shield)
+	kShieldNounMany,   // kDefault: shield count-noun, plural    (several)
+	kAuraFrame,        // kDefault: detect-magic aura line frame; fmt template with {list} and {noun}
+	kAuraNoun,         // kDefault: aura count-noun, singular
+	kAuraNounMany,     // kDefault: aura count-noun, plural
 };
 
 // affect = the affect whose sheaf to read (EAffect::kUndefined => the shared "kDefault" sheaf).

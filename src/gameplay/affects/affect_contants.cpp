@@ -534,9 +534,10 @@ const std::map<affects::EAffectMsgType, std::string> kAffectMsgTypeNames{
 		{affects::EAffectMsgType::kShortDesc, "kShortDesc"},
 		{affects::EAffectMsgType::kLook, "kLook"},
 		{affects::EAffectMsgType::kLookPoly, "kLookPoly"},
-		{affects::EAffectMsgType::kShieldPrefix, "kShieldPrefix"},
+		{affects::EAffectMsgType::kShieldFrame, "kShieldFrame"},
 		{affects::EAffectMsgType::kShieldNoun, "kShieldNoun"},
 		{affects::EAffectMsgType::kShieldNounMany, "kShieldNounMany"},
+		{affects::EAffectMsgType::kAuraFrame, "kAuraFrame"},
 		{affects::EAffectMsgType::kAuraNoun, "kAuraNoun"},
 		{affects::EAffectMsgType::kAuraNounMany, "kAuraNounMany"},
 	};

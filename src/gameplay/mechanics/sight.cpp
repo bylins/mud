@@ -9,6 +9,9 @@
 #include "gameplay/mechanics/magic_item.h"
 #include "gameplay/affects/affect_messages.h"
 
+#include <fmt/format.h>
+#include <fmt/ranges.h>   // fmt::join
+
 #include "engine/entities/char_data.h"
 #include "engine/entities/obj_data.h"
 #include "engine/db/description.h"
@@ -1617,82 +1620,82 @@ void obj_info(CharData *ch, ObjData *obj, char buf[kMaxStringLength]) {
 	}
 }
 
-// issue.ext-affects: render the affect "aura" look lines for char i as seen by ch. Text is data --
-// each affect's sheaf in affect_msg.xml (kLook/kLookPoly) + the shared kDefault sheaf for the merged
-// shield/aura prefix and singular/plural nouns. Composition, gender ($a), poly choice, group joining
-// and the count-based noun pick stay here. Shared by both ListOneChar display paths (the old code had
-// two drifted copies); produces their union -- the commander stag (was PC-only) and the black
-// forces-of-evil aura (was NPC-long-descr-only) now both show everywhere. Honours brief-shield modes.
+// issue.ext-affects: render the affect "aura" look lines for char i as seen by ch. All text is data --
+// each affect's sheaf in affect_msg.xml (kLook/kLookPoly) plus the shared kDefault sheaf, whose
+// kShieldFrame/kAuraFrame are fmt templates with {list} (the joined fragments) and {noun} (the
+// count-picked group noun). Composition, gender ($a), poly choice and the count pick stay here; the
+// line structure ("..." prefixes, spacing, word order) lives in the data. Shared by both ListOneChar
+// display paths (the old code had two drifted copies); produces their union -- the commander stag (was
+// PC-only) and the black forces-of-evil aura (was NPC-long-descr-only) now show everywhere. Honours
+// brief-shield modes.
 static void ShowAffectAuras(CharData *i, CharData *ch) {
 	using affects::AffectMsg;
 	using EAMT = affects::EAffectMsgType;
 	const auto brief = ch->GetBriefShieldsMode();
 	std::string line;
 
-	// cocoon + sanctuary/prismatic glow (one line)
+	// cocoon + sanctuary/prismatic glow: each kLook is a complete "...fragment " (structure in data)
 	if (AFF_FLAGGED(i, EAffect::kGodsShield)) {
-		line += "..." + AffectMsg(EAffect::kGodsShield, EAMT::kLook) + " ";
+		line += AffectMsg(EAffect::kGodsShield, EAMT::kLook);
 	}
 	if (AFF_FLAGGED(i, EAffect::kSanctuary)) {
-		line += "..." + AffectMsg(EAffect::kSanctuary, IS_POLY(i) ? EAMT::kLookPoly : EAMT::kLook) + " ";
+		line += AffectMsg(EAffect::kSanctuary, IS_POLY(i) ? EAMT::kLookPoly : EAMT::kLook);
 	} else if (AFF_FLAGGED(i, EAffect::kPrismaticAura)) {
-		line += "..." + AffectMsg(EAffect::kPrismaticAura, IS_POLY(i) ? EAMT::kLookPoly : EAMT::kLook) + " ";
+		line += AffectMsg(EAffect::kPrismaticAura, IS_POLY(i) ? EAMT::kLookPoly : EAMT::kLook);
 	}
 	if (!line.empty() && brief != EBriefShieldsMode::kCompressed) {
 		act(line.c_str(), false, i, nullptr, ch, kToVict);
 	}
 
-	// elemental shields: "...окружен$a <фрагменты> щитом|щитами"
-	std::vector<const std::string *> frags;
-	if (AFF_FLAGGED(i, EAffect::kAirShield)) frags.push_back(&AffectMsg(EAffect::kAirShield, EAMT::kLook));
-	if (AFF_FLAGGED(i, EAffect::kFireShield)) frags.push_back(&AffectMsg(EAffect::kFireShield, EAMT::kLook));
-	if (AFF_FLAGGED(i, EAffect::kIceShield)) frags.push_back(&AffectMsg(EAffect::kIceShield, EAMT::kLook));
+	// elemental shields -> kShieldFrame template "{list} {noun}"
+	std::vector<std::string> frags;
+	if (AFF_FLAGGED(i, EAffect::kAirShield)) frags.push_back(AffectMsg(EAffect::kAirShield, EAMT::kLook));
+	if (AFF_FLAGGED(i, EAffect::kFireShield)) frags.push_back(AffectMsg(EAffect::kFireShield, EAMT::kLook));
+	if (AFF_FLAGGED(i, EAffect::kIceShield)) frags.push_back(AffectMsg(EAffect::kIceShield, EAMT::kLook));
 	if (!frags.empty()) {
-		line = "..." + AffectMsg(EAffect::kUndefined, EAMT::kShieldPrefix);
-		for (size_t k = 0; k < frags.size(); ++k) {
-			line += (k ? ", " : " ") + *frags[k];
-		}
-		line += " " + AffectMsg(EAffect::kUndefined, frags.size() == 1 ? EAMT::kShieldNoun : EAMT::kShieldNounMany) + " ";
+		line = fmt::format(fmt::runtime(AffectMsg(EAffect::kUndefined, EAMT::kShieldFrame)),
+				fmt::arg("list", fmt::join(frags, ", ")),
+				fmt::arg("noun", AffectMsg(EAffect::kUndefined,
+						frags.size() == 1 ? EAMT::kShieldNoun : EAMT::kShieldNounMany)));
 		if (brief != EBriefShieldsMode::kCompact && brief != EBriefShieldsMode::kCompressed) {
 			act(line.c_str(), false, i, nullptr, ch, kToVict);
 		}
 	}
 
-	// detect-magic auras (only the viewer with kDetectMagic sees them)
+	// detect-magic auras -> kAuraFrame template (only the viewer with kDetectMagic sees them)
 	if (AFF_FLAGGED(ch, EAffect::kDetectMagic)) {
 		frags.clear();
 		if (AFF_FLAGGED(i, EAffect::kMagicGlass)
 			&& brief != EBriefShieldsMode::kCompact && brief != EBriefShieldsMode::kCompressed) {
-			frags.push_back(&AffectMsg(EAffect::kMagicGlass, EAMT::kLook));
+			frags.push_back(AffectMsg(EAffect::kMagicGlass, EAMT::kLook));
 		}
-		if (AFF_FLAGGED(i, EAffect::kBrokenChains)) frags.push_back(&AffectMsg(EAffect::kBrokenChains, EAMT::kLook));
-		if (AFF_FLAGGED(i, EAffect::kForcesOfEvil)) frags.push_back(&AffectMsg(EAffect::kForcesOfEvil, EAMT::kLook));
+		if (AFF_FLAGGED(i, EAffect::kBrokenChains)) frags.push_back(AffectMsg(EAffect::kBrokenChains, EAMT::kLook));
+		if (AFF_FLAGGED(i, EAffect::kForcesOfEvil)) frags.push_back(AffectMsg(EAffect::kForcesOfEvil, EAMT::kLook));
 		if (!frags.empty()) {
-			line = "...";
-			for (size_t k = 0; k < frags.size(); ++k) {
-				line += (k ? ", " : "") + *frags[k];
-			}
-			line += " " + AffectMsg(EAffect::kUndefined, frags.size() == 1 ? EAMT::kAuraNoun : EAMT::kAuraNounMany) + " ";
+			line = fmt::format(fmt::runtime(AffectMsg(EAffect::kUndefined, EAMT::kAuraFrame)),
+					fmt::arg("list", fmt::join(frags, ", ")),
+					fmt::arg("noun", AffectMsg(EAffect::kUndefined,
+							frags.size() == 1 ? EAMT::kAuraNoun : EAMT::kAuraNounMany)));
 			if (brief != EBriefShieldsMode::kCompressed) {
 				act(line.c_str(), false, i, nullptr, ch, kToVict);
 			}
 		}
 	}
 
-	// status afflictions (concatenated into one line)
+	// status afflictions: each kLook is a complete "...fragment", concatenated into one line
 	line.clear();
 	if (AFF_FLAGGED(ch, EAffect::kDetectMagic)) {
-		if (AFF_FLAGGED(i, EAffect::kHold)) line += "..." + AffectMsg(EAffect::kHold, EAMT::kLook);
+		if (AFF_FLAGGED(i, EAffect::kHold)) line += AffectMsg(EAffect::kHold, EAMT::kLook);
 		if (AFF_FLAGGED(i, EAffect::kSilence) && !AFF_FLAGGED(i, EAffect::kStrangled)) {
-			line += "..." + AffectMsg(EAffect::kSilence, EAMT::kLook);
+			line += AffectMsg(EAffect::kSilence, EAMT::kLook);
 		}
 	}
-	if (AFF_FLAGGED(i, EAffect::kBlind)) line += "..." + AffectMsg(EAffect::kBlind, EAMT::kLook);
-	if (AFF_FLAGGED(i, EAffect::kDeafness)) line += "..." + AffectMsg(EAffect::kDeafness, EAMT::kLook);
+	if (AFF_FLAGGED(i, EAffect::kBlind)) line += AffectMsg(EAffect::kBlind, EAMT::kLook);
+	if (AFF_FLAGGED(i, EAffect::kDeafness)) line += AffectMsg(EAffect::kDeafness, EAMT::kLook);
 	if (AFF_FLAGGED(i, EAffect::kStrangled) && AFF_FLAGGED(i, EAffect::kSilence)) {
-		line += "..." + AffectMsg(EAffect::kStrangled, EAMT::kLook);
+		line += AffectMsg(EAffect::kStrangled, EAMT::kLook);
 	}
-	if (AFF_FLAGGED(i, EAffect::kCommander)) line += "..." + AffectMsg(EAffect::kCommander, EAMT::kLook);
+	if (AFF_FLAGGED(i, EAffect::kCommander)) line += AffectMsg(EAffect::kCommander, EAMT::kLook);
 	if (!line.empty()) {
 		act(line.c_str(), false, i, nullptr, ch, kToVict);
 	}

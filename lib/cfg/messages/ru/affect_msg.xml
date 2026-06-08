@@ -1,20 +1,23 @@
 <?xml version="1.0" encoding="koi8-r"?>
 <!--
-    issue.ext-affects: affect short names (kShortDesc -> affected_bits) and ListOneChar aura look text
-    (kLook / kLookPoly), one <msg_sheaf> per affect. The shared kDefault sheaf holds the merged
-    shield/aura group scaffolding (prefix + singular/plural nouns). $a = looked-at char gender suffix.
+    issue.ext-affects: affect short names (kShortDesc -> affected_bits) and ListOneChar aura look text,
+    one <msg_sheaf> per affect. The shared kDefault sheaf holds the merged shield/aura line structure:
+    kShieldFrame/kAuraFrame are fmt templates ({list} = joined fragments, {noun} = count-picked noun).
+    For standalone affects (cocoon/glow/status) kLook is a complete "...line "; for grouped affects
+    (shields/auras) kLook is a bare fragment the frame joins. $a = looked-at char gender suffix.
 -->
 <msg_container>
 	<msg_sheaf id="kDefault">
-		<message type="kShieldPrefix" val="окружен$a"/>
+		<message type="kShieldFrame" val="...окружен$a {list} {noun} "/>
 		<message type="kShieldNoun" val="щитом"/>
 		<message type="kShieldNounMany" val="щитами"/>
+		<message type="kAuraFrame" val="...{list} {noun} "/>
 		<message type="kAuraNoun" val="аура"/>
 		<message type="kAuraNounMany" val="ауры"/>
 	</msg_sheaf>
 	<msg_sheaf id="kBlind">
 		<message type="kShortDesc" val="слепота"/>
-		<message type="kLook" val="слеп$a"/>
+		<message type="kLook" val="...слеп$a"/>
 	</msg_sheaf>
 	<msg_sheaf id="kInvisible">
 		<message type="kShortDesc" val="невидимость"/>
@@ -36,8 +39,8 @@
 	</msg_sheaf>
 	<msg_sheaf id="kSanctuary">
 		<message type="kShortDesc" val="освящение"/>
-		<message type="kLook" val="светится ярким сиянием"/>
-		<message type="kLookPoly" val="светятся ярким сиянием"/>
+		<message type="kLook" val="...светится ярким сиянием "/>
+		<message type="kLookPoly" val="...светятся ярким сиянием "/>
 	</msg_sheaf>
 	<msg_sheaf id="kGroup">
 		<message type="kShortDesc" val="состоит в группе"/>
@@ -83,14 +86,14 @@
 	</msg_sheaf>
 	<msg_sheaf id="kHold">
 		<message type="kShortDesc" val="оцепенение"/>
-		<message type="kLook" val="парализован$a"/>
+		<message type="kLook" val="...парализован$a"/>
 	</msg_sheaf>
 	<msg_sheaf id="kFly">
 		<message type="kShortDesc" val="летит"/>
 	</msg_sheaf>
 	<msg_sheaf id="kSilence">
 		<message type="kShortDesc" val="молчание"/>
-		<message type="kLook" val="нем$a"/>
+		<message type="kLook" val="...нем$a"/>
 	</msg_sheaf>
 	<msg_sheaf id="kAwarness">
 		<message type="kShortDesc" val="настороженность"/>
@@ -148,7 +151,7 @@
 	</msg_sheaf>
 	<msg_sheaf id="kGodsShield">
 		<message type="kShortDesc" val="защита богов"/>
-		<message type="kLook" val="окутан$a сверкающим коконом"/>
+		<message type="kLook" val="...окутан$a сверкающим коконом "/>
 	</msg_sheaf>
 	<msg_sheaf id="kAirShield">
 		<message type="kShortDesc" val="воздушный щит"/>
@@ -174,8 +177,8 @@
 	</msg_sheaf>
 	<msg_sheaf id="kPrismaticAura">
 		<message type="kShortDesc" val="призматическая.аура"/>
-		<message type="kLook" val="переливается всеми цветами"/>
-		<message type="kLookPoly" val="переливаются всеми цветами"/>
+		<message type="kLook" val="...переливается всеми цветами "/>
+		<message type="kLookPoly" val="...переливаются всеми цветами "/>
 	</msg_sheaf>
 	<msg_sheaf id="kHelper">
 		<message type="kShortDesc" val="нанят"/>
@@ -195,7 +198,7 @@
 	</msg_sheaf>
 	<msg_sheaf id="kDeafness">
 		<message type="kShortDesc" val="глухота"/>
-		<message type="kLook" val="глух$a"/>
+		<message type="kLook" val="...глух$a"/>
 	</msg_sheaf>
 	<msg_sheaf id="kCrying">
 		<message type="kShortDesc" val="плач"/>
@@ -260,7 +263,7 @@
 	</msg_sheaf>
 	<msg_sheaf id="kStrangled">
 		<message type="kShortDesc" val="удушье"/>
-		<message type="kLook" val="задыхается"/>
+		<message type="kLook" val="...задыхается"/>
 	</msg_sheaf>
 	<msg_sheaf id="kMemorizeSpells">
 		<message type="kShortDesc" val="вспоминает заклинания"/>
@@ -276,7 +279,7 @@
 	</msg_sheaf>
 	<msg_sheaf id="kCommander">
 		<message type="kShortDesc" val="полководец"/>
-		<message type="kLook" val="реет стяг над головой"/>
+		<message type="kLook" val="...реет стяг над головой"/>
 	</msg_sheaf>
 	<msg_sheaf id="kEarthAura">
 		<message type="kShortDesc" val="земной поклон"/>
