@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="koi8-r"?>
+<!--
+    issue.specials Phase 2: exchange / базар messages (exchange.cpp). Discrete command replies,
+    guards, act confirmations ($O3) and the message_exchange broadcasts (kBcast*/kSellerSold).
+    {level}/{amount}/{currency}/{item}/{lot}/{suf}/{filter}/{color}/{nocolor} are fmt args. The help
+    screen, item-detail assembly, lot tables and MortShowObjValues stay in code as layout/diagnostics.
+-->
+<msg_container>
+	<msg_sheaf id="kDefault">
+		<message type="kSilenced" val="Вы немы, как рыба об лед."/>
+		<message type="kDumbed" val="Вам запрещено общаться с торговцами!"/>
+		<message type="kLevelTooLow" val="Вам стоит достичь хотя бы {level} уровня, чтобы пользоваться базаром."/>
+		<message type="kNoRentable" val="Завершите сначала боевые действия."/>
+		<message type="kImmortalNoEconomy" val="Боже, не лезьте в экономику смертных, вам это не к чему."/>
+		<message type="kNoLotNum" val="Не указан номер лота."/>
+		<message type="kBadLotNum" val="Неверный номер лота."/>
+		<message type="kFormat" val="Формат: базар выставить предмет цена комментарий"/>
+		<message type="kNoItem" val="Не указан предмет."/>
+		<message type="kDontHave" val="У вас этого нет."/>
+		<message type="kPriceTooHigh" val="Никто не купит ЭТО за такую сумму."/>
+		<message type="kNotForExchange" val="Этот предмет не предназначен для базара."/>
+		<message type="kNoTaxMoney" val="У вас не хватит денег на налоги!"/>
+		<message type="kEmptyFirst" val="Опустошите {item} перед продажей."/>
+		<message type="kBigSet" val="{item} является частью большого набора предметов."/>
+		<message type="kMaxItems" val="Вы уже выставили на базар максимальное количество предметов!"/>
+		<message type="kBazaarFull" val="Базар переполнен!"/>
+		<message type="kExhibited" val="Вы выставили на базар $O3 (лот {lot}) за {amount} {currency}."/>
+		<message type="kBcastNew" val="Базар : новый лот ({lot}) - {item} - цена {amount} {currency}. "/>
+		<message type="kCostFormat" val="Формат команды: базар цена &lt;лот&gt; &lt;новая цена&gt;."/>
+		<message type="kNotYourLot" val="Это не ваш лот."/>
+		<message type="kSameCost" val="Ваша новая цена совпадает с текущей."/>
+		<message type="kBadCost" val="Вы указали неправильную цену."/>
+		<message type="kCostSet" val="Вы назначили цену {amount} {currency} за {item} (лот {lot})."/>
+		<message type="kBcastNewCost" val="Базар : лот ({lot}) - {item} - выставлен за новую цену {amount} {currency}."/>
+		<message type="kWithdrawn" val="Вы сняли $O3 с базара."/>
+		<message type="kBcastWithdrawnGod" val="Базар : лот {lot}({item}) снят{suf} с базара Богами."/>
+		<message type="kBcastWithdrawnOwner" val="Базар : лот {lot}({item}) снят{suf} с базара владельцем."/>
+		<message type="kIdentImmortal" val="Господи, а ведь смертные за это деньги платят."/>
+		<message type="kIdentNoMoney" val="У вас не хватит на это денег!"/>
+		<message type="kIdentCharged" val="{color}За информацию о предмете с вашего банковского счета сняли {amount} {currency}{nocolor}"/>
+		<message type="kOwnLot" val="Это же ваш лот. Воспользуйтесь командой 'базар снять &lt;лот&gt;'"/>
+		<message type="kBankNoMoney" val="У вас в банке не хватает денег на этот лот!"/>
+		<message type="kBought" val="Вы купили $O3 на базаре."/>
+		<message type="kBcastSold" val="Базар : лот {lot}({item}) продан{suf} за {amount} {currency}."/>
+		<message type="kSellerSold" val="Базар : лот {lot}({item}) продан{suf}. {amount} {currency} переведено на ваш счет."/>
+		<message type="kFilterTooLong" val="Слишком длинный фильтр, максимальная длина: {amount} символа."/>
+		<message type="kFilterEmpty" val="Ваш фильтр базара пуст."/>
+		<message type="kFilterCurrent" val="Ваш текущий фильтр базара: {filter}"/>
+		<message type="kFilterCleared" val="Фильтр базара очищен."/>
+		<message type="kFilterBadFormat" val="Неверный формат фильтра, прочтите справку:"/>
+		<message type="kFilterCurrentShort" val="Текущий фильтр: {filter}"/>
+		<message type="kFilterYours" val="Ваш фильтр: {filter}"/>
+		<message type="kBadFilterString" val="Неверная строка фильтрации!"/>
+		<message type="kBazaarEmpty" val="Базар пуст!"/>
+		<message type="kNotHuman" val="Торговать?! Да вы же не человек!"/>
+		<message type="kNeedTrader" val="Вам необходимо находиться возле базарного торговца, чтобы воспользоваться этой командой."/>
+	</msg_sheaf>
+</msg_container>

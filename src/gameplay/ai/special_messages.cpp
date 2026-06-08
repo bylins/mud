@@ -140,6 +140,56 @@ const std::map<specials::EMercMsg, std::string> kMercMsgNames{
 		{specials::EMercMsg::kFavRemoved, "kFavRemoved"},
 	};
 
+const std::map<specials::EExchMsg, std::string> kExchMsgNames{
+		{specials::EExchMsg::kSilenced, "kSilenced"},
+		{specials::EExchMsg::kDumbed, "kDumbed"},
+		{specials::EExchMsg::kLevelTooLow, "kLevelTooLow"},
+		{specials::EExchMsg::kNoRentable, "kNoRentable"},
+		{specials::EExchMsg::kImmortalNoEconomy, "kImmortalNoEconomy"},
+		{specials::EExchMsg::kNoLotNum, "kNoLotNum"},
+		{specials::EExchMsg::kBadLotNum, "kBadLotNum"},
+		{specials::EExchMsg::kFormat, "kFormat"},
+		{specials::EExchMsg::kNoItem, "kNoItem"},
+		{specials::EExchMsg::kDontHave, "kDontHave"},
+		{specials::EExchMsg::kPriceTooHigh, "kPriceTooHigh"},
+		{specials::EExchMsg::kNotForExchange, "kNotForExchange"},
+		{specials::EExchMsg::kNoTaxMoney, "kNoTaxMoney"},
+		{specials::EExchMsg::kEmptyFirst, "kEmptyFirst"},
+		{specials::EExchMsg::kBigSet, "kBigSet"},
+		{specials::EExchMsg::kMaxItems, "kMaxItems"},
+		{specials::EExchMsg::kBazaarFull, "kBazaarFull"},
+		{specials::EExchMsg::kExhibited, "kExhibited"},
+		{specials::EExchMsg::kBcastNew, "kBcastNew"},
+		{specials::EExchMsg::kCostFormat, "kCostFormat"},
+		{specials::EExchMsg::kNotYourLot, "kNotYourLot"},
+		{specials::EExchMsg::kSameCost, "kSameCost"},
+		{specials::EExchMsg::kBadCost, "kBadCost"},
+		{specials::EExchMsg::kCostSet, "kCostSet"},
+		{specials::EExchMsg::kBcastNewCost, "kBcastNewCost"},
+		{specials::EExchMsg::kWithdrawn, "kWithdrawn"},
+		{specials::EExchMsg::kBcastWithdrawnGod, "kBcastWithdrawnGod"},
+		{specials::EExchMsg::kBcastWithdrawnOwner, "kBcastWithdrawnOwner"},
+		{specials::EExchMsg::kIdentImmortal, "kIdentImmortal"},
+		{specials::EExchMsg::kIdentNoMoney, "kIdentNoMoney"},
+		{specials::EExchMsg::kIdentCharged, "kIdentCharged"},
+		{specials::EExchMsg::kOwnLot, "kOwnLot"},
+		{specials::EExchMsg::kBankNoMoney, "kBankNoMoney"},
+		{specials::EExchMsg::kBought, "kBought"},
+		{specials::EExchMsg::kBcastSold, "kBcastSold"},
+		{specials::EExchMsg::kSellerSold, "kSellerSold"},
+		{specials::EExchMsg::kFilterTooLong, "kFilterTooLong"},
+		{specials::EExchMsg::kFilterEmpty, "kFilterEmpty"},
+		{specials::EExchMsg::kFilterCurrent, "kFilterCurrent"},
+		{specials::EExchMsg::kFilterCleared, "kFilterCleared"},
+		{specials::EExchMsg::kFilterBadFormat, "kFilterBadFormat"},
+		{specials::EExchMsg::kFilterCurrentShort, "kFilterCurrentShort"},
+		{specials::EExchMsg::kFilterYours, "kFilterYours"},
+		{specials::EExchMsg::kBadFilterString, "kBadFilterString"},
+		{specials::EExchMsg::kBazaarEmpty, "kBazaarEmpty"},
+		{specials::EExchMsg::kNotHuman, "kNotHuman"},
+		{specials::EExchMsg::kNeedTrader, "kNeedTrader"},
+	};
+
 // Editable msg-sheaf loaders share the kDefault-only element model (one shared sheaf per file).
 std::vector<cfg_manager::EditableElement> DefaultSheafElements(
 		const std::string &label, std::size_t count) {
@@ -287,6 +337,26 @@ specials::EMercMsg ITEM_BY_NAME<specials::EMercMsg>(const std::string &name) {
 	return by_name.at(name);
 }
 
+
+template<>
+const std::string &NAME_BY_ITEM<specials::EExchMsg>(const specials::EExchMsg item) {
+	return kExchMsgNames.at(item);
+}
+template<>
+const std::map<specials::EExchMsg, std::string> &NAMES_OF<specials::EExchMsg>() {
+	return kExchMsgNames;
+}
+template<>
+specials::EExchMsg ITEM_BY_NAME<specials::EExchMsg>(const std::string &name) {
+	static std::map<std::string, specials::EExchMsg> by_name;
+	if (by_name.empty()) {
+		for (const auto &[value, token] : kExchMsgNames) {
+			by_name.emplace(token, value);
+		}
+	}
+	return by_name.at(name);
+}
+
 namespace specials {
 
 const std::string &SpecialMsg(ESpecialMsg id) {
@@ -311,6 +381,10 @@ const std::string &TorcMsg(ETorcMsg id) {
 
 const std::string &MercMsg(EMercMsg id) {
 	return MUD::MercMessages().GetMessage(info_container::kUndefinedVnum, id);
+}
+
+const std::string &ExchMsg(EExchMsg id) {
+	return MUD::ExchMessages().GetMessage(info_container::kUndefinedVnum, id);
 }
 
 // --- shared dispatch messages (special_msg.xml) -----------------------------------------------------
@@ -418,6 +492,24 @@ cfg_manager::ValidationResult MercMessagesLoader::Validate(parser_wrapper::DataN
 }
 std::string MercMessagesLoader::CanonicalElementId(const std::string &id) const { return CanonicalSheafId(id); }
 parser_wrapper::DataNode MercMessagesLoader::CreateElementNode(parser_wrapper::DataNode root, const std::string &id) const {
+	return CreateSheaf(root, id);
+}
+
+// --- exchange / базар messages (exchange_msg.xml) ---------------------------------------------------
+void ExchMessagesLoader::Load(parser_wrapper::DataNode data) { MUD::ExchMessages().Init(data.Children()); }
+void ExchMessagesLoader::Reload(parser_wrapper::DataNode data) { MUD::ExchMessages().Reload(data.Children()); }
+std::string ExchMessagesLoader::EditableWhat() const { return "exchmsg"; }
+std::vector<cfg_manager::EditableElement> ExchMessagesLoader::ListElements() const {
+	return DefaultSheafElements("exchange messages (shared)", 1);
+}
+cfg_manager::ValidationResult ExchMessagesLoader::Validate(parser_wrapper::DataNode &doc) const {
+	if (MUD::ExchMessages().Validate(doc.Children())) {
+		return {true, ""};
+	}
+	return {false, "Exchange-message data failed to parse (see syslog for the offending message)."};
+}
+std::string ExchMessagesLoader::CanonicalElementId(const std::string &id) const { return CanonicalSheafId(id); }
+parser_wrapper::DataNode ExchMessagesLoader::CreateElementNode(parser_wrapper::DataNode root, const std::string &id) const {
 	return CreateSheaf(root, id);
 }
 
