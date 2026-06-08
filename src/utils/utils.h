@@ -464,9 +464,8 @@ const int kNameLevel = 5;
 #define GET_CLAN_STATUS(ch)    ((ch)->player_specials->clanStatus)
 
 #define IS_SPELL_SET(ch, i, pct) (GET_SPELL_TYPE((ch), (i)) & (pct))
-#define GET_SPELL_TYPE(ch, i) ((ch)->real_abils.SplKnw[to_underlying(i)])
+// GET_SPELL_TYPE / GET_SPELL_MEM -- теперь constexpr-функции в char_data.h
 #define UNSET_SPELL_TYPE(ch, i, pct) (GET_SPELL_TYPE((ch), (i)) &= ~(pct))
-#define GET_SPELL_MEM(ch, i)  ((ch)->real_abils.SplMem[to_underlying(i)])
 #define SET_SPELL_MEM(ch, i, pct) ((ch)->real_abils.SplMem[to_underlying(i)] = (pct))
 
 #define GET_EQ(ch, i)      ((ch)->equipment[i])

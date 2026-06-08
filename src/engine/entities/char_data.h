@@ -930,6 +930,16 @@ inline FlagData &AFF_FLAGS(CharData *ch) { return ch->char_specials.saved.affect
 inline const FlagData &AFF_FLAGS(const CharData *ch) { return ch->char_specials.saved.affected_by; }
 inline const FlagData &AFF_FLAGS(const CharData::shared_ptr &ch) { return ch->char_specials.saved.affected_by; }
 
+// Бывшие макросы GET_SPELL_MEM / GET_SPELL_TYPE из utils.h. Возвращают ссылку,
+// т.к. используются и как lvalue (GET_SPELL_MEM(ch, sp)++ и т.п.).
+constexpr ubyte &GET_SPELL_MEM(CharData *ch, ESpell spell) { return ch->real_abils.SplMem[to_underlying(spell)]; }
+constexpr ubyte GET_SPELL_MEM(const CharData *ch, ESpell spell) { return ch->real_abils.SplMem[to_underlying(spell)]; }
+inline ubyte &GET_SPELL_MEM(const CharData::shared_ptr &ch, ESpell spell) { return GET_SPELL_MEM(ch.get(), spell); }
+
+constexpr ubyte &GET_SPELL_TYPE(CharData *ch, ESpell spell) { return ch->real_abils.SplKnw[to_underlying(spell)]; }
+constexpr ubyte GET_SPELL_TYPE(const CharData *ch, ESpell spell) { return ch->real_abils.SplKnw[to_underlying(spell)]; }
+inline ubyte &GET_SPELL_TYPE(const CharData::shared_ptr &ch, ESpell spell) { return GET_SPELL_TYPE(ch.get(), spell); }
+
 inline bool AFF_FLAGGED(const CharData *ch, const EAffect flag) {
 	return AFF_FLAGS(ch).get(flag);
 }
