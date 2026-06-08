@@ -20,6 +20,7 @@
 
 #include <fmt/format.h>
 
+#include <algorithm>
 #include <cctype>
 #include <filesystem>
 #include <system_error>
@@ -1064,6 +1065,7 @@ void do_vedun(CharData *ch, char *argument, int /*cmd*/, int /*subcmd*/) {
 		for (const auto &entry : MUD::CfgManager().EditableEntries()) {
 			whats.push_back(entry.what);
 		}
+		std::sort(whats.begin(), whats.end());   // list the editable data sets alphabetically
 		table_wrapper::Table table;
 		for (std::size_t i = 0; i < whats.size(); ++i) {
 			table << whats[i];
@@ -1096,7 +1098,8 @@ void do_vedun(CharData *ch, char *argument, int /*cmd*/, int /*subcmd*/) {
 			table << el.id << el.label << table_wrapper::kEndRow;
 		}
 		table_wrapper::DecorateNoBorderTable(ch, table);
-		page_string(d, fmt::format("&WVedun&n [{}] -- elements:\r\n{}", entry->what, table.to_string()));
+		page_string(d, fmt::format("&WVedun&n [{}] -- elements:\r\n{}Usage: vedun {} <element>\r\n",
+			entry->what, table.to_string(), entry->what));
 		return;
 	}
 
