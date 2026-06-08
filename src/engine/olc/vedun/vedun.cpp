@@ -1035,8 +1035,14 @@ void do_vedun(CharData *ch, char *argument, int /*cmd*/, int /*subcmd*/) {
 	}
 	static const bool kEnumsReady = [] { RegisterEditorEnums(); return true; }();  // once
 	(void) kEnumsReady;
+	// issue.vedun-hotfix #2: take the FIRST word as <what>, then the WHOLE remaining line as the
+	// element selector -- so multi-word names like `vedun spell п╩п╣п╢я▐п╫п╬п╧ п╡п╣я┌п╣я─` resolve by full name
+	// (the element resolver below matches id/label and falls back to substring, as do_cast does).
 	char what[kMaxInputLength], element[kMaxInputLength];
-	two_arguments(argument, what, element);
+	char *rest = one_argument(argument, what);
+	skip_spaces(&rest);
+	strncpy(element, rest, sizeof(element) - 1);
+	element[sizeof(element) - 1] = '\0';
 
 	// `vedun` -- list the editable data sets, four per row (paged).
 	if (!*what) {
