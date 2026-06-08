@@ -4,6 +4,7 @@
 
 #include "shop_ext.h"
 #include "gameplay/ai/subcmd_resolver.h"
+#include "gameplay/ai/special_messages.h"
 #include "gameplay/mechanics/identify.h"
 
 #include "third_party_libs/pugixml/pugixml.h"
@@ -375,7 +376,7 @@ shop_node::shared_ptr ShopOf(CharData *ch, CharData *keeper) {
 		}
 	}
 	log("SYSERROR : магазин не найден mob_vnum=%d (%s:%d)", GET_MOB_VNUM(keeper), __FILE__, __LINE__);
-	SendMsgToChar("Ошибочка вышла.\r\n", ch);
+	SendMsgToChar(specials::ShopMsg(specials::EShopMsg::kError) + "\r\n", ch);
 	return nullptr;
 }
 
@@ -461,7 +462,7 @@ int ShopIdentify(CharData *ch, void *me, char *rest) {
 	return 1;
 }
 
-const SubCmdResolver kShopCmds("Чего желаете?", {
+const SubCmdResolver kShopCmds([] { return specials::ShopMsg(specials::EShopMsg::kGreeting); }, {
 	{{"список", "list"}, static_cast<int>(EShopCmd::kList), ShopList},
 	{{"купить", "buy"}, static_cast<int>(EShopCmd::kBuy), ShopBuy},
 	{{"продать", "sell"}, static_cast<int>(EShopCmd::kSell), ShopSell},

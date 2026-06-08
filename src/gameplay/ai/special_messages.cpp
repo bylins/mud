@@ -227,6 +227,60 @@ const std::map<specials::ERentMsg, std::string> kRentMsgNames{
 		{specials::ERentMsg::kSettleWelcome, "kSettleWelcome"},
 	};
 
+const std::map<specials::EShopMsg, std::string> kShopMsgNames{
+		{specials::EShopMsg::kGreeting, "kGreeting"},
+		{specials::EShopMsg::kError, "kError"},
+		{specials::EShopMsg::kBuyWhat, "kBuyWhat"},
+		{specials::EShopMsg::kNoSuchItem, "kNoSuchItem"},
+		{specials::EShopMsg::kTooGreedy, "kTooGreedy"},
+		{specials::EShopMsg::kWrongClass, "kWrongClass"},
+		{specials::EShopMsg::kCantAfford, "kCantAfford"},
+		{specials::EShopMsg::kSwearing, "kSwearing"},
+		{specials::EShopMsg::kDrinkEmoteMale, "kDrinkEmoteMale"},
+		{specials::EShopMsg::kDrinkEmoteFemale, "kDrinkEmoteFemale"},
+		{specials::EShopMsg::kHandsFull1, "kHandsFull1"},
+		{specials::EShopMsg::kHandsFull2, "kHandsFull2"},
+		{specials::EShopMsg::kCheaterMale, "kCheaterMale"},
+		{specials::EShopMsg::kCheaterFemale, "kCheaterFemale"},
+		{specials::EShopMsg::kCarryOnly, "kCarryOnly"},
+		{specials::EShopMsg::kLiftOnly, "kLiftOnly"},
+		{specials::EShopMsg::kSellOnly, "kSellOnly"},
+		{specials::EShopMsg::kSellNothing, "kSellNothing"},
+		{specials::EShopMsg::kHryvnReset, "kHryvnReset"},
+		{specials::EShopMsg::kPrice, "kPrice"},
+		{specials::EShopMsg::kHappyOwnerMale, "kHappyOwnerMale"},
+		{specials::EShopMsg::kHappyOwnerFemale, "kHappyOwnerFemale"},
+		{specials::EShopMsg::kListHeader, "kListHeader"},
+		{specials::EShopMsg::kFilterHeader, "kFilterHeader"},
+		{specials::EShopMsg::kFilterSelection, "kFilterSelection"},
+		{specials::EShopMsg::kBulk, "kBulk"},
+		{specials::EShopMsg::kOwnSuppliers, "kOwnSuppliers"},
+		{specials::EShopMsg::kCmdWhat, "kCmdWhat"},
+		{specials::EShopMsg::kNoItem, "kNoItem"},
+		{specials::EShopMsg::kIdentWhat, "kIdentWhat"},
+		{specials::EShopMsg::kInspectIntro, "kInspectIntro"},
+		{specials::EShopMsg::kMaterial, "kMaterial"},
+		{specials::EShopMsg::kInspectExdesc, "kInspectExdesc"},
+		{specials::EShopMsg::kCantCarry, "kCantCarry"},
+		{specials::EShopMsg::kNoMoney, "kNoMoney"},
+		{specials::EShopMsg::kIdentCost, "kIdentCost"},
+		{specials::EShopMsg::kIdentResult, "kIdentResult"},
+		{specials::EShopMsg::kWontDeal, "kWontDeal"},
+		{specials::EShopMsg::kNoUsedItems, "kNoUsedItems"},
+		{specials::EShopMsg::kNoPigInPoke, "kNoPigInPoke"},
+		{specials::EShopMsg::kBloodyValue, "kBloodyValue"},
+		{specials::EShopMsg::kWontBuy, "kWontBuy"},
+		{specials::EShopMsg::kValueOffer, "kValueOffer"},
+		{specials::EShopMsg::kBloodySell, "kBloodySell"},
+		{specials::EShopMsg::kSellPaid, "kSellPaid"},
+		{specials::EShopMsg::kBloodyRepair, "kBloodyRepair"},
+		{specials::EShopMsg::kNoRepairNeeded, "kNoRepairNeeded"},
+		{specials::EShopMsg::kWontRepair, "kWontRepair"},
+		{specials::EShopMsg::kRepairCost, "kRepairCost"},
+		{specials::EShopMsg::kCantAffordRepair, "kCantAffordRepair"},
+		{specials::EShopMsg::kRepaired, "kRepaired"},
+	};
+
 // Editable msg-sheaf loaders share the kDefault-only element model (one shared sheaf per file).
 std::vector<cfg_manager::EditableElement> DefaultSheafElements(
 		const std::string &label, std::size_t count) {
@@ -414,6 +468,25 @@ specials::ERentMsg ITEM_BY_NAME<specials::ERentMsg>(const std::string &name) {
 	return by_name.at(name);
 }
 
+template<>
+const std::string &NAME_BY_ITEM<specials::EShopMsg>(const specials::EShopMsg item) {
+	return kShopMsgNames.at(item);
+}
+template<>
+const std::map<specials::EShopMsg, std::string> &NAMES_OF<specials::EShopMsg>() {
+	return kShopMsgNames;
+}
+template<>
+specials::EShopMsg ITEM_BY_NAME<specials::EShopMsg>(const std::string &name) {
+	static std::map<std::string, specials::EShopMsg> by_name;
+	if (by_name.empty()) {
+		for (const auto &[value, token] : kShopMsgNames) {
+			by_name.emplace(token, value);
+		}
+	}
+	return by_name.at(name);
+}
+
 namespace specials {
 
 const std::string &SpecialMsg(ESpecialMsg id) {
@@ -446,6 +519,10 @@ const std::string &ExchMsg(EExchMsg id) {
 
 const std::string &RentMsg(ERentMsg id) {
 	return MUD::RentMessages().GetMessage(info_container::kUndefinedVnum, id);
+}
+
+const std::string &ShopMsg(EShopMsg id) {
+	return MUD::ShopMessages().GetMessage(info_container::kUndefinedVnum, id);
 }
 
 // --- shared dispatch messages (special_msg.xml) -----------------------------------------------------
@@ -589,6 +666,24 @@ cfg_manager::ValidationResult RentMessagesLoader::Validate(parser_wrapper::DataN
 }
 std::string RentMessagesLoader::CanonicalElementId(const std::string &id) const { return CanonicalSheafId(id); }
 parser_wrapper::DataNode RentMessagesLoader::CreateElementNode(parser_wrapper::DataNode root, const std::string &id) const {
+	return CreateSheaf(root, id);
+}
+
+// --- shop keeper messages (shop_msg.xml) ------------------------------------------------------------
+void ShopMessagesLoader::Load(parser_wrapper::DataNode data) { MUD::ShopMessages().Init(data.Children()); }
+void ShopMessagesLoader::Reload(parser_wrapper::DataNode data) { MUD::ShopMessages().Reload(data.Children()); }
+std::string ShopMessagesLoader::EditableWhat() const { return "shopmsg"; }
+std::vector<cfg_manager::EditableElement> ShopMessagesLoader::ListElements() const {
+	return DefaultSheafElements("shop keeper messages (shared)", 1);
+}
+cfg_manager::ValidationResult ShopMessagesLoader::Validate(parser_wrapper::DataNode &doc) const {
+	if (MUD::ShopMessages().Validate(doc.Children())) {
+		return {true, ""};
+	}
+	return {false, "Shop-message data failed to parse (see syslog for the offending message)."};
+}
+std::string ShopMessagesLoader::CanonicalElementId(const std::string &id) const { return CanonicalSheafId(id); }
+parser_wrapper::DataNode ShopMessagesLoader::CreateElementNode(parser_wrapper::DataNode root, const std::string &id) const {
 	return CreateSheaf(root, id);
 }
 
