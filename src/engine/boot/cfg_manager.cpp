@@ -72,6 +72,8 @@ CfgManager::CfgManager() {
 										  std::make_unique<specials::SpecialMessagesLoader>(specials::SpecialMessagesLoader())));
 	loaders_.emplace("bank_messages", LoaderInfo("cfg/messages/ru/bank_msg.xml",
 										  std::make_unique<specials::BankMessagesLoader>(specials::BankMessagesLoader())));
+	loaders_.emplace("mail_messages", LoaderInfo("cfg/messages/ru/mail_msg.xml",
+										  std::make_unique<specials::MailMessagesLoader>(specials::MailMessagesLoader())));
 	loaders_.emplace("specials", LoaderInfo("cfg/specials.xml",
 										  std::make_unique<SpecialsLoader>(SpecialsLoader())));
 	loaders_.emplace("socials", LoaderInfo("cfg/messages/ru/social_msg.xml",

@@ -117,6 +117,7 @@ void RegisterEditorEnums() {
 	// issue.specials Phase 2: special-procedure message enums (special_msg.xml / bank_msg.xml).
 	registry.Register<specials::ESpecialMsg>("ESpecialMsg");
 	registry.Register<specials::EBankMsg>("EBankMsg");
+	registry.Register<specials::EMailMsg>("EMailMsg");
 }
 
 } // namespace vedun

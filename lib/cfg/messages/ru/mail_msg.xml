@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="koi8-r"?>
+<!--
+    issue.specials Phase 2: post office / postmaster messages (mail.cpp). Mostly act() lines with
+    $n/$N act-codes (to vict/room). {level} = min mail level; {amount} {currency} = postage; the two
+    two-sentence originals are split into separate slots (no embedded newline). kUndelivered* form the
+    reboot-recovery status (joined with newlines by the code; {count}/{names} are filled in).
+-->
+<msg_container>
+	<msg_sheaf id="kDefault">
+		<message type="kGreeting" val="Что вам угодно на почте?"/>
+		<message type="kMailWaiting" val="$n сказал$g вам : 'Вас ожидает почта.'"/>
+		<message type="kParcelWaiting" val="$n сказал$g вам : 'Вас ожидает посылка.'"/>
+		<message type="kNothingToday" val="$n сказал$g вам : 'Похоже, сегодня вам ничего нет.'"/>
+		<message type="kNoLetters" val="$n удивленно сказал$g вам : 'Но для вас нет писем!?'"/>
+		<message type="kLevelTooLow" val="$n сказал$g вам, 'Извините, вы должны достигнуть {level} уровня, чтобы отправить письмо!'"/>
+		<message type="kTooManyMessages" val="$n сказал$g вам, 'Извините, вы уже отправили максимальное кол-во сообщений!'"/>
+		<message type="kNoRecipient" val="$n сказал$g вам, 'Вы не указали адресата!'"/>
+		<message type="kNotRegistered" val="$n сказал$g вам, 'Извините, но такой игрок не зарегистрирован в игре!'"/>
+		<message type="kNoParcelHere" val="$n сказал$g вам : 'Посылку? Не положено!'"/>
+		<message type="kParcelError" val="$n сказал$g вам : 'Ошибочка вышла, сообщите Богам!'"/>
+		<message type="kCantAffordCost" val="$n сказал$g вам, 'Письмо стоит {amount} {currency}.'"/>
+		<message type="kCantAffordNoMoney" val="$n сказал$g вам, '...которых у вас просто-напросто нет.'"/>
+		<message type="kStartWriting" val="$n начал$g писать письмо."/>
+		<message type="kFreePostage" val="$n сказал$g вам, 'Со своих - почтовый сбор не берем.'"/>
+		<message type="kPostageCharged" val="$n сказал$g вам, 'Отлично, с вас {amount} {currency} почтового сбора.'"/>
+		<message type="kCanWrite" val="$n сказал$g вам, 'Можете писать, (/s saves /h for help)'"/>
+		<message type="kLetterGiven" val="$n дал$g вам письмо."/>
+		<message type="kLetterGivenRoom" val="$N дал$G $n2 письмо."/>
+		<message type="kUndeliveredHeader" val="Информация по недоставленным (на момент перезагрузки) письмам."/>
+		<message type="kUndeliveredCount" val="Количество писем: {count}."/>
+		<message type="kUndeliveredNames" val="Адресаты: {names}."/>
+	</msg_sheaf>
+</msg_container>

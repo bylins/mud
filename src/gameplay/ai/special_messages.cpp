@@ -48,6 +48,31 @@ const std::map<specials::EBankMsg, std::string> kBankMsgNames{
 		{specials::EBankMsg::kClanFormat, "kClanFormat"},
 	};
 
+const std::map<specials::EMailMsg, std::string> kMailMsgNames{
+		{specials::EMailMsg::kGreeting, "kGreeting"},
+		{specials::EMailMsg::kMailWaiting, "kMailWaiting"},
+		{specials::EMailMsg::kParcelWaiting, "kParcelWaiting"},
+		{specials::EMailMsg::kNothingToday, "kNothingToday"},
+		{specials::EMailMsg::kNoLetters, "kNoLetters"},
+		{specials::EMailMsg::kLevelTooLow, "kLevelTooLow"},
+		{specials::EMailMsg::kTooManyMessages, "kTooManyMessages"},
+		{specials::EMailMsg::kNoRecipient, "kNoRecipient"},
+		{specials::EMailMsg::kNotRegistered, "kNotRegistered"},
+		{specials::EMailMsg::kNoParcelHere, "kNoParcelHere"},
+		{specials::EMailMsg::kParcelError, "kParcelError"},
+		{specials::EMailMsg::kCantAffordCost, "kCantAffordCost"},
+		{specials::EMailMsg::kCantAffordNoMoney, "kCantAffordNoMoney"},
+		{specials::EMailMsg::kStartWriting, "kStartWriting"},
+		{specials::EMailMsg::kFreePostage, "kFreePostage"},
+		{specials::EMailMsg::kPostageCharged, "kPostageCharged"},
+		{specials::EMailMsg::kCanWrite, "kCanWrite"},
+		{specials::EMailMsg::kLetterGiven, "kLetterGiven"},
+		{specials::EMailMsg::kLetterGivenRoom, "kLetterGivenRoom"},
+		{specials::EMailMsg::kUndeliveredHeader, "kUndeliveredHeader"},
+		{specials::EMailMsg::kUndeliveredCount, "kUndeliveredCount"},
+		{specials::EMailMsg::kUndeliveredNames, "kUndeliveredNames"},
+	};
+
 // Editable msg-sheaf loaders share the kDefault-only element model (one shared sheaf per file).
 std::vector<cfg_manager::EditableElement> DefaultSheafElements(
 		const std::string &label, std::size_t count) {
@@ -117,6 +142,25 @@ specials::EBankMsg ITEM_BY_NAME<specials::EBankMsg>(const std::string &name) {
 	return by_name.at(name);
 }
 
+template<>
+const std::string &NAME_BY_ITEM<specials::EMailMsg>(const specials::EMailMsg item) {
+	return kMailMsgNames.at(item);
+}
+template<>
+const std::map<specials::EMailMsg, std::string> &NAMES_OF<specials::EMailMsg>() {
+	return kMailMsgNames;
+}
+template<>
+specials::EMailMsg ITEM_BY_NAME<specials::EMailMsg>(const std::string &name) {
+	static std::map<std::string, specials::EMailMsg> by_name;
+	if (by_name.empty()) {
+		for (const auto &[value, token] : kMailMsgNames) {
+			by_name.emplace(token, value);
+		}
+	}
+	return by_name.at(name);
+}
+
 namespace specials {
 
 const std::string &SpecialMsg(ESpecialMsg id) {
@@ -125,6 +169,10 @@ const std::string &SpecialMsg(ESpecialMsg id) {
 
 const std::string &BankMsg(EBankMsg id) {
 	return MUD::BankMessages().GetMessage(info_container::kUndefinedVnum, id);
+}
+
+const std::string &MailMsg(EMailMsg id) {
+	return MUD::MailMessages().GetMessage(info_container::kUndefinedVnum, id);
 }
 
 // --- shared dispatch messages (special_msg.xml) -----------------------------------------------------
@@ -160,6 +208,24 @@ cfg_manager::ValidationResult BankMessagesLoader::Validate(parser_wrapper::DataN
 }
 std::string BankMessagesLoader::CanonicalElementId(const std::string &id) const { return CanonicalSheafId(id); }
 parser_wrapper::DataNode BankMessagesLoader::CreateElementNode(parser_wrapper::DataNode root, const std::string &id) const {
+	return CreateSheaf(root, id);
+}
+
+// --- mail / post office messages (mail_msg.xml) -----------------------------------------------------
+void MailMessagesLoader::Load(parser_wrapper::DataNode data) { MUD::MailMessages().Init(data.Children()); }
+void MailMessagesLoader::Reload(parser_wrapper::DataNode data) { MUD::MailMessages().Reload(data.Children()); }
+std::string MailMessagesLoader::EditableWhat() const { return "mailmsg"; }
+std::vector<cfg_manager::EditableElement> MailMessagesLoader::ListElements() const {
+	return DefaultSheafElements("mail / post office messages (shared)", 1);
+}
+cfg_manager::ValidationResult MailMessagesLoader::Validate(parser_wrapper::DataNode &doc) const {
+	if (MUD::MailMessages().Validate(doc.Children())) {
+		return {true, ""};
+	}
+	return {false, "Mail-message data failed to parse (see syslog for the offending message)."};
+}
+std::string MailMessagesLoader::CanonicalElementId(const std::string &id) const { return CanonicalSheafId(id); }
+parser_wrapper::DataNode MailMessagesLoader::CreateElementNode(parser_wrapper::DataNode root, const std::string &id) const {
 	return CreateSheaf(root, id);
 }
 

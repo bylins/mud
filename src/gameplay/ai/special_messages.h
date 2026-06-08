@@ -65,12 +65,29 @@ enum class EBankMsg {
 	kClanFormat,         // "Формат команды: казна вложить|получить|баланс сумма."
 };
 
+// Mail / post office (mail_msg.xml). Mostly act() lines ($n/$N codes, to vict/room). kLevelTooLow
+// uses {level}; kCantAffordCost/kPostageCharged use {amount} {currency}. Two-sentence originals are
+// split into separate slots so no message carries an embedded newline. kUndelivered* form the
+// reboot-recovery status (code joins with newlines; kUndeliveredCount/Names use {count}/{names}).
+enum class EMailMsg {
+	kGreeting,
+	kMailWaiting, kParcelWaiting, kNothingToday,
+	kNoLetters,
+	kLevelTooLow, kTooManyMessages, kNoRecipient, kNotRegistered, kNoParcelHere, kParcelError,
+	kCantAffordCost, kCantAffordNoMoney,
+	kStartWriting, kFreePostage, kPostageCharged, kCanWrite,
+	kLetterGiven, kLetterGivenRoom,
+	kUndeliveredHeader, kUndeliveredCount, kUndeliveredNames,
+};
+
 using SpecialMessages = msg_container::MsgContainer<int, ESpecialMsg>;
 using BankMessages = msg_container::MsgContainer<int, EBankMsg>;
+using MailMessages = msg_container::MsgContainer<int, EMailMsg>;
 
 // Convenience accessors for the shared (default-sheaf) message of each container.
 [[nodiscard]] const std::string &SpecialMsg(ESpecialMsg id);
 [[nodiscard]] const std::string &BankMsg(EBankMsg id);
+[[nodiscard]] const std::string &MailMsg(EMailMsg id);
 
 // One loader per data file (cfg_manager id in the comment). All are Vedun-editable (msg-sheaf model).
 class SpecialMessagesLoader : virtual public cfg_manager::IEditableCfgLoader {  // "special_messages"
@@ -85,6 +102,17 @@ class SpecialMessagesLoader : virtual public cfg_manager::IEditableCfgLoader {  
 };
 
 class BankMessagesLoader : virtual public cfg_manager::IEditableCfgLoader {  // "bank_messages"
+ public:
+	void Load(parser_wrapper::DataNode data) final;
+	void Reload(parser_wrapper::DataNode data) final;
+	[[nodiscard]] std::string EditableWhat() const final;
+	[[nodiscard]] std::vector<cfg_manager::EditableElement> ListElements() const final;
+	[[nodiscard]] cfg_manager::ValidationResult Validate(parser_wrapper::DataNode &doc) const final;
+	[[nodiscard]] std::string CanonicalElementId(const std::string &id) const final;
+	[[nodiscard]] parser_wrapper::DataNode CreateElementNode(parser_wrapper::DataNode root, const std::string &id) const final;
+};
+
+class MailMessagesLoader : virtual public cfg_manager::IEditableCfgLoader {  // "mail_messages"
  public:
 	void Load(parser_wrapper::DataNode data) final;
 	void Reload(parser_wrapper::DataNode data) final;
@@ -110,6 +138,13 @@ template<>
 specials::EBankMsg ITEM_BY_NAME<specials::EBankMsg>(const std::string &name);
 template<>
 const std::map<specials::EBankMsg, std::string> &NAMES_OF<specials::EBankMsg>();
+
+template<>
+const std::string &NAME_BY_ITEM<specials::EMailMsg>(specials::EMailMsg item);
+template<>
+specials::EMailMsg ITEM_BY_NAME<specials::EMailMsg>(const std::string &name);
+template<>
+const std::map<specials::EMailMsg, std::string> &NAMES_OF<specials::EMailMsg>();
 
 #endif // BYLINS_SRC_GAMEPLAY_AI_SPECIAL_MESSAGES_H_
 
