@@ -100,11 +100,19 @@ enum class ETorcMsg {
 	kInstrMin, kInstrAmount, kOptCancel, kOptConfirm, kPrompt,
 };
 
+// Mercenary boss (mercenary_msg.xml). tell_to_char + act + SendMsgToChar lines. List headers are
+// stored as full sentences (short/full x role) for clean localization. {amount}/{currency}/{boss}/
+// {mob} are fmt args; kSummon*/act lines keep $n act-codes.
+enum class EMercMsg {
+	kNoAccess, kUnknownCmd, kEmptyEmployer, kEmptyCharmer, kEmptyImmortal, kListImmortalShort, kListImmortalFull, kListEmployerShort, kListEmployerFull, kListCharmerShort, kListCharmerFull, kTableHeader, kListTotal, kUnknownChar, kTooExpensive, kCantFind, kSummonHideCharm, kSummonBackCharm, kSummonHide, kSummonBack, kRefuseMale, kRefuseFemale, kFavAdded, kFavRemoved,
+};
+
 using SpecialMessages = msg_container::MsgContainer<int, ESpecialMsg>;
 using BankMessages = msg_container::MsgContainer<int, EBankMsg>;
 using MailMessages = msg_container::MsgContainer<int, EMailMsg>;
 using HorseMessages = msg_container::MsgContainer<int, EHorseMsg>;
 using TorcMessages = msg_container::MsgContainer<int, ETorcMsg>;
+using MercMessages = msg_container::MsgContainer<int, EMercMsg>;
 
 // Convenience accessors for the shared (default-sheaf) message of each container.
 [[nodiscard]] const std::string &SpecialMsg(ESpecialMsg id);
@@ -112,6 +120,7 @@ using TorcMessages = msg_container::MsgContainer<int, ETorcMsg>;
 [[nodiscard]] const std::string &MailMsg(EMailMsg id);
 [[nodiscard]] const std::string &HorseMsg(EHorseMsg id);
 [[nodiscard]] const std::string &TorcMsg(ETorcMsg id);
+[[nodiscard]] const std::string &MercMsg(EMercMsg id);
 
 // One loader per data file (cfg_manager id in the comment). All are Vedun-editable (msg-sheaf model).
 class SpecialMessagesLoader : virtual public cfg_manager::IEditableCfgLoader {  // "special_messages"
@@ -169,6 +178,17 @@ class TorcMessagesLoader : virtual public cfg_manager::IEditableCfgLoader {  // 
 	[[nodiscard]] parser_wrapper::DataNode CreateElementNode(parser_wrapper::DataNode root, const std::string &id) const final;
 };
 
+class MercMessagesLoader : virtual public cfg_manager::IEditableCfgLoader {  // "mercenary_messages"
+ public:
+	void Load(parser_wrapper::DataNode data) final;
+	void Reload(parser_wrapper::DataNode data) final;
+	[[nodiscard]] std::string EditableWhat() const final;
+	[[nodiscard]] std::vector<cfg_manager::EditableElement> ListElements() const final;
+	[[nodiscard]] cfg_manager::ValidationResult Validate(parser_wrapper::DataNode &doc) const final;
+	[[nodiscard]] std::string CanonicalElementId(const std::string &id) const final;
+	[[nodiscard]] parser_wrapper::DataNode CreateElementNode(parser_wrapper::DataNode root, const std::string &id) const final;
+};
+
 } // namespace specials
 
 template<>
@@ -205,6 +225,13 @@ template<>
 specials::ETorcMsg ITEM_BY_NAME<specials::ETorcMsg>(const std::string &name);
 template<>
 const std::map<specials::ETorcMsg, std::string> &NAMES_OF<specials::ETorcMsg>();
+
+template<>
+const std::string &NAME_BY_ITEM<specials::EMercMsg>(specials::EMercMsg item);
+template<>
+specials::EMercMsg ITEM_BY_NAME<specials::EMercMsg>(const std::string &name);
+template<>
+const std::map<specials::EMercMsg, std::string> &NAMES_OF<specials::EMercMsg>();
 
 #endif // BYLINS_SRC_GAMEPLAY_AI_SPECIAL_MESSAGES_H_
 

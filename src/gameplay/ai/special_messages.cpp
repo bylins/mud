@@ -113,6 +113,33 @@ const std::map<specials::ETorcMsg, std::string> kTorcMsgNames{
 		{specials::ETorcMsg::kPrompt, "kPrompt"},
 	};
 
+const std::map<specials::EMercMsg, std::string> kMercMsgNames{
+		{specials::EMercMsg::kNoAccess, "kNoAccess"},
+		{specials::EMercMsg::kUnknownCmd, "kUnknownCmd"},
+		{specials::EMercMsg::kEmptyEmployer, "kEmptyEmployer"},
+		{specials::EMercMsg::kEmptyCharmer, "kEmptyCharmer"},
+		{specials::EMercMsg::kEmptyImmortal, "kEmptyImmortal"},
+		{specials::EMercMsg::kListImmortalShort, "kListImmortalShort"},
+		{specials::EMercMsg::kListImmortalFull, "kListImmortalFull"},
+		{specials::EMercMsg::kListEmployerShort, "kListEmployerShort"},
+		{specials::EMercMsg::kListEmployerFull, "kListEmployerFull"},
+		{specials::EMercMsg::kListCharmerShort, "kListCharmerShort"},
+		{specials::EMercMsg::kListCharmerFull, "kListCharmerFull"},
+		{specials::EMercMsg::kTableHeader, "kTableHeader"},
+		{specials::EMercMsg::kListTotal, "kListTotal"},
+		{specials::EMercMsg::kUnknownChar, "kUnknownChar"},
+		{specials::EMercMsg::kTooExpensive, "kTooExpensive"},
+		{specials::EMercMsg::kCantFind, "kCantFind"},
+		{specials::EMercMsg::kSummonHideCharm, "kSummonHideCharm"},
+		{specials::EMercMsg::kSummonBackCharm, "kSummonBackCharm"},
+		{specials::EMercMsg::kSummonHide, "kSummonHide"},
+		{specials::EMercMsg::kSummonBack, "kSummonBack"},
+		{specials::EMercMsg::kRefuseMale, "kRefuseMale"},
+		{specials::EMercMsg::kRefuseFemale, "kRefuseFemale"},
+		{specials::EMercMsg::kFavAdded, "kFavAdded"},
+		{specials::EMercMsg::kFavRemoved, "kFavRemoved"},
+	};
+
 // Editable msg-sheaf loaders share the kDefault-only element model (one shared sheaf per file).
 std::vector<cfg_manager::EditableElement> DefaultSheafElements(
 		const std::string &label, std::size_t count) {
@@ -240,6 +267,26 @@ specials::ETorcMsg ITEM_BY_NAME<specials::ETorcMsg>(const std::string &name) {
 	return by_name.at(name);
 }
 
+
+template<>
+const std::string &NAME_BY_ITEM<specials::EMercMsg>(const specials::EMercMsg item) {
+	return kMercMsgNames.at(item);
+}
+template<>
+const std::map<specials::EMercMsg, std::string> &NAMES_OF<specials::EMercMsg>() {
+	return kMercMsgNames;
+}
+template<>
+specials::EMercMsg ITEM_BY_NAME<specials::EMercMsg>(const std::string &name) {
+	static std::map<std::string, specials::EMercMsg> by_name;
+	if (by_name.empty()) {
+		for (const auto &[value, token] : kMercMsgNames) {
+			by_name.emplace(token, value);
+		}
+	}
+	return by_name.at(name);
+}
+
 namespace specials {
 
 const std::string &SpecialMsg(ESpecialMsg id) {
@@ -260,6 +307,10 @@ const std::string &HorseMsg(EHorseMsg id) {
 
 const std::string &TorcMsg(ETorcMsg id) {
 	return MUD::TorcMessages().GetMessage(info_container::kUndefinedVnum, id);
+}
+
+const std::string &MercMsg(EMercMsg id) {
+	return MUD::MercMessages().GetMessage(info_container::kUndefinedVnum, id);
 }
 
 // --- shared dispatch messages (special_msg.xml) -----------------------------------------------------
@@ -349,6 +400,24 @@ cfg_manager::ValidationResult TorcMessagesLoader::Validate(parser_wrapper::DataN
 }
 std::string TorcMessagesLoader::CanonicalElementId(const std::string &id) const { return CanonicalSheafId(id); }
 parser_wrapper::DataNode TorcMessagesLoader::CreateElementNode(parser_wrapper::DataNode root, const std::string &id) const {
+	return CreateSheaf(root, id);
+}
+
+// --- mercenary boss messages (mercenary_msg.xml) ----------------------------------------------------
+void MercMessagesLoader::Load(parser_wrapper::DataNode data) { MUD::MercMessages().Init(data.Children()); }
+void MercMessagesLoader::Reload(parser_wrapper::DataNode data) { MUD::MercMessages().Reload(data.Children()); }
+std::string MercMessagesLoader::EditableWhat() const { return "mercmsg"; }
+std::vector<cfg_manager::EditableElement> MercMessagesLoader::ListElements() const {
+	return DefaultSheafElements("mercenary boss messages (shared)", 1);
+}
+cfg_manager::ValidationResult MercMessagesLoader::Validate(parser_wrapper::DataNode &doc) const {
+	if (MUD::MercMessages().Validate(doc.Children())) {
+		return {true, ""};
+	}
+	return {false, "Mercenary-message data failed to parse (see syslog for the offending message)."};
+}
+std::string MercMessagesLoader::CanonicalElementId(const std::string &id) const { return CanonicalSheafId(id); }
+parser_wrapper::DataNode MercMessagesLoader::CreateElementNode(parser_wrapper::DataNode root, const std::string &id) const {
 	return CreateSheaf(root, id);
 }
 

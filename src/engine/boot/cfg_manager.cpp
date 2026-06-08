@@ -78,6 +78,8 @@ CfgManager::CfgManager() {
 										  std::make_unique<specials::HorseMessagesLoader>(specials::HorseMessagesLoader())));
 	loaders_.emplace("torc_messages", LoaderInfo("cfg/messages/ru/torc_msg.xml",
 										  std::make_unique<specials::TorcMessagesLoader>(specials::TorcMessagesLoader())));
+	loaders_.emplace("mercenary_messages", LoaderInfo("cfg/messages/ru/mercenary_msg.xml",
+										  std::make_unique<specials::MercMessagesLoader>(specials::MercMessagesLoader())));
 	loaders_.emplace("specials", LoaderInfo("cfg/specials.xml",
 										  std::make_unique<SpecialsLoader>(SpecialsLoader())));
 	loaders_.emplace("socials", LoaderInfo("cfg/messages/ru/social_msg.xml",
