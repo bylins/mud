@@ -150,12 +150,12 @@
 		<attr name="id" type="enum" enum="ESpell" desc="Spell to also cast"/>
 	</tag>
 	<tag name="manual_cast" desc="Invoke a hardcoded spell handler function">
-		<attr name="handler" type="string" desc="Registered spell handler name (e.g. SpellTeleport)"/>
+		<attr name="handler" type="enum" enum="ManualHandler" desc="Registered spell handler (e.g. SpellTeleport)"/>
 	</tag>
 	<tag name="summon" desc="Summon mob(s) for this action">
 		<attr name="base_fail" type="int" min="0" max="100" desc="Base fail chance, percent"/>
 		<attr name="min_fail" type="int" min="0" max="100" desc="Minimum fail chance, percent"/>
-		<attr name="handler" type="string" desc="Optional setup handler (e.g. SetupKeeperStats)"/>
+		<attr name="handler" type="enum" enum="SummonHandler" desc="Optional setup handler (e.g. SetupKeeperStats)"/>
 		<child tag="mob" multiple="Y"/>
 	</tag>
 	<tag name="mob" desc="A mob this summon action creates">
@@ -165,10 +165,10 @@
 	</tag>
 	<tag name="obj_creation" desc="Create an object for this action">
 		<attr name="vnum" type="int" min="0" desc="Object vnum (0 when a handler builds the item)"/>
-		<attr name="handler" type="string" desc="Registered builder handler (e.g. CreateArmor / CreateWeapon)"/>
+		<attr name="handler" type="enum" enum="ObjCreationHandler" desc="Optional builder handler (e.g. CreateArmor)"/>
 	</tag>
 	<tag name="alter_obj" desc="Alter the target object via a handler">
-		<attr name="handler" type="string" desc="Registered alter-object handler name (e.g. AlterBless)"/>
+		<attr name="handler" type="enum" enum="AlterObjHandler" desc="Registered alter-object handler (e.g. AlterBless)"/>
 	</tag>
 	<tag name="area" desc="Area/mass target selection + distribution">
 		<child tag="targets"/>

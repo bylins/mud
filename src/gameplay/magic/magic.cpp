@@ -2281,6 +2281,22 @@ bool IsManualHandlerRegistered(const std::string &name) {
 	return kManualHandlers.count(name) > 0;
 }
 
+// issue.vedun-hotfix #5: expose the registered handler names (sorted, std::map order) so the Vedun
+// editor can offer a pick-list and reject unknown values for the <summon/alter_obj/obj_creation/
+// manual_cast handler="..."> attributes (registered as enums in enum_registry).
+std::vector<std::string> SummonHandlerNames() {
+	std::vector<std::string> v; for (const auto &p : kSummonHandlers) v.push_back(p.first); return v;
+}
+std::vector<std::string> AlterObjHandlerNames() {
+	std::vector<std::string> v; for (const auto &p : kAlterObjHandlers) v.push_back(p.first); return v;
+}
+std::vector<std::string> ObjCreationHandlerNames() {
+	std::vector<std::string> v; for (const auto &p : kCreationHandlers) v.push_back(p.first); return v;
+}
+std::vector<std::string> ManualHandlerNames() {
+	std::vector<std::string> v; for (const auto &p : kManualHandlers) v.push_back(p.first); return v;
+}
+
 EStageResult CastManual(CastContext &ctx) {
 	const std::string &name = ctx.action_or_default().GetManualHandler();
 	if (name.empty()) {

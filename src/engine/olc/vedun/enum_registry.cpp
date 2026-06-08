@@ -6,6 +6,7 @@
 #include "enum_registry.h"
 
 #include "gameplay/magic/spells_constants.h"   // ESpell/EElement/EMagic/ETarget/ESpellType + NAMES_OF
+#include "gameplay/magic/magic.h"               // issue.vedun-hotfix #5: *HandlerNames() registries
 #include "gameplay/magic/spell_messages.h"     // ESpellMsg + NAMES_OF
 #include "gameplay/skills/skill_messages.h"    // ESkillMsg + NAMES_OF
 #include "gameplay/abilities/feat_messages.h"   // EFeat + EFeatMsg + NAMES_OF
@@ -100,6 +101,12 @@ void RegisterEditorEnums() {
 		"kForPoly", "kForMono", "kForge", "kForMerchants", "kForMaguses", "kArena", "kNoSummonOut",
 		"kNoTeleportOut", "kNohorse", "kNoWeather", "kSlowDeathTrap", "kIceTrap", "kNoRelocateIn",
 		"kTribune", "kArenaSend", "kNoBattle", "kAlwaysLit", "kMoMapper", "kNoItem", "kDominationArena"});
+	// issue.vedun-hotfix #5: registered spell action handlers, so the editor offers a pick-list (and
+	// rejects unknown values) for <manual_cast/summon/obj_creation/alter_obj handler="...">.
+	registry.RegisterNames("ManualHandler", ManualHandlerNames());
+	registry.RegisterNames("SummonHandler", SummonHandlerNames());
+	registry.RegisterNames("AlterObjHandler", AlterObjHandlerNames());
+	registry.RegisterNames("ObjCreationHandler", ObjCreationHandlerNames());
 }
 
 } // namespace vedun

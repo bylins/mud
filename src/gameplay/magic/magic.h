@@ -241,6 +241,12 @@ enum class EStageResult {
 EStageResult CastDamage(CastContext &ctx);
 EStageResult CastAffect(CastContext &ctx);
 
+// issue.vedun-hotfix #5: registered handler-name lists, for the Vedun editor's handler pick-lists.
+std::vector<std::string> SummonHandlerNames();
+std::vector<std::string> AlterObjHandlerNames();
+std::vector<std::string> ObjCreationHandlerNames();
+std::vector<std::string> ManualHandlerNames();
+
 #endif // MAGIC_H_
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
