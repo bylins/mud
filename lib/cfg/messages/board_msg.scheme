@@ -1,0 +1,18 @@
+<!--
+  issue.specials Phase 2: Vedun scheme for board_msg.xml (notice board messages).
+  Structure: <msg_container> -> <msg_sheaf id="kDefault"> -> <message type="<EBoardMsg>" val="text"/>.
+  "kDefault" is the shared sheaf (info_container::kUndefinedVnum). Optional sidecar.
+-->
+<scheme>
+	<tag name="msg_container" desc="Notice board message container">
+		<child tag="msg_sheaf" multiple="Y"/>
+	</tag>
+	<tag name="msg_sheaf" desc="Shared messages (kDefault) or a per-board override (vnum)">
+		<attr name="id" type="string" readonly="Y" desc="kDefault (shared) or a board vnum; immutable"/>
+		<child tag="message" multiple="Y"/>
+	</tag>
+	<tag name="message" desc="One board message line">
+		<attr name="type" type="enum" enum="EBoardMsg" desc="Message slot"/>
+		<attr name="val" type="string" desc="Text: named fmt args ({level} {board} {alias} {subject} {text} {count} {desc} {author} {color} {nocolor})"/>
+	</tag>
+</scheme>

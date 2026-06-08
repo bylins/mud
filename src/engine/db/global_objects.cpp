@@ -55,6 +55,7 @@ struct GlobalObjectsStorage {
 	specials::ExchMessages exch_messages;
 	specials::RentMessages rent_messages;
 	specials::ShopMessages shop_messages;
+	specials::BoardMessages board_messages;
 	zone_types::ZoneTypesInfo zone_types_info;
 	rune_spells::Registry rune_spells_info;
 	currencies::CurrenciesInfo currencies_info;
@@ -209,6 +210,10 @@ specials::RentMessages &GlobalObjects::RentMessages() {
 
 specials::ShopMessages &GlobalObjects::ShopMessages() {
 	return global_objects().shop_messages;
+}
+
+specials::BoardMessages &GlobalObjects::BoardMessages() {
+	return global_objects().board_messages;
 }
 
 const guilds::GuildInfo &GlobalObjects::Guild(Vnum guild_vnum) {

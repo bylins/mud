@@ -142,6 +142,23 @@ enum class EShopMsg {
 	kBloodyRepair, kNoRepairNeeded, kWontRepair, kRepairCost, kCantAffordRepair, kRepaired,
 };
 
+// Notice boards (board_msg.xml). DoBoard / message_no_* / do_list / report_on_board / login + new-post
+// notifications. All SendMsgToChar (code appends the trailing \r\n); no act-codes. Named fmt args:
+// {level} {board} {alias} {subject} {text} {count} {desc} {author} {color} {nocolor}. Multi-line
+// originals are split into numbered slots (kSpecialUsage/Alias, kNameCollision1/2, kListIntro1/2,
+// kReportSaved1/2). The board-stats table (DoBoardList) + per-message formatters stay in code as
+// layout, and board names/descriptions + server-posted message bodies stay in code as content.
+enum class EBoardMsg {
+	kNoWriteLevel, kNoWriteAccess, kNoReadAccess, kSpecialUsage, kSpecialAlias,
+	kBlind, kNoBoard, kNoUnread, kNoSuchMessage, kSpammer, kClanWriteBan, kOverflow,
+	kNeedAuthorName, kSubjectTruncated, kWritingPrompt,
+	kRemoveNeedNumber, kRemoveNoAccess, kRemoved, kBadCommand,
+	kNameCollision1, kNameCollision2,
+	kListIntro1, kListIntro2, kListEmpty, kListTotal,
+	kLoginHeader, kLoginRow, kNewMessage,
+	kReportEmpty, kReportNoBoard, kReportSaved1, kReportSaved2, kReportSaved3,
+};
+
 using SpecialMessages = msg_container::MsgContainer<int, ESpecialMsg>;
 using BankMessages = msg_container::MsgContainer<int, EBankMsg>;
 using MailMessages = msg_container::MsgContainer<int, EMailMsg>;
@@ -151,6 +168,7 @@ using MercMessages = msg_container::MsgContainer<int, EMercMsg>;
 using ExchMessages = msg_container::MsgContainer<int, EExchMsg>;
 using RentMessages = msg_container::MsgContainer<int, ERentMsg>;
 using ShopMessages = msg_container::MsgContainer<int, EShopMsg>;
+using BoardMessages = msg_container::MsgContainer<int, EBoardMsg>;
 
 // Convenience accessors for the shared (default-sheaf) message of each container.
 [[nodiscard]] const std::string &SpecialMsg(ESpecialMsg id);
@@ -162,6 +180,7 @@ using ShopMessages = msg_container::MsgContainer<int, EShopMsg>;
 [[nodiscard]] const std::string &ExchMsg(EExchMsg id);
 [[nodiscard]] const std::string &RentMsg(ERentMsg id);
 [[nodiscard]] const std::string &ShopMsg(EShopMsg id);
+[[nodiscard]] const std::string &BoardMsg(EBoardMsg id);
 
 // One loader per data file (cfg_manager id in the comment). All are Vedun-editable (msg-sheaf model).
 class SpecialMessagesLoader : virtual public cfg_manager::IEditableCfgLoader {  // "special_messages"
@@ -263,6 +282,17 @@ class ShopMessagesLoader : virtual public cfg_manager::IEditableCfgLoader {  // 
 	[[nodiscard]] parser_wrapper::DataNode CreateElementNode(parser_wrapper::DataNode root, const std::string &id) const final;
 };
 
+class BoardMessagesLoader : virtual public cfg_manager::IEditableCfgLoader {  // "board_messages"
+ public:
+	void Load(parser_wrapper::DataNode data) final;
+	void Reload(parser_wrapper::DataNode data) final;
+	[[nodiscard]] std::string EditableWhat() const final;
+	[[nodiscard]] std::vector<cfg_manager::EditableElement> ListElements() const final;
+	[[nodiscard]] cfg_manager::ValidationResult Validate(parser_wrapper::DataNode &doc) const final;
+	[[nodiscard]] std::string CanonicalElementId(const std::string &id) const final;
+	[[nodiscard]] parser_wrapper::DataNode CreateElementNode(parser_wrapper::DataNode root, const std::string &id) const final;
+};
+
 } // namespace specials
 
 template<>
@@ -327,6 +357,13 @@ template<>
 specials::EShopMsg ITEM_BY_NAME<specials::EShopMsg>(const std::string &name);
 template<>
 const std::map<specials::EShopMsg, std::string> &NAMES_OF<specials::EShopMsg>();
+
+template<>
+const std::string &NAME_BY_ITEM<specials::EBoardMsg>(specials::EBoardMsg item);
+template<>
+specials::EBoardMsg ITEM_BY_NAME<specials::EBoardMsg>(const std::string &name);
+template<>
+const std::map<specials::EBoardMsg, std::string> &NAMES_OF<specials::EBoardMsg>();
 
 #endif // BYLINS_SRC_GAMEPLAY_AI_SPECIAL_MESSAGES_H_
 

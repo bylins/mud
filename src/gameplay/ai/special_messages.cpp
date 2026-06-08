@@ -281,6 +281,42 @@ const std::map<specials::EShopMsg, std::string> kShopMsgNames{
 		{specials::EShopMsg::kRepaired, "kRepaired"},
 	};
 
+const std::map<specials::EBoardMsg, std::string> kBoardMsgNames{
+		{specials::EBoardMsg::kNoWriteLevel, "kNoWriteLevel"},
+		{specials::EBoardMsg::kNoWriteAccess, "kNoWriteAccess"},
+		{specials::EBoardMsg::kNoReadAccess, "kNoReadAccess"},
+		{specials::EBoardMsg::kSpecialUsage, "kSpecialUsage"},
+		{specials::EBoardMsg::kSpecialAlias, "kSpecialAlias"},
+		{specials::EBoardMsg::kBlind, "kBlind"},
+		{specials::EBoardMsg::kNoBoard, "kNoBoard"},
+		{specials::EBoardMsg::kNoUnread, "kNoUnread"},
+		{specials::EBoardMsg::kNoSuchMessage, "kNoSuchMessage"},
+		{specials::EBoardMsg::kSpammer, "kSpammer"},
+		{specials::EBoardMsg::kClanWriteBan, "kClanWriteBan"},
+		{specials::EBoardMsg::kOverflow, "kOverflow"},
+		{specials::EBoardMsg::kNeedAuthorName, "kNeedAuthorName"},
+		{specials::EBoardMsg::kSubjectTruncated, "kSubjectTruncated"},
+		{specials::EBoardMsg::kWritingPrompt, "kWritingPrompt"},
+		{specials::EBoardMsg::kRemoveNeedNumber, "kRemoveNeedNumber"},
+		{specials::EBoardMsg::kRemoveNoAccess, "kRemoveNoAccess"},
+		{specials::EBoardMsg::kRemoved, "kRemoved"},
+		{specials::EBoardMsg::kBadCommand, "kBadCommand"},
+		{specials::EBoardMsg::kNameCollision1, "kNameCollision1"},
+		{specials::EBoardMsg::kNameCollision2, "kNameCollision2"},
+		{specials::EBoardMsg::kListIntro1, "kListIntro1"},
+		{specials::EBoardMsg::kListIntro2, "kListIntro2"},
+		{specials::EBoardMsg::kListEmpty, "kListEmpty"},
+		{specials::EBoardMsg::kListTotal, "kListTotal"},
+		{specials::EBoardMsg::kLoginHeader, "kLoginHeader"},
+		{specials::EBoardMsg::kLoginRow, "kLoginRow"},
+		{specials::EBoardMsg::kNewMessage, "kNewMessage"},
+		{specials::EBoardMsg::kReportEmpty, "kReportEmpty"},
+		{specials::EBoardMsg::kReportNoBoard, "kReportNoBoard"},
+		{specials::EBoardMsg::kReportSaved1, "kReportSaved1"},
+		{specials::EBoardMsg::kReportSaved2, "kReportSaved2"},
+		{specials::EBoardMsg::kReportSaved3, "kReportSaved3"},
+	};
+
 // Editable msg-sheaf loaders share the kDefault-only element model (one shared sheaf per file).
 std::vector<cfg_manager::EditableElement> DefaultSheafElements(
 		const std::string &label, std::size_t count) {
@@ -487,6 +523,25 @@ specials::EShopMsg ITEM_BY_NAME<specials::EShopMsg>(const std::string &name) {
 	return by_name.at(name);
 }
 
+template<>
+const std::string &NAME_BY_ITEM<specials::EBoardMsg>(const specials::EBoardMsg item) {
+	return kBoardMsgNames.at(item);
+}
+template<>
+const std::map<specials::EBoardMsg, std::string> &NAMES_OF<specials::EBoardMsg>() {
+	return kBoardMsgNames;
+}
+template<>
+specials::EBoardMsg ITEM_BY_NAME<specials::EBoardMsg>(const std::string &name) {
+	static std::map<std::string, specials::EBoardMsg> by_name;
+	if (by_name.empty()) {
+		for (const auto &[value, token] : kBoardMsgNames) {
+			by_name.emplace(token, value);
+		}
+	}
+	return by_name.at(name);
+}
+
 namespace specials {
 
 const std::string &SpecialMsg(ESpecialMsg id) {
@@ -523,6 +578,10 @@ const std::string &RentMsg(ERentMsg id) {
 
 const std::string &ShopMsg(EShopMsg id) {
 	return MUD::ShopMessages().GetMessage(info_container::kUndefinedVnum, id);
+}
+
+const std::string &BoardMsg(EBoardMsg id) {
+	return MUD::BoardMessages().GetMessage(info_container::kUndefinedVnum, id);
 }
 
 // --- shared dispatch messages (special_msg.xml) -----------------------------------------------------
@@ -684,6 +743,24 @@ cfg_manager::ValidationResult ShopMessagesLoader::Validate(parser_wrapper::DataN
 }
 std::string ShopMessagesLoader::CanonicalElementId(const std::string &id) const { return CanonicalSheafId(id); }
 parser_wrapper::DataNode ShopMessagesLoader::CreateElementNode(parser_wrapper::DataNode root, const std::string &id) const {
+	return CreateSheaf(root, id);
+}
+
+// --- notice board messages (board_msg.xml) ----------------------------------------------------------
+void BoardMessagesLoader::Load(parser_wrapper::DataNode data) { MUD::BoardMessages().Init(data.Children()); }
+void BoardMessagesLoader::Reload(parser_wrapper::DataNode data) { MUD::BoardMessages().Reload(data.Children()); }
+std::string BoardMessagesLoader::EditableWhat() const { return "boardmsg"; }
+std::vector<cfg_manager::EditableElement> BoardMessagesLoader::ListElements() const {
+	return DefaultSheafElements("notice board messages (shared)", 1);
+}
+cfg_manager::ValidationResult BoardMessagesLoader::Validate(parser_wrapper::DataNode &doc) const {
+	if (MUD::BoardMessages().Validate(doc.Children())) {
+		return {true, ""};
+	}
+	return {false, "Board-message data failed to parse (see syslog for the offending message)."};
+}
+std::string BoardMessagesLoader::CanonicalElementId(const std::string &id) const { return CanonicalSheafId(id); }
+parser_wrapper::DataNode BoardMessagesLoader::CreateElementNode(parser_wrapper::DataNode root, const std::string &id) const {
 	return CreateSheaf(root, id);
 }
 

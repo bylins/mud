@@ -90,6 +90,7 @@ class GlobalObjects {
 	static specials::ExchMessages &ExchMessages();
 	static specials::RentMessages &RentMessages();
 	static specials::ShopMessages &ShopMessages();
+	static specials::BoardMessages &BoardMessages();
 	static const guilds::GuildInfo &Guild(Vnum guild_vnum);
 	static zone_types::ZoneTypesInfo &ZoneTypes();
 	static const zone_types::ZoneTypeInfo &ZoneType(int type_vnum);
