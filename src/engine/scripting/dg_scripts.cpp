@@ -3863,6 +3863,11 @@ void find_replacement(void *go,
 				auto msg = fmt::format("Runestone in room {} toggled to {}.",
 								   room->vnum, mod ? "Enabled" : "Disabled");
 				trig_log(trig, msg.c_str());
+			} else {
+				// getter: 1 = healthy, 0 = damaged, -1 = no runestone in this room
+				const auto &stone = MUD::Runestones().FindRunestone(room->vnum);
+				const int state = !stone.IsAllowed() ? -1 : (stone.IsEnabled() ? 1 : 0);
+				snprintf(str, str_size, "%d", state);
 			}
 		} else if (!str_cmp(field, "char")
 			|| !str_cmp(field, "pc")
