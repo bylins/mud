@@ -383,6 +383,7 @@ void do_recipes(CharData *ch, char *argument, int cmd, int subcmd);
 void do_cook(CharData *ch, char *argument, int cmd, int subcmd);
 void do_forgive(CharData *ch, char *argument, int cmd, int subcmd);
 void DoTownportal(CharData *ch, char *argument, int, int);
+void DoRunestone(CharData *ch, char *argument, int, int);
 void do_dmeter(CharData *ch, char *argument, int cmd, int subcmd);
 void DoShowZoneStat(CharData *ch, char *argument, int, int);
 void do_show_mobmax(CharData *ch, char *, int, int);
@@ -558,6 +559,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"колдовать", EPosition::kSit, DoCast, 1, 0, -1},
 		{"казна", EPosition::kRest, do_specword, 1, static_cast<int>(specials::ESpecial::kBank), 0},
 		{"карта", EPosition::kRest, do_map, 0, 0, 0},
+		{"камень", EPosition::kSit, DoRunestone, 1, 0, -1},
 		{"клан", EPosition::kRest, ClanSystem::DoHouse, 0, 0, 0},
 		{"клич", EPosition::kFight, do_warcry, 1, 0, -1},
 		{"кодер", EPosition::kDead, Boards::DoBoard, 1, Boards::CODER_BOARD, -1},
@@ -983,6 +985,7 @@ cpp_extern const struct command_info cmd_info[] =
 		{"stand", EPosition::kRest, do_stand, 0, 0, -1},
 		{"stat", EPosition::kDead, do_stat, 0, 0, 0},
 		{"steal", EPosition::kStand, do_steal, 1, 0, 300},
+		{"stone", EPosition::kSit, DoRunestone, 1, 0, -1},
 		{"strangle", EPosition::kFight, do_strangle, 0, 0, -1},
 		{"stupor", EPosition::kFight, DoOverhelm, 0, 0, -1},
 		{"switch", EPosition::kDead, DoSwitch, kLvlGreatGod, 0, 0},

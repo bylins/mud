@@ -19,6 +19,8 @@ void OpenTownportal(CharData *ch, const Runestone &stone);
 void SetSkillTownportalTimer(CharData *ch);
 Runestone GetLabelPortal(CharData *ch);
 
+// "врата": with no argument lists the stones you can open a gate to (your memorised stones);
+// with a codeword it opens the gate. Runestone management (список/забыть) lives in DoRunestone.
 void DoTownportal(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->IsNpc() || !ch->GetSkill(ESkill::kTownportal)) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kTownportal, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
@@ -30,6 +32,18 @@ void DoTownportal(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
+	one_argument(argument, arg);
+	GoTownportal(ch, arg);
+}
+
+// "камень"/"stone": runestone management. Bare or "список" -> the memorised-stones list;
+// "забыть <слово>" -> forget a stone.
+void DoRunestone(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
+	if (ch->IsNpc() || !ch->GetSkill(ESkill::kTownportal)) {
+		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kTownportal, ESkillMsg::kDontKnowSkill) + "\r\n", ch);
+		return;
+	}
+
 	char arg2[kMaxInputLength];
 	two_arguments(argument, arg, arg2);
 	if (!str_cmp(arg, "забыть")) {
@@ -38,7 +52,7 @@ void DoTownportal(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 
-	GoTownportal(ch, arg);
+	ch->PageRunestonesToChar();
 }
 
 void GoTownportal(CharData *ch, char *argument) {
