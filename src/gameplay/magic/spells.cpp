@@ -2295,6 +2295,7 @@ void add_rune_stats(CharData *ch, int vnum, int spelltype) {
 }
 
 void extract_item(CharData *ch, ObjData *obj, int spelltype) {
+	constexpr int kRuneCrackCharge = 20;   // issue #3422: ниже этого заряда руна трещит
 	int extract = false;
 	if (!obj) {
 		return;
@@ -2307,6 +2308,14 @@ void extract_item(CharData *ch, ObjData *obj, int spelltype) {
 		if (GET_OBJ_VAL(obj, 2) <= 0
 			&& IS_SET(obj->get_spec_param(), kItemDecayEmpty)) {
 			extract = true;
+		} else if (spelltype == ESpellType::kRunes
+			&& GET_OBJ_VAL(obj, 2) > 0
+			&& GET_OBJ_VAL(obj, 2) < kRuneCrackCharge) {
+			// issue #3422: руна на исходе -- предупреждаем волхва
+			snprintf(buf, kMaxStringLength,
+					 "$o%s покрыл$U трещинами и скоро рассыплется в тлен.",
+					 char_get_custom_label(obj, ch).c_str());
+			act(buf, false, ch, obj, nullptr, kToChar);
 		}
 	} else if (spelltype != ESpellType::kRunes) {
 		extract = true;
