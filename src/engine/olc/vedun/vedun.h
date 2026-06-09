@@ -68,6 +68,11 @@ void vedun_reprompt(DescriptorData *d);
 // log-only; call once after the cfg files are loaded.
 void LintSchemes();
 
+// True if `file` is currently held by an open Vedun editing session (the per-file edit lock). Lets
+// other writers of a cfg file (e.g. runestone damaged-state persistence) skip a write that a pending
+// editor save would clobber.
+[[nodiscard]] bool IsBeingEdited(const std::filesystem::path &file);
+
 } // namespace vedun
 
 #endif // BYLINS_SRC_ENGINE_OLC_VEDUN_VEDUN_H_

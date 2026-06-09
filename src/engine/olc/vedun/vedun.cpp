@@ -1337,6 +1337,10 @@ void vedun_cleanup(DescriptorData *d) {
 	}
 }
 
+bool IsBeingEdited(const std::filesystem::path &file) {
+	return EditLocks().find(file.string()) != EditLocks().end();
+}
+
 } // namespace vedun
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

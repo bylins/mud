@@ -10,6 +10,7 @@
 #include "engine/core/handler.h"             // PlaceObjToRoom
 #include "engine/ui/modify.h"
 #include "engine/ui/interpreter.h"           // CMD_IS / cmd_info
+#include "engine/olc/vedun/vedun.h"          // vedun::IsBeingEdited (don't clobber a live edit)
 #include "engine/ui/table_wrapper.h"
 #include "gameplay/abilities/abilities_constants.h"
 #include "gameplay/skills/skills_info.h"    // MUD::Skills()[..].GetName() for {skill_name}
@@ -22,6 +23,8 @@
 
 #include <fmt/format.h>
 #include <algorithm>
+#include <filesystem>
+#include <system_error>
 
 // ============================================ MESSAGES =======================================================
 
@@ -170,8 +173,16 @@ void RunestoneRoster::Load(parser_wrapper::DataNode data) {
 			}
 			node.GoToParent();
 		}
+		// optional persisted damaged state (SaveState writes it back on a runtime toggle)
+		bool damaged = false;
+		if (const char *d = node.GetValue("damaged"); d && *d) {
+			try {
+				damaged = parse::ReadAsBool(d);
+			} catch (const std::exception &) {
+			}
+		}
 		emplace_back(std::string(RuneStoneName(stone_vnum)), room_vnum, skill, skill_level, id,
-				Runestone::State::kEnabled, stone_vnum);
+				damaged ? Runestone::State::kDisabled : Runestone::State::kEnabled, stone_vnum);
 	}
 }
 
@@ -330,6 +341,53 @@ void RunestoneRoster::RefreshStoneObject(const Runestone &stone) {
 			o->set_description(RuneStoneMsg(stone.IsEnabled() ? ERuneStoneMsg::kRoomNormal
 															  : ERuneStoneMsg::kRoomDamaged));
 		}
+	}
+}
+
+// Persist each stone's current damaged flag back to rune_stones.xml so the state survives a reboot.
+// Writes the whole file (load DOM -> set the `damaged` attribute per matching <stone> vnum -> atomic
+// replace), mirroring the Vedun editor's save. Skipped while a Vedun session holds the file lock, so
+// a toggle never clobbers an editor's pending save (that toggle just won't persist -- see note).
+void RunestoneRoster::SaveState() {
+	const auto entry = MUD::CfgManager().FindEditable("runestone");
+	if (!entry) {
+		return;
+	}
+	const auto &path = entry->file;
+	if (vedun::IsBeingEdited(path)) {
+		log("Runestones: %s open in Vedun -- damaged-state change not persisted to disk.",
+			path.string().c_str());
+		return;
+	}
+	parser_wrapper::DataNode doc(path);
+	doc.GoToRadix();
+	for (auto &node : doc.Children()) {
+		if (std::string(node.GetName()) != "stone") {
+			continue;
+		}
+		const int vnum = parse::ReadAsInt(node.GetValue("vnum"));
+		const auto it = std::find_if(begin(), end(),
+				[vnum](const Runestone &s) { return s.GetVnum() == vnum; });
+		if (it == end()) {
+			continue;
+		}
+		if (!it->IsEnabled()) {
+			node.SetValue("damaged", "true");
+		} else if (node.GetValue("damaged")) {   // only touch enabled stones that carried the flag
+			node.SetValue("damaged", "false");
+		}
+	}
+	std::filesystem::path tmp = path;
+	tmp += ".new";
+	if (!doc.Save(tmp)) {
+		log("SYSERROR: Runestones: could not write %s -- damaged state not persisted.", tmp.string().c_str());
+		return;
+	}
+	std::error_code ec;
+	std::filesystem::rename(tmp, path, ec);
+	if (ec) {
+		std::filesystem::remove(tmp, ec);
+		log("SYSERROR: Runestones: could not replace %s (%s).", path.string().c_str(), ec.message().c_str());
 	}
 }
 

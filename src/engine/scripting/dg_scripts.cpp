@@ -3858,6 +3858,7 @@ void find_replacement(void *go,
 				auto mod = atoi(subfield);
 				stone.SetEnabled(mod);
 				MUD::Runestones().RefreshStoneObject(stone);   // sync the physical stone's room desc
+				MUD::Runestones().SaveState();                 // persist the damaged flag across reboots
 
 				auto msg = fmt::format("Runestone in room {} toggled to {}.",
 								   room->vnum, mod ? "Enabled" : "Disabled");

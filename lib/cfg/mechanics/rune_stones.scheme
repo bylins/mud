@@ -14,6 +14,7 @@
 		<attr name="vnum" type="int" readonly="Y" desc="Unique stone vnum (identity; immutable)"/>
 		<attr name="id" type="string" desc="Latin codeword id, e.g. kBegin (no enum, like a guild text_id)"/>
 		<attr name="room_vnum" type="int" desc="Room vnum where the stone sits"/>
+		<attr name="damaged" type="bool" desc="Persisted damaged state (set at runtime by %room.runestone%)"/>
 		<child tag="skill"/>
 	</tag>
 	<tag name="skill" desc="Skill + level needed to read/memorise the stone">
