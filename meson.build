@@ -581,6 +581,7 @@ main_sources = files(
   'src/gameplay/skills/expendientcut.cpp',
   'src/gameplay/skills/turnundead.cpp',
   'src/gameplay/skills/townportal.cpp',
+  'src/gameplay/mechanics/rune_stones.cpp',
   'src/gameplay/skills/manadrain.cpp',
   'src/gameplay/skills/warcry.cpp',
   'src/gameplay/skills/identify.cpp',

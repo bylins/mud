@@ -14,7 +14,7 @@
 #include "gameplay/communication/ignores.h"
 #include "gameplay/crafting/im.h"
 #include "gameplay/skills/skills.h"
-#include "gameplay/skills/townportal.h"
+#include "gameplay/mechanics/rune_stones.h"   // issue.runestones: was townportal.h (runestone classes moved)
 #include "utils/utils.h"
 #include "engine/core/conf.h"
 #include "gameplay/affects/affect_data.h"
@@ -779,8 +779,8 @@ class CharData : public ProtectedCharData {
 
 	player_special_data::shared_ptr player_specials;    // PC specials
   	void ClearRunestones() { player_specials->runestones.Clear(); };
-  	void AddRunestone(const Runestone &stone);
-  	void RemoveRunestone(const Runestone &stone);
+  	void AddRunestone(const Runestone &stone) { player_specials->runestones.AddRunestone(this, stone); };
+  	void RemoveRunestone(const Runestone &stone) { player_specials->runestones.RemoveRunestone(this, stone); };
   	void DeleteIrrelevantRunestones() { player_specials->runestones.DeleteIrrelevant(this); };
 	void PageRunestonesToChar() { player_specials->runestones.PageToChar(this); };
   	bool IsRunestoneKnown(const Runestone &stone) { return player_specials->runestones.Contains(stone); };

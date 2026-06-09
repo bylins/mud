@@ -2221,32 +2221,8 @@ int GetRealBaseStat(const CharData *ch, EBaseStat stat_id) {
 	}
 }
 
-void CharData::AddRunestone(const Runestone &stone) {
-	if (player_specials->runestones.IsFull(this)) {
-		SendMsgToChar
-			("В вашей памяти не осталось места для новых рунных меток. Сперва забудьте какую-нибудь.\r\n", this);
-		return;
-	}
-
-	if (player_specials->runestones.AddRunestone(stone)) {
-		auto msg = fmt::format(
-			"Вы осмотрели надпись и крепко запомнили начертанное огненными рунами слово '&R{}&n'.\r\n",
-			stone.GetName());
-		SendMsgToChar(msg, this);
-	} else {
-		SendMsgToChar("Руны всё время странно искажаются и вам не удаётся их запомнить.\r\n", this);
-	}
-	player_specials->runestones.DeleteIrrelevant(this);
-};
-
-void CharData::RemoveRunestone(const Runestone &stone) {
-	if (player_specials->runestones.RemoveRunestone(stone)) {
-		auto msg = fmt::format("Вы полностью забыли, как выглядит рунная метка '&R{}&n'.\r\n", stone.GetName());
-		SendMsgToChar(msg, this);
-	} else {
-		SendMsgToChar("Чтобы забыть что-нибудь ненужное, следует сперва изучить что-нибудь ненужное...", this);
-	}
-};
+// issue.runestones: CharData::AddRunestone / RemoveRunestone (with messages) moved to
+// CharacterRunestoneRoster in gameplay/mechanics/rune_stones.cpp; char_data.h now forwards inline.
 
 void CharData::IncreaseStatistic(CharStat::ECategory category, ullong increment) {
 	player_specials->saved.personal_statistics_.Increase(category, increment);
