@@ -313,6 +313,26 @@ void RunestoneRoster::SpawnStones() {
 	log("Runestones: placed %d physical stone(s) (prototype #%d).", placed, prototype_vnum_);
 }
 
+// Re-sync the physical stone object's room description to the stone's current state. Called when a
+// stone is enabled/damaged at runtime (DG script %room.runestone%), since the object description is
+// otherwise fixed at spawn time and would keep showing the intact-stone room line.
+void RunestoneRoster::RefreshStoneObject(const Runestone &stone) {
+	if (!stone.IsAllowed()) {
+		return;
+	}
+	const auto proto_rnum = GetObjRnum(prototype_vnum_);
+	const auto room_rnum = GetRoomRnum(stone.GetRoomVnum());
+	if (proto_rnum < 0 || room_rnum == kNowhere) {
+		return;
+	}
+	for (auto *o : world[room_rnum]->contents) {
+		if (o->get_rnum() == proto_rnum) {
+			o->set_description(RuneStoneMsg(stone.IsEnabled() ? ERuneStoneMsg::kRoomNormal
+															  : ERuneStoneMsg::kRoomDamaged));
+		}
+	}
+}
+
 std::vector<RoomVnum> RunestoneRoster::GetVnumRoster() {
 	std::vector<RoomVnum> vnums;
 	vnums.reserve(size());

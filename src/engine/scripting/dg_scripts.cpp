@@ -3857,6 +3857,8 @@ void find_replacement(void *go,
 				auto &stone = MUD::Runestones().FindRunestone(room->vnum);
 				auto mod = atoi(subfield);
 				stone.SetEnabled(mod);
+				MUD::Runestones().RefreshStoneObject(stone);   // sync the physical stone's room desc
+
 				auto msg = fmt::format("Runestone in room {} toggled to {}.",
 								   room->vnum, mod ? "Enabled" : "Disabled");
 				trig_log(trig, msg.c_str());
