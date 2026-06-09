@@ -10,7 +10,7 @@
 		<message type="kRoomDamaged" val="Рунный камень с изображением пентаграммы немного выступает из земли... расколот."/>
 		<message type="kInspectNormal" val="На камне огненными рунами начертано слово '&amp;R{name}&amp;n'."/>
 		<message type="kInspectDamaged" val="Камень грубо расколот на несколько частей и прочитать надпись невозможно."/>
-		<message type="kLackSkillNormal" val="Здесь что-то написано огненными рунами, но вы еще недостаточно искусны, чтобы разобрать слово."/>
+		<message type="kLackSkillNormal" val="Здесь что-то написано огненными рунами, но вы еще недостаточно искусны в умении &amp;C{skill_name}&amp;n, чтобы разобрать слово."/>
 		<message type="kLackSkillDamaged" val="Камень расколот, и вы при всем желании не разберете, что на нем было написано."/>
 		<message type="kListEmpty" val="В настоящий момент вам неизвестны рунные камни."/>
 		<message type="kListHeader" val="Вам известны следующие рунные камни:"/>

@@ -12,6 +12,7 @@
 #include "engine/ui/interpreter.h"           // CMD_IS / cmd_info
 #include "engine/ui/table_wrapper.h"
 #include "gameplay/abilities/abilities_constants.h"
+#include "gameplay/skills/skills_info.h"    // MUD::Skills()[..].GetName() for {skill_name}
 #include "engine/structs/msg_container.h"
 #include "engine/structs/info_container.h"
 #include "utils/parse.h"
@@ -218,23 +219,30 @@ Runestone &RunestoneRoster::FindRunestone(std::string_view name) {
 }
 
 // Inspect (and, if eligible, memorise) the stone in ch's current room. Driven by the physical
-// stone's object spec proc on look/examine. Returns false (let the default examine run) when ch has
-// no townportal skill or the room has no stone.
+// stone's object spec proc on look/examine. Always shows a runestone message (and returns true to
+// suppress the prototype's generic description) -- even for a character without the skill, who gets
+// the "lack skill" text. The normal/damaged and can-read/can't-read cases each have their own slot:
+//   damaged + can read   -> kInspectDamaged       normal + can read + known   -> kInspectNormal {name}
+//   damaged + can't read -> kLackSkillDamaged      normal + can read + unknown -> memorise
+//   normal  + can't read -> kLackSkillNormal {skill_name}
 bool RunestoneRoster::ViewRunestone(CharData *ch) {
-	if (ch->GetSkill(ESkill::kTownportal) == 0) {
-		return false;
-	}
 	auto &stone = FindRunestone(GET_ROOM_VNUM(ch->in_room));
 	if (!stone.IsAllowed()) {
 		return false;
 	}
+	const bool can_read = ch->GetSkill(stone.GetSkill()) >= stone.GetSkillLevel();
 	if (stone.IsDisabled()) {
-		SendMsgToChar(RuneStoneMsg(ERuneStoneMsg::kInspectDamaged) + "\r\n", ch);
+		SendMsgToChar(RuneStoneMsg(can_read ? ERuneStoneMsg::kInspectDamaged
+											: ERuneStoneMsg::kLackSkillDamaged) + "\r\n", ch);
+	} else if (!can_read) {
+		// {skill_name}: the skill needed to read this stone. The data model has one skill per stone,
+		// so it is simply that skill's name (a multi-skill stone would pick one the reader has, else
+		// the first).
+		SendMsgToChar(fmt::format(fmt::runtime(RuneStoneMsg(ERuneStoneMsg::kLackSkillNormal)),
+				fmt::arg("skill_name", MUD::Skills()[stone.GetSkill()].GetName())) + "\r\n", ch);
 	} else if (ch->IsRunestoneKnown(stone)) {
 		SendMsgToChar(fmt::format(fmt::runtime(RuneStoneMsg(ERuneStoneMsg::kInspectNormal)),
 				fmt::arg("name", stone.GetName())) + "\r\n", ch);
-	} else if (ch->GetSkill(stone.GetSkill()) < stone.GetSkillLevel()) {
-		SendMsgToChar(RuneStoneMsg(ERuneStoneMsg::kLackSkillNormal) + "\r\n", ch);
 	} else {
 		ch->AddRunestone(stone);
 	}
