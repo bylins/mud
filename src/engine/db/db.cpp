@@ -25,6 +25,7 @@
 #include "gameplay/mechanics/bonus.h"
 #include "utils/file_crc.h"
 #include "global_objects.h"
+#include "gameplay/mechanics/rune_stones.h"   // issue.runestones phase 3: SpawnStones()
 #include "gameplay/mechanics/glory.h"
 #include "gameplay/mechanics/glory_const.h"
 #include "gameplay/mechanics/glory_misc.h"
@@ -884,6 +885,7 @@ void BootMudDataBase() {
 	log("Booting runestones for 'town portal' spell");
 	MUD::CfgManager().LoadCfg("rune_stone_messages");   // issue.runestones: names before the registry
 	MUD::CfgManager().LoadCfg("rune_stones");
+	MUD::Runestones().SpawnStones();   // phase 3: place the physical stone object into each room
 
 	boot_profiler.next_step("Loading made items");
 	log("Booting maked items");

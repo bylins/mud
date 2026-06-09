@@ -267,7 +267,8 @@ void look_at_room(CharData *ch, int ignore_brief, bool msdp_mode) {
 		}
 	}
 	SendMsgToChar("&Y&q", ch);
-	MUD::Runestones().ShowRunestone(ch);
+	// issue.runestones phase 3: the runestone now shows itself as a physical object in the room
+	// contents below (no registry-driven room-presence hack needed).
 	list_obj_to_char(world[ch->in_room]->contents, ch, 0, false);
 	list_char_to_char_thing(world[ch->in_room]->people, ch);  //добавим отдельный вызов если моб типа предмет выводим желтым
 	SendMsgToChar("&R&q", ch);
@@ -405,11 +406,6 @@ bool look_at_target(CharData *ch, char *arg, int subcmd) {
 		where_bits = EFind::kObjInventory;
 	else if (isname(where, "экипировка equipment"))
 		where_bits = EFind::kObjEquip;
-
-	// для townportal
-	if (isname(whatp, "камень") && MUD::Runestones().ViewRunestone(ch, where_bits)) {
-		return false;
-	}
 
 	bits = generic_find(what, where_bits, ch, &found_char, &found_obj);
 	// Is the target a character?

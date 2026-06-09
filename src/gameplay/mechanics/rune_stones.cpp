@@ -2,16 +2,22 @@
 #include "rune_stones_loaders.h"
 
 #include "engine/db/global_objects.h"
+#include "engine/db/db.h"                    // GetObjRnum
+#include "engine/db/obj_prototypes.h"        // obj_proto (assign the stone spec proc)
 #include "engine/entities/char_data.h"
+#include "engine/entities/obj_data.h"
 #include "engine/core/comm.h"
-#include "engine/core/handler.h"
+#include "engine/core/handler.h"             // PlaceObjToRoom
 #include "engine/ui/modify.h"
+#include "engine/ui/interpreter.h"           // CMD_IS / cmd_info
 #include "engine/ui/table_wrapper.h"
 #include "gameplay/abilities/abilities_constants.h"
 #include "engine/structs/msg_container.h"
 #include "engine/structs/info_container.h"
 #include "utils/parse.h"
 #include "utils/parser_wrapper.h"
+#include "utils/utils_string.h"              // isname
+#include "utils/mud_string.h"                // one_argument
 
 #include <fmt/format.h>
 #include <algorithm>
@@ -211,35 +217,92 @@ Runestone &RunestoneRoster::FindRunestone(std::string_view name) {
 	return incorrect_stone_;
 }
 
-bool RunestoneRoster::ViewRunestone(CharData *ch, int where_bits) {
+// Inspect (and, if eligible, memorise) the stone in ch's current room. Driven by the physical
+// stone's object spec proc on look/examine. Returns false (let the default examine run) when ch has
+// no townportal skill or the room has no stone.
+bool RunestoneRoster::ViewRunestone(CharData *ch) {
 	if (ch->GetSkill(ESkill::kTownportal) == 0) {
 		return false;
 	}
 	auto &stone = FindRunestone(GET_ROOM_VNUM(ch->in_room));
-	if (stone.IsAllowed() && IS_SET(where_bits, EFind::kObjRoom)) {
-		if (stone.IsDisabled()) {
-			SendMsgToChar(RuneStoneMsg(ERuneStoneMsg::kInspectDamaged) + "\r\n", ch);
-		} else if (ch->IsRunestoneKnown(stone)) {
-			SendMsgToChar(fmt::format(fmt::runtime(RuneStoneMsg(ERuneStoneMsg::kInspectNormal)),
-					fmt::arg("name", stone.GetName())) + "\r\n", ch);
-		} else if (ch->GetSkill(stone.GetSkill()) < stone.GetSkillLevel()) {
-			SendMsgToChar(RuneStoneMsg(ERuneStoneMsg::kLackSkillNormal) + "\r\n", ch);
-		} else {
-			ch->AddRunestone(stone);
-		}
-		return true;
+	if (!stone.IsAllowed()) {
+		return false;
 	}
-	return false;
+	if (stone.IsDisabled()) {
+		SendMsgToChar(RuneStoneMsg(ERuneStoneMsg::kInspectDamaged) + "\r\n", ch);
+	} else if (ch->IsRunestoneKnown(stone)) {
+		SendMsgToChar(fmt::format(fmt::runtime(RuneStoneMsg(ERuneStoneMsg::kInspectNormal)),
+				fmt::arg("name", stone.GetName())) + "\r\n", ch);
+	} else if (ch->GetSkill(stone.GetSkill()) < stone.GetSkillLevel()) {
+		SendMsgToChar(RuneStoneMsg(ERuneStoneMsg::kLackSkillNormal) + "\r\n", ch);
+	} else {
+		ch->AddRunestone(stone);
+	}
+	return true;
 }
 
-void RunestoneRoster::ShowRunestone(CharData *ch) {
-	if (ch->GetSkill(ESkill::kTownportal)) {
-		const auto &stone = FindRunestone(GET_ROOM_VNUM(ch->in_room));
-		if (stone.IsAllowed()) {
-			SendMsgToChar(RuneStoneMsg(stone.IsEnabled() ? ERuneStoneMsg::kRoomNormal
-														 : ERuneStoneMsg::kRoomDamaged) + "\r\n", ch);
-		}
+namespace {
+// The physical stone's object spec proc (assigned to the prototype vnum in SpawnStones). On a
+// look/examine aimed at the stone it runs the inspect/memorise logic and suppresses the default
+// examine; any other command, or a look not naming the stone, falls through untouched (return 0).
+int RuneStoneObjSpec(CharData *ch, void *me, int cmd, char *argument) {
+	if (!ch || ch->IsNpc()) {
+		return 0;
 	}
+	if (!(CMD_IS("осмотреть") || CMD_IS("смотреть") || CMD_IS("examine") || CMD_IS("look"))) {
+		return 0;
+	}
+	auto *obj = static_cast<ObjData *>(me);
+	char target[kMaxInputLength];
+	one_argument(argument, target);
+	if (!*target || !isname(target, obj->get_aliases())) {
+		return 0;
+	}
+	return MUD::Runestones().ViewRunestone(ch) ? 1 : 0;
+}
+}  // namespace
+
+// issue.runestones phase 3: place one physical stone (the configured prototype) into each runestone
+// room and give the prototype its spec proc, so the registry-driven look/examine hack in sight.cpp is
+// retired. Idempotent: skips a room that already holds the stone, so it is safe to re-run on reload.
+void RunestoneRoster::SpawnStones() {
+	const auto proto_rnum = GetObjRnum(prototype_vnum_);
+	if (proto_rnum < 0) {
+		log("SYSERROR: rune_stones: prototype obj #%d not found -- no physical stones spawned.", prototype_vnum_);
+		return;
+	}
+	obj_proto.func(proto_rnum, RuneStoneObjSpec);   // assign the spec proc to the prototype
+
+	int placed = 0;
+	for (const auto &stone : *this) {
+		if (!stone.IsAllowed()) {
+			continue;
+		}
+		const auto room_rnum = GetRoomRnum(stone.GetRoomVnum());
+		if (room_rnum == kNowhere) {
+			continue;
+		}
+		bool present = false;   // idempotent: don't stack a second stone on reload/reboot-in-place
+		for (auto *o : world[room_rnum]->contents) {
+			if (o->get_rnum() == proto_rnum) {
+				present = true;
+				break;
+			}
+		}
+		if (present) {
+			continue;
+		}
+		auto obj = MUD::world_objects().create_from_prototype_by_rnum(proto_rnum);
+		if (!obj) {
+			continue;
+		}
+		obj->set_description(RuneStoneMsg(stone.IsEnabled() ? ERuneStoneMsg::kRoomNormal
+															: ERuneStoneMsg::kRoomDamaged));
+		obj->set_extra_flag(EObjFlag::kNodecay);   // a permanent fixture, not loot
+		PlaceObjToRoom(obj.get(), room_rnum);
+		++placed;
+	}
+	log("Runestones: placed %d physical stone(s) (prototype #%d).", placed, prototype_vnum_);
 }
 
 std::vector<RoomVnum> RunestoneRoster::GetVnumRoster() {

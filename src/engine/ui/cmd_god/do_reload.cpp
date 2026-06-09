@@ -25,6 +25,7 @@
 #include "utils/utils.h"
 #include "gameplay/mechanics/bonus.h"
 #include "gameplay/mechanics/mob_races.h"
+#include "gameplay/mechanics/rune_stones.h"   // issue.runestones phase 3: SpawnStones()
 #include "gameplay/ai/spec_assign.h"
 
 #include <fmt/format.h>
@@ -84,6 +85,7 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		ReloadSpecProcs();
 		MUD::CfgManager().ReloadCfg("rune_stone_messages");
 		MUD::CfgManager().ReloadCfg("rune_stones");
+		MUD::Runestones().SpawnStones();   // phase 3: (re)place physical stones for any new rooms
 		LoadSheduledReboot();
 		oload_table.init();
 		ObjData::InitSetTable();
@@ -100,6 +102,7 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	} else if (!str_cmp(arg, "portals")) {
 		MUD::CfgManager().ReloadCfg("rune_stone_messages");
 		MUD::CfgManager().ReloadCfg("rune_stones");
+		MUD::Runestones().SpawnStones();   // phase 3: (re)place physical stones for any new rooms
 	} else if (!str_cmp(arg, "abilities")) {
 		MUD::CfgManager().ReloadCfg("abilities");
 	} else if (!str_cmp(arg, "skills")) {

@@ -86,8 +86,8 @@ class RunestoneRoster : private std::vector<Runestone> {
 
   void Load(parser_wrapper::DataNode data);   // cfg/mechanics/rune_stones.xml
   [[nodiscard]] bool Validate(parser_wrapper::DataNode data) const;   // Vedun dry-run; no mutation
-  void ShowRunestone(CharData *ch);
-  bool ViewRunestone(CharData *ch, int where_bits);
+  void SpawnStones();                         // phase 3: place the physical stone object into each room
+  bool ViewRunestone(CharData *ch);           // inspect/memorise the stone in ch's room (obj spec proc)
   Runestone &FindRunestone(RoomVnum vnum);
   Runestone &FindRunestone(std::string_view name);
   std::vector<RoomVnum> GetVnumRoster();
