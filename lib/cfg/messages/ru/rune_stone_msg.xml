@@ -21,7 +21,51 @@
 		<message type="kCantMemorize" val="Руны всё время странно искажаются и вам не удаётся их запомнить."/>
 		<message type="kCantForget" val="Чтобы забыть что-нибудь ненужное, следует сперва изучить что-нибудь ненужное..."/>
 	</msg_sheaf>
-	<msg_sheaf id="0">
-		<message type="kName" val="начало"/>
-	</msg_sheaf>
+	<msg_sheaf id="0">  <message type="kName" val="начало"/>    </msg_sheaf>
+	<msg_sheaf id="1">  <message type="kName" val="алтарь"/>    </msg_sheaf>
+	<msg_sheaf id="2">  <message type="kName" val="хутор"/>     </msg_sheaf>
+	<msg_sheaf id="3">  <message type="kName" val="застава"/>   </msg_sheaf>
+	<msg_sheaf id="4">  <message type="kName" val="поляна"/>    </msg_sheaf>
+	<msg_sheaf id="5">  <message type="kName" val="белочка"/>   </msg_sheaf>
+	<msg_sheaf id="6">  <message type="kName" val="ручей"/>     </msg_sheaf>
+	<msg_sheaf id="7">  <message type="kName" val="грех"/>      </msg_sheaf>
+	<msg_sheaf id="8">  <message type="kName" val="малина"/>    </msg_sheaf>
+	<msg_sheaf id="9">  <message type="kName" val="схрон"/>     </msg_sheaf>
+	<msg_sheaf id="10"> <message type="kName" val="погост"/>    </msg_sheaf>
+	<msg_sheaf id="11"> <message type="kName" val="мука"/>      </msg_sheaf>
+	<msg_sheaf id="12"> <message type="kName" val="поле"/>      </msg_sheaf>
+	<msg_sheaf id="13"> <message type="kName" val="амулет"/>    </msg_sheaf>
+	<msg_sheaf id="14"> <message type="kName" val="руины"/>     </msg_sheaf>
+	<msg_sheaf id="15"> <message type="kName" val="волхов"/>    </msg_sheaf>
+	<msg_sheaf id="16"> <message type="kName" val="стрела"/>    </msg_sheaf>
+	<msg_sheaf id="17"> <message type="kName" val="росстань"/>  </msg_sheaf>
+	<msg_sheaf id="18"> <message type="kName" val="темень"/>    </msg_sheaf>
+	<msg_sheaf id="19"> <message type="kName" val="камень"/>    </msg_sheaf>
+	<msg_sheaf id="20"> <message type="kName" val="край"/>      </msg_sheaf>
+	<msg_sheaf id="21"> <message type="kName" val="удача"/>     </msg_sheaf>
+	<msg_sheaf id="22"> <message type="kName" val="усталость"/> </msg_sheaf>
+	<msg_sheaf id="23"> <message type="kName" val="род"/>       </msg_sheaf>
+	<msg_sheaf id="24"> <message type="kName" val="скверна"/>   </msg_sheaf>
+	<msg_sheaf id="25"> <message type="kName" val="ильмень"/>   </msg_sheaf>
+	<msg_sheaf id="26"> <message type="kName" val="святилище"/> </msg_sheaf>
+	<msg_sheaf id="27"> <message type="kName" val="глухомань"/> </msg_sheaf>
+	<msg_sheaf id="28"> <message type="kName" val="печка"/>     </msg_sheaf>
+	<msg_sheaf id="29"> <message type="kName" val="чернозем"/>  </msg_sheaf>
+	<msg_sheaf id="30"> <message type="kName" val="влага"/>     </msg_sheaf>
+	<msg_sheaf id="31"> <message type="kName" val="мещера"/>    </msg_sheaf>
+	<msg_sheaf id="32"> <message type="kName" val="дубрава"/>   </msg_sheaf>
+	<msg_sheaf id="33"> <message type="kName" val="неро"/>      </msg_sheaf>
+	<msg_sheaf id="34"> <message type="kName" val="случ"/>      </msg_sheaf>
+	<msg_sheaf id="35"> <message type="kName" val="стремнина"/> </msg_sheaf>
+	<msg_sheaf id="36"> <message type="kName" val="бурелом"/>   </msg_sheaf>
+	<msg_sheaf id="37"> <message type="kName" val="канава"/>    </msg_sheaf>
+	<msg_sheaf id="38"> <message type="kName" val="развилка"/>  </msg_sheaf>
+	<msg_sheaf id="39"> <message type="kName" val="древляне"/>  </msg_sheaf>
+	<msg_sheaf id="40"> <message type="kName" val="логово"/>    </msg_sheaf>
+	<msg_sheaf id="41"> <message type="kName" val="сокол"/>     </msg_sheaf>
+	<msg_sheaf id="42"> <message type="kName" val="междуречье"/></msg_sheaf>
+	<msg_sheaf id="43"> <message type="kName" val="бор"/>       </msg_sheaf>
+	<msg_sheaf id="44"> <message type="kName" val="скифы"/>     </msg_sheaf>
+	<msg_sheaf id="45"> <message type="kName" val="степь"/>     </msg_sheaf>
+	<msg_sheaf id="46"> <message type="kName" val="выбор"/>     </msg_sheaf>
 </msg_container>

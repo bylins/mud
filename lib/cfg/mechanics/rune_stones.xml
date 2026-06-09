@@ -2,11 +2,56 @@
 <!--
     issue.runestones: runestone registry (replaces lib/misc/portals.lst). A stone is a vnum + a
     Latin id (no enum, like guilds). room_vnum = the room the stone sits in; <skill id val> is the
-    skill + skill level needed to read/memorise it. root prototype= is the object vnum spawned as
-    the physical stone (phase 3). Names/text live in cfg/messages/ru/rune_stone_msg.xml.
+    skill + skill level needed to read/memorise it (was the old min char level column). root
+    prototype= is the object vnum spawned as the physical stone (phase 3). Names/text live in
+    cfg/messages/ru/rune_stone_msg.xml.
 -->
 <rune_stones prototype="190">
-	<stone vnum="0" id="kBegin" room_vnum="4000">
-		<skill id="kTownportal" val="3"/>
-	</stone>
+	<stone vnum="0"  id="kBegin"      room_vnum="5321">   <skill id="kTownportal" val="3"/>  </stone>
+	<stone vnum="1"  id="kAltar"      room_vnum="5041">   <skill id="kTownportal" val="1"/>  </stone>
+	<stone vnum="2"  id="kFarmstead"  room_vnum="5528">   <skill id="kTownportal" val="7"/>  </stone>
+	<stone vnum="3"  id="kOutpost"    room_vnum="5813">   <skill id="kTownportal" val="12"/> </stone>
+	<stone vnum="4"  id="kGlade"      room_vnum="7125">   <skill id="kTownportal" val="3"/>  </stone>
+	<stone vnum="5"  id="kSquirrel"   room_vnum="8001">   <skill id="kTownportal" val="3"/>  </stone>
+	<stone vnum="6"  id="kBrook"      room_vnum="9040">   <skill id="kTownportal" val="3"/>  </stone>
+	<stone vnum="7"  id="kSin"        room_vnum="14528">  <skill id="kTownportal" val="10"/> </stone>
+	<stone vnum="8"  id="kRaspberry"  room_vnum="4829">   <skill id="kTownportal" val="5"/>  </stone>
+	<stone vnum="9"  id="kCache"      room_vnum="33071">  <skill id="kTownportal" val="17"/> </stone>
+	<stone vnum="10" id="kGraveyard"  room_vnum="27053">  <skill id="kTownportal" val="15"/> </stone>
+	<stone vnum="11" id="kFlour"      room_vnum="42702">  <skill id="kTownportal" val="17"/> </stone>
+	<stone vnum="12" id="kField"      room_vnum="23007">  <skill id="kTownportal" val="15"/> </stone>
+	<stone vnum="13" id="kAmulet"     room_vnum="27866">  <skill id="kTownportal" val="15"/> </stone>
+	<stone vnum="14" id="kRuins"      room_vnum="28742">  <skill id="kTownportal" val="22"/> </stone>
+	<stone vnum="15" id="kVolkhov"    room_vnum="30253">  <skill id="kTownportal" val="28"/> </stone>
+	<stone vnum="16" id="kArrow"      room_vnum="33914">  <skill id="kTownportal" val="18"/> </stone>
+	<stone vnum="17" id="kCrossroads" room_vnum="35043">  <skill id="kTownportal" val="22"/> </stone>
+	<stone vnum="18" id="kGloom"      room_vnum="4640">   <skill id="kTownportal" val="9"/>  </stone>
+	<stone vnum="19" id="kStone"      room_vnum="10200">  <skill id="kTownportal" val="25"/> </stone>
+	<stone vnum="20" id="kEdge"       room_vnum="27221">  <skill id="kTownportal" val="23"/> </stone>
+	<stone vnum="21" id="kLuck"       room_vnum="42901">  <skill id="kTownportal" val="25"/> </stone>
+	<stone vnum="22" id="kFatigue"    room_vnum="34423">  <skill id="kTownportal" val="25"/> </stone>
+	<stone vnum="23" id="kKin"        room_vnum="6605">   <skill id="kTownportal" val="1"/>  </stone>
+	<stone vnum="24" id="kFilth"      room_vnum="11824">  <skill id="kTownportal" val="25"/> </stone>
+	<stone vnum="25" id="kIlmen"      room_vnum="60000">  <skill id="kTownportal" val="25"/> </stone>
+	<stone vnum="26" id="kSanctuary"  room_vnum="62015">  <skill id="kTownportal" val="27"/> </stone>
+	<stone vnum="27" id="kBackwoods"  room_vnum="65406">  <skill id="kTownportal" val="25"/> </stone>
+	<stone vnum="28" id="kStove"      room_vnum="61228">  <skill id="kTownportal" val="25"/> </stone>
+	<stone vnum="29" id="kBlacksoil"  room_vnum="62932">  <skill id="kTownportal" val="25"/> </stone>
+	<stone vnum="30" id="kMoisture"   room_vnum="64855">  <skill id="kTownportal" val="25"/> </stone>
+	<stone vnum="31" id="kMeshchera"  room_vnum="71265">  <skill id="kTownportal" val="25"/> </stone>
+	<stone vnum="32" id="kOakGrove"   room_vnum="76409">  <skill id="kTownportal" val="25"/> </stone>
+	<stone vnum="33" id="kNero"       room_vnum="85035">  <skill id="kTownportal" val="28"/> </stone>
+	<stone vnum="34" id="kSluch"      room_vnum="32862">  <skill id="kTownportal" val="28"/> </stone>
+	<stone vnum="35" id="kRapids"     room_vnum="60377">  <skill id="kTownportal" val="25"/> </stone>
+	<stone vnum="36" id="kWindfall"   room_vnum="68904">  <skill id="kTownportal" val="25"/> </stone>
+	<stone vnum="37" id="kDitch"      room_vnum="28205">  <skill id="kTownportal" val="27"/> </stone>
+	<stone vnum="38" id="kFork"       room_vnum="70111">  <skill id="kTownportal" val="27"/> </stone>
+	<stone vnum="39" id="kDrevlyans"  room_vnum="32633">  <skill id="kTownportal" val="26"/> </stone>
+	<stone vnum="40" id="kLair"       room_vnum="77179">  <skill id="kTownportal" val="26"/> </stone>
+	<stone vnum="41" id="kFalcon"     room_vnum="8581">   <skill id="kTownportal" val="25"/> </stone>
+	<stone vnum="42" id="kInterfluve" room_vnum="86487">  <skill id="kTownportal" val="26"/> </stone>
+	<stone vnum="43" id="kPineForest" room_vnum="65813">  <skill id="kTownportal" val="22"/> </stone>
+	<stone vnum="44" id="kScythians"  room_vnum="100043"> <skill id="kTownportal" val="26"/> </stone>
+	<stone vnum="45" id="kSteppe"     room_vnum="80250">  <skill id="kTownportal" val="25"/> </stone>
+	<stone vnum="46" id="kChoice"     room_vnum="98291">  <skill id="kTownportal" val="25"/> </stone>
 </rune_stones>
