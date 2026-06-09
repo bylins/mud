@@ -1,0 +1,23 @@
+<!--
+  issue.runestones: Vedun editor scheme for rune_stone_msg.xml (the vnum-keyed runestone message
+  container). Structure: <msg_container> -> <msg_sheaf id="kDefault|<stone vnum>"> -> <message
+  type="<ERuneStoneMsg>" val="text"/>. "kDefault" is the shared sheaf (info_container::kUndefinedVnum)
+  holding the room/inspect/list text; a per-stone sheaf (keyed by the stone's vnum) holds that stone's
+  kName codeword. Sits one level above the per-locale dir so it covers cfg/messages/<lang>/.
+  Optional sidecar; undeclared nodes degrade to plain strings and are still validated on save.
+-->
+<scheme>
+	<tag name="msg_container" desc="Runestone message container">
+		<child tag="msg_sheaf" multiple="Y"/>
+	</tag>
+	<tag name="msg_sheaf" desc="kDefault = shared text; a stone vnum = that stone's kName codeword">
+		<attr name="id" type="string" readonly="Y" desc="kDefault (shared) or a stone vnum; immutable"/>
+		<child tag="message" multiple="Y"/>
+	</tag>
+	<tag name="message" desc="One message line (a slot may repeat to form a random pool)">
+		<attr name="type" type="enum" enum="ERuneStoneMsg" desc="Message slot (kName per-stone; the rest shared)"/>
+		<attr name="val" type="string" desc="Text: named fmt args ({name}/{count}/{limit}) and &amp; colour codes"/>
+	</tag>
+</scheme>
+
+<!-- vim: ts=4 sw=4 tw=0 noet syntax=xml : -->

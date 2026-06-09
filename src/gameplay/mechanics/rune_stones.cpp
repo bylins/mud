@@ -75,6 +75,55 @@ const std::string &RuneStoneName(int stone_vnum) {
 void RuneStoneMessagesLoader::Load(parser_wrapper::DataNode data) { RuneStoneMsgContainer().Init(data.Children()); }
 void RuneStoneMessagesLoader::Reload(parser_wrapper::DataNode data) { RuneStoneMsgContainer().Reload(data.Children()); }
 
+// ---- Vedun editable surface for the message file (vnum-keyed sheaves, mirrors guild_messages) ------
+
+std::string RuneStoneMessagesLoader::EditableWhat() const { return "runestonemsg"; }
+
+std::vector<cfg_manager::EditableElement> RuneStoneMessagesLoader::ListElements() const {
+	std::vector<cfg_manager::EditableElement> out;
+	for (const auto &sheaf : RuneStoneMsgContainer()) {
+		const int id = sheaf.GetId();
+		if (id == info_container::kUndefinedVnum) {
+			out.push_back({"kDefault", "runestone messages (shared)"});
+		} else {
+			out.push_back({std::to_string(id),
+					"runestone '" + RuneStoneName(id) + "' (vnum " + std::to_string(id) + ")"});
+		}
+	}
+	return out;
+}
+
+cfg_manager::ValidationResult RuneStoneMessagesLoader::Validate(parser_wrapper::DataNode &doc) const {
+	if (RuneStoneMsgContainer().Validate(doc.Children())) {
+		return {true, ""};
+	}
+	return {false, "Runestone-message data failed to parse (see syslog for the offending sheaf/message)."};
+}
+
+std::string RuneStoneMessagesLoader::CanonicalElementId(const std::string &id) const {
+	if (id == "kDefault") {
+		return "kDefault";
+	}
+	// A per-stone sheaf is keyed by a non-negative stone vnum.
+	if (id.empty()) {
+		return "";
+	}
+	for (const char c : id) {
+		if (c < '0' || c > '9') {
+			return "";
+		}
+	}
+	return id;
+}
+
+parser_wrapper::DataNode RuneStoneMessagesLoader::CreateElementNode(parser_wrapper::DataNode root,
+																	const std::string &id) const {
+	// An empty sheaf for `id`; the editor then adds <message> children.
+	auto node = root.AddChild("msg_sheaf");
+	node.SetValue("id", id);
+	return node;
+}
+
 // ============================================ RUNESTONE / ROSTER =============================================
 
 void Runestone::SetEnabled(bool enabled) {
