@@ -18,6 +18,7 @@
 #include "engine/structs/info_container.h"      // EItemMode + NAMES_OF
 #include "gameplay/affects/affect_contants.h" // EAffFlag + NAMES_OF
 #include "gameplay/skills/skills.h"           // ESkill + NAMES_OF
+#include "engine/core/config.h"               // ECommonMsg + NAMES_OF
 
 namespace vedun {
 
@@ -125,6 +126,7 @@ void RegisterEditorEnums() {
 	registry.Register<specials::ERentMsg>("ERentMsg");
 	registry.Register<specials::EShopMsg>("EShopMsg");
 	registry.Register<specials::EBoardMsg>("EBoardMsg");
+	registry.Register<ECommonMsg>("ECommonMsg");
 }
 
 } // namespace vedun

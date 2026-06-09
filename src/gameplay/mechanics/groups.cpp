@@ -493,7 +493,7 @@ void group::GoGroup(CharData *ch, char *argument) {
 	vict = target_resolver::FindCharInRoom(ch, buf);
 
 	if (!vict) {
-		SendMsgToChar(NOPERSON, ch);
+		SendMsgToChar(CommonMsg(ECommonMsg::kNoPerson) + "\r\n", ch);
 	} else if ((vict->get_master() != ch) && (vict != ch)) {
 		act("$N2 нужно следовать за вами, чтобы стать членом вашей группы.", false, ch, nullptr, vict, kToChar);
 	} else if (IsAffectedBySpell(vict, ESpell::kFrenzy)) {

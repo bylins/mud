@@ -21,7 +21,7 @@ void do_beep(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!*buf)
 		SendMsgToChar("Кого вызывать?\r\n", ch);
 	else if (!(vict = target_resolver::FindCharInWorld(ch, buf)) || vict->IsNpc())
-		SendMsgToChar(NOPERSON, ch);
+		SendMsgToChar(CommonMsg(ECommonMsg::kNoPerson) + "\r\n", ch);
 	else if (ch == vict)
 		SendMsgToChar("\007\007Вы вызвали себя!\r\n", ch);
 	else if (ch->IsFlagged(EPrf::kNoTell))
@@ -43,7 +43,7 @@ void perform_beep(CharData *ch, CharData *vict) {
 	SendMsgToChar(kColorNrm, vict);
 
 	if (ch->IsFlagged(EPrf::kNoRepeat))
-		SendMsgToChar(OK, ch);
+		SendMsgToChar(CommonMsg(ECommonMsg::kOk) + "\r\n", ch);
 	else {
 		SendMsgToChar(kColorRed, ch);
 		sprintf(buf, "Вы вызвали $N3.");

@@ -19,7 +19,7 @@ void DoRestore(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	if (!*buf)
 		SendMsgToChar("Кого вы хотите восстановить?\r\n", ch);
 	else if (!(vict = target_resolver::FindCharInWorld(ch, buf)))
-		SendMsgToChar(NOPERSON, ch);
+		SendMsgToChar(CommonMsg(ECommonMsg::kNoPerson) + "\r\n", ch);
 	else {
 		// имм с привилегией arena может ресторить только чаров, находящихся с ним на этой же арене
 		// плюс исключается ситуация, когда они в одной зоне, но чар не в клетке арены
@@ -54,7 +54,7 @@ void DoRestore(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		ch->timed_skill.clear();
 		ch->timed_feat.clear();
 		if (subcmd == kScmdRestoreGod) {
-			SendMsgToChar(OK, ch);
+			SendMsgToChar(CommonMsg(ECommonMsg::kOk) + "\r\n", ch);
 			act("Вы были полностью восстановлены $N4!",
 				false, vict, nullptr, ch, kToChar);
 		}

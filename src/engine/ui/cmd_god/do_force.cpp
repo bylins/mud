@@ -26,12 +26,12 @@ void do_force(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		CharData *vict = nullptr;
 		vict = target_resolver::FindCharInWorld(ch, arg);
 		if (!vict) {
-			SendMsgToChar(NOPERSON, ch);
+			SendMsgToChar(CommonMsg(ECommonMsg::kNoPerson) + "\r\n", ch);
 		} else if (!vict->IsNpc() && GetRealLevel(ch) <= GetRealLevel(vict) && !ch->IsFlagged(EPrf::kCoderinfo)) {
 			SendMsgToChar("Господи, только не это!\r\n", ch);
 		} else {
 			char *pstr;
-			SendMsgToChar(OK, ch);
+			SendMsgToChar(CommonMsg(ECommonMsg::kOk) + "\r\n", ch);
 			act(buf1, true, ch, nullptr, vict, kToVict);
 			sprintf(buf, "(GC) %s forced %s to %s", GET_NAME(ch), GET_NAME(vict), to_force);
 			while ((pstr = strchr(buf, '%')) != nullptr) {
@@ -43,7 +43,7 @@ void do_force(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 	} else if (!str_cmp("room", arg)
 		|| !str_cmp("здесь", arg)) {
-		SendMsgToChar(OK, ch);
+		SendMsgToChar(CommonMsg(ECommonMsg::kOk) + "\r\n", ch);
 		sprintf(buf, "(GC) %s forced room %d to %s", GET_NAME(ch), GET_ROOM_VNUM(ch->in_room), to_force);
 		mudlog(buf, NRM, std::max(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
 		imm_log("%s forced room %d to %s", GET_NAME(ch), GET_ROOM_VNUM(ch->in_room), to_force);
@@ -61,7 +61,7 @@ void do_force(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 	} else        // force all
 	{
-		SendMsgToChar(OK, ch);
+		SendMsgToChar(CommonMsg(ECommonMsg::kOk) + "\r\n", ch);
 		sprintf(buf, "(GC) %s forced all to %s", GET_NAME(ch), to_force);
 		mudlog(buf, NRM, std::max(kLvlGod, GET_INVIS_LEV(ch)), SYSLOG, true);
 		imm_log("%s forced all to %s", GET_NAME(ch), to_force);

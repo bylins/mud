@@ -173,7 +173,7 @@ void do_follow(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 		leader = target_resolver::FindCharInRoom(ch, smallBuf);
 		if (!leader) {
-			SendMsgToChar(NOPERSON, ch);
+			SendMsgToChar(CommonMsg(ECommonMsg::kNoPerson) + "\r\n", ch);
 			return;
 		}
 	} else {

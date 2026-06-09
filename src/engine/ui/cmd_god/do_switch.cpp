@@ -45,7 +45,7 @@ void DoSwitch(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				return;
 			}
 
-			SendMsgToChar(OK, ch);
+			SendMsgToChar(CommonMsg(ECommonMsg::kOk) + "\r\n", ch);
 
 			ch->desc->character = victim;
 			ch->desc->original = me;

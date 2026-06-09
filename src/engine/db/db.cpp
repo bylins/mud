@@ -377,6 +377,9 @@ void GameLoader::BootWorld(std::unique_ptr<world_loader::IWorldDataSource> data_
 	if (!affected_bits) {
 		MUD::CfgManager().LoadCfg("affects");
 		MUD::CfgManager().LoadCfg("affect_messages");
+		// issue.common-msg: nothing_string (CommonMsg(kNothing)) is used by sprintbits during the
+		// object/mob load below, so common_messages must be ready before the world parses.
+		MUD::CfgManager().LoadCfg("common_messages");
 	}
 
 	// CharData::set_skill() / CObjectPrototype::set_skill() drop any skill

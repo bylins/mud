@@ -16,7 +16,7 @@ void do_gsay(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	CharData *k;
 
 	if (AFF_FLAGGED(ch, EAffect::kSilence)) {
-		SendMsgToChar(SIELENCE, ch);
+		SendMsgToChar(CommonMsg(ECommonMsg::kSilenced) + "\r\n", ch);
 		return;
 	}
 
@@ -76,7 +76,7 @@ void do_gsay(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 
 		if (ch->IsFlagged(EPrf::kNoRepeat))
-			SendMsgToChar(OK, ch);
+			SendMsgToChar(CommonMsg(ECommonMsg::kOk) + "\r\n", ch);
 		else {
 			sprintf(buf, "Вы сообщили группе : '%s'\r\n", argument);
 			SendMsgToChar(buf, ch);

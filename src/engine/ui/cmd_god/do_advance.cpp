@@ -60,7 +60,7 @@ void DoAdvance(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			false, ch, nullptr, victim, kToVict);
 	}
 
-	SendMsgToChar(OK, ch);
+	SendMsgToChar(CommonMsg(ECommonMsg::kOk) + "\r\n", ch);
 	if (newlevel < oldlevel) {
 		log("(GC) %s demoted %s from level %d to %d.", GET_NAME(ch), GET_NAME(victim), oldlevel, newlevel);
 		imm_log("%s demoted %s from level %d to %d.", GET_NAME(ch), GET_NAME(victim), oldlevel, newlevel);

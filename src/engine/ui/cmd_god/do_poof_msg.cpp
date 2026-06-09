@@ -31,7 +31,7 @@ void DoSetPoofMsg(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	else
 		*msg = str_dup(argument);
 
-	SendMsgToChar(OK, ch);
+	SendMsgToChar(CommonMsg(ECommonMsg::kOk) + "\r\n", ch);
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

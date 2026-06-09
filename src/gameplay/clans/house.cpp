@@ -1438,7 +1438,7 @@ void Clan::CharToChannel(CharData *ch, std::string text, int subcmd) {
 	}
 
 	if (AFF_FLAGGED(ch, EAffect::kSilence)) {
-		SendMsgToChar(SIELENCE, ch);
+		SendMsgToChar(CommonMsg(ECommonMsg::kSilenced) + "\r\n", ch);
 		return;
 	}
 

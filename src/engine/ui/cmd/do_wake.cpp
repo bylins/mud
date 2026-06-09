@@ -26,7 +26,7 @@ void do_wake(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		if (ch->GetPosition() == EPosition::kSleep)
 			SendMsgToChar("Может быть вам лучше проснуться?\r\n", ch);
 		else if ((vict = target_resolver::FindCharInRoom(ch, arg)) == nullptr)
-			SendMsgToChar(NOPERSON, ch);
+			SendMsgToChar(CommonMsg(ECommonMsg::kNoPerson) + "\r\n", ch);
 		else if (vict == ch)
 			self = 1;
 		else if (AWAKE(vict))

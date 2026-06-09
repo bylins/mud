@@ -34,6 +34,7 @@
 #include "gameplay/ai/special_messages.h"
 #include "gameplay/affects/affects_loader.h"
 #include "gameplay/affects/affect_messages.h"
+#include "engine/core/common_messages.h"
 
 namespace cfg_manager {
 
@@ -96,6 +97,8 @@ CfgManager::CfgManager() {
 										  std::make_unique<affects::AffectsLoader>(affects::AffectsLoader())));
 	loaders_.emplace("affect_messages", LoaderInfo("cfg/messages/ru/affect_msg.xml",
 										  std::make_unique<affects::AffectMessagesLoader>(affects::AffectMessagesLoader())));
+	loaders_.emplace("common_messages", LoaderInfo("cfg/messages/ru/common_msg.xml",
+										  std::make_unique<CommonMessagesLoader>(CommonMessagesLoader())));
 	loaders_.emplace("socials", LoaderInfo("cfg/messages/ru/social_msg.xml",
 										  std::make_unique<communication::social::SocialsLoader>(communication::social::SocialsLoader())));
 	loaders_.emplace("guilds", LoaderInfo("cfg/guilds.xml",

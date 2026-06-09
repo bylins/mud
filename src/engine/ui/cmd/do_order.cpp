@@ -57,7 +57,7 @@ void do_order(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					act("$n безразлично смотрят по сторонам.", false, vict, 0, 0, kToRoom);
 				}
 			} else {
-				SendMsgToChar(OK, ch);
+				SendMsgToChar(CommonMsg(ECommonMsg::kOk) + "\r\n", ch);
 				if (vict->get_wait() <= 0) {
 					command_interpreter(vict, message);
 				} else if (vict->GetEnemy()) {
@@ -87,7 +87,7 @@ void do_order(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			}
 
 			if (found) {
-				SendMsgToChar(OK, ch);
+				SendMsgToChar(CommonMsg(ECommonMsg::kOk) + "\r\n", ch);
 			} else {
 				SendMsgToChar("Вы страдаете манией величия!\r\n", ch);
 			}

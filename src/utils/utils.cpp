@@ -1185,8 +1185,10 @@ bool sprintbitwd(Bitvector bitvector, const char *names[], char *result, size_t 
 		}
 	}
 
+	// issue.common-msg: sprintbitwd stays a pure formatter -- on an empty bitvector it leaves an empty
+	// result and returns false. The "nothing" word (CommonMsg(kNothing)) is substituted by the wrappers
+	// above it (FlagData::sprintbits, and the few direct callers that show the result to a player).
 	if ('\0' == *result) {
-		strncat(result, nothing_string, result_size - 1);
 		return false;
 	}
 

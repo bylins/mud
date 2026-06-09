@@ -24,7 +24,7 @@ void do_offtop(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 	//if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kSoundproof) || ROOM_FLAGGED(ch->in_room, ERoomFlag::kTribune))
 	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kSoundproof)) {
-		SendMsgToChar(SOUNDPROOF, ch);
+		SendMsgToChar(CommonMsg(ECommonMsg::kSoundproof) + "\r\n", ch);
 		return;
 	}
 	if (GetRealLevel(ch) < offtop_system::kMinOfftopLvl && !GetRealRemort(ch)) {

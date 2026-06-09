@@ -75,7 +75,7 @@ void do_display(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 	}
 
-	SendMsgToChar(OK, ch);
+	SendMsgToChar(CommonMsg(ECommonMsg::kOk) + "\r\n", ch);
 }
 
 void set_display_bits(CharData *ch, bool flag) {

@@ -46,7 +46,7 @@ void do_pray_gods(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 	if (ch->IsFlagged(EPrf::kNoRepeat))
-		SendMsgToChar(OK, ch);
+		SendMsgToChar(CommonMsg(ECommonMsg::kOk) + "\r\n", ch);
 	else {
 		if (ch->IsNpc())
 			return;

@@ -20,7 +20,7 @@ void DoSendMsgToChar(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) 
 		return;
 	}
 	if (!(vict = target_resolver::FindPlayerVis(ch, arg))) {
-		SendMsgToChar(NOPERSON, ch);
+		SendMsgToChar(CommonMsg(ECommonMsg::kNoPerson) + "\r\n", ch);
 		return;
 	}
 	SendMsgToChar(buf, vict);

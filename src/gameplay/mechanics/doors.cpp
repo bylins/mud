@@ -314,7 +314,7 @@ void do_doorcmd(CharData *ch, ObjData *obj, int door, EDoorScmd scmd) {
 				system_obj::process_open_purse(ch, obj);
 				return;
 			} else {
-				SendMsgToChar(OK, ch);
+				SendMsgToChar(CommonMsg(ECommonMsg::kOk) + "\r\n", ch);
 			}
 			break;
 

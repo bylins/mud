@@ -18,14 +18,14 @@ void do_tell(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 
 	if (AFF_FLAGGED(ch, EAffect::kSilence)) {
-		SendMsgToChar(SIELENCE, ch);
+		SendMsgToChar(CommonMsg(ECommonMsg::kSilenced) + "\r\n", ch);
 		return;
 	}
 
 	/* Непонятно нафига нужно
 	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kTribune))
 	{
-		SendMsgToChar(SOUNDPROOF, ch);
+		SendMsgToChar(CommonMsg(ECommonMsg::kSoundproof) + "\r\n", ch);
 		return;
 	}
 	*/
@@ -35,9 +35,9 @@ void do_tell(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!*buf || !*buf2) {
 		SendMsgToChar("Что и кому вы хотите сказать?\r\n", ch);
 	} else if (!(vict = target_resolver::FindPlayerVis(ch, buf))) {
-		SendMsgToChar(NOPERSON, ch);
+		SendMsgToChar(CommonMsg(ECommonMsg::kNoPerson) + "\r\n", ch);
 	} else if (vict->IsNpc())
-		SendMsgToChar(NOPERSON, ch);
+		SendMsgToChar(CommonMsg(ECommonMsg::kNoPerson) + "\r\n", ch);
 	else if (is_tell_ok(ch, vict)) {
 		if (ch->IsFlagged(EPrf::kNoTell))
 			SendMsgToChar("Ответить вам не смогут!\r\n", ch);

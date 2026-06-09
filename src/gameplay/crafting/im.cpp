@@ -1094,7 +1094,7 @@ void do_rset(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	vict = target_resolver::FindCharInWorld(ch, name);
 
 	if (!vict) {
-		SendMsgToChar(NOPERSON, ch);
+		SendMsgToChar(CommonMsg(ECommonMsg::kNoPerson) + "\r\n", ch);
 		return;
 	}
 	skip_spaces(&argument);

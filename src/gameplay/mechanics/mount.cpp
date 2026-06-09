@@ -41,7 +41,7 @@ void do_horseon(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		horse = ch->get_horse();
 
 	if (horse == nullptr)
-		SendMsgToChar(NOPERSON, ch);
+		SendMsgToChar(CommonMsg(ECommonMsg::kNoPerson) + "\r\n", ch);
 	else if (horse->in_room != ch->in_room)
 		SendMsgToChar("Ваш скакун далеко от вас.\r\n", ch);
 	else if (!IS_HORSE(horse))
@@ -109,7 +109,7 @@ void do_horseget(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		horse = ch->get_horse();
 
 	if (horse == nullptr)
-		SendMsgToChar(NOPERSON, ch);
+		SendMsgToChar(CommonMsg(ECommonMsg::kNoPerson) + "\r\n", ch);
 	else if (horse->in_room != ch->in_room)
 		SendMsgToChar("Ваш скакун далеко от вас.\r\n", ch);
 	else if (!IS_HORSE(horse))
@@ -146,7 +146,7 @@ void do_horseput(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	else
 		horse = ch->get_horse();
 	if (horse == nullptr)
-		SendMsgToChar(NOPERSON, ch);
+		SendMsgToChar(CommonMsg(ECommonMsg::kNoPerson) + "\r\n", ch);
 	else if (horse->in_room != ch->in_room)
 		SendMsgToChar("Ваш скакун далеко от вас.\r\n", ch);
 	else if (!IS_HORSE(horse))
@@ -179,7 +179,7 @@ void do_horsetake(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	if (horse == nullptr) {
-		SendMsgToChar(NOPERSON, ch);
+		SendMsgToChar(CommonMsg(ECommonMsg::kNoPerson) + "\r\n", ch);
 		return;
 	} else if (!horse->IsNpc()) {
 		SendMsgToChar("Господи, не чуди...\r\n", ch);

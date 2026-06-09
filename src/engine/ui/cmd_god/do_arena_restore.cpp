@@ -18,7 +18,7 @@ void DoArenaRestore(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (!*buf)
 		SendMsgToChar("Кого вы хотите восстановить?\r\n", ch);
 	else if (!(vict = target_resolver::FindCharInWorld(ch, buf)))
-		SendMsgToChar(NOPERSON, ch);
+		SendMsgToChar(CommonMsg(ECommonMsg::kNoPerson) + "\r\n", ch);
 	else {
 		vict->set_hit(vict->get_real_max_hit());
 		vict->set_move(vict->get_real_max_move());

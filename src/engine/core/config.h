@@ -9,6 +9,8 @@
 #include <cstdio>
 #include <array>
 #include <functional>
+#include <map>
+#include <string>
 
 /*
 * Should the game automatically save people?  (i.e., save player data
@@ -261,8 +263,25 @@ extern RuntimeConfiguration runtime_config;
 
 int calc_loadroom(const CharData *ch, int bplace_mode = kBirthplaceUndefined);
 
-extern char const *OK;
-extern char const *NOPERSON;
-extern const char *nothing_string;
+// issue.common-msg: shared one-off engine strings, moved into cfg/messages/ru/common_msg.xml. The enum
+// + accessor live here (config.h is widely included, so call sites need no extra include); the cfg
+// loader is in common_messages.h. Values are stored without a trailing \r\n -- line callers append it.
+enum class ECommonMsg {
+	kUndefined = 0,
+	kSilenced,     // was SIELENCE
+	kSoundproof,   // was SOUNDPROOF
+	kOk,           // was OK
+	kNoPerson,     // was NOPERSON
+	kNothing,      // was nothing_string (inline fragment; no newline)
+};
+
+[[nodiscard]] const std::string &CommonMsg(ECommonMsg id);
+
+template<>
+const std::string &NAME_BY_ITEM<ECommonMsg>(ECommonMsg item);
+template<>
+ECommonMsg ITEM_BY_NAME<ECommonMsg>(const std::string &name);
+template<>
+const std::map<ECommonMsg, std::string> &NAMES_OF<ECommonMsg>();
 
 #endif // __CONFIG_HPP__

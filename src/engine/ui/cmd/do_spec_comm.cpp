@@ -17,7 +17,7 @@ void do_spec_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	char vict3[kMaxInputLength];
 
 	if (AFF_FLAGGED(ch, EAffect::kSilence)) {
-		SendMsgToChar(SIELENCE, ch);
+		SendMsgToChar(CommonMsg(ECommonMsg::kSilenced) + "\r\n", ch);
 		return;
 	}
 
@@ -46,7 +46,7 @@ void do_spec_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		sprintf(buf, "Что вы хотите %s.. и %s?\r\n", action_sing, vict1);
 		SendMsgToChar(buf, ch);
 	} else if (!(vict = target_resolver::FindCharInRoom(ch, buf)))
-		SendMsgToChar(NOPERSON, ch);
+		SendMsgToChar(CommonMsg(ECommonMsg::kNoPerson) + "\r\n", ch);
 	else if (vict == ch)
 		SendMsgToChar("От ваших уст до ушей - всего одна ладонь...\r\n", ch);
 	else if (ignores(vict, ch, subcmd == kScmdWhisper ? EIgnore::kWhisper : EIgnore::kAsk)) {
@@ -64,7 +64,7 @@ void do_spec_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		act(buffer.str().c_str(), false, ch, nullptr, vict, kToVict | kToNotDeaf);
 
 		if (ch->IsFlagged(EPrf::kNoRepeat))
-			SendMsgToChar(OK, ch);
+			SendMsgToChar(CommonMsg(ECommonMsg::kOk) + "\r\n", ch);
 		else {
 			std::stringstream buffer;
 			buffer << "Вы " << action_plur << "и " << vict3 << " : '" << buf2 << "'" << "\r\n";

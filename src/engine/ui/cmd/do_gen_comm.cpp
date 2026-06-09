@@ -96,7 +96,7 @@ void do_gen_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		return;
 
 	if (AFF_FLAGGED(ch, EAffect::kSilence)) {
-		SendMsgToChar(SIELENCE, ch);
+		SendMsgToChar(CommonMsg(ECommonMsg::kSilenced) + "\r\n", ch);
 		return;
 	}
 
@@ -111,7 +111,7 @@ void do_gen_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 	}
 	//if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kSoundproof) || ROOM_FLAGGED(ch->in_room, ERoomFlag::kTribune))
 	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kSoundproof)) {
-		SendMsgToChar(SOUNDPROOF, ch);
+		SendMsgToChar(CommonMsg(ECommonMsg::kSoundproof) + "\r\n", ch);
 		return;
 	}
 
@@ -187,12 +187,12 @@ void do_gen_comm(CharData *ch, char *argument, int/* cmd*/, int subcmd) {
 		/* Непонятный запрет
 		if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kTribune))
 		{
-			SendMsgToChar(SOUNDPROOF, ch);
+			SendMsgToChar(CommonMsg(ECommonMsg::kSoundproof) + "\r\n", ch);
 			return;
 		}
 		*/
 		if (ch->IsFlagged(EPrf::kNoRepeat))
-			SendMsgToChar(OK, ch);
+			SendMsgToChar(CommonMsg(ECommonMsg::kOk) + "\r\n", ch);
 		else {
 			snprintf(buf1, kMaxStringLength, "%sВы %s : '%s'%s", color_on,
 					 com_msgs[subcmd].you_action, argument, kColorNrm);

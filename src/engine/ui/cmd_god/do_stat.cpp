@@ -525,6 +525,9 @@ void do_stat_character(CharData *ch, CharData *k, const int virt) {
 
 		if (ch->IsImpl()) {
 			sprintbitwd(k->player_specials->saved.GodsLike, godslike_bits, smallBuf, sizeof(smallBuf), ", ");
+			if (!*smallBuf) {  // sprintbitwd no longer substitutes the "nothing" word; do_stat is an
+				strcpy(smallBuf, "nothing");  // immortal-only command, so a plain English literal is fine
+			}
 			out_str = utils::Split(smallBuf, ',');
 			snprintf(buf, sizeof(buf), "GFL: %s%s%s\r\n", kColorCyn, utils::OutWordsList(out_str, ch->player_specials->saved.stringLength - 10).c_str(), kColorNrm);
 			SendMsgToChar(buf, ch);

@@ -41,7 +41,7 @@ void do_page(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		if ((vict != nullptr)) {
 			act(buffer.str().c_str(), false, ch, nullptr, vict, kToVict);
 			if (ch->IsFlagged(EPrf::kNoRepeat))
-				SendMsgToChar(OK, ch);
+				SendMsgToChar(CommonMsg(ECommonMsg::kOk) + "\r\n", ch);
 			else
 				act(buffer.str().c_str(), false, ch, nullptr, vict, kToChar);
 		} else

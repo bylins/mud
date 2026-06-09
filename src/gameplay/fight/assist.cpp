@@ -37,7 +37,7 @@ void do_assist(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	} else {
 		helpee = target_resolver::FindCharInRoom(ch, arg);
 		if (!helpee) {
-			SendMsgToChar(NOPERSON, ch);
+			SendMsgToChar(CommonMsg(ECommonMsg::kNoPerson) + "\r\n", ch);
 			return;
 		}
 	}

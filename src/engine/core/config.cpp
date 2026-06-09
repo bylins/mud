@@ -15,6 +15,9 @@
 #define __CONFIG_C__
 
 #include "config.h"
+#include "common_messages.h"
+#include "engine/structs/msg_container.h"
+#include "engine/structs/info_container.h"   // kUndefinedVnum
 #include "utils/timestamp.h"
 
 #include "third_party_libs/pugixml/pugixml.h"
@@ -88,9 +91,8 @@ int dts_are_dumps = YES;
  */
 int load_into_inventory = YES;
 
-const char *OK = "Ладушки.\r\n";
-const char *NOPERSON = "Нет такого создания в этом мире.\r\n";
-const char *nothing_string = "ничего";
+// issue.common-msg: OK / NOPERSON / nothing_string (and SIELENCE / SOUNDPROOF from constants.cpp) moved
+// to cfg/messages/ru/common_msg.xml; see CommonMsg() / CommonMessagesLoader below.
 
 /*
  * You can define or not define TRACK_THOUGH_DOORS, depending on whether
@@ -973,3 +975,46 @@ void RuntimeConfiguration::load_admin_api_configuration(const pugi::xml_node *ro
 	}
 }
 #endif
+
+// --- issue.common-msg: shared engine messages (cfg/messages/ru/common_msg.xml) ----------------------
+namespace {
+const std::map<ECommonMsg, std::string> kCommonMsgNames{
+		{ECommonMsg::kUndefined, "kUndefined"},
+		{ECommonMsg::kSilenced, "kSilenced"},
+		{ECommonMsg::kSoundproof, "kSoundproof"},
+		{ECommonMsg::kOk, "kOk"},
+		{ECommonMsg::kNoPerson, "kNoPerson"},
+		{ECommonMsg::kNothing, "kNothing"},
+	};
+
+msg_container::MsgContainer<int, ECommonMsg> &CommonMsgContainer() {
+	static msg_container::MsgContainer<int, ECommonMsg> container;
+	return container;
+}
+}  // namespace
+
+template<>
+const std::string &NAME_BY_ITEM<ECommonMsg>(const ECommonMsg item) {
+	return kCommonMsgNames.at(item);
+}
+template<>
+const std::map<ECommonMsg, std::string> &NAMES_OF<ECommonMsg>() {
+	return kCommonMsgNames;
+}
+template<>
+ECommonMsg ITEM_BY_NAME<ECommonMsg>(const std::string &name) {
+	static std::map<std::string, ECommonMsg> by_name;
+	if (by_name.empty()) {
+		for (const auto &[value, token] : kCommonMsgNames) {
+			by_name.emplace(token, value);
+		}
+	}
+	return by_name.at(name);
+}
+
+const std::string &CommonMsg(ECommonMsg id) {
+	return CommonMsgContainer().GetMessage(info_container::kUndefinedVnum, id);
+}
+
+void CommonMessagesLoader::Load(parser_wrapper::DataNode data) { CommonMsgContainer().Init(data.Children()); }
+void CommonMessagesLoader::Reload(parser_wrapper::DataNode data) { CommonMsgContainer().Reload(data.Children()); }

@@ -54,7 +54,7 @@ int is_tell_ok(CharData *ch, CharData *vict) {
 		return (true);
 
 	if (ROOM_FLAGGED(ch->in_room, ERoomFlag::kSoundproof))
-		SendMsgToChar(SOUNDPROOF, ch);
+		SendMsgToChar(CommonMsg(ECommonMsg::kSoundproof) + "\r\n", ch);
 	else if ((!vict->IsNpc() &&
 		(vict->IsFlagged(EPrf::kNoTell) || ignores(vict, ch, EIgnore::kTell))) ||
 		ROOM_FLAGGED(vict->in_room, ERoomFlag::kSoundproof)) {
@@ -102,7 +102,7 @@ void perform_tell(CharData *ch, CharData *vict, char *arg) {
 	}
 
 	if (ch->IsFlagged(EPrf::kNoRepeat)) {
-		SendMsgToChar(OK, ch);
+		SendMsgToChar(CommonMsg(ECommonMsg::kOk) + "\r\n", ch);
 	} else {
 		snprintf(buf, kMaxStringLength, "%sВы сказали %s : '%s'%s\r\n", kColorBoldCyn,
 				 tell_can_see(vict, ch) ? vict->player_data.PNames[ECase::kDat].c_str() : "кому-то", arg, kColorNrm);

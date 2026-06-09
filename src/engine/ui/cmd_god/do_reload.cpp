@@ -248,7 +248,7 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (const auto it = kReloadReminders.find(arg); it != kReloadReminders.end()) {
 		SendMsgToChar(it->second + "\r\n", ch);
 	}
-	SendMsgToChar(OK, ch);
+	SendMsgToChar(CommonMsg(ECommonMsg::kOk) + "\r\n", ch);
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

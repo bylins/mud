@@ -19,7 +19,7 @@ void do_diagnose(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (*buf) {
 		vict = target_resolver::FindCharInRoom(ch, buf);
 		if (!vict)
-			SendMsgToChar(NOPERSON, ch);
+			SendMsgToChar(CommonMsg(ECommonMsg::kNoPerson) + "\r\n", ch);
 		else
 			diag_char_to_char(vict, ch);
 	} else {

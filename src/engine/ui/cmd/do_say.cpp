@@ -11,7 +11,7 @@
 
 void do_say(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (AFF_FLAGGED(ch, EAffect::kSilence)) {
-		SendMsgToChar(SIELENCE, ch);
+		SendMsgToChar(CommonMsg(ECommonMsg::kSilenced) + "\r\n", ch);
 		return;
 	}
 
@@ -35,7 +35,7 @@ void do_say(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		}
 
 		if (ch->IsFlagged(EPrf::kNoRepeat)) {
-			SendMsgToChar(OK, ch);
+			SendMsgToChar(CommonMsg(ECommonMsg::kOk) + "\r\n", ch);
 		} else {
 			delete_doubledollar(argument);
 			sprintf(buf, "Вы сказали : '%s'\r\n", argument);

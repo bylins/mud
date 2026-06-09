@@ -140,8 +140,7 @@ extern const ObjVnum kStartBread;
 extern const ObjVnum kCreateLight;
 extern const int kHorseCost;
 
-extern const char *SIELENCE;
-extern const char *SOUNDPROOF;
+// issue.common-msg: SIELENCE / SOUNDPROOF moved to cfg/messages/ru/common_msg.xml (ECommonMsg).
 
 #endif // CONSTANTS_H_
 

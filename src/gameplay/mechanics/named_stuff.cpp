@@ -264,7 +264,7 @@ bool parse_nedit_menu(CharData *ch, char *arg) {
 				return false;
 			stuff_list.erase(ch->desc->old_vnum);
 			ch->desc->state = EConState::kPlaying;
-			SendMsgToChar(OK, ch);
+			SendMsgToChar(CommonMsg(ECommonMsg::kOk) + "\r\n", ch);
 			save();
 			return true;
 
@@ -280,12 +280,12 @@ bool parse_nedit_menu(CharData *ch, char *arg) {
 				stuff_list.erase(ch->desc->old_vnum);
 			stuff_list[ch->desc->cur_vnum] = tmp_node;
 			ch->desc->state = EConState::kPlaying;
-			SendMsgToChar(OK, ch);
+			SendMsgToChar(CommonMsg(ECommonMsg::kOk) + "\r\n", ch);
 			save();
 			return true;
 
 		case 'х': ch->desc->state = EConState::kPlaying;
-			SendMsgToChar(OK, ch);
+			SendMsgToChar(CommonMsg(ECommonMsg::kOk) + "\r\n", ch);
 			return true;
 
 		default: break;

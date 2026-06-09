@@ -1690,7 +1690,6 @@ const char *godslike_bits[] =
 		"\n"
 	};
 
-const char *SIELENCE{"Вы немы, как рыба об лед.\r\n"};
-const char *SOUNDPROOF{"Стены заглушили ваши слова.\r\n"};
+// issue.common-msg: SIELENCE / SOUNDPROOF moved to cfg/messages/ru/common_msg.xml (ECommonMsg).
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

@@ -80,7 +80,7 @@ CharData *give_find_vict(CharData *ch, char *local_arg) {
 		SendMsgToChar("Кому?\r\n", ch);
 		return (nullptr);
 	} else if (!(vict = target_resolver::FindCharInRoom(ch, local_arg))) {
-		SendMsgToChar(NOPERSON, ch);
+		SendMsgToChar(CommonMsg(ECommonMsg::kNoPerson) + "\r\n", ch);
 		return (nullptr);
 	} else if (vict == ch) {
 		SendMsgToChar("Вы переложили ЭТО из одного кармана в другой.\r\n", ch);
@@ -103,7 +103,7 @@ void perform_give_gold(CharData *ch, CharData *vict, int amount) {
 			false, ch, nullptr, nullptr, kToChar);
 		return;
 	}
-	SendMsgToChar(OK, ch);
+	SendMsgToChar(CommonMsg(ECommonMsg::kOk) + "\r\n", ch);
 	sprintf(buf, "$n дал$g вам %d %s.", amount, GetDeclensionInNumber(amount, EWhat::kMoneyU));
 	act(buf, false, ch, nullptr, vict, kToVict);
 	sprintf(buf, "$n дал$g %s $N2.",
@@ -145,7 +145,7 @@ void perform_give_nogat(CharData *ch, CharData *vict, int amount) {
 			false, ch, nullptr, nullptr, kToChar);
 		return;
 	}
-	SendMsgToChar(OK, ch);
+	SendMsgToChar(CommonMsg(ECommonMsg::kOk) + "\r\n", ch);
 	sprintf(buf, "$n дал$g вам %d %s.", amount, GetDeclensionInNumber(amount, EWhat::kNogataU));
 	act(buf, false, ch, nullptr, vict, kToVict);
 	if (amount > 4)

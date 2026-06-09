@@ -54,7 +54,7 @@ void DoSnoop(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			SendMsgToChar("Вы не можете.\r\n", ch);
 			return;
 		}
-		SendMsgToChar(OK, ch);
+		SendMsgToChar(CommonMsg(ECommonMsg::kOk) + "\r\n", ch);
 
 		ch->desc->snoop_with_map = false;
 		if (god_level >= kLvlImplementator && argument && *argument) {

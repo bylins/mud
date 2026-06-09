@@ -116,7 +116,7 @@ void SaySpell(CharData *ch, ESpell spell_id, CharData *tch, ObjData *tobj) {
 	if (!ch->IsNpc()) {
 		if (ch->IsFlagged(EPrf::kNoRepeat)) {
 			if (!ch->GetEnemy()) {
-				SendMsgToChar(OK, ch);
+				SendMsgToChar(CommonMsg(ECommonMsg::kOk) + "\r\n", ch);
 			}
 		} else {
 			EmitCastIncantBanner(ch, spell_id, tch);
