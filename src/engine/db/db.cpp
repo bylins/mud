@@ -880,9 +880,10 @@ void BootMudDataBase() {
 	log("Load mob races.");
 	MUD::CfgManager().LoadCfg("mob_races");
 
-	boot_profiler.next_step("Loading portals for 'town portal' spell");
-	log("Booting portals for 'town portal' spell");
-	MUD::Runestones().LoadRunestones();
+	boot_profiler.next_step("Loading runestones for 'town portal' spell");
+	log("Booting runestones for 'town portal' spell");
+	MUD::CfgManager().LoadCfg("rune_stone_messages");   // issue.runestones: names before the registry
+	MUD::CfgManager().LoadCfg("rune_stones");
 
 	boot_profiler.next_step("Loading made items");
 	log("Booting maked items");

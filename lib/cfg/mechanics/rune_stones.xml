@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="koi8-r"?>
+<!--
+    issue.runestones: runestone registry (replaces lib/misc/portals.lst). A stone is a vnum + a
+    Latin id (no enum, like guilds). room_vnum = the room the stone sits in; <skill id val> is the
+    skill + skill level needed to read/memorise it. root prototype= is the object vnum spawned as
+    the physical stone (phase 3). Names/text live in cfg/messages/ru/rune_stone_msg.xml.
+-->
+<rune_stones prototype="190">
+	<stone vnum="0" id="kBegin" room_vnum="4000">
+		<skill id="kTownportal" val="3"/>
+	</stone>
+</rune_stones>

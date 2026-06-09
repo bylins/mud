@@ -99,9 +99,9 @@ void TryOpenLabelPortal(CharData *ch, char *argument) {
 Runestone GetLabelPortal(CharData *ch) {
 	auto label_room = room_spells::FindAffectedRoomByCasterID(ch->get_uid(), ESpell::kRuneLabel);
 	if (label_room) {
-		return {ch->get_name(), label_room->vnum, 1};
+		return {ch->get_name(), label_room->vnum, ESkill::kTownportal, 1};
 	} else {
-		return {"undefined", kNowhere, 1, Runestone::State::kForbidden};
+		return {"undefined", kNowhere, ESkill::kTownportal, 1, "", Runestone::State::kForbidden};
 	}
 }
 

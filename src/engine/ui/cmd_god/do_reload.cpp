@@ -82,7 +82,8 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		MUD::CfgManager().ReloadCfg("zone_types");
 		MUD::CfgManager().ReloadCfg("rune_spells");
 		ReloadSpecProcs();
-		MUD::Runestones().LoadRunestones();
+		MUD::CfgManager().ReloadCfg("rune_stone_messages");
+		MUD::CfgManager().ReloadCfg("rune_stones");
 		LoadSheduledReboot();
 		oload_table.init();
 		ObjData::InitSetTable();
@@ -96,9 +97,10 @@ void DoReload(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		stats_reset::init();
 		Bonus::bonus_log_load();
 		DailyQuest::LoadFromFile();
-	} else if (!str_cmp(arg, "portals"))
-		MUD::Runestones().LoadRunestones();
-	else if (!str_cmp(arg, "abilities")) {
+	} else if (!str_cmp(arg, "portals")) {
+		MUD::CfgManager().ReloadCfg("rune_stone_messages");
+		MUD::CfgManager().ReloadCfg("rune_stones");
+	} else if (!str_cmp(arg, "abilities")) {
 		MUD::CfgManager().ReloadCfg("abilities");
 	} else if (!str_cmp(arg, "skills")) {
 		MUD::CfgManager().ReloadCfg("skills");

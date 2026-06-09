@@ -35,6 +35,7 @@
 #include "gameplay/affects/affects_loader.h"
 #include "gameplay/affects/affect_messages.h"
 #include "engine/core/common_messages.h"
+#include "gameplay/mechanics/rune_stones_loaders.h"
 
 namespace cfg_manager {
 
@@ -107,6 +108,10 @@ CfgManager::CfgManager() {
 										  std::make_unique<zone_types::ZoneTypesLoader>(zone_types::ZoneTypesLoader())));
 	loaders_.emplace("rune_spells", LoaderInfo("cfg/mechanics/rune_spells.xml",
 										  std::make_unique<rune_spells::RuneSpellsLoader>(rune_spells::RuneSpellsLoader())));
+	loaders_.emplace("rune_stone_messages", LoaderInfo("cfg/messages/ru/rune_stone_msg.xml",
+										  std::make_unique<RuneStoneMessagesLoader>(RuneStoneMessagesLoader())));
+	loaders_.emplace("rune_stones", LoaderInfo("cfg/mechanics/rune_stones.xml",
+										  std::make_unique<RuneStonesLoader>(RuneStonesLoader())));
 	loaders_.emplace("mob_classes", LoaderInfo("cfg/mob_classes.xml",
 								  std::make_unique<mob_classes::MobClassesLoader>(mob_classes::MobClassesLoader())));
 }

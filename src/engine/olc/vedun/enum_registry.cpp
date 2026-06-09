@@ -14,6 +14,7 @@
 #include "gameplay/ai/special_messages.h"          // specials::ESpecialMsg/EBankMsg + NAMES_OF
 #include "gameplay/communication/social.h"        // ESocialMsg + NAMES_OF
 #include "gameplay/fight/fight_messages.h"     // EFightMsg/EDamageSource + NAMES_OF
+#include "gameplay/mechanics/rune_stones.h"      // ERuneStoneMsg + NAMES_OF
 #include "engine/entities/entities_constants.h" // EPosition + NAMES_OF
 #include "engine/structs/info_container.h"      // EItemMode + NAMES_OF
 #include "gameplay/affects/affect_contants.h" // EAffFlag + NAMES_OF
@@ -127,6 +128,7 @@ void RegisterEditorEnums() {
 	registry.Register<specials::EShopMsg>("EShopMsg");
 	registry.Register<specials::EBoardMsg>("EBoardMsg");
 	registry.Register<ECommonMsg>("ECommonMsg");
+	registry.Register<ERuneStoneMsg>("ERuneStoneMsg");
 }
 
 } // namespace vedun

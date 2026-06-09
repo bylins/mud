@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="koi8-r"?>
+<!--
+    issue.runestones: runestone display text. Per-stone sheaf (id = stone vnum) holds kName; the
+    kDefault sheaf holds the shared text ({name}/{count}/{limit}). ("рунные метки" -> "рунные камни".)
+-->
+<msg_container>
+	<msg_sheaf id="kDefault">
+		<message type="kRoomNormal" val="Рунный камень с изображением пентаграммы немного выступает из земли."/>
+		<message type="kRoomDamaged" val="Рунный камень с изображением пентаграммы немного выступает из земли... расколот."/>
+		<message type="kInspectNormal" val="На камне огненными рунами начертано слово '&amp;R{name}&amp;n'."/>
+		<message type="kInspectDamaged" val="Камень грубо расколот на несколько частей и прочитать надпись невозможно."/>
+		<message type="kLackSkillNormal" val="Здесь что-то написано огненными рунами, но вы еще недостаточно искусны, чтобы разобрать слово."/>
+		<message type="kLackSkillDamaged" val="Камень расколот, и вы при всем желании не разберете, что на нем было написано."/>
+		<message type="kListEmpty" val="В настоящий момент вам неизвестны рунные камни."/>
+		<message type="kListHeader" val="Вам известны следующие рунные камни:"/>
+		<message type="kListCount" val="Сейчас вы помните {count} рунных камней."/>
+		<message type="kListLimit" val="Максимально возможно {limit}."/>
+		<message type="kMemorized" val="Вы осмотрели надпись и крепко запомнили начертанное огненными рунами слово '&amp;R{name}&amp;n'."/>
+		<message type="kForgotten" val="Вы полностью забыли, как выглядит рунный камень '&amp;R{name}&amp;n'."/>
+		<message type="kMemoryFull" val="В вашей памяти не осталось места для новых рунных камней. Сперва забудьте какой-нибудь."/>
+		<message type="kCantMemorize" val="Руны всё время странно искажаются и вам не удаётся их запомнить."/>
+		<message type="kCantForget" val="Чтобы забыть что-нибудь ненужное, следует сперва изучить что-нибудь ненужное..."/>
+	</msg_sheaf>
+	<msg_sheaf id="0">
+		<message type="kName" val="начало"/>
+	</msg_sheaf>
+</msg_container>

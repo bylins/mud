@@ -1,23 +1,81 @@
 #include "rune_stones.h"
+#include "rune_stones_loaders.h"
 
 #include "engine/db/global_objects.h"
 #include "engine/entities/char_data.h"
-#include "gameplay/abilities/abilities_constants.h"
+#include "engine/core/comm.h"
+#include "engine/core/handler.h"
 #include "engine/ui/modify.h"
 #include "engine/ui/table_wrapper.h"
-#include "engine/core/handler.h"
+#include "gameplay/abilities/abilities_constants.h"
+#include "engine/structs/msg_container.h"
+#include "engine/structs/info_container.h"
+#include "utils/parse.h"
+#include "utils/parser_wrapper.h"
 
 #include <fmt/format.h>
+#include <algorithm>
 
-// issue.runestones: extracted from townportal.cpp. The minimum character level at which a stone can be
-// read/memorised (remort lowers it). Used only by ViewRunestone.
-static int CalcMinRunestoneLevel(CharData *ch, const Runestone &stone) {
-	if (stone.IsAllowed()) {
-		return std::max(1, stone.GetMinCharLevel() - GetRealRemort(ch) / 2);
-	}
+// ============================================ MESSAGES =======================================================
 
-	return kLvlImplementator + 1;
+namespace {
+const std::map<ERuneStoneMsg, std::string> kRuneStoneMsgNames{
+		{ERuneStoneMsg::kUndefined, "kUndefined"},
+		{ERuneStoneMsg::kName, "kName"},
+		{ERuneStoneMsg::kRoomNormal, "kRoomNormal"},
+		{ERuneStoneMsg::kRoomDamaged, "kRoomDamaged"},
+		{ERuneStoneMsg::kInspectNormal, "kInspectNormal"},
+		{ERuneStoneMsg::kInspectDamaged, "kInspectDamaged"},
+		{ERuneStoneMsg::kLackSkillNormal, "kLackSkillNormal"},
+		{ERuneStoneMsg::kLackSkillDamaged, "kLackSkillDamaged"},
+		{ERuneStoneMsg::kListEmpty, "kListEmpty"},
+		{ERuneStoneMsg::kListHeader, "kListHeader"},
+		{ERuneStoneMsg::kListCount, "kListCount"},
+		{ERuneStoneMsg::kListLimit, "kListLimit"},
+		{ERuneStoneMsg::kMemorized, "kMemorized"},
+		{ERuneStoneMsg::kForgotten, "kForgotten"},
+		{ERuneStoneMsg::kMemoryFull, "kMemoryFull"},
+		{ERuneStoneMsg::kCantMemorize, "kCantMemorize"},
+		{ERuneStoneMsg::kCantForget, "kCantForget"},
+	};
+
+msg_container::MsgContainer<int, ERuneStoneMsg> &RuneStoneMsgContainer() {
+	static msg_container::MsgContainer<int, ERuneStoneMsg> container;
+	return container;
 }
+}  // namespace
+
+template<>
+const std::string &NAME_BY_ITEM<ERuneStoneMsg>(const ERuneStoneMsg item) {
+	return kRuneStoneMsgNames.at(item);
+}
+template<>
+const std::map<ERuneStoneMsg, std::string> &NAMES_OF<ERuneStoneMsg>() {
+	return kRuneStoneMsgNames;
+}
+template<>
+ERuneStoneMsg ITEM_BY_NAME<ERuneStoneMsg>(const std::string &name) {
+	static std::map<std::string, ERuneStoneMsg> by_name;
+	if (by_name.empty()) {
+		for (const auto &[value, token] : kRuneStoneMsgNames) {
+			by_name.emplace(token, value);
+		}
+	}
+	return by_name.at(name);
+}
+
+const std::string &RuneStoneMsg(ERuneStoneMsg slot) {
+	return RuneStoneMsgContainer().GetMessage(info_container::kUndefinedVnum, slot);
+}
+
+const std::string &RuneStoneName(int stone_vnum) {
+	return RuneStoneMsgContainer().GetMessage(stone_vnum, ERuneStoneMsg::kName);
+}
+
+void RuneStoneMessagesLoader::Load(parser_wrapper::DataNode data) { RuneStoneMsgContainer().Init(data.Children()); }
+void RuneStoneMessagesLoader::Reload(parser_wrapper::DataNode data) { RuneStoneMsgContainer().Reload(data.Children()); }
+
+// ============================================ RUNESTONE / ROSTER =============================================
 
 void Runestone::SetEnabled(bool enabled) {
 	if (state_ != State::kForbidden) {
@@ -25,38 +83,39 @@ void Runestone::SetEnabled(bool enabled) {
 	}
 }
 
-// ============================================ RUNESTONE ROSTER ================================================
-
 RunestoneRoster::RunestoneRoster() {
-	incorrect_stone_ = Runestone("undefined", kNowhere, kMaxPlayerLevel + 1, Runestone::State::kForbidden);
+	incorrect_stone_ = Runestone("undefined", kNowhere, ESkill::kTownportal, 0, "", Runestone::State::kForbidden);
 }
 
-void RunestoneRoster::LoadRunestones() {
-	FILE *portal_f;
-	char nm[300], nm2[300], *wrd;
-	int rnm = 0, i, level = 0;
-
+void RunestoneRoster::Load(parser_wrapper::DataNode data) {
 	clear();
-	if (!(portal_f = fopen(LIB_MISC "portals.lst", "r"))) {
-		log("Cannot open portals.lst");
-		return;
-	}
+	const char *proto = data.GetValue("prototype");
+	prototype_vnum_ = proto ? parse::ReadAsInt(proto) : 0;
 
-	while (get_line(portal_f, nm)) {
-		if (!nm[0] || nm[0] == ';')
-			continue;
-		sscanf(nm, "%d %d %s", &rnm, &level, nm2);
-		if (GetRoomRnum(rnm) == kNowhere || nm2[0] == '\0') {
-			log("Invalid runestone entry detected");
+	for (auto &node : data.Children()) {
+		if (std::string(node.GetName()) != "stone") {
 			continue;
 		}
-		wrd = nm2;
-		for (i = 0; !(i == 10 || wrd[i] == ' ' || wrd[i] == '\0'); i++);
-		wrd[i] = '\0';
-
-		emplace_back(wrd, rnm, level);
+		const int stone_vnum = parse::ReadAsInt(node.GetValue("vnum"));
+		std::string id = node.GetValue("id") ? node.GetValue("id") : "";
+		const auto room_vnum = parse::ReadAsInt(node.GetValue("room_vnum"));
+		if (GetRoomRnum(room_vnum) == kNowhere) {
+			log("SYSERROR: rune_stones.xml: stone vnum %d room_vnum %d not found -- skipped.", stone_vnum, room_vnum);
+			continue;
+		}
+		ESkill skill = ESkill::kTownportal;
+		int skill_level = 1;
+		if (node.GoToChild("skill")) {
+			try {
+				skill = parse::ReadAsConstant<ESkill>(node.GetValue("id"));
+				skill_level = parse::ReadAsInt(node.GetValue("val"));
+			} catch (const std::exception &e) {
+				log("SYSERROR: rune_stones.xml: stone vnum %d bad <skill> (%s).", stone_vnum, e.what());
+			}
+			node.GoToParent();
+		}
+		emplace_back(std::string(RuneStoneName(stone_vnum)), room_vnum, skill, skill_level, id);
 	}
-	fclose(portal_f);
 }
 
 Runestone &RunestoneRoster::FindRunestone(RoomVnum vnum) {
@@ -65,7 +124,6 @@ Runestone &RunestoneRoster::FindRunestone(RoomVnum vnum) {
 	if (it != end()) {
 		return *it;
 	}
-
 	return incorrect_stone_;
 }
 
@@ -75,7 +133,6 @@ Runestone &RunestoneRoster::FindRunestone(std::string_view name) {
 	if (it != end()) {
 		return *it;
 	}
-
 	return incorrect_stone_;
 }
 
@@ -86,20 +143,16 @@ bool RunestoneRoster::ViewRunestone(CharData *ch, int where_bits) {
 	auto &stone = FindRunestone(GET_ROOM_VNUM(ch->in_room));
 	if (stone.IsAllowed() && IS_SET(where_bits, EFind::kObjRoom)) {
 		if (stone.IsDisabled()) {
-			SendMsgToChar("Камень грубо расколот на несколько частей и прочитать надпись невозможно.\r\n", ch);
-			return true;
+			SendMsgToChar(RuneStoneMsg(ERuneStoneMsg::kInspectDamaged) + "\r\n", ch);
 		} else if (ch->IsRunestoneKnown(stone)) {
-			auto msg = fmt::format("На камне огненными рунами начертано слово '&R{}&n'.\r\n", stone.GetName());
-			SendMsgToChar(msg, ch);
-			return true;
-		} else if (GetRealLevel(ch) < CalcMinRunestoneLevel(ch, stone)) {
-			SendMsgToChar("Здесь что-то написано огненными рунами.\r\n", ch);
-			SendMsgToChar("Но вы еще недостаточно искусны, чтобы разобрать слово.\r\n", ch);
-			return true;
+			SendMsgToChar(fmt::format(fmt::runtime(RuneStoneMsg(ERuneStoneMsg::kInspectNormal)),
+					fmt::arg("name", stone.GetName())) + "\r\n", ch);
+		} else if (ch->GetSkill(stone.GetSkill()) < stone.GetSkillLevel()) {
+			SendMsgToChar(RuneStoneMsg(ERuneStoneMsg::kLackSkillNormal) + "\r\n", ch);
 		} else {
 			ch->AddRunestone(stone);
-			return true;
 		}
+		return true;
 	}
 	return false;
 }
@@ -108,12 +161,8 @@ void RunestoneRoster::ShowRunestone(CharData *ch) {
 	if (ch->GetSkill(ESkill::kTownportal)) {
 		const auto &stone = FindRunestone(GET_ROOM_VNUM(ch->in_room));
 		if (stone.IsAllowed()) {
-			if (stone.IsEnabled()) {
-				SendMsgToChar("Рунный камень с изображением пентаграммы немного выступает из земли.\r\n", ch);
-			} else {
-				SendMsgToChar("Рунный камень с изображением пентаграммы немного выступает из земли... расколот.\r\n",
-							  ch);
-			}
+			SendMsgToChar(RuneStoneMsg(stone.IsEnabled() ? ERuneStoneMsg::kRoomNormal
+														 : ERuneStoneMsg::kRoomDamaged) + "\r\n", ch);
 		}
 	}
 }
@@ -140,7 +189,10 @@ std::vector<std::string_view> RunestoneRoster::GetNameRoster() {
 	return names;
 }
 
-// ======================================== CHARACTER RUNESTONE ROSTER ==============================================
+void RuneStonesLoader::Load(parser_wrapper::DataNode data) { MUD::Runestones().Load(data); }
+void RuneStonesLoader::Reload(parser_wrapper::DataNode data) { MUD::Runestones().Load(data); }
+
+// ======================================== CHARACTER RUNESTONE ROSTER ==========================================
 
 void CharacterRunestoneRoster::Serialize(std::ostringstream &out) {
 	for (const auto it : *this) {
@@ -151,9 +203,9 @@ void CharacterRunestoneRoster::Serialize(std::ostringstream &out) {
 void CharacterRunestoneRoster::PageToChar(CharData *ch) {
 	std::ostringstream out;
 	if (empty()) {
-		out << " В настоящий момент вам неизвестны рунные камни.\r\n";
+		out << " " << RuneStoneMsg(ERuneStoneMsg::kListEmpty) << "\r\n";
 	} else {
-		out << " Вам известны следующие рунные камни:\r\n";
+		out << " " << RuneStoneMsg(ERuneStoneMsg::kListHeader) << "\r\n";
 		table_wrapper::Table table;
 		const int columns_num{4};
 		int count = 1;
@@ -169,9 +221,11 @@ void CharacterRunestoneRoster::PageToChar(CharData *ch) {
 		}
 		table_wrapper::DecorateSimpleTable(ch, table);
 		table_wrapper::PrintTableToStream(out, table);
-		out << fmt::format("\r\n Сейчас вы помните {} рунных камней.\r\n", size());
+		out << "\r\n " << fmt::format(fmt::runtime(RuneStoneMsg(ERuneStoneMsg::kListCount)),
+				fmt::arg("count", size())) << "\r\n";
 	}
-	out << fmt::format(" Максимально возможно {}.\r\n", CalcLimit(ch));
+	out << " " << fmt::format(fmt::runtime(RuneStoneMsg(ERuneStoneMsg::kListLimit)),
+			fmt::arg("limit", CalcLimit(ch))) << "\r\n";
 
 	page_string(ch->desc, out.str());
 }
@@ -191,32 +245,26 @@ bool CharacterRunestoneRoster::AddRunestone(const Runestone &stone) {
 	return false;
 }
 
-// issue.runestones: the player-facing add/remove (with messages) used to be CharData::AddRunestone /
-// CharData::RemoveRunestone; moved here as they are runestone logic, not character logic.
 void CharacterRunestoneRoster::AddRunestone(CharData *ch, const Runestone &stone) {
 	if (IsFull(ch)) {
-		SendMsgToChar
-			("В вашей памяти не осталось места для новых рунных камней. Сперва забудьте какой-нибудь.\r\n", ch);
+		SendMsgToChar(RuneStoneMsg(ERuneStoneMsg::kMemoryFull) + "\r\n", ch);
 		return;
 	}
-
 	if (AddRunestone(stone)) {
-		auto msg = fmt::format(
-			"Вы осмотрели надпись и крепко запомнили начертанное огненными рунами слово '&R{}&n'.\r\n",
-			stone.GetName());
-		SendMsgToChar(msg, ch);
+		SendMsgToChar(fmt::format(fmt::runtime(RuneStoneMsg(ERuneStoneMsg::kMemorized)),
+				fmt::arg("name", stone.GetName())) + "\r\n", ch);
 	} else {
-		SendMsgToChar("Руны всё время странно искажаются и вам не удаётся их запомнить.\r\n", ch);
+		SendMsgToChar(RuneStoneMsg(ERuneStoneMsg::kCantMemorize) + "\r\n", ch);
 	}
 	DeleteIrrelevant(ch);
 }
 
 void CharacterRunestoneRoster::RemoveRunestone(CharData *ch, const Runestone &stone) {
 	if (RemoveRunestone(stone)) {
-		auto msg = fmt::format("Вы полностью забыли, как выглядит рунный камень '&R{}&n'.\r\n", stone.GetName());
-		SendMsgToChar(msg, ch);
+		SendMsgToChar(fmt::format(fmt::runtime(RuneStoneMsg(ERuneStoneMsg::kForgotten)),
+				fmt::arg("name", stone.GetName())) + "\r\n", ch);
 	} else {
-		SendMsgToChar("Чтобы забыть что-нибудь ненужное, следует сперва изучить что-нибудь ненужное...", ch);
+		SendMsgToChar(RuneStoneMsg(ERuneStoneMsg::kCantForget), ch);
 	}
 }
 
