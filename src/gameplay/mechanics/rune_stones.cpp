@@ -114,8 +114,34 @@ void RunestoneRoster::Load(parser_wrapper::DataNode data) {
 			}
 			node.GoToParent();
 		}
-		emplace_back(std::string(RuneStoneName(stone_vnum)), room_vnum, skill, skill_level, id);
+		emplace_back(std::string(RuneStoneName(stone_vnum)), room_vnum, skill, skill_level, id,
+				Runestone::State::kEnabled, stone_vnum);
 	}
+}
+
+// Vedun dry-run: structurally parse every <stone> without touching the live roster. Mirrors Load's
+// parsing (vnum/room_vnum ints, <skill> id resolvable to ESkill, val an int) but does NOT require the
+// room to exist -- Load skips a missing-room stone with a warning, so editing one must stay possible.
+bool RunestoneRoster::Validate(parser_wrapper::DataNode data) const {
+	for (auto &node : data.Children()) {
+		if (std::string(node.GetName()) != "stone") {
+			continue;
+		}
+		try {
+			const int stone_vnum = parse::ReadAsInt(node.GetValue("vnum"));
+			(void) parse::ReadAsInt(node.GetValue("room_vnum"));
+			if (node.GoToChild("skill")) {
+				(void) parse::ReadAsConstant<ESkill>(node.GetValue("id"));
+				(void) parse::ReadAsInt(node.GetValue("val"));
+				node.GoToParent();
+			}
+			(void) stone_vnum;
+		} catch (const std::exception &e) {
+			err_log("rune_stones.xml validation failed on a <stone>: %s", e.what());
+			return false;
+		}
+	}
+	return true;
 }
 
 Runestone &RunestoneRoster::FindRunestone(RoomVnum vnum) {
@@ -191,6 +217,67 @@ std::vector<std::string_view> RunestoneRoster::GetNameRoster() {
 
 void RuneStonesLoader::Load(parser_wrapper::DataNode data) { MUD::Runestones().Load(data); }
 void RuneStonesLoader::Reload(parser_wrapper::DataNode data) { MUD::Runestones().Load(data); }
+
+// ---- Vedun editable surface (vnum-keyed, mirrors guilds) -------------------------------------------
+
+std::string RuneStonesLoader::EditableWhat() const { return "runestone"; }
+
+std::vector<cfg_manager::EditableElement> RuneStonesLoader::ListElements() const {
+	std::vector<cfg_manager::EditableElement> out;
+	for (const auto &stone : MUD::Runestones()) {
+		if (!stone.IsAllowed()) {   // skip the kForbidden sentinel
+			continue;
+		}
+		out.push_back({std::to_string(stone.GetVnum()),
+				std::string(stone.GetId()) + " " + std::string(stone.GetName())});
+	}
+	return out;
+}
+
+cfg_manager::ValidationResult RuneStonesLoader::Validate(parser_wrapper::DataNode &doc) const {
+	if (MUD::Runestones().Validate(doc)) {
+		return {true, ""};
+	}
+	return {false, "Runestone data failed to parse (see syslog for the offending stone)."};
+}
+
+parser_wrapper::DataNode RuneStonesLoader::FindElementNode(parser_wrapper::DataNode root,
+														  const std::string &id) const {
+	// A <stone> carries no element `id` key; its identity is the integer `vnum`. Iterate ALL children
+	// with a name check (not Children("stone")): a node copied out of a keyed range carries that
+	// range's filter and would break its own later Children().
+	for (auto &child : root.Children()) {
+		if (std::string(child.GetName()) == "stone" && id == child.GetValue("vnum")) {
+			return child;
+		}
+	}
+	return parser_wrapper::DataNode{};
+}
+
+std::string RuneStonesLoader::CanonicalElementId(const std::string &id) const {
+	// Only a non-negative integer is a valid (new) stone key.
+	if (id.empty()) {
+		return "";
+	}
+	for (const char c : id) {
+		if (c < '0' || c > '9') {
+			return "";
+		}
+	}
+	return id;
+}
+
+parser_wrapper::DataNode RuneStonesLoader::CreateElementNode(parser_wrapper::DataNode root,
+															const std::string &id) const {
+	auto node = root.AddChild("stone");
+	node.SetValue("vnum", id);
+	node.SetValue("id", "kUndefined");
+	node.SetValue("room_vnum", "0");
+	auto skill = node.AddChild("skill");
+	skill.SetValue("id", "kTownportal");
+	skill.SetValue("val", "1");
+	return node;
+}
 
 // ======================================== CHARACTER RUNESTONE ROSTER ==========================================
 

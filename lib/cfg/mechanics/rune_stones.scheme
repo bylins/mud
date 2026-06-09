@@ -1,0 +1,25 @@
+<!--
+  issue.runestones: Vedun editor scheme for cfg/mechanics/rune_stones.xml (the runestone registry).
+  A <stone> is keyed by an integer vnum (its identity; uniqueness maintained by the author) plus a
+  Latin codeword id and the room it sits in; <skill> is the skill + skill level needed to read it.
+  Optional sidecar; undeclared nodes degrade to plain strings and are still validated on save by the
+  runestone loader. The display codewords/descriptions live in cfg/messages/ru/rune_stone_msg.xml.
+-->
+<scheme>
+	<tag name="rune_stones" desc="Runestone registry">
+		<attr name="prototype" type="int" desc="Object vnum spawned as the physical stone (phase 3)"/>
+		<child tag="stone" multiple="Y"/>
+	</tag>
+	<tag name="stone" desc="One runestone, keyed by integer vnum">
+		<attr name="vnum" type="int" readonly="Y" desc="Unique stone vnum (identity; immutable)"/>
+		<attr name="id" type="string" desc="Latin codeword id, e.g. kBegin (no enum, like a guild text_id)"/>
+		<attr name="room_vnum" type="int" desc="Room vnum where the stone sits"/>
+		<child tag="skill"/>
+	</tag>
+	<tag name="skill" desc="Skill + level needed to read/memorise the stone">
+		<attr name="id" type="enum" enum="ESkill" desc="Skill id (normally kTownportal)"/>
+		<attr name="val" type="int" min="0" desc="Minimum skill level to read the stone"/>
+	</tag>
+</scheme>
+
+<!-- vim: ts=4 sw=4 tw=0 noet syntax=xml : -->

@@ -44,9 +44,11 @@ class Runestone {
 			ESkill skill,
 			int skill_level,
 			std::string_view id = "",
-			State state = State::kEnabled)
+			State state = State::kEnabled,
+			int vnum = -1)
 	  : name_(name),
 		id_(id),
+		vnum_(vnum),
 		room_vnum_(room_vnum),
 		skill_(skill),
 		skill_level_(skill_level),
@@ -54,6 +56,7 @@ class Runestone {
 
   [[nodiscard]] std::string_view GetName() const { return name_; };
   [[nodiscard]] std::string_view GetId() const { return id_; };
+  [[nodiscard]] int GetVnum() const { return vnum_; };   // the stone's identity (cfg/Vedun key), not the room
   [[nodiscard]] RoomVnum GetRoomVnum() const { return room_vnum_; };
   [[nodiscard]] ESkill GetSkill() const { return skill_; };
   [[nodiscard]] int GetSkillLevel() const { return skill_level_; };
@@ -66,6 +69,7 @@ class Runestone {
  private:
   std::string name_;
   std::string id_;
+  int vnum_{-1};
   RoomVnum room_vnum_{0};
   ESkill skill_{ESkill::kTownportal};
   int skill_level_{0};
@@ -81,6 +85,7 @@ class RunestoneRoster : private std::vector<Runestone> {
   RunestoneRoster &operator=(RunestoneRoster &&) = delete;
 
   void Load(parser_wrapper::DataNode data);   // cfg/mechanics/rune_stones.xml
+  [[nodiscard]] bool Validate(parser_wrapper::DataNode data) const;   // Vedun dry-run; no mutation
   void ShowRunestone(CharData *ch);
   bool ViewRunestone(CharData *ch, int where_bits);
   Runestone &FindRunestone(RoomVnum vnum);
@@ -88,6 +93,11 @@ class RunestoneRoster : private std::vector<Runestone> {
   std::vector<RoomVnum> GetVnumRoster();
   std::vector<std::string_view> GetNameRoster();
   [[nodiscard]] ObjVnum GetPrototypeVnum() const { return prototype_vnum_; };   // physical stone object (phase 3)
+
+  // Read-only iteration for the Vedun editor's element list (re-exposes the private base's
+  // iterators without hiding the non-const ones the member functions rely on).
+  using std::vector<Runestone>::begin;
+  using std::vector<Runestone>::end;
 
  private:
   Runestone incorrect_stone_;
