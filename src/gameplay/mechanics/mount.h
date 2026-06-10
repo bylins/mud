@@ -4,6 +4,7 @@
 #include <memory>
 
 class CharData;
+enum class ESaving : int;
 
 // issue.mount-mechanics: the mounting/horse mechanic. Per-character horse helpers (moved off
 // CharData) live in the `mount` namespace; the do_horse* command handlers stay free functions
@@ -45,6 +46,10 @@ void ApplyRiderToHit(CharData *ch, CharData *victim, int &calc_thaco);
 void ApplyRiderHitAndDamage(CharData *ch, int &dam, int &calc_thaco);
 // High-Riding (>100) mounted damage multiplier. Self-guarded (no-op if afoot or Riding<=100).
 void ApplyRiderDamageMult(CharData *ch, int &dam);
+
+// Mounted save modifier added to a basic saving throw: +20 Reflex (worse), -20-Riding/25 Stability
+// (better). 0 when afoot or for other saves.
+[[nodiscard]] int SavingModifier(const CharData *ch, ESaving saving);
 
 }  // namespace mount
 

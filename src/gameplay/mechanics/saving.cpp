@@ -112,15 +112,9 @@ int GetBasicSave(CharData *ch, ESaving saving, bool log) {
 	switch (saving) {
 		case ESaving::kReflex:
 			save -= bonus_saving[GetRealDex(ch) - 1];
-			if (mount::IsOnHorse(ch))
-				save += 20;
 			break;
 		case ESaving::kStability:
 			save -= bonus_saving[GetRealCon(ch) - 1];
-			if (mount::IsOnHorse(ch)) {
-				save -= 20;
-				save -= ch->GetSkill(ESkill::kRiding) / 25;
-			}
 			break;
 		case ESaving::kWill:
 			save -= bonus_saving[GetRealWis(ch) - 1];
@@ -131,6 +125,7 @@ int GetBasicSave(CharData *ch, ESaving saving, bool log) {
 		default:
 		break;
 	}
+	save += mount::SavingModifier(ch, saving);
 //	ss << " с учетом статов: " << save << "\r\n";
 	if (log) {
 //		ch->send_to_TC(false, true, true, "%s", ss.str().c_str());

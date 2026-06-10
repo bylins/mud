@@ -9,6 +9,7 @@
 #include "engine/core/target_resolver.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/skills/skills.h"
+#include "gameplay/mechanics/saving.h"
 
 namespace mount {
 
@@ -109,6 +110,17 @@ void ApplyRiderDamageMult(CharData *ch, int &dam) {
 		dam *= 1.0 + (ch->GetSkill(ESkill::kRiding) - 100) / 500.0;
 		if (ch->IsFlagged(EPrf::kExecutor))
 			SendMsgToChar(ch, "&YДамага с учетом лошади (при скилле 200 +20 процентов)== %d&n\r\n", dam);
+	}
+}
+
+int SavingModifier(const CharData *ch, ESaving saving) {
+	if (!IsOnHorse(ch)) {
+		return 0;
+	}
+	switch (saving) {
+		case ESaving::kReflex: return 20;
+		case ESaving::kStability: return -20 - ch->GetSkill(ESkill::kRiding) / 25;
+		default: return 0;
 	}
 }
 
