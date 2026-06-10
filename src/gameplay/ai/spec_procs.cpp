@@ -57,7 +57,7 @@ enum class EHorseCmd { kBuy, kSell };
 
 int HorseBuy(CharData *ch, void *me, char * /*rest*/) {
 	CharData *victim = (CharData *) me, *horse = nullptr;
-		if (ch->has_horse(false)) {
+		if (mount::HasHorse(ch, false)) {
 			act(specials::HorseMsg(specials::EHorseMsg::kBuyHaveAlready), false, ch, 0, victim, kToChar);
 			return (true);
 		}
@@ -88,7 +88,7 @@ int HorseBuy(CharData *ch, void *me, char * /*rest*/) {
 
 int HorseSell(CharData *ch, void *me, char * /*rest*/) {
 	CharData *victim = (CharData *) me, *horse = nullptr;
-		if (!ch->has_horse(true)) {
+		if (!mount::HasHorse(ch, true)) {
 			act(specials::HorseMsg(specials::EHorseMsg::kSellNoHorse), false, ch, 0, victim, kToChar);
 			return (true);
 		}
@@ -133,7 +133,7 @@ int horse_keeper(CharData *ch, void *me, int /*cmd*/, char *argument) {
 	CharData *victim = (CharData *) me;
 	skip_spaces(&argument);
 	if (!*argument) {
-			if (ch->has_horse(false)) {
+			if (mount::HasHorse(ch, false)) {
 				act(specials::HorseMsg(specials::EHorseMsg::kAlreadyHave), false, ch, nullptr, victim, kToChar);
 				return (true);
 			}

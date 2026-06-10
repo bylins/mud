@@ -12,6 +12,9 @@ namespace mount {
 // ch's horse: the NPC follower carrying the kHorse affect, or nullptr.
 [[nodiscard]] CharData *GetHorse(CharData *ch);
 
+// Does ch own a horse? With same_room, only counts a horse in ch's room.
+[[nodiscard]] bool HasHorse(const CharData *ch, bool same_room);
+
 }  // namespace mount
 
 void make_horse(CharData *horse, CharData *ch);

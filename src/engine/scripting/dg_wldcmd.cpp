@@ -315,7 +315,7 @@ void do_wteleport(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, T
 				continue;
 			}
 			if (mount::GetHorse(ch)) {
-				if (ch->IsOnHorse() || ch->has_horse(true)) {
+				if (ch->IsOnHorse() || mount::HasHorse(ch, true)) {
 					RemoveCharFromRoom(mount::GetHorse(ch));
 					PlaceCharToRoom(mount::GetHorse(ch), target);
 					onhorse = true;
@@ -354,7 +354,7 @@ void do_wteleport(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, T
 				}
 			}
 			if (mount::GetHorse(ch)) {
-				if (ch->IsOnHorse() || ch->has_horse(true)) {
+				if (ch->IsOnHorse() || mount::HasHorse(ch, true)) {
 					RemoveCharFromRoom(mount::GetHorse(ch));
 					PlaceCharToRoom(mount::GetHorse(ch), target);
 					onhorse = true;

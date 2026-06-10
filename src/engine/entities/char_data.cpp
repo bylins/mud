@@ -2068,22 +2068,9 @@ bool CharData::have_mind() const {
 	return false;
 }
 
-bool CharData::has_horse(bool same_room) const {
-	if (this->IsNpc()) {
-		return false;
-	}
-
-	for (auto *f : this->followers) {
-		if (f->IsNpc() && AFF_FLAGGED(f, EAffect::kHorse)
-			&& (!same_room || this->in_room == f->in_room)) {
-			return true;
-		}
-	}
-	return false;
-}
 // персонаж на лошади?
 bool CharData::IsOnHorse() const {
-	return AFF_FLAGGED(this, EAffect::kHorse) && this->has_horse(true);
+	return AFF_FLAGGED(this, EAffect::kHorse) && mount::HasHorse(this, true);
 }
 
 bool CharData::IsHorsePrevents() {
@@ -2121,7 +2108,7 @@ bool CharData::DropFromHorse() {
 void CharData::dismount() {
 	if (!this->IsOnHorse() || mount::GetHorse(this) == nullptr)
 		return;
-	if (!this->IsNpc() && this->has_horse(true)) {
+	if (!this->IsNpc() && mount::HasHorse(this, true)) {
 		AFF_FLAGS(this).unset(EAffect::kHorse);
 	}
 	act("Вы слезли со спины $N1.", false, this, 0, mount::GetHorse(this), kToChar);

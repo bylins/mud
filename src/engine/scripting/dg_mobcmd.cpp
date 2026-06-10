@@ -560,7 +560,7 @@ void do_mteleport(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 				continue;
 			}
 			if (mount::GetHorse(vict)) {
-				if (vict->IsOnHorse() || vict->has_horse(true)) {
+				if (vict->IsOnHorse() || mount::HasHorse(vict, true)) {
 					RemoveCharFromRoom(mount::GetHorse(vict));
 					PlaceCharToRoom(mount::GetHorse(vict), target);
 					onhorse = true;
@@ -608,7 +608,7 @@ void do_mteleport(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 			}
 		}
 		if (mount::GetHorse(vict)) {
-			if (vict->IsOnHorse() || vict->has_horse(true)) {
+			if (vict->IsOnHorse() || mount::HasHorse(vict, true)) {
 				RemoveCharFromRoom(mount::GetHorse(vict));
 				PlaceCharToRoom(mount::GetHorse(vict), target);
 				onhorse = true;

@@ -252,7 +252,7 @@ const std::string &InfoStrPrefix(CharData *ch) {
 }
 
 void PrintHorseInfo(CharData *ch, std::ostringstream &out) {
-	if (ch->has_horse(false)) {
+	if (mount::HasHorse(ch, false)) {
 		if (ch->IsOnHorse()) {
 			out << InfoStrPrefix(ch) << "Вы верхом на " << GET_PAD(mount::GetHorse(ch), 5) << "." << "\r\n";
 		} else {
@@ -856,7 +856,7 @@ void PrintScoreBase(CharData *ch) {
 	if (ch->IsFlagged(EPrf::KSummonable))
 		strncat(buf, "Вы можете быть призваны.\r\n", sizeof(buf) - strlen(buf) - 1);
 
-	if (ch->has_horse(false)) {
+	if (mount::HasHorse(ch, false)) {
 		size_t buf_len = strlen(buf);
 		if (ch->IsOnHorse())
 			snprintf(buf + buf_len, sizeof(buf) - buf_len, "Вы верхом на %s.\r\n", GET_PAD(mount::GetHorse(ch), 5));

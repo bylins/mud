@@ -420,7 +420,7 @@ bool PerformSimpleMove(CharData *ch, int dir, int following, CharData *leader, E
 		return false;
 	was_in = ch->in_room;
 	go_to = world[was_in]->dir_option[dir]->to_room();
-	use_horse = ch->IsOnHorse() && ch->has_horse(false)
+	use_horse = ch->IsOnHorse() && mount::HasHorse(ch, false)
 		&& (mount::GetHorse(ch)->in_room == was_in || mount::GetHorse(ch)->in_room == go_to);
 	is_horse = IS_HORSE(ch)
 		&& ch->has_master()

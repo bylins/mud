@@ -441,7 +441,7 @@ void do_oteleport(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 			}
 
 			if (mount::GetHorse(ch)) {
-				if (ch->IsOnHorse() || ch->has_horse(true)) {
+				if (ch->IsOnHorse() || mount::HasHorse(ch, true)) {
 					RemoveCharFromRoom(mount::GetHorse(ch));
 					PlaceCharToRoom(mount::GetHorse(ch), target);
 					onhorse = true;
@@ -482,7 +482,7 @@ void do_oteleport(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 			}
 		}
 		if (mount::GetHorse(ch)) {
-			if (ch->IsOnHorse() || ch->has_horse(true)) {
+			if (ch->IsOnHorse() || mount::HasHorse(ch, true)) {
 				RemoveCharFromRoom(mount::GetHorse(ch));
 				PlaceCharToRoom(mount::GetHorse(ch), target);
 				onhorse = true;

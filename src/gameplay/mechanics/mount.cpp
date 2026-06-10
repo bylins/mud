@@ -22,6 +22,19 @@ CharData *GetHorse(CharData *ch) {
 	return nullptr;
 }
 
+bool HasHorse(const CharData *ch, bool same_room) {
+	if (ch->IsNpc()) {
+		return false;
+	}
+	for (auto *f : ch->followers) {
+		if (f->IsNpc() && AFF_FLAGGED(f, EAffect::kHorse)
+			&& (!same_room || ch->in_room == f->in_room)) {
+			return true;
+		}
+	}
+	return false;
+}
+
 }  // namespace mount
 
 void make_horse(CharData *horse, CharData *ch) {
@@ -241,7 +254,7 @@ void do_givehorse(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Да нету у вас скакуна.\r\n", ch);
 		return;
 	}
-	if (!ch->has_horse(true)) {
+	if (!mount::HasHorse(ch, true)) {
 		SendMsgToChar("Ваш скакун далеко от вас.\r\n", ch);
 		return;
 	}
@@ -289,7 +302,7 @@ void do_stophorse(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 		SendMsgToChar("Да нету у вас скакуна.\r\n", ch);
 		return;
 	}
-	if (!ch->has_horse(true)) {
+	if (!mount::HasHorse(ch, true)) {
 		SendMsgToChar("Ваш скакун далеко от вас.\r\n", ch);
 		return;
 	}

@@ -2880,7 +2880,7 @@ void find_replacement(void *go,
 				}
 			}
 		} else if (!str_cmp(field, "riding")) {
-			if (mob->has_horse(false)) {
+			if (mount::HasHorse(mob, false)) {
 				snprintf(str, str_size, "%c%ld", uid_type, (mount::GetHorse(mob))->get_uid());
 			}
 		} else if (!str_cmp(field, "riddenby")) {
