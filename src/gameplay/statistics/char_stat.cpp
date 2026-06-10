@@ -132,7 +132,7 @@ void CharStat::UpdateOnKill(CharData *ch, CharData *killer, ullong dec_exp) {
 
 	if (rkiller
 		&& rkiller->IsNpc()
-		&& (IS_CHARMICE(rkiller)
+		&& (IsCharmice(rkiller)
 			|| mount::IsHorse(rkiller)
 			|| killer->IsFlagged(EMobFlag::kTutelar)
 			|| killer->IsFlagged(EMobFlag::kMentalShadow))) {

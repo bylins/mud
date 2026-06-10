@@ -424,7 +424,7 @@ bool look_at_target(CharData *ch, char *arg, int subcmd) {
 				if (found >= fnum && (fnum < 100 || ch->IsImmortal()) && !found_char->IsImmortal())
 					return false;
 			}
-			if (CAN_SEE(found_char, ch))
+			if (CanSee(found_char, ch))
 				act("$n оглядел$g вас с головы до пят.", true, ch, nullptr, found_char, kToVict);
 			act("$n посмотрел$g на $N3.", true, ch, nullptr, found_char, kToNotVict);
 		}
@@ -1017,7 +1017,7 @@ void list_char_to_char(const RoomData::people_t &list, CharData *ch) {
 	for (const auto i : list) {
 		if (ch != i) {
 			if (HERE(i) && (GET_RACE(i) != ENpcRace::kConstruct)
-				&& (CAN_SEE(ch, i)
+				&& (CanSee(ch, i)
 					|| awaking(i, kAwHide | kAwInvis | kAwCamouflage))) {
 				ListOneChar(i, ch, ESkill::kAny);
 			} else if (is_dark(i->in_room)
@@ -1753,7 +1753,7 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 	}
 
 	Bitvector mode_flags{0};
-	if (!CAN_SEE(ch, i)) {
+	if (!CanSee(ch, i)) {
 		mode_flags =
 			check_awake(i, kAcheckAffects | kAcheckLight | kAcheckHumming | kAcheckGlowing | kAcheckWeight);
 		*buf = 0;
@@ -2174,14 +2174,14 @@ void Appear(CharData *ch) {
 	}
 }
 
-bool MORT_CAN_SEE(const CharData *sub, const CharData *obj) {
+bool MortCanSee(const CharData *sub, const CharData *obj) {
 	return HERE(obj)
 		&& INVIS_OK(sub, obj)
 		&& (!is_dark((obj)->in_room)
 			|| AFF_FLAGGED((sub), EAffect::kInfravision));
 }
 
-bool MAY_SEE(const CharData *ch, const CharData *sub, const CharData *obj) {
+bool MaySee(const CharData *ch, const CharData *sub, const CharData *obj) {
 	return !(GET_INVIS_LEV(ch) > 30)
 		&& !AFF_FLAGGED(sub, EAffect::kBlind)
 		&& (!is_dark(sub->in_room)
@@ -2190,16 +2190,16 @@ bool MAY_SEE(const CharData *ch, const CharData *sub, const CharData *obj) {
 			|| AFF_FLAGGED(sub, EAffect::kDetectInvisible));
 }
 
-bool IMM_CAN_SEE(const CharData *sub, const CharData *obj) {
-	return MORT_CAN_SEE(sub, obj)
+bool ImmCanSee(const CharData *sub, const CharData *obj) {
+	return MortCanSee(sub, obj)
 		|| (!sub->IsNpc()
 			&& sub->IsFlagged(EPrf::kHolylight));
 }
 
-bool CAN_SEE(const CharData *sub, const CharData *obj) {
+bool CanSee(const CharData *sub, const CharData *obj) {
 	return SELF(sub, obj)
 		|| ((GetRealLevel(sub) >= (obj->IsNpc() ? 0 : GET_INVIS_LEV(obj)))
-			&& IMM_CAN_SEE(sub, obj));
+			&& ImmCanSee(sub, obj));
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

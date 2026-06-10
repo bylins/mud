@@ -112,7 +112,7 @@ CharData *FimdRememberedEnemyInRoom(CharData *mob, int check_sneak, bool skip_hi
 		}
 		for (MemoryRecord *names = MEMORY(mob); names && !victim; names = names->next) {
 			if (names->id == vict->get_uid()) {
-				if (!MAY_SEE(mob, mob, vict) || !may_kill_here(mob, vict, NoArgument)) {
+				if (!MaySee(mob, mob, vict) || !may_kill_here(mob, vict, NoArgument)) {
 					continue;
 				}
 				if (check_sneak) {
@@ -133,7 +133,7 @@ CharData *FimdRememberedEnemyInRoom(CharData *mob, int check_sneak, bool skip_hi
 						AFF_FLAGS(vict).unset(EAffect::kDisguise);
 					}
 				}
-				if (CAN_SEE(mob, vict)) {
+				if (CanSee(mob, vict)) {
 					victim = vict;
 				}
 			}
@@ -180,7 +180,7 @@ void update_mob_memory(CharData *ch, CharData *victim) {
 			if (ch->IsFlagged(EMobFlag::kClone)) {
 				mobRemember(victim, ch->get_master());
 			} else if (ch->get_master()->in_room == victim->in_room
-				&& CAN_SEE(victim, ch->get_master())) {
+				&& CanSee(victim, ch->get_master())) {
 				mobRemember(victim, ch->get_master());
 			}
 		}
@@ -196,7 +196,7 @@ void update_mob_memory(CharData *ch, CharData *victim) {
 			if (victim->IsFlagged(EMobFlag::kClone)) {
 				mobRemember(ch, victim->get_master());
 			} else if (victim->get_master()->in_room == ch->in_room
-				&& CAN_SEE(ch, victim->get_master())) {
+				&& CanSee(ch, victim->get_master())) {
 				mobRemember(ch, victim->get_master());
 			}
 		}

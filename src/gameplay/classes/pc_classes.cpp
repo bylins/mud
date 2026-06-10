@@ -1198,7 +1198,7 @@ int invalid_anti_class(CharData *ch, const ObjData *obj) {
 		&& AFF_FLAGGED(ch, EAffect::kCharmed)) {
 		return (true);
 	}
-	if ((ch->IsNpc() || ch->IsImmortal()) && !IS_CHARMICE(ch)) {
+	if ((ch->IsNpc() || ch->IsImmortal()) && !IsCharmice(ch)) {
 		return (false);
 	}
 	if ((obj->has_anti_flag(EAntiFlag::kNoPkClan) && char_to_pk_clan(ch))) {
@@ -1239,7 +1239,7 @@ int invalid_no_class(CharData *ch, const ObjData *obj) {
 		return true;
 	}
 
-	if (!IS_CHARMICE(ch)
+	if (!IsCharmice(ch)
 		&& (ch->IsNpc()
 			|| ch->IsImmortal())) {
 		return false;
@@ -1280,7 +1280,7 @@ int invalid_anti_class_proto(CharData *ch, const CObjectPrototype *obj) {
 		&& AFF_FLAGGED(ch, EAffect::kCharmed)) {
 		return (true);
 	}
-	if ((ch->IsNpc() || ch->IsImmortal()) && !IS_CHARMICE(ch)) {
+	if ((ch->IsNpc() || ch->IsImmortal()) && !IsCharmice(ch)) {
 		return (false);
 	}
 	if ((obj->has_anti_flag(EAntiFlag::kNoPkClan) && char_to_pk_clan(ch))) {
@@ -1319,7 +1319,7 @@ int invalid_no_class_proto(CharData *ch, const CObjectPrototype *obj) {
 		&& AFF_FLAGGED(ch, EAffect::kCharmed)) {
 		return true;
 	}
-	if (!IS_CHARMICE(ch)
+	if (!IsCharmice(ch)
 		&& (ch->IsNpc()
 			|| ch->IsImmortal())) {
 		return false;

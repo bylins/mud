@@ -61,7 +61,7 @@ void do_assist(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	if (!opponent)
 		act("Но никто не сражается с $N4!", false, ch, 0, helpee, kToChar);
-	else if (!CAN_SEE(ch, opponent))
+	else if (!CanSee(ch, opponent))
 		act("Вы не видите противника $N1!", false, ch, 0, helpee, kToChar);
 	else if (opponent == ch)
 		act("Дык $E сражается с ВАМИ!", false, ch, 0, helpee, kToChar);

@@ -198,7 +198,7 @@ void DoFirstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		act("$N сражается, $M не до ваших телячьих нежностей.", false, ch, nullptr, vict, kToChar);
 		return;
 	}
-	if (vict->IsNpc() && !IS_CHARMICE(vict)) {
+	if (vict->IsNpc() && !IsCharmice(vict)) {
 		SendMsgToChar("Вы не красный крест - лечить всех подряд.\r\n", ch);
 		return;
 	}
@@ -333,7 +333,7 @@ void DoFirstaid(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		act("$N сражается, $M не до ваших телячьих нежностей.", false, ch, nullptr, vict, kToChar);
 		return;
 	}
-	if (vict->IsNpc() && !IS_CHARMICE(vict)) {
+	if (vict->IsNpc() && !IsCharmice(vict)) {
 		SendMsgToChar("Вы не красный крест - лечить всех подряд.\r\n", ch);
 		return;
 	}

@@ -249,7 +249,7 @@ static EBaseStat BaseStatByIndex(int idx) {
 // Возвращает true, если хоть что-то было применено.
 //
 static bool ApplyMobParams(CharData* ch, int level, int remorts, int difficulty) {
-	if (!ch || !ch->IsNpc() || IS_CHARMICE(ch)) {
+	if (!ch || !ch->IsNpc() || IsCharmice(ch)) {
 		return false;
 	}
 

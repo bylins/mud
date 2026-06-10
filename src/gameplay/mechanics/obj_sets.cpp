@@ -131,7 +131,7 @@ bool is_duplicate(int set_uid, int vnum) {
 void update_char_sets() {
 	for (const auto &ch : character_list) {
 		if (!ch->IsNpc()
-			|| IS_CHARMICE(ch)) {
+			|| IsCharmice(ch)) {
 			ch->obj_bonus().update(ch.get());
 		}
 	}

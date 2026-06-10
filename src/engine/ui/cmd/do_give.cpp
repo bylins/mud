@@ -123,7 +123,7 @@ void perform_give_gold(CharData *ch, CharData *vict, int amount) {
 		ch->remove_gold(amount);
 	}
 	// если денег дает моб - снимаем клан-налог
-	if (ch->IsNpc() && !IS_CHARMICE(ch)) {
+	if (ch->IsNpc() && !IsCharmice(ch)) {
 		vict->add_gold(amount);
 		split_or_clan_tax(vict, amount);
 	} else {

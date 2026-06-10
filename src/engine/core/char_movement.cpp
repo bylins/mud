@@ -118,7 +118,7 @@ bool IsCorrectDirection(CharData *ch, int dir, bool check_specials, bool show_ms
 	}
 
 	// charmed
-	if (IS_CHARMICE(ch) && ch->has_master() && ch->in_room == ch->get_master()->in_room) {
+	if (IsCharmice(ch) && ch->has_master() && ch->in_room == ch->get_master()->in_room) {
 		if (show_msg) {
 			SendMsgToChar("Вы не можете покинуть свой идеал.\r\n", ch);
 			act("$N попытал$U покинуть вас.", false, ch->get_master(), nullptr, ch, kToChar);
@@ -271,7 +271,7 @@ bool IsCorrectDirection(CharData *ch, int dir, bool check_specials, bool show_ms
 			if (NPC_FLAGGED(tch, 1 << dir)
 				&& AWAKE(tch)
 				&& tch->GetPosition() > EPosition::kSleep
-				&& CAN_SEE(tch, ch)
+				&& CanSee(tch, ch)
 				&& !AFF_FLAGGED(tch, EAffect::kCharmed)
 				&& !AFF_FLAGGED(tch, EAffect::kHold)) {
 				if (show_msg) {
@@ -417,7 +417,7 @@ bool PerformSimpleMove(CharData *ch, int dir, int following, CharData *leader, E
 		act(buf, false, ch, nullptr, leader, kToChar);
 	}
 	if (ch->IsNpc() && ch->IsFlagged(EMobFlag::kSentinel) &&
-	!IS_CHARMICE(ch) && ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena))
+	!IsCharmice(ch) && ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena))
 		return false;
 	was_in = ch->in_room;
 	go_to = world[was_in]->dir_option[dir]->to_room();
@@ -651,7 +651,7 @@ bool PerformSimpleMove(CharData *ch, int dir, int following, CharData *leader, E
 				continue;
 			}
 
-			if (!CAN_SEE(vict, ch)
+			if (!CanSee(vict, ch)
 				|| AFF_FLAGGED(ch, EAffect::kSneak)
 				|| AFF_FLAGGED(ch, EAffect::kDisguise)
 				|| vict->GetEnemy()
@@ -687,7 +687,7 @@ bool PerformMove(CharData *ch, int dir, int need_specials_check, int checkmob, C
 
 	RoomRnum was_in;
 /*
-	if (!ch->IsNpc() || IS_CHARMICE(ch)) {
+	if (!ch->IsNpc() || IsCharmice(ch)) {
 		std::ostringstream out;
 		out << "Двигаемся по направлению: " << dir << "\r\n";
 		mudlog(out.str());

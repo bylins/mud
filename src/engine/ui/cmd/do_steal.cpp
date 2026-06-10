@@ -133,7 +133,7 @@ void go_steal(CharData *ch, CharData *vict, char *obj_name) {
 					return;
 				}
 			}
-			if (CAN_SEE(vict, ch) && AWAKE(vict))
+			if (CanSee(vict, ch) && AWAKE(vict))
 				ImproveSkill(ch, ESkill::kSteal, 0, vict);
 		}
 	} else        // Steal some coins
@@ -190,13 +190,13 @@ void go_steal(CharData *ch, CharData *vict, char *obj_name) {
 					SendMsgToChar("Вы ничего не сумели украсть...\r\n", ch);
 			}
 		}
-		if (CAN_SEE(vict, ch) && AWAKE(vict))
+		if (CanSee(vict, ch) && AWAKE(vict))
 			ImproveSkill(ch, ESkill::kSteal, 0, vict);
 	}
 	if (!ch->IsImmortal() && ohoh)
 		SetBattleLag(ch, 3);
 	pk_thiefs_action(ch, vict);
-	if (ohoh && vict->IsNpc() && AWAKE(vict) && CAN_SEE(vict, ch) && MAY_ATTACK(vict))
+	if (ohoh && vict->IsNpc() && AWAKE(vict) && CanSee(vict, ch) && MayAttack(vict))
 		hit(vict, ch, ESkill::kUndefined, fight::kMainHand);
 }
 

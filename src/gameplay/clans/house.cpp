@@ -1147,7 +1147,7 @@ void Clan::HouseAdd(CharData *ch, std::string &buffer) {
 	}
 
 	DescriptorData *d = DescriptorByUid(unique);
-	if (!d || !CAN_SEE(ch, d->character)) {
+	if (!d || !CanSee(ch, d->character)) {
 		SendMsgToChar("Этого персонажа нет в игре!\r\n", ch);
 		return;
 	}
@@ -3403,7 +3403,7 @@ void Clan::HouseOwner(CharData *ch, std::string &buffer) {
 		SendMsgToChar("Неизвестный персонаж.\r\n", ch);
 	else if (unique == ch->get_uid())
 		SendMsgToChar("Сменить себя на самого себя? Вы бредите.\r\n", ch);
-	else if (!d || !CAN_SEE(ch, d->character))
+	else if (!d || !CanSee(ch, d->character))
 		SendMsgToChar("Этого персонажа нет в игре!\r\n", ch);
 	else if (CLAN(d->character) && CLAN(ch) != CLAN(d->character))
 		SendMsgToChar("Вы не можете передать свои права члену другой дружины.\r\n", ch);
@@ -4626,7 +4626,7 @@ bool CHECK_CUSTOM_LABEL(const char *arg, const ObjData *obj, const CharData *ch)
 	return obj->get_custom_label()
 		&& obj->get_custom_label()->text_label
 		&& (ch->IsNpc()
-			? ((IS_CHARMICE(ch) && ch->has_master())
+			? ((IsCharmice(ch) && ch->has_master())
 			   ? CHECK_CUSTOM_LABEL_CORE(obj, ch->get_master())
 			   : 0)
 			: CHECK_CUSTOM_LABEL_CORE(obj, ch))
@@ -4637,7 +4637,7 @@ bool AUTH_CUSTOM_LABEL(const ObjData *obj, const CharData *ch) {
 	return obj->get_custom_label()
 		&& obj->get_custom_label()->text_label
 		&& (ch->IsNpc()
-			? ((IS_CHARMICE(ch) && ch->has_master())
+			? ((IsCharmice(ch) && ch->has_master())
 			   ? CHECK_CUSTOM_LABEL_CORE(obj, ch->get_master())
 			   : 0)
 			: CHECK_CUSTOM_LABEL_CORE(obj, ch));

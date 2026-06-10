@@ -280,7 +280,7 @@ void draw_mobs(const CharData *ch, int room_rnum, int next_y, int next_x) {
 				continue;
 			}
 			if (HERE(tch)
-				&& (CAN_SEE(ch, tch)
+				&& (CanSee(ch, tch)
 					|| awaking(tch, kAwHide | kAwInvis | kAwCamouflage))) {
 				++cnt;
 			}

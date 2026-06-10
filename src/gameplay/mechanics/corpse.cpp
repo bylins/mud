@@ -387,7 +387,7 @@ void make_arena_corpse(CharData *ch, CharData *killer) {
 	corpse->set_val(3, 1);    // corpse identifier
 	corpse->set_weight(GET_WEIGHT(ch));
 	corpse->set_rent_off(100000);
-	if (ch->IsNpc() && !IS_CHARMICE(ch)) {
+	if (ch->IsNpc() && !IsCharmice(ch)) {
 		corpse->set_timer(5);
 	} else {
 		corpse->set_timer(0);
@@ -442,7 +442,7 @@ ObjData *make_corpse(CharData *ch, CharData *killer) {
 	corpse->set_val(3, ObjData::CORPSE_INDICATOR);    // corpse identifier
 	corpse->set_rent_off(100000);
 
-	if (ch->IsNpc() && !IS_CHARMICE(ch)) {
+	if (ch->IsNpc() && !IsCharmice(ch)) {
 		corpse->set_timer(max_npc_corpse_time * 2);
 		corpse->set_destroyer(max_npc_corpse_time * 2);
 	} else {
@@ -511,7 +511,7 @@ ObjData *make_corpse(CharData *ch, CharData *killer) {
 	}
 
 	// если чармис убит палачом или на арене(и владелец не в бд) то труп попадает не в клетку а в инвентарь к владельцу чармиса
-	if (IS_CHARMICE(ch) && !ch->IsFlagged(EMobFlag::kCorpse)
+	if (IsCharmice(ch) && !ch->IsFlagged(EMobFlag::kCorpse)
 		&& ((killer && killer->IsFlagged(EPrf::kExecutor)) || (ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena) && !NORENTABLE(ch->get_master())))) {
 		if (ch->has_master()) {
 			PlaceObjToInventory(corpse.get(), ch->get_master());

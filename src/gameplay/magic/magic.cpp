@@ -250,7 +250,7 @@ static void ForceReposition(CharData *victim, ESpell spell_id, EPosition pos, bo
 		stop_fighting(victim, force_stopfight);
 	}
 	if (force_stopfight) {
-		change_fighting(victim, force_stopfight);
+		ChangeFighting(victim, force_stopfight);
 	}
 	if (reposition) {
 		mount::DropFromHorse(victim);
@@ -2330,7 +2330,7 @@ int CheckMobList(CharData *ch) {
 // prepared spells trying to remedy that (detect invis -> sense life -> light, first
 // available wins). The intellect check is "above 25, or a soft number(10,25) roll".
 void MaybeAutoCastDetection(CharData *victim, CharData *caster) {
-	if (CAN_SEE(victim, caster)) {
+	if (CanSee(victim, caster)) {
 		return;
 	}
 	if (GetRealInt(victim) <= 25 && GetRealInt(victim) <= number(10, 25)) {
@@ -2369,12 +2369,12 @@ void ReactToCast(CharData *victim, CharData *caster, ESpell spell_id) {
 	if (caster->IsNpc() && caster->get_rnum() == GetMobRnum(kDgCasterProxy))
 		return;
 
-	if (CAN_SEE(victim, caster) && MAY_ATTACK(victim) && victim->in_room == caster->in_room) {
+	if (CanSee(victim, caster) && MayAttack(victim) && victim->in_room == caster->in_room) {
 		if (victim->IsNpc())
 			mob_ai::attack_best(victim, caster, false);
 		else
 			hit(victim, caster, ESkill::kUndefined, fight::kMainHand);
-	} else if (CAN_SEE(victim, caster) && !caster->IsNpc() && victim->IsNpc()
+	} else if (CanSee(victim, caster) && !caster->IsNpc() && victim->IsNpc()
 		&& victim->IsFlagged(EMobFlag::kMemory)) {
 		mob_ai::mobRemember(victim, caster);
 	}

@@ -35,14 +35,14 @@ void Appear(CharData *ch);
 
 
 // issue.chardata-cleaning: "who can see whom" predicates (moved off CharData).
-bool MORT_CAN_SEE(const CharData *sub, const CharData *obj);
-bool MAY_SEE(const CharData *ch, const CharData *sub, const CharData *obj);
-bool IMM_CAN_SEE(const CharData *sub, const CharData *obj);
-bool CAN_SEE(const CharData *sub, const CharData *obj);
-inline bool CAN_SEE(const CharData *sub, const std::shared_ptr<CharData> &obj) { return CAN_SEE(sub, obj.get()); }
-inline bool CAN_SEE(const std::shared_ptr<CharData> &sub, const CharData *obj) { return CAN_SEE(sub.get(), obj); }
-inline bool CAN_SEE(const std::shared_ptr<CharData> &sub, const std::shared_ptr<CharData> &obj) {
-	return CAN_SEE(sub.get(), obj.get());
+bool MortCanSee(const CharData *sub, const CharData *obj);
+bool MaySee(const CharData *ch, const CharData *sub, const CharData *obj);
+bool ImmCanSee(const CharData *sub, const CharData *obj);
+bool CanSee(const CharData *sub, const CharData *obj);
+inline bool CanSee(const CharData *sub, const std::shared_ptr<CharData> &obj) { return CanSee(sub, obj.get()); }
+inline bool CanSee(const std::shared_ptr<CharData> &sub, const CharData *obj) { return CanSee(sub.get(), obj); }
+inline bool CanSee(const std::shared_ptr<CharData> &sub, const std::shared_ptr<CharData> &obj) {
+	return CanSee(sub.get(), obj.get());
 }
 
 #endif //BYLINS_SRC_GAME_MECHANICS_SIGHT_H_

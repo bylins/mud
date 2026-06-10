@@ -1910,7 +1910,7 @@ void after_reset_zone(ZoneRnum nr_zone) {
 				return;
 			}
 			for (auto *k : d->character->followers) {
-				if (IS_CHARMICE(k) && world[k->in_room]->zone_rn == nr_zone) {
+				if (IsCharmice(k) && world[k->in_room]->zone_rn == nr_zone) {
 					zone_table[nr_zone].used = true;
 					return;
 				}
@@ -2081,7 +2081,7 @@ bool CanBeReset(ZoneRnum zone) {
 void paste_mob(CharData *ch, RoomRnum room) {
 	if (!ch->IsNpc() || ch->GetEnemy() || ch->GetPosition() < EPosition::kStun)
 		return;
-	if (IS_CHARMICE(ch)
+	if (IsCharmice(ch)
 		|| AFF_FLAGGED(ch, EAffect::kHorse)
 		|| AFF_FLAGGED(ch, EAffect::kHold)
 		|| (ch->extract_timer > 0)) {
@@ -2480,7 +2480,7 @@ void ZoneReset::ResetZoneEssential() {
 									&& ch->get_rnum() == reset_cmd.arg3
 									&& leader != ch
 									&& !follow::MakesLoop(ch, leader)) {
-									if (IS_CHARMICE(ch)) {
+									if (IsCharmice(ch)) {
 										continue;
 									}
 									if (ch->has_master()) {

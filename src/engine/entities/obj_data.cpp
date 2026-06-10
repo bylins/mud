@@ -1509,7 +1509,7 @@ bool is_norent_set(CharData *ch, ObjData *obj, bool clan_chest) {
 	// чармисы
 	if (!ch->followers.empty()) {
 		for (auto *k : ch->followers) {
-			if (!IS_CHARMICE(k)
+			if (!IsCharmice(k)
 				|| !k->has_master()) {
 				continue;
 			}

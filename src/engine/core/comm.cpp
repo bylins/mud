@@ -2793,7 +2793,7 @@ void act(const char *str,
 			if (!SENDOK(to) || (to == ch)) {
 				continue;
 			}
-			if (hide_invisible && ch && !CAN_SEE(to, ch))
+			if (hide_invisible && ch && !CanSee(to, ch))
 				continue;
 			if ((type != kToRoom && type != kToRoomSensors) && to == vict_obj)
 				continue;

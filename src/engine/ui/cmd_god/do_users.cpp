@@ -193,7 +193,7 @@ void do_users(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			if (*name_search && !isname(name_search, GET_NAME(character))) {
 				continue;
 			}
-			if (!CAN_SEE(ch, character) || GetRealLevel(character) < low || GetRealLevel(character) > high) {
+			if (!CanSee(ch, character) || GetRealLevel(character) < low || GetRealLevel(character) > high) {
 				continue;
 			}
 			if (outlaws && !(ch)->IsFlagged(EPlrFlag::kKiller)) {
@@ -300,7 +300,7 @@ void do_users(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			if (d->state == EConState::kPlaying) {
 				const auto ci = d->get_character();
 				if (ci
-					&& CAN_SEE(ch, ci)
+					&& CanSee(ch, ci)
 					&& ci->in_room != kNowhere) {
 					if (d->original && d->character) {
 						sprintf(line2, " [%5d] %s (in %s)",
@@ -322,7 +322,7 @@ void do_users(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			strcpy(line, line2);
 		}
 
-		if (d->state != EConState::kPlaying || (d->state == EConState::kPlaying && d->character && CAN_SEE(ch, d->character))) {
+		if (d->state != EConState::kPlaying || (d->state == EConState::kPlaying && d->character && CanSee(ch, d->character))) {
 			SendMsgToChar(line, ch);
 			num_can_see++;
 		}

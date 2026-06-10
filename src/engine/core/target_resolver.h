@@ -111,7 +111,7 @@ class FriendsRosterType : public TargetsRosterType {
 //   * Scope is a list, walked in order. The first scope that returns at least
 //     one match (when `single = true`) ends the search; otherwise all scopes
 //     are visited and the union returned.
-//   * `visible_only = true` gates char results through CAN_SEE and obj results
+//   * `visible_only = true` gates char results through CanSee and obj results
 //     through CAN_SEE_OBJ. Set to false for scripted lookups that need to
 //     locate hidden / wizinvis entities (the legacy SearchObjByRnum-style
 //     paths).
@@ -195,7 +195,7 @@ CharData *FindCharInWorld(CharData *finder, std::string_view name);
 ObjData  *FindObjAround  (CharData *finder, std::string_view name);
 ObjData  *FindObjByRnum  (ObjRnum rnum);
 
-// FindPlayer: PC-only world walk. Bypasses CAN_SEE so admin / system code
+// FindPlayer: PC-only world walk. Bypasses CanSee so admin / system code
 // (titles, name validation, do_set, do_wizutil) can reach wizinvis or
 // otherwise hidden PCs. Replaces the legacy `get_player_pun`.
 CharData *FindPlayer(CharData *finder, std::string_view name);
@@ -239,7 +239,7 @@ CharPredicate MakeNpcFilter();
 CharPredicate MakePcFilter();
 CharPredicate MakeFightingFilter();
 CharPredicate MakeSameRoomFilter(CharData *root);
-CharPredicate MakeVisibleFilter(CharData *viewer);   // CAN_SEE-gated
+CharPredicate MakeVisibleFilter(CharData *viewer);   // CanSee-gated
 CharPredicate MakeAffectFilter(EAffect flag);        // AFF_FLAGGED(ch, flag)
 CharPredicate MakeMobFlagFilter(EMobFlag flag);      // NPC carrying flag
 

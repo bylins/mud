@@ -554,7 +554,7 @@ void do_mteleport(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 				mob_log(ch, trig, "mteleport transports allchar from kNowhere");
 				return;
 			}
-			if (vict->IsNpc() && !IS_CHARMICE(vict)) {
+			if (vict->IsNpc() && !IsCharmice(vict)) {
 				continue;
 			}
 			if (target == vict->in_room) {
@@ -600,11 +600,11 @@ void do_mteleport(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 //			mob_log(ch, trig, "mteleport: target is itself");
 			return;
 		}
-		if (IS_CHARMICE(vict) && vict->in_room == vict->get_master()->in_room)
+		if (IsCharmice(vict) && vict->in_room == vict->get_master()->in_room)
 			vict = vict->get_master();
 		const auto people_copy = world[vict->in_room]->people;
 		for (const auto charmee : people_copy) {
-			if (IS_CHARMICE(charmee) && charmee->get_master()  == vict) {
+			if (IsCharmice(charmee) && charmee->get_master()  == vict) {
 				RemoveCharFromRoom(charmee);
 				PlaceCharToRoom(charmee, target);
 			}

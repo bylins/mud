@@ -86,7 +86,7 @@ EStageResult SpellSummon(CastContext &ctx) {
 	}
 
 	if (!ch->IsImmortal()) {
-		if (!ch->IsNpc() || IS_CHARMICE(ch)) {
+		if (!ch->IsNpc() || IsCharmice(ch)) {
 			if (AFF_FLAGGED(ch, EAffect::kGodsShield)) {
 				ch->send_to_TC(true, true, true, "Чармис под зб\r\n");
 				SendMsgToChar(MUD::SpellMessages().GetMessage(
@@ -99,7 +99,7 @@ EStageResult SpellSummon(CastContext &ctx) {
 						ESpell::kSummon, ESpellMsg::kResurrectNoPower) + "\r\n", ch);
 				return EStageResult::kSuccess;
 			}
-			if (NORENTABLE(victim) && !IS_CHARMICE(ch)) {
+			if (NORENTABLE(victim) && !IsCharmice(ch)) {
 				ch->send_to_TC(true, true, true, "Ваша жертва совсем не рентабельна!\r\n");
 				SendMsgToChar(MUD::SpellMessages().GetMessage(ESpell::kSummon, ESpellMsg::kSummonFail) + "\r\n", ch);
 				return EStageResult::kSuccess;

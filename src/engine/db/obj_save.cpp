@@ -1725,7 +1725,7 @@ void Crash_extract_norent_eq(CharData *ch) {
 void Crash_extract_norent_charmee(CharData *ch) {
 	if (!ch->followers.empty()) {
 		for (auto *k : ch->followers) {
-			if (!IS_CHARMICE(k)
+			if (!IsCharmice(k)
 				|| !k->has_master()) {
 				continue;
 			}
@@ -1767,7 +1767,7 @@ int Crash_calculate_charmee_rent(CharData *ch) {
 	int cost = 0;
 	if (!ch->followers.empty()) {
 		for (auto *k : ch->followers) {
-			if (!IS_CHARMICE(k)
+			if (!IsCharmice(k)
 				|| !k->has_master()) {
 				continue;
 			}
@@ -1793,7 +1793,7 @@ int Crash_calc_charmee_items(CharData *ch) {
 	int num = 0;
 	if (!ch->followers.empty()) {
 		for (auto *k : ch->followers) {
-			if (!IS_CHARMICE(k)
+			if (!IsCharmice(k)
 				|| !k->has_master())
 				continue;
 			for (int j = 0; j < EEquipPos::kNumEquipPos; j++)
@@ -1942,7 +1942,7 @@ int save_char_objects(CharData *ch, int savetype, int rentcost) {
 		&& (savetype == RENT_CRASH
 			|| savetype == RENT_FORCED)) {
 		for (auto *k : ch->followers) {
-			if (!IS_CHARMICE(k)
+			if (!IsCharmice(k)
 				|| !k->has_master()) {
 				continue;
 			}
@@ -2323,7 +2323,7 @@ int gen_receptionist(CharData *ch, CharData *recep, ERentAction action, int mode
 		SendMsgToChar(buf, ch);
 		return (true);
 	}
-	if (!CAN_SEE(recep, ch)) {
+	if (!CanSee(recep, ch)) {
 		act(specials::RentMsg(specials::ERentMsg::kCantSee), false, recep, 0, 0, kToRoom);
 		return (true);
 	}

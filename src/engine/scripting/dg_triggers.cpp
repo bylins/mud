@@ -283,10 +283,10 @@ void greet_mtrigger(CharData *actor, int dir) {
 
 		for (auto t : SCRIPT(ch)->script_trig_list) {
 			if (((IS_SET(GET_TRIG_TYPE(t), MTRIG_GREET)
-				&& CAN_SEE(ch, actor))
+				&& CanSee(ch, actor))
 				|| IS_SET(GET_TRIG_TYPE(t), MTRIG_GREET_ALL)
 				|| (IS_SET(GET_TRIG_TYPE(t), MTRIG_GREET_PC)
-					&& !actor->IsNpc() && CAN_SEE(ch, actor))
+					&& !actor->IsNpc() && CanSee(ch, actor))
 				|| (IS_SET(GET_TRIG_TYPE(t), MTRIG_GREET_PC_ALL)
 					&& !actor->IsNpc())) && !GET_TRIG_DEPTH(t)
 				&& (number(1, 100) <= GET_TRIG_NARG(t))) {
@@ -321,7 +321,7 @@ void income_mtrigger(CharData *ch, int dir) {
 
 	for (const auto i : world[ch->in_room]->people) {
 		if ((!i->IsNpc()
-			&& CAN_SEE(ch, i)) && !GET_INVIS_LEV(i)) {
+			&& CanSee(ch, i)) && !GET_INVIS_LEV(i)) {
 			ispcinroom = 1;
 			actor = i;
 		}

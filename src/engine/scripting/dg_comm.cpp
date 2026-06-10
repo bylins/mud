@@ -68,7 +68,7 @@ void sub_write_to_char(CharData *ch, char *tokens[], void *otokens[], char type[
 				break;
 
 			case '^':
-				if (!otokens[i] || !CAN_SEE(ch, (CharData *) otokens[i]))
+				if (!otokens[i] || !CanSee(ch, (CharData *) otokens[i]))
 					strcat(sb, "чей-то");
 				else if (otokens[i] == ch)
 					strcat(sb, "ваш");
@@ -77,7 +77,7 @@ void sub_write_to_char(CharData *ch, char *tokens[], void *otokens[], char type[
 				break;
 
 			case '}':
-				if (!otokens[i] || !CAN_SEE(ch, (CharData *) otokens[i]))
+				if (!otokens[i] || !CanSee(ch, (CharData *) otokens[i]))
 					strcat(sb, "Он");
 				else if (otokens[i] == ch)
 					strcat(sb, "Вы");
@@ -86,7 +86,7 @@ void sub_write_to_char(CharData *ch, char *tokens[], void *otokens[], char type[
 				break;
 
 			case '*':
-				if (!otokens[i] || !CAN_SEE(ch, (CharData *) otokens[i]))
+				if (!otokens[i] || !CanSee(ch, (CharData *) otokens[i]))
 					strcat(sb, "ему");
 				else if (otokens[i] == ch)
 					strcat(sb, "вам");

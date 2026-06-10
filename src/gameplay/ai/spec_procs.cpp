@@ -836,7 +836,7 @@ int do_npc_steal(CharData *ch, CharData *victim) {
 	if (GetRealLevel(victim) >= kLvlImmortal)
 		return (false);
 
-	if (!CAN_SEE(ch, victim))
+	if (!CanSee(ch, victim))
 		return (false);
 
 	if (AWAKE(victim) && (number(0, std::max(0, GetRealLevel(ch) - int_app[GetRealInt(victim)].observation)) == 0)) {
@@ -1264,7 +1264,7 @@ int cityguard(CharData *ch, void * /*me*/, int cmd, char * /*argument*/) {
 	evil = 0;
 
 	for (const auto tch : world[ch->in_room]->people) {
-		if (!tch->IsNpc() && CAN_SEE(ch, tch) && tch->IsFlagged(EPlrFlag::kKiller)) {
+		if (!tch->IsNpc() && CanSee(ch, tch) && tch->IsFlagged(EPlrFlag::kKiller)) {
 			act("$n screams 'HEY!!!  You're one of those PLAYER KILLERS!!!!!!'", false, ch, 0, 0, kToRoom);
 			hit(ch, tch, ESkill::kUndefined, fight::kMainHand);
 
@@ -1273,7 +1273,7 @@ int cityguard(CharData *ch, void * /*me*/, int cmd, char * /*argument*/) {
 	}
 
 	for (const auto tch : world[ch->in_room]->people) {
-		if (!tch->IsNpc() && CAN_SEE(ch, tch) && tch->IsFlagged(EPlrFlag::kBurglar)) {
+		if (!tch->IsNpc() && CanSee(ch, tch) && tch->IsFlagged(EPlrFlag::kBurglar)) {
 			act("$n screams 'HEY!!!  You're one of those PLAYER THIEVES!!!!!!'", false, ch, 0, 0, kToRoom);
 			hit(ch, tch, ESkill::kUndefined, fight::kMainHand);
 
@@ -1282,7 +1282,7 @@ int cityguard(CharData *ch, void * /*me*/, int cmd, char * /*argument*/) {
 	}
 
 	for (const auto tch : world[ch->in_room]->people) {
-		if (CAN_SEE(ch, tch) && tch->GetEnemy()) {
+		if (CanSee(ch, tch) && tch->GetEnemy()) {
 			if ((GET_ALIGNMENT(tch) < max_evil) && (tch->IsNpc() || tch->GetEnemy()->IsNpc())) {
 				max_evil = GET_ALIGNMENT(tch);
 				evil = tch;

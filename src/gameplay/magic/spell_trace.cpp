@@ -21,7 +21,7 @@ const CharData *Recipient(const CharData *ch) {
 	if (ch == nullptr) {
 		return nullptr;
 	}
-	if (IS_CHARMICE(ch)) {
+	if (IsCharmice(ch)) {
 		if (!ch->has_master() || ch->get_master()->IsNpc()) {
 			return nullptr;
 		}

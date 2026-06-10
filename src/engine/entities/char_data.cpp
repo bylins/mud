@@ -1617,7 +1617,7 @@ void CharData::add_attacker(CharData *ch, unsigned type, int num) {
 	}
 
 	int uid = ch->get_uid();
-	if (IS_CHARMICE(ch) && ch->has_master()) {
+	if (IsCharmice(ch) && ch->has_master()) {
 		uid = ch->get_master()->get_uid();
 	}
 
@@ -1811,23 +1811,23 @@ void CharData::inc_restore_timer(int num) {
 void CharData::send_to_TC(bool to_impl, bool to_tester, bool to_coder, const char *msg, ...) {
 	bool needSend = false;
 	// проверка на ситуацию "чармис стоит, хозяина уже нет с нами"
-	if (IS_CHARMICE(this) && !this->has_master()) {
+	if (IsCharmice(this) && !this->has_master()) {
 		sprintf(buf, "[WARNING] CharacterData::send_to_TC. Чармис без хозяина: %s", this->get_name().c_str());
 		mudlog(buf, CMP, kLvlGod, SYSLOG, true);
 		return;
 	}
-	if ((IS_CHARMICE(this) && this->get_master()->IsNpc()) //если это чармис у нпц
-		|| (this->IsNpc() && !IS_CHARMICE(this))) //просто непись
+	if ((IsCharmice(this) && this->get_master()->IsNpc()) //если это чармис у нпц
+		|| (this->IsNpc() && !IsCharmice(this))) //просто непись
 		return;
 
 	if (to_impl &&
-		(this->IsImpl() || (IS_CHARMICE(this) && this->get_master()->IsImpl())))
+		(this->IsImpl() || (IsCharmice(this) && this->get_master()->IsImpl())))
 		needSend = true;
 	if (!needSend && to_coder &&
-		(this->IsFlagged(EPrf::kCoderinfo) || (IS_CHARMICE(this) && (this->get_master()->IsFlagged(EPrf::kCoderinfo)))))
+		(this->IsFlagged(EPrf::kCoderinfo) || (IsCharmice(this) && (this->get_master()->IsFlagged(EPrf::kCoderinfo)))))
 		needSend = true;
 	if (!needSend && to_tester &&
-		(this->IsFlagged(EPrf::kTester) || (IS_CHARMICE(this) && (this->get_master()->IsFlagged(EPrf::kTester)))))
+		(this->IsFlagged(EPrf::kTester) || (IsCharmice(this) && (this->get_master()->IsFlagged(EPrf::kTester)))))
 		needSend = true;
 	if (!needSend)
 		return;
@@ -1845,7 +1845,7 @@ void CharData::send_to_TC(bool to_impl, bool to_tester, bool to_coder, const cha
 		return;
 	}
 	// проверка на нпц была ранее. Шлем хозяину чармиса или самому тестеру
-	SendMsgToChar(tmpbuf, IS_CHARMICE(this) ? this->get_master() : this);
+	SendMsgToChar(tmpbuf, IsCharmice(this) ? this->get_master() : this);
 }
 
 bool CharData::have_mind() const {

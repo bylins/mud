@@ -16,7 +16,7 @@ extern int invalid_anti_class(CharData *ch, const ObjData *obj);
 
 inline bool CAN_CARRY_OBJ(const CharData *ch, const ObjData *obj) {
 	// для анлимного лута мобами из трупов
-	if (ch->IsNpc() && !IS_CHARMICE(ch)) {
+	if (ch->IsNpc() && !IsCharmice(ch)) {
 		return true;
 	}
 

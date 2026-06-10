@@ -1740,7 +1740,7 @@ void find_replacement(void *go,
 				}
 				for (RoomRnum rrn = from; rrn <= to; rrn++) {
 					for (const auto ch : world[rrn]->people) {
-						if (!ch->IsNpc() || IS_CHARMICE(ch))
+						if (!ch->IsNpc() || IsCharmice(ch))
 							continue;
 						snprintf(str + strlen(str), kMaxTrglineLength, "%c%ld ", UID_CHAR, ch->get_uid());
 					}
@@ -1754,7 +1754,7 @@ void find_replacement(void *go,
 				}
 				for (RoomRnum rrn = from; rrn <= to; rrn++) {
 					for (const auto ch : world[rrn]->people) {
-						if (ch->IsNpc() && !IS_CHARMICE(ch))
+						if (ch->IsNpc() && !IsCharmice(ch))
 							continue;
 						if (GET_INVIS_LEV(ch) > 0)
 							continue;
@@ -2645,7 +2645,7 @@ void find_replacement(void *go,
 		} else if (!str_cmp(field, "exp") || !str_cmp(field, "questbodrich")) {
 			if (!str_cmp(field, "questbodrich")) {
 				if (*subfield) {
-					if (IS_CHARMICE(mob)) {
+					if (IsCharmice(mob)) {
 //						SendMsgToChar(mob->get_master(), "Квест чармисом, берем мастера\r\n");
 						mob->get_master()->dquest(atoi(subfield));
 					}
@@ -2734,7 +2734,7 @@ void find_replacement(void *go,
 		else if (!str_cmp(field, "cancarryweight"))
 			snprintf(str, str_size, "%d", CAN_CARRY_W(mob));
 		else if (!str_cmp(field, "CanBeSeen")) {
-			if ((type == MOB_TRIGGER) && !CAN_SEE(((CharData *) go), mob)) {
+			if ((type == MOB_TRIGGER) && !CanSee(((CharData *) go), mob)) {
 				snprintf(str, str_size, "0");
 			} else {
 				snprintf(str, str_size, "1");
@@ -2754,7 +2754,7 @@ void find_replacement(void *go,
 				snprintf(str, str_size, "0");
 			}
 		} else if (!str_cmp(field, "ischarmice")) {
-			if (IS_CHARMICE(mob)) {
+			if (IsCharmice(mob)) {
 				snprintf(str, str_size, "1");
 			} else {
 				snprintf(str, str_size, "0");

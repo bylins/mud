@@ -66,7 +66,7 @@ void do_turn_undead(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd
 				damage.dam = roll.CalcDamage();
 				victims_hp_amount -= damage.dam;
 			};
-		} else if (roll.IsCriticalFail() && !IS_CHARMICE(target)) {
+		} else if (roll.IsCriticalFail() && !IsCharmice(target)) {
 			act("&BВаши жалкие лучи света лишь привели $n3 в ярость!\r\n&n",
 				false, target, nullptr, ch, kToVict);
 			act("&BЧахлый луч света $N1 лишь привел $n3 в ярость!\r\n&n",

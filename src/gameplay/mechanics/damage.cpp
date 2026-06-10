@@ -52,7 +52,7 @@ bool Damage::CalcMagisShieldsDmgAbsoption(CharData *ch, CharData *victim) {
 	if (AFF_FLAGGED(victim, EAffect::kMagicGlass)
 		&& dmg_type == fight::kMagicDmg) {
 		int pct = 6;
-		if (victim->IsNpc() && !IS_CHARMICE(victim)) {
+		if (victim->IsNpc() && !IsCharmice(victim)) {
 			pct += 2;
 			if (victim->get_role(static_cast<unsigned>(EMobClass::kBoss))) {
 				pct += 2;
@@ -78,7 +78,7 @@ bool Damage::CalcMagisShieldsDmgAbsoption(CharData *ch, CharData *victim) {
 		if (dmg_type == fight::kPhysDmg
 			&& !flags[fight::kIgnoreFireShield]) {
 			int pct = 15;
-			if (victim->IsNpc() && !IS_CHARMICE(victim)) {
+			if (victim->IsNpc() && !IsCharmice(victim)) {
 				pct += 5;
 				if (victim->get_role(static_cast<unsigned>(EMobClass::kBoss))) {
 					pct += 5;
@@ -372,7 +372,7 @@ void Damage::ProcessDeath(CharData *ch, CharData *victim) const {
  * У мобов работают все 3 щита, у чаров только 1 рандомный на текущий удар.
  */
 void Damage::SetPostInitShieldFlags(CharData *victim) {
-	if (victim->IsNpc() && !IS_CHARMICE(victim)) {
+	if (victim->IsNpc() && !IsCharmice(victim)) {
 		if (AFF_FLAGGED(victim, EAffect::kFireShield)) {
 			flags.set(fight::kVictimFireShield);
 		}
@@ -566,14 +566,14 @@ int Damage::Process(CharData *ch, CharData *victim) {
 	// прочие множители
 
 	if (AFF_FLAGGED(victim, EAffect::kHold) && dmg_type == fight::kPhysDmg) {
-		if (ch->IsNpc() && !IS_CHARMICE(ch)) {
+		if (ch->IsNpc() && !IsCharmice(ch)) {
 			dam = dam * 15 / 10;
 		} else {
 			dam = dam * 125 / 100;
 		}
 	}
 
-	if (!victim->IsNpc() && IS_CHARMICE(ch)) {
+	if (!victim->IsNpc() && IsCharmice(ch)) {
 		dam = dam * 8 / 10;
 	}
 
@@ -702,9 +702,9 @@ int Damage::Process(CharData *ch, CharData *victim) {
 		ev.attrs["skill_id"] = static_cast<std::int64_t>(skill_id);
 		// Чармис/поднятая нежить -- атаковал не сам PC, а его подчинённый.
 		// Визуализатору это нужно, чтобы отделить вклад хозяина и слуг.
-		ev.attrs["attacker_is_charmie"] = IS_CHARMICE(ch);
+		ev.attrs["attacker_is_charmie"] = IsCharmice(ch);
 		ev.attrs["attacker_master_name"] = observability::EngineStringToUtf8(
-			(IS_CHARMICE(ch) && ch->has_master() && GET_NAME(ch->get_master()))
+			(IsCharmice(ch) && ch->has_master() && GET_NAME(ch->get_master()))
 				? GET_NAME(ch->get_master()) : "");
 		observability::EmitToAllSinks(ev);
 	}

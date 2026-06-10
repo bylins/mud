@@ -70,7 +70,7 @@ void CollectCharmiceBoxesForIdleExtract(CharData *master) {
 
 	const auto followers = master->get_followers_list();
 	for (const auto follower : followers) {
-		if (!follower || !IS_CHARMICE(follower) || follower->get_master() != master) {
+		if (!follower || !IsCharmice(follower) || follower->get_master() != master) {
 			continue;
 		}
 
@@ -1458,7 +1458,7 @@ void obj_point_update() {
 					case EEquipPos::kWield:
 					case EEquipPos::kHold:
 					case EEquipPos::kBoths:
-						if (IS_CHARMICE(j->get_worn_by())) {
+						if (IsCharmice(j->get_worn_by())) {
 							charmee_obj_decay_tell(j->get_worn_by(), j, ECharmeeObjPos::kHandsOrEquip);
 						} else {
 							snprintf(buf, kMaxStringLength, "$o%s рассыпал$U в ваших руках...",
@@ -1467,7 +1467,7 @@ void obj_point_update() {
 						}
 						break;
 						default:
-						if (IS_CHARMICE(j->get_worn_by())) {
+						if (IsCharmice(j->get_worn_by())) {
 							charmee_obj_decay_tell(j->get_worn_by(), j, ECharmeeObjPos::kInventory);
 						} else {
 							snprintf(buf, kMaxStringLength, "$o%s рассыпал$U прямо на вас...",
@@ -1478,7 +1478,7 @@ void obj_point_update() {
 				}
 				UnequipChar(j->get_worn_by(), j->get_worn_on(), CharEquipFlags());
 			} else if (j->get_carried_by()) {
-				if (IS_CHARMICE(j->get_carried_by())) {
+				if (IsCharmice(j->get_carried_by())) {
 					charmee_obj_decay_tell(j->get_carried_by(), j, ECharmeeObjPos::kHandsOrEquip);
 				} else {
 					snprintf(buf, kMaxStringLength, "$o%s рассыпал$U в ваших руках...",
@@ -1502,7 +1502,7 @@ void obj_point_update() {
 					cont_owner = j->get_in_obj()->get_worn_by();
 				}
 				if (cont_owner) {
-					if (IS_CHARMICE(cont_owner)) {
+					if (IsCharmice(cont_owner)) {
 						charmee_obj_decay_tell(cont_owner, j, ECharmeeObjPos::kContainer);
 					} else {
 							char buf[kMaxStringLength];

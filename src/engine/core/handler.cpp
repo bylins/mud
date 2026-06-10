@@ -799,7 +799,7 @@ void EquipObj(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip_f
 		PlaceObjToRoom(obj, ch->in_room);
 		CheckObjDecay(obj);
 		return;
-	} else if ((!ch->IsNpc() || IS_CHARMICE(ch)) && obj->has_flag(EObjFlag::kNamed)
+	} else if ((!ch->IsNpc() || IsCharmice(ch)) && obj->has_flag(EObjFlag::kNamed)
 		&& NamedStuff::check_named(ch, obj, true)) {
 		if (!NamedStuff::wear_msg(ch, obj))
 			SendMsgToChar("Просьба не трогать! Частная собственность!\r\n", ch);
@@ -820,8 +820,8 @@ void EquipObj(CharData *ch, ObjData *obj, int pos, const CharEquipFlags& equip_f
 		return;
 	}
 
-	if (!ch->IsNpc() || IS_CHARMICE(ch)) {
-		CharData *master = IS_CHARMICE(ch) && ch->has_master() ? ch->get_master() : ch;
+	if (!ch->IsNpc() || IsCharmice(ch)) {
+		CharData *master = IsCharmice(ch) && ch->has_master() ? ch->get_master() : ch;
 		if ((obj->get_auto_mort_req() >= 0) && (obj->get_auto_mort_req() > GetRealRemort(master))
 			&& !master->IsImmortal()) {
 			SendMsgToChar(master, "Для использования %s требуется %d %s.\r\n",
@@ -1611,7 +1611,7 @@ void change_npc_leader(CharData *ch) {
 
 	for (auto *i : ch->followers) {
 		if (i->IsNpc()
-			&& !IS_CHARMICE(i)
+			&& !IsCharmice(i)
 			&& i->get_master() == ch) {
 			tmp_list.push_back(i);
 		}
@@ -1724,7 +1724,7 @@ void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset) {
 //		log("[Extract char] Change group leader");
 		change_leader(ch, nullptr);
 	} else if (ch->IsNpc()
-		&& !IS_CHARMICE(ch)
+		&& !IsCharmice(ch)
 		&& !ch->has_master()
 		&& !ch->followers.empty()) {
 //		log("[Extract char] Changing NPC leader");
@@ -1736,7 +1736,7 @@ void ExtractCharFromWorld(CharData *ch, int clear_objs, bool zone_reset) {
 		follow::DieFollower(ch);
 	}
 //	log("[Extract char] Stop all fight for opponee");
-	change_fighting(ch, true);
+	ChangeFighting(ch, true);
 
 //	log("[Extract char] Remove char from room");
 	if (ch->in_room != kNowhere) {

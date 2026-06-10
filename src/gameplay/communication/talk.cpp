@@ -77,7 +77,7 @@ int is_tell_ok(CharData *ch, CharData *vict) {
 
 void perform_tell(CharData *ch, CharData *vict, char *arg) {
 	if (vict->IsFlagged(EPrf::kNoInvistell)
-		&& !CAN_SEE(vict, ch)
+		&& !CanSee(vict, ch)
 		&& GetRealLevel(ch) < kLvlImmortal
 		&& !ch->IsFlagged(EPrf::kCoderinfo)) {
 		act("$N не любит разговаривать с теми, кого не видит.", false, ch, nullptr, vict, kToChar | kToSleep);

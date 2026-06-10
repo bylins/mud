@@ -25,9 +25,9 @@ int CheckCharmices(CharData *ch, CharData *victim, ESpell spell_id);
 
 
 // issue.chardata-cleaning: minion-identity predicates (moved off CharData).
-bool IS_CHARMICE(const CharData *ch);                                       // charmed/helper NPC minion
-inline bool IS_CHARMICE(const std::shared_ptr<CharData> &ch) { return IS_CHARMICE(ch.get()); }
-bool IS_MORTIFIER(const CharData *ch);                                      // raised-corpse minion
+bool IsCharmice(const CharData *ch);                                       // charmed/helper NPC minion
+inline bool IsCharmice(const std::shared_ptr<CharData> &ch) { return IsCharmice(ch.get()); }
+bool IsMortifier(const CharData *ch);                                      // raised-corpse minion
 
 #endif //BYLINS_SRC_GAMEPLAY_MECHANICS_MINIONS_H_
 

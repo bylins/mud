@@ -397,7 +397,7 @@ void PlayerDpsNode::print_charm_stats(table_wrapper::Table &table) const {
 // * Распечатка групповой статистики живых чармисов по данному игроку.
 void PlayerDpsNode::print_group_charm_stats(CharData *ch) const {
 	for (auto *f : ch->followers) {
-		if (!IS_CHARMICE(f)) {
+		if (!IsCharmice(f)) {
 			continue;
 		}
 		const auto it = std::find_if(charm_list_.begin(), charm_list_.end(),
@@ -424,7 +424,7 @@ void check_round(CharData *ch) {
 			CharData *leader = ch->has_master() ? ch->get_master() : ch;
 			leader->dps_end_round(DpsSystem::GROUP_DPS, ch);
 		}
-	} else if (IS_CHARMICE(ch) && ch->has_master()) {
+	} else if (IsCharmice(ch) && ch->has_master()) {
 		ch->get_master()->dps_end_round(DpsSystem::PERS_CHARM_DPS, ch);
 		if (AFF_FLAGGED(ch->get_master(), EAffect::kGroup)) {
 			CharData *leader = ch->get_master()->has_master() ? ch->get_master()->get_master() : ch->get_master();
@@ -448,7 +448,7 @@ void UpdateDpsStatistics(CharData *ch, int real_dam, int over_dam) {
 			CharData *leader = ch->has_master() ? ch->get_master() : ch;
 			leader->dps_add_dmg(DpsSystem::GROUP_DPS, real_dam, over_dam, ch);
 		}
-	} else if (IS_CHARMICE(ch)
+	} else if (IsCharmice(ch)
 		&& ch->has_master()) {
 		ch->get_master()->dps_add_dmg(DpsSystem::PERS_CHARM_DPS, real_dam, over_dam, ch);
 /*		if (!ch->get_master()->IsNpc()) {

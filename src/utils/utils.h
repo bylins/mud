@@ -35,9 +35,9 @@
 
 struct RoomData;    // forward declaration to avoid inclusion of room.hpp and any dependencies of that header.
 class CharData;    // forward declaration to avoid inclusion of char.hpp and any dependencies of that header.
-// issue.chardata-cleaning: CAN_SEE lives in gameplay/mechanics/sight.h now; forward-declared here
+// issue.chardata-cleaning: CanSee lives in gameplay/mechanics/sight.h now; forward-declared here
 // so the ubiquitous PERS/APERS/vis macros below resolve without pulling the heavy sight.h.
-bool CAN_SEE(const CharData *sub, const CharData *obj);
+bool CanSee(const CharData *sub, const CharData *obj);
 struct DescriptorData;
 
 // external declarations and prototypes *********************************
@@ -375,7 +375,7 @@ inline T VPOSI(const T val, const T min, const T max) {
 #define GET_POS_SIZE(ch)  (Posi(GET_REAL_SIZE(ch) >> 1))
 #define GET_HR(ch)         ((ch)->real_abils.hitroll)
 #define GET_HR_ADD(ch)    ((ch)->add_abils.hr_add)
-#define GET_REAL_HR(ch)   (VPOSI(GET_HR(ch)+GET_HR_ADD(ch), -50, (IS_MORTIFIER(ch) ? 100 : 50)))
+#define GET_REAL_HR(ch)   (VPOSI(GET_HR(ch)+GET_HR_ADD(ch), -50, (IsMortifier(ch) ? 100 : 50)))
 #define GET_DR(ch)         ((ch)->real_abils.damroll)
 #define GET_DR_ADD(ch)    ((ch)->add_abils.dr_add)
 #define GET_AC(ch)         ((ch)->real_abils.armor)
@@ -524,35 +524,35 @@ const int kNameLevel = 5;
                           IS_MALE(ch) ? "ой"  :\
                           IS_FEMALE(ch) ? "ая" : "ие")
 
-#define GET_CH_VIS_SUF_1(ch, och) (!CAN_SEE(och,ch) ? "" :\
+#define GET_CH_VIS_SUF_1(ch, och) (!CanSee(och,ch) ? "" :\
                           IS_NOSEXY(ch) ? "о" :\
                           IS_MALE(ch) ? ""  :\
                           IS_FEMALE(ch) ? "а" : "и")
-#define GET_CH_VIS_SUF_2(ch, och) (!CAN_SEE(och,ch) ? "ся" :\
+#define GET_CH_VIS_SUF_2(ch, och) (!CanSee(och,ch) ? "ся" :\
                           IS_NOSEXY(ch) ? "ось" :\
                           IS_MALE(ch) ? "ся"  :\
                           IS_FEMALE(ch) ? "ась" : "ись")
-#define GET_CH_VIS_SUF_3(ch, och) (!CAN_SEE(och,ch) ? "ый" :\
+#define GET_CH_VIS_SUF_3(ch, och) (!CanSee(och,ch) ? "ый" :\
                           IS_NOSEXY(ch) ? "ое" :\
                           IS_MALE(ch) ? "ый"  :\
                           IS_FEMALE(ch) ? "ая" : "ые")
-#define GET_CH_VIS_SUF_4(ch, och) (!CAN_SEE(och,ch) ? "" :\
+#define GET_CH_VIS_SUF_4(ch, och) (!CanSee(och,ch) ? "" :\
                           IS_NOSEXY(ch) ? "ло" :\
                           IS_MALE(ch) ? ""  :\
                           IS_FEMALE(ch) ? "ла" : "ли")
-#define GET_CH_VIS_SUF_5(ch, och) (!CAN_SEE(och,ch) ? "ел" :\
+#define GET_CH_VIS_SUF_5(ch, och) (!CanSee(och,ch) ? "ел" :\
                           IS_NOSEXY(ch) ? "ло" :\
                           IS_MALE(ch) ? "ел"  :\
                           IS_FEMALE(ch) ? "ла" : "ли")
-#define GET_CH_VIS_SUF_6(ch, och) (!CAN_SEE(och,ch) ? "" :\
+#define GET_CH_VIS_SUF_6(ch, och) (!CanSee(och,ch) ? "" :\
                           IS_NOSEXY(ch) ? "о" :\
                           IS_MALE(ch) ? ""  :\
                           IS_FEMALE(ch) ? "а" : "ы")
-#define GET_CH_VIS_SUF_7(ch, och) (!CAN_SEE(och,ch) ? "ым" :\
+#define GET_CH_VIS_SUF_7(ch, och) (!CanSee(och,ch) ? "ым" :\
                           IS_NOSEXY(ch) ? "ым" :\
                           IS_MALE(ch) ? "ой"  :\
                           IS_FEMALE(ch) ? "ым" : "ыми")
-#define GET_CH_VIS_SUF_8(ch, och) (!CAN_SEE(och,ch) ? "ой" :\
+#define GET_CH_VIS_SUF_8(ch, och) (!CanSee(och,ch) ? "ой" :\
                           IS_NOSEXY(ch) ? "ое" :\
                           IS_MALE(ch) ? "ой"  :\
                           IS_FEMALE(ch) ? "ая" : "ие")
@@ -627,7 +627,7 @@ const int kNameLevel = 5;
                             IS_FEMALE(ch) ? "ей" : "ими")
 // Vis variant: fallback "им" matches the masculine form when the observer
 // can't see the actor (consistent with the other GET_CH_VIS_SUF_* fallbacks).
-#define GET_CH_VIS_EXSUF_1(ch, och) (!CAN_SEE(och,ch) ? "им" :\
+#define GET_CH_VIS_EXSUF_1(ch, och) (!CanSee(och,ch) ? "им" :\
                             IS_NOSEXY(ch) ? "им" :\
                             IS_MALE(ch) ? "им"  :\
                             IS_FEMALE(ch) ? "ей" : "ими")
@@ -669,7 +669,7 @@ const int kNameLevel = 5;
 #define CAN_SEE_CHAR(sub, obj) (SELF(sub, obj) || \
         ((GetRealLevel(sub) >= ((obj)->IsNpc() ? 0 : GET_INVIS_LEV(obj))) && \
          IMM_CAN_SEE_CHAR(sub, obj)))
-// End of CAN_SEE
+// End of CanSee
 
 #define GET_PAD_PERS(pad) ((pad) == 5 ? "ком-то" :\
                            (pad) == 4 ? "кем-то" :\
@@ -677,9 +677,9 @@ const int kNameLevel = 5;
                            (pad) == 2 ? "кому-то" :\
                            (pad) == 1 ? "кого-то" : "кто-то")
 
-#define PERS(ch, vict, pad) (CAN_SEE(vict, ch) ? GET_PAD(ch,pad) : GET_PAD_PERS(pad))
+#define PERS(ch, vict, pad) (CanSee(vict, ch) ? GET_PAD(ch,pad) : GET_PAD_PERS(pad))
 //для арены
-#define APERS(ch, vict, pad, arena) ((arena) || CAN_SEE(vict, ch) ? GET_PAD(ch,pad) : GET_PAD_PERS(pad))
+#define APERS(ch, vict, pad, arena) ((arena) || CanSee(vict, ch) ? GET_PAD(ch,pad) : GET_PAD_PERS(pad))
 
 //для арены
 #define AOBJS(obj, vict, arena) ((arena) || CAN_SEE_OBJ((vict), (obj)) ? \

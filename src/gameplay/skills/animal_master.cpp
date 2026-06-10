@@ -29,7 +29,7 @@ void ApplyAnimalMaster(CharData *ch, CharData *victim, Affect<EApply> &af,
 	int type_mob;
 	std::vector<int> rndcharmice = {1, 2, 3, 4, 5, 6, 7, 8};
 	for (auto *k : ch->followers) {
-		if (IS_CHARMICE(k) && k->get_type_charmice() > 0) {
+		if (IsCharmice(k) && k->get_type_charmice() > 0) {
 			auto it = std::find(rndcharmice.begin(), rndcharmice.end(),  k->get_type_charmice());
 			if (it != rndcharmice.end()) {
 				rndcharmice.erase(it);

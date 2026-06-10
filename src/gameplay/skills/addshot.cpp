@@ -51,7 +51,7 @@ void ProcessDoubleShotHits(CharData *ch, ESkill type, fight::AttackType weapon) 
 void ProcessAddshotHits(CharData *ch, CharData *victim, ESkill type, fight::AttackType weapon) {
 	int prob = CalcCurrentSkill(ch, ESkill::kAddshot, ch->GetEnemy());
 	int dex_mod = std::max(GetRealDex(ch) - 25, 0) * 10;
-	int pc_mod =IS_CHARMICE(ch) ? 0 : 1;
+	int pc_mod =IsCharmice(ch) ? 0 : 1;
 	auto difficulty = MUD::Skill(ESkill::kAddshot).difficulty * 5;
 	int percent = number(1, difficulty);
 

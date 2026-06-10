@@ -67,12 +67,12 @@ void do_backstab(CharData *ch, CharData *vict) {
 		return;
 	}
 
-	if (!GET_EQ(ch, EEquipPos::kWield) && (!ch->IsNpc() || IS_CHARMICE(ch))) {
+	if (!GET_EQ(ch, EEquipPos::kWield) && (!ch->IsNpc() || IsCharmice(ch))) {
 		SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kBackstab, ESkillMsg::kNeedWeapon) + "\r\n", ch);
 		return;
 	}
 
-  if ((!ch->IsNpc() || IS_CHARMICE(ch)) && GET_OBJ_VAL(GET_EQ(ch, EEquipPos::kWield), 3) != to_underlying(fight::EDamageSource::kPierce)) {
+  if ((!ch->IsNpc() || IsCharmice(ch)) && GET_OBJ_VAL(GET_EQ(ch, EEquipPos::kWield), 3) != to_underlying(fight::EDamageSource::kPierce)) {
         SendMsgToChar(MUD::SkillMessages().GetMessage(ESkill::kBackstab, ESkillMsg::kWrongWeapon) + "\r\n", ch);
 		return;
 	}

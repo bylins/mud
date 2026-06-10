@@ -226,7 +226,7 @@ void CollectChars(CharData *searcher, const Query &q,
 	auto consider = [&](CharData *cand) {
 		if (ord.done) return;
 		if (!cand || cand->purged()) return;
-		if (q.visible_only && !CAN_SEE(searcher, cand)) return;
+		if (q.visible_only && !CanSee(searcher, cand)) return;
 		if (name_filter && !MatchesName(cand, *name_filter)) return;
 		if (q.char_predicate && !q.char_predicate(cand)) return;
 		// Ordinal: skip the first ord.target-1 matches when `single` is set;
@@ -516,7 +516,7 @@ namespace {
 // bylins-issue-ambiguous-spells.)
 const CharData *AllyRoot(const CharData *ch) {
 	if (!ch) return nullptr;
-	for (int depth = 0; depth < 4 && IS_CHARMICE(ch) && ch->has_master(); ++depth) {
+	for (int depth = 0; depth < 4 && IsCharmice(ch) && ch->has_master(); ++depth) {
 		const auto *next = ch->get_master();
 		if (!next || next == ch) break;
 		ch = next;
@@ -567,7 +567,7 @@ CharPredicate MakeSameRoomFilter(CharData *root) {
 
 CharPredicate MakeVisibleFilter(CharData *viewer) {
 	return [viewer](CharData *cand) {
-		return viewer && cand && CAN_SEE(viewer, cand);
+		return viewer && cand && CanSee(viewer, cand);
 	};
 }
 

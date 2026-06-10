@@ -1157,7 +1157,7 @@ void do_stat_room(CharData *ch, const int rnum = 0) {
 		for (auto k_i = rm->people.begin(); k_i != rm->people.end(); ++k_i) {
 			const auto k = *k_i;
 			++counter;
-			if (!CAN_SEE(ch, k)) {
+			if (!CanSee(ch, k)) {
 				continue;
 			}
 			sline += fmt::sprintf("%s %s(%s)", found++ ? "," : "", GET_NAME(k),

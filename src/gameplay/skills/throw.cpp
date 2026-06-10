@@ -160,7 +160,7 @@ void GoThrow(CharData *ch, CharData *victim) {
 	damage.element = EElement::kDark;
 
 	target_resolver::FoesRosterType
-		roster{ch, victim, [](CharData *ch, CharData *victim) { return CAN_SEE(ch, victim); }};
+		roster{ch, victim, [](CharData *ch, CharData *victim) { return CanSee(ch, victim); }};
 	for (auto target : roster) {
 //		if (target->purged() || target->in_room == kNowhere)
 //			continue;

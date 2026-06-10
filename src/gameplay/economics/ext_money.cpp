@@ -386,7 +386,7 @@ bool has_connected_bosses(CharData *ch) {
 	for (const auto i : world[ch->in_room]->people) {
 		if (i != ch
 			&& i->IsNpc()
-			&& !IS_CHARMICE(i)
+			&& !IsCharmice(i)
 			&& i->get_role(static_cast<unsigned>(EMobClass::kBoss))) {
 			return true;
 		}
@@ -395,7 +395,7 @@ bool has_connected_bosses(CharData *ch) {
 	for (auto *i : ch->followers) {
 		if (i != ch
 			&& i->IsNpc()
-			&& !IS_CHARMICE(i)
+			&& !IsCharmice(i)
 			&& i->get_master() == ch
 			&& i->get_role(static_cast<unsigned>(EMobClass::kBoss))) {
 			return true;

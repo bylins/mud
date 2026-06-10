@@ -472,7 +472,7 @@ void group::GoGroup(CharData *ch, char *argument) {
 			&& AFF_FLAGGED(vict, EAffect::kCharmed)
 			&& vict->has_master()
 			&& !vict->get_master()->IsNpc()) {
-			if (CAN_SEE(ch, vict->get_master())) {
+			if (CanSee(ch, vict->get_master())) {
 				vict = vict->get_master();
 			} else {
 				vict = nullptr;
@@ -619,7 +619,7 @@ void do_report(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				return;
 			}
 			for (auto *f : ch->followers) {
-				if (IS_CHARMICE(f)) {
+				if (IsCharmice(f)) {
 					std::string str;
 
 					SendMsgToChar(ch, "%s доложил%s свои умения:", utils::CAP(f->get_name()).c_str(), GET_CH_SUF_1(f));

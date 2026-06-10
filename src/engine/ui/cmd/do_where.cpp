@@ -48,7 +48,7 @@ void PerformImmortWhere(CharData *ch, char *arg) {
 		for (d = descriptor_list; d; d = d->next) {
 			if (d->state == EConState::kPlaying) {
 				const auto i = d->get_character();
-				if (i && CAN_SEE(ch, i) && (i->in_room != kNowhere)) {
+				if (i && CanSee(ch, i) && (i->in_room != kNowhere)) {
 					if (d->original) {
 						ss << fmt::format("{:<20} - [{:>7}] {} (in {})\r\n",
 										  GET_NAME(i),
@@ -136,7 +136,7 @@ void PerformMortalWhere(CharData *ch, char *arg) {
 			}
 
 			if (i->in_room == kNowhere
-				|| !CAN_SEE(ch, i)) {
+				|| !CanSee(ch, i)) {
 				continue;
 			}
 
@@ -155,7 +155,7 @@ void PerformMortalWhere(CharData *ch, char *arg) {
 				continue;
 			}
 
-			if (!CAN_SEE(ch, i)
+			if (!CanSee(ch, i)
 				|| world[i->in_room]->zone_rn != world[ch->in_room]->zone_rn) {
 				continue;
 			}

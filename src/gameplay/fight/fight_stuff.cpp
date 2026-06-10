@@ -150,10 +150,10 @@ void process_mobmax(CharData *ch, CharData *killer) {
 
 bool stone_rebirth(CharData *ch, CharData *killer) {
 	RoomRnum rnum_start, rnum_stop;
-	if (ch->IsNpc() && !IS_CHARMICE(ch)){
+	if (ch->IsNpc() && !IsCharmice(ch)){
 		return false;
 	}
-	if (killer && (!killer->IsNpc() || IS_CHARMICE(killer)) && (ch != killer)) { //не нычка в ПК
+	if (killer && (!killer->IsNpc() || IsCharmice(killer)) && (ch != killer)) { //не нычка в ПК
 		return false;
 	}
 	GetZoneRooms(world[ch->in_room]->zone_rn, &rnum_start, &rnum_stop);
@@ -199,7 +199,7 @@ bool check_tester_death(CharData *ch, CharData *killer) {
 		return false;
 	}
 
-	if (killer && (!killer->IsNpc() || IS_CHARMICE(killer))
+	if (killer && (!killer->IsNpc() || IsCharmice(killer))
 		&& (ch != killer)) // рип в тестовой зоне от моба но не чармиса
 	{
 		return false;
@@ -301,7 +301,7 @@ int can_loot(CharData *ch) {
 void death_cry(CharData *ch, CharData *killer) {
 	int door;
 	if (killer) {
-		if (IS_CHARMICE(killer)) {
+		if (IsCharmice(killer)) {
 			if (killer->get_master() && killer->get_master()->in_room == killer->in_room) {
 				act("Кровушка стынет в жилах от предсмертного крика $N1.",
 					false, killer->get_master(), nullptr, ch, kToRoom | kToNotDeaf);
@@ -332,7 +332,7 @@ void arena_kill(CharData *ch, CharData *killer) {
 		killer->set_gold(ch->get_gold() + killer->get_gold());
 		ch->set_gold(0);
 	}
-	change_fighting(ch, true);
+	ChangeFighting(ch, true);
 	ch->set_hit(1);
 	mount::DropFromHorse(ch);
 	ch->SetPosition(EPosition::kSit);
@@ -347,7 +347,7 @@ void arena_kill(CharData *ch, CharData *killer) {
 		to_room = r_helled_start_room;
 	}
 	for (auto *f : ch->followers) {
-		if (IS_CHARMICE(f)) {
+		if (IsCharmice(f)) {
 			RemoveCharFromRoom(f);
 			PlaceCharToRoom(f, to_room);
 		}
@@ -493,7 +493,7 @@ void real_kill(CharData *ch, CharData *killer) {
 		//scripting::on_pc_dead(ch, killer, corpse);
 #endif
 	} else {
-		if (killer && (!killer->IsNpc() || IS_CHARMICE(killer))) {
+		if (killer && (!killer->IsNpc() || IsCharmice(killer))) {
 			log("Killed: %d %d %ld", GetRealLevel(ch), ch->get_max_hit(), ch->get_exp());
 			obj_load_on_death(corpse, ch);
 		}
@@ -550,7 +550,7 @@ void raw_kill(CharData *ch, CharData *killer) {
 	// OpenTelemetry: count player deaths
 	if (!ch->IsNpc()) {
 		std::string death_type = "pve";
-		if (killer && !killer->IsNpc() && !IS_CHARMICE(killer)) {
+		if (killer && !killer->IsNpc() && !IsCharmice(killer)) {
 			death_type = "pvp";
 		} else if (!killer) {
 			death_type = "other";
@@ -591,7 +591,7 @@ void raw_kill(CharData *ch, CharData *killer) {
 		}
 	}
 	if (ch->in_room != kNowhere) {
-		if (killer && (!killer->IsNpc() || IS_CHARMICE(killer)) && !ch->IsNpc())
+		if (killer && (!killer->IsNpc() || IsCharmice(killer)) && !ch->IsNpc())
  			kill_pc_wtrigger(killer, ch);
 		if (!ch->IsNpc() && (!NORENTABLE(ch) && ROOM_FLAGGED(ch->in_room, ERoomFlag::kArena))) {
 			//Если убили на арене
@@ -782,7 +782,7 @@ void perform_group_gain(CharData *ch, CharData *victim, int members, int koef) {
 				&& !ch->IsNpc()
 				&& !ch->IsImmortal()
 				&& victim->IsNpc()
-				&& !IS_CHARMICE(victim)
+				&& !IsCharmice(victim)
 				&& !ROOM_FLAGGED(victim->in_room, ERoomFlag::kArena)) {
 				mob_stat::AddMob(victim, members);
 				victim->Temporary.set(EXTRA_GRP_KILL_COUNT);
@@ -1037,9 +1037,9 @@ void do_show_mobmax(CharData *ch, char *, int, int) {
 	player->show_mobmax();
 }
 
-void change_fighting(CharData *ch, int need_stop) {
+void ChangeFighting(CharData *ch, int need_stop) {
 //	utils::CExecutionTimer time;
-//	log("change_fighting start %f vnum %d", time.delta().count(), GET_MOB_VNUM(ch));
+//	log("ChangeFighting start %f vnum %d", time.delta().count(), GET_MOB_VNUM(ch));
 	//Loop for all entities is necessary for unprotecting
 //	for (const auto &k : character_list) {
 	for (const auto &k : world[ch->in_room]->people) {
@@ -1047,11 +1047,11 @@ void change_fighting(CharData *ch, int need_stop) {
 		if (k->get_protecting() == ch) {
 			k->remove_protecting();
 		}
-//		log("change_fighting protecting %f", time.delta().count());
+//		log("ChangeFighting protecting %f", time.delta().count());
 		if (k->get_touching() == ch) {
 			k->set_touching(0);
 		}
-//		log("change_fighting touching %f", time.delta().count());
+//		log("ChangeFighting touching %f", time.delta().count());
 		if (k->GetExtraVictim() == ch) {
 			k->SetExtraAttack(kExtraAttackUnused, 0);
 		}
@@ -1059,10 +1059,10 @@ void change_fighting(CharData *ch, int need_stop) {
 		if (k->GetCastChar() == ch) {
 			k->SetCast(ESpell::kUndefined, ESpell::kUndefined, 0, 0, 0);
 		}
-//		log("change_fighting set cast %f", time.delta().count());
+//		log("ChangeFighting set cast %f", time.delta().count());
 
 		if (k->GetEnemy() == ch && k->in_room != kNowhere) {
-//			log("change_fighting Change victim %f", time.delta().count());
+//			log("ChangeFighting Change victim %f", time.delta().count());
 			bool found = false;
 			for (const auto j : world[ch->in_room]->people) {
 				if (j->GetEnemy() == k) {
@@ -1070,21 +1070,21 @@ void change_fighting(CharData *ch, int need_stop) {
 					act("$n переключил$u на вас!", false, k, 0, j, kToVict);
 					k->SetEnemy(j);
 					found = true;
-//					log("change_fighting Change victim %f", time.delta().count());
+//					log("ChangeFighting Change victim %f", time.delta().count());
 					break;
 				}
 			}
 
 			if (!found && need_stop) {
-//				log("change_fighting stop fighting %f", time.delta().count());
+//				log("ChangeFighting stop fighting %f", time.delta().count());
 				stop_fighting(k, false);
 			}
 		}
 	}
-//	log("change_fighting stop %f", time.delta().count());
+//	log("ChangeFighting stop %f", time.delta().count());
 }
 
-bool MAY_ATTACK(const CharData *sub) {
+bool MayAttack(const CharData *sub) {
 	return (!AFF_FLAGGED((sub), EAffect::kCharmed)
 		&& !mount::IsHorse((sub))
 		&& !AFF_FLAGGED((sub), EAffect::kStopFight)

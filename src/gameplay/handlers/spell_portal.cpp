@@ -63,7 +63,7 @@ EStageResult SpellPortal(CastContext &ctx) {
 	if (ch->IsImmortal() || GET_GOD_FLAG(victim, EGf::kGodscurse)
 		// раньше было <= PK_ACTION_REVENGE, что вызывало абьюз при пенте на чара на арене,
 		// или пенте кидаемой с арены т.к. в данном случае использовалось PK_ACTION_NO которое меньше PK_ACTION_REVENGE
-		|| pkPortal || ((!victim->IsNpc() || IS_CHARMICE(ch)) && victim->IsFlagged(EPrf::KSummonable))
+		|| pkPortal || ((!victim->IsNpc() || IsCharmice(ch)) && victim->IsFlagged(EPrf::KSummonable))
 		|| group::same_group(ch, victim)) {
 		if (pkPortal) {
 			pk_increment_revenge(ch, victim);

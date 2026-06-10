@@ -266,7 +266,7 @@ bool SpellInfo::AllowTarget(const Bitvector target_type) const {
 // of 4 so a pathological charm cycle can't hang the cast pipeline.
 static const CharData *AllyRoot(const CharData *ch) {
 	if (!ch) return nullptr;
-	for (int depth = 0; depth < 4 && IS_CHARMICE(ch) && ch->has_master(); ++depth) {
+	for (int depth = 0; depth < 4 && IsCharmice(ch) && ch->has_master(); ++depth) {
 		const auto *next = ch->get_master();
 		if (!next || next == ch) break;
 		ch = next;

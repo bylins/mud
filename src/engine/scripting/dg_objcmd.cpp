@@ -434,7 +434,7 @@ void do_oteleport(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 				obj_log(obj, trig, "oteleport transports allchar from kNowhere");
 				return;
 			}
-			if (ch->IsNpc() && !IS_CHARMICE(ch)) {
+			if (ch->IsNpc() && !IsCharmice(ch)) {
 				continue;
 			}
 			if (target == ch->in_room) {
@@ -474,11 +474,11 @@ void do_oteleport(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 //			obj_log(obj, trig, "oteleport: target is itself");
 			return;
 		}
-		if (IS_CHARMICE(ch) && ch->in_room == ch->get_master()->in_room)
+		if (IsCharmice(ch) && ch->in_room == ch->get_master()->in_room)
 			ch = ch->get_master();
 		const auto people_copy = world[ch->in_room]->people;
 		for (const auto charmee: people_copy) {
-			if (IS_CHARMICE(charmee) && charmee->get_master() == ch) {
+			if (IsCharmice(charmee) && charmee->get_master() == ch) {
 				RemoveCharFromRoom(charmee);
 				PlaceCharToRoom(charmee, target);
 			}

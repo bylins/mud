@@ -637,7 +637,7 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					if (victim->is_active()) {
 						++motion;
 					}
-					if (CAN_SEE(ch, victim)) {
+					if (CanSee(ch, victim)) {
 						i++;
 						if (victim->desc) {
 							con++;
@@ -712,7 +712,7 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 					&& d->character
 					&& d->state == EConState::kPlaying
 					&& d->character->in_room != kNowhere
-					&& ((CAN_SEE(ch, d->character) && GetRealLevel(ch) >= GetRealLevel(d->character))
+					&& ((CanSee(ch, d->character) && GetRealLevel(ch) >= GetRealLevel(d->character))
 						|| ch->IsFlagged(EPrf::kCoderinfo))) {
 					sprintf(buf + strlen(buf),
 							"%-10s - подслушивается %s (map %s).\r\n",
@@ -750,7 +750,7 @@ void do_show(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				if (d->state != EConState::kPlaying
 					|| (GetRealLevel(ch) < GetRealLevel(d->character) && !ch->IsFlagged(EPrf::kCoderinfo)))
 					continue;
-				if (!CAN_SEE(ch, d->character) || d->character->in_room == kNowhere)
+				if (!CanSee(ch, d->character) || d->character->in_room == kNowhere)
 					continue;
 				buf[0] = 0;
 				if (d->character->IsFlagged(EPlrFlag::kFrozen)

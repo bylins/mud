@@ -76,7 +76,7 @@ bool check_named(CharData *ch, const ObjData *obj, const bool simple) {
 			return true;
 		}
 
-		if (IS_CHARMICE(ch)) // Чармисы тоже могут работать с именными вещами
+		if (IsCharmice(ch)) // Чармисы тоже могут работать с именными вещами
 		{
 			CharData *master = ch->get_master();
 			if (master->IsImmortal()) // Чармис имма

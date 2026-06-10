@@ -66,7 +66,7 @@ int GetRealAc(CharData *ch) {
 }
 
 int GetClaccAcLimit(CharData *ch) {
-	if (IS_CHARMICE(ch)) {
+	if (IsCharmice(ch)) {
 		return -200;
 	};
 	if (ch->IsNpc()) {

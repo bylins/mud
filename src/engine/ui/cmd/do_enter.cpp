@@ -142,7 +142,7 @@ void DoEnter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 						act("$n появил$u из пентаграммы.", true,
 							k, nullptr, nullptr, kToRoom);
 					}
-					if (IS_CHARMICE(k) &&
+					if (IsCharmice(k) &&
 						!AFF_FLAGGED(k, EAffect::kHold) &&
 						k->GetPosition() == EPosition::kStand &&
 						k->in_room == from_room) {

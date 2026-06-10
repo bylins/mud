@@ -836,7 +836,7 @@ void ClearRoom(RoomData *room) {
 		RoomRnum to_room;
 
 		for (const auto vict : people_copy) {
-			if (IS_CHARMICE(vict)) {
+			if (IsCharmice(vict)) {
 				if (vict->get_master() && !vict->get_master()->IsNpc())
 					continue;
 			}

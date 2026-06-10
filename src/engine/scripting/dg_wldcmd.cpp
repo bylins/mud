@@ -309,7 +309,7 @@ void do_wteleport(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, T
 		for (auto ch_i = next_ch; ch_i != people_copy.end(); ch_i = next_ch) {
 			const auto ch = *ch_i;
 			++next_ch;
-			if (ch->IsNpc() && !IS_CHARMICE(ch)) {
+			if (ch->IsNpc() && !IsCharmice(ch)) {
 				continue;
 			}
 			if (target == ch->in_room) {
@@ -346,11 +346,11 @@ void do_wteleport(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, T
 //				wld_log(room, trig, "wteleport target is itself");
 				return;
 			}
-			if (IS_CHARMICE(ch) && ch->in_room == ch->get_master()->in_room)
+			if (IsCharmice(ch) && ch->in_room == ch->get_master()->in_room)
 				ch = ch->get_master();
 			const auto people_copy = world[ch->in_room]->people;
 			for (const auto charmee : people_copy) {
-				if (IS_CHARMICE(charmee) && charmee->get_master() == ch) {
+				if (IsCharmice(charmee) && charmee->get_master() == ch) {
 					RemoveCharFromRoom(charmee);
 					PlaceCharToRoom(charmee, target);
 				}
