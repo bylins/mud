@@ -3,6 +3,7 @@
 //
 
 #include "engine/entities/char_data.h"
+#include "utils/grammar/declensions.h"
 #include "engine/ui/color.h"
 #include "engine/db/global_objects.h"
 #include "gameplay/mechanics/weather.h"

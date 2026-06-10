@@ -9,6 +9,7 @@
 ************************************************************************ */
 
 #include "mail.h"
+#include "utils/grammar/declensions.h"
 #include "gameplay/ai/special_messages.h"
 
 #include <fmt/format.h>

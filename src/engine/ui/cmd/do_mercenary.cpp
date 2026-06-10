@@ -1,6 +1,7 @@
 //#include "engine/ui/cmd/mercenary.h"
 
 #include "engine/core/handler.h"
+#include "utils/grammar/declensions.h"
 #include "engine/entities/char_player.h"
 #include "engine/ui/modify.h"
 #include "gameplay/statistics/mob_stat.h"

@@ -3,6 +3,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include "parcel.h"
+#include "utils/grammar/declensions.h"
 
 #include "engine/db/world_objects.h"
 #include "engine/core/utils_char_obj.inl"

@@ -7,6 +7,7 @@
 */
 
 #include "engine/entities/char_data.h"
+#include "utils/grammar/declensions.h"
 #include "gameplay/mechanics/weather.h"
 
 void do_weather(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {

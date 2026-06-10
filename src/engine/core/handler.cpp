@@ -13,6 +13,7 @@
 //#include "handler.h"
 
 #include "engine/scripting/dg_scripts.h"
+#include "utils/grammar/declensions.h"
 #include "gameplay/mechanics/minions.h"
 #include "gameplay/mechanics/follow.h"
 #include "gameplay/fight/fight_stuff.h"

@@ -7,6 +7,7 @@
 */
 
 #include "engine/ui/cmd/do_equip.h"
+#include "utils/grammar/declensions.h"
 
 #include "engine/entities/char_data.h"
 #include "engine/core/handler.h"

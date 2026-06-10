@@ -736,50 +736,6 @@ const int kNameLevel = 5;
 #define OUTSIDE(ch) (!ROOM_FLAGGED((ch)->in_room, ERoomFlag::kIndoors))
 
 
-// PADS for something ***************************************************
-enum class EWhat : int  {
-	kDay,
-	kHour,
-	kYear,
-	kPoint,
-	kMinA,
-	kMinU,
-	kMoneyA,
-	kMoneyU,
-	kThingA,
-	kThingU,
-	kLvl,
-	kMoveA,
-	kMoveU,
-	kOneA,
-	kOneU,
-	kSec,
-	kDegree,
-	kRow,
-	kObject,
-	kObjU,
-	kRemort,
-	kWeek,
-	kMonth,
-	kWeekU,
-	kGlory,
-	kGloryU,
-	kPeople,
-	kStr,
-	kGulp,
-	kTorc,
-	kGoldTorc,
-	kSilverTorc,
-	kBronzeTorc,
-	kTorcU,
-	kGoldTorcU,
-	kSilverTorcU,
-	kBronzeTorcU,
-	kIceU,
-	kNogataU
-};
-
-const char *GetDeclensionInNumber(long amount, EWhat of_what);
 std::string FormatTimeToStr(long in_timer, bool flag = false);
 
 // defines for fseek

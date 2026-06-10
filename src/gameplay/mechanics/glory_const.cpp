@@ -4,6 +4,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include "glory_const.h"
+#include "utils/grammar/declensions.h"
 
 #include <list>
 #include <map>

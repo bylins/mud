@@ -3,6 +3,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include "char_player.h"
+#include "utils/grammar/declensions.h"
 
 #include <sys/stat.h>
 

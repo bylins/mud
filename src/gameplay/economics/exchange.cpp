@@ -9,6 +9,7 @@
 ************************************************************************ */
 
 #include "exchange.h"
+#include "utils/grammar/declensions.h"
 #include "gameplay/ai/spec_procs.h"
 #include "gameplay/mechanics/identify.h"
 

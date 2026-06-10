@@ -1,4 +1,5 @@
 #include "top.h"
+#include "utils/grammar/declensions.h"
 
 #include "gameplay/classes/pc_classes.h"
 #include "engine/ui/color.h"

@@ -9,6 +9,7 @@
 ************************************************************************ */
 
 #include "auction.h"
+#include "utils/grammar/declensions.h"
 #include "gameplay/mechanics/identify.h"
 
 #include "engine/entities/obj_data.h"

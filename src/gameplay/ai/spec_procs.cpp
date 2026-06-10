@@ -13,6 +13,7 @@
 ************************************************************************ */
 
 #include "gameplay/ai/spec_procs.h"
+#include "utils/grammar/declensions.h"
 #include "gameplay/mechanics/follow.h"
 #include "gameplay/ai/special_messages.h"
 

@@ -1,6 +1,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include <random>
+#include "utils/grammar/declensions.h"
 #include "gameplay/mechanics/minions.h"
 #include "gameplay/mechanics/mount.h"
 

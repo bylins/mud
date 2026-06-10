@@ -5,6 +5,7 @@
 ******************************************************************************/
 
 #include "house.h"
+#include "utils/grammar/declensions.h"
 #include "gameplay/mechanics/minions.h"
 #include "gameplay/ai/special_messages.h"
 #include "gameplay/mechanics/identify.h"

@@ -2,6 +2,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include "administration/karma.h"
+#include "utils/grammar/declensions.h"
 #include "genchar.h"
 #include "engine/ui/color.h"
 #include "engine/entities/char_data.h"

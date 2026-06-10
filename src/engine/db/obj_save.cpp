@@ -10,6 +10,7 @@
 // * AutoEQ by Burkhard Knopf <burkhard.knopf@informatik.tu-clausthal.de>
 
 #include "obj_save.h"
+#include "utils/grammar/declensions.h"
 #include "gameplay/mechanics/minions.h"
 #include "gameplay/ai/special_messages.h"
 

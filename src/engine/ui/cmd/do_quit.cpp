@@ -7,6 +7,7 @@
 */
 
 #include "engine/ui/cmd/do_quit.h"
+#include "utils/grammar/declensions.h"
 
 #include "engine/entities/char_data.h"
 #include "engine/network/descriptor_data.h"

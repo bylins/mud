@@ -7,6 +7,7 @@
 */
 
 #include "engine/entities/char_data.h"
+#include "utils/grammar/declensions.h"
 
 extern int circle_restrict;
 

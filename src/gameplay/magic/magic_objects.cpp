@@ -3,6 +3,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include "spells.h"
+#include "utils/grammar/declensions.h"
 
 #include "engine/entities/obj_data.h"
 #include "engine/ui/color.h"

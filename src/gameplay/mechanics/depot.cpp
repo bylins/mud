@@ -3,6 +3,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include "depot.h"
+#include "utils/grammar/declensions.h"
 
 #include "engine/db/world_characters.h"
 #include "engine/db/world_objects.h"

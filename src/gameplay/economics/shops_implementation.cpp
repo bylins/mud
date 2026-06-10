@@ -1,4 +1,5 @@
 #include "shops_implementation.h"
+#include "utils/grammar/declensions.h"
 #include "gameplay/mechanics/identify.h"
 
 #include "engine/db/obj_prototypes.h"

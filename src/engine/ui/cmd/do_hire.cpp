@@ -1,4 +1,5 @@
 #include "do_hire.h"
+#include "utils/grammar/declensions.h"
 #include "gameplay/mechanics/follow.h"
 #include "gameplay/mechanics/mount.h"
 

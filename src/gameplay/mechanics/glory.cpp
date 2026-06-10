@@ -3,6 +3,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include "glory.h"
+#include "utils/grammar/declensions.h"
 
 #include "administration/karma.h"
 #include "engine/core/conf.h"

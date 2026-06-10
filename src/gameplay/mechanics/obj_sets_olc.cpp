@@ -2,6 +2,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include "obj_sets.h"
+#include "utils/grammar/declensions.h"
 
 #include <string>
 #include <vector>

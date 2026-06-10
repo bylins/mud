@@ -7,6 +7,7 @@
  */
 
 #include "engine/ui/color.h"
+#include "utils/grammar/declensions.h"
 #include "gameplay/mechanics/mount.h"
 #include "gameplay/communication/mail.h"
 #include "gameplay/communication/parcel.h"

@@ -6,6 +6,7 @@
 */
 
 #include "sight.h"
+#include "utils/grammar/declensions.h"
 #include "gameplay/mechanics/mount.h"
 #include "gameplay/mechanics/magic_item.h"
 #include "gameplay/affects/affect_messages.h"

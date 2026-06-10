@@ -2,6 +2,7 @@
 // Created by Sventovit on 07.09.2024.
 //
 #include "engine/entities/char_data.h"
+#include "utils/grammar/declensions.h"
 #include "do_toggle.h"
 #include "gameplay/clans/house.h"
 #include "engine/ui/table_wrapper.h"

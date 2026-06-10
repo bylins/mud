@@ -1,4 +1,5 @@
 #include "do_shutdown.h"
+#include "utils/grammar/declensions.h"
 
 #include "engine/entities/char_data.h"
 

@@ -1,4 +1,5 @@
 #include "gameplay/mechanics/depot.h"
+#include "utils/grammar/declensions.h"
 #include "engine/entities/char_data.h"
 #include "gameplay/fight/pk.h"
 #include "engine/core/handler.h"

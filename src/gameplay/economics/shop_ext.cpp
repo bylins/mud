@@ -3,6 +3,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include "shop_ext.h"
+#include "utils/grammar/declensions.h"
 #include "gameplay/ai/subcmd_resolver.h"
 #include "gameplay/ai/special_messages.h"
 #include "gameplay/mechanics/identify.h"

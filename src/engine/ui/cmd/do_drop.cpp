@@ -1,6 +1,7 @@
 //#include "drop.h"
 
 #include "engine/entities/char_data.h"
+#include "utils/grammar/declensions.h"
 #include "gameplay/economics/currencies.h"
 #include "engine/core/handler.h"
 #include "gameplay/fight/pk.h"

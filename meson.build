@@ -719,6 +719,7 @@ main_sources = files(
   'src/engine/ui/cmd_god/do_invisible.cpp',
   'src/engine/ui/cmd_god/do_set_all.cpp',
   'src/utils/grammar/cases.cpp',
+  'src/utils/grammar/declensions.cpp',
   'src/engine/core/iosystem.cpp',
   'src/gameplay/mechanics/groups.cpp',
   'src/gameplay/statistics/money_drop.cpp',
