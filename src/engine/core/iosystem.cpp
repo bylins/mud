@@ -7,6 +7,7 @@
 */
 
 #include "engine/core/iosystem.h"
+#include "gameplay/mechanics/sight.h"
 
 #include "engine/entities/char_data.h"
 #include "engine/core/handler.h"
@@ -1246,7 +1247,7 @@ char *show_state(CharData *ch, CharData *victim) {
 	const int ch_hp = posi_value(victim->get_hit(), victim->get_real_max_hit()) + 1;
 	sprintf(buf, "%s&q[%s:%s%s]%s&Q ",
 			GetWarmValueColor(victim->get_hit(), victim->get_real_max_hit()),
-			PERS(victim, ch, 0), WORD_STATE[ch_hp], GET_CH_SUF_6(victim), kColorNrm);
+			PersonName(victim, ch, 0), WORD_STATE[ch_hp], GET_CH_SUF_6(victim), kColorNrm);
 	return buf;
 }
 

@@ -98,6 +98,17 @@ const std::string &ItemName::GetPlural(ECase name_case) const {
 	return plural_names_.at(name_case);
 }
 
+const char *SomebodyInCase(int pad) {
+	switch (pad) {
+		case 5: return "ком-то";
+		case 4: return "кем-то";
+		case 3: return "кого-то";
+		case 2: return "кому-то";
+		case 1: return "кого-то";
+		default: return "кто-то";
+	}
+}
+
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

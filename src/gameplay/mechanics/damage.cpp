@@ -216,20 +216,20 @@ void Damage::SendCritHitMsg(CharData *ch, CharData *victim) {
 	// так что добавил отдельные сообщения для ледяного щита (Купала)
 	if (!flags[fight::kVictimIceShield]) {
 		sprintf(buf, "&G&qВаше меткое попадание тяжело ранило %s.&Q&n\r\n",
-				PERS(victim, ch, 3));
+				PersonName(victim, ch, 3));
 	} else {
 		sprintf(buf, "&B&qВаше меткое попадание утонуло в ледяной пелене щита %s.&Q&n\r\n",
-				PERS(victim, ch, 1));
+				PersonName(victim, ch, 1));
 	}
 
 	SendMsgToChar(buf, ch);
 
 	if (!flags[fight::kVictimIceShield]) {
 		sprintf(buf, "&r&qМеткое попадание %s тяжело ранило вас.&Q&n\r\n",
-				PERS(ch, victim, 1));
+				PersonName(ch, victim, 1));
 	} else {
 		sprintf(buf, "&r&qМеткое попадание %s утонуло в ледяной пелене вашего щита.&Q&n\r\n",
-				PERS(ch, victim, 1));
+				PersonName(ch, victim, 1));
 	}
 
 	SendMsgToChar(buf, victim);

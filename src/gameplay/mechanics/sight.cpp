@@ -6,6 +6,7 @@
 */
 
 #include "sight.h"
+#include "utils/grammar/cases.h"
 #include "utils/grammar/declensions.h"
 #include "gameplay/mechanics/mount.h"
 #include "gameplay/mechanics/magic_item.h"
@@ -1480,7 +1481,7 @@ void diag_char_to_char(CharData *i, CharData *ch) {
 	else
 		percent = -1;    // How could MAX_HIT be < 1??
 
-	strcpy(buf, PERS(i, ch, 0));
+	strcpy(buf, PersonName(i, ch, 0));
 	utils::CAP(buf);
 
 	if (percent >= 100) {
@@ -1875,7 +1876,7 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 				const char *msg =
 					AFF_FLAGGED(horse, EAffect::kFly) ? "летает" : "сидит";
 				sprintf(buf + strlen(buf), "%s здесь верхом на %s. ",
-						msg, PERS(horse, ch, 5));
+						msg, PersonName(horse, ch, 5));
 			}
 		} else if (mount::IsHorse(i) && AFF_FLAGGED(i, EAffect::kTethered))
 			sprintf(buf + strlen(buf), "привязан%s здесь. ", GET_CH_SUF_6(i));
@@ -1902,14 +1903,14 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 			else
 				strcat(buf, GET_PAD(i->GetEnemy(), 4));
 			if (mount::IsOnHorse(i))
-				sprintf(buf + strlen(buf), ", сидя верхом на %s! ", PERS(mount::GetHorse(i), ch, 5));
+				sprintf(buf + strlen(buf), ", сидя верхом на %s! ", PersonName(mount::GetHorse(i), ch, 5));
 			else
 				strcat(buf, "! ");
 		} else        // NIL fighting pointer
 		{
 			strcat(buf, IS_POLY(i) ? "колотят по воздуху" : "колотит по воздуху");
 			if (mount::IsOnHorse(i))
-				sprintf(buf + strlen(buf), ", сидя верхом на %s. ", PERS(mount::GetHorse(i), ch, 5));
+				sprintf(buf + strlen(buf), ", сидя верхом на %s. ", PersonName(mount::GetHorse(i), ch, 5));
 			else
 				strcat(buf, ". ");
 		}
@@ -2210,6 +2211,10 @@ bool CanSeeIgnoringLight(const CharData *sub, const CharData *obj) {
 	return SELF(sub, obj)
 		|| ((GetRealLevel(sub) >= (obj->IsNpc() ? 0 : GET_INVIS_LEV(obj)))
 			&& ImmCanSee(sub, obj, false));
+}
+
+const char *PersonName(const CharData *ch, const CharData *viewer, int pad) {
+	return CanSee(viewer, ch) ? GET_PAD(ch, pad) : grammar::SomebodyInCase(pad);
 }
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :

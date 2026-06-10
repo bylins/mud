@@ -7,6 +7,7 @@
 */
 
 #include "do_gen_comm.h"
+#include "gameplay/mechanics/sight.h"
 
 #include "engine/entities/char_data.h"
 #include "engine/network/descriptor_data.h"
@@ -288,7 +289,7 @@ std::string format_gossip_name(CharData *ch, CharData *vict) {
 		log("SYSERROR: мы не должны были сюда попасть, func: %s", __func__);
 		return "";
 	}
-	std::string name = ch->IsImmortal() ? GET_NAME(ch) : PERS(ch, vict, 0);
+	std::string name = ch->IsImmortal() ? GET_NAME(ch) : PersonName(ch, vict, 0);
 	name[0] = UPPER(name[0]);
 	return name;
 }

@@ -259,13 +259,13 @@ static std::vector<std::string> ResolveObjLocationLines(const ObjData *obj, Char
 		}
 		if (cur->get_carried_by()) {
 			lines.push_back(fmt::format("затарено {} [{}] в комнате [{}]",
-					PERS(cur->get_carried_by(), ch, 4), GET_MOB_VNUM(cur->get_carried_by()),
+					PersonName(cur->get_carried_by(), ch, 4), GET_MOB_VNUM(cur->get_carried_by()),
 					world[cur->get_carried_by()->in_room]->vnum));
 			return lines;
 		}
 		if (cur->get_worn_by()) {
 			lines.push_back(fmt::format("надет на {} [{}] в комнате [{}]",
-					PERS(cur->get_worn_by(), ch, 3), GET_MOB_VNUM(cur->get_worn_by()),
+					PersonName(cur->get_worn_by(), ch, 3), GET_MOB_VNUM(cur->get_worn_by()),
 					world[cur->get_worn_by()->in_room]->vnum));
 			return lines;
 		}

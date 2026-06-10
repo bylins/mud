@@ -4,6 +4,7 @@
 */
 
 #include "gameplay/handlers/spell_handlers.h"
+#include "gameplay/mechanics/sight.h"
 #include "gameplay/fight/pk.h"
 #include "engine/entities/char_data.h"
 #include "engine/core/comm.h"
@@ -103,7 +104,7 @@ EStageResult SpellLocateObject(CastContext &ctx) {
 			const auto same_zone = world[ch->in_room]->zone_rn == world[carried_by->in_room]->zone_rn;
 			if (!carried_by->IsNpc() || same_zone || bloody_corpse) {
 				sprintf(buf, "%s наход%sся у %s в инвентаре.\r\n", i->get_short_description().c_str(),
-						GET_OBJ_POLY_1(ch, i), PERS(carried_by, ch, 1));
+						GET_OBJ_POLY_1(ch, i), PersonName(carried_by, ch, 1));
 			} else {
 				return false;
 			}
@@ -149,7 +150,7 @@ EStageResult SpellLocateObject(CastContext &ctx) {
 			const auto same_zone = world[ch->in_room]->zone_rn == world[worn_by->in_room]->zone_rn;
 			if (!worn_by->IsNpc() || same_zone || bloody_corpse) {
 				sprintf(buf, "%s надет%s на %s.\r\n", i->get_short_description().c_str(),
-						GET_OBJ_SUF_6(i), PERS(worn_by, ch, 3));
+						GET_OBJ_SUF_6(i), PersonName(worn_by, ch, 3));
 			} else {
 				return false;
 			}

@@ -1,4 +1,5 @@
 #include "overhelm.h"
+#include "gameplay/mechanics/sight.h"
 #include "gameplay/mechanics/mount.h"
 #include "skill_messages.h"
 
@@ -149,12 +150,12 @@ int CalcOverhelmDmg(CharData *ch, CharData *victim, int dmg) {
 	}
 
 	if (prob < percent || dmg == 0 || victim->IsFlagged(EMobFlag::kNoOverwhelm)) {
-		sprintf(buf, "&c&qВы попытались оглушить %s, но не смогли.&Q&n\r\n", PERS(victim, ch, 3));
+		sprintf(buf, "&c&qВы попытались оглушить %s, но не смогли.&Q&n\r\n", PersonName(victim, ch, 3));
 		SendMsgToChar(buf, ch);
 		lag = 3;
 		dmg = 0;
 	} else if (prob * 100 / percent < 300) {
-		sprintf(buf, "&g&qВаша мощная атака оглушила %s.&Q&n\r\n", PERS(victim, ch, 3));
+		sprintf(buf, "&g&qВаша мощная атака оглушила %s.&Q&n\r\n", PersonName(victim, ch, 3));
 		SendMsgToChar(buf, ch);
 		lag = 2;
 		int k = ch->GetSkill(ESkill::kOverwhelm) / 30;
@@ -163,14 +164,14 @@ int CalcOverhelmDmg(CharData *ch, CharData *victim, int dmg) {
 		}
 		dmg *= std::max(2, number(1, k));
 		SetBattleLag(victim, 3);
-		sprintf(buf, "&R&qВаше сознание слегка помутилось после удара %s.&Q&n\r\n", PERS(ch, victim, 1));
+		sprintf(buf, "&R&qВаше сознание слегка помутилось после удара %s.&Q&n\r\n", PersonName(ch, victim, 1));
 		SendMsgToChar(buf, victim);
 		act("$n оглушил$a $N3.", true, ch, nullptr, victim, kToNotVict | kToArenaListen);
 	} else {
 		if (victim->IsFlagged(EMobFlag::kNoBash)) {
-			sprintf(buf, "&G&qВаш мощнейший удар оглушил %s.&Q&n\r\n", PERS(victim, ch, 3));
+			sprintf(buf, "&G&qВаш мощнейший удар оглушил %s.&Q&n\r\n", PersonName(victim, ch, 3));
 		} else {
-			sprintf(buf, "&G&qВаш мощнейший удар сбил %s с ног.&Q&n\r\n", PERS(victim, ch, 3));
+			sprintf(buf, "&G&qВаш мощнейший удар сбил %s с ног.&Q&n\r\n", PersonName(victim, ch, 3));
 		}
 		SendMsgToChar(buf, ch);
 		if (victim->IsFlagged(EMobFlag::kNoBash)) {
@@ -188,10 +189,10 @@ int CalcOverhelmDmg(CharData *ch, CharData *victim, int dmg) {
 		if (victim->GetPosition() > EPosition::kSit && !victim->IsFlagged(EMobFlag::kNoBash)) {
 			victim->SetPosition(EPosition::kSit);
 			mount::DropFromHorse(victim);
-			sprintf(buf, "&R&qОглушающий удар %s сбил вас с ног.&Q&n\r\n", PERS(ch, victim, 1));
+			sprintf(buf, "&R&qОглушающий удар %s сбил вас с ног.&Q&n\r\n", PersonName(ch, victim, 1));
 			SendMsgToChar(buf, victim);
 		} else {
-			sprintf(buf, "&R&qВаше сознание слегка помутилось после удара %s.&Q&n\r\n", PERS(ch, victim, 1));
+			sprintf(buf, "&R&qВаше сознание слегка помутилось после удара %s.&Q&n\r\n", PersonName(ch, victim, 1));
 			SendMsgToChar(buf, victim);
 		}
 	}

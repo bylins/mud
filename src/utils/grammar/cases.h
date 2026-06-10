@@ -54,6 +54,11 @@ class ItemName {
   NameCases plural_names_;
 };
 
+// The indefinite pronoun "кто-то" ("someone") declined by grammatical-case index
+// (pad: 0=nom .. 5=pre). issue.utils-cleaning: the GET_PAD_PERS fallback name, moved out of
+// utils.h; sight's PersonName returns this when a viewer cannot see a character.
+const char *SomebodyInCase(int pad);
+
 }
 
 #endif //BYLINS_SRC_ENGINE_GRAMMAR_CASES_H_

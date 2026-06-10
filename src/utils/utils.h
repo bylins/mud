@@ -663,15 +663,12 @@ const int kNameLevel = 5;
 // issue.utils-cleaning: the MORT/IMM/CAN_SEE_CHAR "see without light" macros moved to
 // gameplay/mechanics/sight.h as CanSeeIgnoringLight (folded into the CanSee predicate ladder).
 
-#define GET_PAD_PERS(pad) ((pad) == 5 ? "ком-то" :\
-                           (pad) == 4 ? "кем-то" :\
-                           (pad) == 3 ? "кого-то" :\
-                           (pad) == 2 ? "кому-то" :\
-                           (pad) == 1 ? "кого-то" : "кто-то")
 
-#define PERS(ch, vict, pad) (CanSee(vict, ch) ? GET_PAD(ch,pad) : GET_PAD_PERS(pad))
 //для арены
-#define APERS(ch, vict, pad, arena) ((arena) || CanSee(vict, ch) ? GET_PAD(ch,pad) : GET_PAD_PERS(pad))
+// issue.utils-cleaning: GET_PAD_PERS fallback moved to grammar::SomebodyInCase; PERS became
+// sight::PersonName. APERS (arena reveals the real name) delegates to it; only comm.cpp uses it,
+// and that TU includes sight.h. (APERS itself is slated to move to the arena code in step 4.)
+#define APERS(ch, vict, pad, arena) ((arena) ? GET_PAD(ch, pad) : PersonName(ch, vict, pad))
 
 //для арены
 #define AOBJS(obj, vict, arena) ((arena) || CAN_SEE_OBJ((vict), (obj)) ? \

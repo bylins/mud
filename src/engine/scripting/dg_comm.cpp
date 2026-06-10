@@ -54,7 +54,7 @@ void sub_write_to_char(CharData *ch, char *tokens[], void *otokens[], char type[
 				else if ((CharData *) otokens[i] == ch)
 					strcat(sb, "Вы");
 				else
-					strcat(sb, PERS((CharData *) otokens[i], ch, 0));
+					strcat(sb, PersonName((CharData *) otokens[i], ch, 0));
 				break;
 
 			case '@':
@@ -63,7 +63,7 @@ void sub_write_to_char(CharData *ch, char *tokens[], void *otokens[], char type[
 				else if ((CharData *) otokens[i] == ch)
 					strcat(sb, "ваш");
 				else {
-					strcat(sb, PERS((CharData *) otokens[i], ch, 1));
+					strcat(sb, PersonName((CharData *) otokens[i], ch, 1));
 				}
 				break;
 

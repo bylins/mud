@@ -53,6 +53,11 @@ inline bool CanSeeIgnoringLight(const std::shared_ptr<CharData> &sub, const std:
 	return CanSeeIgnoringLight(sub.get(), obj.get());
 }
 
+// issue.utils-cleaning: PERS as a function. A viewer's rendering of character `ch`'s name in
+// grammatical case `pad`: the real declined name if the viewer can see them, else the indefinite
+// "кто-то" fallback. (Replaces the PERS macro that lived in utils.h.)
+const char *PersonName(const CharData *ch, const CharData *viewer, int pad);
+
 #endif //BYLINS_SRC_GAME_MECHANICS_SIGHT_H_
 
 // vim: ts=4 sw=4 tw=0 noet syntax=cpp :
