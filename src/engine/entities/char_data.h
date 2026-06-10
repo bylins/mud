@@ -7,6 +7,8 @@
 #include "player_i.h"
 #include "gameplay/mechanics/alignment.h"
 #include "administration/punishments.h"
+#include "gameplay/fight/pk.h"
+#include "gameplay/magic/magic_temp_spells.h"
 #include "gameplay/mechanics/obj_sets.h"
 #include "gameplay/mechanics/dead_load.h"
 #include "engine/db/db.h"
@@ -57,21 +59,6 @@ struct char_player_data {
 	ubyte Race;        // PC / NPC's race
 };
 
-struct PK_Memory_type {
-	long unique{0};
-	long kill_num{0};
-	long kill_at{0};
-	long revenge_num{0};
-	long battle_exp{0};
-	long thief_exp{0};
-	long clan_exp{0};
-};
-
-struct TemporarySpell {
-	ESpell spell{ESpell::kUndefined};
-	time_t set_time{0};
-	time_t duration{0};
-};
 
 enum class EBriefShieldsMode : int {
 	kOff = 0,
@@ -816,7 +803,7 @@ class CharData : public ProtectedCharData {
 
 	int caster_level;
 	int damage_level;
-	std::unordered_map<long, PK_Memory_type> pk_map;
+	std::unordered_map<long, PkMemory> pk_map;
 
 	int track_dirs;
 	bool check_aggressive;

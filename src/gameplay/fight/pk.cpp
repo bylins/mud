@@ -68,7 +68,7 @@ bool check_agrobd(CharData *ch) {
 	return false;
 }
 
-PK_Memory_type *findPKEntry(CharData *agressor, CharData *victim) {
+PkMemory *findPKEntry(CharData *agressor, CharData *victim) {
 	auto it = agressor->pk_map.find(victim->get_uid());
 	if (it != agressor->pk_map.end()) {
 		return &it->second;
