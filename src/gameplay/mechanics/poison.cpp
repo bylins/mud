@@ -3,6 +3,7 @@
 // Part of Bylins http://www.mud.ru
 
 #include "poison.h"
+#include "gameplay/mechanics/mount.h"
 
 #include "engine/entities/obj_data.h"
 #include "engine/entities/char_data.h"
@@ -236,9 +237,9 @@ namespace {
 							SendMsgToChar(ch, "%sОт действия вашего яда у %s закружилась голова!%s\r\n",
 										  kColorGrn, PERS(vict, ch, 1), kColorNrm);
 							SendMsgToChar(vict, "Вы почувствовали сильное головокружение и не смогли усидеть на %s!\r\n",
-										  GET_PAD(vict->get_horse(), 5));
+										  GET_PAD(mount::GetHorse(vict), 5));
 							act("$n0 зашатал$u и не смог$q усидеть на $N5.",
-								true, vict, nullptr, vict->get_horse(), kToNotVict);
+								true, vict, nullptr, mount::GetHorse(vict), kToNotVict);
 							vict->DropFromHorse();
 						} else {
 							SendMsgToChar(ch, "%sОт действия вашего яда у %s подкосились ноги!%s\r\n",

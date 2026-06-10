@@ -7,6 +7,7 @@
 */
 
 #include "engine/entities/char_data.h"
+#include "gameplay/mechanics/mount.h"
 #include "engine/core/char_movement.h"
 #include "engine/db/global_objects.h"
 
@@ -28,7 +29,7 @@ void DoHidemove(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 	if (ch->IsOnHorse()) {
-		act("Вам мешает $N.", false, ch, nullptr, ch->get_horse(), kToChar);
+		act("Вам мешает $N.", false, ch, nullptr, mount::GetHorse(ch), kToChar);
 		return;
 	}
 	auto sneaking = IsAffectedBySpell(ch, ESpell::kSneak);

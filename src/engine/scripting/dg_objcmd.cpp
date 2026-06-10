@@ -10,6 +10,7 @@
 **************************************************************************/
 
 #include "engine/entities/char_data.h"
+#include "gameplay/mechanics/mount.h"
 #include "engine/ui/cmd/do_follow.h"
 #include "gameplay/fight/fight.h"
 #include "gameplay/fight/pk.h"
@@ -439,10 +440,10 @@ void do_oteleport(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 				continue;
 			}
 
-			if (ch->get_horse()) {
+			if (mount::GetHorse(ch)) {
 				if (ch->IsOnHorse() || ch->has_horse(true)) {
-					RemoveCharFromRoom(ch->get_horse());
-					PlaceCharToRoom(ch->get_horse(), target);
+					RemoveCharFromRoom(mount::GetHorse(ch));
+					PlaceCharToRoom(mount::GetHorse(ch), target);
 					onhorse = true;
 				}
 			}
@@ -480,10 +481,10 @@ void do_oteleport(ObjData *obj, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 				PlaceCharToRoom(charmee, target);
 			}
 		}
-		if (ch->get_horse()) {
+		if (mount::GetHorse(ch)) {
 			if (ch->IsOnHorse() || ch->has_horse(true)) {
-				RemoveCharFromRoom(ch->get_horse());
-				PlaceCharToRoom(ch->get_horse(), target);
+				RemoveCharFromRoom(mount::GetHorse(ch));
+				PlaceCharToRoom(mount::GetHorse(ch), target);
 				onhorse = true;
 			}
 		}

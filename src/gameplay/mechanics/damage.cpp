@@ -7,6 +7,7 @@
 */
 
 #include "damage.h"
+#include "gameplay/mechanics/mount.h"
 #include "gameplay/mechanics/resist.h"
 
 #include <fmt/format.h>
@@ -489,9 +490,9 @@ int Damage::Process(CharData *ch, CharData *victim) {
 		}
 
 		// лошадь сбрасывает седока при уроне
-		if (ch->IsOnHorse() && ch->get_horse() == victim) {
+		if (ch->IsOnHorse() && mount::GetHorse(ch) == victim) {
 			victim->DropFromHorse();
-		} else if (victim->IsOnHorse() && victim->get_horse() == ch) {
+		} else if (victim->IsOnHorse() && mount::GetHorse(victim) == ch) {
 			ch->DropFromHorse();
 		}
 	}

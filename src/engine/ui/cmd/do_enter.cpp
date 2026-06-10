@@ -6,6 +6,7 @@
 */
 
 #include "engine/entities/char_data.h"
+#include "gameplay/mechanics/mount.h"
 #include "engine/core/char_movement.h"
 #include "engine/ui/color.h"
 #include "gameplay/fight/common.h"
@@ -43,9 +44,9 @@ void DoEnter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				SendMsgToChar("Вы не видите здесь пентаграмму.\r\n", ch);
 			} else {
 				from_room = ch->in_room;
-				if (ch->IsOnHorse() && AFF_FLAGGED(ch->get_horse(), EAffect::kHold)) {
+				if (ch->IsOnHorse() && AFF_FLAGGED(mount::GetHorse(ch), EAffect::kHold)) {
 					act("$Z $N не в состоянии нести вас на себе.\r\n",
-						false, ch, nullptr, ch->get_horse(), kToChar);
+						false, ch, nullptr, mount::GetHorse(ch), kToChar);
 					return;
 				}
 				// не пускать в ванрумы после пк, если его там прибьет сразу
@@ -61,7 +62,7 @@ void DoEnter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 				//проверка на флаг нельзя_верхом
 				if (ROOM_FLAGGED(door, ERoomFlag::kNohorse) && ch->IsOnHorse()) {
 					act("$Z $N отказывается туда идти, и вам пришлось соскочить.",
-						false, ch, nullptr, ch->get_horse(), kToChar);
+						false, ch, nullptr, mount::GetHorse(ch), kToChar);
 					ch->dismount();
 				}
 				//проверка на ванрум и лошадь
@@ -72,7 +73,7 @@ void DoEnter(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 						return;
 					} else {
 						act("$Z $N заупрямил$U, и вам пришлось соскочить.",
-							false, ch, nullptr, ch->get_horse(), kToChar);
+							false, ch, nullptr, mount::GetHorse(ch), kToChar);
 						ch->dismount();
 					}
 				}

@@ -7,6 +7,7 @@
  */
 
 #include "engine/ui/color.h"
+#include "gameplay/mechanics/mount.h"
 #include "gameplay/communication/mail.h"
 #include "gameplay/communication/parcel.h"
 #include "engine/entities/char_data.h"
@@ -195,7 +196,7 @@ void PrintScoreList(CharData *ch) {
 	if (!ch->IsOnHorse())
 		SendMsgToChar(ch, "Ваша позиция: %s", GetPositionStr(ch));
 	else
-		SendMsgToChar(ch, "Ваша позиция: Вы верхом на %s.\r\n", GET_PAD(ch->get_horse(), 5));
+		SendMsgToChar(ch, "Ваша позиция: Вы верхом на %s.\r\n", GET_PAD(mount::GetHorse(ch), 5));
 	if (ch->IsFlagged(EPrf::KSummonable))
 		SendMsgToChar(ch, "Вы можете быть призваны.\r\n");
 	else
@@ -253,9 +254,9 @@ const std::string &InfoStrPrefix(CharData *ch) {
 void PrintHorseInfo(CharData *ch, std::ostringstream &out) {
 	if (ch->has_horse(false)) {
 		if (ch->IsOnHorse()) {
-			out << InfoStrPrefix(ch) << "Вы верхом на " << GET_PAD(ch->get_horse(), 5) << "." << "\r\n";
+			out << InfoStrPrefix(ch) << "Вы верхом на " << GET_PAD(mount::GetHorse(ch), 5) << "." << "\r\n";
 		} else {
-			out << InfoStrPrefix(ch) << "У вас есть " << ch->get_horse()->get_name() << "." << "\r\n";
+			out << InfoStrPrefix(ch) << "У вас есть " << mount::GetHorse(ch)->get_name() << "." << "\r\n";
 		}
 	}
 }
@@ -858,9 +859,9 @@ void PrintScoreBase(CharData *ch) {
 	if (ch->has_horse(false)) {
 		size_t buf_len = strlen(buf);
 		if (ch->IsOnHorse())
-			snprintf(buf + buf_len, sizeof(buf) - buf_len, "Вы верхом на %s.\r\n", GET_PAD(ch->get_horse(), 5));
+			snprintf(buf + buf_len, sizeof(buf) - buf_len, "Вы верхом на %s.\r\n", GET_PAD(mount::GetHorse(ch), 5));
 		else
-			snprintf(buf + buf_len, sizeof(buf) - buf_len, "У вас есть %s.\r\n", GET_NAME(ch->get_horse()));
+			snprintf(buf + buf_len, sizeof(buf) - buf_len, "У вас есть %s.\r\n", GET_NAME(mount::GetHorse(ch)));
 	}
 	strncat(buf, kColorNrm, sizeof(buf) - strlen(buf) - 1);
 	SendMsgToChar(buf, ch);

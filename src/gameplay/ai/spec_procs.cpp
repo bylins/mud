@@ -97,7 +97,7 @@ int HorseSell(CharData *ch, void *me, char * /*rest*/) {
 			return (true);
 		}
 
-		if (!(horse = ch->get_horse()) || GET_MOB_VNUM(horse) != kHorseVnum) {
+		if (!(horse = mount::GetHorse(ch)) || GET_MOB_VNUM(horse) != kHorseVnum) {
 			act(specials::HorseMsg(specials::EHorseMsg::kSellWrongHorse), false, ch, 0, victim, kToChar);
 			return (true);
 		}

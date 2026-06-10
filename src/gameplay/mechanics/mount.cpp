@@ -1,11 +1,28 @@
 // обслуживание функций езды на всяческих жовтоне
 //
 #include "mount.h"
+#include "gameplay/mechanics/mount.h"
 
 #include "engine/entities/char_data.h"
 #include "engine/entities/entities_constants.h"
 #include "engine/core/handler.h"
 #include "engine/core/target_resolver.h"
+
+namespace mount {
+
+CharData *GetHorse(CharData *ch) {
+	if (ch->IsNpc()) {
+		return nullptr;
+	}
+	for (auto *f : ch->followers) {
+		if (f->IsNpc() && AFF_FLAGGED(f, EAffect::kHorse)) {
+			return f;
+		}
+	}
+	return nullptr;
+}
+
+}  // namespace mount
 
 void make_horse(CharData *horse, CharData *ch) {
 	AFF_FLAGS(horse).set(EAffect::kHorse);
@@ -24,7 +41,7 @@ void do_horseon(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->IsNpc())
 		return;
 
-	if (!ch->get_horse()) {
+	if (!mount::GetHorse(ch)) {
 		SendMsgToChar("У вас нет скакуна.\r\n", ch);
 		return;
 	}
@@ -38,7 +55,7 @@ void do_horseon(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (*arg)
 		horse = target_resolver::FindCharInRoom(ch, arg);
 	else
-		horse = ch->get_horse();
+		horse = mount::GetHorse(ch);
 
 	if (horse == nullptr)
 		SendMsgToChar(CommonMsg(ECommonMsg::kNoPerson) + "\r\n", ch);
@@ -73,7 +90,7 @@ void do_horseoff(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/)
 
 	if (ch->IsNpc())
 		return;
-	if (!(horse = ch->get_horse())) {
+	if (!(horse = mount::GetHorse(ch))) {
 		SendMsgToChar("У вас нет скакуна.\r\n", ch);
 		return;
 	}
@@ -92,7 +109,7 @@ void do_horseget(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->IsNpc())
 		return;
 
-	if (!ch->get_horse()) {
+	if (!mount::GetHorse(ch)) {
 		SendMsgToChar("У вас нет скакуна.\r\n", ch);
 		return;
 	}
@@ -106,7 +123,7 @@ void do_horseget(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (*arg)
 		horse = target_resolver::FindCharInRoom(ch, arg);
 	else
-		horse = ch->get_horse();
+		horse = mount::GetHorse(ch);
 
 	if (horse == nullptr)
 		SendMsgToChar(CommonMsg(ECommonMsg::kNoPerson) + "\r\n", ch);
@@ -130,7 +147,7 @@ void do_horseput(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 
 	if (ch->IsNpc())
 		return;
-	if (!ch->get_horse()) {
+	if (!mount::GetHorse(ch)) {
 		SendMsgToChar("У вас нет скакуна.\r\n", ch);
 		return;
 	}
@@ -144,7 +161,7 @@ void do_horseput(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (*arg)
 		horse = target_resolver::FindCharInRoom(ch, arg);
 	else
-		horse = ch->get_horse();
+		horse = mount::GetHorse(ch);
 	if (horse == nullptr)
 		SendMsgToChar(CommonMsg(ECommonMsg::kNoPerson) + "\r\n", ch);
 	else if (horse->in_room != ch->in_room)
@@ -168,7 +185,7 @@ void do_horsetake(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->IsNpc())
 		return;
 
-	if (ch->get_horse()) {
+	if (mount::GetHorse(ch)) {
 		SendMsgToChar("Зачем вам столько скакунов?\r\n", ch);
 		return;
 	}
@@ -192,8 +209,8 @@ void do_horsetake(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 			&& AFF_FLAGGED(horse, EAffect::kHorse))) {
 		act("Вы не сможете оседлать $N3.", false, ch, 0, horse, kToChar);
 		return;
-	} else if (ch->get_horse()) {
-		if (ch->get_horse() == horse)
+	} else if (mount::GetHorse(ch)) {
+		if (mount::GetHorse(ch) == horse)
 			act("Не стоит седлать $S еще раз.", false, ch, 0, horse, kToChar);
 		else
 			SendMsgToChar("Вам не усидеть сразу на двух скакунах.\r\n", ch);
@@ -220,7 +237,7 @@ void do_givehorse(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 	if (ch->IsNpc())
 		return;
 
-	if (!(horse = ch->get_horse())) {
+	if (!(horse = mount::GetHorse(ch))) {
 		SendMsgToChar("Да нету у вас скакуна.\r\n", ch);
 		return;
 	}
@@ -241,7 +258,7 @@ void do_givehorse(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/) {
 		SendMsgToChar("Он и без этого обойдется.\r\n", ch);
 		return;
 	}
-	if (victim->get_horse()) {
+	if (mount::GetHorse(victim)) {
 		act("У $N1 уже есть скакун.\r\n", false, ch, 0, victim, kToChar);
 		return;
 	}
@@ -268,7 +285,7 @@ void do_stophorse(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/
 	if (ch->IsNpc())
 		return;
 
-	if (!(horse = ch->get_horse())) {
+	if (!(horse = mount::GetHorse(ch))) {
 		SendMsgToChar("Да нету у вас скакуна.\r\n", ch);
 		return;
 	}

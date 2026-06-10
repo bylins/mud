@@ -1,4 +1,5 @@
 #include "engine/entities/char_data.h"
+#include "gameplay/mechanics/mount.h"
 #include "engine/core/handler.h"
 
 void DoLightwalk(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
@@ -10,7 +11,7 @@ void DoLightwalk(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/)
 	}
 
 	if (ch->IsOnHorse()) {
-		act("Позаботьтесь сперва о мягких тапочках для $N3...", false, ch, nullptr, ch->get_horse(), kToChar);
+		act("Позаботьтесь сперва о мягких тапочках для $N3...", false, ch, nullptr, mount::GetHorse(ch), kToChar);
 		return;
 	}
 

@@ -12,6 +12,7 @@
 *  $Revision$                                                       *
 ************************************************************************ */
 #include "char_movement.h"
+#include "gameplay/mechanics/mount.h"
 
 #include "gameplay/mechanics/deathtrap.h"
 #include "gameplay/mechanics/hide.h"
@@ -219,10 +220,10 @@ bool IsCorrectDirection(CharData *ch, int dir, bool check_specials, bool show_ms
 		}
 
 		//чтобы конь не лез в комнату с флагом !лошадь
-		if (ch->IsOnHorse() && !IsCorrectDirection(ch->get_horse(), dir, check_specials, false)) {
+		if (ch->IsOnHorse() && !IsCorrectDirection(mount::GetHorse(ch), dir, check_specials, false)) {
 			if (show_msg) {
 				act("$Z $N отказывается туда идти, и вам пришлось соскочить.",
-					false, ch, nullptr, ch->get_horse(), kToChar);
+					false, ch, nullptr, mount::GetHorse(ch), kToChar);
 				ch->dismount();
 			}
 		}
@@ -234,18 +235,18 @@ bool IsCorrectDirection(CharData *ch, int dir, bool check_specials, bool show_ms
 			return (false);
 		}
 
-		if (ch->IsOnHorse() && GET_HORSESTATE(ch->get_horse()) <= 0) {
+		if (ch->IsOnHorse() && GET_HORSESTATE(mount::GetHorse(ch)) <= 0) {
 			if (show_msg)
 				act("$Z $N загнан$G настолько, что не может нести вас на себе.",
-					false, ch, nullptr, ch->get_horse(), kToChar);
+					false, ch, nullptr, mount::GetHorse(ch), kToChar);
 			return false;
 		}
 
 		if (ch->IsOnHorse()
-			&& (AFF_FLAGGED(ch->get_horse(), EAffect::kHold)
-				|| AFF_FLAGGED(ch->get_horse(), EAffect::kSleep))) {
+			&& (AFF_FLAGGED(mount::GetHorse(ch), EAffect::kHold)
+				|| AFF_FLAGGED(mount::GetHorse(ch), EAffect::kSleep))) {
 			if (show_msg)
-				act("$Z $N не в состоянии нести вас на себе.\r\n", false, ch, nullptr, ch->get_horse(), kToChar);
+				act("$Z $N не в состоянии нести вас на себе.\r\n", false, ch, nullptr, mount::GetHorse(ch), kToChar);
 			return false;
 		}
 
@@ -253,7 +254,7 @@ bool IsCorrectDirection(CharData *ch, int dir, bool check_specials, bool show_ms
 			&& (ROOM_FLAGGED(EXIT(ch, dir)->to_room(), ERoomFlag::kTunnel)
 				|| ROOM_FLAGGED(EXIT(ch, dir)->to_room(), ERoomFlag::kNohorse))) {
 			if (show_msg)
-				act("$Z $N не в состоянии пройти туда.\r\n", false, ch, nullptr, ch->get_horse(), kToChar);
+				act("$Z $N не в состоянии пройти туда.\r\n", false, ch, nullptr, mount::GetHorse(ch), kToChar);
 			return false;
 		}
 
@@ -420,7 +421,7 @@ bool PerformSimpleMove(CharData *ch, int dir, int following, CharData *leader, E
 	was_in = ch->in_room;
 	go_to = world[was_in]->dir_option[dir]->to_room();
 	use_horse = ch->IsOnHorse() && ch->has_horse(false)
-		&& (ch->get_horse()->in_room == was_in || ch->get_horse()->in_room == go_to);
+		&& (mount::GetHorse(ch)->in_room == was_in || mount::GetHorse(ch)->in_room == go_to);
 	is_horse = IS_HORSE(ch)
 		&& ch->has_master()
 		&& !AFF_FLAGGED(ch->get_master(), EAffect::kInvisible)
@@ -452,7 +453,7 @@ bool PerformSimpleMove(CharData *ch, int dir, int following, CharData *leader, E
 			|| real_sector(was_in) == ESector::kUnderwater) {
 			strcpy(smallBuf, "уплыл$g");
 		} else if (use_horse) {
-			horse = ch->get_horse();
+			horse = mount::GetHorse(ch);
 			if (horse && AFF_FLAGGED(horse, EAffect::kFly))
 				strcpy(smallBuf, "улетел$g");
 			else
@@ -472,7 +473,7 @@ bool PerformSimpleMove(CharData *ch, int dir, int following, CharData *leader, E
 	}
 
 	if (ch->IsOnHorse())
-		horse = ch->get_horse();
+		horse = mount::GetHorse(ch);
 
 	// Если сбежали, и по противнику никто не бьет, то убираем с него аттаку
 	if (move_type == EMoveType::kFlee) {
@@ -533,7 +534,7 @@ bool PerformSimpleMove(CharData *ch, int dir, int following, CharData *leader, E
 			|| real_sector(go_to) == ESector::kUnderwater) {
 			strcpy(smallBuf, "приплыл$g");
 		} else if (use_horse) {
-			horse = ch->get_horse();
+			horse = mount::GetHorse(ch);
 			if (horse && AFF_FLAGGED(horse, EAffect::kFly)) {
 				strcpy(smallBuf, "прилетел$g");
 			} else {

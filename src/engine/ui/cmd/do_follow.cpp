@@ -1,4 +1,5 @@
 #include "do_follow.h"
+#include "gameplay/mechanics/mount.h"
 
 #include "gameplay/fight/fight.h"
 #include "engine/core/handler.h"
@@ -32,7 +33,7 @@ bool stop_follower(CharData *ch, int mode) {
 	}
 
 	//log("[Stop ch] Stop horse");
-	if (ch->get_master()->get_horse() == ch && ch->get_master()->IsOnHorse()) {
+	if (mount::GetHorse(ch->get_master()) == ch && ch->get_master()->IsOnHorse()) {
 		ch->DropFromHorse();
 	} else {
 		act("$n прекратил$g следовать за вами.", true, ch, 0, ch->get_master(), kToVict);
@@ -118,7 +119,7 @@ bool stop_follower(CharData *ch, int mode) {
 // Detaches ch from its master (if any) and dismisses all of ch's followers.
 void die_follower(CharData *ch) {
 	if (ch->has_master()) {
-		if (ch->get_master()->get_horse() == ch && ch->get_master()->IsOnHorse()) {
+		if (mount::GetHorse(ch->get_master()) == ch && ch->get_master()->IsOnHorse()) {
 			ch->DropFromHorse();
 		} else {
 			act("$n прекратил$g следовать за вами.", true, ch, 0, ch->get_master(), kToVict);

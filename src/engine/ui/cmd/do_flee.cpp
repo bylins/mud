@@ -1,4 +1,5 @@
 #include "do_flee.h"
+#include "gameplay/mechanics/mount.h"
 
 #include "engine/core/char_movement.h"
 #include "engine/entities/char_data.h"
@@ -35,8 +36,8 @@ void GoFlee(CharData *ch) {
 		SetBattleLag(ch, 1);
 	}
 
-	if (ch->IsOnHorse() && (ch->get_horse()->GetPosition() < EPosition::kFight ||
-		AFF_FLAGGED(ch->get_horse(), EAffect::kHold))) {
+	if (ch->IsOnHorse() && (mount::GetHorse(ch)->GetPosition() < EPosition::kFight ||
+		AFF_FLAGGED(mount::GetHorse(ch), EAffect::kHold))) {
 		SendMsgToChar("Ваш скакун не в состоянии вынести вас из боя!\r\n", ch);
 		return;
 	}
@@ -49,7 +50,7 @@ void GoFlee(CharData *ch) {
 		act("$n запаниковал$g и попытал$u сбежать!", true, ch, nullptr, nullptr, kToRoom | kToArenaListen);
 		if (PerformSimpleMove(ch, direction, true, nullptr, EMoveType::kFlee)) {
 			if (ch->IsOnHorse()) {
-				act("Верн$W $N вынес$Q вас из боя.", false, ch, nullptr, ch->get_horse(), kToChar);
+				act("Верн$W $N вынес$Q вас из боя.", false, ch, nullptr, mount::GetHorse(ch), kToChar);
 			} else {
 				SendMsgToChar("Вы быстро убежали с поля битвы.\r\n", ch);
 			}

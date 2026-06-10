@@ -10,6 +10,7 @@
 **************************************************************************/
 
 #include "engine/entities/char_data.h"
+#include "gameplay/mechanics/mount.h"
 #include "engine/ui/cmd/do_follow.h"
 #include "gameplay/fight/fight.h"
 #include "engine/core/handler.h"
@@ -313,10 +314,10 @@ void do_wteleport(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, T
 //				wld_log(room, trig, "wteleport allchar target is itself");
 				continue;
 			}
-			if (ch->get_horse()) {
+			if (mount::GetHorse(ch)) {
 				if (ch->IsOnHorse() || ch->has_horse(true)) {
-					RemoveCharFromRoom(ch->get_horse());
-					PlaceCharToRoom(ch->get_horse(), target);
+					RemoveCharFromRoom(mount::GetHorse(ch));
+					PlaceCharToRoom(mount::GetHorse(ch), target);
 					onhorse = true;
 				}
 			}
@@ -352,10 +353,10 @@ void do_wteleport(RoomData *room, char *argument, int/* cmd*/, int/* subcmd*/, T
 					PlaceCharToRoom(charmee, target);
 				}
 			}
-			if (ch->get_horse()) {
+			if (mount::GetHorse(ch)) {
 				if (ch->IsOnHorse() || ch->has_horse(true)) {
-					RemoveCharFromRoom(ch->get_horse());
-					PlaceCharToRoom(ch->get_horse(), target);
+					RemoveCharFromRoom(mount::GetHorse(ch));
+					PlaceCharToRoom(mount::GetHorse(ch), target);
 					onhorse = true;
 				}
 			}

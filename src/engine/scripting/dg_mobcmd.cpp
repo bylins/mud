@@ -24,6 +24,7 @@
  ***************************************************************************/
 
 #include "engine/entities/char_data.h"
+#include "gameplay/mechanics/mount.h"
 #include "engine/ui/cmd/do_follow.h"
 #include "gameplay/fight/fight.h"
 #include "gameplay/fight/fight_hit.h"
@@ -558,10 +559,10 @@ void do_mteleport(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 //				mob_log(ch, trig, "mteleport allchar: target is itself");
 				continue;
 			}
-			if (vict->get_horse()) {
+			if (mount::GetHorse(vict)) {
 				if (vict->IsOnHorse() || vict->has_horse(true)) {
-					RemoveCharFromRoom(vict->get_horse());
-					PlaceCharToRoom(vict->get_horse(), target);
+					RemoveCharFromRoom(mount::GetHorse(vict));
+					PlaceCharToRoom(mount::GetHorse(vict), target);
 					onhorse = true;
 				}
 			}
@@ -606,10 +607,10 @@ void do_mteleport(CharData *ch, char *argument, int/* cmd*/, int/* subcmd*/, Tri
 				PlaceCharToRoom(charmee, target);
 			}
 		}
-		if (vict->get_horse()) {
+		if (mount::GetHorse(vict)) {
 			if (vict->IsOnHorse() || vict->has_horse(true)) {
-				RemoveCharFromRoom(vict->get_horse());
-				PlaceCharToRoom(vict->get_horse(), target);
+				RemoveCharFromRoom(mount::GetHorse(vict));
+				PlaceCharToRoom(mount::GetHorse(vict), target);
 				onhorse = true;
 			}
 		}

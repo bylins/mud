@@ -7,6 +7,7 @@
 */
 
 #include "engine/entities/char_data.h"
+#include "gameplay/mechanics/mount.h"
 #include "gameplay/skills/skills.h"
 #include "engine/db/global_objects.h"
 
@@ -20,7 +21,7 @@ void do_hide(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	}
 
 	if (ch->IsOnHorse()) {
-		act("А куда вы хотите спрятать $N3?", false, ch, nullptr, ch->get_horse(), kToChar);
+		act("А куда вы хотите спрятать $N3?", false, ch, nullptr, mount::GetHorse(ch), kToChar);
 		return;
 	}
 

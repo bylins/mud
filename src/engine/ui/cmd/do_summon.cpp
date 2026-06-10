@@ -7,12 +7,13 @@
 */
 
 #include "engine/entities/char_data.h"
+#include "gameplay/mechanics/mount.h"
 #include "engine/core/handler.h"
 #include "gameplay/mechanics/sight.h"
 
 void do_summon(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	CharData *horse = nullptr;
-	horse = ch->get_horse();
+	horse = mount::GetHorse(ch);
 	if (!horse) {
 		SendMsgToChar("У вас нет скакуна!\r\n", ch);
 		return;

@@ -13,6 +13,7 @@
 ************************************************************************ */
 
 #include "fight.h"
+#include "gameplay/mechanics/mount.h"
 #include "gameplay/skills/bash.h"
 #include "gameplay/skills/kick.h"
 #include "gameplay/skills/chopoff.h"
@@ -1621,12 +1622,12 @@ void using_mob_skills(CharData *ch) {
 				if (sk_num == ESkill::kBash) {
 					if (damager->IsOnHorse()) {
 						// Карачун. Правка бага. Лошадь не должна башить себя, если дерется с наездником.
-						if (damager->get_horse() == ch) {
+						if (mount::GetHorse(damager) == ch) {
 							ch->DropFromHorse();
 						} else {
 							sk_use = 0;
-							if (!damager->get_horse()->IsFlagged(EMobFlag::kNoFight)) {
-								go_bash(ch, damager->get_horse());
+							if (!mount::GetHorse(damager)->IsFlagged(EMobFlag::kNoFight)) {
+								go_bash(ch, mount::GetHorse(damager));
 							} else {
 								go_bash(ch, damager);
 							}
@@ -1639,8 +1640,8 @@ void using_mob_skills(CharData *ch) {
 				} else if (sk_num == ESkill::kChopoff) {
 					if (damager->IsOnHorse()) {
 						sk_use = 0;
-						if (!damager->get_horse()->IsFlagged(EMobFlag::kNoFight)) {
-							go_chopoff(ch, damager->get_horse());
+						if (!mount::GetHorse(damager)->IsFlagged(EMobFlag::kNoFight)) {
+							go_chopoff(ch, mount::GetHorse(damager));
 						} else {
 							go_chopoff(ch, damager);
 						}

@@ -9,6 +9,7 @@
 **************************************************************************/
 
 #include "dg_scripts.h"
+#include "gameplay/mechanics/mount.h"
 #include "engine/db/global_objects.h"
 #include "engine/db/obj_prototypes.h"
 #include "engine/db/utils_find_obj_id_by_vnum.h"
@@ -2880,11 +2881,11 @@ void find_replacement(void *go,
 			}
 		} else if (!str_cmp(field, "riding")) {
 			if (mob->has_horse(false)) {
-				snprintf(str, str_size, "%c%ld", uid_type, (mob->get_horse())->get_uid());
+				snprintf(str, str_size, "%c%ld", uid_type, (mount::GetHorse(mob))->get_uid());
 			}
 		} else if (!str_cmp(field, "riddenby")) {
 			if (IS_HORSE(mob) && mob->get_master()->IsOnHorse()
-				&& ((mob->get_master()->get_horse())->get_uid() == mob->get_uid())) {
+				&& ((mount::GetHorse(mob->get_master()))->get_uid() == mob->get_uid())) {
 				snprintf(str, str_size, "%c%ld", UID_CHAR, (mob->get_master())->get_uid());
 			}
 		} else if (!str_cmp(field, "realroom")) {

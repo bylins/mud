@@ -6,6 +6,7 @@
 #include "administration/privilege.h"
 #include "char_player.h"
 #include "gameplay/mechanics/player_races.h"
+#include "gameplay/mechanics/mount.h"   // issue.mount-mechanics: mount::GetHorse etc.
 #include "utils/cache.h"
 #include "gameplay/fight/fight.h"
 #include "gameplay/clans/house.h"
@@ -2087,7 +2088,7 @@ bool CharData::IsOnHorse() const {
 
 bool CharData::IsHorsePrevents() {
 	if (this->IsOnHorse()) {
-		act("Вам мешает $N.", false, this, 0, this->get_horse(), kToChar);
+		act("Вам мешает $N.", false, this, 0, mount::GetHorse(this), kToChar);
 		return true;
 	}
 	return false;
@@ -2104,7 +2105,7 @@ bool CharData::DropFromHorse() {
 		act("$N сбросил$G вас со своей спины.", false, plr, 0, this, kToChar);
 	} else	if (this->IsOnHorse()) {// вызвали для седока
 		plr = this;
-		act("Вы упали с $N1.", false, plr, 0, this->get_horse(), kToChar);
+		act("Вы упали с $N1.", false, plr, 0, mount::GetHorse(this), kToChar);
 	} else //не лошадь и не всадник
 		return false;
 	sprintf(buf, "%s свалил%s со своего скакуна.", GET_PAD(plr, 0), GET_CH_SUF_2(plr));
@@ -2118,26 +2119,14 @@ bool CharData::DropFromHorse() {
 }
 
 void CharData::dismount() {
-	if (!this->IsOnHorse() || this->get_horse() == nullptr)
+	if (!this->IsOnHorse() || mount::GetHorse(this) == nullptr)
 		return;
 	if (!this->IsNpc() && this->has_horse(true)) {
 		AFF_FLAGS(this).unset(EAffect::kHorse);
 	}
-	act("Вы слезли со спины $N1.", false, this, 0, this->get_horse(), kToChar);
-	act("$n соскочил$g с $N1.", false, this, 0, this->get_horse(), kToRoom | kToArenaListen);
+	act("Вы слезли со спины $N1.", false, this, 0, mount::GetHorse(this), kToChar);
+	act("$n соскочил$g с $N1.", false, this, 0, mount::GetHorse(this), kToRoom | kToArenaListen);
 }
-
-CharData *CharData::get_horse() {
-	if (this->IsNpc())
-		return nullptr;
-
-	for (auto *f : this->followers) {
-		if (f->IsNpc() && AFF_FLAGGED(f, EAffect::kHorse)) {
-			return f;
-		}
-	}
-	return nullptr;
-};
 
 obj_sets::activ_sum &CharData::obj_bonus() {
 	return obj_bonus_;

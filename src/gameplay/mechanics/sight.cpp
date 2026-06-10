@@ -6,6 +6,7 @@
 */
 
 #include "sight.h"
+#include "gameplay/mechanics/mount.h"
 #include "gameplay/mechanics/magic_item.h"
 #include "gameplay/affects/affect_messages.h"
 
@@ -1868,7 +1869,7 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 
 	if (i->GetPosition() != EPosition::kFight) {
 		if (i->IsOnHorse()) {
-			CharData *horse = i->get_horse();
+			CharData *horse = mount::GetHorse(i);
 			if (horse) {
 				const char *msg =
 					AFF_FLAGGED(horse, EAffect::kFly) ? "летает" : "сидит";
@@ -1900,14 +1901,14 @@ void ListOneChar(CharData *i, CharData *ch, ESkill mode) {
 			else
 				strcat(buf, GET_PAD(i->GetEnemy(), 4));
 			if (i->IsOnHorse())
-				sprintf(buf + strlen(buf), ", сидя верхом на %s! ", PERS(i->get_horse(), ch, 5));
+				sprintf(buf + strlen(buf), ", сидя верхом на %s! ", PERS(mount::GetHorse(i), ch, 5));
 			else
 				strcat(buf, "! ");
 		} else        // NIL fighting pointer
 		{
 			strcat(buf, IS_POLY(i) ? "колотят по воздуху" : "колотит по воздуху");
 			if (i->IsOnHorse())
-				sprintf(buf + strlen(buf), ", сидя верхом на %s. ", PERS(i->get_horse(), ch, 5));
+				sprintf(buf + strlen(buf), ", сидя верхом на %s. ", PERS(mount::GetHorse(i), ch, 5));
 			else
 				strcat(buf, ". ");
 		}

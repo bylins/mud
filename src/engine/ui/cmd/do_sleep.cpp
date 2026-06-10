@@ -6,6 +6,7 @@
 */
 
 #include "engine/entities/char_data.h"
+#include "gameplay/mechanics/mount.h"
 
 void do_sleep(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 	if (GetRealLevel(ch) >= kLvlImmortal) {
@@ -13,7 +14,7 @@ void do_sleep(CharData *ch, char * /*argument*/, int/* cmd*/, int/* subcmd*/) {
 		return;
 	}
 	if (ch->IsOnHorse()) {
-		act("Прежде всего, вам стоит слезть с $N1.", false, ch, nullptr, ch->get_horse(), kToChar);
+		act("Прежде всего, вам стоит слезть с $N1.", false, ch, nullptr, mount::GetHorse(ch), kToChar);
 		return;
 	}
 	switch (ch->GetPosition()) {
